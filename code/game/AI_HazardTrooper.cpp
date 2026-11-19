@@ -109,47 +109,47 @@ static void HT_Speech( gentity_t *self, speechType_t speechType, float failChanc
 
 	switch( speechType )
 	{
-	case SPEECH_CHASE:
-		G_AddVoiceEvent( self, Q_irand(EV_CHASE1, EV_CHASE3), 2000 );
+	case speechType_t::SPEECH_CHASE:
+		G_AddVoiceEvent( self, Q_irand(entity_event_t::EV_CHASE1, entity_event_t::EV_CHASE3), 2000 );
 		break;
-	case SPEECH_CONFUSED:
-		G_AddVoiceEvent( self, Q_irand(EV_CONFUSE1, EV_CONFUSE3), 2000 );
+	case speechType_t::SPEECH_CONFUSED:
+		G_AddVoiceEvent( self, Q_irand(entity_event_t::EV_CONFUSE1, entity_event_t::EV_CONFUSE3), 2000 );
 		break;
-	case SPEECH_COVER:
-		G_AddVoiceEvent( self, Q_irand(EV_COVER1, EV_COVER5), 2000 );
+	case speechType_t::SPEECH_COVER:
+		G_AddVoiceEvent( self, Q_irand(entity_event_t::EV_COVER1, entity_event_t::EV_COVER5), 2000 );
 		break;
-	case SPEECH_DETECTED:
-		G_AddVoiceEvent( self, Q_irand(EV_DETECTED1, EV_DETECTED5), 2000 );
+	case speechType_t::SPEECH_DETECTED:
+		G_AddVoiceEvent( self, Q_irand(entity_event_t::EV_DETECTED1, entity_event_t::EV_DETECTED5), 2000 );
 		break;
-	case SPEECH_GIVEUP:
-		G_AddVoiceEvent( self, Q_irand(EV_GIVEUP1, EV_GIVEUP4), 2000 );
+	case speechType_t::SPEECH_GIVEUP:
+		G_AddVoiceEvent( self, Q_irand(entity_event_t::EV_GIVEUP1, entity_event_t::EV_GIVEUP4), 2000 );
 		break;
-	case SPEECH_LOOK:
-		G_AddVoiceEvent( self, Q_irand(EV_LOOK1, EV_LOOK2), 2000 );
+	case speechType_t::SPEECH_LOOK:
+		G_AddVoiceEvent( self, Q_irand(entity_event_t::EV_LOOK1, entity_event_t::EV_LOOK2), 2000 );
 		break;
-	case SPEECH_LOST:
-		G_AddVoiceEvent( self, EV_LOST1, 2000 );
+	case speechType_t::SPEECH_LOST:
+		G_AddVoiceEvent( self, entity_event_t::EV_LOST1, 2000 );
 		break;
-	case SPEECH_OUTFLANK:
-		G_AddVoiceEvent( self, Q_irand(EV_OUTFLANK1, EV_OUTFLANK2), 2000 );
+	case speechType_t::SPEECH_OUTFLANK:
+		G_AddVoiceEvent( self, Q_irand(entity_event_t::EV_OUTFLANK1, entity_event_t::EV_OUTFLANK2), 2000 );
 		break;
-	case SPEECH_ESCAPING:
-		G_AddVoiceEvent( self, Q_irand(EV_ESCAPING1, EV_ESCAPING3), 2000 );
+	case speechType_t::SPEECH_ESCAPING:
+		G_AddVoiceEvent( self, Q_irand(entity_event_t::EV_ESCAPING1, entity_event_t::EV_ESCAPING3), 2000 );
 		break;
-	case SPEECH_SIGHT:
-		G_AddVoiceEvent( self, Q_irand(EV_SIGHT1, EV_SIGHT3), 2000 );
+	case speechType_t::SPEECH_SIGHT:
+		G_AddVoiceEvent( self, Q_irand(entity_event_t::EV_SIGHT1, entity_event_t::EV_SIGHT3), 2000 );
 		break;
-	case SPEECH_SOUND:
-		G_AddVoiceEvent( self, Q_irand(EV_SOUND1, EV_SOUND3), 2000 );
+	case speechType_t::SPEECH_SOUND:
+		G_AddVoiceEvent( self, Q_irand(entity_event_t::EV_SOUND1, entity_event_t::EV_SOUND3), 2000 );
 		break;
-	case SPEECH_SUSPICIOUS:
-		G_AddVoiceEvent( self, Q_irand(EV_SUSPICIOUS1, EV_SUSPICIOUS5), 2000 );
+	case speechType_t::SPEECH_SUSPICIOUS:
+		G_AddVoiceEvent( self, Q_irand(entity_event_t::EV_SUSPICIOUS1, entity_event_t::EV_SUSPICIOUS5), 2000 );
 		break;
-	case SPEECH_YELL:
-		G_AddVoiceEvent( self, Q_irand( EV_ANGER1, EV_ANGER3 ), 2000 );
+	case speechType_t::SPEECH_YELL:
+		G_AddVoiceEvent( self, Q_irand( entity_event_t::EV_ANGER1, entity_event_t::EV_ANGER3 ), 2000 );
 		break;
-	case SPEECH_PUSHED:
-		G_AddVoiceEvent( self, Q_irand( EV_PUSHED1, EV_PUSHED3 ), 2000 );
+	case speechType_t::SPEECH_PUSHED:
+		G_AddVoiceEvent( self, Q_irand( entity_event_t::EV_PUSHED1, entity_event_t::EV_PUSHED3 ), 2000 );
 		break;
 	default:
 		break;
@@ -193,9 +193,9 @@ public:
 	{
 		mActors.clear();
 		mTarget			= nullptr;
-		mState			= TS_NONE;
+		mState			= ETroopState::TS_NONE;
 		mTroopHandle	= TroopHandle;
-		mTroopTeam		= TEAM_FREE;
+		mTroopTeam		= team_t::TEAM_FREE;
 		mTroopReform	= false;
 	}
 	////////////////////////////////////////////////////////////////////////////////////
@@ -241,7 +241,7 @@ private:
 		mActors[0]->client->leader = mActors[0];
 		if (mActors[0])
 		{
-			if (mActors[0]->client->NPC_class==CLASS_HAZARD_TROOPER)
+			if (mActors[0]->client->NPC_class==class_t::CLASS_HAZARD_TROOPER)
 			{
 				mFormSpacingFwd		= 75.0f;
 				mFormSpacingRight	= 50.0f;
@@ -268,7 +268,7 @@ public:
 		{
 			MakeActorLeader(mActors.size()-1);
 		}
-		if (mTroopTeam == TEAM_FREE)
+		if (mTroopTeam == team_t::TEAM_FREE)
 		{
 			mTroopTeam = actor->client->playerTeam;
 		}
@@ -338,11 +338,11 @@ private:
 	{
 		if (!mTarget)
 		{
-			HT_Speech(mActors[0], SPEECH_DETECTED, 0);
+			HT_Speech(mActors[0], speechType_t::SPEECH_DETECTED, 0);
 		}
 		else if ((level.time - mTargetLastKnownTime)>8000)
 		{
-			HT_Speech(mActors[0], SPEECH_SIGHT, 0);
+			HT_Speech(mActors[0], speechType_t::SPEECH_SIGHT, 0);
 		}
 
 		if (visable)
@@ -353,7 +353,7 @@ private:
 				mTargetVisableStartTime = level.time;
 			}
 
- 			CalcEntitySpot(target, SPOT_HEAD, mTargetVisablePosition.v);
+ 			CalcEntitySpot(target, spot_t::SPOT_HEAD, mTargetVisablePosition.v);
 			mTargetVisablePosition[2] -= 10.0f;
 		}
 
@@ -399,7 +399,7 @@ private:
 	float			TargetVisibility(gentity_t*	target)
 	{
 		float	Scale = 0.8f;
-		if (target->client && target->client->ps.weapon==WP_SABER && target->client->ps.SaberActive())
+		if (target->client && target->client->ps.weapon==weapon_t::WP_SABER && target->client->ps.SaberActive())
 		{
 			Scale += 0.1f;
 		}
@@ -413,7 +413,7 @@ private:
 	{
 		float	Scale = 0.1f;
 		Scale	+= target->resultspeed / (float)g_speed->integer;
-		if (target->client && target->client->ps.weapon==WP_SABER && target->client->ps.SaberActive())
+		if (target->client && target->client->ps.weapon==weapon_t::WP_SABER && target->client->ps.SaberActive())
 		{
 			Scale += 0.2f;
 		}
@@ -538,7 +538,6 @@ private:
 
 		TS_MAX
 	};
-	using enum ETroopState;
 	ETroopState		mState;
 
 	CVec3			mFormHead;
@@ -627,49 +626,49 @@ private:
 			{
 				switch (NextState)
 				{
-				case (TS_ADVANCE_REGROUP) :
+				case (ETroopState::TS_ADVANCE_REGROUP) :
 					{
 						break;
 					}
-				case (TS_ADVANCE_SEARCH) :
+				case (ETroopState::TS_ADVANCE_SEARCH) :
 					{
-						HT_Speech(leader, SPEECH_LOOK, 0);
+						HT_Speech(leader, speechType_t::SPEECH_LOOK, 0);
 						break;
 					}
-				case (TS_ADVANCE_COVER) :
+				case (ETroopState::TS_ADVANCE_COVER) :
 					{
-						HT_Speech(leader, SPEECH_COVER, 0);
-						NPC_SetAnim(leader, SETANIM_TORSO, TORSO_HANDSIGNAL4, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLDLESS);
+						HT_Speech(leader, speechType_t::SPEECH_COVER, 0);
+						NPC_SetAnim(leader, setAnimParts_t::SETANIM_TORSO, animNumber_t::TORSO_HANDSIGNAL4, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLDLESS);
 						break;
 					}
-				case (TS_ADVANCE_FORMATION) :
+				case (ETroopState::TS_ADVANCE_FORMATION) :
 					{
-						HT_Speech(leader, SPEECH_ESCAPING, 0);
+						HT_Speech(leader, speechType_t::SPEECH_ESCAPING, 0);
 						break;
 					}
 
 
-				case (TS_ATTACK_LINE) :
+				case (ETroopState::TS_ATTACK_LINE) :
 					{
-						HT_Speech(leader, SPEECH_CHASE, 0);
-						NPC_SetAnim(leader, SETANIM_TORSO, TORSO_HANDSIGNAL1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLDLESS);
+						HT_Speech(leader, speechType_t::SPEECH_CHASE, 0);
+						NPC_SetAnim(leader, setAnimParts_t::SETANIM_TORSO, animNumber_t::TORSO_HANDSIGNAL1, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLDLESS);
 						break;
 					}
-				case (TS_ATTACK_FLANK) :
+				case (ETroopState::TS_ATTACK_FLANK) :
 					{
-						HT_Speech(leader, SPEECH_OUTFLANK, 0);
-						NPC_SetAnim(leader, SETANIM_TORSO, TORSO_HANDSIGNAL3, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLDLESS);
+						HT_Speech(leader, speechType_t::SPEECH_OUTFLANK, 0);
+						NPC_SetAnim(leader, setAnimParts_t::SETANIM_TORSO, animNumber_t::TORSO_HANDSIGNAL3, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLDLESS);
 						break;
 					}
-				case (TS_ATTACK_SURROUND) :
+				case (ETroopState::TS_ATTACK_SURROUND) :
 					{
-						HT_Speech(leader, SPEECH_GIVEUP, 0);
-						NPC_SetAnim(leader, SETANIM_TORSO, TORSO_HANDSIGNAL2, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLDLESS);
+						HT_Speech(leader, speechType_t::SPEECH_GIVEUP, 0);
+						NPC_SetAnim(leader, setAnimParts_t::SETANIM_TORSO, animNumber_t::TORSO_HANDSIGNAL2, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLDLESS);
 						break;
 					}
-				case (TS_ATTACK_COVER) :
+				case (ETroopState::TS_ATTACK_COVER) :
 					{
-						HT_Speech(leader, SPEECH_COVER, 0);
+						HT_Speech(leader, speechType_t::SPEECH_COVER, 0);
 						break;
 					}
 				default:
@@ -681,7 +680,7 @@ private:
 
 		// If Attacking, And Not Forced To Reform, Don't Recalculate Orders
 		//------------------------------------------------------------------
-		else if (NextState>TS_ATTACK && !mTroopReform)
+		else if (NextState>ETroopState::TS_ATTACK && !mTroopReform)
 		{
 			return;
 		}
@@ -707,7 +706,7 @@ private:
 
 		// If Attacking, Move Head Forward Some To Center On Target
 		//----------------------------------------------------------
- 		if (NextState>TS_ATTACK)
+ 		if (NextState>ETroopState::TS_ATTACK)
 		{
  			if (!mTroopReform)
 			{
@@ -728,7 +727,7 @@ private:
 					mOrders[0].mPosition.v,
 					mActors[0]->s.number,
 					mActors[0]->clipmask,
-					G2_NOCOLLIDE,
+					EG2_Collision::G2_NOCOLLIDE,
 					0
 					);
 
@@ -781,14 +780,14 @@ private:
 
 			// Advance Orders
 			//----------------
-			if (NextState<TS_ATTACK)
+			if (NextState<ETroopState::TS_ATTACK)
 			{
-				if ((NextState==TS_ADVANCE_REGROUP) ||	(NextState==TS_ADVANCE_SEARCH) || (NextState==TS_ADVANCE_FORMATION))
+				if ((NextState==ETroopState::TS_ADVANCE_REGROUP) ||	(NextState==ETroopState::TS_ADVANCE_SEARCH) || (NextState==ETroopState::TS_ADVANCE_FORMATION))
 				{
 					Order.mPosition.ScaleAdd(mFormFwd,		FwdScale);
 					Order.mPosition.ScaleAdd(mFormRight,	SideScale);
 				}
-				else if (NextState==TS_ADVANCE_COVER)
+				else if (NextState==ETroopState::TS_ADVANCE_COVER)
 				{
 					// TODO: Take Turns Switching Who Is In Front
 					Order.mPosition.ScaleAdd(mFormFwd,		FwdScale);
@@ -800,14 +799,14 @@ private:
 			//-----------------------------
 			else
 			{
-				if (NextState==TS_ATTACK_LINE || (NextState==TS_ATTACK_FLANK && actorIndex<4))
+				if (NextState==ETroopState::TS_ATTACK_LINE || (NextState==ETroopState::TS_ATTACK_FLANK && actorIndex<4))
 				{
 					Order.mPosition.ScaleAdd(mFormFwd,		FwdScale);
 					Order.mPosition.ScaleAdd(mFormRight,		SideScale);
 				}
-				else if (NextState==TS_ATTACK_FLANK && actorIndex>=4)
+				else if (NextState==ETroopState::TS_ATTACK_FLANK && actorIndex>=4)
 				{
-					combatPointSearchFlags_t		cpFlags = (CP_HAS_ROUTE|CP_AVOID_ENEMY|CP_CLEAR|CP_COVER|CP_FLANK|CP_APPROACH_ENEMY);
+					combatPointSearchFlags_t		cpFlags = (combatPointSearchFlags_t::CP_HAS_ROUTE|combatPointSearchFlags_t::CP_AVOID_ENEMY|combatPointSearchFlags_t::CP_CLEAR|combatPointSearchFlags_t::CP_COVER|combatPointSearchFlags_t::CP_FLANK|combatPointSearchFlags_t::CP_APPROACH_ENEMY);
 					float	avoidDist = 128.0f;
 
 					Order.mCombatPoint = NPC_FindCombatPointRetry(
@@ -818,7 +817,7 @@ private:
 											avoidDist,
 											0);
 
-					if (Order.mCombatPoint!=-1 && Any(cpFlags&CP_CLEAR))
+					if (Order.mCombatPoint!=-1 && Any(cpFlags&combatPointSearchFlags_t::CP_CLEAR))
 					{
 						Order.mPosition = level.combatPoints[Order.mCombatPoint].origin;
 						NPC_SetCombatPoint(Order.mCombatPoint);
@@ -829,7 +828,7 @@ private:
 						Order.mPosition.ScaleAdd(mFormRight,		SideScale);
 					}
 				}
-				else if (NextState==TS_ATTACK_SURROUND)
+				else if (NextState==ETroopState::TS_ATTACK_SURROUND)
 				{
 					Order.mPosition.ScaleAdd(mFormFwd,		FwdScale);
 					Order.mPosition.ScaleAdd(mFormRight,		SideScale);
@@ -842,14 +841,14 @@ private:
 					Order.mPosition.ScaleAdd(FanAngles,		FormTgtToHeadDist);
 */
 				}
-				else if (NextState==TS_ATTACK_COVER)
+				else if (NextState==ETroopState::TS_ATTACK_COVER)
 				{
 					Order.mPosition.ScaleAdd(mFormFwd,		FwdScale);
 					Order.mPosition.ScaleAdd(mFormRight,		SideScale);
 				}
 			}
 
-			if (NextState>=TS_ATTACK)
+			if (NextState>=ETroopState::TS_ATTACK)
 			{
 				trace_t	trace;
 				CVec3	OrderUp(Order.mPosition);
@@ -861,13 +860,13 @@ private:
 					mActors[actorIndex]->maxs,
 					OrderUp.v,
 					mActors[actorIndex]->s.number,
-					CONTENTS_SOLID|CONTENTS_TERRAIN|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP,
-					G2_NOCOLLIDE,
+					contentsFlags_t::CONTENTS_SOLID|contentsFlags_t::CONTENTS_TERRAIN|contentsFlags_t::CONTENTS_MONSTERCLIP|contentsFlags_t::CONTENTS_BOTCLIP,
+					EG2_Collision::G2_NOCOLLIDE,
 					0);
 
 				if (trace.startsolid || trace.allsolid)
 				{
-					combatPointSearchFlags_t		cpFlags = (CP_HAS_ROUTE|CP_AVOID_ENEMY|CP_CLEAR|CP_COVER|CP_FLANK|CP_APPROACH_ENEMY);
+					combatPointSearchFlags_t		cpFlags = (combatPointSearchFlags_t::CP_HAS_ROUTE|combatPointSearchFlags_t::CP_AVOID_ENEMY|combatPointSearchFlags_t::CP_CLEAR|combatPointSearchFlags_t::CP_COVER|combatPointSearchFlags_t::CP_FLANK|combatPointSearchFlags_t::CP_APPROACH_ENEMY);
 					float	avoidDist = 128.0f;
 
 					Order.mCombatPoint = NPC_FindCombatPointRetry(
@@ -934,15 +933,15 @@ public:
 			{
 				// If Not Currently Attacking, Or We Want To Pick A New Attack Tactic
 				//--------------------------------------------------------------------
-				if (mState<TS_ATTACK /*|| TODO: Timer To Pick New Tactic */)
+				if (mState<ETroopState::TS_ATTACK /*|| TODO: Timer To Pick New Tactic */)
 				{
 					if (TroopInFormation())
 					{
-						NextState = (mActors.size()>4)?(TS_ATTACK_FLANK):(TS_ATTACK_LINE);
+						NextState = (mActors.size()>4)?(ETroopState::TS_ATTACK_FLANK):(ETroopState::TS_ATTACK_LINE);
 					}
 					else
 					{
-						NextState = (SufficientCoverNearby())?(TS_ATTACK_COVER):(TS_ATTACK_SURROUND);
+						NextState = (SufficientCoverNearby())?(ETroopState::TS_ATTACK_COVER):(ETroopState::TS_ATTACK_SURROUND);
 					}
 				}
 			}
@@ -950,17 +949,17 @@ public:
 			{
 				if (!TroopInFormation())
 				{
-					NextState = TS_ADVANCE_REGROUP;
+					NextState = ETroopState::TS_ADVANCE_REGROUP;
 				}
 				else
 				{
 					if (TargetLastKnownPositionVisited())
 					{
-						NextState = TS_ADVANCE_SEARCH;
+						NextState = ETroopState::TS_ADVANCE_SEARCH;
 					}
 					else
 					{
-						NextState = (TimeSinceLastSeen<10000)?(TS_ADVANCE_COVER):(TS_ADVANCE_FORMATION);
+						NextState = (TimeSinceLastSeen<10000)?(ETroopState::TS_ADVANCE_COVER):(ETroopState::TS_ADVANCE_FORMATION);
 					}
 				}
 			}
@@ -1140,8 +1139,8 @@ void		Trooper_UpdateTroop(gentity_t* actor)
 						actor->maxs,
 						iTroop->TroopLeader()->currentOrigin,
 						actor->s.number,
-						CONTENTS_SOLID|CONTENTS_TERRAIN|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP,
-						G2_NOCOLLIDE,
+						contentsFlags_t::CONTENTS_SOLID|contentsFlags_t::CONTENTS_TERRAIN|contentsFlags_t::CONTENTS_MONSTERCLIP|contentsFlags_t::CONTENTS_BOTCLIP,
+						EG2_Collision::G2_NOCOLLIDE,
 						0);
 
 					if (!trace.allsolid &&
@@ -1206,7 +1205,7 @@ void		Trooper_UpdateTroop(gentity_t* actor)
 ////////////////////////////////////////////////////////////////////////////////////////
 bool		Trooper_UpdateSmackAway(gentity_t* actor, gentity_t* target)
 {
- 	if (actor->client->ps.legsAnim==BOTH_MELEE1)
+ 	if (actor->client->ps.legsAnim==animNumber_t::BOTH_MELEE1)
 	{
 		if (TIMER_Done(actor, "Trooper_SmackAway"))
 		{
@@ -1232,9 +1231,9 @@ bool		Trooper_UpdateSmackAway(gentity_t* actor, gentity_t* target)
 void		Trooper_SmackAway(gentity_t* actor, gentity_t* target)
 {
 	assert(actor && actor->NPC);
- 	if (actor->client->ps.legsAnim!=BOTH_MELEE1)
+ 	if (actor->client->ps.legsAnim!=animNumber_t::BOTH_MELEE1)
 	{
-		NPC_SetAnim(actor, SETANIM_BOTH, BOTH_MELEE1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD);
+		NPC_SetAnim(actor, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_MELEE1, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD);
 		TIMER_Set(actor, "Trooper_SmackAway",			actor->client->ps.torsoAnimTimer/4.0f);
 	}
 }
@@ -1245,7 +1244,7 @@ void		Trooper_SmackAway(gentity_t* actor, gentity_t* target)
 ////////////////////////////////////////////////////////////////////////////////////////
 bool		Trooper_Kneeling(gentity_t* actor)
 {
-	return (Any(actor->NPC->aiFlags&NPCAI_KNEEL) || actor->client->ps.legsAnim==BOTH_STAND_TO_KNEEL);
+	return (Any(actor->NPC->aiFlags&npcAiFlags_t::NPCAI_KNEEL) || actor->client->ps.legsAnim==animNumber_t::BOTH_STAND_TO_KNEEL);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -1256,8 +1255,8 @@ void		Trooper_KneelDown(gentity_t* actor)
 	assert(actor && actor->NPC);
 	if (!Trooper_Kneeling(actor) && level.time>actor->NPC->kneelTime)
 	{
-		NPC_SetAnim(actor, SETANIM_BOTH, BOTH_STAND_TO_KNEEL, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD);
-		actor->NPC->aiFlags |=  NPCAI_KNEEL;
+		NPC_SetAnim(actor, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_STAND_TO_KNEEL, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD);
+		actor->NPC->aiFlags |=  npcAiFlags_t::NPCAI_KNEEL;
 		actor->NPC->kneelTime = level.time + Q_irand(3000, 6000);
 	}
 }
@@ -1270,8 +1269,8 @@ void		Trooper_StandUp(gentity_t* actor, bool always=false)
 	assert(actor && actor->NPC);
 	if (Trooper_Kneeling(actor) && (always || level.time>actor->NPC->kneelTime))
 	{
-		actor->NPC->aiFlags &= ~NPCAI_KNEEL;
-		NPC_SetAnim(actor, SETANIM_BOTH, BOTH_KNEEL_TO_STAND, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD);
+		actor->NPC->aiFlags &= ~npcAiFlags_t::NPCAI_KNEEL;
+		NPC_SetAnim(actor, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_KNEEL_TO_STAND, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD);
 		actor->NPC->kneelTime = level.time + Q_irand(3000, 6000);
 	}
 }
@@ -1283,7 +1282,7 @@ int			Trooper_CanHitTarget(gentity_t* actor, gentity_t* target, CTroop& troop, f
 {
 	trace_t	tr;
 	CVec3	MuzzlePoint(actor->currentOrigin);
-	 		CalcEntitySpot(actor, SPOT_WEAPON, MuzzlePoint.v);
+	 		CalcEntitySpot(actor, spot_t::SPOT_WEAPON, MuzzlePoint.v);
 
 			MuzzleToTarget = troop.TargetVisablePosition();
 			MuzzleToTarget			-= MuzzlePoint;
@@ -1299,7 +1298,7 @@ int			Trooper_CanHitTarget(gentity_t* actor, gentity_t* target, CTroop& troop, f
 	{
 		// Clear Line Of Sight To Target?
 		//--------------------------------
-		gi.trace(&tr, MuzzlePoint.v, nullptr, nullptr, troop.TargetVisablePosition().v, actor->s.number, MASK_SHOT, G2_NOCOLLIDE, 0);
+		gi.trace(&tr, MuzzlePoint.v, nullptr, nullptr, troop.TargetVisablePosition().v, actor->s.number, MASK_SHOT, EG2_Collision::G2_NOCOLLIDE, 0);
 		if (tr.startsolid || tr.allsolid)
 		{
 			return ENTITYNUM_NONE;
@@ -1356,7 +1355,7 @@ void		Trooper_Think(gentity_t* actor)
 
 		if (false)
 		{
-			CG_DrawEdge(actor->currentOrigin, actor->pos1, EDGE_IMPACT_SAFE);
+			CG_DrawEdge(actor->currentOrigin, actor->pos1, edgeType_t::EDGE_IMPACT_SAFE);
 		}
 
 		// If There, Stop Moving
@@ -1452,7 +1451,7 @@ void		Trooper_Think(gentity_t* actor)
 							g_entities[traceTgt].client->playerTeam==actor->client->playerTeam &&
 							NPC_IsTrooper(&g_entities[traceTgt]) &&
 							g_entities[traceTgt].resultspeed<1.0f &&
-							!Any(g_entities[traceTgt].NPC->aiFlags & NPCAI_KNEEL))
+							!Any(g_entities[traceTgt].NPC->aiFlags & npcAiFlags_t::NPCAI_KNEEL))
 				{
 					Trooper_KneelDown(&g_entities[traceTgt]);
 				}
@@ -1513,19 +1512,19 @@ void NPC_BehaviorSet_Trooper( bState_t bState )
 	Trooper_UpdateTroop(NPC);
 	switch( bState )
 	{
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-	case BS_STAND_AND_SHOOT:
-	case BS_HUNT_AND_KILL:
-	case BS_DEFAULT:
+	case bState_t::BS_STAND_GUARD:
+	case bState_t::BS_PATROL:
+	case bState_t::BS_STAND_AND_SHOOT:
+	case bState_t::BS_HUNT_AND_KILL:
+	case bState_t::BS_DEFAULT:
 		Trooper_Think(NPC);
 		break;
 
-	case BS_INVESTIGATE:
+	case bState_t::BS_INVESTIGATE:
 		NPC_BSST_Investigate();
 		break;
 
-	case BS_SLEEP:
+	case bState_t::BS_SLEEP:
 		NPC_BSST_Sleep();
 		break;
 
@@ -1543,9 +1542,9 @@ bool NPC_IsTrooper(gentity_t* actor)
 	return (
 		actor &&
 		actor->NPC &&
-		actor->s.weapon != WP_NONE &&
-		!!Any(actor->NPC->scriptFlags&SCF_NO_GROUPS)// &&
-//		 !Any(actor->NPC->scriptFlags&SCF_CHASE_ENEMIES)
+		actor->s.weapon != weapon_t::WP_NONE &&
+		!!Any(actor->NPC->scriptFlags&scriptFlags_t::SCF_NO_GROUPS)// &&
+//		 !Any(actor->NPC->scriptFlags&scriptFlags_t::SCF_CHASE_ENEMIES)
 		 );
 }
 

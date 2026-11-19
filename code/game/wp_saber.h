@@ -50,7 +50,6 @@ enum class saberLockResult_t
 	LOCK_STALEMATE,//neither side won
 	LOCK_DRAW//both people fall back
 };
-using enum saberLockResult_t;
 
 enum class sabersLockMode_t
 {
@@ -68,7 +67,6 @@ enum class sabersLockMode_t
 	LOCK_KYLE_GRAB3,
 	LOCK_FORCE_DRAIN
 };
-using enum sabersLockMode_t;
 template <> inline constexpr bool enableEnumArithmetic<sabersLockMode_t> = true;
 
 enum class saberLockType_t
@@ -81,7 +79,6 @@ enum class saberLockType_t
 	SABERLOCK_WIN,
 	SABERLOCK_LOSE
 };
-using enum saberLockType_t;
 
 enum class direction_t
 {
@@ -90,7 +87,6 @@ enum class direction_t
 	DIR_FRONT,
 	DIR_BACK
 };
-using enum direction_t;
 
 inline constexpr int FORCE_LIGHTSIDE = 1;
 inline constexpr int FORCE_DARKSIDE = 2;
@@ -148,26 +144,25 @@ enum class matrixEffectFlags_t
 	MEF_MULTI_SPIN			= 0x000040,	//spin once every second, until the effect stops
 	MEF_LOOK_AT_ENEMY		= 0x000200,
 };
-using enum matrixEffectFlags_t;
 template <> inline constexpr bool enableEnumFlags<matrixEffectFlags_t> = true;
 
 inline constexpr int SABER_PITCH_HACK = 90;
 
-extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceJumpStrength;
-extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceJumpHeight;
-extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceJumpHeightMax;
+extern EnumArray<float, forcePowerLevels_t, forcePowerLevels_t::NUM_FORCE_POWER_LEVELS> forceJumpStrength;
+extern EnumArray<float, forcePowerLevels_t, forcePowerLevels_t::NUM_FORCE_POWER_LEVELS> forceJumpHeight;
+extern EnumArray<float, forcePowerLevels_t, forcePowerLevels_t::NUM_FORCE_POWER_LEVELS> forceJumpHeightMax;
 
-extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forcePushPullRadius;
+extern EnumArray<float, forcePowerLevels_t, forcePowerLevels_t::NUM_FORCE_POWER_LEVELS> forcePushPullRadius;
 
 extern void ForceSpeed( gentity_t *self, int duration = 0 );
-extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceSpeedValue;
-extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceSpeedRangeMod;
-extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceSpeedFOVMod;
-extern const EnumArray<const char *, saber_colors_t, to_underlying( SABER_PURPLE ) + 1> saberColorStringForColor;
+extern EnumArray<float, forcePowerLevels_t, forcePowerLevels_t::NUM_FORCE_POWER_LEVELS> forceSpeedValue;
+extern EnumArray<float, forcePowerLevels_t, forcePowerLevels_t::NUM_FORCE_POWER_LEVELS> forceSpeedRangeMod;
+extern EnumArray<float, forcePowerLevels_t, forcePowerLevels_t::NUM_FORCE_POWER_LEVELS> forceSpeedFOVMod;
+extern const EnumArray<const char *, saber_colors_t, to_underlying( saber_colors_t::SABER_PURPLE ) + 1> saberColorStringForColor;
 inline constexpr float FORCE_SPEED_DURATION = 10000.0f;
 inline constexpr float FORCE_RAGE_DURATION = 10000.0f;
 
-inline constexpr contentsFlags_t MASK_FORCE_PUSH = MASK_OPAQUE | CONTENTS_SOLID;
+inline constexpr contentsFlags_t MASK_FORCE_PUSH = MASK_OPAQUE | contentsFlags_t::CONTENTS_SOLID;
 
 enum class forceJump_t
 {
@@ -177,11 +172,10 @@ enum class forceJump_t
 	FJ_LEFT,
 	FJ_UP
 };
-using enum forceJump_t;
 
 inline constexpr float FORCE_JUMP_CHARGE_TIME = 1000.0f;	//Force jump reaches maximum power in one second
 
-inline constexpr int FORCE_POWERS_ROSH_FROM_TWINS = Bit( FP_SPEED )|Bit( FP_GRIP )|Bit( FP_RAGE )|Bit( FP_SABERTHROW );
+inline constexpr int FORCE_POWERS_ROSH_FROM_TWINS = Bit( forcePowers_t::FP_SPEED )|Bit( forcePowers_t::FP_GRIP )|Bit( forcePowers_t::FP_RAGE )|Bit( forcePowers_t::FP_SABERTHROW );
 
 extern void WP_InitForcePowers( gentity_t *ent );
 extern forceJump_t WP_GetVelocityForForceJump( gentity_t *self, vec3_t jumpVel, usercmd_t *ucmd );
@@ -189,9 +183,9 @@ extern int WP_SaberInitBladeData( gentity_t *ent );
 extern void G_CreateG2AttachedWeaponModel( gentity_t *ent, const char *weaponModel, int boltNum, int weaponNum );
 extern void WP_SaberAddG2SaberModels( gentity_t *ent, int specificSaberNum = -1 );
 extern bool WP_SaberParseParms( const char *SaberName, saberInfo_t *saber, bool setColors = true );
-extern bool WP_BreakSaber( gentity_t *ent, const char *surfName, saberType_t saberType = SABER_NONE );
+extern bool WP_BreakSaber( gentity_t *ent, const char *surfName, saberType_t saberType = saberType_t::SABER_NONE );
 extern void ForceThrow( gentity_t *self, bool pull, bool fake = false );
-extern bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, hitLocation_t *hitLoc, vec3_t point, vec3_t dir, vec3_t bladeDir, meansOfDeath_t mod, saberType_t saberType = SABER_NONE );
+extern bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, hitLocation_t *hitLoc, vec3_t point, vec3_t dir, vec3_t bladeDir, meansOfDeath_t mod, saberType_t saberType = saberType_t::SABER_NONE );
 extern bool G_CheckEnemyPresence( gentity_t *ent, direction_t dir, float radius, float tolerance = 0.75f );
 extern void WP_SaberFreeStrings( saberInfo_t &saber );
 extern bool G_EnoughPowerForSpecialMove( int forcePower, int cost, bool kataMove = false );
@@ -213,7 +207,6 @@ enum class evasionType_t
 	EVASION_OTHER,
 	NUM_EVASION_TYPES
 };
-using enum evasionType_t;
 
 enum class swingType_t
 {
@@ -221,7 +214,6 @@ enum class swingType_t
 	SWING_MEDIUM,
 	SWING_STRONG
 };
-using enum swingType_t;
 // Okay, here lies the much-dreaded Pat-created FSM movement chart...  Heretic II strikes again!
 // Why am I inflicting this on you?  Well, it's better than hardcoded states.
 // Ideally this will be replaced with an external file or more sophisticated move-picker
@@ -423,7 +415,6 @@ enum class saberMoveName_t {
 
 	LS_MOVE_MAX//
 };
-using enum saberMoveName_t;
 template <> inline constexpr bool enableEnumArithmetic<saberMoveName_t> = true;
 
 void PM_SetSaberMove(saberMoveName_t newMove);
@@ -439,7 +430,6 @@ enum class saberQuadrant_t {
 	Q_B,
 	Q_NUM_QUADS
 };
-using enum saberQuadrant_t;
 template <> inline constexpr bool enableEnumArithmetic<saberQuadrant_t> = true;
 
 typedef struct
@@ -456,6 +446,6 @@ typedef struct
 	int trailLength;
 } saberMoveData_t;
 
-extern EnumArray<saberMoveData_t, saberMoveName_t, LS_MOVE_MAX> saberMoveData;
+extern EnumArray<saberMoveData_t, saberMoveName_t, saberMoveName_t::LS_MOVE_MAX> saberMoveData;
 
 #endif	// __WP_SABER_H

@@ -100,18 +100,18 @@ typedef struct cname_s
 
 cname_t contentnames[] =
 {
-	{CONTENTS_SOLID,"CONTENTS_SOLID"},
+	{contentsFlags_t::CONTENTS_SOLID,"CONTENTS_SOLID"},
 	{CONTENTS_WINDOW,"CONTENTS_WINDOW"},
 	{CONTENTS_AUX,"CONTENTS_AUX"},
-	{CONTENTS_LAVA,"CONTENTS_LAVA"},
-	{CONTENTS_SLIME,"CONTENTS_SLIME"},
-	{CONTENTS_WATER,"CONTENTS_WATER"},
+	{contentsFlags_t::CONTENTS_LAVA,"CONTENTS_LAVA"},
+	{contentsFlags_t::CONTENTS_SLIME,"CONTENTS_SLIME"},
+	{contentsFlags_t::CONTENTS_WATER,"CONTENTS_WATER"},
 	{CONTENTS_MIST,"CONTENTS_MIST"},
 	{LAST_VISIBLE_CONTENTS,"LAST_VISIBLE_CONTENTS"},
 
 	{CONTENTS_AREAPORTAL,"CONTENTS_AREAPORTAL"},
-	{CONTENTS_PLAYERCLIP,"CONTENTS_PLAYERCLIP"},
-	{CONTENTS_MONSTERCLIP,"CONTENTS_MONSTERCLIP"},
+	{contentsFlags_t::CONTENTS_PLAYERCLIP,"CONTENTS_PLAYERCLIP"},
+	{contentsFlags_t::CONTENTS_MONSTERCLIP,"CONTENTS_MONSTERCLIP"},
 	{CONTENTS_CURRENT_0,"CONTENTS_CURRENT_0"},
 	{CONTENTS_CURRENT_90,"CONTENTS_CURRENT_90"},
 	{CONTENTS_CURRENT_180,"CONTENTS_CURRENT_180"},
@@ -121,9 +121,9 @@ cname_t contentnames[] =
 	{CONTENTS_ORIGIN,"CONTENTS_ORIGIN"},
 	{CONTENTS_MONSTER,"CONTENTS_MONSTER"},
 	{CONTENTS_DEADMONSTER,"CONTENTS_DEADMONSTER"},
-	{CONTENTS_DETAIL,"CONTENTS_DETAIL"},
-	{CONTENTS_TRANSLUCENT,"CONTENTS_TRANSLUCENT"},
-	{CONTENTS_LADDER,"CONTENTS_LADDER"},
+	{contentsFlags_t::CONTENTS_DETAIL,"CONTENTS_DETAIL"},
+	{contentsFlags_t::CONTENTS_TRANSLUCENT,"CONTENTS_TRANSLUCENT"},
+	{contentsFlags_t::CONTENTS_LADDER,"CONTENTS_LADDER"},
 	{0, 0}
 };
 
@@ -135,7 +135,7 @@ void PrintContents(int contents)
 	{
 		if (contents & contentnames[i].value)
 		{
-			botimport.Print(PRT_MESSAGE, "%s\n", contentnames[i].name);
+			botimport.Print(printType_t::PRT_MESSAGE, "%s\n", contentnames[i].name);
 		} //end if
 	} //end for
 } //end of the function PrintContents
@@ -269,7 +269,7 @@ int AAS_BSPEntityInRange(int ent)
 {
 	if (ent <= 0 || ent >= bspworld.numentities)
 	{
-		botimport.Print(PRT_MESSAGE, "bsp entity out of range\n");
+		botimport.Print(printType_t::PRT_MESSAGE, "bsp entity out of range\n");
 		return false;
 	} //end if
 	return true;
@@ -388,7 +388,7 @@ void AAS_ParseBSPEntities(void)
 	bsp_epair_t *epair;
 
 	script = LoadScriptMemory(bspworld.dentdata, bspworld.entdatasize, "entdata");
-	SetScriptFlags(script, SCFL_NOSTRINGWHITESPACES|SCFL_NOSTRINGESCAPECHARS);//SCFL_PRIMITIVE);
+	SetScriptFlags(script, scriptParseFlags_t::SCFL_NOSTRINGWHITESPACES|scriptParseFlags_t::SCFL_NOSTRINGESCAPECHARS);//scriptParseFlags_t::SCFL_PRIMITIVE);
 
 	bspworld.numentities = 1;
 
@@ -403,7 +403,7 @@ void AAS_ParseBSPEntities(void)
 		} //end if
 		if (bspworld.numentities >= MAX_BSPENTITIES)
 		{
-			botimport.Print(PRT_MESSAGE, "too many entities in BSP file\n");
+			botimport.Print(printType_t::PRT_MESSAGE, "too many entities in BSP file\n");
 			break;
 		} //end if
 		ent = &bspworld.entities[bspworld.numentities];
@@ -415,7 +415,7 @@ void AAS_ParseBSPEntities(void)
 			epair = (bsp_epair_t *) GetClearedHunkMemory(sizeof(bsp_epair_t));
 			epair->next = ent->epairs;
 			ent->epairs = epair;
-			if (token.type != TT_STRING)
+			if (token.type != tokenType_t::TT_STRING)
 			{
 				ScriptError(script, "invalid %s", token.string);
 				AAS_FreeBSPEntities();
@@ -425,7 +425,7 @@ void AAS_ParseBSPEntities(void)
 			StripDoubleQuotes(token.string);
 			epair->key = (char *) GetHunkMemory(strlen(token.string) + 1);
 			strcpy(epair->key, token.string);
-			if (!PS_ExpectTokenType(script, TT_STRING, 0, &token))
+			if (!PS_ExpectTokenType(script, tokenType_t::TT_STRING, 0, &token))
 			{
 				AAS_FreeBSPEntities();
 				FreeScript(script);
@@ -487,5 +487,5 @@ botlibError_t AAS_LoadBSPFile(void)
 	Com_Memcpy(bspworld.dentdata, botimport.BSPEntityData(), bspworld.entdatasize);
 	AAS_ParseBSPEntities();
 	bspworld.loaded = true;
-	return BLERR_NOERROR;
+	return botlibError_t::BLERR_NOERROR;
 } //end of the function AAS_LoadBSPFile

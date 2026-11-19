@@ -119,14 +119,14 @@ static void CG_DistortionOrb( centity_t *cent )
 	ent.customShader = 0;//cgs.media.halfShieldShader;
 
 #if 1
-	ent.renderfx = (RF_DISTORTION|RF_RGB_TINT);
+	ent.renderfx = (renderFxFlags_t::RF_DISTORTION|renderFxFlags_t::RF_RGB_TINT);
 
 	//tint the whole thing a shade of blue
 	ent.shaderRGBA[0] = 200.0f;
 	ent.shaderRGBA[1] = 200.0f;
 	ent.shaderRGBA[2] = 255.0f;
 #else //no tint
-	ent.renderfx = RF_DISTORTION;
+	ent.renderfx = renderFxFlags_t::RF_DISTORTION;
 #endif
 
 	trap->R_AddRefEntityToScene( &ent );

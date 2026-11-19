@@ -63,11 +63,10 @@ enum class weapon_t {
 
 	G2_MODEL_PART = 50	// not a weapon: a severed limb thrown as a missile (its entity's weapon)
 };
-using enum weapon_t;
 template <> inline constexpr bool enableEnumArithmetic<weapon_t> = true;
 
 //anything > this will be considered not player useable
-inline constexpr weapon_t LAST_USEABLE_WEAPON = WP_BRYAR_OLD;
+inline constexpr weapon_t LAST_USEABLE_WEAPON = weapon_t::WP_BRYAR_OLD;
 
 enum class ammo_t //# ammo_e
 {
@@ -83,7 +82,6 @@ enum class ammo_t //# ammo_e
 	AMMO_DETPACK,
 	AMMO_MAX
 };
-using enum ammo_t;
 template <> inline constexpr bool enableEnumArithmetic<ammo_t> = true;
 
 
@@ -120,13 +118,13 @@ typedef struct  ammoData_s
 } ammoData_t;
 
 
-extern EnumArray<weaponData_t, weapon_t, WP_NUM_WEAPONS> weaponData;
-extern EnumArray<ammoData_t, ammo_t, AMMO_MAX> ammoData;
+extern EnumArray<weaponData_t, weapon_t, weapon_t::WP_NUM_WEAPONS> weaponData;
+extern EnumArray<ammoData_t, ammo_t, ammo_t::AMMO_MAX> ammoData;
 
 
 // Specific weapon information
 
-inline constexpr weapon_t FIRST_WEAPON = WP_BRYAR_PISTOL;		// this is the first weapon for next and prev weapon switching
+inline constexpr weapon_t FIRST_WEAPON = weapon_t::WP_BRYAR_PISTOL;		// this is the first weapon for next and prev weapon switching
 
 
 

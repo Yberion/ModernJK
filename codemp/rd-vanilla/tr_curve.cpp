@@ -306,18 +306,18 @@ srfGridMesh_t *R_CreateSurfaceGridMesh(int width, int height,
 	// copy the results out to a grid
 	size = (width * height - 1) * sizeof( drawVert_t ) + sizeof( *grid );
 
-	grid = (struct srfGridMesh_s *)/*Hunk_Alloc*/ Z_Malloc( size, TAG_GRIDMESH, false );
+	grid = (struct srfGridMesh_s *)/*Hunk_Alloc*/ Z_Malloc( size, memtag::TAG_GRIDMESH, false );
 	memset(grid, 0, size);
 
-	grid->widthLodError = (float *)/*Hunk_Alloc*/ Z_Malloc( width * 4, TAG_GRIDMESH, false );
+	grid->widthLodError = (float *)/*Hunk_Alloc*/ Z_Malloc( width * 4, memtag::TAG_GRIDMESH, false );
 	memcpy( grid->widthLodError, errorTable[0], width * 4 );
 
-	grid->heightLodError = (float *)/*Hunk_Alloc*/ Z_Malloc( height * 4, TAG_GRIDMESH, false );
+	grid->heightLodError = (float *)/*Hunk_Alloc*/ Z_Malloc( height * 4, memtag::TAG_GRIDMESH, false );
 	memcpy( grid->heightLodError, errorTable[1], height * 4 );
 
 	grid->width = width;
 	grid->height = height;
-	grid->surfaceType = SF_GRID;
+	grid->surfaceType = surfaceType_t::SF_GRID;
 	ClearBounds( grid->meshBounds[0], grid->meshBounds[1] );
 	for ( i = 0 ; i < width ; i++ ) {
 		for ( j = 0 ; j < height ; j++ ) {

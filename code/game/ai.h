@@ -29,7 +29,6 @@ enum class distance_e
 	DIST_MELEE,
 	DIST_LONG,
 };
-using enum distance_e;
 
 //Attack types
 enum class attack_e
@@ -37,7 +36,6 @@ enum class attack_e
 	ATTACK_MELEE,
 	ATTACK_RANGE,
 };
-using enum attack_e;
 
 enum class squadState_t
 {
@@ -50,10 +48,9 @@ enum class squadState_t
 	SQUAD_SCOUT,				//Poking out to draw enemy
 	NUM_SQUAD_STATES,
 };
-using enum squadState_t;
 
 // The sets of gNPC_t::localState that several AI files share, written once. The AI files reuse the same names with
-// other values (each names its own set), so these bring no names in: a file says `using enum` for its set.
+// other values (each names its own set), so a use names its set: `soldierLocalState_t::LSTATE_NONE`.
 enum class droidLocalState_t	// Droid, ImperialProbe
 {
 	LSTATE_NONE = 0,
@@ -95,7 +92,6 @@ enum class speechType_t
 	SPEECH_YELL,
 	SPEECH_PUSHED
 };
-using enum speechType_t;
 
 //sigh... had to move in here for groupInfo
 enum class rank_t //# rank_e
@@ -109,7 +105,6 @@ enum class rank_t //# rank_e
 	RANK_COMMANDER,
 	RANK_CAPTAIN
 };
-using enum rank_t;
 template <> inline constexpr bool enableEnumArithmetic<rank_t> = true;
 
 bool NPC_CheckPlayerTeamStealth( void );
@@ -213,7 +208,7 @@ public:
 	int			activeMemberNum;
 	gentity_t	*commander;
 	vec3_t		enemyLastSeenPos;
-	EnumArray<int, squadState_t, NUM_SQUAD_STATES>	numState;
+	EnumArray<int, squadState_t, squadState_t::NUM_SQUAD_STATES>	numState;
 	AIGroupMember_t member[ MAX_GROUP_MEMBERS ];
 
 

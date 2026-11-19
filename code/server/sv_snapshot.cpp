@@ -135,7 +135,7 @@ static void SV_WriteSnapshotToClient( client_t *client, msg_t *msg ) {
 	frame = &client->frames[ client->netchan.outgoingSequence & PACKET_MASK ];
 
 	// try to use a previous frame as the source for delta compressing the snapshot
-	if ( client->deltaMessage <= 0 || client->state != CS_ACTIVE ) {
+	if ( client->deltaMessage <= 0 || client->state != clientState_t::CS_ACTIVE ) {
 		// client is asking for a retransmit
 		oldframe = nullptr;
 		lastframe = 0;
@@ -158,7 +158,7 @@ static void SV_WriteSnapshotToClient( client_t *client, msg_t *msg ) {
 		}
 	}
 
-	MSG_WriteByte( msg, to_underlying( svc_snapshot ) );
+	MSG_WriteByte( msg, to_underlying( svc_ops_e::svc_snapshot ) );
 
 	// let the client know which reliable clientCommands we have received
 	MSG_WriteLong( msg, client->lastClientCommand );
@@ -173,7 +173,7 @@ static void SV_WriteSnapshotToClient( client_t *client, msg_t *msg ) {
 	MSG_WriteByte (msg, lastframe);				// what we are delta'ing from
 	MSG_WriteLong (msg, client->cmdNum);		// we have executed up to here
 
-	snapFlags = client->droppedCommands ? SNAPFLAG_DROPPED_COMMANDS : SNAPFLAG_NONE;
+	snapFlags = client->droppedCommands ? snapFlags_t::SNAPFLAG_DROPPED_COMMANDS : snapFlags_t::SNAPFLAG_NONE;
 	client->droppedCommands = false;
 
 	MSG_WriteByte (msg, to_underlying( snapFlags ));
@@ -206,7 +206,7 @@ static void SV_UpdateServerCommandsToClient( client_t *client, msg_t *msg ) {
 
 	// write any unacknowledged serverCommands
 	for ( i = client->reliableAcknowledge + 1 ; i <= client->reliableSequence ; i++ ) {
-		MSG_WriteByte( msg, to_underlying( svc_serverCommand ) );
+		MSG_WriteByte( msg, to_underlying( svc_ops_e::svc_serverCommand ) );
 		MSG_WriteLong( msg, i );
 		MSG_WriteString( msg, client->reliableCommands[ i & (MAX_RELIABLE_COMMANDS-1) ] );
 	}
@@ -238,7 +238,7 @@ static int SV_QsortEntityNumbers( const void *a, const void *b ) {
 	eb = (int *)b;
 
 	if ( *ea == *eb ) {
-		Com_Error( ERR_DROP, "SV_QsortEntityStates: duplicated entity" );
+		Com_Error( errorParm_t::ERR_DROP, "SV_QsortEntityStates: duplicated entity" );
 	}
 
 	if ( *ea < *eb ) {
@@ -275,7 +275,7 @@ static void SV_AddEntToSnapshot( svEntity_t *svEnt, gentity_t *gEnt, snapshotEnt
 	eNums->numSnapshotEntities++;
 }
 
-EnumArray<float, forcePowerLevels_t, to_underlying( FORCE_LEVEL_5 ) + 1> sv_sightRangeForLevel =
+EnumArray<float, forcePowerLevels_t, to_underlying( forcePowerLevels_t::FORCE_LEVEL_5 ) + 1> sv_sightRangeForLevel =
 {
 	0,//FORCE_LEVEL_0
     1024.f, //FORCE_LEVEL_1
@@ -293,9 +293,9 @@ bool SV_PlayerCanSeeEnt( gentity_t *ent, forcePowerLevels_t sightLevel )
 	{
 		return false;
 	}
-	if ( VM_Call( CG_CAMERA_POS, viewOrg))
+	if ( VM_Call( cgameExport_t::CG_CAMERA_POS, viewOrg))
 	{
-		if ( VM_Call( CG_CAMERA_ANG, viewAngles))
+		if ( VM_Call( cgameExport_t::CG_CAMERA_ANG, viewAngles))
 		{
 			float dot = 0.25f;//1.0f;
 			float range = sv_sightRangeForLevel[sightLevel];
@@ -303,7 +303,7 @@ bool SV_PlayerCanSeeEnt( gentity_t *ent, forcePowerLevels_t sightLevel )
 			VectorSubtract( ent->currentOrigin, viewOrg, dir2Ent );
 			float entDist = VectorNormalize( dir2Ent );
 
-			if ( Any(ent->s.eFlags&EF_FORCE_VISIBLE) )
+			if ( Any(ent->s.eFlags&entityFlags_t::EF_FORCE_VISIBLE) )
 			{//no dist check on them?
 			}
 			else
@@ -353,7 +353,7 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 	// during an error shutdown message we may need to transmit
 	// the shutdown message after the server has shutdown, so
 	// specfically check for it
-	if ( sv.state == SS_DEAD ) {
+	if ( sv.state == serverState_t::SS_DEAD ) {
 		return;
 	}
 
@@ -369,7 +369,7 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 #ifndef JK2_MODE
 	if ( !portal )
 	{//not if this if through a portal...???  James said to do this...
-		if ( (frame->ps.forcePowersActive&Bit( FP_SEE )) )
+		if ( (frame->ps.forcePowersActive&Bit( forcePowers_t::FP_SEE )) )
 		{
 			sightOn = true;
 		}
@@ -383,7 +383,7 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 			continue;
 		}
 
-		if (Any( ent->s.eFlags & EF_PERMANENT ))
+		if (Any( ent->s.eFlags & entityFlags_t::EF_PERMANENT ))
 		{	// he's permanent, so don't send him down!
 			continue;
 		}
@@ -399,7 +399,7 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 		}
 
 		// entities can be flagged to explicitly not be sent to the client
-		if ( Any( ent->svFlags & SVF_NOCLIENT ) ) {
+		if ( Any( ent->svFlags & svFlags_t::SVF_NOCLIENT ) ) {
 			continue;
 		}
 
@@ -411,7 +411,7 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 		}
 
 		// broadcast entities are always sent, and so is the main player so we don't see noclip weirdness
-		if ( Any( ent->svFlags & SVF_BROADCAST ) || !e) {
+		if ( Any( ent->svFlags & svFlags_t::SVF_BROADCAST ) || !e) {
 			SV_AddEntToSnapshot( svEnt, ent, eNums );
 			continue;
 		}
@@ -427,7 +427,7 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 #ifndef JK2_MODE
 		if ( sightOn )
 		{//force sight is on, sees through portals, so draw them always if in radius
-			if ( SV_PlayerCanSeeEnt( ent, frame->ps.forcePowerLevel[FP_SEE] ) )
+			if ( SV_PlayerCanSeeEnt( ent, frame->ps.forcePowerLevel[forcePowers_t::FP_SEE] ) )
 			{//entity is visible
 				SV_AddEntToSnapshot( svEnt, ent, eNums );
 				continue;
@@ -481,7 +481,7 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 		SV_AddEntToSnapshot( svEnt, ent, eNums );
 
 		// if its a portal entity, add everything visible from its camera position
-		if ( Any( ent->svFlags & SVF_PORTAL ) ) {
+		if ( Any( ent->svFlags & svFlags_t::SVF_PORTAL ) ) {
 			SV_AddEntitiesVisibleFromPoint( ent->s.origin2, frame, eNums, true );
 		}
 	}
@@ -534,7 +534,7 @@ static clientSnapshot_t *SV_BuildClientSnapshot( client_t *client ) {
 		svEntity_t					*svEnt;
 		clientNum = frame->ps.clientNum;
 		if ( clientNum < 0 || clientNum >= MAX_GENTITIES ) {
-			Com_Error( ERR_DROP, "SV_SvEntityForGentity: bad gEnt" );
+			Com_Error( errorParm_t::ERR_DROP, "SV_SvEntityForGentity: bad gEnt" );
 		}
 		svEnt = &sv.svEntities[ clientNum ];
 		// never send client's own entity, because it can
@@ -545,7 +545,7 @@ static clientSnapshot_t *SV_BuildClientSnapshot( client_t *client ) {
 	// find the client's viewpoint
 
 	//if in camera mode use camera position instead
-	if ( VM_Call( CG_CAMERA_POS, org))
+	if ( VM_Call( cgameExport_t::CG_CAMERA_POS, org))
 	{
 		//org[2] += clent->client->viewheight;
 	}
@@ -668,7 +668,7 @@ void SV_SendClientSnapshot( client_t *client ) {
 
 	// bots need to have their snapshots build, but
 	// the query them directly without needing to be sent
-	if ( client->gentity && Any( client->gentity->svFlags & SVF_BOT ) ) {
+	if ( client->gentity && Any( client->gentity->svFlags & svFlags_t::SVF_BOT ) ) {
 		return;
 	}
 
@@ -703,12 +703,12 @@ void SV_SendClientMessages( void ) {
 
 	// send a message to each connected client
 	for (i=0, c = svs.clients ; i < 1 ; i++, c++) {
-		if (c->state == CS_FREE) {
+		if (c->state == clientState_t::CS_FREE) {
 			continue;		// not connected
 		}
 
-		if ( c->state != CS_ACTIVE ) {
-			if ( c->state != CS_ZOMBIE ) {
+		if ( c->state != clientState_t::CS_ACTIVE ) {
+			if ( c->state != clientState_t::CS_ZOMBIE ) {
 				SV_SendClientEmptyMessage( c );
 			}
 			continue;

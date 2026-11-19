@@ -68,7 +68,7 @@ bool	PM_SlideMove( float gravMod ) {
 
 	if ( gravMod )
 	{
-		if ( !Any(pm->ps->eFlags&EF_FORCE_GRIPPED) )
+		if ( !Any(pm->ps->eFlags&entityFlags_t::EF_FORCE_GRIPPED) )
 		{
 			endVelocity[2] -= pm->ps->gravity * pml.frametime * gravMod;
 		}
@@ -112,7 +112,7 @@ bool	PM_SlideMove( float gravMod ) {
 		VectorMA( pm->ps->origin, time_left, pm->ps->velocity, end );
 
 		// see if we can make it there
-		pm->trace ( &trace, pm->ps->origin, pm->mins, pm->maxs, end, pm->ps->clientNum, pm->tracemask, G2_NOCOLLIDE, 0);
+		pm->trace ( &trace, pm->ps->origin, pm->mins, pm->maxs, end, pm->ps->clientNum, pm->tracemask, EG2_Collision::G2_NOCOLLIDE, 0);
 
 		if ( trace.allsolid )
 		{// entity is completely trapped in another solid
@@ -130,13 +130,13 @@ bool	PM_SlideMove( float gravMod ) {
 			 break;		// moved the entire distance
 		}
 
-		//pm->ps->pm_flags |= PMF_BUMPED;
+		//pm->ps->pm_flags |= pmoveFlags_t::PMF_BUMPED;
 
 		// save entity for contact
 		PM_AddTouchEnt( trace.entityNum );
 
 		//Hit it
-		if ( Any( trace.surfaceFlags&SURF_NODAMAGE ) )
+		if ( Any( trace.surfaceFlags&surfaceFlags_t::SURF_NODAMAGE ) )
 		{
 			damageSelf = false;
 		}
@@ -294,7 +294,7 @@ void PM_StepSlideMove( float gravMod )
 		return;		// we got exactly where we wanted to go first try
 	}//else Bumped into something, see if we can step over it
 
-	if ( pm->gent && pm->gent->client && pm->gent->client->NPC_class == CLASS_ATST)
+	if ( pm->gent && pm->gent->client && pm->gent->client->NPC_class == class_t::CLASS_ATST)
 	{
 		isATST = true;
 		stepSize = 66;//hack for AT-ST stepping, slightly taller than a standing stormtrooper
@@ -307,7 +307,7 @@ void PM_StepSlideMove( float gravMod )
 	//Q3Final addition...
 	VectorCopy(start_o, down);
 	down[2] -= stepSize;
-	pm->trace (&trace, start_o, pm->mins, pm->maxs, down, pm->ps->clientNum, pm->tracemask, G2_NOCOLLIDE, 0);
+	pm->trace (&trace, start_o, pm->mins, pm->maxs, down, pm->ps->clientNum, pm->tracemask, EG2_Collision::G2_NOCOLLIDE, 0);
 	VectorSet(up, 0, 0, 1);
 	// never step up when you still have up velocity
 	if ( pm->ps->velocity[2] > 0 && (trace.fraction == 1.0 ||
@@ -328,7 +328,7 @@ void PM_StepSlideMove( float gravMod )
 
 	// test the player position if they were a stepheight higher
 
-	pm->trace (&trace, start_o, pm->mins, pm->maxs, up, pm->ps->clientNum, pm->tracemask, G2_NOCOLLIDE, 0);
+	pm->trace (&trace, start_o, pm->mins, pm->maxs, up, pm->ps->clientNum, pm->tracemask, EG2_Collision::G2_NOCOLLIDE, 0);
 	if ( trace.allsolid || trace.startsolid || trace.fraction == 0) {
 		if ( pm->debugLevel ) {
 			Com_Printf("%i:bend can't step\n", c_pmove);
@@ -357,7 +357,7 @@ void PM_StepSlideMove( float gravMod )
 		// push down the final amount
 		VectorCopy (pm->ps->origin, down);
 		down[2] -= stepSize;
-		pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, down, pm->ps->clientNum, pm->tracemask, G2_NOCOLLIDE, 0);
+		pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, down, pm->ps->clientNum, pm->tracemask, EG2_Collision::G2_NOCOLLIDE, 0);
 		if ( !trace.allsolid )
 		{
 			if ( pm->ps->clientNum
@@ -384,7 +384,7 @@ void PM_StepSlideMove( float gravMod )
 	}
 	else
 	{//We did step up, clear the bumped flag
-		pm->ps->pm_flags &= ~PMF_BUMPED;
+		pm->ps->pm_flags &= ~pmoveFlags_t::PMF_BUMPED;
 	}
 	*/
 #if 0
@@ -406,13 +406,13 @@ void PM_StepSlideMove( float gravMod )
 		delta = pm->ps->origin[2] - start_o[2];
 		if ( delta > 2 ) {
 			if ( delta < 7 ) {
-				PM_AddEvent( EV_STEP_4 );
+				PM_AddEvent( entity_event_t::EV_STEP_4 );
 			} else if ( delta < 11 ) {
-				PM_AddEvent( EV_STEP_8 );
+				PM_AddEvent( entity_event_t::EV_STEP_8 );
 			} else if ( delta < 15 ) {
-				PM_AddEvent( EV_STEP_12 );
+				PM_AddEvent( entity_event_t::EV_STEP_12 );
 			} else {
-				PM_AddEvent( EV_STEP_16 );
+				PM_AddEvent( entity_event_t::EV_STEP_16 );
 			}
 		}
 		if ( pm->debugLevel ) {

@@ -72,7 +72,7 @@ localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
 		}
 		else
 		{
-			if ( !Any( flags & LEF_NO_RANDOM_ROTATE ) )
+			if ( !Any( flags & leFlags_t::LEF_NO_RANDOM_ROTATE ) )
 				ang = rand() % 360;
 			VectorCopy( dir, ex->refEntity.axis[0] );
 			RotateAroundDirection( ex->refEntity.axis, ang );
@@ -129,7 +129,7 @@ localEntity_t *CG_AddTempLight( vec3_t origin, float scale, vec3_t color, int ms
 
 	ex = CG_AllocLocalEntity();
 
-	ex->leType = LE_LIGHT;
+	ex->leType = leType_t::LE_LIGHT;
 
 	ex->startTime = cg.time;
 	ex->endTime = ex->startTime + msec;
@@ -303,40 +303,40 @@ void CG_MiscModelExplosion( vec3_t mins, vec3_t maxs, int size, material_t chunk
 
 	switch( chunkType )
 	{
-	case MAT_GLASS:
+	case material_t::MAT_GLASS:
 		effect = "chunks/glassbreak";
 		ct = 5;
 		break;
-	case MAT_GLASS_METAL:
+	case material_t::MAT_GLASS_METAL:
 		effect = "chunks/glassbreak";
 		effect2 = "chunks/metalexplode";
 		ct = 5;
 		break;
-	case MAT_ELECTRICAL:
-	case MAT_ELEC_METAL:
+	case material_t::MAT_ELECTRICAL:
+	case material_t::MAT_ELEC_METAL:
 		effect = "chunks/sparkexplode";
 		ct = 5;
 		break;
-	case MAT_METAL:
-	case MAT_METAL2:
-	case MAT_METAL3:
-	case MAT_CRATE1:
-	case MAT_CRATE2:
+	case material_t::MAT_METAL:
+	case material_t::MAT_METAL2:
+	case material_t::MAT_METAL3:
+	case material_t::MAT_CRATE1:
+	case material_t::MAT_CRATE2:
 		effect = "chunks/metalexplode";
 		ct = 2;
 		break;
-	case MAT_GRATE1:
+	case material_t::MAT_GRATE1:
 		effect = "chunks/grateexplode";
 		ct = 8;
 		break;
-	case MAT_ROPE:
+	case material_t::MAT_ROPE:
 		ct = 20;
 		effect = "chunks/ropebreak";
 		break;
-	case MAT_WHITE_METAL: //not sure what this crap is really supposed to be..
-	case MAT_DRK_STONE:
-	case MAT_LT_STONE:
-	case MAT_GREY_STONE:
+	case material_t::MAT_WHITE_METAL: //not sure what this crap is really supposed to be..
+	case material_t::MAT_DRK_STONE:
+	case material_t::MAT_LT_STONE:
+	case material_t::MAT_GREY_STONE:
 		switch( size )
 		{
 		case 2:
@@ -407,11 +407,11 @@ void CG_Chunks( int owner, vec3_t origin, const vec3_t normal, const vec3_t mins
 	vec3_t			dir;
 	int				i, j, k;
 	int				chunkModel = 0;
-	leBounceSound_t	bounce = LEBS_NONE;
+	leBounceSound_t	bounce = leBounceSound_t::LEBS_NONE;
 	float			r, speedMod = 1.0f;
 	bool		chunk = false;
 
-	if ( chunkType == MAT_NONE )
+	if ( chunkType == material_t::MAT_NONE )
 	{
 		// Well, we should do nothing
 		return;
@@ -420,44 +420,44 @@ void CG_Chunks( int owner, vec3_t origin, const vec3_t normal, const vec3_t mins
 	// Set up our chunk sound info...breaking sounds are done here so they are done once on breaking..some return instantly because the chunks are done with effects instead of models
 	switch( chunkType )
 	{
-	case MAT_GLASS:
-		cgi_S_StartSound( nullptr, owner, CHAN_BODY, cgs.media.glassChunkSound );
+	case material_t::MAT_GLASS:
+		cgi_S_StartSound( nullptr, owner, soundChannel_t::CHAN_BODY, cgs.media.glassChunkSound );
 		return;
 		break;
-	case MAT_GRATE1:
-		cgi_S_StartSound( nullptr, owner, CHAN_BODY, cgs.media.grateSound );
+	case material_t::MAT_GRATE1:
+		cgi_S_StartSound( nullptr, owner, soundChannel_t::CHAN_BODY, cgs.media.grateSound );
 		return;
 		break;
-	case MAT_ELECTRICAL:// (sparks)
-		cgi_S_StartSound( nullptr, owner, CHAN_BODY, cgi_S_RegisterSound (va("sound/ambience/spark%d.wav", Q_irand(1, 6))) );
+	case material_t::MAT_ELECTRICAL:// (sparks)
+		cgi_S_StartSound( nullptr, owner, soundChannel_t::CHAN_BODY, cgi_S_RegisterSound (va("sound/ambience/spark%d.wav", Q_irand(1, 6))) );
 		return;
 		break;
-	case MAT_DRK_STONE:
-	case MAT_LT_STONE:
-	case MAT_GREY_STONE:
-	case MAT_WHITE_METAL:  // not quite sure what this stuff is supposed to be...it's for Stu
-		cgi_S_StartSound( nullptr, owner, CHAN_BODY, cgs.media.rockBreakSound );
-		bounce = LEBS_ROCK;
+	case material_t::MAT_DRK_STONE:
+	case material_t::MAT_LT_STONE:
+	case material_t::MAT_GREY_STONE:
+	case material_t::MAT_WHITE_METAL:  // not quite sure what this stuff is supposed to be...it's for Stu
+		cgi_S_StartSound( nullptr, owner, soundChannel_t::CHAN_BODY, cgs.media.rockBreakSound );
+		bounce = leBounceSound_t::LEBS_ROCK;
 		speedMod = 0.5f; // rock blows up less
 		break;
-	case MAT_GLASS_METAL:
-		cgi_S_StartSound( nullptr, owner, CHAN_BODY, cgs.media.glassChunkSound ); // FIXME: should probably have a custom sound
-		bounce = LEBS_METAL;
+	case material_t::MAT_GLASS_METAL:
+		cgi_S_StartSound( nullptr, owner, soundChannel_t::CHAN_BODY, cgs.media.glassChunkSound ); // FIXME: should probably have a custom sound
+		bounce = leBounceSound_t::LEBS_METAL;
 		break;
-	case MAT_CRATE1:
-	case MAT_CRATE2:
-		cgi_S_StartSound( nullptr, owner, CHAN_BODY, cgs.media.crateBreakSound[Q_irand(0,1)] );
+	case material_t::MAT_CRATE1:
+	case material_t::MAT_CRATE2:
+		cgi_S_StartSound( nullptr, owner, soundChannel_t::CHAN_BODY, cgs.media.crateBreakSound[Q_irand(0,1)] );
 		break;
-	case MAT_METAL:
-	case MAT_METAL2:
-	case MAT_METAL3:
-	case MAT_ELEC_METAL:// FIXME: maybe have its own sound?
-		cgi_S_StartSound( nullptr, owner, CHAN_BODY, cgs.media.chunkSound );
-		bounce = LEBS_METAL;
+	case material_t::MAT_METAL:
+	case material_t::MAT_METAL2:
+	case material_t::MAT_METAL3:
+	case material_t::MAT_ELEC_METAL:// FIXME: maybe have its own sound?
+		cgi_S_StartSound( nullptr, owner, soundChannel_t::CHAN_BODY, cgs.media.chunkSound );
+		bounce = leBounceSound_t::LEBS_METAL;
 		speedMod = 0.8f; // metal blows up a bit more
 		break;
-	case MAT_ROPE:
-//		cgi_S_StartSound( nullptr, owner, CHAN_BODY, cgi_S_RegisterSound( "" ));  FIXME:  needs a sound
+	case material_t::MAT_ROPE:
+//		cgi_S_StartSound( nullptr, owner, soundChannel_t::CHAN_BODY, cgi_S_RegisterSound( "" ));  FIXME:  needs a sound
 		return;
 	default:
 		break;
@@ -486,40 +486,40 @@ void CG_Chunks( int owner, vec3_t origin, const vec3_t normal, const vec3_t mins
 			// No custom chunk.  Pick a random chunk type at run-time so we don't get the same chunks
 			switch( chunkType )
 			{
-			case MAT_METAL2: //bluegrey
-				chunkModel = cgs.media.chunkModels[CHUNK_METAL2][Q_irand(0, 3)];
+			case material_t::MAT_METAL2: //bluegrey
+				chunkModel = cgs.media.chunkModels[chunkType_t::CHUNK_METAL2][Q_irand(0, 3)];
 				break;
-			case MAT_GREY_STONE://gray
-				chunkModel = cgs.media.chunkModels[CHUNK_ROCK1][Q_irand(0, 3)];
+			case material_t::MAT_GREY_STONE://gray
+				chunkModel = cgs.media.chunkModels[chunkType_t::CHUNK_ROCK1][Q_irand(0, 3)];
 				break;
-			case MAT_LT_STONE: //tan
-				chunkModel = cgs.media.chunkModels[CHUNK_ROCK2][Q_irand(0, 3)];
+			case material_t::MAT_LT_STONE: //tan
+				chunkModel = cgs.media.chunkModels[chunkType_t::CHUNK_ROCK2][Q_irand(0, 3)];
 				break;
-			case MAT_DRK_STONE://brown
-				chunkModel = cgs.media.chunkModels[CHUNK_ROCK3][Q_irand(0, 3)];
+			case material_t::MAT_DRK_STONE://brown
+				chunkModel = cgs.media.chunkModels[chunkType_t::CHUNK_ROCK3][Q_irand(0, 3)];
 				break;
-			case MAT_WHITE_METAL:
-				chunkModel = cgs.media.chunkModels[CHUNK_WHITE_METAL][Q_irand(0, 3)];
+			case material_t::MAT_WHITE_METAL:
+				chunkModel = cgs.media.chunkModels[chunkType_t::CHUNK_WHITE_METAL][Q_irand(0, 3)];
 				break;
-			case MAT_CRATE1://yellow multi-colored crate chunks
-				chunkModel = cgs.media.chunkModels[CHUNK_CRATE1][Q_irand(0, 3)];
+			case material_t::MAT_CRATE1://yellow multi-colored crate chunks
+				chunkModel = cgs.media.chunkModels[chunkType_t::CHUNK_CRATE1][Q_irand(0, 3)];
 				break;
-			case MAT_CRATE2://red multi-colored crate chunks
-				chunkModel = cgs.media.chunkModels[CHUNK_CRATE2][Q_irand(0, 3)];
+			case material_t::MAT_CRATE2://red multi-colored crate chunks
+				chunkModel = cgs.media.chunkModels[chunkType_t::CHUNK_CRATE2][Q_irand(0, 3)];
 				break;
-			case MAT_ELEC_METAL:
-			case MAT_GLASS_METAL:
-			case MAT_METAL://grey
-				chunkModel = cgs.media.chunkModels[CHUNK_METAL1][Q_irand(0, 3)];
+			case material_t::MAT_ELEC_METAL:
+			case material_t::MAT_GLASS_METAL:
+			case material_t::MAT_METAL://grey
+				chunkModel = cgs.media.chunkModels[chunkType_t::CHUNK_METAL1][Q_irand(0, 3)];
 				break;
-			case MAT_METAL3:
+			case material_t::MAT_METAL3:
 				if ( rand() & 1 )
 				{
-					chunkModel = cgs.media.chunkModels[CHUNK_METAL1][Q_irand(0, 3)];
+					chunkModel = cgs.media.chunkModels[chunkType_t::CHUNK_METAL1][Q_irand(0, 3)];
 				}
 				else
 				{
-					chunkModel = cgs.media.chunkModels[CHUNK_METAL2][Q_irand(0, 3)];
+					chunkModel = cgs.media.chunkModels[chunkType_t::CHUNK_METAL2][Q_irand(0, 3)];
 				}
 				break;
 			default:
@@ -534,7 +534,7 @@ void CG_Chunks( int owner, vec3_t origin, const vec3_t normal, const vec3_t mins
 			re = &le->refEntity;
 
 			re->hModel = chunkModel;
-			le->leType = LE_FRAGMENT;
+			le->leType = leType_t::LE_FRAGMENT;
 			le->endTime = cg.time + 1300 + Q_flrand(0.0f, 1.0f) * 900;
 
 			// spawn chunk roughly in the bbox of the thing...bias towards center in case thing blowing up doesn't complete fill its bbox.
@@ -559,11 +559,11 @@ void CG_Chunks( int owner, vec3_t origin, const vec3_t normal, const vec3_t mins
 
 			VectorScale( le->angles.trDelta, Q_flrand(0.0f, 1.0f) * 600.0f + 200.0f, le->angles.trDelta );
 
-			le->pos.trType = TR_GRAVITY;
-			le->angles.trType = TR_LINEAR;
+			le->pos.trType = trType_t::TR_GRAVITY;
+			le->angles.trType = trType_t::TR_LINEAR;
 			le->pos.trTime = le->angles.trTime = cg.time;
 			le->bounceFactor = 0.2f + Q_flrand(0.0f, 1.0f) * 0.2f;
-			le->leFlags |= LEF_TUMBLE;
+			le->leFlags |= leFlags_t::LEF_TUMBLE;
 			le->ownerGentNum = owner;
 			le->leBounceSoundType = bounce;
 
@@ -585,7 +585,7 @@ void CG_TestLine( vec3_t start, vec3_t end, int time, unsigned int color, int ra
 	refEntity_t		*re;
 
 	le = CG_AllocLocalEntity();
-	le->leType = LE_LINE;
+	le->leType = leType_t::LE_LINE;
 	le->startTime = cg.time;
 	le->endTime = cg.time + time;
 	le->lifeRate = 1.0 / ( le->endTime - le->startTime );
@@ -595,7 +595,7 @@ void CG_TestLine( vec3_t start, vec3_t end, int time, unsigned int color, int ra
 	VectorCopy( end, re->oldorigin);
 	re->shaderTime = cg.time / 1000.0f;
 
-	re->reType = RT_LINE;
+	re->reType = refEntityType_t::RT_LINE;
 	re->radius = 0.5*radius;
 	re->customShader = cgs.media.whiteShader; //trap_R_RegisterShaderNoMip("textures/colombia/canvas_doublesided");
 
@@ -665,11 +665,11 @@ static void CG_DoGlassQuad( vec3_t p[4], vec2_t uv[4], bool stick, int time, vec
 			rotDelta, bounce, time,	// rotation amount, bounce, and time to delay motion for ( zero if no delay );
 			3500 + Q_flrand(0.0f, 1.0f) * 1000,	// life
 			cgi_R_RegisterShader( "gfx/misc/test_crackle" ),
-			FX_APPLY_PHYSICS | FX_ALPHA_NONLINEAR | FX_USE_ALPHA );
+			fxPrimitiveFlags_t::FX_APPLY_PHYSICS | fxPrimitiveFlags_t::FX_ALPHA_NONLINEAR | fxPrimitiveFlags_t::FX_USE_ALPHA );
 
 	if ( Q_flrand(0.0f, 1.0f) > 0.95f && pol )
 	{
-		pol->AddFlags( FX_IMPACT_RUNS_FX | FX_KILL_ON_IMPACT );
+		pol->AddFlags( fxPrimitiveFlags_t::FX_IMPACT_RUNS_FX | fxPrimitiveFlags_t::FX_KILL_ON_IMPACT );
 		pol->SetImpactFxID( theFxScheduler.RegisterEffect( "glass_impact" ));
 	}
 }
@@ -776,7 +776,7 @@ void CG_DoGlass( vec3_t verts[4], vec3_t normal, vec3_t dmgPt, vec3_t dmgDir, fl
 	//	hopefully be sufficient.
 	CG_CalcHeightWidth( verts, &height, &width );
 
-	cgi_S_StartSound( dmgPt, -1, CHAN_AUTO, cgi_S_RegisterSound("sound/effects/glassbreak1.wav"));
+	cgi_S_StartSound( dmgPt, -1, soundChannel_t::CHAN_AUTO, cgi_S_RegisterSound("sound/effects/glassbreak1.wav"));
 
 	// Pick "LOD" for height
 	if ( height < 100 )
@@ -949,7 +949,7 @@ CG_Seeker
 
 	memset( &re, 0, sizeof( re ) );
 
-	re.reType = RT_MODEL;
+	re.reType = refEntityType_t::RT_MODEL;
 	VectorCopy( seekerOrg, re.origin);
 	re.hModel = cgi_R_RegisterModel( "models/items/remote.md3" );
 

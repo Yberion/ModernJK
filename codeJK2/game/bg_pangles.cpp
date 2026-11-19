@@ -89,7 +89,7 @@ void PM_ScaleUcmd( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 extern void SetClientViewAngle( gentity_t *ent, vec3_t angle );
 bool PM_AdjustAnglesToGripper( gentity_t *ent, usercmd_t *ucmd )
 {//FIXME: make this more generic and have it actually *tell* the client what cmd angles it should be locked at?
-	if ( Any(ent->client->ps.eFlags&EF_FORCE_GRIPPED) && ent->enemy )
+	if ( Any(ent->client->ps.eFlags&entityFlags_t::EF_FORCE_GRIPPED) && ent->enemy )
 	{
 		vec3_t dir, angles;
 
@@ -110,7 +110,7 @@ bool PM_AdjustAnglesToGripper( gentity_t *ent, usercmd_t *ucmd )
 
 bool PM_AdjustAngleForWallRun( gentity_t *ent, usercmd_t *ucmd, bool doMove )
 {
-	if (( ent->client->ps.legsAnim == BOTH_WALL_RUN_RIGHT || ent->client->ps.legsAnim == BOTH_WALL_RUN_LEFT ) && ent->client->ps.legsAnimTimer > 500 )
+	if (( ent->client->ps.legsAnim == animNumber_t::BOTH_WALL_RUN_RIGHT || ent->client->ps.legsAnim == animNumber_t::BOTH_WALL_RUN_LEFT ) && ent->client->ps.legsAnimTimer > 500 )
 	{//wall-running and not at end of anim
 		//stick to wall, if there is one
 		vec3_t	rt, traceTo, mins = {ent->mins[0],ent->mins[1],0}, maxs = {ent->maxs[0],ent->maxs[1],24}, fwdAngles = {0, ent->client->ps.viewangles[YAW], 0};
@@ -118,7 +118,7 @@ bool PM_AdjustAngleForWallRun( gentity_t *ent, usercmd_t *ucmd, bool doMove )
 		float	dist, yawAdjust;
 
 		AngleVectors( fwdAngles, nullptr, rt, nullptr );
-		if ( ent->client->ps.legsAnim == BOTH_WALL_RUN_RIGHT )
+		if ( ent->client->ps.legsAnim == animNumber_t::BOTH_WALL_RUN_RIGHT )
 		{
 			dist = 128;
 			yawAdjust = -90;
@@ -129,14 +129,14 @@ bool PM_AdjustAngleForWallRun( gentity_t *ent, usercmd_t *ucmd, bool doMove )
 			yawAdjust = 90;
 		}
 		VectorMA( ent->currentOrigin, dist, rt, traceTo );
-		gi.trace( &trace, ent->currentOrigin, mins, maxs, traceTo, ent->s.number, ent->clipmask, G2_NOCOLLIDE, 0  );
+		gi.trace( &trace, ent->currentOrigin, mins, maxs, traceTo, ent->s.number, ent->clipmask, EG2_Collision::G2_NOCOLLIDE, 0  );
 		if ( trace.fraction < 1.0f && trace.plane.normal[2] == 0.0f )
 		{//still a vertical wall there
 			//FIXME: don't pull around 90 turns
 			//FIXME: simulate stepping up steps here, somehow?
 			if ( ent->s.number || !player_locked )
 			{
-				if ( ent->client->ps.legsAnim == BOTH_WALL_RUN_RIGHT )
+				if ( ent->client->ps.legsAnim == animNumber_t::BOTH_WALL_RUN_RIGHT )
 				{
 					ucmd->rightmove = 127;
 				}
@@ -167,9 +167,9 @@ bool PM_AdjustAngleForWallRun( gentity_t *ent, usercmd_t *ucmd, bool doMove )
 					//push me forward
 					vec3_t	fwd;
 					float	zVel = ent->client->ps.velocity[2];
-					if ( zVel > forceJumpStrength[FORCE_LEVEL_2]/2.0f )
+					if ( zVel > forceJumpStrength[forcePowerLevels_t::FORCE_LEVEL_2]/2.0f )
 					{
-						zVel = forceJumpStrength[FORCE_LEVEL_2]/2.0f;
+						zVel = forceJumpStrength[forcePowerLevels_t::FORCE_LEVEL_2]/2.0f;
 					}
 					if ( ent->client->ps.legsAnimTimer > 500 )
 					{//not at end of anim yet
@@ -198,13 +198,13 @@ bool PM_AdjustAngleForWallRun( gentity_t *ent, usercmd_t *ucmd, bool doMove )
 		}
 		else if ( doMove )
 		{//stop it
-			if ( ent->client->ps.legsAnim == BOTH_WALL_RUN_RIGHT )
+			if ( ent->client->ps.legsAnim == animNumber_t::BOTH_WALL_RUN_RIGHT )
 			{
-				NPC_SetAnim( ent, SETANIM_BOTH, BOTH_WALL_RUN_RIGHT_STOP, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+				NPC_SetAnim( ent, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_WALL_RUN_RIGHT_STOP, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD );
 			}
-			else if ( ent->client->ps.legsAnim == BOTH_WALL_RUN_LEFT )
+			else if ( ent->client->ps.legsAnim == animNumber_t::BOTH_WALL_RUN_LEFT )
 			{
-				NPC_SetAnim( ent, SETANIM_BOTH, BOTH_WALL_RUN_LEFT_STOP, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+				NPC_SetAnim( ent, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_WALL_RUN_LEFT_STOP, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD );
 			}
 		}
 	}
@@ -218,16 +218,16 @@ bool PM_AdjustAnglesForSpinningFlip( gentity_t *ent, usercmd_t *ucmd, bool angle
 	float	animLength, spinStart, spinEnd, spinAmt, spinLength;
 	animNumber_t	spinAnim;
 
-	if ( ent->client->ps.legsAnim == BOTH_JUMPFLIPSTABDOWN )
+	if ( ent->client->ps.legsAnim == animNumber_t::BOTH_JUMPFLIPSTABDOWN )
 	{
-		spinAnim = BOTH_JUMPFLIPSTABDOWN;
+		spinAnim = animNumber_t::BOTH_JUMPFLIPSTABDOWN;
 		spinStart = 300.0f;//700.0f;
 		spinEnd = 1400.0f;
 		spinAmt = 180.0f;
 	}
-	else if ( ent->client->ps.legsAnim == BOTH_JUMPFLIPSLASHDOWN1 )
+	else if ( ent->client->ps.legsAnim == animNumber_t::BOTH_JUMPFLIPSLASHDOWN1 )
 	{
-		spinAnim = BOTH_JUMPFLIPSLASHDOWN1;
+		spinAnim = animNumber_t::BOTH_JUMPFLIPSLASHDOWN1;
 		spinStart = 300.0f;//700.0f;//1500.0f;
 		spinEnd = 1400.0f;//2300.0f;
 		spinAmt = 180.0f;
@@ -238,7 +238,7 @@ bool PM_AdjustAnglesForSpinningFlip( gentity_t *ent, usercmd_t *ucmd, bool angle
 		{
 			if ( !ent->s.number )
 			{
-				cg.overrides.active &= ~CG_OVERRIDE_3RD_PERSON_VOF;
+				cg.overrides.active &= ~cgOverrideFlags_t::CG_OVERRIDE_3RD_PERSON_VOF;
 				cg.overrides.thirdPersonVertOffset = 0;
 			}
 		}
@@ -292,7 +292,7 @@ bool PM_AdjustAnglesForSpinningFlip( gentity_t *ent, usercmd_t *ucmd, bool angle
 		{//ending anim
 			viewDip = ((animLength-elapsedTime)/animLength)*-120.0f;
 		}
-		cg.overrides.active |= CG_OVERRIDE_3RD_PERSON_VOF;
+		cg.overrides.active |= cgOverrideFlags_t::CG_OVERRIDE_3RD_PERSON_VOF;
 		cg.overrides.thirdPersonVertOffset = cg_thirdPersonVertOffset.value+viewDip;
 		//pm->ps->viewheight = standheight + viewDip;
 	}
@@ -305,10 +305,10 @@ bool PM_AdjustAnglesForBackAttack( gentity_t *ent, usercmd_t *ucmd )
 	{
 		return false;
 	}
-	if ( ( ent->client->ps.saberMove == LS_A_BACK || ent->client->ps.saberMove == LS_A_BACK_CR || ent->client->ps.saberMove == LS_A_BACKSTAB )
+	if ( ( ent->client->ps.saberMove == saberMoveName_t::LS_A_BACK || ent->client->ps.saberMove == saberMoveName_t::LS_A_BACK_CR || ent->client->ps.saberMove == saberMoveName_t::LS_A_BACKSTAB )
 		&& PM_InAnimForSaberMove( ent->client->ps.torsoAnim, ent->client->ps.saberMove ) )
 	{
-		if ( ent->client->ps.saberMove != LS_A_BACKSTAB || !ent->enemy || ent->s.number )
+		if ( ent->client->ps.saberMove != saberMoveName_t::LS_A_BACKSTAB || !ent->enemy || ent->s.number )
 		{
 			if ( ent->client->ps.viewEntity <= 0 || ent->client->ps.viewEntity >= ENTITYNUM_WORLD )
 			{//don't clamp angles when looking through a viewEntity
@@ -368,10 +368,10 @@ bool PM_AdjustAnglesForKnockdown( gentity_t *ent, usercmd_t *ucmd, bool angleCla
 			}
 			//you can jump up out of a knockdown and you get get up into a crouch from a knockdown
 			//ucmd->upmove = 0;
-			//if ( !PM_InForceGetUp( &ent->client->ps ) || ent->client->ps.torsoAnimTimer > 800 || ent->s.weapon != WP_SABER )
+			//if ( !PM_InForceGetUp( &ent->client->ps ) || ent->client->ps.torsoAnimTimer > 800 || ent->s.weapon != weapon_t::WP_SABER )
 			if ( ent->health > 0 )
 			{//can only attack if you've started a force-getup and are using the saber
-				ucmd->buttons = BUTTON_NONE;
+				ucmd->buttons = buttonFlags_t::BUTTON_NONE;
 			}
 		}
 		if ( !PM_InForceGetUp( &ent->client->ps ) )
@@ -406,12 +406,12 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 	trace_t		trace;
 	bool	lockedYaw = false;
 
-	if ( ps->pm_type == PM_INTERMISSION )
+	if ( ps->pm_type == pmtype_t::PM_INTERMISSION )
 	{
 		return;		// no view changes at all
 	}
 
-	if ( ps->pm_type != PM_SPECTATOR && ps->stats[STAT_HEALTH] <= 0 )
+	if ( ps->pm_type != pmtype_t::PM_SPECTATOR && ps->stats[statIndex_t::STAT_HEALTH] <= 0 )
 	{
 		return;		// no view changes at all
 	}
@@ -420,7 +420,7 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 //	{//can't turn
 //		return;
 //	}
-	if ( Any( ps->eFlags & EF_NPC ) && gent != nullptr && gent->client != nullptr )
+	if ( Any( ps->eFlags & entityFlags_t::EF_NPC ) && gent != nullptr && gent->client != nullptr )
 	{
 		if(gent->client->renderInfo.renderFlags & RF_LOCKEDANGLE)
 		{
@@ -439,7 +439,7 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 		}
 	}
 
-	if ( Any( ps->eFlags & EF_LOCKED_TO_WEAPON ) )
+	if ( Any( ps->eFlags & entityFlags_t::EF_LOCKED_TO_WEAPON ) )
 	{
 		// Emplaced guns have different pitch capabilities
 		pitchMin = -35;
@@ -498,7 +498,7 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 		}
 	}
 
-	if ( (!cg.renderingThirdPerson||cg.zoomMode) && Any(cmd->buttons & BUTTON_USE) && cmd->rightmove != 0 && !cmd->forwardmove && cmd->upmove <= 0 )
+	if ( (!cg.renderingThirdPerson||cg.zoomMode) && Any(cmd->buttons & buttonFlags_t::BUTTON_USE) && cmd->rightmove != 0 && !cmd->forwardmove && cmd->upmove <= 0 )
 	{//Only lean if holding use button, strafing and not moving forward or back and not jumping
 		if ( gent )
 		{
@@ -508,9 +508,9 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 			if ( cmd->rightmove > 0 )
 			{
 				/*
-				if( pm->ps->legsAnim != LEGS_LEAN_RIGHT1)
+				if( pm->ps->legsAnim != animNumber_t::LEGS_LEAN_RIGHT1)
 				{
-					PM_SetAnim(pm, SETANIM_LEGS, LEGS_LEAN_RIGHT1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD);
+					PM_SetAnim(pm, setAnimParts_t::SETANIM_LEGS, animNumber_t::LEGS_LEAN_RIGHT1, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD);
 				}
 				pm->ps->legsAnimTimer = 500;//Force it to hold the anim for at least half a sec
 				*/
@@ -527,9 +527,9 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 			else
 			{
 				/*
-				if ( pm->ps->legsAnim != LEGS_LEAN_LEFT1 )
+				if ( pm->ps->legsAnim != animNumber_t::LEGS_LEAN_LEFT1 )
 				{
-					PM_SetAnim(pm, SETANIM_LEGS, LEGS_LEAN_LEFT1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD);
+					PM_SetAnim(pm, setAnimParts_t::SETANIM_LEGS, animNumber_t::LEGS_LEAN_LEFT1, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD);
 				}
 				pm->ps->legsAnimTimer = 500;//Force it to hold the anim for at least half a sec
 				*/
@@ -556,7 +556,7 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 			VectorSet( tmaxs, 8, 8, 4 );
 			//if we don't trace EVERY frame, can TURN while leaning and
 			//end up leaning into solid architecture (sigh)
-			gi.trace( &trace, start, tmins, tmaxs, end, gent->s.number, MASK_PLAYERSOLID, G2_NOCOLLIDE, 0 );
+			gi.trace( &trace, start, tmins, tmaxs, end, gent->s.number, MASK_PLAYERSOLID, EG2_Collision::G2_NOCOLLIDE, 0 );
 
 			ps->leanofs = floor((float)leanofs * trace.fraction);
 
@@ -567,8 +567,8 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 	{
 		if ( gent && (cmd->forwardmove || cmd->upmove > 0) )
 		{
-			if( ( pm->ps->legsAnim == LEGS_LEAN_RIGHT1) ||
-				( pm->ps->legsAnim == LEGS_LEAN_LEFT1) )
+			if( ( pm->ps->legsAnim == animNumber_t::LEGS_LEAN_RIGHT1) ||
+				( pm->ps->legsAnim == animNumber_t::LEGS_LEAN_LEFT1) )
 			{
 				pm->ps->legsAnimTimer = 0;//Force it to stop the anim
 			}
@@ -598,7 +598,7 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 	{
 		ps->leanStopDebounceTime -= 1;
 		cmd->rightmove = 0;
-		cmd->buttons &= ~BUTTON_USE;
+		cmd->buttons &= ~buttonFlags_t::BUTTON_USE;
 	}
 }
 

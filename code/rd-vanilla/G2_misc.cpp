@@ -428,7 +428,7 @@ void R_TransformEachSurface( const mdxmSurface_t *surface, vec3_t scale, CMiniHe
 	if (!TransformedVerts)
 	{
 		assert(TransformedVerts);
-		Com_Error(ERR_DROP, "Ran out of transform space for Ghoul2 Models. Adjust G2_MINIHEAP_SIZE in sv_init.cpp.\n");
+		Com_Error(errorParm_t::ERR_DROP, "Ran out of transform space for Ghoul2 Models. Adjust G2_MINIHEAP_SIZE in sv_init.cpp.\n");
 	}
 
 	// whip through and actually transform each vertex
@@ -552,7 +552,7 @@ void G2_TransformSurfaces(int surfaceNum, surfaceInfo_v &rootSList,
 	}
 
 	// if we are turning off all descendants, then stop this recursion now
-	if (Any( offFlags & G2SURFACEFLAG_NODESCENDANTS ))
+	if (Any( offFlags & g2SurfaceFlags_t::G2SURFACEFLAG_NODESCENDANTS ))
 	{
 		return;
 	}
@@ -581,7 +581,7 @@ void G2_TransformModel(CGhoul2Info_v &ghoul2, const int frameNum, vec3_t scale, 
 #ifndef JK2_MODE
 	if ( cg_g2MarksAllModels == nullptr )
 	{
-		cg_g2MarksAllModels = ri.Cvar_Get( "cg_g2MarksAllModels", "0", CVAR_NONE );
+		cg_g2MarksAllModels = ri.Cvar_Get( "cg_g2MarksAllModels", "0", cvarFlags_t::CVAR_NONE );
 	}
 
 	if (cg_g2MarksAllModels == nullptr
@@ -656,7 +656,7 @@ void G2_TransformModel(CGhoul2Info_v &ghoul2, const int frameNum, vec3_t scale, 
 		g.mTransformedVertsArray = (intptr_t *)G2VertSpace->MiniHeapAlloc(g.currentModel->mdxm->numSurfaces * sizeof (intptr_t));
 		if (!g.mTransformedVertsArray)
 		{
-			Com_Error(ERR_DROP, "Ran out of transform space for Ghoul2 Models. Adjust G2_MINIHEAP_SIZE in sv_init.cpp.\n");
+			Com_Error(errorParm_t::ERR_DROP, "Ran out of transform space for Ghoul2 Models. Adjust G2_MINIHEAP_SIZE in sv_init.cpp.\n");
 		}
 
 		memset(g.mTransformedVertsArray, 0,(g.currentModel->mdxm->numSurfaces * sizeof (intptr_t)));
@@ -1057,7 +1057,7 @@ static void G2_GorePolys( const mdxmSurface_t *surface, CTraceSurface &TS, const
 			sizeof(float)*2*newNumVerts+ // texture coordinates
 			sizeof(int)*newNumTris*3;  // new indecies
 
-		int *data=(int *)R_Malloc ( sizeof(int)*size, TAG_GHOUL2, true );
+		int *data=(int *)R_Malloc ( sizeof(int)*size, memtag::TAG_GHOUL2, true );
 
 		if ( gore->tex[TS.lod] )
 			R_Free(gore->tex[TS.lod]);
@@ -1229,7 +1229,7 @@ static bool G2_TracePolys(const mdxmSurface_t *surface, const mdxmSurfHierarchy_
 					}
 */
 					// exit now if we should
-					if (TS.eG2TraceType == G2_RETURNONHIT)
+					if (TS.eG2TraceType == EG2_Collision::G2_RETURNONHIT)
 					{
 						TS.hitOne = true;
 						return true;
@@ -1409,7 +1409,7 @@ static bool G2_RadiusTracePolys(
 
 					newCol.mMaterial = newCol.mLocation = 0;
 					// exit now if we should
-					if (TS.eG2TraceType == G2_RETURNONHIT)
+					if (TS.eG2TraceType == EG2_Collision::G2_RETURNONHIT)
 					{
 						TS.hitOne = true;
 						return true;
@@ -1511,7 +1511,7 @@ static void G2_TraceSurfaces(CTraceSurface &TS)
 				if (G2_RadiusTracePolys(surface,		// const mdxmSurface_t *surface,
 										TS
 										)
-					&& (TS.eG2TraceType == G2_RETURNONHIT)
+					&& (TS.eG2TraceType == EG2_Collision::G2_RETURNONHIT)
 					)
 				{
 					TS.hitOne = true;
@@ -1522,7 +1522,7 @@ static void G2_TraceSurfaces(CTraceSurface &TS)
 			{
 				// go away and trace the polys in this surface
 				if (G2_TracePolys(surface, surfInfo, TS)
-					&& (TS.eG2TraceType == G2_RETURNONHIT)
+					&& (TS.eG2TraceType == EG2_Collision::G2_RETURNONHIT)
 					)
 				{
 					// ok, we hit one, *and* we want to return instantly because the returnOnHit is set
@@ -1541,7 +1541,7 @@ static void G2_TraceSurfaces(CTraceSurface &TS)
 	}
 
 	// if we are turning off all descendants, then stop this recursion now
-	if (Any( offFlags & G2SURFACEFLAG_NODESCENDANTS ))
+	if (Any( offFlags & g2SurfaceFlags_t::G2SURFACEFLAG_NODESCENDANTS ))
 	{
 		return;
 	}
@@ -1571,7 +1571,7 @@ void G2_TraceModels(CGhoul2Info_v &ghoul2, vec3_t rayStart, vec3_t rayEnd, CColl
 #ifndef JK2_MODE
 	if ( cg_g2MarksAllModels == nullptr )
 	{
-		cg_g2MarksAllModels = ri.Cvar_Get( "cg_g2MarksAllModels", "0", CVAR_NONE );
+		cg_g2MarksAllModels = ri.Cvar_Get( "cg_g2MarksAllModels", "0", cvarFlags_t::CVAR_NONE );
 	}
 
 	if (cg_g2MarksAllModels == nullptr
@@ -1609,7 +1609,7 @@ void G2_TraceModels(CGhoul2Info_v &ghoul2, vec3_t rayStart, vec3_t rayEnd, CColl
 		}
 		assert(G2_MODEL_OK(&ghoul2[i]));
 		// do we really want to collide with this object?
-		if (Any( g.mFlags & GHOUL2_NOCOLLIDE ))
+		if (Any( g.mFlags & ghoul2Flags_t::GHOUL2_NOCOLLIDE ))
 		{
 			continue;
 		}

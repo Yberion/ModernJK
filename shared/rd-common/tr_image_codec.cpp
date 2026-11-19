@@ -109,7 +109,7 @@ byte *R_DecodeImage( const char *name, const byte *file, int length, int *width,
 		if ( callbacks.pixels ) {
 			R_ImageFree( callbacks.pixels );
 		}
-		ri.Printf( PRINT_WARNING, "R_DecodeImage: %s: %s\n", name, result.error_message.c_str() );
+		ri.Printf( printParm_t::PRINT_WARNING, "R_DecodeImage: %s: %s\n", name, result.error_message.c_str() );
 		return nullptr;
 	}
 	*width = static_cast<int>( result.pixbuf.pixcfg.width() );
@@ -142,7 +142,7 @@ static void EncodeToBuffer( void *context, void *data, int size ) {
 	encodeBuffer_t *buffer = static_cast<encodeBuffer_t *>( context );
 
 	if ( buffer->used + size > buffer->size ) {
-		Com_Error( ERR_FATAL, "Output buffer for encoded JPEG image has insufficient size of %d bytes", static_cast<int>( buffer->size ) );
+		Com_Error( errorParm_t::ERR_FATAL, "Output buffer for encoded JPEG image has insufficient size of %d bytes", static_cast<int>( buffer->size ) );
 	}
 	memcpy( buffer->out + buffer->used, data, size );
 	buffer->used += size;

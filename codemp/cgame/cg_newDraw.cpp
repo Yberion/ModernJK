@@ -37,25 +37,25 @@ int CG_GetSelectedPlayer() {
 qhandle_t CG_StatusHandle(teamtask_t task) {
 	qhandle_t h = cgs.media.assaultShader;
 	switch (task) {
-	case TEAMTASK_OFFENSE :
+	case teamtask_t::TEAMTASK_OFFENSE :
 		h = cgs.media.assaultShader;
 		break;
-	case TEAMTASK_DEFENSE :
+	case teamtask_t::TEAMTASK_DEFENSE :
 		h = cgs.media.defendShader;
 		break;
-	case TEAMTASK_PATROL :
+	case teamtask_t::TEAMTASK_PATROL :
 		h = cgs.media.patrolShader;
 		break;
-	case TEAMTASK_FOLLOW :
+	case teamtask_t::TEAMTASK_FOLLOW :
 		h = cgs.media.followShader;
 		break;
-	case TEAMTASK_CAMP :
+	case teamtask_t::TEAMTASK_CAMP :
 		h = cgs.media.campShader;
 		break;
-	case TEAMTASK_RETRIEVE :
+	case teamtask_t::TEAMTASK_RETRIEVE :
 		h = cgs.media.retrieveShader;
 		break;
-	case TEAMTASK_ESCORT :
+	case teamtask_t::TEAMTASK_ESCORT :
 		h = cgs.media.escortShader;
 		break;
 	default :
@@ -84,19 +84,19 @@ float CG_GetValue(int ownerDraw) {
 		return ci->health;
 		break;
 	case CG_PLAYER_ARMOR_VALUE:
-		return ps->stats[STAT_ARMOR];
+		return ps->stats[statIndex_t::STAT_ARMOR];
 		break;
 	case CG_PLAYER_AMMO_VALUE:
-		if ( cent->currentState.weapon != WP_NONE )
+		if ( cent->currentState.weapon != weapon_t::WP_NONE )
 		{
 			return ps->ammo[weaponData[cent->currentState.weapon].ammoIndex];
 		}
 		break;
 	case CG_PLAYER_SCORE:
-		return cg.snap->ps.persistant[PERS_SCORE];
+		return cg.snap->ps.persistant[persEnum_t::PERS_SCORE];
 		break;
 	case CG_PLAYER_HEALTH:
-		return ps->stats[STAT_HEALTH];
+		return ps->stats[statIndex_t::STAT_HEALTH];
 		break;
 	case CG_RED_SCORE:
 		return cgs.scores1;
@@ -114,11 +114,11 @@ float CG_GetValue(int ownerDraw) {
 }
 
 bool CG_OtherTeamHasFlag(void) {
-	if (cgs.gametype == GT_CTF || cgs.gametype == GT_CTY) {
+	if (cgs.gametype == gametype_t::GT_CTF || cgs.gametype == gametype_t::GT_CTY) {
 		team_t team = PS_Team( cg.snap->ps );
-		if (team == TEAM_RED && cgs.redflag == FLAG_TAKEN) {
+		if (team == team_t::TEAM_RED && cgs.redflag == flagStatus_t::FLAG_TAKEN) {
 			return true;
-		} else if (team == TEAM_BLUE && cgs.blueflag == FLAG_TAKEN) {
+		} else if (team == team_t::TEAM_BLUE && cgs.blueflag == flagStatus_t::FLAG_TAKEN) {
 			return true;
 		} else {
 			return false;
@@ -128,11 +128,11 @@ bool CG_OtherTeamHasFlag(void) {
 }
 
 bool CG_YourTeamHasFlag(void) {
-	if (cgs.gametype == GT_CTF || cgs.gametype == GT_CTY) {
+	if (cgs.gametype == gametype_t::GT_CTF || cgs.gametype == gametype_t::GT_CTY) {
 		team_t team = PS_Team( cg.snap->ps );
-		if (team == TEAM_RED && cgs.blueflag == FLAG_TAKEN) {
+		if (team == team_t::TEAM_RED && cgs.blueflag == flagStatus_t::FLAG_TAKEN) {
 			return true;
-		} else if (team == TEAM_BLUE && cgs.redflag == FLAG_TAKEN) {
+		} else if (team == team_t::TEAM_BLUE && cgs.redflag == flagStatus_t::FLAG_TAKEN) {
 			return true;
 		} else {
 			return false;
@@ -162,52 +162,52 @@ bool CG_OwnerDrawVisible(int flags) {
 	}
 
 	if (flags & (CG_SHOW_BLUE_TEAM_HAS_REDFLAG | CG_SHOW_RED_TEAM_HAS_BLUEFLAG)) {
-		if (flags & CG_SHOW_BLUE_TEAM_HAS_REDFLAG && (cgs.redflag == FLAG_TAKEN || cgs.flagStatus == FLAG_TAKEN_RED)) {
+		if (flags & CG_SHOW_BLUE_TEAM_HAS_REDFLAG && (cgs.redflag == flagStatus_t::FLAG_TAKEN || cgs.flagStatus == flagStatus_t::FLAG_TAKEN_RED)) {
 			return true;
-		} else if (flags & CG_SHOW_RED_TEAM_HAS_BLUEFLAG && (cgs.blueflag == FLAG_TAKEN || cgs.flagStatus == FLAG_TAKEN_BLUE)) {
+		} else if (flags & CG_SHOW_RED_TEAM_HAS_BLUEFLAG && (cgs.blueflag == flagStatus_t::FLAG_TAKEN || cgs.flagStatus == flagStatus_t::FLAG_TAKEN_BLUE)) {
 			return true;
 		}
 		return false;
 	}
 
 	if (flags & CG_SHOW_ANYTEAMGAME) {
-		if( cgs.gametype >= GT_TEAM) {
+		if( cgs.gametype >= gametype_t::GT_TEAM) {
 			return true;
 		}
 	}
 
 	if (flags & CG_SHOW_ANYNONTEAMGAME) {
-		if( cgs.gametype < GT_TEAM) {
+		if( cgs.gametype < gametype_t::GT_TEAM) {
 			return true;
 		}
 	}
 
 	if (flags & CG_SHOW_CTF) {
-		if( cgs.gametype == GT_CTF || cgs.gametype == GT_CTY ) {
+		if( cgs.gametype == gametype_t::GT_CTF || cgs.gametype == gametype_t::GT_CTY ) {
 			return true;
 		}
 	}
 
 	if (flags & CG_SHOW_HEALTHCRITICAL) {
-		if (cg.snap->ps.stats[STAT_HEALTH] < 25) {
+		if (cg.snap->ps.stats[statIndex_t::STAT_HEALTH] < 25) {
 			return true;
 		}
 	}
 
 	if (flags & CG_SHOW_HEALTHOK) {
-		if (cg.snap->ps.stats[STAT_HEALTH] >= 25) {
+		if (cg.snap->ps.stats[statIndex_t::STAT_HEALTH] >= 25) {
 			return true;
 		}
 	}
 
 	if (flags & CG_SHOW_SINGLEPLAYER) {
-		if( cgs.gametype == GT_SINGLE_PLAYER ) {
+		if( cgs.gametype == gametype_t::GT_SINGLE_PLAYER ) {
 			return true;
 		}
 	}
 
 	if (flags & CG_SHOW_TOURNAMENT) {
-		if( cgs.gametype == GT_DUEL || cgs.gametype == GT_POWERDUEL ) {
+		if( cgs.gametype == gametype_t::GT_DUEL || cgs.gametype == gametype_t::GT_POWERDUEL ) {
 			return true;
 		}
 	}
@@ -216,7 +216,7 @@ bool CG_OwnerDrawVisible(int flags) {
 	}
 
 	if (flags & CG_SHOW_IF_PLAYER_HAS_FLAG) {
-		if (cg.snap->ps.powerups[PW_REDFLAG] || cg.snap->ps.powerups[PW_BLUEFLAG] || cg.snap->ps.powerups[PW_NEUTRALFLAG]) {
+		if (cg.snap->ps.powerups[powerup_t::PW_REDFLAG] || cg.snap->ps.powerups[powerup_t::PW_BLUEFLAG] || cg.snap->ps.powerups[powerup_t::PW_NEUTRALFLAG]) {
 			return true;
 		}
 	}
@@ -235,18 +235,18 @@ const char *CG_GetKillerText(void) {
 
 const char *CG_GetGameStatusText(void) {
 	static const char *s = "";
-	if (cgs.gametype == GT_POWERDUEL)
+	if (cgs.gametype == gametype_t::GT_POWERDUEL)
 	{
 		s = "";
 	}
-	else if ( cgs.gametype < GT_TEAM)
+	else if ( cgs.gametype < gametype_t::GT_TEAM)
 	{
-		if (PS_Team( cg.snap->ps ) != TEAM_SPECTATOR )
+		if (PS_Team( cg.snap->ps ) != team_t::TEAM_SPECTATOR )
 		{
 			char sPlaceWith[256];
 			trap->SE_GetStringTextString("MP_INGAME_PLACE_WITH", sPlaceWith, sizeof(sPlaceWith));
 
-			s = va("%s %s %i",CG_PlaceString( cg.snap->ps.persistant[PERS_RANK] + 1 ), sPlaceWith, cg.snap->ps.persistant[PERS_SCORE] );
+			s = va("%s %s %i",CG_PlaceString( cg.snap->ps.persistant[persEnum_t::PERS_RANK] + 1 ), sPlaceWith, cg.snap->ps.persistant[persEnum_t::PERS_SCORE] );
 		}
 	}
 	else
@@ -343,7 +343,7 @@ void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale
 	for (i = 0; i < count; i++) {
 		ci = cgs.clientinfo + sortedTeamPlayers[i];
 		if ( ci->infoValid && ci->team == PS_Team( cg.snap->ps )) {
-			len = CG_Text_Width( ci->name, scale, FONT_NONE);
+			len = CG_Text_Width( ci->name, scale, menuFont_t::FONT_NONE);
 			if (len > pwidth)
 				pwidth = len;
 		}
@@ -354,7 +354,7 @@ void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale
 	for (i = 1; i < MAX_LOCATIONS; i++) {
 		p = CG_GetLocationString(CG_ConfigString(CS_LOCATIONS+i));
 		if (p && *p) {
-			len = CG_Text_Width(p, scale, FONT_NONE);
+			len = CG_Text_Width(p, scale, menuFont_t::FONT_NONE);
 			if (len > lwidth)
 				lwidth = len;
 		}
@@ -367,7 +367,7 @@ void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale
 		if ( ci->infoValid && ci->team == PS_Team( cg.snap->ps )) {
 
 			xx = rect->x + 1;
-			for (powerup_t j = PW_NONE; j < PW_NUM_POWERUPS; j++) {
+			for (powerup_t j = powerup_t::PW_NONE; j < powerup_t::PW_NUM_POWERUPS; j++) {
 				if (ci->powerups & Bit( j )) {
 
 					item = BG_FindItemForPowerup( j );
@@ -415,7 +415,7 @@ void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale
 
 
 
-			CG_Text_Paint_Limit(&maxx, xx, y + text_y, scale, color, ci->name, 0, 0, FONT_MEDIUM);
+			CG_Text_Paint_Limit(&maxx, xx, y + text_y, scale, color, ci->name, 0, 0, menuFont_t::FONT_MEDIUM);
 
 			p = CG_GetLocationString(CG_ConfigString(CS_LOCATIONS+ci->location));
 			if (!p || !*p) {
@@ -425,7 +425,7 @@ void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale
 			xx += leftOver / 3 + 2;
 			maxx = rect->w - 4;
 
-			CG_Text_Paint_Limit(&maxx, xx, y + text_y, scale, color, p, 0, 0, FONT_MEDIUM);
+			CG_Text_Paint_Limit(&maxx, xx, y + text_y, scale, color, p, 0, 0, menuFont_t::FONT_MEDIUM);
 			y += text_y + 2;
 			if ( y + text_y + 2 > rect->y + rect->h ) {
 				break;
@@ -456,7 +456,7 @@ void CG_DrawTeamSpectators(rectDef_t *rect, float scale, vec4_t color, qhandle_t
 			cg.spectatorTime = cg.time + 10;
 			if (cg.spectatorPaintX <= rect->x + 2) {
 				if (cg.spectatorOffset < cg.spectatorLen) {
-					cg.spectatorPaintX += CG_Text_Width(&cg.spectatorList[cg.spectatorOffset], scale, FONT_SMALL) - 1;
+					cg.spectatorPaintX += CG_Text_Width(&cg.spectatorList[cg.spectatorOffset], scale, menuFont_t::FONT_SMALL) - 1;
 					cg.spectatorOffset++;
 				} else {
 					cg.spectatorOffset = 0;
@@ -476,10 +476,10 @@ void CG_DrawTeamSpectators(rectDef_t *rect, float scale, vec4_t color, qhandle_t
 		}
 
 		maxX = rect->x + rect->w - 2;
-		CG_Text_Paint_Limit(&maxX, cg.spectatorPaintX, rect->y + rect->h - 3, scale, color, &cg.spectatorList[cg.spectatorOffset], 0, 0, FONT_MEDIUM);
+		CG_Text_Paint_Limit(&maxX, cg.spectatorPaintX, rect->y + rect->h - 3, scale, color, &cg.spectatorList[cg.spectatorOffset], 0, 0, menuFont_t::FONT_MEDIUM);
 		if (cg.spectatorPaintX2 >= 0) {
 			float maxX2 = rect->x + rect->w - 2;
-			CG_Text_Paint_Limit(&maxX2, cg.spectatorPaintX2, rect->y + rect->h - 3, scale, color, cg.spectatorList, 0, cg.spectatorOffset, FONT_MEDIUM);
+			CG_Text_Paint_Limit(&maxX2, cg.spectatorPaintX2, rect->y + rect->h - 3, scale, color, cg.spectatorList, 0, cg.spectatorOffset, menuFont_t::FONT_MEDIUM);
 		}
 		if (cg.spectatorOffset && maxX > 0) {
 			// if we have an offset ( we are skipping the first part of the string ) and we fit the string
@@ -552,8 +552,8 @@ void CG_DrawMedal(int ownerDraw, rectDef_t *rect, float scale, vec4_t color, qha
 
 	if (text) {
 		color[3] = 1.0;
-		value = CG_Text_Width(text, scale, FONT_NONE);
-		CG_Text_Paint(rect->x + (rect->w - value) / 2, rect->y + rect->h + 10 , scale, color, text, 0, 0, 0, FONT_MEDIUM);
+		value = CG_Text_Width(text, scale, menuFont_t::FONT_NONE);
+		CG_Text_Paint(rect->x + (rect->w - value) / 2, rect->y + rect->h + 10 , scale, color, text, 0, 0, 0, menuFont_t::FONT_MEDIUM);
 	}
 	trap->R_SetColor(nullptr);
 
@@ -750,8 +750,8 @@ void CG_MouseEvent(int x, int y) {
 	cursorType_t n;
 
 	/*
-	if ( (cg.predictedPlayerState.pm_type == PM_NORMAL || cg.predictedPlayerState.pm_type == PM_JETPACK || cg.predictedPlayerState.pm_type == PM_FLOAT || cg.predictedPlayerState.pm_type == PM_SPECTATOR) && cg.showScores == false) {
-		trap->Key_SetCatcher(KEYCATCH_NONE);
+	if ( (cg.predictedPlayerState.pm_type == pmtype_t::PM_NORMAL || cg.predictedPlayerState.pm_type == pmtype_t::PM_JETPACK || cg.predictedPlayerState.pm_type == pmtype_t::PM_FLOAT || cg.predictedPlayerState.pm_type == pmtype_t::PM_SPECTATOR) && cg.showScores == false) {
+		trap->Key_SetCatcher(keyCatchFlags_t::KEYCATCH_NONE);
 		return;
 	}
 	*/
@@ -770,9 +770,9 @@ void CG_MouseEvent(int x, int y) {
 
 	n = Display_CursorType(cgs.cursorX, cgs.cursorY);
 	cgs.activeCursor = 0;
-	if (n == CURSOR_ARROW) {
+	if (n == cursorType_t::CURSOR_ARROW) {
 		cgs.activeCursor = cgs.media.selectCursor;
-	} else if (n == CURSOR_SIZER) {
+	} else if (n == cursorType_t::CURSOR_SIZER) {
 		cgs.activeCursor = cgs.media.sizeCursor;
 	}
 
@@ -818,12 +818,12 @@ type 0 - no event handling
 
 */
 void CG_EventHandling(cgameEvent_t type) {
-	cgs.eventHandling = type != CGAME_EVENT_NONE;
-	if (type == CGAME_EVENT_NONE) {
+	cgs.eventHandling = type != cgameEvent_t::CGAME_EVENT_NONE;
+	if (type == cgameEvent_t::CGAME_EVENT_NONE) {
 		CG_HideTeamMenu();
-	} else if (type == CGAME_EVENT_TEAMMENU) {
+	} else if (type == cgameEvent_t::CGAME_EVENT_TEAMMENU) {
 		//CG_ShowTeamMenu();
-	} else if (type == CGAME_EVENT_SCOREBOARD) {
+	} else if (type == cgameEvent_t::CGAME_EVENT_SCOREBOARD) {
 	}
 
 }
@@ -836,16 +836,16 @@ void CG_KeyEvent(int key, bool down) {
 		return;
 	}
 
-	if ( cg.predictedPlayerState.pm_type == PM_NORMAL || cg.predictedPlayerState.pm_type == PM_JETPACK || cg.predictedPlayerState.pm_type == PM_NORMAL || (cg.predictedPlayerState.pm_type == PM_SPECTATOR && cg.showScores == false)) {
-		CG_EventHandling(CGAME_EVENT_NONE);
-		trap->Key_SetCatcher(KEYCATCH_NONE);
+	if ( cg.predictedPlayerState.pm_type == pmtype_t::PM_NORMAL || cg.predictedPlayerState.pm_type == pmtype_t::PM_JETPACK || cg.predictedPlayerState.pm_type == pmtype_t::PM_NORMAL || (cg.predictedPlayerState.pm_type == pmtype_t::PM_SPECTATOR && cg.showScores == false)) {
+		CG_EventHandling(cgameEvent_t::CGAME_EVENT_NONE);
+		trap->Key_SetCatcher(keyCatchFlags_t::KEYCATCH_NONE);
 		return;
 	}
 
 	//if ((KeyEvent_Key( key ) && KeyEvent_Key( key ) == trap->Key_GetKey("teamMenu")) || !Display_CaptureItem(cgs.cursorX, cgs.cursorY)) {
 	// if we see this then we should always be visible
-	//  CG_EventHandling(CGAME_EVENT_NONE);
-	//  trap->Key_SetCatcher(KEYCATCH_NONE);
+	//  CG_EventHandling(cgameEvent_t::CGAME_EVENT_NONE);
+	//  trap->Key_SetCatcher(keyCatchFlags_t::KEYCATCH_NONE);
 	//}
 
 
@@ -855,7 +855,7 @@ void CG_KeyEvent(int key, bool down) {
 	if (cgs.capturedItem) {
 		cgs.capturedItem = nullptr;
 	}	else {
-		if (KeyEvent_Key( key ) == A_MOUSE2 && down) {
+		if (KeyEvent_Key( key ) == fakeAscii_t::A_MOUSE2 && down) {
 			cgs.capturedItem = Display_CaptureItem(cgs.cursorX, cgs.cursorY);
 		}
 	}
@@ -886,11 +886,11 @@ bool CG_DeferMenuScript (char **args)
 }
 
 void CG_GetTeamColor(vec4_t *color) {
-	if (PS_Team( cg.snap->ps ) == TEAM_RED) {
+	if (PS_Team( cg.snap->ps ) == team_t::TEAM_RED) {
 		(*color)[0] = 1.0f;
 		(*color)[3] = 0.25f;
 		(*color)[1] = (*color)[2] = 0.0f;
-	} else if (PS_Team( cg.snap->ps ) == TEAM_BLUE) {
+	} else if (PS_Team( cg.snap->ps ) == team_t::TEAM_BLUE) {
 		(*color)[0] = (*color)[1] = 0.0f;
 		(*color)[2] = 1.0f;
 		(*color)[3] = 0.25f;

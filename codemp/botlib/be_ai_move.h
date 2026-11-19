@@ -47,7 +47,6 @@ enum class moveTypeFlags_t
 	MOVE_ROCKETJUMP					= 16,
 	MOVE_BFGJUMP					= 32,
 };
-using enum moveTypeFlags_t;
 template <> inline constexpr bool enableEnumFlags<moveTypeFlags_t> = true;
 //move flags
 enum class moveFlags_t
@@ -64,7 +63,6 @@ enum class moveFlags_t
 	MFL_GRAPPLERESET				= 256,		//bot has reset the grapple
 	MFL_WALK						= 512,		//bot should walk slowly
 };
-using enum moveFlags_t;
 template <> inline constexpr bool enableEnumFlags<moveFlags_t> = true;
 // move result flags
 enum class moveResultFlags_t
@@ -80,7 +78,6 @@ enum class moveResultFlags_t
 	MOVERESULT_ONTOPOF_ELEVATOR		= 128,		//bot is ontop of an elevator (func_plat)
 	MOVERESULT_BLOCKEDBYAVOIDSPOT	= 256,		//bot is blocked by an avoid spot
 };
-using enum moveResultFlags_t;
 template <> inline constexpr bool enableEnumFlags<moveResultFlags_t> = true;
 //
 inline constexpr int MAX_AVOIDREACH = 1;
@@ -92,7 +89,6 @@ enum class avoidSpotType_t
 	AVOID_ALWAYS,					//avoid always
 	AVOID_DONTBLOCK,				//never totally block
 };
-using enum avoidSpotType_t;
 // restult types
 enum class moveResultTypeFlags_t
 {
@@ -102,7 +98,6 @@ enum class moveResultTypeFlags_t
 	RESULTTYPE_BADGRAPPLEPATH		= 4,		//grapple path is obstructed
 	RESULTTYPE_INSOLIDAREA			= 8,		//stuck in solid area, this is bad
 };
-using enum moveResultTypeFlags_t;
 template <> inline constexpr bool enableEnumFlags<moveResultTypeFlags_t> = true;
 
 //structure used to initialize the movement state
@@ -134,7 +129,7 @@ typedef struct bot_moveresult_s
 	vec3_t ideal_viewangles;	//ideal viewangles for the movement
 } bot_moveresult_t;
 
-#define bot_moveresult_t_cleared(x) bot_moveresult_t x = {0, RESULTTYPE_NONE, 0, 0, TRAVEL_NONE, MOVERESULT_NONE, 0, {0, 0, 0}, {0, 0, 0}}
+#define bot_moveresult_t_cleared(x) bot_moveresult_t x = {0, moveResultTypeFlags_t::RESULTTYPE_NONE, 0, 0, travelTypeFlags_t::TRAVEL_NONE, moveResultFlags_t::MOVERESULT_NONE, 0, {0, 0, 0}, {0, 0, 0}}
 
 typedef struct bot_avoidspot_s
 {

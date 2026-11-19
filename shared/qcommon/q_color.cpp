@@ -29,7 +29,7 @@ vec4_t g_color_table[Q_COLOR_BITS+1] = {
 	{ 0.5, 0.5, 0.5, 1.0 },	// md.grey
 };
 
-EnumArray<vec4_t, ct_table_t, CT_MAX> colorTable =
+EnumArray<vec4_t, ct_table_t, ct_table_t::CT_MAX> colorTable =
 { {
 	{0, 0, 0, 0},			// CT_NONE
 	{0, 0, 0, 1},			// CT_BLACK

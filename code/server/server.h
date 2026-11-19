@@ -59,7 +59,6 @@ enum class serverState_t {
 	SS_LOADING,			// spawning level entities
 	SS_GAME				// actively running
 };
-using enum serverState_t;
 
 typedef struct {
 	serverState_t	state;
@@ -105,7 +104,6 @@ enum class clientState_t {
 	CS_PRIMED,		// gamestate has been sent, but client hasn't sent a usercmd
 	CS_ACTIVE		// client is fully in game
 };
-using enum clientState_t;
 
 
 typedef struct client_s {
@@ -277,7 +275,7 @@ contentsFlags_t SV_PointContents( const vec3_t p, int passEntityNum );
 Ghoul2 Insert Start
 */
 void SV_Trace( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
-			  const int passEntityNum, const contentsFlags_t contentmask, const EG2_Collision eG2TraceType = G2_NOCOLLIDE, const int useLod = 0);
+			  const int passEntityNum, const contentsFlags_t contentmask, const EG2_Collision eG2TraceType = EG2_Collision::G2_NOCOLLIDE, const int useLod = 0);
 /*
 Ghoul2 Insert End
 */
@@ -335,7 +333,7 @@ private:
 	char			*Reference;
 
 public:
-					 cStrings(spStringFlags_t initFlags = SP_FLAG_NONE, char *initReference = nullptr);
+					 cStrings(spStringFlags_t initFlags = spStringFlags_t::SP_FLAG_NONE, char *initReference = nullptr);
 	virtual			~cStrings(void);
 
 	virtual void	Clear(void);
@@ -360,7 +358,7 @@ private:
 	void			SetText(const char *newText);
 
 public:
-					 cStringsSingle(spStringFlags_t initFlags = SP_FLAG_NONE, char *initReference = nullptr);
+					 cStringsSingle(spStringFlags_t initFlags = spStringFlags_t::SP_FLAG_NONE, char *initReference = nullptr);
 	virtual			~cStringsSingle();
 
 	char			*GetText(void) { return Text; }

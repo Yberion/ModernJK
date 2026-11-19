@@ -60,7 +60,7 @@ void GL_Bind( image_t *image ) {
 	int texnum;
 
 	if ( !image ) {
-		ri.Printf( PRINT_WARNING, "GL_Bind: NULL image\n" );
+		ri.Printf( printParm_t::PRINT_WARNING, "GL_Bind: NULL image\n" );
 		texnum = tr.defaultImage->texnum;
 	} else {
 		texnum = image->texnum;
@@ -116,7 +116,7 @@ void GL_SelectTexture( int unit )
 		GLimp_LogComment( "glClientActiveTextureARB( GL_TEXTURE3_ARB )\n" );
 	}
 	else {
-		Com_Error( ERR_DROP, "GL_SelectTexture: unit = %i", unit );
+		Com_Error( errorParm_t::ERR_DROP, "GL_SelectTexture: unit = %i", unit );
 	}
 
 	glState.currenttmu = unit;
@@ -135,7 +135,7 @@ void GL_Cull( cullType_t cullType ) {
 		return;
 	}
 
-	if ( cullType == CT_TWO_SIDED )
+	if ( cullType == cullType_t::CT_TWO_SIDED )
 	{
 		qglDisable( GL_CULL_FACE );
 	}
@@ -143,7 +143,7 @@ void GL_Cull( cullType_t cullType ) {
 	{
 		qglEnable( GL_CULL_FACE );
 
-		if ( cullType == CT_BACK_SIDED )
+		if ( cullType == cullType_t::CT_BACK_SIDED )
 		{
 			if ( backEnd.viewParms.isMirror )
 			{
@@ -196,7 +196,7 @@ void GL_TexEnv( int env )
 		qglTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_ADD );
 		break;
 	default:
-		Com_Error( ERR_DROP, "GL_TexEnv: invalid env '%d' passed\n", env );
+		Com_Error( errorParm_t::ERR_DROP, "GL_TexEnv: invalid env '%d' passed\n", env );
 		break;
 	}
 }
@@ -219,9 +219,9 @@ void GL_State( glStateBits_t stateBits )
 	//
 	// check depthFunc bits
 	//
-	if ( Any( diff & GLS_DEPTHFUNC_EQUAL ) )
+	if ( Any( diff & glStateBits_t::GLS_DEPTHFUNC_EQUAL ) )
 	{
-		if ( Any( stateBits & GLS_DEPTHFUNC_EQUAL ) )
+		if ( Any( stateBits & glStateBits_t::GLS_DEPTHFUNC_EQUAL ) )
 		{
 			qglDepthFunc( GL_EQUAL );
 		}
@@ -234,76 +234,76 @@ void GL_State( glStateBits_t stateBits )
 	//
 	// check blend bits
 	//
-	if ( Any( diff & ( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS ) ) )
+	if ( Any( diff & ( glStateBits_t::GLS_SRCBLEND_BITS | glStateBits_t::GLS_DSTBLEND_BITS ) ) )
 	{
 		GLenum srcFactor, dstFactor;
 
-		if ( Any( stateBits & ( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS ) ) )
+		if ( Any( stateBits & ( glStateBits_t::GLS_SRCBLEND_BITS | glStateBits_t::GLS_DSTBLEND_BITS ) ) )
 		{
-			switch ( stateBits & GLS_SRCBLEND_BITS )
+			switch ( stateBits & glStateBits_t::GLS_SRCBLEND_BITS )
 			{
-			case GLS_SRCBLEND_ZERO:
+			case glStateBits_t::GLS_SRCBLEND_ZERO:
 				srcFactor = GL_ZERO;
 				break;
-			case GLS_SRCBLEND_ONE:
+			case glStateBits_t::GLS_SRCBLEND_ONE:
 				srcFactor = GL_ONE;
 				break;
-			case GLS_SRCBLEND_DST_COLOR:
+			case glStateBits_t::GLS_SRCBLEND_DST_COLOR:
 				srcFactor = GL_DST_COLOR;
 				break;
-			case GLS_SRCBLEND_ONE_MINUS_DST_COLOR:
+			case glStateBits_t::GLS_SRCBLEND_ONE_MINUS_DST_COLOR:
 				srcFactor = GL_ONE_MINUS_DST_COLOR;
 				break;
-			case GLS_SRCBLEND_SRC_ALPHA:
+			case glStateBits_t::GLS_SRCBLEND_SRC_ALPHA:
 				srcFactor = GL_SRC_ALPHA;
 				break;
-			case GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA:
+			case glStateBits_t::GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA:
 				srcFactor = GL_ONE_MINUS_SRC_ALPHA;
 				break;
-			case GLS_SRCBLEND_DST_ALPHA:
+			case glStateBits_t::GLS_SRCBLEND_DST_ALPHA:
 				srcFactor = GL_DST_ALPHA;
 				break;
-			case GLS_SRCBLEND_ONE_MINUS_DST_ALPHA:
+			case glStateBits_t::GLS_SRCBLEND_ONE_MINUS_DST_ALPHA:
 				srcFactor = GL_ONE_MINUS_DST_ALPHA;
 				break;
-			case GLS_SRCBLEND_ALPHA_SATURATE:
+			case glStateBits_t::GLS_SRCBLEND_ALPHA_SATURATE:
 				srcFactor = GL_SRC_ALPHA_SATURATE;
 				break;
 			default:
 				srcFactor = GL_ONE;		// to get warning to shut up
-				Com_Error( ERR_DROP, "GL_State: invalid src blend state bits\n" );
+				Com_Error( errorParm_t::ERR_DROP, "GL_State: invalid src blend state bits\n" );
 				break;
 			}
 
-			switch ( stateBits & GLS_DSTBLEND_BITS )
+			switch ( stateBits & glStateBits_t::GLS_DSTBLEND_BITS )
 			{
-			case GLS_DSTBLEND_ZERO:
+			case glStateBits_t::GLS_DSTBLEND_ZERO:
 				dstFactor = GL_ZERO;
 				break;
-			case GLS_DSTBLEND_ONE:
+			case glStateBits_t::GLS_DSTBLEND_ONE:
 				dstFactor = GL_ONE;
 				break;
-			case GLS_DSTBLEND_SRC_COLOR:
+			case glStateBits_t::GLS_DSTBLEND_SRC_COLOR:
 				dstFactor = GL_SRC_COLOR;
 				break;
-			case GLS_DSTBLEND_ONE_MINUS_SRC_COLOR:
+			case glStateBits_t::GLS_DSTBLEND_ONE_MINUS_SRC_COLOR:
 				dstFactor = GL_ONE_MINUS_SRC_COLOR;
 				break;
-			case GLS_DSTBLEND_SRC_ALPHA:
+			case glStateBits_t::GLS_DSTBLEND_SRC_ALPHA:
 				dstFactor = GL_SRC_ALPHA;
 				break;
-			case GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA:
+			case glStateBits_t::GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA:
 				dstFactor = GL_ONE_MINUS_SRC_ALPHA;
 				break;
-			case GLS_DSTBLEND_DST_ALPHA:
+			case glStateBits_t::GLS_DSTBLEND_DST_ALPHA:
 				dstFactor = GL_DST_ALPHA;
 				break;
-			case GLS_DSTBLEND_ONE_MINUS_DST_ALPHA:
+			case glStateBits_t::GLS_DSTBLEND_ONE_MINUS_DST_ALPHA:
 				dstFactor = GL_ONE_MINUS_DST_ALPHA;
 				break;
 			default:
 				dstFactor = GL_ONE;		// to get warning to shut up
-				Com_Error( ERR_DROP, "GL_State: invalid dst blend state bits\n" );
+				Com_Error( errorParm_t::ERR_DROP, "GL_State: invalid dst blend state bits\n" );
 				break;
 			}
 
@@ -319,9 +319,9 @@ void GL_State( glStateBits_t stateBits )
 	//
 	// check depthmask
 	//
-	if ( Any( diff & GLS_DEPTHMASK_TRUE ) )
+	if ( Any( diff & glStateBits_t::GLS_DEPTHMASK_TRUE ) )
 	{
-		if ( Any( stateBits & GLS_DEPTHMASK_TRUE ) )
+		if ( Any( stateBits & glStateBits_t::GLS_DEPTHMASK_TRUE ) )
 		{
 			qglDepthMask( GL_TRUE );
 		}
@@ -334,9 +334,9 @@ void GL_State( glStateBits_t stateBits )
 	//
 	// fill/line mode
 	//
-	if ( Any( diff & GLS_POLYMODE_LINE ) )
+	if ( Any( diff & glStateBits_t::GLS_POLYMODE_LINE ) )
 	{
-		if ( Any( stateBits & GLS_POLYMODE_LINE ) )
+		if ( Any( stateBits & glStateBits_t::GLS_POLYMODE_LINE ) )
 		{
 			qglPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 		}
@@ -349,9 +349,9 @@ void GL_State( glStateBits_t stateBits )
 	//
 	// depthtest
 	//
-	if ( Any( diff & GLS_DEPTHTEST_DISABLE ) )
+	if ( Any( diff & glStateBits_t::GLS_DEPTHTEST_DISABLE ) )
 	{
-		if ( Any( stateBits & GLS_DEPTHTEST_DISABLE ) )
+		if ( Any( stateBits & glStateBits_t::GLS_DEPTHTEST_DISABLE ) )
 		{
 			qglDisable( GL_DEPTH_TEST );
 		}
@@ -364,26 +364,26 @@ void GL_State( glStateBits_t stateBits )
 	//
 	// alpha test
 	//
-	if ( Any( diff & GLS_ATEST_BITS ) )
+	if ( Any( diff & glStateBits_t::GLS_ATEST_BITS ) )
 	{
-		switch ( stateBits & GLS_ATEST_BITS )
+		switch ( stateBits & glStateBits_t::GLS_ATEST_BITS )
 		{
-		case GLS_NONE:
+		case glStateBits_t::GLS_NONE:
 			qglDisable( GL_ALPHA_TEST );
 			break;
-		case GLS_ATEST_GT_0:
+		case glStateBits_t::GLS_ATEST_GT_0:
 			qglEnable( GL_ALPHA_TEST );
 			qglAlphaFunc( GL_GREATER, 0.0f );
 			break;
-		case GLS_ATEST_LT_80:
+		case glStateBits_t::GLS_ATEST_LT_80:
 			qglEnable( GL_ALPHA_TEST );
 			qglAlphaFunc( GL_LESS, 0.5f );
 			break;
-		case GLS_ATEST_GE_80:
+		case glStateBits_t::GLS_ATEST_GE_80:
 			qglEnable( GL_ALPHA_TEST );
 			qglAlphaFunc( GL_GEQUAL, 0.5f );
 			break;
-		case GLS_ATEST_GE_C0:
+		case glStateBits_t::GLS_ATEST_GE_C0:
 			qglEnable( GL_ALPHA_TEST );
 			qglAlphaFunc( GL_GEQUAL, 0.75f );
 			break;
@@ -462,7 +462,7 @@ static void RB_BeginDrawingView (void) {
 	SetViewportAndScissor();
 
 	// ensures that depth writes are enabled for the depth clear
-	GL_State( GLS_DEFAULT );
+	GL_State( glStateBits_t::GLS_DEFAULT );
 
 	// clear relevant buffers
 	if ( r_measureOverdraw->integer || r_shadows->integer == 2 || tr_stencilled )
@@ -473,9 +473,9 @@ static void RB_BeginDrawingView (void) {
 
 	if (skyboxportal)
 	{
-		if ( Any( backEnd.refdef.rdflags & RDF_SKYBOXPORTAL ) )
+		if ( Any( backEnd.refdef.rdflags & refdefFlags_t::RDF_SKYBOXPORTAL ) )
 		{	// portal scene, clear whatever is necessary
-			if (r_fastsky->integer || Any(backEnd.refdef.rdflags & RDF_NOWORLDMODEL) )
+			if (r_fastsky->integer || Any(backEnd.refdef.rdflags & refdefFlags_t::RDF_NOWORLDMODEL) )
 			{	// fastsky: clear color
 				// try clearing first with the portal sky fog color, then the world fog color, then finally a default
 				clearBits |= GL_COLOR_BUFFER_BIT;
@@ -493,7 +493,7 @@ static void RB_BeginDrawingView (void) {
 	}
 	else
 	{
-		if ( r_fastsky->integer && !Any( backEnd.refdef.rdflags & RDF_NOWORLDMODEL ) && !g_bRenderGlowingObjects )
+		if ( r_fastsky->integer && !Any( backEnd.refdef.rdflags & refdefFlags_t::RDF_NOWORLDMODEL ) && !g_bRenderGlowingObjects )
 		{
 			if (tr.world && tr.world->globalFog != -1)
 			{
@@ -508,7 +508,7 @@ static void RB_BeginDrawingView (void) {
 		}
 	}
 
-	if ( !Any( backEnd.refdef.rdflags & RDF_NOWORLDMODEL ) && ( r_DynamicGlow->integer && !g_bRenderGlowingObjects ) )
+	if ( !Any( backEnd.refdef.rdflags & refdefFlags_t::RDF_NOWORLDMODEL ) && ( r_DynamicGlow->integer && !g_bRenderGlowingObjects ) )
 	{
 		if (tr.world && tr.world->globalFog != -1)
 		{ //this is because of a bug in multiple scenes I think, it needs to clear for the second scene but it doesn't normally.
@@ -530,7 +530,7 @@ static void RB_BeginDrawingView (void) {
 		qglClear( clearBits );
 	}
 
-	if ( Any( backEnd.refdef.rdflags & RDF_HYPERSPACE ) )
+	if ( Any( backEnd.refdef.rdflags & refdefFlags_t::RDF_HYPERSPACE ) )
 	{
 		RB_Hyperspace();
 		return;
@@ -540,7 +540,7 @@ static void RB_BeginDrawingView (void) {
 		backEnd.isHyperspace = false;
 	}
 
-	glState.faceCulling = CT_UNSET;		// force face culling to set next time
+	glState.faceCulling = cullType_t::CT_UNSET;		// force face culling to set next time
 
 	// we will only draw a sun if there was sky rendered in this view
 	backEnd.skyRenderedThisView = false;
@@ -705,8 +705,8 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 		if (entityNum != REFENTITYNUM_WORLD &&
 			g_numPostRenders < MAX_POST_RENDERS)
 		{
-			if ( Any(backEnd.refdef.entities[entityNum].e.renderfx & RF_DISTORTION) ||
-				Any(backEnd.refdef.entities[entityNum].e.renderfx & RF_FORCE_ENT_ALPHA))
+			if ( Any(backEnd.refdef.entities[entityNum].e.renderfx & renderFxFlags_t::RF_DISTORTION) ||
+				Any(backEnd.refdef.entities[entityNum].e.renderfx & renderFxFlags_t::RF_FORCE_ENT_ALPHA))
 			{ //must render last
 				curEnt = &backEnd.refdef.entities[entityNum];
 				pRender = &g_postRenders[g_numPostRenders];
@@ -715,11 +715,11 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 
 				depthRange = 0;
 				//figure this stuff out now and store it
-				if ( Any( curEnt->e.renderfx & RF_NODEPTH ) )
+				if ( Any( curEnt->e.renderfx & renderFxFlags_t::RF_NODEPTH ) )
 				{
 					depthRange = 2;
 				}
-				else if ( Any( curEnt->e.renderfx & RF_DEPTHHACK ) )
+				else if ( Any( curEnt->e.renderfx & renderFxFlags_t::RF_DEPTHHACK ) )
 				{
 					depthRange = 1;
 				}
@@ -757,7 +757,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 			if (oldShader != nullptr) {
 				RB_EndSurface();
 
-				if (!didShadowPass && shader && shader->sort > (float)SS_BANNER)
+				if (!didShadowPass && shader && shader->sort > (float)shaderSort_t::SS_BANNER)
 				{
 					RB_ShadowFinish();
 					didShadowPass = true;
@@ -787,11 +787,11 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 					R_TransformDlights( backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.ori );
 				}
 
-				if ( Any( backEnd.currentEntity->e.renderfx & RF_NODEPTH ) ) {
+				if ( Any( backEnd.currentEntity->e.renderfx & renderFxFlags_t::RF_NODEPTH ) ) {
 					// No depth at all, very rare but some things for seeing through walls
 					depthRange = 2;
 				}
-				else if ( Any( backEnd.currentEntity->e.renderfx & RF_DEPTHHACK ) ) {
+				else if ( Any( backEnd.currentEntity->e.renderfx & renderFxFlags_t::RF_DEPTHHACK ) ) {
 					// hack the depth range to prevent view model from poking into walls
 					depthRange = true;
 				}
@@ -888,7 +888,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 					break;
 			}
 
-			if (Any(backEnd.currentEntity->e.renderfx & RF_DISTORTION) &&
+			if (Any(backEnd.currentEntity->e.renderfx & renderFxFlags_t::RF_DISTORTION) &&
 				lastPostEnt != pRender->entNum)
 			{ //do the capture now, we only need to do it once per ent
 				int x, y;
@@ -984,9 +984,9 @@ void	RB_SetGL2D (void) {
 	qglMatrixMode(GL_MODELVIEW);
     qglLoadIdentity ();
 
-	GL_State( GLS_DEPTHTEST_DISABLE |
-			  GLS_SRCBLEND_SRC_ALPHA |
-			  GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA );
+	GL_State( glStateBits_t::GLS_DEPTHTEST_DISABLE |
+			  glStateBits_t::GLS_SRCBLEND_SRC_ALPHA |
+			  glStateBits_t::GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA );
 
 	qglDisable( GL_CULL_FACE );
 	qglDisable( GL_CLIP_PLANE0 );
@@ -1332,7 +1332,7 @@ const void	*RB_DrawSurfs( const void *data ) {
 	*/
 
 	// Render dynamic glowing/flaring objects.
-	if ( !Any(backEnd.refdef.rdflags & RDF_NOWORLDMODEL) && g_bDynamicGlowSupported && r_DynamicGlow->integer )
+	if ( !Any(backEnd.refdef.rdflags & refdefFlags_t::RDF_NOWORLDMODEL) && g_bDynamicGlowSupported && r_DynamicGlow->integer )
 	{
 		// Copy the normal scene to texture.
 		qglDisable( GL_TEXTURE_2D );
@@ -1406,14 +1406,14 @@ const void	*RB_DrawBuffer( const void *data ) {
 	qglDrawBuffer( cmd->buffer );
 
 		// clear screen for debugging
-	if (!Any( backEnd.refdef.rdflags & RDF_NOWORLDMODEL ) && tr.world && Any( tr.refdef.rdflags & RDF_doLAGoggles ))
+	if (!Any( backEnd.refdef.rdflags & refdefFlags_t::RDF_NOWORLDMODEL ) && tr.world && Any( tr.refdef.rdflags & refdefFlags_t::RDF_doLAGoggles ))
 	{
 		const fog_t		*fog = &tr.world->fogs[tr.world->numfogs];
 
 		qglClearColor(fog->parms.color[0],  fog->parms.color[1], fog->parms.color[2], 1.0f );
 		qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
-	else if (!Any( backEnd.refdef.rdflags & RDF_NOWORLDMODEL ) && tr.world && tr.world->globalFog != -1 && tr.sceneCount)//don't clear during menus, wait for real scene
+	else if (!Any( backEnd.refdef.rdflags & refdefFlags_t::RDF_NOWORLDMODEL ) && tr.world && tr.world->globalFog != -1 && tr.sceneCount)//don't clear during menus, wait for real scene
 	{
 		const fog_t		*fog = &tr.world->fogs[tr.world->globalFog];
 
@@ -1518,7 +1518,7 @@ void RB_ShowImages( void ) {
 	qglFinish();
 
 	//end = ri.Milliseconds();
-	//ri.Printf( PRINT_ALL, "%i msec to draw all images\n", end - start );
+	//ri.Printf( printParm_t::PRINT_ALL, "%i msec to draw all images\n", end - start );
 }
 
 
@@ -1551,7 +1551,7 @@ const void	*RB_SwapBuffers( const void *data ) {
 		long sum = 0;
 		unsigned char *stencilReadback;
 
-		stencilReadback = (unsigned char *) R_Malloc( glConfig.vidWidth * glConfig.vidHeight, TAG_TEMP_WORKSPACE, false );
+		stencilReadback = (unsigned char *) R_Malloc( glConfig.vidWidth * glConfig.vidHeight, memtag::TAG_TEMP_WORKSPACE, false );
 		qglReadPixels( 0, 0, glConfig.vidWidth, glConfig.vidHeight, GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, stencilReadback );
 
 		for ( i = 0; i < glConfig.vidWidth * glConfig.vidHeight; i++ ) {
@@ -1610,34 +1610,34 @@ void RB_ExecuteRenderCommands( const void *data ) {
 		data = PADP(data, sizeof(void *));
 
 		switch ( static_cast<renderCommand_t>( *(const int *)data ) ) {
-		case RC_SET_COLOR:
+		case renderCommand_t::RC_SET_COLOR:
 			data = RB_SetColor( data );
 			break;
-		case RC_STRETCH_PIC:
+		case renderCommand_t::RC_STRETCH_PIC:
 			data = RB_StretchPic( data );
 			break;
-		case RC_ROTATE_PIC:
+		case renderCommand_t::RC_ROTATE_PIC:
 			data = RB_RotatePic( data );
 			break;
-		case RC_ROTATE_PIC2:
+		case renderCommand_t::RC_ROTATE_PIC2:
 			data = RB_RotatePic2( data );
 			break;
-		case RC_SCISSOR:
+		case renderCommand_t::RC_SCISSOR:
 			data = RB_Scissor( data );
 			break;
-		case RC_DRAW_SURFS:
+		case renderCommand_t::RC_DRAW_SURFS:
 			data = RB_DrawSurfs( data );
 			break;
-		case RC_DRAW_BUFFER:
+		case renderCommand_t::RC_DRAW_BUFFER:
 			data = RB_DrawBuffer( data );
 			break;
-		case RC_SWAP_BUFFERS:
+		case renderCommand_t::RC_SWAP_BUFFERS:
 			data = RB_SwapBuffers( data );
 			break;
-		case RC_WORLD_EFFECTS:
+		case renderCommand_t::RC_WORLD_EFFECTS:
 			data = RB_WorldEffects( data );
 			break;
-		case RC_END_OF_LIST:
+		case renderCommand_t::RC_END_OF_LIST:
 		default:
 			// stop rendering
 			t2 = ri.Milliseconds ();
@@ -1703,7 +1703,7 @@ extern bool g_bTextureRectangleHack;
 static inline void RB_BlurGlowTexture()
 {
 	qglDisable (GL_CLIP_PLANE0);
-	GL_Cull( CT_TWO_SIDED );
+	GL_Cull( cullType_t::CT_TWO_SIDED );
 
 	// Go into orthographic 2d mode.
 	qglMatrixMode(GL_PROJECTION);
@@ -1714,7 +1714,7 @@ static inline void RB_BlurGlowTexture()
 	qglPushMatrix();
 	qglLoadIdentity();
 
-	GL_State(GLS_DEPTHTEST_DISABLE);
+	GL_State(glStateBits_t::GLS_DEPTHTEST_DISABLE);
 
 	/////////////////////////////////////////////////////////
 	// Setup vertex and pixel programs.
@@ -1874,7 +1874,7 @@ static inline void RB_BlurGlowTexture()
 static inline void RB_DrawGlowOverlay()
 {
 	qglDisable (GL_CLIP_PLANE0);
-	GL_Cull( CT_TWO_SIDED );
+	GL_Cull( cullType_t::CT_TWO_SIDED );
 
 	// Go into orthographic 2d mode.
 	qglMatrixMode(GL_PROJECTION);
@@ -1885,7 +1885,7 @@ static inline void RB_DrawGlowOverlay()
 	qglPushMatrix();
 	qglLoadIdentity();
 
-	GL_State(GLS_DEPTHTEST_DISABLE);
+	GL_State(glStateBits_t::GLS_DEPTHTEST_DISABLE);
 
 	qglDisable( GL_TEXTURE_2D );
 	qglEnable( GL_TEXTURE_RECTANGLE_ARB );

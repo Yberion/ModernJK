@@ -303,7 +303,7 @@ static void R_SurfaceSpriteFrameUpdate(void)
 
 	if (r_surfaceSprites->integer >= 2)
 	{
-		ri.Printf( PRINT_ALL, "Surfacesprites Drawn: %d, on %d surfaces\n", totalsurfsprites, sssurfaces);
+		ri.Printf( printParm_t::PRINT_ALL, "Surfacesprites Drawn: %d, on %d surfaces\n", totalsurfsprites, sssurfaces);
 	}
 
 	totalsurfsprites=0;
@@ -1437,7 +1437,7 @@ void RB_DrawSurfaceSprites( shaderStage_t *stage, shaderCommands_t *input)
 	//
 	// Check fog
 	//
-	if ( tess.fogNum && tess.shader->fogPass != FP_NONE && r_drawfog->value)
+	if ( tess.fogNum && tess.shader->fogPass != fogPass_t::FP_NONE && r_drawfog->value)
 	{
 		SSUsingFog = true;
 		SQuickSprite.StartGroup(&stage->bundle[0], glbits, tess.fogNum);
@@ -1449,7 +1449,7 @@ void RB_DrawSurfaceSprites( shaderStage_t *stage, shaderCommands_t *input)
 	}
 
 	// Special provision in case the transparency is additive.
-	if ((glbits & (GLS_SRCBLEND_BITS|GLS_DSTBLEND_BITS)) == (GLS_SRCBLEND_ONE|GLS_DSTBLEND_ONE))
+	if ((glbits & (glStateBits_t::GLS_SRCBLEND_BITS|glStateBits_t::GLS_DSTBLEND_BITS)) == (glStateBits_t::GLS_SRCBLEND_ONE|glStateBits_t::GLS_DSTBLEND_ONE))
 	{	// Additive transparency, scale light value
 		SSAdditiveTransparency=true;
 	}

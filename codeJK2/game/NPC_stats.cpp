@@ -32,7 +32,7 @@ extern bool NPCsPrecached;
 extern vec3_t playerMins;
 extern vec3_t playerMaxs;
 
-EnumArray<const char *, team_t, TEAM_NUM_TEAMS>	TeamNames =
+EnumArray<const char *, team_t, team_t::TEAM_NUM_TEAMS>	TeamNames =
 {
 	"",
 	"player",
@@ -41,7 +41,7 @@ EnumArray<const char *, team_t, TEAM_NUM_TEAMS>	TeamNames =
 };
 
 // this list was made using the model directories, this MUST be in the same order as the CLASS_ enum in teams.h
-EnumArray<const char *, class_t, CLASS_NUM_CLASSES>	ClassNames =
+EnumArray<const char *, class_t, class_t::CLASS_NUM_CLASSES>	ClassNames =
 {
 	"",				// class none
 	"atst",
@@ -138,7 +138,7 @@ char	NPCParms[MAX_NPC_DATA_SIZE];
 
 team_t TranslateTeamName( const char *name )
 {
-	for ( team_t n = TEAM_FREE + 1; n < TEAM_NUM_TEAMS; n++ )
+	for ( team_t n = team_t::TEAM_FREE + 1; n < team_t::TEAM_NUM_TEAMS; n++ )
 	{
 		if ( Q_stricmp( TeamNames[n], name ) == 0 )
 		{
@@ -146,13 +146,13 @@ team_t TranslateTeamName( const char *name )
 		}
 	}
 
-	return TEAM_FREE;
+	return team_t::TEAM_FREE;
 }
 
 
 class_t TranslateClassName( const char *name )
 {
-	for ( class_t n = (CLASS_NONE + 1); n < CLASS_NUM_CLASSES; n++ )
+	for ( class_t n = (class_t::CLASS_NONE + 1); n < class_t::CLASS_NUM_CLASSES; n++ )
 	{
 		if ( Q_stricmp( ClassNames[n], name ) == 0 )
 		{
@@ -160,7 +160,7 @@ class_t TranslateClassName( const char *name )
 		}
 	}
 
-	return CLASS_NONE;  // I hope this never happens, maybe print a warning
+	return class_t::CLASS_NONE;  // I hope this never happens, maybe print a warning
 }
 
 /*
@@ -172,77 +172,77 @@ static rank_t TranslateRankName( const char *name )
 {
 	if ( !Q_stricmp( name, "civilian" ) )
 	{
-		return RANK_CIVILIAN;
+		return rank_t::RANK_CIVILIAN;
 	}
 
 	if ( !Q_stricmp( name, "crewman" ) )
 	{
-		return RANK_CREWMAN;
+		return rank_t::RANK_CREWMAN;
 	}
 
 	if ( !Q_stricmp( name, "ensign" ) )
 	{
-		return RANK_ENSIGN;
+		return rank_t::RANK_ENSIGN;
 	}
 
 	if ( !Q_stricmp( name, "ltjg" ) )
 	{
-		return RANK_LT_JG;
+		return rank_t::RANK_LT_JG;
 	}
 
 	if ( !Q_stricmp( name, "lt" ) )
 	{
-		return RANK_LT;
+		return rank_t::RANK_LT;
 	}
 
 	if ( !Q_stricmp( name, "ltcomm" ) )
 	{
-		return RANK_LT_COMM;
+		return rank_t::RANK_LT_COMM;
 	}
 
 	if ( !Q_stricmp( name, "commander" ) )
 	{
-		return RANK_COMMANDER;
+		return rank_t::RANK_COMMANDER;
 	}
 
 	if ( !Q_stricmp( name, "captain" ) )
 	{
-		return RANK_CAPTAIN;
+		return rank_t::RANK_CAPTAIN;
 	}
 
-	return RANK_CIVILIAN;
+	return rank_t::RANK_CIVILIAN;
 }
 static saber_colors_t TranslateSaberColor( const char *name )
 {
 	if ( !Q_stricmp( name, "red" ) )
 	{
-		return SABER_RED;
+		return saber_colors_t::SABER_RED;
 	}
 	if ( !Q_stricmp( name, "orange" ) )
 	{
-		return SABER_ORANGE;
+		return saber_colors_t::SABER_ORANGE;
 	}
 	if ( !Q_stricmp( name, "yellow" ) )
 	{
-		return SABER_YELLOW;
+		return saber_colors_t::SABER_YELLOW;
 	}
 	if ( !Q_stricmp( name, "green" ) )
 	{
-		return SABER_GREEN;
+		return saber_colors_t::SABER_GREEN;
 	}
 	if ( !Q_stricmp( name, "blue" ) )
 	{
-		return SABER_BLUE;
+		return saber_colors_t::SABER_BLUE;
 	}
 	if ( !Q_stricmp( name, "purple" ) )
 	{
-		return SABER_PURPLE;
+		return saber_colors_t::SABER_PURPLE;
 	}
 	if ( !Q_stricmp( name, "random" ) )
 	{
-		return Q_irand( SABER_ORANGE, SABER_PURPLE );
+		return Q_irand( saber_colors_t::SABER_ORANGE, saber_colors_t::SABER_PURPLE );
 	}
-	return SABER_BLUE;
+	return saber_colors_t::SABER_BLUE;
 }
 
 /* static int MethodNameToNumber( const char *name ) {
@@ -283,22 +283,22 @@ static movetype_t MoveTypeNameToEnum( const char *name )
 {
 	if(!Q_stricmp("runjump", name))
 	{
-		return MT_RUNJUMP;
+		return movetype_t::MT_RUNJUMP;
 	}
 	else if(!Q_stricmp("walk", name))
 	{
-		return MT_WALK;
+		return movetype_t::MT_WALK;
 	}
 	else if(!Q_stricmp("flyswim", name))
 	{
-		return MT_FLYSWIM;
+		return movetype_t::MT_FLYSWIM;
 	}
 	else if(!Q_stricmp("static", name))
 	{
-		return MT_STATIC;
+		return movetype_t::MT_STATIC;
 	}
 
-	return MT_STATIC;
+	return movetype_t::MT_STATIC;
 }
 
 extern void CG_RegisterClientRenderInfo(clientInfo_t *ci, renderInfo_t *ri);
@@ -310,13 +310,13 @@ extern void CG_ParseAnimationSndFile( const char *filename, int animFileIndex );
 //#define CONVENIENT_ANIMATION_FILE_DEBUG_THING
 
 #ifdef CONVENIENT_ANIMATION_FILE_DEBUG_THING
-void SpewDebugStuffToFile(const EnumArray<animation_t, animNumber_t, MAX_ANIMATIONS> &bgGlobalAnimations)
+void SpewDebugStuffToFile(const EnumArray<animation_t, animNumber_t, animNumber_t::MAX_ANIMATIONS> &bgGlobalAnimations)
 {
 	char BGPAFtext[40000];
 	fileHandle_t f;
-	animNumber_t i = BOTH_1CRUFTFORGIL;
+	animNumber_t i = animNumber_t::BOTH_1CRUFTFORGIL;
 
-	gi.FS_FOpenFile("file_of_debug_stuff_SP.txt", &f, FS_WRITE);
+	gi.FS_FOpenFile("file_of_debug_stuff_SP.txt", &f, fsMode_t::FS_WRITE);
 
 	if (!f)
 	{
@@ -325,7 +325,7 @@ void SpewDebugStuffToFile(const EnumArray<animation_t, animNumber_t, MAX_ANIMATI
 
 	BGPAFtext[0] = 0;
 
-	while (i < MAX_ANIMATIONS)
+	while (i < animNumber_t::MAX_ANIMATIONS)
 	{
 		strcat(BGPAFtext, va("%i %i\n", to_underlying( i ), bgGlobalAnimations[i].frameLerp));
 		i++;
@@ -380,7 +380,7 @@ bool G_ParseAnimationFile( const char *af_filename )
 	//FIXME: have some way of playing anims backwards... negative numFrames?
 
 	//initialize anim array so that from 0 to MAX_ANIMATIONS, set default values of 0 1 0 100
-	for(i = BOTH_1CRUFTFORGIL; i < MAX_ANIMATIONS; i++)
+	for(i = animNumber_t::BOTH_1CRUFTFORGIL; i < animNumber_t::MAX_ANIMATIONS; i++)
 	{
 		animations[i].firstFrame = 0;
 		animations[i].numFrames = 0;
@@ -673,7 +673,7 @@ void NPC_PrecacheWeapons( team_t playerTeam, int spawnflags, const char *NPCtype
 {
 	int weapons = NPC_WeaponsForTeam( playerTeam, spawnflags, NPCtype );
 	gitem_t	*item;
-	for ( weapon_t curWeap = WP_SABER; curWeap < WP_NUM_WEAPONS; curWeap++ )
+	for ( weapon_t curWeap = weapon_t::WP_SABER; curWeap < weapon_t::WP_NUM_WEAPONS; curWeap++ )
 	{
 		if ( (weapons & Bit( curWeap )) )
 		{
@@ -707,7 +707,7 @@ void NPC_Precache ( gentity_t *spawner )
 {
 	clientInfo_t	ci={};
 	renderInfo_t	ri={};
-	team_t			playerTeam = TEAM_FREE;
+	team_t			playerTeam = team_t::TEAM_FREE;
 	const char	*token;
 	const char	*value;
 	const char	*p;
@@ -864,7 +864,7 @@ void NPC_Precache ( gentity_t *spawner )
 			if ( COM_ParseString( &p, &value ) ) {
 				continue;
 			}
-			if ( !Any( spawner->svFlags & SVF_NO_BASIC_SOUNDS ) )
+			if ( !Any( spawner->svFlags & svFlags_t::SVF_NO_BASIC_SOUNDS ) )
 			{
 				//FIXME: store this in some sound field or parse in the soundTable like the animTable...
 				Q_strncpyz( sound, value, sizeof( sound ) );
@@ -883,7 +883,7 @@ void NPC_Precache ( gentity_t *spawner )
 			if ( COM_ParseString( &p, &value ) ) {
 				continue;
 			}
-			if ( !Any( spawner->svFlags & SVF_NO_COMBAT_SOUNDS ) )
+			if ( !Any( spawner->svFlags & svFlags_t::SVF_NO_COMBAT_SOUNDS ) )
 			{
 				//FIXME: store this in some sound field or parse in the soundTable like the animTable...
 				Q_strncpyz( sound, value, sizeof( sound ) );
@@ -902,7 +902,7 @@ void NPC_Precache ( gentity_t *spawner )
 			if ( COM_ParseString( &p, &value ) ) {
 				continue;
 			}
-			if ( !Any( spawner->svFlags & SVF_NO_EXTRA_SOUNDS ) )
+			if ( !Any( spawner->svFlags & svFlags_t::SVF_NO_EXTRA_SOUNDS ) )
 			{
 				//FIXME: store this in some sound field or parse in the soundTable like the animTable...
 				Q_strncpyz( sound, value, sizeof( sound ) );
@@ -921,7 +921,7 @@ void NPC_Precache ( gentity_t *spawner )
 			if ( COM_ParseString( &p, &value ) ) {
 				continue;
 			}
-			if ( !Any( spawner->svFlags & SVF_NO_EXTRA_SOUNDS ) )
+			if ( !Any( spawner->svFlags & svFlags_t::SVF_NO_EXTRA_SOUNDS ) )
 			{
 				//FIXME: store this in some sound field or parse in the soundTable like the animTable...
 				Q_strncpyz( sound, value, sizeof( sound ) );
@@ -1052,8 +1052,8 @@ void NPC_BuildRandom( gentity_t *NPC )
 	}
 
 	NPC->s.modelScale[0] = NPC->s.modelScale[1] = NPC->s.modelScale[2] = Q_irand(87, 102)/100.0f;
-	NPC->NPC->rank = RANK_CREWMAN;
-	NPC->client->playerTeam = TEAM_PLAYER;
+	NPC->NPC->rank = rank_t::RANK_CREWMAN;
+	NPC->client->playerTeam = team_t::TEAM_PLAYER;
 	NPC->client->clientInfo.customBasicSoundDir = "kyle";
 }
 
@@ -1086,14 +1086,14 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 	{
 		stats = &NPC->NPC->stats;
 /*
-	NPC->NPC->allWeaponOrder[0]	= WP_BRYAR_PISTOL;
-	NPC->NPC->allWeaponOrder[1]	= WP_SABER;
+	NPC->NPC->allWeaponOrder[0]	= weapon_t::WP_BRYAR_PISTOL;
+	NPC->NPC->allWeaponOrder[1]	= weapon_t::WP_SABER;
 	NPC->NPC->allWeaponOrder[2]	= WP_IMOD;
 	NPC->NPC->allWeaponOrder[3]	= WP_SCAVENGER_RIFLE;
 	NPC->NPC->allWeaponOrder[4]	= WP_TRICORDER;
-	NPC->NPC->allWeaponOrder[6]	= WP_NONE;
-	NPC->NPC->allWeaponOrder[6]	= WP_NONE;
-	NPC->NPC->allWeaponOrder[7]	= WP_NONE;
+	NPC->NPC->allWeaponOrder[6]	= weapon_t::WP_NONE;
+	NPC->NPC->allWeaponOrder[6]	= weapon_t::WP_NONE;
+	NPC->NPC->allWeaponOrder[7]	= weapon_t::WP_NONE;
 */
 		// fill in defaults
 		stats->aggression	= 3;
@@ -1110,7 +1110,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 
 		stats->health		= 0;
 
-		stats->moveType		= MT_RUNJUMP;
+		stats->moveType		= movetype_t::MT_RUNJUMP;
 		stats->yawSpeed		= 90;
 		stats->walkSpeed	= 90;
 		stats->runSpeed		= 300;
@@ -2103,7 +2103,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 					SkipRestOfLine( &p );
 					continue;
 				}
-				if ( n < to_underlying( BS_DEFAULT ) || n >= to_underlying( NUM_BSTATES ) )
+				if ( n < to_underlying( bState_t::BS_DEFAULT ) || n >= to_underlying( bState_t::NUM_BSTATES ) )
 				{
 					gi.Printf( S_COLOR_YELLOW"WARNING: bad %s in NPC '%s'\n", token, NPCName );
 					continue;
@@ -2120,7 +2120,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 				if ( COM_ParseString( &p, &value ) ) {
 					continue;
 				}
-				if ( !Any( NPC->svFlags & SVF_NO_BASIC_SOUNDS ) )
+				if ( !Any( NPC->svFlags & svFlags_t::SVF_NO_BASIC_SOUNDS ) )
 				{
 					//FIXME: store this in some sound field or parse in the soundTable like the animTable...
 					Q_strncpyz( sound, value, sizeof( sound ) );
@@ -2139,7 +2139,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 				if ( COM_ParseString( &p, &value ) ) {
 					continue;
 				}
-				if ( !Any( NPC->svFlags & SVF_NO_COMBAT_SOUNDS ) )
+				if ( !Any( NPC->svFlags & svFlags_t::SVF_NO_COMBAT_SOUNDS ) )
 				{
 					//FIXME: store this in some sound field or parse in the soundTable like the animTable...
 					Q_strncpyz( sound, value, sizeof( sound ) );
@@ -2158,7 +2158,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 				if ( COM_ParseString( &p, &value ) ) {
 					continue;
 				}
-				if ( !Any( NPC->svFlags & SVF_NO_EXTRA_SOUNDS ) )
+				if ( !Any( NPC->svFlags & svFlags_t::SVF_NO_EXTRA_SOUNDS ) )
 				{
 					//FIXME: store this in some sound field or parse in the soundTable like the animTable...
 					Q_strncpyz( sound, value, sizeof( sound ) );
@@ -2177,7 +2177,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 				if ( COM_ParseString( &p, &value ) ) {
 					continue;
 				}
-				if ( !Any( NPC->svFlags & SVF_NO_EXTRA_SOUNDS ) )
+				if ( !Any( NPC->svFlags & svFlags_t::SVF_NO_EXTRA_SOUNDS ) )
 				{
 					//FIXME: store this in some sound field or parse in the soundTable like the animTable...
 					Q_strncpyz( sound, value, sizeof( sound ) );

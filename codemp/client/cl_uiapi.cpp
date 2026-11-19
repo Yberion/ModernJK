@@ -467,7 +467,7 @@ static bool CL_G2API_GetBoneFrame(
 
 	CGhoul2Info_v &g2 = *((CGhoul2Info_v *)ghoul2);
 	int iDontCare1 = 0, iDontCare2 = 0;
-	boneFlags_t iDontCare3 = BONE_NONE;
+	boneFlags_t iDontCare3 = boneFlags_t::BONE_NONE;
 	float fDontCare1 = 0;
 
 	return re->G2API_GetBoneAnim(
@@ -685,15 +685,15 @@ static bool CL_G2API_AttachG2Model( void *ghoul2From, int modelIndexFrom, void *
 
 static void CL_Key_SetCatcher( keyCatchFlags_t catcher ) {
 	// Don't allow the ui module to close the console
-	Key_SetCatcher( catcher | ( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) );
+	Key_SetCatcher( catcher | ( Key_GetCatcher( ) & keyCatchFlags_t::KEYCATCH_CONSOLE ) );
 }
 
 static void UIVM_Cvar_Set( const char *var_name, const char *value ) {
-	Cvar_VM_Set( var_name, value, VM_UI );
+	Cvar_VM_Set( var_name, value, vmSlots_t::VM_UI );
 }
 
 static void UIVM_Cvar_SetValue( const char *var_name, float value ) {
-	Cvar_VM_SetValue( var_name, value, VM_UI );
+	Cvar_VM_SetValue( var_name, value, vmSlots_t::VM_UI );
 }
 
 static void CL_AddUICommand( const char *cmdName ) {
@@ -701,7 +701,7 @@ static void CL_AddUICommand( const char *cmdName ) {
 }
 
 static void UIVM_Cmd_RemoveCommand( const char *cmd_name ) {
-	Cmd_VM_RemoveCommand( cmd_name, VM_UI );
+	Cmd_VM_RemoveCommand( cmd_name, vmSlots_t::VM_UI );
 }
 
 void CL_BindUI( void ) {
@@ -712,7 +712,7 @@ void CL_BindUI( void ) {
 
 	memset( &uii, 0, sizeof( uii ) );
 
-	uivm = VM_Create( VM_UI );
+	uivm = VM_Create( vmSlots_t::VM_UI );
 	if ( uivm ) {
 		uii.Print								= Com_Printf;
 		uii.Error								= Com_Error;
@@ -868,7 +868,7 @@ void CL_BindUI( void ) {
 		if ( !ret ) {
 			//free VM?
 			cls.uiStarted = false;
-			Com_Error( ERR_FATAL, "GetGameAPI failed on %s", dllName );
+			Com_Error( errorParm_t::ERR_FATAL, "GetGameAPI failed on %s", dllName );
 		}
 		uie = ret;
 
@@ -876,7 +876,7 @@ void CL_BindUI( void ) {
 	}
 
 	cls.uiStarted = false;
-	Com_Error( ERR_DROP, "VM_Create on ui failed" );
+	Com_Error( errorParm_t::ERR_DROP, "VM_Create on ui failed" );
 }
 
 void CL_UnbindUI( void ) {

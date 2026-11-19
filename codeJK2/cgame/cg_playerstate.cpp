@@ -46,10 +46,10 @@ void CG_CheckAmmo( void )
 #if 0
 
 	// see about how many seconds of ammo we have remaining
-	weapons = cg.snap->ps.stats[ STAT_WEAPONS ];
+	weapons = cg.snap->ps.stats[ statIndex_t::STAT_WEAPONS ];
 	total = 0;
 
-	for ( i = WP_STUN_BATON; i < WP_NUM_WEAPONS  i++ )
+	for ( i = weapon_t::WP_STUN_BATON; i < weapon_t::WP_NUM_WEAPONS  i++ )
 	{
 		if ( ! ( weapons & ( 1 << i ) ) )
 			continue;
@@ -57,7 +57,7 @@ void CG_CheckAmmo( void )
 		/*
 		switch ( i )
 		{
-		case WP_ROCKET_LAUNCHER:
+		case weapon_t::WP_ROCKET_LAUNCHER:
 		case WP_GRENADE_LAUNCHER:
 		case WP_RAILGUN:
 		case WP_SHOTGUN:
@@ -78,7 +78,7 @@ void CG_CheckAmmo( void )
 #endif
 
 	// Don't bother drawing the ammo warning when have no weapon selected
-	if ( cg.weaponSelect == WP_NONE )
+	if ( cg.weaponSelect == weapon_t::WP_NONE )
 	{
 		return;
 	}
@@ -105,7 +105,7 @@ void CG_CheckAmmo( void )
 
 	// play a sound on transitions
 	if ( cg.lowAmmoWarning != previous ) {
-		cgi_S_StartLocalSound( cgs.media.noAmmoSound, CHAN_LOCAL_SOUND ); //"sound/weapons/noammo.wav"
+		cgi_S_StartLocalSound( cgs.media.noAmmoSound, soundChannel_t::CHAN_LOCAL_SOUND ); //"sound/weapons/noammo.wav"
 	}
 }
 
@@ -128,7 +128,7 @@ void CG_DamageFeedback( int yawByte, int pitchByte, int damage ) {
 	//		for example, Borg damage could progressively tint screen green and raise FOV?
 
 	// the lower on health you are, the greater the view kick will be
-	health = cg.snap->ps.stats[STAT_HEALTH];
+	health = cg.snap->ps.stats[statIndex_t::STAT_HEALTH];
 	if ( health < 40 ) {
 		scale = 1;
 	} else {
@@ -272,16 +272,16 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 	const char *s;
 
 	// hit changes
-	if ( ps->persistant[PERS_HITS] > ops->persistant[PERS_HITS] ) {
+	if ( ps->persistant[persEnum_t::PERS_HITS] > ops->persistant[persEnum_t::PERS_HITS] ) {
 		cgi_S_StartLocalSound( "sound/feedback/hit.wav" );
-	} else if ( ps->persistant[PERS_HITS] < ops->persistant[PERS_HITS] ) {
+	} else if ( ps->persistant[persEnum_t::PERS_HITS] < ops->persistant[persEnum_t::PERS_HITS] ) {
 		cgi_S_StartLocalSound( "sound/feedback/hit_teammate.wav" );
 	}
 
 	// score up / down changes
-	if ( ps->persistant[PERS_SCORE] > ops->persistant[PERS_SCORE] ) {
+	if ( ps->persistant[persEnum_t::PERS_SCORE] > ops->persistant[persEnum_t::PERS_SCORE] ) {
 		cgi_S_StartLocalSound( "sound/feedback/scoreup.wav" );
-	} else if ( ps->persistant[PERS_SCORE] < ops->persistant[PERS_SCORE] ) {
+	} else if ( ps->persistant[persEnum_t::PERS_SCORE] < ops->persistant[persEnum_t::PERS_SCORE] ) {
 		cgi_S_StartLocalSound( "sound/feedback/scoredown.wav" );
 	}
 
@@ -329,7 +329,7 @@ CG_TransitionPlayerState
 */
 void CG_TransitionPlayerState( playerState_t *ps, playerState_t *ops ) {
 	// teleporting
-	if ( Any( ( ps->eFlags ^ ops->eFlags ) & EF_TELEPORT_BIT ) ) {
+	if ( Any( ( ps->eFlags ^ ops->eFlags ) & entityFlags_t::EF_TELEPORT_BIT ) ) {
 		cg.thisFrameTeleport = true;
 	} else {
 		cg.thisFrameTeleport = false;
@@ -348,7 +348,7 @@ void CG_TransitionPlayerState( playerState_t *ps, playerState_t *ops ) {
 	}
 
 	// respawning
-	if ( ps->persistant[PERS_SPAWN_COUNT] != ops->persistant[PERS_SPAWN_COUNT] ) {
+	if ( ps->persistant[persEnum_t::PERS_SPAWN_COUNT] != ops->persistant[persEnum_t::PERS_SPAWN_COUNT] ) {
 		CG_Respawn();
 	}
 

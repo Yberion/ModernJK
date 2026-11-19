@@ -37,7 +37,7 @@ static void WP_DEMP2_MainFire( gentity_t *ent )
 //---------------------------------------------------------
 {
 	vec3_t	start;
-	int		damage	= weaponData[WP_DEMP2].damage;
+	int		damage	= weaponData[weapon_t::WP_DEMP2].damage;
 
 	VectorCopy( wpMuzzle, start );
 	WP_TraceSetStart( ent, start, vec3_origin, vec3_origin );//make sure our start point isn't on the other side of a wall
@@ -45,7 +45,7 @@ static void WP_DEMP2_MainFire( gentity_t *ent )
 	gentity_t *missile = CreateMissile( start, wpFwd, DEMP2_VELOCITY, 10000, ent );
 
 	missile->classname = "demp2_proj";
-	missile->s.weapon = WP_DEMP2;
+	missile->s.weapon = weapon_t::WP_DEMP2;
 
 	// Do the damages
 	if ( ent->s.number != 0 )
@@ -75,9 +75,9 @@ static void WP_DEMP2_MainFire( gentity_t *ent )
 //	}
 
 	missile->damage = damage;
-	missile->dflags = DAMAGE_DEATH_KNOCKBACK;
-	missile->methodOfDeath = MOD_DEMP2;
-	missile->clipmask = MASK_SHOT | CONTENTS_LIGHTSABER;
+	missile->dflags = damageFlags_t::DAMAGE_DEATH_KNOCKBACK;
+	missile->methodOfDeath = meansOfDeath_t::MOD_DEMP2;
+	missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
 
 	// we don't want it to ever bounce
 	missile->bounceCount = 0;
@@ -156,11 +156,11 @@ void DEMP2_AltRadiusDamage( gentity_t *ent )
 		// push the center of mass higher than the origin so players get knocked into the air more
 		dir[2] += 12;
 
-		G_Damage( gent, ent, ent->owner, dir, ent->currentOrigin, weaponData[WP_DEMP2].altDamage, DAMAGE_DEATH_KNOCKBACK, ent->splashMethodOfDeath );
+		G_Damage( gent, ent, ent->owner, dir, ent->currentOrigin, weaponData[weapon_t::WP_DEMP2].altDamage, damageFlags_t::DAMAGE_DEATH_KNOCKBACK, ent->splashMethodOfDeath );
 		if ( gent->takedamage && gent->client )
 		{
-			gent->s.powerups |= Bit( PW_SHOCKED );
-			gent->client->ps.powerups[PW_SHOCKED] = level.time + 2000;
+			gent->s.powerups |= Bit( powerup_t::PW_SHOCKED );
+			gent->client->ps.powerups[powerup_t::PW_SHOCKED] = level.time + 2000;
 		}
 	}
 
@@ -183,20 +183,20 @@ void DEMP2_AltDetonate( gentity_t *ent )
 
 	// start the effects, unfortunately, I wanted to do some custom things that I couldn't easily do with the fx system, so part of it uses an event and localEntities
 	G_PlayEffect( "demp2/altDetonate", ent->currentOrigin, ent->pos1 );
-	G_AddEvent( ent, EV_DEMP2_ALT_IMPACT, ent->count * 2 );
+	G_AddEvent( ent, entity_event_t::EV_DEMP2_ALT_IMPACT, ent->count * 2 );
 
 	ent->fx_time = level.time;
 	ent->radius = 0;
 	ent->nextthink = level.time + 50;
-	ent->e_ThinkFunc = thinkF_DEMP2_AltRadiusDamage;
-	ent->s.eType = ET_GENERAL; // make us a missile no longer
+	ent->e_ThinkFunc = thinkFunc_t::thinkF_DEMP2_AltRadiusDamage;
+	ent->s.eType = entityType_t::ET_GENERAL; // make us a missile no longer
 }
 
 //---------------------------------------------------------
 static void WP_DEMP2_AltFire( gentity_t *ent )
 //---------------------------------------------------------
 {
-	int		damage	= weaponData[WP_DEMP2].altDamage;
+	int		damage	= weaponData[weapon_t::WP_DEMP2].altDamage;
 	int		count;
 	vec3_t	start;
 
@@ -228,16 +228,16 @@ static void WP_DEMP2_AltFire( gentity_t *ent )
 	VectorSet( missile->pos1, 0, 1, 0 );
 
 	missile->classname = "demp2_alt_proj";
-	missile->s.weapon = WP_DEMP2;
+	missile->s.weapon = weapon_t::WP_DEMP2;
 
-	missile->e_ThinkFunc = thinkF_DEMP2_AltDetonate;
+	missile->e_ThinkFunc = thinkFunc_t::thinkF_DEMP2_AltDetonate;
 
 	missile->splashDamage = missile->damage = damage;
-	missile->splashMethodOfDeath = missile->methodOfDeath = MOD_DEMP2_ALT;
-	missile->splashRadius = weaponData[WP_DEMP2].altSplashRadius;
+	missile->splashMethodOfDeath = missile->methodOfDeath = meansOfDeath_t::MOD_DEMP2_ALT;
+	missile->splashRadius = weaponData[weapon_t::WP_DEMP2].altSplashRadius;
 
-	missile->dflags = DAMAGE_DEATH_KNOCKBACK;
-	missile->clipmask = MASK_SHOT | CONTENTS_LIGHTSABER;
+	missile->dflags = damageFlags_t::DAMAGE_DEATH_KNOCKBACK;
+	missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
 
 	// we don't want it to ever bounce
 	missile->bounceCount = 0;

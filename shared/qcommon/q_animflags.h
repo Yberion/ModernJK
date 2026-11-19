@@ -32,7 +32,6 @@ enum class setAnimParts_t
 	SETANIM_LEGS  = 2,
 	SETANIM_BOTH  = SETANIM_TORSO | SETANIM_LEGS, //3
 };
-using enum setAnimParts_t;
 template <> inline constexpr bool enableEnumFlags<setAnimParts_t> = true;
 
 enum class setAnimFlags_t
@@ -43,5 +42,4 @@ enum class setAnimFlags_t
 	SETANIM_FLAG_RESTART	= 4, //Allow restarting the anim if playing the same one (weapon fires)
 	SETANIM_FLAG_HOLDLESS	= 8, //Set the new timer
 };
-using enum setAnimFlags_t;
 template <> inline constexpr bool enableEnumFlags<setAnimFlags_t> = true;

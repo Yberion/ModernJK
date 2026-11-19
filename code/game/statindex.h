@@ -39,7 +39,6 @@ enum class statIndex_t {
 	STAT_CLIENTS_READY,				// bit mask of clients wishing to exit the intermission (FIXME: configstring?)
 	STAT_MAX_HEALTH					// health / armor limit, changable by handicap
 };
-using enum statIndex_t;
 
 
 

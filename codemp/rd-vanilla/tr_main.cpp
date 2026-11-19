@@ -40,7 +40,7 @@ refimport_t	ri;
 
 // entities that will have procedurally generated surfaces will just
 // point at this for their sorting surface
-surfaceType_t	entitySurface = SF_ENTITY;
+surfaceType_t	entitySurface = surfaceType_t::SF_ENTITY;
 
 /*
 =================
@@ -59,7 +59,7 @@ cullResult_t R_CullLocalBox (const vec3_t bounds[2]) {
 	int			front, back;
 
 	if ( r_nocull->integer==1 ) {
-		return CULL_CLIP;
+		return cullResult_t::CULL_CLIP;
 	}
 
 	// transform into world space
@@ -93,16 +93,16 @@ cullResult_t R_CullLocalBox (const vec3_t bounds[2]) {
 		}
 		if ( !front ) {
 			// all points were behind one of the planes
-			return CULL_OUT;
+			return cullResult_t::CULL_OUT;
 		}
 		anyBack |= back;
 	}
 
 	if ( !anyBack ) {
-		return CULL_IN;		// completely inside frustum
+		return cullResult_t::CULL_IN;		// completely inside frustum
 	}
 
-	return CULL_CLIP;		// partially clipped
+	return cullResult_t::CULL_CLIP;		// partially clipped
 }
 
 /*
@@ -128,7 +128,7 @@ cullResult_t R_CullPointAndRadius( const vec3_t pt, float radius )
 	bool mightBeClipped = false;
 
 	if ( r_nocull->integer==1 ) {
-		return CULL_CLIP;
+		return cullResult_t::CULL_CLIP;
 	}
 
 	// check against frustum planes
@@ -139,7 +139,7 @@ cullResult_t R_CullPointAndRadius( const vec3_t pt, float radius )
 		dist = DotProduct( pt, frust->normal) - frust->dist;
 		if ( dist < -radius )
 		{
-			return CULL_OUT;
+			return cullResult_t::CULL_OUT;
 		}
 		else if ( dist <= radius )
 		{
@@ -149,10 +149,10 @@ cullResult_t R_CullPointAndRadius( const vec3_t pt, float radius )
 
 	if ( mightBeClipped )
 	{
-		return CULL_CLIP;
+		return cullResult_t::CULL_CLIP;
 	}
 
-	return CULL_IN;		// completely inside frustum
+	return cullResult_t::CULL_IN;		// completely inside frustum
 }
 
 /*
@@ -302,7 +302,7 @@ void R_RotateForEntity( const trRefEntity_t *ent, const viewParms_t *viewParms,
 	vec3_t	delta;
 	float	axisLength;
 
-	if ( ent->e.reType != RT_MODEL ) {
+	if ( ent->e.reType != refEntityType_t::RT_MODEL ) {
 		*ori = viewParms->world;
 		return;
 	}
@@ -415,8 +415,8 @@ static void SetFarClip( void )
 
 	// if not rendering the world (icons, menus, etc)
 	// set a 2k far clip plane
-	if ( Any( tr.refdef.rdflags & RDF_NOWORLDMODEL ) ) {
-		if (Any( tr.refdef.rdflags & RDF_AUTOMAP ))
+	if ( Any( tr.refdef.rdflags & refdefFlags_t::RDF_NOWORLDMODEL ) ) {
+		if (Any( tr.refdef.rdflags & refdefFlags_t::RDF_AUTOMAP ))
 		{ //override the zfar then
 			tr.viewParms.zFar = 32768.0f;
 		}
@@ -566,7 +566,7 @@ void R_SetupFrustum (void) {
 	VectorMA( tr.viewParms.frustum[3].normal, -xc, tr.viewParms.ori.axis[2], tr.viewParms.frustum[3].normal );
 
 	for (i=0 ; i<4 ; i++) {
-		tr.viewParms.frustum[i].type = PLANE_NON_AXIAL;
+		tr.viewParms.frustum[i].type = planeType_t::PLANE_NON_AXIAL;
 		tr.viewParms.frustum[i].dist = DotProduct (tr.viewParms.ori.origin, tr.viewParms.frustum[i].normal);
 		SetPlaneSignbits( &tr.viewParms.frustum[i] );
 	}
@@ -624,10 +624,10 @@ void R_PlaneForSurface (surfaceType_t *surfType, cplane_t *plane) {
 		return;
 	}
 	switch (*surfType) {
-	case SF_FACE:
+	case surfaceType_t::SF_FACE:
 		*plane = ((srfSurfaceFace_t *)surfType)->plane;
 		return;
-	case SF_TRIANGLES:
+	case surfaceType_t::SF_TRIANGLES:
 		tri = (srfTriangles_t *)surfType;
 		v1 = tri->verts + tri->indexes[0];
 		v2 = tri->verts + tri->indexes[1];
@@ -636,7 +636,7 @@ void R_PlaneForSurface (surfaceType_t *surfType, cplane_t *plane) {
 		VectorCopy( plane4, plane->normal );
 		plane->dist = plane4[3];
 		return;
-	case SF_POLY:
+	case surfaceType_t::SF_POLY:
 		poly = (srfPoly_t *)surfType;
 		PlaneFromPoints( plane4, poly->verts[0].xyz, poly->verts[1].xyz, poly->verts[2].xyz );
 		VectorCopy( plane4, plane->normal );
@@ -699,7 +699,7 @@ bool R_GetPortalOrientations( drawSurf_t *drawSurf, int entityNum,
 	// the origin of the camera
 	for ( i = 0 ; i < tr.refdef.num_entities ; i++ ) {
 		e = &tr.refdef.entities[i];
-		if ( e->e.reType != RT_PORTALSURFACE ) {
+		if ( e->e.reType != refEntityType_t::RT_PORTALSURFACE ) {
 			continue;
 		}
 
@@ -773,7 +773,7 @@ bool R_GetPortalOrientations( drawSurf_t *drawSurf, int entityNum,
 	// to see a surface before the server has communicated the matching
 	// portal surface entity, so we don't want to print anything here...
 
-	//ri.Printf( PRINT_ALL, "Portal surface without a portal entity\n" );
+	//ri.Printf( printParm_t::PRINT_ALL, "Portal surface without a portal entity\n" );
 
 	return false;
 }
@@ -816,7 +816,7 @@ static bool IsMirror( const drawSurf_t *drawSurf, int entityNum )
 	for ( i = 0 ; i < tr.refdef.num_entities ; i++ )
 	{
 		e = &tr.refdef.entities[i];
-		if ( e->e.reType != RT_PORTALSURFACE ) {
+		if ( e->e.reType != refEntityType_t::RT_PORTALSURFACE ) {
 			continue;
 		}
 
@@ -948,7 +948,7 @@ bool R_MirrorViewBySurface (drawSurf_t *drawSurf, int entityNum) {
 
 	// don't recursively mirror
 	if (tr.viewParms.isPortal) {
-		ri.Printf( PRINT_DEVELOPER, S_COLOR_RED "WARNING: recursive mirror/portal found\n" );
+		ri.Printf( printParm_t::PRINT_DEVELOPER, S_COLOR_RED "WARNING: recursive mirror/portal found\n" );
 		return false;
 	}
 
@@ -1001,7 +1001,7 @@ int R_SpriteFogNum( trRefEntity_t *ent ) {
 	int				i, j;
 	fog_t			*fog;
 
-	if ( Any( tr.refdef.rdflags & RDF_NOWORLDMODEL ) ) {
+	if ( Any( tr.refdef.rdflags & refdefFlags_t::RDF_NOWORLDMODEL ) ) {
 		return 0;
 	}
 
@@ -1093,12 +1093,12 @@ void R_AddDrawSurf( surfaceType_t *surface, shader_t *shader,
 				   int fogIndex, int dlightMap ) {
 	int			index;
 
-	if (Any( tr.refdef.rdflags & RDF_NOFOG ))
+	if (Any( tr.refdef.rdflags & refdefFlags_t::RDF_NOFOG ))
 	{
 		fogIndex = 0;
 	}
 
-	if ( Any( shader->surfaceFlags & SURF_FORCESIGHT ) && !Any(tr.refdef.rdflags & RDF_ForceSightOn) )
+	if ( Any( shader->surfaceFlags & surfaceFlags_t::SURF_FORCESIGHT ) && !Any(tr.refdef.rdflags & refdefFlags_t::RDF_ForceSightOn) )
 	{	//if shader is only seen with ForceSight and we don't have ForceSight on, then don't draw
 		return;
 	}
@@ -1161,13 +1161,13 @@ void R_SortDrawSurfs( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	for ( i = 0 ; i < numDrawSurfs ; i++ ) {
 		R_DecomposeSort( (drawSurfs+i)->sort, &entityNum, &shader, &fogNum, &dlighted );
 
-		if ( shader->sort > (float)SS_PORTAL ) {
+		if ( shader->sort > (float)shaderSort_t::SS_PORTAL ) {
 			break;
 		}
 
 		// no shader should ever have this sort type
-		if ( shader->sort == (float)SS_BAD ) {
-			Com_Error (ERR_DROP, "Shader '%s'with sort == SS_BAD", shader->name );
+		if ( shader->sort == (float)shaderSort_t::SS_BAD ) {
+			Com_Error (errorParm_t::ERR_DROP, "Shader '%s'with sort == SS_BAD", shader->name );
 		}
 
 		// if the mirror was completely clipped away, we may need to check another surface
@@ -1201,7 +1201,7 @@ void R_AddEntitySurfaces (void) {
 		  tr.currentEntityNum++ ) {
 		ent = tr.currentEntity = &tr.refdef.entities[tr.currentEntityNum];
 
-		assert(ent->e.renderfx >= 0);
+		assert(to_underlying( ent->e.renderfx ) >= 0);
 
 		ent->needDlights = false;
 
@@ -1213,33 +1213,33 @@ void R_AddEntitySurfaces (void) {
 		// we don't want the hacked weapon position showing in
 		// mirrors, because the true body position will already be drawn
 		//
-		if ( Any(ent->e.renderfx & RF_FIRST_PERSON) && tr.viewParms.isPortal) {
+		if ( Any(ent->e.renderfx & renderFxFlags_t::RF_FIRST_PERSON) && tr.viewParms.isPortal) {
 			continue;
 		}
 
 		// simple generated models, like sprites and beams, are not culled
 		switch ( ent->e.reType ) {
-		case RT_PORTALSURFACE:
+		case refEntityType_t::RT_PORTALSURFACE:
 			break;		// don't draw anything
-		case RT_SPRITE:
-		case RT_BEAM:
-		case RT_ORIENTED_QUAD:
-		case RT_ELECTRICITY:
-		case RT_LINE:
-		case RT_ORIENTEDLINE:
-		case RT_CYLINDER:
-		case RT_SABER_GLOW:
+		case refEntityType_t::RT_SPRITE:
+		case refEntityType_t::RT_BEAM:
+		case refEntityType_t::RT_ORIENTED_QUAD:
+		case refEntityType_t::RT_ELECTRICITY:
+		case refEntityType_t::RT_LINE:
+		case refEntityType_t::RT_ORIENTEDLINE:
+		case refEntityType_t::RT_CYLINDER:
+		case refEntityType_t::RT_SABER_GLOW:
 			// self blood sprites, talk balloons, etc should not be drawn in the primary
 			// view.  We can't just do this check for all entities, because md3
 			// entities may still want to cast shadows from them
-			if ( Any(ent->e.renderfx & RF_THIRD_PERSON) && !tr.viewParms.isPortal) {
+			if ( Any(ent->e.renderfx & renderFxFlags_t::RF_THIRD_PERSON) && !tr.viewParms.isPortal) {
 				continue;
 			}
 			shader = R_GetShaderByHandle( ent->e.customShader );
 			R_AddDrawSurf( &entitySurface, shader, R_SpriteFogNum( ent ), 0 );
 			break;
 
-		case RT_MODEL:
+		case refEntityType_t::RT_MODEL:
 			// we must set up parts of tr.ori for model culling
 			R_RotateForEntity( ent, &tr.viewParms, &tr.ori );
 
@@ -1248,26 +1248,26 @@ void R_AddEntitySurfaces (void) {
 				R_AddDrawSurf( &entitySurface, tr.defaultShader, 0, 0 );
 			} else {
 				switch ( tr.currentModel->type ) {
-				case MOD_MESH:
+				case modtype_t::MOD_MESH:
 					R_AddMD3Surfaces( ent );
 					break;
-				case MOD_BRUSH:
+				case modtype_t::MOD_BRUSH:
 					R_AddBrushModelSurfaces( ent );
 					break;
 /*
 Ghoul2 Insert Start
 */
-				case MOD_MDXM:
+				case modtype_t::MOD_MDXM:
   					//g2r
 					if (ent->e.ghoul2)
 					{
 						R_AddGhoulSurfaces( ent);
 					}
   					break;
-				case MOD_BAD:		// null model axis
-					if ( Any(ent->e.renderfx & RF_THIRD_PERSON) && !tr.viewParms.isPortal)
+				case modtype_t::MOD_BAD:		// null model axis
+					if ( Any(ent->e.renderfx & renderFxFlags_t::RF_THIRD_PERSON) && !tr.viewParms.isPortal)
 					{
-						if (!Any(ent->e.renderfx & RF_SHADOW_ONLY))
+						if (!Any(ent->e.renderfx & renderFxFlags_t::RF_SHADOW_ONLY))
 						{
 							break;
 						}
@@ -1285,19 +1285,19 @@ Ghoul2 Insert Start
 Ghoul2 Insert End
 */
 				default:
-					Com_Error( ERR_DROP, "R_AddEntitySurfaces: Bad modeltype" );
+					Com_Error( errorParm_t::ERR_DROP, "R_AddEntitySurfaces: Bad modeltype" );
 					break;
 				}
 			}
 			break;
 
-		case RT_ENT_CHAIN:
+		case refEntityType_t::RT_ENT_CHAIN:
 			shader = R_GetShaderByHandle( ent->e.customShader );
 			R_AddDrawSurf( &entitySurface, shader, R_SpriteFogNum( ent ), false );
 			break;
 
 		default:
-			Com_Error( ERR_DROP, "R_AddEntitySurfaces: Bad reType" );
+			Com_Error( errorParm_t::ERR_DROP, "R_AddEntitySurfaces: Bad reType" );
 		}
 	}
 
@@ -1332,7 +1332,7 @@ R_DebugPolygon
 void R_DebugPolygon( int color, int numPoints, float *points ) {
 	int		i;
 
-	GL_State( GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE );
+	GL_State( glStateBits_t::GLS_DEPTHMASK_TRUE | glStateBits_t::GLS_SRCBLEND_ONE | glStateBits_t::GLS_DSTBLEND_ONE );
 
 	// draw solid shade
 
@@ -1344,7 +1344,7 @@ void R_DebugPolygon( int color, int numPoints, float *points ) {
 	qglEnd();
 
 	// draw wireframe outline
-	GL_State( GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE );
+	GL_State( glStateBits_t::GLS_POLYMODE_LINE | glStateBits_t::GLS_DEPTHMASK_TRUE | glStateBits_t::GLS_SRCBLEND_ONE | glStateBits_t::GLS_DSTBLEND_ONE );
 	qglDepthRange( 0, 0 );
 	qglColor3f( 1, 1, 1 );
 	qglBegin( GL_POLYGON );
@@ -1371,7 +1371,7 @@ void R_DebugGraphics( void ) {
 	R_IssuePendingRenderCommands();
 
 	GL_Bind( tr.whiteImage);
-	GL_Cull( CT_FRONT_SIDED );
+	GL_Cull( cullType_t::CT_FRONT_SIDED );
 	ri.CM_DrawDebugSurface( R_DebugPolygon );
 }
 

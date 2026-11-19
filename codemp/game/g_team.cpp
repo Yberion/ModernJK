@@ -44,12 +44,12 @@ void Team_InitGame( void ) {
 	memset(&teamgame, 0, sizeof teamgame);
 
 	switch( level.gametype ) {
-	case GT_CTF:
-	case GT_CTY:
-		teamgame.redStatus = FLAG_UNSET;
-		Team_SetFlagStatus( TEAM_RED, FLAG_ATBASE );
-		teamgame.blueStatus = FLAG_UNSET;
-		Team_SetFlagStatus( TEAM_BLUE, FLAG_ATBASE );
+	case gametype_t::GT_CTF:
+	case gametype_t::GT_CTY:
+		teamgame.redStatus = flagStatus_t::FLAG_UNSET;
+		Team_SetFlagStatus( team_t::TEAM_RED, flagStatus_t::FLAG_ATBASE );
+		teamgame.blueStatus = flagStatus_t::FLAG_UNSET;
+		Team_SetFlagStatus( team_t::TEAM_BLUE, flagStatus_t::FLAG_ATBASE );
 		break;
 	default:
 		break;
@@ -57,39 +57,39 @@ void Team_InitGame( void ) {
 }
 
 team_t OtherTeam(team_t team) {
-	if (team==TEAM_RED)
-		return TEAM_BLUE;
-	else if (team==TEAM_BLUE)
-		return TEAM_RED;
+	if (team==team_t::TEAM_RED)
+		return team_t::TEAM_BLUE;
+	else if (team==team_t::TEAM_BLUE)
+		return team_t::TEAM_RED;
 	return team;
 }
 
 const char *TeamName(team_t team)  {
-	if (team==TEAM_RED)
+	if (team==team_t::TEAM_RED)
 		return "RED";
-	else if (team==TEAM_BLUE)
+	else if (team==team_t::TEAM_BLUE)
 		return "BLUE";
-	else if (team==TEAM_SPECTATOR)
+	else if (team==team_t::TEAM_SPECTATOR)
 		return "SPECTATOR";
 	return "FREE";
 }
 
 const char *OtherTeamName(team_t team) {
-	if (team==TEAM_RED)
+	if (team==team_t::TEAM_RED)
 		return "BLUE";
-	else if (team==TEAM_BLUE)
+	else if (team==team_t::TEAM_BLUE)
 		return "RED";
-	else if (team==TEAM_SPECTATOR)
+	else if (team==team_t::TEAM_SPECTATOR)
 		return "SPECTATOR";
 	return "FREE";
 }
 
 const char *TeamColorString(team_t team) {
-	if (team==TEAM_RED)
+	if (team==team_t::TEAM_RED)
 		return S_COLOR_RED;
-	else if (team==TEAM_BLUE)
+	else if (team==team_t::TEAM_BLUE)
 		return S_COLOR_BLUE;
-	else if (team==TEAM_SPECTATOR)
+	else if (team==team_t::TEAM_SPECTATOR)
 		return S_COLOR_YELLOW;
 	return S_COLOR_WHITE;
 }
@@ -103,7 +103,7 @@ void QDECL PrintMsg( gentity_t *ent, const char *fmt, ... ) {
 
 	va_start (argptr,fmt);
 	if (vsprintf (msg, fmt, argptr) > sizeof(msg)) {
-		trap->Error( ERR_DROP, "PrintMsg overrun" );
+		trap->Error( errorParm_t::ERR_DROP, "PrintMsg overrun" );
 	}
 	va_end (argptr);
 
@@ -128,19 +128,19 @@ void PrintCTFMessage(int plIndex, team_t teamIndex, ctfMsg_t ctfMessage)
 		plIndex = MAX_CLIENTS+1;
 	}
 
-	te = G_TempEntity(vec3_origin, EV_CTFMESSAGE);
-	te->r.svFlags |= SVF_BROADCAST;
+	te = G_TempEntity(vec3_origin, entity_event_t::EV_CTFMESSAGE);
+	te->r.svFlags |= svFlags_t::SVF_BROADCAST;
 	te->s.eventParm = to_underlying( ctfMessage );
 	te->s.trickedentindex = plIndex;
-	if (ctfMessage == CTFMESSAGE_PLAYER_CAPTURED_FLAG)
+	if (ctfMessage == ctfMsg_t::CTFMESSAGE_PLAYER_CAPTURED_FLAG)
 	{
-		if (teamIndex == TEAM_RED)
+		if (teamIndex == team_t::TEAM_RED)
 		{
-			te->s.trickedentindex2 = to_underlying( TEAM_BLUE );
+			te->s.trickedentindex2 = to_underlying( team_t::TEAM_BLUE );
 		}
 		else
 		{
-			te->s.trickedentindex2 = to_underlying( TEAM_RED );
+			te->s.trickedentindex2 = to_underlying( team_t::TEAM_RED );
 		}
 	}
 	else
@@ -160,37 +160,37 @@ AddTeamScore
 void AddTeamScore(vec3_t origin, team_t team, int score) {
 	gentity_t	*te;
 
-	te = G_TempEntity(origin, EV_GLOBAL_TEAM_SOUND );
-	te->r.svFlags |= SVF_BROADCAST;
+	te = G_TempEntity(origin, entity_event_t::EV_GLOBAL_TEAM_SOUND );
+	te->r.svFlags |= svFlags_t::SVF_BROADCAST;
 
-	if ( team == TEAM_RED ) {
-		if ( level.teamScores[ TEAM_RED ] + score == level.teamScores[ TEAM_BLUE ] ) {
+	if ( team == team_t::TEAM_RED ) {
+		if ( level.teamScores[ team_t::TEAM_RED ] + score == level.teamScores[ team_t::TEAM_BLUE ] ) {
 			//teams are tied sound
-			te->s.eventParm = to_underlying( GTS_TEAMS_ARE_TIED );
+			te->s.eventParm = to_underlying( global_team_sound_t::GTS_TEAMS_ARE_TIED );
 		}
-		else if ( level.teamScores[ TEAM_RED ] <= level.teamScores[ TEAM_BLUE ] &&
-					level.teamScores[ TEAM_RED ] + score > level.teamScores[ TEAM_BLUE ]) {
+		else if ( level.teamScores[ team_t::TEAM_RED ] <= level.teamScores[ team_t::TEAM_BLUE ] &&
+					level.teamScores[ team_t::TEAM_RED ] + score > level.teamScores[ team_t::TEAM_BLUE ]) {
 			// red took the lead sound
-			te->s.eventParm = to_underlying( GTS_REDTEAM_TOOK_LEAD );
+			te->s.eventParm = to_underlying( global_team_sound_t::GTS_REDTEAM_TOOK_LEAD );
 		}
 		else {
 			// red scored sound
-			te->s.eventParm = to_underlying( GTS_REDTEAM_SCORED );
+			te->s.eventParm = to_underlying( global_team_sound_t::GTS_REDTEAM_SCORED );
 		}
 	}
 	else {
-		if ( level.teamScores[ TEAM_BLUE ] + score == level.teamScores[ TEAM_RED ] ) {
+		if ( level.teamScores[ team_t::TEAM_BLUE ] + score == level.teamScores[ team_t::TEAM_RED ] ) {
 			//teams are tied sound
-			te->s.eventParm = to_underlying( GTS_TEAMS_ARE_TIED );
+			te->s.eventParm = to_underlying( global_team_sound_t::GTS_TEAMS_ARE_TIED );
 		}
-		else if ( level.teamScores[ TEAM_BLUE ] <= level.teamScores[ TEAM_RED ] &&
-					level.teamScores[ TEAM_BLUE ] + score > level.teamScores[ TEAM_RED ]) {
+		else if ( level.teamScores[ team_t::TEAM_BLUE ] <= level.teamScores[ team_t::TEAM_RED ] &&
+					level.teamScores[ team_t::TEAM_BLUE ] + score > level.teamScores[ team_t::TEAM_RED ]) {
 			// blue took the lead sound
-			te->s.eventParm = to_underlying( GTS_BLUETEAM_TOOK_LEAD );
+			te->s.eventParm = to_underlying( global_team_sound_t::GTS_BLUETEAM_TOOK_LEAD );
 		}
 		else {
 			// blue scored sound
-			te->s.eventParm = to_underlying( GTS_BLUETEAM_SCORED );
+			te->s.eventParm = to_underlying( global_team_sound_t::GTS_BLUETEAM_SCORED );
 		}
 	}
 	level.teamScores[ team ] += score;
@@ -206,7 +206,7 @@ bool OnSameTeam( gentity_t *ent1, gentity_t *ent2 ) {
 		return false;
 	}
 
-	if (level.gametype == GT_POWERDUEL)
+	if (level.gametype == gametype_t::GT_POWERDUEL)
 	{
 		if (ent1->client->sess.duelTeam == ent2->client->sess.duelTeam)
 		{
@@ -216,16 +216,16 @@ bool OnSameTeam( gentity_t *ent1, gentity_t *ent2 ) {
 		return false;
 	}
 
-	if (level.gametype == GT_SINGLE_PLAYER)
+	if (level.gametype == gametype_t::GT_SINGLE_PLAYER)
 	{
 		bool ent1IsBot = false;
 		bool ent2IsBot = false;
 
-		if (Any( ent1->r.svFlags & SVF_BOT ))
+		if (Any( ent1->r.svFlags & svFlags_t::SVF_BOT ))
 		{
 			ent1IsBot = true;
 		}
-		if (Any( ent2->r.svFlags & SVF_BOT ))
+		if (Any( ent2->r.svFlags & svFlags_t::SVF_BOT ))
 		{
 			ent2IsBot = true;
 		}
@@ -237,42 +237,42 @@ bool OnSameTeam( gentity_t *ent1, gentity_t *ent2 ) {
 		return false;
 	}
 
-	if ( level.gametype < GT_TEAM ) {
+	if ( level.gametype < gametype_t::GT_TEAM ) {
 		return false;
 	}
 
-	if (ent1->s.eType == ET_NPC &&
-		ent1->s.NPC_class == CLASS_VEHICLE &&
+	if (ent1->s.eType == entityType_t::ET_NPC &&
+		ent1->s.NPC_class == class_t::CLASS_VEHICLE &&
 		ent1->client &&
-		ent1->client->sess.sessionTeam != TEAM_FREE &&
+		ent1->client->sess.sessionTeam != team_t::TEAM_FREE &&
 		ent2->client &&
 		ent1->client->sess.sessionTeam == ent2->client->sess.sessionTeam)
 	{
 		return true;
 	}
-	if (ent2->s.eType == ET_NPC &&
-		ent2->s.NPC_class == CLASS_VEHICLE &&
+	if (ent2->s.eType == entityType_t::ET_NPC &&
+		ent2->s.NPC_class == class_t::CLASS_VEHICLE &&
 		ent2->client &&
-		ent2->client->sess.sessionTeam != TEAM_FREE &&
+		ent2->client->sess.sessionTeam != team_t::TEAM_FREE &&
 		ent1->client &&
 		ent2->client->sess.sessionTeam == ent1->client->sess.sessionTeam)
 	{
 		return true;
 	}
 
-	if (ent1->client->sess.sessionTeam == TEAM_FREE &&
-		ent2->client->sess.sessionTeam == TEAM_FREE &&
-		ent1->s.eType == ET_NPC &&
-		ent2->s.eType == ET_NPC)
+	if (ent1->client->sess.sessionTeam == team_t::TEAM_FREE &&
+		ent2->client->sess.sessionTeam == team_t::TEAM_FREE &&
+		ent1->s.eType == entityType_t::ET_NPC &&
+		ent2->s.eType == entityType_t::ET_NPC)
 	{ //NPCs don't do normal team rules
 		return false;
 	}
 
-	if (ent1->s.eType == ET_NPC && ent2->s.eType == ET_PLAYER)
+	if (ent1->s.eType == entityType_t::ET_NPC && ent2->s.eType == entityType_t::ET_PLAYER)
 	{
 		return false;
 	}
-	else if (ent1->s.eType == ET_PLAYER && ent2->s.eType == ET_NPC)
+	else if (ent1->s.eType == entityType_t::ET_PLAYER && ent2->s.eType == entityType_t::ET_NPC)
 	{
 		return false;
 	}
@@ -284,20 +284,20 @@ bool OnSameTeam( gentity_t *ent1, gentity_t *ent2 ) {
 	return false;
 }
 
-static const EnumArray<char, flagStatus_t, to_underlying( FLAG_DROPPED ) + 1> ctfFlagStatusRemap = { '0', '1', '*', '*', '2' };
+static const EnumArray<char, flagStatus_t, to_underlying( flagStatus_t::FLAG_DROPPED ) + 1> ctfFlagStatusRemap = { '0', '1', '*', '*', '2' };
 
 void Team_SetFlagStatus( team_t team, flagStatus_t status ) {
 	bool modified = false;
 
 	switch( team ) {
-	case TEAM_RED:	// CTF
+	case team_t::TEAM_RED:	// CTF
 		if( teamgame.redStatus != status ) {
 			teamgame.redStatus = status;
 			modified = true;
 		}
 		break;
 
-	case TEAM_BLUE:	// CTF
+	case team_t::TEAM_BLUE:	// CTF
 		if( teamgame.blueStatus != status ) {
 			teamgame.blueStatus = status;
 			modified = true;
@@ -306,7 +306,7 @@ void Team_SetFlagStatus( team_t team, flagStatus_t status ) {
 			}
 		break;
 
-	case TEAM_FREE:	// One Flag CTF
+	case team_t::TEAM_FREE:	// One Flag CTF
 		if( teamgame.flagStatus != status ) {
 			teamgame.flagStatus = status;
 			modified = true;
@@ -317,7 +317,7 @@ void Team_SetFlagStatus( team_t team, flagStatus_t status ) {
 	if( modified ) {
 		char st[4];
 
-		if( level.gametype == GT_CTF || level.gametype == GT_CTY ) {
+		if( level.gametype == gametype_t::GT_CTF || level.gametype == gametype_t::GT_CTY ) {
 			st[0] = ctfFlagStatusRemap[teamgame.redStatus];
 			st[1] = ctfFlagStatusRemap[teamgame.blueStatus];
 			st[2] = 0;
@@ -328,14 +328,14 @@ void Team_SetFlagStatus( team_t team, flagStatus_t status ) {
 }
 
 void Team_CheckDroppedItem( gentity_t *dropped ) {
-	if( GI_Powerup( *dropped->item ) == PW_REDFLAG ) {
-		Team_SetFlagStatus( TEAM_RED, FLAG_DROPPED );
+	if( GI_Powerup( *dropped->item ) == powerup_t::PW_REDFLAG ) {
+		Team_SetFlagStatus( team_t::TEAM_RED, flagStatus_t::FLAG_DROPPED );
 	}
-	else if( GI_Powerup( *dropped->item ) == PW_BLUEFLAG ) {
-		Team_SetFlagStatus( TEAM_BLUE, FLAG_DROPPED );
+	else if( GI_Powerup( *dropped->item ) == powerup_t::PW_BLUEFLAG ) {
+		Team_SetFlagStatus( team_t::TEAM_BLUE, flagStatus_t::FLAG_DROPPED );
 	}
-	else if( GI_Powerup( *dropped->item ) == PW_NEUTRALFLAG ) {
-		Team_SetFlagStatus( TEAM_FREE, FLAG_DROPPED );
+	else if( GI_Powerup( *dropped->item ) == powerup_t::PW_NEUTRALFLAG ) {
+		Team_SetFlagStatus( team_t::TEAM_FREE, flagStatus_t::FLAG_DROPPED );
 	}
 }
 
@@ -367,12 +367,12 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 	otherteam = OtherTeam(targ->client->sess.sessionTeam);
 
 	// same team, if the flag at base, check to he has the enemy flag
-	if (team == TEAM_RED) {
-		flag_pw = PW_REDFLAG;
-		enemy_flag_pw = PW_BLUEFLAG;
+	if (team == team_t::TEAM_RED) {
+		flag_pw = powerup_t::PW_REDFLAG;
+		enemy_flag_pw = powerup_t::PW_BLUEFLAG;
 	} else {
-		flag_pw = PW_BLUEFLAG;
-		enemy_flag_pw = PW_REDFLAG;
+		flag_pw = powerup_t::PW_BLUEFLAG;
+		enemy_flag_pw = powerup_t::PW_REDFLAG;
 	}
 
 	// did the attacker frag the flag carrier?
@@ -382,7 +382,7 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 		attacker->client->pers.teamState.fragcarrier++;
 		//PrintMsg(nullptr, "%s" S_COLOR_WHITE " fragged %s's flag carrier!\n",
 		//	attacker->client->pers.netname, TeamName(team));
-		PrintCTFMessage(attacker->s.number, team, CTFMESSAGE_FRAGGED_FLAG_CARRIER);
+		PrintCTFMessage(attacker->s.number, team, ctfMsg_t::CTFMESSAGE_FRAGGED_FLAG_CARRIER);
 
 		// the target had the flag, clear the hurt carrier
 		// field on the other team
@@ -404,7 +404,7 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 		attacker->client->pers.teamState.carrierdefense++;
 		targ->client->pers.teamState.lasthurtcarrier = 0;
 
-		attacker->client->ps.persistant[PERS_DEFEND_COUNT]++;
+		attacker->client->ps.persistant[persEnum_t::PERS_DEFEND_COUNT]++;
 		team = attacker->client->sess.sessionTeam;
 		attacker->client->rewardTime = level.time + REWARD_SPRITE_TIME;
 
@@ -419,7 +419,7 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 		attacker->client->pers.teamState.carrierdefense++;
 		targ->client->pers.teamState.lasthurtcarrier = 0;
 
-		attacker->client->ps.persistant[PERS_DEFEND_COUNT]++;
+		attacker->client->ps.persistant[persEnum_t::PERS_DEFEND_COUNT]++;
 		team = attacker->client->sess.sessionTeam;
 		attacker->client->rewardTime = level.time + REWARD_SPRITE_TIME;
 
@@ -432,10 +432,10 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 
 	// find the flag
 	switch (attacker->client->sess.sessionTeam) {
-	case TEAM_RED:
+	case team_t::TEAM_RED:
 		c = "team_CTF_redflag";
 		break;
-	case TEAM_BLUE:
+	case team_t::TEAM_BLUE:
 		c = "team_CTF_blueflag";
 		break;
 	default:
@@ -450,7 +450,7 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 	}
 	flag = nullptr;
 	while ((flag = G_Find (flag, FOFS(classname), c)) != nullptr) {
-		if (!Any( flag->flags & FL_DROPPED_ITEM ))
+		if (!Any( flag->flags & gentityFlags_t::FL_DROPPED_ITEM ))
 			break;
 	}
 
@@ -473,7 +473,7 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 		AddScore(attacker, targ->r.currentOrigin, CTF_FLAG_DEFENSE_BONUS);
 		attacker->client->pers.teamState.basedefense++;
 
-		attacker->client->ps.persistant[PERS_DEFEND_COUNT]++;
+		attacker->client->ps.persistant[persEnum_t::PERS_DEFEND_COUNT]++;
 		attacker->client->rewardTime = level.time + REWARD_SPRITE_TIME;
 
 		return;
@@ -491,7 +491,7 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 			AddScore(attacker, targ->r.currentOrigin, CTF_CARRIER_PROTECT_BONUS);
 			attacker->client->pers.teamState.carrierdefense++;
 
-			attacker->client->ps.persistant[PERS_DEFEND_COUNT]++;
+			attacker->client->ps.persistant[persEnum_t::PERS_DEFEND_COUNT]++;
 			attacker->client->rewardTime = level.time + REWARD_SPRITE_TIME;
 
 			return;
@@ -514,10 +514,10 @@ void Team_CheckHurtCarrier(gentity_t *targ, gentity_t *attacker)
 	if (!targ->client || !attacker->client)
 		return;
 
-	if (targ->client->sess.sessionTeam == TEAM_RED)
-		flag_pw = PW_BLUEFLAG;
+	if (targ->client->sess.sessionTeam == team_t::TEAM_RED)
+		flag_pw = powerup_t::PW_BLUEFLAG;
 	else
-		flag_pw = PW_REDFLAG;
+		flag_pw = powerup_t::PW_REDFLAG;
 
 	// flags
 	if (targ->client->ps.powerups[flag_pw] &&
@@ -536,13 +536,13 @@ gentity_t *Team_ResetFlag( team_t team ) {
 	gentity_t *ent, *rent = nullptr;
 
 	switch (team) {
-	case TEAM_RED:
+	case team_t::TEAM_RED:
 		c = "team_CTF_redflag";
 		break;
-	case TEAM_BLUE:
+	case team_t::TEAM_BLUE:
 		c = "team_CTF_blueflag";
 		break;
-	case TEAM_FREE:
+	case team_t::TEAM_FREE:
 		c = "team_CTF_neutralflag";
 		break;
 	default:
@@ -551,7 +551,7 @@ gentity_t *Team_ResetFlag( team_t team ) {
 
 	ent = nullptr;
 	while ((ent = G_Find (ent, FOFS(classname), c)) != nullptr) {
-		if (Any( ent->flags & FL_DROPPED_ITEM ))
+		if (Any( ent->flags & gentityFlags_t::FL_DROPPED_ITEM ))
 			G_FreeEntity(ent);
 		else {
 			rent = ent;
@@ -559,15 +559,15 @@ gentity_t *Team_ResetFlag( team_t team ) {
 		}
 	}
 
-	Team_SetFlagStatus( team, FLAG_ATBASE );
+	Team_SetFlagStatus( team, flagStatus_t::FLAG_ATBASE );
 
 	return rent;
 }
 
 void Team_ResetFlags( void ) {
-	if( level.gametype == GT_CTF || level.gametype == GT_CTY ) {
-		Team_ResetFlag( TEAM_RED );
-		Team_ResetFlag( TEAM_BLUE );
+	if( level.gametype == gametype_t::GT_CTF || level.gametype == gametype_t::GT_CTY ) {
+		Team_ResetFlag( team_t::TEAM_RED );
+		Team_ResetFlag( team_t::TEAM_BLUE );
 	}
 }
 
@@ -579,14 +579,14 @@ void Team_ReturnFlagSound( gentity_t *ent, team_t team ) {
 		return;
 	}
 
-	te = G_TempEntity( ent->s.pos.trBase, EV_GLOBAL_TEAM_SOUND );
-	if( team == TEAM_BLUE ) {
-		te->s.eventParm = to_underlying( GTS_RED_RETURN );
+	te = G_TempEntity( ent->s.pos.trBase, entity_event_t::EV_GLOBAL_TEAM_SOUND );
+	if( team == team_t::TEAM_BLUE ) {
+		te->s.eventParm = to_underlying( global_team_sound_t::GTS_RED_RETURN );
 	}
 	else {
-		te->s.eventParm = to_underlying( GTS_BLUE_RETURN );
+		te->s.eventParm = to_underlying( global_team_sound_t::GTS_BLUE_RETURN );
 	}
-	te->r.svFlags |= SVF_BROADCAST;
+	te->r.svFlags |= svFlags_t::SVF_BROADCAST;
 }
 
 void Team_TakeFlagSound( gentity_t *ent, team_t team ) {
@@ -600,16 +600,16 @@ void Team_TakeFlagSound( gentity_t *ent, team_t team ) {
 	// only play sound when the flag was at the base
 	// or not picked up the last 10 seconds
 	switch(team) {
-		case TEAM_RED:
-			if( teamgame.blueStatus != FLAG_ATBASE ) {
+		case team_t::TEAM_RED:
+			if( teamgame.blueStatus != flagStatus_t::FLAG_ATBASE ) {
 				if (teamgame.blueTakenTime > level.time - 10000)
 					return;
 			}
 			teamgame.blueTakenTime = level.time;
 			break;
 
-		case TEAM_BLUE:	// CTF
-			if( teamgame.redStatus != FLAG_ATBASE ) {
+		case team_t::TEAM_BLUE:	// CTF
+			if( teamgame.redStatus != flagStatus_t::FLAG_ATBASE ) {
 				if (teamgame.redTakenTime > level.time - 10000)
 					return;
 			default:
@@ -619,14 +619,14 @@ void Team_TakeFlagSound( gentity_t *ent, team_t team ) {
 			break;
 	}
 
-	te = G_TempEntity( ent->s.pos.trBase, EV_GLOBAL_TEAM_SOUND );
-	if( team == TEAM_BLUE ) {
-		te->s.eventParm = to_underlying( GTS_RED_TAKEN );
+	te = G_TempEntity( ent->s.pos.trBase, entity_event_t::EV_GLOBAL_TEAM_SOUND );
+	if( team == team_t::TEAM_BLUE ) {
+		te->s.eventParm = to_underlying( global_team_sound_t::GTS_RED_TAKEN );
 	}
 	else {
-		te->s.eventParm = to_underlying( GTS_BLUE_TAKEN );
+		te->s.eventParm = to_underlying( global_team_sound_t::GTS_BLUE_TAKEN );
 	}
-	te->r.svFlags |= SVF_BROADCAST;
+	te->r.svFlags |= svFlags_t::SVF_BROADCAST;
 }
 
 void Team_CaptureFlagSound( gentity_t *ent, team_t team ) {
@@ -637,36 +637,36 @@ void Team_CaptureFlagSound( gentity_t *ent, team_t team ) {
 		return;
 	}
 
-	te = G_TempEntity( ent->s.pos.trBase, EV_GLOBAL_TEAM_SOUND );
-	if( team == TEAM_BLUE ) {
-		te->s.eventParm = to_underlying( GTS_BLUE_CAPTURE );
+	te = G_TempEntity( ent->s.pos.trBase, entity_event_t::EV_GLOBAL_TEAM_SOUND );
+	if( team == team_t::TEAM_BLUE ) {
+		te->s.eventParm = to_underlying( global_team_sound_t::GTS_BLUE_CAPTURE );
 	}
 	else {
-		te->s.eventParm = to_underlying( GTS_RED_CAPTURE );
+		te->s.eventParm = to_underlying( global_team_sound_t::GTS_RED_CAPTURE );
 	}
-	te->r.svFlags |= SVF_BROADCAST;
+	te->r.svFlags |= svFlags_t::SVF_BROADCAST;
 }
 
 void Team_ReturnFlag( team_t team ) {
 	Team_ReturnFlagSound(Team_ResetFlag(team), team);
-	if( team == TEAM_FREE ) {
+	if( team == team_t::TEAM_FREE ) {
 		//PrintMsg(nullptr, "The flag has returned!\n" );
 	}
 	else { //flag should always have team in normal CTF
 		//PrintMsg(nullptr, "The %s flag has returned!\n", TeamName(team));
-		PrintCTFMessage(-1, team, CTFMESSAGE_FLAG_RETURNED);
+		PrintCTFMessage(-1, team, ctfMsg_t::CTFMESSAGE_FLAG_RETURNED);
 	}
 }
 
 void Team_FreeEntity( gentity_t *ent ) {
-	if( GI_Powerup( *ent->item ) == PW_REDFLAG ) {
-		Team_ReturnFlag( TEAM_RED );
+	if( GI_Powerup( *ent->item ) == powerup_t::PW_REDFLAG ) {
+		Team_ReturnFlag( team_t::TEAM_RED );
 	}
-	else if( GI_Powerup( *ent->item ) == PW_BLUEFLAG ) {
-		Team_ReturnFlag( TEAM_BLUE );
+	else if( GI_Powerup( *ent->item ) == powerup_t::PW_BLUEFLAG ) {
+		Team_ReturnFlag( team_t::TEAM_BLUE );
 	}
-	else if( GI_Powerup( *ent->item ) == PW_NEUTRALFLAG ) {
-		Team_ReturnFlag( TEAM_FREE );
+	else if( GI_Powerup( *ent->item ) == powerup_t::PW_NEUTRALFLAG ) {
+		Team_ReturnFlag( team_t::TEAM_FREE );
 	}
 }
 
@@ -680,16 +680,16 @@ Flags are unique in that if they are dropped, the base flag must be respawned wh
 ==============
 */
 void Team_DroppedFlagThink(gentity_t *ent) {
-	team_t		team = TEAM_FREE;
+	team_t		team = team_t::TEAM_FREE;
 
-	if( GI_Powerup( *ent->item ) == PW_REDFLAG ) {
-		team = TEAM_RED;
+	if( GI_Powerup( *ent->item ) == powerup_t::PW_REDFLAG ) {
+		team = team_t::TEAM_RED;
 	}
-	else if( GI_Powerup( *ent->item ) == PW_BLUEFLAG ) {
-		team = TEAM_BLUE;
+	else if( GI_Powerup( *ent->item ) == powerup_t::PW_BLUEFLAG ) {
+		team = team_t::TEAM_BLUE;
 	}
-	else if( GI_Powerup( *ent->item ) == PW_NEUTRALFLAG ) {
-		team = TEAM_FREE;
+	else if( GI_Powerup( *ent->item ) == powerup_t::PW_NEUTRALFLAG ) {
+		team = team_t::TEAM_FREE;
 	}
 
 	Team_ReturnFlagSound( Team_ResetFlag( team ), team );
@@ -723,17 +723,17 @@ int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, team_t team ) {
 	gentity_t*	enemy;
 	float		enemyDist, dist;
 
-	if (cl->sess.sessionTeam == TEAM_RED) {
-		enemy_flag = PW_BLUEFLAG;
+	if (cl->sess.sessionTeam == team_t::TEAM_RED) {
+		enemy_flag = powerup_t::PW_BLUEFLAG;
 	} else {
-		enemy_flag = PW_REDFLAG;
+		enemy_flag = powerup_t::PW_REDFLAG;
 	}
 
-	if ( Any( ent->flags & FL_DROPPED_ITEM ) ) {
+	if ( Any( ent->flags & gentityFlags_t::FL_DROPPED_ITEM ) ) {
 		// hey, its not home.  return it by teleporting it back
 		//PrintMsg( nullptr, "%s" S_COLOR_WHITE " returned the %s flag!\n",
 		//	cl->pers.netname, TeamName(team));
-		PrintCTFMessage(other->s.number, team, CTFMESSAGE_PLAYER_RETURNED_FLAG);
+		PrintCTFMessage(other->s.number, team, ctfMsg_t::CTFMESSAGE_PLAYER_RETURNED_FLAG);
 
 		AddScore(other, ent->r.currentOrigin, CTF_RECOVERY_BONUS);
 		other->client->pers.teamState.flagrecovery++;
@@ -761,10 +761,10 @@ int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, team_t team ) {
 
 	dist = Distance( ent->s.pos.trBase, other->client->ps.origin );
 
-	if (other->client->sess.sessionTeam == TEAM_RED)
-		enemyTeam = TEAM_BLUE;
+	if (other->client->sess.sessionTeam == team_t::TEAM_RED)
+		enemyTeam = team_t::TEAM_BLUE;
 	else
-		enemyTeam = TEAM_RED;
+		enemyTeam = team_t::TEAM_RED;
 
 	for (j = 0; j < num; j++) {
 		enemy = (g_entities + touch[j]);
@@ -772,7 +772,7 @@ int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, team_t team ) {
 		if (!enemy || !enemy->inuse || !enemy->client)
 			continue;
 
-		if (enemy->client->pers.connected != CON_CONNECTED)
+		if (enemy->client->pers.connected != clientConnected_t::CON_CONNECTED)
 			continue;
 
 		//check if its alive
@@ -780,11 +780,11 @@ int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, team_t team ) {
 			continue;		// dead people can't pickup
 
 		//ignore specs
-		if (enemy->client->sess.sessionTeam == TEAM_SPECTATOR)
+		if (enemy->client->sess.sessionTeam == team_t::TEAM_SPECTATOR)
 			continue;
 
 		//check if this is enemy
-		if ((enemy->client->sess.sessionTeam != TEAM_RED && enemy->client->sess.sessionTeam != TEAM_BLUE) ||
+		if ((enemy->client->sess.sessionTeam != team_t::TEAM_RED && enemy->client->sess.sessionTeam != team_t::TEAM_BLUE) ||
 			enemy->client->sess.sessionTeam != enemyTeam){
 			continue;
 		}
@@ -800,7 +800,7 @@ int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, team_t team ) {
 	}
 
 	//PrintMsg( nullptr, "%s" S_COLOR_WHITE " captured the %s flag!\n", cl->pers.netname, TeamName(OtherTeam(team)));
-	PrintCTFMessage(other->s.number, team, CTFMESSAGE_PLAYER_CAPTURED_FLAG);
+	PrintCTFMessage(other->s.number, team, ctfMsg_t::CTFMESSAGE_PLAYER_CAPTURED_FLAG);
 
 	cl->ps.powerups[enemy_flag] = 0;
 
@@ -812,7 +812,7 @@ int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, team_t team ) {
 
 	other->client->pers.teamState.captures++;
 	other->client->rewardTime = level.time + REWARD_SPRITE_TIME;
-	other->client->ps.persistant[PERS_CAPTURES]++;
+	other->client->ps.persistant[persEnum_t::PERS_CAPTURES]++;
 
 	// other gets another 10 frag bonus
 	AddScore(other, ent->r.currentOrigin, CTF_CAPTURE_BONUS);
@@ -837,7 +837,7 @@ int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, team_t team ) {
 				AddScore (player, ent->r.currentOrigin, CTF_RETURN_FLAG_ASSIST_BONUS);
 				other->client->pers.teamState.assists++;
 
-				player->client->ps.persistant[PERS_ASSIST_COUNT]++;
+				player->client->ps.persistant[persEnum_t::PERS_ASSIST_COUNT]++;
 				player->client->rewardTime = level.time + REWARD_SPRITE_TIME;
 
 			}
@@ -845,7 +845,7 @@ int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, team_t team ) {
 				CTF_FRAG_CARRIER_ASSIST_TIMEOUT > level.time) {
 				AddScore(player, ent->r.currentOrigin, CTF_FRAG_CARRIER_ASSIST_BONUS);
 				other->client->pers.teamState.assists++;
-				player->client->ps.persistant[PERS_ASSIST_COUNT]++;
+				player->client->ps.persistant[persEnum_t::PERS_ASSIST_COUNT]++;
 				player->client->rewardTime = level.time + REWARD_SPRITE_TIME;
 			}
 		}
@@ -873,10 +873,10 @@ int Team_TouchEnemyFlag( gentity_t *ent, gentity_t *other, team_t team ) {
 
 	dist = Distance(ent->s.pos.trBase, other->client->ps.origin);
 
-	if (other->client->sess.sessionTeam == TEAM_RED){
-		ourFlag   = PW_REDFLAG;
+	if (other->client->sess.sessionTeam == team_t::TEAM_RED){
+		ourFlag   = powerup_t::PW_REDFLAG;
 	} else {
-		ourFlag   = PW_BLUEFLAG;
+		ourFlag   = powerup_t::PW_BLUEFLAG;
 	}
 
 	for(j = 0; j < num; ++j){
@@ -887,7 +887,7 @@ int Team_TouchEnemyFlag( gentity_t *ent, gentity_t *other, team_t team ) {
 		}
 
 		//ignore specs
-		if (enemy->client->sess.sessionTeam == TEAM_SPECTATOR)
+		if (enemy->client->sess.sessionTeam == team_t::TEAM_SPECTATOR)
 			continue;
 
 		//check if its alive
@@ -910,14 +910,14 @@ int Team_TouchEnemyFlag( gentity_t *ent, gentity_t *other, team_t team ) {
 
 	//PrintMsg (nullptr, "%s" S_COLOR_WHITE " got the %s flag!\n",
 	//	other->client->pers.netname, TeamName(team));
-	PrintCTFMessage(other->s.number, team, CTFMESSAGE_PLAYER_GOT_FLAG);
+	PrintCTFMessage(other->s.number, team, ctfMsg_t::CTFMESSAGE_PLAYER_GOT_FLAG);
 
-	if (team == TEAM_RED)
-		cl->ps.powerups[PW_REDFLAG] = INT_MAX; // flags never expire
+	if (team == team_t::TEAM_RED)
+		cl->ps.powerups[powerup_t::PW_REDFLAG] = INT_MAX; // flags never expire
 	else
-		cl->ps.powerups[PW_BLUEFLAG] = INT_MAX; // flags never expire
+		cl->ps.powerups[powerup_t::PW_BLUEFLAG] = INT_MAX; // flags never expire
 
-	Team_SetFlagStatus( team, FLAG_TAKEN );
+	Team_SetFlagStatus( team, flagStatus_t::FLAG_TAKEN );
 
 	AddScore(other, ent->r.currentOrigin, CTF_FLAG_BONUS);
 	cl->pers.teamState.flagsince = level.time;
@@ -932,13 +932,13 @@ int Pickup_Team( gentity_t *ent, gentity_t *other ) {
 
 	// figure out what team this flag is
 	if( strcmp(ent->classname, "team_CTF_redflag") == 0 ) {
-		team = TEAM_RED;
+		team = team_t::TEAM_RED;
 	}
 	else if( strcmp(ent->classname, "team_CTF_blueflag") == 0 ) {
-		team = TEAM_BLUE;
+		team = team_t::TEAM_BLUE;
 	}
 	else if( strcmp(ent->classname, "team_CTF_neutralflag") == 0  ) {
-		team = TEAM_FREE;
+		team = team_t::TEAM_FREE;
 	}
 	else {
 //		PrintMsg ( other, "Don't know what team the flag is on.\n");
@@ -1039,7 +1039,7 @@ gentity_t *SelectRandomTeamSpawnPoint( playerTeamStateState_t teamstate, team_t 
 	const char	*classname;
 	bool	mustBeEnabled = false;
 
-	if (level.gametype == GT_SIEGE)
+	if (level.gametype == gametype_t::GT_SIEGE)
 	{
 		if (team == SIEGETEAM_TEAM1)
 		{
@@ -1054,17 +1054,17 @@ gentity_t *SelectRandomTeamSpawnPoint( playerTeamStateState_t teamstate, team_t 
 	}
 	else
 	{
-		if (teamstate == TEAM_BEGIN) {
-			if (team == TEAM_RED)
+		if (teamstate == playerTeamStateState_t::TEAM_BEGIN) {
+			if (team == team_t::TEAM_RED)
 				classname = "team_CTF_redplayer";
-			else if (team == TEAM_BLUE)
+			else if (team == team_t::TEAM_BLUE)
 				classname = "team_CTF_blueplayer";
 			else
 				return nullptr;
 		} else {
-			if (team == TEAM_RED)
+			if (team == team_t::TEAM_RED)
 				classname = "team_CTF_redspawn";
-			else if (team == TEAM_BLUE)
+			else if (team == team_t::TEAM_BLUE)
 				classname = "team_CTF_bluespawn";
 			else
 				return nullptr;
@@ -1093,7 +1093,7 @@ gentity_t *SelectRandomTeamSpawnPoint( playerTeamStateState_t teamstate, team_t 
 		return G_Find( nullptr, FOFS(classname), classname);
 	}
 
-	if (level.gametype == GT_SIEGE && siegeClass >= 0 &&
+	if (level.gametype == gametype_t::GT_SIEGE && siegeClass >= 0 &&
 		bgSiegeClasses[siegeClass].name[0])
 	{ //out of the spots found, see if any have an idealclass to match our class name
 		gentity_t *classSpots[MAX_TEAM_SPAWN_POINTS];
@@ -1198,8 +1198,8 @@ void TeamplayInfoMessage( gentity_t *ent ) {
 		return;
 
 	// send team info to spectator for team of followed client
-	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
-		if ( ent->client->sess.spectatorState != SPECTATOR_FOLLOW
+	if (ent->client->sess.sessionTeam == team_t::TEAM_SPECTATOR) {
+		if ( ent->client->sess.spectatorState != spectatorState_t::SPECTATOR_FOLLOW
 			|| ent->client->sess.spectatorClient < 0 ) {
 				return;
 		}
@@ -1208,7 +1208,7 @@ void TeamplayInfoMessage( gentity_t *ent ) {
 		team = ent->client->sess.sessionTeam;
 	}
 
-	if (team != TEAM_RED && team != TEAM_BLUE) {
+	if (team != team_t::TEAM_RED && team != team_t::TEAM_BLUE) {
 		return;
 	}
 
@@ -1241,8 +1241,8 @@ void TeamplayInfoMessage( gentity_t *ent ) {
 					i, 0, h, a, 0, 0 );
 			}
 			else {
-				h = player->client->ps.stats[STAT_HEALTH];
-				a = player->client->ps.stats[STAT_ARMOR];
+				h = player->client->ps.stats[statIndex_t::STAT_HEALTH];
+				a = player->client->ps.stats[statIndex_t::STAT_ARMOR];
 				if ( h < 0 ) h = 0;
 				if ( a < 0 ) a = 0;
 
@@ -1280,11 +1280,11 @@ void CheckTeamStatus(void) {
 				continue;
 			}
 
-			if ( ent->client->pers.connected != CON_CONNECTED ) {
+			if ( ent->client->pers.connected != clientConnected_t::CON_CONNECTED ) {
 				continue;
 			}
 
-			if (ent->inuse && (ent->client->sess.sessionTeam == TEAM_RED ||	ent->client->sess.sessionTeam == TEAM_BLUE)) {
+			if (ent->inuse && (ent->client->sess.sessionTeam == team_t::TEAM_RED ||	ent->client->sess.sessionTeam == team_t::TEAM_BLUE)) {
 				loc = Team_GetLocation( ent );
 				if (loc)
 					ent->client->pers.teamState.location = loc->cs_index;
@@ -1299,7 +1299,7 @@ void CheckTeamStatus(void) {
 			if ( !ent->client ) // uhm
 				continue;
 
-			if ( ent->client->pers.connected != CON_CONNECTED ) {
+			if ( ent->client->pers.connected != clientConnected_t::CON_CONNECTED ) {
 				continue;
 			}
 

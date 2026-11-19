@@ -216,7 +216,6 @@ Ghoul2 Insert End
 	CG_MODERNJK_MENU_PAINT,
 	CG_MODERNJK_GETMENU_BYNAME,
 };
-using enum cgameImport_t;
 
 #ifdef JK2_MODE
 enum class cgameJK2Import_t {
@@ -342,7 +341,6 @@ Ghoul2 Insert End
 	CG_MODERNJK_MENU_PAINT_JK2,
 	CG_MODERNJK_GETMENU_BYNAME_JK2,
 };
-using enum cgameJK2Import_t;
 #endif
 
 //----------------------------------------------

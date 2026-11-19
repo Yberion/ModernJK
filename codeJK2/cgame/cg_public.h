@@ -192,6 +192,5 @@ Ghoul2 Insert End
 	CG_MODERNJK_MENU_PAINT,
 	CG_MODERNJK_GETMENU_BYNAME,
 };
-using enum cgameImport_t;
 
 //----------------------------------------------

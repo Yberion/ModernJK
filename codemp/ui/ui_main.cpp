@@ -50,7 +50,7 @@ void (*Com_Printf)( const char *msg, ... );
 
 extern void UI_SaberAttachToChar( itemDef_t *item );
 
-EnumArray<const char *, forcePowers_t, NUM_FORCE_POWERS> forcepowerDesc =
+EnumArray<const char *, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS> forcepowerDesc =
 {
 	"@MENUS_OF_EFFECT_JEDI_ONLY_NEFFECT",
 	"@MENUS_DURATION_IMMEDIATE_NAREA",
@@ -81,11 +81,10 @@ enum class datapadMoveSound_t
 	MDS_SABER,
 	MDS_MOVE_SOUNDS_MAX
 };
-using enum datapadMoveSound_t;
 
 // Some hard coded badness
 // At some point maybe this should be externalized to a .dat file
-EnumArray<const char *, datapadMoveTitle_t, MD_MOVE_TITLE_MAX> datapadMoveTitleData =
+EnumArray<const char *, datapadMoveTitle_t, datapadMoveTitle_t::MD_MOVE_TITLE_MAX> datapadMoveTitleData =
 {
 "@MENUS_ACROBATICS",
 "@MENUS_SINGLE_FAST",
@@ -95,7 +94,7 @@ EnumArray<const char *, datapadMoveTitle_t, MD_MOVE_TITLE_MAX> datapadMoveTitleD
 "@MENUS_SABER_STAFF",
 };
 
-EnumArray<const char *, datapadMoveTitle_t, MD_MOVE_TITLE_MAX> datapadMoveTitleBaseAnims =
+EnumArray<const char *, datapadMoveTitle_t, datapadMoveTitle_t::MD_MOVE_TITLE_MAX> datapadMoveTitleBaseAnims =
 {
 "BOTH_RUN1",
 "BOTH_SABERFAST_STANCE",
@@ -115,114 +114,114 @@ typedef struct datpadmovedata_s
 	datapadMoveSound_t	sound;
 } datpadmovedata_t;
 
-static EnumArray<datpadmovedata_t[MAX_MOVES], datapadMoveTitle_t, MD_MOVE_TITLE_MAX> datapadMoveData = {{
+static EnumArray<datpadmovedata_t[MAX_MOVES], datapadMoveTitle_t, datapadMoveTitle_t::MD_MOVE_TITLE_MAX> datapadMoveData = {{
 	{// Acrobatics
-		{ "@MENUS_FORCE_JUMP1",				"@MENUS_FORCE_JUMP1_DESC",				"BOTH_FORCEJUMP1",				MDS_FORCE_JUMP },
-		{ "@MENUS_FORCE_FLIP",				"@MENUS_FORCE_FLIP_DESC",				"BOTH_FLIP_F",					MDS_FORCE_JUMP },
-		{ "@MENUS_ROLL",					"@MENUS_ROLL_DESC",						"BOTH_ROLL_F",					MDS_ROLL },
-		{ "@MENUS_BACKFLIP_OFF_WALL",		"@MENUS_BACKFLIP_OFF_WALL_DESC",		"BOTH_WALL_FLIP_BACK1",			MDS_FORCE_JUMP },
-		{ "@MENUS_SIDEFLIP_OFF_WALL",		"@MENUS_SIDEFLIP_OFF_WALL_DESC",		"BOTH_WALL_FLIP_RIGHT",			MDS_FORCE_JUMP },
-		{ "@MENUS_WALL_RUN",				"@MENUS_WALL_RUN_DESC",					"BOTH_WALL_RUN_RIGHT",			MDS_FORCE_JUMP },
-		{ "@MENUS_WALL_GRAB_JUMP",			"@MENUS_WALL_GRAB_JUMP_DESC",			"BOTH_FORCEWALLREBOUND_FORWARD",MDS_FORCE_JUMP },
-		{ "@MENUS_RUN_UP_WALL_BACKFLIP",	"@MENUS_RUN_UP_WALL_BACKFLIP_DESC",		"BOTH_FORCEWALLRUNFLIP_START",	MDS_FORCE_JUMP },
-		{ "@MENUS_JUMPUP_FROM_KNOCKDOWN",	"@MENUS_JUMPUP_FROM_KNOCKDOWN_DESC",	"BOTH_KNOCKDOWN3",				MDS_NONE },
-		{ "@MENUS_JUMPKICK_FROM_KNOCKDOWN",	"@MENUS_JUMPKICK_FROM_KNOCKDOWN_DESC",	"BOTH_KNOCKDOWN2",				MDS_NONE },
-		{ "@MENUS_ROLL_FROM_KNOCKDOWN",		"@MENUS_ROLL_FROM_KNOCKDOWN_DESC",		"BOTH_KNOCKDOWN1",				MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ "@MENUS_FORCE_JUMP1",				"@MENUS_FORCE_JUMP1_DESC",				"BOTH_FORCEJUMP1",				datapadMoveSound_t::MDS_FORCE_JUMP },
+		{ "@MENUS_FORCE_FLIP",				"@MENUS_FORCE_FLIP_DESC",				"BOTH_FLIP_F",					datapadMoveSound_t::MDS_FORCE_JUMP },
+		{ "@MENUS_ROLL",					"@MENUS_ROLL_DESC",						"BOTH_ROLL_F",					datapadMoveSound_t::MDS_ROLL },
+		{ "@MENUS_BACKFLIP_OFF_WALL",		"@MENUS_BACKFLIP_OFF_WALL_DESC",		"BOTH_WALL_FLIP_BACK1",			datapadMoveSound_t::MDS_FORCE_JUMP },
+		{ "@MENUS_SIDEFLIP_OFF_WALL",		"@MENUS_SIDEFLIP_OFF_WALL_DESC",		"BOTH_WALL_FLIP_RIGHT",			datapadMoveSound_t::MDS_FORCE_JUMP },
+		{ "@MENUS_WALL_RUN",				"@MENUS_WALL_RUN_DESC",					"BOTH_WALL_RUN_RIGHT",			datapadMoveSound_t::MDS_FORCE_JUMP },
+		{ "@MENUS_WALL_GRAB_JUMP",			"@MENUS_WALL_GRAB_JUMP_DESC",			"BOTH_FORCEWALLREBOUND_FORWARD",datapadMoveSound_t::MDS_FORCE_JUMP },
+		{ "@MENUS_RUN_UP_WALL_BACKFLIP",	"@MENUS_RUN_UP_WALL_BACKFLIP_DESC",		"BOTH_FORCEWALLRUNFLIP_START",	datapadMoveSound_t::MDS_FORCE_JUMP },
+		{ "@MENUS_JUMPUP_FROM_KNOCKDOWN",	"@MENUS_JUMPUP_FROM_KNOCKDOWN_DESC",	"BOTH_KNOCKDOWN3",				datapadMoveSound_t::MDS_NONE },
+		{ "@MENUS_JUMPKICK_FROM_KNOCKDOWN",	"@MENUS_JUMPKICK_FROM_KNOCKDOWN_DESC",	"BOTH_KNOCKDOWN2",				datapadMoveSound_t::MDS_NONE },
+		{ "@MENUS_ROLL_FROM_KNOCKDOWN",		"@MENUS_ROLL_FROM_KNOCKDOWN_DESC",		"BOTH_KNOCKDOWN1",				datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
 	},
 	{//Single Saber, Fast Style
-		{ "@MENUS_STAB_BACK",				"@MENUS_STAB_BACK_DESC",				"BOTH_A2_STABBACK1",			MDS_SABER },
-		{ "@MENUS_LUNGE_ATTACK",			"@MENUS_LUNGE_ATTACK_DESC",				"BOTH_LUNGE2_B__T_",			MDS_SABER },
-		{ "@MENUS_FAST_ATTACK_KATA",		"@MENUS_FAST_ATTACK_KATA_DESC",			"BOTH_A1_SPECIAL",				MDS_SABER },
-		{ "@MENUS_ATTACK_ENEMYONGROUND",	"@MENUS_ATTACK_ENEMYONGROUND_DESC",		"BOTH_STABDOWN",				MDS_FORCE_JUMP },
-		{ "@MENUS_CARTWHEEL",				"@MENUS_CARTWHEEL_DESC",				"BOTH_ARIAL_RIGHT",				MDS_FORCE_JUMP },
-		{ "@MENUS_BOTH_ROLL_STAB",			"@MENUS_BOTH_ROLL_STAB2_DESC",			"BOTH_ROLL_STAB",				MDS_SABER },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ "@MENUS_STAB_BACK",				"@MENUS_STAB_BACK_DESC",				"BOTH_A2_STABBACK1",			datapadMoveSound_t::MDS_SABER },
+		{ "@MENUS_LUNGE_ATTACK",			"@MENUS_LUNGE_ATTACK_DESC",				"BOTH_LUNGE2_B__T_",			datapadMoveSound_t::MDS_SABER },
+		{ "@MENUS_FAST_ATTACK_KATA",		"@MENUS_FAST_ATTACK_KATA_DESC",			"BOTH_A1_SPECIAL",				datapadMoveSound_t::MDS_SABER },
+		{ "@MENUS_ATTACK_ENEMYONGROUND",	"@MENUS_ATTACK_ENEMYONGROUND_DESC",		"BOTH_STABDOWN",				datapadMoveSound_t::MDS_FORCE_JUMP },
+		{ "@MENUS_CARTWHEEL",				"@MENUS_CARTWHEEL_DESC",				"BOTH_ARIAL_RIGHT",				datapadMoveSound_t::MDS_FORCE_JUMP },
+		{ "@MENUS_BOTH_ROLL_STAB",			"@MENUS_BOTH_ROLL_STAB2_DESC",			"BOTH_ROLL_STAB",				datapadMoveSound_t::MDS_SABER },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
 	},
 	{//Single Saber, Medium Style
-		{ "@MENUS_SLASH_BACK",				"@MENUS_SLASH_BACK_DESC",				"BOTH_ATTACK_BACK",				MDS_SABER },
-		{ "@MENUS_FLIP_ATTACK",				"@MENUS_FLIP_ATTACK_DESC",				"BOTH_JUMPFLIPSLASHDOWN1",		MDS_FORCE_JUMP },
-		{ "@MENUS_MEDIUM_ATTACK_KATA",		"@MENUS_MEDIUM_ATTACK_KATA_DESC",		"BOTH_A2_SPECIAL",				MDS_SABER },
-		{ "@MENUS_ATTACK_ENEMYONGROUND",	"@MENUS_ATTACK_ENEMYONGROUND_DESC",		"BOTH_STABDOWN",				MDS_FORCE_JUMP },
-		{ "@MENUS_CARTWHEEL",				"@MENUS_CARTWHEEL_DESC",				"BOTH_ARIAL_RIGHT",				MDS_FORCE_JUMP },
-		{ "@MENUS_BOTH_ROLL_STAB",			"@MENUS_BOTH_ROLL_STAB2_DESC",			"BOTH_ROLL_STAB",				MDS_SABER },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ "@MENUS_SLASH_BACK",				"@MENUS_SLASH_BACK_DESC",				"BOTH_ATTACK_BACK",				datapadMoveSound_t::MDS_SABER },
+		{ "@MENUS_FLIP_ATTACK",				"@MENUS_FLIP_ATTACK_DESC",				"BOTH_JUMPFLIPSLASHDOWN1",		datapadMoveSound_t::MDS_FORCE_JUMP },
+		{ "@MENUS_MEDIUM_ATTACK_KATA",		"@MENUS_MEDIUM_ATTACK_KATA_DESC",		"BOTH_A2_SPECIAL",				datapadMoveSound_t::MDS_SABER },
+		{ "@MENUS_ATTACK_ENEMYONGROUND",	"@MENUS_ATTACK_ENEMYONGROUND_DESC",		"BOTH_STABDOWN",				datapadMoveSound_t::MDS_FORCE_JUMP },
+		{ "@MENUS_CARTWHEEL",				"@MENUS_CARTWHEEL_DESC",				"BOTH_ARIAL_RIGHT",				datapadMoveSound_t::MDS_FORCE_JUMP },
+		{ "@MENUS_BOTH_ROLL_STAB",			"@MENUS_BOTH_ROLL_STAB2_DESC",			"BOTH_ROLL_STAB",				datapadMoveSound_t::MDS_SABER },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
 	},
 	{//Single Saber, Strong Style
-		{ "@MENUS_SLASH_BACK",				"@MENUS_SLASH_BACK_DESC",				"BOTH_ATTACK_BACK",				MDS_SABER },
-		{ "@MENUS_JUMP_ATTACK",				"@MENUS_JUMP_ATTACK_DESC",				"BOTH_FORCELEAP2_T__B_",		MDS_FORCE_JUMP },
-		{ "@MENUS_STRONG_ATTACK_KATA",		"@MENUS_STRONG_ATTACK_KATA_DESC",		"BOTH_A3_SPECIAL",				MDS_SABER },
-		{ "@MENUS_ATTACK_ENEMYONGROUND",	"@MENUS_ATTACK_ENEMYONGROUND_DESC",		"BOTH_STABDOWN",				MDS_FORCE_JUMP },
-		{ "@MENUS_CARTWHEEL",				"@MENUS_CARTWHEEL_DESC",				"BOTH_ARIAL_RIGHT",				MDS_FORCE_JUMP },
-		{ "@MENUS_BOTH_ROLL_STAB",			"@MENUS_BOTH_ROLL_STAB2_DESC",			"BOTH_ROLL_STAB",				MDS_SABER },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ "@MENUS_SLASH_BACK",				"@MENUS_SLASH_BACK_DESC",				"BOTH_ATTACK_BACK",				datapadMoveSound_t::MDS_SABER },
+		{ "@MENUS_JUMP_ATTACK",				"@MENUS_JUMP_ATTACK_DESC",				"BOTH_FORCELEAP2_T__B_",		datapadMoveSound_t::MDS_FORCE_JUMP },
+		{ "@MENUS_STRONG_ATTACK_KATA",		"@MENUS_STRONG_ATTACK_KATA_DESC",		"BOTH_A3_SPECIAL",				datapadMoveSound_t::MDS_SABER },
+		{ "@MENUS_ATTACK_ENEMYONGROUND",	"@MENUS_ATTACK_ENEMYONGROUND_DESC",		"BOTH_STABDOWN",				datapadMoveSound_t::MDS_FORCE_JUMP },
+		{ "@MENUS_CARTWHEEL",				"@MENUS_CARTWHEEL_DESC",				"BOTH_ARIAL_RIGHT",				datapadMoveSound_t::MDS_FORCE_JUMP },
+		{ "@MENUS_BOTH_ROLL_STAB",			"@MENUS_BOTH_ROLL_STAB2_DESC",			"BOTH_ROLL_STAB",				datapadMoveSound_t::MDS_SABER },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
 	},
 	{//Dual Sabers
-		{ "@MENUS_SLASH_BACK",				"@MENUS_SLASH_BACK_DESC",				"BOTH_ATTACK_BACK",				MDS_SABER },
-		{ "@MENUS_FLIP_FORWARD_ATTACK",		"@MENUS_FLIP_FORWARD_ATTACK_DESC",		"BOTH_JUMPATTACK6",				MDS_FORCE_JUMP },
-		{ "@MENUS_DUAL_SABERS_TWIRL",		"@MENUS_DUAL_SABERS_TWIRL_DESC",		"BOTH_SPINATTACK6",				MDS_SABER },
-		{ "@MENUS_ATTACK_ENEMYONGROUND",	"@MENUS_ATTACK_ENEMYONGROUND_DESC",		"BOTH_STABDOWN_DUAL",			MDS_FORCE_JUMP },
-		{ "@MENUS_DUAL_SABER_BARRIER",		"@MENUS_DUAL_SABER_BARRIER_DESC",		"BOTH_A6_SABERPROTECT",			MDS_SABER },
-		{ "@MENUS_DUAL_STAB_FRONT_BACK",	"@MENUS_DUAL_STAB_FRONT_BACK_DESC",		"BOTH_A6_FB",					MDS_SABER },
-		{ "@MENUS_DUAL_STAB_LEFT_RIGHT",	"@MENUS_DUAL_STAB_LEFT_RIGHT_DESC",		"BOTH_A6_LR",					MDS_SABER },
-		{ "@MENUS_CARTWHEEL",				"@MENUS_CARTWHEEL_DESC",				"BOTH_ARIAL_RIGHT",				MDS_FORCE_JUMP },
-		{ "@MENUS_BOTH_ROLL_STAB",			"@MENUS_BOTH_ROLL_STAB_DESC",			"BOTH_ROLL_STAB",				MDS_SABER },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ "@MENUS_SLASH_BACK",				"@MENUS_SLASH_BACK_DESC",				"BOTH_ATTACK_BACK",				datapadMoveSound_t::MDS_SABER },
+		{ "@MENUS_FLIP_FORWARD_ATTACK",		"@MENUS_FLIP_FORWARD_ATTACK_DESC",		"BOTH_JUMPATTACK6",				datapadMoveSound_t::MDS_FORCE_JUMP },
+		{ "@MENUS_DUAL_SABERS_TWIRL",		"@MENUS_DUAL_SABERS_TWIRL_DESC",		"BOTH_SPINATTACK6",				datapadMoveSound_t::MDS_SABER },
+		{ "@MENUS_ATTACK_ENEMYONGROUND",	"@MENUS_ATTACK_ENEMYONGROUND_DESC",		"BOTH_STABDOWN_DUAL",			datapadMoveSound_t::MDS_FORCE_JUMP },
+		{ "@MENUS_DUAL_SABER_BARRIER",		"@MENUS_DUAL_SABER_BARRIER_DESC",		"BOTH_A6_SABERPROTECT",			datapadMoveSound_t::MDS_SABER },
+		{ "@MENUS_DUAL_STAB_FRONT_BACK",	"@MENUS_DUAL_STAB_FRONT_BACK_DESC",		"BOTH_A6_FB",					datapadMoveSound_t::MDS_SABER },
+		{ "@MENUS_DUAL_STAB_LEFT_RIGHT",	"@MENUS_DUAL_STAB_LEFT_RIGHT_DESC",		"BOTH_A6_LR",					datapadMoveSound_t::MDS_SABER },
+		{ "@MENUS_CARTWHEEL",				"@MENUS_CARTWHEEL_DESC",				"BOTH_ARIAL_RIGHT",				datapadMoveSound_t::MDS_FORCE_JUMP },
+		{ "@MENUS_BOTH_ROLL_STAB",			"@MENUS_BOTH_ROLL_STAB_DESC",			"BOTH_ROLL_STAB",				datapadMoveSound_t::MDS_SABER },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
 	},
 	{// Saber Staff
-		{ "@MENUS_STAB_BACK",				"@MENUS_STAB_BACK_DESC",				"BOTH_A2_STABBACK1",			MDS_SABER },
-		{ "@MENUS_BACK_FLIP_ATTACK",		"@MENUS_BACK_FLIP_ATTACK_DESC",			"BOTH_JUMPATTACK7",				MDS_FORCE_JUMP },
-		{ "@MENUS_SABER_STAFF_TWIRL",		"@MENUS_SABER_STAFF_TWIRL_DESC",		"BOTH_SPINATTACK7",				MDS_SABER },
-		{ "@MENUS_ATTACK_ENEMYONGROUND",	"@MENUS_ATTACK_ENEMYONGROUND_DESC",		"BOTH_STABDOWN_STAFF",			MDS_FORCE_JUMP },
-		{ "@MENUS_SPINNING_KATA",			"@MENUS_SPINNING_KATA_DESC",			"BOTH_A7_SOULCAL",				MDS_SABER },
-		{ "@MENUS_KICK1",					"@MENUS_KICK1_DESC",					"BOTH_A7_KICK_F",				MDS_FORCE_JUMP },
-		{ "@MENUS_JUMP_KICK",				"@MENUS_JUMP_KICK_DESC",				"BOTH_A7_KICK_F_AIR",			MDS_FORCE_JUMP },
-		{ "@MENUS_BUTTERFLY_ATTACK",		"@MENUS_BUTTERFLY_ATTACK_DESC",			"BOTH_BUTTERFLY_FR1",			MDS_SABER },
-		{ "@MENUS_BOTH_ROLL_STAB",			"@MENUS_BOTH_ROLL_STAB2_DESC",			"BOTH_ROLL_STAB",				MDS_SABER },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
-		{ nullptr,								nullptr,									nullptr,							MDS_NONE }
+		{ "@MENUS_STAB_BACK",				"@MENUS_STAB_BACK_DESC",				"BOTH_A2_STABBACK1",			datapadMoveSound_t::MDS_SABER },
+		{ "@MENUS_BACK_FLIP_ATTACK",		"@MENUS_BACK_FLIP_ATTACK_DESC",			"BOTH_JUMPATTACK7",				datapadMoveSound_t::MDS_FORCE_JUMP },
+		{ "@MENUS_SABER_STAFF_TWIRL",		"@MENUS_SABER_STAFF_TWIRL_DESC",		"BOTH_SPINATTACK7",				datapadMoveSound_t::MDS_SABER },
+		{ "@MENUS_ATTACK_ENEMYONGROUND",	"@MENUS_ATTACK_ENEMYONGROUND_DESC",		"BOTH_STABDOWN_STAFF",			datapadMoveSound_t::MDS_FORCE_JUMP },
+		{ "@MENUS_SPINNING_KATA",			"@MENUS_SPINNING_KATA_DESC",			"BOTH_A7_SOULCAL",				datapadMoveSound_t::MDS_SABER },
+		{ "@MENUS_KICK1",					"@MENUS_KICK1_DESC",					"BOTH_A7_KICK_F",				datapadMoveSound_t::MDS_FORCE_JUMP },
+		{ "@MENUS_JUMP_KICK",				"@MENUS_JUMP_KICK_DESC",				"BOTH_A7_KICK_F_AIR",			datapadMoveSound_t::MDS_FORCE_JUMP },
+		{ "@MENUS_BUTTERFLY_ATTACK",		"@MENUS_BUTTERFLY_ATTACK_DESC",			"BOTH_BUTTERFLY_FR1",			datapadMoveSound_t::MDS_SABER },
+		{ "@MENUS_BOTH_ROLL_STAB",			"@MENUS_BOTH_ROLL_STAB2_DESC",			"BOTH_ROLL_STAB",				datapadMoveSound_t::MDS_SABER },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							datapadMoveSound_t::MDS_NONE }
 	}
 }};
 
@@ -314,13 +313,13 @@ int UI_ParseAnimationFile(const char *filename, animSet_t *animset, bool isHuman
 	// load the file
 	if (!UIPAFtextLoaded || !isHumanoid)
 	{ //rww - We are always using the same animation config now. So only load it once.
-		len = trap->FS_Open( filename, &f, FS_READ );
+		len = trap->FS_Open( filename, &f, fsMode_t::FS_READ );
 		if ( !f ) {
 			return -1;
 		}
 		if ( len >= std::ssize( UIPAFtext ) - 1 ) {
 			trap->FS_Close( f );
-			Com_Error(ERR_DROP, "%s exceeds the allowed ui-side animation buffer!", filename);
+			Com_Error(errorParm_t::ERR_DROP, "%s exceeds the allowed ui-side animation buffer!", filename);
 		}
 
 		trap->FS_Read( UIPAFtext, len, f );
@@ -338,7 +337,7 @@ int UI_ParseAnimationFile(const char *filename, animSet_t *animset, bool isHuman
 	//FIXME: have some way of playing anims backwards... negative numFrames?
 
 	//initialize anim array so that from 0 to MAX_ANIMATIONS, set default values of 0 1 0 100
-	for(animNumber_t anim = FACE_TALK0; anim < MAX_ANIMATIONS; anim++)
+	for(animNumber_t anim = animNumber_t::FACE_TALK0; anim < animNumber_t::MAX_ANIMATIONS; anim++)
 	{
 		(*animset)[anim].firstFrame = 0;
 		(*animset)[anim].numFrames = 0;
@@ -415,7 +414,7 @@ int UI_ParseAnimationFile(const char *filename, animSet_t *animset, bool isHuman
 #ifdef _DEBUG
 	//Check the array, and print the ones that have nothing in them.
 	/*
-	for(animNumber_t anim = FACE_TALK0; anim < MAX_ANIMATIONS; anim++)
+	for(animNumber_t anim = animNumber_t::FACE_TALK0; anim < animNumber_t::MAX_ANIMATIONS; anim++)
 	{
 		if (BG_AnimName( anim ) != nullptr)		// This animation reference exists.
 		{
@@ -481,8 +480,8 @@ static const char *UI_SelectedMap(int index, int *actual);
 static int UI_GetIndexFromSelection(int actual);
 static void UI_SiegeClassCnt( const team_t team );
 
-team_t	uiSkinColor=TEAM_FREE;
-team_t	uiHoldSkinColor=TEAM_FREE;	// Stores the skin color so that in non-team games, the player screen remembers the team you chose, in case you're coming back from the force powers screen.
+team_t	uiSkinColor=team_t::TEAM_FREE;
+team_t	uiHoldSkinColor=team_t::TEAM_FREE;	// Stores the skin color so that in non-team games, the player screen remembers the team you chose, in case you're coming back from the force powers screen.
 
 static const char *skillLevels[] = {
 	"SKILL1", // "Initiate"
@@ -493,7 +492,7 @@ static const char *skillLevels[] = {
 };
 static const int numSkillLevels = ARRAY_LEN( skillLevels );
 
-static const EnumArray<const char *, gametype_t, GT_MAX_GAME_TYPE> gameTypes = {
+static const EnumArray<const char *, gametype_t, gametype_t::GT_MAX_GAME_TYPE> gameTypes = {
 	"FFA",
 	"Holocron",
 	"JediMaster",
@@ -518,11 +517,11 @@ static const int numNetNames = ARRAY_LEN( netNames ) - 1;
 const char *UI_GetStringEdString(const char *refSection, const char *refName);
 
 const char *UI_TeamName(team_t team) {
-	if (team==TEAM_RED)
+	if (team==team_t::TEAM_RED)
 		return "RED";
-	else if (team==TEAM_BLUE)
+	else if (team==team_t::TEAM_BLUE)
 		return "BLUE";
-	else if (team==TEAM_SPECTATOR)
+	else if (team==team_t::TEAM_SPECTATOR)
 		return "SPECTATOR";
 	return "FREE";
 }
@@ -582,7 +581,6 @@ enum class uiNetSource_t {
 	UIAS_GLOBAL5,
 	UIAS_FAVORITES
 };
-using enum uiNetSource_t;
 template <> inline constexpr bool enableEnumArithmetic<uiNetSource_t> = true;
 
 // ui_netSource's number, converted once
@@ -594,16 +592,16 @@ static uiNetSource_t UI_NetSource( void ) {
 lanSource_t UI_SourceForLAN( void ) {
 	switch ( UI_NetSource() ) {
 	default:
-	case UIAS_LOCAL:
-		return AS_LOCAL;
-	case UIAS_GLOBAL1:
-	case UIAS_GLOBAL2:
-	case UIAS_GLOBAL3:
-	case UIAS_GLOBAL4:
-	case UIAS_GLOBAL5:
-		return AS_GLOBAL;
-	case UIAS_FAVORITES:
-		return AS_FAVORITES;
+	case uiNetSource_t::UIAS_LOCAL:
+		return lanSource_t::AS_LOCAL;
+	case uiNetSource_t::UIAS_GLOBAL1:
+	case uiNetSource_t::UIAS_GLOBAL2:
+	case uiNetSource_t::UIAS_GLOBAL3:
+	case uiNetSource_t::UIAS_GLOBAL4:
+	case uiNetSource_t::UIAS_GLOBAL5:
+		return lanSource_t::AS_GLOBAL;
+	case uiNetSource_t::UIAS_FAVORITES:
+		return lanSource_t::AS_FAVORITES;
 	}
 }
 
@@ -623,7 +621,7 @@ static const char *GetNetSourceString(uiNetSource_t iSource)
 
 	Q_strncpyz( result, GetCRDelineatedString( "MP_INGAME", "NET_SOURCES", to_underlying( UI_SourceForLAN() ) ), sizeof(result) );
 
-	if ( iSource >= UIAS_GLOBAL1 && iSource <= UIAS_GLOBAL5 ) {
+	if ( iSource >= uiNetSource_t::UIAS_GLOBAL1 && iSource <= uiNetSource_t::UIAS_GLOBAL5 ) {
 		Q_strcat( result, sizeof(result), va( " %d", to_underlying( iSource ) ) );
 	}
 
@@ -696,10 +694,10 @@ int MenuFontToHandle(menuFont_t iMenuFont)
 {
 	switch (iMenuFont)
 	{
-		case FONT_SMALL: return uiInfo.uiDC.Assets.qhSmallFont;
-		case FONT_MEDIUM: return uiInfo.uiDC.Assets.qhMediumFont;
-		case FONT_LARGE: return uiInfo.uiDC.Assets.qhBigFont;
-		case FONT_SMALL2: return uiInfo.uiDC.Assets.qhSmall2Font;
+		case menuFont_t::FONT_SMALL: return uiInfo.uiDC.Assets.qhSmallFont;
+		case menuFont_t::FONT_MEDIUM: return uiInfo.uiDC.Assets.qhMediumFont;
+		case menuFont_t::FONT_LARGE: return uiInfo.uiDC.Assets.qhBigFont;
+		case menuFont_t::FONT_SMALL2: return uiInfo.uiDC.Assets.qhSmall2Font;
 		default: break;
 	}
 
@@ -901,7 +899,7 @@ static void UI_BuildPlayerList() {
 		trap->Cvar_Set("cg_selectedPlayerName", "Everyone");
 	}
 
-	if (team == TEAM_FREE || team == TEAM_SPECTATOR || !uiInfo.teamLeader)
+	if (team == team_t::TEAM_FREE || team == team_t::TEAM_SPECTATOR || !uiInfo.teamLeader)
 	{
 		n = uiInfo.myTeamCount;
 		trap->Cvar_Set("cg_selectedPlayer", va("%d", n));
@@ -918,18 +916,18 @@ void UI_SetActiveMenu( uiMenuCommand_t menu ) {
 		vec3_t v;
 		v[0] = v[1] = v[2] = 0;
 		switch ( menu ) {
-		case UIMENU_NONE:
-			trap->Key_SetCatcher( trap->Key_GetCatcher() & ~KEYCATCH_UI );
+		case uiMenuCommand_t::UIMENU_NONE:
+			trap->Key_SetCatcher( trap->Key_GetCatcher() & ~keyCatchFlags_t::KEYCATCH_UI );
 			trap->Key_ClearStates();
 			trap->Cvar_Set( "cl_paused", "0" );
 			Menus_CloseAll();
 
 			return;
-		case UIMENU_MAIN:
+		case uiMenuCommand_t::UIMENU_MAIN:
 			{
 				//	trap->Cvar_Set( "sv_killserver", "1" );
-				trap->Key_SetCatcher( KEYCATCH_UI );
-				//	trap->S_StartLocalSound( trap_S_RegisterSound("sound/misc/menu_background.wav", false) , CHAN_LOCAL_SOUND );
+				trap->Key_SetCatcher( keyCatchFlags_t::KEYCATCH_UI );
+				//	trap->S_StartLocalSound( trap_S_RegisterSound("sound/misc/menu_background.wav", false) , soundChannel_t::CHAN_LOCAL_SOUND );
 				//	trap->S_StartBackgroundTrack("sound/misc/menu_background.wav", nullptr);
 				if (uiInfo.inGameLoad)
 					UI_LoadNonIngame();
@@ -952,71 +950,71 @@ void UI_SetActiveMenu( uiMenuCommand_t menu ) {
 				return;
 			}
 
-		case UIMENU_TEAM:
-			trap->Key_SetCatcher( KEYCATCH_UI );
+		case uiMenuCommand_t::UIMENU_TEAM:
+			trap->Key_SetCatcher( keyCatchFlags_t::KEYCATCH_UI );
 			Menus_ActivateByName("team");
 			return;
-		case UIMENU_POSTGAME:
+		case uiMenuCommand_t::UIMENU_POSTGAME:
 			//trap->Cvar_Set( "sv_killserver", "1" );
-			trap->Key_SetCatcher( KEYCATCH_UI );
+			trap->Key_SetCatcher( keyCatchFlags_t::KEYCATCH_UI );
 			if (uiInfo.inGameLoad)
 				UI_LoadNonIngame();
 			Menus_CloseAll();
 			Menus_ActivateByName("endofgame");
 			return;
-		case UIMENU_INGAME:
+		case uiMenuCommand_t::UIMENU_INGAME:
 			trap->Cvar_Set( "cl_paused", "1" );
-			trap->Key_SetCatcher( KEYCATCH_UI );
+			trap->Key_SetCatcher( keyCatchFlags_t::KEYCATCH_UI );
 			UI_BuildPlayerList();
 			Menus_CloseAll();
 			Menus_ActivateByName("ingame");
 			return;
-		case UIMENU_PLAYERCONFIG:
+		case uiMenuCommand_t::UIMENU_PLAYERCONFIG:
 			// trap->Cvar_Set( "cl_paused", "1" );
-			trap->Key_SetCatcher( KEYCATCH_UI );
+			trap->Key_SetCatcher( keyCatchFlags_t::KEYCATCH_UI );
 			UI_BuildPlayerList();
 			Menus_CloseAll();
 			Menus_ActivateByName("ingame_player");
 			UpdateForceUsed();
 			return;
-		case UIMENU_PLAYERFORCE:
+		case uiMenuCommand_t::UIMENU_PLAYERFORCE:
 			// trap->Cvar_Set( "cl_paused", "1" );
-			trap->Key_SetCatcher( KEYCATCH_UI );
+			trap->Key_SetCatcher( keyCatchFlags_t::KEYCATCH_UI );
 			UI_BuildPlayerList();
 			Menus_CloseAll();
 			Menus_ActivateByName("ingame_playerforce");
 			UpdateForceUsed();
 			return;
-		case UIMENU_SIEGEMESSAGE:
+		case uiMenuCommand_t::UIMENU_SIEGEMESSAGE:
 			// trap->Cvar_Set( "cl_paused", "1" );
-			trap->Key_SetCatcher( KEYCATCH_UI );
+			trap->Key_SetCatcher( keyCatchFlags_t::KEYCATCH_UI );
 			Menus_CloseAll();
 			Menus_ActivateByName("siege_popmenu");
 			return;
-		case UIMENU_SIEGEOBJECTIVES:
+		case uiMenuCommand_t::UIMENU_SIEGEOBJECTIVES:
 			// trap->Cvar_Set( "cl_paused", "1" );
-			trap->Key_SetCatcher( KEYCATCH_UI );
+			trap->Key_SetCatcher( keyCatchFlags_t::KEYCATCH_UI );
 			Menus_CloseAll();
 			Menus_ActivateByName("ingame_siegeobjectives");
 			return;
-		case UIMENU_VOICECHAT:
+		case uiMenuCommand_t::UIMENU_VOICECHAT:
 			// trap->Cvar_Set( "cl_paused", "1" );
 			// No chatin non-siege games.
 
-			if (UI_CvarGametype() < GT_TEAM)
+			if (UI_CvarGametype() < gametype_t::GT_TEAM)
 			{
 				return;
 			}
 
-			trap->Key_SetCatcher( KEYCATCH_UI );
+			trap->Key_SetCatcher( keyCatchFlags_t::KEYCATCH_UI );
 			Menus_CloseAll();
 			Menus_ActivateByName("ingame_voicechat");
 			return;
-		case UIMENU_CLOSEALL:
+		case uiMenuCommand_t::UIMENU_CLOSEALL:
 			Menus_CloseAll();
 			return;
-		case UIMENU_CLASSSEL:
-			trap->Key_SetCatcher( KEYCATCH_UI );
+		case uiMenuCommand_t::UIMENU_CLASSSEL:
+			trap->Key_SetCatcher( keyCatchFlags_t::KEYCATCH_UI );
 			Menus_CloseAll();
 			Menus_ActivateByName("ingame_siegeclass");
 			return;
@@ -1074,7 +1072,7 @@ char *GetMenuBuffer(const char *filename) {
 	fileHandle_t	f;
 	static char buf[MAX_MENUFILE];
 
-	len = trap->FS_Open( filename, &f, FS_READ );
+	len = trap->FS_Open( filename, &f, fsMode_t::FS_READ );
 	if ( !f ) {
 		trap->Print( S_COLOR_RED "menu file not found: %s, using default\n", filename );
 		return defaultMenu;
@@ -1442,7 +1440,7 @@ void UI_LoadMenus(const char *menuFile, bool reset) {
 		Com_Printf( S_COLOR_YELLOW "menu file not found: %s, using default\n", menuFile );
 		handle = trap->PC_LoadSource( "ui/jampmenus.txt" );
 		if (!handle) {
-			trap->Error( ERR_DROP, S_COLOR_RED "default menu file not found: ui/jampmenus.txt, unable to continue!\n" );
+			trap->Error( errorParm_t::ERR_DROP, S_COLOR_RED "default menu file not found: ui/jampmenus.txt, unable to continue!\n" );
 		}
 	}
 
@@ -1567,25 +1565,25 @@ static const char* UI_GetGameTypeName(gametype_t gtEnum)
 {
 	switch ( gtEnum )
 	{
-	case GT_FFA:
+	case gametype_t::GT_FFA:
 		return UI_GetStringEdString("MENUS", "FREE_FOR_ALL");//"Free For All";
-	case GT_HOLOCRON:
+	case gametype_t::GT_HOLOCRON:
 		return UI_GetStringEdString("MENUS", "HOLOCRON_FFA");//"Holocron FFA";
-	case GT_JEDIMASTER:
+	case gametype_t::GT_JEDIMASTER:
 		return UI_GetStringEdString("MENUS", "SAGA");//"Jedi Master";??
-	case GT_SINGLE_PLAYER:
+	case gametype_t::GT_SINGLE_PLAYER:
 		return UI_GetStringEdString("MENUS", "SAGA");//"Team FFA";
-	case GT_DUEL:
+	case gametype_t::GT_DUEL:
 		return UI_GetStringEdString("MENUS", "DUEL");//"Team FFA";
-	case GT_POWERDUEL:
+	case gametype_t::GT_POWERDUEL:
 		return UI_GetStringEdString("MENUS", "POWERDUEL");//"Team FFA";
-	case GT_TEAM:
+	case gametype_t::GT_TEAM:
 		return UI_GetStringEdString("MENUS", "TEAM_FFA");//"Team FFA";
-	case GT_SIEGE:
+	case gametype_t::GT_SIEGE:
 		return UI_GetStringEdString("MENUS", "SIEGE");//"Siege";
-	case GT_CTF:
+	case gametype_t::GT_CTF:
 		return UI_GetStringEdString("MENUS", "CAPTURE_THE_FLAG");//"Capture the Flag";
-	case GT_CTY:
+	case gametype_t::GT_CTY:
 		return UI_GetStringEdString("MENUS", "CAPTURE_THE_YSALIMARI");//"Capture the Ysalamiri";
 	default:
 		break;
@@ -1689,7 +1687,7 @@ static void UI_DrawClanCinematic(rectDef_t *rect, float scale, vec4_t color) {
 	if (i >= 0 && i < uiInfo.teamCount) {
 		if (uiInfo.teamList[i].cinematic >= -2) {
 			if (uiInfo.teamList[i].cinematic == -1) {
-				uiInfo.teamList[i].cinematic = trap->CIN_PlayCinematic(va("%s.roq", uiInfo.teamList[i].imageName), 0, 0, 0, 0, (CIN_loop | CIN_silent) );
+				uiInfo.teamList[i].cinematic = trap->CIN_PlayCinematic(va("%s.roq", uiInfo.teamList[i].imageName), 0, 0, 0, 0, (cinematicFlags_t::CIN_loop | cinematicFlags_t::CIN_silent) );
 			}
 			if (uiInfo.teamList[i].cinematic >= 0) {
 				trap->CIN_RunCinematic(uiInfo.teamList[i].cinematic);
@@ -1711,7 +1709,7 @@ static void UI_DrawClanCinematic(rectDef_t *rect, float scale, vec4_t color) {
 
 static void UI_DrawPreviewCinematic(rectDef_t *rect, float scale, vec4_t color) {
 	if (uiInfo.previewMovie > -2) {
-		uiInfo.previewMovie = trap->CIN_PlayCinematic(va("%s.roq", uiInfo.movieList[uiInfo.movieIndex]), 0, 0, 0, 0, (CIN_loop | CIN_silent) );
+		uiInfo.previewMovie = trap->CIN_PlayCinematic(va("%s.roq", uiInfo.movieList[uiInfo.movieIndex]), 0, 0, 0, 0, (cinematicFlags_t::CIN_loop | cinematicFlags_t::CIN_silent) );
 		if (uiInfo.previewMovie >= 0) {
 			trap->CIN_RunCinematic(uiInfo.previewMovie);
 			trap->CIN_SetExtents(uiInfo.previewMovie, rect->x, rect->y, rect->w, rect->h);
@@ -1771,11 +1769,11 @@ static void UI_DrawSkinColor(rectDef_t *rect, float scale, vec4_t color, int tex
 
 	switch(val)
 	{
-	case TEAM_RED:
+	case team_t::TEAM_RED:
 		trap->SE_GetStringTextString("MENUS_TEAM_RED", s, sizeof(s));
 //		Com_sprintf(s, sizeof(s), "Red\0");
 		break;
-	case TEAM_BLUE:
+	case team_t::TEAM_BLUE:
 		trap->SE_GetStringTextString("MENUS_TEAM_BLUE", s, sizeof(s));
 //		Com_sprintf(s, sizeof(s), "Blue\0");
 		break;
@@ -1802,13 +1800,13 @@ static void UI_DrawForceSide(rectDef_t *rect, float scale, vec4_t color, int tex
 	{
 		switch(UI_CvarTeam( "ui_myteam" ))
 		{
-		case TEAM_RED:
+		case team_t::TEAM_RED:
 			uiForceSide = FORCE_DARKSIDE;
 			color[0] = 0.2f;
 			color[1] = 0.2f;
 			color[2] = 0.2f;
 			break;
-		case TEAM_BLUE:
+		case team_t::TEAM_BLUE:
 			uiForceSide = FORCE_LIGHTSIDE;
 			color[0] = 0.2f;
 			color[1] = 0.2f;
@@ -1829,7 +1827,7 @@ static void UI_DrawForceSide(rectDef_t *rect, float scale, vec4_t color, int tex
 			Menu_ShowItemByName(menu, "darkpowers", false);
 			Menu_ShowItemByName(menu, "darkpowers_team", false);
 
-			Menu_ShowItemByName(menu, "lightpowers_team", true);//(ui_gameType.integer >= GT_TEAM));
+			Menu_ShowItemByName(menu, "lightpowers_team", true);//(ui_gameType.integer >= gametype_t::GT_TEAM));
 
 		}
 		menu = Menus_FindByName("ingame_playerforce");
@@ -1839,7 +1837,7 @@ static void UI_DrawForceSide(rectDef_t *rect, float scale, vec4_t color, int tex
 			Menu_ShowItemByName(menu, "darkpowers", false);
 			Menu_ShowItemByName(menu, "darkpowers_team", false);
 
-			Menu_ShowItemByName(menu, "lightpowers_team", true);//(ui_gameType.integer >= GT_TEAM));
+			Menu_ShowItemByName(menu, "lightpowers_team", true);//(ui_gameType.integer >= gametype_t::GT_TEAM));
 		}
 	}
 	else
@@ -1852,7 +1850,7 @@ static void UI_DrawForceSide(rectDef_t *rect, float scale, vec4_t color, int tex
 			Menu_ShowItemByName(menu, "lightpowers_team", false);
 			Menu_ShowItemByName(menu, "darkpowers", true);
 
-			Menu_ShowItemByName(menu, "darkpowers_team", true);//(ui_gameType.integer >= GT_TEAM));
+			Menu_ShowItemByName(menu, "darkpowers_team", true);//(ui_gameType.integer >= gametype_t::GT_TEAM));
 		}
 		menu = Menus_FindByName("ingame_playerforce");
 		if (menu)
@@ -1861,7 +1859,7 @@ static void UI_DrawForceSide(rectDef_t *rect, float scale, vec4_t color, int tex
 			Menu_ShowItemByName(menu, "lightpowers_team", false);
 			Menu_ShowItemByName(menu, "darkpowers", true);
 
-			Menu_ShowItemByName(menu, "darkpowers_team", true);//(ui_gameType.integer >= GT_TEAM));
+			Menu_ShowItemByName(menu, "darkpowers_team", true);//(ui_gameType.integer >= gametype_t::GT_TEAM));
 		}
 	}
 
@@ -1870,15 +1868,15 @@ static void UI_DrawForceSide(rectDef_t *rect, float scale, vec4_t color, int tex
 
 bool UI_HasSetSaberOnly( const char *info, const gametype_t gametype )
 {
-	weapon_t i = WP_NONE;
+	weapon_t i = weapon_t::WP_NONE;
 	int wDisable = 0;
 
-	if ( gametype == GT_JEDIMASTER )
+	if ( gametype == gametype_t::GT_JEDIMASTER )
 	{ //set to 0
 		return false;
 	}
 
-	if (gametype == GT_DUEL || gametype == GT_POWERDUEL)
+	if (gametype == gametype_t::GT_DUEL || gametype == gametype_t::GT_POWERDUEL)
 	{
 		wDisable = atoi(Info_ValueForKey(info, "g_duelWeaponDisable"));
 	}
@@ -1887,10 +1885,10 @@ bool UI_HasSetSaberOnly( const char *info, const gametype_t gametype )
 		wDisable = atoi(Info_ValueForKey(info, "g_weaponDisable"));
 	}
 
-	while (i < WP_NUM_WEAPONS)
+	while (i < weapon_t::WP_NUM_WEAPONS)
 	{
 		if (!(wDisable & Bit( i )) &&
-			i != WP_SABER && i != WP_NONE)
+			i != weapon_t::WP_SABER && i != weapon_t::WP_NONE)
 		{
 			return false;
 		}
@@ -1906,7 +1904,7 @@ static bool UI_AllForceDisabled(int force)
 
 	if (force)
 	{
-		for ( forcePowers_t fp = FP_FIRST; fp < NUM_FORCE_POWERS; fp++ )
+		for ( forcePowers_t fp = forcePowers_t::FP_FIRST; fp < forcePowers_t::NUM_FORCE_POWERS; fp++ )
 		{
 			if (!(force & Bit( fp )))
 			{
@@ -1924,7 +1922,7 @@ bool UI_TrueJediEnabled( void )
 {
 	char	info[MAX_INFO_STRING] = {0};
 	int		disabledForce = 0, trueJedi = 0;
-	gametype_t	gametype = GT_FFA;
+	gametype_t	gametype = gametype_t::GT_FFA;
 	bool saberOnly = false, allForceDisabled = false;
 
 	trap->GetConfigString( CS_SERVERINFO, info, sizeof(info) );
@@ -1937,8 +1935,8 @@ bool UI_TrueJediEnabled( void )
 	gametype = static_cast<gametype_t>( atoi(Info_ValueForKey(info, "g_gametype")) );
 	saberOnly = UI_HasSetSaberOnly(info, gametype);
 
-	if ( gametype == GT_HOLOCRON
-		|| gametype == GT_JEDIMASTER
+	if ( gametype == gametype_t::GT_HOLOCRON
+		|| gametype == gametype_t::GT_JEDIMASTER
 		|| saberOnly
 		|| allForceDisabled )
 	{
@@ -2021,7 +2019,7 @@ static void UI_DrawTeamMember(rectDef_t *rect, float scale, vec4_t color, bool b
 		value = -1;
 	}
 
-	if (uiInfo.gameTypes[ui_netGametype.integer].gtEnum == GT_SIEGE)
+	if (uiInfo.gameTypes[ui_netGametype.integer].gtEnum == gametype_t::GT_SIEGE)
 	{
 		if (value > 1 )
 		{
@@ -2090,7 +2088,7 @@ static void UI_DrawMapCinematic(rectDef_t *rect, float scale, vec4_t color, bool
 
 	if (uiInfo.mapList[map].cinematic >= -1) {
 		if (uiInfo.mapList[map].cinematic == -1) {
-			uiInfo.mapList[map].cinematic = trap->CIN_PlayCinematic(va("%s.roq", uiInfo.mapList[map].mapLoadName), 0, 0, 0, 0, (CIN_loop | CIN_silent) );
+			uiInfo.mapList[map].cinematic = trap->CIN_PlayCinematic(va("%s.roq", uiInfo.mapList[map].mapLoadName), 0, 0, 0, 0, (cinematicFlags_t::CIN_loop | cinematicFlags_t::CIN_silent) );
 		}
 		if (uiInfo.mapList[map].cinematic >= 0) {
 			trap->CIN_RunCinematic(uiInfo.mapList[map].cinematic);
@@ -2106,29 +2104,29 @@ static void UI_DrawMapCinematic(rectDef_t *rect, float scale, vec4_t color, bool
 
 static void UI_SetForceDisabled(int force)
 {
-	forcePowers_t i = FP_FIRST;
+	forcePowers_t i = forcePowers_t::FP_FIRST;
 
 	if (force)
 	{
-		while (i < NUM_FORCE_POWERS)
+		while (i < forcePowers_t::NUM_FORCE_POWERS)
 		{
 			if (force & Bit( i ))
 			{
 				uiForcePowersDisabled[i] = true;
 
-				if (i != FP_LEVITATION && i != FP_SABER_OFFENSE && i != FP_SABER_DEFENSE)
+				if (i != forcePowers_t::FP_LEVITATION && i != forcePowers_t::FP_SABER_OFFENSE && i != forcePowers_t::FP_SABER_DEFENSE)
 				{
-					uiForcePowersRank[i] = FORCE_LEVEL_0;
+					uiForcePowersRank[i] = forcePowerLevels_t::FORCE_LEVEL_0;
 				}
 				else
 				{
-					if (i == FP_LEVITATION)
+					if (i == forcePowers_t::FP_LEVITATION)
 					{
-						uiForcePowersRank[i] = FORCE_LEVEL_1;
+						uiForcePowersRank[i] = forcePowerLevels_t::FORCE_LEVEL_1;
 					}
 					else
 					{
-						uiForcePowersRank[i] = FORCE_LEVEL_3;
+						uiForcePowersRank[i] = forcePowerLevels_t::FORCE_LEVEL_3;
 					}
 				}
 			}
@@ -2141,9 +2139,9 @@ static void UI_SetForceDisabled(int force)
 	}
 	else
 	{
-		i = FP_FIRST;
+		i = forcePowers_t::FP_FIRST;
 
-		while (i < NUM_FORCE_POWERS)
+		while (i < forcePowers_t::NUM_FORCE_POWERS)
 		{
 			uiForcePowersDisabled[i] = false;
 			i++;
@@ -2162,7 +2160,7 @@ void UpdateBotButtons(void)
 		return;
 	}
 
-	if (uiInfo.gameTypes[ui_netGametype.integer].gtEnum == GT_SIEGE)
+	if (uiInfo.gameTypes[ui_netGametype.integer].gtEnum == gametype_t::GT_SIEGE)
 	{
 		Menu_ShowItemByName(menu, "humanbotfield", false);
 		Menu_ShowItemByName(menu, "humanbotnonfield", true);
@@ -2182,7 +2180,7 @@ void UpdateForceStatus()
 	// Currently we don't make a distinction between those that wish to play Jedi of lower than maximum skill.
 /*	if (ui_forcePowerDisable.integer)
 	{
-		uiForceRank = FORCE_MASTERY_UNINITIATED;
+		uiForceRank = forceMasteries_t::FORCE_MASTERY_UNINITIATED;
 		uiForceAvailable = 0;
 		uiForceUsed = 0;
 	}
@@ -2232,7 +2230,7 @@ void UpdateForceStatus()
 		}
 
 		//Moved this to happen after it's done with force power disabling stuff
-		if (uiForcePowersRank[FP_SABER_OFFENSE] > FORCE_LEVEL_0 || ui_freeSaber.integer)
+		if (uiForcePowersRank[forcePowers_t::FP_SABER_OFFENSE] > forcePowerLevels_t::FORCE_LEVEL_0 || ui_freeSaber.integer)
 		{	// Show lightsaber stuff.
 			Menu_ShowItemByName(menu, "nosaber", false);
 			Menu_ShowItemByName(menu, "yessaber", true);
@@ -2244,7 +2242,7 @@ void UpdateForceStatus()
 		}
 
 		// The leftmost button should be "apply" unless you are in spectator, where you can join any team.
-		if (UI_CvarTeam( "ui_myteam" ) != TEAM_SPECTATOR)
+		if (UI_CvarTeam( "ui_myteam" ) != team_t::TEAM_SPECTATOR)
 		{
 			Menu_ShowItemByName(menu, "playerapply", true);
 			Menu_ShowItemByName(menu, "playerforcejoin", false);
@@ -2255,7 +2253,7 @@ void UpdateForceStatus()
 		else
 		{
 			// Set or reset buttons based on choices
-			if (atoi(Info_ValueForKey(info, "g_gametype")) >= to_underlying( GT_TEAM ))
+			if (atoi(Info_ValueForKey(info, "g_gametype")) >= to_underlying( gametype_t::GT_TEAM ))
 			{	// This is a team-based game.
 				Menu_ShowItemByName(menu, "playerforcespectate", true);
 
@@ -2302,18 +2300,18 @@ void UpdateForceStatus()
 
 		switch(UI_CvarTeam( "ui_myteam" ))
 		{
-		case TEAM_RED:
-			uiSkinColor = TEAM_RED;
+		case team_t::TEAM_RED:
+			uiSkinColor = team_t::TEAM_RED;
 			break;
-		case TEAM_BLUE:
-			uiSkinColor = TEAM_BLUE;
+		case team_t::TEAM_BLUE:
+			uiSkinColor = team_t::TEAM_BLUE;
 			break;
 		default:
 			trap->GetConfigString( CS_SERVERINFO, info, sizeof(info) );
 
-			if (atoi(Info_ValueForKey(info, "g_gametype")) >= to_underlying( GT_TEAM ))
+			if (atoi(Info_ValueForKey(info, "g_gametype")) >= to_underlying( gametype_t::GT_TEAM ))
 			{
-				uiSkinColor = TEAM_FREE;
+				uiSkinColor = team_t::TEAM_FREE;
 			}
 			else	// A bit of a hack so non-team games will remember which skin set you chose in the player menu
 			{
@@ -2459,7 +2457,7 @@ static void UI_DrawOpponent(rectDef_t *rect) {
   	viewangles[ROLL]  = 0;
   	VectorClear( moveangles );
     UI_PlayerInfo_SetModel( &info2, model, headmodel, "");
-    UI_PlayerInfo_SetInfo( &info2, TORSO_WEAPONREADY3, TORSO_WEAPONREADY3, viewangles, vec3_origin, WP_BRYAR_PISTOL, false );
+    UI_PlayerInfo_SetInfo( &info2, animNumber_t::TORSO_WEAPONREADY3, animNumber_t::TORSO_WEAPONREADY3, viewangles, vec3_origin, weapon_t::WP_BRYAR_PISTOL, false );
 		UI_RegisterClientModelname( &info2, model, headmodel, team);
     updateOpponentModel = false;
   }
@@ -2604,11 +2602,11 @@ static int UI_OwnerDrawWidth(int ownerDraw, float scale) {
     case UI_SKIN_COLOR:
 		switch(uiSkinColor)
 		{
-		case TEAM_RED:
+		case team_t::TEAM_RED:
 //			s = "Red";
 			s = (char *)UI_GetStringEdString("MENUS", "TEAM_RED");
 			break;
-		case TEAM_BLUE:
+		case team_t::TEAM_BLUE:
 //			s = "Blue";
 			s = (char *)UI_GetStringEdString("MENUS", "TEAM_BLUE");
 			break;
@@ -2656,8 +2654,8 @@ static int UI_OwnerDrawWidth(int ownerDraw, float scale) {
     case UI_FORCE_RANK:
 		{
 			forceMasteries_t rank = uiForceRank;
-			if (rank < FORCE_MASTERY_INITIATE || rank > FORCE_MASTERY_JEDI_MASTER) {
-				rank = FORCE_MASTERY_INITIATE;
+			if (rank < forceMasteries_t::FORCE_MASTERY_INITIATE || rank > forceMasteries_t::FORCE_MASTERY_JEDI_MASTER) {
+				rank = forceMasteries_t::FORCE_MASTERY_INITIATE;
 			}
 
 			s = (char *)UI_GetStringEdString("MP_INGAME", forceMasteryLevels[rank]);
@@ -2805,7 +2803,7 @@ static int UI_OwnerDrawWidth(int ownerDraw, float scale) {
   }
 
 	if (s) {
-		return Text_Width(s, scale, FONT_NONE);
+		return Text_Width(s, scale, menuFont_t::FONT_NONE);
 	}
 	return 0;
 }
@@ -2899,7 +2897,7 @@ static void UI_DrawServerMOTD(rectDef_t *rect, float scale, vec4_t color, menuFo
 			uiInfo.serverStatus.motdTime = uiInfo.uiDC.realTime + 10;
 			if (uiInfo.serverStatus.motdPaintX <= rect->x + 2) {
 				if (uiInfo.serverStatus.motdOffset < uiInfo.serverStatus.motdLen) {
-					uiInfo.serverStatus.motdPaintX += Text_Width(&uiInfo.serverStatus.motd[uiInfo.serverStatus.motdOffset], scale, FONT_SMALL) - 1;
+					uiInfo.serverStatus.motdPaintX += Text_Width(&uiInfo.serverStatus.motd[uiInfo.serverStatus.motdOffset], scale, menuFont_t::FONT_SMALL) - 1;
 					uiInfo.serverStatus.motdOffset++;
 				} else {
 					uiInfo.serverStatus.motdOffset = 0;
@@ -3002,7 +3000,7 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
 {
 	rectDef_t rect;
 	forcePowers_t findex;
-	forcePowerLevels_t drawRank = FORCE_LEVEL_0;
+	forcePowerLevels_t drawRank = forcePowerLevels_t::FORCE_LEVEL_0;
 	int iUse = 0;
 
 	rect.x = x + text_x;
@@ -3016,7 +3014,7 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
       UI_DrawHandicap(&rect, scale, color, textStyle, iMenuFont);
       break;
     case UI_SKIN_COLOR:
-      UI_DrawSkinColor(&rect, scale, color, textStyle, uiSkinColor, TEAM_FREE, TEAM_BLUE, iMenuFont);
+      UI_DrawSkinColor(&rect, scale, color, textStyle, uiSkinColor, team_t::TEAM_FREE, team_t::TEAM_BLUE, iMenuFont);
       break;
 	case UI_FORCE_SIDE:
       UI_DrawForceSide(&rect, scale, color, textStyle, uiForceSide, 1, 2, iMenuFont);
@@ -3025,13 +3023,13 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
       UI_DrawJediNonJedi(&rect, scale, color, textStyle, uiJediNonJedi, 0, 1, iMenuFont);
       break;
     case UI_FORCE_POINTS:
-      UI_DrawGenericNum(&rect, scale, color, textStyle, uiForceAvailable, 1, forceMasteryPoints[FORCE_MASTERY_JEDI_MASTER], ownerDraw,iMenuFont);
+      UI_DrawGenericNum(&rect, scale, color, textStyle, uiForceAvailable, 1, forceMasteryPoints[forceMasteries_t::FORCE_MASTERY_JEDI_MASTER], ownerDraw,iMenuFont);
       break;
 	case UI_FORCE_MASTERY_SET:
-      UI_DrawForceMastery(&rect, scale, color, textStyle, uiForceRank, FORCE_MASTERY_UNINITIATED, FORCE_MASTERY_JEDI_MASTER, iMenuFont);
+      UI_DrawForceMastery(&rect, scale, color, textStyle, uiForceRank, forceMasteries_t::FORCE_MASTERY_UNINITIATED, forceMasteries_t::FORCE_MASTERY_JEDI_MASTER, iMenuFont);
       break;
     case UI_FORCE_RANK:
-      UI_DrawForceMastery(&rect, scale, color, textStyle, uiForceRank, FORCE_MASTERY_UNINITIATED, FORCE_MASTERY_JEDI_MASTER, iMenuFont);
+      UI_DrawForceMastery(&rect, scale, color, textStyle, uiForceRank, forceMasteries_t::FORCE_MASTERY_UNINITIATED, forceMasteries_t::FORCE_MASTERY_JEDI_MASTER, iMenuFont);
       break;
 	case UI_FORCE_RANK_HEAL:
 	case UI_FORCE_RANK_LEVITATION:
@@ -3074,7 +3072,7 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
 			color[1] *= 0.5;
 			color[2] *= 0.5;
 		}
-/*		else if (uiForceRank < UI_ForceColorMinRank[bgForcePowerCost[findex][FORCE_LEVEL_1]])
+/*		else if (uiForceRank < UI_ForceColorMinRank[bgForcePowerCost[findex][forcePowerLevels_t::FORCE_LEVEL_1]])
 		{
 			color[0] *= 0.5;
 			color[1] *= 0.5;
@@ -3082,7 +3080,7 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
 		}
 */		drawRank = uiForcePowersRank[findex];
 
-		UI_DrawForceStars(&rect, scale, color, textStyle, findex, drawRank, FORCE_LEVEL_0, NUM_FORCE_POWER_LEVELS-1);
+		UI_DrawForceStars(&rect, scale, color, textStyle, findex, drawRank, forcePowerLevels_t::FORCE_LEVEL_0, forcePowerLevels_t::NUM_FORCE_POWER_LEVELS-1);
 		break;
     case UI_EFFECTS:
       break;
@@ -3272,17 +3270,17 @@ static bool UI_OwnerDrawVisible(int flags) {
 
 	while (flags) {
 		if (flags & UI_SHOW_FFA) {
-			if (UI_CvarGametype() != GT_FFA &&
-				UI_CvarGametype() != GT_HOLOCRON &&
-				UI_CvarGametype() != GT_JEDIMASTER) {
+			if (UI_CvarGametype() != gametype_t::GT_FFA &&
+				UI_CvarGametype() != gametype_t::GT_HOLOCRON &&
+				UI_CvarGametype() != gametype_t::GT_JEDIMASTER) {
 				vis = false;
 			}
 			flags &= ~UI_SHOW_FFA;
 		}
 		if (flags & UI_SHOW_NOTFFA) {
-			if (UI_CvarGametype() == GT_FFA ||
-				UI_CvarGametype() == GT_HOLOCRON ||
-				UI_CvarGametype() == GT_JEDIMASTER) {
+			if (UI_CvarGametype() == gametype_t::GT_FFA ||
+				UI_CvarGametype() == gametype_t::GT_HOLOCRON ||
+				UI_CvarGametype() == gametype_t::GT_JEDIMASTER) {
 				vis = false;
 			}
 			flags &= ~UI_SHOW_NOTFFA;
@@ -3312,38 +3310,38 @@ static bool UI_OwnerDrawVisible(int flags) {
 		}
 		if (flags & UI_SHOW_FAVORITESERVERS) {
 			// this assumes you only put this type of display flag on something showing in the proper context
-			if (UI_NetSource() != UIAS_FAVORITES) {
+			if (UI_NetSource() != uiNetSource_t::UIAS_FAVORITES) {
 				vis = false;
 			}
 			flags &= ~UI_SHOW_FAVORITESERVERS;
 		}
 		if (flags & UI_SHOW_NOTFAVORITESERVERS) {
 			// this assumes you only put this type of display flag on something showing in the proper context
-			if (UI_NetSource() == UIAS_FAVORITES) {
+			if (UI_NetSource() == uiNetSource_t::UIAS_FAVORITES) {
 				vis = false;
 			}
 			flags &= ~UI_SHOW_NOTFAVORITESERVERS;
 		}
 		if (flags & UI_SHOW_ANYTEAMGAME) {
-			if (uiInfo.gameTypes[ui_gametype.integer].gtEnum <= GT_TEAM ) {
+			if (uiInfo.gameTypes[ui_gametype.integer].gtEnum <= gametype_t::GT_TEAM ) {
 				vis = false;
 			}
 			flags &= ~UI_SHOW_ANYTEAMGAME;
 		}
 		if (flags & UI_SHOW_ANYNONTEAMGAME) {
-			if (uiInfo.gameTypes[ui_gametype.integer].gtEnum > GT_TEAM ) {
+			if (uiInfo.gameTypes[ui_gametype.integer].gtEnum > gametype_t::GT_TEAM ) {
 				vis = false;
 			}
 			flags &= ~UI_SHOW_ANYNONTEAMGAME;
 		}
 		if (flags & UI_SHOW_NETANYTEAMGAME) {
-			if (uiInfo.gameTypes[ui_netGametype.integer].gtEnum <= GT_TEAM ) {
+			if (uiInfo.gameTypes[ui_netGametype.integer].gtEnum <= gametype_t::GT_TEAM ) {
 				vis = false;
 			}
 			flags &= ~UI_SHOW_NETANYTEAMGAME;
 		}
 		if (flags & UI_SHOW_NETANYNONTEAMGAME) {
-			if (uiInfo.gameTypes[ui_netGametype.integer].gtEnum > GT_TEAM ) {
+			if (uiInfo.gameTypes[ui_netGametype.integer].gtEnum > gametype_t::GT_TEAM ) {
 				vis = false;
 			}
 			flags &= ~UI_SHOW_NETANYNONTEAMGAME;
@@ -3355,10 +3353,10 @@ static bool UI_OwnerDrawVisible(int flags) {
 }
 
 static bool UI_Handicap_HandleKey(int flags, float *special, fakeAscii_t key) {
-	if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER) {
+	if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_ENTER || key == fakeAscii_t::A_KP_ENTER) {
 		int h;
 		h = Com_Clamp( 5, 100, trap->Cvar_VariableValue("handicap") );
-		if (key == A_MOUSE2) {
+		if (key == fakeAscii_t::A_MOUSE2) {
 			h -= 5;
 		} else {
 			h += 5;
@@ -3389,27 +3387,27 @@ static bool UI_Chat_Main_HandleKey(fakeAscii_t key)
 		return (false);
 	}
 
-	if ((key == A_1) || ( key == A_PLING))
+	if ((key == fakeAscii_t::A_1) || ( key == fakeAscii_t::A_PLING))
 	{
 		item = Menu_FindItemByName(menu, "attack");
 	}
-	else if ((key == A_2) || ( key == A_AT))
+	else if ((key == fakeAscii_t::A_2) || ( key == fakeAscii_t::A_AT))
 	{
 		item = Menu_FindItemByName(menu, "defend");
 	}
-	else if ((key == A_3) || ( key == A_HASH))
+	else if ((key == fakeAscii_t::A_3) || ( key == fakeAscii_t::A_HASH))
 	{
 		item = Menu_FindItemByName(menu, "request");
 	}
-	else if ((key == A_4) || ( key == A_STRING))
+	else if ((key == fakeAscii_t::A_4) || ( key == fakeAscii_t::A_STRING))
 	{
 		item = Menu_FindItemByName(menu, "reply");
 	}
-	else if ((key == A_5) || ( key == A_PERCENT))
+	else if ((key == fakeAscii_t::A_5) || ( key == fakeAscii_t::A_PERCENT))
 	{
 		item = Menu_FindItemByName(menu, "spot");
 	}
-	else if ((key == A_6) || ( key == A_CARET))
+	else if ((key == fakeAscii_t::A_6) || ( key == fakeAscii_t::A_CARET))
 	{
 		item = Menu_FindItemByName(menu, "tactics");
 	}
@@ -3439,15 +3437,15 @@ static bool UI_Chat_Attack_HandleKey(fakeAscii_t key)
 		return (false);
 	}
 
-	if ((key == A_1) || ( key == A_PLING))
+	if ((key == fakeAscii_t::A_1) || ( key == fakeAscii_t::A_PLING))
 	{
 		item = Menu_FindItemByName(menu, "att_01");
 	}
-	else if ((key == A_2) || ( key == A_AT))
+	else if ((key == fakeAscii_t::A_2) || ( key == fakeAscii_t::A_AT))
 	{
 		item = Menu_FindItemByName(menu, "att_02");
 	}
-	else if ((key == A_3) || ( key == A_HASH))
+	else if ((key == fakeAscii_t::A_3) || ( key == fakeAscii_t::A_HASH))
 	{
 		item = Menu_FindItemByName(menu, "att_03");
 	}
@@ -3477,19 +3475,19 @@ static bool UI_Chat_Defend_HandleKey(fakeAscii_t key)
 		return (false);
 	}
 
-	if ((key == A_1) || ( key == A_PLING))
+	if ((key == fakeAscii_t::A_1) || ( key == fakeAscii_t::A_PLING))
 	{
 		item = Menu_FindItemByName(menu, "def_01");
 	}
-	else if ((key == A_2) || ( key == A_AT))
+	else if ((key == fakeAscii_t::A_2) || ( key == fakeAscii_t::A_AT))
 	{
 		item = Menu_FindItemByName(menu, "def_02");
 	}
-	else if ((key == A_3) || ( key == A_HASH))
+	else if ((key == fakeAscii_t::A_3) || ( key == fakeAscii_t::A_HASH))
 	{
 		item = Menu_FindItemByName(menu, "def_03");
 	}
-	else if ((key == A_4) || ( key == A_STRING))
+	else if ((key == fakeAscii_t::A_4) || ( key == fakeAscii_t::A_STRING))
 	{
 		item = Menu_FindItemByName(menu, "def_04");
 	}
@@ -3519,27 +3517,27 @@ static bool UI_Chat_Request_HandleKey(fakeAscii_t key)
 		return (false);
 	}
 
-	if ((key == A_1) || ( key == A_PLING))
+	if ((key == fakeAscii_t::A_1) || ( key == fakeAscii_t::A_PLING))
 	{
 		item = Menu_FindItemByName(menu, "req_01");
 	}
-	else if ((key == A_2) || ( key == A_AT))
+	else if ((key == fakeAscii_t::A_2) || ( key == fakeAscii_t::A_AT))
 	{
 		item = Menu_FindItemByName(menu, "req_02");
 	}
-	else if ((key == A_3) || ( key == A_HASH))
+	else if ((key == fakeAscii_t::A_3) || ( key == fakeAscii_t::A_HASH))
 	{
 		item = Menu_FindItemByName(menu, "req_03");
 	}
-	else if ((key == A_4) || ( key == A_STRING))
+	else if ((key == fakeAscii_t::A_4) || ( key == fakeAscii_t::A_STRING))
 	{
 		item = Menu_FindItemByName(menu, "req_04");
 	}
-	else if ((key == A_5) || ( key == A_PERCENT))
+	else if ((key == fakeAscii_t::A_5) || ( key == fakeAscii_t::A_PERCENT))
 	{
 		item = Menu_FindItemByName(menu, "req_05");
 	}
-	else if ((key == A_6) || ( key == A_CARET))
+	else if ((key == fakeAscii_t::A_6) || ( key == fakeAscii_t::A_CARET))
 	{
 		item = Menu_FindItemByName(menu, "req_06");
 	}
@@ -3569,23 +3567,23 @@ static bool UI_Chat_Reply_HandleKey(fakeAscii_t key)
 		return (false);
 	}
 
-	if ((key == A_1) || ( key == A_PLING))
+	if ((key == fakeAscii_t::A_1) || ( key == fakeAscii_t::A_PLING))
 	{
 		item = Menu_FindItemByName(menu, "rep_01");
 	}
-	else if ((key == A_2) || ( key == A_AT))
+	else if ((key == fakeAscii_t::A_2) || ( key == fakeAscii_t::A_AT))
 	{
 		item = Menu_FindItemByName(menu, "rep_02");
 	}
-	else if ((key == A_3) || ( key == A_HASH))
+	else if ((key == fakeAscii_t::A_3) || ( key == fakeAscii_t::A_HASH))
 	{
 		item = Menu_FindItemByName(menu, "rep_03");
 	}
-	else if ((key == A_4) || ( key == A_STRING))
+	else if ((key == fakeAscii_t::A_4) || ( key == fakeAscii_t::A_STRING))
 	{
 		item = Menu_FindItemByName(menu, "rep_04");
 	}
-	else if ((key == A_5) || ( key == A_PERCENT))
+	else if ((key == fakeAscii_t::A_5) || ( key == fakeAscii_t::A_PERCENT))
 	{
 		item = Menu_FindItemByName(menu, "rep_05");
 	}
@@ -3615,23 +3613,23 @@ static bool UI_Chat_Spot_HandleKey(fakeAscii_t key)
 		return (false);
 	}
 
-	if ((key == A_1) || ( key == A_PLING))
+	if ((key == fakeAscii_t::A_1) || ( key == fakeAscii_t::A_PLING))
 	{
 		item = Menu_FindItemByName(menu, "spot_01");
 	}
-	else if ((key == A_2) || ( key == A_AT))
+	else if ((key == fakeAscii_t::A_2) || ( key == fakeAscii_t::A_AT))
 	{
 		item = Menu_FindItemByName(menu, "spot_02");
 	}
-	else if ((key == A_3) || ( key == A_HASH))
+	else if ((key == fakeAscii_t::A_3) || ( key == fakeAscii_t::A_HASH))
 	{
 		item = Menu_FindItemByName(menu, "spot_03");
 	}
-	else if ((key == A_4) || ( key == A_STRING))
+	else if ((key == fakeAscii_t::A_4) || ( key == fakeAscii_t::A_STRING))
 	{
 		item = Menu_FindItemByName(menu, "spot_04");
 	}
-	else if ((key == A_5) || (key == A_PERCENT))
+	else if ((key == fakeAscii_t::A_5) || (key == fakeAscii_t::A_PERCENT))
 	{
 		item = Menu_FindItemByName(menu, "spot_05");
 	}
@@ -3661,27 +3659,27 @@ static bool UI_Chat_Tactical_HandleKey(fakeAscii_t key)
 		return (false);
 	}
 
-	if ((key == A_1) || ( key == A_PLING))
+	if ((key == fakeAscii_t::A_1) || ( key == fakeAscii_t::A_PLING))
 	{
 		item = Menu_FindItemByName(menu, "tac_01");
 	}
-	else if ((key == A_2) || ( key == A_AT))
+	else if ((key == fakeAscii_t::A_2) || ( key == fakeAscii_t::A_AT))
 	{
 		item = Menu_FindItemByName(menu, "tac_02");
 	}
-	else if ((key == A_3) || ( key == A_HASH))
+	else if ((key == fakeAscii_t::A_3) || ( key == fakeAscii_t::A_HASH))
 	{
 		item = Menu_FindItemByName(menu, "tac_03");
 	}
-	else if ((key == A_4) || ( key == A_STRING))
+	else if ((key == fakeAscii_t::A_4) || ( key == fakeAscii_t::A_STRING))
 	{
 		item = Menu_FindItemByName(menu, "tac_04");
 	}
-	else if ((key == A_5) || ( key == A_PERCENT))
+	else if ((key == fakeAscii_t::A_5) || ( key == fakeAscii_t::A_PERCENT))
 	{
 		item = Menu_FindItemByName(menu, "tac_05");
 	}
-	else if ((key == A_6) || ( key == A_CARET))
+	else if ((key == fakeAscii_t::A_6) || ( key == fakeAscii_t::A_CARET))
 	{
 		item = Menu_FindItemByName(menu, "tac_06");
 	}
@@ -3699,12 +3697,12 @@ static bool UI_Chat_Tactical_HandleKey(fakeAscii_t key)
 }
 
 static bool UI_GameType_HandleKey(int flags, float *special, fakeAscii_t key, bool resetMap) {
-	if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER) {
+	if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_ENTER || key == fakeAscii_t::A_KP_ENTER) {
 		int oldCount = UI_MapCountByGameType(true);
 		int value = ui_gametype.integer;
 
 		// hard coded mess here
-		if (key == A_MOUSE2) {
+		if (key == fakeAscii_t::A_MOUSE2) {
 			value--;
 			if (value == 2) {
 				value = 1;
@@ -3758,16 +3756,16 @@ static bool UI_InSoloMenu( void )
 
 static bool UI_NetGameType_HandleKey(int flags, float *special, fakeAscii_t key)
 {
-	if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER)
+	if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_ENTER || key == fakeAscii_t::A_KP_ENTER)
 	{
 		int value = ui_netGametype.integer;
 
-		if (key == A_MOUSE2)
+		if (key == fakeAscii_t::A_MOUSE2)
 		{
 			value--;
 			if (UI_InSoloMenu())
 			{
-				if (uiInfo.gameTypes[value].gtEnum == GT_SIEGE)
+				if (uiInfo.gameTypes[value].gtEnum == gametype_t::GT_SIEGE)
 				{
 					value--;
 				}
@@ -3778,7 +3776,7 @@ static bool UI_NetGameType_HandleKey(int flags, float *special, fakeAscii_t key)
 			value++;
 			if (UI_InSoloMenu())
 			{
-				if (uiInfo.gameTypes[value].gtEnum == GT_SIEGE)
+				if (uiInfo.gameTypes[value].gtEnum == gametype_t::GT_SIEGE)
 				{
 					value++;
 				}
@@ -3808,10 +3806,10 @@ static bool UI_NetGameType_HandleKey(int flags, float *special, fakeAscii_t key)
 }
 
 static bool UI_AutoSwitch_HandleKey(int flags, float *special, fakeAscii_t key) {
-	if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER) {
+	if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_ENTER || key == fakeAscii_t::A_KP_ENTER) {
 		int switchVal = trap->Cvar_VariableValue("cg_autoswitch");
 
-		if (key == A_MOUSE2) {
+		if (key == fakeAscii_t::A_MOUSE2) {
 			switchVal--;
 		} else {
 			switchVal++;
@@ -3833,10 +3831,10 @@ static bool UI_AutoSwitch_HandleKey(int flags, float *special, fakeAscii_t key) 
 }
 
 static bool UI_JoinGameType_HandleKey(int flags, float *special, fakeAscii_t key) {
-	if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER) {
+	if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_ENTER || key == fakeAscii_t::A_KP_ENTER) {
 		int value = ui_joinGametype.integer;
 
-		if (key == A_MOUSE2) {
+		if (key == fakeAscii_t::A_MOUSE2) {
 			value--;
 		} else {
 			value++;
@@ -3857,10 +3855,10 @@ static bool UI_JoinGameType_HandleKey(int flags, float *special, fakeAscii_t key
 }
 
 static bool UI_Skill_HandleKey(int flags, float *special, fakeAscii_t key) {
-	if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER) {
+	if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_ENTER || key == fakeAscii_t::A_KP_ENTER) {
 		int i = trap->Cvar_VariableValue( "g_spSkill" );
 
-		if (key == A_MOUSE2) {
+		if (key == fakeAscii_t::A_MOUSE2) {
 			i--;
 		} else {
 			i++;
@@ -3880,11 +3878,11 @@ static bool UI_Skill_HandleKey(int flags, float *special, fakeAscii_t key) {
 }
 
 static bool UI_TeamName_HandleKey(int flags, float *special, fakeAscii_t key, bool blue) {
-	if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER) {
+	if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_ENTER || key == fakeAscii_t::A_KP_ENTER) {
 		int i;
 		i = UI_TeamIndexFromName(UI_Cvar_VariableString((blue) ? "ui_blueTeam" : "ui_redTeam"));
 
-		if (key == A_MOUSE2) {
+		if (key == fakeAscii_t::A_MOUSE2) {
 			i--;
 		} else {
 			i++;
@@ -3904,7 +3902,7 @@ static bool UI_TeamName_HandleKey(int flags, float *special, fakeAscii_t key, bo
 }
 
 static bool UI_TeamMember_HandleKey(int flags, float *special, fakeAscii_t key, bool blue, int num) {
-	if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER) {
+	if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_ENTER || key == fakeAscii_t::A_KP_ENTER) {
 		// 0 - None
 		// 1 - Human
 		// 2..NumCharacters - Bot
@@ -3930,13 +3928,13 @@ static bool UI_TeamMember_HandleKey(int flags, float *special, fakeAscii_t key, 
 			value = 1;
 		}
 
-		if (key == A_MOUSE2) {
+		if (key == fakeAscii_t::A_MOUSE2) {
 			value--;
 		} else {
 			value++;
 		}
 
-		/*if (ui_actualNetGameType.integer >= GT_TEAM) {
+		/*if (ui_actualNetGameType.integer >= gametype_t::GT_TEAM) {
 		if (value >= uiInfo.characterCount + 2) {
 		value = 0;
 		} else if (value < 0) {
@@ -3957,27 +3955,27 @@ static bool UI_TeamMember_HandleKey(int flags, float *special, fakeAscii_t key, 
 }
 
 static bool UI_NetSource_HandleKey(int flags, float *special, fakeAscii_t key) {
-	if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER) {
+	if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_ENTER || key == fakeAscii_t::A_KP_ENTER) {
 		uiNetSource_t value = UI_NetSource();
 
-		if (key == A_MOUSE2) {
+		if (key == fakeAscii_t::A_MOUSE2) {
 			value--;
 		} else {
 			value++;
 		}
 
-		if(value >= UIAS_GLOBAL1 && value <= UIAS_GLOBAL5)
+		if(value >= uiNetSource_t::UIAS_GLOBAL1 && value <= uiNetSource_t::UIAS_GLOBAL5)
 		{
 			char masterstr[2], cvarname[sizeof("sv_master1")];
 
-			while(value >= UIAS_GLOBAL1 && value <= UIAS_GLOBAL5)
+			while(value >= uiNetSource_t::UIAS_GLOBAL1 && value <= uiNetSource_t::UIAS_GLOBAL5)
 			{
 				Com_sprintf(cvarname, sizeof(cvarname), "sv_master%d", to_underlying( value ));
 				trap->Cvar_VariableStringBuffer(cvarname, masterstr, sizeof(masterstr));
 				if(*masterstr)
 					break;
 
-				if (key == A_MOUSE2) {
+				if (key == fakeAscii_t::A_MOUSE2) {
 					value--;
 				} else {
 					value++;
@@ -3985,17 +3983,17 @@ static bool UI_NetSource_HandleKey(int flags, float *special, fakeAscii_t key) {
 			}
 		}
 
-		if (value > UIAS_FAVORITES) {
-			value = UIAS_LOCAL;
-		} else if (value < UIAS_LOCAL) {
-			value = UIAS_FAVORITES;
+		if (value > uiNetSource_t::UIAS_FAVORITES) {
+			value = uiNetSource_t::UIAS_LOCAL;
+		} else if (value < uiNetSource_t::UIAS_LOCAL) {
+			value = uiNetSource_t::UIAS_FAVORITES;
 		}
 
 		trap->Cvar_Set( "ui_netSource", va("%d", to_underlying( value )));
 		trap->Cvar_Update(&ui_netSource);
 
 		UI_BuildServerDisplayList(true);
-		if (!(UI_NetSource() >= UIAS_GLOBAL1 && UI_NetSource() <= UIAS_GLOBAL5)) {
+		if (!(UI_NetSource() >= uiNetSource_t::UIAS_GLOBAL1 && UI_NetSource() <= uiNetSource_t::UIAS_GLOBAL5)) {
 			UI_StartServerRefresh(true);
 		}
 		return true;
@@ -4004,10 +4002,10 @@ static bool UI_NetSource_HandleKey(int flags, float *special, fakeAscii_t key) {
 }
 
 static bool UI_NetFilter_HandleKey(int flags, float *special, fakeAscii_t key) {
-	if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER) {
+	if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_ENTER || key == fakeAscii_t::A_KP_ENTER) {
 		int value = ui_serverFilterType.integer;
 
-		if (key == A_MOUSE2) {
+		if (key == fakeAscii_t::A_MOUSE2) {
 			value--;
 		} else {
 			value++;
@@ -4029,8 +4027,8 @@ static bool UI_NetFilter_HandleKey(int flags, float *special, fakeAscii_t key) {
 }
 
 static bool UI_OpponentName_HandleKey(int flags, float *special, fakeAscii_t key) {
-	if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER) {
-		if (key == A_MOUSE2) {
+	if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_ENTER || key == fakeAscii_t::A_KP_ENTER) {
+		if (key == fakeAscii_t::A_MOUSE2) {
 			UI_PriorOpponent();
 		} else {
 			UI_NextOpponent();
@@ -4041,18 +4039,18 @@ static bool UI_OpponentName_HandleKey(int flags, float *special, fakeAscii_t key
 }
 
 static bool UI_BotName_HandleKey(int flags, float *special, fakeAscii_t key) {
-	if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER) {
+	if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_ENTER || key == fakeAscii_t::A_KP_ENTER) {
 //		int game = trap->Cvar_VariableValue("g_gametype");
 		int value = uiInfo.botIndex;
 
-		if (key == A_MOUSE2) {
+		if (key == fakeAscii_t::A_MOUSE2) {
 			value--;
 		} else {
 			value++;
 		}
 
 		/*
-		if (game >= GT_TEAM) {
+		if (game >= gametype_t::GT_TEAM) {
 		if (value >= uiInfo.characterCount + 2) {
 		value = 0;
 		} else if (value < 0) {
@@ -4073,8 +4071,8 @@ static bool UI_BotName_HandleKey(int flags, float *special, fakeAscii_t key) {
 }
 
 static bool UI_BotSkill_HandleKey(int flags, float *special, fakeAscii_t key) {
-	if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER) {
-		if (key == A_MOUSE2) {
+	if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_ENTER || key == fakeAscii_t::A_KP_ENTER) {
+		if (key == fakeAscii_t::A_MOUSE2) {
 			uiInfo.skillIndex--;
 		} else {
 			uiInfo.skillIndex++;
@@ -4090,7 +4088,7 @@ static bool UI_BotSkill_HandleKey(int flags, float *special, fakeAscii_t key) {
 }
 
 static bool UI_RedBlue_HandleKey(int flags, float *special, fakeAscii_t key) {
-	if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER) {
+	if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_ENTER || key == fakeAscii_t::A_KP_ENTER) {
 		uiInfo.redBlue ^= 1;
 		return true;
 	}
@@ -4098,8 +4096,8 @@ static bool UI_RedBlue_HandleKey(int flags, float *special, fakeAscii_t key) {
 }
 
 static bool UI_Crosshair_HandleKey(int flags, float *special, fakeAscii_t key) {
-	if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER) {
-		if (key == A_MOUSE2) {
+	if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_ENTER || key == fakeAscii_t::A_KP_ENTER) {
+		if (key == fakeAscii_t::A_MOUSE2) {
 			uiInfo.currentCrosshair--;
 		} else {
 			uiInfo.currentCrosshair++;
@@ -4117,7 +4115,7 @@ static bool UI_Crosshair_HandleKey(int flags, float *special, fakeAscii_t key) {
 }
 
 static bool UI_SelectedPlayer_HandleKey(int flags, float *special, fakeAscii_t key) {
-	if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER) {
+	if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_ENTER || key == fakeAscii_t::A_KP_ENTER) {
 		int selected;
 
 		UI_BuildPlayerList();
@@ -4126,7 +4124,7 @@ static bool UI_SelectedPlayer_HandleKey(int flags, float *special, fakeAscii_t k
 		}
 		selected = trap->Cvar_VariableValue("cg_selectedPlayer");
 
-		if (key == A_MOUSE2) {
+		if (key == fakeAscii_t::A_MOUSE2) {
 			selected--;
 		} else {
 			selected++;
@@ -4156,12 +4154,12 @@ static bool UI_VoiceChat_HandleKey(int flags, float *special, fakeAscii_t key)
 
 	switch(key)
 	{
-		case A_1:
-		case A_KP_1:
+		case fakeAscii_t::A_1:
+		case fakeAscii_t::A_KP_1:
 			ret = true;
 			break;
-		case A_2:
-		case A_KP_2:
+		case fakeAscii_t::A_2:
+		case fakeAscii_t::A_KP_2:
 			ret = true;
 			break;
 
@@ -4180,7 +4178,7 @@ static bool UI_OwnerDrawHandleKey(int ownerDraw, int flags, float *special, fake
       return UI_Handicap_HandleKey(flags, special, key);
       break;
     case UI_SKIN_COLOR:
-      return UI_SkinColor_HandleKey(flags, special, key, uiSkinColor, TEAM_FREE, TEAM_BLUE, ownerDraw);
+      return UI_SkinColor_HandleKey(flags, special, key, uiSkinColor, team_t::TEAM_FREE, team_t::TEAM_BLUE, ownerDraw);
       break;
     case UI_FORCE_SIDE:
       return UI_ForceSide_HandleKey(flags, special, key, uiForceSide, 1, 2, ownerDraw);
@@ -4189,7 +4187,7 @@ static bool UI_OwnerDrawHandleKey(int ownerDraw, int flags, float *special, fake
       return UI_JediNonJedi_HandleKey(flags, special, key, uiJediNonJedi, 0, 1, ownerDraw);
       break;
 	case UI_FORCE_MASTERY_SET:
-      return UI_ForceMaxRank_HandleKey(flags, special, key, uiForceRank, FORCE_MASTERY_INITIATE, FORCE_MASTERY_JEDI_MASTER, ownerDraw);
+      return UI_ForceMaxRank_HandleKey(flags, special, key, uiForceRank, forceMasteries_t::FORCE_MASTERY_INITIATE, forceMasteries_t::FORCE_MASTERY_JEDI_MASTER, ownerDraw);
       break;
     case UI_FORCE_RANK:
 		break;
@@ -4234,7 +4232,7 @@ static bool UI_OwnerDrawHandleKey(int ownerDraw, int flags, float *special, fake
 	case UI_FORCE_RANK_SABERTHROW:
 		findex = UI_ForceRankPower( ownerDraw );
 		//this will give us the index as long as UI_FORCE_RANK is always one below the first force rank index
-		return UI_ForcePowerRank_HandleKey(flags, special, key, uiForcePowersRank[findex], FORCE_LEVEL_0, NUM_FORCE_POWER_LEVELS-1, ownerDraw);
+		return UI_ForcePowerRank_HandleKey(flags, special, key, uiForcePowersRank[findex], forcePowerLevels_t::FORCE_LEVEL_0, forcePowerLevels_t::NUM_FORCE_POWER_LEVELS-1, ownerDraw);
 		break;
     case UI_EFFECTS:
       break;
@@ -4593,7 +4591,7 @@ static void UI_StartSkirmish(bool next) {
 		UI_SelectedMap(index, &actual);
 		if (UI_SetNextMap(actual, index)) {
 		} else {
-			UI_GameType_HandleKey(0, nullptr, A_MOUSE1, false);
+			UI_GameType_HandleKey(0, nullptr, fakeAscii_t::A_MOUSE1, false);
 			UI_MapCountByGameType(true);
 			Menu_SetFeederSelection(nullptr, FEEDER_MAPS, 0, "skirmish");
 		}
@@ -4601,7 +4599,7 @@ static void UI_StartSkirmish(bool next) {
 
 	g = uiInfo.gameTypes[ui_gametype.integer].gtEnum;
 	trap->Cvar_SetValue( "g_gametype", to_underlying( g ) );
-	trap->Cmd_ExecuteText( EXEC_APPEND, va( "wait ; wait ; map %s\n", uiInfo.mapList[ui_currentMap.integer].mapLoadName) );
+	trap->Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, va( "wait ; wait ; map %s\n", uiInfo.mapList[ui_currentMap.integer].mapLoadName) );
 	skill = trap->Cvar_VariableValue( "g_spSkill" );
 	trap->Cvar_Set("ui_scoreMap", uiInfo.mapList[ui_currentMap.integer].mapName);
 
@@ -4640,42 +4638,42 @@ static void UI_StartSkirmish(bool next) {
 
 	delay = 500;
 
-	if (g == GT_DUEL || g == GT_POWERDUEL) {
+	if (g == gametype_t::GT_DUEL || g == gametype_t::GT_POWERDUEL) {
 		temp = uiInfo.mapList[ui_currentMap.integer].teamMembers * 2;
 		trap->Cvar_Set("sv_maxClients", va("%d", temp));
 		Com_sprintf( buff, sizeof(buff), "wait ; addbot %s %f "", %i \n", uiInfo.mapList[ui_currentMap.integer].opponentName, skill, delay);
-		trap->Cmd_ExecuteText( EXEC_APPEND, buff );
-	} else if (g == GT_HOLOCRON || g == GT_JEDIMASTER) {
+		trap->Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, buff );
+	} else if (g == gametype_t::GT_HOLOCRON || g == gametype_t::GT_JEDIMASTER) {
 		temp = uiInfo.mapList[ui_currentMap.integer].teamMembers * 2;
 		trap->Cvar_Set("sv_maxClients", va("%d", temp));
 		for (i =0; i < uiInfo.mapList[ui_currentMap.integer].teamMembers; i++) {
-			Com_sprintf( buff, sizeof(buff), "addbot \"%s\" %f %s %i %s\n", UI_AIFromName(uiInfo.teamList[k].teamMembers[i]), skill, (g == GT_HOLOCRON) ? "" : "Blue", delay, uiInfo.teamList[k].teamMembers[i]);
-			trap->Cmd_ExecuteText( EXEC_APPEND, buff );
+			Com_sprintf( buff, sizeof(buff), "addbot \"%s\" %f %s %i %s\n", UI_AIFromName(uiInfo.teamList[k].teamMembers[i]), skill, (g == gametype_t::GT_HOLOCRON) ? "" : "Blue", delay, uiInfo.teamList[k].teamMembers[i]);
+			trap->Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, buff );
 			delay += 500;
 		}
 		k = UI_TeamIndexFromName(UI_Cvar_VariableString("ui_teamName"));
 		for (i =0; i < uiInfo.mapList[ui_currentMap.integer].teamMembers-1; i++) {
-			Com_sprintf( buff, sizeof(buff), "addbot \"%s\" %f %s %i %s\n", UI_AIFromName(uiInfo.teamList[k].teamMembers[i]), skill, (g == GT_HOLOCRON) ? "" : "Red", delay, uiInfo.teamList[k].teamMembers[i]);
-			trap->Cmd_ExecuteText( EXEC_APPEND, buff );
+			Com_sprintf( buff, sizeof(buff), "addbot \"%s\" %f %s %i %s\n", UI_AIFromName(uiInfo.teamList[k].teamMembers[i]), skill, (g == gametype_t::GT_HOLOCRON) ? "" : "Red", delay, uiInfo.teamList[k].teamMembers[i]);
+			trap->Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, buff );
 			delay += 500;
 		}
 	} else {
 		temp = uiInfo.mapList[ui_currentMap.integer].teamMembers * 2;
 		trap->Cvar_Set("sv_maxClients", va("%d", temp));
 		for (i =0; i < uiInfo.mapList[ui_currentMap.integer].teamMembers; i++) {
-			Com_sprintf( buff, sizeof(buff), "addbot \"%s\" %f %s %i %s\n", UI_AIFromName(uiInfo.teamList[k].teamMembers[i]), skill, (g == GT_FFA) ? "" : "Blue", delay, uiInfo.teamList[k].teamMembers[i]);
-			trap->Cmd_ExecuteText( EXEC_APPEND, buff );
+			Com_sprintf( buff, sizeof(buff), "addbot \"%s\" %f %s %i %s\n", UI_AIFromName(uiInfo.teamList[k].teamMembers[i]), skill, (g == gametype_t::GT_FFA) ? "" : "Blue", delay, uiInfo.teamList[k].teamMembers[i]);
+			trap->Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, buff );
 			delay += 500;
 		}
 		k = UI_TeamIndexFromName(UI_Cvar_VariableString("ui_teamName"));
 		for (i =0; i < uiInfo.mapList[ui_currentMap.integer].teamMembers-1; i++) {
-			Com_sprintf( buff, sizeof(buff), "addbot \"%s\" %f %s %i %s\n", UI_AIFromName(uiInfo.teamList[k].teamMembers[i]), skill, (g == GT_FFA) ? "" : "Red", delay, uiInfo.teamList[k].teamMembers[i]);
-			trap->Cmd_ExecuteText( EXEC_APPEND, buff );
+			Com_sprintf( buff, sizeof(buff), "addbot \"%s\" %f %s %i %s\n", UI_AIFromName(uiInfo.teamList[k].teamMembers[i]), skill, (g == gametype_t::GT_FFA) ? "" : "Red", delay, uiInfo.teamList[k].teamMembers[i]);
+			trap->Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, buff );
 			delay += 500;
 		}
 	}
-	if (g >= GT_TEAM ) {
-		trap->Cmd_ExecuteText( EXEC_APPEND, "wait 5; team Red\n" );
+	if (g >= gametype_t::GT_TEAM ) {
+		trap->Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, "wait 5; team Red\n" );
 	}
 }
 
@@ -4684,7 +4682,7 @@ static void UI_Update(const char *name) {
 
 	if (Q_stricmp(name, "s_khz") == 0)
 	{
-		trap->Cmd_ExecuteText( EXEC_APPEND, "snd_restart\n" );
+		trap->Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, "snd_restart\n" );
 		return;
 	}
 
@@ -4895,7 +4893,7 @@ void UI_UpdateVideoSetup ( void )
 	trap->Cvar_Set ( "cg_shadows", UI_Cvar_VariableString ( "ui_cg_shadows" ) );
 	trap->Cvar_Set ( "ui_r_modified", "0" );
 
-	trap->Cmd_ExecuteText( EXEC_APPEND, "vid_restart;" );
+	trap->Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, "vid_restart;" );
 }
 
 /*
@@ -4908,25 +4906,25 @@ interface versions of the cvars.
 */
 void UI_GetVideoSetup ( void )
 {
-	trap->Cvar_Register ( nullptr, "ui_r_glCustom",				"4", CVAR_INTERNAL|CVAR_ARCHIVE );
+	trap->Cvar_Register ( nullptr, "ui_r_glCustom",				"4", cvarFlags_t::CVAR_INTERNAL|cvarFlags_t::CVAR_ARCHIVE );
 
 	// Make sure the cvars are registered as read only.
-	trap->Cvar_Register ( nullptr, "ui_r_mode",					"0", CVAR_ROM|CVAR_INTERNAL );
-	trap->Cvar_Register ( nullptr, "ui_r_fullscreen",			"0", CVAR_ROM|CVAR_INTERNAL );
-	trap->Cvar_Register ( nullptr, "ui_r_colorbits",				"0", CVAR_ROM|CVAR_INTERNAL );
-	trap->Cvar_Register ( nullptr, "ui_r_lodbias",				"0", CVAR_ROM|CVAR_INTERNAL );
-	trap->Cvar_Register ( nullptr, "ui_r_picmip",				"0", CVAR_ROM|CVAR_INTERNAL );
-	trap->Cvar_Register ( nullptr, "ui_r_texturebits",			"0", CVAR_ROM|CVAR_INTERNAL );
-	trap->Cvar_Register ( nullptr, "ui_r_texturemode",			"0", CVAR_ROM|CVAR_INTERNAL );
-	trap->Cvar_Register ( nullptr, "ui_r_detailtextures",		"0", CVAR_ROM|CVAR_INTERNAL );
-	trap->Cvar_Register ( nullptr, "ui_r_ext_compress_textures",	"0", CVAR_ROM|CVAR_INTERNAL );
-	trap->Cvar_Register ( nullptr, "ui_r_depthbits",				"0", CVAR_ROM|CVAR_INTERNAL );
-	trap->Cvar_Register ( nullptr, "ui_r_subdivisions",			"0", CVAR_ROM|CVAR_INTERNAL );
-	trap->Cvar_Register ( nullptr, "ui_r_fastSky",				"0", CVAR_ROM|CVAR_INTERNAL );
-	trap->Cvar_Register ( nullptr, "ui_r_inGameVideo",			"0", CVAR_ROM|CVAR_INTERNAL );
-	trap->Cvar_Register ( nullptr, "ui_r_allowExtensions",		"0", CVAR_ROM|CVAR_INTERNAL );
-	trap->Cvar_Register ( nullptr, "ui_cg_shadows",				"0", CVAR_ROM|CVAR_INTERNAL );
-	trap->Cvar_Register ( nullptr, "ui_r_modified",				"0", CVAR_ROM|CVAR_INTERNAL );
+	trap->Cvar_Register ( nullptr, "ui_r_mode",					"0", cvarFlags_t::CVAR_ROM|cvarFlags_t::CVAR_INTERNAL );
+	trap->Cvar_Register ( nullptr, "ui_r_fullscreen",			"0", cvarFlags_t::CVAR_ROM|cvarFlags_t::CVAR_INTERNAL );
+	trap->Cvar_Register ( nullptr, "ui_r_colorbits",				"0", cvarFlags_t::CVAR_ROM|cvarFlags_t::CVAR_INTERNAL );
+	trap->Cvar_Register ( nullptr, "ui_r_lodbias",				"0", cvarFlags_t::CVAR_ROM|cvarFlags_t::CVAR_INTERNAL );
+	trap->Cvar_Register ( nullptr, "ui_r_picmip",				"0", cvarFlags_t::CVAR_ROM|cvarFlags_t::CVAR_INTERNAL );
+	trap->Cvar_Register ( nullptr, "ui_r_texturebits",			"0", cvarFlags_t::CVAR_ROM|cvarFlags_t::CVAR_INTERNAL );
+	trap->Cvar_Register ( nullptr, "ui_r_texturemode",			"0", cvarFlags_t::CVAR_ROM|cvarFlags_t::CVAR_INTERNAL );
+	trap->Cvar_Register ( nullptr, "ui_r_detailtextures",		"0", cvarFlags_t::CVAR_ROM|cvarFlags_t::CVAR_INTERNAL );
+	trap->Cvar_Register ( nullptr, "ui_r_ext_compress_textures",	"0", cvarFlags_t::CVAR_ROM|cvarFlags_t::CVAR_INTERNAL );
+	trap->Cvar_Register ( nullptr, "ui_r_depthbits",				"0", cvarFlags_t::CVAR_ROM|cvarFlags_t::CVAR_INTERNAL );
+	trap->Cvar_Register ( nullptr, "ui_r_subdivisions",			"0", cvarFlags_t::CVAR_ROM|cvarFlags_t::CVAR_INTERNAL );
+	trap->Cvar_Register ( nullptr, "ui_r_fastSky",				"0", cvarFlags_t::CVAR_ROM|cvarFlags_t::CVAR_INTERNAL );
+	trap->Cvar_Register ( nullptr, "ui_r_inGameVideo",			"0", cvarFlags_t::CVAR_ROM|cvarFlags_t::CVAR_INTERNAL );
+	trap->Cvar_Register ( nullptr, "ui_r_allowExtensions",		"0", cvarFlags_t::CVAR_ROM|cvarFlags_t::CVAR_INTERNAL );
+	trap->Cvar_Register ( nullptr, "ui_cg_shadows",				"0", cvarFlags_t::CVAR_ROM|cvarFlags_t::CVAR_INTERNAL );
+	trap->Cvar_Register ( nullptr, "ui_r_modified",				"0", cvarFlags_t::CVAR_ROM|cvarFlags_t::CVAR_INTERNAL );
 
 	// Copy over the real video cvars into their temporary counterparts
 	trap->Cvar_Set ( "ui_r_mode",						UI_Cvar_VariableString ( "r_mode" ) );
@@ -4960,7 +4958,7 @@ static void UI_SetBotButton ( void )
 	server = trap->Cvar_VariableValue( "sv_running" );
 
 	// If in siege or a client, don't show add bot button
-	if ((gameType == GT_SIEGE) || (server==0))	// If it's not siege, don't worry about it
+	if ((gameType == gametype_t::GT_SIEGE) || (server==0))	// If it's not siege, don't worry about it
 	{
 		menu = Menu_GetFocused();	// Get current menu (either video or ingame video, I would assume)
 
@@ -5138,13 +5136,13 @@ void UI_FindCurrentSiegeTeamClass( void )
 		return;
 	}
 
-	if (( myTeam != TEAM_RED ) && ( myTeam != TEAM_BLUE ))
+	if (( myTeam != team_t::TEAM_RED ) && ( myTeam != team_t::TEAM_BLUE ))
 	{
 		return;
 	}
 
 	// If the player is on a team,
-	if ( myTeam == TEAM_RED )
+	if ( myTeam == team_t::TEAM_RED )
 	{
 		itemDef_t *item;
 		item = (itemDef_t *) Menu_FindItemByName(menu, "onteam1" );
@@ -5153,7 +5151,7 @@ void UI_FindCurrentSiegeTeamClass( void )
 		    Item_RunScript(item, item->action);
 		}
 	}
-	else if ( myTeam == TEAM_BLUE )
+	else if ( myTeam == team_t::TEAM_BLUE )
 	{
 		itemDef_t *item;
 		item = (itemDef_t *) Menu_FindItemByName(menu, "onteam2" );
@@ -5168,22 +5166,22 @@ void UI_FindCurrentSiegeTeamClass( void )
 
 	// Find correct class button and activate it.
 	switch ( baseClass ) {
-	case SPC_INFANTRY:
+	case siegePlayerClassFlags_t::SPC_INFANTRY:
 		itemname = "class1_button";
 		break;
-	case SPC_HEAVY_WEAPONS:
+	case siegePlayerClassFlags_t::SPC_HEAVY_WEAPONS:
 		itemname = "class2_button";
 		break;
-	case SPC_DEMOLITIONIST:
+	case siegePlayerClassFlags_t::SPC_DEMOLITIONIST:
 		itemname = "class3_button";
 		break;
-	case SPC_VANGUARD:
+	case siegePlayerClassFlags_t::SPC_VANGUARD:
 		itemname = "class4_button";
 		break;
-	case SPC_SUPPORT:
+	case siegePlayerClassFlags_t::SPC_SUPPORT:
 		itemname = "class5_button";
 		break;
-	case SPC_JEDI:
+	case siegePlayerClassFlags_t::SPC_JEDI:
 		itemname = "class6_button";
 		break;
 	default:
@@ -5385,7 +5383,7 @@ static void UI_UpdateSaberHilt( bool secondSaber )
 
 	if(!item)
 	{
-		Com_Error( ERR_FATAL, "UI_UpdateSaberHilt: Could not find item (%s) in menu (%s)", itemName, menu->window.name);
+		Com_Error( errorParm_t::ERR_FATAL, "UI_UpdateSaberHilt: Could not find item (%s) in menu (%s)", itemName, menu->window.name);
 	}
 
 	trap->Cvar_VariableStringBuffer( saberCvarName, model, sizeof(model) );
@@ -5451,7 +5449,7 @@ void UI_UpdateCharacterSkin( void )
 
 	if (!item)
 	{
-		Com_Error( ERR_FATAL, "UI_UpdateCharacterSkin: Could not find item (character) in menu (%s)", menu->window.name);
+		Com_Error( errorParm_t::ERR_FATAL, "UI_UpdateCharacterSkin: Could not find item (character) in menu (%s)", menu->window.name);
 	}
 
 	trap->Cvar_VariableStringBuffer("ui_char_model", model, sizeof(model));
@@ -5550,7 +5548,7 @@ static void UI_UpdateCharacter( bool changedModel )
 
 	if (!item)
 	{
-		Com_Error( ERR_FATAL, "UI_UpdateCharacter: Could not find item (character) in menu (%s)", menu->window.name);
+		Com_Error( errorParm_t::ERR_FATAL, "UI_UpdateCharacter: Could not find item (character) in menu (%s)", menu->window.name);
 	}
 
 	ItemParse_model_g2anim_go( item, ui_char_anim.string );
@@ -5656,7 +5654,7 @@ static void UI_JoinServer( void )
 	if (uiInfo.serverStatus.currentServer >= 0 && uiInfo.serverStatus.currentServer < uiInfo.serverStatus.numDisplayServers)
 	{
 		trap->LAN_GetServerAddressString(UI_SourceForLAN()/*ui_netSource.integer*/, uiInfo.serverStatus.displayServers[uiInfo.serverStatus.currentServer], buff, sizeof( buff ) );
-		trap->Cmd_ExecuteText( EXEC_APPEND, va( "connect %s\n", buff ) );
+		trap->Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, va( "connect %s\n", buff ) );
 	}
 
 }
@@ -5678,19 +5676,19 @@ void UI_SiegeSetCvarsForClass( siegeClass_t *scl ) {
 	char shader[MAX_QPATH];
 
 	//let's clear the things out first
-	while (i < to_underlying( WP_NUM_WEAPONS ))
+	while (i < to_underlying( weapon_t::WP_NUM_WEAPONS ))
 	{
 		trap->Cvar_Set(va("ui_class_weapon%i", i), "gfx/2d/select");
 		i++;
 	}
 	//now for inventory items
-	for ( holdable_t h = HI_NONE; h < HI_NUM_HOLDABLE; h++ )
+	for ( holdable_t h = holdable_t::HI_NONE; h < holdable_t::HI_NUM_HOLDABLE; h++ )
 	{
 		trap->Cvar_Set(va("ui_class_item%i", to_underlying( h )), "gfx/2d/select");
 	}
 	//now for force powers
 	i = 0;
-	while (i < to_underlying( NUM_FORCE_POWERS ))
+	while (i < to_underlying( forcePowers_t::NUM_FORCE_POWERS ))
 	{
 		trap->Cvar_Set(va("ui_class_power%i", i), "gfx/2d/select");
 		i++;
@@ -5708,14 +5706,14 @@ void UI_SiegeSetCvarsForClass( siegeClass_t *scl ) {
 	}
 
 	//set cvars for which weaps we have
-	weapon_t wp = WP_NONE;
+	weapon_t wp = weapon_t::WP_NONE;
 	trap->Cvar_Set(va("ui_class_weapondesc%i", count), " ");	// Blank it out to start with
-	while (wp < WP_NUM_WEAPONS)
+	while (wp < weapon_t::WP_NUM_WEAPONS)
 	{
 
 		if (scl->weapons & Bit( wp ))
 		{
-			if (wp == WP_SABER)
+			if (wp == weapon_t::WP_SABER)
 			{ //we want to see what kind of saber they have, and set the cvar based on that
 				char saberType[1024];
 
@@ -5765,7 +5763,7 @@ void UI_SiegeSetCvarsForClass( siegeClass_t *scl ) {
 	//now for inventory items
 	count = 0;
 
-	for (holdable_t h = HI_NONE; h < HI_NUM_HOLDABLE; h++)
+	for (holdable_t h = holdable_t::HI_NONE; h < holdable_t::HI_NUM_HOLDABLE; h++)
 	{
 		if (scl->invenItems & Bit( h ))
 		{
@@ -5781,10 +5779,10 @@ void UI_SiegeSetCvarsForClass( siegeClass_t *scl ) {
 	}
 
 	//now for force powers
-	forcePowers_t fp = FP_FIRST;
+	forcePowers_t fp = forcePowers_t::FP_FIRST;
 	count = 0;
 
-	while (fp < NUM_FORCE_POWERS)
+	while (fp < forcePowers_t::NUM_FORCE_POWERS)
 	{
 		trap->Cvar_Set(va("ui_class_powerlevel%i", to_underlying( fp )), "0");	// Zero this out to start.
 		if (to_underlying( fp )<9)
@@ -5792,7 +5790,7 @@ void UI_SiegeSetCvarsForClass( siegeClass_t *scl ) {
 			trap->Cvar_Set(va("ui_class_powerlevelslot%i", to_underlying( fp )), "0");	// Zero this out to start.
 		}
 
-		if (scl->forcePowerLevels[fp] != FORCE_LEVEL_0)
+		if (scl->forcePowerLevels[fp] != forcePowerLevels_t::FORCE_LEVEL_0)
 		{
 			trap->Cvar_Set(va("ui_class_powerlevel%i", count), va("%i",to_underlying( scl->forcePowerLevels[fp] )));
 			trap->Cvar_Set(va("ui_class_power%i", count), HolocronIcons[fp]);
@@ -5831,7 +5829,7 @@ void UI_UpdateCvarsForClass(const team_t team,const siegePlayerClassFlags_t base
 	{
 
 		// Is it a valid base class?
-		if ((baseClass >= SPC_INFANTRY) && (baseClass < SPC_MAX))
+		if ((baseClass >= siegePlayerClassFlags_t::SPC_INFANTRY) && (baseClass < siegePlayerClassFlags_t::SPC_MAX))
 		{
 			// A valid index?
 			if ((index>=0) && (index < BG_SiegeCountBaseClass( team, baseClass )))
@@ -5867,13 +5865,13 @@ void UI_UpdateCvarsForClass(const team_t team,const siegePlayerClassFlags_t base
 
 void UI_ClampMaxPlayers( void ) {
 	// duel requires 2 players
-	if ( uiInfo.gameTypes[ui_netGametype.integer].gtEnum == GT_DUEL ) {
+	if ( uiInfo.gameTypes[ui_netGametype.integer].gtEnum == gametype_t::GT_DUEL ) {
 		if ( (int)trap->Cvar_VariableValue( "sv_maxClients" ) < 2 )
 			trap->Cvar_Set( "sv_maxClients", "2" );
 	}
 
 	// power duel requires 3 players
-	else if ( uiInfo.gameTypes[ui_netGametype.integer].gtEnum == GT_POWERDUEL ) {
+	else if ( uiInfo.gameTypes[ui_netGametype.integer].gtEnum == gametype_t::GT_POWERDUEL ) {
 		if ( (int)trap->Cvar_VariableValue( "sv_maxClients" ) < 3 )
 			trap->Cvar_Set( "sv_maxClients", "3" );
 	}
@@ -5925,10 +5923,10 @@ static void UI_RunMenuScript(char **args)
 			{
 				trap->Cvar_SetValue( "dedicated", Com_Clamp( 0, 2, ui_dedicated.integer ) );
 			}
-			trap->Cvar_SetValue( "g_gametype", Com_Clamp( 0, to_underlying( GT_MAX_GAME_TYPE ), to_underlying( uiInfo.gameTypes[ui_netGametype.integer].gtEnum ) ) );
+			trap->Cvar_SetValue( "g_gametype", Com_Clamp( 0, to_underlying( gametype_t::GT_MAX_GAME_TYPE ), to_underlying( uiInfo.gameTypes[ui_netGametype.integer].gtEnum ) ) );
 			//trap->Cvar_Set("g_redTeam", UI_Cvar_VariableString("ui_teamName"));
 			//trap->Cvar_Set("g_blueTeam", UI_Cvar_VariableString("ui_opponentName"));
-			trap->Cmd_ExecuteText( EXEC_APPEND, va( "wait ; wait ; map %s\n", uiInfo.mapList[ui_currentNetMap.integer].mapLoadName ) );
+			trap->Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, va( "wait ; wait ; map %s\n", uiInfo.mapList[ui_currentNetMap.integer].mapLoadName ) );
 			skill = trap->Cvar_VariableValue( "g_spSkill" );
 
 			//Cap the warmup values in case the user tries a dumb setting.
@@ -5948,8 +5946,8 @@ static void UI_RunMenuScript(char **args)
 				trap->Cvar_Set("g_warmup", "120");
 			}
 
-			if (UI_CvarGametype() == GT_DUEL ||
-				UI_CvarGametype() == GT_POWERDUEL)
+			if (UI_CvarGametype() == gametype_t::GT_DUEL ||
+				UI_CvarGametype() == gametype_t::GT_POWERDUEL)
 			{ //always set fraglimit 1 when starting a duel game
 				trap->Cvar_Set("fraglimit", "1");
 				trap->Cvar_Set("timelimit", "0");
@@ -5970,12 +5968,12 @@ static void UI_RunMenuScript(char **args)
 
 					if (numval <= maxcl)
 					{
-						if (ui_actualNetGametype.integer >= to_underlying( GT_TEAM )) {
+						if (ui_actualNetGametype.integer >= to_underlying( gametype_t::GT_TEAM )) {
 							Com_sprintf( buff, sizeof(buff), "addbot \"%s\" %f %s\n", UI_GetBotNameByNumber(bot-2), skill, "Blue");
 						} else {
 							Com_sprintf( buff, sizeof(buff), "addbot \"%s\" %f \n", UI_GetBotNameByNumber(bot-2), skill);
 						}
-						trap->Cmd_ExecuteText( EXEC_APPEND, buff );
+						trap->Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, buff );
 						added++;
 					}
 				}
@@ -5987,12 +5985,12 @@ static void UI_RunMenuScript(char **args)
 
 					if (numval <= maxcl)
 					{
-						if (ui_actualNetGametype.integer >= to_underlying( GT_TEAM )) {
+						if (ui_actualNetGametype.integer >= to_underlying( gametype_t::GT_TEAM )) {
 							Com_sprintf( buff, sizeof(buff), "addbot \"%s\" %f %s\n", UI_GetBotNameByNumber(bot-2), skill, "Red");
 						} else {
 							Com_sprintf( buff, sizeof(buff), "addbot \"%s\" %f \n", UI_GetBotNameByNumber(bot-2), skill);
 						}
-						trap->Cmd_ExecuteText( EXEC_APPEND, buff );
+						trap->Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, buff );
 						added++;
 					}
 				}
@@ -6008,13 +6006,13 @@ static void UI_RunMenuScript(char **args)
 			trap->Cvar_SetValue("ui_mapIndex", UI_GetIndexFromSelection(ui_currentMap.integer));
 			trap->Cvar_Update(&ui_mapIndex);
 			Menu_SetFeederSelection(nullptr, FEEDER_MAPS, ui_mapIndex.integer, "skirmish");
-			UI_GameType_HandleKey(0, nullptr, A_MOUSE1, false);
-			UI_GameType_HandleKey(0, nullptr, A_MOUSE2, false);
+			UI_GameType_HandleKey(0, nullptr, fakeAscii_t::A_MOUSE1, false);
+			UI_GameType_HandleKey(0, nullptr, fakeAscii_t::A_MOUSE2, false);
 		} else if (Q_stricmp(name, "resetDefaults") == 0) {
-			trap->Cmd_ExecuteText( EXEC_APPEND, "cvar_restart\n");
+			trap->Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, "cvar_restart\n");
 			Controls_SetDefaults();
-			trap->Cmd_ExecuteText( EXEC_APPEND, "exec mpdefault.cfg\n");
-			trap->Cmd_ExecuteText( EXEC_APPEND, "vid_restart\n" );
+			trap->Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, "exec mpdefault.cfg\n");
+			trap->Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, "vid_restart\n" );
 
 		} else if (Q_stricmp(name, "loadArenas") == 0) {
 			UI_LoadArenas();
@@ -6045,15 +6043,15 @@ static void UI_RunMenuScript(char **args)
 			if (uiInfo.previewMovie >= 0) {
 				trap->CIN_StopCinematic(uiInfo.previewMovie);
 			}
-			trap->Cmd_ExecuteText( EXEC_APPEND, va("cinematic %s.roq 2\n", uiInfo.movieList[uiInfo.movieIndex]));
+			trap->Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, va("cinematic %s.roq 2\n", uiInfo.movieList[uiInfo.movieIndex]));
 		} else if (Q_stricmp(name, "RunMod") == 0) {
 			trap->Cvar_Set( "fs_game", uiInfo.modList[uiInfo.modIndex].modName);
-			trap->Cmd_ExecuteText( EXEC_APPEND, "vid_restart;" );
+			trap->Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, "vid_restart;" );
 		} else if (Q_stricmp(name, "RunDemo") == 0) {
-			trap->Cmd_ExecuteText( EXEC_APPEND, va("demo \"%s\"\n", uiInfo.demoList[uiInfo.demoIndex]));
+			trap->Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, va("demo \"%s\"\n", uiInfo.demoList[uiInfo.demoIndex]));
 		} else if (Q_stricmp(name, "Quake3") == 0) {
 			trap->Cvar_Set( "fs_game", "");
-			trap->Cmd_ExecuteText( EXEC_APPEND, "vid_restart;" );
+			trap->Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, "vid_restart;" );
 		} else if (Q_stricmp(name, "closeJoin") == 0) {
 			if (uiInfo.serverStatus.refreshActive) {
 				UI_StopServerRefresh();
@@ -6072,7 +6070,7 @@ static void UI_RunMenuScript(char **args)
 			uiInfo.nextFindPlayerRefresh = 0;
 		} else if (Q_stricmp(name, "UpdateFilter") == 0) {
 			trap->Cvar_Update( &ui_netSource );
-			if (UI_NetSource() == UIAS_LOCAL || !uiInfo.serverStatus.numDisplayServers) {
+			if (UI_NetSource() == uiNetSource_t::UIAS_LOCAL || !uiInfo.serverStatus.numDisplayServers) {
 				UI_StartServerRefresh(true);
 			}
 			UI_BuildServerDisplayList(true);
@@ -6110,21 +6108,21 @@ static void UI_RunMenuScript(char **args)
 		else if (Q_stricmp(name, "FoundPlayerJoinServer") == 0) {
 			trap->Cvar_Set("ui_singlePlayerActive", "0");
 			if (uiInfo.currentFoundPlayerServer >= 0 && uiInfo.currentFoundPlayerServer < uiInfo.numFoundPlayerServers) {
-				trap->Cmd_ExecuteText( EXEC_APPEND, va( "connect %s\n", uiInfo.foundPlayerServerAddresses[uiInfo.currentFoundPlayerServer] ) );
+				trap->Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, va( "connect %s\n", uiInfo.foundPlayerServerAddresses[uiInfo.currentFoundPlayerServer] ) );
 			}
 		} else if (Q_stricmp(name, "Quit") == 0) {
 			trap->Cvar_Set("ui_singlePlayerActive", "0");
-			trap->Cmd_ExecuteText( EXEC_NOW, "quit");
+			trap->Cmd_ExecuteText( cbufExec_t::EXEC_NOW, "quit");
 		} else if (Q_stricmp(name, "Controls") == 0) {
 			trap->Cvar_Set( "cl_paused", "1" );
-			trap->Key_SetCatcher( KEYCATCH_UI );
+			trap->Key_SetCatcher( keyCatchFlags_t::KEYCATCH_UI );
 			Menus_CloseAll();
 			Menus_ActivateByName("setup_menu2");
 		}
 		else if (Q_stricmp(name, "Leave") == 0)
 		{
-			trap->Cmd_ExecuteText( EXEC_APPEND, "disconnect\n" );
-			trap->Key_SetCatcher( KEYCATCH_UI );
+			trap->Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, "disconnect\n" );
+			trap->Key_SetCatcher( keyCatchFlags_t::KEYCATCH_UI );
 			Menus_CloseAll();
 			Menus_ActivateByName("main");
 		}
@@ -6139,10 +6137,10 @@ static void UI_RunMenuScript(char **args)
 		// On the solo game creation screen, we can't see siege maps
 		else if (Q_stricmp(name, "checkforsiege") == 0)
 		{
-			if (uiInfo.gameTypes[ui_netGametype.integer].gtEnum == GT_SIEGE)
+			if (uiInfo.gameTypes[ui_netGametype.integer].gtEnum == gametype_t::GT_SIEGE)
 			{
 				// fake out the handler to advance to the next game type
-				UI_NetGameType_HandleKey(0, nullptr, A_MOUSE1);
+				UI_NetGameType_HandleKey(0, nullptr, fakeAscii_t::A_MOUSE1);
 			}
 		}
 		else if (Q_stricmp(name, "updatevideosetup") == 0)
@@ -6166,36 +6164,36 @@ static void UI_RunMenuScript(char **args)
 		} else if (Q_stricmp(name, "SkirmishStart") == 0) {
 			UI_StartSkirmish(false);
 		} else if (Q_stricmp(name, "closeingame") == 0) {
-			trap->Key_SetCatcher( trap->Key_GetCatcher() & ~KEYCATCH_UI );
+			trap->Key_SetCatcher( trap->Key_GetCatcher() & ~keyCatchFlags_t::KEYCATCH_UI );
 			trap->Key_ClearStates();
 			trap->Cvar_Set( "cl_paused", "0" );
 			Menus_CloseAll();
 		} else if (Q_stricmp(name, "voteMap") == 0) {
 			if (ui_currentNetMap.integer >=0 && ui_currentNetMap.integer < uiInfo.mapCount) {
-				trap->Cmd_ExecuteText( EXEC_APPEND, va("callvote map %s\n",uiInfo.mapList[ui_currentNetMap.integer].mapLoadName) );
+				trap->Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, va("callvote map %s\n",uiInfo.mapList[ui_currentNetMap.integer].mapLoadName) );
 			}
 		} else if (Q_stricmp(name, "voteKick") == 0) {
 			if (uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount) {
-				//trap->Cmd_ExecuteText( EXEC_APPEND, va("callvote kick \"%s\"\n",uiInfo.playerNames[uiInfo.playerIndex]) );
-				trap->Cmd_ExecuteText( EXEC_APPEND, va("callvote clientkick \"%i\"\n",uiInfo.playerIndexes[uiInfo.playerIndex]) );
+				//trap->Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, va("callvote kick \"%s\"\n",uiInfo.playerNames[uiInfo.playerIndex]) );
+				trap->Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, va("callvote clientkick \"%i\"\n",uiInfo.playerIndexes[uiInfo.playerIndex]) );
 			}
 		} else if (Q_stricmp(name, "voteGame") == 0) {
 			if (ui_netGametype.integer >= 0 && ui_netGametype.integer < uiInfo.numGameTypes) {
-				trap->Cmd_ExecuteText( EXEC_APPEND, va("callvote g_gametype %i\n",to_underlying( uiInfo.gameTypes[ui_netGametype.integer].gtEnum )) );
+				trap->Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, va("callvote g_gametype %i\n",to_underlying( uiInfo.gameTypes[ui_netGametype.integer].gtEnum )) );
 			}
 		} else if (Q_stricmp(name, "voteLeader") == 0) {
 			if (uiInfo.teamIndex >= 0 && uiInfo.teamIndex < uiInfo.myTeamCount) {
-				trap->Cmd_ExecuteText( EXEC_APPEND, va("callteamvote leader \"%s\"\n",uiInfo.teamNames[uiInfo.teamIndex]) );
+				trap->Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, va("callteamvote leader \"%s\"\n",uiInfo.teamNames[uiInfo.teamIndex]) );
 			}
 		} else if (Q_stricmp(name, "addBot") == 0) {
-			if (UI_CvarGametype() >= GT_TEAM) {
-				trap->Cmd_ExecuteText( EXEC_APPEND, va("addbot \"%s\" %i %s\n", UI_GetBotNameByNumber(uiInfo.botIndex), uiInfo.skillIndex+1, (uiInfo.redBlue == 0) ? "Red" : "Blue") );
+			if (UI_CvarGametype() >= gametype_t::GT_TEAM) {
+				trap->Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, va("addbot \"%s\" %i %s\n", UI_GetBotNameByNumber(uiInfo.botIndex), uiInfo.skillIndex+1, (uiInfo.redBlue == 0) ? "Red" : "Blue") );
 			} else {
-				trap->Cmd_ExecuteText( EXEC_APPEND, va("addbot \"%s\" %i %s\n", UI_GetBotNameByNumber(uiInfo.botIndex), uiInfo.skillIndex+1, (uiInfo.redBlue == 0) ? "Red" : "Blue") );
+				trap->Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, va("addbot \"%s\" %i %s\n", UI_GetBotNameByNumber(uiInfo.botIndex), uiInfo.skillIndex+1, (uiInfo.redBlue == 0) ? "Red" : "Blue") );
 			}
 		} else if (Q_stricmp(name, "addFavorite") == 0)
 		{
-			if (UI_NetSource() != UIAS_FAVORITES)
+			if (UI_NetSource() != uiNetSource_t::UIAS_FAVORITES)
 			{
 				char name[MAX_HOSTNAMELENGTH] = {0};
 				char addr[MAX_ADDRESSLENGTH] = {0};
@@ -6207,7 +6205,7 @@ static void UI_RunMenuScript(char **args)
 				Q_strncpyz(addr, 	Info_ValueForKey(buff, "addr"), sizeof( addr ) );
 				if (strlen(name) > 0 && strlen(addr) > 0)
 				{
-					res = trap->LAN_AddServer(AS_FAVORITES, name, addr);
+					res = trap->LAN_AddServer(lanSource_t::AS_FAVORITES, name, addr);
 					if (res == 0)
 					{
 						// server already in the list
@@ -6228,21 +6226,21 @@ static void UI_RunMenuScript(char **args)
 		}
 		else if (Q_stricmp(name, "deleteFavorite") == 0)
 		{
-			if (UI_NetSource() == UIAS_FAVORITES)
+			if (UI_NetSource() == uiNetSource_t::UIAS_FAVORITES)
 			{
 				char addr[MAX_ADDRESSLENGTH] = {0};
-				trap->LAN_GetServerInfo(AS_FAVORITES, uiInfo.serverStatus.displayServers[uiInfo.serverStatus.currentServer], buff, MAX_STRING_CHARS);
+				trap->LAN_GetServerInfo(lanSource_t::AS_FAVORITES, uiInfo.serverStatus.displayServers[uiInfo.serverStatus.currentServer], buff, MAX_STRING_CHARS);
 				addr[0] = '\0';
 				Q_strncpyz(addr, 	Info_ValueForKey(buff, "addr"), sizeof( addr ) );
 				if (strlen(addr) > 0)
 				{
-					trap->LAN_RemoveServer(AS_FAVORITES, addr);
+					trap->LAN_RemoveServer(lanSource_t::AS_FAVORITES, addr);
 				}
 			}
 		}
 		else if (Q_stricmp(name, "createFavorite") == 0)
 		{
-			//	if (UI_NetSource() == UIAS_FAVORITES)
+			//	if (UI_NetSource() == uiNetSource_t::UIAS_FAVORITES)
 			//rww - don't know why this check was here.. why would you want to only add new favorites when the filter was favorites?
 			{
 				char name[MAX_HOSTNAMELENGTH] = {0};
@@ -6253,7 +6251,7 @@ static void UI_RunMenuScript(char **args)
 				Q_strncpyz(name, 	UI_Cvar_VariableString("ui_favoriteName"), sizeof( name ) );
 				Q_strncpyz(addr, 	UI_Cvar_VariableString("ui_favoriteAddress"), sizeof( addr ) );
 				if (/*strlen(name) > 0 &&*/ strlen(addr) > 0) {
-					res = trap->LAN_AddServer(AS_FAVORITES, name, addr);
+					res = trap->LAN_AddServer(lanSource_t::AS_FAVORITES, name, addr);
 					if (res == 0) {
 						// server already in the list
 						Com_Printf("Favorite already in list\n");
@@ -6274,8 +6272,8 @@ static void UI_RunMenuScript(char **args)
 				int selectedPlayer = trap->Cvar_VariableValue("cg_selectedPlayer");
 				if (selectedPlayer < uiInfo.myTeamCount) {
 					Q_strncpyz( buff, orders, sizeof( buff ) );
-					trap->Cmd_ExecuteText( EXEC_APPEND, va(buff, uiInfo.teamClientNums[selectedPlayer]) );
-					trap->Cmd_ExecuteText( EXEC_APPEND, "\n" );
+					trap->Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, va(buff, uiInfo.teamClientNums[selectedPlayer]) );
+					trap->Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, "\n" );
 				} else {
 					int i;
 					for (i = 0; i < uiInfo.myTeamCount; i++) {
@@ -6283,11 +6281,11 @@ static void UI_RunMenuScript(char **args)
 							continue;
 						}
 						Com_sprintf( buff, sizeof( buff ), orders, uiInfo.teamClientNums[i] );
-						trap->Cmd_ExecuteText( EXEC_APPEND, buff );
-						trap->Cmd_ExecuteText( EXEC_APPEND, "\n" );
+						trap->Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, buff );
+						trap->Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, "\n" );
 					}
 				}
-				trap->Key_SetCatcher( trap->Key_GetCatcher() & ~KEYCATCH_UI );
+				trap->Key_SetCatcher( trap->Key_GetCatcher() & ~keyCatchFlags_t::KEYCATCH_UI );
 				trap->Key_ClearStates();
 				trap->Cvar_Set( "cl_paused", "0" );
 				Menus_CloseAll();
@@ -6297,10 +6295,10 @@ static void UI_RunMenuScript(char **args)
 			if (String_Parse(args, &orders)) {
 				int selectedPlayer = trap->Cvar_VariableValue("cg_selectedPlayer");
 				if (selectedPlayer == uiInfo.myTeamCount) {
-					trap->Cmd_ExecuteText( EXEC_APPEND, orders );
-					trap->Cmd_ExecuteText( EXEC_APPEND, "\n" );
+					trap->Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, orders );
+					trap->Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, "\n" );
 				}
-				trap->Key_SetCatcher( trap->Key_GetCatcher() & ~KEYCATCH_UI );
+				trap->Key_SetCatcher( trap->Key_GetCatcher() & ~keyCatchFlags_t::KEYCATCH_UI );
 				trap->Key_ClearStates();
 				trap->Cvar_Set( "cl_paused", "0" );
 				Menus_CloseAll();
@@ -6314,16 +6312,16 @@ static void UI_RunMenuScript(char **args)
 				{
 					selectedPlayer = -1;
 					Q_strncpyz( buff, orders, sizeof( buff ) );
-					trap->Cmd_ExecuteText( EXEC_APPEND, va(buff, selectedPlayer) );
+					trap->Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, va(buff, selectedPlayer) );
 				}
 				else
 				{
 					Q_strncpyz( buff, orders, sizeof( buff ) );
-					trap->Cmd_ExecuteText( EXEC_APPEND, va(buff, uiInfo.teamClientNums[selectedPlayer]) );
+					trap->Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, va(buff, uiInfo.teamClientNums[selectedPlayer]) );
 				}
-				trap->Cmd_ExecuteText( EXEC_APPEND, "\n" );
+				trap->Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, "\n" );
 
-				trap->Key_SetCatcher( trap->Key_GetCatcher() & ~KEYCATCH_UI );
+				trap->Key_SetCatcher( trap->Key_GetCatcher() & ~keyCatchFlags_t::KEYCATCH_UI );
 				trap->Key_ClearStates();
 				trap->Cvar_Set( "cl_paused", "0" );
 				Menus_CloseAll();
@@ -6342,7 +6340,7 @@ static void UI_RunMenuScript(char **args)
 				else if ( Q_stricmp( "same", teamArg ) == 0 )
 				{//stay on current team
 					team_t myTeam = UI_CvarTeam( "ui_myteam" );
-					if ( myTeam != TEAM_SPECTATOR )
+					if ( myTeam != team_t::TEAM_SPECTATOR )
 					{
 						UI_UpdateClientForcePowers(UI_TeamName(myTeam));//will cause him to respawn, if it's been 5 seconds since last one
 					}
@@ -6373,7 +6371,7 @@ static void UI_RunMenuScript(char **args)
 			trap->Cvar_VariableStringBuffer( "ui_startsiegeclass", startclassString, sizeof(startclassString) );
 
 			// Was just a spectator - is still just a spectator
-			if ((oldteam == team) && (oldteam == TEAM_SPECTATOR))
+			if ((oldteam == team) && (oldteam == team_t::TEAM_SPECTATOR))
 			{
 				goTeam = false;
 			}
@@ -6391,22 +6389,22 @@ static void UI_RunMenuScript(char **args)
 
 			if (goTeam)
 			{
-				if (team == TEAM_RED)	// Team red
+				if (team == team_t::TEAM_RED)	// Team red
 				{
 					trap->Cvar_Set("ui_team", va("%d", to_underlying( team )));
 				}
-				else if (team == TEAM_BLUE)	// Team blue
+				else if (team == team_t::TEAM_BLUE)	// Team blue
 				{
 					trap->Cvar_Set("ui_team", va("%d", to_underlying( team )));
 				}
-				else if (team == TEAM_SPECTATOR)	// Team spectator
+				else if (team == team_t::TEAM_SPECTATOR)	// Team spectator
 				{
 					trap->Cvar_Set("ui_team", va("%d", to_underlying( team )));
 				}
 
 				if (g_UIGloballySelectedSiegeClass != -1)
 				{
-					trap->Cmd_ExecuteText( EXEC_APPEND, va("siegeclass \"%s\"\n", bgSiegeClasses[g_UIGloballySelectedSiegeClass].name) );
+					trap->Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, va("siegeclass \"%s\"\n", bgSiegeClasses[g_UIGloballySelectedSiegeClass].name) );
 				}
 			}
 		}
@@ -6423,7 +6421,7 @@ static void UI_RunMenuScript(char **args)
 		}
 		else if (Q_stricmp(name, "setMovesListDefault") == 0)
 		{
-			uiInfo.movesTitleIndex = MD_SINGLE_MEDIUM;
+			uiInfo.movesTitleIndex = datapadMoveTitle_t::MD_SINGLE_MEDIUM;
 		}
 		else if (Q_stricmp(name, "resetMovesList") == 0)
 		{
@@ -6454,7 +6452,7 @@ static void UI_RunMenuScript(char **args)
 
 			UI_GetCharacterCvars();
 
-			uiInfo.movesTitleIndex = MD_ACROBATICS;
+			uiInfo.movesTitleIndex = datapadMoveTitle_t::MD_ACROBATICS;
 
 			menu = Menus_FindByName("rulesMenu_moves");
 
@@ -6508,14 +6506,14 @@ static void UI_RunMenuScript(char **args)
 			int	forceBitFlag=0;
 
 			// Turn off all powers but a few
-			for ( forcePowers_t fp = FP_FIRST; fp < NUM_FORCE_POWERS; fp++ )
+			for ( forcePowers_t fp = forcePowers_t::FP_FIRST; fp < forcePowers_t::NUM_FORCE_POWERS; fp++ )
 			{
-				if ((fp != FP_LEVITATION) &&
-					(fp != FP_PUSH) &&
-					(fp != FP_PULL) &&
-					(fp != FP_SABERTHROW) &&
-					(fp != FP_SABER_DEFENSE) &&
-					(fp != FP_SABER_OFFENSE))
+				if ((fp != forcePowers_t::FP_LEVITATION) &&
+					(fp != forcePowers_t::FP_PUSH) &&
+					(fp != forcePowers_t::FP_PULL) &&
+					(fp != forcePowers_t::FP_SABERTHROW) &&
+					(fp != forcePowers_t::FP_SABER_DEFENSE) &&
+					(fp != forcePowers_t::FP_SABER_OFFENSE))
 				{
 					forceBitFlag |= Bit( fp );
 				}
@@ -6546,7 +6544,7 @@ static void UI_RunMenuScript(char **args)
 			else if (dualforcePower==1)	// Remove All force powers
 			{
 				// It was set to something, so might as well make sure it got all flags set.
-				for ( forcePowers_t fp = FP_FIRST; fp < NUM_FORCE_POWERS; fp++ )
+				for ( forcePowers_t fp = forcePowers_t::FP_FIRST; fp < forcePowers_t::NUM_FORCE_POWERS; fp++ )
 				{
 					forcePowerDisable |= Bit( fp );
 				}
@@ -6556,14 +6554,14 @@ static void UI_RunMenuScript(char **args)
 				forcePowerDisable = 0;
 
 				// Turn off all powers but a few
-				for ( forcePowers_t fp = FP_FIRST; fp < NUM_FORCE_POWERS; fp++ )
+				for ( forcePowers_t fp = forcePowers_t::FP_FIRST; fp < forcePowers_t::NUM_FORCE_POWERS; fp++ )
 				{
-					if ((fp != FP_LEVITATION) &&
-						(fp != FP_PUSH) &&
-						(fp != FP_PULL) &&
-						(fp != FP_SABERTHROW) &&
-						(fp != FP_SABER_DEFENSE) &&
-						(fp != FP_SABER_OFFENSE))
+					if ((fp != forcePowers_t::FP_LEVITATION) &&
+						(fp != forcePowers_t::FP_PUSH) &&
+						(fp != forcePowers_t::FP_PULL) &&
+						(fp != forcePowers_t::FP_SABERTHROW) &&
+						(fp != forcePowers_t::FP_SABER_DEFENSE) &&
+						(fp != forcePowers_t::FP_SABER_OFFENSE))
 					{
 						forcePowerDisable |= Bit( fp );
 					}
@@ -6581,7 +6579,7 @@ static void UI_RunMenuScript(char **args)
 			// It was set to something, so might as well make sure it got all flags set.
 			if (forcePowerDisable)
 			{
-				for ( forcePowers_t fp = FP_FIRST; fp < NUM_FORCE_POWERS; fp++ )
+				for ( forcePowers_t fp = forcePowers_t::FP_FIRST; fp < forcePowers_t::NUM_FORCE_POWERS; fp++ )
 				{
 					forcePowerDisable |= Bit( fp );
 				}
@@ -6594,8 +6592,8 @@ static void UI_RunMenuScript(char **args)
 			int	weaponDisable;
 			const char *cvarString;
 
-			if (uiInfo.gameTypes[ui_netGametype.integer].gtEnum == GT_DUEL ||
-				uiInfo.gameTypes[ui_netGametype.integer].gtEnum == GT_POWERDUEL)
+			if (uiInfo.gameTypes[ui_netGametype.integer].gtEnum == gametype_t::GT_DUEL ||
+				uiInfo.gameTypes[ui_netGametype.integer].gtEnum == gametype_t::GT_POWERDUEL)
 			{
 				cvarString = "g_duelWeaponDisable";
 			}
@@ -6609,9 +6607,9 @@ static void UI_RunMenuScript(char **args)
 			// It was set to something, so might as well make sure it got all flags set.
 			if (weaponDisable)
 			{
-				for (weapon_t wp = WP_NONE; wp < WP_NUM_WEAPONS; wp++)
+				for (weapon_t wp = weapon_t::WP_NONE; wp < weapon_t::WP_NUM_WEAPONS; wp++)
 				{
-					if (wp!=WP_SABER)
+					if (wp!=weapon_t::WP_SABER)
 					{
 						weaponDisable |= Bit( wp );
 					}
@@ -6626,7 +6624,7 @@ static void UI_RunMenuScript(char **args)
 		{
 			int blueValue,redValue,i;
 
-			if (uiInfo.gameTypes[ui_netGametype.integer].gtEnum == GT_SIEGE)
+			if (uiInfo.gameTypes[ui_netGametype.integer].gtEnum == gametype_t::GT_SIEGE)
 			{
 				//hmm, I guess I'll set bot_minplayers to 0 here too. -rww
 				trap->Cvar_Set("bot_minplayers", "0");
@@ -6666,7 +6664,7 @@ static void UI_RunMenuScript(char **args)
 					item = Menu_GetMatchingItemByNumber( menu, j, itemName);
 					if (item != nullptr)
 					{
-						item->window.flags &= ~WINDOW_MOUSEOVER;
+						item->window.flags &= ~windowFlags_t::WINDOW_MOUSEOVER;
 					}
 				}
 			}
@@ -6932,7 +6930,7 @@ static void UI_RunMenuScript(char **args)
 					trap->Cvar_VariableStringBuffer( va("ui_class_power%i", item->cursorPos), info, sizeof(info) );
 
 					//count them up
-					for ( forcePowers_t fp = FP_FIRST; fp < NUM_FORCE_POWERS; fp++ )
+					for ( forcePowers_t fp = forcePowers_t::FP_FIRST; fp < forcePowers_t::NUM_FORCE_POWERS; fp++ )
 					{
 						if (!strcmp(HolocronIcons[fp],info))
 						{
@@ -7108,7 +7106,7 @@ void UI_SetSiegeTeams(void)
 	gametype = static_cast<gametype_t>( atoi(Info_ValueForKey(info, "g_gametype")) );
 
 	//If the server we are connected to is not siege we cannot choose a class anyway
-	if (gametype != GT_SIEGE)
+	if (gametype != gametype_t::GT_SIEGE)
 	{
 		return;
 	}
@@ -7120,7 +7118,7 @@ void UI_SetSiegeTeams(void)
 		return;
 	}
 
-	len = trap->FS_Open(levelname, &f, FS_READ);
+	len = trap->FS_Open(levelname, &f, fsMode_t::FS_READ);
 
 	if (!f) {
 		return;
@@ -7188,7 +7186,7 @@ void UI_SetSiegeTeams(void)
 	//set the default description for the default selection
 	if (!siegeTeam1 || !siegeTeam1->classes[0])
 	{
-		Com_Error(ERR_DROP, "Error loading teams in UI");
+		Com_Error(errorParm_t::ERR_DROP, "Error loading teams in UI");
 	}
 
 	Menu_SetFeederSelection(nullptr, FEEDER_SIEGE_TEAM1, 0, nullptr);
@@ -7199,12 +7197,12 @@ static void UI_SiegeClassCnt( const team_t team )
 {
 	UI_SetSiegeTeams();
 
-	trap->Cvar_Set("ui_infantry_cnt", va("%d", BG_SiegeCountBaseClass(team,SPC_INFANTRY)));
-	trap->Cvar_Set("ui_vanguard_cnt", va("%d", BG_SiegeCountBaseClass(team,SPC_VANGUARD)));
-	trap->Cvar_Set("ui_support_cnt", va("%d", BG_SiegeCountBaseClass(team,SPC_SUPPORT)));
-	trap->Cvar_Set("ui_jedi_cnt", va("%d", BG_SiegeCountBaseClass(team,SPC_JEDI)));
-	trap->Cvar_Set("ui_demo_cnt", va("%d", BG_SiegeCountBaseClass(team,SPC_DEMOLITIONIST)));
-	trap->Cvar_Set("ui_heavy_cnt", va("%d", BG_SiegeCountBaseClass(team,SPC_HEAVY_WEAPONS)));
+	trap->Cvar_Set("ui_infantry_cnt", va("%d", BG_SiegeCountBaseClass(team,siegePlayerClassFlags_t::SPC_INFANTRY)));
+	trap->Cvar_Set("ui_vanguard_cnt", va("%d", BG_SiegeCountBaseClass(team,siegePlayerClassFlags_t::SPC_VANGUARD)));
+	trap->Cvar_Set("ui_support_cnt", va("%d", BG_SiegeCountBaseClass(team,siegePlayerClassFlags_t::SPC_SUPPORT)));
+	trap->Cvar_Set("ui_jedi_cnt", va("%d", BG_SiegeCountBaseClass(team,siegePlayerClassFlags_t::SPC_JEDI)));
+	trap->Cvar_Set("ui_demo_cnt", va("%d", BG_SiegeCountBaseClass(team,siegePlayerClassFlags_t::SPC_DEMOLITIONIST)));
+	trap->Cvar_Set("ui_heavy_cnt", va("%d", BG_SiegeCountBaseClass(team,siegePlayerClassFlags_t::SPC_HEAVY_WEAPONS)));
 }
 
 /*
@@ -7217,18 +7215,18 @@ static int UI_MapCountByGameType(bool singlePlayer) {
 	gametype_t game;
 	c = 0;
 	game = singlePlayer ? uiInfo.gameTypes[ui_gametype.integer].gtEnum : uiInfo.gameTypes[ui_netGametype.integer].gtEnum;
-	if (game == GT_TEAM)
-		game = GT_FFA;
+	if (game == gametype_t::GT_TEAM)
+		game = gametype_t::GT_FFA;
 
 	//Since GT_CTY uses the same entities as CTF, use the same map sets
-	if ( game == GT_CTY )
-		game = GT_CTF;
+	if ( game == gametype_t::GT_CTY )
+		game = gametype_t::GT_CTF;
 
 	for (i = 0; i < uiInfo.mapCount; i++) {
 		uiInfo.mapList[i].active = false;
 		if ( uiInfo.mapList[i].typeBits & Bit( game )) {
 			if (singlePlayer) {
-				if (!(uiInfo.mapList[i].typeBits & Bit( GT_SINGLE_PLAYER ))) {
+				if (!(uiInfo.mapList[i].typeBits & Bit( gametype_t::GT_SINGLE_PLAYER ))) {
 					continue;
 				}
 			}
@@ -7244,13 +7242,13 @@ bool UI_hasSkinForBase(const char *base, const char *team) {
 	fileHandle_t	f;
 
 	Com_sprintf( test, sizeof( test ), "models/players/%s/%s/lower_default.skin", base, team );
-	trap->FS_Open(test, &f, FS_READ);
+	trap->FS_Open(test, &f, fsMode_t::FS_READ);
 	if (f != 0) {
 		trap->FS_Close(f);
 		return true;
 	}
 	Com_sprintf( test, sizeof( test ), "models/players/characters/%s/%s/lower_default.skin", base, team );
-	trap->FS_Open(test, &f, FS_READ);
+	trap->FS_Open(test, &f, fsMode_t::FS_READ);
 	if (f != 0) {
 		trap->FS_Close(f);
 		return true;
@@ -7271,10 +7269,10 @@ static int UI_HeadCountByColor(void) {
 
 	switch(uiSkinColor)
 	{
-		case TEAM_BLUE:
+		case team_t::TEAM_BLUE:
 			teamname = "/blue";
 			break;
-		case TEAM_RED:
+		case team_t::TEAM_RED:
 			teamname = "/red";
 			break;
 		default:
@@ -7447,7 +7445,7 @@ static void UI_BuildServerDisplayList(int force) {
 
 	// get the server count (comes from the master)
 	count = trap->LAN_GetServerCount(lanSource);
-	if (count == -1 || (UI_NetSource() == UIAS_LOCAL && count == 0) ) {
+	if (count == -1 || (UI_NetSource() == uiNetSource_t::UIAS_LOCAL && count == 0) ) {
 		// still waiting on a response from the master
 		uiInfo.serverStatus.numDisplayServers = 0;
 		uiInfo.serverStatus.numPlayersOnServers = 0;
@@ -7470,8 +7468,8 @@ static void UI_BuildServerDisplayList(int force) {
 		}
 //		visible = true;
 		// has this server answered
-		answered = (trap->ext.LAN_GetServerState(lanSource, i) == LANSERVER_ANSWERED);
-		if (answered || UI_NetSource() == UIAS_FAVORITES) {
+		answered = (trap->ext.LAN_GetServerState(lanSource, i) == lanServerState_t::LANSERVER_ANSWERED);
+		if (answered || UI_NetSource() == uiNetSource_t::UIAS_FAVORITES) {
 
 			trap->LAN_GetServerInfo(lanSource, i, info, MAX_STRING_CHARS);
 
@@ -7507,7 +7505,7 @@ static void UI_BuildServerDisplayList(int force) {
 				}
 			}
 
-			if (uiInfo.joinGameTypes[ui_joinGametype.integer].gtEnum != GT_UNKNOWN) {
+			if (uiInfo.joinGameTypes[ui_joinGametype.integer].gtEnum != gametype_t::GT_UNKNOWN) {
 				game = atoi(Info_ValueForKey(info, "gametype"));
 				if (static_cast<gametype_t>( game ) != uiInfo.joinGameTypes[ui_joinGametype.integer].gtEnum) {
 					trap->LAN_MarkServerVisible(lanSource, i, false);
@@ -7522,7 +7520,7 @@ static void UI_BuildServerDisplayList(int force) {
 				}
 			}
 			// make sure we never add a favorite server twice
-			if (UI_NetSource() == UIAS_FAVORITES) {
+			if (UI_NetSource() == uiNetSource_t::UIAS_FAVORITES) {
 				UI_RemoveServerFromDisplayList(i);
 			}
 			// insert the server into the list
@@ -8010,7 +8008,7 @@ static int UI_FeederCount(float feederID)
 			return count;
 
 		case FEEDER_MOVES_TITLES :
-			return to_underlying( MD_MOVE_TITLE_MAX );
+			return to_underlying( datapadMoveTitle_t::MD_MOVE_TITLE_MAX );
 
 		case FEEDER_PLAYER_SPECIES:
 			return uiInfo.playerSpeciesCount;
@@ -8035,7 +8033,7 @@ static int UI_FeederCount(float feederID)
 				(team == SIEGETEAM_TEAM2))
 			{
 				// Is it a valid base class?
-				if ((baseClass >= SPC_INFANTRY) && (baseClass < SPC_MAX))
+				if ((baseClass >= siegePlayerClassFlags_t::SPC_INFANTRY) && (baseClass < siegePlayerClassFlags_t::SPC_MAX))
 				{
 					return (BG_SiegeCountBaseClass( team, baseClass ));
 				}
@@ -8045,7 +8043,7 @@ static int UI_FeederCount(float feederID)
 		// Get the count of weapons
 		case FEEDER_SIEGE_CLASS_WEAPONS:
 			//count them up
-			for (i=0;i< to_underlying( WP_NUM_WEAPONS );i++)
+			for (i=0;i< to_underlying( weapon_t::WP_NUM_WEAPONS );i++)
 			{
 				trap->Cvar_VariableStringBuffer( va("ui_class_weapon%i", i), info, sizeof(info) );
 				if (Q_stricmp(info,"gfx/2d/select")!=0)
@@ -8059,7 +8057,7 @@ static int UI_FeederCount(float feederID)
 		// Get the count of inventory
 		case FEEDER_SIEGE_CLASS_INVENTORY:
 			//count them up
-			for ( holdable_t h = HI_NONE; h < HI_NUM_HOLDABLE; h++ )
+			for ( holdable_t h = holdable_t::HI_NONE; h < holdable_t::HI_NUM_HOLDABLE; h++ )
 			{
 				trap->Cvar_VariableStringBuffer( va("ui_class_item%i", to_underlying( h )), info, sizeof(info) );
 				// A hack so health and ammo dispenser icons don't show up.
@@ -8075,7 +8073,7 @@ static int UI_FeederCount(float feederID)
 		// Get the count of force powers
 		case FEEDER_SIEGE_CLASS_FORCE:
 			//count them up
-			for (i=0;i< to_underlying( NUM_FORCE_POWERS );i++)
+			for (i=0;i< to_underlying( forcePowers_t::NUM_FORCE_POWERS );i++)
 			{
 				trap->Cvar_VariableStringBuffer( va("ui_class_power%i", i), info, sizeof(info) );
 				if (Q_stricmp(info,"gfx/2d/select")!=0)
@@ -8118,10 +8116,10 @@ static const char *UI_SelectedTeamHead(int index, int *actual) {
 
 	switch(uiSkinColor)
 	{
-		case TEAM_BLUE:
+		case team_t::TEAM_BLUE:
 			teamname = "/blue";
 			break;
-		case TEAM_RED:
+		case team_t::TEAM_RED:
 			teamname = "/red";
 			break;
 		default:
@@ -8291,9 +8289,9 @@ static const char *UI_FeederItemText(float feederID, int index, int column,
 				lastColumn = column;
 				lastTime = uiInfo.uiDC.realTime;
 			}
-			answered = (trap->ext.LAN_GetServerState(UI_SourceForLAN(), uiInfo.serverStatus.displayServers[index]) == LANSERVER_ANSWERED);
+			answered = (trap->ext.LAN_GetServerState(UI_SourceForLAN(), uiInfo.serverStatus.displayServers[index]) == lanServerState_t::LANSERVER_ANSWERED);
 			switch (static_cast<serverSortKey_t>( column )) {	// the feeder's column in the menu file
-				case SORT_HOST :
+				case serverSortKey_t::SORT_HOST :
 					if (!answered) {
 						return Info_ValueForKey(info, "addr");
 					} else {
@@ -8304,13 +8302,13 @@ static const char *UI_FeederItemText(float feederID, int index, int column,
 							*handle3 = uiInfo.uiDC.Assets.needPass;
 						}
 						//check for saberonly and restricted force powers
-						if ( gametype != GT_JEDIMASTER )
+						if ( gametype != gametype_t::GT_JEDIMASTER )
 						{
 							bool saberOnly = true;
 							int restrictedForce = 0;	// fdisable, a mask of force powers
 							bool allForceDisabled = false;
 							int wDisable;
-							weapon_t i = WP_NONE;
+							weapon_t i = weapon_t::WP_NONE;
 
 							//check force
 							restrictedForce = atoi(Info_ValueForKey(info, "fdisable"));
@@ -8327,9 +8325,9 @@ static const char *UI_FeederItemText(float feederID, int index, int column,
 							//check weaps
 							wDisable = atoi(Info_ValueForKey(info, "wdisable"));
 
-							while ( i < WP_NUM_WEAPONS )
+							while ( i < weapon_t::WP_NUM_WEAPONS )
 							{
-								if ( !(wDisable & Bit( i )) && i != WP_SABER && i != WP_NONE )
+								if ( !(wDisable & Bit( i )) && i != weapon_t::WP_SABER && i != weapon_t::WP_NONE )
 								{
 									saberOnly = false;
 								}
@@ -8342,8 +8340,8 @@ static const char *UI_FeederItemText(float feederID, int index, int column,
 							}
 							else if ( atoi(Info_ValueForKey(info, "truejedi")) != 0 )
 							{
-								if ( gametype != GT_HOLOCRON
-									&& gametype != GT_JEDIMASTER
+								if ( gametype != gametype_t::GT_HOLOCRON
+									&& gametype != gametype_t::GT_JEDIMASTER
 									&& !saberOnly
 									&& !allForceDisabled )
 								{//truejedi is on and allowed in this mode
@@ -8351,7 +8349,7 @@ static const char *UI_FeederItemText(float feederID, int index, int column,
 								}
 							}
 						}
-						if ( UI_NetSource() == UIAS_LOCAL ) {
+						if ( UI_NetSource() == uiNetSource_t::UIAS_LOCAL ) {
 							int nettype = atoi(Info_ValueForKey(info, "nettype"));
 
 							if (nettype < 0 || nettype >= numNetNames) {
@@ -8374,12 +8372,12 @@ static const char *UI_FeederItemText(float feederID, int index, int column,
 							return hostname;
 						}
 					}
-				case SORT_MAP :
+				case serverSortKey_t::SORT_MAP :
 					return Info_ValueForKey(info, "mapname");
-				case SORT_CLIENTS :
+				case serverSortKey_t::SORT_CLIENTS :
 					Com_sprintf( clientBuff, sizeof(clientBuff), "%s (%s)", Info_ValueForKey(info, "clients"), Info_ValueForKey(info, "sv_maxclients"));
 					return clientBuff;
-				case SORT_GAME :
+				case serverSortKey_t::SORT_GAME :
 					game = atoi(Info_ValueForKey(info, "gametype"));
 					if (game >= 0 && game < numGameTypes) {
 						Q_strncpyz( needPass, gameTypes[static_cast<gametype_t>( game )], sizeof( needPass ) );
@@ -8390,7 +8388,7 @@ static const char *UI_FeederItemText(float feederID, int index, int column,
 					}
 
 					return needPass;
-				case SORT_PING :
+				case serverSortKey_t::SORT_PING :
 					if (!answered) {
 						return "...";
 					} else {
@@ -8668,7 +8666,7 @@ static qhandle_t UI_FeederItemImage(float feederID, int index) {
 			(team == SIEGETEAM_TEAM2))
 		{
 			// Is it a valid base class?
-			if ((baseClass >= SPC_INFANTRY) && (baseClass < SPC_MAX))
+			if ((baseClass >= siegePlayerClassFlags_t::SPC_INFANTRY) && (baseClass < siegePlayerClassFlags_t::SPC_MAX))
 			{
 				if (index >= 0)
 				{
@@ -8681,7 +8679,7 @@ static qhandle_t UI_FeederItemImage(float feederID, int index) {
 	{
 		validCnt = 0;
 		//count them up
-		for (i=0;i< to_underlying( WP_NUM_WEAPONS );i++)
+		for (i=0;i< to_underlying( weapon_t::WP_NUM_WEAPONS );i++)
 		{
 			trap->Cvar_VariableStringBuffer( va("ui_class_weapon%i", i), info, sizeof(info) );
 			if (Q_stricmp(info,"gfx/2d/select")!=0)
@@ -8698,7 +8696,7 @@ static qhandle_t UI_FeederItemImage(float feederID, int index) {
 	{
 		validCnt = 0;
 		//count them up
-		for ( holdable_t h = HI_NONE; h < HI_NUM_HOLDABLE; h++ )
+		for ( holdable_t h = holdable_t::HI_NONE; h < holdable_t::HI_NUM_HOLDABLE; h++ )
 		{
 			trap->Cvar_VariableStringBuffer( va("ui_class_item%i", to_underlying( h )), info, sizeof(info) );
 			// A hack so health and ammo dispenser icons don't show up.
@@ -8740,7 +8738,7 @@ static qhandle_t UI_FeederItemImage(float feederID, int index) {
 		}
 
 		//count them up
-		for (i=0;i< to_underlying( NUM_FORCE_POWERS );i++)
+		for (i=0;i< to_underlying( forcePowers_t::NUM_FORCE_POWERS );i++)
 		{
 			trap->Cvar_VariableStringBuffer( va("ui_class_power%i", i), info, sizeof(info) );
 			if (Q_stricmp(info,"gfx/2d/select")!=0)
@@ -8811,15 +8809,15 @@ bool UI_FeederSelection(float feederFloat, int index, itemDef_t *item)
 					{
 
 						// Play sound for anim
-						if (datapadMoveData[uiInfo.movesTitleIndex][index].sound == MDS_FORCE_JUMP)
+						if (datapadMoveData[uiInfo.movesTitleIndex][index].sound == datapadMoveSound_t::MDS_FORCE_JUMP)
 						{
-							trap->S_StartLocalSound( uiInfo.uiDC.Assets.moveJumpSound, CHAN_LOCAL );
+							trap->S_StartLocalSound( uiInfo.uiDC.Assets.moveJumpSound, soundChannel_t::CHAN_LOCAL );
 						}
-						else if (datapadMoveData[uiInfo.movesTitleIndex][index].sound == MDS_ROLL)
+						else if (datapadMoveData[uiInfo.movesTitleIndex][index].sound == datapadMoveSound_t::MDS_ROLL)
 						{
-							trap->S_StartLocalSound( uiInfo.uiDC.Assets.moveRollSound, CHAN_LOCAL );
+							trap->S_StartLocalSound( uiInfo.uiDC.Assets.moveRollSound, soundChannel_t::CHAN_LOCAL );
 						}
-						else if (datapadMoveData[uiInfo.movesTitleIndex][index].sound == MDS_SABER)
+						else if (datapadMoveData[uiInfo.movesTitleIndex][index].sound == datapadMoveSound_t::MDS_SABER)
 						{
 							// Randomly choose one sound
 							int soundI = Q_irand( 1, 6 );
@@ -8846,7 +8844,7 @@ bool UI_FeederSelection(float feederFloat, int index, itemDef_t *item)
 								soundPtr = &uiInfo.uiDC.Assets.datapadmoveSaberSound6;
 							}
 
-							trap->S_StartLocalSound( *soundPtr, CHAN_LOCAL );
+							trap->S_StartLocalSound( *soundPtr, soundChannel_t::CHAN_LOCAL );
 						}
 
 						if (datapadMoveData[uiInfo.movesTitleIndex][index].desc)
@@ -8972,13 +8970,13 @@ bool UI_FeederSelection(float feederFloat, int index, itemDef_t *item)
 		if (feederID == FEEDER_MAPS) {
 			trap->Cvar_Set("ui_currentMap", va("%d", actual));
 			trap->Cvar_Update(&ui_currentMap);
-			uiInfo.mapList[ui_currentMap.integer].cinematic = trap->CIN_PlayCinematic(va("%s.roq", uiInfo.mapList[ui_currentMap.integer].mapLoadName), 0, 0, 0, 0, (CIN_loop | CIN_silent) );
+			uiInfo.mapList[ui_currentMap.integer].cinematic = trap->CIN_PlayCinematic(va("%s.roq", uiInfo.mapList[ui_currentMap.integer].mapLoadName), 0, 0, 0, 0, (cinematicFlags_t::CIN_loop | cinematicFlags_t::CIN_silent) );
 			//trap->Cvar_Set("ui_opponentModel", uiInfo.mapList[ui_currentMap.integer].opponentName);
 			//updateOpponentModel = true;
 		} else {
 			trap->Cvar_Set("ui_currentNetMap", va("%d", actual));
 			trap->Cvar_Update(&ui_currentNetMap);
-			uiInfo.mapList[ui_currentNetMap.integer].cinematic = trap->CIN_PlayCinematic(va("%s.roq", uiInfo.mapList[ui_currentNetMap.integer].mapLoadName), 0, 0, 0, 0, (CIN_loop | CIN_silent) );
+			uiInfo.mapList[ui_currentNetMap.integer].cinematic = trap->CIN_PlayCinematic(va("%s.roq", uiInfo.mapList[ui_currentNetMap.integer].mapLoadName), 0, 0, 0, 0, (cinematicFlags_t::CIN_loop | cinematicFlags_t::CIN_silent) );
 		}
 
 	} else if (feederID == FEEDER_SERVERS) {
@@ -8992,7 +8990,7 @@ bool UI_FeederSelection(float feederFloat, int index, itemDef_t *item)
 		}
 		mapName = Info_ValueForKey(info, "mapname");
 		if (mapName && *mapName) {
-			uiInfo.serverStatus.currentServerCinematic = trap->CIN_PlayCinematic(va("%s.roq", mapName), 0, 0, 0, 0, (CIN_loop | CIN_silent) );
+			uiInfo.serverStatus.currentServerCinematic = trap->CIN_PlayCinematic(va("%s.roq", mapName), 0, 0, 0, 0, (cinematicFlags_t::CIN_loop | cinematicFlags_t::CIN_silent) );
 		}
 	} else if (feederID == FEEDER_SERVERSTATUS) {
 		//
@@ -9086,7 +9084,7 @@ bool UI_FeederSelection(float feederFloat, int index, itemDef_t *item)
 		trap->Cvar_VariableStringBuffer( va("ui_class_power%i", index), info, sizeof(info) );
 
 		//count them up
-		for ( forcePowers_t fp = FP_FIRST; fp < NUM_FORCE_POWERS; fp++ )
+		for ( forcePowers_t fp = forcePowers_t::FP_FIRST; fp < forcePowers_t::NUM_FORCE_POWERS; fp++ )
 		{
 			if (!strcmp(HolocronIcons[fp],info))
 			{
@@ -9279,17 +9277,17 @@ static void UI_Pause(bool b) {
 	if (b) {
 		// pause the game and set the ui keycatcher
 		trap->Cvar_Set( "cl_paused", "1" );
-		trap->Key_SetCatcher( KEYCATCH_UI );
+		trap->Key_SetCatcher( keyCatchFlags_t::KEYCATCH_UI );
 	} else {
 		// unpause the game and clear the ui keycatcher
-		trap->Key_SetCatcher( trap->Key_GetCatcher() & ~KEYCATCH_UI );
+		trap->Key_SetCatcher( trap->Key_GetCatcher() & ~keyCatchFlags_t::KEYCATCH_UI );
 		trap->Key_ClearStates();
 		trap->Cvar_Set( "cl_paused", "0" );
 	}
 }
 
 static int UI_PlayCinematic(const char *name, float x, float y, float w, float h) {
-	return trap->CIN_PlayCinematic(name, x, y, w, h, (CIN_loop | CIN_silent));
+	return trap->CIN_PlayCinematic(name, x, y, w, h, (cinematicFlags_t::CIN_loop | cinematicFlags_t::CIN_silent));
 }
 
 static void UI_StopCinematic(int handle) {
@@ -9402,16 +9400,16 @@ static bool bIsImageFile(const char* dirptr, const char* skinname)
 	int f;
 
 	Com_sprintf(fpath, MAX_QPATH, "models/players/%s/icon_%s.jpg", dirptr, skinname);
-	trap->FS_Open(fpath, &f, FS_READ);
+	trap->FS_Open(fpath, &f, fsMode_t::FS_READ);
 	if (!f)
 	{ //not there, try png
 		Com_sprintf(fpath, MAX_QPATH, "models/players/%s/icon_%s.png", dirptr, skinname);
-		trap->FS_Open(fpath, &f, FS_READ);
+		trap->FS_Open(fpath, &f, fsMode_t::FS_READ);
 	}
 	if (!f)
 	{ //not there, try tga
 		Com_sprintf(fpath, MAX_QPATH, "models/players/%s/icon_%s.tga", dirptr, skinname);
-		trap->FS_Open(fpath, &f, FS_READ);
+		trap->FS_Open(fpath, &f, fsMode_t::FS_READ);
 	}
 	if (f)
 	{
@@ -9490,7 +9488,7 @@ static void UI_BuildQ3Model_List( void )
 			/*
 			Com_sprintf(fpath, 2048, "models/players/%s/icon%s.jpg", dirptr, skinname);
 
-			trap->FS_Open(fpath, &f, FS_READ);
+			trap->FS_Open(fpath, &f, fsMode_t::FS_READ);
 
 			if (f)
 			*/
@@ -9544,7 +9542,7 @@ void UI_SiegeInit(void)
 
 	if (!bgNumSiegeClasses)
 	{ //We didn't find any?!
-		Com_Error(ERR_DROP, "Couldn't find any player classes for Siege");
+		Com_Error(errorParm_t::ERR_DROP, "Couldn't find any player classes for Siege");
 	}
 
 	//Now load the teams since we have class data.
@@ -9552,7 +9550,7 @@ void UI_SiegeInit(void)
 
 	if (!bgNumSiegeTeams)
 	{ //React same as with classes.
-		Com_Error(ERR_DROP, "Couldn't find any player teams for Siege");
+		Com_Error(errorParm_t::ERR_DROP, "Couldn't find any player teams for Siege");
 	}
 }
 
@@ -9692,7 +9690,7 @@ static void UI_BuildPlayerModel_List( bool inGameLoad )
 			continue;
 
 		Com_sprintf(fpath, sizeof(fpath), "models/players/%s/PlayerChoice.txt", dirptr);
-		filelen = trap->FS_Open(fpath, &f, FS_READ);
+		filelen = trap->FS_Open(fpath, &f, fsMode_t::FS_READ);
 
 		if (f)
 		{
@@ -9707,7 +9705,7 @@ static void UI_BuildPlayerModel_List( bool inGameLoad )
 			if(!buffer)
 			{
 				trap->FS_Close( f );
-				Com_Error(ERR_FATAL, "Could not allocate buffer to read %s", fpath);
+				Com_Error(errorParm_t::ERR_FATAL, "Could not allocate buffer to read %s", fpath);
 			}
 
 			trap->FS_Read(buffer, filelen, f);
@@ -9746,7 +9744,7 @@ static void UI_BuildPlayerModel_List( bool inGameLoad )
 			{
 				if (trap->Cvar_VariableValue("fs_copyfiles") > 0 )
 				{
-					trap->FS_Open(va("models/players/%s/%s",dirptr,fileptr), &f, FS_READ);
+					trap->FS_Open(va("models/players/%s/%s",dirptr,fileptr), &f, fsMode_t::FS_READ);
 					if (f)
 						trap->FS_Close(f);
 				}
@@ -9968,7 +9966,7 @@ void UI_Init( bool inGameLoad ) {
 	{
 		char buf[MAX_NETNAME] = {0};
 		Q_strncpyz( buf, UI_Cvar_VariableString( "name" ), sizeof( buf ) );
-		trap->Cvar_Register( nullptr, "ui_Name", buf, CVAR_INTERNAL );
+		trap->Cvar_Register( nullptr, "ui_Name", buf, cvarFlags_t::CVAR_INTERNAL );
 	}
 
 	Menus_CloseAll();
@@ -9990,7 +9988,7 @@ void UI_Init( bool inGameLoad ) {
 	uiInfo.serverStatus.currentServerCinematic = -1;
 	uiInfo.previewMovie = -1;
 
-	trap->Cvar_Register(nullptr, "debug_protocol", "", CVAR_NONE );
+	trap->Cvar_Register(nullptr, "debug_protocol", "", cvarFlags_t::CVAR_NONE );
 
 	trap->Cvar_Set("ui_actualNetGameType", va("%d", ui_netGametype.integer));
 	trap->Cvar_Update(&ui_actualNetGametype);
@@ -10002,7 +10000,7 @@ void UI_Refresh( int realtime )
 	static int index;
 	static int	previousTimes[UI_FPS_FRAMES];
 
-	//if ( !Any( trap->Key_GetCatcher() & KEYCATCH_UI ) ) {
+	//if ( !Any( trap->Key_GetCatcher() & keyCatchFlags_t::KEYCATCH_UI ) ) {
 	//	return;
 	//}
 
@@ -10042,7 +10040,7 @@ void UI_Refresh( int realtime )
 	}
 	// draw cursor
 	UI_SetColor( nullptr );
-	if (Menu_Count() > 0 && Any(trap->Key_GetCatcher() & KEYCATCH_UI)) {
+	if (Menu_Count() > 0 && Any(trap->Key_GetCatcher() & keyCatchFlags_t::KEYCATCH_UI)) {
 		UI_DrawHandlePic( (float)uiInfo.uiDC.cursorx, (float)uiInfo.uiDC.cursory, 40.0f, 40.0f, uiInfo.uiDC.Assets.cursor);
 		//UI_DrawHandlePic( uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory, 48, 48, uiInfo.uiDC.Assets.cursor);
 	}
@@ -10082,13 +10080,13 @@ void UI_Refresh( int realtime )
 			uiForceRank = uiMaxRank;
 
 			/*
-			while (x < NUM_FORCE_POWERS)
+			while (x < forcePowers_t::NUM_FORCE_POWERS)
 			{
 				//For now just go ahead and clear force powers upon rank change
-				uiForcePowersRank[x] = FORCE_LEVEL_0;
+				uiForcePowersRank[x] = forcePowerLevels_t::FORCE_LEVEL_0;
 				x++;
 			}
-			uiForcePowersRank[FP_LEVITATION] = FORCE_LEVEL_1;
+			uiForcePowersRank[forcePowers_t::FP_LEVITATION] = forcePowerLevels_t::FORCE_LEVEL_1;
 			uiForceUsed = 0;
 			*/
 
@@ -10096,13 +10094,13 @@ void UI_Refresh( int realtime )
 			UI_ReadLegalForce();
 		}
 
-		if (ui_freeSaber.integer && uiForcePowersRank[FP_SABER_OFFENSE] < FORCE_LEVEL_1)
+		if (ui_freeSaber.integer && uiForcePowersRank[forcePowers_t::FP_SABER_OFFENSE] < forcePowerLevels_t::FORCE_LEVEL_1)
 		{
-			uiForcePowersRank[FP_SABER_OFFENSE] = FORCE_LEVEL_1;
+			uiForcePowersRank[forcePowers_t::FP_SABER_OFFENSE] = forcePowerLevels_t::FORCE_LEVEL_1;
 		}
-		if (ui_freeSaber.integer && uiForcePowersRank[FP_SABER_DEFENSE] < FORCE_LEVEL_1)
+		if (ui_freeSaber.integer && uiForcePowersRank[forcePowers_t::FP_SABER_DEFENSE] < forcePowerLevels_t::FORCE_LEVEL_1)
 		{
-			uiForcePowersRank[FP_SABER_DEFENSE] = FORCE_LEVEL_1;
+			uiForcePowersRank[forcePowers_t::FP_SABER_DEFENSE] = forcePowerLevels_t::FORCE_LEVEL_1;
 		}
 		trap->Cvar_Set("ui_rankChange", "0");
 
@@ -10112,13 +10110,13 @@ void UI_Refresh( int realtime )
 
 	if (ui_freeSaber.integer)
 	{
-		bgForcePowerCost[FP_SABER_OFFENSE][FORCE_LEVEL_1] = 0;
-		bgForcePowerCost[FP_SABER_DEFENSE][FORCE_LEVEL_1] = 0;
+		bgForcePowerCost[forcePowers_t::FP_SABER_OFFENSE][forcePowerLevels_t::FORCE_LEVEL_1] = 0;
+		bgForcePowerCost[forcePowers_t::FP_SABER_DEFENSE][forcePowerLevels_t::FORCE_LEVEL_1] = 0;
 	}
 	else
 	{
-		bgForcePowerCost[FP_SABER_OFFENSE][FORCE_LEVEL_1] = 1;
-		bgForcePowerCost[FP_SABER_DEFENSE][FORCE_LEVEL_1] = 1;
+		bgForcePowerCost[forcePowers_t::FP_SABER_OFFENSE][forcePowerLevels_t::FORCE_LEVEL_1] = 1;
+		bgForcePowerCost[forcePowers_t::FP_SABER_DEFENSE][forcePowerLevels_t::FORCE_LEVEL_1] = 1;
 	}
 
 	/*
@@ -10144,7 +10142,7 @@ void UI_Refresh( int realtime )
 			txtCol[3] = colorWhite[3];
 		}
 
-		Text_Paint(10, 0, 1, txtCol, parsedFPMessage, 0, 1024, txtStyle, FONT_MEDIUM);
+		Text_Paint(10, 0, 1, txtCol, parsedFPMessage, 0, 1024, txtStyle, menuFont_t::FONT_MEDIUM);
 	}
 	*/
 	//For now, don't bother.
@@ -10159,20 +10157,20 @@ void UI_KeyEvent( int key, bool down ) {
 	if (Menu_Count() > 0) {
 		menuDef_t *menu = Menu_GetFocused();
 		if (menu) {
-			if (KeyEvent_Key( key ) == A_ESCAPE && down && !Menus_AnyFullScreenVisible()) {
+			if (KeyEvent_Key( key ) == fakeAscii_t::A_ESCAPE && down && !Menus_AnyFullScreenVisible()) {
 				Menus_CloseAll();
 			} else {
 				Menu_HandleKey(menu, key, down );
 			}
 		} else {
-			trap->Key_SetCatcher( trap->Key_GetCatcher() & ~KEYCATCH_UI );
+			trap->Key_SetCatcher( trap->Key_GetCatcher() & ~keyCatchFlags_t::KEYCATCH_UI );
 			trap->Key_ClearStates();
 			trap->Cvar_Set( "cl_paused", "0" );
 		}
 	}
 
   //if ((s > 0) && (s != menu_null_sound)) {
-	//  trap->S_StartLocalSound( s, CHAN_LOCAL_SOUND );
+	//  trap->S_StartLocalSound( s, soundChannel_t::CHAN_LOCAL_SOUND );
   //}
 }
 
@@ -10381,60 +10379,60 @@ void UI_DrawConnectScreen( bool overlay ) {
 	info[0] = '\0';
 	if( trap->GetConfigString( CS_SERVERINFO, info, sizeof(info) ) ) {
 		trap->SE_GetStringTextString("MENUS_LOADING_MAPNAME", sStringEdTemp, sizeof(sStringEdTemp));
-		Text_PaintCenter(centerPoint, yStart, scale, colorWhite, va( /*"Loading %s"*/sStringEdTemp, Info_ValueForKey( info, "mapname" )), 0, FONT_MEDIUM);
+		Text_PaintCenter(centerPoint, yStart, scale, colorWhite, va( /*"Loading %s"*/sStringEdTemp, Info_ValueForKey( info, "mapname" )), 0, menuFont_t::FONT_MEDIUM);
 	}
 
 	if (!Q_stricmp(cstate.servername,"localhost")) {
 		trap->SE_GetStringTextString("MENUS_STARTING_UP", sStringEdTemp, sizeof(sStringEdTemp));
-		Text_PaintCenter(centerPoint, yStart + 48, scale, colorWhite, sStringEdTemp, ITEM_TEXTSTYLE_SHADOWEDMORE, FONT_MEDIUM);
+		Text_PaintCenter(centerPoint, yStart + 48, scale, colorWhite, sStringEdTemp, ITEM_TEXTSTYLE_SHADOWEDMORE, menuFont_t::FONT_MEDIUM);
 	} else {
 		trap->SE_GetStringTextString("MENUS_CONNECTING_TO", sStringEdTemp, sizeof(sStringEdTemp));
 		Q_strncpyz(text, va(/*"Connecting to %s"*/sStringEdTemp, cstate.servername), sizeof(text));
-		Text_PaintCenter(centerPoint, yStart + 48, scale, colorWhite,text , ITEM_TEXTSTYLE_SHADOWEDMORE, FONT_MEDIUM);
+		Text_PaintCenter(centerPoint, yStart + 48, scale, colorWhite,text , ITEM_TEXTSTYLE_SHADOWEDMORE, menuFont_t::FONT_MEDIUM);
 	}
 
 	// display global MOTD at bottom
-	Text_PaintCenter(centerPoint, 425, scale, colorWhite, Info_ValueForKey( cstate.updateInfoString, "motd" ), 0, FONT_MEDIUM);
+	Text_PaintCenter(centerPoint, 425, scale, colorWhite, Info_ValueForKey( cstate.updateInfoString, "motd" ), 0, menuFont_t::FONT_MEDIUM);
 	// print any server info (server full, bad version, etc)
-	if ( cstate.connState < CA_CONNECTED ) {
-		Text_PaintCenter(centerPoint, yStart + 176, scale, colorWhite, cstate.messageString, 0, FONT_MEDIUM);
+	if ( cstate.connState < connstate_t::CA_CONNECTED ) {
+		Text_PaintCenter(centerPoint, yStart + 176, scale, colorWhite, cstate.messageString, 0, menuFont_t::FONT_MEDIUM);
 	}
 
 	switch ( cstate.connState ) {
-	case CA_CONNECTING:
+	case connstate_t::CA_CONNECTING:
 		{
 			trap->SE_GetStringTextString("MENUS_AWAITING_CONNECTION", sStringEdTemp, sizeof(sStringEdTemp));
 			s = va(/*"Awaiting connection...%i"*/sStringEdTemp, cstate.connectPacketCount);
 		}
 		break;
-	case CA_CHALLENGING:
+	case connstate_t::CA_CHALLENGING:
 		{
 			trap->SE_GetStringTextString("MENUS_AWAITING_CHALLENGE", sStringEdTemp, sizeof(sStringEdTemp));
 			s = va(/*"Awaiting challenge...%i"*/sStringEdTemp, cstate.connectPacketCount);
 		}
 		break;
-	case CA_CONNECTED: {
+	case connstate_t::CA_CONNECTED: {
 		char downloadName[MAX_INFO_VALUE];
 
 			trap->Cvar_VariableStringBuffer( "cl_downloadName", downloadName, sizeof(downloadName) );
 			if (*downloadName) {
-				UI_DisplayDownloadInfo( downloadName, centerPoint, yStart, scale, FONT_MEDIUM );
+				UI_DisplayDownloadInfo( downloadName, centerPoint, yStart, scale, menuFont_t::FONT_MEDIUM );
 				return;
 			}
 		}
 		trap->SE_GetStringTextString("MENUS_AWAITING_GAMESTATE", sStringEdTemp, sizeof(sStringEdTemp));
 		s = /*"Awaiting gamestate..."*/sStringEdTemp;
 		break;
-	case CA_LOADING:
+	case connstate_t::CA_LOADING:
 		return;
-	case CA_PRIMED:
+	case connstate_t::CA_PRIMED:
 		return;
 	default:
 		return;
 	}
 
 	if (Q_stricmp(cstate.servername,"localhost")) {
-		Text_PaintCenter(centerPoint, yStart + 80, scale, colorWhite, s, 0, FONT_MEDIUM);
+		Text_PaintCenter(centerPoint, yStart + 80, scale, colorWhite, s, 0, menuFont_t::FONT_MEDIUM);
 	}
 	// password required / connection rejected information goes here
 }
@@ -10476,13 +10474,13 @@ static void UI_DoServerRefresh( void )
 	if (!uiInfo.serverStatus.refreshActive) {
 		return;
 	}
-	if (UI_NetSource() != UIAS_FAVORITES) {
-		if (UI_NetSource() == UIAS_LOCAL) {
-			if (!trap->LAN_GetServerCount(AS_LOCAL)) {
+	if (UI_NetSource() != uiNetSource_t::UIAS_FAVORITES) {
+		if (UI_NetSource() == uiNetSource_t::UIAS_LOCAL) {
+			if (!trap->LAN_GetServerCount(lanSource_t::AS_LOCAL)) {
 				wait = true;
 			}
 		} else {
-			if (trap->LAN_GetServerCount(AS_GLOBAL) < 0) {
+			if (trap->LAN_GetServerCount(lanSource_t::AS_GLOBAL) < 0) {
 				wait = true;
 			}
 		}
@@ -10537,20 +10535,20 @@ static void UI_StartServerRefresh(bool full)
 	// reset all the pings
 	trap->LAN_ResetPings(lanSource);
 	//
-	if( UI_NetSource() == UIAS_LOCAL ) {
-		trap->Cmd_ExecuteText( EXEC_NOW, "localservers\n" );
+	if( UI_NetSource() == uiNetSource_t::UIAS_LOCAL ) {
+		trap->Cmd_ExecuteText( cbufExec_t::EXEC_NOW, "localservers\n" );
 		uiInfo.serverStatus.refreshtime = uiInfo.uiDC.realTime + 1000;
 		return;
 	}
 
 	uiInfo.serverStatus.refreshtime = uiInfo.uiDC.realTime + 5000;
-	if( UI_NetSource() >= UIAS_GLOBAL1 && UI_NetSource() <= UIAS_GLOBAL5 ) {
+	if( UI_NetSource() >= uiNetSource_t::UIAS_GLOBAL1 && UI_NetSource() <= uiNetSource_t::UIAS_GLOBAL5 ) {
 		ptr = UI_Cvar_VariableString("debug_protocol");
 		if (strlen(ptr)) {
-			trap->Cmd_ExecuteText( EXEC_NOW, va( "globalservers %d %s full empty\n", ui_netSource.integer, ptr));	// Internet n asks sv_master<n>
+			trap->Cmd_ExecuteText( cbufExec_t::EXEC_NOW, va( "globalservers %d %s full empty\n", ui_netSource.integer, ptr));	// Internet n asks sv_master<n>
 		}
 		else {
-			trap->Cmd_ExecuteText( EXEC_NOW, va( "globalservers %d %d full empty\n", ui_netSource.integer, (int)trap->Cvar_VariableValue( "protocol" ) ) );
+			trap->Cmd_ExecuteText( cbufExec_t::EXEC_NOW, va( "globalservers %d %d full empty\n", ui_netSource.integer, (int)trap->Cvar_VariableValue( "protocol" ) ) );
 		}
 	}
 }

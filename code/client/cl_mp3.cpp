@@ -153,7 +153,7 @@ bool MP3_FakeUpWAVInfo( const char *psLocalFilename, void *pvData, int iDataLen,
 {
 	// some things can be done instantly...
 	//
-	format = WAV_FORMAT_PCM;		// 1 for MS format
+	format = wavFormat_t::WAV_FORMAT_PCM;		// 1 for MS format
 	dataofs= 0;		// will be 0 for me (since there's no header in the unpacked data)
 
 	// some things need to be read...  (though the whole stereo flag thing is crap)
@@ -243,7 +243,7 @@ constexpr int FUZZY_AMOUNT = 5*1024;	// so it has to be significantly over, not 
 cvar_t* cv_MP3overhead = nullptr;
 void MP3_InitCvars(void)
 {
-	cv_MP3overhead = Cvar_Get("s_mp3overhead", va("%zu", sizeof(MP3STREAM) + FUZZY_AMOUNT), CVAR_ARCHIVE );
+	cv_MP3overhead = Cvar_Get("s_mp3overhead", va("%zu", sizeof(MP3STREAM) + FUZZY_AMOUNT), cvarFlags_t::CVAR_ARCHIVE );
 }
 
 
@@ -277,7 +277,7 @@ bool MP3Stream_InitFromFile( sfx_t* sfx, byte *pbSrcData, int iSrcDatalen, const
 		// fill in some sfx_t fields...
 		//
 //		Q_strncpyz( sfx->name, psSrcDataFilename, sizeof(sfx->name) );
-		sfx->eSoundCompressionMethod = ct_MP3;
+		sfx->eSoundCompressionMethod = SoundCompressionMethod_t::ct_MP3;
 		sfx->fVolRange = fMaxVol;
 		//sfx->width  = 2;
 		sfx->iSoundLengthInSamples = ((iMP3UnPackedSize / 2/*sfx->width*/) / (44100 / dma.speed)) / (bStereoDesired?2:1);
@@ -317,7 +317,7 @@ bool MP3Stream_InitFromFile( sfx_t* sfx, byte *pbSrcData, int iSrcDatalen, const
 		//
 		// make a copy of the filled-in stream struct and attach to the sfx_t struct...
 		//
-				sfx->pMP3StreamHeader = (MP3STREAM *) Z_Malloc( sizeof(MP3STREAM), TAG_SND_MP3STREAMHDR, false );
+				sfx->pMP3StreamHeader = (MP3STREAM *) Z_Malloc( sizeof(MP3STREAM), memtag::TAG_SND_MP3STREAMHDR, false );
 		memcpy(	sfx->pMP3StreamHeader, &SFX_MP3Stream,		    sizeof(MP3STREAM) );
 		//
 		return true;

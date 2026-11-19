@@ -74,7 +74,7 @@ static void IN_UseGivenForce(void)
 {
 	const char *c = Cmd_Argv(1);
 	int forceNum=-1;
-	genCmds_t genCmdNum = GENCMD_NONE;
+	genCmds_t genCmdNum = genCmds_t::GENCMD_NONE;
 
 	if(c) {
 		forceNum = atoi(c);
@@ -84,54 +84,54 @@ static void IN_UseGivenForce(void)
 
 	switch ( static_cast<forcePowers_t>( forceNum ) ) {
 #ifndef JK2_MODE
-	case FP_DRAIN:
-		genCmdNum = GENCMD_FORCE_DRAIN;
+	case forcePowers_t::FP_DRAIN:
+		genCmdNum = genCmds_t::GENCMD_FORCE_DRAIN;
 		break;
 #endif // !JK2_MODE
 
-	case FP_PUSH:
-		genCmdNum = GENCMD_FORCE_THROW;
+	case forcePowers_t::FP_PUSH:
+		genCmdNum = genCmds_t::GENCMD_FORCE_THROW;
 		break;
-	case FP_SPEED:
-		genCmdNum = GENCMD_FORCE_SPEED;
+	case forcePowers_t::FP_SPEED:
+		genCmdNum = genCmds_t::GENCMD_FORCE_SPEED;
 		break;
-	case FP_PULL:
-		genCmdNum = GENCMD_FORCE_PULL;
+	case forcePowers_t::FP_PULL:
+		genCmdNum = genCmds_t::GENCMD_FORCE_PULL;
 		break;
-	case FP_TELEPATHY:
-		genCmdNum = GENCMD_FORCE_DISTRACT;
+	case forcePowers_t::FP_TELEPATHY:
+		genCmdNum = genCmds_t::GENCMD_FORCE_DISTRACT;
 		break;
-	case FP_GRIP:
-		genCmdNum = GENCMD_FORCE_GRIP;
+	case forcePowers_t::FP_GRIP:
+		genCmdNum = genCmds_t::GENCMD_FORCE_GRIP;
 		break;
-	case FP_LIGHTNING:
-		genCmdNum = GENCMD_FORCE_LIGHTNING;
+	case forcePowers_t::FP_LIGHTNING:
+		genCmdNum = genCmds_t::GENCMD_FORCE_LIGHTNING;
 		break;
 
 #ifndef JK2_MODE
-	case FP_RAGE:
-		genCmdNum = GENCMD_FORCE_RAGE;
+	case forcePowers_t::FP_RAGE:
+		genCmdNum = genCmds_t::GENCMD_FORCE_RAGE;
 		break;
-	case FP_PROTECT:
-		genCmdNum = GENCMD_FORCE_PROTECT;
+	case forcePowers_t::FP_PROTECT:
+		genCmdNum = genCmds_t::GENCMD_FORCE_PROTECT;
 		break;
-	case FP_ABSORB:
-		genCmdNum = GENCMD_FORCE_ABSORB;
+	case forcePowers_t::FP_ABSORB:
+		genCmdNum = genCmds_t::GENCMD_FORCE_ABSORB;
 		break;
-	case FP_SEE:
-		genCmdNum = GENCMD_FORCE_SEEING;
+	case forcePowers_t::FP_SEE:
+		genCmdNum = genCmds_t::GENCMD_FORCE_SEEING;
 		break;
 #endif // !JK2_MODE
 
-	case FP_HEAL:
-		genCmdNum = GENCMD_FORCE_HEAL;
+	case forcePowers_t::FP_HEAL:
+		genCmdNum = genCmds_t::GENCMD_FORCE_HEAL;
 		break;
 	default:
 		assert(0);
 		break;
 	}
 
-	if(genCmdNum != GENCMD_NONE) {
+	if(genCmdNum != genCmds_t::GENCMD_NONE) {
 		cl.gcmdSendValue = true;
 		cl.gcmdValue = to_underlying( genCmdNum );
 	}
@@ -409,9 +409,9 @@ void CL_KeyMove( usercmd_t *cmd ) {
 	//
 	if ( in_speed.active != (cl_run->integer != 0) ) {
 		movespeed = 127;
-		cmd->buttons &= ~BUTTON_WALKING;
+		cmd->buttons &= ~buttonFlags_t::BUTTON_WALKING;
 	} else {
-		cmd->buttons |= BUTTON_WALKING;
+		cmd->buttons |= buttonFlags_t::BUTTON_WALKING;
 		movespeed = 64;
 	}
 
@@ -446,7 +446,7 @@ CL_MouseEvent
 =================
 */
 void CL_MouseEvent( int dx, int dy, int time ) {
-	if ( Any( Key_GetCatcher( ) & KEYCATCH_UI ) ) {
+	if ( Any( Key_GetCatcher( ) & keyCatchFlags_t::KEYCATCH_UI ) ) {
 		_UI_MouseEvent( dx, dy );
 	}
 	else {
@@ -463,8 +463,8 @@ Joystick values stay set until changed
 =================
 */
 void CL_JoystickEvent( int axis, int value, int time ) {
-	if ( axis < 0 || axis >= to_underlying( MAX_JOYSTICK_AXIS ) ) {
-		Com_Error( ERR_DROP, "CL_JoystickEvent: bad axis %i", axis );
+	if ( axis < 0 || axis >= to_underlying( joystickAxis_t::MAX_JOYSTICK_AXIS ) ) {
+		Com_Error( errorParm_t::ERR_DROP, "CL_JoystickEvent: bad axis %i", axis );
 	}
 	cl.joystickAxis[static_cast<joystickAxis_t>( axis )] = value;
 }
@@ -483,7 +483,7 @@ void CL_JoystickMove( usercmd_t *cmd ) {
 	}
 
 	if ( in_speed.active == (cl_run->integer != 0) ) {
-		cmd->buttons |= BUTTON_WALKING;
+		cmd->buttons |= buttonFlags_t::BUTTON_WALKING;
 	}
 
 	if ( in_speed.active ) {
@@ -495,32 +495,32 @@ void CL_JoystickMove( usercmd_t *cmd ) {
 	if ( !in_strafe.active ) {
 		if ( cl_mYawOverride )
 		{
-			cl.viewangles[YAW] += 5.0f * cl_mYawOverride * cl.joystickAxis[AXIS_SIDE];
+			cl.viewangles[YAW] += 5.0f * cl_mYawOverride * cl.joystickAxis[joystickAxis_t::AXIS_SIDE];
 		}
 		else
 		{
-			cl.viewangles[YAW] += anglespeed * (cl_yawspeed->value / 100.0f) * cl.joystickAxis[AXIS_SIDE];
+			cl.viewangles[YAW] += anglespeed * (cl_yawspeed->value / 100.0f) * cl.joystickAxis[joystickAxis_t::AXIS_SIDE];
 		}
 	}
 	else
 	{
-		cmd->rightmove = ClampChar( cmd->rightmove + cl.joystickAxis[AXIS_SIDE] );
+		cmd->rightmove = ClampChar( cmd->rightmove + cl.joystickAxis[joystickAxis_t::AXIS_SIDE] );
 	}
 
 	if ( in_mlooking ) {
 		if ( cl_mPitchOverride )
 		{
-			cl.viewangles[PITCH] += 5.0f * cl_mPitchOverride * cl.joystickAxis[AXIS_FORWARD];
+			cl.viewangles[PITCH] += 5.0f * cl_mPitchOverride * cl.joystickAxis[joystickAxis_t::AXIS_FORWARD];
 		}
 		else
 		{
-			cl.viewangles[PITCH] += anglespeed * (cl_pitchspeed->value / 100.0f) * cl.joystickAxis[AXIS_FORWARD];
+			cl.viewangles[PITCH] += anglespeed * (cl_pitchspeed->value / 100.0f) * cl.joystickAxis[joystickAxis_t::AXIS_FORWARD];
 		}
 	} else {
-		cmd->forwardmove = ClampChar( cmd->forwardmove + cl.joystickAxis[AXIS_FORWARD] );
+		cmd->forwardmove = ClampChar( cmd->forwardmove + cl.joystickAxis[joystickAxis_t::AXIS_FORWARD] );
 	}
 
-	cmd->upmove = ClampChar( cmd->upmove + cl.joystickAxis[AXIS_UP] );
+	cmd->upmove = ClampChar( cmd->upmove + cl.joystickAxis[joystickAxis_t::AXIS_UP] );
 }
 
 /*
@@ -736,7 +736,7 @@ void CL_CreateNewCommands( void ) {
 	int			cmdNum;
 
 	// no need to create usercmds until we have a gamestate
-//	if ( cls.state < CA_PRIMED )
+//	if ( cls.state < connstate_t::CA_PRIMED )
 //		return;
 
 	frame_msec = com_frameTime - old_com_frameTime;
@@ -772,15 +772,15 @@ getting more delta compression will reduce total bandwidth.
 */
 bool CL_ReadyToSendPacket( void ) {
 	// don't send anything if playing back a demo
-//	if ( cls.state == CA_CINEMATIC )
-	if ( cls.state == CA_CINEMATIC || CL_IsRunningInGameCinematic())
+//	if ( cls.state == connstate_t::CA_CINEMATIC )
+	if ( cls.state == connstate_t::CA_CINEMATIC || CL_IsRunningInGameCinematic())
 	{
 		return false;
 	}
 
 	// if we don't have a valid gamestate yet, only send
 	// one packet a second
-	if ( cls.state != CA_ACTIVE && cls.state != CA_PRIMED
+	if ( cls.state != connstate_t::CA_ACTIVE && cls.state != connstate_t::CA_PRIMED
 		&& cls.realtime - clc.lastPacketSentTime < 1000 ) {
 		return false;
 	}
@@ -821,8 +821,8 @@ void CL_WritePacket( void ) {
 	int			count;
 
 	// don't send anything if playing back a demo
-//	if ( cls.state == CA_CINEMATIC )
-	if ( cls.state == CA_CINEMATIC || CL_IsRunningInGameCinematic())
+//	if ( cls.state == connstate_t::CA_CINEMATIC )
+	if ( cls.state == connstate_t::CA_CINEMATIC || CL_IsRunningInGameCinematic())
 	{
 		return;
 	}
@@ -831,7 +831,7 @@ void CL_WritePacket( void ) {
 
 	// write any unacknowledged clientCommands
 	for ( i = clc.reliableAcknowledge + 1 ; i <= clc.reliableSequence ; i++ ) {
-		MSG_WriteByte( &buf, to_underlying( clc_clientCommand ) );
+		MSG_WriteByte( &buf, to_underlying( clc_ops_e::clc_clientCommand ) );
 		MSG_WriteLong( &buf, i );
 		MSG_WriteString( &buf, clc.reliableCommands[ i & (MAX_RELIABLE_COMMANDS-1) ] );
 	}
@@ -852,7 +852,7 @@ void CL_WritePacket( void ) {
 	}
 	if ( count >= 1 ) {
 		// begin a client move command
-		MSG_WriteByte (&buf, to_underlying( clc_move ));
+		MSG_WriteByte (&buf, to_underlying( clc_ops_e::clc_move ));
 
 		// write the last reliable message we received
 		MSG_WriteLong( &buf, clc.serverCommandSequence );
@@ -911,7 +911,7 @@ Called every frame to builds and sends a command packet to the server.
 */
 void CL_SendCmd( void ) {
 	// don't send any message if not connected
-	if ( cls.state < CA_CONNECTED ) {
+	if ( cls.state < connstate_t::CA_CONNECTED ) {
 		return;
 	}
 
@@ -1033,7 +1033,7 @@ void CL_InitInput( void ) {
 	Cmd_AddCommand ("+mlook", IN_MLookDown);
 	Cmd_AddCommand ("-mlook", IN_MLookUp);
 
-	cl_nodelta = Cvar_Get ("cl_nodelta", "0", CVAR_NONE);
-	cl_debugMove = Cvar_Get ("cl_debugMove", "0", CVAR_NONE);
+	cl_nodelta = Cvar_Get ("cl_nodelta", "0", cvarFlags_t::CVAR_NONE);
+	cl_debugMove = Cvar_Get ("cl_debugMove", "0", cvarFlags_t::CVAR_NONE);
 }
 

@@ -51,7 +51,6 @@ enum class hitLocation_t //# hitloc_e
 	//# #eol
 	HL_MAX
 };
-using enum hitLocation_t;
 template <> inline constexpr bool enableEnumArithmetic<hitLocation_t> = true;
 
 extern stringID_table_t HLTable[];

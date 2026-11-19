@@ -63,7 +63,6 @@ enum class scriptParseFlags_t
 	SCFL_NOBINARYNUMBERS		= 0x0020,
 	SCFL_NONUMBERVALUES		= 0x0040,
 };
-using enum scriptParseFlags_t;
 template <> inline constexpr bool enableEnumFlags<scriptParseFlags_t> = true;
 
 //token types: tokenType_t, in q_shared.h
@@ -153,7 +152,6 @@ enum class punctuationId_t
 	P_DOLLAR,
 	P_ATSIGN,
 };
-using enum punctuationId_t;
 //name sub type
 //-------------
 //		the length of the name

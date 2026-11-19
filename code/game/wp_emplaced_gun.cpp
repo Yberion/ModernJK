@@ -41,14 +41,14 @@ void WP_FireTurboLaserMissile( gentity_t *ent, vec3_t start, vec3_t dir )
 	//missile->s.emplacedOwner = G_EffectIndex( "turret/turb_impact" );
 
 	missile->classname = "turbo_proj";
-	missile->s.weapon = WP_TIE_FIGHTER;
+	missile->s.weapon = weapon_t::WP_TIE_FIGHTER;
 
 	missile->damage = ent->damage;		//FIXME: externalize
 	missile->splashDamage = ent->splashDamage;	//FIXME: externalize
 	missile->splashRadius = ent->splashRadius;	//FIXME: externalize
-	missile->dflags = DAMAGE_DEATH_KNOCKBACK;
-	missile->methodOfDeath = MOD_EMPLACED; //MOD_TURBLAST; //count as a heavy weap
-	missile->splashMethodOfDeath = MOD_EMPLACED; //MOD_TURBLAST;// ?SPLASH;
+	missile->dflags = damageFlags_t::DAMAGE_DEATH_KNOCKBACK;
+	missile->methodOfDeath = meansOfDeath_t::MOD_EMPLACED; //MOD_TURBLAST; //count as a heavy weap
+	missile->splashMethodOfDeath = meansOfDeath_t::MOD_EMPLACED; //MOD_TURBLAST;// ?SPLASH;
 	missile->clipmask = MASK_SHOT;
 
 	// we don't want it to bounce forever
@@ -58,7 +58,7 @@ void WP_FireTurboLaserMissile( gentity_t *ent, vec3_t start, vec3_t dir )
 	//missile->s.owner = ent->s.number;
 
 	//don't let them last forever
-	missile->e_ThinkFunc = thinkF_G_FreeEntity;
+	missile->e_ThinkFunc = thinkFunc_t::thinkF_G_FreeEntity;
 	missile->nextthink = level.time + 10000;//at 20000 speed, that should be more than enough
 }
 
@@ -67,7 +67,7 @@ void WP_FireTurboLaserMissile( gentity_t *ent, vec3_t start, vec3_t dir )
 void WP_EmplacedFire( gentity_t *ent )
 //---------------------------------------------------------
 {
-	float damage = weaponData[WP_EMPLACED_GUN].damage * ( ent->NPC ? 0.1f : 1.0f );
+	float damage = weaponData[weapon_t::WP_EMPLACED_GUN].damage * ( ent->NPC ? 0.1f : 1.0f );
 	float vel = EMPLACED_VEL * ( ent->NPC ? 0.4f : 1.0f );
 
 	WP_MissileTargetHint(ent, muzzle, forwardVec);
@@ -75,15 +75,15 @@ void WP_EmplacedFire( gentity_t *ent )
 	gentity_t	*missile = CreateMissile( muzzle, forwardVec, vel, 10000, ent );
 
 	missile->classname = "emplaced_proj";
-	missile->s.weapon = WP_EMPLACED_GUN;
+	missile->s.weapon = weapon_t::WP_EMPLACED_GUN;
 
 	missile->damage = damage;
-	missile->dflags = DAMAGE_DEATH_KNOCKBACK | DAMAGE_HEAVY_WEAP_CLASS;
-	missile->methodOfDeath = MOD_EMPLACED;
-	missile->clipmask = MASK_SHOT | CONTENTS_LIGHTSABER;
+	missile->dflags = damageFlags_t::DAMAGE_DEATH_KNOCKBACK | damageFlags_t::DAMAGE_HEAVY_WEAP_CLASS;
+	missile->methodOfDeath = meansOfDeath_t::MOD_EMPLACED;
+	missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
 
 	// do some weird switchery on who the real owner is, we do this so the projectiles don't hit the gun object
-	if ( ent && ent->client && !Any(ent->client->ps.eFlags&EF_LOCKED_TO_WEAPON) )
+	if ( ent && ent->client && !Any(ent->client->ps.eFlags&entityFlags_t::EF_LOCKED_TO_WEAPON) )
 	{
 		missile->owner = ent;
 	}
@@ -92,7 +92,7 @@ void WP_EmplacedFire( gentity_t *ent )
 		missile->owner = ent->owner;
 	}
 
-	if ( missile->owner->e_UseFunc == useF_eweb_use )
+	if ( missile->owner->e_UseFunc == useFunc_t::useF_eweb_use )
 	{
 		missile->alt_fire = true;
 	}

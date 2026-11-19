@@ -232,7 +232,7 @@ void CG_DrawStringExt( int x, int y, const char *string, const float *setColor, 
 						0.0f,		// float adjust,
 						0,			// int limit,
 						shadow ? ITEM_TEXTSTYLE_SHADOWED : 0,	// int style,
-						FONT_MEDIUM		// iMenuFont
+						menuFont_t::FONT_MEDIUM		// iMenuFont
 						) ;
 	}
 	else
@@ -472,7 +472,7 @@ void CG_ColorForHealth( vec4_t hcolor )
 
 	// calculate the total points of damage that can
 	// be sustained at the current health / armor level
-	health = cg.snap->ps.stats[STAT_HEALTH];
+	health = cg.snap->ps.stats[statIndex_t::STAT_HEALTH];
 
 	if ( health <= 0 )
 	{
@@ -481,7 +481,7 @@ void CG_ColorForHealth( vec4_t hcolor )
 		return;
 	}
 
-	count = cg.snap->ps.stats[STAT_ARMOR];
+	count = cg.snap->ps.stats[statIndex_t::STAT_ARMOR];
 	max = health * ARMOR_PROTECTION / ( 1.0 - ARMOR_PROTECTION );
 	if ( max < count )
 	{
@@ -545,14 +545,14 @@ void CG_DrawNumField (int x, int y, int width, int value,int charWidth,int charH
 	// FIXME: Might need to do something different for the chunky font??
 	switch(style)
 	{
-	case NUM_FONT_SMALL:
+	case numFont_t::NUM_FONT_SMALL:
 		xWidth = charWidth;
 		break;
-	case NUM_FONT_CHUNKY:
+	case numFont_t::NUM_FONT_CHUNKY:
 		xWidth = (charWidth/1.2f) + 2;
 		break;
 	default:
-	case NUM_FONT_BIG:
+	case numFont_t::NUM_FONT_BIG:
 		xWidth = (charWidth/2) + 7;//(charWidth/6);
 		break;
 	}
@@ -563,14 +563,14 @@ void CG_DrawNumField (int x, int y, int width, int value,int charWidth,int charH
 		{
 			switch(style)
 			{
-			case NUM_FONT_SMALL:
+			case numFont_t::NUM_FONT_SMALL:
 				CG_DrawPic( x,y, charWidth, charHeight, cgs.media.smallnumberShaders[0] );
 				break;
-			case NUM_FONT_CHUNKY:
+			case numFont_t::NUM_FONT_CHUNKY:
 				CG_DrawPic( x,y, charWidth, charHeight, cgs.media.chunkyNumberShaders[0] );
 				break;
 			default:
-			case NUM_FONT_BIG:
+			case numFont_t::NUM_FONT_BIG:
 				CG_DrawPic( x,y, charWidth, charHeight, cgs.media.numberShaders[0] );
 				break;
 			}
@@ -592,15 +592,15 @@ void CG_DrawNumField (int x, int y, int width, int value,int charWidth,int charH
 
 		switch(style)
 		{
-		case NUM_FONT_SMALL:
+		case numFont_t::NUM_FONT_SMALL:
 			CG_DrawPic( x,y, charWidth, charHeight, cgs.media.smallnumberShaders[frame] );
 			x++;	// For a one line gap
 			break;
-		case NUM_FONT_CHUNKY:
+		case numFont_t::NUM_FONT_CHUNKY:
 			CG_DrawPic( x,y, charWidth, charHeight, cgs.media.chunkyNumberShaders[frame] );
 			break;
 		default:
-		case NUM_FONT_BIG:
+		case numFont_t::NUM_FONT_BIG:
 			CG_DrawPic( x,y, charWidth, charHeight, cgs.media.numberShaders[frame] );
 			break;
 		}
@@ -619,36 +619,36 @@ void CG_DrawProportionalString( int x, int y, const char* str, textStyleFlags_t 
 	//	is dumb, but for now...
 	//
 	int iStyle = 0;
-	menuFont_t iMenuFont = Any( style & UI_SMALLFONT ) ? FONT_SMALL : FONT_MEDIUM;
+	menuFont_t iMenuFont = Any( style & textStyleFlags_t::UI_SMALLFONT ) ? menuFont_t::FONT_SMALL : menuFont_t::FONT_MEDIUM;
 
-	switch (style & (UI_LEFT|UI_CENTER|UI_RIGHT))
+	switch (style & (textStyleFlags_t::UI_LEFT|textStyleFlags_t::UI_CENTER|textStyleFlags_t::UI_RIGHT))
 	{
 		default:
-		case UI_LEFT:
+		case textStyleFlags_t::UI_LEFT:
 		{
 			// nada...
 		}
 		break;
 
-		case UI_CENTER:
+		case textStyleFlags_t::UI_CENTER:
 		{
 			x -= CG_Text_Width(str, 1.0, iMenuFont) / 2;
 		}
 		break;
 
-		case UI_RIGHT:
+		case textStyleFlags_t::UI_RIGHT:
 		{
 			x -= CG_Text_Width(str, 1.0, iMenuFont) / 2;
 		}
 		break;
 	}
 
-	if (Any( style & UI_DROPSHADOW ))
+	if (Any( style & textStyleFlags_t::UI_DROPSHADOW ))
 	{
 		iStyle = ITEM_TEXTSTYLE_SHADOWED;
 	}
 	else
-	if ( Any( style & (UI_BLINK|UI_PULSE) ) )
+	if ( Any( style & (textStyleFlags_t::UI_BLINK|textStyleFlags_t::UI_PULSE) ) )
 	{
 		iStyle = ITEM_TEXTSTYLE_BLINK;
 	}
@@ -663,37 +663,37 @@ void CG_DrawScaledProportionalString( int x, int y, const char* str, textStyleFl
 	//
 	int iStyle = 0;
 
-	switch (style & (UI_LEFT|UI_CENTER|UI_RIGHT))
+	switch (style & (textStyleFlags_t::UI_LEFT|textStyleFlags_t::UI_CENTER|textStyleFlags_t::UI_RIGHT))
 	{
 		default:
-		case UI_LEFT:
+		case textStyleFlags_t::UI_LEFT:
 		{
 			// nada...
 		}
 		break;
 
-		case UI_CENTER:
+		case textStyleFlags_t::UI_CENTER:
 		{
-			x -= CG_Text_Width(str, scale, FONT_MEDIUM) / 2;
+			x -= CG_Text_Width(str, scale, menuFont_t::FONT_MEDIUM) / 2;
 		}
 		break;
 
-		case UI_RIGHT:
+		case textStyleFlags_t::UI_RIGHT:
 		{
-			x -= CG_Text_Width(str, scale, FONT_MEDIUM) / 2;
+			x -= CG_Text_Width(str, scale, menuFont_t::FONT_MEDIUM) / 2;
 		}
 		break;
 	}
 
-	if (Any( style & UI_DROPSHADOW ))
+	if (Any( style & textStyleFlags_t::UI_DROPSHADOW ))
 	{
 		iStyle = ITEM_TEXTSTYLE_SHADOWED;
 	}
 	else
-	if ( Any( style & (UI_BLINK|UI_PULSE) ) )
+	if ( Any( style & (textStyleFlags_t::UI_BLINK|textStyleFlags_t::UI_PULSE) ) )
 	{
 		iStyle = ITEM_TEXTSTYLE_BLINK;
 	}
 
-	CG_Text_Paint(x, y, scale, color, str, 0, 0, iStyle, FONT_MEDIUM);
+	CG_Text_Paint(x, y, scale, color, str, 0, 0, iStyle, menuFont_t::FONT_MEDIUM);
 }

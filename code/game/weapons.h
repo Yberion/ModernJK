@@ -82,11 +82,10 @@ enum class weapon_t //# weapon_e
 	//# #eol
 	WP_NUM_WEAPONS
 };
-using enum weapon_t;
 template <> inline constexpr bool enableEnumArithmetic<weapon_t> = true;
 
-inline constexpr weapon_t FIRST_WEAPON = WP_SABER;		// this is the first weapon for next and prev weapon switching
-inline constexpr weapon_t MAX_PLAYER_WEAPONS = WP_STUN_BATON;	// this is the max you can switch to and get with the give all. - FIXME: it's actually this one *minus* one... why?
+inline constexpr weapon_t FIRST_WEAPON = weapon_t::WP_SABER;		// this is the first weapon for next and prev weapon switching
+inline constexpr weapon_t MAX_PLAYER_WEAPONS = weapon_t::WP_STUN_BATON;	// this is the max you can switch to and get with the give all. - FIXME: it's actually this one *minus* one... why?
 
 // AMMO_NONE must be first and AMMO_MAX must be last, cause weapon load validates based off of these vals
 enum class ammo_t //# ammo_e
@@ -103,7 +102,6 @@ enum class ammo_t //# ammo_e
 	AMMO_DETPACK,
 	AMMO_MAX
 };
-using enum ammo_t;
 template <> inline constexpr bool enableEnumArithmetic<ammo_t> = true;
 
 

@@ -127,7 +127,7 @@ void CL_ParseSetGame( const char *gameDir )
 		Cvar_Set("fs_game", newGameDir);
 
 	const std::optional<cvarFlags_t> fsGameFlags = Cvar_Flags("fs_game");
-	if(!fsGameFlags || !Any(*fsGameFlags & CVAR_MODIFIED))
+	if(!fsGameFlags || !Any(*fsGameFlags & cvarFlags_t::CVAR_MODIFIED))
 		return;
 
 	//Update the search path for the mod dir
@@ -240,7 +240,7 @@ void CL_ParseGamestateString( int i, const char *s ) {
 	int len;
 
 	if ( i < 0 || i >= MAX_CONFIGSTRINGS ) {
-		Com_Error( ERR_DROP, "configstring > MAX_CONFIGSTRINGS" );
+		Com_Error( errorParm_t::ERR_DROP, "configstring > MAX_CONFIGSTRINGS" );
 	}
 	if ( cl_shownet->integer >= 2 ) {
 		Com_Printf( "%d: %s\n", i, s );
@@ -249,7 +249,7 @@ void CL_ParseGamestateString( int i, const char *s ) {
 	len = strlen( s );
 
 	if ( len + 1 + cl.gameState.dataCount > MAX_GAMESTATE_CHARS ) {
-		Com_Error( ERR_DROP, "MAX_GAMESTATE_CHARS exceeded" );
+		Com_Error( errorParm_t::ERR_DROP, "MAX_GAMESTATE_CHARS exceeded" );
 	}
 
 	// append it to the gameState string buffer
@@ -321,14 +321,14 @@ void CL_ParseDownload ( int block, int fileSize, const byte *data, int size ) {
 				error[i] = ( data[i] == '%' || !data[i] ) ? '.' : (char)data[i];
 			}
 			error[i] = 0;
-			Com_Error(ERR_DROP, "%s", error );
+			Com_Error(errorParm_t::ERR_DROP, "%s", error );
 			return;
 		}
 	}
 
 	if (size < 0 || size > MAX_MSGLEN)
 	{
-		Com_Error(ERR_DROP, "CL_ParseDownload: Invalid size %d for download chunk", size);
+		Com_Error(errorParm_t::ERR_DROP, "CL_ParseDownload: Invalid size %d for download chunk", size);
 		return;
 	}
 
@@ -466,7 +466,7 @@ void CL_ParseCommandString( int seq, const char *s ) {
 		char strEd[MAX_STRING_CHARS];	// MAX_STRINGED_SV_STRING of cl_cgame.cpp
 		Cmd_TokenizeString( s );
 		CL_CheckSVStringEdRef( strEd, Cmd_Argv( 1 ) );
-		Com_Error( ERR_SERVERDISCONNECT, "%s: %s\n", SE_GetString( "MP_SVGAME_SERVER_DISCONNECTED" ), strEd );
+		Com_Error( errorParm_t::ERR_SERVERDISCONNECT, "%s: %s\n", SE_GetString( "MP_SVGAME_SERVER_DISCONNECTED" ), strEd );
 	}
 }
 

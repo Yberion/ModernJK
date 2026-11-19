@@ -184,9 +184,9 @@ extern bool NPC_ParseParms( const char *NPCName, gentity_t *NPC );
 extern void NPC_LoadParms( void );
 
 //NPC_utils
-extern EnumArray<int, team_t, TEAM_NUM_TEAMS>	teamNumbers;
-extern EnumArray<int, team_t, TEAM_NUM_TEAMS>	teamStrength;
-extern EnumArray<int, team_t, TEAM_NUM_TEAMS>	teamCounter;
+extern EnumArray<int, team_t, team_t::TEAM_NUM_TEAMS>	teamNumbers;
+extern EnumArray<int, team_t, team_t::TEAM_NUM_TEAMS>	teamStrength;
+extern EnumArray<int, team_t, team_t::TEAM_NUM_TEAMS>	teamCounter;
 extern void CalcEntitySpot ( const gentity_t *ent, const spot_t spot, vec3_t point );
 extern bool NPC_UpdateAngles ( bool doPitch, bool doYaw );
 extern void NPC_UpdateShootAngles (vec3_t angles, bool doPitch, bool doYaw );
@@ -273,7 +273,6 @@ enum class combatPointSearchFlags_t
 	CP_NO_PVS		= 0x00010000,	//A combat point out of the PVS of enemy pos
 	CP_RETREAT		= 0x00020000,	//Try to get farther from enemy
 };
-using enum combatPointSearchFlags_t;
 template <> inline constexpr bool enableEnumFlags<combatPointSearchFlags_t> = true;
 
 
@@ -290,7 +289,7 @@ bool NPC_CheckEnemyExt( bool checkAlerts = false );
 bool NPC_FindPlayer( void );
 bool NPC_CheckCanAttackExt( void );
 
-int NPC_CheckAlertEvents( bool checkSight, bool checkSound, int ignoreAlert = -1, bool mustHaveOwner = false, alertEventLevel_e minAlertLevel = AEL_MINOR );
+int NPC_CheckAlertEvents( bool checkSight, bool checkSound, int ignoreAlert = -1, bool mustHaveOwner = false, alertEventLevel_e minAlertLevel = alertEventLevel_e::AEL_MINOR );
 bool NPC_CheckForDanger( int alertEvent );
 void G_AlertTeam( gentity_t *victim, gentity_t *attacker, float radius, float soundDist );
 

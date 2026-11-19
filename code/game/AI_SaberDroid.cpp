@@ -43,15 +43,15 @@ void NPC_SaberDroid_PlayConfusionSound( gentity_t *self )
 {//FIXME: make this a custom sound in sound set
 	if ( self->health > 0 )
 	{
-		G_AddVoiceEvent( self, Q_irand(EV_CONFUSE1, EV_CONFUSE3), 2000 );
+		G_AddVoiceEvent( self, Q_irand(entity_event_t::EV_CONFUSE1, entity_event_t::EV_CONFUSE3), 2000 );
 	}
 	//reset him to be totally unaware again
 	TIMER_Set( self, "enemyLastVisible", 0 );
 	TIMER_Set( self, "flee", 0 );
-	self->NPC->squadState = SQUAD_IDLE;
-	self->NPC->tempBehavior = BS_DEFAULT;
+	self->NPC->squadState = squadState_t::SQUAD_IDLE;
+	self->NPC->tempBehavior = bState_t::BS_DEFAULT;
 
-	//self->NPC->behaviorState = BS_PATROL;
+	//self->NPC->behaviorState = bState_t::BS_PATROL;
 	G_ClearEnemy( self );//FIXME: or just self->enemy = nullptr;?
 
 	self->NPC->investigateCount = 0;
@@ -82,7 +82,7 @@ static bool SaberDroid_Move( void )
 
 	//FIXME: if we bump into another one of our guys and can't get around him, just stop!
 	//If we hit our target, then stop and fire!
-//	if ( info.flags & NIF_COLLISION )
+//	if ( info.flags & navInfoFlags_t::NIF_COLLISION )
 //	{
 //		if ( info.blocker == NPC->enemy )
 //		{
@@ -113,26 +113,26 @@ void NPC_BSSaberDroid_Patrol( void )
 	if ( NPCInfo->confusionTime < level.time )
 	{
 		//Look for any enemies
-		if ( Any(NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES) )
+		if ( Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_LOOK_FOR_ENEMIES) )
 		{
 			if ( NPC_CheckPlayerTeamStealth() )
 			{
-				//NPCInfo->behaviorState = BS_HUNT_AND_KILL;//should be automatic now
+				//NPCInfo->behaviorState = bState_t::BS_HUNT_AND_KILL;//should be automatic now
 				//NPC_AngerSound();
 				NPC_UpdateAngles( true, true );
 				return;
 			}
 		}
 
-		if ( !Any(NPCInfo->scriptFlags&SCF_IGNORE_ALERTS) )
+		if ( !Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_IGNORE_ALERTS) )
 		{
 			//Is there danger nearby
-			int alertEvent = NPC_CheckAlertEvents( true, true, -1, false, AEL_SUSPICIOUS );
+			int alertEvent = NPC_CheckAlertEvents( true, true, -1, false, alertEventLevel_e::AEL_SUSPICIOUS );
 			//There is an event to look at
 			if ( alertEvent >= 0 )//&& level.alertEvents[alertEvent].ID != NPCInfo->lastAlertID )
 			{
 				//NPCInfo->lastAlertID = level.alertEvents[alertEvent].ID;
-				if ( level.alertEvents[alertEvent].level >= AEL_DISCOVERED )
+				if ( level.alertEvents[alertEvent].level >= alertEventLevel_e::AEL_DISCOVERED )
 				{
 					if ( level.alertEvents[alertEvent].owner &&
 						level.alertEvents[alertEvent].owner->client &&
@@ -149,7 +149,7 @@ void NPC_BSSaberDroid_Patrol( void )
 					//Save the position for movement (if necessary)
 					VectorCopy( level.alertEvents[alertEvent].position, NPCInfo->investigateGoal );
 					NPCInfo->investigateDebounceTime = level.time + Q_irand( 500, 1000 );
-					if ( level.alertEvents[alertEvent].level == AEL_SUSPICIOUS )
+					if ( level.alertEvents[alertEvent].level == alertEventLevel_e::AEL_SUSPICIOUS )
 					{//suspicious looks longer
 						NPCInfo->investigateDebounceTime += Q_irand( 500, 2500 );
 					}
@@ -182,7 +182,7 @@ void NPC_BSSaberDroid_Patrol( void )
 	//If we have somewhere to go, then do that
 	if ( UpdateGoal() )
 	{
-		ucmd.buttons |= BUTTON_WALKING;
+		ucmd.buttons |= buttonFlags_t::BUTTON_WALKING;
 		NPC_MoveToGoal( true );
 	}
 	else if ( !NPC->client->ps.weaponTime
@@ -192,7 +192,7 @@ void NPC_BSSaberDroid_Patrol( void )
 		if ( NPC->client->ps.SaberActive() )
 		{
 			WP_DeactivateSaber( NPC, false );
-			NPC_SetAnim( NPC, SETANIM_BOTH, BOTH_TURNOFF, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+			NPC_SetAnim( NPC, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_TURNOFF, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD );
 		}
 	}
 
@@ -203,54 +203,54 @@ forcePowerLevels_t SaberDroid_PowerLevelForSaberAnim( gentity_t *self )
 {
 	switch ( self->client->ps.legsAnim )
 	{
-	case BOTH_A2_TR_BL:
+	case animNumber_t::BOTH_A2_TR_BL:
 		if ( self->client->ps.torsoAnimTimer <= 200 )
 		{//end of anim
-			return FORCE_LEVEL_0;
+			return forcePowerLevels_t::FORCE_LEVEL_0;
 		}
 		else if ( PM_AnimLength( self->client->clientInfo.animFileIndex, self->client->ps.legsAnim ) - self->client->ps.torsoAnimTimer < 200 )
 		{//beginning of anim
-			return FORCE_LEVEL_0;
+			return forcePowerLevels_t::FORCE_LEVEL_0;
 		}
-		return FORCE_LEVEL_2;
+		return forcePowerLevels_t::FORCE_LEVEL_2;
 		break;
-	case BOTH_A1_BL_TR:
+	case animNumber_t::BOTH_A1_BL_TR:
 		if ( self->client->ps.torsoAnimTimer <= 300 )
 		{//end of anim
-			return FORCE_LEVEL_0;
+			return forcePowerLevels_t::FORCE_LEVEL_0;
 		}
 		else if ( PM_AnimLength( self->client->clientInfo.animFileIndex, self->client->ps.legsAnim ) - self->client->ps.torsoAnimTimer < 200 )
 		{//beginning of anim
-			return FORCE_LEVEL_0;
+			return forcePowerLevels_t::FORCE_LEVEL_0;
 		}
-		return FORCE_LEVEL_1;
+		return forcePowerLevels_t::FORCE_LEVEL_1;
 		break;
-	case BOTH_A1__L__R:
+	case animNumber_t::BOTH_A1__L__R:
 		if ( self->client->ps.torsoAnimTimer <= 250 )
 		{//end of anim
-			return FORCE_LEVEL_0;
+			return forcePowerLevels_t::FORCE_LEVEL_0;
 		}
 		else if ( PM_AnimLength( self->client->clientInfo.animFileIndex, self->client->ps.legsAnim ) - self->client->ps.torsoAnimTimer < 150 )
 		{//beginning of anim
-			return FORCE_LEVEL_0;
+			return forcePowerLevels_t::FORCE_LEVEL_0;
 		}
-		return FORCE_LEVEL_1;
+		return forcePowerLevels_t::FORCE_LEVEL_1;
 		break;
-	case BOTH_A3__L__R:
+	case animNumber_t::BOTH_A3__L__R:
 		if ( self->client->ps.torsoAnimTimer <= 200 )
 		{//end of anim
-			return FORCE_LEVEL_0;
+			return forcePowerLevels_t::FORCE_LEVEL_0;
 		}
 		else if ( PM_AnimLength( self->client->clientInfo.animFileIndex, self->client->ps.legsAnim ) - self->client->ps.torsoAnimTimer < 300 )
 		{//beginning of anim
-			return FORCE_LEVEL_0;
+			return forcePowerLevels_t::FORCE_LEVEL_0;
 		}
-		return FORCE_LEVEL_3;
+		return forcePowerLevels_t::FORCE_LEVEL_3;
 		break;
 	default:
 		break;
 	}
-	return FORCE_LEVEL_0;
+	return forcePowerLevels_t::FORCE_LEVEL_0;
 }
 
 /*
@@ -266,24 +266,24 @@ void NPC_SaberDroid_PickAttack( void )
 	{
 	case 0:
 	default:
-		attackAnim = BOTH_A2_TR_BL;
-		NPC->client->ps.saberMove = LS_A_TR2BL;
-		NPC->client->ps.saberAnimLevel = SS_MEDIUM;
+		attackAnim = animNumber_t::BOTH_A2_TR_BL;
+		NPC->client->ps.saberMove = saberMoveName_t::LS_A_TR2BL;
+		NPC->client->ps.saberAnimLevel = saber_styles_t::SS_MEDIUM;
 		break;
 	case 1:
-		attackAnim = BOTH_A1_BL_TR;
-		NPC->client->ps.saberMove = LS_A_BL2TR;
-		NPC->client->ps.saberAnimLevel = SS_FAST;
+		attackAnim = animNumber_t::BOTH_A1_BL_TR;
+		NPC->client->ps.saberMove = saberMoveName_t::LS_A_BL2TR;
+		NPC->client->ps.saberAnimLevel = saber_styles_t::SS_FAST;
 		break;
 	case 2:
-		attackAnim = BOTH_A1__L__R;
-		NPC->client->ps.saberMove = LS_A_L2R;
-		NPC->client->ps.saberAnimLevel = SS_FAST;
+		attackAnim = animNumber_t::BOTH_A1__L__R;
+		NPC->client->ps.saberMove = saberMoveName_t::LS_A_L2R;
+		NPC->client->ps.saberAnimLevel = saber_styles_t::SS_FAST;
 		break;
 	case 3:
-		attackAnim = BOTH_A3__L__R;
-		NPC->client->ps.saberMove = LS_A_L2R;
-		NPC->client->ps.saberAnimLevel = SS_STRONG;
+		attackAnim = animNumber_t::BOTH_A3__L__R;
+		NPC->client->ps.saberMove = saberMoveName_t::LS_A_L2R;
+		NPC->client->ps.saberAnimLevel = saber_styles_t::SS_STRONG;
 		break;
 	}
 	NPC->client->ps.saberBlocking = saberMoveData[NPC->client->ps.saberMove].blocking;
@@ -296,10 +296,10 @@ void NPC_SaberDroid_PickAttack( void )
 		NPC->client->ps.SaberDeactivateTrail( 0 );
 	}
 
-	NPC_SetAnim( NPC, SETANIM_BOTH, attackAnim, SETANIM_FLAG_HOLD|SETANIM_FLAG_OVERRIDE );
+	NPC_SetAnim( NPC, setAnimParts_t::SETANIM_BOTH, attackAnim, setAnimFlags_t::SETANIM_FLAG_HOLD|setAnimFlags_t::SETANIM_FLAG_OVERRIDE );
 	NPC->client->ps.torsoAnim = NPC->client->ps.legsAnim;//need to do this because we have no anim split but saber code checks torsoAnim
 	NPC->client->ps.weaponTime = NPC->client->ps.torsoAnimTimer = NPC->client->ps.legsAnimTimer;
-	NPC->client->ps.weaponstate = WEAPON_FIRING;
+	NPC->client->ps.weaponstate = weaponstate_t::WEAPON_FIRING;
 }
 
 void NPC_BSSaberDroid_Attack( void )
@@ -371,7 +371,7 @@ void NPC_BSSaberDroid_Attack( void )
 	}//this should make him chase enemy when out of range...?
 
 	if ( NPC->client->ps.legsAnimTimer
-		&& NPC->client->ps.legsAnim != BOTH_A3__L__R )//this one is a running attack
+		&& NPC->client->ps.legsAnim != animNumber_t::BOTH_A3__L__R )//this one is a running attack
 	{//in the middle of a held, stationary anim, can't doMove
 		doMove = false;
 	}
@@ -400,7 +400,7 @@ void NPC_BSSaberDroid_Attack( void )
 		NPC_FaceEnemy();
 	}
 
-	if ( Any(NPCInfo->scriptFlags&SCF_DONT_FIRE) )
+	if ( Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_DONT_FIRE) )
 	{
 		shoot = false;
 	}
@@ -411,10 +411,10 @@ void NPC_BSSaberDroid_Attack( void )
 	{//try to shoot if it's time
 		if ( TIMER_Done( NPC, "attackDelay" ) )
 		{
-			if( !Any(NPCInfo->scriptFlags & SCF_FIRE_WEAPON) ) // we've already fired, no need to do it again here
+			if( !Any(NPCInfo->scriptFlags & scriptFlags_t::SCF_FIRE_WEAPON) ) // we've already fired, no need to do it again here
 			{
 				NPC_SaberDroid_PickAttack();
-				if ( NPCInfo->rank > RANK_CREWMAN )
+				if ( NPCInfo->rank > rank_t::RANK_CREWMAN )
 				{
 					TIMER_Set( NPC, "attackDelay", NPC->client->ps.weaponTime+Q_irand(0, 1000) );
 				}
@@ -438,10 +438,10 @@ void NPC_BSSD_Default( void )
 		if ( !NPC->client->ps.SaberActive() )
 		{
 			NPC->client->ps.SaberActivate();
-			if ( NPC->client->ps.legsAnim == BOTH_TURNOFF
-				|| NPC->client->ps.legsAnim == BOTH_STAND1 )
+			if ( NPC->client->ps.legsAnim == animNumber_t::BOTH_TURNOFF
+				|| NPC->client->ps.legsAnim == animNumber_t::BOTH_STAND1 )
 			{
-				NPC_SetAnim( NPC, SETANIM_BOTH, BOTH_TURNON, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+				NPC_SetAnim( NPC, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_TURNON, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD );
 			}
 		}
 
@@ -450,10 +450,10 @@ void NPC_BSSD_Default( void )
 	}
 	if ( !NPC->client->ps.weaponTime )
 	{
-		NPC->client->ps.saberMove = LS_READY;
-		NPC->client->ps.saberBlocking = saberMoveData[LS_READY].blocking;
+		NPC->client->ps.saberMove = saberMoveName_t::LS_READY;
+		NPC->client->ps.saberBlocking = saberMoveData[saberMoveName_t::LS_READY].blocking;
 		NPC->client->ps.SaberDeactivateTrail( 0 );
-		NPC->client->ps.saberAnimLevel = SS_MEDIUM;
-		NPC->client->ps.weaponstate = WEAPON_READY;
+		NPC->client->ps.saberAnimLevel = saber_styles_t::SS_MEDIUM;
+		NPC->client->ps.weaponstate = weaponstate_t::WEAPON_READY;
 	}
 }

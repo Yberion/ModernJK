@@ -37,7 +37,7 @@ static void WP_FireBlasterMissile( gentity_t *ent, vec3_t start, vec3_t dir, boo
 //---------------------------------------------------------
 {
 	int velocity	= BLASTER_VELOCITY;
-	int	damage		= !altFire ? weaponData[WP_BLASTER].damage : weaponData[WP_BLASTER].altDamage;
+	int	damage		= !altFire ? weaponData[weapon_t::WP_BLASTER].damage : weaponData[weapon_t::WP_BLASTER].altDamage;
 
 	// If an enemy is shooting at us, lower the velocity so you have a chance to evade
 	if ( ent->client && ent->client->ps.clientNum != 0 )
@@ -57,7 +57,7 @@ static void WP_FireBlasterMissile( gentity_t *ent, vec3_t start, vec3_t dir, boo
 	gentity_t *missile = CreateMissile( start, dir, velocity, 10000, ent, altFire );
 
 	missile->classname = "blaster_proj";
-	missile->s.weapon = WP_BLASTER;
+	missile->s.weapon = weapon_t::WP_BLASTER;
 
 	// Do the damages
 	if ( ent->s.number != 0 )
@@ -87,16 +87,16 @@ static void WP_FireBlasterMissile( gentity_t *ent, vec3_t start, vec3_t dir, boo
 //	}
 
 	missile->damage = damage;
-	missile->dflags = DAMAGE_DEATH_KNOCKBACK;
+	missile->dflags = damageFlags_t::DAMAGE_DEATH_KNOCKBACK;
 	if ( altFire )
 	{
-		missile->methodOfDeath = MOD_BLASTER_ALT;
+		missile->methodOfDeath = meansOfDeath_t::MOD_BLASTER_ALT;
 	}
 	else
 	{
-		missile->methodOfDeath = MOD_BLASTER;
+		missile->methodOfDeath = meansOfDeath_t::MOD_BLASTER;
 	}
-	missile->clipmask = MASK_SHOT | CONTENTS_LIGHTSABER;
+	missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
 
 	// we don't want it to bounce forever
 	missile->bounceCount = 8;
@@ -121,8 +121,8 @@ void WP_FireBlaster( gentity_t *ent, bool alt_fire )
 		// Troopers use their aim values as well as the gun's inherent inaccuracy
 		// so check for all classes of stormtroopers and anyone else that has aim error
 		if ( ent->client && ent->NPC &&
-			( ent->client->NPC_class == CLASS_STORMTROOPER ||
-			ent->client->NPC_class == CLASS_SWAMPTROOPER ) )
+			( ent->client->NPC_class == class_t::CLASS_STORMTROOPER ||
+			ent->client->NPC_class == class_t::CLASS_SWAMPTROOPER ) )
 		{
 			angs[PITCH] += ( Q_flrand(-1.0f, 1.0f) * (BLASTER_NPC_SPREAD+(6-ent->NPC->currentAim)*0.25f));//was 0.5f
 			angs[YAW]	+= ( Q_flrand(-1.0f, 1.0f) * (BLASTER_NPC_SPREAD+(6-ent->NPC->currentAim)*0.25f));//was 0.5f

@@ -69,7 +69,6 @@ enum class fxSpawnFlags_t
 
 	FX_AFFECTED_BY_WIND		= 0x10000	// this effect primitive needs to query wind
 };
-using enum fxSpawnFlags_t;
 template <> inline constexpr bool enableEnumFlags<fxSpawnFlags_t> = true;
 
 //-----------------------------------------------------------------
@@ -151,7 +150,6 @@ enum class EPrimType
 	CameraShake,
 	ScreenFlash
 };
-using enum EPrimType;
 
 
 //-----------------------------------------------------------------

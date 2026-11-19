@@ -52,7 +52,7 @@ void G_BounceObject( gentity_t *ent, trace_t *trace )
 	VectorMA( velocity, -2*dot*bounceFactor, trace->plane.normal, ent->s.pos.trDelta );
 
 	//FIXME: customized or material-based impact/bounce sounds
-	if ( Any( ent->flags & FL_BOUNCE_HALF ) )
+	if ( Any( ent->flags & gentityFlags_t::FL_BOUNCE_HALF ) )
 	{
 		VectorScale( ent->s.pos.trDelta, 0.5, ent->s.pos.trDelta );
 
@@ -61,7 +61,7 @@ void G_BounceObject( gentity_t *ent, trace_t *trace )
 		{
 			//G_SetOrigin( ent, trace->endpos );
 			//ent->nextthink = level.time + 500;
-			ent->s.apos.trType = TR_STATIONARY;
+			ent->s.apos.trType = trType_t::TR_STATIONARY;
 			VectorCopy( ent->r.currentAngles, ent->s.apos.trBase );
 			VectorCopy( trace->endpos, ent->r.currentOrigin );
 			VectorCopy( trace->endpos, ent->s.pos.trBase );
@@ -98,9 +98,9 @@ void G_RunObject( gentity_t *ent )
 	gentity_t	*traceEnt = nullptr;
 
 	//FIXME: floaters need to stop floating up after a while, even if gravity stays negative?
-	if ( ent->s.pos.trType == TR_STATIONARY )//g_gravity.value <= 0 &&
+	if ( ent->s.pos.trType == trType_t::TR_STATIONARY )//g_gravity.value <= 0 &&
 	{
-		ent->s.pos.trType = TR_GRAVITY;
+		ent->s.pos.trType = trType_t::TR_GRAVITY;
 		VectorCopy( ent->r.currentOrigin, ent->s.pos.trBase );
 		ent->s.pos.trTime = level.previousTime;//?necc?
 		if ( !g_gravity.value )
@@ -123,7 +123,7 @@ void G_RunObject( gentity_t *ent )
 	}
 	// trace a line from the previous position to the current position,
 	// ignoring interactions with the missile owner
-	trap->Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin, ent->parent ? ent->parent->s.number : ent->s.number, ent->clipmask, false, G2TRFLAG_NONE, 0 );
+	trap->Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin, ent->parent ? ent->parent->s.number : ent->s.number, ent->clipmask, false, g2TraceFlags_t::G2TRFLAG_NONE, 0 );
 
 	if ( !tr.startsolid && !tr.allsolid && tr.fraction )
 	{
@@ -138,17 +138,17 @@ void G_RunObject( gentity_t *ent )
 
 	G_MoverTouchPushTriggers( ent, oldOrg );
 	/*
-	if ( !Any(ent->s.eFlags & EF_TELEPORT_BIT) && !Any( ent->svFlags & SVF_NO_TELEPORT ) )
+	if ( !Any(ent->s.eFlags & entityFlags_t::EF_TELEPORT_BIT) && !Any( ent->svFlags & SVF_NO_TELEPORT ) )
 	{
 		G_MoverTouchTeleportTriggers( ent, oldOrg );
-		if ( Any( ent->s.eFlags & EF_TELEPORT_BIT ) )
+		if ( Any( ent->s.eFlags & entityFlags_t::EF_TELEPORT_BIT ) )
 		{//was teleported
 			return;
 		}
 	}
 	else
 	{
-		ent->s.eFlags &= ~EF_TELEPORT_BIT;
+		ent->s.eFlags &= ~entityFlags_t::EF_TELEPORT_BIT;
 	}
 	*/
 
@@ -156,10 +156,10 @@ void G_RunObject( gentity_t *ent )
 	{
 		if ( g_gravity.value <= 0 )
 		{
-			if ( ent->s.apos.trType == TR_STATIONARY )
+			if ( ent->s.apos.trType == trType_t::TR_STATIONARY )
 			{
 				VectorCopy( ent->r.currentAngles, ent->s.apos.trBase );
-				ent->s.apos.trType = TR_LINEAR;
+				ent->s.apos.trType = trType_t::TR_LINEAR;
 				ent->s.apos.trDelta[1] = Q_flrand( -300, 300 );
 				ent->s.apos.trDelta[0] = Q_flrand( -10, 10 );
 				ent->s.apos.trDelta[2] = Q_flrand( -10, 10 );
@@ -198,7 +198,7 @@ void G_RunObject( gentity_t *ent )
 //			G_Sound( ent, G_SoundIndex( "sound/movers/objects/objectHit.wav" ) );
 		}
 
-		if (ent->s.weapon != WP_SABER)
+		if (ent->s.weapon != weapon_t::WP_SABER)
 		{
 			DoImpact( ent, traceEnt, true );
 		}
@@ -212,11 +212,11 @@ void G_RunObject( gentity_t *ent )
 	}
 
 	//do impact physics
-	if ( ent->s.pos.trType == TR_GRAVITY )//tr.fraction < 1.0 &&
+	if ( ent->s.pos.trType == trType_t::TR_GRAVITY )//tr.fraction < 1.0 &&
 	{//FIXME: only do this if no trDelta
 		if ( g_gravity.value <= 0 || tr.plane.normal[2] < 0.7 )
 		{
-			if ( Any( ent->flags & (FL_BOUNCE|FL_BOUNCE_HALF) ) )
+			if ( Any( ent->flags & (gentityFlags_t::FL_BOUNCE|gentityFlags_t::FL_BOUNCE_HALF) ) )
 			{
 				if ( tr.fraction <= 0.0f )
 				{
@@ -237,7 +237,7 @@ void G_RunObject( gentity_t *ent )
 		}
 		else
 		{
-			ent->s.apos.trType = TR_STATIONARY;
+			ent->s.apos.trType = trType_t::TR_STATIONARY;
 			pitch_roll_for_slope( ent, tr.plane.normal );
 			//ent->r.currentAngles[0] = 0;//FIXME: match to slope
 			//ent->r.currentAngles[2] = 0;//FIXME: match to slope
@@ -248,9 +248,9 @@ void G_RunObject( gentity_t *ent )
 			G_StopObjectMoving( ent );
 		}
 	}
-	else if (ent->s.weapon != WP_SABER)
+	else if (ent->s.weapon != weapon_t::WP_SABER)
 	{
-		ent->s.apos.trType = TR_STATIONARY;
+		ent->s.apos.trType = trType_t::TR_STATIONARY;
 		pitch_roll_for_slope( ent, tr.plane.normal );
 		//ent->r.currentAngles[0] = 0;//FIXME: match to slope
 		//ent->r.currentAngles[2] = 0;//FIXME: match to slope
@@ -264,7 +264,7 @@ void G_RunObject( gentity_t *ent )
 
 void G_StopObjectMoving( gentity_t *object )
 {
-	object->s.pos.trType = TR_STATIONARY;
+	object->s.pos.trType = trType_t::TR_STATIONARY;
 	VectorCopy( object->r.currentOrigin, object->s.origin );
 	VectorCopy( object->r.currentOrigin, object->s.pos.trBase );
 	VectorClear( object->s.pos.trDelta );
@@ -282,7 +282,7 @@ void G_StartObjectMoving( gentity_t *object, vec3_t dir, float speed, trType_t t
 {
 	VectorNormalize (dir);
 
-	//object->s.eType = ET_GENERAL;
+	//object->s.eType = entityType_t::ET_GENERAL;
 	object->s.pos.trType = trType;
 	VectorCopy( object->r.currentOrigin, object->s.pos.trBase );
 	VectorScale(dir, speed, object->s.pos.trDelta );

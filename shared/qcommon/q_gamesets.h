@@ -33,7 +33,6 @@ enum class aiDebugLevel_t
 	DEBUG_LEVEL_ERROR = 1,
 	DEBUG_LEVEL_NONE = 0,
 };
-using enum aiDebugLevel_t;
 
 enum class flyMode_t
 {
@@ -42,7 +41,6 @@ enum class flyMode_t
 	FLY_VEHICLE,
 	FLY_HOVER,
 };
-using enum flyMode_t;
 
 // the fonts of CG_DrawNumField
 enum class numFont_t
@@ -51,4 +49,3 @@ enum class numFont_t
 	NUM_FONT_SMALL,
 	NUM_FONT_CHUNKY
 };
-using enum numFont_t;

@@ -46,7 +46,6 @@ enum class goalFlags_t
 	GFL_ROAM				= 2,
 	GFL_DROPPED				= 4,
 };
-using enum goalFlags_t;
 template <> inline constexpr bool enableEnumFlags<goalFlags_t> = true;
 
 //a bot goal

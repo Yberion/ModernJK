@@ -44,5 +44,4 @@ enum class bSet_t //# bSet_e
 
 	NUM_BSETS
 };
-using enum bSet_t;
 template <> inline constexpr bool enableEnumArithmetic<bSet_t> = true;

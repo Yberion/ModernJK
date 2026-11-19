@@ -243,12 +243,12 @@ void ChannelPaint(channel_t *ch, sfx_t *sc, int count, int sampleOffset, int buf
 {
 	switch (sc->eSoundCompressionMethod)
 	{
-		case ct_16:
+		case SoundCompressionMethod_t::ct_16:
 
 			S_PaintChannelFrom16		(ch, sc, count, sampleOffset, bufferOffset);
 			break;
 
-		case ct_MP3:
+		case SoundCompressionMethod_t::ct_MP3:
 
 			S_PaintChannelFromMP3		(ch, sc, count, sampleOffset, bufferOffset);
 			break;
@@ -317,7 +317,7 @@ void S_PaintChannels( int endtime ) {
 				continue;
 			}
 
-			if ( ch->entchannel == CHAN_VOICE || ch->entchannel == CHAN_VOICE_ATTEN || ch->entchannel == CHAN_VOICE_GLOBAL )
+			if ( ch->entchannel == soundChannel_t::CHAN_VOICE || ch->entchannel == soundChannel_t::CHAN_VOICE_ATTEN || ch->entchannel == soundChannel_t::CHAN_VOICE_GLOBAL )
 				snd_vol = voice_vol;
 			else
 				snd_vol = normal_vol;

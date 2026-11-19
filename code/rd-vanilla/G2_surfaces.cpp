@@ -222,8 +222,8 @@ bool G2_SetSurfaceOnOff (CGhoul2Info *ghlInfo, const char *surfaceName, const g2
 		// slist[surfIndex].offFlags = offFlags;
 		// seems to me that we shouldn't overwrite the other flags.
 		// the only bit we really care about in the incoming flags is the off bit
-		ghlInfo->mSlist[surfIndex].offFlags &= ~(G2SURFACEFLAG_OFF | G2SURFACEFLAG_NODESCENDANTS);
-		ghlInfo->mSlist[surfIndex].offFlags |= offFlags & (G2SURFACEFLAG_OFF | G2SURFACEFLAG_NODESCENDANTS);
+		ghlInfo->mSlist[surfIndex].offFlags &= ~(g2SurfaceFlags_t::G2SURFACEFLAG_OFF | g2SurfaceFlags_t::G2SURFACEFLAG_NODESCENDANTS);
+		ghlInfo->mSlist[surfIndex].offFlags |= offFlags & (g2SurfaceFlags_t::G2SURFACEFLAG_OFF | g2SurfaceFlags_t::G2SURFACEFLAG_NODESCENDANTS);
 		return true;
 	}
 	else
@@ -235,8 +235,8 @@ bool G2_SetSurfaceOnOff (CGhoul2Info *ghlInfo, const char *surfaceName, const g2
 		{
 			g2SurfaceFlags_t newflags = flags;
 			// the only bit we really care about in the incoming flags is the off bit
-			newflags &= ~(G2SURFACEFLAG_OFF | G2SURFACEFLAG_NODESCENDANTS);
-			newflags |= offFlags & (G2SURFACEFLAG_OFF | G2SURFACEFLAG_NODESCENDANTS);
+			newflags &= ~(g2SurfaceFlags_t::G2SURFACEFLAG_OFF | g2SurfaceFlags_t::G2SURFACEFLAG_NODESCENDANTS);
+			newflags |= offFlags & (g2SurfaceFlags_t::G2SURFACEFLAG_OFF | g2SurfaceFlags_t::G2SURFACEFLAG_NODESCENDANTS);
 
 			if (newflags != flags)
 			{	// insert here then because it changed, no need to add an override otherwise
@@ -273,13 +273,13 @@ void G2_FindRecursiveSurface(const model_t *currentModel, int surfaceNum, surfac
 	}
 
 	// if this surface is not off, indicate as such in the active surface list
-	if (!Any(offFlags & G2SURFACEFLAG_OFF))
+	if (!Any(offFlags & g2SurfaceFlags_t::G2SURFACEFLAG_OFF))
 	{
 		activeSurfaces[surfaceNum] = 1;
 	}
  	else
 	// if we are turning off all descendants, then stop this recursion now
-	if (Any( offFlags & G2SURFACEFLAG_NODESCENDANTS ))
+	if (Any( offFlags & g2SurfaceFlags_t::G2SURFACEFLAG_NODESCENDANTS ))
 	{
 		return;
 	}
@@ -331,7 +331,7 @@ int G2_AddSurface(CGhoul2Info *ghoul2, int surfaceNumber, int polyNumber, float 
 	{
 		ghoul2->mSlist.push_back(surfaceInfo_t());
 	}
-	ghoul2->mSlist[i].offFlags = G2SURFACEFLAG_GENERATED;
+	ghoul2->mSlist[i].offFlags = g2SurfaceFlags_t::G2SURFACEFLAG_GENERATED;
 	ghoul2->mSlist[i].surface = 10000;		// no model will ever have 10000 surfaces
 	ghoul2->mSlist[i].genBarycentricI = BarycentricI;
 	ghoul2->mSlist[i].genBarycentricJ = BarycentricJ;
@@ -375,7 +375,7 @@ int G2_GetSurfaceIndex(CGhoul2Info *ghlInfo, const char *surfaceName)
 
 std::optional<g2SurfaceFlags_t> G2_IsSurfaceRendered(CGhoul2Info *ghlInfo, const char *surfaceName, surfaceInfo_v &slist)
 {
-	g2SurfaceFlags_t				flags = G2SURFACEFLAG_NONE;//, surfFlags = 0;
+	g2SurfaceFlags_t				flags = g2SurfaceFlags_t::G2SURFACEFLAG_NONE;//, surfFlags = 0;
 	int						surfIndex = 0;
 	assert(ghlInfo->currentModel);
 	assert(ghlInfo->currentModel->mdxm);
@@ -397,7 +397,7 @@ std::optional<g2SurfaceFlags_t> G2_IsSurfaceRendered(CGhoul2Info *ghlInfo, const
 		while (surfNum != -1)
 		{
 			const mdxmSurface_t *parentSurf;
-			g2SurfaceFlags_t parentFlags = G2SURFACEFLAG_NONE;
+			g2SurfaceFlags_t parentFlags = g2SurfaceFlags_t::G2SURFACEFLAG_NONE;
 			const mdxmSurfHierarchy_t *parentSurfInfo;
 
 			parentSurfInfo = (mdxmSurfHierarchy_t *)((byte *)surfIndexes + surfIndexes->offsets[surfNum]);
@@ -414,9 +414,9 @@ std::optional<g2SurfaceFlags_t> G2_IsSurfaceRendered(CGhoul2Info *ghlInfo, const
 				parentFlags = slist[surfIndex].offFlags;
 			}
 			// now we have the parent flags, lets see if any have the 'no descendants' flag set
-			if (Any(parentFlags & G2SURFACEFLAG_NODESCENDANTS))
+			if (Any(parentFlags & g2SurfaceFlags_t::G2SURFACEFLAG_NODESCENDANTS))
 			{
-				flags |= G2SURFACEFLAG_OFF;
+				flags |= g2SurfaceFlags_t::G2SURFACEFLAG_OFF;
 				break;
 			}
 			// set up scan of next parent

@@ -340,7 +340,6 @@ enum class fakeAscii_t
 
 	MAX_KEYS
 };
-using enum fakeAscii_t;
 template <>
 inline constexpr bool enableEnumArithmetic<fakeAscii_t> = true;
 

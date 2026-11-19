@@ -54,13 +54,13 @@ void G_WriteClientSessionData( gclient_t *client ) {
 
 	s2 = "";
 	// Throw all status info into a string
-//	for (objectiveNumber_t o = LIGHTSIDE_OBJ; o < MAX_OBJECTIVES; o++)
+//	for (objectiveNumber_t o = objectiveNumber_t::LIGHTSIDE_OBJ; o < objectiveNumber_t::MAX_OBJECTIVES; o++)
 //	{
 //		s2 = va("%s %i %i",	s2, client->sess.mission_objectives[o].display,	client->sess.mission_objectives[o].status);
 //	}
 
 	// We're saving only one objective
-	s2 = va("%i %i", client->sess.mission_objectives[LIGHTSIDE_OBJ].display,	client->sess.mission_objectives[LIGHTSIDE_OBJ].status);
+	s2 = va("%i %i", client->sess.mission_objectives[objectiveNumber_t::LIGHTSIDE_OBJ].display,	client->sess.mission_objectives[objectiveNumber_t::LIGHTSIDE_OBJ].status);
 
 	var = va( "sessionobj%td", client - level.clients );
 	gi.cvar_set( var, s2 );
@@ -86,7 +86,7 @@ void G_WriteClientSessionData( gclient_t *client ) {
 
 
 	s2 = "";
-	for ( forcePowers_t fp = FP_FIRST; fp < NUM_FORCE_POWERS; fp++ )
+	for ( forcePowers_t fp = forcePowers_t::FP_FIRST; fp < forcePowers_t::NUM_FORCE_POWERS; fp++ )
 	{
 		s2 = va("%s %i",s2, client->sess.missionStats.forceUsed[fp]);
 	}
@@ -95,7 +95,7 @@ void G_WriteClientSessionData( gclient_t *client ) {
 
 
 	s2 = "";
-	for (i=WP_NONE;i< WP_NUM_WEAPONS; i++)
+	for (i=weapon_t::WP_NONE;i< weapon_t::WP_NUM_WEAPONS; i++)
 	{
 		s2 = va("%s %i",s2, client->sess.missionStats.weaponUsed[i]);
 	}
@@ -130,7 +130,7 @@ void G_ReadSessionData( gclient_t *client ) {
 	var = s;
 //	var++;
 
-//	for (objectiveNumber_t o = LIGHTSIDE_OBJ; o < MAX_OBJECTIVES; o++)
+//	for (objectiveNumber_t o = objectiveNumber_t::LIGHTSIDE_OBJ; o < objectiveNumber_t::MAX_OBJECTIVES; o++)
 //	{
 //		sscanf( var, "%i %i",
 //			&client->sess.mission_objectives[o].display,
@@ -138,7 +138,7 @@ void G_ReadSessionData( gclient_t *client ) {
 //			var+=4;
 //	}
 	// Clear the objectives out
-	for (objectiveNumber_t o = LIGHTSIDE_OBJ; o < MAX_OBJECTIVES; o++)
+	for (objectiveNumber_t o = objectiveNumber_t::LIGHTSIDE_OBJ; o < objectiveNumber_t::MAX_OBJECTIVES; o++)
 	{
 		objectives_t &objective = client->sess.mission_objectives[o];
 		objective.display = false;
@@ -148,8 +148,8 @@ void G_ReadSessionData( gclient_t *client ) {
 	// Now load the LIGHTSIDE objective. That's the only cross level objective.
 	sscanf( var, "%i %i",
 		&lightsideDisplay,
-		&client->sess.mission_objectives[LIGHTSIDE_OBJ].status);
-	client->sess.mission_objectives[LIGHTSIDE_OBJ].display = lightsideDisplay ? true : false;
+		&client->sess.mission_objectives[objectiveNumber_t::LIGHTSIDE_OBJ].status);
+	client->sess.mission_objectives[objectiveNumber_t::LIGHTSIDE_OBJ].display = lightsideDisplay ? true : false;
 
 	var = va( "missionstats%td", client - level.clients );
 	gi.Cvar_VariableStringBuffer( var, s, sizeof(s) );
@@ -171,30 +171,30 @@ void G_ReadSessionData( gclient_t *client ) {
 	var = va( "sessionpowers%td", client - level.clients );
 	gi.Cvar_VariableStringBuffer( var, s, sizeof(s) );
 
-	forcePowers_t fp = FP_FIRST;
+	forcePowers_t fp = forcePowers_t::FP_FIRST;
 	var = strtok( s, " " );
-	while( var != nullptr && fp < NUM_FORCE_POWERS )
+	while( var != nullptr && fp < forcePowers_t::NUM_FORCE_POWERS )
 	{
       /* While there are tokens in "s" */
 	  client->sess.missionStats.forceUsed[fp++] = atoi(var);
       /* Get next token: */
       var = strtok( nullptr, " " );
 	}
-	assert (fp==NUM_FORCE_POWERS);
+	assert (fp==forcePowers_t::NUM_FORCE_POWERS);
 
 	var = va( "sessionweapons%td", client - level.clients );
 	gi.Cvar_VariableStringBuffer( var, s, sizeof(s) );
 
-	weapon_t wp = WP_NONE;
+	weapon_t wp = weapon_t::WP_NONE;
 	var = strtok( s, " " );
-	while( var != nullptr && wp < WP_NUM_WEAPONS )
+	while( var != nullptr && wp < weapon_t::WP_NUM_WEAPONS )
 	{
       /* While there are tokens in "s" */
 	  client->sess.missionStats.weaponUsed[wp++] = atoi(var);
       /* Get next token: */
       var = strtok( nullptr, " " );
 	}
-	assert (wp==WP_NUM_WEAPONS);
+	assert (wp==weapon_t::WP_NUM_WEAPONS);
 }
 
 
@@ -210,7 +210,7 @@ void G_InitSessionData( gclient_t *client, char *userinfo ) {
 
 	sess = &client->sess;
 
-	sess->sessionTeam = TEAM_FREE;
+	sess->sessionTeam = team_t::TEAM_FREE;
 
 	G_WriteClientSessionData( client );
 }
@@ -237,7 +237,7 @@ void G_WriteSessionData( void ) {
 	gi.cvar_set( "session", nullptr) ;
 
 	for ( i = 0 ; i < level.maxclients ; i++ ) {
-		if ( level.clients[i].pers.connected == CON_CONNECTED ) {
+		if ( level.clients[i].pers.connected == clientConnected_t::CON_CONNECTED ) {
 			G_WriteClientSessionData( &level.clients[i] );
 		}
 	}

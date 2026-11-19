@@ -46,7 +46,6 @@ enum class saberLockResult_t
 	LOCK_STALEMATE,//neither side won
 	LOCK_DRAW//both people fall back
 };
-using enum saberLockResult_t;
 
 inline constexpr int MAX_FORCE_HEAL = 25;
 inline constexpr int FORCE_HEAL_INTERVAL = 200; //FIXME: maybe level 1 is slower or level 2 is faster?
@@ -54,15 +53,15 @@ inline constexpr int FORCE_HEAL_INTERVAL = 200; //FIXME: maybe level 1 is slower
 inline constexpr float FORCE_GRIP_DIST = 512.0f; //FIXME: vary by power level?
 inline constexpr float FORCE_GRIP_DIST_SQUARED = FORCE_GRIP_DIST*FORCE_GRIP_DIST;
 
-extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceJumpStrength;
-extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceJumpHeight;
+extern EnumArray<float, forcePowerLevels_t, forcePowerLevels_t::NUM_FORCE_POWER_LEVELS> forceJumpStrength;
+extern EnumArray<float, forcePowerLevels_t, forcePowerLevels_t::NUM_FORCE_POWER_LEVELS> forceJumpHeight;
 
-extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forcePushPullRadius;
+extern EnumArray<float, forcePowerLevels_t, forcePowerLevels_t::NUM_FORCE_POWER_LEVELS> forcePushPullRadius;
 
 extern void ForceSpeed( gentity_t *self, int duration = 0 );
-extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceSpeedValue;
-extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceSpeedRangeMod;
-extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceSpeedFOVMod;
+extern EnumArray<float, forcePowerLevels_t, forcePowerLevels_t::NUM_FORCE_POWER_LEVELS> forceSpeedValue;
+extern EnumArray<float, forcePowerLevels_t, forcePowerLevels_t::NUM_FORCE_POWER_LEVELS> forceSpeedRangeMod;
+extern EnumArray<float, forcePowerLevels_t, forcePowerLevels_t::NUM_FORCE_POWER_LEVELS> forceSpeedFOVMod;
 inline constexpr float FORCE_SPEED_DURATION = 10000.0f;
 
 enum class forceJump_t
@@ -73,7 +72,6 @@ enum class forceJump_t
 	FJ_LEFT,
 	FJ_UP
 };
-using enum forceJump_t;
 
 inline constexpr float FORCE_JUMP_CHARGE_TIME = 1000.0f;	//Force jump reaches maximum power in one second
 
@@ -94,7 +92,6 @@ enum class evasionType_t
 	EVASION_OTHER,
 	NUM_EVASION_TYPES
 };
-using enum evasionType_t;
 
 // Okay, here lies the much-dreaded Pat-created FSM movement chart...  Heretic II strikes again!
 // Why am I inflicting this on you?  Well, it's better than hardcoded states.
@@ -250,7 +247,6 @@ enum class saberMoveName_t {
 
 	LS_MOVE_MAX//
 };
-using enum saberMoveName_t;
 template <> inline constexpr bool enableEnumArithmetic<saberMoveName_t> = true;
 
 enum class saberQuadrant_t {
@@ -264,7 +260,6 @@ enum class saberQuadrant_t {
 	Q_B,
 	Q_NUM_QUADS
 };
-using enum saberQuadrant_t;
 template <> inline constexpr bool enableEnumArithmetic<saberQuadrant_t> = true;
 
 typedef struct
@@ -281,6 +276,6 @@ typedef struct
 	int trailLength;
 } saberMoveData_t;
 
-extern EnumArray<saberMoveData_t, saberMoveName_t, LS_MOVE_MAX> saberMoveData;
+extern EnumArray<saberMoveData_t, saberMoveName_t, saberMoveName_t::LS_MOVE_MAX> saberMoveData;
 
 #endif	// __WP_SABER_H

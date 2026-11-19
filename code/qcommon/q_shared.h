@@ -193,7 +193,6 @@ enum class cbufExec_t {
 	EXEC_INSERT,		// insert at current position, but don't run yet
 	EXEC_APPEND			// add to end of the command buffer (normal case)
 };
-using enum cbufExec_t;
 
 
 //
@@ -211,7 +210,6 @@ enum class printParm_t {
 	PRINT_WARNING,
 	PRINT_ERROR
 };
-using enum printParm_t;
 
 // parameters to the main Error routine
 enum class errorParm_t {
@@ -219,7 +217,6 @@ enum class errorParm_t {
 	ERR_DROP,					// print to console and disconnect from game
 	ERR_DISCONNECT,				// don't kill server
 };
-using enum errorParm_t;
 
 // font rendering values used by ui and cgame
 
@@ -255,18 +252,16 @@ enum class saber_colors_t
 	SABER_PURPLE
 
 };
-using enum saber_colors_t;
 
 enum class saberBlockType_t {
 	BLK_NO,
 	BLK_TIGHT,		// Block only attacks and shots around the saber itself, a bbox of around 12x12x12
 	BLK_WIDE		// Block all attacks in an area around the player in a rough arc of 180 degrees
 };
-using enum saberBlockType_t;
 
 inline constexpr int MAX_BATTERIES = 2500;
 
-#define ENUM2STRING(arg)   { #arg, to_underlying( arg ) }
+#define ENUM2STRING(type, arg)   { #arg, to_underlying( type::arg ) }
 
 //=============================================
 
@@ -326,14 +321,12 @@ enum class fsMode_t {
 	FS_APPEND,
 	FS_APPEND_SYNC
 };
-using enum fsMode_t;
 
 enum class fsOrigin_t {
 	FS_SEEK_CUR,
 	FS_SEEK_END,
 	FS_SEEK_SET
 };
-using enum fsOrigin_t;
 
 //=============================================
 char	* QDECL va(const char *format, ...) __attribute__ ((format (printf, 1, 2)));
@@ -399,7 +392,6 @@ enum class cvarFlags_t
 	// These flags are only returned by the Cvar_Flags() function
 	CVAR_MODIFIED		= 0x40000000,		// Cvar was modified
 };
-using enum cvarFlags_t;
 template <> inline constexpr bool enableEnumFlags<cvarFlags_t> = true;
 
 // nothing outside the Cvar_*() functions should modify these fields!
@@ -535,7 +527,6 @@ enum class keyCatchFlags_t
 	KEYCATCH_CONSOLE	= 1,
 	KEYCATCH_UI			= 2,
 };
-using enum keyCatchFlags_t;
 template <> inline constexpr bool enableEnumFlags<keyCatchFlags_t> = true;
 
 
@@ -564,7 +555,6 @@ enum class snapFlags_t
 	SNAPFLAG_DROPPED_COMMANDS	= 2,	// the server lost some cmds coming from the client
 	SNAPFLAG_SERVERCOUNT		= 4,	// toggled every map_restart so transitions can be detected
 };
-using enum snapFlags_t;
 template <> inline constexpr bool enableEnumFlags<snapFlags_t> = true;
 
 //
@@ -702,7 +692,6 @@ enum class forcePowers_t
 
 	NUM_FORCE_POWERS
 };
-using enum forcePowers_t;
 template <> inline constexpr bool enableEnumArithmetic<forcePowers_t> = true;
 
 // the same set in both single-player games, so the engine (the UI, force sight) names the levels too
@@ -725,7 +714,6 @@ enum class saberType_t
 	SABER_SITH_SWORD,
 	NUM_SABERS
 };
-using enum saberType_t;
 
 //=========================================================
 
@@ -758,7 +746,6 @@ enum class waterHeightLevel_t
 	WHL_HEAD,
 	WHL_UNDER
 };
-using enum waterHeightLevel_t;
 
 // !!!!!!! loadsave affecting struct !!!!!!!
 typedef struct saberTrail_s
@@ -878,7 +865,6 @@ enum class saber_styles_t
 	SS_STAFF,
 	SS_NUM_SABER_STYLES
 };
-using enum saber_styles_t;
 template <> inline constexpr bool enableEnumArithmetic<saber_styles_t> = true;
 
 #include "qcommon/q_saberflags.h"
@@ -1051,17 +1037,17 @@ typedef struct saberInfo_s
 						{
 							if ( i >= bladeStyle2Start )
 							{
-								if ( Any( saberFlags2 & SFL2_NO_MANUAL_DEACTIVATE2 ) )
+								if ( Any( saberFlags2 & saberFlags2_t::SFL2_NO_MANUAL_DEACTIVATE2 ) )
 								{//don't count this blade
 									continue;
 								}
 							}
-							else if ( Any( saberFlags2 & SFL2_NO_MANUAL_DEACTIVATE ) )
+							else if ( Any( saberFlags2 & saberFlags2_t::SFL2_NO_MANUAL_DEACTIVATE ) )
 							{//don't count this blade
 								continue;
 							}
 						}
-						else if ( Any( saberFlags2 & SFL2_NO_MANUAL_DEACTIVATE ) )
+						else if ( Any( saberFlags2 & saberFlags2_t::SFL2_NO_MANUAL_DEACTIVATE ) )
 						{//don't count any of these blades!
 							continue;
 						}
@@ -1606,7 +1592,7 @@ public:
 	//			or descend them as classes - so not every client has all this info
 	TSaberInfo	saber[MAX_SABERS];
 	bool	dualSabers;
-	bool	SaberStaff( void ) { return ( saber[0].type == SABER_STAFF || (dualSabers && saber[1].type == SABER_STAFF) ); };
+	bool	SaberStaff( void ) { return ( saber[0].type == saberType_t::SABER_STAFF || (dualSabers && saber[1].type == saberType_t::SABER_STAFF) ); };
 	bool	SaberActive() { return ( saber[0].Active() || (dualSabers&&saber[1].Active()) ); };
 	void		SetSaberLength( float length )
 				{
@@ -1767,8 +1753,8 @@ public:
 #endif
 
 	int			forcePowersKnown;
-	EnumArray<int, forcePowers_t, NUM_FORCE_POWERS>	forcePowerDuration;	//for effects that have a duration
-	EnumArray<int, forcePowers_t, NUM_FORCE_POWERS>	forcePowerDebounce;	//for effects that must have an interval
+	EnumArray<int, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS>	forcePowerDuration;	//for effects that have a duration
+	EnumArray<int, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS>	forcePowerDebounce;	//for effects that must have an interval
 	int			forcePower;
 	int			forcePowerMax;
 	int			forcePowerRegenDebounceTime;
@@ -1778,7 +1764,7 @@ public:
 	int			forcePowerRegenAmount;				//default is 1
 #endif // !JK2_MODE
 
-	EnumArray<forcePowerLevels_t, forcePowers_t, NUM_FORCE_POWERS>	forcePowerLevel;		//so we know the max forceJump power you have
+	EnumArray<forcePowerLevels_t, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS>	forcePowerLevel;		//so we know the max forceJump power you have
 	float		forceJumpZStart;					//So when you land, you don't get hurt as much
 	float		forceJumpCharge;					//you're current forceJump charge-up level, increases the longer you hold the force jump button down
 	int			forceGripEntityNum;					//what entity I'm gripping
@@ -2196,7 +2182,6 @@ enum class buttonFlags_t
 
 	BUTTON_FORCE_FOCUS	= 256,			// any key whatsoever
 };
-using enum buttonFlags_t;
 template <> inline constexpr bool enableEnumFlags<buttonFlags_t> = true;
 
 										// then BUTTON_WALKING should be set
@@ -2218,7 +2203,6 @@ enum class genCmds_t
 	GENCMD_FORCE_DRAIN,
 	GENCMD_FORCE_SEEING,
 };
-using enum genCmds_t;
 
 
 // usercmd_t is sent to the server each client frame
@@ -2275,7 +2259,6 @@ enum class trType_t {// !!!!!!!!!!! LOADSAVE-affecting struct !!!!!!!!!!
 	TR_SINE,					// value = base + sin( time / duration ) * delta
 	TR_GRAVITY
 };
-using enum trType_t;
 
 typedef struct trajectory_s {// !!!!!!!!!!! LOADSAVE-affecting struct !!!!!!!!!!
 	trType_t	trType;
@@ -2516,7 +2499,6 @@ enum class connstate_t {
 	CA_ACTIVE,			// game views should be displayed
 	CA_CINEMATIC		// playing a cinematic or a static pic, not connected to a server
 };
-using enum connstate_t;
 
 typedef struct SSkinGoreData_s
 {
@@ -2597,7 +2579,6 @@ enum class sharedEIKMoveState
 	IKS_NONE = 0,
 	IKS_DYNAMIC
 };
-using enum sharedEIKMoveState;
 
 /*
 ========================================================================
@@ -2640,7 +2621,6 @@ enum class Eorientations
 	NEGATIVE_Z,
 	NEGATIVE_Y
 };
-using enum Eorientations;
 template <> inline constexpr bool enableEnumArithmetic<Eorientations> = true;
 /*
 Ghoul2 Insert End
@@ -2671,7 +2651,6 @@ enum class e_status {
 	FMV_LOOPED,
 	FMV_ID_WAIT
 };
-using enum e_status;
 
 
 // define the new memory tags for the zone, used by all modules now
@@ -2680,7 +2659,6 @@ using enum e_status;
 enum class memtag {
 	#include "../qcommon/tags.h"
 };
-using enum memtag;
 template <> inline constexpr bool enableEnumArithmetic<memtag> = true;
 typedef memtag memtag_t;
 
@@ -2694,7 +2672,6 @@ enum class ForceReload_e
 	eForceReload_ALL
 
 };
-using enum ForceReload_e;
 
 bool Q_InBitflags( const uint32_t *bits, int index, uint32_t bitsPerByte );
 void Q_AddToBitflags( uint32_t *bits, int index, uint32_t bitsPerByte );

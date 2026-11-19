@@ -74,7 +74,7 @@ void NPC_SetMoveGoal( gentity_t *ent, vec3_t point, int radius, bool isNavGoal, 
 	{
 		trace_t	trace;
 		vec3_t	bottom = {ent->NPC->tempGoal->currentOrigin[0],ent->NPC->tempGoal->currentOrigin[1],ent->NPC->tempGoal->currentOrigin[2]+ent->NPC->tempGoal->mins[2]};
-		gi.trace( &trace, ent->NPC->tempGoal->currentOrigin, vec3_origin, vec3_origin, bottom, ent->s.number, ent->clipmask, G2_NOCOLLIDE, 0 );
+		gi.trace( &trace, ent->NPC->tempGoal->currentOrigin, vec3_origin, vec3_origin, bottom, ent->s.number, ent->clipmask, EG2_Collision::G2_NOCOLLIDE, 0 );
 		if ( trace.fraction < 1.0f )
 		{//in the ground, raise it up
 			ent->NPC->tempGoal->currentOrigin[2] -= ent->NPC->tempGoal->mins[2]*(1.0f-trace.fraction)-0.125f;
@@ -83,7 +83,7 @@ void NPC_SetMoveGoal( gentity_t *ent, vec3_t point, int radius, bool isNavGoal, 
 
 	ent->NPC->tempGoal->target = nullptr;
 	ent->NPC->tempGoal->clipmask = ent->clipmask;
-	ent->NPC->tempGoal->svFlags &= ~SVF_NAVGOAL;
+	ent->NPC->tempGoal->svFlags &= ~svFlags_t::SVF_NAVGOAL;
 	if ( targetEnt && targetEnt->waypoint >= 0 )
 	{
 		ent->NPC->tempGoal->waypoint = targetEnt->waypoint;
@@ -97,7 +97,7 @@ void NPC_SetMoveGoal( gentity_t *ent, vec3_t point, int radius, bool isNavGoal, 
 	if ( isNavGoal )
 	{
 		assert(ent->NPC->tempGoal->owner);
-		ent->NPC->tempGoal->svFlags |= SVF_NAVGOAL;
+		ent->NPC->tempGoal->svFlags |= svFlags_t::SVF_NAVGOAL;
 	}
 
 	ent->NPC->tempGoal->combatPoint = combatPoint;
@@ -105,7 +105,7 @@ void NPC_SetMoveGoal( gentity_t *ent, vec3_t point, int radius, bool isNavGoal, 
 
 	ent->NPC->goalEntity = ent->NPC->tempGoal;
 	ent->NPC->goalRadius = radius;
-	ent->NPC->aiFlags	&= ~NPCAI_STOP_AT_LOS;
+	ent->NPC->aiFlags	&= ~npcAiFlags_t::NPCAI_STOP_AT_LOS;
 
 	gi.linkentity( ent->NPC->goalEntity );
 }
@@ -132,7 +132,7 @@ static float waypoint_testDirection( vec3_t origin, float yaw, float minDist )
 	//Move ahead
 	VectorMA( origin, minDist, trace_dir, test_pos );
 
-	gi.trace( &tr, origin, mins, maxs, test_pos, ENTITYNUM_NONE, ( CONTENTS_SOLID | CONTENTS_MONSTERCLIP | CONTENTS_BOTCLIP ), G2_NOCOLLIDE, 0 );
+	gi.trace( &tr, origin, mins, maxs, test_pos, ENTITYNUM_NONE, ( contentsFlags_t::CONTENTS_SOLID | contentsFlags_t::CONTENTS_MONSTERCLIP | contentsFlags_t::CONTENTS_BOTCLIP ), EG2_Collision::G2_NOCOLLIDE, 0 );
 
 	return ( minDist * tr.fraction );	//return actual dist completed
 }
@@ -174,7 +174,7 @@ void SP_waypoint ( gentity_t *ent )
 		VectorSet(ent->mins, DEFAULT_MINS_0, DEFAULT_MINS_1, DEFAULT_MINS_2);
 		VectorSet(ent->maxs, DEFAULT_MAXS_0, DEFAULT_MAXS_1, DEFAULT_MAXS_2);
 
-		ent->contents = CONTENTS_TRIGGER;
+		ent->contents = contentsFlags_t::CONTENTS_TRIGGER;
 		ent->clipmask = MASK_DEADSOLID;
 
 		gi.linkentity( ent );
@@ -220,7 +220,7 @@ void SP_waypoint_small (gentity_t *ent)
 		VectorSet(ent->mins, -2, -2, DEFAULT_MINS_2);
 		VectorSet(ent->maxs, 2, 2, DEFAULT_MAXS_2);
 
-		ent->contents = CONTENTS_TRIGGER;
+		ent->contents = contentsFlags_t::CONTENTS_TRIGGER;
 		ent->clipmask = MASK_DEADSOLID;
 
 		gi.linkentity( ent );
@@ -294,7 +294,7 @@ void SP_waypoint_navgoal( gentity_t *ent )
 
 	ent->classname = "navgoal";
 
-	NAV::SpawnedPoint(ent, NAV::PT_GOALNODE);
+	NAV::SpawnedPoint(ent, NAV::EPointType::PT_GOALNODE);
 
 	G_FreeEntity( ent );//can't do this, they need to be found later by some functions, though those could be fixed, maybe?
 }
@@ -373,7 +373,7 @@ void Svcmd_Nav_f( void )
 
 		if ( Q_stricmp( cmd, "testgoal" ) == 0 )
 		{
-		//	NAVDEBUG_curGoal = navigator.GetNearestNode( &g_entities[0], g_entities[0].waypoint, NF_CLEAR_PATH, WAYPOINT_NONE );
+		//	NAVDEBUG_curGoal = navigator.GetNearestNode( &g_entities[0], g_entities[0].waypoint, navNodeFlags_t::NF_CLEAR_PATH, WAYPOINT_NONE );
 		}
 	}
 	else if ( Q_stricmp( cmd, "goto" ) == 0 )

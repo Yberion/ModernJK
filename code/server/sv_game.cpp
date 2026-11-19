@@ -74,7 +74,7 @@ gentity_t	*SV_GentityNum( int num ) {
 
 svEntity_t	*SV_SvEntityForGentity( gentity_t *gEnt ) {
 	if ( !gEnt || gEnt->s.number < 0 || gEnt->s.number >= MAX_GENTITIES ) {
-		Com_Error( ERR_DROP, "SV_SvEntityForGentity: bad gEnt" );
+		Com_Error( errorParm_t::ERR_DROP, "SV_SvEntityForGentity: bad gEnt" );
 	}
 	return &sv.svEntities[ gEnt->s.number ];
 }
@@ -140,7 +140,7 @@ void SV_SetBrushModel( gentity_t *ent, const char *name ) {
 
 	if (!name)
 	{
-		Com_Error( ERR_DROP, "SV_SetBrushModel: NULL model for ent number %d", ent->s.number );
+		Com_Error( errorParm_t::ERR_DROP, "SV_SetBrushModel: NULL model for ent number %d", ent->s.number );
 	}
 
 	if (name[0] == '*')
@@ -182,14 +182,14 @@ void SV_SetBrushModel( gentity_t *ent, const char *name ) {
 
 		//rwwNOTE: We don't ever want to set contents -1, it includes CONTENTS_LIGHTSABER.
 		//Lots of stuff will explode if there's a brush with CONTENTS_LIGHTSABER that isn't attached to a client owner.
-		//ent->contents = CONTENTS_ALL;		// we don't know exactly what is in the brushes
+		//ent->contents = contentsFlags_t::CONTENTS_ALL;		// we don't know exactly what is in the brushes
 		h = CM_InlineModel( ent->s.modelindex );
 		ent->contents = CM_ModelContents( h, CM_FindSubBSP(ent->s.modelindex) );
-	//	ent->contents = CONTENTS_SOLID;
+	//	ent->contents = contentsFlags_t::CONTENTS_SOLID;
 	}
 	else
 	{
-		Com_Error( ERR_DROP, "SV_SetBrushModel: %s isn't a brush model (ent %d)", name, ent->s.number );
+		Com_Error( errorParm_t::ERR_DROP, "SV_SetBrushModel: %s isn't a brush model (ent %d)", name, ent->s.number );
 	}
 }
 
@@ -304,7 +304,7 @@ SV_AdjustAreaPortalState
 */
 void SV_AdjustAreaPortalState( gentity_t *ent, bool open ) {
 #ifndef JK2_MODE
-	if ( !Any( ent->contents & CONTENTS_OPAQUE ) ) {
+	if ( !Any( ent->contents & contentsFlags_t::CONTENTS_OPAQUE ) ) {
 #ifndef FINAL_BUILD
 //		Com_Printf( "INFO: entity number %d not opaque: not affecting area portal!\n", ent->s.number );
 #endif
@@ -338,7 +338,7 @@ bool	SV_EntityContact( const vec3_t mins, const vec3_t maxs, const gentity_t *gE
 
 	ch = SV_ClipHandleForEntity( gEnt );
 	CM_TransformedBoxTrace ( &trace, vec3_origin, vec3_origin, mins, maxs,
-		ch, CONTENTS_ALL, origin, angles );
+		ch, contentsFlags_t::CONTENTS_ALL, origin, angles );
 
 	return trace.startsolid;
 }
@@ -352,9 +352,9 @@ SV_GetServerinfo
 */
 void SV_GetServerinfo( char *buffer, int bufferSize ) {
 	if ( bufferSize < 1 ) {
-		Com_Error( ERR_DROP, "SV_GetServerinfo: bufferSize == %i", bufferSize );
+		Com_Error( errorParm_t::ERR_DROP, "SV_GetServerinfo: bufferSize == %i", bufferSize );
 	}
-	Q_strncpyz( buffer, Cvar_InfoString( CVAR_SERVERINFO ), bufferSize );
+	Q_strncpyz( buffer, Cvar_InfoString( cvarFlags_t::CVAR_SERVERINFO ), bufferSize );
 }
 
 bool SV_GetEntityToken( char *buffer, int bufferSize )
@@ -1057,33 +1057,33 @@ void SV_InitGameProgs (void) {
 	GetGameAPIProc *GetGameAPI;
 	gameLibrary = Sys_LoadSPGameDll( gamename, &GetGameAPI );
 	if ( !gameLibrary )
-		Com_Error( ERR_DROP, "Failed to load %s library", gamename );
+		Com_Error( errorParm_t::ERR_DROP, "Failed to load %s library", gamename );
 
 	ge = (game_export_t *)GetGameAPI( &import );
 	if (!ge)
 	{
 		Sys_UnloadDll( gameLibrary );
-		Com_Error( ERR_DROP, "Failed to load %s library", gamename );
+		Com_Error( errorParm_t::ERR_DROP, "Failed to load %s library", gamename );
 	}
 
 	if (ge->apiversion != GAME_API_VERSION)
 	{
 		int apiVersion = ge->apiversion;
 		Sys_UnloadDll( gameLibrary );
-		Com_Error (ERR_DROP, "game is version %i, not %i", apiVersion, GAME_API_VERSION);
+		Com_Error (errorParm_t::ERR_DROP, "game is version %i, not %i", apiVersion, GAME_API_VERSION);
 	}
 
 	//hook up the client while we're here
 	if ( !CL_InitCGameVM( gameLibrary ) )
 	{
 		Sys_UnloadDll( gameLibrary );
-		Com_Error ( ERR_DROP, "Failed to load client game functions" );
+		Com_Error ( errorParm_t::ERR_DROP, "Failed to load client game functions" );
 	}
 
 	sv.entityParsePoint = CM_EntityString();
 
 	// use the current msec count for a random seed
-	Z_TagFree(TAG_G_ALLOC);
+	Z_TagFree(memtag::TAG_G_ALLOC);
 	ge->Init( sv_mapname->string, sv_spawntarget->string, sv_mapChecksum->integer, CM_EntityString(), sv.time, com_frameTime, Com_Milliseconds(), eSavedGameJustLoaded, qbLoadTransition );
 
 	// clear all gentity pointers that might still be set from
@@ -1103,7 +1103,7 @@ See if the current console command is claimed by the game
 ====================
 */
 bool SV_GameCommand( void ) {
-	if ( sv.state != SS_GAME ) {
+	if ( sv.state != serverState_t::SS_GAME ) {
 		return false;
 	}
 

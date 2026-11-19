@@ -159,7 +159,7 @@ bool RE_RegisterModels_GetDiskFile( const char *psModelFileName, void **ppvBuffe
 			{
 				// return fake params as though it was found on disk...
 				//
-				void *pvFakeGLAFile = Z_Malloc( sizeof(FakeGLAFile), TAG_FILESYS, false );
+				void *pvFakeGLAFile = Z_Malloc( sizeof(FakeGLAFile), memtag::TAG_FILESYS, false );
 				memcpy(pvFakeGLAFile, &FakeGLAFile[0],  sizeof(FakeGLAFile));
 				*ppvBuffer = pvFakeGLAFile;
 				*pqbAlreadyCached = false;	// faking it like this should mean that it works fine on the Mac as well
@@ -172,7 +172,7 @@ bool RE_RegisterModels_GetDiskFile( const char *psModelFileName, void **ppvBuffe
 
 		if (bSuccess)
 		{
-			ri.Printf( PRINT_DEVELOPER, "RE_RegisterModels_GetDiskFile(): Disk-loading \"%s\"\n",psModelFileName);
+			ri.Printf( printParm_t::PRINT_DEVELOPER, "RE_RegisterModels_GetDiskFile(): Disk-loading \"%s\"\n",psModelFileName);
 		}
 
 		return bSuccess;
@@ -337,9 +337,9 @@ void *RE_RegisterServerModels_Malloc(int iSize, void *pvDiskBufferIfJustLoaded, 
 //
 static int GetModelDataAllocSize(void)
 {
-	return	Z_MemSize( TAG_MODEL_MD3) +
-			Z_MemSize( TAG_MODEL_GLM) +
-			Z_MemSize( TAG_MODEL_GLA);
+	return	Z_MemSize( memtag::TAG_MODEL_MD3) +
+			Z_MemSize( memtag::TAG_MODEL_GLM) +
+			Z_MemSize( memtag::TAG_MODEL_GLA);
 }
 extern cvar_t *r_modelpoolmegs;
 //
@@ -352,11 +352,11 @@ bool RE_RegisterModels_LevelLoadEnd(bool bDeleteEverythingNotUsedThisLevel /* = 
 
 	assert(CachedModels);
 
-	ri.Printf( PRINT_DEVELOPER, S_COLOR_RED "RE_RegisterModels_LevelLoadEnd():\n");
+	ri.Printf( printParm_t::PRINT_DEVELOPER, S_COLOR_RED "RE_RegisterModels_LevelLoadEnd():\n");
 
 	if (gbInsideRegisterModel)
 	{
-		ri.Printf( PRINT_DEVELOPER, "(Inside RE_RegisterModel (z_malloc recovery?), exiting...\n");
+		ri.Printf( printParm_t::PRINT_DEVELOPER, "(Inside RE_RegisterModel (z_malloc recovery?), exiting...\n");
 	}
 	else
 	{
@@ -383,10 +383,10 @@ bool RE_RegisterModels_LevelLoadEnd(bool bDeleteEverythingNotUsedThisLevel /* = 
 			if (bDeleteThis)
 			{
 				const char *psModelName = (*itModel).first.c_str();
-				ri.Printf( PRINT_DEVELOPER, S_COLOR_RED "Dumping \"%s\"", psModelName);
+				ri.Printf( printParm_t::PRINT_DEVELOPER, S_COLOR_RED "Dumping \"%s\"", psModelName);
 
 	#ifdef _DEBUG
-				ri.Printf( PRINT_DEVELOPER, S_COLOR_RED ", used on lvl %d\n",CachedModel.iLastLevelUsedOn);
+				ri.Printf( printParm_t::PRINT_DEVELOPER, S_COLOR_RED ", used on lvl %d\n",CachedModel.iLastLevelUsedOn);
 	#endif
 
 				if (CachedModel.pModelDiskImage) {
@@ -405,7 +405,7 @@ bool RE_RegisterModels_LevelLoadEnd(bool bDeleteEverythingNotUsedThisLevel /* = 
 		}
 	}
 
-	ri.Printf( PRINT_DEVELOPER, S_COLOR_RED "RE_RegisterModels_LevelLoadEnd(): Ok\n");
+	ri.Printf( printParm_t::PRINT_DEVELOPER, S_COLOR_RED "RE_RegisterModels_LevelLoadEnd(): Ok\n");
 
 	return bAtLeastoneModelFreed;
 }
@@ -419,7 +419,7 @@ bool RE_RegisterModels_LevelLoadEnd(bool bDeleteEverythingNotUsedThisLevel /* = 
 //
 static void RE_RegisterModels_DumpNonPure(void)
 {
-	ri.Printf( PRINT_DEVELOPER,  "RE_RegisterModels_DumpNonPure():\n");
+	ri.Printf( printParm_t::PRINT_DEVELOPER,  "RE_RegisterModels_DumpNonPure():\n");
 
 	if(!CachedModels) {
 		return;
@@ -441,7 +441,7 @@ static void RE_RegisterModels_DumpNonPure(void)
 			{
 				// either this is not from a PAK, or it's from a non-pure one, so ditch it...
 				//
-				ri.Printf( PRINT_DEVELOPER, "Dumping none pure model \"%s\"", psModelName);
+				ri.Printf( printParm_t::PRINT_DEVELOPER, "Dumping none pure model \"%s\"", psModelName);
 
 				if (CachedModel.pModelDiskImage) {
 					Z_Free(CachedModel.pModelDiskImage);
@@ -458,14 +458,14 @@ static void RE_RegisterModels_DumpNonPure(void)
 		}
 	}
 
-	ri.Printf( PRINT_DEVELOPER, "RE_RegisterModels_DumpNonPure(): Ok\n");
+	ri.Printf( printParm_t::PRINT_DEVELOPER, "RE_RegisterModels_DumpNonPure(): Ok\n");
 }
 
 void RE_RegisterModels_Info_f( void )
 {
 	int iTotalBytes = 0;
 	if(!CachedModels) {
-		ri.Printf( PRINT_ALL, "%d bytes total (%.2fMB)\n",iTotalBytes, (float)iTotalBytes / 1024.0f / 1024.0f);
+		ri.Printf( printParm_t::PRINT_ALL, "%d bytes total (%.2fMB)\n",iTotalBytes, (float)iTotalBytes / 1024.0f / 1024.0f);
 		return;
 	}
 
@@ -476,15 +476,15 @@ void RE_RegisterModels_Info_f( void )
 	{
 		CachedEndianedModelBinary_t &CachedModel = (*itModel).second;
 
-		ri.Printf( PRINT_ALL, "%d/%d: \"%s\" (%d bytes)",iModel,iModels,(*itModel).first.c_str(),CachedModel.iAllocSize );
+		ri.Printf( printParm_t::PRINT_ALL, "%d/%d: \"%s\" (%d bytes)",iModel,iModels,(*itModel).first.c_str(),CachedModel.iAllocSize );
 
 		#ifdef _DEBUG
-		ri.Printf( PRINT_ALL, ", lvl %d\n",CachedModel.iLastLevelUsedOn);
+		ri.Printf( printParm_t::PRINT_ALL, ", lvl %d\n",CachedModel.iLastLevelUsedOn);
 		#endif
 
 		iTotalBytes += CachedModel.iAllocSize;
 	}
-	ri.Printf( PRINT_ALL, "%d bytes total (%.2fMB)\n",iTotalBytes, (float)iTotalBytes / 1024.0f / 1024.0f);
+	ri.Printf( printParm_t::PRINT_ALL, "%d bytes total (%.2fMB)\n",iTotalBytes, (float)iTotalBytes / 1024.0f / 1024.0f);
 }
 
 
@@ -516,8 +516,8 @@ void RE_RegisterMedia_LevelLoadBegin(const char *psMapName, ForceReload_e eForce
 {
 	// for development purposes we may want to ditch certain media just before loading a map...
 	//
-	bool bDeleteModels	= eForceReload == eForceReload_MODELS || eForceReload == eForceReload_ALL;
-//	bool bDeleteBSP		= eForceReload == eForceReload_BSP    || eForceReload == eForceReload_ALL;
+	bool bDeleteModels	= eForceReload == ForceReload_e::eForceReload_MODELS || eForceReload == ForceReload_e::eForceReload_ALL;
+//	bool bDeleteBSP		= eForceReload == eForceReload_BSP    || eForceReload == ForceReload_e::eForceReload_ALL;
 
 	if (bDeleteModels)
 	{
@@ -603,7 +603,7 @@ model_t *R_AllocModel( void ) {
 		return nullptr;
 	}
 
-	mod = (struct model_s *)Hunk_Alloc( sizeof( *tr.models[tr.numModels] ), h_low );
+	mod = (struct model_s *)Hunk_Alloc( sizeof( *tr.models[tr.numModels] ), ha_pref::h_low );
 	mod->index = tr.numModels;
 	tr.models[tr.numModels] = mod;
 	tr.numModels++;
@@ -649,7 +649,7 @@ void RE_InsertModelIntoHash(const char *name, model_t *mod)
 	hash = generateHashValue(name, FILE_HASH_SIZE);
 
 	// insert this file into the hash table so we can look it up faster later
-	mh = (modelHash_t*)Hunk_Alloc( sizeof( modelHash_t ), h_low );
+	mh = (modelHash_t*)Hunk_Alloc( sizeof( modelHash_t ), ha_pref::h_low );
 
 	mh->next = mhHashTable[hash];
 	mh->handle = mod->index;
@@ -705,12 +705,12 @@ bool ServerLoadMDXA( model_t *mod, void *buffer, const char *mod_name, bool &bAl
 		return false;
 	}
 
-	mod->type		= MOD_MDXA;
+	mod->type		= modtype_t::MOD_MDXA;
 	mod->dataSize  += size;
 
 	bool bAlreadyFound = false;
 	mdxa = mod->mdxa = (mdxaHeader_t*) //Hunk_Alloc( size );
-										RE_RegisterServerModels_Malloc(size, buffer, mod_name, &bAlreadyFound, TAG_MODEL_GLA);
+										RE_RegisterServerModels_Malloc(size, buffer, mod_name, &bAlreadyFound, memtag::TAG_MODEL_GLA);
 
 	assert(bAlreadyCached == bAlreadyFound);	// I should probably eliminate 'bAlreadyFound', but wtf?
 
@@ -845,12 +845,12 @@ bool ServerLoadMDXM( model_t *mod, void *buffer, const char *mod_name, bool &bAl
 		return false;
 	}
 
-	mod->type	   = MOD_MDXM;
+	mod->type	   = modtype_t::MOD_MDXM;
 	mod->dataSize += size;
 
 	bool bAlreadyFound = false;
 	mdxm = mod->mdxm = (mdxmHeader_t*) //Hunk_Alloc( size );
-										RE_RegisterServerModels_Malloc(size, buffer, mod_name, &bAlreadyFound, TAG_MODEL_GLM);
+										RE_RegisterServerModels_Malloc(size, buffer, mod_name, &bAlreadyFound, memtag::TAG_MODEL_GLM);
 
 	assert(bAlreadyCached == bAlreadyFound);	// I should probably eliminate 'bAlreadyFound', but wtf?
 
@@ -956,7 +956,7 @@ bool ServerLoadMDXM( model_t *mod, void *buffer, const char *mod_name, bool &bAl
 			}
 
 			// change to surface identifier
-			surf->ident = to_underlying( SF_MDX );
+			surf->ident = to_underlying( surfaceType_t::SF_MDX );
 
 			// register the shaders
 #ifdef Q3_BIG_ENDIAN
@@ -1056,7 +1056,7 @@ Ghoul2 Insert End
 
 	if (!r_noServerGhoul2)
 	{ //keep it from choking when it gets to these checks in the g2 code. Registering all r_ cvars for the server would be a Bad Thing though.
-		r_noServerGhoul2 = ri.Cvar_Get( "r_noserverghoul2", "0", CVAR_NONE, "");
+		r_noServerGhoul2 = ri.Cvar_Get( "r_noserverghoul2", "0", cvarFlags_t::CVAR_NONE, "");
 	}
 
 	if ( !name || !name[0] ) {
@@ -1183,7 +1183,7 @@ Ghoul2 Insert End
 fail:
 	// we still keep the model_t around, so if the model name is asked for
 	// again, we won't bother scanning the filesystem
-	mod->type = MOD_BAD;
+	mod->type = modtype_t::MOD_BAD;
 	RE_InsertModelIntoHash(name, mod);
 	return 0;
 }
@@ -1219,12 +1219,12 @@ Ghoul2 Insert End
 */
 
 	if ( !name || !name[0] ) {
-		ri.Printf( PRINT_ALL, "RE_RegisterModel: NULL name\n" );
+		ri.Printf( printParm_t::PRINT_ALL, "RE_RegisterModel: NULL name\n" );
 		return 0;
 	}
 
 	if ( strlen( name ) >= MAX_QPATH ) {
-		ri.Printf( PRINT_DEVELOPER, S_COLOR_RED "Model name exceeds MAX_QPATH\n" );
+		ri.Printf( printParm_t::PRINT_DEVELOPER, S_COLOR_RED "Model name exceeds MAX_QPATH\n" );
 		return 0;
 	}
 
@@ -1232,7 +1232,7 @@ Ghoul2 Insert End
 Ghoul2 Insert Start
 */
 //	if (!tr.registered) {
-//		ri.Printf( PRINT_ALL, S_COLOR_YELLOW  "RE_RegisterModel (%s) called before ready!\n",name );
+//		ri.Printf( printParm_t::PRINT_ALL, S_COLOR_YELLOW  "RE_RegisterModel (%s) called before ready!\n",name );
 //		return 0;
 //	}
 	//
@@ -1252,7 +1252,7 @@ Ghoul2 Insert Start
 //	for ( hModel = 1 ; hModel < tr.numModels; hModel++ ) {
 //		mod = tr.models[hModel];
 //		if ( !strcmp( mod->name, name ) ) {
-//			if( mod->type == MOD_BAD ) {
+//			if( mod->type == modtype_t::MOD_BAD ) {
 //				return 0;
 //			}
 //			return hModel;
@@ -1293,7 +1293,7 @@ Ghoul2 Insert End
 	// allocate a new model_t
 
 	if ( ( mod = R_AllocModel() ) == nullptr ) {
-		ri.Printf( PRINT_ALL, S_COLOR_YELLOW  "RE_RegisterModel: R_AllocModel() failed for '%s'\n", name);
+		ri.Printf( printParm_t::PRINT_ALL, S_COLOR_YELLOW  "RE_RegisterModel: R_AllocModel() failed for '%s'\n", name);
 		return 0;
 	}
 
@@ -1365,7 +1365,7 @@ Ghoul2 Insert End
 				break;
 
 			default:
-				ri.Printf( PRINT_ALL, S_COLOR_YELLOW"RE_RegisterModel: unknown fileid for %s\n", filename);
+				ri.Printf( printParm_t::PRINT_ALL, S_COLOR_YELLOW"RE_RegisterModel: unknown fileid for %s\n", filename);
 				goto fail;
 		}
 
@@ -1418,14 +1418,14 @@ Ghoul2 Insert End
 	}
 #ifdef _DEBUG
 	else {
-		ri.Printf( PRINT_ALL, S_COLOR_YELLOW"RE_RegisterModel: couldn't load %s\n", name);
+		ri.Printf( printParm_t::PRINT_ALL, S_COLOR_YELLOW"RE_RegisterModel: couldn't load %s\n", name);
 	}
 #endif
 
 fail:
 	// we still keep the model_t around, so if the model name is asked for
 	// again, we won't bother scanning the filesystem
-	mod->type = MOD_BAD;
+	mod->type = modtype_t::MOD_BAD;
 	RE_InsertModelIntoHash(name, mod);
 	return 0;
 }
@@ -1485,17 +1485,17 @@ static bool R_LoadMD3 (model_t *mod, int lod, void *buffer, const char *mod_name
 	}
 
 	if (version != MD3_VERSION) {
-		ri.Printf( PRINT_ALL, S_COLOR_YELLOW  "R_LoadMD3: %s has wrong version (%i should be %i)\n",
+		ri.Printf( printParm_t::PRINT_ALL, S_COLOR_YELLOW  "R_LoadMD3: %s has wrong version (%i should be %i)\n",
 				 mod_name, version, MD3_VERSION);
 		return false;
 	}
 
-	mod->type      = MOD_MESH;
+	mod->type      = modtype_t::MOD_MESH;
 	mod->dataSize += size;
 
 	bool bAlreadyFound = false;
 	mod->md3[lod] = (md3Header_t *) //Hunk_Alloc( size );
-										RE_RegisterModels_Malloc(size, buffer, mod_name, &bAlreadyFound, TAG_MODEL_MD3);
+										RE_RegisterModels_Malloc(size, buffer, mod_name, &bAlreadyFound, memtag::TAG_MODEL_MD3);
 
 	assert(bAlreadyCached == bAlreadyFound);	// I should probably eliminate 'bAlreadyFound', but wtf?
 
@@ -1523,7 +1523,7 @@ static bool R_LoadMD3 (model_t *mod, int lod, void *buffer, const char *mod_name
 	}
 
 	if ( mod->md3[lod]->numFrames < 1 ) {
-		ri.Printf( PRINT_ALL, S_COLOR_YELLOW  "R_LoadMD3: %s has no frames\n", mod_name );
+		ri.Printf( printParm_t::PRINT_ALL, S_COLOR_YELLOW  "R_LoadMD3: %s has no frames\n", mod_name );
 		return false;
 	}
 
@@ -1571,16 +1571,16 @@ static bool R_LoadMD3 (model_t *mod, int lod, void *buffer, const char *mod_name
         LL(surf->ofsEnd);
 
 		if ( surf->numVerts >= SHADER_MAX_VERTEXES ) {
-			Com_Error (ERR_DROP, "R_LoadMD3: %s has more than %i verts on %s (%i)",
+			Com_Error (errorParm_t::ERR_DROP, "R_LoadMD3: %s has more than %i verts on %s (%i)",
 				mod_name, SHADER_MAX_VERTEXES - 1, surf->name[0] ? surf->name : "a surface", surf->numVerts );
 		}
 		if ( surf->numTriangles*3 >= SHADER_MAX_INDEXES ) {
-			Com_Error (ERR_DROP, "R_LoadMD3: %s has more than %i triangles on %s (%i)",
+			Com_Error (errorParm_t::ERR_DROP, "R_LoadMD3: %s has more than %i triangles on %s (%i)",
 				mod_name, ( SHADER_MAX_INDEXES / 3 ) - 1, surf->name[0] ? surf->name : "a surface", surf->numTriangles );
 		}
 
 		// change to surface identifier
-		surf->ident = to_underlying( SF_MD3 );
+		surf->ident = to_underlying( surfaceType_t::SF_MD3 );
 
 		// lowercase the surface name so skin compares are faster
 		Q_strlwr( surf->name );
@@ -1695,7 +1695,7 @@ void R_ModelInit( void )
 	memset(mhHashTable, 0, sizeof(mhHashTable));
 
 	mod = R_AllocModel();
-	mod->type = MOD_BAD;
+	mod->type = modtype_t::MOD_BAD;
 }
 
 extern void KillTheShaderHashTable(void);
@@ -1739,14 +1739,14 @@ void R_Modellist_f( void ) {
 				lods++;
 			}
 		}
-		ri.Printf( PRINT_ALL, "%8i : (%i) %s\n",mod->dataSize, lods, mod->name );
+		ri.Printf( printParm_t::PRINT_ALL, "%8i : (%i) %s\n",mod->dataSize, lods, mod->name );
 		total += mod->dataSize;
 	}
-	ri.Printf( PRINT_ALL, "%8i : Total models\n", total );
+	ri.Printf( printParm_t::PRINT_ALL, "%8i : Total models\n", total );
 
 #if	0		// not working right with new hunk
 	if ( tr.world ) {
-		ri.Printf( PRINT_ALL, "\n%8i : %s\n", tr.world->dataSize, tr.world->name );
+		ri.Printf( printParm_t::PRINT_ALL, "\n%8i : %s\n", tr.world->dataSize, tr.world->name );
 	}
 #endif
 }

@@ -259,8 +259,7 @@ public:
 
 		FLAG_MAX
 	};
-	using enum particleFlag_t;
-	typedef		ratl::bits_vs<to_underlying( FLAG_MAX )>		TFlags;
+	typedef		ratl::bits_vs<to_underlying( particleFlag_t::FLAG_MAX )>		TFlags;
 
 	float	mAlpha;
 	TFlags	mFlags;
@@ -454,7 +453,7 @@ private:
 	////////////////////////////////////////////////////////////////////////////////////
 	inline	bool	ContentsOutside(contentsFlags_t contents)
 	{
-		if (Any( contents&CONTENTS_WATER ) || Any( contents&CONTENTS_SOLID ))
+		if (Any( contents&contentsFlags_t::CONTENTS_WATER ) || Any( contents&contentsFlags_t::CONTENTS_SOLID ))
 		{
 			return false;
 		}
@@ -462,11 +461,11 @@ private:
 		{
 			if (SWeatherZone::mMarkedOutside)
 			{
-				return (Any( contents&CONTENTS_OUTSIDE ));
+				return (Any( contents&contentsFlags_t::CONTENTS_OUTSIDE ));
 			}
-			return (!Any( contents&CONTENTS_INSIDE ));
+			return (!Any( contents&contentsFlags_t::CONTENTS_INSIDE ));
 		}
-		return Any( contents&CONTENTS_OUTSIDE );
+		return Any( contents&contentsFlags_t::CONTENTS_OUTSIDE );
 	}
 
 
@@ -528,7 +527,7 @@ public:
 			Wz.mDepth		= ((int)(Wz.mSize.mMaxs[2] - Wz.mSize.mMins[2]) + 31) >> 5;
 
 			int arraySize	= (Wz.mWidth * Wz.mHeight * Wz.mDepth);
-			Wz.mPointCache  = (uint32_t *)Z_Malloc(arraySize*sizeof(uint32_t), TAG_POINTCACHE, true);
+			Wz.mPointCache  = (uint32_t *)Z_Malloc(arraySize*sizeof(uint32_t), memtag::TAG_POINTCACHE, true);
 		}
 	}
 
@@ -557,7 +556,7 @@ public:
 		//---------------------------------------------------------------------
 		if (!mWeatherZones.size())
 		{
-			ri.Printf( PRINT_ALL, "WARNING: No Weather Zones Encountered\n");
+			ri.Printf( printParm_t::PRINT_ALL, "WARNING: No Weather Zones Encountered\n");
 			AddWeatherZone(tr.world->bmodels[0].bounds[0], tr.world->bmodels[0].bounds[1]);
 		}
 
@@ -595,9 +594,9 @@ public:
 							CurPos	  += Mins;
 
 							contents = ri.CM_PointContents(CurPos.v, 0);
-							if (Any( contents&CONTENTS_INSIDE ) || Any( contents&CONTENTS_OUTSIDE ))
+							if (Any( contents&contentsFlags_t::CONTENTS_INSIDE ) || Any( contents&contentsFlags_t::CONTENTS_OUTSIDE ))
 							{
-								curPosOutside = Any( contents&CONTENTS_OUTSIDE );
+								curPosOutside = Any( contents&contentsFlags_t::CONTENTS_OUTSIDE );
 								if (!mCacheInit)
 								{
 									mCacheInit = true;
@@ -606,7 +605,7 @@ public:
 								else if (SWeatherZone::mMarkedOutside!=curPosOutside)
 								{
 									assert(0);
-									Com_Error (ERR_DROP, "Weather Effect: Both Indoor and Outdoor brushs encountered in map.\n" );
+									Com_Error (errorParm_t::ERR_DROP, "Weather Effect: Both Indoor and Outdoor brushs encountered in map.\n" );
 									return;
 								}
 
@@ -815,7 +814,7 @@ public:
 		mImage = R_FindImageFile(texturePath, false, false, false, GL_CLAMP);
 		if (!mImage)
 		{
-			Com_Error(ERR_DROP, "CWeatherParticleCloud: Could not texture %s", texturePath);
+			Com_Error(errorParm_t::ERR_DROP, "CWeatherParticleCloud: Could not texture %s", texturePath);
 		}
 
 		GL_Bind(mImage);
@@ -1096,7 +1095,7 @@ public:
 			part->mPosition.ScaleAdd(part->mVelocity, mSecondsElapsed);
 
 			partToCamera	= (part->mPosition - mCameraPosition);
-			partRendering	= part->mFlags.get_bit( to_underlying( CWeatherParticle::FLAG_RENDER ) );
+			partRendering	= part->mFlags.get_bit( to_underlying( CWeatherParticle::particleFlag_t::FLAG_RENDER ) );
 			partOutside		= mOutside.PointOutside(part->mPosition, mWidth, mHeight);
 			partInRange		= mRange.In(part->mPosition);
 			partInView		= (partOutside && partInRange && (partToCamera.Dot(mCameraForward)>0.0f));
@@ -1133,16 +1132,16 @@ public:
 				//------------------
 				if		(partRendering && !partInView)
 				{
-					part->mFlags.clear_bit( to_underlying( CWeatherParticle::FLAG_FADEIN ) );
-					part->mFlags.set_bit( to_underlying( CWeatherParticle::FLAG_FADEOUT ) );
+					part->mFlags.clear_bit( to_underlying( CWeatherParticle::particleFlag_t::FLAG_FADEIN ) );
+					part->mFlags.set_bit( to_underlying( CWeatherParticle::particleFlag_t::FLAG_FADEOUT ) );
 				}
 
 				// Switch From Fade Out To Fade In
 				//---------------------------------
-				else if (partRendering && partInView && part->mFlags.get_bit( to_underlying( CWeatherParticle::FLAG_FADEOUT ) ))
+				else if (partRendering && partInView && part->mFlags.get_bit( to_underlying( CWeatherParticle::particleFlag_t::FLAG_FADEOUT ) ))
 				{
-					part->mFlags.set_bit( to_underlying( CWeatherParticle::FLAG_FADEIN ) );
-					part->mFlags.clear_bit( to_underlying( CWeatherParticle::FLAG_FADEOUT ) );
+					part->mFlags.set_bit( to_underlying( CWeatherParticle::particleFlag_t::FLAG_FADEIN ) );
+					part->mFlags.clear_bit( to_underlying( CWeatherParticle::particleFlag_t::FLAG_FADEOUT ) );
 				}
 
 				// Start A Fade In
@@ -1151,9 +1150,9 @@ public:
 				{
 					partRendering = true;
 					part->mAlpha = 0.0f;
-					part->mFlags.set_bit( to_underlying( CWeatherParticle::FLAG_RENDER ) );
-					part->mFlags.set_bit( to_underlying( CWeatherParticle::FLAG_FADEIN ) );
-					part->mFlags.clear_bit( to_underlying( CWeatherParticle::FLAG_FADEOUT ) );
+					part->mFlags.set_bit( to_underlying( CWeatherParticle::particleFlag_t::FLAG_RENDER ) );
+					part->mFlags.set_bit( to_underlying( CWeatherParticle::particleFlag_t::FLAG_FADEIN ) );
+					part->mFlags.clear_bit( to_underlying( CWeatherParticle::particleFlag_t::FLAG_FADEOUT ) );
 				}
 
 				// Update Fade
@@ -1163,27 +1162,27 @@ public:
 
 					// Update Fade Out
 					//-----------------
-					if (part->mFlags.get_bit( to_underlying( CWeatherParticle::FLAG_FADEOUT ) ))
+					if (part->mFlags.get_bit( to_underlying( CWeatherParticle::particleFlag_t::FLAG_FADEOUT ) ))
 					{
 						part->mAlpha -= particleFade;
 						if (part->mAlpha<=0.0f)
 						{
 							part->mAlpha = 0.0f;
-							part->mFlags.clear_bit( to_underlying( CWeatherParticle::FLAG_FADEOUT ) );
-							part->mFlags.clear_bit( to_underlying( CWeatherParticle::FLAG_FADEIN ) );
-							part->mFlags.clear_bit( to_underlying( CWeatherParticle::FLAG_RENDER ) );
+							part->mFlags.clear_bit( to_underlying( CWeatherParticle::particleFlag_t::FLAG_FADEOUT ) );
+							part->mFlags.clear_bit( to_underlying( CWeatherParticle::particleFlag_t::FLAG_FADEIN ) );
+							part->mFlags.clear_bit( to_underlying( CWeatherParticle::particleFlag_t::FLAG_RENDER ) );
 							partRendering = false;
 						}
 					}
 
 					// Update Fade In
 					//----------------
-					else if (part->mFlags.get_bit( to_underlying( CWeatherParticle::FLAG_FADEIN ) ))
+					else if (part->mFlags.get_bit( to_underlying( CWeatherParticle::particleFlag_t::FLAG_FADEIN ) ))
 					{
 						part->mAlpha += particleFade;
 						if (part->mAlpha>=mColor[3])
 						{
-							part->mFlags.clear_bit( to_underlying( CWeatherParticle::FLAG_FADEIN ) );
+							part->mFlags.clear_bit( to_underlying( CWeatherParticle::particleFlag_t::FLAG_FADEIN ) );
 							part->mAlpha = mColor[3];
 						}
 					}
@@ -1192,7 +1191,7 @@ public:
 
 			// Keep Track Of The Number Of Particles To Render
 			//-------------------------------------------------
-			if (part->mFlags.get_bit( to_underlying( CWeatherParticle::FLAG_RENDER ) ))
+			if (part->mFlags.get_bit( to_underlying( CWeatherParticle::particleFlag_t::FLAG_RENDER ) ))
 			{
 				mParticleCountRender ++;
 			}
@@ -1216,7 +1215,7 @@ public:
 
 		// Set The GL State And Image Binding
 		//------------------------------------
-		GL_State((mBlendMode==0)?(GLS_ALPHA):(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE));
+		GL_State((mBlendMode==0)?(glStateBits_t::GLS_ALPHA):(glStateBits_t::GLS_SRCBLEND_ONE | glStateBits_t::GLS_DSTBLEND_ONE));
 		GL_Bind(mImage);
 
 
@@ -1225,7 +1224,7 @@ public:
 		qglEnable(GL_TEXTURE_2D);
 		//qglDisable(GL_CULL_FACE);
 		//naughty, you are making the assumption that culling is on when you get here. -rww
-		GL_Cull(CT_TWO_SIDED);
+		GL_Cull(cullType_t::CT_TWO_SIDED);
 
 		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (mFilterMode==0)?(GL_LINEAR):(GL_NEAREST));
 		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, (mFilterMode==0)?(GL_LINEAR):(GL_NEAREST));
@@ -1243,7 +1242,7 @@ public:
 		for (particleNum=0; particleNum<mParticleCount; particleNum++)
 		{
 			part = &(mParticles[particleNum]);
-			if (!part->mFlags.get_bit( to_underlying( CWeatherParticle::FLAG_RENDER ) ))
+			if (!part->mFlags.get_bit( to_underlying( CWeatherParticle::particleFlag_t::FLAG_RENDER ) ))
 			{
 				continue;
 			}
@@ -1354,8 +1353,8 @@ void R_ShutdownWorldEffects(void)
 void RB_RenderWorldEffects(void)
 {
 	if (!tr.world ||
-		Any(tr.refdef.rdflags & RDF_NOWORLDMODEL) ||
-		Any(backEnd.refdef.rdflags & RDF_SKYBOXPORTAL) ||
+		Any(tr.refdef.rdflags & refdefFlags_t::RDF_NOWORLDMODEL) ||
+		Any(backEnd.refdef.rdflags & refdefFlags_t::RDF_SKYBOXPORTAL) ||
 		!mParticleClouds.size())
 	{	//  no world rendering or no world or no particle clouds
 		return;
@@ -1415,7 +1414,7 @@ void RB_RenderWorldEffects(void)
 		}
 		if (false)
 		{
-			ri.Printf( PRINT_ALL, "Weather: %d Particles Rendered\n", mParticlesRendered);
+			ri.Printf( printParm_t::PRINT_ALL, "Weather: %d Particles Rendered\n", mParticlesRendered);
 		}
 	}
 }
@@ -1440,14 +1439,14 @@ bool WE_ParseVector( const char **text, int count, float *v ) {
 	// FIXME: spaces are currently required after parens, should change parseext...
 	token = COM_ParseExt( text, false );
 	if ( strcmp( token, "(" ) ) {
-		ri.Printf (PRINT_WARNING, "WARNING: missing parenthesis in weather effect\n" );
+		ri.Printf (printParm_t::PRINT_WARNING, "WARNING: missing parenthesis in weather effect\n" );
 		return false;
 	}
 
 	for ( i = 0 ; i < count ; i++ ) {
 		token = COM_ParseExt( text, false );
 		if ( !token[0] ) {
-			ri.Printf (PRINT_WARNING, "WARNING: missing vector element in weather effect\n" );
+			ri.Printf (printParm_t::PRINT_WARNING, "WARNING: missing vector element in weather effect\n" );
 			return false;
 		}
 		v[i] = Q_atof( token );
@@ -1455,7 +1454,7 @@ bool WE_ParseVector( const char **text, int count, float *v ) {
 
 	token = COM_ParseExt( text, false );
 	if ( strcmp( token, ")" ) ) {
-		ri.Printf (PRINT_WARNING, "WARNING: missing parenthesis in weather effect\n" );
+		ri.Printf (printParm_t::PRINT_WARNING, "WARNING: missing parenthesis in weather effect\n" );
 		return false;
 	}
 
@@ -1829,27 +1828,27 @@ void RE_WorldEffectCommand(const char *command)
 	}
 	else
 	{
-		ri.Printf( PRINT_ALL, "Weather Effect: Please enter a valid command.\n" );
-		ri.Printf( PRINT_ALL, "	die\n" );
-		ri.Printf( PRINT_ALL, "	clear\n" );
-		ri.Printf( PRINT_ALL, "	freeze\n" );
-		ri.Printf( PRINT_ALL, "	zone (mins) (maxs)\n" );
-		ri.Printf( PRINT_ALL, "	wind\n" );
-		ri.Printf( PRINT_ALL, "	constantwind (velocity)\n" );
-		ri.Printf( PRINT_ALL, "	gustingwind\n" );
-		//ri.Printf( PRINT_ALL, "	windzone (mins) (maxs) (velocity)\n" );
-		ri.Printf( PRINT_ALL, "	lightrain\n" );
-		ri.Printf( PRINT_ALL, "	rain\n" );
-		ri.Printf( PRINT_ALL, "	acidrain\n" );
-		ri.Printf( PRINT_ALL, "	heavyrain\n" );
-		ri.Printf( PRINT_ALL, "	snow\n" );
-		ri.Printf( PRINT_ALL, "	spacedust\n" );
-		ri.Printf( PRINT_ALL, "	sand\n" );
-		ri.Printf( PRINT_ALL, "	fog\n" );
-		ri.Printf( PRINT_ALL, "	heavyrainfog\n" );
-		ri.Printf( PRINT_ALL, "	light_fog\n" );
-		ri.Printf( PRINT_ALL, "	outsideshake\n" );
-		ri.Printf( PRINT_ALL, "	outsidepain\n" );
+		ri.Printf( printParm_t::PRINT_ALL, "Weather Effect: Please enter a valid command.\n" );
+		ri.Printf( printParm_t::PRINT_ALL, "	die\n" );
+		ri.Printf( printParm_t::PRINT_ALL, "	clear\n" );
+		ri.Printf( printParm_t::PRINT_ALL, "	freeze\n" );
+		ri.Printf( printParm_t::PRINT_ALL, "	zone (mins) (maxs)\n" );
+		ri.Printf( printParm_t::PRINT_ALL, "	wind\n" );
+		ri.Printf( printParm_t::PRINT_ALL, "	constantwind (velocity)\n" );
+		ri.Printf( printParm_t::PRINT_ALL, "	gustingwind\n" );
+		//ri.Printf( printParm_t::PRINT_ALL, "	windzone (mins) (maxs) (velocity)\n" );
+		ri.Printf( printParm_t::PRINT_ALL, "	lightrain\n" );
+		ri.Printf( printParm_t::PRINT_ALL, "	rain\n" );
+		ri.Printf( printParm_t::PRINT_ALL, "	acidrain\n" );
+		ri.Printf( printParm_t::PRINT_ALL, "	heavyrain\n" );
+		ri.Printf( printParm_t::PRINT_ALL, "	snow\n" );
+		ri.Printf( printParm_t::PRINT_ALL, "	spacedust\n" );
+		ri.Printf( printParm_t::PRINT_ALL, "	sand\n" );
+		ri.Printf( printParm_t::PRINT_ALL, "	fog\n" );
+		ri.Printf( printParm_t::PRINT_ALL, "	heavyrainfog\n" );
+		ri.Printf( printParm_t::PRINT_ALL, "	light_fog\n" );
+		ri.Printf( printParm_t::PRINT_ALL, "	outsideshake\n" );
+		ri.Printf( printParm_t::PRINT_ALL, "	outsidepain\n" );
 	}
 }
 

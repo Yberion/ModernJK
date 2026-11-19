@@ -110,7 +110,7 @@ char *Sys_GetClipboardData( void ) {
 	char *cbText = SDL_GetClipboardText();
 	size_t len = strlen( cbText ) + 1;
 
-	char *buf = (char *)Z_Malloc( len, TAG_CLIPBOARD );
+	char *buf = (char *)Z_Malloc( len, memtag::TAG_CLIPBOARD );
 	Q_strncpyz( buf, cbText, len );
 
 	SDL_free( cbText );
@@ -153,20 +153,20 @@ are initialized
 */
 void Sys_Init( void ) {
 	Cmd_AddCommand ("in_restart", IN_Restart);
-	Cvar_Get( "arch", OS_STRING " " ARCH_STRING, CVAR_ROM );
-	Cvar_Get( "username", Sys_GetCurrentUser(), CVAR_ROM );
+	Cvar_Get( "arch", OS_STRING " " ARCH_STRING, cvarFlags_t::CVAR_ROM );
+	Cvar_Get( "username", Sys_GetCurrentUser(), cvarFlags_t::CVAR_ROM );
 
-	com_unfocused = Cvar_Get( "com_unfocused", "0", CVAR_ROM );
-	com_minimized = Cvar_Get( "com_minimized", "0", CVAR_ROM );
+	com_unfocused = Cvar_Get( "com_unfocused", "0", cvarFlags_t::CVAR_ROM );
+	com_minimized = Cvar_Get( "com_minimized", "0", cvarFlags_t::CVAR_ROM );
 #ifdef _JK2EXE
-	com_maxfps = Cvar_Get ("com_maxfps", "125", CVAR_ARCHIVE );
+	com_maxfps = Cvar_Get ("com_maxfps", "125", cvarFlags_t::CVAR_ARCHIVE );
 #else
-	com_maxfps = Cvar_Get( "com_maxfps", "125", CVAR_ARCHIVE, "Maximum frames per second" );
+	com_maxfps = Cvar_Get( "com_maxfps", "125", cvarFlags_t::CVAR_ARCHIVE, "Maximum frames per second" );
 #endif
-	com_maxfpsUnfocused = Cvar_Get( "com_maxfpsUnfocused", "0", CVAR_ARCHIVE_ND );
-	com_maxfpsMinimized = Cvar_Get( "com_maxfpsMinimized", "50", CVAR_ARCHIVE_ND );
+	com_maxfpsUnfocused = Cvar_Get( "com_maxfpsUnfocused", "0", cvarFlags_t::CVAR_ARCHIVE_ND );
+	com_maxfpsMinimized = Cvar_Get( "com_maxfpsMinimized", "50", cvarFlags_t::CVAR_ARCHIVE_ND );
 
-	com_unpackLibraries = Cvar_Get( "com_unpackLibraries", "0", CVAR_INIT|CVAR_PROTECTED );
+	com_unpackLibraries = Cvar_Get( "com_unpackLibraries", "0", cvarFlags_t::CVAR_INIT|cvarFlags_t::CVAR_PROTECTED );
 }
 
 static void NORETURN Sys_Exit( int ex ) {
@@ -383,7 +383,6 @@ enum class SearchPathFlags
 	SEARCH_PATH_MODERNJK	= 1 << 2,
 	SEARCH_PATH_ROOT	= 1 << 3
 };
-using enum SearchPathFlags;
 template <> inline constexpr bool enableEnumFlags<SearchPathFlags> = true;
 
 static void *Sys_LoadDllFromPaths( const char *filename, const char *gamedir, const char **searchPaths,
@@ -392,7 +391,7 @@ static void *Sys_LoadDllFromPaths( const char *filename, const char *gamedir, co
 	char *fn;
 	void *libHandle;
 
-	if ( Any( searchFlags & SEARCH_PATH_MOD ) )
+	if ( Any( searchFlags & SearchPathFlags::SEARCH_PATH_MOD ) )
 	{
 		for ( size_t i = 0; i < numPaths; i++ )
 		{
@@ -409,7 +408,7 @@ static void *Sys_LoadDllFromPaths( const char *filename, const char *gamedir, co
 		}
 	}
 
-	if ( Any( searchFlags & SEARCH_PATH_BASE ) )
+	if ( Any( searchFlags & SearchPathFlags::SEARCH_PATH_BASE ) )
 	{
 		for ( size_t i = 0; i < numPaths; i++ )
 		{
@@ -426,7 +425,7 @@ static void *Sys_LoadDllFromPaths( const char *filename, const char *gamedir, co
 		}
 	}
 
-	if ( Any( searchFlags & SEARCH_PATH_MODERNJK ) )
+	if ( Any( searchFlags & SearchPathFlags::SEARCH_PATH_MODERNJK ) )
 	{
 		for ( size_t i = 0; i < numPaths; i++ )
 		{
@@ -443,7 +442,7 @@ static void *Sys_LoadDllFromPaths( const char *filename, const char *gamedir, co
 		}
 	}
 
-	if ( Any( searchFlags & SEARCH_PATH_ROOT ) )
+	if ( Any( searchFlags & SearchPathFlags::SEARCH_PATH_ROOT ) )
 	{
 		for ( size_t i = 0; i < numPaths; i++ )
 		{
@@ -504,7 +503,7 @@ void *Sys_LoadSPGameDll( const char *name, GetGameAPIProc **GetGameAPI )
 		size_t numPaths = ARRAY_LEN( searchPaths );
 
 		libHandle = Sys_LoadDllFromPaths( filename, gamedir, searchPaths, numPaths,
-											SEARCH_PATH_BASE | SEARCH_PATH_MOD | SEARCH_PATH_MODERNJK | SEARCH_PATH_ROOT,
+											SearchPathFlags::SEARCH_PATH_BASE | SearchPathFlags::SEARCH_PATH_MOD | SearchPathFlags::SEARCH_PATH_MODERNJK | SearchPathFlags::SEARCH_PATH_ROOT,
 											__FUNCTION__ );
 		if ( !libHandle )
 			return nullptr;
@@ -578,7 +577,7 @@ void *Sys_LoadGameDll( const char *name, GetModuleAPIProc **moduleAPI )
 				};
 				size_t numPaths = ARRAY_LEN( searchPaths );
 
-				libHandle = Sys_LoadDllFromPaths( filename, gamedir, searchPaths, numPaths, SEARCH_PATH_BASE | SEARCH_PATH_MOD, __FUNCTION__ );
+				libHandle = Sys_LoadDllFromPaths( filename, gamedir, searchPaths, numPaths, SearchPathFlags::SEARCH_PATH_BASE | SearchPathFlags::SEARCH_PATH_MOD, __FUNCTION__ );
 				if ( !libHandle )
 					return nullptr;
 			}

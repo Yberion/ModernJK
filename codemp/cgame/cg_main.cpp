@@ -74,13 +74,13 @@ void CG_DoCameraShake( vec3_t origin, float intensity, int radius, int time );
 //do we have any force powers that we would normally need to cycle to?
 bool CG_NoUseableForce(void)
 {
-	forcePowers_t i = FP_HEAL;
-	while (i < NUM_FORCE_POWERS)
+	forcePowers_t i = forcePowers_t::FP_HEAL;
+	while (i < forcePowers_t::NUM_FORCE_POWERS)
 	{
-		if (i != FP_SABERTHROW &&
-			i != FP_SABER_OFFENSE &&
-			i != FP_SABER_DEFENSE &&
-			i != FP_LEVITATION)
+		if (i != forcePowers_t::FP_SABERTHROW &&
+			i != forcePowers_t::FP_SABER_OFFENSE &&
+			i != forcePowers_t::FP_SABER_DEFENSE &&
+			i != forcePowers_t::FP_LEVITATION)
 		{ //valid selectable power
 			if (cg.predictedPlayerState.fd.forcePowersKnown & Bit( i ))
 			{ //we have it
@@ -111,12 +111,12 @@ static void C_GetLerpData( void ) {
 	VectorCopy( cg_entities[data->mEntityNum].lerpOrigin, data->mOrigin );
 	VectorCopy( cg_entities[data->mEntityNum].modelScale, data->mScale );
 	VectorCopy( cg_entities[data->mEntityNum].lerpAngles, data->mAngles );
-	if ( cg_entities[data->mEntityNum].currentState.eType == ET_PLAYER ) {
+	if ( cg_entities[data->mEntityNum].currentState.eType == entityType_t::ET_PLAYER ) {
 		// normal player
 		data->mAngles[PITCH] = 0.0f;
 		data->mAngles[ROLL] = 0.0f;
 	}
-	else if ( cg_entities[data->mEntityNum].currentState.eType == ET_NPC ) {
+	else if ( cg_entities[data->mEntityNum].currentState.eType == entityType_t::ET_NPC ) {
 		// an NPC
 		Vehicle_t *pVeh = cg_entities[data->mEntityNum].m_pVehicle;
 		if ( !pVeh ) {
@@ -124,11 +124,11 @@ static void C_GetLerpData( void ) {
 			data->mAngles[PITCH] = 0.0f;
 			data->mAngles[ROLL] = 0.0f;
 		}
-		else if ( pVeh->m_pVehicleInfo->type == VH_SPEEDER ) {
+		else if ( pVeh->m_pVehicleInfo->type == vehicleType_t::VH_SPEEDER ) {
 			// speeder wants no pitch but a roll
 			data->mAngles[PITCH] = 0.0f;
 		}
-		else if ( pVeh->m_pVehicleInfo->type != VH_FIGHTER ) {
+		else if ( pVeh->m_pVehicleInfo->type != vehicleType_t::VH_FIGHTER ) {
 			// fighters want all angles
 			data->mAngles[PITCH] = 0.0f;
 			data->mAngles[ROLL] = 0.0f;
@@ -229,31 +229,31 @@ static int CG_RagCallback(ragCallbackType_t callType)
 {
 	switch(callType)
 	{
-	case RAG_CALLBACK_DEBUGBOX:
+	case ragCallbackType_t::RAG_CALLBACK_DEBUGBOX:
 		{
 			ragCallbackDebugBox_t *callData = &cg.sharedBuffer.rcbDebugBox;
 
 			CG_DebugBoxLines(callData->mins, callData->maxs, callData->duration);
 		}
 		break;
-	case RAG_CALLBACK_DEBUGLINE:
+	case ragCallbackType_t::RAG_CALLBACK_DEBUGLINE:
 		{
 			ragCallbackDebugLine_t *callData = &cg.sharedBuffer.rcbDebugLine;
 
 			CG_TestLine(callData->start, callData->end, callData->time, callData->color, callData->radius);
 		}
 		break;
-	case RAG_CALLBACK_BONESNAP:
+	case ragCallbackType_t::RAG_CALLBACK_BONESNAP:
 		{
 			ragCallbackBoneSnap_t *callData = &cg.sharedBuffer.rcbBoneSnap;
 			centity_t *cent = &cg_entities[callData->entNum];
 			int snapSound = trap->S_RegisterSound(va("sound/player/bodyfall_human%i.wav", Q_irand(1, 3)));
 
-			trap->S_StartSound(cent->lerpOrigin, callData->entNum, CHAN_AUTO, snapSound);
+			trap->S_StartSound(cent->lerpOrigin, callData->entNum, soundChannel_t::CHAN_AUTO, snapSound);
 		}
-	case RAG_CALLBACK_BONEIMPACT:
+	case ragCallbackType_t::RAG_CALLBACK_BONEIMPACT:
 		break;
-	case RAG_CALLBACK_BONEINSOLID:
+	case ragCallbackType_t::RAG_CALLBACK_BONEINSOLID:
 #if 0
 		{
 			ragCallbackBoneInSolid_t *callData = &cg.sharedBuffer.rcbBoneInSolid;
@@ -271,7 +271,7 @@ static int CG_RagCallback(ragCallbackType_t callType)
 		}
 #endif
 		break;
-	case RAG_CALLBACK_TRACELINE:
+	case ragCallbackType_t::RAG_CALLBACK_TRACELINE:
 		{
 			ragCallbackTraceLine_t *callData = &cg.sharedBuffer.rcbTraceLine;
 
@@ -280,7 +280,7 @@ static int CG_RagCallback(ragCallbackType_t callType)
 		}
 		break;
 	default:
-		Com_Error(ERR_DROP, "Invalid callType in CG_RagCallback");
+		Com_Error(errorParm_t::ERR_DROP, "Invalid callType in CG_RagCallback");
 		break;
 	}
 
@@ -293,12 +293,12 @@ void CG_MiscEnt( void ) {
 	cg_staticmodel_t *staticmodel;
 
 	if( cgs.numMiscStaticModels >= MAX_STATIC_MODELS ) {
-		trap->Error( ERR_DROP, "^1MAX_STATIC_MODELS(%i) hit", MAX_STATIC_MODELS );
+		trap->Error( errorParm_t::ERR_DROP, "^1MAX_STATIC_MODELS(%i) hit", MAX_STATIC_MODELS );
 	}
 
 	modelIndex = trap->R_RegisterModel(data->mModel);
 	if (modelIndex == 0) {
-		trap->Error( ERR_DROP, "client_model failed to load model '%s'", data->mModel );
+		trap->Error( errorParm_t::ERR_DROP, "client_model failed to load model '%s'", data->mModel );
 		return;
 	}
 
@@ -382,7 +382,7 @@ int CG_LastAttacker( void ) {
 	if ( !cg.attackerTime )
 		return -1;
 
-	return cg.snap->ps.persistant[PERS_ATTACKER];
+	return cg.snap->ps.persistant[persEnum_t::PERS_ATTACKER];
 }
 
 /*
@@ -439,7 +439,7 @@ static void CG_RegisterItemSounds( int itemNum ) {
 
 		len = s-start;
 		if (len >= MAX_QPATH || len < 5) {
-			trap->Error( ERR_DROP, "PrecacheItem: %s has bad precache string",
+			trap->Error( errorParm_t::ERR_DROP, "PrecacheItem: %s has bad precache string",
 				item->classname);
 			return;
 		}
@@ -465,7 +465,7 @@ static void CG_RegisterItemSounds( int itemNum ) {
 
 		len = s-start;
 		if (len >= MAX_QPATH || len < 5) {
-			trap->Error( ERR_DROP, "PrecacheItem: %s has bad precache string",
+			trap->Error( errorParm_t::ERR_DROP, "PrecacheItem: %s has bad precache string",
 				item->classname);
 			return;
 		}
@@ -729,7 +729,7 @@ static void CG_RegisterSounds( void ) {
 	trap->S_RegisterSound("sound/weapons/force/jump.mp3"); //PDSOUND_FORCEJUMP
 	trap->S_RegisterSound("sound/weapons/force/grip.mp3"); //PDSOUND_FORCEGRIP
 
-	if ( cgs.gametype >= GT_TEAM || com_buildScript.integer ) {
+	if ( cgs.gametype >= gametype_t::GT_TEAM || com_buildScript.integer ) {
 
 #ifdef JK2AWARDS
 		cgs.media.captureAwardSound = trap->S_RegisterSound( "sound/teamplay/flagcapture_yourteam.wav" );
@@ -741,13 +741,13 @@ static void CG_RegisterSounds( void ) {
 		cgs.media.redScoredSound = trap->S_RegisterSound( "sound/chars/protocol/misc/40MOM044");
 		cgs.media.blueScoredSound = trap->S_RegisterSound( "sound/chars/protocol/misc/40MOM043" );
 
-		if ( cgs.gametype == GT_CTF || com_buildScript.integer ) {
+		if ( cgs.gametype == gametype_t::GT_CTF || com_buildScript.integer ) {
 			cgs.media.redFlagReturnedSound = trap->S_RegisterSound( "sound/chars/protocol/misc/40MOM042" );
 			cgs.media.blueFlagReturnedSound = trap->S_RegisterSound( "sound/chars/protocol/misc/40MOM041" );
 			cgs.media.redTookFlagSound = trap->S_RegisterSound( "sound/chars/protocol/misc/40MOM040" );
 			cgs.media.blueTookFlagSound = trap->S_RegisterSound( "sound/chars/protocol/misc/40MOM039" );
 		}
-		if ( cgs.gametype == GT_CTY /*|| com_buildScript.integer*/ ) {
+		if ( cgs.gametype == gametype_t::GT_CTY /*|| com_buildScript.integer*/ ) {
 			cgs.media.redYsalReturnedSound = trap->S_RegisterSound( "sound/chars/protocol/misc/40MOM050" );
 			cgs.media.blueYsalReturnedSound = trap->S_RegisterSound( "sound/chars/protocol/misc/40MOM049" );
 			cgs.media.redTookYsalSound = trap->S_RegisterSound( "sound/chars/protocol/misc/40MOM048" );
@@ -830,68 +830,68 @@ static void CG_RegisterSounds( void ) {
 
 	for (i=0 ; i<4 ; i++) {
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/stone_step%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_STONEWALK][i] = trap->S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_STONEWALK][i] = trap->S_RegisterSound (name);
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/stone_run%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_STONERUN][i] = trap->S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_STONERUN][i] = trap->S_RegisterSound (name);
 
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/metal_step%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_METALWALK][i] = trap->S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_METALWALK][i] = trap->S_RegisterSound (name);
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/metal_run%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_METALRUN][i] = trap->S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_METALRUN][i] = trap->S_RegisterSound (name);
 
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/pipe_step%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_PIPEWALK][i] = trap->S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_PIPEWALK][i] = trap->S_RegisterSound (name);
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/pipe_run%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_PIPERUN][i] = trap->S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_PIPERUN][i] = trap->S_RegisterSound (name);
 
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/water_run%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_SPLASH][i] = trap->S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_SPLASH][i] = trap->S_RegisterSound (name);
 
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/water_walk%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_WADE][i] = trap->S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_WADE][i] = trap->S_RegisterSound (name);
 
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/water_wade_0%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_SWIM][i] = trap->S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_SWIM][i] = trap->S_RegisterSound (name);
 
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/snow_step%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_SNOWWALK][i] = trap->S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_SNOWWALK][i] = trap->S_RegisterSound (name);
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/snow_run%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_SNOWRUN][i] = trap->S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_SNOWRUN][i] = trap->S_RegisterSound (name);
 
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/sand_walk%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_SANDWALK][i] = trap->S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_SANDWALK][i] = trap->S_RegisterSound (name);
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/sand_run%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_SANDRUN][i] = trap->S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_SANDRUN][i] = trap->S_RegisterSound (name);
 
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/grass_step%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_GRASSWALK][i] = trap->S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_GRASSWALK][i] = trap->S_RegisterSound (name);
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/grass_run%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_GRASSRUN][i] = trap->S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_GRASSRUN][i] = trap->S_RegisterSound (name);
 
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/dirt_step%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_DIRTWALK][i] = trap->S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_DIRTWALK][i] = trap->S_RegisterSound (name);
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/dirt_run%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_DIRTRUN][i] = trap->S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_DIRTRUN][i] = trap->S_RegisterSound (name);
 
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/mud_walk%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_MUDWALK][i] = trap->S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_MUDWALK][i] = trap->S_RegisterSound (name);
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/mud_run%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_MUDRUN][i] = trap->S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_MUDRUN][i] = trap->S_RegisterSound (name);
 
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/gravel_walk%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_GRAVELWALK][i] = trap->S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_GRAVELWALK][i] = trap->S_RegisterSound (name);
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/gravel_run%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_GRAVELRUN][i] = trap->S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_GRAVELRUN][i] = trap->S_RegisterSound (name);
 
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/rug_step%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_RUGWALK][i] = trap->S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_RUGWALK][i] = trap->S_RegisterSound (name);
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/rug_run%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_RUGRUN][i] = trap->S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_RUGRUN][i] = trap->S_RegisterSound (name);
 
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/wood_walk%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_WOODWALK][i] = trap->S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_WOODWALK][i] = trap->S_RegisterSound (name);
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/wood_run%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_WOODRUN][i] = trap->S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_WOODRUN][i] = trap->S_RegisterSound (name);
 	}
 
 	// only register the items that the server says we need
@@ -964,7 +964,7 @@ static void CG_RegisterSounds( void ) {
 		cg_siegeWinTeam = static_cast<team_t>( atoi(soundName) );
 	}
 
-	if (cgs.gametype == GT_SIEGE)
+	if (cgs.gametype == gametype_t::GT_SIEGE)
 	{
 		CG_ParseSiegeObjectiveStatus(CG_ConfigString(CS_SIEGE_OBJECTIVES));
 		cg_beatingSiegeTime = atoi(CG_ConfigString(CS_SIEGE_TIMEOVERRIDE));
@@ -1034,7 +1034,7 @@ static void CG_RegisterEffects( void )
 
 //===================================================================================
 
-extern EnumArray<const char *, forcePowers_t, NUM_FORCE_POWERS> forceHolocronModels;
+extern EnumArray<const char *, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS> forceHolocronModels;
 int CG_HandleAppendedSkin(char *modelName);
 void CG_CacheG2AnimInfo(char *modelName);
 /*
@@ -1207,9 +1207,9 @@ static void CG_RegisterGraphics( void ) {
 
 	cgs.media.itemHoloModel = trap->R_RegisterModel("models/map_objects/mp/holo.md3");
 
-	if (cgs.gametype == GT_HOLOCRON || com_buildScript.integer)
+	if (cgs.gametype == gametype_t::GT_HOLOCRON || com_buildScript.integer)
 	{
-		for ( forcePowers_t fp = FP_FIRST; fp < NUM_FORCE_POWERS; fp++ )
+		for ( forcePowers_t fp = forcePowers_t::FP_FIRST; fp < forcePowers_t::NUM_FORCE_POWERS; fp++ )
 		{
 			if (forceHolocronModels[fp] &&
 				forceHolocronModels[fp][0])
@@ -1219,7 +1219,7 @@ static void CG_RegisterGraphics( void ) {
 		}
 	}
 
-	if ( cgs.gametype == GT_CTF || cgs.gametype == GT_CTY || com_buildScript.integer ) {
+	if ( cgs.gametype == gametype_t::GT_CTF || cgs.gametype == gametype_t::GT_CTY || com_buildScript.integer ) {
 		if (com_buildScript.integer)
 		{
 			trap->R_RegisterModel( "models/flags/r_flag.md3" );
@@ -1228,12 +1228,12 @@ static void CG_RegisterGraphics( void ) {
 			trap->R_RegisterModel( "models/flags/b_flag_ysal.md3" );
 		}
 
-		if (cgs.gametype == GT_CTF)
+		if (cgs.gametype == gametype_t::GT_CTF)
 		{
 			cgs.media.redFlagModel = trap->R_RegisterModel( "models/flags/r_flag.md3" );
 			cgs.media.blueFlagModel = trap->R_RegisterModel( "models/flags/b_flag.md3" );
 		}
-		else if(cgs.gametype == GT_CTY)
+		else if(cgs.gametype == gametype_t::GT_CTY)
 		{
 			cgs.media.redFlagModel = trap->R_RegisterModel( "models/flags/r_flag_ysal.md3" );
 			cgs.media.blueFlagModel = trap->R_RegisterModel( "models/flags/b_flag_ysal.md3" );
@@ -1251,18 +1251,18 @@ static void CG_RegisterGraphics( void ) {
 		trap->R_RegisterShaderNoMip("gfx/2d/net.tga");
 	}
 
-	if ( cgs.gametype >= GT_TEAM || com_buildScript.integer ) {
+	if ( cgs.gametype >= gametype_t::GT_TEAM || com_buildScript.integer ) {
 		cgs.media.teamRedShader = trap->R_RegisterShader( "sprites/team_red" );
 		cgs.media.teamBlueShader = trap->R_RegisterShader( "sprites/team_blue" );
 		//cgs.media.redQuadShader = trap->R_RegisterShader("powerups/blueflag" );
 		cgs.media.teamStatusBar = trap->R_RegisterShader( "gfx/2d/colorbar.tga" );
 	}
-	else if ( cgs.gametype == GT_JEDIMASTER )
+	else if ( cgs.gametype == gametype_t::GT_JEDIMASTER )
 	{
 		cgs.media.teamRedShader = trap->R_RegisterShader( "sprites/team_red" );
 	}
 
-	if (cgs.gametype == GT_POWERDUEL || com_buildScript.integer)
+	if (cgs.gametype == gametype_t::GT_POWERDUEL || com_buildScript.integer)
 	{
 		cgs.media.powerDuelAllyShader = trap->R_RegisterShader("gfx/mp/pduel_icon_double");//trap->R_RegisterShader("gfx/mp/pduel_gameicon_ally");
 	}
@@ -1300,14 +1300,14 @@ static void CG_RegisterGraphics( void ) {
 	//FIXME: jfm:? bother to conditionally load these if an ent has this material type?
 	for ( i = 0; i < NUM_CHUNK_MODELS; i++ )
 	{
-		cgs.media.chunkModels[CHUNK_METAL2][i]	= trap->R_RegisterModel( va( "models/chunks/metal/metal1_%i.md3", i+1 ) ); //_ /switched\ _
-		cgs.media.chunkModels[CHUNK_METAL1][i]	= trap->R_RegisterModel( va( "models/chunks/metal/metal2_%i.md3", i+1 ) ); //  \switched/
-		cgs.media.chunkModels[CHUNK_ROCK1][i]	= trap->R_RegisterModel( va( "models/chunks/rock/rock1_%i.md3", i+1 ) );
-		cgs.media.chunkModels[CHUNK_ROCK2][i]	= trap->R_RegisterModel( va( "models/chunks/rock/rock2_%i.md3", i+1 ) );
-		cgs.media.chunkModels[CHUNK_ROCK3][i]	= trap->R_RegisterModel( va( "models/chunks/rock/rock3_%i.md3", i+1 ) );
-		cgs.media.chunkModels[CHUNK_CRATE1][i]	= trap->R_RegisterModel( va( "models/chunks/crate/crate1_%i.md3", i+1 ) );
-		cgs.media.chunkModels[CHUNK_CRATE2][i]	= trap->R_RegisterModel( va( "models/chunks/crate/crate2_%i.md3", i+1 ) );
-		cgs.media.chunkModels[CHUNK_WHITE_METAL][i]	= trap->R_RegisterModel( va( "models/chunks/metal/wmetal1_%i.md3", i+1 ) );
+		cgs.media.chunkModels[chunkType_t::CHUNK_METAL2][i]	= trap->R_RegisterModel( va( "models/chunks/metal/metal1_%i.md3", i+1 ) ); //_ /switched\ _
+		cgs.media.chunkModels[chunkType_t::CHUNK_METAL1][i]	= trap->R_RegisterModel( va( "models/chunks/metal/metal2_%i.md3", i+1 ) ); //  \switched/
+		cgs.media.chunkModels[chunkType_t::CHUNK_ROCK1][i]	= trap->R_RegisterModel( va( "models/chunks/rock/rock1_%i.md3", i+1 ) );
+		cgs.media.chunkModels[chunkType_t::CHUNK_ROCK2][i]	= trap->R_RegisterModel( va( "models/chunks/rock/rock2_%i.md3", i+1 ) );
+		cgs.media.chunkModels[chunkType_t::CHUNK_ROCK3][i]	= trap->R_RegisterModel( va( "models/chunks/rock/rock3_%i.md3", i+1 ) );
+		cgs.media.chunkModels[chunkType_t::CHUNK_CRATE1][i]	= trap->R_RegisterModel( va( "models/chunks/crate/crate1_%i.md3", i+1 ) );
+		cgs.media.chunkModels[chunkType_t::CHUNK_CRATE2][i]	= trap->R_RegisterModel( va( "models/chunks/crate/crate2_%i.md3", i+1 ) );
+		cgs.media.chunkModels[chunkType_t::CHUNK_WHITE_METAL][i]	= trap->R_RegisterModel( va( "models/chunks/metal/wmetal1_%i.md3", i+1 ) );
 	}
 
 	cgs.media.chunkSound			= trap->S_RegisterSound("sound/weapons/explosions/glasslcar");
@@ -1524,9 +1524,9 @@ void CG_SiegeCountCvars( void )
 {
 	int classGfx[6];
 
-	trap->Cvar_Set( "ui_tm1_cnt",va("%d",CG_GetTeamNonScoreCount(TEAM_RED )));
-	trap->Cvar_Set( "ui_tm2_cnt",va("%d",CG_GetTeamNonScoreCount(TEAM_BLUE )));
-	trap->Cvar_Set( "ui_tm3_cnt",va("%d",CG_GetTeamNonScoreCount(TEAM_SPECTATOR )));
+	trap->Cvar_Set( "ui_tm1_cnt",va("%d",CG_GetTeamNonScoreCount(team_t::TEAM_RED )));
+	trap->Cvar_Set( "ui_tm2_cnt",va("%d",CG_GetTeamNonScoreCount(team_t::TEAM_BLUE )));
+	trap->Cvar_Set( "ui_tm3_cnt",va("%d",CG_GetTeamNonScoreCount(team_t::TEAM_SPECTATOR )));
 
 	// This is because the only way we can match up classes is by the gfx handle.
 	classGfx[0] = trap->R_RegisterShaderNoMip("gfx/mp/c_icon_infantry");
@@ -1536,19 +1536,19 @@ void CG_SiegeCountCvars( void )
 	classGfx[4] = trap->R_RegisterShaderNoMip("gfx/mp/c_icon_support");
 	classGfx[5] = trap->R_RegisterShaderNoMip("gfx/mp/c_icon_jedi_general");
 
-	trap->Cvar_Set( "ui_tm1_c0_cnt",va("%d",CG_GetClassCount(TEAM_RED,classGfx[0])));
-	trap->Cvar_Set( "ui_tm1_c1_cnt",va("%d",CG_GetClassCount(TEAM_RED,classGfx[1])));
-	trap->Cvar_Set( "ui_tm1_c2_cnt",va("%d",CG_GetClassCount(TEAM_RED,classGfx[2])));
-	trap->Cvar_Set( "ui_tm1_c3_cnt",va("%d",CG_GetClassCount(TEAM_RED,classGfx[3])));
-	trap->Cvar_Set( "ui_tm1_c4_cnt",va("%d",CG_GetClassCount(TEAM_RED,classGfx[4])));
-	trap->Cvar_Set( "ui_tm1_c5_cnt",va("%d",CG_GetClassCount(TEAM_RED,classGfx[5])));
+	trap->Cvar_Set( "ui_tm1_c0_cnt",va("%d",CG_GetClassCount(team_t::TEAM_RED,classGfx[0])));
+	trap->Cvar_Set( "ui_tm1_c1_cnt",va("%d",CG_GetClassCount(team_t::TEAM_RED,classGfx[1])));
+	trap->Cvar_Set( "ui_tm1_c2_cnt",va("%d",CG_GetClassCount(team_t::TEAM_RED,classGfx[2])));
+	trap->Cvar_Set( "ui_tm1_c3_cnt",va("%d",CG_GetClassCount(team_t::TEAM_RED,classGfx[3])));
+	trap->Cvar_Set( "ui_tm1_c4_cnt",va("%d",CG_GetClassCount(team_t::TEAM_RED,classGfx[4])));
+	trap->Cvar_Set( "ui_tm1_c5_cnt",va("%d",CG_GetClassCount(team_t::TEAM_RED,classGfx[5])));
 
-	trap->Cvar_Set( "ui_tm2_c0_cnt",va("%d",CG_GetClassCount(TEAM_BLUE,classGfx[0])));
-	trap->Cvar_Set( "ui_tm2_c1_cnt",va("%d",CG_GetClassCount(TEAM_BLUE,classGfx[1])));
-	trap->Cvar_Set( "ui_tm2_c2_cnt",va("%d",CG_GetClassCount(TEAM_BLUE,classGfx[2])));
-	trap->Cvar_Set( "ui_tm2_c3_cnt",va("%d",CG_GetClassCount(TEAM_BLUE,classGfx[3])));
-	trap->Cvar_Set( "ui_tm2_c4_cnt",va("%d",CG_GetClassCount(TEAM_BLUE,classGfx[4])));
-	trap->Cvar_Set( "ui_tm2_c5_cnt",va("%d",CG_GetClassCount(TEAM_BLUE,classGfx[5])));
+	trap->Cvar_Set( "ui_tm2_c0_cnt",va("%d",CG_GetClassCount(team_t::TEAM_BLUE,classGfx[0])));
+	trap->Cvar_Set( "ui_tm2_c1_cnt",va("%d",CG_GetClassCount(team_t::TEAM_BLUE,classGfx[1])));
+	trap->Cvar_Set( "ui_tm2_c2_cnt",va("%d",CG_GetClassCount(team_t::TEAM_BLUE,classGfx[2])));
+	trap->Cvar_Set( "ui_tm2_c3_cnt",va("%d",CG_GetClassCount(team_t::TEAM_BLUE,classGfx[3])));
+	trap->Cvar_Set( "ui_tm2_c4_cnt",va("%d",CG_GetClassCount(team_t::TEAM_BLUE,classGfx[4])));
+	trap->Cvar_Set( "ui_tm2_c5_cnt",va("%d",CG_GetClassCount(team_t::TEAM_BLUE,classGfx[5])));
 
 }
 
@@ -1566,7 +1566,7 @@ void CG_BuildSpectatorString(void) {
 	CG_SiegeCountCvars();
 
 	for (i = 0; i < MAX_CLIENTS; i++) {
-		if (cgs.clientinfo[i].infoValid && cgs.clientinfo[i].team == TEAM_SPECTATOR ) {
+		if (cgs.clientinfo[i].infoValid && cgs.clientinfo[i].team == team_t::TEAM_SPECTATOR ) {
 			Q_strcat(cg.spectatorList, sizeof(cg.spectatorList), va("%s     ", cgs.clientinfo[i].name));
 		}
 	}
@@ -1618,7 +1618,7 @@ const char *CG_ConfigString( int index ) {
 	// assert( cgs.gameState.dataCount != 0 );
 
 	if ( index < 0 || index >= MAX_CONFIGSTRINGS ) {
-		trap->Error( ERR_DROP, "CG_ConfigString: bad index: %i", index );
+		trap->Error( errorParm_t::ERR_DROP, "CG_ConfigString: bad index: %i", index );
 	}
 	return cgs.gameState.stringData + cgs.gameState.stringOffsets[ index ];
 }
@@ -1648,7 +1648,7 @@ char *CG_GetMenuBuffer(const char *filename) {
 	fileHandle_t	f;
 	static char buf[MAX_MENUFILE];
 
-	len = trap->FS_Open( filename, &f, FS_READ );
+	len = trap->FS_Open( filename, &f, fsMode_t::FS_READ );
 	if ( !f ) {
 		trap->Print( S_COLOR_RED "menu file not found: %s, using default\n", filename );
 		return nullptr;
@@ -1918,13 +1918,13 @@ static int CG_FeederCount(float feederID) {
 	count = 0;
 	if (feederID == FEEDER_REDTEAM_LIST) {
 		for (i = 0; i < cg.numScores; i++) {
-			if (cg.scores[i].team == TEAM_RED) {
+			if (cg.scores[i].team == team_t::TEAM_RED) {
 				count++;
 			}
 		}
 	} else if (feederID == FEEDER_BLUETEAM_LIST) {
 		for (i = 0; i < cg.numScores; i++) {
-			if (cg.scores[i].team == TEAM_BLUE) {
+			if (cg.scores[i].team == team_t::TEAM_BLUE) {
 				count++;
 			}
 		}
@@ -1941,9 +1941,9 @@ void CG_SetScoreSelection(void *p) {
 	int i, red, blue;
 	red = blue = 0;
 	for (i = 0; i < cg.numScores; i++) {
-		if (cg.scores[i].team == TEAM_RED) {
+		if (cg.scores[i].team == team_t::TEAM_RED) {
 			red++;
-		} else if (cg.scores[i].team == TEAM_BLUE) {
+		} else if (cg.scores[i].team == team_t::TEAM_BLUE) {
 			blue++;
 		}
 		if (ps->clientNum == cg.scores[i].client) {
@@ -1956,10 +1956,10 @@ void CG_SetScoreSelection(void *p) {
 		return;
 	}
 
-	if ( cgs.gametype >= GT_TEAM ) {
+	if ( cgs.gametype >= gametype_t::GT_TEAM ) {
 		int feeder = FEEDER_REDTEAM_LIST;
 		i = red;
-		if (cg.scores[cg.selectedScore].team == TEAM_BLUE) {
+		if (cg.scores[cg.selectedScore].team == team_t::TEAM_BLUE) {
 			feeder = FEEDER_BLUETEAM_LIST;
 			i = blue;
 		}
@@ -1972,7 +1972,7 @@ void CG_SetScoreSelection(void *p) {
 // FIXME: might need to cache this info
 static clientInfo_t * CG_InfoFromScoreIndex(int index, std::optional<team_t> team, int *scoreIndex) {
 	int i, count;
-	if ( cgs.gametype >= GT_TEAM ) {
+	if ( cgs.gametype >= gametype_t::GT_TEAM ) {
 		count = 0;
 		for (i = 0; i < cg.numScores; i++) {
 			if (cg.scores[i].team == team) {
@@ -1999,9 +1999,9 @@ static const char *CG_FeederItemText(float feederID, int index, int column,
 	*handle1 = *handle2 = *handle3 = -1;
 
 	if (feederID == FEEDER_REDTEAM_LIST) {
-		team = TEAM_RED;
+		team = team_t::TEAM_RED;
 	} else if (feederID == FEEDER_BLUETEAM_LIST) {
-		team = TEAM_BLUE;
+		team = team_t::TEAM_BLUE;
 	}
 
 	info = CG_InfoFromScoreIndex(index, team, &scoreIndex);
@@ -2010,14 +2010,14 @@ static const char *CG_FeederItemText(float feederID, int index, int column,
 	if (info && info->infoValid) {
 		switch (column) {
 			case 0:
-				if ( info->powerups & Bit( PW_NEUTRALFLAG ) ) {
-					item = BG_FindItemForPowerup( PW_NEUTRALFLAG );
+				if ( info->powerups & Bit( powerup_t::PW_NEUTRALFLAG ) ) {
+					item = BG_FindItemForPowerup( powerup_t::PW_NEUTRALFLAG );
 					*handle1 = cg_items[ ITEM_INDEX(item) ].icon;
-				} else if ( info->powerups & Bit( PW_REDFLAG ) ) {
-					item = BG_FindItemForPowerup( PW_REDFLAG );
+				} else if ( info->powerups & Bit( powerup_t::PW_REDFLAG ) ) {
+					item = BG_FindItemForPowerup( powerup_t::PW_REDFLAG );
 					*handle1 = cg_items[ ITEM_INDEX(item) ].icon;
-				} else if ( info->powerups & Bit( PW_BLUEFLAG ) ) {
-					item = BG_FindItemForPowerup( PW_BLUEFLAG );
+				} else if ( info->powerups & Bit( powerup_t::PW_BLUEFLAG ) ) {
+					item = BG_FindItemForPowerup( powerup_t::PW_BLUEFLAG );
 					*handle1 = cg_items[ ITEM_INDEX(item) ].icon;
 				} else {
 					/*
@@ -2037,13 +2037,13 @@ static const char *CG_FeederItemText(float feederID, int index, int column,
 				}
 		  break;
 			case 2:
-				if ( cg.snap->ps.stats[ STAT_CLIENTS_READY ] & ( 1 << sp->client ) ) {
+				if ( cg.snap->ps.stats[ statIndex_t::STAT_CLIENTS_READY ] & ( 1 << sp->client ) ) {
 					return "Ready";
 				}
 				if (!team) {
-					if (cgs.gametype == GT_DUEL || cgs.gametype == GT_POWERDUEL) {
+					if (cgs.gametype == gametype_t::GT_DUEL || cgs.gametype == gametype_t::GT_POWERDUEL) {
 						return va("%i/%i", info->wins, info->losses);
-					} else if (info->infoValid && info->team == TEAM_SPECTATOR ) {
+					} else if (info->infoValid && info->team == team_t::TEAM_SPECTATOR ) {
 						return "Spectator";
 					} else {
 						return "";
@@ -2080,9 +2080,9 @@ static qhandle_t CG_FeederItemImage(float feederID, int index) {
 }
 
 static bool CG_FeederSelection(float feederID, int index, itemDef_t *item) {
-	if ( cgs.gametype >= GT_TEAM ) {
+	if ( cgs.gametype >= gametype_t::GT_TEAM ) {
 		int i, count;
-		team_t team = (feederID == FEEDER_REDTEAM_LIST) ? TEAM_RED : TEAM_BLUE;
+		team_t team = (feederID == FEEDER_REDTEAM_LIST) ? team_t::TEAM_RED : team_t::TEAM_BLUE;
 		count = 0;
 		for (i = 0; i < cg.numScores; i++) {
 			if (cg.scores[i].team == team) {
@@ -2113,25 +2113,25 @@ void CG_Text_PaintWithCursor(float x, float y, float scale, vec4_t color, const 
 static int CG_OwnerDrawWidth(int ownerDraw, float scale) {
 	switch (ownerDraw) {
 	  case CG_GAME_TYPE:
-			return CG_Text_Width(BG_GetGametypeString( cgs.gametype ), scale, FONT_MEDIUM);
+			return CG_Text_Width(BG_GetGametypeString( cgs.gametype ), scale, menuFont_t::FONT_MEDIUM);
 	  case CG_GAME_STATUS:
-			return CG_Text_Width(CG_GetGameStatusText(), scale, FONT_MEDIUM);
+			return CG_Text_Width(CG_GetGameStatusText(), scale, menuFont_t::FONT_MEDIUM);
 			break;
 	  case CG_KILLER:
-			return CG_Text_Width(CG_GetKillerText(), scale, FONT_MEDIUM);
+			return CG_Text_Width(CG_GetKillerText(), scale, menuFont_t::FONT_MEDIUM);
 			break;
 	  case CG_RED_NAME:
-			return CG_Text_Width(DEFAULT_REDTEAM_NAME/*cg_redTeamName.string*/, scale, FONT_MEDIUM);
+			return CG_Text_Width(DEFAULT_REDTEAM_NAME/*cg_redTeamName.string*/, scale, menuFont_t::FONT_MEDIUM);
 			break;
 	  case CG_BLUE_NAME:
-			return CG_Text_Width(DEFAULT_BLUETEAM_NAME/*cg_blueTeamName.string*/, scale, FONT_MEDIUM);
+			return CG_Text_Width(DEFAULT_BLUETEAM_NAME/*cg_blueTeamName.string*/, scale, menuFont_t::FONT_MEDIUM);
 			break;
 	}
 	return 0;
 }
 
 static int CG_PlayCinematic(const char *name, float x, float y, float w, float h) {
-	return trap->CIN_PlayCinematic(name, x, y, w, h, CIN_loop);
+	return trap->CIN_PlayCinematic(name, x, y, w, h, cinematicFlags_t::CIN_loop);
 }
 
 static void CG_StopCinematic(int handle) {
@@ -2161,7 +2161,7 @@ void CG_LoadMenus(const char *menuFile)
 	fileHandle_t	f;
 	static char buf[MAX_MENUDEFFILE];
 
-	len = trap->FS_Open( menuFile, &f, FS_READ );
+	len = trap->FS_Open( menuFile, &f, fsMode_t::FS_READ );
 
 	if ( !f )
 	{
@@ -2170,17 +2170,17 @@ void CG_LoadMenus(const char *menuFile)
 		else
 			trap->Print( S_COLOR_YELLOW "hud menu file not found: %s, using default\n", menuFile );
 
-		len = trap->FS_Open( "ui/jahud.txt", &f, FS_READ );
+		len = trap->FS_Open( "ui/jahud.txt", &f, fsMode_t::FS_READ );
 		if (!f)
 		{
-			trap->Error( ERR_DROP, S_COLOR_RED "default hud menu file not found: ui/jahud.txt, unable to continue!" );
+			trap->Error( errorParm_t::ERR_DROP, S_COLOR_RED "default hud menu file not found: ui/jahud.txt, unable to continue!" );
 		}
 	}
 
 	if ( len >= MAX_MENUDEFFILE )
 	{
 		trap->FS_Close( f );
-		trap->Error( ERR_DROP, S_COLOR_RED "menu file too large: %s is %i, max allowed is %i", menuFile, len, MAX_MENUDEFFILE );
+		trap->Error( errorParm_t::ERR_DROP, S_COLOR_RED "menu file too large: %s is %i, max allowed is %i", menuFile, len, MAX_MENUDEFFILE );
 	}
 
 	trap->FS_Read( buf, len, f );
@@ -2451,7 +2451,7 @@ Ghoul2 Insert End
 	cg.loadLCARSStage		= 0;
 
 	cg.itemSelect.reset();
-	cg.forceSelect = FP_UNKNOWN;
+	cg.forceSelect = forcePowers_t::FP_UNKNOWN;
 
 	// load a few needed things before we do any screen updates
 	cgs.media.charsetShader		= trap->R_RegisterShaderNoMip( "gfx/2d/charsgrid_med" );
@@ -2466,7 +2466,7 @@ Ghoul2 Insert End
 	cg.forceHUDTotalFlashTime = 0;
 	cg.forceHUDNextFlashTime = 0;
 
-	weapon_t wp = WP_NONE+1;
+	weapon_t wp = weapon_t::WP_NONE+1;
 	while (wp <= LAST_USEABLE_WEAPON)
 	{
 		item = BG_FindItemForWeapon(wp);
@@ -2499,7 +2499,7 @@ Ghoul2 Insert End
 	//rww - precache holdable item icons here
 	while (i < bg_numItems)
 	{
-		if (bg_itemlist[i].giType == IT_HOLDABLE)
+		if (bg_itemlist[i].giType == itemType_t::IT_HOLDABLE)
 		{
 			if (bg_itemlist[i].icon)
 			{
@@ -2515,9 +2515,9 @@ Ghoul2 Insert End
 	}
 
 	//rww - precache force power icons here
-	forcePowers_t fp = FP_FIRST;
+	forcePowers_t fp = forcePowers_t::FP_FIRST;
 
-	while (fp < NUM_FORCE_POWERS)
+	while (fp < forcePowers_t::NUM_FORCE_POWERS)
 	{
 		cgs.media.forcePowerIcons[fp] = trap->R_RegisterShaderNoMip(HolocronIcons[fp]);
 
@@ -2538,10 +2538,10 @@ Ghoul2 Insert End
 
 	cg.renderingThirdPerson = cg_thirdPerson.integer;
 
-	cg.weaponSelect = WP_BRYAR_PISTOL;
+	cg.weaponSelect = weapon_t::WP_BRYAR_PISTOL;
 
-	cgs.redflag = cgs.blueflag = FLAG_UNSET; // For compatibily, default to unset for
-	cgs.flagStatus = FLAG_UNSET;
+	cgs.redflag = cgs.blueflag = flagStatus_t::FLAG_UNSET; // For compatibily, default to unset for
+	cgs.flagStatus = flagStatus_t::FLAG_UNSET;
 	// old servers
 
 	// get the rendering configuration from the client system
@@ -2557,7 +2557,7 @@ Ghoul2 Insert End
 	// check version
 	s = CG_ConfigString( CS_GAME_VERSION );
 	if ( strcmp( s, GAME_VERSION ) ) {
-		trap->Error( ERR_DROP, "Client/Server game mismatch: %s/%s", GAME_VERSION, s );
+		trap->Error( errorParm_t::ERR_DROP, "Client/Server game mismatch: %s/%s", GAME_VERSION, s );
 	}
 
 	s = CG_ConfigString( CS_LEVEL_START_TIME );
@@ -2717,26 +2717,26 @@ void CG_NextForcePower_f( void )
 		return;
 	}
 
-	if (cg.predictedPlayerState.pm_type == PM_SPECTATOR)
+	if (cg.predictedPlayerState.pm_type == pmtype_t::PM_SPECTATOR)
 	{
 		return;
 	}
 
 	current = trap->GetCurrentCmdNumber();
 	trap->GetUserCmd(current, &cmd);
-	if (Any(cmd.buttons & BUTTON_USE) || CG_NoUseableForce())
+	if (Any(cmd.buttons & buttonFlags_t::BUTTON_USE) || CG_NoUseableForce())
 	{
 		CG_NextInventory_f();
 		return;
 	}
 
-	if (Any( cg.snap->ps.pm_flags & PMF_FOLLOW ))
+	if (Any( cg.snap->ps.pm_flags & pmoveFlags_t::PMF_FOLLOW ))
 	{
 		return;
 	}
 
 //	BG_CycleForce(&cg.snap->ps, 1);
-	if (cg.forceSelect != FP_UNKNOWN)
+	if (cg.forceSelect != forcePowers_t::FP_UNKNOWN)
 	{
 		cg.snap->ps.fd.forcePowerSelected = cg.forceSelect;
 	}
@@ -2764,26 +2764,26 @@ void CG_PrevForcePower_f( void )
 		return;
 	}
 
-	if (cg.predictedPlayerState.pm_type == PM_SPECTATOR)
+	if (cg.predictedPlayerState.pm_type == pmtype_t::PM_SPECTATOR)
 	{
 		return;
 	}
 
 	current = trap->GetCurrentCmdNumber();
 	trap->GetUserCmd(current, &cmd);
-	if (Any(cmd.buttons & BUTTON_USE) || CG_NoUseableForce())
+	if (Any(cmd.buttons & buttonFlags_t::BUTTON_USE) || CG_NoUseableForce())
 	{
 		CG_PrevInventory_f();
 		return;
 	}
 
-	if (Any( cg.snap->ps.pm_flags & PMF_FOLLOW ))
+	if (Any( cg.snap->ps.pm_flags & pmoveFlags_t::PMF_FOLLOW ))
 	{
 		return;
 	}
 
 //	BG_CycleForce(&cg.snap->ps, -1);
-	if (cg.forceSelect != FP_UNKNOWN)
+	if (cg.forceSelect != forcePowers_t::FP_UNKNOWN)
 	{
 		cg.snap->ps.fd.forcePowerSelected = cg.forceSelect;
 	}
@@ -2804,25 +2804,25 @@ void CG_NextInventory_f(void)
 		return;
 	}
 
-	if (Any( cg.snap->ps.pm_flags & PMF_FOLLOW ))
+	if (Any( cg.snap->ps.pm_flags & pmoveFlags_t::PMF_FOLLOW ))
 	{
 		return;
 	}
 
-	if (cg.predictedPlayerState.pm_type == PM_SPECTATOR)
+	if (cg.predictedPlayerState.pm_type == pmtype_t::PM_SPECTATOR)
 	{
 		return;
 	}
 
 	if (cg.itemSelect)
 	{
-		cg.snap->ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag( *cg.itemSelect );
+		cg.snap->ps.stats[statIndex_t::STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag( *cg.itemSelect );
 	}
 	BG_CycleInven(&cg.snap->ps, 1);
 
-	if (cg.snap->ps.stats[STAT_HOLDABLE_ITEM])
+	if (cg.snap->ps.stats[statIndex_t::STAT_HOLDABLE_ITEM])
 	{
-		cg.itemSelect = GI_Holdable( bg_itemlist[cg.snap->ps.stats[STAT_HOLDABLE_ITEM]] );
+		cg.itemSelect = GI_Holdable( bg_itemlist[cg.snap->ps.stats[statIndex_t::STAT_HOLDABLE_ITEM]] );
 		cg.invenSelectTime = cg.time;
 	}
 }
@@ -2834,25 +2834,25 @@ void CG_PrevInventory_f(void)
 		return;
 	}
 
-	if (Any( cg.snap->ps.pm_flags & PMF_FOLLOW ))
+	if (Any( cg.snap->ps.pm_flags & pmoveFlags_t::PMF_FOLLOW ))
 	{
 		return;
 	}
 
-	if (cg.predictedPlayerState.pm_type == PM_SPECTATOR)
+	if (cg.predictedPlayerState.pm_type == pmtype_t::PM_SPECTATOR)
 	{
 		return;
 	}
 
 	if (cg.itemSelect)
 	{
-		cg.snap->ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag( *cg.itemSelect );
+		cg.snap->ps.stats[statIndex_t::STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag( *cg.itemSelect );
 	}
 	BG_CycleInven(&cg.snap->ps, -1);
 
-	if (cg.snap->ps.stats[STAT_HOLDABLE_ITEM])
+	if (cg.snap->ps.stats[statIndex_t::STAT_HOLDABLE_ITEM])
 	{
-		cg.itemSelect = GI_Holdable( bg_itemlist[cg.snap->ps.stats[STAT_HOLDABLE_ITEM]] );
+		cg.itemSelect = GI_Holdable( bg_itemlist[cg.snap->ps.stats[statIndex_t::STAT_HOLDABLE_ITEM]] );
 		cg.invenSelectTime = cg.time;
 	}
 }

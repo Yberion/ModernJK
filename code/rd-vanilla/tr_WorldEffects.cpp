@@ -287,8 +287,7 @@ public:
 
 		FLAG_MAX
 	};
-	using enum particleFlag_t;
-	typedef		ratl::bits_vs<to_underlying( FLAG_MAX )>		TFlags;
+	typedef		ratl::bits_vs<to_underlying( particleFlag_t::FLAG_MAX )>		TFlags;
 
 	float	mAlpha;
 	TFlags	mFlags;
@@ -524,7 +523,7 @@ private:
 	////////////////////////////////////////////////////////////////////////////////////
 	inline	bool	ContentsOutside(contentsFlags_t contents)
 	{
-		if (Any( contents&CONTENTS_WATER ) || Any( contents&CONTENTS_SOLID ))
+		if (Any( contents&contentsFlags_t::CONTENTS_WATER ) || Any( contents&contentsFlags_t::CONTENTS_SOLID ))
 		{
 			return false;
 		}
@@ -532,11 +531,11 @@ private:
 		{
 			if (SWeatherZone::mMarkedOutside)
 			{
-				return (Any( contents&CONTENTS_OUTSIDE ));
+				return (Any( contents&contentsFlags_t::CONTENTS_OUTSIDE ));
 			}
-			return (!Any( contents&CONTENTS_INSIDE ));
+			return (!Any( contents&contentsFlags_t::CONTENTS_INSIDE ));
 		}
-		return Any( contents&CONTENTS_OUTSIDE );
+		return Any( contents&contentsFlags_t::CONTENTS_OUTSIDE );
 	}
 
 
@@ -608,7 +607,7 @@ public:
 			Wz.mDepth		= ((int)(Wz.mSize.mMaxs[2] - Wz.mSize.mMins[2]) + 31) >> 5;
 
 			Wz.miPointCacheByteSize = (Wz.mWidth * Wz.mHeight * Wz.mDepth) * sizeof(uint32_t);
-			Wz.mPointCache  = (uint32_t *)R_Malloc( Wz.miPointCacheByteSize, TAG_POINTCACHE, true );
+			Wz.mPointCache  = (uint32_t *)R_Malloc( Wz.miPointCacheByteSize, memtag::TAG_POINTCACHE, true );
 		}
 		else
 		{
@@ -647,7 +646,7 @@ public:
 		}
 		else
 		{
-			ri.Printf( PRINT_WARNING, "(Unable to open weather file \"%s\" for writing!)\n",GenCachedWeatherFilename());
+			ri.Printf( printParm_t::PRINT_WARNING, "(Unable to open weather file \"%s\" for writing!)\n",GenCachedWeatherFilename());
 		}
 
 		return 0;
@@ -675,12 +674,12 @@ public:
 				return f;
 			}
 
-            ri.Printf( PRINT_WARNING, "( Cached weather file \"%s\" out of date, regenerating... )\n",GenCachedWeatherFilename());
+            ri.Printf( printParm_t::PRINT_WARNING, "( Cached weather file \"%s\" out of date, regenerating... )\n",GenCachedWeatherFilename());
 			ri.FS_FCloseFile( f );
 		}
 		else
 		{
-			ri.Printf( PRINT_WARNING, "( No cached weather file found, generating... )\n");
+			ri.Printf( printParm_t::PRINT_WARNING, "( No cached weather file found, generating... )\n");
 		}
 
 		return 0;
@@ -763,9 +762,9 @@ public:
 								CurPos	  += Mins;
 
 								contents = ri.CM_PointContents(CurPos.v, 0);
-								if (Any( contents&CONTENTS_INSIDE ) || Any( contents&CONTENTS_OUTSIDE ))
+								if (Any( contents&contentsFlags_t::CONTENTS_INSIDE ) || Any( contents&contentsFlags_t::CONTENTS_OUTSIDE ))
 								{
-									curPosOutside = Any( contents&CONTENTS_OUTSIDE );
+									curPosOutside = Any( contents&contentsFlags_t::CONTENTS_OUTSIDE );
 									if (!mCacheInit)
 									{
 										mCacheInit = true;
@@ -774,7 +773,7 @@ public:
 									else if (SWeatherZone::mMarkedOutside!=curPosOutside)
 									{
 										assert(0);
-										Com_Error (ERR_DROP, "Weather Effect: Both Indoor and Outdoor brushs encountered in map.\n" );
+										Com_Error (errorParm_t::ERR_DROP, "Weather Effect: Both Indoor and Outdoor brushs encountered in map.\n" );
 										return;
 									}
 
@@ -1034,7 +1033,7 @@ public:
 		mImage = R_FindImageFile(texturePath, false, false, false, GL_CLAMP);
 		if (!mImage)
 		{
-			Com_Error(ERR_DROP, "CParticleCloud: Could not texture %s", texturePath);
+			Com_Error(errorParm_t::ERR_DROP, "CParticleCloud: Could not texture %s", texturePath);
 		}
 
 		GL_Bind(mImage);
@@ -1318,7 +1317,7 @@ public:
 			part->mPosition.ScaleAdd(part->mVelocity, mSecondsElapsed);
 
 			partToCamera	= (part->mPosition - mCameraPosition);
-			partRendering	= part->mFlags.get_bit( to_underlying( WFXParticle::FLAG_RENDER ) );
+			partRendering	= part->mFlags.get_bit( to_underlying( WFXParticle::particleFlag_t::FLAG_RENDER ) );
 			partOutside		= mOutside.PointOutside(part->mPosition, mWidth, mHeight);
 			partInRange		= mRange.In(part->mPosition);
 			partInView		= (partOutside && partInRange && (partToCamera.Dot(mCameraForward)>0.0f));
@@ -1355,16 +1354,16 @@ public:
 				//------------------
 				if		(partRendering && !partInView)
 				{
-					part->mFlags.clear_bit( to_underlying( WFXParticle::FLAG_FADEIN ) );
-					part->mFlags.set_bit( to_underlying( WFXParticle::FLAG_FADEOUT ) );
+					part->mFlags.clear_bit( to_underlying( WFXParticle::particleFlag_t::FLAG_FADEIN ) );
+					part->mFlags.set_bit( to_underlying( WFXParticle::particleFlag_t::FLAG_FADEOUT ) );
 				}
 
 				// Switch From Fade Out To Fade In
 				//---------------------------------
-				else if (partRendering && partInView && part->mFlags.get_bit( to_underlying( WFXParticle::FLAG_FADEOUT ) ))
+				else if (partRendering && partInView && part->mFlags.get_bit( to_underlying( WFXParticle::particleFlag_t::FLAG_FADEOUT ) ))
 				{
-					part->mFlags.set_bit( to_underlying( WFXParticle::FLAG_FADEIN ) );
-					part->mFlags.clear_bit( to_underlying( WFXParticle::FLAG_FADEOUT ) );
+					part->mFlags.set_bit( to_underlying( WFXParticle::particleFlag_t::FLAG_FADEIN ) );
+					part->mFlags.clear_bit( to_underlying( WFXParticle::particleFlag_t::FLAG_FADEOUT ) );
 				}
 
 				// Start A Fade In
@@ -1373,9 +1372,9 @@ public:
 				{
 					partRendering = true;
 					part->mAlpha = 0.0f;
-					part->mFlags.set_bit( to_underlying( WFXParticle::FLAG_RENDER ) );
-					part->mFlags.set_bit( to_underlying( WFXParticle::FLAG_FADEIN ) );
-					part->mFlags.clear_bit( to_underlying( WFXParticle::FLAG_FADEOUT ) );
+					part->mFlags.set_bit( to_underlying( WFXParticle::particleFlag_t::FLAG_RENDER ) );
+					part->mFlags.set_bit( to_underlying( WFXParticle::particleFlag_t::FLAG_FADEIN ) );
+					part->mFlags.clear_bit( to_underlying( WFXParticle::particleFlag_t::FLAG_FADEOUT ) );
 				}
 
 				// Update Fade
@@ -1385,27 +1384,27 @@ public:
 
 					// Update Fade Out
 					//-----------------
-					if (part->mFlags.get_bit( to_underlying( WFXParticle::FLAG_FADEOUT ) ))
+					if (part->mFlags.get_bit( to_underlying( WFXParticle::particleFlag_t::FLAG_FADEOUT ) ))
 					{
 						part->mAlpha -= particleFade;
 						if (part->mAlpha<=0.0f)
 						{
 							part->mAlpha = 0.0f;
-							part->mFlags.clear_bit( to_underlying( WFXParticle::FLAG_FADEOUT ) );
-							part->mFlags.clear_bit( to_underlying( WFXParticle::FLAG_FADEIN ) );
-							part->mFlags.clear_bit( to_underlying( WFXParticle::FLAG_RENDER ) );
+							part->mFlags.clear_bit( to_underlying( WFXParticle::particleFlag_t::FLAG_FADEOUT ) );
+							part->mFlags.clear_bit( to_underlying( WFXParticle::particleFlag_t::FLAG_FADEIN ) );
+							part->mFlags.clear_bit( to_underlying( WFXParticle::particleFlag_t::FLAG_RENDER ) );
 							partRendering = false;
 						}
 					}
 
 					// Update Fade In
 					//----------------
-					else if (part->mFlags.get_bit( to_underlying( WFXParticle::FLAG_FADEIN ) ))
+					else if (part->mFlags.get_bit( to_underlying( WFXParticle::particleFlag_t::FLAG_FADEIN ) ))
 					{
 						part->mAlpha += particleFade;
 						if (part->mAlpha>=mColor[3])
 						{
-							part->mFlags.clear_bit( to_underlying( WFXParticle::FLAG_FADEIN ) );
+							part->mFlags.clear_bit( to_underlying( WFXParticle::particleFlag_t::FLAG_FADEIN ) );
 							part->mAlpha = mColor[3];
 						}
 					}
@@ -1414,7 +1413,7 @@ public:
 
 			// Keep Track Of The Number Of Particles To Render
 			//-------------------------------------------------
-			if (part->mFlags.get_bit( to_underlying( WFXParticle::FLAG_RENDER ) ))
+			if (part->mFlags.get_bit( to_underlying( WFXParticle::particleFlag_t::FLAG_RENDER ) ))
 			{
 				mParticleCountRender ++;
 			}
@@ -1434,7 +1433,7 @@ public:
 
 		// Set The GL State And Image Binding
 		//------------------------------------
-		GL_State((mBlendMode==0)?(GLS_ALPHA):(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE));
+		GL_State((mBlendMode==0)?(glStateBits_t::GLS_ALPHA):(glStateBits_t::GLS_SRCBLEND_ONE | glStateBits_t::GLS_DSTBLEND_ONE));
 		GL_Bind(mImage);
 
 
@@ -1459,7 +1458,7 @@ public:
 		for (particleNum=0; particleNum<mParticleCount; particleNum++)
 		{
 			part = &(mParticles[particleNum]);
-			if (!part->mFlags.get_bit( to_underlying( WFXParticle::FLAG_RENDER ) ))
+			if (!part->mFlags.get_bit( to_underlying( WFXParticle::particleFlag_t::FLAG_RENDER ) ))
 			{
 				continue;
 			}
@@ -1592,8 +1591,8 @@ void R_ShutdownWorldEffects(void)
 void RB_RenderWorldEffects(void)
 {
 	if (!tr.world ||
-		Any(tr.refdef.rdflags & RDF_NOWORLDMODEL) ||
-		Any(backEnd.refdef.rdflags & RDF_SKYBOXPORTAL) ||
+		Any(tr.refdef.rdflags & refdefFlags_t::RDF_NOWORLDMODEL) ||
+		Any(backEnd.refdef.rdflags & refdefFlags_t::RDF_SKYBOXPORTAL) ||
 		!mParticleClouds.size() ||
 		ri.CL_IsRunningInGameCinematic())
 	{	//  no world rendering or no world or no particle clouds

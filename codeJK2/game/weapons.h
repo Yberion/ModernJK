@@ -82,11 +82,10 @@ enum class weapon_t //# weapon_e
 	//# #eol
 	WP_NUM_WEAPONS
 };
-using enum weapon_t;
 template <> inline constexpr bool enableEnumArithmetic<weapon_t> = true;
 
-inline constexpr weapon_t FIRST_WEAPON = WP_SABER;		// this is the first weapon for next and prev weapon switching
-inline constexpr weapon_t MAX_PLAYER_WEAPONS = WP_STUN_BATON;	// this is the max you can switch to and get with the give all.
+inline constexpr weapon_t FIRST_WEAPON = weapon_t::WP_SABER;		// this is the first weapon for next and prev weapon switching
+inline constexpr weapon_t MAX_PLAYER_WEAPONS = weapon_t::WP_STUN_BATON;	// this is the max you can switch to and get with the give all.
 
 // AMMO_NONE must be first and AMMO_MAX must be last, cause weapon load validates based off of these vals
 enum class ammo_t //# ammo_e
@@ -103,7 +102,6 @@ enum class ammo_t //# ammo_e
 	AMMO_DETPACK,
 	AMMO_MAX
 };
-using enum ammo_t;
 template <> inline constexpr bool enableEnumArithmetic<ammo_t> = true;
 
 
@@ -349,7 +347,7 @@ inline constexpr int TD_VELOCITY = 900;
 inline constexpr float TD_MIN_CHARGE = 0.15f;
 inline constexpr int TD_TIME = 4000;
 inline constexpr int TD_THINK_TIME = 300;		// don't think too often?
-#define TD_TEST_RAD			(weaponData[WP_THERMAL].splashRadius * 0.8f) // no sense in auto-blowing up if exactly on the radius edge--it would hardly do any damage
+#define TD_TEST_RAD			(weaponData[weapon_t::WP_THERMAL].splashRadius * 0.8f) // no sense in auto-blowing up if exactly on the radius edge--it would hardly do any damage
 
 inline constexpr int TD_ALT_DAMAGE = 100;
 inline constexpr int TD_ALT_SPLASH_RAD = 128;

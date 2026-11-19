@@ -57,9 +57,9 @@ void NPC_Seeker_Precache(void)
 //------------------------------------
 void NPC_Seeker_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, meansOfDeath_t mod,hitLocation_t hitLoc )
 {
-	if ( !Any( self->svFlags & SVF_CUSTOM_GRAVITY ))
+	if ( !Any( self->svFlags & svFlags_t::SVF_CUSTOM_GRAVITY ))
 	{
-		G_Damage( self, nullptr, nullptr, vec3_origin, (float*)vec3_origin, 999, DAMAGE_NORMAL, MOD_FALLING );
+		G_Damage( self, nullptr, nullptr, vec3_origin, (float*)vec3_origin, 999, damageFlags_t::DAMAGE_NORMAL, meansOfDeath_t::MOD_FALLING );
 	}
 
 	SaveNPCGlobals();
@@ -88,7 +88,7 @@ void Seeker_MaintainHeight( void )
 			dif = (NPC->enemy->currentOrigin[2] +  Q_flrand( NPC->enemy->maxs[2]/2, NPC->enemy->maxs[2]+8 )) - NPC->currentOrigin[2];
 
 			float	difFactor = 1.0f;
-			if ( NPC->client->NPC_class == CLASS_BOBAFETT )
+			if ( NPC->client->NPC_class == class_t::CLASS_BOBAFETT )
 			{
 				if ( TIMER_Done( NPC, "flameTime" ) )
 				{
@@ -106,7 +106,7 @@ void Seeker_MaintainHeight( void )
 
 				NPC->client->ps.velocity[2] = (NPC->client->ps.velocity[2]+dif)/2;
 			}
-			if ( NPC->client->NPC_class == CLASS_BOBAFETT )
+			if ( NPC->client->NPC_class == class_t::CLASS_BOBAFETT )
 			{
 				NPC->client->ps.velocity[2] *= Q_flrand( 0.85f, 3.0f );
 			}
@@ -186,14 +186,14 @@ void Seeker_Strafe( void )
 		side = ( rand() & 1 ) ? -1 : 1;
 		VectorMA( NPC->currentOrigin, SEEKER_STRAFE_DIS * side, right, end );
 
-		gi.trace( &tr, NPC->currentOrigin, nullptr, nullptr, end, NPC->s.number, MASK_SOLID, G2_NOCOLLIDE, 0 );
+		gi.trace( &tr, NPC->currentOrigin, nullptr, nullptr, end, NPC->s.number, MASK_SOLID, EG2_Collision::G2_NOCOLLIDE, 0 );
 
 		// Close enough
 		if ( tr.fraction > 0.9f )
 		{
 			float vel = SEEKER_STRAFE_VEL;
 			float upPush = SEEKER_UPWARD_PUSH;
-			if ( NPC->client->NPC_class != CLASS_BOBAFETT )
+			if ( NPC->client->NPC_class != class_t::CLASS_BOBAFETT )
 			{
 				G_Sound( NPC, G_SoundIndex( "sound/chars/seeker/misc/hiss" ));
 			}
@@ -217,7 +217,7 @@ void Seeker_Strafe( void )
 		// Pick a random side
 		side = ( rand() & 1 ) ? -1 : 1;
 		float	stDis = SEEKER_STRAFE_DIS;
-		if ( NPC->client->NPC_class == CLASS_BOBAFETT )
+		if ( NPC->client->NPC_class == class_t::CLASS_BOBAFETT )
 		{
 			stDis *= 2.0f;
 		}
@@ -226,7 +226,7 @@ void Seeker_Strafe( void )
 		// then add a very small bit of random in front of/behind the player action
 		VectorMA( end, Q_flrand(-1.0f, 1.0f) * 25, dir, end );
 
-		gi.trace( &tr, NPC->currentOrigin, nullptr, nullptr, end, NPC->s.number, MASK_SOLID, G2_NOCOLLIDE, 0 );
+		gi.trace( &tr, NPC->currentOrigin, nullptr, nullptr, end, NPC->s.number, MASK_SOLID, EG2_Collision::G2_NOCOLLIDE, 0 );
 
 		// Close enough
 		if ( tr.fraction > 0.9f )
@@ -239,7 +239,7 @@ void Seeker_Strafe( void )
 			VectorMA( NPC->client->ps.velocity, dis, dir, NPC->client->ps.velocity );
 
 			float upPush = SEEKER_UPWARD_PUSH;
-			if ( NPC->client->NPC_class != CLASS_BOBAFETT )
+			if ( NPC->client->NPC_class != class_t::CLASS_BOBAFETT )
 			{
 				G_Sound( NPC, G_SoundIndex( "sound/chars/seeker/misc/hiss" ));
 			}
@@ -308,7 +308,7 @@ void Seeker_Fire( void )
 	vec3_t		dir, enemy_org, muzzle;
 	gentity_t	*missile;
 
-	CalcEntitySpot( NPC->enemy, SPOT_HEAD, enemy_org );
+	CalcEntitySpot( NPC->enemy, spot_t::SPOT_HEAD, enemy_org );
 	VectorSubtract( enemy_org, NPC->currentOrigin, dir );
 	VectorNormalize( dir );
 
@@ -320,18 +320,18 @@ void Seeker_Fire( void )
 	G_PlayEffect( "blaster/muzzle_flash", NPC->currentOrigin, dir );
 
 	missile->classname = "blaster";
-	missile->s.weapon = WP_BLASTER;
+	missile->s.weapon = weapon_t::WP_BLASTER;
 
 	missile->damage = 5;
-	missile->dflags = DAMAGE_DEATH_KNOCKBACK;
-	missile->methodOfDeath = MOD_ENERGY;
-	missile->clipmask = MASK_SHOT | CONTENTS_LIGHTSABER;
+	missile->dflags = damageFlags_t::DAMAGE_DEATH_KNOCKBACK;
+	missile->methodOfDeath = meansOfDeath_t::MOD_ENERGY;
+	missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
 }
 
 //------------------------------------
 void Seeker_Ranged( bool visible, bool advance )
 {
-	if ( NPC->client->NPC_class != CLASS_BOBAFETT )
+	if ( NPC->client->NPC_class != class_t::CLASS_BOBAFETT )
 	{
 		if ( NPC->count > 0 )
 		{
@@ -346,13 +346,13 @@ void Seeker_Ranged( bool visible, bool advance )
 		{
 			// out of ammo, so let it die...give it a push up so it can fall more and blow up on impact
 	//		NPC->client->ps.gravity = 900;
-	//		NPC->svFlags &= ~SVF_CUSTOM_GRAVITY;
+	//		NPC->svFlags &= ~svFlags_t::SVF_CUSTOM_GRAVITY;
 	//		NPC->client->ps.velocity[2] += 16;
-			G_Damage( NPC, NPC, NPC, nullptr, nullptr, 999, DAMAGE_NORMAL, MOD_UNKNOWN );
+			G_Damage( NPC, NPC, NPC, nullptr, nullptr, 999, damageFlags_t::DAMAGE_NORMAL, meansOfDeath_t::MOD_UNKNOWN );
 		}
 	}
 
-	if ( Any( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
+	if ( Any( NPCInfo->scriptFlags & scriptFlags_t::SCF_CHASE_ENEMIES ) )
 	{
 		Seeker_Hunt( visible, advance );
 	}
@@ -369,7 +369,7 @@ void Seeker_Attack( void )
 	bool	visible		= NPC_ClearLOS( NPC->enemy );
 	bool	advance		= (distance > MIN_DISTANCE_SQR);
 
-	if ( NPC->client->NPC_class == CLASS_BOBAFETT )
+	if ( NPC->client->NPC_class == class_t::CLASS_BOBAFETT )
 	{
 		advance = (distance>(200.0f*200.0f));
 	}
@@ -377,7 +377,7 @@ void Seeker_Attack( void )
 	// If we cannot see our target, move to see it
 	if ( visible == false )
 	{
-		if ( Any( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
+		if ( Any( NPCInfo->scriptFlags & scriptFlags_t::SCF_CHASE_ENEMIES ) )
 		{
 			Seeker_Hunt( visible, advance );
 			return;
@@ -409,7 +409,7 @@ void Seeker_FindEnemy( void )
 			continue;
 		}
 
-		if ( ent->client->playerTeam == NPC->client->playerTeam || ent->client->playerTeam == TEAM_NEUTRAL ) // don't attack same team or bots
+		if ( ent->client->playerTeam == NPC->client->playerTeam || ent->client->playerTeam == team_t::TEAM_NEUTRAL ) // don't attack same team or bots
 		{
 			continue;
 		}
@@ -448,7 +448,7 @@ void Seeker_FollowPlayer( void )
 
 	float	minDistSqr = MIN_DISTANCE_SQR;
 
-	if ( NPC->client->NPC_class == CLASS_BOBAFETT )
+	if ( NPC->client->NPC_class == class_t::CLASS_BOBAFETT )
 	{
 		if ( TIMER_Done( NPC, "flameTime" ) )
 		{
@@ -459,7 +459,7 @@ void Seeker_FollowPlayer( void )
 	if ( dis < minDistSqr )
 	{
 		// generally circle the player closely till we take an enemy..this is our target point
-		if ( NPC->client->NPC_class == CLASS_BOBAFETT )
+		if ( NPC->client->NPC_class == class_t::CLASS_BOBAFETT )
 		{
 			pt[0] = g_entities[0].currentOrigin[0] + cos( level.time * 0.001f + NPC->random ) * 250;
 			pt[1] = g_entities[0].currentOrigin[1] + sin( level.time * 0.001f + NPC->random ) * 250;
@@ -484,7 +484,7 @@ void Seeker_FollowPlayer( void )
 	}
 	else
 	{
-		if ( NPC->client->NPC_class != CLASS_BOBAFETT )
+		if ( NPC->client->NPC_class != class_t::CLASS_BOBAFETT )
 		{
 			if ( TIMER_Done( NPC, "seekerhiss" ))
 			{
@@ -515,10 +515,10 @@ void NPC_BSSeeker_Default( void )
 {
 	if ( in_camera )
 	{
-		if ( NPC->client->NPC_class != CLASS_BOBAFETT )
+		if ( NPC->client->NPC_class != class_t::CLASS_BOBAFETT )
 		{
 			// cameras make me commit suicide....
-			G_Damage( NPC, NPC, NPC, nullptr, nullptr, 999, DAMAGE_NORMAL, MOD_UNKNOWN );
+			G_Damage( NPC, NPC, NPC, nullptr, nullptr, 999, damageFlags_t::DAMAGE_NORMAL, meansOfDeath_t::MOD_UNKNOWN );
 		}
 	}
 
@@ -530,8 +530,8 @@ void NPC_BSSeeker_Default( void )
 
 	if ( NPC->enemy && NPC->enemy->health && NPC->enemy->inuse )
 	{
-		if ( NPC->client->NPC_class != CLASS_BOBAFETT
-			&& ( NPC->enemy->s.number == 0 || ( NPC->enemy->client && NPC->enemy->client->NPC_class == CLASS_SEEKER )) )
+		if ( NPC->client->NPC_class != class_t::CLASS_BOBAFETT
+			&& ( NPC->enemy->s.number == 0 || ( NPC->enemy->client && NPC->enemy->client->NPC_class == class_t::CLASS_SEEKER )) )
 		{
 			//hacked to never take the player as an enemy, even if the player shoots at it
 			NPC->enemy = nullptr;
@@ -539,14 +539,14 @@ void NPC_BSSeeker_Default( void )
 		else
 		{
 			Seeker_Attack();
-			if ( NPC->client->NPC_class == CLASS_BOBAFETT )
+			if ( NPC->client->NPC_class == class_t::CLASS_BOBAFETT )
 			{
 				Boba_FireDecide();
 			}
 			return;
 		}
 	}
-	else if ( NPC->client->NPC_class == CLASS_BOBAFETT )
+	else if ( NPC->client->NPC_class == class_t::CLASS_BOBAFETT )
 	{
 		NPC_BSST_Patrol();
 		return;

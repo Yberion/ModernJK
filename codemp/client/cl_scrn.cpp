@@ -395,11 +395,11 @@ SCR_Init
 ==================
 */
 void SCR_Init( void ) {
-	cl_timegraph = Cvar_Get ("timegraph", "0", CVAR_CHEAT);
-	cl_debuggraph = Cvar_Get ("debuggraph", "0", CVAR_CHEAT);
-	cl_graphheight = Cvar_Get ("graphheight", "32", CVAR_CHEAT);
-	cl_graphscale = Cvar_Get ("graphscale", "1", CVAR_CHEAT);
-	cl_graphshift = Cvar_Get ("graphshift", "0", CVAR_CHEAT);
+	cl_timegraph = Cvar_Get ("timegraph", "0", cvarFlags_t::CVAR_CHEAT);
+	cl_debuggraph = Cvar_Get ("debuggraph", "0", cvarFlags_t::CVAR_CHEAT);
+	cl_graphheight = Cvar_Get ("graphheight", "32", cvarFlags_t::CVAR_CHEAT);
+	cl_graphscale = Cvar_Get ("graphscale", "1", cvarFlags_t::CVAR_CHEAT);
+	cl_graphshift = Cvar_Get ("graphshift", "0", cvarFlags_t::CVAR_CHEAT);
 
 	scr_initialized = true;
 }
@@ -428,29 +428,29 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 	// don't need to render anything under it
 	//actually, yes you do, unless you want clients to cycle out their reliable
 	//commands from sitting in the menu. -rww
-	if ( (cls.uiStarted && !uiFullscreen) || (!(cls.framecount&7) && cls.state == CA_ACTIVE) ) {
+	if ( (cls.uiStarted && !uiFullscreen) || (!(cls.framecount&7) && cls.state == connstate_t::CA_ACTIVE) ) {
 		switch( cls.state ) {
 		default:
-			Com_Error( ERR_FATAL, "SCR_DrawScreenField: bad cls.state" );
+			Com_Error( errorParm_t::ERR_FATAL, "SCR_DrawScreenField: bad cls.state" );
 			break;
-		case CA_CINEMATIC:
+		case connstate_t::CA_CINEMATIC:
 			SCR_DrawCinematic();
 			break;
-		case CA_DISCONNECTED:
+		case connstate_t::CA_DISCONNECTED:
 			// force menu up
 			S_StopAllSounds();
-			UIVM_SetActiveMenu( UIMENU_MAIN );
+			UIVM_SetActiveMenu( uiMenuCommand_t::UIMENU_MAIN );
 			break;
-		case CA_CONNECTING:
-		case CA_CHALLENGING:
-		case CA_CONNECTED:
+		case connstate_t::CA_CONNECTING:
+		case connstate_t::CA_CHALLENGING:
+		case connstate_t::CA_CONNECTED:
 			// connecting clients will only show the connection dialog
 			// refresh to update the time
 			UIVM_Refresh( cls.realtime );
 			UIVM_DrawConnectScreen( false );
 			break;
-		case CA_LOADING:
-		case CA_PRIMED:
+		case connstate_t::CA_LOADING:
+		case connstate_t::CA_PRIMED:
 			// draw the game information screen and loading progress
 			CL_CGameRendering( stereoFrame );
 
@@ -460,7 +460,7 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 			UIVM_Refresh( cls.realtime );
 			UIVM_DrawConnectScreen( true );
 			break;
-		case CA_ACTIVE:
+		case connstate_t::CA_ACTIVE:
 			CL_CGameRendering( stereoFrame );
 			SCR_DrawDemoRecording();
 			break;
@@ -468,7 +468,7 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 	}
 
 	// the menu draws next
-	if ( Any( Key_GetCatcher( ) & KEYCATCH_UI ) && cls.uiStarted ) {
+	if ( Any( Key_GetCatcher( ) & keyCatchFlags_t::KEYCATCH_UI ) && cls.uiStarted ) {
 		UIVM_Refresh( cls.realtime );
 	}
 
@@ -500,7 +500,7 @@ void SCR_UpdateScreen( void ) {
 	}
 
 	if ( ++recursive > 2 ) {
-		Com_Error( ERR_FATAL, "SCR_UpdateScreen: recursively called" );
+		Com_Error( errorParm_t::ERR_FATAL, "SCR_UpdateScreen: recursively called" );
 	}
 	recursive = 1;
 
@@ -510,10 +510,10 @@ void SCR_UpdateScreen( void ) {
 	{
 		// if running in stereo, we need to draw the frame twice
 		if ( cls.glconfig.stereoEnabled ) {
-			SCR_DrawScreenField( STEREO_LEFT );
-			SCR_DrawScreenField( STEREO_RIGHT );
+			SCR_DrawScreenField( stereoFrame_t::STEREO_LEFT );
+			SCR_DrawScreenField( stereoFrame_t::STEREO_RIGHT );
 		} else {
-			SCR_DrawScreenField( STEREO_CENTER );
+			SCR_DrawScreenField( stereoFrame_t::STEREO_CENTER );
 		}
 
 		if ( com_speeds->integer ) {

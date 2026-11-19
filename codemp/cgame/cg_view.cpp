@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "cg_local.h"
 #include "game/bg_saga.h"
 
-constexpr contentsFlags_t MASK_CAMERACLIP = MASK_SOLID | CONTENTS_PLAYERCLIP;
+constexpr contentsFlags_t MASK_CAMERACLIP = MASK_SOLID | contentsFlags_t::CONTENTS_PLAYERCLIP;
 constexpr int CAMERA_SIZE = 4;
 
 
@@ -114,10 +114,10 @@ Replaces the current view weapon with the given model
 void CG_TestGun_f (void) {
 	CG_TestModel_f();
 	cg.testGun = true;
-	//cg.testModelEntity.renderfx = RF_MINLIGHT | RF_DEPTHHACK | RF_FIRST_PERSON;
+	//cg.testModelEntity.renderfx = renderFxFlags_t::RF_MINLIGHT | renderFxFlags_t::RF_DEPTHHACK | renderFxFlags_t::RF_FIRST_PERSON;
 
 	// rww - 9-13-01 [1-26-01-sof2]
-	cg.testModelEntity.renderfx = RF_DEPTHHACK | RF_FIRST_PERSON;
+	cg.testModelEntity.renderfx = renderFxFlags_t::RF_DEPTHHACK | renderFxFlags_t::RF_FIRST_PERSON;
 }
 
 
@@ -191,7 +191,7 @@ static void CG_CalcVrect (void) {
 	int		size;
 
 	// the intermission should allways be full screen
-	if ( cg.snap->ps.pm_type == PM_INTERMISSION ) {
+	if ( cg.snap->ps.pm_type == pmtype_t::PM_INTERMISSION ) {
 		size = 100;
 	} else {
 		// bound normal viewsize
@@ -332,7 +332,7 @@ static void CG_CalcIdealThirdPersonViewTarget(void)
 			}
 			else if ( veh->m_pVehicle
 				&& veh->m_pVehicle->m_pVehicleInfo
-				&& veh->m_pVehicle->m_pVehicleInfo->type == VH_ANIMAL )
+				&& veh->m_pVehicle->m_pVehicleInfo->type == vehicleType_t::VH_ANIMAL )
 			{
 				vertOffset = 0;
 			}
@@ -369,9 +369,9 @@ static void CG_CalcIdealThirdPersonViewLocation(void)
 	}
 
 	if ( cg.snap
-		&& Any(cg.snap->ps.eFlags2&EF2_HELD_BY_MONSTER)
+		&& Any(cg.snap->ps.eFlags2&entityFlags2_t::EF2_HELD_BY_MONSTER)
 		&& cg.snap->ps.hasLookTarget
-		&& cg_entities[cg.snap->ps.lookTarget].currentState.NPC_class == CLASS_RANCOR )//only possibility for now, may add Wampa and sand creature later
+		&& cg_entities[cg.snap->ps.lookTarget].currentState.NPC_class == class_t::CLASS_RANCOR )//only possibility for now, may add Wampa and sand creature later
 	{//stay back
 		//thirdPersonRange = 180.0f;
 		thirdPersonRange = 120.0f;
@@ -564,15 +564,15 @@ static void CG_UpdateThirdPersonCameraDamp(void)
 	{
 		if (trace.entityNum < ENTITYNUM_WORLD &&
 			cg_entities[trace.entityNum].currentState.solid == SOLID_BMODEL &&
-			cg_entities[trace.entityNum].currentState.eType == ET_MOVER)
+			cg_entities[trace.entityNum].currentState.eType == entityType_t::ET_MOVER)
 		{ //get a different position for movers -rww
 			centity_t *mover = &cg_entities[trace.entityNum];
 
 			//this is absolutely hackiful, since we calc view values before we add packet ents and lerp,
 			//if we hit a mover we want to update its lerp pos and force it when we do the trace against
 			//it.
-			if (mover->currentState.pos.trType != TR_STATIONARY &&
-				mover->currentState.pos.trType != TR_LINEAR)
+			if (mover->currentState.pos.trType != trType_t::TR_STATIONARY &&
+				mover->currentState.pos.trType != trType_t::TR_LINEAR)
 			{
 				trType_t curTr = mover->currentState.pos.trType;
 				vec3_t curTrB;
@@ -584,7 +584,7 @@ static void CG_UpdateThirdPersonCameraDamp(void)
 
 				//force the calc'd lerp to be the base and say we are stationary so we don't try to extrapolate
 				//out further.
-				mover->currentState.pos.trType = TR_STATIONARY;
+				mover->currentState.pos.trType = trType_t::TR_STATIONARY;
 				VectorCopy(mover->lerpOrigin, mover->currentState.pos.trBase);
 
 				//retrace
@@ -649,9 +649,9 @@ static void CG_OffsetThirdPersonView( void )
 
 	// if dead, look at killer
 	if ( cg.snap
-		&& Any(cg.snap->ps.eFlags2&EF2_HELD_BY_MONSTER)
+		&& Any(cg.snap->ps.eFlags2&entityFlags2_t::EF2_HELD_BY_MONSTER)
 		&& cg.snap->ps.hasLookTarget
-		&& cg_entities[cg.snap->ps.lookTarget].currentState.NPC_class == CLASS_RANCOR )//only possibility for now, may add Wampa and sand creature later
+		&& cg_entities[cg.snap->ps.lookTarget].currentState.NPC_class == class_t::CLASS_RANCOR )//only possibility for now, may add Wampa and sand creature later
 	{//being held
 		//vec3_t monsterPos, dir2Me;
 		centity_t	*monster = &cg_entities[cg.snap->ps.lookTarget];
@@ -664,9 +664,9 @@ static void CG_OffsetThirdPersonView( void )
 		vectoangles( dir2Me, cameraFocusAngles );
 		*/
 	}
-	else if ( cg.snap->ps.stats[STAT_HEALTH] <= 0 )
+	else if ( cg.snap->ps.stats[statIndex_t::STAT_HEALTH] <= 0 )
 	{
-		cameraFocusAngles[YAW] = cg.snap->ps.stats[STAT_DEAD_YAW];
+		cameraFocusAngles[YAW] = cg.snap->ps.stats[statIndex_t::STAT_DEAD_YAW];
 	}
 	else
 	{	// Add in the third Person Angle.
@@ -844,9 +844,9 @@ static void CG_OffsetThirdPersonView( void ) {
 	VectorCopy( cg.refdef.viewangles, focusAngles );
 
 	// if dead, look at killer
-	if ( cg.predictedPlayerState.stats[STAT_HEALTH] <= 0 ) {
-		focusAngles[YAW] = cg.predictedPlayerState.stats[STAT_DEAD_YAW];
-		cg.refdef.viewangles[YAW] = cg.predictedPlayerState.stats[STAT_DEAD_YAW];
+	if ( cg.predictedPlayerState.stats[statIndex_t::STAT_HEALTH] <= 0 ) {
+		focusAngles[YAW] = cg.predictedPlayerState.stats[statIndex_t::STAT_DEAD_YAW];
+		cg.refdef.viewangles[YAW] = cg.predictedPlayerState.stats[statIndex_t::STAT_DEAD_YAW];
 	}
 
 	if ( focusAngles[PITCH] > 45 ) {
@@ -930,7 +930,7 @@ static void CG_OffsetFirstPersonView( void ) {
 	int				timeDelta;
 	int				kickTime;
 
-	if ( cg.snap->ps.pm_type == PM_INTERMISSION ) {
+	if ( cg.snap->ps.pm_type == pmtype_t::PM_INTERMISSION ) {
 		return;
 	}
 
@@ -938,10 +938,10 @@ static void CG_OffsetFirstPersonView( void ) {
 	angles = cg.refdef.viewangles;
 
 	// if dead, fix the angle and don't add any kick
-	if ( cg.snap->ps.stats[STAT_HEALTH] <= 0 ) {
+	if ( cg.snap->ps.stats[statIndex_t::STAT_HEALTH] <= 0 ) {
 		angles[ROLL] = 40;
 		angles[PITCH] = -15;
-		angles[YAW] = cg.snap->ps.stats[STAT_DEAD_YAW];
+		angles[YAW] = cg.snap->ps.stats[statIndex_t::STAT_DEAD_YAW];
 		origin[2] += cg.predictedPlayerState.viewheight;
 		return;
 	}
@@ -1001,11 +1001,11 @@ static void CG_OffsetFirstPersonView( void ) {
 	speed = cg.xyspeed > 200 ? cg.xyspeed : 200;
 
 	delta = cg.bobfracsin * cg_bobPitch.value * speed;
-	if (Any( cg.predictedPlayerState.pm_flags & PMF_DUCKED ))
+	if (Any( cg.predictedPlayerState.pm_flags & pmoveFlags_t::PMF_DUCKED ))
 		delta *= 3;		// crouching
 	angles[PITCH] += delta;
 	delta = cg.bobfracsin * cg_bobRoll.value * speed;
-	if (Any( cg.predictedPlayerState.pm_flags & PMF_DUCKED ))
+	if (Any( cg.predictedPlayerState.pm_flags & pmoveFlags_t::PMF_DUCKED ))
 		delta *= 3;		// crouching accentuates roll
 	if (cg.bobcycle & 1)
 		delta = -delta;
@@ -1151,12 +1151,12 @@ static int CG_CalcFov( void ) {
 		cgFov = 130;
 	}
 
-	if ( cg.predictedPlayerState.pm_type == PM_INTERMISSION ) {
+	if ( cg.predictedPlayerState.pm_type == pmtype_t::PM_INTERMISSION ) {
 		// if in intermission, use a fixed value
 		fov_x = 80;//90;
 	} else {
 		// user selectable
-		if ( Any( cgs.dmflags & DF_FIXED_FOV ) ) {
+		if ( Any( cgs.dmflags & dmFlags_t::DF_FIXED_FOV ) ) {
 			// dmflag to prevent wide fov for all clients
 			fov_x = 80;//90;
 		} else {
@@ -1210,7 +1210,7 @@ static int CG_CalcFov( void ) {
 
 					if (zoomSoundTime < cg.time || zoomSoundTime > cg.time + 10000)
 					{
-						trap->S_StartSound(cg.refdef.vieworg, ENTITYNUM_WORLD, CHAN_LOCAL, cgs.media.disruptorZoomLoop);
+						trap->S_StartSound(cg.refdef.vieworg, ENTITYNUM_WORLD, soundChannel_t::CHAN_LOCAL, cgs.media.disruptorZoomLoop);
 						zoomSoundTime = cg.time + 300;
 					}
 				}
@@ -1250,7 +1250,7 @@ static int CG_CalcFov( void ) {
 
 	// warp if underwater
 	cg.refdef.viewContents = CG_PointContents( cg.refdef.vieworg, -1 );
-	if ( Any( cg.refdef.viewContents & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) ){
+	if ( Any( cg.refdef.viewContents & ( contentsFlags_t::CONTENTS_WATER | contentsFlags_t::CONTENTS_SLIME | contentsFlags_t::CONTENTS_LAVA ) ) ){
 		phase = cg.time / 1000.0 * WAVE_FREQUENCY * M_PI * 2;
 		v = WAVE_AMPLITUDE * Q_sin( phase );
 		fov_x += v;
@@ -1302,8 +1302,8 @@ static void CG_DamageBlendBlob( void )
 	}
 
 	memset( &ent, 0, sizeof( ent ) );
-	ent.reType = RT_SPRITE;
-	ent.renderfx = RF_FIRST_PERSON;
+	ent.reType = refEntityType_t::RT_SPRITE;
+	ent.renderfx = renderFxFlags_t::RF_FIRST_PERSON;
 
 	VectorMA( cg.refdef.vieworg, 8, cg.refdef.viewaxis[0], ent.origin );
 	VectorMA( ent.origin, cg.damageX * -8, cg.refdef.viewaxis[1], ent.origin );
@@ -1359,7 +1359,7 @@ static bool CG_ThirdPersonActionCam(void)
 		return false;
 	}
 
-	if (cent->currentState.weapon != WP_SABER)
+	if (cent->currentState.weapon != weapon_t::WP_SABER)
 	{ //just being safe, should not ever happen
 		return false;
 	}
@@ -1464,18 +1464,18 @@ bool CG_CheckPassengerTurretView( void )
 							vec3_t fwd, up;
 							trap->G2API_GetBoltMatrix_NoRecNoRot(vehCent->ghoul2, 0, boltIndex, &boltMatrix, vehCent->lerpAngles,
 								vehCent->lerpOrigin, cg.time, nullptr, vehCent->modelScale);
-							BG_GiveMeVectorFromMatrix(&boltMatrix, ORIGIN, cg.refdef.vieworg);
+							BG_GiveMeVectorFromMatrix(&boltMatrix, orientations_t::ORIGIN, cg.refdef.vieworg);
 							if ( hackPosAndAngle )
 							{
 								//FIXME: these are assumptions, externalize?  BETTER YET: give me a controller view bolt/tag for each turret
-								BG_GiveMeVectorFromMatrix(&boltMatrix, NEGATIVE_X, fwd);
-								BG_GiveMeVectorFromMatrix(&boltMatrix, NEGATIVE_Y, up);
+								BG_GiveMeVectorFromMatrix(&boltMatrix, orientations_t::NEGATIVE_X, fwd);
+								BG_GiveMeVectorFromMatrix(&boltMatrix, orientations_t::NEGATIVE_Y, up);
 								VectorMA( cg.refdef.vieworg, 8.0f, fwd, cg.refdef.vieworg );
 								VectorMA( cg.refdef.vieworg, 4.0f, up, cg.refdef.vieworg );
 							}
 							else
 							{
-								BG_GiveMeVectorFromMatrix(&boltMatrix, NEGATIVE_Y, fwd);
+								BG_GiveMeVectorFromMatrix(&boltMatrix, orientations_t::NEGATIVE_Y, fwd);
 							}
 							{
 								vec3_t	newAngles, deltaAngles;
@@ -1529,7 +1529,7 @@ static int CG_CalcViewValues( void ) {
 	}
 */
 	// intermission view
-	if ( ps->pm_type == PM_INTERMISSION ) {
+	if ( ps->pm_type == pmtype_t::PM_INTERMISSION ) {
 		VectorCopy( ps->origin, cg.refdef.vieworg );
 		VectorCopy( ps->viewangles, cg.refdef.viewangles );
 		AnglesToAxis( cg.refdef.viewangles, cg.refdef.viewaxis );
@@ -1560,7 +1560,7 @@ static int CG_CalcViewValues( void ) {
 			}
 			else if ( pVeh //valid vehicle data pointer
 				&& pVeh->m_pVehicleInfo//valid vehicle info
-				&& pVeh->m_pVehicleInfo->type == VH_FIGHTER )//fighter
+				&& pVeh->m_pVehicleInfo->type == vehicleType_t::VH_FIGHTER )//fighter
 			{
 				VectorCopy( cg.predictedVehicleState.viewangles, cg.refdef.viewangles );
 				cg.refdef.viewangles[PITCH] = AngleNormalize180( cg.refdef.viewangles[PITCH] );
@@ -1604,7 +1604,7 @@ static int CG_CalcViewValues( void ) {
 		}
 	}
 
-	if (cg.snap->ps.weapon == WP_EMPLACED_GUN &&
+	if (cg.snap->ps.weapon == weapon_t::WP_EMPLACED_GUN &&
 		cg.snap->ps.emplacedIndex)
 	{ //constrain the view properly for emplaced guns
 		CG_EmplacedView(cg_entities[cg.snap->ps.emplacedIndex].currentState.angles);
@@ -1641,7 +1641,7 @@ static int CG_CalcViewValues( void ) {
 	AnglesToAxis( cg.refdef.viewangles, cg.refdef.viewaxis );
 
 	if ( cg.hyperspace ) {
-		cg.refdef.rdflags |= RDF_NOWORLDMODEL | RDF_HYPERSPACE;
+		cg.refdef.rdflags |= refdefFlags_t::RDF_NOWORLDMODEL | refdefFlags_t::RDF_HYPERSPACE;
 	}
 
 	// field of view
@@ -1664,7 +1664,7 @@ static void CG_PowerupTimerSounds( void ) {
 			continue;
 		}
 		if ( ( t - cg.time ) / POWERUP_BLINK_TIME != ( t - cg.oldTime ) / POWERUP_BLINK_TIME ) {
-			//trap->S_StartSound( nullptr, cg.snap->ps.clientNum, CHAN_ITEM, cgs.media.wearOffSound );
+			//trap->S_StartSound( nullptr, cg.snap->ps.clientNum, soundChannel_t::CHAN_ITEM, cgs.media.wearOffSound );
 		}
 	}
 }
@@ -1694,28 +1694,28 @@ void CG_DrawSkyBoxPortal(const char *cstr)
 	token = COM_ParseExt(&cstr, false);
 	if (!token || !token[0])
 	{
-		trap->Error( ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring\n");
+		trap->Error( errorParm_t::ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring\n");
 	}
 	cg.refdef.vieworg[0] = Q_atof(token);
 
 	token = COM_ParseExt(&cstr, false);
 	if (!token || !token[0])
 	{
-		trap->Error( ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring\n");
+		trap->Error( errorParm_t::ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring\n");
 	}
 	cg.refdef.vieworg[1] = Q_atof(token);
 
 	token = COM_ParseExt(&cstr, false);
 	if (!token || !token[0])
 	{
-		trap->Error( ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring\n");
+		trap->Error( errorParm_t::ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring\n");
 	}
 	cg.refdef.vieworg[2] = Q_atof(token);
 
 	token = COM_ParseExt(&cstr, false);
 	if (!token || !token[0])
 	{
-		trap->Error( ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring\n");
+		trap->Error( errorParm_t::ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring\n");
 	}
 	fov_x = atoi(token);
 
@@ -1728,10 +1728,10 @@ void CG_DrawSkyBoxPortal(const char *cstr)
 	token = COM_ParseExt(&cstr, false);
 	if (!token || !token[0])
 	{
-		trap->Error( ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring.  No fog state\n");
+		trap->Error( errorParm_t::ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring.  No fog state\n");
 	}
 
-	if ( cg.predictedPlayerState.pm_type == PM_INTERMISSION )
+	if ( cg.predictedPlayerState.pm_type == pmtype_t::PM_INTERMISSION )
 	{
 		// if in intermission, use a fixed value
 		fov_x = cg_fov.value;
@@ -1789,8 +1789,8 @@ void CG_DrawSkyBoxPortal(const char *cstr)
 	cg.refdef.fov_x = fov_x;
 	cg.refdef.fov_y = fov_y;
 
-	cg.refdef.rdflags |= RDF_SKYBOXPORTAL;
-	cg.refdef.rdflags |= RDF_DRAWSKYBOX;
+	cg.refdef.rdflags |= refdefFlags_t::RDF_SKYBOXPORTAL;
+	cg.refdef.rdflags |= refdefFlags_t::RDF_DRAWSKYBOX;
 
 	cg.refdef.time = cg.time;
 
@@ -1813,8 +1813,8 @@ void CG_DrawSkyBoxPortal(const char *cstr)
 
 	if (cg_noFogOutsidePortal)
 	{ //make sure no fog flag is stripped first, and make sure it is set on the normal refdef
-		cg.refdef.rdflags &= ~RDF_NOFOG;
-		backuprefdef.rdflags |= RDF_NOFOG;
+		cg.refdef.rdflags &= ~refdefFlags_t::RDF_NOFOG;
+		backuprefdef.rdflags |= refdefFlags_t::RDF_NOFOG;
 	}
 
 	// draw the skybox
@@ -1846,7 +1846,7 @@ CG_PlayBufferedSounds
 static void CG_PlayBufferedSounds( void ) {
 	if ( cg.soundTime < cg.time ) {
 		if (cg.soundBufferOut != cg.soundBufferIn && cg.soundBuffer[cg.soundBufferOut]) {
-			trap->S_StartLocalSound(cg.soundBuffer[cg.soundBufferOut], CHAN_ANNOUNCER);
+			trap->S_StartLocalSound(cg.soundBuffer[cg.soundBufferOut], soundChannel_t::CHAN_ANNOUNCER);
 			cg.soundBuffer[cg.soundBufferOut] = 0;
 			cg.soundBufferOut = (cg.soundBufferOut + 1) % MAX_SOUNDBUFFER;
 			cg.soundTime = cg.time + 750;
@@ -1863,7 +1863,7 @@ void CG_UpdateSoundTrackers()
 	{
 		cent = &cg_entities[num];
 
-		if (cent && Any(cent->currentState.eFlags & EF_SOUNDTRACKER) && cent->currentState.number == num)
+		if (cent && Any(cent->currentState.eFlags & entityFlags_t::EF_SOUNDTRACKER) && cent->currentState.number == num)
 			//make sure the thing is valid at least.
 		{ //keep sound for this entity updated in accordance with its attached entity at all times
 			if (cg.snap && cent->currentState.trickedentindex == cg.snap->ps.clientNum)
@@ -2096,13 +2096,13 @@ static void CG_AddRefentForAutoMap(centity_t *cent)
 	refEntity_t ent;
 	vec3_t flat;
 
-	if (Any( cent->currentState.eFlags & EF_NODRAW ))
+	if (Any( cent->currentState.eFlags & entityFlags_t::EF_NODRAW ))
 	{
 		return;
 	}
 
 	memset(&ent, 0, sizeof(refEntity_t));
-	ent.reType = RT_MODEL;
+	ent.reType = refEntityType_t::RT_MODEL;
 
 	VectorCopy(cent->lerpAngles, flat);
 	flat[PITCH] = flat[ROLL] = 0.0f;
@@ -2112,8 +2112,8 @@ static void CG_AddRefentForAutoMap(centity_t *cent)
 	AnglesToAxis(flat, ent.axis);
 
 	if (cent->ghoul2 &&
-		(cent->currentState.eType == ET_PLAYER ||
-		cent->currentState.eType == ET_NPC ||
+		(cent->currentState.eType == entityType_t::ET_PLAYER ||
+		cent->currentState.eType == entityType_t::ET_NPC ||
 		cent->currentState.modelGhoul2))
 	{ //using a ghoul2 model
 		ent.ghoul2 = cent->ghoul2;
@@ -2177,12 +2177,12 @@ void CG_DrawAutoMap(void)
 		return;
 	}
 
-	if ( cg.snap->ps.stats[STAT_HEALTH] <= 0 )
+	if ( cg.snap->ps.stats[statIndex_t::STAT_HEALTH] <= 0 )
 	{ //don't show when dead
 		return;
 	}
 
-	if ( Any(cg.predictedPlayerState.pm_flags & PMF_FOLLOW) || PS_Team( cg.predictedPlayerState ) == TEAM_SPECTATOR )
+	if ( Any(cg.predictedPlayerState.pm_flags & pmoveFlags_t::PMF_FOLLOW) || PS_Team( cg.predictedPlayerState ) == team_t::TEAM_SPECTATOR )
 	{ //don't show when spec
 		return;
 	}
@@ -2193,7 +2193,7 @@ void CG_DrawAutoMap(void)
 		return;
 	}
 
-	if (cgs.gametype < GT_TEAM)
+	if (cgs.gametype < gametype_t::GT_TEAM)
 	{ //don't show in non-team gametypes
 		return;
 	}
@@ -2237,7 +2237,7 @@ void CG_DrawAutoMap(void)
 
 	memset( &refdef, 0, sizeof( refdef ) );
 
-	refdef.rdflags = (RDF_NOWORLDMODEL|RDF_AUTOMAP);
+	refdef.rdflags = (refdefFlags_t::RDF_NOWORLDMODEL|refdefFlags_t::RDF_AUTOMAP);
 
 	VectorCopy(cg.predictedPlayerState.origin, refdef.vieworg);
 	VectorCopy(cg_autoMapAngle, refdef.viewangles);
@@ -2279,10 +2279,10 @@ void CG_DrawAutoMap(void)
 	CG_AddRadarAutomapEnts();
 
 	if (cg.predictedPlayerState.m_iVehicleNum &&
-		cg_entities[cg.predictedPlayerState.m_iVehicleNum].currentState.eType == ET_NPC &&
-		cg_entities[cg.predictedPlayerState.m_iVehicleNum].currentState.NPC_class == CLASS_VEHICLE &&
+		cg_entities[cg.predictedPlayerState.m_iVehicleNum].currentState.eType == entityType_t::ET_NPC &&
+		cg_entities[cg.predictedPlayerState.m_iVehicleNum].currentState.NPC_class == class_t::CLASS_VEHICLE &&
 		cg_entities[cg.predictedPlayerState.m_iVehicleNum].m_pVehicle &&
-		cg_entities[cg.predictedPlayerState.m_iVehicleNum].m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER)
+		cg_entities[cg.predictedPlayerState.m_iVehicleNum].m_pVehicle->m_pVehicleInfo->type == vehicleType_t::VH_FIGHTER)
 	{ //constantly adjust to current height
 		trap->R_AutomapElevationAdjustment(cg.predictedPlayerState.origin[2]);
 	}
@@ -2432,7 +2432,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, bool demoPlay
 	{
 		trap->Cvar_Set ( "ui_myteam", va("%i", to_underlying( PS_Team( cg.snap->ps ) )) );
 	}
-	if (cgs.gametype == GT_SIEGE &&
+	if (cgs.gametype == gametype_t::GT_SIEGE &&
 		cg.snap &&
 		cg_siegeClassIndex != cgs.clientinfo[cg.snap->ps.clientNum].siegeIndex)
 	{
@@ -2475,7 +2475,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, bool demoPlay
 
 	// if we haven't received any snapshots yet, all
 	// we can draw is the information screen
-	if ( !cg.snap || Any( cg.snap->snapFlags & SNAPFLAG_NOT_ACTIVE ) )
+	if ( !cg.snap || Any( cg.snap->snapFlags & snapFlags_t::SNAPFLAG_NOT_ACTIVE ) )
 	{
 #if 0
 		// Transition from zero to negative one on the snapshot timeout.
@@ -2496,7 +2496,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, bool demoPlay
 		// If we have been waiting too long then just error out
 		if ( cg.snapshotTimeoutTime > 0 && (trap->Milliseconds ( ) - cg.snapshotTimeoutTime > cg_snapshotTimeout.integer * 1000) )
 		{
-			Com_Error ( ERR_DROP, CG_GetStringEdString("MP_SVGAME", "SNAPSHOT_TIMEOUT"));
+			Com_Error ( errorParm_t::ERR_DROP, CG_GetStringEdString("MP_SVGAME", "SNAPSHOT_TIMEOUT"));
 			return;
 		}
 #endif
@@ -2509,7 +2509,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, bool demoPlay
 	{
 		mSensitivity = 0.01f;
 	}
-	else if (cg.predictedPlayerState.weapon == WP_EMPLACED_GUN)
+	else if (cg.predictedPlayerState.weapon == weapon_t::WP_EMPLACED_GUN)
 	{ //lower sens for emplaced guns and vehicles
 		mSensitivity = 0.2f;
 	}
@@ -2520,7 +2520,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, bool demoPlay
 		centity_t *cent = &cg_entities[cg.predictedPlayerState.m_iVehicleNum];
 		if ( cent->m_pVehicle
 			&& cent->m_pVehicle->m_pVehicleInfo
-			&& cent->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER )
+			&& cent->m_pVehicle->m_pVehicleInfo->type == vehicleType_t::VH_FIGHTER )
 		{
 			BG_VehicleTurnRateForSpeed( cent->m_pVehicle, cent->currentState.speed, &mPitchOverride, &mYawOverride );
 			//mSensitivityOverride = 5.0f;//old default value
@@ -2539,10 +2539,10 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, bool demoPlay
 			veh = &cg_entities[cg.predictedPlayerState.m_iVehicleNum];
 		}
 		if (veh &&
-			veh->currentState.eType == ET_NPC &&
-			veh->currentState.NPC_class == CLASS_VEHICLE &&
+			veh->currentState.eType == entityType_t::ET_NPC &&
+			veh->currentState.NPC_class == class_t::CLASS_VEHICLE &&
 			veh->m_pVehicle &&
-			veh->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER &&
+			veh->m_pVehicle->m_pVehicleInfo->type == vehicleType_t::VH_FIGHTER &&
 			bg_fighterAltControl.integer)
 		{
 			trap->SetUserCmdValue( cg.weaponSelect, mSensitivity, mPitchOverride, mYawOverride, 0.0f, cg.forceSelect, cg.itemSelect ? to_underlying( *cg.itemSelect ) : -1, true );
@@ -2561,22 +2561,22 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, bool demoPlay
 	CG_PredictPlayerState();
 
 	// decide on third person view
-	cg.renderingThirdPerson = cg_thirdPerson.integer || (cg.snap->ps.stats[STAT_HEALTH] <= 0);
+	cg.renderingThirdPerson = cg_thirdPerson.integer || (cg.snap->ps.stats[statIndex_t::STAT_HEALTH] <= 0);
 
-	if (cg.snap->ps.stats[STAT_HEALTH] > 0)
+	if (cg.snap->ps.stats[statIndex_t::STAT_HEALTH] > 0)
 	{
-		if (cg.predictedPlayerState.weapon == WP_EMPLACED_GUN && cg.predictedPlayerState.emplacedIndex /*&&
-			cg_entities[cg.predictedPlayerState.emplacedIndex].currentState.weapon == WP_NONE*/)
+		if (cg.predictedPlayerState.weapon == weapon_t::WP_EMPLACED_GUN && cg.predictedPlayerState.emplacedIndex /*&&
+			cg_entities[cg.predictedPlayerState.emplacedIndex].currentState.weapon == weapon_t::WP_NONE*/)
 		{ //force third person for e-web and emplaced use
 			cg.renderingThirdPerson = 1;
 		}
-		else if (cg.predictedPlayerState.weapon == WP_SABER || cg.predictedPlayerState.weapon == WP_MELEE ||
+		else if (cg.predictedPlayerState.weapon == weapon_t::WP_SABER || cg.predictedPlayerState.weapon == weapon_t::WP_MELEE ||
 			BG_InGrappleMove(cg.predictedPlayerState.torsoAnim) || BG_InGrappleMove(cg.predictedPlayerState.legsAnim) ||
-			cg.predictedPlayerState.forceHandExtend == HANDEXTEND_KNOCKDOWN || cg.predictedPlayerState.fallingToDeath ||
+			cg.predictedPlayerState.forceHandExtend == forceHandAnims_t::HANDEXTEND_KNOCKDOWN || cg.predictedPlayerState.fallingToDeath ||
 			cg.predictedPlayerState.m_iVehicleNum || PM_InKnockDown(&cg.predictedPlayerState))
 		{
 #if 0
-			if (cg_fpls.integer && cg.predictedPlayerState.weapon == WP_SABER)
+			if (cg_fpls.integer && cg.predictedPlayerState.weapon == weapon_t::WP_SABER)
 			{ //force to first person for fpls
 				cg.renderingThirdPerson = 0;
 			}
@@ -2592,12 +2592,12 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, bool demoPlay
 		}
 	}
 
-	if (cg.predictedPlayerState.pm_type == PM_SPECTATOR)
+	if (cg.predictedPlayerState.pm_type == pmtype_t::PM_SPECTATOR)
 	{ //always first person for spec
 		cg.renderingThirdPerson = 0;
 	}
 
-	if (PS_Team( cg.snap->ps ) == TEAM_SPECTATOR)
+	if (PS_Team( cg.snap->ps ) == team_t::TEAM_SPECTATOR)
 	{
 		cg.renderingThirdPerson = 0;
 	}
@@ -2632,7 +2632,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, bool demoPlay
 	CG_CalcScreenEffects();
 
 	// first person blend blobs, done after AnglesToAxis
-	if ( !cg.renderingThirdPerson && cg.predictedPlayerState.pm_type != PM_SPECTATOR ) {
+	if ( !cg.renderingThirdPerson && cg.predictedPlayerState.pm_type != pmtype_t::PM_SPECTATOR ) {
 		CG_DamageBlendBlob();
 	}
 
@@ -2693,7 +2693,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, bool demoPlay
 	trap->S_Respatialize( cg.snap->ps.clientNum, cg.refdef.vieworg, cg.refdef.viewaxis, inwater );
 
 	// make sure the lagometerSample and frame timing isn't done twice when in stereo
-	if ( stereoView != STEREO_RIGHT ) {
+	if ( stereoView != stereoFrame_t::STEREO_RIGHT ) {
 		cg.frametime = cg.time - cg.oldTime;
 		if ( cg.frametime < 0 ) {
 			cg.frametime = 0;

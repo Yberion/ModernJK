@@ -53,12 +53,12 @@ int Encode(const MessageView &m, const SnapshotView *base, const uint8_t *const 
 	MSG_Init(&msg, out, capacity);
 	MSG_WriteLong(&msg, m.ack);                       // SV_SendClientSnapshot: lastClientCommand
 	for (int i = 0; i < m.numCommands; i++) {         // SV_UpdateServerCommandsToClient
-		MSG_WriteByte(&msg, svc_serverCommand);
+		MSG_WriteByte(&msg, svc_ops_e::svc_serverCommand);
 		MSG_WriteLong(&msg, m.commands[i].seq);
 		MSG_WriteString(&msg, m.commands[i].text);
 	}
 	if (m.hasSnapshot) {                              // SV_WriteSnapshotToClient
-		MSG_WriteByte(&msg, svc_snapshot);
+		MSG_WriteByte(&msg, svc_ops_e::svc_snapshot);
 		MSG_WriteLong(&msg, m.serverTime);
 		MSG_WriteByte(&msg, m.delta);
 		MSG_WriteByte(&msg, m.flags);
@@ -78,7 +78,7 @@ int Encode(const MessageView &m, const SnapshotView *base, const uint8_t *const 
 		}
 		EmitPacketEntities(&msg, base, m.snap, baselines);
 	}
-	MSG_WriteByte(&msg, svc_EOF);
+	MSG_WriteByte(&msg, svc_ops_e::svc_EOF);
 	return msg.overflowed ? 0 : msg.cursize;
 }
 
@@ -91,11 +91,11 @@ bool Decode(const uint8_t *data, int size, const SnapshotView *base, const uint8
 	out.numEntities = 0;
 	for (;;) {
 		const int cmd = MSG_ReadByte(&msg);
-		if (cmd == svc_EOF || msg.readcount > msg.cursize) break;
-		if (cmd == svc_serverCommand) {
+		if (cmd == svc_ops_e::svc_EOF || msg.readcount > msg.cursize) break;
+		if (cmd == svc_ops_e::svc_serverCommand) {
 			MSG_ReadLong(&msg);
 			MSG_ReadString(&msg);
-		} else if (cmd == svc_snapshot) {             // CL_ParseSnapshot
+		} else if (cmd == svc_ops_e::svc_snapshot) {             // CL_ParseSnapshot
 			MSG_ReadLong(&msg);
 			MSG_ReadByte(&msg);
 			MSG_ReadByte(&msg);
@@ -165,12 +165,12 @@ int EncodeClientPacket(const ClientPacketView &p, uint8_t *out, int capacity) {
 	MSG_WriteLong(&msg, p.messageAck);
 	MSG_WriteLong(&msg, p.reliableAck);
 	for (int i = 0; i < p.numCommands; i++) {
-		MSG_WriteByte(&msg, clc_clientCommand);
+		MSG_WriteByte(&msg, clc_ops_e::clc_clientCommand);
 		MSG_WriteLong(&msg, p.commands[i].seq);
 		MSG_WriteString(&msg, p.commands[i].text);
 	}
 	if (p.move != Move::kNone) {
-		MSG_WriteByte(&msg, p.move == Move::kDelta ? clc_move : clc_moveNoDelta);
+		MSG_WriteByte(&msg, p.move == Move::kDelta ? clc_ops_e::clc_move : clc_ops_e::clc_moveNoDelta);
 		MSG_WriteByte(&msg, p.numUserCmds);
 		usercmd_t nullcmd;
 		std::memset(&nullcmd, 0, sizeof(nullcmd));
@@ -181,7 +181,7 @@ int EncodeClientPacket(const ClientPacketView &p, uint8_t *out, int capacity) {
 			oldcmd = cmd;
 		}
 	}
-	MSG_WriteByte(&msg, clc_EOF);
+	MSG_WriteByte(&msg, clc_ops_e::clc_EOF);
 	return msg.overflowed ? 0 : msg.cursize;
 }
 
@@ -202,7 +202,7 @@ bool DecodeClientPacket(const uint8_t *data, int size, int32_t key, ClientPacket
 	int c;
 	for (;;) {
 		c = MSG_ReadByte(&msg);
-		if (c != clc_clientCommand || msg.readcount > msg.cursize) break;
+		if (c != clc_ops_e::clc_clientCommand || msg.readcount > msg.cursize) break;
 		if (out.numCommands == ClientPacketOut::kMaxCommands) return false;
 		Command &command = out.commands[out.numCommands++];
 		command.seq = MSG_ReadLong(&msg);
@@ -214,8 +214,8 @@ bool DecodeClientPacket(const uint8_t *data, int size, int32_t key, ClientPacket
 		textUsed += len;
 	}
 	out.commandBits = msg.bit - out.headerBits;
-	if (c == clc_move || c == clc_moveNoDelta) {
-		out.move = c == clc_move ? Move::kDelta : Move::kNoDelta;
+	if (c == clc_ops_e::clc_move || c == clc_ops_e::clc_moveNoDelta) {
+		out.move = c == clc_ops_e::clc_move ? Move::kDelta : Move::kNoDelta;
 		out.numUserCmds = MSG_ReadByte(&msg);
 		if (out.numUserCmds < 1 || out.numUserCmds > kMaxUserCmds) return false;
 		usercmd_t nullcmd;
@@ -228,7 +228,7 @@ bool DecodeClientPacket(const uint8_t *data, int size, int32_t key, ClientPacket
 			oldcmd = cmd;
 		}
 		MSG_ReadByte(&msg);                           // clc_EOF (the server does not read it)
-	} else if (c != clc_EOF) {
+	} else if (c != clc_ops_e::clc_EOF) {
 		return false;
 	}
 	out.moveBits = msg.bit - out.headerBits - out.commandBits;

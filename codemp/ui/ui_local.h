@@ -293,7 +293,6 @@ enum class datapadMoveTitle_t
 	MD_SABER_STAFF,
 	MD_MOVE_TITLE_MAX
 };
-using enum datapadMoveTitle_t;
 
 typedef struct uiInfo_s {
 	displayContextDef_t		uiDC;

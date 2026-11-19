@@ -126,7 +126,6 @@ enum class ct_table_t
 
 	CT_MAX
 };
-using enum ct_table_t;
 
 extern vec4_t colorBlack;
 extern vec4_t colorRed;
@@ -144,7 +143,7 @@ extern vec4_t colorLtBlue;
 extern vec4_t colorDkBlue;
 
 extern vec4_t g_color_table[Q_COLOR_BITS+1];
-extern EnumArray<vec4_t, ct_table_t, CT_MAX> colorTable;
+extern EnumArray<vec4_t, ct_table_t, ct_table_t::CT_MAX> colorTable;
 
 unsigned ColorBytes3 (float r, float g, float b);
 unsigned ColorBytes4 (float r, float g, float b, float a);

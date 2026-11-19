@@ -85,7 +85,7 @@ static void World_Trace(trace_t *tr, const vec3_t start, const vec3_t mins, cons
 	memset(tr, 0, sizeof(*tr));
 	tr->fraction = 1.0f;
 	tr->entityNum = ENTITYNUM_NONE;
-	if (!Any(contentMask & CONTENTS_SOLID)) {
+	if (!Any(contentMask & contentsFlags_t::CONTENTS_SOLID)) {
 		VectorCopy(end, tr->endpos);
 		return;
 	}
@@ -141,7 +141,7 @@ static void World_Trace(trace_t *tr, const vec3_t start, const vec3_t mins, cons
 			tr->plane.dist = clip->dist;
 			tr->plane.type = PlaneTypeForNormal(clip->normal);
 			SetPlaneSignbits(&tr->plane);
-			tr->contents = CONTENTS_SOLID;
+			tr->contents = contentsFlags_t::CONTENTS_SOLID;
 			tr->entityNum = ENTITYNUM_WORLD;
 		}
 	}
@@ -151,7 +151,7 @@ static void World_Trace(trace_t *tr, const vec3_t start, const vec3_t mins, cons
 static contentsFlags_t World_Contents(const vec3_t point, int passEntityNum) {
 	(void)point;
 	(void)passEntityNum;
-	return CONTENTS_NONE;
+	return contentsFlags_t::CONTENTS_NONE;
 }
 
 // ------------------------------------------------------------------ what the bg code needs from the module
@@ -287,19 +287,19 @@ static void Run(int scenario, int mode, int commands, FILE *dump) {
 	memset(&ps, 0, sizeof(ps));
 	memset(&cmd, 0, sizeof(cmd));
 	ps.clientNum = 0;
-	ps.pm_type = PM_NORMAL;
+	ps.pm_type = pmtype_t::PM_NORMAL;
 	ps.gravity = 800;
 	ps.speed = 250;
 	ps.basespeed = 250;
 	ps.groundEntityNum = ENTITYNUM_NONE;
-	ps.stats[STAT_HEALTH] = ps.stats[STAT_MAX_HEALTH] = 100;
-	ps.stats[STAT_WEAPONS] = Bit( WP_BRYAR_PISTOL );
-	ps.weapon = WP_BRYAR_PISTOL;
-	ps.weaponstate = WEAPON_READY;
+	ps.stats[statIndex_t::STAT_HEALTH] = ps.stats[statIndex_t::STAT_MAX_HEALTH] = 100;
+	ps.stats[statIndex_t::STAT_WEAPONS] = Bit( weapon_t::WP_BRYAR_PISTOL );
+	ps.weapon = weapon_t::WP_BRYAR_PISTOL;
+	ps.weaponstate = weaponstate_t::WEAPON_READY;
 	ps.viewheight = DEFAULT_VIEWHEIGHT;
 	ps.standheight = DEFAULT_MAXS_2;
 	ps.crouchheight = CROUCH_MAXS_2;
-	ps.fd.forcePowerLevel[FP_LEVITATION] = FORCE_LEVEL_1;
+	ps.fd.forcePowerLevel[forcePowers_t::FP_LEVITATION] = forcePowerLevels_t::FORCE_LEVEL_1;
 	ps.fd.forcePower = 100;
 	ps.commandTime = 1000;
 	VectorSet(ps.origin, -100.0f, 37.0f, 64.0f);
@@ -315,7 +315,7 @@ static void Run(int scenario, int mode, int commands, FILE *dump) {
 	pm.trace = World_Trace;
 	pm.pointcontents = World_Contents;
 	pm.animations = &anims;
-	pm.gametype = GT_FFA;
+	pm.gametype = gametype_t::GT_FFA;
 	pm.stepSlideFix = 1;
 	pm.baseEnt = (bgEntity_t *)HARNESS_ENTITIES;
 	pm.entSize = HARNESS_ENTSIZE;
@@ -340,7 +340,7 @@ static void Run(int scenario, int mode, int commands, FILE *dump) {
 		cmd.upmove = crouch ? -127 : (Rand(40) == 0 ? 127 : 0);
 		cmd.angles[YAW] = (int)(short)(cmd.angles[YAW] + yawRate + Rand(21) - 10);
 		cmd.angles[PITCH] = (int)(short)(Rand(2001) - 1000);
-		cmd.buttons = BUTTON_NONE;
+		cmd.buttons = buttonFlags_t::BUTTON_NONE;
 		pm.cmd = cmd;
 		Pmove(&pm);
 		moveHash = MoveHash(moveHash, &ps);

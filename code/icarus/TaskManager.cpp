@@ -34,7 +34,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "taskmanager.h"
 #include "sequencer.h"
 
-#define ICARUS_VALIDATE(a) if ( a == false ) return TASK_FAILED;
+#define ICARUS_VALIDATE(a) if ( a == false ) return taskResult_t::TASK_FAILED;
 // in the functions that return true or false
 #define ICARUS_VALIDATE_BOOL(a) if ( a == false ) return false;
 
@@ -139,7 +139,7 @@ Add
 taskResult_t CTaskGroup::Add( CTask *task )
 {
 	m_completedTasks[ task->GetGUID() ] = false;
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 }
 
 /*
@@ -200,7 +200,7 @@ taskResult_t	CTaskManager::Init( CSequencer *owner )
 {
 	//TODO: Emit warning
 	if ( owner == nullptr )
-		return TASK_FAILED;
+		return taskResult_t::TASK_FAILED;
 
 	m_tasks.clear();
 	m_owner		= owner;
@@ -209,7 +209,7 @@ taskResult_t	CTaskManager::Init( CSequencer *owner )
 	m_GUID		= 0;
 	m_resident	= false;
 
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 }
 
 /*
@@ -241,7 +241,7 @@ taskResult_t CTaskManager::Free( void )
 	m_taskGroupNameMap.clear();
 	m_taskGroupIDMap.clear();
 
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 }
 
 /*
@@ -288,7 +288,7 @@ CTaskGroup *CTaskManager::AddTaskGroup( const char *name, CIcarus* icarus )
 	assert( group );
 	if ( group == nullptr )
 	{
-		icarus->GetGame()->DebugPrint(IGameInterface::WL_ERROR, "Unable to allocate task group \"%s\"\n", name );
+		icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Unable to allocate task group \"%s\"\n", name );
 		return nullptr;
 	}
 
@@ -317,7 +317,7 @@ CTaskGroup *CTaskManager::GetTaskGroup( const char *name, CIcarus* icarus )
 
 	if ( tgi == m_taskGroupNameMap.end() )
 	{
-		icarus->GetGame()->DebugPrint(IGameInterface::WL_WARNING, "Could not find task group \"%s\"\n", name );
+		icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_WARNING, "Could not find task group \"%s\"\n", name );
 		return nullptr;
 	}
 
@@ -332,7 +332,7 @@ CTaskGroup *CTaskManager::GetTaskGroup( int id, CIcarus* icarus )
 
 	if ( tgi == m_taskGroupIDMap.end() )
 	{
-		icarus->GetGame()->DebugPrint(IGameInterface::WL_WARNING, "Could not find task group \"%d\"\n", id );
+		icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_WARNING, "Could not find task group \"%d\"\n", id );
 		return nullptr;
 	}
 
@@ -349,7 +349,7 @@ taskResult_t CTaskManager::Update( CIcarus* icarus )
 {
 	if ( icarus->GetGame()->IsFrozen(m_ownerID) )
 	{
-		return TASK_FAILED;
+		return taskResult_t::TASK_FAILED;
 	}
 	m_count = 0;	//Needed for runaway init
 	m_resident = true;
@@ -387,7 +387,7 @@ int CTaskManager::GetFloat( int entID, CBlock *block, int &memberNum, float &val
 	icarusToken_t	type;
 
 	//See if this is a get() command replacement
-	if ( Check( CIcarus::ID_GET, block, memberNum ) )
+	if ( Check( icarusToken_t::ID_GET, block, memberNum ) )
 	{
 		//Update the member past the header id
 		memberNum++;
@@ -397,9 +397,9 @@ int CTaskManager::GetFloat( int entID, CBlock *block, int &memberNum, float &val
 		name = (char *) block->GetMemberData( memberNum++ );
 
 		//TODO: Emit warning
-		if ( type != CIcarus::TK_FLOAT )
+		if ( type != icarusToken_t::TK_FLOAT )
 		{
-			icarus->GetGame()->DebugPrint(IGameInterface::WL_ERROR, "Get() call tried to return a non-FLOAT parameter!\n" );
+			icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Get() call tried to return a non-FLOAT parameter!\n" );
 			return false;
 		}
 
@@ -407,7 +407,7 @@ int CTaskManager::GetFloat( int entID, CBlock *block, int &memberNum, float &val
 	}
 
 	//Look for a Q_flrand(0.0f, 1.0f) inline call
-	if ( Check( CIcarus::ID_RANDOM, block, memberNum ) )
+	if ( Check( icarusToken_t::ID_RANDOM, block, memberNum ) )
 	{
 		float	min, max;
 
@@ -422,26 +422,26 @@ int CTaskManager::GetFloat( int entID, CBlock *block, int &memberNum, float &val
 	}
 
 	//Look for a tag() inline call
-	if ( Check( CIcarus::ID_TAG, block, memberNum ) )
+	if ( Check( icarusToken_t::ID_TAG, block, memberNum ) )
 	{
-		icarus->GetGame()->DebugPrint(IGameInterface::WL_WARNING, "Invalid use of \"tag\" inline.  Not a valid replacement for type FLOAT\n" );
+		icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_WARNING, "Invalid use of \"tag\" inline.  Not a valid replacement for type FLOAT\n" );
 		return false;
 	}
 
 	CBlockMember	*bm	= block->GetMember( memberNum );
 
-	if ( bm->GetID() == CIcarus::TK_INT )
+	if ( bm->GetID() == icarusToken_t::TK_INT )
 	{
 		value = (float) (*(int *) block->GetMemberData( memberNum++ ));
 	}
-	else if ( bm->GetID() == CIcarus::TK_FLOAT )
+	else if ( bm->GetID() == icarusToken_t::TK_FLOAT )
 	{
 		value = *(float *) block->GetMemberData( memberNum++ );
 	}
 	else
 	{
 		assert(0);
-		icarus->GetGame()->DebugPrint(IGameInterface::WL_WARNING, "Unexpected value; expected type FLOAT\n" );
+		icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_WARNING, "Unexpected value; expected type FLOAT\n" );
 		return false;
 	}
 
@@ -479,7 +479,7 @@ int CTaskManager::GetVector( int entID, CBlock *block, int &memberNum, vec3_t &v
 	int		i;
 
 	//See if this is a get() command replacement
-	if ( Check( CIcarus::ID_GET, block, memberNum ) )
+	if ( Check( icarusToken_t::ID_GET, block, memberNum ) )
 	{
 		//Update the member past the header id
 		memberNum++;
@@ -489,16 +489,16 @@ int CTaskManager::GetVector( int entID, CBlock *block, int &memberNum, vec3_t &v
 		name = (char *) block->GetMemberData( memberNum++ );
 
 		//TODO: Emit warning
-		if ( type != CIcarus::TK_VECTOR )
+		if ( type != icarusToken_t::TK_VECTOR )
 		{
-			icarus->GetGame()->DebugPrint(IGameInterface::WL_ERROR, "Get() call tried to return a non-VECTOR parameter!\n" );
+			icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Get() call tried to return a non-VECTOR parameter!\n" );
 		}
 
 		return icarus->GetGame()->GetVector( entID, name, value );
 	}
 
 	//Look for a Q_flrand(0.0f, 1.0f) inline call
-	if ( Check( CIcarus::ID_RANDOM, block, memberNum ) )
+	if ( Check( icarusToken_t::ID_RANDOM, block, memberNum ) )
 	{
 		float	min, max;
 
@@ -516,7 +516,7 @@ int CTaskManager::GetVector( int entID, CBlock *block, int &memberNum, vec3_t &v
 	}
 
 	//Look for a tag() inline call
-	if ( Check( CIcarus::ID_TAG, block, memberNum ) )
+	if ( Check( icarusToken_t::ID_TAG, block, memberNum ) )
 	{
 		const char	*tagName;
 		icarusToken_t	tagLookup;
@@ -527,7 +527,7 @@ int CTaskManager::GetVector( int entID, CBlock *block, int &memberNum, vec3_t &v
 
 		if ( icarus->GetGame()->GetTag( entID, tagName, tagLookup, value ) == false)
 		{
-			icarus->GetGame()->DebugPrint(IGameInterface::WL_ERROR, "Unable to find tag \"%s\"!\n", tagName );
+			icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Unable to find tag \"%s\"!\n", tagName );
 			assert(0&&"Unable to find tag");
 			return false;
 		}
@@ -538,9 +538,9 @@ int CTaskManager::GetVector( int entID, CBlock *block, int &memberNum, vec3_t &v
 	//Check for a real vector here
 	type = block->GetMemberToken( memberNum );
 
-	if ( type != CIcarus::TK_VECTOR )
+	if ( type != icarusToken_t::TK_VECTOR )
 	{
-//		icarus->GetGame()->DPrintf( WL_WARNING, "Unexpected value; expected type VECTOR\n" );
+//		icarus->GetGame()->DPrintf( e_DebugPrintLevel::WL_WARNING, "Unexpected value; expected type VECTOR\n" );
 		return false;
 	}
 
@@ -575,7 +575,7 @@ int CTaskManager::Get( int entID, CBlock *block, int &memberNum, const char **va
 	icarusToken_t	type;
 
 	//Look for a get() inline call
-	if ( Check( CIcarus::ID_GET, block, memberNum ) )
+	if ( Check( icarusToken_t::ID_GET, block, memberNum ) )
 	{
 		//Update the member past the header id
 		memberNum++;
@@ -589,23 +589,23 @@ int CTaskManager::Get( int entID, CBlock *block, int &memberNum, const char **va
 		//FIXME: STRING MANAGEMENT NEEDS TO BE IMPLEMENTED, MY CURRENT SOLUTION IS NOT ACCEPTABLE!!
 		switch ( type )
 		{
-		case CIcarus::TK_STRING:
+		case icarusToken_t::TK_STRING:
 			if ( icarus->GetGame()->GetString( entID, name, value ) == false )
 			{
-				icarus->GetGame()->DebugPrint(IGameInterface::WL_ERROR, "Get() parameter \"%s\" could not be found!\n", name );
+				icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Get() parameter \"%s\" could not be found!\n", name );
 				return false;
 			}
 
 			return true;
 			break;
 
-		case CIcarus::TK_FLOAT:
+		case icarusToken_t::TK_FLOAT:
 			{
 				float	temp;
 
 				if ( icarus->GetGame()->GetFloat( entID, name, &temp ) == false )
 				{
-					icarus->GetGame()->DebugPrint(IGameInterface::WL_ERROR, "Get() parameter \"%s\" could not be found!\n", name );
+					icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Get() parameter \"%s\" could not be found!\n", name );
 					return false;
 				}
 
@@ -616,13 +616,13 @@ int CTaskManager::Get( int entID, CBlock *block, int &memberNum, const char **va
 			return true;
 			break;
 
-		case CIcarus::TK_VECTOR:
+		case icarusToken_t::TK_VECTOR:
 			{
 				vec3_t	vval;
 
 				if ( icarus->GetGame()->GetVector( entID, name, vval )  == false )
 				{
-					icarus->GetGame()->DebugPrint(IGameInterface::WL_ERROR, "Get() parameter \"%s\" could not be found!\n", name );
+					icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Get() parameter \"%s\" could not be found!\n", name );
 					return false;
 				}
 
@@ -634,14 +634,14 @@ int CTaskManager::Get( int entID, CBlock *block, int &memberNum, const char **va
 			break;
 
 		default:
-			icarus->GetGame()->DebugPrint(IGameInterface::WL_ERROR, "Get() call tried to return an unknown type!\n" );
+			icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Get() call tried to return an unknown type!\n" );
 			return false;
 			break;
 		}
 	}
 
 	//Look for a Q_flrand(0.0f, 1.0f) inline call
-	if ( Check( CIcarus::ID_RANDOM, block, memberNum ) )
+	if ( Check( icarusToken_t::ID_RANDOM, block, memberNum ) )
 	{
 		float	min, max, ret;
 
@@ -659,7 +659,7 @@ int CTaskManager::Get( int entID, CBlock *block, int &memberNum, const char **va
 	}
 
 	//Look for a tag() inline call
-	if ( Check( CIcarus::ID_TAG, block, memberNum ) )
+	if ( Check( icarusToken_t::ID_TAG, block, memberNum ) )
 	{
 		memberNum++;
 		ICARUS_VALIDATE_BOOL ( Get( entID, block, memberNum, &tagName, icarus ) );
@@ -667,7 +667,7 @@ int CTaskManager::Get( int entID, CBlock *block, int &memberNum, const char **va
 
 		if (icarus->GetGame()->GetTag( entID, tagName, tagLookup, vector ) == false)
 		{
-			icarus->GetGame()->DebugPrint(IGameInterface::WL_ERROR, "Unable to find tag \"%s\"!\n", tagName );
+			icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Unable to find tag \"%s\"!\n", tagName );
 			assert(0 && "Unable to find tag");
 			return false;
 		}
@@ -682,7 +682,7 @@ int CTaskManager::Get( int entID, CBlock *block, int &memberNum, const char **va
 
 	CBlockMember	*bm	= block->GetMember( memberNum );
 
-	if ( bm->GetID() == CIcarus::TK_INT )
+	if ( bm->GetID() == icarusToken_t::TK_INT )
 	{
 		float fval = (float) (*(int *) block->GetMemberData( memberNum++ ));
 		Com_sprintf( tempBuffer, sizeof(tempBuffer), "%f", fval );
@@ -690,7 +690,7 @@ int CTaskManager::Get( int entID, CBlock *block, int &memberNum, const char **va
 
 		return true;
 	}
-	else if ( bm->GetID() == CIcarus::TK_FLOAT )
+	else if ( bm->GetID() == icarusToken_t::TK_FLOAT )
 	{
 		float fval = *(float *) block->GetMemberData( memberNum++ );
 		Com_sprintf( tempBuffer, sizeof(tempBuffer), "%f", fval );
@@ -698,7 +698,7 @@ int CTaskManager::Get( int entID, CBlock *block, int &memberNum, const char **va
 
 		return true;
 	}
-	else if ( bm->GetID() == CIcarus::TK_VECTOR )
+	else if ( bm->GetID() == icarusToken_t::TK_VECTOR )
 	{
 		vec3_t	vval;
 
@@ -715,7 +715,7 @@ int CTaskManager::Get( int entID, CBlock *block, int &memberNum, const char **va
 
 		return true;
 	}
-	else if ( ( bm->GetID() == CIcarus::TK_STRING ) || ( bm->GetID() == CIcarus::TK_IDENTIFIER ) )
+	else if ( ( bm->GetID() == icarusToken_t::TK_STRING ) || ( bm->GetID() == icarusToken_t::TK_IDENTIFIER ) )
 	{
 		*value = (char *) block->GetMemberData( memberNum++ );
 
@@ -724,7 +724,7 @@ int CTaskManager::Get( int entID, CBlock *block, int &memberNum, const char **va
 
 	//TODO: Emit warning
 	assert( 0 );
-	icarus->GetGame()->DebugPrint(IGameInterface::WL_WARNING, "Unexpected value; expected type STRING\n" );
+	icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_WARNING, "Unexpected value; expected type STRING\n" );
 
 	return false;
 }
@@ -744,21 +744,21 @@ taskResult_t	CTaskManager::Go( CIcarus* icarus )
 	if ( m_count++ > RUNAWAY_LIMIT )
 	{
 		assert(0);
-		icarus->GetGame()->DebugPrint(IGameInterface::WL_ERROR, "Runaway loop detected!\n" );
-		return TASK_FAILED;
+		icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Runaway loop detected!\n" );
+		return taskResult_t::TASK_FAILED;
 	}
 
 	//If there are tasks to complete, do so
 	if ( m_tasks.empty() == false )
 	{
 		//Get the next task
-		task = PopTask( CSequence::POP_BACK );
+		task = PopTask( CSequence::pushPop_t::POP_BACK );
 
 		assert( task );
 		if ( task == nullptr )
 		{
-			icarus->GetGame()->DebugPrint(IGameInterface::WL_ERROR, "Invalid task found in Go()!\n" );
-			return TASK_FAILED;
+			icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Invalid task found in Go()!\n" );
+			return taskResult_t::TASK_FAILED;
 		}
 
 		//If this hasn't been stamped, do so
@@ -768,105 +768,105 @@ taskResult_t	CTaskManager::Go( CIcarus* icarus )
 		//Switch and call the proper function
 		switch( task->GetID() )
 		{
-		case CIcarus::ID_WAIT:
+		case icarusToken_t::ID_WAIT:
 
 			Wait( task, completed, icarus );
 
 			//Push it to consider it again on the next frame if not complete
 			if ( completed == false )
 			{
-				PushTask( task, CSequence::PUSH_BACK );
-				return TASK_OK;
+				PushTask( task, CSequence::pushPop_t::PUSH_BACK );
+				return taskResult_t::TASK_OK;
 			}
 
 			Completed( task->GetGUID() );
 
 			break;
 
-		case CIcarus::ID_WAITSIGNAL:
+		case icarusToken_t::ID_WAITSIGNAL:
 
 			WaitSignal( task, completed , icarus);
 
 			//Push it to consider it again on the next frame if not complete
 			if ( completed == false )
 			{
-				PushTask( task, CSequence::PUSH_BACK );
-				return TASK_OK;
+				PushTask( task, CSequence::pushPop_t::PUSH_BACK );
+				return taskResult_t::TASK_OK;
 			}
 
 			Completed( task->GetGUID() );
 
 			break;
 
-		case CIcarus::ID_PRINT:	//print( STRING )
+		case icarusToken_t::ID_PRINT:	//print( STRING )
 			Print( task, icarus );
 			break;
 
-		case CIcarus::ID_SOUND:	//sound( name )
+		case icarusToken_t::ID_SOUND:	//sound( name )
 			Sound( task, icarus );
 			break;
 
-		case CIcarus::ID_MOVE:	//move ( ORIGIN, ANGLES, DURATION )
+		case icarusToken_t::ID_MOVE:	//move ( Eorientations::ORIGIN, ANGLES, DURATION )
 			Move( task, icarus );
 			break;
 
-		case CIcarus::ID_ROTATE:	//rotate( ANGLES, DURATION )
+		case icarusToken_t::ID_ROTATE:	//rotate( ANGLES, DURATION )
 			Rotate( task, icarus );
 			break;
 
-		case CIcarus::ID_KILL:	//kill( NAME )
+		case icarusToken_t::ID_KILL:	//kill( NAME )
 			Kill( task, icarus );
 			break;
 
-		case CIcarus::ID_REMOVE:	//remove( NAME )
+		case icarusToken_t::ID_REMOVE:	//remove( NAME )
 			Remove( task, icarus );
 			break;
 
-		case CIcarus::ID_CAMERA:	//camera( ? )
+		case icarusToken_t::ID_CAMERA:	//camera( ? )
 			Camera( task, icarus );
 			break;
 
-		case CIcarus::ID_SET:	//set( NAME, ? )
+		case icarusToken_t::ID_SET:	//set( NAME, ? )
 			Set( task, icarus );
 			break;
 
-		case CIcarus::ID_USE:	//use( NAME )
+		case icarusToken_t::ID_USE:	//use( NAME )
 			Use( task, icarus );
 			break;
 
-		case CIcarus::ID_DECLARE://declare( TYPE, NAME )
+		case icarusToken_t::ID_DECLARE://declare( TYPE, NAME )
 			DeclareVariable( task, icarus );
 			break;
 
-		case CIcarus::ID_FREE:	//free( NAME )
+		case icarusToken_t::ID_FREE:	//free( NAME )
 			FreeVariable( task, icarus );
 			break;
 
-		case CIcarus::ID_SIGNAL:	//signal( NAME )
+		case icarusToken_t::ID_SIGNAL:	//signal( NAME )
 			Signal( task, icarus );
 			break;
 
-		case CIcarus::ID_PLAY:	//play ( NAME )
+		case icarusToken_t::ID_PLAY:	//play ( NAME )
 			Play( task, icarus );
 			break;
 
 		default:
 			assert(0);
 			task->Free();
-			icarus->GetGame()->DebugPrint(IGameInterface::WL_ERROR, "Found unknown task type!\n" );
-			return TASK_FAILED;
+			icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Found unknown task type!\n" );
+			return taskResult_t::TASK_FAILED;
 			break;
 		}
 
 		//Pump the sequencer for another task
-		CallbackCommand( task, TASK_RETURN_COMPLETE , icarus);
+		CallbackCommand( task, taskReturn_t::TASK_RETURN_COMPLETE , icarus);
 
 		task->Free();
 	}
 
 	//FIXME: A command surge limiter could be implemented at this point to be sure a script doesn't
 	//		 execute too many commands in one cycle.  This may, however, cause timing errors to surface.
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 }
 
 /*
@@ -889,13 +889,13 @@ taskResult_t	CTaskManager::SetCommand( CBlock *command, CSequence::pushPop_t typ
 	assert( task );
 	if ( task == nullptr )
 	{
-		icarus->GetGame()->DebugPrint(IGameInterface::WL_ERROR, "Unable to allocate new task!\n" );
-		return TASK_FAILED;
+		icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Unable to allocate new task!\n" );
+		return taskResult_t::TASK_FAILED;
 	}
 
 	PushTask( task, type );
 
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 }
 
 /*
@@ -911,9 +911,9 @@ taskResult_t CTaskManager::MarkTask( int id, taskMark_t operation, CIcarus* icar
 	assert( group );
 
 	if ( group == nullptr )
-		return TASK_FAILED;
+		return taskResult_t::TASK_FAILED;
 
-	if ( operation == TASK_START )
+	if ( operation == taskMark_t::TASK_START )
 	{
 		//Reset all the completion information
 		group->Init();
@@ -921,11 +921,11 @@ taskResult_t CTaskManager::MarkTask( int id, taskMark_t operation, CIcarus* icar
 		group->SetParent( m_curGroup );
 		m_curGroup = group;
 	}
-	else if ( operation == TASK_END )
+	else if ( operation == taskMark_t::TASK_END )
 	{
 		assert( m_curGroup );
 		if ( m_curGroup == nullptr )
-			return TASK_FAILED;
+			return taskResult_t::TASK_FAILED;
 
 		m_curGroup = m_curGroup->GetParent();
 	}
@@ -937,7 +937,7 @@ taskResult_t CTaskManager::MarkTask( int id, taskMark_t operation, CIcarus* icar
 	}
 #endif
 
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 }
 
 /*
@@ -958,7 +958,7 @@ taskResult_t CTaskManager::Completed( int id )
 			break;
 	}
 
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 }
 
 /*
@@ -969,13 +969,13 @@ CallbackCommand
 
 taskResult_t	CTaskManager::CallbackCommand( CTask *task, taskReturn_t returnCode, CIcarus* icarus )
 {
-	if ( m_owner->Callback( this, task->GetBlock(), returnCode, icarus ) == CSequencer::SEQ_OK )
+	if ( m_owner->Callback( this, task->GetBlock(), returnCode, icarus ) == CSequencer::sequencerResult_t::SEQ_OK )
 		return Go(icarus);
 
 	assert(0);
 
-	icarus->GetGame()->DebugPrint(IGameInterface::WL_ERROR, "Command callback failure!\n" );
-	return TASK_FAILED;
+	icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Command callback failure!\n" );
+	return taskResult_t::TASK_FAILED;
 }
 
 /*
@@ -988,7 +988,7 @@ CBlock *CTaskManager::RecallTask( void )
 {
 	CTask	*task;
 
-	task = PopTask( CSequence::POP_BACK );
+	task = PopTask( CSequence::pushPop_t::POP_BACK );
 
 	if ( task )
 	{
@@ -1011,20 +1011,20 @@ PushTask
 
 taskResult_t	CTaskManager::PushTask( CTask *task, CSequence::pushPop_t flag )
 {
-	assert( (flag == CSequence::PUSH_FRONT) || (flag == CSequence::PUSH_BACK) );
+	assert( (flag == CSequence::pushPop_t::PUSH_FRONT) || (flag == CSequence::pushPop_t::PUSH_BACK) );
 
 	switch ( flag )
 	{
-	case CSequence::PUSH_FRONT:
+	case CSequence::pushPop_t::PUSH_FRONT:
 		m_tasks.insert(m_tasks.begin(), task);
 
-		return TASK_OK;
+		return taskResult_t::TASK_OK;
 		break;
 
-	case CSequence::PUSH_BACK:
+	case CSequence::pushPop_t::PUSH_BACK:
 		m_tasks.insert(m_tasks.end(), task);
 
-		return TASK_OK;
+		return taskResult_t::TASK_OK;
 		break;
 
 	default:
@@ -1032,7 +1032,7 @@ taskResult_t	CTaskManager::PushTask( CTask *task, CSequence::pushPop_t flag )
 	}
 
 	//Invalid flag
-	return TASK_FAILED;
+	return taskResult_t::TASK_FAILED;
 }
 
 /*
@@ -1045,21 +1045,21 @@ CTask *CTaskManager::PopTask( CSequence::pushPop_t flag )
 {
 	CTask	*task;
 
-	assert( (flag == CSequence::POP_FRONT) || (flag == CSequence::POP_BACK) );
+	assert( (flag == CSequence::pushPop_t::POP_FRONT) || (flag == CSequence::pushPop_t::POP_BACK) );
 
 	if ( m_tasks.empty() )
 		return nullptr;
 
 	switch ( flag )
 	{
-	case CSequence::POP_FRONT:
+	case CSequence::pushPop_t::POP_FRONT:
 		task = m_tasks.front();
 		m_tasks.pop_front();
 
 		return task;
 		break;
 
-	case CSequence::POP_BACK:
+	case CSequence::pushPop_t::POP_BACK:
 		task = m_tasks.back();
 		m_tasks.pop_back();
 
@@ -1082,7 +1082,7 @@ GetCurrentTask
 
 CBlock *CTaskManager::GetCurrentTask( void )
 {
-	CTask *task = PopTask( CSequence::POP_BACK );
+	CTask *task = PopTask( CSequence::pushPop_t::POP_BACK );
 
 	if ( task == nullptr )
 		return nullptr;
@@ -1115,14 +1115,14 @@ taskResult_t CTaskManager::Wait( CTask *task, bool &completed , CIcarus* icarus 
 	bm = block->GetMember( 0 );
 
 	//Check if this is a task completion wait
-	if ( bm->GetID() == CIcarus::TK_STRING )
+	if ( bm->GetID() == icarusToken_t::TK_STRING )
 	{
 		ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal, icarus ) );
 
 		if ( task->GetTimeStamp() == icarus->GetGame()->GetTime() )
 		{
 			//Print out the debug info
-			icarus->GetGame()->DebugPrint(IGameInterface::WL_DEBUG, "%4d wait(\"%s\"); [%d]", m_ownerID, sVal, task->GetTimeStamp() );
+			icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_DEBUG, "%4d wait(\"%s\"); [%d]", m_ownerID, sVal, task->GetTimeStamp() );
 		}
 
 		CTaskGroup	*group = GetTaskGroup( sVal , icarus);
@@ -1131,14 +1131,14 @@ taskResult_t CTaskManager::Wait( CTask *task, bool &completed , CIcarus* icarus 
 		{
 			//TODO: Emit warning
 			completed = false;
-			return TASK_FAILED;
+			return taskResult_t::TASK_FAILED;
 		}
 
 		completed = group->Complete();
 	}
 	else	//Otherwise it's a time completion wait
 	{
-		if ( Check( CIcarus::ID_RANDOM, block, memberNum ) )
+		if ( Check( icarusToken_t::ID_RANDOM, block, memberNum ) )
 		{//get it random only the first time
 			float	min, max;
 
@@ -1162,14 +1162,14 @@ taskResult_t CTaskManager::Wait( CTask *task, bool &completed , CIcarus* icarus 
 		if ( task->GetTimeStamp() == icarus->GetGame()->GetTime() )
 		{
 			//Print out the debug info
-			icarus->GetGame()->DebugPrint(IGameInterface::WL_DEBUG, "%4d wait( %d ); [%d]", m_ownerID, (int) dwtime, task->GetTimeStamp() );
+			icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_DEBUG, "%4d wait( %d ); [%d]", m_ownerID, (int) dwtime, task->GetTimeStamp() );
 		}
 
 		if ( (task->GetTimeStamp() + dwtime) < (icarus->GetGame()->GetTime()) )
 		{
 			completed = true;
 			memberNum = 0;
-			if ( Check( CIcarus::ID_RANDOM, block, memberNum ) )
+			if ( Check( icarusToken_t::ID_RANDOM, block, memberNum ) )
 			{//set the data back to 0 so it will be re-randomized next time
 				dwtime = icarus->GetGame()->MaxFloat();
 				bm->SetData( &dwtime, sizeof( dwtime ), icarus );
@@ -1177,7 +1177,7 @@ taskResult_t CTaskManager::Wait( CTask *task, bool &completed , CIcarus* icarus 
 		}
 	}
 
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 }
 
 /*
@@ -1199,7 +1199,7 @@ taskResult_t CTaskManager::WaitSignal( CTask *task, bool &completed , CIcarus* i
 	if ( task->GetTimeStamp() == icarus->GetGame()->GetTime() )
 	{
 		//Print out the debug info
-		icarus->GetGame()->DebugPrint(IGameInterface::WL_DEBUG, "%4d waitsignal(\"%s\"); [%d]", m_ownerID, sVal, task->GetTimeStamp() );
+		icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_DEBUG, "%4d waitsignal(\"%s\"); [%d]", m_ownerID, sVal, task->GetTimeStamp() );
 	}
 
 	if ( icarus->CheckSignal( sVal ) )
@@ -1208,7 +1208,7 @@ taskResult_t CTaskManager::WaitSignal( CTask *task, bool &completed , CIcarus* i
 		icarus->ClearSignal( sVal );
 	}
 
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 }
 
 /*
@@ -1225,13 +1225,13 @@ taskResult_t CTaskManager::Print( CTask *task , CIcarus* icarus)
 
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal, icarus ) );
 
-	icarus->GetGame()->DebugPrint(IGameInterface::WL_DEBUG, "%4d print(\"%s\"); [%d]", m_ownerID, sVal, task->GetTimeStamp() );
+	icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_DEBUG, "%4d print(\"%s\"); [%d]", m_ownerID, sVal, task->GetTimeStamp() );
 
 	icarus->GetGame()->CenterPrint( "%s", sVal );
 
 	Completed( task->GetGUID() );
 
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 }
 
 /*
@@ -1249,13 +1249,13 @@ taskResult_t CTaskManager::Sound( CTask *task, CIcarus* icarus )
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal, icarus ) );
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal2, icarus ) );
 
-	icarus->GetGame()->DebugPrint(IGameInterface::WL_DEBUG, "%4d sound(\"%s\", \"%s\"); [%d]", m_ownerID, sVal, sVal2, task->GetTimeStamp() );
+	icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_DEBUG, "%4d sound(\"%s\", \"%s\"); [%d]", m_ownerID, sVal, sVal2, task->GetTimeStamp() );
 
 	//Only instantly complete if the user has requested it
 	if( icarus->GetGame()->PlayIcarusSound( task->GetGUID(), m_ownerID, sVal2, sVal ) )
 		Completed( task->GetGUID() );
 
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 }
 
 /*
@@ -1274,7 +1274,7 @@ taskResult_t CTaskManager::Rotate( CTask *task , CIcarus* icarus)
 	int			memberNum = 0;
 
 	//Check for a tag reference
-	if ( Check( CIcarus::ID_TAG, block, memberNum ) )
+	if ( Check( icarusToken_t::ID_TAG, block, memberNum ) )
 	{
 		memberNum++;
 
@@ -1284,9 +1284,9 @@ taskResult_t CTaskManager::Rotate( CTask *task , CIcarus* icarus)
 		if ( icarus->GetGame()->GetTag( m_ownerID, tagName, tagLookup, vector ) == false )
 		{
 			//TODO: Emit warning
-			icarus->GetGame()->DebugPrint(IGameInterface::WL_ERROR, "Unable to find tag \"%s\"!\n", tagName );
+			icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Unable to find tag \"%s\"!\n", tagName );
 			assert(0);
-			return TASK_FAILED;
+			return taskResult_t::TASK_FAILED;
 		}
 	}
 	else
@@ -1298,10 +1298,10 @@ taskResult_t CTaskManager::Rotate( CTask *task , CIcarus* icarus)
 	//Find the duration
 	ICARUS_VALIDATE( GetFloat( m_ownerID, block, memberNum, duration, icarus ) );
 
-	icarus->GetGame()->DebugPrint(IGameInterface::WL_DEBUG, "%4d rotate( <%f,%f,%f>, %d); [%d]", m_ownerID, vector[0], vector[1], vector[2], (int) duration, task->GetTimeStamp() );
+	icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_DEBUG, "%4d rotate( <%f,%f,%f>, %d); [%d]", m_ownerID, vector[0], vector[1], vector[2], (int) duration, task->GetTimeStamp() );
 	icarus->GetGame()->Lerp2Angles( task->GetGUID(), m_ownerID, vector, duration );
 
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 }
 
 /*
@@ -1318,12 +1318,12 @@ taskResult_t CTaskManager::Remove( CTask *task, CIcarus* icarus )
 
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal, icarus ) );
 
-	icarus->GetGame()->DebugPrint(IGameInterface::WL_DEBUG, "%4d remove(\"%s\"); [%d]", m_ownerID, sVal, task->GetTimeStamp() );
+	icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_DEBUG, "%4d remove(\"%s\"); [%d]", m_ownerID, sVal, task->GetTimeStamp() );
 	icarus->GetGame()->Remove( m_ownerID, sVal );
 
 	Completed( task->GetGUID() );
 
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 }
 
 /*
@@ -1346,76 +1346,76 @@ taskResult_t CTaskManager::Camera( CTask *task , CIcarus* icarus)
 
 	switch ( type )
 	{
-	case CIcarus::TYPE_PAN:
+	case icarusToken_t::TYPE_PAN:
 
 		ICARUS_VALIDATE( GetVector( m_ownerID, block, memberNum, vector, icarus ) );
 		ICARUS_VALIDATE( GetVector( m_ownerID, block, memberNum, vector2, icarus ) );
 
 		ICARUS_VALIDATE( GetFloat( m_ownerID, block, memberNum, fVal, icarus ) );
 
-		icarus->GetGame()->DebugPrint(IGameInterface::WL_DEBUG, "%4d camera( PAN, <%f %f %f>, <%f %f %f>, %f); [%d]", m_ownerID, vector[0], vector[1], vector[2], vector2[0], vector2[1], vector2[2], fVal, task->GetTimeStamp() );
+		icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_DEBUG, "%4d camera( PAN, <%f %f %f>, <%f %f %f>, %f); [%d]", m_ownerID, vector[0], vector[1], vector[2], vector2[0], vector2[1], vector2[2], fVal, task->GetTimeStamp() );
 		icarus->GetGame()->CameraPan( vector, vector2, fVal );
 		break;
 
-	case CIcarus::TYPE_ZOOM:
+	case icarusToken_t::TYPE_ZOOM:
 
 		ICARUS_VALIDATE( GetFloat( m_ownerID, block, memberNum, fVal, icarus ) );
 		ICARUS_VALIDATE( GetFloat( m_ownerID, block, memberNum, fVal2, icarus ) );
 
-		icarus->GetGame()->DebugPrint(IGameInterface::WL_DEBUG, "%4d camera( ZOOM, %f, %f); [%d]", m_ownerID, fVal, fVal2, task->GetTimeStamp() );
+		icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_DEBUG, "%4d camera( ZOOM, %f, %f); [%d]", m_ownerID, fVal, fVal2, task->GetTimeStamp() );
 		icarus->GetGame()->CameraZoom( fVal, fVal2 );
 		break;
 
-	case CIcarus::TYPE_MOVE:
+	case icarusToken_t::TYPE_MOVE:
 
 		ICARUS_VALIDATE( GetVector( m_ownerID, block, memberNum, vector, icarus ) );
 		ICARUS_VALIDATE( GetFloat( m_ownerID, block, memberNum, fVal, icarus ) );
 
-		icarus->GetGame()->DebugPrint(IGameInterface::WL_DEBUG, "%4d camera( MOVE, <%f %f %f>, %f); [%d]", m_ownerID, vector[0], vector[1], vector[2], fVal, task->GetTimeStamp() );
+		icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_DEBUG, "%4d camera( MOVE, <%f %f %f>, %f); [%d]", m_ownerID, vector[0], vector[1], vector[2], fVal, task->GetTimeStamp() );
 		icarus->GetGame()->CameraMove( vector, fVal );
 		break;
 
-	case CIcarus::TYPE_ROLL:
+	case icarusToken_t::TYPE_ROLL:
 
 		ICARUS_VALIDATE( GetFloat( m_ownerID, block, memberNum, fVal, icarus ) );
 		ICARUS_VALIDATE( GetFloat( m_ownerID, block, memberNum, fVal2, icarus ) );
 
-		icarus->GetGame()->DebugPrint(IGameInterface::WL_DEBUG, "%4d camera( ROLL, %f, %f); [%d]", m_ownerID, fVal, fVal2, task->GetTimeStamp() );
+		icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_DEBUG, "%4d camera( ROLL, %f, %f); [%d]", m_ownerID, fVal, fVal2, task->GetTimeStamp() );
 		icarus->GetGame()->CameraRoll( fVal, fVal2 );
 
 		break;
 
-	case CIcarus::TYPE_FOLLOW:
+	case icarusToken_t::TYPE_FOLLOW:
 
 		ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal, icarus ) );
 		ICARUS_VALIDATE( GetFloat( m_ownerID, block, memberNum, fVal, icarus ) );
 		ICARUS_VALIDATE( GetFloat( m_ownerID, block, memberNum, fVal2, icarus ) );
 
-		icarus->GetGame()->DebugPrint(IGameInterface::WL_DEBUG, "%4d camera( FOLLOW, \"%s\", %f, %f); [%d]", m_ownerID, sVal, fVal, fVal2, task->GetTimeStamp() );
+		icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_DEBUG, "%4d camera( FOLLOW, \"%s\", %f, %f); [%d]", m_ownerID, sVal, fVal, fVal2, task->GetTimeStamp() );
 		icarus->GetGame()->CameraFollow( (const char *) sVal, fVal, fVal2 );
 
 		break;
 
-	case CIcarus::TYPE_TRACK:
+	case icarusToken_t::TYPE_TRACK:
 
 		ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal, icarus ) );
 		ICARUS_VALIDATE( GetFloat( m_ownerID, block, memberNum, fVal, icarus ) );
 		ICARUS_VALIDATE( GetFloat( m_ownerID, block, memberNum, fVal2, icarus ) );
 
-		icarus->GetGame()->DebugPrint(IGameInterface::WL_DEBUG, "%4d camera( TRACK, \"%s\", %f, %f); [%d]", m_ownerID, sVal, fVal, fVal2, task->GetTimeStamp() );
+		icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_DEBUG, "%4d camera( TRACK, \"%s\", %f, %f); [%d]", m_ownerID, sVal, fVal, fVal2, task->GetTimeStamp() );
 		icarus->GetGame()->CameraTrack( (const char *) sVal, fVal, fVal2 );
 		break;
 
-	case CIcarus::TYPE_DISTANCE:
+	case icarusToken_t::TYPE_DISTANCE:
 
 		ICARUS_VALIDATE( GetFloat( m_ownerID, block, memberNum, fVal, icarus ) );
 		ICARUS_VALIDATE( GetFloat( m_ownerID, block, memberNum, fVal2, icarus ) );
 
-		icarus->GetGame()->DebugPrint(IGameInterface::WL_DEBUG, "%4d camera( DISTANCE, %f, %f); [%d]", m_ownerID, fVal, fVal2, task->GetTimeStamp() );
+		icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_DEBUG, "%4d camera( DISTANCE, %f, %f); [%d]", m_ownerID, fVal, fVal2, task->GetTimeStamp() );
 		icarus->GetGame()->CameraDistance( fVal, fVal2 );
 		break;
 
-	case CIcarus::TYPE_FADE:
+	case icarusToken_t::TYPE_FADE:
 
 		ICARUS_VALIDATE( GetVector( m_ownerID, block, memberNum, vector, icarus ) );
 		ICARUS_VALIDATE( GetFloat( m_ownerID, block, memberNum, fVal, icarus ) );
@@ -1425,32 +1425,32 @@ taskResult_t CTaskManager::Camera( CTask *task , CIcarus* icarus)
 
 		ICARUS_VALIDATE( GetFloat( m_ownerID, block, memberNum, fVal3, icarus ) );
 
-		icarus->GetGame()->DebugPrint(IGameInterface::WL_DEBUG, "%4d camera( FADE, <%f %f %f>, %f, <%f %f %f>, %f, %f); [%d]", m_ownerID, vector[0], vector[1], vector[2], fVal, vector2[0], vector2[1], vector2[2], fVal2, fVal3, task->GetTimeStamp() );
+		icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_DEBUG, "%4d camera( FADE, <%f %f %f>, %f, <%f %f %f>, %f, %f); [%d]", m_ownerID, vector[0], vector[1], vector[2], fVal, vector2[0], vector2[1], vector2[2], fVal2, fVal3, task->GetTimeStamp() );
 		icarus->GetGame()->CameraFade( vector[0], vector[1], vector[2], fVal, vector2[0], vector2[1], vector2[2], fVal2, fVal3 );
 		break;
 
-	case CIcarus::TYPE_PATH:
+	case icarusToken_t::TYPE_PATH:
 		ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal, icarus ) );
 
-		icarus->GetGame()->DebugPrint(IGameInterface::WL_DEBUG, "%4d camera( PATH, \"%s\"); [%d]", m_ownerID, sVal, task->GetTimeStamp() );
+		icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_DEBUG, "%4d camera( PATH, \"%s\"); [%d]", m_ownerID, sVal, task->GetTimeStamp() );
 		icarus->GetGame()->CameraPath( sVal );
 		break;
 
-	case CIcarus::TYPE_ENABLE:
-		icarus->GetGame()->DebugPrint(IGameInterface::WL_DEBUG, "%4d camera( ENABLE ); [%d]", m_ownerID, task->GetTimeStamp() );
+	case icarusToken_t::TYPE_ENABLE:
+		icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_DEBUG, "%4d camera( ENABLE ); [%d]", m_ownerID, task->GetTimeStamp() );
 		icarus->GetGame()->CameraEnable();
 		break;
 
-	case CIcarus::TYPE_DISABLE:
-		icarus->GetGame()->DebugPrint(IGameInterface::WL_DEBUG, "%4d camera( DISABLE ); [%d]", m_ownerID, task->GetTimeStamp() );
+	case icarusToken_t::TYPE_DISABLE:
+		icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_DEBUG, "%4d camera( DISABLE ); [%d]", m_ownerID, task->GetTimeStamp() );
 		icarus->GetGame()->CameraDisable();
 		break;
 
-	case CIcarus::TYPE_SHAKE:
+	case icarusToken_t::TYPE_SHAKE:
 		ICARUS_VALIDATE( GetFloat( m_ownerID, block, memberNum, fVal, icarus ) );
 		ICARUS_VALIDATE( GetFloat( m_ownerID, block, memberNum, fVal2, icarus ) );
 
-		icarus->GetGame()->DebugPrint(IGameInterface::WL_DEBUG, "%4d camera( SHAKE, %f, %f ); [%d]", m_ownerID, fVal, fVal2, task->GetTimeStamp() );
+		icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_DEBUG, "%4d camera( SHAKE, %f, %f ); [%d]", m_ownerID, fVal, fVal2, task->GetTimeStamp() );
 		icarus->GetGame()->CameraShake( fVal, (int) fVal2 );
 		break;
 
@@ -1460,7 +1460,7 @@ taskResult_t CTaskManager::Camera( CTask *task , CIcarus* icarus)
 
 	Completed( task->GetGUID() );
 
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 }
 
 /*
@@ -1485,19 +1485,19 @@ taskResult_t CTaskManager::Move( CTask *task, CIcarus* icarus )
 		ICARUS_VALIDATE( GetFloat( m_ownerID, block, memberNum, duration, icarus ) );
 
 
-		icarus->GetGame()->DebugPrint(IGameInterface::WL_DEBUG, "%4d move( <%f %f %f>, %f ); [%d]", m_ownerID, vector[0], vector[1], vector[2], duration, task->GetTimeStamp() );
+		icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_DEBUG, "%4d move( <%f %f %f>, %f ); [%d]", m_ownerID, vector[0], vector[1], vector[2], duration, task->GetTimeStamp() );
 		icarus->GetGame()->Lerp2Pos( task->GetGUID(), m_ownerID, vector, nullptr, duration );
 
-		return TASK_OK;
+		return taskResult_t::TASK_OK;
 	}
 
 	//Get the duration and make the call
 	ICARUS_VALIDATE( GetFloat( m_ownerID, block, memberNum, duration, icarus ) );
 
-	icarus->GetGame()->DebugPrint(IGameInterface::WL_DEBUG, "%4d move( <%f %f %f>, <%f %f %f>, %f ); [%d]", m_ownerID, vector[0], vector[1], vector[2], vector2[0], vector2[1], vector2[2], duration, task->GetTimeStamp() );
+	icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_DEBUG, "%4d move( <%f %f %f>, <%f %f %f>, %f ); [%d]", m_ownerID, vector[0], vector[1], vector[2], vector2[0], vector2[1], vector2[2], duration, task->GetTimeStamp() );
 	icarus->GetGame()->Lerp2Pos( task->GetGUID(), m_ownerID, vector, vector2, duration );
 
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 }
 
 /*
@@ -1514,12 +1514,12 @@ taskResult_t CTaskManager::Kill( CTask *task, CIcarus* icarus )
 
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal, icarus ) );
 
-	icarus->GetGame()->DebugPrint(IGameInterface::WL_DEBUG, "%4d kill( \"%s\" ); [%d]", m_ownerID, sVal, task->GetTimeStamp() );
+	icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_DEBUG, "%4d kill( \"%s\" ); [%d]", m_ownerID, sVal, task->GetTimeStamp() );
 	icarus->GetGame()->Kill( m_ownerID, sVal );
 
 	Completed( task->GetGUID() );
 
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 }
 
 /*
@@ -1537,10 +1537,10 @@ taskResult_t CTaskManager::Set( CTask *task, CIcarus* icarus )
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal, icarus ) );
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal2, icarus ) );
 
-	icarus->GetGame()->DebugPrint(IGameInterface::WL_DEBUG, "%4d set( \"%s\", \"%s\" ); [%d]", m_ownerID, sVal, sVal2, task->GetTimeStamp() );
+	icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_DEBUG, "%4d set( \"%s\", \"%s\" ); [%d]", m_ownerID, sVal, sVal2, task->GetTimeStamp() );
 	icarus->GetGame()->Set( task->GetGUID(), m_ownerID, sVal, sVal2 );
 
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 }
 
 /*
@@ -1557,12 +1557,12 @@ taskResult_t CTaskManager::Use( CTask *task , CIcarus* icarus)
 
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal, icarus ) );
 
-	icarus->GetGame()->DebugPrint(IGameInterface::WL_DEBUG, "%4d use( \"%s\" ); [%d]", m_ownerID, sVal, task->GetTimeStamp() );
+	icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_DEBUG, "%4d use( \"%s\" ); [%d]", m_ownerID, sVal, task->GetTimeStamp() );
 	icarus->GetGame()->Use( m_ownerID, sVal );
 
 	Completed( task->GetGUID() );
 
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 }
 
 /*
@@ -1581,12 +1581,12 @@ taskResult_t CTaskManager::DeclareVariable( CTask *task , CIcarus* icarus)
 	ICARUS_VALIDATE( GetToken( m_ownerID, block, memberNum, type, icarus ) );
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal, icarus ) );
 
-	icarus->GetGame()->DebugPrint(IGameInterface::WL_DEBUG, "%4d declare( %d, \"%s\" ); [%d]", m_ownerID, to_underlying( type ), sVal, task->GetTimeStamp() );
+	icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_DEBUG, "%4d declare( %d, \"%s\" ); [%d]", m_ownerID, to_underlying( type ), sVal, task->GetTimeStamp() );
 	icarus->GetGame()->DeclareVariable( type, sVal );
 
 	Completed( task->GetGUID() );
 
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 
 }
 
@@ -1604,12 +1604,12 @@ taskResult_t CTaskManager::FreeVariable( CTask *task, CIcarus* icarus )
 
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal, icarus ) );
 
-	icarus->GetGame()->DebugPrint(IGameInterface::WL_DEBUG, "%4d free( \"%s\" ); [%d]", m_ownerID, sVal, task->GetTimeStamp() );
+	icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_DEBUG, "%4d free( \"%s\" ); [%d]", m_ownerID, sVal, task->GetTimeStamp() );
 	icarus->GetGame()->FreeVariable( sVal );
 
 	Completed( task->GetGUID() );
 
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 
 }
 
@@ -1627,12 +1627,12 @@ taskResult_t CTaskManager::Signal( CTask *task, CIcarus* icarus )
 
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal, icarus ) );
 
-	icarus->GetGame()->DebugPrint(IGameInterface::WL_DEBUG, "%4d signal( \"%s\" ); [%d]", m_ownerID, sVal, task->GetTimeStamp() );
+	icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_DEBUG, "%4d signal( \"%s\" ); [%d]", m_ownerID, sVal, task->GetTimeStamp() );
 	icarus->Signal( (const char *) sVal );
 
 	Completed( task->GetGUID() );
 
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 }
 
 /*
@@ -1650,10 +1650,10 @@ taskResult_t CTaskManager::Play( CTask *task, CIcarus* icarus )
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal, icarus ) );
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal2, icarus ) );
 
-	icarus->GetGame()->DebugPrint(IGameInterface::WL_DEBUG, "%4d play( \"%s\", \"%s\" ); [%d]", m_ownerID, sVal, sVal2, task->GetTimeStamp() );
+	icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_DEBUG, "%4d play( \"%s\", \"%s\" ); [%d]", m_ownerID, sVal, sVal2, task->GetTimeStamp() );
 	icarus->GetGame()->Play( task->GetGUID(), m_ownerID, (const char *) sVal, (const char *) sVal2 );
 
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 }
 
 /*
@@ -1956,36 +1956,36 @@ void CTaskManager::Load( CIcarus* icarus )
 			const icarusToken_t memberID = static_cast<icarusToken_t>( bID );
 			switch ( memberID )
 			{
-			case CIcarus::TK_FLOAT:
-				block->Write( CIcarus::TK_FLOAT, *(float *) bData, icarus );
+			case icarusToken_t::TK_FLOAT:
+				block->Write( icarusToken_t::TK_FLOAT, *(float *) bData, icarus );
 				break;
 
-			case CIcarus::TK_IDENTIFIER:
-				block->Write( CIcarus::TK_IDENTIFIER, (char *) bData , icarus);
+			case icarusToken_t::TK_IDENTIFIER:
+				block->Write( icarusToken_t::TK_IDENTIFIER, (char *) bData , icarus);
 				break;
 
-			case CIcarus::TK_STRING:
-				block->Write( CIcarus::TK_STRING, (char *) bData , icarus);
+			case icarusToken_t::TK_STRING:
+				block->Write( icarusToken_t::TK_STRING, (char *) bData , icarus);
 				break;
 
-			case CIcarus::TK_VECTOR:
-				block->Write( CIcarus::TK_VECTOR, *(vec3_t *) bData, icarus );
+			case icarusToken_t::TK_VECTOR:
+				block->Write( icarusToken_t::TK_VECTOR, *(vec3_t *) bData, icarus );
 				break;
 
-			case CIcarus::ID_RANDOM:
-				block->Write( CIcarus::ID_RANDOM, *(float *) bData, icarus );//to_underlying( ID_RANDOM ) );
+			case icarusToken_t::ID_RANDOM:
+				block->Write( icarusToken_t::ID_RANDOM, *(float *) bData, icarus );//to_underlying( icarusToken_t::ID_RANDOM ) );
 				break;
 
-			case CIcarus::ID_TAG:
-				block->Write( CIcarus::ID_TAG, (float) to_underlying( CIcarus::ID_TAG ) , icarus);
+			case icarusToken_t::ID_TAG:
+				block->Write( icarusToken_t::ID_TAG, (float) to_underlying( icarusToken_t::ID_TAG ) , icarus);
 				break;
 
-			case CIcarus::ID_GET:
-				block->Write( CIcarus::ID_GET, (float) to_underlying( CIcarus::ID_GET ) , icarus);
+			case icarusToken_t::ID_GET:
+				block->Write( icarusToken_t::ID_GET, (float) to_underlying( icarusToken_t::ID_GET ) , icarus);
 				break;
 
 			default:
-				icarus->GetGame()->DebugPrint(IGameInterface::WL_ERROR, "Invalid Block id %d\n", bID);
+				icarus->GetGame()->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Invalid Block id %d\n", bID);
 				assert( 0 );
 				break;
 			}

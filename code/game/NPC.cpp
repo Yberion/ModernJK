@@ -94,7 +94,7 @@ void CorpsePhysics( gentity_t *self )
 	VectorCopy( self->s.origin, self->s.origin2 );
 
 	//FIXME: match my pitch and roll for the slope of my groundPlane
-	if ( self->client->ps.groundEntityNum != ENTITYNUM_NONE && !Any( self->flags & FL_DISINTEGRATED ) )
+	if ( self->client->ps.groundEntityNum != ENTITYNUM_NONE && !Any( self->flags & gentityFlags_t::FL_DISINTEGRATED ) )
 	{//on the ground
 		//FIXME: check 4 corners
 		pitch_roll_for_slope( self );
@@ -102,9 +102,9 @@ void CorpsePhysics( gentity_t *self )
 
 	if ( eventClearTime == level.time + ALERT_CLEAR_TIME )
 	{//events were just cleared out so add me again
-		if ( !Any(self->client->ps.eFlags&EF_NODRAW) )
+		if ( !Any(self->client->ps.eFlags&entityFlags_t::EF_NODRAW) )
 		{
-			AddSightEvent( self->enemy, self->currentOrigin, 384, AEL_DISCOVERED );
+			AddSightEvent( self->enemy, self->currentOrigin, 384, alertEventLevel_e::AEL_DISCOVERED );
 		}
 	}
 
@@ -112,7 +112,7 @@ void CorpsePhysics( gentity_t *self )
 	{//been dead for 3 seconds
 		if ( !debug_subdivision->integer && !g_saberRealisticCombat->integer )
 		{//can't be dismembered once dead
-			if ( self->client->NPC_class != CLASS_PROTOCOL )
+			if ( self->client->NPC_class != class_t::CLASS_PROTOCOL )
 			{
 				self->client->dismembered = true;
 			}
@@ -122,14 +122,14 @@ void CorpsePhysics( gentity_t *self )
 	if ( level.time - self->s.time > 500 )
 	{//don't turn "nonsolid" until about 1 second after actual death
 
-		if ((self->client->NPC_class != CLASS_MARK1) && (self->client->NPC_class != CLASS_INTERROGATOR))	// The Mark1 & Interrogator stays solid.
+		if ((self->client->NPC_class != class_t::CLASS_MARK1) && (self->client->NPC_class != class_t::CLASS_INTERROGATOR))	// The Mark1 & Interrogator stays solid.
 		{
-			self->contents = CONTENTS_CORPSE;
+			self->contents = contentsFlags_t::CONTENTS_CORPSE;
 		}
 
 		if ( self->message )
 		{
-			self->contents |= CONTENTS_TRIGGER;
+			self->contents |= contentsFlags_t::CONTENTS_TRIGGER;
 		}
 	}
 }
@@ -147,7 +147,7 @@ extern bool InFOVFromPlayerView ( gentity_t *ent, int hFOV, int vFOV );
 bool G_OkayToRemoveCorpse( gentity_t *self )
 {
 	//if we're still on a vehicle, we won't remove ourselves until we get ejected
-	if ( self->client && self->client->NPC_class != CLASS_VEHICLE && self->s.m_iVehicleNum != 0 )
+	if ( self->client && self->client->NPC_class != class_t::CLASS_VEHICLE && self->s.m_iVehicleNum != 0 )
 	{
 		Vehicle_t *pVeh = g_entities[self->s.m_iVehicleNum].m_pVehicle;
 		if ( pVeh )
@@ -178,17 +178,17 @@ bool G_OkayToRemoveCorpse( gentity_t *self )
 
 	if ( self->activator
 		&& self->activator->client
-		&& (Any(self->activator->client->ps.eFlags&EF_HELD_BY_RANCOR)
-			|| Any(self->activator->client->ps.eFlags&EF_HELD_BY_SAND_CREATURE)
-			|| Any(self->activator->client->ps.eFlags&EF_HELD_BY_WAMPA)) )
+		&& (Any(self->activator->client->ps.eFlags&entityFlags_t::EF_HELD_BY_RANCOR)
+			|| Any(self->activator->client->ps.eFlags&entityFlags_t::EF_HELD_BY_SAND_CREATURE)
+			|| Any(self->activator->client->ps.eFlags&entityFlags_t::EF_HELD_BY_WAMPA)) )
 	{//still holding a victim?
 		return false;
 	}
 
 	if ( self->client
-		&& (Any(self->client->ps.eFlags&EF_HELD_BY_RANCOR)
-			|| Any(self->client->ps.eFlags&EF_HELD_BY_SAND_CREATURE)
-			|| Any(self->client->ps.eFlags&EF_HELD_BY_WAMPA) ) )
+		&& (Any(self->client->ps.eFlags&entityFlags_t::EF_HELD_BY_RANCOR)
+			|| Any(self->client->ps.eFlags&entityFlags_t::EF_HELD_BY_SAND_CREATURE)
+			|| Any(self->client->ps.eFlags&entityFlags_t::EF_HELD_BY_WAMPA) ) )
 	{//being held by a creature
 		return false;
 	}
@@ -224,18 +224,18 @@ void NPC_RemoveBody( gentity_t *self )
 
 		// I don't consider this a hack, it's creative coding . . .
 		// I agree, very creative... need something like this for ATST and GALAKMECH too!
-		if (self->client->NPC_class == CLASS_MARK1)
+		if (self->client->NPC_class == class_t::CLASS_MARK1)
 		{
 			Mark1_dying( self );
 		}
 
 		// Since these blow up, remove the bounding box.
-		if ( self->client->NPC_class == CLASS_REMOTE
-			|| self->client->NPC_class == CLASS_SENTRY
-			|| self->client->NPC_class == CLASS_PROBE
-			|| self->client->NPC_class == CLASS_INTERROGATOR
-			|| self->client->NPC_class == CLASS_PROBE
-			|| self->client->NPC_class == CLASS_MARK2 )
+		if ( self->client->NPC_class == class_t::CLASS_REMOTE
+			|| self->client->NPC_class == class_t::CLASS_SENTRY
+			|| self->client->NPC_class == class_t::CLASS_PROBE
+			|| self->client->NPC_class == class_t::CLASS_INTERROGATOR
+			|| self->client->NPC_class == class_t::CLASS_PROBE
+			|| self->client->NPC_class == class_t::CLASS_MARK2 )
 		{
 			G_FreeEntity( self );
 			return;
@@ -248,12 +248,12 @@ void NPC_RemoveBody( gentity_t *self )
 			self->maxs[2] = -8;
 		}
 
-		if ( Any(self->NPC->aiFlags&NPCAI_HEAL_ROSH) )
+		if ( Any(self->NPC->aiFlags&npcAiFlags_t::NPCAI_HEAL_ROSH) )
 		{//kothos twins' bodies are never removed
 			return;
 		}
 
-		if ( self->client->NPC_class == CLASS_GALAKMECH )
+		if ( self->client->NPC_class == class_t::CLASS_GALAKMECH )
 		{//never disappears
 			return;
 		}
@@ -265,7 +265,7 @@ void NPC_RemoveBody( gentity_t *self )
 		///	if ( self->client->playerTeam == TEAM_SCAVENGERS || self->client->playerTeam == TEAM_KLINGON
 		//		|| self->client->playerTeam == TEAM_HIROGEN || self->client->playerTeam == TEAM_MALON )
 			// should I check NPC_class here instead of TEAM ? - dmv
-			if( self->client->playerTeam == TEAM_ENEMY || self->client->NPC_class == CLASS_PROTOCOL )
+			if( self->client->playerTeam == team_t::TEAM_ENEMY || self->client->NPC_class == class_t::CLASS_PROTOCOL )
 			{
 				self->nextthink = level.time + FRAMETIME; // try back in a second
 
@@ -323,18 +323,18 @@ int BodyRemovalPadTime( gentity_t *ent )
 	// team no longer indicates species/race, so in this case we'd use NPC_class, but
 	switch( ent->client->NPC_class )
 	{
-	case CLASS_MOUSE:
-	case CLASS_GONK:
-	case CLASS_R2D2:
-	case CLASS_R5D2:
-	//case CLASS_PROTOCOL:
-	case CLASS_MARK1:
-	case CLASS_MARK2:
-	case CLASS_PROBE:
-	case CLASS_SEEKER:
-	case CLASS_REMOTE:
-	case CLASS_SENTRY:
-	case CLASS_INTERROGATOR:
+	case class_t::CLASS_MOUSE:
+	case class_t::CLASS_GONK:
+	case class_t::CLASS_R2D2:
+	case class_t::CLASS_R5D2:
+	//case class_t::CLASS_PROTOCOL:
+	case class_t::CLASS_MARK1:
+	case class_t::CLASS_MARK2:
+	case class_t::CLASS_PROBE:
+	case class_t::CLASS_SEEKER:
+	case class_t::CLASS_REMOTE:
+	case class_t::CLASS_SENTRY:
+	case class_t::CLASS_INTERROGATOR:
 		time = 0;
 		break;
 	default:
@@ -369,7 +369,7 @@ static void NPC_RemoveBodyEffect(void)
 //	vec3_t		org;
 //	gentity_t	*tent;
 
-	if ( !NPC || !NPC->client || Any(NPC->s.eFlags & EF_NODRAW) )
+	if ( !NPC || !NPC->client || Any(NPC->s.eFlags & entityFlags_t::EF_NODRAW) )
 		return;
 
 	// team no longer indicates species/race, so in this case we'd use NPC_class, but
@@ -377,18 +377,18 @@ static void NPC_RemoveBodyEffect(void)
 	// stub code
 	switch(NPC->client->NPC_class)
 	{
-	case CLASS_PROBE:
-	case CLASS_SEEKER:
-	case CLASS_REMOTE:
-	case CLASS_SENTRY:
-	case CLASS_GONK:
-	case CLASS_R2D2:
-	case CLASS_R5D2:
-	//case CLASS_PROTOCOL:
-	case CLASS_MARK1:
-	case CLASS_MARK2:
-	case CLASS_INTERROGATOR:
-	case CLASS_ATST: // yeah, this is a little weird, but for now I'm listing all droids
+	case class_t::CLASS_PROBE:
+	case class_t::CLASS_SEEKER:
+	case class_t::CLASS_REMOTE:
+	case class_t::CLASS_SENTRY:
+	case class_t::CLASS_GONK:
+	case class_t::CLASS_R2D2:
+	case class_t::CLASS_R5D2:
+	//case class_t::CLASS_PROTOCOL:
+	case class_t::CLASS_MARK1:
+	case class_t::CLASS_MARK2:
+	case class_t::CLASS_INTERROGATOR:
+	case class_t::CLASS_ATST: // yeah, this is a little weird, but for now I'm listing all droids
 	//	VectorCopy( NPC->currentOrigin, org );
 	//	org[2] -= 16;
 	//	tent = G_TempEntity( org, EV_BOT_EXPLODE );
@@ -431,7 +431,7 @@ void pitch_roll_for_slope( gentity_t *forwhom, vec3_t pass_slope, vec3_t storeAn
 		startspot[2] += forwhom->mins[2] + 4;
 		VectorCopy( startspot, endspot );
 		endspot[2] -= 300;
-		gi.trace( &trace, forwhom->currentOrigin, vec3_origin, vec3_origin, endspot, forwhom->s.number, MASK_SOLID, G2_NOCOLLIDE, 0 );
+		gi.trace( &trace, forwhom->currentOrigin, vec3_origin, vec3_origin, endspot, forwhom->s.number, MASK_SOLID, EG2_Collision::G2_NOCOLLIDE, 0 );
 //		if(trace_fraction>0.05&&forwhom.movetype==MOVETYPE_STEP)
 //			forwhom.flags(-)FL_ONGROUND;
 
@@ -449,7 +449,7 @@ void pitch_roll_for_slope( gentity_t *forwhom, vec3_t pass_slope, vec3_t storeAn
 	}
 
 	float oldPitch = 0;
-	if ( forwhom->client && forwhom->client->NPC_class == CLASS_VEHICLE )
+	if ( forwhom->client && forwhom->client->NPC_class == class_t::CLASS_VEHICLE )
 	{//special code for vehicles
 		Vehicle_t *pVeh = forwhom->m_pVehicle;
 
@@ -766,7 +766,7 @@ static void DeadThink ( void )
 	}
 	if ( NPC->maxs[2] > oldMaxs2 )
 	{//inflating maxs, make sure we're not inflating into solid
-		gi.trace (&trace, NPC->currentOrigin, NPC->mins, NPC->maxs, NPC->currentOrigin, NPC->s.number, NPC->clipmask, G2_NOCOLLIDE, 0 );
+		gi.trace (&trace, NPC->currentOrigin, NPC->mins, NPC->maxs, NPC->currentOrigin, NPC->s.number, NPC->clipmask, EG2_Collision::G2_NOCOLLIDE, 0 );
 		if ( trace.allsolid )
 		{//must be inflating
 			NPC->maxs[2] = oldMaxs2;
@@ -843,11 +843,11 @@ static void DeadThink ( void )
 		//death anim done (or were given a specific amount of time to wait before removal), wait the requisite amount of time them remove
 		if ( level.time >= NPCInfo->timeOfDeath + BodyRemovalPadTime( NPC ) )
 		{
-			if ( Any( NPC->client->ps.eFlags & EF_NODRAW ) )
+			if ( Any( NPC->client->ps.eFlags & entityFlags_t::EF_NODRAW ) )
 			{
 				if ( !IIcarusInterface::GetIcarus()->IsRunning( NPC->m_iIcarusID ) )
 				{
-					NPC->e_ThinkFunc = thinkF_G_FreeEntity;
+					NPC->e_ThinkFunc = thinkFunc_t::thinkF_G_FreeEntity;
 					NPC->nextthink = level.time + FRAMETIME;
 				}
 			}
@@ -857,18 +857,18 @@ static void DeadThink ( void )
 				NPC_RemoveBodyEffect();
 
 				//FIXME: keep it running through physics somehow?
-				NPC->e_ThinkFunc = thinkF_NPC_RemoveBody;
+				NPC->e_ThinkFunc = thinkFunc_t::thinkF_NPC_RemoveBody;
 				NPC->nextthink = level.time + FRAMETIME/2;
 			//	if ( NPC->client->playerTeam == TEAM_FORGE )
 			//		NPCInfo->timeOfDeath = level.time + FRAMETIME * 8;
 			//	else if ( NPC->client->playerTeam == TEAM_BOTS )
 				class_t	npc_class = NPC->client->NPC_class;
 				// check for droids
-				if ( npc_class == CLASS_SEEKER || npc_class == CLASS_REMOTE || npc_class == CLASS_PROBE || npc_class == CLASS_MOUSE ||
-					 npc_class == CLASS_GONK || npc_class == CLASS_R2D2 || npc_class == CLASS_R5D2 ||
-					 npc_class == CLASS_MARK2 || npc_class == CLASS_SENTRY )//npc_class == CLASS_PROTOCOL ||
+				if ( npc_class == class_t::CLASS_SEEKER || npc_class == class_t::CLASS_REMOTE || npc_class == class_t::CLASS_PROBE || npc_class == class_t::CLASS_MOUSE ||
+					 npc_class == class_t::CLASS_GONK || npc_class == class_t::CLASS_R2D2 || npc_class == class_t::CLASS_R5D2 ||
+					 npc_class == class_t::CLASS_MARK2 || npc_class == class_t::CLASS_SENTRY )//npc_class == class_t::CLASS_PROTOCOL ||
 				{
-					NPC->client->ps.eFlags |= EF_NODRAW;
+					NPC->client->ps.eFlags |= entityFlags_t::EF_NODRAW;
 					NPCInfo->timeOfDeath = level.time + FRAMETIME * 8;
 				}
 				else
@@ -887,9 +887,9 @@ static void DeadThink ( void )
 		const contentsFlags_t contents = gi.pointcontents( NPC->currentOrigin, -1 );
 		NPC->bounceCount = to_underlying( contents );
 
-		if ( Any( contents & CONTENTS_NODROP ) )
+		if ( Any( contents & contentsFlags_t::CONTENTS_NODROP ) )
 		{
-			NPC->client->ps.eFlags |= EF_NODRAW;
+			NPC->client->ps.eFlags |= entityFlags_t::EF_NODRAW;
 		}
 	}
 
@@ -975,7 +975,7 @@ void NPC_ShowDebugInfo (void)
 
 void NPC_ApplyScriptFlags (void)
 {
-	if ( Any( NPCInfo->scriptFlags & SCF_CROUCHED ) )
+	if ( Any( NPCInfo->scriptFlags & scriptFlags_t::SCF_CROUCHED ) )
 	{
 		if ( NPCInfo->charmedTime > level.time && (ucmd.forwardmove || ucmd.rightmove) )
 		{//ugh, if charmed and moving, ignore the crouched command
@@ -986,18 +986,18 @@ void NPC_ApplyScriptFlags (void)
 		}
 	}
 
-	if(Any(NPCInfo->scriptFlags & SCF_RUNNING))
+	if(Any(NPCInfo->scriptFlags & scriptFlags_t::SCF_RUNNING))
 	{
-		ucmd.buttons &= ~BUTTON_WALKING;
+		ucmd.buttons &= ~buttonFlags_t::BUTTON_WALKING;
 	}
-	else if(Any(NPCInfo->scriptFlags & SCF_WALKING))
+	else if(Any(NPCInfo->scriptFlags & scriptFlags_t::SCF_WALKING))
 	{
 		if ( NPCInfo->charmedTime > level.time && (ucmd.forwardmove || ucmd.rightmove) )
 		{//ugh, if charmed and moving, ignore the walking command
 		}
 		else
 		{
-			ucmd.buttons |= BUTTON_WALKING;
+			ucmd.buttons |= buttonFlags_t::BUTTON_WALKING;
 		}
 	}
 /*
@@ -1006,42 +1006,42 @@ void NPC_ApplyScriptFlags (void)
 		ucmd.buttons |= BUTTON_CAREFUL;
 	}
 */
-	if(Any(NPCInfo->scriptFlags & SCF_LEAN_RIGHT))
+	if(Any(NPCInfo->scriptFlags & scriptFlags_t::SCF_LEAN_RIGHT))
 	{
-		ucmd.buttons |= BUTTON_USE;
+		ucmd.buttons |= buttonFlags_t::BUTTON_USE;
 		ucmd.rightmove = 127;
 		ucmd.forwardmove = 0;
 		ucmd.upmove = 0;
 	}
-	else if(Any(NPCInfo->scriptFlags & SCF_LEAN_LEFT))
+	else if(Any(NPCInfo->scriptFlags & scriptFlags_t::SCF_LEAN_LEFT))
 	{
-		ucmd.buttons |= BUTTON_USE;
+		ucmd.buttons |= buttonFlags_t::BUTTON_USE;
 		ucmd.rightmove = -127;
 		ucmd.forwardmove = 0;
 		ucmd.upmove = 0;
 	}
 
-	if ( Any(NPCInfo->scriptFlags & SCF_ALT_FIRE) && Any(ucmd.buttons & BUTTON_ATTACK) )
+	if ( Any(NPCInfo->scriptFlags & scriptFlags_t::SCF_ALT_FIRE) && Any(ucmd.buttons & buttonFlags_t::BUTTON_ATTACK) )
 	{//Use altfire instead
-		ucmd.buttons |= BUTTON_ALT_ATTACK;
+		ucmd.buttons |= buttonFlags_t::BUTTON_ALT_ATTACK;
 	}
 
 	// only removes NPC when it's safe too (Player is out of PVS)
-	if( Any( NPCInfo->scriptFlags & SCF_SAFE_REMOVE ) )
+	if( Any( NPCInfo->scriptFlags & scriptFlags_t::SCF_SAFE_REMOVE ) )
 	{
 		// take from BSRemove
 		if( !gi.inPVS( NPC->currentOrigin, g_entities[0].currentOrigin ) )//FIXME: use cg.vieworg?
 		{
 			G_UseTargets2( NPC, NPC, NPC->target3 );
-			NPC->s.eFlags |= EF_NODRAW;
-			NPC->svFlags &= ~SVF_NPC;
-			NPC->s.eType = ET_INVISIBLE;
-			NPC->contents = CONTENTS_NONE;
+			NPC->s.eFlags |= entityFlags_t::EF_NODRAW;
+			NPC->svFlags &= ~svFlags_t::SVF_NPC;
+			NPC->s.eType = entityType_t::ET_INVISIBLE;
+			NPC->contents = contentsFlags_t::CONTENTS_NONE;
 			NPC->health = 0;
 			NPC->targetname = nullptr;
 
 			//Disappear in half a second
-			NPC->e_ThinkFunc = thinkF_G_FreeEntity;
+			NPC->e_ThinkFunc = thinkFunc_t::thinkF_G_FreeEntity;
 			NPC->nextthink = level.time + FRAMETIME;
 		}//FIXME: else allow for out of FOV???
 
@@ -1057,9 +1057,9 @@ void NPC_HandleAIFlags (void)
 {
 	// Update Guys With Jet Packs
 	//----------------------------
-	if (Any(NPCInfo->scriptFlags & SCF_FLY_WITH_JET))
+	if (Any(NPCInfo->scriptFlags & scriptFlags_t::SCF_FLY_WITH_JET))
 	{
-		bool	ShouldFly  = !!Any(NPCInfo->aiFlags & NPCAI_FLY);
+		bool	ShouldFly  = !!Any(NPCInfo->aiFlags & npcAiFlags_t::NPCAI_FLY);
 		bool	IsFlying   = !!(JET_Flying(NPC));
 		bool	IsInTheAir = (NPC->client->ps.groundEntityNum==ENTITYNUM_NONE);
 
@@ -1073,7 +1073,7 @@ void NPC_HandleAIFlags (void)
 				trace_t	trace;
 				VectorCopy(NPC->currentOrigin, ground);
 				ground[2] -= 60.0f;
-                gi.trace(&trace, NPC->currentOrigin, nullptr, nullptr, ground, NPC->s.number, NPC->clipmask, G2_NOCOLLIDE, 0);
+                gi.trace(&trace, NPC->currentOrigin, nullptr, nullptr, ground, NPC->s.number, NPC->clipmask, EG2_Collision::G2_NOCOLLIDE, 0);
 
 				IsInTheAir	= (!trace.allsolid && !trace.startsolid && trace.fraction>0.9f);
 			}
@@ -1091,7 +1091,7 @@ void NPC_HandleAIFlags (void)
 			//-----------------------------------------------------
 			else if (!ShouldFly && (level.time - NPC->lastInAirTime)>3000)
 			{
-				NPCInfo->aiFlags &= ~NPCAI_FLY;
+				NPCInfo->aiFlags &= ~npcAiFlags_t::NPCAI_FLY;
 			}
 		}
 
@@ -1112,15 +1112,15 @@ void NPC_HandleAIFlags (void)
 	}
 
 	//FIXME: make these flags checks a function call like NPC_CheckAIFlagsAndTimers
-	if ( Any( NPCInfo->aiFlags & NPCAI_LOST ) )
+	if ( Any( NPCInfo->aiFlags & npcAiFlags_t::NPCAI_LOST ) )
 	{//Print that you need help!
 		//FIXME: shouldn't remove this just yet if cg_draw needs it
-		NPCInfo->aiFlags &= ~NPCAI_LOST;
+		NPCInfo->aiFlags &= ~npcAiFlags_t::NPCAI_LOST;
 
 		/*
 		if ( showWaypoints )
 		{
-			Quake3Game()->DebugPrint(WL_WARNING, "%s can't navigate to target %s (my wp: %d, goal wp: %d)\n", NPC->targetname, NPCInfo->goalEntity->targetname, NPC->waypoint, NPCInfo->goalEntity->waypoint );
+			Quake3Game()->DebugPrint(e_DebugPrintLevel::WL_WARNING, "%s can't navigate to target %s (my wp: %d, goal wp: %d)\n", NPC->targetname, NPCInfo->goalEntity->targetname, NPC->waypoint, NPCInfo->goalEntity->waypoint );
 		}
 		*/
 
@@ -1134,7 +1134,7 @@ void NPC_HandleAIFlags (void)
 	//been told to play a victory sound after a delay
 	if ( NPCInfo->greetingDebounceTime && NPCInfo->greetingDebounceTime < level.time )
 	{
-		G_AddVoiceEvent( NPC, Q_irand(EV_VICTORY1, EV_VICTORY3), Q_irand( 2000, 4000 ) );
+		G_AddVoiceEvent( NPC, Q_irand(entity_event_t::EV_VICTORY1, entity_event_t::EV_VICTORY3), Q_irand( 2000, 4000 ) );
 		NPCInfo->greetingDebounceTime = 0;
 	}
 
@@ -1157,7 +1157,7 @@ void NPC_AvoidWallsAndCliffs (void)
 	float	fwdDist, rtDist;
 	//FIXME: set things like this forward dir once at the beginning
 	//of a frame instead of over and over again
-	if ( Any( NPCInfo->aiFlags & NPCAI_NO_COLL_AVOID ) )
+	if ( Any( NPCInfo->aiFlags & npcAiFlags_t::NPCAI_NO_COLL_AVOID ) )
 	{
 		return;
 	}
@@ -1217,12 +1217,12 @@ void NPC_AvoidWallsAndCliffs (void)
 
 void NPC_CheckAttackScript(void)
 {
-	if(!Any(ucmd.buttons & BUTTON_ATTACK))
+	if(!Any(ucmd.buttons & buttonFlags_t::BUTTON_ATTACK))
 	{
 		return;
 	}
 
-	G_ActivateBehavior(NPC, BSET_ATTACK);
+	G_ActivateBehavior(NPC, bSet_t::BSET_ATTACK);
 }
 
 float NPC_MaxDistSquaredForWeapon (void);
@@ -1245,9 +1245,9 @@ void NPC_CheckAttackHold(void)
 	}
 	else if( NPCInfo->attackHoldTime && NPCInfo->attackHoldTime > level.time )
 	{
-		ucmd.buttons |= BUTTON_ATTACK;
+		ucmd.buttons |= buttonFlags_t::BUTTON_ATTACK;
 	}
-	else if ( ( NPCInfo->attackHold ) && Any( ucmd.buttons & BUTTON_ATTACK ) )
+	else if ( ( NPCInfo->attackHold ) && Any( ucmd.buttons & buttonFlags_t::BUTTON_ATTACK ) )
 	{
 		NPCInfo->attackHoldTime = level.time + NPCInfo->attackHold;
 	}
@@ -1285,23 +1285,23 @@ void NPC_BehaviorSet_Charmed( bState_t bState )
 {
 	switch( bState )
 	{
-	case BS_FOLLOW_LEADER://# 40: Follow your leader and shoot any enemies you come across
+	case bState_t::BS_FOLLOW_LEADER://# 40: Follow your leader and shoot any enemies you come across
 		NPC_BSFollowLeader();
 		break;
-	case BS_REMOVE:
+	case bState_t::BS_REMOVE:
 		NPC_BSRemove();
 		break;
-	case BS_SEARCH:			//# 43: Using current waypoint as a base, search the immediate branches of waypoints for enemies
+	case bState_t::BS_SEARCH:			//# 43: Using current waypoint as a base, search the immediate branches of waypoints for enemies
 		NPC_BSSearch();
 		break;
-	case BS_WANDER:			//# 46: Wander down random waypoint paths
+	case bState_t::BS_WANDER:			//# 46: Wander down random waypoint paths
 		NPC_BSWander();
 		break;
-	case BS_FLEE:
+	case bState_t::BS_FLEE:
 		NPC_BSFlee();
 		break;
 	default:
-	case BS_DEFAULT://whatever
+	case bState_t::BS_DEFAULT://whatever
 		NPC_BSDefault();
 		break;
 	}
@@ -1316,41 +1316,41 @@ void NPC_BehaviorSet_Default( bState_t bState )
 {
 	switch( bState )
 	{
-	case BS_ADVANCE_FIGHT://head toward captureGoal, shoot anything that gets in the way
+	case bState_t::BS_ADVANCE_FIGHT://head toward captureGoal, shoot anything that gets in the way
 		NPC_BSAdvanceFight ();
 		break;
-	case BS_SLEEP://Follow a path, looking for enemies
+	case bState_t::BS_SLEEP://Follow a path, looking for enemies
 		NPC_BSSleep ();
 		break;
-	case BS_FOLLOW_LEADER://# 40: Follow your leader and shoot any enemies you come across
+	case bState_t::BS_FOLLOW_LEADER://# 40: Follow your leader and shoot any enemies you come across
 		NPC_BSFollowLeader();
 		break;
-	case BS_JUMP:			//41: Face navgoal and jump to it.
+	case bState_t::BS_JUMP:			//41: Face navgoal and jump to it.
 		NPC_BSJump();
 		break;
-	case BS_REMOVE:
+	case bState_t::BS_REMOVE:
 		NPC_BSRemove();
 		break;
-	case BS_SEARCH:			//# 43: Using current waypoint as a base, search the immediate branches of waypoints for enemies
+	case bState_t::BS_SEARCH:			//# 43: Using current waypoint as a base, search the immediate branches of waypoints for enemies
 		NPC_BSSearch();
 		break;
-	case BS_NOCLIP:
+	case bState_t::BS_NOCLIP:
 		NPC_BSNoClip();
 		break;
-	case BS_WANDER:			//# 46: Wander down random waypoint paths
+	case bState_t::BS_WANDER:			//# 46: Wander down random waypoint paths
 		NPC_BSWander();
 		break;
-	case BS_FLEE:
+	case bState_t::BS_FLEE:
 		NPC_BSFlee();
 		break;
-	case BS_WAIT:
+	case bState_t::BS_WAIT:
 		NPC_BSWait();
 		break;
-	case BS_CINEMATIC:
+	case bState_t::BS_CINEMATIC:
 		NPC_BSCinematic();
 		break;
 	default:
-	case BS_DEFAULT://whatever
+	case bState_t::BS_DEFAULT://whatever
 		NPC_BSDefault();
 		break;
 	}
@@ -1365,11 +1365,11 @@ void NPC_BehaviorSet_Interrogator( bState_t bState )
 {
 	switch( bState )
 	{
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-	case BS_STAND_AND_SHOOT:
-	case BS_HUNT_AND_KILL:
-	case BS_DEFAULT:
+	case bState_t::BS_STAND_GUARD:
+	case bState_t::BS_PATROL:
+	case bState_t::BS_STAND_AND_SHOOT:
+	case bState_t::BS_HUNT_AND_KILL:
+	case bState_t::BS_DEFAULT:
 		NPC_BSInterrogator_Default();
 		break;
 	default:
@@ -1391,11 +1391,11 @@ void NPC_BehaviorSet_ImperialProbe( bState_t bState )
 {
 	switch( bState )
 	{
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-	case BS_STAND_AND_SHOOT:
-	case BS_HUNT_AND_KILL:
-	case BS_DEFAULT:
+	case bState_t::BS_STAND_GUARD:
+	case bState_t::BS_PATROL:
+	case bState_t::BS_STAND_AND_SHOOT:
+	case bState_t::BS_HUNT_AND_KILL:
+	case bState_t::BS_DEFAULT:
 		NPC_BSImperialProbe_Default();
 		break;
 	default:
@@ -1416,11 +1416,11 @@ void NPC_BehaviorSet_Seeker( bState_t bState )
 {
 	switch( bState )
 	{
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-	case BS_STAND_AND_SHOOT:
-	case BS_HUNT_AND_KILL:
-	case BS_DEFAULT:
+	case bState_t::BS_STAND_GUARD:
+	case bState_t::BS_PATROL:
+	case bState_t::BS_STAND_AND_SHOOT:
+	case bState_t::BS_HUNT_AND_KILL:
+	case bState_t::BS_DEFAULT:
 	default:
 		NPC_BSSeeker_Default();
 		break;
@@ -1438,11 +1438,11 @@ void NPC_BehaviorSet_Remote( bState_t bState )
 {
 	switch( bState )
 	{
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-	case BS_STAND_AND_SHOOT:
-	case BS_HUNT_AND_KILL:
-	case BS_DEFAULT:
+	case bState_t::BS_STAND_GUARD:
+	case bState_t::BS_PATROL:
+	case bState_t::BS_STAND_AND_SHOOT:
+	case bState_t::BS_HUNT_AND_KILL:
+	case bState_t::BS_DEFAULT:
 		NPC_BSRemote_Default();
 		break;
 	default:
@@ -1462,11 +1462,11 @@ void NPC_BehaviorSet_Sentry( bState_t bState )
 {
 	switch( bState )
 	{
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-	case BS_STAND_AND_SHOOT:
-	case BS_HUNT_AND_KILL:
-	case BS_DEFAULT:
+	case bState_t::BS_STAND_GUARD:
+	case bState_t::BS_PATROL:
+	case bState_t::BS_STAND_AND_SHOOT:
+	case bState_t::BS_HUNT_AND_KILL:
+	case bState_t::BS_DEFAULT:
 		NPC_BSSentry_Default();
 		break;
 	default:
@@ -1484,11 +1484,11 @@ void NPC_BehaviorSet_Grenadier( bState_t bState )
 {
 	switch( bState )
 	{
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-	case BS_STAND_AND_SHOOT:
-	case BS_HUNT_AND_KILL:
-	case BS_DEFAULT:
+	case bState_t::BS_STAND_GUARD:
+	case bState_t::BS_PATROL:
+	case bState_t::BS_STAND_AND_SHOOT:
+	case bState_t::BS_HUNT_AND_KILL:
+	case bState_t::BS_DEFAULT:
 		NPC_BSGrenadier_Default();
 		break;
 
@@ -1507,11 +1507,11 @@ void NPC_BehaviorSet_Tusken( bState_t bState )
 {
 	switch( bState )
 	{
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-	case BS_STAND_AND_SHOOT:
-	case BS_HUNT_AND_KILL:
-	case BS_DEFAULT:
+	case bState_t::BS_STAND_GUARD:
+	case bState_t::BS_PATROL:
+	case bState_t::BS_STAND_AND_SHOOT:
+	case bState_t::BS_HUNT_AND_KILL:
+	case bState_t::BS_DEFAULT:
 		NPC_BSTusken_Default();
 		break;
 
@@ -1530,11 +1530,11 @@ void NPC_BehaviorSet_Sniper( bState_t bState )
 {
 	switch( bState )
 	{
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-	case BS_STAND_AND_SHOOT:
-	case BS_HUNT_AND_KILL:
-	case BS_DEFAULT:
+	case bState_t::BS_STAND_GUARD:
+	case bState_t::BS_PATROL:
+	case bState_t::BS_STAND_AND_SHOOT:
+	case bState_t::BS_HUNT_AND_KILL:
+	case bState_t::BS_DEFAULT:
 		NPC_BSSniper_Default();
 		break;
 
@@ -1553,19 +1553,19 @@ void NPC_BehaviorSet_Stormtrooper( bState_t bState )
 {
 	switch( bState )
 	{
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-	case BS_STAND_AND_SHOOT:
-	case BS_HUNT_AND_KILL:
-	case BS_DEFAULT:
+	case bState_t::BS_STAND_GUARD:
+	case bState_t::BS_PATROL:
+	case bState_t::BS_STAND_AND_SHOOT:
+	case bState_t::BS_HUNT_AND_KILL:
+	case bState_t::BS_DEFAULT:
 		NPC_BSST_Default();
 		break;
 
-	case BS_INVESTIGATE:
+	case bState_t::BS_INVESTIGATE:
 		NPC_BSST_Investigate();
 		break;
 
-	case BS_SLEEP:
+	case bState_t::BS_SLEEP:
 		NPC_BSST_Sleep();
 		break;
 
@@ -1585,16 +1585,16 @@ void NPC_BehaviorSet_Jedi( bState_t bState )
 {
 	switch( bState )
 	{
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-	case BS_STAND_AND_SHOOT:
-	case BS_HUNT_AND_KILL:
-	case BS_INVESTIGATE://WTF???!!
-	case BS_DEFAULT:
+	case bState_t::BS_STAND_GUARD:
+	case bState_t::BS_PATROL:
+	case bState_t::BS_STAND_AND_SHOOT:
+	case bState_t::BS_HUNT_AND_KILL:
+	case bState_t::BS_INVESTIGATE://WTF???!!
+	case bState_t::BS_DEFAULT:
 		NPC_BSJedi_Default();
 		break;
 
-	case BS_FOLLOW_LEADER:
+	case bState_t::BS_FOLLOW_LEADER:
 		NPC_BSJedi_FollowLeader();
 		break;
 
@@ -1610,13 +1610,13 @@ bool G_JediInNormalAI( gentity_t *ent )
 	bState_t bState = G_CurrentBState( ent->NPC );
 	switch ( bState )
 	{
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-	case BS_STAND_AND_SHOOT:
-	case BS_HUNT_AND_KILL:
-	case BS_INVESTIGATE:
-	case BS_DEFAULT:
-	case BS_FOLLOW_LEADER:
+	case bState_t::BS_STAND_GUARD:
+	case bState_t::BS_PATROL:
+	case bState_t::BS_STAND_AND_SHOOT:
+	case bState_t::BS_HUNT_AND_KILL:
+	case bState_t::BS_INVESTIGATE:
+	case bState_t::BS_DEFAULT:
+	case bState_t::BS_FOLLOW_LEADER:
 		return true;
 		break;
 	default:
@@ -1634,9 +1634,9 @@ void NPC_BehaviorSet_Droid( bState_t bState )
 {
 	switch( bState )
 	{
-	case BS_DEFAULT:
-	case BS_STAND_GUARD:
-	case BS_PATROL:
+	case bState_t::BS_DEFAULT:
+	case bState_t::BS_STAND_GUARD:
+	case bState_t::BS_PATROL:
 		NPC_BSDroid_Default();
 		break;
 	default:
@@ -1654,9 +1654,9 @@ void NPC_BehaviorSet_Mark1( bState_t bState )
 {
 	switch( bState )
 	{
-	case BS_DEFAULT:
-	case BS_STAND_GUARD:
-	case BS_PATROL:
+	case bState_t::BS_DEFAULT:
+	case bState_t::BS_STAND_GUARD:
+	case bState_t::BS_PATROL:
 		NPC_BSMark1_Default();
 		break;
 	default:
@@ -1674,10 +1674,10 @@ void NPC_BehaviorSet_Mark2( bState_t bState )
 {
 	switch( bState )
 	{
-	case BS_DEFAULT:
-	case BS_PATROL:
-	case BS_STAND_AND_SHOOT:
-	case BS_HUNT_AND_KILL:
+	case bState_t::BS_DEFAULT:
+	case bState_t::BS_PATROL:
+	case bState_t::BS_STAND_AND_SHOOT:
+	case bState_t::BS_HUNT_AND_KILL:
 		NPC_BSMark2_Default();
 		break;
 	default:
@@ -1695,10 +1695,10 @@ void NPC_BehaviorSet_ATST( bState_t bState )
 {
 	switch( bState )
 	{
-	case BS_DEFAULT:
-	case BS_PATROL:
-	case BS_STAND_AND_SHOOT:
-	case BS_HUNT_AND_KILL:
+	case bState_t::BS_DEFAULT:
+	case bState_t::BS_PATROL:
+	case bState_t::BS_STAND_AND_SHOOT:
+	case bState_t::BS_HUNT_AND_KILL:
 		NPC_BSATST_Default();
 		break;
 	default:
@@ -1716,11 +1716,11 @@ void NPC_BehaviorSet_MineMonster( bState_t bState )
 {
 	switch( bState )
 	{
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-	case BS_STAND_AND_SHOOT:
-	case BS_HUNT_AND_KILL:
-	case BS_DEFAULT:
+	case bState_t::BS_STAND_GUARD:
+	case bState_t::BS_PATROL:
+	case bState_t::BS_STAND_AND_SHOOT:
+	case bState_t::BS_HUNT_AND_KILL:
+	case bState_t::BS_DEFAULT:
 		NPC_BSMineMonster_Default();
 		break;
 	default:
@@ -1738,11 +1738,11 @@ void NPC_BehaviorSet_Howler( bState_t bState )
 {
 	switch( bState )
 	{
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-	case BS_STAND_AND_SHOOT:
-	case BS_HUNT_AND_KILL:
-	case BS_DEFAULT:
+	case bState_t::BS_STAND_GUARD:
+	case bState_t::BS_PATROL:
+	case bState_t::BS_STAND_AND_SHOOT:
+	case bState_t::BS_HUNT_AND_KILL:
+	case bState_t::BS_DEFAULT:
 		NPC_BSHowler_Default();
 		break;
 	default:
@@ -1760,11 +1760,11 @@ void NPC_BehaviorSet_Rancor( bState_t bState )
 {
 	switch( bState )
 	{
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-	case BS_STAND_AND_SHOOT:
-	case BS_HUNT_AND_KILL:
-	case BS_DEFAULT:
+	case bState_t::BS_STAND_GUARD:
+	case bState_t::BS_PATROL:
+	case bState_t::BS_STAND_AND_SHOOT:
+	case bState_t::BS_HUNT_AND_KILL:
+	case bState_t::BS_DEFAULT:
 		NPC_BSRancor_Default();
 		break;
 	default:
@@ -1782,11 +1782,11 @@ void NPC_BehaviorSet_Wampa( bState_t bState )
 {
 	switch( bState )
 	{
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-	case BS_STAND_AND_SHOOT:
-	case BS_HUNT_AND_KILL:
-	case BS_DEFAULT:
+	case bState_t::BS_STAND_GUARD:
+	case bState_t::BS_PATROL:
+	case bState_t::BS_STAND_AND_SHOOT:
+	case bState_t::BS_HUNT_AND_KILL:
+	case bState_t::BS_DEFAULT:
 		NPC_BSWampa_Default();
 		break;
 	default:
@@ -1804,11 +1804,11 @@ void NPC_BehaviorSet_SandCreature( bState_t bState )
 {
 	switch( bState )
 	{
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-	case BS_STAND_AND_SHOOT:
-	case BS_HUNT_AND_KILL:
-	case BS_DEFAULT:
+	case bState_t::BS_STAND_GUARD:
+	case bState_t::BS_PATROL:
+	case bState_t::BS_STAND_AND_SHOOT:
+	case bState_t::BS_HUNT_AND_KILL:
+	case bState_t::BS_DEFAULT:
 		NPC_BSSandCreature_Default();
 		break;
 	default:
@@ -1827,9 +1827,9 @@ void NPC_BehaviorSet_Animal( bState_t bState )
 {
 	switch( bState )
 	{
-	case BS_DEFAULT:
-	case BS_STAND_GUARD:
-	case BS_PATROL:
+	case bState_t::BS_DEFAULT:
+	case bState_t::BS_STAND_GUARD:
+	case bState_t::BS_PATROL:
 		NPC_BSAnimal_Default();
 
 		//NPC_BSDroid_Default();
@@ -1857,11 +1857,11 @@ extern bool Pilot_MasterUpdate();
 void NPC_RunBehavior( team_t team, bState_t bState )
 {
 	//
-	if ( bState == BS_CINEMATIC )
+	if ( bState == bState_t::BS_CINEMATIC )
 	{
 		NPC_BSCinematic();
 	}
-	else if ( Any(NPCInfo->scriptFlags&SCF_PILOT) && Pilot_MasterUpdate())
+	else if ( Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_PILOT) && Pilot_MasterUpdate())
 	{
 		return;
 	}
@@ -1874,13 +1874,13 @@ void NPC_RunBehavior( team_t team, bState_t bState )
 		NPC_UpdateAngles(true, true);
 		return;
 	}
-	else if ( NPC->client->ps.weapon == WP_EMPLACED_GUN )
+	else if ( NPC->client->ps.weapon == weapon_t::WP_EMPLACED_GUN )
 	{
 		NPC_BSEmplaced();
 		G_CheckCharmed( NPC );
 		return;
 	}
-	else if ( NPC->client->NPC_class == CLASS_HOWLER )
+	else if ( NPC->client->NPC_class == class_t::CLASS_HOWLER )
 	{
 		NPC_BehaviorSet_Howler( bState );
 		return;
@@ -1889,19 +1889,19 @@ void NPC_RunBehavior( team_t team, bState_t bState )
 	{
 		NPC_BSJedi_Default();
 	}
-	else if ( NPC->client->NPC_class == CLASS_SABER_DROID )
+	else if ( NPC->client->NPC_class == class_t::CLASS_SABER_DROID )
 	{//saber droid
 		NPC_BSSD_Default();
 	}
-	else if ( NPC->client->ps.weapon == WP_SABER )
+	else if ( NPC->client->ps.weapon == weapon_t::WP_SABER )
 	{//jedi
 		NPC_BehaviorSet_Jedi( bState );
 	}
-	else if ( NPC->client->NPC_class == CLASS_REBORN && NPC->client->ps.weapon == WP_MELEE )
+	else if ( NPC->client->NPC_class == class_t::CLASS_REBORN && NPC->client->ps.weapon == weapon_t::WP_MELEE )
 	{//force-only reborn
 		NPC_BehaviorSet_Jedi( bState );
 	}
-	else if ( NPC->client->NPC_class == CLASS_BOBAFETT )
+	else if ( NPC->client->NPC_class == class_t::CLASS_BOBAFETT )
 	{
 		Boba_Update();
 		if (NPCInfo->surrenderTime)
@@ -1923,7 +1923,7 @@ void NPC_RunBehavior( team_t team, bState_t bState )
 			}
 		}
 	}
-	else if ( NPC->client->NPC_class == CLASS_ROCKETTROOPER )
+	else if ( NPC->client->NPC_class == class_t::CLASS_ROCKETTROOPER )
 	{//bounty hunter
 		if ( RT_Flying( NPC ) || NPC->enemy != nullptr )
 		{
@@ -1935,26 +1935,26 @@ void NPC_RunBehavior( team_t team, bState_t bState )
 		}
 		G_CheckCharmed( NPC );
 	}
-	else if ( NPC->client->NPC_class == CLASS_RANCOR )
+	else if ( NPC->client->NPC_class == class_t::CLASS_RANCOR )
 	{
 		NPC_BehaviorSet_Rancor( bState );
 	}
-	else if ( NPC->client->NPC_class == CLASS_SAND_CREATURE )
+	else if ( NPC->client->NPC_class == class_t::CLASS_SAND_CREATURE )
 	{
 		NPC_BehaviorSet_SandCreature( bState );
 	}
-	else if ( NPC->client->NPC_class == CLASS_WAMPA )
+	else if ( NPC->client->NPC_class == class_t::CLASS_WAMPA )
 	{
 		NPC_BehaviorSet_Wampa( bState );
 		G_CheckCharmed( NPC );
 	}
-	else if ( Any( NPCInfo->scriptFlags & SCF_FORCED_MARCH ) )
+	else if ( Any( NPCInfo->scriptFlags & scriptFlags_t::SCF_FORCED_MARCH ) )
 	{//being forced to march
 		NPC_BSDefault();
 	}
-	else if ( NPC->client->ps.weapon == WP_TUSKEN_RIFLE )
+	else if ( NPC->client->ps.weapon == weapon_t::WP_TUSKEN_RIFLE )
 	{
-		if ( Any(NPCInfo->scriptFlags & SCF_ALT_FIRE) )
+		if ( Any(NPCInfo->scriptFlags & scriptFlags_t::SCF_ALT_FIRE) )
 		{
 			NPC_BehaviorSet_Sniper( bState );
 			G_CheckCharmed( NPC );
@@ -1967,13 +1967,13 @@ void NPC_RunBehavior( team_t team, bState_t bState )
 			return;
 		}
 	}
-	else if ( NPC->client->ps.weapon == WP_TUSKEN_STAFF )
+	else if ( NPC->client->ps.weapon == weapon_t::WP_TUSKEN_STAFF )
 	{
 		NPC_BehaviorSet_Tusken( bState );
 		G_CheckCharmed( NPC );
 		return;
 	}
-	else if ( NPC->client->ps.weapon == WP_NOGHRI_STICK )
+	else if ( NPC->client->ps.weapon == weapon_t::WP_NOGHRI_STICK )
 	{
 		NPC_BehaviorSet_Stormtrooper( bState );
 		G_CheckCharmed( NPC );
@@ -1989,41 +1989,41 @@ void NPC_RunBehavior( team_t team, bState_t bState )
 	//	case TEAM_HIROGEN:
 	//	case TEAM_MALON:
 		// not sure if TEAM_ENEMY is appropriate here, I think I should be using NPC_class to check for behavior - dmv
-		case TEAM_ENEMY:
+		case team_t::TEAM_ENEMY:
 			// special cases for enemy droids
 			switch( NPC->client->NPC_class)
 			{
-			case CLASS_ATST:
+			case class_t::CLASS_ATST:
 				NPC_BehaviorSet_ATST( bState );
 				return;
-			case CLASS_PROBE:
+			case class_t::CLASS_PROBE:
 				NPC_BehaviorSet_ImperialProbe(bState);
 				return;
-			case CLASS_REMOTE:
+			case class_t::CLASS_REMOTE:
 				NPC_BehaviorSet_Remote( bState );
 				return;
-			case CLASS_SENTRY:
+			case class_t::CLASS_SENTRY:
 				NPC_BehaviorSet_Sentry(bState);
 				return;
-			case CLASS_INTERROGATOR:
+			case class_t::CLASS_INTERROGATOR:
 				NPC_BehaviorSet_Interrogator( bState );
 				return;
-			case CLASS_MINEMONSTER:
+			case class_t::CLASS_MINEMONSTER:
 				NPC_BehaviorSet_MineMonster( bState );
 				return;
-			case CLASS_HOWLER:
+			case class_t::CLASS_HOWLER:
 				NPC_BehaviorSet_Howler( bState );
 				return;
-			case CLASS_RANCOR:
+			case class_t::CLASS_RANCOR:
 				NPC_BehaviorSet_Rancor( bState );
 				return;
-			case CLASS_SAND_CREATURE:
+			case class_t::CLASS_SAND_CREATURE:
 				NPC_BehaviorSet_SandCreature( bState );
 				return;
-			case CLASS_MARK1:
+			case class_t::CLASS_MARK1:
 				NPC_BehaviorSet_Mark1( bState );
 				return;
-			case CLASS_MARK2:
+			case class_t::CLASS_MARK2:
 				NPC_BehaviorSet_Mark2( bState );
 				return;
 			default:
@@ -2031,7 +2031,7 @@ void NPC_RunBehavior( team_t team, bState_t bState )
 			}
 
 
-			if (NPC->client->NPC_class==CLASS_ASSASSIN_DROID)
+			if (NPC->client->NPC_class==class_t::CLASS_ASSASSIN_DROID)
 			{
 				BubbleShield_Update();
 			}
@@ -2042,11 +2042,11 @@ void NPC_RunBehavior( team_t team, bState_t bState )
 				return;
 			}
 
-			if ( NPC->enemy && NPC->client->ps.weapon == WP_NONE && bState != BS_HUNT_AND_KILL && !Q3_TaskIDPending( NPC, TID_MOVE_NAV ) )
+			if ( NPC->enemy && NPC->client->ps.weapon == weapon_t::WP_NONE && bState != bState_t::BS_HUNT_AND_KILL && !Q3_TaskIDPending( NPC, taskID_t::TID_MOVE_NAV ) )
 			{//if in battle and have no weapon, run away, fixme: when in BS_HUNT_AND_KILL, they just stand there
-				if ( bState != BS_FLEE )
+				if ( bState != bState_t::BS_FLEE )
 				{
-					NPC_StartFlee( NPC->enemy, NPC->enemy->currentOrigin, AEL_DANGER_GREAT, 5000, 10000 );
+					NPC_StartFlee( NPC->enemy, NPC->enemy->currentOrigin, alertEventLevel_e::AEL_DANGER_GREAT, 5000, 10000 );
 				}
 				else
 				{
@@ -2054,18 +2054,18 @@ void NPC_RunBehavior( team_t team, bState_t bState )
 				}
 				return;
 			}
-			if ( NPC->client->ps.weapon == WP_SABER )
+			if ( NPC->client->ps.weapon == weapon_t::WP_SABER )
 			{//special melee exception
 				NPC_BehaviorSet_Default( bState );
 				return;
 			}
-			if ( NPC->client->ps.weapon == WP_DISRUPTOR && Any(NPCInfo->scriptFlags & SCF_ALT_FIRE) )
+			if ( NPC->client->ps.weapon == weapon_t::WP_DISRUPTOR && Any(NPCInfo->scriptFlags & scriptFlags_t::SCF_ALT_FIRE) )
 			{//a sniper
 				NPC_BehaviorSet_Sniper( bState );
 				return;
 			}
-			if ( NPC->client->ps.weapon == WP_THERMAL
-				|| NPC->client->ps.weapon == WP_MELEE )//FIXME: separate AI for melee fighters
+			if ( NPC->client->ps.weapon == weapon_t::WP_THERMAL
+				|| NPC->client->ps.weapon == weapon_t::WP_MELEE )//FIXME: separate AI for melee fighters
 			{//a grenadier
 				NPC_BehaviorSet_Grenadier( bState );
 				return;
@@ -2077,26 +2077,26 @@ void NPC_RunBehavior( team_t team, bState_t bState )
 			NPC_BehaviorSet_Stormtrooper( bState );
 			break;
 
-		case TEAM_NEUTRAL:
+		case team_t::TEAM_NEUTRAL:
 
 			// special cases for enemy droids
-			if ( NPC->client->NPC_class == CLASS_PROTOCOL )
+			if ( NPC->client->NPC_class == class_t::CLASS_PROTOCOL )
 			{
 				NPC_BehaviorSet_Default(bState);
 			}
-			else if ( NPC->client->NPC_class == CLASS_UGNAUGHT
-				|| NPC->client->NPC_class == CLASS_JAWA )
+			else if ( NPC->client->NPC_class == class_t::CLASS_UGNAUGHT
+				|| NPC->client->NPC_class == class_t::CLASS_JAWA )
 			{//others, too?
 				NPC_BSCivilian_Default( bState );
 				return;
 			}
 			// Add special vehicle behavior here.
-			else if ( NPC->client->NPC_class == CLASS_VEHICLE )
+			else if ( NPC->client->NPC_class == class_t::CLASS_VEHICLE )
 			{
 				Vehicle_t *pVehicle = NPC->m_pVehicle;
 				if ( !pVehicle->m_pPilot && pVehicle->m_iBoarding==0 )
 				{
-					if (pVehicle->m_pVehicleInfo->type == VH_ANIMAL)
+					if (pVehicle->m_pVehicleInfo->type == vehicleType_t::VH_ANIMAL)
 					{
 						NPC_BehaviorSet_Animal( bState );
 					}
@@ -2114,7 +2114,7 @@ void NPC_RunBehavior( team_t team, bState_t bState )
 			break;
 
 		default:
-			if ( NPC->client->NPC_class == CLASS_SEEKER )
+			if ( NPC->client->NPC_class == class_t::CLASS_SEEKER )
 			{
 				NPC_BehaviorSet_Seeker(bState);
 			}
@@ -2137,12 +2137,12 @@ void NPC_RunBehavior( team_t team, bState_t bState )
 
 static bState_t G_CurrentBState( gNPC_t *gNPC )
 {
-	if ( gNPC->tempBehavior != BS_DEFAULT )
+	if ( gNPC->tempBehavior != bState_t::BS_DEFAULT )
 	{//Overrides normal behavior until cleared
 		return (gNPC->tempBehavior);
 	}
 
-	if( gNPC->behaviorState == BS_DEFAULT )
+	if( gNPC->behaviorState == bState_t::BS_DEFAULT )
 	{
 		gNPC->behaviorState = gNPC->defaultBehavior;
 	}
@@ -2169,7 +2169,7 @@ void NPC_ExecuteBState ( gentity_t *self)//, int msec )
 	//Lookmode must be reset every think cycle
 	if(NPC->delayScriptTime && NPC->delayScriptTime <= level.time)
 	{
-		G_ActivateBehavior( NPC, BSET_DELAYED);
+		G_ActivateBehavior( NPC, bSet_t::BSET_DELAYED);
 		NPC->delayScriptTime = 0;
 	}
 
@@ -2223,47 +2223,47 @@ void NPC_ExecuteBState ( gentity_t *self)//, int msec )
 
 	if ( NPC->enemy )
 	{
-		if(Any( NPC->enemy->flags & FL_DONT_SHOOT ))
+		if(Any( NPC->enemy->flags & gentityFlags_t::FL_DONT_SHOOT ))
 		{
-			ucmd.buttons &= ~BUTTON_ATTACK;
-			ucmd.buttons &= ~BUTTON_ALT_ATTACK;
+			ucmd.buttons &= ~buttonFlags_t::BUTTON_ATTACK;
+			ucmd.buttons &= ~buttonFlags_t::BUTTON_ALT_ATTACK;
 		}
-		else if ( NPC->client->playerTeam != TEAM_ENEMY //not an enemy
-			&& (NPC->client->playerTeam != TEAM_FREE || (NPC->client->NPC_class == CLASS_TUSKEN && Q_irand( 0, 4 )))//not a rampaging creature or I'm a tusken and I feel generous (temporarily)
+		else if ( NPC->client->playerTeam != team_t::TEAM_ENEMY //not an enemy
+			&& (NPC->client->playerTeam != team_t::TEAM_FREE || (NPC->client->NPC_class == class_t::CLASS_TUSKEN && Q_irand( 0, 4 )))//not a rampaging creature or I'm a tusken and I feel generous (temporarily)
 			&& NPC->enemy->NPC
-			&& (NPC->enemy->NPC->surrenderTime > level.time || Any(NPC->enemy->NPC->scriptFlags&SCF_FORCED_MARCH)) )
+			&& (NPC->enemy->NPC->surrenderTime > level.time || Any(NPC->enemy->NPC->scriptFlags&scriptFlags_t::SCF_FORCED_MARCH)) )
 		{//don't shoot someone who's surrendering if you're a good guy
-			ucmd.buttons &= ~BUTTON_ATTACK;
-			ucmd.buttons &= ~BUTTON_ALT_ATTACK;
+			ucmd.buttons &= ~buttonFlags_t::BUTTON_ATTACK;
+			ucmd.buttons &= ~buttonFlags_t::BUTTON_ALT_ATTACK;
 		}
 
-		if(client->ps.weaponstate == WEAPON_IDLE)
+		if(client->ps.weaponstate == weaponstate_t::WEAPON_IDLE)
 		{
-			client->ps.weaponstate = WEAPON_READY;
+			client->ps.weaponstate = weaponstate_t::WEAPON_READY;
 		}
 	}
 	else
 	{
-		if(client->ps.weaponstate == WEAPON_READY)
+		if(client->ps.weaponstate == weaponstate_t::WEAPON_READY)
 		{
-			client->ps.weaponstate = WEAPON_IDLE;
+			client->ps.weaponstate = weaponstate_t::WEAPON_IDLE;
 		}
 	}
 
-	if(!Any(ucmd.buttons & BUTTON_ATTACK) && NPC->attackDebounceTime > level.time)
+	if(!Any(ucmd.buttons & buttonFlags_t::BUTTON_ATTACK) && NPC->attackDebounceTime > level.time)
 	{//We just shot but aren't still shooting, so hold the gun up for a while
-		if(client->ps.weapon == WP_SABER )
+		if(client->ps.weapon == weapon_t::WP_SABER )
 		{//One-handed
-			NPC_SetAnim(NPC,SETANIM_TORSO,TORSO_WEAPONREADY1,SETANIM_FLAG_NORMAL);
+			NPC_SetAnim(NPC,setAnimParts_t::SETANIM_TORSO,animNumber_t::TORSO_WEAPONREADY1,setAnimFlags_t::SETANIM_FLAG_NORMAL);
 		}
-		else if(client->ps.weapon == WP_BRYAR_PISTOL)
+		else if(client->ps.weapon == weapon_t::WP_BRYAR_PISTOL)
 		{//Sniper pose
-			NPC_SetAnim(NPC,SETANIM_TORSO,TORSO_WEAPONREADY3,SETANIM_FLAG_NORMAL);
+			NPC_SetAnim(NPC,setAnimParts_t::SETANIM_TORSO,animNumber_t::TORSO_WEAPONREADY3,setAnimFlags_t::SETANIM_FLAG_NORMAL);
 		}
 		/*//FIXME: What's the proper solution here?
 		else
 		{//heavy weapon
-			NPC_SetAnim(NPC,SETANIM_TORSO,TORSO_WEAPONREADY3,SETANIM_FLAG_NORMAL);
+			NPC_SetAnim(NPC,setAnimParts_t::SETANIM_TORSO,animNumber_t::TORSO_WEAPONREADY3,setAnimFlags_t::SETANIM_FLAG_NORMAL);
 		}
 		*/
 	}
@@ -2280,7 +2280,7 @@ void NPC_ExecuteBState ( gentity_t *self)//, int msec )
 	memcpy( &NPCInfo->last_ucmd, &ucmd, sizeof( usercmd_t ) );
 	if ( !NPCInfo->attackHoldTime )
 	{
-		NPCInfo->last_ucmd.buttons &= ~(BUTTON_ATTACK|BUTTON_ALT_ATTACK|BUTTON_FORCE_FOCUS);//so we don't fire twice in one think
+		NPCInfo->last_ucmd.buttons &= ~(buttonFlags_t::BUTTON_ATTACK|buttonFlags_t::BUTTON_ALT_ATTACK|buttonFlags_t::BUTTON_FORCE_FOCUS);//so we don't fire twice in one think
 	}
 //============================================================================
 	NPC_CheckAttackScript();
@@ -2305,7 +2305,7 @@ void NPC_ExecuteBState ( gentity_t *self)//, int msec )
 	{
 		std::optional<animNumber_t>	la, ta;
 
-		for(animNumber_t i = FACE_TALK0; i < MAX_ANIMATIONS; i++)
+		for(animNumber_t i = animNumber_t::FACE_TALK0; i < animNumber_t::MAX_ANIMATIONS; i++)
 		{
 			if( NPC->client->ps.legsAnim == i )
 			{
@@ -2337,7 +2337,7 @@ void NPC_CheckInSolid(void)
 	VectorCopy(NPC->currentOrigin, point);
 	point[2] -= 0.25;
 
-	gi.trace(&trace, NPC->currentOrigin, NPC->mins, NPC->maxs, point, NPC->s.number, NPC->clipmask, G2_NOCOLLIDE, 0);
+	gi.trace(&trace, NPC->currentOrigin, NPC->mins, NPC->maxs, point, NPC->s.number, NPC->clipmask, EG2_Collision::G2_NOCOLLIDE, 0);
 	if(!trace.startsolid && !trace.allsolid)
 	{
 		VectorCopy(NPC->currentOrigin, NPCInfo->lastClearOrigin);
@@ -2376,7 +2376,7 @@ void NPC_Think ( gentity_t *self)//, int msec )
 	VectorCopy( self->client->ps.moveDir, oldMoveDir );
 	VectorClear( self->client->ps.moveDir );
 	// see if NPC ai is frozen
-	if ( debugNPCFreeze->integer || Any( NPC->svFlags & SVF_ICARUS_FREEZE ) )
+	if ( debugNPCFreeze->integer || Any( NPC->svFlags & svFlags_t::SVF_ICARUS_FREEZE ) )
 	{
 		NPC_UpdateAngles( true, true );
 		ClientThink(self->s.number, &ucmd);
@@ -2407,7 +2407,7 @@ void NPC_Think ( gentity_t *self)//, int msec )
 	// TODO! Tauntaun's (and other creature vehicles?) think, we'll need to make an exception here to allow that.
 
 	if ( self->client
-		&& self->client->NPC_class == CLASS_VEHICLE
+		&& self->client->NPC_class == class_t::CLASS_VEHICLE
 		&& self->NPC_type
 		&& ( !self->m_pVehicle->m_pVehicleInfo->Inhabited( self->m_pVehicle ) ) )
 	{//empty swoop logic
@@ -2439,20 +2439,20 @@ void NPC_Think ( gentity_t *self)//, int msec )
 			{
 				switch( self->client->NPC_class )
 				{
-				case CLASS_R2D2:				// droid
-					G_SoundOnEnt(self, CHAN_AUTO, va("sound/chars/r2d2/misc/r2d2talk0%d.wav",Q_irand(1, 3)) );
+				case class_t::CLASS_R2D2:				// droid
+					G_SoundOnEnt(self, soundChannel_t::CHAN_AUTO, va("sound/chars/r2d2/misc/r2d2talk0%d.wav",Q_irand(1, 3)) );
 					break;
-				case CLASS_R5D2:				// droid
-					G_SoundOnEnt(self, CHAN_AUTO, va("sound/chars/r5d2/misc/r5talk%d.wav",Q_irand(1, 4)) );
+				case class_t::CLASS_R5D2:				// droid
+					G_SoundOnEnt(self, soundChannel_t::CHAN_AUTO, va("sound/chars/r5d2/misc/r5talk%d.wav",Q_irand(1, 4)) );
 					break;
-				case CLASS_PROBE:				// droid
-					G_SoundOnEnt(self, CHAN_AUTO, va("sound/chars/probe/misc/probetalk%d.wav",Q_irand(1, 3)) );
+				case class_t::CLASS_PROBE:				// droid
+					G_SoundOnEnt(self, soundChannel_t::CHAN_AUTO, va("sound/chars/probe/misc/probetalk%d.wav",Q_irand(1, 3)) );
 					break;
-				case CLASS_MOUSE:				// droid
-					G_SoundOnEnt(self, CHAN_AUTO, va("sound/chars/mouse/misc/mousego%d.wav",Q_irand(1, 3)) );
+				case class_t::CLASS_MOUSE:				// droid
+					G_SoundOnEnt(self, soundChannel_t::CHAN_AUTO, va("sound/chars/mouse/misc/mousego%d.wav",Q_irand(1, 3)) );
 					break;
-				case CLASS_GONK:				// droid
-					G_SoundOnEnt(self, CHAN_AUTO, va("sound/chars/gonk/misc/gonktalk%d.wav",Q_irand(1, 2)) );
+				case class_t::CLASS_GONK:				// droid
+					G_SoundOnEnt(self, soundChannel_t::CHAN_AUTO, va("sound/chars/gonk/misc/gonktalk%d.wav",Q_irand(1, 2)) );
 					break;
 				default:
 					break;
@@ -2474,12 +2474,12 @@ void NPC_Think ( gentity_t *self)//, int msec )
 #if	AI_TIMERS
 		int	startTime = GetTime(0);
 #endif//	AI_TIMERS
-		if ( NPC->s.eType != ET_PLAYER )
+		if ( NPC->s.eType != entityType_t::ET_PLAYER )
 		{//Something drastic happened in our script
 			return;
 		}
 
-		if ( NPC->s.weapon == WP_SABER && g_spskill->integer >= 2 && NPCInfo->rank > RANK_LT_JG )
+		if ( NPC->s.weapon == weapon_t::WP_SABER && g_spskill->integer >= 2 && NPCInfo->rank > rank_t::RANK_LT_JG )
 		{//Jedi think faster on hard difficulty, except low-rank (reborn)
 			NPCInfo->nextBStateThink = level.time + FRAMETIME/2;
 		}
@@ -2503,9 +2503,9 @@ void NPC_Think ( gentity_t *self)//, int msec )
 	else
 	{
 		if ( NPC->client
-			&& NPC->client->NPC_class == CLASS_ROCKETTROOPER
-			&& Any(NPC->client->ps.eFlags&EF_FORCE_GRIPPED)
-			&& NPC->client->moveType == MT_FLYSWIM
+			&& NPC->client->NPC_class == class_t::CLASS_ROCKETTROOPER
+			&& Any(NPC->client->ps.eFlags&entityFlags_t::EF_FORCE_GRIPPED)
+			&& NPC->client->moveType == movetype_t::MT_FLYSWIM
 			&& NPC->client->ps.groundEntityNum == ENTITYNUM_NONE )
 		{//reduce velocity
 			VectorScale( NPC->client->ps.velocity, 0.75f, NPC->client->ps.velocity );
@@ -2535,11 +2535,11 @@ void NPC_Think ( gentity_t *self)//, int msec )
 
 void NPC_InitAI ( void )
 {
-	debugNPCAI = gi.cvar ( "d_npcai", "0", CVAR_CHEAT );
-	debugNPCFreeze = gi.cvar ( "d_npcfreeze", "0", CVAR_CHEAT);
-	d_JediAI = gi.cvar ( "d_JediAI", "0", CVAR_CHEAT );
-	d_noGroupAI = gi.cvar ( "d_noGroupAI", "0", CVAR_CHEAT );
-	d_asynchronousGroupAI = gi.cvar ( "d_asynchronousGroupAI", "1", CVAR_CHEAT );
+	debugNPCAI = gi.cvar ( "d_npcai", "0", cvarFlags_t::CVAR_CHEAT );
+	debugNPCFreeze = gi.cvar ( "d_npcfreeze", "0", cvarFlags_t::CVAR_CHEAT);
+	d_JediAI = gi.cvar ( "d_JediAI", "0", cvarFlags_t::CVAR_CHEAT );
+	d_noGroupAI = gi.cvar ( "d_noGroupAI", "0", cvarFlags_t::CVAR_CHEAT );
+	d_asynchronousGroupAI = gi.cvar ( "d_asynchronousGroupAI", "1", cvarFlags_t::CVAR_CHEAT );
 
 	//0 = never (BORING)
 	//1 = kyle only
@@ -2549,9 +2549,9 @@ void NPC_InitAI ( void )
 	//5 = kyle and any enemy
 	//6 = also when kyle takes pain or enemy jedi dodges player saber swing or does an acrobatic evasion
 	// NOTE : I also create this in UI_Init()
-	d_slowmodeath = gi.cvar ( "d_slowmodeath", "3", CVAR_ARCHIVE );//save this setting
+	d_slowmodeath = gi.cvar ( "d_slowmodeath", "3", cvarFlags_t::CVAR_ARCHIVE );//save this setting
 
-	d_saberCombat = gi.cvar ( "d_saberCombat", "0", CVAR_CHEAT );
+	d_saberCombat = gi.cvar ( "d_saberCombat", "0", cvarFlags_t::CVAR_CHEAT );
 }
 
 /*
@@ -2570,7 +2570,7 @@ void NPC_InitAnimTable( void )
 {
 	for ( int i = 0; i < MAX_ANIM_FILES; i++ )
 	{
-		for ( animNumber_t j = FACE_TALK0; j < MAX_ANIMATIONS; j++ )
+		for ( animNumber_t j = animNumber_t::FACE_TALK0; j < animNumber_t::MAX_ANIMATIONS; j++ )
 		{
 			level.knownAnimFileSets[i].animations[j].firstFrame = 0;
 			level.knownAnimFileSets[i].animations[j].frameLerp = 100;
@@ -2584,14 +2584,14 @@ extern int G_ParseAnimFileSet( const char *skeletonName, const char *modelName=n
 void NPC_InitGame( void )
 {
 //	globals.NPCs = (gNPC_t *) gi.TagMalloc(game.maxclients * sizeof(game.bots[0]), TAG_GAME);
-	debugNPCName = gi.cvar ( "d_npc", "", CVAR_NONE  );
+	debugNPCName = gi.cvar ( "d_npc", "", cvarFlags_t::CVAR_NONE  );
 	NPC_LoadParms();
 	NPC_InitAI();
 	NPC_InitAnimTable();
 	G_ParseAnimFileSet("_humanoid");	//GET THIS CACHED NOW BEFORE CGAME STARTS
 	/*
 	ResetTeamCounters();
-	for ( int team = TEAM_FREE; team < TEAM_NUM_TEAMS; team++ )
+	for ( int team = team_t::TEAM_FREE; team < team_t::TEAM_NUM_TEAMS; team++ )
 	{
 		teamLastEnemyTime[team] = -10000;
 	}
@@ -2613,14 +2613,14 @@ void NPC_SetAnim(gentity_t	*ent,setAnimParts_t setAnimParts,animNumber_t anim,se
 			&& PM_LockedAnim( ent->client->ps.torsoAnim )
 			&& !PM_LockedAnim( anim ) )
 		{//nothing can override these special anims
-			setAnimParts &= ~SETANIM_TORSO;
+			setAnimParts &= ~setAnimParts_t::SETANIM_TORSO;
 		}
 
 		if ( ent->client->ps.legsAnimTimer
 			&& PM_LockedAnim( ent->client->ps.legsAnim )
 			&& !PM_LockedAnim( anim ) )
 		{//nothing can override these special anims
-			setAnimParts &= ~SETANIM_LEGS;
+			setAnimParts &= ~setAnimParts_t::SETANIM_LEGS;
 		}
 	}
 
@@ -2631,18 +2631,18 @@ void NPC_SetAnim(gentity_t	*ent,setAnimParts_t setAnimParts,animNumber_t anim,se
 
 	if(ent->client)
 	{//Players, NPCs
-		if (Any( setAnimFlags & SETANIM_FLAG_OVERRIDE ))
+		if (Any( setAnimFlags & setAnimFlags_t::SETANIM_FLAG_OVERRIDE ))
 		{
-			if (Any( setAnimParts & SETANIM_TORSO ))
+			if (Any( setAnimParts & setAnimParts_t::SETANIM_TORSO ))
 			{
-				if( Any( setAnimFlags & SETANIM_FLAG_RESTART ) || ent->client->ps.torsoAnim != anim )
+				if( Any( setAnimFlags & setAnimFlags_t::SETANIM_FLAG_RESTART ) || ent->client->ps.torsoAnim != anim )
 				{
 					PM_SetTorsoAnimTimer( ent, &ent->client->ps.torsoAnimTimer, 0 );
 				}
 			}
-			if (Any( setAnimParts & SETANIM_LEGS ))
+			if (Any( setAnimParts & setAnimParts_t::SETANIM_LEGS ))
 			{
-				if( Any( setAnimFlags & SETANIM_FLAG_RESTART ) || ent->client->ps.legsAnim != anim )
+				if( Any( setAnimFlags & setAnimFlags_t::SETANIM_FLAG_RESTART ) || ent->client->ps.legsAnim != anim )
 				{
 					PM_SetLegsAnimTimer( ent, &ent->client->ps.legsAnimTimer, 0 );
 				}
@@ -2654,18 +2654,18 @@ void NPC_SetAnim(gentity_t	*ent,setAnimParts_t setAnimParts,animNumber_t anim,se
 	}
 	else
 	{//bodies, etc.
-		if (Any( setAnimFlags & SETANIM_FLAG_OVERRIDE ))
+		if (Any( setAnimFlags & setAnimFlags_t::SETANIM_FLAG_OVERRIDE ))
 		{
-			if (Any( setAnimParts & SETANIM_TORSO ))
+			if (Any( setAnimParts & setAnimParts_t::SETANIM_TORSO ))
 			{
-				if( Any( setAnimFlags & SETANIM_FLAG_RESTART ) || ent->s.torsoAnim != anim )
+				if( Any( setAnimFlags & setAnimFlags_t::SETANIM_FLAG_RESTART ) || ent->s.torsoAnim != anim )
 				{
 					PM_SetTorsoAnimTimer( ent, &ent->s.torsoAnimTimer, 0 );
 				}
 			}
-			if (Any( setAnimParts & SETANIM_LEGS ))
+			if (Any( setAnimParts & setAnimParts_t::SETANIM_LEGS ))
 			{
-				if( Any( setAnimFlags & SETANIM_FLAG_RESTART ) || ent->s.legsAnim != anim )
+				if( Any( setAnimFlags & setAnimFlags_t::SETANIM_FLAG_RESTART ) || ent->s.legsAnim != anim )
 				{
 					PM_SetLegsAnimTimer( ent, &ent->s.legsAnimTimer, 0 );
 				}

@@ -155,7 +155,6 @@ public:
 		RP_SET_PELVIS_OFFSET,  // this actually does nothing but set the pelvisAnglesOffset, and pelvisPositionOffset
 		RP_DISABLE_EFFECTORS  // this removes effectors given by the effectorsToTurnOff member
 	};
-	using enum ERagPhase;
 	vec3_t angles;
 	vec3_t position;
 	vec3_t scale;

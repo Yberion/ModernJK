@@ -28,7 +28,7 @@ bool	G_SpawnString( const char *key, const char *defaultString, char **out ) {
 
 	if ( !level.spawning ) {
 		*out = (char *)defaultString;
-//		trap->Error( ERR_DROP, "G_SpawnString() called while not spawning" );
+//		trap->Error( errorParm_t::ERR_DROP, "G_SpawnString() called while not spawning" );
 	}
 
 	for ( i = 0 ; i < level.numSpawnVars ; i++ ) {
@@ -117,7 +117,6 @@ enum class fieldtype_t {
 	F_PARM15,			// Special case for parms
 	F_PARM16			// Special case for parms
 };
-using enum fieldtype_t;
 template <> inline constexpr bool enableEnumArithmetic<fieldtype_t> = true;
 
 typedef struct field_s {
@@ -127,90 +126,90 @@ typedef struct field_s {
 } field_t;
 
 field_t fields[] = {
-	{ "alliedteam",				FOFS( alliedTeam ),						F_TEAM },//for misc_turrets
-	{ "angerscript",			FOFS( behaviorSet.elems[to_underlying( BSET_ANGER )] ),		F_STRING },//name of script to run
-	{ "angle",					FOFS( s.angles ),						F_ANGLEHACK },
-	{ "angles",					FOFS( s.angles ),						F_VECTOR },
-	{ "attackscript",			FOFS( behaviorSet.elems[to_underlying( BSET_ATTACK )] ),		F_STRING },//name of script to run
-	{ "awakescript",			FOFS( behaviorSet.elems[to_underlying( BSET_AWAKE )] ),		F_STRING },//name of script to run
-	{ "blockedscript",			FOFS( behaviorSet.elems[to_underlying( BSET_BLOCKED )] ),		F_STRING },//name of script to run
-	{ "chunksize",				FOFS( mass ),							F_FLOAT },//for func_breakables
-	{ "classname",				FOFS( classname ),						F_STRING },
-	{ "closetarget",			FOFS( closetarget ),					F_STRING },//for doors
-	{ "count",					FOFS( count ),							F_INT },
-	{ "deathscript",			FOFS( behaviorSet.elems[to_underlying( BSET_DEATH )] ),		F_STRING },//name of script to run
-	{ "delay",					FOFS( delay ),							F_INT },
-	{ "delayscript",			FOFS( behaviorSet.elems[to_underlying( BSET_DELAYED )] ),		F_STRING },//name of script to run
-	{ "delayscripttime",		FOFS( delayScriptTime ),				F_INT },//name of script to run
-	{ "dmg",					FOFS( damage ),							F_INT },
-	{ "ffdeathscript",			FOFS( behaviorSet.elems[to_underlying( BSET_FFDEATH )] ),		F_STRING },//name of script to run
-	{ "ffirescript",			FOFS( behaviorSet.elems[to_underlying( BSET_FFIRE )] ),		F_STRING },//name of script to run
-	{ "fleescript",				FOFS( behaviorSet.elems[to_underlying( BSET_FLEE )] ),			F_STRING },//name of script to run
-	{ "fullname",				FOFS( fullName ),						F_STRING },
-	{ "goaltarget",				FOFS( goaltarget ),						F_STRING },//for siege
-	{ "healingclass",			FOFS( healingclass ),					F_STRING },
-	{ "healingrate",			FOFS( healingrate ),					F_INT },
-	{ "healingsound",			FOFS( healingsound ),					F_STRING },
-	{ "health",					FOFS( health ),							F_INT },
-	{ "idealclass",				FOFS( idealclass ),						F_STRING },//for siege spawnpoints
-	{ "linear",					FOFS( alt_fire ),						F_BOOL },//for movers to use linear movement
-	{ "lostenemyscript",		FOFS( behaviorSet.elems[to_underlying( BSET_LOSTENEMY )] ),	F_STRING },//name of script to run
-	{ "message",				FOFS( message ),						F_STRING },
-	{ "mindtrickscript",		FOFS( behaviorSet.elems[to_underlying( BSET_MINDTRICK )] ),	F_STRING },//name of script to run
-	{ "model",					FOFS( model ),							F_STRING },
-	{ "model2",					FOFS( model2 ),							F_STRING },
-	{ "npc_target",				FOFS( NPC_target ),						F_STRING },
-	{ "npc_target2",			FOFS( target2 ),						F_STRING },//NPC_spawner only
-	{ "npc_target4",			FOFS( target4 ),						F_STRING },//NPC_spawner only
-	{ "npc_targetname",			FOFS( NPC_targetname ),					F_STRING },
-	{ "npc_type",				FOFS( NPC_type ),						F_STRING },
-	{ "numchunks",				FOFS( radius ),							F_FLOAT },//for func_breakables
-	{ "opentarget",				FOFS( opentarget ),						F_STRING },//for doors
-	{ "origin",					FOFS( s.origin ),						F_VECTOR },
-	{ "ownername",				FOFS( ownername ),						F_STRING },
-	{ "painscript",				FOFS( behaviorSet.elems[to_underlying( BSET_PAIN )] ),			F_STRING },//name of script to run
-	{ "paintarget",				FOFS( paintarget ),						F_STRING },//for doors
-	{ "parm1",					0,										F_PARM1 },
-	{ "parm10",					0,										F_PARM10 },
-	{ "parm11",					0,										F_PARM11 },
-	{ "parm12",					0,										F_PARM12 },
-	{ "parm13",					0,										F_PARM13 },
-	{ "parm14",					0,										F_PARM14 },
-	{ "parm15",					0,										F_PARM15 },
-	{ "parm16",					0,										F_PARM16 },
-	{ "parm2",					0,										F_PARM2 },
-	{ "parm3",					0,										F_PARM3 },
-	{ "parm4",					0,										F_PARM4 },
-	{ "parm5",					0,										F_PARM5 },
-	{ "parm6",					0,										F_PARM6 },
-	{ "parm7",					0,										F_PARM7 },
-	{ "parm8",					0,										F_PARM8 },
-	{ "parm9",					0,										F_PARM9 },
-	{ "radius",					FOFS( radius ),							F_FLOAT },
-	{ "random",					FOFS( random ),							F_FLOAT },
-	{ "roffname",				FOFS( roffname ),						F_STRING },
-	{ "rofftarget",				FOFS( rofftarget ),						F_STRING },
-	{ "script_targetname",		FOFS( script_targetname ),				F_STRING },//scripts look for this when "affecting"
-	{ "soundset",				FOFS( soundSet ),						F_STRING },
-	{ "spawnflags",				FOFS( spawnflags ),						F_INT },
-	{ "spawnscript",			FOFS( behaviorSet.elems[to_underlying( BSET_SPAWN )] ),		F_STRING },//name of script to run
-	{ "speed",					FOFS( speed ),							F_FLOAT },
-	{ "target",					FOFS( target ),							F_STRING },
-	{ "target2",				FOFS( target2 ),						F_STRING },
-	{ "target3",				FOFS( target3 ),						F_STRING },
-	{ "target4",				FOFS( target4 ),						F_STRING },
-	{ "target5",				FOFS( target5 ),						F_STRING },
-	{ "target6",				FOFS( target6 ),						F_STRING },
-	{ "targetname",				FOFS( targetname ),						F_STRING },
-	{ "targetshadername",		FOFS( targetShaderName ),				F_STRING },
-	{ "targetshadernewname",	FOFS( targetShaderNewName ),			F_STRING },
-	{ "team",					FOFS( team ),							F_STRING },
-	{ "teamnodmg",				FOFS( teamnodmg ),						F_TEAM },
-	{ "teamowner",				FOFS( s.teamowner ),					F_INT },
-	{ "teamuser",				FOFS( alliedTeam ),						F_TEAM },
-	{ "usescript",				FOFS( behaviorSet.elems[to_underlying( BSET_USE )] ),			F_STRING },//name of script to run
-	{ "victoryscript",			FOFS( behaviorSet.elems[to_underlying( BSET_VICTORY )] ),		F_STRING },//name of script to run
-	{ "wait",					FOFS( wait ),							F_FLOAT },
+	{ "alliedteam",				FOFS( alliedTeam ),						fieldtype_t::F_TEAM },//for misc_turrets
+	{ "angerscript",			FOFS( behaviorSet.elems[to_underlying( bSet_t::BSET_ANGER )] ),		fieldtype_t::F_STRING },//name of script to run
+	{ "angle",					FOFS( s.angles ),						fieldtype_t::F_ANGLEHACK },
+	{ "angles",					FOFS( s.angles ),						fieldtype_t::F_VECTOR },
+	{ "attackscript",			FOFS( behaviorSet.elems[to_underlying( bSet_t::BSET_ATTACK )] ),		fieldtype_t::F_STRING },//name of script to run
+	{ "awakescript",			FOFS( behaviorSet.elems[to_underlying( bSet_t::BSET_AWAKE )] ),		fieldtype_t::F_STRING },//name of script to run
+	{ "blockedscript",			FOFS( behaviorSet.elems[to_underlying( bSet_t::BSET_BLOCKED )] ),		fieldtype_t::F_STRING },//name of script to run
+	{ "chunksize",				FOFS( mass ),							fieldtype_t::F_FLOAT },//for func_breakables
+	{ "classname",				FOFS( classname ),						fieldtype_t::F_STRING },
+	{ "closetarget",			FOFS( closetarget ),					fieldtype_t::F_STRING },//for doors
+	{ "count",					FOFS( count ),							fieldtype_t::F_INT },
+	{ "deathscript",			FOFS( behaviorSet.elems[to_underlying( bSet_t::BSET_DEATH )] ),		fieldtype_t::F_STRING },//name of script to run
+	{ "delay",					FOFS( delay ),							fieldtype_t::F_INT },
+	{ "delayscript",			FOFS( behaviorSet.elems[to_underlying( bSet_t::BSET_DELAYED )] ),		fieldtype_t::F_STRING },//name of script to run
+	{ "delayscripttime",		FOFS( delayScriptTime ),				fieldtype_t::F_INT },//name of script to run
+	{ "dmg",					FOFS( damage ),							fieldtype_t::F_INT },
+	{ "ffdeathscript",			FOFS( behaviorSet.elems[to_underlying( bSet_t::BSET_FFDEATH )] ),		fieldtype_t::F_STRING },//name of script to run
+	{ "ffirescript",			FOFS( behaviorSet.elems[to_underlying( bSet_t::BSET_FFIRE )] ),		fieldtype_t::F_STRING },//name of script to run
+	{ "fleescript",				FOFS( behaviorSet.elems[to_underlying( bSet_t::BSET_FLEE )] ),			fieldtype_t::F_STRING },//name of script to run
+	{ "fullname",				FOFS( fullName ),						fieldtype_t::F_STRING },
+	{ "goaltarget",				FOFS( goaltarget ),						fieldtype_t::F_STRING },//for siege
+	{ "healingclass",			FOFS( healingclass ),					fieldtype_t::F_STRING },
+	{ "healingrate",			FOFS( healingrate ),					fieldtype_t::F_INT },
+	{ "healingsound",			FOFS( healingsound ),					fieldtype_t::F_STRING },
+	{ "health",					FOFS( health ),							fieldtype_t::F_INT },
+	{ "idealclass",				FOFS( idealclass ),						fieldtype_t::F_STRING },//for siege spawnpoints
+	{ "linear",					FOFS( alt_fire ),						fieldtype_t::F_BOOL },//for movers to use linear movement
+	{ "lostenemyscript",		FOFS( behaviorSet.elems[to_underlying( bSet_t::BSET_LOSTENEMY )] ),	fieldtype_t::F_STRING },//name of script to run
+	{ "message",				FOFS( message ),						fieldtype_t::F_STRING },
+	{ "mindtrickscript",		FOFS( behaviorSet.elems[to_underlying( bSet_t::BSET_MINDTRICK )] ),	fieldtype_t::F_STRING },//name of script to run
+	{ "model",					FOFS( model ),							fieldtype_t::F_STRING },
+	{ "model2",					FOFS( model2 ),							fieldtype_t::F_STRING },
+	{ "npc_target",				FOFS( NPC_target ),						fieldtype_t::F_STRING },
+	{ "npc_target2",			FOFS( target2 ),						fieldtype_t::F_STRING },//NPC_spawner only
+	{ "npc_target4",			FOFS( target4 ),						fieldtype_t::F_STRING },//NPC_spawner only
+	{ "npc_targetname",			FOFS( NPC_targetname ),					fieldtype_t::F_STRING },
+	{ "npc_type",				FOFS( NPC_type ),						fieldtype_t::F_STRING },
+	{ "numchunks",				FOFS( radius ),							fieldtype_t::F_FLOAT },//for func_breakables
+	{ "opentarget",				FOFS( opentarget ),						fieldtype_t::F_STRING },//for doors
+	{ "origin",					FOFS( s.origin ),						fieldtype_t::F_VECTOR },
+	{ "ownername",				FOFS( ownername ),						fieldtype_t::F_STRING },
+	{ "painscript",				FOFS( behaviorSet.elems[to_underlying( bSet_t::BSET_PAIN )] ),			fieldtype_t::F_STRING },//name of script to run
+	{ "paintarget",				FOFS( paintarget ),						fieldtype_t::F_STRING },//for doors
+	{ "parm1",					0,										fieldtype_t::F_PARM1 },
+	{ "parm10",					0,										fieldtype_t::F_PARM10 },
+	{ "parm11",					0,										fieldtype_t::F_PARM11 },
+	{ "parm12",					0,										fieldtype_t::F_PARM12 },
+	{ "parm13",					0,										fieldtype_t::F_PARM13 },
+	{ "parm14",					0,										fieldtype_t::F_PARM14 },
+	{ "parm15",					0,										fieldtype_t::F_PARM15 },
+	{ "parm16",					0,										fieldtype_t::F_PARM16 },
+	{ "parm2",					0,										fieldtype_t::F_PARM2 },
+	{ "parm3",					0,										fieldtype_t::F_PARM3 },
+	{ "parm4",					0,										fieldtype_t::F_PARM4 },
+	{ "parm5",					0,										fieldtype_t::F_PARM5 },
+	{ "parm6",					0,										fieldtype_t::F_PARM6 },
+	{ "parm7",					0,										fieldtype_t::F_PARM7 },
+	{ "parm8",					0,										fieldtype_t::F_PARM8 },
+	{ "parm9",					0,										fieldtype_t::F_PARM9 },
+	{ "radius",					FOFS( radius ),							fieldtype_t::F_FLOAT },
+	{ "random",					FOFS( random ),							fieldtype_t::F_FLOAT },
+	{ "roffname",				FOFS( roffname ),						fieldtype_t::F_STRING },
+	{ "rofftarget",				FOFS( rofftarget ),						fieldtype_t::F_STRING },
+	{ "script_targetname",		FOFS( script_targetname ),				fieldtype_t::F_STRING },//scripts look for this when "affecting"
+	{ "soundset",				FOFS( soundSet ),						fieldtype_t::F_STRING },
+	{ "spawnflags",				FOFS( spawnflags ),						fieldtype_t::F_INT },
+	{ "spawnscript",			FOFS( behaviorSet.elems[to_underlying( bSet_t::BSET_SPAWN )] ),		fieldtype_t::F_STRING },//name of script to run
+	{ "speed",					FOFS( speed ),							fieldtype_t::F_FLOAT },
+	{ "target",					FOFS( target ),							fieldtype_t::F_STRING },
+	{ "target2",				FOFS( target2 ),						fieldtype_t::F_STRING },
+	{ "target3",				FOFS( target3 ),						fieldtype_t::F_STRING },
+	{ "target4",				FOFS( target4 ),						fieldtype_t::F_STRING },
+	{ "target5",				FOFS( target5 ),						fieldtype_t::F_STRING },
+	{ "target6",				FOFS( target6 ),						fieldtype_t::F_STRING },
+	{ "targetname",				FOFS( targetname ),						fieldtype_t::F_STRING },
+	{ "targetshadername",		FOFS( targetShaderName ),				fieldtype_t::F_STRING },
+	{ "targetshadernewname",	FOFS( targetShaderNewName ),			fieldtype_t::F_STRING },
+	{ "team",					FOFS( team ),							fieldtype_t::F_STRING },
+	{ "teamnodmg",				FOFS( teamnodmg ),						fieldtype_t::F_TEAM },
+	{ "teamowner",				FOFS( s.teamowner ),					fieldtype_t::F_INT },
+	{ "teamuser",				FOFS( alliedTeam ),						fieldtype_t::F_TEAM },
+	{ "usescript",				FOFS( behaviorSet.elems[to_underlying( bSet_t::BSET_USE )] ),			fieldtype_t::F_STRING },//name of script to run
+	{ "victoryscript",			FOFS( behaviorSet.elems[to_underlying( bSet_t::BSET_VICTORY )] ),		fieldtype_t::F_STRING },//name of script to run
+	{ "wait",					FOFS( wait ),							fieldtype_t::F_FLOAT },
 };
 
 typedef struct spawn_s {
@@ -449,11 +448,11 @@ void SP_gametype_item ( gentity_t* ent )
 	{
 		if ( Q_stricmp ( level.mTeamFilter, "red") == 0 )
 		{
-			team = TEAM_RED;
+			team = team_t::TEAM_RED;
 		}
 		else if ( Q_stricmp ( level.mTeamFilter, "blue") == 0 )
 		{
-			team = TEAM_BLUE;
+			team = team_t::TEAM_BLUE;
 		}
 	}
 
@@ -463,7 +462,7 @@ void SP_gametype_item ( gentity_t* ent )
 		{
 			if (strstr(ent->targetname, "flag"))
 			{
-				if (team == TEAM_RED)
+				if (team == team_t::TEAM_RED)
 				{
 					item = BG_FindItem("team_CTF_redflag");
 				}
@@ -826,10 +825,10 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent )
 		b = (byte *)ent;
 
 		switch( f->type ) {
-		case F_STRING:
+		case fieldtype_t::F_STRING:
 			*(char **)(b+f->ofs) = G_NewString (value);
 			break;
-		case F_VECTOR:
+		case fieldtype_t::F_VECTOR:
 			if ( Q_ScanFloats( value, vec, 3 ) == 3 ) {
 				((float *)(b+f->ofs))[0] = vec[0];
 				((float *)(b+f->ofs))[1] = vec[1];
@@ -840,41 +839,41 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent )
 				((float *)(b+f->ofs))[0] = ((float *)(b+f->ofs))[1] = ((float *)(b+f->ofs))[2] = 0.0f;
 			}
 			break;
-		case F_INT:
+		case fieldtype_t::F_INT:
 			*(int *)(b+f->ofs) = atoi(value);
 			break;
-		case F_BOOL:
+		case fieldtype_t::F_BOOL:
 			*(bool *)(b+f->ofs) = atoi(value) != 0;
 			break;
-		case F_TEAM:
+		case fieldtype_t::F_TEAM:
 			*(team_t *)(b+f->ofs) = static_cast<team_t>( atoi(value) );
 			break;
-		case F_FLOAT:
+		case fieldtype_t::F_FLOAT:
 			*(float *)(b+f->ofs) = Q_atof(value);
 			break;
-		case F_ANGLEHACK:
+		case fieldtype_t::F_ANGLEHACK:
 			v = Q_atof(value);
 			((float *)(b+f->ofs))[0] = 0;
 			((float *)(b+f->ofs))[1] = v;
 			((float *)(b+f->ofs))[2] = 0;
 			break;
-		case F_PARM1:
-		case F_PARM2:
-		case F_PARM3:
-		case F_PARM4:
-		case F_PARM5:
-		case F_PARM6:
-		case F_PARM7:
-		case F_PARM8:
-		case F_PARM9:
-		case F_PARM10:
-		case F_PARM11:
-		case F_PARM12:
-		case F_PARM13:
-		case F_PARM14:
-		case F_PARM15:
-		case F_PARM16:
-			Q3_SetParm( ent->s.number, (f->type - F_PARM1), (char *) value );
+		case fieldtype_t::F_PARM1:
+		case fieldtype_t::F_PARM2:
+		case fieldtype_t::F_PARM3:
+		case fieldtype_t::F_PARM4:
+		case fieldtype_t::F_PARM5:
+		case fieldtype_t::F_PARM6:
+		case fieldtype_t::F_PARM7:
+		case fieldtype_t::F_PARM8:
+		case fieldtype_t::F_PARM9:
+		case fieldtype_t::F_PARM10:
+		case fieldtype_t::F_PARM11:
+		case fieldtype_t::F_PARM12:
+		case fieldtype_t::F_PARM13:
+		case fieldtype_t::F_PARM14:
+		case fieldtype_t::F_PARM15:
+		case fieldtype_t::F_PARM16:
+			Q3_SetParm( ent->s.number, (f->type - fieldtype_t::F_PARM1), (char *) value );
 			break;
 		}
 		return;
@@ -882,7 +881,7 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent )
 }
 
 #define ADJUST_AREAPORTAL() \
-	if(ent->s.eType == ET_MOVER) \
+	if(ent->s.eType == entityType_t::ET_MOVER) \
 	{ \
 		trap->LinkEntity((sharedEntity_t *)ent); \
 		trap->AdjustAreaPortalState((sharedEntity_t *)ent, true); \
@@ -901,7 +900,7 @@ void G_SpawnGEntityFromSpawnVars( bool inSubBSP ) {
 	gentity_t	*ent;
 	char		*s, *value;
 	const char	*gametypeName;
-	static const EnumArray<const char *, gametype_t, GT_MAX_GAME_TYPE> gametypeNames = {"ffa", "holocron", "jedimaster", "duel", "powerduel", "single", "team", "siege", "ctf", "cty"};
+	static const EnumArray<const char *, gametype_t, gametype_t::GT_MAX_GAME_TYPE> gametypeNames = {"ffa", "holocron", "jedimaster", "duel", "powerduel", "single", "team", "siege", "ctf", "cty"};
 
 	// get the next free entity
 	ent = G_Spawn();
@@ -911,7 +910,7 @@ void G_SpawnGEntityFromSpawnVars( bool inSubBSP ) {
 	}
 
 	// check for "notsingle" flag
-	if ( level.gametype == GT_SINGLE_PLAYER ) {
+	if ( level.gametype == gametype_t::GT_SINGLE_PLAYER ) {
 		G_SpawnInt( "notsingle", "0", &i );
 		if ( i ) {
 			ADJUST_AREAPORTAL();
@@ -919,8 +918,8 @@ void G_SpawnGEntityFromSpawnVars( bool inSubBSP ) {
 			return;
 		}
 	}
-	// check for "notteam" flag (GT_FFA, GT_DUEL, GT_SINGLE_PLAYER)
-	if ( level.gametype >= GT_TEAM ) {
+	// check for "notteam" flag (gametype_t::GT_FFA, gametype_t::GT_DUEL, gametype_t::GT_SINGLE_PLAYER)
+	if ( level.gametype >= gametype_t::GT_TEAM ) {
 		G_SpawnInt( "notteam", "0", &i );
 		if ( i ) {
 			ADJUST_AREAPORTAL();
@@ -937,7 +936,7 @@ void G_SpawnGEntityFromSpawnVars( bool inSubBSP ) {
 	}
 
 	if( G_SpawnString( "gametype", nullptr, &value ) ) {
-		if( level.gametype >= GT_FFA && level.gametype < GT_MAX_GAME_TYPE ) {
+		if( level.gametype >= gametype_t::GT_FFA && level.gametype < gametype_t::GT_MAX_GAME_TYPE ) {
 			gametypeName = gametypeNames[level.gametype];
 
 			s = strstr( value, gametypeName );
@@ -967,7 +966,7 @@ void G_SpawnGEntityFromSpawnVars( bool inSubBSP ) {
 		{
 			if ( Q_strncmp( "NPC_", ent->classname, 4 ) != 0 )
 			{//Not an NPC_spawner (rww - probably don't even care for MP, but whatever)
-				G_ActivateBehavior( ent, BSET_SPAWN );
+				G_ActivateBehavior( ent, bSet_t::BSET_SPAWN );
 			}
 		}
 	}
@@ -984,7 +983,7 @@ char *G_AddSpawnVarToken( const char *string ) {
 
 	l = strlen( string );
 	if ( level.numSpawnVarChars + l + 1 > MAX_SPAWN_VARS_CHARS ) {
-		trap->Error( ERR_DROP, "G_AddSpawnVarToken: MAX_SPAWN_VARS_CHARS" );
+		trap->Error( errorParm_t::ERR_DROP, "G_AddSpawnVarToken: MAX_SPAWN_VARS_CHARS" );
 	}
 
 	dest = level.spawnVarChars + level.numSpawnVarChars;
@@ -1167,14 +1166,14 @@ bool G_ParseSpawnVars( bool inSubBSP ) {
 		return false;
 	}
 	if ( com_token[0] != '{' ) {
-		trap->Error( ERR_DROP, "G_ParseSpawnVars: found %s when expecting {",com_token );
+		trap->Error( errorParm_t::ERR_DROP, "G_ParseSpawnVars: found %s when expecting {",com_token );
 	}
 
 	// go through all the key / value pairs
 	while ( 1 ) {
 		// parse key
 		if ( !trap->GetEntityToken( keyname, sizeof( keyname ) ) ) {
-			trap->Error( ERR_DROP, "G_ParseSpawnVars: EOF without closing brace" );
+			trap->Error( errorParm_t::ERR_DROP, "G_ParseSpawnVars: EOF without closing brace" );
 		}
 
 		if ( keyname[0] == '}' ) {
@@ -1183,14 +1182,14 @@ bool G_ParseSpawnVars( bool inSubBSP ) {
 
 		// parse value
 		if ( !trap->GetEntityToken( com_token, sizeof( com_token ) ) ) {
-			trap->Error( ERR_DROP, "G_ParseSpawnVars: EOF without closing brace" );
+			trap->Error( errorParm_t::ERR_DROP, "G_ParseSpawnVars: EOF without closing brace" );
 		}
 
 		if ( com_token[0] == '}' ) {
-			trap->Error( ERR_DROP, "G_ParseSpawnVars: closing brace without data" );
+			trap->Error( errorParm_t::ERR_DROP, "G_ParseSpawnVars: closing brace without data" );
 		}
 		if ( level.numSpawnVars == MAX_SPAWN_VARS ) {
-			trap->Error( ERR_DROP, "G_ParseSpawnVars: MAX_SPAWN_VARS" );
+			trap->Error( errorParm_t::ERR_DROP, "G_ParseSpawnVars: MAX_SPAWN_VARS" );
 		}
 		level.spawnVars[ level.numSpawnVars ][0] = G_AddSpawnVarToken( keyname );
 		level.spawnVars[ level.numSpawnVars ][1] = G_AddSpawnVarToken( com_token );
@@ -1408,7 +1407,7 @@ void SP_worldspawn( void )
 
 	G_SpawnString( "classname", "", &text );
 	if ( Q_stricmp( text, "worldspawn" ) ) {
-		trap->Error( ERR_DROP, "SP_worldspawn: The first entity isn't 'worldspawn'" );
+		trap->Error( errorParm_t::ERR_DROP, "SP_worldspawn: The first entity isn't 'worldspawn'" );
 	}
 
 	for ( i = 0 ; i < level.numSpawnVars ; i++ )
@@ -1451,7 +1450,7 @@ void SP_worldspawn( void )
 		}
 	}
 
-	if (level.gametype == GT_SIEGE)
+	if (level.gametype == gametype_t::GT_SIEGE)
 	{ //a tad bit of a hack, but..
 		EWebPrecache();
 	}
@@ -1493,7 +1492,7 @@ void SP_worldspawn( void )
 		trap->Cvar_Update( &g_restarted );
 		level.warmupTime = 0;
 	}
-	else if ( g_doWarmup.integer && level.gametype != GT_DUEL && level.gametype != GT_POWERDUEL && level.gametype != GT_SIEGE ) { // Turn it on
+	else if ( g_doWarmup.integer && level.gametype != gametype_t::GT_DUEL && level.gametype != gametype_t::GT_POWERDUEL && level.gametype != gametype_t::GT_SIEGE ) { // Turn it on
 		level.warmupTime = -1;
 		trap->SetConfigstring( CS_WARMUP, va("%i", level.warmupTime) );
 		G_LogPrintf( "Warmup:\n" );
@@ -1522,7 +1521,7 @@ void SP_worldspawn( void )
 
 		if (lengthRed != lengthGreen || lengthGreen != lengthBlue)
 		{
-			Com_Error(ERR_DROP, "Style %d has inconsistent lengths: R %d, G %d, B %d",
+			Com_Error(errorParm_t::ERR_DROP, "Style %d has inconsistent lengths: R %d, G %d, B %d",
 				i, lengthRed, lengthGreen, lengthBlue);
 		}
 	}
@@ -1548,7 +1547,7 @@ void G_PrecacheSoundsets( void )
 		{
 			if (countedSets >= MAX_AMBIENT_SETS)
 			{
-				Com_Error(ERR_DROP, "MAX_AMBIENT_SETS was exceeded! (too many soundsets)\n");
+				Com_Error(errorParm_t::ERR_DROP, "MAX_AMBIENT_SETS was exceeded! (too many soundsets)\n");
 			}
 
 			ent->s.soundSetIndex = G_SoundSetIndex(ent->soundSet);
@@ -1591,7 +1590,7 @@ void G_SpawnEntitiesFromString( bool inSubBSP ) {
 	// has a "spawn" function to perform any global setup
 	// needed by a level (setting configstrings or cvars, etc)
 	if ( !G_ParseSpawnVars(false) ) {
-		trap->Error( ERR_DROP, "SpawnEntities: no entities" );
+		trap->Error( errorParm_t::ERR_DROP, "SpawnEntities: no entities" );
 	}
 
 	if (!inSubBSP)
@@ -1612,13 +1611,13 @@ void G_SpawnEntitiesFromString( bool inSubBSP ) {
 		G_SpawnGEntityFromSpawnVars(inSubBSP);
 	}
 
-	if( g_entities[ENTITYNUM_WORLD].behaviorSet[BSET_SPAWN] && g_entities[ENTITYNUM_WORLD].behaviorSet[BSET_SPAWN][0] )
+	if( g_entities[ENTITYNUM_WORLD].behaviorSet[bSet_t::BSET_SPAWN] && g_entities[ENTITYNUM_WORLD].behaviorSet[bSet_t::BSET_SPAWN][0] )
 	{//World has a spawn script, but we don't want the world in ICARUS and running scripts,
 		//so make a scriptrunner and start it going.
 		gentity_t *script_runner = G_Spawn();
 		if ( script_runner )
 		{
-			script_runner->behaviorSet[BSET_USE] = g_entities[ENTITYNUM_WORLD].behaviorSet[BSET_SPAWN];
+			script_runner->behaviorSet[bSet_t::BSET_USE] = g_entities[ENTITYNUM_WORLD].behaviorSet[bSet_t::BSET_SPAWN];
 			script_runner->count = 1;
 			script_runner->think = scriptrunner_run;
 			script_runner->nextthink = level.time + 100;

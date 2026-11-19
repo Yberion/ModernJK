@@ -37,5 +37,4 @@ enum class forcePowerLevels_t
 	FORCE_LEVEL_4 = 4,
 	FORCE_LEVEL_5 = 5
 };
-using enum forcePowerLevels_t;
 template <> inline constexpr bool enableEnumArithmetic<forcePowerLevels_t> = true;

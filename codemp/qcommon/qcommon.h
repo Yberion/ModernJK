@@ -161,7 +161,6 @@ enum class netsrc_t {
 	NS_CLIENT,
 	NS_SERVER
 };
-using enum netsrc_t;
 
 void		NET_Init( void );
 void		NET_Shutdown( void );
@@ -273,7 +272,6 @@ enum class svc_ops_e {
 	svc_mapchange,
 	svc_EOF
 };
-using enum svc_ops_e;
 
 
 //
@@ -287,7 +285,6 @@ enum class clc_ops_e {
 	clc_clientCommand,		// [string] message
 	clc_EOF
 };
-using enum clc_ops_e;
 
 /*
 ==============================================================
@@ -303,7 +300,6 @@ enum class vmSlots_t {
 	VM_UI,
 	MAX_VM
 };
-using enum vmSlots_t;
 typedef vmSlots_t vmSlots_e;
 
 typedef struct vm_s {
@@ -326,7 +322,7 @@ public:
 	~VMSwap() { if ( oldVM ) currentVM = oldVM; };
 };
 
-extern const EnumArray<const char *, vmSlots_t, MAX_VM> vmStrs;
+extern const EnumArray<const char *, vmSlots_t, vmSlots_t::MAX_VM> vmStrs;
 
 void			VM_Init( void );
 vm_t			*VM_Create( vmSlots_t vmSlot );

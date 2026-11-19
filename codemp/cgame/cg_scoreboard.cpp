@@ -91,27 +91,27 @@ static void CG_DrawClientScore( int y, score_t *score, float *color, float fade,
 	ci = &cgs.clientinfo[score->client];
 
 	// draw the handicap or bot skill marker (unless player has flag)
-	if ( ci->powerups & Bit( PW_NEUTRALFLAG ) )
+	if ( ci->powerups & Bit( powerup_t::PW_NEUTRALFLAG ) )
 	{
 		if ( largeFormat )
-			CG_DrawFlagModel( iconx, y - (32 - BIGCHAR_HEIGHT) / 2, iconSize, iconSize, TEAM_FREE, false );
+			CG_DrawFlagModel( iconx, y - (32 - BIGCHAR_HEIGHT) / 2, iconSize, iconSize, team_t::TEAM_FREE, false );
 		else
-			CG_DrawFlagModel( iconx, y, iconSize, iconSize, TEAM_FREE, false );
+			CG_DrawFlagModel( iconx, y, iconSize, iconSize, team_t::TEAM_FREE, false );
 	}
 
-	else if ( ci->powerups & Bit( PW_REDFLAG ) )
-		CG_DrawFlagModel( iconx, y, iconSize, iconSize, TEAM_RED, false );
+	else if ( ci->powerups & Bit( powerup_t::PW_REDFLAG ) )
+		CG_DrawFlagModel( iconx, y, iconSize, iconSize, team_t::TEAM_RED, false );
 
-	else if ( ci->powerups & Bit( PW_BLUEFLAG ) )
-		CG_DrawFlagModel( iconx, y, iconSize, iconSize, TEAM_BLUE, false );
+	else if ( ci->powerups & Bit( powerup_t::PW_BLUEFLAG ) )
+		CG_DrawFlagModel( iconx, y, iconSize, iconSize, team_t::TEAM_BLUE, false );
 
-	else if ( cgs.gametype == GT_POWERDUEL && (ci->duelTeam == DUELTEAM_LONE || ci->duelTeam == DUELTEAM_DOUBLE) )
+	else if ( cgs.gametype == gametype_t::GT_POWERDUEL && (ci->duelTeam == duelTeam_t::DUELTEAM_LONE || ci->duelTeam == duelTeam_t::DUELTEAM_DOUBLE) )
 	{
 		CG_DrawPic( iconx, y, iconSize, iconSize, trap->R_RegisterShaderNoMip(
-			(ci->duelTeam == DUELTEAM_LONE) ? "gfx/mp/pduel_icon_lone" : "gfx/mp/pduel_icon_double" ) );
+			(ci->duelTeam == duelTeam_t::DUELTEAM_LONE) ? "gfx/mp/pduel_icon_lone" : "gfx/mp/pduel_icon_double" ) );
 	}
 
-	else if (cgs.gametype == GT_SIEGE)
+	else if (cgs.gametype == gametype_t::GT_SIEGE)
 	{ //try to draw the shader for this class on the scoreboard
 		if (ci->siegeIndex != -1)
 		{
@@ -132,11 +132,11 @@ static void CG_DrawClientScore( int y, score_t *score, float *color, float fade,
 
 		localClient = true;
 
-		if ( PS_Team( cg.snap->ps ) == TEAM_SPECTATOR
-			|| cgs.gametype >= GT_TEAM ) {
+		if ( PS_Team( cg.snap->ps ) == team_t::TEAM_SPECTATOR
+			|| cgs.gametype >= gametype_t::GT_TEAM ) {
 			rank = -1;
 		} else {
-			rank = cg.snap->ps.persistant[PERS_RANK] & ~RANK_TIED_FLAG;
+			rank = cg.snap->ps.persistant[persEnum_t::PERS_RANK] & ~RANK_TIED_FLAG;
 		}
 		if ( rank == 0 ) {
 			hcolor[0] = 0;
@@ -160,39 +160,39 @@ static void CG_DrawClientScore( int y, score_t *score, float *color, float fade,
 		CG_FillRect( SB_SCORELINE_X - 5, y + 2, 640 - SB_SCORELINE_X * 2 + 10, largeFormat?SB_NORMAL_HEIGHT:SB_INTER_HEIGHT, hcolor );
 	}
 
-	CG_Text_Paint (SB_NAME_X, y, 0.9f * scale, colorWhite, ci->name,0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_MEDIUM );
+	CG_Text_Paint (SB_NAME_X, y, 0.9f * scale, colorWhite, ci->name,0, 0, ITEM_TEXTSTYLE_OUTLINED, menuFont_t::FONT_MEDIUM );
 
 	if ( score->ping != -1 )
 	{
-		if ( ci->team != TEAM_SPECTATOR || cgs.gametype == GT_DUEL || cgs.gametype == GT_POWERDUEL )
+		if ( ci->team != team_t::TEAM_SPECTATOR || cgs.gametype == gametype_t::GT_DUEL || cgs.gametype == gametype_t::GT_POWERDUEL )
 		{
-			if (cgs.gametype == GT_DUEL || cgs.gametype == GT_POWERDUEL)
+			if (cgs.gametype == gametype_t::GT_DUEL || cgs.gametype == gametype_t::GT_POWERDUEL)
 			{
-				CG_Text_Paint (SB_SCORE_X, y, 1.0f * scale, colorWhite, va("%i/%i", ci->wins, ci->losses),0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_SMALL );
+				CG_Text_Paint (SB_SCORE_X, y, 1.0f * scale, colorWhite, va("%i/%i", ci->wins, ci->losses),0, 0, ITEM_TEXTSTYLE_OUTLINED, menuFont_t::FONT_SMALL );
 			}
 			else
 			{
-				CG_Text_Paint (SB_SCORE_X, y, 1.0f * scale, colorWhite, va("%i", score->score),0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_SMALL );
+				CG_Text_Paint (SB_SCORE_X, y, 1.0f * scale, colorWhite, va("%i", score->score),0, 0, ITEM_TEXTSTYLE_OUTLINED, menuFont_t::FONT_SMALL );
 			}
 		}
 
 		if ( cg_scoreboardBots.integer && ci->botSkill != -1 )
-			CG_Text_Paint( SB_PING_X, y, 1.0f * scale, colorWhite, "BOT", 0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_SMALL );
+			CG_Text_Paint( SB_PING_X, y, 1.0f * scale, colorWhite, "BOT", 0, 0, ITEM_TEXTSTYLE_OUTLINED, menuFont_t::FONT_SMALL );
 		else
-			CG_Text_Paint (SB_PING_X, y, 1.0f * scale, colorWhite, va("%i", score->ping),0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_SMALL );
-		CG_Text_Paint (SB_TIME_X, y, 1.0f * scale, colorWhite, va("%i", score->time),0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_SMALL );
+			CG_Text_Paint (SB_PING_X, y, 1.0f * scale, colorWhite, va("%i", score->ping),0, 0, ITEM_TEXTSTYLE_OUTLINED, menuFont_t::FONT_SMALL );
+		CG_Text_Paint (SB_TIME_X, y, 1.0f * scale, colorWhite, va("%i", score->time),0, 0, ITEM_TEXTSTYLE_OUTLINED, menuFont_t::FONT_SMALL );
 	}
 	else
 	{
-		CG_Text_Paint (SB_SCORE_X, y, 1.0f * scale, colorWhite, "-",0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_SMALL );
-		CG_Text_Paint (SB_PING_X, y, 1.0f * scale, colorWhite, "-",0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_SMALL );
-		CG_Text_Paint (SB_TIME_X, y, 1.0f * scale, colorWhite, "-",0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_SMALL );
+		CG_Text_Paint (SB_SCORE_X, y, 1.0f * scale, colorWhite, "-",0, 0, ITEM_TEXTSTYLE_OUTLINED, menuFont_t::FONT_SMALL );
+		CG_Text_Paint (SB_PING_X, y, 1.0f * scale, colorWhite, "-",0, 0, ITEM_TEXTSTYLE_OUTLINED, menuFont_t::FONT_SMALL );
+		CG_Text_Paint (SB_TIME_X, y, 1.0f * scale, colorWhite, "-",0, 0, ITEM_TEXTSTYLE_OUTLINED, menuFont_t::FONT_SMALL );
 	}
 
 	// add the "ready" marker for intermission exiting
-	if ( cg.snap->ps.stats[ STAT_CLIENTS_READY ] & ( 1 << score->client ) )
+	if ( cg.snap->ps.stats[ statIndex_t::STAT_CLIENTS_READY ] & ( 1 << score->client ) )
 	{
-		CG_Text_Paint (SB_NAME_X - 64, y + 2, 0.7f * scale, colorWhite, CG_GetStringEdString("MP_INGAME", "READY"),0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_MEDIUM );
+		CG_Text_Paint (SB_NAME_X - 64, y + 2, 0.7f * scale, colorWhite, CG_GetStringEdString("MP_INGAME", "READY"),0, 0, ITEM_TEXTSTYLE_OUTLINED, menuFont_t::FONT_MEDIUM );
 	}
 }
 
@@ -313,7 +313,7 @@ CG_DrawScoreboard
 Draw the normal in-game scoreboard
 =================
 */
-team_t cg_siegeWinTeam = TEAM_FREE;
+team_t cg_siegeWinTeam = team_t::TEAM_FREE;
 bool CG_DrawOldScoreboard( void ) {
 	int		x, y, i, n1, n2;
 	float	fade;
@@ -334,8 +334,8 @@ bool CG_DrawOldScoreboard( void ) {
 		return false;
 	}
 
-	if ( cg.showScores || cg.predictedPlayerState.pm_type == PM_DEAD ||
-		 cg.predictedPlayerState.pm_type == PM_INTERMISSION ) {
+	if ( cg.showScores || cg.predictedPlayerState.pm_type == pmtype_t::PM_DEAD ||
+		 cg.predictedPlayerState.pm_type == pmtype_t::PM_INTERMISSION ) {
 		fade = 1.0;
 		fadeColor = colorWhite;
 	} else {
@@ -352,8 +352,8 @@ bool CG_DrawOldScoreboard( void ) {
 
 	// fragged by ... line
 	// or if in intermission and duel, prints the winner of the duel round
-	if ((cgs.gametype == GT_DUEL || cgs.gametype == GT_POWERDUEL) && cgs.duelWinner != -1 &&
-		cg.predictedPlayerState.pm_type == PM_INTERMISSION)
+	if ((cgs.gametype == gametype_t::GT_DUEL || cgs.gametype == gametype_t::GT_POWERDUEL) && cgs.duelWinner != -1 &&
+		cg.predictedPlayerState.pm_type == pmtype_t::PM_INTERMISSION)
 	{
 		s = va("%s^7 %s", cgs.clientinfo[cgs.duelWinner].name, CG_GetStringEdString("MP_INGAME", "DUEL_WINS") );
 		/*w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
@@ -363,12 +363,12 @@ bool CG_DrawOldScoreboard( void ) {
 		*/
 		x = ( SCREEN_WIDTH ) / 2;
 		y = 40;
-		CG_Text_Paint ( x - CG_Text_Width ( s, 1.0f, FONT_MEDIUM ) / 2, y, 1.0f, colorWhite, s, 0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_MEDIUM );
+		CG_Text_Paint ( x - CG_Text_Width ( s, 1.0f, menuFont_t::FONT_MEDIUM ) / 2, y, 1.0f, colorWhite, s, 0, 0, ITEM_TEXTSTYLE_OUTLINED, menuFont_t::FONT_MEDIUM );
 	}
-	else if ((cgs.gametype == GT_DUEL || cgs.gametype == GT_POWERDUEL) && cgs.duelist1 != -1 && cgs.duelist2 != -1 &&
-		cg.predictedPlayerState.pm_type == PM_INTERMISSION)
+	else if ((cgs.gametype == gametype_t::GT_DUEL || cgs.gametype == gametype_t::GT_POWERDUEL) && cgs.duelist1 != -1 && cgs.duelist2 != -1 &&
+		cg.predictedPlayerState.pm_type == pmtype_t::PM_INTERMISSION)
 	{
-		if (cgs.gametype == GT_POWERDUEL && cgs.duelist3 != -1)
+		if (cgs.gametype == gametype_t::GT_POWERDUEL && cgs.duelist3 != -1)
 		{
 			s = va("%s^7 %s %s^7 %s %s", cgs.clientinfo[cgs.duelist1].name, CG_GetStringEdString("MP_INGAME", "SPECHUD_VERSUS"), cgs.clientinfo[cgs.duelist2].name, CG_GetStringEdString("MP_INGAME", "AND"), cgs.clientinfo[cgs.duelist3].name );
 		}
@@ -383,7 +383,7 @@ bool CG_DrawOldScoreboard( void ) {
 		*/
 		x = ( SCREEN_WIDTH ) / 2;
 		y = 40;
-		CG_Text_Paint ( x - CG_Text_Width ( s, 1.0f, FONT_MEDIUM ) / 2, y, 1.0f, colorWhite, s, 0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_MEDIUM );
+		CG_Text_Paint ( x - CG_Text_Width ( s, 1.0f, menuFont_t::FONT_MEDIUM ) / 2, y, 1.0f, colorWhite, s, 0, 0, ITEM_TEXTSTYLE_OUTLINED, menuFont_t::FONT_MEDIUM );
 	}
 	else if ( cg.killerName[0] ) {
 		s = va("%s %s", CG_GetStringEdString("MP_INGAME", "KILLEDBY"), cg.killerName );
@@ -394,15 +394,15 @@ bool CG_DrawOldScoreboard( void ) {
 		*/
 		x = ( SCREEN_WIDTH ) / 2;
 		y = 40;
-		CG_Text_Paint ( x - CG_Text_Width ( s, 1.0f, FONT_MEDIUM ) / 2, y, 1.0f, colorWhite, s, 0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_MEDIUM );
+		CG_Text_Paint ( x - CG_Text_Width ( s, 1.0f, menuFont_t::FONT_MEDIUM ) / 2, y, 1.0f, colorWhite, s, 0, 0, ITEM_TEXTSTYLE_OUTLINED, menuFont_t::FONT_MEDIUM );
 	}
 
 	// current rank
-	if (cgs.gametype == GT_POWERDUEL)
+	if (cgs.gametype == gametype_t::GT_POWERDUEL)
 	{ //do nothing?
 	}
-	else if ( cgs.gametype < GT_TEAM) {
-		if (PS_Team( cg.snap->ps ) != TEAM_SPECTATOR )
+	else if ( cgs.gametype < gametype_t::GT_TEAM) {
+		if (PS_Team( cg.snap->ps ) != team_t::TEAM_SPECTATOR )
 		{
 			char sPlace[256];
 			char sOf[256];
@@ -413,20 +413,20 @@ bool CG_DrawOldScoreboard( void ) {
 			trap->SE_GetStringTextString("MP_INGAME_WITH",	sWith,	sizeof(sWith));
 
 			s = va("%s %s (%s %i) %s %i",
-				CG_PlaceString( cg.snap->ps.persistant[PERS_RANK] + 1 ),
+				CG_PlaceString( cg.snap->ps.persistant[persEnum_t::PERS_RANK] + 1 ),
 				sPlace,
 				sOf,
 				cg.numScores,
 				sWith,
-				cg.snap->ps.persistant[PERS_SCORE] );
+				cg.snap->ps.persistant[persEnum_t::PERS_SCORE] );
 		//	w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
 			x = ( SCREEN_WIDTH ) / 2;
 			y = 60;
 			//CG_DrawBigString( x, y, s, fade );
-			CG_DrawProportionalString(x, y, s, UI_CENTER|UI_DROPSHADOW, colorTable[CT_WHITE]);
+			CG_DrawProportionalString(x, y, s, textStyleFlags_t::UI_CENTER|textStyleFlags_t::UI_DROPSHADOW, colorTable[ct_table_t::CT_WHITE]);
 		}
 	}
-	else if (cgs.gametype != GT_SIEGE)
+	else if (cgs.gametype != gametype_t::GT_SIEGE)
 	{
 		if ( cg.teamScores[0] == cg.teamScores[1] ) {
 			s = va("%s %i", CG_GetStringEdString("MP_INGAME", "TIEDAT"), cg.teamScores[0] );
@@ -439,9 +439,9 @@ bool CG_DrawOldScoreboard( void ) {
 		x = ( SCREEN_WIDTH ) / 2;
 		y = 60;
 
-		CG_Text_Paint ( x - CG_Text_Width ( s, 1.0f, FONT_MEDIUM ) / 2, y, 1.0f, colorWhite, s, 0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_MEDIUM );
+		CG_Text_Paint ( x - CG_Text_Width ( s, 1.0f, menuFont_t::FONT_MEDIUM ) / 2, y, 1.0f, colorWhite, s, 0, 0, ITEM_TEXTSTYLE_OUTLINED, menuFont_t::FONT_MEDIUM );
 	}
-	else if (cgs.gametype == GT_SIEGE && (cg_siegeWinTeam == SIEGETEAM_TEAM1 || cg_siegeWinTeam == SIEGETEAM_TEAM2))
+	else if (cgs.gametype == gametype_t::GT_SIEGE && (cg_siegeWinTeam == SIEGETEAM_TEAM1 || cg_siegeWinTeam == SIEGETEAM_TEAM2))
 	{
 		if (cg_siegeWinTeam == SIEGETEAM_TEAM1)
 		{
@@ -455,7 +455,7 @@ bool CG_DrawOldScoreboard( void ) {
 		x = ( SCREEN_WIDTH ) / 2;
 		y = 60;
 
-		CG_Text_Paint ( x - CG_Text_Width ( s, 1.0f, FONT_MEDIUM ) / 2, y, 1.0f, colorWhite, s, 0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_MEDIUM );
+		CG_Text_Paint ( x - CG_Text_Width ( s, 1.0f, menuFont_t::FONT_MEDIUM ) / 2, y, 1.0f, colorWhite, s, 0, 0, ITEM_TEXTSTYLE_OUTLINED, menuFont_t::FONT_MEDIUM );
 	}
 
 	// scoreboard
@@ -463,20 +463,20 @@ bool CG_DrawOldScoreboard( void ) {
 
 	CG_DrawPic ( SB_SCORELINE_X - 40, y - 5, SB_SCORELINE_WIDTH + 80, 40, trap->R_RegisterShaderNoMip ( "gfx/menus/menu_buttonback.tga" ) );
 
-	CG_Text_Paint ( SB_NAME_X, y, 1.0f, colorWhite, CG_GetStringEdString("MP_INGAME", "NAME"),0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_MEDIUM );
-	if (cgs.gametype == GT_DUEL || cgs.gametype == GT_POWERDUEL)
+	CG_Text_Paint ( SB_NAME_X, y, 1.0f, colorWhite, CG_GetStringEdString("MP_INGAME", "NAME"),0, 0, ITEM_TEXTSTYLE_OUTLINED, menuFont_t::FONT_MEDIUM );
+	if (cgs.gametype == gametype_t::GT_DUEL || cgs.gametype == gametype_t::GT_POWERDUEL)
 	{
 		char sWL[100];
 		trap->SE_GetStringTextString("MP_INGAME_W_L", sWL,	sizeof(sWL));
 
-		CG_Text_Paint ( SB_SCORE_X, y, 1.0f, colorWhite, sWL, 0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_MEDIUM );
+		CG_Text_Paint ( SB_SCORE_X, y, 1.0f, colorWhite, sWL, 0, 0, ITEM_TEXTSTYLE_OUTLINED, menuFont_t::FONT_MEDIUM );
 	}
 	else
 	{
-		CG_Text_Paint ( SB_SCORE_X, y, 1.0f, colorWhite, CG_GetStringEdString("MP_INGAME", "SCORE"), 0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_MEDIUM );
+		CG_Text_Paint ( SB_SCORE_X, y, 1.0f, colorWhite, CG_GetStringEdString("MP_INGAME", "SCORE"), 0, 0, ITEM_TEXTSTYLE_OUTLINED, menuFont_t::FONT_MEDIUM );
 	}
-	CG_Text_Paint ( SB_PING_X, y, 1.0f, colorWhite, CG_GetStringEdString("MP_INGAME", "PING"), 0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_MEDIUM );
-	CG_Text_Paint ( SB_TIME_X, y, 1.0f, colorWhite, CG_GetStringEdString("MP_INGAME", "TIME"), 0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_MEDIUM );
+	CG_Text_Paint ( SB_PING_X, y, 1.0f, colorWhite, CG_GetStringEdString("MP_INGAME", "PING"), 0, 0, ITEM_TEXTSTYLE_OUTLINED, menuFont_t::FONT_MEDIUM );
+	CG_Text_Paint ( SB_TIME_X, y, 1.0f, colorWhite, CG_GetStringEdString("MP_INGAME", "TIME"), 0, 0, ITEM_TEXTSTYLE_OUTLINED, menuFont_t::FONT_MEDIUM );
 
 	y = SB_TOP;
 
@@ -504,15 +504,15 @@ bool CG_DrawOldScoreboard( void ) {
 
 	//I guess this can be accomplished simply by printing the first teams score with a maxClients
 	//value passed in related to how many players are on both teams.
-	if ( cgs.gametype >= GT_TEAM ) {
+	if ( cgs.gametype >= gametype_t::GT_TEAM ) {
 		//
 		// teamplay scoreboard
 		//
 		y += lineHeight/2;
 
 		if ( cg.teamScores[0] >= cg.teamScores[1] ) {
-			int team1MaxCl = CG_GetTeamCount(TEAM_RED, maxClients);
-			int team2MaxCl = CG_GetTeamCount(TEAM_BLUE, maxClients);
+			int team1MaxCl = CG_GetTeamCount(team_t::TEAM_RED, maxClients);
+			int team2MaxCl = CG_GetTeamCount(team_t::TEAM_BLUE, maxClients);
 
 			if (team1MaxCl > 10 && (team1MaxCl+team2MaxCl) > maxClients)
 			{
@@ -528,24 +528,24 @@ bool CG_DrawOldScoreboard( void ) {
 
 			team2MaxCl = (maxClients-team1MaxCl); //team2 can display however many is left over after team1's display
 
-			n1 = CG_TeamScoreboard( y, TEAM_RED, fade, team1MaxCl, lineHeight, true );
-			CG_DrawTeamBackground( SB_SCORELINE_X - 5, y - topBorderSize, 640 - SB_SCORELINE_X * 2 + 10, n1 * lineHeight + bottomBorderSize, 0.33f, TEAM_RED );
-			CG_TeamScoreboard( y, TEAM_RED, fade, team1MaxCl, lineHeight, false );
+			n1 = CG_TeamScoreboard( y, team_t::TEAM_RED, fade, team1MaxCl, lineHeight, true );
+			CG_DrawTeamBackground( SB_SCORELINE_X - 5, y - topBorderSize, 640 - SB_SCORELINE_X * 2 + 10, n1 * lineHeight + bottomBorderSize, 0.33f, team_t::TEAM_RED );
+			CG_TeamScoreboard( y, team_t::TEAM_RED, fade, team1MaxCl, lineHeight, false );
 			y += (n1 * lineHeight) + BIGCHAR_HEIGHT;
 
 			//maxClients -= n1;
 
-			n2 = CG_TeamScoreboard( y, TEAM_BLUE, fade, team2MaxCl, lineHeight, true );
-			CG_DrawTeamBackground( SB_SCORELINE_X - 5, y - topBorderSize, 640 - SB_SCORELINE_X * 2 + 10, n2 * lineHeight + bottomBorderSize, 0.33f, TEAM_BLUE );
-			CG_TeamScoreboard( y, TEAM_BLUE, fade, team2MaxCl, lineHeight, false );
+			n2 = CG_TeamScoreboard( y, team_t::TEAM_BLUE, fade, team2MaxCl, lineHeight, true );
+			CG_DrawTeamBackground( SB_SCORELINE_X - 5, y - topBorderSize, 640 - SB_SCORELINE_X * 2 + 10, n2 * lineHeight + bottomBorderSize, 0.33f, team_t::TEAM_BLUE );
+			CG_TeamScoreboard( y, team_t::TEAM_BLUE, fade, team2MaxCl, lineHeight, false );
 			y += (n2 * lineHeight) + BIGCHAR_HEIGHT;
 
 			//maxClients -= n2;
 
 			maxClients -= (team1MaxCl+team2MaxCl);
 		} else {
-			int team1MaxCl = CG_GetTeamCount(TEAM_BLUE, maxClients);
-			int team2MaxCl = CG_GetTeamCount(TEAM_RED, maxClients);
+			int team1MaxCl = CG_GetTeamCount(team_t::TEAM_BLUE, maxClients);
+			int team2MaxCl = CG_GetTeamCount(team_t::TEAM_RED, maxClients);
 
 			if (team1MaxCl > 10 && (team1MaxCl+team2MaxCl) > maxClients)
 			{
@@ -561,16 +561,16 @@ bool CG_DrawOldScoreboard( void ) {
 
 			team2MaxCl = (maxClients-team1MaxCl); //team2 can display however many is left over after team1's display
 
-			n1 = CG_TeamScoreboard( y, TEAM_BLUE, fade, team1MaxCl, lineHeight, true );
-			CG_DrawTeamBackground( SB_SCORELINE_X - 5, y - topBorderSize, 640 - SB_SCORELINE_X * 2 + 10, n1 * lineHeight + bottomBorderSize, 0.33f, TEAM_BLUE );
-			CG_TeamScoreboard( y, TEAM_BLUE, fade, team1MaxCl, lineHeight, false );
+			n1 = CG_TeamScoreboard( y, team_t::TEAM_BLUE, fade, team1MaxCl, lineHeight, true );
+			CG_DrawTeamBackground( SB_SCORELINE_X - 5, y - topBorderSize, 640 - SB_SCORELINE_X * 2 + 10, n1 * lineHeight + bottomBorderSize, 0.33f, team_t::TEAM_BLUE );
+			CG_TeamScoreboard( y, team_t::TEAM_BLUE, fade, team1MaxCl, lineHeight, false );
 			y += (n1 * lineHeight) + BIGCHAR_HEIGHT;
 
 			//maxClients -= n1;
 
-			n2 = CG_TeamScoreboard( y, TEAM_RED, fade, team2MaxCl, lineHeight, true );
-			CG_DrawTeamBackground( SB_SCORELINE_X - 5, y - topBorderSize, 640 - SB_SCORELINE_X * 2 + 10, n2 * lineHeight + bottomBorderSize, 0.33f, TEAM_RED );
-			CG_TeamScoreboard( y, TEAM_RED, fade, team2MaxCl, lineHeight, false );
+			n2 = CG_TeamScoreboard( y, team_t::TEAM_RED, fade, team2MaxCl, lineHeight, true );
+			CG_DrawTeamBackground( SB_SCORELINE_X - 5, y - topBorderSize, 640 - SB_SCORELINE_X * 2 + 10, n2 * lineHeight + bottomBorderSize, 0.33f, team_t::TEAM_RED );
+			CG_TeamScoreboard( y, team_t::TEAM_RED, fade, team2MaxCl, lineHeight, false );
 			y += (n2 * lineHeight) + BIGCHAR_HEIGHT;
 
 			//maxClients -= n2;
@@ -578,16 +578,16 @@ bool CG_DrawOldScoreboard( void ) {
 			maxClients -= (team1MaxCl+team2MaxCl);
 		}
 		maxClients = realMaxClients;
-		n1 = CG_TeamScoreboard( y, TEAM_SPECTATOR, fade, maxClients, lineHeight, false );
+		n1 = CG_TeamScoreboard( y, team_t::TEAM_SPECTATOR, fade, maxClients, lineHeight, false );
 		y += (n1 * lineHeight) + BIGCHAR_HEIGHT;
 
 	} else {
 		//
 		// free for all scoreboard
 		//
-		n1 = CG_TeamScoreboard( y, TEAM_FREE, fade, maxClients, lineHeight, false );
+		n1 = CG_TeamScoreboard( y, team_t::TEAM_FREE, fade, maxClients, lineHeight, false );
 		y += (n1 * lineHeight) + BIGCHAR_HEIGHT;
-		n2 = CG_TeamScoreboard( y, TEAM_SPECTATOR, fade, maxClients - n1, lineHeight, false );
+		n2 = CG_TeamScoreboard( y, team_t::TEAM_SPECTATOR, fade, maxClients - n1, lineHeight, false );
 		y += (n2 * lineHeight) + BIGCHAR_HEIGHT;
 	}
 

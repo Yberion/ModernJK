@@ -61,7 +61,7 @@ struct surfaceInfo_t
 	int			genLod;			// used to determine original lod of original surface and poly hit location
 
 surfaceInfo_t():
-	offFlags(G2SURFACEFLAG_NONE),
+	offFlags(g2SurfaceFlags_t::G2SURFACEFLAG_NONE),
 	surface(0),
 	genBarycentricJ(0),
 	genBarycentricI(0),
@@ -86,7 +86,6 @@ enum class boneFlags_t
 	BONE_ANIM_NO_LERP			= 0x1000,
 	BONE_ANIM_TOTAL				= (BONE_ANIM_NO_LERP| BONE_ANIM_OVERRIDE | BONE_ANIM_OVERRIDE_LOOP | BONE_ANIM_OVERRIDE_FREEZE | BONE_ANIM_BLEND )
 };
-using enum boneFlags_t;
 template <> inline constexpr bool enableEnumFlags<boneFlags_t> = true;
 
 inline constexpr int BONE_INDEX_INVALID = -1;
@@ -120,7 +119,7 @@ struct  boneInfo_t
 
 boneInfo_t():
 	boneNumber(-1),
-	flags(BONE_NONE),
+	flags(boneFlags_t::BONE_NONE),
 	startFrame(0),
 	endFrame(0),
 	startTime(0),
@@ -169,7 +168,6 @@ enum class ghoul2Flags_t
 	GHOUL2_NOMODEL	 = 0x004,
 	GHOUL2_NEWORIGIN = 0x008
 };
-using enum ghoul2Flags_t;
 template <> inline constexpr bool enableEnumFlags<ghoul2Flags_t> = true;
 
 
@@ -230,7 +228,7 @@ public:
 	mAnimFrameDefault(0),
 	mSkelFrameNum(-1),
 	mMeshFrameNum(-1),
-	mFlags(GHOUL2_NONE),
+	mFlags(ghoul2Flags_t::GHOUL2_NONE),
 	mTransformedVertsArray(0),
 	mLodBias(0),
 	mSkin(0),
@@ -432,7 +430,6 @@ enum class EG2_Collision
 	G2_COLLIDE,
 	G2_RETURNONHIT
 };
-using enum EG2_Collision;
 
 
 

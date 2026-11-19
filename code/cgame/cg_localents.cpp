@@ -131,10 +131,10 @@ void CG_FragmentBounceSound( localEntity_t *le, trace_t *trace )
 
 		switch( le->leBounceSoundType )
 		{
-		case LEBS_ROCK:
+		case leBounceSound_t::LEBS_ROCK:
 			s = cgs.media.rockBounceSound[Q_irand(0,1)];
 			break;
-		case LEBS_METAL:
+		case leBounceSound_t::LEBS_METAL:
 			s = cgs.media.metalBounceSound[Q_irand(0,1)];// FIXME: make sure that this sound is registered properly...might still be rock bounce sound....
 			break;
 		default:
@@ -143,18 +143,18 @@ void CG_FragmentBounceSound( localEntity_t *le, trace_t *trace )
 
 		if ( s )
 		{
-			cgi_S_StartSound( trace->endpos, ENTITYNUM_WORLD, CHAN_AUTO, s );
+			cgi_S_StartSound( trace->endpos, ENTITYNUM_WORLD, soundChannel_t::CHAN_AUTO, s );
 		}
 
 		// bouncers only make the sound once...
 		// FIXME: arbitrary...change if it bugs you
-		le->leBounceSoundType = LEBS_NONE;
+		le->leBounceSoundType = leBounceSound_t::LEBS_NONE;
 	}
 	else if ( rand() & 1 )
 	{
 		// we may end up bouncing again, but each bounce reduces the chance of playing the sound again or they may make a lot of noise when they settle
 		// FIXME: maybe just always do this??
-		le->leBounceSoundType = LEBS_NONE;
+		le->leBounceSoundType = leBounceSound_t::LEBS_NONE;
 	}
 }
 
@@ -186,7 +186,7 @@ void CG_ReflectVelocity( localEntity_t *le, trace_t *trace )
 		( trace->plane.normal[2] > 0 &&
 		( le->pos.trDelta[2] < 40 || le->pos.trDelta[2] < -cg.frametime * le->pos.trDelta[2] ) ) )
 	{
-		le->pos.trType = TR_STATIONARY;
+		le->pos.trType = trType_t::TR_STATIONARY;
 	}
 }
 
@@ -206,20 +206,20 @@ void CG_AddFragment( localEntity_t *le )
 
 	if ( t < FRAG_FADE_TIME )
 	{
-		le->refEntity.renderfx |= RF_ALPHA_FADE;
+		le->refEntity.renderfx |= renderFxFlags_t::RF_ALPHA_FADE;
 		le->refEntity.shaderRGBA[0] = le->refEntity.shaderRGBA[1] = le->refEntity.shaderRGBA[2] = 255;
 		le->refEntity.shaderRGBA[3] = ((float)t / FRAG_FADE_TIME) * 255.0f;
 	}
 
-	if ( le->pos.trType == TR_STATIONARY )
+	if ( le->pos.trType == trType_t::TR_STATIONARY )
 	{
-		if ( !Any( cgi_CM_PointContents( le->refEntity.origin, 0 ) & CONTENTS_SOLID ))
+		if ( !Any( cgi_CM_PointContents( le->refEntity.origin, 0 ) & contentsFlags_t::CONTENTS_SOLID ))
 		{
 			// thing is no longer in solid, so let gravity take it back
 			VectorCopy( le->refEntity.origin, le->pos.trBase );
 			VectorClear( le->pos.trDelta );
 			le->pos.trTime = cg.time;
-			le->pos.trType = TR_GRAVITY;
+			le->pos.trType = trType_t::TR_GRAVITY;
 		}
 
 		cgi_R_AddRefEntityToScene( &le->refEntity );
@@ -230,16 +230,16 @@ void CG_AddFragment( localEntity_t *le )
 	// calculate new position
 	EvaluateTrajectory( &le->pos, cg.time, newOrigin );
 
-	le->refEntity.renderfx |= RF_LIGHTING_ORIGIN;
+	le->refEntity.renderfx |= renderFxFlags_t::RF_LIGHTING_ORIGIN;
 	VectorCopy( newOrigin, le->refEntity.lightingOrigin );
 
 	// trace a line from previous position to new position
-	CG_Trace( &trace, le->refEntity.origin, nullptr, nullptr, newOrigin, le->ownerGentNum, CONTENTS_SOLID );
+	CG_Trace( &trace, le->refEntity.origin, nullptr, nullptr, newOrigin, le->ownerGentNum, contentsFlags_t::CONTENTS_SOLID );
 	if ( trace.fraction == 1.0 ) {
 		// still in free fall
 		VectorCopy( newOrigin, le->refEntity.origin );
 
-		if ( Any( le->leFlags & LEF_TUMBLE ) ) {
+		if ( Any( le->leFlags & leFlags_t::LEF_TUMBLE ) ) {
 			vec3_t angles;
 
 			EvaluateTrajectory( &le->angles, cg.time, angles );
@@ -259,7 +259,7 @@ void CG_AddFragment( localEntity_t *le )
 	// if it is in a nodrop zone, remove it
 	// this keeps gibs from waiting at the bottom of pits of death
 	// and floating levels
-	if ( Any( cgi_CM_PointContents( trace.endpos, 0 ) & CONTENTS_NODROP ) )
+	if ( Any( cgi_CM_PointContents( trace.endpos, 0 ) & contentsFlags_t::CONTENTS_NODROP ) )
 	{
 		CG_FreeLocalEntity( le );
 		return;
@@ -343,7 +343,7 @@ static void CG_AddPuff( localEntity_t *le ) {
 	re->shaderRGBA[1] = le->color[1] * c;
 	re->shaderRGBA[2] = le->color[2] * c;
 
-	if ( !Any( le->leFlags & LEF_PUFF_DONT_SCALE ) ) {
+	if ( !Any( le->leFlags & leFlags_t::LEF_PUFF_DONT_SCALE ) ) {
 		re->radius = le->radius * ( 1.0 - c ) + 8;
 	}
 
@@ -538,7 +538,7 @@ void CG_AddLine( localEntity_t *le )
 
 	re = &le->refEntity;
 
-	re->reType = RT_LINE;
+	re->reType = refEntityType_t::RT_LINE;
 
 	cgi_R_AddRefEntityToScene( re );
 }
@@ -572,43 +572,43 @@ void CG_AddLocalEntities( void )
 			CG_Error( "Bad leType: %i", to_underlying( le->leType ) );
 			break;
 
-		case LE_MARK:
+		case leType_t::LE_MARK:
 			break;
 
-		case LE_FADE_MODEL:
+		case leType_t::LE_FADE_MODEL:
 			CG_AddFadeModel( le );
 			break;
 
-		case LE_FADE_SCALE_MODEL:
+		case leType_t::LE_FADE_SCALE_MODEL:
 			CG_AddFadeScaleModel( le );
 			break;
 
-		case LE_FRAGMENT:
+		case leType_t::LE_FRAGMENT:
 			CG_AddFragment( le );
 			break;
 
-		case LE_PUFF:
+		case leType_t::LE_PUFF:
 			CG_AddPuff( le );
 			break;
 
-		case LE_FADE_RGB:		// teleporters, railtrails
+		case leType_t::LE_FADE_RGB:		// teleporters, railtrails
 			CG_AddFadeRGB( le );
 			break;
 
-		case LE_LIGHT:
+		case leType_t::LE_LIGHT:
 			CG_AddLocalLight( le );
 			break;
 
-		case LE_LINE:					// oriented lines for FX
+		case leType_t::LE_LINE:					// oriented lines for FX
 			CG_AddLine( le );
 			break;
 
 		// Use for debug only
-		case LE_QUAD:
+		case leType_t::LE_QUAD:
 			CG_AddQuad( le );
 			break;
 
-		case LE_SPRITE:
+		case leType_t::LE_SPRITE:
 			CG_AddSprite( le );
 		}
 	}

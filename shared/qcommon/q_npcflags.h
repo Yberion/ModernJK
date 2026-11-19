@@ -36,7 +36,6 @@ enum class visCheckFlags_t
 	CHECK_SHOOT		= 8,
 	CHECK_VISRANGE	= 16,
 };
-using enum visCheckFlags_t;
 template <> inline constexpr bool enableEnumFlags<visCheckFlags_t> = true;
 
 // The flags of a combat point (its spawnflags)
@@ -50,7 +49,6 @@ enum class combatPointFlags_t
 	CPF_LEAN		= 0x00000010,
 	CPF_SNIPE		= 0x00000020,
 };
-using enum combatPointFlags_t;
 template <> inline constexpr bool enableEnumFlags<combatPointFlags_t> = true;
 
 enum class navInfoFlags_t
@@ -61,7 +59,6 @@ enum class navInfoFlags_t
 	NIF_COLLISION	= 0x00000004,	//resolving collision with an entity
 	NIF_BLOCKED		= 0x00000008,	//blocked from moving
 };
-using enum navInfoFlags_t;
 template <> inline constexpr bool enableEnumFlags<navInfoFlags_t> = true;
 
 // The flags of a navigation node, shared by gameside and in-engine NPC nav routines
@@ -72,7 +69,6 @@ enum class navNodeFlags_t
 	NF_CLEAR_PATH	= 0x00000002,
 	NF_RECALC		= 0x00000004,
 };
-using enum navNodeFlags_t;
 template <> inline constexpr bool enableEnumFlags<navNodeFlags_t> = true;
 
 //Edge flags: a byte of the nav file's edge record, hence the underlying type
@@ -82,5 +78,4 @@ enum class navEdgeFlags_t : uint8_t
 	EFLAG_BLOCKED	= 0x00000001,
 	EFLAG_FAILED	= 0x00000002,
 };
-using enum navEdgeFlags_t;
 template <> inline constexpr bool enableEnumFlags<navEdgeFlags_t> = true;

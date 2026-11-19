@@ -77,7 +77,7 @@ void RE_ClearScene( void ) {
 	r_firstSceneDlight = r_numdlights;
 	r_firstSceneEntity = r_numentities;
 	r_firstScenePoly = r_numpolys;
-	tr.refdef.rdflags &= ~(RDF_doLAGoggles|RDF_doFullbright);	//probably not needed since it gets copied over in RE_RenderScene
+	tr.refdef.rdflags &= ~(refdefFlags_t::RDF_doLAGoggles|refdefFlags_t::RDF_doFullbright);	//probably not needed since it gets copied over in RE_RenderScene
 	tr.refdef.doLAGoggles = false;
 }
 
@@ -141,12 +141,12 @@ void RE_AddPolyToScene( qhandle_t hShader , int numVerts, const polyVert_t *vert
       since we don't plan on changing the const and making for room for those effects
       simply cut this message to developer only
       */
-		ri.Printf( PRINT_DEVELOPER, S_COLOR_YELLOW  "WARNING: RE_AddPolyToScene: r_max_polys or r_max_polyverts reached\n");
+		ri.Printf( printParm_t::PRINT_DEVELOPER, S_COLOR_YELLOW  "WARNING: RE_AddPolyToScene: r_max_polys or r_max_polyverts reached\n");
 		return;
 	}
 
 	poly = &backEndData->polys[r_numpolys];
-	poly->surfaceType = SF_POLY;
+	poly->surfaceType = surfaceType_t::SF_POLY;
 	poly->hShader = hShader;
 	poly->numVerts = numVerts;
 	poly->verts = &backEndData->polyVerts[r_numpolyverts];
@@ -213,12 +213,12 @@ void RE_AddRefEntityToScene( const refEntity_t *ent ) {
 	}
 	if ( r_numentities >= MAX_REFENTITIES ) {
 #ifndef FINAL_BUILD
-		ri.Printf( PRINT_WARNING, "WARNING: RE_AddRefEntityToScene: too many entities\n");
+		ri.Printf( printParm_t::PRINT_WARNING, "WARNING: RE_AddRefEntityToScene: too many entities\n");
 #endif
 		return;
 	}
-	if ( to_underlying( ent->reType ) < 0 || ent->reType >= RT_MAX_REF_ENTITY_TYPE ) {
-		Com_Error( ERR_DROP, "RE_AddRefEntityToScene: bad reType %i", to_underlying( ent->reType ) );
+	if ( to_underlying( ent->reType ) < 0 || ent->reType >= refEntityType_t::RT_MAX_REF_ENTITY_TYPE ) {
+		Com_Error( errorParm_t::ERR_DROP, "RE_AddRefEntityToScene: bad reType %i", to_underlying( ent->reType ) );
 	}
 
 	backEndData->entities[r_numentities].e = *ent;
@@ -283,8 +283,8 @@ void RE_RenderScene( const refdef_t *fd ) {
 
 	startTime = ri.Milliseconds();
 
-	if (!tr.world && !Any( fd->rdflags & RDF_NOWORLDMODEL ) ) {
-		Com_Error (ERR_DROP, "R_RenderScene: NULL worldmodel");
+	if (!tr.world && !Any( fd->rdflags & refdefFlags_t::RDF_NOWORLDMODEL ) ) {
+		Com_Error (errorParm_t::ERR_DROP, "R_RenderScene: NULL worldmodel");
 	}
 
 //	memcpy( tr.refdef.text, fd->text, sizeof( tr.refdef.text ) );
@@ -308,7 +308,7 @@ void RE_RenderScene( const refdef_t *fd ) {
 	// We need to figure out what's going on in fd->rdflags first :S .. I'm half-tempted to just revert
 	// back to JK2 and use a qbool for it --eez
 
-	if (Any( fd->rdflags & RDF_SKYBOXPORTAL ))
+	if (Any( fd->rdflags & refdefFlags_t::RDF_SKYBOXPORTAL ))
 	{
 		skyboxportal = 1;
 	}
@@ -318,7 +318,7 @@ void RE_RenderScene( const refdef_t *fd ) {
 		lastTime = fd->time;
 	}
 
-	if (Any( fd->rdflags & RDF_DRAWSKYBOX ))
+	if (Any( fd->rdflags & refdefFlags_t::RDF_DRAWSKYBOX ))
 	{
 		drawskyboxportal = 1;
 	}
@@ -330,7 +330,7 @@ void RE_RenderScene( const refdef_t *fd ) {
 	// copy the areamask data over and note if it has changed, which
 	// will force a reset of the visible leafs even if the view hasn't moved
 	tr.refdef.areamaskModified = false;
-	if ( ! Any(tr.refdef.rdflags & RDF_NOWORLDMODEL) ) {
+	if ( ! Any(tr.refdef.rdflags & refdefFlags_t::RDF_NOWORLDMODEL) ) {
 		int		areaDiff;
 		int		i;
 

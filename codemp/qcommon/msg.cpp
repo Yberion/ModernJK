@@ -144,7 +144,7 @@ void MSG_WriteBits( msg_t *msg, int value, int bits ) {
 	}
 
 	if ( bits == 0 || bits < -31 || bits > 32 ) {
-		Com_Error( ERR_DROP, "MSG_WriteBits: bad bits %i", bits );
+		Com_Error( errorParm_t::ERR_DROP, "MSG_WriteBits: bad bits %i", bits );
 	}
 
 	// check for overflows
@@ -193,7 +193,7 @@ void MSG_WriteBits( msg_t *msg, int value, int bits ) {
 			msg->cursize += 4;
 			msg->bit += 32;
 		} else {
-			Com_Error(ERR_DROP, "can't write %d bits\n", bits);
+			Com_Error(errorParm_t::ERR_DROP, "can't write %d bits\n", bits);
 		}
 	} else {
 		value &= (0xffffffff>>(32-bits));
@@ -269,7 +269,7 @@ int MSG_ReadBits( msg_t *msg, int bits ) {
 			msg->readcount += 4;
 			msg->bit += 32;
 		} else {
-			Com_Error(ERR_DROP, "can't read %d bits\n", bits);
+			Com_Error(errorParm_t::ERR_DROP, "can't read %d bits\n", bits);
 		}
 	} else {
 		nbits = 0;
@@ -320,7 +320,7 @@ int MSG_ReadBits( msg_t *msg, int bits ) {
 void MSG_WriteChar( msg_t *sb, int c ) {
 #ifdef PARANOID
 	if (c < -128 || c > 127)
-		Com_Error (ERR_FATAL, "MSG_WriteChar: range error");
+		Com_Error (errorParm_t::ERR_FATAL, "MSG_WriteChar: range error");
 #endif
 
 	MSG_WriteBits( sb, c, 8 );
@@ -329,7 +329,7 @@ void MSG_WriteChar( msg_t *sb, int c ) {
 void MSG_WriteByte( msg_t *sb, int c ) {
 #ifdef PARANOID
 	if (c < 0 || c > 255)
-		Com_Error (ERR_FATAL, "MSG_WriteByte: range error");
+		Com_Error (errorParm_t::ERR_FATAL, "MSG_WriteByte: range error");
 #endif
 
 	MSG_WriteBits( sb, c, 8 );
@@ -345,7 +345,7 @@ void MSG_WriteData( msg_t *buf, const void *data, int length ) {
 void MSG_WriteShort( msg_t *sb, int c ) {
 #ifdef PARANOID
 	if (c < ((short)0x8000) || c > (short)0x7fff)
-		Com_Error (ERR_FATAL, "MSG_WriteShort: range error");
+		Com_Error (errorParm_t::ERR_FATAL, "MSG_WriteShort: range error");
 #endif
 
 	MSG_WriteBits( sb, c, 16 );
@@ -1094,7 +1094,7 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 	}
 
 	if ( to->number < 0 || to->number >= MAX_GENTITIES ) {
-		Com_Error (ERR_FATAL, "MSG_WriteDeltaEntity: Bad entity number: %i", to->number );
+		Com_Error (errorParm_t::ERR_FATAL, "MSG_WriteDeltaEntity: Bad entity number: %i", to->number );
 	}
 
 	lc = 0;
@@ -1195,7 +1195,7 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 	int			startBit, endBit;
 
 	if ( number < 0 || number >= MAX_GENTITIES) {
-		Com_Error( ERR_DROP, "Bad delta entity number: %i", number );
+		Com_Error( errorParm_t::ERR_DROP, "Bad delta entity number: %i", number );
 	}
 
 	if ( msg->bit == 0 ) {
@@ -1225,13 +1225,13 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 	lc = MSG_ReadByte(msg);
 
 	if ( lc > numFields || lc < 0 )
-		Com_Error( ERR_DROP, "invalid entityState field count (got: %i, expecting: %i)", lc, numFields );
+		Com_Error( errorParm_t::ERR_DROP, "invalid entityState field count (got: %i, expecting: %i)", lc, numFields );
 
 	// shownet 2/3 will interleave with other printed info, -1 will
 	// just print the delta records`
 	if ( cl_shownet && ( cl_shownet->integer >= 2 || cl_shownet->integer == -1 ) ) {
 		print = 1;
-		if (sv.state != SS_DEAD)
+		if (sv.state != serverState_t::SS_DEAD)
 		{
 			Com_Printf( "%3i: #%-3i (%s) ", msg->readcount, number, SV_GentityNum(number)->classname );
 		}
@@ -1313,7 +1313,7 @@ playerState_t communication
 // using the stringizing operator to save typing...
 #define	PSF(x) #x,offsetof(playerState_t, x),sizeof(((playerState_t *)0)->x)
 // a cell of an array indexed by a force power, named as ext_data/MP/psf_overrides.txt names it
-#define	PSF_FP(x, fp) #x "[" #fp "]",offsetof(playerState_t, x.elems[to_underlying( fp )]),sizeof(((playerState_t *)0)->x.elems[0])
+#define	PSF_FP(x, fp) #x "[" #fp "]",offsetof(playerState_t, x.elems[to_underlying( forcePowers_t::fp )]),sizeof(((playerState_t *)0)->x.elems[0])
 
 //rww - Remember to update ext_data/MP/psf_overrides.txt if you change any of this!
 //(for the sake of being consistent)
@@ -1991,7 +1991,7 @@ void MSG_CheckNETFPSFOverrides(bool psfOverrides)
 		while (i < numFields)
 		{
 			//Alloc memory for this new ptr
-			*bitStorage = (bitStorage_t *)Z_Malloc(sizeof(bitStorage_t), TAG_GENERAL, true);
+			*bitStorage = (bitStorage_t *)Z_Malloc(sizeof(bitStorage_t), memtag::TAG_GENERAL, true);
 
 			if (psfOverrides)
 			{
@@ -2148,7 +2148,7 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 	else
 	{//regular client playerstate
 		if ( to->m_iVehicleNum
-			&& Any(to->eFlags&EF_NODRAW) )
+			&& Any(to->eFlags&entityFlags_t::EF_NODRAW) )
 		{//pilot riding *inside* a vehicle!
 			MSG_WriteBits( msg, 1, 1 );	// Pilot player state
 			numFields = (int)ARRAY_LEN( pilotPlayerStateFields );
@@ -2271,7 +2271,7 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 		{
 			if (statsbits & (1<<i) )
 			{
-				if (i == to_underlying( STAT_WEAPONS ))
+				if (i == to_underlying( statIndex_t::STAT_WEAPONS ))
 				{ //ugly.. but we're gonna need it anyway -rww
 					//(just send this one in MAX_WEAPONS bits, so that we can add up to MAX_WEAPONS weaps without hassle)
 					MSG_WriteBits(msg, to->stats.data()[i], MAX_WEAPONS);
@@ -2413,7 +2413,7 @@ void MSG_ReadDeltaPlayerstate (msg_t *msg, playerState_t *from, playerState_t *t
 	lc = MSG_ReadByte(msg);
 
 	if ( lc > numFields || lc < 0 )
-		Com_Error( ERR_DROP, "invalid playerState field count (got: %i, expecting: %i)", lc, numFields );
+		Com_Error( errorParm_t::ERR_DROP, "invalid playerState field count (got: %i, expecting: %i)", lc, numFields );
 
 	for ( i = 0, field = PSFields ; i < lc ; i++, field++ ) {
 		toF = (int *)( (byte *)to + field->offset );
@@ -2473,7 +2473,7 @@ void MSG_ReadDeltaPlayerstate (msg_t *msg, playerState_t *from, playerState_t *t
 			for (i=0 ; i<MAX_STATS ; i++) {
 				if (bits & (1<<i) )
 				{
-					if (i == to_underlying( STAT_WEAPONS ))
+					if (i == to_underlying( statIndex_t::STAT_WEAPONS ))
 					{ //ugly.. but we're gonna need it anyway -rww
 						to->stats.data()[i] = MSG_ReadBits(msg, MAX_WEAPONS);
 					}

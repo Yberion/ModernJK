@@ -818,7 +818,7 @@ void SavedGame::throw_error()
 	error_message_ = "SG: " + error_message_;
 
 	::Com_Error(
-		ERR_DROP,
+		errorParm_t::ERR_DROP,
 		"%s",
 		error_message_.c_str());
 }

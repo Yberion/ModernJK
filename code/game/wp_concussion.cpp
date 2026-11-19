@@ -29,7 +29,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 static void WP_FireConcussionAlt( gentity_t *ent )
 {//a rail-gun-like beam
-	int			damage = weaponData[WP_CONCUSSION].altDamage, skip, traces = DISRUPTOR_ALT_TRACES;
+	int			damage = weaponData[weapon_t::WP_CONCUSSION].altDamage, skip, traces = DISRUPTOR_ALT_TRACES;
 	bool	render_impact = true;
 	vec3_t		start, end;
 	vec3_t		muzzle2, spot, dir;
@@ -50,7 +50,7 @@ static void WP_FireConcussionAlt( gentity_t *ent )
 	//Shove us backwards for half a second
 	VectorMA( ent->client->ps.velocity, -200, forwardVec, ent->client->ps.velocity );
 	ent->client->ps.groundEntityNum = ENTITYNUM_NONE;
-	if ( Any(ent->client->ps.pm_flags&PMF_DUCKED) )
+	if ( Any(ent->client->ps.pm_flags&pmoveFlags_t::PMF_DUCKED) )
 	{//hunkered down
 		ent->client->ps.pm_time = 100;
 	}
@@ -58,7 +58,7 @@ static void WP_FireConcussionAlt( gentity_t *ent )
 	{
 		ent->client->ps.pm_time = 250;
 	}
-	ent->client->ps.pm_flags |= PMF_TIME_KNOCKBACK|PMF_TIME_NOFRICTION;
+	ent->client->ps.pm_flags |= pmoveFlags_t::PMF_TIME_KNOCKBACK|pmoveFlags_t::PMF_TIME_NOFRICTION;
 	//FIXME: only if on ground?  So no "rocket jump"?  Or: (see next FIXME)
 	//FIXME: instead, set a forced ucmd backmove instead of this sliding
 
@@ -103,10 +103,10 @@ static void WP_FireConcussionAlt( gentity_t *ent )
 
 		//NOTE: if you want to be able to hit guys in emplaced guns, use "G2_COLLIDE, 10" instead of "G2_RETURNONHIT, 0"
 		//alternately, if you end up hitting an emplaced_gun that has a sitter, just redo this one trace with the "G2_COLLIDE, 10" to see if we it the sitter
-		//gi.trace( &tr, start, nullptr, nullptr, end, skip, MASK_SHOT, G2_COLLIDE, 10 );//G2_RETURNONHIT, 0 );
-		gi.trace( &tr, start, shot_mins, shot_maxs, end, skip, MASK_SHOT, G2_COLLIDE, 10 );//G2_RETURNONHIT, 0 );
+		//gi.trace( &tr, start, nullptr, nullptr, end, skip, MASK_SHOT, EG2_Collision::G2_COLLIDE, 10 );//G2_RETURNONHIT, 0 );
+		gi.trace( &tr, start, shot_mins, shot_maxs, end, skip, MASK_SHOT, EG2_Collision::G2_COLLIDE, 10 );//EG2_Collision::G2_RETURNONHIT, 0 );
 
-		if ( Any( tr.surfaceFlags & SURF_NOIMPACT ) )
+		if ( Any( tr.surfaceFlags & surfaceFlags_t::SURF_NOIMPACT ) )
 		{
 			render_impact = false;
 		}
@@ -126,8 +126,8 @@ static void WP_FireConcussionAlt( gentity_t *ent )
 
 		// always render a shot beam, doing this the old way because I don't much feel like overriding the effect.
 		//NOTE: let's just draw one beam at the end
-		//tent = G_TempEntity( tr.endpos, EV_CONC_ALT_SHOT );
-		//tent->svFlags |= SVF_BROADCAST;
+		//tent = G_TempEntity( tr.endpos, entity_event_t::EV_CONC_ALT_SHOT );
+		//tent->svFlags |= svFlags_t::SVF_BROADCAST;
 
 		//VectorCopy( muzzle2, tent->s.origin2 );
 
@@ -140,9 +140,9 @@ static void WP_FireConcussionAlt( gentity_t *ent )
 		traceEnt = &g_entities[tr.entityNum];
 
 		if ( traceEnt //&& traceEnt->NPC
-			&& ( traceEnt->s.weapon == WP_SABER || (traceEnt->client && (traceEnt->client->NPC_class == CLASS_BOBAFETT||traceEnt->client->NPC_class == CLASS_REBORN) ) ) )
+			&& ( traceEnt->s.weapon == weapon_t::WP_SABER || (traceEnt->client && (traceEnt->client->NPC_class == class_t::CLASS_BOBAFETT||traceEnt->client->NPC_class == class_t::CLASS_REBORN) ) ) )
 		{//FIXME: need a more reliable way to know we hit a jedi?
-			hitDodged = Jedi_DodgeEvasion( traceEnt, ent, &tr, HL_NONE );
+			hitDodged = Jedi_DodgeEvasion( traceEnt, ent, &tr, hitLocation_t::HL_NONE );
 			//acts like we didn't even hit him
 		}
 		if ( !hitDodged )
@@ -151,24 +151,24 @@ static void WP_FireConcussionAlt( gentity_t *ent )
 			{
 				if (( tr.entityNum < ENTITYNUM_WORLD && traceEnt->takedamage )
 					|| !Q_stricmp( traceEnt->classname, "misc_model_breakable" )
-					|| traceEnt->s.eType == ET_MOVER )
+					|| traceEnt->s.eType == entityType_t::ET_MOVER )
 				{
 					// Create a simple impact type mark that doesn't last long in the world
 					G_PlayEffect( G_EffectIndex( "concussion/alt_hit" ), tr.endpos, tr.plane.normal );
 
 					if ( traceEnt->client && LogAccuracyHit( traceEnt, ent ))
 					{//NOTE: hitting multiple ents can still get you over 100% accuracy
-						ent->client->ps.persistant[PERS_ACCURACY_HITS]++;
+						ent->client->ps.persistant[persEnum_t::PERS_ACCURACY_HITS]++;
 					}
 
-					hitLocation_t hitLoc = G_GetHitLocFromTrace( &tr, MOD_CONC_ALT );
-					bool noKnockBack = Any( traceEnt->flags & FL_NO_KNOCKBACK );//will be set if they die, I want to know if it was on *before* they died
-					if ( traceEnt && traceEnt->client && traceEnt->client->NPC_class == CLASS_GALAKMECH )
+					hitLocation_t hitLoc = G_GetHitLocFromTrace( &tr, meansOfDeath_t::MOD_CONC_ALT );
+					bool noKnockBack = Any( traceEnt->flags & gentityFlags_t::FL_NO_KNOCKBACK );//will be set if they die, I want to know if it was on *before* they died
+					if ( traceEnt && traceEnt->client && traceEnt->client->NPC_class == class_t::CLASS_GALAKMECH )
 					{//hehe
-						G_Damage( traceEnt, ent, ent, forwardVec, tr.endpos, 10, DAMAGE_NO_KNOCKBACK|DAMAGE_NO_HIT_LOC, MOD_CONC_ALT, hitLoc );
+						G_Damage( traceEnt, ent, ent, forwardVec, tr.endpos, 10, damageFlags_t::DAMAGE_NO_KNOCKBACK|damageFlags_t::DAMAGE_NO_HIT_LOC, meansOfDeath_t::MOD_CONC_ALT, hitLoc );
 						break;
 					}
-					G_Damage( traceEnt, ent, ent, forwardVec, tr.endpos, damage, DAMAGE_NO_KNOCKBACK|DAMAGE_NO_HIT_LOC, MOD_CONC_ALT, hitLoc );
+					G_Damage( traceEnt, ent, ent, forwardVec, tr.endpos, damage, damageFlags_t::DAMAGE_NO_KNOCKBACK|damageFlags_t::DAMAGE_NO_HIT_LOC, meansOfDeath_t::MOD_CONC_ALT, hitLoc );
 
 					//do knockback and knockdown manually
 					if ( traceEnt->client )
@@ -184,7 +184,7 @@ static void WP_FireConcussionAlt( gentity_t *ent )
 							if ( !noKnockBack )
 							{//knock-backable
 								G_Throw( traceEnt, pushDir, 200 );
-								if ( traceEnt->client->NPC_class == CLASS_ROCKETTROOPER )
+								if ( traceEnt->client->NPC_class == class_t::CLASS_ROCKETTROOPER )
 								{
 									traceEnt->client->ps.pm_time = Q_irand( 1500, 3000 );
 								}
@@ -199,7 +199,7 @@ static void WP_FireConcussionAlt( gentity_t *ent )
 						}
 					}
 
-					if ( traceEnt->s.eType == ET_MOVER )
+					if ( traceEnt->s.eType == entityType_t::ET_MOVER )
 					{//stop the traces on any mover
 						break;
 					}
@@ -207,8 +207,8 @@ static void WP_FireConcussionAlt( gentity_t *ent )
 				else
 				{
 					 // we only make this mark on things that can't break or move
-					tent = G_TempEntity( tr.endpos, EV_CONC_ALT_MISS );
-					tent->svFlags |= SVF_BROADCAST;
+					tent = G_TempEntity( tr.endpos, entity_event_t::EV_CONC_ALT_MISS );
+					tent->svFlags |= svFlags_t::SVF_BROADCAST;
 					VectorCopy( tr.plane.normal, tent->pos1 );
 					break; // hit solid, but doesn't take damage, so stop the shot...we _could_ allow it to shoot through walls, might be cool?
 				}
@@ -225,8 +225,8 @@ static void WP_FireConcussionAlt( gentity_t *ent )
 		hitDodged = false;
 	}
 	//just draw one beam all the way to the end
-	tent = G_TempEntity( tr.endpos, EV_CONC_ALT_SHOT );
-	tent->svFlags |= SVF_BROADCAST;
+	tent = G_TempEntity( tr.endpos, entity_event_t::EV_CONC_ALT_SHOT );
+	tent->svFlags |= svFlags_t::SVF_BROADCAST;
 	VectorCopy( muzzle, tent->s.origin2 );
 
 	// now go along the trail and make sight events
@@ -239,13 +239,13 @@ static void WP_FireConcussionAlt( gentity_t *ent )
 	{
 		//FIXME: on a really long shot, this could make a LOT of alerts in one frame...
 		VectorMA( muzzle, dist, dir, spot );
-		AddSightEvent( ent, spot, 256, AEL_DISCOVERED, 50 );
+		AddSightEvent( ent, spot, 256, alertEventLevel_e::AEL_DISCOVERED, 50 );
 		//FIXME: creates *way* too many effects, make it one effect somehow?
 		G_PlayEffect( G_EffectIndex( "concussion/alt_ring" ), spot, forwardVec );
 	}
 	//FIXME: spawn a temp ent that continuously spawns sight alerts here?  And 1 sound alert to draw their attention?
 	VectorMA( start, shotDist-4, forwardVec, spot );
-	AddSightEvent( ent, spot, 256, AEL_DISCOVERED, 50 );
+	AddSightEvent( ent, spot, 256, alertEventLevel_e::AEL_DISCOVERED, 50 );
 
 	G_PlayEffect( G_EffectIndex( "concussion/altmuzzle_flash" ), muzzle, forwardVec );
 }
@@ -253,7 +253,7 @@ static void WP_FireConcussionAlt( gentity_t *ent )
 static void WP_FireConcussion( gentity_t *ent )
 {//a fast rocket-like projectile
 	vec3_t	start;
-	int		damage	= weaponData[WP_CONCUSSION].damage;
+	int		damage	= weaponData[weapon_t::WP_CONCUSSION].damage;
 	float	vel = CONC_VELOCITY;
 
 	if (ent->s.number >= MAX_CLIENTS)
@@ -267,7 +267,7 @@ static void WP_FireConcussion( gentity_t *ent )
 
 	//hold us still for a bit
 	ent->client->ps.pm_time = 300;
-	ent->client->ps.pm_flags |= PMF_TIME_KNOCKBACK;
+	ent->client->ps.pm_flags |= pmoveFlags_t::PMF_TIME_KNOCKBACK;
 	//add viewkick
 	if ( ent->s.number < MAX_CLIENTS//player only
 		&& !cg.renderingThirdPerson )//gives an advantage to being in 3rd person, but would look silly otherwise
@@ -282,7 +282,7 @@ static void WP_FireConcussion( gentity_t *ent )
 	gentity_t *missile = CreateMissile( start, forwardVec, vel, 10000, ent, false );
 
 	missile->classname = "conc_proj";
-	missile->s.weapon = WP_CONCUSSION;
+	missile->s.weapon = weapon_t::WP_CONCUSSION;
 	missile->mass = 10;
 
 	// Do the damages
@@ -307,14 +307,14 @@ static void WP_FireConcussion( gentity_t *ent )
 	VectorScale( missile->maxs, -1, missile->mins );
 
 	missile->damage = damage;
-	missile->dflags = DAMAGE_EXTRA_KNOCKBACK;
+	missile->dflags = damageFlags_t::DAMAGE_EXTRA_KNOCKBACK;
 
-	missile->methodOfDeath = MOD_CONC;
-	missile->splashMethodOfDeath = MOD_CONC;
+	missile->methodOfDeath = meansOfDeath_t::MOD_CONC;
+	missile->splashMethodOfDeath = meansOfDeath_t::MOD_CONC;
 
-	missile->clipmask = MASK_SHOT | CONTENTS_LIGHTSABER;
-	missile->splashDamage = weaponData[WP_CONCUSSION].splashDamage;
-	missile->splashRadius = weaponData[WP_CONCUSSION].splashRadius;
+	missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
+	missile->splashDamage = weaponData[weapon_t::WP_CONCUSSION].splashDamage;
+	missile->splashRadius = weaponData[weapon_t::WP_CONCUSSION].splashRadius;
 
 	// we don't want it to ever bounce
 	missile->bounceCount = 0;

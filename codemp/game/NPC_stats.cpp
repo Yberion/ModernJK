@@ -33,115 +33,115 @@ extern void WP_RemoveSaber( saberInfo_t *sabers, int saberNum );
 
 stringID_table_t TeamTable[] =
 {
-	ENUM2STRING(NPCTEAM_FREE),			// caution, some code checks a team_t via "if (!team_t_varname)" so I guess this should stay as entry 0, great or what? -slc
-	ENUM2STRING(NPCTEAM_PLAYER),
-	ENUM2STRING(NPCTEAM_ENEMY),
-	ENUM2STRING(NPCTEAM_NEUTRAL),	// most droids are team_neutral, there are some exceptions like Probe,Seeker,Interrogator
+	ENUM2STRING(npcteam_t, NPCTEAM_FREE),			// caution, some code checks a team_t via "if (!team_t_varname)" so I guess this should stay as entry 0, great or what? -slc
+	ENUM2STRING(npcteam_t, NPCTEAM_PLAYER),
+	ENUM2STRING(npcteam_t, NPCTEAM_ENEMY),
+	ENUM2STRING(npcteam_t, NPCTEAM_NEUTRAL),	// most droids are team_neutral, there are some exceptions like Probe,Seeker,Interrogator
 	{"",	-1}
 };
 
 // this list was made using the model directories, this MUST be in the same order as the CLASS_ enum in teams.h
 stringID_table_t ClassTable[] =
 {
-	ENUM2STRING(CLASS_NONE),				// hopefully this will never be used by an npc), just covering all bases
-	ENUM2STRING(CLASS_ATST),				// technically droid...
-	ENUM2STRING(CLASS_BARTENDER),
-	ENUM2STRING(CLASS_BESPIN_COP),
-	ENUM2STRING(CLASS_CLAW),
-	ENUM2STRING(CLASS_COMMANDO),
-	ENUM2STRING(CLASS_DESANN),
-	ENUM2STRING(CLASS_FISH),
-	ENUM2STRING(CLASS_FLIER2),
-	ENUM2STRING(CLASS_GALAK),
-	ENUM2STRING(CLASS_GLIDER),
-	ENUM2STRING(CLASS_GONK),				// droid
-	ENUM2STRING(CLASS_GRAN),
-	ENUM2STRING(CLASS_HOWLER),
-//	ENUM2STRING(CLASS_RANCOR),
-	ENUM2STRING(CLASS_IMPERIAL),
-	ENUM2STRING(CLASS_IMPWORKER),
-	ENUM2STRING(CLASS_INTERROGATOR),		// droid
-	ENUM2STRING(CLASS_JAN),
-	ENUM2STRING(CLASS_JEDI),
-	ENUM2STRING(CLASS_KYLE),
-	ENUM2STRING(CLASS_LANDO),
-	ENUM2STRING(CLASS_LIZARD),
-	ENUM2STRING(CLASS_LUKE),
-	ENUM2STRING(CLASS_MARK1),			// droid
-	ENUM2STRING(CLASS_MARK2),			// droid
-	ENUM2STRING(CLASS_GALAKMECH),		// droid
-	ENUM2STRING(CLASS_MINEMONSTER),
-	ENUM2STRING(CLASS_MONMOTHA),
-	ENUM2STRING(CLASS_MORGANKATARN),
-	ENUM2STRING(CLASS_MOUSE),			// droid
-	ENUM2STRING(CLASS_MURJJ),
-	ENUM2STRING(CLASS_PRISONER),
-	ENUM2STRING(CLASS_PROBE),			// droid
-	ENUM2STRING(CLASS_PROTOCOL),			// droid
-	ENUM2STRING(CLASS_R2D2),				// droid
-	ENUM2STRING(CLASS_R5D2),				// droid
-	ENUM2STRING(CLASS_REBEL),
-	ENUM2STRING(CLASS_REBORN),
-	ENUM2STRING(CLASS_REELO),
-	ENUM2STRING(CLASS_REMOTE),
-	ENUM2STRING(CLASS_RODIAN),
-	ENUM2STRING(CLASS_SEEKER),			// droid
-	ENUM2STRING(CLASS_SENTRY),
-	ENUM2STRING(CLASS_SHADOWTROOPER),
-	ENUM2STRING(CLASS_STORMTROOPER),
-	ENUM2STRING(CLASS_SWAMP),
-	ENUM2STRING(CLASS_SWAMPTROOPER),
-	ENUM2STRING(CLASS_TAVION),
-	ENUM2STRING(CLASS_TRANDOSHAN),
-	ENUM2STRING(CLASS_UGNAUGHT),
-	ENUM2STRING(CLASS_JAWA),
-	ENUM2STRING(CLASS_WEEQUAY),
-	ENUM2STRING(CLASS_BOBAFETT),
+	ENUM2STRING(class_t, CLASS_NONE),				// hopefully this will never be used by an npc), just covering all bases
+	ENUM2STRING(class_t, CLASS_ATST),				// technically droid...
+	ENUM2STRING(class_t, CLASS_BARTENDER),
+	ENUM2STRING(class_t, CLASS_BESPIN_COP),
+	ENUM2STRING(class_t, CLASS_CLAW),
+	ENUM2STRING(class_t, CLASS_COMMANDO),
+	ENUM2STRING(class_t, CLASS_DESANN),
+	ENUM2STRING(class_t, CLASS_FISH),
+	ENUM2STRING(class_t, CLASS_FLIER2),
+	ENUM2STRING(class_t, CLASS_GALAK),
+	ENUM2STRING(class_t, CLASS_GLIDER),
+	ENUM2STRING(class_t, CLASS_GONK),				// droid
+	ENUM2STRING(class_t, CLASS_GRAN),
+	ENUM2STRING(class_t, CLASS_HOWLER),
+//	ENUM2STRING(class_t, CLASS_RANCOR),
+	ENUM2STRING(class_t, CLASS_IMPERIAL),
+	ENUM2STRING(class_t, CLASS_IMPWORKER),
+	ENUM2STRING(class_t, CLASS_INTERROGATOR),		// droid
+	ENUM2STRING(class_t, CLASS_JAN),
+	ENUM2STRING(class_t, CLASS_JEDI),
+	ENUM2STRING(class_t, CLASS_KYLE),
+	ENUM2STRING(class_t, CLASS_LANDO),
+	ENUM2STRING(class_t, CLASS_LIZARD),
+	ENUM2STRING(class_t, CLASS_LUKE),
+	ENUM2STRING(class_t, CLASS_MARK1),			// droid
+	ENUM2STRING(class_t, CLASS_MARK2),			// droid
+	ENUM2STRING(class_t, CLASS_GALAKMECH),		// droid
+	ENUM2STRING(class_t, CLASS_MINEMONSTER),
+	ENUM2STRING(class_t, CLASS_MONMOTHA),
+	ENUM2STRING(class_t, CLASS_MORGANKATARN),
+	ENUM2STRING(class_t, CLASS_MOUSE),			// droid
+	ENUM2STRING(class_t, CLASS_MURJJ),
+	ENUM2STRING(class_t, CLASS_PRISONER),
+	ENUM2STRING(class_t, CLASS_PROBE),			// droid
+	ENUM2STRING(class_t, CLASS_PROTOCOL),			// droid
+	ENUM2STRING(class_t, CLASS_R2D2),				// droid
+	ENUM2STRING(class_t, CLASS_R5D2),				// droid
+	ENUM2STRING(class_t, CLASS_REBEL),
+	ENUM2STRING(class_t, CLASS_REBORN),
+	ENUM2STRING(class_t, CLASS_REELO),
+	ENUM2STRING(class_t, CLASS_REMOTE),
+	ENUM2STRING(class_t, CLASS_RODIAN),
+	ENUM2STRING(class_t, CLASS_SEEKER),			// droid
+	ENUM2STRING(class_t, CLASS_SENTRY),
+	ENUM2STRING(class_t, CLASS_SHADOWTROOPER),
+	ENUM2STRING(class_t, CLASS_STORMTROOPER),
+	ENUM2STRING(class_t, CLASS_SWAMP),
+	ENUM2STRING(class_t, CLASS_SWAMPTROOPER),
+	ENUM2STRING(class_t, CLASS_TAVION),
+	ENUM2STRING(class_t, CLASS_TRANDOSHAN),
+	ENUM2STRING(class_t, CLASS_UGNAUGHT),
+	ENUM2STRING(class_t, CLASS_JAWA),
+	ENUM2STRING(class_t, CLASS_WEEQUAY),
+	ENUM2STRING(class_t, CLASS_BOBAFETT),
 	//ENUM2STRING(CLASS_ROCKETTROOPER),
 	//ENUM2STRING(CLASS_PLAYER),
-	ENUM2STRING(CLASS_VEHICLE),
-	ENUM2STRING(CLASS_RANCOR),
-	ENUM2STRING(CLASS_WAMPA),
+	ENUM2STRING(class_t, CLASS_VEHICLE),
+	ENUM2STRING(class_t, CLASS_RANCOR),
+	ENUM2STRING(class_t, CLASS_WAMPA),
 	{"",	-1}
 };
 
 stringID_table_t BSTable[] =
 {
-	ENUM2STRING(BS_DEFAULT),//# default behavior for that NPC
-	ENUM2STRING(BS_ADVANCE_FIGHT),//# Advance to captureGoal and shoot enemies if you can
-	ENUM2STRING(BS_SLEEP),//# Play awake script when startled by sound
-	ENUM2STRING(BS_FOLLOW_LEADER),//# Follow your leader and shoot any enemies you come across
-	ENUM2STRING(BS_JUMP),//# Face navgoal and jump to it.
-	ENUM2STRING(BS_SEARCH),//# Using current waypoint as a base), search the immediate branches of waypoints for enemies
-	ENUM2STRING(BS_WANDER),//# Wander down random waypoint paths
-	ENUM2STRING(BS_NOCLIP),//# Moves through walls), etc.
-	ENUM2STRING(BS_REMOVE),//# Waits for player to leave PVS then removes itself
-	ENUM2STRING(BS_CINEMATIC),//# Does nothing but face it's angles and move to a goal if it has one
+	ENUM2STRING(bState_t, BS_DEFAULT),//# default behavior for that NPC
+	ENUM2STRING(bState_t, BS_ADVANCE_FIGHT),//# Advance to captureGoal and shoot enemies if you can
+	ENUM2STRING(bState_t, BS_SLEEP),//# Play awake script when startled by sound
+	ENUM2STRING(bState_t, BS_FOLLOW_LEADER),//# Follow your leader and shoot any enemies you come across
+	ENUM2STRING(bState_t, BS_JUMP),//# Face navgoal and jump to it.
+	ENUM2STRING(bState_t, BS_SEARCH),//# Using current waypoint as a base), search the immediate branches of waypoints for enemies
+	ENUM2STRING(bState_t, BS_WANDER),//# Wander down random waypoint paths
+	ENUM2STRING(bState_t, BS_NOCLIP),//# Moves through walls), etc.
+	ENUM2STRING(bState_t, BS_REMOVE),//# Waits for player to leave PVS then removes itself
+	ENUM2STRING(bState_t, BS_CINEMATIC),//# Does nothing but face it's angles and move to a goal if it has one
 	//the rest are internal only
 	{"",				-1},
 };
 
-#define stringIDExpand(str, strEnum)	{str, to_underlying( strEnum )}, ENUM2STRING(strEnum)
+#define stringIDExpand(str, type, strEnum)	{str, to_underlying( type::strEnum )}, ENUM2STRING(type, strEnum)
 
 stringID_table_t BSETTable[] =
 {
-	ENUM2STRING(BSET_SPAWN),//# script to use when first spawned
-	ENUM2STRING(BSET_USE),//# script to use when used
-	ENUM2STRING(BSET_AWAKE),//# script to use when awoken/startled
-	ENUM2STRING(BSET_ANGER),//# script to use when aquire an enemy
-	ENUM2STRING(BSET_ATTACK),//# script to run when you attack
-	ENUM2STRING(BSET_VICTORY),//# script to run when you kill someone
-	ENUM2STRING(BSET_LOSTENEMY),//# script to run when you can't find your enemy
-	ENUM2STRING(BSET_PAIN),//# script to use when take pain
-	ENUM2STRING(BSET_FLEE),//# script to use when take pain below 50% of health
-	ENUM2STRING(BSET_DEATH),//# script to use when killed
-	ENUM2STRING(BSET_DELAYED),//# script to run when self->delayScriptTime is reached
-	ENUM2STRING(BSET_BLOCKED),//# script to run when blocked by a friendly NPC or player
-	ENUM2STRING(BSET_BUMPED),//# script to run when bumped into a friendly NPC or player (can set bumpRadius)
-	ENUM2STRING(BSET_STUCK),//# script to run when blocked by a wall
-	ENUM2STRING(BSET_FFIRE),//# script to run when player shoots their own teammates
-	ENUM2STRING(BSET_FFDEATH),//# script to run when player kills a teammate
-	stringIDExpand("", BSET_INVALID),
+	ENUM2STRING(bSet_t, BSET_SPAWN),//# script to use when first spawned
+	ENUM2STRING(bSet_t, BSET_USE),//# script to use when used
+	ENUM2STRING(bSet_t, BSET_AWAKE),//# script to use when awoken/startled
+	ENUM2STRING(bSet_t, BSET_ANGER),//# script to use when aquire an enemy
+	ENUM2STRING(bSet_t, BSET_ATTACK),//# script to run when you attack
+	ENUM2STRING(bSet_t, BSET_VICTORY),//# script to run when you kill someone
+	ENUM2STRING(bSet_t, BSET_LOSTENEMY),//# script to run when you can't find your enemy
+	ENUM2STRING(bSet_t, BSET_PAIN),//# script to use when take pain
+	ENUM2STRING(bSet_t, BSET_FLEE),//# script to use when take pain below 50% of health
+	ENUM2STRING(bSet_t, BSET_DEATH),//# script to use when killed
+	ENUM2STRING(bSet_t, BSET_DELAYED),//# script to run when self->delayScriptTime is reached
+	ENUM2STRING(bSet_t, BSET_BLOCKED),//# script to run when blocked by a friendly NPC or player
+	ENUM2STRING(bSet_t, BSET_BUMPED),//# script to run when bumped into a friendly NPC or player (can set bumpRadius)
+	ENUM2STRING(bSet_t, BSET_STUCK),//# script to run when blocked by a wall
+	ENUM2STRING(bSet_t, BSET_FFIRE),//# script to run when player shoots their own teammates
+	ENUM2STRING(bSet_t, BSET_FFDEATH),//# script to run when player kills a teammate
+	stringIDExpand("", bSet_t, BSET_INVALID),
 	{"",				-1},
 };
 
@@ -159,7 +159,7 @@ std::optional<weapon_t> G_WeaponFromName( const char *name )
 	return static_cast<weapon_t>( id );
 }
 
-EnumArray<const char *, npcteam_t, NPCTEAM_NUM_TEAMS>	TeamNames =
+EnumArray<const char *, npcteam_t, npcteam_t::NPCTEAM_NUM_TEAMS>	TeamNames =
 {
 	"",
 	"player",
@@ -168,7 +168,7 @@ EnumArray<const char *, npcteam_t, NPCTEAM_NUM_TEAMS>	TeamNames =
 };
 
 // this list was made using the model directories, this MUST be in the same order as the CLASS_ enum in teams.h
-EnumArray<const char *, class_t, CLASS_NUM_CLASSES>	ClassNames =
+EnumArray<const char *, class_t, class_t::CLASS_NUM_CLASSES>	ClassNames =
 {
 	"",				// class none
 	"atst",
@@ -254,7 +254,7 @@ team_t TranslateTeamName( const char *name )
 {
 	int n;
 
-	for ( n = (NPCTEAM_FREE + 1); n < NPCTEAM_NUM_TEAMS; n++ )
+	for ( n = (npcteam_t::NPCTEAM_FREE + 1); n < npcteam_t::NPCTEAM_NUM_TEAMS; n++ )
 	{
 		if ( Q_stricmp( TeamNames[n], name ) == 0 )
 		{
@@ -262,14 +262,14 @@ team_t TranslateTeamName( const char *name )
 		}
 	}
 
-	return NPCTEAM_FREE;
+	return npcteam_t::NPCTEAM_FREE;
 }
 
 class_t TranslateClassName( const char *name )
 {
 	int n;
 
-	for ( n = (CLASS_NONE + 1); n < CLASS_NUM_CLASSES; n++ )
+	for ( n = (class_t::CLASS_NONE + 1); n < class_t::CLASS_NUM_CLASSES; n++ )
 	{
 		if ( Q_stricmp( ClassNames[n], name ) == 0 )
 		{
@@ -277,7 +277,7 @@ class_t TranslateClassName( const char *name )
 		}
 	}
 
-	return CLASS_NONE;  // I hope this never happens, maybe print a warning
+	return class_t::CLASS_NONE;  // I hope this never happens, maybe print a warning
 }
 */
 
@@ -290,45 +290,45 @@ static rank_t TranslateRankName( const char *name )
 {
 	if ( !Q_stricmp( name, "civilian" ) )
 	{
-		return RANK_CIVILIAN;
+		return rank_t::RANK_CIVILIAN;
 	}
 
 	if ( !Q_stricmp( name, "crewman" ) )
 	{
-		return RANK_CREWMAN;
+		return rank_t::RANK_CREWMAN;
 	}
 
 	if ( !Q_stricmp( name, "ensign" ) )
 	{
-		return RANK_ENSIGN;
+		return rank_t::RANK_ENSIGN;
 	}
 
 	if ( !Q_stricmp( name, "ltjg" ) )
 	{
-		return RANK_LT_JG;
+		return rank_t::RANK_LT_JG;
 	}
 
 	if ( !Q_stricmp( name, "lt" ) )
 	{
-		return RANK_LT;
+		return rank_t::RANK_LT;
 	}
 
 	if ( !Q_stricmp( name, "ltcomm" ) )
 	{
-		return RANK_LT_COMM;
+		return rank_t::RANK_LT_COMM;
 	}
 
 	if ( !Q_stricmp( name, "commander" ) )
 	{
-		return RANK_COMMANDER;
+		return rank_t::RANK_COMMANDER;
 	}
 
 	if ( !Q_stricmp( name, "captain" ) )
 	{
-		return RANK_CAPTAIN;
+		return rank_t::RANK_CAPTAIN;
 	}
 
-	return RANK_CIVILIAN;
+	return rank_t::RANK_CIVILIAN;
 
 }
 
@@ -402,7 +402,7 @@ void SpewDebugStuffToFile(animation_t *anims)
 	fileHandle_t f;
 	int i = 0;
 
-	trap->FS_Open("file_of_debug_stuff_SP.txt", &f, FS_WRITE);
+	trap->FS_Open("file_of_debug_stuff_SP.txt", &f, fsMode_t::FS_WRITE);
 
 	if (!f)
 	{
@@ -411,7 +411,7 @@ void SpewDebugStuffToFile(animation_t *anims)
 
 	BGPAFtext[0] = 0;
 
-	while (i < MAX_ANIMATIONS)
+	while (i < animNumber_t::MAX_ANIMATIONS)
 	{
 		strcat(BGPAFtext, va("%i %i\n", i, anims[i].frameLerp));
 		i++;
@@ -554,7 +554,7 @@ void NPC_PrecacheWeapons( npcteam_t playerTeam, int spawnflags, const char *NPCt
 	int weapons = NPC_WeaponsForTeam( playerTeam, spawnflags, NPCtype );
 	weapon_t curWeap;
 
-	for ( curWeap = WP_SABER; curWeap < WP_NUM_WEAPONS; curWeap++ )
+	for ( curWeap = weapon_t::WP_SABER; curWeap < weapon_t::WP_NUM_WEAPONS; curWeap++ )
 	{
 		if (weapons & Bit( curWeap ))
 		{
@@ -565,7 +565,7 @@ void NPC_PrecacheWeapons( npcteam_t playerTeam, int spawnflags, const char *NPCt
 #if 0 //rwwFIXMEFIXME: actually precache weapons here
 	int weapons = NPC_WeaponsForTeam( playerTeam, spawnflags, NPCtype );
 	gitem_t	*item;
-	for ( int curWeap = WP_SABER; curWeap < WP_NUM_WEAPONS; curWeap++ )
+	for ( int curWeap = weapon_t::WP_SABER; curWeap < weapon_t::WP_NUM_WEAPONS; curWeap++ )
 	{
 		if ( (weapons & ( 1 << curWeap )) )
 		{
@@ -599,7 +599,7 @@ Precaches NPC skins, tgas and md3s.
 */
 void NPC_Precache ( gentity_t *spawner )
 {
-	npcteam_t			playerTeam = NPCTEAM_FREE;
+	npcteam_t			playerTeam = npcteam_t::NPCTEAM_FREE;
 	const char	*token;
 	const char	*value;
 	const char	*p;
@@ -754,7 +754,7 @@ void NPC_Precache ( gentity_t *spawner )
 			if ( COM_ParseString( &p, &value ) ) {
 				continue;
 			}
-			if ( !Any( spawner->r.svFlags & SVF_NO_BASIC_SOUNDS ) )
+			if ( !Any( spawner->r.svFlags & svFlags_t::SVF_NO_BASIC_SOUNDS ) )
 			{
 				//FIXME: store this in some sound field or parse in the soundTable like the animTable...
 				Q_strncpyz( sound, value, sizeof( sound ) );
@@ -773,7 +773,7 @@ void NPC_Precache ( gentity_t *spawner )
 			if ( COM_ParseString( &p, &value ) ) {
 				continue;
 			}
-			if ( !Any( spawner->r.svFlags & SVF_NO_COMBAT_SOUNDS ) )
+			if ( !Any( spawner->r.svFlags & svFlags_t::SVF_NO_COMBAT_SOUNDS ) )
 			{
 				//FIXME: store this in some sound field or parse in the soundTable like the animTable...
 				Q_strncpyz( sound, value, sizeof( sound ) );
@@ -792,7 +792,7 @@ void NPC_Precache ( gentity_t *spawner )
 			if ( COM_ParseString( &p, &value ) ) {
 				continue;
 			}
-			if ( !Any( spawner->r.svFlags & SVF_NO_EXTRA_SOUNDS ) )
+			if ( !Any( spawner->r.svFlags & svFlags_t::SVF_NO_EXTRA_SOUNDS ) )
 			{
 				//FIXME: store this in some sound field or parse in the soundTable like the animTable...
 				Q_strncpyz( sound, value, sizeof( sound ) );
@@ -811,7 +811,7 @@ void NPC_Precache ( gentity_t *spawner )
 			if ( COM_ParseString( &p, &value ) ) {
 				continue;
 			}
-			if ( !Any( spawner->r.svFlags & SVF_NO_EXTRA_SOUNDS ) )
+			if ( !Any( spawner->r.svFlags & svFlags_t::SVF_NO_EXTRA_SOUNDS ) )
 			{
 				//FIXME: store this in some sound field or parse in the soundTable like the animTable...
 				Q_strncpyz( sound, value, sizeof( sound ) );
@@ -836,7 +836,7 @@ void NPC_Precache ( gentity_t *spawner )
 
 			curWeap = G_WeaponFromName( value );
 
-			if (curWeap > WP_NONE && curWeap < WP_NUM_WEAPONS)
+			if (curWeap > weapon_t::WP_NONE && curWeap < weapon_t::WP_NUM_WEAPONS)
 			{
 				RegisterItem(BG_FindItemForWeapon(*curWeap));
 			}
@@ -845,7 +845,7 @@ void NPC_Precache ( gentity_t *spawner )
 	}
 
 	// If we're not a vehicle, then an error here would be valid...
-	if ( !spawner->client || spawner->client->NPC_class != CLASS_VEHICLE )
+	if ( !spawner->client || spawner->client->NPC_class != class_t::CLASS_VEHICLE )
 	{
 		if ( md3Model )
 		{
@@ -967,7 +967,7 @@ void NPC_BuildRandom( gentity_t *NPC )
 
 	NPC->s.modelScale[0] = NPC->s.modelScale[1] = NPC->s.modelScale[2] = Q_irand(87, 102)/100.0f;
 //	NPC->client->race = RACE_HUMAN;
-	NPC->NPC->rank = RANK_CREWMAN;
+	NPC->NPC->rank = rank_t::RANK_CREWMAN;
 	NPC->client->playerTeam = NPC->s.teamowner = TEAM_PLAYER;
 	NPC->client->clientInfo.customBasicSoundDir = "kyle";//FIXME: generic default?
 }
@@ -1015,14 +1015,14 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 	{
 		stats = &NPC->NPC->stats;
 /*
-	NPC->NPC->allWeaponOrder[0]	= WP_BRYAR_PISTOL;
-	NPC->NPC->allWeaponOrder[1]	= WP_SABER;
+	NPC->NPC->allWeaponOrder[0]	= weapon_t::WP_BRYAR_PISTOL;
+	NPC->NPC->allWeaponOrder[1]	= weapon_t::WP_SABER;
 	NPC->NPC->allWeaponOrder[2]	= WP_IMOD;
 	NPC->NPC->allWeaponOrder[3]	= WP_SCAVENGER_RIFLE;
 	NPC->NPC->allWeaponOrder[4]	= WP_TRICORDER;
-	NPC->NPC->allWeaponOrder[6]	= WP_NONE;
-	NPC->NPC->allWeaponOrder[6]	= WP_NONE;
-	NPC->NPC->allWeaponOrder[7]	= WP_NONE;
+	NPC->NPC->allWeaponOrder[6]	= weapon_t::WP_NONE;
+	NPC->NPC->allWeaponOrder[6]	= weapon_t::WP_NONE;
+	NPC->NPC->allWeaponOrder[7]	= weapon_t::WP_NONE;
 */
 		// fill in defaults
 		stats->aggression	= 3;
@@ -2121,7 +2121,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 				}
 				else if ( parsingPlayer )
 				{
-					NPC->client->ps.stats[STAT_MAX_HEALTH] = NPC->client->pers.maxHealth = n;
+					NPC->client->ps.stats[statIndex_t::STAT_MAX_HEALTH] = NPC->client->pers.maxHealth = n;
 				}
 				continue;
 			}
@@ -2176,7 +2176,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 				NPC->s.NPC_class = NPC->client->NPC_class; //we actually only need this value now, but at the moment I don't feel like changing the 200+ references to client->NPC_class.
 
 				// No md3's for vehicles.
-				if ( NPC->client->NPC_class == CLASS_VEHICLE )
+				if ( NPC->client->NPC_class == class_t::CLASS_VEHICLE )
 				{
 					if ( !NPC->m_pVehicle )
 					{//you didn't spawn this guy right!
@@ -2300,10 +2300,10 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 				{
 					continue;
 				}
-				if ( NPC->client->NPC_class == CLASS_VEHICLE
+				if ( NPC->client->NPC_class == class_t::CLASS_VEHICLE
 					&& NPC->m_pVehicle
 					&& NPC->m_pVehicle->m_pVehicleInfo
-					&& NPC->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER )
+					&& NPC->m_pVehicle->m_pVehicleInfo->type == vehicleType_t::VH_FIGHTER )
 				{//a flying vehicle's origin must be centered in bbox and it should spawn on the ground
 					//trace_t		tr;
 					//vec3_t		bottom;
@@ -2357,7 +2357,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 					}
 					if ( Q_stricmp( "flyswim", value ) == 0 )
 					{
-						NPC->client->ps.eFlags2 |= EF2_FLYING;
+						NPC->client->ps.eFlags2 |= entityFlags2_t::EF2_FLYING;
 					}
 					//NPC->client->moveType = (movetype_t)MoveTypeNameToEnum(value);
 					//rwwFIXMEFIXME: support for movetypes
@@ -2455,7 +2455,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 						SkipRestOfLine( &p );
 						continue;
 					}
-					if ( n < to_underlying( BS_DEFAULT ) || n >= to_underlying( NUM_BSTATES ) )
+					if ( n < to_underlying( bState_t::BS_DEFAULT ) || n >= to_underlying( bState_t::NUM_BSTATES ) )
 					{
 						Com_Printf( S_COLOR_YELLOW"WARNING: bad %s in NPC '%s'\n", token, NPCName );
 						continue;
@@ -2475,7 +2475,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 				{
 					continue;
 				}
-				if ( !Any( NPC->r.svFlags & SVF_NO_BASIC_SOUNDS ) )
+				if ( !Any( NPC->r.svFlags & svFlags_t::SVF_NO_BASIC_SOUNDS ) )
 				{
 					//FIXME: store this in some sound field or parse in the soundTable like the animTable...
 					Q_strncpyz( sound, value, sizeof( sound ) );
@@ -2497,7 +2497,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 				{
 					continue;
 				}
-				if ( !Any( NPC->r.svFlags & SVF_NO_COMBAT_SOUNDS ) )
+				if ( !Any( NPC->r.svFlags & svFlags_t::SVF_NO_COMBAT_SOUNDS ) )
 				{
 					//FIXME: store this in some sound field or parse in the soundTable like the animTable...
 					Q_strncpyz( sound, value, sizeof( sound ) );
@@ -2518,7 +2518,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 				{
 					continue;
 				}
-				if ( !Any( NPC->r.svFlags & SVF_NO_EXTRA_SOUNDS ) )
+				if ( !Any( NPC->r.svFlags & svFlags_t::SVF_NO_EXTRA_SOUNDS ) )
 				{
 					//FIXME: store this in some sound field or parse in the soundTable like the animTable...
 					Q_strncpyz( sound, value, sizeof( sound ) );
@@ -2539,7 +2539,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 				{
 					continue;
 				}
-				if ( !Any( NPC->r.svFlags & SVF_NO_EXTRA_SOUNDS ) )
+				if ( !Any( NPC->r.svFlags & svFlags_t::SVF_NO_EXTRA_SOUNDS ) )
 				{
 					//FIXME: store this in some sound field or parse in the soundTable like the animTable...
 					Q_strncpyz( sound, value, sizeof( sound ) );
@@ -2565,11 +2565,11 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 				}
 				//FIXME: need to precache the weapon, too?  (in above func)
 				weap = G_WeaponFromName( value );
-				if ( weap >= WP_NONE && weap < WP_NUM_WEAPONS )///*WP_BLASTER_PISTOL*/WP_SABER ) //?!
+				if ( weap >= weapon_t::WP_NONE && weap < weapon_t::WP_NUM_WEAPONS )///*WP_BLASTER_PISTOL*/WP_SABER ) //?!
 				{
 					NPC->client->ps.weapon = *weap;
-					NPC->client->ps.stats[STAT_WEAPONS] |= Bit( NPC->client->ps.weapon );
-					if ( weap > WP_NONE )
+					NPC->client->ps.stats[statIndex_t::STAT_WEAPONS] |= Bit( NPC->client->ps.weapon );
+					if ( weap > weapon_t::WP_NONE )
 					{
 					//	RegisterItem( FindItemForWeapon( (weapon_t)(NPC->client->ps.weapon) ) );	//precache the weapon
 						NPC->client->ps.ammo[weaponData[NPC->client->ps.weapon].ammoIndex] = 100;//FIXME: max ammo!
@@ -2592,7 +2592,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 					{
 						if ( n != 0 )
 						{
-							NPC->NPC->scriptFlags |= SCF_ALT_FIRE;
+							NPC->NPC->scriptFlags |= scriptFlags_t::SCF_ALT_FIRE;
 						}
 					}
 					continue;
@@ -2699,13 +2699,13 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 					continue;
 				}
 
-				if ( !Any( NPC->client->saber[0].saberFlags & SFL_TWO_HANDED ) )
+				if ( !Any( NPC->client->saber[0].saberFlags & saberFlags_t::SFL_TWO_HANDED ) )
 				{//can't use a second saber if first one is a two-handed saber...?
 					char *saberName = (char *)BG_TempAlloc(4096);//G_NewString( value );
 					strcpy(saberName, value);
 
 					WP_SaberParseParms( saberName, &NPC->client->saber[1] );
-					if ( Any( NPC->client->saber[1].saberFlags & SFL_TWO_HANDED ) )
+					if ( Any( NPC->client->saber[1].saberFlags & saberFlags_t::SFL_TWO_HANDED ) )
 					{//tsk tsk, can't use a twoHanded saber as second saber
 						WP_RemoveSaber( NPC->client->saber, 1 );
 					}
@@ -3527,7 +3527,7 @@ Ghoul2 Insert Start
 			strcpy(customSkin, "default");
 		}
 
-		if ( NPC->client && NPC->client->NPC_class == CLASS_VEHICLE )
+		if ( NPC->client && NPC->client->NPC_class == class_t::CLASS_VEHICLE )
 		{ //vehicles want their names fed in as models
 			//we put the $ in front to indicate a name and not a model
 			strcpy(playerModel, va("$%s", NPCName));
@@ -3594,7 +3594,7 @@ void NPC_LoadParms( void )
 
 //		Com_Printf( "Parsing %s\n", holdChar );
 
-		len = trap->FS_Open(va( "ext_data/NPCs/%s", holdChar), &f, FS_READ);
+		len = trap->FS_Open(va( "ext_data/NPCs/%s", holdChar), &f, fsMode_t::FS_READ);
 
 		if ( len == -1 )
 		{
@@ -3604,7 +3604,7 @@ void NPC_LoadParms( void )
 		{
 			if ( totallen + len >= MAX_NPC_DATA_SIZE ) {
 				trap->FS_Close( f );
-				trap->Error( ERR_DROP, "NPC extensions (*.npc) are too large" );
+				trap->Error( errorParm_t::ERR_DROP, "NPC extensions (*.npc) are too large" );
 			}
 			trap->FS_Read(npcParseBuffer, len, f);
 			npcParseBuffer[len] = 0;

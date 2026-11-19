@@ -107,7 +107,6 @@ public:
 		SQ_CONDITIONAL	= 0x00000020,	//Conditional statement
 		SQ_TASK			= 0x00000040,	//Task block
 	};
-	using enum sequenceFlags_t;
 
 	enum class pushPop_t
 	{
@@ -116,7 +115,6 @@ public:
 		PUSH_FRONT,
 		PUSH_BACK
 	};
-	using enum pushPop_t;
 
 protected:
 

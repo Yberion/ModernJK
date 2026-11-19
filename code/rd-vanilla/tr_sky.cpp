@@ -166,7 +166,7 @@ static void ClipSkyPolygon (int nump, vec3_t vecs, int stage)
 	int		i, j;
 
 	if (nump > MAX_CLIP_VERTS-2)
-		Com_Error (ERR_DROP, "ClipSkyPolygon: MAX_CLIP_VERTS");
+		Com_Error (errorParm_t::ERR_DROP, "ClipSkyPolygon: MAX_CLIP_VERTS");
 	if (stage == 6)
 	{	// fully clipped, so draw it
 		AddSkyPolygon (nump, vecs);
@@ -181,15 +181,15 @@ static void ClipSkyPolygon (int nump, vec3_t vecs, int stage)
 		if (d > ON_EPSILON)
 		{
 			front = true;
-			sides[i] = SIDE_FRONT;
+			sides[i] = planeSide_t::SIDE_FRONT;
 		}
 		else if (d < -ON_EPSILON)
 		{
 			back = true;
-			sides[i] = SIDE_BACK;
+			sides[i] = planeSide_t::SIDE_BACK;
 		}
 		else
-			sides[i] = SIDE_ON;
+			sides[i] = planeSide_t::SIDE_ON;
 		dists[i] = d;
 	}
 
@@ -209,25 +209,25 @@ static void ClipSkyPolygon (int nump, vec3_t vecs, int stage)
 	{
 		switch (sides[i])
 		{
-		case SIDE_FRONT:
+		case planeSide_t::SIDE_FRONT:
 			VectorCopy (v, newv[0][newc[0]]);
 			newc[0]++;
 			break;
-		case SIDE_BACK:
+		case planeSide_t::SIDE_BACK:
 			VectorCopy (v, newv[1][newc[1]]);
 			newc[1]++;
 			break;
-		case SIDE_ON:
+		case planeSide_t::SIDE_ON:
 			VectorCopy (v, newv[0][newc[0]]);
 			newc[0]++;
 			VectorCopy (v, newv[1][newc[1]]);
 			newc[1]++;
 			break;
-		case SIDE_CROSS:	// the collision's, never computed here
+		case planeSide_t::SIDE_CROSS:	// the collision's, never computed here
 			break;
 		}
 
-		if (sides[i] == SIDE_ON || sides[i+1] == SIDE_ON || sides[i+1] == sides[i])
+		if (sides[i] == planeSide_t::SIDE_ON || sides[i+1] == planeSide_t::SIDE_ON || sides[i+1] == sides[i])
 			continue;
 
 		d = dists[i] / (dists[i] - dists[i+1]);
@@ -482,7 +482,7 @@ static void FillCloudySkySide( const int mins[2], const int maxs[2], bool addInd
 
 			if ( tess.numVertexes >= SHADER_MAX_VERTEXES )
 			{
-				Com_Error( ERR_DROP, "SHADER_MAX_VERTEXES hit in FillCloudySkySide()\n" );
+				Com_Error( errorParm_t::ERR_DROP, "SHADER_MAX_VERTEXES hit in FillCloudySkySide()\n" );
 			}
 		}
 	}
@@ -802,7 +802,7 @@ void RB_StageIteratorSky( void ) {
 		return;
 	}
 
-	if (skyboxportal && !Any(backEnd.refdef.rdflags & RDF_SKYBOXPORTAL))
+	if (skyboxportal && !Any(backEnd.refdef.rdflags & refdefFlags_t::RDF_SKYBOXPORTAL))
 	{
 		return;
 	}
@@ -826,7 +826,7 @@ void RB_StageIteratorSky( void ) {
 		qglColor3f( tr.identityLight, tr.identityLight, tr.identityLight );
 
 		qglPushMatrix ();
-		GL_State( GLS_NONE );
+		GL_State( glStateBits_t::GLS_NONE );
 		qglTranslatef (backEnd.viewParms.ori.origin[0], backEnd.viewParms.ori.origin[1], backEnd.viewParms.ori.origin[2]);
 
 		DrawSkyBox( tess.shader );

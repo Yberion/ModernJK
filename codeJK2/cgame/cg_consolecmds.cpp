@@ -103,13 +103,13 @@ void CG_ToggleBinoculars( void )
 
 	if ( cg.zoomMode == 0 || cg.zoomMode >= 2 ) // not zoomed or currently zoomed with the disruptor or LA goggles
 	{
-		if ( (cg.snap->ps.saberActive && cg.snap->ps.saberInFlight) || cg.snap->ps.stats[STAT_HEALTH] <= 0)
+		if ( (cg.snap->ps.saberActive && cg.snap->ps.saberInFlight) || cg.snap->ps.stats[statIndex_t::STAT_HEALTH] <= 0)
 		{//can't select binoculars when throwing saber
 			//FIXME: indicate this to the player
 			return;
 		}
 
-		if ( cg.snap->ps.viewEntity || Any( cg_entities[cg.snap->ps.clientNum].currentState.eFlags & ( EF_LOCKED_TO_WEAPON | EF_IN_ATST )))
+		if ( cg.snap->ps.viewEntity || Any( cg_entities[cg.snap->ps.clientNum].currentState.eFlags & ( entityFlags_t::EF_LOCKED_TO_WEAPON | entityFlags_t::EF_IN_ATST )))
 		{
 			// can't zoom when you have a viewEntity or driving an atst or in an emplaced gun
 			return;
@@ -123,7 +123,7 @@ void CG_ToggleBinoculars( void )
 			// when you have batteries, you can actually zoom in
 			cg_zoomFov = 40.0f;
 		}
-		else if ( Any( cg.overrides.active & CG_OVERRIDE_FOV ) )
+		else if ( Any( cg.overrides.active & cgOverrideFlags_t::CG_OVERRIDE_FOV ) )
 		{
 			cg_zoomFov = cg.overrides.fov;
 		}
@@ -132,13 +132,13 @@ void CG_ToggleBinoculars( void )
 			cg_zoomFov = cg_fov.value;
 		}
 
-		cgi_S_StartSound( nullptr, cg.snap->ps.clientNum, CHAN_AUTO, cgs.media.zoomStart );
+		cgi_S_StartSound( nullptr, cg.snap->ps.clientNum, soundChannel_t::CHAN_AUTO, cgs.media.zoomStart );
 	}
 	else
 	{
 		cg.zoomMode = 0;
 		cg.zoomTime = cg.time;
-		cgi_S_StartSound( nullptr, cg.snap->ps.clientNum, CHAN_AUTO, cgs.media.zoomEnd );
+		cgi_S_StartSound( nullptr, cg.snap->ps.clientNum, soundChannel_t::CHAN_AUTO, cgs.media.zoomEnd );
 	}
 }
 
@@ -151,13 +151,13 @@ void CG_ToggleLAGoggles( void )
 
 	if ( cg.zoomMode == 0 || cg.zoomMode < 3 ) // not zoomed or currently zoomed with the disruptor or regular binoculars
 	{
-		if ( (cg.snap->ps.saberActive && cg.snap->ps.saberInFlight) || cg.snap->ps.stats[STAT_HEALTH] <= 0 )
+		if ( (cg.snap->ps.saberActive && cg.snap->ps.saberInFlight) || cg.snap->ps.stats[statIndex_t::STAT_HEALTH] <= 0 )
 		{//can't select binoculars when throwing saber
 			//FIXME: indicate this to the player
 			return;
 		}
 
-		if ( cg.snap->ps.viewEntity || Any( cg_entities[cg.snap->ps.clientNum].currentState.eFlags & ( EF_LOCKED_TO_WEAPON | EF_IN_ATST )))
+		if ( cg.snap->ps.viewEntity || Any( cg_entities[cg.snap->ps.clientNum].currentState.eFlags & ( entityFlags_t::EF_LOCKED_TO_WEAPON | entityFlags_t::EF_IN_ATST )))
 		{
 			// can't zoom when you have a viewEntity or driving an atst or in an emplaced gun
 			return;
@@ -165,7 +165,7 @@ void CG_ToggleLAGoggles( void )
 
 		cg.zoomMode = 3;
 		cg.zoomLocked = false;
-		if ( Any( cg.overrides.active & CG_OVERRIDE_FOV ) )
+		if ( Any( cg.overrides.active & cgOverrideFlags_t::CG_OVERRIDE_FOV ) )
 		{
 			cg_zoomFov = cg.overrides.fov;
 		}
@@ -174,13 +174,13 @@ void CG_ToggleLAGoggles( void )
 			cg_zoomFov = cg_fov.value; // does not zoom!!
 		}
 
-		cgi_S_StartSound( nullptr, cg.snap->ps.clientNum, CHAN_AUTO, cgs.media.zoomStart );
+		cgi_S_StartSound( nullptr, cg.snap->ps.clientNum, soundChannel_t::CHAN_AUTO, cgs.media.zoomStart );
 	}
 	else
 	{
 		cg.zoomMode = 0;
 		cg.zoomTime = cg.time;
-		cgi_S_StartSound( nullptr, cg.snap->ps.clientNum, CHAN_AUTO, cgs.media.zoomEnd );
+		cgi_S_StartSound( nullptr, cg.snap->ps.clientNum, soundChannel_t::CHAN_AUTO, cgs.media.zoomEnd );
 	}
 }
 

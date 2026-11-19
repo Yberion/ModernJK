@@ -32,7 +32,6 @@ enum class WL_e {
 	WL_VERBOSE,
 	WL_DEBUG
 };
-using enum WL_e;
 
 #define STL_ITERATE( a, b )		for ( a = b.begin(); a != b.end(); ++a )
 #define STL_INSERT( a, b )		a.insert( a.end(), b );

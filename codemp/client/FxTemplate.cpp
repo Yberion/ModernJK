@@ -40,14 +40,14 @@ CPrimitiveTemplate::CPrimitiveTemplate()
 	mName[0] = 0;
 	mCullRange = 0; // no distance culling
 
-	mFlags = FX_NONE;
-	mSpawnFlags = FX_SPAWN_NONE;
+	mFlags = fxPrimitiveFlags_t::FX_NONE;
+	mSpawnFlags = fxSpawnFlags_t::FX_SPAWN_NONE;
 	mElasticity.SetRange(0.1f, 0.1f);
 
 	mSoundVolume = -1;
 	mSoundRadius = -1;
 
-	mMatImpactFX = MATIMPACTFX_NONE;
+	mMatImpactFX = EMatImpactEffect::MATIMPACTFX_NONE;
 
 	mLife.SetRange( 50.0f, 50.0f );
 	mSpawnCount.SetRange( 1.0f, 1.0f );
@@ -293,7 +293,7 @@ bool CPrimitiveTemplate::ParseGroupFlags( const char *val, fxPrimitiveFlags_t *f
 	int v = sscanf( val, "%s %s %s %s", flag[0], flag[1], flag[2], flag[3] );
 
 	// Clear out the flags field, then convert the flag string to an actual value ( use generic flags )
-	*flags = FX_NONE;
+	*flags = fxPrimitiveFlags_t::FX_NONE;
 
 	for ( int i = 0; i < 4; i++ )
 	{
@@ -303,15 +303,15 @@ bool CPrimitiveTemplate::ParseGroupFlags( const char *val, fxPrimitiveFlags_t *f
 		}
 
 		if ( !Q_stricmp( flag[i], "linear" ) )
-			*flags |= FX_LINEAR;
+			*flags |= fxPrimitiveFlags_t::FX_LINEAR;
 		else if ( !Q_stricmp( flag[i], "nonlinear" ) )
-			*flags |= FX_NONLINEAR;
+			*flags |= fxPrimitiveFlags_t::FX_NONLINEAR;
 		else if ( !Q_stricmp( flag[i], "wave" ) )
-			*flags |= FX_WAVE;
+			*flags |= fxPrimitiveFlags_t::FX_WAVE;
 		else if ( !Q_stricmp( flag[i], "random" ) )
-			*flags |= FX_RAND;
+			*flags |= fxPrimitiveFlags_t::FX_RAND;
 		else if ( !Q_stricmp( flag[i], "clamp" ) )
-			*flags |= FX_CLAMP;
+			*flags |= fxPrimitiveFlags_t::FX_CLAMP;
 
 		else
 		{ // we have badness going on, but continue on in case there are any valid fields in here
@@ -341,7 +341,7 @@ bool CPrimitiveTemplate::ParseMin( const char *val )
 		VectorCopy( min, mMin );
 
 		// We assume that if a min is being set that we are using physics and a bounding box
-		mFlags |= (FX_USE_BBOX | FX_APPLY_PHYSICS);
+		mFlags |= (fxPrimitiveFlags_t::FX_USE_BBOX | fxPrimitiveFlags_t::FX_APPLY_PHYSICS);
 		return true;
 	}
 
@@ -367,7 +367,7 @@ bool CPrimitiveTemplate::ParseMax( const char *val )
 		VectorCopy( max, mMax );
 
 		// We assume that if a max is being set that we are using physics and a bounding box
-		mFlags |= (FX_USE_BBOX | FX_APPLY_PHYSICS);
+		mFlags |= (fxPrimitiveFlags_t::FX_USE_BBOX | fxPrimitiveFlags_t::FX_APPLY_PHYSICS);
 		return true;
 	}
 
@@ -463,7 +463,7 @@ bool CPrimitiveTemplate::ParseElasticity( const char *val )
 
 		// We assume that if elasticity is set that we are using physics, but don't assume we are
 		//	using a bounding box unless a min/max are explicitly set
-		mFlags |= FX_APPLY_PHYSICS;
+		mFlags |= fxPrimitiveFlags_t::FX_APPLY_PHYSICS;
 		return true;
 	}
 
@@ -737,41 +737,41 @@ bool CPrimitiveTemplate::ParseFlags( const char *val )
 		}
 
 			 if ( !Q_stricmp( flag[i], "useModel" ))
-			mFlags |= FX_ATTACHED_MODEL;
+			mFlags |= fxPrimitiveFlags_t::FX_ATTACHED_MODEL;
 		else if ( !Q_stricmp( flag[i], "useBBox" ))
-			mFlags |= FX_USE_BBOX;
+			mFlags |= fxPrimitiveFlags_t::FX_USE_BBOX;
 		else if ( !Q_stricmp( flag[i], "usePhysics" ))
-			mFlags |= FX_APPLY_PHYSICS;
+			mFlags |= fxPrimitiveFlags_t::FX_APPLY_PHYSICS;
 		else if ( !Q_stricmp( flag[i], "expensivePhysics" ))
-			mFlags |= FX_EXPENSIVE_PHYSICS;
+			mFlags |= fxPrimitiveFlags_t::FX_EXPENSIVE_PHYSICS;
 		//rww - begin g2 stuff
 		else if ( !Q_stricmp( flag[i], "ghoul2Collision" ))
-			mFlags |= (FX_GHOUL2_TRACE|FX_APPLY_PHYSICS|FX_EXPENSIVE_PHYSICS);
+			mFlags |= (fxPrimitiveFlags_t::FX_GHOUL2_TRACE|fxPrimitiveFlags_t::FX_APPLY_PHYSICS|fxPrimitiveFlags_t::FX_EXPENSIVE_PHYSICS);
 		else if ( !Q_stricmp( flag[i], "ghoul2Decals" ))
-			mFlags |= FX_GHOUL2_DECALS;
+			mFlags |= fxPrimitiveFlags_t::FX_GHOUL2_DECALS;
 		//rww - end
 		else if ( !Q_stricmp( flag[i], "impactKills" ))
-			mFlags |= FX_KILL_ON_IMPACT;
+			mFlags |= fxPrimitiveFlags_t::FX_KILL_ON_IMPACT;
 		else if ( !Q_stricmp( flag[i], "impactFx" ))
-			mFlags |= FX_IMPACT_RUNS_FX;
+			mFlags |= fxPrimitiveFlags_t::FX_IMPACT_RUNS_FX;
 		else if ( !Q_stricmp( flag[i], "deathFx" ))
-			mFlags |= FX_DEATH_RUNS_FX;
+			mFlags |= fxPrimitiveFlags_t::FX_DEATH_RUNS_FX;
 		else if ( !Q_stricmp( flag[i], "useAlpha" ))
-			mFlags |= FX_USE_ALPHA;
+			mFlags |= fxPrimitiveFlags_t::FX_USE_ALPHA;
 		else if ( !Q_stricmp( flag[i], "emitFx" ))
-			mFlags |= FX_EMIT_FX;
+			mFlags |= fxPrimitiveFlags_t::FX_EMIT_FX;
 		else if ( !Q_stricmp( flag[i], "depthHack" ))
-			mFlags |= FX_DEPTH_HACK;
+			mFlags |= fxPrimitiveFlags_t::FX_DEPTH_HACK;
 		else if ( !Q_stricmp( flag[i], "relative" ))
-			mFlags |= FX_RELATIVE;
+			mFlags |= fxPrimitiveFlags_t::FX_RELATIVE;
 		else if ( !Q_stricmp( flag[i], "setShaderTime" ))
-			mFlags |= FX_SET_SHADER_TIME;
+			mFlags |= fxPrimitiveFlags_t::FX_SET_SHADER_TIME;
 		else if ( !Q_stricmp( flag[i], "paperPhysics" ))
-			mFlags |= FX_PAPER_PHYSICS; //warning! shared flag.  You use this with a cylinder and you can expect evilness to ensue
+			mFlags |= fxPrimitiveFlags_t::FX_PAPER_PHYSICS; //warning! shared flag.  You use this with a cylinder and you can expect evilness to ensue
 		else if ( !Q_stricmp( flag[i], "localizedFlash" ))
-			mFlags |= FX_LOCALIZED_FLASH; //warning! shared flag.  You use this with a cylinder and you can expect evilness to ensue
+			mFlags |= fxPrimitiveFlags_t::FX_LOCALIZED_FLASH; //warning! shared flag.  You use this with a cylinder and you can expect evilness to ensue
 		else if ( !Q_stricmp( flag[i], "playerView" ))
-			mFlags |= FX_PLAYER_VIEW; //warning! shared flag.  You use this with a cylinder and you can expect evilness to ensue
+			mFlags |= fxPrimitiveFlags_t::FX_PLAYER_VIEW; //warning! shared flag.  You use this with a cylinder and you can expect evilness to ensue
 		else
 		{ // we have badness going on, but continue on in case there are any valid fields in here
 			ok = false;
@@ -808,33 +808,33 @@ bool CPrimitiveTemplate::ParseSpawnFlags( const char *val )
 		}
 
 			 if ( !Q_stricmp( flag[i], "org2fromTrace" ) )
-			mSpawnFlags |= FX_ORG2_FROM_TRACE;
+			mSpawnFlags |= fxSpawnFlags_t::FX_ORG2_FROM_TRACE;
 		else if ( !Q_stricmp( flag[i], "traceImpactFx" ) )
-			mSpawnFlags |= FX_TRACE_IMPACT_FX;
+			mSpawnFlags |= fxSpawnFlags_t::FX_TRACE_IMPACT_FX;
 		else if ( !Q_stricmp( flag[i], "org2isOffset" ) )
-			mSpawnFlags |= FX_ORG2_IS_OFFSET;
+			mSpawnFlags |= fxSpawnFlags_t::FX_ORG2_IS_OFFSET;
 		else if ( !Q_stricmp( flag[i], "cheapOrgCalc" ) )
-			mSpawnFlags |= FX_CHEAP_ORG_CALC;
+			mSpawnFlags |= fxSpawnFlags_t::FX_CHEAP_ORG_CALC;
 		else if ( !Q_stricmp( flag[i], "cheapOrg2Calc" ) )
-			mSpawnFlags |= FX_CHEAP_ORG2_CALC;
+			mSpawnFlags |= fxSpawnFlags_t::FX_CHEAP_ORG2_CALC;
 		else if ( !Q_stricmp( flag[i], "absoluteVel" ) )
-			mSpawnFlags |= FX_VEL_IS_ABSOLUTE;
+			mSpawnFlags |= fxSpawnFlags_t::FX_VEL_IS_ABSOLUTE;
 		else if ( !Q_stricmp( flag[i], "absoluteAccel" ) )
-			mSpawnFlags |= FX_ACCEL_IS_ABSOLUTE;
+			mSpawnFlags |= fxSpawnFlags_t::FX_ACCEL_IS_ABSOLUTE;
 		else if ( !Q_stricmp( flag[i], "orgOnSphere" ) ) // sphere/ellipsoid
-			mSpawnFlags |= FX_ORG_ON_SPHERE;
+			mSpawnFlags |= fxSpawnFlags_t::FX_ORG_ON_SPHERE;
 		else if ( !Q_stricmp( flag[i], "orgOnCylinder" ) ) // cylinder/disk
-			mSpawnFlags |= FX_ORG_ON_CYLINDER;
+			mSpawnFlags |= fxSpawnFlags_t::FX_ORG_ON_CYLINDER;
 		else if ( !Q_stricmp( flag[i], "axisFromSphere" ) )
-			mSpawnFlags |= FX_AXIS_FROM_SPHERE;
+			mSpawnFlags |= fxSpawnFlags_t::FX_AXIS_FROM_SPHERE;
 		else if ( !Q_stricmp( flag[i], "randrotaroundfwd" ) )
-			mSpawnFlags |= FX_RAND_ROT_AROUND_FWD;
+			mSpawnFlags |= fxSpawnFlags_t::FX_RAND_ROT_AROUND_FWD;
 		else if ( !Q_stricmp( flag[i], "evenDistribution" ) )
-			mSpawnFlags |= FX_EVEN_DISTRIBUTION;
+			mSpawnFlags |= fxSpawnFlags_t::FX_EVEN_DISTRIBUTION;
 		else if ( !Q_stricmp( flag[i], "rgbComponentInterpolation" ) )
-			mSpawnFlags |= FX_RGB_COMPONENT_INTERP;
+			mSpawnFlags |= fxSpawnFlags_t::FX_RGB_COMPONENT_INTERP;
 		else if ( !Q_stricmp( flag[i], "affectedByWind" ) )
-			mSpawnFlags |= FX_AFFECTED_BY_WIND;
+			mSpawnFlags |= fxSpawnFlags_t::FX_AFFECTED_BY_WIND;
 		else
 		{ // we have badness going on, but continue on in case there are any valid fields in here
 			ok = false;
@@ -850,11 +850,11 @@ bool CPrimitiveTemplate::ParseMaterialImpact(const char *val)
 {
 	if (!Q_stricmp(val, "shellsound"))
 	{
-		mMatImpactFX = MATIMPACTFX_SHELLSOUND;
+		mMatImpactFX = EMatImpactEffect::MATIMPACTFX_SHELLSOUND;
 	}
 	else
 	{
-		mMatImpactFX = MATIMPACTFX_NONE;
+		mMatImpactFX = EMatImpactEffect::MATIMPACTFX_NONE;
 		theFxHelper.Print( "CPrimitiveTemplate::ParseMaterialImpact -- unknown materialImpact type!\n" );
 		return false;
 	}
@@ -1583,7 +1583,7 @@ bool CPrimitiveTemplate::ParseModels( CGPValue *grp )
 		}
 	}
 
-	mFlags |= FX_ATTACHED_MODEL;
+	mFlags |= fxPrimitiveFlags_t::FX_ATTACHED_MODEL;
 
 	return true;
 }
@@ -1654,7 +1654,7 @@ bool CPrimitiveTemplate::ParseImpactFxStrings( CGPValue *grp )
 		}
 	}
 
-	mFlags |= FX_IMPACT_RUNS_FX | FX_APPLY_PHYSICS;
+	mFlags |= fxPrimitiveFlags_t::FX_IMPACT_RUNS_FX | fxPrimitiveFlags_t::FX_APPLY_PHYSICS;
 
 	return true;
 }
@@ -1725,7 +1725,7 @@ bool CPrimitiveTemplate::ParseDeathFxStrings( CGPValue *grp )
 		}
 	}
 
-	mFlags |= FX_DEATH_RUNS_FX;
+	mFlags |= fxPrimitiveFlags_t::FX_DEATH_RUNS_FX;
 
 	return true;
 }
@@ -1796,7 +1796,7 @@ bool CPrimitiveTemplate::ParseEmitterFxStrings( CGPValue *grp )
 		}
 	}
 
-	mFlags |= FX_EMIT_FX;
+	mFlags |= fxPrimitiveFlags_t::FX_EMIT_FX;
 
 	return true;
 }

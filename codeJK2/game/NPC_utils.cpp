@@ -29,9 +29,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "Q3_Interface.h"
 
 extern int	ICARUS_entFilter;
-EnumArray<int, team_t, TEAM_NUM_TEAMS>	teamNumbers;
-EnumArray<int, team_t, TEAM_NUM_TEAMS>	teamStrength;
-EnumArray<int, team_t, TEAM_NUM_TEAMS>	teamCounter;
+EnumArray<int, team_t, team_t::TEAM_NUM_TEAMS>	teamNumbers;
+EnumArray<int, team_t, team_t::TEAM_NUM_TEAMS>	teamStrength;
+EnumArray<int, team_t, team_t::TEAM_NUM_TEAMS>	teamCounter;
 
 constexpr float VALID_ATTACK_CONE = 2.0f;	//Degrees
 void GetAnglesForDirection( const vec3_t p1, const vec3_t p2, vec3_t out );
@@ -59,7 +59,7 @@ void CalcEntitySpot ( const gentity_t *ent, const spot_t spot, vec3_t point )
 	ViewHeightFix(ent);
 	switch ( spot )
 	{
-	case SPOT_ORIGIN:
+	case spot_t::SPOT_ORIGIN:
 		if(VectorCompare(ent->currentOrigin, vec3_origin))
 		{//brush
 			VectorSubtract(ent->absmax, ent->absmin, point);//size
@@ -71,13 +71,13 @@ void CalcEntitySpot ( const gentity_t *ent, const spot_t spot, vec3_t point )
 		}
 		break;
 
-	case SPOT_CHEST:
-	case SPOT_HEAD:
+	case spot_t::SPOT_CHEST:
+	case spot_t::SPOT_HEAD:
 		if ( ent->client && VectorLengthSquared( ent->client->renderInfo.eyePoint ) && (ent->client->ps.viewEntity <= 0 || ent->client->ps.viewEntity >= ENTITYNUM_WORLD) )
 		{//Actual tag_head eyespot!
 			//FIXME: Stasis aliens may have a problem here...
 			VectorCopy( ent->client->renderInfo.eyePoint, point );
-			if ( ent->client->NPC_class == CLASS_ATST )
+			if ( ent->client->NPC_class == class_t::CLASS_ATST )
 			{//adjust up some
 				point[2] += 28;//magic number :)
 			}
@@ -99,21 +99,21 @@ void CalcEntitySpot ( const gentity_t *ent, const spot_t spot, vec3_t point )
 				point[2] += ent->client->ps.viewheight;
 			}
 		}
-		if ( spot == SPOT_CHEST && ent->client )
+		if ( spot == spot_t::SPOT_CHEST && ent->client )
 		{
-			if ( ent->client->NPC_class != CLASS_ATST )
+			if ( ent->client->NPC_class != class_t::CLASS_ATST )
 			{//adjust up some
 				point[2] -= ent->maxs[2]*0.2f;
 			}
 		}
 		break;
 
-	case SPOT_HEAD_LEAN:
+	case spot_t::SPOT_HEAD_LEAN:
 		if ( ent->client && VectorLengthSquared( ent->client->renderInfo.eyePoint ) && (ent->client->ps.viewEntity <= 0 || ent->client->ps.viewEntity >= ENTITYNUM_WORLD) )
 		{//Actual tag_head eyespot!
 			//FIXME: Stasis aliens may have a problem here...
 			VectorCopy( ent->client->renderInfo.eyePoint, point );
-			if ( ent->client->NPC_class == CLASS_ATST )
+			if ( ent->client->NPC_class == class_t::CLASS_ATST )
 			{//adjust up some
 				point[2] += 28;//magic number :)
 			}
@@ -140,16 +140,16 @@ void CalcEntitySpot ( const gentity_t *ent, const spot_t spot, vec3_t point )
 		break;
 
 	//FIXME: implement...
-	//case SPOT_CHEST:
+	//case spot_t::SPOT_CHEST:
 		//Returns point 3/4 from tag_torso to tag_head?
 		//break;
 
-	case SPOT_LEGS:
+	case spot_t::SPOT_LEGS:
 		VectorCopy ( ent->currentOrigin, point );
 		point[2] += (ent->mins[2] * 0.5);
 		break;
 
-	case SPOT_WEAPON:
+	case spot_t::SPOT_WEAPON:
 		if( ent->NPC && !VectorCompare( ent->NPC->shootAngles, vec3_origin ) && !VectorCompare( ent->NPC->shootAngles, ent->client->ps.viewangles ))
 		{
 			AngleVectors( ent->NPC->shootAngles, forward, right, up );
@@ -162,7 +162,7 @@ void CalcEntitySpot ( const gentity_t *ent, const spot_t spot, vec3_t point )
 		//NOTE: automatically takes leaning into account!
 		break;
 
-	case SPOT_GROUND:
+	case spot_t::SPOT_GROUND:
 		// if entity is on the ground, just use it's absmin
 		if ( ent->s.groundEntityNum != -1 )
 		{
@@ -176,7 +176,7 @@ void CalcEntitySpot ( const gentity_t *ent, const spot_t spot, vec3_t point )
 		start[2] = ent->absmin[2];
 		VectorCopy( start, end );
 		end[2] -= 64;
-		gi.trace( &tr, start, ent->mins, ent->maxs, end, ent->s.number, MASK_PLAYERSOLID, G2_NOCOLLIDE, 0 );
+		gi.trace( &tr, start, ent->mins, ent->maxs, end, ent->s.number, MASK_PLAYERSOLID, EG2_Collision::G2_NOCOLLIDE, 0 );
 		if ( tr.fraction < 1.0 )
 		{
 			VectorCopy( tr.endpos, point);
@@ -245,7 +245,7 @@ bool NPC_UpdateAngles ( bool doPitch, bool doYaw )
 		}
 	}
 
-	if ( NPC->s.weapon == WP_EMPLACED_GUN )
+	if ( NPC->s.weapon == weapon_t::WP_EMPLACED_GUN )
 	{
 		// FIXME: this seems to do nothing, actually...
 		yawSpeed = 20;
@@ -255,7 +255,7 @@ bool NPC_UpdateAngles ( bool doPitch, bool doYaw )
 		yawSpeed = NPCInfo->stats.yawSpeed;
 	}
 
-	if ( NPC->s.weapon == WP_SABER && NPC->client->ps.forcePowersActive&Bit( FP_SPEED ) )
+	if ( NPC->s.weapon == weapon_t::WP_SABER && NPC->client->ps.forcePowersActive&Bit( forcePowers_t::FP_SPEED ) )
 	{
 		yawSpeed *= 1.0f/g_timescale->value;
 	}
@@ -333,9 +333,9 @@ bool NPC_UpdateAngles ( bool doPitch, bool doYaw )
 
 	ucmd.angles[ROLL] = ANGLE2SHORT ( NPC->client->ps.viewangles[ROLL] ) - client->ps.delta_angles[ROLL];
 
-	if ( exact && Q3_TaskIDPending( NPC, TID_ANGLE_FACE ) )
+	if ( exact && Q3_TaskIDPending( NPC, taskID_t::TID_ANGLE_FACE ) )
 	{
-		Q3_TaskIDComplete( NPC, TID_ANGLE_FACE );
+		Q3_TaskIDComplete( NPC, taskID_t::TID_ANGLE_FACE );
 	}
 	return exact;
 
@@ -857,7 +857,7 @@ void SetTeamNumbers (void)
 		}
 	}
 
-	for( team_t t = TEAM_FREE; t < TEAM_NUM_TEAMS; t++ )
+	for( team_t t = team_t::TEAM_FREE; t < team_t::TEAM_NUM_TEAMS; t++ )
 	{//Get the average health
 		teamStrength[t] = floor( ((float)(teamStrength[t])) / ((float)(teamNumbers[t])) );
 	}
@@ -890,7 +890,7 @@ bool G_ActivateBehavior (gentity_t *self, bSet_t bset )
 	if(bsID != -1)
 	{
 		const bState_t bSID = static_cast<bState_t>( bsID );
-		self->NPC->tempBehavior = BS_DEFAULT;
+		self->NPC->tempBehavior = bState_t::BS_DEFAULT;
 		self->NPC->behaviorState = bSID;
 	}
 	else
@@ -903,7 +903,7 @@ bool G_ActivateBehavior (gentity_t *self, bSet_t bset )
 		//FIXME: between here and actually getting into the ICARUS_RunScript function, the stack gets blown!
 		if ( ( ICARUS_entFilter == -1 ) || ( ICARUS_entFilter == self->s.number ) )
 		{
-			Q3_DebugPrint( WL_VERBOSE, "%s attempting to run bSet %s (%s)\n", self->targetname, GetStringForID( BSETTable, to_underlying( bset ) ), bs_name );
+			Q3_DebugPrint( WL_e::WL_VERBOSE, "%s attempting to run bSet %s (%s)\n", self->targetname, GetStringForID( BSETTable, to_underlying( bset ) ), bs_name );
 		}
 		ICARUS_RunScript( self, va( "%s/%s", Q3_SCRIPT_DIR, bs_name ) );
 	}
@@ -945,13 +945,13 @@ bool NPC_ValidEnemy( gentity_t *ent )
 		return false;
 
 	//In case they're in notarget mode
-	if ( Any( ent->flags & FL_NOTARGET ) )
+	if ( Any( ent->flags & gentityFlags_t::FL_NOTARGET ) )
 		return false;
 
 	//Must be an NPC
 	if ( ent->client == nullptr )
 	{
-		if ( Any( ent->svFlags & SVF_NONNPC_ENEMY ) )
+		if ( Any( ent->svFlags & svFlags_t::SVF_NONNPC_ENEMY ) )
 		{//still potentially valid
 			if ( ent->noDamageTeam == NPC->client->playerTeam )
 			{
@@ -1099,7 +1099,7 @@ gentity_t *NPC_PickEnemyExt( bool checkAlerts = false )
 
 	if ( checkAlerts )
 	{
-		int alertEvent = NPC_CheckAlertEvents( true, true, -1, true, AEL_DISCOVERED );
+		int alertEvent = NPC_CheckAlertEvents( true, true, -1, true, alertEventLevel_e::AEL_DISCOVERED );
 
 		//There is an event to look at
 		if ( alertEvent >= 0 )
@@ -1110,7 +1110,7 @@ gentity_t *NPC_PickEnemyExt( bool checkAlerts = false )
 			if ( event->owner == NPC )
 				return nullptr;
 
-			if ( event->level >= AEL_DISCOVERED )
+			if ( event->level >= alertEventLevel_e::AEL_DISCOVERED )
 			{
 				//If it's the player, attack him
 				if ( event->owner == &g_entities[0] )
@@ -1154,7 +1154,7 @@ static bool NPC_CheckPlayerDistance( void )
 		return false;
 
 	//must be set up to get mad at player
-	if ( !NPC->client || NPC->client->enemyTeam != TEAM_PLAYER )
+	if ( !NPC->client || NPC->client->enemyTeam != team_t::TEAM_PLAYER )
 		return false;
 
 	//Must be within our FOV
@@ -1181,7 +1181,7 @@ NPC_FindEnemy
 bool NPC_FindEnemy( bool checkAlerts = false )
 {
 	//We're ignoring all enemies for now
-	if( Any( NPC->svFlags & SVF_IGNORE_ENEMIES ) )
+	if( Any( NPC->svFlags & svFlags_t::SVF_IGNORE_ENEMIES ) )
 	{
 		G_ClearEnemy( NPC );
 		return false;
@@ -1194,7 +1194,7 @@ bool NPC_FindEnemy( bool checkAlerts = false )
 	}
 
 	//Don't want a new enemy
-	if ( ( ValidEnemy( NPC->enemy ) ) && Any( NPC->svFlags & SVF_LOCKEDENEMY ) )
+	if ( ( ValidEnemy( NPC->enemy ) ) && Any( NPC->svFlags & svFlags_t::SVF_LOCKEDENEMY ) )
 		return true;
 
 	//See if the player is closer than our current enemy
@@ -1204,7 +1204,7 @@ bool NPC_FindEnemy( bool checkAlerts = false )
 	}
 
 	//Otherwise, turn off the flag
-	NPC->svFlags &= ~SVF_LOCKEDENEMY;
+	NPC->svFlags &= ~svFlags_t::SVF_LOCKEDENEMY;
 
 	//If we've gotten here alright, then our target it still valid
 	if ( NPC_ValidEnemy( NPC->enemy ) )
@@ -1256,13 +1256,13 @@ bool NPC_FacePosition( vec3_t position, bool doPitch )
 	bool	facing = true;
 
 	//Get the positions
-	if ( NPC->client && NPC->client->NPC_class == CLASS_GALAKMECH )
+	if ( NPC->client && NPC->client->NPC_class == class_t::CLASS_GALAKMECH )
 	{
-		CalcEntitySpot( NPC, SPOT_WEAPON, muzzle );
+		CalcEntitySpot( NPC, spot_t::SPOT_WEAPON, muzzle );
 	}
 	else
 	{
-		CalcEntitySpot( NPC, SPOT_HEAD_LEAN, muzzle );//SPOT_HEAD
+		CalcEntitySpot( NPC, spot_t::SPOT_HEAD_LEAN, muzzle );//SPOT_HEAD
 	}
 
 	//Find the desired angles
@@ -1273,7 +1273,7 @@ bool NPC_FacePosition( vec3_t position, bool doPitch )
 	NPCInfo->desiredYaw		= AngleNormalize360( angles[YAW] );
 	NPCInfo->desiredPitch	= AngleNormalize360( angles[PITCH] );
 
-	if ( NPC->enemy && NPC->enemy->client && NPC->enemy->client->NPC_class == CLASS_ATST )
+	if ( NPC->enemy && NPC->enemy->client && NPC->enemy->client->NPC_class == class_t::CLASS_ATST )
 	{
 		// FIXME: this is kind of dumb, but it was the easiest way to get it to look sort of ok
 		NPCInfo->desiredYaw	+= Q_flrand( -5, 5 ) + sin( level.time * 0.004f ) * 7;
@@ -1314,7 +1314,7 @@ bool NPC_FaceEntity( gentity_t *ent, bool doPitch )
 	vec3_t		entPos;
 
 	//Get the positions
-	CalcEntitySpot( ent, SPOT_HEAD_LEAN, entPos );
+	CalcEntitySpot( ent, spot_t::SPOT_HEAD_LEAN, entPos );
 
 	return NPC_FacePosition( entPos, doPitch );
 }
@@ -1345,7 +1345,7 @@ NPC_CheckCanAttackExt
 bool NPC_CheckCanAttackExt( void )
 {
 	//We don't want them to shoot
-	if( Any( NPCInfo->scriptFlags & SCF_DONT_FIRE ) )
+	if( Any( NPCInfo->scriptFlags & scriptFlags_t::SCF_DONT_FIRE ) )
 		return false;
 
 	//Turn to face
@@ -1433,21 +1433,21 @@ NPC_CheckCharmed
 extern void G_AddVoiceEvent( gentity_t *self, entity_event_t event, int speakDebounceTime );
 void NPC_CheckCharmed( void )
 {
-	if ( NPC->client->playerTeam == TEAM_PLAYER && NPCInfo->charmedTime && NPCInfo->charmedTime < level.time && NPC->client )
+	if ( NPC->client->playerTeam == team_t::TEAM_PLAYER && NPCInfo->charmedTime && NPCInfo->charmedTime < level.time && NPC->client )
 	{//we were charmed, set us back!
 		//NOTE: presumptions here...
 		team_t	savTeam = NPC->client->enemyTeam;
 		NPC->client->enemyTeam = NPC->client->playerTeam;
 		NPC->client->playerTeam = savTeam;
 		NPC->client->leader = nullptr;
-		if ( NPCInfo->tempBehavior == BS_FOLLOW_LEADER )
+		if ( NPCInfo->tempBehavior == bState_t::BS_FOLLOW_LEADER )
 		{
-			NPCInfo->tempBehavior = BS_DEFAULT;
+			NPCInfo->tempBehavior = bState_t::BS_DEFAULT;
 		}
 		G_ClearEnemy( NPC );
 		NPCInfo->charmedTime = 0;
 		//say something to let player know you've snapped out of it
-		G_AddVoiceEvent( NPC, Q_irand(EV_CONFUSE1, EV_CONFUSE3), 2000 );
+		G_AddVoiceEvent( NPC, Q_irand(entity_event_t::EV_CONFUSE1, entity_event_t::EV_CONFUSE3), 2000 );
 	}
 
 }

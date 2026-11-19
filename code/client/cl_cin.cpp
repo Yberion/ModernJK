@@ -167,7 +167,7 @@ static int CIN_HandleForVideo(void) {
 			return i;
 		}
 	}
-	Com_Error( ERR_DROP, "CIN_HandleForVideo: none free" );
+	Com_Error( errorParm_t::ERR_DROP, "CIN_HandleForVideo: none free" );
 	return -1;
 }
 
@@ -1118,7 +1118,7 @@ static void RoQReset( void ) {
 	// let the background thread start reading ahead
 	FS_Read (cin.file, 16, cinTable[currentHandle].iFile);
 	RoQ_init();
-	cinTable[currentHandle].status = FMV_LOOPED;
+	cinTable[currentHandle].status = e_status::FMV_LOOPED;
 }
 
 /******************************************************************************
@@ -1143,10 +1143,10 @@ static void RoQInterrupt(void)
 			if (cinTable[currentHandle].looping) {
 				RoQReset();
 			} else {
-				cinTable[currentHandle].status = FMV_EOF;
+				cinTable[currentHandle].status = e_status::FMV_EOF;
 			}
 		} else {
-			cinTable[currentHandle].status = FMV_IDLE;
+			cinTable[currentHandle].status = e_status::FMV_IDLE;
 		}
 		return;
 	}
@@ -1213,7 +1213,7 @@ redump:
 		case	ROQ_QUAD_JPEG:
 			break;
 		default:
-			cinTable[currentHandle].status = FMV_EOF;
+			cinTable[currentHandle].status = e_status::FMV_EOF;
 			break;
 	}
 //
@@ -1224,10 +1224,10 @@ redump:
 			if (cinTable[currentHandle].looping) {
 				RoQReset();
 			} else {
-				cinTable[currentHandle].status = FMV_EOF;
+				cinTable[currentHandle].status = e_status::FMV_EOF;
 			}
 		} else {
-			cinTable[currentHandle].status = FMV_IDLE;
+			cinTable[currentHandle].status = e_status::FMV_IDLE;
 		}
 		return;
 	}
@@ -1241,13 +1241,13 @@ redump:
 
 	if (cinTable[currentHandle].RoQFrameSize>65536||cinTable[currentHandle].roq_id==0x1084) {
 		Com_DPrintf("roq_size>65536||roq_id==0x1084\n");
-		cinTable[currentHandle].status = FMV_EOF;
+		cinTable[currentHandle].status = e_status::FMV_EOF;
 		if (cinTable[currentHandle].looping) {
 			RoQReset();
 		}
 		return;
 	}
-	if (cinTable[currentHandle].inMemory && (cinTable[currentHandle].status != FMV_EOF))
+	if (cinTable[currentHandle].inMemory && (cinTable[currentHandle].status != e_status::FMV_EOF))
 	{
 		cinTable[currentHandle].inMemory--;
 		framedata += 8;
@@ -1294,7 +1294,7 @@ static void RoQ_init( void )
 
 	if (cinTable[currentHandle].hSFX)
 	{
-		S_StartLocalSound(cinTable[currentHandle].hSFX, CHAN_AUTO);
+		S_StartLocalSound(cinTable[currentHandle].hSFX, soundChannel_t::CHAN_AUTO);
 	}
 }
 
@@ -1321,12 +1321,12 @@ static void RoQShutdown( void ) {
 		return;
 	}
 
-	if (cinTable[currentHandle].status == FMV_IDLE) {
+	if (cinTable[currentHandle].status == e_status::FMV_IDLE) {
 		return;
 	}
 
 	Com_DPrintf("finished cinematic\n");
-	cinTable[currentHandle].status = FMV_IDLE;
+	cinTable[currentHandle].status = e_status::FMV_IDLE;
 
 	if (cinTable[currentHandle].iFile) {
 		FS_FCloseFile( cinTable[currentHandle].iFile );
@@ -1337,14 +1337,14 @@ static void RoQShutdown( void ) {
 	}
 
 	if (cinTable[currentHandle].alterGameState) {
-		cls.state = CA_DISCONNECTED;
+		cls.state = connstate_t::CA_DISCONNECTED;
 		// we can't just do a vstr nextmap, because
 		// if we are aborting the intro cinematic with
 		// a devmap command, nextmap would be valid by
 		// the time it was referenced
 		s = Cvar_VariableString( "nextmap" );
 		if ( s[0] ) {
-			Cbuf_ExecuteText( EXEC_APPEND, va("%s\n", s) );
+			Cbuf_ExecuteText( cbufExec_t::EXEC_APPEND, va("%s\n", s) );
 			Cvar_Set( "nextmap", "" );
 		}
 		CL_handle = -1;
@@ -1361,7 +1361,7 @@ CIN_StopCinematic
 
 e_status CIN_StopCinematic(int handle) {
 
-	if (handle < 0 || handle>= MAX_VIDEO_HANDLES || cinTable[handle].status == FMV_EOF) return FMV_EOF;
+	if (handle < 0 || handle>= MAX_VIDEO_HANDLES || cinTable[handle].status == e_status::FMV_EOF) return e_status::FMV_EOF;
 	currentHandle = handle;
 
 	Com_DPrintf("trFMV::stop(), closing %s\n", cinTable[currentHandle].fileName);
@@ -1376,18 +1376,18 @@ e_status CIN_StopCinematic(int handle) {
 				S_CIN_StopSound( cinTable[currentHandle].hSFX );
 			}
 		}
-		return FMV_EOF;
+		return e_status::FMV_EOF;
 	}
 
 	if (cinTable[currentHandle].alterGameState) {
-		if ( cls.state != CA_CINEMATIC ) {
+		if ( cls.state != connstate_t::CA_CINEMATIC ) {
 			return cinTable[currentHandle].status;
 		}
 	}
-	cinTable[currentHandle].status = FMV_EOF;
+	cinTable[currentHandle].status = e_status::FMV_EOF;
 	RoQShutdown();
 
-	return FMV_EOF;
+	return e_status::FMV_EOF;
 }
 
 /*
@@ -1404,12 +1404,12 @@ e_status CIN_RunCinematic (int handle)
 	int	start = 0;
 	int     thisTime = 0;
 
-	if (handle < 0 || handle>= MAX_VIDEO_HANDLES || cinTable[handle].status == FMV_EOF) return FMV_EOF;
+	if (handle < 0 || handle>= MAX_VIDEO_HANDLES || cinTable[handle].status == e_status::FMV_EOF) return e_status::FMV_EOF;
 
 	if (cin.currentHandle != handle) {
 		currentHandle = handle;
 		cin.currentHandle = currentHandle;
-		cinTable[currentHandle].status = FMV_EOF;
+		cinTable[currentHandle].status = e_status::FMV_EOF;
 		RoQReset();
 	}
 
@@ -1421,12 +1421,12 @@ e_status CIN_RunCinematic (int handle)
 	currentHandle = handle;
 
 	if (cinTable[currentHandle].alterGameState) {
-		if ( cls.state != CA_CINEMATIC ) {
+		if ( cls.state != connstate_t::CA_CINEMATIC ) {
 			return cinTable[currentHandle].status;
 		}
 	}
 
-	if (cinTable[currentHandle].status == FMV_IDLE) {
+	if (cinTable[currentHandle].status == e_status::FMV_IDLE) {
 		return cinTable[currentHandle].status;
 	}
 
@@ -1438,7 +1438,7 @@ e_status CIN_RunCinematic (int handle)
 
 	start = cinTable[currentHandle].startTime;
 	while(  (cinTable[currentHandle].tfps != cinTable[currentHandle].numQuads)
-		&& (cinTable[currentHandle].status == FMV_PLAY) )
+		&& (cinTable[currentHandle].status == e_status::FMV_PLAY) )
 	{
 		RoQInterrupt();
 		if ((unsigned)start != cinTable[currentHandle].startTime) {
@@ -1450,11 +1450,11 @@ e_status CIN_RunCinematic (int handle)
 
 	cinTable[currentHandle].lastTime = thisTime;
 
-	if (cinTable[currentHandle].status == FMV_LOOPED) {
-		cinTable[currentHandle].status = FMV_PLAY;
+	if (cinTable[currentHandle].status == e_status::FMV_LOOPED) {
+		cinTable[currentHandle].status = e_status::FMV_PLAY;
 	}
 
-	if (cinTable[currentHandle].status == FMV_EOF) {
+	if (cinTable[currentHandle].status == e_status::FMV_EOF) {
 	  if (cinTable[currentHandle].looping) {
 		RoQReset();
 	  } else {
@@ -1487,7 +1487,7 @@ int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, cinematicFla
 	}
 	COM_DefaultExtension(name,sizeof(name),".roq");
 
-	if (!Any(systemBits & CIN_system)) {
+	if (!Any(systemBits & cinematicFlags_t::CIN_system)) {
 		for ( i = 0 ; i < MAX_VIDEO_HANDLES ; i++ ) {
 			if (!strcmp(cinTable[i].fileName, name) ) {
 				return i;
@@ -1514,15 +1514,15 @@ int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, cinematicFla
 	}
 
 	CIN_SetExtents(currentHandle, x, y, w, h);
-	CIN_SetLooping(currentHandle, Any(systemBits & CIN_loop));
+	CIN_SetLooping(currentHandle, Any(systemBits & cinematicFlags_t::CIN_loop));
 
 	cinTable[currentHandle].CIN_HEIGHT = DEFAULT_CIN_HEIGHT;
 	cinTable[currentHandle].CIN_WIDTH  =  DEFAULT_CIN_WIDTH;
-	cinTable[currentHandle].holdAtEnd = Any(systemBits & CIN_hold);
-	cinTable[currentHandle].alterGameState = Any(systemBits & CIN_system);
+	cinTable[currentHandle].holdAtEnd = Any(systemBits & cinematicFlags_t::CIN_hold);
+	cinTable[currentHandle].alterGameState = Any(systemBits & cinematicFlags_t::CIN_system);
 	cinTable[currentHandle].playonwalls = 1;
-	cinTable[currentHandle].silent = Any(systemBits & CIN_silent);
-	cinTable[currentHandle].shader = Any(systemBits & CIN_shader);
+	cinTable[currentHandle].silent = Any(systemBits & cinematicFlags_t::CIN_silent);
+	cinTable[currentHandle].shader = Any(systemBits & cinematicFlags_t::CIN_shader);
 	if (psAudioFile)
 	{
 		cinTable[currentHandle].hSFX = S_RegisterSound(psAudioFile);
@@ -1558,11 +1558,11 @@ int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, cinematicFla
 		RoQ_init();
 //		FS_Read (cin.file, cinTable[currentHandle].RoQFrameSize+8, cinTable[currentHandle].iFile);
 
-		cinTable[currentHandle].status = FMV_PLAY;
+		cinTable[currentHandle].status = e_status::FMV_PLAY;
 		Com_DPrintf("trFMV::play(), playing %s\n", arg);
 
 		if (cinTable[currentHandle].alterGameState) {
-			cls.state = CA_CINEMATIC;
+			cls.state = connstate_t::CA_CINEMATIC;
 		}
 
 		Con_Close();
@@ -1579,7 +1579,7 @@ int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, cinematicFla
 }
 
 void CIN_SetExtents (int handle, int x, int y, int w, int h) {
-	if (handle < 0 || handle>= MAX_VIDEO_HANDLES || cinTable[handle].status == FMV_EOF) return;
+	if (handle < 0 || handle>= MAX_VIDEO_HANDLES || cinTable[handle].status == e_status::FMV_EOF) return;
 	cinTable[handle].xpos = x;
 	cinTable[handle].ypos = y;
 	cinTable[handle].width = w;
@@ -1588,7 +1588,7 @@ void CIN_SetExtents (int handle, int x, int y, int w, int h) {
 }
 
 void CIN_SetLooping(int handle, bool loop) {
-	if (handle < 0 || handle>= MAX_VIDEO_HANDLES || cinTable[handle].status == FMV_EOF) return;
+	if (handle < 0 || handle>= MAX_VIDEO_HANDLES || cinTable[handle].status == e_status::FMV_EOF) return;
 	cinTable[handle].looping = loop;
 }
 
@@ -1609,7 +1609,7 @@ static void CIN_AddTextCrawl()
 	// Set up refdef
 	memset( &refdef, 0, sizeof( refdef ));
 
-	refdef.rdflags = RDF_NOWORLDMODEL;
+	refdef.rdflags = refdefFlags_t::RDF_NOWORLDMODEL;
 	AxisClear( refdef.viewaxis );
 
 	refdef.fov_x = 130;
@@ -1674,7 +1674,7 @@ static void CIN_AddTextCrawl()
 	if (cls.realtime-CL_iPlaybackStartTime >= TC_STOPTIME)
 	{
 //		cinTable[currentHandle].holdAtEnd = false;
-		cinTable[CL_handle].status = FMV_EOF;
+		cinTable[CL_handle].status = e_status::FMV_EOF;
 		RoQShutdown();
 		SCR_StopCinematic();	// change ROQ from FMV_IDLE to FMV_EOF, and clear some other vars
 	}
@@ -1750,7 +1750,7 @@ void CIN_DrawCinematic (int handle) {
 	float	x, y, w, h;
 	byte	*buf;
 
-	if (handle < 0 || handle>= MAX_VIDEO_HANDLES || cinTable[handle].status == FMV_EOF) return;
+	if (handle < 0 || handle>= MAX_VIDEO_HANDLES || cinTable[handle].status == e_status::FMV_EOF) return;
 
 	if (!cinTable[handle].buf) {
 		return;
@@ -1766,7 +1766,7 @@ void CIN_DrawCinematic (int handle) {
 		int *buf2;
 
 		//buf2 = (int *)Hunk_AllocateTempMemory( 256*256*4 );
-		buf2 = (int*)Z_Malloc( 256*256*4, TAG_TEMP_WORKSPACE, false );
+		buf2 = (int*)Z_Malloc( 256*256*4, memtag::TAG_TEMP_WORKSPACE, false );
 
 		CIN_ResampleCinematic(handle, buf2);
 
@@ -1832,7 +1832,7 @@ static void PlayCinematic(const char *arg, const char *s, bool qbInGame)
 		qbInGameCinematicOnStandBy = false;
 	}
 
-	cinematicFlags_t bits = qbInGame?CIN_NONE:CIN_system;
+	cinematicFlags_t bits = qbInGame?cinematicFlags_t::CIN_NONE:cinematicFlags_t::CIN_system;
 
 	Com_DPrintf("CL_PlayCinematic_f\n");
 
@@ -1862,10 +1862,10 @@ static void PlayCinematic(const char *arg, const char *s, bool qbInGame)
 		qbPlayingInGameCinematic = qbInGame;
 
 		if ((s && s[0] == '1') || Q_stricmp(arg,"video/end.roq")==0) {
-			bits |= CIN_hold;
+			bits |= cinematicFlags_t::CIN_hold;
 		}
 		if (s && s[0] == '2') {
-			bits |= CIN_loop;
+			bits |= cinematicFlags_t::CIN_loop;
 		}
 
 		S_StopAllSounds ();
@@ -1896,7 +1896,7 @@ static void PlayCinematic(const char *arg, const char *s, bool qbInGame)
 				hCrawl = re.RegisterShaderNoMip( "menu/video/tc_english" );//failed, so go back to english
 			}
 #endif
-			bits |= CIN_hold;
+			bits |= cinematicFlags_t::CIN_hold;
 		}
 		else
 		if (bIsForeign)
@@ -1904,13 +1904,13 @@ static void PlayCinematic(const char *arg, const char *s, bool qbInGame)
 			if (!Q_stricmp(arg,"video/jk05.roq"))
 			{
 				psAudioFile = "sound/chars/video/cinematic_5";
-				bits |= CIN_silent;	// knock out existing english track
+				bits |= cinematicFlags_t::CIN_silent;	// knock out existing english track
 			}
 			else
 			if (!Q_stricmp(arg,"video/jk06.roq"))
 			{
 				psAudioFile = "sound/chars/video/cinematic_6";
-				bits |= CIN_silent;	// knock out existing english track
+				bits |= cinematicFlags_t::CIN_silent;	// knock out existing english track
 			}
 		}
 		//
@@ -1924,7 +1924,7 @@ static void PlayCinematic(const char *arg, const char *s, bool qbInGame)
 			{
 				SCR_RunCinematic();
 			}
-			while (cinTable[currentHandle].buf == nullptr && cinTable[currentHandle].status == FMV_PLAY);		// wait for first frame (load codebook and sound)
+			while (cinTable[currentHandle].buf == nullptr && cinTable[currentHandle].status == e_status::FMV_PLAY);		// wait for first frame (load codebook and sound)
 
 			if (qbInGame)
 			{
@@ -1957,7 +1957,7 @@ static void PlayCinematic(const char *arg, const char *s, bool qbInGame)
 	{
 		// this doesn't work for now...
 		//
-//		if (cls.state == CA_ACTIVE){
+//		if (cls.state == connstate_t::CA_ACTIVE){
 //			re.InitDissolve(false);	// so we get a dissolve between previous screen image and cinematic
 //		}
 	}
@@ -1997,7 +1997,7 @@ void CL_PlayCinematic_f(void)
 void CL_PlayInGameCinematic_f(void)
 {
 	const char *arg = Cmd_Argv( 1 );
-	if (cls.state == CA_ACTIVE)
+	if (cls.state == connstate_t::CA_ACTIVE)
 	{
 		PlayCinematic(arg,nullptr,true);
 	}
@@ -2044,7 +2044,7 @@ void SCR_RunCinematic (void)
 	if (CL_handle >= 0 && CL_handle < MAX_VIDEO_HANDLES) {
 		e_status Status = CIN_RunCinematic(CL_handle);
 
-		if (CL_IsRunningInGameCinematic() && Status == FMV_IDLE  && !cinTable[CL_handle].holdAtEnd)
+		if (CL_IsRunningInGameCinematic() && Status == e_status::FMV_IDLE  && !cinTable[CL_handle].holdAtEnd)
 		{
 			SCR_StopCinematic();	// change ROQ from FMV_IDLE to FMV_EOF, and clear some other vars
 		}
@@ -2079,10 +2079,10 @@ void SCR_StopCinematic( bool bAllowRefusal /* = false */ )
 		}
 	}
 
-	if (cls.state == CA_CINEMATIC)
+	if (cls.state == connstate_t::CA_CINEMATIC)
 	{
 		Com_DPrintf("Cinematic Stopped\n");
-		cls.state =  CA_DISCONNECTED;
+		cls.state =  connstate_t::CA_DISCONNECTED;
 	}
 
 	if(sInGameCinematicStandingBy[0] &&
@@ -2111,7 +2111,7 @@ void SCR_StopCinematic( bool bAllowRefusal /* = false */ )
 		sInGameCinematicStandingBy[0]=0;
 		Cvar_SetValue( "cl_paused", 0 );
 	}
-	if (cls.state != CA_DISCONNECTED)	// cut down on needless calls to music code
+	if (cls.state != connstate_t::CA_DISCONNECTED)	// cut down on needless calls to music code
 	{
 		S_RestartMusic();	//restart the level music
 	}
@@ -2139,7 +2139,7 @@ void CIN_UploadCinematic(int handle) {
 		if (cinTable[handle].dirty && (cinTable[handle].CIN_WIDTH != cinTable[handle].drawX || cinTable[handle].CIN_HEIGHT != cinTable[handle].drawY))  {
 			int *buf2;
 
-			buf2 = (int *)Z_Malloc(256*256*4, TAG_TEMP_WORKSPACE, false);
+			buf2 = (int *)Z_Malloc(256*256*4, memtag::TAG_TEMP_WORKSPACE, false);
 
 			CIN_ResampleCinematic(handle, buf2);
 

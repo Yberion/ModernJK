@@ -138,7 +138,7 @@ bool G_SpawnAngleHack( const char *key, const char *defaultString, float *out )
 
 stringID_table_t flagTable [] =
 {
-	{ "noTED", to_underlying( EF_NO_TED ) },
+	{ "noTED", to_underlying( entityFlags_t::EF_NO_TED ) },
 	//stringID_table_t Must end with a null entry
 	{ "", 0 }
 };
@@ -177,7 +177,6 @@ enum class fieldtype_t {
 	F_FLAG,				// special case for flags: an entityFlags_t member
 	F_IGNORE
 };
-using enum fieldtype_t;
 template <> inline constexpr bool enableEnumArithmetic<fieldtype_t> = true;
 
 typedef struct
@@ -190,126 +189,126 @@ typedef struct
 
 field_t fields[] = {
 	//Fields for benefit of Radiant only
-	{"autobound", FOFS(classname), F_IGNORE},
-	{"groupname", FOFS(classname), F_IGNORE},
-	{"noBasicSounds", FOFS(classname), F_IGNORE},//will be looked at separately
-	{"noCombatSounds", FOFS(classname), F_IGNORE},//will be looked at separately
-	{"noExtraSounds", FOFS(classname), F_IGNORE},//will be looked at separately
+	{"autobound", FOFS(classname), fieldtype_t::F_IGNORE},
+	{"groupname", FOFS(classname), fieldtype_t::F_IGNORE},
+	{"noBasicSounds", FOFS(classname), fieldtype_t::F_IGNORE},//will be looked at separately
+	{"noCombatSounds", FOFS(classname), fieldtype_t::F_IGNORE},//will be looked at separately
+	{"noExtraSounds", FOFS(classname), fieldtype_t::F_IGNORE},//will be looked at separately
 
-	{"classname", FOFS(classname), F_LSTRING},
-	{"origin", FOFS(s.origin), F_VECTOR},
-	{"mins", FOFS(mins), F_VECTOR},
-	{"maxs", FOFS(maxs), F_VECTOR},
-	{"model", FOFS(model), F_LSTRING},
-	{"model2", FOFS(model2), F_LSTRING},
-	{"model3", FOFS(target), F_LSTRING},//for misc_replicator_item only!!!
-	{"model4", FOFS(target2), F_LSTRING},//for misc_replicator_item only!!!
-	{"model5", FOFS(target3), F_LSTRING},//for misc_replicator_item only!!!
-	{"model6", FOFS(target4), F_LSTRING},//for misc_replicator_item only!!!
-	{"spawnflags", FOFS(spawnflags), F_INT},
-	{"speed", FOFS(speed), F_FLOAT},
-	{"duration", FOFS(speed), F_FLOAT},//for psycho jism
-	{"interest", FOFS(health), F_INT},//For target_interest
-	{"target", FOFS(target), F_LSTRING},
-	{"target2", FOFS(target2), F_LSTRING},
-	{"target3", FOFS(target3), F_LSTRING},
-	{"target4", FOFS(target4), F_LSTRING},
-	{"targetname", FOFS(targetname), F_LSTRING},
-	{"material", FOFS(material), F_INT},
-	{"message", FOFS(message), F_LSTRING},
-	{"team", FOFS(team), F_LSTRING},
-	{"mapname", FOFS(message), F_LSTRING},
-	{"wait", FOFS(wait), F_FLOAT},
-	{"finaltime", FOFS(wait), F_FLOAT},//For dlight
-	{"random", FOFS(random), F_FLOAT},
-	{"FOV", FOFS(random), F_FLOAT},//for ref_tags and trigger_visibles
-	{"count", FOFS(count), F_INT},
-	{"health", FOFS(health), F_INT},
-	{"friction", FOFS(health), F_INT},//For target_friction_change
-	{"light", 0, F_IGNORE},
-	{"dmg", FOFS(damage), F_INT},
-	{"angles", FOFS(s.angles), F_VECTOR},
-	{"angle", FOFS(s.angles), F_ANGLEHACK},
-	{"cameraGroup", FOFS(cameraGroup), F_LSTRING},
-	{"radius", FOFS(radius), F_FLOAT},
-	{"hiderange", FOFS(radius), F_FLOAT},//for triggers only
-	{"starttime", FOFS(radius), F_FLOAT},//for dlight
-	{"type", FOFS(count), F_FLOAT},//for fx_crew_beam_in
-	{"fullName", FOFS(fullName), F_LSTRING},
-	{"fxfile", FOFS(fxFile), F_LSTRING},
-	{"fxfile2", FOFS(fullName), F_LSTRING},
-	{"endFrame", FOFS(endFrame), F_INT},//for func_usable shader animation
-	{"linear", FOFS(alt_fire), F_BOOL},//for movers to use linear movement
+	{"classname", FOFS(classname), fieldtype_t::F_LSTRING},
+	{"origin", FOFS(s.origin), fieldtype_t::F_VECTOR},
+	{"mins", FOFS(mins), fieldtype_t::F_VECTOR},
+	{"maxs", FOFS(maxs), fieldtype_t::F_VECTOR},
+	{"model", FOFS(model), fieldtype_t::F_LSTRING},
+	{"model2", FOFS(model2), fieldtype_t::F_LSTRING},
+	{"model3", FOFS(target), fieldtype_t::F_LSTRING},//for misc_replicator_item only!!!
+	{"model4", FOFS(target2), fieldtype_t::F_LSTRING},//for misc_replicator_item only!!!
+	{"model5", FOFS(target3), fieldtype_t::F_LSTRING},//for misc_replicator_item only!!!
+	{"model6", FOFS(target4), fieldtype_t::F_LSTRING},//for misc_replicator_item only!!!
+	{"spawnflags", FOFS(spawnflags), fieldtype_t::F_INT},
+	{"speed", FOFS(speed), fieldtype_t::F_FLOAT},
+	{"duration", FOFS(speed), fieldtype_t::F_FLOAT},//for psycho jism
+	{"interest", FOFS(health), fieldtype_t::F_INT},//For target_interest
+	{"target", FOFS(target), fieldtype_t::F_LSTRING},
+	{"target2", FOFS(target2), fieldtype_t::F_LSTRING},
+	{"target3", FOFS(target3), fieldtype_t::F_LSTRING},
+	{"target4", FOFS(target4), fieldtype_t::F_LSTRING},
+	{"targetname", FOFS(targetname), fieldtype_t::F_LSTRING},
+	{"material", FOFS(material), fieldtype_t::F_INT},
+	{"message", FOFS(message), fieldtype_t::F_LSTRING},
+	{"team", FOFS(team), fieldtype_t::F_LSTRING},
+	{"mapname", FOFS(message), fieldtype_t::F_LSTRING},
+	{"wait", FOFS(wait), fieldtype_t::F_FLOAT},
+	{"finaltime", FOFS(wait), fieldtype_t::F_FLOAT},//For dlight
+	{"random", FOFS(random), fieldtype_t::F_FLOAT},
+	{"FOV", FOFS(random), fieldtype_t::F_FLOAT},//for ref_tags and trigger_visibles
+	{"count", FOFS(count), fieldtype_t::F_INT},
+	{"health", FOFS(health), fieldtype_t::F_INT},
+	{"friction", FOFS(health), fieldtype_t::F_INT},//For target_friction_change
+	{"light", 0, fieldtype_t::F_IGNORE},
+	{"dmg", FOFS(damage), fieldtype_t::F_INT},
+	{"angles", FOFS(s.angles), fieldtype_t::F_VECTOR},
+	{"angle", FOFS(s.angles), fieldtype_t::F_ANGLEHACK},
+	{"cameraGroup", FOFS(cameraGroup), fieldtype_t::F_LSTRING},
+	{"radius", FOFS(radius), fieldtype_t::F_FLOAT},
+	{"hiderange", FOFS(radius), fieldtype_t::F_FLOAT},//for triggers only
+	{"starttime", FOFS(radius), fieldtype_t::F_FLOAT},//for dlight
+	{"type", FOFS(count), fieldtype_t::F_FLOAT},//for fx_crew_beam_in
+	{"fullName", FOFS(fullName), fieldtype_t::F_LSTRING},
+	{"fxfile", FOFS(fxFile), fieldtype_t::F_LSTRING},
+	{"fxfile2", FOFS(fullName), fieldtype_t::F_LSTRING},
+	{"endFrame", FOFS(endFrame), fieldtype_t::F_INT},//for func_usable shader animation
+	{"linear", FOFS(alt_fire), fieldtype_t::F_BOOL},//for movers to use linear movement
 
 //Script parms - will this handle clamping to 16 or whatever length of parm[0] is?
-	{"parm1", 0, F_PARM1},
-	{"parm2", 0, F_PARM2},
-	{"parm3", 0, F_PARM3},
-	{"parm4", 0, F_PARM4},
-	{"parm5", 0, F_PARM5},
-	{"parm6", 0, F_PARM6},
-	{"parm7", 0, F_PARM7},
-	{"parm8", 0, F_PARM8},
-	{"parm9", 0, F_PARM9},
-	{"parm10", 0, F_PARM10},
-	{"parm11", 0, F_PARM11},
-	{"parm12", 0, F_PARM12},
-	{"parm13", 0, F_PARM13},
-	{"parm14", 0, F_PARM14},
-	{"parm15", 0, F_PARM15},
-	{"parm16", 0, F_PARM16},
-	{"noTED", FOFS(s.eFlags), F_FLAG},
+	{"parm1", 0, fieldtype_t::F_PARM1},
+	{"parm2", 0, fieldtype_t::F_PARM2},
+	{"parm3", 0, fieldtype_t::F_PARM3},
+	{"parm4", 0, fieldtype_t::F_PARM4},
+	{"parm5", 0, fieldtype_t::F_PARM5},
+	{"parm6", 0, fieldtype_t::F_PARM6},
+	{"parm7", 0, fieldtype_t::F_PARM7},
+	{"parm8", 0, fieldtype_t::F_PARM8},
+	{"parm9", 0, fieldtype_t::F_PARM9},
+	{"parm10", 0, fieldtype_t::F_PARM10},
+	{"parm11", 0, fieldtype_t::F_PARM11},
+	{"parm12", 0, fieldtype_t::F_PARM12},
+	{"parm13", 0, fieldtype_t::F_PARM13},
+	{"parm14", 0, fieldtype_t::F_PARM14},
+	{"parm15", 0, fieldtype_t::F_PARM15},
+	{"parm16", 0, fieldtype_t::F_PARM16},
+	{"noTED", FOFS(s.eFlags), fieldtype_t::F_FLAG},
 
 //MCG - Begin
 	//extra fields for ents
-	{"delay", FOFS(delay), F_INT},
-	{"sounds", FOFS(sounds), F_INT},
-	{"closetarget", FOFS(closetarget), F_LSTRING},//for doors
-	{"opentarget", FOFS(opentarget), F_LSTRING},//for doors
-	{"paintarget", FOFS(paintarget), F_LSTRING},//for doors
-	{"soundGroup", FOFS(paintarget), F_LSTRING},//for target_speakers
-	{"backwardstarget", FOFS(paintarget), F_LSTRING},//for trigger_bidirectional
-	{"splashDamage", FOFS(splashDamage), F_INT},
-	{"splashRadius", FOFS(splashRadius), F_INT},
+	{"delay", FOFS(delay), fieldtype_t::F_INT},
+	{"sounds", FOFS(sounds), fieldtype_t::F_INT},
+	{"closetarget", FOFS(closetarget), fieldtype_t::F_LSTRING},//for doors
+	{"opentarget", FOFS(opentarget), fieldtype_t::F_LSTRING},//for doors
+	{"paintarget", FOFS(paintarget), fieldtype_t::F_LSTRING},//for doors
+	{"soundGroup", FOFS(paintarget), fieldtype_t::F_LSTRING},//for target_speakers
+	{"backwardstarget", FOFS(paintarget), fieldtype_t::F_LSTRING},//for trigger_bidirectional
+	{"splashDamage", FOFS(splashDamage), fieldtype_t::F_INT},
+	{"splashRadius", FOFS(splashRadius), fieldtype_t::F_INT},
 	//Script stuff
-	{"spawnscript", FOFS(behaviorSet.elems[to_underlying( BSET_SPAWN )]), F_LSTRING},//name of script to run
-	{"usescript", FOFS(behaviorSet.elems[to_underlying( BSET_USE )]), F_LSTRING},//name of script to run
-	{"awakescript", FOFS(behaviorSet.elems[to_underlying( BSET_AWAKE )]), F_LSTRING},//name of script to run
-	{"angerscript", FOFS(behaviorSet.elems[to_underlying( BSET_ANGER )]), F_LSTRING},//name of script to run
-	{"attackscript", FOFS(behaviorSet.elems[to_underlying( BSET_ATTACK )]), F_LSTRING},//name of script to run
-	{"victoryscript", FOFS(behaviorSet.elems[to_underlying( BSET_VICTORY )]), F_LSTRING},//name of script to run
-	{"lostenemyscript", FOFS(behaviorSet.elems[to_underlying( BSET_LOSTENEMY )]), F_LSTRING},//name of script to run
-	{"painscript", FOFS(behaviorSet.elems[to_underlying( BSET_PAIN )]), F_LSTRING},//name of script to run
-	{"fleescript", FOFS(behaviorSet.elems[to_underlying( BSET_FLEE )]), F_LSTRING},//name of script to run
-	{"deathscript", FOFS(behaviorSet.elems[to_underlying( BSET_DEATH )]), F_LSTRING},//name of script to run
-	{"delayscript", FOFS(behaviorSet.elems[to_underlying( BSET_DELAYED )]), F_LSTRING},//name of script to run
-	{"delayscripttime", FOFS(delayScriptTime), F_INT},//name of script to run
-	{"blockedscript", FOFS(behaviorSet.elems[to_underlying( BSET_BLOCKED )]), F_LSTRING},//name of script to run
-	{"ffirescript", FOFS(behaviorSet.elems[to_underlying( BSET_FFIRE )]), F_LSTRING},//name of script to run
-	{"ffdeathscript", FOFS(behaviorSet.elems[to_underlying( BSET_FFDEATH )]), F_LSTRING},//name of script to run
-	{"mindtrickscript", FOFS(behaviorSet.elems[to_underlying( BSET_MINDTRICK )]), F_LSTRING},//name of script to run
-	{"script_targetname", FOFS(script_targetname), F_LSTRING},//scripts look for this when "affecting"
+	{"spawnscript", FOFS(behaviorSet.elems[to_underlying( bSet_t::BSET_SPAWN )]), fieldtype_t::F_LSTRING},//name of script to run
+	{"usescript", FOFS(behaviorSet.elems[to_underlying( bSet_t::BSET_USE )]), fieldtype_t::F_LSTRING},//name of script to run
+	{"awakescript", FOFS(behaviorSet.elems[to_underlying( bSet_t::BSET_AWAKE )]), fieldtype_t::F_LSTRING},//name of script to run
+	{"angerscript", FOFS(behaviorSet.elems[to_underlying( bSet_t::BSET_ANGER )]), fieldtype_t::F_LSTRING},//name of script to run
+	{"attackscript", FOFS(behaviorSet.elems[to_underlying( bSet_t::BSET_ATTACK )]), fieldtype_t::F_LSTRING},//name of script to run
+	{"victoryscript", FOFS(behaviorSet.elems[to_underlying( bSet_t::BSET_VICTORY )]), fieldtype_t::F_LSTRING},//name of script to run
+	{"lostenemyscript", FOFS(behaviorSet.elems[to_underlying( bSet_t::BSET_LOSTENEMY )]), fieldtype_t::F_LSTRING},//name of script to run
+	{"painscript", FOFS(behaviorSet.elems[to_underlying( bSet_t::BSET_PAIN )]), fieldtype_t::F_LSTRING},//name of script to run
+	{"fleescript", FOFS(behaviorSet.elems[to_underlying( bSet_t::BSET_FLEE )]), fieldtype_t::F_LSTRING},//name of script to run
+	{"deathscript", FOFS(behaviorSet.elems[to_underlying( bSet_t::BSET_DEATH )]), fieldtype_t::F_LSTRING},//name of script to run
+	{"delayscript", FOFS(behaviorSet.elems[to_underlying( bSet_t::BSET_DELAYED )]), fieldtype_t::F_LSTRING},//name of script to run
+	{"delayscripttime", FOFS(delayScriptTime), fieldtype_t::F_INT},//name of script to run
+	{"blockedscript", FOFS(behaviorSet.elems[to_underlying( bSet_t::BSET_BLOCKED )]), fieldtype_t::F_LSTRING},//name of script to run
+	{"ffirescript", FOFS(behaviorSet.elems[to_underlying( bSet_t::BSET_FFIRE )]), fieldtype_t::F_LSTRING},//name of script to run
+	{"ffdeathscript", FOFS(behaviorSet.elems[to_underlying( bSet_t::BSET_FFDEATH )]), fieldtype_t::F_LSTRING},//name of script to run
+	{"mindtrickscript", FOFS(behaviorSet.elems[to_underlying( bSet_t::BSET_MINDTRICK )]), fieldtype_t::F_LSTRING},//name of script to run
+	{"script_targetname", FOFS(script_targetname), fieldtype_t::F_LSTRING},//scripts look for this when "affecting"
 	//For NPCs
-	//{"playerTeam", FOFS(playerTeam), F_INT},
-	//{"enemyTeam", FOFS(enemyTeam), F_INT},
-	{"NPC_targetname", FOFS(NPC_targetname), F_LSTRING},
-	{"NPC_target", FOFS(NPC_target), F_LSTRING},
-	{"NPC_target2", FOFS(target2), F_LSTRING},//NPC_spawner only
-	{"NPC_target4", FOFS(target4), F_LSTRING},//NPC_spawner only
-	{"NPC_type", FOFS(NPC_type), F_LSTRING},
-	{"ownername", FOFS(ownername), F_LSTRING},
+	//{"playerTeam", FOFS(playerTeam), fieldtype_t::F_INT},
+	//{"enemyTeam", FOFS(enemyTeam), fieldtype_t::F_INT},
+	{"NPC_targetname", FOFS(NPC_targetname), fieldtype_t::F_LSTRING},
+	{"NPC_target", FOFS(NPC_target), fieldtype_t::F_LSTRING},
+	{"NPC_target2", FOFS(target2), fieldtype_t::F_LSTRING},//NPC_spawner only
+	{"NPC_target4", FOFS(target4), fieldtype_t::F_LSTRING},//NPC_spawner only
+	{"NPC_type", FOFS(NPC_type), fieldtype_t::F_LSTRING},
+	{"ownername", FOFS(ownername), fieldtype_t::F_LSTRING},
 	//freaky camera shit
-	{"startRGBA", FOFS(startRGBA), F_VECTOR4},
-	{"finalRGBA", FOFS(finalRGBA), F_VECTOR4},
+	{"startRGBA", FOFS(startRGBA), fieldtype_t::F_VECTOR4},
+	{"finalRGBA", FOFS(finalRGBA), fieldtype_t::F_VECTOR4},
 //MCG - End
 
-	{"soundSet", FOFS(soundSet), F_LSTRING},
-	{"scale", 0, F_IGNORE},
-	{"_color", 0, F_IGNORE},
-	{"style", 0, F_IGNORE},
-	{"lip", 0, F_IGNORE},
-	{"switch_style", 0, F_IGNORE},
-	{"height", 0, F_IGNORE},
+	{"soundSet", FOFS(soundSet), fieldtype_t::F_LSTRING},
+	{"scale", 0, fieldtype_t::F_IGNORE},
+	{"_color", 0, fieldtype_t::F_IGNORE},
+	{"style", 0, fieldtype_t::F_IGNORE},
+	{"lip", 0, fieldtype_t::F_IGNORE},
+	{"switch_style", 0, fieldtype_t::F_IGNORE},
+	{"height", 0, fieldtype_t::F_IGNORE},
 
 
 	{nullptr}
@@ -800,10 +799,10 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent ) {
 			b = (byte *)ent;
 
 			switch( f->type ) {
-			case F_LSTRING:
+			case fieldtype_t::F_LSTRING:
 				*(char **)(b+f->ofs) = G_NewString (value);
 				break;
-			case F_VECTOR:
+			case fieldtype_t::F_VECTOR:
 			{
 				int _iFieldsRead = sscanf (value, "%f %f %f", &vec[0], &vec[1], &vec[2]);
 				assert(_iFieldsRead==3);
@@ -818,7 +817,7 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent ) {
 				((float *)(b+f->ofs))[2] = vec[2];
 				break;
 			}
-			case F_VECTOR4:
+			case fieldtype_t::F_VECTOR4:
 			{
 				int _iFieldsRead =  sscanf (value, "%f %f %f %f", &vec4[0], &vec4[1], &vec4[2], &vec4[3]);
 				assert(_iFieldsRead==4);
@@ -834,40 +833,40 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent ) {
 				((float *)(b+f->ofs))[3] = vec4[3];
 				break;
 			}
-			case F_INT:
+			case fieldtype_t::F_INT:
 				*(int *)(b+f->ofs) = atoi(value);
 				break;
-			case F_BOOL:
+			case fieldtype_t::F_BOOL:
 				*(bool *)(b+f->ofs) = atoi(value) != 0;
 				break;
-			case F_FLOAT:
+			case fieldtype_t::F_FLOAT:
 				*(float *)(b+f->ofs) = atof(value);
 				break;
-			case F_ANGLEHACK:
+			case fieldtype_t::F_ANGLEHACK:
 				v = atof(value);
 				((float *)(b+f->ofs))[0] = 0;
 				((float *)(b+f->ofs))[1] = v;
 				((float *)(b+f->ofs))[2] = 0;
 				break;
-			case F_PARM1:
-			case F_PARM2:
-			case F_PARM3:
-			case F_PARM4:
-			case F_PARM5:
-			case F_PARM6:
-			case F_PARM7:
-			case F_PARM8:
-			case F_PARM9:
-			case F_PARM10:
-			case F_PARM11:
-			case F_PARM12:
-			case F_PARM13:
-			case F_PARM14:
-			case F_PARM15:
-			case F_PARM16:
-				Q3_SetParm( ent->s.number, (f->type - F_PARM1), (char *) value );
+			case fieldtype_t::F_PARM1:
+			case fieldtype_t::F_PARM2:
+			case fieldtype_t::F_PARM3:
+			case fieldtype_t::F_PARM4:
+			case fieldtype_t::F_PARM5:
+			case fieldtype_t::F_PARM6:
+			case fieldtype_t::F_PARM7:
+			case fieldtype_t::F_PARM8:
+			case fieldtype_t::F_PARM9:
+			case fieldtype_t::F_PARM10:
+			case fieldtype_t::F_PARM11:
+			case fieldtype_t::F_PARM12:
+			case fieldtype_t::F_PARM13:
+			case fieldtype_t::F_PARM14:
+			case fieldtype_t::F_PARM15:
+			case fieldtype_t::F_PARM16:
+				Q3_SetParm( ent->s.number, (f->type - fieldtype_t::F_PARM1), (char *) value );
 				break;
-			case F_FLAG:
+			case fieldtype_t::F_FLAG:
 				{//try to find the proper flag for that key:
 					int flag = GetIDForString ( flagTable, key );
 
@@ -884,7 +883,7 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent ) {
 				}
 				break;
 			default:
-			case F_IGNORE:
+			case fieldtype_t::F_IGNORE:
 				break;
 			}
 			return;
@@ -954,7 +953,7 @@ void G_SpawnGEntityFromSpawnVars( void ) {
 		{
 			if ( strncmp( "NPC_", ent->classname, 4 ) != 0 )
 			{//Not an NPC_spawner
-				G_ActivateBehavior( ent, BSET_SPAWN );
+				G_ActivateBehavior( ent, bSet_t::BSET_SPAWN );
 			}
 		}
 	}
@@ -1266,7 +1265,7 @@ void SP_worldspawn( void ) {
 
 	G_SpawnString( "gravity", "800", &s );
 	extern SavedGameJustLoaded_e g_eSavedGameJustLoaded;
-	if (g_eSavedGameJustLoaded != eFULL)
+	if (g_eSavedGameJustLoaded != SavedGameJustLoaded_e::eFULL)
 	{
 		gi.cvar_set( "g_gravity", s );
 	}
@@ -1300,7 +1299,7 @@ void SP_worldspawn( void ) {
 
 		if (lengthRed != lengthGreen || lengthGreen != lengthBlue)
 		{
-			Com_Error(ERR_DROP, "Style %d has inconsistent lengths: R %d, G %d, B %d",
+			Com_Error(errorParm_t::ERR_DROP, "Style %d has inconsistent lengths: R %d, G %d, B %d",
 				i, lengthRed, lengthGreen, lengthBlue);
 		}
 	}
@@ -1387,15 +1386,15 @@ void G_SpawnEntitiesFromString( const char *entityString ) {
 	G_ParsePrecaches();
 
 
-	if( g_entities[ENTITYNUM_WORLD].behaviorSet[BSET_SPAWN] && g_entities[ENTITYNUM_WORLD].behaviorSet[BSET_SPAWN][0] )
+	if( g_entities[ENTITYNUM_WORLD].behaviorSet[bSet_t::BSET_SPAWN] && g_entities[ENTITYNUM_WORLD].behaviorSet[bSet_t::BSET_SPAWN][0] )
 	{//World has a spawn script, but we don't want the world in ICARUS and running scripts,
 		//so make a scriptrunner and start it going.
 		gentity_t *script_runner = G_Spawn();
 		if ( script_runner )
 		{
-			script_runner->behaviorSet[BSET_USE] = g_entities[ENTITYNUM_WORLD].behaviorSet[BSET_SPAWN];
+			script_runner->behaviorSet[bSet_t::BSET_USE] = g_entities[ENTITYNUM_WORLD].behaviorSet[bSet_t::BSET_SPAWN];
 			script_runner->count = 1;
-			script_runner->e_ThinkFunc = thinkF_scriptrunner_run;
+			script_runner->e_ThinkFunc = thinkFunc_t::thinkF_scriptrunner_run;
 			script_runner->nextthink = level.time + 100;
 
 			if ( ICARUS_ValidEnt( script_runner ) )

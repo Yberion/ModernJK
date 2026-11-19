@@ -35,8 +35,8 @@ void WP_FireTuskenRifle( gentity_t *ent )
 	VectorCopy( muzzle, start );
 	WP_TraceSetStart( ent, start, vec3_origin, vec3_origin );//make sure our start point isn't on the other side of a wall
 
-	if ( !(ent->client->ps.forcePowersActive&Bit( FP_SEE ))
-		|| ent->client->ps.forcePowerLevel[FP_SEE] < FORCE_LEVEL_2 )
+	if ( !(ent->client->ps.forcePowersActive&Bit( forcePowers_t::FP_SEE ))
+		|| ent->client->ps.forcePowerLevel[forcePowers_t::FP_SEE] < forcePowerLevels_t::FORCE_LEVEL_2 )
 	{//force sight 2+ gives perfect aim
 		//FIXME: maybe force sight level 3 autoaims some?
 		if ( ent->NPC && ent->NPC->currentAim < 5 )
@@ -45,7 +45,7 @@ void WP_FireTuskenRifle( gentity_t *ent )
 
 			vectoangles( forwardVec, angs );
 
-			if ( ent->client->NPC_class == CLASS_IMPWORKER )
+			if ( ent->client->NPC_class == class_t::CLASS_IMPWORKER )
 			{//*sigh*, hack to make impworkers less accurate without affecteing imperial officer accuracy
 				angs[PITCH] += ( Q_flrand(-1.0f, 1.0f) * (BLASTER_NPC_SPREAD+(6-ent->NPC->currentAim)*0.25f));//was 0.5f
 				angs[YAW]	+= ( Q_flrand(-1.0f, 1.0f) * (BLASTER_NPC_SPREAD+(6-ent->NPC->currentAim)*0.25f));//was 0.5f
@@ -65,7 +65,7 @@ void WP_FireTuskenRifle( gentity_t *ent )
 	gentity_t	*missile = CreateMissile( start, forwardVec, TUSKEN_RIFLE_VEL, 10000, ent, false );
 
 	missile->classname = "trifle_proj";
-	missile->s.weapon = WP_TUSKEN_RIFLE;
+	missile->s.weapon = weapon_t::WP_TUSKEN_RIFLE;
 
 	if ( ent->s.number < MAX_CLIENTS || g_spskill->integer >= 2 )
 	{
@@ -79,11 +79,11 @@ void WP_FireTuskenRifle( gentity_t *ent )
 	{
 		missile->damage = TUSKEN_RIFLE_DAMAGE_EASY;
 	}
-	missile->dflags = DAMAGE_DEATH_KNOCKBACK;
+	missile->dflags = damageFlags_t::DAMAGE_DEATH_KNOCKBACK;
 
-	missile->methodOfDeath = MOD_BRYAR;//???
+	missile->methodOfDeath = meansOfDeath_t::MOD_BRYAR;//???
 
-	missile->clipmask = MASK_SHOT | CONTENTS_LIGHTSABER;
+	missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
 
 	// we don't want it to bounce forever
 	missile->bounceCount = 8;

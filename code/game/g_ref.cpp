@@ -60,7 +60,7 @@ void TAG_ShowTags( int flags )
 			if ( (*rti)->flags & RTF_NAVGOAL )
 			{
 				if ( gi.inPVS( g_entities[0].currentOrigin, (*rti)->origin ) )
-					CG_DrawNode( (*rti)->origin, NODE_NAVGOAL );
+					CG_DrawNode( (*rti)->origin, nodeType_t::NODE_NAVGOAL );
 			}
 		}
 	}
@@ -409,7 +409,7 @@ void SP_reference_tag ( gentity_t *ent )
 	if ( ent->target )
 	{
 		//Init cannot occur until all entities have been spawned
-		ent->e_ThinkFunc = thinkF_ref_link;
+		ent->e_ThinkFunc = thinkFunc_t::thinkF_ref_link;
 		ent->nextthink = level.time + START_TIME_LINK_ENTS;
 	}
 	else

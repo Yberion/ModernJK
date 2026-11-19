@@ -102,7 +102,7 @@ int CM_PointLeafnum_r( const vec3_t p, int num, clipMap_t *local ) {
 		node = local->nodes + num;
 		plane = node->plane;
 
-		if (plane->type < PLANE_NON_AXIAL)
+		if (plane->type < planeType_t::PLANE_NON_AXIAL)
 			d = p[PlaneAxis( plane->type )] - plane->dist;
 		else
 			d = DotProduct (plane->normal, p) - plane->dist;
@@ -279,7 +279,7 @@ contentsFlags_t CM_PointContents( const vec3_t p, clipHandle_t model ) {
 	clipMap_t	*local;
 
 	if (!cmg.numNodes) {	// map not loaded
-		return CONTENTS_NONE;
+		return contentsFlags_t::CONTENTS_NONE;
 	}
 
 	if ( model ) {
@@ -356,7 +356,7 @@ contentsFlags_t CM_PointContents( const vec3_t p, clipHandle_t model ) {
 		leaf = &local->leafs[leafnum];
 	}
 
-	contents = CONTENTS_NONE;
+	contents = contentsFlags_t::CONTENTS_NONE;
 	for (k=0 ; k<leaf->numLeafBrushes ; k++) {
 		brushnum = local->leafbrushes[leaf->firstLeafBrush+k];
 		b = &local->brushes[brushnum];
@@ -393,7 +393,7 @@ contentsFlags_t CM_PointContents( const vec3_t p, clipHandle_t model ) {
 	cmodel_t	*clipm;
 
 	if (!cmg.numNodes) {	// map not loaded
-		return CONTENTS_NONE;
+		return contentsFlags_t::CONTENTS_NONE;
 	}
 
 	CPoint pt(p[0],p[1],p[2]);
@@ -418,7 +418,7 @@ contentsFlags_t CM_PointContents( const vec3_t p, clipHandle_t model ) {
 		leaf = &cmg.leafs[leafnum];
 	}
 
-	contents = CONTENTS_NONE;
+	contents = contentsFlags_t::CONTENTS_NONE;
 	for (k=0 ; k<leaf->numLeafBrushes ; k++)
 	{
 		brushnum = cmg.leafbrushes[leaf->firstLeafBrush+k];
@@ -523,7 +523,7 @@ void CM_FloodArea_r( int areaNum, int floodnum, clipMap_t &cm) {
 	if ( area->floodvalid == cmg.floodvalid ) {
 		if (area->floodnum == floodnum)
 			return;
-		Com_Error (ERR_DROP, "FloodArea_r: reflooded");
+		Com_Error (errorParm_t::ERR_DROP, "FloodArea_r: reflooded");
 	}
 
 	area->floodnum = floodnum;
@@ -574,7 +574,7 @@ void	CM_AdjustAreaPortalState( int area1, int area2, bool open ) {
 	}
 
 	if ( area1 >= cmg.numAreas || area2 >= cmg.numAreas ) {
-		Com_Error (ERR_DROP, "CM_ChangeAreaPortalState: bad area number");
+		Com_Error (errorParm_t::ERR_DROP, "CM_ChangeAreaPortalState: bad area number");
 	}
 
 	if ( open ) {
@@ -584,7 +584,7 @@ void	CM_AdjustAreaPortalState( int area1, int area2, bool open ) {
 		cmg.areaPortals[ area1 * cmg.numAreas + area2 ]--;
 		cmg.areaPortals[ area2 * cmg.numAreas + area1 ]--;
 		if ( cmg.areaPortals[ area2 * cmg.numAreas + area1 ] < 0 ) {
-			Com_Error (ERR_DROP, "CM_AdjustAreaPortalState: negative reference count");
+			Com_Error (errorParm_t::ERR_DROP, "CM_AdjustAreaPortalState: negative reference count");
 		}
 	}
 
@@ -609,7 +609,7 @@ bool	CM_AreasConnected( int area1, int area2 ) {
 	}
 
 	if (area1 >= cmg.numAreas || area2 >= cmg.numAreas) {
-		Com_Error (ERR_DROP, "area >= cmg.numAreas");
+		Com_Error (errorParm_t::ERR_DROP, "area >= cmg.numAreas");
 	}
 
 	if (cmg.areas[area1].floodnum == cmg.areas[area2].floodnum) {

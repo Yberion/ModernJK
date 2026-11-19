@@ -505,7 +505,7 @@ void CTRLandScape::LoadTerrainDef(const char *td)
 	CGPGroup		*basegroup, *classes, *items;
 
 	Com_sprintf(terrainDef, MAX_QPATH, "ext_data/RMG/%s.terrain", td);
-	ri.Printf( PRINT_ALL, "R_Terrain: Loading and parsing terrainDef %s.....\n", td);
+	ri.Printf( printParm_t::PRINT_ALL, "R_Terrain: Loading and parsing terrainDef %s.....\n", td);
 
 	mWaterShader = nullptr;
 	mFlatShader  = NULL_HANDLE;
@@ -515,7 +515,7 @@ void CTRLandScape::LoadTerrainDef(const char *td)
 		Com_sprintf(terrainDef, MAX_QPATH, "ext_data/arioche/%s.terrain", td);
 		if(!Com_ParseTextFile(terrainDef, parse))
 		{
-			ri.Printf( PRINT_ALL, "Could not open %s\n", terrainDef);
+			ri.Printf( printParm_t::PRINT_ALL, "Could not open %s\n", terrainDef);
 			return;
 		}
 	}
@@ -882,7 +882,7 @@ CTRLandScape::CTRLandScape(const char *configstring)
 	mMaxNode = (Q_ilog2(common->GetTerxels()) << 1) - 1;
 
 	// Allocate space for the renderer specific data
-	mRenderMap = (CTerVert *)Z_Malloc(sizeof(CTerVert) * common->GetRealArea(), TAG_R_TERRAIN);
+	mRenderMap = (CTerVert *)Z_Malloc(sizeof(CTerVert) * common->GetRealArea(), memtag::TAG_R_TERRAIN);
 
 	// Copy byte heightmap to rendermap to speed up calcs
 	CopyHeightMap();
@@ -899,12 +899,12 @@ CTRLandScape::CTRLandScape(const char *configstring)
 	// Calculate texture coords (not projected - real)
 	CalculateTextureCoords();
 
-	ri.Printf( PRINT_ALL, "R_Terrain: Creating renderer patches.....\n");
+	ri.Printf( printParm_t::PRINT_ALL, "R_Terrain: Creating renderer patches.....\n");
 	// Initialise all terrain patches
-	mTRPatches = (CTRPatch *)Z_Malloc(sizeof(CTRPatch) * common->GetBlockCount(), TAG_R_TERRAIN);
+	mTRPatches = (CTRPatch *)Z_Malloc(sizeof(CTRPatch) * common->GetBlockCount(), memtag::TAG_R_TERRAIN);
 
 	mSortedCount = 2 * common->GetBlockCount();
-	mSortedPatches = (TPatchInfo *)Z_Malloc(sizeof(TPatchInfo) * mSortedCount, TAG_R_TERRAIN);
+	mSortedPatches = (TPatchInfo *)Z_Malloc(sizeof(TPatchInfo) * mSortedCount, memtag::TAG_R_TERRAIN);
 
 	ri.CM_TerrainPatchIterate(common, InitRendererPatches, this);
 
@@ -979,7 +979,7 @@ void R_AddTerrainSurfaces(void)
 {
 	CTRLandScape	*landscape;
 
-	if (!r_drawTerrain->integer || (tr.refdef.rdflags & RDF_NOWORLDMODEL))
+	if (!r_drawTerrain->integer || (tr.refdef.rdflags & refdefFlags_t::RDF_NOWORLDMODEL))
 	{
 		return;
 	}
@@ -998,11 +998,11 @@ void RE_InitRendererTerrain( const char *info )
 
 	if ( !info || !info[0] )
 	{
-		ri.Printf( PRINT_ALL, "RE_RegisterTerrain: NULL name\n" );
+		ri.Printf( printParm_t::PRINT_ALL, "RE_RegisterTerrain: NULL name\n" );
 		return;
 	}
 
-	ri.Printf( PRINT_ALL, "R_Terrain: Creating RENDERER data.....\n");
+	ri.Printf( printParm_t::PRINT_ALL, "R_Terrain: Creating RENDERER data.....\n");
 
 	// Create and register a new landscape structure
 	/*ls = */new CTRLandScape(info);
@@ -1013,10 +1013,10 @@ void R_TerrainInit(void)
 	tr.landScape.surfaceType = SF_TERRAIN;
 	tr.landScape.landscape = nullptr;
 
-	r_terrainTessellate = ri.Cvar_Get("r_terrainTessellate", "3", CVAR_CHEAT);
-	r_drawTerrain = ri.Cvar_Get("r_drawTerrain", "1", CVAR_CHEAT);
-	r_showFrameVariance = ri.Cvar_Get("r_showFrameVariance", "0", CVAR_NONE);
-	r_terrainWaterOffset = ri.Cvar_Get("r_terrainWaterOffset", "0", CVAR_NONE);
+	r_terrainTessellate = ri.Cvar_Get("r_terrainTessellate", "3", cvarFlags_t::CVAR_CHEAT);
+	r_drawTerrain = ri.Cvar_Get("r_drawTerrain", "1", cvarFlags_t::CVAR_CHEAT);
+	r_showFrameVariance = ri.Cvar_Get("r_showFrameVariance", "0", cvarFlags_t::CVAR_NONE);
+	r_terrainWaterOffset = ri.Cvar_Get("r_terrainWaterOffset", "0", cvarFlags_t::CVAR_NONE);
 
 	tr.distanceCull = 6000;
 	tr.distanceCullSquared = tr.distanceCull * tr.distanceCull;
@@ -1026,7 +1026,7 @@ void R_TerrainShutdown(void)
 {
 	CTRLandScape	*ls;
 
-//	ri.Printf( PRINT_ALL, "R_Terrain: Shutting down RENDERER terrain.....\n");
+//	ri.Printf( printParm_t::PRINT_ALL, "R_Terrain: Shutting down RENDERER terrain.....\n");
 	ls = tr.landScape.landscape;
 	if(ls)
 	{

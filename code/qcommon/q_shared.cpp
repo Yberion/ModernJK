@@ -141,7 +141,7 @@ void COM_BeginParseSession( void )
 #ifdef _DEBUG
 	if ( parseDataCount >= MAX_PARSE_DATA )
 	{
-		Com_Error (ERR_FATAL, "COM_BeginParseSession: cannot nest more than %d parsing sessions.\n", MAX_PARSE_DATA);
+		Com_Error (errorParm_t::ERR_FATAL, "COM_BeginParseSession: cannot nest more than %d parsing sessions.\n", MAX_PARSE_DATA);
 	}
 #endif
 
@@ -160,7 +160,7 @@ void COM_EndParseSession( void )
 int COM_GetCurrentParseLine( int index )
 {
 	if(parseDataCount < 0)
-		Com_Error(ERR_FATAL, "COM_GetCurrentParseLine: parseDataCount < 0 (be sure to call COM_BeginParseSession!)");
+		Com_Error(errorParm_t::ERR_FATAL, "COM_GetCurrentParseLine: parseDataCount < 0 (be sure to call COM_BeginParseSession!)");
 
 	if ( parseData[parseDataCount].com_tokenline )
 		return parseData[parseDataCount].com_tokenline;
@@ -190,7 +190,7 @@ const char *SkipWhitespace( const char *data, bool *hasNewLines )
 	int c;
 
 	if(parseDataCount < 0)
-		Com_Error(ERR_FATAL, "SkipWhitespace: parseDataCount < 0");
+		Com_Error(errorParm_t::ERR_FATAL, "SkipWhitespace: parseDataCount < 0");
 
 	while( (c = *(const unsigned char* /*eurofix*/)data) <= ' ')
 	{
@@ -298,7 +298,7 @@ char *COM_ParseExt( const char **data_p, bool allowLineBreaks )
 	}
 
 	if(parseDataCount < 0)
-		Com_Error(ERR_FATAL, "COM_ParseExt: parseDataCount < 0 (be sure to call COM_BeginParseSession!)");
+		Com_Error(errorParm_t::ERR_FATAL, "COM_ParseExt: parseDataCount < 0 (be sure to call COM_BeginParseSession!)");
 
 	while ( 1 )
 	{
@@ -482,7 +482,7 @@ void COM_MatchToken( const char **buf_p, const char *match ) {
 	token = COM_Parse( buf_p );
 	if ( strcmp( token, match ) )
 	{
-		Com_Error( ERR_DROP, "MatchToken: %s != %s", token, match );
+		Com_Error( errorParm_t::ERR_DROP, "MatchToken: %s != %s", token, match );
 	}
 }
 
@@ -528,7 +528,7 @@ void SkipRestOfLine ( const char **data ) {
 	int		c;
 
 	if(parseDataCount < 0)
-		Com_Error(ERR_FATAL, "SkipRestOfLine: parseDataCount < 0");
+		Com_Error(errorParm_t::ERR_FATAL, "SkipRestOfLine: parseDataCount < 0");
 
 	p = *data;
 
@@ -720,7 +720,7 @@ const char *Info_ValueForKey( const char *s, const char *key ) {
 	}
 
 	if ( strlen( s ) >= MAX_INFO_STRING ) {
-		Com_Error( ERR_DROP, "Info_ValueForKey: oversize infostring" );
+		Com_Error( errorParm_t::ERR_DROP, "Info_ValueForKey: oversize infostring" );
 	}
 
 	valueindex ^= 1;
@@ -811,7 +811,7 @@ void Info_RemoveKey( char *s, const char *key ) {
 	char	*o;
 
 	if ( strlen( s ) >= MAX_INFO_STRING ) {
-		Com_Error( ERR_DROP, "Info_RemoveKey: oversize infostring" );
+		Com_Error( errorParm_t::ERR_DROP, "Info_RemoveKey: oversize infostring" );
 	}
 
 	if (strchr (key, '\\')) {
@@ -885,7 +885,7 @@ void Info_SetValueForKey( char *s, const char *key, const char *value ) {
 	const char* blacklist = "\\;\"";
 
 	if ( strlen( s ) >= MAX_INFO_STRING ) {
-		Com_Error( ERR_DROP, "Info_SetValueForKey: oversize infostring" );
+		Com_Error( errorParm_t::ERR_DROP, "Info_SetValueForKey: oversize infostring" );
 	}
 
 	for(; *blacklist; ++blacklist)

@@ -172,7 +172,7 @@ typedef struct
 } wpnParms_t;
 
 // This is used as a fallback for each new field, in case they're using base files --eez
-const EnumArray<int, weapon_t, WP_NUM_WEAPONS> defaultDamage = {
+const EnumArray<int, weapon_t, weapon_t::WP_NUM_WEAPONS> defaultDamage = {
 	0,							// WP_NONE
 	0,							// WP_SABER				// handled elsewhere
 	BRYAR_PISTOL_DAMAGE,		// WP_BLASTER_PISTOL
@@ -209,7 +209,7 @@ const EnumArray<int, weapon_t, WP_NUM_WEAPONS> defaultDamage = {
 	0,							// WP_NOGHRI_STICK
 };
 
-const EnumArray<int, weapon_t, WP_NUM_WEAPONS> defaultAltDamage = {
+const EnumArray<int, weapon_t, weapon_t::WP_NUM_WEAPONS> defaultAltDamage = {
 	0,						// WP_NONE
 	0,						// WP_SABER					// handled elsewhere
 	BRYAR_PISTOL_DAMAGE,	// WP_BLASTER_PISTOL
@@ -246,7 +246,7 @@ const EnumArray<int, weapon_t, WP_NUM_WEAPONS> defaultAltDamage = {
 	0,						// WP_NOGHRI_STICK
 };
 
-const EnumArray<int, weapon_t, WP_NUM_WEAPONS> defaultSplashDamage = {
+const EnumArray<int, weapon_t, weapon_t::WP_NUM_WEAPONS> defaultSplashDamage = {
 	0,								// WP_NONE
 	0,								// WP_SABER
 	0,								// WP_BLASTER_PISTOL
@@ -283,7 +283,7 @@ const EnumArray<int, weapon_t, WP_NUM_WEAPONS> defaultSplashDamage = {
 	0,								// WP_NOGHRI_STICK
 };
 
-const EnumArray<float, weapon_t, WP_NUM_WEAPONS> defaultSplashRadius = {
+const EnumArray<float, weapon_t, weapon_t::WP_NUM_WEAPONS> defaultSplashRadius = {
 	0.0f,							// WP_NONE
 	0.0f,							// WP_SABER
 	0.0f,							// WP_BLASTER_PISTOL
@@ -320,7 +320,7 @@ const EnumArray<float, weapon_t, WP_NUM_WEAPONS> defaultSplashRadius = {
 	0.0f,							// WP_NOGHRI_STICK
 };
 
-const EnumArray<int, weapon_t, WP_NUM_WEAPONS> defaultAltSplashDamage = {
+const EnumArray<int, weapon_t, weapon_t::WP_NUM_WEAPONS> defaultAltSplashDamage = {
 	0,								// WP_NONE
 	0,								// WP_SABER			// handled elsewhere
 	0,								// WP_BLASTER_PISTOL
@@ -357,7 +357,7 @@ const EnumArray<int, weapon_t, WP_NUM_WEAPONS> defaultAltSplashDamage = {
 	0,								// WP_NOGHRI_STICK
 };
 
-const EnumArray<float, weapon_t, WP_NUM_WEAPONS> defaultAltSplashRadius = {
+const EnumArray<float, weapon_t, weapon_t::WP_NUM_WEAPONS> defaultAltSplashRadius = {
 	0.0f,							// WP_NONE
 	0.0f,							// WP_SABER		// handled elsewhere
 	0.0f,							// WP_BLASTER_PISTOL
@@ -468,66 +468,66 @@ void WPN_WeaponType( const char **holdBuf)
 
 	// FIXME : put this in an array (maybe a weaponDataInternal array???)
 	if (!Q_stricmp(tokenStr,"WP_NONE"))
-		weaponNum = WP_NONE;
+		weaponNum = weapon_t::WP_NONE;
 	else if (!Q_stricmp(tokenStr,"WP_SABER"))
-		weaponNum = WP_SABER;
+		weaponNum = weapon_t::WP_SABER;
 	else if (!Q_stricmp(tokenStr,"WP_BLASTER_PISTOL"))
-		weaponNum = WP_BLASTER_PISTOL;
+		weaponNum = weapon_t::WP_BLASTER_PISTOL;
 	else if (!Q_stricmp(tokenStr,"WP_BRYAR_PISTOL"))
-		weaponNum = WP_BRYAR_PISTOL;
+		weaponNum = weapon_t::WP_BRYAR_PISTOL;
 	else if (!Q_stricmp(tokenStr,"WP_BLASTER"))
-		weaponNum = WP_BLASTER;
+		weaponNum = weapon_t::WP_BLASTER;
 	else if (!Q_stricmp(tokenStr,"WP_DISRUPTOR"))
-		weaponNum = WP_DISRUPTOR;
+		weaponNum = weapon_t::WP_DISRUPTOR;
 	else if (!Q_stricmp(tokenStr,"WP_BOWCASTER"))
-		weaponNum = WP_BOWCASTER;
+		weaponNum = weapon_t::WP_BOWCASTER;
 	else if (!Q_stricmp(tokenStr,"WP_REPEATER"))
-		weaponNum = WP_REPEATER;
+		weaponNum = weapon_t::WP_REPEATER;
 	else if (!Q_stricmp(tokenStr,"WP_DEMP2"))
-		weaponNum = WP_DEMP2;
+		weaponNum = weapon_t::WP_DEMP2;
 	else if (!Q_stricmp(tokenStr,"WP_FLECHETTE"))
-		weaponNum = WP_FLECHETTE;
+		weaponNum = weapon_t::WP_FLECHETTE;
 	else if (!Q_stricmp(tokenStr,"WP_ROCKET_LAUNCHER"))
-		weaponNum = WP_ROCKET_LAUNCHER;
+		weaponNum = weapon_t::WP_ROCKET_LAUNCHER;
 	else if (!Q_stricmp(tokenStr,"WP_CONCUSSION"))
-		weaponNum = WP_CONCUSSION;
+		weaponNum = weapon_t::WP_CONCUSSION;
 	else if (!Q_stricmp(tokenStr,"WP_THERMAL"))
-		weaponNum = WP_THERMAL;
+		weaponNum = weapon_t::WP_THERMAL;
 	else if (!Q_stricmp(tokenStr,"WP_TRIP_MINE"))
-		weaponNum = WP_TRIP_MINE;
+		weaponNum = weapon_t::WP_TRIP_MINE;
 	else if (!Q_stricmp(tokenStr,"WP_DET_PACK"))
-		weaponNum = WP_DET_PACK;
+		weaponNum = weapon_t::WP_DET_PACK;
 	else if (!Q_stricmp(tokenStr,"WP_STUN_BATON"))
-		weaponNum = WP_STUN_BATON;
+		weaponNum = weapon_t::WP_STUN_BATON;
 	else if (!Q_stricmp(tokenStr,"WP_BOT_LASER"))
-		weaponNum = WP_BOT_LASER;
+		weaponNum = weapon_t::WP_BOT_LASER;
 	else if (!Q_stricmp(tokenStr,"WP_EMPLACED_GUN"))
-		weaponNum = WP_EMPLACED_GUN;
+		weaponNum = weapon_t::WP_EMPLACED_GUN;
 	else if (!Q_stricmp(tokenStr,"WP_MELEE"))
-		weaponNum = WP_MELEE;
+		weaponNum = weapon_t::WP_MELEE;
 	else if (!Q_stricmp(tokenStr,"WP_TURRET"))
-		weaponNum = WP_TURRET;
+		weaponNum = weapon_t::WP_TURRET;
 	else if (!Q_stricmp(tokenStr,"WP_ATST_MAIN"))
-		weaponNum = WP_ATST_MAIN;
+		weaponNum = weapon_t::WP_ATST_MAIN;
 	else if (!Q_stricmp(tokenStr,"WP_ATST_SIDE"))
-		weaponNum = WP_ATST_SIDE;
+		weaponNum = weapon_t::WP_ATST_SIDE;
 	else if (!Q_stricmp(tokenStr,"WP_TIE_FIGHTER"))
-		weaponNum = WP_TIE_FIGHTER;
+		weaponNum = weapon_t::WP_TIE_FIGHTER;
 	else if (!Q_stricmp(tokenStr,"WP_RAPID_FIRE_CONC"))
-		weaponNum = WP_RAPID_FIRE_CONC;
+		weaponNum = weapon_t::WP_RAPID_FIRE_CONC;
 	else if (!Q_stricmp(tokenStr,"WP_JAWA"))
-		weaponNum = WP_JAWA;
+		weaponNum = weapon_t::WP_JAWA;
 	else if (!Q_stricmp(tokenStr,"WP_TUSKEN_RIFLE"))
-		weaponNum = WP_TUSKEN_RIFLE;
+		weaponNum = weapon_t::WP_TUSKEN_RIFLE;
 	else if (!Q_stricmp(tokenStr,"WP_TUSKEN_STAFF"))
-		weaponNum = WP_TUSKEN_STAFF;
+		weaponNum = weapon_t::WP_TUSKEN_STAFF;
 	else if (!Q_stricmp(tokenStr,"WP_SCEPTER"))
-		weaponNum = WP_SCEPTER;
+		weaponNum = weapon_t::WP_SCEPTER;
 	else if (!Q_stricmp(tokenStr,"WP_NOGHRI_STICK"))
-		weaponNum = WP_NOGHRI_STICK;
+		weaponNum = weapon_t::WP_NOGHRI_STICK;
 	else
 	{
-		weaponNum = WP_NONE;
+		weaponNum = weapon_t::WP_NONE;
 		gi.Printf(S_COLOR_YELLOW"WARNING: bad weapontype in external weapon data '%s'\n", tokenStr);
 	}
 
@@ -612,7 +612,7 @@ void WPN_AmmoType(const char **holdBuf)
 		return;
 	}
 
-	if ((tokenInt < to_underlying( AMMO_NONE ) ) || (tokenInt >= to_underlying( AMMO_MAX ) ))
+	if ((tokenInt < to_underlying( ammo_t::AMMO_NONE ) ) || (tokenInt >= to_underlying( ammo_t::AMMO_MAX ) ))
 	{
 		gi.Printf(S_COLOR_YELLOW"WARNING: bad Ammotype in external weapon data '%d'\n", tokenInt);
 		return;
@@ -901,29 +901,29 @@ void WPN_Ammo(const char **holdBuf)
 	}
 
 	if (!Q_stricmp(tokenStr,"AMMO_NONE"))
-		wpnParms.ammoNum = AMMO_NONE;
+		wpnParms.ammoNum = ammo_t::AMMO_NONE;
 	else if (!Q_stricmp(tokenStr,"AMMO_FORCE"))
-		wpnParms.ammoNum = AMMO_FORCE;
+		wpnParms.ammoNum = ammo_t::AMMO_FORCE;
 	else if (!Q_stricmp(tokenStr,"AMMO_BLASTER"))
-		wpnParms.ammoNum = AMMO_BLASTER;
+		wpnParms.ammoNum = ammo_t::AMMO_BLASTER;
 	else if (!Q_stricmp(tokenStr,"AMMO_POWERCELL"))
-		wpnParms.ammoNum = AMMO_POWERCELL;
+		wpnParms.ammoNum = ammo_t::AMMO_POWERCELL;
 	else if (!Q_stricmp(tokenStr,"AMMO_METAL_BOLTS"))
-		wpnParms.ammoNum = AMMO_METAL_BOLTS;
+		wpnParms.ammoNum = ammo_t::AMMO_METAL_BOLTS;
 	else if (!Q_stricmp(tokenStr,"AMMO_ROCKETS"))
-		wpnParms.ammoNum = AMMO_ROCKETS;
+		wpnParms.ammoNum = ammo_t::AMMO_ROCKETS;
 	else if (!Q_stricmp(tokenStr,"AMMO_EMPLACED"))
-		wpnParms.ammoNum = AMMO_EMPLACED;
+		wpnParms.ammoNum = ammo_t::AMMO_EMPLACED;
 	else if (!Q_stricmp(tokenStr,"AMMO_THERMAL"))
-		wpnParms.ammoNum = AMMO_THERMAL;
+		wpnParms.ammoNum = ammo_t::AMMO_THERMAL;
 	else if (!Q_stricmp(tokenStr,"AMMO_TRIPMINE"))
-		wpnParms.ammoNum = AMMO_TRIPMINE;
+		wpnParms.ammoNum = ammo_t::AMMO_TRIPMINE;
 	else if (!Q_stricmp(tokenStr,"AMMO_DETPACK"))
-		wpnParms.ammoNum = AMMO_DETPACK;
+		wpnParms.ammoNum = ammo_t::AMMO_DETPACK;
 	else
 	{
 		gi.Printf(S_COLOR_YELLOW"WARNING: bad ammotype in external weapon data '%s'\n", tokenStr);
-		wpnParms.ammoNum = AMMO_NONE;
+		wpnParms.ammoNum = ammo_t::AMMO_NONE;
 	}
 }
 
@@ -1468,14 +1468,14 @@ void WP_LoadWeaponParms (void)
 
 	if (len == -1)
 	{
-		Com_Error(ERR_FATAL,"Cannot find ext_data/weapons.dat!\n");
+		Com_Error(errorParm_t::ERR_FATAL,"Cannot find ext_data/weapons.dat!\n");
 	}
 
 	// initialise the data area
 	memset(&weaponData, 0, sizeof(weaponData));
 
 	// put in the default values, because backwards compatibility is awesome!
-	for(weapon_t i = WP_NONE; i < WP_NUM_WEAPONS; i++)
+	for(weapon_t i = weapon_t::WP_NONE; i < weapon_t::WP_NUM_WEAPONS; i++)
 	{
 		weaponData[i].damage = defaultDamage[i];
 		weaponData[i].altDamage = defaultAltDamage[i];

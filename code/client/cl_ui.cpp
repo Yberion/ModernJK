@@ -166,7 +166,7 @@ CL_ShutdownUI
 void UI_Shutdown( void );
 void CL_ShutdownUI( void ) {
 	UI_Shutdown();
-	Key_SetCatcher( Key_GetCatcher( ) & ~KEYCATCH_UI );
+	Key_SetCatcher( Key_GetCatcher( ) & ~keyCatchFlags_t::KEYCATCH_UI );
 	cls.uiStarted = false;
 }
 
@@ -174,20 +174,20 @@ void CL_DrawDatapad(dpTypes_t HUDType)
 {
 	switch( HUDType )
 	{
-	case DP_HUD:
-		VM_Call( CG_DRAW_DATAPAD_HUD );
+	case dpTypes_t::DP_HUD:
+		VM_Call( cgameExport_t::CG_DRAW_DATAPAD_HUD );
 		break;
-	case DP_OBJECTIVES:
-		VM_Call( CG_DRAW_DATAPAD_OBJECTIVES );
+	case dpTypes_t::DP_OBJECTIVES:
+		VM_Call( cgameExport_t::CG_DRAW_DATAPAD_OBJECTIVES );
 		break;
-	case DP_WEAPONS:
-		VM_Call( CG_DRAW_DATAPAD_WEAPONS );
+	case dpTypes_t::DP_WEAPONS:
+		VM_Call( cgameExport_t::CG_DRAW_DATAPAD_WEAPONS );
 		break;
-	case DP_INVENTORY:
-		VM_Call( CG_DRAW_DATAPAD_INVENTORY );
+	case dpTypes_t::DP_INVENTORY:
+		VM_Call( cgameExport_t::CG_DRAW_DATAPAD_INVENTORY );
 		break;
-	case DP_FORCEPOWERS:
-		VM_Call( CG_DRAW_DATAPAD_FORCEPOWERS );
+	case dpTypes_t::DP_FORCEPOWERS:
+		VM_Call( cgameExport_t::CG_DRAW_DATAPAD_FORCEPOWERS );
 		break;
 	default:
 		break;
@@ -205,7 +205,7 @@ CL_InitUI
 */
 void CL_InitUI( void ) {
 #ifdef JK2_MODE
-	JK2SP_Register("keynames", SP_REGISTER_NONE	/*SP_REGISTER_REQUIRED*/);		// reference is KEYNAMES
+	JK2SP_Register("keynames", spRegistrationFlags_t::SP_REGISTER_NONE	/*spRegistrationFlags_t::SP_REGISTER_REQUIRED*/);		// reference is KEYNAMES
 #endif
 
 	uiimport_t	uii;
@@ -311,7 +311,7 @@ void CL_InitUI( void ) {
 
 	uii.Milliseconds			= Sys_Milliseconds2;
 
-	UI_Init(UI_API_VERSION, &uii, (cls.state > CA_DISCONNECTED && cls.state <= CA_ACTIVE));
+	UI_Init(UI_API_VERSION, &uii, (cls.state > connstate_t::CA_DISCONNECTED && cls.state <= connstate_t::CA_ACTIVE));
 
 //	uie->UI_Init( UI_API_VERSION, &uii );
 
@@ -344,7 +344,7 @@ void CL_EndScreenDissolve_f(void)
 
 void CL_DataPad_f(void)
 {
-	if (cls.uiStarted && cls.cgameStarted && (cls.state == CA_ACTIVE) ) {
+	if (cls.uiStarted && cls.cgameStarted && (cls.state == connstate_t::CA_ACTIVE) ) {
 		UI_SetActiveMenu("datapad",nullptr);
 	}
 }
@@ -374,134 +374,134 @@ intptr_t CL_UISystemCalls( intptr_t *args )
 
 	switch( static_cast<uiImport_t>( args[0] ) )
 	{
-	case UI_ERROR:
-		Com_Error( ERR_DROP, "%s", (const char *)VMA(1) );
+	case uiImport_t::UI_ERROR:
+		Com_Error( errorParm_t::ERR_DROP, "%s", (const char *)VMA(1) );
 		return 0;
 
-	case UI_CVAR_REGISTER:
+	case uiImport_t::UI_CVAR_REGISTER:
 		Cvar_Register( (vmCvar_t *)VMA(1),(const char *) VMA(2),(const char *) VMA(3), static_cast<cvarFlags_t>( args[4] ) );
 		return 0;
 
-	case UI_CVAR_SET:
+	case uiImport_t::UI_CVAR_SET:
 		Cvar_Set( (const char *) VMA(1), (const char *) VMA(2) );
 		return 0;
 
-	case UI_CVAR_SETVALUE:
+	case uiImport_t::UI_CVAR_SETVALUE:
 		Cvar_SetValue( (const char *) VMA(1), VMF(2) );
 		return 0;
 
-	case UI_CVAR_UPDATE:
+	case uiImport_t::UI_CVAR_UPDATE:
 		Cvar_Update( (vmCvar_t *) VMA(1) );
 		return 0;
 
-	case UI_R_REGISTERMODEL:
+	case uiImport_t::UI_R_REGISTERMODEL:
 		return re.RegisterModel((const char *) VMA(1) );
 
-	case UI_R_REGISTERSHADERNOMIP:
+	case uiImport_t::UI_R_REGISTERSHADERNOMIP:
 		return re.RegisterShaderNoMip((const char *) VMA(1) );
 
-	case UI_GETGLCONFIG:
+	case uiImport_t::UI_GETGLCONFIG:
 		CL_GetGlconfig( ( glconfig_t *) VMA(1) );
 		return 0;
 
-	case UI_CMD_EXECUTETEXT:
+	case uiImport_t::UI_CMD_EXECUTETEXT:
 		Cbuf_ExecuteText( static_cast<cbufExec_t>( args[1] ), (const char *) VMA(2) );
 		return 0;
 
-	case UI_CVAR_VARIABLEVALUE:
+	case uiImport_t::UI_CVAR_VARIABLEVALUE:
 		return FloatAsInt( Cvar_VariableValue( (const char *) VMA(1) ) );
 
-	case UI_FS_GETFILELIST:
+	case uiImport_t::UI_FS_GETFILELIST:
 		return FS_GetFileList( (const char *) VMA(1), (const char *) VMA(2), (char *) VMA(3), args[4] );
 
-	case UI_KEY_SETCATCHER:
+	case uiImport_t::UI_KEY_SETCATCHER:
 		Key_SetCatcher( static_cast<keyCatchFlags_t>( args[1] ) );
 		return 0;
 
-	case UI_KEY_CLEARSTATES:
+	case uiImport_t::UI_KEY_CLEARSTATES:
 		Key_ClearStates();
 		return 0;
 
-	case UI_R_SETCOLOR:
+	case uiImport_t::UI_R_SETCOLOR:
 		re.SetColor( (const float *) VMA(1) );
 		return 0;
 
-	case UI_R_DRAWSTRETCHPIC:
+	case uiImport_t::UI_R_DRAWSTRETCHPIC:
 		re.DrawStretchPic( VMF(1), VMF(2), VMF(3), VMF(4), VMF(5), VMF(6), VMF(7), VMF(8), args[9] );
 		return 0;
 
-	case UI_CVAR_VARIABLESTRINGBUFFER:
+	case uiImport_t::UI_CVAR_VARIABLESTRINGBUFFER:
 		Cvar_VariableStringBuffer( (const char *) VMA(1), (char *) VMA(2), args[3] );
 		return 0;
 
-  case UI_R_MODELBOUNDS:
+  case uiImport_t::UI_R_MODELBOUNDS:
 		re.ModelBounds( args[1], (float *) VMA(2),(float *) VMA(3) );
 		return 0;
 
-	case UI_R_CLEARSCENE:
+	case uiImport_t::UI_R_CLEARSCENE:
 		re.ClearScene();
 		return 0;
 
-//	case UI_KEY_GETOVERSTRIKEMODE:
+//	case uiImport_t::UI_KEY_GETOVERSTRIKEMODE:
 //		return Key_GetOverstrikeMode();
 //		return 0;
 
-//	case UI_PC_READ_TOKEN:
+//	case uiImport_t::UI_PC_READ_TOKEN:
 //		return PC_ReadTokenHandle( args[1], VMA(2) );
 
-//	case UI_PC_SOURCE_FILE_AND_LINE:
+//	case uiImport_t::UI_PC_SOURCE_FILE_AND_LINE:
 //		return PC_SourceFileAndLine( args[1], VMA(2), VMA(3) );
 
-	case UI_KEY_GETCATCHER:
+	case uiImport_t::UI_KEY_GETCATCHER:
 		return to_underlying( Key_GetCatcher() );
 
-	case UI_MILLISECONDS:
+	case uiImport_t::UI_MILLISECONDS:
 		return Sys_Milliseconds();
 
-	case UI_S_REGISTERSOUND:
+	case uiImport_t::UI_S_REGISTERSOUND:
 		return S_RegisterSound((const char *) VMA(1));
 
-	case UI_S_STARTLOCALSOUND:
+	case uiImport_t::UI_S_STARTLOCALSOUND:
 		S_StartLocalSound( args[1], static_cast<soundChannel_t>( args[2] ) );
 		return 0;
 
-//	case UI_R_REGISTERFONT:
+//	case uiImport_t::UI_R_REGISTERFONT:
 //		re.RegisterFont( VMA(1), args[2], VMA(3));
 //		return 0;
 
-	case UI_CIN_PLAYCINEMATIC:
+	case uiImport_t::UI_CIN_PLAYCINEMATIC:
 	  Com_DPrintf("UI_CIN_PlayCinematic\n");
 	  return CIN_PlayCinematic((const char *)VMA(1), args[2], args[3], args[4], args[5], static_cast<cinematicFlags_t>( args[6] ), (const char *)VMA(7));
 
-	case UI_CIN_STOPCINEMATIC:
+	case uiImport_t::UI_CIN_STOPCINEMATIC:
 	  return to_underlying( CIN_StopCinematic(args[1]) );
 
-	case UI_CIN_RUNCINEMATIC:
+	case uiImport_t::UI_CIN_RUNCINEMATIC:
 	  return to_underlying( CIN_RunCinematic(args[1]) );
 
-	case UI_CIN_DRAWCINEMATIC:
+	case uiImport_t::UI_CIN_DRAWCINEMATIC:
 	  CIN_DrawCinematic(args[1]);
 	  return 0;
 
-	case UI_KEY_SETBINDING:
+	case uiImport_t::UI_KEY_SETBINDING:
 		Key_SetBinding( static_cast<fakeAscii_t>( args[1] ), (const char *) VMA(2) );
 		return 0;
 
-	case UI_KEY_KEYNUMTOSTRINGBUF:
+	case uiImport_t::UI_KEY_KEYNUMTOSTRINGBUF:
 		Key_KeynumToStringBuf( static_cast<fakeAscii_t>( args[1] ),(char *) VMA(2), args[3] );
 		return 0;
 
-	case UI_CIN_SETEXTENTS:
+	case uiImport_t::UI_CIN_SETEXTENTS:
 	  CIN_SetExtents(args[1], args[2], args[3], args[4], args[5]);
 	  return 0;
 
-	case UI_KEY_GETBINDINGBUF:
+	case uiImport_t::UI_KEY_GETBINDINGBUF:
 		Key_GetBindingBuf( static_cast<fakeAscii_t>( args[1] ), (char *) VMA(2), args[3] );
 		return 0;
 
 
 	default:
-		Com_Error( ERR_DROP, "Bad UI system trap: %" PRIdPTR, args[0] );
+		Com_Error( errorParm_t::ERR_DROP, "Bad UI system trap: %" PRIdPTR, args[0] );
 
 	}
 

@@ -41,7 +41,7 @@ void thermalDetonatorExplode( gentity_t *ent )
 		G_Sound( ent, G_SoundIndex( "sound/weapons/thermal/warning.wav" ) );
 		ent->count = 1;
 		ent->nextthink = level.time + 800;
-		ent->svFlags |= SVF_BROADCAST;//so everyone hears/sees the explosion?
+		ent->svFlags |= svFlags_t::SVF_BROADCAST;//so everyone hears/sees the explosion?
 	}
 	else
 	{
@@ -51,7 +51,7 @@ void thermalDetonatorExplode( gentity_t *ent )
 
 		ent->takedamage = false; // don't allow double deaths!
 
-		G_RadiusDamage( ent->currentOrigin, ent->owner, weaponData[WP_THERMAL].splashDamage, weaponData[WP_THERMAL].splashRadius, nullptr, MOD_EXPLOSIVE_SPLASH );
+		G_RadiusDamage( ent->currentOrigin, ent->owner, weaponData[weapon_t::WP_THERMAL].splashDamage, weaponData[weapon_t::WP_THERMAL].splashRadius, nullptr, meansOfDeath_t::MOD_EXPLOSIVE_SPLASH );
 
 		G_PlayEffect( "thermal/explosion", ent->currentOrigin );
 		G_PlayEffect( "thermal/shockwave", ent->currentOrigin );
@@ -123,7 +123,7 @@ bool WP_LobFire( gentity_t *self, vec3_t start, vec3_t target, vec3_t mins, vec3
 
 			VectorCopy( start, tr.trBase );
 			VectorCopy( shotVel, tr.trDelta );
-			tr.trType = TR_GRAVITY;
+			tr.trType = trType_t::TR_GRAVITY;
 			tr.trTime = level.time;
 			travelTime *= 1000.0f;
 			VectorCopy( start, lastPos );
@@ -136,7 +136,7 @@ bool WP_LobFire( gentity_t *self, vec3_t start, vec3_t target, vec3_t mins, vec3
 					elapsedTime = floor( travelTime );
 				}
 				EvaluateTrajectory( &tr, level.time + elapsedTime, testPos );
-				gi.trace( &trace, lastPos, mins, maxs, testPos, ignoreEntNum, clipmask, G2_NOCOLLIDE, 0 );
+				gi.trace( &trace, lastPos, mins, maxs, testPos, ignoreEntNum, clipmask, EG2_Collision::G2_NOCOLLIDE, 0 );
 
 				if ( trace.allsolid || trace.startsolid )
 				{
@@ -255,7 +255,7 @@ void WP_ThermalThink( gentity_t *ent )
 
 	if ( blow )
 	{
-		ent->e_ThinkFunc = thinkF_thermalDetonatorExplode;
+		ent->e_ThinkFunc = thinkFunc_t::thinkF_thermalDetonatorExplode;
 		ent->nextthink = level.time + 50;
 	}
 	else
@@ -289,13 +289,13 @@ gentity_t *WP_FireThermalDetonator( gentity_t *ent, bool alt_fire )
 	if ( !alt_fire && ent->s.number == 0 )
 	{
 		// Main fires for the players do a little bit of extra thinking
-		bolt->e_ThinkFunc = thinkF_WP_ThermalThink;
+		bolt->e_ThinkFunc = thinkFunc_t::thinkF_WP_ThermalThink;
 		bolt->nextthink = level.time + TD_THINK_TIME;
 		bolt->delay = level.time + TD_TIME; // How long 'til she blows
 	}
 	else
 	{
-		bolt->e_ThinkFunc = thinkF_thermalDetonatorExplode;
+		bolt->e_ThinkFunc = thinkFunc_t::thinkF_thermalDetonatorExplode;
 		bolt->nextthink = level.time + TD_TIME; // How long 'til she blows
 	}
 
@@ -305,11 +305,11 @@ gentity_t *WP_FireThermalDetonator( gentity_t *ent, bool alt_fire )
 	VectorSet( bolt->mins, -4.0f, -4.0f, -4.0f );
 	VectorSet( bolt->maxs, 4.0f, 4.0f, 4.0f );
 	bolt->clipmask = MASK_SHOT;
-	bolt->clipmask &= ~CONTENTS_CORPSE;
-	bolt->contents = CONTENTS_SHOTCLIP;
+	bolt->clipmask &= ~contentsFlags_t::CONTENTS_CORPSE;
+	bolt->contents = contentsFlags_t::CONTENTS_SHOTCLIP;
 	bolt->takedamage = true;
 	bolt->health = 15;
-	bolt->e_DieFunc = dieF_thermal_die;
+	bolt->e_DieFunc = dieFunc_t::dieF_thermal_die;
 
 	WP_TraceSetStart( ent, start, bolt->mins, bolt->maxs );//make sure our start point isn't on the other side of a wall
 
@@ -333,7 +333,7 @@ gentity_t *WP_FireThermalDetonator( gentity_t *ent, bool alt_fire )
 	}
 
 	// normal ones bounce, alt ones explode on impact
-	bolt->s.pos.trType = TR_GRAVITY;
+	bolt->s.pos.trType = trType_t::TR_GRAVITY;
 	bolt->owner = ent;
 	VectorScale( dir, TD_VELOCITY * chargeAmount, bolt->s.pos.trDelta );
 
@@ -368,29 +368,29 @@ gentity_t *WP_FireThermalDetonator( gentity_t *ent, bool alt_fire )
 	}
 	else
 	{
-		bolt->s.eFlags |= EF_BOUNCE_HALF;
+		bolt->s.eFlags |= entityFlags_t::EF_BOUNCE_HALF;
 	}
 
 	bolt->s.loopSound = G_SoundIndex( "sound/weapons/thermal/thermloop.wav" );
 
-	bolt->damage = weaponData[WP_THERMAL].damage * damageScale;
-	bolt->dflags = DAMAGE_NORMAL;
-	bolt->splashDamage = weaponData[WP_THERMAL].splashDamage * damageScale;
-	bolt->splashRadius = weaponData[WP_THERMAL].splashRadius;
+	bolt->damage = weaponData[weapon_t::WP_THERMAL].damage * damageScale;
+	bolt->dflags = damageFlags_t::DAMAGE_NORMAL;
+	bolt->splashDamage = weaponData[weapon_t::WP_THERMAL].splashDamage * damageScale;
+	bolt->splashRadius = weaponData[weapon_t::WP_THERMAL].splashRadius;
 
-	bolt->s.eType = ET_MISSILE;
-	bolt->svFlags = SVF_USE_CURRENT_ORIGIN;
-	bolt->s.weapon = WP_THERMAL;
+	bolt->s.eType = entityType_t::ET_MISSILE;
+	bolt->svFlags = svFlags_t::SVF_USE_CURRENT_ORIGIN;
+	bolt->s.weapon = weapon_t::WP_THERMAL;
 
 	if ( alt_fire )
 	{
-		bolt->methodOfDeath = MOD_THERMAL_ALT;
-		bolt->splashMethodOfDeath = MOD_THERMAL_ALT;//? SPLASH;
+		bolt->methodOfDeath = meansOfDeath_t::MOD_THERMAL_ALT;
+		bolt->splashMethodOfDeath = meansOfDeath_t::MOD_THERMAL_ALT;//? SPLASH;
 	}
 	else
 	{
-		bolt->methodOfDeath = MOD_THERMAL;
-		bolt->splashMethodOfDeath = MOD_THERMAL;//? SPLASH;
+		bolt->methodOfDeath = meansOfDeath_t::MOD_THERMAL;
+		bolt->splashMethodOfDeath = meansOfDeath_t::MOD_THERMAL;//? SPLASH;
 	}
 
 	bolt->s.pos.trTime = level.time;		// move a bit on the very first frame
@@ -409,6 +409,6 @@ gentity_t *WP_DropThermal( gentity_t *ent )
 //---------------------------------------------------------
 {
 	AngleVectors( ent->client->ps.viewangles, wpFwd, wpVright, wpUp );
-	CalcEntitySpot( ent, SPOT_WEAPON, wpMuzzle );
+	CalcEntitySpot( ent, spot_t::SPOT_WEAPON, wpMuzzle );
 	return (WP_FireThermalDetonator( ent, false ));
 }

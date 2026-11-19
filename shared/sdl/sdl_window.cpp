@@ -35,7 +35,6 @@ enum class rserr_t
 
 	RSERR_UNKNOWN
 };
-using enum rserr_t;
 
 static SDL_Window *screen = nullptr;
 static SDL_GLContext opengl_context;
@@ -145,7 +144,7 @@ void GLimp_Minimize(void)
 
 void WIN_Present( window_t *window )
 {
-	if ( window->api == GRAPHICS_API_OPENGL )
+	if ( window->api == graphicsApi_t::GRAPHICS_API_OPENGL )
 	{
 		SDL_GL_SwapWindow(screen);
 
@@ -248,11 +247,11 @@ static bool GLimp_DetectAvailableModes(void)
 
 	int numDisplayModes = SDL_GetNumDisplayModes( display );
 	if ( numDisplayModes < 0 )
-		Com_Error( ERR_FATAL, "SDL_GetNumDisplayModes() FAILED (%s)", SDL_GetError() );
+		Com_Error( errorParm_t::ERR_FATAL, "SDL_GetNumDisplayModes() FAILED (%s)", SDL_GetError() );
 
 	modes = (SDL_Rect *)SDL_calloc( (size_t)numDisplayModes, sizeof( SDL_Rect ) );
 	if ( !modes )
-		Com_Error( ERR_FATAL, "Out of memory" );
+		Com_Error( errorParm_t::ERR_FATAL, "Out of memory" );
 
 	for( i = 0; i < numDisplayModes; i++ )
 	{
@@ -328,7 +327,7 @@ static rserr_t GLimp_SetMode(glconfig_t *glConfig, const windowDesc_t *windowDes
 	int display = 0;
 	int x = SDL_WINDOWPOS_UNDEFINED, y = SDL_WINDOWPOS_UNDEFINED;
 
-	if ( windowDesc->api == GRAPHICS_API_OPENGL )
+	if ( windowDesc->api == graphicsApi_t::GRAPHICS_API_OPENGL )
 	{
 		flags |= SDL_WINDOW_OPENGL;
 	}
@@ -394,7 +393,7 @@ static rserr_t GLimp_SetMode(glconfig_t *glConfig, const windowDesc_t *windowDes
 	{
 		Com_Printf( " invalid mode\n" );
 		SDL_FreeSurface( icon );
-		return RSERR_INVALID_MODE;
+		return rserr_t::RSERR_INVALID_MODE;
 	}
 	Com_Printf( " %d %d\n", glConfig->vidWidth, glConfig->vidHeight);
 
@@ -449,7 +448,7 @@ static rserr_t GLimp_SetMode(glconfig_t *glConfig, const windowDesc_t *windowDes
 	stencilBits = r_stencilbits->integer;
 	samples = r_ext_multisample->integer;
 
-	if ( windowDesc->api == GRAPHICS_API_OPENGL )
+	if ( windowDesc->api == graphicsApi_t::GRAPHICS_API_OPENGL )
 	{
 		for (i = 0; i < 16; i++)
 		{
@@ -530,21 +529,21 @@ static rserr_t GLimp_SetMode(glconfig_t *glConfig, const windowDesc_t *windowDes
 				SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, windowDesc->gl.majorVersion );
 				SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, windowDesc->gl.minorVersion );
 
-				if ( windowDesc->gl.profile == GLPROFILE_ES || compactVersion >= 320 )
+				if ( windowDesc->gl.profile == glProfile_t::GLPROFILE_ES || compactVersion >= 320 )
 				{
 					int profile;
 					switch ( windowDesc->gl.profile )
 					{
 					default:
-					case GLPROFILE_COMPATIBILITY:
+					case glProfile_t::GLPROFILE_COMPATIBILITY:
 						profile = SDL_GL_CONTEXT_PROFILE_COMPATIBILITY;
 						break;
 
-					case GLPROFILE_CORE:
+					case glProfile_t::GLPROFILE_CORE:
 						profile = SDL_GL_CONTEXT_PROFILE_CORE;
 						break;
 
-					case GLPROFILE_ES:
+					case glProfile_t::GLPROFILE_ES:
 						profile = SDL_GL_CONTEXT_PROFILE_ES;
 						break;
 					}
@@ -553,7 +552,7 @@ static rserr_t GLimp_SetMode(glconfig_t *glConfig, const windowDesc_t *windowDes
 				}
 			}
 
-			if ( Any( windowDesc->gl.contextFlags & GLCONTEXT_DEBUG ) )
+			if ( Any( windowDesc->gl.contextFlags & glContextFlags_t::GLCONTEXT_DEBUG ) )
 			{
 				SDL_GL_SetAttribute( SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG );
 			}
@@ -628,7 +627,7 @@ static rserr_t GLimp_SetMode(glconfig_t *glConfig, const windowDesc_t *windowDes
 
 		if (opengl_context == nullptr) {
 			SDL_FreeSurface(icon);
-			return RSERR_UNKNOWN;
+			return rserr_t::RSERR_UNKNOWN;
 		}
 	}
 	else
@@ -658,10 +657,10 @@ static rserr_t GLimp_SetMode(glconfig_t *glConfig, const windowDesc_t *windowDes
 
 	if (!GLimp_DetectAvailableModes())
 	{
-		return RSERR_UNKNOWN;
+		return rserr_t::RSERR_UNKNOWN;
 	}
 
-	return RSERR_OK;
+	return rserr_t::RSERR_OK;
 }
 
 /*
@@ -687,7 +686,7 @@ static bool GLimp_StartDriverAndSetMode(glconfig_t *glConfig, const windowDesc_t
 
 		if (!driverName)
 		{
-			Com_Error( ERR_FATAL, "No video driver initialized" );
+			Com_Error( errorParm_t::ERR_FATAL, "No video driver initialized" );
 			return false;
 		}
 
@@ -697,7 +696,7 @@ static bool GLimp_StartDriverAndSetMode(glconfig_t *glConfig, const windowDesc_t
 
 	if (SDL_GetNumVideoDisplays() <= 0)
 	{
-		Com_Error( ERR_FATAL, "SDL_GetNumVideoDisplays() FAILED (%s)", SDL_GetError() );
+		Com_Error( errorParm_t::ERR_FATAL, "SDL_GetNumVideoDisplays() FAILED (%s)", SDL_GetError() );
 	}
 
 	if (fullscreen && Cvar_VariableIntegerValue( "in_nograb" ) )
@@ -712,13 +711,13 @@ static bool GLimp_StartDriverAndSetMode(glconfig_t *glConfig, const windowDesc_t
 
 	switch ( err )
 	{
-		case RSERR_INVALID_FULLSCREEN:
+		case rserr_t::RSERR_INVALID_FULLSCREEN:
 			Com_Printf( "...WARNING: fullscreen unavailable in this mode\n" );
 			return false;
-		case RSERR_INVALID_MODE:
+		case rserr_t::RSERR_INVALID_MODE:
 			Com_Printf( "...WARNING: could not set the given mode (%d)\n", mode );
 			return false;
-		case RSERR_UNKNOWN:
+		case rserr_t::RSERR_UNKNOWN:
 			Com_Printf( "...ERROR: no display modes could be found.\n" );
 			return false;
 		default:
@@ -733,28 +732,28 @@ window_t WIN_Init( const windowDesc_t *windowDesc, glconfig_t *glConfig )
 	Cmd_AddCommand("modelist", R_ModeList_f);
 	Cmd_AddCommand("minimize", GLimp_Minimize);
 
-	r_sdlDriver			= Cvar_Get( "r_sdlDriver",			"",			CVAR_ROM );
-	r_allowSoftwareGL	= Cvar_Get( "r_allowSoftwareGL",	"0",		CVAR_ARCHIVE_ND|CVAR_LATCH );
+	r_sdlDriver			= Cvar_Get( "r_sdlDriver",			"",			cvarFlags_t::CVAR_ROM );
+	r_allowSoftwareGL	= Cvar_Get( "r_allowSoftwareGL",	"0",		cvarFlags_t::CVAR_ARCHIVE_ND|cvarFlags_t::CVAR_LATCH );
 
 	// Window cvars
-	r_fullscreen		= Cvar_Get( "r_fullscreen",			"0",		CVAR_ARCHIVE|CVAR_LATCH );
-	r_noborder			= Cvar_Get( "r_noborder",			"0",		CVAR_ARCHIVE|CVAR_LATCH );
-	r_centerWindow		= Cvar_Get( "r_centerWindow",		"0",		CVAR_ARCHIVE|CVAR_LATCH );
-	r_customwidth		= Cvar_Get( "r_customwidth",		"1600",		CVAR_ARCHIVE|CVAR_LATCH );
-	r_customheight		= Cvar_Get( "r_customheight",		"1024",		CVAR_ARCHIVE|CVAR_LATCH );
-	r_swapInterval		= Cvar_Get( "r_swapInterval",		"0",		CVAR_ARCHIVE_ND );
-	r_stereo			= Cvar_Get( "r_stereo",				"0",		CVAR_ARCHIVE_ND|CVAR_LATCH );
-	r_mode				= Cvar_Get( "r_mode",				"4",		CVAR_ARCHIVE|CVAR_LATCH );
-	r_displayRefresh	= Cvar_Get( "r_displayRefresh",		"0",		CVAR_LATCH );
+	r_fullscreen		= Cvar_Get( "r_fullscreen",			"0",		cvarFlags_t::CVAR_ARCHIVE|cvarFlags_t::CVAR_LATCH );
+	r_noborder			= Cvar_Get( "r_noborder",			"0",		cvarFlags_t::CVAR_ARCHIVE|cvarFlags_t::CVAR_LATCH );
+	r_centerWindow		= Cvar_Get( "r_centerWindow",		"0",		cvarFlags_t::CVAR_ARCHIVE|cvarFlags_t::CVAR_LATCH );
+	r_customwidth		= Cvar_Get( "r_customwidth",		"1600",		cvarFlags_t::CVAR_ARCHIVE|cvarFlags_t::CVAR_LATCH );
+	r_customheight		= Cvar_Get( "r_customheight",		"1024",		cvarFlags_t::CVAR_ARCHIVE|cvarFlags_t::CVAR_LATCH );
+	r_swapInterval		= Cvar_Get( "r_swapInterval",		"0",		cvarFlags_t::CVAR_ARCHIVE_ND );
+	r_stereo			= Cvar_Get( "r_stereo",				"0",		cvarFlags_t::CVAR_ARCHIVE_ND|cvarFlags_t::CVAR_LATCH );
+	r_mode				= Cvar_Get( "r_mode",				"4",		cvarFlags_t::CVAR_ARCHIVE|cvarFlags_t::CVAR_LATCH );
+	r_displayRefresh	= Cvar_Get( "r_displayRefresh",		"0",		cvarFlags_t::CVAR_LATCH );
 	Cvar_CheckRange( r_displayRefresh, 0, 240, true );
 
 	// Window render surface cvars
-	r_stencilbits		= Cvar_Get( "r_stencilbits",		"8",		CVAR_ARCHIVE_ND|CVAR_LATCH );
-	r_depthbits			= Cvar_Get( "r_depthbits",			"0",		CVAR_ARCHIVE_ND|CVAR_LATCH );
-	r_colorbits			= Cvar_Get( "r_colorbits",			"0",		CVAR_ARCHIVE_ND|CVAR_LATCH );
-	r_ignorehwgamma		= Cvar_Get( "r_ignorehwgamma",		"0",		CVAR_ARCHIVE_ND|CVAR_LATCH );
-	r_ext_multisample	= Cvar_Get( "r_ext_multisample",	"0",		CVAR_ARCHIVE_ND|CVAR_LATCH );
-	Cvar_Get( "r_availableModes", "", CVAR_ROM );
+	r_stencilbits		= Cvar_Get( "r_stencilbits",		"8",		cvarFlags_t::CVAR_ARCHIVE_ND|cvarFlags_t::CVAR_LATCH );
+	r_depthbits			= Cvar_Get( "r_depthbits",			"0",		cvarFlags_t::CVAR_ARCHIVE_ND|cvarFlags_t::CVAR_LATCH );
+	r_colorbits			= Cvar_Get( "r_colorbits",			"0",		cvarFlags_t::CVAR_ARCHIVE_ND|cvarFlags_t::CVAR_LATCH );
+	r_ignorehwgamma		= Cvar_Get( "r_ignorehwgamma",		"0",		cvarFlags_t::CVAR_ARCHIVE_ND|cvarFlags_t::CVAR_LATCH );
+	r_ext_multisample	= Cvar_Get( "r_ext_multisample",	"0",		cvarFlags_t::CVAR_ARCHIVE_ND|cvarFlags_t::CVAR_LATCH );
+	Cvar_Get( "r_availableModes", "", cvarFlags_t::CVAR_ROM );
 
 	// Create the window and set up the context
 	if(!GLimp_StartDriverAndSetMode( glConfig, windowDesc, r_mode->integer,
@@ -767,7 +766,7 @@ window_t WIN_Init( const windowDesc_t *windowDesc, glconfig_t *glConfig )
 			if (!GLimp_StartDriverAndSetMode( glConfig, windowDesc, R_MODE_FALLBACK, false, false ))
 			{
 				// Nothing worked, give up
-				Com_Error( ERR_FATAL, "GLimp_Init() - could not load OpenGL subsystem" );
+				Com_Error( errorParm_t::ERR_FATAL, "GLimp_Init() - could not load OpenGL subsystem" );
 			}
 		}
 	}

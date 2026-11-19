@@ -39,7 +39,7 @@ void CG_ResetEntity( centity_t *cent ) {
 
 	VectorCopy (cent->currentState.origin, cent->lerpOrigin);
 	VectorCopy (cent->currentState.angles, cent->lerpAngles);
-	if ( cent->currentState.eType == ET_PLAYER ) {
+	if ( cent->currentState.eType == entityType_t::ET_PLAYER ) {
 		CG_ResetPlayerEntity( cent );
 	}
 }
@@ -187,7 +187,7 @@ void CG_SetEntityNextState( centity_t *cent, entityState_t *state ) {
 
 	// if this frame is a teleport, or the entity wasn't in the
 	// previous frame, don't interpolate
-	if ( !cent->currentValid || Any( ( cent->currentState.eFlags ^ state->eFlags ) & EF_TELEPORT_BIT )  ) {
+	if ( !cent->currentValid || Any( ( cent->currentState.eFlags ^ state->eFlags ) & entityFlags_t::EF_TELEPORT_BIT )  ) {
 		cent->interpolate = false;
 	} else {
 		cent->interpolate = true;
@@ -217,7 +217,7 @@ void CG_SetNextSnap( snapshot_t *snap ) {
 	}
 
 	// if the next frame is a teleport for the playerstate,
-	if ( cg.snap && Any( ( snap->ps.eFlags ^ cg.snap->ps.eFlags ) & EF_TELEPORT_BIT ) ) {
+	if ( cg.snap && Any( ( snap->ps.eFlags ^ cg.snap->ps.eFlags ) & entityFlags_t::EF_TELEPORT_BIT ) ) {
 		cg.nextFrameTeleport = true;
 	} else {
 		cg.nextFrameTeleport = false;

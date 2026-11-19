@@ -40,7 +40,7 @@ void EWebPositionUser(gentity_t *owner, gentity_t *eweb)
 
 	if ( owner->s.number < MAX_CLIENTS )
 	{//extra checks
-		gi.trace(&tr, owner->currentOrigin, owner->mins, owner->maxs, owner->currentOrigin, owner->s.number, owner->clipmask, G2_NOCOLLIDE, 0);
+		gi.trace(&tr, owner->currentOrigin, owner->mins, owner->maxs, owner->currentOrigin, owner->s.number, owner->clipmask, EG2_Collision::G2_NOCOLLIDE, 0);
 		if ( tr.startsolid || tr.allsolid )
 		{//crap, they're already in solid somehow, don't bother tracing over
 			traceOver = false;
@@ -50,7 +50,7 @@ void EWebPositionUser(gentity_t *owner, gentity_t *eweb)
 	{//trace up
 		VectorCopy( owner->currentOrigin, p2 );
 		p2[2] += STEPSIZE;
-		gi.trace(&tr, owner->currentOrigin, owner->mins, owner->maxs, p2, owner->s.number, owner->clipmask, G2_NOCOLLIDE, 0);
+		gi.trace(&tr, owner->currentOrigin, owner->mins, owner->maxs, p2, owner->s.number, owner->clipmask, EG2_Collision::G2_NOCOLLIDE, 0);
 		if (!tr.startsolid && !tr.allsolid )
 		{
 			VectorCopy( tr.endpos, p2 );
@@ -64,8 +64,8 @@ void EWebPositionUser(gentity_t *owner, gentity_t *eweb)
 	gi.G2API_GetBoltMatrix( eweb->ghoul2, 0, eweb->headBolt, &boltMatrix,
 		eweb->s.apos.trBase, eweb->currentOrigin,
 		(cg.time?cg.time:level.time), nullptr, eweb->s.modelScale );
-	gi.G2API_GiveMeVectorFromMatrix( boltMatrix, ORIGIN, p );
-	gi.G2API_GiveMeVectorFromMatrix( boltMatrix, NEGATIVE_Y, d );
+	gi.G2API_GiveMeVectorFromMatrix( boltMatrix, Eorientations::ORIGIN, p );
+	gi.G2API_GiveMeVectorFromMatrix( boltMatrix, Eorientations::NEGATIVE_Y, d );
 	d[2] = 0;
 	VectorNormalize( d );
 	VectorMA( p, -44.0f, d, p );
@@ -80,15 +80,15 @@ void EWebPositionUser(gentity_t *owner, gentity_t *eweb)
 		if ( owner->s.number < MAX_CLIENTS )
 		{//extra checks
 			//just see if end point is not in solid
-			gi.trace(&tr, p, owner->mins, owner->maxs, p, owner->s.number, owner->clipmask, G2_NOCOLLIDE, 0);
+			gi.trace(&tr, p, owner->mins, owner->maxs, p, owner->s.number, owner->clipmask, EG2_Collision::G2_NOCOLLIDE, 0);
 			if ( tr.startsolid || tr.allsolid )
 			{//would be in solid there, so just trace over, I guess?
-				gi.trace(&tr, p2, owner->mins, owner->maxs, p, owner->s.number, owner->clipmask, G2_NOCOLLIDE, 0);
+				gi.trace(&tr, p2, owner->mins, owner->maxs, p, owner->s.number, owner->clipmask, EG2_Collision::G2_NOCOLLIDE, 0);
 			}
 		}
 		else
 		{//trace over
-			gi.trace(&tr, p2, owner->mins, owner->maxs, p, owner->s.number, owner->clipmask, G2_NOCOLLIDE, 0);
+			gi.trace(&tr, p2, owner->mins, owner->maxs, p, owner->s.number, owner->clipmask, EG2_Collision::G2_NOCOLLIDE, 0);
 		}
 	}
 	if (!tr.startsolid && !tr.allsolid )
@@ -97,7 +97,7 @@ void EWebPositionUser(gentity_t *owner, gentity_t *eweb)
 		VectorCopy( tr.endpos, p );
 		VectorCopy( p, p2 );
 		p2[2] -= STEPSIZE;
-		gi.trace(&tr, p, owner->mins, owner->maxs, p2, owner->s.number, owner->clipmask, G2_NOCOLLIDE, 0);
+		gi.trace(&tr, p, owner->mins, owner->maxs, p2, owner->s.number, owner->clipmask, EG2_Collision::G2_NOCOLLIDE, 0);
 
 		if (!tr.startsolid && !tr.allsolid )//&& tr.fraction == 1.0f)
 		{ //all clear, we can move there
@@ -116,13 +116,13 @@ void EWebPositionUser(gentity_t *owner, gentity_t *eweb)
 				AngleVectors( owner->currentAngles, nullptr, oRight, nullptr );
 				if ( DotProduct( moveDir, oRight ) > 0 )
 				{//moved to his right, play right strafe
-					strafeAnim = BOTH_STRAFE_RIGHT1;
+					strafeAnim = animNumber_t::BOTH_STRAFE_RIGHT1;
 				}
 				else
 				{//moved left, play left strafe
-					strafeAnim = BOTH_STRAFE_LEFT1;
+					strafeAnim = animNumber_t::BOTH_STRAFE_LEFT1;
 				}
-				NPC_SetAnim( owner, SETANIM_LEGS, strafeAnim,SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD);
+				NPC_SetAnim( owner, setAnimParts_t::SETANIM_LEGS, strafeAnim,setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD);
 			}
 
 			G_SetOrigin(owner, p);
@@ -182,7 +182,7 @@ void eweb_pain( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, cons
 		}
 
 		// Don't do script if dead
-		G_ActivateBehavior( self, BSET_PAIN );
+		G_ActivateBehavior( self, bSet_t::BSET_PAIN );
 	}
 }
 //----------------------------------------------------------
@@ -192,11 +192,11 @@ void eweb_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int d
 
 	// turn off any firing animations it may have been doing
 	self->s.frame = self->startFrame = self->endFrame = 0;
-	self->svFlags &= ~(SVF_ANIMATING|SVF_PLAYER_USABLE);
+	self->svFlags &= ~(svFlags_t::SVF_ANIMATING|svFlags_t::SVF_PLAYER_USABLE);
 
 
 	self->health = 0;
-//	self->s.weapon = WP_EMPLACED_GUN; // we need to be able to switch back to the old weapon
+//	self->s.weapon = weapon_t::WP_EMPLACED_GUN; // we need to be able to switch back to the old weapon
 
 	self->takedamage = false;
 	self->lastEnemy = attacker;
@@ -214,21 +214,21 @@ void eweb_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int d
 
 			// kill them
 			self->activator->health = 0;
-			self->activator->client->ps.stats[STAT_HEALTH] = 0;
+			self->activator->client->ps.stats[statIndex_t::STAT_HEALTH] = 0;
 		}
 
 		// kill the players emplaced ammo, cheesy way to keep the gun from firing
-		self->activator->client->ps.ammo[weaponData[WP_EMPLACED_GUN].ammoIndex] = 0;
+		self->activator->client->ps.ammo[weaponData[weapon_t::WP_EMPLACED_GUN].ammoIndex] = 0;
 	}
 
-	self->e_PainFunc = painF_NULL;
+	self->e_PainFunc = painFunc_t::painF_NULL;
 
 	if ( self->target )
 	{
 		G_UseTargets( self, attacker );
 	}
 
-	G_RadiusDamage( self->currentOrigin, self, self->splashDamage, self->splashRadius, self, MOD_UNKNOWN );
+	G_RadiusDamage( self->currentOrigin, self, self->splashDamage, self->splashRadius, self, meansOfDeath_t::MOD_UNKNOWN );
 
 	VectorCopy( self->currentOrigin,  org );
 	org[2] += 20;
@@ -236,7 +236,7 @@ void eweb_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int d
 	G_PlayEffect( "emplaced/explode", org );
 
 	// Turn the top of the eweb off.
-constexpr g2SurfaceFlags_t TURN_OFF = G2SURFACEFLAG_NODESCENDANTS;
+constexpr g2SurfaceFlags_t TURN_OFF = g2SurfaceFlags_t::G2SURFACEFLAG_NODESCENDANTS;
 	gi.G2API_SetSurfaceOnOff( &self->ghoul2[self->playerModel], "eweb_damage", TURN_OFF );
 
 	// create some persistent smoke by using a dynamically created fx runner
@@ -249,7 +249,7 @@ constexpr g2SurfaceFlags_t TURN_OFF = G2SURFACEFLAG_NODESCENDANTS;
 
 		ent->fxID = G_EffectIndex( "emplaced/dead_smoke" );
 
-		ent->e_ThinkFunc = thinkF_fx_runner_think;
+		ent->e_ThinkFunc = thinkFunc_t::thinkF_fx_runner_think;
 		ent->nextthink = level.time + 50;
 
 		// move up above the gun origin
@@ -264,7 +264,7 @@ constexpr g2SurfaceFlags_t TURN_OFF = G2SURFACEFLAG_NODESCENDANTS;
 		gi.linkentity( ent );
 	}
 
-	G_ActivateBehavior( self, BSET_DEATH );
+	G_ActivateBehavior( self, bSet_t::BSET_DEATH );
 }
 
 bool eweb_can_be_used( gentity_t *self, gentity_t *other, gentity_t *activator )
@@ -275,7 +275,7 @@ bool eweb_can_be_used( gentity_t *self, gentity_t *other, gentity_t *activator )
 		return false;
 	}
 
-	if ( Any( self->svFlags & SVF_INACTIVE ) )
+	if ( Any( self->svFlags & svFlags_t::SVF_INACTIVE ) )
 	{
 		return false; // can't use inactive gun
 	}
@@ -301,7 +301,7 @@ bool eweb_can_be_used( gentity_t *self, gentity_t *other, gentity_t *activator )
 		return false;
 	}
 
-	if ( activator && activator->client && Any(activator->client->ps.pm_flags&PMF_DUCKED) )
+	if ( activator && activator->client && Any(activator->client->ps.pm_flags&pmoveFlags_t::PMF_DUCKED) )
 	{//stand up, ya cowardly varmint!
 		return false;
 	}
@@ -350,15 +350,15 @@ void eweb_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 
 	weapon_t	oldWeapon = activator->s.weapon;
 
-	if ( oldWeapon == WP_SABER )
+	if ( oldWeapon == weapon_t::WP_SABER )
 	{
 		self->alt_fire = activator->client->ps.SaberActive();
 	}
 
 	// swap the users weapon with the emplaced gun and add the ammo the gun has to the player
 	activator->client->ps.weapon = self->s.weapon;
-	Add_Ammo( activator, WP_EMPLACED_GUN, self->count );
-	activator->client->ps.stats[STAT_WEAPONS] |= Bit( WP_EMPLACED_GUN );
+	Add_Ammo( activator, weapon_t::WP_EMPLACED_GUN, self->count );
+	activator->client->ps.stats[statIndex_t::STAT_WEAPONS] |= Bit( weapon_t::WP_EMPLACED_GUN );
 
 	// Allow us to point from one to the other
 	activator->owner = self; // kind of dumb, but when we are locked to the weapon, we are owned by it.
@@ -369,12 +369,12 @@ void eweb_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 extern void ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
 	if ( activator->NPC )
 	{
-		ChangeWeapon( activator, WP_EMPLACED_GUN );
+		ChangeWeapon( activator, weapon_t::WP_EMPLACED_GUN );
 	}
 	else if ( activator->s.number == 0 )
 	{
 		// we don't want for it to draw the weapon select stuff
-		cg.weaponSelect = WP_EMPLACED_GUN;
+		cg.weaponSelect = weapon_t::WP_EMPLACED_GUN;
 		CG_CenterPrint( "@SP_INGAME_EXIT_VIEW", SCREEN_HEIGHT * 0.95 );
 	}
 
@@ -384,14 +384,14 @@ extern void ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
 	self->s.weapon = oldWeapon;
 
 	// Lock the player
-	activator->client->ps.eFlags |= EF_LOCKED_TO_WEAPON;
+	activator->client->ps.eFlags |= entityFlags_t::EF_LOCKED_TO_WEAPON;
 	activator->owner = self; // kind of dumb, but when we are locked to the weapon, we are owned by it.
 	self->activator = activator;
 	self->delay = level.time; // can't disconnect from the thing for half a second
 
 	// Let the gun be considered an enemy
 	//Ugh, so much AI code seems to assume enemies are clients, maybe this shouldn't be on, but it's too late in the game to change it now without knowing what side-effects this will have
-	self->svFlags |= SVF_NONNPC_ENEMY;
+	self->svFlags |= svFlags_t::SVF_NONNPC_ENEMY;
 	self->noDamageTeam = activator->client->playerTeam;
 
 	//FIXME: should really wait a bit after spawn and get this just once?
@@ -408,7 +408,7 @@ extern void ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
 	if ( !(self->spawnflags&EMPLACED_PLAYERUSE) || activator->s.number == 0 )
 	{//player-only usescript or any usescript
 		// Run use script
-		G_ActivateBehavior( self, BSET_USE );
+		G_ActivateBehavior( self, bSet_t::BSET_USE );
 	}
 }
 
@@ -417,12 +417,12 @@ void SP_emplaced_eweb( gentity_t *ent )
 {
 	char name[] = "models/map_objects/hoth/eweb_model.glm";
 
-	ent->svFlags |= SVF_PLAYER_USABLE;
-	ent->contents = CONTENTS_BODY;
+	ent->svFlags |= svFlags_t::SVF_PLAYER_USABLE;
+	ent->contents = contentsFlags_t::CONTENTS_BODY;
 
 	if ( ent->spawnflags & EMPLACED_INACTIVE )
 	{
-		ent->svFlags |= SVF_INACTIVE;
+		ent->svFlags |= svFlags_t::SVF_INACTIVE;
 	}
 
 	VectorSet( ent->mins, -12, -12, -24 );
@@ -432,15 +432,15 @@ void SP_emplaced_eweb( gentity_t *ent )
 
 	if ( ( ent->spawnflags & EWEB_INVULNERABLE ))
 	{
-		ent->flags |= FL_GODMODE;
+		ent->flags |= gentityFlags_t::FL_GODMODE;
 	}
 
 	ent->s.radius = 80;
 	ent->spawnflags |= 4; // deadsolid
 
-	//ent->e_ThinkFunc = thinkF_NULL;
-	ent->e_PainFunc = painF_eweb_pain;
-	ent->e_DieFunc  = dieF_eweb_die;
+	//ent->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
+	ent->e_PainFunc = painFunc_t::painF_eweb_pain;
+	ent->e_DieFunc  = dieFunc_t::dieF_eweb_die;
 
 	G_EffectIndex( "emplaced/explode" );
 	G_EffectIndex( "emplaced/dead_smoke" );
@@ -463,7 +463,7 @@ void SP_emplaced_eweb( gentity_t *ent )
 	G_SpawnFloat( "wait", "800", &ent->wait );
 
 	ent->max_health = ent->health;
-	ent->dflags |= DAMAGE_CUSTOM_HUD; // dumb, but we draw a custom hud
+	ent->dflags |= damageFlags_t::DAMAGE_CUSTOM_HUD; // dumb, but we draw a custom hud
 
 	ent->s.modelindex = G_ModelIndex( name );
 	ent->playerModel = gi.G2API_InitGhoul2Model( ent->ghoul2, name, ent->s.modelindex, NULL_HANDLE, NULL_HANDLE, 0, 0 );
@@ -474,14 +474,14 @@ void SP_emplaced_eweb( gentity_t *ent )
 	ent->rootBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "model_root", true );
 	ent->lowerLumbarBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "cannon_Yrot", true );
 	ent->upperLumbarBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "cannon_Xrot", true );
-	gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->lowerLumbarBone, vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_Z, NEGATIVE_X, NEGATIVE_Y, nullptr, 0, 0);
-	gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->upperLumbarBone, vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_Z, NEGATIVE_X, NEGATIVE_Y, nullptr, 0, 0);
-	//gi.G2API_SetBoneAngles( &ent->ghoul2[0], "cannon_Yrot", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_Y, POSITIVE_Z, POSITIVE_X, nullptr);
+	gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->lowerLumbarBone, vec3_origin, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_Z, Eorientations::NEGATIVE_X, Eorientations::NEGATIVE_Y, nullptr, 0, 0);
+	gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->upperLumbarBone, vec3_origin, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_Z, Eorientations::NEGATIVE_X, Eorientations::NEGATIVE_Y, nullptr, 0, 0);
+	//gi.G2API_SetBoneAngles( &ent->ghoul2[0], "cannon_Yrot", vec3_origin, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_Y, Eorientations::POSITIVE_Z, Eorientations::POSITIVE_X, nullptr);
 	//set the constraints for this guy as an emplaced weapon, and his constraint angles
 	//ent->s.origin2[0] = 60.0f; //60 degrees in either direction
 
-	RegisterItem( FindItemForWeapon( WP_EMPLACED_GUN ));
-	ent->s.weapon = WP_EMPLACED_GUN;
+	RegisterItem( FindItemForWeapon( weapon_t::WP_EMPLACED_GUN ));
+	ent->s.weapon = weapon_t::WP_EMPLACED_GUN;
 
 	G_SetOrigin( ent, ent->s.origin );
 	G_SetAngles( ent, ent->s.angles );
@@ -490,7 +490,7 @@ void SP_emplaced_eweb( gentity_t *ent )
 	// store base angles for later
 	VectorClear( ent->pos1 );
 
-	ent->e_UseFunc = useF_eweb_use;
+	ent->e_UseFunc = useFunc_t::useF_eweb_use;
 	ent->bounceCount = 1;//to distinguish it from the emplaced gun
 
 	gi.linkentity (ent);
@@ -524,7 +524,7 @@ void emplaced_gun_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 		return;
 	}
 
-	if ( Any( self->svFlags & SVF_INACTIVE ) )
+	if ( Any( self->svFlags & svFlags_t::SVF_INACTIVE ) )
 	{
 		return; // can't use inactive gun
 	}
@@ -573,15 +573,15 @@ void emplaced_gun_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 	{
 		weapon_t	oldWeapon = activator->s.weapon;
 
-		if ( oldWeapon == WP_SABER )
+		if ( oldWeapon == weapon_t::WP_SABER )
 		{
 			self->alt_fire = activator->client->ps.SaberActive();
 		}
 
 		// swap the users weapon with the emplaced gun and add the ammo the gun has to the player
 		activator->client->ps.weapon = self->s.weapon;
-		Add_Ammo( activator, WP_EMPLACED_GUN, self->count );
-		activator->client->ps.stats[STAT_WEAPONS] |= Bit( WP_EMPLACED_GUN );
+		Add_Ammo( activator, weapon_t::WP_EMPLACED_GUN, self->count );
+		activator->client->ps.stats[statIndex_t::STAT_WEAPONS] |= Bit( weapon_t::WP_EMPLACED_GUN );
 
 		// Allow us to point from one to the other
 		activator->owner = self; // kind of dumb, but when we are locked to the weapon, we are owned by it.
@@ -592,12 +592,12 @@ void emplaced_gun_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 extern void ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
 		if ( activator->NPC )
 		{
-			ChangeWeapon( activator, WP_EMPLACED_GUN );
+			ChangeWeapon( activator, weapon_t::WP_EMPLACED_GUN );
 		}
 		else if ( activator->s.number == 0 )
 		{
 			// we don't want for it to draw the weapon select stuff
-			cg.weaponSelect = WP_EMPLACED_GUN;
+			cg.weaponSelect = weapon_t::WP_EMPLACED_GUN;
 			CG_CenterPrint( "@SP_INGAME_EXIT_VIEW", SCREEN_HEIGHT * 0.95 );
 		}
 		// Since we move the activator inside of the gun, we reserve a solid spot where they were standing in order to be able to get back out without being in solid
@@ -607,7 +607,7 @@ extern void ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
 		}
 		self->nextTrain = G_Spawn();
 		//self->nextTrain->classname = "emp_placeholder";
-		self->nextTrain->contents = CONTENTS_MONSTERCLIP|CONTENTS_PLAYERCLIP;//hmm... playerclip too now that we're doing it for NPCs?
+		self->nextTrain->contents = contentsFlags_t::CONTENTS_MONSTERCLIP|contentsFlags_t::CONTENTS_PLAYERCLIP;//hmm... playerclip too now that we're doing it for NPCs?
 		G_SetOrigin( self->nextTrain, activator->client->ps.origin );
 		VectorCopy( activator->mins, self->nextTrain->mins );
 		VectorCopy( activator->maxs, self->nextTrain->maxs );
@@ -626,19 +626,19 @@ extern void ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
 		self->s.weapon = oldWeapon;
 
 		// Lock the player
-		activator->client->ps.eFlags |= EF_LOCKED_TO_WEAPON;
+		activator->client->ps.eFlags |= entityFlags_t::EF_LOCKED_TO_WEAPON;
 		activator->owner = self; // kind of dumb, but when we are locked to the weapon, we are owned by it.
 		self->activator = activator;
 		self->delay = level.time; // can't disconnect from the thing for half a second
 
 		// Let the gun be considered an enemy
 		//Ugh, so much AI code seems to assume enemies are clients, maybe this shouldn't be on, but it's too late in the game to change it now without knowing what side-effects this will have
-		self->svFlags |= SVF_NONNPC_ENEMY;
+		self->svFlags |= svFlags_t::SVF_NONNPC_ENEMY;
 		self->noDamageTeam = activator->client->playerTeam;
 
 		// FIXME: don't do this, we'll try and actually put the player in this beast
 		// move the player to the center of the gun
-//		activator->contents = CONTENTS_NONE;
+//		activator->contents = contentsFlags_t::CONTENTS_NONE;
 //		VectorCopy( self->currentOrigin, activator->client->ps.origin );
 
 		SetClientViewAngle( activator, self->pos1 );
@@ -657,7 +657,7 @@ extern void ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
 		if ( !(self->spawnflags&EMPLACED_PLAYERUSE) || activator->s.number == 0 )
 		{//player-only usescript or any usescript
 			// Run use script
-			G_ActivateBehavior( self, BSET_USE );
+			G_ActivateBehavior( self, bSet_t::BSET_USE );
 		}
 	}
 }
@@ -677,15 +677,15 @@ void emplaced_gun_pain( gentity_t *self, gentity_t *inflictor, gentity_t *attack
 		}
 
 		// Don't do script if dead
-		G_ActivateBehavior( self, BSET_PAIN );
+		G_ActivateBehavior( self, bSet_t::BSET_PAIN );
 	}
 }
 
 //----------------------------------------------------------
 void emplaced_blow( gentity_t *ent )
 {
-	ent->e_DieFunc = dieF_NULL;
-	emplaced_gun_die( ent, ent->lastEnemy, ent->lastEnemy, 0, MOD_UNKNOWN );
+	ent->e_DieFunc = dieFunc_t::dieF_NULL;
+	emplaced_gun_die( ent, ent->lastEnemy, ent->lastEnemy, 0, meansOfDeath_t::MOD_UNKNOWN );
 }
 
 //----------------------------------------------------------
@@ -695,18 +695,18 @@ void emplaced_gun_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacke
 
 	// turn off any firing animations it may have been doing
 	self->s.frame = self->startFrame = self->endFrame = 0;
-	self->svFlags &= ~SVF_ANIMATING;
+	self->svFlags &= ~svFlags_t::SVF_ANIMATING;
 
 	self->health = 0;
-//	self->s.weapon = WP_EMPLACED_GUN; // we need to be able to switch back to the old weapon
+//	self->s.weapon = weapon_t::WP_EMPLACED_GUN; // we need to be able to switch back to the old weapon
 
 	self->takedamage = false;
 	self->lastEnemy = attacker;
 
 	// we defer explosion so the player has time to get out
-	if ( self->e_DieFunc != dieF_NULL )
+	if ( self->e_DieFunc != dieFunc_t::dieF_NULL )
 	{
-		self->e_ThinkFunc = thinkF_emplaced_blow;
+		self->e_ThinkFunc = thinkFunc_t::thinkF_emplaced_blow;
 		self->nextthink = level.time + 3000; // don't blow for a couple of seconds
 		return;
 	}
@@ -724,22 +724,22 @@ void emplaced_gun_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacke
 
 			// kill them
 			self->activator->health = 0;
-			self->activator->client->ps.stats[STAT_HEALTH] = 0;
+			self->activator->client->ps.stats[statIndex_t::STAT_HEALTH] = 0;
 		}
 
 		// kill the players emplaced ammo, cheesy way to keep the gun from firing
-		self->activator->client->ps.ammo[weaponData[WP_EMPLACED_GUN].ammoIndex] = 0;
+		self->activator->client->ps.ammo[weaponData[weapon_t::WP_EMPLACED_GUN].ammoIndex] = 0;
 	}
 
-	self->e_PainFunc = painF_NULL;
-	self->e_ThinkFunc = thinkF_NULL;
+	self->e_PainFunc = painFunc_t::painF_NULL;
+	self->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
 
 	if ( self->target )
 	{
 		G_UseTargets( self, attacker );
 	}
 
-	G_RadiusDamage( self->currentOrigin, self, self->splashDamage, self->splashRadius, self, MOD_UNKNOWN );
+	G_RadiusDamage( self->currentOrigin, self, self->splashDamage, self->splashRadius, self, meansOfDeath_t::MOD_UNKNOWN );
 
 	// when the gun is dead, add some ugliness to it.
 	vec3_t ugly;
@@ -747,7 +747,7 @@ void emplaced_gun_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacke
 	ugly[YAW] = 4;
 	ugly[PITCH] = self->lastAngles[PITCH] * 0.8f + Q_flrand(-1.0f, 1.0f) * 6;
 	ugly[ROLL] = Q_flrand(-1.0f, 1.0f) * 7;
-	gi.G2API_SetBoneAnglesIndex( &self->ghoul2[self->playerModel], self->lowerLumbarBone, ugly, BONE_ANGLES_POSTMULT, POSITIVE_Y, POSITIVE_Z, POSITIVE_X, nullptr, 0, 0 );
+	gi.G2API_SetBoneAnglesIndex( &self->ghoul2[self->playerModel], self->lowerLumbarBone, ugly, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_Y, Eorientations::POSITIVE_Z, Eorientations::POSITIVE_X, nullptr, 0, 0 );
 
 	VectorCopy( self->currentOrigin,  org );
 	org[2] += 20;
@@ -764,7 +764,7 @@ void emplaced_gun_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacke
 
 		ent->fxID = G_EffectIndex( "emplaced/dead_smoke" );
 
-		ent->e_ThinkFunc = thinkF_fx_runner_think;
+		ent->e_ThinkFunc = thinkFunc_t::thinkF_fx_runner_think;
 		ent->nextthink = level.time + 50;
 
 		// move up above the gun origin
@@ -779,7 +779,7 @@ void emplaced_gun_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacke
 		gi.linkentity( ent );
 	}
 
-	G_ActivateBehavior( self, BSET_DEATH );
+	G_ActivateBehavior( self, bSet_t::BSET_DEATH );
 }
 
 //----------------------------------------------------------
@@ -787,12 +787,12 @@ void SP_emplaced_gun( gentity_t *ent )
 {
 	char name[] = "models/map_objects/imp_mine/turret_chair.glm";
 
-	ent->svFlags |= SVF_PLAYER_USABLE;
-	ent->contents = CONTENTS_BODY;//CONTENTS_SHOTCLIP|CONTENTS_PLAYERCLIP|CONTENTS_MONSTERCLIP;//CONTENTS_SOLID;
+	ent->svFlags |= svFlags_t::SVF_PLAYER_USABLE;
+	ent->contents = contentsFlags_t::CONTENTS_BODY;//contentsFlags_t::CONTENTS_SHOTCLIP|contentsFlags_t::CONTENTS_PLAYERCLIP|contentsFlags_t::CONTENTS_MONSTERCLIP;//CONTENTS_SOLID;
 
 	if ( ent->spawnflags & EMPLACED_INACTIVE )
 	{
-		ent->svFlags |= SVF_INACTIVE;
+		ent->svFlags |= svFlags_t::SVF_INACTIVE;
 	}
 
 	VectorSet( ent->mins, -30, -30, -5 );
@@ -802,15 +802,15 @@ void SP_emplaced_gun( gentity_t *ent )
 
 	if ( !( ent->spawnflags & EMPLACED_VULNERABLE ))
 	{
-		ent->flags |= FL_GODMODE;
+		ent->flags |= gentityFlags_t::FL_GODMODE;
 	}
 
 	ent->s.radius = 110;
 	ent->spawnflags |= 4; // deadsolid
 
-	//ent->e_ThinkFunc = thinkF_NULL;
-	ent->e_PainFunc = painF_emplaced_gun_pain;
-	ent->e_DieFunc  = dieF_emplaced_gun_die;
+	//ent->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
+	ent->e_PainFunc = painFunc_t::painF_emplaced_gun_pain;
+	ent->e_DieFunc  = dieFunc_t::dieF_emplaced_gun_die;
 
 	G_EffectIndex( "emplaced/explode" );
 	G_EffectIndex( "emplaced/dead_smoke" );
@@ -828,7 +828,7 @@ void SP_emplaced_gun( gentity_t *ent )
 	G_SpawnFloat( "wait", "800", &ent->wait );
 
 	ent->max_health = ent->health;
-	ent->dflags |= DAMAGE_CUSTOM_HUD; // dumb, but we draw a custom hud
+	ent->dflags |= damageFlags_t::DAMAGE_CUSTOM_HUD; // dumb, but we draw a custom hud
 
 	ent->s.modelindex = G_ModelIndex( name );
 	ent->playerModel = gi.G2API_InitGhoul2Model( ent->ghoul2, name, ent->s.modelindex, NULL_HANDLE, NULL_HANDLE, 0, 0 );
@@ -839,10 +839,10 @@ void SP_emplaced_gun( gentity_t *ent )
 	ent->handRBolt = gi.G2API_AddBolt( &ent->ghoul2[ent->playerModel], "*flash02" );
 	ent->rootBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "base_bone", true );
 	ent->lowerLumbarBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "swivel_bone", true );
-	gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->lowerLumbarBone, vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_Y, POSITIVE_Z, POSITIVE_X, nullptr, 0, 0);
+	gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->lowerLumbarBone, vec3_origin, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_Y, Eorientations::POSITIVE_Z, Eorientations::POSITIVE_X, nullptr, 0, 0);
 
-	RegisterItem( FindItemForWeapon( WP_EMPLACED_GUN ));
-	ent->s.weapon = WP_EMPLACED_GUN;
+	RegisterItem( FindItemForWeapon( weapon_t::WP_EMPLACED_GUN ));
+	ent->s.weapon = weapon_t::WP_EMPLACED_GUN;
 
 	G_SetOrigin( ent, ent->s.origin );
 	G_SetAngles( ent, ent->s.angles );
@@ -851,7 +851,7 @@ void SP_emplaced_gun( gentity_t *ent )
 	// store base angles for later
 	VectorCopy( ent->s.angles, ent->pos1 );
 
-	ent->e_UseFunc = useF_emplaced_gun_use;
+	ent->e_UseFunc = useFunc_t::useF_emplaced_gun_use;
 	ent->bounceCount = 0;//to distinguish it from the eweb
 
 	gi.linkentity (ent);
@@ -866,7 +866,7 @@ void G_UpdateEmplacedWeaponData( gentity_t *ent )
 	if ( ent && ent->owner && ent->health > 0 )
 	{
 		gentity_t *chair = ent->owner;
-		if ( chair->e_UseFunc == useF_emplaced_gun_use )//yeah, crappy way to check this, but...
+		if ( chair->e_UseFunc == useFunc_t::useF_emplaced_gun_use )//yeah, crappy way to check this, but...
 		{//one that you sit in
 			//take the emplaced gun's waypoint as your own
 			ent->waypoint = chair->waypoint;
@@ -880,10 +880,10 @@ void G_UpdateEmplacedWeaponData( gentity_t *ent )
 					&boltMatrix, chairAng, chair->currentOrigin, (cg.time?cg.time:level.time),
 					nullptr, chair->s.modelScale );
 			// Storing ent position, bolt position, and bolt axis
-			gi.G2API_GiveMeVectorFromMatrix( boltMatrix, ORIGIN, ent->client->ps.origin );
+			gi.G2API_GiveMeVectorFromMatrix( boltMatrix, Eorientations::ORIGIN, ent->client->ps.origin );
 			gi.linkentity( ent );
 		}
-		else if ( chair->e_UseFunc == useF_eweb_use )//yeah, crappy way to check this, but...
+		else if ( chair->e_UseFunc == useFunc_t::useF_eweb_use )//yeah, crappy way to check this, but...
 		{//standing at an E-Web
 			EWebPositionUser( ent, chair );
 		}
@@ -913,7 +913,7 @@ void ExitEmplacedWeapon( gentity_t *ent )
 				//re-link the ent
 				gi.linkentity( ent );
 			}
-			else if ( ent->owner->e_UseFunc == useF_eweb_use )//yeah, crappy way to check this, but...
+			else if ( ent->owner->e_UseFunc == useFunc_t::useF_eweb_use )//yeah, crappy way to check this, but...
 			{
 				// so give 'em a push away from us
 				vec3_t backDir, start, end;
@@ -945,7 +945,7 @@ void ExitEmplacedWeapon( gentity_t *ent )
 					VectorCopy( start, end );
 					start[2] += 18;
 					end[2] -= 18;
-					gi.trace(&trace, start, ent->mins, ent->maxs, end, ent->s.number, ent->clipmask, G2_NOCOLLIDE, 0);
+					gi.trace(&trace, start, ent->mins, ent->maxs, end, ent->s.number, ent->clipmask, EG2_Collision::G2_NOCOLLIDE, 0);
 					if ( !trace.allsolid && !trace.startsolid )
 					{
 						G_SetOrigin( ent, trace.endpos );
@@ -983,7 +983,7 @@ void ExitEmplacedWeapon( gentity_t *ent )
 			{
 				ent->client->ps.pm_time = 100;
 			}
-			ent->client->ps.pm_flags |= (PMF_TIME_NOFRICTION|PMF_TIME_KNOCKBACK);
+			ent->client->ps.pm_flags |= (pmoveFlags_t::PMF_TIME_NOFRICTION|pmoveFlags_t::PMF_TIME_KNOCKBACK);
 		}
 
 		if ( !ent->owner->bounceCount )
@@ -996,14 +996,14 @@ void ExitEmplacedWeapon( gentity_t *ent )
 	}
 
 	// Remove the emplaced gun from our inventory
-	ent->client->ps.stats[STAT_WEAPONS] &= ~Bit( WP_EMPLACED_GUN );
+	ent->client->ps.stats[statIndex_t::STAT_WEAPONS] &= ~Bit( weapon_t::WP_EMPLACED_GUN );
 
 extern void ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
 extern void CG_ChangeWeapon( weapon_t num );
 	if ( ent->health <= 0 )
 	{//when die, don't set weapon back on when ejected from emplaced/eweb
 		//empty hands
-		ent->client->ps.weapon = WP_NONE;
+		ent->client->ps.weapon = weapon_t::WP_NONE;
 		if ( ent->NPC )
 		{
 			ChangeWeapon( ent, ent->client->ps.weapon );	// should be OK actually.
@@ -1030,7 +1030,7 @@ extern void CG_ChangeWeapon( weapon_t num );
 		{
 			G_RemoveWeaponModels( ent );
 			CG_ChangeWeapon( ent->client->ps.weapon );
-			if ( ent->client->ps.weapon == WP_SABER )
+			if ( ent->client->ps.weapon == weapon_t::WP_SABER )
 			{
 				WP_SaberAddG2SaberModels( ent );
 			}
@@ -1041,18 +1041,18 @@ extern void CG_ChangeWeapon( weapon_t num );
 
 			if ( ent->s.number < MAX_CLIENTS )
 			{
-				if ( ent->client->ps.weapon == WP_SABER )
+				if ( ent->client->ps.weapon == weapon_t::WP_SABER )
 				{
 					gi.cvar_set( "cg_thirdperson", "1" );
 				}
-				else if ( ent->client->ps.weapon != WP_SABER && cg_gunAutoFirst.integer )
+				else if ( ent->client->ps.weapon != weapon_t::WP_SABER && cg_gunAutoFirst.integer )
 				{
 					gi.cvar_set( "cg_thirdperson", "0" );
 				}
 			}
 		}
 
-		if ( ent->client->ps.weapon == WP_SABER )
+		if ( ent->client->ps.weapon == weapon_t::WP_SABER )
 		{
 			if ( ent->owner->alt_fire )
 			{
@@ -1065,14 +1065,14 @@ extern void CG_ChangeWeapon( weapon_t num );
 		}
 	}
 	//set the emplaced gun/eweb's weapon back to the emplaced gun
-	ent->owner->s.weapon = WP_EMPLACED_GUN;
+	ent->owner->s.weapon = weapon_t::WP_EMPLACED_GUN;
 //	gi.G2API_DetachG2Model( &ent->ghoul2[ent->playerModel] );
 
-	ent->s.eFlags &= ~EF_LOCKED_TO_WEAPON;
-	ent->client->ps.eFlags &= ~EF_LOCKED_TO_WEAPON;
+	ent->s.eFlags &= ~entityFlags_t::EF_LOCKED_TO_WEAPON;
+	ent->client->ps.eFlags &= ~entityFlags_t::EF_LOCKED_TO_WEAPON;
 
-	ent->owner->noDamageTeam = TEAM_FREE;
-	ent->owner->svFlags &= ~SVF_NONNPC_ENEMY;
+	ent->owner->noDamageTeam = team_t::TEAM_FREE;
+	ent->owner->svFlags &= ~svFlags_t::SVF_NONNPC_ENEMY;
 	ent->owner->delay = level.time;
 	ent->owner->activator = nullptr;
 
@@ -1085,11 +1085,11 @@ extern void CG_ChangeWeapon( weapon_t num );
 
 void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd )
 {
-	if (( Any( (*ucmd)->buttons & BUTTON_USE ) || (*ucmd)->forwardmove < 0 || (*ucmd)->upmove > 0 ) && ent->owner && ent->owner->delay + 500 < level.time )
+	if (( Any( (*ucmd)->buttons & buttonFlags_t::BUTTON_USE ) || (*ucmd)->forwardmove < 0 || (*ucmd)->upmove > 0 ) && ent->owner && ent->owner->delay + 500 < level.time )
 	{
 		ent->owner->s.loopSound = 0;
 
-		if ( ent->owner->e_UseFunc == useF_eweb_use )//yeah, crappy way to check this, but...
+		if ( ent->owner->e_UseFunc == useFunc_t::useF_eweb_use )//yeah, crappy way to check this, but...
 		{
 			G_Sound( ent, G_SoundIndex( "sound/weapons/eweb/eweb_dismount.mp3" ));
 		}
@@ -1100,7 +1100,7 @@ void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd )
 		}
 
 		ExitEmplacedWeapon( ent );
-		(*ucmd)->buttons &= ~BUTTON_USE;
+		(*ucmd)->buttons &= ~buttonFlags_t::BUTTON_USE;
 		if ( (*ucmd)->upmove > 0 )
 		{//don't actually jump
 			(*ucmd)->upmove = 0;
@@ -1110,7 +1110,7 @@ void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd )
 	{
 		// this is a crappy way to put sounds on a moving eweb....
 		if ( ent->owner
-			&& ent->owner->e_UseFunc == useF_eweb_use )//yeah, crappy way to check this, but...
+			&& ent->owner->e_UseFunc == useFunc_t::useF_eweb_use )//yeah, crappy way to check this, but...
 		{
 			if ( !VectorCompare( ent->client->ps.viewangles, ent->owner->movedir ))
 			{
@@ -1132,9 +1132,9 @@ void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd )
 		(*ucmd)->forwardmove = 0;
 		(*ucmd)->rightmove = 0;
 		(*ucmd)->upmove = 0;
-		(*ucmd)->buttons &= (BUTTON_ATTACK|BUTTON_ALT_ATTACK);
+		(*ucmd)->buttons &= (buttonFlags_t::BUTTON_ATTACK|buttonFlags_t::BUTTON_ALT_ATTACK);
 
-		UC_SetWeapon( **ucmd, ent->client->ps.weapon ); //WP_EMPLACED_GUN;
+		UC_SetWeapon( **ucmd, ent->client->ps.weapon ); //weapon_t::WP_EMPLACED_GUN;
 
 		if ( ent->health <= 0 )
 		{

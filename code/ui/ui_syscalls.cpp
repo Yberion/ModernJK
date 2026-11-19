@@ -43,20 +43,20 @@ void trap_R_AddRefEntityToScene( const refEntity_t *re )
 
 void trap_R_RenderScene( const refdef_t *fd )
 {
-//	syscall( UI_R_RENDERSCENE, fd );
+//	syscall( uiImport_t::UI_R_RENDERSCENE, fd );
 	ui.R_RenderScene(fd);
 }
 
 void trap_R_SetColor( const float *rgba )
 {
-//	syscall( UI_R_SETCOLOR, rgba );
+//	syscall( uiImport_t::UI_R_SETCOLOR, rgba );
 //	re.SetColor( rgba );
 	ui.R_SetColor(rgba);
 }
 
 void trap_R_DrawStretchPic( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader )
 {
-//	syscall( UI_R_DRAWSTRETCHPIC, PASSFLOAT(x), PASSFLOAT(y), PASSFLOAT(w), PASSFLOAT(h), PASSFLOAT(s1), PASSFLOAT(t1), PASSFLOAT(s2), PASSFLOAT(t2), hShader );
+//	syscall( uiImport_t::UI_R_DRAWSTRETCHPIC, PASSFLOAT(x), PASSFLOAT(y), PASSFLOAT(w), PASSFLOAT(h), PASSFLOAT(s1), PASSFLOAT(t1), PASSFLOAT(s2), PASSFLOAT(t2), hShader );
 //	re.DrawStretchPic( x, y, w, h, s1, t1, s2, t2, hShader  );
 
 	ui.R_DrawStretchPic( x, y, w, h, s1, t1, s2, t2, hShader );
@@ -65,13 +65,13 @@ void trap_R_DrawStretchPic( float x, float y, float w, float h, float s1, float 
 
 void	trap_R_ModelBounds( clipHandle_t model, vec3_t mins, vec3_t maxs )
 {
-//	syscall( UI_R_MODELBOUNDS, model, mins, maxs );
+//	syscall( uiImport_t::UI_R_MODELBOUNDS, model, mins, maxs );
 	ui.R_ModelBounds(model, mins, maxs);
 }
 
 void trap_S_StartLocalSound( sfxHandle_t sfx, soundChannel_t channelNum )
 {
-//	syscall( UI_S_STARTLOCALSOUND, sfx, channelNum );
+//	syscall( uiImport_t::UI_S_STARTLOCALSOUND, sfx, channelNum );
 	S_StartLocalSound( sfx, channelNum );
 }
 
@@ -121,11 +121,11 @@ void trap_Key_SetCatcher( keyCatchFlags_t catcher )
 }
 /*
 void trap_GetClipboardData( char *buf, int bufsize ) {
-	syscall( UI_GETCLIPBOARDDATA, buf, bufsize );
+	syscall( uiImport_t::UI_GETCLIPBOARDDATA, buf, bufsize );
 }
 
 void trap_GetClientState( uiClientState_t *state ) {
-	syscall( UI_GETCLIENTSTATE, state );
+	syscall( uiImport_t::UI_GETCLIENTSTATE, state );
 }
 */
 
@@ -133,13 +133,13 @@ void CL_GetGlconfig( glconfig_t *glconfig );
 
 void trap_GetGlconfig( glconfig_t *glconfig )
 {
-//	syscall( UI_GETGLCONFIG, glconfig );
+//	syscall( uiImport_t::UI_GETGLCONFIG, glconfig );
 	CL_GetGlconfig( glconfig );
 }
 
 // this returns a handle.  arg0 is the name in the format "idlogo.roq", set arg1 to nullptr, alteredstates to false (do not alter gamestate)
 int trap_CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, cinematicFlags_t bits, const char *psAudioFile) {
-//  return syscall(UI_CIN_PLAYCINEMATIC, arg0, xpos, ypos, width, height, to_underlying( bits ), psAudioFile);
+//  return syscall(uiImport_t::UI_CIN_PLAYCINEMATIC, arg0, xpos, ypos, width, height, to_underlying( bits ), psAudioFile);
 	return CIN_PlayCinematic( arg0, xpos, ypos, width, height, bits, psAudioFile );
 }
 
@@ -147,7 +147,7 @@ int trap_CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int
 // cinematics must be stopped in reverse order of when they are started
 int trap_CIN_StopCinematic(int handle)
 {
-//  return syscall(UI_CIN_STOPCINEMATIC, handle);
+//  return syscall(uiImport_t::UI_CIN_STOPCINEMATIC, handle);
 	return to_underlying( CIN_StopCinematic(handle) );
 }
 

@@ -38,7 +38,7 @@ static bool	R_CullTriSurf( srfTriangles_t *cv ) {
 
 	boxCull = R_CullLocalBox( cv->bounds );
 
-	if ( boxCull == CULL_OUT ) {
+	if ( boxCull == cullResult_t::CULL_OUT ) {
 		return true;
 	}
 	return false;
@@ -65,27 +65,27 @@ static bool	R_CullGrid( srfGridMesh_t *cv ) {
 	} else {
 		sphereCull = R_CullPointAndRadius( cv->localOrigin, cv->meshRadius );
 	}
-	boxCull = CULL_OUT;
+	boxCull = cullResult_t::CULL_OUT;
 
 	// check for trivial reject
-	if ( sphereCull == CULL_OUT )
+	if ( sphereCull == cullResult_t::CULL_OUT )
 	{
 		tr.pc.c_sphere_cull_patch_out++;
 		return true;
 	}
 	// check bounding box if necessary
-	else if ( sphereCull == CULL_CLIP )
+	else if ( sphereCull == cullResult_t::CULL_CLIP )
 	{
 		tr.pc.c_sphere_cull_patch_clip++;
 
 		boxCull = R_CullLocalBox( cv->meshBounds );
 
-		if ( boxCull == CULL_OUT )
+		if ( boxCull == cullResult_t::CULL_OUT )
 		{
 			tr.pc.c_box_cull_patch_out++;
 			return true;
 		}
-		else if ( boxCull == CULL_IN )
+		else if ( boxCull == cullResult_t::CULL_IN )
 		{
 			tr.pc.c_box_cull_patch_in++;
 		}
@@ -121,19 +121,19 @@ static bool	R_CullSurface( surfaceType_t *surface, shader_t *shader ) {
 		return false;
 	}
 
-	if ( *surface == SF_GRID ) {
+	if ( *surface == surfaceType_t::SF_GRID ) {
 		return R_CullGrid( (srfGridMesh_t *)surface );
 	}
 
-	if ( *surface == SF_TRIANGLES ) {
+	if ( *surface == surfaceType_t::SF_TRIANGLES ) {
 		return R_CullTriSurf( (srfTriangles_t *)surface );
 	}
 
-	if ( *surface != SF_FACE ) {
+	if ( *surface != surfaceType_t::SF_FACE ) {
 		return false;
 	}
 
-	if ( shader->cullType == CT_TWO_SIDED ) {
+	if ( shader->cullType == cullType_t::CT_TWO_SIDED ) {
 		return false;
 	}
 
@@ -148,7 +148,7 @@ static bool	R_CullSurface( surfaceType_t *surface, shader_t *shader ) {
 	// don't cull exactly on the plane, because there are levels of rounding
 	// through the BSP, ICD, and hardware that may cause pixel gaps if an
 	// epsilon isn't allowed here
-	if ( shader->cullType == CT_FRONT_SIDED ) {
+	if ( shader->cullType == cullType_t::CT_FRONT_SIDED ) {
 		if ( d < sface->plane.dist - 8 ) {
 			return true;
 		}
@@ -257,11 +257,11 @@ more dlights if possible.
 ====================
 */
 static int R_DlightSurface( msurface_t *surf, int dlightBits ) {
-	if ( *surf->data == SF_FACE ) {
+	if ( *surf->data == surfaceType_t::SF_FACE ) {
 		dlightBits = R_DlightFace( (srfSurfaceFace_t *)surf->data, dlightBits );
-	} else if ( *surf->data == SF_GRID ) {
+	} else if ( *surf->data == surfaceType_t::SF_GRID ) {
 		dlightBits = R_DlightGrid( (srfGridMesh_t *)surf->data, dlightBits );
-	} else if ( *surf->data == SF_TRIANGLES ) {
+	} else if ( *surf->data == surfaceType_t::SF_TRIANGLES ) {
 		dlightBits = R_DlightTrisurf( (srfTriangles_t *)surf->data, dlightBits );
 	} else {
 		dlightBits = 0;
@@ -294,15 +294,15 @@ static void R_AddWorldSurface( msurface_t *surf, int dlightBits, bool noViewCoun
 		if ( surf->viewCount == tr.viewCount )
 		{
 			// already in this view, but lets make sure all the dlight bits are set
-			if ( *surf->data == SF_FACE )
+			if ( *surf->data == surfaceType_t::SF_FACE )
 			{
 				((srfSurfaceFace_t *)surf->data)->dlightBits |= dlightBits;
 			}
-			else if ( *surf->data == SF_GRID )
+			else if ( *surf->data == surfaceType_t::SF_GRID )
 			{
 				((srfGridMesh_t *)surf->data)->dlightBits |= dlightBits;
 			}
-			else if ( *surf->data == SF_TRIANGLES )
+			else if ( *surf->data == surfaceType_t::SF_TRIANGLES )
 			{
 				((srfTriangles_t *)surf->data)->dlightBits |= dlightBits;
 			}
@@ -353,7 +353,7 @@ void R_AddBrushModelSurfaces ( trRefEntity_t *ent ) {
 	bmodel = pModel->bmodel;
 
 	clip = R_CullLocalBox( bmodel->bounds );
-	if ( clip == CULL_OUT ) {
+	if ( clip == cullResult_t::CULL_OUT ) {
 		return;
 	}
 
@@ -645,7 +645,7 @@ static mnode_t *R_PointInLeaf( vec3_t p ) {
 	cplane_t	*plane;
 
 	if ( !tr.world ) {
-		Com_Error (ERR_DROP, "R_PointInLeaf: bad model");
+		Com_Error (errorParm_t::ERR_DROP, "R_PointInLeaf: bad model");
 	}
 
 	node = tr.world->nodes;
@@ -735,7 +735,7 @@ static void R_MarkLeaves (void) {
 	if ( r_showcluster->modified || r_showcluster->integer ) {
 		r_showcluster->modified = false;
 		if ( r_showcluster->integer ) {
-			ri.Printf( PRINT_ALL, "cluster:%i  area:%i\n", cluster, leaf->area );
+			ri.Printf( printParm_t::PRINT_ALL, "cluster:%i  area:%i\n", cluster, leaf->area );
 		}
 	}
 
@@ -787,7 +787,7 @@ void R_AddWorldSurfaces (void) {
 		return;
 	}
 
-	if ( Any( tr.refdef.rdflags & RDF_NOWORLDMODEL ) ) {
+	if ( Any( tr.refdef.rdflags & refdefFlags_t::RDF_NOWORLDMODEL ) ) {
 		return;
 	}
 

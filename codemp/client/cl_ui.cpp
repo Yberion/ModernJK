@@ -30,7 +30,7 @@ CL_ShutdownUI
 ====================
 */
 void CL_ShutdownUI( void ) {
-	Key_SetCatcher( Key_GetCatcher( ) & ~KEYCATCH_UI );
+	Key_SetCatcher( Key_GetCatcher( ) & ~keyCatchFlags_t::KEYCATCH_UI );
 
 	if ( !cls.uiStarted )
 		return;
@@ -54,7 +54,7 @@ void CL_InitUI( void ) {
 	//rww - changed to <= CA_ACTIVE, because that is the state when we did a vid_restart
 	//ingame (was just < CA_ACTIVE before, resulting in ingame menus getting wiped and
 	//not reloaded on vid restart from ingame menu)
-	UIVM_Init( (cls.state >= CA_AUTHORIZING && cls.state <= CA_ACTIVE) );
+	UIVM_Init( (cls.state >= connstate_t::CA_AUTHORIZING && cls.state <= connstate_t::CA_ACTIVE) );
 }
 
 /*

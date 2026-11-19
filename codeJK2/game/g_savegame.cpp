@@ -46,76 +46,76 @@ extern void G_LoadSave_ReadMiscData(void);
 
 static const field_t savefields_gEntity[] =
 {
-	{strFOFS(client),			F_GCLIENT},
-	{strFOFS(owner),			F_GENTITY},
-	{strFOFS(classname),		F_STRING},
-	{strFOFS(model),			F_STRING},
-	{strFOFS(model2),			F_STRING},
-//	{strFOFS(model3),			F_STRING}, - MCG
-	{strFOFS(nextTrain),		F_GENTITY},
-	{strFOFS(prevTrain),		F_GENTITY},
-	{strFOFS(message),			F_STRING},
-	{strFOFS(target),			F_STRING},
-	{strFOFS(target2),			F_STRING},
-	{strFOFS(target3),			F_STRING},
-	{strFOFS(target4),			F_STRING},
-	{strFOFS(targetname),		F_STRING},
-	{strFOFS(team),				F_STRING},
-	{strFOFS(roff),				F_STRING},
-//	{strFOFS(target_ent),		F_GENTITY}, - MCG
-	{strFOFS(chain),			F_GENTITY},
-	{strFOFS(enemy),			F_GENTITY},
-	{strFOFS(activator),		F_GENTITY},
-	{strFOFS(teamchain),		F_GENTITY},
-	{strFOFS(teammaster),		F_GENTITY},
-	{strFOFS(item),				F_ITEM},
-	{strFOFS(NPC_type),			F_STRING},
-	{strFOFS(closetarget),		F_STRING},
-	{strFOFS(opentarget),		F_STRING},
-	{strFOFS(paintarget),		F_STRING},
-	{strFOFS(NPC_targetname),	F_STRING},
-	{strFOFS(NPC_target),		F_STRING},
-	{strFOFS(ownername),		F_STRING},
-	{strFOFS(lastEnemy),		F_GENTITY},
-	{strFOFS(behaviorSet),		F_BEHAVIORSET},
-	{strFOFS(script_targetname),F_STRING},
-	{strFOFS(sequencer),		F_NULL},	// CSequencer	*sequencer;
-	{strFOFS(taskManager),		F_NULL},	// CTaskManager	*taskManager;
-	{strFOFS(NPC),				F_BOOLPTR},
-	{strFOFS(soundSet),			F_STRING},
-	{strFOFS(cameraGroup),		F_STRING},
-	{strFOFS(parms),			F_BOOLPTR},
-	{strFOFS(fullName),			F_STRING},
-//	{strFOFS(timers),			F_BOOLPTR},	// handled directly
+	{strFOFS(client),			fieldtypeSAVE_t::F_GCLIENT},
+	{strFOFS(owner),			fieldtypeSAVE_t::F_GENTITY},
+	{strFOFS(classname),		fieldtypeSAVE_t::F_STRING},
+	{strFOFS(model),			fieldtypeSAVE_t::F_STRING},
+	{strFOFS(model2),			fieldtypeSAVE_t::F_STRING},
+//	{strFOFS(model3),			fieldtypeSAVE_t::F_STRING}, - MCG
+	{strFOFS(nextTrain),		fieldtypeSAVE_t::F_GENTITY},
+	{strFOFS(prevTrain),		fieldtypeSAVE_t::F_GENTITY},
+	{strFOFS(message),			fieldtypeSAVE_t::F_STRING},
+	{strFOFS(target),			fieldtypeSAVE_t::F_STRING},
+	{strFOFS(target2),			fieldtypeSAVE_t::F_STRING},
+	{strFOFS(target3),			fieldtypeSAVE_t::F_STRING},
+	{strFOFS(target4),			fieldtypeSAVE_t::F_STRING},
+	{strFOFS(targetname),		fieldtypeSAVE_t::F_STRING},
+	{strFOFS(team),				fieldtypeSAVE_t::F_STRING},
+	{strFOFS(roff),				fieldtypeSAVE_t::F_STRING},
+//	{strFOFS(target_ent),		fieldtypeSAVE_t::F_GENTITY}, - MCG
+	{strFOFS(chain),			fieldtypeSAVE_t::F_GENTITY},
+	{strFOFS(enemy),			fieldtypeSAVE_t::F_GENTITY},
+	{strFOFS(activator),		fieldtypeSAVE_t::F_GENTITY},
+	{strFOFS(teamchain),		fieldtypeSAVE_t::F_GENTITY},
+	{strFOFS(teammaster),		fieldtypeSAVE_t::F_GENTITY},
+	{strFOFS(item),				fieldtypeSAVE_t::F_ITEM},
+	{strFOFS(NPC_type),			fieldtypeSAVE_t::F_STRING},
+	{strFOFS(closetarget),		fieldtypeSAVE_t::F_STRING},
+	{strFOFS(opentarget),		fieldtypeSAVE_t::F_STRING},
+	{strFOFS(paintarget),		fieldtypeSAVE_t::F_STRING},
+	{strFOFS(NPC_targetname),	fieldtypeSAVE_t::F_STRING},
+	{strFOFS(NPC_target),		fieldtypeSAVE_t::F_STRING},
+	{strFOFS(ownername),		fieldtypeSAVE_t::F_STRING},
+	{strFOFS(lastEnemy),		fieldtypeSAVE_t::F_GENTITY},
+	{strFOFS(behaviorSet),		fieldtypeSAVE_t::F_BEHAVIORSET},
+	{strFOFS(script_targetname),fieldtypeSAVE_t::F_STRING},
+	{strFOFS(sequencer),		fieldtypeSAVE_t::F_NULL},	// CSequencer	*sequencer;
+	{strFOFS(taskManager),		fieldtypeSAVE_t::F_NULL},	// CTaskManager	*taskManager;
+	{strFOFS(NPC),				fieldtypeSAVE_t::F_BOOLPTR},
+	{strFOFS(soundSet),			fieldtypeSAVE_t::F_STRING},
+	{strFOFS(cameraGroup),		fieldtypeSAVE_t::F_STRING},
+	{strFOFS(parms),			fieldtypeSAVE_t::F_BOOLPTR},
+	{strFOFS(fullName),			fieldtypeSAVE_t::F_STRING},
+//	{strFOFS(timers),			fieldtypeSAVE_t::F_BOOLPTR},	// handled directly
 
-	{nullptr, 0, F_IGNORE}
+	{nullptr, 0, fieldtypeSAVE_t::F_IGNORE}
 };
 
 static const field_t savefields_gNPC[] =
 {
-//	{strNPCOFS(pendingEnemy),		F_GENTITY},
-	{strNPCOFS(touchedByPlayer),	F_GENTITY},
-	{strNPCOFS(aimingBeam),			F_GENTITY},
-	{strNPCOFS(eventOwner),			F_GENTITY},
-	{strNPCOFS(coverTarg),			F_GENTITY},
-	{strNPCOFS(tempGoal),			F_GENTITY},
-	{strNPCOFS(goalEntity),			F_GENTITY},
-	{strNPCOFS(lastGoalEntity),		F_GENTITY},
-	{strNPCOFS(eventualGoal),		F_GENTITY},
-	{strNPCOFS(captureGoal),		F_GENTITY},
-	{strNPCOFS(defendEnt),			F_GENTITY},
-	{strNPCOFS(greetEnt),			F_GENTITY},
-	{strNPCOFS(group),				F_GROUP},
+//	{strNPCOFS(pendingEnemy),		fieldtypeSAVE_t::F_GENTITY},
+	{strNPCOFS(touchedByPlayer),	fieldtypeSAVE_t::F_GENTITY},
+	{strNPCOFS(aimingBeam),			fieldtypeSAVE_t::F_GENTITY},
+	{strNPCOFS(eventOwner),			fieldtypeSAVE_t::F_GENTITY},
+	{strNPCOFS(coverTarg),			fieldtypeSAVE_t::F_GENTITY},
+	{strNPCOFS(tempGoal),			fieldtypeSAVE_t::F_GENTITY},
+	{strNPCOFS(goalEntity),			fieldtypeSAVE_t::F_GENTITY},
+	{strNPCOFS(lastGoalEntity),		fieldtypeSAVE_t::F_GENTITY},
+	{strNPCOFS(eventualGoal),		fieldtypeSAVE_t::F_GENTITY},
+	{strNPCOFS(captureGoal),		fieldtypeSAVE_t::F_GENTITY},
+	{strNPCOFS(defendEnt),			fieldtypeSAVE_t::F_GENTITY},
+	{strNPCOFS(greetEnt),			fieldtypeSAVE_t::F_GENTITY},
+	{strNPCOFS(group),				fieldtypeSAVE_t::F_GROUP},
 
-	{nullptr, 0, F_IGNORE}
+	{nullptr, 0, fieldtypeSAVE_t::F_IGNORE}
 };
 
 static const field_t savefields_LevelLocals[] =
 {
-	{strLLOFS(locationHead),	F_GENTITY},
-	{strLLOFS(alertEvents),		F_ALERTEVENT},
-	{strLLOFS(groups),			F_AIGROUPS},
-	{nullptr, 0, F_IGNORE}
+	{strLLOFS(locationHead),	fieldtypeSAVE_t::F_GENTITY},
+	{strLLOFS(alertEvents),		fieldtypeSAVE_t::F_ALERTEVENT},
+	{strLLOFS(groups),			fieldtypeSAVE_t::F_AIGROUPS},
+	{nullptr, 0, fieldtypeSAVE_t::F_IGNORE}
 };
 
 /*
@@ -138,18 +138,18 @@ ok	renderInfo_t	renderInfo;
 //
 static const field_t savefields_gClient[] =
 {
-	{strCLOFS(ps.saberModel),	F_STRING},
-	{strCLOFS(squadname),		F_STRING},
-	{strCLOFS(team_leader),		F_GENTITY},
-	{strCLOFS(leader),			F_GENTITY},
-	{strCLOFS(follower),		F_GENTITY},
-	{strCLOFS(formationGoal),	F_GENTITY},
-	{strCLOFS(clientInfo.customBasicSoundDir),F_STRING},
-	{strCLOFS(clientInfo.customCombatSoundDir),F_STRING},
-	{strCLOFS(clientInfo.customExtraSoundDir),F_STRING},
-	{strCLOFS(clientInfo.customJediSoundDir),F_STRING},
+	{strCLOFS(ps.saberModel),	fieldtypeSAVE_t::F_STRING},
+	{strCLOFS(squadname),		fieldtypeSAVE_t::F_STRING},
+	{strCLOFS(team_leader),		fieldtypeSAVE_t::F_GENTITY},
+	{strCLOFS(leader),			fieldtypeSAVE_t::F_GENTITY},
+	{strCLOFS(follower),		fieldtypeSAVE_t::F_GENTITY},
+	{strCLOFS(formationGoal),	fieldtypeSAVE_t::F_GENTITY},
+	{strCLOFS(clientInfo.customBasicSoundDir),fieldtypeSAVE_t::F_STRING},
+	{strCLOFS(clientInfo.customCombatSoundDir),fieldtypeSAVE_t::F_STRING},
+	{strCLOFS(clientInfo.customExtraSoundDir),fieldtypeSAVE_t::F_STRING},
+	{strCLOFS(clientInfo.customJediSoundDir),fieldtypeSAVE_t::F_STRING},
 
-	{nullptr, 0, F_IGNORE}
+	{nullptr, 0, fieldtypeSAVE_t::F_IGNORE}
 };
 
 
@@ -344,19 +344,19 @@ void EnumerateField(const field_t *pField, byte *pbBase)
 
 	switch (pField->eFieldType)
 	{
-	case F_STRING:
+	case fieldtypeSAVE_t::F_STRING:
 		*(intptr_t *)pv = GetStringNum(*(char **)pv);
 		break;
 
-	case F_GENTITY:
+	case fieldtypeSAVE_t::F_GENTITY:
 		*(intptr_t *)pv = GetGEntityNum(*(gentity_t **)pv);
 		break;
 
-	case F_GROUP:
+	case fieldtypeSAVE_t::F_GROUP:
 		*(intptr_t *)pv = GetGroupNumber(*(AIGroupInfo_t **)pv);
 		break;
 
-	case F_GCLIENT:
+	case fieldtypeSAVE_t::F_GCLIENT:
 	{
 		// unfortunately, I now need to see if this is a 'real' client (and therefore resolve to an enum), or
 		//	whether it's one of Mike G's private clients that needs saving here (thanks Mike...)
@@ -379,14 +379,14 @@ void EnumerateField(const field_t *pField, byte *pbBase)
 	}
 		break;
 
-	case F_ITEM:
+	case fieldtypeSAVE_t::F_ITEM:
 		*(intptr_t *)pv = GetGItemNum(*(gitem_t **)pv);
 		break;
 
-	case F_BEHAVIORSET:
+	case fieldtypeSAVE_t::F_BEHAVIORSET:
 		{
 			const char **p = (const char **) pv;
-			for (int i=0; i<to_underlying( NUM_BSETS ); i++)
+			for (int i=0; i<to_underlying( bSet_t::NUM_BSETS ); i++)
 			{
 				pv = &p[i];	// since you can't ++ a void ptr
 				*(intptr_t *)pv = GetStringNum(*(char **)pv);
@@ -407,7 +407,7 @@ void EnumerateField(const field_t *pField, byte *pbBase)
 		break;
 */
 
-	case F_ALERTEVENT:	// convert all gentity_t ptrs in an alertEvent array into indexes...
+	case fieldtypeSAVE_t::F_ALERTEVENT:	// convert all gentity_t ptrs in an alertEvent array into indexes...
 		{
 			alertEvent_t* p = (alertEvent_t *) pv;
 
@@ -418,7 +418,7 @@ void EnumerateField(const field_t *pField, byte *pbBase)
 		}
 		break;
 
-	case F_AIGROUPS:	// convert to ptrs within this into indexes...
+	case fieldtypeSAVE_t::F_AIGROUPS:	// convert to ptrs within this into indexes...
 		{
 			AIGroupInfo_t* p = (AIGroupInfo_t *) pv;
 
@@ -430,16 +430,16 @@ void EnumerateField(const field_t *pField, byte *pbBase)
 		}
 		break;
 
-	case F_BOOLPTR:
+	case fieldtypeSAVE_t::F_BOOLPTR:
 		*(bool *)pv = (*(int *)pv) ? true : false;
 		break;
 
 	// These are pointers that are always recreated
-	case F_NULL:
+	case fieldtypeSAVE_t::F_NULL:
 		*(void **)pv = nullptr;
 		break;
 
-	case F_IGNORE:
+	case fieldtypeSAVE_t::F_IGNORE:
 		break;
 
 	default:
@@ -501,31 +501,31 @@ static void EvaluateField(const field_t *pField, byte *pbBase, byte *pbOriginalR
 
 	switch (pField->eFieldType)
 	{
-	case F_STRING:
+	case fieldtypeSAVE_t::F_STRING:
 		*(char **)pv = GetStringPtr(*(intptr_t *)pv, pbOriginalRefData?*(char**)pvOriginal:nullptr);
 		break;
 
-	case F_GENTITY:
+	case fieldtypeSAVE_t::F_GENTITY:
 		*(gentity_t **)pv = GetGEntityPtr(*(intptr_t *)pv);
 		break;
 
-	case F_GROUP:
+	case fieldtypeSAVE_t::F_GROUP:
 		*(AIGroupInfo_t **)pv = GetGroupPtr(*(intptr_t *)pv);
 		break;
 
-	case F_GCLIENT:
+	case fieldtypeSAVE_t::F_GCLIENT:
 		*(gclient_t **)pv = GetGClientPtr(*(intptr_t *)pv);
 		break;
 
-	case F_ITEM:
+	case fieldtypeSAVE_t::F_ITEM:
 		*(gitem_t **)pv = GetGItemPtr(*(intptr_t *)pv);
 		break;
 
-	case F_BEHAVIORSET:
+	case fieldtypeSAVE_t::F_BEHAVIORSET:
 		{
 			char **p = (char **) pv;
 			char **pO= (char **) pvOriginal;
-			for (int i=0; i<to_underlying( NUM_BSETS ); i++, p++, pO++)
+			for (int i=0; i<to_underlying( bSet_t::NUM_BSETS ); i++, p++, pO++)
 			{
 				*p = GetStringPtr(*(intptr_t *)p, pbOriginalRefData?*(char **)pO:nullptr);
 			}
@@ -544,7 +544,7 @@ static void EvaluateField(const field_t *pField, byte *pbBase, byte *pbOriginalR
 		break;
 */
 
-	case F_ALERTEVENT:
+	case fieldtypeSAVE_t::F_ALERTEVENT:
 		{
 			alertEvent_t* p = (alertEvent_t *) pv;
 
@@ -555,7 +555,7 @@ static void EvaluateField(const field_t *pField, byte *pbBase, byte *pbOriginalR
 		}
 		break;
 
-	case F_AIGROUPS:	// convert to ptrs within this into indexes...
+	case fieldtypeSAVE_t::F_AIGROUPS:	// convert to ptrs within this into indexes...
 		{
 			AIGroupInfo_t* p = (AIGroupInfo_t *) pv;
 
@@ -568,11 +568,11 @@ static void EvaluateField(const field_t *pField, byte *pbBase, byte *pbOriginalR
 		break;
 
 //	// These fields are patched in when their relevant owners are loaded
-	case F_BOOLPTR:
-	case F_NULL:
+	case fieldtypeSAVE_t::F_BOOLPTR:
+	case fieldtypeSAVE_t::F_NULL:
 		break;
 
-	case F_IGNORE:
+	case fieldtypeSAVE_t::F_IGNORE:
 		break;
 
 	default:
@@ -634,7 +634,7 @@ All pointer variables (except function pointers) must be handled specially.
 */
 static void WriteLevelLocals ()
 {
-	level_locals_t *temp = (level_locals_t *)gi.Malloc(sizeof(level_locals_t), TAG_TEMP_WORKSPACE, false);
+	level_locals_t *temp = (level_locals_t *)gi.Malloc(sizeof(level_locals_t), memtag::TAG_TEMP_WORKSPACE, false);
 	*temp = level;	// copy out all data into a temp space
 
 	EnumerateFields(savefields_LevelLocals, temp, INT_ID('L','V','L','C'));
@@ -654,7 +654,7 @@ static void ReadLevelLocals ()
 	//
 	gclient_t *pClients = level.clients;	// save clients
 
-	level_locals_t *temp = (level_locals_t *)gi.Malloc(sizeof(level_locals_t), TAG_TEMP_WORKSPACE, false);
+	level_locals_t *temp = (level_locals_t *)gi.Malloc(sizeof(level_locals_t), memtag::TAG_TEMP_WORKSPACE, false);
 	*temp = level;
 	EvaluateFields(savefields_LevelLocals, temp, &level, INT_ID('L','V','L','C'));
 	level = *temp;					// struct copy
@@ -932,7 +932,7 @@ static void ReadGEntities(bool qbAutosave)
 
 		// because the sytem stores sfx_t handles directly instead of the set, we have to reget the set's sfx_t...
 		//
-		if (pEnt->s.eType == ET_MOVER && pEnt->s.loopSound>0)
+		if (pEnt->s.eType == entityType_t::ET_MOVER && pEnt->s.loopSound>0)
 		{
 			if ( VALIDSTRING( pEnt->soundSet ))
 			{

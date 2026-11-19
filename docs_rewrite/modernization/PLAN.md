@@ -252,7 +252,7 @@ The platforms kept: Windows x64 (MSVC, and MinGW with llvm-mingw clang), Linux x
 
 ### ⏳ Step 18: the C code in C++ (M)
 
-In progress since 16 November 2026: parts 1 and 3 done together, then part 2 ([progress/step-18-cxx.md](progress/step-18-cxx.md)); part 4 in progress (the modules' legacy interface removed, all 203 named enumerations class enums, the conversions written so far audited, the 169 unnamed ones named, made constants or removed, the families of flags flag enumerations, the numeric `#define` constants `constexpr` and their sets class enums; then the qualified names; section 5 of the step document).
+In progress since 16 November 2026: parts 1 and 3 done together, then part 2 ([progress/step-18-cxx.md](progress/step-18-cxx.md)); part 4 in progress (the modules' legacy interface removed, all 203 named enumerations class enums, the conversions written so far audited, the 169 unnamed ones named, made constants or removed, the families of flags flag enumerations, the numeric `#define` constants `constexpr` and their sets class enums, the enumerators written qualified; then netcodec's schema, tests and benchmark; section 5 of the step document).
 
 Depends on: step 17. Added on 15 November 2026 (everything in one language): the multiplayer game, cgame and UI modules (`codemp/game`, 86 files; `codemp/cgame`, 35; `codemp/ui`, 8), the MP3 decoder (`codemp/mp3code` and `code/mp3code`, 21 files each), `shared/qcommon` (4), `codemp/qcommon` (1), netcodec's movement test (`test/pmove`, 2) and rend2's MikkTSpace (1): 179 files of the project in C, about 267,000 lines with the decoder. The vendored libraries (zlib-ng, Wuffs, stb, LLVM libc) stay as they are.
 

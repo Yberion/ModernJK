@@ -126,7 +126,7 @@ void SV_SendServerCommand(client_t *cl, const char *fmt, ...) {
 	client_t	*client;
 	int			j;
 
-	message[0] = to_underlying( svc_serverCommand );
+	message[0] = to_underlying( svc_ops_e::svc_serverCommand );
 
 	va_start (argptr,fmt);
 	Q_vsnprintf( (char *)message+1, sizeof(message)-1, fmt, argptr );
@@ -147,7 +147,7 @@ void SV_SendServerCommand(client_t *cl, const char *fmt, ...) {
 
 	// send the data to all relevent clients
 	for (j = 0, client = svs.clients; j < 1 ; j++, client++) {
-		if ( client->state < CS_PRIMED ) {
+		if ( client->state < clientState_t::CS_PRIMED ) {
 			continue;
 		}
 		SV_AddServerCommand( client, (char *)message );
@@ -183,7 +183,7 @@ void SVC_Status( netadr_t from ) {
 	int		score;
 	char	infostring[MAX_INFO_STRING];
 
-	strcpy( infostring, Cvar_InfoString( CVAR_SERVERINFO ) );
+	strcpy( infostring, Cvar_InfoString( cvarFlags_t::CVAR_SERVERINFO ) );
 
 	// echo back the parameter to status. so servers can use it as a challenge
 	// to prevent timed spoofed reply packets that add ghost servers
@@ -194,9 +194,9 @@ void SVC_Status( netadr_t from ) {
 
 	for (i=0 ; i < 1 ; i++) {
 		cl = &svs.clients[i];
-		if ( cl->state >= CS_CONNECTED ) {
+		if ( cl->state >= clientState_t::CS_CONNECTED ) {
 			if ( cl->gentity && cl->gentity->client ) {
-				score = cl->gentity->client->persistant[PERS_SCORE];
+				score = cl->gentity->client->persistant[persEnum_t::PERS_SCORE];
 			} else {
 				score = 0;
 			}
@@ -210,7 +210,7 @@ void SVC_Status( netadr_t from ) {
 		}
 	}
 
-	NET_OutOfBandPrint( NS_SERVER, from, "statusResponse\n%s\n%s", infostring, status );
+	NET_OutOfBandPrint( netsrc_t::NS_SERVER, from, "statusResponse\n%s\n%s", infostring, status );
 }
 
 /*
@@ -227,7 +227,7 @@ static void SVC_Info( netadr_t from ) {
 
 	count = 0;
 	for ( i = 0 ; i < 1 ; i++ ) {
-		if ( svs.clients[i].state >= CS_CONNECTED ) {
+		if ( svs.clients[i].state >= clientState_t::CS_CONNECTED ) {
 			count++;
 		}
 	}
@@ -244,7 +244,7 @@ static void SVC_Info( netadr_t from ) {
 	Info_SetValueForKey( infostring, "clients", va("%i", count) );
 	Info_SetValueForKey( infostring, "sv_maxclients", va("%i", 1) );
 
-	NET_OutOfBandPrint( NS_SERVER, from, "infoResponse\n%s", infostring );
+	NET_OutOfBandPrint( netsrc_t::NS_SERVER, from, "infoResponse\n%s", infostring );
 }
 
 
@@ -316,7 +316,7 @@ void SV_PacketEvent( netadr_t from, msg_t *msg ) {
 
 	// find which client the message is from
 	for (i=0, cl=svs.clients ; i < 1 ; i++,cl++) {
-		if (cl->state == CS_FREE) {
+		if (cl->state == clientState_t::CS_FREE) {
 			continue;
 		}
 		if ( !NET_CompareBaseAdr( from, cl->netchan.remoteAddress ) ) {
@@ -341,7 +341,7 @@ void SV_PacketEvent( netadr_t from, msg_t *msg ) {
 			// zombie clients stil neet to do the Netchan_Process
 			// to make sure they don't need to retransmit the final
 			// reliable message, but they don't do any other processing
-			if (cl->state != CS_ZOMBIE) {
+			if (cl->state != clientState_t::CS_ZOMBIE) {
 				cl->lastPacketTime = sv.time;	// don't timeout
 				cl->frames[ cl->netchan.incomingAcknowledged & PACKET_MASK ]
 					.messageAcked = sv.time;
@@ -353,7 +353,7 @@ void SV_PacketEvent( netadr_t from, msg_t *msg ) {
 
 	// if we received a sequenced packet from an address we don't reckognize,
 	// send an out of band disconnect packet to it
-	NET_OutOfBandPrint( NS_SERVER, from, "disconnect" );
+	NET_OutOfBandPrint( netsrc_t::NS_SERVER, from, "disconnect" );
 }
 
 // If a packet has not been received from a client for timeout->integer seconds, drop the conneciton.
@@ -370,16 +370,16 @@ void SV_CheckTimeouts( void ) {
 	if ( cl->lastPacketTime > sv.time )
 		cl->lastPacketTime = sv.time;
 
-	if ( cl->state == CS_ZOMBIE && cl->lastPacketTime < zombiepoint ) {
-		cl->state = CS_FREE;	// can now be reused
+	if ( cl->state == clientState_t::CS_ZOMBIE && cl->lastPacketTime < zombiepoint ) {
+		cl->state = clientState_t::CS_FREE;	// can now be reused
 		return;
 	}
 
-	if ( cl->state >= CS_CONNECTED && cl->lastPacketTime < droppoint ) {
+	if ( cl->state >= clientState_t::CS_CONNECTED && cl->lastPacketTime < droppoint ) {
 		// wait several frames so a debugger session doesn't cause a timeout
 		if ( ++cl->timeoutCount > 5 ) {
 			SV_DropClient( cl, "timed out" );
-			cl->state = CS_FREE; // don't bother with zombie state
+			cl->state = clientState_t::CS_FREE; // don't bother with zombie state
 		}
 	}
 	else
@@ -488,13 +488,13 @@ void SV_Frame( int msec,float fractionMsec ) {
 	}
 
 	// update infostrings if anything has been changed
-	if ( Any( cvar_modifiedFlags & CVAR_SERVERINFO ) ) {
-		SV_SetConfigstring( CS_SERVERINFO, Cvar_InfoString( CVAR_SERVERINFO ) );
-		cvar_modifiedFlags &= ~CVAR_SERVERINFO;
+	if ( Any( cvar_modifiedFlags & cvarFlags_t::CVAR_SERVERINFO ) ) {
+		SV_SetConfigstring( CS_SERVERINFO, Cvar_InfoString( cvarFlags_t::CVAR_SERVERINFO ) );
+		cvar_modifiedFlags &= ~cvarFlags_t::CVAR_SERVERINFO;
 	}
-	if ( Any( cvar_modifiedFlags & CVAR_SYSTEMINFO ) ) {
-		SV_SetConfigstring( CS_SYSTEMINFO, Cvar_InfoString( CVAR_SYSTEMINFO ) );
-		cvar_modifiedFlags &= ~CVAR_SYSTEMINFO;
+	if ( Any( cvar_modifiedFlags & cvarFlags_t::CVAR_SYSTEMINFO ) ) {
+		SV_SetConfigstring( CS_SYSTEMINFO, Cvar_InfoString( cvarFlags_t::CVAR_SYSTEMINFO ) );
+		cvar_modifiedFlags &= ~cvarFlags_t::CVAR_SYSTEMINFO;
 	}
 
 	if ( com_speeds->integer ) {

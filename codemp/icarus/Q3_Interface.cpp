@@ -35,8 +35,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "Q3_Registers.h"
 #include "server/sv_gameapi.h"
 
-#define stringIDExpand(str, strEnum)	str, strEnum, ENUM2STRING(strEnum)
-//#define stringIDExpand(str, strEnum)	str,strEnum
+#define stringIDExpand(str, type, strEnum)	str, type::strEnum, ENUM2STRING(type, strEnum)
+//#define stringIDExpand(str, type, strEnum)	str,type::strEnum
 
 /*
 stringID_table_t tagsTable [] =
@@ -100,7 +100,7 @@ static void Q3_CenterPrint ( const char *format, ... )
 		SV_SendServerCommand( nullptr, "cp \"%s\"", text );
 	}
 
-	Q3_DebugPrint( WL_VERBOSE, "%s\n", text); 	// Just a developers note
+	Q3_DebugPrint( WL_e::WL_VERBOSE, "%s\n", text); 	// Just a developers note
 
 	return;
 }
@@ -131,7 +131,7 @@ bool Q3_TaskIDPending( sharedEntity_t *ent, taskID_t taskType )
 		return false;
 	}
 
-	if ( taskType < TID_CHAN_VOICE || taskType >= NUM_TIDS )
+	if ( taskType < taskID_t::TID_CHAN_VOICE || taskType >= taskID_t::NUM_TIDS )
 	{
 		return false;
 	}
@@ -151,7 +151,7 @@ void Q3_TaskIDComplete( sharedEntity_t *ent, taskID_t taskType )
 */
 void Q3_TaskIDComplete( sharedEntity_t *ent, taskID_t taskType )
 {
-	if ( taskType < TID_CHAN_VOICE || taskType >= NUM_TIDS )
+	if ( taskType < taskID_t::TID_CHAN_VOICE || taskType >= taskID_t::NUM_TIDS )
 	{
 		return;
 	}
@@ -162,7 +162,7 @@ void Q3_TaskIDComplete( sharedEntity_t *ent, taskID_t taskType )
 
 		//See if any other tasks have the name number and clear them so we don't complete more than once
 		int	clearTask = ent->taskID[taskType];
-		for ( taskID_t tid = TID_CHAN_VOICE; tid < NUM_TIDS; tid++ )
+		for ( taskID_t tid = taskID_t::TID_CHAN_VOICE; tid < taskID_t::NUM_TIDS; tid++ )
 		{
 			if ( ent->taskID[tid] == clearTask )
 			{
@@ -184,7 +184,7 @@ void Q3_SetTaskID( sharedEntity_t *ent, taskID_t taskType, int taskID )
 
 void Q3_TaskIDSet( sharedEntity_t *ent, taskID_t taskType, int taskID )
 {
-	if ( taskType < TID_CHAN_VOICE || taskType >= NUM_TIDS )
+	if ( taskType < taskID_t::TID_CHAN_VOICE || taskType >= taskID_t::NUM_TIDS )
 	{
 		return;
 	}
@@ -359,11 +359,11 @@ void Q3_SetVar( int taskID, int entID, const char *type_name, const char *data )
 	float	val = 0.0f;
 
 
-	if ( vret != VTYPE_NONE )
+	if ( vret != variableType_t::VTYPE_NONE )
 	{
 		switch ( vret )
 		{
-		case VTYPE_FLOAT:
+		case variableType_t::VTYPE_FLOAT:
 			//Check to see if increment command
 			if ( (val = Q3_CheckStringCounterIncrement( data )) )
 			{
@@ -377,11 +377,11 @@ void Q3_SetVar( int taskID, int entID, const char *type_name, const char *data )
 			Q3_SetFloatVariable( type_name, float_data );
 			break;
 
-		case VTYPE_STRING:
+		case variableType_t::VTYPE_STRING:
 			Q3_SetStringVariable( type_name, data );
 			break;
 
-		case VTYPE_VECTOR:
+		case variableType_t::VTYPE_VECTOR:
 			Q3_SetVectorVariable( type_name, (char *) data );
 			break;
 
@@ -392,7 +392,7 @@ void Q3_SetVar( int taskID, int entID, const char *type_name, const char *data )
 		return;
 	}
 
-	Q3_DebugPrint( WL_ERROR, "%s variable or field not found!\n", type_name );
+	Q3_DebugPrint( WL_e::WL_ERROR, "%s variable or field not found!\n", type_name );
 }
 
 /*
@@ -442,45 +442,45 @@ static int Q3_Evaluate( icarusToken_t p1Type, const char *p1, icarusToken_t p2Ty
 	int		i1=0, i2=0;
 
 	//Always demote to int on float to integer comparisons
-	if ( ( ( p1Type == TK_FLOAT ) && ( p2Type == TK_INT ) ) || ( ( p1Type == TK_INT ) && ( p2Type == TK_FLOAT ) ) )
+	if ( ( ( p1Type == icarusToken_t::TK_FLOAT ) && ( p2Type == icarusToken_t::TK_INT ) ) || ( ( p1Type == icarusToken_t::TK_INT ) && ( p2Type == icarusToken_t::TK_FLOAT ) ) )
 	{
-		p1Type = TK_INT;
-		p2Type = TK_INT;
+		p1Type = icarusToken_t::TK_INT;
+		p2Type = icarusToken_t::TK_INT;
 	}
 
 	//Cannot compare two disimilar types
 	if ( p1Type != p2Type )
 	{
-		Q3_DebugPrint( WL_ERROR, "Q3_Evaluate comparing two disimilar types!\n");
+		Q3_DebugPrint( WL_e::WL_ERROR, "Q3_Evaluate comparing two disimilar types!\n");
 		return false;
 	}
 
 	//Format the parameters
 	switch ( p1Type )
 	{
-	case TK_FLOAT:
+	case icarusToken_t::TK_FLOAT:
 		Q_ScanFloats( p1, &f1, 1 );
 		Q_ScanFloats( p2, &f2, 1 );
 		break;
 
-	case TK_INT:
+	case icarusToken_t::TK_INT:
 		sscanf( p1, "%d", &i1 );
 		sscanf( p2, "%d", &i2 );
 		break;
 
-	case TK_VECTOR:
+	case icarusToken_t::TK_VECTOR:
 		Q_ScanFloats( p1, v1, 3 );
 		Q_ScanFloats( p2, v2, 3 );
 		break;
 
-	case TK_STRING:
-	case TK_IDENTIFIER:
+	case icarusToken_t::TK_STRING:
+	case icarusToken_t::TK_IDENTIFIER:
 		c1 = (char *) p1;
 		c2 = (char *) p2;
 		break;
 
 	default:
-		Q3_DebugPrint( WL_WARNING, "Q3_Evaluate unknown type used!\n");
+		Q3_DebugPrint( WL_e::WL_WARNING, "Q3_Evaluate unknown type used!\n");
 		return false;
 	}
 
@@ -495,29 +495,29 @@ static int Q3_Evaluate( icarusToken_t p1Type, const char *p1, icarusToken_t p2Ty
 	//	EQUAL TO
 	//
 
-	case TK_EQUALS:
+	case icarusToken_t::TK_EQUALS:
 
 		switch ( p1Type )
 		{
-		case TK_FLOAT:
+		case icarusToken_t::TK_FLOAT:
 			return (int) ( f1 == f2 );
 			break;
 
-		case TK_INT:
+		case icarusToken_t::TK_INT:
 			return (int) ( i1 == i2 );
 			break;
 
-		case TK_VECTOR:
+		case icarusToken_t::TK_VECTOR:
 			return (int) VectorCompare( v1, v2 );
 			break;
 
-		case TK_STRING:
-		case TK_IDENTIFIER:
+		case icarusToken_t::TK_STRING:
+		case icarusToken_t::TK_IDENTIFIER:
 			return (int) !Q_stricmp( c1, c2 );	//NOTENOTE: The script uses proper string comparison logic (ex. ( a == a ) == true )
 			break;
 
 		default:
-			Q3_DebugPrint( WL_ERROR, "Q3_Evaluate unknown type used!\n");
+			Q3_DebugPrint( WL_e::WL_ERROR, "Q3_Evaluate unknown type used!\n");
 			return false;
 		}
 
@@ -527,31 +527,31 @@ static int Q3_Evaluate( icarusToken_t p1Type, const char *p1, icarusToken_t p2Ty
 	//	GREATER THAN
 	//
 
-	case TK_GREATER_THAN:
+	case icarusToken_t::TK_GREATER_THAN:
 
 		switch ( p1Type )
 		{
-		case TK_FLOAT:
+		case icarusToken_t::TK_FLOAT:
 			return (int) ( f1 > f2 );
 			break;
 
-		case TK_INT:
+		case icarusToken_t::TK_INT:
 			return (int) ( i1 > i2 );
 			break;
 
-		case TK_VECTOR:
-			Q3_DebugPrint( WL_ERROR, "Q3_Evaluate vector comparisons of type GREATER THAN cannot be performed!");
+		case icarusToken_t::TK_VECTOR:
+			Q3_DebugPrint( WL_e::WL_ERROR, "Q3_Evaluate vector comparisons of type GREATER THAN cannot be performed!");
 			return false;
 			break;
 
-		case TK_STRING:
-		case TK_IDENTIFIER:
-			Q3_DebugPrint( WL_ERROR, "Q3_Evaluate string comparisons of type GREATER THAN cannot be performed!");
+		case icarusToken_t::TK_STRING:
+		case icarusToken_t::TK_IDENTIFIER:
+			Q3_DebugPrint( WL_e::WL_ERROR, "Q3_Evaluate string comparisons of type GREATER THAN cannot be performed!");
 			return false;
 			break;
 
 		default:
-			Q3_DebugPrint( WL_ERROR, "Q3_Evaluate unknown type used!\n");
+			Q3_DebugPrint( WL_e::WL_ERROR, "Q3_Evaluate unknown type used!\n");
 			return false;
 		}
 
@@ -561,31 +561,31 @@ static int Q3_Evaluate( icarusToken_t p1Type, const char *p1, icarusToken_t p2Ty
 	//	LESS THAN
 	//
 
-	case TK_LESS_THAN:
+	case icarusToken_t::TK_LESS_THAN:
 
 		switch ( p1Type )
 		{
-		case TK_FLOAT:
+		case icarusToken_t::TK_FLOAT:
 			return (int) ( f1 < f2 );
 			break;
 
-		case TK_INT:
+		case icarusToken_t::TK_INT:
 			return (int) ( i1 < i2 );
 			break;
 
-		case TK_VECTOR:
-			Q3_DebugPrint( WL_ERROR, "Q3_Evaluate vector comparisons of type LESS THAN cannot be performed!");
+		case icarusToken_t::TK_VECTOR:
+			Q3_DebugPrint( WL_e::WL_ERROR, "Q3_Evaluate vector comparisons of type LESS THAN cannot be performed!");
 			return false;
 			break;
 
-		case TK_STRING:
-		case TK_IDENTIFIER:
-			Q3_DebugPrint( WL_ERROR, "Q3_Evaluate string comparisons of type LESS THAN cannot be performed!");
+		case icarusToken_t::TK_STRING:
+		case icarusToken_t::TK_IDENTIFIER:
+			Q3_DebugPrint( WL_e::WL_ERROR, "Q3_Evaluate string comparisons of type LESS THAN cannot be performed!");
 			return false;
 			break;
 
 		default:
-			Q3_DebugPrint( WL_ERROR, "Q3_Evaluate unknown type used!\n");
+			Q3_DebugPrint( WL_e::WL_ERROR, "Q3_Evaluate unknown type used!\n");
 			return false;
 		}
 
@@ -595,36 +595,36 @@ static int Q3_Evaluate( icarusToken_t p1Type, const char *p1, icarusToken_t p2Ty
 	//	NOT
 	//
 
-	case TK_NOT:	//NOTENOTE: Implied "NOT EQUAL TO"
+	case icarusToken_t::TK_NOT:	//NOTENOTE: Implied "NOT EQUAL TO"
 
 		switch ( p1Type )
 		{
-		case TK_FLOAT:
+		case icarusToken_t::TK_FLOAT:
 			return (int) ( f1 != f2 );
 			break;
 
-		case TK_INT:
+		case icarusToken_t::TK_INT:
 			return (int) ( i1 != i2 );
 			break;
 
-		case TK_VECTOR:
+		case icarusToken_t::TK_VECTOR:
 			return (int) !VectorCompare( v1, v2 );
 			break;
 
-		case TK_STRING:
-		case TK_IDENTIFIER:
+		case icarusToken_t::TK_STRING:
+		case icarusToken_t::TK_IDENTIFIER:
 			return (int) Q_stricmp( c1, c2 );
 			break;
 
 		default:
-			Q3_DebugPrint( WL_ERROR, "Q3_Evaluate unknown type used!\n");
+			Q3_DebugPrint( WL_e::WL_ERROR, "Q3_Evaluate unknown type used!\n");
 			return false;
 		}
 
 		break;
 
 	default:
-		Q3_DebugPrint( WL_ERROR, "Q3_Evaluate unknown operator used!\n");
+		Q3_DebugPrint( WL_e::WL_ERROR, "Q3_Evaluate unknown operator used!\n");
 		break;
 	}
 
@@ -638,7 +638,7 @@ Q3_CameraFade
 */
 static void Q3_CameraFade( float sr, float sg, float sb, float sa, float dr, float dg, float db, float da, float duration )
 {
-	Q3_DebugPrint( WL_WARNING, "Q3_CameraFade: NOT SUPPORTED IN MP\n");
+	Q3_DebugPrint( WL_e::WL_WARNING, "Q3_CameraFade: NOT SUPPORTED IN MP\n");
 }
 
 /*
@@ -648,7 +648,7 @@ Q3_CameraPath
 */
 static void Q3_CameraPath( const char *name )
 {
-	Q3_DebugPrint( WL_WARNING, "Q3_CameraPath: NOT SUPPORTED IN MP\n");
+	Q3_DebugPrint( WL_e::WL_WARNING, "Q3_CameraPath: NOT SUPPORTED IN MP\n");
 }
 
 /*
@@ -673,15 +673,15 @@ void Q3_DebugPrint( WL_e level, const char *format, ... )
 	//Add the color formatting
 	switch ( level )
 	{
-		case WL_ERROR:
+		case WL_e::WL_ERROR:
 			Com_Printf ( S_COLOR_RED"ERROR: %s", text );
 			break;
 
-		case WL_WARNING:
+		case WL_e::WL_WARNING:
 			Com_Printf ( S_COLOR_YELLOW"WARNING: %s", text );
 			break;
 
-		case WL_DEBUG:
+		case WL_e::WL_DEBUG:
 			{
 				int		entNum;
 				char	*buffer;
@@ -701,7 +701,7 @@ void Q3_DebugPrint( WL_e level, const char *format, ... )
 				break;
 			}
 		default:
-		case WL_VERBOSE:
+		case WL_e::WL_VERBOSE:
 			Com_Printf ( S_COLOR_GREEN"INFO: %s", text );
 			break;
 	}
@@ -709,7 +709,7 @@ void Q3_DebugPrint( WL_e level, const char *format, ... )
 
 void CGCam_Anything( void )
 {
-	Q3_DebugPrint( WL_WARNING, "Camera functions NOT SUPPORTED IN MP\n");
+	Q3_DebugPrint( WL_e::WL_WARNING, "Camera functions NOT SUPPORTED IN MP\n");
 }
 
 //These are useless for MP. Just taking it for now since I don't want to remove all calls to this in ICARUS.

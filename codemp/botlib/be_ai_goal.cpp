@@ -75,7 +75,6 @@ enum class levelItemFlags_t
 	IFL_NOTBOT				= 8,		//bot should never go for this
 	IFL_ROAM				= 16,		//bot roam goal
 };
-using enum levelItemFlags_t;
 template <> inline constexpr bool enableEnumFlags<levelItemFlags_t> = true;
 
 //location in the map "target_location"
@@ -132,15 +131,15 @@ typedef struct iteminfo_s
 
 fielddef_t iteminfo_fields[] =
 {
-{"name", ITEMINFO_OFS(name), FT_STRING},
-{"model", ITEMINFO_OFS(model), FT_STRING},
-{"modelindex", ITEMINFO_OFS(modelindex), FT_INT},
-{"type", ITEMINFO_OFS(type), FT_INT},
-{"index", ITEMINFO_OFS(index), FT_INT},
-{"respawntime", ITEMINFO_OFS(respawntime), FT_FLOAT},
-{"mins", ITEMINFO_OFS(mins), FT_FLOAT|FT_ARRAY, 3},
-{"maxs", ITEMINFO_OFS(maxs), FT_FLOAT|FT_ARRAY, 3},
-{nullptr, 0, FT_NONE}
+{"name", ITEMINFO_OFS(name), fieldTypeFlags_t::FT_STRING},
+{"model", ITEMINFO_OFS(model), fieldTypeFlags_t::FT_STRING},
+{"modelindex", ITEMINFO_OFS(modelindex), fieldTypeFlags_t::FT_INT},
+{"type", ITEMINFO_OFS(type), fieldTypeFlags_t::FT_INT},
+{"index", ITEMINFO_OFS(index), fieldTypeFlags_t::FT_INT},
+{"respawntime", ITEMINFO_OFS(respawntime), fieldTypeFlags_t::FT_FLOAT},
+{"mins", ITEMINFO_OFS(mins), fieldTypeFlags_t::FT_FLOAT|fieldTypeFlags_t::FT_ARRAY, 3},
+{"maxs", ITEMINFO_OFS(maxs), fieldTypeFlags_t::FT_FLOAT|fieldTypeFlags_t::FT_ARRAY, 3},
+{nullptr, 0, fieldTypeFlags_t::FT_NONE}
 };
 
 structdef_t iteminfo_struct =
@@ -183,7 +182,7 @@ maplocation_t *maplocations = nullptr; // bk001206 - init
 //camp spots
 campspot_t *campspots = nullptr; // bk001206 - init
 //the game type
-gametype_t g_gametype = GT_FFA; // bk001206 - init
+gametype_t g_gametype = gametype_t::GT_FFA; // bk001206 - init
 //additional dropped item weight
 libvar_t *droppedweight = nullptr; // bk001206 - init
 
@@ -197,12 +196,12 @@ bot_goalstate_t *BotGoalStateFromHandle(int handle)
 {
 	if (handle <= 0 || handle > MAX_CLIENTS)
 	{
-		botimport.Print(PRT_FATAL, "goal state handle %d out of range\n", handle);
+		botimport.Print(printType_t::PRT_FATAL, "goal state handle %d out of range\n", handle);
 		return nullptr;
 	} //end if
 	if (!botgoalstates[handle])
 	{
-		botimport.Print(PRT_FATAL, "invalid goal state %d\n", handle);
+		botimport.Print(printType_t::PRT_FATAL, "invalid goal state %d\n", handle);
 		return nullptr;
 	} //end if
 	return botgoalstates[handle];
@@ -270,7 +269,7 @@ itemconfig_t *LoadItemConfig(char *filename)
 	max_iteminfo = (int) LibVarValue("max_iteminfo", "256");
 	if (max_iteminfo < 0)
 	{
-		botimport.Print(PRT_ERROR, "max_iteminfo = %d\n", max_iteminfo);
+		botimport.Print(printType_t::PRT_ERROR, "max_iteminfo = %d\n", max_iteminfo);
 		max_iteminfo = 256;
 		LibVarSet( "max_iteminfo", "256" );
 	}
@@ -279,7 +278,7 @@ itemconfig_t *LoadItemConfig(char *filename)
 	PC_SetBaseFolder(BOTFILESBASEFOLDER);
 	source = LoadSourceFile( path );
 	if( !source ) {
-		botimport.Print( PRT_ERROR, "counldn't load %s\n", path );
+		botimport.Print( printType_t::PRT_ERROR, "counldn't load %s\n", path );
 		return nullptr;
 	} //end if
 	//initialize item config
@@ -301,7 +300,7 @@ itemconfig_t *LoadItemConfig(char *filename)
 			} //end if
 			ii = &ic->iteminfo[ic->numiteminfo];
 			Com_Memset(ii, 0, sizeof(iteminfo_t));
-			if (!PC_ExpectTokenType(source, TT_STRING, 0, &token))
+			if (!PC_ExpectTokenType(source, tokenType_t::TT_STRING, 0, &token))
 			{
 				FreeMemory(ic);
 				FreeSource(source);
@@ -328,8 +327,8 @@ itemconfig_t *LoadItemConfig(char *filename)
 	} //end while
 	FreeSource(source);
 	//
-	if (!ic->numiteminfo) botimport.Print(PRT_WARNING, "no item info loaded\n");
-	botimport.Print(PRT_MESSAGE, "loaded %s\n", path);
+	if (!ic->numiteminfo) botimport.Print(printType_t::PRT_WARNING, "no item info loaded\n");
+	botimport.Print(printType_t::PRT_MESSAGE, "loaded %s\n", path);
 	return ic;
 } //end of the function LoadItemConfig
 //===========================================================================
@@ -392,7 +391,7 @@ levelitem_t *AllocLevelItem(void)
 	li = freelevelitems;
 	if (!li)
 	{
-		botimport.Print(PRT_FATAL, "out of level items\n");
+		botimport.Print(printType_t::PRT_FATAL, "out of level items\n");
 		return nullptr;
 	} //end if
 	//
@@ -506,20 +505,20 @@ void BotInitInfoEntities(void)
 			cs->areanum = AAS_PointAreaNum(cs->origin);
 			if (!cs->areanum)
 			{
-				botimport.Print(PRT_MESSAGE, "camp spot at %1.1f %1.1f %1.1f in solid\n", cs->origin[0], cs->origin[1], cs->origin[2]);
+				botimport.Print(printType_t::PRT_MESSAGE, "camp spot at %1.1f %1.1f %1.1f in solid\n", cs->origin[0], cs->origin[1], cs->origin[2]);
 				FreeMemory(cs);
 				continue;
 			} //end if
 			cs->next = campspots;
 			campspots = cs;
-			//AAS_DrawPermanentCross(cs->origin, 4, LINECOLOR_YELLOW);
+			//AAS_DrawPermanentCross(cs->origin, 4, lineColor_t::LINECOLOR_YELLOW);
 			numcampspots++;
 		} //end else if
 	} //end for
 	if (botDeveloper)
 	{
-		botimport.Print(PRT_MESSAGE, "%d map locations\n", numlocations);
-		botimport.Print(PRT_MESSAGE, "%d camp spots\n", numcampspots);
+		botimport.Print(printType_t::PRT_MESSAGE, "%d map locations\n", numlocations);
+		botimport.Print(printType_t::PRT_MESSAGE, "%d camp spots\n", numcampspots);
 	} //end if
 } //end of the function BotInitInfoEntities
 //===========================================================================
@@ -580,7 +579,7 @@ void BotInitLevelItems(void)
 		//get the origin of the item
 		if (!AAS_VectorForBSPEpairKey(ent, "origin", origin))
 		{
-			botimport.Print(PRT_ERROR, "item %s without origin\n", classname);
+			botimport.Print(printType_t::PRT_ERROR, "item %s without origin\n", classname);
 			continue;
 		} //end else
 		//
@@ -589,18 +588,18 @@ void BotInitLevelItems(void)
 		if (spawnflags & 1)
 		{
 			//if the item is not floating in water
-			if (!Any( AAS_PointContents(origin) & CONTENTS_WATER ))
+			if (!Any( AAS_PointContents(origin) & contentsFlags_t::CONTENTS_WATER ))
 			{
 				VectorCopy(origin, end);
 				end[2] -= 32;
-				trace = AAS_Trace(origin, ic->iteminfo[i].mins, ic->iteminfo[i].maxs, end, -1, CONTENTS_SOLID|CONTENTS_PLAYERCLIP);
+				trace = AAS_Trace(origin, ic->iteminfo[i].mins, ic->iteminfo[i].maxs, end, -1, contentsFlags_t::CONTENTS_SOLID|contentsFlags_t::CONTENTS_PLAYERCLIP);
 				//if the item not near the ground
 				if (trace.fraction >= 1)
 				{
 					//if the item is not reachable from a jumppad
 					goalareanum = AAS_BestReachableFromJumpPadArea(origin, ic->iteminfo[i].mins, ic->iteminfo[i].maxs);
 					Log_Write("item %s reachable from jumppad area %d\r\n", ic->iteminfo[i].classname, goalareanum);
-					//botimport.Print(PRT_MESSAGE, "item %s reachable from jumppad area %d\r\n", ic->iteminfo[i].classname, goalareanum);
+					//botimport.Print(printType_t::PRT_MESSAGE, "item %s reachable from jumppad area %d\r\n", ic->iteminfo[i].classname, goalareanum);
 					if (!goalareanum) continue;
 				} //end if
 			} //end if
@@ -613,18 +612,18 @@ void BotInitLevelItems(void)
 		li->timeout = 0;
 		li->entitynum = 0;
 		//
-		li->flags = IFL_NONE;
+		li->flags = levelItemFlags_t::IFL_NONE;
 		AAS_IntForBSPEpairKey(ent, "notfree", &value);
-		if (value) li->flags |= IFL_NOTFREE;
+		if (value) li->flags |= levelItemFlags_t::IFL_NOTFREE;
 		AAS_IntForBSPEpairKey(ent, "notteam", &value);
-		if (value) li->flags |= IFL_NOTTEAM;
+		if (value) li->flags |= levelItemFlags_t::IFL_NOTTEAM;
 		AAS_IntForBSPEpairKey(ent, "notsingle", &value);
-		if (value) li->flags |= IFL_NOTSINGLE;
+		if (value) li->flags |= levelItemFlags_t::IFL_NOTSINGLE;
 		AAS_IntForBSPEpairKey(ent, "notbot", &value);
-		if (value) li->flags |= IFL_NOTBOT;
+		if (value) li->flags |= levelItemFlags_t::IFL_NOTBOT;
 		if (!strcmp(classname, "item_botroam"))
 		{
-			li->flags |= IFL_ROAM;
+			li->flags |= levelItemFlags_t::IFL_ROAM;
 			AAS_FloatForBSPEpairKey(ent, "weight", &li->weight);
 		} //end if
 		//if not a stationary item
@@ -632,7 +631,7 @@ void BotInitLevelItems(void)
 		{
 			if (!AAS_DropToFloor(origin, ic->iteminfo[i].mins, ic->iteminfo[i].maxs))
 			{
-				botimport.Print(PRT_MESSAGE, "%s in solid at (%1.1f %1.1f %1.1f)\n",
+				botimport.Print(printType_t::PRT_MESSAGE, "%s in solid at (%1.1f %1.1f %1.1f)\n",
 												classname, origin[0], origin[1], origin[2]);
 			} //end if
 		} //end if
@@ -654,14 +653,14 @@ void BotInitLevelItems(void)
 							li->goalorigin);
 			if (!li->goalareanum)
 			{
-				botimport.Print(PRT_MESSAGE, "%s not reachable for bots at (%1.1f %1.1f %1.1f)\n",
+				botimport.Print(printType_t::PRT_MESSAGE, "%s not reachable for bots at (%1.1f %1.1f %1.1f)\n",
 												classname, origin[0], origin[1], origin[2]);
 			} //end if
 		} //end else
 		//
 		AddLevelItemToList(li);
 	} //end for
-	botimport.Print(PRT_MESSAGE, "found %d level items\n", numlevelitems);
+	botimport.Print(printType_t::PRT_MESSAGE, "found %d level items\n", numlevelitems);
 } //end of the function BotInitLevelItems
 //===========================================================================
 //
@@ -868,16 +867,16 @@ int BotGetLevelItemGoal(int index, char *name, bot_goal_t *goal)
 	for (; li; li = li->next)
 	{
 		//
-		if (g_gametype == GT_SINGLE_PLAYER) {
-			if (Any( li->flags & IFL_NOTSINGLE )) continue;
+		if (g_gametype == gametype_t::GT_SINGLE_PLAYER) {
+			if (Any( li->flags & levelItemFlags_t::IFL_NOTSINGLE )) continue;
 		}
-		else if (g_gametype >= GT_TEAM) {
-			if (Any( li->flags & IFL_NOTTEAM )) continue;
+		else if (g_gametype >= gametype_t::GT_TEAM) {
+			if (Any( li->flags & levelItemFlags_t::IFL_NOTTEAM )) continue;
 		}
 		else {
-			if (Any( li->flags & IFL_NOTFREE )) continue;
+			if (Any( li->flags & levelItemFlags_t::IFL_NOTFREE )) continue;
 		}
-		if (Any( li->flags & IFL_NOTBOT )) continue;
+		if (Any( li->flags & levelItemFlags_t::IFL_NOTBOT )) continue;
 		//
 		if (!Q_stricmp(name, itemconfig->iteminfo[li->iteminfo].name))
 		{
@@ -887,9 +886,9 @@ int BotGetLevelItemGoal(int index, char *name, bot_goal_t *goal)
 			VectorCopy(itemconfig->iteminfo[li->iteminfo].mins, goal->mins);
 			VectorCopy(itemconfig->iteminfo[li->iteminfo].maxs, goal->maxs);
 			goal->number = li->number;
-			goal->flags = GFL_ITEM;
-			if (li->timeout) goal->flags |= GFL_DROPPED;
-			//botimport.Print(PRT_MESSAGE, "found li %s\n", itemconfig->iteminfo[li->iteminfo].name);
+			goal->flags = goalFlags_t::GFL_ITEM;
+			if (li->timeout) goal->flags |= goalFlags_t::GFL_DROPPED;
+			//botimport.Print(printType_t::PRT_MESSAGE, "found li %s\n", itemconfig->iteminfo[li->iteminfo].name);
 			return li->number;
 		} //end if
 	} //end for
@@ -1024,7 +1023,7 @@ void BotUpdateEntityItems(void)
 	//
 	for (ent = AAS_NextEntity(0); ent; ent = AAS_NextEntity(ent))
 	{
-		if (AAS_EntityType(ent) != ET_ITEM) continue;
+		if (AAS_EntityType(ent) != entityType_t::ET_ITEM) continue;
 		//get the model index of the entity
 		modelindex = AAS_EntityModelindex(ent);
 		//
@@ -1076,14 +1075,14 @@ void BotUpdateEntityItems(void)
 			//if this level item is already linked
 			if (li->entitynum) continue;
 			//
-			if (g_gametype == GT_SINGLE_PLAYER) {
-				if (Any( li->flags & IFL_NOTSINGLE )) continue;
+			if (g_gametype == gametype_t::GT_SINGLE_PLAYER) {
+				if (Any( li->flags & levelItemFlags_t::IFL_NOTSINGLE )) continue;
 			}
-			else if (g_gametype >= GT_TEAM) {
-				if (Any( li->flags & IFL_NOTTEAM )) continue;
+			else if (g_gametype >= gametype_t::GT_TEAM) {
+				if (Any( li->flags & levelItemFlags_t::IFL_NOTTEAM )) continue;
 			}
 			else {
-				if (Any( li->flags & IFL_NOTFREE )) continue;
+				if (Any( li->flags & levelItemFlags_t::IFL_NOTFREE )) continue;
 			}
 			//if the model of the level item and the entity are the same
 			if (ic->iteminfo[li->iteminfo].modelindex == modelindex)
@@ -1151,7 +1150,7 @@ void BotUpdateEntityItems(void)
 		li->timeout = AAS_Time() + 30;
 		//add the level item to the list
 		AddLevelItemToList(li);
-		//botimport.Print(PRT_MESSAGE, "found new level item %s\n", ic->iteminfo[i].classname);
+		//botimport.Print(printType_t::PRT_MESSAGE, "found new level item %s\n", ic->iteminfo[i].classname);
 	} //end for
 	/*
 	for (li = levelitems; li; li = li->next)
@@ -1196,7 +1195,7 @@ void BotPushGoal(int goalstate, bot_goal_t *goal)
 	if (!gs) return;
 	if (gs->goalstacktop >= MAX_GOALSTACK-1)
 	{
-		botimport.Print(PRT_ERROR, "goal heap overflow\n");
+		botimport.Print(printType_t::PRT_ERROR, "goal heap overflow\n");
 		BotDumpGoalStack(goalstate);
 		return;
 	} //end if
@@ -1309,25 +1308,25 @@ int BotChooseLTGItem(int goalstate, vec3_t origin, int *inventory, travelFlags_t
 	//go through the items in the level
 	for (li = levelitems; li; li = li->next)
 	{
-		if (g_gametype == GT_SINGLE_PLAYER) {
-			if (Any( li->flags & IFL_NOTSINGLE ))
+		if (g_gametype == gametype_t::GT_SINGLE_PLAYER) {
+			if (Any( li->flags & levelItemFlags_t::IFL_NOTSINGLE ))
 				continue;
 		}
-		else if (g_gametype >= GT_TEAM) {
-			if (Any( li->flags & IFL_NOTTEAM ))
+		else if (g_gametype >= gametype_t::GT_TEAM) {
+			if (Any( li->flags & levelItemFlags_t::IFL_NOTTEAM ))
 				continue;
 		}
 		else {
-			if (Any( li->flags & IFL_NOTFREE ))
+			if (Any( li->flags & levelItemFlags_t::IFL_NOTFREE ))
 				continue;
 		}
-		if (Any( li->flags & IFL_NOTBOT ))
+		if (Any( li->flags & levelItemFlags_t::IFL_NOTBOT ))
 			continue;
 		//if the item is not in a possible goal area
 		if (!li->goalareanum)
 			continue;
 		//FIXME: is this a good thing? added this for items that never spawned into the game (f.i. CTF flags in obelisk)
-		if (!li->entitynum && !Any( li->flags & IFL_ROAM ))
+		if (!li->entitynum && !Any( li->flags & levelItemFlags_t::IFL_ROAM ))
 			continue;
 		//get the fuzzy weight function for this item
 		iteminfo = &ic->iteminfo[li->iteminfo];
@@ -1346,7 +1345,7 @@ int BotChooseLTGItem(int goalstate, vec3_t origin, int *inventory, travelFlags_t
 			weight += droppedweight->value;
 #endif //DROPPEDWEIGHT
 		//use weight scale for item_botroam
-		if (Any( li->flags & IFL_ROAM )) weight *= li->weight;
+		if (Any( li->flags & levelItemFlags_t::IFL_ROAM )) weight *= li->weight;
 		//
 		if (weight > 0)
 		{
@@ -1383,13 +1382,13 @@ int BotChooseLTGItem(int goalstate, vec3_t origin, int *inventory, travelFlags_t
 				VectorSet(goal.maxs, 15, 15, 15);
 				goal.entitynum = 0;
 				goal.number = 0;
-				goal.flags = GFL_ROAM;
+				goal.flags = goalFlags_t::GFL_ROAM;
 				goal.iteminfo = 0;
 				//push the goal on the stack
 				BotPushGoal(goalstate, &goal);
 				//
 #ifdef DEBUG
-				botimport.Print(PRT_MESSAGE, "chosen roam goal area %d\n", goal.areanum);
+				botimport.Print(printType_t::PRT_MESSAGE, "chosen roam goal area %d\n", goal.areanum);
 #endif //DEBUG
 				return true;
 			} //end if
@@ -1405,11 +1404,11 @@ int BotChooseLTGItem(int goalstate, vec3_t origin, int *inventory, travelFlags_t
 	goal.areanum = bestitem->goalareanum;
 	goal.entitynum = bestitem->entitynum;
 	goal.number = bestitem->number;
-	goal.flags = GFL_ITEM;
+	goal.flags = goalFlags_t::GFL_ITEM;
 	if (bestitem->timeout)
-		goal.flags |= GFL_DROPPED;
-	if (Any( bestitem->flags & IFL_ROAM ))
-		goal.flags |= GFL_ROAM;
+		goal.flags |= goalFlags_t::GFL_DROPPED;
+	if (Any( bestitem->flags & levelItemFlags_t::IFL_ROAM ))
+		goal.flags |= goalFlags_t::GFL_ROAM;
 	goal.iteminfo = bestitem->iteminfo;
 	//if it's a dropped item
 	if (bestitem->timeout)
@@ -1480,25 +1479,25 @@ int BotChooseNBGItem(int goalstate, vec3_t origin, int *inventory, travelFlags_t
 	//go through the items in the level
 	for (li = levelitems; li; li = li->next)
 	{
-		if (g_gametype == GT_SINGLE_PLAYER) {
-			if (Any( li->flags & IFL_NOTSINGLE ))
+		if (g_gametype == gametype_t::GT_SINGLE_PLAYER) {
+			if (Any( li->flags & levelItemFlags_t::IFL_NOTSINGLE ))
 				continue;
 		}
-		else if (g_gametype >= GT_TEAM) {
-			if (Any( li->flags & IFL_NOTTEAM ))
+		else if (g_gametype >= gametype_t::GT_TEAM) {
+			if (Any( li->flags & levelItemFlags_t::IFL_NOTTEAM ))
 				continue;
 		}
 		else {
-			if (Any( li->flags & IFL_NOTFREE ))
+			if (Any( li->flags & levelItemFlags_t::IFL_NOTFREE ))
 				continue;
 		}
-		if (Any( li->flags & IFL_NOTBOT ))
+		if (Any( li->flags & levelItemFlags_t::IFL_NOTBOT ))
 			continue;
 		//if the item is in a possible goal area
 		if (!li->goalareanum)
 			continue;
 		//FIXME: is this a good thing? added this for items that never spawned into the game (f.i. CTF flags in obelisk)
-		if (!li->entitynum && !Any( li->flags & IFL_ROAM ))
+		if (!li->entitynum && !Any( li->flags & levelItemFlags_t::IFL_ROAM ))
 			continue;
 		//get the fuzzy weight function for this item
 		iteminfo = &ic->iteminfo[li->iteminfo];
@@ -1517,7 +1516,7 @@ int BotChooseNBGItem(int goalstate, vec3_t origin, int *inventory, travelFlags_t
 			weight += droppedweight->value;
 #endif //DROPPEDWEIGHT
 		//use weight scale for item_botroam
-		if (Any( li->flags & IFL_ROAM )) weight *= li->weight;
+		if (Any( li->flags & levelItemFlags_t::IFL_ROAM )) weight *= li->weight;
 		//
 		if (weight > 0)
 		{
@@ -1562,11 +1561,11 @@ int BotChooseNBGItem(int goalstate, vec3_t origin, int *inventory, travelFlags_t
 	goal.areanum = bestitem->goalareanum;
 	goal.entitynum = bestitem->entitynum;
 	goal.number = bestitem->number;
-	goal.flags = GFL_ITEM;
+	goal.flags = goalFlags_t::GFL_ITEM;
 	if (bestitem->timeout)
-		goal.flags |= GFL_DROPPED;
-	if (Any( bestitem->flags & IFL_ROAM ))
-		goal.flags |= GFL_ROAM;
+		goal.flags |= goalFlags_t::GFL_DROPPED;
+	if (Any( bestitem->flags & levelItemFlags_t::IFL_ROAM ))
+		goal.flags |= goalFlags_t::GFL_ROAM;
 	goal.iteminfo = bestitem->iteminfo;
 	//if it's a dropped item
 	if (bestitem->timeout)
@@ -1602,7 +1601,7 @@ int BotTouchingGoal(vec3_t origin, bot_goal_t *goal)
 	vec3_t safety_maxs = {0, 0, 0}; //{4, 4, 10};
 	vec3_t safety_mins = {0, 0, 0}; //{-4, -4, 0};
 
-	AAS_PresenceTypeBoundingBox(PRESENCE_NORMAL, boxmins, boxmaxs);
+	AAS_PresenceTypeBoundingBox(presenceFlags_t::PRESENCE_NORMAL, boxmins, boxmaxs);
 	VectorSubtract(goal->mins, boxmaxs, absmins);
 	VectorSubtract(goal->maxs, boxmins, absmaxs);
 	VectorAdd(absmins, goal->origin, absmins);
@@ -1629,13 +1628,13 @@ int BotItemGoalInVisButNotVisible(int viewer, vec3_t eye, vec3_t viewangles, bot
 	bsp_trace_t trace;
 	vec3_t middle;
 
-	if (!Any( goal->flags & GFL_ITEM )) return false;
+	if (!Any( goal->flags & goalFlags_t::GFL_ITEM )) return false;
 	//
 	VectorAdd(goal->mins, goal->mins, middle);
 	VectorScale(middle, 0.5, middle);
 	VectorAdd(goal->origin, middle, middle);
 	//
-	trace = AAS_Trace(eye, nullptr, nullptr, middle, viewer, CONTENTS_SOLID);
+	trace = AAS_Trace(eye, nullptr, nullptr, middle, viewer, contentsFlags_t::CONTENTS_SOLID);
 	//if the goal middle point is visible
 	if (trace.fraction >= 1)
 	{
@@ -1681,20 +1680,20 @@ botlibError_t BotLoadItemWeights(int goalstate, char *filename)
 	bot_goalstate_t *gs;
 
 	gs = BotGoalStateFromHandle(goalstate);
-	if (!gs) return BLERR_CANNOTLOADITEMWEIGHTS;
+	if (!gs) return botlibError_t::BLERR_CANNOTLOADITEMWEIGHTS;
 	//load the weight configuration
 	gs->itemweightconfig = ReadWeightConfig(filename);
 	if (!gs->itemweightconfig)
 	{
-		botimport.Print(PRT_FATAL, "couldn't load weights\n");
-		return BLERR_CANNOTLOADITEMWEIGHTS;
+		botimport.Print(printType_t::PRT_FATAL, "couldn't load weights\n");
+		return botlibError_t::BLERR_CANNOTLOADITEMWEIGHTS;
 	} //end if
 	//if there's no item configuration
-	if (!itemconfig) return BLERR_CANNOTLOADITEMWEIGHTS;
+	if (!itemconfig) return botlibError_t::BLERR_CANNOTLOADITEMWEIGHTS;
 	//create the item weight index
 	gs->itemweightindex = ItemWeightIndex(gs->itemweightconfig, itemconfig);
 	//everything went ok
-	return BLERR_NOERROR;
+	return botlibError_t::BLERR_NOERROR;
 } //end of the function BotLoadItemWeights
 //===========================================================================
 //
@@ -1742,12 +1741,12 @@ void BotFreeGoalState(int handle)
 {
 	if (handle <= 0 || handle > MAX_CLIENTS)
 	{
-		botimport.Print(PRT_FATAL, "goal state handle %d out of range\n", handle);
+		botimport.Print(printType_t::PRT_FATAL, "goal state handle %d out of range\n", handle);
 		return;
 	} //end if
 	if (!botgoalstates[handle])
 	{
-		botimport.Print(PRT_FATAL, "invalid goal state handle %d\n", handle);
+		botimport.Print(printType_t::PRT_FATAL, "invalid goal state handle %d\n", handle);
 		return;
 	} //end if
 	BotFreeItemWeights(handle);
@@ -1772,13 +1771,13 @@ botlibError_t BotSetupGoalAI(void)
 	itemconfig = LoadItemConfig(filename);
 	if (!itemconfig)
 	{
-		botimport.Print(PRT_FATAL, "couldn't load item config\n");
-		return BLERR_CANNOTLOADITEMCONFIG;
+		botimport.Print(printType_t::PRT_FATAL, "couldn't load item config\n");
+		return botlibError_t::BLERR_CANNOTLOADITEMCONFIG;
 	} //end if
 	//
 	droppedweight = LibVar("droppedweight", "1000");
 	//everything went ok
-	return BLERR_NOERROR;
+	return botlibError_t::BLERR_NOERROR;
 } //end of the function BotSetupGoalAI
 //===========================================================================
 //

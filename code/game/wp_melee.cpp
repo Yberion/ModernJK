@@ -40,7 +40,7 @@ void WP_Melee( gentity_t *ent )
 	VectorSet( maxs, 6, 6, 6 );
 	VectorScale( maxs, -1, mins );
 
-	gi.trace ( &tr, muzzle, mins, maxs, end, ent->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
+	gi.trace ( &tr, muzzle, mins, maxs, end, ent->s.number, MASK_SHOT, EG2_Collision::G2_NOCOLLIDE, 0 );
 
 	if ( tr.entityNum >= ENTITYNUM_WORLD )
 	{
@@ -67,16 +67,16 @@ void WP_Melee( gentity_t *ent )
 
 	if ( tr_ent && tr_ent->takedamage )
 	{
-		damageFlags_t dflags = DAMAGE_NO_KNOCKBACK;
+		damageFlags_t dflags = damageFlags_t::DAMAGE_NO_KNOCKBACK;
 		G_PlayEffect( G_EffectIndex( "melee/punch_impact" ), tr.endpos, forwardVec );
 		//G_Sound( tr_ent, G_SoundIndex( va("sound/weapons/melee/punch%d", Q_irand(1, 4)) ) );
-		if ( ent->NPC && Any(ent->NPC->aiFlags&NPCAI_HEAVY_MELEE) )
+		if ( ent->NPC && Any(ent->NPC->aiFlags&npcAiFlags_t::NPCAI_HEAVY_MELEE) )
 		{ //4x damage for heavy melee class
 			damage *= 4;
-			dflags &= ~DAMAGE_NO_KNOCKBACK;
-			dflags |= DAMAGE_DISMEMBER;
+			dflags &= ~damageFlags_t::DAMAGE_NO_KNOCKBACK;
+			dflags |= damageFlags_t::DAMAGE_DISMEMBER;
 		}
 
-		G_Damage( tr_ent, ent, ent, forwardVec, tr.endpos, damage, dflags, MOD_MELEE );
+		G_Damage( tr_ent, ent, ent, forwardVec, tr.endpos, damage, dflags, meansOfDeath_t::MOD_MELEE );
 	}
 }

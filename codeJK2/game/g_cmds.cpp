@@ -139,7 +139,7 @@ int ClientNumberFromString( gentity_t *to, char *s ) {
 		}
 
 		cl = &level.clients[idnum];
-		if ( cl->pers.connected != CON_CONNECTED ) {
+		if ( cl->pers.connected != clientConnected_t::CON_CONNECTED ) {
 			gi.SendServerCommand( to-g_entities, "print \"Client %i is not active\n\"", idnum);
 			return -1;
 		}
@@ -149,7 +149,7 @@ int ClientNumberFromString( gentity_t *to, char *s ) {
 	// check for a name match
 	SanitizeString( s, s2 );
 	for ( idnum=0,cl=level.clients ; idnum < level.maxclients ; idnum++,cl++ ) {
-		if ( cl->pers.connected != CON_CONNECTED ) {
+		if ( cl->pers.connected != clientConnected_t::CON_CONNECTED ) {
 			continue;
 		}
 		SanitizeString( cl->pers.netname, n2 );
@@ -173,9 +173,9 @@ void G_Give( gentity_t *ent, const char *name, const char *args, int argc )
 	if ( give_all || !Q_stricmp( name, "health") )
 	{
 		if ( argc == 3 )
-			ent->health = Com_Clampi( 1, ent->client->ps.stats[STAT_MAX_HEALTH], atoi( args ) );
+			ent->health = Com_Clampi( 1, ent->client->ps.stats[statIndex_t::STAT_MAX_HEALTH], atoi( args ) );
 		else
-			ent->health = ent->client->ps.stats[STAT_MAX_HEALTH];
+			ent->health = ent->client->ps.stats[statIndex_t::STAT_MAX_HEALTH];
 		if ( !give_all )
 			return;
 	}
@@ -183,14 +183,14 @@ void G_Give( gentity_t *ent, const char *name, const char *args, int argc )
 	if ( give_all || !Q_stricmp( name, "armor" ) || !Q_stricmp( name, "shield" ) )
 	{
 		if ( argc == 3 )
-			ent->client->ps.stats[STAT_ARMOR] = Com_Clampi( 0, ent->client->ps.stats[STAT_MAX_HEALTH], atoi( args ) );
+			ent->client->ps.stats[statIndex_t::STAT_ARMOR] = Com_Clampi( 0, ent->client->ps.stats[statIndex_t::STAT_MAX_HEALTH], atoi( args ) );
 		else
-			ent->client->ps.stats[STAT_ARMOR] = ent->client->ps.stats[STAT_MAX_HEALTH];
+			ent->client->ps.stats[statIndex_t::STAT_ARMOR] = ent->client->ps.stats[statIndex_t::STAT_MAX_HEALTH];
 
-		if ( ent->client->ps.stats[STAT_ARMOR] > 0 )
-			ent->client->ps.powerups[PW_BATTLESUIT] = Q3_INFINITE;
+		if ( ent->client->ps.stats[statIndex_t::STAT_ARMOR] > 0 )
+			ent->client->ps.powerups[powerup_t::PW_BATTLESUIT] = Q3_INFINITE;
 		else
-			ent->client->ps.powerups[PW_BATTLESUIT] = 0;
+			ent->client->ps.powerups[powerup_t::PW_BATTLESUIT] = 0;
 
 		if ( !give_all )
 			return;
@@ -209,20 +209,20 @@ void G_Give( gentity_t *ent, const char *name, const char *args, int argc )
 
 	if ( give_all || !Q_stricmp( name, "weapons" ) )
 	{
-		ent->client->ps.stats[STAT_WEAPONS] = Bit( MAX_PLAYER_WEAPONS + 1 ) - Bit( WP_NONE );
+		ent->client->ps.stats[statIndex_t::STAT_WEAPONS] = Bit( MAX_PLAYER_WEAPONS + 1 ) - Bit( weapon_t::WP_NONE );
 		if ( !give_all )
 			return;
 	}
 
 	if ( !give_all && !Q_stricmp( name, "weaponnum" ) )
 	{
-		ent->client->ps.stats[STAT_WEAPONS] |= (1 << atoi( args ));
+		ent->client->ps.stats[statIndex_t::STAT_WEAPONS] |= (1 << atoi( args ));
 		return;
 	}
 
 	if ( !give_all && !Q_stricmp( name, "eweaps" ) )	//for developing, gives you all the weapons, including enemy
 	{
-		ent->client->ps.stats[STAT_WEAPONS] = (unsigned)Bit( WP_NUM_WEAPONS ) - Bit( WP_NONE ); // NOTE: this wasn't giving the last weapon in the list
+		ent->client->ps.stats[statIndex_t::STAT_WEAPONS] = (unsigned)Bit( weapon_t::WP_NUM_WEAPONS ) - Bit( weapon_t::WP_NONE ); // NOTE: this wasn't giving the last weapon in the list
 		return;
 	}
 
@@ -231,7 +231,7 @@ void G_Give( gentity_t *ent, const char *name, const char *args, int argc )
 		int num = 999;
 		if ( argc == 3 )
 			num = Com_Clampi( -1, 999, atoi( args ) );
-		for ( ammo_t a=AMMO_BLASTER; a<AMMO_MAX; a++ )
+		for ( ammo_t a=ammo_t::AMMO_BLASTER; a<ammo_t::AMMO_MAX; a++ )
 			ent->client->ps.ammo[a] = num != -1 ? num : ammoData[a].max;
 		if ( !give_all )
 			return;
@@ -251,15 +251,15 @@ void G_Give( gentity_t *ent, const char *name, const char *args, int argc )
 	if ( give_all || !Q_stricmp( name, "inventory" ) )
 	{
 		// Huh?  Was doing a INV_MAX+1 which was wrong because then you'd actually have every inventory item including INV_MAX
-		ent->client->ps.stats[STAT_ITEMS] = Bit( INV_MAX ) - Bit( INV_ELECTROBINOCULARS );
+		ent->client->ps.stats[statIndex_t::STAT_ITEMS] = Bit( inventory_t::INV_MAX ) - Bit( inventory_t::INV_ELECTROBINOCULARS );
 
-		ent->client->ps.inventory[INV_ELECTROBINOCULARS] = 1;
-		ent->client->ps.inventory[INV_BACTA_CANISTER] = 5;
-		ent->client->ps.inventory[INV_SEEKER] = 5;
-		ent->client->ps.inventory[INV_LIGHTAMP_GOGGLES] = 1;
-		ent->client->ps.inventory[INV_SENTRY] = 5;
-		ent->client->ps.inventory[INV_GOODIE_KEY] = 5;
-		ent->client->ps.inventory[INV_SECURITY_KEY] = 5;
+		ent->client->ps.inventory[inventory_t::INV_ELECTROBINOCULARS] = 1;
+		ent->client->ps.inventory[inventory_t::INV_BACTA_CANISTER] = 5;
+		ent->client->ps.inventory[inventory_t::INV_SEEKER] = 5;
+		ent->client->ps.inventory[inventory_t::INV_LIGHTAMP_GOGGLES] = 1;
+		ent->client->ps.inventory[inventory_t::INV_SENTRY] = 5;
+		ent->client->ps.inventory[inventory_t::INV_GOODIE_KEY] = 5;
+		ent->client->ps.inventory[inventory_t::INV_SECURITY_KEY] = 5;
 
 		if ( !give_all )
 			return;
@@ -450,8 +450,8 @@ void Cmd_God_f (gentity_t *ent)
 		return;
 	}
 
-	ent->flags ^= FL_GODMODE;
-	if (!Any( ent->flags & FL_GODMODE ) )
+	ent->flags ^= gentityFlags_t::FL_GODMODE;
+	if (!Any( ent->flags & gentityFlags_t::FL_GODMODE ) )
 		msg = "godmode OFF\n";
 	else
 		msg = "godmode ON\n";
@@ -477,8 +477,8 @@ void Cmd_Undying_f (gentity_t *ent)
 		return;
 	}
 
-	ent->flags ^= FL_UNDYING;
-	if (!Any( ent->flags & FL_UNDYING ) )
+	ent->flags ^= gentityFlags_t::FL_UNDYING;
+	if (!Any( ent->flags & gentityFlags_t::FL_UNDYING ) )
 	{
 		msg = "undead mode OFF\n";
 	}
@@ -503,7 +503,7 @@ void Cmd_Undying_f (gentity_t *ent)
 
 		if ( ent->client )
 		{
-			ent->client->ps.stats[STAT_HEALTH] = ent->client->ps.stats[STAT_MAX_HEALTH] = 999;
+			ent->client->ps.stats[statIndex_t::STAT_HEALTH] = ent->client->ps.stats[statIndex_t::STAT_MAX_HEALTH] = 999;
 		}
 	}
 
@@ -526,8 +526,8 @@ void Cmd_Notarget_f( gentity_t *ent ) {
 		return;
 	}
 
-	ent->flags ^= FL_NOTARGET;
-	if (!Any( ent->flags & FL_NOTARGET ) )
+	ent->flags ^= gentityFlags_t::FL_NOTARGET;
+	if (!Any( ent->flags & gentityFlags_t::FL_NOTARGET ) )
 		msg = "notarget OFF\n";
 	else
 		msg = "notarget ON\n";
@@ -590,9 +590,9 @@ void Cmd_Kill_f( gentity_t *ent ) {
 		gi.SendServerCommand( ent-g_entities, "cp @INGAME_ONE_KILL_PER_5_SECONDS");
 		return;
 	}
-	ent->flags &= ~FL_GODMODE;
-	ent->client->ps.stats[STAT_HEALTH] = ent->health = 0;
-	player_die (ent, ent, ent, 100000, MOD_SUICIDE);
+	ent->flags &= ~gentityFlags_t::FL_GODMODE;
+	ent->client->ps.stats[statIndex_t::STAT_HEALTH] = ent->health = 0;
+	player_die (ent, ent, ent, 100000, meansOfDeath_t::MOD_SUICIDE);
 }
 
 
@@ -784,7 +784,7 @@ void Cmd_UseElectrobinoculars_f(gentity_t *ent)
 		return;
 	}
 
-	G_AddEvent( ent, EV_USE_INV_BINOCULARS, 0 );
+	G_AddEvent( ent, entity_event_t::EV_USE_INV_BINOCULARS, 0 );
 }
 
 /*
@@ -819,7 +819,7 @@ bool PickSeekerSpawnPoint( vec3_t org, vec3_t fwd, vec3_t right, int skip, vec3_
 	VectorMA( org, 48, forward, end );
 	VectorMA( end, -8, right, end );
 
-	gi.trace( &tr, org, mins, maxs, end, skip, MASK_PLAYERSOLID, G2_NOCOLLIDE, 0 );
+	gi.trace( &tr, org, mins, maxs, end, skip, MASK_PLAYERSOLID, EG2_Collision::G2_NOCOLLIDE, 0 );
 
 	if ( !tr.startsolid && !tr.allsolid && tr.fraction >= 1.0f )
 	{
@@ -830,7 +830,7 @@ bool PickSeekerSpawnPoint( vec3_t org, vec3_t fwd, vec3_t right, int skip, vec3_
 	// side
 	VectorMA( org, 48, right, end );
 
-	gi.trace( &tr, org, mins, maxs, end, skip, MASK_PLAYERSOLID, G2_NOCOLLIDE, 0 );
+	gi.trace( &tr, org, mins, maxs, end, skip, MASK_PLAYERSOLID, EG2_Collision::G2_NOCOLLIDE, 0 );
 
 	if ( !tr.startsolid && !tr.allsolid && tr.fraction >= 1.0f )
 	{
@@ -841,7 +841,7 @@ bool PickSeekerSpawnPoint( vec3_t org, vec3_t fwd, vec3_t right, int skip, vec3_
 	// other side
 	VectorMA( org, -48, right, end );
 
-	gi.trace( &tr, org, mins, maxs, end, skip, MASK_PLAYERSOLID, G2_NOCOLLIDE, 0 );
+	gi.trace( &tr, org, mins, maxs, end, skip, MASK_PLAYERSOLID, EG2_Collision::G2_NOCOLLIDE, 0 );
 
 	if ( !tr.startsolid && !tr.allsolid && tr.fraction >= 1.0f )
 	{
@@ -852,7 +852,7 @@ bool PickSeekerSpawnPoint( vec3_t org, vec3_t fwd, vec3_t right, int skip, vec3_
 	// behind
 	VectorMA( org, -48, fwd, end );
 
-	gi.trace( &tr, org, mins, maxs, end, skip, MASK_PLAYERSOLID, G2_NOCOLLIDE, 0 );
+	gi.trace( &tr, org, mins, maxs, end, skip, MASK_PLAYERSOLID, EG2_Collision::G2_NOCOLLIDE, 0 );
 
 	if ( !tr.startsolid && !tr.allsolid && tr.fraction >= 1.0f )
 	{
@@ -876,7 +876,7 @@ void Cmd_UseSeeker_f( gentity_t *ent )
 	}
 
 	// don't use them if we don't have any...also don't use them if one is already going
-	if ( ent->client && ent->client->ps.inventory[INV_SEEKER] > 0 && level.time > ent->client->ps.powerups[PW_SEEKER] )
+	if ( ent->client && ent->client->ps.inventory[inventory_t::INV_SEEKER] > 0 && level.time > ent->client->ps.powerups[powerup_t::PW_SEEKER] )
 	{
 		gentity_t	*tent = G_Spawn();
 
@@ -900,8 +900,8 @@ extern void SP_NPC_Droid_Seeker( gentity_t *ent );
 				G_Sound( tent, G_SoundIndex( "sound/chars/seeker/misc/hiss" ));
 
 				// make sure that we even have some
-				ent->client->ps.inventory[INV_SEEKER]--;
-				ent->client->ps.powerups[PW_SEEKER] = level.time + 1000;// can only drop one every second..maybe this is annoying?
+				ent->client->ps.inventory[inventory_t::INV_SEEKER]--;
+				ent->client->ps.powerups[powerup_t::PW_SEEKER] = level.time + 1000;// can only drop one every second..maybe this is annoying?
 
 			}
 		}
@@ -920,9 +920,9 @@ void Cmd_UseGoggles_f(gentity_t *ent)
 		return;
 	}
 
-	if ( ent->client && ent->client->ps.inventory[INV_LIGHTAMP_GOGGLES] > 0 )
+	if ( ent->client && ent->client->ps.inventory[inventory_t::INV_LIGHTAMP_GOGGLES] > 0 )
 	{
-		G_AddEvent( ent, EV_USE_INV_LIGHTAMP_GOGGLES, 0 );
+		G_AddEvent( ent, entity_event_t::EV_USE_INV_LIGHTAMP_GOGGLES, 0 );
 	}
 }
 
@@ -939,7 +939,7 @@ void Cmd_UseSentry_f(gentity_t *ent)
 		return;
 	}
 
-	if ( ent->client->ps.inventory[INV_SENTRY] <= 0 )
+	if ( ent->client->ps.inventory[inventory_t::INV_SENTRY] <= 0 )
 	{
 		// have none to place...play sound?
 		return;
@@ -947,8 +947,8 @@ void Cmd_UseSentry_f(gentity_t *ent)
 
 	if ( place_portable_assault_sentry( ent, ent->currentOrigin, ent->client->ps.viewangles ))
 	{
-		ent->client->ps.inventory[INV_SENTRY]--;
-		G_AddEvent( ent, EV_USE_INV_SENTRY, 0 );
+		ent->client->ps.inventory[inventory_t::INV_SENTRY]--;
+		G_AddEvent( ent, entity_event_t::EV_USE_INV_SENTRY, 0 );
 	}
 	else
 	{
@@ -965,19 +965,19 @@ void Cmd_UseInventory_f(gentity_t *ent)
 {
 	switch (cg.inventorySelect)
 	{
-		case INV_ELECTROBINOCULARS :
+		case inventory_t::INV_ELECTROBINOCULARS :
 			Cmd_UseElectrobinoculars_f(ent);
 			return;
-		case INV_BACTA_CANISTER :
+		case inventory_t::INV_BACTA_CANISTER :
 			Cmd_UseBacta_f(ent);
 			return;
-		case INV_SEEKER :
+		case inventory_t::INV_SEEKER :
 			Cmd_UseSeeker_f(ent);
 			return;
-		case INV_LIGHTAMP_GOGGLES :
+		case inventory_t::INV_LIGHTAMP_GOGGLES :
 			Cmd_UseGoggles_f(ent);
 			return;
-		case INV_SENTRY :
+		case inventory_t::INV_SENTRY :
 			Cmd_UseSentry_f(ent);
 			return;
 		default :
@@ -999,7 +999,7 @@ void G_Victory( gentity_t *ent )
 {
 	if ( ent->health > 0 )
 	{//say something and put away saber
-		G_SoundOnEnt( ent, CHAN_VOICE, "sound/chars/kyle/misc/taunt1.wav" );
+		G_SoundOnEnt( ent, soundChannel_t::CHAN_VOICE, "sound/chars/kyle/misc/taunt1.wav" );
 		if ( ent->client )
 		{
 			ent->client->ps.saberActive = false;

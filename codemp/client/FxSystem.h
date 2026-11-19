@@ -63,7 +63,7 @@ public:
 	// File handling
 	inline	int		OpenFile( const char *path, fileHandle_t *fh, fsMode_t mode )
 	{
-		return FS_FOpenFileByMode( path, fh, FS_READ );
+		return FS_FOpenFileByMode( path, fh, fsMode_t::FS_READ );
 	}
 	inline	int		ReadFile( void *data, int len, fileHandle_t fh )
 	{
@@ -78,12 +78,12 @@ public:
 	// Sound
 	inline	void	PlaySound( vec3_t origin, int entityNum, soundChannel_t entchannel, sfxHandle_t sfxHandle, int volume, int radius )
 	{
-		//S_StartSound( origin, ENTITYNUM_NONE, CHAN_AUTO, sfxHandle, volume, radius );
-		S_StartSound( origin, ENTITYNUM_NONE, CHAN_AUTO, sfxHandle );
+		//S_StartSound( origin, ENTITYNUM_NONE, soundChannel_t::CHAN_AUTO, sfxHandle, volume, radius );
+		S_StartSound( origin, ENTITYNUM_NONE, soundChannel_t::CHAN_AUTO, sfxHandle );
 	}
 	inline	void	PlayLocalSound(sfxHandle_t sfxHandle, soundChannel_t entchannel)
 	{
-		//S_StartSound( origin, ENTITYNUM_NONE, CHAN_AUTO, sfxHandle, volume, radius );
+		//S_StartSound( origin, ENTITYNUM_NONE, soundChannel_t::CHAN_AUTO, sfxHandle, volume, radius );
 		S_StartLocalSound(sfxHandle, entchannel);
 	}
 	inline	int		RegisterSound( const char *sound )
@@ -163,7 +163,7 @@ public:
 #ifdef _DEBUG
 		mMainRefs++;
 
-		assert(!ent || ent->renderfx >= 0);
+		assert(!ent || to_underlying( ent->renderfx ) >= 0);
 #endif
 		re->AddRefEntityToScene( ent );
 	}
@@ -172,7 +172,7 @@ public:
 #ifdef _DEBUG
 		mMiniRefs++;
 
-		assert(!ent || ent->renderfx >= 0);
+		assert(!ent || to_underlying( ent->renderfx ) >= 0);
 #endif
 		re->AddMiniRefEntityToScene( ent );
 	}

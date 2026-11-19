@@ -54,7 +54,7 @@ bool NPC_ClearPathToGoal( vec3_t dir, gentity_t *goal )
 	//	return false;
 
 	//Look ahead and see if we're clear to move to our goal position
-	if ( NAV_CheckAhead( NPCS.NPC, goal->r.currentOrigin, &trace, ( NPCS.NPC->clipmask & ~CONTENTS_BODY )|CONTENTS_BOTCLIP ) )
+	if ( NAV_CheckAhead( NPCS.NPC, goal->r.currentOrigin, &trace, ( NPCS.NPC->clipmask & ~contentsFlags_t::CONTENTS_BODY )|contentsFlags_t::CONTENTS_BOTCLIP ) )
 	{
 		//VectorSubtract( goal->r.currentOrigin, NPC->r.currentOrigin, dir );
 		return true;
@@ -76,7 +76,7 @@ bool NPC_ClearPathToGoal( vec3_t dir, gentity_t *goal )
 		return true;
 
 	//See if we're looking for a navgoal
-	if ( Any( goal->flags & FL_NAVGOAL ) )
+	if ( Any( goal->flags & gentityFlags_t::FL_NAVGOAL ) )
 	{
 		//Okay, didn't get all the way there, let's see if we got close enough:
 		if ( NAV_HitNavGoal( trace.endpos, NPCS.NPC->r.mins, NPCS.NPC->r.maxs, goal->r.currentOrigin, NPCS.NPCInfo->goalRadius, FlyingCreature( NPCS.NPC ) ) )
@@ -195,7 +195,7 @@ bool NPC_GetMoveDirection( vec3_t out, float *distance )
 	VectorCopy( frameNavInfo.direction, frameNavInfo.pathDirection );
 
 	//If on a ladder, move appropriately
-	if ( Any( NPCS.NPC->watertype & CONTENTS_LADDER ) )
+	if ( Any( NPCS.NPC->watertype & contentsFlags_t::CONTENTS_LADDER ) )
 	{
 		NPC_LadderMove( frameNavInfo.direction );
 		return true;
@@ -215,7 +215,7 @@ bool NPC_GetMoveDirection( vec3_t out, float *distance )
 			return false;
 		}
 
-		frameNavInfo.flags |= NIF_MACRO_NAV;
+		frameNavInfo.flags |= navInfoFlags_t::NIF_MACRO_NAV;
 	}
 
 	//Avoid any collisions on the way
@@ -225,7 +225,7 @@ bool NPC_GetMoveDirection( vec3_t out, float *distance )
 		//FIXME: if we have a clear path to our goal (exluding bodies), but then this
 		//			check (against bodies only) fails, shouldn't we fall back
 		//			to macro navigation?  Like so:
-		if ( !Any(frameNavInfo.flags&NIF_MACRO_NAV) )
+		if ( !Any(frameNavInfo.flags&navInfoFlags_t::NIF_MACRO_NAV) )
 		{//we had a clear path to goal and didn't try macro nav, but can't avoid collision so try macro nav here
 			//See if we're just stuck
 			if ( NAV_MoveToGoal( NPCS.NPC, &frameNavInfo ) == WAYPOINT_NONE )
@@ -238,7 +238,7 @@ bool NPC_GetMoveDirection( vec3_t out, float *distance )
 				return false;
 			}
 
-			frameNavInfo.flags |= NIF_MACRO_NAV;
+			frameNavInfo.flags |= navInfoFlags_t::NIF_MACRO_NAV;
 		}
 	}
 
@@ -260,7 +260,7 @@ bool NPC_GetMoveDirectionAltRoute( vec3_t out, float *distance, bool tryStraight
 {
 	vec3_t		angles;
 
-	NPCS.NPCInfo->aiFlags &= ~NPCAI_BLOCKED;
+	NPCS.NPCInfo->aiFlags &= ~npcAiFlags_t::NPCAI_BLOCKED;
 
 	//Clear the struct
 	memset( &frameNavInfo, 0, sizeof( frameNavInfo ) );
@@ -276,7 +276,7 @@ bool NPC_GetMoveDirectionAltRoute( vec3_t out, float *distance, bool tryStraight
 	VectorCopy( frameNavInfo.direction, frameNavInfo.pathDirection );
 
 	//If on a ladder, move appropriately
-	if ( Any( NPCS.NPC->watertype & CONTENTS_LADDER ) )
+	if ( Any( NPCS.NPC->watertype & contentsFlags_t::CONTENTS_LADDER ) )
 	{
 		NPC_LadderMove( frameNavInfo.direction );
 		return true;
@@ -296,7 +296,7 @@ bool NPC_GetMoveDirectionAltRoute( vec3_t out, float *distance, bool tryStraight
 			return false;
 		}
 		//else we are on our way
-		frameNavInfo.flags |= NIF_MACRO_NAV;
+		frameNavInfo.flags |= navInfoFlags_t::NIF_MACRO_NAV;
 	}
 	else
 	{//we have no architectural problems, see if there are ents inthe way and try to go around them
@@ -318,7 +318,7 @@ bool NPC_GetMoveDirectionAltRoute( vec3_t out, float *distance, bool tryStraight
 					return false;
 				}
 				//else we are on our way
-				frameNavInfo.flags |= NIF_MACRO_NAV;
+				frameNavInfo.flags |= navInfoFlags_t::NIF_MACRO_NAV;
 			}
 			else
 			{//otherwise, either clear or can avoid
@@ -408,7 +408,7 @@ bool NPC_MoveToGoal( bool tryStraight )
 	int	startTime = GetTime(0);
 #endif//	AI_TIMERS
 	//If taking full body pain, don't move
-	if ( PM_InKnockDown( &NPCS.NPC->client->ps ) || ( ( ES_LegsAnim( NPCS.NPC->s ) >= BOTH_PAIN1 ) && ( ES_LegsAnim( NPCS.NPC->s ) <= BOTH_PAIN18 ) ) )
+	if ( PM_InKnockDown( &NPCS.NPC->client->ps ) || ( ( ES_LegsAnim( NPCS.NPC->s ) >= animNumber_t::BOTH_PAIN1 ) && ( ES_LegsAnim( NPCS.NPC->s ) <= animNumber_t::BOTH_PAIN18 ) ) )
 	{
 		return true;
 	}
@@ -434,7 +434,7 @@ bool NPC_MoveToGoal( bool tryStraight )
 
 	//Convert the move to angles
 	vectoangles( dir, NPCS.NPCInfo->lastPathAngles );
-	if ( Any(NPCS.ucmd.buttons&BUTTON_WALKING) )
+	if ( Any(NPCS.ucmd.buttons&buttonFlags_t::BUTTON_WALKING) )
 	{
 		NPCS.NPC->client->ps.speed = NPCS.NPCInfo->stats.walkSpeed;
 	}
@@ -456,7 +456,7 @@ bool NPC_MoveToGoal( bool tryStraight )
 		NPCS.NPCInfo->desiredYaw		= AngleNormalize360( NPCS.NPCInfo->lastPathAngles[YAW] );
 
 		//Pitch towards the goal and also update if flying or swimming
-		if ( Any(NPCS.NPC->client->ps.eFlags2&EF2_FLYING) )//moveType == MT_FLYSWIM )
+		if ( Any(NPCS.NPC->client->ps.eFlags2&entityFlags2_t::EF2_FLYING) )//moveType == MT_FLYSWIM )
 		{
 			NPCS.NPCInfo->desiredPitch = AngleNormalize360( NPCS.NPCInfo->lastPathAngles[PITCH] );
 

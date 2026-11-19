@@ -26,9 +26,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //
 void *ICARUS_Malloc(int iSize)
 {
-	//return gi.Malloc(iSize, TAG_ICARUS);
+	//return gi.Malloc(iSize, memtag::TAG_ICARUS);
 	//return malloc(iSize);
-	return Z_Malloc(iSize, TAG_ICARUS5, false);
+	return Z_Malloc(iSize, memtag::TAG_ICARUS5, false);
 }
 
 void ICARUS_Free(void *pMem)

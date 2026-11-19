@@ -252,7 +252,7 @@ class CBoneCache
 
 				boneInfo_t &bone = (*rootBoneList)[blistIndex];
 
-				if (bone.flags & BONE_ANGLES_RAGDOLL)
+				if (bone.flags & boneFlags_t::BONE_ANGLES_RAGDOLL)
 				{
 					if ((bone.RagFlags & (0x00008)) || //pelvis
                         (bone.RagFlags & (0x00004))) //model_root
@@ -967,7 +967,7 @@ void G2_TimingModel(boneInfo_t &bone,int currentTime,int numFramesInFile,int &cu
 			((animSpeed < 0.0f) && (newFrame_g < endFrame+1)))
 		{
 			// yep - decide what to do
-			if (Any( bone.flags & BONE_ANIM_OVERRIDE_LOOP ))
+			if (Any( bone.flags & boneFlags_t::BONE_ANIM_OVERRIDE_LOOP ))
 			{
 				// get our new animation frame back within the bounds of the animation set
 				if (animSpeed < 0.0f)
@@ -1056,7 +1056,7 @@ void G2_TimingModel(boneInfo_t &bone,int currentTime,int numFramesInFile,int &cu
 			}
 			else
 			{
-				if (((bone.flags & (BONE_ANIM_OVERRIDE_FREEZE)) == (BONE_ANIM_OVERRIDE_FREEZE)))
+				if (((bone.flags & (boneFlags_t::BONE_ANIM_OVERRIDE_FREEZE)) == (boneFlags_t::BONE_ANIM_OVERRIDE_FREEZE)))
 				{
 					// if we are supposed to reset the default anim, then do so
 					if (animSpeed > 0.0f)
@@ -1076,7 +1076,7 @@ void G2_TimingModel(boneInfo_t &bone,int currentTime,int numFramesInFile,int &cu
 				}
 				else
 				{
-					bone.flags &= ~(BONE_ANIM_TOTAL);
+					bone.flags &= ~(boneFlags_t::BONE_ANIM_TOTAL);
 				}
 
 			}
@@ -1100,7 +1100,7 @@ void G2_TimingModel(boneInfo_t &bone,int currentTime,int numFramesInFile,int &cu
 				if (newFrame >= (int)endFrame)
 				{
 					// we only want to lerp with the first frame of the anim if we are looping
-					if (Any( bone.flags & BONE_ANIM_OVERRIDE_LOOP ))
+					if (Any( bone.flags & boneFlags_t::BONE_ANIM_OVERRIDE_LOOP ))
 					{
 					  	newFrame = bone.startFrame;
 						assert(newFrame>=0&&newFrame<numFramesInFile);
@@ -1132,7 +1132,7 @@ void G2_TimingModel(boneInfo_t &bone,int currentTime,int numFramesInFile,int &cu
 					if (newFrame < endFrame+1)
 					{
 						// we only want to lerp with the first frame of the anim if we are looping
-						if (Any( bone.flags & BONE_ANIM_OVERRIDE_LOOP ))
+						if (Any( bone.flags & boneFlags_t::BONE_ANIM_OVERRIDE_LOOP ))
 						{
 					  		newFrame = bone.startFrame;
 							assert(newFrame>=0&&newFrame<numFramesInFile);
@@ -1319,7 +1319,7 @@ void G2_TransformBone (int child,CBoneCache &BC)
 	static mdxaSkelOffsets_t *offsets;
 	boneInfo_v		&boneList = *BC.rootBoneList;
 	static int				j, boneListIndex;
-	boneFlags_t				angleOverride = BONE_NONE;
+	boneFlags_t				angleOverride = boneFlags_t::BONE_NONE;
 
 #if DEBUG_G2_TIMING
 	bool printTiming=false;
@@ -1331,13 +1331,13 @@ void G2_TransformBone (int child,CBoneCache &BC)
 		// we found a bone in the list - we need to override something here.
 
 		// do we override the rotational angles?
-		if (Any( (boneList[boneListIndex].flags) & (BONE_ANGLES_TOTAL) ))
+		if (Any( (boneList[boneListIndex].flags) & (boneFlags_t::BONE_ANGLES_TOTAL) ))
 		{
-			angleOverride = (boneList[boneListIndex].flags) & (BONE_ANGLES_TOTAL);
+			angleOverride = (boneList[boneListIndex].flags) & (boneFlags_t::BONE_ANGLES_TOTAL);
 		}
 
 		// set blending stuff if we need to
-		if (Any( boneList[boneListIndex].flags & BONE_ANIM_BLEND ))
+		if (Any( boneList[boneListIndex].flags & boneFlags_t::BONE_ANIM_BLEND ))
 		{
 			float blendTime = BC.incomingTime - boneList[boneListIndex].blendStart;
 			// only set up the blend anim if we actually have some blend time left on this bone anim - otherwise we might corrupt some blend higher up the hiearchy
@@ -1353,14 +1353,14 @@ void G2_TransformBone (int child,CBoneCache &BC)
 				TB.blendMode = false;
 			}
 		}
-		else if (/*r_Ghoul2NoBlend->integer||*/Any((boneList[boneListIndex].flags) & (BONE_ANIM_OVERRIDE_LOOP | BONE_ANIM_OVERRIDE)))
+		else if (/*r_Ghoul2NoBlend->integer||*/Any((boneList[boneListIndex].flags) & (boneFlags_t::BONE_ANIM_OVERRIDE_LOOP | boneFlags_t::BONE_ANIM_OVERRIDE)))
 		// turn off blending if we are just doing a straing animation override
 		{
 			TB.blendMode = false;
 		}
 
 		// should this animation be overridden by an animation in the bone list?
-		if (Any( (boneList[boneListIndex].flags) & (BONE_ANIM_OVERRIDE_LOOP | BONE_ANIM_OVERRIDE) ))
+		if (Any( (boneList[boneListIndex].flags) & (boneFlags_t::BONE_ANIM_OVERRIDE_LOOP | boneFlags_t::BONE_ANIM_OVERRIDE) ))
 		{
 			G2_TimingModel(boneList[boneListIndex],BC.incomingTime,BC.header->numFrames,TB.currentFrame,TB.newFrame,TB.backlerp);
 		}
@@ -1422,7 +1422,7 @@ void G2_TransformBone (int child,CBoneCache &BC)
 		}
 		OutputDebugString(mess);
 		const boneInfo_t &bone=boneList[boneListIndex];
-		if (bone.flags&BONE_ANIM_BLEND)
+		if (bone.flags&boneFlags_t::BONE_ANIM_BLEND)
 		{
 			sprintf(mess,"                                                                    bfb[%2d] %5d  %5d  (%5d-%5d) %4.2f %4x   bt(%5d-%5d) %7.2f %5d\n",
 				boneListIndex,
@@ -1547,12 +1547,12 @@ void G2_TransformBone (int child,CBoneCache &BC)
 
 	int parent=BC.mFinalBones[child].parent;
 	assert((parent==-1&&child==0)||(parent>=0&&parent<(int)BC.mBones.size()));
-	if (Any( angleOverride & BONE_ANGLES_REPLACE ))
+	if (Any( angleOverride & boneFlags_t::BONE_ANGLES_REPLACE ))
 	{
-		bool isRag=!!Any(angleOverride & BONE_ANGLES_RAGDOLL);
+		bool isRag=!!Any(angleOverride & boneFlags_t::BONE_ANGLES_RAGDOLL);
 		if (!isRag)
 		{ //do the same for ik.. I suppose.
-			isRag = !!Any(angleOverride & BONE_ANGLES_IK);
+			isRag = !!Any(angleOverride & boneFlags_t::BONE_ANGLES_IK);
 		}
 
 		mdxaBone_t &bone = BC.mFinalBones[child].boneMatrix;
@@ -1722,9 +1722,9 @@ void G2_TransformBone (int child,CBoneCache &BC)
 			}
 		}
 	}
-	else if (Any( angleOverride & BONE_ANGLES_PREMULT ))
+	else if (Any( angleOverride & boneFlags_t::BONE_ANGLES_PREMULT ))
 	{
-		if (Any(angleOverride&BONE_ANGLES_RAGDOLL) || Any(angleOverride&BONE_ANGLES_IK))
+		if (Any(angleOverride&boneFlags_t::BONE_ANGLES_RAGDOLL) || Any(angleOverride&boneFlags_t::BONE_ANGLES_IK))
 		{
 			mdxaBone_t	tmp;
 			if (!child)
@@ -1787,7 +1787,7 @@ void G2_TransformBone (int child,CBoneCache &BC)
 	}
 
 	// now multiply our resulting bone by an override matrix should we need to
-	if (Any( angleOverride & BONE_ANGLES_POSTMULT ))
+	if (Any( angleOverride & boneFlags_t::BONE_ANGLES_POSTMULT ))
 	{
 		mdxaBone_t	tempMatrix;
 		memcpy (&tempMatrix,&BC.mFinalBones[child].boneMatrix, sizeof(mdxaBone_t));
@@ -1920,16 +1920,16 @@ void G2_TransformGhoulBones(boneInfo_v &rootBoneList,mdxaBone_t &rootMatrix, CGh
 		{
 			//if (Any(ghoul2.mFlags&GHOUL2_RESERVED_FOR_RAGDOLL))
 #if 1
-			if(Any( ghoul2.mFlags & GHOUL2_CRAZY_SMOOTH ))
+			if(Any( ghoul2.mFlags & ghoul2Flags_t::GHOUL2_CRAZY_SMOOTH ))
 			{
 				val = 0.9f;
 			}
-			else if(Any( ghoul2.mFlags & GHOUL2_RAG_STARTED ))
+			else if(Any( ghoul2.mFlags & ghoul2Flags_t::GHOUL2_RAG_STARTED ))
 			{
 				for (size_t k=0;k<rootBoneList.size();k++)
 				{
 					boneInfo_t &bone=rootBoneList[k];
-					if (Any( bone.flags&BONE_ANGLES_RAGDOLL ))
+					if (Any( bone.flags&boneFlags_t::BONE_ANGLES_RAGDOLL ))
 					{
 						if (bone.firstCollisionTime &&
 							bone.firstCollisionTime>time-250 &&
@@ -2017,7 +2017,7 @@ void G2_ProcessSurfaceBolt(mdxaBone_v &bonePtr, mdxmSurface_t *surface, int bolt
  	int				j, k;
 
 	// now there are two types of tag surface - model ones and procedural generated types - lets decide which one we have here.
-	if (surfInfo && surfInfo->offFlags == G2SURFACEFLAG_GENERATED)
+	if (surfInfo && surfInfo->offFlags == g2SurfaceFlags_t::G2SURFACEFLAG_GENERATED)
 	{
 		int surfNumber = surfInfo->genPolySurfaceIndex & 0x0ffff;
 		int	polyNumber = (surfInfo->genPolySurfaceIndex >> 16) & 0x0ffff;
@@ -2223,10 +2223,10 @@ void G2_ProcessGeneratedSurfaceBolts(CGhoul2Info &ghoul2, mdxaBone_v &bonePtr, m
 	for (size_t i=0; i< ghoul2.mSlist.size(); i++)
 	{
 		// only look for bolts if we are actually a generated surface, and not just an overriden one
-		if (Any( ghoul2.mSlist[i].offFlags & G2SURFACEFLAG_GENERATED ))
+		if (Any( ghoul2.mSlist[i].offFlags & g2SurfaceFlags_t::G2SURFACEFLAG_GENERATED ))
 		{
 	   		// well alrighty then. Lets see if there is a bolt that is attempting to use it
-			int boltNum = G2_Find_Bolt_Surface_Num(ghoul2.mBltlist, i, G2SURFACEFLAG_GENERATED);
+			int boltNum = G2_Find_Bolt_Surface_Num(ghoul2.mBltlist, i, g2SurfaceFlags_t::G2SURFACEFLAG_GENERATED);
 			// yes - ok, processing time.
 			if (boltNum != -1)
 			{
@@ -2247,7 +2247,7 @@ void ProcessModelBoltSurfaces(int surfaceNum, surfaceInfo_v &rootSList,
 	G2PerformanceTimer_ProcessModelBoltSurfaces.Start();
 #endif
 	int			i;
-	g2SurfaceFlags_t			offFlags = G2SURFACEFLAG_NONE;
+	g2SurfaceFlags_t			offFlags = g2SurfaceFlags_t::G2SURFACEFLAG_NONE;
 
 	// back track and get the surfinfo struct for this surface
 	mdxmSurface_t			*surface = (mdxmSurface_t *)G2_FindSurface((void *)currentModel, surfaceNum, 0);
@@ -2267,10 +2267,10 @@ void ProcessModelBoltSurfaces(int surfaceNum, surfaceInfo_v &rootSList,
 	}
 
 	// is this surface considered a bolt surface?
-	if (Any( G2_SurfaceFlags( surfInfo ) & G2SURFACEFLAG_ISBOLT ))
+	if (Any( G2_SurfaceFlags( surfInfo ) & g2SurfaceFlags_t::G2SURFACEFLAG_ISBOLT ))
 	{
 		// well alrighty then. Lets see if there is a bolt that is attempting to use it
-		int boltNum = G2_Find_Bolt_Surface_Num(boltList, surfaceNum, G2SURFACEFLAG_NONE);
+		int boltNum = G2_Find_Bolt_Surface_Num(boltList, surfaceNum, g2SurfaceFlags_t::G2SURFACEFLAG_NONE);
 		// yes - ok, processing time.
 		if (boltNum != -1)
 		{
@@ -2279,7 +2279,7 @@ void ProcessModelBoltSurfaces(int surfaceNum, surfaceInfo_v &rootSList,
 	}
 
 	// if we are turning off all descendants, then stop this recursion now
-	if (Any( offFlags & G2SURFACEFLAG_NODESCENDANTS ))
+	if (Any( offFlags & g2SurfaceFlags_t::G2SURFACEFLAG_NODESCENDANTS ))
 	{
 		return;
 	}
@@ -2300,7 +2300,7 @@ void ProcessModelBoltSurfaces(int surfaceNum, surfaceInfo_v &rootSList,
 void G2_ConstructUsedBoneList(CConstructBoneList &CBL)
 {
 	int	 		i, j;
-	g2SurfaceFlags_t			offFlags = G2SURFACEFLAG_NONE;
+	g2SurfaceFlags_t			offFlags = g2SurfaceFlags_t::G2SURFACEFLAG_NONE;
 
 	// back track and get the surfinfo struct for this surface
 	const mdxmSurface_t			*surface = (mdxmSurface_t *)G2_FindSurface((void *)CBL.currentModel, CBL.surfaceNum, 0);
@@ -2323,7 +2323,7 @@ void G2_ConstructUsedBoneList(CConstructBoneList &CBL)
 	}
 
 	// if this surface is not off, add it to the shader render list
-	if (!Any(offFlags & G2SURFACEFLAG_OFF))
+	if (!Any(offFlags & g2SurfaceFlags_t::G2SURFACEFLAG_OFF))
 	{
 		int	*bonesReferenced = (int *)((byte*)surface + surface->ofsBoneReferences);
 		// now whip through the bones this surface uses
@@ -2364,7 +2364,7 @@ void G2_ConstructUsedBoneList(CConstructBoneList &CBL)
 	}
  	else
 	// if we are turning off all descendants, then stop this recursion now
-	if (Any( offFlags & G2SURFACEFLAG_NODESCENDANTS ))
+	if (Any( offFlags & g2SurfaceFlags_t::G2SURFACEFLAG_NODESCENDANTS ))
 	{
 		return;
 	}
@@ -2492,7 +2492,7 @@ void G2_ProcessSurfaceBolt2(CBoneCache &boneCache, const mdxmSurface_t *surface,
  	int				j, k;
 
 	// now there are two types of tag surface - model ones and procedural generated types - lets decide which one we have here.
-	if (surfInfo && surfInfo->offFlags == G2SURFACEFLAG_GENERATED)
+	if (surfInfo && surfInfo->offFlags == g2SurfaceFlags_t::G2SURFACEFLAG_GENERATED)
 	{
 		int surfNumber = surfInfo->genPolySurfaceIndex & 0x0ffff;
 		int	polyNumber = (surfInfo->genPolySurfaceIndex >> 16) & 0x0ffff;
@@ -2753,7 +2753,7 @@ void G2_GetBoltMatrixLow(CGhoul2Info &ghoul2,int boltNum,const vec3_t scale,mdxa
 			strcpy(fName, "None?!");
 		}
 
-		Com_Error(ERR_DROP, "Write down or save this error message, show it to Rich\nBad bolt index on model %s (filename %s), index %i boltlink %i\n", mName, fName, boltNum, bLink);
+		Com_Error(errorParm_t::ERR_DROP, "Write down or save this error message, show it to Rich\nBad bolt index on model %s (filename %s), index %i boltlink %i\n", mName, fName, boltNum, bLink);
 	}
 #endif
 	if (boltList[boltNum].boneNumber>=0)
@@ -2802,7 +2802,7 @@ static void RootMatrix(CGhoul2Info_v &ghoul2,int time,const vec3_t scale,mdxaBon
 	{
 		if (ghoul2[i].mModelindex != -1 && ghoul2[i].mValid)
 		{
-			if (Any( ghoul2[i].mFlags & GHOUL2_NEWORIGIN ))
+			if (Any( ghoul2[i].mFlags & ghoul2Flags_t::GHOUL2_NEWORIGIN ))
 			{
 				mdxaBone_t bolt;
 				mdxaBone_t		tempMatrix;
@@ -3327,12 +3327,12 @@ bool R_LoadMDXM( model_t *mod, void *buffer, const char *mod_name, bool &bAlread
 		return false;
 	}
 
-	mod->type	   = MOD_MDXM;
+	mod->type	   = modtype_t::MOD_MDXM;
 	mod->dataSize += size;
 
 	bool bAlreadyFound = false;
 	mdxm = mod->mdxm = (mdxmHeader_t*) //Hunk_Alloc( size );
-										RE_RegisterModels_Malloc(size, buffer, mod_name, &bAlreadyFound, TAG_MODEL_GLM);
+										RE_RegisterModels_Malloc(size, buffer, mod_name, &bAlreadyFound, memtag::TAG_MODEL_GLM);
 
 	assert(bAlreadyCached == bAlreadyFound);
 
@@ -3423,16 +3423,16 @@ bool R_LoadMDXM( model_t *mod, void *buffer, const char *mod_name, bool &bAlread
 //			LL(surf->maxVertBoneWeights);
 
 			if ( surf->numVerts > SHADER_MAX_VERTEXES ) {
-				Com_Error (ERR_DROP, "R_LoadMDXM: %s has more than %i verts on a surface (%i)",
+				Com_Error (errorParm_t::ERR_DROP, "R_LoadMDXM: %s has more than %i verts on a surface (%i)",
 					mod_name, SHADER_MAX_VERTEXES, surf->numVerts );
 			}
 			if ( surf->numTriangles*3 > SHADER_MAX_INDEXES ) {
-				Com_Error (ERR_DROP, "R_LoadMDXM: %s has more than %i triangles on a surface (%i)",
+				Com_Error (errorParm_t::ERR_DROP, "R_LoadMDXM: %s has more than %i triangles on a surface (%i)",
 					mod_name, SHADER_MAX_INDEXES / 3, surf->numTriangles );
 			}
 
 			// change to surface identifier
-			surf->ident = to_underlying( SF_MDX );
+			surf->ident = to_underlying( surfaceType_t::SF_MDX );
 			// register the shaders
 
 			if (isAnOldModelFile)
@@ -3695,7 +3695,7 @@ bool R_LoadMDXA( model_t *mod, void *buffer, const char *mod_name, bool &bAlread
 		return false;
 	}
 
-	mod->type		= MOD_MDXA;
+	mod->type		= modtype_t::MOD_MDXA;
 	mod->dataSize  += size;
 
 	bool bAlreadyFound = false;
@@ -3714,7 +3714,7 @@ bool R_LoadMDXA( model_t *mod, void *buffer, const char *mod_name, bool &bAlread
 										#else
 											buffer,
 										#endif
-										mod_name, &bAlreadyFound, TAG_MODEL_GLA);
+										mod_name, &bAlreadyFound, memtag::TAG_MODEL_GLA);
 
 	assert(bAlreadyCached == bAlreadyFound);	// I should probably eliminate 'bAlreadyFound', but wtf?
 

@@ -41,7 +41,7 @@ OBJ_SetPendingObjectives
 */
 void OBJ_SetPendingObjectives(gentity_t *ent)
 {
-	for (objectiveNumber_t o = LIGHTSIDE_OBJ; o < MAX_OBJECTIVES; o++)
+	for (objectiveNumber_t o = objectiveNumber_t::LIGHTSIDE_OBJ; o < objectiveNumber_t::MAX_OBJECTIVES; o++)
 	{
 		objectives_t &objective = ent->client->sess.mission_objectives[o];
 		if ((objective.status == OBJECTIVE_STAT_PENDING) && (objective.display))

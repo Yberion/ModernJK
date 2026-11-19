@@ -551,7 +551,7 @@ void CM_TraceToLeaf( traceWork_t *tw, cLeaf_t *leaf, clipMap_t *local ) {
 			continue;
 		}
 
-		//if (Any( b->contents & CONTENTS_PLAYERCLIP )) continue;
+		//if (Any( b->contents & contentsFlags_t::CONTENTS_PLAYERCLIP )) continue;
 
 		CM_TraceThroughBrush( tw, b );
 		if ( !tw->trace.fraction ) {
@@ -634,7 +634,7 @@ return;
 #endif
 
 	// adjust the plane distance apropriately for mins/maxs
-	if ( plane->type < PLANE_NON_AXIAL ) {
+	if ( plane->type < planeType_t::PLANE_NON_AXIAL ) {
 		t1 = p1[PlaneAxis( plane->type )] - plane->dist;
 		t2 = p2[PlaneAxis( plane->type )] - plane->dist;
 		offset = tw->extents[PlaneAxis( plane->type )];

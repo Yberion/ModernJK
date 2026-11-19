@@ -47,7 +47,6 @@ enum class cameraStateFlags_t
 	CAMERA_CUT			= 0x00000200,
 	CAMERA_ACCEL		= 0x00000400,
 };
-using enum cameraStateFlags_t;
 template <> inline constexpr bool enableEnumFlags<cameraStateFlags_t> = true;
 
 // NOTE!! This structure is now saved out as part of the load/save game, so tell me if you put any pointers or

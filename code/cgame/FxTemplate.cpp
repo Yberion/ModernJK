@@ -48,8 +48,8 @@ CPrimitiveTemplate::CPrimitiveTemplate()
 	mName[0] = 0;
 	mCullRange = 0;
 
-	mFlags = FX_NONE;
-	mSpawnFlags = FX_SPAWN_NONE;
+	mFlags = fxPrimitiveFlags_t::FX_NONE;
+	mSpawnFlags = fxSpawnFlags_t::FX_SPAWN_NONE;
 
 	mLife.SetRange( 50.0f, 50.0f );
 	mSpawnCount.SetRange( 1.0f, 1.0f );
@@ -302,17 +302,17 @@ bool CPrimitiveTemplate::ParseGroupFlags( const gsl::cstring_span& val, fxPrimit
 	const auto availableFlag = scanStrings( val, flag );
 
 	// Clear out the flags field, then convert the flag string to an actual value ( use generic flags )
-	flags = FX_NONE;
+	flags = fxPrimitiveFlags_t::FX_NONE;
 
 	bool ok = true;
 	for( auto& cur : availableFlag  )
 	{
 		static StringViewIMap< fxPrimitiveFlags_t > flagNames{
-			{ CSTRING_VIEW( "linear" ), FX_LINEAR },
-			{ CSTRING_VIEW( "nonlinear" ), FX_NONLINEAR },
-			{ CSTRING_VIEW( "wave" ), FX_WAVE },
-			{ CSTRING_VIEW( "random" ), FX_RAND },
-			{ CSTRING_VIEW( "clamp" ), FX_CLAMP },
+			{ CSTRING_VIEW( "linear" ), fxPrimitiveFlags_t::FX_LINEAR },
+			{ CSTRING_VIEW( "nonlinear" ), fxPrimitiveFlags_t::FX_NONLINEAR },
+			{ CSTRING_VIEW( "wave" ), fxPrimitiveFlags_t::FX_WAVE },
+			{ CSTRING_VIEW( "random" ), fxPrimitiveFlags_t::FX_RAND },
+			{ CSTRING_VIEW( "clamp" ), fxPrimitiveFlags_t::FX_CLAMP },
 		};
 
 		auto pos = flagNames.find( cur );
@@ -348,7 +348,7 @@ bool CPrimitiveTemplate::ParseMin( const gsl::cstring_span& val )
 		VectorCopy( min, mMin );
 
 		// We assume that if a min is being set that we are using physics and a bounding box
-		mFlags |= (FX_USE_BBOX | FX_APPLY_PHYSICS);
+		mFlags |= (fxPrimitiveFlags_t::FX_USE_BBOX | fxPrimitiveFlags_t::FX_APPLY_PHYSICS);
 		return true;
 	}
 
@@ -374,7 +374,7 @@ bool CPrimitiveTemplate::ParseMax( const gsl::cstring_span& val )
 		VectorCopy( max, mMax );
 
 		// We assume that if a max is being set that we are using physics and a bounding box
-		mFlags |= (FX_USE_BBOX | FX_APPLY_PHYSICS);
+		mFlags |= (fxPrimitiveFlags_t::FX_USE_BBOX | fxPrimitiveFlags_t::FX_APPLY_PHYSICS);
 		return true;
 	}
 
@@ -470,7 +470,7 @@ bool CPrimitiveTemplate::ParseElasticity( const gsl::cstring_span& val )
 
 		// We assume that if elasticity is set that we are using physics, but don't assume we are
 		//	using a bounding box unless a min/max are explicitly set
-//		mFlags |= FX_APPLY_PHYSICS;
+//		mFlags |= fxPrimitiveFlags_t::FX_APPLY_PHYSICS;
 		return true;
 	}
 
@@ -739,21 +739,21 @@ bool CPrimitiveTemplate::ParseFlags( const gsl::cstring_span& val )
 	for( auto& cur : availableFlag )
 	{
 		static StringViewIMap< fxPrimitiveFlags_t > flagNames{
-			{ CSTRING_VIEW( "useModel" ), FX_ATTACHED_MODEL },
-			{ CSTRING_VIEW( "useBBox" ), FX_USE_BBOX },
-			{ CSTRING_VIEW( "usePhysics" ), FX_APPLY_PHYSICS },
-			{ CSTRING_VIEW( "expensivePhysics" ), FX_EXPENSIVE_PHYSICS },
+			{ CSTRING_VIEW( "useModel" ), fxPrimitiveFlags_t::FX_ATTACHED_MODEL },
+			{ CSTRING_VIEW( "useBBox" ), fxPrimitiveFlags_t::FX_USE_BBOX },
+			{ CSTRING_VIEW( "usePhysics" ), fxPrimitiveFlags_t::FX_APPLY_PHYSICS },
+			{ CSTRING_VIEW( "expensivePhysics" ), fxPrimitiveFlags_t::FX_EXPENSIVE_PHYSICS },
 			//rww - begin g2 stuff
-			{ CSTRING_VIEW( "ghoul2Collision" ), ( FX_GHOUL2_TRACE | FX_APPLY_PHYSICS | FX_EXPENSIVE_PHYSICS ) },
-			{ CSTRING_VIEW( "ghoul2Decals" ), FX_GHOUL2_DECALS },
+			{ CSTRING_VIEW( "ghoul2Collision" ), ( fxPrimitiveFlags_t::FX_GHOUL2_TRACE | fxPrimitiveFlags_t::FX_APPLY_PHYSICS | fxPrimitiveFlags_t::FX_EXPENSIVE_PHYSICS ) },
+			{ CSTRING_VIEW( "ghoul2Decals" ), fxPrimitiveFlags_t::FX_GHOUL2_DECALS },
 			//rww - end
-			{ CSTRING_VIEW( "impactKills" ), FX_KILL_ON_IMPACT },
-			{ CSTRING_VIEW( "impactFx" ), FX_IMPACT_RUNS_FX },
-			{ CSTRING_VIEW( "deathFx" ), FX_DEATH_RUNS_FX },
-			{ CSTRING_VIEW( "useAlpha" ), FX_USE_ALPHA },
-			{ CSTRING_VIEW( "emitFx" ), FX_EMIT_FX },
-			{ CSTRING_VIEW( "depthHack" ), FX_DEPTH_HACK },
-			{ CSTRING_VIEW( "setShaderTime" ), FX_SET_SHADER_TIME },
+			{ CSTRING_VIEW( "impactKills" ), fxPrimitiveFlags_t::FX_KILL_ON_IMPACT },
+			{ CSTRING_VIEW( "impactFx" ), fxPrimitiveFlags_t::FX_IMPACT_RUNS_FX },
+			{ CSTRING_VIEW( "deathFx" ), fxPrimitiveFlags_t::FX_DEATH_RUNS_FX },
+			{ CSTRING_VIEW( "useAlpha" ), fxPrimitiveFlags_t::FX_USE_ALPHA },
+			{ CSTRING_VIEW( "emitFx" ), fxPrimitiveFlags_t::FX_EMIT_FX },
+			{ CSTRING_VIEW( "depthHack" ), fxPrimitiveFlags_t::FX_DEPTH_HACK },
+			{ CSTRING_VIEW( "setShaderTime" ), fxPrimitiveFlags_t::FX_SET_SHADER_TIME },
 		};
 
 		auto pos = flagNames.find( cur );
@@ -792,20 +792,20 @@ bool CPrimitiveTemplate::ParseSpawnFlags( const gsl::cstring_span& val )
 	for( auto& cur : availableFlag )
 	{
 		static StringViewIMap< fxSpawnFlags_t > flagNames{
-			{ CSTRING_VIEW( "org2fromTrace" ), FX_ORG2_FROM_TRACE },
-			{ CSTRING_VIEW( "traceImpactFx" ), FX_TRACE_IMPACT_FX },
-			{ CSTRING_VIEW( "org2isOffset" ), FX_ORG2_IS_OFFSET },
-			{ CSTRING_VIEW( "cheapOrgCalc" ), FX_CHEAP_ORG_CALC },
-			{ CSTRING_VIEW( "cheapOrg2Calc" ), FX_CHEAP_ORG2_CALC },
-			{ CSTRING_VIEW( "absoluteVel" ), FX_VEL_IS_ABSOLUTE },
-			{ CSTRING_VIEW( "absoluteAccel" ), FX_ACCEL_IS_ABSOLUTE },
-			{ CSTRING_VIEW( "orgOnSphere" ), FX_ORG_ON_SPHERE },
-			{ CSTRING_VIEW( "orgOnCylinder" ), FX_ORG_ON_CYLINDER },
-			{ CSTRING_VIEW( "axisFromSphere" ), FX_AXIS_FROM_SPHERE },
-			{ CSTRING_VIEW( "randrotaroundfwd" ), FX_RAND_ROT_AROUND_FWD },
-			{ CSTRING_VIEW( "evenDistribution" ), FX_EVEN_DISTRIBUTION },
-			{ CSTRING_VIEW( "rgbComponentInterpolation" ), FX_RGB_COMPONENT_INTERP },
-			{ CSTRING_VIEW( "lessAttenuation" ), FX_SND_LESS_ATTENUATION },
+			{ CSTRING_VIEW( "org2fromTrace" ), fxSpawnFlags_t::FX_ORG2_FROM_TRACE },
+			{ CSTRING_VIEW( "traceImpactFx" ), fxSpawnFlags_t::FX_TRACE_IMPACT_FX },
+			{ CSTRING_VIEW( "org2isOffset" ), fxSpawnFlags_t::FX_ORG2_IS_OFFSET },
+			{ CSTRING_VIEW( "cheapOrgCalc" ), fxSpawnFlags_t::FX_CHEAP_ORG_CALC },
+			{ CSTRING_VIEW( "cheapOrg2Calc" ), fxSpawnFlags_t::FX_CHEAP_ORG2_CALC },
+			{ CSTRING_VIEW( "absoluteVel" ), fxSpawnFlags_t::FX_VEL_IS_ABSOLUTE },
+			{ CSTRING_VIEW( "absoluteAccel" ), fxSpawnFlags_t::FX_ACCEL_IS_ABSOLUTE },
+			{ CSTRING_VIEW( "orgOnSphere" ), fxSpawnFlags_t::FX_ORG_ON_SPHERE },
+			{ CSTRING_VIEW( "orgOnCylinder" ), fxSpawnFlags_t::FX_ORG_ON_CYLINDER },
+			{ CSTRING_VIEW( "axisFromSphere" ), fxSpawnFlags_t::FX_AXIS_FROM_SPHERE },
+			{ CSTRING_VIEW( "randrotaroundfwd" ), fxSpawnFlags_t::FX_RAND_ROT_AROUND_FWD },
+			{ CSTRING_VIEW( "evenDistribution" ), fxSpawnFlags_t::FX_EVEN_DISTRIBUTION },
+			{ CSTRING_VIEW( "rgbComponentInterpolation" ), fxSpawnFlags_t::FX_RGB_COMPONENT_INTERP },
+			{ CSTRING_VIEW( "lessAttenuation" ), fxSpawnFlags_t::FX_SND_LESS_ATTENUATION },
 		};
 		auto pos = flagNames.find( cur );
 		if( pos == flagNames.end() )
@@ -1479,7 +1479,7 @@ bool CPrimitiveTemplate::ParseModels( const CGPProperty& grp )
 		theFxHelper.Print( "CPrimitiveTemplate::ParseModels called with an empty list!\n" );
 		return false;
 	}
-	mFlags |= FX_ATTACHED_MODEL;
+	mFlags |= fxPrimitiveFlags_t::FX_ATTACHED_MODEL;
 	return true;
 }
 
@@ -1526,7 +1526,7 @@ bool CPrimitiveTemplate::ParseImpactFxStrings( const CGPProperty& grp )
 	return ParseFX(
 		grp,
 		theFxScheduler, mImpactFxHandles, theFxHelper,
-		mFlags, FX_IMPACT_RUNS_FX | FX_APPLY_PHYSICS,
+		mFlags, fxPrimitiveFlags_t::FX_IMPACT_RUNS_FX | fxPrimitiveFlags_t::FX_APPLY_PHYSICS,
 		"FxTemplate: Impact effect file not found.\n",
 		"CPrimitiveTemplate::ParseImpactFxStrings called with an empty list!\n"
 		);
@@ -1547,7 +1547,7 @@ bool CPrimitiveTemplate::ParseDeathFxStrings( const CGPProperty& grp )
 	return ParseFX(
 		grp,
 		theFxScheduler, mDeathFxHandles, theFxHelper,
-		mFlags, FX_DEATH_RUNS_FX,
+		mFlags, fxPrimitiveFlags_t::FX_DEATH_RUNS_FX,
 		"FxTemplate: Death effect file not found.\n",
 		"CPrimitiveTemplate::ParseDeathFxStrings called with an empty list!\n"
 		);
@@ -1568,7 +1568,7 @@ bool CPrimitiveTemplate::ParseEmitterFxStrings( const CGPProperty& grp )
 	return ParseFX(
 		grp,
 		theFxScheduler, mEmitterFxHandles, theFxHelper,
-		mFlags, FX_EMIT_FX,
+		mFlags, fxPrimitiveFlags_t::FX_EMIT_FX,
 		"FxTemplate: Emitter effect file not found.\n",
 		"CPrimitiveTemplate::ParseEmitterFxStrings called with an empty list!\n"
 		);
@@ -1589,7 +1589,7 @@ bool CPrimitiveTemplate::ParsePlayFxStrings( const CGPProperty& grp )
 	return ParseFX(
 		grp,
 		theFxScheduler, mPlayFxHandles, theFxHelper,
-		mFlags, FX_NONE,
+		mFlags, fxPrimitiveFlags_t::FX_NONE,
 		"FxTemplate: Effect file not found.\n",
 		"CPrimitiveTemplate::ParsePlayFxStrings called with an empty list!\n"
 		);

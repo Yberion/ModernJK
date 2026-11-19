@@ -43,7 +43,7 @@ void WP_FireStunBaton( gentity_t *ent, bool alt_fire )
 	VectorSet( maxs, 5, 5, 5 );
 	VectorScale( maxs, -1, mins );
 
-	gi.trace ( &tr, start, mins, maxs, end, ent->s.number, CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_SHOTCLIP, G2_NOCOLLIDE, 0 );
+	gi.trace ( &tr, start, mins, maxs, end, ent->s.number, contentsFlags_t::CONTENTS_SOLID|contentsFlags_t::CONTENTS_BODY|contentsFlags_t::CONTENTS_SHOTCLIP, EG2_Collision::G2_NOCOLLIDE, 0 );
 
 	if ( tr.entityNum >= ENTITYNUM_WORLD || tr.entityNum < 0 )
 	{
@@ -58,12 +58,12 @@ void WP_FireStunBaton( gentity_t *ent, bool alt_fire )
 
 		// TEMP!
 //		G_Sound( tr_ent, G_SoundIndex( va("sound/weapons/melee/punch%d", Q_irand(1, 4)) ) );
-		tr_ent->client->ps.powerups[PW_SHOCKED] = level.time + 1500;
+		tr_ent->client->ps.powerups[powerup_t::PW_SHOCKED] = level.time + 1500;
 
-		G_Damage( tr_ent, ent, ent, forwardVec, tr.endpos, weaponData[WP_STUN_BATON].damage, DAMAGE_NO_KNOCKBACK, MOD_MELEE );
+		G_Damage( tr_ent, ent, ent, forwardVec, tr.endpos, weaponData[weapon_t::WP_STUN_BATON].damage, damageFlags_t::DAMAGE_NO_KNOCKBACK, meansOfDeath_t::MOD_MELEE );
 	}
-	else if ( Any( tr_ent->svFlags & SVF_GLASS_BRUSH ) || ( Any( tr_ent->svFlags & SVF_BBRUSH ) && tr_ent->material == MAT_GRATE1 )) // material grate...we are breaking a grate!
+	else if ( Any( tr_ent->svFlags & svFlags_t::SVF_GLASS_BRUSH ) || ( Any( tr_ent->svFlags & svFlags_t::SVF_BBRUSH ) && tr_ent->material == material_t::MAT_GRATE1 )) // material grate...we are breaking a grate!
 	{
-		G_Damage( tr_ent, ent, ent, forwardVec, tr.endpos, 999, DAMAGE_NO_KNOCKBACK, MOD_MELEE ); // smash that puppy
+		G_Damage( tr_ent, ent, ent, forwardVec, tr.endpos, 999, damageFlags_t::DAMAGE_NO_KNOCKBACK, meansOfDeath_t::MOD_MELEE ); // smash that puppy
 	}
 }

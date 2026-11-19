@@ -50,7 +50,6 @@ enum class serverState_t {
 	SS_LOADING,			// spawning level entities
 	SS_GAME				// actively running
 };
-using enum serverState_t;
 
 typedef struct server_s {
 	serverState_t	state;
@@ -129,7 +128,6 @@ enum class clientState_t {
 	CS_PRIMED,		// gamestate has been sent, but client hasn't sent a usercmd
 	CS_ACTIVE		// client is fully in game
 };
-using enum clientState_t;
 
 
 // struct to hold demo data for a single demo
@@ -267,7 +265,7 @@ typedef struct serverStatic_s {
 	int			time;						// will be strictly increasing across level changes
 	time_t		startTime;					// time since epoch the executable was started
 
-	snapFlags_t	snapFlagServerBit;			// ^= SNAPFLAG_SERVERCOUNT every SV_SpawnServer()
+	snapFlags_t	snapFlagServerBit;			// ^= snapFlags_t::SNAPFLAG_SERVERCOUNT every SV_SpawnServer()
 
 	client_t	*clients;					// [sv_maxclients->integer];
 	// The entity states of the snapshots (plan step 14, part 5): one copy of an entity's state while it does not

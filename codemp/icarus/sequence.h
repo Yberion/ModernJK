@@ -42,7 +42,6 @@ enum class sequenceFlags_t
 	SQ_CONDITIONAL	= 0x00000020,	//Conditional statement
 	SQ_TASK			= 0x00000040,	//Task block
 };
-using enum sequenceFlags_t;
 template <> inline constexpr bool enableEnumFlags<sequenceFlags_t> = true;
 
 class CSequence
@@ -104,7 +103,7 @@ public:
 
 	inline void *operator new( size_t size )
 	{	// Allocate the memory.
-		return Z_Malloc( size, TAG_ICARUS3, true );
+		return Z_Malloc( size, memtag::TAG_ICARUS3, true );
 	}
 	// Overloaded delete operator.
 	inline void operator delete( void *pRawData )

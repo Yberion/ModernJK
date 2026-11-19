@@ -35,7 +35,6 @@ enum class footstep_t {
 
 	FOOTSTEP_TOTAL
 };
-using enum footstep_t;
 
 #include "qcommon/q_spsets.h"
 
@@ -67,7 +66,6 @@ enum class chunkType_t
 	CHUNK_WHITE_METAL,
 	NUM_CHUNK_TYPES
 };
-using enum chunkType_t;
 
 // all of the model, shader, and sound references that are
 // loaded at gamestate time are stored in cgMedia_t
@@ -106,7 +104,7 @@ typedef struct {
 	iconBackground_t	currentDataPadIconBackground;
 
 //Chunks
-	EnumArray<qhandle_t[4], chunkType_t, NUM_CHUNK_TYPES>	chunkModels;
+	EnumArray<qhandle_t[4], chunkType_t, chunkType_t::NUM_CHUNK_TYPES>	chunkModels;
 	sfxHandle_t	chunkSound;
 	sfxHandle_t	grateSound;
 	sfxHandle_t	rockBreakSound;
@@ -249,7 +247,7 @@ typedef struct {
 	sfxHandle_t	overchargeEndSound;
 
 	sfxHandle_t	useNothingSound;
-	EnumArray<sfxHandle_t[4], footstep_t, FOOTSTEP_TOTAL>	footsteps;
+	EnumArray<sfxHandle_t[4], footstep_t, footstep_t::FOOTSTEP_TOTAL>	footsteps;
 
 	sfxHandle_t talkSound;
 	sfxHandle_t	noAmmoSound;

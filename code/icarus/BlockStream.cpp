@@ -46,7 +46,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 inline CBlockMember::CBlockMember( void )
 {
-	m_id = CIcarus::TK_EOF;
+	m_id = icarusToken_t::TK_EOF;
 	m_size = -1;
 	m_data = nullptr;
 }
@@ -68,7 +68,7 @@ void CBlockMember::Free(IGameInterface* game)
 		game->Free ( m_data );
 		m_data = nullptr;
 
-		m_id = CIcarus::TK_EOF;
+		m_id = icarusToken_t::TK_EOF;
 		m_size = -1;
 	}
 	delete this;
@@ -128,7 +128,7 @@ int CBlockMember::ReadMember( char **stream, long *streamPos, CIcarus* icarus )
 	m_id = static_cast<icarusToken_t>( LittleLong(*(int *) (*stream + *streamPos)) );
 	*streamPos += sizeof( int );
 
-	if ( m_id == CIcarus::ID_RANDOM )
+	if ( m_id == icarusToken_t::ID_RANDOM )
 	{//special case, need to initialize this member's data to Q3_INFINITE so we can randomize the number only the first time random is checked when inside a wait
 		m_size = sizeof( float );
 		*streamPos += sizeof( int );
@@ -206,8 +206,8 @@ Init
 
 int CBlock::Init( void )
 {
-	m_flags			= BF_NONE;
-	m_id			= CIcarus::TK_UNDEFINED;
+	m_flags			= blockFlags_t::BF_NONE;
+	m_id			= icarusToken_t::TK_UNDEFINED;
 
 	return true;
 }

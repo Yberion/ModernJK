@@ -62,7 +62,7 @@ Con_ToggleConsole_f
 */
 void Con_ToggleConsole_f (void) {
 	// closing a full screen console restarts the demo loop
-	if ( cls.state == CA_DISCONNECTED && Key_GetCatcher( ) == KEYCATCH_CONSOLE ) {
+	if ( cls.state == connstate_t::CA_DISCONNECTED && Key_GetCatcher( ) == keyCatchFlags_t::KEYCATCH_CONSOLE ) {
 //		CL_StartDemoLoop();
 		return;
 	}
@@ -72,7 +72,7 @@ void Con_ToggleConsole_f (void) {
 	g_consoleField.widthInChars = g_console_field_width;
 
 	Con_ClearNotify ();
-	Key_SetCatcher( Key_GetCatcher( ) ^ KEYCATCH_CONSOLE );
+	Key_SetCatcher( Key_GetCatcher( ) ^ keyCatchFlags_t::KEYCATCH_CONSOLE );
 }
 
 /*
@@ -81,8 +81,8 @@ Con_ToggleMenu_f
 ===================
 */
 void Con_ToggleMenu_f( void ) {
-	CL_KeyEvent( A_ESCAPE, true, Sys_Milliseconds() );
-	CL_KeyEvent( A_ESCAPE, false, Sys_Milliseconds() );
+	CL_KeyEvent( fakeAscii_t::A_ESCAPE, true, Sys_Milliseconds() );
+	CL_KeyEvent( fakeAscii_t::A_ESCAPE, false, Sys_Milliseconds() );
 }
 
 /*
@@ -374,7 +374,7 @@ void Con_CheckResize (void)
 	}
 
 	if (charWidth < 1) {
-		Com_Error(ERR_FATAL, "Con_CheckResize: Window too small to draw a console");
+		Com_Error(errorParm_t::ERR_FATAL, "Con_CheckResize: Window too small to draw a console");
 	}
 
 	rowwidth = width + 1 + (con_timestamps->integer ? 0 : CON_TIMESTAMP_LEN);
@@ -411,16 +411,16 @@ Con_Init
 void Con_Init (void) {
 	int		i;
 
-	con_notifytime = Cvar_Get ("con_notifytime", "3", CVAR_NONE);
-	con_conspeed = Cvar_Get ("scr_conspeed", "3", CVAR_NONE);
+	con_notifytime = Cvar_Get ("con_notifytime", "3", cvarFlags_t::CVAR_NONE);
+	con_conspeed = Cvar_Get ("scr_conspeed", "3", cvarFlags_t::CVAR_NONE);
 	Cvar_CheckRange (con_conspeed, 1.0f, 100.0f, false);
 
-	con_opacity = Cvar_Get ("con_opacity", "0.8", CVAR_ARCHIVE_ND);
-	con_autoclear = Cvar_Get ("con_autoclear", "1", CVAR_ARCHIVE_ND);
-	con_height = Cvar_Get ("con_height", "0.5", CVAR_ARCHIVE_ND);
+	con_opacity = Cvar_Get ("con_opacity", "0.8", cvarFlags_t::CVAR_ARCHIVE_ND);
+	con_autoclear = Cvar_Get ("con_autoclear", "1", cvarFlags_t::CVAR_ARCHIVE_ND);
+	con_height = Cvar_Get ("con_height", "0.5", cvarFlags_t::CVAR_ARCHIVE_ND);
 
-	con_scale = Cvar_Get ("con_scale", "1", CVAR_ARCHIVE_ND);
-	con_timestamps = Cvar_Get ("con_timestamps", "0", CVAR_ARCHIVE_ND);
+	con_scale = Cvar_Get ("con_scale", "1", cvarFlags_t::CVAR_ARCHIVE_ND);
+	con_timestamps = Cvar_Get ("con_timestamps", "0", cvarFlags_t::CVAR_ARCHIVE_ND);
 
 	Field_Clear( &g_consoleField );
 	g_consoleField.widthInChars = g_console_field_width;
@@ -565,7 +565,7 @@ Draw the editline after a ] prompt
 void Con_DrawInput (void) {
 	int		y;
 
-	if ( cls.state != CA_DISCONNECTED && !Any(Key_GetCatcher( ) & KEYCATCH_CONSOLE ) ) {
+	if ( cls.state != connstate_t::CA_DISCONNECTED && !Any(Key_GetCatcher( ) & keyCatchFlags_t::KEYCATCH_CONSOLE ) ) {
 		return;
 	}
 
@@ -847,8 +847,8 @@ void Con_DrawConsole( void ) {
 	Con_CheckResize ();
 
 	// if disconnected, render console full screen
-	if ( cls.state == CA_DISCONNECTED ) {
-		if ( !Any( Key_GetCatcher( ) & KEYCATCH_UI) ) {
+	if ( cls.state == connstate_t::CA_DISCONNECTED ) {
+		if ( !Any( Key_GetCatcher( ) & keyCatchFlags_t::KEYCATCH_UI) ) {
 			Con_DrawSolidConsole( 1.0 );
 			return;
 		}
@@ -858,7 +858,7 @@ void Con_DrawConsole( void ) {
 		Con_DrawSolidConsole( con.displayFrac );
 	} else {
 		// draw notify lines
-		if ( cls.state == CA_ACTIVE ) {
+		if ( cls.state == connstate_t::CA_ACTIVE ) {
 			Con_DrawNotify ();
 		}
 	}
@@ -875,7 +875,7 @@ Scroll it up or down
 */
 void Con_RunConsole (void) {
 	// decide on the destination height of the console
-	if ( Any( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) )
+	if ( Any( Key_GetCatcher( ) & keyCatchFlags_t::KEYCATCH_CONSOLE ) )
 		con.finalFrac = con_height->value;
 	else
 		con.finalFrac = 0;				// none visible
@@ -927,7 +927,7 @@ void Con_Bottom( void ) {
 void Con_Close( void ) {
 	Field_Clear( &g_consoleField );
 	Con_ClearNotify ();
-	Key_SetCatcher( Key_GetCatcher( ) & ~KEYCATCH_CONSOLE );
+	Key_SetCatcher( Key_GetCatcher( ) & ~keyCatchFlags_t::KEYCATCH_CONSOLE );
 	con.finalFrac = 0;				// none visible
 	con.displayFrac = 0;
 }

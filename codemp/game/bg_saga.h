@@ -24,8 +24,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 inline constexpr int MAX_SIEGE_INFO_SIZE = 16384;
 
-inline constexpr team_t SIEGETEAM_TEAM1 = TEAM_RED;
-inline constexpr team_t SIEGETEAM_TEAM2 = TEAM_BLUE;
+inline constexpr team_t SIEGETEAM_TEAM1 = team_t::TEAM_RED;
+inline constexpr team_t SIEGETEAM_TEAM2 = team_t::TEAM_BLUE;
 
 inline constexpr int SIEGE_POINTS_OBJECTIVECOMPLETED = 20;
 inline constexpr int SIEGE_POINTS_FINALOBJECTIVECOMPLETED = 30;
@@ -51,7 +51,6 @@ enum class siegePlayerClassFlags_t
 	SPC_HEAVY_WEAPONS,
 	SPC_MAX
 };
-using enum siegePlayerClassFlags_t;
 template <> inline constexpr bool enableEnumArithmetic<siegePlayerClassFlags_t> = true;
 
 enum class siegeClassFlags_t
@@ -65,7 +64,6 @@ enum class siegeClassFlags_t
 	CFL_CUSTOMSKEL, //class uses a custom skeleton, be sure to load on server etc
 	CFL_EXTRA_AMMO
 };
-using enum siegeClassFlags_t;
 
 
 inline constexpr int SIEGE_CLASS_DESC_LEN = 4096;
@@ -80,7 +78,7 @@ typedef struct siegeClass_s {
 	char		saber1[SABER_NAME_LENGTH], saber2[SABER_NAME_LENGTH];
 	int			saberStance;
 	int			weapons;
-	EnumArray<forcePowerLevels_t, forcePowers_t, NUM_FORCE_POWERS>	forcePowerLevels;
+	EnumArray<forcePowerLevels_t, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS>	forcePowerLevels;
 	int			classflags;
 	int			maxhealth;
 	int			starthealth;

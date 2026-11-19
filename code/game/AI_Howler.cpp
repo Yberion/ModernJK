@@ -36,7 +36,6 @@ enum class howlerLocalState_t
 	LSTATE_FLEE,
 	LSTATE_BERZERK,
 };
-using enum howlerLocalState_t;
 
 constexpr float HOWLER_RETREAT_DIST = 300.0f;
 constexpr int HOWLER_PANIC_HEALTH = 10;
@@ -98,7 +97,7 @@ static bool NPC_Howler_Move( int randomJumpChance = 0 )
 	}
 	if ( (!NPC->enemy&&TIMER_Done( NPC, "running" )) || !TIMER_Done( NPC, "walking" ) )
 	{
-		ucmd.buttons |= BUTTON_WALKING;
+		ucmd.buttons |= buttonFlags_t::BUTTON_WALKING;
 	}
 	if ( (!randomJumpChance||Q_irand( 0, randomJumpChance ))
 		&& NPC_MoveToGoal( true ) )
@@ -123,7 +122,7 @@ static bool NPC_Howler_Move( int randomJumpChance = 0 )
 		//if backing up, go slow...
 		if ( ucmd.forwardmove < 0.0f )
 		{
-			ucmd.buttons |= BUTTON_WALKING;
+			ucmd.buttons |= buttonFlags_t::BUTTON_WALKING;
 			//if ( NPC->client->ps.speed > NPCInfo->stats.walkSpeed )
 			{//don't walk faster than I'm allowed to
 				NPC->client->ps.speed = NPCInfo->stats.walkSpeed;
@@ -131,7 +130,7 @@ static bool NPC_Howler_Move( int randomJumpChance = 0 )
 		}
 		else
 		{
-			if ( Any(ucmd.buttons&BUTTON_WALKING) )
+			if ( Any(ucmd.buttons&buttonFlags_t::BUTTON_WALKING) )
 			{
 				NPC->client->ps.speed = NPCInfo->stats.walkSpeed;
 			}
@@ -167,7 +166,7 @@ Howler_Patrol
 */
 static void Howler_Patrol( void )
 {
-	NPC_SetLocalState( *NPCInfo, LSTATE_CLEAR );
+	NPC_SetLocalState( *NPCInfo, howlerLocalState_t::LSTATE_CLEAR );
 
 	//If we have somewhere to go, then do that
 	if ( UpdateGoal() )
@@ -199,7 +198,7 @@ Howler_Move
 */
 static bool Howler_Move( bool visible )
 {
-	if ( NPC_LocalState<howlerLocalState_t>( *NPCInfo ) != LSTATE_WAITING )
+	if ( NPC_LocalState<howlerLocalState_t>( *NPCInfo ) != howlerLocalState_t::LSTATE_WAITING )
 	{
 		NPCInfo->goalEntity = NPC->enemy;
 		NPCInfo->goalRadius = MAX_DISTANCE;	// just get us within combat range
@@ -236,13 +235,13 @@ static void Howler_TryDamage( int damage, bool tongue, bool knockdown )
 	}
 #endif
 	// Should probably trace from the mouth, but, ah well.
-	gi.trace( &tr, start, vec3_origin, vec3_origin, end, NPC->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
+	gi.trace( &tr, start, vec3_origin, vec3_origin, end, NPC->s.number, MASK_SHOT, EG2_Collision::G2_NOCOLLIDE, 0 );
 
 	if ( tr.entityNum < ENTITYNUM_WORLD )
 	{//hit *something*
 		gentity_t *victim = &g_entities[tr.entityNum];
 		if ( !victim->client
-			|| victim->client->NPC_class != CLASS_HOWLER )
+			|| victim->client->NPC_class != class_t::CLASS_HOWLER )
 		{//not another howler
 
 			if ( knockdown && victim->client )
@@ -253,7 +252,7 @@ static void Howler_TryDamage( int damage, bool tongue, bool knockdown )
 				}
 			}
 			//FIXME: some sort of damage effect (claws and tongue are cutting you... blood?)
-			G_Damage( victim, NPC, NPC, dir, tr.endpos, damage, DAMAGE_NO_KNOCKBACK, MOD_MELEE );
+			G_Damage( victim, NPC, NPC, dir, tr.endpos, damage, damageFlags_t::DAMAGE_NO_KNOCKBACK, meansOfDeath_t::MOD_MELEE );
 			if ( knockdown && victim->health > 0 )
 			{//victim still alive
 				G_Knockdown( victim, NPC, NPC->client->ps.velocity, 500, false );
@@ -273,7 +272,7 @@ static void Howler_Howl( void )
 	int			i;
 	vec3_t		boltOrg;
 
-	AddSoundEvent( NPC, NPC->currentOrigin, 512, AEL_DANGER, false, true );
+	AddSoundEvent( NPC, NPC->currentOrigin, 512, alertEventLevel_e::AEL_DANGER, false, true );
 
 	numEnts = NPC_GetEntsNearBolt( radiusEnts, radius, NPC->handLBolt, boltOrg );
 
@@ -294,7 +293,7 @@ static void Howler_Howl( void )
 			continue;
 		}
 
-		if ( radiusEnts[i]->client->NPC_class == CLASS_HOWLER )
+		if ( radiusEnts[i]->client->NPC_class == class_t::CLASS_HOWLER )
 		{//other howlers immune
 			continue;
 		}
@@ -306,29 +305,29 @@ static void Howler_Howl( void )
 			{//close enough to do damage, too
 				if ( Q_irand( 0, g_spskill->integer ) )
 				{//does no damage on easy, does 1 point every other frame on medium, more often on hard
-					G_Damage( radiusEnts[i], NPC, NPC, vec3_origin, NPC->currentOrigin, 1, DAMAGE_NO_KNOCKBACK, MOD_IMPACT );
+					G_Damage( radiusEnts[i], NPC, NPC, vec3_origin, NPC->currentOrigin, 1, damageFlags_t::DAMAGE_NO_KNOCKBACK, meansOfDeath_t::MOD_IMPACT );
 				}
 			}
 			if ( radiusEnts[i]->health > 0
 				&& radiusEnts[i]->client
-				&& radiusEnts[i]->client->NPC_class != CLASS_RANCOR
-				&& radiusEnts[i]->client->NPC_class != CLASS_ATST
+				&& radiusEnts[i]->client->NPC_class != class_t::CLASS_RANCOR
+				&& radiusEnts[i]->client->NPC_class != class_t::CLASS_ATST
 				&& !PM_InKnockDown( &radiusEnts[i]->client->ps ) )
 			{
-				if ( PM_HasAnimation( radiusEnts[i], BOTH_SONICPAIN_START ) )
+				if ( PM_HasAnimation( radiusEnts[i], animNumber_t::BOTH_SONICPAIN_START ) )
 				{
-					if ( radiusEnts[i]->client->ps.torsoAnim != BOTH_SONICPAIN_START
-						&& radiusEnts[i]->client->ps.torsoAnim != BOTH_SONICPAIN_HOLD )
+					if ( radiusEnts[i]->client->ps.torsoAnim != animNumber_t::BOTH_SONICPAIN_START
+						&& radiusEnts[i]->client->ps.torsoAnim != animNumber_t::BOTH_SONICPAIN_HOLD )
 					{
-						NPC_SetAnim( radiusEnts[i], SETANIM_LEGS, BOTH_SONICPAIN_START, SETANIM_FLAG_NORMAL );
-						NPC_SetAnim( radiusEnts[i], SETANIM_TORSO, BOTH_SONICPAIN_START, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+						NPC_SetAnim( radiusEnts[i], setAnimParts_t::SETANIM_LEGS, animNumber_t::BOTH_SONICPAIN_START, setAnimFlags_t::SETANIM_FLAG_NORMAL );
+						NPC_SetAnim( radiusEnts[i], setAnimParts_t::SETANIM_TORSO, animNumber_t::BOTH_SONICPAIN_START, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD );
 						radiusEnts[i]->client->ps.torsoAnimTimer += 100;
 						radiusEnts[i]->client->ps.weaponTime = radiusEnts[i]->client->ps.torsoAnimTimer;
 					}
 					else if ( radiusEnts[i]->client->ps.torsoAnimTimer <= 100 )
 					{//at the end of the sonic pain start or hold anim
-						NPC_SetAnim( radiusEnts[i], SETANIM_LEGS, BOTH_SONICPAIN_HOLD, SETANIM_FLAG_NORMAL );
-						NPC_SetAnim( radiusEnts[i], SETANIM_TORSO, BOTH_SONICPAIN_HOLD, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+						NPC_SetAnim( radiusEnts[i], setAnimParts_t::SETANIM_LEGS, animNumber_t::BOTH_SONICPAIN_HOLD, setAnimFlags_t::SETANIM_FLAG_NORMAL );
+						NPC_SetAnim( radiusEnts[i], setAnimParts_t::SETANIM_TORSO, animNumber_t::BOTH_SONICPAIN_HOLD, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD );
 						radiusEnts[i]->client->ps.torsoAnimTimer += 100;
 						radiusEnts[i]->client->ps.weaponTime = radiusEnts[i]->client->ps.torsoAnimTimer;
 					}
@@ -355,20 +354,20 @@ static void Howler_Howl( void )
 //------------------------------
 static void Howler_Attack( float enemyDist, bool howl )
 {
-	int dmg = (NPC_LocalState<howlerLocalState_t>( *NPCInfo )==LSTATE_BERZERK)?5:2;
+	int dmg = (NPC_LocalState<howlerLocalState_t>( *NPCInfo )==howlerLocalState_t::LSTATE_BERZERK)?5:2;
 
 	if ( !TIMER_Exists( NPC, "attacking" ))
 	{
-		animNumber_t attackAnim = BOTH_GESTURE1;
+		animNumber_t attackAnim = animNumber_t::BOTH_GESTURE1;
 		// Going to do an attack
 		if ( NPC->enemy && NPC->enemy->client && PM_InKnockDown( &NPC->enemy->client->ps )
 			&& enemyDist <= MIN_DISTANCE )
 		{
-			attackAnim = BOTH_ATTACK2;
+			attackAnim = animNumber_t::BOTH_ATTACK2;
 		}
 		else if ( !Q_irand( 0, 4 ) || howl )
 		{//howl attack
-			//G_SoundOnEnt( NPC, CHAN_VOICE, "sound/chars/howler/howl.mp3" );
+			//G_SoundOnEnt( NPC, soundChannel_t::CHAN_VOICE, "sound/chars/howler/howl.mp3" );
 		}
 		else if ( enemyDist > MIN_DISTANCE && Q_irand( 0, 1 ) )
 		{//lunge attack
@@ -379,15 +378,15 @@ static void Howler_Attack( float enemyDist, bool howl )
 			NPC->client->ps.velocity[2] = 200;
 			NPC->client->ps.groundEntityNum = ENTITYNUM_NONE;
 
-			attackAnim = BOTH_ATTACK1;
+			attackAnim = animNumber_t::BOTH_ATTACK1;
 		}
 		else
 		{//tongue attack
-			attackAnim = BOTH_ATTACK2;
+			attackAnim = animNumber_t::BOTH_ATTACK2;
 		}
 
-		NPC_SetAnim( NPC, SETANIM_BOTH, attackAnim, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_RESTART );
-		if ( NPC_LocalState<howlerLocalState_t>( *NPCInfo ) == LSTATE_BERZERK )
+		NPC_SetAnim( NPC, setAnimParts_t::SETANIM_BOTH, attackAnim, setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD | setAnimFlags_t::SETANIM_FLAG_RESTART );
+		if ( NPC_LocalState<howlerLocalState_t>( *NPCInfo ) == howlerLocalState_t::LSTATE_BERZERK )
 		{//attack again right away
 			TIMER_Set( NPC, "attacking", NPC->client->ps.legsAnimTimer );
 		}
@@ -405,23 +404,23 @@ static void Howler_Attack( float enemyDist, bool howl )
 	// Need to do delayed damage since the attack animations encapsulate multiple mini-attacks
 	switch ( NPC->client->ps.legsAnim )
 	{
-	case BOTH_ATTACK1:
-	case BOTH_MELEE1:
+	case animNumber_t::BOTH_ATTACK1:
+	case animNumber_t::BOTH_MELEE1:
 		if ( NPC->client->ps.legsAnimTimer > 650//more than 13 frames left
 			&& PM_AnimLength( NPC->client->clientInfo.animFileIndex, NPC->client->ps.legsAnim ) - NPC->client->ps.legsAnimTimer >= 800 )//at least 16 frames into anim
 		{
 			Howler_TryDamage( dmg, false, false );
 		}
 		break;
-	case BOTH_ATTACK2:
-	case BOTH_MELEE2:
+	case animNumber_t::BOTH_ATTACK2:
+	case animNumber_t::BOTH_MELEE2:
 		if ( NPC->client->ps.legsAnimTimer > 350//more than 7 frames left
 			&& PM_AnimLength( NPC->client->clientInfo.animFileIndex, NPC->client->ps.legsAnim ) - NPC->client->ps.legsAnimTimer >= 550 )//at least 11 frames into anim
 		{
 			Howler_TryDamage( dmg, true, false );
 		}
 		break;
-	case BOTH_GESTURE1:
+	case animNumber_t::BOTH_GESTURE1:
 		{
 			if ( NPC->client->ps.legsAnimTimer > 1800//more than 36 frames left
 				&& PM_AnimLength( NPC->client->clientInfo.animFileIndex, NPC->client->ps.legsAnim ) - NPC->client->ps.legsAnimTimer >= 950 )//at least 19 frames into anim
@@ -430,7 +429,7 @@ static void Howler_Attack( float enemyDist, bool howl )
 				if ( !NPC->count )
 				{
 					G_PlayEffect( G_EffectIndex( "howler/sonic" ), NPC->playerModel, NPC->genericBolt1, NPC->s.number, NPC->currentOrigin, 4750, true );
-					G_SoundOnEnt( NPC, CHAN_VOICE, "sound/chars/howler/howl.mp3" );
+					G_SoundOnEnt( NPC, soundChannel_t::CHAN_VOICE, "sound/chars/howler/howl.mp3" );
 					NPC->count = 1;
 				}
 			}
@@ -454,8 +453,8 @@ static void Howler_Combat( void )
 	bool	advance = false;
 	if ( NPC->client->ps.groundEntityNum == ENTITYNUM_NONE )
 	{//not on the ground
-		if ( NPC->client->ps.legsAnim == BOTH_JUMP1
-			|| NPC->client->ps.legsAnim == BOTH_INAIR1 )
+		if ( NPC->client->ps.legsAnim == animNumber_t::BOTH_JUMP1
+			|| NPC->client->ps.legsAnim == animNumber_t::BOTH_INAIR1 )
 		{//flying through the air with the greatest of ease, etc
 			Howler_TryDamage( 10, false, false );
 		}
@@ -468,7 +467,7 @@ static void Howler_Combat( void )
 			NPCInfo->goalEntity = NPC->enemy;
 			NPCInfo->goalRadius = MAX_DISTANCE;	// just get us within combat range
 
-			if ( NPC_LocalState<howlerLocalState_t>( *NPCInfo ) == LSTATE_BERZERK )
+			if ( NPC_LocalState<howlerLocalState_t>( *NPCInfo ) == howlerLocalState_t::LSTATE_BERZERK )
 			{
 				NPC_Howler_Move( 3 );
 			}
@@ -491,11 +490,11 @@ static void Howler_Combat( void )
 			advance = ( distance > MAX_DISTANCE ? true : false  );//MIN_DISTANCE
 		}
 
-		if (( advance || NPC_LocalState<howlerLocalState_t>( *NPCInfo ) == LSTATE_WAITING ) && TIMER_Done( NPC, "attacking" )) // waiting monsters can't attack
+		if (( advance || NPC_LocalState<howlerLocalState_t>( *NPCInfo ) == howlerLocalState_t::LSTATE_WAITING ) && TIMER_Done( NPC, "attacking" )) // waiting monsters can't attack
 		{
 			if ( TIMER_Done2( NPC, "takingPain", true ))
 			{
-				NPC_SetLocalState( *NPCInfo, LSTATE_CLEAR );
+				NPC_SetLocalState( *NPCInfo, howlerLocalState_t::LSTATE_CLEAR );
 			}
 			else if ( TIMER_Done( NPC, "standing" ) )
 			{
@@ -536,21 +535,21 @@ void NPC_Howler_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, c
 		return;
 	}
 
-	if ( NPC_LocalState<howlerLocalState_t>( *self->NPC ) != LSTATE_BERZERK )//damage >= 10 )
+	if ( NPC_LocalState<howlerLocalState_t>( *self->NPC ) != howlerLocalState_t::LSTATE_BERZERK )//damage >= 10 )
 	{
 		self->NPC->stats.aggression += damage;
-		NPC_SetLocalState( *self->NPC, LSTATE_WAITING );
+		NPC_SetLocalState( *self->NPC, howlerLocalState_t::LSTATE_WAITING );
 
 		TIMER_Remove( self, "attacking" );
 
 		VectorCopy( self->NPC->lastPathAngles, self->s.angles );
 
-		//if ( self->client->ps.legsAnim == BOTH_GESTURE1 )
+		//if ( self->client->ps.legsAnim == animNumber_t::BOTH_GESTURE1 )
 		{
 			G_StopEffect( G_EffectIndex( "howler/sonic" ), self->playerModel, self->genericBolt1, self->s.number );
 		}
 
-		NPC_SetAnim( self, SETANIM_BOTH, BOTH_PAIN1, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD );
+		NPC_SetAnim( self, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_PAIN1, setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD );
 		TIMER_Set( self, "takingPain", self->client->ps.legsAnimTimer );//2900 );
 
 		if ( self->health > HOWLER_PANIC_HEALTH )
@@ -574,11 +573,11 @@ void NPC_Howler_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, c
 		{//panic!
 			if ( Q_irand( 0, 1 ) )
 			{//berzerk
-				NPC_SetLocalState( *self->NPC, LSTATE_BERZERK );
+				NPC_SetLocalState( *self->NPC, howlerLocalState_t::LSTATE_BERZERK );
 			}
 			else
 			{//flee
-				NPC_SetLocalState( *self->NPC, LSTATE_FLEE );
+				NPC_SetLocalState( *self->NPC, howlerLocalState_t::LSTATE_FLEE );
 				TIMER_Set( self, "flee", Q_irand( 10000, 30000 ) );
 			}
 		}
@@ -593,7 +592,7 @@ NPC_BSHowler_Default
 */
 void NPC_BSHowler_Default( void )
 {
-	if ( NPC->client->ps.legsAnim != BOTH_GESTURE1 )
+	if ( NPC->client->ps.legsAnim != animNumber_t::BOTH_GESTURE1 )
 	{
 		NPC->count = 0;
 	}
@@ -634,24 +633,24 @@ void NPC_BSHowler_Default( void )
 			NPC_UpdateAngles( false, true );
 			return;
 		}
-		if ( NPC_LocalState<howlerLocalState_t>( *NPCInfo ) == LSTATE_FLEE )
+		if ( NPC_LocalState<howlerLocalState_t>( *NPCInfo ) == howlerLocalState_t::LSTATE_FLEE )
 		{//we were fleeing, now done (either timer ran out or we cannot flee anymore
 			if ( NPC_ClearLOS( NPC->enemy ) )
 			{//if enemy is still around, go berzerk
-				NPC_SetLocalState( *NPCInfo, LSTATE_BERZERK );
+				NPC_SetLocalState( *NPCInfo, howlerLocalState_t::LSTATE_BERZERK );
 			}
 			else
 			{//otherwise, lick our wounds?
-				NPC_SetLocalState( *NPCInfo, LSTATE_CLEAR );
+				NPC_SetLocalState( *NPCInfo, howlerLocalState_t::LSTATE_CLEAR );
 				TIMER_Set( NPC, "standing", Q_irand( 3000, 10000 ) );
 			}
 		}
-		else if ( NPC_LocalState<howlerLocalState_t>( *NPCInfo ) == LSTATE_BERZERK )
+		else if ( NPC_LocalState<howlerLocalState_t>( *NPCInfo ) == howlerLocalState_t::LSTATE_BERZERK )
 		{//go nuts!
 		}
 		else if ( NPCInfo->stats.aggression >= Q_irand( 75, 125 ) )
 		{//that's it, go nuts!
-			NPC_SetLocalState( *NPCInfo, LSTATE_BERZERK );
+			NPC_SetLocalState( *NPCInfo, howlerLocalState_t::LSTATE_BERZERK );
 		}
 		else if ( !TIMER_Done( NPC, "retreating" ) )
 		{//trying to back off
@@ -660,7 +659,7 @@ void NPC_BSHowler_Default( void )
 			{
 				NPC->client->ps.speed = NPCInfo->stats.walkSpeed;
 			}
-			ucmd.buttons |= BUTTON_WALKING;
+			ucmd.buttons |= buttonFlags_t::BUTTON_WALKING;
 			if ( Distance( NPC->enemy->currentOrigin, NPC->currentOrigin ) < HOWLER_RETREAT_DIST )
 			{//enemy is close
 				vec3_t moveDir;
@@ -697,7 +696,7 @@ void NPC_BSHowler_Default( void )
 					}
 				}
 			}
-			else if ( Any(NPCInfo->last_ucmd.buttons&BUTTON_WALKING) )
+			else if ( Any(NPCInfo->last_ucmd.buttons&buttonFlags_t::BUTTON_WALKING) )
 			{//walked last frame
 				if ( TIMER_Done( NPC, "walking" ) )
 				{//just finished walking
@@ -765,19 +764,19 @@ void NPC_BSHowler_Default( void )
 			if ( !TIMER_Done( NPC, "standing" )
 				|| !TIMER_Done( NPC, "retreating" ))
 			{
-				G_SoundOnEnt( NPC, CHAN_VOICE, va( "sound/chars/howler/idle_hiss%d.mp3", Q_irand( 1, 2 ) ) );
+				G_SoundOnEnt( NPC, soundChannel_t::CHAN_VOICE, va( "sound/chars/howler/idle_hiss%d.mp3", Q_irand( 1, 2 ) ) );
 			}
 			else if ( !TIMER_Done( NPC, "walking" )
-				|| NPC_LocalState<howlerLocalState_t>( *NPCInfo ) == LSTATE_FLEE )
+				|| NPC_LocalState<howlerLocalState_t>( *NPCInfo ) == howlerLocalState_t::LSTATE_FLEE )
 			{
-				G_SoundOnEnt( NPC, CHAN_VOICE, va( "sound/chars/howler/howl_talk%d.mp3", Q_irand( 1, 5 ) ) );
+				G_SoundOnEnt( NPC, soundChannel_t::CHAN_VOICE, va( "sound/chars/howler/howl_talk%d.mp3", Q_irand( 1, 5 ) ) );
 			}
 			else
 			{
-				G_SoundOnEnt( NPC, CHAN_VOICE, va( "sound/chars/howler/howl_yell%d.mp3", Q_irand( 1, 5 ) ) );
+				G_SoundOnEnt( NPC, soundChannel_t::CHAN_VOICE, va( "sound/chars/howler/howl_yell%d.mp3", Q_irand( 1, 5 ) ) );
 			}
-			if ( NPC_LocalState<howlerLocalState_t>( *NPCInfo ) == LSTATE_BERZERK
-				|| NPC_LocalState<howlerLocalState_t>( *NPCInfo ) == LSTATE_FLEE )
+			if ( NPC_LocalState<howlerLocalState_t>( *NPCInfo ) == howlerLocalState_t::LSTATE_BERZERK
+				|| NPC_LocalState<howlerLocalState_t>( *NPCInfo ) == howlerLocalState_t::LSTATE_FLEE )
 			{
 				TIMER_Set( NPC, "speaking", Q_irand( 1000, 4000 ) );
 			}
@@ -794,11 +793,11 @@ void NPC_BSHowler_Default( void )
 		{
 			if ( !Q_irand( 0, 3 ) )
 			{
-				G_SoundOnEnt( NPC, CHAN_VOICE, va( "sound/chars/howler/idle_hiss%d.mp3", Q_irand( 1, 2 ) ) );
+				G_SoundOnEnt( NPC, soundChannel_t::CHAN_VOICE, va( "sound/chars/howler/idle_hiss%d.mp3", Q_irand( 1, 2 ) ) );
 			}
 			else
 			{
-				G_SoundOnEnt( NPC, CHAN_VOICE, va( "sound/chars/howler/howl_talk%d.mp3", Q_irand( 1, 5 ) ) );
+				G_SoundOnEnt( NPC, soundChannel_t::CHAN_VOICE, va( "sound/chars/howler/howl_talk%d.mp3", Q_irand( 1, 5 ) ) );
 			}
 			TIMER_Set( NPC, "speaking", Q_irand( 4000, 12000 ) );
 		}
@@ -831,7 +830,7 @@ void NPC_BSHowler_Default( void )
 					}
 				}
 			}
-			else if ( Any(NPCInfo->last_ucmd.buttons&BUTTON_WALKING) )
+			else if ( Any(NPCInfo->last_ucmd.buttons&buttonFlags_t::BUTTON_WALKING) )
 			{//walked last frame
 				if ( TIMER_Done( NPC, "walking" ) )
 				{//just finished walking
@@ -860,7 +859,7 @@ void NPC_BSHowler_Default( void )
 				}
 			}
 		}
-		if ( Any( NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES ) )
+		if ( Any( NPCInfo->scriptFlags & scriptFlags_t::SCF_LOOK_FOR_ENEMIES ) )
 		{
 			Howler_Patrol();
 		}

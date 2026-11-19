@@ -31,7 +31,7 @@ constexpr int MIN_MELEE_RANGE_SQR = MIN_MELEE_RANGE * MIN_MELEE_RANGE;
 constexpr int MIN_DISTANCE = 128;
 constexpr int MIN_DISTANCE_SQR = MIN_DISTANCE * MIN_DISTANCE;
 
-constexpr g2SurfaceFlags_t TURN_OFF = G2SURFACEFLAG_NODESCENDANTS;
+constexpr g2SurfaceFlags_t TURN_OFF = g2SurfaceFlags_t::G2SURFACEFLAG_NODESCENDANTS;
 
 constexpr int LEFT_ARM_HEALTH = 40;
 constexpr int RIGHT_ARM_HEALTH = 40;
@@ -47,9 +47,9 @@ void NPC_ATST_Precache(void)
 	G_SoundIndex( "sound/chars/atst/atst_damaged1" );
 	G_SoundIndex( "sound/chars/atst/atst_damaged2" );
 
-	RegisterItem( FindItemForWeapon( WP_ATST_MAIN ));	//precache the weapon
-	RegisterItem( FindItemForWeapon( WP_BOWCASTER ));	//precache the weapon
-	RegisterItem( FindItemForWeapon( WP_ROCKET_LAUNCHER ));	//precache the weapon
+	RegisterItem( FindItemForWeapon( weapon_t::WP_ATST_MAIN ));	//precache the weapon
+	RegisterItem( FindItemForWeapon( weapon_t::WP_BOWCASTER ));	//precache the weapon
+	RegisterItem( FindItemForWeapon( weapon_t::WP_ROCKET_LAUNCHER ));	//precache the weapon
 
 	G_EffectIndex( "env/med_explode2" );
 //	G_EffectIndex( "smaller_chunks" );
@@ -70,8 +70,8 @@ static void ATST_PlayEffect( gentity_t *self, const int boltID, const char *fx )
 					&boltMatrix, self->currentAngles, self->currentOrigin, (cg.time?cg.time:level.time),
 					nullptr, self->s.modelScale );
 
-		gi.G2API_GiveMeVectorFromMatrix( boltMatrix, ORIGIN, org );
-		gi.G2API_GiveMeVectorFromMatrix( boltMatrix, NEGATIVE_Y, dir );
+		gi.G2API_GiveMeVectorFromMatrix( boltMatrix, Eorientations::ORIGIN, org );
+		gi.G2API_GiveMeVectorFromMatrix( boltMatrix, Eorientations::NEGATIVE_Y, dir );
 
 		G_PlayEffect( fx, org, dir );
 	}
@@ -91,14 +91,14 @@ void G_ATSTCheckPain( gentity_t *self, gentity_t *other, vec3_t point, int damag
 
 	if ( rand() & 1 )
 	{
-		G_SoundOnEnt( self, CHAN_LESS_ATTEN, "sound/chars/atst/atst_damaged1" );
+		G_SoundOnEnt( self, soundChannel_t::CHAN_LESS_ATTEN, "sound/chars/atst/atst_damaged1" );
 	}
 	else
 	{
-		G_SoundOnEnt( self, CHAN_LESS_ATTEN, "sound/chars/atst/atst_damaged2" );
+		G_SoundOnEnt( self, soundChannel_t::CHAN_LESS_ATTEN, "sound/chars/atst/atst_damaged2" );
 	}
 
-	if ((hitLoc==HL_ARM_LT) && (self->locationDamage[HL_ARM_LT] > LEFT_ARM_HEALTH))
+	if ((hitLoc==hitLocation_t::HL_ARM_LT) && (self->locationDamage[hitLocation_t::HL_ARM_LT] > LEFT_ARM_HEALTH))
 	{
 		if (self->locationDamage[hitLoc] >= LEFT_ARM_HEALTH)	// Blow it up?
 		{
@@ -113,7 +113,7 @@ void G_ATSTCheckPain( gentity_t *self, gentity_t *other, vec3_t point, int damag
 			gi.G2API_SetSurfaceOnOff( &self->ghoul2[self->playerModel], "head_light_blaster_cann", TURN_OFF );
 		}
 	}
-	else if ((hitLoc==HL_ARM_RT) && (self->locationDamage[HL_ARM_RT] > RIGHT_ARM_HEALTH))	// Blow it up?
+	else if ((hitLoc==hitLocation_t::HL_ARM_RT) && (self->locationDamage[hitLocation_t::HL_ARM_RT] > RIGHT_ARM_HEALTH))	// Blow it up?
 	{
 		if (self->locationDamage[hitLoc] >= RIGHT_ARM_HEALTH)
 		{
@@ -173,15 +173,15 @@ void ATST_Ranged( bool visible, bool advance, bool altAttack )
 
 		if (altAttack)
 		{
-			ucmd.buttons |= BUTTON_ATTACK|BUTTON_ALT_ATTACK;
+			ucmd.buttons |= buttonFlags_t::BUTTON_ATTACK|buttonFlags_t::BUTTON_ALT_ATTACK;
 		}
 		else
 		{
-			ucmd.buttons |= BUTTON_ATTACK;
+			ucmd.buttons |= buttonFlags_t::BUTTON_ATTACK;
 		}
 	}
 
-	if ( Any( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
+	if ( Any( NPCInfo->scriptFlags & scriptFlags_t::SCF_CHASE_ENEMIES ) )
 	{
 		ATST_Hunt( visible, advance );
 	}
@@ -209,14 +209,14 @@ void ATST_Attack( void )
 
 	// Rate our distance to the target, and our visibilty
 	float		distance	= (int) DistanceHorizontalSquared( NPC->currentOrigin, NPC->enemy->currentOrigin );
-	distance_e	distRate	= ( distance > MIN_MELEE_RANGE_SQR ) ? DIST_LONG : DIST_MELEE;
+	distance_e	distRate	= ( distance > MIN_MELEE_RANGE_SQR ) ? distance_e::DIST_LONG : distance_e::DIST_MELEE;
 	bool	visible		= NPC_ClearLOS( NPC->enemy );
 	bool	advance		= (distance > MIN_DISTANCE_SQR);
 
 	// If we cannot see our target, move to see it
 	if ( visible == false )
 	{
-		if ( Any( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
+		if ( Any( NPCInfo->scriptFlags & scriptFlags_t::SCF_CHASE_ENEMIES ) )
 		{
 			ATST_Hunt( visible, advance );
 			return;
@@ -226,13 +226,13 @@ void ATST_Attack( void )
 	// Decide what type of attack to do
 	switch ( distRate )
 	{
-	case DIST_MELEE:
-		NPC_ChangeWeapon( WP_ATST_MAIN );
+	case distance_e::DIST_MELEE:
+		NPC_ChangeWeapon( weapon_t::WP_ATST_MAIN );
 		break;
 
-	case DIST_LONG:
+	case distance_e::DIST_LONG:
 
-		NPC_ChangeWeapon( WP_ATST_SIDE );
+		NPC_ChangeWeapon( weapon_t::WP_ATST_SIDE );
 
 		// See if the side weapons are there
 		blasterTest = gi.G2API_GetSurfaceRenderStatus( &NPC->ghoul2[NPC->playerModel], "head_light_blaster_cann" );
@@ -263,7 +263,7 @@ void ATST_Attack( void )
 		}
 		else
 		{
-			NPC_ChangeWeapon( WP_NONE );
+			NPC_ChangeWeapon( weapon_t::WP_NONE );
 		}
 		break;
 	}
@@ -291,7 +291,7 @@ void ATST_Patrol( void )
 	{
 		if ( UpdateGoal() )
 		{
-			ucmd.buttons |= BUTTON_WALKING;
+			ucmd.buttons |= buttonFlags_t::BUTTON_WALKING;
 			NPC_MoveToGoal( true );
 			NPC_UpdateAngles( true, true );
 		}
@@ -309,7 +309,7 @@ void ATST_Idle( void )
 
 	NPC_BSIdle();
 
-	NPC_SetAnim( NPC, SETANIM_BOTH, BOTH_STAND1, SETANIM_FLAG_NORMAL );
+	NPC_SetAnim( NPC, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_STAND1, setAnimFlags_t::SETANIM_FLAG_NORMAL );
 }
 
 /*
@@ -321,13 +321,13 @@ void NPC_BSATST_Default( void )
 {
 	if ( NPC->enemy )
 	{
-		if( Any(NPCInfo->scriptFlags & SCF_CHASE_ENEMIES) )
+		if( Any(NPCInfo->scriptFlags & scriptFlags_t::SCF_CHASE_ENEMIES) )
 		{
 			NPCInfo->goalEntity = NPC->enemy;
 		}
 		ATST_Attack();
 	}
-	else if ( Any( NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES ) )
+	else if ( Any( NPCInfo->scriptFlags & scriptFlags_t::SCF_LOOK_FOR_ENEMIES ) )
 	{
 		ATST_Patrol();
 	}

@@ -37,11 +37,11 @@ void SetGoal( gentity_t *goal, float rating )
 //	NAV_ClearLastRoute(NPC);
 	if ( goal )
 	{
-//		Debug_NPCPrintf( NPC, d_npcai, DEBUG_LEVEL_INFO, "NPC_SetGoal: %s @ %s (%f)\n", goal->classname, vtos( goal->currentOrigin), rating );
+//		Debug_NPCPrintf( NPC, d_npcai, aiDebugLevel_t::DEBUG_LEVEL_INFO, "NPC_SetGoal: %s @ %s (%f)\n", goal->classname, vtos( goal->currentOrigin), rating );
 	}
 	else
 	{
-//		Debug_NPCPrintf( NPC, d_npcai, DEBUG_LEVEL_INFO, "NPC_SetGoal: NONE\n" );
+//		Debug_NPCPrintf( NPC, d_npcai, aiDebugLevel_t::DEBUG_LEVEL_INFO, "NPC_SetGoal: NONE\n" );
 	}
 }
 
@@ -59,19 +59,19 @@ void NPC_SetGoal( gentity_t *goal, float rating )
 
 	if ( !goal )
 	{
-//		Debug_NPCPrintf( NPC, d_npcai, DEBUG_LEVEL_ERROR, "NPC_SetGoal: nullptr goal\n" );
+//		Debug_NPCPrintf( NPC, d_npcai, aiDebugLevel_t::DEBUG_LEVEL_ERROR, "NPC_SetGoal: nullptr goal\n" );
 		return;
 	}
 
 	if ( goal->client )
 	{
-//		Debug_NPCPrintf( NPC, d_npcai, DEBUG_LEVEL_ERROR, "NPC_SetGoal: goal is a client\n" );
+//		Debug_NPCPrintf( NPC, d_npcai, aiDebugLevel_t::DEBUG_LEVEL_ERROR, "NPC_SetGoal: goal is a client\n" );
 		return;
 	}
 
 	if ( NPCS.NPCInfo->goalEntity )
 	{
-//		Debug_NPCPrintf( NPC, d_npcai, DEBUG_LEVEL_INFO, "NPC_SetGoal: push %s\n", NPCInfo->goalEntity->classname );
+//		Debug_NPCPrintf( NPC, d_npcai, aiDebugLevel_t::DEBUG_LEVEL_INFO, "NPC_SetGoal: push %s\n", NPCInfo->goalEntity->classname );
 		NPCS.NPCInfo->lastGoalEntity = NPCS.NPCInfo->goalEntity;
 //		NPCInfo->lastGoalEntityNeed = NPCInfo->goalEntityNeed;
 	}
@@ -97,9 +97,9 @@ void NPC_ClearGoal( void )
 	goal = NPCS.NPCInfo->lastGoalEntity;
 	NPCS.NPCInfo->lastGoalEntity = nullptr;
 //	NAV_ClearLastRoute(NPC);
-	if ( goal->inuse && !Any(goal->s.eFlags & EF_NODRAW) )
+	if ( goal->inuse && !Any(goal->s.eFlags & entityFlags_t::EF_NODRAW) )
 	{
-//		Debug_NPCPrintf( NPC, d_npcai, DEBUG_LEVEL_INFO, "NPC_ClearGoal: pop %s\n", goal->classname );
+//		Debug_NPCPrintf( NPC, d_npcai, aiDebugLevel_t::DEBUG_LEVEL_INFO, "NPC_ClearGoal: pop %s\n", goal->classname );
 		SetGoal( goal, 0 );//, NPCInfo->lastGoalEntityNeed
 		return;
 	}
@@ -138,15 +138,15 @@ bool G_BoundsOverlap(const vec3_t mins1, const vec3_t maxs1, const vec3_t mins2,
 
 void NPC_ReachedGoal( void )
 {
-//	Debug_NPCPrintf( NPC, d_npcai, DEBUG_LEVEL_INFO, "UpdateGoal: reached goal entity\n" );
+//	Debug_NPCPrintf( NPC, d_npcai, aiDebugLevel_t::DEBUG_LEVEL_INFO, "UpdateGoal: reached goal entity\n" );
 	NPC_ClearGoal();
 	NPCS.NPCInfo->goalTime = level.time;
 
 //MCG - Begin
-	NPCS.NPCInfo->aiFlags &= ~NPCAI_MOVING;
+	NPCS.NPCInfo->aiFlags &= ~npcAiFlags_t::NPCAI_MOVING;
 	NPCS.ucmd.forwardmove = 0;
 	//Return that the goal was reached
-	trap->ICARUS_TaskIDComplete( (sharedEntity_t *)NPCS.NPC, TID_MOVE_NAV );
+	trap->ICARUS_TaskIDComplete( (sharedEntity_t *)NPCS.NPC, taskID_t::TID_MOVE_NAV );
 //MCG - End
 }
 /*
@@ -164,12 +164,12 @@ bool ReachedGoal( gentity_t *goal )
 	//vec3_t	angles;
 	float	delta;
 
-	if ( Any( goal->flags & FL_NAVGOAL ) )
+	if ( Any( goal->flags & gentityFlags_t::FL_NAVGOAL ) )
 	{//waypoint_navgoal
 		return NAV_HitNavGoal( NPC->currentOrigin, NPC->mins, NPC->maxs, goal, FlyingCreature( NPC ) );
 	}
 
-	if ( goal == NPCInfo->tempGoal && !Any( goal->flags & FL_NAVGOAL ))
+	if ( goal == NPCInfo->tempGoal && !Any( goal->flags & gentityFlags_t::FL_NAVGOAL ))
 	{//MUST touch waypoints, even if moving to it
 		//This is odd, it just checks to see if they are on the same
 		//surface and the tempGoal in in the FOV - does NOT check distance!
@@ -218,13 +218,13 @@ bool ReachedGoal( gentity_t *goal )
 		return false;
 	}
 */
-	if ( Any( NPCS.NPCInfo->aiFlags & NPCAI_TOUCHED_GOAL ) )
+	if ( Any( NPCS.NPCInfo->aiFlags & npcAiFlags_t::NPCAI_TOUCHED_GOAL ) )
 	{
-		NPCS.NPCInfo->aiFlags &= ~NPCAI_TOUCHED_GOAL;
+		NPCS.NPCInfo->aiFlags &= ~npcAiFlags_t::NPCAI_TOUCHED_GOAL;
 		return true;
 	}
 /*
-	if ( Any( goal->s.eFlags & EF_NODRAW ) )
+	if ( Any( goal->s.eFlags & entityFlags_t::EF_NODRAW ) )
 	{
 		goalWpNum = NAV_FindWaypointAt( goal->currentOrigin );
 		if ( NPC->waypoint == goalWpNum )

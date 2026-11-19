@@ -50,7 +50,7 @@ void G_AddVoiceEvent( gentity_t *self, entity_event_t event, int speakDebounceTi
 		return;
 	}
 
-	if ( !self->client || self->client->ps.pm_type >= PM_DEAD )
+	if ( !self->client || self->client->ps.pm_type >= pmtype_t::PM_DEAD )
 	{
 		return;
 	}
@@ -60,36 +60,36 @@ void G_AddVoiceEvent( gentity_t *self, entity_event_t event, int speakDebounceTi
 		return;
 	}
 
-	if ( Q3_TaskIDPending( self, TID_CHAN_VOICE ) )
+	if ( Q3_TaskIDPending( self, taskID_t::TID_CHAN_VOICE ) )
 	{
 		return;
 	}
 
-	if ( self->client && self->client->NPC_class == CLASS_SABOTEUR )
+	if ( self->client && self->client->NPC_class == class_t::CLASS_SABOTEUR )
 	{
-		if ( self->client->ps.powerups[PW_CLOAKED]
-			|| self->client->ps.powerups[PW_UNCLOAKING] > level.time )
+		if ( self->client->ps.powerups[powerup_t::PW_CLOAKED]
+			|| self->client->ps.powerups[powerup_t::PW_UNCLOAKING] > level.time )
 		{//I'm cloaked (or still decloaking), so don't talk and give away my position...
 			//don't make any combat voice noises, but still make pain and death sounds
-			if ( (event >= EV_ANGER1 && event <= EV_VICTORY3)
-				|| (event >= EV_CHASE1 && event <= EV_SUSPICIOUS5) )
+			if ( (event >= entity_event_t::EV_ANGER1 && event <= entity_event_t::EV_VICTORY3)
+				|| (event >= entity_event_t::EV_CHASE1 && event <= entity_event_t::EV_SUSPICIOUS5) )
 			{
 				return;
 			}
 
-			if ( event >= EV_GIVEUP1 && event <= EV_SUSPICIOUS5 )
+			if ( event >= entity_event_t::EV_GIVEUP1 && event <= entity_event_t::EV_SUSPICIOUS5 )
 			{
 				return;
 			}
 		}
 	}
 
-	if ( Any(self->NPC->scriptFlags&SCF_NO_COMBAT_TALK) && ( (event >= EV_ANGER1 && event <= EV_VICTORY3) || (event >= EV_CHASE1 && event <= EV_SUSPICIOUS5) ) )//(event < EV_FF_1A || event > EV_FF_3C) && (event < EV_RESPOND1 || event > EV_MISSION3) )
+	if ( Any(self->NPC->scriptFlags&scriptFlags_t::SCF_NO_COMBAT_TALK) && ( (event >= entity_event_t::EV_ANGER1 && event <= entity_event_t::EV_VICTORY3) || (event >= entity_event_t::EV_CHASE1 && event <= entity_event_t::EV_SUSPICIOUS5) ) )//(event < EV_FF_1A || event > EV_FF_3C) && (event < EV_RESPOND1 || event > EV_MISSION3) )
 	{
 		return;
 	}
 
-	if ( Any(self->NPC->scriptFlags&SCF_NO_ALERT_TALK) && (event >= EV_GIVEUP1 && event <= EV_SUSPICIOUS5) )
+	if ( Any(self->NPC->scriptFlags&scriptFlags_t::SCF_NO_ALERT_TALK) && (event >= entity_event_t::EV_GIVEUP1 && event <= entity_event_t::EV_SUSPICIOUS5) )
 	{
 		return;
 	}
@@ -114,20 +114,20 @@ void NPC_PlayConfusionSound( gentity_t *self )
 			)
 		{
 			self->NPC->blockedSpeechDebounceTime = 0;//make sure we say this
-			G_AddVoiceEvent( self, Q_irand( EV_CONFUSE2, EV_CONFUSE3 ), 2000 );
+			G_AddVoiceEvent( self, Q_irand( entity_event_t::EV_CONFUSE2, entity_event_t::EV_CONFUSE3 ), 2000 );
 		}
 		else if ( self->NPC && self->NPC->investigateDebounceTime+self->NPC->pauseTime > level.time )//was checking something out
 		{
 			self->NPC->blockedSpeechDebounceTime = 0;//make sure we say this
-			G_AddVoiceEvent( self, EV_CONFUSE1, 2000 );
+			G_AddVoiceEvent( self, entity_event_t::EV_CONFUSE1, 2000 );
 		}
-		//G_AddVoiceEvent( self, Q_irand(EV_CONFUSE1, EV_CONFUSE3), 2000 );
+		//G_AddVoiceEvent( self, Q_irand(entity_event_t::EV_CONFUSE1, entity_event_t::EV_CONFUSE3), 2000 );
 	}
 	//reset him to be totally unaware again
 	TIMER_Set( self, "enemyLastVisible", 0 );
-	self->NPC->tempBehavior = BS_DEFAULT;
+	self->NPC->tempBehavior = bState_t::BS_DEFAULT;
 
-	//self->NPC->behaviorState = BS_PATROL;
+	//self->NPC->behaviorState = bState_t::BS_PATROL;
 	G_ClearEnemy( self );//FIXME: or just self->enemy = nullptr;?
 
 	self->NPC->investigateCount = 0;

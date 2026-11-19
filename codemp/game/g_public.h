@@ -81,7 +81,6 @@ enum class svFlags_t
 	SVF_NO_COMBAT_SOUNDS	= 0x20000000,	// No combat sounds
 	SVF_NO_EXTRA_SOUNDS		= 0x40000000,	// No extra or jedi sounds
 };
-using enum svFlags_t;
 template <> inline constexpr bool enableEnumFlags<svFlags_t> = true;
 
 //rww - ghoul2 trace flags
@@ -93,7 +92,6 @@ enum class g2TraceFlags_t
 	G2TRFLAG_GETSURFINDEX	= 0x00000004, //will replace surfaceFlags with the ghoul2 surface index that was hit, if any.
 	G2TRFLAG_THICK			= 0x00000008 //assures that the trace radius will be significantly large regardless of the trace box size.
 };
-using enum g2TraceFlags_t;
 template <> inline constexpr bool enableEnumFlags<g2TraceFlags_t> = true;
 
 //===============================================================
@@ -169,7 +167,6 @@ enum class bState_t //# bState_e
 	BS_FLEE,//# Run away!
 	NUM_BSTATES
 };
-using enum bState_t;
 
 enum class edgeType_t
 {
@@ -179,7 +176,6 @@ enum class edgeType_t
 	EDGE_FAILED,
 	EDGE_MOVEDIR
 };
-using enum edgeType_t;
 
 enum class nodeType_t
 {
@@ -188,7 +184,6 @@ enum class nodeType_t
 	NODE_GOAL,
 	NODE_NAVGOAL,
 };
-using enum nodeType_t;
 
 enum class taskID_t //# taskID_e
 {
@@ -205,7 +200,6 @@ enum class taskID_t //# taskID_e
 	TID_SHOOT,			// Waiting for fire event
 	NUM_TIDS,			// for def of taskID array
 };
-using enum taskID_t;
 template <> inline constexpr bool enableEnumArithmetic<taskID_t> = true;
 
 enum class bSet_t //# bSet_e
@@ -232,7 +226,6 @@ enum class bSet_t //# bSet_e
 
 	NUM_BSETS
 };
-using enum bSet_t;
 template <> inline constexpr bool enableEnumArithmetic<bSet_t> = true;
 
 inline constexpr int MAX_PARMS = 16;
@@ -268,9 +261,9 @@ typedef struct sharedEntity_s {
 	entityShared_t	r;				// shared by both the server system and game
 
 	//Script/ICARUS-related fields
-	EnumArray<int, taskID_t, NUM_TIDS>				taskID;
+	EnumArray<int, taskID_t, taskID_t::NUM_TIDS>				taskID;
 	parms_t			*parms;
-	EnumArray<char *, bSet_t, NUM_BSETS>	behaviorSet;
+	EnumArray<char *, bSet_t, bSet_t::NUM_BSETS>	behaviorSet;
 	char			*script_targetname;
 	int				delayScriptTime;
 	char			*fullName;

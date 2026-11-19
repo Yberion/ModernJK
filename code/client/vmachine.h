@@ -62,7 +62,6 @@ Ghoul2 Insert End
 	CG_DRAW_DATAPAD_FORCEPOWERS
 
 };
-using enum cgameExport_t;
 
 /*
 ==============================================================

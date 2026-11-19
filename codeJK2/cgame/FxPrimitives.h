@@ -104,7 +104,6 @@ enum class fxPrimitiveFlags_t : uint32_t
 	FX_BRANCH			= 0x02000000,		// enables lightning branching
 	FX_GROW				= 0x04000000		// lightning grows from start point to end point over the course of its life
 };
-using enum fxPrimitiveFlags_t;
 template <> inline constexpr bool enableEnumFlags<fxPrimitiveFlags_t> = true;
 
 // the channels' bits
@@ -163,7 +162,7 @@ public:
 	inline void AddFlags( fxPrimitiveFlags_t flags )		{ mFlags |= flags;				}
 	inline void ClearFlags( fxPrimitiveFlags_t flags )		{ mFlags &= ~flags;				}
 	inline void SetOrigin1( const vec3_t org )	{ if(org){VectorCopy(org,mOrigin1);}else{VectorClear(mOrigin1);}	}
-	inline void SetTimeStart( int time )	{ mTimeStart = time; if (Any( mFlags&FX_SET_SHADER_TIME )) { mRefEnt.shaderTime = cg.time * 0.001f; }}
+	inline void SetTimeStart( int time )	{ mTimeStart = time; if (Any( mFlags&fxPrimitiveFlags_t::FX_SET_SHADER_TIME )) { mRefEnt.shaderTime = cg.time * 0.001f; }}
 	inline void	SetTimeEnd( int time )		{ mTimeEnd = time;				}
 	inline void SetImpactFxID( int id )		{ mImpactFxID = id;				}
 	inline void SetDeathFxID( int id )		{ mDeathFxID = id;				}
@@ -313,7 +312,7 @@ protected:
 
 public:
 
-	inline CParticle() { mRefEnt.reType = RT_SPRITE; mClientID = -1; }
+	inline CParticle() { mRefEnt.reType = refEntityType_t::RT_SPRITE; mClientID = -1; }
 	virtual ~CParticle() {}
 
 	virtual void Die();
@@ -357,7 +356,7 @@ protected:
 
 public:
 
-	CLine() { mRefEnt.reType = RT_LINE;}
+	CLine() { mRefEnt.reType = refEntityType_t::RT_LINE;}
 	virtual ~CLine() {}
 	virtual void Die() {}
 	virtual bool Update();
@@ -408,7 +407,7 @@ protected:
 
 public:
 
-	CElectricity() { mRefEnt.reType = RT_ELECTRICITY; }
+	CElectricity() { mRefEnt.reType = refEntityType_t::RT_ELECTRICITY; }
 	virtual ~CElectricity() {}
 	virtual void Die() {}
 
@@ -433,7 +432,7 @@ protected:
 
 public:
 
-	COrientedParticle() { mRefEnt.reType = RT_ORIENTED_QUAD; }
+	COrientedParticle() { mRefEnt.reType = refEntityType_t::RT_ORIENTED_QUAD; }
 	virtual ~COrientedParticle() {}
 
 	virtual bool Update();
@@ -462,7 +461,7 @@ protected:
 
 public:
 
-	CTail() { mRefEnt.reType = RT_LINE; }
+	CTail() { mRefEnt.reType = refEntityType_t::RT_LINE; }
 	virtual ~CTail() {}
 
 	virtual bool Update();
@@ -488,7 +487,7 @@ protected:
 
 public:
 
-	CCylinder() { mRefEnt.reType = RT_CYLINDER; }
+	CCylinder() { mRefEnt.reType = refEntityType_t::RT_CYLINDER; }
 	virtual ~CCylinder() {}
 
 	virtual bool Update();
@@ -530,7 +529,7 @@ public:
 	CEmitter() {
 		// There may or may not be a model, but if there isn't one,
 		//	we just won't bother adding the refEnt in our Draw func
-		mRefEnt.reType = RT_MODEL;
+		mRefEnt.reType = refEntityType_t::RT_MODEL;
 	}
 	virtual ~CEmitter() {}
 

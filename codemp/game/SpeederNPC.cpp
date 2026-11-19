@@ -96,7 +96,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 
 	// If we're flying, make us accelerate at 40% (about half) acceleration rate, and restore the pitch
 	// to origin (straight) position (at 5% increments).
-	if ( Any( pVeh->m_ulFlags & VEH_FLYING ) )
+	if ( Any( pVeh->m_ulFlags & vehFlags_t::VEH_FLYING ) )
 	{
 		speedInc = pVeh->m_pVehicleInfo->acceleration * pVeh->m_fTimeModifier * 0.4f;
 	}
@@ -120,16 +120,16 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 
 
 
-	if ( (pVeh->m_pPilot /*&& (pilotPS->weapon == WP_NONE || pilotPS->weapon == WP_MELEE )*/ &&
-		Any(pVeh->m_ucmd.buttons & BUTTON_ALT_ATTACK) && pVeh->m_pVehicleInfo->turboSpeed)
+	if ( (pVeh->m_pPilot /*&& (pilotPS->weapon == weapon_t::WP_NONE || pilotPS->weapon == weapon_t::WP_MELEE )*/ &&
+		Any(pVeh->m_ucmd.buttons & buttonFlags_t::BUTTON_ALT_ATTACK) && pVeh->m_pVehicleInfo->turboSpeed)
 		/*||
 		(parentPS && parentPS->electrifyTime > curTime && pVeh->m_pVehicleInfo->turboSpeed)*/ //make them go!
 		)
 	{
 		if ( (parentPS && parentPS->electrifyTime > curTime) ||
 			 (pVeh->m_pPilot->playerState &&
-			  (pVeh->m_pPilot->playerState->weapon == WP_MELEE ||
-			  (pVeh->m_pPilot->playerState->weapon == WP_SABER && BG_SabersOff( pVeh->m_pPilot->playerState ) ))) )
+			  (pVeh->m_pPilot->playerState->weapon == weapon_t::WP_MELEE ||
+			  (pVeh->m_pPilot->playerState->weapon == weapon_t::WP_SABER && BG_SabersOff( pVeh->m_pPilot->playerState ) ))) )
 		{
 			if ((curTime - pVeh->m_iTurboTime)>pVeh->m_pVehicleInfo->turboRecharge)
 			{
@@ -150,8 +150,8 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 							VectorSet(boltDir, 0.0f, pVeh->m_pParentEntity->playerState->viewangles[YAW], 0.0f);
 
 							trap->G2API_GetBoltMatrix(pVeh->m_pParentEntity->ghoul2, 0, pVeh->m_iExhaustTag[i], &boltMatrix, boltDir, pVeh->m_pParentEntity->playerState->origin, level.time, nullptr, pVeh->m_pParentEntity->modelScale);
-							BG_GiveMeVectorFromMatrix(&boltMatrix, ORIGIN, boltOrg);
-							BG_GiveMeVectorFromMatrix(&boltMatrix, ORIGIN, boltDir);
+							BG_GiveMeVectorFromMatrix(&boltMatrix, orientations_t::ORIGIN, boltOrg);
+							BG_GiveMeVectorFromMatrix(&boltMatrix, orientations_t::ORIGIN, boltDir);
 							G_PlayEffectID(pVeh->m_pVehicleInfo->iTurboStartFX, boltOrg, boltDir);
 						}
 #endif
@@ -163,21 +163,21 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 	}
 
 	// Slide Breaking
-	if (Any( pVeh->m_ulFlags & VEH_SLIDEBREAKING ))
+	if (Any( pVeh->m_ulFlags & vehFlags_t::VEH_SLIDEBREAKING ))
 	{
 		if (pVeh->m_ucmd.forwardmove>=0 )
 		{
-			pVeh->m_ulFlags &= ~VEH_SLIDEBREAKING;
+			pVeh->m_ulFlags &= ~vehFlags_t::VEH_SLIDEBREAKING;
 		}
 		parentPS->speed = 0;
 	}
 	else if (
 		(curTime > pVeh->m_iTurboTime) &&
-		!(Any( pVeh->m_ulFlags & VEH_FLYING )) &&
+		!(Any( pVeh->m_ulFlags & vehFlags_t::VEH_FLYING )) &&
 		pVeh->m_ucmd.forwardmove<0 &&
 		Q_fabs(pVeh->m_vOrientation[ROLL])>25.0f)
 	{
-		pVeh->m_ulFlags |= VEH_SLIDEBREAKING;
+		pVeh->m_ulFlags |= vehFlags_t::VEH_SLIDEBREAKING;
 	}
 
 
@@ -186,7 +186,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 		speedMax = pVeh->m_pVehicleInfo->turboSpeed;
 		if (parentPS)
 		{
-			parentPS->eFlags |= EF_JETPACK_ACTIVE;
+			parentPS->eFlags |= entityFlags_t::EF_JETPACK_ACTIVE;
 		}
 	}
 	else
@@ -194,7 +194,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 		speedMax = pVeh->m_pVehicleInfo->speedMax;
 		if (parentPS)
 		{
-			parentPS->eFlags &= ~EF_JETPACK_ACTIVE;
+			parentPS->eFlags &= ~entityFlags_t::EF_JETPACK_ACTIVE;
 		}
 	}
 
@@ -348,8 +348,8 @@ void AnimateVehicle( Vehicle_t *pVeh )
 // This function makes sure that the rider's in this vehicle are properly animated.
 void AnimateRiders( Vehicle_t *pVeh )
 {
-	animNumber_t Anim = BOTH_VS_IDLE;
-	setAnimFlags_t iFlags = SETANIM_FLAG_NORMAL;
+	animNumber_t Anim = animNumber_t::BOTH_VS_IDLE;
+	setAnimFlags_t iFlags = setAnimFlags_t::SETANIM_FLAG_NORMAL;
 	playerState_t *pilotPS;
 	int curTime;
 
@@ -365,23 +365,23 @@ void AnimateRiders( Vehicle_t *pVeh )
 			// Boarding from left...
 			if ( pVeh->m_iBoarding == -1 )
 			{
-				Anim = BOTH_VS_MOUNT_L;
+				Anim = animNumber_t::BOTH_VS_MOUNT_L;
 			}
 			else if ( pVeh->m_iBoarding == -2 )
 			{
-				Anim = BOTH_VS_MOUNT_R;
+				Anim = animNumber_t::BOTH_VS_MOUNT_R;
 			}
 			else if ( pVeh->m_iBoarding == -3 )
 			{
-				Anim = BOTH_VS_MOUNTJUMP_L;
+				Anim = animNumber_t::BOTH_VS_MOUNTJUMP_L;
 			}
 			else if ( pVeh->m_iBoarding == VEH_MOUNT_THROW_LEFT)
 			{
-				Anim = BOTH_VS_MOUNTTHROW_R;
+				Anim = animNumber_t::BOTH_VS_MOUNTTHROW_R;
 			}
 			else if ( pVeh->m_iBoarding == VEH_MOUNT_THROW_RIGHT)
 			{
-				Anim = BOTH_VS_MOUNTTHROW_L;
+				Anim = animNumber_t::BOTH_VS_MOUNTTHROW_L;
 			}
 
 			// Set the delay time (which happens to be the time it takes for the animation to complete).
@@ -390,10 +390,10 @@ void AnimateRiders( Vehicle_t *pVeh )
 			pVeh->m_iBoarding = BG_GetTime() + iAnimLen;
 			// Set the animation, which won't be interrupted until it's completed.
 			// TODO: But what if he's killed? Should the animation remain persistant???
-			iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD;
+			iFlags = setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD;
 
 			BG_SetAnim(pVeh->m_pPilot->playerState, bgAllAnims[pVeh->m_pPilot->localAnimIndex].anims,
-				SETANIM_BOTH, Anim, iFlags);
+				setAnimParts_t::SETANIM_BOTH, Anim, iFlags);
 		}
 
 		return;
@@ -412,25 +412,25 @@ void AnimateRiders( Vehicle_t *pVeh )
 #endif
 
 	// Going in reverse...
-	if ( pVeh->m_ucmd.forwardmove < 0 && !(Any( pVeh->m_ulFlags & VEH_SLIDEBREAKING )))
+	if ( pVeh->m_ucmd.forwardmove < 0 && !(Any( pVeh->m_ulFlags & vehFlags_t::VEH_SLIDEBREAKING )))
 	{
-		Anim = BOTH_VS_REV;
+		Anim = animNumber_t::BOTH_VS_REV;
 	}
 	else
 	{
-		bool HasWeapon	= ((pilotPS->weapon != WP_NONE) && (pilotPS->weapon != WP_MELEE));
-		bool Attacking	= (HasWeapon && !!Any(pVeh->m_ucmd.buttons&BUTTON_ATTACK));
+		bool HasWeapon	= ((pilotPS->weapon != weapon_t::WP_NONE) && (pilotPS->weapon != weapon_t::WP_MELEE));
+		bool Attacking	= (HasWeapon && !!Any(pVeh->m_ucmd.buttons&buttonFlags_t::BUTTON_ATTACK));
 		bool Flying		= false;
 		bool Crashing	= false;
 		bool Right		= (pVeh->m_ucmd.rightmove>0);
 		bool Left		= (pVeh->m_ucmd.rightmove<0);
 		bool Turbo		= (curTime<pVeh->m_iTurboTime);
-		EWeaponPose	WeaponPose	= WPOSE_NONE;
+		EWeaponPose	WeaponPose	= EWeaponPose::WPOSE_NONE;
 
 
 		// Remove Crashing Flag
 		//----------------------
-		pVeh->m_ulFlags &= ~VEH_CRASHING;
+		pVeh->m_ulFlags &= ~vehFlags_t::VEH_CRASHING;
 
 
 		// Put Away Saber When It Is Not Active
@@ -445,35 +445,35 @@ void AnimateRiders( Vehicle_t *pVeh )
 
 		// Compute The Weapon Pose
 		//--------------------------
-		if (pilotPS->weapon==WP_BLASTER)
+		if (pilotPS->weapon==weapon_t::WP_BLASTER)
 		{
-			WeaponPose = WPOSE_BLASTER;
+			WeaponPose = EWeaponPose::WPOSE_BLASTER;
 		}
-		else if (pilotPS->weapon==WP_SABER)
+		else if (pilotPS->weapon==weapon_t::WP_SABER)
 		{
-			if ( (Any( pVeh->m_ulFlags & VEH_SABERINLEFTHAND )) && pilotPS->torsoAnim==BOTH_VS_ATL_TO_R_S)
+			if ( (Any( pVeh->m_ulFlags & vehFlags_t::VEH_SABERINLEFTHAND )) && pilotPS->torsoAnim==animNumber_t::BOTH_VS_ATL_TO_R_S)
 			{
-				pVeh->m_ulFlags	&= ~VEH_SABERINLEFTHAND;
+				pVeh->m_ulFlags	&= ~vehFlags_t::VEH_SABERINLEFTHAND;
 			}
-			if (!(Any( pVeh->m_ulFlags & VEH_SABERINLEFTHAND )) && pilotPS->torsoAnim==BOTH_VS_ATR_TO_L_S)
+			if (!(Any( pVeh->m_ulFlags & vehFlags_t::VEH_SABERINLEFTHAND )) && pilotPS->torsoAnim==animNumber_t::BOTH_VS_ATR_TO_L_S)
 			{
-				pVeh->m_ulFlags	|=  VEH_SABERINLEFTHAND;
+				pVeh->m_ulFlags	|=  vehFlags_t::VEH_SABERINLEFTHAND;
 			}
-			WeaponPose = (Any( pVeh->m_ulFlags & VEH_SABERINLEFTHAND ))?(WPOSE_SABERLEFT):(WPOSE_SABERRIGHT);
+			WeaponPose = (Any( pVeh->m_ulFlags & vehFlags_t::VEH_SABERINLEFTHAND ))?(EWeaponPose::WPOSE_SABERLEFT):(EWeaponPose::WPOSE_SABERRIGHT);
 		}
 
 
- 		if (Attacking && WeaponPose != WPOSE_NONE)
+ 		if (Attacking && WeaponPose != EWeaponPose::WPOSE_NONE)
 		{// Attack!
- 			iFlags	= SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_RESTART;
+ 			iFlags	= setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD|setAnimFlags_t::SETANIM_FLAG_RESTART;
 
 			// Auto Aiming
 			//===============================================
 			if (!Left && !Right)		// Allow player strafe keys to override
 			{
-				if (pilotPS->weapon==WP_SABER && !Left && !Right)
+				if (pilotPS->weapon==weapon_t::WP_SABER && !Left && !Right)
 				{
-					Left = (WeaponPose==WPOSE_SABERLEFT);
+					Left = (WeaponPose==EWeaponPose::WPOSE_SABERLEFT);
 					Right	= !Left;
 				}
 			}
@@ -483,9 +483,9 @@ void AnimateRiders( Vehicle_t *pVeh )
 			{// Attack Left
 				switch(WeaponPose)
 				{
-				case WPOSE_BLASTER:		Anim = BOTH_VS_ATL_G;		break;
-				case WPOSE_SABERLEFT:	Anim = BOTH_VS_ATL_S;		break;
-				case WPOSE_SABERRIGHT:	Anim = BOTH_VS_ATR_TO_L_S;	break;
+				case EWeaponPose::WPOSE_BLASTER:		Anim = animNumber_t::BOTH_VS_ATL_G;		break;
+				case EWeaponPose::WPOSE_SABERLEFT:	Anim = animNumber_t::BOTH_VS_ATL_S;		break;
+				case EWeaponPose::WPOSE_SABERRIGHT:	Anim = animNumber_t::BOTH_VS_ATR_TO_L_S;	break;
 				default:				assert(0);
 				}
 			}
@@ -493,9 +493,9 @@ void AnimateRiders( Vehicle_t *pVeh )
 			{// Attack Right
 				switch(WeaponPose)
 				{
-				case WPOSE_BLASTER:		Anim = BOTH_VS_ATR_G;		break;
-				case WPOSE_SABERLEFT:	Anim = BOTH_VS_ATL_TO_R_S;	break;
-				case WPOSE_SABERRIGHT:	Anim = BOTH_VS_ATR_S;		break;
+				case EWeaponPose::WPOSE_BLASTER:		Anim = animNumber_t::BOTH_VS_ATR_G;		break;
+				case EWeaponPose::WPOSE_SABERLEFT:	Anim = animNumber_t::BOTH_VS_ATL_TO_R_S;	break;
+				case EWeaponPose::WPOSE_SABERRIGHT:	Anim = animNumber_t::BOTH_VS_ATR_S;		break;
 				default:				assert(0);
 				}
 			}
@@ -503,75 +503,75 @@ void AnimateRiders( Vehicle_t *pVeh )
 			{// Attack Ahead
 				switch(WeaponPose)
 				{
-				case WPOSE_BLASTER:		Anim = BOTH_VS_ATF_G;		break;
+				case EWeaponPose::WPOSE_BLASTER:		Anim = animNumber_t::BOTH_VS_ATF_G;		break;
 				default:				assert(0);
 				}
 			}
 
 		}
-		else if (Left && Any( pVeh->m_ucmd.buttons&BUTTON_USE ))
+		else if (Left && Any( pVeh->m_ucmd.buttons&buttonFlags_t::BUTTON_USE ))
 		{// Look To The Left Behind
-			iFlags	= SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD;
+			iFlags	= setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD;
 			switch(WeaponPose)
 			{
-			case WPOSE_SABERLEFT:	Anim = BOTH_VS_IDLE_SL;		break;
-			case WPOSE_SABERRIGHT:	Anim = BOTH_VS_IDLE_SR;		break;
-			default:				Anim = BOTH_VS_LOOKLEFT;
+			case EWeaponPose::WPOSE_SABERLEFT:	Anim = animNumber_t::BOTH_VS_IDLE_SL;		break;
+			case EWeaponPose::WPOSE_SABERRIGHT:	Anim = animNumber_t::BOTH_VS_IDLE_SR;		break;
+			default:				Anim = animNumber_t::BOTH_VS_LOOKLEFT;
 			}
 		}
-		else if (Right && Any( pVeh->m_ucmd.buttons&BUTTON_USE ))
+		else if (Right && Any( pVeh->m_ucmd.buttons&buttonFlags_t::BUTTON_USE ))
 		{// Look To The Right Behind
-			iFlags	= SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD;
+			iFlags	= setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD;
 			switch(WeaponPose)
 			{
-			case WPOSE_SABERLEFT:	Anim = BOTH_VS_IDLE_SL;		break;
-			case WPOSE_SABERRIGHT:	Anim = BOTH_VS_IDLE_SR;		break;
-			default:				Anim = BOTH_VS_LOOKRIGHT;
+			case EWeaponPose::WPOSE_SABERLEFT:	Anim = animNumber_t::BOTH_VS_IDLE_SL;		break;
+			case EWeaponPose::WPOSE_SABERRIGHT:	Anim = animNumber_t::BOTH_VS_IDLE_SR;		break;
+			default:				Anim = animNumber_t::BOTH_VS_LOOKRIGHT;
 			}
 		}
 		else if (Turbo)
 		{// Kicked In Turbo
-			iFlags	= SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLDLESS;
-			Anim	= BOTH_VS_TURBO;
+			iFlags	= setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLDLESS;
+			Anim	= animNumber_t::BOTH_VS_TURBO;
 		}
 		else if (Flying)
 		{// Off the ground in a jump
-			iFlags	= SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD;
+			iFlags	= setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD;
 
 			switch(WeaponPose)
 			{
-			case WPOSE_NONE:		Anim = BOTH_VS_AIR;			break;
-			case WPOSE_BLASTER:		Anim = BOTH_VS_AIR_G;		break;
-			case WPOSE_SABERLEFT:	Anim = BOTH_VS_AIR_SL;		break;
-			case WPOSE_SABERRIGHT:	Anim = BOTH_VS_AIR_SR;		break;
+			case EWeaponPose::WPOSE_NONE:		Anim = animNumber_t::BOTH_VS_AIR;			break;
+			case EWeaponPose::WPOSE_BLASTER:		Anim = animNumber_t::BOTH_VS_AIR_G;		break;
+			case EWeaponPose::WPOSE_SABERLEFT:	Anim = animNumber_t::BOTH_VS_AIR_SL;		break;
+			case EWeaponPose::WPOSE_SABERRIGHT:	Anim = animNumber_t::BOTH_VS_AIR_SR;		break;
 			default:				assert(0);
 			}
 		}
 		else if (Crashing)
 		{// Hit the ground!
-			iFlags	= SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLDLESS;
+			iFlags	= setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLDLESS;
 
 			switch(WeaponPose)
 			{
-			case WPOSE_NONE:		Anim = BOTH_VS_LAND;		break;
-			case WPOSE_BLASTER:		Anim = BOTH_VS_LAND_G;		break;
-			case WPOSE_SABERLEFT:	Anim = BOTH_VS_LAND_SL;		break;
-			case WPOSE_SABERRIGHT:	Anim = BOTH_VS_LAND_SR;		break;
+			case EWeaponPose::WPOSE_NONE:		Anim = animNumber_t::BOTH_VS_LAND;		break;
+			case EWeaponPose::WPOSE_BLASTER:		Anim = animNumber_t::BOTH_VS_LAND_G;		break;
+			case EWeaponPose::WPOSE_SABERLEFT:	Anim = animNumber_t::BOTH_VS_LAND_SL;		break;
+			case EWeaponPose::WPOSE_SABERRIGHT:	Anim = animNumber_t::BOTH_VS_LAND_SR;		break;
 			default:				assert(0);
 			}
 		}
 		else
 		{// No Special Moves
- 			iFlags	= SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLDLESS;
+ 			iFlags	= setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLDLESS;
 
 			if (pVeh->m_vOrientation[ROLL] <= -20)
 			{// Lean Left
 				switch(WeaponPose)
 				{
-				case WPOSE_NONE:		Anim = BOTH_VS_LEANL;			break;
-				case WPOSE_BLASTER:		Anim = BOTH_VS_LEANL_G;			break;
-				case WPOSE_SABERLEFT:	Anim = BOTH_VS_LEANL_SL;		break;
-				case WPOSE_SABERRIGHT:	Anim = BOTH_VS_LEANL_SR;		break;
+				case EWeaponPose::WPOSE_NONE:		Anim = animNumber_t::BOTH_VS_LEANL;			break;
+				case EWeaponPose::WPOSE_BLASTER:		Anim = animNumber_t::BOTH_VS_LEANL_G;			break;
+				case EWeaponPose::WPOSE_SABERLEFT:	Anim = animNumber_t::BOTH_VS_LEANL_SL;		break;
+				case EWeaponPose::WPOSE_SABERRIGHT:	Anim = animNumber_t::BOTH_VS_LEANL_SR;		break;
 				default:				assert(0);
 				}
 			}
@@ -579,10 +579,10 @@ void AnimateRiders( Vehicle_t *pVeh )
 			{// Lean Right
 				switch(WeaponPose)
 				{
-				case WPOSE_NONE:		Anim = BOTH_VS_LEANR;			break;
-				case WPOSE_BLASTER:		Anim = BOTH_VS_LEANR_G;			break;
-				case WPOSE_SABERLEFT:	Anim = BOTH_VS_LEANR_SL;		break;
-				case WPOSE_SABERRIGHT:	Anim = BOTH_VS_LEANR_SR;		break;
+				case EWeaponPose::WPOSE_NONE:		Anim = animNumber_t::BOTH_VS_LEANR;			break;
+				case EWeaponPose::WPOSE_BLASTER:		Anim = animNumber_t::BOTH_VS_LEANR_G;			break;
+				case EWeaponPose::WPOSE_SABERLEFT:	Anim = animNumber_t::BOTH_VS_LEANR_SL;		break;
+				case EWeaponPose::WPOSE_SABERRIGHT:	Anim = animNumber_t::BOTH_VS_LEANR_SR;		break;
 				default:				assert(0);
 				}
 			}
@@ -590,17 +590,17 @@ void AnimateRiders( Vehicle_t *pVeh )
 			{// No Lean
 				switch(WeaponPose)
 				{
-				case WPOSE_NONE:		Anim = BOTH_VS_IDLE;			break;
-				case WPOSE_BLASTER:		Anim = BOTH_VS_IDLE_G;			break;
-				case WPOSE_SABERLEFT:	Anim = BOTH_VS_IDLE_SL;			break;
-				case WPOSE_SABERRIGHT:	Anim = BOTH_VS_IDLE_SR;			break;
+				case EWeaponPose::WPOSE_NONE:		Anim = animNumber_t::BOTH_VS_IDLE;			break;
+				case EWeaponPose::WPOSE_BLASTER:		Anim = animNumber_t::BOTH_VS_IDLE_G;			break;
+				case EWeaponPose::WPOSE_SABERLEFT:	Anim = animNumber_t::BOTH_VS_IDLE_SL;			break;
+				case EWeaponPose::WPOSE_SABERRIGHT:	Anim = animNumber_t::BOTH_VS_IDLE_SR;			break;
 				default:				assert(0);
 				}
 			}
 		}// No Special Moves
 	}// Going backwards?
 
-	iFlags &= ~SETANIM_FLAG_OVERRIDE;
+	iFlags &= ~setAnimFlags_t::SETANIM_FLAG_OVERRIDE;
 	if (pVeh->m_pPilot->playerState->torsoAnim == Anim)
 	{
 		pVeh->m_pPilot->playerState->torsoTimer = BG_AnimLength(pVeh->m_pPilot->localAnimIndex, Anim);
@@ -610,7 +610,7 @@ void AnimateRiders( Vehicle_t *pVeh )
 		pVeh->m_pPilot->playerState->legsTimer = BG_AnimLength(pVeh->m_pPilot->localAnimIndex, Anim);
 	}
 	BG_SetAnim(pVeh->m_pPilot->playerState, bgAllAnims[pVeh->m_pPilot->localAnimIndex].anims,
-		SETANIM_BOTH, Anim, iFlags|SETANIM_FLAG_HOLD);
+		setAnimParts_t::SETANIM_BOTH, Anim, iFlags|setAnimFlags_t::SETANIM_FLAG_HOLD);
 }
 
 #ifndef _GAME

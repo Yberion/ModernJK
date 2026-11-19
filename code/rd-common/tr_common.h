@@ -90,7 +90,7 @@ void *R_Malloc( int iSize, memtag_t eTag, bool bZeroit=false );
 void R_Free( void *ptr );
 
 // The memory of the images the shared image files allocate (shared/rd-common), in this renderer's allocator.
-inline byte *R_ImageMalloc( int size, bool zero ) { return (byte *)R_Malloc( size, TAG_TEMP_WORKSPACE, zero ); }
+inline byte *R_ImageMalloc( int size, bool zero ) { return (byte *)R_Malloc( size, memtag::TAG_TEMP_WORKSPACE, zero ); }
 inline void R_ImageFree( void *ptr ) { R_Free( ptr ); }
 int R_MemSize( memtag_t eTag );
 void R_MorphMallocTag( void *pvBuffer, memtag_t eDesiredTag );

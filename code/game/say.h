@@ -49,6 +49,5 @@ enum class saying_t //# saying_e
 	//# #eol
 	NUM_SAYINGS
 };
-using enum saying_t;
 
 #endif //#ifndef __SAY_H__

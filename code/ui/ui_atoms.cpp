@@ -49,7 +49,7 @@ UI_ForceMenuOff
 */
 void UI_ForceMenuOff (void)
 {
-	ui.Key_SetCatcher( ui.Key_GetCatcher() & ~KEYCATCH_UI );
+	ui.Key_SetCatcher( ui.Key_GetCatcher() & ~keyCatchFlags_t::KEYCATCH_UI );
 	ui.Key_ClearStates();
 	ui.Cvar_Set( "cl_paused", "0" );
 }
@@ -66,7 +66,7 @@ void UI_SetActiveMenu( const char* menuname,const char *menuID )
 {
 	// this should be the ONLY way the menu system is brought up (besides the UI_ConsoleCommand below)
 
-	if (cls.state != CA_DISCONNECTED && !ui.SG_GameAllowedToSaveHere(true))	//don't check full sytem, only if incamera
+	if (cls.state != connstate_t::CA_DISCONNECTED && !ui.SG_GameAllowedToSaveHere(true))	//don't check full sytem, only if incamera
 	{
 		return;
 	}
@@ -108,7 +108,7 @@ void UI_SetActiveMenu( const char* menuname,const char *menuID )
 	{
 		Menus_CloseAll();
 		Menus_ActivateByName("missionfailed_menu");
-		ui.Key_SetCatcher( KEYCATCH_UI );
+		ui.Key_SetCatcher( keyCatchFlags_t::KEYCATCH_UI );
 		return;
 	}
 #endif
@@ -153,9 +153,9 @@ static void UI_Cache_f( void )
 {
 	Menu_Cache();
 #ifndef JK2_MODE
-extern EnumArray<const char *, forceWarning_t, NUM_FORCE_WARNINGS> lukeForceStatusSounds;
-extern EnumArray<const char *, forceWarning_t, NUM_FORCE_WARNINGS> kyleForceStatusSounds;
-	for (forceWarning_t index = FW_VERY_LIGHT; index < NUM_FORCE_WARNINGS; index++)
+extern EnumArray<const char *, forceWarning_t, forceWarning_t::NUM_FORCE_WARNINGS> lukeForceStatusSounds;
+extern EnumArray<const char *, forceWarning_t, forceWarning_t::NUM_FORCE_WARNINGS> kyleForceStatusSounds;
+	for (forceWarning_t index = forceWarning_t::FW_VERY_LIGHT; index < forceWarning_t::NUM_FORCE_WARNINGS; index++)
 	{
 		DC->registerSound(lukeForceStatusSounds[index], false);
 		DC->registerSound(kyleForceStatusSounds[index], false);
@@ -258,7 +258,7 @@ void UI_Init( int apiVersion, uiimport_t *uiimport, bool inGameLoad )
 	ui = *uiimport;
 
 	if ( apiVersion != UI_API_VERSION ) {
-		ui.Error( ERR_FATAL, "Bad UI_API_VERSION: expected %i, got %i\n", UI_API_VERSION, apiVersion );
+		ui.Error( errorParm_t::ERR_FATAL, "Bad UI_API_VERSION: expected %i, got %i\n", UI_API_VERSION, apiVersion );
 	}
 
 	// get static data (glconfig, media)
@@ -269,44 +269,44 @@ void UI_Init( int apiVersion, uiimport_t *uiimport, bool inGameLoad )
 
 	Menu_Cache( );
 
-	ui.Cvar_Create( "cg_drawCrosshair", "1", CVAR_ARCHIVE );
-	ui.Cvar_Create( "cg_marks", "1", CVAR_ARCHIVE );
-	ui.Cvar_Create ("s_language",			"english",	CVAR_ARCHIVE | CVAR_NORESTART);
+	ui.Cvar_Create( "cg_drawCrosshair", "1", cvarFlags_t::CVAR_ARCHIVE );
+	ui.Cvar_Create( "cg_marks", "1", cvarFlags_t::CVAR_ARCHIVE );
+	ui.Cvar_Create ("s_language",			"english",	cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_NORESTART);
 #ifndef JK2_MODE
-	ui.Cvar_Create( "g_char_model",			"jedi_tf",	CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
-	ui.Cvar_Create( "g_char_skin_head",		"head_a1",	CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
-	ui.Cvar_Create( "g_char_skin_torso",	"torso_a1",	CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
-	ui.Cvar_Create( "g_char_skin_legs",		"lower_a1",	CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
-	ui.Cvar_Create( "g_char_color_red",		"255",		CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
-	ui.Cvar_Create( "g_char_color_green",	"255",		CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
-	ui.Cvar_Create( "g_char_color_blue",	"255",		CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
-	ui.Cvar_Create( "g_saber_type",			"single",	CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
-	ui.Cvar_Create( "g_saber",				"single_1",	CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
-	ui.Cvar_Create( "g_saber2",				"",			CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
-	ui.Cvar_Create( "g_saber_color",		"yellow",	CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
-	ui.Cvar_Create( "g_saber2_color",		"yellow",	CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
+	ui.Cvar_Create( "g_char_model",			"jedi_tf",	cvarFlags_t::CVAR_ARCHIVE|cvarFlags_t::CVAR_SAVEGAME|cvarFlags_t::CVAR_NORESTART );
+	ui.Cvar_Create( "g_char_skin_head",		"head_a1",	cvarFlags_t::CVAR_ARCHIVE|cvarFlags_t::CVAR_SAVEGAME|cvarFlags_t::CVAR_NORESTART );
+	ui.Cvar_Create( "g_char_skin_torso",	"torso_a1",	cvarFlags_t::CVAR_ARCHIVE|cvarFlags_t::CVAR_SAVEGAME|cvarFlags_t::CVAR_NORESTART );
+	ui.Cvar_Create( "g_char_skin_legs",		"lower_a1",	cvarFlags_t::CVAR_ARCHIVE|cvarFlags_t::CVAR_SAVEGAME|cvarFlags_t::CVAR_NORESTART );
+	ui.Cvar_Create( "g_char_color_red",		"255",		cvarFlags_t::CVAR_ARCHIVE|cvarFlags_t::CVAR_SAVEGAME|cvarFlags_t::CVAR_NORESTART );
+	ui.Cvar_Create( "g_char_color_green",	"255",		cvarFlags_t::CVAR_ARCHIVE|cvarFlags_t::CVAR_SAVEGAME|cvarFlags_t::CVAR_NORESTART );
+	ui.Cvar_Create( "g_char_color_blue",	"255",		cvarFlags_t::CVAR_ARCHIVE|cvarFlags_t::CVAR_SAVEGAME|cvarFlags_t::CVAR_NORESTART );
+	ui.Cvar_Create( "g_saber_type",			"single",	cvarFlags_t::CVAR_ARCHIVE|cvarFlags_t::CVAR_SAVEGAME|cvarFlags_t::CVAR_NORESTART );
+	ui.Cvar_Create( "g_saber",				"single_1",	cvarFlags_t::CVAR_ARCHIVE|cvarFlags_t::CVAR_SAVEGAME|cvarFlags_t::CVAR_NORESTART );
+	ui.Cvar_Create( "g_saber2",				"",			cvarFlags_t::CVAR_ARCHIVE|cvarFlags_t::CVAR_SAVEGAME|cvarFlags_t::CVAR_NORESTART );
+	ui.Cvar_Create( "g_saber_color",		"yellow",	cvarFlags_t::CVAR_ARCHIVE|cvarFlags_t::CVAR_SAVEGAME|cvarFlags_t::CVAR_NORESTART );
+	ui.Cvar_Create( "g_saber2_color",		"yellow",	cvarFlags_t::CVAR_ARCHIVE|cvarFlags_t::CVAR_SAVEGAME|cvarFlags_t::CVAR_NORESTART );
 
-	ui.Cvar_Create( "ui_forcepower_inc",	"0",		CVAR_ROM|CVAR_SAVEGAME|CVAR_NORESTART);
-	ui.Cvar_Create( "tier_storyinfo",		"0",		CVAR_ROM|CVAR_SAVEGAME|CVAR_NORESTART);
-	ui.Cvar_Create( "tiers_complete",		"",			CVAR_ROM|CVAR_SAVEGAME|CVAR_NORESTART);
-	ui.Cvar_Create( "ui_prisonerobj_currtotal", "0",	CVAR_ROM|CVAR_SAVEGAME|CVAR_NORESTART);
-	ui.Cvar_Create( "ui_prisonerobj_mintotal",  "0",	CVAR_ROM|CVAR_SAVEGAME|CVAR_NORESTART);
+	ui.Cvar_Create( "ui_forcepower_inc",	"0",		cvarFlags_t::CVAR_ROM|cvarFlags_t::CVAR_SAVEGAME|cvarFlags_t::CVAR_NORESTART);
+	ui.Cvar_Create( "tier_storyinfo",		"0",		cvarFlags_t::CVAR_ROM|cvarFlags_t::CVAR_SAVEGAME|cvarFlags_t::CVAR_NORESTART);
+	ui.Cvar_Create( "tiers_complete",		"",			cvarFlags_t::CVAR_ROM|cvarFlags_t::CVAR_SAVEGAME|cvarFlags_t::CVAR_NORESTART);
+	ui.Cvar_Create( "ui_prisonerobj_currtotal", "0",	cvarFlags_t::CVAR_ROM|cvarFlags_t::CVAR_SAVEGAME|cvarFlags_t::CVAR_NORESTART);
+	ui.Cvar_Create( "ui_prisonerobj_mintotal",  "0",	cvarFlags_t::CVAR_ROM|cvarFlags_t::CVAR_SAVEGAME|cvarFlags_t::CVAR_NORESTART);
 
-	ui.Cvar_Create( "g_dismemberment", "3", CVAR_ARCHIVE );//0 = none, 1 = arms and hands, 2 = legs, 3 = waist and head
-	ui.Cvar_Create( "cg_gunAutoFirst", "1", CVAR_ARCHIVE );
-	ui.Cvar_Create( "cg_crosshairIdentifyTarget", "1", CVAR_ARCHIVE );
-	ui.Cvar_Create( "g_subtitles", "0", CVAR_ARCHIVE );
-	ui.Cvar_Create( "cg_marks", "1", CVAR_ARCHIVE );
-	ui.Cvar_Create( "d_slowmodeath", "3", CVAR_ARCHIVE );
-	ui.Cvar_Create( "cg_shadows", "1", CVAR_ARCHIVE );
+	ui.Cvar_Create( "g_dismemberment", "3", cvarFlags_t::CVAR_ARCHIVE );//0 = none, 1 = arms and hands, 2 = legs, 3 = waist and head
+	ui.Cvar_Create( "cg_gunAutoFirst", "1", cvarFlags_t::CVAR_ARCHIVE );
+	ui.Cvar_Create( "cg_crosshairIdentifyTarget", "1", cvarFlags_t::CVAR_ARCHIVE );
+	ui.Cvar_Create( "g_subtitles", "0", cvarFlags_t::CVAR_ARCHIVE );
+	ui.Cvar_Create( "cg_marks", "1", cvarFlags_t::CVAR_ARCHIVE );
+	ui.Cvar_Create( "d_slowmodeath", "3", cvarFlags_t::CVAR_ARCHIVE );
+	ui.Cvar_Create( "cg_shadows", "1", cvarFlags_t::CVAR_ARCHIVE );
 
-	ui.Cvar_Create( "cg_runpitch", "0.002", CVAR_ARCHIVE );
-	ui.Cvar_Create( "cg_runroll", "0.005", CVAR_ARCHIVE );
-	ui.Cvar_Create( "cg_bobup", "0.005", CVAR_ARCHIVE );
-	ui.Cvar_Create( "cg_bobpitch", "0.002", CVAR_ARCHIVE );
-	ui.Cvar_Create( "cg_bobroll", "0.002", CVAR_ARCHIVE );
+	ui.Cvar_Create( "cg_runpitch", "0.002", cvarFlags_t::CVAR_ARCHIVE );
+	ui.Cvar_Create( "cg_runroll", "0.005", cvarFlags_t::CVAR_ARCHIVE );
+	ui.Cvar_Create( "cg_bobup", "0.005", cvarFlags_t::CVAR_ARCHIVE );
+	ui.Cvar_Create( "cg_bobpitch", "0.002", cvarFlags_t::CVAR_ARCHIVE );
+	ui.Cvar_Create( "cg_bobroll", "0.002", cvarFlags_t::CVAR_ARCHIVE );
 
-	ui.Cvar_Create( "ui_disableWeaponSway", "0", CVAR_ARCHIVE );
+	ui.Cvar_Create( "ui_disableWeaponSway", "0", cvarFlags_t::CVAR_ARCHIVE );
 #endif
 
 
@@ -397,7 +397,7 @@ UI_LoadMenu_f
 */
 static void UI_LoadMenu_f( void )
 {
-	trap_Key_SetCatcher( KEYCATCH_UI );
+	trap_Key_SetCatcher( keyCatchFlags_t::KEYCATCH_UI );
 	Menus_ActivateByName("ingameloadMenu");
 }
 
@@ -412,7 +412,7 @@ static void UI_SaveMenu_f( void )
 	ui.PrecacheScreenshot();
 #endif
 
-	trap_Key_SetCatcher( KEYCATCH_UI );
+	trap_Key_SetCatcher( keyCatchFlags_t::KEYCATCH_UI );
 	Menus_ActivateByName("ingamesaveMenu");
 }
 

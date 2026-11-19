@@ -46,7 +46,6 @@ enum class bspLump_t {	// the indices of the file's lumps
 	LUMP_LIGHTARRAY			= 17,
 	HEADER_LUMPS			= 18
 };
-using enum bspLump_t;
 
 inline constexpr int MC_BITS_X = 16;
 inline constexpr int MC_BITS_Y = 16;

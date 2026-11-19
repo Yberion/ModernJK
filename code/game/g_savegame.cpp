@@ -43,117 +43,117 @@ extern void FX_Write( void );
 
 static const save_field_t savefields_gEntity[] =
 {
-	{strFOFS(client),			F_GCLIENT},
-	{strFOFS(owner),			F_GENTITY},
-	{strFOFS(classname),		F_STRING},
-	{strFOFS(model),			F_STRING},
-	{strFOFS(model2),			F_STRING},
-//	{strFOFS(model3),			F_STRING}, - MCG
-	{strFOFS(nextTrain),		F_GENTITY},
-	{strFOFS(prevTrain),		F_GENTITY},
-	{strFOFS(message),			F_STRING},
-	{strFOFS(target),			F_STRING},
-	{strFOFS(target2),			F_STRING},
-	{strFOFS(target3),			F_STRING},
-	{strFOFS(target4),			F_STRING},
-	{strFOFS(targetJump),		F_STRING},
-	{strFOFS(targetname),		F_STRING},
-	{strFOFS(team),				F_STRING},
-	{strFOFS(roff),				F_STRING},
-//	{strFOFS(target_ent),		F_GENTITY}, - MCG
-	{strFOFS(chain),			F_GENTITY},
-	{strFOFS(enemy),			F_GENTITY},
-	{strFOFS(activator),		F_GENTITY},
-	{strFOFS(teamchain),		F_GENTITY},
-	{strFOFS(teammaster),		F_GENTITY},
-	{strFOFS(item),				F_ITEM},
-	{strFOFS(NPC_type),			F_STRING},
-	{strFOFS(closetarget),		F_STRING},
-	{strFOFS(opentarget),		F_STRING},
-	{strFOFS(paintarget),		F_STRING},
-	{strFOFS(NPC_targetname),	F_STRING},
-	{strFOFS(NPC_target),		F_STRING},
-	{strFOFS(ownername),		F_STRING},
-	{strFOFS(lastEnemy),		F_GENTITY},
-	{strFOFS(behaviorSet),		F_BEHAVIORSET},
-	{strFOFS(script_targetname),F_STRING},
-	{strFOFS(m_iIcarusID),		F_NULL},
-	{strFOFS(NPC),				F_BOOLPTR},
-	{strFOFS(soundSet),			F_STRING},
-	{strFOFS(cameraGroup),		F_STRING},
-	{strFOFS(parms),			F_BOOLPTR},
-	{strFOFS(m_pVehicle),		F_BOOLPTR},
+	{strFOFS(client),			fieldtypeSAVE_t::F_GCLIENT},
+	{strFOFS(owner),			fieldtypeSAVE_t::F_GENTITY},
+	{strFOFS(classname),		fieldtypeSAVE_t::F_STRING},
+	{strFOFS(model),			fieldtypeSAVE_t::F_STRING},
+	{strFOFS(model2),			fieldtypeSAVE_t::F_STRING},
+//	{strFOFS(model3),			fieldtypeSAVE_t::F_STRING}, - MCG
+	{strFOFS(nextTrain),		fieldtypeSAVE_t::F_GENTITY},
+	{strFOFS(prevTrain),		fieldtypeSAVE_t::F_GENTITY},
+	{strFOFS(message),			fieldtypeSAVE_t::F_STRING},
+	{strFOFS(target),			fieldtypeSAVE_t::F_STRING},
+	{strFOFS(target2),			fieldtypeSAVE_t::F_STRING},
+	{strFOFS(target3),			fieldtypeSAVE_t::F_STRING},
+	{strFOFS(target4),			fieldtypeSAVE_t::F_STRING},
+	{strFOFS(targetJump),		fieldtypeSAVE_t::F_STRING},
+	{strFOFS(targetname),		fieldtypeSAVE_t::F_STRING},
+	{strFOFS(team),				fieldtypeSAVE_t::F_STRING},
+	{strFOFS(roff),				fieldtypeSAVE_t::F_STRING},
+//	{strFOFS(target_ent),		fieldtypeSAVE_t::F_GENTITY}, - MCG
+	{strFOFS(chain),			fieldtypeSAVE_t::F_GENTITY},
+	{strFOFS(enemy),			fieldtypeSAVE_t::F_GENTITY},
+	{strFOFS(activator),		fieldtypeSAVE_t::F_GENTITY},
+	{strFOFS(teamchain),		fieldtypeSAVE_t::F_GENTITY},
+	{strFOFS(teammaster),		fieldtypeSAVE_t::F_GENTITY},
+	{strFOFS(item),				fieldtypeSAVE_t::F_ITEM},
+	{strFOFS(NPC_type),			fieldtypeSAVE_t::F_STRING},
+	{strFOFS(closetarget),		fieldtypeSAVE_t::F_STRING},
+	{strFOFS(opentarget),		fieldtypeSAVE_t::F_STRING},
+	{strFOFS(paintarget),		fieldtypeSAVE_t::F_STRING},
+	{strFOFS(NPC_targetname),	fieldtypeSAVE_t::F_STRING},
+	{strFOFS(NPC_target),		fieldtypeSAVE_t::F_STRING},
+	{strFOFS(ownername),		fieldtypeSAVE_t::F_STRING},
+	{strFOFS(lastEnemy),		fieldtypeSAVE_t::F_GENTITY},
+	{strFOFS(behaviorSet),		fieldtypeSAVE_t::F_BEHAVIORSET},
+	{strFOFS(script_targetname),fieldtypeSAVE_t::F_STRING},
+	{strFOFS(m_iIcarusID),		fieldtypeSAVE_t::F_NULL},
+	{strFOFS(NPC),				fieldtypeSAVE_t::F_BOOLPTR},
+	{strFOFS(soundSet),			fieldtypeSAVE_t::F_STRING},
+	{strFOFS(cameraGroup),		fieldtypeSAVE_t::F_STRING},
+	{strFOFS(parms),			fieldtypeSAVE_t::F_BOOLPTR},
+	{strFOFS(m_pVehicle),		fieldtypeSAVE_t::F_BOOLPTR},
 
-	{nullptr, 0, F_IGNORE}
+	{nullptr, 0, fieldtypeSAVE_t::F_IGNORE}
 };
 
 static const save_field_t savefields_gNPC[] =
 {
-//	{strNPCOFS(pendingEnemy),		F_GENTITY},
-	{strNPCOFS(touchedByPlayer),	F_GENTITY},
-	{strNPCOFS(aimingBeam),			F_GENTITY},
-	{strNPCOFS(eventOwner),			F_GENTITY},
-	{strNPCOFS(coverTarg),			F_GENTITY},
-	{strNPCOFS(tempGoal),			F_GENTITY},
-	{strNPCOFS(goalEntity),			F_GENTITY},
-	{strNPCOFS(lastGoalEntity),		F_GENTITY},
-	{strNPCOFS(eventualGoal),		F_GENTITY},
-	{strNPCOFS(captureGoal),		F_GENTITY},
-	{strNPCOFS(defendEnt),			F_GENTITY},
-	{strNPCOFS(greetEnt),			F_GENTITY},
-	{strNPCOFS(group),				F_GROUP},
-	{strNPCOFS(blockedEntity),		F_GENTITY},
-	{strNPCOFS(blockedTargetEntity),F_GENTITY},
-	{strNPCOFS(jumpTarget),			F_GENTITY},
-	{strNPCOFS(watchTarget),		F_GENTITY},
-	{nullptr, 0, F_IGNORE}
+//	{strNPCOFS(pendingEnemy),		fieldtypeSAVE_t::F_GENTITY},
+	{strNPCOFS(touchedByPlayer),	fieldtypeSAVE_t::F_GENTITY},
+	{strNPCOFS(aimingBeam),			fieldtypeSAVE_t::F_GENTITY},
+	{strNPCOFS(eventOwner),			fieldtypeSAVE_t::F_GENTITY},
+	{strNPCOFS(coverTarg),			fieldtypeSAVE_t::F_GENTITY},
+	{strNPCOFS(tempGoal),			fieldtypeSAVE_t::F_GENTITY},
+	{strNPCOFS(goalEntity),			fieldtypeSAVE_t::F_GENTITY},
+	{strNPCOFS(lastGoalEntity),		fieldtypeSAVE_t::F_GENTITY},
+	{strNPCOFS(eventualGoal),		fieldtypeSAVE_t::F_GENTITY},
+	{strNPCOFS(captureGoal),		fieldtypeSAVE_t::F_GENTITY},
+	{strNPCOFS(defendEnt),			fieldtypeSAVE_t::F_GENTITY},
+	{strNPCOFS(greetEnt),			fieldtypeSAVE_t::F_GENTITY},
+	{strNPCOFS(group),				fieldtypeSAVE_t::F_GROUP},
+	{strNPCOFS(blockedEntity),		fieldtypeSAVE_t::F_GENTITY},
+	{strNPCOFS(blockedTargetEntity),fieldtypeSAVE_t::F_GENTITY},
+	{strNPCOFS(jumpTarget),			fieldtypeSAVE_t::F_GENTITY},
+	{strNPCOFS(watchTarget),		fieldtypeSAVE_t::F_GENTITY},
+	{nullptr, 0, fieldtypeSAVE_t::F_IGNORE}
 };
 
 static const save_field_t savefields_LevelLocals[] =
 {
-	{strLLOFS(locationHead),	F_GENTITY},
-	{strLLOFS(alertEvents),		F_ALERTEVENT},
-	{strLLOFS(groups),			F_AIGROUPS},
-	{strLLOFS(knownAnimFileSets),F_ANIMFILESETS},
-	{nullptr, 0, F_IGNORE}
+	{strLLOFS(locationHead),	fieldtypeSAVE_t::F_GENTITY},
+	{strLLOFS(alertEvents),		fieldtypeSAVE_t::F_ALERTEVENT},
+	{strLLOFS(groups),			fieldtypeSAVE_t::F_AIGROUPS},
+	{strLLOFS(knownAnimFileSets),fieldtypeSAVE_t::F_ANIMFILESETS},
+	{nullptr, 0, fieldtypeSAVE_t::F_IGNORE}
 };
 
 static const save_field_t savefields_gVHIC[] =
 {
-	{strVHICOFS(m_pPilot),			F_GENTITY},
-	{strVHICOFS(m_pOldPilot),		F_GENTITY},
-	{strVHICOFS(m_pDroidUnit),		F_GENTITY},
-	{strVHICOFS(m_pParentEntity),	F_GENTITY},
+	{strVHICOFS(m_pPilot),			fieldtypeSAVE_t::F_GENTITY},
+	{strVHICOFS(m_pOldPilot),		fieldtypeSAVE_t::F_GENTITY},
+	{strVHICOFS(m_pDroidUnit),		fieldtypeSAVE_t::F_GENTITY},
+	{strVHICOFS(m_pParentEntity),	fieldtypeSAVE_t::F_GENTITY},
 
 	//m_ppPassengers	//!ptr array?!
-	{strVHICOFS(m_pVehicleInfo),	F_VEHINFO}, //!another ptr! store name field instead and re-hook on load?
+	{strVHICOFS(m_pVehicleInfo),	fieldtypeSAVE_t::F_VEHINFO}, //!another ptr! store name field instead and re-hook on load?
 
-	{nullptr, 0, F_IGNORE}
+	{nullptr, 0, fieldtypeSAVE_t::F_IGNORE}
 };
 
 static const save_field_t savefields_gClient[] =
 {
 	// sabers are stomped over by specific code elsewhere, it seems, but the first two fields MUST be saved
 	//	or it crashes on reload
-	{strCLOFS(ps.saber[0].name),F_STRING},
-/*	{strCLOFS(ps.saber[0].model),F_STRING},
-	{strCLOFS(ps.saber[0].skin),F_STRING},
-	{strCLOFS(ps.saber[0].brokenSaber1),F_STRING},
-	{strCLOFS(ps.saber[0].brokenSaber2),F_STRING},
+	{strCLOFS(ps.saber[0].name),fieldtypeSAVE_t::F_STRING},
+/*	{strCLOFS(ps.saber[0].model),fieldtypeSAVE_t::F_STRING},
+	{strCLOFS(ps.saber[0].skin),fieldtypeSAVE_t::F_STRING},
+	{strCLOFS(ps.saber[0].brokenSaber1),fieldtypeSAVE_t::F_STRING},
+	{strCLOFS(ps.saber[0].brokenSaber2),fieldtypeSAVE_t::F_STRING},
 */
-	{strCLOFS(ps.saber[1].name),F_STRING},
-/*	{strCLOFS(ps.saber[1].model),F_STRING},
-	{strCLOFS(ps.saber[1].skin),F_STRING},
-	{strCLOFS(ps.saber[1].brokenSaber1),F_STRING},
-	{strCLOFS(ps.saber[1].brokenSaber2),F_STRING},
+	{strCLOFS(ps.saber[1].name),fieldtypeSAVE_t::F_STRING},
+/*	{strCLOFS(ps.saber[1].model),fieldtypeSAVE_t::F_STRING},
+	{strCLOFS(ps.saber[1].skin),fieldtypeSAVE_t::F_STRING},
+	{strCLOFS(ps.saber[1].brokenSaber1),fieldtypeSAVE_t::F_STRING},
+	{strCLOFS(ps.saber[1].brokenSaber2),fieldtypeSAVE_t::F_STRING},
 */
-	{strCLOFS(leader),			F_GENTITY},
-	{strCLOFS(clientInfo.customBasicSoundDir),F_STRING},
-	{strCLOFS(clientInfo.customCombatSoundDir),F_STRING},
-	{strCLOFS(clientInfo.customExtraSoundDir),F_STRING},
-	{strCLOFS(clientInfo.customJediSoundDir),F_STRING},
+	{strCLOFS(leader),			fieldtypeSAVE_t::F_GENTITY},
+	{strCLOFS(clientInfo.customBasicSoundDir),fieldtypeSAVE_t::F_STRING},
+	{strCLOFS(clientInfo.customCombatSoundDir),fieldtypeSAVE_t::F_STRING},
+	{strCLOFS(clientInfo.customExtraSoundDir),fieldtypeSAVE_t::F_STRING},
+	{strCLOFS(clientInfo.customJediSoundDir),fieldtypeSAVE_t::F_STRING},
 
-	{nullptr, 0, F_IGNORE}
+	{nullptr, 0, fieldtypeSAVE_t::F_IGNORE}
 };
 
 // TODO FIXME mrwonko: this has no business being a global variable. WTF Raven?
@@ -197,7 +197,7 @@ static char *GetStringPtr(int iStrlen, char *psOriginal/*may be nullptr*/)
 			iStrlen);
 
 		// TAG_G_ALLOC is always blown away, we can never recycle
-		if (psOriginal && gi.bIsFromZone(psOriginal, TAG_G_ALLOC)) {
+		if (psOriginal && gi.bIsFromZone(psOriginal, memtag::TAG_G_ALLOC)) {
 			if (!strcmp(psOriginal,sString))
 			{//it's a legal ptr and they're the same so let's just reuse it instead of free/alloc
 				return psOriginal;
@@ -401,34 +401,34 @@ static void EnumerateField(const save_field_t *pField, const byte *pbBase)
 
 	switch (pField->eFieldType)
 	{
-	case F_STRING:
+	case fieldtypeSAVE_t::F_STRING:
 		*(int *)pv = GetStringNum(*(char **)pv);
 		break;
 
-	case F_GENTITY:
+	case fieldtypeSAVE_t::F_GENTITY:
 		*(intptr_t *)pv = GetGEntityNum(*(gentity_t **)pv);
 		break;
 
-	case F_GROUP:
+	case fieldtypeSAVE_t::F_GROUP:
 		*(int *)pv = GetGroupNumber(*(AIGroupInfo_t **)pv);
 		break;
 
-	case F_GCLIENT:
+	case fieldtypeSAVE_t::F_GCLIENT:
 		*(intptr_t *)pv = GetGClientNum(*(gclient_t **)pv, (gentity_t *) pbBase);
 		break;
 
-	case F_ITEM:
+	case fieldtypeSAVE_t::F_ITEM:
 		*(int *)pv = GetGItemNum(*(gitem_t **)pv);
 		break;
 
-	case F_VEHINFO:
+	case fieldtypeSAVE_t::F_VEHINFO:
 		*(int *)pv = GetVehicleInfoNum(*(vehicleInfo_t **)pv);
 		break;
 
-	case F_BEHAVIORSET:
+	case fieldtypeSAVE_t::F_BEHAVIORSET:
 		{
 			const char **p = (const char **) pv;
-			for (int i=0; i<to_underlying( NUM_BSETS ); i++)
+			for (int i=0; i<to_underlying( bSet_t::NUM_BSETS ); i++)
 			{
 				pv = &p[i];	// since you can't ++ a void ptr
 				*(int *)pv = GetStringNum(*(char **)pv);
@@ -449,7 +449,7 @@ static void EnumerateField(const save_field_t *pField, const byte *pbBase)
 		break;
 */
 
-	case F_ALERTEVENT:	// convert all gentity_t ptrs in an alertEvent array into indexes...
+	case fieldtypeSAVE_t::F_ALERTEVENT:	// convert all gentity_t ptrs in an alertEvent array into indexes...
 		{
 			alertEvent_t* p = (alertEvent_t *) pv;
 
@@ -460,7 +460,7 @@ static void EnumerateField(const save_field_t *pField, const byte *pbBase)
 		}
 		break;
 
-	case F_AIGROUPS:	// convert to ptrs within this into indexes...
+	case fieldtypeSAVE_t::F_AIGROUPS:	// convert to ptrs within this into indexes...
 		{
 			AIGroupInfo_t* p = (AIGroupInfo_t *) pv;
 
@@ -472,7 +472,7 @@ static void EnumerateField(const save_field_t *pField, const byte *pbBase)
 		}
 		break;
 
-	case F_ANIMFILESETS:
+	case fieldtypeSAVE_t::F_ANIMFILESETS:
 		{
 			animFileSet_t* p = (animFileSet_t *) pv;
 
@@ -489,16 +489,16 @@ static void EnumerateField(const save_field_t *pField, const byte *pbBase)
 		}
 		break;
 
-	case F_BOOLPTR:
+	case fieldtypeSAVE_t::F_BOOLPTR:
 		*(bool *)pv = (*(int *)pv != 0);
 		break;
 
 	// These are pointers that are always recreated
-	case F_NULL:
+	case fieldtypeSAVE_t::F_NULL:
 		*(void **)pv = nullptr;
 		break;
 
-	case F_IGNORE:
+	case fieldtypeSAVE_t::F_IGNORE:
 		break;
 
 	default:
@@ -561,35 +561,35 @@ static void EvaluateField(const save_field_t *pField, byte *pbBase, byte *pbOrig
 
 	switch (pField->eFieldType)
 	{
-	case F_STRING:
+	case fieldtypeSAVE_t::F_STRING:
 		*(char **)pv = GetStringPtr(*(int *)pv, pbOriginalRefData?*(char**)pvOriginal:nullptr);
 		break;
 
-	case F_GENTITY:
+	case fieldtypeSAVE_t::F_GENTITY:
 		*(gentity_t **)pv = GetGEntityPtr(*(intptr_t *)pv);
 		break;
 
-	case F_GROUP:
+	case fieldtypeSAVE_t::F_GROUP:
 		*(AIGroupInfo_t **)pv = GetGroupPtr(*(int *)pv);
 		break;
 
-	case F_GCLIENT:
+	case fieldtypeSAVE_t::F_GCLIENT:
 		*(gclient_t **)pv = GetGClientPtr(*(intptr_t *)pv);
 		break;
 
-	case F_ITEM:
+	case fieldtypeSAVE_t::F_ITEM:
 		*(gitem_t **)pv = GetGItemPtr(*(int *)pv);
 		break;
 
-	case F_VEHINFO:
+	case fieldtypeSAVE_t::F_VEHINFO:
 		*(vehicleInfo_t **)pv = GetVehicleInfoPtr(*(int *)pv);
 		break;
 
-	case F_BEHAVIORSET:
+	case fieldtypeSAVE_t::F_BEHAVIORSET:
 		{
 			char **p = (char **) pv;
 			char **pO= (char **) pvOriginal;
-			for (int i=0; i<to_underlying( NUM_BSETS ); i++, p++, pO++)
+			for (int i=0; i<to_underlying( bSet_t::NUM_BSETS ); i++, p++, pO++)
 			{
 				*p = GetStringPtr(*(int *)p, pbOriginalRefData?*(char **)pO:nullptr);
 			}
@@ -608,7 +608,7 @@ static void EvaluateField(const save_field_t *pField, byte *pbBase, byte *pbOrig
 		break;
 */
 
-	case F_ALERTEVENT:
+	case fieldtypeSAVE_t::F_ALERTEVENT:
 		{
 			alertEvent_t* p = (alertEvent_t *) pv;
 
@@ -619,7 +619,7 @@ static void EvaluateField(const save_field_t *pField, byte *pbBase, byte *pbOrig
 		}
 		break;
 
-	case F_AIGROUPS:	// convert to ptrs within this into indexes...
+	case fieldtypeSAVE_t::F_AIGROUPS:	// convert to ptrs within this into indexes...
 		{
 			AIGroupInfo_t* p = (AIGroupInfo_t *) pv;
 
@@ -631,7 +631,7 @@ static void EvaluateField(const save_field_t *pField, byte *pbBase, byte *pbOrig
 		}
 		break;
 
-	case F_ANIMFILESETS:
+	case fieldtypeSAVE_t::F_ANIMFILESETS:
 		{
 			animFileSet_t* p = (animFileSet_t *) pv;
 			char *pO;
@@ -648,11 +648,11 @@ static void EvaluateField(const save_field_t *pField, byte *pbBase, byte *pbOrig
 		}
 		break;
 //	// These fields are patched in when their relevant owners are loaded
-	case F_BOOLPTR:
-	case F_NULL:
+	case fieldtypeSAVE_t::F_BOOLPTR:
+	case fieldtypeSAVE_t::F_NULL:
 		break;
 
-	case F_IGNORE:
+	case fieldtypeSAVE_t::F_IGNORE:
 		break;
 
 	default:
@@ -684,7 +684,7 @@ void saberInfoRetail_t::sg_export(
 
 	if (!activeBlocking)
 	{
-		dst.saberFlags |= SFL_NOT_ACTIVE_BLOCKING;
+		dst.saberFlags |= saberFlags_t::SFL_NOT_ACTIVE_BLOCKING;
 	}
 
 	::memcpy(
@@ -698,7 +698,7 @@ void saberInfoRetail_t::sg_export(
 
 	if (!disarmable)
 	{
-		dst.saberFlags |= SFL_NOT_DISARMABLE;
+		dst.saberFlags |= saberFlags_t::SFL_NOT_DISARMABLE;
 	}
 
 	dst.disarmBonus = disarmBonus;
@@ -707,7 +707,7 @@ void saberInfoRetail_t::sg_export(
 
 	if (!lockable)
 	{
-		dst.saberFlags |= SFL_NOT_LOCKABLE;
+		dst.saberFlags |= saberFlags_t::SFL_NOT_LOCKABLE;
 	}
 
 	dst.lockBonus = lockBonus;
@@ -719,14 +719,14 @@ void saberInfoRetail_t::sg_export(
 
 	if (returnDamage)
 	{
-		dst.saberFlags |= SFL_RETURN_DAMAGE;
+		dst.saberFlags |= saberFlags_t::SFL_RETURN_DAMAGE;
 	}
 
 	dst.singleBladeStyle = singleBladeStyle;
 
 	if (singleBladeThrowable)
 	{
-		dst.saberFlags |= SFL_SINGLE_BLADE_THROWABLE;
+		dst.saberFlags |= saberFlags_t::SFL_SINGLE_BLADE_THROWABLE;
 	}
 
 	dst.skin = skin;
@@ -734,7 +734,7 @@ void saberInfoRetail_t::sg_export(
 	dst.soundOff = soundOff;
 	dst.soundOn = soundOn;
 
-	if (style != SS_NONE && style < SS_NUM_SABER_STYLES)
+	if (style != saber_styles_t::SS_NONE && style < saber_styles_t::SS_NUM_SABER_STYLES)
 	{
 		//OLD WAY: only allowed ONE style
 		//learn only this style
@@ -742,7 +742,7 @@ void saberInfoRetail_t::sg_export(
 
 		//forbid all other styles
 		dst.stylesForbidden = 0;
-		for (saber_styles_t styleNum = SS_NONE + 1; styleNum < SS_NUM_SABER_STYLES; ++styleNum)
+		for (saber_styles_t styleNum = saber_styles_t::SS_NONE + 1; styleNum < saber_styles_t::SS_NUM_SABER_STYLES; ++styleNum)
 		{
 			if (styleNum != style)
 			{
@@ -753,12 +753,12 @@ void saberInfoRetail_t::sg_export(
 
 	if (!throwable)
 	{
-		dst.saberFlags |= SFL_NOT_THROWABLE;
+		dst.saberFlags |= saberFlags_t::SFL_NOT_THROWABLE;
 	}
 
 	if (twoHanded)
 	{
-		dst.saberFlags |= SFL_TWO_HANDED;
+		dst.saberFlags |= saberFlags_t::SFL_TWO_HANDED;
 	}
 
 	dst.type = type;
@@ -855,7 +855,7 @@ All pointer variables (except function pointers) must be handled specially.
 */
 static void WriteLevelLocals ()
 {
-	level_locals_t *temp = (level_locals_t *)gi.Malloc(sizeof(level_locals_t), TAG_TEMP_WORKSPACE, false);
+	level_locals_t *temp = (level_locals_t *)gi.Malloc(sizeof(level_locals_t), memtag::TAG_TEMP_WORKSPACE, false);
 	*temp = level;	// copy out all data into a temp space
 
 	EnumerateFields(savefields_LevelLocals, temp, INT_ID('L','V','L','C'));
@@ -875,7 +875,7 @@ static void ReadLevelLocals ()
 	//
 	gclient_t *pClients = level.clients;	// save clients
 
-	level_locals_t *temp = (level_locals_t *)gi.Malloc(sizeof(level_locals_t), TAG_TEMP_WORKSPACE, false);
+	level_locals_t *temp = (level_locals_t *)gi.Malloc(sizeof(level_locals_t), memtag::TAG_TEMP_WORKSPACE, false);
 	*temp = level;	// struct copy
 	EvaluateFields(savefields_LevelLocals, temp, (byte *)&level, INT_ID('L','V','L','C'));
 	level = *temp;					// struct copy
@@ -1161,7 +1161,7 @@ static void ReadGEntities(bool qbAutosave)
 			{
 				// original didn't have one, so make a new one...
 				//
-				pEnt->m_pVehicle = (Vehicle_t *) gi.Malloc( sizeof(Vehicle_t), TAG_G_ALLOC, false );
+				pEnt->m_pVehicle = (Vehicle_t *) gi.Malloc( sizeof(Vehicle_t), memtag::TAG_G_ALLOC, false );
 			}
 
 			// copy over the one we've just loaded...
@@ -1190,7 +1190,7 @@ static void ReadGEntities(bool qbAutosave)
 
 		// because the sytem stores sfx_t handles directly instead of the set, we have to reget the set's sfx_t...
 		//
-		if (pEnt->s.eType == ET_MOVER && pEnt->s.loopSound>0)
+		if (pEnt->s.eType == entityType_t::ET_MOVER && pEnt->s.loopSound>0)
 		{
 			if ( VALIDSTRING( pEnt->soundSet ))
 			{

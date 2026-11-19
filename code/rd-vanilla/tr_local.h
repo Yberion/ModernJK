@@ -169,7 +169,6 @@ enum class shaderSort_t {
 
 	SS_NEAREST			// blood blobs
 };
-using enum shaderSort_t;
 
 
 #include "qcommon/q_renderer.h"
@@ -187,7 +186,6 @@ enum class genFunc_t {
 	GF_RAND,
 
 };
-using enum genFunc_t;
 
 
 enum class deform_t {
@@ -208,7 +206,6 @@ enum class deform_t {
 	DEFORM_TEXT6,
 	DEFORM_TEXT7
 };
-using enum deform_t;
 template <> inline constexpr bool enableEnumArithmetic<deform_t> = true;
 
 enum class alphaGen_t {
@@ -226,7 +223,6 @@ enum class alphaGen_t {
 	AGEN_DOT,
 	AGEN_ONE_MINUS_DOT
 };
-using enum alphaGen_t;
 
 enum class colorGen_t {
 	CGEN_BAD,
@@ -245,7 +241,6 @@ enum class colorGen_t {
 	CGEN_CONST,				// fixed color
 	CGEN_LIGHTMAPSTYLE,
 };
-using enum colorGen_t;
 
 enum class texCoordGen_t {
 	TCGEN_BAD,
@@ -259,7 +254,6 @@ enum class texCoordGen_t {
 	TCGEN_FOG,
 	TCGEN_VECTOR			// S and T from world coordinates
 };
-using enum texCoordGen_t;
 template <> inline constexpr bool enableEnumArithmetic<texCoordGen_t> = true;
 
 enum class acff_t {
@@ -268,7 +262,6 @@ enum class acff_t {
 	ACFF_MODULATE_RGBA,
 	ACFF_MODULATE_ALPHA
 };
-using enum acff_t;
 
 enum class EGLFogOverride {
 	GLFOGOVERRIDE_NONE = 0,
@@ -277,7 +270,6 @@ enum class EGLFogOverride {
 
 	GLFOGOVERRIDE_MAX
 };
-using enum EGLFogOverride;
 
 typedef struct {
 	genFunc_t	func;
@@ -299,7 +291,6 @@ enum class texMod_t {
 	TMOD_ROTATE,
 	TMOD_ENTITY_TRANSLATE
 };
-using enum texMod_t;
 
 typedef struct {
 	deform_t	deformation;			// vertex coordinate modification type
@@ -410,14 +401,12 @@ enum class cullType_t {
 	CT_BACK_SIDED,
 	CT_TWO_SIDED
 };
-using enum cullType_t;
 
 enum class fogPass_t {
 	FP_NONE,		// surface is translucent and will just be adjusted properly
 	FP_EQUAL,		// surface is opaque but possibly alpha tested
 	FP_LE			// surface is trnaslucent, but still needs a fog pass (fog surface)
 };
-using enum fogPass_t;
 
 typedef struct {
 	float		cloudHeight;
@@ -581,7 +570,6 @@ Ghoul2 Insert End
 
 	SF_NUM_SURFACE_TYPES,
 };
-using enum surfaceType_t;
 
 typedef struct drawSurf_s {
 	unsigned			sort;			// bit combination for fast compares
@@ -678,7 +666,7 @@ typedef struct {
 } srfTriangles_t;
 
 
-extern	EnumArray<void (*)( void * ), surfaceType_t, SF_NUM_SURFACE_TYPES> rb_surfaceTable;
+extern	EnumArray<void (*)( void * ), surfaceType_t, surfaceType_t::SF_NUM_SURFACE_TYPES> rb_surfaceTable;
 
 /*
 ==============================================================================
@@ -798,7 +786,6 @@ Ghoul2 Insert End
 */
 
 };
-using enum modtype_t;
 
 typedef struct model_s {
 	char		name[MAX_QPATH];
@@ -1549,7 +1536,7 @@ public:
 #endif
 
 CRenderableSurface():
-	ident(SF_MDX),
+	ident(surfaceType_t::SF_MDX),
 	boneCache(nullptr),
 #ifdef _G2_GORE
 	surfaceData(nullptr),
@@ -1565,7 +1552,7 @@ CRenderableSurface():
 		boneCache=nullptr;
 		surfaceData=nullptr;
 #ifdef _G2_GORE
-		ident = SF_MDX;
+		ident = surfaceType_t::SF_MDX;
 		alternateTex=nullptr;
 		goreChain=nullptr;
 #endif
@@ -1719,7 +1706,6 @@ enum class renderCommand_t {
 	RC_SWAP_BUFFERS,
 	RC_WORLD_EFFECTS,
 };
-using enum renderCommand_t;
 
 
 // these are sort of arbitrary limits.

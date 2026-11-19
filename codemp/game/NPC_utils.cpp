@@ -26,9 +26,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "icarus/Q3_Interface.h"
 #include "ghoul2/G2.h"
 
-EnumArray<int, npcteam_t, NPCTEAM_NUM_TEAMS>	teamNumbers;
-EnumArray<int, npcteam_t, NPCTEAM_NUM_TEAMS>	teamStrength;
-EnumArray<int, npcteam_t, NPCTEAM_NUM_TEAMS>	teamCounter;
+EnumArray<int, npcteam_t, npcteam_t::NPCTEAM_NUM_TEAMS>	teamNumbers;
+EnumArray<int, npcteam_t, npcteam_t::NPCTEAM_NUM_TEAMS>	teamStrength;
+EnumArray<int, npcteam_t, npcteam_t::NPCTEAM_NUM_TEAMS>	teamCounter;
 
 constexpr float VALID_ATTACK_CONE = 2.0f;	//Degrees
 extern void G_DebugPrint( WL_e level, const char *format, ... );
@@ -51,7 +51,7 @@ void CalcEntitySpot ( const gentity_t *ent, const spot_t spot, vec3_t point )
 	}
 	switch ( spot )
 	{
-	case SPOT_ORIGIN:
+	case spot_t::SPOT_ORIGIN:
 		if(VectorCompare(ent->r.currentOrigin, vec3_origin))
 		{//brush
 			VectorSubtract(ent->r.absmax, ent->r.absmin, point);//size
@@ -63,13 +63,13 @@ void CalcEntitySpot ( const gentity_t *ent, const spot_t spot, vec3_t point )
 		}
 		break;
 
-	case SPOT_CHEST:
-	case SPOT_HEAD:
+	case spot_t::SPOT_CHEST:
+	case spot_t::SPOT_HEAD:
 		if ( ent->client && VectorLengthSquared( ent->client->renderInfo.eyePoint ) /*&& (ent->client->ps.viewEntity <= 0 || ent->client->ps.viewEntity >= ENTITYNUM_WORLD)*/ )
 		{//Actual tag_head eyespot!
 			//FIXME: Stasis aliens may have a problem here...
 			VectorCopy( ent->client->renderInfo.eyePoint, point );
-			if ( ent->client->NPC_class == CLASS_ATST )
+			if ( ent->client->NPC_class == class_t::CLASS_ATST )
 			{//adjust up some
 				point[2] += 28;//magic number :)
 			}
@@ -79,7 +79,7 @@ void CalcEntitySpot ( const gentity_t *ent, const spot_t spot, vec3_t point )
 				point[1] = ent->r.currentOrigin[1];
 			}
 			/*
-			else if (ent->s.eType == ET_PLAYER )
+			else if (ent->s.eType == entityType_t::ET_PLAYER )
 			{
 				SubtractLeanOfs( ent, point );
 			}
@@ -93,21 +93,21 @@ void CalcEntitySpot ( const gentity_t *ent, const spot_t spot, vec3_t point )
 				point[2] += ent->client->ps.viewheight;
 			}
 		}
-		if ( spot == SPOT_CHEST && ent->client )
+		if ( spot == spot_t::SPOT_CHEST && ent->client )
 		{
-			if ( ent->client->NPC_class != CLASS_ATST )
+			if ( ent->client->NPC_class != class_t::CLASS_ATST )
 			{//adjust up some
 				point[2] -= ent->r.maxs[2]*0.2f;
 			}
 		}
 		break;
 
-	case SPOT_HEAD_LEAN:
+	case spot_t::SPOT_HEAD_LEAN:
 		if ( ent->client && VectorLengthSquared( ent->client->renderInfo.eyePoint ) /*&& (ent->client->ps.viewEntity <= 0 || ent->client->ps.viewEntity >= ENTITYNUM_WORLD*/ )
 		{//Actual tag_head eyespot!
 			//FIXME: Stasis aliens may have a problem here...
 			VectorCopy( ent->client->renderInfo.eyePoint, point );
-			if ( ent->client->NPC_class == CLASS_ATST )
+			if ( ent->client->NPC_class == class_t::CLASS_ATST )
 			{//adjust up some
 				point[2] += 28;//magic number :)
 			}
@@ -117,7 +117,7 @@ void CalcEntitySpot ( const gentity_t *ent, const spot_t spot, vec3_t point )
 				point[1] = ent->r.currentOrigin[1];
 			}
 			/*
-			else if ( ent->s.eType == ET_PLAYER )
+			else if ( ent->s.eType == entityType_t::ET_PLAYER )
 			{
 				SubtractLeanOfs( ent, point );
 			}
@@ -136,16 +136,16 @@ void CalcEntitySpot ( const gentity_t *ent, const spot_t spot, vec3_t point )
 		break;
 
 	//FIXME: implement...
-	//case SPOT_CHEST:
+	//case spot_t::SPOT_CHEST:
 		//Returns point 3/4 from tag_torso to tag_head?
 		//break;
 
-	case SPOT_LEGS:
+	case spot_t::SPOT_LEGS:
 		VectorCopy ( ent->r.currentOrigin, point );
 		point[2] += (ent->r.mins[2] * 0.5);
 		break;
 
-	case SPOT_WEAPON:
+	case spot_t::SPOT_WEAPON:
 		if( ent->NPC && !VectorCompare( ent->NPC->shootAngles, vec3_origin ) && !VectorCompare( ent->NPC->shootAngles, ent->client->ps.viewangles ))
 		{
 			AngleVectors( ent->NPC->shootAngles, forward, right, up );
@@ -158,7 +158,7 @@ void CalcEntitySpot ( const gentity_t *ent, const spot_t spot, vec3_t point )
 		//NOTE: automatically takes leaning into account!
 		break;
 
-	case SPOT_GROUND:
+	case spot_t::SPOT_GROUND:
 		// if entity is on the ground, just use it's absmin
 		if ( ent->s.groundEntityNum != ENTITYNUM_NONE )
 		{
@@ -172,7 +172,7 @@ void CalcEntitySpot ( const gentity_t *ent, const spot_t spot, vec3_t point )
 		start[2] = ent->r.absmin[2];
 		VectorCopy( start, end );
 		end[2] -= 64;
-		trap->Trace( &tr, start, ent->r.mins, ent->r.maxs, end, ent->s.number, MASK_PLAYERSOLID, false, G2TRFLAG_NONE, 0 );
+		trap->Trace( &tr, start, ent->r.mins, ent->r.maxs, end, ent->s.number, MASK_PLAYERSOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0 );
 		if ( tr.fraction < 1.0 )
 		{
 			VectorCopy( tr.endpos, point);
@@ -240,7 +240,7 @@ bool NPC_UpdateAngles ( bool doPitch, bool doYaw )
 		}
 	}
 
-	if ( NPCS.NPC->s.weapon == WP_EMPLACED_GUN )
+	if ( NPCS.NPC->s.weapon == weapon_t::WP_EMPLACED_GUN )
 	{
 		// FIXME: this seems to do nothing, actually...
 		yawSpeed = 20;
@@ -250,7 +250,7 @@ bool NPC_UpdateAngles ( bool doPitch, bool doYaw )
 		yawSpeed = NPCS.NPCInfo->stats.yawSpeed;
 	}
 
-	if ( NPCS.NPC->s.weapon == WP_SABER && NPCS.NPC->client->ps.fd.forcePowersActive&Bit( FP_SPEED ) )
+	if ( NPCS.NPC->s.weapon == weapon_t::WP_SABER && NPCS.NPC->client->ps.fd.forcePowersActive&Bit( forcePowers_t::FP_SPEED ) )
 	{
 		char buf[128];
 		float tFVal = 0;
@@ -335,9 +335,9 @@ bool NPC_UpdateAngles ( bool doPitch, bool doYaw )
 
 	NPCS.ucmd.angles[ROLL] = ANGLE2SHORT ( NPCS.NPC->client->ps.viewangles[ROLL] ) - NPCS.client->ps.delta_angles[ROLL];
 
-	if ( exact && trap->ICARUS_TaskIDPending( (sharedEntity_t *)NPCS.NPC, TID_ANGLE_FACE ) )
+	if ( exact && trap->ICARUS_TaskIDPending( (sharedEntity_t *)NPCS.NPC, taskID_t::TID_ANGLE_FACE ) )
 	{
-		trap->ICARUS_TaskIDComplete( (sharedEntity_t *)NPCS.NPC, TID_ANGLE_FACE );
+		trap->ICARUS_TaskIDComplete( (sharedEntity_t *)NPCS.NPC, taskID_t::TID_ANGLE_FACE );
 	}
 	return exact;
 
@@ -859,7 +859,7 @@ void SetTeamNumbers (void)
 		}
 	}
 
-	for( npcteam_t t = NPCTEAM_FREE; t < NPCTEAM_NUM_TEAMS; t++ )
+	for( npcteam_t t = npcteam_t::NPCTEAM_FREE; t < npcteam_t::NPCTEAM_NUM_TEAMS; t++ )
 	{//Get the average health
 		teamStrength[t] = Q_floor( ((float)(teamStrength[t])) / ((float)(teamNumbers[t])) );
 	}
@@ -892,7 +892,7 @@ bool G_ActivateBehavior (gentity_t *self, bSet_t bset )
 	if(bsID != -1)
 	{
 		const bState_t bSID = static_cast<bState_t>( bsID );
-		self->NPC->tempBehavior = BS_DEFAULT;
+		self->NPC->tempBehavior = bState_t::BS_DEFAULT;
 		self->NPC->behaviorState = bSID;
 	}
 	else
@@ -906,7 +906,7 @@ bool G_ActivateBehavior (gentity_t *self, bSet_t bset )
 		//if ( ( ICARUS_entFilter == -1 ) || ( ICARUS_entFilter == self->s.number ) )
 		if (0)
 		{
-			G_DebugPrint( WL_VERBOSE, "%s attempting to run bSet %s (%s)\n", self->targetname, GetStringForID( BSETTable, to_underlying( bset ) ), bs_name );
+			G_DebugPrint( WL_e::WL_VERBOSE, "%s attempting to run bSet %s (%s)\n", self->targetname, GetStringForID( BSETTable, to_underlying( bset ) ), bs_name );
 		}
 		trap->ICARUS_RunScript( (sharedEntity_t *)self, va( "%s/%s", Q3_SCRIPT_DIR, bs_name ) );
 	}
@@ -999,10 +999,10 @@ void NPC_SetBoneAngles(gentity_t *ent, const char *bone, vec3_t angles)
 		return;
 	}
 
-	flags = BONE_ANGLES_POSTMULT;
-	up = POSITIVE_X;
-	right = NEGATIVE_Y;
-	forward = NEGATIVE_Z;
+	flags = boneFlags_t::BONE_ANGLES_POSTMULT;
+	up = orientations_t::POSITIVE_X;
+	right = orientations_t::NEGATIVE_Y;
+	forward = orientations_t::NEGATIVE_Z;
 
 	//first 3 bits is forward, second 3 bits is right, third 3 bits is up
 	ent->s.boneOrient = ((to_underlying( forward ))|(to_underlying( right )<<3)|(to_underlying( up )<<6));
@@ -1011,7 +1011,7 @@ void NPC_SetBoneAngles(gentity_t *ent, const char *bone, vec3_t angles)
 }
 
 //rww - and another method of automatically managing surface status for the client and server at once
-constexpr g2SurfaceFlags_t TURN_ON = G2SURFACEFLAG_NONE;
+constexpr g2SurfaceFlags_t TURN_ON = g2SurfaceFlags_t::G2SURFACEFLAG_NONE;
 
 void NPC_SetSurfaceOnOff(gentity_t *ent, const char *surfaceName, g2SurfaceFlags_t surfaceFlags)
 {
@@ -1063,8 +1063,8 @@ bool NPC_SomeoneLookingAtMe(gentity_t *ent)
 	{
 		pEnt = &g_entities[i];
 
-		if (pEnt && pEnt->inuse && pEnt->client && pEnt->client->sess.sessionTeam != TEAM_SPECTATOR &&
-			pEnt->client->tempSpectate < level.time && !Any(pEnt->client->ps.pm_flags & PMF_FOLLOW) && pEnt->s.weapon != WP_NONE)
+		if (pEnt && pEnt->inuse && pEnt->client && pEnt->client->sess.sessionTeam != team_t::TEAM_SPECTATOR &&
+			pEnt->client->tempSpectate < level.time && !Any(pEnt->client->ps.pm_flags & pmoveFlags_t::PMF_FOLLOW) && pEnt->s.weapon != weapon_t::WP_NONE)
 		{
 			if (trap->InPVS(ent->r.currentOrigin, pEnt->r.currentOrigin))
 			{
@@ -1110,7 +1110,7 @@ NPC_ValidEnemy
 
 bool NPC_ValidEnemy( gentity_t *ent )
 {
-	npcteam_t entTeam = NPCTEAM_FREE;
+	npcteam_t entTeam = npcteam_t::NPCTEAM_FREE;
 
 	//Must be a valid pointer
 	if ( ent == nullptr )
@@ -1129,14 +1129,14 @@ bool NPC_ValidEnemy( gentity_t *ent )
 		return false;
 
 	//In case they're in notarget mode
-	if ( Any( ent->flags & FL_NOTARGET ) )
+	if ( Any( ent->flags & gentityFlags_t::FL_NOTARGET ) )
 		return false;
 
 	//Must be an NPC
 	if ( ent->client == nullptr )
 	{
 	//	if ( Any( ent->svFlags & SVF_NONNPC_ENEMY ) )
-		if (ent->s.eType != ET_NPC)
+		if (ent->s.eType != entityType_t::ET_NPC)
 		{//still potentially valid
 			if ( to_underlying( ent->alliedTeam ) == to_underlying( NPCS.NPC->client->playerTeam ) )
 			{
@@ -1152,7 +1152,7 @@ bool NPC_ValidEnemy( gentity_t *ent )
 			return false;
 		}
 	}
-	else if ( ent->client && ent->client->sess.sessionTeam == TEAM_SPECTATOR )
+	else if ( ent->client && ent->client->sess.sessionTeam == team_t::TEAM_SPECTATOR )
 	{//don't go after spectators
 		return false;
 	}
@@ -1166,23 +1166,23 @@ bool NPC_ValidEnemy( gentity_t *ent )
 	}
 	else if ( ent->client )
 	{
-		if (level.gametype < GT_TEAM)
+		if (level.gametype < gametype_t::GT_TEAM)
 		{
-			entTeam = NPCTEAM_PLAYER;
+			entTeam = npcteam_t::NPCTEAM_PLAYER;
 		}
 		else
 		{
-			if ( ent->client->sess.sessionTeam == TEAM_BLUE )
+			if ( ent->client->sess.sessionTeam == team_t::TEAM_BLUE )
 			{
-				entTeam = NPCTEAM_PLAYER;
+				entTeam = npcteam_t::NPCTEAM_PLAYER;
 			}
-			else if ( ent->client->sess.sessionTeam == TEAM_RED )
+			else if ( ent->client->sess.sessionTeam == team_t::TEAM_RED )
 			{
-				entTeam = NPCTEAM_ENEMY;
+				entTeam = npcteam_t::NPCTEAM_ENEMY;
 			}
 			else
 			{
-				entTeam = NPCTEAM_NEUTRAL;
+				entTeam = npcteam_t::NPCTEAM_NEUTRAL;
 			}
 		}
 	}
@@ -1194,10 +1194,10 @@ bool NPC_ValidEnemy( gentity_t *ent )
 	//if ( NPCInfo->enemyLastSeenTime != 0 && level.time - NPCInfo->enemyLastSeenTime > 7000 )//FIXME: make a stat?
 	//	return false;
 	if ( entTeam == NPCS.NPC->client->enemyTeam //simplest case: they're on my enemy team
-		|| (NPCS.NPC->client->enemyTeam == NPCTEAM_FREE && ent->client->NPC_class != NPCS.NPC->client->NPC_class )//I get mad at anyone and this guy isn't the same class as me
-		|| (ent->client->NPC_class == CLASS_WAMPA && ent->enemy )//a rampaging wampa
-		|| (ent->client->NPC_class == CLASS_RANCOR && ent->enemy )//a rampaging rancor
-		|| (entTeam == NPCTEAM_FREE && ent->client->enemyTeam == NPCTEAM_FREE && ent->enemy && ent->enemy->client && (ent->enemy->client->playerTeam == NPCS.NPC->client->playerTeam||(ent->enemy->client->playerTeam != NPCTEAM_ENEMY&&NPCS.NPC->client->playerTeam==NPCTEAM_PLAYER))) //enemy is a rampaging non-aligned creature who is attacking someone on our team or a non-enemy (this last condition is used only if we're a good guy - in effect, we protect the innocent)
+		|| (NPCS.NPC->client->enemyTeam == npcteam_t::NPCTEAM_FREE && ent->client->NPC_class != NPCS.NPC->client->NPC_class )//I get mad at anyone and this guy isn't the same class as me
+		|| (ent->client->NPC_class == class_t::CLASS_WAMPA && ent->enemy )//a rampaging wampa
+		|| (ent->client->NPC_class == class_t::CLASS_RANCOR && ent->enemy )//a rampaging rancor
+		|| (entTeam == npcteam_t::NPCTEAM_FREE && ent->client->enemyTeam == npcteam_t::NPCTEAM_FREE && ent->enemy && ent->enemy->client && (ent->enemy->client->playerTeam == NPCS.NPC->client->playerTeam||(ent->enemy->client->playerTeam != npcteam_t::NPCTEAM_ENEMY&&NPCS.NPC->client->playerTeam==npcteam_t::NPCTEAM_PLAYER))) //enemy is a rampaging non-aligned creature who is attacking someone on our team or a non-enemy (this last condition is used only if we're a good guy - in effect, we protect the innocent)
 		)
 	{
 		return true;
@@ -1329,7 +1329,7 @@ gentity_t *NPC_PickEnemyExt( bool checkAlerts )
 
 	if ( checkAlerts )
 	{
-		int alertEvent = NPC_CheckAlertEvents( true, true, -1, true, AEL_DISCOVERED );
+		int alertEvent = NPC_CheckAlertEvents( true, true, -1, true, alertEventLevel_e::AEL_DISCOVERED );
 
 		//There is an event to look at
 		if ( alertEvent >= 0 )
@@ -1340,7 +1340,7 @@ gentity_t *NPC_PickEnemyExt( bool checkAlerts )
 			if ( event->owner == NPCS.NPC )
 				return nullptr;
 
-			if ( event->level >= AEL_DISCOVERED )
+			if ( event->level >= alertEventLevel_e::AEL_DISCOVERED )
 			{
 				//If it's the player, attack him
 				//OJKFIXME: clientnum 0
@@ -1390,7 +1390,7 @@ static bool NPC_CheckPlayerDistance( void )
 		return false;
 
 	//must be set up to get mad at player
-	if ( !NPC->client || NPC->client->enemyTeam != NPCTEAM_PLAYER )
+	if ( !NPC->client || NPC->client->enemyTeam != npcteam_t::NPCTEAM_PLAYER )
 		return false;
 
 	//Must be within our FOV
@@ -1447,8 +1447,8 @@ bool NPC_FindEnemy( bool checkAlerts )
 	//Otherwise, turn off the flag
 //	NPC->svFlags &= ~SVF_LOCKEDENEMY;
 	//See if the player is closer than our current enemy
-	if ( NPCS.NPC->client->NPC_class != CLASS_RANCOR
-		&& NPCS.NPC->client->NPC_class != CLASS_WAMPA
+	if ( NPCS.NPC->client->NPC_class != class_t::CLASS_RANCOR
+		&& NPCS.NPC->client->NPC_class != class_t::CLASS_WAMPA
 		//&& NPC->client->NPC_class != CLASS_SAND_CREATURE
 		&& NPC_CheckPlayerDistance() )
 	{//rancors, wampas & sand creatures don't care if player is closer, they always go with closest
@@ -1507,18 +1507,18 @@ bool NPC_FacePosition( vec3_t position, bool doPitch )
 	bool	facing = true;
 
 	//Get the positions
-	if ( NPCS.NPC->client && (NPCS.NPC->client->NPC_class == CLASS_RANCOR || NPCS.NPC->client->NPC_class == CLASS_WAMPA) )// || NPC->client->NPC_class == CLASS_SAND_CREATURE) )
+	if ( NPCS.NPC->client && (NPCS.NPC->client->NPC_class == class_t::CLASS_RANCOR || NPCS.NPC->client->NPC_class == class_t::CLASS_WAMPA) )// || NPC->client->NPC_class == CLASS_SAND_CREATURE) )
 	{
-		CalcEntitySpot( NPCS.NPC, SPOT_ORIGIN, muzzle );
+		CalcEntitySpot( NPCS.NPC, spot_t::SPOT_ORIGIN, muzzle );
 		muzzle[2] += NPCS.NPC->r.maxs[2] * 0.75f;
 	}
-	else if ( NPCS.NPC->client && NPCS.NPC->client->NPC_class == CLASS_GALAKMECH )
+	else if ( NPCS.NPC->client && NPCS.NPC->client->NPC_class == class_t::CLASS_GALAKMECH )
 	{
-		CalcEntitySpot( NPCS.NPC, SPOT_WEAPON, muzzle );
+		CalcEntitySpot( NPCS.NPC, spot_t::SPOT_WEAPON, muzzle );
 	}
 	else
 	{
-		CalcEntitySpot( NPCS.NPC, SPOT_HEAD_LEAN, muzzle );//SPOT_HEAD
+		CalcEntitySpot( NPCS.NPC, spot_t::SPOT_HEAD_LEAN, muzzle );//SPOT_HEAD
 	}
 
 	//Find the desired angles
@@ -1527,7 +1527,7 @@ bool NPC_FacePosition( vec3_t position, bool doPitch )
 	NPCS.NPCInfo->desiredYaw		= AngleNormalize360( angles[YAW] );
 	NPCS.NPCInfo->desiredPitch	= AngleNormalize360( angles[PITCH] );
 
-	if ( NPCS.NPC->enemy && NPCS.NPC->enemy->client && NPCS.NPC->enemy->client->NPC_class == CLASS_ATST )
+	if ( NPCS.NPC->enemy && NPCS.NPC->enemy->client && NPCS.NPC->enemy->client->NPC_class == class_t::CLASS_ATST )
 	{
 		// FIXME: this is kind of dumb, but it was the easiest way to get it to look sort of ok
 		NPCS.NPCInfo->desiredYaw	+= Q_flrand( -5, 5 ) + Q_sin( level.time * 0.004f ) * 7;
@@ -1568,7 +1568,7 @@ bool NPC_FaceEntity( gentity_t *ent, bool doPitch )
 	vec3_t		entPos;
 
 	//Get the positions
-	CalcEntitySpot( ent, SPOT_HEAD_LEAN, entPos );
+	CalcEntitySpot( ent, spot_t::SPOT_HEAD_LEAN, entPos );
 
 	return NPC_FacePosition( entPos, doPitch );
 }
@@ -1599,7 +1599,7 @@ NPC_CheckCanAttackExt
 bool NPC_CheckCanAttackExt( void )
 {
 	//We don't want them to shoot
-	if( Any( NPCS.NPCInfo->scriptFlags & SCF_DONT_FIRE ) )
+	if( Any( NPCS.NPCInfo->scriptFlags & scriptFlags_t::SCF_DONT_FIRE ) )
 		return false;
 
 	//Turn to face
@@ -1626,7 +1626,7 @@ void NPC_ClearLookTarget( gentity_t *self )
 		return;
 	}
 
-	if ( Any(self->client->ps.eFlags2&EF2_HELD_BY_MONSTER) )
+	if ( Any(self->client->ps.eFlags2&entityFlags2_t::EF2_HELD_BY_MONSTER) )
 	{//lookTarget is set by and to the monster that's holding you, no other operations can change that
 		return;
 	}
@@ -1647,7 +1647,7 @@ void NPC_SetLookTarget( gentity_t *self, int entNum, int clearTime )
 		return;
 	}
 
-	if ( Any(self->client->ps.eFlags2&EF2_HELD_BY_MONSTER) )
+	if ( Any(self->client->ps.eFlags2&entityFlags2_t::EF2_HELD_BY_MONSTER) )
 	{//lookTarget is set by and to the monster that's holding you, no other operations can change that
 		return;
 	}
@@ -1705,14 +1705,14 @@ void NPC_CheckCharmed( void )
 		NPCS.NPC->s.teamowner			= NPCS.NPC->genericValue3;
 
 		NPCS.NPC->client->leader = nullptr;
-		if ( NPCS.NPCInfo->tempBehavior == BS_FOLLOW_LEADER )
+		if ( NPCS.NPCInfo->tempBehavior == bState_t::BS_FOLLOW_LEADER )
 		{
-			NPCS.NPCInfo->tempBehavior = BS_DEFAULT;
+			NPCS.NPCInfo->tempBehavior = bState_t::BS_DEFAULT;
 		}
 		G_ClearEnemy( NPCS.NPC );
 		NPCS.NPCInfo->charmedTime = 0;
 		//say something to let player know you've snapped out of it
-		G_AddVoiceEvent( NPCS.NPC, Q_irand(EV_CONFUSE1, EV_CONFUSE3), 2000 );
+		G_AddVoiceEvent( NPCS.NPC, Q_irand(entity_event_t::EV_CONFUSE1, entity_event_t::EV_CONFUSE3), 2000 );
 	}
 }
 
@@ -1746,7 +1746,7 @@ void G_GetBoltPosition( gentity_t *self, int boltIndex, vec3_t pos, int modelInd
 				nullptr, self->modelScale );
 	if ( pos )
 	{
-		BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, result );
+		BG_GiveMeVectorFromMatrix( &boltMatrix, orientations_t::ORIGIN, result );
 		VectorCopy( result, pos );
 	}
 }

@@ -161,11 +161,10 @@ enum class planeType_t : uint8_t {	// a byte of cplane_t
 	PLANE_Z,
 	PLANE_NON_AXIAL,
 };
-using enum planeType_t;
 
 // the axis of an axial plane, PLANE_X to PLANE_Z: the index of its normal's one component
 [[nodiscard]] constexpr int PlaneAxis( planeType_t type ) {
-	assert( type < PLANE_NON_AXIAL );
+	assert( type < planeType_t::PLANE_NON_AXIAL );
 	return to_underlying( type );
 }
 
@@ -365,4 +364,3 @@ enum class planeSide_t {
 	SIDE_ON,
 	SIDE_CROSS,
 };
-using enum planeSide_t;

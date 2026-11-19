@@ -110,14 +110,12 @@ enum class footstep_t {
 
 	FOOTSTEP_TOTAL
 };
-using enum footstep_t;
 
 enum class impactSound_t {
 	IMPACTSOUND_DEFAULT,
 	IMPACTSOUND_METAL,
 	IMPACTSOUND_FLESH
 };
-using enum impactSound_t;
 
 //=================================================
 
@@ -489,7 +487,6 @@ enum class leType_t {
 	LE_SHOWREFENTITY,
 	LE_LINE
 };
-using enum leType_t;
 
 #include "qcommon/q_clientflags.h"
 
@@ -497,8 +494,7 @@ enum class leMarkType_t {
 	LEMT_NONE,
 	LEMT_BURN,
 	LEMT_BLOOD
-};
-using enum leMarkType_t;			// fragment local entities can leave marks on walls
+};			// fragment local entities can leave marks on walls
 
 enum class leBounceSoundType_t {
 	LEBS_NONE,
@@ -506,8 +502,7 @@ enum class leBounceSoundType_t {
 	LEBS_BRASS,
 	LEBS_METAL,
 	LEBS_ROCK
-};
-using enum leBounceSoundType_t;	// fragment local entities can make sounds on impacts
+};	// fragment local entities can make sounds on impacts
 
 typedef struct localEntity_s {
 	struct localEntity_s	*prev, *next;
@@ -1075,7 +1070,6 @@ enum class chunkType_t
 	CHUNK_WHITE_METAL,
 	NUM_CHUNK_TYPES
 };
-using enum chunkType_t;
 inline constexpr int NUM_CHUNK_MODELS = 4;
 
 // all of the model, shader, and sound references that are
@@ -1113,7 +1107,7 @@ typedef struct cgMedia_s {
 	qhandle_t	wireframeAutomapFrame_bottom;
 
 //Chunks
-	EnumArray<qhandle_t[4], chunkType_t, NUM_CHUNK_TYPES>	chunkModels;
+	EnumArray<qhandle_t[4], chunkType_t, chunkType_t::NUM_CHUNK_TYPES>	chunkModels;
 	sfxHandle_t	chunkSound;
 	sfxHandle_t	grateSound;
 	sfxHandle_t	rockBreakSound;
@@ -1249,7 +1243,7 @@ typedef struct cgMedia_s {
 
 	// sounds
 	sfxHandle_t	selectSound;
-	EnumArray<sfxHandle_t[4], footstep_t, FOOTSTEP_TOTAL>	footsteps;
+	EnumArray<sfxHandle_t[4], footstep_t, footstep_t::FOOTSTEP_TOTAL>	footsteps;
 
 	sfxHandle_t	winnerSound;
 	sfxHandle_t	loserSound;
@@ -1353,14 +1347,14 @@ typedef struct cgMedia_s {
 	qhandle_t sizeCursor;
 
 	//weapon icons
-	EnumArray<qhandle_t, weapon_t, WP_NUM_WEAPONS> weaponIcons;
-	EnumArray<qhandle_t, weapon_t, WP_NUM_WEAPONS> weaponIcons_NA;
+	EnumArray<qhandle_t, weapon_t, weapon_t::WP_NUM_WEAPONS> weaponIcons;
+	EnumArray<qhandle_t, weapon_t, weapon_t::WP_NUM_WEAPONS> weaponIcons_NA;
 
 	//holdable inventory item icons
-	EnumArray<qhandle_t, holdable_t, HI_NUM_HOLDABLE> invenIcons;
+	EnumArray<qhandle_t, holdable_t, holdable_t::HI_NUM_HOLDABLE> invenIcons;
 
 	//force power icons
-	EnumArray<qhandle_t, forcePowers_t, NUM_FORCE_POWERS> forcePowerIcons;
+	EnumArray<qhandle_t, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS> forcePowerIcons;
 
 	qhandle_t rageRecShader;
 
@@ -1633,7 +1627,7 @@ typedef struct siegeExtended_s
 	int			health;
 	int			maxhealth;
 	int			ammo;
-	std::optional<weapon_t>	weapon = WP_NONE;	// none when the ammo is not for the weapon held
+	std::optional<weapon_t>	weapon = weapon_t::WP_NONE;	// none when the ammo is not for the weapon held
 	int			lastUpdated;
 } siegeExtended_t;
 

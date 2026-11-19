@@ -112,32 +112,32 @@ void FX_AddSprite( vec3_t origin, vec3_t vel, vec3_t accel,
 							float scale, float dscale,
 							float sAlpha, float eAlpha,
 							float rotation, float bounce,
-							int life, qhandle_t shader, fxPrimitiveFlags_t flags = FX_NONE );
+							int life, qhandle_t shader, fxPrimitiveFlags_t flags = fxPrimitiveFlags_t::FX_NONE );
 
 void FX_AddSprite( vec3_t origin, vec3_t vel, vec3_t accel,
 							float scale, float dscale,
 							float sAlpha, float eAlpha,
 							vec3_t sRGB, vec3_t eRGB,
 							float rotation, float bounce,
-							int life, qhandle_t shader, fxPrimitiveFlags_t flags = FX_NONE );
+							int life, qhandle_t shader, fxPrimitiveFlags_t flags = fxPrimitiveFlags_t::FX_NONE );
 
 void FX_AddLine( vec3_t start, vec3_t end, float stScale,
 							float width, float dwidth,
 							float sAlpha, float eAlpha,
-							int life, qhandle_t shader, fxPrimitiveFlags_t flags = FX_NONE );
+							int life, qhandle_t shader, fxPrimitiveFlags_t flags = fxPrimitiveFlags_t::FX_NONE );
 
 void FX_AddLine( vec3_t start, vec3_t end, float stScale,
 							float width, float dwidth,
 							float sAlpha, float eAlpha,
 							vec3_t sRGB, vec3_t eRGB,
-							int life, qhandle_t shader, fxPrimitiveFlags_t flags = FX_NONE );
+							int life, qhandle_t shader, fxPrimitiveFlags_t flags = fxPrimitiveFlags_t::FX_NONE );
 
 void FX_AddQuad( vec3_t origin, vec3_t normal,
 						vec3_t vel, vec3_t accel,
 						float sradius, float eradius,
 						float salpha, float ealpha,
 						vec3_t sRGB, vec3_t eRGB,
-						float rotation, int life, qhandle_t shader, fxPrimitiveFlags_t flags = FX_NONE );
+						float rotation, int life, qhandle_t shader, fxPrimitiveFlags_t flags = fxPrimitiveFlags_t::FX_NONE );
 
 CBezier *FX_AddBezier( const vec3_t start, const vec3_t end,
 						const vec3_t control1, const vec3_t control1Vel,
@@ -145,7 +145,7 @@ CBezier *FX_AddBezier( const vec3_t start, const vec3_t end,
 						float size1, float size2, float sizeParm,
 						float alpha1, float alpha2, float alphaParm,
 						const vec3_t sRGB, const vec3_t eRGB, const float rgbParm,
-						int killTime, qhandle_t shader, fxPrimitiveFlags_t flags = FX_NONE );
+						int killTime, qhandle_t shader, fxPrimitiveFlags_t flags = fxPrimitiveFlags_t::FX_NONE );
 
 
 #endif //FX_UTIL_H_INC

@@ -45,20 +45,20 @@ static void CG_ResetEntity( centity_t *cent ) {
 	VectorCopy (cent->currentState.origin, cent->lerpOrigin);
 	VectorCopy (cent->currentState.angles, cent->lerpAngles);
 
-	if (Any( cent->currentState.eFlags & EF_G2ANIMATING ))
+	if (Any( cent->currentState.eFlags & entityFlags_t::EF_G2ANIMATING ))
 	{ //reset the animation state
 		cent->pe.torso.animationNumber = -1;
 		cent->pe.legs.animationNumber = -1;
 	}
 
 #if 0
-	if (cent->isRagging && Any(cent->currentState.eFlags & EF_DEAD))
+	if (cent->isRagging && Any(cent->currentState.eFlags & entityFlags_t::EF_DEAD))
 	{
 		VectorAdd(cent->lerpOrigin, cent->lerpOriginOffset, cent->lerpOrigin);
 	}
 #endif
 
-	if ( cent->currentState.eType == ET_PLAYER || cent->currentState.eType == ET_NPC ) {
+	if ( cent->currentState.eType == entityType_t::ET_PLAYER || cent->currentState.eType == entityType_t::ET_NPC ) {
 		CG_ResetPlayerEntity( cent );
 	}
 }
@@ -157,10 +157,10 @@ static void CG_TransitionSnapshot( void ) {
 	int					i;
 
 	if ( !cg.snap ) {
-		trap->Error( ERR_DROP, "CG_TransitionSnapshot: NULL cg.snap" );
+		trap->Error( errorParm_t::ERR_DROP, "CG_TransitionSnapshot: NULL cg.snap" );
 	}
 	if ( !cg.nextSnap ) {
-		trap->Error( ERR_DROP, "CG_TransitionSnapshot: NULL cg.nextSnap" );
+		trap->Error( errorParm_t::ERR_DROP, "CG_TransitionSnapshot: NULL cg.nextSnap" );
 	}
 
 	// execute any server string commands before transitioning entities
@@ -202,13 +202,13 @@ static void CG_TransitionSnapshot( void ) {
 		ops = &oldFrame->ps;
 		ps = &cg.snap->ps;
 		// teleporting checks are irrespective of prediction
-		if ( Any( ( ps->eFlags ^ ops->eFlags ) & EF_TELEPORT_BIT ) ) {
+		if ( Any( ( ps->eFlags ^ ops->eFlags ) & entityFlags_t::EF_TELEPORT_BIT ) ) {
 			cg.thisFrameTeleport = true;	// will be cleared by prediction code
 		}
 
 		// if we are not doing client side movement prediction for any
 		// reason, then the client events and view changes will be issued now
-		if ( cg.demoPlayback || Any(cg.snap->ps.pm_flags & PMF_FOLLOW)
+		if ( cg.demoPlayback || Any(cg.snap->ps.pm_flags & pmoveFlags_t::PMF_FOLLOW)
 			|| cg_noPredict.integer || CG_UsingEWeb() ) {
 			CG_TransitionPlayerState( ps, ops );
 		}
@@ -248,7 +248,7 @@ static void CG_SetNextSnap( snapshot_t *snap ) {
 
 		// if this frame is a teleport, or the entity wasn't in the
 		// previous frame, don't interpolate
-		if ( !cent->currentValid || Any( ( cent->currentState.eFlags ^ es->eFlags ) & EF_TELEPORT_BIT )  ) {
+		if ( !cent->currentValid || Any( ( cent->currentState.eFlags ^ es->eFlags ) & entityFlags_t::EF_TELEPORT_BIT )  ) {
 			cent->interpolate = false;
 		} else {
 			cent->interpolate = true;
@@ -257,7 +257,7 @@ static void CG_SetNextSnap( snapshot_t *snap ) {
 
 	// if the next frame is a teleport for the playerstate, we
 	// can't interpolate during demos
-	if ( cg.snap && Any( ( snap->ps.eFlags ^ cg.snap->ps.eFlags ) & EF_TELEPORT_BIT ) ) {
+	if ( cg.snap && Any( ( snap->ps.eFlags ^ cg.snap->ps.eFlags ) & entityFlags_t::EF_TELEPORT_BIT ) ) {
 		cg.nextFrameTeleport = true;
 	} else {
 		cg.nextFrameTeleport = false;
@@ -269,7 +269,7 @@ static void CG_SetNextSnap( snapshot_t *snap ) {
 	}
 
 	// if changing server restarts, don't interpolate
-	if ( Any( ( cg.nextSnap->snapFlags ^ cg.snap->snapFlags ) & SNAPFLAG_SERVERCOUNT ) ) {
+	if ( Any( ( cg.nextSnap->snapFlags ^ cg.snap->snapFlags ) & snapFlags_t::SNAPFLAG_SERVERCOUNT ) ) {
 		cg.nextFrameTeleport = true;
 	}
 
@@ -372,7 +372,7 @@ void CG_ProcessSnapshots( void ) {
 	if ( n != cg.latestSnapshotNum ) {
 		if ( n < cg.latestSnapshotNum ) {
 			// this should never happen
-			trap->Error( ERR_DROP, "CG_ProcessSnapshots: n < cg.latestSnapshotNum" );
+			trap->Error( errorParm_t::ERR_DROP, "CG_ProcessSnapshots: n < cg.latestSnapshotNum" );
 		}
 		cg.latestSnapshotNum = n;
 	}
@@ -389,7 +389,7 @@ void CG_ProcessSnapshots( void ) {
 
 		// set our weapon selection to what
 		// the playerstate is currently using
-		if ( !Any( snap->snapFlags & SNAPFLAG_NOT_ACTIVE ) ) {
+		if ( !Any( snap->snapFlags & snapFlags_t::SNAPFLAG_NOT_ACTIVE ) ) {
 			CG_SetInitialSnapshot( snap );
 		}
 	}
@@ -413,7 +413,7 @@ void CG_ProcessSnapshots( void ) {
 
 			// if time went backwards, we have a level restart
 			if ( cg.nextSnap->serverTime < cg.snap->serverTime ) {
-				trap->Error( ERR_DROP, "CG_ProcessSnapshots: Server time went backwards" );
+				trap->Error( errorParm_t::ERR_DROP, "CG_ProcessSnapshots: Server time went backwards" );
 			}
 		}
 
@@ -428,14 +428,14 @@ void CG_ProcessSnapshots( void ) {
 
 	// assert our valid conditions upon exiting
 	if ( cg.snap == nullptr ) {
-		trap->Error( ERR_DROP, "CG_ProcessSnapshots: cg.snap == NULL" );
+		trap->Error( errorParm_t::ERR_DROP, "CG_ProcessSnapshots: cg.snap == NULL" );
 	}
 	if ( cg.time < cg.snap->serverTime ) {
 		// this can happen right after a vid_restart
 		cg.time = cg.snap->serverTime;
 	}
 	if ( cg.nextSnap != nullptr && cg.nextSnap->serverTime <= cg.time ) {
-		trap->Error( ERR_DROP, "CG_ProcessSnapshots: cg.nextSnap->serverTime <= cg.time" );
+		trap->Error( errorParm_t::ERR_DROP, "CG_ProcessSnapshots: cg.nextSnap->serverTime <= cg.time" );
 	}
 
 }

@@ -225,7 +225,7 @@ Sys_LowPhysicalMemory()
 bool Sys_LowPhysicalMemory(void) {
 	static MEMORYSTATUSEX stat;
 	static bool bAsked = false;
-	static cvar_t* sys_lowmem = Cvar_Get( "sys_lowmem", "0", CVAR_NONE );
+	static cvar_t* sys_lowmem = Cvar_Get( "sys_lowmem", "0", cvarFlags_t::CVAR_NONE );
 
 	if (!bAsked)	// just in case it takes a little time for GlobalMemoryStatusEx() to gather stats on
 	{				//	stuff we don't care about such as virtual mem etc.
@@ -390,7 +390,7 @@ char **Sys_ListFiles( const char *directory, const char *extension, const char *
 		if (!nfiles)
 			return nullptr;
 
-		listCopy = (char **)Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ), TAG_LISTFILES );
+		listCopy = (char **)Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ), memtag::TAG_LISTFILES );
 		for ( i = 0 ; i < nfiles ; i++ ) {
 			listCopy[i] = list[i];
 		}
@@ -453,7 +453,7 @@ char **Sys_ListFiles( const char *directory, const char *extension, const char *
 		return nullptr;
 	}
 
-	listCopy = (char **)Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ), TAG_LISTFILES );
+	listCopy = (char **)Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ), memtag::TAG_LISTFILES );
 	for ( i = 0 ; i < nfiles ; i++ ) {
 		listCopy[i] = list[i];
 	}

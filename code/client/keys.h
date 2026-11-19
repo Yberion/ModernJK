@@ -34,7 +34,7 @@ typedef struct keyGlobals_s {
 	bool	key_overstrikeMode;
 	int			keyDownCount;
 
-	EnumArray<qkey_t, fakeAscii_t, MAX_KEYS> keys;
+	EnumArray<qkey_t, fakeAscii_t, fakeAscii_t::MAX_KEYS> keys;
 } keyGlobals_t;
 
 typedef struct keyname_s {
@@ -45,7 +45,7 @@ typedef struct keyname_s {
 } keyname_t;
 
 extern keyGlobals_t	kg;
-extern EnumArray<keyname_t, fakeAscii_t, MAX_KEYS> keynames;
+extern EnumArray<keyname_t, fakeAscii_t, fakeAscii_t::MAX_KEYS> keynames;
 
 // console
 extern field_t		g_consoleField;

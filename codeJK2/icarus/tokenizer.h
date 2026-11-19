@@ -61,7 +61,6 @@ enum class tokenizerError_t
 	TKERR_UNMATCHED_DIRECTIVE,
 	TKERR_USERERROR,
 };
-using enum tokenizerError_t;
 
 enum class directive_t;	// Tokenizer.cpp
 
@@ -385,19 +384,19 @@ class CTokenizer
 public:
 	CTokenizer();
 	~CTokenizer();
-	static CTokenizer* Create(tokenizerFlags_t dwFlags = TKF_NONE);
+	static CTokenizer* Create(tokenizerFlags_t dwFlags = tokenizerFlags_t::TKF_NONE);
 	virtual void Delete();
 	virtual void Error(tokenizerError_t theError);
 	virtual void Error(tokenizerError_t theError, const char *errString);
-	virtual void Error(const char *errString, tokenizerError_t theError = TKERR_UNKNOWN);
+	virtual void Error(const char *errString, tokenizerError_t theError = tokenizerError_t::TKERR_UNKNOWN);
 
-	CToken* GetToken(tokenizerFlags_t onFlags = TKF_NONE, tokenizerFlags_t offFlags = TKF_NONE);
+	CToken* GetToken(tokenizerFlags_t onFlags = tokenizerFlags_t::TKF_NONE, tokenizerFlags_t offFlags = tokenizerFlags_t::TKF_NONE);
 	CToken* GetToken(keywordArray_t* keywords, tokenizerFlags_t onFlags, tokenizerFlags_t offFlags);
 	void PutBackToken(CToken* theToken, bool commented = false, const char *addedChars = nullptr, bool bIgnoreThisTokenType = false);
 	bool RequireToken(icarusToken_t tokenType);
 	void ScanUntilToken(icarusToken_t tokenType);
 	void SkipToLineEnd();
-	CToken* GetToEndOfLine(icarusToken_t tokenType = TK_IDENTIFIER);
+	CToken* GetToEndOfLine(icarusToken_t tokenType = icarusToken_t::TK_IDENTIFIER);
 
 	keywordArray_t* SetKeywords(keywordArray_t* theKeywords);
 	void SetSymbols(keywordArray_t* theSymbols);
@@ -418,7 +417,7 @@ public:
 
 protected:
 	void SetError(tokenizerError_t theError, const char *errString);
-	virtual void Init(tokenizerFlags_t dwFlags = TKF_NONE);
+	virtual void Init(tokenizerFlags_t dwFlags = tokenizerFlags_t::TKF_NONE);
 	CToken* FetchToken();
 	bool AddDefineSymbol(CDirectiveSymbol* definesymbol);
 	bool NextChar(byte& theByte);

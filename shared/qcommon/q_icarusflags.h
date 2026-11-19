@@ -31,7 +31,6 @@ enum class blockFlags_t
 	BF_NONE			= 0,
 	BF_ELSE			= 0x00000001,	//Block has an else id	//FIXME: This was a sloppy fix for a problem that arose from conditionals
 };
-using enum blockFlags_t;
 template <> inline constexpr bool enableEnumFlags<blockFlags_t> = true;
 
 enum class tokenizerFlags_t
@@ -50,7 +49,6 @@ enum class tokenizerFlags_t
 	TKF_NODASHINIDENTIFIER			= 0x00000400,
 	TKF_COMMENTTOKENS				= 0x00000800,
 };
-using enum tokenizerFlags_t;
 template <> inline constexpr bool enableEnumFlags<tokenizerFlags_t> = true;
 
 inline constexpr int IBI_HEADER_ID_LENGTH = 4; // Length of IBI_HEADER_ID + 1 for the null terminating byte.

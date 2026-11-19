@@ -80,7 +80,7 @@ void RE_SaveJPG( const char * filename, int quality, int image_width, int image_
 int RE_SavePNG( const char *filename, byte *buf, size_t width, size_t height, int byteDepth );
 
 // The memory of the images the shared image files allocate (shared/rd-common), in this renderer's allocator.
-inline byte *R_ImageMalloc( int size, bool zero ) { return (byte *)Z_Malloc( size, TAG_TEMP_WORKSPACE, zero ); }
+inline byte *R_ImageMalloc( int size, bool zero ) { return (byte *)Z_Malloc( size, memtag::TAG_TEMP_WORKSPACE, zero ); }
 inline void R_ImageFree( void *ptr ) { Z_Free( ptr ); }
 
 #endif

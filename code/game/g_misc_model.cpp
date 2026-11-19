@@ -63,7 +63,7 @@ void SetMiscModelDefaults( gentity_t *ent, useFunc_t use_func, const char *mater
 	SetMiscModelModels( ent->model, ent, damage_model );
 
 	ent->s.eFlags = animFlag;
-	ent->svFlags |= SVF_PLAYER_USABLE;
+	ent->svFlags |= svFlags_t::SVF_PLAYER_USABLE;
 	ent->contents = solid_mask;
 
 	G_SetOrigin( ent, ent->s.origin );
@@ -73,11 +73,11 @@ void SetMiscModelDefaults( gentity_t *ent, useFunc_t use_func, const char *mater
 	// Set a generic use function
 
 	ent->e_UseFunc = use_func;
-/*	if (use_func == useF_health_use)
+/*	if (use_func == useFunc_t::useF_health_use)
 	{
 		G_SoundIndex("sound/player/suithealth.wav");
 	}
-	else if (use_func == useF_ammo_use )
+	else if (use_func == useFunc_t::useF_ammo_use )
 	{
 		G_SoundIndex("sound/player/suitenergy.wav");
 	}
@@ -88,8 +88,8 @@ void SetMiscModelDefaults( gentity_t *ent, useFunc_t use_func, const char *mater
 	{
 		ent->max_health = ent->health;
 		ent->takedamage = take_damage;
-		ent->e_PainFunc = painF_misc_model_breakable_pain;
-		ent->e_DieFunc  = dieF_misc_model_breakable_die;
+		ent->e_PainFunc = painFunc_t::painF_misc_model_breakable_pain;
+		ent->e_DieFunc  = dieFunc_t::dieF_misc_model_breakable_die;
 	}
 }
 
@@ -155,21 +155,21 @@ void set_MiscAnim( gentity_t *ent)
 	auto &animations = level.knownAnimFileSets[temp_animFileIndex].animations;
 	if (ent->playerModel & 1)
 	{
-		animNumber_t anim = BOTH_STAND3;
+		animNumber_t anim = animNumber_t::BOTH_STAND3;
 		float animSpeed = 50.0f / animations[anim].frameLerp;
 
 		// yes, its the same animation, so work out where we are in the leg anim, and blend us
 		gi.G2API_SetBoneAnim(&ent->ghoul2[0], "model_root", animations[anim].firstFrame,
 							(animations[anim].numFrames -1 )+ animations[anim].firstFrame,
-							BONE_ANIM_OVERRIDE_FREEZE | BONE_ANIM_BLEND , animSpeed, (cg.time?cg.time:level.time), -1, 350);
+							boneFlags_t::BONE_ANIM_OVERRIDE_FREEZE | boneFlags_t::BONE_ANIM_BLEND , animSpeed, (cg.time?cg.time:level.time), -1, 350);
 	}
 	else
 	{
-		animNumber_t anim = BOTH_PAIN3;
+		animNumber_t anim = animNumber_t::BOTH_PAIN3;
 		float animSpeed = 50.0f / animations[anim].frameLerp;
 		gi.G2API_SetBoneAnim(&ent->ghoul2[0], "model_root", animations[anim].firstFrame,
 						(animations[anim].numFrames -1 )+ animations[anim].firstFrame,
-						BONE_ANIM_OVERRIDE_FREEZE | BONE_ANIM_BLEND, animSpeed, (cg.time?cg.time:level.time), -1, 350);
+						boneFlags_t::BONE_ANIM_OVERRIDE_FREEZE | boneFlags_t::BONE_ANIM_BLEND, animSpeed, (cg.time?cg.time:level.time), -1, 350);
 	}
 	ent->nextthink = level.time + 900;
 	ent->playerModel++;
@@ -242,7 +242,7 @@ void SP_misc_model_ghoul( gentity_t *ent )
 //	VectorCopy(ent->mins, ent->s.mins);
 //	VectorCopy(ent->maxs, ent->s.maxs);
 //#endif
-	ent->contents = CONTENTS_BODY;
+	ent->contents = contentsFlags_t::CONTENTS_BODY;
 	ent->clipmask = MASK_NPCSOLID;
 
 	G_SetOrigin( ent, ent->s.origin );
@@ -257,23 +257,23 @@ void SP_misc_model_ghoul( gentity_t *ent )
 	gi.linkentity (ent);
 
 	auto &animations = level.knownAnimFileSets[temp_animFileIndex].animations;
-	animNumber_t anim = BOTH_STAND3;
+	animNumber_t anim = animNumber_t::BOTH_STAND3;
 	float animSpeed = 50.0f / animations[anim].frameLerp;
 	gi.G2API_SetBoneAnim(&ent->ghoul2[0], "model_root", animations[anim].firstFrame,
 					(animations[anim].numFrames -1 )+ animations[anim].firstFrame,
-					BONE_ANIM_OVERRIDE_FREEZE , animSpeed, cg.time);
+					boneFlags_t::BONE_ANIM_OVERRIDE_FREEZE , animSpeed, cg.time);
 
 //	std::optional<g2SurfaceFlags_t> test = gi.G2API_GetSurfaceRenderStatus(&ent->ghoul2[0], "l_hand");
-//	gi.G2API_SetSurfaceOnOff(&ent->ghoul2[0], "l_arm",G2SURFACEFLAG_NODESCENDANTS);
+//	gi.G2API_SetSurfaceOnOff(&ent->ghoul2[0], "l_arm",g2SurfaceFlags_t::G2SURFACEFLAG_NODESCENDANTS);
 //	test = gi.G2API_GetSurfaceRenderStatus(&ent->ghoul2[0], "l_hand");
 
 //	gi.G2API_SetNewOrigin(&ent->ghoul2[0], gi.G2API_AddBolt(&ent->ghoul2[0], "rhang_tag_bone"));
 //	ent->s.apos.trDelta[1] = 10;
-//	ent->s.apos.trType = TR_LINEAR;
+//	ent->s.apos.trType = trType_t::TR_LINEAR;
 
 
 	ent->nextthink = level.time + 1000;
-	ent->e_ThinkFunc = thinkF_set_MiscAnim;
+	ent->e_ThinkFunc = thinkFunc_t::thinkF_set_MiscAnim;
 #endif
 }
 
@@ -303,19 +303,19 @@ void GunRackAddItem( gitem_t *gun, vec3_t org, vec3_t angs, float ffwd, float fr
 	{
 		// FIXME: scaling the ammo will probably need to be tweaked to a reasonable amount...adjust as needed
 		// Set base ammo per type
-		if ( gun->giType == IT_WEAPON )
+		if ( gun->giType == itemType_t::IT_WEAPON )
 		{
 			it_ent->spawnflags |= 16;// VERTICAL
 
 			switch( GI_Weapon( *gun ) )
 			{
-			case WP_BLASTER:
+			case weapon_t::WP_BLASTER:
 				it_ent->count = 15;
 				break;
-			case WP_REPEATER:
+			case weapon_t::WP_REPEATER:
 				it_ent->count = 100;
 				break;
-			case WP_ROCKET_LAUNCHER:
+			case weapon_t::WP_ROCKET_LAUNCHER:
 				it_ent->count = 4;
 				break;
 			default:
@@ -338,9 +338,9 @@ void GunRackAddItem( gitem_t *gun, vec3_t org, vec3_t angs, float ffwd, float fr
 		// FinishSpawningItem handles everything, so clear the thinkFunc that was set in G_SpawnItem
 		FinishSpawningItem( it_ent );
 
-		if ( gun->giType == IT_AMMO )
+		if ( gun->giType == itemType_t::IT_AMMO )
 		{
-			if ( GI_Ammo( *gun ) == AMMO_BLASTER ) // I guess this just has to use different logic??
+			if ( GI_Ammo( *gun ) == ammo_t::AMMO_BLASTER ) // I guess this just has to use different logic??
 			{
 				if ( g_spskill->integer >= 2 )
 				{
@@ -374,7 +374,7 @@ void GunRackAddItem( gitem_t *gun, vec3_t org, vec3_t angs, float ffwd, float fr
 		VectorCopy( angs, it_ent->s.angles );
 
 		// by doing this, we can force the amount of ammo we desire onto the weapon for when it gets picked-up
-		it_ent->flags |= ( FL_DROPPED_ITEM | FL_FORCE_PULLABLE_ONLY );
+		it_ent->flags |= ( gentityFlags_t::FL_DROPPED_ITEM | gentityFlags_t::FL_FORCE_PULLABLE_ONLY );
 		it_ent->physicsBounce = 0.1f;
 
 		for ( int t = 0; t < 3; t++ )
@@ -416,17 +416,17 @@ void SP_misc_model_gun_rack( gentity_t *ent )
 	// If BLASTER is checked...or nothing is checked then we'll do blasters
 	if (( ent->spawnflags & RACK_BLASTER ) || !(ent->spawnflags & ( RACK_BLASTER | RACK_REPEATER | RACK_ROCKET )))
 	{
-		blaster	= FindItemForWeapon( WP_BLASTER );
+		blaster	= FindItemForWeapon( weapon_t::WP_BLASTER );
 	}
 
 	if (( ent->spawnflags & RACK_REPEATER ))
 	{
-		repeater = FindItemForWeapon( WP_REPEATER );
+		repeater = FindItemForWeapon( weapon_t::WP_REPEATER );
 	}
 
 	if (( ent->spawnflags & RACK_ROCKET ))
 	{
-		rocket = FindItemForWeapon( WP_ROCKET_LAUNCHER );
+		rocket = FindItemForWeapon( weapon_t::WP_ROCKET_LAUNCHER );
 	}
 
 	//---------weapon types
@@ -471,7 +471,7 @@ void SP_misc_model_gun_rack( gentity_t *ent )
 	G_SetOrigin( ent, ent->s.origin );
 	G_SetAngles( ent, ent->s.angles );
 
-	ent->contents = CONTENTS_SOLID;
+	ent->contents = contentsFlags_t::CONTENTS_SOLID;
 
 	gi.linkentity( ent );
 }
@@ -508,32 +508,32 @@ void SP_misc_model_ammo_rack( gentity_t *ent )
 	{
 		if ( ent->spawnflags & RACK_WEAPONS )
 		{
-			RegisterItem( FindItemForWeapon( WP_BLASTER ));
+			RegisterItem( FindItemForWeapon( weapon_t::WP_BLASTER ));
 		}
-		RegisterItem( FindItemForAmmo( AMMO_BLASTER ));
+		RegisterItem( FindItemForAmmo( ammo_t::AMMO_BLASTER ));
 	}
 
 	if (( ent->spawnflags & RACK_METAL_BOLTS ))
 	{
 		if ( ent->spawnflags & RACK_WEAPONS )
 		{
-			RegisterItem( FindItemForWeapon( WP_REPEATER ));
+			RegisterItem( FindItemForWeapon( weapon_t::WP_REPEATER ));
 		}
-		RegisterItem( FindItemForAmmo( AMMO_METAL_BOLTS ));
+		RegisterItem( FindItemForAmmo( ammo_t::AMMO_METAL_BOLTS ));
 	}
 
 	if (( ent->spawnflags & RACK_ROCKETS ))
 	{
 		if ( ent->spawnflags & RACK_WEAPONS )
 		{
-			RegisterItem( FindItemForWeapon( WP_ROCKET_LAUNCHER ));
+			RegisterItem( FindItemForWeapon( weapon_t::WP_ROCKET_LAUNCHER ));
 		}
-		RegisterItem( FindItemForAmmo( AMMO_ROCKETS ));
+		RegisterItem( FindItemForAmmo( ammo_t::AMMO_ROCKETS ));
 	}
 
 	if (( ent->spawnflags & RACK_PWR_CELL ))
 	{
-		RegisterItem( FindItemForAmmo( AMMO_POWERCELL ));
+		RegisterItem( FindItemForAmmo( ammo_t::AMMO_POWERCELL ));
 	}
 
 	if (( ent->spawnflags & RACK_HEALTH ))
@@ -541,13 +541,13 @@ void SP_misc_model_ammo_rack( gentity_t *ent )
 		RegisterItem( FindItem( "item_medpak_instant" ));
 	}
 
-	ent->e_ThinkFunc = thinkF_spawn_rack_goods;
+	ent->e_ThinkFunc = thinkFunc_t::thinkF_spawn_rack_goods;
 	ent->nextthink = level.time + 100;
 
 	G_SetOrigin( ent, ent->s.origin );
 	G_SetAngles( ent, ent->s.angles );
 
-	ent->contents = CONTENTS_SHOTCLIP|CONTENTS_PLAYERCLIP|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP;//CONTENTS_SOLID;//so use traces can go through them
+	ent->contents = contentsFlags_t::CONTENTS_SHOTCLIP|contentsFlags_t::CONTENTS_PLAYERCLIP|contentsFlags_t::CONTENTS_MONSTERCLIP|contentsFlags_t::CONTENTS_BOTCLIP;//contentsFlags_t::CONTENTS_SOLID;//so use traces can go through them
 
 	gi.linkentity( ent );
 }
@@ -569,32 +569,32 @@ void spawn_rack_goods( gentity_t *ent )
 	{
 		if ( ent->spawnflags & RACK_WEAPONS )
 		{
-			blaster	= FindItemForWeapon( WP_BLASTER );
+			blaster	= FindItemForWeapon( weapon_t::WP_BLASTER );
 		}
-		am_blaster	= FindItemForAmmo( AMMO_BLASTER );
+		am_blaster	= FindItemForAmmo( ammo_t::AMMO_BLASTER );
 	}
 
 	if (( ent->spawnflags & RACK_METAL_BOLTS ))
 	{
 		if ( ent->spawnflags & RACK_WEAPONS )
 		{
-			metal_bolts = FindItemForWeapon( WP_REPEATER );
+			metal_bolts = FindItemForWeapon( weapon_t::WP_REPEATER );
 		}
-		am_metal_bolts = FindItemForAmmo( AMMO_METAL_BOLTS );
+		am_metal_bolts = FindItemForAmmo( ammo_t::AMMO_METAL_BOLTS );
 	}
 
 	if (( ent->spawnflags & RACK_ROCKETS ))
 	{
 		if ( ent->spawnflags & RACK_WEAPONS )
 		{
-			rockets = FindItemForWeapon( WP_ROCKET_LAUNCHER );
+			rockets = FindItemForWeapon( weapon_t::WP_ROCKET_LAUNCHER );
 		}
-		am_rockets = FindItemForAmmo( AMMO_ROCKETS );
+		am_rockets = FindItemForAmmo( ammo_t::AMMO_ROCKETS );
 	}
 
 	if (( ent->spawnflags & RACK_PWR_CELL ))
 	{
-		am_pwr_cell = FindItemForAmmo( AMMO_POWERCELL );
+		am_pwr_cell = FindItemForAmmo( ammo_t::AMMO_POWERCELL );
 	}
 
 	if (( ent->spawnflags & RACK_HEALTH ))
@@ -826,13 +826,13 @@ void SP_misc_model_cargo_small( gentity_t *ent )
 
 	G_SpawnInt( "health", "25", &ent->health );
 
-	SetMiscModelDefaults( ent, useF_NULL, "11", CONTENTS_SOLID|CONTENTS_OPAQUE|CONTENTS_BODY|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP, EF_NONE, true, false );
+	SetMiscModelDefaults( ent, useFunc_t::useF_NULL, "11", contentsFlags_t::CONTENTS_SOLID|contentsFlags_t::CONTENTS_OPAQUE|contentsFlags_t::CONTENTS_BODY|contentsFlags_t::CONTENTS_MONSTERCLIP|contentsFlags_t::CONTENTS_BOTCLIP, entityFlags_t::EF_NONE, true, false );
 	ent->s.modelindex2 = G_ModelIndex("/models/map_objects/kejim/cargo_small.md3");	// Precache model
 
 	// we only take damage from a heavy weapon class missile
-	ent->flags |= FL_DMG_BY_HEAVY_WEAP_ONLY;
+	ent->flags |= gentityFlags_t::FL_DMG_BY_HEAVY_WEAP_ONLY;
 
-	ent->e_DieFunc = dieF_misc_model_cargo_die;
+	ent->e_DieFunc = dieFunc_t::dieF_misc_model_cargo_die;
 
 	ent->radius = 1.5f; // scale number of chunks spawned
 }

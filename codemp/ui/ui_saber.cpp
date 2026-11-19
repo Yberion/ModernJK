@@ -261,32 +261,32 @@ void UI_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float
 
 	switch( color )
 	{
-		case SABER_RED:
+		case saber_colors_t::SABER_RED:
 			glow = redSaberGlowShader;
 			blade = redSaberCoreShader;
 			VectorSet( rgb, 1.0f, 0.2f, 0.2f );
 			break;
-		case SABER_ORANGE:
+		case saber_colors_t::SABER_ORANGE:
 			glow = orangeSaberGlowShader;
 			blade = orangeSaberCoreShader;
 			VectorSet( rgb, 1.0f, 0.5f, 0.1f );
 			break;
-		case SABER_YELLOW:
+		case saber_colors_t::SABER_YELLOW:
 			glow = yellowSaberGlowShader;
 			blade = yellowSaberCoreShader;
 			VectorSet( rgb, 1.0f, 1.0f, 0.2f );
 			break;
-		case SABER_GREEN:
+		case saber_colors_t::SABER_GREEN:
 			glow = greenSaberGlowShader;
 			blade = greenSaberCoreShader;
 			VectorSet( rgb, 0.2f, 1.0f, 0.2f );
 			break;
-		case SABER_BLUE:
+		case saber_colors_t::SABER_BLUE:
 			glow = blueSaberGlowShader;
 			blade = blueSaberCoreShader;
 			VectorSet( rgb, 0.2f, 0.4f, 1.0f );
 			break;
-		case SABER_PURPLE:
+		case saber_colors_t::SABER_PURPLE:
 			glow = purpleSaberGlowShader;
 			blade = purpleSaberCoreShader;
 			VectorSet( rgb, 0.9f, 0.2f, 1.0f );
@@ -320,7 +320,7 @@ void UI_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float
 
 	VectorCopy( origin, saber.origin );
 	VectorCopy( dir, saber.axis[0] );
-	saber.reType = RT_SABER_GLOW;
+	saber.reType = refEntityType_t::RT_SABER_GLOW;
 	saber.customShader = glow;
 	saber.shaderRGBA[0] = saber.shaderRGBA[1] = saber.shaderRGBA[2] = saber.shaderRGBA[3] = 0xff;
 	//saber.renderfx = rfx;
@@ -331,7 +331,7 @@ void UI_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float
 	VectorMA( origin, length, dir, saber.origin );
 	VectorMA( origin, -1, dir, saber.oldorigin );
 	saber.customShader = blade;
-	saber.reType = RT_LINE;
+	saber.reType = refEntityType_t::RT_LINE;
 	radiusStart = radius/3.0f;
 	saber.radius = (radiusStart + Q_flrand(-1.0f, 1.0f) * radiusRange)*radiusmult;
 //	saber.radius = (1.0 + Q_flrand(-1.0f, 1.0f) * 0.2f)*radiusmult;
@@ -355,11 +355,11 @@ void UI_SaberDrawBlade( itemDef_t *item, char *saberName, int saberModel, saberT
 
     memset (axis, 0, sizeof (axis));
 
-	if ( Any( item->flags&ITF_ISSABER ) && saberModel < 2 )
+	if ( Any( item->flags&itemModelFlags_t::ITF_ISSABER ) && saberModel < 2 )
 	{
 		trap->Cvar_VariableStringBuffer("ui_saber_color", bladeColorString, sizeof(bladeColorString) );
 	}
-	else//if ( Any( item->flags&ITF_ISSABER2 ) ) - presumed
+	else//if ( Any( item->flags&itemModelFlags_t::ITF_ISSABER2 ) ) - presumed
 	{
 		trap->Cvar_VariableStringBuffer("ui_saber2_color", bladeColorString, sizeof(bladeColorString) );
 	}
@@ -394,11 +394,11 @@ void UI_SaberDrawBlade( itemDef_t *item, char *saberName, int saberModel, saberT
 	trap->G2API_GetBoltMatrix( item->ghoul2, saberModel, bolt, &boltMatrix, angles, origin, uiInfo.uiDC.realTime, nullptr, vec3_origin );//nullptr was cgs.model_draw
 
 	// work the matrix axis stuff into the original axis and origins used.
-	BG_GiveMeVectorFromMatrix(&boltMatrix, ORIGIN, bladeOrigin);
-	BG_GiveMeVectorFromMatrix(&boltMatrix, NEGATIVE_Y, axis[0]);//front (was NEGATIVE_Y, but the md3->glm exporter screws up this tag somethin' awful)
+	BG_GiveMeVectorFromMatrix(&boltMatrix, orientations_t::ORIGIN, bladeOrigin);
+	BG_GiveMeVectorFromMatrix(&boltMatrix, orientations_t::NEGATIVE_Y, axis[0]);//front (was NEGATIVE_Y, but the md3->glm exporter screws up this tag somethin' awful)
 																//		...changed this back to NEGATIVE_Y
-	BG_GiveMeVectorFromMatrix(&boltMatrix, NEGATIVE_X, axis[1]);//right ... and changed this to NEGATIVE_X
-	BG_GiveMeVectorFromMatrix(&boltMatrix, POSITIVE_Z, axis[2]);//up
+	BG_GiveMeVectorFromMatrix(&boltMatrix, orientations_t::NEGATIVE_X, axis[1]);//right ... and changed this to NEGATIVE_X
+	BG_GiveMeVectorFromMatrix(&boltMatrix, orientations_t::POSITIVE_Z, axis[2]);//up
 
 	// Where do I get scale from?
 //	scale = DC->xscale;
@@ -408,13 +408,13 @@ void UI_SaberDrawBlade( itemDef_t *item, char *saberName, int saberModel, saberT
 	{
 		switch ( saberType )
 		{
-		case SABER_SINGLE:
+		case saberType_t::SABER_SINGLE:
 				VectorMA( bladeOrigin, scale, axis[0], bladeOrigin );
 			break;
-		case SABER_DAGGER:
-		case SABER_LANCE:
+		case saberType_t::SABER_DAGGER:
+		case saberType_t::SABER_LANCE:
 			break;
-		case SABER_STAFF:
+		case saberType_t::SABER_STAFF:
 			if ( bladeNum == 0 )
 			{
 				VectorMA( bladeOrigin, 12*scale, axis[0], bladeOrigin );
@@ -425,7 +425,7 @@ void UI_SaberDrawBlade( itemDef_t *item, char *saberName, int saberModel, saberT
 				VectorMA( bladeOrigin, 12*scale, axis[0], bladeOrigin );
 			}
 			break;
-		case SABER_BROAD:
+		case saberType_t::SABER_BROAD:
 			if ( bladeNum == 0 )
 			{
 				VectorMA( bladeOrigin, -1*scale, axis[1], bladeOrigin );
@@ -435,7 +435,7 @@ void UI_SaberDrawBlade( itemDef_t *item, char *saberName, int saberModel, saberT
 				VectorMA( bladeOrigin, 1*scale, axis[1], bladeOrigin );
 			}
 			break;
-		case SABER_PRONG:
+		case saberType_t::SABER_PRONG:
 			if ( bladeNum == 0 )
 			{
 				VectorMA( bladeOrigin, -3*scale, axis[1], bladeOrigin );
@@ -445,7 +445,7 @@ void UI_SaberDrawBlade( itemDef_t *item, char *saberName, int saberModel, saberT
 				VectorMA( bladeOrigin, 3*scale, axis[1], bladeOrigin );
 			}
 			break;
-		case SABER_ARC:
+		case saberType_t::SABER_ARC:
 			VectorSubtract( axis[1], axis[2], axis[1] );
 			VectorNormalize( axis[1] );
 			switch ( bladeNum )
@@ -475,7 +475,7 @@ void UI_SaberDrawBlade( itemDef_t *item, char *saberName, int saberModel, saberT
 				break;
 			}
 			break;
-		case SABER_SAI:
+		case saberType_t::SABER_SAI:
 			if ( bladeNum == 1 )
 			{
 				VectorMA( bladeOrigin, -3*scale, axis[1], bladeOrigin );
@@ -485,7 +485,7 @@ void UI_SaberDrawBlade( itemDef_t *item, char *saberName, int saberModel, saberT
 				VectorMA( bladeOrigin, 3*scale, axis[1], bladeOrigin );
 			}
 			break;
-		case SABER_CLAW:
+		case saberType_t::SABER_CLAW:
 			switch ( bladeNum )
 			{
 			case 0:
@@ -504,7 +504,7 @@ void UI_SaberDrawBlade( itemDef_t *item, char *saberName, int saberModel, saberT
 				break;
 			}
 			break;
-		case SABER_STAR:
+		case saberType_t::SABER_STAR:
 			switch ( bladeNum )
 			{
 			case 0:
@@ -540,7 +540,7 @@ void UI_SaberDrawBlade( itemDef_t *item, char *saberName, int saberModel, saberT
 				break;
 			}
 			break;
-		case SABER_TRIDENT:
+		case saberType_t::SABER_TRIDENT:
 			switch ( bladeNum )
 			{
 			case 0:
@@ -560,14 +560,14 @@ void UI_SaberDrawBlade( itemDef_t *item, char *saberName, int saberModel, saberT
 				break;
 			}
 			break;
-		case SABER_SITH_SWORD:
+		case saberType_t::SABER_SITH_SWORD:
 			//no blade
 			break;
 		default:
 			break;
 		}
 	}
-	if ( saberType == SABER_SITH_SWORD )
+	if ( saberType == saberType_t::SABER_SITH_SWORD )
 	{//draw no blade
 		return;
 	}
@@ -578,7 +578,7 @@ void UI_SaberDrawBlade( itemDef_t *item, char *saberName, int saberModel, saberT
 void UI_GetSaberForMenu( char *saber, int saberNum )
 {
 	char saberTypeString[MAX_QPATH]={0};
-	saberType_t saberType = SABER_NONE;
+	saberType_t saberType = saberType_t::SABER_NONE;
 
 	if ( saberNum == 0 )
 	{
@@ -607,24 +607,24 @@ void UI_GetSaberForMenu( char *saber, int saberNum )
 
 	switch ( uiInfo.movesTitleIndex )
 	{
-	case MD_ACROBATICS:
+	case datapadMoveTitle_t::MD_ACROBATICS:
 		break;
-	case MD_SINGLE_FAST:
-	case MD_SINGLE_MEDIUM:
-	case MD_SINGLE_STRONG:
-		if ( saberType != SABER_SINGLE )
+	case datapadMoveTitle_t::MD_SINGLE_FAST:
+	case datapadMoveTitle_t::MD_SINGLE_MEDIUM:
+	case datapadMoveTitle_t::MD_SINGLE_STRONG:
+		if ( saberType != saberType_t::SABER_SINGLE )
 		{
 			Q_strncpyz(saber, DEFAULT_SABER, MAX_QPATH);
 		}
 		break;
-	case MD_DUAL_SABERS:
-		if ( saberType != SABER_SINGLE )
+	case datapadMoveTitle_t::MD_DUAL_SABERS:
+		if ( saberType != saberType_t::SABER_SINGLE )
 		{
 			Q_strncpyz(saber, DEFAULT_SABER, MAX_QPATH);
 		}
 		break;
-	case MD_SABER_STAFF:
-		if ( saberType == SABER_SINGLE || saberType == SABER_NONE )
+	case datapadMoveTitle_t::MD_SABER_STAFF:
+		if ( saberType == saberType_t::SABER_SINGLE || saberType == saberType_t::SABER_NONE )
 		{
 			Q_strncpyz(saber, DEFAULT_SABER_STAFF, MAX_QPATH);
 		}
@@ -642,20 +642,20 @@ void UI_SaberDrawBlades( itemDef_t *item, vec3_t origin, vec3_t angles )
 	int saberModel = 0;
 	int	numSabers = 1;
 
-	if ( Any( item->flags&ITF_ISCHARACTER )//hacked sabermoves sabers in character's hand
-		&& uiInfo.movesTitleIndex == MD_DUAL_SABERS )
+	if ( Any( item->flags&itemModelFlags_t::ITF_ISCHARACTER )//hacked sabermoves sabers in character's hand
+		&& uiInfo.movesTitleIndex == datapadMoveTitle_t::MD_DUAL_SABERS )
 	{
 		numSabers = 2;
 	}
 
 	for ( saberNum = 0; saberNum < numSabers; saberNum++ )
 	{
-		if ( Any( item->flags&ITF_ISCHARACTER ) )//hacked sabermoves sabers in character's hand
+		if ( Any( item->flags&itemModelFlags_t::ITF_ISCHARACTER ) )//hacked sabermoves sabers in character's hand
 		{
 			UI_GetSaberForMenu( saber, saberNum );
 			saberModel = saberNum + 1;
 		}
-		else if ( Any( item->flags&ITF_ISSABER ) )
+		else if ( Any( item->flags&itemModelFlags_t::ITF_ISSABER ) )
 		{
 			trap->Cvar_VariableStringBuffer("ui_saber", saber, sizeof(saber) );
 			if ( !UI_SaberValidForPlayerInMP( saber ) )
@@ -665,7 +665,7 @@ void UI_SaberDrawBlades( itemDef_t *item, vec3_t origin, vec3_t angles )
 			}
 			saberModel = 0;
 		}
-		else if ( Any( item->flags&ITF_ISSABER2 ) )
+		else if ( Any( item->flags&itemModelFlags_t::ITF_ISSABER2 ) )
 		{
 			trap->Cvar_VariableStringBuffer("ui_saber2", saber, sizeof(saber) );
 			if ( !UI_SaberValidForPlayerInMP( saber ) )
@@ -715,7 +715,7 @@ void UI_SaberAttachToChar( itemDef_t *item )
 		trap->G2API_RemoveGhoul2Model(&(item->ghoul2), 1);
 	}
 
-	if ( uiInfo.movesTitleIndex == MD_DUAL_SABERS )
+	if ( uiInfo.movesTitleIndex == datapadMoveTitle_t::MD_DUAL_SABERS )
 	{
 		numSabers = 2;
 	}

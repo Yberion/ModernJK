@@ -53,7 +53,6 @@ enum class forceJump_t
 	FJ_LEFT,
 	FJ_UP
 };
-using enum forceJump_t;
 
 enum class evasionType_t
 {
@@ -69,7 +68,6 @@ enum class evasionType_t
 	EVASION_OTHER,
 	NUM_EVASION_TYPES
 };
-using enum evasionType_t;
 
 inline constexpr float SABERMINS_X = -3.0f; //-24.0f
 inline constexpr float SABERMINS_Y = -3.0f; //-24.0f
@@ -79,7 +77,7 @@ inline constexpr float SABERMAXS_Y = 3.0f; //24.0f
 inline constexpr float SABERMAXS_Z = 3.0f; //8.0f
 inline constexpr float SABER_MIN_THROW_DIST = 80.0f;
 
-extern EnumArray<EnumArray<int, forcePowers_t, NUM_FORCE_POWERS>, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forcePowerNeeded;
-extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceJumpHeight;
-extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceJumpStrength;
-extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forcePushPullRadius;
+extern EnumArray<EnumArray<int, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS>, forcePowerLevels_t, forcePowerLevels_t::NUM_FORCE_POWER_LEVELS> forcePowerNeeded;
+extern EnumArray<float, forcePowerLevels_t, forcePowerLevels_t::NUM_FORCE_POWER_LEVELS> forceJumpHeight;
+extern EnumArray<float, forcePowerLevels_t, forcePowerLevels_t::NUM_FORCE_POWER_LEVELS> forceJumpStrength;
+extern EnumArray<float, forcePowerLevels_t, forcePowerLevels_t::NUM_FORCE_POWER_LEVELS> forcePushPullRadius;

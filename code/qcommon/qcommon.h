@@ -130,7 +130,6 @@ enum class netsrc_t {
 	NS_CLIENT,
 	NS_SERVER
 };
-using enum netsrc_t;
 
 // For compatibility with shared code
 static inline void NET_Init( void ) {}
@@ -215,7 +214,6 @@ enum class svc_ops_e {
 	svc_download,				// [short] size [size bytes]
 	svc_snapshot
 };
-using enum svc_ops_e;
 
 
 //
@@ -227,7 +225,6 @@ enum class clc_ops_e {
 	clc_move,				// [[usercmd_t]
 	clc_clientCommand		// [string] message
 };
-using enum clc_ops_e;
 
 /*
 ==============================================================
@@ -243,7 +240,6 @@ enum class vmSlots_t {
 	VM_UI,
 	MAX_VM
 };
-using enum vmSlots_t;
 typedef vmSlots_t vmSlots_e;
 
 #define	VMA(x) ((void*)args[x])

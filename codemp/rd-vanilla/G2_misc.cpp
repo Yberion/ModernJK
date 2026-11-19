@@ -275,13 +275,13 @@ void G2_List_Model_Surfaces(const char *fileName)
 
 	for ( x = 0 ; x < mod_m->mdxm->numSurfaces ; x++)
 	{
-		ri.Printf( PRINT_ALL, "Surface %i Name %s\n", x, surf->name);
+		ri.Printf( printParm_t::PRINT_ALL, "Surface %i Name %s\n", x, surf->name);
 		if ( r_verbose->integer )
 		{
-			ri.Printf( PRINT_ALL, "Num Descendants %i\n",  surf->numChildren);
+			ri.Printf( printParm_t::PRINT_ALL, "Num Descendants %i\n",  surf->numChildren);
 			for (i=0; i<surf->numChildren; i++)
 			{
-				ri.Printf( PRINT_ALL, "Descendant %i\n", surf->childIndexes[i]);
+				ri.Printf( printParm_t::PRINT_ALL, "Descendant %i\n", surf->childIndexes[i]);
 			}
 		}
 		// find the next surface
@@ -313,17 +313,17 @@ void G2_List_Model_Bones(const char *fileName, int frame)
 	for (x=0; x< mod_a->mdxa->numBones; x++)
 	{
 		skel = (mdxaSkel_t *)((byte *)header + sizeof(mdxaHeader_t) + offsets->offsets[x]);
-		ri.Printf( PRINT_ALL, "Bone %i Name %s\n", x, skel->name);
+		ri.Printf( printParm_t::PRINT_ALL, "Bone %i Name %s\n", x, skel->name);
 
-		ri.Printf( PRINT_ALL, "X pos %f, Y pos %f, Z pos %f\n", skel->BasePoseMat.matrix[0][3], skel->BasePoseMat.matrix[1][3], skel->BasePoseMat.matrix[2][3]);
+		ri.Printf( printParm_t::PRINT_ALL, "X pos %f, Y pos %f, Z pos %f\n", skel->BasePoseMat.matrix[0][3], skel->BasePoseMat.matrix[1][3], skel->BasePoseMat.matrix[2][3]);
 
 		// if we are in verbose mode give us more details
 		if ( r_verbose->integer )
 		{
-			ri.Printf( PRINT_ALL, "Num Descendants %i\n",  skel->numChildren);
+			ri.Printf( printParm_t::PRINT_ALL, "Num Descendants %i\n",  skel->numChildren);
 			for (i=0; i<skel->numChildren; i++)
 			{
-				ri.Printf( PRINT_ALL, "Num Descendants %i\n",  skel->numChildren);
+				ri.Printf( printParm_t::PRINT_ALL, "Num Descendants %i\n",  skel->numChildren);
 			}
 		}
 	}
@@ -401,7 +401,7 @@ void R_TransformEachSurface( const mdxmSurface_t *surface, vec3_t scale, IHeapAl
 	TransformedVertsArray[surface->thisSurfaceIndex] = (size_t)TransformedVerts;
 	if (!TransformedVerts)
 	{
-		Com_Error(ERR_DROP, "Ran out of transform space for Ghoul2 Models. Adjust MiniHeapSize in SV_SpawnServer.\n");
+		Com_Error(errorParm_t::ERR_DROP, "Ran out of transform space for Ghoul2 Models. Adjust MiniHeapSize in SV_SpawnServer.\n");
 	}
 
 	// whip through and actually transform each vertex
@@ -525,7 +525,7 @@ void G2_TransformSurfaces(int surfaceNum, surfaceInfo_v &rootSList,
 	}
 
 	// if we are turning off all descendants, then stop this recursion now
-	if (Any( offFlags & G2SURFACEFLAG_NODESCENDANTS ))
+	if (Any( offFlags & g2SurfaceFlags_t::G2SURFACEFLAG_NODESCENDANTS ))
 	{
 		return;
 	}
@@ -551,7 +551,7 @@ void G2_TransformModel(CGhoul2Info_v &ghoul2, const int frameNum, vec3_t scale, 
 #ifdef _G2_GORE
 	if ( cg_g2MarksAllModels == nullptr )
 	{
-		cg_g2MarksAllModels = ri.Cvar_Get( "cg_g2MarksAllModels", "0", CVAR_NONE, "" );
+		cg_g2MarksAllModels = ri.Cvar_Get( "cg_g2MarksAllModels", "0", cvarFlags_t::CVAR_NONE, "" );
 	}
 
 	if (cg_g2MarksAllModels == nullptr
@@ -617,12 +617,12 @@ void G2_TransformModel(CGhoul2Info_v &ghoul2, const int frameNum, vec3_t scale, 
 #endif
 
 		// give us space for the transformed vertex array to be put in
-		if (!Any(g.mFlags & GHOUL2_ZONETRANSALLOC))
+		if (!Any(g.mFlags & ghoul2Flags_t::GHOUL2_ZONETRANSALLOC))
 		{ //do not stomp if we're using zone space
 			g.mTransformedVertsArray = (size_t*)G2VertSpace->MiniHeapAlloc(g.currentModel->mdxm->numSurfaces * sizeof (size_t));
 			if (!g.mTransformedVertsArray)
 			{
-				Com_Error(ERR_DROP, "Ran out of transform space for Ghoul2 Models. Adjust MiniHeapSize in SV_SpawnServer.\n");
+				Com_Error(errorParm_t::ERR_DROP, "Ran out of transform space for Ghoul2 Models. Adjust MiniHeapSize in SV_SpawnServer.\n");
 			}
 		}
 
@@ -1000,7 +1000,7 @@ void G2_GorePolys( const mdxmSurface_t *surface, CTraceSurface &TS, const mdxmSu
 			sizeof(float)*2*newNumVerts+ // texture coordinates
 			sizeof(int)*newNumTris*3;  // new indecies
 
-		int *data=(int *)Z_Malloc ( sizeof(int)*size, TAG_GHOUL2_GORE, true );
+		int *data=(int *)Z_Malloc ( sizeof(int)*size, memtag::TAG_GHOUL2_GORE, true );
 
 
 		if ( gore->tex[TS.lod] )
@@ -1162,7 +1162,7 @@ static bool G2_TracePolys(const mdxmSurface_t *surface, const mdxmSurfHierarchy_
 							newCol.mLocation = *(hitMatReg[shader->hitLocation].loc +
 												((int)(y_pos * hitMatReg[shader->hitLocation].height) * hitMatReg[shader->hitLocation].width) +
 												((int)(x_pos * hitMatReg[shader->hitLocation].width)));
-							ri.Printf( PRINT_ALL, "G2_TracePolys hit location: %d\n", newCol.mLocation);
+							ri.Printf( printParm_t::PRINT_ALL, "G2_TracePolys hit location: %d\n", newCol.mLocation);
 						}
 
 						if (shader->hitMaterial)
@@ -1174,7 +1174,7 @@ static bool G2_TracePolys(const mdxmSurface_t *surface, const mdxmSurfHierarchy_
 					}
 */
 					// exit now if we should
-					if (TS.traceFlags == G2_RETURNONHIT)
+					if (TS.traceFlags == EG2_Collision::G2_RETURNONHIT)
 					{
 						TS.hitOne = true;
 						return true;
@@ -1354,7 +1354,7 @@ static bool G2_RadiusTracePolys(
 
 					newCol.mMaterial = newCol.mLocation = 0;
 					// exit now if we should
-					if (TS.traceFlags == G2_RETURNONHIT)
+					if (TS.traceFlags == EG2_Collision::G2_RETURNONHIT)
 					{
 						TS.hitOne = true;
 						return true;
@@ -1444,7 +1444,7 @@ static void G2_TraceSurfaces(CTraceSurface &TS)
 				if (G2_RadiusTracePolys(surface,		// const mdxmSurface_t *surface,
 										TS
 										)
-					&& (TS.traceFlags == G2_RETURNONHIT)
+					&& (TS.traceFlags == EG2_Collision::G2_RETURNONHIT)
 					)
 				{
 					TS.hitOne = true;
@@ -1455,7 +1455,7 @@ static void G2_TraceSurfaces(CTraceSurface &TS)
 			{
 				// go away and trace the polys in this surface
 				if (G2_TracePolys(surface, surfInfo, TS)
-					&& (TS.traceFlags == G2_RETURNONHIT)
+					&& (TS.traceFlags == EG2_Collision::G2_RETURNONHIT)
 					)
 				{
 					// ok, we hit one, *and* we want to return instantly because the returnOnHit is set
@@ -1474,7 +1474,7 @@ static void G2_TraceSurfaces(CTraceSurface &TS)
 	}
 
 	// if we are turning off all descendants, then stop this recursion now
-	if (Any( offFlags & G2SURFACEFLAG_NODESCENDANTS ))
+	if (Any( offFlags & g2SurfaceFlags_t::G2SURFACEFLAG_NODESCENDANTS ))
 	{
 		return;
 	}
@@ -1501,7 +1501,7 @@ void G2_TraceModels(CGhoul2Info_v &ghoul2, vec3_t rayStart, vec3_t rayEnd, Colli
 #ifdef _G2_GORE
 	if ( cg_g2MarksAllModels == nullptr )
 	{
-		cg_g2MarksAllModels = ri.Cvar_Get( "cg_g2MarksAllModels", "0", CVAR_NONE, "" );
+		cg_g2MarksAllModels = ri.Cvar_Get( "cg_g2MarksAllModels", "0", cvarFlags_t::CVAR_NONE, "" );
 	}
 
 	if (cg_g2MarksAllModels == nullptr
@@ -1530,7 +1530,7 @@ void G2_TraceModels(CGhoul2Info_v &ghoul2, vec3_t rayStart, vec3_t rayEnd, Colli
 		}
 //		assert(G2_MODEL_OK(&ghoul2[i]));
 		// do we really want to collide with this object?
-		if (Any( ghoul2[i].mFlags & GHOUL2_NOCOLLIDE ))
+		if (Any( ghoul2[i].mFlags & ghoul2Flags_t::GHOUL2_NOCOLLIDE ))
 		{
 			continue;
 		}
@@ -1702,7 +1702,7 @@ bool G2_SaveGhoul2Models(CGhoul2Info_v &ghoul2, char **buffer, int *size)
 	// is there anything to save?
 	if (!ghoul2.size())
 	{
-		*buffer = (char *)Z_Malloc(4, TAG_GHOUL2, true);
+		*buffer = (char *)Z_Malloc(4, memtag::TAG_GHOUL2, true);
 		int *tempBuffer = (int *)*buffer;
 		*tempBuffer = 0;
 		*size = 4;
@@ -1734,7 +1734,7 @@ bool G2_SaveGhoul2Models(CGhoul2Info_v &ghoul2, char **buffer, int *size)
 	}
 
 	// ok, we should know how much space we need now
-	*buffer = (char*)Z_Malloc(*size, TAG_GHOUL2, true);
+	*buffer = (char*)Z_Malloc(*size, memtag::TAG_GHOUL2, true);
 
 	// now lets start putting the data we care about into the buffer
 	char *tempBuffer = *buffer;
@@ -1886,7 +1886,7 @@ void G2_LerpAngles(CGhoul2Info_v &ghoul2,CGhoul2Info_v &nextGhoul2, float interp
 				{
 					boneInfo_t	&nextBone = nextGhoul2[i].mBlist[x];
 					// does this bone override actually have anything in it, and if it does, is it a bone angles override?
-					if ((bone.boneNumber != -1) && Any((bone.flags) & (BONE_ANGLES_TOTAL)))
+					if ((bone.boneNumber != -1) && Any((bone.flags) & (boneFlags_t::BONE_ANGLES_TOTAL)))
 					{
 						float *nowMatrix = (float*) &bone.matrix;
 						float *nextMatrix = (float*) &nextBone.matrix;

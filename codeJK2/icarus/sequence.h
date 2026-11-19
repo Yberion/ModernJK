@@ -43,7 +43,6 @@ enum class sequenceFlags_t
 	SQ_CONDITIONAL	= 0x00000020,	//Conditional statement
 	SQ_TASK			= 0x00000040,	//Task block
 };
-using enum sequenceFlags_t;
 template <> inline constexpr bool enableEnumFlags<sequenceFlags_t> = true;
 
 class CSequence

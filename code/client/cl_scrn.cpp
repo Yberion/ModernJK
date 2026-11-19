@@ -388,11 +388,11 @@ SCR_Init
 ==================
 */
 void SCR_Init( void ) {
-	cl_timegraph = Cvar_Get ("timegraph", "0", CVAR_CHEAT);
-	cl_debuggraph = Cvar_Get ("debuggraph", "0", CVAR_CHEAT);
-	cl_graphheight = Cvar_Get ("graphheight", "32", CVAR_CHEAT);
-	cl_graphscale = Cvar_Get ("graphscale", "1", CVAR_CHEAT);
-	cl_graphshift = Cvar_Get ("graphshift", "0", CVAR_CHEAT);
+	cl_timegraph = Cvar_Get ("timegraph", "0", cvarFlags_t::CVAR_CHEAT);
+	cl_debuggraph = Cvar_Get ("debuggraph", "0", cvarFlags_t::CVAR_CHEAT);
+	cl_graphheight = Cvar_Get ("graphheight", "32", cvarFlags_t::CVAR_CHEAT);
+	cl_graphscale = Cvar_Get ("graphscale", "1", cvarFlags_t::CVAR_CHEAT);
+	cl_graphshift = Cvar_Get ("graphshift", "0", cvarFlags_t::CVAR_CHEAT);
 
 	scr_initialized = true;
 }
@@ -422,27 +422,27 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 	if ( !uiFullscreen ) {
 		switch( cls.state ) {
 		default:
-			Com_Error( ERR_FATAL, "SCR_DrawScreenField: bad cls.state" );
+			Com_Error( errorParm_t::ERR_FATAL, "SCR_DrawScreenField: bad cls.state" );
 			break;
-		case CA_CINEMATIC:
+		case connstate_t::CA_CINEMATIC:
 			SCR_DrawCinematic();
 			break;
-		case CA_DISCONNECTED:
+		case connstate_t::CA_DISCONNECTED:
 			// force menu up
 			UI_SetActiveMenu( "mainMenu", nullptr );
 			break;
-		case CA_CONNECTING:
-		case CA_CHALLENGING:
-		case CA_CONNECTED:
+		case connstate_t::CA_CONNECTING:
+		case connstate_t::CA_CHALLENGING:
+		case connstate_t::CA_CONNECTED:
 			// connecting clients will only show the connection dialog
 			UI_DrawConnect( clc.servername, cls.updateInfoString );
 			break;
-		case CA_LOADING:
-		case CA_PRIMED:
+		case connstate_t::CA_LOADING:
+		case connstate_t::CA_PRIMED:
 			// draw the game information screen and loading progress
 			CL_CGameRendering( stereoFrame );
 			break;
-		case CA_ACTIVE:
+		case connstate_t::CA_ACTIVE:
 			if (CL_IsRunningInGameCinematic() || CL_InGameCinematicOnStandBy())
 			{
 				SCR_DrawCinematic();
@@ -490,7 +490,7 @@ void SCR_UpdateScreen( void ) {
 	CL_StartHunkUsers();
 
 	if ( ++recursive > 2 ) {
-		Com_Error( ERR_FATAL, "SCR_UpdateScreen: recursively called" );
+		Com_Error( errorParm_t::ERR_FATAL, "SCR_UpdateScreen: recursively called" );
 	}
 	recursive = true;
 
@@ -500,10 +500,10 @@ void SCR_UpdateScreen( void ) {
 	{
 		// if running in stereo, we need to draw the frame twice
 		if ( cls.glconfig.stereoEnabled ) {
-			SCR_DrawScreenField( STEREO_LEFT );
-			SCR_DrawScreenField( STEREO_RIGHT );
+			SCR_DrawScreenField( stereoFrame_t::STEREO_LEFT );
+			SCR_DrawScreenField( stereoFrame_t::STEREO_RIGHT );
 		} else {
-			SCR_DrawScreenField( STEREO_CENTER );
+			SCR_DrawScreenField( stereoFrame_t::STEREO_CENTER );
 		}
 
 		if ( com_speeds->integer ) {
@@ -536,7 +536,7 @@ void SCR_PrecacheScreenshot()
 //	int iMaxClients = atoi(Info_ValueForKey( psInfo, "sv_maxclients" ));
 
 	// (no need to check single-player status in voyager, this code base is all singleplayer)
-	if ( cls.state != CA_ACTIVE )
+	if ( cls.state != connstate_t::CA_ACTIVE )
 	{
 		return;
 	}

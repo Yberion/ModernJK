@@ -1386,16 +1386,15 @@ enum class animNumber_t //# animNumber_e
 	MAX_ANIMATIONS,
 	ANIM_NONE = -1	// no animation, where none is stored or meets a switch
 };
-using enum animNumber_t;
 template <> inline constexpr bool enableEnumArithmetic<animNumber_t> = true;
 
-inline constexpr int SABER_ANIM_GROUP_SIZE = BOTH_A2_T__B_ - BOTH_A1_T__B_;
+inline constexpr int SABER_ANIM_GROUP_SIZE = animNumber_t::BOTH_A2_T__B_ - animNumber_t::BOTH_A1_T__B_;
 
 inline constexpr int MAX_ANIM_SOUNDS = 69;
 
 #ifndef CG_PLAYERS_CPP
 
-extern stringID_table_t animTable [to_underlying( MAX_ANIMATIONS ) + 1];
+extern stringID_table_t animTable [to_underlying( animNumber_t::MAX_ANIMATIONS ) + 1];
 
 #else
 
@@ -1413,7 +1412,7 @@ class animFileSet_t
 {
 public:
 	char			filename[MAX_QPATH];
-	EnumArray<animation_t, animNumber_t, MAX_ANIMATIONS>	animations;
+	EnumArray<animation_t, animNumber_t, animNumber_t::MAX_ANIMATIONS>	animations;
 	animsounds_t	torsoAnimSnds[MAX_ANIM_SOUNDS];
 	animsounds_t	legsAnimSnds[MAX_ANIM_SOUNDS];
 	bool		soundsCached;

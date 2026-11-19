@@ -106,7 +106,6 @@ enum class gentityFlags_t
 
 	FL_BBRUSH					= 0x04000000, //I am a breakable brush
 };
-using enum gentityFlags_t;
 template <> inline constexpr bool enableEnumFlags<gentityFlags_t> = true;
 
 // damage flags
@@ -134,7 +133,6 @@ enum class damageFlags_t
 	DAMAGE_SABER_KNOCKBACK1_B2	= 0x00040000,	// Check the attacker's first saber for a knockbackScale2
 	DAMAGE_SABER_KNOCKBACK2_B2	= 0x00080000,	// Check the attacker's second saber for a knockbackScale2
 };
-using enum damageFlags_t;
 template <> inline constexpr bool enableEnumFlags<damageFlags_t> = true;
 
 #ifndef FINAL_BUILD
@@ -175,7 +173,6 @@ enum class moverState_t {
 	MOVER_1TO2,
 	MOVER_2TO1
 };
-using enum moverState_t;
 
 #define SP_PODIUM_MODEL		"models/mapobjects/podium/podium4.md3"
 
@@ -206,7 +203,6 @@ enum class hitLocation_t
 	HL_GENERIC6,
 	HL_MAX
 };
-using enum hitLocation_t;
 template <> inline constexpr bool enableEnumArithmetic<hitLocation_t> = true;
 
 // the part of a player a damage box stands for, whose damage goes to the player
@@ -217,7 +213,6 @@ enum class damageRedirect_t
 	DAMAGEREDIRECT_RLEG,
 	DAMAGEREDIRECT_LLEG,
 };
-using enum damageRedirect_t;
 
 //============================================================================
 extern void *precachedKyle;
@@ -240,9 +235,9 @@ struct gentity_s {
 	entityShared_t	r;				// shared by both the server system and game
 
 	//rww - these are shared icarus things. They must be in this order as well in relation to the entityshared structure.
-	EnumArray<int, taskID_t, NUM_TIDS>				taskID;
+	EnumArray<int, taskID_t, taskID_t::NUM_TIDS>				taskID;
 	parms_t			*parms;
-	EnumArray<char *, bSet_t, NUM_BSETS>	behaviorSet;
+	EnumArray<char *, bSet_t, bSet_t::NUM_BSETS>	behaviorSet;
 	char			*script_targetname;
 	int				delayScriptTime;
 	const char		*fullName;
@@ -402,7 +397,7 @@ struct gentity_s {
 	meansOfDeath_t	methodOfDeath;
 	meansOfDeath_t	splashMethodOfDeath;
 
-	int			locationDamage[to_underlying( HL_MAX )];		// Damage accumulated on different body locations
+	int			locationDamage[to_underlying( hitLocation_t::HL_MAX )];		// Damage accumulated on different body locations
 
 	int			count;
 	int			bounceCount;
@@ -463,7 +458,6 @@ enum class clientConnected_t {
 	CON_CONNECTING,
 	CON_CONNECTED
 };
-using enum clientConnected_t;
 
 enum class spectatorState_t {
 	SPECTATOR_NOT,
@@ -471,13 +465,11 @@ enum class spectatorState_t {
 	SPECTATOR_FOLLOW,
 	SPECTATOR_SCOREBOARD
 };
-using enum spectatorState_t;
 
 enum class playerTeamStateState_t {
 	TEAM_BEGIN,		// Beginning a team game, spawn at base
 	TEAM_ACTIVE		// Now actively playing
 };
-using enum playerTeamStateState_t;
 
 typedef struct playerTeamState_s {
 	playerTeamStateState_t	state;
@@ -529,7 +521,6 @@ enum class voteFlags_t
 	PSG_VOTED				= 1<<0,		// already cast a vote
 	PSG_TEAMVOTED			= 1<<1,		// already cast a team vote
 };
-using enum voteFlags_t;
 template <> inline constexpr bool enableEnumFlags<voteFlags_t> = true;
 
 //
@@ -886,7 +877,6 @@ enum class alertEventType_e
 	AET_SIGHT,
 	AET_SOUND,
 };
-using enum alertEventType_e;
 
 enum class alertEventLevel_e
 {
@@ -897,7 +887,6 @@ enum class alertEventLevel_e
 	AEL_DANGER,			//Enemy should try to find cover
 	AEL_DANGER_GREAT,	//Enemy should run like hell!
 };
-using enum alertEventLevel_e;
 
 typedef struct alertEvent_s
 {
@@ -953,7 +942,7 @@ typedef struct level_locals_s {
 
 	int			startTime;				// level.time the map was started
 
-	EnumArray<int, team_t, TEAM_NUM_TEAMS>	teamScores;
+	EnumArray<int, team_t, team_t::TEAM_NUM_TEAMS>	teamScores;
 	int			lastTeamLocationTime;		// last time of client team location update
 
 	bool	newSession;				// don't use any old session data, because
@@ -1418,7 +1407,7 @@ void G_WriteSessionData( void );
 extern void AddSightEvent( gentity_t *owner, vec3_t position, float radius, alertEventLevel_e alertLevel, float addLight ); //addLight = 0.0f
 extern void AddSoundEvent( gentity_t *owner, vec3_t position, float radius, alertEventLevel_e alertLevel, bool needLOS ); //needLOS = false
 extern bool G_CheckForDanger( gentity_t *self, int alertEvent );
-extern int G_CheckAlertEvents( gentity_t *self, bool checkSight, bool checkSound, float maxSeeDist, float maxHearDist, int ignoreAlert, bool mustHaveOwner, alertEventLevel_e minAlertLevel ); //ignoreAlert = -1, mustHaveOwner = false, minAlertLevel = AEL_MINOR
+extern int G_CheckAlertEvents( gentity_t *self, bool checkSight, bool checkSound, float maxSeeDist, float maxHearDist, int ignoreAlert, bool mustHaveOwner, alertEventLevel_e minAlertLevel ); //ignoreAlert = -1, mustHaveOwner = false, minAlertLevel = alertEventLevel_e::AEL_MINOR
 extern bool G_CheckForDanger( gentity_t *self, int alertEvent );
 extern bool G_ClearLOS( gentity_t *self, const vec3_t start, const vec3_t end );
 extern bool G_ClearLOS2( gentity_t *self, gentity_t *ent, const vec3_t end );
@@ -1554,15 +1543,15 @@ typedef struct gameStats_s {
 	int		forceDamage;		// health taken by the dark force powers
 	int		deaths;
 	int		saberHitEffects;	// hit effects (blood or sparks, and their sound) of sabers on clients
-	EnumArray<int, forcePowers_t, NUM_FORCE_POWERS>	forceStarts;		// times each force power was started (WP_ForcePowerStart)
-	EnumArray<int, forcePowers_t, NUM_FORCE_POWERS>	forceTimerEvents;	// periodic events of the held powers: grip, protect and absorb drains, rage health losses, lightning and drain shots
-	EnumArray<int, forcePowers_t, NUM_FORCE_POWERS>	forceActiveMsec;	// time each power was held, 50 ms per 20 Hz instant it was active
-	EnumArray<int, entity_event_t, EV_NUM_ENTITY_EVENTS>	events;	// events and temporary entities added by the game (G_AddEvent, G_TempEntity)
-	EnumArray<int, meansOfDeath_t, MOD_MAX>	modDamage;	// health taken from clients, by cause
-	EnumArray<int, meansOfDeath_t, MOD_MAX>	modKills;	// client deaths, by cause
-	EnumArray<int[2], weapon_t, WP_NUM_WEAPONS>	shots;	// FireWeapon by weapon, primary and alternate
-	EnumArray<int, saber_styles_t, SS_NUM_SABER_STYLES>	styleAttacks;	// saber attack moves started by clients, by style
-	EnumArray<int, saber_styles_t, SS_NUM_SABER_STYLES>	styleBounces;	// saber moves of clients sent into a bounce or deflection, by style
+	EnumArray<int, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS>	forceStarts;		// times each force power was started (WP_ForcePowerStart)
+	EnumArray<int, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS>	forceTimerEvents;	// periodic events of the held powers: grip, protect and absorb drains, rage health losses, lightning and drain shots
+	EnumArray<int, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS>	forceActiveMsec;	// time each power was held, 50 ms per 20 Hz instant it was active
+	EnumArray<int, entity_event_t, entity_event_t::EV_NUM_ENTITY_EVENTS>	events;	// events and temporary entities added by the game (G_AddEvent, G_TempEntity)
+	EnumArray<int, meansOfDeath_t, meansOfDeath_t::MOD_MAX>	modDamage;	// health taken from clients, by cause
+	EnumArray<int, meansOfDeath_t, meansOfDeath_t::MOD_MAX>	modKills;	// client deaths, by cause
+	EnumArray<int[2], weapon_t, weapon_t::WP_NUM_WEAPONS>	shots;	// FireWeapon by weapon, primary and alternate
+	EnumArray<int, saber_styles_t, saber_styles_t::SS_NUM_SABER_STYLES>	styleAttacks;	// saber attack moves started by clients, by style
+	EnumArray<int, saber_styles_t, saber_styles_t::SS_NUM_SABER_STYLES>	styleBounces;	// saber moves of clients sent into a bounce or deflection, by style
 } gameStats_t;
 extern	gameStats_t		g_stats;
 void G_StatsSaberMove( gentity_t *ent, saberMoveName_t oldSaberMove );
@@ -1588,7 +1577,6 @@ enum class userinfoValidationBits_t {
 	USERINFO_VALIDATION_CONTROLCHARS,
 	USERINFO_VALIDATION_MAX
 };
-using enum userinfoValidationBits_t;
 
 void Svcmd_ToggleUserinfoValidation_f( void );
 void Svcmd_ToggleAllowVote_f( void );

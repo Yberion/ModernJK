@@ -35,7 +35,7 @@ bool G_ClearLineOfSight(const vec3_t point1, const vec3_t point2, int ignore, co
 	trace_t		tr;
 	gentity_t	*hit;
 
-	trap->Trace ( &tr, point1, nullptr, nullptr, point2, ignore, clipmask, false, G2TRFLAG_NONE, 0 );
+	trap->Trace ( &tr, point1, nullptr, nullptr, point2, ignore, clipmask, false, g2TraceFlags_t::G2TRFLAG_NONE, 0 );
 	if ( tr.fraction == 1.0 )
 	{
 		return true;
@@ -46,7 +46,7 @@ bool G_ClearLineOfSight(const vec3_t point1, const vec3_t point2, int ignore, co
 	{
 		vec3_t	newpoint1;
 		VectorCopy(tr.endpos, newpoint1);
-		trap->Trace (&tr, newpoint1, nullptr, nullptr, point2, hit->s.number, clipmask, false, G2TRFLAG_NONE, 0 );
+		trap->Trace (&tr, newpoint1, nullptr, nullptr, point2, hit->s.number, clipmask, false, g2TraceFlags_t::G2TRFLAG_NONE, 0 );
 
 		if ( tr.fraction == 1.0 )
 		{
@@ -71,26 +71,26 @@ bool CanSee ( gentity_t *ent )
 	trace_t		tr;
 	vec3_t		eyes, spot;
 
-	CalcEntitySpot( NPCS.NPC, SPOT_HEAD_LEAN, eyes );
+	CalcEntitySpot( NPCS.NPC, spot_t::SPOT_HEAD_LEAN, eyes );
 
-	CalcEntitySpot( ent, SPOT_ORIGIN, spot );
-	trap->Trace ( &tr, eyes, nullptr, nullptr, spot, NPCS.NPC->s.number, MASK_OPAQUE, false, G2TRFLAG_NONE, 0 );
+	CalcEntitySpot( ent, spot_t::SPOT_ORIGIN, spot );
+	trap->Trace ( &tr, eyes, nullptr, nullptr, spot, NPCS.NPC->s.number, MASK_OPAQUE, false, g2TraceFlags_t::G2TRFLAG_NONE, 0 );
 	ShotThroughGlass (&tr, ent, spot, MASK_OPAQUE);
 	if ( tr.fraction == 1.0 )
 	{
 		return true;
 	}
 
-	CalcEntitySpot( ent, SPOT_HEAD, spot );
-	trap->Trace ( &tr, eyes, nullptr, nullptr, spot, NPCS.NPC->s.number, MASK_OPAQUE, false, G2TRFLAG_NONE, 0 );
+	CalcEntitySpot( ent, spot_t::SPOT_HEAD, spot );
+	trap->Trace ( &tr, eyes, nullptr, nullptr, spot, NPCS.NPC->s.number, MASK_OPAQUE, false, g2TraceFlags_t::G2TRFLAG_NONE, 0 );
 	ShotThroughGlass (&tr, ent, spot, MASK_OPAQUE);
 	if ( tr.fraction == 1.0 )
 	{
 		return true;
 	}
 
-	CalcEntitySpot( ent, SPOT_LEGS, spot );
-	trap->Trace ( &tr, eyes, nullptr, nullptr, spot, NPCS.NPC->s.number, MASK_OPAQUE, false, G2TRFLAG_NONE, 0 );
+	CalcEntitySpot( ent, spot_t::SPOT_LEGS, spot );
+	trap->Trace ( &tr, eyes, nullptr, nullptr, spot, NPCS.NPC->s.number, MASK_OPAQUE, false, g2TraceFlags_t::G2TRFLAG_NONE, 0 );
 	ShotThroughGlass (&tr, ent, spot, MASK_OPAQUE);
 	if ( tr.fraction == 1.0 )
 	{
@@ -160,7 +160,7 @@ bool InFOV2( vec3_t origin, gentity_t *from, int hFOV, int vFOV )
 		VectorCopy(from->s.angles, fromAngles);
 	}
 
-	CalcEntitySpot( from, SPOT_HEAD, eyes );
+	CalcEntitySpot( from, spot_t::SPOT_HEAD, eyes );
 
 	return InFOV3( origin, eyes, fromAngles, hFOV, vFOV );
 }
@@ -192,9 +192,9 @@ bool InFOV ( gentity_t *ent, gentity_t *from, int hFOV, int vFOV )
 		VectorCopy(from->s.angles, fromAngles);
 	}
 
-	CalcEntitySpot( from, SPOT_HEAD_LEAN, eyes );
+	CalcEntitySpot( from, spot_t::SPOT_HEAD_LEAN, eyes );
 
-	CalcEntitySpot( ent, SPOT_ORIGIN, spot );
+	CalcEntitySpot( ent, spot_t::SPOT_ORIGIN, spot );
 	VectorSubtract ( spot, eyes, deltaVector);
 
 	vectoangles ( deltaVector, angles );
@@ -205,7 +205,7 @@ bool InFOV ( gentity_t *ent, gentity_t *from, int hFOV, int vFOV )
 		return true;
 	}
 
-	CalcEntitySpot( ent, SPOT_HEAD, spot );
+	CalcEntitySpot( ent, spot_t::SPOT_HEAD, spot );
 	VectorSubtract ( spot, eyes, deltaVector);
 	vectoangles ( deltaVector, angles );
 	deltaAngles[PITCH] = AngleDelta ( fromAngles[PITCH], angles[PITCH] );
@@ -215,7 +215,7 @@ bool InFOV ( gentity_t *ent, gentity_t *from, int hFOV, int vFOV )
 		return true;
 	}
 
-	CalcEntitySpot( ent, SPOT_LEGS, spot );
+	CalcEntitySpot( ent, spot_t::SPOT_LEGS, spot );
 	VectorSubtract ( spot, eyes, deltaVector);
 	vectoangles ( deltaVector, angles );
 	deltaAngles[PITCH] = AngleDelta ( fromAngles[PITCH], angles[PITCH] );
@@ -236,9 +236,9 @@ bool InVisrange ( gentity_t *ent )
 	vec3_t	deltaVector;
 	float	visrange = (NPCS.NPCInfo->stats.visrange * NPCS.NPCInfo->stats.visrange);
 
-	CalcEntitySpot( NPCS.NPC, SPOT_HEAD_LEAN, eyes );
+	CalcEntitySpot( NPCS.NPC, spot_t::SPOT_HEAD_LEAN, eyes );
 
-	CalcEntitySpot( ent, SPOT_ORIGIN, spot );
+	CalcEntitySpot( ent, spot_t::SPOT_ORIGIN, spot );
 	VectorSubtract ( spot, eyes, deltaVector);
 
 	/*if(ent->client)
@@ -280,69 +280,69 @@ visibility_t NPC_CheckVisibility ( gentity_t *ent, visCheckFlags_t flags )
 	// flags should never be 0
 	if ( !Any(flags) )
 	{
-		return VIS_NOT;
+		return visibility_t::VIS_NOT;
 	}
 
 	// check PVS
-	if ( Any( flags & CHECK_PVS ) )
+	if ( Any( flags & visCheckFlags_t::CHECK_PVS ) )
 	{
 		if ( !trap->InPVS ( ent->r.currentOrigin, NPCS.NPC->r.currentOrigin ) )
 		{
-			return VIS_NOT;
+			return visibility_t::VIS_NOT;
 		}
 	}
-	if ( !Any(flags & (CHECK_360|CHECK_FOV|CHECK_SHOOT)) )
+	if ( !Any(flags & (visCheckFlags_t::CHECK_360|visCheckFlags_t::CHECK_FOV|visCheckFlags_t::CHECK_SHOOT)) )
 	{
-		return VIS_PVS;
+		return visibility_t::VIS_PVS;
 	}
 
 	// check within visrange
-	if (Any(flags & CHECK_VISRANGE))
+	if (Any(flags & visCheckFlags_t::CHECK_VISRANGE))
 	{
 		if( !InVisrange ( ent ) )
 		{
-			return VIS_PVS;
+			return visibility_t::VIS_PVS;
 		}
 	}
 
 	// check 360 degree visibility
 	//Meaning has to be a direct line of site
-	if ( Any( flags & CHECK_360 ) )
+	if ( Any( flags & visCheckFlags_t::CHECK_360 ) )
 	{
 		if ( !CanSee ( ent ) )
 		{
-			return VIS_PVS;
+			return visibility_t::VIS_PVS;
 		}
 	}
-	if ( !Any(flags & (CHECK_FOV|CHECK_SHOOT)) )
+	if ( !Any(flags & (visCheckFlags_t::CHECK_FOV|visCheckFlags_t::CHECK_SHOOT)) )
 	{
-		return VIS_360;
+		return visibility_t::VIS_360;
 	}
 
 	// check FOV
-	if ( Any( flags & CHECK_FOV ) )
+	if ( Any( flags & visCheckFlags_t::CHECK_FOV ) )
 	{
 		if ( !InFOV ( ent, NPCS.NPC, NPCS.NPCInfo->stats.hfov, NPCS.NPCInfo->stats.vfov) )
 		{
-			return VIS_360;
+			return visibility_t::VIS_360;
 		}
 	}
 
-	if ( !Any(flags & CHECK_SHOOT) )
+	if ( !Any(flags & visCheckFlags_t::CHECK_SHOOT) )
 	{
-		return VIS_FOV;
+		return visibility_t::VIS_FOV;
 	}
 
 	// check shootability
-	if ( Any( flags & CHECK_SHOOT ) )
+	if ( Any( flags & visCheckFlags_t::CHECK_SHOOT ) )
 	{
 		if ( !CanShoot ( ent, NPCS.NPC ) )
 		{
-			return VIS_FOV;
+			return visibility_t::VIS_FOV;
 		}
 	}
 
-	return VIS_SHOOT;
+	return visibility_t::VIS_SHOOT;
 }
 
 /*
@@ -353,7 +353,7 @@ NPC_CheckSoundEvents
 static int G_CheckSoundEvents( gentity_t *self, float maxHearDist, int ignoreAlert, bool mustHaveOwner, alertEventLevel_e minAlertLevel )
 {
 	int	bestEvent = -1;
-	alertEventLevel_e bestAlert = AEL_NONE;
+	alertEventLevel_e bestAlert = alertEventLevel_e::AEL_NONE;
 	int	bestTime = -1;
 	int i;
 	float dist, radius;
@@ -366,7 +366,7 @@ static int G_CheckSoundEvents( gentity_t *self, float maxHearDist, int ignoreAle
 		if ( i == ignoreAlert )
 			continue;
 		//We're only concerned about sounds
-		if ( level.alertEvents[i].type != AET_SOUND )
+		if ( level.alertEvents[i].type != alertEventType_e::AET_SOUND )
 			continue;
 		//must be at least this noticable
 		if ( level.alertEvents[i].level < minAlertLevel )
@@ -429,7 +429,7 @@ NPC_CheckSightEvents
 static int G_CheckSightEvents( gentity_t *self, int hFOV, int vFOV, float maxSeeDist, int ignoreAlert, bool mustHaveOwner, alertEventLevel_e minAlertLevel )
 {
 	int	bestEvent = -1;
-	alertEventLevel_e bestAlert = AEL_NONE;
+	alertEventLevel_e bestAlert = alertEventLevel_e::AEL_NONE;
 	int	bestTime = -1;
 	int i;
 	float	dist, radius;
@@ -441,7 +441,7 @@ static int G_CheckSightEvents( gentity_t *self, int hFOV, int vFOV, float maxSee
 		if ( i == ignoreAlert )
 			continue;
 		//We're only concerned about sounds
-		if ( level.alertEvents[i].type != AET_SIGHT )
+		if ( level.alertEvents[i].type != alertEventType_e::AET_SIGHT )
 			continue;
 		//must be at least this noticable
 		if ( level.alertEvents[i].level < minAlertLevel )
@@ -500,8 +500,8 @@ int G_CheckAlertEvents( gentity_t *self, bool checkSight, bool checkSound, float
 {
 	int bestSoundEvent = -1;
 	int bestSightEvent = -1;
-	alertEventLevel_e bestSoundAlert = AEL_NONE;
-	alertEventLevel_e bestSightAlert = AEL_NONE;
+	alertEventLevel_e bestSoundAlert = alertEventLevel_e::AEL_NONE;
+	alertEventLevel_e bestSightAlert = alertEventLevel_e::AEL_NONE;
 
 	//OJKFIXME: clientnum 0
 	if ( g_entities[0].health <= 0 )
@@ -541,7 +541,7 @@ int G_CheckAlertEvents( gentity_t *self, bool checkSight, bool checkSound, float
 		//get the light level of the alert event for this checker
 		vec3_t	eyePoint, sightDir;
 		//get eye point
-		CalcEntitySpot( self, SPOT_HEAD_LEAN, eyePoint );
+		CalcEntitySpot( self, spot_t::SPOT_HEAD_LEAN, eyePoint );
 		VectorSubtract( level.alertEvents[bestSightEvent].position, eyePoint, sightDir );
 		level.alertEvents[bestSightEvent].light = level.alertEvents[bestSightEvent].addLight + G_GetLightLevel( level.alertEvents[bestSightEvent].position, sightDir );
 		//return the sight event
@@ -563,13 +563,13 @@ bool G_CheckForDanger( gentity_t *self, int alertEvent )
 		return false;
 	}
 
-	if ( level.alertEvents[alertEvent].level >= AEL_DANGER )
+	if ( level.alertEvents[alertEvent].level >= alertEventLevel_e::AEL_DANGER )
 	{//run away!
 		if ( !level.alertEvents[alertEvent].owner || !level.alertEvents[alertEvent].owner->client || (level.alertEvents[alertEvent].owner!=self&&level.alertEvents[alertEvent].owner->client->playerTeam!=self->client->playerTeam) )
 		{
 			if ( self->NPC )
 			{
-				if ( Any( self->NPC->scriptFlags & SCF_DONT_FLEE ) )
+				if ( Any( self->NPC->scriptFlags & scriptFlags_t::SCF_DONT_FLEE ) )
 				{//can't flee
 					return false;
 				}
@@ -609,7 +609,7 @@ void AddSoundEvent( gentity_t *owner, vec3_t position, float radius, alertEventL
 		}
 	}
 
-	if ( owner == nullptr && alertLevel < AEL_DANGER )	//allows un-owned danger alerts
+	if ( owner == nullptr && alertLevel < alertEventLevel_e::AEL_DANGER )	//allows un-owned danger alerts
 		return;
 
 	//FIXME: if owner is not a player or player ally, and there are no player allies present,
@@ -620,7 +620,7 @@ void AddSoundEvent( gentity_t *owner, vec3_t position, float radius, alertEventL
 
 	level.alertEvents[ level.numAlertEvents ].radius	= radius;
 	level.alertEvents[ level.numAlertEvents ].level		= alertLevel;
-	level.alertEvents[ level.numAlertEvents ].type		= AET_SOUND;
+	level.alertEvents[ level.numAlertEvents ].type		= alertEventType_e::AET_SOUND;
 	level.alertEvents[ level.numAlertEvents ].owner		= owner;
 	if ( needLOS )
 	{//a very low-level sound, when check this sound event, check for LOS
@@ -653,7 +653,7 @@ void AddSightEvent( gentity_t *owner, vec3_t position, float radius, alertEventL
 		}
 	}
 
-	if ( owner == nullptr && alertLevel < AEL_DANGER )	//allows un-owned danger alerts
+	if ( owner == nullptr && alertLevel < alertEventLevel_e::AEL_DANGER )	//allows un-owned danger alerts
 		return;
 
 	//FIXME: if owner is not a player or player ally, and there are no player allies present,
@@ -664,7 +664,7 @@ void AddSightEvent( gentity_t *owner, vec3_t position, float radius, alertEventL
 
 	level.alertEvents[ level.numAlertEvents ].radius	= radius;
 	level.alertEvents[ level.numAlertEvents ].level		= alertLevel;
-	level.alertEvents[ level.numAlertEvents ].type		= AET_SIGHT;
+	level.alertEvents[ level.numAlertEvents ].type		= alertEventType_e::AET_SIGHT;
 	level.alertEvents[ level.numAlertEvents ].owner		= owner;
 	level.alertEvents[ level.numAlertEvents ].addLight	= addLight;	//will get added to actual light at that point when it's checked
 	level.alertEvents[ level.numAlertEvents ].ID		= level.curAlertID++;
@@ -764,14 +764,14 @@ bool G_ClearLOS( gentity_t *self, const vec3_t start, const vec3_t end )
 	int			traceCount = 0;
 
 	//FIXME: ENTITYNUM_NONE ok?
-	trap->Trace ( &tr, start, nullptr, nullptr, end, ENTITYNUM_NONE, CONTENTS_OPAQUE/*CONTENTS_SOLID*//*(CONTENTS_SOLID|CONTENTS_MONSTERCLIP)*/, false, G2TRFLAG_NONE, 0 );
+	trap->Trace ( &tr, start, nullptr, nullptr, end, ENTITYNUM_NONE, contentsFlags_t::CONTENTS_OPAQUE/*contentsFlags_t::CONTENTS_SOLID*//*(contentsFlags_t::CONTENTS_SOLID|contentsFlags_t::CONTENTS_MONSTERCLIP)*/, false, g2TraceFlags_t::G2TRFLAG_NONE, 0 );
 	while ( tr.fraction < 1.0 && traceCount < 3 )
 	{//can see through 3 panes of glass
 		if ( tr.entityNum < ENTITYNUM_WORLD )
 		{
-			if ( Any( g_entities[tr.entityNum].r.svFlags & SVF_GLASS_BRUSH ) )
+			if ( Any( g_entities[tr.entityNum].r.svFlags & svFlags_t::SVF_GLASS_BRUSH ) )
 			{//can see through glass, trace again, ignoring me
-				trap->Trace ( &tr, tr.endpos, nullptr, nullptr, end, tr.entityNum, MASK_OPAQUE, false, G2TRFLAG_NONE, 0 );
+				trap->Trace ( &tr, tr.endpos, nullptr, nullptr, end, tr.entityNum, MASK_OPAQUE, false, g2TraceFlags_t::G2TRFLAG_NONE, 0 );
 				traceCount++;
 				continue;
 			}
@@ -790,7 +790,7 @@ bool G_ClearLOS2( gentity_t *self, gentity_t *ent, const vec3_t end )
 {
 	vec3_t	eyes;
 
-	CalcEntitySpot( ent, SPOT_HEAD_LEAN, eyes );
+	CalcEntitySpot( ent, spot_t::SPOT_HEAD_LEAN, eyes );
 
 	return G_ClearLOS( self, eyes, end );
 }
@@ -801,13 +801,13 @@ bool G_ClearLOS3( gentity_t *self, const vec3_t start, gentity_t *ent )
 	vec3_t		spot;
 
 	//Look for the chest first
-	CalcEntitySpot( ent, SPOT_ORIGIN, spot );
+	CalcEntitySpot( ent, spot_t::SPOT_ORIGIN, spot );
 
 	if ( G_ClearLOS( self, start, spot ) )
 		return true;
 
 	//Look for the head next
-	CalcEntitySpot( ent, SPOT_HEAD_LEAN, spot );
+	CalcEntitySpot( ent, spot_t::SPOT_HEAD_LEAN, spot );
 
 	if ( G_ClearLOS( self, start, spot ) )
 		return true;
@@ -821,7 +821,7 @@ bool G_ClearLOS4( gentity_t *self, gentity_t *ent )
 	vec3_t	eyes;
 
 	//Calculate my position
-	CalcEntitySpot( self, SPOT_HEAD_LEAN, eyes );
+	CalcEntitySpot( self, spot_t::SPOT_HEAD_LEAN, eyes );
 
 	return G_ClearLOS3( self, eyes, ent );
 }
@@ -832,7 +832,7 @@ bool G_ClearLOS5( gentity_t *self, const vec3_t end )
 	vec3_t	eyes;
 
 	//Calculate the my position
-	CalcEntitySpot( self, SPOT_HEAD_LEAN, eyes );
+	CalcEntitySpot( self, spot_t::SPOT_HEAD_LEAN, eyes );
 
 	return G_ClearLOS( self, eyes, end );
 }
@@ -896,7 +896,7 @@ int G_FindLocalInterestPoint( gentity_t *self )
 	float	dist, bestDist = Q3_INFINITE;
 	vec3_t	diffVec, eyes;
 
-	CalcEntitySpot( self, SPOT_HEAD_LEAN, eyes );
+	CalcEntitySpot( self, spot_t::SPOT_HEAD_LEAN, eyes );
 	for ( i = 0; i < level.numInterestPoints; i++ )
 	{
 		//Don't ignore portals?  If through a portal, need to look at portal!

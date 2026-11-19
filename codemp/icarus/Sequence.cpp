@@ -32,7 +32,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 CSequence::CSequence( void )
 {
 	m_numCommands	= 0;
-	m_flags			= SQ_COMMON;
+	m_flags			= sequenceFlags_t::SQ_COMMON;
 	m_iterations	= 1;
 
 	m_parent		= nullptr;
@@ -59,7 +59,7 @@ CSequence *CSequence::Create( void )
 	if ( seq == nullptr )
 		return nullptr;
 
-	seq->SetFlag( SQ_COMMON );
+	seq->SetFlag( sequenceFlags_t::SQ_COMMON );
 
 	return seq;
 }
@@ -173,11 +173,11 @@ void CSequence::SetParent( CSequence *parent )
 		return;
 
 	//Inherit the parent's properties (this avoids messy tree walks later on)
-	if ( Any( parent->m_flags & SQ_RETAIN ) )
-		m_flags |= SQ_RETAIN;
+	if ( Any( parent->m_flags & sequenceFlags_t::SQ_RETAIN ) )
+		m_flags |= sequenceFlags_t::SQ_RETAIN;
 
-	if ( Any( parent->m_flags & SQ_PENDING ) )
-		m_flags |= SQ_PENDING;
+	if ( Any( parent->m_flags & sequenceFlags_t::SQ_PENDING ) )
+		m_flags |= sequenceFlags_t::SQ_PENDING;
 }
 
 /*
@@ -191,14 +191,14 @@ CBlock *CSequence::PopCommand( pushPop_t type )
 	CBlock	*command = nullptr;
 
 	//Make sure everything is ok
-	assert( (type == POP_FRONT) || (type == POP_BACK) );
+	assert( (type == pushPop_t::POP_FRONT) || (type == pushPop_t::POP_BACK) );
 
 	if ( m_commands.empty() )
 		return nullptr;
 
 	switch ( type )
 	{
-	case POP_FRONT:
+	case pushPop_t::POP_FRONT:
 
 		command = m_commands.front();
 		m_commands.pop_front();
@@ -207,7 +207,7 @@ CBlock *CSequence::PopCommand( pushPop_t type )
 		return command;
 		break;
 
-	case POP_BACK:
+	case pushPop_t::POP_BACK:
 
 		command = m_commands.back();
 		m_commands.pop_back();
@@ -233,12 +233,12 @@ PushCommand
 int CSequence::PushCommand( CBlock *block, pushPop_t type )
 {
 	//Make sure everything is ok
-	assert( (type == PUSH_FRONT) || (type == PUSH_BACK) );
+	assert( (type == pushPop_t::PUSH_FRONT) || (type == pushPop_t::PUSH_BACK) );
 	assert( block );
 
 	switch ( type )
 	{
-	case PUSH_FRONT:
+	case pushPop_t::PUSH_FRONT:
 
 		m_commands.push_front( block );
 		m_numCommands++;
@@ -246,7 +246,7 @@ int CSequence::PushCommand( CBlock *block, pushPop_t type )
 		return true;
 		break;
 
-	case PUSH_BACK:
+	case pushPop_t::PUSH_BACK:
 
 		m_commands.push_back( block );
 		m_numCommands++;
@@ -522,45 +522,45 @@ int CSequence::Load( void )
 			const icarusToken_t memberID = static_cast<icarusToken_t>( bID );
 			switch ( memberID )
 			{
-			case TK_INT:
+			case icarusToken_t::TK_INT:
 				{
 					assert(0);
 					int data = *(int *) bData;
-					block->Write( TK_FLOAT, (float) data );
+					block->Write( icarusToken_t::TK_FLOAT, (float) data );
 				}
 				break;
 
-			case TK_FLOAT:
-				block->Write( TK_FLOAT, *(float *) bData );
+			case icarusToken_t::TK_FLOAT:
+				block->Write( icarusToken_t::TK_FLOAT, *(float *) bData );
 				break;
 
-			case TK_STRING:
-			case TK_IDENTIFIER:
-			case TK_CHAR:
-				block->Write( TK_STRING, (char *) bData );
+			case icarusToken_t::TK_STRING:
+			case icarusToken_t::TK_IDENTIFIER:
+			case icarusToken_t::TK_CHAR:
+				block->Write( icarusToken_t::TK_STRING, (char *) bData );
 				break;
 
-			case TK_VECTOR:
-			case TK_VECTOR_START:
-				block->Write( TK_VECTOR, *(vec3_t *) bData );
+			case icarusToken_t::TK_VECTOR:
+			case icarusToken_t::TK_VECTOR_START:
+				block->Write( icarusToken_t::TK_VECTOR, *(vec3_t *) bData );
 				break;
 
-			case ID_TAG:
-				block->Write( ID_TAG, (float) to_underlying( ID_TAG ) );
+			case icarusToken_t::ID_TAG:
+				block->Write( icarusToken_t::ID_TAG, (float) to_underlying( icarusToken_t::ID_TAG ) );
 				break;
 
-			case ID_GET:
-				block->Write( ID_GET, (float) to_underlying( ID_GET ) );
+			case icarusToken_t::ID_GET:
+				block->Write( icarusToken_t::ID_GET, (float) to_underlying( icarusToken_t::ID_GET ) );
 				break;
 
-			case ID_RANDOM:
-				block->Write( ID_RANDOM, *(float *) bData );//(float) to_underlying( ID_RANDOM ) );
+			case icarusToken_t::ID_RANDOM:
+				block->Write( icarusToken_t::ID_RANDOM, *(float *) bData );//(float) to_underlying( icarusToken_t::ID_RANDOM ) );
 				break;
 
-			case TK_EQUALS:
-			case TK_GREATER_THAN:
-			case TK_LESS_THAN:
-			case TK_NOT:
+			case icarusToken_t::TK_EQUALS:
+			case icarusToken_t::TK_GREATER_THAN:
+			case icarusToken_t::TK_LESS_THAN:
+			case icarusToken_t::TK_NOT:
 				block->Write( memberID, 0 );
 				break;
 
@@ -576,7 +576,7 @@ int CSequence::Load( void )
 
 		//Save the block
 		//STL_INSERT( m_commands, block );
-		PushCommand( block, PUSH_BACK );
+		PushCommand( block, pushPop_t::PUSH_BACK );
 	}
 
 	return true;

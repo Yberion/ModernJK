@@ -161,7 +161,7 @@ typedef struct clientActive_s {
 
 	int			mouseDx[2], mouseDy[2];	// added to by mouse events
 	int			mouseIndex;
-	EnumArray<int, joystickAxis_t, MAX_JOYSTICK_AXIS>	joystickAxis;	// set by joystick events
+	EnumArray<int, joystickAxis_t, joystickAxis_t::MAX_JOYSTICK_AXIS>	joystickAxis;	// set by joystick events
 
 	// cgame communicates a few values to the client system
 	weapon_t	cgameUserCmdValue;	// current weapon to add to usercmd_t

@@ -41,7 +41,7 @@ void FX_DisruptorMainShot( vec3_t start, vec3_t end )
 							1.0f, 0.0f, 0.0f,
 							WHITE, WHITE, 0.0f,
 							150, trap->R_RegisterShader( "gfx/effects/redLine" ),
-							FX_SIZE_LINEAR | FX_ALPHA_LINEAR );
+							fxPrimitiveFlags_t::FX_SIZE_LINEAR | fxPrimitiveFlags_t::FX_ALPHA_LINEAR );
 
 //	VectorSubtract( end, start, dir );
 //	len = VectorNormalize( dir );
@@ -66,7 +66,7 @@ void FX_DisruptorAltShot( vec3_t start, vec3_t end, bool fullCharge )
 							1.0f, 0.0f, 0.0f,
 							WHITE, WHITE, 0.0f,
 							175, trap->R_RegisterShader( "gfx/effects/redLine" ),
-							FX_SIZE_LINEAR | FX_ALPHA_LINEAR );
+							fxPrimitiveFlags_t::FX_SIZE_LINEAR | fxPrimitiveFlags_t::FX_ALPHA_LINEAR );
 
 	if ( fullCharge )
 	{
@@ -77,7 +77,7 @@ void FX_DisruptorAltShot( vec3_t start, vec3_t end, bool fullCharge )
 							1.0f, 0.0f, 0.0f,
 							YELLER, YELLER, 0.0f,
 							150, trap->R_RegisterShader( "gfx/misc/whiteline2" ),
-							FX_SIZE_LINEAR | FX_ALPHA_LINEAR );
+							fxPrimitiveFlags_t::FX_SIZE_LINEAR | fxPrimitiveFlags_t::FX_ALPHA_LINEAR );
 	}
 }
 
@@ -103,7 +103,7 @@ void FX_DisruptorAltMiss( vec3_t origin, vec3_t normal )
 
 	/*
 	FX_AddBezier( origin, pos, c1, vec3_origin, c2, vec3_origin, 6.0f, 6.0f, 0.0f, 0.0f, 0.2f, 0.5f,
-	WHITE, WHITE, 0.0f, 4000, trap->R_RegisterShader( "gfx/effects/smokeTrail" ), FX_ALPHA_WAVE );
+	WHITE, WHITE, 0.0f, 4000, trap->R_RegisterShader( "gfx/effects/smokeTrail" ), fxPrimitiveFlags_t::FX_ALPHA_WAVE );
 	*/
 
 	VectorCopy(origin, b.start);
@@ -126,7 +126,7 @@ void FX_DisruptorAltMiss( vec3_t origin, vec3_t normal )
 	b.rgbParm = 0.0f;
 	b.killTime = 4000;
 	b.shader = trap->R_RegisterShader( "gfx/effects/smokeTrail" );
-	b.flags = FX_ALPHA_WAVE;
+	b.flags = fxPrimitiveFlags_t::FX_ALPHA_WAVE;
 
 	trap->FX_AddBezier(&b);
 

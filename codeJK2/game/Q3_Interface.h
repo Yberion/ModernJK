@@ -278,7 +278,6 @@ enum class setType_t //# setType_e
 	SET_,
 	SET_UNKNOWN = -1	// a name that matches no set field (GetIDForString's -1)
 };
-using enum setType_t;
 template <> inline constexpr bool enableEnumArithmetic<setType_t> = true;
 
 
@@ -293,7 +292,6 @@ enum class playType_t //# playType_e
 	PLAY_NUMBEROF
 
 };
-using enum playType_t;
 
 
 const	int	Q3_TIME_SCALE	= 1;	//MILLISECONDS

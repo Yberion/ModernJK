@@ -93,10 +93,10 @@ void FX_DEMP2_AltDetonate( vec3_t org, float size )
 	localEntity_t	*ex;
 
 	ex = CG_AllocLocalEntity();
-	ex->leType = LE_FADE_SCALE_MODEL;
+	ex->leType = leType_t::LE_FADE_SCALE_MODEL;
 	memset( &ex->refEntity, 0, sizeof( refEntity_t ));
 
-	ex->refEntity.renderfx |= RF_VOLUMETRIC;
+	ex->refEntity.renderfx |= renderFxFlags_t::RF_VOLUMETRIC;
 
 	ex->startTime = cg.time;
 	ex->endTime = ex->startTime + 1300;

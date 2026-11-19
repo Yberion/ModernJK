@@ -60,7 +60,6 @@ public:
 		SEQ_OK,				//Command was successfully added
 		SEQ_FAILED,			//An error occured while trying to insert the command
 	};
-	using enum sequencerResult_t;
 
 	CSequencer();
 

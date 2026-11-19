@@ -167,12 +167,12 @@ const char *NET_ErrorString( void ) {
 static void NetadrToSockadr( const netadr_t *a, struct sockaddr_in *s ) {
 	memset( s, 0, sizeof(*s) );
 
-	if( a->type == NA_BROADCAST ) {
+	if( a->type == netadrtype_t::NA_BROADCAST ) {
 		s->sin_family = AF_INET;
 		s->sin_port = a->port;
 		s->sin_addr.s_addr = INADDR_BROADCAST;
 	}
-	else if( a->type == NA_IP ) {
+	else if( a->type == netadrtype_t::NA_IP ) {
 		s->sin_family = AF_INET;
 		memcpy( &s->sin_addr, a->ip, sizeof(s->sin_addr) );
 		s->sin_port = a->port;
@@ -181,7 +181,7 @@ static void NetadrToSockadr( const netadr_t *a, struct sockaddr_in *s ) {
 
 static void SockadrToNetadr( struct sockaddr_in *s, netadr_t *a ) {
 	assert(s->sin_family == AF_INET);
-	a->type = NA_IP;
+	a->type = netadrtype_t::NA_IP;
 	memcpy( a->ip, &s->sin_addr, sizeof(a->ip) );
 	a->port = s->sin_port;
 }
@@ -274,7 +274,7 @@ bool NET_GetPacket( netadr_t *net_from, msg_t *net_message, fd_set *fdr ) {
 		if ( ret < 10 || net_message->data[0] != 0 || net_message->data[1] != 0 || net_message->data[2] != 0 || net_message->data[3] != 1 ) {
 			return false;
 		}
-		net_from->type = NA_IP;
+		net_from->type = netadrtype_t::NA_IP;
 		net_from->ip[0] = net_message->data[4];
 		net_from->ip[1] = net_message->data[5];
 		net_from->ip[2] = net_message->data[6];
@@ -309,8 +309,8 @@ void Sys_SendPacket( int length, const void *data, const netadr_t *to ) {
 	int					ret;
 	struct sockaddr_in	addr;
 
-	if ( to->type != NA_BROADCAST && to->type != NA_IP ) {
-		Com_Error( ERR_FATAL, "Sys_SendPacket: bad address type" );
+	if ( to->type != netadrtype_t::NA_BROADCAST && to->type != netadrtype_t::NA_IP ) {
+		Com_Error( errorParm_t::ERR_FATAL, "Sys_SendPacket: bad address type" );
 		return;
 	}
 
@@ -320,7 +320,7 @@ void Sys_SendPacket( int length, const void *data, const netadr_t *to ) {
 
 	NetadrToSockadr( to, &addr );
 
-	if( usingSocks && to->type == NA_IP ) {
+	if( usingSocks && to->type == netadrtype_t::NA_IP ) {
 		socksBuf[0] = 0;	// reserved
 		socksBuf[1] = 0;
 		socksBuf[2] = 0;	// fragment (not fragmented)
@@ -342,7 +342,7 @@ void Sys_SendPacket( int length, const void *data, const netadr_t *to ) {
 		}
 
 		// some PPP links do not allow broadcasts and return an error
-		if( err == EADDRNOTAVAIL && to->type == NA_BROADCAST ) {
+		if( err == EADDRNOTAVAIL && to->type == netadrtype_t::NA_BROADCAST ) {
 			return;
 		}
 
@@ -361,15 +361,15 @@ LAN clients will have their rate var ignored
 */
 bool Sys_IsLANAddress( const netadr_t *adr ) {
 	if ( !net_forcenonlocal )
-		net_forcenonlocal = Cvar_Get( "net_forcenonlocal", "0", CVAR_NONE );
+		net_forcenonlocal = Cvar_Get( "net_forcenonlocal", "0", cvarFlags_t::CVAR_NONE );
 
 	if ( net_forcenonlocal && net_forcenonlocal->integer )
 		return false;
 
-	if( adr->type == NA_LOOPBACK )
+	if( adr->type == netadrtype_t::NA_LOOPBACK )
 		return true;
 
-	if( adr->type != NA_IP )
+	if( adr->type != netadrtype_t::NA_IP )
 		return false;
 
 	// RFC1918:
@@ -851,43 +851,43 @@ NET_GetCvars
 static bool NET_GetCvars( void ) {
 	int	modified = 0;
 
-	net_enabled = Cvar_Get( "net_enabled", "1", CVAR_LATCH | CVAR_ARCHIVE_ND );
+	net_enabled = Cvar_Get( "net_enabled", "1", cvarFlags_t::CVAR_LATCH | cvarFlags_t::CVAR_ARCHIVE_ND );
 	modified = net_enabled->modified;
 	net_enabled->modified = false;
 
-	net_forcenonlocal = Cvar_Get( "net_forcenonlocal", "0", CVAR_LATCH | CVAR_ARCHIVE_ND );
+	net_forcenonlocal = Cvar_Get( "net_forcenonlocal", "0", cvarFlags_t::CVAR_LATCH | cvarFlags_t::CVAR_ARCHIVE_ND );
 	modified += net_forcenonlocal->modified;
 	net_forcenonlocal->modified = false;
 
-	net_ip = Cvar_Get( "net_ip", "localhost", CVAR_LATCH );
+	net_ip = Cvar_Get( "net_ip", "localhost", cvarFlags_t::CVAR_LATCH );
 	modified += net_ip->modified;
 	net_ip->modified = false;
 
-	net_port = Cvar_Get( "net_port", XSTRING( PORT_SERVER ), CVAR_LATCH );
+	net_port = Cvar_Get( "net_port", XSTRING( PORT_SERVER ), cvarFlags_t::CVAR_LATCH );
 	modified += net_port->modified;
 	net_port->modified = false;
 
-	net_socksEnabled = Cvar_Get( "net_socksEnabled", "0", CVAR_LATCH | CVAR_ARCHIVE_ND );
+	net_socksEnabled = Cvar_Get( "net_socksEnabled", "0", cvarFlags_t::CVAR_LATCH | cvarFlags_t::CVAR_ARCHIVE_ND );
 	modified += net_socksEnabled->modified;
 	net_socksEnabled->modified = false;
 
-	net_socksServer = Cvar_Get( "net_socksServer", "", CVAR_LATCH | CVAR_ARCHIVE_ND );
+	net_socksServer = Cvar_Get( "net_socksServer", "", cvarFlags_t::CVAR_LATCH | cvarFlags_t::CVAR_ARCHIVE_ND );
 	modified += net_socksServer->modified;
 	net_socksServer->modified = false;
 
-	net_socksPort = Cvar_Get( "net_socksPort", "1080", CVAR_LATCH | CVAR_ARCHIVE_ND );
+	net_socksPort = Cvar_Get( "net_socksPort", "1080", cvarFlags_t::CVAR_LATCH | cvarFlags_t::CVAR_ARCHIVE_ND );
 	modified += net_socksPort->modified;
 	net_socksPort->modified = false;
 
-	net_socksUsername = Cvar_Get( "net_socksUsername", "", CVAR_LATCH | CVAR_ARCHIVE_ND );
+	net_socksUsername = Cvar_Get( "net_socksUsername", "", cvarFlags_t::CVAR_LATCH | cvarFlags_t::CVAR_ARCHIVE_ND );
 	modified += net_socksUsername->modified;
 	net_socksUsername->modified = false;
 
-	net_socksPassword = Cvar_Get( "net_socksPassword", "", CVAR_LATCH | CVAR_ARCHIVE_ND );
+	net_socksPassword = Cvar_Get( "net_socksPassword", "", cvarFlags_t::CVAR_LATCH | cvarFlags_t::CVAR_ARCHIVE_ND );
 	modified += net_socksPassword->modified;
 	net_socksPassword->modified = false;
 
-	net_dropsim = Cvar_Get( "net_dropsim", "", CVAR_TEMP);
+	net_dropsim = Cvar_Get( "net_dropsim", "", cvarFlags_t::CVAR_TEMP);
 
 	return modified ? true : false;
 }

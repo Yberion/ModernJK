@@ -29,7 +29,6 @@ constexpr int MIN_DISTANCE_SQR = MIN_DISTANCE * MIN_DISTANCE;
 
 constexpr int MAX_DISTANCE = 128;
 
-using enum monsterLocalState_t;
 
 /*
 -------------------------
@@ -58,12 +57,12 @@ Howler_Patrol
 */
 void Howler_Patrol( void )
 {
-	NPC_SetLocalState( *NPCInfo, LSTATE_CLEAR );
+	NPC_SetLocalState( *NPCInfo, monsterLocalState_t::LSTATE_CLEAR );
 
 	//If we have somewhere to go, then do that
 	if ( UpdateGoal() )
 	{
-		ucmd.buttons &= ~BUTTON_WALKING;
+		ucmd.buttons &= ~buttonFlags_t::BUTTON_WALKING;
 		NPC_MoveToGoal( true );
 	}
 	else
@@ -97,7 +96,7 @@ Howler_Move
 */
 void Howler_Move( bool visible )
 {
-	if ( NPC_LocalState<monsterLocalState_t>( *NPCInfo ) != LSTATE_WAITING )
+	if ( NPC_LocalState<monsterLocalState_t>( *NPCInfo ) != monsterLocalState_t::LSTATE_WAITING )
 	{
 		NPCInfo->goalEntity = NPC->enemy;
 		NPC_MoveToGoal( true );
@@ -120,11 +119,11 @@ void Howler_TryDamage( gentity_t *enemy, int damage )
 	VectorMA( NPC->currentOrigin, MIN_DISTANCE, dir, end );
 
 	// Should probably trace from the mouth, but, ah well.
-	gi.trace( &tr, NPC->currentOrigin, vec3_origin, vec3_origin, end, NPC->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
+	gi.trace( &tr, NPC->currentOrigin, vec3_origin, vec3_origin, end, NPC->s.number, MASK_SHOT, EG2_Collision::G2_NOCOLLIDE, 0 );
 
 	if ( tr.entityNum != ENTITYNUM_WORLD )
 	{
-		G_Damage( &g_entities[tr.entityNum], NPC, NPC, dir, tr.endpos, damage, DAMAGE_NO_KNOCKBACK, MOD_MELEE );
+		G_Damage( &g_entities[tr.entityNum], NPC, NPC, dir, tr.endpos, damage, damageFlags_t::DAMAGE_NO_KNOCKBACK, meansOfDeath_t::MOD_MELEE );
 	}
 }
 
@@ -135,7 +134,7 @@ void Howler_Attack( void )
 	{
 		// Going to do ATTACK1
 		TIMER_Set( NPC, "attacking", 1700 + Q_flrand(0.0f, 1.0f) * 200 );
-		NPC_SetAnim( NPC, SETANIM_BOTH, BOTH_ATTACK1, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD );
+		NPC_SetAnim( NPC, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_ATTACK1, setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD );
 
 		TIMER_Set( NPC, "attack_dmg", 200 ); // level two damage
 	}
@@ -171,11 +170,11 @@ void Howler_Combat( void )
 
 	bool	advance = ( distance > MIN_DISTANCE_SQR ? true : false  );
 
-	if (( advance || NPC_LocalState<monsterLocalState_t>( *NPCInfo ) == LSTATE_WAITING ) && TIMER_Done( NPC, "attacking" )) // waiting monsters can't attack
+	if (( advance || NPC_LocalState<monsterLocalState_t>( *NPCInfo ) == monsterLocalState_t::LSTATE_WAITING ) && TIMER_Done( NPC, "attacking" )) // waiting monsters can't attack
 	{
 		if ( TIMER_Done2( NPC, "takingPain", true ))
 		{
-			NPC_SetLocalState( *NPCInfo, LSTATE_CLEAR );
+			NPC_SetLocalState( *NPCInfo, monsterLocalState_t::LSTATE_CLEAR );
 		}
 		else
 		{
@@ -202,11 +201,11 @@ void NPC_Howler_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, v
 
 		VectorCopy( self->NPC->lastPathAngles, self->s.angles );
 
-		NPC_SetAnim( self, SETANIM_BOTH, BOTH_PAIN1, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD );
+		NPC_SetAnim( self, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_PAIN1, setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD );
 
 		if ( self->NPC )
 		{
-			NPC_SetLocalState( *self->NPC, LSTATE_WAITING );
+			NPC_SetLocalState( *self->NPC, monsterLocalState_t::LSTATE_WAITING );
 		}
 	}
 }
@@ -223,7 +222,7 @@ void NPC_BSHowler_Default( void )
 	{
 		Howler_Combat();
 	}
-	else if ( Any( NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES ) )
+	else if ( Any( NPCInfo->scriptFlags & scriptFlags_t::SCF_LOOK_FOR_ENEMIES ) )
 	{
 		Howler_Patrol();
 	}

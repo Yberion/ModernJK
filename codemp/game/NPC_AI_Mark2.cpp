@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_nav.h"
 
 constexpr int AMMO_POD_HEALTH = 1;
-constexpr g2SurfaceFlags_t TURN_OFF = G2SURFACEFLAG_NODESCENDANTS;
+constexpr g2SurfaceFlags_t TURN_OFF = g2SurfaceFlags_t::G2SURFACEFLAG_NODESCENDANTS;
 
 constexpr int MIN_DISTANCE = 24;
 constexpr int MIN_DISTANCE_SQR = MIN_DISTANCE * MIN_DISTANCE;
@@ -39,7 +39,6 @@ enum class mark2LocalState_t
 	LSTATE_DOWN,
 	LSTATE_RISINGUP,
 };
-using enum mark2LocalState_t;
 
 void NPC_Mark2_Precache( void )
 {
@@ -53,10 +52,10 @@ void NPC_Mark2_Precache( void )
 	G_EffectIndex( "blaster/smoke_bolton" );
 	G_EffectIndex( "bryar/muzzle_flash" );
 
-	RegisterItem( BG_FindItemForWeapon( WP_BRYAR_PISTOL ));
-	RegisterItem( BG_FindItemForAmmo( 	AMMO_METAL_BOLTS));
-	RegisterItem( BG_FindItemForAmmo( AMMO_POWERCELL ));
-	RegisterItem( BG_FindItemForAmmo( AMMO_BLASTER ));
+	RegisterItem( BG_FindItemForWeapon( weapon_t::WP_BRYAR_PISTOL ));
+	RegisterItem( BG_FindItemForAmmo( 	ammo_t::AMMO_METAL_BOLTS));
+	RegisterItem( BG_FindItemForAmmo( ammo_t::AMMO_POWERCELL ));
+	RegisterItem( BG_FindItemForAmmo( ammo_t::AMMO_BLASTER ));
 }
 
 /*
@@ -76,8 +75,8 @@ void NPC_Mark2_Part_Explode( gentity_t *self, int bolt )
 					&boltMatrix, self->r.currentAngles, self->r.currentOrigin, level.time,
 					nullptr, self->modelScale );
 
-		BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, org );
-		BG_GiveMeVectorFromMatrix( &boltMatrix, NEGATIVE_Y, dir );
+		BG_GiveMeVectorFromMatrix( &boltMatrix, orientations_t::ORIGIN, org );
+		BG_GiveMeVectorFromMatrix( &boltMatrix, orientations_t::NEGATIVE_Y, dir );
 
 		G_PlayEffectID( G_EffectIndex("env/med_explode2"), org, dir );
 		G_PlayEffectID( G_EffectIndex("blaster/smoke_bolton"), org, dir );
@@ -103,7 +102,7 @@ void NPC_Mark2_Pain(gentity_t *self, gentity_t *attacker, int damage)
 
 	for (i=0;i<3;i++)
 	{
-		if ((hitLoc==HL_GENERIC1+i) && (self->locationDamage[to_underlying( HL_GENERIC1+i )] > AMMO_POD_HEALTH))	// Blow it up?
+		if ((hitLoc==hitLocation_t::HL_GENERIC1+i) && (self->locationDamage[to_underlying( hitLocation_t::HL_GENERIC1+i )] > AMMO_POD_HEALTH))	// Blow it up?
 		{
 			if (self->locationDamage[to_underlying( hitLoc )] >= AMMO_POD_HEALTH)
 			{
@@ -118,12 +117,12 @@ void NPC_Mark2_Pain(gentity_t *self, gentity_t *attacker, int damage)
 		}
 	}
 
-	G_Sound( self, CHAN_AUTO, G_SoundIndex( "sound/chars/mark2/misc/mark2_pain" ));
+	G_Sound( self, soundChannel_t::CHAN_AUTO, G_SoundIndex( "sound/chars/mark2/misc/mark2_pain" ));
 
 	// If any pods were blown off, kill him
 	if (self->count > 0)
 	{
-		G_Damage( self, nullptr, nullptr, nullptr, nullptr, self->health, DAMAGE_NO_PROTECTION, MOD_UNKNOWN );
+		G_Damage( self, nullptr, nullptr, nullptr, nullptr, self->health, damageFlags_t::DAMAGE_NO_PROTECTION, meansOfDeath_t::MOD_UNKNOWN );
 	}
 }
 
@@ -165,11 +164,11 @@ void Mark2_FireBlaster(bool advance)
 				&boltMatrix, NPCS.NPC->r.currentAngles, NPCS.NPC->r.currentOrigin, level.time,
 				nullptr, NPCS.NPC->modelScale );
 
-	BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, muzzle1 );
+	BG_GiveMeVectorFromMatrix( &boltMatrix, orientations_t::ORIGIN, muzzle1 );
 
 	if (NPCS.NPC->health)
 	{
-		CalcEntitySpot( NPCS.NPC->enemy, SPOT_HEAD, enemy_org1 );
+		CalcEntitySpot( NPCS.NPC->enemy, spot_t::SPOT_HEAD, enemy_org1 );
 		VectorSubtract (enemy_org1, muzzle1, delta1);
 		vectoangles ( delta1, angleToEnemy1 );
 		AngleVectors (angleToEnemy1, forward, vright, up);
@@ -181,17 +180,17 @@ void Mark2_FireBlaster(bool advance)
 
 	G_PlayEffectID( G_EffectIndex("bryar/muzzle_flash"), muzzle1, forward );
 
-	G_Sound( NPCS.NPC, CHAN_AUTO, G_SoundIndex("sound/chars/mark2/misc/mark2_fire"));
+	G_Sound( NPCS.NPC, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/chars/mark2/misc/mark2_fire"));
 
 	missile = CreateMissile( muzzle1, forward, 1600, 10000, NPCS.NPC, false );
 
 	missile->classname = "bryar_proj";
-	missile->s.weapon = WP_BRYAR_PISTOL;
+	missile->s.weapon = weapon_t::WP_BRYAR_PISTOL;
 
 	missile->damage = 1;
-	missile->dflags = DAMAGE_DEATH_KNOCKBACK;
-	missile->methodOfDeath = MOD_BRYAR_PISTOL;
-	missile->clipmask = MASK_SHOT | CONTENTS_LIGHTSABER;
+	missile->dflags = damageFlags_t::DAMAGE_DEATH_KNOCKBACK;
+	missile->methodOfDeath = meansOfDeath_t::MOD_BRYAR_PISTOL;
+	missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
 
 }
 
@@ -204,7 +203,7 @@ void Mark2_BlasterAttack(bool advance)
 {
 	if ( TIMER_Done( NPCS.NPC, "attackDelay" ) )	// Attack?
 	{
-		if (NPC_LocalState<mark2LocalState_t>( *NPCS.NPCInfo ) == LSTATE_NONE)	// He's up so shoot less often.
+		if (NPC_LocalState<mark2LocalState_t>( *NPCS.NPCInfo ) == mark2LocalState_t::LSTATE_NONE)	// He's up so shoot less often.
 		{
 			TIMER_Set( NPCS.NPC, "attackDelay", Q_irand( 500, 2000) );
 		}
@@ -239,14 +238,14 @@ void Mark2_AttackDecision( void )
 	advance		= (distance > MIN_DISTANCE_SQR);
 
 	// He's been ordered to get up
-	if (NPC_LocalState<mark2LocalState_t>( *NPCS.NPCInfo ) == LSTATE_RISINGUP)
+	if (NPC_LocalState<mark2LocalState_t>( *NPCS.NPCInfo ) == mark2LocalState_t::LSTATE_RISINGUP)
 	{
-		NPCS.NPC->flags &= ~FL_SHIELDED;
-		NPC_SetAnim( NPCS.NPC, SETANIM_BOTH, BOTH_RUN1START, SETANIM_FLAG_HOLD|SETANIM_FLAG_OVERRIDE );
+		NPCS.NPC->flags &= ~gentityFlags_t::FL_SHIELDED;
+		NPC_SetAnim( NPCS.NPC, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_RUN1START, setAnimFlags_t::SETANIM_FLAG_HOLD|setAnimFlags_t::SETANIM_FLAG_OVERRIDE );
 		if ((NPCS.NPC->client->ps.legsTimer<=0) &&
-			NPCS.NPC->client->ps.torsoAnim == BOTH_RUN1START )
+			NPCS.NPC->client->ps.torsoAnim == animNumber_t::BOTH_RUN1START )
 		{
-			NPC_SetLocalState( *NPCS.NPCInfo, LSTATE_NONE );	// He's up again.
+			NPC_SetLocalState( *NPCS.NPCInfo, mark2LocalState_t::LSTATE_NONE );	// He's up again.
 		}
 		return;
 	}
@@ -255,12 +254,12 @@ void Mark2_AttackDecision( void )
 	if ((!visible) || (!NPC_FaceEnemy(true)))
 	{
 		// If he's going down or is down, make him get up
-		if ((NPC_LocalState<mark2LocalState_t>( *NPCS.NPCInfo ) == LSTATE_DOWN) || (NPC_LocalState<mark2LocalState_t>( *NPCS.NPCInfo ) == LSTATE_DROPPINGDOWN))
+		if ((NPC_LocalState<mark2LocalState_t>( *NPCS.NPCInfo ) == mark2LocalState_t::LSTATE_DOWN) || (NPC_LocalState<mark2LocalState_t>( *NPCS.NPCInfo ) == mark2LocalState_t::LSTATE_DROPPINGDOWN))
 		{
 			if ( TIMER_Done( NPCS.NPC, "downTime" ) )	// Down being down?? (The delay is so he doesn't pop up and down when the player goes in and out of range)
 			{
-				NPC_SetLocalState( *NPCS.NPCInfo, LSTATE_RISINGUP );
-				NPC_SetAnim( NPCS.NPC, SETANIM_BOTH, BOTH_RUN1STOP, SETANIM_FLAG_HOLD|SETANIM_FLAG_OVERRIDE );
+				NPC_SetLocalState( *NPCS.NPCInfo, mark2LocalState_t::LSTATE_RISINGUP );
+				NPC_SetAnim( NPCS.NPC, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_RUN1STOP, setAnimFlags_t::SETANIM_FLAG_HOLD|setAnimFlags_t::SETANIM_FLAG_OVERRIDE );
 				TIMER_Set( NPCS.NPC, "runTime", Q_irand( 3000, 8000) );	// So he runs for a while before testing to see if he should drop down.
 			}
 		}
@@ -272,37 +271,37 @@ void Mark2_AttackDecision( void )
 	}
 
 	// He's down but he could advance if he wants to.
-	if ((advance) && (TIMER_Done( NPCS.NPC, "downTime" )) && (NPC_LocalState<mark2LocalState_t>( *NPCS.NPCInfo ) == LSTATE_DOWN))
+	if ((advance) && (TIMER_Done( NPCS.NPC, "downTime" )) && (NPC_LocalState<mark2LocalState_t>( *NPCS.NPCInfo ) == mark2LocalState_t::LSTATE_DOWN))
 	{
-		NPC_SetLocalState( *NPCS.NPCInfo, LSTATE_RISINGUP );
-		NPC_SetAnim( NPCS.NPC, SETANIM_BOTH, BOTH_RUN1STOP, SETANIM_FLAG_HOLD|SETANIM_FLAG_OVERRIDE );
+		NPC_SetLocalState( *NPCS.NPCInfo, mark2LocalState_t::LSTATE_RISINGUP );
+		NPC_SetAnim( NPCS.NPC, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_RUN1STOP, setAnimFlags_t::SETANIM_FLAG_HOLD|setAnimFlags_t::SETANIM_FLAG_OVERRIDE );
 		TIMER_Set( NPCS.NPC, "runTime", Q_irand( 3000, 8000) );	// So he runs for a while before testing to see if he should drop down.
 	}
 
 	NPC_FaceEnemy( true );
 
 	// Dropping down to shoot
-	if (NPC_LocalState<mark2LocalState_t>( *NPCS.NPCInfo ) == LSTATE_DROPPINGDOWN)
+	if (NPC_LocalState<mark2LocalState_t>( *NPCS.NPCInfo ) == mark2LocalState_t::LSTATE_DROPPINGDOWN)
 	{
-		NPC_SetAnim( NPCS.NPC, SETANIM_BOTH, BOTH_RUN1STOP, SETANIM_FLAG_HOLD|SETANIM_FLAG_OVERRIDE );
+		NPC_SetAnim( NPCS.NPC, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_RUN1STOP, setAnimFlags_t::SETANIM_FLAG_HOLD|setAnimFlags_t::SETANIM_FLAG_OVERRIDE );
 		TIMER_Set( NPCS.NPC, "downTime", Q_irand( 3000, 9000) );
 
-		if ((NPCS.NPC->client->ps.legsTimer<=0) && NPCS.NPC->client->ps.torsoAnim == BOTH_RUN1STOP )
+		if ((NPCS.NPC->client->ps.legsTimer<=0) && NPCS.NPC->client->ps.torsoAnim == animNumber_t::BOTH_RUN1STOP )
 		{
-			NPCS.NPC->flags |= FL_SHIELDED;
-			NPC_SetLocalState( *NPCS.NPCInfo, LSTATE_DOWN );
+			NPCS.NPC->flags |= gentityFlags_t::FL_SHIELDED;
+			NPC_SetLocalState( *NPCS.NPCInfo, mark2LocalState_t::LSTATE_DOWN );
 		}
 	}
 	// He's down and shooting
-	else if (NPC_LocalState<mark2LocalState_t>( *NPCS.NPCInfo ) == LSTATE_DOWN)
+	else if (NPC_LocalState<mark2LocalState_t>( *NPCS.NPCInfo ) == mark2LocalState_t::LSTATE_DOWN)
 	{
-		NPCS.NPC->flags |= FL_SHIELDED;//only damagable by lightsabers and missiles
+		NPCS.NPC->flags |= gentityFlags_t::FL_SHIELDED;//only damagable by lightsabers and missiles
 
 		Mark2_BlasterAttack(false);
 	}
 	else if (TIMER_Done( NPCS.NPC, "runTime" ))	// Lowering down to attack. But only if he's done running at you.
 	{
-		NPC_SetLocalState( *NPCS.NPCInfo, LSTATE_DROPPINGDOWN );
+		NPC_SetLocalState( *NPCS.NPCInfo, mark2LocalState_t::LSTATE_DROPPINGDOWN );
 	}
 	else if (advance)
 	{
@@ -331,7 +330,7 @@ void Mark2_Patrol( void )
 	{
 		if ( UpdateGoal() )
 		{
-			NPCS.ucmd.buttons |= BUTTON_WALKING;
+			NPCS.ucmd.buttons |= buttonFlags_t::BUTTON_WALKING;
 			NPC_MoveToGoal( true );
 			NPC_UpdateAngles( true, true );
 		}
@@ -368,7 +367,7 @@ void NPC_BSMark2_Default( void )
 		NPCS.NPCInfo->goalEntity = NPCS.NPC->enemy;
 		Mark2_AttackDecision();
 	}
-	else if ( Any( NPCS.NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES ) )
+	else if ( Any( NPCS.NPCInfo->scriptFlags & scriptFlags_t::SCF_LOOK_FOR_ENEMIES ) )
 	{
 		Mark2_Patrol();
 	}

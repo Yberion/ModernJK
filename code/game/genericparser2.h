@@ -38,7 +38,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 namespace GP2
 {
 	template< typename T >
-	using Vector = std::vector< T, Zone::Allocator< T, TAG_GP2 > >;
+	using Vector = std::vector< T, Zone::Allocator< T, memtag::TAG_GP2 > >;
 }
 
 class CGPProperty

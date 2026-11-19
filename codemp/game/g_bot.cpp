@@ -110,7 +110,7 @@ void G_LoadArenasFromFile( char *filename ) {
 	fileHandle_t	f;
 	char			buf[MAX_ARENAS_TEXT];
 
-	len = trap->FS_Open( filename, &f, FS_READ );
+	len = trap->FS_Open( filename, &f, fsMode_t::FS_READ );
 	if ( !f ) {
 		trap->Print( S_COLOR_RED "file not found: %s\n", filename );
 		return;
@@ -134,40 +134,40 @@ int G_GetMapTypeBits(const char *type)
 
 	if( *type ) {
 		if( strstr( type, "ffa" ) ) {
-			typeBits |= Bit( GT_FFA );
-			typeBits |= Bit( GT_TEAM );
-			typeBits |= Bit( GT_JEDIMASTER );
+			typeBits |= Bit( gametype_t::GT_FFA );
+			typeBits |= Bit( gametype_t::GT_TEAM );
+			typeBits |= Bit( gametype_t::GT_JEDIMASTER );
 		}
 		if( strstr( type, "team" ) ) {
-			typeBits |= Bit( GT_TEAM );
+			typeBits |= Bit( gametype_t::GT_TEAM );
 		}
 		if( strstr( type, "holocron" ) ) {
-			typeBits |= Bit( GT_HOLOCRON );
+			typeBits |= Bit( gametype_t::GT_HOLOCRON );
 		}
 		if( strstr( type, "jedimaster" ) ) {
-			typeBits |= Bit( GT_JEDIMASTER );
+			typeBits |= Bit( gametype_t::GT_JEDIMASTER );
 		}
 		if( strstr( type, "duel" ) ) {
-			typeBits |= Bit( GT_DUEL );
-			typeBits |= Bit( GT_POWERDUEL );
+			typeBits |= Bit( gametype_t::GT_DUEL );
+			typeBits |= Bit( gametype_t::GT_POWERDUEL );
 		}
 		if( strstr( type, "powerduel" ) ) {
-			typeBits |= Bit( GT_DUEL );
-			typeBits |= Bit( GT_POWERDUEL );
+			typeBits |= Bit( gametype_t::GT_DUEL );
+			typeBits |= Bit( gametype_t::GT_POWERDUEL );
 		}
 		if( strstr( type, "siege" ) ) {
-			typeBits |= Bit( GT_SIEGE );
+			typeBits |= Bit( gametype_t::GT_SIEGE );
 		}
 		if( strstr( type, "ctf" ) ) {
-			typeBits |= Bit( GT_CTF );
-			typeBits |= Bit( GT_CTY );
+			typeBits |= Bit( gametype_t::GT_CTF );
+			typeBits |= Bit( gametype_t::GT_CTY );
 		}
 		if( strstr( type, "cty" ) ) {
-			typeBits |= Bit( GT_CTY );
+			typeBits |= Bit( gametype_t::GT_CTY );
 		}
 	} else {
-		typeBits |= Bit( GT_FFA );
-		typeBits |= Bit( GT_JEDIMASTER );
+		typeBits |= Bit( gametype_t::GT_FFA );
+		typeBits |= Bit( gametype_t::GT_JEDIMASTER );
 	}
 
 	return typeBits;
@@ -238,7 +238,7 @@ const char *G_RefreshNextMap(gametype_t gametype, bool forced)
 		return nullptr;
 	}
 
-	trap->Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
+	trap->Cvar_Register( &mapname, "mapname", "", cvarFlags_t::CVAR_SERVERINFO | cvarFlags_t::CVAR_ROM );
 	for( n = 0; n < level.arenas.num; n++ )
 	{
 		type = Info_ValueForKey( level.arenas.infos[n], "map" );
@@ -406,7 +406,7 @@ static void PlayerIntroSound( const char *modelAndSkin ) {
 		skin = model;
 	}
 
-	trap->SendConsoleCommand( EXEC_APPEND, va( "play sound/player/announce/%s.wav\n", skin ) );
+	trap->SendConsoleCommand( cbufExec_t::EXEC_APPEND, va( "play sound/player/announce/%s.wav\n", skin ) );
 }
 #endif
 
@@ -428,13 +428,13 @@ void G_AddRandomBot( std::optional<team_t> team ) {
 		//
 		for ( i=0 ; i< sv_maxclients.integer ; i++ ) {
 			cl = level.clients + i;
-			if ( cl->pers.connected != CON_CONNECTED ) {
+			if ( cl->pers.connected != clientConnected_t::CON_CONNECTED ) {
 				continue;
 			}
-			if ( !Any( g_entities[i].r.svFlags & SVF_BOT ) ) {
+			if ( !Any( g_entities[i].r.svFlags & svFlags_t::SVF_BOT ) ) {
 				continue;
 			}
-			if (level.gametype == GT_SIEGE)
+			if (level.gametype == gametype_t::GT_SIEGE)
 			{
 				if ( team && cl->sess.siegeDesiredTeam != *team ) {
 					continue;
@@ -460,13 +460,13 @@ void G_AddRandomBot( std::optional<team_t> team ) {
 		//
 		for ( i=0 ; i< sv_maxclients.integer ; i++ ) {
 			cl = level.clients + i;
-			if ( cl->pers.connected != CON_CONNECTED ) {
+			if ( cl->pers.connected != clientConnected_t::CON_CONNECTED ) {
 				continue;
 			}
-			if ( !Any( g_entities[i].r.svFlags & SVF_BOT ) ) {
+			if ( !Any( g_entities[i].r.svFlags & svFlags_t::SVF_BOT ) ) {
 				continue;
 			}
-			if (level.gametype == GT_SIEGE)
+			if (level.gametype == gametype_t::GT_SIEGE)
 			{
 				if ( team && cl->sess.siegeDesiredTeam != *team ) {
 					continue;
@@ -486,12 +486,12 @@ void G_AddRandomBot( std::optional<team_t> team ) {
 			num--;
 			if (num <= 0) {
 				skill = trap->Cvar_VariableIntegerValue( "g_npcspskill" );
-				if (team == TEAM_RED) teamstr = "red";
-				else if (team == TEAM_BLUE) teamstr = "blue";
+				if (team == team_t::TEAM_RED) teamstr = "red";
+				else if (team == team_t::TEAM_BLUE) teamstr = "blue";
 				else teamstr = "";
 				Q_strncpyz(netname, value, sizeof(netname));
 				Q_CleanStr(netname);
-				trap->SendConsoleCommand( EXEC_INSERT, va("addbot \"%s\" %.2f %s %i\n", netname, skill, teamstr, 0) );
+				trap->SendConsoleCommand( cbufExec_t::EXEC_INSERT, va("addbot \"%s\" %.2f %s %i\n", netname, skill, teamstr, 0) );
 				return;
 			}
 		}
@@ -509,21 +509,21 @@ int G_RemoveRandomBot( std::optional<team_t> team ) {
 
 	for ( i=0 ; i< sv_maxclients.integer ; i++ ) {
 		cl = level.clients + i;
-		if ( cl->pers.connected != CON_CONNECTED ) {
+		if ( cl->pers.connected != clientConnected_t::CON_CONNECTED ) {
 			continue;
 		}
-		if ( !Any( g_entities[i].r.svFlags & SVF_BOT ) )
+		if ( !Any( g_entities[i].r.svFlags & svFlags_t::SVF_BOT ) )
 			continue;
 
-		if ( cl->sess.sessionTeam == TEAM_SPECTATOR && cl->sess.spectatorState == SPECTATOR_FOLLOW )
+		if ( cl->sess.sessionTeam == team_t::TEAM_SPECTATOR && cl->sess.spectatorState == spectatorState_t::SPECTATOR_FOLLOW )
 			continue;
 
-		if ( level.gametype == GT_SIEGE && team && cl->sess.siegeDesiredTeam != *team )
+		if ( level.gametype == gametype_t::GT_SIEGE && team && cl->sess.siegeDesiredTeam != *team )
 			continue;
 		else if ( team && cl->sess.sessionTeam != *team )
 			continue;
 
-		trap->SendConsoleCommand( EXEC_INSERT, va("clientkick %d\n", i) );
+		trap->SendConsoleCommand( cbufExec_t::EXEC_INSERT, va("clientkick %d\n", i) );
 		return true;
 	}
 	return false;
@@ -541,10 +541,10 @@ int G_CountHumanPlayers( std::optional<team_t> team ) {
 	num = 0;
 	for ( i=0 ; i< sv_maxclients.integer ; i++ ) {
 		cl = level.clients + i;
-		if ( cl->pers.connected != CON_CONNECTED ) {
+		if ( cl->pers.connected != clientConnected_t::CON_CONNECTED ) {
 			continue;
 		}
-		if ( Any( g_entities[i].r.svFlags & SVF_BOT ) ) {
+		if ( Any( g_entities[i].r.svFlags & svFlags_t::SVF_BOT ) ) {
 			continue;
 		}
 		if ( team && cl->sess.sessionTeam != *team ) {
@@ -567,13 +567,13 @@ int G_CountBotPlayers( std::optional<team_t> team ) {
 	num = 0;
 	for ( i=0 ; i< sv_maxclients.integer ; i++ ) {
 		cl = level.clients + i;
-		if ( cl->pers.connected != CON_CONNECTED ) {
+		if ( cl->pers.connected != clientConnected_t::CON_CONNECTED ) {
 			continue;
 		}
-		if ( !Any( g_entities[i].r.svFlags & SVF_BOT ) ) {
+		if ( !Any( g_entities[i].r.svFlags & svFlags_t::SVF_BOT ) ) {
 			continue;
 		}
-		if (level.gametype == GT_SIEGE)
+		if (level.gametype == gametype_t::GT_SIEGE)
 		{
 			if ( team && cl->sess.siegeDesiredTeam != *team ) {
 				continue;
@@ -609,7 +609,7 @@ void G_CheckMinimumPlayers( void ) {
 	int humanplayers, botplayers;
 	static int checkminimumplayers_time;
 
-	if (level.gametype == GT_SIEGE)
+	if (level.gametype == gametype_t::GT_SIEGE)
 	{
 		return;
 	}
@@ -639,7 +639,7 @@ void G_CheckMinimumPlayers( void ) {
 	else if ((humanplayers+botplayers) > minplayers && botplayers)
 	{
 		// try to remove spectators first
-		if (!G_RemoveRandomBot(TEAM_SPECTATOR))
+		if (!G_RemoveRandomBot(team_t::TEAM_SPECTATOR))
 		{
 			// just remove the bot that is playing
 			G_RemoveRandomBot( std::nullopt );
@@ -647,41 +647,41 @@ void G_CheckMinimumPlayers( void ) {
 	}
 
 	/*
-	if (level.gametype >= GT_TEAM) {
+	if (level.gametype >= gametype_t::GT_TEAM) {
 		int humanplayers2, botplayers2;
 		if (minplayers >= sv_maxclients.integer / 2) {
 			minplayers = (sv_maxclients.integer / 2) -1;
 		}
 
-		humanplayers = G_CountHumanPlayers( TEAM_RED );
-		botplayers = G_CountBotPlayers(	TEAM_RED );
-		humanplayers2 = G_CountHumanPlayers( TEAM_BLUE );
-		botplayers2 = G_CountBotPlayers( TEAM_BLUE );
+		humanplayers = G_CountHumanPlayers( team_t::TEAM_RED );
+		botplayers = G_CountBotPlayers(	team_t::TEAM_RED );
+		humanplayers2 = G_CountHumanPlayers( team_t::TEAM_BLUE );
+		botplayers2 = G_CountBotPlayers( team_t::TEAM_BLUE );
 		//
 		if ((humanplayers+botplayers+humanplayers2+botplayers) < minplayers)
 		{
 			if ((humanplayers+botplayers) < (humanplayers2+botplayers2))
 			{
-				G_AddRandomBot( TEAM_RED );
+				G_AddRandomBot( team_t::TEAM_RED );
 			}
 			else
 			{
-				G_AddRandomBot( TEAM_BLUE );
+				G_AddRandomBot( team_t::TEAM_BLUE );
 			}
 		}
 		else if ((humanplayers+botplayers+humanplayers2+botplayers) > minplayers && botplayers)
 		{
 			if ((humanplayers+botplayers) < (humanplayers2+botplayers2))
 			{
-				G_RemoveRandomBot( TEAM_BLUE );
+				G_RemoveRandomBot( team_t::TEAM_BLUE );
 			}
 			else
 			{
-				G_RemoveRandomBot( TEAM_RED );
+				G_RemoveRandomBot( team_t::TEAM_RED );
 			}
 		}
 	}
-	else if (level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL) {
+	else if (level.gametype == gametype_t::GT_DUEL || level.gametype == gametype_t::GT_POWERDUEL) {
 		if (minplayers >= sv_maxclients.integer) {
 			minplayers = sv_maxclients.integer-1;
 		}
@@ -689,39 +689,39 @@ void G_CheckMinimumPlayers( void ) {
 		botplayers = G_CountBotPlayers( -1 );
 		//
 		if (humanplayers + botplayers < minplayers) {
-			G_AddRandomBot( TEAM_FREE );
+			G_AddRandomBot( team_t::TEAM_FREE );
 		} else if (humanplayers + botplayers > minplayers && botplayers) {
 			// try to remove spectators first
-			if (!G_RemoveRandomBot( TEAM_SPECTATOR )) {
+			if (!G_RemoveRandomBot( team_t::TEAM_SPECTATOR )) {
 				// just remove the bot that is playing
 				G_RemoveRandomBot( -1 );
 			}
 		}
 	}
-	else if (level.gametype == GT_FFA) {
+	else if (level.gametype == gametype_t::GT_FFA) {
 		if (minplayers >= sv_maxclients.integer) {
 			minplayers = sv_maxclients.integer-1;
 		}
-		humanplayers = G_CountHumanPlayers( TEAM_FREE );
-		botplayers = G_CountBotPlayers( TEAM_FREE );
+		humanplayers = G_CountHumanPlayers( team_t::TEAM_FREE );
+		botplayers = G_CountBotPlayers( team_t::TEAM_FREE );
 		//
 		if (humanplayers + botplayers < minplayers) {
-			G_AddRandomBot( TEAM_FREE );
+			G_AddRandomBot( team_t::TEAM_FREE );
 		} else if (humanplayers + botplayers > minplayers && botplayers) {
-			G_RemoveRandomBot( TEAM_FREE );
+			G_RemoveRandomBot( team_t::TEAM_FREE );
 		}
 	}
-	else if (level.gametype == GT_HOLOCRON || level.gametype == GT_JEDIMASTER) {
+	else if (level.gametype == gametype_t::GT_HOLOCRON || level.gametype == gametype_t::GT_JEDIMASTER) {
 		if (minplayers >= sv_maxclients.integer) {
 			minplayers = sv_maxclients.integer-1;
 		}
-		humanplayers = G_CountHumanPlayers( TEAM_FREE );
-		botplayers = G_CountBotPlayers( TEAM_FREE );
+		humanplayers = G_CountHumanPlayers( team_t::TEAM_FREE );
+		botplayers = G_CountBotPlayers( team_t::TEAM_FREE );
 		//
 		if (humanplayers + botplayers < minplayers) {
-			G_AddRandomBot( TEAM_FREE );
+			G_AddRandomBot( team_t::TEAM_FREE );
 		} else if (humanplayers + botplayers > minplayers && botplayers) {
-			G_RemoveRandomBot( TEAM_FREE );
+			G_RemoveRandomBot( team_t::TEAM_FREE );
 		}
 	}
 	*/
@@ -748,7 +748,7 @@ void G_CheckBotSpawn( void ) {
 		botSpawnQueue[n].spawnTime = 0;
 
 		/*
-		if( level.gametype == GT_SINGLE_PLAYER ) {
+		if( level.gametype == gametype_t::GT_SINGLE_PLAYER ) {
 			trap->GetUserinfo( botSpawnQueue[n].clientNum, userinfo, sizeof(userinfo) );
 			PlayerIntroSound( Info_ValueForKey (userinfo, "model") );
 		}
@@ -826,7 +826,7 @@ G_AddBot
 static void G_AddBot( const char *name, float skill, const char *team, int delay, char *altname) {
 	gentity_t		*bot = nullptr;
 	int				clientNum;
-	team_t			preTeam = TEAM_FREE;
+	team_t			preTeam = team_t::TEAM_FREE;
 	char			userinfo[MAX_INFO_STRING] = {0}, *botinfo = nullptr;
 	const char	*key = nullptr;
 	const char		*s = nullptr, *botname = nullptr, *model = nullptr;
@@ -935,8 +935,8 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 
 	// initialize the bot settings
 	if ( !team || !*team ) {
-		if ( level.gametype >= GT_TEAM ) {
-			if ( PickTeam( clientNum ) == TEAM_RED )
+		if ( level.gametype >= gametype_t::GT_TEAM ) {
+			if ( PickTeam( clientNum ) == team_t::TEAM_RED )
 				team = "red";
 			else
 				team = "blue";
@@ -947,26 +947,26 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 	Info_SetValueForKey( userinfo, "team", team );
 
 	bot = &g_entities[ clientNum ];
-//	bot->r.svFlags |= SVF_BOT;
+//	bot->r.svFlags |= svFlags_t::SVF_BOT;
 //	bot->inuse = true;
 
 	// register the userinfo
 	trap->SetUserinfo( clientNum, userinfo );
 
-	if ( level.gametype >= GT_TEAM )
+	if ( level.gametype >= gametype_t::GT_TEAM )
 	{
 		if ( team && !Q_stricmp( team, "red" ) )
-			bot->client->sess.sessionTeam = TEAM_RED;
+			bot->client->sess.sessionTeam = team_t::TEAM_RED;
 		else if ( team && !Q_stricmp( team, "blue" ) )
-			bot->client->sess.sessionTeam = TEAM_BLUE;
+			bot->client->sess.sessionTeam = team_t::TEAM_BLUE;
 		else
 			bot->client->sess.sessionTeam = PickTeam( -1 );
 	}
 
-	if ( level.gametype == GT_SIEGE )
+	if ( level.gametype == gametype_t::GT_SIEGE )
 	{
 		bot->client->sess.siegeDesiredTeam = bot->client->sess.sessionTeam;
-		bot->client->sess.sessionTeam = TEAM_SPECTATOR;
+		bot->client->sess.sessionTeam = team_t::TEAM_SPECTATOR;
 	}
 
 	preTeam = bot->client->sess.sessionTeam;
@@ -979,15 +979,15 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 	{
 		trap->GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
 
-		if ( bot->client->sess.sessionTeam == TEAM_SPECTATOR )
+		if ( bot->client->sess.sessionTeam == team_t::TEAM_SPECTATOR )
 			bot->client->sess.sessionTeam = preTeam;
 
-		if ( bot->client->sess.sessionTeam == TEAM_RED )
+		if ( bot->client->sess.sessionTeam == team_t::TEAM_RED )
 			team = "Red";
 		else
 		{
-			if ( level.gametype == GT_SIEGE )
-				team = (bot->client->sess.sessionTeam == TEAM_BLUE) ? "Blue" : "s";
+			if ( level.gametype == gametype_t::GT_SIEGE )
+				team = (bot->client->sess.sessionTeam == team_t::TEAM_BLUE) ? "Blue" : "s";
 			else
 				team = "Blue";
 		}
@@ -1003,25 +1003,25 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 			return;
 	}
 
-	if (level.gametype == GT_DUEL ||
-		level.gametype == GT_POWERDUEL)
+	if (level.gametype == gametype_t::GT_DUEL ||
+		level.gametype == gametype_t::GT_POWERDUEL)
 	{
 		int loners = 0;
 		int doubles = 0;
 
-		bot->client->sess.duelTeam = DUELTEAM_FREE;
+		bot->client->sess.duelTeam = duelTeam_t::DUELTEAM_FREE;
 		G_PowerDuelCount(&loners, &doubles, true);
 
 		if (!doubles || loners > (doubles/2))
 		{
-            bot->client->sess.duelTeam = DUELTEAM_DOUBLE;
+            bot->client->sess.duelTeam = duelTeam_t::DUELTEAM_DOUBLE;
 		}
 		else
 		{
-            bot->client->sess.duelTeam = DUELTEAM_LONE;
+            bot->client->sess.duelTeam = duelTeam_t::DUELTEAM_LONE;
 		}
 
-		bot->client->sess.sessionTeam = TEAM_SPECTATOR;
+		bot->client->sess.sessionTeam = team_t::TEAM_SPECTATOR;
 		SetTeam(bot, "s");
 	}
 	else
@@ -1176,7 +1176,7 @@ static void G_SpawnBots( char *botList, int baseDelay ) {
 
 		// we must add the bot this way, calling G_AddBot directly at this stage
 		// does "Bad Things"
-		trap->SendConsoleCommand( EXEC_INSERT, va("addbot \"%s\" %f free %i\n", bot, skill, delay) );
+		trap->SendConsoleCommand( cbufExec_t::EXEC_INSERT, va("addbot \"%s\" %f free %i\n", bot, skill, delay) );
 
 		delay += BOT_BEGIN_DELAY_INCREMENT;
 	}
@@ -1193,7 +1193,7 @@ static void G_LoadBotsFromFile( const char *filename ) {
 	fileHandle_t	f;
 	char			buf[MAX_BOTS_TEXT];
 
-	len = trap->FS_Open( filename, &f, FS_READ );
+	len = trap->FS_Open( filename, &f, fsMode_t::FS_READ );
 	if ( !f ) {
 		trap->Print( S_COLOR_RED "file not found: %s\n", filename );
 		return;
@@ -1231,7 +1231,7 @@ static void G_LoadBots( void ) {
 
 	level.bots.num = 0;
 
-	trap->Cvar_Register( &botsFile, "g_botsFile", "", CVAR_INIT|CVAR_ROM );
+	trap->Cvar_Register( &botsFile, "g_botsFile", "", cvarFlags_t::CVAR_INIT|cvarFlags_t::CVAR_ROM );
 	if( *botsFile.string ) {
 		G_LoadBotsFromFile(botsFile.string);
 	}
@@ -1297,7 +1297,7 @@ void G_InitBots( void ) {
 	G_LoadBots();
 	G_LoadArenas();
 
-	trap->Cvar_Register( &bot_minplayers, "bot_minplayers", "0", CVAR_SERVERINFO );
+	trap->Cvar_Register( &bot_minplayers, "bot_minplayers", "0", cvarFlags_t::CVAR_SERVERINFO );
 
 	//rww - new bot route stuff
 	LoadPath_ThisLevel();

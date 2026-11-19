@@ -52,19 +52,17 @@ constexpr std::array<const char *, detail::fctx::kCount> kKindName{ "integer abs
 
 Family FamilyOf(uint32_t c) noexcept {
 	namespace ctx = detail::ctx;
-	using enum ctx::Scalar;
-	using enum Family;
-	if (c < ctx::kPlayerField) return kEntityValue;
-	if (c < ctx::kPlayerGap) return kPlayerValue;
-	if (c < ctx::kEntityGap) return kPlayerIndex;
-	if (c < ctx::kEntityOp) return kEntityIndex;
-	if (c < ctx::kTypeChanged) return kEntityList;
-	if (c < ctx::kOp) return kEntityType;
-	if (c < ctx::kScalar) return kOperation;
-	if (c >= ctx::Of(kCmdRef)) return kCommand;
-	if (c == ctx::Of(kStrSetgame) || c == ctx::Of(kStrCs)) return kConfigString;
-	if (c == ctx::Of(kEntGap)) return kEntityList;
-	return kHeader;
+	if (c < ctx::kPlayerField) return Family::kEntityValue;
+	if (c < ctx::kPlayerGap) return Family::kPlayerValue;
+	if (c < ctx::kEntityGap) return Family::kPlayerIndex;
+	if (c < ctx::kEntityOp) return Family::kEntityIndex;
+	if (c < ctx::kTypeChanged) return Family::kEntityList;
+	if (c < ctx::kOp) return Family::kEntityType;
+	if (c < ctx::kScalar) return Family::kOperation;
+	if (c >= ctx::Of(ctx::Scalar::kCmdRef)) return Family::kCommand;
+	if (c == ctx::Of(ctx::Scalar::kStrSetgame) || c == ctx::Of(ctx::Scalar::kStrCs)) return Family::kConfigString;
+	if (c == ctx::Of(ctx::Scalar::kEntGap)) return Family::kEntityList;
+	return Family::kHeader;
 }
 
 // cost of the report trace with the tables trained on train: symbols (entropy with the quantised tables) and raw bits,

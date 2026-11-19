@@ -767,13 +767,13 @@ void SetPlaneSignbits( cplane_t *out )
 planeType_t	PlaneTypeForNormal( const vec3_t normal )
 {
 	if ( normal[0] == 1.0 )
-		return PLANE_X;
+		return planeType_t::PLANE_X;
 	if ( normal[1] == 1.0 )
-		return PLANE_Y;
+		return planeType_t::PLANE_Y;
 	if ( normal[2] == 1.0 )
-		return PLANE_Z;
+		return planeType_t::PLANE_Z;
 
-	return PLANE_NON_AXIAL;
+	return planeType_t::PLANE_NON_AXIAL;
 }
 
 /*
@@ -789,7 +789,7 @@ int BoxOnPlaneSide(vec3_t emins, vec3_t emaxs, cplane_t *p)
 	int		sides, b, i;
 
 	// fast axial cases
-	if (p->type < PLANE_NON_AXIAL)
+	if (p->type < planeType_t::PLANE_NON_AXIAL)
 	{
 		if (p->dist <= emins[PlaneAxis( p->type )])
 			return 1;

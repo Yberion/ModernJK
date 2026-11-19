@@ -295,14 +295,14 @@ defaultoffsetposition:
 		}
 
 		//check for eType and play the sound
-		if (ent->s.eType == ET_MOVER)
+		if (ent->s.eType == entityType_t::ET_MOVER)
 		{
 			objectID = cgi_S_RegisterSound(argument);
-			cgi_S_StartSound(ent->s.pos.trBase, ent->s.number, CHAN_BODY, objectID);
+			cgi_S_StartSound(ent->s.pos.trBase, ent->s.number, soundChannel_t::CHAN_BODY, objectID);
 		}
 		else
 		{
-			G_SoundOnEnt(ent, CHAN_BODY, argument);
+			G_SoundOnEnt(ent, soundChannel_t::CHAN_BODY, argument);
 		}
 	}
 	else if (strcmp(type, "USE") == 0)
@@ -395,7 +395,7 @@ defaultoffsetposition:
 			else if (r2 && strstr(teststr, "sound"))
 			{ // OK... we should have a relative sound path
 				//try to register the sound and add it to the entitystate loopSound parameter
-				if (ent->s.eType == ET_MOVER)
+				if (ent->s.eType == entityType_t::ET_MOVER)
 				{
 					objectID = cgi_S_RegisterSound(addlArg);
 					if (objectID)
@@ -774,7 +774,7 @@ void G_Roff( gentity_t *ent )
 		//-------------------------------------
 		VectorAdd( ent->s.apos.trBase, ang, ent->s.apos.trBase );
 		ent->s.apos.trTime = level.time;
-		ent->s.apos.trType = TR_INTERPOLATE;
+		ent->s.apos.trType = trType_t::TR_INTERPOLATE;
 
 		// Store what the next apos->trBase should be
 		VectorCopy( ent->s.apos.trBase, ent->client->ps.viewangles );
@@ -790,7 +790,7 @@ void G_Roff( gentity_t *ent )
 		//-------------------------------------
 		VectorAdd( ent->s.pos.trBase, org, ent->s.pos.trBase );
 		ent->s.pos.trTime = level.time;
-		ent->s.pos.trType = TR_INTERPOLATE;
+		ent->s.pos.trType = trType_t::TR_INTERPOLATE;
 
 		// Store what the next pos->trBase should be
 		VectorCopy( ent->s.pos.trBase, ent->client->ps.origin );
@@ -804,7 +804,7 @@ void G_Roff( gentity_t *ent )
 		VectorScale( ang, roff->mLerp, ent->s.apos.trDelta );
 		VectorCopy( ent->pos2, ent->s.apos.trBase );
 		ent->s.apos.trTime = level.time;
-		ent->s.apos.trType = TR_LINEAR;
+		ent->s.apos.trType = trType_t::TR_LINEAR;
 
 		// Store what the next apos->trBase should be
 		VectorAdd( ent->pos2, ang, ent->pos2 );
@@ -814,7 +814,7 @@ void G_Roff( gentity_t *ent )
 		VectorScale( org, roff->mLerp, ent->s.pos.trDelta );
 		VectorCopy( ent->pos1, ent->s.pos.trBase );
 		ent->s.pos.trTime = level.time;
-		ent->s.pos.trType = TR_LINEAR;
+		ent->s.pos.trType = trType_t::TR_LINEAR;
 
 		// Store what the next apos->trBase should be
 		VectorAdd( ent->pos1, org, ent->pos1 );
@@ -822,11 +822,11 @@ void G_Roff( gentity_t *ent )
 		//make it true linear... FIXME: sticks around after ROFF is done, but do we really care?
 		ent->alt_fire = true;
 
-		if ( ent->e_ThinkFunc == thinkF_TieFighterThink || ent->e_ThinkFunc == thinkF_TieBomberThink ||
-			( ent->e_ThinkFunc == thinkF_NULL
-			&& ent->s.eType != ET_MISSILE
-			&& ent->s.eType != ET_ITEM
-			&& ent->s.eType != ET_MOVER ) )
+		if ( ent->e_ThinkFunc == thinkFunc_t::thinkF_TieFighterThink || ent->e_ThinkFunc == thinkFunc_t::thinkF_TieBomberThink ||
+			( ent->e_ThinkFunc == thinkFunc_t::thinkF_NULL
+			&& ent->s.eType != entityType_t::ET_MISSILE
+			&& ent->s.eType != entityType_t::ET_ITEM
+			&& ent->s.eType != entityType_t::ET_MOVER ) )
 		{//will never set currentAngles & currentOrigin itself ( why do we limit which one's get set?, just set all the time? )
 			EvaluateTrajectory( &ent->s.apos, level.time, ent->currentAngles );
 			EvaluateTrajectory( &ent->s.pos, level.time, ent->currentOrigin );
@@ -847,7 +847,7 @@ void G_Roff( gentity_t *ent )
 		VectorClear( ent->s.pos.trDelta );
 		VectorClear( ent->s.apos.trDelta );
 
-		Q3_TaskIDComplete( ent, TID_MOVE_NAV );
+		Q3_TaskIDComplete( ent, taskID_t::TID_MOVE_NAV );
 
 		return;
 	}

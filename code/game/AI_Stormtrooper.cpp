@@ -77,7 +77,7 @@ static bool shoot;
 static float	enemyDist;
 static vec3_t	impactPos;
 
-EnumArray<int, team_t, TEAM_NUM_TEAMS> groupSpeechDebounceTime;//used to stop several group AI from speaking all at once
+EnumArray<int, team_t, team_t::TEAM_NUM_TEAMS> groupSpeechDebounceTime;//used to stop several group AI from speaking all at once
 
 void NPC_Saboteur_Precache( void )
 {
@@ -89,16 +89,16 @@ void Saboteur_Decloak( gentity_t *self, int uncloakTime )
 {
 	if ( self && self->client )
 	{
-		if ( self->client->ps.powerups[PW_CLOAKED] && TIMER_Done(self, "decloakwait"))
+		if ( self->client->ps.powerups[powerup_t::PW_CLOAKED] && TIMER_Done(self, "decloakwait"))
 		{//Uncloak
-			self->client->ps.powerups[PW_CLOAKED] = 0;
-			self->client->ps.powerups[PW_UNCLOAKING] = level.time + 2000;
+			self->client->ps.powerups[powerup_t::PW_CLOAKED] = 0;
+			self->client->ps.powerups[powerup_t::PW_UNCLOAKING] = level.time + 2000;
 			//FIXME: temp sound
-			G_SoundOnEnt( self, CHAN_ITEM, "sound/chars/shadowtrooper/decloak.wav" );
+			G_SoundOnEnt( self, soundChannel_t::CHAN_ITEM, "sound/chars/shadowtrooper/decloak.wav" );
 			TIMER_Set( self, "nocloak", uncloakTime );
 
 			// Can't Recloak
-			//self->NPC->aiFlags	&= ~NPCAI_SHIELDS;
+			//self->NPC->aiFlags	&= ~npcAiFlags_t::NPCAI_SHIELDS;
 		}
 	}
 }
@@ -109,17 +109,17 @@ void Saboteur_Cloak( gentity_t *self )
 	{//FIXME: need to have this timer set once first?
 		if ( TIMER_Done( self, "nocloak" ) )
 		{//not sitting around waiting to cloak again
-			if ( !Any(self->NPC->aiFlags&NPCAI_SHIELDS) )
+			if ( !Any(self->NPC->aiFlags&npcAiFlags_t::NPCAI_SHIELDS) )
 			{//not allowed to cloak, actually
 				Saboteur_Decloak( self );
 			}
-			else if ( !self->client->ps.powerups[PW_CLOAKED] )
+			else if ( !self->client->ps.powerups[powerup_t::PW_CLOAKED] )
 			{//cloak
-				self->client->ps.powerups[PW_CLOAKED] = Q3_INFINITE;
-				self->client->ps.powerups[PW_UNCLOAKING] = level.time + 2000;
+				self->client->ps.powerups[powerup_t::PW_CLOAKED] = Q3_INFINITE;
+				self->client->ps.powerups[powerup_t::PW_UNCLOAKING] = level.time + 2000;
 				//FIXME: debounce attacks?
 				//FIXME: temp sound
-				G_SoundOnEnt( self, CHAN_ITEM, "sound/chars/shadowtrooper/cloak.wav" );
+				G_SoundOnEnt( self, soundChannel_t::CHAN_ITEM, "sound/chars/shadowtrooper/cloak.wav" );
 			}
 		}
 	}
@@ -128,7 +128,6 @@ void Saboteur_Cloak( gentity_t *self )
 
 
 //Local state enums
-using enum soldierLocalState_t;
 
 void ST_AggressionAdjust( gentity_t *self, int change )
 {
@@ -137,7 +136,7 @@ void ST_AggressionAdjust( gentity_t *self, int change )
 	self->NPC->stats.aggression += change;
 
 	//FIXME: base this on initial NPC stats
-	if ( self->client->playerTeam == TEAM_PLAYER )
+	if ( self->client->playerTeam == team_t::TEAM_PLAYER )
 	{//good guys are less aggressive
 		upper_threshold = 7;
 		lower_threshold = 1;
@@ -232,47 +231,47 @@ static void ST_Speech( gentity_t *self, speechType_t speechType, float failChanc
 
 	switch( speechType )
 	{
-	case SPEECH_CHASE:
-		G_AddVoiceEvent( self, Q_irand(EV_CHASE1, EV_CHASE3), 2000 );
+	case speechType_t::SPEECH_CHASE:
+		G_AddVoiceEvent( self, Q_irand(entity_event_t::EV_CHASE1, entity_event_t::EV_CHASE3), 2000 );
 		break;
-	case SPEECH_CONFUSED:
-		G_AddVoiceEvent( self, Q_irand(EV_CONFUSE1, EV_CONFUSE3), 2000 );
+	case speechType_t::SPEECH_CONFUSED:
+		G_AddVoiceEvent( self, Q_irand(entity_event_t::EV_CONFUSE1, entity_event_t::EV_CONFUSE3), 2000 );
 		break;
-	case SPEECH_COVER:
-		G_AddVoiceEvent( self, Q_irand(EV_COVER1, EV_COVER5), 2000 );
+	case speechType_t::SPEECH_COVER:
+		G_AddVoiceEvent( self, Q_irand(entity_event_t::EV_COVER1, entity_event_t::EV_COVER5), 2000 );
 		break;
-	case SPEECH_DETECTED:
-		G_AddVoiceEvent( self, Q_irand(EV_DETECTED1, EV_DETECTED5), 2000 );
+	case speechType_t::SPEECH_DETECTED:
+		G_AddVoiceEvent( self, Q_irand(entity_event_t::EV_DETECTED1, entity_event_t::EV_DETECTED5), 2000 );
 		break;
-	case SPEECH_GIVEUP:
-		G_AddVoiceEvent( self, Q_irand(EV_GIVEUP1, EV_GIVEUP4), 2000 );
+	case speechType_t::SPEECH_GIVEUP:
+		G_AddVoiceEvent( self, Q_irand(entity_event_t::EV_GIVEUP1, entity_event_t::EV_GIVEUP4), 2000 );
 		break;
-	case SPEECH_LOOK:
-		G_AddVoiceEvent( self, Q_irand(EV_LOOK1, EV_LOOK2), 2000 );
+	case speechType_t::SPEECH_LOOK:
+		G_AddVoiceEvent( self, Q_irand(entity_event_t::EV_LOOK1, entity_event_t::EV_LOOK2), 2000 );
 		break;
-	case SPEECH_LOST:
-		G_AddVoiceEvent( self, EV_LOST1, 2000 );
+	case speechType_t::SPEECH_LOST:
+		G_AddVoiceEvent( self, entity_event_t::EV_LOST1, 2000 );
 		break;
-	case SPEECH_OUTFLANK:
-		G_AddVoiceEvent( self, Q_irand(EV_OUTFLANK1, EV_OUTFLANK2), 2000 );
+	case speechType_t::SPEECH_OUTFLANK:
+		G_AddVoiceEvent( self, Q_irand(entity_event_t::EV_OUTFLANK1, entity_event_t::EV_OUTFLANK2), 2000 );
 		break;
-	case SPEECH_ESCAPING:
-		G_AddVoiceEvent( self, Q_irand(EV_ESCAPING1, EV_ESCAPING3), 2000 );
+	case speechType_t::SPEECH_ESCAPING:
+		G_AddVoiceEvent( self, Q_irand(entity_event_t::EV_ESCAPING1, entity_event_t::EV_ESCAPING3), 2000 );
 		break;
-	case SPEECH_SIGHT:
-		G_AddVoiceEvent( self, Q_irand(EV_SIGHT1, EV_SIGHT3), 2000 );
+	case speechType_t::SPEECH_SIGHT:
+		G_AddVoiceEvent( self, Q_irand(entity_event_t::EV_SIGHT1, entity_event_t::EV_SIGHT3), 2000 );
 		break;
-	case SPEECH_SOUND:
-		G_AddVoiceEvent( self, Q_irand(EV_SOUND1, EV_SOUND3), 2000 );
+	case speechType_t::SPEECH_SOUND:
+		G_AddVoiceEvent( self, Q_irand(entity_event_t::EV_SOUND1, entity_event_t::EV_SOUND3), 2000 );
 		break;
-	case SPEECH_SUSPICIOUS:
-		G_AddVoiceEvent( self, Q_irand(EV_SUSPICIOUS1, EV_SUSPICIOUS5), 2000 );
+	case speechType_t::SPEECH_SUSPICIOUS:
+		G_AddVoiceEvent( self, Q_irand(entity_event_t::EV_SUSPICIOUS1, entity_event_t::EV_SUSPICIOUS5), 2000 );
 		break;
-	case SPEECH_YELL:
-		G_AddVoiceEvent( self, Q_irand( EV_ANGER1, EV_ANGER3 ), 2000 );
+	case speechType_t::SPEECH_YELL:
+		G_AddVoiceEvent( self, Q_irand( entity_event_t::EV_ANGER1, entity_event_t::EV_ANGER3 ), 2000 );
 		break;
-	case SPEECH_PUSHED:
-		G_AddVoiceEvent( self, Q_irand( EV_PUSHED1, EV_PUSHED3 ), 2000 );
+	case speechType_t::SPEECH_PUSHED:
+		G_AddVoiceEvent( self, Q_irand( entity_event_t::EV_PUSHED1, entity_event_t::EV_PUSHED3 ), 2000 );
 		break;
 	default:
 		break;
@@ -287,12 +286,12 @@ void ST_MarkToCover( gentity_t *self )
 	{
 		return;
 	}
-	NPC_SetLocalState( *self->NPC, LSTATE_UNDERFIRE );
+	NPC_SetLocalState( *self->NPC, soldierLocalState_t::LSTATE_UNDERFIRE );
 	TIMER_Set( self, "attackDelay", Q_irand( 500, 2500 ) );
 	ST_AggressionAdjust( self, -3 );
 	if ( self->NPC->group && self->NPC->group->numGroup > 1 )
 	{
-		ST_Speech( self, SPEECH_COVER, 0 );//FIXME: flee sound?
+		ST_Speech( self, speechType_t::SPEECH_COVER, 0 );//FIXME: flee sound?
 	}
 }
 
@@ -305,7 +304,7 @@ void ST_StartFlee( gentity_t *self, gentity_t *enemy, vec3_t dangerPoint, alertE
 	G_StartFlee( self, enemy, dangerPoint, dangerLevel, minTime, maxTime );
 	if ( self->NPC->group && self->NPC->group->numGroup > 1 )
 	{
-		ST_Speech( self, SPEECH_COVER, 0 );//FIXME: flee sound?
+		ST_Speech( self, speechType_t::SPEECH_COVER, 0 );//FIXME: flee sound?
 	}
 }
 /*
@@ -316,7 +315,7 @@ NPC_ST_Pain
 
 void NPC_ST_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, meansOfDeath_t mod,hitLocation_t hitLoc )
 {
-	NPC_SetLocalState( *self->NPC, LSTATE_UNDERFIRE );
+	NPC_SetLocalState( *self->NPC, soldierLocalState_t::LSTATE_UNDERFIRE );
 
 	TIMER_Set( self, "duck", -1 );
 	TIMER_Set( self, "hideTime", -1 );
@@ -326,7 +325,7 @@ void NPC_ST_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const
 
 	if ( !damage && self->health > 0 )
 	{//FIXME: better way to know I was pushed
-		G_AddVoiceEvent( self, Q_irand(EV_PUSHED1, EV_PUSHED3), 2000 );
+		G_AddVoiceEvent( self, Q_irand(entity_event_t::EV_PUSHED1, entity_event_t::EV_PUSHED3), 2000 );
 	}
 }
 
@@ -338,16 +337,16 @@ ST_HoldPosition
 
 static void ST_HoldPosition( void )
 {
-	if ( NPCInfo->squadState == SQUAD_RETREAT )
+	if ( NPCInfo->squadState == squadState_t::SQUAD_RETREAT )
 	{
 		TIMER_Set( NPC, "flee", -level.time );
 	}
 	TIMER_Set( NPC, "verifyCP", Q_irand( 1000, 3000 ) );//don't look for another one for a few seconds
 	NPC_FreeCombatPoint( NPCInfo->combatPoint, true );
 	//NPCInfo->combatPoint = -1;//???
-	if ( !Q3_TaskIDPending( NPC, TID_MOVE_NAV ) )
+	if ( !Q3_TaskIDPending( NPC, taskID_t::TID_MOVE_NAV ) )
 	{//don't have a script waiting for me to get to my point, okay to stop trying and stand
-		AI_GroupUpdateSquadstates( NPCInfo->group, NPC, SQUAD_STAND_AND_SHOOT );
+		AI_GroupUpdateSquadstates( NPCInfo->group, NPC, squadState_t::SQUAD_STAND_AND_SHOOT );
 		NPCInfo->goalEntity = nullptr;
 	}
 
@@ -355,7 +354,7 @@ static void ST_HoldPosition( void )
 
 void NPC_ST_SayMovementSpeech( void )
 {
-	if ( NPCInfo->movementSpeech == SPEECH_NONE )
+	if ( NPCInfo->movementSpeech == speechType_t::SPEECH_NONE )
 	{
 		return;
 	}
@@ -363,7 +362,7 @@ void NPC_ST_SayMovementSpeech( void )
 	if ( NPCInfo->group &&
 		NPCInfo->group->commander &&
 		NPCInfo->group->commander->client &&
-		NPCInfo->group->commander->client->NPC_class == CLASS_IMPERIAL &&
+		NPCInfo->group->commander->client->NPC_class == class_t::CLASS_IMPERIAL &&
 		!Q_irand( 0, 3 ) )
 	{//imperial (commander) gives the order
 		ST_Speech( NPCInfo->group->commander, speech, NPCInfo->movementSpeechChance );
@@ -373,7 +372,7 @@ void NPC_ST_SayMovementSpeech( void )
 		ST_Speech( NPC, speech, NPCInfo->movementSpeechChance );
 	}
 
-	NPCInfo->movementSpeech = SPEECH_NONE;
+	NPCInfo->movementSpeech = speechType_t::SPEECH_NONE;
 	NPCInfo->movementSpeechChance = 0.0f;
 }
 
@@ -413,7 +412,7 @@ NPC_ST_SleepShuffle
 static void NPC_ST_SleepShuffle( void )
 {
 	//Play an awake script if we have one
-	if ( G_ActivateBehavior( NPC, BSET_AWAKE) )
+	if ( G_ActivateBehavior( NPC, bSet_t::BSET_AWAKE) )
 	{
 		return;
 	}
@@ -466,7 +465,7 @@ void NPC_BSST_Sleep( void )
 	if ( alertEvent >= 0 )
 	{
 		//See if it was enough to wake us up
-		if ( level.alertEvents[alertEvent].level == AEL_DISCOVERED && Any(NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES) )
+		if ( level.alertEvents[alertEvent].level == alertEventLevel_e::AEL_DISCOVERED && Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_LOOK_FOR_ENEMIES) )
 		{
 			if ( g_entities[0].health > 0 )
 			{
@@ -496,7 +495,7 @@ bool NPC_CheckEnemyStealth( gentity_t *target )
 		return true;
 
 	//Ignore notarget
-	if ( Any( target->flags & FL_NOTARGET ) )
+	if ( Any( target->flags & gentityFlags_t::FL_NOTARGET ) )
 		return false;
 
 	if ( target->health <= 0 )
@@ -504,15 +503,15 @@ bool NPC_CheckEnemyStealth( gentity_t *target )
 		return false;
 	}
 
-	if ( target->client->ps.weapon == WP_SABER && target->client->ps.SaberActive() && !target->client->ps.saberInFlight )
+	if ( target->client->ps.weapon == weapon_t::WP_SABER && target->client->ps.SaberActive() && !target->client->ps.saberInFlight )
 	{//if target has saber in hand and activated, we wake up even sooner even if not facing him
 		minDist = 100;
 	}
 
 	target_dist = DistanceSquared( target->currentOrigin, NPC->currentOrigin );
 	//If the target is this close, then wake up regardless
-	if ( !Any(target->client->ps.pm_flags&PMF_DUCKED)//not ducking
-		&& Any(NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES)//looking for enemies
+	if ( !Any(target->client->ps.pm_flags&pmoveFlags_t::PMF_DUCKED)//not ducking
+		&& Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_LOOK_FOR_ENEMIES)//looking for enemies
 		&& target_dist < (minDist*minDist) )//closer than minDist
 	{
 		G_SetEnemy( NPC, target );
@@ -542,7 +541,7 @@ bool NPC_CheckEnemyStealth( gentity_t *target )
 	//Now check for clear line of vision
 	if ( clearLOS )
 	{
-		if ( target->client->NPC_class == CLASS_ATST )
+		if ( target->client->NPC_class == class_t::CLASS_ATST )
 		{//can't miss 'em!
 			G_SetEnemy( NPC, target );
 			TIMER_Set( NPC, "attackDelay", Q_irand( 500, 2500 ) );
@@ -606,12 +605,12 @@ bool NPC_CheckEnemyStealth( gentity_t *target )
 
 		//Now award any final bonuses to this number
 		contentsFlags_t contents = gi.pointcontents( targ_org, target->s.number );
-		if ( Any( contents&CONTENTS_WATER ) )
+		if ( Any( contents&contentsFlags_t::CONTENTS_WATER ) )
 		{
 			contentsFlags_t myContents = gi.pointcontents( NPC->client->renderInfo.eyePoint, NPC->s.number );
-			if ( !Any( myContents&CONTENTS_WATER ) )
+			if ( !Any( myContents&contentsFlags_t::CONTENTS_WATER ) )
 			{//I'm not in water
-				if ( NPC->client->NPC_class == CLASS_SWAMPTROOPER )
+				if ( NPC->client->NPC_class == class_t::CLASS_SWAMPTROOPER )
 				{//these guys can see in in/through water pretty well
 					vis_rating = 0.10f;//10% bonus
 				}
@@ -622,7 +621,7 @@ bool NPC_CheckEnemyStealth( gentity_t *target )
 			}
 			else
 			{//else, if we're both in water
-				if ( NPC->client->NPC_class == CLASS_SWAMPTROOPER )
+				if ( NPC->client->NPC_class == class_t::CLASS_SWAMPTROOPER )
 				{//I can see him just fine
 				}
 				else
@@ -633,7 +632,7 @@ bool NPC_CheckEnemyStealth( gentity_t *target )
 		}
 		else
 		{//not in water
-			if ( Any( contents&CONTENTS_FOG ) )
+			if ( Any( contents&contentsFlags_t::CONTENTS_FOG ) )
 			{
 				vis_rating = 0.15f;//15% bonus
 			}
@@ -655,7 +654,7 @@ bool NPC_CheckEnemyStealth( gentity_t *target )
 		//If he's violated the threshold, then realize him
 		//float difficulty_scale = 1.0f + (2.0f-g_spskill->value);//if playing on easy, 20% harder to be seen...?
 		float realize, cautious;
-		if ( NPC->client->NPC_class == CLASS_SWAMPTROOPER )
+		if ( NPC->client->NPC_class == class_t::CLASS_SWAMPTROOPER )
 		{//swamptroopers can see much better
 			realize = (float)CAUTIOUS_THRESHOLD/**difficulty_scale*/;
 			cautious = (float)CAUTIOUS_THRESHOLD * 0.75f/**difficulty_scale*/;
@@ -666,7 +665,7 @@ bool NPC_CheckEnemyStealth( gentity_t *target )
 			cautious = (float)CAUTIOUS_THRESHOLD * 0.75f/**difficulty_scale*/;
 		}
 
-		if ( target_rating > realize && Any(NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES) )
+		if ( target_rating > realize && Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_LOOK_FOR_ENEMIES) )
 		{
 			G_SetEnemy( NPC, target );
 			NPCInfo->enemyLastSeenTime = level.time;
@@ -675,7 +674,7 @@ bool NPC_CheckEnemyStealth( gentity_t *target )
 		}
 
 		//If he's above the caution threshold, then realize him in a few seconds unless he moves to cover
-		if ( target_rating > cautious && !Any(NPCInfo->scriptFlags&SCF_IGNORE_ALERTS) )
+		if ( target_rating > cautious && !Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_IGNORE_ALERTS) )
 		{//FIXME: ambushing guys should never talk
 			if ( TIMER_Done( NPC, "enemyLastVisible" ) )
 			{//If we haven't already, start the counter
@@ -683,16 +682,16 @@ bool NPC_CheckEnemyStealth( gentity_t *target )
 				//NPCInfo->timeEnemyLastVisible = level.time + 2000;
 				TIMER_Set( NPC, "enemyLastVisible", lookTime );
 				//TODO: Play a sound along the lines of, "Huh?  What was that?"
-				ST_Speech( NPC, SPEECH_SIGHT, 0 );
+				ST_Speech( NPC, speechType_t::SPEECH_SIGHT, 0 );
 				NPC_TempLookTarget( NPC, target->s.number, lookTime, lookTime );
 				//FIXME: set desired yaw and pitch towards this guy?
 			}
-			else if ( TIMER_Get( NPC, "enemyLastVisible" ) <= level.time + 500 && Any(NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES) )	//FIXME: Is this reliable?
+			else if ( TIMER_Get( NPC, "enemyLastVisible" ) <= level.time + 500 && Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_LOOK_FOR_ENEMIES) )	//FIXME: Is this reliable?
 			{
-				if ( NPCInfo->rank < RANK_LT && !Q_irand( 0, 2 ) )
+				if ( NPCInfo->rank < rank_t::RANK_LT && !Q_irand( 0, 2 ) )
 				{
 					int	interrogateTime = Q_irand( 2000, 4000 );
-					ST_Speech( NPC, SPEECH_SUSPICIOUS, 0 );
+					ST_Speech( NPC, speechType_t::SPEECH_SUSPICIOUS, 0 );
 					TIMER_Set( NPC, "interrogating", interrogateTime );
 					G_SetEnemy( NPC, target );
 					NPCInfo->enemyLastSeenTime = level.time;
@@ -811,7 +810,7 @@ bool NPC_CheckEnemiesInSpotlight( void )
 			//NPCInfo->timeEnemyLastVisible = level.time + 2000;
 			TIMER_Set( NPC, "enemyLastVisible", lookTime );
 			//TODO: Play a sound along the lines of, "Huh?  What was that?"
-			ST_Speech( NPC, SPEECH_SIGHT, 0 );
+			ST_Speech( NPC, speechType_t::SPEECH_SIGHT, 0 );
 			//set desired yaw and pitch towards this guy?
 			//FIXME: this is permanent, they will never look away... *sigh*
 			NPC_FacePosition( suspect->currentOrigin, true );
@@ -819,12 +818,12 @@ bool NPC_CheckEnemiesInSpotlight( void )
 			//NPC_TempLookTarget( NPC, suspect->s.number, lookTime, lookTime );
 		}
 		else if ( TIMER_Get( NPC, "enemyLastVisible" ) <= level.time + 500
-			&& Any(NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES) )	//FIXME: Is this reliable?
+			&& Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_LOOK_FOR_ENEMIES) )	//FIXME: Is this reliable?
 		{
 			if ( !Q_irand( 0, 2 ) )
 			{
 				int	interrogateTime = Q_irand( 2000, 4000 );
-				ST_Speech( NPC, SPEECH_SUSPICIOUS, 0 );
+				ST_Speech( NPC, speechType_t::SPEECH_SUSPICIOUS, 0 );
 				TIMER_Set( NPC, "interrogating", interrogateTime );
 				//G_SetEnemy( NPC, target );
 				//NPCInfo->enemyLastSeenTime = level.time;
@@ -852,7 +851,7 @@ static bool NPC_ST_InvestigateEvent( int eventID, bool extraSuspicious )
 	//If they've given themselves away, just take them as an enemy
 	if ( NPCInfo->confusionTime < level.time )
 	{
-		if ( level.alertEvents[eventID].level == AEL_DISCOVERED && Any(NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES) )
+		if ( level.alertEvents[eventID].level == alertEventLevel_e::AEL_DISCOVERED && Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_LOOK_FOR_ENEMIES) )
 		{
 			//NPCInfo->lastAlertID = level.alertEvents[eventID].ID;
 			if ( !level.alertEvents[eventID].owner ||
@@ -867,7 +866,7 @@ static bool NPC_ST_InvestigateEvent( int eventID, bool extraSuspicious )
 			G_SetEnemy( NPC, level.alertEvents[eventID].owner );
 			NPCInfo->enemyLastSeenTime = level.time;
 			TIMER_Set( NPC, "attackDelay", Q_irand( 500, 2500 ) );
-			if ( level.alertEvents[eventID].type == AET_SOUND )
+			if ( level.alertEvents[eventID].type == alertEventType_e::AET_SOUND )
 			{//heard him, didn't see him, stick for a bit
 				TIMER_Set( NPC, "roamTime", Q_irand( 500, 2500 ) );
 			}
@@ -892,7 +891,7 @@ static bool NPC_ST_InvestigateEvent( int eventID, bool extraSuspicious )
 	}
 	*/
 
-	if ( level.alertEvents[eventID].type == AET_SIGHT )
+	if ( level.alertEvents[eventID].type == alertEventType_e::AET_SIGHT )
 	{//sight alert, check the light level
 		if ( level.alertEvents[eventID].light < Q_irand( ST_MIN_LIGHT_THRESHOLD, ST_MAX_LIGHT_THRESHOLD ) )
 		{//below my threshhold of potentially seeing
@@ -911,17 +910,17 @@ static bool NPC_ST_InvestigateEvent( int eventID, bool extraSuspicious )
 		NPCInfo->investigateCount = 4;
 
 	//See if we should walk over and investigate
-	if ( level.alertEvents[eventID].level > AEL_MINOR && NPCInfo->investigateCount > 1 && Any(NPCInfo->scriptFlags&SCF_CHASE_ENEMIES) )
+	if ( level.alertEvents[eventID].level > alertEventLevel_e::AEL_MINOR && NPCInfo->investigateCount > 1 && Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_CHASE_ENEMIES) )
 	{
 		//make it so they can walk right to this point and look at it rather than having to use combatPoints
-		if ( G_ExpandPointToBBox( NPCInfo->investigateGoal, NPC->mins, NPC->maxs, NPC->s.number, ((NPC->clipmask&~CONTENTS_BODY)|CONTENTS_BOTCLIP) ) )
+		if ( G_ExpandPointToBBox( NPCInfo->investigateGoal, NPC->mins, NPC->maxs, NPC->s.number, ((NPC->clipmask&~contentsFlags_t::CONTENTS_BODY)|contentsFlags_t::CONTENTS_BOTCLIP) ) )
 		{//we were able to doMove the investigateGoal to a point in which our bbox would fit
 			//drop the goal to the ground so we can get at it
 			vec3_t	end;
 			trace_t	trace;
 			VectorCopy( NPCInfo->investigateGoal, end );
 			end[2] -= 512;//FIXME: not always right?  What if it's even higher, somehow?
-			gi.trace( &trace, NPCInfo->investigateGoal, NPC->mins, NPC->maxs, end, ENTITYNUM_NONE, ((NPC->clipmask&~CONTENTS_BODY)|CONTENTS_BOTCLIP), G2_NOCOLLIDE, 0 );
+			gi.trace( &trace, NPCInfo->investigateGoal, NPC->mins, NPC->maxs, end, ENTITYNUM_NONE, ((NPC->clipmask&~contentsFlags_t::CONTENTS_BODY)|contentsFlags_t::CONTENTS_BOTCLIP), EG2_Collision::G2_NOCOLLIDE, 0 );
 			if ( trace.fraction >= 1.0f )
 			{//too high to even bother
 				//FIXME: look at them???
@@ -930,17 +929,17 @@ static bool NPC_ST_InvestigateEvent( int eventID, bool extraSuspicious )
 			{
 				VectorCopy( trace.endpos, NPCInfo->investigateGoal );
 				NPC_SetMoveGoal( NPC, NPCInfo->investigateGoal, 16, true );
-				NPC_SetLocalState( *NPCInfo, LSTATE_INVESTIGATE );
+				NPC_SetLocalState( *NPCInfo, soldierLocalState_t::LSTATE_INVESTIGATE );
 			}
 		}
 		else
 		{
-			int id = NPC_FindCombatPoint( NPCInfo->investigateGoal, NPCInfo->investigateGoal, NPCInfo->investigateGoal, CP_INVESTIGATE|CP_HAS_ROUTE, 0 );
+			int id = NPC_FindCombatPoint( NPCInfo->investigateGoal, NPCInfo->investigateGoal, NPCInfo->investigateGoal, combatPointSearchFlags_t::CP_INVESTIGATE|combatPointSearchFlags_t::CP_HAS_ROUTE, 0 );
 
 			if ( id != -1 )
 			{
 				NPC_SetMoveGoal( NPC, level.combatPoints[id].origin, 16, true, id );
-				NPC_SetLocalState( *NPCInfo, LSTATE_INVESTIGATE );
+				NPC_SetLocalState( *NPCInfo, soldierLocalState_t::LSTATE_INVESTIGATE );
 			}
 		}
 		//Say something
@@ -950,25 +949,25 @@ static bool NPC_ST_InvestigateEvent( int eventID, bool extraSuspicious )
 			if ( NPCInfo->group &&
 				NPCInfo->group->commander &&
 				NPCInfo->group->commander->client &&
-				NPCInfo->group->commander->client->NPC_class == CLASS_IMPERIAL &&
+				NPCInfo->group->commander->client->NPC_class == class_t::CLASS_IMPERIAL &&
 				!Q_irand( 0, 3 ) )
 			{
-				ST_Speech( NPCInfo->group->commander, SPEECH_LOOK, 0 );//FIXME: "I'll go check it out" type sounds
+				ST_Speech( NPCInfo->group->commander, speechType_t::SPEECH_LOOK, 0 );//FIXME: "I'll go check it out" type sounds
 			}
 			else
 			{
-				ST_Speech( NPC, SPEECH_LOOK, 0 );//FIXME: "I'll go check it out" type sounds
+				ST_Speech( NPC, speechType_t::SPEECH_LOOK, 0 );//FIXME: "I'll go check it out" type sounds
 			}
 		}
 		else
 		{
-			if ( level.alertEvents[eventID].type == AET_SIGHT )
+			if ( level.alertEvents[eventID].type == alertEventType_e::AET_SIGHT )
 			{
-				ST_Speech( NPC, SPEECH_SIGHT, 0 );
+				ST_Speech( NPC, speechType_t::SPEECH_SIGHT, 0 );
 			}
-			else if ( level.alertEvents[eventID].type == AET_SOUND )
+			else if ( level.alertEvents[eventID].type == alertEventType_e::AET_SOUND )
 			{
-				ST_Speech( NPC, SPEECH_SOUND, 0 );
+				ST_Speech( NPC, speechType_t::SPEECH_SOUND, 0 );
 			}
 		}
 		//Setup the debounce info
@@ -979,36 +978,36 @@ static bool NPC_ST_InvestigateEvent( int eventID, bool extraSuspicious )
 	else
 	{//just look?
 		//Say something
-		if ( level.alertEvents[eventID].type == AET_SIGHT )
+		if ( level.alertEvents[eventID].type == alertEventType_e::AET_SIGHT )
 		{
-			ST_Speech( NPC, SPEECH_SIGHT, 0 );
+			ST_Speech( NPC, speechType_t::SPEECH_SIGHT, 0 );
 		}
-		else if ( level.alertEvents[eventID].type == AET_SOUND )
+		else if ( level.alertEvents[eventID].type == alertEventType_e::AET_SOUND )
 		{
-			ST_Speech( NPC, SPEECH_SOUND, 0 );
+			ST_Speech( NPC, speechType_t::SPEECH_SOUND, 0 );
 		}
 		//Setup the debounce info
 		NPCInfo->investigateDebounceTime		= NPCInfo->investigateCount * 1000;
 		NPCInfo->investigateSoundDebounceTime	= level.time + 1000;
 		NPCInfo->pauseTime						= level.time;
 		VectorCopy( level.alertEvents[eventID].position, NPCInfo->investigateGoal );
-		if ( NPC->client->NPC_class == CLASS_ROCKETTROOPER
+		if ( NPC->client->NPC_class == class_t::CLASS_ROCKETTROOPER
 			&& !RT_Flying( NPC ) )
 		{
 			//if ( !Q_irand( 0, 2 ) )
 			{//look around
-				NPC_SetAnim( NPC, SETANIM_BOTH, BOTH_GUARD_LOOKAROUND1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+				NPC_SetAnim( NPC, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_GUARD_LOOKAROUND1, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD );
 			}
 		}
 	}
 
-	if ( level.alertEvents[eventID].level >= AEL_DANGER )
+	if ( level.alertEvents[eventID].level >= alertEventLevel_e::AEL_DANGER )
 	{
 		NPCInfo->investigateDebounceTime = Q_irand( 500, 2500 );
 	}
 
 	//Start investigating
-	NPCInfo->tempBehavior = BS_INVESTIGATE;
+	NPCInfo->tempBehavior = bState_t::BS_INVESTIGATE;
 	return true;
 }
 
@@ -1027,7 +1026,7 @@ static void ST_OffsetLook( float offset, vec3_t out )
 	AngleVectors( angles, forward, nullptr, nullptr );
 	VectorMA( NPC->currentOrigin, 64, forward, out );
 
-	CalcEntitySpot( NPC, SPOT_HEAD, temp );
+	CalcEntitySpot( NPC, spot_t::SPOT_HEAD, temp );
 	out[2] = temp[2];
 }
 
@@ -1074,28 +1073,28 @@ void NPC_BSST_Investigate( void )
 	//get group- mainly for group speech debouncing, but may use for group scouting/investigating AI, too
 	AI_GetGroup( NPC );
 
-	if( Any( NPCInfo->scriptFlags & SCF_FIRE_WEAPON ) )
+	if( Any( NPCInfo->scriptFlags & scriptFlags_t::SCF_FIRE_WEAPON ) )
 	{
 		WeaponThink( true );
 	}
 
 	if ( NPCInfo->confusionTime < level.time )
 	{
-		if ( Any(NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES) )
+		if ( Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_LOOK_FOR_ENEMIES) )
 		{
 			//Look for an enemy
 			if ( NPC_CheckPlayerTeamStealth() )
 			{
-				//NPCInfo->behaviorState	= BS_HUNT_AND_KILL;//should be auto now
-				ST_Speech( NPC, SPEECH_DETECTED, 0 );
-				NPCInfo->tempBehavior	= BS_DEFAULT;
+				//NPCInfo->behaviorState	= bState_t::BS_HUNT_AND_KILL;//should be auto now
+				ST_Speech( NPC, speechType_t::SPEECH_DETECTED, 0 );
+				NPCInfo->tempBehavior	= bState_t::BS_DEFAULT;
 				NPC_UpdateAngles( true, true );
 				return;
 			}
 		}
 	}
 
-	if ( !Any(NPCInfo->scriptFlags&SCF_IGNORE_ALERTS) )
+	if ( !Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_IGNORE_ALERTS) )
 	{
 		int alertEvent = NPC_CheckAlertEvents( true, true, NPCInfo->lastAlertID );
 
@@ -1106,7 +1105,7 @@ void NPC_BSST_Investigate( void )
 			{
 				if ( NPC_CheckForDanger( alertEvent ) )
 				{//running like hell
-					ST_Speech( NPC, SPEECH_COVER, 0 );//FIXME: flee sound?
+					ST_Speech( NPC, speechType_t::SPEECH_COVER, 0 );//FIXME: flee sound?
 					return;
 				}
 			}
@@ -1121,24 +1120,24 @@ void NPC_BSST_Investigate( void )
 	//If we're done looking, then just return to what we were doing
 	if ( ( NPCInfo->investigateDebounceTime + NPCInfo->pauseTime ) < level.time )
 	{
-		NPCInfo->tempBehavior = BS_DEFAULT;
+		NPCInfo->tempBehavior = bState_t::BS_DEFAULT;
 		NPCInfo->goalEntity = UpdateGoal();
 
 		NPC_UpdateAngles( true, true );
 		//Say something
-		ST_Speech( NPC, SPEECH_GIVEUP, 0 );
+		ST_Speech( NPC, speechType_t::SPEECH_GIVEUP, 0 );
 		return;
 	}
 
 	//FIXME: else, look for new alerts
 
 	//See if we're searching for the noise's origin
-	if ( NPC_LocalState<soldierLocalState_t>( *NPCInfo ) == LSTATE_INVESTIGATE && (NPCInfo->goalEntity!=nullptr) )
+	if ( NPC_LocalState<soldierLocalState_t>( *NPCInfo ) == soldierLocalState_t::LSTATE_INVESTIGATE && (NPCInfo->goalEntity!=nullptr) )
 	{
 		//See if we're there
 		if ( !STEER::Reached(NPC, NPCInfo->goalEntity, 32, FlyingCreature(NPC) != false) )
 		{
-			ucmd.buttons |= BUTTON_WALKING;
+			ucmd.buttons |= buttonFlags_t::BUTTON_WALKING;
 
 			//Try and doMove there
 			if ( NPC_MoveToGoal( true )  )
@@ -1154,8 +1153,8 @@ void NPC_BSST_Investigate( void )
 
 		//Otherwise we're done or have given up
 		//Say something
-		//ST_Speech( NPC, SPEECH_LOOK, 0.33f );
-		NPC_SetLocalState( *NPCInfo, LSTATE_NONE );
+		//ST_Speech( NPC, speechType_t::SPEECH_LOOK, 0.33f );
+		NPC_SetLocalState( *NPCInfo, soldierLocalState_t::LSTATE_NONE );
 	}
 
 	//Look around
@@ -1172,16 +1171,16 @@ void NPC_BSST_Patrol( void )
 {//FIXME: pick up on bodies of dead buddies?
 
 	//Not a scriptflag, but...
-	if ( NPC->client->NPC_class == CLASS_ROCKETTROOPER && Any(NPC->client->ps.eFlags&EF_SPOTLIGHT) )
+	if ( NPC->client->NPC_class == class_t::CLASS_ROCKETTROOPER && Any(NPC->client->ps.eFlags&entityFlags_t::EF_SPOTLIGHT) )
 	{//using spotlight search mode
 		vec3_t	eyeFwd, end, mins={-2,-2,-2}, maxs={2,2,2};
 		trace_t	trace;
 		AngleVectors( NPC->client->renderInfo.eyeAngles, eyeFwd, nullptr, nullptr );
 		VectorMA( NPC->client->renderInfo.eyePoint, NPCInfo->stats.visrange, eyeFwd, end );
 		//get server-side trace impact point
-		gi.trace( &trace, NPC->client->renderInfo.eyePoint, mins, maxs, end, NPC->s.number, MASK_OPAQUE|CONTENTS_BODY|CONTENTS_CORPSE, G2_NOCOLLIDE, 0 );
+		gi.trace( &trace, NPC->client->renderInfo.eyePoint, mins, maxs, end, NPC->s.number, MASK_OPAQUE|contentsFlags_t::CONTENTS_BODY|contentsFlags_t::CONTENTS_CORPSE, EG2_Collision::G2_NOCOLLIDE, 0 );
 		NPC->speed = (trace.fraction*NPCInfo->stats.visrange);
-		if ( Any(NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES) )
+		if ( Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_LOOK_FOR_ENEMIES) )
 		{
 			//FIXME: do a FOV cone check, then a trace
 			if ( trace.entityNum < ENTITYNUM_WORLD )
@@ -1192,7 +1191,7 @@ void NPC_BSST_Patrol( void )
 				{
 					G_SetEnemy( NPC, enemy );
 					TIMER_Set( NPC, "attackDelay", Q_irand( 500, 2500 ) );
-					//NPCInfo->behaviorState = BS_HUNT_AND_KILL;//should be auto now
+					//NPCInfo->behaviorState = bState_t::BS_HUNT_AND_KILL;//should be auto now
 					//NPC_AngerSound();
 					NPC_UpdateAngles( true, true );
 					return;
@@ -1202,7 +1201,7 @@ void NPC_BSST_Patrol( void )
 			//hmmm, look around
 			if ( NPC_CheckEnemiesInSpotlight() )
 			{
-				//NPCInfo->behaviorState = BS_HUNT_AND_KILL;//should be auto now
+				//NPCInfo->behaviorState = bState_t::BS_HUNT_AND_KILL;//should be auto now
 				//NPC_AngerSound();
 				NPC_UpdateAngles( true, true );
 				return;
@@ -1217,11 +1216,11 @@ void NPC_BSST_Patrol( void )
 		if ( NPCInfo->confusionTime < level.time )
 		{
 			//Look for any enemies
-			if ( Any(NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES) )
+			if ( Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_LOOK_FOR_ENEMIES) )
 			{
 				if ( NPC_CheckPlayerTeamStealth() )
 				{
-					//NPCInfo->behaviorState = BS_HUNT_AND_KILL;//should be auto now
+					//NPCInfo->behaviorState = bState_t::BS_HUNT_AND_KILL;//should be auto now
 					//NPC_AngerSound();
 					NPC_UpdateAngles( true, true );
 					return;
@@ -1230,7 +1229,7 @@ void NPC_BSST_Patrol( void )
 		}
 	}
 
-	if ( !Any(NPCInfo->scriptFlags&SCF_IGNORE_ALERTS) )
+	if ( !Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_IGNORE_ALERTS) )
 	{
 		int alertEvent = NPC_CheckAlertEvents( true, true );
 
@@ -1239,10 +1238,10 @@ void NPC_BSST_Patrol( void )
 		{
 			if ( NPC_CheckForDanger( alertEvent ) )
 			{//going to run?
-				ST_Speech( NPC, SPEECH_COVER, 0 );
+				ST_Speech( NPC, speechType_t::SPEECH_COVER, 0 );
 				return;
 			}
-			else if (NPC->client->NPC_class==CLASS_BOBAFETT)
+			else if (NPC->client->NPC_class==class_t::CLASS_BOBAFETT)
 			{
 				//NPCInfo->lastAlertID = level.alertEvents[eventID].ID;
 				if ( !level.alertEvents[alertEvent].owner ||
@@ -1270,13 +1269,13 @@ void NPC_BSST_Patrol( void )
 	//If we have somewhere to go, then do that
 	if ( UpdateGoal() )
 	{
-		ucmd.buttons |= BUTTON_WALKING;
+		ucmd.buttons |= buttonFlags_t::BUTTON_WALKING;
 		//ST_Move( NPCInfo->goalEntity );
 		NPC_MoveToGoal( true );
 	}
-	else// if ( !Any(NPCInfo->scriptFlags&SCF_IGNORE_ALERTS) )
+	else// if ( !Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_IGNORE_ALERTS) )
 	{
-		if ( NPC->client->NPC_class != CLASS_IMPERIAL && NPC->client->NPC_class != CLASS_IMPWORKER )
+		if ( NPC->client->NPC_class != class_t::CLASS_IMPERIAL && NPC->client->NPC_class != class_t::CLASS_IMPWORKER )
 		{//imperials do not look around
 			if ( TIMER_Done( NPC, "enemyLastVisible" ) )
 			{//nothing suspicious, look around
@@ -1294,20 +1293,20 @@ void NPC_BSST_Patrol( void )
 
 	NPC_UpdateAngles( true, true );
 	//TEMP hack for Imperial stand anim
-	if ( NPC->client->NPC_class == CLASS_IMPERIAL
-		|| NPC->client->NPC_class == CLASS_IMPWORKER )
+	if ( NPC->client->NPC_class == class_t::CLASS_IMPERIAL
+		|| NPC->client->NPC_class == class_t::CLASS_IMPWORKER )
 	{//hack
-		if ( NPC->client->ps.weapon != WP_CONCUSSION )
+		if ( NPC->client->ps.weapon != weapon_t::WP_CONCUSSION )
 		{//not Rax
 			if ( ucmd.forwardmove || ucmd.rightmove || ucmd.upmove )
 			{//moving
 
-				if( (!NPC->client->ps.torsoAnimTimer) || (NPC->client->ps.torsoAnim == BOTH_STAND4) )
+				if( (!NPC->client->ps.torsoAnimTimer) || (NPC->client->ps.torsoAnim == animNumber_t::BOTH_STAND4) )
 				{
-					if ( Any(ucmd.buttons&BUTTON_WALKING) && !Any(NPCInfo->scriptFlags&SCF_RUNNING) )
+					if ( Any(ucmd.buttons&buttonFlags_t::BUTTON_WALKING) && !Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_RUNNING) )
 					{//not running, only set upper anim
 						//  No longer overrides scripted anims
-						NPC_SetAnim( NPC, SETANIM_TORSO, BOTH_STAND4, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+						NPC_SetAnim( NPC, setAnimParts_t::SETANIM_TORSO, animNumber_t::BOTH_STAND4, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD );
 						NPC->client->ps.torsoAnimTimer = 200;
 					}
 				}
@@ -1315,19 +1314,19 @@ void NPC_BSST_Patrol( void )
 			else
 			{//standing still, set both torso and legs anim
 				//  No longer overrides scripted anims
-				if( ( !NPC->client->ps.torsoAnimTimer || (NPC->client->ps.torsoAnim == BOTH_STAND4) ) &&
-					( !NPC->client->ps.legsAnimTimer  || (NPC->client->ps.legsAnim == BOTH_STAND4) ) )
+				if( ( !NPC->client->ps.torsoAnimTimer || (NPC->client->ps.torsoAnim == animNumber_t::BOTH_STAND4) ) &&
+					( !NPC->client->ps.legsAnimTimer  || (NPC->client->ps.legsAnim == animNumber_t::BOTH_STAND4) ) )
 				{
-					NPC_SetAnim( NPC, SETANIM_BOTH, BOTH_STAND4, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+					NPC_SetAnim( NPC, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_STAND4, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD );
 					NPC->client->ps.torsoAnimTimer = NPC->client->ps.legsAnimTimer = 200;
 				}
 			}
 			//FIXME: this is a disgusting hack that is supposed to make the Imperials start with their weapon holstered- need a better way
-			if ( NPC->client->ps.weapon != WP_NONE )
+			if ( NPC->client->ps.weapon != weapon_t::WP_NONE )
 			{
-				ChangeWeapon( NPC, WP_NONE );
-				NPC->client->ps.weapon = WP_NONE;
-				NPC->client->ps.weaponstate = WEAPON_READY;
+				ChangeWeapon( NPC, weapon_t::WP_NONE );
+				NPC->client->ps.weapon = weapon_t::WP_NONE;
+				NPC->client->ps.weaponstate = weaponstate_t::WEAPON_READY;
 				G_RemoveWeaponModels( NPC );
 			}
 		}
@@ -1365,16 +1364,16 @@ ST_CheckMoveState
 
 static void ST_CheckMoveState( void )
 {
-	if ( Q3_TaskIDPending( NPC, TID_MOVE_NAV ) )
+	if ( Q3_TaskIDPending( NPC, taskID_t::TID_MOVE_NAV ) )
 	{//moving toward a goal that a script is waiting on, so don't stop for anything!
 		doMove = true;
 	}
-	else if ( NPC->client->NPC_class == CLASS_ROCKETTROOPER
+	else if ( NPC->client->NPC_class == class_t::CLASS_ROCKETTROOPER
 		&& NPC->client->ps.groundEntityNum == ENTITYNUM_NONE )
 	{//no squad stuff
 		return;
 	}
-//	else if ( Any( NPC->NPC->scriptFlags&SCF_NO_GROUPS ) )
+//	else if ( Any( NPC->NPC->scriptFlags&scriptFlags_t::SCF_NO_GROUPS ) )
 	{
 		doMove = true;
 	}
@@ -1385,24 +1384,24 @@ static void ST_CheckMoveState( void )
 	{
 		//Did we make it?
 		if ( STEER::Reached(NPC, NPCInfo->goalEntity, 16, !!FlyingCreature(NPC)) ||
-			(enemyLOS && Any(NPCInfo->aiFlags&NPCAI_STOP_AT_LOS) && !Q3_TaskIDPending(NPC, TID_MOVE_NAV))
+			(enemyLOS && Any(NPCInfo->aiFlags&npcAiFlags_t::NPCAI_STOP_AT_LOS) && !Q3_TaskIDPending(NPC, taskID_t::TID_MOVE_NAV))
 			)
 		{//either hit our navgoal or our navgoal was not a crucial (scripted) one (maybe a combat point) and we're scouting and found our enemy
-			squadState_t	newSquadState = SQUAD_STAND_AND_SHOOT;
+			squadState_t	newSquadState = squadState_t::SQUAD_STAND_AND_SHOOT;
 			//we got where we wanted to go, set timers based on why we were running
 			switch ( NPCInfo->squadState )
 			{
-			case SQUAD_RETREAT://was running away
+			case squadState_t::SQUAD_RETREAT://was running away
 				//done fleeing, obviously
 				TIMER_Set( NPC, "duck", (NPC->max_health - NPC->health) * 100 );
 				TIMER_Set( NPC, "hideTime", Q_irand( 3000, 7000 ) );
 				TIMER_Set( NPC, "flee", -level.time );
-				newSquadState = SQUAD_COVER;
+				newSquadState = squadState_t::SQUAD_COVER;
 				break;
-			case SQUAD_TRANSITION://was heading for a combat point
+			case squadState_t::SQUAD_TRANSITION://was heading for a combat point
 				TIMER_Set( NPC, "hideTime", Q_irand( 2000, 4000 ) );
 				break;
-			case SQUAD_SCOUT://was running after player
+			case squadState_t::SQUAD_SCOUT://was running after player
 				break;
 			default:
 				break;
@@ -1485,7 +1484,7 @@ static void ST_CheckFireState( void )
 		return;
 	}
 
-	if ( NPCInfo->squadState == SQUAD_RETREAT || NPCInfo->squadState == SQUAD_TRANSITION || NPCInfo->squadState == SQUAD_SCOUT )
+	if ( NPCInfo->squadState == squadState_t::SQUAD_RETREAT || NPCInfo->squadState == squadState_t::SQUAD_TRANSITION || NPCInfo->squadState == squadState_t::SQUAD_SCOUT )
 	{//runners never try to fire at the last pos
 		return;
 	}
@@ -1501,7 +1500,7 @@ static void ST_CheckFireState( void )
 		&& enemyInFOV //enemy is in our FOV //FIXME: or we don't have a clear LOS?
 		&& NPCInfo->enemyLastSeenTime > 0 //we've seen the enemy
 		&& NPCInfo->group //have a group
-		&& (NPCInfo->group->numState[SQUAD_RETREAT]>0||NPCInfo->group->numState[SQUAD_TRANSITION]>0||NPCInfo->group->numState[SQUAD_SCOUT]>0) )//laying down covering fire
+		&& (NPCInfo->group->numState[squadState_t::SQUAD_RETREAT]>0||NPCInfo->group->numState[squadState_t::SQUAD_TRANSITION]>0||NPCInfo->group->numState[squadState_t::SQUAD_SCOUT]>0) )//laying down covering fire
 	{
 		if ( level.time - NPCInfo->enemyLastSeenTime < 10000 &&//we have seem the enemy in the last 10 seconds
 			(!NPCInfo->group || level.time - NPCInfo->group->lastSeenEnemyTime < 10000 ))//we are not in a group or the group has seen the enemy in the last 10 seconds
@@ -1513,7 +1512,7 @@ static void ST_CheckFireState( void )
 				bool tooClose = false;
 				bool tooFar = false;
 
-				CalcEntitySpot( NPC, SPOT_HEAD, muzzle );
+				CalcEntitySpot( NPC, spot_t::SPOT_HEAD, muzzle );
 				if ( VectorCompare( impactPos, vec3_origin ) )
 				{//never checked ShotEntity this frame, so must do a trace...
 					trace_t tr;
@@ -1521,7 +1520,7 @@ static void ST_CheckFireState( void )
 					vec3_t	forward, end;
 					AngleVectors( NPC->client->ps.viewangles, forward, nullptr, nullptr );
 					VectorMA( muzzle, 8192, forward, end );
-					gi.trace( &tr, muzzle, vec3_origin, vec3_origin, end, NPC->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
+					gi.trace( &tr, muzzle, vec3_origin, vec3_origin, end, NPC->s.number, MASK_SHOT, EG2_Collision::G2_NOCOLLIDE, 0 );
 					VectorCopy( tr.endpos, impactPos );
 				}
 
@@ -1529,21 +1528,21 @@ static void ST_CheckFireState( void )
 				float distThreshold = 16384/*128*128*/;//default
 				switch ( NPC->s.weapon )
 				{
-				case WP_ROCKET_LAUNCHER:
-				case WP_FLECHETTE:
-				case WP_THERMAL:
-				case WP_TRIP_MINE:
-				case WP_DET_PACK:
+				case weapon_t::WP_ROCKET_LAUNCHER:
+				case weapon_t::WP_FLECHETTE:
+				case weapon_t::WP_THERMAL:
+				case weapon_t::WP_TRIP_MINE:
+				case weapon_t::WP_DET_PACK:
 					distThreshold = 65536/*256*256*/;
 					break;
-				case WP_REPEATER:
-					if ( Any(NPCInfo->scriptFlags&SCF_ALT_FIRE) )
+				case weapon_t::WP_REPEATER:
+					if ( Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_ALT_FIRE) )
 					{
 						distThreshold = 65536/*256*256*/;
 					}
 					break;
-				case WP_CONCUSSION:
-					if ( !Any(NPCInfo->scriptFlags&SCF_ALT_FIRE) )
+				case weapon_t::WP_CONCUSSION:
+					if ( !Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_ALT_FIRE) )
 					{
 						distThreshold = 65536/*256*256*/;
 					}
@@ -1565,21 +1564,21 @@ static void ST_CheckFireState( void )
 					distThreshold = 65536/*256*256*/;//default
 					switch ( NPC->s.weapon )
 					{
-					case WP_ROCKET_LAUNCHER:
-					case WP_FLECHETTE:
-					case WP_THERMAL:
-					case WP_TRIP_MINE:
-					case WP_DET_PACK:
+					case weapon_t::WP_ROCKET_LAUNCHER:
+					case weapon_t::WP_FLECHETTE:
+					case weapon_t::WP_THERMAL:
+					case weapon_t::WP_TRIP_MINE:
+					case weapon_t::WP_DET_PACK:
 						distThreshold = 262144/*512*512*/;
 						break;
-					case WP_REPEATER:
-						if ( Any(NPCInfo->scriptFlags&SCF_ALT_FIRE) )
+					case weapon_t::WP_REPEATER:
+						if ( Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_ALT_FIRE) )
 						{
 							distThreshold = 262144/*512*512*/;
 						}
 						break;
-					case WP_CONCUSSION:
-						if ( !Any(NPCInfo->scriptFlags&SCF_ALT_FIRE) )
+					case weapon_t::WP_CONCUSSION:
+						if ( !Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_ALT_FIRE) )
 						{
 							distThreshold = 262144/*512*512*/;
 						}
@@ -1605,7 +1604,7 @@ static void ST_CheckFireState( void )
 
 					shoot = true;
 					faceEnemy = false;
-					//AI_GroupUpdateSquadstates( NPCInfo->group, NPC, SQUAD_STAND_AND_SHOOT );
+					//AI_GroupUpdateSquadstates( NPCInfo->group, NPC, squadState_t::SQUAD_STAND_AND_SHOOT );
 					return;
 				}
 			}
@@ -1627,7 +1626,7 @@ void ST_TrackEnemy( gentity_t *self, vec3_t enemyPos )
 	NPC_SetMoveGoal( self, enemyPos, 100.0f, false );
 	if (Q_irand(0,3)==0)
 	{
-		NPCInfo->aiFlags |= NPCAI_STOP_AT_LOS;
+		NPCInfo->aiFlags |= npcAiFlags_t::NPCAI_STOP_AT_LOS;
 	}
 }
 
@@ -1641,7 +1640,7 @@ combatPointSearchFlags_t ST_ApproachEnemy( gentity_t *self )
 	//leave my combat point
 	NPC_FreeCombatPoint( self->NPC->combatPoint );
 	//return the relevant combat point flags
-	return (CP_CLEAR|CP_CLOSEST);
+	return (combatPointSearchFlags_t::CP_CLEAR|combatPointSearchFlags_t::CP_CLOSEST);
 }
 
 void ST_HuntEnemy( gentity_t *self )
@@ -1654,7 +1653,7 @@ void ST_HuntEnemy( gentity_t *self )
 	//leave my combat point
 	NPC_FreeCombatPoint( NPCInfo->combatPoint );
 	//go directly after the enemy
-	if ( Any( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
+	if ( Any( NPCInfo->scriptFlags & scriptFlags_t::SCF_CHASE_ENEMIES ) )
 	{
 		self->NPC->goalEntity = NPC->enemy;
 	}
@@ -1678,7 +1677,7 @@ void ST_TransferTimers( gentity_t *self, gentity_t *other )
 
 void ST_TransferMoveGoal( gentity_t *self, gentity_t *other )
 {
-	if ( Q3_TaskIDPending( self, TID_MOVE_NAV ) )
+	if ( Q3_TaskIDPending( self, taskID_t::TID_MOVE_NAV ) )
 	{//can't transfer movegoal when a script we're running is waiting to complete
 		return;
 	}
@@ -1691,7 +1690,7 @@ void ST_TransferMoveGoal( gentity_t *self, gentity_t *other )
 	{//I must be going for a goal, give that to him instead
 		if ( self->NPC->goalEntity == self->NPC->tempGoal )
 		{
-			NPC_SetMoveGoal( other, self->NPC->tempGoal->currentOrigin, self->NPC->goalRadius, Any( self->NPC->tempGoal->svFlags & SVF_NAVGOAL ) );
+			NPC_SetMoveGoal( other, self->NPC->tempGoal->currentOrigin, self->NPC->goalRadius, Any( self->NPC->tempGoal->svFlags & svFlags_t::SVF_NAVGOAL ) );
 		}
 		else
 		{
@@ -1705,35 +1704,35 @@ void ST_TransferMoveGoal( gentity_t *self, gentity_t *other )
 	ST_TransferTimers( self, other );
 
 	//now make me stand around for a second or two at least
-	AI_GroupUpdateSquadstates( self->NPC->group, self, SQUAD_STAND_AND_SHOOT );
+	AI_GroupUpdateSquadstates( self->NPC->group, self, squadState_t::SQUAD_STAND_AND_SHOOT );
 	TIMER_Set( self, "stand", Q_irand( 1000, 3000 ) );
 }
 
 combatPointSearchFlags_t ST_GetCPFlags( void )
 {
-	combatPointSearchFlags_t cpFlags = CP_ANY;
+	combatPointSearchFlags_t cpFlags = combatPointSearchFlags_t::CP_ANY;
 	if ( NPC && NPCInfo->group )
 	{
-		if ( NPC == NPCInfo->group->commander && NPC->client->NPC_class == CLASS_IMPERIAL )
+		if ( NPC == NPCInfo->group->commander && NPC->client->NPC_class == class_t::CLASS_IMPERIAL )
 		{//imperials hang back and give orders
 			if ( NPCInfo->group->numGroup > 1 && Q_irand( -3, NPCInfo->group->numGroup ) > 1 )
 			{//FIXME: make sure he;s giving orders with these lines
 				if ( Q_irand( 0, 1 ) )
 				{
-					ST_Speech( NPC, SPEECH_CHASE, 0.5 );
+					ST_Speech( NPC, speechType_t::SPEECH_CHASE, 0.5 );
 				}
 				else
 				{
-					ST_Speech( NPC, SPEECH_YELL, 0.5 );
+					ST_Speech( NPC, speechType_t::SPEECH_YELL, 0.5 );
 				}
 			}
-			cpFlags = (CP_CLEAR|CP_COVER|CP_AVOID|CP_SAFE|CP_RETREAT);
+			cpFlags = (combatPointSearchFlags_t::CP_CLEAR|combatPointSearchFlags_t::CP_COVER|combatPointSearchFlags_t::CP_AVOID|combatPointSearchFlags_t::CP_SAFE|combatPointSearchFlags_t::CP_RETREAT);
 		}
 		else if ( NPCInfo->group->morale < 0 )
 		{//hide
-			cpFlags = (CP_COVER|CP_AVOID|CP_SAFE|CP_RETREAT);
+			cpFlags = (combatPointSearchFlags_t::CP_COVER|combatPointSearchFlags_t::CP_AVOID|combatPointSearchFlags_t::CP_SAFE|combatPointSearchFlags_t::CP_RETREAT);
 			/*
-			if ( NPC->client->NPC_class == CLASS_SABOTEUR && !Q_irand( 0, 3 ) )
+			if ( NPC->client->NPC_class == class_t::CLASS_SABOTEUR && !Q_irand( 0, 3 ) )
 			{
 				Saboteur_Cloak( NPC );
 			}
@@ -1744,15 +1743,15 @@ combatPointSearchFlags_t ST_GetCPFlags( void )
 			int moraleDrop = NPCInfo->group->numGroup - NPCInfo->group->morale;
 			if ( moraleDrop < -6 )
 			{//flee (no clear shot needed)
-				cpFlags = (CP_FLEE|CP_RETREAT|CP_COVER|CP_AVOID|CP_SAFE);
+				cpFlags = (combatPointSearchFlags_t::CP_FLEE|combatPointSearchFlags_t::CP_RETREAT|combatPointSearchFlags_t::CP_COVER|combatPointSearchFlags_t::CP_AVOID|combatPointSearchFlags_t::CP_SAFE);
 			}
 			else if ( moraleDrop < -3 )
 			{//retreat (no clear shot needed)
-				cpFlags = (CP_RETREAT|CP_COVER|CP_AVOID|CP_SAFE);
+				cpFlags = (combatPointSearchFlags_t::CP_RETREAT|combatPointSearchFlags_t::CP_COVER|combatPointSearchFlags_t::CP_AVOID|combatPointSearchFlags_t::CP_SAFE);
 			}
 			else if ( moraleDrop < 0 )
 			{//cover (no clear shot needed)
-				cpFlags = (CP_COVER|CP_AVOID|CP_SAFE);
+				cpFlags = (combatPointSearchFlags_t::CP_COVER|combatPointSearchFlags_t::CP_AVOID|combatPointSearchFlags_t::CP_SAFE);
 			}
 		}*/
 		else
@@ -1760,14 +1759,14 @@ combatPointSearchFlags_t ST_GetCPFlags( void )
 			int moraleBoost = NPCInfo->group->morale - NPCInfo->group->numGroup;
 			if ( moraleBoost > 20 )
 			{//charge to any one and outflank (no cover needed)
-				cpFlags = (CP_CLEAR|CP_FLANK|CP_APPROACH_ENEMY);
+				cpFlags = (combatPointSearchFlags_t::CP_CLEAR|combatPointSearchFlags_t::CP_FLANK|combatPointSearchFlags_t::CP_APPROACH_ENEMY);
 				//Saboteur_Decloak( NPC );
 			}
 			else if ( moraleBoost > 15 )
 			{//charge to closest one (no cover needed)
-				cpFlags = (CP_CLEAR|CP_CLOSEST|CP_APPROACH_ENEMY);
+				cpFlags = (combatPointSearchFlags_t::CP_CLEAR|combatPointSearchFlags_t::CP_CLOSEST|combatPointSearchFlags_t::CP_APPROACH_ENEMY);
 				/*
-				if ( NPC->client->NPC_class == CLASS_SABOTEUR && !Q_irand( 0, 3 ) )
+				if ( NPC->client->NPC_class == class_t::CLASS_SABOTEUR && !Q_irand( 0, 3 ) )
 				{
 					Saboteur_Decloak( NPC );
 				}
@@ -1775,9 +1774,9 @@ combatPointSearchFlags_t ST_GetCPFlags( void )
 			}
 			else if ( moraleBoost > 10 )
 			{//charge closer (no cover needed)
-				cpFlags = (CP_CLEAR|CP_APPROACH_ENEMY);
+				cpFlags = (combatPointSearchFlags_t::CP_CLEAR|combatPointSearchFlags_t::CP_APPROACH_ENEMY);
 				/*
-				if ( NPC->client->NPC_class == CLASS_SABOTEUR && !Q_irand( 0, 6 ) )
+				if ( NPC->client->NPC_class == class_t::CLASS_SABOTEUR && !Q_irand( 0, 6 ) )
 				{
 					Saboteur_Decloak( NPC );
 				}
@@ -1791,23 +1790,23 @@ combatPointSearchFlags_t ST_GetCPFlags( void )
 		switch( Q_irand( 0, 3 ) )
 		{
 		case 0://just take the nearest one
-			cpFlags = (CP_CLEAR|CP_COVER|CP_NEAREST);
+			cpFlags = (combatPointSearchFlags_t::CP_CLEAR|combatPointSearchFlags_t::CP_COVER|combatPointSearchFlags_t::CP_NEAREST);
 			break;
 		case 1://take one closer to the enemy
-			cpFlags = (CP_CLEAR|CP_COVER|CP_APPROACH_ENEMY);
+			cpFlags = (combatPointSearchFlags_t::CP_CLEAR|combatPointSearchFlags_t::CP_COVER|combatPointSearchFlags_t::CP_APPROACH_ENEMY);
 			break;
 		case 2://take the one closest to the enemy
-			cpFlags = (CP_CLEAR|CP_COVER|CP_CLOSEST|CP_APPROACH_ENEMY);
+			cpFlags = (combatPointSearchFlags_t::CP_CLEAR|combatPointSearchFlags_t::CP_COVER|combatPointSearchFlags_t::CP_CLOSEST|combatPointSearchFlags_t::CP_APPROACH_ENEMY);
 			break;
 		case 3://take the one on the other side of the enemy
-			cpFlags = (CP_CLEAR|CP_COVER|CP_FLANK|CP_APPROACH_ENEMY);
+			cpFlags = (combatPointSearchFlags_t::CP_CLEAR|combatPointSearchFlags_t::CP_COVER|combatPointSearchFlags_t::CP_FLANK|combatPointSearchFlags_t::CP_APPROACH_ENEMY);
 			break;
 		}
 	}
-	if ( NPC && Any(NPCInfo->scriptFlags&SCF_USE_CP_NEAREST) )
+	if ( NPC && Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_USE_CP_NEAREST) )
 	{
-		cpFlags &= ~(CP_FLANK|CP_APPROACH_ENEMY|CP_CLOSEST);
-		cpFlags |= CP_NEAREST;
+		cpFlags &= ~(combatPointSearchFlags_t::CP_FLANK|combatPointSearchFlags_t::CP_APPROACH_ENEMY|combatPointSearchFlags_t::CP_CLOSEST);
+		cpFlags |= combatPointSearchFlags_t::CP_NEAREST;
 	}
 	return cpFlags;
 }
@@ -1852,17 +1851,17 @@ void ST_Commander( void )
 
 	if ( group->lastSeenEnemyTime < level.time - 180000 )
 	{//dissolve the group
-		ST_Speech( NPC, SPEECH_LOST, 0.0f );
+		ST_Speech( NPC, speechType_t::SPEECH_LOST, 0.0f );
 		group->enemy->waypoint = NAV::GetNearestNode(group->enemy);
 		for ( i = 0; i < group->numGroup; i++ )
 		{
 			member = &g_entities[group->member[i].number];
 			SetNPCGlobals( member );
-			if ( Q3_TaskIDPending( NPC, TID_MOVE_NAV ) )
+			if ( Q3_TaskIDPending( NPC, taskID_t::TID_MOVE_NAV ) )
 			{//running somewhere that a script requires us to go, don't break from that
 				continue;
 			}
-			if ( !Any(NPCInfo->scriptFlags&SCF_CHASE_ENEMIES) )
+			if ( !Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_CHASE_ENEMIES) )
 			{//not allowed to doMove on my own
 				continue;
 			}
@@ -1871,15 +1870,15 @@ void ST_Commander( void )
 			NPC->waypoint = NAV::GetNearestNode(group->enemy);
 			if ( NPC->waypoint == WAYPOINT_NONE )
 			{
-				NPCInfo->behaviorState = BS_DEFAULT;//BS_PATROL;
+				NPCInfo->behaviorState = bState_t::BS_DEFAULT;//bState_t::BS_PATROL;
 			}
 			else if ( group->enemy->waypoint == WAYPOINT_NONE || (NAV::EstimateCostToGoal( NPC->waypoint, group->enemy->waypoint ) >= Q3_INFINITE) )
 			{
-				NPC_BSSearchStart( NPC->waypoint, BS_SEARCH );
+				NPC_BSSearchStart( NPC->waypoint, bState_t::BS_SEARCH );
 			}
 			else
 			{
-				NPC_BSSearchStart( group->enemy->waypoint, BS_SEARCH );
+				NPC_BSSearchStart( group->enemy->waypoint, bState_t::BS_SEARCH );
 			}
 		}
 		group->enemy = nullptr;
@@ -1891,11 +1890,11 @@ void ST_Commander( void )
 	{//no-one has seen the enemy for 30 seconds// and no-one is running after him
 		if ( group->commander && !Q_irand( 0, 1 ) )
 		{
-			ST_Speech( group->commander, SPEECH_ESCAPING, 0.0f );
+			ST_Speech( group->commander, speechType_t::SPEECH_ESCAPING, 0.0f );
 		}
 		else
 		{
-			ST_Speech( NPC, SPEECH_ESCAPING, 0.0f );
+			ST_Speech( NPC, speechType_t::SPEECH_ESCAPING, 0.0f );
 		}
 		//don't say this again
 		NPCInfo->blockedSpeechDebounceTime = level.time + 3000;
@@ -1929,7 +1928,7 @@ void ST_Commander( void )
 	{
 		//reset combat point flags
 		cp = -1;
-		cpFlags = CP_ANY;
+		cpFlags = combatPointSearchFlags_t::CP_ANY;
 		avoidDist = 0;
 
 		//get the next guy
@@ -1945,34 +1944,34 @@ void ST_Commander( void )
 			continue;
 		}
 
-		if ( Q3_TaskIDPending( NPC, TID_MOVE_NAV ) )
+		if ( Q3_TaskIDPending( NPC, taskID_t::TID_MOVE_NAV ) )
 		{//running somewhere that a script requires us to go
 			continue;
 		}
 
-		if ( NPC->s.weapon == WP_NONE
+		if ( NPC->s.weapon == weapon_t::WP_NONE
 			&& NPCInfo->goalEntity
 			&& NPCInfo->goalEntity == NPCInfo->tempGoal
-			&& NPCInfo->goalEntity->s.eType == ET_ITEM )
+			&& NPCInfo->goalEntity->s.eType == entityType_t::ET_ITEM )
 		{//running to pick up a gun, don't do other logic
 			continue;
 		}
 
 
-		if ( !Any(NPCInfo->scriptFlags&SCF_CHASE_ENEMIES) )
+		if ( !Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_CHASE_ENEMIES) )
 		{//not allowed to do combat-movement
 			continue;
 		}
 
 
-		if ( NPC->client->ps.weapon == WP_NONE )
+		if ( NPC->client->ps.weapon == weapon_t::WP_NONE )
 		{//weaponless, should be hiding
-			if ( NPCInfo->goalEntity == nullptr || NPCInfo->goalEntity->enemy == nullptr || NPCInfo->goalEntity->enemy->s.eType != ET_ITEM )
+			if ( NPCInfo->goalEntity == nullptr || NPCInfo->goalEntity->enemy == nullptr || NPCInfo->goalEntity->enemy->s.eType != entityType_t::ET_ITEM )
 			{//not running after a pickup
 				if ( TIMER_Done( NPC, "hideTime" ) || (DistanceSquared( group->enemy->currentOrigin, NPC->currentOrigin ) < 65536 && NPC_ClearLOS( NPC->enemy )) )
 				{//done hiding or enemy near and can see us
 					//er, start another flee I guess?
-					NPC_StartFlee( NPC->enemy, NPC->enemy->currentOrigin, AEL_DANGER_GREAT, 5000, 10000 );
+					NPC_StartFlee( NPC->enemy, NPC->enemy->currentOrigin, alertEventLevel_e::AEL_DANGER_GREAT, 5000, 10000 );
 				}//else, just hang here
 			}
 			continue;
@@ -2021,16 +2020,16 @@ void ST_Commander( void )
 					continue;
 				if ( !(ent->inuse) )
 					continue;
-				if ( ent->s.eType == ET_MISSILE )
+				if ( ent->s.eType == entityType_t::ET_MISSILE )
 				{
-					if ( ent->s.weapon == WP_THERMAL )
+					if ( ent->s.weapon == weapon_t::WP_THERMAL )
 					{//a thermal
 						if ( ent->has_bounced && (!ent->owner || !OnSameTeam(ent->owner, NPC)))
 						{//bounced and an enemy thermal
-							ST_Speech( NPC, SPEECH_COVER, 0 );//FIXME: flee sound?
-							NPC_StartFlee(NPC->enemy, ent->currentOrigin, AEL_DANGER_GREAT, 1000, 2000);
+							ST_Speech( NPC, speechType_t::SPEECH_COVER, 0 );//FIXME: flee sound?
+							NPC_StartFlee(NPC->enemy, ent->currentOrigin, alertEventLevel_e::AEL_DANGER_GREAT, 1000, 2000);
 							fled = true;
-//							cpFlags |= (CP_CLEAR|CP_COVER);	// NOPE, Can't See The Enemy, So Find A New Combat Point
+//							cpFlags |= (combatPointSearchFlags_t::CP_CLEAR|combatPointSearchFlags_t::CP_COVER);	// NOPE, Can't See The Enemy, So Find A New Combat Point
 							TIMER_Set (NPC, "checkGrenadeTooCloseDebouncer", Q_irand(2000, 4000));
 							break;
 						}
@@ -2051,13 +2050,13 @@ void ST_Commander( void )
 			TIMER_Set (NPC, "checkEnemyVisDebouncer", Q_irand(3000, 7000));
 			if (!NPC_ClearLOS(NPC->enemy))
 			{
-				cpFlags |= (CP_CLEAR|CP_COVER);	// NOPE, Can't See The Enemy, So Find A New Combat Point
+				cpFlags |= (combatPointSearchFlags_t::CP_CLEAR|combatPointSearchFlags_t::CP_COVER);	// NOPE, Can't See The Enemy, So Find A New Combat Point
 			}
 		}
 
 		// Check To See If The Enemy Is Too Close For Comfort
 		//----------------------------------------------------
-		if (NPC->client->NPC_class!=CLASS_ASSASSIN_DROID)
+		if (NPC->client->NPC_class!=class_t::CLASS_ASSASSIN_DROID)
 		{
 			if (TIMER_Done(NPC, "checkEnemyTooCloseDebouncer"))
 			{
@@ -2066,21 +2065,21 @@ void ST_Commander( void )
 				float distThreshold = 16384/*128*128*/;//default
 				switch ( NPC->s.weapon )
 				{
-				case WP_ROCKET_LAUNCHER:
-				case WP_FLECHETTE:
-				case WP_THERMAL:
-				case WP_TRIP_MINE:
-				case WP_DET_PACK:
+				case weapon_t::WP_ROCKET_LAUNCHER:
+				case weapon_t::WP_FLECHETTE:
+				case weapon_t::WP_THERMAL:
+				case weapon_t::WP_TRIP_MINE:
+				case weapon_t::WP_DET_PACK:
 					distThreshold = 65536/*256*256*/;
 					break;
-				case WP_REPEATER:
-					if ( Any(NPCInfo->scriptFlags&SCF_ALT_FIRE) )
+				case weapon_t::WP_REPEATER:
+					if ( Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_ALT_FIRE) )
 					{
 						distThreshold = 65536/*256*256*/;
 					}
 					break;
-				case WP_CONCUSSION:
-					if ( !Any(NPCInfo->scriptFlags&SCF_ALT_FIRE) )
+				case weapon_t::WP_CONCUSSION:
+					if ( !Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_ALT_FIRE) )
 					{
 						distThreshold = 65536/*256*256*/;
 					}
@@ -2091,21 +2090,21 @@ void ST_Commander( void )
 
 				if ( DistanceSquared( group->enemy->currentOrigin, NPC->currentOrigin ) < distThreshold )
 				{
-					cpFlags |= (CP_CLEAR|CP_COVER);
+					cpFlags |= (combatPointSearchFlags_t::CP_CLEAR|combatPointSearchFlags_t::CP_COVER);
 				}
 			}
 		}
 
 
 		//clear the local state
-		NPC_SetLocalState( *NPCInfo, LSTATE_NONE );
+		NPC_SetLocalState( *NPCInfo, soldierLocalState_t::LSTATE_NONE );
 
-		cpFlags &= ~CP_NEAREST;
+		cpFlags &= ~combatPointSearchFlags_t::CP_NEAREST;
 		//Assign combat points
 		if ( Any(cpFlags) )
 		{//we want to run to a combat point
 			//always avoid enemy when picking combat points, and we always want to be able to get there
-			cpFlags		|= CP_AVOID_ENEMY|CP_HAS_ROUTE|CP_TRYFAR;
+			cpFlags		|= combatPointSearchFlags_t::CP_AVOID_ENEMY|combatPointSearchFlags_t::CP_HAS_ROUTE|combatPointSearchFlags_t::CP_TRYFAR;
 			avoidDist	 = 200;
 
 			//now get a combat point
@@ -2126,25 +2125,25 @@ void ST_Commander( void )
 				NPC_SetMoveGoal( NPC, level.combatPoints[cp].origin, 8, true, cp );
 
 				// If Successfully
-				if (Any(cpFlags&CP_FLANK) || (Any(cpFlags&CP_COVER) && Any(cpFlags&CP_CLEAR)))
+				if (Any(cpFlags&combatPointSearchFlags_t::CP_FLANK) || (Any(cpFlags&combatPointSearchFlags_t::CP_COVER) && Any(cpFlags&combatPointSearchFlags_t::CP_CLEAR)))
 				{
 				}
 				else if (Q_irand(0,3)==0)
 				{
-					NPCInfo->aiFlags |= NPCAI_STOP_AT_LOS;
+					NPCInfo->aiFlags |= npcAiFlags_t::NPCAI_STOP_AT_LOS;
 				}
 
 				//okay, try a doMove right now to see if we can even get there
-				if ( Any(cpFlags&CP_FLANK) )
+				if ( Any(cpFlags&combatPointSearchFlags_t::CP_FLANK) )
 				{
 					if ( group->numGroup > 1 )
 					{
-						NPC_ST_StoreMovementSpeech( SPEECH_OUTFLANK, -1 );
+						NPC_ST_StoreMovementSpeech( speechType_t::SPEECH_OUTFLANK, -1 );
 					}
 				}
-				else if ( Any(cpFlags&CP_COVER) && !Any(cpFlags&CP_CLEAR) )
+				else if ( Any(cpFlags&combatPointSearchFlags_t::CP_COVER) && !Any(cpFlags&combatPointSearchFlags_t::CP_CLEAR) )
 				{//going into hiding
-					NPC_ST_StoreMovementSpeech( SPEECH_COVER, -1 );
+					NPC_ST_StoreMovementSpeech( speechType_t::SPEECH_COVER, -1 );
 				}
 				else
 				{
@@ -2152,11 +2151,11 @@ void ST_Commander( void )
 					{//hell, we're loading the sounds, use them every now and then!
 						if ( Q_irand( 0, 1 ) )
 						{
-							NPC_ST_StoreMovementSpeech( SPEECH_OUTFLANK, -1 );
+							NPC_ST_StoreMovementSpeech( speechType_t::SPEECH_OUTFLANK, -1 );
 						}
 						else
 						{
-							NPC_ST_StoreMovementSpeech( SPEECH_ESCAPING, -1 );
+							NPC_ST_StoreMovementSpeech( speechType_t::SPEECH_ESCAPING, -1 );
 						}
 					}
 				}
@@ -2194,8 +2193,8 @@ void Noghri_StickTrace( void )
 						boltIndex,
 						&boltMatrix, angles, NPC->currentOrigin, time,
 						nullptr, NPC->s.modelScale );
-			gi.G2API_GiveMeVectorFromMatrix( boltMatrix, ORIGIN, base );
-			gi.G2API_GiveMeVectorFromMatrix( boltMatrix, POSITIVE_Y, dir );
+			gi.G2API_GiveMeVectorFromMatrix( boltMatrix, Eorientations::ORIGIN, base );
+			gi.G2API_GiveMeVectorFromMatrix( boltMatrix, Eorientations::POSITIVE_Y, dir );
 			VectorMA( base, 48, dir, tip );
 	#ifndef FINAL_BUILD
 			if ( d_saberCombat->integer > 1 )
@@ -2203,7 +2202,7 @@ void Noghri_StickTrace( void )
 				G_DebugLine(base, tip, FRAMETIME, 0x000000ff, true);
 			}
 	#endif
-			gi.trace( &trace, base, mins, maxs, tip, NPC->s.number, MASK_SHOT, G2_RETURNONHIT, 10 );
+			gi.trace( &trace, base, mins, maxs, tip, NPC->s.number, MASK_SHOT, EG2_Collision::G2_RETURNONHIT, 10 );
 			if ( trace.fraction < 1.0f && trace.entityNum != lastHit )
 			{//hit something
 				gentity_t *traceEnt = &g_entities[trace.entityNum];
@@ -2213,7 +2212,7 @@ void Noghri_StickTrace( void )
 					int dmg = Q_irand( 12, 20 );//FIXME: base on skill!
 					//FIXME: debounce?
 					G_Sound( traceEnt, G_SoundIndex( va( "sound/weapons/tusken_staff/stickhit%d.wav", Q_irand( 1, 4 ) ) ) );
-					G_Damage( traceEnt, NPC, NPC, vec3_origin, trace.endpos, dmg, DAMAGE_NO_KNOCKBACK, MOD_MELEE );
+					G_Damage( traceEnt, NPC, NPC, vec3_origin, trace.endpos, dmg, damageFlags_t::DAMAGE_NO_KNOCKBACK, meansOfDeath_t::MOD_MELEE );
 					if ( traceEnt->health > 0 && dmg > 17 )
 					{//do pain on enemy
 						G_Knockdown( traceEnt, NPC, dir, 300, true );
@@ -2244,7 +2243,7 @@ void NPC_BSST_Attack( void )
 	//If we don't have an enemy, just idle
 	if ( NPC_CheckEnemyExt() == false )//!NPC->enemy )//
 	{
-		if( NPC->client->playerTeam == TEAM_PLAYER )
+		if( NPC->client->playerTeam == team_t::TEAM_PLAYER )
 		{
 			NPC_BSPatrol();
 		}
@@ -2292,9 +2291,9 @@ void NPC_BSST_Attack( void )
 #endif//	AI_TIMERS
 		}
 	}
-	else if ( TIMER_Done( NPC, "flee" ) && NPC_CheckForDanger( NPC_CheckAlertEvents( true, true, -1, false, AEL_DANGER ) ) )
+	else if ( TIMER_Done( NPC, "flee" ) && NPC_CheckForDanger( NPC_CheckAlertEvents( true, true, -1, false, alertEventLevel_e::AEL_DANGER ) ) )
 	{//not already fleeing, and going to run
-		ST_Speech( NPC, SPEECH_COVER, 0 );
+		ST_Speech( NPC, speechType_t::SPEECH_COVER, 0 );
 		NPC_UpdateAngles( true, true );
 		return;
 	}
@@ -2331,20 +2330,20 @@ void NPC_BSST_Attack( void )
 
 	if ( enemyDist < MIN_ROCKET_DIST_SQUARED )//128
 	{//enemy within 128
-		if ( (NPC->client->ps.weapon == WP_FLECHETTE || NPC->client->ps.weapon == WP_REPEATER) &&
-			Any(NPCInfo->scriptFlags & SCF_ALT_FIRE) )
+		if ( (NPC->client->ps.weapon == weapon_t::WP_FLECHETTE || NPC->client->ps.weapon == weapon_t::WP_REPEATER) &&
+			Any(NPCInfo->scriptFlags & scriptFlags_t::SCF_ALT_FIRE) )
 		{//shooting an explosive, but enemy too close, switch to primary fire
-			NPCInfo->scriptFlags &= ~SCF_ALT_FIRE;
+			NPCInfo->scriptFlags &= ~scriptFlags_t::SCF_ALT_FIRE;
 			//FIXME: we can never go back to alt-fire this way since, after this, we don't know if we were initially supposed to use alt-fire or not...
 		}
 	}
 	else if ( enemyDist > 65536 )//256 squared
 	{
-		if ( NPC->client->ps.weapon == WP_DISRUPTOR )
+		if ( NPC->client->ps.weapon == weapon_t::WP_DISRUPTOR )
 		{//sniping...
-			if ( !Any(NPCInfo->scriptFlags&SCF_ALT_FIRE) )
+			if ( !Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_ALT_FIRE) )
 			{//use primary fire
-				NPCInfo->scriptFlags |= SCF_ALT_FIRE;
+				NPCInfo->scriptFlags |= scriptFlags_t::SCF_ALT_FIRE;
 				//reset fire-timing variables
 				NPC_ChangeWeapon( NPC->client->ps.weapon );
 				NPC_UpdateAngles( true, true );
@@ -2360,7 +2359,7 @@ void NPC_BSST_Attack( void )
 		NPCInfo->enemyLastSeenTime = level.time;
 		enemyLOS = true;
 
-		if ( NPC->client->ps.weapon == WP_NONE )
+		if ( NPC->client->ps.weapon == weapon_t::WP_NONE )
 		{
 			enemyCS = false;//not true, but should stop us from firing
 			NPC_AimAdjust( -1 );//adjust aim worse longer we have no weapon
@@ -2370,9 +2369,9 @@ void NPC_BSST_Attack( void )
 			if ((enemyDist < MIN_ROCKET_DIST_SQUARED) &&
 				((level.time - NPC->lastMoveTime)<5000) &&
 				(
-				(NPC->client->ps.weapon == WP_ROCKET_LAUNCHER
-				|| (NPC->client->ps.weapon == WP_CONCUSSION && !Any(NPCInfo->scriptFlags&SCF_ALT_FIRE))
-				|| (NPC->client->ps.weapon == WP_FLECHETTE && Any(NPCInfo->scriptFlags&SCF_ALT_FIRE)))))
+				(NPC->client->ps.weapon == weapon_t::WP_ROCKET_LAUNCHER
+				|| (NPC->client->ps.weapon == weapon_t::WP_CONCUSSION && !Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_ALT_FIRE))
+				|| (NPC->client->ps.weapon == weapon_t::WP_FLECHETTE && Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_ALT_FIRE)))))
 			{
 				enemyCS = false;//not true, but should stop us from firing
 				hitAlly = true;//us!
@@ -2385,7 +2384,7 @@ void NPC_BSST_Attack( void )
 
 				if ( hit == NPC->enemy->s.number
 					|| ( hitEnt && hitEnt->client && hitEnt->client->playerTeam == NPC->client->enemyTeam )
-					|| ( hitEnt && hitEnt->takedamage && (Any( hitEnt->svFlags & SVF_GLASS_BRUSH )||hitEnt->health < 40||NPC->s.weapon == WP_EMPLACED_GUN) ) )
+					|| ( hitEnt && hitEnt->takedamage && (Any( hitEnt->svFlags & svFlags_t::SVF_GLASS_BRUSH )||hitEnt->health < 40||NPC->s.weapon == weapon_t::WP_EMPLACED_GUN) ) )
 				{//can hit enemy or enemy ally or will hit glass or other minor breakable (or in emplaced gun), so shoot anyway
 					AI_GroupUpdateClearShotTime( NPCInfo->group );
 					enemyCS = true;
@@ -2418,7 +2417,7 @@ void NPC_BSST_Attack( void )
 		NPC_AimAdjust( -1 );//adjust aim worse longer we cannot see enemy
 	}
 
-	if ( NPC->client->ps.weapon == WP_NONE )
+	if ( NPC->client->ps.weapon == weapon_t::WP_NONE )
 	{
 		faceEnemy = false;
 		shoot = false;
@@ -2446,21 +2445,21 @@ void NPC_BSST_Attack( void )
 		NPC_FaceEnemy( true );
 	}
 
-	if ( !Any(NPCInfo->scriptFlags&SCF_CHASE_ENEMIES) )
+	if ( !Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_CHASE_ENEMIES) )
 	{//not supposed to chase my enemies
 		if ( NPCInfo->goalEntity == NPC->enemy )
 		{//goal is my entity, so don't doMove
 			doMove = false;
 		}
 	}
-	else if (Any(NPC->NPC->scriptFlags&SCF_NO_GROUPS))
+	else if (Any(NPC->NPC->scriptFlags&scriptFlags_t::SCF_NO_GROUPS))
 	{
 			//	NPCInfo->goalEntity = UpdateGoal();
 
  		NPCInfo->goalEntity = (enemyLOS)?(nullptr):(NPC->enemy);
 	}
 
-	if ( NPC->client->fireDelay && NPC->s.weapon == WP_ROCKET_LAUNCHER )
+	if ( NPC->client->fireDelay && NPC->s.weapon == weapon_t::WP_ROCKET_LAUNCHER )
 	{
 		doMove = false;
 	}
@@ -2500,7 +2499,7 @@ void NPC_BSST_Attack( void )
 		}
 	}
 
-	if ( NPC->client->ps.legsAnim == BOTH_GUARD_LOOKAROUND1 )
+	if ( NPC->client->ps.legsAnim == animNumber_t::BOTH_GUARD_LOOKAROUND1 )
 	{//don't doMove when doing silly look around thing
 		doMove = false;
 	}
@@ -2509,7 +2508,7 @@ void NPC_BSST_Attack( void )
 		if ( NPCInfo->goalEntity )//&& ( NPCInfo->goalEntity != NPC->enemy || enemyDist > 10000 ) )//100 squared
 		{
 			doMove = ST_Move();
-			if ( (NPC->client->NPC_class != CLASS_ROCKETTROOPER||NPC->s.weapon!=WP_ROCKET_LAUNCHER||enemyDist<MIN_ROCKET_DIST_SQUARED)//rockettroopers who use rocket launchers turn around and run if you get too close (closer than 128)
+			if ( (NPC->client->NPC_class != class_t::CLASS_ROCKETTROOPER||NPC->s.weapon!=weapon_t::WP_ROCKET_LAUNCHER||enemyDist<MIN_ROCKET_DIST_SQUARED)//rockettroopers who use rocket launchers turn around and run if you get too close (closer than 128)
 				&& ucmd.forwardmove <= -32 )
 			{//moving backwards at least 45 degrees
 				if ( NPCInfo->goalEntity
@@ -2541,7 +2540,7 @@ void NPC_BSST_Attack( void )
 
 	if ( !doMove )
 	{
-		if (NPC->client->NPC_class != CLASS_ASSASSIN_DROID)
+		if (NPC->client->NPC_class != class_t::CLASS_ASSASSIN_DROID)
 		{
 			if ( !TIMER_Done( NPC, "duck" ) )
 			{
@@ -2555,9 +2554,9 @@ void NPC_BSST_Attack( void )
 		TIMER_Set( NPC, "duck", -1 );
 	}
 
-	if ( NPC->client->NPC_class == CLASS_REBORN//cultist using a gun
-		&& NPCInfo->rank >= RANK_LT_COMM //commando or better
-		&& NPC->enemy->s.weapon == WP_SABER )//fighting a saber-user
+	if ( NPC->client->NPC_class == class_t::CLASS_REBORN//cultist using a gun
+		&& NPCInfo->rank >= rank_t::RANK_LT_COMM //commando or better
+		&& NPC->enemy->s.weapon == weapon_t::WP_SABER )//fighting a saber-user
 	{//commando saboteur vs. jedi/reborn
 		//see if we need to avoid their saber
 		NPC_EvasionSaber();
@@ -2586,14 +2585,14 @@ void NPC_BSST_Attack( void )
 		}
 	}
 
-	if ( Any( NPCInfo->scriptFlags & SCF_DONT_FIRE ) )
+	if ( Any( NPCInfo->scriptFlags & scriptFlags_t::SCF_DONT_FIRE ) )
 	{
 		shoot = false;
 	}
 
 	if ( NPC->enemy && NPC->enemy->enemy )
 	{
-		if ( NPC->enemy->s.weapon == WP_SABER && NPC->enemy->enemy->s.weapon == WP_SABER )
+		if ( NPC->enemy->s.weapon == weapon_t::WP_SABER && NPC->enemy->enemy->s.weapon == weapon_t::WP_SABER )
 		{//don't shoot at an enemy jedi who is fighting another jedi, for fear of injuring one or causing rogue blaster deflections (a la Obi Wan/Vader duel at end of ANH)
 			shoot = false;
 		}
@@ -2601,12 +2600,12 @@ void NPC_BSST_Attack( void )
 	//FIXME: don't shoot right away!
 	if ( NPC->client->fireDelay )
 	{
-		if ( NPC->client->NPC_class == CLASS_SABOTEUR )
+		if ( NPC->client->NPC_class == class_t::CLASS_SABOTEUR )
 		{
 			Saboteur_Decloak( NPC );
 		}
-		if ( NPC->s.weapon == WP_ROCKET_LAUNCHER
-			|| (NPC->s.weapon==WP_CONCUSSION&&!Any(NPCInfo->scriptFlags&SCF_ALT_FIRE)) )
+		if ( NPC->s.weapon == weapon_t::WP_ROCKET_LAUNCHER
+			|| (NPC->s.weapon==weapon_t::WP_CONCUSSION&&!Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_ALT_FIRE)) )
 		{
 			if ( !enemyLOS || !enemyCS )
 			{//cancel it
@@ -2620,34 +2619,34 @@ void NPC_BSST_Attack( void )
 	}
 	else if ( shoot )
 	{//try to shoot if it's time
-		if ( NPC->client->NPC_class == CLASS_SABOTEUR )
+		if ( NPC->client->NPC_class == class_t::CLASS_SABOTEUR )
 		{
 			Saboteur_Decloak( NPC );
 		}
 		if ( TIMER_Done( NPC, "attackDelay" ) )
 		{
-			if( !Any(NPCInfo->scriptFlags & SCF_FIRE_WEAPON) ) // we've already fired, no need to do it again here
+			if( !Any(NPCInfo->scriptFlags & scriptFlags_t::SCF_FIRE_WEAPON) ) // we've already fired, no need to do it again here
 			{
 				WeaponThink( true );
 			}
 			//NASTY
-			if ( NPC->s.weapon == WP_ROCKET_LAUNCHER )
+			if ( NPC->s.weapon == weapon_t::WP_ROCKET_LAUNCHER )
 			{
-				if ( Any(ucmd.buttons&BUTTON_ATTACK)
+				if ( Any(ucmd.buttons&buttonFlags_t::BUTTON_ATTACK)
 					&& !doMove
 					&& g_spskill->integer > 1
 					&& !Q_irand( 0, 3 ) )
 				{//every now and then, shoot a homing rocket
-					ucmd.buttons &= ~BUTTON_ATTACK;
-					ucmd.buttons |= BUTTON_ALT_ATTACK;
+					ucmd.buttons &= ~buttonFlags_t::BUTTON_ATTACK;
+					ucmd.buttons |= buttonFlags_t::BUTTON_ALT_ATTACK;
 					NPC->client->fireDelay = Q_irand( 1000, 2500 );
 				}
 			}
-			else if ( NPC->s.weapon == WP_NOGHRI_STICK
+			else if ( NPC->s.weapon == weapon_t::WP_NOGHRI_STICK
 				&& enemyDist < (48*48) )//?
 			{
-				ucmd.buttons &= ~BUTTON_ATTACK;
-				ucmd.buttons |= BUTTON_ALT_ATTACK;
+				ucmd.buttons &= ~buttonFlags_t::BUTTON_ATTACK;
+				ucmd.buttons |= buttonFlags_t::BUTTON_ALT_ATTACK;
 				NPC->client->fireDelay = Q_irand( 1500, 2000 );
 			}
 		}
@@ -2656,7 +2655,7 @@ void NPC_BSST_Attack( void )
 	{
 		if ( NPC->attackDebounceTime < level.time )
 		{
-			if ( NPC->client->NPC_class == CLASS_SABOTEUR )
+			if ( NPC->client->NPC_class == class_t::CLASS_SABOTEUR )
 			{
 				Saboteur_Cloak( NPC );
 			}
@@ -2667,12 +2666,12 @@ void NPC_BSST_Attack( void )
 extern bool G_TuskenAttackAnimDamage( gentity_t *self );
 void NPC_BSST_Default( void )
 {
-	if( Any( NPCInfo->scriptFlags & SCF_FIRE_WEAPON ) )
+	if( Any( NPCInfo->scriptFlags & scriptFlags_t::SCF_FIRE_WEAPON ) )
 	{
 		WeaponThink( true );
 	}
 
-	if ( NPC->s.weapon == WP_NOGHRI_STICK )
+	if ( NPC->s.weapon == weapon_t::WP_NOGHRI_STICK )
 	{
 		if ( G_TuskenAttackAnimDamage( NPC ) )
 		{
@@ -2687,9 +2686,9 @@ void NPC_BSST_Default( void )
 	else //if ( NPC->enemy )
 	{//have an enemy
 		if ( NPC->enemy->client //enemy is a client
-			&& (NPC->enemy->client->NPC_class == CLASS_UGNAUGHT || NPC->enemy->client->NPC_class == CLASS_JAWA )//enemy is a lowly jawa or ugnaught
+			&& (NPC->enemy->client->NPC_class == class_t::CLASS_UGNAUGHT || NPC->enemy->client->NPC_class == class_t::CLASS_JAWA )//enemy is a lowly jawa or ugnaught
 			&& NPC->enemy->enemy != NPC//enemy's enemy is not me
-			&& (!NPC->enemy->enemy || !NPC->enemy->enemy->client || (NPC->enemy->enemy->client->NPC_class!=CLASS_RANCOR&&NPC->enemy->enemy->client->NPC_class!=CLASS_WAMPA)) )//enemy's enemy is not a client or is not a wampa or rancor (which is scarier than me)
+			&& (!NPC->enemy->enemy || !NPC->enemy->enemy->client || (NPC->enemy->enemy->client->NPC_class!=class_t::CLASS_RANCOR&&NPC->enemy->enemy->client->NPC_class!=class_t::CLASS_WAMPA)) )//enemy's enemy is not a client or is not a wampa or rancor (which is scarier than me)
 		{//they should be scared of ME and no-one else
 			G_SetEnemy( NPC->enemy, NPC );
 		}

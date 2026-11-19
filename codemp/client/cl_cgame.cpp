@@ -63,7 +63,7 @@ bool CL_GetUserCmd( int cmdNumber, usercmd_t *ucmd ) {
 
 	// can't return anything that we haven't created yet
 	if ( cmdNumber > cl.cmdNumber ) {
-		Com_Error( ERR_DROP, "CL_GetUserCmd: %i >= %i", cmdNumber, cl.cmdNumber );
+		Com_Error( errorParm_t::ERR_DROP, "CL_GetUserCmd: %i >= %i", cmdNumber, cl.cmdNumber );
 	}
 
 	// the usercmd has been overwritten in the wrapping
@@ -85,7 +85,7 @@ CL_GetParseEntityState
 bool	CL_GetParseEntityState( int parseEntityNumber, entityState_t *state ) {
 	// can't return anything that hasn't been parsed yet
 	if ( parseEntityNumber >= cl.parseEntitiesNum ) {
-		Com_Error( ERR_DROP, "CL_GetParseEntityState: %i >= %i",
+		Com_Error( errorParm_t::ERR_DROP, "CL_GetParseEntityState: %i >= %i",
 			parseEntityNumber, cl.parseEntitiesNum );
 	}
 
@@ -108,7 +108,7 @@ bool CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
 	int				i, count;
 
 	if ( snapshotNumber > cl.snap.messageNum ) {
-		Com_Error( ERR_DROP, "CL_GetSnapshot: snapshotNumber > cl.snapshot.messageNum" );
+		Com_Error( errorParm_t::ERR_DROP, "CL_GetSnapshot: snapshotNumber > cl.snapshot.messageNum" );
 	}
 
 	// if the frame has fallen out of the circular buffer, we can't return it
@@ -165,7 +165,7 @@ bool CL_GetDefaultState(int index, entityState_t *state)
 		return false;
 	}
 
-	if (!Any(cl.entityBaselines[index].eFlags & EF_PERMANENT))
+	if (!Any(cl.entityBaselines[index].eFlags & entityFlags_t::EF_PERMANENT))
 	{
 		return false;
 	}
@@ -225,7 +225,7 @@ void CL_ConfigstringModified( void ) {
 
 	index = atoi( Cmd_Argv(1) );
 	if ( index < 0 || index >= MAX_CONFIGSTRINGS ) {
-		Com_Error( ERR_DROP, "CL_ConfigstringModified: bad index %i", index );
+		Com_Error( errorParm_t::ERR_DROP, "CL_ConfigstringModified: bad index %i", index );
 	}
 	// get everything after "cs <num>"
 	s = Cmd_ArgsFrom(2);
@@ -256,7 +256,7 @@ void CL_ConfigstringModified( void ) {
 		len = strlen( dup );
 
 		if ( len + 1 + cl.gameState.dataCount > MAX_GAMESTATE_CHARS ) {
-			Com_Error( ERR_DROP, "MAX_GAMESTATE_CHARS exceeded" );
+			Com_Error( errorParm_t::ERR_DROP, "MAX_GAMESTATE_CHARS exceeded" );
 		}
 
 		// append it to the gameState string buffer
@@ -403,12 +403,12 @@ bool CL_GetServerCommand( int serverCommandNumber ) {
 			}
 			i++;
 		}
-		Com_Error( ERR_DROP, "CL_GetServerCommand: a reliable command was cycled out" );
+		Com_Error( errorParm_t::ERR_DROP, "CL_GetServerCommand: a reliable command was cycled out" );
 		return false;
 	}
 
 	if ( serverCommandNumber > clc.serverCommandSequence ) {
-		Com_Error( ERR_DROP, "CL_GetServerCommand: requested a command not received" );
+		Com_Error( errorParm_t::ERR_DROP, "CL_GetServerCommand: requested a command not received" );
 		return false;
 	}
 
@@ -424,7 +424,7 @@ rescan:
 	if ( !strcmp( cmd, "disconnect" ) ) {
 		char strEd[MAX_STRINGED_SV_STRING];
 		CL_CheckSVStringEdRef(strEd, Cmd_Argv(1));
-		Com_Error (ERR_SERVERDISCONNECT, "%s: %s\n", SE_GetString("MP_SVGAME_SERVER_DISCONNECTED"), strEd );
+		Com_Error (errorParm_t::ERR_SERVERDISCONNECT, "%s: %s\n", SE_GetString("MP_SVGAME_SERVER_DISCONNECTED"), strEd );
 	}
 
 	if ( !strcmp( cmd, "bcs0" ) ) {
@@ -435,7 +435,7 @@ rescan:
 	if ( !strcmp( cmd, "bcs1" ) ) {
 		s = Cmd_Argv(2);
 		if( strlen(bigConfigString) + strlen(s) >= BIG_INFO_STRING ) {
-			Com_Error( ERR_DROP, "bcs exceeded BIG_INFO_STRING" );
+			Com_Error( errorParm_t::ERR_DROP, "bcs exceeded BIG_INFO_STRING" );
 		}
 		strcat( bigConfigString, s );
 		return false;
@@ -444,7 +444,7 @@ rescan:
 	if ( !strcmp( cmd, "bcs2" ) ) {
 		s = Cmd_Argv(2);
 		if( strlen(bigConfigString) + strlen(s) + 1 >= BIG_INFO_STRING ) {
-			Com_Error( ERR_DROP, "bcs exceeded BIG_INFO_STRING" );
+			Com_Error( errorParm_t::ERR_DROP, "bcs exceeded BIG_INFO_STRING" );
 		}
 		strcat( bigConfigString, s );
 		strcat( bigConfigString, "\"" );
@@ -501,7 +501,7 @@ CL_ShutdonwCGame
 ====================
 */
 void CL_ShutdownCGame( void ) {
-	Key_SetCatcher( Key_GetCatcher( ) & ~KEYCATCH_CGAME );
+	Key_SetCatcher( Key_GetCatcher( ) & ~keyCatchFlags_t::KEYCATCH_CGAME );
 
 	if ( !cls.cgameStarted )
 		return;
@@ -537,7 +537,7 @@ void CL_InitCGame( void ) {
 	// load the dll
 	CL_BindCGame();
 
-	cls.state = CA_LOADING;
+	cls.state = connstate_t::CA_LOADING;
 
 	// init for this gamestate
 	// use the lastExecutedServerCommand instead of the serverCommandSequence
@@ -550,7 +550,7 @@ void CL_InitCGame( void ) {
 
 	// we will send a usercmd this frame, which
 	// will cause the server to send us the first snapshot
-	cls.state = CA_PRIMED;
+	cls.state = connstate_t::CA_PRIMED;
 
 	t2 = Sys_Milliseconds();
 
@@ -932,13 +932,13 @@ CL_FirstSnapshot
 */
 void CL_FirstSnapshot( void ) {
 	// ignore snapshots that don't have entities
-	if ( Any( cl.snap.snapFlags & SNAPFLAG_NOT_ACTIVE ) ) {
+	if ( Any( cl.snap.snapFlags & snapFlags_t::SNAPFLAG_NOT_ACTIVE ) ) {
 		return;
 	}
 
 	re->RegisterMedia_LevelLoadEnd();
 
-	cls.state = CA_ACTIVE;
+	cls.state = connstate_t::CA_ACTIVE;
 
 	// set the timedelta so we are exactly on this first frame; in a game one interval behind it, the delay the
 	// client keeps until its window has samples (CL_AdjustTimeDelta): at no delay it would extrapolate
@@ -969,8 +969,8 @@ CL_SetCGameTime
 */
 void CL_SetCGameTime( void ) {
 	// getting a valid frame message ends the connection process
-	if ( cls.state != CA_ACTIVE ) {
-		if ( cls.state != CA_PRIMED ) {
+	if ( cls.state != connstate_t::CA_ACTIVE ) {
+		if ( cls.state != connstate_t::CA_PRIMED ) {
 			return;
 		}
 		if ( clc.demoplaying ) {
@@ -986,14 +986,14 @@ void CL_SetCGameTime( void ) {
 			cl.newSnapshots = false;
 			CL_FirstSnapshot();
 		}
-		if ( cls.state != CA_ACTIVE ) {
+		if ( cls.state != connstate_t::CA_ACTIVE ) {
 			return;
 		}
 	}
 
 	// if we have gotten to this point, cl.snap is guaranteed to be valid
 	if ( !cl.snap.valid ) {
-		Com_Error( ERR_DROP, "CL_SetCGameTime: !cl.snap.valid" );
+		Com_Error( errorParm_t::ERR_DROP, "CL_SetCGameTime: !cl.snap.valid" );
 	}
 
 	// allow pause in single player
@@ -1003,7 +1003,7 @@ void CL_SetCGameTime( void ) {
 	}
 
 	if ( cl.snap.serverTime < cl.oldFrameServerTime ) {
-		Com_Error( ERR_DROP, "cl.snap.serverTime < cl.oldFrameServerTime" );
+		Com_Error( errorParm_t::ERR_DROP, "cl.snap.serverTime < cl.oldFrameServerTime" );
 	}
 	cl.oldFrameServerTime = cl.snap.serverTime;
 
@@ -1065,7 +1065,7 @@ void CL_SetCGameTime( void ) {
 		// feed another messag, which should change
 		// the contents of cl.snap
 		CL_ReadDemoMessage();
-		if ( cls.state != CA_ACTIVE ) {
+		if ( cls.state != connstate_t::CA_ACTIVE ) {
 			return;		// end of demo
 		}
 	}

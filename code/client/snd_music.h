@@ -54,16 +54,15 @@ enum class MusicState_e
 	eBGRNDTRACK_NUMBEROF
 
 };
-using enum MusicState_e;
 template <> inline constexpr bool enableEnumArithmetic<MusicState_e> = true;
 
 #include "qcommon/q_sound.h"
 
-inline constexpr MusicState_e eBGRNDTRACK_DATABEGIN = eBGRNDTRACK_EXPLORE;	// label for FOR() loops (not in enum, else debugger shows in instead of the explore one unless I declare them backwards, which is gay)
-inline constexpr MusicState_e eBGRNDTRACK_DATAEND = eBGRNDTRACK_NONDYNAMIC; // tracks from this point on are for logic or copies, do NOT free them.
+inline constexpr MusicState_e eBGRNDTRACK_DATABEGIN = MusicState_e::eBGRNDTRACK_EXPLORE;	// label for FOR() loops (not in enum, else debugger shows in instead of the explore one unless I declare them backwards, which is gay)
+inline constexpr MusicState_e eBGRNDTRACK_DATAEND = MusicState_e::eBGRNDTRACK_NONDYNAMIC; // tracks from this point on are for logic or copies, do NOT free them.
 
-inline constexpr MusicState_e eBGRNDTRACK_FIRSTTRANSITION = eBGRNDTRACK_ACTIONTRANS0;	// used for "are we in transition mode" check
-inline constexpr MusicState_e eBGRNDTRACK_LASTTRANSITION = eBGRNDTRACK_EXPLORETRANS3;	//
+inline constexpr MusicState_e eBGRNDTRACK_FIRSTTRANSITION = MusicState_e::eBGRNDTRACK_ACTIONTRANS0;	// used for "are we in transition mode" check
+inline constexpr MusicState_e eBGRNDTRACK_LASTTRANSITION = MusicState_e::eBGRNDTRACK_EXPLORETRANS3;	//
 
 
 void		Music_SetLevelName			( const char *psLevelName );

@@ -56,10 +56,10 @@ void RB_CheckOverflow( int verts, int indexes ) {
 	RB_EndSurface();
 
 	if ( verts >= SHADER_MAX_VERTEXES ) {
-		Com_Error(ERR_DROP, "RB_CheckOverflow: verts > MAX (%d > %d)", verts, SHADER_MAX_VERTEXES );
+		Com_Error(errorParm_t::ERR_DROP, "RB_CheckOverflow: verts > MAX (%d > %d)", verts, SHADER_MAX_VERTEXES );
 	}
 	if ( indexes >= SHADER_MAX_INDEXES ) {
-		Com_Error(ERR_DROP, "RB_CheckOverflow: indices > MAX (%d > %d)", indexes, SHADER_MAX_INDEXES );
+		Com_Error(errorParm_t::ERR_DROP, "RB_CheckOverflow: indices > MAX (%d > %d)", indexes, SHADER_MAX_INDEXES );
 	}
 
 	RB_BeginSurface(tess.shader, tess.fogNum );
@@ -425,7 +425,7 @@ constexpr int NUM_BEAM_SEGS = 6;
 
 	GL_Bind( tr.whiteImage );
 
-	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE );
+	GL_State( glStateBits_t::GLS_SRCBLEND_ONE | glStateBits_t::GLS_DSTBLEND_ONE );
 
 	qglColor3f( 1, 0, 0 );
 
@@ -995,7 +995,7 @@ static void DoBoltSeg( vec3_t start, vec3_t end, vec3_t right, float radius )
 		VectorScale( cur, 1.0f - perc, cur );
 		VectorMA( cur, perc, end, cur );
 
-		if ( Any( e->renderfx & RF_TAPERED ) )
+		if ( Any( e->renderfx & renderFxFlags_t::RF_TAPERED ) )
 		{
 			// This does pretty close to perfect tapering since apply shape interpolates the old and new as it goes along.
 			//	by using one minus the square, the radius stays fairly constant, then drops off quickly at the very point of the bolt
@@ -1007,7 +1007,7 @@ static void DoBoltSeg( vec3_t start, vec3_t end, vec3_t right, float radius )
         ApplyShape( cur, old, right, newRadius, oldRadius, LIGHTNING_RECURSION_LEVEL );
 
 		// randomly split off to create little tendrils, but don't do it too close to the end and especially if we are not even of the forked variety
-        if ( Any( e->renderfx & RF_FORKED ) && f_count > 0 && Q_random(&e->frame) > 0.94f && radius * (1.0f - perc) > 0.2f )
+        if ( Any( e->renderfx & renderFxFlags_t::RF_FORKED ) && f_count > 0 && Q_random(&e->frame) > 0.94f && radius * (1.0f - perc) > 0.2f )
 		{
 			vec3_t newDest;
 
@@ -1052,7 +1052,7 @@ static void RB_SurfaceElectricity()
 	dis = VectorNormalize( fwd );
 
 	// see if we should grow from start to end
-	if ( Any( e->renderfx & RF_GROW ) )
+	if ( Any( e->renderfx & renderFxFlags_t::RF_GROW ) )
 	{
 		perc = 1.0f - ( e->axis[0][2]/*endTime*/ - tr.refdef.time ) / e->axis[0][1]/*duration*/;
 
@@ -1531,7 +1531,7 @@ Draws x/y/z lines from the origin for orientation debugging
 */
 static void RB_SurfaceAxis( void ) {
 	GL_Bind( tr.whiteImage );
-	GL_State( GLS_DEFAULT );
+	GL_State( glStateBits_t::GLS_DEFAULT );
 	qglLineWidth( 3 );
 	qglBegin( GL_LINES );
 	qglColor3f( 1,0,0 );
@@ -1558,31 +1558,31 @@ Entities that have a single procedurally generated surface
 */
 void RB_SurfaceEntity( surfaceType_t *surfType ) {
 	switch( backEnd.currentEntity->e.reType ) {
-	case RT_SPRITE:
+	case refEntityType_t::RT_SPRITE:
 		RB_SurfaceSprite();
 		break;
-	case RT_ORIENTED_QUAD:
+	case refEntityType_t::RT_ORIENTED_QUAD:
 		RB_SurfaceOrientedQuad();
 		break;
-	case RT_BEAM:
+	case refEntityType_t::RT_BEAM:
 		RB_SurfaceBeam();
 		break;
-	case RT_ELECTRICITY:
+	case refEntityType_t::RT_ELECTRICITY:
 		RB_SurfaceElectricity();
 		break;
-	case RT_LINE:
+	case refEntityType_t::RT_LINE:
 		RB_SurfaceLine();
 		break;
-	case RT_ORIENTEDLINE:
+	case refEntityType_t::RT_ORIENTEDLINE:
 		RB_SurfaceOrientedLine();
 		break;
-	case RT_SABER_GLOW:
+	case refEntityType_t::RT_SABER_GLOW:
 		RB_SurfaceSaberGlow();
 		break;
-	case RT_CYLINDER:
+	case refEntityType_t::RT_CYLINDER:
 		RB_SurfaceCylinder();
 		break;
-	case RT_ENT_CHAIN:
+	case refEntityType_t::RT_ENT_CHAIN:
 		{
 			int				i, count, start;
 			static trRefEntity_t	tempEnt = *backEnd.currentEntity;
@@ -1595,13 +1595,13 @@ void RB_SurfaceEntity( surfaceType_t *surfType ) {
 			assert(count > 0);
 			backEnd.currentEntity = &tempEnt;
 
-			assert(backEnd.currentEntity->e.renderfx >= 0);
+			assert(to_underlying( backEnd.currentEntity->e.renderfx ) >= 0);
 
 			for(i=0;i<count;i++)
 			{
 				memcpy(&backEnd.currentEntity->e, &backEnd.refdef.miniEntities[start+i], sizeof(backEnd.refdef.miniEntities[start+i]));
 
-				assert(backEnd.currentEntity->e.renderfx >= 0);
+				assert(to_underlying( backEnd.currentEntity->e.renderfx ) >= 0);
 
 				RB_SurfaceEntity(surfType);
 			}
@@ -1615,7 +1615,7 @@ void RB_SurfaceEntity( surfaceType_t *surfType ) {
 }
 
 void RB_SurfaceBad( surfaceType_t *surfType ) {
-	ri.Printf( PRINT_ALL, "Bad surface tesselated.\n" );
+	ri.Printf( printParm_t::PRINT_ALL, "Bad surface tesselated.\n" );
 }
 
 /*
@@ -1733,7 +1733,7 @@ void RB_SurfaceSkip( void *surf ) {
 }
 
 
-EnumArray<void (*)( void * ), surfaceType_t, SF_NUM_SURFACE_TYPES> rb_surfaceTable = {
+EnumArray<void (*)( void * ), surfaceType_t, surfaceType_t::SF_NUM_SURFACE_TYPES> rb_surfaceTable = {
 	(void(*)(void*))RB_SurfaceBad,			// SF_BAD,
 	(void(*)(void*))RB_SurfaceSkip,			// SF_SKIP,
 	(void(*)(void*))RB_SurfaceFace,			// SF_FACE,

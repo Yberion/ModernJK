@@ -107,7 +107,7 @@ static int G_FindConfigstringIndex( const char *name, int start, int max, bool c
 	}
 
 	if ( i == max ) {
-		trap->Error( ERR_DROP, "G_FindConfigstringIndex: overflow" );
+		trap->Error( errorParm_t::ERR_DROP, "G_FindConfigstringIndex: overflow" );
 	}
 
 	trap->SetConfigstring( start + i, name );
@@ -132,10 +132,10 @@ int G_ModelIndex( const char *name ) {
 	//so, where we are doing it from -rww
 	fileHandle_t fh;
 
-	trap->FS_Open(name, &fh, FS_READ);
+	trap->FS_Open(name, &fh, fsMode_t::FS_READ);
 	if (!fh)
 	{ //try models/ then, this is assumed for registering models
-		trap->FS_Open(va("models/%s", name), &fh, FS_READ);
+		trap->FS_Open(va("models/%s", name), &fh, fsMode_t::FS_READ);
 		if (!fh)
 		{
 			Com_Printf("ERROR: Server tried to modelindex %s but it doesn't exist.\n", name);
@@ -185,7 +185,7 @@ bool G_PlayerHasCustomSkeleton(gentity_t *ent)
 	/*
 	siegeClass_t *scl;
 
-	if (level.gametype != GT_SIEGE)
+	if (level.gametype != gametype_t::GT_SIEGE)
 	{ //only in siege
 		return false;
 	}
@@ -198,7 +198,7 @@ bool G_PlayerHasCustomSkeleton(gentity_t *ent)
 	}
 
 	scl = &bgSiegeClasses[ent->client->siegeClass];
-	if (!(scl->classflags & Bit( CFL_CUSTOMSKEL )))
+	if (!(scl->classflags & Bit( siegeClassFlags_t::CFL_CUSTOMSKEL )))
 	{ //class is not flagged for this
 		return false;
 	}
@@ -219,7 +219,7 @@ void G_TeamCommand( team_t team, char *cmd ) {
 	int		i;
 
 	for ( i = 0 ; i < level.maxclients ; i++ ) {
-		if ( level.clients[i].pers.connected == CON_CONNECTED ) {
+		if ( level.clients[i].pers.connected == clientConnected_t::CON_CONNECTED ) {
 			if ( level.clients[i].sess.sessionTeam == team ) {
 				trap->SendServerCommand( i, va("%s", cmd ));
 			}
@@ -362,7 +362,7 @@ void G_Throw( gentity_t *targ, vec3_t newDir, float push )
 	{
 		VectorAdd( targ->client->ps.velocity, kvel, targ->client->ps.velocity );
 	}
-	else if ( targ->s.pos.trType != TR_STATIONARY && targ->s.pos.trType != TR_LINEAR_STOP && targ->s.pos.trType != TR_NONLINEAR_STOP )
+	else if ( targ->s.pos.trType != trType_t::TR_STATIONARY && targ->s.pos.trType != trType_t::TR_LINEAR_STOP && targ->s.pos.trType != trType_t::TR_NONLINEAR_STOP )
 	{
 		VectorAdd( targ->s.pos.trDelta, kvel, targ->s.pos.trDelta );
 		VectorCopy( targ->r.currentOrigin, targ->s.pos.trBase );
@@ -386,7 +386,7 @@ void G_Throw( gentity_t *targ, vec3_t newDir, float push )
 			t = 200;
 		}
 		targ->client->ps.pm_time = t;
-		targ->client->ps.pm_flags |= PMF_TIME_KNOCKBACK;
+		targ->client->ps.pm_flags |= pmoveFlags_t::PMF_TIME_KNOCKBACK;
 	}
 }
 
@@ -427,7 +427,7 @@ void G_AllocateVehicleObject(Vehicle_t **pVeh)
 		}
 		i++;
 	}
-	Com_Error(ERR_DROP, "Ran out of vehicle pool slots.");
+	Com_Error(errorParm_t::ERR_DROP, "Ran out of vehicle pool slots.");
 }
 
 //free the pointer, sort of a lame method
@@ -468,7 +468,7 @@ void G_CleanAllFakeClients(void)
 	{
 		ent = &g_entities[i];
 
-		if (ent->inuse && ent->s.eType == ET_NPC && ent->client)
+		if (ent->inuse && ent->s.eType == entityType_t::ET_NPC && ent->client)
 		{
 			G_FreeFakeClient(&ent->client);
 		}
@@ -560,7 +560,7 @@ gentity_t *G_PickTarget (char *targetname)
 
 void GlobalUse(gentity_t *self, gentity_t *other, gentity_t *activator)
 {
-	if (!self || Any( self->flags & FL_INACTIVE ))
+	if (!self || Any( self->flags & gentityFlags_t::FL_INACTIVE ))
 	{
 		return;
 	}
@@ -724,7 +724,7 @@ static void G_SpewEntList(void)
 
 #ifdef _DEBUG
 	fileHandle_t fh;
-	trap->FS_Open("entspew.txt", &fh, FS_WRITE);
+	trap->FS_Open("entspew.txt", &fh, fsMode_t::FS_WRITE);
 #endif
 
 	while (i < ENTITYNUM_MAX_NORMAL)
@@ -732,18 +732,18 @@ static void G_SpewEntList(void)
 		ent = &g_entities[i];
 		if (ent->inuse)
 		{
-			if (ent->s.eType == ET_NPC)
+			if (ent->s.eType == entityType_t::ET_NPC)
 			{
 				numNPC++;
 			}
-			else if (ent->s.eType == ET_MISSILE)
+			else if (ent->s.eType == entityType_t::ET_MISSILE)
 			{
 				numProjectile++;
 			}
 			else if (ent->freeAfterEvent)
 			{
 				numTempEnt++;
-				if (Any( ent->s.eFlags & EF_SOUNDTRACKER ))
+				if (Any( ent->s.eFlags & entityFlags_t::EF_SOUNDTRACKER ))
 				{
 					numTempEntST++;
 				}
@@ -842,7 +842,7 @@ gentity_t *G_Spawn( void ) {
 		}
 		*/
 		G_SpewEntList();
-		trap->Error( ERR_DROP, "G_Spawn: no free entities" );
+		trap->Error( errorParm_t::ERR_DROP, "G_Spawn: no free entities" );
 	}
 
 	// open up a new slot
@@ -959,8 +959,8 @@ void G_FreeEntity( gentity_t *ed ) {
 	if (ed->s.modelGhoul2)
 	{ //force all clients to accept an event to destroy this instance, right now
 		/*
-		te = G_TempEntity( vec3_origin, EV_DESTROY_GHOUL2_INSTANCE );
-		te->r.svFlags |= SVF_BROADCAST;
+		te = G_TempEntity( vec3_origin, entity_event_t::EV_DESTROY_GHOUL2_INSTANCE );
+		te->r.svFlags |= svFlags_t::SVF_BROADCAST;
 		te->s.eventParm = ed->s.number;
 		*/
 		//Or not. Events can be dropped, so that would be a bad thing.
@@ -973,12 +973,12 @@ void G_FreeEntity( gentity_t *ed ) {
 		trap->G2API_CleanGhoul2Models(&(ed->ghoul2));
 	}
 
-	if (ed->s.eType == ET_NPC && ed->m_pVehicle)
+	if (ed->s.eType == entityType_t::ET_NPC && ed->m_pVehicle)
 	{ //tell the "vehicle pool" that this one is now free
 		G_FreeVehicleObject(ed->m_pVehicle);
 	}
 
-	if (ed->s.eType == ET_NPC && ed->client)
+	if (ed->s.eType == entityType_t::ET_NPC && ed->client)
 	{ //this "client" structure is one of our dynamically allocated ones, so free the memory
 		int saberEntNum = -1;
 		int i = 0;
@@ -1009,7 +1009,7 @@ void G_FreeEntity( gentity_t *ed ) {
 		G_FreeFakeClient(&ed->client);
 	}
 
-	if (Any( ed->s.eFlags & EF_SOUNDTRACKER ))
+	if (Any( ed->s.eFlags & entityFlags_t::EF_SOUNDTRACKER ))
 	{
 		int i = 0;
 		gentity_t *ent;
@@ -1061,7 +1061,7 @@ gentity_t *G_TempEntity( vec3_t origin, entity_event_t event ) {
 
 	e = G_Spawn();
 	e->s.eType = BG_EventEntityType( BG_PackEvent( event ) );
-	if ( event > EV_NONE && event < EV_NUM_ENTITY_EVENTS ) {
+	if ( event > entity_event_t::EV_NONE && event < entity_event_t::EV_NUM_ENTITY_EVENTS ) {
 		g_stats.events[event]++;
 	}
 
@@ -1194,7 +1194,7 @@ void G_KillBox (gentity_t *ent) {
 
 		// nail it
 		G_Damage ( hit, ent, ent, nullptr, nullptr,
-			100000, DAMAGE_NO_PROTECTION, MOD_TELEFRAG);
+			100000, damageFlags_t::DAMAGE_NO_PROTECTION, meansOfDeath_t::MOD_TELEFRAG);
 	}
 
 }
@@ -1228,12 +1228,12 @@ Adds an event+parm and twiddles the event counter
 void G_AddEvent( gentity_t *ent, entity_event_t event, int eventParm ) {
 	int		bits;
 
-	if ( event == EV_NONE ) {
+	if ( event == entity_event_t::EV_NONE ) {
 		trap->Print( "G_AddEvent: zero event added for entity %i\n", ent->s.number );
 		return;
 	}
 
-	if ( event > EV_NONE && event < EV_NUM_ENTITY_EVENTS ) {
+	if ( event > entity_event_t::EV_NONE && event < entity_event_t::EV_NUM_ENTITY_EVENTS ) {
 		g_stats.events[event]++;
 	}
 
@@ -1262,7 +1262,7 @@ gentity_t *G_PlayEffect(effectTypes_t fxID, vec3_t org, vec3_t ang)
 {
 	gentity_t	*te;
 
-	te = G_TempEntity( org, EV_PLAY_EFFECT );
+	te = G_TempEntity( org, entity_event_t::EV_PLAY_EFFECT );
 	VectorCopy(ang, te->s.angles);
 	VectorCopy(org, te->s.origin);
 	te->s.eventParm = to_underlying( fxID );
@@ -1279,7 +1279,7 @@ gentity_t *G_PlayEffectID(const int fxID, vec3_t org, vec3_t ang)
 { //play an effect by the G_EffectIndex'd ID instead of a predefined effect ID
 	gentity_t	*te;
 
-	te = G_TempEntity( org, EV_PLAY_EFFECT_ID );
+	te = G_TempEntity( org, entity_event_t::EV_PLAY_EFFECT_ID );
 	VectorCopy(ang, te->s.angles);
 	VectorCopy(org, te->s.origin);
 	te->s.eventParm = fxID;
@@ -1303,7 +1303,7 @@ gentity_t *G_ScreenShake(vec3_t org, gentity_t *target, float intensity, int dur
 {
 	gentity_t	*te;
 
-	te = G_TempEntity( org, EV_SCREENSHAKE );
+	te = G_TempEntity( org, entity_event_t::EV_SCREENSHAKE );
 	VectorCopy(org, te->s.origin);
 	te->s.angles[0] = intensity;
 	te->s.time = duration;
@@ -1319,7 +1319,7 @@ gentity_t *G_ScreenShake(vec3_t org, gentity_t *target, float intensity, int dur
 
 	if (global)
 	{
-		te->r.svFlags |= SVF_BROADCAST;
+		te->r.svFlags |= svFlags_t::SVF_BROADCAST;
 	}
 
 	return te;
@@ -1334,17 +1334,17 @@ void G_MuteSound( int entnum, soundChannel_t channel )
 {
 	gentity_t	*te, *e;
 
-	te = G_TempEntity( vec3_origin, EV_MUTE_SOUND );
-	te->r.svFlags = SVF_BROADCAST;
+	te = G_TempEntity( vec3_origin, entity_event_t::EV_MUTE_SOUND );
+	te->r.svFlags = svFlags_t::SVF_BROADCAST;
 	te->s.trickedentindex2 = entnum;
 	te->s.trickedentindex = to_underlying( channel );
 
 	e = &g_entities[entnum];
 
-	if (e && Any(e->s.eFlags & EF_SOUNDTRACKER))
+	if (e && Any(e->s.eFlags & entityFlags_t::EF_SOUNDTRACKER))
 	{
 		G_FreeEntity(e);
-		e->s.eFlags = EF_NONE;
+		e->s.eFlags = entityFlags_t::EF_NONE;
 	}
 }
 
@@ -1358,7 +1358,7 @@ void G_Sound( gentity_t *ent, soundChannel_t channel, int soundIndex ) {
 
 	assert(soundIndex);
 
-	te = G_SoundTempEntity( ent->r.currentOrigin, EV_GENERAL_SOUND );
+	te = G_SoundTempEntity( ent->r.currentOrigin, entity_event_t::EV_GENERAL_SOUND );
 	te->s.eventParm = soundIndex;
 	te->s.saberEntityNum = to_underlying( channel );
 }
@@ -1375,29 +1375,29 @@ void G_Sound( gentity_t *ent, trackchan_t channel, int soundIndex ) {
 
 	assert(soundIndex);
 
-	te = G_SoundTempEntity( ent->r.currentOrigin, EV_GENERAL_SOUND );
+	te = G_SoundTempEntity( ent->r.currentOrigin, entity_event_t::EV_GENERAL_SOUND );
 	te->s.eventParm = soundIndex;
 	te->s.saberEntityNum = to_underlying( channel );
 
-	if (ent && ent->client && channel > TRACK_CHANNEL_NONE)
+	if (ent && ent->client && channel > trackchan_t::TRACK_CHANNEL_NONE)
 	{ //let the client remember the index of the player entity so he can kill the most recent sound on request
-		if (g_entities[ent->client->ps.fd.killSoundEntIndex[channel - TRACK_CHANNEL_NONE]].inuse &&
-			ent->client->ps.fd.killSoundEntIndex[channel - TRACK_CHANNEL_NONE] > MAX_CLIENTS)
+		if (g_entities[ent->client->ps.fd.killSoundEntIndex[channel - trackchan_t::TRACK_CHANNEL_NONE]].inuse &&
+			ent->client->ps.fd.killSoundEntIndex[channel - trackchan_t::TRACK_CHANNEL_NONE] > MAX_CLIENTS)
 		{
-			G_MuteSound(ent->client->ps.fd.killSoundEntIndex[channel - TRACK_CHANNEL_NONE], CHAN_VOICE);
-			if (ent->client->ps.fd.killSoundEntIndex[channel - TRACK_CHANNEL_NONE] > MAX_CLIENTS && g_entities[ent->client->ps.fd.killSoundEntIndex[channel - TRACK_CHANNEL_NONE]].inuse)
+			G_MuteSound(ent->client->ps.fd.killSoundEntIndex[channel - trackchan_t::TRACK_CHANNEL_NONE], soundChannel_t::CHAN_VOICE);
+			if (ent->client->ps.fd.killSoundEntIndex[channel - trackchan_t::TRACK_CHANNEL_NONE] > MAX_CLIENTS && g_entities[ent->client->ps.fd.killSoundEntIndex[channel - trackchan_t::TRACK_CHANNEL_NONE]].inuse)
 			{
-				G_FreeEntity(&g_entities[ent->client->ps.fd.killSoundEntIndex[channel - TRACK_CHANNEL_NONE]]);
+				G_FreeEntity(&g_entities[ent->client->ps.fd.killSoundEntIndex[channel - trackchan_t::TRACK_CHANNEL_NONE]]);
 			}
-			ent->client->ps.fd.killSoundEntIndex[channel - TRACK_CHANNEL_NONE] = 0;
+			ent->client->ps.fd.killSoundEntIndex[channel - trackchan_t::TRACK_CHANNEL_NONE] = 0;
 		}
 
-		ent->client->ps.fd.killSoundEntIndex[channel - TRACK_CHANNEL_NONE] = te->s.number;
+		ent->client->ps.fd.killSoundEntIndex[channel - trackchan_t::TRACK_CHANNEL_NONE] = te->s.number;
 		te->s.trickedentindex = ent->s.number;
-		te->s.eFlags = EF_SOUNDTRACKER;
+		te->s.eFlags = entityFlags_t::EF_SOUNDTRACKER;
 		// fix: let other players know about this
 		// for case that they will meet this one
-		te->r.svFlags |= SVF_BROADCAST;
+		te->r.svFlags |= svFlags_t::SVF_BROADCAST;
 		//te->freeAfterEvent = false;
 	}
 }
@@ -1410,7 +1410,7 @@ G_SoundAtLoc
 void G_SoundAtLoc( vec3_t loc, soundChannel_t channel, int soundIndex ) {
 	gentity_t	*te;
 
-	te = G_TempEntity( loc, EV_GENERAL_SOUND );
+	te = G_TempEntity( loc, entity_event_t::EV_GENERAL_SOUND );
 	te->s.eventParm = soundIndex;
 	te->s.saberEntityNum = to_underlying( channel );
 }
@@ -1423,7 +1423,7 @@ G_EntitySound
 void G_EntitySound( gentity_t *ent, soundChannel_t channel, int soundIndex ) {
 	gentity_t	*te;
 
-	te = G_TempEntity( ent->r.currentOrigin, EV_ENTITY_SOUND );
+	te = G_TempEntity( ent->r.currentOrigin, entity_event_t::EV_ENTITY_SOUND );
 	te->s.eventParm = soundIndex;
 	te->s.clientNum = ent->s.number;
 	te->s.trickedentindex = to_underlying( channel );
@@ -1434,7 +1434,7 @@ void G_SoundOnEnt( gentity_t *ent, soundChannel_t channel, const char *soundPath
 {
 	gentity_t	*te;
 
-	te = G_TempEntity( ent->r.currentOrigin, EV_ENTITY_SOUND );
+	te = G_TempEntity( ent->r.currentOrigin, entity_event_t::EV_ENTITY_SOUND );
 	te->s.eventParm = G_SoundIndex((char *)soundPath);
 	te->s.clientNum = ent->s.number;
 	te->s.trickedentindex = to_underlying( channel );
@@ -1457,12 +1457,12 @@ bool ValidUseTarget( gentity_t *ent )
 		return false;
 	}
 
-	if ( Any( ent->flags & FL_INACTIVE ) )
+	if ( Any( ent->flags & gentityFlags_t::FL_INACTIVE ) )
 	{//set by target_deactivate
 		return false;
 	}
 
-	if ( !Any( ent->r.svFlags & SVF_PLAYER_USABLE ) )
+	if ( !Any( ent->r.svFlags & svFlags_t::SVF_PLAYER_USABLE ) )
 	{//Check for flag that denotes BUTTON_USE useability
 		return false;
 	}
@@ -1473,19 +1473,19 @@ bool ValidUseTarget( gentity_t *ent )
 //use an ammo/health dispenser on another client
 void G_UseDispenserOn(gentity_t *ent, holdable_t dispType, gentity_t *target)
 {
-	if (dispType == HI_HEALTHDISP)
+	if (dispType == holdable_t::HI_HEALTHDISP)
 	{
-		target->client->ps.stats[STAT_HEALTH] += 4;
+		target->client->ps.stats[statIndex_t::STAT_HEALTH] += 4;
 
-		if (target->client->ps.stats[STAT_HEALTH] > target->client->ps.stats[STAT_MAX_HEALTH])
+		if (target->client->ps.stats[statIndex_t::STAT_HEALTH] > target->client->ps.stats[statIndex_t::STAT_MAX_HEALTH])
 		{
-			target->client->ps.stats[STAT_HEALTH] = target->client->ps.stats[STAT_MAX_HEALTH];
+			target->client->ps.stats[statIndex_t::STAT_HEALTH] = target->client->ps.stats[statIndex_t::STAT_MAX_HEALTH];
 		}
 
 		target->client->isMedHealed = level.time + 500;
-		target->health = target->client->ps.stats[STAT_HEALTH];
+		target->health = target->client->ps.stats[statIndex_t::STAT_HEALTH];
 	}
-	else if (dispType == HI_AMMODISP)
+	else if (dispType == holdable_t::HI_AMMODISP)
 	{
 		if (ent->client->medSupplyDebounce < level.time)
 		{ //do the next increment
@@ -1508,14 +1508,14 @@ void G_UseDispenserOn(gentity_t *ent, holdable_t dispType, gentity_t *target)
 int G_CanUseDispOn(gentity_t *ent, holdable_t dispType)
 {
 	if (!ent->client || !ent->inuse || ent->health < 1 ||
-		ent->client->ps.stats[STAT_HEALTH] < 1)
+		ent->client->ps.stats[statIndex_t::STAT_HEALTH] < 1)
 	{ //dead or invalid
 		return 0;
 	}
 
-	if (dispType == HI_HEALTHDISP)
+	if (dispType == holdable_t::HI_HEALTHDISP)
 	{
-        if (ent->client->ps.stats[STAT_HEALTH] < ent->client->ps.stats[STAT_MAX_HEALTH])
+        if (ent->client->ps.stats[statIndex_t::STAT_HEALTH] < ent->client->ps.stats[statIndex_t::STAT_MAX_HEALTH])
 		{ //he's hurt
 			return 1;
 		}
@@ -1523,9 +1523,9 @@ int G_CanUseDispOn(gentity_t *ent, holdable_t dispType)
 		//otherwise no
 		return 0;
 	}
-	else if (dispType == HI_AMMODISP)
+	else if (dispType == holdable_t::HI_AMMODISP)
 	{
-		if (ent->client->ps.weapon <= WP_NONE || ent->client->ps.weapon > LAST_USEABLE_WEAPON)
+		if (ent->client->ps.weapon <= weapon_t::WP_NONE || ent->client->ps.weapon > LAST_USEABLE_WEAPON)
 		{ //not a player-useable weapon
 			return 0;
 		}
@@ -1545,7 +1545,7 @@ int G_CanUseDispOn(gentity_t *ent, holdable_t dispType)
 
 bool TryHeal(gentity_t *ent, gentity_t *target)
 {
-	if (level.gametype == GT_SIEGE && ent->client->siegeClass != -1 &&
+	if (level.gametype == gametype_t::GT_SIEGE && ent->client->siegeClass != -1 &&
 		target && target->inuse && target->maxHealth && target->healingclass &&
 		target->healingclass[0] && target->health > 0 && target->health < target->maxHealth)
 	{ //it's not dead yet...
@@ -1565,11 +1565,11 @@ bool TryHeal(gentity_t *ent, gentity_t *target)
 				{ //play it
 					if (target->s.solid == SOLID_BMODEL)
 					{ //ok, well, just play it on the client then.
-						G_Sound(ent, CHAN_AUTO, G_SoundIndex(target->healingsound));
+						G_Sound(ent, soundChannel_t::CHAN_AUTO, G_SoundIndex(target->healingsound));
 					}
 					else
 					{
-						G_Sound(target, CHAN_AUTO, G_SoundIndex(target->healingsound));
+						G_Sound(target, soundChannel_t::CHAN_AUTO, G_SoundIndex(target->healingsound));
 					}
 				}
 
@@ -1584,14 +1584,14 @@ bool TryHeal(gentity_t *ent, gentity_t *target)
 			}
 
 			//keep them in the healing anim even when the healing debounce is not yet expired
-			if (ent->client->ps.torsoAnim == BOTH_BUTTON_HOLD ||
-				ent->client->ps.torsoAnim == BOTH_CONSOLE1)
+			if (ent->client->ps.torsoAnim == animNumber_t::BOTH_BUTTON_HOLD ||
+				ent->client->ps.torsoAnim == animNumber_t::BOTH_CONSOLE1)
 			{ //extend the time
 				ent->client->ps.torsoTimer = 500;
 			}
 			else
 			{
-				G_SetAnim( ent, nullptr, SETANIM_TORSO, BOTH_BUTTON_HOLD, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
+				G_SetAnim( ent, nullptr, setAnimParts_t::SETANIM_TORSO, animNumber_t::BOTH_BUTTON_HOLD, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD, 0 );
 			}
 
 			return true;
@@ -1622,15 +1622,15 @@ void TryUse( gentity_t *ent )
 	vec3_t		src, dest, vf;
 	vec3_t		viewspot;
 
-	if (level.gametype == GT_SIEGE &&
+	if (level.gametype == gametype_t::GT_SIEGE &&
 		!gSiegeRoundBegun)
 	{ //nothing can be used til the round starts.
 		return;
 	}
 
-	if (!ent || !ent->client || (ent->client->ps.weaponTime > 0 && ent->client->ps.torsoAnim != BOTH_BUTTON_HOLD && ent->client->ps.torsoAnim != BOTH_CONSOLE1) || ent->health < 1 ||
-		Any(ent->client->ps.pm_flags & PMF_FOLLOW) || ent->client->sess.sessionTeam == TEAM_SPECTATOR || ent->client->tempSpectate >= level.time ||
-		(ent->client->ps.forceHandExtend != HANDEXTEND_NONE && ent->client->ps.forceHandExtend != HANDEXTEND_DRAGGING))
+	if (!ent || !ent->client || (ent->client->ps.weaponTime > 0 && ent->client->ps.torsoAnim != animNumber_t::BOTH_BUTTON_HOLD && ent->client->ps.torsoAnim != animNumber_t::BOTH_CONSOLE1) || ent->health < 1 ||
+		Any(ent->client->ps.pm_flags & pmoveFlags_t::PMF_FOLLOW) || ent->client->sess.sessionTeam == team_t::TEAM_SPECTATOR || ent->client->tempSpectate >= level.time ||
+		(ent->client->ps.forceHandExtend != forceHandAnims_t::HANDEXTEND_NONE && ent->client->ps.forceHandExtend != forceHandAnims_t::HANDEXTEND_DRAGGING))
 	{
 		return;
 	}
@@ -1691,7 +1691,7 @@ void TryUse( gentity_t *ent )
 	VectorMA( src, USE_DISTANCE, vf, dest );
 
 	//Trace ahead to find a valid target
-	trap->Trace( &trace, src, vec3_origin, vec3_origin, dest, ent->s.number, MASK_OPAQUE|CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_ITEM|CONTENTS_CORPSE, false, G2TRFLAG_NONE, 0 );
+	trap->Trace( &trace, src, vec3_origin, vec3_origin, dest, ent->s.number, MASK_OPAQUE|contentsFlags_t::CONTENTS_SOLID|contentsFlags_t::CONTENTS_BODY|contentsFlags_t::CONTENTS_ITEM|contentsFlags_t::CONTENTS_CORPSE, false, g2TraceFlags_t::G2TRFLAG_NONE, 0 );
 
 	if ( trace.fraction == 1.0f || trace.entityNum == ENTITYNUM_NONE )
 	{
@@ -1702,10 +1702,10 @@ void TryUse( gentity_t *ent )
 
 //Enable for corpse dragging
 #if 0
-	if (target->inuse && target->s.eType == ET_BODY &&
+	if (target->inuse && target->s.eType == entityType_t::ET_BODY &&
 		ent->client->bodyGrabTime < level.time)
 	{ //then grab the body
-		target->s.eFlags |= EF_RAG; //make sure it's in rag state
+		target->s.eFlags |= entityFlags_t::EF_RAG; //make sure it's in rag state
 		if (!ent->s.number)
 		{ //switch cl 0 and entitynum_none, so we can operate on the "if non-0" concept
 			target->s.ragAttach = ENTITYNUM_NONE;
@@ -1721,7 +1721,7 @@ void TryUse( gentity_t *ent )
 #endif
 
 	if (target && target->m_pVehicle && target->client &&
-		target->s.NPC_class == CLASS_VEHICLE &&
+		target->s.NPC_class == class_t::CLASS_VEHICLE &&
 		!ent->client->ps.zoomMode)
 	{ //if target is a vehicle then perform appropriate checks
 		Vehicle_t *pVeh = target->m_pVehicle;
@@ -1734,39 +1734,39 @@ void TryUse( gentity_t *ent )
 			}
 			else
 			{ // Otherwise board this vehicle.
-				if (level.gametype < GT_TEAM ||
-					target->alliedTeam == TEAM_FREE ||
+				if (level.gametype < gametype_t::GT_TEAM ||
+					target->alliedTeam == team_t::TEAM_FREE ||
 					(target->alliedTeam == ent->client->sess.sessionTeam))
 				{ //not belonging to a team, or client is on same team
 					pVeh->m_pVehicleInfo->Board( pVeh, (bgEntity_t *)ent );
 				}
 			}
 			//clear the damn button!
-			ent->client->pers.cmd.buttons &= ~BUTTON_USE;
+			ent->client->pers.cmd.buttons &= ~buttonFlags_t::BUTTON_USE;
 			return;
 		}
 	}
 
 #if 0 //ye olde method
-	if (ent->client->ps.stats[STAT_HOLDABLE_ITEM] > 0 &&
-		bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giType == IT_HOLDABLE)
+	if (ent->client->ps.stats[statIndex_t::STAT_HOLDABLE_ITEM] > 0 &&
+		bg_itemlist[ent->client->ps.stats[statIndex_t::STAT_HOLDABLE_ITEM]].giType == itemType_t::IT_HOLDABLE)
 	{
-		if (GI_Holdable( bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]] ) == HI_HEALTHDISP ||
-			GI_Holdable( bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]] ) == HI_AMMODISP)
+		if (GI_Holdable( bg_itemlist[ent->client->ps.stats[statIndex_t::STAT_HOLDABLE_ITEM]] ) == holdable_t::HI_HEALTHDISP ||
+			GI_Holdable( bg_itemlist[ent->client->ps.stats[statIndex_t::STAT_HOLDABLE_ITEM]] ) == holdable_t::HI_AMMODISP)
 		{ //has a dispenser item selected
             if (target && target->client && target->health > 0 && OnSameTeam(ent, target) &&
-				G_CanUseDispOn(target, bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag))
+				G_CanUseDispOn(target, bg_itemlist[ent->client->ps.stats[statIndex_t::STAT_HOLDABLE_ITEM]].giTag))
 			{ //a live target that's on my team, we can use him
-				G_UseDispenserOn(ent, bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag, target);
+				G_UseDispenserOn(ent, bg_itemlist[ent->client->ps.stats[statIndex_t::STAT_HOLDABLE_ITEM]].giTag, target);
 
 				//for now, we will use the standard use anim
-				if (ent->client->ps.torsoAnim == BOTH_BUTTON_HOLD)
+				if (ent->client->ps.torsoAnim == animNumber_t::BOTH_BUTTON_HOLD)
 				{ //extend the time
 					ent->client->ps.torsoTimer = 500;
 				}
 				else
 				{
-					G_SetAnim( ent, nullptr, SETANIM_TORSO, BOTH_BUTTON_HOLD, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
+					G_SetAnim( ent, nullptr, setAnimParts_t::SETANIM_TORSO, animNumber_t::BOTH_BUTTON_HOLD, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD, 0 );
 				}
 				ent->client->ps.weaponTime = ent->client->ps.torsoTimer;
 				return;
@@ -1774,27 +1774,27 @@ void TryUse( gentity_t *ent )
 		}
 	}
 #else
-    if ( ((ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & Bit( HI_HEALTHDISP )) || (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & Bit( HI_AMMODISP ))) &&
+    if ( ((ent->client->ps.stats[statIndex_t::STAT_HOLDABLE_ITEMS] & Bit( holdable_t::HI_HEALTHDISP )) || (ent->client->ps.stats[statIndex_t::STAT_HOLDABLE_ITEMS] & Bit( holdable_t::HI_AMMODISP ))) &&
 		target && target->inuse && target->client && target->health > 0 && OnSameTeam(ent, target) &&
-		(G_CanUseDispOn(target, HI_HEALTHDISP) || G_CanUseDispOn(target, HI_AMMODISP)) )
+		(G_CanUseDispOn(target, holdable_t::HI_HEALTHDISP) || G_CanUseDispOn(target, holdable_t::HI_AMMODISP)) )
 	{ //a live target that's on my team, we can use him
-		if (G_CanUseDispOn(target, HI_HEALTHDISP))
+		if (G_CanUseDispOn(target, holdable_t::HI_HEALTHDISP))
 		{
-			G_UseDispenserOn(ent, HI_HEALTHDISP, target);
+			G_UseDispenserOn(ent, holdable_t::HI_HEALTHDISP, target);
 		}
-		if (G_CanUseDispOn(target, HI_AMMODISP))
+		if (G_CanUseDispOn(target, holdable_t::HI_AMMODISP))
 		{
-			G_UseDispenserOn(ent, HI_AMMODISP, target);
+			G_UseDispenserOn(ent, holdable_t::HI_AMMODISP, target);
 		}
 
 		//for now, we will use the standard use anim
-		if (ent->client->ps.torsoAnim == BOTH_BUTTON_HOLD)
+		if (ent->client->ps.torsoAnim == animNumber_t::BOTH_BUTTON_HOLD)
 		{ //extend the time
 			ent->client->ps.torsoTimer = 500;
 		}
 		else
 		{
-			G_SetAnim( ent, nullptr, SETANIM_TORSO, BOTH_BUTTON_HOLD, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
+			G_SetAnim( ent, nullptr, setAnimParts_t::SETANIM_TORSO, animNumber_t::BOTH_BUTTON_HOLD, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD, 0 );
 		}
 		ent->client->ps.weaponTime = ent->client->ps.torsoTimer;
 		return;
@@ -1804,26 +1804,26 @@ void TryUse( gentity_t *ent )
 
 	//Check for a use command
 	if ( ValidUseTarget( target )
-		&& (level.gametype != GT_SIEGE
-			|| target->alliedTeam == TEAM_FREE
+		&& (level.gametype != gametype_t::GT_SIEGE
+			|| target->alliedTeam == team_t::TEAM_FREE
 			|| target->alliedTeam != ent->client->sess.sessionTeam
 			|| g_ff_objectives.integer) )
 	{
-		if (ent->client->ps.torsoAnim == BOTH_BUTTON_HOLD ||
-			ent->client->ps.torsoAnim == BOTH_CONSOLE1)
+		if (ent->client->ps.torsoAnim == animNumber_t::BOTH_BUTTON_HOLD ||
+			ent->client->ps.torsoAnim == animNumber_t::BOTH_CONSOLE1)
 		{ //extend the time
 			ent->client->ps.torsoTimer = 500;
 		}
 		else
 		{
-			G_SetAnim( ent, nullptr, SETANIM_TORSO, BOTH_BUTTON_HOLD, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
+			G_SetAnim( ent, nullptr, setAnimParts_t::SETANIM_TORSO, animNumber_t::BOTH_BUTTON_HOLD, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD, 0 );
 		}
 		ent->client->ps.weaponTime = ent->client->ps.torsoTimer;
 		/*
-		NPC_SetAnim( ent, SETANIM_TORSO, BOTH_FORCEPUSH, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+		NPC_SetAnim( ent, setAnimParts_t::SETANIM_TORSO, animNumber_t::BOTH_FORCEPUSH, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD );
 		if ( !VectorLengthSquared( ent->client->ps.velocity ) )
 		{
-			NPC_SetAnim( ent, SETANIM_LEGS, BOTH_FORCEPUSH, SETANIM_FLAG_NORMAL|SETANIM_FLAG_HOLD );
+			NPC_SetAnim( ent, setAnimParts_t::SETANIM_LEGS, animNumber_t::BOTH_FORCEPUSH, setAnimFlags_t::SETANIM_FLAG_NORMAL|setAnimFlags_t::SETANIM_FLAG_HOLD );
 		}
 		*/
 		if ( target->touch == Touch_Button )
@@ -1844,7 +1844,7 @@ void TryUse( gentity_t *ent )
 
 tryJetPack:
 	//if we got here, we didn't actually use anything else, so try to toggle jetpack if we are in the air, or if it is already on
-	if (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & Bit( HI_JETPACK ))
+	if (ent->client->ps.stats[statIndex_t::STAT_HOLDABLE_ITEMS] & Bit( holdable_t::HI_JETPACK ))
 	{
 		if (ent->client->jetPackOn || ent->client->ps.groundEntityNum == ENTITYNUM_NONE)
 		{
@@ -1853,8 +1853,8 @@ tryJetPack:
 		}
 	}
 
-	if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & Bit( HI_AMMODISP )) /*&&
-		G_ItemUsable(&ent->client->ps, HI_AMMODISP)*/ )
+	if ( (ent->client->ps.stats[statIndex_t::STAT_HOLDABLE_ITEMS] & Bit( holdable_t::HI_AMMODISP )) /*&&
+		G_ItemUsable(&ent->client->ps, holdable_t::HI_AMMODISP)*/ )
 	{ //if you used nothing, then try spewing out some ammo
 		trace_t trToss;
 		vec3_t fAng;
@@ -1864,11 +1864,11 @@ tryJetPack:
 		AngleVectors(fAng, fwd, nullptr, nullptr);
 
         VectorMA(ent->client->ps.origin, 64.0f, fwd, fwd);
-		trap->Trace(&trToss, ent->client->ps.origin, playerMins, playerMaxs, fwd, ent->s.number, ent->clipmask, false, G2TRFLAG_NONE, 0);
+		trap->Trace(&trToss, ent->client->ps.origin, playerMins, playerMaxs, fwd, ent->s.number, ent->clipmask, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 		if (trToss.fraction == 1.0f && !trToss.allsolid && !trToss.startsolid)
 		{
-			ItemUse_UseDisp(ent, HI_AMMODISP);
-			G_AddEvent(ent, BG_UseItemEvent( HI_AMMODISP ), 0);
+			ItemUse_UseDisp(ent, holdable_t::HI_AMMODISP);
+			G_AddEvent(ent, BG_UseItemEvent( holdable_t::HI_AMMODISP ), 0);
 			return;
 		}
 	}
@@ -1935,7 +1935,7 @@ bool G_ClearTrace( vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int ignor
 {
 	static	trace_t	tr;
 
-	trap->Trace( &tr, start, mins, maxs, end, ignore, clipmask, false, G2TRFLAG_NONE, 0 );
+	trap->Trace( &tr, start, mins, maxs, end, ignore, clipmask, false, g2TraceFlags_t::G2TRFLAG_NONE, 0 );
 
 	if ( tr.allsolid || tr.startsolid || tr.fraction < 1.0 )
 	{
@@ -1959,7 +1959,7 @@ team_t G_TeamFromKey( const char *key ) {
 
 void G_SetOrigin( gentity_t *ent, vec3_t origin ) {
 	VectorCopy( origin, ent->s.pos.trBase );
-	ent->s.pos.trType = TR_STATIONARY;
+	ent->s.pos.trType = trType_t::TR_STATIONARY;
 	ent->s.pos.trTime = 0;
 	ent->s.pos.trDuration = 0;
 	VectorClear( ent->s.pos.trDelta );
@@ -1977,7 +1977,7 @@ bool G_CheckInSolid (gentity_t *self, bool fix)
 	VectorCopy(self->r.mins, mins);
 	mins[2] = 0;
 
-	trap->Trace(&trace, self->r.currentOrigin, mins, self->r.maxs, end, self->s.number, self->clipmask, false, G2TRFLAG_NONE, 0);
+	trap->Trace(&trace, self->r.currentOrigin, mins, self->r.maxs, end, self->s.number, self->clipmask, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 	if(trace.allsolid || trace.startsolid)
 	{
 		return true;
@@ -2101,7 +2101,7 @@ bool G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3_t maxs, in
 	{
 		VectorCopy( start, end );
 		end[i] += mins[i];
-		trap->Trace( &tr, start, vec3_origin, vec3_origin, end, ignore, clipmask, false, G2TRFLAG_NONE, 0 );
+		trap->Trace( &tr, start, vec3_origin, vec3_origin, end, ignore, clipmask, false, g2TraceFlags_t::G2TRFLAG_NONE, 0 );
 		if ( tr.allsolid || tr.startsolid )
 		{
 			return false;
@@ -2110,7 +2110,7 @@ bool G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3_t maxs, in
 		{
 			VectorCopy( start, end );
 			end[i] += maxs[i]-(mins[i]*tr.fraction);
-			trap->Trace( &tr, start, vec3_origin, vec3_origin, end, ignore, clipmask, false, G2TRFLAG_NONE, 0 );
+			trap->Trace( &tr, start, vec3_origin, vec3_origin, end, ignore, clipmask, false, g2TraceFlags_t::G2TRFLAG_NONE, 0 );
 			if ( tr.allsolid || tr.startsolid )
 			{
 				return false;
@@ -2123,7 +2123,7 @@ bool G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3_t maxs, in
 		}
 	}
 	//expanded it, now see if it's all clear
-	trap->Trace( &tr, start, mins, maxs, start, ignore, clipmask, false, G2TRFLAG_NONE, 0 );
+	trap->Trace( &tr, start, mins, maxs, start, ignore, clipmask, false, g2TraceFlags_t::G2TRFLAG_NONE, 0 );
 	if ( tr.allsolid || tr.startsolid )
 	{
 		return false;

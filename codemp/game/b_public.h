@@ -47,7 +47,6 @@ enum class npcAiFlags_t
 	NPCAI_DIE_ON_IMPACT		= 0x00100000,	//Next time you crashland, die!
 	NPCAI_CUSTOM_GRAVITY	= 0x00200000,	//Don't use g_gravity, I fly!
 };
-using enum npcAiFlags_t;
 template <> inline constexpr bool enableEnumFlags<npcAiFlags_t> = true;
 
 //Script flags
@@ -81,20 +80,16 @@ enum class scriptFlags_t
 	SCF_USE_SUBTITLES	= 0x01000000,	//Regardless of subtitle setting, this NPC will display subtitles when it speaks lines
 	SCF_NO_ALERT_TALK	= 0x02000000,	//Will not say alert sounds, but still can be woken up by alerts
 };
-using enum scriptFlags_t;
 template <> inline constexpr bool enableEnumFlags<scriptFlags_t> = true;
 
 enum class visibility_t {VIS_UNKNOWN, VIS_NOT, VIS_PVS, VIS_360, VIS_FOV, VIS_SHOOT};
-using enum visibility_t;
 enum class spot_t {SPOT_ORIGIN, SPOT_CHEST, SPOT_HEAD, SPOT_HEAD_LEAN, SPOT_WEAPON, SPOT_LEGS, SPOT_GROUND};
-using enum spot_t;
 
 enum class lookMode_t //# lookMode_e
 {
 	LM_ENT = 0,
 	LM_INTEREST
 };
-using enum lookMode_t;
 
 enum class jumpState_t //# jumpState_e
 {
@@ -104,7 +99,6 @@ enum class jumpState_t //# jumpState_e
 	JS_JUMPING,
 	JS_LANDING
 };
-using enum jumpState_t;
 
 typedef struct gNPCstats_e
 {//Stats, loaded in, and can be set by scripts

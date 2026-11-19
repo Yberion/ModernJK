@@ -782,7 +782,7 @@ void CM_TraceThroughSphere( traceWork_t *tw, trace_t &trace, vec3_t origin, floa
 			VectorCopy(dir, trace.plane.normal);
 			VectorAdd( tw->modelOrigin, intersection, intersection);
 			trace.plane.dist = DotProduct(trace.plane.normal, intersection);
-			trace.contents = CONTENTS_BODY;
+			trace.contents = contentsFlags_t::CONTENTS_BODY;
 		}
 	}
 	else if (d == 0) {
@@ -885,7 +885,7 @@ void CM_TraceThroughVerticalCylinder( traceWork_t *tw, trace_t &trace, vec3_t or
 				VectorCopy(dir, trace.plane.normal);
 				VectorAdd( tw->modelOrigin, intersection, intersection);
 				trace.plane.dist = DotProduct(trace.plane.normal, intersection);
-				trace.contents = CONTENTS_BODY;
+				trace.contents = contentsFlags_t::CONTENTS_BODY;
 			}
 		}
 	}
@@ -1100,7 +1100,7 @@ void CM_TraceThroughTree( traceWork_t *tw, trace_t &trace, clipMap_t *local, int
 	plane = node->plane;
 
 	// adjust the plane distance appropriately for mins/maxs
-	if ( plane->type < PLANE_NON_AXIAL ) {
+	if ( plane->type < planeType_t::PLANE_NON_AXIAL ) {
 		t1 = p1[PlaneAxis( plane->type )] - plane->dist;
 		t2 = p2[PlaneAxis( plane->type )] - plane->dist;
 		offset = tw->extents[PlaneAxis( plane->type )];

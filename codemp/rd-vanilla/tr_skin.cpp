@@ -113,7 +113,7 @@ qhandle_t RE_RegisterIndividualSkin( const char *name , qhandle_t hSkin)
 	ri.FS_ReadFile( name, (void **)&text );
 	if ( !text ) {
 #ifndef FINAL_BUILD
-		ri.Printf( PRINT_ALL, "WARNING: RE_RegisterSkin( '%s' ) failed to load!\n", name );
+		ri.Printf( printParm_t::PRINT_ALL, "WARNING: RE_RegisterSkin( '%s' ) failed to load!\n", name );
 #endif
 		return 0;
 	}
@@ -156,10 +156,10 @@ qhandle_t RE_RegisterIndividualSkin( const char *name , qhandle_t hSkin)
 		if ( (unsigned)skin->numSurfaces >= ARRAY_LEN( skin->surfaces ) )
 		{
 			assert( ARRAY_LEN( skin->surfaces ) > (unsigned)skin->numSurfaces );
-			ri.Printf( PRINT_ALL, "WARNING: RE_RegisterSkin( '%s' ) more than %u surfaces!\n", name, (unsigned int )ARRAY_LEN( skin->surfaces ) );
+			ri.Printf( printParm_t::PRINT_ALL, "WARNING: RE_RegisterSkin( '%s' ) more than %u surfaces!\n", name, (unsigned int )ARRAY_LEN( skin->surfaces ) );
 			break;
 		}
-		surf = (skinSurface_t *) Hunk_Alloc( sizeof( *skin->surfaces[0] ), h_low );
+		surf = (skinSurface_t *) Hunk_Alloc( sizeof( *skin->surfaces[0] ), ha_pref::h_low );
 		skin->surfaces[skin->numSurfaces] = (_skinSurface_t *)surf;
 
 		Q_strncpyz( surf->name, surfName, sizeof( surf->name ) );
@@ -185,12 +185,12 @@ qhandle_t RE_RegisterSkin( const char *name ) {
 	skin_t		*skin;
 
 	if ( !name || !name[0] ) {
-		ri.Printf( PRINT_ALL, "Empty name passed to RE_RegisterSkin\n" );
+		ri.Printf( printParm_t::PRINT_ALL, "Empty name passed to RE_RegisterSkin\n" );
 		return 0;
 	}
 
 	if ( strlen( name ) >= MAX_QPATH ) {
-		ri.Printf( PRINT_ALL, "Skin name exceeds MAX_QPATH\n" );
+		ri.Printf( printParm_t::PRINT_ALL, "Skin name exceeds MAX_QPATH\n" );
 		return 0;
 	}
 
@@ -207,11 +207,11 @@ qhandle_t RE_RegisterSkin( const char *name ) {
 
 	// allocate a new skin
 	if ( tr.numSkins == MAX_SKINS ) {
-		ri.Printf( PRINT_ALL, "WARNING: RE_RegisterSkin( '%s' ) MAX_SKINS hit\n", name );
+		ri.Printf( printParm_t::PRINT_ALL, "WARNING: RE_RegisterSkin( '%s' ) MAX_SKINS hit\n", name );
 		return 0;
 	}
 	tr.numSkins++;
-	skin = (struct skin_s *)Hunk_Alloc( sizeof( skin_t ), h_low );
+	skin = (struct skin_s *)Hunk_Alloc( sizeof( skin_t ), ha_pref::h_low );
 	tr.skins[hSkin] = skin;
 	Q_strncpyz( skin->name, name, sizeof( skin->name ) );
 	skin->numSurfaces = 0;
@@ -222,7 +222,7 @@ qhandle_t RE_RegisterSkin( const char *name ) {
 	// If not a .skin file, load as a single shader
 	if ( strcmp( name + strlen( name ) - 5, ".skin" ) ) {
 /*		skin->numSurfaces = 1;
-		skin->surfaces[0] = (skinSurface_t *)Hunk_Alloc( sizeof(skin->surfaces[0]), h_low );
+		skin->surfaces[0] = (skinSurface_t *)Hunk_Alloc( sizeof(skin->surfaces[0]), ha_pref::h_low );
 		skin->surfaces[0]->shader = R_FindShader( name, lightmapsNone, stylesDefault, true );
 		return hSkin;
 */
@@ -390,10 +390,10 @@ void	R_InitSkins( void ) {
 	tr.numSkins = 1;
 
 	// make the default skin have all default shaders
-	skin = tr.skins[0] = (struct skin_s *)ri.Hunk_Alloc( sizeof( skin_t ), h_low );
+	skin = tr.skins[0] = (struct skin_s *)ri.Hunk_Alloc( sizeof( skin_t ), ha_pref::h_low );
 	Q_strncpyz( skin->name, "<default skin>", sizeof( skin->name )  );
 	skin->numSurfaces = 1;
-	skin->surfaces[0] = (_skinSurface_t *)ri.Hunk_Alloc( sizeof( skinSurface_t ), h_low );
+	skin->surfaces[0] = (_skinSurface_t *)ri.Hunk_Alloc( sizeof( skinSurface_t ), ha_pref::h_low );
 	skin->surfaces[0]->shader = tr.defaultShader;
 }
 
@@ -418,16 +418,16 @@ void	R_SkinList_f( void ) {
 	int			i, j;
 	skin_t		*skin;
 
-	ri.Printf( PRINT_ALL,  "------------------\n");
+	ri.Printf( printParm_t::PRINT_ALL,  "------------------\n");
 
 	for ( i = 0 ; i < tr.numSkins ; i++ ) {
 		skin = tr.skins[i];
 
-		ri.Printf( PRINT_ALL, "%3i:%s\n", i, skin->name );
+		ri.Printf( printParm_t::PRINT_ALL, "%3i:%s\n", i, skin->name );
 		for ( j = 0 ; j < skin->numSurfaces ; j++ ) {
-			ri.Printf( PRINT_ALL, "       %s = %s\n",
+			ri.Printf( printParm_t::PRINT_ALL, "       %s = %s\n",
 				skin->surfaces[j]->name, ((shader_t* )skin->surfaces[j]->shader)->name );
 		}
 	}
-	ri.Printf( PRINT_ALL,  "------------------\n");
+	ri.Printf( printParm_t::PRINT_ALL,  "------------------\n");
 }

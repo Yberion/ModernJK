@@ -52,7 +52,6 @@ enum class uiMenuCommand_t {
 	UIMENU_CLOSEALL,
 	UIMENU_CLASSSEL
 };
-using enum uiMenuCommand_t;
 
 // the column the server browser sorts by
 enum class serverSortKey_t {
@@ -62,7 +61,6 @@ enum class serverSortKey_t {
 	SORT_GAME,
 	SORT_PING
 };
-using enum serverSortKey_t;
 
 // state of a server in the browser lists, apart from its ping
 enum class lanServerState_t {
@@ -71,7 +69,6 @@ enum class lanServerState_t {
 	LANSERVER_ANSWERED,		// answered; its ping is the round trip
 	LANSERVER_NO_ANSWER		// no answer within cl_maxPing
 };
-using enum lanServerState_t;
 
 typedef struct uiImport_s {
 	void			(*Print)								( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));

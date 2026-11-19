@@ -109,7 +109,7 @@ int ICARUS_RunScript( gentity_t *ent, const char *name )
 
 	if ( ( ICARUS_entFilter == -1 ) || ( ICARUS_entFilter == ent->s.number ) )
 	{
-		Q3_DebugPrint( WL_VERBOSE, "%d Script %s executed by %s %s\n", level.time, (char *) name, ent->classname, ent->targetname );
+		Q3_DebugPrint( WL_e::WL_VERBOSE, "%d Script %s executed by %s %s\n", level.time, (char *) name, ent->classname, ent->targetname );
 	}
 
 	return true;
@@ -133,7 +133,7 @@ void ICARUS_Init( void )
 
 	if ( iICARUS == nullptr )
 	{
-		Com_Error( ERR_DROP, "Unable to initialize ICARUS instance\n" );
+		Com_Error( errorParm_t::ERR_DROP, "Unable to initialize ICARUS instance\n" );
 		return;
 	}
 
@@ -319,7 +319,7 @@ bool ICARUS_RegisterScript( const char *name, bool bCalledDuringInterrogate /* =
 	{
 		fileHandle_t file;
 
-		gi.FS_FOpenFile( newname, &file, FS_READ );
+		gi.FS_FOpenFile( newname, &file, fsMode_t::FS_READ );
 
 		if ( file == nullptr )
 		{
@@ -347,7 +347,7 @@ bool ICARUS_RegisterScript( const char *name, bool bCalledDuringInterrogate /* =
 
 	pscript = new pscript_t;
 
-	pscript->buffer = (char *) gi.Malloc(length, TAG_ICARUS, false);
+	pscript->buffer = (char *) gi.Malloc(length, memtag::TAG_ICARUS, false);
 	memcpy (pscript->buffer, buffer, length);
 	pscript->length = length;
 
@@ -422,11 +422,11 @@ void ICARUS_InterrogateScript( const char *filename )
 		//Determine what type of block this is
 		switch( block.GetBlockID() )
 		{
-		case ID_CAMERA:	// to cache ROFF files
+		case icarusToken_t::ID_CAMERA:	// to cache ROFF files
 			{
 				float f = *(float *) block.GetMemberData( 0 );
 
-				if (f == (float) to_underlying( TYPE_PATH ))
+				if (f == (float) to_underlying( icarusToken_t::TYPE_PATH ))
 				{
 					sVal1 = (const char *) block.GetMemberData( 1 );
 
@@ -435,7 +435,7 @@ void ICARUS_InterrogateScript( const char *filename )
 			}
 			break;
 
-		case ID_PLAY:	// to cache ROFF files
+		case icarusToken_t::ID_PLAY:	// to cache ROFF files
 
 			sVal1 = (const char *) block.GetMemberData( 0 );
 
@@ -448,7 +448,7 @@ void ICARUS_InterrogateScript( const char *filename )
 			break;
 
 		//Run commands
-		case ID_RUN:
+		case icarusToken_t::ID_RUN:
 
 			sVal1 = (const char *) block.GetMemberData( 0 );
 
@@ -457,18 +457,18 @@ void ICARUS_InterrogateScript( const char *filename )
 
 			break;
 
-		case ID_SOUND:
+		case icarusToken_t::ID_SOUND:
 			sVal1 = (const char *) block.GetMemberData( 1 );	//0 is channel, 1 is filename
 			G_SoundIndex(sVal1);
 			break;
 
-		case ID_SET:
+		case icarusToken_t::ID_SET:
 			blockMember = block.GetMember( 0 );
 
 			//NOTENOTE: This will not catch special case get() inlines! (There's not really a good way to do that)
 
 			//Make sure we're testing against strings
-			if ( blockMember->GetID() == TK_STRING )
+			if ( blockMember->GetID() == icarusToken_t::TK_STRING )
 			{
 				sVal1 = (const char *) block.GetMemberData( 0 );
 				sVal2 = (const char *) block.GetMemberData( 1 );
@@ -479,29 +479,29 @@ void ICARUS_InterrogateScript( const char *filename )
 				//Check against valid types
 				switch ( setID )
 				{
-				case SET_SPAWNSCRIPT:
-				case SET_USESCRIPT:
-				case SET_AWAKESCRIPT:
-				case SET_ANGERSCRIPT:
-				case SET_ATTACKSCRIPT:
-				case SET_VICTORYSCRIPT:
-				case SET_LOSTENEMYSCRIPT:
-				case SET_PAINSCRIPT:
-				case SET_FLEESCRIPT:
-				case SET_DEATHSCRIPT:
-				case SET_DELAYEDSCRIPT:
-				case SET_BLOCKEDSCRIPT:
-				case SET_FFIRESCRIPT:
-				case SET_FFDEATHSCRIPT:
-				case SET_MINDTRICKSCRIPT:
-				case SET_CINEMATIC_SKIPSCRIPT:
+				case setType_t::SET_SPAWNSCRIPT:
+				case setType_t::SET_USESCRIPT:
+				case setType_t::SET_AWAKESCRIPT:
+				case setType_t::SET_ANGERSCRIPT:
+				case setType_t::SET_ATTACKSCRIPT:
+				case setType_t::SET_VICTORYSCRIPT:
+				case setType_t::SET_LOSTENEMYSCRIPT:
+				case setType_t::SET_PAINSCRIPT:
+				case setType_t::SET_FLEESCRIPT:
+				case setType_t::SET_DEATHSCRIPT:
+				case setType_t::SET_DELAYEDSCRIPT:
+				case setType_t::SET_BLOCKEDSCRIPT:
+				case setType_t::SET_FFIRESCRIPT:
+				case setType_t::SET_FFDEATHSCRIPT:
+				case setType_t::SET_MINDTRICKSCRIPT:
+				case setType_t::SET_CINEMATIC_SKIPSCRIPT:
 					//Recursively obtain all embedded scripts
 					ICARUS_InterrogateScript( sVal2 );
 					break;
-				case SET_LOOPSOUND:		//like ID_SOUND, but set's looping
+				case setType_t::SET_LOOPSOUND:		//like ID_SOUND, but set's looping
 					G_SoundIndex(sVal2);
 					break;
-				case SET_VIDEO_PLAY:	//in game cinematic
+				case setType_t::SET_VIDEO_PLAY:	//in game cinematic
 extern	cvar_t	*com_buildScript;
 					if (com_buildScript->integer)
 					{
@@ -516,15 +516,15 @@ extern	cvar_t	*com_buildScript;
 						COM_StripExtension(name,name,sizeof(name));
 						COM_DefaultExtension(name,sizeof(name),".roq");
 
-						gi.FS_FOpenFile( name, &file, FS_READ );	// trigger the file copy
+						gi.FS_FOpenFile( name, &file, fsMode_t::FS_READ );	// trigger the file copy
 						if (file)
 						{
 							gi.FS_FCloseFile( file );
 						}
 					}
 					break;
-				case SET_ADDRHANDBOLT_MODEL:
-				case SET_ADDLHANDBOLT_MODEL:
+				case setType_t::SET_ADDRHANDBOLT_MODEL:
+				case setType_t::SET_ADDLHANDBOLT_MODEL:
 					{
 						gi.G2API_PrecacheGhoul2Model( sVal2 );
 					}
@@ -643,7 +643,7 @@ void Svcmd_ICARUS_f( void )
 
 	if ( Q_stricmp( cmd, "log" ) == 0 )
 	{
-		g_ICARUSDebug->integer = to_underlying( WL_DEBUG );
+		g_ICARUSDebug->integer = to_underlying( WL_e::WL_DEBUG );
 		if ( VALIDSTRING( gi.argv( 2 ) ) )
 		{
 			gentity_t	*ent = G_Find( nullptr, FOFS( script_targetname ), gi.argv(2) );

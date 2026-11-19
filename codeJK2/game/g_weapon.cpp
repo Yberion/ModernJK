@@ -64,7 +64,7 @@ void WP_TraceSetStart( const gentity_t *ent, vec3_t start, const vec3_t mins, co
 	VectorCopy( ent->currentOrigin, newstart );
 	newstart[2] = start[2]; // force newstart to be on the same plane as the wpMuzzle ( start )
 
-	gi.trace( &tr, newstart, entMins, entMaxs, start, ent->s.number, MASK_SOLID|CONTENTS_SHOTCLIP, G2_NOCOLLIDE, 0 );
+	gi.trace( &tr, newstart, entMins, entMaxs, start, ent->s.number, MASK_SOLID|contentsFlags_t::CONTENTS_SHOTCLIP, EG2_Collision::G2_NOCOLLIDE, 0 );
 
 	if ( tr.startsolid || tr.allsolid )
 	{
@@ -87,13 +87,13 @@ gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life, gentity_t
 	missile = G_Spawn();
 
 	missile->nextthink = level.time + life;
-	missile->e_ThinkFunc = thinkF_G_FreeEntity;
-	missile->s.eType = ET_MISSILE;
+	missile->e_ThinkFunc = thinkFunc_t::thinkF_G_FreeEntity;
+	missile->s.eType = entityType_t::ET_MISSILE;
 	missile->owner = owner;
 
 	missile->alt_fire = altFire;
 
-	missile->s.pos.trType = TR_LINEAR;
+	missile->s.pos.trType = trType_t::TR_LINEAR;
 	missile->s.pos.trTime = level.time;// - 10;	// move a bit on the very first frame
 	VectorCopy( org, missile->s.pos.trBase );
 	VectorScale( dir, vel, missile->s.pos.trDelta );
@@ -111,7 +111,7 @@ void WP_Stick( gentity_t *missile, trace_t *trace, float fudge_distance )
 	vec3_t org, ang;
 
 	// not moving or rotating
-	missile->s.pos.trType = TR_STATIONARY;
+	missile->s.pos.trType = trType_t::TR_STATIONARY;
 	VectorClear( missile->s.pos.trDelta );
 	VectorClear( missile->s.apos.trDelta );
 
@@ -159,7 +159,7 @@ void WP_Explode( gentity_t *self )
 
 	if ( self->splashDamage > 0 && self->splashRadius > 0 )
 	{
-		G_RadiusDamage( self->currentOrigin, attacker, self->splashDamage, self->splashRadius, attacker, MOD_EXPLOSIVE_SPLASH );
+		G_RadiusDamage( self->currentOrigin, attacker, self->splashDamage, self->splashRadius, attacker, meansOfDeath_t::MOD_EXPLOSIVE_SPLASH );
 	}
 
 	if ( self->target )
@@ -170,7 +170,7 @@ void WP_Explode( gentity_t *self )
 	G_SetOrigin( self, self->currentOrigin );
 
 	self->nextthink = level.time + 50;
-	self->e_ThinkFunc = thinkF_G_FreeEntity;
+	self->e_ThinkFunc = thinkFunc_t::thinkF_G_FreeEntity;
 }
 
 // We need to have a dieFunc, otherwise G_Damage won't actually make us die.  I could modify G_Damage, but that entails too many changes
@@ -187,7 +187,7 @@ void WP_ExplosiveDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker
 		self->splashRadius /= 3;
 	}
 
-	self->s.eFlags &= ~EF_FIRING; // don't draw beam if we are dead
+	self->s.eFlags &= ~entityFlags_t::EF_FIRING; // don't draw beam if we are dead
 
 	WP_Explode( self );
 }
@@ -238,10 +238,10 @@ void ViewHeightFix(const gentity_t *const ent)
 	if ( !ent->client || !ent->NPC )
 		return;
 
-	if ( ent->client->ps.stats[STAT_HEALTH] <= 0 )
+	if ( ent->client->ps.stats[statIndex_t::STAT_HEALTH] <= 0 )
 		return;//dead
 
-	if ( ent->client->ps.legsAnim == BOTH_CROUCH1IDLE || ent->client->ps.legsAnim == BOTH_CROUCH1 || ent->client->ps.legsAnim == BOTH_CROUCH1WALK )
+	if ( ent->client->ps.legsAnim == animNumber_t::BOTH_CROUCH1IDLE || ent->client->ps.legsAnim == animNumber_t::BOTH_CROUCH1 || ent->client->ps.legsAnim == animNumber_t::BOTH_CROUCH1WALK )
 	{
 		if ( ent->client->ps.viewheight!=ent->client->crouchheight + STANDARD_VIEWHEIGHT_OFFSET )
 			ent->client->ps.viewheight = ent->client->crouchheight + STANDARD_VIEWHEIGHT_OFFSET;
@@ -255,37 +255,37 @@ void ViewHeightFix(const gentity_t *const ent)
 
 bool W_AccuracyLoggableWeapon( weapon_t weapon, bool alt_fire, meansOfDeath_t mod )
 {
-	if ( mod != MOD_UNKNOWN )
+	if ( mod != meansOfDeath_t::MOD_UNKNOWN )
 	{
 		switch( mod )
 		{
 		//standard weapons
-		case MOD_BRYAR:
-		case MOD_BRYAR_ALT:
-		case MOD_BLASTER:
-		case MOD_BLASTER_ALT:
-		case MOD_DISRUPTOR:
-		case MOD_SNIPER:
-		case MOD_BOWCASTER:
-		case MOD_BOWCASTER_ALT:
-		case MOD_ROCKET:
-		case MOD_ROCKET_ALT:
+		case meansOfDeath_t::MOD_BRYAR:
+		case meansOfDeath_t::MOD_BRYAR_ALT:
+		case meansOfDeath_t::MOD_BLASTER:
+		case meansOfDeath_t::MOD_BLASTER_ALT:
+		case meansOfDeath_t::MOD_DISRUPTOR:
+		case meansOfDeath_t::MOD_SNIPER:
+		case meansOfDeath_t::MOD_BOWCASTER:
+		case meansOfDeath_t::MOD_BOWCASTER_ALT:
+		case meansOfDeath_t::MOD_ROCKET:
+		case meansOfDeath_t::MOD_ROCKET_ALT:
 			return true;
 			break;
 		//non-alt standard
-		case MOD_REPEATER:
-		case MOD_DEMP2:
-		case MOD_FLECHETTE:
+		case meansOfDeath_t::MOD_REPEATER:
+		case meansOfDeath_t::MOD_DEMP2:
+		case meansOfDeath_t::MOD_FLECHETTE:
 			return true;
 			break;
 		//emplaced gun
-		case MOD_EMPLACED:
+		case meansOfDeath_t::MOD_EMPLACED:
 			return true;
 			break;
 		//atst
-		case MOD_ENERGY:
-		case MOD_EXPLOSIVE:
-			if ( weapon == WP_ATST_MAIN || weapon == WP_ATST_SIDE )
+		case meansOfDeath_t::MOD_ENERGY:
+		case meansOfDeath_t::MOD_EXPLOSIVE:
+			if ( weapon == weapon_t::WP_ATST_MAIN || weapon == weapon_t::WP_ATST_SIDE )
 			{
 				return true;
 			}
@@ -294,33 +294,33 @@ bool W_AccuracyLoggableWeapon( weapon_t weapon, bool alt_fire, meansOfDeath_t mo
 			break;
 		}
 	}
-	else if ( weapon != WP_NONE )
+	else if ( weapon != weapon_t::WP_NONE )
 	{
 		switch( weapon )
 		{
-		case WP_BRYAR_PISTOL:
-		case WP_BLASTER:
-		case WP_DISRUPTOR:
-		case WP_BOWCASTER:
-		case WP_ROCKET_LAUNCHER:
+		case weapon_t::WP_BRYAR_PISTOL:
+		case weapon_t::WP_BLASTER:
+		case weapon_t::WP_DISRUPTOR:
+		case weapon_t::WP_BOWCASTER:
+		case weapon_t::WP_ROCKET_LAUNCHER:
 			return true;
 			break;
 		//non-alt standard
-		case WP_REPEATER:
-		case WP_DEMP2:
-		case WP_FLECHETTE:
+		case weapon_t::WP_REPEATER:
+		case weapon_t::WP_DEMP2:
+		case weapon_t::WP_FLECHETTE:
 			if ( !alt_fire )
 			{
 				return true;
 			}
 			break;
 		//emplaced gun
-		case WP_EMPLACED_GUN:
+		case weapon_t::WP_EMPLACED_GUN:
 			return true;
 			break;
 		//atst
-		case WP_ATST_MAIN:
-		case WP_ATST_SIDE:
+		case weapon_t::WP_ATST_MAIN:
+		case weapon_t::WP_ATST_SIDE:
 			return true;
 			break;
 		default:
@@ -352,7 +352,7 @@ bool LogAccuracyHit( gentity_t *target, gentity_t *attacker ) {
 		return false;
 	}
 
-	if( target->client->ps.stats[STAT_HEALTH] <= 0 ) {
+	if( target->client->ps.stats[statIndex_t::STAT_HEALTH] <= 0 ) {
 		return false;
 	}
 
@@ -386,7 +386,7 @@ void CalcMuzzlePoint( gentity_t *const ent, vec3_t wpFwd, vec3_t right, vec3_t w
 
 	switch( ent->s.weapon )
 	{
-	case WP_BRYAR_PISTOL:
+	case weapon_t::WP_BRYAR_PISTOL:
 		ViewHeightFix(ent);
 		muzzlePoint[2] += ent->client->ps.viewheight;//By eyes
 		muzzlePoint[2] -= 16;
@@ -394,14 +394,14 @@ void CalcMuzzlePoint( gentity_t *const ent, vec3_t wpFwd, vec3_t right, vec3_t w
 		VectorMA( muzzlePoint, 6, wpVright, muzzlePoint );
 		break;
 
-	case WP_ROCKET_LAUNCHER:
-	case WP_THERMAL:
+	case weapon_t::WP_ROCKET_LAUNCHER:
+	case weapon_t::WP_THERMAL:
 		ViewHeightFix(ent);
 		muzzlePoint[2] += ent->client->ps.viewheight;//By eyes
 		muzzlePoint[2] -= 2;
 		break;
 
-	case WP_BLASTER:
+	case weapon_t::WP_BLASTER:
 		ViewHeightFix(ent);
 		muzzlePoint[2] += ent->client->ps.viewheight;//By eyes
 		muzzlePoint[2] -= 1;
@@ -413,10 +413,10 @@ void CalcMuzzlePoint( gentity_t *const ent, vec3_t wpFwd, vec3_t right, vec3_t w
 		VectorMA( muzzlePoint, 1, wpVright, muzzlePoint );
 		break;
 
-	case WP_SABER:
+	case weapon_t::WP_SABER:
 		if(ent->NPC!=nullptr &&
-			(ent->client->ps.torsoAnim == TORSO_WEAPONREADY2 ||
-			ent->client->ps.torsoAnim == BOTH_ATTACK2))//Sniper pose
+			(ent->client->ps.torsoAnim == animNumber_t::TORSO_WEAPONREADY2 ||
+			ent->client->ps.torsoAnim == animNumber_t::BOTH_ATTACK2))//Sniper pose
 		{
 			ViewHeightFix(ent);
 			wpMuzzle[2] += ent->client->ps.viewheight;//By eyes
@@ -429,10 +429,10 @@ void CalcMuzzlePoint( gentity_t *const ent, vec3_t wpFwd, vec3_t right, vec3_t w
 		VectorMA( muzzlePoint, 16, wpVright, muzzlePoint );
 		break;
 
-	case WP_BOT_LASER:
+	case weapon_t::WP_BOT_LASER:
 		muzzlePoint[2] -= 16;	//
 		break;
-	case WP_ATST_MAIN:
+	case weapon_t::WP_ATST_MAIN:
 
 		if (ent->count > 0)
 		{
@@ -451,7 +451,7 @@ void CalcMuzzlePoint( gentity_t *const ent, vec3_t wpFwd, vec3_t right, vec3_t w
 						nullptr, ent->s.modelScale );
 		}
 
-		gi.G2API_GiveMeVectorFromMatrix( boltMatrix, ORIGIN, org );
+		gi.G2API_GiveMeVectorFromMatrix( boltMatrix, Eorientations::ORIGIN, org );
 
 		VectorCopy(org,muzzlePoint);
 
@@ -470,10 +470,10 @@ void FireWeapon( gentity_t *ent, bool alt_fire )
 	float alert = 256;
 
 	// track shots taken for accuracy tracking.
-	ent->client->ps.persistant[PERS_ACCURACY_SHOTS]++;
+	ent->client->ps.persistant[persEnum_t::PERS_ACCURACY_SHOTS]++;
 
 	// set aiming directions
-	if ( ent->s.weapon == WP_DISRUPTOR && alt_fire )
+	if ( ent->s.weapon == weapon_t::WP_DISRUPTOR && alt_fire )
 	{
 		if ( ent->NPC )
 		{
@@ -481,7 +481,7 @@ void FireWeapon( gentity_t *ent, bool alt_fire )
 			AngleVectors( ent->lastAngles, wpFwd, wpVright, wpUp );
 		}
 	}
-	else if ( ent->s.weapon == WP_ATST_SIDE || ent->s.weapon == WP_ATST_MAIN )
+	else if ( ent->s.weapon == weapon_t::WP_ATST_SIDE || ent->s.weapon == weapon_t::WP_ATST_MAIN )
 	{
 		vec3_t	delta1, enemy_org1, muzzle1;
 		vec3_t	angleToEnemy1;
@@ -494,7 +494,7 @@ void FireWeapon( gentity_t *ent, bool alt_fire )
 			mdxaBone_t		boltMatrix;
 			int				bolt;
 
-			if ( ent->client->ps.weapon == WP_ATST_MAIN )
+			if ( ent->client->ps.weapon == weapon_t::WP_ATST_MAIN )
 			{//FIXME: alt_fire should fire both barrels, but slower?
 				if ( ent->alt_fire )
 				{
@@ -509,7 +509,7 @@ void FireWeapon( gentity_t *ent, bool alt_fire )
 			{// ATST SIDE weapons
 				if ( ent->alt_fire )
 				{
-					if ( gi.G2API_GetSurfaceRenderStatus( &ent->ghoul2[ent->playerModel], "head_light_blaster_cann" ) != G2SURFACEFLAG_NONE )
+					if ( gi.G2API_GetSurfaceRenderStatus( &ent->ghoul2[ent->playerModel], "head_light_blaster_cann" ) != g2SurfaceFlags_t::G2SURFACEFLAG_NONE )
 					{//don't have it!
 						return;
 					}
@@ -517,7 +517,7 @@ void FireWeapon( gentity_t *ent, bool alt_fire )
 				}
 				else
 				{
-					if ( gi.G2API_GetSurfaceRenderStatus( &ent->ghoul2[ent->playerModel], "head_concussion_charger" ) != G2SURFACEFLAG_NONE )
+					if ( gi.G2API_GetSurfaceRenderStatus( &ent->ghoul2[ent->playerModel], "head_concussion_charger" ) != g2SurfaceFlags_t::G2SURFACEFLAG_NONE )
 					{//don't have it!
 						return;
 					}
@@ -533,8 +533,8 @@ void FireWeapon( gentity_t *ent, bool alt_fire )
 			gi.G2API_GetBoltMatrix( ent->ghoul2, ent->playerModel, bolt, &boltMatrix, yawOnlyAngles, ent->currentOrigin, (cg.time?cg.time:level.time), nullptr, ent->s.modelScale );
 
 			// work the matrix axis stuff into the original axis and origins used.
-			gi.G2API_GiveMeVectorFromMatrix( boltMatrix, ORIGIN, ent->client->renderInfo.muzzlePoint );
-			gi.G2API_GiveMeVectorFromMatrix( boltMatrix, NEGATIVE_Y, ent->client->renderInfo.muzzleDir );
+			gi.G2API_GiveMeVectorFromMatrix( boltMatrix, Eorientations::ORIGIN, ent->client->renderInfo.muzzlePoint );
+			gi.G2API_GiveMeVectorFromMatrix( boltMatrix, Eorientations::NEGATIVE_Y, ent->client->renderInfo.muzzleDir );
 			ent->client->renderInfo.mPCalcTime = level.time;
 
 			AngleVectors( ent->client->ps.viewangles, wpFwd, wpVright, wpUp );
@@ -546,7 +546,7 @@ void FireWeapon( gentity_t *ent, bool alt_fire )
 		}
 		else
 		{//NPC, auto-aim at enemy
-			CalcEntitySpot( ent->enemy, SPOT_HEAD, enemy_org1 );
+			CalcEntitySpot( ent->enemy, spot_t::SPOT_HEAD, enemy_org1 );
 
 			VectorSubtract (enemy_org1, muzzle1, delta1);
 
@@ -554,13 +554,13 @@ void FireWeapon( gentity_t *ent, bool alt_fire )
 			AngleVectors (angleToEnemy1, wpFwd, wpVright, wpUp);
 		}
 	}
-	else if ( ent->s.weapon == WP_BOT_LASER && ent->enemy )
+	else if ( ent->s.weapon == weapon_t::WP_BOT_LASER && ent->enemy )
 	{
 		vec3_t	delta1, enemy_org1, muzzle1;
 		vec3_t	angleToEnemy1;
 
-		CalcEntitySpot( ent->enemy, SPOT_HEAD, enemy_org1 );
-		CalcEntitySpot( ent, SPOT_WEAPON, muzzle1 );
+		CalcEntitySpot( ent->enemy, spot_t::SPOT_HEAD, enemy_org1 );
+		CalcEntitySpot( ent, spot_t::SPOT_WEAPON, muzzle1 );
 
 		VectorSubtract (enemy_org1, muzzle1, delta1);
 
@@ -580,76 +580,76 @@ void FireWeapon( gentity_t *ent, bool alt_fire )
 	{
 	// Player weapons
 	//-----------------
-	case WP_SABER:
+	case weapon_t::WP_SABER:
 		return;
 		break;
 
-	case WP_BRYAR_PISTOL:
+	case weapon_t::WP_BRYAR_PISTOL:
 		WP_FireBryarPistol( ent, alt_fire );
 		break;
 
-	case WP_BLASTER:
+	case weapon_t::WP_BLASTER:
 		WP_FireBlaster( ent, alt_fire );
 		break;
 
-	case WP_DISRUPTOR:
+	case weapon_t::WP_DISRUPTOR:
 		alert = 50; // if you want it to alert enemies, remove this
 		WP_FireDisruptor( ent, alt_fire );
 		break;
 
-	case WP_BOWCASTER:
+	case weapon_t::WP_BOWCASTER:
 		WP_FireBowcaster( ent, alt_fire );
 		break;
 
-	case WP_REPEATER:
+	case weapon_t::WP_REPEATER:
 		WP_FireRepeater( ent, alt_fire );
 		break;
 
-	case WP_DEMP2:
+	case weapon_t::WP_DEMP2:
 		WP_FireDEMP2( ent, alt_fire );
 		break;
 
-	case WP_FLECHETTE:
+	case weapon_t::WP_FLECHETTE:
 		WP_FireFlechette( ent, alt_fire );
 		break;
 
-	case WP_ROCKET_LAUNCHER:
+	case weapon_t::WP_ROCKET_LAUNCHER:
 		WP_FireRocket( ent, alt_fire );
 		break;
 
-	case WP_THERMAL:
+	case weapon_t::WP_THERMAL:
 		WP_FireThermalDetonator( ent, alt_fire );
 		break;
 
-	case WP_TRIP_MINE:
+	case weapon_t::WP_TRIP_MINE:
 		alert = 0; // if you want it to alert enemies, remove this
 		WP_PlaceLaserTrap( ent, alt_fire );
 		break;
 
-	case WP_DET_PACK:
+	case weapon_t::WP_DET_PACK:
 		alert = 0; // if you want it to alert enemies, remove this
 		WP_FireDetPack( ent, alt_fire );
 		break;
 
-	case WP_BOT_LASER:
+	case weapon_t::WP_BOT_LASER:
 		WP_BotLaser( ent );
 		break;
 
-	case WP_EMPLACED_GUN:
+	case weapon_t::WP_EMPLACED_GUN:
 		// doesn't care about whether it's alt-fire or not.  We can do an alt-fire if needed
 		WP_EmplacedFire( ent );
 		break;
 
-	case WP_MELEE:
+	case weapon_t::WP_MELEE:
 		alert = 0; // if you want it to alert enemies, remove this
 		WP_Melee( ent );
 		break;
 
-	case WP_ATST_MAIN:
+	case weapon_t::WP_ATST_MAIN:
 		WP_ATSTMainFire( ent );
 		break;
 
-	case WP_ATST_SIDE:
+	case weapon_t::WP_ATST_SIDE:
 
 		// TEMP
 		if ( alt_fire )
@@ -670,12 +670,12 @@ void FireWeapon( gentity_t *ent, bool alt_fire )
 		}
 		break;
 
-	case WP_TIE_FIGHTER:
+	case weapon_t::WP_TIE_FIGHTER:
 		// TEMP
 		WP_EmplacedFire( ent );
 		break;
 
-	case WP_RAPID_FIRE_CONC:
+	case weapon_t::WP_RAPID_FIRE_CONC:
 		// TEMP
 		if ( alt_fire )
 		{
@@ -687,11 +687,11 @@ void FireWeapon( gentity_t *ent, bool alt_fire )
 		}
 		break;
 
-	case WP_STUN_BATON:
+	case weapon_t::WP_STUN_BATON:
 		WP_FireStunBaton( ent, alt_fire );
 		break;
 
-	case WP_BLASTER_PISTOL: // enemy version
+	case weapon_t::WP_BLASTER_PISTOL: // enemy version
 		WP_FireBryarPistol( ent, false ); // never an alt-fire?
 		break;
 
@@ -702,10 +702,10 @@ void FireWeapon( gentity_t *ent, bool alt_fire )
 
 	if ( !ent->s.number )
 	{
-		if ( ent->s.weapon == WP_FLECHETTE || (ent->s.weapon == WP_BOWCASTER && !alt_fire) )
+		if ( ent->s.weapon == weapon_t::WP_FLECHETTE || (ent->s.weapon == weapon_t::WP_BOWCASTER && !alt_fire) )
 		{//these can fire multiple shots, count them individually within the firing functions
 		}
-		else if ( W_AccuracyLoggableWeapon( ent->s.weapon, alt_fire, MOD_UNKNOWN ) )
+		else if ( W_AccuracyLoggableWeapon( ent->s.weapon, alt_fire, meansOfDeath_t::MOD_UNKNOWN ) )
 		{
 			ent->client->sess.missionStats.shotsFired++;
 		}
@@ -713,8 +713,8 @@ void FireWeapon( gentity_t *ent, bool alt_fire )
 	// We should probably just use this as a default behavior, in special cases, just set alert to false.
 	if ( ent->s.number == 0 && alert > 0 )
 	{
-		AddSoundEvent( ent, wpMuzzle, alert, AEL_DISCOVERED );
-		AddSightEvent( ent, wpMuzzle, alert*2, AEL_DISCOVERED, 20 );
+		AddSoundEvent( ent, wpMuzzle, alert, alertEventLevel_e::AEL_DISCOVERED );
+		AddSightEvent( ent, wpMuzzle, alert*2, alertEventLevel_e::AEL_DISCOVERED, 20 );
 	}
 }
 
@@ -750,7 +750,7 @@ void emplaced_gun_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 		return;
 	}
 
-	if ( Any( self->svFlags & SVF_INACTIVE ) )
+	if ( Any( self->svFlags & svFlags_t::SVF_INACTIVE ) )
 	{
 		return; // can't use inactive gun
 	}
@@ -789,15 +789,15 @@ void emplaced_gun_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 	{
 		weapon_t	oldWeapon = activator->s.weapon;
 
-		if ( oldWeapon == WP_SABER )
+		if ( oldWeapon == weapon_t::WP_SABER )
 		{
 			self->alt_fire = activator->client->ps.saberActive;
 		}
 
 		// swap the users weapon with the emplaced gun and add the ammo the gun has to the player
 		activator->client->ps.weapon = self->s.weapon;
-		Add_Ammo( activator, WP_EMPLACED_GUN, self->count );
-		activator->client->ps.stats[STAT_WEAPONS] |= Bit( WP_EMPLACED_GUN );
+		Add_Ammo( activator, weapon_t::WP_EMPLACED_GUN, self->count );
+		activator->client->ps.stats[statIndex_t::STAT_WEAPONS] |= Bit( weapon_t::WP_EMPLACED_GUN );
 
 		// Allow us to point from one to the other
 		activator->owner = self; // kind of dumb, but when we are locked to the weapon, we are owned by it.
@@ -825,12 +825,12 @@ extern void ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
 //				gi.linkentity( activator );
 			}
 
-			ChangeWeapon( activator, WP_EMPLACED_GUN );
+			ChangeWeapon( activator, weapon_t::WP_EMPLACED_GUN );
 		}
 		else if ( activator->s.number == 0 )
 		{
 			// we don't want for it to draw the weapon select stuff
-			cg.weaponSelect = WP_EMPLACED_GUN;
+			cg.weaponSelect = weapon_t::WP_EMPLACED_GUN;
 			CG_CenterPrint( "@INGAME_EXIT_VIEW", SCREEN_HEIGHT * 0.95 );
 		}
 		// Since we move the activator inside of the gun, we reserve a solid spot where they were standing in order to be able to get back out without being in solid
@@ -840,7 +840,7 @@ extern void ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
 		}
 		self->nextTrain = G_Spawn();
 		//self->nextTrain->classname = "emp_placeholder";
-		self->nextTrain->contents = CONTENTS_MONSTERCLIP|CONTENTS_PLAYERCLIP;//hmm... playerclip too now that we're doing it for NPCs?
+		self->nextTrain->contents = contentsFlags_t::CONTENTS_MONSTERCLIP|contentsFlags_t::CONTENTS_PLAYERCLIP;//hmm... playerclip too now that we're doing it for NPCs?
 		G_SetOrigin( self->nextTrain, activator->client->ps.origin );
 		VectorCopy( activator->mins, self->nextTrain->mins );
 		VectorCopy( activator->maxs, self->nextTrain->maxs );
@@ -859,18 +859,18 @@ extern void ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
 		self->s.weapon = oldWeapon;
 
 		// Lock the player
-		activator->client->ps.eFlags |= EF_LOCKED_TO_WEAPON;
+		activator->client->ps.eFlags |= entityFlags_t::EF_LOCKED_TO_WEAPON;
 		activator->owner = self; // kind of dumb, but when we are locked to the weapon, we are owned by it.
 		self->activator = activator;
 		self->delay = level.time; // can't disconnect from the thing for half a second
 
 		// Let the gun be considered an enemy
-		self->svFlags |= SVF_NONNPC_ENEMY;
+		self->svFlags |= svFlags_t::SVF_NONNPC_ENEMY;
 		self->noDamageTeam = activator->client->playerTeam;
 
 		// FIXME: don't do this, we'll try and actually put the player in this beast
 		// move the player to the center of the gun
-//		activator->contents = CONTENTS_NONE;
+//		activator->contents = contentsFlags_t::CONTENTS_NONE;
 //		VectorCopy( self->currentOrigin, activator->client->ps.origin );
 
 		SetClientViewAngle( activator, self->pos1 );
@@ -903,15 +903,15 @@ void emplaced_gun_pain( gentity_t *self, gentity_t *inflictor, gentity_t *attack
 		}
 
 		// Don't do script if dead
-		G_ActivateBehavior( self, BSET_PAIN );
+		G_ActivateBehavior( self, bSet_t::BSET_PAIN );
 	}
 }
 
 //----------------------------------------------------------
 void emplaced_blow( gentity_t *ent )
 {
-	ent->e_DieFunc = dieF_NULL;
-	emplaced_gun_die( ent, ent->lastEnemy, ent->lastEnemy, 0, MOD_UNKNOWN );
+	ent->e_DieFunc = dieFunc_t::dieF_NULL;
+	emplaced_gun_die( ent, ent->lastEnemy, ent->lastEnemy, 0, meansOfDeath_t::MOD_UNKNOWN );
 }
 
 //----------------------------------------------------------
@@ -921,18 +921,18 @@ void emplaced_gun_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacke
 
 	// turn off any firing animations it may have been doing
 	self->s.frame = self->startFrame = self->endFrame = 0;
-	self->svFlags &= ~SVF_ANIMATING;
+	self->svFlags &= ~svFlags_t::SVF_ANIMATING;
 
 	self->health = 0;
-//	self->s.weapon = WP_EMPLACED_GUN; // we need to be able to switch back to the old weapon
+//	self->s.weapon = weapon_t::WP_EMPLACED_GUN; // we need to be able to switch back to the old weapon
 
 	self->takedamage = false;
 	self->lastEnemy = attacker;
 
 	// we defer explosion so the player has time to get out
-	if ( self->e_DieFunc != dieF_NULL )
+	if ( self->e_DieFunc != dieFunc_t::dieF_NULL )
 	{
-		self->e_ThinkFunc = thinkF_emplaced_blow;
+		self->e_ThinkFunc = thinkFunc_t::thinkF_emplaced_blow;
 		self->nextthink = level.time + 3000; // don't blow for a couple of seconds
 		return;
 	}
@@ -950,22 +950,22 @@ void emplaced_gun_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacke
 
 			// kill them
 			self->activator->health = 0;
-			self->activator->client->ps.stats[STAT_HEALTH] = 0;
+			self->activator->client->ps.stats[statIndex_t::STAT_HEALTH] = 0;
 		}
 
 		// kill the players emplaced ammo, cheesy way to keep the gun from firing
-		self->activator->client->ps.ammo[weaponData[WP_EMPLACED_GUN].ammoIndex] = 0;
+		self->activator->client->ps.ammo[weaponData[weapon_t::WP_EMPLACED_GUN].ammoIndex] = 0;
 	}
 
-	self->e_PainFunc = painF_NULL;
-	self->e_ThinkFunc = thinkF_NULL;
+	self->e_PainFunc = painFunc_t::painF_NULL;
+	self->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
 
 	if ( self->target )
 	{
 		G_UseTargets( self, attacker );
 	}
 
-	G_RadiusDamage( self->currentOrigin, self, self->splashDamage, self->splashRadius, self, MOD_UNKNOWN );
+	G_RadiusDamage( self->currentOrigin, self, self->splashDamage, self->splashRadius, self, meansOfDeath_t::MOD_UNKNOWN );
 
 	// when the gun is dead, add some ugliness to it.
 	vec3_t ugly;
@@ -973,7 +973,7 @@ void emplaced_gun_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacke
 	ugly[YAW] = 4;
 	ugly[PITCH] = self->lastAngles[PITCH] * 0.8f + Q_flrand(-1.0f, 1.0f) * 6;
 	ugly[ROLL] = Q_flrand(-1.0f, 1.0f) * 7;
-	gi.G2API_SetBoneAnglesIndex( &self->ghoul2[self->playerModel], self->lowerLumbarBone, ugly, BONE_ANGLES_POSTMULT, POSITIVE_Y, POSITIVE_Z, POSITIVE_X, nullptr, 0, 0 );
+	gi.G2API_SetBoneAnglesIndex( &self->ghoul2[self->playerModel], self->lowerLumbarBone, ugly, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_Y, Eorientations::POSITIVE_Z, Eorientations::POSITIVE_X, nullptr, 0, 0 );
 
 	VectorCopy( self->currentOrigin,  org );
 	org[2] += 20;
@@ -990,7 +990,7 @@ void emplaced_gun_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacke
 
 		ent->fxID = G_EffectIndex( "emplaced/dead_smoke" );
 
-		ent->e_ThinkFunc = thinkF_fx_runner_think;
+		ent->e_ThinkFunc = thinkFunc_t::thinkF_fx_runner_think;
 		ent->nextthink = level.time + 50;
 
 		// move up above the gun origin
@@ -1005,7 +1005,7 @@ void emplaced_gun_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacke
 		gi.linkentity( ent );
 	}
 
-	G_ActivateBehavior( self, BSET_DEATH );
+	G_ActivateBehavior( self, bSet_t::BSET_DEATH );
 }
 
 //----------------------------------------------------------
@@ -1013,12 +1013,12 @@ void SP_emplaced_gun( gentity_t *ent )
 {
 	char name[] = "models/map_objects/imp_mine/turret_chair.glm";
 
-	ent->svFlags |= SVF_PLAYER_USABLE;
-	ent->contents = CONTENTS_BODY;//CONTENTS_SHOTCLIP|CONTENTS_PLAYERCLIP|CONTENTS_MONSTERCLIP;//CONTENTS_SOLID;
+	ent->svFlags |= svFlags_t::SVF_PLAYER_USABLE;
+	ent->contents = contentsFlags_t::CONTENTS_BODY;//contentsFlags_t::CONTENTS_SHOTCLIP|contentsFlags_t::CONTENTS_PLAYERCLIP|contentsFlags_t::CONTENTS_MONSTERCLIP;//CONTENTS_SOLID;
 
 	if ( ent->spawnflags & EMPLACED_INACTIVE )
 	{
-		ent->svFlags |= SVF_INACTIVE;
+		ent->svFlags |= svFlags_t::SVF_INACTIVE;
 	}
 
 	VectorSet( ent->mins, -30, -30, -5 );
@@ -1028,15 +1028,15 @@ void SP_emplaced_gun( gentity_t *ent )
 
 	if ( !( ent->spawnflags & EMPLACED_VULNERABLE ))
 	{
-		ent->flags |= FL_GODMODE;
+		ent->flags |= gentityFlags_t::FL_GODMODE;
 	}
 
 	ent->s.radius = 110;
 	ent->spawnflags |= 4; // deadsolid
 
-	ent->e_ThinkFunc = thinkF_NULL;
-	ent->e_PainFunc = painF_emplaced_gun_pain;
-	ent->e_DieFunc  = dieF_emplaced_gun_die;
+	ent->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
+	ent->e_PainFunc = painFunc_t::painF_emplaced_gun_pain;
+	ent->e_DieFunc  = dieFunc_t::dieF_emplaced_gun_die;
 
 	G_EffectIndex( "emplaced/explode" );
 	G_EffectIndex( "emplaced/dead_smoke" );
@@ -1054,7 +1054,7 @@ void SP_emplaced_gun( gentity_t *ent )
 	G_SpawnFloat( "wait", "800", &ent->wait );
 
 	ent->max_health = ent->health;
-	ent->dflags |= DAMAGE_CUSTOM_HUD; // dumb, but we draw a custom hud
+	ent->dflags |= damageFlags_t::DAMAGE_CUSTOM_HUD; // dumb, but we draw a custom hud
 
 	ent->s.modelindex = G_ModelIndex( name );
 	ent->playerModel = gi.G2API_InitGhoul2Model( ent->ghoul2, name, ent->s.modelindex, NULL_HANDLE, NULL_HANDLE, 0, 0 );
@@ -1065,10 +1065,10 @@ void SP_emplaced_gun( gentity_t *ent )
 	ent->handRBolt = gi.G2API_AddBolt( &ent->ghoul2[0], "*flash02" );
 	ent->rootBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "base_bone", true );
 	ent->lowerLumbarBone = gi.G2API_GetBoneIndex( &ent->ghoul2[0], "swivel_bone", true );
-	gi.G2API_SetBoneAngles( &ent->ghoul2[0], "swivel_bone", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_Y, POSITIVE_Z, POSITIVE_X, nullptr, 0, 0);
+	gi.G2API_SetBoneAngles( &ent->ghoul2[0], "swivel_bone", vec3_origin, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_Y, Eorientations::POSITIVE_Z, Eorientations::POSITIVE_X, nullptr, 0, 0);
 
-	RegisterItem( FindItemForWeapon( WP_EMPLACED_GUN ));
-	ent->s.weapon = WP_EMPLACED_GUN;
+	RegisterItem( FindItemForWeapon( weapon_t::WP_EMPLACED_GUN ));
+	ent->s.weapon = weapon_t::WP_EMPLACED_GUN;
 
 	G_SetOrigin( ent, ent->s.origin );
 	G_SetAngles( ent, ent->s.angles );
@@ -1077,7 +1077,7 @@ void SP_emplaced_gun( gentity_t *ent )
 	// store base angles for later
 	VectorCopy( ent->s.angles, ent->pos1 );
 
-	ent->e_UseFunc = useF_emplaced_gun_use;
+	ent->e_UseFunc = useFunc_t::useF_emplaced_gun_use;
 
 	gi.linkentity (ent);
 }

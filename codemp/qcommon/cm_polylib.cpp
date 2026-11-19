@@ -58,7 +58,7 @@ winding_t	*AllocWinding (int points)
 		c_peak_windings = c_active_windings;
 
 	s = sizeof(float)*3*points + sizeof(int);
-	w = (winding_t *)Z_Malloc (s, TAG_BSP, true);
+	w = (winding_t *)Z_Malloc (s, memtag::TAG_BSP, true);
 //	Com_Memset (w, 0, s); // true param in Z_Malloc does this
 	return w;
 }
@@ -66,7 +66,7 @@ winding_t	*AllocWinding (int points)
 void FreeWinding (winding_t *w)
 {
 	if (*(unsigned *)w == 0xdeaddead)
-		Com_Error (ERR_FATAL, "FreeWinding: freed a freed winding");
+		Com_Error (errorParm_t::ERR_FATAL, "FreeWinding: freed a freed winding");
 	*(unsigned *)w = 0xdeaddead;
 
 	c_active_windings--;
@@ -120,7 +120,7 @@ winding_t *BaseWindingForPlane (vec3_t normal, float dist)
 		}
 	}
 	if (x==-1)
-		Com_Error (ERR_DROP, "BaseWindingForPlane: no axis found");
+		Com_Error (errorParm_t::ERR_DROP, "BaseWindingForPlane: no axis found");
 
 	VectorCopy (vec3_origin, vup);
 	switch (x)
@@ -200,7 +200,7 @@ void ChopWindingInPlace (winding_t **inout, vec3_t normal, float dist, float eps
 	int		maxpts;
 
 	in = *inout;
-	counts[SIDE_FRONT] = counts[SIDE_BACK] = counts[SIDE_ON] = 0;
+	counts[planeSide_t::SIDE_FRONT] = counts[planeSide_t::SIDE_BACK] = counts[planeSide_t::SIDE_ON] = 0;
 
 // determine sides for each point
 	for (i=0 ; i<in->numpoints ; i++)
@@ -209,28 +209,28 @@ void ChopWindingInPlace (winding_t **inout, vec3_t normal, float dist, float eps
 		dot -= dist;
 		dists[i] = dot;
 		if (dot > epsilon)
-			sides[i] = SIDE_FRONT;
+			sides[i] = planeSide_t::SIDE_FRONT;
 		else if (dot < -epsilon)
-			sides[i] = SIDE_BACK;
+			sides[i] = planeSide_t::SIDE_BACK;
 		else
 		{
-			sides[i] = SIDE_ON;
+			sides[i] = planeSide_t::SIDE_ON;
 		}
 		counts[sides[i]]++;
 	}
 	sides[i] = sides[0];
 	dists[i] = dists[0];
 
-	if (!counts[SIDE_FRONT])
+	if (!counts[planeSide_t::SIDE_FRONT])
 	{
 		FreeWinding (in);
 		*inout = nullptr;
 		return;
 	}
-	if (!counts[SIDE_BACK])
+	if (!counts[planeSide_t::SIDE_BACK])
 		return;		// inout stays the same
 
-	maxpts = in->numpoints+4;	// cant use counts[SIDE_FRONT]+2 because
+	maxpts = in->numpoints+4;	// cant use counts[planeSide_t::SIDE_FRONT]+2 because
 								// of fp grouping errors
 
 	f = AllocWinding (maxpts);
@@ -239,20 +239,20 @@ void ChopWindingInPlace (winding_t **inout, vec3_t normal, float dist, float eps
 	{
 		p1 = in->p[i];
 
-		if (sides[i] == SIDE_ON)
+		if (sides[i] == planeSide_t::SIDE_ON)
 		{
 			VectorCopy (p1, f->p[f->numpoints]);
 			f->numpoints++;
 			continue;
 		}
 
-		if (sides[i] == SIDE_FRONT)
+		if (sides[i] == planeSide_t::SIDE_FRONT)
 		{
 			VectorCopy (p1, f->p[f->numpoints]);
 			f->numpoints++;
 		}
 
-		if (sides[i+1] == SIDE_ON || sides[i+1] == sides[i])
+		if (sides[i+1] == planeSide_t::SIDE_ON || sides[i+1] == sides[i])
 			continue;
 
 	// generate a split point
@@ -274,9 +274,9 @@ void ChopWindingInPlace (winding_t **inout, vec3_t normal, float dist, float eps
 	}
 
 	if (f->numpoints > maxpts)
-		Com_Error (ERR_DROP, "ClipWinding: points exceeded estimate");
+		Com_Error (errorParm_t::ERR_DROP, "ClipWinding: points exceeded estimate");
 	if (f->numpoints > MAX_POINTS_ON_WINDING)
-		Com_Error (ERR_DROP, "ClipWinding: MAX_POINTS_ON_WINDING");
+		Com_Error (errorParm_t::ERR_DROP, "ClipWinding: MAX_POINTS_ON_WINDING");
 
 	FreeWinding (in);
 	*inout = f;

@@ -43,21 +43,21 @@ variableType_t Q3_VariableDeclared( const char *name )
 	varString_m::iterator	vsi = varStrings.find( name );
 
 	if ( vsi != varStrings.end() )
-		return VTYPE_STRING;
+		return variableType_t::VTYPE_STRING;
 
 	//Check the floats
 	varFloat_m::iterator	vfi = varFloats.find( name );
 
 	if ( vfi != varFloats.end() )
-		return VTYPE_FLOAT;
+		return variableType_t::VTYPE_FLOAT;
 
 	//Check the vectors
 	varString_m::iterator	vvi = varVectors.find( name );
 
 	if ( vvi != varVectors.end() )
-		return VTYPE_VECTOR;
+		return variableType_t::VTYPE_VECTOR;
 
-	return VTYPE_NONE;
+	return variableType_t::VTYPE_NONE;
 }
 
 /*
@@ -69,31 +69,31 @@ Q3_DeclareVariable
 void Q3_DeclareVariable( icarusToken_t type, const char *name )
 {
 	//Cannot declare the same variable twice
-	if ( Q3_VariableDeclared( name ) != VTYPE_NONE )
+	if ( Q3_VariableDeclared( name ) != variableType_t::VTYPE_NONE )
 		return;
 
 	if ( numVariables > MAX_VARIABLES )
 	{
-		Q3_DebugPrint( WL_ERROR, "too many variables already declared, maximum is %d\n", MAX_VARIABLES );
+		Q3_DebugPrint( WL_e::WL_ERROR, "too many variables already declared, maximum is %d\n", MAX_VARIABLES );
 		return;
 	}
 
 	switch( type )
 	{
-	case TK_FLOAT:
+	case icarusToken_t::TK_FLOAT:
 		varFloats[ name ] = 0.0f;
 		break;
 
-	case TK_STRING:
+	case icarusToken_t::TK_STRING:
 		varStrings[ name ] = "NULL";
 		break;
 
-	case TK_VECTOR:
+	case icarusToken_t::TK_VECTOR:
 		varVectors[ name ] = "0.0 0.0 0.0";
 		break;
 
 	default:
-		Q3_DebugPrint( WL_ERROR, "unknown 'type' for declare() function!\n" );
+		Q3_DebugPrint( WL_e::WL_ERROR, "unknown 'type' for declare() function!\n" );
 		return;
 		break;
 	}
@@ -215,7 +215,7 @@ void Q3_InitVariables( void )
 	varVectors.clear();
 
 	if ( numVariables > 0 )
-		Q3_DebugPrint( WL_WARNING, "%d residual variables found!\n", numVariables );
+		Q3_DebugPrint( WL_e::WL_WARNING, "%d residual variables found!\n", numVariables );
 
 	numVariables = 0;
 }
@@ -380,7 +380,7 @@ void Q3_VariableLoadFloats( varFloat_m &fmap )
 
 		gi.ReadFromSaveGame( 'FVAL', &val, sizeof( float ) );
 
-		Q3_DeclareVariable( TK_FLOAT, (const char *) &tempBuffer );
+		Q3_DeclareVariable( icarusToken_t::TK_FLOAT, (const char *) &tempBuffer );
 		Q3_SetFloatVariable( (const char *) &tempBuffer, val );
 	}
 	*/
@@ -416,13 +416,13 @@ void Q3_VariableLoadStrings( icarusToken_t type, varString_m &fmap )
 
 		switch ( type )
 		{
-		case TK_STRING:
-			Q3_DeclareVariable( TK_STRING, (const char *) &tempBuffer );
+		case icarusToken_t::TK_STRING:
+			Q3_DeclareVariable( icarusToken_t::TK_STRING, (const char *) &tempBuffer );
 			Q3_SetStringVariable( (const char *) &tempBuffer, (const char *) &tempBuffer2 );
 			break;
 
-		case TK_VECTOR:
-			Q3_DeclareVariable( TK_VECTOR, (const char *) &tempBuffer );
+		case icarusToken_t::TK_VECTOR:
+			Q3_DeclareVariable( icarusToken_t::TK_VECTOR, (const char *) &tempBuffer );
 			Q3_SetVectorVariable( (const char *) &tempBuffer, (const char *) &tempBuffer2 );
 			break;
 
@@ -444,8 +444,8 @@ int Q3_VariableLoad( void )
 	Q3_InitVariables();
 
 	Q3_VariableLoadFloats( varFloats );
-	Q3_VariableLoadStrings( TK_STRING, varStrings );
-	Q3_VariableLoadStrings( TK_VECTOR, varVectors);
+	Q3_VariableLoadStrings( icarusToken_t::TK_STRING, varStrings );
+	Q3_VariableLoadStrings( icarusToken_t::TK_VECTOR, varVectors);
 
 	return false;
 }

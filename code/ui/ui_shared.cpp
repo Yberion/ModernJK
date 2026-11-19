@@ -145,8 +145,8 @@ typedef struct  itemFlagsDef_s {
 }	itemFlagsDef_t;
 
 itemFlagsDef_t itemFlags [] = {
-	{ "WINDOW_INACTIVE",	WINDOW_INACTIVE },
-	{ nullptr,					WINDOW_NONE }
+	{ "WINDOW_INACTIVE",	windowFlags_t::WINDOW_INACTIVE },
+	{ nullptr,					windowFlags_t::WINDOW_NONE }
 };
 
 const char *styles [] = {
@@ -375,7 +375,7 @@ bool MenuParse_name(itemDef_t *item)
 //	if (Q_stricmp(menu->window.name, "main") == 0)
 //	{
 		// default main as having focus
-//		menu->window.flags |= WINDOW_HASFOCUS;
+//		menu->window.flags |= windowFlags_t::WINDOW_HASFOCUS;
 //	}
 	return true;
 }
@@ -468,7 +468,7 @@ bool MenuParse_visible( itemDef_t *item )
 
 	if (i)
 	{
-		menu->window.flags |= WINDOW_VISIBLE;
+		menu->window.flags |= windowFlags_t::WINDOW_VISIBLE;
 	}
 	return true;
 }
@@ -490,7 +490,7 @@ bool MenuParse_ignoreescape( itemDef_t *item )
 
 	if (i)
 	{
-		menu->window.flags |= WINDOW_IGNORE_ESCAPE;
+		menu->window.flags |= windowFlags_t::WINDOW_IGNORE_ESCAPE;
 	}
 	return true;
 }
@@ -635,11 +635,11 @@ bool MenuParse_forecolor( itemDef_t *item)
 		}
 		if (f < 0)
 		{	//special case for player color
-			menu->window.flags |= WINDOW_PLAYERCOLOR;
+			menu->window.flags |= windowFlags_t::WINDOW_PLAYERCOLOR;
 			return true;
 		}
 		menu->window.foreColor[i]  = f;
-		menu->window.flags |= WINDOW_FORECOLORSET;
+		menu->window.flags |= windowFlags_t::WINDOW_FORECOLORSET;
 	}
 	return true;
 }
@@ -945,7 +945,7 @@ MenuParse_popup
 bool MenuParse_popup( itemDef_t *item)
 {
 	menuDef_t *menu = (menuDef_t*)item;
-	menu->window.flags |= WINDOW_POPUP;
+	menu->window.flags |= windowFlags_t::WINDOW_POPUP;
 	return true;
 }
 
@@ -959,7 +959,7 @@ bool MenuParse_outOfBounds( itemDef_t *item)
 {
 	menuDef_t *menu = (menuDef_t*)item;
 
-	menu->window.flags |= WINDOW_OOB_CLICK;
+	menu->window.flags |= windowFlags_t::WINDOW_OOB_CLICK;
 	return true;
 }
 
@@ -1043,19 +1043,19 @@ static void Item_ApplyHacks( itemDef_t *item ) {
 			VectorSet4( parent->disableColor, 0.5f, 0.5f, 0.5f, 1.0f );
 			item->disabled = true;
 			// Just in case it had focus
-			item->window.flags &= ~WINDOW_MOUSEOVER;
+			item->window.flags &= ~windowFlags_t::WINDOW_MOUSEOVER;
 			Com_Printf( "Disabling eax field because current platform does not support EAX.\n");
 		}
 	}
 
-	if ( item->type == ITEM_TYPE_TEXT && item->window.name && !Q_stricmp( item->window.name, "eax_icon") && item->cvarTest && !Q_stricmp( item->cvarTest, "s_UseOpenAL" ) && item->enableCvar && Any( item->cvarFlags & CVAR_HIDE ) ) {
+	if ( item->type == ITEM_TYPE_TEXT && item->window.name && !Q_stricmp( item->window.name, "eax_icon") && item->cvarTest && !Q_stricmp( item->cvarTest, "s_UseOpenAL" ) && item->enableCvar && Any( item->cvarFlags & itemCvarFlags_t::CVAR_HIDE ) ) {
 		if( item->parent )
 		{
 			menuDef_t *parent = (menuDef_t *)item->parent;
 			VectorSet4( parent->disableColor, 0.5f, 0.5f, 0.5f, 1.0f );
 			item->disabled = item->disabledHidden = true;
 			// Just in case it had focus
-			item->window.flags &= ~WINDOW_MOUSEOVER;
+			item->window.flags &= ~windowFlags_t::WINDOW_MOUSEOVER;
 			Com_Printf( "Hiding eax_icon object because current platform does not support EAX.\n");
 		}
 	}
@@ -1117,7 +1117,7 @@ static void Item_ApplyHacks( itemDef_t *item ) {
 		}
 		editFieldDef_t *editPtr = nullptr;
 
-		item->cvarFlags = CVAR_DISABLE;
+		item->cvarFlags = itemCvarFlags_t::CVAR_DISABLE;
 		item->type = ITEM_TYPE_SLIDER;
 
 		Item_ValidateTypeData(item);
@@ -1514,13 +1514,13 @@ void Menu_FadeItemByName(menuDef_t *menu, const char *p, bool fadeOut)
 		{
 			if (fadeOut)
 			{
-				item->window.flags |= (WINDOW_FADINGOUT | WINDOW_VISIBLE);
-				item->window.flags &= ~WINDOW_FADINGIN;
+				item->window.flags |= (windowFlags_t::WINDOW_FADINGOUT | windowFlags_t::WINDOW_VISIBLE);
+				item->window.flags &= ~windowFlags_t::WINDOW_FADINGIN;
 			}
 			else
 			{
-				item->window.flags |= (WINDOW_VISIBLE | WINDOW_FADINGIN);
-				item->window.flags &= ~WINDOW_FADINGOUT;
+				item->window.flags |= (windowFlags_t::WINDOW_VISIBLE | windowFlags_t::WINDOW_FADINGIN);
+				item->window.flags &= ~windowFlags_t::WINDOW_FADINGOUT;
 			}
 		}
 	}
@@ -1551,11 +1551,11 @@ void Menu_ShowItemByName(menuDef_t *menu, const char *p, bool bShow)
 		{
 			if (bShow)
 			{
-				item->window.flags |= WINDOW_VISIBLE;
+				item->window.flags |= windowFlags_t::WINDOW_VISIBLE;
 			}
 			else
 			{
-				item->window.flags &= ~(WINDOW_VISIBLE | WINDOW_HASFOCUS);
+				item->window.flags &= ~(windowFlags_t::WINDOW_VISIBLE | windowFlags_t::WINDOW_HASFOCUS);
 				// stop cinematics playing in the window
 				if (item->window.cinematic >= 0)
 				{
@@ -1578,7 +1578,7 @@ menuDef_t *Menu_GetFocused(void)
 
 	for (i = 0; i < menuCount; i++)
 	{
-		if (Any( Menus[i].window.flags & WINDOW_HASFOCUS ) && Any( Menus[i].window.flags & WINDOW_VISIBLE ))
+		if (Any( Menus[i].window.flags & windowFlags_t::WINDOW_HASFOCUS ) && Any( Menus[i].window.flags & windowFlags_t::WINDOW_VISIBLE ))
 		{
 	      return &Menus[i];
 		}
@@ -1622,7 +1622,7 @@ Menu_RunCloseScript
 */
 static void Menu_RunCloseScript(menuDef_t *menu)
 {
-	if (menu && Any( menu->window.flags & WINDOW_VISIBLE ) && menu->onClose)
+	if (menu && Any( menu->window.flags & windowFlags_t::WINDOW_VISIBLE ) && menu->onClose)
 	{
 		itemDef_t item;
 		item.parent = menu;
@@ -1646,7 +1646,7 @@ void Item_ActivateByName(const char *menuName,const char *itemName)
 
 	if (item != nullptr)
 	{
-		item->window.flags &= ~WINDOW_INACTIVE;
+		item->window.flags &= ~windowFlags_t::WINDOW_INACTIVE;
 	}
 }
 
@@ -1669,7 +1669,7 @@ void Menus_CloseByName(const char *p)
 	Menu_RunCloseScript(menu);
 
 	// If this window had the focus then take it away
-	if ( Any( menu->window.flags & WINDOW_HASFOCUS ) )
+	if ( Any( menu->window.flags & windowFlags_t::WINDOW_HASFOCUS ) )
 	{
 		// If there is something still in the open menu list then
 		// set it to have focus now
@@ -1680,7 +1680,7 @@ void Menus_CloseByName(const char *p)
 			openMenuCount -= 1;
 
 			// Set the top menu to have focus now
-			menuStack[openMenuCount]->window.flags |= WINDOW_HASFOCUS;
+			menuStack[openMenuCount]->window.flags |= windowFlags_t::WINDOW_HASFOCUS;
 
 			// Remove the top menu from the list
 			menuStack[openMenuCount] = nullptr;
@@ -1688,7 +1688,7 @@ void Menus_CloseByName(const char *p)
 	}
 
 	// Window is now invisible and doenst have focus
-	menu->window.flags &= ~(WINDOW_VISIBLE | WINDOW_HASFOCUS);
+	menu->window.flags &= ~(windowFlags_t::WINDOW_VISIBLE | windowFlags_t::WINDOW_HASFOCUS);
 }
 
 /*
@@ -1731,10 +1731,10 @@ itemDef_t *Menu_ClearFocus(menuDef_t *menu)
 	}
 	for (i = 0; i < menu->itemCount; i++)
 	{
-		if (Any( menu->items[i]->window.flags & WINDOW_HASFOCUS ))
+		if (Any( menu->items[i]->window.flags & windowFlags_t::WINDOW_HASFOCUS ))
 		{
 			ret = menu->items[i];
-			menu->items[i]->window.flags &= ~WINDOW_HASFOCUS;
+			menu->items[i]->window.flags &= ~windowFlags_t::WINDOW_HASFOCUS;
 			if (menu->items[i]->leaveFocus)
 			{
 				Item_RunScript(menu->items[i], menu->items[i]->leaveFocus);
@@ -1851,7 +1851,7 @@ void Menu_TransitionItemByName(menuDef_t *menu, const char *p, const rectDef_t *
 			{
 				rectFrom = &item->window.rect;	//if there are more than one of these with the same name, they'll all use the FIRST one's FROM.
 			}
-			item->window.flags |= (WINDOW_INTRANSITION | WINDOW_VISIBLE);
+			item->window.flags |= (windowFlags_t::WINDOW_INTRANSITION | windowFlags_t::WINDOW_VISIBLE);
 			item->window.offsetTime = time;
 			memcpy(&item->window.rectClient, rectFrom, sizeof(rectDef_t));
 			memcpy(&item->window.rectEffects, rectTo, sizeof(rectDef_t));
@@ -1889,7 +1889,7 @@ void Menu_Transition3ItemByName(menuDef_t *menu, const char *p, const float minx
 			{
 				modelptr = (modelDef_t*)item->typeData;
 
-				item->window.flags |= (WINDOW_INTRANSITIONMODEL | WINDOW_VISIBLE);
+				item->window.flags |= (windowFlags_t::WINDOW_INTRANSITIONMODEL | windowFlags_t::WINDOW_VISIBLE);
 				item->window.offsetTime = time;
 				modelptr->fov_x2 = fovtx;
 				modelptr->fov_y2 = fovty;
@@ -1942,7 +1942,7 @@ void Menu_OrbitItemByName(menuDef_t *menu, const char *p, float x, float y, floa
 		item = Menu_GetMatchingItemByNumber(menu, i, p);
 		if (item != nullptr)
 		{
-			item->window.flags |= (WINDOW_ORBITING | WINDOW_VISIBLE);
+			item->window.flags |= (windowFlags_t::WINDOW_ORBITING | windowFlags_t::WINDOW_VISIBLE);
 			item->window.offsetTime = time;
 			item->window.rectEffects.x = cx;
 			item->window.rectEffects.y = cy;
@@ -1967,7 +1967,7 @@ void Menu_ItemDisable(menuDef_t *menu, const char *name, bool disableFlag)
 		{
 			itemFound->disabled = disableFlag;
 			// Just in case it had focus
-			itemFound->window.flags &= ~WINDOW_MOUSEOVER;
+			itemFound->window.flags &= ~windowFlags_t::WINDOW_MOUSEOVER;
 		}
 	}
 }
@@ -2171,12 +2171,12 @@ bool Script_SetColor(itemDef_t *item, const char **args)
 		if (Q_stricmp(name, "backcolor") == 0)
 		{
 			out = &item->window.backColor;
-			item->window.flags |= WINDOW_BACKCOLORSET;
+			item->window.flags |= windowFlags_t::WINDOW_BACKCOLORSET;
 		}
 		else if (Q_stricmp(name, "forecolor") == 0)
 		{
 			out = &item->window.foreColor;
-			item->window.flags |= WINDOW_FORECOLORSET;
+			item->window.flags |= windowFlags_t::WINDOW_FORECOLORSET;
 		}
 		else if (Q_stricmp(name, "bordercolor") == 0)
 		{
@@ -2316,11 +2316,11 @@ bool Script_SetFocus(itemDef_t *item, const char **args)
 	if (String_Parse(args, &name))
 	{
 		focusItem = (itemDef_s *) Menu_FindItemByName((menuDef_t *) item->parent, name);
-		if (focusItem && !Any( focusItem->window.flags & WINDOW_DECORATION ) && !Any( focusItem->window.flags & WINDOW_HASFOCUS ))
+		if (focusItem && !Any( focusItem->window.flags & windowFlags_t::WINDOW_DECORATION ) && !Any( focusItem->window.flags & windowFlags_t::WINDOW_HASFOCUS ))
 		{
 			Menu_ClearFocus((menuDef_t *) item->parent);
 //JLF
-			focusItem->window.flags |= WINDOW_HASFOCUS;
+			focusItem->window.flags |= windowFlags_t::WINDOW_HASFOCUS;
 //END JLF
 
 			if (focusItem->onFocus)
@@ -2329,7 +2329,7 @@ bool Script_SetFocus(itemDef_t *item, const char **args)
 			}
 			if (DC->Assets.itemFocusSound)
 			{
-				DC->startLocalSound( DC->Assets.itemFocusSound, CHAN_LOCAL_SOUND );
+				DC->startLocalSound( DC->Assets.itemFocusSound, soundChannel_t::CHAN_LOCAL_SOUND );
 			}
 		}
 	}
@@ -2374,11 +2374,11 @@ void UI_SetItemVisible(menuDef_t *menu,const char *itemname,bool visible)
 		{
 			if (visible==true)
 			{
-				item->window.flags |= WINDOW_VISIBLE;
+				item->window.flags |= windowFlags_t::WINDOW_VISIBLE;
 			}
 			else
 			{
-				item->window.flags &= ~WINDOW_VISIBLE;
+				item->window.flags &= ~windowFlags_t::WINDOW_VISIBLE;
 			}
 		}
 	}
@@ -2404,7 +2404,7 @@ void UI_SetItemColor(itemDef_t *item,const char *itemname,const char *name,vec4_
 			else if (Q_stricmp(name, "forecolor") == 0)
 			{
 				out = &item2->window.foreColor;
-				item2->window.flags |= WINDOW_FORECOLORSET;
+				item2->window.flags |= windowFlags_t::WINDOW_FORECOLORSET;
 			}
 			else if (Q_stricmp(name, "bordercolor") == 0)
 			{
@@ -2510,7 +2510,7 @@ bool Script_Delay ( itemDef_t* item, const char **args )
 
 	if (Int_Parse(args, &time))
 	{
-		item->window.flags |= WINDOW_SCRIPTWAITING;
+		item->window.flags |= windowFlags_t::WINDOW_SCRIPTWAITING;
 		item->window.delayTime = DC->realTime + time;	// Flag to set delay time on next paint
 		item->window.delayedScript = (char *)*args;	// Copy current location, we'll resume executing here later
 	}
@@ -2840,7 +2840,7 @@ bool Script_Exec ( itemDef_t *item, const char **args)
 	const char *val;
 	if (String_Parse(args, &val))
 	{
-		DC->executeText(EXEC_APPEND, va("%s ; ", val));
+		DC->executeText(cbufExec_t::EXEC_APPEND, va("%s ; ", val));
 	}
 
 	return true;
@@ -2856,7 +2856,7 @@ static bool Script_Play(itemDef_t *item, const char **args)
 	const char *val;
 	if (String_Parse(args, &val))
 	{
-		DC->startLocalSound(DC->registerSound(val, false), CHAN_AUTO );
+		DC->startLocalSound(DC->registerSound(val, false), soundChannel_t::CHAN_AUTO );
 	}
 
 	return true;
@@ -2872,7 +2872,7 @@ static bool Script_PlayVoice(itemDef_t *item, const char **args)
 	const char *val;
 	if (String_Parse(args, &val))
 	{
-		DC->startLocalSound(DC->registerSound(val, false), CHAN_VOICE );
+		DC->startLocalSound(DC->registerSound(val, false), soundChannel_t::CHAN_VOICE );
 	}
 
 	return true;
@@ -2885,7 +2885,7 @@ Script_StopVoice
 */
 static bool Script_StopVoice(itemDef_t *item, const char **args)
 {
-	DC->startLocalSound(uiInfo.uiDC.Assets.nullSound, CHAN_VOICE );
+	DC->startLocalSound(uiInfo.uiDC.Assets.nullSound, soundChannel_t::CHAN_VOICE );
 
 	return true;
 }
@@ -3209,14 +3209,14 @@ bool ItemParse_asset_model_go( itemDef_t *item, const char *name )
 		if ( item->ghoul2.size() && item->ghoul2[0].mModelindex >= 0)
 		{
 			DC->g2_RemoveGhoul2Model( item->ghoul2, 0 );
-			item->flags &= ~ITF_G2VALID;
+			item->flags &= ~itemModelFlags_t::ITF_G2VALID;
 		}
 		int g2Model = DC->g2_InitGhoul2Model(item->ghoul2, name, 0, 0, 0, 0, 0);
 		if (g2Model >= 0)
 		{
-			item->flags |= ITF_G2VALID;
+			item->flags |= itemModelFlags_t::ITF_G2VALID;
 
-			if (modelPtr->g2anim != ANIM_NONE)
+			if (modelPtr->g2anim != animNumber_t::ANIM_NONE)
 			{ //does the menu request this model be playing an animation?
 				DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, false);
 			}
@@ -3229,7 +3229,7 @@ bool ItemParse_asset_model_go( itemDef_t *item, const char *name )
 	else if(!(item->asset))
 	{ //guess it's just an md3
 		item->asset = DC->registerModel(name);
-		item->flags &= ~ITF_G2VALID;
+		item->flags &= ~itemModelFlags_t::ITF_G2VALID;
 	}
 	return true;
 }
@@ -3570,7 +3570,7 @@ ItemParse_decoration
 */
 bool ItemParse_decoration( itemDef_t *item )
 {
-	item->window.flags |= WINDOW_DECORATION;
+	item->window.flags |= windowFlags_t::WINDOW_DECORATION;
 	return true;
 }
 
@@ -3621,7 +3621,7 @@ ItemParse_wrapped
 */
 bool ItemParse_wrapped( itemDef_t *item )
 {
-	item->window.flags |= WINDOW_WRAPPED;
+	item->window.flags |= windowFlags_t::WINDOW_WRAPPED;
 	return true;
 }
 
@@ -3634,7 +3634,7 @@ ItemParse_autowrapped
 */
 bool ItemParse_autowrapped( itemDef_t *item)
 {
-	item->window.flags |= WINDOW_AUTOWRAPPED;
+	item->window.flags |= windowFlags_t::WINDOW_AUTOWRAPPED;
 	return true;
 }
 
@@ -3647,7 +3647,7 @@ ItemParse_horizontalscroll
 */
 bool ItemParse_horizontalscroll( itemDef_t *item )
 {
-	item->window.flags |= WINDOW_HORIZONTAL;
+	item->window.flags |= windowFlags_t::WINDOW_HORIZONTAL;
 	return true;
 }
 
@@ -3864,7 +3864,7 @@ bool ItemParse_visible( itemDef_t *item)
 	}
 	if (i)
 	{
-		item->window.flags |= WINDOW_VISIBLE;
+		item->window.flags |= windowFlags_t::WINDOW_VISIBLE;
 	}
 	return true;
 }
@@ -4101,11 +4101,11 @@ bool ItemParse_forecolor( itemDef_t *item)
 		}
 		if (f < 0)
 		{	//special case for player color
-			item->window.flags |= WINDOW_PLAYERCOLOR;
+			item->window.flags |= windowFlags_t::WINDOW_PLAYERCOLOR;
 			return true;
 		}
 		item->window.foreColor[i]  = f;
-		item->window.flags |= WINDOW_FORECOLORSET;
+		item->window.flags |= windowFlags_t::WINDOW_FORECOLORSET;
 	}
 	return true;
 }
@@ -4722,7 +4722,7 @@ bool ItemParse_enableCvar( itemDef_t *item)
 {
 	if (PC_Script_Parse(&item->enableCvar))
 	{
-		item->cvarFlags = CVAR_ENABLE;
+		item->cvarFlags = itemCvarFlags_t::CVAR_ENABLE;
 		return true;
 	}
 	return false;
@@ -4737,7 +4737,7 @@ bool ItemParse_disableCvar( itemDef_t *item )
 {
 	if (PC_Script_Parse(&item->enableCvar))
 	{
-		item->cvarFlags = CVAR_DISABLE;
+		item->cvarFlags = itemCvarFlags_t::CVAR_DISABLE;
 		return true;
 	}
 	return false;
@@ -4752,7 +4752,7 @@ bool ItemParse_showCvar( itemDef_t *item )
 {
 	if (PC_Script_Parse(&item->enableCvar))
 	{
-		item->cvarFlags = CVAR_SHOW;
+		item->cvarFlags = itemCvarFlags_t::CVAR_SHOW;
 		return true;
 	}
 	return false;
@@ -4767,7 +4767,7 @@ bool ItemParse_hideCvar( itemDef_t *item )
 {
 	if (PC_Script_Parse(&item->enableCvar))
 	{
-		item->cvarFlags = CVAR_HIDE;
+		item->cvarFlags = itemCvarFlags_t::CVAR_HIDE;
 		return true;
 	}
 	return false;
@@ -4781,7 +4781,7 @@ ItemParse_cvarsubstring
 bool ItemParse_cvarsubstring( itemDef_t *item )
 {
 	assert(Any( item->cvarFlags ));	//need something set first, then we or in our flag.
-	item->cvarFlags |= CVAR_SUBSTRING;
+	item->cvarFlags |= itemCvarFlags_t::CVAR_SUBSTRING;
 	return true;
 }
 
@@ -4822,7 +4822,7 @@ void Item_ValidateTypeData(itemDef_t *item)
 	{
 		item->typeData = UI_Alloc(sizeof(modelDef_t));
 		memset(item->typeData, 0, sizeof(modelDef_t));
-		((modelDef_t *) item->typeData)->g2anim = ANIM_NONE;	// until a model_g2anim names one
+		((modelDef_t *) item->typeData)->g2anim = animNumber_t::ANIM_NONE;	// until a model_g2anim names one
 	}
 	else if (item->type == ITEM_TYPE_TEXTSCROLL )
 	{
@@ -4837,11 +4837,11 @@ bool ItemParse_isCharacter( itemDef_t *item )
 	{
 		if ( i )
 		{
-			item->flags |= ITF_ISCHARACTER;
+			item->flags |= itemModelFlags_t::ITF_ISCHARACTER;
 		}
 		else
 		{
-			item->flags &= ~ITF_ISCHARACTER;
+			item->flags &= ~itemModelFlags_t::ITF_ISCHARACTER;
 		}
 		return true;
 	}
@@ -4858,7 +4858,7 @@ extern void UI_CacheSaberGlowGraphics( void );
 	{
 		if ( i )
 		{
-			item->flags |= ITF_ISSABER;
+			item->flags |= itemModelFlags_t::ITF_ISSABER;
 			UI_CacheSaberGlowGraphics();
 			if ( !ui_saber_parms_parsed )
 			{
@@ -4867,7 +4867,7 @@ extern void UI_CacheSaberGlowGraphics( void );
 		}
 		else
 		{
-			item->flags &= ~ITF_ISSABER;
+			item->flags &= ~itemModelFlags_t::ITF_ISSABER;
 		}
 		return true;
 	}
@@ -4884,7 +4884,7 @@ extern void UI_CacheSaberGlowGraphics( void );
 	{
 		if ( i )
 		{
-			item->flags |= ITF_ISSABER2;
+			item->flags |= itemModelFlags_t::ITF_ISSABER2;
 			UI_CacheSaberGlowGraphics();
 			if ( !ui_saber_parms_parsed )
 			{
@@ -4893,7 +4893,7 @@ extern void UI_CacheSaberGlowGraphics( void );
 		}
 		else
 		{
-			item->flags &= ~ITF_ISSABER2;
+			item->flags &= ~itemModelFlags_t::ITF_ISSABER2;
 		}
 		return true;
 	}
@@ -5386,7 +5386,7 @@ menuDef_t *Menus_ActivateByName(const char *p)
 		}
 		else
 		{
-			Menus[i].window.flags &= ~WINDOW_HASFOCUS;
+			Menus[i].window.flags &= ~windowFlags_t::WINDOW_HASFOCUS;
 		}
 	}
 
@@ -5451,18 +5451,18 @@ Menus_Activate
 */
 void  Menus_Activate(menuDef_t *menu)
 {
-	menu->window.flags |= (WINDOW_HASFOCUS | WINDOW_VISIBLE);
+	menu->window.flags |= (windowFlags_t::WINDOW_HASFOCUS | windowFlags_t::WINDOW_VISIBLE);
 
 	if (menu->onOpen)
 	{
 		itemDef_t item;
 		item.parent = menu;
-		item.window.flags = WINDOW_NONE;	//err, item is fake here, but we want a valid flag before calling runscript
+		item.window.flags = windowFlags_t::WINDOW_NONE;	//err, item is fake here, but we want a valid flag before calling runscript
 		Item_RunScript(&item, menu->onOpen);
 
-		if (Any( item.window.flags & WINDOW_SCRIPTWAITING ))	//in case runscript set waiting, copy it up to the menu
+		if (Any( item.window.flags & windowFlags_t::WINDOW_SCRIPTWAITING ))	//in case runscript set waiting, copy it up to the menu
 		{
-			menu->window.flags |= WINDOW_SCRIPTWAITING;
+			menu->window.flags |= windowFlags_t::WINDOW_SCRIPTWAITING;
 			menu->window.delayedScript = item.window.delayedScript;
 			menu->window.delayTime = item.window.delayTime;
 		}
@@ -5578,7 +5578,7 @@ static void Controls_GetKeyAssignment( const char *command, std::optional<fakeAs
 	twokeys[0] = twokeys[1] = std::nullopt;
 	count = 0;
 
-	for ( j=A_NULL; j<MAX_KEYS; j++ ) {
+	for ( j=fakeAscii_t::A_NULL; j<fakeAscii_t::MAX_KEYS; j++ ) {
 		DC->getBindingBuf( j, b, sizeof( b ) );
 		if ( *b && !Q_stricmp( b, command ) ) {
 			twokeys[count] = j;
@@ -5853,7 +5853,7 @@ void  Menus_CloseAll(void)
 	for (i = 0; i < menuCount; i++)
 	{
 		Menu_RunCloseScript ( &Menus[i] );
-		Menus[i].window.flags &= ~(WINDOW_HASFOCUS | WINDOW_VISIBLE);
+		Menus[i].window.flags &= ~(windowFlags_t::WINDOW_HASFOCUS | windowFlags_t::WINDOW_VISIBLE);
 	}
 
 	// Clear the menu stack
@@ -5910,7 +5910,7 @@ void PC_ParseWarning(const char *message)
 char *PC_ParseExt(void)
 {
 	if(parseDataCount < 0)
-		Com_Error(ERR_FATAL, "PC_ParseExt: parseDataCount < 0 (be sure to call PC_StartParseSession!)");
+		Com_Error(errorParm_t::ERR_FATAL, "PC_ParseExt: parseDataCount < 0 (be sure to call PC_StartParseSession!)");
 	return (COM_ParseExt(&parseData[parseDataCount].bufferCurrent, true));
 }
 
@@ -5919,7 +5919,7 @@ bool PC_ParseString(const char **string)
 	int	hold;
 
 	if(parseDataCount < 0)
-		Com_Error(ERR_FATAL, "PC_ParseString: parseDataCount < 0 (be sure to call PC_StartParseSession!)");
+		Com_Error(errorParm_t::ERR_FATAL, "PC_ParseString: parseDataCount < 0 (be sure to call PC_StartParseSession!)");
 
 	hold = COM_ParseString(&parseData[parseDataCount].bufferCurrent,string);
 
@@ -5934,7 +5934,7 @@ bool PC_ParseString(const char **string)
 bool PC_ParseInt(int *number)
 {
 	if(parseDataCount < 0)
-		Com_Error(ERR_FATAL, "PC_ParseInt: parseDataCount < 0 (be sure to call PC_StartParseSession!)");
+		Com_Error(errorParm_t::ERR_FATAL, "PC_ParseInt: parseDataCount < 0 (be sure to call PC_StartParseSession!)");
 
 	return(COM_ParseInt(&parseData[parseDataCount].bufferCurrent,number));
 }
@@ -5942,7 +5942,7 @@ bool PC_ParseInt(int *number)
 bool PC_ParseFloat(float *number)
 {
 	if(parseDataCount < 0)
-		Com_Error(ERR_FATAL, "PC_ParseFloat: parseDataCount < 0 (be sure to call PC_StartParseSession!)");
+		Com_Error(errorParm_t::ERR_FATAL, "PC_ParseFloat: parseDataCount < 0 (be sure to call PC_StartParseSession!)");
 
 	return(COM_ParseFloat(&parseData[parseDataCount].bufferCurrent,number));
 }
@@ -5950,7 +5950,7 @@ bool PC_ParseFloat(float *number)
 bool PC_ParseColor(vec4_t *color)
 {
 	if(parseDataCount < 0)
-		Com_Error(ERR_FATAL, "PC_ParseColor: parseDataCount < 0 (be sure to call PC_StartParseSession!)");
+		Com_Error(errorParm_t::ERR_FATAL, "PC_ParseColor: parseDataCount < 0 (be sure to call PC_StartParseSession!)");
 
 	return(COM_ParseVec4(&parseData[parseDataCount].bufferCurrent, color));
 }
@@ -6006,27 +6006,27 @@ void Menu_Paint(menuDef_t *menu, bool forcePaint)
 		return;
 	}
 
-	if (Any( menu->window.flags & WINDOW_SCRIPTWAITING ))
+	if (Any( menu->window.flags & windowFlags_t::WINDOW_SCRIPTWAITING ))
 	{
 		if (DC->realTime > menu->window.delayTime)
 		{ // Time has elapsed, resume running whatever script we saved
 			itemDef_t item;
 			item.parent = menu;
-			item.window.flags = WINDOW_NONE;	//clear before calling RunScript
-			menu->window.flags &= ~WINDOW_SCRIPTWAITING;
+			item.window.flags = windowFlags_t::WINDOW_NONE;	//clear before calling RunScript
+			menu->window.flags &= ~windowFlags_t::WINDOW_SCRIPTWAITING;
 			Item_RunScript(&item, menu->window.delayedScript);
 
 			// Could have hit another delay. Need to hoist from fake item
-			if (Any( item.window.flags & WINDOW_SCRIPTWAITING ))
+			if (Any( item.window.flags & windowFlags_t::WINDOW_SCRIPTWAITING ))
 			{
-				menu->window.flags |= WINDOW_SCRIPTWAITING;
+				menu->window.flags |= windowFlags_t::WINDOW_SCRIPTWAITING;
 				menu->window.delayedScript = item.window.delayedScript;
 				menu->window.delayTime = item.window.delayTime;
 			}
 		}
 	}
 
-	if (!Any( menu->window.flags & WINDOW_VISIBLE ) &&  !forcePaint)
+	if (!Any( menu->window.flags & windowFlags_t::WINDOW_VISIBLE ) &&  !forcePaint)
 	{
 		return;
 	}
@@ -6038,7 +6038,7 @@ void Menu_Paint(menuDef_t *menu, bool forcePaint)
 
 	if (forcePaint)
 	{
-		menu->window.flags |= WINDOW_FORCED;
+		menu->window.flags |= windowFlags_t::WINDOW_FORCED;
 	}
 
 	// draw the background if necessary
@@ -6117,7 +6117,7 @@ bool Item_EnableShowViaCvar(itemDef_t *item, itemCvarFlags_t flag)
 		char script[1024];
 		const char *p;
 		char buff[1024];
-		if (Any( item->cvarFlags & CVAR_SUBSTRING ))
+		if (Any( item->cvarFlags & itemCvarFlags_t::CVAR_SUBSTRING ))
 		{
 			const char *val;
 			p = item->enableCvar;
@@ -6274,7 +6274,7 @@ void Item_TextColor(itemDef_t *item, vec4_t *newColor)
 
 	Fade(&item->window.flags, &item->window.foreColor[3], parent->fadeClamp, &item->window.nextTime, parent->fadeCycle, true, parent->fadeAmount);
 
-	if ( !(item->type == ITEM_TYPE_TEXT && Any( item->window.flags & WINDOW_AUTOWRAPPED )) && Any( item->window.flags & WINDOW_HASFOCUS ))
+	if ( !(item->type == ITEM_TYPE_TEXT && Any( item->window.flags & windowFlags_t::WINDOW_AUTOWRAPPED )) && Any( item->window.flags & windowFlags_t::WINDOW_HASFOCUS ))
 	{
 		lowLight[0] = 0.8 * parent->focusColor[0];
 		lowLight[1] = 0.8 * parent->focusColor[1];
@@ -6303,13 +6303,13 @@ void Item_TextColor(itemDef_t *item, vec4_t *newColor)
 	// items can be enabled and disabled based on cvars
 	if (item->enableCvar && *item->enableCvar && item->cvarTest && *item->cvarTest)
 	{
-		if (Any( item->cvarFlags & (CVAR_ENABLE | CVAR_DISABLE) ) && !Item_EnableShowViaCvar(item, CVAR_ENABLE))
+		if (Any( item->cvarFlags & (itemCvarFlags_t::CVAR_ENABLE | itemCvarFlags_t::CVAR_DISABLE) ) && !Item_EnableShowViaCvar(item, itemCvarFlags_t::CVAR_ENABLE))
 		{
 			memcpy(newColor, &parent->disableColor, sizeof(vec4_t));
 		}
 	}
 
-	if (Any( item->window.flags & WINDOW_INACTIVE ))
+	if (Any( item->window.flags & windowFlags_t::WINDOW_INACTIVE ))
 	{
 		memcpy(newColor, &greyColor, sizeof(vec4_t));
 	}
@@ -6390,13 +6390,13 @@ void Item_Text_Paint(itemDef_t *item)
 	int height, width;
 	vec4_t color;
 
-	if (Any( item->window.flags & WINDOW_WRAPPED ))
+	if (Any( item->window.flags & windowFlags_t::WINDOW_WRAPPED ))
 	{
 		Item_Text_Wrapped_Paint(item);
 		return;
 	}
 
-	if (Any( item->window.flags & WINDOW_AUTOWRAPPED ))
+	if (Any( item->window.flags & windowFlags_t::WINDOW_AUTOWRAPPED ))
 	{
 		Item_Text_AutoWrapped_Paint(item);
 		return;
@@ -6507,7 +6507,7 @@ void Item_TextField_Paint(itemDef_t *item)
 		DC->getCVarString(item->cvar, buff, sizeof(buff));
 	}
 
-	if (Any( item->window.flags & WINDOW_HASFOCUS ))
+	if (Any( item->window.flags & windowFlags_t::WINDOW_HASFOCUS ))
 	{
 		lowLight[0] = 0.8 * parent->focusColor[0];
 		lowLight[1] = 0.8 * parent->focusColor[1];
@@ -6521,7 +6521,7 @@ void Item_TextField_Paint(itemDef_t *item)
 	}
 
 	offset = 8;//(item->text && *item->text) ? 8 : 0;
-	if (Any( item->window.flags & WINDOW_HASFOCUS ) && g_editingField)
+	if (Any( item->window.flags & windowFlags_t::WINDOW_HASFOCUS ) && g_editingField)
 	{
 		char cursor = DC->getOverstrikeMode() ? '_' : '|';
 		DC->drawTextWithCursor(item->textRect.x + item->textRect.w + offset, item->textRect.y, item->textscale, newColor, buff + editPtr->paintOffset, item->cursorPos - editPtr->paintOffset , cursor, /*editPtr->maxPaintChars*/ item->window.rect.w, item->textStyle, item->font);
@@ -6636,7 +6636,7 @@ void Item_ListBox_Paint(itemDef_t *item)
 		item->cursorPos = 0;
 	}
 	// default is vertical if horizontal flag is not here
-	if (Any( item->window.flags & WINDOW_HORIZONTAL ))
+	if (Any( item->window.flags & windowFlags_t::WINDOW_HORIZONTAL ))
 	{
 //JLF new variable (code just indented)
 		if (!listPtr->scrollhidden)
@@ -6684,7 +6684,7 @@ void Item_ListBox_Paint(itemDef_t *item)
 				image = DC->feederItemImage(item->special, i);
 				if (image)
 				{
-					if (Any( item->window.flags & WINDOW_PLAYERCOLOR ))
+					if (Any( item->window.flags & windowFlags_t::WINDOW_PLAYERCOLOR ))
 					{
 						vec4_t	color;
 						color[0] = ui_char_color_red.integer/255.0f;
@@ -6944,7 +6944,7 @@ void Item_Bind_Paint(itemDef_t *item)
 
 	value = (item->cvar) ? DC->getCVarValue(item->cvar) : 0;
 
-	if (Any( item->window.flags & WINDOW_HASFOCUS ))
+	if (Any( item->window.flags & windowFlags_t::WINDOW_HASFOCUS ))
 	{
 		if (g_bindItem == item)
 		{
@@ -7031,7 +7031,7 @@ void UI_TalkingHead(itemDef_t *item)
 {
 //	static int facial_blink = DC->realTime + Q_flrand(4000.0, 8000.0);
 	static int facial_timer = DC->realTime + Q_flrand(10000.0, 30000.0);
-//	static animNumber_t facial_anim = FACE_ALERT;
+//	static animNumber_t facial_anim = animNumber_t::FACE_ALERT;
 	std::optional<animNumber_t> anim;
 
 	//are we blinking?
@@ -7062,17 +7062,17 @@ void UI_TalkingHead(itemDef_t *item)
 
 	if (s_entityWavVol[0] > 0)	// if we aren't talking, then it will be 0, -1 for talking but paused
 	{
-		anim = FACE_TALK1 + s_entityWavVol[0]-1;
-		if( anim > FACE_TALK4 )
+		anim = animNumber_t::FACE_TALK1 + s_entityWavVol[0]-1;
+		if( anim > animNumber_t::FACE_TALK4 )
 		{
-			anim = FACE_TALK4;
+			anim = animNumber_t::FACE_TALK4;
 		}
 		// reset timers so we don't start right away after talking
 		facial_timer = DC->realTime + Q_flrand(2000.0, 7000.0);
 	}
 	else if (s_entityWavVol[0] == -1)
 	{// talking, but silent
-		anim = FACE_TALK0;
+		anim = animNumber_t::FACE_TALK0;
 		// reset timers so we don't start right away after talking
 		facial_timer = DC->realTime + Q_flrand(2000.0, 7000.0);
 	}
@@ -7093,7 +7093,7 @@ void UI_TalkingHead(itemDef_t *item)
 		{	// but should we start ?
 			if (facial_timer < DC->realTime)
 			{//yes
-				facial_anim = FACE_ALERT + Q_irand(0,2);	//alert, smile, frown
+				facial_anim = animNumber_t::FACE_ALERT + Q_irand(0,2);	//alert, smile, frown
 				// set aux timer
 				facial_timer = -(DC->realTime + 2000.0);
 				anim = facial_anim;
@@ -7138,7 +7138,7 @@ void Item_Model_Paint(itemDef_t *item)
 #ifdef JK2_MODE
 	// setup the refdef
 	memset( &refdef, 0, sizeof( refdef ) );
-	refdef.rdflags = RDF_NOWORLDMODEL;
+	refdef.rdflags = refdefFlags_t::RDF_NOWORLDMODEL;
 	AxisClear( refdef.viewaxis );
 	x = item->window.rect.x+1;
 	y = item->window.rect.y+1;
@@ -7212,7 +7212,7 @@ void Item_Model_Paint(itemDef_t *item)
 
 	// Set up lighting
 	VectorCopy( refdef.vieworg, ent.lightingOrigin );
-	ent.renderfx = RF_LIGHTING_ORIGIN | RF_NOSHADOW;
+	ent.renderfx = renderFxFlags_t::RF_LIGHTING_ORIGIN | renderFxFlags_t::RF_NOSHADOW;
 
 	DC->addRefEntityToScene( &ent );
 	DC->renderScene( &refdef );
@@ -7227,9 +7227,9 @@ void Item_Model_Paint(itemDef_t *item)
 			//HACKHACKHACK: check for any multi-part anim sequences, and play the next anim, if needbe
 			switch( modelPtr->g2anim )
 			{
-			case BOTH_FORCEWALLREBOUND_FORWARD:
-			case BOTH_FORCEJUMP1:
-				ItemParse_model_g2anim_go( item, BG_AnimName( BOTH_FORCEINAIR1 ) );
+			case animNumber_t::BOTH_FORCEWALLREBOUND_FORWARD:
+			case animNumber_t::BOTH_FORCEJUMP1:
+				ItemParse_model_g2anim_go( item, BG_AnimName( animNumber_t::BOTH_FORCEINAIR1 ) );
 				uiInfo.moveAnimTime = DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, true);
 				if ( !uiInfo.moveAnimTime )
 				{
@@ -7237,36 +7237,36 @@ void Item_Model_Paint(itemDef_t *item)
 				}
 				uiInfo.moveAnimTime += uiInfo.uiDC.realTime;
 				break;
-			case BOTH_FORCEINAIR1:
-				ItemParse_model_g2anim_go( item, BG_AnimName( BOTH_FORCELAND1 ) );
+			case animNumber_t::BOTH_FORCEINAIR1:
+				ItemParse_model_g2anim_go( item, BG_AnimName( animNumber_t::BOTH_FORCELAND1 ) );
 				uiInfo.moveAnimTime = DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, true);
 				uiInfo.moveAnimTime += uiInfo.uiDC.realTime;
 				break;
-			case BOTH_FORCEWALLRUNFLIP_START:
-				ItemParse_model_g2anim_go( item, BG_AnimName( BOTH_FORCEWALLRUNFLIP_END ) );
+			case animNumber_t::BOTH_FORCEWALLRUNFLIP_START:
+				ItemParse_model_g2anim_go( item, BG_AnimName( animNumber_t::BOTH_FORCEWALLRUNFLIP_END ) );
 				uiInfo.moveAnimTime = DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, true);
 				uiInfo.moveAnimTime += uiInfo.uiDC.realTime;
 				break;
-			case BOTH_FORCELONGLEAP_START:
-				ItemParse_model_g2anim_go( item, BG_AnimName( BOTH_FORCELONGLEAP_LAND ) );
+			case animNumber_t::BOTH_FORCELONGLEAP_START:
+				ItemParse_model_g2anim_go( item, BG_AnimName( animNumber_t::BOTH_FORCELONGLEAP_LAND ) );
 				uiInfo.moveAnimTime = DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, true);
 				uiInfo.moveAnimTime += uiInfo.uiDC.realTime;
 				break;
-			case BOTH_KNOCKDOWN3://on front - into force getup
-				DC->startLocalSound(uiInfo.uiDC.Assets.datapadmoveJumpSound, CHAN_LOCAL );
-				ItemParse_model_g2anim_go( item, BG_AnimName( BOTH_FORCE_GETUP_F1 ) );
+			case animNumber_t::BOTH_KNOCKDOWN3://on front - into force getup
+				DC->startLocalSound(uiInfo.uiDC.Assets.datapadmoveJumpSound, soundChannel_t::CHAN_LOCAL );
+				ItemParse_model_g2anim_go( item, BG_AnimName( animNumber_t::BOTH_FORCE_GETUP_F1 ) );
 				uiInfo.moveAnimTime = DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, true);
 				uiInfo.moveAnimTime += uiInfo.uiDC.realTime;
 				break;
-			case BOTH_KNOCKDOWN2://on back - kick forward getup
-				DC->startLocalSound(uiInfo.uiDC.Assets.datapadmoveJumpSound, CHAN_LOCAL );
-				ItemParse_model_g2anim_go( item, BG_AnimName( BOTH_GETUP_BROLL_F ) );
+			case animNumber_t::BOTH_KNOCKDOWN2://on back - kick forward getup
+				DC->startLocalSound(uiInfo.uiDC.Assets.datapadmoveJumpSound, soundChannel_t::CHAN_LOCAL );
+				ItemParse_model_g2anim_go( item, BG_AnimName( animNumber_t::BOTH_GETUP_BROLL_F ) );
 				uiInfo.moveAnimTime = DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, true);
 				uiInfo.moveAnimTime += uiInfo.uiDC.realTime;
 				break;
-			case BOTH_KNOCKDOWN1://on back - roll-away
-				DC->startLocalSound(uiInfo.uiDC.Assets.datapadmoveRollSound, CHAN_LOCAL );
-				ItemParse_model_g2anim_go( item, BG_AnimName( BOTH_GETUP_BROLL_R ) );
+			case animNumber_t::BOTH_KNOCKDOWN1://on back - roll-away
+				DC->startLocalSound(uiInfo.uiDC.Assets.datapadmoveRollSound, soundChannel_t::CHAN_LOCAL );
+				ItemParse_model_g2anim_go( item, BG_AnimName( animNumber_t::BOTH_GETUP_BROLL_R ) );
 				uiInfo.moveAnimTime = DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, true);
 				uiInfo.moveAnimTime += uiInfo.uiDC.realTime;
 				break;
@@ -7281,7 +7281,7 @@ void Item_Model_Paint(itemDef_t *item)
 
 	// setup the refdef
 	memset( &refdef, 0, sizeof( refdef ) );
-	refdef.rdflags = RDF_NOWORLDMODEL;
+	refdef.rdflags = refdefFlags_t::RDF_NOWORLDMODEL;
 	AxisClear( refdef.viewaxis );
 	x = item->window.rect.x+1;
 	y = item->window.rect.y+1;
@@ -7293,7 +7293,7 @@ void Item_Model_Paint(itemDef_t *item)
 	refdef.width = w * DC->xscale;
 	refdef.height = h * DC->yscale;
 
-	if (Any( item->flags&ITF_G2VALID ))
+	if (Any( item->flags&itemModelFlags_t::ITF_G2VALID ))
 	{ //ghoul2 models don't have bounds, so we have to parse them.
 		VectorCopy(modelPtr->g2mins, mins);
 		VectorCopy(modelPtr->g2maxs, maxs);
@@ -7337,7 +7337,7 @@ void Item_Model_Paint(itemDef_t *item)
 	{
 		curYaw += (float)refdef.time/modelPtr->rotationSpeed;
 	}
-	if ( Any( item->flags&ITF_ISANYSABER ) && !Any( item->flags&ITF_ISCHARACTER ) )
+	if ( Any( item->flags&itemModelFlags_t::ITF_ISANYSABER ) && !Any( item->flags&itemModelFlags_t::ITF_ISCHARACTER ) )
 	{//hack to put saber on it's side
 		VectorSet( angles, curYaw, 0, 90 );
 	}
@@ -7349,13 +7349,13 @@ void Item_Model_Paint(itemDef_t *item)
 
 	AnglesToAxis( angles, ent.axis );
 
-	if (Any( item->flags&ITF_G2VALID ))
+	if (Any( item->flags&itemModelFlags_t::ITF_G2VALID ))
 	{
 		ent.ghoul2 = &item->ghoul2;
 		ent.radius = 1000;
 		ent.customSkin = modelPtr->g2skin;
 
-		if ( Any( item->flags&ITF_ISCHARACTER ) )
+		if ( Any( item->flags&itemModelFlags_t::ITF_ISCHARACTER ) )
 		{
 			ent.shaderRGBA[0] = ui_char_color_red.integer;
 			ent.shaderRGBA[1] = ui_char_color_green.integer;
@@ -7363,7 +7363,7 @@ void Item_Model_Paint(itemDef_t *item)
 			ent.shaderRGBA[3] = 255;
 			UI_TalkingHead(item);
 		}
-		if ( Any( item->flags&ITF_ISANYSABER ) )
+		if ( Any( item->flags&itemModelFlags_t::ITF_ISANYSABER ) )
 		{//UGH, draw the saber blade!
 			UI_SaberDrawBlades( item, origin, curYaw );
 		}
@@ -7377,7 +7377,7 @@ void Item_Model_Paint(itemDef_t *item)
 
 	// Set up lighting
 	//VectorCopy( refdef.vieworg, ent.lightingOrigin );
-	ent.renderfx = RF_NOSHADOW;
+	ent.renderfx = renderFxFlags_t::RF_NOSHADOW;
 
 	ui.R_AddLightToScene(refdef.vieworg, 500, 1, 1, 1);	//fixme: specify in menu file!
 
@@ -7422,7 +7422,7 @@ void Item_OwnerDraw_Paint(itemDef_t *item)
 			}
 		}
 
-		if (Any( item->window.flags & WINDOW_HASFOCUS ))
+		if (Any( item->window.flags & windowFlags_t::WINDOW_HASFOCUS ))
 		{
 			lowLight[0] = 0.8 * parent->focusColor[0];
 			lowLight[1] = 0.8 * parent->focusColor[1];
@@ -7442,7 +7442,7 @@ void Item_OwnerDraw_Paint(itemDef_t *item)
 		if ( item->disabled )
 			memcpy( color, parent->disableColor, sizeof( vec4_t ) );
 
-		if (Any( item->cvarFlags & (CVAR_ENABLE | CVAR_DISABLE) ) && !Item_EnableShowViaCvar(item, CVAR_ENABLE))
+		if (Any( item->cvarFlags & (itemCvarFlags_t::CVAR_ENABLE | itemCvarFlags_t::CVAR_DISABLE) ) && !Item_EnableShowViaCvar(item, itemCvarFlags_t::CVAR_ENABLE))
 		{
 			memcpy(color, parent->disableColor, sizeof(vec4_t));
 		}
@@ -7592,7 +7592,7 @@ windowFlags_t Item_TextScroll_OverLB ( itemDef_t *item, float x, float y )
 	// Scroll bar isn't drawing so ignore this input
 	if ((( scrollPtr->iLineCount * scrollPtr->lineHeight ) <= (item->window.rect.h - 2)) && (item->type == ITEM_TYPE_TEXTSCROLL))
 	{
-		return WINDOW_NONE;
+		return windowFlags_t::WINDOW_NONE;
 	}
 
 	r.x = item->window.rect.x + item->window.rect.w - SCROLLBAR_SIZE;
@@ -7600,42 +7600,42 @@ windowFlags_t Item_TextScroll_OverLB ( itemDef_t *item, float x, float y )
 	r.h = r.w = SCROLLBAR_SIZE;
 	if (Rect_ContainsPoint(&r, x, y))
 	{
-		return WINDOW_LB_LEFTARROW;
+		return windowFlags_t::WINDOW_LB_LEFTARROW;
 	}
 
 	r.y = item->window.rect.y + item->window.rect.h - SCROLLBAR_SIZE;
 	if (Rect_ContainsPoint(&r, x, y))
 	{
-		return WINDOW_LB_RIGHTARROW;
+		return windowFlags_t::WINDOW_LB_RIGHTARROW;
 	}
 
 	thumbstart = Item_TextScroll_ThumbPosition(item);
 	r.y = thumbstart;
 	if (Rect_ContainsPoint(&r, x, y))
 	{
-		return WINDOW_LB_THUMB;
+		return windowFlags_t::WINDOW_LB_THUMB;
 	}
 
 	r.y = item->window.rect.y + SCROLLBAR_SIZE;
 	r.h = thumbstart - r.y;
 	if (Rect_ContainsPoint(&r, x, y))
 	{
-		return WINDOW_LB_PGUP;
+		return windowFlags_t::WINDOW_LB_PGUP;
 	}
 
 	r.y = thumbstart + SCROLLBAR_SIZE;
 	r.h = item->window.rect.y + item->window.rect.h - SCROLLBAR_SIZE;
 	if (Rect_ContainsPoint(&r, x, y))
 	{
-		return WINDOW_LB_PGDN;
+		return windowFlags_t::WINDOW_LB_PGDN;
 	}
 
-	return WINDOW_NONE;
+	return windowFlags_t::WINDOW_NONE;
 }
 
 void Item_TextScroll_MouseEnter (itemDef_t *item, float x, float y)
 {
-	item->window.flags &= ~(WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW | WINDOW_LB_THUMB | WINDOW_LB_PGUP | WINDOW_LB_PGDN);
+	item->window.flags &= ~(windowFlags_t::WINDOW_LB_LEFTARROW | windowFlags_t::WINDOW_LB_RIGHTARROW | windowFlags_t::WINDOW_LB_THUMB | windowFlags_t::WINDOW_LB_PGUP | windowFlags_t::WINDOW_LB_PGDN);
 	item->window.flags |= Item_TextScroll_OverLB(item, x, y);
 }
 
@@ -7650,7 +7650,7 @@ int Item_ListBox_ThumbDrawPosition(itemDef_t *item)
 
 	if (itemCapture == item)
 	{
-		if (Any( item->window.flags & WINDOW_HORIZONTAL ))
+		if (Any( item->window.flags & windowFlags_t::WINDOW_HORIZONTAL ))
 		{
 			min = item->window.rect.x + SCROLLBAR_SIZE + 1;
 			max = item->window.rect.x + item->window.rect.w - 2*SCROLLBAR_SIZE - 1;
@@ -7740,7 +7740,7 @@ void Item_Slider_Paint(itemDef_t *item)
 	float x, y;
 	menuDef_t *parent = (menuDef_t*)item->parent;
 
-	if (Any( item->window.flags & WINDOW_HASFOCUS ))
+	if (Any( item->window.flags & windowFlags_t::WINDOW_HASFOCUS ))
 	{
 		lowLight[0] = 0.8 * parent->focusColor[0];
 		lowLight[1] = 0.8 * parent->focusColor[1];
@@ -7792,16 +7792,16 @@ static bool Item_Paint(itemDef_t *item, bool bDraw)
 
 	parent = (menuDef_t*)item->parent;
 
-	if (Any( item->window.flags & WINDOW_SCRIPTWAITING ))
+	if (Any( item->window.flags & windowFlags_t::WINDOW_SCRIPTWAITING ))
 	{
 		if (DC->realTime > item->window.delayTime)
 		{ // Time has elapsed, resume running whatever script we saved
-			item->window.flags &= ~WINDOW_SCRIPTWAITING;
+			item->window.flags &= ~windowFlags_t::WINDOW_SCRIPTWAITING;
 			Item_RunScript(item, item->window.delayedScript);
 		}
 	}
 
-	if (Any( item->window.flags & WINDOW_ORBITING ))
+	if (Any( item->window.flags & windowFlags_t::WINDOW_ORBITING ))
 	{
 		if (DC->realTime > item->window.nextTime)
 		{
@@ -7823,7 +7823,7 @@ static bool Item_Paint(itemDef_t *item, bool bDraw)
 	}
 
 
-	if (Any( item->window.flags & WINDOW_INTRANSITION ))
+	if (Any( item->window.flags & windowFlags_t::WINDOW_INTRANSITION ))
 	{
 		if (DC->realTime > item->window.nextTime)
 		{
@@ -7939,7 +7939,7 @@ static bool Item_Paint(itemDef_t *item, bool bDraw)
 
 			if (done == 4)
 			{
-				item->window.flags &= ~WINDOW_INTRANSITION;
+				item->window.flags &= ~windowFlags_t::WINDOW_INTRANSITION;
 			}
 
 		}
@@ -7948,7 +7948,7 @@ static bool Item_Paint(itemDef_t *item, bool bDraw)
 #ifdef _TRANS3
 
 //JLF begin model transition stuff
-	if (Any( item->window.flags & WINDOW_INTRANSITIONMODEL ))
+	if (Any( item->window.flags & windowFlags_t::WINDOW_INTRANSITIONMODEL ))
 	{
 		if ( item->type == ITEM_TYPE_MODEL)
 		{
@@ -8186,7 +8186,7 @@ static bool Item_Paint(itemDef_t *item, bool bDraw)
 
 				if (done == 5)
 				{
-					item->window.flags &= ~WINDOW_INTRANSITIONMODEL;
+					item->window.flags &= ~windowFlags_t::WINDOW_INTRANSITIONMODEL;
 				}
 
 			}
@@ -8199,11 +8199,11 @@ static bool Item_Paint(itemDef_t *item, bool bDraw)
 	{
 		if (!DC->ownerDrawVisible(item->window.ownerDrawFlags))
 		{
-			item->window.flags &= ~WINDOW_VISIBLE;
+			item->window.flags &= ~windowFlags_t::WINDOW_VISIBLE;
 		}
 		else
 		{
-			item->window.flags |= WINDOW_VISIBLE;
+			item->window.flags |= windowFlags_t::WINDOW_VISIBLE;
 		}
 	}
 
@@ -8212,21 +8212,21 @@ static bool Item_Paint(itemDef_t *item, bool bDraw)
 		return false;
 	}
 
-	if (Any( item->cvarFlags & (CVAR_SHOW | CVAR_HIDE) ))
+	if (Any( item->cvarFlags & (itemCvarFlags_t::CVAR_SHOW | itemCvarFlags_t::CVAR_HIDE) ))
 	{
-		if (!Item_EnableShowViaCvar(item, CVAR_SHOW))
+		if (!Item_EnableShowViaCvar(item, itemCvarFlags_t::CVAR_SHOW))
 		{
 			return false;
 		}
 	}
 
 
-	if (Any( item->window.flags & WINDOW_TIMEDVISIBLE ))
+	if (Any( item->window.flags & windowFlags_t::WINDOW_TIMEDVISIBLE ))
 	{
 
 	}
 
-	if (!Any( item->window.flags & WINDOW_VISIBLE ))
+	if (!Any( item->window.flags & windowFlags_t::WINDOW_VISIBLE ))
 	{
 		return false;
 	}
@@ -8238,7 +8238,7 @@ static bool Item_Paint(itemDef_t *item, bool bDraw)
 	//okay to paint
 	//JLFMOUSE
 
-	if (Any( item->window.flags & WINDOW_MOUSEOVER ))
+	if (Any( item->window.flags & windowFlags_t::WINDOW_MOUSEOVER ))
 	{
 		if (item->descText && !Display_KeyBindPending())
 		{
@@ -8248,14 +8248,14 @@ static bool Item_Paint(itemDef_t *item, bool bDraw)
 			// Removing the WINDOW_MOUSEOVER flag just prevents the item's OnExit script from running
 		//	if (!Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory))
 		//	{	// It isn't something that should, because it isn't live anymore.
-		//		item->window.flags &= ~WINDOW_MOUSEOVER;
+		//		item->window.flags &= ~windowFlags_t::WINDOW_MOUSEOVER;
 		//	}
 		//	else
 
 	//END JLFMOUSE
 
 			// items can be enabled and disabled based on cvars
-			if( !(Any( item->cvarFlags & (CVAR_ENABLE | CVAR_DISABLE) ) && !Item_EnableShowViaCvar(item, CVAR_ENABLE)) )
+			if( !(Any( item->cvarFlags & (itemCvarFlags_t::CVAR_ENABLE | itemCvarFlags_t::CVAR_DISABLE) ) && !Item_EnableShowViaCvar(item, itemCvarFlags_t::CVAR_ENABLE)) )
 			{	// Draw the desctext
 				const char *textPtr = item->descText;
 				if (*textPtr == '@')	// string reference
@@ -8412,17 +8412,17 @@ Fade
 */
 void Fade(windowFlags_t *flags, float *f, float clamp, int *nextTime, int offsetTime, bool bFlags, float fadeAmount)
 {
-	if (Any( *flags & (WINDOW_FADINGOUT | WINDOW_FADINGIN) ))
+	if (Any( *flags & (windowFlags_t::WINDOW_FADINGOUT | windowFlags_t::WINDOW_FADINGIN) ))
 	{
 		if (DC->realTime > *nextTime)
 		{
 			*nextTime = DC->realTime + offsetTime;
-			if (Any( *flags & WINDOW_FADINGOUT ))
+			if (Any( *flags & windowFlags_t::WINDOW_FADINGOUT ))
 			{
 				*f -= fadeAmount;
 				if (bFlags && *f <= 0.0)
 				{
-					*flags &= ~(WINDOW_FADINGOUT | WINDOW_VISIBLE);
+					*flags &= ~(windowFlags_t::WINDOW_FADINGOUT | windowFlags_t::WINDOW_VISIBLE);
 				}
 			}
 			else
@@ -8433,7 +8433,7 @@ void Fade(windowFlags_t *flags, float *f, float clamp, int *nextTime, int offset
 				  *f = clamp;
 					if (bFlags)
 					{
-						*flags &= ~WINDOW_FADINGIN;
+						*flags &= ~windowFlags_t::WINDOW_FADINGIN;
 					}
 				}
 			}
@@ -8506,7 +8506,7 @@ void Window_Paint(Window *w, float fadeAmount, float fadeClamp, float fadeCycle)
 	}
 	else if (w->style == WINDOW_STYLE_SHADER)
 	{
-		if (Any( w->flags & WINDOW_PLAYERCOLOR ))
+		if (Any( w->flags & windowFlags_t::WINDOW_PLAYERCOLOR ))
 		{
 			vec4_t	color;
 			color[0] = ui_char_color_red.integer/255.0f;
@@ -8515,7 +8515,7 @@ void Window_Paint(Window *w, float fadeAmount, float fadeClamp, float fadeCycle)
 			color[3] = 1;
 			ui.R_SetColor(color);
 		}
-		else if (Any( w->flags & WINDOW_FORECOLORSET ))
+		else if (Any( w->flags & windowFlags_t::WINDOW_FORECOLORSET ))
 		{
 			DC->setColor(w->foreColor);
 		}
@@ -8753,12 +8753,12 @@ bool Item_TextScroll_HandleKey ( itemDef_t *item, fakeAscii_t key, bool down, bo
 	int				max;
 	int				viewmax;
 
-	if (force || (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && Any( item->window.flags & WINDOW_HASFOCUS )))
+	if (force || (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && Any( item->window.flags & windowFlags_t::WINDOW_HASFOCUS )))
 	{
 		max = Item_TextScroll_MaxScroll(item);
 
 		viewmax = (item->window.rect.h / scrollPtr->lineHeight);
-		if ( key == A_CURSOR_UP || key == A_KP_8 )
+		if ( key == fakeAscii_t::A_CURSOR_UP || key == fakeAscii_t::A_KP_8 )
 		{
 			scrollPtr->startPos--;
 			if (scrollPtr->startPos < 0)
@@ -8768,7 +8768,7 @@ bool Item_TextScroll_HandleKey ( itemDef_t *item, fakeAscii_t key, bool down, bo
 			return true;
 		}
 
-		if ( key == A_CURSOR_DOWN || key == A_KP_2 )
+		if ( key == fakeAscii_t::A_CURSOR_DOWN || key == fakeAscii_t::A_KP_2 )
 		{
 			scrollPtr->startPos++;
 			if (scrollPtr->startPos > max)
@@ -8780,7 +8780,7 @@ bool Item_TextScroll_HandleKey ( itemDef_t *item, fakeAscii_t key, bool down, bo
 		}
 
 		//Raz: Added
-		if ( key == A_MWHEELUP )
+		if ( key == fakeAscii_t::A_MWHEELUP )
 		{
 			scrollPtr->startPos--;
 			if (scrollPtr->startPos < 0)
@@ -8792,7 +8792,7 @@ bool Item_TextScroll_HandleKey ( itemDef_t *item, fakeAscii_t key, bool down, bo
 			Display_MouseMove(nullptr, DC->cursorx, DC->cursory);
 			return true;
 		}
-		if ( key == A_MWHEELDOWN )
+		if ( key == fakeAscii_t::A_MWHEELDOWN )
 		{
 			scrollPtr->startPos++;
 			if (scrollPtr->startPos > max)
@@ -8806,9 +8806,9 @@ bool Item_TextScroll_HandleKey ( itemDef_t *item, fakeAscii_t key, bool down, bo
 		}
 
 		// mouse hit
-		if (key == A_MOUSE1 || key == A_MOUSE2)
+		if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_MOUSE2)
 		{
-			if (Any( item->window.flags & WINDOW_LB_LEFTARROW ))
+			if (Any( item->window.flags & windowFlags_t::WINDOW_LB_LEFTARROW ))
 			{
 				scrollPtr->startPos--;
 				if (scrollPtr->startPos < 0)
@@ -8816,7 +8816,7 @@ bool Item_TextScroll_HandleKey ( itemDef_t *item, fakeAscii_t key, bool down, bo
 					scrollPtr->startPos = 0;
 				}
 			}
-			else if (Any( item->window.flags & WINDOW_LB_RIGHTARROW ))
+			else if (Any( item->window.flags & windowFlags_t::WINDOW_LB_RIGHTARROW ))
 			{
 				// one down
 				scrollPtr->startPos++;
@@ -8825,7 +8825,7 @@ bool Item_TextScroll_HandleKey ( itemDef_t *item, fakeAscii_t key, bool down, bo
 					scrollPtr->startPos = max;
 				}
 			}
-			else if (Any( item->window.flags & WINDOW_LB_PGUP ))
+			else if (Any( item->window.flags & windowFlags_t::WINDOW_LB_PGUP ))
 			{
 				// page up
 				scrollPtr->startPos -= viewmax;
@@ -8834,7 +8834,7 @@ bool Item_TextScroll_HandleKey ( itemDef_t *item, fakeAscii_t key, bool down, bo
 					scrollPtr->startPos = 0;
 				}
 			}
-			else if (Any( item->window.flags & WINDOW_LB_PGDN ))
+			else if (Any( item->window.flags & windowFlags_t::WINDOW_LB_PGDN ))
 			{
 				// page down
 				scrollPtr->startPos += viewmax;
@@ -8843,7 +8843,7 @@ bool Item_TextScroll_HandleKey ( itemDef_t *item, fakeAscii_t key, bool down, bo
 					scrollPtr->startPos = max;
 				}
 			}
-			else if (Any( item->window.flags & WINDOW_LB_THUMB ))
+			else if (Any( item->window.flags & windowFlags_t::WINDOW_LB_THUMB ))
 			{
 				// Display_SetCaptureItem(item);
 			}
@@ -8851,19 +8851,19 @@ bool Item_TextScroll_HandleKey ( itemDef_t *item, fakeAscii_t key, bool down, bo
 			return true;
 		}
 
-		if ( key == A_HOME || key == A_KP_7)
+		if ( key == fakeAscii_t::A_HOME || key == fakeAscii_t::A_KP_7)
 		{
 			// home
 			scrollPtr->startPos = 0;
 			return true;
 		}
-		if ( key == A_END || key == A_KP_1)
+		if ( key == fakeAscii_t::A_END || key == fakeAscii_t::A_KP_1)
 		{
 			// end
 			scrollPtr->startPos = max;
 			return true;
 		}
-		if (key == A_PAGE_UP || key == A_KP_9 )
+		if (key == fakeAscii_t::A_PAGE_UP || key == fakeAscii_t::A_KP_9 )
 		{
 			scrollPtr->startPos -= viewmax;
 			if (scrollPtr->startPos < 0)
@@ -8873,7 +8873,7 @@ bool Item_TextScroll_HandleKey ( itemDef_t *item, fakeAscii_t key, bool down, bo
 
 			return true;
 		}
-		if ( key == A_PAGE_DOWN || key == A_KP_3 )
+		if ( key == fakeAscii_t::A_PAGE_DOWN || key == fakeAscii_t::A_KP_3 )
 		{
 			scrollPtr->startPos += viewmax;
 			if (scrollPtr->startPos > max)
@@ -8898,7 +8898,7 @@ int Item_ListBox_MaxScroll(itemDef_t *item)
 	int count = DC->feederCount(item->special);
 	int max;
 
-	if (Any( item->window.flags & WINDOW_HORIZONTAL ))
+	if (Any( item->window.flags & windowFlags_t::WINDOW_HORIZONTAL ))
 	{
 		max = count - (item->window.rect.w / listPtr->elementWidth) + 1;
 	}
@@ -8925,7 +8925,7 @@ int Item_ListBox_ThumbPosition(itemDef_t *item)
 	listBoxDef_t *listPtr = (listBoxDef_t*)item->typeData;
 
 	max = Item_ListBox_MaxScroll(item);
-	if (Any( item->window.flags & WINDOW_HORIZONTAL )) {
+	if (Any( item->window.flags & windowFlags_t::WINDOW_HORIZONTAL )) {
 
 		size = item->window.rect.w - (SCROLLBAR_SIZE * 2) - 2;
 		if (max > 0)
@@ -8965,7 +8965,7 @@ windowFlags_t Item_ListBox_OverLB(itemDef_t *item, float x, float y)
 	rectDef_t r;
 	int thumbstart;
 
-	if (Any( item->window.flags & WINDOW_HORIZONTAL ))
+	if (Any( item->window.flags & windowFlags_t::WINDOW_HORIZONTAL ))
 	{
 		// check if on left arrow
 		r.x = item->window.rect.x;
@@ -8973,32 +8973,32 @@ windowFlags_t Item_ListBox_OverLB(itemDef_t *item, float x, float y)
 		r.h = r.w = SCROLLBAR_SIZE;
 		if (Rect_ContainsPoint(&r, x, y))
 		{
-			return WINDOW_LB_LEFTARROW;
+			return windowFlags_t::WINDOW_LB_LEFTARROW;
 		}
 		// check if on right arrow
 		r.x = item->window.rect.x + item->window.rect.w - SCROLLBAR_SIZE;
 		if (Rect_ContainsPoint(&r, x, y))
 		{
-			return WINDOW_LB_RIGHTARROW;
+			return windowFlags_t::WINDOW_LB_RIGHTARROW;
 		}
 		// check if on thumb
 		thumbstart = Item_ListBox_ThumbPosition(item);
 		r.x = thumbstart;
 		if (Rect_ContainsPoint(&r, x, y))
 		{
-			return WINDOW_LB_THUMB;
+			return windowFlags_t::WINDOW_LB_THUMB;
 		}
 		r.x = item->window.rect.x + SCROLLBAR_SIZE;
 		r.w = thumbstart - r.x;
 		if (Rect_ContainsPoint(&r, x, y))
 		{
-			return WINDOW_LB_PGUP;
+			return windowFlags_t::WINDOW_LB_PGUP;
 		}
 		r.x = thumbstart + SCROLLBAR_SIZE;
 		r.w = item->window.rect.x + item->window.rect.w - SCROLLBAR_SIZE;
 		if (Rect_ContainsPoint(&r, x, y))
 		{
-			return WINDOW_LB_PGDN;
+			return windowFlags_t::WINDOW_LB_PGDN;
 		}
 	}
 	else
@@ -9008,33 +9008,33 @@ windowFlags_t Item_ListBox_OverLB(itemDef_t *item, float x, float y)
 		r.h = r.w = SCROLLBAR_SIZE;
 		if (Rect_ContainsPoint(&r, x, y))
 		{
-			return WINDOW_LB_LEFTARROW;
+			return windowFlags_t::WINDOW_LB_LEFTARROW;
 		}
 		r.y = item->window.rect.y + item->window.rect.h - SCROLLBAR_SIZE;
 		if (Rect_ContainsPoint(&r, x, y))
 		{
-			return WINDOW_LB_RIGHTARROW;
+			return windowFlags_t::WINDOW_LB_RIGHTARROW;
 		}
 		thumbstart = Item_ListBox_ThumbPosition(item);
 		r.y = thumbstart;
 		if (Rect_ContainsPoint(&r, x, y))
 		{
-			return WINDOW_LB_THUMB;
+			return windowFlags_t::WINDOW_LB_THUMB;
 		}
 		r.y = item->window.rect.y + SCROLLBAR_SIZE;
 		r.h = thumbstart - r.y;
 		if (Rect_ContainsPoint(&r, x, y))
 		{
-			return WINDOW_LB_PGUP;
+			return windowFlags_t::WINDOW_LB_PGUP;
 		}
 		r.y = thumbstart + SCROLLBAR_SIZE;
 		r.h = item->window.rect.y + item->window.rect.h - SCROLLBAR_SIZE;
 		if (Rect_ContainsPoint(&r, x, y))
 		{
-			return WINDOW_LB_PGDN;
+			return windowFlags_t::WINDOW_LB_PGDN;
 		}
 	}
-	return WINDOW_NONE;
+	return windowFlags_t::WINDOW_NONE;
 }
 
 /*
@@ -9047,12 +9047,12 @@ void Item_ListBox_MouseEnter(itemDef_t *item, float x, float y)
 	rectDef_t r;
 	listBoxDef_t *listPtr = (listBoxDef_t*)item->typeData;
 
-	item->window.flags &= ~(WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW | WINDOW_LB_THUMB | WINDOW_LB_PGUP | WINDOW_LB_PGDN);
+	item->window.flags &= ~(windowFlags_t::WINDOW_LB_LEFTARROW | windowFlags_t::WINDOW_LB_RIGHTARROW | windowFlags_t::WINDOW_LB_THUMB | windowFlags_t::WINDOW_LB_PGUP | windowFlags_t::WINDOW_LB_PGDN);
 	item->window.flags |= Item_ListBox_OverLB(item, x, y);
 
-	if (Any( item->window.flags & WINDOW_HORIZONTAL ))
+	if (Any( item->window.flags & windowFlags_t::WINDOW_HORIZONTAL ))
 	{
-		if (!Any( item->window.flags & (WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW | WINDOW_LB_THUMB | WINDOW_LB_PGUP | WINDOW_LB_PGDN) ))
+		if (!Any( item->window.flags & (windowFlags_t::WINDOW_LB_LEFTARROW | windowFlags_t::WINDOW_LB_RIGHTARROW | windowFlags_t::WINDOW_LB_THUMB | windowFlags_t::WINDOW_LB_PGUP | windowFlags_t::WINDOW_LB_PGDN) ))
 		{
 			// check for selection hit as we have exausted buttons and thumb
 			if (listPtr->elementStyle == LISTBOX_IMAGE)
@@ -9076,7 +9076,7 @@ void Item_ListBox_MouseEnter(itemDef_t *item, float x, float y)
 			}
 		}
 	}
-	else if (!Any( item->window.flags & (WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW | WINDOW_LB_THUMB | WINDOW_LB_PGUP | WINDOW_LB_PGDN) ))
+	else if (!Any( item->window.flags & (windowFlags_t::WINDOW_LB_LEFTARROW | windowFlags_t::WINDOW_LB_RIGHTARROW | windowFlags_t::WINDOW_LB_THUMB | windowFlags_t::WINDOW_LB_PGUP | windowFlags_t::WINDOW_LB_PGDN) ))
 	{
 		r.x = item->window.rect.x;
 		r.y = item->window.rect.y;
@@ -9115,12 +9115,12 @@ void Item_MouseEnter(itemDef_t *item, float x, float y)
 		}
 
 		// items can be enabled and disabled based on cvars
-		if (Any( item->cvarFlags & (CVAR_ENABLE | CVAR_DISABLE) ) && !Item_EnableShowViaCvar(item, CVAR_ENABLE))
+		if (Any( item->cvarFlags & (itemCvarFlags_t::CVAR_ENABLE | itemCvarFlags_t::CVAR_DISABLE) ) && !Item_EnableShowViaCvar(item, itemCvarFlags_t::CVAR_ENABLE))
 		{
 			return;
 		}
 
-		if (Any( item->cvarFlags & (CVAR_SHOW | CVAR_HIDE) ) && !Item_EnableShowViaCvar(item, CVAR_SHOW))
+		if (Any( item->cvarFlags & (itemCvarFlags_t::CVAR_SHOW | itemCvarFlags_t::CVAR_HIDE) ) && !Item_EnableShowViaCvar(item, itemCvarFlags_t::CVAR_SHOW))
 		{
 			return;
 		}
@@ -9128,33 +9128,33 @@ void Item_MouseEnter(itemDef_t *item, float x, float y)
 //JLFMOUSE
 		if (Rect_ContainsPoint(&r, x, y))
 		{
-			if (!Any( item->window.flags & WINDOW_MOUSEOVERTEXT ))
+			if (!Any( item->window.flags & windowFlags_t::WINDOW_MOUSEOVERTEXT ))
 			{
 				Item_RunScript(item, item->mouseEnterText);
-				item->window.flags |= WINDOW_MOUSEOVERTEXT;
+				item->window.flags |= windowFlags_t::WINDOW_MOUSEOVERTEXT;
 			}
 
-			if (!Any( item->window.flags & WINDOW_MOUSEOVER ))
+			if (!Any( item->window.flags & windowFlags_t::WINDOW_MOUSEOVER ))
 			{
 				Item_RunScript(item, item->mouseEnter);
-				item->window.flags |= WINDOW_MOUSEOVER;
+				item->window.flags |= windowFlags_t::WINDOW_MOUSEOVER;
 			}
 
 		}
 		else
 		{
 			// not in the text rect
-			if (Any( item->window.flags & WINDOW_MOUSEOVERTEXT ))
+			if (Any( item->window.flags & windowFlags_t::WINDOW_MOUSEOVERTEXT ))
 			{
 				// if we were
 				Item_RunScript(item, item->mouseExitText);
-				item->window.flags &= ~WINDOW_MOUSEOVERTEXT;
+				item->window.flags &= ~windowFlags_t::WINDOW_MOUSEOVERTEXT;
 			}
 
-			if (!Any( item->window.flags & WINDOW_MOUSEOVER ))
+			if (!Any( item->window.flags & windowFlags_t::WINDOW_MOUSEOVER ))
 			{
 				Item_RunScript(item, item->mouseEnter);
-				item->window.flags |= WINDOW_MOUSEOVER;
+				item->window.flags |= windowFlags_t::WINDOW_MOUSEOVER;
 			}
 
 			if (item->type == ITEM_TYPE_LISTBOX)
@@ -9184,7 +9184,7 @@ bool Item_SetFocus(itemDef_t *item, float x, float y)
 	sfxHandle_t *sfx = &DC->Assets.itemFocusSound;
 	bool playSound = false;
 	// sanity check, non-null, not a decoration and does not already have the focus
-	if (item == nullptr || Any( item->window.flags & WINDOW_DECORATION ) || Any( item->window.flags & WINDOW_HASFOCUS ) || !Any( item->window.flags & WINDOW_VISIBLE ) || Any( item->window.flags & WINDOW_INACTIVE ))
+	if (item == nullptr || Any( item->window.flags & windowFlags_t::WINDOW_DECORATION ) || Any( item->window.flags & windowFlags_t::WINDOW_HASFOCUS ) || !Any( item->window.flags & windowFlags_t::WINDOW_VISIBLE ) || Any( item->window.flags & windowFlags_t::WINDOW_INACTIVE ))
 	{
 		return false;
 	}
@@ -9197,12 +9197,12 @@ bool Item_SetFocus(itemDef_t *item, float x, float y)
 	}
 
 	// items can be enabled and disabled based on cvars
-	if (Any( item->cvarFlags & (CVAR_ENABLE | CVAR_DISABLE) ) && !Item_EnableShowViaCvar(item, CVAR_ENABLE))
+	if (Any( item->cvarFlags & (itemCvarFlags_t::CVAR_ENABLE | itemCvarFlags_t::CVAR_DISABLE) ) && !Item_EnableShowViaCvar(item, itemCvarFlags_t::CVAR_ENABLE))
 	{
 		return false;
 	}
 
-	if (Any( item->cvarFlags & (CVAR_SHOW | CVAR_HIDE) ) && !Item_EnableShowViaCvar(item, CVAR_SHOW))
+	if (Any( item->cvarFlags & (itemCvarFlags_t::CVAR_SHOW | itemCvarFlags_t::CVAR_HIDE) ) && !Item_EnableShowViaCvar(item, itemCvarFlags_t::CVAR_SHOW))
 	{
 		return false;
 	}
@@ -9217,7 +9217,7 @@ bool Item_SetFocus(itemDef_t *item, float x, float y)
 //JLFMOUSE
 		if (Rect_ContainsPoint(&r, x, y))
 		{
-			item->window.flags |= WINDOW_HASFOCUS;
+			item->window.flags |= windowFlags_t::WINDOW_HASFOCUS;
 			if (item->focusSound)
 			{
 				sfx = &item->focusSound;
@@ -9229,7 +9229,7 @@ bool Item_SetFocus(itemDef_t *item, float x, float y)
 		{
 			if (oldFocus)
 			{
-				oldFocus->window.flags |= WINDOW_HASFOCUS;
+				oldFocus->window.flags |= windowFlags_t::WINDOW_HASFOCUS;
 				if (oldFocus->onFocus)
 				{
 					Item_RunScript(oldFocus, oldFocus->onFocus);
@@ -9239,7 +9239,7 @@ bool Item_SetFocus(itemDef_t *item, float x, float y)
 	}
 	else
 	{
-	    item->window.flags |= WINDOW_HASFOCUS;
+	    item->window.flags |= windowFlags_t::WINDOW_HASFOCUS;
 		if (item->onFocus)
 		{
 			Item_RunScript(item, item->onFocus);
@@ -9253,7 +9253,7 @@ bool Item_SetFocus(itemDef_t *item, float x, float y)
 
 	if (playSound && sfx)
 	{
-		DC->startLocalSound( *sfx, CHAN_LOCAL_SOUND );
+		DC->startLocalSound( *sfx, soundChannel_t::CHAN_LOCAL_SOUND );
 	}
 
 	for (i = 0; i < parent->itemCount; i++)
@@ -9276,7 +9276,7 @@ IsVisible
 */
 bool IsVisible(windowFlags_t flags)
 {
-  return ((Any( flags & WINDOW_VISIBLE ) && !Any( flags & WINDOW_FADINGOUT )) != 0);
+  return ((Any( flags & windowFlags_t::WINDOW_VISIBLE ) && !Any( flags & windowFlags_t::WINDOW_FADINGOUT )) != 0);
 }
 
 /*
@@ -9288,13 +9288,13 @@ void Item_MouseLeave(itemDef_t *item)
 {
 	if (item)
 	{
-		if (Any( item->window.flags & WINDOW_MOUSEOVERTEXT ))
+		if (Any( item->window.flags & windowFlags_t::WINDOW_MOUSEOVERTEXT ))
 		{
 			Item_RunScript(item, item->mouseExitText);
-			item->window.flags &= ~WINDOW_MOUSEOVERTEXT;
+			item->window.flags &= ~windowFlags_t::WINDOW_MOUSEOVERTEXT;
 		}
 		Item_RunScript(item, item->mouseExit);
-		item->window.flags &= ~(WINDOW_LB_RIGHTARROW | WINDOW_LB_LEFTARROW);
+		item->window.flags &= ~(windowFlags_t::WINDOW_LB_RIGHTARROW | windowFlags_t::WINDOW_LB_LEFTARROW);
 	}
 }
 
@@ -9309,11 +9309,11 @@ void Item_SetMouseOver(itemDef_t *item, bool focus)
 	{
 		if (focus)
 		{
-			item->window.flags |= WINDOW_MOUSEOVER;
+			item->window.flags |= windowFlags_t::WINDOW_MOUSEOVER;
 		}
 		else
 		{
-			item->window.flags &= ~WINDOW_MOUSEOVER;
+			item->window.flags &= ~windowFlags_t::WINDOW_MOUSEOVER;
 		}
 	}
 }
@@ -9334,7 +9334,7 @@ void Menu_HandleMouseMove(menuDef_t *menu, float x, float y)
 		return;
 	}
 
-	if (!Any( menu->window.flags & (WINDOW_VISIBLE | WINDOW_FORCED) ))
+	if (!Any( menu->window.flags & (windowFlags_t::WINDOW_VISIBLE | windowFlags_t::WINDOW_FORCED) ))
 	{
 		return;
 	}
@@ -9357,14 +9357,14 @@ void Menu_HandleMouseMove(menuDef_t *menu, float x, float y)
 		for (i = 0; i < menu->itemCount; i++)
 		{
 			// turn off focus each item
-			// menu->items[i].window.flags &= ~WINDOW_HASFOCUS;
+			// menu->items[i].window.flags &= ~windowFlags_t::WINDOW_HASFOCUS;
 
-			if (!Any( menu->items[i]->window.flags & (WINDOW_VISIBLE | WINDOW_FORCED) ))
+			if (!Any( menu->items[i]->window.flags & (windowFlags_t::WINDOW_VISIBLE | windowFlags_t::WINDOW_FORCED) ))
 			{
 				continue;
 			}
 
-			if (Any( menu->items[i]->window.flags & WINDOW_INACTIVE ))
+			if (Any( menu->items[i]->window.flags & windowFlags_t::WINDOW_INACTIVE ))
 			{
 				continue;
 			}
@@ -9375,12 +9375,12 @@ void Menu_HandleMouseMove(menuDef_t *menu, float x, float y)
 			}
 
 			// items can be enabled and disabled based on cvars
-			if (Any( menu->items[i]->cvarFlags & (CVAR_ENABLE | CVAR_DISABLE) ) && !Item_EnableShowViaCvar(menu->items[i], CVAR_ENABLE))
+			if (Any( menu->items[i]->cvarFlags & (itemCvarFlags_t::CVAR_ENABLE | itemCvarFlags_t::CVAR_DISABLE) ) && !Item_EnableShowViaCvar(menu->items[i], itemCvarFlags_t::CVAR_ENABLE))
 			{
 				continue;
 			}
 
-			if (Any( menu->items[i]->cvarFlags & (CVAR_SHOW | CVAR_HIDE) ) && !Item_EnableShowViaCvar(menu->items[i], CVAR_SHOW))
+			if (Any( menu->items[i]->cvarFlags & (itemCvarFlags_t::CVAR_SHOW | itemCvarFlags_t::CVAR_HIDE) ) && !Item_EnableShowViaCvar(menu->items[i], itemCvarFlags_t::CVAR_SHOW))
 			{
 				continue;
 			}
@@ -9413,7 +9413,7 @@ void Menu_HandleMouseMove(menuDef_t *menu, float x, float y)
 					}
 				}
 
-			} else if (Any( menu->items[i]->window.flags & WINDOW_MOUSEOVER ))
+			} else if (Any( menu->items[i]->window.flags & windowFlags_t::WINDOW_MOUSEOVER ))
 			{
 				Item_MouseLeave(menu->items[i]);
 				Item_SetMouseOver(menu->items[i], false);
@@ -9437,7 +9437,7 @@ bool Display_MouseMove(void *p, int x, int y)
 	    menu = Menu_GetFocused();
 		if (menu)
 		{
-			if (Any( menu->window.flags & WINDOW_POPUP ))
+			if (Any( menu->window.flags & windowFlags_t::WINDOW_POPUP ))
 			{
 				Menu_HandleMouseMove(menu, x, y);
 				return true;
@@ -9469,7 +9469,7 @@ bool Menus_AnyFullScreenVisible(void)
 
 	for (i = 0; i < menuCount; i++)
 	{
-		if (Any( Menus[i].window.flags & WINDOW_VISIBLE ) && Menus[i].fullScreen)
+		if (Any( Menus[i].window.flags & windowFlags_t::WINDOW_VISIBLE ) && Menus[i].fullScreen)
 		{
 			return true;
 		}
@@ -9521,7 +9521,7 @@ void Item_Bind_Ungrey(itemDef_t *item)
 			continue;
 		}
 
-		menu->items[i]->window.flags &= ~WINDOW_INACTIVE;
+		menu->items[i]->window.flags &= ~windowFlags_t::WINDOW_INACTIVE;
 	}
 }
 
@@ -9536,7 +9536,7 @@ bool Item_Bind_HandleKey(itemDef_t *item, std::optional<fakeAscii_t> key, bool d
 	int			i;
 	menuDef_t *menu;
 
-	if (key == A_MOUSE1 && Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && !g_waitingForKey)
+	if (key == fakeAscii_t::A_MOUSE1 && Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && !g_waitingForKey)
 	{
 		if (down)
 		{
@@ -9551,13 +9551,13 @@ bool Item_Bind_HandleKey(itemDef_t *item, std::optional<fakeAscii_t> key, bool d
 				{
 					continue;
 				}
-				menu->items[i]->window.flags |= WINDOW_INACTIVE;
+				menu->items[i]->window.flags |= windowFlags_t::WINDOW_INACTIVE;
 			}
 
 		}
 		return true;
 	}
-	else if (key == A_ENTER && !g_waitingForKey)
+	else if (key == fakeAscii_t::A_ENTER && !g_waitingForKey)
 	{
 		if (down)
 		{
@@ -9572,7 +9572,7 @@ bool Item_Bind_HandleKey(itemDef_t *item, std::optional<fakeAscii_t> key, bool d
 				{
 					continue;
 				}
-				menu->items[i]->window.flags |= WINDOW_INACTIVE;
+				menu->items[i]->window.flags |= windowFlags_t::WINDOW_INACTIVE;
 			}
 
 		}
@@ -9592,12 +9592,12 @@ bool Item_Bind_HandleKey(itemDef_t *item, std::optional<fakeAscii_t> key, bool d
 
 		switch (*key)
 		{
-			case A_ESCAPE:
+			case fakeAscii_t::A_ESCAPE:
 				g_waitingForKey = false;
 				Item_Bind_Ungrey(item);
 				return true;
 
-			case A_BACKSPACE:
+			case fakeAscii_t::A_BACKSPACE:
 				id = BindingIDFromName(item->cvar);
 				if ( id != -1 )
 				{
@@ -9616,7 +9616,7 @@ bool Item_Bind_HandleKey(itemDef_t *item, std::optional<fakeAscii_t> key, bool d
 				Item_Bind_Ungrey(item);
 				return true;
 				break;
-			case A_LEFT_SINGLE_QUOTE:
+			case fakeAscii_t::A_LEFT_SINGLE_QUOTE:
 				return true;
 			default:
 				break;
@@ -9842,7 +9842,7 @@ bool Item_TextField_HandleKey(itemDef_t *item, int event)
 		else
 		{
 
-			if ( key == A_DELETE || key == A_KP_PERIOD )
+			if ( key == fakeAscii_t::A_DELETE || key == fakeAscii_t::A_KP_PERIOD )
 			{
 				if ( item->cursorPos < len )
 				{
@@ -9852,7 +9852,7 @@ bool Item_TextField_HandleKey(itemDef_t *item, int event)
 				return true;
 			}
 
-			if ( key == A_CURSOR_RIGHT || key == A_KP_6 )
+			if ( key == fakeAscii_t::A_CURSOR_RIGHT || key == fakeAscii_t::A_KP_6 )
 			{
 				if (editPtr->maxPaintChars && item->cursorPos >= editPtr->maxPaintChars && item->cursorPos < len)
 				{
@@ -9868,7 +9868,7 @@ bool Item_TextField_HandleKey(itemDef_t *item, int event)
 				return true;
 			}
 
-			if ( key == A_CURSOR_LEFT|| key == A_KP_4 )
+			if ( key == fakeAscii_t::A_CURSOR_LEFT|| key == fakeAscii_t::A_KP_4 )
 			{
 				if ( item->cursorPos > 0 )
 				{
@@ -9881,14 +9881,14 @@ bool Item_TextField_HandleKey(itemDef_t *item, int event)
 				return true;
 			}
 
-			if ( key == A_HOME || key == A_KP_7)
+			if ( key == fakeAscii_t::A_HOME || key == fakeAscii_t::A_KP_7)
 			{
 				item->cursorPos = 0;
 				editPtr->paintOffset = 0;
 				return true;
 			}
 
-			if ( key == A_END || key == A_KP_1)
+			if ( key == fakeAscii_t::A_END || key == fakeAscii_t::A_KP_1)
 			{
 				item->cursorPos = len;
 				if(item->cursorPos > editPtr->maxPaintChars)
@@ -9898,14 +9898,14 @@ bool Item_TextField_HandleKey(itemDef_t *item, int event)
 				return true;
 			}
 
-			if ( key == A_INSERT || key == A_KP_0 )
+			if ( key == fakeAscii_t::A_INSERT || key == fakeAscii_t::A_KP_0 )
 			{
 				DC->setOverstrikeMode((!DC->getOverstrikeMode()));
 				return true;
 			}
 		}
 
-		if (key == A_TAB || key == A_CURSOR_DOWN || key == A_KP_2)
+		if (key == fakeAscii_t::A_TAB || key == fakeAscii_t::A_CURSOR_DOWN || key == fakeAscii_t::A_KP_2)
 		{
 			newItem = Menu_SetNextCursorItem((menuDef_t *) item->parent);
 			if (newItem && (newItem->type == ITEM_TYPE_EDITFIELD || newItem->type == ITEM_TYPE_NUMERICFIELD))
@@ -9914,7 +9914,7 @@ bool Item_TextField_HandleKey(itemDef_t *item, int event)
 			}
 		}
 
-		if (key == A_CURSOR_UP || key == A_KP_8)
+		if (key == fakeAscii_t::A_CURSOR_UP || key == fakeAscii_t::A_KP_8)
 		{
 			newItem = Menu_SetPrevCursorItem((menuDef_t *) item->parent);
 			if (newItem && (newItem->type == ITEM_TYPE_EDITFIELD || newItem->type == ITEM_TYPE_NUMERICFIELD))
@@ -9923,7 +9923,7 @@ bool Item_TextField_HandleKey(itemDef_t *item, int event)
 			}
 		}
 
-		if ( key == A_ENTER || key == A_KP_ENTER || key == A_ESCAPE)
+		if ( key == fakeAscii_t::A_ENTER || key == fakeAscii_t::A_KP_ENTER || key == fakeAscii_t::A_ESCAPE)
 		{
 			return false;
 		}
@@ -10014,7 +10014,7 @@ Menu_OverActiveItem
 */
 static bool Menu_OverActiveItem(menuDef_t *menu, float x, float y)
 {
-	if (menu && Any( menu->window.flags & (WINDOW_VISIBLE | WINDOW_FORCED) ))
+	if (menu && Any( menu->window.flags & (windowFlags_t::WINDOW_VISIBLE | windowFlags_t::WINDOW_FORCED) ))
 	{
 		if (Rect_ContainsPoint(&menu->window.rect, x, y))
 		{
@@ -10022,14 +10022,14 @@ static bool Menu_OverActiveItem(menuDef_t *menu, float x, float y)
 			for (i = 0; i < menu->itemCount; i++)
 			{
 			// turn off focus each item
-			// menu->items[i].window.flags &= ~WINDOW_HASFOCUS;
+			// menu->items[i].window.flags &= ~windowFlags_t::WINDOW_HASFOCUS;
 
-				if (!Any( menu->items[i]->window.flags & (WINDOW_VISIBLE | WINDOW_FORCED) ))
+				if (!Any( menu->items[i]->window.flags & (windowFlags_t::WINDOW_VISIBLE | windowFlags_t::WINDOW_FORCED) ))
 				{
 					continue;
 				}
 
-				if (Any( menu->items[i]->window.flags & WINDOW_DECORATION ))
+				if (Any( menu->items[i]->window.flags & windowFlags_t::WINDOW_DECORATION ))
 				{
 					continue;
 				}
@@ -10070,7 +10070,7 @@ int Display_VisibleMenuCount(void)
 	count = 0;
 	for (i = 0; i < menuCount; i++)
 	{
-		if (Any( Menus[i].window.flags & (WINDOW_FORCED | WINDOW_VISIBLE) ))
+		if (Any( Menus[i].window.flags & (windowFlags_t::WINDOW_FORCED | windowFlags_t::WINDOW_VISIBLE) ))
 		{
 			count++;
 		}
@@ -10140,10 +10140,10 @@ void Menus_HandleOOBClick(menuDef_t *menu, int key, bool down)
 		// basically the behaviour we are looking for is if there are windows in the stack.. see if
 		// the cursor is within any of them.. if not close them otherwise activate them and pass the
 		// key on.. force a mouse move to activate focus and script stuff
-		if (down && Any( menu->window.flags & WINDOW_OOB_CLICK ))
+		if (down && Any( menu->window.flags & windowFlags_t::WINDOW_OOB_CLICK ))
 		{
 			Menu_RunCloseScript(menu);
-			menu->window.flags &= ~(WINDOW_HASFOCUS | WINDOW_VISIBLE);
+			menu->window.flags &= ~(windowFlags_t::WINDOW_HASFOCUS | windowFlags_t::WINDOW_VISIBLE);
 		}
 
 		for (i = 0; i < menuCount; i++)
@@ -10151,7 +10151,7 @@ void Menus_HandleOOBClick(menuDef_t *menu, int key, bool down)
 			if (Menu_OverActiveItem(&Menus[i], DC->cursorx, DC->cursory))
 			{
 				Menu_RunCloseScript(menu);
-				menu->window.flags &= ~(WINDOW_HASFOCUS | WINDOW_VISIBLE);
+				menu->window.flags &= ~(windowFlags_t::WINDOW_HASFOCUS | windowFlags_t::WINDOW_VISIBLE);
 			//	Menus_Activate(&Menus[i]);
 				Menu_HandleMouseMove(&Menus[i], DC->cursorx, DC->cursory);
 				Menu_HandleKey(&Menus[i], key, down);
@@ -10189,13 +10189,13 @@ bool Item_ListBox_HandleKey(itemDef_t *item, fakeAscii_t key, bool down, bool fo
 	listBoxDef_t *listPtr = (listBoxDef_t*)item->typeData;
 	int count = DC->feederCount(item->special);
 	int max, viewmax;
-	if (force || (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && Any( item->window.flags & WINDOW_HASFOCUS )))
+	if (force || (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && Any( item->window.flags & windowFlags_t::WINDOW_HASFOCUS )))
 	{
 		max = Item_ListBox_MaxScroll(item);
-		if (Any( item->window.flags & WINDOW_HORIZONTAL ))
+		if (Any( item->window.flags & windowFlags_t::WINDOW_HORIZONTAL ))
 		{
 			viewmax = (item->window.rect.w / listPtr->elementWidth);
-			if ( key == A_CURSOR_LEFT || key == A_KP_4 )
+			if ( key == fakeAscii_t::A_CURSOR_LEFT || key == fakeAscii_t::A_KP_4 )
 			{
 				if (!listPtr->notselectable)
 				{
@@ -10227,7 +10227,7 @@ bool Item_ListBox_HandleKey(itemDef_t *item, fakeAscii_t key, bool down, bool fo
 				}
 				return true;
 			}
-			if ( key == A_CURSOR_RIGHT || key == A_KP_6 )
+			if ( key == fakeAscii_t::A_CURSOR_RIGHT || key == fakeAscii_t::A_KP_6 )
 			{
 				if (!listPtr->notselectable)
 				{
@@ -10264,7 +10264,7 @@ bool Item_ListBox_HandleKey(itemDef_t *item, fakeAscii_t key, bool down, bool fo
 		else
 		{
 			viewmax = (item->window.rect.h / listPtr->elementHeight);
-			if ( key == A_CURSOR_UP || key == A_KP_8 )
+			if ( key == fakeAscii_t::A_CURSOR_UP || key == fakeAscii_t::A_KP_8 )
 			{
 				if (!listPtr->notselectable)
 				{
@@ -10297,7 +10297,7 @@ bool Item_ListBox_HandleKey(itemDef_t *item, fakeAscii_t key, bool down, bool fo
 				}
 				return true;
 			}
-			if ( key == A_CURSOR_DOWN || key == A_KP_2 )
+			if ( key == fakeAscii_t::A_CURSOR_DOWN || key == fakeAscii_t::A_KP_2 )
 			{
 				if (!listPtr->notselectable)
 				{
@@ -10332,7 +10332,7 @@ bool Item_ListBox_HandleKey(itemDef_t *item, fakeAscii_t key, bool down, bool fo
 			}
 
 			//Raz: Added
-			if ( key == A_MWHEELUP )
+			if ( key == fakeAscii_t::A_MWHEELUP )
 			{
 				listPtr->startPos -= ((int)item->special == FEEDER_Q3HEADS) ? viewmax : 1;
 				if (listPtr->startPos < 0)
@@ -10344,7 +10344,7 @@ bool Item_ListBox_HandleKey(itemDef_t *item, fakeAscii_t key, bool down, bool fo
 				Display_MouseMove(nullptr, DC->cursorx, DC->cursory);
 				return true;
 			}
-			if ( key == A_MWHEELDOWN )
+			if ( key == fakeAscii_t::A_MWHEELDOWN )
 			{
 				listPtr->startPos += ((int)item->special == FEEDER_Q3HEADS) ? viewmax : 1;
 				if (listPtr->startPos > max)
@@ -10358,9 +10358,9 @@ bool Item_ListBox_HandleKey(itemDef_t *item, fakeAscii_t key, bool down, bool fo
 			}
 		}
 		// mouse hit
-		if (key == A_MOUSE1 || key == A_MOUSE2)
+		if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_MOUSE2)
 		{
-			if (Any( item->window.flags & WINDOW_LB_LEFTARROW ))
+			if (Any( item->window.flags & windowFlags_t::WINDOW_LB_LEFTARROW ))
 			{
 	 			listPtr->startPos--;
 				if (listPtr->startPos < 0)
@@ -10368,7 +10368,7 @@ bool Item_ListBox_HandleKey(itemDef_t *item, fakeAscii_t key, bool down, bool fo
 					listPtr->startPos = 0;
 				}
 			}
-			else if (Any( item->window.flags & WINDOW_LB_RIGHTARROW ))
+			else if (Any( item->window.flags & windowFlags_t::WINDOW_LB_RIGHTARROW ))
 			{
 				// one down
 				listPtr->startPos++;
@@ -10377,7 +10377,7 @@ bool Item_ListBox_HandleKey(itemDef_t *item, fakeAscii_t key, bool down, bool fo
 					listPtr->startPos = max;
 				}
 			}
-			else if (Any( item->window.flags & WINDOW_LB_PGUP ))
+			else if (Any( item->window.flags & windowFlags_t::WINDOW_LB_PGUP ))
 			{
 				// page up
 				listPtr->startPos -= viewmax;
@@ -10386,7 +10386,7 @@ bool Item_ListBox_HandleKey(itemDef_t *item, fakeAscii_t key, bool down, bool fo
 					listPtr->startPos = 0;
 				}
 			}
-			else if (Any( item->window.flags & WINDOW_LB_PGDN ))
+			else if (Any( item->window.flags & windowFlags_t::WINDOW_LB_PGDN ))
 			{
 				// page down
 				listPtr->startPos += viewmax;
@@ -10395,7 +10395,7 @@ bool Item_ListBox_HandleKey(itemDef_t *item, fakeAscii_t key, bool down, bool fo
 					listPtr->startPos = max;
 				}
 			}
-			else if (Any( item->window.flags & WINDOW_LB_THUMB ))
+			else if (Any( item->window.flags & windowFlags_t::WINDOW_LB_THUMB ))
 			{
 				// Display_SetCaptureItem(item);
 			}
@@ -10412,19 +10412,19 @@ bool Item_ListBox_HandleKey(itemDef_t *item, fakeAscii_t key, bool down, bool fo
 			}
 			return true;
 		}
-		if ( key == A_HOME || key == A_KP_7)
+		if ( key == fakeAscii_t::A_HOME || key == fakeAscii_t::A_KP_7)
 		{
 			// home
 			listPtr->startPos = 0;
 			return true;
 		}
-		if ( key == A_END || key == A_KP_1)
+		if ( key == fakeAscii_t::A_END || key == fakeAscii_t::A_KP_1)
 		{
 			// end
 			listPtr->startPos = max;
 			return true;
 		}
-		if (key == A_PAGE_UP || key == A_KP_9 )
+		if (key == fakeAscii_t::A_PAGE_UP || key == fakeAscii_t::A_KP_9 )
 		{
 			// page up
 			if (!listPtr->notselectable)
@@ -10455,7 +10455,7 @@ bool Item_ListBox_HandleKey(itemDef_t *item, fakeAscii_t key, bool down, bool fo
 			}
 			return true;
 		}
-		if ( key == A_PAGE_DOWN || key == A_KP_3 )
+		if ( key == fakeAscii_t::A_PAGE_DOWN || key == fakeAscii_t::A_KP_3 )
 		{
 			// page down
 			if (!listPtr->notselectable)
@@ -10529,7 +10529,7 @@ static void Scroll_ListBox_ThumbFunc(void *p)
 	int pos, max;
 
 	listBoxDef_t *listPtr = (listBoxDef_t*)si->item->typeData;
-	if (Any( si->item->window.flags & WINDOW_HORIZONTAL ))
+	if (Any( si->item->window.flags & windowFlags_t::WINDOW_HORIZONTAL ))
 	{
 		if (DC->cursorx == si->xStart)
 		{
@@ -10610,9 +10610,9 @@ windowFlags_t Item_Slider_OverSlider(itemDef_t *item, float x, float y)
 
 	if (Rect_ContainsPoint(&r, x, y))
 	{
-		return WINDOW_LB_THUMB;
+		return windowFlags_t::WINDOW_LB_THUMB;
 	}
-	return WINDOW_NONE;
+	return windowFlags_t::WINDOW_NONE;
 }
 
 /*
@@ -10667,19 +10667,19 @@ void Item_StartCapture(itemDef_t *item, fakeAscii_t key)
 		case ITEM_TYPE_LISTBOX:
 		{
 			flags = Item_ListBox_OverLB(item, DC->cursorx, DC->cursory);
-			if (Any( flags & (WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW) ))
+			if (Any( flags & (windowFlags_t::WINDOW_LB_LEFTARROW | windowFlags_t::WINDOW_LB_RIGHTARROW) ))
 			{
 				scrollInfo.nextScrollTime = DC->realTime + SCROLL_TIME_START;
 				scrollInfo.nextAdjustTime = DC->realTime + SCROLL_TIME_ADJUST;
 				scrollInfo.adjustValue = SCROLL_TIME_START;
 				scrollInfo.scrollKey = key;
-				scrollInfo.scrollDir = Any( flags & WINDOW_LB_LEFTARROW ) ? true : false;
+				scrollInfo.scrollDir = Any( flags & windowFlags_t::WINDOW_LB_LEFTARROW ) ? true : false;
 				scrollInfo.item = item;
 				captureData = &scrollInfo;
 				captureFunc = &Scroll_ListBox_AutoFunc;
 				itemCapture = item;
 			}
-			else if (Any( flags & WINDOW_LB_THUMB ))
+			else if (Any( flags & windowFlags_t::WINDOW_LB_THUMB ))
 			{
 				scrollInfo.scrollKey = key;
 				scrollInfo.item = item;
@@ -10694,19 +10694,19 @@ void Item_StartCapture(itemDef_t *item, fakeAscii_t key)
 
 		case ITEM_TYPE_TEXTSCROLL:
 			flags = Item_TextScroll_OverLB (item, DC->cursorx, DC->cursory);
-			if (Any( flags & (WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW) ))
+			if (Any( flags & (windowFlags_t::WINDOW_LB_LEFTARROW | windowFlags_t::WINDOW_LB_RIGHTARROW) ))
 			{
 				scrollInfo.nextScrollTime = DC->realTime + SCROLL_TIME_START;
 				scrollInfo.nextAdjustTime = DC->realTime + SCROLL_TIME_ADJUST;
 				scrollInfo.adjustValue = SCROLL_TIME_START;
 				scrollInfo.scrollKey = key;
-				scrollInfo.scrollDir = Any( flags & WINDOW_LB_LEFTARROW ) ? true : false;
+				scrollInfo.scrollDir = Any( flags & windowFlags_t::WINDOW_LB_LEFTARROW ) ? true : false;
 				scrollInfo.item = item;
 				captureData = &scrollInfo;
 				captureFunc = &Scroll_TextScroll_AutoFunc;
 				itemCapture = item;
 			}
-			else if (Any( flags & WINDOW_LB_THUMB ))
+			else if (Any( flags & windowFlags_t::WINDOW_LB_THUMB ))
 			{
 				scrollInfo.scrollKey = key;
 				scrollInfo.item = item;
@@ -10721,7 +10721,7 @@ void Item_StartCapture(itemDef_t *item, fakeAscii_t key)
 		case ITEM_TYPE_SLIDER:
 		{
 			flags = Item_Slider_OverSlider(item, DC->cursorx, DC->cursory);
-			if (Any( flags & WINDOW_LB_THUMB ))
+			if (Any( flags & windowFlags_t::WINDOW_LB_THUMB ))
 			{
 				scrollInfo.scrollKey = key;
 				scrollInfo.item = item;
@@ -10743,9 +10743,9 @@ Item_YesNo_HandleKey
 */
 bool Item_YesNo_HandleKey(itemDef_t *item, fakeAscii_t key)
 {
-  if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && Any( item->window.flags & WINDOW_HASFOCUS ) && item->cvar)
+  if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && Any( item->window.flags & windowFlags_t::WINDOW_HASFOCUS ) && item->cvar)
 	{
-		if (key == A_MOUSE1 || key == A_ENTER || key == A_MOUSE2 || key == A_MOUSE3)
+		if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_ENTER || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_MOUSE3)
 		{
 			DC->setCVar(item->cvar, va("%i", !DC->getCVarValue(item->cvar)));
 			return true;
@@ -10836,13 +10836,13 @@ Item_Text_HandleKey
 */
 bool Item_Text_HandleKey(itemDef_t *item, fakeAscii_t key)
 {
-	if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && Any( item->window.flags & WINDOW_AUTOWRAPPED ))
+	if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && Any( item->window.flags & windowFlags_t::WINDOW_AUTOWRAPPED ))
 
 
 	{
-		if (key == A_MOUSE1 || key == A_ENTER || key == A_MOUSE2 || key == A_MOUSE3)
+		if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_ENTER || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_MOUSE3)
 		{
-			if (key == A_MOUSE2)
+			if (key == fakeAscii_t::A_MOUSE2)
 			{
 				item->cursorPos--;
 				if ( item->cursorPos < 0 )
@@ -10876,18 +10876,18 @@ bool Item_Multi_HandleKey(itemDef_t *item, fakeAscii_t key)
 	multiDef_t *multiPtr = (multiDef_t*)item->typeData;
 	if (multiPtr)
 	{
-		if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && Any( item->window.flags & WINDOW_HASFOCUS ))
+		if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && Any( item->window.flags & windowFlags_t::WINDOW_HASFOCUS ))
 		{
 			//Raz: Scroll on multi buttons!
-			if (key == A_MOUSE1 || key == A_ENTER || key == A_MOUSE2 || key == A_MOUSE3 || key == A_MWHEELDOWN || key == A_MWHEELUP)
-			//if (key == A_MOUSE1 || key == A_ENTER || key == A_MOUSE2 || key == A_MOUSE3)
+			if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_ENTER || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_MOUSE3 || key == fakeAscii_t::A_MWHEELDOWN || key == fakeAscii_t::A_MWHEELUP)
+			//if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_ENTER || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_MOUSE3)
 			{
 				if (item->cvar)
 				{
 					int current = Item_Multi_FindCvarByValue(item);
 					int max = Item_Multi_CountSettings(item);
 
-					if (key == A_MOUSE2 || key == A_MWHEELDOWN)
+					if (key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_MWHEELDOWN)
 					{
 						current--;
 						if ( current < 0 )
@@ -10929,7 +10929,7 @@ bool Item_Multi_HandleKey(itemDef_t *item, fakeAscii_t key)
 				{
 					int max = Item_Multi_CountSettings(item);
 
-					if (key == A_MOUSE2 || key == A_MWHEELDOWN)
+					if (key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_MWHEELDOWN)
 					{
 						item->value--;
 						if ( item->value < 0 )
@@ -10970,10 +10970,10 @@ bool Item_Slider_HandleKey(itemDef_t *item, fakeAscii_t key, bool down)
 
 	float x, value, width, work;
 
-	if (Any( item->window.flags & WINDOW_HASFOCUS ) && item->cvar && Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory))
+	if (Any( item->window.flags & windowFlags_t::WINDOW_HASFOCUS ) && item->cvar && Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory))
 	{
 
-		if (key == A_MOUSE1 || key == A_ENTER || key == A_MOUSE2 || key == A_MOUSE3)
+		if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_ENTER || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_MOUSE3)
 		{
 			editFieldDef_t *editDef = (editFieldDef_s *) item->typeData;
 			if (editDef)
@@ -11032,7 +11032,7 @@ bool Item_HandleKey(itemDef_t *item, std::optional<fakeAscii_t> key, bool down)
 	}
 	else
 	{
-		if (down && (key == A_MOUSE1 || key == A_MOUSE2 || key == A_MOUSE3))
+		if (down && (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_MOUSE3))
 		{
 			Item_StartCapture(item, *key);
 		}
@@ -11198,13 +11198,13 @@ void Menu_HandleKey(menuDef_t *menu, int event, bool down)
 			inHandler = false;
 			return;
 		}
-		else if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_MOUSE3)
+		else if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_MOUSE3)
 		{
 			g_editingField = false;
 			g_editItem = nullptr;
 			Display_MouseMove(nullptr, DC->cursorx, DC->cursory);
 		}
-		else if (key == A_TAB || key == A_CURSOR_UP || key == A_CURSOR_DOWN)
+		else if (key == fakeAscii_t::A_TAB || key == fakeAscii_t::A_CURSOR_UP || key == fakeAscii_t::A_CURSOR_DOWN)
 		{
 			return;
 		}
@@ -11218,10 +11218,10 @@ void Menu_HandleKey(menuDef_t *menu, int event, bool down)
 
 	//JLFMOUSE  MPMOVED
 		// see if the mouse is within the window bounds and if so is this a mouse click
-	if (down && !Any( menu->window.flags & WINDOW_POPUP ) && !Rect_ContainsPoint(&menu->window.rect, DC->cursorx, DC->cursory))
+	if (down && !Any( menu->window.flags & windowFlags_t::WINDOW_POPUP ) && !Rect_ContainsPoint(&menu->window.rect, DC->cursorx, DC->cursory))
 	{
 		static bool inHandleKey = false;
-		if (!inHandleKey && (key == A_MOUSE1 || key == A_MOUSE2 || key == A_MOUSE3))
+		if (!inHandleKey && (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_MOUSE3))
 		{
 			inHandleKey = true;
 			Menus_HandleOOBClick(menu, event, down);
@@ -11234,7 +11234,7 @@ void Menu_HandleKey(menuDef_t *menu, int event, bool down)
 	// get the item with focus
 	for (i = 0; i < menu->itemCount; i++)
 	{
-		if (Any( menu->items[i]->window.flags & WINDOW_HASFOCUS ))
+		if (Any( menu->items[i]->window.flags & windowFlags_t::WINDOW_HASFOCUS ))
 		{
 			item = menu->items[i];
 			break;
@@ -11280,33 +11280,33 @@ void Menu_HandleKey(menuDef_t *menu, int event, bool down)
 			 (Q_stricmp(menu->window.name,"datapadForcePowersMenu") == 0) ||
 			 (Q_stricmp(menu->window.name,"datapadInventoryMenu") == 0))
 			{
-				key = A_ESCAPE;	//pop on outta here
+				key = fakeAscii_t::A_ESCAPE;	//pop on outta here
 			}
 		}
 	}
 	// default handling
 	switch ( *key )
 	{
-		case A_F11:
+		case fakeAscii_t::A_F11:
 			if (DC->getCVarValue("developer"))
 			{
 				uis.debugMode = !uis.debugMode;
 			}
 			break;
 
-		case A_F12:
+		case fakeAscii_t::A_F12:
 			if (DC->getCVarValue("developer"))
 			{
 				switch ( DC->screenshotFormat )
 				{
-					case SSF_JPEG:
-						DC->executeText(EXEC_APPEND, "screenshot\n");
+					case screenshotFormat_t::SSF_JPEG:
+						DC->executeText(cbufExec_t::EXEC_APPEND, "screenshot\n");
 						break;
-					case SSF_TGA:
-						DC->executeText(EXEC_APPEND, "screenshot_tga\n");
+					case screenshotFormat_t::SSF_TGA:
+						DC->executeText(cbufExec_t::EXEC_APPEND, "screenshot_tga\n");
 						break;
-					case SSF_PNG:
-						DC->executeText(EXEC_APPEND, "screenshot_png\n");
+					case screenshotFormat_t::SSF_PNG:
+						DC->executeText(cbufExec_t::EXEC_APPEND, "screenshot_png\n");
 						break;
 					default:
 						if (DC->Print) {
@@ -11316,13 +11316,13 @@ void Menu_HandleKey(menuDef_t *menu, int event, bool down)
 				}
 			}
 			break;
-		case A_KP_8:
-		case A_CURSOR_UP:
+		case fakeAscii_t::A_KP_8:
+		case fakeAscii_t::A_CURSOR_UP:
 			Menu_SetPrevCursorItem(menu);
 			break;
 
 
-		case A_ESCAPE:
+		case fakeAscii_t::A_ESCAPE:
 			if (!g_waitingForKey && menu->onESC)
 			{
 				itemDef_t it;
@@ -11330,14 +11330,14 @@ void Menu_HandleKey(menuDef_t *menu, int event, bool down)
 				Item_RunScript(&it, menu->onESC);
 			}
 			break;
-		case A_TAB:
-		case A_KP_2:
-		case A_CURSOR_DOWN:
+		case fakeAscii_t::A_TAB:
+		case fakeAscii_t::A_KP_2:
+		case fakeAscii_t::A_CURSOR_DOWN:
 			Menu_SetNextCursorItem(menu);
 			break;
 
-		case A_MOUSE1:
-		case A_MOUSE2:
+		case fakeAscii_t::A_MOUSE1:
+		case fakeAscii_t::A_MOUSE2:
 			if (item)
 			{
 				if (item->type == ITEM_TYPE_TEXT)
@@ -11412,31 +11412,31 @@ void Menu_HandleKey(menuDef_t *menu, int event, bool down)
 			}
 			break;
 
-		case A_JOY0:
-		case A_JOY1:
-		case A_JOY2:
-		case A_JOY3:
-		case A_JOY4:
-		case A_AUX0:
-		case A_AUX1:
-		case A_AUX2:
-		case A_AUX3:
-		case A_AUX4:
-		case A_AUX5:
-		case A_AUX6:
-		case A_AUX7:
-		case A_AUX8:
-		case A_AUX9:
-		case A_AUX10:
-		case A_AUX11:
-		case A_AUX12:
-		case A_AUX13:
-		case A_AUX14:
-		case A_AUX15:
-		case A_AUX16:
+		case fakeAscii_t::A_JOY0:
+		case fakeAscii_t::A_JOY1:
+		case fakeAscii_t::A_JOY2:
+		case fakeAscii_t::A_JOY3:
+		case fakeAscii_t::A_JOY4:
+		case fakeAscii_t::A_AUX0:
+		case fakeAscii_t::A_AUX1:
+		case fakeAscii_t::A_AUX2:
+		case fakeAscii_t::A_AUX3:
+		case fakeAscii_t::A_AUX4:
+		case fakeAscii_t::A_AUX5:
+		case fakeAscii_t::A_AUX6:
+		case fakeAscii_t::A_AUX7:
+		case fakeAscii_t::A_AUX8:
+		case fakeAscii_t::A_AUX9:
+		case fakeAscii_t::A_AUX10:
+		case fakeAscii_t::A_AUX11:
+		case fakeAscii_t::A_AUX12:
+		case fakeAscii_t::A_AUX13:
+		case fakeAscii_t::A_AUX14:
+		case fakeAscii_t::A_AUX15:
+		case fakeAscii_t::A_AUX16:
 			break;
-		case A_KP_ENTER:
-		case A_ENTER:
+		case fakeAscii_t::A_KP_ENTER:
+		case fakeAscii_t::A_ENTER:
 			if (item)
 			{
 				if (item->type == ITEM_TYPE_EDITFIELD || item->type == ITEM_TYPE_NUMERICFIELD)
@@ -11500,11 +11500,11 @@ void Menus_HideItems(const char *menuName)
 		return;
 	}
 
-	menu->window.flags &= ~(WINDOW_HASFOCUS | WINDOW_VISIBLE);
+	menu->window.flags &= ~(windowFlags_t::WINDOW_HASFOCUS | windowFlags_t::WINDOW_VISIBLE);
 
 	for (i = 0; i < menu->itemCount; i++)
 	{
-		menu->items[i]->cvarFlags = CVAR_HIDE;
+		menu->items[i]->cvarFlags = itemCvarFlags_t::CVAR_HIDE;
 	}
 }
 
@@ -11526,11 +11526,11 @@ void Menus_ShowItems(const char *menuName)
 		return;
 	}
 
-	menu->window.flags |= (WINDOW_HASFOCUS | WINDOW_VISIBLE);
+	menu->window.flags |= (windowFlags_t::WINDOW_HASFOCUS | windowFlags_t::WINDOW_VISIBLE);
 
 	for (i = 0; i < menu->itemCount; i++)
 	{
-		menu->items[i]->cvarFlags = CVAR_SHOW;
+		menu->items[i]->cvarFlags = itemCvarFlags_t::CVAR_SHOW;
 	}
 }
 

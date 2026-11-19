@@ -462,7 +462,7 @@ srfGridMesh_t *R_SubdividePatchToGrid( int width, int height,
 
 	grid->width = width;
 	grid->height = height;
-	grid->surfaceType = SF_GRID;
+	grid->surfaceType = surfaceType_t::SF_GRID;
 	ClearBounds( grid->meshBounds[0], grid->meshBounds[1] );
 	for ( i = 0 ; i < width ; i++ ) {
 		for ( j = 0 ; j < height ; j++ ) {

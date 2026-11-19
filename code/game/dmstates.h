@@ -33,6 +33,5 @@ enum class dynamicMusic_t //# dynamicMusic_e
 	DM_BOSS,	//# force the boss battle music to play (if there is any)
 	DM_DEATH	//# force the "player dead" music to play
 };
-using enum dynamicMusic_t;
 
 #endif//#ifndef __DMSTATES_H__

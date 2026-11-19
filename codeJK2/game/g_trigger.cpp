@@ -39,12 +39,12 @@ void InitTrigger( gentity_t *self ) {
 		G_SetMovedir (self->s.angles, self->movedir);
 
 	gi.SetBrushModel( self, self->model );
-	self->contents = CONTENTS_TRIGGER;		// replaces the -1 from gi.SetBrushModel
-	self->svFlags = SVF_NOCLIENT;
+	self->contents = contentsFlags_t::CONTENTS_TRIGGER;		// replaces the -1 from gi.SetBrushModel
+	self->svFlags = svFlags_t::SVF_NOCLIENT;
 
 	if(self->spawnflags & 128)
 	{
-		self->svFlags |= SVF_INACTIVE;
+		self->svFlags |= svFlags_t::SVF_INACTIVE;
 	}
 }
 
@@ -60,9 +60,9 @@ void multi_wait( gentity_t *ent ) {
 // so wait for the delay time before firing
 void multi_trigger_run( gentity_t *ent )
 {
-	ent->e_ThinkFunc = thinkF_NULL;
+	ent->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
 
-	G_ActivateBehavior( ent, BSET_USE );
+	G_ActivateBehavior( ent, bSet_t::BSET_USE );
 
 	if ( ent->soundSet && ent->soundSet[0] )
 	{
@@ -77,14 +77,14 @@ void multi_trigger_run( gentity_t *ent )
 
 	if ( ent->target2 && ent->target2[0] && ent->wait >= 0 )
 	{
-		ent->e_ThinkFunc = thinkF_trigger_cleared_fire;
+		ent->e_ThinkFunc = thinkFunc_t::thinkF_trigger_cleared_fire;
 		ent->nextthink = level.time + ent->speed;
 	}
 	else if ( ent->wait > 0 )
 	{
 		if ( ent->painDebounceTime != level.time )
 		{//first ent to touch it this frame
-			//ent->e_ThinkFunc = thinkF_multi_wait;
+			//ent->e_ThinkFunc = thinkFunc_t::thinkF_multi_wait;
 			ent->nextthink = level.time + ( ent->wait + ent->random * Q_flrand(-1.0f, 1.0f) ) * 1000;
 			ent->painDebounceTime = level.time;
 		}
@@ -93,9 +93,9 @@ void multi_trigger_run( gentity_t *ent )
 	{
 		// we can't just remove (self) here, because this is a touch function
 		// called while looping through area links...
-		ent->contents &= ~CONTENTS_TRIGGER;//so the EntityContact trace doesn't have to be done against me
-		ent->e_TouchFunc = touchF_NULL;
-		ent->e_UseFunc = useF_NULL;
+		ent->contents &= ~contentsFlags_t::CONTENTS_TRIGGER;//so the EntityContact trace doesn't have to be done against me
+		ent->e_TouchFunc = touchFunc_t::touchF_NULL;
+		ent->e_UseFunc = useFunc_t::useF_NULL;
 		//Don't remove, Icarus may barf?
 		//ent->nextthink = level.time + FRAMETIME;
 		//ent->think = G_FreeEntity;
@@ -109,7 +109,7 @@ void multi_trigger_run( gentity_t *ent )
 
 void multi_trigger( gentity_t *ent, gentity_t *activator )
 {
-	if ( ent->e_ThinkFunc == thinkF_multi_trigger_run )
+	if ( ent->e_ThinkFunc == thinkFunc_t::thinkF_multi_trigger_run )
 	{//already triggered, just waiting to run
 		return;
 	}
@@ -136,7 +136,7 @@ void multi_trigger( gentity_t *ent, gentity_t *activator )
 		return;
 	}
 
-	if ( Any( ent->svFlags & SVF_INACTIVE ) )
+	if ( Any( ent->svFlags & svFlags_t::SVF_INACTIVE ) )
 	{//Not active at this time
 		return;
 	}
@@ -145,7 +145,7 @@ void multi_trigger( gentity_t *ent, gentity_t *activator )
 
 	if(ent->delay && ent->painDebounceTime < (level.time + ent->delay) )
 	{//delay before firing trigger
-		ent->e_ThinkFunc = thinkF_multi_trigger_run;
+		ent->e_ThinkFunc = thinkFunc_t::thinkF_multi_trigger_run;
 		ent->nextthink = level.time + ent->delay;
 		ent->painDebounceTime = level.time;
 
@@ -168,12 +168,12 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 		return;
 	}
 
-	if ( Any( self->svFlags & SVF_INACTIVE ) )
+	if ( Any( self->svFlags & svFlags_t::SVF_INACTIVE ) )
 	{//set by target_deactivate
 		return;
 	}
 
-	if( self->noDamageTeam != TEAM_FREE )
+	if( self->noDamageTeam != team_t::TEAM_FREE )
 	{
 		if ( other->client->playerTeam != self->noDamageTeam )
 		{
@@ -183,7 +183,7 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 
 // moved to just above multi_trigger because up here it just checks if the trigger is not being touched
 // we want it to check any conditions set on the trigger, if one of those isn't met, the trigger is considered to be "cleared"
-//	if ( self->e_ThinkFunc == thinkF_trigger_cleared_fire )
+//	if ( self->e_ThinkFunc == thinkFunc_t::thinkF_trigger_cleared_fire )
 //	{//We're waiting to fire our target2 first
 //		self->nextthink = level.time + self->speed;
 //		return;
@@ -248,7 +248,7 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 			return;
 		}
 
-		if( !Any( other->client->usercmd.buttons & BUTTON_USE ) )
+		if( !Any( other->client->usercmd.buttons & buttonFlags_t::BUTTON_USE ) )
 		{//not pressing use button
 			return;
 		}
@@ -261,15 +261,15 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 			return;
 		}
 
-		if( !Any( other->client->ps.eFlags & EF_FIRING /*Any( usercmd.buttons & BUTTON_ATTACK )*/ ) &&
-			!Any( other->client->ps.eFlags & EF_ALT_FIRING/*Any( usercmd.buttons & BUTTON_ALT_ATTACK )*/ ) )
+		if( !Any( other->client->ps.eFlags & entityFlags_t::EF_FIRING /*Any( usercmd.buttons & buttonFlags_t::BUTTON_ATTACK )*/ ) &&
+			!Any( other->client->ps.eFlags & entityFlags_t::EF_ALT_FIRING/*Any( usercmd.buttons & buttonFlags_t::BUTTON_ALT_ATTACK )*/ ) )
 		{//not pressing fire button or altfire button
 			return;
 		}
 
 		//FIXME: do we care about the sniper rifle or not?
 
-		if( other->s.number == 0 && ( other->client->ps.weapon > MAX_PLAYER_WEAPONS || other->client->ps.weapon <= WP_NONE ) )
+		if( other->s.number == 0 && ( other->client->ps.weapon > MAX_PLAYER_WEAPONS || other->client->ps.weapon <= weapon_t::WP_NONE ) )
 		{//don't care about non-player weapons if this is the player
 			return;
 		}
@@ -287,8 +287,8 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 
 		if ( G_PointInBounds( eyeSpot, self->absmin, self->absmax ) )
 		{
-			if( !Any( other->client->ps.eFlags & EF_FIRING ) &&
-				!Any( other->client->ps.eFlags & EF_ALT_FIRING ) )
+			if( !Any( other->client->ps.eFlags & entityFlags_t::EF_FIRING ) &&
+				!Any( other->client->ps.eFlags & entityFlags_t::EF_ALT_FIRING ) )
 			{//not attacking, so hiding bonus
 				//FIXME:  should really have sound events clear the hiddenDist
 				other->client->hiddenDist = self->radius;
@@ -307,17 +307,17 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 
 	if ( self->spawnflags & 4 )
 	{//USE_BUTTON
-		NPC_SetAnim( other, SETANIM_TORSO, BOTH_BUTTON_HOLD, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+		NPC_SetAnim( other, setAnimParts_t::SETANIM_TORSO, animNumber_t::BOTH_BUTTON_HOLD, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD );
 		/*
 		if ( !VectorLengthSquared( other->client->ps.velocity ) && !PM_CrouchAnim( other->client->ps.legsAnim ) )
 		{
-			NPC_SetAnim( other, SETANIM_LEGS, BOTH_BUTTON_HOLD, SETANIM_FLAG_NORMAL|SETANIM_FLAG_HOLD );
+			NPC_SetAnim( other, setAnimParts_t::SETANIM_LEGS, animNumber_t::BOTH_BUTTON_HOLD, setAnimFlags_t::SETANIM_FLAG_NORMAL|setAnimFlags_t::SETANIM_FLAG_HOLD );
 		}
 		*/
 		//other->client->ps.weaponTime = other->client->ps.torsoAnimTimer;
 	}
 
-	if ( self->e_ThinkFunc == thinkF_trigger_cleared_fire )
+	if ( self->e_ThinkFunc == thinkFunc_t::thinkF_trigger_cleared_fire )
 	{//We're waiting to fire our target2 first
 		self->nextthink = level.time + self->speed;
 		return;
@@ -329,7 +329,7 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 void trigger_cleared_fire (gentity_t *self)
 {
 	G_UseTargets2( self, self->activator, self->target2 );
-	self->e_ThinkFunc = thinkF_NULL;
+	self->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
 	// should start the wait timer now, because the trigger's just been cleared, so we must "wait" from this point
 	if ( self->wait > 0 )
 	{
@@ -339,7 +339,7 @@ void trigger_cleared_fire (gentity_t *self)
 
 bool G_TriggerActive( gentity_t *self )
 {
-	if ( Any( self->svFlags & SVF_INACTIVE ) )
+	if ( Any( self->svFlags & svFlags_t::SVF_INACTIVE ) )
 	{//set by target_deactivate
 		return false;
 	}
@@ -436,8 +436,8 @@ void SP_trigger_multiple( gentity_t *ent )
 		ent->speed *= 1000;
 	}
 
-	ent->e_TouchFunc = touchF_Touch_Multi;
-	ent->e_UseFunc   = useF_Use_Multi;
+	ent->e_TouchFunc = touchFunc_t::touchF_Touch_Multi;
+	ent->e_UseFunc   = useFunc_t::useF_Use_Multi;
 
 	if ( ent->team && ent->team[0] )
 	{
@@ -486,8 +486,8 @@ void SP_trigger_once( gentity_t *ent )
 
 	ent->wait = -1;
 
-	ent->e_TouchFunc = touchF_Touch_Multi;
-	ent->e_UseFunc   = useF_Use_Multi;
+	ent->e_TouchFunc = touchFunc_t::touchF_Touch_Multi;
+	ent->e_UseFunc   = useFunc_t::useF_Use_Multi;
 
 	if ( ent->team && ent->team[0] )
 	{
@@ -569,8 +569,8 @@ void SP_trigger_location( gentity_t *ent )
 	}
 
 	gi.SetBrushModel( ent, ent->model );
-	ent->contents = CONTENTS_NONE;
-	ent->svFlags = SVF_NOCLIENT;
+	ent->contents = contentsFlags_t::CONTENTS_NONE;
+	ent->svFlags = svFlags_t::SVF_NOCLIENT;
 
 	gi.linkentity (ent);
 }
@@ -593,7 +593,7 @@ This trigger will always fire.  It is activated by the world.
 void SP_trigger_always (gentity_t *ent) {
 	// we must have some delay to make sure our use targets are present
 	ent->nextthink = level.time + 300;
-	ent->e_ThinkFunc = thinkF_trigger_always_think;
+	ent->e_ThinkFunc = thinkFunc_t::thinkF_trigger_always_think;
 }
 
 
@@ -606,7 +606,7 @@ trigger_push
 */
 constexpr int PUSH_CONVEYOR = 32;
 void trigger_push_touch (gentity_t *self, gentity_t *other, trace_t *trace ) {
-	if ( Any( self->svFlags & SVF_INACTIVE ) )
+	if ( Any( self->svFlags & svFlags_t::SVF_INACTIVE ) )
 	{//set by target_deactivate
 		return;
 	}
@@ -660,7 +660,7 @@ void trigger_push_touch (gentity_t *self, gentity_t *other, trace_t *trace ) {
 	}
 
 	if ( !other->client ) {
-		if ( other->s.pos.trType != TR_STATIONARY && other->s.pos.trType != TR_LINEAR_STOP && other->s.pos.trType != TR_NONLINEAR_STOP && VectorLengthSquared( other->s.pos.trDelta ) )
+		if ( other->s.pos.trType != trType_t::TR_STATIONARY && other->s.pos.trType != trType_t::TR_LINEAR_STOP && other->s.pos.trType != trType_t::TR_NONLINEAR_STOP && VectorLengthSquared( other->s.pos.trDelta ) )
 		{//already moving
 			VectorCopy( other->currentOrigin, other->s.pos.trBase );
 			VectorCopy( self->s.origin2, other->s.pos.trDelta );
@@ -669,7 +669,7 @@ void trigger_push_touch (gentity_t *self, gentity_t *other, trace_t *trace ) {
 		return;
 	}
 
-	if ( other->client->ps.pm_type != PM_NORMAL ) {
+	if ( other->client->ps.pm_type != pmtype_t::PM_NORMAL ) {
 		return;
 	}
 
@@ -694,12 +694,12 @@ void trigger_push_touch (gentity_t *self, gentity_t *other, trace_t *trace ) {
 	}
 	//so we don't take damage unless we land lower than we start here...
 	other->client->ps.forceJumpZStart = 0;
-	other->client->ps.pm_flags |= PMF_TRIGGER_PUSHED;//pushed by a trigger
+	other->client->ps.pm_flags |= pmoveFlags_t::PMF_TRIGGER_PUSHED;//pushed by a trigger
 	other->client->ps.jumpZStart = other->client->ps.origin[2];
 
 	if ( self->wait == -1 )
 	{
-		self->e_TouchFunc = touchF_NULL;
+		self->e_TouchFunc = touchFunc_t::touchF_NULL;
 	}
 	else if ( self->wait > 0 )
 	{
@@ -742,7 +742,7 @@ void AimAtTarget( gentity_t *self )
 	{
 		if ( (self->spawnflags&2) )
 		{//check once a second to see if we should activate or deactivate ourselves
-			self->e_ThinkFunc = thinkF_trigger_push_checkclear;
+			self->e_ThinkFunc = thinkFunc_t::thinkF_trigger_push_checkclear;
 			self->nextthink = level.time + FRAMETIME;
 		}
 
@@ -807,18 +807,18 @@ void trigger_push_checkclear( gentity_t *self )
 	VectorScale( center, 0.5, center );
 
 	gentity_t *target = G_Find( nullptr, FOFS(targetname), self->target );
-	gi.trace( &trace, center, vec3_origin, vec3_origin, target->currentOrigin, ENTITYNUM_NONE, CONTENTS_SOLID, G2_NOCOLLIDE, 0 );
+	gi.trace( &trace, center, vec3_origin, vec3_origin, target->currentOrigin, ENTITYNUM_NONE, contentsFlags_t::CONTENTS_SOLID, EG2_Collision::G2_NOCOLLIDE, 0 );
 
 	if ( trace.fraction >= 1.0f )
 	{//can trace, turn on
-		self->contents |= CONTENTS_TRIGGER;//so the EntityContact trace doesn't have to be done against me
-		self->e_TouchFunc = touchF_trigger_push_touch;
+		self->contents |= contentsFlags_t::CONTENTS_TRIGGER;//so the EntityContact trace doesn't have to be done against me
+		self->e_TouchFunc = touchFunc_t::touchF_trigger_push_touch;
 		gi.linkentity( self );
 	}
 	else
 	{//no trace, turn off
-		self->contents &= ~CONTENTS_TRIGGER;//so the EntityContact trace doesn't have to be done against me
-		self->e_TouchFunc = touchF_NULL;
+		self->contents &= ~contentsFlags_t::CONTENTS_TRIGGER;//so the EntityContact trace doesn't have to be done against me
+		self->e_TouchFunc = touchFunc_t::touchF_NULL;
 		gi.unlinkentity( self );
 	}
 }
@@ -846,18 +846,18 @@ void SP_trigger_push( gentity_t *self ) {
 	}
 
 	// unlike other triggers, we need to send this one to the client
-	self->svFlags &= ~SVF_NOCLIENT;
+	self->svFlags &= ~svFlags_t::SVF_NOCLIENT;
 
-	self->s.eType = ET_PUSH_TRIGGER;
+	self->s.eType = entityType_t::ET_PUSH_TRIGGER;
 	if ( !(self->spawnflags&2) )
 	{//start on
-		self->e_TouchFunc = touchF_trigger_push_touch;
+		self->e_TouchFunc = touchFunc_t::touchF_trigger_push_touch;
 	}
 	if ( self->spawnflags & 4 )
 	{//linear
 		self->speed = 1000;
 	}
-	self->e_ThinkFunc = thinkF_AimAtTarget;
+	self->e_ThinkFunc = thinkFunc_t::thinkF_AimAtTarget;
 	self->nextthink = level.time + START_TIME_LINK_ENTS;
 	gi.linkentity (self);
 }
@@ -867,11 +867,11 @@ void Use_target_push( gentity_t *self, gentity_t *other, gentity_t *activator ) 
 		return;
 	}
 
-	if ( activator->client->ps.pm_type != PM_NORMAL ) {
+	if ( activator->client->ps.pm_type != pmtype_t::PM_NORMAL ) {
 		return;
 	}
 
-	G_ActivateBehavior(self,BSET_USE);
+	G_ActivateBehavior(self,bSet_t::BSET_USE);
 
 	VectorCopy( self->s.origin2, activator->client->ps.velocity );
 
@@ -883,7 +883,7 @@ void Use_target_push( gentity_t *self, gentity_t *other, gentity_t *activator ) 
 
 	//so we don't take damage unless we land lower than we start here...
 	activator->client->ps.forceJumpZStart = 0;
-	activator->client->ps.pm_flags |= PMF_TRIGGER_PUSHED;//pushed by a trigger
+	activator->client->ps.pm_flags |= pmoveFlags_t::PMF_TRIGGER_PUSHED;//pushed by a trigger
 
 	// play fly sound every 1.5 seconds
 	if ( self->noise_index && activator->fly_sound_debounce_time < level.time ) {
@@ -916,11 +916,11 @@ void SP_target_push( gentity_t *self ) {
 
 		VectorCopy( self->s.origin, self->absmin );
 		VectorCopy( self->s.origin, self->absmax );
-		self->e_ThinkFunc = thinkF_AimAtTarget;
+		self->e_ThinkFunc = thinkFunc_t::thinkF_AimAtTarget;
 		self->nextthink = level.time + START_TIME_LINK_ENTS;
 
 	}
-	self->e_UseFunc = useF_Use_target_push;
+	self->e_UseFunc = useFunc_t::useF_Use_target_push;
 }
 
 /*
@@ -939,7 +939,7 @@ void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace
 {
 	gentity_t	*dest;
 
-	if ( Any( self->svFlags & SVF_INACTIVE ) )
+	if ( Any( self->svFlags & svFlags_t::SVF_INACTIVE ) )
 	{//set by target_deactivate
 		return;
 	}
@@ -953,7 +953,7 @@ void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace
 
 	if ( other->client )
 	{
-		if ( other->client->ps.pm_type == PM_DEAD )
+		if ( other->client->ps.pm_type == pmtype_t::PM_DEAD )
 		{
 			if ( !(self->spawnflags&TTSF_DEAD_OK) )
 			{//dead men can't teleport
@@ -968,7 +968,7 @@ void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace
 			}
 		}
 
-		if ( other->client->playerTeam != TEAM_FREE && SpotWouldTelefrag2( other, dest->currentOrigin ) )//SpotWouldTelefrag( dest, other->client->playerTeam ) )
+		if ( other->client->playerTeam != team_t::TEAM_FREE && SpotWouldTelefrag2( other, dest->currentOrigin ) )//SpotWouldTelefrag( dest, other->client->playerTeam ) )
 		{//Don't go through if something blocking on the other side
 			return;
 		}
@@ -976,7 +976,7 @@ void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace
 		TeleportPlayer( other, dest->s.origin, dest->s.angles );
 	}
 	//FIXME: check for SVF_NO_TELEPORT
-	else if ( !Any( self->svFlags & SVF_NO_TELEPORT ) && !(self->spawnflags & NO_MISSILES) && VectorLengthSquared( other->s.pos.trDelta ) )
+	else if ( !Any( self->svFlags & svFlags_t::SVF_NO_TELEPORT ) && !(self->spawnflags & NO_MISSILES) && VectorLengthSquared( other->s.pos.trDelta ) )
 	{//It's a mover of some sort and is currently moving
 		vec3_t	diffAngles = {0, 0, 0};
 		bool	snap = false;
@@ -1018,7 +1018,7 @@ void trigger_teleporter_find_closest_portal( gentity_t *self )
 	{
 		gi.Printf("trigger_teleporter found misc_portal_surface\n");
 	}
-	self->e_ThinkFunc = thinkF_NULL;
+	self->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
 }
 
 /*QUAKED trigger_teleport (.1 .5 .1) ? SNAP_ANGLES NO_MISSILES NO_NPCS STASIS DEAD_OK x x INACTIVE
@@ -1036,12 +1036,12 @@ void SP_trigger_teleport( gentity_t *self )
 	InitTrigger (self);
 
 	// unlike other triggers, we need to send this one to the client
-	self->svFlags &= ~SVF_NOCLIENT;
+	self->svFlags &= ~svFlags_t::SVF_NOCLIENT;
 
-	self->s.eType = ET_TELEPORT_TRIGGER;
-	self->e_TouchFunc = touchF_trigger_teleporter_touch;
+	self->s.eType = entityType_t::ET_TELEPORT_TRIGGER;
+	self->e_TouchFunc = touchFunc_t::touchF_trigger_teleporter_touch;
 
-	self->e_ThinkFunc = thinkF_trigger_teleporter_find_closest_portal;
+	self->e_ThinkFunc = thinkFunc_t::thinkF_trigger_teleporter_find_closest_portal;
 	self->nextthink = level.time + START_TIME_LINK_ENTS;
 
 	gi.linkentity (self);
@@ -1079,7 +1079,7 @@ MULTIPLE        multiple entities can touch this trigger in a single frame *and*
 */
 void hurt_use( gentity_t *self, gentity_t *other, gentity_t *activator ) {
 
-	G_ActivateBehavior(self,BSET_USE);
+	G_ActivateBehavior(self,bSet_t::BSET_USE);
 
 	//FIXME: Targeting the trigger will toggle its on / off state???
 	if ( self->linked ) {
@@ -1092,7 +1092,7 @@ void hurt_use( gentity_t *self, gentity_t *other, gentity_t *activator ) {
 void trigger_hurt_reset (gentity_t *self)
 {
 	self->attackDebounceTime = 0;
-	self->e_ThinkFunc = thinkF_NULL;
+	self->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
 }
 
 void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace )
@@ -1100,7 +1100,7 @@ void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace )
 	damageFlags_t		dflags;
 	int		actualDmg = self->damage;
 
-	if ( Any( self->svFlags & SVF_INACTIVE ) )
+	if ( Any( self->svFlags & svFlags_t::SVF_INACTIVE ) )
 	{//set by target_deactivate
 		return;
 	}
@@ -1163,11 +1163,11 @@ void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace )
 
 	if ( self->spawnflags & 8 )
 	{
-		dflags = DAMAGE_NO_PROTECTION;
+		dflags = damageFlags_t::DAMAGE_NO_PROTECTION;
 	}
 	else
 	{
-		dflags = DAMAGE_NORMAL;
+		dflags = damageFlags_t::DAMAGE_NORMAL;
 	}
 
 	if ( self->delay )
@@ -1178,7 +1178,7 @@ void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace )
 		}
 		self->attackDebounceTime += FRAMETIME;
 
-		self->e_ThinkFunc = thinkF_trigger_hurt_reset;
+		self->e_ThinkFunc = thinkFunc_t::thinkF_trigger_hurt_reset;
 		self->nextthink = level.time + FRAMETIME*2;
 	}
 
@@ -1187,13 +1187,13 @@ void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace )
 		if (( self->spawnflags & 64 ) && other->client )//electrical damage
 		{
 			// zap effect
-			other->s.powerups |= Bit( PW_SHOCKED );
-			other->client->ps.powerups[PW_SHOCKED] = level.time + 1000;
+			other->s.powerups |= Bit( powerup_t::PW_SHOCKED );
+			other->client->ps.powerups[powerup_t::PW_SHOCKED] = level.time + 1000;
 		}
 
 		if ( self->spawnflags & 32 )
 		{//falling death
-			G_Damage (other, self, self, nullptr, nullptr, actualDmg, dflags|DAMAGE_NO_ARMOR, MOD_FALLING);
+			G_Damage (other, self, self, nullptr, nullptr, actualDmg, dflags|damageFlags_t::DAMAGE_NO_ARMOR, meansOfDeath_t::MOD_FALLING);
 			// G_Damage will free this ent, which makes it s.number 0, so we must check inuse...
 			if ( !other->s.number && other->health <= 0 )
 			{
@@ -1205,19 +1205,19 @@ void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace )
 				}
 				if ( self->spawnflags & 16 )
 				{//lock cam
-					cg.overrides.active |= CG_OVERRIDE_3RD_PERSON_CDP;
+					cg.overrides.active |= cgOverrideFlags_t::CG_OVERRIDE_3RD_PERSON_CDP;
 					cg.overrides.thirdPersonCameraDamp = 0;
 				}
 				if ( other->client )
 				{
-					other->client->ps.pm_flags |= PMF_SLOW_MO_FALL;
+					other->client->ps.pm_flags |= pmoveFlags_t::PMF_SLOW_MO_FALL;
 				}
-				//G_SoundOnEnt( other, CHAN_VOICE, "*falling1.wav" );//CHAN_VOICE_ATTEN?
+				//G_SoundOnEnt( other, soundChannel_t::CHAN_VOICE, "*falling1.wav" );//CHAN_VOICE_ATTEN?
 			}
 		}
 		else
 		{
-			G_Damage (other, self, self, nullptr, nullptr, actualDmg, dflags, MOD_TRIGGER_HURT);
+			G_Damage (other, self, self, nullptr, nullptr, actualDmg, dflags, meansOfDeath_t::MOD_TRIGGER_HURT);
 		}
 		if( other && !other->s.number )
 		{
@@ -1225,14 +1225,14 @@ void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace )
 		}
 		if (( self->spawnflags & 64 ) && other->client && other->health <= 0 )//electrical damage
 		{//just killed them, make the effect last longer since dead clients don't touch triggers
-			other->client->ps.powerups[PW_SHOCKED] = level.time + 10000;
+			other->client->ps.powerups[powerup_t::PW_SHOCKED] = level.time + 10000;
 		}
 		self->painDebounceTime = level.time;
 	}
 
 	if ( self->wait < 0 )
 	{
-		self->e_TouchFunc = touchF_NULL;
+		self->e_TouchFunc = touchFunc_t::touchF_NULL;
 	}
 }
 
@@ -1251,7 +1251,7 @@ void SP_trigger_hurt( gentity_t *self )
 		self->noise_index = G_SoundIndex(buffer);
 	}
 
-	self->e_TouchFunc = touchF_hurt_touch;
+	self->e_TouchFunc = touchFunc_t::touchF_hurt_touch;
 
 	if ( !self->damage ) {
 		self->damage = 5;
@@ -1260,10 +1260,10 @@ void SP_trigger_hurt( gentity_t *self )
 	self->delay *= 1000;
 	self->wait *= 1000;
 
-	self->contents = CONTENTS_TRIGGER;
+	self->contents = contentsFlags_t::CONTENTS_TRIGGER;
 
 	if ( self->targetname ) {//NOTE: for some reason, this used to be: if(self->spawnflags&2)
-		self->e_UseFunc = useF_hurt_use;
+		self->e_UseFunc = useFunc_t::useF_hurt_use;
 	}
 
 	// link in to the world if starting active
@@ -1307,7 +1307,7 @@ void func_timer_think( gentity_t *self ) {
 void func_timer_use( gentity_t *self, gentity_t *other, gentity_t *activator ) {
 	self->activator = activator;
 
-	G_ActivateBehavior(self,BSET_USE);
+	G_ActivateBehavior(self,bSet_t::BSET_USE);
 
 
 	// if on, turn it off
@@ -1324,8 +1324,8 @@ void SP_func_timer( gentity_t *self ) {
 	G_SpawnFloat( "random", "1", &self->random);
 	G_SpawnFloat( "wait", "1", &self->wait );
 
-	self->e_UseFunc   = useF_func_timer_use;
-	self->e_ThinkFunc = thinkF_func_timer_think;
+	self->e_UseFunc   = useFunc_t::useF_func_timer_use;
+	self->e_ThinkFunc = thinkFunc_t::thinkF_func_timer_think;
 
 	if ( self->random >= self->wait ) {
 		self->random = self->wait - FRAMETIME;
@@ -1337,7 +1337,7 @@ void SP_func_timer( gentity_t *self ) {
 		self->activator = self;
 	}
 
-	self->svFlags = SVF_NOCLIENT;
+	self->svFlags = svFlags_t::SVF_NOCLIENT;
 }
 
 /*
@@ -1375,10 +1375,10 @@ void trigger_entdist_use( gentity_t *self, gentity_t *other, gentity_t *activato
 	bool	useflag;
 	const char	*token, *holdString;
 
-	if ( Any( self->svFlags & SVF_INACTIVE ) )	// Don't use INACTIVE
+	if ( Any( self->svFlags & svFlags_t::SVF_INACTIVE ) )	// Don't use INACTIVE
 		return;
 
-	G_ActivateBehavior(self,BSET_USE);
+	G_ActivateBehavior(self,bSet_t::BSET_USE);
 
 	if(self->ownername && self->ownername[0])
 	{
@@ -1394,7 +1394,7 @@ void trigger_entdist_use( gentity_t *self, gentity_t *other, gentity_t *activato
 
 	useflag = false;
 
-	self->svFlags |= SVF_INACTIVE;	// Make it inactive after one use
+	self->svFlags |= svFlags_t::SVF_INACTIVE;	// Make it inactive after one use
 
 	if (self->spawnflags & ENTDIST_PLAYER)	// Look for player???
 	{
@@ -1452,7 +1452,7 @@ void SP_trigger_entdist( gentity_t *self )
 {
 	G_SpawnInt( "distance", "0", &self->count);
 
-	self->e_UseFunc = useF_trigger_entdist_use;
+	self->e_UseFunc = useFunc_t::useF_trigger_entdist_use;
 
 }
 
@@ -1463,7 +1463,7 @@ void trigger_visible_check_player_visibility( gentity_t *self )
 	//Check every FRAMETIME*2
 	self->nextthink = level.time + FRAMETIME*2;
 
-	if ( Any( self->svFlags & SVF_INACTIVE ) )
+	if ( Any( self->svFlags & svFlags_t::SVF_INACTIVE ) )
 	{
 		return;
 	}
@@ -1538,12 +1538,12 @@ void SP_trigger_visible( gentity_t *self )
 
 	if ( self->spawnflags & 128 )
 	{// Make it inactive
-		self->svFlags |= SVF_INACTIVE;
+		self->svFlags |= svFlags_t::SVF_INACTIVE;
 	}
 
 	G_SetOrigin( self, self->s.origin );
 	gi.linkentity( self );
 
-	self->e_ThinkFunc = thinkF_trigger_visible_check_player_visibility;
+	self->e_ThinkFunc = thinkFunc_t::thinkF_trigger_visible_check_player_visibility;
 	self->nextthink = level.time + FRAMETIME*2;
 }

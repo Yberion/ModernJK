@@ -59,119 +59,119 @@ int bgNumSiegeTeams = 0;
 //class flags
 stringID_table_t bgSiegeClassFlagNames[] =
 {
-	ENUM2STRING(CFL_MORESABERDMG),
-	ENUM2STRING(CFL_STRONGAGAINSTPHYSICAL),
-	ENUM2STRING(CFL_FASTFORCEREGEN),
-	ENUM2STRING(CFL_STATVIEWER),
-	ENUM2STRING(CFL_HEAVYMELEE),
-	ENUM2STRING(CFL_SINGLE_ROCKET),
-	ENUM2STRING(CFL_CUSTOMSKEL),
-	ENUM2STRING(CFL_EXTRA_AMMO),
+	ENUM2STRING(siegeClassFlags_t, CFL_MORESABERDMG),
+	ENUM2STRING(siegeClassFlags_t, CFL_STRONGAGAINSTPHYSICAL),
+	ENUM2STRING(siegeClassFlags_t, CFL_FASTFORCEREGEN),
+	ENUM2STRING(siegeClassFlags_t, CFL_STATVIEWER),
+	ENUM2STRING(siegeClassFlags_t, CFL_HEAVYMELEE),
+	ENUM2STRING(siegeClassFlags_t, CFL_SINGLE_ROCKET),
+	ENUM2STRING(siegeClassFlags_t, CFL_CUSTOMSKEL),
+	ENUM2STRING(siegeClassFlags_t, CFL_EXTRA_AMMO),
 	{"", -1}
 };
 
 //saber stances
 stringID_table_t StanceTable[] =
 {
-	ENUM2STRING(SS_NONE),
-	ENUM2STRING(SS_FAST),
-	ENUM2STRING(SS_MEDIUM),
-	ENUM2STRING(SS_STRONG),
-	ENUM2STRING(SS_DESANN),
-	ENUM2STRING(SS_TAVION),
-	ENUM2STRING(SS_DUAL),
-	ENUM2STRING(SS_STAFF),
+	ENUM2STRING(saber_styles_t, SS_NONE),
+	ENUM2STRING(saber_styles_t, SS_FAST),
+	ENUM2STRING(saber_styles_t, SS_MEDIUM),
+	ENUM2STRING(saber_styles_t, SS_STRONG),
+	ENUM2STRING(saber_styles_t, SS_DESANN),
+	ENUM2STRING(saber_styles_t, SS_TAVION),
+	ENUM2STRING(saber_styles_t, SS_DUAL),
+	ENUM2STRING(saber_styles_t, SS_STAFF),
 	{"", 0}
 };
 
 //Weapon and force power tables are also used in NPC parsing code and some other places.
 stringID_table_t WPTable[] =
 {
-	{"NULL",to_underlying( WP_NONE )},
-	ENUM2STRING(WP_NONE),
+	{"NULL",to_underlying( weapon_t::WP_NONE )},
+	ENUM2STRING(weapon_t, WP_NONE),
 	// Player weapons
-	ENUM2STRING(WP_STUN_BATON),
-	ENUM2STRING(WP_MELEE),
-	ENUM2STRING(WP_SABER),
-	ENUM2STRING(WP_BRYAR_PISTOL),
-	{"WP_BLASTER_PISTOL", to_underlying( WP_BRYAR_PISTOL )},
-	ENUM2STRING(WP_BLASTER),
-	ENUM2STRING(WP_DISRUPTOR),
-	ENUM2STRING(WP_BOWCASTER),
-	ENUM2STRING(WP_REPEATER),
-	ENUM2STRING(WP_DEMP2),
-	ENUM2STRING(WP_FLECHETTE),
-	ENUM2STRING(WP_ROCKET_LAUNCHER),
-	ENUM2STRING(WP_THERMAL),
-	ENUM2STRING(WP_TRIP_MINE),
-	ENUM2STRING(WP_DET_PACK),
-	ENUM2STRING(WP_CONCUSSION),
-	ENUM2STRING(WP_BRYAR_OLD),
-	ENUM2STRING(WP_EMPLACED_GUN),
-	ENUM2STRING(WP_TURRET),
+	ENUM2STRING(weapon_t, WP_STUN_BATON),
+	ENUM2STRING(weapon_t, WP_MELEE),
+	ENUM2STRING(weapon_t, WP_SABER),
+	ENUM2STRING(weapon_t, WP_BRYAR_PISTOL),
+	{"WP_BLASTER_PISTOL", to_underlying( weapon_t::WP_BRYAR_PISTOL )},
+	ENUM2STRING(weapon_t, WP_BLASTER),
+	ENUM2STRING(weapon_t, WP_DISRUPTOR),
+	ENUM2STRING(weapon_t, WP_BOWCASTER),
+	ENUM2STRING(weapon_t, WP_REPEATER),
+	ENUM2STRING(weapon_t, WP_DEMP2),
+	ENUM2STRING(weapon_t, WP_FLECHETTE),
+	ENUM2STRING(weapon_t, WP_ROCKET_LAUNCHER),
+	ENUM2STRING(weapon_t, WP_THERMAL),
+	ENUM2STRING(weapon_t, WP_TRIP_MINE),
+	ENUM2STRING(weapon_t, WP_DET_PACK),
+	ENUM2STRING(weapon_t, WP_CONCUSSION),
+	ENUM2STRING(weapon_t, WP_BRYAR_OLD),
+	ENUM2STRING(weapon_t, WP_EMPLACED_GUN),
+	ENUM2STRING(weapon_t, WP_TURRET),
 	{"", 0}
 };
 
 stringID_table_t FPTable[] =
 {
-	ENUM2STRING(FP_HEAL),
-	ENUM2STRING(FP_LEVITATION),
-	ENUM2STRING(FP_SPEED),
-	ENUM2STRING(FP_PUSH),
-	ENUM2STRING(FP_PULL),
-	ENUM2STRING(FP_TELEPATHY),
-	ENUM2STRING(FP_GRIP),
-	ENUM2STRING(FP_LIGHTNING),
-	ENUM2STRING(FP_RAGE),
-	ENUM2STRING(FP_PROTECT),
-	ENUM2STRING(FP_ABSORB),
-	ENUM2STRING(FP_TEAM_HEAL),
-	ENUM2STRING(FP_TEAM_FORCE),
-	ENUM2STRING(FP_DRAIN),
-	ENUM2STRING(FP_SEE),
-	ENUM2STRING(FP_SABER_OFFENSE),
-	ENUM2STRING(FP_SABER_DEFENSE),
-	ENUM2STRING(FP_SABERTHROW),
+	ENUM2STRING(forcePowers_t, FP_HEAL),
+	ENUM2STRING(forcePowers_t, FP_LEVITATION),
+	ENUM2STRING(forcePowers_t, FP_SPEED),
+	ENUM2STRING(forcePowers_t, FP_PUSH),
+	ENUM2STRING(forcePowers_t, FP_PULL),
+	ENUM2STRING(forcePowers_t, FP_TELEPATHY),
+	ENUM2STRING(forcePowers_t, FP_GRIP),
+	ENUM2STRING(forcePowers_t, FP_LIGHTNING),
+	ENUM2STRING(forcePowers_t, FP_RAGE),
+	ENUM2STRING(forcePowers_t, FP_PROTECT),
+	ENUM2STRING(forcePowers_t, FP_ABSORB),
+	ENUM2STRING(forcePowers_t, FP_TEAM_HEAL),
+	ENUM2STRING(forcePowers_t, FP_TEAM_FORCE),
+	ENUM2STRING(forcePowers_t, FP_DRAIN),
+	ENUM2STRING(forcePowers_t, FP_SEE),
+	ENUM2STRING(forcePowers_t, FP_SABER_OFFENSE),
+	ENUM2STRING(forcePowers_t, FP_SABER_DEFENSE),
+	ENUM2STRING(forcePowers_t, FP_SABERTHROW),
 	{"",	-1}
 };
 
 stringID_table_t HoldableTable[] =
 {
-	ENUM2STRING(HI_NONE),
+	ENUM2STRING(holdable_t, HI_NONE),
 
-	ENUM2STRING(HI_SEEKER),
-	ENUM2STRING(HI_SHIELD),
-	ENUM2STRING(HI_MEDPAC),
-	ENUM2STRING(HI_MEDPAC_BIG),
-	ENUM2STRING(HI_BINOCULARS),
-	ENUM2STRING(HI_SENTRY_GUN),
-	ENUM2STRING(HI_JETPACK),
-	ENUM2STRING(HI_HEALTHDISP),
-	ENUM2STRING(HI_AMMODISP),
-	ENUM2STRING(HI_EWEB),
-	ENUM2STRING(HI_CLOAK),
+	ENUM2STRING(holdable_t, HI_SEEKER),
+	ENUM2STRING(holdable_t, HI_SHIELD),
+	ENUM2STRING(holdable_t, HI_MEDPAC),
+	ENUM2STRING(holdable_t, HI_MEDPAC_BIG),
+	ENUM2STRING(holdable_t, HI_BINOCULARS),
+	ENUM2STRING(holdable_t, HI_SENTRY_GUN),
+	ENUM2STRING(holdable_t, HI_JETPACK),
+	ENUM2STRING(holdable_t, HI_HEALTHDISP),
+	ENUM2STRING(holdable_t, HI_AMMODISP),
+	ENUM2STRING(holdable_t, HI_EWEB),
+	ENUM2STRING(holdable_t, HI_CLOAK),
 
 	{"", -1}
 };
 
 stringID_table_t PowerupTable[] =
 {
-	ENUM2STRING(PW_NONE),
-	ENUM2STRING(PW_QUAD),
-	ENUM2STRING(PW_BATTLESUIT),
-	ENUM2STRING(PW_PULL),
-	ENUM2STRING(PW_REDFLAG),
-	ENUM2STRING(PW_BLUEFLAG),
-	ENUM2STRING(PW_NEUTRALFLAG),
-	ENUM2STRING(PW_SHIELDHIT),
-	ENUM2STRING(PW_SPEEDBURST),
-	ENUM2STRING(PW_DISINT_4),
-	ENUM2STRING(PW_SPEED),
-	ENUM2STRING(PW_CLOAKED),
-	ENUM2STRING(PW_FORCE_ENLIGHTENED_LIGHT),
-	ENUM2STRING(PW_FORCE_ENLIGHTENED_DARK),
-	ENUM2STRING(PW_FORCE_BOON),
-	ENUM2STRING(PW_YSALAMIRI),
+	ENUM2STRING(powerup_t, PW_NONE),
+	ENUM2STRING(powerup_t, PW_QUAD),
+	ENUM2STRING(powerup_t, PW_BATTLESUIT),
+	ENUM2STRING(powerup_t, PW_PULL),
+	ENUM2STRING(powerup_t, PW_REDFLAG),
+	ENUM2STRING(powerup_t, PW_BLUEFLAG),
+	ENUM2STRING(powerup_t, PW_NEUTRALFLAG),
+	ENUM2STRING(powerup_t, PW_SHIELDHIT),
+	ENUM2STRING(powerup_t, PW_SPEEDBURST),
+	ENUM2STRING(powerup_t, PW_DISINT_4),
+	ENUM2STRING(powerup_t, PW_SPEED),
+	ENUM2STRING(powerup_t, PW_CLOAKED),
+	ENUM2STRING(powerup_t, PW_FORCE_ENLIGHTENED_LIGHT),
+	ENUM2STRING(powerup_t, PW_FORCE_ENLIGHTENED_DARK),
+	ENUM2STRING(powerup_t, PW_FORCE_BOON),
+	ENUM2STRING(powerup_t, PW_YSALAMIRI),
 
 	{"", -1}
 };
@@ -255,7 +255,7 @@ int BG_SiegeGetValueGroup(char *buf, const char *group, char *outbuf)
 
 				if (!buf[i])
 				{
-					Com_Error(ERR_DROP, "Unexpected EOF while looking for group '%s'", group);
+					Com_Error(errorParm_t::ERR_DROP, "Unexpected EOF while looking for group '%s'", group);
 				}
 
 				isGroup = false;
@@ -297,7 +297,7 @@ int BG_SiegeGetValueGroup(char *buf, const char *group, char *outbuf)
 
 							if (parseGroups < 0)
 							{ //Syntax error, I guess.
-								Com_Error(ERR_DROP, "Found a closing bracket without an opening bracket while looking for group '%s'", group);
+								Com_Error(errorParm_t::ERR_DROP, "Found a closing bracket without an opening bracket while looking for group '%s'", group);
 							}
 
 							if ((buf[i] != '{' || parseGroups > 1) &&
@@ -319,7 +319,7 @@ int BG_SiegeGetValueGroup(char *buf, const char *group, char *outbuf)
 						//Verify that we ended up on the closing bracket.
 						if (buf[i] != '}')
 						{
-							Com_Error(ERR_DROP, "Group '%s' is missing a closing bracket", group);
+							Com_Error(errorParm_t::ERR_DROP, "Group '%s' is missing a closing bracket", group);
 						}
 
 						//Strip the tabs so we're friendly for value parsing.
@@ -329,7 +329,7 @@ int BG_SiegeGetValueGroup(char *buf, const char *group, char *outbuf)
 					}
 					else
 					{
-						Com_Error(ERR_DROP, "Error parsing group in file, unexpected EOF before opening bracket while looking for group '%s'", group);
+						Com_Error(errorParm_t::ERR_DROP, "Error parsing group in file, unexpected EOF before opening bracket while looking for group '%s'", group);
 					}
 				}
 				else if (!isGroup)
@@ -356,7 +356,7 @@ int BG_SiegeGetValueGroup(char *buf, const char *group, char *outbuf)
 
 						if (parseGroups < 0)
 						{ //Syntax error, I guess.
-							Com_Error(ERR_DROP, "Found a closing bracket without an opening bracket while looking for group '%s'", group);
+							Com_Error(errorParm_t::ERR_DROP, "Found a closing bracket without an opening bracket while looking for group '%s'", group);
 						}
 
 						if (buf[i] == '}' && !parseGroups)
@@ -369,7 +369,7 @@ int BG_SiegeGetValueGroup(char *buf, const char *group, char *outbuf)
 
 					if (buf[i] != '}')
 					{
-						Com_Error(ERR_DROP, "Found an opening bracket without a matching closing bracket while looking for group '%s'", group);
+						Com_Error(errorParm_t::ERR_DROP, "Found an opening bracket without a matching closing bracket while looking for group '%s'", group);
 					}
 
 					i++;
@@ -393,7 +393,7 @@ int BG_SiegeGetValueGroup(char *buf, const char *group, char *outbuf)
 
 				if (parseGroups < 0)
 				{ //Syntax error, I guess.
-					Com_Error(ERR_DROP, "Found a closing bracket without an opening bracket while looking for group '%s'", group);
+					Com_Error(errorParm_t::ERR_DROP, "Found a closing bracket without an opening bracket while looking for group '%s'", group);
 				}
 
 				if (buf[i] == '}' && !parseGroups)
@@ -406,7 +406,7 @@ int BG_SiegeGetValueGroup(char *buf, const char *group, char *outbuf)
 
 			if (buf[i] != '}')
 			{
-				Com_Error(ERR_DROP, "Found an opening bracket without a matching closing bracket while looking for group '%s'", group);
+				Com_Error(errorParm_t::ERR_DROP, "Found an opening bracket without a matching closing bracket while looking for group '%s'", group);
 			}
 		}
 
@@ -480,7 +480,7 @@ int BG_SiegeGetPairedValue(char *buf, const char *key, char *outbuf)
 
 						if (openB < 0)
 						{
-							Com_Error(ERR_DROP, "Unexpected closing bracket (too many) while parsing to end of group '%s'", checkKey);
+							Com_Error(errorParm_t::ERR_DROP, "Unexpected closing bracket (too many) while parsing to end of group '%s'", checkKey);
 						}
 
 						if (buf[i] == '}' && !openB)
@@ -533,11 +533,11 @@ int BG_SiegeGetPairedValue(char *buf, const char *key, char *outbuf)
 									{
 										if (parseToQuote)
 										{
-											Com_Error(ERR_DROP, "Unexpected EOF while looking for endquote, error finding paired value for '%s'", key);
+											Com_Error(errorParm_t::ERR_DROP, "Unexpected EOF while looking for endquote, error finding paired value for '%s'", key);
 										}
 										else
 										{
-											Com_Error(ERR_DROP, "Unexpected EOF while looking for space or endline, error finding paired value for '%s'", key);
+											Com_Error(errorParm_t::ERR_DROP, "Unexpected EOF while looking for space or endline, error finding paired value for '%s'", key);
 										}
 									}
 								}
@@ -547,7 +547,7 @@ int BG_SiegeGetPairedValue(char *buf, const char *key, char *outbuf)
 							}
 							else
 							{
-								Com_Error(ERR_DROP, "Error parsing file, unexpected EOF while looking for valud '%s'", key);
+								Com_Error(errorParm_t::ERR_DROP, "Error parsing file, unexpected EOF while looking for valud '%s'", key);
 							}
 						}
 						else
@@ -560,7 +560,7 @@ int BG_SiegeGetPairedValue(char *buf, const char *key, char *outbuf)
 					}
 					else
 					{
-						Com_Error(ERR_DROP, "Error parsing file, found comment, expected value for '%s'", key);
+						Com_Error(errorParm_t::ERR_DROP, "Error parsing file, found comment, expected value for '%s'", key);
 					}
 				}
 			}
@@ -606,15 +606,15 @@ void BG_SiegeTranslateForcePowers(char *buf, siegeClass_t *siegeClass)
 	}
 
 	//First clear out the powers, or in the allPowers case, give us all level 3.
-	for ( forcePowers_t fp = FP_FIRST; fp < NUM_FORCE_POWERS; fp++ )
+	for ( forcePowers_t fp = forcePowers_t::FP_FIRST; fp < forcePowers_t::NUM_FORCE_POWERS; fp++ )
 	{
 		if (allPowers)
 		{
-			siegeClass->forcePowerLevels[fp] = FORCE_LEVEL_3;
+			siegeClass->forcePowerLevels[fp] = forcePowerLevels_t::FORCE_LEVEL_3;
 		}
 		else
 		{
-			siegeClass->forcePowerLevels[fp] = FORCE_LEVEL_0;
+			siegeClass->forcePowerLevels[fp] = forcePowerLevels_t::FORCE_LEVEL_0;
 		}
 	}
 
@@ -656,9 +656,9 @@ void BG_SiegeTranslateForcePowers(char *buf, siegeClass_t *siegeClass)
 				{
 					parsedLevel = 0;
 				}
-				if (parsedLevel > to_underlying( FORCE_LEVEL_5 ))
+				if (parsedLevel > to_underlying( forcePowerLevels_t::FORCE_LEVEL_5 ))
 				{
-					parsedLevel = to_underlying( FORCE_LEVEL_5 );
+					parsedLevel = to_underlying( forcePowerLevels_t::FORCE_LEVEL_5 );
 				}
 			}
 			else
@@ -759,7 +759,7 @@ int BG_SiegeTranslateGenericTable(char *buf, stringID_table_t *table, bool bitfl
 	return items;
 }
 
-const EnumArray<const char *, siegePlayerClassFlags_t, SPC_MAX> classTitles =
+const EnumArray<const char *, siegePlayerClassFlags_t, siegePlayerClassFlags_t::SPC_MAX> classTitles =
 {
 "infantry",			// SPC_INFANTRY
 "vanguard",			// SPC_VANGUARD
@@ -776,7 +776,7 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 	char classInfo[4096];
 	char parseBuf[4096];
 
-	len = trap->FS_Open( filename, &f, FS_READ );
+	len = trap->FS_Open( filename, &f, fsMode_t::FS_READ );
 
 	if (!f) {
 		return;
@@ -814,7 +814,7 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 	}
 	else
 	{
-		Com_Error(ERR_DROP, "Siege class without name entry");
+		Com_Error(errorParm_t::ERR_DROP, "Siege class without name entry");
 	}
 
 	//Parse forced model
@@ -896,15 +896,15 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 	}
 	else
 	{
-		Com_Error(ERR_DROP, "Siege class without weapons entry");
+		Com_Error(errorParm_t::ERR_DROP, "Siege class without weapons entry");
 	}
 
-	if (!(bgSiegeClasses[bgNumSiegeClasses].weapons & Bit( WP_SABER )))
+	if (!(bgSiegeClasses[bgNumSiegeClasses].weapons & Bit( weapon_t::WP_SABER )))
 	{ //make sure it has melee if there's no saber
-		bgSiegeClasses[bgNumSiegeClasses].weapons |= Bit( WP_MELEE );
+		bgSiegeClasses[bgNumSiegeClasses].weapons |= Bit( weapon_t::WP_MELEE );
 
 		//always give them this too if they are not a saber user
-		//bgSiegeClasses[bgNumSiegeClasses].weapons |= Bit( WP_BRYAR_PISTOL );
+		//bgSiegeClasses[bgNumSiegeClasses].weapons |= Bit( weapon_t::WP_BRYAR_PISTOL );
 	}
 
 	//Parse forcepowers
@@ -914,10 +914,10 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 	}
 	else
 	{ //fine, clear out the powers.
-		forcePowers_t fp = FP_FIRST;
-		while (fp < NUM_FORCE_POWERS)
+		forcePowers_t fp = forcePowers_t::FP_FIRST;
+		while (fp < forcePowers_t::NUM_FORCE_POWERS)
 		{
-			bgSiegeClasses[bgNumSiegeClasses].forcePowerLevels[fp] = FORCE_LEVEL_0;
+			bgSiegeClasses[bgNumSiegeClasses].forcePowerLevels[fp] = forcePowerLevels_t::FORCE_LEVEL_0;
 			fp++;
 		}
 	}
@@ -1003,7 +1003,7 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 	}
 	else
 	{ //I guess this is an essential.. we don't want to render bad shaders or anything.
-		Com_Error(ERR_DROP, "Siege class without uishader entry");
+		Com_Error(errorParm_t::ERR_DROP, "Siege class without uishader entry");
 	}
 
 	//Parse shader for ui to use
@@ -1020,7 +1020,7 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 		assert( bgSiegeClasses[bgNumSiegeClasses].classShader );
 		if ( !bgSiegeClasses[bgNumSiegeClasses].classShader )
 		{
-			//Com_Error( ERR_DROP, "ERROR: could not find class_shader %s for class %s\n", parseBuf, bgSiegeClasses[bgNumSiegeClasses].name );
+			//Com_Error( errorParm_t::ERR_DROP, "ERROR: could not find class_shader %s for class %s\n", parseBuf, bgSiegeClasses[bgNumSiegeClasses].name );
 			Com_Printf( "ERROR: could not find class_shader %s for class %s\n", parseBuf, bgSiegeClasses[bgNumSiegeClasses].name );
 		}
 		// A very hacky way to determine class . . .
@@ -1033,7 +1033,7 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 			siegePlayerClassFlags_t pc;
 
 			titleLength = strlen(parseBuf);
-			for (pc = SPC_INFANTRY; pc < SPC_MAX; pc++)
+			for (pc = siegePlayerClassFlags_t::SPC_INFANTRY; pc < siegePlayerClassFlags_t::SPC_MAX; pc++)
 			{
 				// Back up
 				arrayTitleLength = strlen(classTitles[pc]);
@@ -1051,15 +1051,15 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 			}
 
 			// In case the icon name doesn't match up
-			if (pc>=SPC_MAX)
+			if (pc>=siegePlayerClassFlags_t::SPC_MAX)
 			{
-				bgSiegeClasses[bgNumSiegeClasses].playerClass = SPC_INFANTRY;
+				bgSiegeClasses[bgNumSiegeClasses].playerClass = siegePlayerClassFlags_t::SPC_INFANTRY;
 			}
 		}
 	}
 	else
 	{ //No entry!  Bad bad bad
-		//Com_Error( ERR_DROP, "ERROR: no class_shader defined for class %s\n", bgSiegeClasses[bgNumSiegeClasses].name );
+		//Com_Error( errorParm_t::ERR_DROP, "ERROR: no class_shader defined for class %s\n", bgSiegeClasses[bgNumSiegeClasses].name );
 		Com_Printf( "ERROR: no class_shader defined for class %s\n", bgSiegeClasses[bgNumSiegeClasses].name );
 	}
 
@@ -1263,7 +1263,7 @@ void BG_SiegeParseTeamFile(const char *filename)
 	int i = 1;
 	bool success = true;
 
-	len = trap->FS_Open(filename, &f, FS_READ);
+	len = trap->FS_Open(filename, &f, fsMode_t::FS_READ);
 
 	if (!f) {
 		return;
@@ -1284,7 +1284,7 @@ void BG_SiegeParseTeamFile(const char *filename)
 	}
 	else
 	{
-		Com_Error(ERR_DROP, "Siege team with no name definition");
+		Com_Error(errorParm_t::ERR_DROP, "Siege team with no name definition");
 	}
 
 	//I don't entirely like doing things this way but it's the easiest way.
@@ -1325,7 +1325,7 @@ void BG_SiegeParseTeamFile(const char *filename)
 
 	if (!bgSiegeTeams[bgNumSiegeTeams].numClasses)
 	{
-		Com_Error(ERR_DROP, "Team defined with no allowable classes\n");
+		Com_Error(errorParm_t::ERR_DROP, "Team defined with no allowable classes\n");
 	}
 
 	//If we get here then it was a success, so increment the team number

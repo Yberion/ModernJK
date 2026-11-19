@@ -50,7 +50,6 @@ enum class sentryLocalState_t
 	LSTATE_POWERING_UP,
 	LSTATE_ATTACKING,
 };
-using enum sentryLocalState_t;
 
 /*
 -------------------------
@@ -74,7 +73,7 @@ void NPC_Sentry_Precache(void)
 	G_EffectIndex( "bryar/muzzle_flash");
 	G_EffectIndex( "env/med_explode");
 
-	RegisterItem( FindItemForAmmo( AMMO_BLASTER ));
+	RegisterItem( FindItemForAmmo( ammo_t::AMMO_BLASTER ));
 }
 
 /*
@@ -84,12 +83,12 @@ sentry_use
 */
 void sentry_use( gentity_t *self, gentity_t *other, gentity_t *activator)
 {
-	G_ActivateBehavior(self,BSET_USE);
+	G_ActivateBehavior(self,bSet_t::BSET_USE);
 
-	self->flags &= ~FL_SHIELDED;
-	NPC_SetAnim( self, SETANIM_BOTH, BOTH_POWERUP1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
-//	NPC_SetLocalState( *self->NPC, LSTATE_WAKEUP );
-	NPC_SetLocalState( *self->NPC, LSTATE_ACTIVE );
+	self->flags &= ~gentityFlags_t::FL_SHIELDED;
+	NPC_SetAnim( self, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_POWERUP1, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD );
+//	NPC_SetLocalState( *self->NPC, sentryLocalState_t::LSTATE_WAKEUP );
+	NPC_SetLocalState( *self->NPC, sentryLocalState_t::LSTATE_ACTIVE );
 }
 
 /*
@@ -101,25 +100,25 @@ void NPC_Sentry_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, v
 {
 	NPC_Pain( self, inflictor, other, point, damage, mod );
 
-	if ( mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT )
+	if ( mod == meansOfDeath_t::MOD_DEMP2 || mod == meansOfDeath_t::MOD_DEMP2_ALT )
 	{
 		self->NPC->burstCount = 0;
 		TIMER_Set( self, "attackDelay", Q_irand( 9000, 12000) );
-		self->flags |= FL_SHIELDED;
-		NPC_SetAnim( self, SETANIM_BOTH, BOTH_FLY_SHIELDED, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
-		G_SoundOnEnt( self, CHAN_AUTO, "sound/chars/sentry/misc/sentry_pain" );
+		self->flags |= gentityFlags_t::FL_SHIELDED;
+		NPC_SetAnim( self, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_FLY_SHIELDED, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD );
+		G_SoundOnEnt( self, soundChannel_t::CHAN_AUTO, "sound/chars/sentry/misc/sentry_pain" );
 
-		NPC_SetLocalState( *self->NPC, LSTATE_ACTIVE );
+		NPC_SetLocalState( *self->NPC, sentryLocalState_t::LSTATE_ACTIVE );
 	}
 
 	// You got hit, go after the enemy
-//	if (NPC_LocalState<sentryLocalState_t>( *self->NPC ) == LSTATE_ASLEEP)
+//	if (NPC_LocalState<sentryLocalState_t>( *self->NPC ) == sentryLocalState_t::LSTATE_ASLEEP)
 //	{
 //		G_Sound( self, G_SoundIndex("sound/chars/sentry/misc/shieldsopen.wav"));
 //
-//		self->flags &= ~FL_SHIELDED;
-//		NPC_SetAnim( self, SETANIM_BOTH, BOTH_POWERUP1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
-//		NPC_SetLocalState( *self->NPC, LSTATE_WAKEUP );
+//		self->flags &= ~gentityFlags_t::FL_SHIELDED;
+//		NPC_SetAnim( self, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_POWERUP1, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD );
+//		NPC_SetLocalState( *self->NPC, sentryLocalState_t::LSTATE_WAKEUP );
 //	}
 }
 
@@ -136,14 +135,14 @@ void Sentry_Fire (void)
 	mdxaBone_t	boltMatrix;
 	int			bolt;
 
-	NPC->flags &= ~FL_SHIELDED;
+	NPC->flags &= ~gentityFlags_t::FL_SHIELDED;
 
-	if ( NPC_LocalState<sentryLocalState_t>( *NPCInfo ) == LSTATE_POWERING_UP )
+	if ( NPC_LocalState<sentryLocalState_t>( *NPCInfo ) == sentryLocalState_t::LSTATE_POWERING_UP )
 	{
 		if ( TIMER_Done( NPC, "powerup" ))
 		{
-			NPC_SetLocalState( *NPCInfo, LSTATE_ATTACKING );
-			NPC_SetAnim( NPC, SETANIM_BOTH, BOTH_ATTACK1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+			NPC_SetLocalState( *NPCInfo, sentryLocalState_t::LSTATE_ATTACKING );
+			NPC_SetAnim( NPC, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_ATTACK1, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD );
 		}
 		else
 		{
@@ -151,19 +150,19 @@ void Sentry_Fire (void)
 			return;
 		}
 	}
-	else if ( NPC_LocalState<sentryLocalState_t>( *NPCInfo ) == LSTATE_ACTIVE )
+	else if ( NPC_LocalState<sentryLocalState_t>( *NPCInfo ) == sentryLocalState_t::LSTATE_ACTIVE )
 	{
-		NPC_SetLocalState( *NPCInfo, LSTATE_POWERING_UP );
+		NPC_SetLocalState( *NPCInfo, sentryLocalState_t::LSTATE_POWERING_UP );
 
-		G_SoundOnEnt( NPC, CHAN_AUTO, "sound/chars/sentry/misc/sentry_shield_open" );
-		NPC_SetAnim( NPC, SETANIM_BOTH, BOTH_POWERUP1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+		G_SoundOnEnt( NPC, soundChannel_t::CHAN_AUTO, "sound/chars/sentry/misc/sentry_shield_open" );
+		NPC_SetAnim( NPC, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_POWERUP1, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD );
 		TIMER_Set( NPC, "powerup", 250 );
 		return;
 	}
-	else if ( NPC_LocalState<sentryLocalState_t>( *NPCInfo ) != LSTATE_ATTACKING )
+	else if ( NPC_LocalState<sentryLocalState_t>( *NPCInfo ) != sentryLocalState_t::LSTATE_ATTACKING )
 	{
 		// bad because we are uninitialized
-		NPC_SetLocalState( *NPCInfo, LSTATE_ACTIVE );
+		NPC_SetLocalState( *NPCInfo, sentryLocalState_t::LSTATE_ACTIVE );
 		return;
 	}
 
@@ -187,7 +186,7 @@ void Sentry_Fire (void)
 				&boltMatrix, NPC->currentAngles, NPC->currentOrigin, (cg.time?cg.time:level.time),
 				nullptr, NPC->s.modelScale );
 
-	gi.G2API_GiveMeVectorFromMatrix( boltMatrix, ORIGIN, muzzle );
+	gi.G2API_GiveMeVectorFromMatrix( boltMatrix, Eorientations::ORIGIN, muzzle );
 
 	AngleVectors( NPC->currentAngles, forward, vright, up );
 //	G_Sound( NPC, G_SoundIndex("sound/chars/sentry/misc/shoot.wav"));
@@ -197,11 +196,11 @@ void Sentry_Fire (void)
 	missile = CreateMissile( muzzle, forward, 1600, 10000, NPC );
 
 	missile->classname = "bryar_proj";
-	missile->s.weapon = WP_BRYAR_PISTOL;
+	missile->s.weapon = weapon_t::WP_BRYAR_PISTOL;
 
-	missile->dflags = DAMAGE_DEATH_KNOCKBACK;
-	missile->methodOfDeath = MOD_ENERGY;
-	missile->clipmask = MASK_SHOT | CONTENTS_LIGHTSABER;
+	missile->dflags = damageFlags_t::DAMAGE_DEATH_KNOCKBACK;
+	missile->methodOfDeath = meansOfDeath_t::MOD_ENERGY;
+	missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
 
 	NPCInfo->burstCount++;
 	NPC->attackDebounceTime = level.time + 50;
@@ -331,18 +330,18 @@ void Sentry_Idle( void )
 	Sentry_MaintainHeight();
 
 	// Is he waking up?
-	if (NPC_LocalState<sentryLocalState_t>( *NPCInfo ) == LSTATE_WAKEUP)
+	if (NPC_LocalState<sentryLocalState_t>( *NPCInfo ) == sentryLocalState_t::LSTATE_WAKEUP)
 	{
 		if (NPC->client->ps.torsoAnimTimer<=0)
 		{
-			NPCInfo->scriptFlags |= SCF_LOOK_FOR_ENEMIES;
+			NPCInfo->scriptFlags |= scriptFlags_t::SCF_LOOK_FOR_ENEMIES;
 			NPCInfo->burstCount = 0;
 		}
 	}
 	else
 	{
-		NPC_SetAnim( NPC, SETANIM_BOTH, BOTH_SLEEP1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
-		NPC->flags |= FL_SHIELDED;
+		NPC_SetAnim( NPC, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_SLEEP1, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD );
+		NPC->flags |= gentityFlags_t::FL_SHIELDED;
 
 		NPC_BSIdle();
 	}
@@ -366,7 +365,7 @@ void Sentry_Strafe( void )
 	dir = ( rand() & 1 ) ? -1 : 1;
 	VectorMA( NPC->currentOrigin, SENTRY_STRAFE_DIS * dir, right, end );
 
-	gi.trace( &tr, NPC->currentOrigin, nullptr, nullptr, end, NPC->s.number, MASK_SOLID, G2_NOCOLLIDE, 0 );
+	gi.trace( &tr, NPC->currentOrigin, nullptr, nullptr, end, NPC->s.number, MASK_SOLID, EG2_Collision::G2_NOCOLLIDE, 0 );
 
 	// Close enough
 	if ( tr.fraction > 0.9f )
@@ -445,12 +444,12 @@ void Sentry_RangedAttack( bool visible, bool advance )
 			}
 			else if ( NPC->fly_sound_debounce_time < level.time )
 			{
-				NPC_SetLocalState( *NPCInfo, LSTATE_ACTIVE );
+				NPC_SetLocalState( *NPCInfo, sentryLocalState_t::LSTATE_ACTIVE );
 				NPC->fly_sound_debounce_time = NPCInfo->burstCount = 0;
 				TIMER_Set( NPC, "attackDelay", Q_irand( 2000, 3500) );
-				NPC->flags |= FL_SHIELDED;
-				NPC_SetAnim( NPC, SETANIM_BOTH, BOTH_FLY_SHIELDED, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
-				G_SoundOnEnt( NPC, CHAN_AUTO, "sound/chars/sentry/misc/sentry_shield_close" );
+				NPC->flags |= gentityFlags_t::FL_SHIELDED;
+				NPC_SetAnim( NPC, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_FLY_SHIELDED, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD );
+				G_SoundOnEnt( NPC, soundChannel_t::CHAN_AUTO, "sound/chars/sentry/misc/sentry_shield_close" );
 			}
 		}
 		else
@@ -459,7 +458,7 @@ void Sentry_RangedAttack( bool visible, bool advance )
 		}
 	}
 
-	if ( Any( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
+	if ( Any( NPCInfo->scriptFlags & scriptFlags_t::SCF_CHASE_ENEMIES ) )
 	{
 		Sentry_Hunt( visible, advance );
 	}
@@ -482,7 +481,7 @@ void Sentry_AttackDecision( void )
 	{
 		if (TIMER_Done(NPC,"angerNoise"))
 		{
-			G_SoundOnEnt( NPC, CHAN_AUTO, va("sound/chars/sentry/misc/talk%d", Q_irand(1, 3)) );
+			G_SoundOnEnt( NPC, soundChannel_t::CHAN_AUTO, va("sound/chars/sentry/misc/talk%d", Q_irand(1, 3)) );
 
 			TIMER_Set( NPC, "patrolNoise", Q_irand( 4000, 10000 ) );
 		}
@@ -511,7 +510,7 @@ void Sentry_AttackDecision( void )
 	// If we cannot see our target, move to see it
 	if ( visible == false )
 	{
-		if ( Any( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
+		if ( Any( NPCInfo->scriptFlags & scriptFlags_t::SCF_CHASE_ENEMIES ) )
 		{
 			Sentry_Hunt( visible, advance );
 			return;
@@ -547,14 +546,14 @@ void NPC_Sentry_Patrol( void )
 		if ( UpdateGoal() )
 		{
 			//start loop sound once we move
-			ucmd.buttons |= BUTTON_WALKING;
+			ucmd.buttons |= buttonFlags_t::BUTTON_WALKING;
 			NPC_MoveToGoal( true );
 		}
 
 		//randomly talk
 		if (TIMER_Done(NPC,"patrolNoise"))
 		{
-			G_SoundOnEnt( NPC, CHAN_AUTO, va("sound/chars/sentry/misc/talk%d", Q_irand(1, 3)) );
+			G_SoundOnEnt( NPC, soundChannel_t::CHAN_AUTO, va("sound/chars/sentry/misc/talk%d", Q_irand(1, 3)) );
 
 			TIMER_Set( NPC, "patrolNoise", Q_irand( 2000, 4000 ) );
 		}
@@ -572,15 +571,15 @@ void NPC_BSSentry_Default( void )
 {
 	if ( NPC->targetname )
 	{
-		NPC->e_UseFunc = useF_sentry_use;
+		NPC->e_UseFunc = useFunc_t::useF_sentry_use;
 	}
 
-	if (( NPC->enemy ) && (NPC_LocalState<sentryLocalState_t>( *NPCInfo ) != LSTATE_WAKEUP))
+	if (( NPC->enemy ) && (NPC_LocalState<sentryLocalState_t>( *NPCInfo ) != sentryLocalState_t::LSTATE_WAKEUP))
 	{
 		// Don't attack if waking up or if no enemy
 		Sentry_AttackDecision();
 	}
-	else if ( Any( NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES ) )
+	else if ( Any( NPCInfo->scriptFlags & scriptFlags_t::SCF_LOOK_FOR_ENEMIES ) )
 	{
 		NPC_Sentry_Patrol();
 	}

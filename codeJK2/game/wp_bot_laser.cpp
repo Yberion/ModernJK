@@ -36,10 +36,10 @@ void WP_BotLaser( gentity_t *ent )
 	gentity_t	*missile = CreateMissile( wpMuzzle, wpFwd, BRYAR_PISTOL_VEL, 10000, ent );
 
 	missile->classname = "bryar_proj";
-	missile->s.weapon = WP_BRYAR_PISTOL;
+	missile->s.weapon = weapon_t::WP_BRYAR_PISTOL;
 
-	missile->damage = weaponData[WP_BOT_LASER].damage;
-	missile->dflags = DAMAGE_DEATH_KNOCKBACK;
-	missile->methodOfDeath = MOD_ENERGY;
-	missile->clipmask = MASK_SHOT | CONTENTS_LIGHTSABER;
+	missile->damage = weaponData[weapon_t::WP_BOT_LASER].damage;
+	missile->dflags = damageFlags_t::DAMAGE_DEATH_KNOCKBACK;
+	missile->methodOfDeath = meansOfDeath_t::MOD_ENERGY;
+	missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
 }

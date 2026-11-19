@@ -120,7 +120,7 @@ const char *ctfStateNames[] = {
 	"CTFSTATE_MAXCTFSTATES"
 };
 
-const EnumArray<const char *, bot_ctf_state_t, CTFSTATE_MAXCTFSTATES> ctfStateDescriptions = {
+const EnumArray<const char *, bot_ctf_state_t, bot_ctf_state_t::CTFSTATE_MAXCTFSTATES> ctfStateDescriptions = {
 	"I'm not occupied",
 	"I'm attacking the enemy's base",
 	"I'm defending our base",
@@ -129,13 +129,13 @@ const EnumArray<const char *, bot_ctf_state_t, CTFSTATE_MAXCTFSTATES> ctfStateDe
 	"I've got the enemy's flag"
 };
 
-const EnumArray<const char *, bot_siege_state_t, SIEGESTATE_MAXSIEGESTATES> siegeStateDescriptions = {
+const EnumArray<const char *, bot_siege_state_t, bot_siege_state_t::SIEGESTATE_MAXSIEGESTATES> siegeStateDescriptions = {
 	"I'm not occupied",
 	"I'm attempting to complete the current objective",
 	"I'm preventing the enemy from completing their objective"
 };
 
-const EnumArray<const char *, bot_teamplay_state_t, TEAMPLAYSTATE_MAXTPSTATES> teamplayStateDescriptions = {
+const EnumArray<const char *, bot_teamplay_state_t, bot_teamplay_state_t::TEAMPLAYSTATE_MAXTPSTATES> teamplayStateDescriptions = {
 	"I'm not occupied",
 	"I'm following my squad commander",
 	"I'm assisting my commanding",
@@ -146,20 +146,20 @@ void BotStraightTPOrderCheck(gentity_t *ent, bot_teamplay_state_t ordernum, bot_
 {
 	switch (ordernum)
 	{
-	case TEAMPLAYSTATE_NONE:
+	case bot_teamplay_state_t::TEAMPLAYSTATE_NONE:
 		if (bs->squadLeader == ent)
 		{
-			bs->teamplayState = TEAMPLAYSTATE_NONE;
+			bs->teamplayState = bot_teamplay_state_t::TEAMPLAYSTATE_NONE;
 			bs->squadLeader = nullptr;
 		}
 		break;
-	case TEAMPLAYSTATE_FOLLOWING:
+	case bot_teamplay_state_t::TEAMPLAYSTATE_FOLLOWING:
 		bs->teamplayState = ordernum;
 		bs->isSquadLeader = 0;
 		bs->squadLeader = ent;
 		bs->wpDestSwitchTime = 0;
 		break;
-	case TEAMPLAYSTATE_ASSISTING:
+	case bot_teamplay_state_t::TEAMPLAYSTATE_ASSISTING:
 		bs->teamplayState = ordernum;
 		bs->isSquadLeader = 0;
 		bs->squadLeader = ent;
@@ -173,7 +173,7 @@ void BotStraightTPOrderCheck(gentity_t *ent, bot_teamplay_state_t ordernum, bot_
 
 void BotSelectWeapon(int client, weapon_t weapon)
 {
-	if (weapon <= WP_NONE)
+	if (weapon <= weapon_t::WP_NONE)
 	{
 //		assert(0);
 		return;
@@ -183,15 +183,15 @@ void BotSelectWeapon(int client, weapon_t weapon)
 
 void BotReportStatus(bot_state_t *bs)
 {
-	if (level.gametype == GT_TEAM)
+	if (level.gametype == gametype_t::GT_TEAM)
 	{
 		trap->EA_SayTeam(bs->client, teamplayStateDescriptions[bs->teamplayState]);
 	}
-	else if (level.gametype == GT_SIEGE)
+	else if (level.gametype == gametype_t::GT_SIEGE)
 	{
 		trap->EA_SayTeam(bs->client, siegeStateDescriptions[bs->siegeState]);
 	}
-	else if (level.gametype == GT_CTF || level.gametype == GT_CTY)
+	else if (level.gametype == gametype_t::GT_CTF || level.gametype == gametype_t::GT_CTY)
 	{
 		trap->EA_SayTeam(bs->client, ctfStateDescriptions[bs->ctfState]);
 	}
@@ -219,25 +219,25 @@ void BotOrder(gentity_t *ent, int clientnum, int ordernum)
 		return;
 	}
 
-	if (level.gametype != GT_CTF && level.gametype != GT_CTY && level.gametype != GT_SIEGE && level.gametype != GT_TEAM)
+	if (level.gametype != gametype_t::GT_CTF && level.gametype != gametype_t::GT_CTY && level.gametype != gametype_t::GT_SIEGE && level.gametype != gametype_t::GT_TEAM)
 	{
 		return;
 	}
 
-	if (level.gametype == GT_CTF || level.gametype == GT_CTY)
+	if (level.gametype == gametype_t::GT_CTF || level.gametype == gametype_t::GT_CTY)
 	{
-		stateMin = to_underlying( CTFSTATE_NONE );
-		stateMax = to_underlying( CTFSTATE_MAXCTFSTATES );
+		stateMin = to_underlying( bot_ctf_state_t::CTFSTATE_NONE );
+		stateMax = to_underlying( bot_ctf_state_t::CTFSTATE_MAXCTFSTATES );
 	}
-	else if (level.gametype == GT_SIEGE)
+	else if (level.gametype == gametype_t::GT_SIEGE)
 	{
-		stateMin = to_underlying( SIEGESTATE_NONE );
-		stateMax = to_underlying( SIEGESTATE_MAXSIEGESTATES );
+		stateMin = to_underlying( bot_siege_state_t::SIEGESTATE_NONE );
+		stateMax = to_underlying( bot_siege_state_t::SIEGESTATE_MAXSIEGESTATES );
 	}
-	else if (level.gametype == GT_TEAM)
+	else if (level.gametype == gametype_t::GT_TEAM)
 	{
-		stateMin = to_underlying( TEAMPLAYSTATE_NONE );
-		stateMax = to_underlying( TEAMPLAYSTATE_MAXTPSTATES );
+		stateMin = to_underlying( bot_teamplay_state_t::TEAMPLAYSTATE_NONE );
+		stateMax = to_underlying( bot_teamplay_state_t::TEAMPLAYSTATE_MAXTPSTATES );
 	}
 
 	if ((ordernum < stateMin && ordernum != -1) || ordernum >= stateMax)
@@ -351,7 +351,7 @@ bool WP_ForcePowerUsable( gentity_t *self, forcePowers_t forcePower );
 
 int IsTeamplay(void)
 {
-	if ( level.gametype < GT_TEAM )
+	if ( level.gametype < gametype_t::GT_TEAM )
 	{
 		return 0;
 	}
@@ -391,7 +391,7 @@ int BotAI_GetEntityState( int entityNum, entityState_t *state ) {
 	memset( state, 0, sizeof(entityState_t) );
 	if (!ent->inuse) return false;
 	if (!ent->r.linked) return false;
-	if (Any( ent->r.svFlags & SVF_NOCLIENT )) return false;
+	if (Any( ent->r.svFlags & svFlags_t::SVF_NOCLIENT )) return false;
 	memcpy( state, &ent->s, sizeof(entityState_t) );
 	return true;
 }
@@ -561,24 +561,24 @@ void BotInputToUserCommand(bot_input_t *bi, usercmd_t *ucmd, int delta_angles[3]
 	//the duration for the user command in milli seconds
 	ucmd->serverTime = time;
 	//
-	if (Any( bi->actionflags & ACTION_DELAYEDJUMP )) {
-		bi->actionflags |= ACTION_JUMP;
-		bi->actionflags &= ~ACTION_DELAYEDJUMP;
+	if (Any( bi->actionflags & actionFlags_t::ACTION_DELAYEDJUMP )) {
+		bi->actionflags |= actionFlags_t::ACTION_JUMP;
+		bi->actionflags &= ~actionFlags_t::ACTION_DELAYEDJUMP;
 	}
 	//set the buttons
-	if (Any( bi->actionflags & ACTION_RESPAWN )) ucmd->buttons = BUTTON_ATTACK;
-	if (Any( bi->actionflags & ACTION_ATTACK )) ucmd->buttons |= BUTTON_ATTACK;
-	if (Any( bi->actionflags & ACTION_ALT_ATTACK )) ucmd->buttons |= BUTTON_ALT_ATTACK;
-//	if (Any( bi->actionflags & ACTION_TALK )) ucmd->buttons |= BUTTON_TALK;
-	if (Any( bi->actionflags & ACTION_GESTURE )) ucmd->buttons |= BUTTON_GESTURE;
-	if (Any( bi->actionflags & ACTION_USE )) ucmd->buttons |= BUTTON_USE_HOLDABLE;
-	if (Any( bi->actionflags & ACTION_WALK )) ucmd->buttons |= BUTTON_WALKING;
+	if (Any( bi->actionflags & actionFlags_t::ACTION_RESPAWN )) ucmd->buttons = buttonFlags_t::BUTTON_ATTACK;
+	if (Any( bi->actionflags & actionFlags_t::ACTION_ATTACK )) ucmd->buttons |= buttonFlags_t::BUTTON_ATTACK;
+	if (Any( bi->actionflags & actionFlags_t::ACTION_ALT_ATTACK )) ucmd->buttons |= buttonFlags_t::BUTTON_ALT_ATTACK;
+//	if (Any( bi->actionflags & actionFlags_t::ACTION_TALK )) ucmd->buttons |= buttonFlags_t::BUTTON_TALK;
+	if (Any( bi->actionflags & actionFlags_t::ACTION_GESTURE )) ucmd->buttons |= buttonFlags_t::BUTTON_GESTURE;
+	if (Any( bi->actionflags & actionFlags_t::ACTION_USE )) ucmd->buttons |= buttonFlags_t::BUTTON_USE_HOLDABLE;
+	if (Any( bi->actionflags & actionFlags_t::ACTION_WALK )) ucmd->buttons |= buttonFlags_t::BUTTON_WALKING;
 
-	if (Any( bi->actionflags & ACTION_FORCEPOWER )) ucmd->buttons |= BUTTON_FORCEPOWER;
+	if (Any( bi->actionflags & actionFlags_t::ACTION_FORCEPOWER )) ucmd->buttons |= buttonFlags_t::BUTTON_FORCEPOWER;
 
 	if (useTime < level.time && Q_irand(1, 10) < 5)
 	{ //for now just hit use randomly in case there's something useable around
-		ucmd->buttons |= BUTTON_USE;
+		ucmd->buttons |= buttonFlags_t::BUTTON_USE;
 	}
 #if 0
 // Here's an interesting bit.  The bots in TA used buttons to do additional gestures.
@@ -593,12 +593,12 @@ void BotInputToUserCommand(bot_input_t *bi, usercmd_t *ucmd, int delta_angles[3]
 #endif //0
 
 	weapon_t weapon = static_cast<weapon_t>( bi->weapon );	// the botlib keeps the weapon as a number
-	if (weapon == WP_NONE)
+	if (weapon == weapon_t::WP_NONE)
 	{
 #ifdef _DEBUG
 //		Com_Printf("WARNING: Bot tried to use WP_NONE!\n");
 #endif
-		weapon = WP_BRYAR_PISTOL;
+		weapon = weapon_t::WP_BRYAR_PISTOL;
 	}
 
 	//
@@ -647,14 +647,14 @@ void BotInputToUserCommand(bot_input_t *bi, usercmd_t *ucmd, int delta_angles[3]
 	ucmd->rightmove = r;
 	ucmd->upmove = u;
 	//normal keyboard movement
-	if (Any( bi->actionflags & ACTION_MOVEFORWARD )) ucmd->forwardmove = 127;
-	if (Any( bi->actionflags & ACTION_MOVEBACK )) ucmd->forwardmove = -127;
-	if (Any( bi->actionflags & ACTION_MOVELEFT )) ucmd->rightmove = -127;
-	if (Any( bi->actionflags & ACTION_MOVERIGHT )) ucmd->rightmove = 127;
+	if (Any( bi->actionflags & actionFlags_t::ACTION_MOVEFORWARD )) ucmd->forwardmove = 127;
+	if (Any( bi->actionflags & actionFlags_t::ACTION_MOVEBACK )) ucmd->forwardmove = -127;
+	if (Any( bi->actionflags & actionFlags_t::ACTION_MOVELEFT )) ucmd->rightmove = -127;
+	if (Any( bi->actionflags & actionFlags_t::ACTION_MOVERIGHT )) ucmd->rightmove = 127;
 	//jump/moveup
-	if (Any( bi->actionflags & ACTION_JUMP )) ucmd->upmove = 127;
+	if (Any( bi->actionflags & actionFlags_t::ACTION_JUMP )) ucmd->upmove = 127;
 	//crouch/movedown
-	if (Any( bi->actionflags & ACTION_CROUCH )) ucmd->upmove = -127;
+	if (Any( bi->actionflags & actionFlags_t::ACTION_CROUCH )) ucmd->upmove = -127;
 }
 
 /*
@@ -675,8 +675,8 @@ void BotUpdateInput(bot_state_t *bs, int time, int elapsed_time) {
 	//retrieve the bot input
 	trap->EA_GetInput(bs->client, (float) time / 1000, &bi);
 	//respawn hack
-	if (Any( bi.actionflags & ACTION_RESPAWN )) {
-		if (Any( bs->lastucmd.buttons & BUTTON_ATTACK )) bi.actionflags &= ~(ACTION_RESPAWN|ACTION_ATTACK);
+	if (Any( bi.actionflags & actionFlags_t::ACTION_RESPAWN )) {
+		if (Any( bs->lastucmd.buttons & buttonFlags_t::BUTTON_ATTACK )) bi.actionflags &= ~(actionFlags_t::ACTION_RESPAWN|actionFlags_t::ACTION_ATTACK);
 	}
 	//convert the bot input to a usercmd
 	BotInputToUserCommand(&bi, &bs->lastucmd, bs->cur_ps.delta_angles, time, bs->noUseTime);
@@ -738,7 +738,7 @@ int BotAI(int client, float thinktime) {
 	//
 	bs = botstates[client];
 	if (!bs || !bs->inuse) {
-		BotAI_Print(PRT_FATAL, "BotAI: client %d is not setup\n", client);
+		BotAI_Print(printType_t::PRT_FATAL, "BotAI: client %d is not setup\n", client);
 		return false;
 	}
 
@@ -832,7 +832,7 @@ int PlayersInGame(void)
 	{
 		ent = &g_entities[i];
 
-		if (ent && ent->client && ent->client->pers.connected == CON_CONNECTED)
+		if (ent && ent->client && ent->client->pers.connected == clientConnected_t::CON_CONNECTED)
 		{
 			pl++;
 		}
@@ -859,7 +859,7 @@ int BotAISetupClient(int client, struct bot_settings_s *settings, bool restart) 
 	bs = botstates[client];
 
 	if (bs && bs->inuse) {
-		BotAI_Print(PRT_FATAL, "BotAISetupClient: client %d already setup\n", client);
+		BotAI_Print(printType_t::PRT_FATAL, "BotAISetupClient: client %d already setup\n", client);
 		return false;
 	}
 
@@ -868,27 +868,27 @@ int BotAISetupClient(int client, struct bot_settings_s *settings, bool restart) 
 	bs->client = client; //need to know the client number before doing personality stuff
 
 	//initialize weapon weight defaults..
-	bs->botWeaponWeights[WP_NONE] = 0;
-	bs->botWeaponWeights[WP_STUN_BATON] = 1;
-	bs->botWeaponWeights[WP_SABER] = 10;
-	bs->botWeaponWeights[WP_BRYAR_PISTOL] = 11;
-	bs->botWeaponWeights[WP_BLASTER] = 12;
-	bs->botWeaponWeights[WP_DISRUPTOR] = 13;
-	bs->botWeaponWeights[WP_BOWCASTER] = 14;
-	bs->botWeaponWeights[WP_REPEATER] = 15;
-	bs->botWeaponWeights[WP_DEMP2] = 16;
-	bs->botWeaponWeights[WP_FLECHETTE] = 17;
-	bs->botWeaponWeights[WP_ROCKET_LAUNCHER] = 18;
-	bs->botWeaponWeights[WP_THERMAL] = 14;
-	bs->botWeaponWeights[WP_TRIP_MINE] = 0;
-	bs->botWeaponWeights[WP_DET_PACK] = 0;
-	bs->botWeaponWeights[WP_MELEE] = 1;
+	bs->botWeaponWeights[weapon_t::WP_NONE] = 0;
+	bs->botWeaponWeights[weapon_t::WP_STUN_BATON] = 1;
+	bs->botWeaponWeights[weapon_t::WP_SABER] = 10;
+	bs->botWeaponWeights[weapon_t::WP_BRYAR_PISTOL] = 11;
+	bs->botWeaponWeights[weapon_t::WP_BLASTER] = 12;
+	bs->botWeaponWeights[weapon_t::WP_DISRUPTOR] = 13;
+	bs->botWeaponWeights[weapon_t::WP_BOWCASTER] = 14;
+	bs->botWeaponWeights[weapon_t::WP_REPEATER] = 15;
+	bs->botWeaponWeights[weapon_t::WP_DEMP2] = 16;
+	bs->botWeaponWeights[weapon_t::WP_FLECHETTE] = 17;
+	bs->botWeaponWeights[weapon_t::WP_ROCKET_LAUNCHER] = 18;
+	bs->botWeaponWeights[weapon_t::WP_THERMAL] = 14;
+	bs->botWeaponWeights[weapon_t::WP_TRIP_MINE] = 0;
+	bs->botWeaponWeights[weapon_t::WP_DET_PACK] = 0;
+	bs->botWeaponWeights[weapon_t::WP_MELEE] = 1;
 
 	BotUtilizePersonality(bs);
 
-	if (level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL)
+	if (level.gametype == gametype_t::GT_DUEL || level.gametype == gametype_t::GT_POWERDUEL)
 	{
-		bs->botWeaponWeights[WP_SABER] = 13;
+		bs->botWeaponWeights[weapon_t::WP_SABER] = 13;
 	}
 
 	//allocate a goal state
@@ -925,7 +925,7 @@ int BotAIShutdownClient(int client, bool restart) {
 
 	bs = botstates[client];
 	if (!bs || !bs->inuse) {
-		//BotAI_Print(PRT_ERROR, "BotAIShutdownClient: client %d already shutdown\n", client);
+		//BotAI_Print(printType_t::PRT_ERROR, "BotAIShutdownClient: client %d already shutdown\n", client);
 		return false;
 	}
 
@@ -1015,7 +1015,7 @@ int OrgVisible(vec3_t org1, vec3_t org2, int ignore)
 {
 	trace_t tr;
 
-	trap->Trace(&tr, org1, nullptr, nullptr, org2, ignore, MASK_SOLID, false, G2TRFLAG_NONE, 0 );
+	trap->Trace(&tr, org1, nullptr, nullptr, org2, ignore, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0 );
 
 	if (tr.fraction == 1)
 	{
@@ -1031,13 +1031,13 @@ int WPOrgVisible(gentity_t *bot, vec3_t org1, vec3_t org2, int ignore)
 	trace_t tr;
 	gentity_t *ownent;
 
-	trap->Trace(&tr, org1, nullptr, nullptr, org2, ignore, MASK_SOLID, false, G2TRFLAG_NONE, 0);
+	trap->Trace(&tr, org1, nullptr, nullptr, org2, ignore, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 	if (tr.fraction == 1)
 	{
-		trap->Trace(&tr, org1, nullptr, nullptr, org2, ignore, MASK_PLAYERSOLID, false, G2TRFLAG_NONE, 0);
+		trap->Trace(&tr, org1, nullptr, nullptr, org2, ignore, MASK_PLAYERSOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
-		if (tr.fraction != 1 && tr.entityNum != ENTITYNUM_NONE && g_entities[tr.entityNum].s.eType == ET_SPECIAL)
+		if (tr.fraction != 1 && tr.entityNum != ENTITYNUM_NONE && g_entities[tr.entityNum].s.eType == entityType_t::ET_SPECIAL)
 		{
 			if (g_entities[tr.entityNum].parent && g_entities[tr.entityNum].parent->client)
 			{
@@ -1064,11 +1064,11 @@ int OrgVisibleBox(vec3_t org1, vec3_t mins, vec3_t maxs, vec3_t org2, int ignore
 
 	if (RMG.integer)
 	{
-		trap->Trace(&tr, org1, nullptr, nullptr, org2, ignore, MASK_SOLID, false, G2TRFLAG_NONE, 0);
+		trap->Trace(&tr, org1, nullptr, nullptr, org2, ignore, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 	}
 	else
 	{
-		trap->Trace(&tr, org1, mins, maxs, org2, ignore, MASK_SOLID, false, G2TRFLAG_NONE, 0);
+		trap->Trace(&tr, org1, mins, maxs, org2, ignore, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 	}
 
 	if (tr.fraction == 1 && !tr.startsolid && !tr.allsolid)
@@ -1092,7 +1092,7 @@ int CheckForFunc(vec3_t org, int ignore)
 
 	under[2] -= 64;
 
-	trap->Trace(&tr, org, nullptr, nullptr, under, ignore, MASK_SOLID, false, G2TRFLAG_NONE, 0);
+	trap->Trace(&tr, org, nullptr, nullptr, under, ignore, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 	if (tr.fraction == 1)
 	{
@@ -1195,25 +1195,25 @@ int PassWayCheck(bot_state_t *bs, int windex)
 
 	if (RMG.integer)
 	{
-		if (Any( gWPArray[windex]->flags & WPFLAG_RED_FLAG ) ||
-			Any( gWPArray[windex]->flags & WPFLAG_BLUE_FLAG ))
+		if (Any( gWPArray[windex]->flags & waypointFlags_t::WPFLAG_RED_FLAG ) ||
+			Any( gWPArray[windex]->flags & waypointFlags_t::WPFLAG_BLUE_FLAG ))
 		{ //red or blue flag, we'd like to get here
 			return 1;
 		}
 	}
 
-	if (bs->wpDirection && Any( gWPArray[windex]->flags & WPFLAG_ONEWAY_FWD ))
+	if (bs->wpDirection && Any( gWPArray[windex]->flags & waypointFlags_t::WPFLAG_ONEWAY_FWD ))
 	{ //we're not travelling in a direction on the trail that will allow us to pass this point
 		return 0;
 	}
-	else if (!bs->wpDirection && Any( gWPArray[windex]->flags & WPFLAG_ONEWAY_BACK ))
+	else if (!bs->wpDirection && Any( gWPArray[windex]->flags & waypointFlags_t::WPFLAG_ONEWAY_BACK ))
 	{ //we're not travelling in a direction on the trail that will allow us to pass this point
 		return 0;
 	}
 
 	if (bs->wpCurrent && gWPArray[windex]->forceJumpTo &&
 		gWPArray[windex]->origin[2] > (bs->wpCurrent->origin[2]+64) &&
-		to_underlying( bs->cur_ps.fd.forcePowerLevel[FP_LEVITATION] ) < gWPArray[windex]->forceJumpTo)
+		to_underlying( bs->cur_ps.fd.forcePowerLevel[forcePowers_t::FP_LEVITATION] ) < gWPArray[windex]->forceJumpTo)
 	{ //waypoint requires force jump level greater than our current one to pass
 		return 0;
 	}
@@ -1250,8 +1250,8 @@ float TotalTrailDistance(int start, int end, bot_state_t *bs)
 
 		if (!RMG.integer)
 		{
-			if ((end > start && Any( gWPArray[beginat]->flags & WPFLAG_ONEWAY_BACK )) ||
-				(start > end && Any( gWPArray[beginat]->flags & WPFLAG_ONEWAY_FWD )))
+			if ((end > start && Any( gWPArray[beginat]->flags & waypointFlags_t::WPFLAG_ONEWAY_BACK )) ||
+				(start > end && Any( gWPArray[beginat]->flags & waypointFlags_t::WPFLAG_ONEWAY_FWD )))
 			{ //a one-way point, this means this path cannot be travelled to the final point
 				return -1;
 			}
@@ -1267,7 +1267,7 @@ float TotalTrailDistance(int start, int end, bot_state_t *bs)
 
 			if (gdif)
 			{
-				if (bs && to_underlying( bs->cur_ps.fd.forcePowerLevel[FP_LEVITATION] ) < gWPArray[beginat]->forceJumpTo)
+				if (bs && to_underlying( bs->cur_ps.fd.forcePowerLevel[forcePowers_t::FP_LEVITATION] ) < gWPArray[beginat]->forceJumpTo)
 				{
 					return -1;
 				}
@@ -1276,7 +1276,7 @@ float TotalTrailDistance(int start, int end, bot_state_t *bs)
 
 		if (bs->wpCurrent && gWPArray[windex]->forceJumpTo &&
 			gWPArray[windex]->origin[2] > (bs->wpCurrent->origin[2]+64) &&
-			to_underlying( bs->cur_ps.fd.forcePowerLevel[FP_LEVITATION] ) < gWPArray[windex]->forceJumpTo)
+			to_underlying( bs->cur_ps.fd.forcePowerLevel[forcePowers_t::FP_LEVITATION] ) < gWPArray[windex]->forceJumpTo)
 		{
 			return -1;
 		}
@@ -1340,7 +1340,7 @@ void CheckForShorterRoutes(bot_state_t *bs, int newwpindex)
 
 		if (checklen < bestlen-64 || bestlen == -1)
 		{ //this path covers less distance, let's take it instead
-			if (to_underlying( bs->cur_ps.fd.forcePowerLevel[FP_LEVITATION] ) >= gWPArray[newwpindex]->neighbors[i].forceJumpTo)
+			if (to_underlying( bs->cur_ps.fd.forcePowerLevel[forcePowers_t::FP_LEVITATION] ) >= gWPArray[newwpindex]->neighbors[i].forceJumpTo)
 			{
 				bestlen = checklen;
 				bestindex = gWPArray[newwpindex]->neighbors[i].num;
@@ -1389,13 +1389,13 @@ void WPConstantRoutine(bot_state_t *bs)
 		return;
 	}
 
-	if (Any( bs->wpCurrent->flags & WPFLAG_DUCK ))
+	if (Any( bs->wpCurrent->flags & waypointFlags_t::WPFLAG_DUCK ))
 	{ //duck while travelling to this point
 		bs->duckTime = level.time + 100;
 	}
 
 #ifndef FORCEJUMP_INSTANTMETHOD
-	if (Any( bs->wpCurrent->flags & WPFLAG_JUMP ))
+	if (Any( bs->wpCurrent->flags & waypointFlags_t::WPFLAG_JUMP ))
 	{ //jump while travelling to this point
 		float heightDif = (bs->wpCurrent->origin[2] - bs->origin[2]+16);
 
@@ -1404,7 +1404,7 @@ void WPConstantRoutine(bot_state_t *bs)
 			heightDif = 0;
 		}
 
-		if (heightDif > 40 && (bs->cur_ps.fd.forcePowersKnown & Bit( FP_LEVITATION )) && (bs->cur_ps.fd.forceJumpCharge < (forceJumpStrength[bs->cur_ps.fd.forcePowerLevel[FP_LEVITATION]]-100) || bs->cur_ps.groundEntityNum == ENTITYNUM_NONE))
+		if (heightDif > 40 && (bs->cur_ps.fd.forcePowersKnown & Bit( forcePowers_t::FP_LEVITATION )) && (bs->cur_ps.fd.forceJumpCharge < (forceJumpStrength[bs->cur_ps.fd.forcePowerLevel[forcePowers_t::FP_LEVITATION]]-100) || bs->cur_ps.groundEntityNum == ENTITYNUM_NONE))
 		{ //alright, let's jump
 			bs->forceJumpChargeTime = level.time + 1000;
 			if (bs->cur_ps.groundEntityNum != ENTITYNUM_NONE && bs->jumpPrep < (level.time-300))
@@ -1419,7 +1419,7 @@ void WPConstantRoutine(bot_state_t *bs)
 				bs->wpSeenTime = level.time + 600;
 			}
 		}
-		else if (heightDif > 64 && !(bs->cur_ps.fd.forcePowersKnown & Bit( FP_LEVITATION )))
+		else if (heightDif > 64 && !(bs->cur_ps.fd.forcePowersKnown & Bit( forcePowers_t::FP_LEVITATION )))
 		{ //this point needs force jump to reach and we don't have it
 			//Kill the current point and turn around
 			bs->wpCurrent = nullptr;
@@ -1446,7 +1446,7 @@ void WPConstantRoutine(bot_state_t *bs)
 		}
 #else
 
-		if (bs->cur_ps.fd.forceJumpCharge < (forceJumpStrength[bs->cur_ps.fd.forcePowerLevel[FP_LEVITATION]]-100))
+		if (bs->cur_ps.fd.forceJumpCharge < (forceJumpStrength[bs->cur_ps.fd.forcePowerLevel[forcePowers_t::FP_LEVITATION]]-100))
 		{
 			bs->forceJumpChargeTime = level.time + 200;
 		}
@@ -1457,12 +1457,12 @@ void WPConstantRoutine(bot_state_t *bs)
 //check if our ctf state is to guard the base
 bool BotCTFGuardDuty(bot_state_t *bs)
 {
-	if (level.gametype != GT_CTF && level.gametype != GT_CTY)
+	if (level.gametype != gametype_t::GT_CTF && level.gametype != gametype_t::GT_CTY)
 	{
 		return false;
 	}
 
-	if (bs->ctfState == CTFSTATE_DEFENDER)
+	if (bs->ctfState == bot_ctf_state_t::CTFSTATE_DEFENDER)
 	{
 		return true;
 	}
@@ -1485,27 +1485,27 @@ void WPTouchRoutine(bot_state_t *bs)
 
 	bs->wpTravelTime = level.time + 10000;
 
-	if (Any( bs->wpCurrent->flags & WPFLAG_NOMOVEFUNC ))
+	if (Any( bs->wpCurrent->flags & waypointFlags_t::WPFLAG_NOMOVEFUNC ))
 	{ //don't try to use any nearby map objects for a little while
 		bs->noUseTime = level.time + 4000;
 	}
 
 #ifdef FORCEJUMP_INSTANTMETHOD
-	if ((bs->wpCurrent->flags & WPFLAG_JUMP) && bs->wpCurrent->forceJumpTo)
+	if ((bs->wpCurrent->flags & waypointFlags_t::WPFLAG_JUMP) && bs->wpCurrent->forceJumpTo)
 	{ //jump if we're flagged to but not if this indicates a force jump point. Force jumping is
 	  //handled elsewhere.
 		bs->jumpTime = level.time + 100;
 	}
 #else
-	if (Any( bs->wpCurrent->flags & WPFLAG_JUMP ) && !bs->wpCurrent->forceJumpTo)
+	if (Any( bs->wpCurrent->flags & waypointFlags_t::WPFLAG_JUMP ) && !bs->wpCurrent->forceJumpTo)
 	{ //jump if we're flagged to but not if this indicates a force jump point. Force jumping is
 	  //handled elsewhere.
 		bs->jumpTime = level.time + 100;
 	}
 #endif
 
-	if (bs->isCamper && bot_camp.integer && (BotIsAChickenWuss(bs) || BotCTFGuardDuty(bs) || bs->isCamper == 2) && (Any( bs->wpCurrent->flags & WPFLAG_SNIPEORCAMP ) || Any( bs->wpCurrent->flags & WPFLAG_SNIPEORCAMPSTAND )) &&
-		bs->cur_ps.weapon != WP_SABER && bs->cur_ps.weapon != WP_MELEE && bs->cur_ps.weapon != WP_STUN_BATON)
+	if (bs->isCamper && bot_camp.integer && (BotIsAChickenWuss(bs) || BotCTFGuardDuty(bs) || bs->isCamper == 2) && (Any( bs->wpCurrent->flags & waypointFlags_t::WPFLAG_SNIPEORCAMP ) || Any( bs->wpCurrent->flags & waypointFlags_t::WPFLAG_SNIPEORCAMPSTAND )) &&
+		bs->cur_ps.weapon != weapon_t::WP_SABER && bs->cur_ps.weapon != weapon_t::WP_MELEE && bs->cur_ps.weapon != weapon_t::WP_STUN_BATON)
 	{ //if we're a camper and a chicken then camp
 		if (bs->wpDirection)
 		{
@@ -1522,7 +1522,7 @@ void WPTouchRoutine(bot_state_t *bs)
 			bs->wpCamping = bs->wpCurrent;
 			bs->wpCampingTo = gWPArray[lastNum];
 
-			if (Any( bs->wpCurrent->flags & WPFLAG_SNIPEORCAMPSTAND ))
+			if (Any( bs->wpCurrent->flags & waypointFlags_t::WPFLAG_SNIPEORCAMPSTAND ))
 			{
 				bs->campStanding = true;
 			}
@@ -1533,7 +1533,7 @@ void WPTouchRoutine(bot_state_t *bs)
 		}
 
 	}
-	else if ((bs->cur_ps.weapon == WP_SABER || bs->cur_ps.weapon == WP_STUN_BATON || bs->cur_ps.weapon == WP_MELEE) &&
+	else if ((bs->cur_ps.weapon == weapon_t::WP_SABER || bs->cur_ps.weapon == weapon_t::WP_STUN_BATON || bs->cur_ps.weapon == weapon_t::WP_MELEE) &&
 		bs->isCamping > level.time)
 	{ //don't snipe/camp with a melee weapon, that would be silly
 		bs->isCamping = 0;
@@ -1615,7 +1615,7 @@ int BotTrace_Strafe(bot_state_t *bs, vec3_t traceto)
 	to[1] = from[1] + forward[1]*32;
 	to[2] = from[2] + forward[2]*32;
 
-	trap->Trace(&tr, from, playerMins, playerMaxs, to, bs->client, MASK_PLAYERSOLID, false, G2TRFLAG_NONE, 0);
+	trap->Trace(&tr, from, playerMins, playerMaxs, to, bs->client, MASK_PLAYERSOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 	if (tr.fraction == 1)
 	{
@@ -1632,7 +1632,7 @@ int BotTrace_Strafe(bot_state_t *bs, vec3_t traceto)
 	to[1] += right[1]*32;
 	to[2] += right[2]*32;
 
-	trap->Trace(&tr, from, playerMins, playerMaxs, to, bs->client, MASK_PLAYERSOLID, false, G2TRFLAG_NONE, 0);
+	trap->Trace(&tr, from, playerMins, playerMaxs, to, bs->client, MASK_PLAYERSOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 	if (tr.fraction == 1)
 	{
@@ -1647,7 +1647,7 @@ int BotTrace_Strafe(bot_state_t *bs, vec3_t traceto)
 	to[1] -= right[1]*64;
 	to[2] -= right[2]*64;
 
-	trap->Trace(&tr, from, playerMins, playerMaxs, to, bs->client, MASK_PLAYERSOLID, false, G2TRFLAG_NONE, 0);
+	trap->Trace(&tr, from, playerMins, playerMaxs, to, bs->client, MASK_PLAYERSOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 	if (tr.fraction == 1)
 	{
@@ -1682,7 +1682,7 @@ int BotTrace_Jump(bot_state_t *bs, vec3_t traceto)
 	maxs[1] = 15;
 	maxs[2] = 32;
 
-	trap->Trace(&tr, bs->origin, mins, maxs, traceto_mod, bs->client, MASK_PLAYERSOLID, false, G2TRFLAG_NONE, 0);
+	trap->Trace(&tr, bs->origin, mins, maxs, traceto_mod, bs->client, MASK_PLAYERSOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 	if (tr.fraction == 1)
 	{
@@ -1703,7 +1703,7 @@ int BotTrace_Jump(bot_state_t *bs, vec3_t traceto)
 	maxs[1] = 15;
 	maxs[2] = 8;
 
-	trap->Trace(&tr, tracefrom_mod, mins, maxs, traceto_mod, bs->client, MASK_PLAYERSOLID, false, G2TRFLAG_NONE, 0);
+	trap->Trace(&tr, tracefrom_mod, mins, maxs, traceto_mod, bs->client, MASK_PLAYERSOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 	if (tr.fraction == 1)
 	{
@@ -1712,7 +1712,7 @@ int BotTrace_Jump(bot_state_t *bs, vec3_t traceto)
 			return 0; //so bots don't try to jump over each other at the same time
 		}
 
-		if (bs->currentEnemy && bs->currentEnemy->s.number == orTr && (BotGetWeaponRange(bs) == BWEAPONRANGE_SABER || BotGetWeaponRange(bs) == BWEAPONRANGE_MELEE))
+		if (bs->currentEnemy && bs->currentEnemy->s.number == orTr && (BotGetWeaponRange(bs) == botWeaponRange_t::BWEAPONRANGE_SABER || BotGetWeaponRange(bs) == botWeaponRange_t::BWEAPONRANGE_MELEE))
 		{
 			return 0;
 		}
@@ -1745,7 +1745,7 @@ int BotTrace_Duck(bot_state_t *bs, vec3_t traceto)
 	maxs[1] = 15;
 	maxs[2] = 8;
 
-	trap->Trace(&tr, bs->origin, mins, maxs, traceto_mod, bs->client, MASK_PLAYERSOLID, false, G2TRFLAG_NONE, 0);
+	trap->Trace(&tr, bs->origin, mins, maxs, traceto_mod, bs->client, MASK_PLAYERSOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 	if (tr.fraction != 1)
 	{
@@ -1764,7 +1764,7 @@ int BotTrace_Duck(bot_state_t *bs, vec3_t traceto)
 	maxs[1] = 15;
 	maxs[2] = 32;
 
-	trap->Trace(&tr, tracefrom_mod, mins, maxs, traceto_mod, bs->client, MASK_PLAYERSOLID, false, G2TRFLAG_NONE, 0);
+	trap->Trace(&tr, tracefrom_mod, mins, maxs, traceto_mod, bs->client, MASK_PLAYERSOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 	if (tr.fraction != 1)
 	{
@@ -1798,21 +1798,21 @@ int PassStandardEnemyChecks(bot_state_t *bs, gentity_t *en)
 	}
 
 	if (bs->doingFallback &&
-		Any( gLevelFlags & LEVELFLAG_IGNOREINFALLBACK ))
+		Any( gLevelFlags & botLevelFlags_t::LEVELFLAG_IGNOREINFALLBACK ))
 	{ //we screwed up in our nav routines somewhere and we've reverted to a fallback state to
 		//try to get back on the trail. If the level specifies to ignore enemies in this state,
 		//then ignore them.
 		return 0;
 	}
 
-	if (en->client->ps.pm_type == PM_INTERMISSION ||
-		en->client->ps.pm_type == PM_SPECTATOR ||
-		en->client->sess.sessionTeam == TEAM_SPECTATOR)
+	if (en->client->ps.pm_type == pmtype_t::PM_INTERMISSION ||
+		en->client->ps.pm_type == pmtype_t::PM_SPECTATOR ||
+		en->client->sess.sessionTeam == team_t::TEAM_SPECTATOR)
 	{ //don't attack spectators
 		return 0;
 	}
 
-	if (en->client->pers.connected == CON_DISCONNECTED)
+	if (en->client->pers.connected == clientConnected_t::CON_DISCONNECTED)
 	{ //a "zombie" client?
 		return 0;
 	}
@@ -1860,7 +1860,7 @@ int PassStandardEnemyChecks(bot_state_t *bs, gentity_t *en)
 		return 0;
 	}
 
-	if (level.gametype == GT_JEDIMASTER && !en->client->ps.isJediMaster && !bs->cur_ps.isJediMaster)
+	if (level.gametype == gametype_t::GT_JEDIMASTER && !en->client->ps.isJediMaster && !bs->cur_ps.isJediMaster)
 	{ //rules for attacking non-JM in JM mode
 		vec3_t vs;
 		float vLen = 0;
@@ -1995,25 +1995,25 @@ int BotCanHear(bot_state_t *bs, gentity_t *en, float endist)
 
 	switch(gBotEventTracker[en->s.number].events[gBotEventTracker[en->s.number].eventSequence & (MAX_PS_EVENTS-1)])
 	{ //did the last event contain a sound?
-	case EV_GLOBAL_SOUND:
+	case entity_event_t::EV_GLOBAL_SOUND:
 		minlen = 256;
 		break;
-	case EV_FIRE_WEAPON:
-	case EV_ALT_FIRE:
-	case EV_SABER_ATTACK:
+	case entity_event_t::EV_FIRE_WEAPON:
+	case entity_event_t::EV_ALT_FIRE:
+	case entity_event_t::EV_SABER_ATTACK:
 		minlen = 512;
 		break;
-	case EV_STEP_4:
-	case EV_STEP_8:
-	case EV_STEP_12:
-	case EV_STEP_16:
-	case EV_FOOTSTEP:
-	case EV_FOOTSTEP_METAL:
-	case EV_FOOTWADE:
+	case entity_event_t::EV_STEP_4:
+	case entity_event_t::EV_STEP_8:
+	case entity_event_t::EV_STEP_12:
+	case entity_event_t::EV_STEP_16:
+	case entity_event_t::EV_FOOTSTEP:
+	case entity_event_t::EV_FOOTSTEP_METAL:
+	case entity_event_t::EV_FOOTWADE:
 		minlen = 256;
 		break;
-	case EV_JUMP:
-	case EV_ROLL:
+	case entity_event_t::EV_JUMP:
+	case entity_event_t::EV_ROLL:
 		minlen = 256;
 		break;
 	default:
@@ -2110,7 +2110,7 @@ int PassLovedOneCheck(bot_state_t *bs, gentity_t *ent)
 		return 1;
 	}
 
-	if (level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL)
+	if (level.gametype == gametype_t::GT_DUEL || level.gametype == gametype_t::GT_POWERDUEL)
 	{ //There is no love in 1-on-1
 		return 1;
 	}
@@ -2181,7 +2181,7 @@ int ScanForEnemies(bot_state_t *bs)
 		return -1;
 	}
 
-	if (level.gametype == GT_JEDIMASTER)
+	if (level.gametype == gametype_t::GT_JEDIMASTER)
 	{
 		if (G_ThereIsAMaster() && !bs->cur_ps.isJediMaster)
 		{ //if friendly fire is on in jedi master we can attack people that bug us
@@ -2290,35 +2290,35 @@ botWeaponRange_t BotGetWeaponRange(bot_state_t *bs)
 {
 	switch (bs->cur_ps.weapon)
 	{
-	case WP_STUN_BATON:
-	case WP_MELEE:
-		return BWEAPONRANGE_MELEE;
-	case WP_SABER:
-		return BWEAPONRANGE_SABER;
-	case WP_BRYAR_PISTOL:
-		return BWEAPONRANGE_MID;
-	case WP_BLASTER:
-		return BWEAPONRANGE_MID;
-	case WP_DISRUPTOR:
-		return BWEAPONRANGE_MID;
-	case WP_BOWCASTER:
-		return BWEAPONRANGE_LONG;
-	case WP_REPEATER:
-		return BWEAPONRANGE_MID;
-	case WP_DEMP2:
-		return BWEAPONRANGE_LONG;
-	case WP_FLECHETTE:
-		return BWEAPONRANGE_LONG;
-	case WP_ROCKET_LAUNCHER:
-		return BWEAPONRANGE_LONG;
-	case WP_THERMAL:
-		return BWEAPONRANGE_LONG;
-	case WP_TRIP_MINE:
-		return BWEAPONRANGE_LONG;
-	case WP_DET_PACK:
-		return BWEAPONRANGE_LONG;
+	case weapon_t::WP_STUN_BATON:
+	case weapon_t::WP_MELEE:
+		return botWeaponRange_t::BWEAPONRANGE_MELEE;
+	case weapon_t::WP_SABER:
+		return botWeaponRange_t::BWEAPONRANGE_SABER;
+	case weapon_t::WP_BRYAR_PISTOL:
+		return botWeaponRange_t::BWEAPONRANGE_MID;
+	case weapon_t::WP_BLASTER:
+		return botWeaponRange_t::BWEAPONRANGE_MID;
+	case weapon_t::WP_DISRUPTOR:
+		return botWeaponRange_t::BWEAPONRANGE_MID;
+	case weapon_t::WP_BOWCASTER:
+		return botWeaponRange_t::BWEAPONRANGE_LONG;
+	case weapon_t::WP_REPEATER:
+		return botWeaponRange_t::BWEAPONRANGE_MID;
+	case weapon_t::WP_DEMP2:
+		return botWeaponRange_t::BWEAPONRANGE_LONG;
+	case weapon_t::WP_FLECHETTE:
+		return botWeaponRange_t::BWEAPONRANGE_LONG;
+	case weapon_t::WP_ROCKET_LAUNCHER:
+		return botWeaponRange_t::BWEAPONRANGE_LONG;
+	case weapon_t::WP_THERMAL:
+		return botWeaponRange_t::BWEAPONRANGE_LONG;
+	case weapon_t::WP_TRIP_MINE:
+		return botWeaponRange_t::BWEAPONRANGE_LONG;
+	case weapon_t::WP_DET_PACK:
+		return botWeaponRange_t::BWEAPONRANGE_LONG;
 	default:
-		return BWEAPONRANGE_MID;
+		return botWeaponRange_t::BWEAPONRANGE_MID;
 	}
 }
 
@@ -2327,33 +2327,33 @@ int BotIsAChickenWuss(bot_state_t *bs)
 {
 	botWeaponRange_t bWRange;
 
-	if (Any( gLevelFlags & LEVELFLAG_IMUSTNTRUNAWAY ))
+	if (Any( gLevelFlags & botLevelFlags_t::LEVELFLAG_IMUSTNTRUNAWAY ))
 	{ //The level says we mustn't run away!
 		return 0;
 	}
 
-	if (level.gametype == GT_SINGLE_PLAYER)
+	if (level.gametype == gametype_t::GT_SINGLE_PLAYER)
 	{ //"coop" (not really)
 		return 0;
 	}
 
-	if (level.gametype == GT_JEDIMASTER && !bs->cur_ps.isJediMaster)
+	if (level.gametype == gametype_t::GT_JEDIMASTER && !bs->cur_ps.isJediMaster)
 	{ //Then you may know no fear.
 		//Well, unless he's strong.
 		if (bs->currentEnemy && bs->currentEnemy->client &&
 			bs->currentEnemy->client->ps.isJediMaster &&
 			bs->currentEnemy->health > 40 &&
-			bs->cur_ps.weapon < WP_ROCKET_LAUNCHER)
+			bs->cur_ps.weapon < weapon_t::WP_ROCKET_LAUNCHER)
 		{ //explosive weapons are most effective against the Jedi Master
 			goto jmPass;
 		}
 		return 0;
 	}
 
-	if (level.gametype == GT_CTF && bs->currentEnemy && bs->currentEnemy->client)
+	if (level.gametype == gametype_t::GT_CTF && bs->currentEnemy && bs->currentEnemy->client)
 	{
-		if (bs->currentEnemy->client->ps.powerups[PW_REDFLAG] ||
-			bs->currentEnemy->client->ps.powerups[PW_BLUEFLAG])
+		if (bs->currentEnemy->client->ps.powerups[powerup_t::PW_REDFLAG] ||
+			bs->currentEnemy->client->ps.powerups[powerup_t::PW_BLUEFLAG])
 		{ //don't be afraid of flag carriers, they must die!
 			return 0;
 		}
@@ -2365,12 +2365,12 @@ jmPass:
 		return 2; //don't want to keep going between two points...
 	}
 
-	if (bs->cur_ps.fd.forcePowersActive & Bit( FP_RAGE ))
+	if (bs->cur_ps.fd.forcePowersActive & Bit( forcePowers_t::FP_RAGE ))
 	{ //don't run while raging
 		return 0;
 	}
 
-	if (level.gametype == GT_JEDIMASTER && !bs->cur_ps.isJediMaster)
+	if (level.gametype == gametype_t::GT_JEDIMASTER && !bs->cur_ps.isJediMaster)
 	{ //be frightened of the jedi master? I guess in this case.
 		return 1;
 	}
@@ -2384,22 +2384,22 @@ jmPass:
 
 	bWRange = BotGetWeaponRange(bs);
 
-	if (bWRange == BWEAPONRANGE_MELEE || bWRange == BWEAPONRANGE_SABER)
+	if (bWRange == botWeaponRange_t::BWEAPONRANGE_MELEE || bWRange == botWeaponRange_t::BWEAPONRANGE_SABER)
 	{
-		if (bWRange != BWEAPONRANGE_SABER || !bs->saberSpecialist)
+		if (bWRange != botWeaponRange_t::BWEAPONRANGE_SABER || !bs->saberSpecialist)
 		{ //run away if we're using melee, or if we're using a saber and not a "saber specialist"
 			return 1;
 		}
 	}
 
-	if (bs->cur_ps.weapon == WP_BRYAR_PISTOL)
+	if (bs->cur_ps.weapon == weapon_t::WP_BRYAR_PISTOL)
 	{ //the bryar is a weak weapon, so just try to find a new one if it's what you're having to use
 		return 1;
 	}
 
 	if (bs->currentEnemy && bs->currentEnemy->client &&
-		bs->currentEnemy->client->ps.weapon == WP_SABER &&
-		bs->frame_Enemy_Len < 512 && bs->cur_ps.weapon != WP_SABER)
+		bs->currentEnemy->client->ps.weapon == weapon_t::WP_SABER &&
+		bs->frame_Enemy_Len < 512 && bs->cur_ps.weapon != weapon_t::WP_SABER)
 	{ //if close to an enemy with a saber and not using a saber, then try to back off
 		return 1;
 	}
@@ -2437,8 +2437,8 @@ gentity_t *GetNearestBadThing(bot_state_t *bs)
 			!ent->client &&
 			ent->inuse &&
 			ent->damage &&
-			/*(ent->s.weapon == WP_THERMAL || ent->s.weapon == WP_FLECHETTE)*/
-			ent->s.weapon != WP_NONE &&
+			/*(ent->s.weapon == weapon_t::WP_THERMAL || ent->s.weapon == weapon_t::WP_FLECHETTE)*/
+			ent->s.weapon != weapon_t::WP_NONE &&
 			ent->splashDamage) ||
 			(ent &&
 			ent->genericValue5 == 1000 &&
@@ -2451,12 +2451,12 @@ gentity_t *GetNearestBadThing(bot_state_t *bs)
 			VectorSubtract(bs->origin, ent->r.currentOrigin, hold);
 			glen = VectorLength(hold);
 
-			if (ent->s.weapon != WP_THERMAL && ent->s.weapon != WP_FLECHETTE &&
-				ent->s.weapon != WP_DET_PACK && ent->s.weapon != WP_TRIP_MINE)
+			if (ent->s.weapon != weapon_t::WP_THERMAL && ent->s.weapon != weapon_t::WP_FLECHETTE &&
+				ent->s.weapon != weapon_t::WP_DET_PACK && ent->s.weapon != weapon_t::WP_TRIP_MINE)
 			{
 				factor = 0.5;
 
-				if (ent->s.weapon != WP_NONE && glen <= 256 && bs->settings.skill > 2)
+				if (ent->s.weapon != weapon_t::WP_NONE && glen <= 256 && bs->settings.skill > 2)
 				{ //it's a projectile so push it away
 					bs->doForcePush = level.time + 700;
 					//trap->Print("PUSH PROJECTILE\n");
@@ -2467,7 +2467,7 @@ gentity_t *GetNearestBadThing(bot_state_t *bs)
 				factor = 1;
 			}
 
-			if (ent->s.weapon == WP_ROCKET_LAUNCHER &&
+			if (ent->s.weapon == weapon_t::WP_ROCKET_LAUNCHER &&
 				(ent->r.ownerNum == bs->client ||
 				(ent->r.ownerNum > 0 && ent->r.ownerNum < MAX_CLIENTS &&
 				g_entities[ent->r.ownerNum].client && OnSameTeam(&g_entities[bs->client], &g_entities[ent->r.ownerNum]))) )
@@ -2475,7 +2475,7 @@ gentity_t *GetNearestBadThing(bot_state_t *bs)
 				factor = 0;
 			}
 
-			if (ent->s.weapon == WP_DET_PACK &&
+			if (ent->s.weapon == weapon_t::WP_DET_PACK &&
 				(ent->r.ownerNum == bs->client ||
 				(ent->r.ownerNum > 0 && ent->r.ownerNum < MAX_CLIENTS &&
 				g_entities[ent->r.ownerNum].client && OnSameTeam(&g_entities[bs->client], &g_entities[ent->r.ownerNum]))) )
@@ -2483,7 +2483,7 @@ gentity_t *GetNearestBadThing(bot_state_t *bs)
 				factor = 0;
 			}
 
-			if (ent->s.weapon == WP_TRIP_MINE &&
+			if (ent->s.weapon == weapon_t::WP_TRIP_MINE &&
 				(ent->r.ownerNum == bs->client ||
 				(ent->r.ownerNum > 0 && ent->r.ownerNum < MAX_CLIENTS &&
 				g_entities[ent->r.ownerNum].client && OnSameTeam(&g_entities[bs->client], &g_entities[ent->r.ownerNum]))) )
@@ -2491,7 +2491,7 @@ gentity_t *GetNearestBadThing(bot_state_t *bs)
 				factor = 0;
 			}
 
-			if (ent->s.weapon == WP_THERMAL &&
+			if (ent->s.weapon == weapon_t::WP_THERMAL &&
 				(ent->r.ownerNum == bs->client ||
 				(ent->r.ownerNum > 0 && ent->r.ownerNum < MAX_CLIENTS &&
 				g_entities[ent->r.ownerNum].client && OnSameTeam(&g_entities[bs->client], &g_entities[ent->r.ownerNum]))) )
@@ -2501,7 +2501,7 @@ gentity_t *GetNearestBadThing(bot_state_t *bs)
 
 			if (glen < bestdist*factor && BotPVSCheck(bs->origin, ent->s.pos.trBase))
 			{
-				trap->Trace(&tr, bs->origin, nullptr, nullptr, ent->s.pos.trBase, bs->client, MASK_SOLID, false, G2TRFLAG_NONE, 0);
+				trap->Trace(&tr, bs->origin, nullptr, nullptr, ent->s.pos.trBase, bs->client, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 				if (tr.fraction == 1 || tr.entityNum == ent->s.number)
 				{
@@ -2512,7 +2512,7 @@ gentity_t *GetNearestBadThing(bot_state_t *bs)
 			}
 		}
 
-		if (ent && !ent->client && ent->inuse && ent->damage && ent->s.weapon != WP_NONE && ent->r.ownerNum < MAX_CLIENTS && ent->r.ownerNum >= 0)
+		if (ent && !ent->client && ent->inuse && ent->damage && ent->s.weapon != weapon_t::WP_NONE && ent->r.ownerNum < MAX_CLIENTS && ent->r.ownerNum >= 0)
 		{ //if we're in danger of a projectile belonging to someone and don't have an enemy, set the enemy to them
 			gentity_t *projOwner = &g_entities[ent->r.ownerNum];
 
@@ -2558,11 +2558,11 @@ int BotDefendFlag(bot_state_t *bs)
 	wpobject_t *flagPoint;
 	vec3_t a;
 
-	if (level.clients[bs->client].sess.sessionTeam == TEAM_RED)
+	if (level.clients[bs->client].sess.sessionTeam == team_t::TEAM_RED)
 	{
 		flagPoint = flagRed;
 	}
-	else if (level.clients[bs->client].sess.sessionTeam == TEAM_BLUE)
+	else if (level.clients[bs->client].sess.sessionTeam == team_t::TEAM_BLUE)
 	{
 		flagPoint = flagBlue;
 	}
@@ -2592,11 +2592,11 @@ int BotGetEnemyFlag(bot_state_t *bs)
 	wpobject_t *flagPoint;
 	vec3_t a;
 
-	if (level.clients[bs->client].sess.sessionTeam == TEAM_RED)
+	if (level.clients[bs->client].sess.sessionTeam == team_t::TEAM_RED)
 	{
 		flagPoint = flagBlue;
 	}
-	else if (level.clients[bs->client].sess.sessionTeam == TEAM_BLUE)
+	else if (level.clients[bs->client].sess.sessionTeam == team_t::TEAM_BLUE)
 	{
 		flagPoint = flagRed;
 	}
@@ -2624,19 +2624,19 @@ int BotGetEnemyFlag(bot_state_t *bs)
 int BotGetFlagBack(bot_state_t *bs)
 {
 	int i = 0;
-	powerup_t myFlag = PW_NONE;
+	powerup_t myFlag = powerup_t::PW_NONE;
 	int foundCarrier = 0;
 	int tempInt = 0;
 	gentity_t *ent = nullptr;
 	vec3_t usethisvec;
 
-	if (level.clients[bs->client].sess.sessionTeam == TEAM_RED)
+	if (level.clients[bs->client].sess.sessionTeam == team_t::TEAM_RED)
 	{
-		myFlag = PW_REDFLAG;
+		myFlag = powerup_t::PW_REDFLAG;
 	}
 	else
 	{
-		myFlag = PW_BLUEFLAG;
+		myFlag = powerup_t::PW_BLUEFLAG;
 	}
 
 	while (i < MAX_CLIENTS)
@@ -2690,19 +2690,19 @@ int BotGetFlagBack(bot_state_t *bs)
 int BotGuardFlagCarrier(bot_state_t *bs)
 {
 	int i = 0;
-	powerup_t enemyFlag = PW_NONE;
+	powerup_t enemyFlag = powerup_t::PW_NONE;
 	int foundCarrier = 0;
 	int tempInt = 0;
 	gentity_t *ent = nullptr;
 	vec3_t usethisvec;
 
-	if (level.clients[bs->client].sess.sessionTeam == TEAM_RED)
+	if (level.clients[bs->client].sess.sessionTeam == team_t::TEAM_RED)
 	{
-		enemyFlag = PW_BLUEFLAG;
+		enemyFlag = powerup_t::PW_BLUEFLAG;
 	}
 	else
 	{
-		enemyFlag = PW_REDFLAG;
+		enemyFlag = powerup_t::PW_REDFLAG;
 	}
 
 	while (i < MAX_CLIENTS)
@@ -2757,11 +2757,11 @@ int BotGetFlagHome(bot_state_t *bs)
 	wpobject_t *flagPoint;
 	vec3_t a;
 
-	if (level.clients[bs->client].sess.sessionTeam == TEAM_RED)
+	if (level.clients[bs->client].sess.sessionTeam == team_t::TEAM_RED)
 	{
 		flagPoint = flagRed;
 	}
-	else if (level.clients[bs->client].sess.sessionTeam == TEAM_BLUE)
+	else if (level.clients[bs->client].sess.sessionTeam == team_t::TEAM_BLUE)
 	{
 		flagPoint = flagBlue;
 	}
@@ -2808,7 +2808,7 @@ void GetNewFlagPoint(wpobject_t *wp, gentity_t *flagEnt, team_t team)
 
 	if (bestdist <= WP_KEEP_FLAG_DIST)
 	{
-		trap->Trace(&tr, wp->origin, mins, maxs, flagEnt->s.pos.trBase, flagEnt->s.number, MASK_SOLID, false, G2TRFLAG_NONE, 0);
+		trap->Trace(&tr, wp->origin, mins, maxs, flagEnt->s.pos.trBase, flagEnt->s.number, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 		if (tr.fraction == 1)
 		{ //this point is good
@@ -2823,7 +2823,7 @@ void GetNewFlagPoint(wpobject_t *wp, gentity_t *flagEnt, team_t team)
 
 		if (testdist < bestdist)
 		{
-			trap->Trace(&tr, gWPArray[i]->origin, mins, maxs, flagEnt->s.pos.trBase, flagEnt->s.number, MASK_SOLID, false, G2TRFLAG_NONE, 0);
+			trap->Trace(&tr, gWPArray[i]->origin, mins, maxs, flagEnt->s.pos.trBase, flagEnt->s.number, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 			if (tr.fraction == 1)
 			{
@@ -2838,7 +2838,7 @@ void GetNewFlagPoint(wpobject_t *wp, gentity_t *flagEnt, team_t team)
 
 	if (foundindex)
 	{
-		if (team == TEAM_RED)
+		if (team == team_t::TEAM_RED)
 		{
 			flagRed = gWPArray[bestindex];
 		}
@@ -2853,8 +2853,8 @@ void GetNewFlagPoint(wpobject_t *wp, gentity_t *flagEnt, team_t team)
 int CTFTakesPriority(bot_state_t *bs)
 {
 	gentity_t *ent = nullptr;
-	powerup_t enemyFlag = PW_NONE;
-	powerup_t myFlag = PW_NONE;
+	powerup_t enemyFlag = powerup_t::PW_NONE;
+	powerup_t myFlag = powerup_t::PW_NONE;
 	int enemyHasOurFlag = 0;
 	//int weHaveEnemyFlag = 0;
 	int numOnMyTeam = 0;
@@ -2869,12 +2869,12 @@ int CTFTakesPriority(bot_state_t *bs)
 	trap->Print("CTFSTATE: %s\n", ctfStateNames[bs->ctfState]);
 #endif
 
-	if (level.gametype != GT_CTF && level.gametype != GT_CTY)
+	if (level.gametype != gametype_t::GT_CTF && level.gametype != gametype_t::GT_CTY)
 	{
 		return 0;
 	}
 
-	if (bs->cur_ps.weapon == WP_BRYAR_PISTOL &&
+	if (bs->cur_ps.weapon == weapon_t::WP_BRYAR_PISTOL &&
 		(level.time - bs->lastDeadTime) < BOT_MAX_WEAPON_GATHER_TIME)
 	{ //get the nearest weapon laying around base before heading off for battle
 		idleWP = GetBestIdleGoal(bs);
@@ -2888,7 +2888,7 @@ int CTFTakesPriority(bot_state_t *bs)
 			return 1;
 		}
 	}
-	else if (bs->cur_ps.weapon == WP_BRYAR_PISTOL &&
+	else if (bs->cur_ps.weapon == weapon_t::WP_BRYAR_PISTOL &&
 		(level.time - bs->lastDeadTime) < BOT_MAX_WEAPON_CHASE_CTF &&
 		bs->wpDestination && bs->wpDestination->weight)
 	{
@@ -2896,22 +2896,22 @@ int CTFTakesPriority(bot_state_t *bs)
 		dosw = 1;
 	}
 
-	if (level.clients[bs->client].sess.sessionTeam == TEAM_RED)
+	if (level.clients[bs->client].sess.sessionTeam == team_t::TEAM_RED)
 	{
-		myFlag = PW_REDFLAG;
+		myFlag = powerup_t::PW_REDFLAG;
 	}
 	else
 	{
-		myFlag = PW_BLUEFLAG;
+		myFlag = powerup_t::PW_BLUEFLAG;
 	}
 
-	if (level.clients[bs->client].sess.sessionTeam == TEAM_RED)
+	if (level.clients[bs->client].sess.sessionTeam == team_t::TEAM_RED)
 	{
-		enemyFlag = PW_BLUEFLAG;
+		enemyFlag = powerup_t::PW_BLUEFLAG;
 	}
 	else
 	{
-		enemyFlag = PW_REDFLAG;
+		enemyFlag = powerup_t::PW_REDFLAG;
 	}
 
 	if (!flagRed || !flagBlue ||
@@ -2931,25 +2931,25 @@ int CTFTakesPriority(bot_state_t *bs)
 	G_TestLine(flagBlue->origin, t, 0x0000ff, 500);
 #endif
 
-	if (droppedRedFlag && Any( droppedRedFlag->flags & FL_DROPPED_ITEM ))
+	if (droppedRedFlag && Any( droppedRedFlag->flags & gentityFlags_t::FL_DROPPED_ITEM ))
 	{
-		GetNewFlagPoint(flagRed, droppedRedFlag, TEAM_RED);
+		GetNewFlagPoint(flagRed, droppedRedFlag, team_t::TEAM_RED);
 	}
 	else
 	{
 		flagRed = oFlagRed;
 	}
 
-	if (droppedBlueFlag && Any( droppedBlueFlag->flags & FL_DROPPED_ITEM ))
+	if (droppedBlueFlag && Any( droppedBlueFlag->flags & gentityFlags_t::FL_DROPPED_ITEM ))
 	{
-		GetNewFlagPoint(flagBlue, droppedBlueFlag, TEAM_BLUE);
+		GetNewFlagPoint(flagBlue, droppedBlueFlag, team_t::TEAM_BLUE);
 	}
 	else
 	{
 		flagBlue = oFlagBlue;
 	}
 
-	if (bs->ctfState == CTFSTATE_NONE)
+	if (bs->ctfState == bot_ctf_state_t::CTFSTATE_NONE)
 	{
 		return 0;
 	}
@@ -2978,8 +2978,8 @@ int CTFTakesPriority(bot_state_t *bs)
 
 			if (botstates[ent->s.number])
 			{
-				if (botstates[ent->s.number]->ctfState == CTFSTATE_ATTACKER ||
-					botstates[ent->s.number]->ctfState == CTFSTATE_RETRIEVAL)
+				if (botstates[ent->s.number]->ctfState == bot_ctf_state_t::CTFSTATE_ATTACKER ||
+					botstates[ent->s.number]->ctfState == bot_ctf_state_t::CTFSTATE_RETRIEVAL)
 				{
 					numAttackers++;
 				}
@@ -2996,16 +2996,16 @@ int CTFTakesPriority(bot_state_t *bs)
 	{
 		if ((numOnMyTeam < 2 || !numAttackers) && enemyHasOurFlag)
 		{
-			bs->ctfState = CTFSTATE_RETRIEVAL;
+			bs->ctfState = bot_ctf_state_t::CTFSTATE_RETRIEVAL;
 		}
 		else
 		{
-			bs->ctfState = CTFSTATE_GETFLAGHOME;
+			bs->ctfState = bot_ctf_state_t::CTFSTATE_GETFLAGHOME;
 		}
 	}
-	else if (bs->ctfState == CTFSTATE_GETFLAGHOME)
+	else if (bs->ctfState == bot_ctf_state_t::CTFSTATE_GETFLAGHOME)
 	{
-		bs->ctfState = CTFSTATE_NONE;
+		bs->ctfState = bot_ctf_state_t::CTFSTATE_NONE;
 	}
 
 	if (bs->state_Forced)
@@ -3013,7 +3013,7 @@ int CTFTakesPriority(bot_state_t *bs)
 		bs->ctfState = static_cast<bot_ctf_state_t>( bs->state_Forced );
 	}
 
-	if (bs->ctfState == CTFSTATE_DEFENDER)
+	if (bs->ctfState == bot_ctf_state_t::CTFSTATE_DEFENDER)
 	{
 		if (BotDefendFlag(bs))
 		{
@@ -3021,7 +3021,7 @@ int CTFTakesPriority(bot_state_t *bs)
 		}
 	}
 
-	if (bs->ctfState == CTFSTATE_ATTACKER)
+	if (bs->ctfState == bot_ctf_state_t::CTFSTATE_ATTACKER)
 	{
 		if (BotGetEnemyFlag(bs))
 		{
@@ -3029,7 +3029,7 @@ int CTFTakesPriority(bot_state_t *bs)
 		}
 	}
 
-	if (bs->ctfState == CTFSTATE_RETRIEVAL)
+	if (bs->ctfState == bot_ctf_state_t::CTFSTATE_RETRIEVAL)
 	{
 		if (BotGetFlagBack(bs))
 		{
@@ -3037,11 +3037,11 @@ int CTFTakesPriority(bot_state_t *bs)
 		}
 		else
 		{ //can't find anyone on another team being a carrier, so ignore this priority
-			bs->ctfState = CTFSTATE_NONE;
+			bs->ctfState = bot_ctf_state_t::CTFSTATE_NONE;
 		}
 	}
 
-	if (bs->ctfState == CTFSTATE_GUARDCARRIER)
+	if (bs->ctfState == bot_ctf_state_t::CTFSTATE_GUARDCARRIER)
 	{
 		if (BotGuardFlagCarrier(bs))
 		{
@@ -3049,11 +3049,11 @@ int CTFTakesPriority(bot_state_t *bs)
 		}
 		else
 		{ //can't find anyone on our team being a carrier, so ignore this priority
-			bs->ctfState = CTFSTATE_NONE;
+			bs->ctfState = bot_ctf_state_t::CTFSTATE_NONE;
 		}
 	}
 
-	if (bs->ctfState == CTFSTATE_GETFLAGHOME)
+	if (bs->ctfState == bot_ctf_state_t::CTFSTATE_GETFLAGHOME)
 	{
 		if (BotGetFlagHome(bs))
 		{
@@ -3076,7 +3076,7 @@ int EntityVisibleBox(vec3_t org1, vec3_t mins, vec3_t maxs, vec3_t org2, int ign
 {
 	trace_t tr;
 
-	trap->Trace(&tr, org1, mins, maxs, org2, ignore, MASK_SOLID, false, G2TRFLAG_NONE, 0);
+	trap->Trace(&tr, org1, mins, maxs, org2, ignore, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 	if (tr.fraction == 1 && !tr.startsolid && !tr.allsolid)
 	{
@@ -3175,8 +3175,8 @@ hasPoint:
 		bs->touchGoal = nullptr;
 	}
 
-	if (BotGetWeaponRange(bs) == BWEAPONRANGE_MELEE ||
-		BotGetWeaponRange(bs) == BWEAPONRANGE_SABER)
+	if (BotGetWeaponRange(bs) == botWeaponRange_t::BWEAPONRANGE_MELEE ||
+		BotGetWeaponRange(bs) == botWeaponRange_t::BWEAPONRANGE_SABER)
 	{
 		bs->shootGoal = nullptr; //too risky
 	}
@@ -3207,7 +3207,7 @@ void Siege_DefendFromAttackers(bot_state_t *bs)
 		ent = &g_entities[i];
 
 		if (ent && ent->client && ent->client->sess.sessionTeam != g_entities[bs->client].client->sess.sessionTeam &&
-			ent->health > 0 && ent->client->sess.sessionTeam != TEAM_SPECTATOR)
+			ent->health > 0 && ent->client->sess.sessionTeam != team_t::TEAM_SPECTATOR)
 		{
 			VectorSubtract(ent->client->ps.origin, bs->origin, a);
 
@@ -3252,7 +3252,7 @@ int Siege_CountDefenders(bot_state_t *bs)
 
 		if (ent && ent->client && bot)
 		{
-			if (bot->siegeState == SIEGESTATE_DEFENDER &&
+			if (bot->siegeState == bot_siege_state_t::SIEGESTATE_DEFENDER &&
 				ent->client->sess.sessionTeam == g_entities[bs->client].client->sess.sessionTeam)
 			{
 				num++;
@@ -3305,7 +3305,7 @@ int SiegeTakesPriority(bot_state_t *bs)
 	vec3_t dif;
 	trace_t tr;
 
-	if (level.gametype != GT_SIEGE)
+	if (level.gametype != gametype_t::GT_SIEGE)
 	{
 		return 0;
 	}
@@ -3317,7 +3317,7 @@ int SiegeTakesPriority(bot_state_t *bs)
 		return 0;
 	}
 
-	if (bs->cur_ps.weapon == WP_BRYAR_PISTOL &&
+	if (bs->cur_ps.weapon == weapon_t::WP_BRYAR_PISTOL &&
 		(level.time - bs->lastDeadTime) < BOT_MAX_WEAPON_GATHER_TIME)
 	{ //get the nearest weapon laying around base before heading off for battle
 		idleWP = GetBestIdleGoal(bs);
@@ -3331,7 +3331,7 @@ int SiegeTakesPriority(bot_state_t *bs)
 			return 1;
 		}
 	}
-	else if (bs->cur_ps.weapon == WP_BRYAR_PISTOL &&
+	else if (bs->cur_ps.weapon == weapon_t::WP_BRYAR_PISTOL &&
 		(level.time - bs->lastDeadTime) < BOT_MAX_WEAPON_CHASE_TIME &&
 		bs->wpDestination && bs->wpDestination->weight)
 	{
@@ -3342,30 +3342,30 @@ int SiegeTakesPriority(bot_state_t *bs)
 	if (bcl->sess.sessionTeam == SIEGETEAM_TEAM1)
 	{
 		attacker = imperial_attackers;
-		//flagForDefendableObjective = WPFLAG_SIEGE_REBELOBJ;
-		flagForAttackableObjective = WPFLAG_SIEGE_IMPERIALOBJ;
+		//flagForDefendableObjective = waypointFlags_t::WPFLAG_SIEGE_REBELOBJ;
+		flagForAttackableObjective = waypointFlags_t::WPFLAG_SIEGE_IMPERIALOBJ;
 	}
 	else
 	{
 		attacker = rebel_attackers;
-		//flagForDefendableObjective = WPFLAG_SIEGE_IMPERIALOBJ;
-		flagForAttackableObjective = WPFLAG_SIEGE_REBELOBJ;
+		//flagForDefendableObjective = waypointFlags_t::WPFLAG_SIEGE_IMPERIALOBJ;
+		flagForAttackableObjective = waypointFlags_t::WPFLAG_SIEGE_REBELOBJ;
 	}
 
 	if (attacker)
 	{
-		bs->siegeState = SIEGESTATE_ATTACKER;
+		bs->siegeState = bot_siege_state_t::SIEGESTATE_ATTACKER;
 	}
 	else
 	{
-		bs->siegeState = SIEGESTATE_DEFENDER;
+		bs->siegeState = bot_siege_state_t::SIEGESTATE_DEFENDER;
 		defenders = Siege_CountDefenders(bs);
 		teammates = Siege_CountTeammates(bs);
 
 		if (defenders > teammates/3 && teammates > 1)
 		{ //devote around 1/4 of our team to completing our own side goals even if we're a defender.
 		  //If we have no side goals we will realize that later on and join the defenders
-			bs->siegeState = SIEGESTATE_ATTACKER;
+			bs->siegeState = bot_siege_state_t::SIEGESTATE_ATTACKER;
 		}
 	}
 
@@ -3374,7 +3374,7 @@ int SiegeTakesPriority(bot_state_t *bs)
 		bs->siegeState = static_cast<bot_siege_state_t>( bs->state_Forced );
 	}
 
-	if (bs->siegeState == SIEGESTATE_ATTACKER)
+	if (bs->siegeState == bot_siege_state_t::SIEGESTATE_ATTACKER)
 	{
 		if (!Siege_TargetClosestObjective(bs, flagForAttackableObjective))
 		{ //looks like we have no goals other than to keep the other team from completing objectives
@@ -3391,7 +3391,7 @@ int SiegeTakesPriority(bot_state_t *bs)
 				}
 				else
 				{
-					trap->Trace(&tr, bs->origin, nullptr, nullptr, dif, bs->client, MASK_SOLID, false, G2TRFLAG_NONE, 0);
+					trap->Trace(&tr, bs->origin, nullptr, nullptr, dif, bs->client, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 					if (tr.fraction != 1 && tr.entityNum != bs->shootGoal->s.number)
 					{
@@ -3401,7 +3401,7 @@ int SiegeTakesPriority(bot_state_t *bs)
 			}
 		}
 	}
-	else if (bs->siegeState == SIEGESTATE_DEFENDER)
+	else if (bs->siegeState == bot_siege_state_t::SIEGESTATE_DEFENDER)
 	{
 		Siege_DefendFromAttackers(bs);
 		if (bs->shootGoal)
@@ -3416,7 +3416,7 @@ int SiegeTakesPriority(bot_state_t *bs)
 			}
 			else
 			{
-				trap->Trace(&tr, bs->origin, nullptr, nullptr, dif, bs->client, MASK_SOLID, false, G2TRFLAG_NONE, 0);
+				trap->Trace(&tr, bs->origin, nullptr, nullptr, dif, bs->client, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 				if (tr.fraction != 1 && tr.entityNum != bs->shootGoal->s.number)
 				{
@@ -3440,7 +3440,7 @@ int SiegeTakesPriority(bot_state_t *bs)
 			}
 			else
 			{
-				trap->Trace(&tr, bs->origin, nullptr, nullptr, dif, bs->client, MASK_SOLID, false, G2TRFLAG_NONE, 0);
+				trap->Trace(&tr, bs->origin, nullptr, nullptr, dif, bs->client, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 				if (tr.fraction != 1 && tr.entityNum != bs->shootGoal->s.number)
 				{
@@ -3466,7 +3466,7 @@ int JMTakesPriority(bot_state_t *bs)
 	int wpClose = -1;
 	gentity_t *theImportantEntity = nullptr;
 
-	if (level.gametype != GT_JEDIMASTER)
+	if (level.gametype != gametype_t::GT_JEDIMASTER)
 	{
 		return 0;
 	}
@@ -3552,25 +3552,25 @@ int BotHasAssociated(bot_state_t *bs, wpobject_t *wp)
 		return 0;
 	}
 
-	if (as->item->giType == IT_WEAPON)
+	if (as->item->giType == itemType_t::IT_WEAPON)
 	{
-		if (bs->cur_ps.stats[STAT_WEAPONS] & Bit( GI_Weapon( *as->item ) ))
+		if (bs->cur_ps.stats[statIndex_t::STAT_WEAPONS] & Bit( GI_Weapon( *as->item ) ))
 		{
 			return 1;
 		}
 
 		return 0;
 	}
-	else if (as->item->giType == IT_HOLDABLE)
+	else if (as->item->giType == itemType_t::IT_HOLDABLE)
 	{
-		if (bs->cur_ps.stats[STAT_HOLDABLE_ITEMS] & (1 << as->item->giTag))
+		if (bs->cur_ps.stats[statIndex_t::STAT_HOLDABLE_ITEMS] & (1 << as->item->giTag))
 		{
 			return 1;
 		}
 
 		return 0;
 	}
-	else if (as->item->giType == IT_POWERUP)
+	else if (as->item->giType == itemType_t::IT_POWERUP)
 	{
 		if (bs->cur_ps.powerups[GI_Powerup( *as->item )])
 		{
@@ -3579,7 +3579,7 @@ int BotHasAssociated(bot_state_t *bs, wpobject_t *wp)
 
 		return 0;
 	}
-	else if (as->item->giType == IT_AMMO)
+	else if (as->item->giType == itemType_t::IT_AMMO)
 	{
 		if (bs->cur_ps.ammo[GI_Ammo( *as->item )] > 10) //hack
 		{
@@ -3634,7 +3634,7 @@ int GetBestIdleGoal(bot_state_t *bs)
 	{
 		if (gWPArray[i] &&
 			gWPArray[i]->inuse &&
-			Any( gWPArray[i]->flags & WPFLAG_GOALPOINT ) &&
+			Any( gWPArray[i]->flags & waypointFlags_t::WPFLAG_GOALPOINT ) &&
 			gWPArray[i]->weight > highestweight &&
 			!BotHasAssociated(bs, gWPArray[i]))
 		{
@@ -3734,7 +3734,7 @@ void GetIdealDestination(bot_state_t *bs)
 
 	if (!badthing && CTFTakesPriority(bs))
 	{
-		if (bs->ctfState != CTFSTATE_NONE)
+		if (bs->ctfState != bot_ctf_state_t::CTFSTATE_NONE)
 		{
 			bs->runningToEscapeThreat = 1;
 		}
@@ -3742,7 +3742,7 @@ void GetIdealDestination(bot_state_t *bs)
 	}
 	else if (!badthing && SiegeTakesPriority(bs))
 	{
-		if (bs->siegeState != SIEGESTATE_NONE)
+		if (bs->siegeState != bot_siege_state_t::SIEGESTATE_NONE)
 		{
 			bs->runningToEscapeThreat = 1;
 		}
@@ -3805,25 +3805,25 @@ void GetIdealDestination(bot_state_t *bs)
 
 	const botWeaponRange_t weaponRange = BotGetWeaponRange(bs);
 
-	if (weaponRange == BWEAPONRANGE_MELEE)
+	if (weaponRange == botWeaponRange_t::BWEAPONRANGE_MELEE)
 	{
 		distChange = 1;
 	}
-	else if (weaponRange == BWEAPONRANGE_SABER)
+	else if (weaponRange == botWeaponRange_t::BWEAPONRANGE_SABER)
 	{
 		distChange = 1;
 	}
-	else if (weaponRange == BWEAPONRANGE_MID)
+	else if (weaponRange == botWeaponRange_t::BWEAPONRANGE_MID)
 	{
 		distChange = 128;
 	}
-	else if (weaponRange == BWEAPONRANGE_LONG)
+	else if (weaponRange == botWeaponRange_t::BWEAPONRANGE_LONG)
 	{
 		distChange = 300;
 	}
 
 	if (bs->revengeEnemy && bs->revengeEnemy->health > 0 &&
-		bs->revengeEnemy->client && bs->revengeEnemy->client->pers.connected == CON_CONNECTED)
+		bs->revengeEnemy->client && bs->revengeEnemy->client->pers.connected == clientConnected_t::CON_CONNECTED)
 	{ //if we hate someone, always try to get to them
 		if (bs->wpDestSwitchTime < level.time)
 		{
@@ -3846,7 +3846,7 @@ void GetIdealDestination(bot_state_t *bs)
 		}
 	}
 	else if (bs->squadLeader && bs->squadLeader->health > 0 &&
-		bs->squadLeader->client && bs->squadLeader->client->pers.connected == CON_CONNECTED)
+		bs->squadLeader->client && bs->squadLeader->client->pers.connected == clientConnected_t::CON_CONNECTED)
 	{
 		if (bs->wpDestSwitchTime < level.time)
 		{
@@ -3921,7 +3921,7 @@ void GetIdealDestination(bot_state_t *bs)
 			{
 				bs->wpDestination = gWPArray[tempInt];
 
-				if (level.gametype == GT_SINGLE_PLAYER)
+				if (level.gametype == gametype_t::GT_SINGLE_PLAYER)
 				{ //be more aggressive
 					bs->wpDestSwitchTime = level.time + Q_irand(300, 1000);
 				}
@@ -3956,29 +3956,29 @@ void CommanderBotCTFAI(bot_state_t *bs)
 	int defendAttackPriority = 0; //0 == attack, 1 == defend
 	int guardDefendPriority = 0; //0 == defend, 1 == guard
 	int attackRetrievePriority = 0; //0 == retrieve, 1 == attack
-	powerup_t myFlag = PW_NONE;
-	powerup_t enemyFlag = PW_NONE;
+	powerup_t myFlag = powerup_t::PW_NONE;
+	powerup_t enemyFlag = powerup_t::PW_NONE;
 	int enemyHasOurFlag = 0;
 	int weHaveEnemyFlag = 0;
 	int numOnMyTeam = 0;
 	int numAttackers = 0;
 
-	if (level.clients[bs->client].sess.sessionTeam == TEAM_RED)
+	if (level.clients[bs->client].sess.sessionTeam == team_t::TEAM_RED)
 	{
-		myFlag = PW_REDFLAG;
+		myFlag = powerup_t::PW_REDFLAG;
 	}
 	else
 	{
-		myFlag = PW_BLUEFLAG;
+		myFlag = powerup_t::PW_BLUEFLAG;
 	}
 
-	if (level.clients[bs->client].sess.sessionTeam == TEAM_RED)
+	if (level.clients[bs->client].sess.sessionTeam == team_t::TEAM_RED)
 	{
-		enemyFlag = PW_BLUEFLAG;
+		enemyFlag = powerup_t::PW_BLUEFLAG;
 	}
 	else
 	{
-		enemyFlag = PW_REDFLAG;
+		enemyFlag = powerup_t::PW_REDFLAG;
 	}
 
 	while (i < MAX_CLIENTS)
@@ -4003,8 +4003,8 @@ void CommanderBotCTFAI(bot_state_t *bs)
 
 			if (botstates[ent->s.number])
 			{
-				if (botstates[ent->s.number]->ctfState == CTFSTATE_ATTACKER ||
-					botstates[ent->s.number]->ctfState == CTFSTATE_RETRIEVAL)
+				if (botstates[ent->s.number]->ctfState == bot_ctf_state_t::CTFSTATE_ATTACKER ||
+					botstates[ent->s.number]->ctfState == bot_ctf_state_t::CTFSTATE_RETRIEVAL)
 				{
 					numAttackers++;
 				}
@@ -4047,7 +4047,7 @@ void CommanderBotCTFAI(bot_state_t *bs)
 	{
 		if (squad[i] && squad[i]->client && botstates[squad[i]->s.number])
 		{
-			if (botstates[squad[i]->s.number]->ctfState != CTFSTATE_GETFLAGHOME)
+			if (botstates[squad[i]->s.number]->ctfState != bot_ctf_state_t::CTFSTATE_GETFLAGHOME)
 			{ //never tell a bot to stop trying to bring the flag to the base
 				if (defendAttackPriority)
 				{
@@ -4055,18 +4055,18 @@ void CommanderBotCTFAI(bot_state_t *bs)
 					{
 						if (guardDefendPriority)
 						{
-							botstates[squad[i]->s.number]->ctfState = CTFSTATE_GUARDCARRIER;
+							botstates[squad[i]->s.number]->ctfState = bot_ctf_state_t::CTFSTATE_GUARDCARRIER;
 							guardDefendPriority = 0;
 						}
 						else
 						{
-							botstates[squad[i]->s.number]->ctfState = CTFSTATE_DEFENDER;
+							botstates[squad[i]->s.number]->ctfState = bot_ctf_state_t::CTFSTATE_DEFENDER;
 							guardDefendPriority = 1;
 						}
 					}
 					else
 					{
-						botstates[squad[i]->s.number]->ctfState = CTFSTATE_DEFENDER;
+						botstates[squad[i]->s.number]->ctfState = bot_ctf_state_t::CTFSTATE_DEFENDER;
 					}
 					defendAttackPriority = 0;
 				}
@@ -4076,25 +4076,25 @@ void CommanderBotCTFAI(bot_state_t *bs)
 					{
 						if (attackRetrievePriority)
 						{
-							botstates[squad[i]->s.number]->ctfState = CTFSTATE_ATTACKER;
+							botstates[squad[i]->s.number]->ctfState = bot_ctf_state_t::CTFSTATE_ATTACKER;
 							attackRetrievePriority = 0;
 						}
 						else
 						{
-							botstates[squad[i]->s.number]->ctfState = CTFSTATE_RETRIEVAL;
+							botstates[squad[i]->s.number]->ctfState = bot_ctf_state_t::CTFSTATE_RETRIEVAL;
 							attackRetrievePriority = 1;
 						}
 					}
 					else
 					{
-						botstates[squad[i]->s.number]->ctfState = CTFSTATE_ATTACKER;
+						botstates[squad[i]->s.number]->ctfState = bot_ctf_state_t::CTFSTATE_ATTACKER;
 					}
 					defendAttackPriority = 1;
 				}
 			}
 			else if ((numOnMyTeam < 2 || !numAttackers) && enemyHasOurFlag)
 			{ //I'm the only one on my team who will attack and the enemy has my flag, I have to go after him
-				botstates[squad[i]->s.number]->ctfState = CTFSTATE_RETRIEVAL;
+				botstates[squad[i]->s.number]->ctfState = bot_ctf_state_t::CTFSTATE_RETRIEVAL;
 			}
 		}
 
@@ -4176,7 +4176,7 @@ void BotDoTeamplayAI(bot_state_t *bs)
 		bs->teamplayState = static_cast<bot_teamplay_state_t>( bs->state_Forced );
 	}
 
-	if (bs->teamplayState == TEAMPLAYSTATE_REGROUP)
+	if (bs->teamplayState == bot_teamplay_state_t::TEAMPLAYSTATE_REGROUP)
 	{ //force to find a new leader
 		bs->squadLeader = nullptr;
 		bs->isSquadLeader = 0;
@@ -4247,21 +4247,21 @@ void CommanderBotTeamplayAI(bot_state_t *bs)
 		{ //only order if this guy is not being ordered directly by the real player team leader
 			if (teammate_indanger >= 0 && !teammate_helped)
 			{ //send someone out to help whoever needs help most at the moment
-				bst->teamplayState = TEAMPLAYSTATE_ASSISTING;
+				bst->teamplayState = bot_teamplay_state_t::TEAMPLAYSTATE_ASSISTING;
 				bst->squadLeader = &g_entities[teammate_indanger];
 				teammate_helped = 1;
 			}
-			else if ((teammate_indanger == -1 || teammate_helped) && bst->teamplayState == TEAMPLAYSTATE_ASSISTING)
+			else if ((teammate_indanger == -1 || teammate_helped) && bst->teamplayState == bot_teamplay_state_t::TEAMPLAYSTATE_ASSISTING)
 			{ //no teammates need help badly, but this guy is trying to help them anyway, so stop
-				bst->teamplayState = TEAMPLAYSTATE_FOLLOWING;
+				bst->teamplayState = bot_teamplay_state_t::TEAMPLAYSTATE_FOLLOWING;
 				bst->squadLeader = &g_entities[bs->client];
 			}
 
 			if (bs->squadRegroupInterval < level.time && Q_irand(1, 10) < 5)
 			{ //every so often tell the squad to regroup for the sake of variation
-				if (bst->teamplayState == TEAMPLAYSTATE_FOLLOWING)
+				if (bst->teamplayState == bot_teamplay_state_t::TEAMPLAYSTATE_FOLLOWING)
 				{
-					bst->teamplayState = TEAMPLAYSTATE_REGROUP;
+					bst->teamplayState = bot_teamplay_state_t::TEAMPLAYSTATE_REGROUP;
 				}
 
 				bs->isSquadLeader = 0;
@@ -4277,15 +4277,15 @@ void CommanderBotTeamplayAI(bot_state_t *bs)
 //pick which commander ai to use based on gametype
 void CommanderBotAI(bot_state_t *bs)
 {
-	if (level.gametype == GT_CTF || level.gametype == GT_CTY)
+	if (level.gametype == gametype_t::GT_CTF || level.gametype == gametype_t::GT_CTY)
 	{
 		CommanderBotCTFAI(bs);
 	}
-	else if (level.gametype == GT_SIEGE)
+	else if (level.gametype == gametype_t::GT_SIEGE)
 	{
 		CommanderBotSiegeAI(bs);
 	}
-	else if (level.gametype == GT_TEAM)
+	else if (level.gametype == gametype_t::GT_TEAM)
 	{
 		CommanderBotTeamplayAI(bs);
 	}
@@ -4343,14 +4343,14 @@ void MeleeCombatHandling(bot_state_t *bs)
 	VectorCopy(usethisvec, downvec);
 	downvec[2] -= 4096;
 
-	trap->Trace(&tr, usethisvec, mins, maxs, downvec, -1, MASK_SOLID, false, G2TRFLAG_NONE, 0);
+	trap->Trace(&tr, usethisvec, mins, maxs, downvec, -1, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 	en_down = (int)tr.endpos[2];
 
 	VectorCopy(bs->origin, downvec);
 	downvec[2] -= 4096;
 
-	trap->Trace(&tr, bs->origin, mins, maxs, downvec, -1, MASK_SOLID, false, G2TRFLAG_NONE, 0);
+	trap->Trace(&tr, bs->origin, mins, maxs, downvec, -1, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 	me_down = (int)tr.endpos[2];
 
@@ -4365,7 +4365,7 @@ void MeleeCombatHandling(bot_state_t *bs)
 	VectorCopy(midorg, downvec);
 	downvec[2] -= 4096;
 
-	trap->Trace(&tr, midorg, mins, maxs, downvec, -1, MASK_SOLID, false, G2TRFLAG_NONE, 0);
+	trap->Trace(&tr, midorg, mins, maxs, downvec, -1, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 	mid_down = (int)tr.endpos[2];
 
@@ -4428,7 +4428,7 @@ void SaberCombatHandling(bot_state_t *bs)
 	VectorCopy(usethisvec, downvec);
 	downvec[2] -= 4096;
 
-	trap->Trace(&tr, usethisvec, mins, maxs, downvec, -1, MASK_SOLID, false, G2TRFLAG_NONE, 0);
+	trap->Trace(&tr, usethisvec, mins, maxs, downvec, -1, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 	en_down = (int)tr.endpos[2];
 
@@ -4442,7 +4442,7 @@ void SaberCombatHandling(bot_state_t *bs)
 		VectorCopy(bs->origin, downvec);
 		downvec[2] -= 4096;
 
-		trap->Trace(&tr, bs->origin, mins, maxs, downvec, -1, MASK_SOLID, false, G2TRFLAG_NONE, 0);
+		trap->Trace(&tr, bs->origin, mins, maxs, downvec, -1, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 		me_down = (int)tr.endpos[2];
 
@@ -4464,7 +4464,7 @@ void SaberCombatHandling(bot_state_t *bs)
 	VectorCopy(midorg, downvec);
 	downvec[2] -= 4096;
 
-	trap->Trace(&tr, midorg, mins, maxs, downvec, -1, MASK_SOLID, false, G2TRFLAG_NONE, 0);
+	trap->Trace(&tr, midorg, mins, maxs, downvec, -1, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 	mid_down = (int)tr.endpos[2];
 
@@ -4517,7 +4517,7 @@ void SaberCombatHandling(bot_state_t *bs)
 				bs->beStill = level.time + Q_irand(500, 1000);
 				bs->saberSTime = level.time + Q_irand(1200, 1800);
 			}
-			else if (bs->currentEnemy->client->ps.weapon == WP_SABER && bs->frame_Enemy_Len < 80 && ((Q_irand(1, 10) < 8 && bs->saberBFTime < level.time) || bs->saberBTime > level.time || BG_SaberInKata(bs->currentEnemy->client->ps.saberMove) || bs->currentEnemy->client->ps.saberMove == LS_SPINATTACK || bs->currentEnemy->client->ps.saberMove == LS_SPINATTACK_DUAL))
+			else if (bs->currentEnemy->client->ps.weapon == weapon_t::WP_SABER && bs->frame_Enemy_Len < 80 && ((Q_irand(1, 10) < 8 && bs->saberBFTime < level.time) || bs->saberBTime > level.time || BG_SaberInKata(bs->currentEnemy->client->ps.saberMove) || bs->currentEnemy->client->ps.saberMove == saberMoveName_t::LS_SPINATTACK || bs->currentEnemy->client->ps.saberMove == saberMoveName_t::LS_SPINATTACK_DUAL))
 			{
 				vec3_t vs;
 				vec3_t groundcheck;
@@ -4527,7 +4527,7 @@ void SaberCombatHandling(bot_state_t *bs)
 				VectorSubtract(bs->origin, usethisvec, vs);
 				VectorNormalize(vs);
 
-				if (BG_SaberInKata(bs->currentEnemy->client->ps.saberMove) || bs->currentEnemy->client->ps.saberMove == LS_SPINATTACK || bs->currentEnemy->client->ps.saberMove == LS_SPINATTACK_DUAL)
+				if (BG_SaberInKata(bs->currentEnemy->client->ps.saberMove) || bs->currentEnemy->client->ps.saberMove == saberMoveName_t::LS_SPINATTACK || bs->currentEnemy->client->ps.saberMove == saberMoveName_t::LS_SPINATTACK_DUAL)
 				{
 					idealDist = 256;
 				}
@@ -4552,7 +4552,7 @@ void SaberCombatHandling(bot_state_t *bs)
 
 					groundcheck[2] -= 64;
 
-					trap->Trace(&tr, bs->goalPosition, nullptr, nullptr, groundcheck, bs->client, MASK_SOLID, false, G2TRFLAG_NONE, 0);
+					trap->Trace(&tr, bs->goalPosition, nullptr, nullptr, groundcheck, bs->client, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 					if (tr.fraction == 1.0f)
 					{ //don't back off of a ledge
@@ -4562,7 +4562,7 @@ void SaberCombatHandling(bot_state_t *bs)
 					checkIncr += 64;
 				}
 			}
-			else if (bs->currentEnemy->client->ps.weapon == WP_SABER && bs->frame_Enemy_Len >= 75)
+			else if (bs->currentEnemy->client->ps.weapon == weapon_t::WP_SABER && bs->frame_Enemy_Len >= 75)
 			{
 				bs->saberBFTime = level.time + Q_irand(700, 1300);
 				bs->saberBTime = 0;
@@ -4597,19 +4597,19 @@ float BotWeaponCanLead(bot_state_t *bs)
 {
 	switch ( bs->cur_ps.weapon )
 	{
-	case WP_BRYAR_PISTOL:
+	case weapon_t::WP_BRYAR_PISTOL:
 		return 0.5f;
-	case WP_BLASTER:
+	case weapon_t::WP_BLASTER:
 		return 0.35f;
-	case WP_BOWCASTER:
+	case weapon_t::WP_BOWCASTER:
 		return 0.5f;
-	case WP_REPEATER:
+	case weapon_t::WP_REPEATER:
 		return 0.45f;
-	case WP_THERMAL:
+	case weapon_t::WP_THERMAL:
 		return 0.5f;
-	case WP_DEMP2:
+	case weapon_t::WP_DEMP2:
 		return 0.35f;
-	case WP_ROCKET_LAUNCHER:
+	case weapon_t::WP_ROCKET_LAUNCHER:
 		return 0.7f;
 	default:
 		return 0.0f;
@@ -4827,7 +4827,7 @@ int ShouldSecondaryFire(bot_state_t *bs)
 		return 0;
 	}
 
-	if (bs->cur_ps.weaponstate == WEAPON_CHARGING_ALT && bs->cur_ps.weapon == WP_ROCKET_LAUNCHER)
+	if (bs->cur_ps.weaponstate == weaponstate_t::WEAPON_CHARGING_ALT && bs->cur_ps.weapon == weapon_t::WP_ROCKET_LAUNCHER)
 	{
 		float heldTime = (level.time - bs->cur_ps.weaponChargeTime);
 
@@ -4861,32 +4861,32 @@ int ShouldSecondaryFire(bot_state_t *bs)
 			return 1;
 		}
 	}
-	else if ((bs->cur_ps.weaponstate == WEAPON_CHARGING_ALT) && (level.time - bs->cur_ps.weaponChargeTime) > bs->altChargeTime)
+	else if ((bs->cur_ps.weaponstate == weaponstate_t::WEAPON_CHARGING_ALT) && (level.time - bs->cur_ps.weaponChargeTime) > bs->altChargeTime)
 	{
 		return 2;
 	}
-	else if (bs->cur_ps.weaponstate == WEAPON_CHARGING_ALT)
+	else if (bs->cur_ps.weaponstate == weaponstate_t::WEAPON_CHARGING_ALT)
 	{
 		return 1;
 	}
 
-	if (weap == WP_BRYAR_PISTOL && bs->frame_Enemy_Len < 300)
+	if (weap == weapon_t::WP_BRYAR_PISTOL && bs->frame_Enemy_Len < 300)
 	{
 		return 1;
 	}
-	else if (weap == WP_BOWCASTER && bs->frame_Enemy_Len > 300)
+	else if (weap == weapon_t::WP_BOWCASTER && bs->frame_Enemy_Len > 300)
 	{
 		return 1;
 	}
-	else if (weap == WP_REPEATER && bs->frame_Enemy_Len < 600 && bs->frame_Enemy_Len > 250)
+	else if (weap == weapon_t::WP_REPEATER && bs->frame_Enemy_Len < 600 && bs->frame_Enemy_Len > 250)
 	{
 		return 1;
 	}
-	else if (weap == WP_BLASTER && bs->frame_Enemy_Len < 300)
+	else if (weap == weapon_t::WP_BLASTER && bs->frame_Enemy_Len < 300)
 	{
 		return 1;
 	}
-	else if (weap == WP_ROCKET_LAUNCHER && bs->frame_Enemy_Len > 250)
+	else if (weap == weapon_t::WP_ROCKET_LAUNCHER && bs->frame_Enemy_Len > 250)
 	{
 		return 1;
 	}
@@ -4918,14 +4918,14 @@ int CombatBotAI(bot_state_t *bs, float thinktime)
 	VectorSubtract(eorg, bs->eye, a);
 	vectoangles(a, a);
 
-	if (BotGetWeaponRange(bs) == BWEAPONRANGE_SABER)
+	if (BotGetWeaponRange(bs) == botWeaponRange_t::BWEAPONRANGE_SABER)
 	{
 		if (bs->frame_Enemy_Len <= SABER_ATTACK_RANGE)
 		{
 			bs->doAttack = 1;
 		}
 	}
-	else if (BotGetWeaponRange(bs) == BWEAPONRANGE_MELEE)
+	else if (BotGetWeaponRange(bs) == botWeaponRange_t::BWEAPONRANGE_MELEE)
 	{
 		if (bs->frame_Enemy_Len <= MELEE_ATTACK_RANGE)
 		{
@@ -4934,12 +4934,12 @@ int CombatBotAI(bot_state_t *bs, float thinktime)
 	}
 	else
 	{
-		if (bs->cur_ps.weapon == WP_THERMAL || bs->cur_ps.weapon == WP_ROCKET_LAUNCHER)
+		if (bs->cur_ps.weapon == weapon_t::WP_THERMAL || bs->cur_ps.weapon == weapon_t::WP_ROCKET_LAUNCHER)
 		{ //be careful with the hurty weapons
 			fovcheck = 40;
 
-			if (bs->cur_ps.weaponstate == WEAPON_CHARGING_ALT &&
-				bs->cur_ps.weapon == WP_ROCKET_LAUNCHER)
+			if (bs->cur_ps.weaponstate == weaponstate_t::WEAPON_CHARGING_ALT &&
+				bs->cur_ps.weapon == weapon_t::WP_ROCKET_LAUNCHER)
 			{ //if we're charging the weapon up then we can hold fire down within a normal fov
 				fovcheck = 60;
 			}
@@ -4949,8 +4949,8 @@ int CombatBotAI(bot_state_t *bs, float thinktime)
 			fovcheck = 60;
 		}
 
-		if (bs->cur_ps.weaponstate == WEAPON_CHARGING ||
-			bs->cur_ps.weaponstate == WEAPON_CHARGING_ALT)
+		if (bs->cur_ps.weaponstate == weaponstate_t::WEAPON_CHARGING ||
+			bs->cur_ps.weaponstate == weaponstate_t::WEAPON_CHARGING_ALT)
 		{
 			fovcheck = 160;
 		}
@@ -4962,15 +4962,15 @@ int CombatBotAI(bot_state_t *bs, float thinktime)
 
 		if (InFieldOfVision(bs->viewangles, fovcheck, a))
 		{
-			if (bs->cur_ps.weapon == WP_THERMAL)
+			if (bs->cur_ps.weapon == weapon_t::WP_THERMAL)
 			{
 				if (((level.time - bs->cur_ps.weaponChargeTime) < (bs->frame_Enemy_Len*2) &&
 					(level.time - bs->cur_ps.weaponChargeTime) < 4000 &&
 					bs->frame_Enemy_Len > 64) ||
-					(bs->cur_ps.weaponstate != WEAPON_CHARGING &&
-					bs->cur_ps.weaponstate != WEAPON_CHARGING_ALT))
+					(bs->cur_ps.weaponstate != weaponstate_t::WEAPON_CHARGING &&
+					bs->cur_ps.weaponstate != weaponstate_t::WEAPON_CHARGING_ALT))
 				{
-					if (bs->cur_ps.weaponstate != WEAPON_CHARGING && bs->cur_ps.weaponstate != WEAPON_CHARGING_ALT)
+					if (bs->cur_ps.weaponstate != weaponstate_t::WEAPON_CHARGING && bs->cur_ps.weaponstate != weaponstate_t::WEAPON_CHARGING_ALT)
 					{
 						if (bs->frame_Enemy_Len > 512 && bs->frame_Enemy_Len < 800)
 						{
@@ -4984,11 +4984,11 @@ int CombatBotAI(bot_state_t *bs, float thinktime)
 						}
 					}
 
-					if (bs->cur_ps.weaponstate == WEAPON_CHARGING)
+					if (bs->cur_ps.weaponstate == weaponstate_t::WEAPON_CHARGING)
 					{
 						bs->doAttack = 1;
 					}
-					else if (bs->cur_ps.weaponstate == WEAPON_CHARGING_ALT)
+					else if (bs->cur_ps.weaponstate == weaponstate_t::WEAPON_CHARGING_ALT)
 					{
 						bs->doAltAttack = 1;
 					}
@@ -4998,8 +4998,8 @@ int CombatBotAI(bot_state_t *bs, float thinktime)
 			{
 				secFire = ShouldSecondaryFire(bs);
 
-				if (bs->cur_ps.weaponstate != WEAPON_CHARGING_ALT &&
-					bs->cur_ps.weaponstate != WEAPON_CHARGING)
+				if (bs->cur_ps.weaponstate != weaponstate_t::WEAPON_CHARGING_ALT &&
+					bs->cur_ps.weaponstate != weaponstate_t::WEAPON_CHARGING)
 				{
 					bs->altChargeTime = Q_irand(500, 1000);
 				}
@@ -5010,9 +5010,9 @@ int CombatBotAI(bot_state_t *bs, float thinktime)
 				}
 				else if (!secFire)
 				{
-					if (bs->cur_ps.weapon != WP_THERMAL)
+					if (bs->cur_ps.weapon != weapon_t::WP_THERMAL)
 					{
-						if (bs->cur_ps.weaponstate != WEAPON_CHARGING ||
+						if (bs->cur_ps.weaponstate != weaponstate_t::WEAPON_CHARGING ||
 							bs->altChargeTime > (level.time - bs->cur_ps.weaponChargeTime))
 						{
 							bs->doAttack = 1;
@@ -5067,7 +5067,7 @@ int BotFallbackNavigation(bot_state_t *bs)
 	trto[1] = bs->origin[1] + fwd[1]*16;
 	trto[2] = bs->origin[2] + fwd[2]*16;
 
-	trap->Trace(&tr, bs->origin, mins, maxs, trto, ENTITYNUM_NONE, MASK_SOLID, false, G2TRFLAG_NONE, 0);
+	trap->Trace(&tr, bs->origin, mins, maxs, trto, ENTITYNUM_NONE, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 	if (tr.fraction == 1)
 	{
@@ -5086,12 +5086,12 @@ int BotTryAnotherWeapon(bot_state_t *bs)
 { //out of ammo, resort to the first weapon we come across that has ammo
 	weapon_t i;
 
-	i = WP_STUN_BATON;
+	i = weapon_t::WP_STUN_BATON;
 
-	while (i < WP_NUM_WEAPONS)
+	while (i < weapon_t::WP_NUM_WEAPONS)
 	{
 		if (bs->cur_ps.ammo[weaponData[i].ammoIndex] >= weaponData[i].energyPerShot &&
-			(bs->cur_ps.stats[STAT_WEAPONS] & Bit( i )))
+			(bs->cur_ps.stats[statIndex_t::STAT_WEAPONS] & Bit( i )))
 		{
 			bs->virtualWeapon = i;
 			BotSelectWeapon(bs->client, i);
@@ -5103,12 +5103,12 @@ int BotTryAnotherWeapon(bot_state_t *bs)
 		i++;
 	}
 
-	if (bs->cur_ps.weapon != WP_STUN_BATON && bs->virtualWeapon != WP_STUN_BATON)
+	if (bs->cur_ps.weapon != weapon_t::WP_STUN_BATON && bs->virtualWeapon != weapon_t::WP_STUN_BATON)
 	{ //should always have this.. shouldn't we?
-		bs->virtualWeapon = WP_STUN_BATON;
-		BotSelectWeapon(bs->client, WP_STUN_BATON);
-		//bs->cur_ps.weapon = WP_STUN_BATON;
-		//level.clients[bs->client].ps.weapon = WP_STUN_BATON;
+		bs->virtualWeapon = weapon_t::WP_STUN_BATON;
+		BotSelectWeapon(bs->client, weapon_t::WP_STUN_BATON);
+		//bs->cur_ps.weapon = weapon_t::WP_STUN_BATON;
+		//level.clients[bs->client].ps.weapon = weapon_t::WP_STUN_BATON;
 		return 1;
 	}
 
@@ -5118,13 +5118,13 @@ int BotTryAnotherWeapon(bot_state_t *bs)
 //is this weapon available to us?
 bool BotWeaponSelectable(bot_state_t *bs, weapon_t weapon)
 {
-	if (weapon == WP_NONE)
+	if (weapon == weapon_t::WP_NONE)
 	{
 		return false;
 	}
 
 	if (bs->cur_ps.ammo[weaponData[weapon].ammoIndex] >= weaponData[weapon].energyPerShot &&
-		(bs->cur_ps.stats[STAT_WEAPONS] & Bit( weapon )))
+		(bs->cur_ps.stats[statIndex_t::STAT_WEAPONS] & Bit( weapon )))
 	{
 		return true;
 	}
@@ -5137,17 +5137,17 @@ int BotSelectIdealWeapon(bot_state_t *bs)
 {
 	weapon_t i;
 	int bestweight = -1;
-	weapon_t bestweapon = WP_NONE;
+	weapon_t bestweapon = weapon_t::WP_NONE;
 
-	i = WP_NONE;
+	i = weapon_t::WP_NONE;
 
-	while (i < WP_NUM_WEAPONS)
+	while (i < weapon_t::WP_NUM_WEAPONS)
 	{
 		if (bs->cur_ps.ammo[weaponData[i].ammoIndex] >= weaponData[i].energyPerShot &&
 			bs->botWeaponWeights[i] > bestweight &&
-			(bs->cur_ps.stats[STAT_WEAPONS] & Bit( i )))
+			(bs->cur_ps.stats[statIndex_t::STAT_WEAPONS] & Bit( i )))
 		{
-			if (i == WP_THERMAL)
+			if (i == weapon_t::WP_THERMAL)
 			{ //special case..
 				if (bs->currentEnemy && bs->frame_Enemy_Len < 700)
 				{
@@ -5166,50 +5166,50 @@ int BotSelectIdealWeapon(bot_state_t *bs)
 	}
 
 	if ( bs->currentEnemy && bs->frame_Enemy_Len < 300 &&
-		(bestweapon == WP_BRYAR_PISTOL || bestweapon == WP_BLASTER || bestweapon == WP_BOWCASTER) &&
-		(bs->cur_ps.stats[STAT_WEAPONS] & Bit( WP_SABER )) )
+		(bestweapon == weapon_t::WP_BRYAR_PISTOL || bestweapon == weapon_t::WP_BLASTER || bestweapon == weapon_t::WP_BOWCASTER) &&
+		(bs->cur_ps.stats[statIndex_t::STAT_WEAPONS] & Bit( weapon_t::WP_SABER )) )
 	{
-		bestweapon = WP_SABER;
+		bestweapon = weapon_t::WP_SABER;
 		bestweight = 1;
 	}
 
 	if ( bs->currentEnemy && bs->frame_Enemy_Len > 300 &&
-		bs->currentEnemy->client && bs->currentEnemy->client->ps.weapon != WP_SABER &&
-		(bestweapon == WP_SABER) )
+		bs->currentEnemy->client && bs->currentEnemy->client->ps.weapon != weapon_t::WP_SABER &&
+		(bestweapon == weapon_t::WP_SABER) )
 	{ //if the enemy is far away, and we have our saber selected, see if we have any good distance weapons instead
-		if (BotWeaponSelectable(bs, WP_DISRUPTOR))
+		if (BotWeaponSelectable(bs, weapon_t::WP_DISRUPTOR))
 		{
-			bestweapon = WP_DISRUPTOR;
+			bestweapon = weapon_t::WP_DISRUPTOR;
 			bestweight = 1;
 		}
-		else if (BotWeaponSelectable(bs, WP_ROCKET_LAUNCHER))
+		else if (BotWeaponSelectable(bs, weapon_t::WP_ROCKET_LAUNCHER))
 		{
-			bestweapon = WP_ROCKET_LAUNCHER;
+			bestweapon = weapon_t::WP_ROCKET_LAUNCHER;
 			bestweight = 1;
 		}
-		else if (BotWeaponSelectable(bs, WP_BOWCASTER))
+		else if (BotWeaponSelectable(bs, weapon_t::WP_BOWCASTER))
 		{
-			bestweapon = WP_BOWCASTER;
+			bestweapon = weapon_t::WP_BOWCASTER;
 			bestweight = 1;
 		}
-		else if (BotWeaponSelectable(bs, WP_BLASTER))
+		else if (BotWeaponSelectable(bs, weapon_t::WP_BLASTER))
 		{
-			bestweapon = WP_BLASTER;
+			bestweapon = weapon_t::WP_BLASTER;
 			bestweight = 1;
 		}
-		else if (BotWeaponSelectable(bs, WP_REPEATER))
+		else if (BotWeaponSelectable(bs, weapon_t::WP_REPEATER))
 		{
-			bestweapon = WP_REPEATER;
+			bestweapon = weapon_t::WP_REPEATER;
 			bestweight = 1;
 		}
-		else if (BotWeaponSelectable(bs, WP_DEMP2))
+		else if (BotWeaponSelectable(bs, weapon_t::WP_DEMP2))
 		{
-			bestweapon = WP_DEMP2;
+			bestweapon = weapon_t::WP_DEMP2;
 			bestweight = 1;
 		}
 	}
 
-	//assert(bs->cur_ps.weapon > WP_NONE && bestweapon > WP_NONE);
+	//assert(bs->cur_ps.weapon > weapon_t::WP_NONE && bestweapon > weapon_t::WP_NONE);
 
 	if (bestweight != -1 && bs->cur_ps.weapon != bestweapon && bs->virtualWeapon != bestweapon)
 	{
@@ -5220,7 +5220,7 @@ int BotSelectIdealWeapon(bot_state_t *bs)
 		return 1;
 	}
 
-	//assert(bs->cur_ps.weapon > WP_NONE);
+	//assert(bs->cur_ps.weapon > weapon_t::WP_NONE);
 
 	return 0;
 }
@@ -5231,13 +5231,13 @@ int BotSelectChoiceWeapon(bot_state_t *bs, weapon_t weapon, int doselection)
 	weapon_t i;
 	int hasit = 0;
 
-	i = WP_NONE;
+	i = weapon_t::WP_NONE;
 
-	while (i < WP_NUM_WEAPONS)
+	while (i < weapon_t::WP_NUM_WEAPONS)
 	{
 		if (bs->cur_ps.ammo[weaponData[i].ammoIndex] > weaponData[i].energyPerShot &&
 			i == weapon &&
-			(bs->cur_ps.stats[STAT_WEAPONS] & Bit( i )))
+			(bs->cur_ps.stats[statIndex_t::STAT_WEAPONS] & Bit( i )))
 		{
 			hasit = 1;
 			break;
@@ -5266,12 +5266,12 @@ int BotSelectChoiceWeapon(bot_state_t *bs, weapon_t weapon, int doselection)
 //override our standard weapon choice with a melee weapon
 int BotSelectMelee(bot_state_t *bs)
 {
-	if (bs->cur_ps.weapon != WP_STUN_BATON && bs->virtualWeapon != WP_STUN_BATON)
+	if (bs->cur_ps.weapon != weapon_t::WP_STUN_BATON && bs->virtualWeapon != weapon_t::WP_STUN_BATON)
 	{
-		bs->virtualWeapon = WP_STUN_BATON;
-		BotSelectWeapon(bs->client, WP_STUN_BATON);
-		//bs->cur_ps.weapon = WP_STUN_BATON;
-		//level.clients[bs->client].ps.weapon = WP_STUN_BATON;
+		bs->virtualWeapon = weapon_t::WP_STUN_BATON;
+		BotSelectWeapon(bs->client, weapon_t::WP_STUN_BATON);
+		//bs->cur_ps.weapon = weapon_t::WP_STUN_BATON;
+		//level.clients[bs->client].ps.weapon = weapon_t::WP_STUN_BATON;
 		return 1;
 	}
 
@@ -5284,7 +5284,7 @@ int GetLoveLevel(bot_state_t *bs, bot_state_t *love)
 	int i = 0;
 	const char *lname = nullptr;
 
-	if (level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL)
+	if (level.gametype == gametype_t::GT_DUEL || level.gametype == gametype_t::GT_POWERDUEL)
 	{ //There is no love in 1-on-1
 		return 0;
 	}
@@ -5333,7 +5333,7 @@ void BotLovedOneDied(bot_state_t *bs, bot_state_t *loved, int lovelevel)
 		return;
 	}
 
-	if (level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL)
+	if (level.gametype == gametype_t::GT_DUEL || level.gametype == gametype_t::GT_POWERDUEL)
 	{ //There is no love in 1-on-1
 		return;
 	}
@@ -5456,7 +5456,7 @@ void StrafeTracing(bot_state_t *bs)
 		rorg[2] = bs->origin[2] + right[2]*32;
 	}
 
-	trap->Trace(&tr, bs->origin, mins, maxs, rorg, bs->client, MASK_SOLID, false, G2TRFLAG_NONE, 0);
+	trap->Trace(&tr, bs->origin, mins, maxs, rorg, bs->client, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 	if (tr.fraction != 1)
 	{
@@ -5467,7 +5467,7 @@ void StrafeTracing(bot_state_t *bs)
 
 	drorg[2] -= 32;
 
-	trap->Trace(&tr, rorg, nullptr, nullptr, drorg, bs->client, MASK_SOLID, false, G2TRFLAG_NONE, 0);
+	trap->Trace(&tr, rorg, nullptr, nullptr, drorg, bs->client, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 	if (tr.fraction == 1)
 	{ //this may be a dangerous ledge, so don't strafe over it just in case
@@ -5478,13 +5478,13 @@ void StrafeTracing(bot_state_t *bs)
 //doing primary weapon fire
 int PrimFiring(bot_state_t *bs)
 {
-	if (bs->cur_ps.weaponstate != WEAPON_CHARGING &&
+	if (bs->cur_ps.weaponstate != weaponstate_t::WEAPON_CHARGING &&
 		bs->doAttack)
 	{
 		return 1;
 	}
 
-	if (bs->cur_ps.weaponstate == WEAPON_CHARGING &&
+	if (bs->cur_ps.weaponstate == weaponstate_t::WEAPON_CHARGING &&
 		!bs->doAttack)
 	{
 		return 1;
@@ -5496,13 +5496,13 @@ int PrimFiring(bot_state_t *bs)
 //should we keep our primary weapon from firing?
 int KeepPrimFromFiring(bot_state_t *bs)
 {
-	if (bs->cur_ps.weaponstate != WEAPON_CHARGING &&
+	if (bs->cur_ps.weaponstate != weaponstate_t::WEAPON_CHARGING &&
 		bs->doAttack)
 	{
 		bs->doAttack = 0;
 	}
 
-	if (bs->cur_ps.weaponstate == WEAPON_CHARGING &&
+	if (bs->cur_ps.weaponstate == weaponstate_t::WEAPON_CHARGING &&
 		!bs->doAttack)
 	{
 		bs->doAttack = 1;
@@ -5514,13 +5514,13 @@ int KeepPrimFromFiring(bot_state_t *bs)
 //doing secondary weapon fire
 int AltFiring(bot_state_t *bs)
 {
-	if (bs->cur_ps.weaponstate != WEAPON_CHARGING_ALT &&
+	if (bs->cur_ps.weaponstate != weaponstate_t::WEAPON_CHARGING_ALT &&
 		bs->doAltAttack)
 	{
 		return 1;
 	}
 
-	if (bs->cur_ps.weaponstate == WEAPON_CHARGING_ALT &&
+	if (bs->cur_ps.weaponstate == weaponstate_t::WEAPON_CHARGING_ALT &&
 		!bs->doAltAttack)
 	{
 		return 1;
@@ -5532,13 +5532,13 @@ int AltFiring(bot_state_t *bs)
 //should we keep our alt from firing?
 int KeepAltFromFiring(bot_state_t *bs)
 {
-	if (bs->cur_ps.weaponstate != WEAPON_CHARGING_ALT &&
+	if (bs->cur_ps.weaponstate != weaponstate_t::WEAPON_CHARGING_ALT &&
 		bs->doAltAttack)
 	{
 		bs->doAltAttack = 0;
 	}
 
-	if (bs->cur_ps.weaponstate == WEAPON_CHARGING_ALT &&
+	if (bs->cur_ps.weaponstate == weaponstate_t::WEAPON_CHARGING_ALT &&
 		!bs->doAltAttack)
 	{
 		bs->doAltAttack = 1;
@@ -5572,7 +5572,7 @@ gentity_t *CheckForFriendInLOF(bot_state_t *bs)
 	trto[1] = trfrom[1] + fwd[1]*2048;
 	trto[2] = trfrom[2] + fwd[2]*2048;
 
-	trap->Trace(&tr, trfrom, mins, maxs, trto, bs->client, MASK_PLAYERSOLID, false, G2TRFLAG_NONE, 0);
+	trap->Trace(&tr, trfrom, mins, maxs, trto, bs->client, MASK_PLAYERSOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 	if (tr.fraction != 1 && tr.entityNum <= MAX_CLIENTS)
 	{
@@ -5671,7 +5671,7 @@ void CTFFlagMovement(bot_state_t *bs)
 	maxs[1] = 15;
 	maxs[2] = 7;
 
-	if (bs->wantFlag && Any( bs->wantFlag->flags & FL_DROPPED_ITEM ))
+	if (bs->wantFlag && Any( bs->wantFlag->flags & gentityFlags_t::FL_DROPPED_ITEM ))
 	{
 		if (bs->staticFlagSpot[0] == bs->wantFlag->s.pos.trBase[0] &&
 			bs->staticFlagSpot[1] == bs->wantFlag->s.pos.trBase[1] &&
@@ -5704,12 +5704,12 @@ void CTFFlagMovement(bot_state_t *bs)
 		if (bs->wpDestination == flagRed ||
 			bs->wpDestination == flagBlue)
 		{
-			if (bs->wpDestination == flagRed && droppedRedFlag && Any( droppedRedFlag->flags & FL_DROPPED_ITEM ) && droppedRedFlag->classname && strcmp(droppedRedFlag->classname, "freed") != 0)
+			if (bs->wpDestination == flagRed && droppedRedFlag && Any( droppedRedFlag->flags & gentityFlags_t::FL_DROPPED_ITEM ) && droppedRedFlag->classname && strcmp(droppedRedFlag->classname, "freed") != 0)
 			{
 				desiredDrop = droppedRedFlag;
 				diddrop = 1;
 			}
-			if (bs->wpDestination == flagBlue && droppedBlueFlag && Any( droppedBlueFlag->flags & FL_DROPPED_ITEM ) && droppedBlueFlag->classname && strcmp(droppedBlueFlag->classname, "freed") != 0)
+			if (bs->wpDestination == flagBlue && droppedBlueFlag && Any( droppedBlueFlag->flags & gentityFlags_t::FL_DROPPED_ITEM ) && droppedBlueFlag->classname && strcmp(droppedBlueFlag->classname, "freed") != 0)
 			{
 				desiredDrop = droppedBlueFlag;
 				diddrop = 1;
@@ -5721,7 +5721,7 @@ void CTFFlagMovement(bot_state_t *bs)
 
 				if (VectorLength(a) <= BOT_FLAG_GET_DISTANCE)
 				{
-					trap->Trace(&tr, bs->origin, mins, maxs, desiredDrop->s.pos.trBase, bs->client, MASK_SOLID, false, G2TRFLAG_NONE, 0);
+					trap->Trace(&tr, bs->origin, mins, maxs, desiredDrop->s.pos.trBase, bs->client, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 					if (tr.fraction == 1 || tr.entityNum == desiredDrop->s.number)
 					{
@@ -5792,44 +5792,44 @@ stillmadeit:
 //see if it would be beneficial at this time to use one of our inv items
 int BotUseInventoryItem(bot_state_t *bs)
 {
-	if (bs->cur_ps.stats[STAT_HOLDABLE_ITEMS] & Bit( HI_MEDPAC ))
+	if (bs->cur_ps.stats[statIndex_t::STAT_HOLDABLE_ITEMS] & Bit( holdable_t::HI_MEDPAC ))
 	{
 		if (g_entities[bs->client].health <= 75)
 		{
-			bs->cur_ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag( HI_MEDPAC );
+			bs->cur_ps.stats[statIndex_t::STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag( holdable_t::HI_MEDPAC );
 			goto wantuseitem;
 		}
 	}
-	if (bs->cur_ps.stats[STAT_HOLDABLE_ITEMS] & Bit( HI_MEDPAC_BIG ))
+	if (bs->cur_ps.stats[statIndex_t::STAT_HOLDABLE_ITEMS] & Bit( holdable_t::HI_MEDPAC_BIG ))
 	{
 		if (g_entities[bs->client].health <= 50)
 		{
-			bs->cur_ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag( HI_MEDPAC_BIG );
+			bs->cur_ps.stats[statIndex_t::STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag( holdable_t::HI_MEDPAC_BIG );
 			goto wantuseitem;
 		}
 	}
-	if (bs->cur_ps.stats[STAT_HOLDABLE_ITEMS] & Bit( HI_SEEKER ))
+	if (bs->cur_ps.stats[statIndex_t::STAT_HOLDABLE_ITEMS] & Bit( holdable_t::HI_SEEKER ))
 	{
 		if (bs->currentEnemy && bs->frame_Enemy_Vis)
 		{
-			bs->cur_ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag( HI_SEEKER );
+			bs->cur_ps.stats[statIndex_t::STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag( holdable_t::HI_SEEKER );
 			goto wantuseitem;
 		}
 	}
-	if (bs->cur_ps.stats[STAT_HOLDABLE_ITEMS] & Bit( HI_SENTRY_GUN ))
+	if (bs->cur_ps.stats[statIndex_t::STAT_HOLDABLE_ITEMS] & Bit( holdable_t::HI_SENTRY_GUN ))
 	{
 		if (bs->currentEnemy && bs->frame_Enemy_Vis)
 		{
-			bs->cur_ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag( HI_SENTRY_GUN );
+			bs->cur_ps.stats[statIndex_t::STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag( holdable_t::HI_SENTRY_GUN );
 			goto wantuseitem;
 		}
 	}
-	if (bs->cur_ps.stats[STAT_HOLDABLE_ITEMS] & Bit( HI_SHIELD ))
+	if (bs->cur_ps.stats[statIndex_t::STAT_HOLDABLE_ITEMS] & Bit( holdable_t::HI_SHIELD ))
 	{
 		if (bs->currentEnemy && bs->frame_Enemy_Vis && bs->runningToEscapeThreat)
 		{ //this will (hopefully) result in the bot placing the shield down while facing
 		  //the enemy and running away
-			bs->cur_ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag( HI_SHIELD );
+			bs->cur_ps.stats[statIndex_t::STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag( holdable_t::HI_SHIELD );
 			goto wantuseitem;
 		}
 	}
@@ -5837,7 +5837,7 @@ int BotUseInventoryItem(bot_state_t *bs)
 	return 0;
 
 wantuseitem:
-	level.clients[bs->client].ps.stats[STAT_HOLDABLE_ITEM] = bs->cur_ps.stats[STAT_HOLDABLE_ITEM];
+	level.clients[bs->client].ps.stats[statIndex_t::STAT_HOLDABLE_ITEM] = bs->cur_ps.stats[statIndex_t::STAT_HOLDABLE_ITEM];
 
 	return 1;
 }
@@ -5854,7 +5854,7 @@ int BotSurfaceNear(bot_state_t *bs)
 	fwd[1] = bs->origin[1]+(fwd[1]*64);
 	fwd[2] = bs->origin[2]+(fwd[2]*64);
 
-	trap->Trace(&tr, bs->origin, nullptr, nullptr, fwd, bs->client, MASK_SOLID, false, G2TRFLAG_NONE, 0);
+	trap->Trace(&tr, bs->origin, nullptr, nullptr, fwd, bs->client, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 	if (tr.fraction != 1)
 	{
@@ -5869,20 +5869,20 @@ int BotWeaponBlockable(weapon_t weapon)
 {
 	switch (weapon)
 	{
-	case WP_STUN_BATON:
-	case WP_MELEE:
+	case weapon_t::WP_STUN_BATON:
+	case weapon_t::WP_MELEE:
 		return 0;
-	case WP_DISRUPTOR:
+	case weapon_t::WP_DISRUPTOR:
 		return 0;
-	case WP_DEMP2:
+	case weapon_t::WP_DEMP2:
 		return 0;
-	case WP_ROCKET_LAUNCHER:
+	case weapon_t::WP_ROCKET_LAUNCHER:
 		return 0;
-	case WP_THERMAL:
+	case weapon_t::WP_THERMAL:
 		return 0;
-	case WP_TRIP_MINE:
+	case weapon_t::WP_TRIP_MINE:
 		return 0;
-	case WP_DET_PACK:
+	case weapon_t::WP_DET_PACK:
 		return 0;
 	default:
 		return 1;
@@ -5973,7 +5973,7 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 
 	if (g_entities[bs->client].inuse &&
 		g_entities[bs->client].client &&
-		g_entities[bs->client].client->sess.sessionTeam == TEAM_SPECTATOR)
+		g_entities[bs->client].client->sess.sessionTeam == team_t::TEAM_SPECTATOR)
 	{
 		bs->wpCurrent = nullptr;
 		bs->currentEnemy = nullptr;
@@ -6011,8 +6011,8 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 			{
 				vehicle = &g_entities[i];
 
-				if (vehicle->inuse && vehicle->client && vehicle->s.eType == ET_NPC &&
-					vehicle->s.NPC_class == CLASS_VEHICLE && vehicle->m_pVehicle &&
+				if (vehicle->inuse && vehicle->client && vehicle->s.eType == entityType_t::ET_NPC &&
+					vehicle->s.NPC_class == class_t::CLASS_VEHICLE && vehicle->m_pVehicle &&
 					(vehicle->client->ps.m_iVehicleNum || bot_getinthecarrr.integer == 2))
 				{ //ok, this is a vehicle, and it has a pilot/passengers
 					break;
@@ -6175,14 +6175,14 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 	}
 
 	if (bs->revengeEnemy && bs->revengeEnemy->client &&
-		bs->revengeEnemy->client->pers.connected != CON_CONNECTED && bs->revengeEnemy->client->pers.connected != CON_CONNECTING)
+		bs->revengeEnemy->client->pers.connected != clientConnected_t::CON_CONNECTED && bs->revengeEnemy->client->pers.connected != clientConnected_t::CON_CONNECTING)
 	{
 		bs->revengeEnemy = nullptr;
 		bs->revengeHateLevel = 0;
 	}
 
 	if (bs->currentEnemy && bs->currentEnemy->client &&
-		bs->currentEnemy->client->pers.connected != CON_CONNECTED && bs->currentEnemy->client->pers.connected != CON_CONNECTING)
+		bs->currentEnemy->client->pers.connected != clientConnected_t::CON_CONNECTED && bs->currentEnemy->client->pers.connected != clientConnected_t::CON_CONNECTING)
 	{
 		bs->currentEnemy = nullptr;
 	}
@@ -6205,77 +6205,77 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 		vectoangles(a_fo, a_fo);
 
 		//do this above all things
-		if ((bs->cur_ps.fd.forcePowersKnown & Bit( FP_PUSH )) && (bs->doForcePush > level.time || bs->cur_ps.fd.forceGripBeingGripped > level.time) && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_PUSH]][FP_PUSH] /*&& InFieldOfVision(bs->viewangles, 50, a_fo)*/)
+		if ((bs->cur_ps.fd.forcePowersKnown & Bit( forcePowers_t::FP_PUSH )) && (bs->doForcePush > level.time || bs->cur_ps.fd.forceGripBeingGripped > level.time) && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[forcePowers_t::FP_PUSH]][forcePowers_t::FP_PUSH] /*&& InFieldOfVision(bs->viewangles, 50, a_fo)*/)
 		{
-			level.clients[bs->client].ps.fd.forcePowerSelected = FP_PUSH;
+			level.clients[bs->client].ps.fd.forcePowerSelected = forcePowers_t::FP_PUSH;
 			useTheForce = 1;
 			forceHostile = 1;
 		}
 		else if (bs->cur_ps.fd.forceSide == FORCE_DARKSIDE)
 		{ //try dark side powers
 		  //in order of priority top to bottom
-			if ((bs->cur_ps.fd.forcePowersKnown & Bit( FP_GRIP )) && (bs->cur_ps.fd.forcePowersActive & Bit( FP_GRIP )) && InFieldOfVision(bs->viewangles, 50, a_fo))
+			if ((bs->cur_ps.fd.forcePowersKnown & Bit( forcePowers_t::FP_GRIP )) && (bs->cur_ps.fd.forcePowersActive & Bit( forcePowers_t::FP_GRIP )) && InFieldOfVision(bs->viewangles, 50, a_fo))
 			{ //already gripping someone, so hold it
-				level.clients[bs->client].ps.fd.forcePowerSelected = FP_GRIP;
+				level.clients[bs->client].ps.fd.forcePowerSelected = forcePowers_t::FP_GRIP;
 				useTheForce = 1;
 				forceHostile = 1;
 			}
-			else if ((bs->cur_ps.fd.forcePowersKnown & Bit( FP_LIGHTNING )) && bs->frame_Enemy_Len < FORCE_LIGHTNING_RADIUS && level.clients[bs->client].ps.fd.forcePower > 50 && InFieldOfVision(bs->viewangles, 50, a_fo))
+			else if ((bs->cur_ps.fd.forcePowersKnown & Bit( forcePowers_t::FP_LIGHTNING )) && bs->frame_Enemy_Len < FORCE_LIGHTNING_RADIUS && level.clients[bs->client].ps.fd.forcePower > 50 && InFieldOfVision(bs->viewangles, 50, a_fo))
 			{
-				level.clients[bs->client].ps.fd.forcePowerSelected = FP_LIGHTNING;
+				level.clients[bs->client].ps.fd.forcePowerSelected = forcePowers_t::FP_LIGHTNING;
 				useTheForce = 1;
 				forceHostile = 1;
 			}
-			else if ((bs->cur_ps.fd.forcePowersKnown & Bit( FP_GRIP )) && bs->frame_Enemy_Len < MAX_GRIP_DISTANCE && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_GRIP]][FP_GRIP] && InFieldOfVision(bs->viewangles, 50, a_fo))
+			else if ((bs->cur_ps.fd.forcePowersKnown & Bit( forcePowers_t::FP_GRIP )) && bs->frame_Enemy_Len < MAX_GRIP_DISTANCE && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[forcePowers_t::FP_GRIP]][forcePowers_t::FP_GRIP] && InFieldOfVision(bs->viewangles, 50, a_fo))
 			{
-				level.clients[bs->client].ps.fd.forcePowerSelected = FP_GRIP;
+				level.clients[bs->client].ps.fd.forcePowerSelected = forcePowers_t::FP_GRIP;
 				useTheForce = 1;
 				forceHostile = 1;
 			}
-			else if ((bs->cur_ps.fd.forcePowersKnown & Bit( FP_RAGE )) && g_entities[bs->client].health < 25 && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_RAGE]][FP_RAGE])
+			else if ((bs->cur_ps.fd.forcePowersKnown & Bit( forcePowers_t::FP_RAGE )) && g_entities[bs->client].health < 25 && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[forcePowers_t::FP_RAGE]][forcePowers_t::FP_RAGE])
 			{
-				level.clients[bs->client].ps.fd.forcePowerSelected = FP_RAGE;
+				level.clients[bs->client].ps.fd.forcePowerSelected = forcePowers_t::FP_RAGE;
 				useTheForce = 1;
 				forceHostile = 0;
 			}
-			else if ((bs->cur_ps.fd.forcePowersKnown & Bit( FP_DRAIN )) && bs->frame_Enemy_Len < MAX_DRAIN_DISTANCE && level.clients[bs->client].ps.fd.forcePower > 50 && InFieldOfVision(bs->viewangles, 50, a_fo) && bs->currentEnemy->client->ps.fd.forcePower > 10 && bs->currentEnemy->client->ps.fd.forceSide == FORCE_LIGHTSIDE)
+			else if ((bs->cur_ps.fd.forcePowersKnown & Bit( forcePowers_t::FP_DRAIN )) && bs->frame_Enemy_Len < MAX_DRAIN_DISTANCE && level.clients[bs->client].ps.fd.forcePower > 50 && InFieldOfVision(bs->viewangles, 50, a_fo) && bs->currentEnemy->client->ps.fd.forcePower > 10 && bs->currentEnemy->client->ps.fd.forceSide == FORCE_LIGHTSIDE)
 			{
-				level.clients[bs->client].ps.fd.forcePowerSelected = FP_DRAIN;
+				level.clients[bs->client].ps.fd.forcePowerSelected = forcePowers_t::FP_DRAIN;
 				useTheForce = 1;
 				forceHostile = 1;
 			}
 		}
 		else if (bs->cur_ps.fd.forceSide == FORCE_LIGHTSIDE)
 		{ //try light side powers
-			if ((bs->cur_ps.fd.forcePowersKnown & Bit( FP_ABSORB )) && bs->cur_ps.fd.forceGripCripple &&
-				 level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_ABSORB]][FP_ABSORB])
+			if ((bs->cur_ps.fd.forcePowersKnown & Bit( forcePowers_t::FP_ABSORB )) && bs->cur_ps.fd.forceGripCripple &&
+				 level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[forcePowers_t::FP_ABSORB]][forcePowers_t::FP_ABSORB])
 			{ //absorb to get out
-				level.clients[bs->client].ps.fd.forcePowerSelected = FP_ABSORB;
+				level.clients[bs->client].ps.fd.forcePowerSelected = forcePowers_t::FP_ABSORB;
 				useTheForce = 1;
 				forceHostile = 0;
 			}
-			else if ((bs->cur_ps.fd.forcePowersKnown & Bit( FP_ABSORB )) && bs->cur_ps.electrifyTime >= level.time &&
-				 level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_ABSORB]][FP_ABSORB])
+			else if ((bs->cur_ps.fd.forcePowersKnown & Bit( forcePowers_t::FP_ABSORB )) && bs->cur_ps.electrifyTime >= level.time &&
+				 level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[forcePowers_t::FP_ABSORB]][forcePowers_t::FP_ABSORB])
 			{ //absorb lightning
-				level.clients[bs->client].ps.fd.forcePowerSelected = FP_ABSORB;
+				level.clients[bs->client].ps.fd.forcePowerSelected = forcePowers_t::FP_ABSORB;
 				useTheForce = 1;
 				forceHostile = 0;
 			}
-			else if ((bs->cur_ps.fd.forcePowersKnown & Bit( FP_TELEPATHY )) && bs->frame_Enemy_Len < MAX_TRICK_DISTANCE && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_TELEPATHY]][FP_TELEPATHY] && InFieldOfVision(bs->viewangles, 50, a_fo) && !(bs->currentEnemy->client->ps.fd.forcePowersActive & Bit( FP_SEE )))
+			else if ((bs->cur_ps.fd.forcePowersKnown & Bit( forcePowers_t::FP_TELEPATHY )) && bs->frame_Enemy_Len < MAX_TRICK_DISTANCE && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[forcePowers_t::FP_TELEPATHY]][forcePowers_t::FP_TELEPATHY] && InFieldOfVision(bs->viewangles, 50, a_fo) && !(bs->currentEnemy->client->ps.fd.forcePowersActive & Bit( forcePowers_t::FP_SEE )))
 			{
-				level.clients[bs->client].ps.fd.forcePowerSelected = FP_TELEPATHY;
+				level.clients[bs->client].ps.fd.forcePowerSelected = forcePowers_t::FP_TELEPATHY;
 				useTheForce = 1;
 				forceHostile = 1;
 			}
-			else if ((bs->cur_ps.fd.forcePowersKnown & Bit( FP_ABSORB )) && g_entities[bs->client].health < 75 && bs->currentEnemy->client->ps.fd.forceSide == FORCE_DARKSIDE && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_ABSORB]][FP_ABSORB])
+			else if ((bs->cur_ps.fd.forcePowersKnown & Bit( forcePowers_t::FP_ABSORB )) && g_entities[bs->client].health < 75 && bs->currentEnemy->client->ps.fd.forceSide == FORCE_DARKSIDE && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[forcePowers_t::FP_ABSORB]][forcePowers_t::FP_ABSORB])
 			{
-				level.clients[bs->client].ps.fd.forcePowerSelected = FP_ABSORB;
+				level.clients[bs->client].ps.fd.forcePowerSelected = forcePowers_t::FP_ABSORB;
 				useTheForce = 1;
 				forceHostile = 0;
 			}
-			else if ((bs->cur_ps.fd.forcePowersKnown & Bit( FP_PROTECT )) && g_entities[bs->client].health < 35 && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_PROTECT]][FP_PROTECT])
+			else if ((bs->cur_ps.fd.forcePowersKnown & Bit( forcePowers_t::FP_PROTECT )) && g_entities[bs->client].health < 35 && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[forcePowers_t::FP_PROTECT]][forcePowers_t::FP_PROTECT])
 			{
-				level.clients[bs->client].ps.fd.forcePowerSelected = FP_PROTECT;
+				level.clients[bs->client].ps.fd.forcePowerSelected = forcePowers_t::FP_PROTECT;
 				useTheForce = 1;
 				forceHostile = 0;
 			}
@@ -6283,27 +6283,27 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 
 		if (!useTheForce)
 		{ //try neutral powers
-			if ((bs->cur_ps.fd.forcePowersKnown & Bit( FP_PUSH )) && bs->cur_ps.fd.forceGripBeingGripped > level.time && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_PUSH]][FP_PUSH] && InFieldOfVision(bs->viewangles, 50, a_fo))
+			if ((bs->cur_ps.fd.forcePowersKnown & Bit( forcePowers_t::FP_PUSH )) && bs->cur_ps.fd.forceGripBeingGripped > level.time && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[forcePowers_t::FP_PUSH]][forcePowers_t::FP_PUSH] && InFieldOfVision(bs->viewangles, 50, a_fo))
 			{
-				level.clients[bs->client].ps.fd.forcePowerSelected = FP_PUSH;
+				level.clients[bs->client].ps.fd.forcePowerSelected = forcePowers_t::FP_PUSH;
 				useTheForce = 1;
 				forceHostile = 1;
 			}
-			else if ((bs->cur_ps.fd.forcePowersKnown & Bit( FP_SPEED )) && g_entities[bs->client].health < 25 && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_SPEED]][FP_SPEED])
+			else if ((bs->cur_ps.fd.forcePowersKnown & Bit( forcePowers_t::FP_SPEED )) && g_entities[bs->client].health < 25 && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[forcePowers_t::FP_SPEED]][forcePowers_t::FP_SPEED])
 			{
-				level.clients[bs->client].ps.fd.forcePowerSelected = FP_SPEED;
+				level.clients[bs->client].ps.fd.forcePowerSelected = forcePowers_t::FP_SPEED;
 				useTheForce = 1;
 				forceHostile = 0;
 			}
-			else if ((bs->cur_ps.fd.forcePowersKnown & Bit( FP_SEE )) && BotMindTricked(bs->client, bs->currentEnemy->s.number) && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_SEE]][FP_SEE])
+			else if ((bs->cur_ps.fd.forcePowersKnown & Bit( forcePowers_t::FP_SEE )) && BotMindTricked(bs->client, bs->currentEnemy->s.number) && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[forcePowers_t::FP_SEE]][forcePowers_t::FP_SEE])
 			{
-				level.clients[bs->client].ps.fd.forcePowerSelected = FP_SEE;
+				level.clients[bs->client].ps.fd.forcePowerSelected = forcePowers_t::FP_SEE;
 				useTheForce = 1;
 				forceHostile = 0;
 			}
-			else if ((bs->cur_ps.fd.forcePowersKnown & Bit( FP_PULL )) && bs->frame_Enemy_Len < 256 && level.clients[bs->client].ps.fd.forcePower > 75 && InFieldOfVision(bs->viewangles, 50, a_fo))
+			else if ((bs->cur_ps.fd.forcePowersKnown & Bit( forcePowers_t::FP_PULL )) && bs->frame_Enemy_Len < 256 && level.clients[bs->client].ps.fd.forcePower > 75 && InFieldOfVision(bs->viewangles, 50, a_fo))
 			{
-				level.clients[bs->client].ps.fd.forcePowerSelected = FP_PULL;
+				level.clients[bs->client].ps.fd.forcePowerSelected = forcePowers_t::FP_PULL;
 				useTheForce = 1;
 				forceHostile = 1;
 			}
@@ -6312,15 +6312,15 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 
 	if (!useTheForce)
 	{ //try powers that we don't care if we have an enemy for
-		if ((bs->cur_ps.fd.forcePowersKnown & Bit( FP_HEAL )) && g_entities[bs->client].health < 50 && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_HEAL]][FP_HEAL] && bs->cur_ps.fd.forcePowerLevel[FP_HEAL] > FORCE_LEVEL_1)
+		if ((bs->cur_ps.fd.forcePowersKnown & Bit( forcePowers_t::FP_HEAL )) && g_entities[bs->client].health < 50 && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[forcePowers_t::FP_HEAL]][forcePowers_t::FP_HEAL] && bs->cur_ps.fd.forcePowerLevel[forcePowers_t::FP_HEAL] > forcePowerLevels_t::FORCE_LEVEL_1)
 		{
-			level.clients[bs->client].ps.fd.forcePowerSelected = FP_HEAL;
+			level.clients[bs->client].ps.fd.forcePowerSelected = forcePowers_t::FP_HEAL;
 			useTheForce = 1;
 			forceHostile = 0;
 		}
-		else if ((bs->cur_ps.fd.forcePowersKnown & Bit( FP_HEAL )) && g_entities[bs->client].health < 50 && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_HEAL]][FP_HEAL] && !bs->currentEnemy && bs->isCamping > level.time)
+		else if ((bs->cur_ps.fd.forcePowersKnown & Bit( forcePowers_t::FP_HEAL )) && g_entities[bs->client].health < 50 && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[forcePowers_t::FP_HEAL]][forcePowers_t::FP_HEAL] && !bs->currentEnemy && bs->isCamping > level.time)
 		{ //only meditate and heal if we're camping
-			level.clients[bs->client].ps.fd.forcePowerSelected = FP_HEAL;
+			level.clients[bs->client].ps.fd.forcePowerSelected = forcePowers_t::FP_HEAL;
 			useTheForce = 1;
 			forceHostile = 0;
 		}
@@ -6358,9 +6358,9 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 	else
 	{
 		if (bs->currentEnemy && bs->lastVisibleEnemyIndex == bs->currentEnemy->s.number &&
-			bs->frame_Enemy_Vis && bs->forceWeaponSelect != WP_NONE /*&& bs->plantContinue < level.time*/)
+			bs->frame_Enemy_Vis && bs->forceWeaponSelect != weapon_t::WP_NONE /*&& bs->plantContinue < level.time*/)
 		{
-			bs->forceWeaponSelect = WP_NONE;
+			bs->forceWeaponSelect = weapon_t::WP_NONE;
 		}
 
 		if (bs->plantContinue > level.time)
@@ -6369,12 +6369,12 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 			bs->destinationGrabTime = 0;
 		}
 
-		if (bs->forceWeaponSelect == WP_NONE && bs->cur_ps.hasDetPackPlanted && bs->plantKillEmAll > level.time)
+		if (bs->forceWeaponSelect == weapon_t::WP_NONE && bs->cur_ps.hasDetPackPlanted && bs->plantKillEmAll > level.time)
 		{
-			bs->forceWeaponSelect = WP_DET_PACK;
+			bs->forceWeaponSelect = weapon_t::WP_DET_PACK;
 		}
 
-		if (bs->forceWeaponSelect != WP_NONE)
+		if (bs->forceWeaponSelect != weapon_t::WP_NONE)
 		{
 			selResult = BotSelectChoiceWeapon(bs, bs->forceWeaponSelect, 1);
 		}
@@ -6412,7 +6412,7 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 		bs->timeToReact = level.time + reaction;
 	}
 
-	if (bs->cur_ps.weapon == WP_DET_PACK && bs->cur_ps.hasDetPackPlanted && bs->plantKillEmAll > level.time)
+	if (bs->cur_ps.weapon == weapon_t::WP_DET_PACK && bs->cur_ps.hasDetPackPlanted && bs->plantKillEmAll > level.time)
 	{
 		bs->doAltAttack = 1;
 	}
@@ -6470,11 +6470,11 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 	if (bot_honorableduelacceptance.integer)
 	{
 		if (bs->currentEnemy && bs->currentEnemy->client &&
-			bs->cur_ps.weapon == WP_SABER &&
+			bs->cur_ps.weapon == weapon_t::WP_SABER &&
 			g_privateDuel.integer &&
 			bs->frame_Enemy_Vis &&
 			bs->frame_Enemy_Len < 400 &&
-			bs->currentEnemy->client->ps.weapon == WP_SABER &&
+			bs->currentEnemy->client->ps.weapon == weapon_t::WP_SABER &&
 			bs->currentEnemy->client->ps.saberHolstered)
 		{
 			vec3_t e_ang_vec;
@@ -6520,7 +6520,7 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 	}
 
 	if (bs->enemySeenTime < level.time || !bs->frame_Enemy_Vis || !bs->currentEnemy ||
-		(bs->currentEnemy /*&& bs->cur_ps.weapon == WP_SABER && bs->frame_Enemy_Len > 300*/))
+		(bs->currentEnemy /*&& bs->cur_ps.weapon == weapon_t::WP_SABER && bs->frame_Enemy_Len > 300*/))
 	{
 		enemy = ScanForEnemies(bs);
 
@@ -6648,14 +6648,14 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 			return;
 		}
 
-		if (Any( bs->wpCurrent->flags & WPFLAG_WAITFORFUNC ))
+		if (Any( bs->wpCurrent->flags & waypointFlags_t::WPFLAG_WAITFORFUNC ))
 		{
 			if (!CheckForFunc(bs->wpCurrent->origin, -1))
 			{
 				bs->beStill = level.time + 500; //no func brush under.. wait
 			}
 		}
-		if (Any( bs->wpCurrent->flags & WPFLAG_NOMOVEFUNC ))
+		if (Any( bs->wpCurrent->flags & waypointFlags_t::WPFLAG_NOMOVEFUNC ))
 		{
 			if (CheckForFunc(bs->wpCurrent->origin, -1))
 			{
@@ -6663,7 +6663,7 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 			}
 		}
 
-		if (bs->frame_Waypoint_Vis || Any( bs->wpCurrent->flags & WPFLAG_NOVIS ))
+		if (bs->frame_Waypoint_Vis || Any( bs->wpCurrent->flags & waypointFlags_t::WPFLAG_NOVIS ))
 		{
 			if (RMG.integer)
 			{
@@ -6703,7 +6703,7 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 			}
 		}
 		else if (gWPArray[goalWPIndex] && gWPArray[goalWPIndex]->inuse &&
-			!Any( gLevelFlags & LEVELFLAG_NOPOINTPREDICTION ))
+			!Any( gLevelFlags & botLevelFlags_t::LEVELFLAG_NOPOINTPREDICTION ))
 		{
 			VectorSubtract(gWPArray[goalWPIndex]->origin, bs->origin, a);
 			vectoangles(a, ang);
@@ -6783,7 +6783,7 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 	}
 	else //We can't find a waypoint, going to need a fallback routine.
 	{
-		/*if (level.gametype == GT_DUEL)*/
+		/*if (level.gametype == gametype_t::GT_DUEL)*/
 		{ //helps them get out of messy situations
 			/*if ((level.time - bs->forceJumpChargeTime) > 3500)
 			{
@@ -6839,7 +6839,7 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 		{
 			doJ = true;
 		}
-		else if ((bs->wpTravelTime - level.time) < 7000 && Any( bs->wpCurrent->flags & WPFLAG_RED_FLAG ))
+		else if ((bs->wpTravelTime - level.time) < 7000 && Any( bs->wpCurrent->flags & waypointFlags_t::WPFLAG_RED_FLAG ))
 		{
 			if ((level.time - bs->jumpTime) > 200)
 			{
@@ -6848,7 +6848,7 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 				bs->jDelay = 0;
 			}
 		}
-		else if ((bs->wpTravelTime - level.time) < 7000 && Any( bs->wpCurrent->flags & WPFLAG_BLUE_FLAG ))
+		else if ((bs->wpTravelTime - level.time) < 7000 && Any( bs->wpCurrent->flags & waypointFlags_t::WPFLAG_BLUE_FLAG ))
 		{
 			if ((level.time - bs->jumpTime) > 200)
 			{
@@ -6861,8 +6861,8 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 		{
 			if ((bs->wpTravelTime - level.time) < 7000)
 			{
-				if (Any( gWPArray[bs->wpCurrent->index-1]->flags & WPFLAG_RED_FLAG ) ||
-					Any( gWPArray[bs->wpCurrent->index-1]->flags & WPFLAG_BLUE_FLAG ))
+				if (Any( gWPArray[bs->wpCurrent->index-1]->flags & waypointFlags_t::WPFLAG_RED_FLAG ) ||
+					Any( gWPArray[bs->wpCurrent->index-1]->flags & waypointFlags_t::WPFLAG_BLUE_FLAG ))
 				{
 					if ((level.time - bs->jumpTime) > 200)
 					{
@@ -6897,11 +6897,11 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 		{
 			CombatBotAI(bs, thinktime);
 		}
-		else if (bs->cur_ps.weaponstate == WEAPON_CHARGING_ALT)
+		else if (bs->cur_ps.weaponstate == weaponstate_t::WEAPON_CHARGING_ALT)
 		{ //keep charging in case we see him again before we lose track of him
 			bs->doAltAttack = 1;
 		}
-		else if (bs->cur_ps.weaponstate == WEAPON_CHARGING)
+		else if (bs->cur_ps.weaponstate == weaponstate_t::WEAPON_CHARGING)
 		{ //keep charging in case we see him again before we lose track of him
 			bs->doAttack = 1;
 		}
@@ -6931,8 +6931,8 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 				vectoangles(a, ang);
 				VectorCopy(ang, bs->goalAngles);
 
-				if (bs->cur_ps.weapon == WP_FLECHETTE &&
-					bs->cur_ps.weaponstate == WEAPON_READY &&
+				if (bs->cur_ps.weapon == weapon_t::WP_FLECHETTE &&
+					bs->cur_ps.weaponstate == weaponstate_t::WEAPON_READY &&
 					bs->currentEnemy && bs->currentEnemy->client)
 				{
 					mLen = VectorLength(a) > 128;
@@ -6974,7 +6974,7 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 
 	if (bs->currentEnemy)
 	{
-		if (BotGetWeaponRange(bs) == BWEAPONRANGE_SABER)
+		if (BotGetWeaponRange(bs) == botWeaponRange_t::BWEAPONRANGE_SABER)
 		{
 			int saberRange = SABER_ATTACK_RANGE;
 
@@ -6995,36 +6995,36 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 				bs->saberPowerTime = level.time + Q_irand(3000, 15000);
 			}
 
-			if ( g_entities[bs->client].client->ps.fd.saberAnimLevel != SS_STAFF
-				&& g_entities[bs->client].client->ps.fd.saberAnimLevel != SS_DUAL )
+			if ( g_entities[bs->client].client->ps.fd.saberAnimLevel != saber_styles_t::SS_STAFF
+				&& g_entities[bs->client].client->ps.fd.saberAnimLevel != saber_styles_t::SS_DUAL )
 			{
 				if (bs->currentEnemy->health > 75
-					&& g_entities[bs->client].client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] > FORCE_LEVEL_2)
+					&& g_entities[bs->client].client->ps.fd.forcePowerLevel[forcePowers_t::FP_SABER_OFFENSE] > forcePowerLevels_t::FORCE_LEVEL_2)
 				{
-					if (g_entities[bs->client].client->ps.fd.saberAnimLevel != SS_STRONG
+					if (g_entities[bs->client].client->ps.fd.saberAnimLevel != saber_styles_t::SS_STRONG
 						&& bs->saberPower)
 					{ //if we are up against someone with a lot of health and we have a strong attack available, then h4q them
 						Cmd_SaberAttackCycle_f(&g_entities[bs->client]);
 					}
 				}
 				else if (bs->currentEnemy->health > 40
-					&& g_entities[bs->client].client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] > FORCE_LEVEL_1)
+					&& g_entities[bs->client].client->ps.fd.forcePowerLevel[forcePowers_t::FP_SABER_OFFENSE] > forcePowerLevels_t::FORCE_LEVEL_1)
 				{
-					if (g_entities[bs->client].client->ps.fd.saberAnimLevel != SS_MEDIUM)
+					if (g_entities[bs->client].client->ps.fd.saberAnimLevel != saber_styles_t::SS_MEDIUM)
 					{ //they're down on health a little, use level 2 if we can
 						Cmd_SaberAttackCycle_f(&g_entities[bs->client]);
 					}
 				}
 				else
 				{
-					if (g_entities[bs->client].client->ps.fd.saberAnimLevel != SS_FAST)
+					if (g_entities[bs->client].client->ps.fd.saberAnimLevel != saber_styles_t::SS_FAST)
 					{ //they've gone below 40 health, go at them with quick attacks
 						Cmd_SaberAttackCycle_f(&g_entities[bs->client]);
 					}
 				}
 			}
 
-			if (level.gametype == GT_SINGLE_PLAYER)
+			if (level.gametype == gametype_t::GT_SINGLE_PLAYER)
 			{
 				saberRange *= 3;
 			}
@@ -7039,10 +7039,10 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 				}
 			}
 			else if (bs->saberThrowTime < level.time && !bs->cur_ps.saberInFlight &&
-				(bs->cur_ps.fd.forcePowersKnown & Bit( FP_SABERTHROW )) &&
+				(bs->cur_ps.fd.forcePowersKnown & Bit( forcePowers_t::FP_SABERTHROW )) &&
 				InFieldOfVision(bs->viewangles, 30, a_fo) &&
 				bs->frame_Enemy_Len < BOT_SABER_THROW_RANGE &&
-				bs->cur_ps.fd.saberAnimLevel != SS_STAFF)
+				bs->cur_ps.fd.saberAnimLevel != saber_styles_t::SS_STAFF)
 			{
 				bs->doAltAttack = 1;
 				bs->doAttack = 0;
@@ -7053,7 +7053,7 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 				bs->doAttack = 0;
 			}
 		}
-		else if (BotGetWeaponRange(bs) == BWEAPONRANGE_MELEE)
+		else if (BotGetWeaponRange(bs) == botWeaponRange_t::BWEAPONRANGE_MELEE)
 		{
 			if (bs->frame_Enemy_Len <= MELEE_ATTACK_RANGE)
 			{
@@ -7146,14 +7146,14 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 
 		if (bs->plantDecided > level.time || (bs->frame_Enemy_Len < BOT_PLANT_DISTANCE*2 && VectorLength(a) < BOT_PLANT_DISTANCE))
 		{
-			mineSelect = BotSelectChoiceWeapon(bs, WP_TRIP_MINE, 0);
-			detSelect = BotSelectChoiceWeapon(bs, WP_DET_PACK, 0);
+			mineSelect = BotSelectChoiceWeapon(bs, weapon_t::WP_TRIP_MINE, 0);
+			detSelect = BotSelectChoiceWeapon(bs, weapon_t::WP_DET_PACK, 0);
 			if (bs->cur_ps.hasDetPackPlanted)
 			{
 				detSelect = 0;
 			}
 
-			if (bs->plantDecided > level.time && bs->forceWeaponSelect != WP_NONE &&
+			if (bs->plantDecided > level.time && bs->forceWeaponSelect != weapon_t::WP_NONE &&
 				bs->cur_ps.weapon == bs->forceWeaponSelect)
 			{
 				bs->doAttack = 1;
@@ -7169,11 +7169,11 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 					weapon_t mineWeapon;
 					if (!mineSelect)
 					{ //if no mines use detpacks, otherwise use mines
-						mineWeapon = WP_DET_PACK;
+						mineWeapon = weapon_t::WP_DET_PACK;
 					}
 					else
 					{
-						mineWeapon = WP_TRIP_MINE;
+						mineWeapon = weapon_t::WP_TRIP_MINE;
 					}
 
 					detSelect = BotSelectChoiceWeapon(bs, mineWeapon, 1);
@@ -7195,10 +7195,10 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 	}
 	else if (bs->plantContinue < level.time)
 	{
-		bs->forceWeaponSelect = WP_NONE;
+		bs->forceWeaponSelect = weapon_t::WP_NONE;
 	}
 
-	if (level.gametype == GT_JEDIMASTER && !bs->cur_ps.isJediMaster && bs->jmState == -1 && gJMSaberEnt && gJMSaberEnt->inuse)
+	if (level.gametype == gametype_t::GT_JEDIMASTER && !bs->cur_ps.isJediMaster && bs->jmState == -1 && gJMSaberEnt && gJMSaberEnt->inuse)
 	{
 		vec3_t saberLen;
 		float fSaberLen = 0;
@@ -7311,10 +7311,10 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 			}
 			if (g_entities[bs->client].client->ps.groundEntityNum == ENTITYNUM_NONE)
 			{
-				g_entities[bs->client].client->ps.pm_flags |= PMF_JUMP_HELD;
+				g_entities[bs->client].client->ps.pm_flags |= pmoveFlags_t::PMF_JUMP_HELD;
 			}
 		}
-		else if (!Any(bs->cur_ps.pm_flags & PMF_JUMP_HELD))
+		else if (!Any(bs->cur_ps.pm_flags & pmoveFlags_t::PMF_JUMP_HELD))
 		{
 			trap->EA_Jump(bs->client);
 		}
@@ -7327,8 +7327,8 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 
 	if ( bs->dangerousObject && bs->dangerousObject->inuse && bs->dangerousObject->health > 0 &&
 		bs->dangerousObject->takedamage && (!bs->frame_Enemy_Vis || !bs->currentEnemy) &&
-		(BotGetWeaponRange(bs) == BWEAPONRANGE_MID || BotGetWeaponRange(bs) == BWEAPONRANGE_LONG) &&
-		bs->cur_ps.weapon != WP_DET_PACK && bs->cur_ps.weapon != WP_TRIP_MINE &&
+		(BotGetWeaponRange(bs) == botWeaponRange_t::BWEAPONRANGE_MID || BotGetWeaponRange(bs) == botWeaponRange_t::BWEAPONRANGE_LONG) &&
+		bs->cur_ps.weapon != weapon_t::WP_DET_PACK && bs->cur_ps.weapon != weapon_t::WP_TRIP_MINE &&
 		!bs->shootGoal )
 	{
 		float danLen;
@@ -7383,49 +7383,49 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 
 			if (!useTheForce && friendInLOF->client)
 			{ //we have a friend here and are not currently using force powers, see if we can help them out
-				if (friendInLOF->health <= 50 && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_TEAM_HEAL]][FP_TEAM_HEAL])
+				if (friendInLOF->health <= 50 && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[forcePowers_t::FP_TEAM_HEAL]][forcePowers_t::FP_TEAM_HEAL])
 				{
-					level.clients[bs->client].ps.fd.forcePowerSelected = FP_TEAM_HEAL;
+					level.clients[bs->client].ps.fd.forcePowerSelected = forcePowers_t::FP_TEAM_HEAL;
 					useTheForce = 1;
 					forceHostile = 0;
 				}
-				else if (friendInLOF->client->ps.fd.forcePower <= 50 && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_TEAM_FORCE]][FP_TEAM_FORCE])
+				else if (friendInLOF->client->ps.fd.forcePower <= 50 && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[forcePowers_t::FP_TEAM_FORCE]][forcePowers_t::FP_TEAM_FORCE])
 				{
-					level.clients[bs->client].ps.fd.forcePowerSelected = FP_TEAM_FORCE;
+					level.clients[bs->client].ps.fd.forcePowerSelected = forcePowers_t::FP_TEAM_FORCE;
 					useTheForce = 1;
 					forceHostile = 0;
 				}
 			}
 		}
 	}
-	else if (level.gametype >= GT_TEAM)
+	else if (level.gametype >= gametype_t::GT_TEAM)
 	{ //still check for anyone to help..
 		friendInLOF = CheckForFriendInLOF(bs);
 
 		if (!useTheForce && friendInLOF)
 		{
-			if (friendInLOF->health <= 50 && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_TEAM_HEAL]][FP_TEAM_HEAL])
+			if (friendInLOF->health <= 50 && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[forcePowers_t::FP_TEAM_HEAL]][forcePowers_t::FP_TEAM_HEAL])
 			{
-				level.clients[bs->client].ps.fd.forcePowerSelected = FP_TEAM_HEAL;
+				level.clients[bs->client].ps.fd.forcePowerSelected = forcePowers_t::FP_TEAM_HEAL;
 				useTheForce = 1;
 				forceHostile = 0;
 			}
-			else if (friendInLOF->client->ps.fd.forcePower <= 50 && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_TEAM_FORCE]][FP_TEAM_FORCE])
+			else if (friendInLOF->client->ps.fd.forcePower <= 50 && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[forcePowers_t::FP_TEAM_FORCE]][forcePowers_t::FP_TEAM_FORCE])
 			{
-				level.clients[bs->client].ps.fd.forcePowerSelected = FP_TEAM_FORCE;
+				level.clients[bs->client].ps.fd.forcePowerSelected = forcePowers_t::FP_TEAM_FORCE;
 				useTheForce = 1;
 				forceHostile = 0;
 			}
 		}
 	}
 
-	if (bs->doAttack && bs->cur_ps.weapon == WP_DET_PACK &&
+	if (bs->doAttack && bs->cur_ps.weapon == weapon_t::WP_DET_PACK &&
 		bs->cur_ps.hasDetPackPlanted)
 	{ //maybe a bit hackish, but bots only want to plant one of these at any given time to avoid complications
 		bs->doAttack = 0;
 	}
 
-	if (bs->doAttack && bs->cur_ps.weapon == WP_SABER &&
+	if (bs->doAttack && bs->cur_ps.weapon == weapon_t::WP_SABER &&
 		bs->saberDefending && bs->currentEnemy && bs->currentEnemy->client &&
 		BotWeaponBlockable(bs->currentEnemy->client->ps.weapon) )
 	{
@@ -7450,7 +7450,7 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 		bs->doAltAttack = 0;
 	}
 
-	if (bs->cur_ps.weapon == WP_SABER &&
+	if (bs->cur_ps.weapon == weapon_t::WP_SABER &&
 		bs->cur_ps.saberInFlight &&
 		!bs->cur_ps.saberEntityNum)
 	{ //saber knocked away, keep trying to get it back
@@ -7477,7 +7477,7 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 #ifndef FORCEJUMP_INSTANTMETHOD
 		if (bs->forceJumpChargeTime > level.time)
 		{
-			level.clients[bs->client].ps.fd.forcePowerSelected = FP_LEVITATION;
+			level.clients[bs->client].ps.fd.forcePowerSelected = forcePowers_t::FP_LEVITATION;
 			trap->EA_ForcePower(bs->client);
 		}
 		else
@@ -7555,7 +7555,7 @@ int BotAIStartFrame(int time) {
 		//
 		if ( time / 50 != ( time - elapsed_time ) / 50 ) {
 
-			if (g_entities[i].client->pers.connected == CON_CONNECTED && !G_ScenarioControls(i)) {
+			if (g_entities[i].client->pers.connected == clientConnected_t::CON_CONNECTED && !G_ScenarioControls(i)) {
 				BotAI(i, (float) thinktime / 1000);
 			}
 			else if (G_ScenarioControls(i)) {
@@ -7575,7 +7575,7 @@ int BotAIStartFrame(int time) {
 		int t, first = until + 1;
 
 		for( i = 0; i < MAX_CLIENTS; i++ ) {
-			if( !botstates[i] || !botstates[i]->inuse || g_entities[i].client->pers.connected != CON_CONNECTED ) {
+			if( !botstates[i] || !botstates[i]->inuse || g_entities[i].client->pers.connected != clientConnected_t::CON_CONNECTED ) {
 				continue;
 			}
 			if (botCmdTime[i] <= 0 || botCmdTime[i] > until || time - botCmdTime[i] > 200)
@@ -7587,7 +7587,7 @@ int BotAIStartFrame(int time) {
 		}
 		for( t = first; t <= until; t++ ) {
 			for( i = 0; i < MAX_CLIENTS; i++ ) {
-				if( !botstates[i] || !botstates[i]->inuse || g_entities[i].client->pers.connected != CON_CONNECTED
+				if( !botstates[i] || !botstates[i]->inuse || g_entities[i].client->pers.connected != clientConnected_t::CON_CONNECTED
 					|| botCmdTime[i] + 10 != t ) {
 					continue;
 				}
@@ -7611,27 +7611,27 @@ BotAISetup
 */
 int BotAISetup( int restart ) {
 	//rww - new bot cvars..
-	trap->Cvar_Register(&bot_forcepowers, "bot_forcepowers", "1", CVAR_CHEAT);
-	trap->Cvar_Register(&bot_forgimmick, "bot_forgimmick", "0", CVAR_CHEAT);
-	trap->Cvar_Register(&bot_honorableduelacceptance, "bot_honorableduelacceptance", "0", CVAR_CHEAT);
-	trap->Cvar_Register(&bot_pvstype, "bot_pvstype", "1", CVAR_CHEAT);
+	trap->Cvar_Register(&bot_forcepowers, "bot_forcepowers", "1", cvarFlags_t::CVAR_CHEAT);
+	trap->Cvar_Register(&bot_forgimmick, "bot_forgimmick", "0", cvarFlags_t::CVAR_CHEAT);
+	trap->Cvar_Register(&bot_honorableduelacceptance, "bot_honorableduelacceptance", "0", cvarFlags_t::CVAR_CHEAT);
+	trap->Cvar_Register(&bot_pvstype, "bot_pvstype", "1", cvarFlags_t::CVAR_CHEAT);
 #ifndef FINAL_BUILD
-	trap->Cvar_Register(&bot_getinthecarrr, "bot_getinthecarrr", "0", CVAR_NONE);
+	trap->Cvar_Register(&bot_getinthecarrr, "bot_getinthecarrr", "0", cvarFlags_t::CVAR_NONE);
 #endif
 
 #ifdef _DEBUG
-	trap->Cvar_Register(&bot_nogoals, "bot_nogoals", "0", CVAR_CHEAT);
-	trap->Cvar_Register(&bot_debugmessages, "bot_debugmessages", "0", CVAR_CHEAT);
+	trap->Cvar_Register(&bot_nogoals, "bot_nogoals", "0", cvarFlags_t::CVAR_CHEAT);
+	trap->Cvar_Register(&bot_debugmessages, "bot_debugmessages", "0", cvarFlags_t::CVAR_CHEAT);
 #endif
 
-	trap->Cvar_Register(&bot_attachments, "bot_attachments", "1", CVAR_NONE);
-	trap->Cvar_Register(&bot_camp, "bot_camp", "1", CVAR_NONE);
+	trap->Cvar_Register(&bot_attachments, "bot_attachments", "1", cvarFlags_t::CVAR_NONE);
+	trap->Cvar_Register(&bot_camp, "bot_camp", "1", cvarFlags_t::CVAR_NONE);
 
-	trap->Cvar_Register(&bot_wp_info, "bot_wp_info", "1", CVAR_NONE);
-	trap->Cvar_Register(&bot_wp_edit, "bot_wp_edit", "0", CVAR_CHEAT);
-	trap->Cvar_Register(&bot_wp_clearweight, "bot_wp_clearweight", "1", CVAR_NONE);
-	trap->Cvar_Register(&bot_wp_distconnect, "bot_wp_distconnect", "1", CVAR_NONE);
-	trap->Cvar_Register(&bot_wp_visconnect, "bot_wp_visconnect", "1", CVAR_NONE);
+	trap->Cvar_Register(&bot_wp_info, "bot_wp_info", "1", cvarFlags_t::CVAR_NONE);
+	trap->Cvar_Register(&bot_wp_edit, "bot_wp_edit", "0", cvarFlags_t::CVAR_CHEAT);
+	trap->Cvar_Register(&bot_wp_clearweight, "bot_wp_clearweight", "1", cvarFlags_t::CVAR_NONE);
+	trap->Cvar_Register(&bot_wp_distconnect, "bot_wp_distconnect", "1", cvarFlags_t::CVAR_NONE);
+	trap->Cvar_Register(&bot_wp_visconnect, "bot_wp_visconnect", "1", cvarFlags_t::CVAR_NONE);
 
 	trap->Cvar_Update(&bot_forcepowers);
 	//end rww
@@ -7644,7 +7644,7 @@ int BotAISetup( int restart ) {
 	//initialize the bot states
 	memset( botstates, 0, sizeof(botstates) );
 
-	if (trap->BotLibSetup() != BLERR_NOERROR)
+	if (trap->BotLibSetup() != botlibError_t::BLERR_NOERROR)
 	{
 		return false;
 	}

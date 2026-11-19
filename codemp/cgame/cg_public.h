@@ -72,7 +72,6 @@ enum class cgameEvent_t {
 	CGAME_EVENT_SCOREBOARD,
 	CGAME_EVENT_EDITHUD
 };
-using enum cgameEvent_t;
 
 typedef struct autoMapInput_s {
 	float		up;
@@ -158,7 +157,6 @@ enum class ragCallbackType_t {
 	RAG_CALLBACK_BONEINSOLID,			// ragCallbackBoneInSolid_t
 	RAG_CALLBACK_TRACELINE				// ragCallbackTraceLine_t
 };
-using enum ragCallbackType_t;
 
 typedef struct ragCallbackDebugBox_s {
 	vec3_t			mins;

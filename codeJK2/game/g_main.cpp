@@ -217,7 +217,7 @@ static void G_DynamicMusicUpdate( void )
 	}
 
 	if ( !player->client
-		|| player->client->pers.teamState.state != TEAM_ACTIVE
+		|| player->client->pers.teamState.state != playerTeamStateState_t::TEAM_ACTIVE
 		|| level.time - player->client->pers.enterTime < 100 )
 	{//player hasn't spawned yet
 		return;
@@ -225,25 +225,25 @@ static void G_DynamicMusicUpdate( void )
 
 	if ( player->health <= 0 && player->max_health > 0 )
 	{//defeat music
-		if ( level.dmState != DM_DEATH )
+		if ( level.dmState != dynamicMusic_t::DM_DEATH )
 		{
-			level.dmState = DM_DEATH;
+			level.dmState = dynamicMusic_t::DM_DEATH;
 		}
 	}
 
-	if ( level.dmState == DM_DEATH )
+	if ( level.dmState == dynamicMusic_t::DM_DEATH )
 	{
 		gi.SetConfigstring( CS_DYNAMIC_MUSIC_STATE, "death" );
 		return;
 	}
 
-	if ( level.dmState == DM_BOSS )
+	if ( level.dmState == dynamicMusic_t::DM_BOSS )
 	{
 		gi.SetConfigstring( CS_DYNAMIC_MUSIC_STATE, "boss" );
 		return;
 	}
 
-	if ( level.dmState == DM_SILENCE )
+	if ( level.dmState == dynamicMusic_t::DM_SILENCE )
 	{
 		gi.SetConfigstring( CS_DYNAMIC_MUSIC_STATE, "silence" );
 		return;
@@ -294,7 +294,7 @@ static void G_DynamicMusicUpdate( void )
 			continue;
 		}
 
-		if ( entTeam == TEAM_NEUTRAL && (!ent->enemy || !ent->enemy->client || ent->enemy->client->playerTeam != player->client->playerTeam) )
+		if ( entTeam == team_t::TEAM_NEUTRAL && (!ent->enemy || !ent->enemy->client || ent->enemy->client->playerTeam != player->client->playerTeam) )
 		{//a droid that is not mad at me or my allies
 			continue;
 		}
@@ -304,7 +304,7 @@ static void G_DynamicMusicUpdate( void )
 			continue;
 		}
 
-		if ( ent->client && ent->s.weapon == WP_NONE )
+		if ( ent->client && ent->s.weapon == weapon_t::WP_NONE )
 		{//they don't have a weapon... FIXME: only do this for droids?
 			continue;
 		}
@@ -315,16 +315,16 @@ static void G_DynamicMusicUpdate( void )
 			if ( ent->health > 0 )
 			{//alive
 				//FIXME: do I really need this check?
-				if ( ent->s.weapon == WP_SABER && ent->client && !ent->client->ps.saberActive && ent->enemy != player )
+				if ( ent->s.weapon == weapon_t::WP_SABER && ent->client && !ent->client->ps.saberActive && ent->enemy != player )
 				{//a Jedi who has not yet gotten made at me
 					continue;
 				}
-				if ( ent->NPC && ent->NPC->behaviorState == BS_CINEMATIC )
+				if ( ent->NPC && ent->NPC->behaviorState == bState_t::BS_CINEMATIC )
 				{//they're not actually going to do anything about being mad at me...
 					continue;
 				}
 				//okay, they're in my PVS, but how close are they?  Are they actively attacking me?
-				if ( !ent->client && ent->s.weapon == WP_TURRET && ent->fly_sound_debounce_time && ent->fly_sound_debounce_time - level.time < 10000 )
+				if ( !ent->client && ent->s.weapon == weapon_t::WP_TURRET && ent->fly_sound_debounce_time && ent->fly_sound_debounce_time - level.time < 10000 )
 				{//a turret that shot at me less than ten seconds ago
 				}
 				else if ( ent->client && ent->client->ps.lastShotTime && ent->client->ps.lastShotTime - level.time < 10000 )
@@ -353,7 +353,7 @@ static void G_DynamicMusicUpdate( void )
 
 	if ( !battle )
 	{//no active enemies, but look for missiles, shot impacts, etc...
-		int alert = G_CheckAlertEvents( player, true, true, 1024, 1024, -1, false, AEL_SUSPICIOUS );
+		int alert = G_CheckAlertEvents( player, true, true, 1024, 1024, -1, false, alertEventLevel_e::AEL_SUSPICIOUS );
 		if ( alert != -1 )
 		{//FIXME: maybe tripwires and other FIXED things need their own sound, some kind of danger/caution theme
 			if ( G_CheckForDanger( player, alert ) )
@@ -364,13 +364,13 @@ static void G_DynamicMusicUpdate( void )
 			{//NPC on enemy team of player made some noise
 				switch ( level.alertEvents[alert].level )
 				{
-				case AEL_DISCOVERED:
+				case alertEventLevel_e::AEL_DISCOVERED:
 					//dangerNear = true;
 					break;
-				case AEL_SUSPICIOUS:
+				case alertEventLevel_e::AEL_SUSPICIOUS:
 					//suspicious = true;
 					break;
-				case AEL_MINOR:
+				case alertEventLevel_e::AEL_MINOR:
 					//distraction = true;
 					break;
 				default:
@@ -383,11 +383,11 @@ static void G_DynamicMusicUpdate( void )
 	if ( battle )
 	{//battle - this can interrupt level.dmDebounceTime of lower intensity levels
 		//play battle
-		if ( level.dmState != DM_ACTION )
+		if ( level.dmState != dynamicMusic_t::DM_ACTION )
 		{
 			gi.SetConfigstring( CS_DYNAMIC_MUSIC_STATE, "action" );
 		}
-		level.dmState = DM_ACTION;
+		level.dmState = dynamicMusic_t::DM_ACTION;
 		if ( battle > 5 )
 		{
 			//level.dmDebounceTime = level.time + 8000;//don't change again for 5 seconds
@@ -427,12 +427,12 @@ static void G_DynamicMusicUpdate( void )
 		else
 		*/
 		{//still nothing dangerous going on
-			if ( level.dmState != DM_EXPLORE )
+			if ( level.dmState != dynamicMusic_t::DM_EXPLORE )
 			{//just went to explore, hold it for a couple seconds at least
 				//level.dmDebounceTime = level.time + 2000;
 				gi.SetConfigstring( CS_DYNAMIC_MUSIC_STATE, "explore" );
 			}
-			level.dmState = DM_EXPLORE;
+			level.dmState = dynamicMusic_t::DM_EXPLORE;
 			//FIXME: look for interest points and play "mysterious" music instead of exploration?
 			//FIXME: suspicious and distraction sounds should play some cue or change music in a subtle way?
 			//play exploration
@@ -470,7 +470,7 @@ void G_FindTeams( void ) {
 
 		if (!e->team)
 			continue;
-		if (Any( e->flags & FL_TEAMSLAVE ))
+		if (Any( e->flags & gentityFlags_t::FL_TEAMSLAVE ))
 			continue;
 		e->teammaster = e;
 		c++;
@@ -486,7 +486,7 @@ void G_FindTeams( void ) {
 			e2=&g_entities[j];
 			if (!e2->team)
 				continue;
-			if (Any( e2->flags & FL_TEAMSLAVE ))
+			if (Any( e2->flags & gentityFlags_t::FL_TEAMSLAVE ))
 				continue;
 			if (!strcmp(e->team, e2->team))
 			{
@@ -494,7 +494,7 @@ void G_FindTeams( void ) {
 				e2->teamchain = e->teamchain;
 				e->teamchain = e2;
 				e2->teammaster = e;
-				e2->flags |= FL_TEAMSLAVE;
+				e2->flags |= gentityFlags_t::FL_TEAMSLAVE;
 
 				// make sure that targets only point at the master
 				if ( e2->targetname ) {
@@ -517,47 +517,47 @@ G_InitCvars
 */
 void G_InitCvars( void ) {
 	// don't override the cheat state set by the system
-	g_cheats = gi.cvar ("helpUsObi", "", CVAR_NONE);
-	g_developer = gi.cvar ("developer", "", CVAR_NONE);
+	g_cheats = gi.cvar ("helpUsObi", "", cvarFlags_t::CVAR_NONE);
+	g_developer = gi.cvar ("developer", "", cvarFlags_t::CVAR_NONE);
 
 	// noset vars
-	gi.cvar( "gamename", JK_VERSION , CVAR_SERVERINFO | CVAR_ROM );
-	gi.cvar( "gamedate", SOURCE_DATE , CVAR_ROM );
-	g_skippingcin = gi.cvar ("skippingCinematic", "0", CVAR_ROM);
+	gi.cvar( "gamename", JK_VERSION , cvarFlags_t::CVAR_SERVERINFO | cvarFlags_t::CVAR_ROM );
+	gi.cvar( "gamedate", SOURCE_DATE , cvarFlags_t::CVAR_ROM );
+	g_skippingcin = gi.cvar ("skippingCinematic", "0", cvarFlags_t::CVAR_ROM);
 
 	// latched vars
 
 	// change anytime vars
-	g_speed = gi.cvar( "g_speed", "250", CVAR_CHEAT );
-	g_gravity = gi.cvar( "g_gravity", "800", CVAR_SAVEGAME|CVAR_ROM );
-	g_sex = gi.cvar ("sex", "male", CVAR_USERINFO | CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
-	g_spskill = gi.cvar ("g_spskill", "0", CVAR_ARCHIVE | CVAR_SAVEGAME|CVAR_NORESTART);
-	g_knockback = gi.cvar( "g_knockback", "1000", CVAR_CHEAT );
-	g_dismemberment = gi.cvar ( "g_dismemberment", "3", CVAR_ARCHIVE );//0 = none, 1 = arms and hands, 2 = legs, 3 = waist and head, 4 = mega dismemberment
-	g_dismemberProbabilities = gi.cvar ( "g_dismemberProbabilities", "1", CVAR_ARCHIVE );//0 = ignore probabilities, 1 = use probabilities
-	g_synchSplitAnims = gi.cvar ( "g_synchSplitAnims", "1", CVAR_NONE );
+	g_speed = gi.cvar( "g_speed", "250", cvarFlags_t::CVAR_CHEAT );
+	g_gravity = gi.cvar( "g_gravity", "800", cvarFlags_t::CVAR_SAVEGAME|cvarFlags_t::CVAR_ROM );
+	g_sex = gi.cvar ("sex", "male", cvarFlags_t::CVAR_USERINFO | cvarFlags_t::CVAR_ARCHIVE|cvarFlags_t::CVAR_SAVEGAME|cvarFlags_t::CVAR_NORESTART );
+	g_spskill = gi.cvar ("g_spskill", "0", cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_SAVEGAME|cvarFlags_t::CVAR_NORESTART);
+	g_knockback = gi.cvar( "g_knockback", "1000", cvarFlags_t::CVAR_CHEAT );
+	g_dismemberment = gi.cvar ( "g_dismemberment", "3", cvarFlags_t::CVAR_ARCHIVE );//0 = none, 1 = arms and hands, 2 = legs, 3 = waist and head, 4 = mega dismemberment
+	g_dismemberProbabilities = gi.cvar ( "g_dismemberProbabilities", "1", cvarFlags_t::CVAR_ARCHIVE );//0 = ignore probabilities, 1 = use probabilities
+	g_synchSplitAnims = gi.cvar ( "g_synchSplitAnims", "1", cvarFlags_t::CVAR_NONE );
 
-	g_inactivity = gi.cvar ("g_inactivity", "0", CVAR_NONE);
-	g_debugMove = gi.cvar ("g_debugMove", "0", CVAR_CHEAT );
-	g_debugDamage = gi.cvar ("g_debugDamage", "0", CVAR_CHEAT );
-	g_ICARUSDebug = gi.cvar( "g_ICARUSDebug", "0", CVAR_CHEAT );
-	g_timescale = gi.cvar( "timescale", "1", CVAR_NONE );
+	g_inactivity = gi.cvar ("g_inactivity", "0", cvarFlags_t::CVAR_NONE);
+	g_debugMove = gi.cvar ("g_debugMove", "0", cvarFlags_t::CVAR_CHEAT );
+	g_debugDamage = gi.cvar ("g_debugDamage", "0", cvarFlags_t::CVAR_CHEAT );
+	g_ICARUSDebug = gi.cvar( "g_ICARUSDebug", "0", cvarFlags_t::CVAR_CHEAT );
+	g_timescale = gi.cvar( "timescale", "1", cvarFlags_t::CVAR_NONE );
 
-	g_subtitles = gi.cvar( "g_subtitles", "2", CVAR_ARCHIVE );
-	com_buildScript = gi.cvar ("com_buildscript", "0", CVAR_NONE);
+	g_subtitles = gi.cvar( "g_subtitles", "2", cvarFlags_t::CVAR_ARCHIVE );
+	com_buildScript = gi.cvar ("com_buildscript", "0", cvarFlags_t::CVAR_NONE);
 
-	g_saberAutoBlocking = gi.cvar( "g_saberAutoBlocking", "1", CVAR_ARCHIVE|CVAR_CHEAT );//must press +block button to do any blocking
-	g_saberRealisticCombat = gi.cvar( "g_saberRealisticCombat", "0", CVAR_ARCHIVE );//makes collision more precise, increases damage
-	g_saberMoveSpeed = gi.cvar( "g_saberMoveSpeed", "1", CVAR_ARCHIVE|CVAR_CHEAT );//how fast you run while attacking with a saber
-	g_saberAnimSpeed = gi.cvar( "g_saberAnimSpeed", "1", CVAR_ARCHIVE|CVAR_CHEAT );//how fast saber animations run
-	g_saberAutoAim = gi.cvar( "g_saberAutoAim", "1", CVAR_ARCHIVE|CVAR_CHEAT );//auto-aims at enemies when not moving or when just running forward
+	g_saberAutoBlocking = gi.cvar( "g_saberAutoBlocking", "1", cvarFlags_t::CVAR_ARCHIVE|cvarFlags_t::CVAR_CHEAT );//must press +block button to do any blocking
+	g_saberRealisticCombat = gi.cvar( "g_saberRealisticCombat", "0", cvarFlags_t::CVAR_ARCHIVE );//makes collision more precise, increases damage
+	g_saberMoveSpeed = gi.cvar( "g_saberMoveSpeed", "1", cvarFlags_t::CVAR_ARCHIVE|cvarFlags_t::CVAR_CHEAT );//how fast you run while attacking with a saber
+	g_saberAnimSpeed = gi.cvar( "g_saberAnimSpeed", "1", cvarFlags_t::CVAR_ARCHIVE|cvarFlags_t::CVAR_CHEAT );//how fast saber animations run
+	g_saberAutoAim = gi.cvar( "g_saberAutoAim", "1", cvarFlags_t::CVAR_ARCHIVE|cvarFlags_t::CVAR_CHEAT );//auto-aims at enemies when not moving or when just running forward
 
-	g_AIsurrender = gi.cvar( "g_AIsurrender", "0", CVAR_CHEAT );
-	g_numEntities = gi.cvar( "g_numEntities", "0", CVAR_CHEAT );
+	g_AIsurrender = gi.cvar( "g_AIsurrender", "0", cvarFlags_t::CVAR_CHEAT );
+	g_numEntities = gi.cvar( "g_numEntities", "0", cvarFlags_t::CVAR_CHEAT );
 
-	gi.cvar( "newTotalSecrets", "0", CVAR_ROM );
+	gi.cvar( "newTotalSecrets", "0", cvarFlags_t::CVAR_ROM );
 	gi.cvar_set("newTotalSecrets", "0");//used to carry over the count from SP_target_secret to ClientBegin
-	g_iscensored = gi.cvar( "ui_iscensored", "0", CVAR_ARCHIVE|CVAR_ROM|CVAR_INIT|CVAR_CHEAT|CVAR_NORESTART );
+	g_iscensored = gi.cvar( "ui_iscensored", "0", cvarFlags_t::CVAR_ARCHIVE|cvarFlags_t::CVAR_ROM|cvarFlags_t::CVAR_INIT|cvarFlags_t::CVAR_CHEAT|cvarFlags_t::CVAR_NORESTART );
 }
 
 /*
@@ -677,7 +677,7 @@ void InitGame(  const char *mapname, const char *spawntarget, int checkSum, cons
 		CP_FindCombatPointWaypoints();
 		navCalcPathTime = 0;
 
-		if ( g_eSavedGameJustLoaded == eNO )
+		if ( g_eSavedGameJustLoaded == SavedGameJustLoaded_e::eNO )
 		{//clear all the failed edges unless we just loaded the game (which would include failed edges)
 			navigator.ClearAllFailedEdges();
 		}
@@ -686,7 +686,7 @@ void InitGame(  const char *mapname, const char *spawntarget, int checkSum, cons
 	player = &g_entities[0];
 
 	//Init dynamic music
-	level.dmState = DM_EXPLORE;
+	level.dmState = dynamicMusic_t::DM_EXPLORE;
 	level.dmDebounceTime = 0;
 	level.dmBeatTime = 0;
 
@@ -794,7 +794,7 @@ void QDECL G_Error( const char *fmt, ... ) {
 	Q_vsnprintf (text, sizeof(text), fmt, argptr);
 	va_end (argptr);
 
-	gi.Error( ERR_DROP, "%s", text);
+	gi.Error( errorParm_t::ERR_DROP, "%s", text);
 }
 
 /*
@@ -850,22 +850,22 @@ FUNCTIONS CALLED EVERY FRAME
 
 static void G_CheckTasksCompleted (gentity_t *ent)
 {
-	if ( Q3_TaskIDPending( ent, TID_CHAN_VOICE ) )
+	if ( Q3_TaskIDPending( ent, taskID_t::TID_CHAN_VOICE ) )
 	{
 		if ( !gi.VoiceVolume[ent->s.number] )
 		{//not playing a voice sound
 			//return task_complete
-			Q3_TaskIDComplete( ent, TID_CHAN_VOICE );
+			Q3_TaskIDComplete( ent, taskID_t::TID_CHAN_VOICE );
 		}
 	}
 
-	if ( Q3_TaskIDPending( ent, TID_LOCATION ) )
+	if ( Q3_TaskIDPending( ent, taskID_t::TID_LOCATION ) )
 	{
 		const char	*currentLoc = G_GetLocationForEnt( ent );
 
 		if ( currentLoc && currentLoc[0] && Q_stricmp( ent->message, currentLoc ) == 0 )
 		{//we're in the desired location
-			Q3_TaskIDComplete( ent, TID_LOCATION );
+			Q3_TaskIDComplete( ent, taskID_t::TID_LOCATION );
 		}
 		//FIXME: else see if were in other trigger_locations?
 	}
@@ -877,12 +877,12 @@ static void G_CheckSpecialPersistentEvents( gentity_t *ent )
 	{
 		return;
 	}
-	if ( ent->s.eType == ET_MISSILE && ent->s.weapon == WP_THERMAL && ent->s.pos.trType == TR_STATIONARY )
+	if ( ent->s.eType == entityType_t::ET_MISSILE && ent->s.weapon == weapon_t::WP_THERMAL && ent->s.pos.trType == trType_t::TR_STATIONARY )
 	{
 		if ( eventClearTime == level.time + ALERT_CLEAR_TIME )
 		{//events were just cleared out so add me again
-			AddSoundEvent( ent->owner, ent->currentOrigin, ent->splashRadius*2, AEL_DANGER );
-			AddSightEvent( ent->owner, ent->currentOrigin, ent->splashRadius*2, AEL_DANGER );
+			AddSoundEvent( ent->owner, ent->currentOrigin, ent->splashRadius*2, alertEventLevel_e::AEL_DANGER );
+			AddSightEvent( ent->owner, ent->currentOrigin, ent->splashRadius*2, alertEventLevel_e::AEL_DANGER );
 		}
 	}
 	if ( ent->forcePushTime >= level.time )
@@ -890,24 +890,24 @@ static void G_CheckSpecialPersistentEvents( gentity_t *ent )
 		if ( eventClearTime == level.time + ALERT_CLEAR_TIME )
 		{//events were just cleared out so add me again
 			//NOTE: presumes the player did the pushing, this is not always true, but shouldn't really matter?
-			if ( ent->item && GI_Inventory( *ent->item ) == INV_SECURITY_KEY )
+			if ( ent->item && GI_Inventory( *ent->item ) == inventory_t::INV_SECURITY_KEY )
 			{
-				AddSightEvent( player, ent->currentOrigin, 128, AEL_DISCOVERED );//security keys are more important
+				AddSightEvent( player, ent->currentOrigin, 128, alertEventLevel_e::AEL_DISCOVERED );//security keys are more important
 			}
 			else
 			{
-				AddSightEvent( player, ent->currentOrigin, 128, AEL_SUSPICIOUS );//hmm... or should this always be discovered?
+				AddSightEvent( player, ent->currentOrigin, 128, alertEventLevel_e::AEL_SUSPICIOUS );//hmm... or should this always be discovered?
 			}
 		}
 	}
-	if ( ent->contents == CONTENTS_LIGHTSABER && !Q_stricmp( "lightsaber", ent->classname ) )
+	if ( ent->contents == contentsFlags_t::CONTENTS_LIGHTSABER && !Q_stricmp( "lightsaber", ent->classname ) )
 	{//lightsaber
 		if( ent->owner && ent->owner->client )
 		{
 			if ( ent->owner->client->ps.saberLength > 0 )
 			{//it's on
 				//sight event
-				AddSightEvent( ent->owner, ent->currentOrigin, 512, AEL_DISCOVERED );
+				AddSightEvent( ent->owner, ent->currentOrigin, 512, alertEventLevel_e::AEL_DISCOVERED );
 			}
 		}
 	}
@@ -945,7 +945,7 @@ void G_RunThink (gentity_t *ent)
 	}
 
 	ent->nextthink = 0;
-	if ( ent->e_ThinkFunc == thinkF_NULL )	// actually you don't need this if I check for it in the next function -slc
+	if ( ent->e_ThinkFunc == thinkFunc_t::thinkF_NULL )	// actually you don't need this if I check for it in the next function -slc
 	{
 		//gi.Error ( "NULL ent->think");
 		goto runicarus;
@@ -974,13 +974,13 @@ G_Animate
 
 void G_Animate ( gentity_t *self )
 {
-	if ( Any( self->s.eFlags & EF_SHADER_ANIM ) )
+	if ( Any( self->s.eFlags & entityFlags_t::EF_SHADER_ANIM ) )
 	{
 		return;
 	}
 	if ( self->s.frame == self->endFrame )
 	{
-		if ( Any( self->svFlags & SVF_ANIMATING ) )
+		if ( Any( self->svFlags & svFlags_t::SVF_ANIMATING ) )
 		{
 			// ghoul2 requires some extra checks to see if the animation is done since it doesn't set the current frame directly
 			if ( self->ghoul2.size() )
@@ -996,8 +996,8 @@ void G_Animate ( gentity_t *self )
 				// It NEVER seems to get to what you'd think the last frame would be, so I'm doing this to try and catch when the animation has stopped
 				if ( frame + 1 >= self->endFrame )
 				{
-					self->svFlags &= ~SVF_ANIMATING;
-					Q3_TaskIDComplete( self, TID_ANIM_BOTH );
+					self->svFlags &= ~svFlags_t::SVF_ANIMATING;
+					Q3_TaskIDComplete( self, taskID_t::TID_ANIM_BOTH );
 				}
 			}
 			else // not ghoul2
@@ -1008,17 +1008,17 @@ void G_Animate ( gentity_t *self )
 				}
 				else
 				{
-					self->svFlags &= ~SVF_ANIMATING;
+					self->svFlags &= ~svFlags_t::SVF_ANIMATING;
 				}
 
 				//Finished sequence - FIXME: only do this once even on looping anims?
-				Q3_TaskIDComplete( self, TID_ANIM_BOTH );
+				Q3_TaskIDComplete( self, taskID_t::TID_ANIM_BOTH );
 			}
 		}
 		return;
 	}
 
-	self->svFlags |= SVF_ANIMATING;
+	self->svFlags |= svFlags_t::SVF_ANIMATING;
 
 	// With ghoul2, we'll just set the desired start and end frame and let it do it's thing.
 	if ( self->ghoul2.size())
@@ -1026,7 +1026,7 @@ void G_Animate ( gentity_t *self )
 		self->s.frame = self->endFrame;
 
 		gi.G2API_SetBoneAnimIndex( &self->ghoul2[self->playerModel], self->rootBone,
-									self->startFrame, self->endFrame, BONE_ANIM_OVERRIDE_FREEZE, 1.0f, cg.time, -1, -1 );
+									self->startFrame, self->endFrame, boneFlags_t::BONE_ANIM_OVERRIDE_FREEZE, 1.0f, cg.time, -1, -1 );
 		return;
 	}
 
@@ -1068,7 +1068,7 @@ ResetTeamCounters
 void ResetTeamCounters( void )
 {
 	//clear team enemy counters
-	for ( int team = TEAM_FREE; team < TEAM_NUM_TEAMS; team++ )
+	for ( int team = team_t::TEAM_FREE; team < team_t::TEAM_NUM_TEAMS; team++ )
 	{
 		teamEnemyCount[team] = 0;
 		teamCount[team] = 0;
@@ -1096,11 +1096,11 @@ void UpdateTeamCounters( gentity_t *ent )
 	{
 		return;
 	}
-	if ( Any(ent->s.eFlags&EF_NODRAW) )
+	if ( Any(ent->s.eFlags&entityFlags_t::EF_NODRAW) )
 	{
 		return;
 	}
-	if ( ent->client->playerTeam == TEAM_FREE )
+	if ( ent->client->playerTeam == team_t::TEAM_FREE )
 	{
 		return;
 	}
@@ -1138,18 +1138,18 @@ void G_PlayerGuiltDeath( void )
 {
 	if ( player && player->client )
 	{//simulate death
-		player->client->ps.stats[STAT_HEALTH] = 0;
+		player->client->ps.stats[statIndex_t::STAT_HEALTH] = 0;
 		//turn off saber
-		if ( player->client->ps.weapon == WP_SABER && player->client->ps.saberActive )
+		if ( player->client->ps.weapon == weapon_t::WP_SABER && player->client->ps.saberActive )
 		{
-			G_SoundOnEnt( player, CHAN_WEAPON, "sound/weapons/saber/saberoff.wav" );
+			G_SoundOnEnt( player, soundChannel_t::CHAN_WEAPON, "sound/weapons/saber/saberoff.wav" );
 			player->client->ps.saberActive = false;
 		}
 		//play the "what have I done?!" anim
-		NPC_SetAnim( player, SETANIM_BOTH, BOTH_FORCEHEAL_START, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+		NPC_SetAnim( player, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_FORCEHEAL_START, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD );
 		player->client->ps.legsAnimTimer = player->client->ps.torsoAnimTimer = -1;
 		//look at yourself
-		player->client->ps.stats[STAT_DEAD_YAW] = player->client->ps.viewangles[YAW]+180;
+		player->client->ps.stats[statIndex_t::STAT_DEAD_YAW] = player->client->ps.viewangles[YAW]+180;
 	}
 }
 extern void NPC_SetAnim(gentity_t	*ent,setAnimParts_t type,animNumber_t anim,setAnimFlags_t priority);
@@ -1161,11 +1161,11 @@ void G_CheckEndLevelTimers( gentity_t *ent )
 	{
 		killPlayerTimer = 0;
 		ent->health = 0;
-		if ( ent->client && ent->client->ps.stats[STAT_HEALTH] > 0 )
+		if ( ent->client && ent->client->ps.stats[statIndex_t::STAT_HEALTH] > 0 )
 		{
 			G_PlayerGuiltDeath();
 			//cg.missionStatusShow = true;
-			statusTextIndex = to_underlying( MAX_MISSIONFAILED );
+			statusTextIndex = to_underlying( missionFailed_t::MAX_MISSIONFAILED );
 			//debounce respawn time
 			ent->client->respawnTime = level.time + 2000;
 			//stop all scripts
@@ -1310,14 +1310,14 @@ void G_RunFrame( int levelTime ) {
 
 		if( !ent->client )
 		{
-			if ( !Any( ent->svFlags & SVF_SELF_ANIMATING ) )
+			if ( !Any( ent->svFlags & svFlags_t::SVF_SELF_ANIMATING ) )
 			{//FIXME: make sure this is done only for models with frames?
 				//Or just flag as animating?
-				if ( Any( ent->s.eFlags & EF_ANIM_ONCE ) )
+				if ( Any( ent->s.eFlags & entityFlags_t::EF_ANIM_ONCE ) )
 				{
 					ent->s.frame++;
 				}
-				else if ( !Any(ent->s.eFlags & EF_ANIM_ALLFAST) )
+				else if ( !Any(ent->s.eFlags & entityFlags_t::EF_ANIM_ALLFAST) )
 				{
 					G_Animate( ent );
 				}
@@ -1325,19 +1325,19 @@ void G_RunFrame( int levelTime ) {
 		}
 		G_CheckSpecialPersistentEvents( ent );
 
-		if ( ent->s.eType == ET_MISSILE )
+		if ( ent->s.eType == entityType_t::ET_MISSILE )
 		{
 			G_RunMissile( ent );
 			continue;
 		}
 
-		if ( ent->s.eType == ET_ITEM )
+		if ( ent->s.eType == entityType_t::ET_ITEM )
 		{
 			G_RunItem( ent );
 			continue;
 		}
 
-		if ( ent->s.eType == ET_MOVER )
+		if ( ent->s.eType == entityType_t::ET_MOVER )
 		{
 			if ( ent->model && Q_stricmp( "models/test/mikeg/tie_fighter.md3", ent->model ) == 0 )
 			{

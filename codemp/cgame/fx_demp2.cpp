@@ -113,14 +113,14 @@ void FX_DEMP2_AltBeam( vec3_t start, vec3_t end, vec3_t normal, //bool spark,
 						5.0f + s1 * 2, 8.0f, 0.0f,
 						1.0f, 0.0f, 0.0f,
 						chaos, chaos, 0.0f,
-						1.0f, trap->R_RegisterShader( "gfx/misc/electric2" ), FX_ALPHA_LINEAR );
+						1.0f, trap->R_RegisterShader( "gfx/misc/electric2" ), fxPrimitiveFlags_t::FX_ALPHA_LINEAR );
 
 	FX_AddBezier( start, targ1,
 						c2, v2, c1, v1,
 						3.0f + s3, 3.0f, 0.0f,
 						1.0f, 0.0f, 0.0f,
 						chaos, chaos, 0.0f,
-						1.0f, trap->R_RegisterShader( "gfx/misc/electric2" ), FX_ALPHA_LINEAR );
+						1.0f, trap->R_RegisterShader( "gfx/misc/electric2" ), fxPrimitiveFlags_t::FX_ALPHA_LINEAR );
 
 	s1 = sin( cg.time * 0.0005f ) + Q_flrand(-1.0f, 1.0f) * 0.1f;
 	s2 = sin( cg.time * 0.0025f );
@@ -148,14 +148,14 @@ void FX_DEMP2_AltBeam( vec3_t start, vec3_t end, vec3_t normal, //bool spark,
 						4.0f + s3, 8.0f, 0.0f,
 						1.0f, 0.0f, 0.0f,
 						chaos, chaos, 0.0f,
-						1.0f, trap->R_RegisterShader( "gfx/misc/electric2" ), FX_ALPHA_LINEAR );
+						1.0f, trap->R_RegisterShader( "gfx/misc/electric2" ), fxPrimitiveFlags_t::FX_ALPHA_LINEAR );
 
 	FX_AddBezier( start, targ1,
 						c2, v1, c1, v2,
 						5.0f + s1 * 2, 8.0f, 0.0f,
 						1.0f, 0.0f, 0.0f,
 						chaos, chaos, 0.0f,
-						1.0f, trap->R_RegisterShader( "gfx/misc/electric2" ), FX_ALPHA_LINEAR );
+						1.0f, trap->R_RegisterShader( "gfx/misc/electric2" ), fxPrimitiveFlags_t::FX_ALPHA_LINEAR );
 
 
 	VectorMA( start, 14.0f, dir, c1 );
@@ -206,14 +206,14 @@ void FX_DEMP2_AltBeam( vec3_t start, vec3_t end, vec3_t normal, //bool spark,
 						5.0f + s1 * 2, 8.0f, 0.0f,
 						1.0f, 0.0f, 0.0f,
 						chaos, chaos, 0.0f,
-						1.0f, trap->R_RegisterShader( "gfx/misc/electric2" ), FX_ALPHA_LINEAR );
+						1.0f, trap->R_RegisterShader( "gfx/misc/electric2" ), fxPrimitiveFlags_t::FX_ALPHA_LINEAR );
 
 	FX_AddBezier( targ1, targ2,
 						c2, v2, c1, v1,
 						3.0f + s3, 3.0f, 0.0f,
 						1.0f, 0.0f, 0.0f,
 						chaos, chaos, 0.0f,
-						1.0f, trap->R_RegisterShader( "gfx/misc/electric2" ), FX_ALPHA_LINEAR );
+						1.0f, trap->R_RegisterShader( "gfx/misc/electric2" ), fxPrimitiveFlags_t::FX_ALPHA_LINEAR );
 
 	s1 = sin( cg.time * 0.0005f ) + Q_flrand(-1.0f, 1.0f) * 0.1f;
 	s2 = sin( cg.time * 0.0025f );
@@ -241,14 +241,14 @@ void FX_DEMP2_AltBeam( vec3_t start, vec3_t end, vec3_t normal, //bool spark,
 						4.0f + s3, 8.0f, 0.0f,
 						1.0f, 0.0f, 0.0f,
 						chaos, chaos, 0.0f,
-						1.0f, trap->R_RegisterShader( "gfx/misc/electric2" ), FX_ALPHA_LINEAR );
+						1.0f, trap->R_RegisterShader( "gfx/misc/electric2" ), fxPrimitiveFlags_t::FX_ALPHA_LINEAR );
 
 	FX_AddBezier( targ1, targ2,
 						c2, v1, c1, v2,
 						5.0f + s1 * 2, 8.0f, 0.0f,
 						1.0f, 0.0f, 0.0f,
 						chaos, chaos, 0.0f,
-						1.0f, trap->R_RegisterShader( "gfx/misc/electric2" ), FX_ALPHA_LINEAR );
+						1.0f, trap->R_RegisterShader( "gfx/misc/electric2" ), fxPrimitiveFlags_t::FX_ALPHA_LINEAR );
 
 
 	FX_AddSprite( targ2, nullptr, nullptr, 4.0f + Q_flrand(-1.0f, 1.0f), 0.0f, 1.0f, 0.0f, chaos, chaos, Q_flrand(0.0f, 1.0f) * 360, 0.0f, 10,
@@ -264,10 +264,10 @@ void FX_DEMP2_AltDetonate( vec3_t org, float size )
 	localEntity_t	*ex;
 
 	ex = CG_AllocLocalEntity();
-	ex->leType = LE_FADE_SCALE_MODEL;
+	ex->leType = leType_t::LE_FADE_SCALE_MODEL;
 	memset( &ex->refEntity, 0, sizeof( refEntity_t ));
 
-	ex->refEntity.renderfx |= RF_VOLUMETRIC;
+	ex->refEntity.renderfx |= renderFxFlags_t::RF_VOLUMETRIC;
 
 	ex->startTime = cg.time;
 	ex->endTime = ex->startTime + 800;//1600;

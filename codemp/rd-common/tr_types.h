@@ -74,7 +74,6 @@ enum class renderFxFlags_t
 
 	RF_FORCEPOST		= 0x200000 //force it to post-render -rww
 };
-using enum renderFxFlags_t;
 template <> inline constexpr bool enableEnumFlags<renderFxFlags_t> = true;
 
 // refdef flags
@@ -91,7 +90,6 @@ enum class refdefFlags_t
 	RDF_NOFOG			= 64,		//no global fog in this scene (but still brush fog) -rww
 	RDF_ForceSightOn	= 128		//using force sight
 };
-using enum refdefFlags_t;
 template <> inline constexpr bool enableEnumFlags<refdefFlags_t> = true;
 
 extern int	skyboxportal;
@@ -127,7 +125,6 @@ enum class refEntityType_t {
 
 	RT_MAX_REF_ENTITY_TYPE
 };
-using enum refEntityType_t;
 
 typedef struct miniRefEntity_s
 {
@@ -333,7 +330,6 @@ enum class stereoFrame_t {
 	STEREO_LEFT,
 	STEREO_RIGHT
 };
-using enum stereoFrame_t;
 
 
 /*
@@ -349,7 +345,6 @@ enum class textureCompression_t { // r_ext_preferred_tc_method
 	TC_S3TC_DXT,
 	TC_S3TC_ARB
 };
-using enum textureCompression_t;
 
 typedef struct glconfig_s {
 	const char				*renderer_string;

@@ -47,7 +47,6 @@ enum class pushPop_t
 	PUSH_FRONT,
 	PUSH_BACK
 };
-using enum pushPop_t;
 
 // Templates
 
@@ -81,7 +80,7 @@ public:
 
 	inline void *operator new( size_t size )
 	{	// Allocate the memory.
-		return Z_Malloc( size, TAG_ICARUS4, true );
+		return Z_Malloc( size, memtag::TAG_ICARUS4, true );
 	}
 	// Overloaded delete operator.
 	inline void operator delete( void *pRawData )

@@ -41,5 +41,4 @@ enum class soundChannel_t //# soundChannel_e
 	CHAN_LESS_ATTEN,	//## %s !!"W:\game\base\!!sound\*.wav;*.mp3" #attenuates similar to chan_voice, but uses empty channel auto-pick behaviour
 	CHAN_MUSIC,	//played as a looping sound - added by BTO (VV)
 };
-using enum soundChannel_t;
 

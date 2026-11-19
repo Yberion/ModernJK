@@ -42,7 +42,6 @@ enum class set_e
 
 	NUM_AS_SETS
 };
-using enum set_e;
 template <> inline constexpr bool enableEnumArithmetic<set_e> = true;
 
 enum class setKeyword_e
@@ -60,7 +59,6 @@ enum class setKeyword_e
 
 	NUM_AS_KEYWORDS,
 };
-using enum setKeyword_e;
 template <> inline constexpr bool enableEnumArithmetic<setKeyword_e> = true;
 
 // Structures

@@ -55,7 +55,6 @@ enum class SoundCompressionMethod_t
 	ct_NUMBEROF		// used only for array sizing
 
 };
-using enum SoundCompressionMethod_t;
 
 
 typedef struct sfx_s {

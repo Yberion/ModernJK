@@ -75,7 +75,6 @@ enum class renderFxFlags_t
 
 	RF_FORCE_ENT_ALPHA	= 0x800000 // override shader alpha settings
 };
-using enum renderFxFlags_t;
 template <> inline constexpr bool enableEnumFlags<renderFxFlags_t> = true;
 
 // refdef flags
@@ -92,7 +91,6 @@ enum class refdefFlags_t
 	RDF_doFullbright	= 64,		// Light Amp goggles
 	RDF_ForceSightOn	= 128		// using force sight
 };
-using enum refdefFlags_t;
 template <> inline constexpr bool enableEnumFlags<refdefFlags_t> = true;
 
 
@@ -130,7 +128,6 @@ enum class refEntityType_t
 
 	RT_MAX_REF_ENTITY_TYPE
 };
-using enum refEntityType_t;
 
 typedef struct {
 	refEntityType_t	reType;
@@ -214,7 +211,6 @@ enum class stereoFrame_t {
 	STEREO_LEFT,
 	STEREO_RIGHT
 };
-using enum stereoFrame_t;
 
 
 /*
@@ -229,7 +225,6 @@ enum class textureCompression_t {
 	TC_S3TC,
 	TC_S3TC_DXT
 };
-using enum textureCompression_t;
 
 typedef struct glconfig_s {
 	const char				*renderer_string;

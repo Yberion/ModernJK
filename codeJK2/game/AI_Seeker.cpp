@@ -54,9 +54,9 @@ void NPC_Seeker_Precache(void)
 //------------------------------------
 void NPC_Seeker_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, vec3_t point, int damage, meansOfDeath_t mod,hitLocation_t hitLoc )
 {
-	if ( !Any( self->svFlags & SVF_CUSTOM_GRAVITY ))
-	{//void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t dir, vec3_t point, int damage, damageFlags_t dflags, meansOfDeath_t mod, hitLocation_t hitLoc=HL_NONE );
-		G_Damage( self, nullptr, nullptr, (float*)vec3_origin, (float*)vec3_origin, 999, DAMAGE_NORMAL, MOD_FALLING );
+	if ( !Any( self->svFlags & svFlags_t::SVF_CUSTOM_GRAVITY ))
+	{//void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t dir, vec3_t point, int damage, damageFlags_t dflags, meansOfDeath_t mod, hitLocation_t hitLoc=hitLocation_t::HL_NONE );
+		G_Damage( self, nullptr, nullptr, (float*)vec3_origin, (float*)vec3_origin, 999, damageFlags_t::DAMAGE_NORMAL, meansOfDeath_t::MOD_FALLING );
 	}
 
 	SaveNPCGlobals();
@@ -170,7 +170,7 @@ void Seeker_Strafe( void )
 		side = ( rand() & 1 ) ? -1 : 1;
 		VectorMA( NPC->currentOrigin, SEEKER_STRAFE_DIS * side, right, end );
 
-		gi.trace( &tr, NPC->currentOrigin, nullptr, nullptr, end, NPC->s.number, MASK_SOLID, G2_NOCOLLIDE, 0 );
+		gi.trace( &tr, NPC->currentOrigin, nullptr, nullptr, end, NPC->s.number, MASK_SOLID, EG2_Collision::G2_NOCOLLIDE, 0 );
 
 		// Close enough
 		if ( tr.fraction > 0.9f )
@@ -197,7 +197,7 @@ void Seeker_Strafe( void )
 		// then add a very small bit of random in front of/behind the player action
 		VectorMA( end, Q_flrand(-1.0f, 1.0f) * 25, dir, end );
 
-		gi.trace( &tr, NPC->currentOrigin, nullptr, nullptr, end, NPC->s.number, MASK_SOLID, G2_NOCOLLIDE, 0 );
+		gi.trace( &tr, NPC->currentOrigin, nullptr, nullptr, end, NPC->s.number, MASK_SOLID, EG2_Collision::G2_NOCOLLIDE, 0 );
 
 		// Close enough
 		if ( tr.fraction > 0.9f )
@@ -273,7 +273,7 @@ void Seeker_Fire( void )
 	vec3_t		dir, enemy_org, muzzle;
 	gentity_t	*missile;
 
-	CalcEntitySpot( NPC->enemy, SPOT_HEAD, enemy_org );
+	CalcEntitySpot( NPC->enemy, spot_t::SPOT_HEAD, enemy_org );
 	VectorSubtract( enemy_org, NPC->currentOrigin, dir );
 	VectorNormalize( dir );
 
@@ -285,12 +285,12 @@ void Seeker_Fire( void )
 	G_PlayEffect( "blaster/muzzle_flash", NPC->currentOrigin, dir );
 
 	missile->classname = "blaster";
-	missile->s.weapon = WP_BLASTER;
+	missile->s.weapon = weapon_t::WP_BLASTER;
 
 	missile->damage = 5;
-	missile->dflags = DAMAGE_DEATH_KNOCKBACK;
-	missile->methodOfDeath = MOD_ENERGY;
-	missile->clipmask = MASK_SHOT | CONTENTS_LIGHTSABER;
+	missile->dflags = damageFlags_t::DAMAGE_DEATH_KNOCKBACK;
+	missile->methodOfDeath = meansOfDeath_t::MOD_ENERGY;
+	missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
 }
 
 //------------------------------------
@@ -309,12 +309,12 @@ void Seeker_Ranged( bool visible, bool advance )
 	{
 		// out of ammo, so let it die...give it a push up so it can fall more and blow up on impact
 //		NPC->client->ps.gravity = 900;
-//		NPC->svFlags &= ~SVF_CUSTOM_GRAVITY;
+//		NPC->svFlags &= ~svFlags_t::SVF_CUSTOM_GRAVITY;
 //		NPC->client->ps.velocity[2] += 16;
-		G_Damage( NPC, NPC, NPC, nullptr, nullptr, 999, DAMAGE_NORMAL, MOD_UNKNOWN );
+		G_Damage( NPC, NPC, NPC, nullptr, nullptr, 999, damageFlags_t::DAMAGE_NORMAL, meansOfDeath_t::MOD_UNKNOWN );
 	}
 
-	if ( Any( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
+	if ( Any( NPCInfo->scriptFlags & scriptFlags_t::SCF_CHASE_ENEMIES ) )
 	{
 		Seeker_Hunt( visible, advance );
 	}
@@ -334,7 +334,7 @@ void Seeker_Attack( void )
 	// If we cannot see our target, move to see it
 	if ( visible == false )
 	{
-		if ( Any( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
+		if ( Any( NPCInfo->scriptFlags & scriptFlags_t::SCF_CHASE_ENEMIES ) )
 		{
 			Seeker_Hunt( visible, advance );
 			return;
@@ -366,7 +366,7 @@ void Seeker_FindEnemy( void )
 			continue;
 		}
 
-		if ( ent->client->playerTeam == NPC->client->playerTeam || ent->client->playerTeam == TEAM_NEUTRAL ) // don't attack same team or bots
+		if ( ent->client->playerTeam == NPC->client->playerTeam || ent->client->playerTeam == team_t::TEAM_NEUTRAL ) // don't attack same team or bots
 		{
 			continue;
 		}
@@ -444,7 +444,7 @@ void NPC_BSSeeker_Default( void )
 	if ( in_camera )
 	{
 		// cameras make me commit suicide....
-		G_Damage( NPC, NPC, NPC, nullptr, nullptr, 999, DAMAGE_NORMAL, MOD_UNKNOWN );
+		G_Damage( NPC, NPC, NPC, nullptr, nullptr, 999, damageFlags_t::DAMAGE_NORMAL, meansOfDeath_t::MOD_UNKNOWN );
 	}
 
 	if ( NPC->random == 0.0f )
@@ -455,7 +455,7 @@ void NPC_BSSeeker_Default( void )
 
 	if ( NPC->enemy && NPC->enemy->health && NPC->enemy->inuse )
 	{
-		if ( NPC->enemy->s.number == 0 || ( NPC->enemy->client && NPC->enemy->client->NPC_class == CLASS_SEEKER ))
+		if ( NPC->enemy->s.number == 0 || ( NPC->enemy->client && NPC->enemy->client->NPC_class == class_t::CLASS_SEEKER ))
 		{
 			//hacked to never take the player as an enemy, even if the player shoots at it
 			NPC->enemy = nullptr;

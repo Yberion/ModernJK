@@ -60,13 +60,13 @@ bool R_ImageLoader_Add ( const char *extension, ImageLoaderFn imageLoader )
 {
 	if ( numImageLoaders >= MAX_IMAGE_LOADERS )
 	{
-		ri.Printf (PRINT_DEVELOPER, "R_AddImageLoader: Cannot add any more image loaders (maximum %d).\n", MAX_IMAGE_LOADERS);
+		ri.Printf (printParm_t::PRINT_DEVELOPER, "R_AddImageLoader: Cannot add any more image loaders (maximum %d).\n", MAX_IMAGE_LOADERS);
 		return false;
 	}
 
 	if ( FindImageLoader (extension) != nullptr )
 	{
-		ri.Printf (PRINT_DEVELOPER, "R_AddImageLoader: Image loader already exists for extension \"%s\".\n", extension);
+		ri.Printf (printParm_t::PRINT_DEVELOPER, "R_AddImageLoader: Image loader already exists for extension \"%s\".\n", extension);
 		return false;
 	}
 

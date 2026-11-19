@@ -45,7 +45,6 @@ enum class variableType_t
 	VTYPE_STRING,
 	VTYPE_VECTOR,
 };
-using enum variableType_t;
 
 extern void Q3_InitVariables( void );
 extern void Q3_DeclareVariable( icarusToken_t type, const char *name );

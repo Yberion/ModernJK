@@ -52,7 +52,7 @@ Used as a positional target for calculations in the utilities (spotlights, etc),
 void SP_info_null( gentity_t *self ) {
 	//FIXME: store targetname and vector (origin) in a list for further reference... remove after 1st second of game?
 	G_SetOrigin( self, self->s.origin );
-	self->e_ThinkFunc = thinkF_G_FreeEntity;
+	self->e_ThinkFunc = thinkFunc_t::thinkF_G_FreeEntity;
 	//Give other ents time to link
 	self->nextthink = level.time + START_TIME_REMOVE_ENTS;
 }
@@ -157,12 +157,12 @@ void SP_light( gentity_t *self ) {
 	G_SetOrigin( self, self->s.origin );
 	gi.linkentity( self );
 
-	self->e_UseFunc = useF_misc_dlight_use;
-	self->e_clThinkFunc = clThinkF_NULL;
+	self->e_UseFunc = useFunc_t::useF_misc_dlight_use;
+	self->e_clThinkFunc = clThinkFunc_t::clThinkF_NULL;
 
-	self->s.eType = ET_GENERAL;
+	self->s.eType = entityType_t::ET_GENERAL;
 	self->misc_dlight_active = false;
-	self->svFlags |= SVF_NOCLIENT;
+	self->svFlags |= svFlags_t::SVF_NOCLIENT;
 
 	if ( !(self->spawnflags & 4) )
 	{	//turn myself on now
@@ -173,7 +173,7 @@ void SP_light( gentity_t *self ) {
 
 void misc_dlight_use ( gentity_t *ent, gentity_t *other, gentity_t *activator )
 {
-	G_ActivateBehavior(ent,BSET_USE);
+	G_ActivateBehavior(ent,bSet_t::BSET_USE);
 
 	ent->misc_dlight_active = !ent->misc_dlight_active;	//toggle
 	misc_lightstyle_set (ent);
@@ -190,10 +190,10 @@ TELEPORTERS
 
 void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles )
 {
-	if ( player->NPC && Any( player->NPC->aiFlags&NPCAI_FORM_TELE_NAV ) )
+	if ( player->NPC && Any( player->NPC->aiFlags&npcAiFlags_t::NPCAI_FORM_TELE_NAV ) )
 	{
 		//My leader teleported, I was trying to catch up, take this off
-		player->NPC->aiFlags &= ~NPCAI_FORM_TELE_NAV;
+		player->NPC->aiFlags &= ~npcAiFlags_t::NPCAI_FORM_TELE_NAV;
 
 	}
 
@@ -208,10 +208,10 @@ void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles )
 	AngleVectors( angles, player->client->ps.velocity, nullptr, nullptr );
 	VectorScale( player->client->ps.velocity, 0, player->client->ps.velocity );
 	//player->client->ps.pm_time = 160;		// hold time
-	//player->client->ps.pm_flags |= PMF_TIME_KNOCKBACK;
+	//player->client->ps.pm_flags |= pmoveFlags_t::PMF_TIME_KNOCKBACK;
 
 	// toggle the teleport bit so the client knows to not lerp
-	player->client->ps.eFlags ^= EF_TELEPORT_BIT;
+	player->client->ps.eFlags ^= entityFlags_t::EF_TELEPORT_BIT;
 
 	// set angles
 	SetClientViewAngle( player, angles );
@@ -278,7 +278,7 @@ void TeleportMover( gentity_t *mover, vec3_t origin, vec3_t diffAngles, bool sna
 	mover->s.apos.trTime = level.time;
 
 	//Tell them it was teleported this move
-	mover->s.eFlags |= EF_TELEPORT_BIT;
+	mover->s.eFlags |= entityFlags_t::EF_TELEPORT_BIT;
 
 	// kill anything at the destination
 	//G_KillBox (mover);
@@ -319,7 +319,7 @@ void SP_misc_teleporter (gentity_t *ent)
 	ent->s.modelindex = G_ModelIndex( "models/objects/dmspot.md3" );
 	ent->s.clientNum = 1;
 //	ent->s.loopSound = G_SoundIndex("sound/world/amb10.wav");
-	ent->contents = CONTENTS_SOLID;
+	ent->contents = contentsFlags_t::CONTENTS_SOLID;
 
 	G_SetOrigin( ent, ent->s.origin );
 
@@ -328,8 +328,8 @@ void SP_misc_teleporter (gentity_t *ent)
 	gi.linkentity (ent);
 
 	trig = G_Spawn ();
-	trig->e_TouchFunc = touchF_teleporter_touch;
-	trig->contents = CONTENTS_TRIGGER;
+	trig->e_TouchFunc = touchFunc_t::touchF_teleporter_touch;
+	trig->contents = contentsFlags_t::CONTENTS_TRIGGER;
 	trig->target = ent->target;
 	trig->owner = ent;
 	G_SetOrigin( trig, ent->s.origin );
@@ -419,7 +419,7 @@ void cycleCamera( gentity_t *self )
 	}
 	setCamera( self );
 
-	if ( self->e_ThinkFunc == thinkF_cycleCamera )
+	if ( self->e_ThinkFunc == thinkFunc_t::thinkF_cycleCamera )
 	{
 		if ( self->owner->wait > 0 )
 		{
@@ -454,7 +454,7 @@ void locateCamera( gentity_t *ent )
 	{//not targetted, so auto-cycle
 		if ( G_Find(ent->owner, FOFS(targetname), ent->target) != nullptr  )
 		{//targeted at more than one thing
-			ent->e_ThinkFunc = thinkF_cycleCamera;
+			ent->e_ThinkFunc = thinkFunc_t::thinkF_cycleCamera;
 			if ( ent->owner->wait > 0 )
 			{
 				ent->nextthink = level.time + ent->owner->wait;
@@ -482,8 +482,8 @@ void SP_misc_portal_surface(gentity_t *ent)
 	VectorClear( ent->maxs );
 	gi.linkentity (ent);
 
-	ent->svFlags = SVF_PORTAL;
-	ent->s.eType = ET_PORTAL;
+	ent->svFlags = svFlags_t::SVF_PORTAL;
+	ent->s.eType = entityType_t::ET_PORTAL;
 	ent->wait *= 1000;
 
 	if ( !ent->target )
@@ -492,12 +492,12 @@ void SP_misc_portal_surface(gentity_t *ent)
 	}
 	else
 	{
-		ent->e_ThinkFunc = thinkF_locateCamera;
+		ent->e_ThinkFunc = thinkFunc_t::thinkF_locateCamera;
 		ent->nextthink = level.time + 100;
 
 		if ( ent->targetname )
 		{
-			ent->e_UseFunc = useF_misc_portal_use;
+			ent->e_UseFunc = useFunc_t::useF_misc_portal_use;
 		}
 	}
 }
@@ -546,8 +546,8 @@ void camera_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 	//bye!
 	self->takedamage = false;
-	self->contents = CONTENTS_NONE;
-	self->s.eFlags |= EF_NODRAW;
+	self->contents = contentsFlags_t::CONTENTS_NONE;
+	self->s.eFlags |= entityFlags_t::EF_NODRAW;
 	self->s.modelindex = 0;
 }
 
@@ -584,7 +584,7 @@ void camera_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 	else
 	{//set me as view entity
 		G_UseTargets2( self, activator, self->target3 );
-		self->s.eFlags |= EF_NODRAW;
+		self->s.eFlags |= entityFlags_t::EF_NODRAW;
 		self->s.modelindex = 0;
 		G_SetViewEntity( activator, self );
 		G_Sound( activator, self->soundPos1 );
@@ -596,7 +596,7 @@ void camera_aim( gentity_t *self )
 	self->nextthink = level.time + FRAMETIME;
 	if ( player && player->client && player->client->ps.viewEntity == self->s.number )
 	{//I am the viewEntity
-		if ( Any(player->client->usercmd.buttons&BUTTON_BLOCKING) || player->client->usercmd.forwardmove || player->client->usercmd.rightmove || player->client->usercmd.upmove )
+		if ( Any(player->client->usercmd.buttons&buttonFlags_t::BUTTON_BLOCKING) || player->client->usercmd.forwardmove || player->client->usercmd.rightmove || player->client->usercmd.upmove )
 		{//player wants to back out of camera
 			G_UseTargets2( self, player, self->target4 );
 			G_ClearViewEntity( player );
@@ -609,20 +609,20 @@ void camera_aim( gentity_t *self )
 		}
 		else if ( self->painDebounceTime < level.time )
 		{//check for use button
-			if ( Any(player->client->usercmd.buttons&BUTTON_USE) )
+			if ( Any(player->client->usercmd.buttons&buttonFlags_t::BUTTON_USE) )
 			{//player pressed use button, wants to cycle to next
 				camera_use( self, player, player );
 			}
 		}
 		else
 		{//don't draw me when being looked through
-			self->s.eFlags |= EF_NODRAW;
+			self->s.eFlags |= entityFlags_t::EF_NODRAW;
 			self->s.modelindex = 0;
 		}
 	}
 	else if ( self->health > 0 )
 	{//still alive, can draw me again
-		self->s.eFlags &= ~EF_NODRAW;
+		self->s.eFlags &= ~entityFlags_t::EF_NODRAW;
 		self->s.modelindex = self->s.modelindex3;
 	}
 	//update my aim
@@ -698,11 +698,11 @@ void SP_misc_camera( gentity_t *self )
 
 	G_SetOrigin( self, self->s.origin );
 	G_SetAngles( self, self->s.angles );
-	self->s.apos.trType = TR_LINEAR_STOP;//TR_INTERPOLATE;//
+	self->s.apos.trType = trType_t::TR_LINEAR_STOP;//trType_t::TR_INTERPOLATE;//
 	self->alt_fire = true;
 	VectorSet( self->mins, -8, -8, -12 );
 	VectorSet( self->maxs, 8, 8, 0 );
-	self->contents = CONTENTS_SOLID;
+	self->contents = contentsFlags_t::CONTENTS_SOLID;
 	gi.linkentity( self );
 
 	self->fxID = G_EffectIndex( "spark" );
@@ -713,11 +713,11 @@ void SP_misc_camera( gentity_t *self )
 	}
 
 	self->health = 10;
-	self->e_DieFunc = dieF_camera_die;
+	self->e_DieFunc = dieFunc_t::dieF_camera_die;
 
-	self->e_UseFunc = useF_camera_use;
+	self->e_UseFunc = useFunc_t::useF_camera_use;
 
-	self->e_ThinkFunc = thinkF_camera_aim;
+	self->e_ThinkFunc = thinkFunc_t::thinkF_camera_aim;
 	self->nextthink = level.time + START_TIME_LINK_ENTS;
 }
 /*
@@ -734,7 +734,7 @@ void Use_Shooter( gentity_t *ent, gentity_t *other, gentity_t *activator )
 	float		deg;
 	vec3_t		up, right;
 */
-	G_ActivateBehavior(ent,BSET_USE);
+	G_ActivateBehavior(ent,bSet_t::BSET_USE);
 /*
 	// see if we have a target
 	if ( ent->enemy ) {
@@ -761,7 +761,7 @@ void Use_Shooter( gentity_t *ent, gentity_t *other, gentity_t *activator )
 	case WP_GRENADE_LAUNCHER:
 		fire_grenade( ent, ent->s.origin, dir );
 		break;
-	case WP_ROCKET_LAUNCHER:
+	case weapon_t::WP_ROCKET_LAUNCHER:
 		fire_rocket( ent, ent->s.origin, dir );
 		break;
 	case WP_PLASMAGUN:
@@ -769,12 +769,12 @@ void Use_Shooter( gentity_t *ent, gentity_t *other, gentity_t *activator )
 		break;
 	}
 
-	G_AddEvent( ent, EV_FIRE_WEAPON, 0 );
+	G_AddEvent( ent, entity_event_t::EV_FIRE_WEAPON, 0 );
 */
 }
 
 void InitShooter( gentity_t *ent, weapon_t weapon ) {
-	ent->e_UseFunc = useF_Use_Shooter;
+	ent->e_UseFunc = useFunc_t::useF_Use_Shooter;
 	ent->s.weapon = weapon;
 
 	RegisterItem( FindItemForWeapon( weapon ) );
@@ -807,7 +807,7 @@ Fires at either the target or the current direction.
 */
 void SP_shooter_plasma( gentity_t *ent )
 {
-	InitShooter( ent, WP_BRYAR_PISTOL);
+	InitShooter( ent, weapon_t::WP_BRYAR_PISTOL);
 }
 
 /*QUAK-ED shooter_grenade (1 0 0) (-16 -16 -16) (16 16 16)
@@ -857,7 +857,7 @@ void SP_object_cargo_barrel1(gentity_t *ent)
 //		ent->sounds = G_SoundIndex("sound/weapons/explosions/explode1.wav");
 	}
 
-	ent->contents = CONTENTS_SOLID|CONTENTS_OPAQUE;
+	ent->contents = contentsFlags_t::CONTENTS_SOLID|contentsFlags_t::CONTENTS_OPAQUE;
 
 	if ( ent->spawnflags & 1 )
 	{
@@ -884,10 +884,10 @@ void SP_object_cargo_barrel1(gentity_t *ent)
 
 	ent->takedamage = true;
 
-	ent->e_DieFunc = dieF_ExplodeDeath_Wait;
+	ent->e_DieFunc = dieFunc_t::dieF_ExplodeDeath_Wait;
 
 	if(ent->targetname)
-		ent->e_UseFunc = useF_GoExplodeDeath;
+		ent->e_UseFunc = useFunc_t::useF_GoExplodeDeath;
 
 	gi.linkentity (ent);
 }
@@ -923,16 +923,16 @@ void SP_misc_dlight(gentity_t *ent)
 	ent->radius *= 1000;
 
 	//FIXME: attach self to a train or something?
-	ent->e_UseFunc = useF_misc_dlight_use;
+	ent->e_UseFunc = useFunc_t::useF_misc_dlight_use;
 
 	ent->misc_dlight_active = false;
-	ent->e_clThinkFunc = clThinkF_NULL;
+	ent->e_clThinkFunc = clThinkFunc_t::clThinkF_NULL;
 
-	ent->s.eType = ET_GENERAL;
+	ent->s.eType = entityType_t::ET_GENERAL;
 	//Delay first think so we can find owner
 	if ( ent->ownername )
 	{
-		ent->e_ThinkFunc = thinkF_misc_dlight_think;
+		ent->e_ThinkFunc = thinkFunc_t::thinkF_misc_dlight_think;
 		ent->nextthink = level.time + START_TIME_LINK_ENTS;
 	}
 
@@ -944,7 +944,7 @@ void SP_misc_dlight(gentity_t *ent)
 
 void misc_dlight_use_old ( gentity_t *ent, gentity_t *other, gentity_t *activator )
 {
-	G_ActivateBehavior(ent,BSET_USE);
+	G_ActivateBehavior(ent,bSet_t::BSET_USE);
 
 	if ( ent->misc_dlight_active )
 	{//We're on, turn off
@@ -955,10 +955,10 @@ void misc_dlight_use_old ( gentity_t *ent, gentity_t *other, gentity_t *activato
 		else
 		{
 			ent->misc_dlight_active = false;
-			ent->e_clThinkFunc = clThinkF_NULL;
+			ent->e_clThinkFunc = clThinkFunc_t::clThinkF_NULL;
 
-			ent->s.eType = ET_GENERAL;
-			ent->svFlags &= ~SVF_BROADCAST;
+			ent->s.eType = entityType_t::ET_GENERAL;
+			ent->svFlags &= ~svFlags_t::SVF_BROADCAST;
 		}
 	}
 	else
@@ -976,13 +976,13 @@ void misc_dlight_use_old ( gentity_t *ent, gentity_t *other, gentity_t *activato
 
 		ent->misc_dlight_active = true;
 
-		ent->e_ThinkFunc = thinkF_misc_dlight_think;
+		ent->e_ThinkFunc = thinkFunc_t::thinkF_misc_dlight_think;
 		ent->nextthink = level.time + FRAMETIME;
 
-		ent->e_clThinkFunc = clThinkF_CG_DLightThink;
+		ent->e_clThinkFunc = clThinkFunc_t::clThinkF_CG_DLightThink;
 
-		ent->s.eType = ET_THINKER;
-		ent->svFlags |= SVF_BROADCAST;// Broadcast to all clients
+		ent->s.eType = entityType_t::ET_THINKER;
+		ent->svFlags |= svFlags_t::SVF_BROADCAST;// Broadcast to all clients
 	}
 }
 
@@ -1006,8 +1006,8 @@ void misc_dlight_think ( gentity_t *ent )
 void station_pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, vec3_t point, int damage, meansOfDeath_t mod,hitLocation_t hitLoc )
 {
 //	self->s.modelindex = G_ModelIndex("/models/mapobjects/stasis/plugin2_in.md3");
-//	self->s.eFlags &= ~ EF_ANIM_ALLFAST;
-//	self->s.eFlags |= EF_ANIM_ONCE;
+//	self->s.eFlags &= ~ entityFlags_t::EF_ANIM_ALLFAST;
+//	self->s.eFlags |= entityFlags_t::EF_ANIM_ONCE;
 //	gi.linkentity (self);
 	self->s.modelindex = self->s.modelindex2;
 	gi.linkentity (self);
@@ -1025,10 +1025,10 @@ int ITM_AddHealth (gentity_t *ent, int count);
 
 void health_shutdown( gentity_t *self )
 {
-	if (!Any(self->s.eFlags & EF_ANIM_ONCE))
+	if (!Any(self->s.eFlags & entityFlags_t::EF_ANIM_ONCE))
 	{
-		self->s.eFlags &= ~ EF_ANIM_ALLFAST;
-		self->s.eFlags |= EF_ANIM_ONCE;
+		self->s.eFlags &= ~ entityFlags_t::EF_ANIM_ALLFAST;
+		self->s.eFlags |= entityFlags_t::EF_ANIM_ONCE;
 
 		// Switch to and animate its used up model.
 		if (!Q_stricmp(self->model,"models/mapobjects/stasis/plugin2.md3"))
@@ -1061,7 +1061,7 @@ void health_think( gentity_t *ent )
 	if (ent->enemy->health<1)
 	{
 		ent->count = 0;
-		ent->e_ThinkFunc = thinkF_NULL;
+		ent->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
 	}
 
 	// Still has power to give
@@ -1070,7 +1070,7 @@ void health_think( gentity_t *ent )
 		// For every 3 points of health, you get 1 point of armor
 		// BUT!!! after health is filled up, you get the full energy going to armor
 
-		dif = ent->enemy->client->ps.stats[STAT_MAX_HEALTH] - ent->enemy->health;
+		dif = ent->enemy->client->ps.stats[statIndex_t::STAT_MAX_HEALTH] - ent->enemy->health;
 
 		if (dif > 3 )
 		{
@@ -1095,8 +1095,8 @@ void health_think( gentity_t *ent )
 		}
 		else	// User has taken all health he can hold, see about giving it all to armor
 		{
-			dif = ent->enemy->client->ps.stats[STAT_MAX_HEALTH] -
-				ent->enemy->client->ps.stats[STAT_ARMOR];
+			dif = ent->enemy->client->ps.stats[statIndex_t::STAT_MAX_HEALTH] -
+				ent->enemy->client->ps.stats[statIndex_t::STAT_ARMOR];
 
 			if (dif > 3)
 			{
@@ -1114,8 +1114,8 @@ void health_think( gentity_t *ent )
 
 			if ((!ITM_AddArmor(ent->enemy,dif)) || (dif<=0))
 			{
-				ent->e_UseFunc = useF_health_use;
-				ent->e_ThinkFunc = thinkF_NULL;
+				ent->e_UseFunc = useFunc_t::useF_health_use;
+				ent->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
 			}
 			else
 			{
@@ -1133,10 +1133,10 @@ void health_think( gentity_t *ent )
 
 void misc_model_useup( gentity_t *self, gentity_t *other, gentity_t *activator)
 {
-	G_ActivateBehavior(self,BSET_USE);
+	G_ActivateBehavior(self,bSet_t::BSET_USE);
 
-	self->s.eFlags &= ~ EF_ANIM_ALLFAST;
-	self->s.eFlags |= EF_ANIM_ONCE;
+	self->s.eFlags &= ~ entityFlags_t::EF_ANIM_ALLFAST;
+	self->s.eFlags |= entityFlags_t::EF_ANIM_ONCE;
 
 	// Switch to and animate its used up model.
 	self->s.modelindex = self->s.modelindex2;
@@ -1149,8 +1149,8 @@ void misc_model_useup( gentity_t *self, gentity_t *other, gentity_t *activator)
 		G_UseTargets( self, activator );
 	}
 
-	self->e_UseFunc = useF_NULL;
-	self->e_ThinkFunc = thinkF_NULL;
+	self->e_UseFunc = useFunc_t::useF_NULL;
+	self->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
 	self->nextthink = -1;
 }
 
@@ -1160,11 +1160,11 @@ void health_use( gentity_t *self, gentity_t *other, gentity_t *activator)
 	int dif2;
 	int hold;
 
-	G_ActivateBehavior(self,BSET_USE);
+	G_ActivateBehavior(self,bSet_t::BSET_USE);
 
-	if (self->e_ThinkFunc != thinkF_NULL)
+	if (self->e_ThinkFunc != thinkFunc_t::thinkF_NULL)
 	{
-		self->e_ThinkFunc = thinkF_NULL;
+		self->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
 	}
 	else
 	{
@@ -1172,16 +1172,16 @@ void health_use( gentity_t *self, gentity_t *other, gentity_t *activator)
 		if (other->client)
 		{
 			// He's dead, Jim. Don't give him health
-			if (other->client->ps.stats[STAT_HEALTH]<1)
+			if (other->client->ps.stats[statIndex_t::STAT_HEALTH]<1)
 			{
 				dif = 1;
 				self->count = 0;
 			}
 			else
 			{	// Health
-				dif = other->client->ps.stats[STAT_MAX_HEALTH] - other->client->ps.stats[STAT_HEALTH];
+				dif = other->client->ps.stats[statIndex_t::STAT_MAX_HEALTH] - other->client->ps.stats[statIndex_t::STAT_HEALTH];
 				// Armor
-				dif2 = other->client->ps.stats[STAT_MAX_HEALTH] - other->client->ps.stats[STAT_ARMOR];
+				dif2 = other->client->ps.stats[statIndex_t::STAT_MAX_HEALTH] - other->client->ps.stats[statIndex_t::STAT_ARMOR];
 				hold = (dif2 - dif);
 				// For every 3 points of health, you get 1 point of armor
 				// BUT!!! after health is filled up, you get the full energy going to armor
@@ -1218,9 +1218,9 @@ void health_use( gentity_t *self, gentity_t *other, gentity_t *activator)
 				G_UseTargets( self, activator );
 			}
 
-			self->e_UseFunc = useF_NULL;
+			self->e_UseFunc = useFunc_t::useF_NULL;
 			self->enemy = other;
-			self->e_ThinkFunc = thinkF_health_think;
+			self->e_ThinkFunc = thinkFunc_t::thinkF_health_think;
 			self->nextthink = level.time + 50;
 		}
 		else
@@ -1240,10 +1240,10 @@ int Add_Ammo2 (gentity_t *ent, ammo_t ammoType, int count);
 
 void ammo_shutdown( gentity_t *self )
 {
-	if (!Any(self->s.eFlags & EF_ANIM_ONCE))
+	if (!Any(self->s.eFlags & entityFlags_t::EF_ANIM_ONCE))
 	{
-		self->s.eFlags &= ~ EF_ANIM_ALLFAST;
-		self->s.eFlags |= EF_ANIM_ONCE;
+		self->s.eFlags &= ~ entityFlags_t::EF_ANIM_ALLFAST;
+		self->s.eFlags |= entityFlags_t::EF_ANIM_ONCE;
 
 		gi.linkentity (self);
 	}
@@ -1255,7 +1255,7 @@ void ammo_think( gentity_t *ent )
 	// Still has ammo to give
 	if (ent->count > 0 && ent->enemy )
 	{
-		dif = ammoData[AMMO_BLASTER].max  - ent->enemy->client->ps.ammo[AMMO_BLASTER];
+		dif = ammoData[ammo_t::AMMO_BLASTER].max  - ent->enemy->client->ps.ammo[ammo_t::AMMO_BLASTER];
 
 		if (dif > 2 )
 		{
@@ -1272,15 +1272,15 @@ void ammo_think( gentity_t *ent )
 		}
 
 		// Give player ammo
-		if (Add_Ammo2(ent->enemy,AMMO_BLASTER,dif) && (dif!=0))
+		if (Add_Ammo2(ent->enemy,ammo_t::AMMO_BLASTER,dif) && (dif!=0))
 		{
 			ent->count-=dif;
 			ent->nextthink = level.time + 10;
 		}
 		else	// User has taken all ammo he can hold
 		{
-			ent->e_UseFunc = useF_ammo_use;
-			ent->e_ThinkFunc = thinkF_NULL;
+			ent->e_UseFunc = useFunc_t::useF_ammo_use;
+			ent->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
 		}
 	}
 
@@ -1295,20 +1295,20 @@ void ammo_use( gentity_t *self, gentity_t *other, gentity_t *activator)
 {
 	int dif;
 
-	G_ActivateBehavior(self,BSET_USE);
+	G_ActivateBehavior(self,bSet_t::BSET_USE);
 
-	if (self->e_ThinkFunc != thinkF_NULL)
+	if (self->e_ThinkFunc != thinkFunc_t::thinkF_NULL)
 	{
-		if (self->e_UseFunc != useF_NULL)
+		if (self->e_UseFunc != useFunc_t::useF_NULL)
 		{
-			self->e_ThinkFunc = thinkF_NULL;
+			self->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
 		}
 	}
 	else
 	{
 		if (other->client)
 		{
-			dif = ammoData[AMMO_BLASTER].max - other->client->ps.ammo[AMMO_BLASTER];
+			dif = ammoData[ammo_t::AMMO_BLASTER].max - other->client->ps.ammo[ammo_t::AMMO_BLASTER];
 		}
 		else
 		{	// Being triggered to be used up
@@ -1336,9 +1336,9 @@ void ammo_use( gentity_t *self, gentity_t *other, gentity_t *activator)
 			G_UseTargets( self, activator );
 		}
 
-		self->e_UseFunc = useF_NULL;
+		self->e_UseFunc = useFunc_t::useF_NULL;
 		G_SetEnemy( self, other );
-		self->e_ThinkFunc = thinkF_ammo_think;
+		self->e_ThinkFunc = thinkFunc_t::thinkF_ammo_think;
 		self->nextthink = level.time + 50;
 	}
 }
@@ -1346,31 +1346,31 @@ void ammo_use( gentity_t *self, gentity_t *other, gentity_t *activator)
 //------------------------------------------------------------
 void mega_ammo_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
-	G_ActivateBehavior( self, BSET_USE );
+	G_ActivateBehavior( self, bSet_t::BSET_USE );
 
 	// Use target when used
 	G_UseTargets( self, activator );
 
 	// first use, adjust the max ammo a person can hold for each type of ammo
-	ammoData[AMMO_BLASTER].max	= 999;
-	ammoData[AMMO_POWERCELL].max		= 999;
+	ammoData[ammo_t::AMMO_BLASTER].max	= 999;
+	ammoData[ammo_t::AMMO_POWERCELL].max		= 999;
 
 	// Set up our count with whatever the max difference will be
-	if ( other->client->ps.ammo[AMMO_POWERCELL] > other->client->ps.ammo[AMMO_BLASTER] )
-		self->count = ammoData[AMMO_BLASTER].max - other->client->ps.ammo[AMMO_BLASTER];
+	if ( other->client->ps.ammo[ammo_t::AMMO_POWERCELL] > other->client->ps.ammo[ammo_t::AMMO_BLASTER] )
+		self->count = ammoData[ammo_t::AMMO_BLASTER].max - other->client->ps.ammo[ammo_t::AMMO_BLASTER];
 	else
-		self->count = ammoData[AMMO_POWERCELL].max - other->client->ps.ammo[AMMO_POWERCELL];
+		self->count = ammoData[ammo_t::AMMO_POWERCELL].max - other->client->ps.ammo[ammo_t::AMMO_POWERCELL];
 
 //	G_Sound( self, G_SoundIndex("sound/player/superenergy.wav") );
 
 	// Clear our usefunc, then think until our ammo is full
-	self->e_UseFunc = useF_NULL;
+	self->e_UseFunc = useFunc_t::useF_NULL;
 	G_SetEnemy( self, other );
-	self->e_ThinkFunc = thinkF_mega_ammo_think;
+	self->e_ThinkFunc = thinkFunc_t::thinkF_mega_ammo_think;
 	self->nextthink = level.time + 50;
 
 	self->s.frame = 0;
-	self->s.eFlags |= EF_ANIM_ONCE;
+	self->s.eFlags |= entityFlags_t::EF_ANIM_ONCE;
 }
 
 //------------------------------------------------------------
@@ -1390,15 +1390,15 @@ void mega_ammo_think( gentity_t *self )
 	if ( self->enemy && self->count > 0 )
 	{
 		// Add an equal ammount of ammo to each type
-		self->enemy->client->ps.ammo[AMMO_BLASTER]		+= ammo_add;
-		self->enemy->client->ps.ammo[AMMO_POWERCELL]	+= ammo_add;
+		self->enemy->client->ps.ammo[ammo_t::AMMO_BLASTER]		+= ammo_add;
+		self->enemy->client->ps.ammo[ammo_t::AMMO_POWERCELL]	+= ammo_add;
 
 		// Now cap to prevent overflows
-		if ( self->enemy->client->ps.ammo[AMMO_BLASTER] > ammoData[AMMO_BLASTER].max )
-			self->enemy->client->ps.ammo[AMMO_BLASTER] = ammoData[AMMO_BLASTER].max;
+		if ( self->enemy->client->ps.ammo[ammo_t::AMMO_BLASTER] > ammoData[ammo_t::AMMO_BLASTER].max )
+			self->enemy->client->ps.ammo[ammo_t::AMMO_BLASTER] = ammoData[ammo_t::AMMO_BLASTER].max;
 
-		if ( self->enemy->client->ps.ammo[AMMO_POWERCELL] > ammoData[AMMO_POWERCELL].max )
-			self->enemy->client->ps.ammo[AMMO_POWERCELL] = ammoData[AMMO_POWERCELL].max;
+		if ( self->enemy->client->ps.ammo[ammo_t::AMMO_POWERCELL] > ammoData[ammo_t::AMMO_POWERCELL].max )
+			self->enemy->client->ps.ammo[ammo_t::AMMO_POWERCELL] = ammoData[ammo_t::AMMO_POWERCELL].max;
 
 		// Decrement the count given counter
 		self->count -= ammo_add;
@@ -1407,7 +1407,7 @@ void mega_ammo_think( gentity_t *self )
 		if ( self->count <= 0 )
 		{
 			self->count = 0;
-			self->e_ThinkFunc = thinkF_NULL;
+			self->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
 			self->nextthink = -1;
 		}
 		else
@@ -1440,27 +1440,27 @@ void touch_ammo_crystal_tigger( gentity_t *self, gentity_t *other, trace_t *trac
 		return;
 	}
 
-	if ( other->client->ps.ammo[ AMMO_POWERCELL ] >= ammoData[AMMO_POWERCELL].max )
+	if ( other->client->ps.ammo[ ammo_t::AMMO_POWERCELL ] >= ammoData[ammo_t::AMMO_POWERCELL].max )
 	{
 		return;		// can't hold any more
 	}
 
 	// Add the ammo
-	other->client->ps.ammo[AMMO_POWERCELL] += self->owner->count;
+	other->client->ps.ammo[ammo_t::AMMO_POWERCELL] += self->owner->count;
 
-	if ( other->client->ps.ammo[AMMO_POWERCELL] > ammoData[AMMO_POWERCELL].max )
+	if ( other->client->ps.ammo[ammo_t::AMMO_POWERCELL] > ammoData[ammo_t::AMMO_POWERCELL].max )
 	{
-		other->client->ps.ammo[AMMO_POWERCELL] = ammoData[AMMO_POWERCELL].max;
+		other->client->ps.ammo[ammo_t::AMMO_POWERCELL] = ammoData[ammo_t::AMMO_POWERCELL].max;
 	}
 
 	// Trigger once only
-	self->e_TouchFunc = touchF_NULL;
+	self->e_TouchFunc = touchFunc_t::touchF_NULL;
 
 	// swap the model to the version without the crystal and ditch the infostring
 	self->owner->s.modelindex = self->owner->s.modelindex2;
 
 	// play the normal pickup sound
-//	G_AddEvent( other, EV_ITEM_PICKUP, ITM_AMMO_CRYSTAL_BORG );
+//	G_AddEvent( other, entity_event_t::EV_ITEM_PICKUP, ITM_AMMO_CRYSTAL_BORG );
 
 	// fire item targets
 	G_UseTargets( self->owner, other );
@@ -1491,34 +1491,34 @@ void spawn_ammo_crystal_trigger( gentity_t *ent )
 
 	// set up the other bits that the engine needs to know
 	other->owner = ent;
-	other->contents = CONTENTS_TRIGGER;
-	other->e_TouchFunc = touchF_touch_ammo_crystal_tigger;
+	other->contents = contentsFlags_t::CONTENTS_TRIGGER;
+	other->e_TouchFunc = touchFunc_t::touchF_touch_ammo_crystal_tigger;
 
 	gi.linkentity( other );
 }
 
 void misc_replicator_item_remove ( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
-	self->s.eFlags |= EF_NODRAW;
-	//self->contents = CONTENTS_NONE;
+	self->s.eFlags |= entityFlags_t::EF_NODRAW;
+	//self->contents = contentsFlags_t::CONTENTS_NONE;
 	self->s.modelindex = 0;
-	self->e_UseFunc = useF_misc_replicator_item_spawn;
+	self->e_UseFunc = useFunc_t::useF_misc_replicator_item_spawn;
 	//FIXME: pickup sound?
 	if ( activator->client )
 	{
 		activator->health += 5;
-		if ( activator->health > activator->client->ps.stats[STAT_MAX_HEALTH] )	// Past max health
+		if ( activator->health > activator->client->ps.stats[statIndex_t::STAT_MAX_HEALTH] )	// Past max health
 		{
-			activator->health = activator->client->ps.stats[STAT_MAX_HEALTH];
+			activator->health = activator->client->ps.stats[statIndex_t::STAT_MAX_HEALTH];
 		}
 	}
 }
 
 void misc_replicator_item_finish_spawn( gentity_t *self )
 {
-	//self->contents = CONTENTS_ITEM;
+	//self->contents = contentsFlags_t::CONTENTS_ITEM;
 	//FIXME: blinks out for a couple frames when transporter effect is done?
-	self->e_UseFunc = useF_misc_replicator_item_remove;
+	self->e_UseFunc = useFunc_t::useF_misc_replicator_item_remove;
 }
 
 void misc_replicator_item_spawn ( gentity_t *self, gentity_t *other, gentity_t *activator )
@@ -1544,12 +1544,12 @@ void misc_replicator_item_spawn ( gentity_t *self, gentity_t *other, gentity_t *
 		self->s.modelindex = self->pushDebounceTime;
 		break;
 	}
-	self->s.eFlags &= ~EF_NODRAW;
-	self->e_ThinkFunc = thinkF_misc_replicator_item_finish_spawn;
+	self->s.eFlags &= ~entityFlags_t::EF_NODRAW;
+	self->e_ThinkFunc = thinkFunc_t::thinkF_misc_replicator_item_finish_spawn;
 	self->nextthink = level.time + 4000;//shorter?
-	self->e_UseFunc = useF_NULL;
+	self->e_UseFunc = useFunc_t::useF_NULL;
 
-	gentity_t *tent = G_TempEntity( self->currentOrigin, EV_REPLICATOR );
+	gentity_t *tent = G_TempEntity( self->currentOrigin, entity_event_t::EV_REPLICATOR );
 	tent->owner = self;
 }
 
@@ -1604,10 +1604,10 @@ void SP_misc_replicator_item ( gentity_t *self )
 		}
 	}
 //	G_SoundIndex( "sound/movers/switches/replicator.wav" );
-	self->e_UseFunc = useF_misc_replicator_item_spawn;
+	self->e_UseFunc = useFunc_t::useF_misc_replicator_item_spawn;
 
-	self->s.eFlags |= EF_NODRAW;
-	//self->contents = CONTENTS_NONE;
+	self->s.eFlags |= entityFlags_t::EF_NODRAW;
+	//self->contents = contentsFlags_t::CONTENTS_NONE;
 
 	VectorSet( self->mins, -4, -4, 0 );
 	VectorSet( self->maxs, 4, 4, 8 );
@@ -1634,16 +1634,16 @@ extern void CreateLaserTrap( gentity_t *laserTrap, vec3_t start, gentity_t *owne
 
 void misc_trip_mine_activate( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
-	if ( self->e_ThinkFunc == thinkF_laserTrapThink )
+	if ( self->e_ThinkFunc == thinkFunc_t::thinkF_laserTrapThink )
 	{
-		self->s.eFlags &= ~EF_FIRING;
+		self->s.eFlags &= ~entityFlags_t::EF_FIRING;
 		self->s.loopSound = 0;
-		self->e_ThinkFunc = thinkF_NULL;
+		self->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
 		self->nextthink = -1;
 	}
 	else
 	{
-		self->e_ThinkFunc = thinkF_laserTrapThink;
+		self->e_ThinkFunc = thinkFunc_t::thinkF_laserTrapThink;
 		self->nextthink = level.time + FRAMETIME;
 	}
 }
@@ -1656,22 +1656,22 @@ void SP_misc_trip_mine( gentity_t *self )
 	AngleVectors( self->s.angles, forward, nullptr, nullptr );
 	VectorMA( self->s.origin, 128, forward, end );
 
-	gi.trace( &trace, self->s.origin, vec3_origin, vec3_origin, end, self->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
+	gi.trace( &trace, self->s.origin, vec3_origin, vec3_origin, end, self->s.number, MASK_SHOT, EG2_Collision::G2_NOCOLLIDE, 0 );
 
 	if ( trace.allsolid || trace.startsolid )
 	{
-		Com_Error( ERR_DROP,"misc_trip_mine at %s in solid\n", vtos(self->s.origin) );
+		Com_Error( errorParm_t::ERR_DROP,"misc_trip_mine at %s in solid\n", vtos(self->s.origin) );
 		G_FreeEntity( self );
 		return;
 	}
 	if ( trace.fraction == 1.0 )
 	{
-		Com_Error( ERR_DROP,"misc_trip_mine at %s pointed at no surface\n", vtos(self->s.origin) );
+		Com_Error( errorParm_t::ERR_DROP,"misc_trip_mine at %s pointed at no surface\n", vtos(self->s.origin) );
 		G_FreeEntity( self );
 		return;
 	}
 
-	RegisterItem( FindItemForWeapon( WP_TRIP_MINE ));	//precache the weapon
+	RegisterItem( FindItemForWeapon( weapon_t::WP_TRIP_MINE ));	//precache the weapon
 
 	self->count = 2/*TRIPWIRE_STYLE*/;
 
@@ -1681,7 +1681,7 @@ void SP_misc_trip_mine( gentity_t *self )
 
 	CreateLaserTrap( self, trace.endpos, self );
 	touchLaserTrap( self, self, &trace );
-	self->e_ThinkFunc = thinkF_NULL;
+	self->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
 	self->nextthink = -1;
 
 	if ( !self->targetname || (self->spawnflags&1) )
@@ -1690,12 +1690,12 @@ void SP_misc_trip_mine( gentity_t *self )
 	}
 	if ( self->targetname )
 	{
-		self->e_UseFunc = useF_misc_trip_mine_activate;
+		self->e_UseFunc = useFunc_t::useF_misc_trip_mine_activate;
 	}
 
 	if (( self->spawnflags & 2 )) // broadcast...should only be used in very rare cases.  could fix networking, perhaps, but james suggested this because it's easier
 	{
-		self->svFlags |= SVF_BROADCAST;
+		self->svFlags |= svFlags_t::SVF_BROADCAST;
 	}
 
 	gi.linkentity( self );
@@ -1717,7 +1717,7 @@ void maglock_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, in
 		self->activator->lockCount--;
 		if ( !self->activator->lockCount )
 		{
-			self->activator->svFlags &= ~SVF_INACTIVE;
+			self->activator->svFlags &= ~svFlags_t::SVF_INACTIVE;
 		}
 	}
 
@@ -1736,7 +1736,7 @@ void SP_misc_maglock ( gentity_t *self )
 
 	G_SetOrigin( self, self->s.origin );
 
-	self->e_ThinkFunc = thinkF_maglock_link;
+	self->e_ThinkFunc = thinkFunc_t::thinkF_maglock_link;
 	//FIXME: for some reason, when you re-load a level, these fail to find their doors...?  Random?  Testing an additional 200ms after the START_TIME_FIND_LINKS
 	self->nextthink = level.time + START_TIME_FIND_LINKS+200;//START_TIME_FIND_LINKS;//because we need to let the doors link up and spawn their triggers first!
 }
@@ -1750,20 +1750,20 @@ void maglock_link( gentity_t *self )
 	VectorMA( self->s.origin, 128, forward, end );
 	VectorMA( self->s.origin, -4, forward, start );
 
-	gi.trace( &trace, start, vec3_origin, vec3_origin, end, self->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
+	gi.trace( &trace, start, vec3_origin, vec3_origin, end, self->s.number, MASK_SHOT, EG2_Collision::G2_NOCOLLIDE, 0 );
 
 	if ( trace.allsolid || trace.startsolid )
 	{
-		Com_Error( ERR_DROP,"misc_maglock at %s in solid\n", vtos(self->s.origin) );
+		Com_Error( errorParm_t::ERR_DROP,"misc_maglock at %s in solid\n", vtos(self->s.origin) );
 		G_FreeEntity( self );
 		return;
 	}
 	if ( trace.fraction == 1.0 )
 	{
-		self->e_ThinkFunc = thinkF_maglock_link;
+		self->e_ThinkFunc = thinkFunc_t::thinkF_maglock_link;
 		self->nextthink = level.time + 100;
 		/*
-		Com_Error( ERR_DROP,"misc_maglock at %s pointed at no surface\n", vtos(self->s.origin) );
+		Com_Error( errorParm_t::ERR_DROP,"misc_maglock at %s pointed at no surface\n", vtos(self->s.origin) );
 		G_FreeEntity( self );
 		*/
 		return;
@@ -1771,9 +1771,9 @@ void maglock_link( gentity_t *self )
 	gentity_t *traceEnt = &g_entities[trace.entityNum];
 	if ( trace.entityNum >= ENTITYNUM_WORLD || !traceEnt || Q_stricmp( "func_door", traceEnt->classname ) )
 	{
-		self->e_ThinkFunc = thinkF_maglock_link;
+		self->e_ThinkFunc = thinkFunc_t::thinkF_maglock_link;
 		self->nextthink = level.time + 100;
-		//Com_Error( ERR_DROP,"misc_maglock at %s not pointed at a door\n", vtos(self->s.origin) );
+		//Com_Error( errorParm_t::ERR_DROP,"misc_maglock at %s not pointed at a door\n", vtos(self->s.origin) );
 		//G_FreeEntity( self );
 		return;
 	}
@@ -1786,7 +1786,7 @@ void maglock_link( gentity_t *self )
 		self->activator = traceEnt;
 	}
 	self->activator->lockCount++;
-	self->activator->svFlags |= SVF_INACTIVE;
+	self->activator->svFlags |= svFlags_t::SVF_INACTIVE;
 
 	//now position and orient it
 	vectoangles( trace.plane.normal, end );
@@ -1798,13 +1798,13 @@ void maglock_link( gentity_t *self )
 	//self->s.modelindex = G_ModelIndex( "models/map_objects/imp_detention/door_lock.md3" );
 	VectorSet( self->mins, -8, -8, -8 );
 	VectorSet( self->maxs, 8, 8, 8 );
-	self->contents = CONTENTS_CORPSE;
+	self->contents = contentsFlags_t::CONTENTS_CORPSE;
 
 	//make it destroyable
-	self->flags |= FL_SHIELDED;//only damagable by lightsabers
+	self->flags |= gentityFlags_t::FL_SHIELDED;//only damagable by lightsabers
 	self->takedamage = true;
 	self->health = 10;
-	self->e_DieFunc = dieF_maglock_die;
+	self->e_DieFunc = dieFunc_t::dieF_maglock_die;
 	//self->fxID = G_EffectIndex( "maglock/explosion" );
 
 	gi.linkentity( self );
@@ -1852,13 +1852,13 @@ void shield_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *a
 		return;
 	}
 
-	G_ActivateBehavior( self,BSET_USE );
+	G_ActivateBehavior( self,bSet_t::BSET_USE );
 
 	if ( self->setTime < level.time )
 	{
 		self->setTime = level.time + 100;
 
-		dif = 100 - activator->client->ps.stats[STAT_ARMOR]; // FIXME: define for max armor?
+		dif = 100 - activator->client->ps.stats[statIndex_t::STAT_ARMOR]; // FIXME: define for max armor?
 
 		if ( dif > 0 && self->count )	// Already at full armor?..and do I even have anything to give
 		{
@@ -1878,7 +1878,7 @@ void shield_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *a
 
 			self->count -= add;
 
-			activator->client->ps.stats[STAT_ARMOR] += add;
+			activator->client->ps.stats[statIndex_t::STAT_ARMOR] += add;
 
 			self->s.loopSound = G_SoundIndex( "sound/interface/shieldcon_run.wav" );
 		}
@@ -1890,12 +1890,12 @@ void shield_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *a
 			G_Sound( self, G_SoundIndex( "sound/interface/shieldcon_empty.mp3" ));
 			self->s.loopSound = 0;
 
-			if ( Any( self->s.eFlags & EF_SHADER_ANIM ) )
+			if ( Any( self->s.eFlags & entityFlags_t::EF_SHADER_ANIM ) )
 			{
 	 			self->s.frame = 1;
 			}
 		}
-		else if ( activator->client->ps.stats[STAT_ARMOR] >= 100 ) // FIXME: define for max
+		else if ( activator->client->ps.stats[statIndex_t::STAT_ARMOR] >= 100 ) // FIXME: define for max
 		{
 			// play full sound
 			G_Sound( self, G_SoundIndex( "sound/interface/shieldcon_done.mp3" ));
@@ -1908,19 +1908,19 @@ void shield_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *a
 	{
 		// we will have to shut of the loop sound, so I guess try and do it intelligently...NOTE: this could get completely stomped every time through the loop
 		//	this is fine, since it just controls shutting off the sound when there are situations that could start the sound but not shut it off
-		self->e_ThinkFunc = thinkF_poll_converter;
+		self->e_ThinkFunc = thinkFunc_t::thinkF_poll_converter;
 		self->nextthink = level.time + 500;
 	}
 	else
 	{
 		// sound is already off, so we don't need to "think" about it.
-		self->e_ThinkFunc = thinkF_NULL;
+		self->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
 		self->nextthink = 0;
 	}
 
-	if ( activator->client->ps.stats[STAT_ARMOR] > 0 )
+	if ( activator->client->ps.stats[statIndex_t::STAT_ARMOR] > 0 )
 	{
-		activator->client->ps.powerups[PW_BATTLESUIT] = Q3_INFINITE;
+		activator->client->ps.powerups[powerup_t::PW_BATTLESUIT] = Q3_INFINITE;
 	}
 }
 
@@ -1940,7 +1940,7 @@ USETARGET - when used it fires off target
 //------------------------------------------------------------
 void SP_misc_model_shield_power_converter( gentity_t *ent )
 {
-	SetMiscModelDefaults( ent, useF_shield_power_converter_use, "4", CONTENTS_SOLID, EF_NONE, false, false );
+	SetMiscModelDefaults( ent, useFunc_t::useF_shield_power_converter_use, "4", contentsFlags_t::CONTENTS_SOLID, entityFlags_t::EF_NONE, false, false );
 
 	ent->takedamage = false;
 
@@ -1971,7 +1971,7 @@ void SP_misc_shield_floor_unit( gentity_t *ent )
 	VectorSet( ent->mins, -16, -16, 0 );
 	VectorSet( ent->maxs, 16, 16, 32 );
 
-	SetMiscModelDefaults( ent, useF_shield_power_converter_use, "4", CONTENTS_SOLID, EF_NONE, false, false );
+	SetMiscModelDefaults( ent, useFunc_t::useF_shield_power_converter_use, "4", contentsFlags_t::CONTENTS_SOLID, entityFlags_t::EF_NONE, false, false );
 
 	ent->takedamage = false;
 
@@ -1982,7 +1982,7 @@ void SP_misc_shield_floor_unit( gentity_t *ent )
 	G_SoundIndex("sound/interface/shieldcon_empty.mp3");
 
 	ent->s.modelindex = G_ModelIndex( "models/items/a_shield_converter.md3" );	// Precache model
-	ent->s.eFlags |= EF_SHADER_ANIM;
+	ent->s.eFlags |= entityFlags_t::EF_SHADER_ANIM;
 }
 
 
@@ -2020,7 +2020,7 @@ void poll_converter( gentity_t *self )
 {
 	self->s.loopSound = 0;
 	self->nextthink = 0;
-	self->e_ThinkFunc = thinkF_NULL;
+	self->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
 }
 
 /*
@@ -2039,15 +2039,15 @@ void ammo_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *act
 		return;
 	}
 
-	G_ActivateBehavior( self, BSET_USE );
+	G_ActivateBehavior( self, bSet_t::BSET_USE );
 
 	ps = &activator->client->ps;
 
 	if ( self->setTime < level.time )
 	{
-		difBlaster		= ammoData[AMMO_BLASTER].max - ps->ammo[AMMO_BLASTER];
-		difPowerCell	= ammoData[AMMO_POWERCELL].max - ps->ammo[AMMO_POWERCELL];
-		difMetalBolts	= ammoData[AMMO_METAL_BOLTS].max - ps->ammo[AMMO_METAL_BOLTS];
+		difBlaster		= ammoData[ammo_t::AMMO_BLASTER].max - ps->ammo[ammo_t::AMMO_BLASTER];
+		difPowerCell	= ammoData[ammo_t::AMMO_POWERCELL].max - ps->ammo[ammo_t::AMMO_POWERCELL];
+		difMetalBolts	= ammoData[ammo_t::AMMO_METAL_BOLTS].max - ps->ammo[ammo_t::AMMO_METAL_BOLTS];
 
 		// Has it got any power left...and can we even use any of it?
 		if ( self->count && ( difBlaster > 0 || difPowerCell > 0 || difMetalBolts > 0 ))
@@ -2071,24 +2071,24 @@ void ammo_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *act
 			}
 
 			// all weapons fill at same rate...
-			ps->ammo[AMMO_BLASTER]		+= add;
-			ps->ammo[AMMO_POWERCELL]	+= add;
-			ps->ammo[AMMO_METAL_BOLTS]	+= add;
+			ps->ammo[ammo_t::AMMO_BLASTER]		+= add;
+			ps->ammo[ammo_t::AMMO_POWERCELL]	+= add;
+			ps->ammo[ammo_t::AMMO_METAL_BOLTS]	+= add;
 
 			// ...then get clamped to max
-			if ( ps->ammo[AMMO_BLASTER] > ammoData[AMMO_BLASTER].max )
+			if ( ps->ammo[ammo_t::AMMO_BLASTER] > ammoData[ammo_t::AMMO_BLASTER].max )
 			{
-				ps->ammo[AMMO_BLASTER] = ammoData[AMMO_BLASTER].max;
+				ps->ammo[ammo_t::AMMO_BLASTER] = ammoData[ammo_t::AMMO_BLASTER].max;
 			}
 
-			if ( ps->ammo[AMMO_POWERCELL] > ammoData[AMMO_POWERCELL].max )
+			if ( ps->ammo[ammo_t::AMMO_POWERCELL] > ammoData[ammo_t::AMMO_POWERCELL].max )
 			{
-				ps->ammo[AMMO_POWERCELL] = ammoData[AMMO_POWERCELL].max;
+				ps->ammo[ammo_t::AMMO_POWERCELL] = ammoData[ammo_t::AMMO_POWERCELL].max;
 			}
 
-			if ( ps->ammo[AMMO_METAL_BOLTS] > ammoData[AMMO_METAL_BOLTS].max )
+			if ( ps->ammo[ammo_t::AMMO_METAL_BOLTS] > ammoData[ammo_t::AMMO_METAL_BOLTS].max )
 			{
-				ps->ammo[AMMO_METAL_BOLTS] = ammoData[AMMO_METAL_BOLTS].max;
+				ps->ammo[ammo_t::AMMO_METAL_BOLTS] = ammoData[ammo_t::AMMO_METAL_BOLTS].max;
 			}
 
 			self->count -= add;
@@ -2101,14 +2101,14 @@ void ammo_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *act
 			G_Sound( self, G_SoundIndex( "sound/interface/ammocon_empty.mp3" ));
 			self->s.loopSound = 0;
 
-			if ( Any( self->s.eFlags & EF_SHADER_ANIM ) )
+			if ( Any( self->s.eFlags & entityFlags_t::EF_SHADER_ANIM ) )
 			{
 				self->s.frame = 1;
 			}
 		}
-		else if  ( ps->ammo[AMMO_BLASTER] >= ammoData[AMMO_BLASTER].max
-						&& ps->ammo[AMMO_POWERCELL] >= ammoData[AMMO_POWERCELL].max
-						&& ps->ammo[AMMO_METAL_BOLTS] >= ammoData[AMMO_METAL_BOLTS].max )
+		else if  ( ps->ammo[ammo_t::AMMO_BLASTER] >= ammoData[ammo_t::AMMO_BLASTER].max
+						&& ps->ammo[ammo_t::AMMO_POWERCELL] >= ammoData[ammo_t::AMMO_POWERCELL].max
+						&& ps->ammo[ammo_t::AMMO_METAL_BOLTS] >= ammoData[ammo_t::AMMO_METAL_BOLTS].max )
 		{
 			// play full sound
 			G_Sound( self, G_SoundIndex( "sound/interface/ammocon_done.wav" ));
@@ -2122,13 +2122,13 @@ void ammo_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *act
 	{
 		// we will have to shut of the loop sound, so I guess try and do it intelligently...NOTE: this could get completely stomped every time through the loop
 		//	this is fine, since it just controls shutting off the sound when there are situations that could start the sound but not shut it off
-		self->e_ThinkFunc = thinkF_poll_converter;
+		self->e_ThinkFunc = thinkFunc_t::thinkF_poll_converter;
 		self->nextthink = level.time + 500;
 	}
 	else
 	{
 		// sound is already off, so we don't need to "think" about it.
-		self->e_ThinkFunc = thinkF_NULL;
+		self->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
 		self->nextthink = 0;
 	}
 }
@@ -2148,7 +2148,7 @@ USETARGET - when used it fires off target
 //------------------------------------------------------------
 void SP_misc_model_ammo_power_converter( gentity_t *ent )
 {
-	SetMiscModelDefaults( ent, useF_ammo_power_converter_use, "4", CONTENTS_SOLID, EF_NONE, false, false );
+	SetMiscModelDefaults( ent, useFunc_t::useF_ammo_power_converter_use, "4", contentsFlags_t::CONTENTS_SOLID, entityFlags_t::EF_NONE, false, false );
 
 	ent->takedamage = false;
 
@@ -2179,7 +2179,7 @@ void SP_misc_ammo_floor_unit( gentity_t *ent )
 	VectorSet( ent->mins, -16, -16, 0 );
 	VectorSet( ent->maxs, 16, 16, 32 );
 
-	SetMiscModelDefaults( ent, useF_ammo_power_converter_use, "4", CONTENTS_SOLID, EF_NONE, false, false );
+	SetMiscModelDefaults( ent, useFunc_t::useF_ammo_power_converter_use, "4", contentsFlags_t::CONTENTS_SOLID, entityFlags_t::EF_NONE, false, false );
 
 	ent->takedamage = false;
 
@@ -2190,7 +2190,7 @@ void SP_misc_ammo_floor_unit( gentity_t *ent )
 	G_SoundIndex("sound/interface/ammocon_empty.mp3");
 
 	ent->s.modelindex = G_ModelIndex("models/items/a_pwr_converter.md3");	// Precache model
-	ent->s.eFlags |= EF_SHADER_ANIM;
+	ent->s.eFlags |= entityFlags_t::EF_SHADER_ANIM;
 }
 
 
@@ -2206,7 +2206,7 @@ void welder_think( gentity_t *self )
 				dir;
 	mdxaBone_t	boltMatrix;
 
-	if( Any( self->svFlags & SVF_INACTIVE ) )
+	if( Any( self->svFlags & svFlags_t::SVF_INACTIVE ) )
 	{
 		return;
 	}
@@ -2226,12 +2226,12 @@ void welder_think( gentity_t *self )
 					&boltMatrix, self->currentAngles, self->currentOrigin, (cg.time?cg.time:level.time),
 					nullptr, self->s.modelScale );
 
-		gi.G2API_GiveMeVectorFromMatrix( boltMatrix, ORIGIN, org );
+		gi.G2API_GiveMeVectorFromMatrix( boltMatrix, Eorientations::ORIGIN, org );
 		VectorSubtract( self->currentOrigin, org, dir );
 		VectorNormalize( dir );
 		// we want the  welder effect to face inwards....
 		G_PlayEffect( "blueWeldSparks", org, dir );
-		G_RadiusDamage( org, self, 10, 45, self, MOD_UNKNOWN );
+		G_RadiusDamage( org, self, 10, 45, self, meansOfDeath_t::MOD_UNKNOWN );
 	}
 
 }
@@ -2269,10 +2269,10 @@ void SP_misc_model_welder( gentity_t *ent )
 	VectorSet( ent->mins, 336, -16, 0 );
 	VectorSet( ent->maxs, 368, 16, 32 );
 
-	SetMiscModelDefaults( ent, useF_welder_use, "4", CONTENTS_SOLID, EF_NONE, false, false );
+	SetMiscModelDefaults( ent, useFunc_t::useF_welder_use, "4", contentsFlags_t::CONTENTS_SOLID, entityFlags_t::EF_NONE, false, false );
 
 	ent->takedamage = false;
-	ent->contents = CONTENTS_NONE;
+	ent->contents = contentsFlags_t::CONTENTS_NONE;
 	G_EffectIndex( "blueWeldSparks" );
 	ent->noise_index = G_SoundIndex( "sound/movers/objects/welding.wav" );
 
@@ -2281,7 +2281,7 @@ void SP_misc_model_welder( gentity_t *ent )
 	ent->playerModel = gi.G2API_InitGhoul2Model( ent->ghoul2, "models/map_objects/cairn/welder.glm", ent->s.modelindex, NULL_HANDLE, NULL_HANDLE, 0, 0 );
 	ent->s.radius = 400.0f;// the origin of the welder is offset by approximately 352, so we need the big radius
 
-	ent->e_ThinkFunc = thinkF_welder_think;
+	ent->e_ThinkFunc = thinkFunc_t::thinkF_welder_think;
 
 	ent->nextthink = level.time + 1000;
 	if( ent->spawnflags & 1 )
@@ -2301,13 +2301,13 @@ void jabba_cam_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 	if( self->spawnflags & 1 )
 	{
 		self->spawnflags &= ~1;
-		gi.G2API_SetBoneAnimIndex( &self->ghoul2[self->playerModel], self->rootBone, 15, 0, BONE_ANIM_OVERRIDE_FREEZE, -1.5f, (cg.time?cg.time:level.time), -1, 0 );
+		gi.G2API_SetBoneAnimIndex( &self->ghoul2[self->playerModel], self->rootBone, 15, 0, boneFlags_t::BONE_ANIM_OVERRIDE_FREEZE, -1.5f, (cg.time?cg.time:level.time), -1, 0 );
 
 	}
 	else
 	{
 		self->spawnflags |= 1;
-		gi.G2API_SetBoneAnimIndex( &self->ghoul2[self->playerModel], self->rootBone, 0, 15, BONE_ANIM_OVERRIDE_FREEZE, 1.5f, (cg.time?cg.time:level.time), -1, 0 );
+		gi.G2API_SetBoneAnimIndex( &self->ghoul2[self->playerModel], self->rootBone, 0, 15, boneFlags_t::BONE_ANIM_OVERRIDE_FREEZE, 1.5f, (cg.time?cg.time:level.time), -1, 0 );
 	}
 }
 
@@ -2329,7 +2329,7 @@ void SP_misc_model_jabba_cam( gentity_t *ent )
 	VectorSet( ent->mins, -60.0f, -8.0f, 0.0f );
 	VectorSet( ent->maxs, 60.0f, 8.0f, 16.0f );
 
-	SetMiscModelDefaults( ent, useF_jabba_cam_use, "4", CONTENTS_NONE, EF_NONE, false, false );
+	SetMiscModelDefaults( ent, useFunc_t::useF_jabba_cam_use, "4", contentsFlags_t::CONTENTS_NONE, entityFlags_t::EF_NONE, false, false );
 	G_SetAngles( ent, ent->s.angles );
 
 	ent->s.modelindex = G_ModelIndex( "models/map_objects/nar_shaddar/jabacam/jabacam.glm" );
@@ -2339,14 +2339,14 @@ void SP_misc_model_jabba_cam( gentity_t *ent )
 
 	ent->rootBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "model_root", true );
 
-	ent->e_UseFunc = useF_jabba_cam_use;
+	ent->e_UseFunc = useFunc_t::useF_jabba_cam_use;
 
 	ent->takedamage = false;
 
 	// start extended..
 	if ( ent->spawnflags & 1 )
 	{
-		gi.G2API_SetBoneAnimIndex( &ent->ghoul2[ent->playerModel], ent->rootBone, 0, 15, BONE_ANIM_OVERRIDE_FREEZE, 0.6f, cg.time, -1, -1 );
+		gi.G2API_SetBoneAnimIndex( &ent->ghoul2[ent->playerModel], ent->rootBone, 0, 15, boneFlags_t::BONE_ANIM_OVERRIDE_FREEZE, 0.6f, cg.time, -1, -1 );
 	}
 
 	gi.linkentity( ent );
@@ -2355,7 +2355,7 @@ void SP_misc_model_jabba_cam( gentity_t *ent )
 //------------------------------------------------------------------------
 void misc_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
-	misc_model_breakable_die( self, other, activator, 100, MOD_UNKNOWN );
+	misc_model_breakable_die( self, other, activator, 100, meansOfDeath_t::MOD_UNKNOWN );
 }
 
 /*QUAKED misc_exploding_crate (1 0 0.25) (-24 -24 0) (24 24 64)
@@ -2385,7 +2385,7 @@ void SP_misc_exploding_crate( gentity_t *ent )
 	VectorSet( ent->mins, -24, -24, 0 );
 	VectorSet( ent->maxs, 24, 24, 64 );
 
-	ent->contents = CONTENTS_SOLID|CONTENTS_OPAQUE|CONTENTS_BODY|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP;//CONTENTS_SOLID;
+	ent->contents = contentsFlags_t::CONTENTS_SOLID|contentsFlags_t::CONTENTS_OPAQUE|contentsFlags_t::CONTENTS_BODY|contentsFlags_t::CONTENTS_MONSTERCLIP|contentsFlags_t::CONTENTS_BOTCLIP;//contentsFlags_t::CONTENTS_SOLID;
 	ent->takedamage = true;
 
 	G_SetOrigin( ent, ent->s.origin );
@@ -2394,11 +2394,11 @@ void SP_misc_exploding_crate( gentity_t *ent )
 
 	if ( ent->targetname )
 	{
-		ent->e_UseFunc = useF_misc_use;
+		ent->e_UseFunc = useFunc_t::useF_misc_use;
 	}
 
-	ent->material = MAT_CRATE1;
-	ent->e_DieFunc = dieF_misc_model_breakable_die;//ExplodeDeath;
+	ent->material = material_t::MAT_CRATE1;
+	ent->e_DieFunc = dieFunc_t::dieF_misc_model_breakable_die;//ExplodeDeath;
 }
 
 /*QUAKED misc_gas_tank (1 0 0.25) (-4 -4 0) (4 4 40)
@@ -2439,10 +2439,10 @@ void GasBurst( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_
 
 	// do some damage to anything that may be standing on top of it when it bursts into flame
 	pt[2] += 32;
-	G_RadiusDamage( pt, self, 32, 32, self, MOD_UNKNOWN );
+	G_RadiusDamage( pt, self, 32, 32, self, meansOfDeath_t::MOD_UNKNOWN );
 
 	//  only get one burst
-	self->e_PainFunc = painF_NULL;
+	self->e_PainFunc = painFunc_t::painF_NULL;
 }
 
 //------------------------------------------------------------
@@ -2461,25 +2461,25 @@ void SP_misc_gas_tank( gentity_t *ent )
 	VectorSet( ent->mins, -4, -4, 0 );
 	VectorSet( ent->maxs, 4, 4, 40 );
 
-	ent->contents = CONTENTS_SOLID;
+	ent->contents = contentsFlags_t::CONTENTS_SOLID;
 	ent->takedamage = true;
 
 	G_SetOrigin( ent, ent->s.origin );
 	VectorCopy( ent->s.angles, ent->s.apos.trBase );
 	gi.linkentity (ent);
 
-	ent->e_PainFunc = painF_GasBurst;
+	ent->e_PainFunc = painFunc_t::painF_GasBurst;
 
 	if ( ent->targetname )
 	{
-		ent->e_UseFunc = useF_misc_use;
+		ent->e_UseFunc = useFunc_t::useF_misc_use;
 	}
 
-	ent->material = MAT_METAL3;
+	ent->material = material_t::MAT_METAL3;
 
-	ent->e_DieFunc = dieF_misc_model_breakable_die;
+	ent->e_DieFunc = dieFunc_t::dieF_misc_model_breakable_die;
 
-	ent->e_ThinkFunc = thinkF_gas_random_jet;
+	ent->e_ThinkFunc = thinkFunc_t::thinkF_gas_random_jet;
 	ent->nextthink = level.time + Q_flrand(0.0f, 1.0f) * 12000 + 6000; // do this rarely
 }
 
@@ -2511,7 +2511,7 @@ void CrystalCratePain( gentity_t *self, gentity_t *inflictor, gentity_t *attacke
 
 	// do some damage, heh
 	pt[2] += 32;
-	G_RadiusDamage( pt, self, 16, 32, self, MOD_UNKNOWN );
+	G_RadiusDamage( pt, self, 16, 32, self, meansOfDeath_t::MOD_UNKNOWN );
 
 }
 
@@ -2531,12 +2531,12 @@ void SP_misc_crystal_crate( gentity_t *ent )
 	VectorSet( ent->maxs, 34, 34, 44 );
 
 	//Blocks movement
-	ent->contents = CONTENTS_SOLID|CONTENTS_OPAQUE|CONTENTS_BODY|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP;//Was CONTENTS_SOLID, but only architecture should be this
+	ent->contents = contentsFlags_t::CONTENTS_SOLID|contentsFlags_t::CONTENTS_OPAQUE|contentsFlags_t::CONTENTS_BODY|contentsFlags_t::CONTENTS_MONSTERCLIP|contentsFlags_t::CONTENTS_BOTCLIP;//Was CONTENTS_SOLID, but only architecture should be this
 
 	if ( ent->spawnflags & 1 )  // non-solid
 	{	// Override earlier contents flag...
 		//Can only be shot
-		ent->contents = CONTENTS_SHOTCLIP;
+		ent->contents = contentsFlags_t::CONTENTS_SHOTCLIP;
 	}
 
 
@@ -2546,16 +2546,16 @@ void SP_misc_crystal_crate( gentity_t *ent )
 	VectorCopy( ent->s.angles, ent->s.apos.trBase );
 	gi.linkentity (ent);
 
-	ent->e_PainFunc = painF_CrystalCratePain;
+	ent->e_PainFunc = painFunc_t::painF_CrystalCratePain;
 
 	if ( ent->targetname )
 	{
-		ent->e_UseFunc = useF_misc_use;
+		ent->e_UseFunc = useFunc_t::useF_misc_use;
 	}
 
-	ent->material = MAT_CRATE2;
+	ent->material = material_t::MAT_CRATE2;
 
-	ent->e_DieFunc = dieF_misc_model_breakable_die;
+	ent->e_DieFunc = dieFunc_t::dieF_misc_model_breakable_die;
 }
 
 /*QUAKED misc_atst_drivable (1 0 0.25) (-40 -40 -24) (40 40 248)
@@ -2569,7 +2569,7 @@ Drivable ATST, when used by player, they become the ATST.  When the player hits 
 */
 void misc_atst_setanim( gentity_t *self, int bone, animNumber_t anim )
 {
-	if ( bone < 0 || anim < BOTH_1CRUFTFORGIL )
+	if ( bone < 0 || anim < animNumber_t::BOTH_1CRUFTFORGIL )
 	{
 		return;
 	}
@@ -2590,11 +2590,11 @@ void misc_atst_setanim( gentity_t *self, int bone, animNumber_t anim )
 	if ( firstFrame != -1 && lastFrame != -1 && animSpeed != 0 )
 	{
 		if (!gi.G2API_SetBoneAnimIndex( &self->ghoul2[self->playerModel], bone, firstFrame,
-								lastFrame, BONE_ANIM_OVERRIDE_FREEZE|BONE_ANIM_BLEND, animSpeed,
+								lastFrame, boneFlags_t::BONE_ANIM_OVERRIDE_FREEZE|boneFlags_t::BONE_ANIM_BLEND, animSpeed,
 								(cg.time?cg.time:level.time), -1, 150 ))
 		{
 			gi.G2API_SetBoneAnimIndex( &self->ghoul2[self->playerModel], bone, firstFrame,
-								lastFrame, BONE_ANIM_OVERRIDE_FREEZE, animSpeed,
+								lastFrame, boneFlags_t::BONE_ANIM_OVERRIDE_FREEZE, animSpeed,
 								(cg.time?cg.time:level.time), -1, 150 );
 		}
 	}
@@ -2602,9 +2602,9 @@ void misc_atst_setanim( gentity_t *self, int bone, animNumber_t anim )
 void misc_atst_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,damageFlags_t dFlags,hitLocation_t hitLoc )
 {//ATST was destroyed while you weren't in it
 	//can't be used anymore
-	self->e_UseFunc = useF_NULL;
+	self->e_UseFunc = useFunc_t::useF_NULL;
 	//sigh... remove contents so we don't block the player's path...
-	self->contents = CONTENTS_CORPSE;
+	self->contents = contentsFlags_t::CONTENTS_CORPSE;
 	self->takedamage = false;
 	self->maxs[2] = 48;
 
@@ -2616,7 +2616,7 @@ void misc_atst_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, 
 //	G_PlayEffect( "small_chunks", effectPos );
 	//set these to defaults that work in a worst-case scenario (according to current animation.cfg)
 	gi.G2API_StopBoneAnimIndex( &self->ghoul2[self->playerModel], self->craniumBone );
-	misc_atst_setanim( self, self->rootBone, BOTH_DEATH1 );
+	misc_atst_setanim( self, self->rootBone, animNumber_t::BOTH_DEATH1 );
 }
 
 extern void G_DriveATST( gentity_t *ent, gentity_t *atst );
@@ -2629,10 +2629,10 @@ void misc_atst_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 		return;
 	}
 
-	EnumArray<int, hitLocation_t, HL_MAX>	tempLocDmg;
+	EnumArray<int, hitLocation_t, hitLocation_t::HL_MAX>	tempLocDmg;
 	int	tempHealth;
 
-	if ( activator->client->NPC_class != CLASS_ATST )
+	if ( activator->client->NPC_class != class_t::CLASS_ATST )
 	{//get in the ATST
 		if ( activator->client->ps.groundEntityNum != self->s.number )
 		{//can only get in if on top of me...
@@ -2651,16 +2651,16 @@ void misc_atst_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 		gi.G2API_StopBoneAnimIndex( &self->ghoul2[self->playerModel], self->craniumBone );
 		G_DriveATST( activator, self );
 		activator->activator = self;
-		self->s.eFlags |= EF_NODRAW;
-		self->svFlags |= SVF_NOCLIENT;
-		self->contents = CONTENTS_NONE;
+		self->s.eFlags |= entityFlags_t::EF_NODRAW;
+		self->svFlags |= svFlags_t::SVF_NOCLIENT;
+		self->contents = contentsFlags_t::CONTENTS_NONE;
 		self->takedamage = false;
 		//transfer armor
 		tempHealth = self->health;
-		self->health = activator->client->ps.stats[STAT_ARMOR];
-		activator->client->ps.stats[STAT_ARMOR] = tempHealth;
+		self->health = activator->client->ps.stats[statIndex_t::STAT_ARMOR];
+		activator->client->ps.stats[statIndex_t::STAT_ARMOR] = tempHealth;
 		//transfer locationDamage
-		for ( hitLocation_t hl = HL_NONE; hl < HL_MAX; hl++ )
+		for ( hitLocation_t hl = hitLocation_t::HL_NONE; hl < hitLocation_t::HL_MAX; hl++ )
 		{
 			tempLocDmg[hl] = activator->locationDamage[hl];
 			activator->locationDamage[hl] = self->locationDamage[hl];
@@ -2674,9 +2674,9 @@ void misc_atst_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 	else
 	{//get out of ATST
 		animNumber_t legsAnim = activator->client->ps.legsAnim;
-		if ( legsAnim != BOTH_STAND1
+		if ( legsAnim != animNumber_t::BOTH_STAND1
 			&& !PM_InSlopeAnim( legsAnim )
-			&& legsAnim != BOTH_TURN_RIGHT1 && legsAnim != BOTH_TURN_LEFT1 )
+			&& legsAnim != animNumber_t::BOTH_TURN_RIGHT1 && legsAnim != animNumber_t::BOTH_TURN_LEFT1 )
 		{//can't get out of it while it's still moving
 			return;
 		}
@@ -2698,16 +2698,16 @@ void misc_atst_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 		//reset player to kyle
 		G_DriveATST( activator, nullptr );
 		activator->activator = nullptr;
-		self->s.eFlags &= ~EF_NODRAW;
-		self->svFlags &= ~SVF_NOCLIENT;
-		self->contents = CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP;
+		self->s.eFlags &= ~entityFlags_t::EF_NODRAW;
+		self->svFlags &= ~svFlags_t::SVF_NOCLIENT;
+		self->contents = contentsFlags_t::CONTENTS_SOLID|contentsFlags_t::CONTENTS_BODY|contentsFlags_t::CONTENTS_MONSTERCLIP|contentsFlags_t::CONTENTS_BOTCLIP;
 		self->takedamage = true;
 		//transfer armor
 		tempHealth = self->health;
-		self->health = activator->client->ps.stats[STAT_ARMOR];
-		activator->client->ps.stats[STAT_ARMOR] = tempHealth;
+		self->health = activator->client->ps.stats[statIndex_t::STAT_ARMOR];
+		activator->client->ps.stats[statIndex_t::STAT_ARMOR] = tempHealth;
 		//transfer locationDamage
-		for ( hitLocation_t hl = HL_NONE; hl < HL_MAX; hl++ )
+		for ( hitLocation_t hl = hitLocation_t::HL_NONE; hl < hitLocation_t::HL_MAX; hl++ )
 		{
 			tempLocDmg[hl] = self->locationDamage[hl];
 			self->locationDamage[hl] = activator->locationDamage[hl];
@@ -2719,8 +2719,8 @@ void misc_atst_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 		vec3_t	newOrg = {activator->currentOrigin[0], activator->currentOrigin[1], activator->currentOrigin[2] + (self->maxs[2]-self->mins[2]) + 1 };
 		G_SetOrigin( activator, newOrg );
 		//open the hatch
-		misc_atst_setanim( self, self->craniumBone, BOTH_STAND2 );
-		gi.G2API_SetSurfaceOnOff( &self->ghoul2[self->playerModel], "head_hatchcover_off", G2SURFACEFLAG_NONE );
+		misc_atst_setanim( self, self->craniumBone, animNumber_t::BOTH_STAND2 );
+		gi.G2API_SetSurfaceOnOff( &self->ghoul2[self->playerModel], "head_hatchcover_off", g2SurfaceFlags_t::G2SURFACEFLAG_NONE );
 		G_Sound( self, G_SoundIndex( "sound/chars/atst/atst_hatch_open" ));
 	}
 }
@@ -2738,12 +2738,12 @@ void SP_misc_atst_drivable( gentity_t *ent )
 	VectorSet( ent->s.modelScale, 1.0f, 1.0f, 1.0f );
 
 	//register my weapons, sounds and model
-	RegisterItem( FindItemForWeapon( WP_ATST_MAIN ));	//precache the weapon
-	RegisterItem( FindItemForWeapon( WP_ATST_SIDE ));	//precache the weapon
+	RegisterItem( FindItemForWeapon( weapon_t::WP_ATST_MAIN ));	//precache the weapon
+	RegisterItem( FindItemForWeapon( weapon_t::WP_ATST_SIDE ));	//precache the weapon
 	//HACKHACKHACKTEMP - until ATST gets real weapons of it's own?
-	RegisterItem( FindItemForWeapon( WP_EMPLACED_GUN ));	//precache the weapon
-//	RegisterItem( FindItemForWeapon( WP_ROCKET_LAUNCHER ));	//precache the weapon
-//	RegisterItem( FindItemForWeapon( WP_BOWCASTER ));	//precache the weapon
+	RegisterItem( FindItemForWeapon( weapon_t::WP_EMPLACED_GUN ));	//precache the weapon
+//	RegisterItem( FindItemForWeapon( weapon_t::WP_ROCKET_LAUNCHER ));	//precache the weapon
+//	RegisterItem( FindItemForWeapon( weapon_t::WP_BOWCASTER ));	//precache the weapon
 	//HACKHACKHACKTEMP - until ATST gets real weapons of it's own?
 
 	G_SoundIndex( "sound/chars/atst/atst_hatch_open" );
@@ -2753,14 +2753,14 @@ void SP_misc_atst_drivable( gentity_t *ent )
 	ent->NPC_type = "atst";
 	NPC_PrecacheAnimationCFG( ent->NPC_type );
 	//open the hatch
-	misc_atst_setanim( ent, ent->rootBone, BOTH_STAND2 );
-	gi.G2API_SetSurfaceOnOff( &ent->ghoul2[ent->playerModel], "head_hatchcover_off", G2SURFACEFLAG_NONE );
+	misc_atst_setanim( ent, ent->rootBone, animNumber_t::BOTH_STAND2 );
+	gi.G2API_SetSurfaceOnOff( &ent->ghoul2[ent->playerModel], "head_hatchcover_off", g2SurfaceFlags_t::G2SURFACEFLAG_NONE );
 
 	VectorSet( ent->mins, ATST_MINS0, ATST_MINS1, ATST_MINS2 );
 	VectorSet( ent->maxs, ATST_MAXS0, ATST_MAXS1, ATST_MAXS2 );
 
-	ent->contents = CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP;
-	ent->flags |= FL_SHIELDED;
+	ent->contents = contentsFlags_t::CONTENTS_SOLID|contentsFlags_t::CONTENTS_BODY|contentsFlags_t::CONTENTS_MONSTERCLIP|contentsFlags_t::CONTENTS_BOTCLIP;
+	ent->flags |= gentityFlags_t::FL_SHIELDED;
 	ent->takedamage = true;
 	if ( !ent->health )
 	{
@@ -2777,12 +2777,12 @@ void SP_misc_atst_drivable( gentity_t *ent )
 
 	//FIXME: test the origin to make sure I'm clear?
 
-	ent->e_UseFunc = useF_misc_atst_use;
-	ent->svFlags |= SVF_PLAYER_USABLE;
+	ent->e_UseFunc = useFunc_t::useF_misc_atst_use;
+	ent->svFlags |= svFlags_t::SVF_PLAYER_USABLE;
 
 	//make it able to take damage and die when you're not in it...
 	//do an explosion and play the death anim, remove use func.
-	ent->e_DieFunc = dieF_misc_atst_die;
+	ent->e_DieFunc = dieFunc_t::dieF_misc_atst_die;
 }
 
 void SP_misc_cubemap( gentity_t *ent )

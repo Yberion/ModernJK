@@ -33,7 +33,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <map>
 
 //Defines
-#define S_FAILED(a) (a!=SEQ_OK)
+#define S_FAILED(a) (a!=sequencerResult_t::SEQ_OK)
 
 //const int MAX_ERROR_LENGTH	= 256;
 
@@ -52,7 +52,6 @@ enum class sequencerResult_t
 	SEQ_OK,				//Command was successfully added
 	SEQ_FAILED,			//An error occured while trying to insert the command
 };
-using enum sequencerResult_t;
 
 // Sequencer
 
@@ -100,7 +99,7 @@ public:
 	// Overloaded new operator.
 	inline void *operator new( size_t size )
 	{	// Allocate the memory.
-		return Z_Malloc( size, TAG_ICARUS2, true );
+		return Z_Malloc( size, memtag::TAG_ICARUS2, true );
 	}
 	// Overloaded delete operator.
 	inline void operator delete( void *pRawData )

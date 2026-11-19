@@ -414,14 +414,14 @@ void CG_DrawNumField (int x, int y, int width, int value,int charWidth,int charH
 	// FIXME: Might need to do something different for the chunky font??
 	switch(style)
 	{
-	case NUM_FONT_SMALL:
+	case numFont_t::NUM_FONT_SMALL:
 		xWidth = charWidth;
 		break;
-	case NUM_FONT_CHUNKY:
+	case numFont_t::NUM_FONT_CHUNKY:
 		xWidth = (charWidth/1.2f) + 2;
 		break;
 	default:
-	case NUM_FONT_BIG:
+	case numFont_t::NUM_FONT_BIG:
 		xWidth = (charWidth/2) + 7;//(charWidth/6);
 		break;
 	}
@@ -432,14 +432,14 @@ void CG_DrawNumField (int x, int y, int width, int value,int charWidth,int charH
 		{
 			switch(style)
 			{
-			case NUM_FONT_SMALL:
+			case numFont_t::NUM_FONT_SMALL:
 				CG_DrawPic( x,y, charWidth, charHeight, cgs.media.smallnumberShaders[0] );
 				break;
-			case NUM_FONT_CHUNKY:
+			case numFont_t::NUM_FONT_CHUNKY:
 				CG_DrawPic( x,y, charWidth, charHeight, cgs.media.chunkyNumberShaders[0] );
 				break;
 			default:
-			case NUM_FONT_BIG:
+			case numFont_t::NUM_FONT_BIG:
 				CG_DrawPic( x,y, charWidth, charHeight, cgs.media.numberShaders[0] );
 				break;
 			}
@@ -461,15 +461,15 @@ void CG_DrawNumField (int x, int y, int width, int value,int charWidth,int charH
 
 		switch(style)
 		{
-		case NUM_FONT_SMALL:
+		case numFont_t::NUM_FONT_SMALL:
 			CG_DrawPic( x,y, charWidth, charHeight, cgs.media.smallnumberShaders[frame] );
 			x++;	// For a one line gap
 			break;
-		case NUM_FONT_CHUNKY:
+		case numFont_t::NUM_FONT_CHUNKY:
 			CG_DrawPic( x,y, charWidth, charHeight, cgs.media.chunkyNumberShaders[frame] );
 			break;
 		default:
-		case NUM_FONT_BIG:
+		case numFont_t::NUM_FONT_BIG:
 			CG_DrawPic( x,y, charWidth, charHeight, cgs.media.numberShaders[frame] );
 			break;
 		}

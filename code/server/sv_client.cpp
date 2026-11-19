@@ -52,7 +52,7 @@ void SV_DirectConnect( netadr_t from ) {
 
 	version = atoi( Info_ValueForKey( userinfo, "protocol" ) );
 	if ( version != PROTOCOL_VERSION ) {
-		NET_OutOfBandPrint( NS_SERVER, from, "print\nServer uses protocol version %i.\n", PROTOCOL_VERSION );
+		NET_OutOfBandPrint( netsrc_t::NS_SERVER, from, "print\nServer uses protocol version %i.\n", PROTOCOL_VERSION );
 		Com_DPrintf ("    rejected connect from version %i\n", version);
 		return;
 	}
@@ -63,7 +63,7 @@ void SV_DirectConnect( netadr_t from ) {
 
 	// see if the challenge is valid (local clients don't need to challenge)
 	if ( !NET_IsLocalAddress (from) ) {
-		NET_OutOfBandPrint( NS_SERVER, from, "print\nNo challenge for address.\n" );
+		NET_OutOfBandPrint( netsrc_t::NS_SERVER, from, "print\nNo challenge for address.\n" );
 		return;
 	} else {
 		// force the "ip" info key to "localhost"
@@ -76,7 +76,7 @@ void SV_DirectConnect( netadr_t from ) {
 	// if there is already a slot for this ip, reuse it
 	for (i=0,cl=svs.clients ; i < 1 ; i++,cl++)
 	{
-		if ( cl->state == CS_FREE ) {
+		if ( cl->state == clientState_t::CS_FREE ) {
 			continue;
 		}
 		if ( NET_CompareBaseAdr( from, cl->netchan.remoteAddress )
@@ -99,14 +99,14 @@ void SV_DirectConnect( netadr_t from ) {
 	newcl = nullptr;
 	for ( i = 0; i < 1 ; i++ ) {
 		cl = &svs.clients[i];
-		if (cl->state == CS_FREE) {
+		if (cl->state == clientState_t::CS_FREE) {
 			newcl = cl;
 			break;
 		}
 	}
 
 	if ( !newcl ) {
-		NET_OutOfBandPrint( NS_SERVER, from, "print\nServer is full.\n" );
+		NET_OutOfBandPrint( netsrc_t::NS_SERVER, from, "print\nServer is full.\n" );
 		Com_DPrintf ("Rejected a connection.\n");
 		return;
 	}
@@ -121,7 +121,7 @@ gotnewcl:
 	newcl->gentity = ent;
 
 	// save the address
-	Netchan_Setup (NS_SERVER, &newcl->netchan , from, qport);
+	Netchan_Setup (netsrc_t::NS_SERVER, &newcl->netchan , from, qport);
 
 	// save the userinfo
 	Q_strncpyz( newcl->userinfo, userinfo, sizeof(newcl->userinfo) );
@@ -129,7 +129,7 @@ gotnewcl:
 	// get the game a chance to reject this connection or modify the userinfo
 	denied = ge->ClientConnect( clientNum, true, eSavedGameJustLoaded ); // firstTime = true
 	if ( denied ) {
-		NET_OutOfBandPrint( NS_SERVER, from, "print\n%s\n", denied );
+		NET_OutOfBandPrint( netsrc_t::NS_SERVER, from, "print\n%s\n", denied );
 		Com_DPrintf ("Game rejected a connection: %s.\n", denied);
 		return;
 	}
@@ -137,9 +137,9 @@ gotnewcl:
 	SV_UserinfoChanged( newcl );
 
 	// send the connect packet to the client
-	NET_OutOfBandPrint( NS_SERVER, from, "connectResponse" );
+	NET_OutOfBandPrint( netsrc_t::NS_SERVER, from, "connectResponse" );
 
-	newcl->state = CS_CONNECTED;
+	newcl->state = clientState_t::CS_CONNECTED;
 	newcl->lastPacketTime = sv.time;
 	newcl->lastConnectTime = sv.time;
 
@@ -160,10 +160,10 @@ or crashing -- SV_FinalMessage() will handle that
 =====================
 */
 void SV_DropClient( client_t *drop, const char *reason ) {
-	if ( drop->state == CS_ZOMBIE ) {
+	if ( drop->state == clientState_t::CS_ZOMBIE ) {
 		return;		// already dropped
 	}
-	drop->state = CS_ZOMBIE;		// become free in a few seconds
+	drop->state = clientState_t::CS_ZOMBIE;		// become free in a few seconds
 
 	if (drop->download)	{
 		FS_FreeFile (drop->download);
@@ -198,7 +198,7 @@ void SV_SendClientGameState( client_t *client ) {
 	byte		msgBuffer[MAX_MSGLEN];
 
 	Com_DPrintf ("SV_SendGameState() for %s\n", client->name);
-	client->state = CS_PRIMED;
+	client->state = clientState_t::CS_PRIMED;
 
 	// when we receive the first packet from the client, we will
 	// notice that it is from a different serverid and that the
@@ -212,13 +212,13 @@ void SV_SendClientGameState( client_t *client ) {
 	MSG_Init( &msg, msgBuffer, sizeof( msgBuffer ) );
 
 	// send the gamestate
-	MSG_WriteByte( &msg, to_underlying( svc_gamestate ) );
+	MSG_WriteByte( &msg, to_underlying( svc_ops_e::svc_gamestate ) );
 	MSG_WriteLong( &msg, client->reliableSequence );
 
 	// write the configstrings
 	for ( start = 0 ; start < MAX_CONFIGSTRINGS ; start++ ) {
 		if (sv.configstrings[start][0]) {
-			MSG_WriteByte( &msg, to_underlying( svc_configstring ) );
+			MSG_WriteByte( &msg, to_underlying( svc_ops_e::svc_configstring ) );
 			MSG_WriteShort( &msg, start );
 			MSG_WriteString( &msg, sv.configstrings[start] );
 		}
@@ -246,7 +246,7 @@ void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd, SavedGameJustLoaded_
 	gentity_t	*ent;
 
 	Com_DPrintf ("SV_ClientEnterWorld() from %s\n", client->name);
-	client->state = CS_ACTIVE;
+	client->state = clientState_t::CS_ACTIVE;
 
 	// set up the entity for the client
 	clientNum = client - svs.clients;
@@ -343,7 +343,7 @@ void SV_ExecuteClientCommand( client_t *cl, const char *s ) {
 	}
 
 	// pass unknown strings to the game
-	if (!u->name && sv.state == SS_GAME) {
+	if (!u->name && sv.state == serverState_t::SS_GAME) {
 		ge->ClientCommand( cl - svs.clients );
 	}
 }
@@ -391,7 +391,7 @@ SV_ClientThink
 void SV_ClientThink (client_t *cl, usercmd_t *cmd) {
 	cl->lastUsercmd = *cmd;
 
-	if ( cl->state != CS_ACTIVE ) {
+	if ( cl->state != clientState_t::CS_ACTIVE ) {
 		return;		// may have been kicked during the last usercmd
 	}
 
@@ -462,13 +462,13 @@ static void SV_UserMove( client_t *cl, msg_t *msg ) {
 
 	// if this is the first usercmd we have received
 	// this gamestate, put the client into the world
-	if ( cl->state == CS_PRIMED ) {
+	if ( cl->state == clientState_t::CS_PRIMED ) {
 
 		SV_ClientEnterWorld( cl, &cmds[0], eSavedGameJustLoaded );
 		if ( sv_mapname->string[0]!='_' )
 		{
 			char savename[MAX_QPATH];
-			if ( eSavedGameJustLoaded == eNO )
+			if ( eSavedGameJustLoaded == SavedGameJustLoaded_e::eNO )
 			{
 				SG_WriteSavegame("auto",true);
 				if ( Q_stricmpn(sv_mapname->string, "academy", 7) != 0)
@@ -484,11 +484,11 @@ static void SV_UserMove( client_t *cl, msg_t *msg ) {
 				SG_WriteSavegame( "auto", false );//need a copy for auto, too
 			}
 		}
-		eSavedGameJustLoaded = eNO;
+		eSavedGameJustLoaded = SavedGameJustLoaded_e::eNO;
 		// the moves can be processed normaly
 	}
 
-	if ( cl->state != CS_ACTIVE ) {
+	if ( cl->state != clientState_t::CS_ACTIVE ) {
 		cl->deltaMessage = -1;
 		return;
 	}
@@ -557,16 +557,16 @@ void SV_ExecuteClientMessage( client_t *cl, msg_t *msg ) {
 			SV_DropClient( cl,"had an unknown command char" );
 			return;
 
-		case clc_nop:
+		case clc_ops_e::clc_nop:
 			break;
 
-		case clc_move:
+		case clc_ops_e::clc_move:
 			SV_UserMove( cl, msg );
 			break;
 
-		case clc_clientCommand:
+		case clc_ops_e::clc_clientCommand:
 			SV_ClientCommand( cl, msg );
-			if (cl->state == CS_ZOMBIE) {
+			if (cl->state == clientState_t::CS_ZOMBIE) {
 				return;	// disconnect command
 			}
 			break;

@@ -99,14 +99,14 @@ static void CG_ParseTeamInfo( void ) {
 
 	numSortedTeamPlayers = atoi( CG_Argv( 1 ) );
 	if ( numSortedTeamPlayers < 0 || numSortedTeamPlayers > TEAM_MAXOVERLAY ) {
-		trap->Error( ERR_DROP, "CG_ParseTeamInfo: numSortedTeamPlayers out of range (%d)", numSortedTeamPlayers );
+		trap->Error( errorParm_t::ERR_DROP, "CG_ParseTeamInfo: numSortedTeamPlayers out of range (%d)", numSortedTeamPlayers );
 		return;
 	}
 
 	for ( i=0; i<numSortedTeamPlayers; i++ ) {
 		client = atoi( CG_Argv( i*TEAMINFO_OFFSET + 2 ) );
 		if ( client < 0 || client >= MAX_CLIENTS ) {
-			trap->Error( ERR_DROP, "CG_ParseTeamInfo: bad client number: %d", client );
+			trap->Error( errorParm_t::ERR_DROP, "CG_ParseTeamInfo: bad client number: %d", client );
 			return;
 		}
 
@@ -162,7 +162,7 @@ void CG_ParseServerinfo( void ) {
 			i<bg_numItems;
 			i++, item++, itemInfo++ )
 		{// register all weapons that aren't disabled
-			if ( item->giType == IT_WEAPON )
+			if ( item->giType == itemType_t::IT_WEAPON )
 				CG_RegisterWeapon( GI_Weapon( *item ) );
 		}
 	}
@@ -235,11 +235,11 @@ static void CG_ParseWarmup( void ) {
 // this is a reverse map of flag statuses as seen in g_team.cpp
 //static char ctfFlagStatusRemap[] = { '0', '1', '*', '*', '2' };
 static const flagStatus_t ctfFlagStatusRemap[] = {
-	FLAG_ATBASE,
-	FLAG_TAKEN,			// CTF
+	flagStatus_t::FLAG_ATBASE,
+	flagStatus_t::FLAG_TAKEN,			// CTF
 	// server doesn't use FLAG_TAKEN_RED or FLAG_TAKEN_BLUE
 	// which was originally for 1-flag CTF.
-	FLAG_DROPPED
+	flagStatus_t::FLAG_DROPPED
 };
 
 /*
@@ -257,7 +257,7 @@ void CG_SetConfigValues( void )
 	cgs.scores1 = atoi( CG_ConfigString( CS_SCORES1 ) );
 	cgs.scores2 = atoi( CG_ConfigString( CS_SCORES2 ) );
 	cgs.levelStartTime = atoi( CG_ConfigString( CS_LEVEL_START_TIME ) );
-	if( cgs.gametype == GT_CTF || cgs.gametype == GT_CTY ) {
+	if( cgs.gametype == gametype_t::GT_CTF || cgs.gametype == gametype_t::GT_CTY ) {
 		int redflagId = 0, blueflagId = 0;
 
 		s = CG_ConfigString( CS_FLAGSTATUS );
@@ -893,7 +893,7 @@ static void CG_ConfigStringModified( void ) {
 		CG_NewClientInfo( num - CS_PLAYERS, true);
 		CG_BuildSpectatorString();
 	} else if ( num == CS_FLAGSTATUS ) {
-		if( cgs.gametype == GT_CTF || cgs.gametype == GT_CTY ) {
+		if( cgs.gametype == gametype_t::GT_CTF || cgs.gametype == gametype_t::GT_CTY ) {
 			// format is rb where its red/blue, 0 is at base, 1 is taken, 2 is dropped
 			int redflagId = str[0] - '0', blueflagId = str[1] - '0';
 
@@ -1029,7 +1029,7 @@ void CG_KillCEntityInstances(void)
 		cent->trickAlpha = 0;
 		cent->trickAlphaTime = 0;
 		VectorClear(cent->turAngles);
-		cent->weapon = WP_NONE;
+		cent->weapon = weapon_t::WP_NONE;
 		cent->teamPowerEffectTime = 0;
 		cent->teamPowerType = 0;
 		cent->numLoopingSounds = 0;
@@ -1081,8 +1081,8 @@ static void CG_MapRestart( void ) {
 	// we really should clear more parts of cg here and stop sounds
 
 	// play the "fight" sound if this is a restart without warmup
-	if ( cg.warmup == 0 && cgs.gametype != GT_SIEGE && cgs.gametype != GT_POWERDUEL/* && cgs.gametype == GT_DUEL */) {
-		trap->S_StartLocalSound( cgs.media.countFightSound, CHAN_ANNOUNCER );
+	if ( cg.warmup == 0 && cgs.gametype != gametype_t::GT_SIEGE && cgs.gametype != gametype_t::GT_POWERDUEL/* && cgs.gametype == gametype_t::GT_DUEL */) {
+		trap->S_StartLocalSound( cgs.media.countFightSound, soundChannel_t::CHAN_ANNOUNCER );
 		CG_CenterPrint( CG_GetStringEdString("MP_SVGAME", "BEGIN_DUEL"), 120, GIANTCHAR_WIDTH*2 );
 	}
 	/*
@@ -1189,7 +1189,7 @@ static void CG_BodyQueueCopy(centity_t *cent, int clientNum, weapon_t knownWeapo
 	centity_t		*source;
 	animation_t		*anim;
 	float			animSpeed;
-	boneFlags_t				flags=BONE_ANIM_OVERRIDE_FREEZE;
+	boneFlags_t				flags=boneFlags_t::BONE_ANIM_OVERRIDE_FREEZE;
 
 	if (cent->ghoul2)
 	{
@@ -1234,7 +1234,7 @@ static void CG_BodyQueueCopy(centity_t *cent, int clientNum, weapon_t knownWeapo
 	}
 
 	//either force the weapon from when we died or remove it if it was a dropped weapon
-	if (knownWeapon > WP_BRYAR_PISTOL && trap->G2API_HasGhoul2ModelOnIndex(&(cent->ghoul2), 1))
+	if (knownWeapon > weapon_t::WP_BRYAR_PISTOL && trap->G2API_HasGhoul2ModelOnIndex(&(cent->ghoul2), 1))
 	{
 		trap->G2API_RemoveGhoul2Model(&(cent->ghoul2), 1);
 	}
@@ -1252,7 +1252,7 @@ static void CG_BodyQueueCopy(centity_t *cent, int clientNum, weapon_t knownWeapo
 		//anim = &(*bgAllAnims[cent->localAnimIndex].anims)[ ES_TorsoAnim( cent->currentState ) ];
 		if (!BG_InDeathAnim(ES_TorsoAnim( source->currentState )))
 		{ //then just snap the corpse into a default
-			anim = &(*bgAllAnims[source->localAnimIndex].anims)[ BOTH_DEAD1 ];
+			anim = &(*bgAllAnims[source->localAnimIndex].anims)[ animNumber_t::BOTH_DEAD1 ];
 			fallBack = true;
 		}
 		else
@@ -1307,15 +1307,15 @@ static void CG_SiegeBriefingDisplay_f( void ) {
 }
 
 static void CG_SiegeClassSelect_f( void ) {
-	//if (!Any( trap->Key_GetCatcher() & KEYCATCH_UI ))
+	//if (!Any( trap->Key_GetCatcher() & keyCatchFlags_t::KEYCATCH_UI ))
 	//Well, I want it to come up even if the briefing display is up.
-	trap->OpenUIMenu( UIMENU_CLASSSEL ); //UIMENU_CLASSSEL
+	trap->OpenUIMenu( uiMenuCommand_t::UIMENU_CLASSSEL ); //UIMENU_CLASSSEL
 }
 
 static void CG_SiegeProfileMenu_f( void ) {
 	if ( !cg.demoPlayback ) {
 		trap->Cvar_Set( "ui_myteam", "3" );
-		trap->OpenUIMenu( UIMENU_PLAYERCONFIG ); //UIMENU_CLASSSEL
+		trap->OpenUIMenu( uiMenuCommand_t::UIMENU_PLAYERCONFIG ); //UIMENU_CLASSSEL
 	}
 }
 
@@ -1340,8 +1340,8 @@ static void CG_NewForceRank_f( void ) {
 
 	trap->Cvar_Set( "ui_myteam", va( "%i", setTeam ) );
 
-	if ( !Any( trap->Key_GetCatcher() & KEYCATCH_UI ) && doMenu && !cg.demoPlayback )
-		trap->OpenUIMenu( UIMENU_PLAYERCONFIG );
+	if ( !Any( trap->Key_GetCatcher() & keyCatchFlags_t::KEYCATCH_UI ) && doMenu && !cg.demoPlayback )
+		trap->OpenUIMenu( uiMenuCommand_t::UIMENU_PLAYERCONFIG );
 }
 
 static void CG_KillGhoul2_f( void ) {
@@ -1436,7 +1436,7 @@ static void CG_RestoreClientGhoul_f( void ) {
 
 	if ( IRCG ) {
 		int bodyIndex = 0;
-		weapon_t weaponIndex = WP_NONE;
+		weapon_t weaponIndex = weapon_t::WP_NONE;
 		int side = 0;
 		centity_t *body;
 
@@ -1468,7 +1468,7 @@ static void CG_RestoreClientGhoul_f( void ) {
 	//clear all the decals as well
 	trap->G2API_ClearSkinGore( clent->ghoul2 );
 
-	clent->weapon = WP_NONE;
+	clent->weapon = weapon_t::WP_NONE;
 	clent->ghoul2weapon = nullptr; //force a weapon reinit
 }
 
@@ -1506,7 +1506,7 @@ static void CG_Chat_f( void ) {
 	if ( !strcmp( cmd, "chat" ) ) {
 		if ( !cg_teamChatsOnly.integer ) {
 			if( cg_chatBeep.integer )
-				trap->S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
+				trap->S_StartLocalSound( cgs.media.talkSound, soundChannel_t::CHAN_LOCAL_SOUND );
 			trap->Cmd_Argv( 1, text, sizeof( text ) );
 			CG_RemoveChatEscapeChar( text );
 			CG_ChatBox_AddString( text );
@@ -1531,7 +1531,7 @@ static void CG_Chat_f( void ) {
 				trap->SE_GetStringTextString( loc+1, loc, sizeof( loc ) );
 
 			if( cg_chatBeep.integer )
-				trap->S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
+				trap->S_StartLocalSound( cgs.media.talkSound, soundChannel_t::CHAN_LOCAL_SOUND );
 			Com_sprintf( text, sizeof( text ), "%s^7<%s> ^%s%s", name, loc, color, message );
 			CG_RemoveChatEscapeChar( text );
 			CG_ChatBox_AddString( text );
@@ -1540,7 +1540,7 @@ static void CG_Chat_f( void ) {
 	}
 	else if ( !strcmp( cmd, "tchat" ) ) {
 		if( cg_teamChatBeep.integer )
-			trap->S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
+			trap->S_StartLocalSound( cgs.media.talkSound, soundChannel_t::CHAN_LOCAL_SOUND );
 		trap->Cmd_Argv( 1, text, sizeof( text ) );
 		CG_RemoveChatEscapeChar( text );
 		CG_ChatBox_AddString( text );
@@ -1563,7 +1563,7 @@ static void CG_Chat_f( void ) {
 			trap->SE_GetStringTextString( loc+1, loc, sizeof( loc ) );
 
 		if( cg_teamChatBeep.integer )
-			trap->S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
+			trap->S_StartLocalSound( cgs.media.talkSound, soundChannel_t::CHAN_LOCAL_SOUND );
 		Com_sprintf( text, sizeof( text ), "%s^7<%s> ^%s%s", name, loc, color, message );
 		CG_RemoveChatEscapeChar( text );
 		CG_ChatBox_AddString( text );

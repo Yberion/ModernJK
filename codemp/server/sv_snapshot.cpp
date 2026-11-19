@@ -135,7 +135,7 @@ clientSnapshot_t *SV_SnapshotBase( client_t *client, int *lastframe_out ) {
 	}
 
 	// try to use a previous frame as the source for delta compressing the snapshot
-	if ( deltaMessage <= 0 || client->state != CS_ACTIVE ) {
+	if ( deltaMessage <= 0 || client->state != clientState_t::CS_ACTIVE ) {
 		// client is asking for a retransmit
 		oldframe = nullptr;
 		lastframe = 0;
@@ -181,10 +181,10 @@ int SV_SnapshotTime( const client_t *client ) {
 snapFlags_t SV_SnapshotFlags( const client_t *client ) {
 	snapFlags_t snapFlags = svs.snapFlagServerBit;
 	if ( client->rateDelayed ) {
-		snapFlags |= SNAPFLAG_RATE_DELAYED;
+		snapFlags |= snapFlags_t::SNAPFLAG_RATE_DELAYED;
 	}
-	if ( client->state != CS_ACTIVE ) {
-		snapFlags |= SNAPFLAG_NOT_ACTIVE;
+	if ( client->state != clientState_t::CS_ACTIVE ) {
+		snapFlags |= snapFlags_t::SNAPFLAG_NOT_ACTIVE;
 	}
 	return snapFlags;
 }
@@ -203,7 +203,7 @@ void SV_WriteSnapshotToClient( client_t *client, msg_t *msg, clientSnapshot_t *o
 	// this is the snapshot we are creating
 	frame = &client->frames[ client->netchan.outgoingSequence & PACKET_MASK ];
 
-	MSG_WriteByte( msg, to_underlying( svc_snapshot ) );
+	MSG_WriteByte( msg, to_underlying( svc_ops_e::svc_snapshot ) );
 
 	// NOTE, MRE: now sent at the start of every message from server to client
 	// let the client know which reliable clientCommands we have received
@@ -289,7 +289,7 @@ void SV_UpdateServerCommandsToClient( client_t *client, msg_t *msg ) {
 
 	// write any unacknowledged serverCommands
 	for ( i = reliableAcknowledge + 1 ; i <= client->reliableSequence ; i++ ) {
-		MSG_WriteByte( msg, to_underlying( svc_serverCommand ) );
+		MSG_WriteByte( msg, to_underlying( svc_ops_e::svc_serverCommand ) );
 		MSG_WriteLong( msg, i );
 		MSG_WriteString( msg, client->reliableCommands[ i & (MAX_RELIABLE_COMMANDS-1) ] );
 	}
@@ -321,7 +321,7 @@ static int QDECL SV_QsortEntityNumbers( const void *a, const void *b ) {
 	eb = (int *)b;
 
 	if ( *ea == *eb ) {
-		Com_Error( ERR_DROP, "SV_QsortEntityStates: duplicated entity" );
+		Com_Error( errorParm_t::ERR_DROP, "SV_QsortEntityStates: duplicated entity" );
 	}
 
 	if ( *ea < *eb ) {
@@ -375,7 +375,7 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 	// during an error shutdown message we may need to transmit
 	// the shutdown message after the server has shutdown, so
 	// specfically check for it
-	if ( sv.state == SS_DEAD ) {
+	if ( sv.state == serverState_t::SS_DEAD ) {
 		return;
 	}
 
@@ -396,7 +396,7 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 			continue;
 		}
 
-		if (Any( ent->s.eFlags & EF_PERMANENT ))
+		if (Any( ent->s.eFlags & entityFlags_t::EF_PERMANENT ))
 		{	// he's permanent, so don't send him down!
 			continue;
 		}
@@ -407,18 +407,18 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 		}
 
 		// entities can be flagged to explicitly not be sent to the client
-		if ( Any( ent->r.svFlags & SVF_NOCLIENT ) ) {
+		if ( Any( ent->r.svFlags & svFlags_t::SVF_NOCLIENT ) ) {
 			continue;
 		}
 
 		// entities can be flagged to be sent to only one client
-		if ( Any( ent->r.svFlags & SVF_SINGLECLIENT ) ) {
+		if ( Any( ent->r.svFlags & svFlags_t::SVF_SINGLECLIENT ) ) {
 			if ( ent->r.singleClient != frame->ps.clientNum ) {
 				continue;
 			}
 		}
 		// entities can be flagged to be sent to everyone but one client
-		if ( Any( ent->r.svFlags & SVF_NOTSINGLECLIENT ) ) {
+		if ( Any( ent->r.svFlags & svFlags_t::SVF_NOTSINGLECLIENT ) ) {
 			if ( ent->r.singleClient == frame->ps.clientNum ) {
 				continue;
 			}
@@ -432,13 +432,13 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 		}
 
 		// entities can request not to be sent to certain clients (NOTE: always send to ourselves)
-		if ( e != frame->ps.clientNum && Any( ent->r.svFlags & SVF_BROADCASTCLIENTS )
+		if ( e != frame->ps.clientNum && Any( ent->r.svFlags & svFlags_t::SVF_BROADCASTCLIENTS )
 			&& !(ent->r.broadcastClients[frame->ps.clientNum/32] & (1 << (frame->ps.clientNum % 32))) )
 		{
 			continue;
 		}
 		// broadcast entities are always sent, and so is the main player so we don't see noclip weirdness
-		if ( Any( ent->r.svFlags & SVF_BROADCAST ) || e == frame->ps.clientNum
+		if ( Any( ent->r.svFlags & svFlags_t::SVF_BROADCAST ) || e == frame->ps.clientNum
 			|| (ent->r.broadcastClients[frame->ps.clientNum/32] & (1 << (frame->ps.clientNum % 32))) )
 		{
 			SV_AddEntToSnapshot( svEnt, ent, eNums );
@@ -512,7 +512,7 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 		SV_AddEntToSnapshot( svEnt, ent, eNums );
 
 		// if its a portal entity, add everything visible from its camera position
-		if ( Any( ent->r.svFlags & SVF_PORTAL ) ) {
+		if ( Any( ent->r.svFlags & svFlags_t::SVF_PORTAL ) ) {
 			if ( ent->s.generic1 ) {
 				vec3_t dir;
 				VectorSubtract(ent->s.origin, origin, dir);
@@ -574,7 +574,7 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 	frame->num_entities = 0;
 
 	clent = client->gentity;
-	if ( !clent || client->state == CS_ZOMBIE ) {
+	if ( !clent || client->state == clientState_t::CS_ZOMBIE ) {
 		return;
 	}
 
@@ -607,7 +607,7 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 	// be regenerated from the playerstate
 	clientNum = frame->ps.clientNum;
 	if ( clientNum < 0 || clientNum >= MAX_GENTITIES ) {
-		Com_Error( ERR_DROP, "SV_SvEntityForGentity: bad gEnt" );
+		Com_Error( errorParm_t::ERR_DROP, "SV_SvEntityForGentity: bad gEnt" );
 	}
 	svEnt = &sv.svEntities[ clientNum ];
 	svEnt->snapshotCounter = sv.snapshotCounter;
@@ -688,7 +688,7 @@ void SV_SendMessageToClient( msg_t *msg, client_t *client ) {
 
 	// MW - my attempt to fix illegible server message errors caused by
 	// packet fragmentation of initial snapshot.
-	while(client->state != CS_FREE &&client->netchan.unsentFragments)
+	while(client->state != clientState_t::CS_FREE &&client->netchan.unsentFragments)
 	{
 		// send additional message fragments if the last message
 		// was too large to send at once
@@ -716,7 +716,7 @@ void SV_SendMessageToClient( msg_t *msg, client_t *client ) {
 	// set nextSnapshotTime: a snapshot every server frame, unless this message takes longer than a frame at SV_CLIENT_RATE
 
 	// local clients get snapshots every server frame
-	if ( client->netchan.remoteAddress.type == NA_LOOPBACK ) {
+	if ( client->netchan.remoteAddress.type == netadrtype_t::NA_LOOPBACK ) {
 		client->nextSnapshotTime = svs.time + ((int) (TICK_MSEC * com_timescale->value));
 		return;
 	}
@@ -733,7 +733,7 @@ void SV_SendMessageToClient( msg_t *msg, client_t *client ) {
 	client->nextSnapshotTime = svs.time + ((int) (rateMsec * com_timescale->value));
 
 	// don't pile up empty snapshots while connecting
-	if ( client->state != CS_ACTIVE ) {
+	if ( client->state != clientState_t::CS_ACTIVE ) {
 		// a gigantic connection message may have already put the nextSnapshotTime
 		// more than a second away, so don't shorten it
 		// do shorten if client is downloading
@@ -765,7 +765,7 @@ void SV_SendClientSnapshot( client_t *client ) {
 	// A bot's snapshot is built only to be recorded in a demo. Nothing else reads it: the base game's bot code never
 	// calls BotGetSnapshotEntity, which finds no entity then. Built at every tick, the bots' snapshots were 6 % of a
 	// tick with 16 bots (plan step 14, part 7).
-	if ( client->netchan.remoteAddress.type == NA_BOT && !client->demo.demorecording
+	if ( client->netchan.remoteAddress.type == netadrtype_t::NA_BOT && !client->demo.demorecording
 		&& !( sv_autoDemo->integer && sv_autoDemoBots->integer ) ) {
 		client->frames[client->netchan.outgoingSequence & PACKET_MASK].num_entities = 0;
 		return;
@@ -775,14 +775,14 @@ void SV_SendClientSnapshot( client_t *client ) {
 	SV_BuildClientSnapshot( client );
 
 	if ( sv_autoDemo->integer && !client->demo.demorecording ) {
-		if ( client->netchan.remoteAddress.type != NA_BOT || sv_autoDemoBots->integer ) {
+		if ( client->netchan.remoteAddress.type != netadrtype_t::NA_BOT || sv_autoDemoBots->integer ) {
 			SV_BeginAutoRecordDemos();
 		}
 	}
 
 	// bots need to have their snapshots built, but
 	// they query them directly without needing to be sent
-	if ( client->netchan.remoteAddress.type == NA_BOT && !client->demo.demorecording ) {
+	if ( client->netchan.remoteAddress.type == netadrtype_t::NA_BOT && !client->demo.demorecording ) {
 		return;
 	}
 
@@ -805,7 +805,7 @@ void SV_SendClientMessages( void ) {
 
 	// send a message to each connected client
 	for (i=0, c = svs.clients ; i < sv_maxclients->integer ; i++, c++) {
-		if (c->state == CS_FREE) {
+		if (c->state == clientState_t::CS_FREE) {
 			continue;		// not connected
 		}
 

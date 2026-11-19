@@ -61,7 +61,7 @@ playerState_t *SV_GameClientNum( int num ) {
 
 svEntity_t	*SV_SvEntityForGentity( sharedEntity_t *gEnt ) {
 	if ( !gEnt || gEnt->s.number < 0 || gEnt->s.number >= MAX_GENTITIES ) {
-		Com_Error( ERR_DROP, "SV_SvEntityForGentity: bad gEnt" );
+		Com_Error( errorParm_t::ERR_DROP, "SV_SvEntityForGentity: bad gEnt" );
 	}
 	return &sv.svEntities[ gEnt->s.number ];
 }
@@ -130,7 +130,7 @@ void SV_InitGameProgs( void ) {
 	//FIXME these are temp while I make bots run in vm
 	extern int	bot_enable;
 
-	cvar_t *var = Cvar_Get( "bot_enable", "1", CVAR_LATCH );
+	cvar_t *var = Cvar_Get( "bot_enable", "1", cvarFlags_t::CVAR_LATCH );
 	bot_enable = var ? var->integer : 0;
 
 	svs.gameStarted = true;
@@ -148,7 +148,7 @@ See if the current console command is claimed by the game
 ====================
 */
 bool SV_GameCommand( void ) {
-	if ( sv.state != SS_GAME ) {
+	if ( sv.state != serverState_t::SS_GAME ) {
 		return false;
 	}
 

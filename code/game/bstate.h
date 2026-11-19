@@ -47,6 +47,5 @@ enum class bState_t //# bState_e
 	BS_HUNT_AND_KILL,
 	NUM_BSTATES
 };
-using enum bState_t;
 
 #endif //#ifndef __BSTATE_H__

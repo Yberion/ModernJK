@@ -30,7 +30,7 @@ extern void Q3_SetViewEntity(int entID, const char *name);
 extern bool G_ClearViewEntity( gentity_t *ent );
 
 extern team_t TranslateTeamName( const char *name );
-extern EnumArray<const char *, team_t, TEAM_NUM_TEAMS>	TeamNames;
+extern EnumArray<const char *, team_t, team_t::TEAM_NUM_TEAMS>	TeamNames;
 
 /*
 ===================
@@ -48,43 +48,43 @@ void	Svcmd_EntityList_f (void) {
 		}
 		gi.Printf("%3i:", e);
 		switch ( check->s.eType ) {
-		case ET_GENERAL:
+		case entityType_t::ET_GENERAL:
 			gi.Printf( "ET_GENERAL          " );
 			break;
-		case ET_PLAYER:
+		case entityType_t::ET_PLAYER:
 			gi.Printf( "ET_PLAYER           " );
 			break;
-		case ET_ITEM:
+		case entityType_t::ET_ITEM:
 			gi.Printf( "ET_ITEM             " );
 			break;
-		case ET_MISSILE:
+		case entityType_t::ET_MISSILE:
 			gi.Printf( "ET_MISSILE          " );
 			break;
-		case ET_MOVER:
+		case entityType_t::ET_MOVER:
 			gi.Printf( "ET_MOVER            " );
 			break;
-		case ET_BEAM:
+		case entityType_t::ET_BEAM:
 			gi.Printf( "ET_BEAM             " );
 			break;
-		case ET_PORTAL:
+		case entityType_t::ET_PORTAL:
 			gi.Printf( "ET_PORTAL           " );
 			break;
-		case ET_SPEAKER:
+		case entityType_t::ET_SPEAKER:
 			gi.Printf( "ET_SPEAKER          " );
 			break;
-		case ET_PUSH_TRIGGER:
+		case entityType_t::ET_PUSH_TRIGGER:
 			gi.Printf( "ET_PUSH_TRIGGER     " );
 			break;
-		case ET_TELEPORT_TRIGGER:
+		case entityType_t::ET_TELEPORT_TRIGGER:
 			gi.Printf( "ET_TELEPORT_TRIGGER " );
 			break;
-		case ET_INVISIBLE:
+		case entityType_t::ET_INVISIBLE:
 			gi.Printf( "ET_INVISIBLE        " );
 			break;
-		case ET_THINKER:
+		case entityType_t::ET_THINKER:
 			gi.Printf( "ET_THINKER          " );
 			break;
-		case ET_CLOUD:
+		case entityType_t::ET_CLOUD:
 			gi.Printf( "ET_CLOUD            " );
 			break;
 		default:
@@ -113,7 +113,7 @@ gclient_t	*ClientForString( const char *s ) {
 		}
 
 		cl = &level.clients[idnum];
-		if ( cl->pers.connected == CON_DISCONNECTED ) {
+		if ( cl->pers.connected == clientConnected_t::CON_DISCONNECTED ) {
 			gi.Printf( "Client %i is not connected\n", idnum );
 			return nullptr;
 		}
@@ -123,7 +123,7 @@ gclient_t	*ClientForString( const char *s ) {
 	// check for a name match
 	for ( i=0 ; i < level.maxclients ; i++ ) {
 		cl = &level.clients[i];
-		if ( cl->pers.connected == CON_DISCONNECTED ) {
+		if ( cl->pers.connected == clientConnected_t::CON_DISCONNECTED ) {
 			continue;
 		}
 		if ( !Q_stricmp( cl->pers.netname, s ) ) {
@@ -163,11 +163,11 @@ extern cvar_t	*g_skippingcin;
 	else if ( !G_ClearViewEntity( player ) )
 	{//didn't exit control of a droid or turret
 		//okay, now try exiting emplaced guns or AT-ST's
-		if ( Any( player->s.eFlags & EF_LOCKED_TO_WEAPON ) )
+		if ( Any( player->s.eFlags & entityFlags_t::EF_LOCKED_TO_WEAPON ) )
 		{//get out of emplaced gun
 			ExitEmplacedWeapon( player );
 		}
-		else if ( player->client && player->client->NPC_class == CLASS_ATST )
+		else if ( player->client && player->client->NPC_class == class_t::CLASS_ATST )
 		{//a player trying to get out of his ATST
 			GEntity_UseFunc( player->activator, player, player );
 		}
@@ -179,7 +179,7 @@ gentity_t *G_GetSelfForPlayerCmd( void )
 	if ( g_entities[0].client->ps.viewEntity > 0
 		&& g_entities[0].client->ps.viewEntity < ENTITYNUM_WORLD
 		&& g_entities[g_entities[0].client->ps.viewEntity].client
-		&& g_entities[g_entities[0].client->ps.viewEntity].s.weapon == WP_SABER )
+		&& g_entities[g_entities[0].client->ps.viewEntity].s.weapon == weapon_t::WP_SABER )
 	{//you're controlling another NPC
 		return (&g_entities[g_entities[0].client->ps.viewEntity]);
 	}
@@ -204,27 +204,27 @@ static void Svcmd_SaberColor_f()
 
 	if ( !Q_stricmp( color, "red" ))
 	{
-		self->client->ps.saberColor = SABER_RED;
+		self->client->ps.saberColor = saber_colors_t::SABER_RED;
 	}
 	else if ( !Q_stricmp( color, "green" ))
 	{
-		self->client->ps.saberColor = SABER_GREEN;
+		self->client->ps.saberColor = saber_colors_t::SABER_GREEN;
 	}
 	else if ( !Q_stricmp( color, "yellow" ))
 	{
-		self->client->ps.saberColor = SABER_YELLOW;
+		self->client->ps.saberColor = saber_colors_t::SABER_YELLOW;
 	}
 	else if ( !Q_stricmp( color, "orange" ))
 	{
-		self->client->ps.saberColor = SABER_ORANGE;
+		self->client->ps.saberColor = saber_colors_t::SABER_ORANGE;
 	}
 	else if ( !Q_stricmp( color, "purple" ))
 	{
-		self->client->ps.saberColor = SABER_PURPLE;
+		self->client->ps.saberColor = saber_colors_t::SABER_PURPLE;
 	}
 	else if ( !Q_stricmp( color, "blue" ))
 	{
-		self->client->ps.saberColor = SABER_BLUE;
+		self->client->ps.saberColor = saber_colors_t::SABER_BLUE;
 	}
 	else
 	{
@@ -239,18 +239,18 @@ struct SetForceCmd {
 	const forcePowerLevels_t maxlevel;
 };
 
-EnumArray<SetForceCmd, forcePowers_t, NUM_FORCE_POWERS> SetForceTable = {{
-	{ "forceHeal",			"setForceHeal",			FORCE_LEVEL_3	},
-	{ "forceJump",			"setForceJump",			FORCE_LEVEL_3	},
-	{ "forceSpeed",			"setForceSpeed",		FORCE_LEVEL_3	},
-	{ "forcePush",			"setForcePush",			FORCE_LEVEL_3	},
-	{ "forcePull",			"setForcePull",			FORCE_LEVEL_3	},
-	{ "forceMindTrick",		"setForceMindTrick",	FORCE_LEVEL_4	},
-	{ "forceGrip",			"setForceGrip",			FORCE_LEVEL_3	},
-	{ "forceLightning",		"setForceLightning",	FORCE_LEVEL_3	},
-	{ "saberThrow",			"setSaberThrow",		FORCE_LEVEL_3	},
-	{ "saberDefense",		"setSaberDefense",		FORCE_LEVEL_3	},
-	{ "saberOffense",		"setSaberOffense",		FORCE_LEVEL_5	},
+EnumArray<SetForceCmd, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS> SetForceTable = {{
+	{ "forceHeal",			"setForceHeal",			forcePowerLevels_t::FORCE_LEVEL_3	},
+	{ "forceJump",			"setForceJump",			forcePowerLevels_t::FORCE_LEVEL_3	},
+	{ "forceSpeed",			"setForceSpeed",		forcePowerLevels_t::FORCE_LEVEL_3	},
+	{ "forcePush",			"setForcePush",			forcePowerLevels_t::FORCE_LEVEL_3	},
+	{ "forcePull",			"setForcePull",			forcePowerLevels_t::FORCE_LEVEL_3	},
+	{ "forceMindTrick",		"setForceMindTrick",	forcePowerLevels_t::FORCE_LEVEL_4	},
+	{ "forceGrip",			"setForceGrip",			forcePowerLevels_t::FORCE_LEVEL_3	},
+	{ "forceLightning",		"setForceLightning",	forcePowerLevels_t::FORCE_LEVEL_3	},
+	{ "saberThrow",			"setSaberThrow",		forcePowerLevels_t::FORCE_LEVEL_3	},
+	{ "saberDefense",		"setSaberDefense",		forcePowerLevels_t::FORCE_LEVEL_3	},
+	{ "saberOffense",		"setSaberOffense",		forcePowerLevels_t::FORCE_LEVEL_5	},
 }};
 
 static void Svcmd_ForceSetLevel_f( forcePowers_t forcePower )
@@ -272,7 +272,7 @@ static void Svcmd_ForceSetLevel_f( forcePowers_t forcePower )
 		return;
 	}
 	const forcePowerLevels_t val = static_cast<forcePowerLevels_t>( atoi(newVal) );
-	if ( val > FORCE_LEVEL_0 )
+	if ( val > forcePowerLevels_t::FORCE_LEVEL_0 )
 	{
 		g_entities[0].client->ps.forcePowersKnown |= Bit( forcePower );
 	}
@@ -281,9 +281,9 @@ static void Svcmd_ForceSetLevel_f( forcePowers_t forcePower )
 		g_entities[0].client->ps.forcePowersKnown &= ~Bit( forcePower );
 	}
 	g_entities[0].client->ps.forcePowerLevel[forcePower] = val;
-	if ( g_entities[0].client->ps.forcePowerLevel[forcePower] < FORCE_LEVEL_0 )
+	if ( g_entities[0].client->ps.forcePowerLevel[forcePower] < forcePowerLevels_t::FORCE_LEVEL_0 )
 	{
-		g_entities[0].client->ps.forcePowerLevel[forcePower] = FORCE_LEVEL_0;
+		g_entities[0].client->ps.forcePowerLevel[forcePower] = forcePowerLevels_t::FORCE_LEVEL_0;
 	}
 	else if ( g_entities[0].client->ps.forcePowerLevel[forcePower] > SetForceTable[forcePower].maxlevel )
 	{
@@ -302,7 +302,7 @@ void Svcmd_SaberAttackCycle_f( void )
 	}
 
 	gentity_t *self = G_GetSelfForPlayerCmd();
-	if ( self->s.weapon != WP_SABER )
+	if ( self->s.weapon != weapon_t::WP_SABER )
 	{
 		return;
 	}
@@ -317,22 +317,22 @@ void Svcmd_SaberAttackCycle_f( void )
 		saberAnimLevel = self->client->ps.saberAnimLevel;
 	}
 	saberAnimLevel++;
-	if ( self->client->ps.forcePowerLevel[FP_SABER_OFFENSE] == FORCE_LEVEL_1 )
+	if ( self->client->ps.forcePowerLevel[forcePowers_t::FP_SABER_OFFENSE] == forcePowerLevels_t::FORCE_LEVEL_1 )
 	{
-		saberAnimLevel = FORCE_LEVEL_2;
+		saberAnimLevel = forcePowerLevels_t::FORCE_LEVEL_2;
 	}
-	else if ( self->client->ps.forcePowerLevel[FP_SABER_OFFENSE] == FORCE_LEVEL_2 )
+	else if ( self->client->ps.forcePowerLevel[forcePowers_t::FP_SABER_OFFENSE] == forcePowerLevels_t::FORCE_LEVEL_2 )
 	{
-		if ( saberAnimLevel > FORCE_LEVEL_2 )
+		if ( saberAnimLevel > forcePowerLevels_t::FORCE_LEVEL_2 )
 		{
-			saberAnimLevel = FORCE_LEVEL_1;
+			saberAnimLevel = forcePowerLevels_t::FORCE_LEVEL_1;
 		}
 	}
 	else
 	{//level 3
-		if ( saberAnimLevel > self->client->ps.forcePowerLevel[FP_SABER_OFFENSE] )
+		if ( saberAnimLevel > self->client->ps.forcePowerLevel[forcePowers_t::FP_SABER_OFFENSE] )
 		{//wrap around
-			saberAnimLevel = FORCE_LEVEL_1;
+			saberAnimLevel = forcePowerLevels_t::FORCE_LEVEL_1;
 		}
 	}
 
@@ -348,23 +348,23 @@ void Svcmd_SaberAttackCycle_f( void )
 #ifndef FINAL_BUILD
 	switch ( saberAnimLevel )
 	{
-	case FORCE_LEVEL_1:
+	case forcePowerLevels_t::FORCE_LEVEL_1:
 		gi.Printf( S_COLOR_BLUE "Lightsaber Combat Style: Fast\n" );
 		//LIGHTSABERCOMBATSTYLE_FAST
 		break;
-	case FORCE_LEVEL_2:
+	case forcePowerLevels_t::FORCE_LEVEL_2:
 		gi.Printf( S_COLOR_YELLOW "Lightsaber Combat Style: Medium\n" );
 		//LIGHTSABERCOMBATSTYLE_MEDIUM
 		break;
-	case FORCE_LEVEL_3:
+	case forcePowerLevels_t::FORCE_LEVEL_3:
 		gi.Printf( S_COLOR_RED "Lightsaber Combat Style: Strong\n" );
 		//LIGHTSABERCOMBATSTYLE_STRONG
 		break;
-	case FORCE_LEVEL_4:
+	case forcePowerLevels_t::FORCE_LEVEL_4:
 		gi.Printf( S_COLOR_CYAN "Lightsaber Combat Style: Desann\n" );
 		//LIGHTSABERCOMBATSTYLE_DESANN
 		break;
-	case FORCE_LEVEL_5:
+	case forcePowerLevels_t::FORCE_LEVEL_5:
 		gi.Printf( S_COLOR_MAGENTA "Lightsaber Combat Style: Tavion\n" );
 		//LIGHTSABERCOMBATSTYLE_TAVION
 		break;
@@ -383,7 +383,7 @@ static void Svcmd_ForceSetLevel_f(void)
 
 static void Svcmd_SetForceAll_f(void)
 {
-	for ( forcePowers_t i = FP_HEAL; i <= FP_SABER_OFFENSE; i++ )
+	for ( forcePowers_t i = forcePowers_t::FP_HEAL; i <= forcePowers_t::FP_SABER_OFFENSE; i++ )
 	{
 		Svcmd_ForceSetLevel_f( i );
 	}
@@ -391,9 +391,9 @@ static void Svcmd_SetForceAll_f(void)
 
 static void Svcmd_SetSaberAll_f(void)
 {
-	Svcmd_ForceSetLevel_f( FP_SABERTHROW );
-	Svcmd_ForceSetLevel_f( FP_SABER_DEFENSE );
-	Svcmd_ForceSetLevel_f( FP_SABER_OFFENSE );
+	Svcmd_ForceSetLevel_f( forcePowers_t::FP_SABERTHROW );
+	Svcmd_ForceSetLevel_f( forcePowers_t::FP_SABER_DEFENSE );
+	Svcmd_ForceSetLevel_f( forcePowers_t::FP_SABER_OFFENSE );
 }
 
 static void Svcmd_RunScript_f(void)
@@ -436,7 +436,7 @@ static void Svcmd_PlayerTeam_f(void)
 		gi.Printf( S_COLOR_RED "'playerteam' - change player team, requires a team name!\n" );
 		gi.Printf( S_COLOR_RED "Current team is: %s\n", TeamNames[g_entities[0].client->playerTeam] );
 		gi.Printf( S_COLOR_RED "Valid team names are:\n");
-		for ( team_t n = TEAM_FREE + 1; n < TEAM_NUM_TEAMS; n++ )
+		for ( team_t n = team_t::TEAM_FREE + 1; n < team_t::TEAM_NUM_TEAMS; n++ )
 		{
 			gi.Printf( S_COLOR_RED "%s\n", TeamNames[n] );
 		}
@@ -445,12 +445,12 @@ static void Svcmd_PlayerTeam_f(void)
 	{
 		team_t team = TranslateTeamName( cmd2 );
 
-		if ( team == TEAM_FREE )
+		if ( team == team_t::TEAM_FREE )
 		{
 			gi.Printf( S_COLOR_RED "'playerteam' unrecognized team name %s!\n", cmd2 );
 			gi.Printf( S_COLOR_RED "Current team is: %s\n", TeamNames[g_entities[0].client->playerTeam] );
 			gi.Printf( S_COLOR_RED "Valid team names are:\n");
-			for ( team_t n = TEAM_FREE; n < TEAM_NUM_TEAMS; n++ )
+			for ( team_t n = team_t::TEAM_FREE; n < team_t::TEAM_NUM_TEAMS; n++ )
 			{
 				gi.Printf( S_COLOR_RED "%s\n", TeamNames[n] );
 			}
@@ -546,7 +546,6 @@ enum class commandFlags_t
 	CMD_CHEAT				= 0x00000001u,
 	CMD_ALIVE				= 0x00000002u,
 };
-using enum commandFlags_t;
 template <> inline constexpr bool enableEnumFlags<commandFlags_t> = true;
 
 typedef struct svcmd_s {
@@ -561,42 +560,42 @@ static int svcmdcmp( const void *a, const void *b ) {
 
 // FIXME some of these should be made CMD_ALIVE too!
 static svcmd_t svcmds[] = {
-	{ "entitylist",					Svcmd_EntityList_f,							CMD_NONE },
-	{ "game_memory",				Svcmd_GameMem_f,							CMD_NONE },
+	{ "entitylist",					Svcmd_EntityList_f,							commandFlags_t::CMD_NONE },
+	{ "game_memory",				Svcmd_GameMem_f,							commandFlags_t::CMD_NONE },
 
-	{ "nav",						Svcmd_Nav_f,								CMD_CHEAT },
-	{ "npc",						Svcmd_NPC_f,								CMD_CHEAT },
-	{ "use",						Svcmd_Use_f,								CMD_CHEAT },
-	{ "ICARUS",						Svcmd_ICARUS_f,								CMD_CHEAT },
+	{ "nav",						Svcmd_Nav_f,								commandFlags_t::CMD_CHEAT },
+	{ "npc",						Svcmd_NPC_f,								commandFlags_t::CMD_CHEAT },
+	{ "use",						Svcmd_Use_f,								commandFlags_t::CMD_CHEAT },
+	{ "ICARUS",						Svcmd_ICARUS_f,								commandFlags_t::CMD_CHEAT },
 
-	{ "saberColor",					Svcmd_SaberColor_f,							CMD_CHEAT },
+	{ "saberColor",					Svcmd_SaberColor_f,							commandFlags_t::CMD_CHEAT },
 
-	{ "setForceJump",				Svcmd_ForceSetLevel_f<FP_LEVITATION>,		CMD_CHEAT },
-	{ "setSaberThrow",				Svcmd_ForceSetLevel_f<FP_SABERTHROW>,		CMD_CHEAT },
-	{ "setForceHeal",				Svcmd_ForceSetLevel_f<FP_HEAL>,				CMD_CHEAT },
-	{ "setForcePush",				Svcmd_ForceSetLevel_f<FP_PUSH>,				CMD_CHEAT },
-	{ "setForcePull",				Svcmd_ForceSetLevel_f<FP_PULL>,				CMD_CHEAT },
-	{ "setForceSpeed",				Svcmd_ForceSetLevel_f<FP_SPEED>,			CMD_CHEAT },
-	{ "setForceGrip",				Svcmd_ForceSetLevel_f<FP_GRIP>,				CMD_CHEAT },
-	{ "setForceLightning",			Svcmd_ForceSetLevel_f<FP_LIGHTNING>,		CMD_CHEAT },
-	{ "setMindTrick",				Svcmd_ForceSetLevel_f<FP_TELEPATHY>,		CMD_CHEAT },
-	{ "setSaberDefense",			Svcmd_ForceSetLevel_f<FP_SABER_DEFENSE>,	CMD_CHEAT },
-	{ "setSaberOffense",			Svcmd_ForceSetLevel_f<FP_SABER_OFFENSE>,	CMD_CHEAT },
-	{ "setForceAll",				Svcmd_SetForceAll_f,						CMD_CHEAT },
-	{ "setSaberAll",				Svcmd_SetSaberAll_f,						CMD_CHEAT },
+	{ "setForceJump",				Svcmd_ForceSetLevel_f<forcePowers_t::FP_LEVITATION>,		commandFlags_t::CMD_CHEAT },
+	{ "setSaberThrow",				Svcmd_ForceSetLevel_f<forcePowers_t::FP_SABERTHROW>,		commandFlags_t::CMD_CHEAT },
+	{ "setForceHeal",				Svcmd_ForceSetLevel_f<forcePowers_t::FP_HEAL>,				commandFlags_t::CMD_CHEAT },
+	{ "setForcePush",				Svcmd_ForceSetLevel_f<forcePowers_t::FP_PUSH>,				commandFlags_t::CMD_CHEAT },
+	{ "setForcePull",				Svcmd_ForceSetLevel_f<forcePowers_t::FP_PULL>,				commandFlags_t::CMD_CHEAT },
+	{ "setForceSpeed",				Svcmd_ForceSetLevel_f<forcePowers_t::FP_SPEED>,			commandFlags_t::CMD_CHEAT },
+	{ "setForceGrip",				Svcmd_ForceSetLevel_f<forcePowers_t::FP_GRIP>,				commandFlags_t::CMD_CHEAT },
+	{ "setForceLightning",			Svcmd_ForceSetLevel_f<forcePowers_t::FP_LIGHTNING>,		commandFlags_t::CMD_CHEAT },
+	{ "setMindTrick",				Svcmd_ForceSetLevel_f<forcePowers_t::FP_TELEPATHY>,		commandFlags_t::CMD_CHEAT },
+	{ "setSaberDefense",			Svcmd_ForceSetLevel_f<forcePowers_t::FP_SABER_DEFENSE>,	commandFlags_t::CMD_CHEAT },
+	{ "setSaberOffense",			Svcmd_ForceSetLevel_f<forcePowers_t::FP_SABER_OFFENSE>,	commandFlags_t::CMD_CHEAT },
+	{ "setForceAll",				Svcmd_SetForceAll_f,						commandFlags_t::CMD_CHEAT },
+	{ "setSaberAll",				Svcmd_SetSaberAll_f,						commandFlags_t::CMD_CHEAT },
 
-	{ "saberAttackCycle",			Svcmd_SaberAttackCycle_f,					CMD_NONE },
+	{ "saberAttackCycle",			Svcmd_SaberAttackCycle_f,					commandFlags_t::CMD_NONE },
 
-	{ "runscript",					Svcmd_RunScript_f,							CMD_CHEAT },
+	{ "runscript",					Svcmd_RunScript_f,							commandFlags_t::CMD_CHEAT },
 
-	{ "playerTeam",					Svcmd_PlayerTeam_f,							CMD_CHEAT },
+	{ "playerTeam",					Svcmd_PlayerTeam_f,							commandFlags_t::CMD_CHEAT },
 
-	{ "control",					Svcmd_Control_f,							CMD_CHEAT },
+	{ "control",					Svcmd_Control_f,							commandFlags_t::CMD_CHEAT },
 
-	{ "exitview",					Svcmd_ExitView_f,							CMD_NONE },
+	{ "exitview",					Svcmd_ExitView_f,							commandFlags_t::CMD_NONE },
 
-	{ "secrets",					Svcmd_Secrets_f,							CMD_NONE },
-	{ "difficulty",					Svcmd_Difficulty_f,							CMD_NONE },
+	{ "secrets",					Svcmd_Secrets_f,							commandFlags_t::CMD_NONE },
+	{ "difficulty",					Svcmd_Difficulty_f,							commandFlags_t::CMD_NONE },
 
 	//{ "say",						Svcmd_Say_f,						true },
 	//{ "toggleallowvote",			Svcmd_ToggleAllowVote_f,			false },
@@ -616,13 +615,13 @@ bool	ConsoleCommand( void ) {
 	if ( !command )
 		return false;
 
-	if ( Any( command->flags & CMD_CHEAT )
+	if ( Any( command->flags & commandFlags_t::CMD_CHEAT )
 		&& !g_cheats->integer )
 	{
 		gi.Printf( "Cheats are not enabled on this server.\n" );
 		return true;
 	}
-	else if ( Any( command->flags & CMD_ALIVE )
+	else if ( Any( command->flags & commandFlags_t::CMD_ALIVE )
 		&& (g_entities[0].health <= 0) )
 	{
 		gi.Printf( "You must be alive to use this command.\n" );

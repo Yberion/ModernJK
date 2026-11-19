@@ -94,7 +94,7 @@ void IN_UseGivenForce(void)
 {
 	const char *c = Cmd_Argv(1);
 	int forceNum =-1;
-	genCmds_t genCmdNum = GENCMD_NONE;
+	genCmds_t genCmdNum = genCmds_t::GENCMD_NONE;
 
 	if(c) {
 		forceNum = atoi(c);
@@ -103,57 +103,57 @@ void IN_UseGivenForce(void)
 	}
 
 	switch ( static_cast<forcePowers_t>( forceNum ) ) {
-	case FP_DRAIN:
+	case forcePowers_t::FP_DRAIN:
 		IN_Button11Down();
 		IN_Button11Up();
 		break;
-	case FP_PUSH:
-		genCmdNum = GENCMD_FORCE_THROW;
+	case forcePowers_t::FP_PUSH:
+		genCmdNum = genCmds_t::GENCMD_FORCE_THROW;
 		break;
-	case FP_SPEED:
-		genCmdNum = GENCMD_FORCE_SPEED;
+	case forcePowers_t::FP_SPEED:
+		genCmdNum = genCmds_t::GENCMD_FORCE_SPEED;
 		break;
-	case FP_PULL:
-		genCmdNum = GENCMD_FORCE_PULL;
+	case forcePowers_t::FP_PULL:
+		genCmdNum = genCmds_t::GENCMD_FORCE_PULL;
 		break;
-	case FP_TELEPATHY:
-		genCmdNum = GENCMD_FORCE_DISTRACT;
+	case forcePowers_t::FP_TELEPATHY:
+		genCmdNum = genCmds_t::GENCMD_FORCE_DISTRACT;
 		break;
-	case FP_GRIP:
+	case forcePowers_t::FP_GRIP:
 		IN_Button6Down();
 		IN_Button6Up();
 		break;
-	case FP_LIGHTNING:
+	case forcePowers_t::FP_LIGHTNING:
 		IN_Button10Down();
 		IN_Button10Up();
 		break;
-	case FP_RAGE:
-		genCmdNum = GENCMD_FORCE_RAGE;
+	case forcePowers_t::FP_RAGE:
+		genCmdNum = genCmds_t::GENCMD_FORCE_RAGE;
 		break;
-	case FP_PROTECT:
-		genCmdNum = GENCMD_FORCE_PROTECT;
+	case forcePowers_t::FP_PROTECT:
+		genCmdNum = genCmds_t::GENCMD_FORCE_PROTECT;
 		break;
-	case FP_ABSORB:
-		genCmdNum = GENCMD_FORCE_ABSORB;
+	case forcePowers_t::FP_ABSORB:
+		genCmdNum = genCmds_t::GENCMD_FORCE_ABSORB;
 		break;
-	case FP_SEE:
-		genCmdNum = GENCMD_FORCE_SEEING;
+	case forcePowers_t::FP_SEE:
+		genCmdNum = genCmds_t::GENCMD_FORCE_SEEING;
 		break;
-	case FP_HEAL:
-		genCmdNum = GENCMD_FORCE_HEAL;
+	case forcePowers_t::FP_HEAL:
+		genCmdNum = genCmds_t::GENCMD_FORCE_HEAL;
 		break;
-	case FP_TEAM_HEAL:
-		genCmdNum = GENCMD_FORCE_HEALOTHER;
+	case forcePowers_t::FP_TEAM_HEAL:
+		genCmdNum = genCmds_t::GENCMD_FORCE_HEALOTHER;
 		break;
-	case FP_TEAM_FORCE:
-		genCmdNum = GENCMD_FORCE_FORCEPOWEROTHER;
+	case forcePowers_t::FP_TEAM_FORCE:
+		genCmdNum = genCmds_t::GENCMD_FORCE_FORCEPOWEROTHER;
 		break;
 	default:
 		assert(0);
 		break;
 	}
 
-	if(genCmdNum != GENCMD_NONE) {
+	if(genCmdNum != genCmds_t::GENCMD_NONE) {
 		cl.gcmdSendValue = true;
 		cl.gcmdValue = to_underlying( genCmdNum );
 	}
@@ -174,109 +174,109 @@ void IN_MLookUp( void ) {
 void IN_GenCMD1( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = to_underlying( GENCMD_SABERSWITCH );
+	cl.gcmdValue = to_underlying( genCmds_t::GENCMD_SABERSWITCH );
 }
 
 void IN_GenCMD2( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = to_underlying( GENCMD_ENGAGE_DUEL );
+	cl.gcmdValue = to_underlying( genCmds_t::GENCMD_ENGAGE_DUEL );
 }
 
 void IN_GenCMD3( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = to_underlying( GENCMD_FORCE_HEAL );
+	cl.gcmdValue = to_underlying( genCmds_t::GENCMD_FORCE_HEAL );
 }
 
 void IN_GenCMD4( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = to_underlying( GENCMD_FORCE_SPEED );
+	cl.gcmdValue = to_underlying( genCmds_t::GENCMD_FORCE_SPEED );
 }
 
 void IN_GenCMD5( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = to_underlying( GENCMD_FORCE_PULL );
+	cl.gcmdValue = to_underlying( genCmds_t::GENCMD_FORCE_PULL );
 }
 
 void IN_GenCMD6( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = to_underlying( GENCMD_FORCE_DISTRACT );
+	cl.gcmdValue = to_underlying( genCmds_t::GENCMD_FORCE_DISTRACT );
 }
 
 void IN_GenCMD7( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = to_underlying( GENCMD_FORCE_RAGE );
+	cl.gcmdValue = to_underlying( genCmds_t::GENCMD_FORCE_RAGE );
 }
 
 void IN_GenCMD8( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = to_underlying( GENCMD_FORCE_PROTECT );
+	cl.gcmdValue = to_underlying( genCmds_t::GENCMD_FORCE_PROTECT );
 }
 
 void IN_GenCMD9( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = to_underlying( GENCMD_FORCE_ABSORB );
+	cl.gcmdValue = to_underlying( genCmds_t::GENCMD_FORCE_ABSORB );
 }
 
 void IN_GenCMD10( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = to_underlying( GENCMD_FORCE_HEALOTHER );
+	cl.gcmdValue = to_underlying( genCmds_t::GENCMD_FORCE_HEALOTHER );
 }
 
 void IN_GenCMD11( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = to_underlying( GENCMD_FORCE_FORCEPOWEROTHER );
+	cl.gcmdValue = to_underlying( genCmds_t::GENCMD_FORCE_FORCEPOWEROTHER );
 }
 
 void IN_GenCMD12( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = to_underlying( GENCMD_FORCE_SEEING );
+	cl.gcmdValue = to_underlying( genCmds_t::GENCMD_FORCE_SEEING );
 }
 
 void IN_GenCMD13( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = to_underlying( GENCMD_USE_SEEKER );
+	cl.gcmdValue = to_underlying( genCmds_t::GENCMD_USE_SEEKER );
 }
 
 void IN_GenCMD14( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = to_underlying( GENCMD_USE_FIELD );
+	cl.gcmdValue = to_underlying( genCmds_t::GENCMD_USE_FIELD );
 }
 
 void IN_GenCMD15( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = to_underlying( GENCMD_USE_BACTA );
+	cl.gcmdValue = to_underlying( genCmds_t::GENCMD_USE_BACTA );
 }
 
 void IN_GenCMD16( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = to_underlying( GENCMD_USE_ELECTROBINOCULARS );
+	cl.gcmdValue = to_underlying( genCmds_t::GENCMD_USE_ELECTROBINOCULARS );
 }
 
 void IN_GenCMD17( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = to_underlying( GENCMD_ZOOM );
+	cl.gcmdValue = to_underlying( genCmds_t::GENCMD_ZOOM );
 }
 
 void IN_GenCMD18( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = to_underlying( GENCMD_USE_SENTRY );
+	cl.gcmdValue = to_underlying( genCmds_t::GENCMD_USE_SENTRY );
 }
 
 void IN_GenCMD19( void )
@@ -286,79 +286,79 @@ void IN_GenCMD19( void )
 		Com_Printf("SABERSTANCEDEBUG: Gencmd on client set successfully.\n");
 	}
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = to_underlying( GENCMD_SABERATTACKCYCLE );
+	cl.gcmdValue = to_underlying( genCmds_t::GENCMD_SABERATTACKCYCLE );
 }
 
 void IN_GenCMD20( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = to_underlying( GENCMD_FORCE_THROW );
+	cl.gcmdValue = to_underlying( genCmds_t::GENCMD_FORCE_THROW );
 }
 
 void IN_GenCMD21( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = to_underlying( GENCMD_USE_JETPACK );
+	cl.gcmdValue = to_underlying( genCmds_t::GENCMD_USE_JETPACK );
 }
 
 void IN_GenCMD22( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = to_underlying( GENCMD_USE_BACTABIG );
+	cl.gcmdValue = to_underlying( genCmds_t::GENCMD_USE_BACTABIG );
 }
 
 void IN_GenCMD23( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = to_underlying( GENCMD_USE_HEALTHDISP );
+	cl.gcmdValue = to_underlying( genCmds_t::GENCMD_USE_HEALTHDISP );
 }
 
 void IN_GenCMD24( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = to_underlying( GENCMD_USE_AMMODISP );
+	cl.gcmdValue = to_underlying( genCmds_t::GENCMD_USE_AMMODISP );
 }
 
 void IN_GenCMD25( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = to_underlying( GENCMD_USE_EWEB );
+	cl.gcmdValue = to_underlying( genCmds_t::GENCMD_USE_EWEB );
 }
 
 void IN_GenCMD26( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = to_underlying( GENCMD_USE_CLOAK );
+	cl.gcmdValue = to_underlying( genCmds_t::GENCMD_USE_CLOAK );
 }
 
 void IN_GenCMD27( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = to_underlying( GENCMD_TAUNT );
+	cl.gcmdValue = to_underlying( genCmds_t::GENCMD_TAUNT );
 }
 
 void IN_GenCMD28( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = to_underlying( GENCMD_BOW );
+	cl.gcmdValue = to_underlying( genCmds_t::GENCMD_BOW );
 }
 
 void IN_GenCMD29( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = to_underlying( GENCMD_MEDITATE );
+	cl.gcmdValue = to_underlying( genCmds_t::GENCMD_MEDITATE );
 }
 
 void IN_GenCMD30( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = to_underlying( GENCMD_FLOURISH );
+	cl.gcmdValue = to_underlying( genCmds_t::GENCMD_FLOURISH );
 }
 
 void IN_GenCMD31( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = to_underlying( GENCMD_GLOAT );
+	cl.gcmdValue = to_underlying( genCmds_t::GENCMD_GLOAT );
 }
 
 
@@ -397,7 +397,7 @@ void IN_VoiceChatButton(void)
 	{ //ui not loaded so this command is useless
 		return;
 	}
-	UIVM_SetActiveMenu( UIMENU_VOICECHAT );
+	UIVM_SetActiveMenu( uiMenuCommand_t::UIMENU_VOICECHAT );
 }
 
 void IN_KeyDown( kbutton_t *b ) {
@@ -530,7 +530,6 @@ enum class autoMapKey_t
 	AUTOMAP_KEY_PITCHDOWN,
 	AUTOMAP_KEY_DEFAULTVIEW,
 };
-using enum autoMapKey_t;
 static autoMapInput_t			g_clAutoMapInput;
 //intercept certain keys during automap mode
 static void CL_AutoMapKey(autoMapKey_t autoMapKey, bool up)
@@ -539,7 +538,7 @@ static void CL_AutoMapKey(autoMapKey_t autoMapKey, bool up)
 
 	switch (autoMapKey)
 	{
-	case AUTOMAP_KEY_FORWARD:
+	case autoMapKey_t::AUTOMAP_KEY_FORWARD:
         if (up)
 		{
 			g_clAutoMapInput.up = 0.0f;
@@ -549,7 +548,7 @@ static void CL_AutoMapKey(autoMapKey_t autoMapKey, bool up)
 			g_clAutoMapInput.up = 16.0f;
 		}
 		break;
-	case AUTOMAP_KEY_BACK:
+	case autoMapKey_t::AUTOMAP_KEY_BACK:
         if (up)
 		{
 			g_clAutoMapInput.down = 0.0f;
@@ -559,7 +558,7 @@ static void CL_AutoMapKey(autoMapKey_t autoMapKey, bool up)
 			g_clAutoMapInput.down = 16.0f;
 		}
 		break;
-	case AUTOMAP_KEY_YAWLEFT:
+	case autoMapKey_t::AUTOMAP_KEY_YAWLEFT:
 		if (up)
 		{
 			g_clAutoMapInput.yaw = 0.0f;
@@ -569,7 +568,7 @@ static void CL_AutoMapKey(autoMapKey_t autoMapKey, bool up)
 			g_clAutoMapInput.yaw = -4.0f;
 		}
 		break;
-	case AUTOMAP_KEY_YAWRIGHT:
+	case autoMapKey_t::AUTOMAP_KEY_YAWRIGHT:
 		if (up)
 		{
 			g_clAutoMapInput.yaw = 0.0f;
@@ -579,7 +578,7 @@ static void CL_AutoMapKey(autoMapKey_t autoMapKey, bool up)
 			g_clAutoMapInput.yaw = 4.0f;
 		}
 		break;
-	case AUTOMAP_KEY_PITCHUP:
+	case autoMapKey_t::AUTOMAP_KEY_PITCHUP:
 		if (up)
 		{
 			g_clAutoMapInput.pitch = 0.0f;
@@ -589,7 +588,7 @@ static void CL_AutoMapKey(autoMapKey_t autoMapKey, bool up)
 			g_clAutoMapInput.pitch = -4.0f;
 		}
 		break;
-	case AUTOMAP_KEY_PITCHDOWN:
+	case autoMapKey_t::AUTOMAP_KEY_PITCHDOWN:
 		if (up)
 		{
 			g_clAutoMapInput.pitch = 0.0f;
@@ -599,7 +598,7 @@ static void CL_AutoMapKey(autoMapKey_t autoMapKey, bool up)
 			g_clAutoMapInput.pitch = 4.0f;
 		}
 		break;
-	case AUTOMAP_KEY_DEFAULTVIEW:
+	case autoMapKey_t::AUTOMAP_KEY_DEFAULTVIEW:
 		memset(&g_clAutoMapInput, 0, sizeof(autoMapInput_t));
 		g_clAutoMapInput.goToDefaults = true;
 		break;
@@ -622,7 +621,7 @@ void IN_UpDown(void)
 {
 	if (g_clAutoMapMode)
 	{
-		CL_AutoMapKey(AUTOMAP_KEY_PITCHUP, false);
+		CL_AutoMapKey(autoMapKey_t::AUTOMAP_KEY_PITCHUP, false);
 	}
 	else
 	{
@@ -633,7 +632,7 @@ void IN_UpUp(void)
 {
 	if (g_clAutoMapMode)
 	{
-		CL_AutoMapKey(AUTOMAP_KEY_PITCHUP, true);
+		CL_AutoMapKey(autoMapKey_t::AUTOMAP_KEY_PITCHUP, true);
 	}
 	else
 	{
@@ -644,7 +643,7 @@ void IN_DownDown(void)
 {
 	if (g_clAutoMapMode)
 	{
-		CL_AutoMapKey(AUTOMAP_KEY_PITCHDOWN, false);
+		CL_AutoMapKey(autoMapKey_t::AUTOMAP_KEY_PITCHDOWN, false);
 	}
 	else
 	{
@@ -655,7 +654,7 @@ void IN_DownUp(void)
 {
 	if (g_clAutoMapMode)
 	{
-		CL_AutoMapKey(AUTOMAP_KEY_PITCHDOWN, true);
+		CL_AutoMapKey(autoMapKey_t::AUTOMAP_KEY_PITCHDOWN, true);
 	}
 	else
 	{
@@ -670,7 +669,7 @@ void IN_ForwardDown(void)
 {
 	if (g_clAutoMapMode)
 	{
-		CL_AutoMapKey(AUTOMAP_KEY_FORWARD, false);
+		CL_AutoMapKey(autoMapKey_t::AUTOMAP_KEY_FORWARD, false);
 	}
 	else
 	{
@@ -681,7 +680,7 @@ void IN_ForwardUp(void)
 {
 	if (g_clAutoMapMode)
 	{
-		CL_AutoMapKey(AUTOMAP_KEY_FORWARD, true);
+		CL_AutoMapKey(autoMapKey_t::AUTOMAP_KEY_FORWARD, true);
 	}
 	else
 	{
@@ -692,7 +691,7 @@ void IN_BackDown(void)
 {
 	if (g_clAutoMapMode)
 	{
-		CL_AutoMapKey(AUTOMAP_KEY_BACK, false);
+		CL_AutoMapKey(autoMapKey_t::AUTOMAP_KEY_BACK, false);
 	}
 	else
 	{
@@ -703,7 +702,7 @@ void IN_BackUp(void)
 {
 	if (g_clAutoMapMode)
 	{
-		CL_AutoMapKey(AUTOMAP_KEY_BACK, true);
+		CL_AutoMapKey(autoMapKey_t::AUTOMAP_KEY_BACK, true);
 	}
 	else
 	{
@@ -718,7 +717,7 @@ void IN_MoveleftDown(void)
 {
 	if (g_clAutoMapMode)
 	{
-		CL_AutoMapKey(AUTOMAP_KEY_YAWLEFT, false);
+		CL_AutoMapKey(autoMapKey_t::AUTOMAP_KEY_YAWLEFT, false);
 	}
 	else
 	{
@@ -729,7 +728,7 @@ void IN_MoveleftUp(void)
 {
 	if (g_clAutoMapMode)
 	{
-		CL_AutoMapKey(AUTOMAP_KEY_YAWLEFT, true);
+		CL_AutoMapKey(autoMapKey_t::AUTOMAP_KEY_YAWLEFT, true);
 	}
 	else
 	{
@@ -740,7 +739,7 @@ void IN_MoverightDown(void)
 {
 	if (g_clAutoMapMode)
 	{
-		CL_AutoMapKey(AUTOMAP_KEY_YAWRIGHT, false);
+		CL_AutoMapKey(autoMapKey_t::AUTOMAP_KEY_YAWRIGHT, false);
 	}
 	else
 	{
@@ -751,7 +750,7 @@ void IN_MoverightUp(void)
 {
 	if (g_clAutoMapMode)
 	{
-		CL_AutoMapKey(AUTOMAP_KEY_YAWRIGHT, true);
+		CL_AutoMapKey(autoMapKey_t::AUTOMAP_KEY_YAWRIGHT, true);
 	}
 	else
 	{
@@ -778,7 +777,7 @@ void IN_Button5Down(void) //use key
 {
 	if (g_clAutoMapMode)
 	{
-		CL_AutoMapKey(AUTOMAP_KEY_DEFAULTVIEW, false);
+		CL_AutoMapKey(autoMapKey_t::AUTOMAP_KEY_DEFAULTVIEW, false);
 	}
 	else
 	{
@@ -900,9 +899,9 @@ void CL_KeyMove( usercmd_t *cmd ) {
 	//
 	if ( in_speed.active != (cl_run->integer != 0) ) {
 		movespeed = 127;
-		cmd->buttons &= ~BUTTON_WALKING;
+		cmd->buttons &= ~buttonFlags_t::BUTTON_WALKING;
 	} else {
-		cmd->buttons |= BUTTON_WALKING;
+		cmd->buttons |= buttonFlags_t::BUTTON_WALKING;
 		movespeed = 46;
 	}
 
@@ -949,9 +948,9 @@ void CL_MouseEvent( int dx, int dy, int time ) {
 		g_clAutoMapInput.yaw = 0.0f;
 		g_clAutoMapInput.pitch = 0.0f;
 	}
-	else if ( Any( Key_GetCatcher( ) & KEYCATCH_UI ) ) {
+	else if ( Any( Key_GetCatcher( ) & keyCatchFlags_t::KEYCATCH_UI ) ) {
 		UIVM_MouseEvent( dx, dy );
-	} else if ( Any( Key_GetCatcher( ) & KEYCATCH_CGAME ) ) {
+	} else if ( Any( Key_GetCatcher( ) & keyCatchFlags_t::KEYCATCH_CGAME ) ) {
 		CGVM_MouseEvent( dx, dy );
 	} else {
 		cl.mouseDx[cl.mouseIndex] += dx;
@@ -967,8 +966,8 @@ Joystick values stay set until changed
 =================
 */
 void CL_JoystickEvent( int axis, int value, int time ) {
-	if ( axis < 0 || axis >= to_underlying( MAX_JOYSTICK_AXIS ) ) {
-		Com_Error( ERR_DROP, "CL_JoystickEvent: bad axis %i", axis );
+	if ( axis < 0 || axis >= to_underlying( joystickAxis_t::MAX_JOYSTICK_AXIS ) ) {
+		Com_Error( errorParm_t::ERR_DROP, "CL_JoystickEvent: bad axis %i", axis );
 	}
 	cl.joystickAxis[static_cast<joystickAxis_t>( axis )] = value;
 }
@@ -1000,16 +999,16 @@ static void CL_JoystickAngles( void ) {
 		{
 			if ( cl_mSensitivityOverride )
 			{
-				cl.viewangles[YAW] += cl_mYawOverride * cl_mSensitivityOverride * cl.joystickAxis[AXIS_SIDE]/2.0f;
+				cl.viewangles[YAW] += cl_mYawOverride * cl_mSensitivityOverride * cl.joystickAxis[joystickAxis_t::AXIS_SIDE]/2.0f;
 			}
 			else
 			{
-				cl.viewangles[YAW] += cl_mYawOverride * OVERRIDE_MOUSE_SENSITIVITY * cl.joystickAxis[AXIS_SIDE]/2.0f;
+				cl.viewangles[YAW] += cl_mYawOverride * OVERRIDE_MOUSE_SENSITIVITY * cl.joystickAxis[joystickAxis_t::AXIS_SIDE]/2.0f;
 			}
 		}
 		else
 		{
-			cl.viewangles[YAW] += anglespeed * (cl_yawspeed->value / 100.0f) * cl.joystickAxis[AXIS_SIDE];
+			cl.viewangles[YAW] += anglespeed * (cl_yawspeed->value / 100.0f) * cl.joystickAxis[joystickAxis_t::AXIS_SIDE];
 		}
 	}
 
@@ -1018,16 +1017,16 @@ static void CL_JoystickAngles( void ) {
 		{
 			if ( cl_mSensitivityOverride )
 			{
-				cl.viewangles[PITCH] += cl_mPitchOverride * cl_mSensitivityOverride * cl.joystickAxis[AXIS_FORWARD]/2.0f;
+				cl.viewangles[PITCH] += cl_mPitchOverride * cl_mSensitivityOverride * cl.joystickAxis[joystickAxis_t::AXIS_FORWARD]/2.0f;
 			}
 			else
 			{
-				cl.viewangles[PITCH] += cl_mPitchOverride * OVERRIDE_MOUSE_SENSITIVITY * cl.joystickAxis[AXIS_FORWARD]/2.0f;
+				cl.viewangles[PITCH] += cl_mPitchOverride * OVERRIDE_MOUSE_SENSITIVITY * cl.joystickAxis[joystickAxis_t::AXIS_FORWARD]/2.0f;
 			}
 		}
 		else
 		{
-			cl.viewangles[PITCH] += anglespeed * (cl_pitchspeed->value / 100.0f) * cl.joystickAxis[AXIS_FORWARD];
+			cl.viewangles[PITCH] += anglespeed * (cl_pitchspeed->value / 100.0f) * cl.joystickAxis[joystickAxis_t::AXIS_FORWARD];
 		}
 	}
 }
@@ -1046,18 +1045,18 @@ static void CL_JoystickMove( usercmd_t *cmd ) {
 	}
 
 	if ( in_speed.active == (cl_run->integer != 0) ) {
-		cmd->buttons |= BUTTON_WALKING;
+		cmd->buttons |= buttonFlags_t::BUTTON_WALKING;
 	}
 
 	if ( in_strafe.active ) {
-		cmd->rightmove = ClampChar( cmd->rightmove + cl.joystickAxis[AXIS_SIDE] );
+		cmd->rightmove = ClampChar( cmd->rightmove + cl.joystickAxis[joystickAxis_t::AXIS_SIDE] );
 	}
 
 	if ( !in_mlooking && !cl_freelook->integer ) {
-		cmd->forwardmove = ClampChar( cmd->forwardmove + cl.joystickAxis[AXIS_FORWARD] );
+		cmd->forwardmove = ClampChar( cmd->forwardmove + cl.joystickAxis[joystickAxis_t::AXIS_FORWARD] );
 	}
 
-	cmd->upmove = ClampChar( cmd->upmove + cl.joystickAxis[AXIS_UP] );
+	cmd->upmove = ClampChar( cmd->upmove + cl.joystickAxis[joystickAxis_t::AXIS_UP] );
 }
 
 /*
@@ -1244,23 +1243,23 @@ void CL_CmdButtons( usercmd_t *cmd ) {
 		in_buttons[i].wasPressed = false;
 	}
 
-	if (Any( cmd->buttons & BUTTON_FORCEPOWER ))
+	if (Any( cmd->buttons & buttonFlags_t::BUTTON_FORCEPOWER ))
 	{ //check for transferring a use force to a use inventory...
-		if (Any(cmd->buttons & BUTTON_USE) || CL_NoUseableForce())
+		if (Any(cmd->buttons & buttonFlags_t::BUTTON_USE) || CL_NoUseableForce())
 		{ //it's pushed, remap it!
-			cmd->buttons &= ~BUTTON_FORCEPOWER;
-			cmd->buttons |= BUTTON_USE_HOLDABLE;
+			cmd->buttons &= ~buttonFlags_t::BUTTON_FORCEPOWER;
+			cmd->buttons |= buttonFlags_t::BUTTON_USE_HOLDABLE;
 		}
 	}
 
 	if ( Any( Key_GetCatcher( ) ) ) {
-		cmd->buttons |= BUTTON_TALK;
+		cmd->buttons |= buttonFlags_t::BUTTON_TALK;
 	}
 
 	// allow the game to know if any key at all is
 	// currently pressed, even if it isn't bound to anything
 	if ( kg.anykeydown && !Any( Key_GetCatcher( ) ) ) {
-		cmd->buttons |= BUTTON_ANY;
+		cmd->buttons |= buttonFlags_t::BUTTON_ANY;
 	}
 }
 
@@ -1439,7 +1438,7 @@ cgame predicts the tick in progress and draws the local player between two ticks
 */
 void CL_CreateNewCommands( void ) {
 	// no need to create usercmds until we have a gamestate
-	if ( cls.state < CA_PRIMED )
+	if ( cls.state < connstate_t::CA_PRIMED )
 		return;
 
 	frame_msec = s_inputTime - old_com_frameTime;	// since the input was last read (a frame, or a tick between two)
@@ -1460,7 +1459,7 @@ void CL_CreateNewCommands( void ) {
 
 	// until the first snapshot the client's clock does not run: a command every frame, as before, so that the packets
 	// whose commands make the server put the client in the world keep coming
-	if ( cls.state != CA_ACTIVE ) {
+	if ( cls.state != connstate_t::CA_ACTIVE ) {
 		s_cmdMsec = frame_msec;
 		s_lastCmdFrameTime = s_inputTime;
 		cl.cmdNumber++;
@@ -1527,7 +1526,7 @@ static bool CL_ReadyToSendPacket( bool newCommand ) {
 	const int interval = 1000 / MAX_PACKET_RATE;
 
 	// don't send anything if playing back a demo
-	if ( clc.demoplaying || cls.state == CA_CINEMATIC ) {
+	if ( clc.demoplaying || cls.state == connstate_t::CA_CINEMATIC ) {
 		return false;
 	}
 
@@ -1542,12 +1541,12 @@ static bool CL_ReadyToSendPacket( bool newCommand ) {
 	// lost gamestate fragment now costs about one round trip instead of a second or more.
 
 	// in the game, a packet carries the new commands (and repeats those of the last CL_PACKET_DUP packets)
-	if ( cls.state == CA_ACTIVE ) {
+	if ( cls.state == connstate_t::CA_ACTIVE ) {
 		return newCommand;
 	}
 
 	// send every frame for loopbacks
-	if ( clc.netchan.remoteAddress.type == NA_LOOPBACK ) {
+	if ( clc.netchan.remoteAddress.type == netadrtype_t::NA_LOOPBACK ) {
 		return true;
 	}
 
@@ -1585,7 +1584,7 @@ void CL_WritePacket( void ) {
 	int			count;
 
 	// don't send anything if playing back a demo
-	if ( clc.demoplaying || cls.state == CA_CINEMATIC ) {
+	if ( clc.demoplaying || cls.state == connstate_t::CA_CINEMATIC ) {
 		return;
 	}
 
@@ -1667,7 +1666,7 @@ static void CL_MakeAndSend( void ) {
 
 void CL_SendCmd( void ) {
 	// don't send any message if not connected
-	if ( cls.state < CA_CONNECTED ) {
+	if ( cls.state < connstate_t::CA_CONNECTED ) {
 		return;
 	}
 
@@ -1691,7 +1690,7 @@ frame, with com_frameTime.
 =================
 */
 int CL_NextCommandMsec( void ) {
-	if ( cls.state != CA_ACTIVE || clc.demoplaying || cl.cmdNumber == 0 ) {
+	if ( cls.state != connstate_t::CA_ACTIVE || clc.demoplaying || cl.cmdNumber == 0 ) {
 		return -1;
 	}
 	if ( com_sv_running->integer && sv_paused->integer && cl_paused->integer ) {
@@ -1725,7 +1724,7 @@ bool CL_InputTick( void ) {
 	if ( !Cbuf_Waiting() ) {
 		Cbuf_Execute();
 	}
-	if ( cls.state < CA_CONNECTED || CL_NextCommandMsec() != 0 ) {
+	if ( cls.state < connstate_t::CA_CONNECTED || CL_NextCommandMsec() != 0 ) {
 		return false;
 	}
 
@@ -1859,8 +1858,8 @@ CL_InitInput
 void CL_InitInput( void ) {
 	Cmd_AddCommandList( inputCmds );
 
-	cl_nodelta = Cvar_Get ("cl_nodelta", "0", CVAR_NONE);
-	cl_debugMove = Cvar_Get ("cl_debugMove", "0", CVAR_NONE);
+	cl_nodelta = Cvar_Get ("cl_nodelta", "0", cvarFlags_t::CVAR_NONE);
+	cl_debugMove = Cvar_Get ("cl_debugMove", "0", cvarFlags_t::CVAR_NONE);
 }
 
 /*

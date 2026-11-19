@@ -31,7 +31,6 @@ enum class cullResult_t {
 	CULL_CLIP,		// clipped by one or more planes
 	CULL_OUT,		// completely outside the clipping planes
 };
-using enum cullResult_t;
 
 inline constexpr int ENTITY_WIDTH = 12;
 inline constexpr int MODEL_WIDTH = 10;

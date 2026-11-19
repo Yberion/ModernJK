@@ -60,7 +60,7 @@ void CG_PrecacheSiegeObjectiveAssetsForTeam(team_t myTeam)
 
 	if (!siege_valid)
 	{
-		trap->Error( ERR_DROP, "Siege data does not exist on client!\n");
+		trap->Error( errorParm_t::ERR_DROP, "Siege data does not exist on client!\n");
 		return;
 	}
 
@@ -167,14 +167,14 @@ void CG_InitSiegeMode(void)
 	char			teams[2048];
 	char			teamInfo[MAX_SIEGE_INFO_SIZE];
 	int				len = 0;
-	team_t				i = TEAM_FREE;
+	team_t				i = team_t::TEAM_FREE;
 	int				j = 0;
 	siegeClass_t		*cl;
 	siegeTeam_t		*sTeam;
 	fileHandle_t	f;
 	char			teamIcon[128];
 
-	if (cgs.gametype != GT_SIEGE)
+	if (cgs.gametype != gametype_t::GT_SIEGE)
 	{
 		goto failure;
 	}
@@ -186,7 +186,7 @@ void CG_InitSiegeMode(void)
 		goto failure;
 	}
 
-	len = trap->FS_Open(levelname, &f, FS_READ);
+	len = trap->FS_Open(levelname, &f, fsMode_t::FS_READ);
 
 	if ( !f ) {
 		goto failure;
@@ -250,7 +250,7 @@ void CG_InitSiegeMode(void)
 	}
 	else
 	{
-		trap->Error( ERR_DROP, "Siege teams not defined");
+		trap->Error( errorParm_t::ERR_DROP, "Siege teams not defined");
 	}
 
 	if (BG_SiegeGetValueGroup(siege_info, team1, teamInfo))
@@ -272,7 +272,7 @@ void CG_InitSiegeMode(void)
 	}
 	else
 	{
-		trap->Error( ERR_DROP, "No team entry for '%s'\n", team1);
+		trap->Error( errorParm_t::ERR_DROP, "No team entry for '%s'\n", team1);
 	}
 
 	if (BG_SiegeGetPairedValue(siege_info, "mapgraphic", teamInfo))
@@ -312,7 +312,7 @@ void CG_InitSiegeMode(void)
 	}
 	else
 	{
-		trap->Error( ERR_DROP, "No team entry for '%s'\n", team2);
+		trap->Error( errorParm_t::ERR_DROP, "No team entry for '%s'\n", team2);
 	}
 
 	//Load the player class types
@@ -320,7 +320,7 @@ void CG_InitSiegeMode(void)
 
 	if (!bgNumSiegeClasses)
 	{ //We didn't find any?!
-		trap->Error( ERR_DROP, "Couldn't find any player classes for Siege");
+		trap->Error( errorParm_t::ERR_DROP, "Couldn't find any player classes for Siege");
 	}
 
 	//Now load the teams since we have class data.
@@ -328,7 +328,7 @@ void CG_InitSiegeMode(void)
 
 	if (!bgNumSiegeTeams)
 	{ //React same as with classes.
-		trap->Error( ERR_DROP, "Couldn't find any player teams for Siege");
+		trap->Error( errorParm_t::ERR_DROP, "Couldn't find any player teams for Siege");
 	}
 
 	//Get and set the team themes for each team. This will control which classes can be
@@ -566,7 +566,7 @@ void CG_ParseSiegeObjectiveStatus(const char *str)
 		i++;
 	}
 
-	if (PS_Team( cg.predictedPlayerState ) != TEAM_SPECTATOR)
+	if (PS_Team( cg.predictedPlayerState ) != team_t::TEAM_SPECTATOR)
 	{ //update menu cvars
 		CG_SiegeBriefingDisplay(PS_Team( cg.predictedPlayerState ), 1);
 	}
@@ -583,7 +583,7 @@ void CG_SiegeRoundOver(centity_t *ent, team_t won)
 
 	if (!siege_valid)
 	{
-		trap->Error( ERR_DROP, "ERROR: Siege data does not exist on client!\n");
+		trap->Error( errorParm_t::ERR_DROP, "ERROR: Siege data does not exist on client!\n");
 		return;
 	}
 
@@ -604,7 +604,7 @@ void CG_SiegeRoundOver(centity_t *ent, team_t won)
 
 	myTeam = PS_Team( *ps );
 
-	if (myTeam == TEAM_SPECTATOR)
+	if (myTeam == team_t::TEAM_SPECTATOR)
 	{
 		return;
 	}
@@ -666,7 +666,7 @@ void CG_SiegeRoundOver(centity_t *ent, team_t won)
 
 		if (soundstr[0])
 		{
-			trap->S_StartLocalSound(trap->S_RegisterSound(soundstr), CHAN_ANNOUNCER);
+			trap->S_StartLocalSound(trap->S_RegisterSound(soundstr), soundChannel_t::CHAN_ANNOUNCER);
 		}
 	}
 }
@@ -739,7 +739,7 @@ void CG_SiegeBriefingDisplay(team_t team, int dontshow)
 		return;
 	}
 
-	if (team == TEAM_SPECTATOR)
+	if (team == team_t::TEAM_SPECTATOR)
 	{
 		return;
 	}
@@ -895,7 +895,7 @@ void CG_SiegeObjectiveCompleted(centity_t *ent, team_t won, int objectivenum)
 
 	if (!siege_valid)
 	{
-		trap->Error( ERR_DROP, "Siege data does not exist on client!\n");
+		trap->Error( errorParm_t::ERR_DROP, "Siege data does not exist on client!\n");
 		return;
 	}
 
@@ -916,7 +916,7 @@ void CG_SiegeObjectiveCompleted(centity_t *ent, team_t won, int objectivenum)
 
 	myTeam = PS_Team( *ps );
 
-	if (myTeam == TEAM_SPECTATOR)
+	if (myTeam == team_t::TEAM_SPECTATOR)
 	{
 		return;
 	}
@@ -982,7 +982,7 @@ void CG_SiegeObjectiveCompleted(centity_t *ent, team_t won, int objectivenum)
 
 			if (soundstr[0])
 			{
-				trap->S_StartLocalSound(trap->S_RegisterSound(soundstr), CHAN_ANNOUNCER);
+				trap->S_StartLocalSound(trap->S_RegisterSound(soundstr), soundChannel_t::CHAN_ANNOUNCER);
 			}
 		}
 	}
@@ -1048,7 +1048,7 @@ void CG_ParseSiegeExtendedDataEntry(const char *conStr)
 	cent = &cg_entities[clNum];
 
 	maxAmmo = ammoData[weaponData[cent->currentState.weapon].ammoIndex].max;
-	if ( Any(cent->currentState.eFlags & EF_DOUBLE_AMMO) )
+	if ( Any(cent->currentState.eFlags & entityFlags_t::EF_DOUBLE_AMMO) )
 	{
 		maxAmmo *= 2.0f;
 	}

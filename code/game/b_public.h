@@ -61,7 +61,6 @@ enum class npcAiFlags_t : uint32_t
 	NPCAI_BOSS_CHARACTER	= 0x40000000,	//Boss NPC flag for certain immunities/defenses
 	NPCAI_NO_JEDI_DELAY		= 0x80000000,	//Reborn/Jedi don't taunt enemy before attacking
 };
-using enum npcAiFlags_t;
 template <> inline constexpr bool enableEnumFlags<npcAiFlags_t> = true;
 
 //Script flags
@@ -101,21 +100,17 @@ enum class scriptFlags_t : uint32_t
 	SCF_FIRE_WEAPON_NO_ANIM	= 0x40000000,	//Fire weapon but don't play weapon firing anim
 	SCF_SAFE_REMOVE		= 0x80000000,	//Remove NPC when it's safe (when player isn't looking)
 };
-using enum scriptFlags_t;
 template <> inline constexpr bool enableEnumFlags<scriptFlags_t> = true;
 
 
 enum class visibility_t {VIS_UNKNOWN, VIS_NOT, VIS_PVS, VIS_360, VIS_FOV, VIS_SHOOT};
-using enum visibility_t;
 enum class spot_t {SPOT_ORIGIN, SPOT_CHEST, SPOT_HEAD, SPOT_HEAD_LEAN, SPOT_WEAPON, SPOT_LEGS, SPOT_GROUND};
-using enum spot_t;
 
 enum class lookMode_t //# lookMode_e
 {
 	LM_ENT = 0,
 	LM_INTEREST
 };
-using enum lookMode_t;
 
 enum class jumpState_t //# jumpState_e
 {
@@ -125,7 +120,6 @@ enum class jumpState_t //# jumpState_e
 	JS_JUMPING,
 	JS_LANDING
 };
-using enum jumpState_t;
 
 enum class sexType_t
 {
@@ -134,7 +128,6 @@ enum class sexType_t
 	SEX_FEMALE,
 	SEX_SHEMALE//what the Hell, ya never know...
 };
-using enum sexType_t;
 
 // !!!!!!!!!! LOADSAVE-affecting structure !!!!!!!!!!
 class gNPCstats_t

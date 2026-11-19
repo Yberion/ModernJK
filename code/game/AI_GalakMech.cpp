@@ -115,7 +115,7 @@ void	Pilot_Update(void)
 			 g_entities[i].m_pVehicle &&
 			!g_entities[i].owner &&
 			 g_entities[i].health>0 &&
-			 g_entities[i].m_pVehicle->m_pVehicleInfo->type==VH_SPEEDER &&
+			 g_entities[i].m_pVehicle->m_pVehicleInfo->type==vehicleType_t::VH_SPEEDER &&
 			!mRegistered.full())
 		{
 			mRegistered.push_back(&g_entities[i]);
@@ -155,7 +155,7 @@ void	Pilot_Update(void)
 				nullptr,
 				projectedPosition,
 				player->s.number,
- 				MASK_SHOT, G2_NOCOLLIDE, 0);
+ 				MASK_SHOT, EG2_Collision::G2_NOCOLLIDE, 0);
 
 			if ((mPilotViewTrace.allsolid==false) &&
 				(mPilotViewTrace.startsolid==false) &&
@@ -164,7 +164,7 @@ void	Pilot_Update(void)
 				(DotProduct(projectedDirection, mPilotViewTrace.plane.normal)<-0.5f)
 				)
 			{
- 			//	CG_DrawEdge(player->currentOrigin, mPilotViewTrace.endpos, EDGE_IMPACT_POSSIBLE);
+ 			//	CG_DrawEdge(player->currentOrigin, mPilotViewTrace.endpos, edgeType_t::EDGE_IMPACT_POSSIBLE);
  		  		TIMER_Set(player, "FlybySoundArchitectureDebounce", Q_irand(1000, 2000));
 
 				int soundFlyBy = pVeh->m_pVehicleInfo->soundFlyBy;
@@ -176,7 +176,7 @@ void	Pilot_Update(void)
 			}
 			else
 			{
- 			//	CG_DrawEdge(player->currentOrigin, mPilotViewTrace.endpos, EDGE_IMPACT_SAFE);
+ 			//	CG_DrawEdge(player->currentOrigin, mPilotViewTrace.endpos, edgeType_t::EDGE_IMPACT_SAFE);
 			}
 		}
 	}
@@ -275,12 +275,12 @@ bool	Pilot_MasterUpdate()
 			if (NPCInfo->greetEnt && NPCInfo->greetEnt->m_pVehicle && level.time<NPCInfo->confusionTime)
 			{
 				Vehicle_t*	pVeh	= NPCInfo->greetEnt->m_pVehicle;
-				if (!(Any( pVeh->m_ulFlags & VEH_OUTOFCONTROL )))
+				if (!(Any( pVeh->m_ulFlags & vehFlags_t::VEH_OUTOFCONTROL )))
 		 		{
 					gentity_t*	parent	= pVeh->m_pParentEntity;
 					float		CurSpeed = VectorLength(parent->client->ps.velocity);
 					pVeh->m_pVehicleInfo->StartDeathDelay(pVeh, 10000);
-					pVeh->m_ulFlags |= (VEH_OUTOFCONTROL);
+					pVeh->m_ulFlags |= (vehFlags_t::VEH_OUTOFCONTROL);
 					VectorScale(parent->client->ps.velocity, 1.25f, parent->pos3);
 					if (CurSpeed<pVeh->m_pVehicleInfo->speedMax)
 					{
@@ -386,7 +386,7 @@ void	Pilot_Update_Enemy()
 				NPC->enemy->currentOrigin,
 				NPC->s.number,
 				MASK_SHOT,
-				G2_NOCOLLIDE, 0);
+				EG2_Collision::G2_NOCOLLIDE, 0);
 
 			if ((mPilotViewTrace.allsolid==false) &&
 				(mPilotViewTrace.startsolid==false ) &&
@@ -405,10 +405,10 @@ void	Pilot_Update_Enemy()
 	{
 		if (NPCInfo->greetEnt->owner==NPC)
 		{
-			NPCInfo->greetEnt->e_ThinkFunc	= thinkF_G_FreeEntity;
+			NPCInfo->greetEnt->e_ThinkFunc	= thinkFunc_t::thinkF_G_FreeEntity;
 			NPCInfo->greetEnt->nextthink	= level.time;
 		}
-		NPC->e_ThinkFunc	= thinkF_G_FreeEntity;
+		NPC->e_ThinkFunc	= thinkFunc_t::thinkF_G_FreeEntity;
 		NPC->nextthink		= level.time;
 	}
 }
@@ -473,14 +473,14 @@ void	Pilot_Steer_Vehicle()
 
 	// If my vehicle is spinning out of control, just hold on, we're going to die!!!!!
 	//---------------------------------------------------------------------------------
-	if (ActorVeh && (Any( ActorVeh->m_ulFlags & VEH_OUTOFCONTROL )))
+	if (ActorVeh && (Any( ActorVeh->m_ulFlags & vehFlags_t::VEH_OUTOFCONTROL )))
 	{
-		if (NPC->client->ps.weapon!=WP_NONE)
+		if (NPC->client->ps.weapon!=weapon_t::WP_NONE)
 		{
-			NPC_ChangeWeapon(WP_NONE);
+			NPC_ChangeWeapon(weapon_t::WP_NONE);
 		}
-		ucmd.buttons	&=~BUTTON_ATTACK;
-		ucmd.buttons	&=~BUTTON_ALT_ATTACK;
+		ucmd.buttons	&=~buttonFlags_t::BUTTON_ATTACK;
+		ucmd.buttons	&=~buttonFlags_t::BUTTON_ALT_ATTACK;
 		return;
 	}
 
@@ -504,7 +504,7 @@ void	Pilot_Steer_Vehicle()
 	Vehicle_t*	EnemyVeh		= (NPC->enemy->s.m_iVehicleNum)?(g_entities[NPC->enemy->s.m_iVehicleNum].m_pVehicle):(nullptr);
 	bool		EnemyInTurbo	= (EnemyVeh && EnemyVeh->m_iTurboTime>level.time);
 	float		EnemySpeed		= (EnemyVeh)?(EnemyVeh->m_pParentEntity->client->ps.speed):(NPC->enemy->resultspeed);
-	bool		EnemySlideBreak	= (EnemyVeh && (Any( EnemyVeh->m_ulFlags & VEH_SLIDEBREAKING ) || Any( EnemyVeh->m_ulFlags & VEH_STRAFERAM )));
+	bool		EnemySlideBreak	= (EnemyVeh && (Any( EnemyVeh->m_ulFlags & vehFlags_t::VEH_SLIDEBREAKING ) || Any( EnemyVeh->m_ulFlags & vehFlags_t::VEH_STRAFERAM )));
 	bool		EnemyDead		= (NPC->enemy->health<=0);
 
 	bool		ActorFlank		= (NPCInfo->lastAvoidSteerSideDebouncer>level.time && EnemyVeh && EnemySpeed>10.0f);
@@ -518,14 +518,14 @@ void	Pilot_Steer_Vehicle()
 
 	ESide		EnemySide		= ActorPos.LRTest(EnemyPos, EnemyFuturePos);
 	CVec3		EnemyFlankPos(EnemyFuturePos);
-				EnemyFlankPos.ScaleAdd(EnemyRight, (EnemySide==Side_Right)?(FUTURE_SIDE_DIST):(-FUTURE_SIDE_DIST));
+				EnemyFlankPos.ScaleAdd(EnemyRight, (EnemySide==ESide::Side_Right)?(FUTURE_SIDE_DIST):(-FUTURE_SIDE_DIST));
 
 	// Debug Draw Enemy Data
 	//-----------------------
 	if (false)
 	{
-		CG_DrawEdge(EnemyPos.v,			EnemyFuturePos.v, EDGE_IMPACT_SAFE);
-		CG_DrawEdge(EnemyFuturePos.v,	EnemyFlankPos.v, EDGE_IMPACT_SAFE);
+		CG_DrawEdge(EnemyPos.v,			EnemyFuturePos.v, edgeType_t::EDGE_IMPACT_SAFE);
+		CG_DrawEdge(EnemyFuturePos.v,	EnemyFlankPos.v, edgeType_t::EDGE_IMPACT_SAFE);
 	}
 
 
@@ -587,7 +587,7 @@ void	Pilot_Steer_Vehicle()
 		}
 		ActorAccelerate		= true;							// Go
 		ActorAimAtTarget	= false;						// Don't Alter Our Aim Direction
-		ucmd.buttons		&=~BUTTON_VEH_SPEED;			// Let Normal Vehicle Controls Go
+		ucmd.buttons		&=~buttonFlags_t::BUTTON_VEH_SPEED;			// Let Normal Vehicle Controls Go
 	}
 
 
@@ -597,7 +597,7 @@ void	Pilot_Steer_Vehicle()
 	{
   		ActorAccelerate	= true;
 		ActorDoTurbo	= (MoveDistance>2500 || EnemyInTurbo);
-		ucmd.buttons	|= BUTTON_VEH_SPEED;			// Tells PMove to use the ps.speed we calculate here, not the one from g_vehicles.cpp
+		ucmd.buttons	|= buttonFlags_t::BUTTON_VEH_SPEED;			// Tells PMove to use the ps.speed we calculate here, not the one from g_vehicles.cpp
 
 
 		// For Flanking, We Calculate The Speed By Hand, Rather Than Using Pure Accelerate / No Accelerate Functionality
@@ -636,7 +636,7 @@ void	Pilot_Steer_Vehicle()
 				TIMER_Set(NPC, "RamCheck", Q_irand(1000, 3000));
 				if (MoveDistance<RAM_DIST && Q_irand(0, 2)==0)
 				{
-					VEH_StartStrafeRam(ActorVeh, (EnemySide==Side_Left));
+					VEH_StartStrafeRam(ActorVeh, (EnemySide==ESide::Side_Left));
 				}
 			}
 		}
@@ -657,7 +657,7 @@ void	Pilot_Steer_Vehicle()
 			ActorAccelerate = ((MoveDistance>500 && EnemySpeed>20.0f) || MoveDistance>1000);
 			ActorDoTurbo	= (MoveDistance>3000 && EnemySpeed>20.0f);
 		}
-		ucmd.buttons	&=~BUTTON_VEH_SPEED;
+		ucmd.buttons	&=~buttonFlags_t::BUTTON_VEH_SPEED;
 	}
 
 
@@ -669,11 +669,11 @@ void	Pilot_Steer_Vehicle()
 	//--------------
 	if (ActorDoTurbo || ActorInTurbo)
 	{
-		ucmd.buttons |= BUTTON_ALT_ATTACK;
+		ucmd.buttons |= buttonFlags_t::BUTTON_ALT_ATTACK;
 	}
 	else
 	{
-		ucmd.buttons &=~BUTTON_ALT_ATTACK;
+		ucmd.buttons &=~buttonFlags_t::BUTTON_ALT_ATTACK;
 	}
 
 	// Decide Acceleration
@@ -684,7 +684,7 @@ void	Pilot_Steer_Vehicle()
 
 	// Decide To Shoot
 	//-----------------
-	ucmd.buttons	&=~BUTTON_ATTACK;
+	ucmd.buttons	&=~buttonFlags_t::BUTTON_ATTACK;
 	ucmd.rightmove	= 0;
  	if (AimDistance<2000 && !EnemyDead)
 	{
@@ -692,36 +692,36 @@ void	Pilot_Steer_Vehicle()
 		//-----------------------
 		if (ActorYawOffset!=0)
 		{
-			if (NPC->client->ps.weapon!=WP_NONE)
+			if (NPC->client->ps.weapon!=weapon_t::WP_NONE)
 			{
-				NPC_ChangeWeapon(WP_NONE);
+				NPC_ChangeWeapon(weapon_t::WP_NONE);
 			}
-			ucmd.buttons	&=~BUTTON_ATTACK;
+			ucmd.buttons	&=~buttonFlags_t::BUTTON_ATTACK;
 		}
  		else if (AimAccuracy>ATTACK_FWD)
 		{
-			if (NPC->client->ps.weapon!=WP_NONE)
+			if (NPC->client->ps.weapon!=weapon_t::WP_NONE)
 			{
-				NPC_ChangeWeapon(WP_NONE);
+				NPC_ChangeWeapon(weapon_t::WP_NONE);
 			}
-			ucmd.buttons	|= BUTTON_ATTACK;
+			ucmd.buttons	|= buttonFlags_t::BUTTON_ATTACK;
 		}
 		else if (AimAccuracy<AIM_SIDE && AimAccuracy>-AIM_SIDE)
 		{
-			if (NPC->client->ps.weapon!=WP_BLASTER)
+			if (NPC->client->ps.weapon!=weapon_t::WP_BLASTER)
 			{
-				NPC_ChangeWeapon(WP_BLASTER);
+				NPC_ChangeWeapon(weapon_t::WP_BLASTER);
 			}
 
 			if (AimAccuracy<ATTACK_SIDE && AimAccuracy>-ATTACK_SIDE)
 			{
 				//if (!TIMER_Done(NPC, "RiderAltAttack"))
 				//{
-				//	ucmd.buttons |= BUTTON_ALT_ATTACK;
+				//	ucmd.buttons |= buttonFlags_t::BUTTON_ALT_ATTACK;
 				//}
 				//else
 				//{
-                    ucmd.buttons |= BUTTON_ATTACK;
+                    ucmd.buttons |= buttonFlags_t::BUTTON_ATTACK;
 
 			/*		if (TIMER_Done(NPC, "RiderAltAttackCheck"))
 					{
@@ -734,21 +734,21 @@ void	Pilot_Steer_Vehicle()
 				//}
 				WeaponThink(true);
 			}
-			ucmd.rightmove = (EnemySide==Side_Left)?( 127):(-127);
+			ucmd.rightmove = (EnemySide==ESide::Side_Left)?( 127):(-127);
 		}
 		else
 		{
-			if (NPC->client->ps.weapon!=WP_NONE)
+			if (NPC->client->ps.weapon!=weapon_t::WP_NONE)
 			{
-				NPC_ChangeWeapon(WP_NONE);
+				NPC_ChangeWeapon(weapon_t::WP_NONE);
 			}
 		}
 	}
 	else
 	{
-		if (NPC->client->ps.weapon!=WP_NONE)
+		if (NPC->client->ps.weapon!=weapon_t::WP_NONE)
 		{
-			NPC_ChangeWeapon(WP_NONE);
+			NPC_ChangeWeapon(weapon_t::WP_NONE);
 		}
 	}
 

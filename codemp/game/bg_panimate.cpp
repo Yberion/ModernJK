@@ -55,12 +55,12 @@ bool BG_SaberStanceAnim( animNumber_t anim )
 {
 	switch ( anim )
 	{
-	case BOTH_STAND1://not really a saberstance anim, actually... "saber off" stance
-	case BOTH_STAND2://single-saber, medium style
-	case BOTH_SABERFAST_STANCE://single-saber, fast style
-	case BOTH_SABERSLOW_STANCE://single-saber, strong style
-	case BOTH_SABERSTAFF_STANCE://saber staff style
-	case BOTH_SABERDUAL_STANCE://dual saber style
+	case animNumber_t::BOTH_STAND1://not really a saberstance anim, actually... "saber off" stance
+	case animNumber_t::BOTH_STAND2://single-saber, medium style
+	case animNumber_t::BOTH_SABERFAST_STANCE://single-saber, fast style
+	case animNumber_t::BOTH_SABERSLOW_STANCE://single-saber, strong style
+	case animNumber_t::BOTH_SABERSTAFF_STANCE://saber staff style
+	case animNumber_t::BOTH_SABERDUAL_STANCE://dual saber style
 		return true;
 		break;
 	default:
@@ -73,18 +73,18 @@ bool BG_CrouchAnim( animNumber_t anim )
 {
 	switch ( anim )
 	{
-	case BOTH_SIT1:				//# Normal chair sit.
-	case BOTH_SIT2:				//# Lotus position.
-	case BOTH_SIT3:				//# Sitting in tired position: elbows on knees
-	case BOTH_CROUCH1:			//# Transition from standing to crouch
-	case BOTH_CROUCH1IDLE:		//# Crouching idle
-	case BOTH_CROUCH1WALK:		//# Walking while crouched
-	case BOTH_CROUCH1WALKBACK:	//# Walking while crouched
-	case BOTH_CROUCH2TOSTAND1:	//# going from crouch2 to stand1
-	case BOTH_CROUCH3:			//# Desann crouching down to Kyle (cin 9)
-	case BOTH_KNEES1:			//# Tavion on her knees
-	case BOTH_CROUCHATTACKBACK1://FIXME: not if in middle of anim?
-	case BOTH_ROLL_STAB:
+	case animNumber_t::BOTH_SIT1:				//# Normal chair sit.
+	case animNumber_t::BOTH_SIT2:				//# Lotus position.
+	case animNumber_t::BOTH_SIT3:				//# Sitting in tired position: elbows on knees
+	case animNumber_t::BOTH_CROUCH1:			//# Transition from standing to crouch
+	case animNumber_t::BOTH_CROUCH1IDLE:		//# Crouching idle
+	case animNumber_t::BOTH_CROUCH1WALK:		//# Walking while crouched
+	case animNumber_t::BOTH_CROUCH1WALKBACK:	//# Walking while crouched
+	case animNumber_t::BOTH_CROUCH2TOSTAND1:	//# going from crouch2 to stand1
+	case animNumber_t::BOTH_CROUCH3:			//# Desann crouching down to Kyle (cin 9)
+	case animNumber_t::BOTH_KNEES1:			//# Tavion on her knees
+	case animNumber_t::BOTH_CROUCHATTACKBACK1://FIXME: not if in middle of anim?
+	case animNumber_t::BOTH_ROLL_STAB:
 		return true;
 		break;
 	default:
@@ -97,44 +97,44 @@ bool BG_InSpecialJump( animNumber_t anim )
 {
 	switch ( (anim) )
 	{
-	case BOTH_WALL_RUN_RIGHT:
-	case BOTH_WALL_RUN_RIGHT_STOP:
-	case BOTH_WALL_RUN_RIGHT_FLIP:
-	case BOTH_WALL_RUN_LEFT:
-	case BOTH_WALL_RUN_LEFT_STOP:
-	case BOTH_WALL_RUN_LEFT_FLIP:
-	case BOTH_WALL_FLIP_RIGHT:
-	case BOTH_WALL_FLIP_LEFT:
-	case BOTH_FLIP_BACK1:
-	case BOTH_FLIP_BACK2:
-	case BOTH_FLIP_BACK3:
-	case BOTH_WALL_FLIP_BACK1:
-	case BOTH_BUTTERFLY_LEFT:
-	case BOTH_BUTTERFLY_RIGHT:
-	case BOTH_BUTTERFLY_FL1:
-	case BOTH_BUTTERFLY_FR1:
-	case BOTH_FJSS_TR_BL:
-	case BOTH_FJSS_TL_BR:
-	case BOTH_FORCELEAP2_T__B_:
-	case BOTH_JUMPFLIPSLASHDOWN1://#
-	case BOTH_JUMPFLIPSTABDOWN://#
-	case BOTH_JUMPATTACK6:
-	case BOTH_JUMPATTACK7:
-	case BOTH_ARIAL_LEFT:
-	case BOTH_ARIAL_RIGHT:
-	case BOTH_ARIAL_F1:
-	case BOTH_CARTWHEEL_LEFT:
-	case BOTH_CARTWHEEL_RIGHT:
+	case animNumber_t::BOTH_WALL_RUN_RIGHT:
+	case animNumber_t::BOTH_WALL_RUN_RIGHT_STOP:
+	case animNumber_t::BOTH_WALL_RUN_RIGHT_FLIP:
+	case animNumber_t::BOTH_WALL_RUN_LEFT:
+	case animNumber_t::BOTH_WALL_RUN_LEFT_STOP:
+	case animNumber_t::BOTH_WALL_RUN_LEFT_FLIP:
+	case animNumber_t::BOTH_WALL_FLIP_RIGHT:
+	case animNumber_t::BOTH_WALL_FLIP_LEFT:
+	case animNumber_t::BOTH_FLIP_BACK1:
+	case animNumber_t::BOTH_FLIP_BACK2:
+	case animNumber_t::BOTH_FLIP_BACK3:
+	case animNumber_t::BOTH_WALL_FLIP_BACK1:
+	case animNumber_t::BOTH_BUTTERFLY_LEFT:
+	case animNumber_t::BOTH_BUTTERFLY_RIGHT:
+	case animNumber_t::BOTH_BUTTERFLY_FL1:
+	case animNumber_t::BOTH_BUTTERFLY_FR1:
+	case animNumber_t::BOTH_FJSS_TR_BL:
+	case animNumber_t::BOTH_FJSS_TL_BR:
+	case animNumber_t::BOTH_FORCELEAP2_T__B_:
+	case animNumber_t::BOTH_JUMPFLIPSLASHDOWN1://#
+	case animNumber_t::BOTH_JUMPFLIPSTABDOWN://#
+	case animNumber_t::BOTH_JUMPATTACK6:
+	case animNumber_t::BOTH_JUMPATTACK7:
+	case animNumber_t::BOTH_ARIAL_LEFT:
+	case animNumber_t::BOTH_ARIAL_RIGHT:
+	case animNumber_t::BOTH_ARIAL_F1:
+	case animNumber_t::BOTH_CARTWHEEL_LEFT:
+	case animNumber_t::BOTH_CARTWHEEL_RIGHT:
 
-	case BOTH_FORCELONGLEAP_START:
-	case BOTH_FORCELONGLEAP_ATTACK:
-	case BOTH_FORCEWALLRUNFLIP_START:
-	case BOTH_FORCEWALLRUNFLIP_END:
-	case BOTH_FORCEWALLRUNFLIP_ALT:
-	case BOTH_FLIP_ATTACK7:
-	case BOTH_FLIP_HOLD7:
-	case BOTH_FLIP_LAND:
-	case BOTH_A7_SOULCAL:
+	case animNumber_t::BOTH_FORCELONGLEAP_START:
+	case animNumber_t::BOTH_FORCELONGLEAP_ATTACK:
+	case animNumber_t::BOTH_FORCEWALLRUNFLIP_START:
+	case animNumber_t::BOTH_FORCEWALLRUNFLIP_END:
+	case animNumber_t::BOTH_FORCEWALLRUNFLIP_ALT:
+	case animNumber_t::BOTH_FLIP_ATTACK7:
+	case animNumber_t::BOTH_FLIP_HOLD7:
+	case animNumber_t::BOTH_FLIP_LAND:
+	case animNumber_t::BOTH_A7_SOULCAL:
 		return true;
 	default:
 		break;
@@ -162,11 +162,11 @@ bool BG_InSaberStandAnim( animNumber_t anim )
 {
 	switch ( (anim) )
 	{
-	case BOTH_SABERFAST_STANCE:
-	case BOTH_STAND2:
-	case BOTH_SABERSLOW_STANCE:
-	case BOTH_SABERDUAL_STANCE:
-	case BOTH_SABERSTAFF_STANCE:
+	case animNumber_t::BOTH_SABERFAST_STANCE:
+	case animNumber_t::BOTH_STAND2:
+	case animNumber_t::BOTH_SABERSLOW_STANCE:
+	case animNumber_t::BOTH_SABERDUAL_STANCE:
+	case animNumber_t::BOTH_SABERSTAFF_STANCE:
 		return true;
 	default:
 		return false;
@@ -177,10 +177,10 @@ bool BG_InReboundJump( animNumber_t anim )
 {
 	switch ( anim )
 	{
-	case BOTH_FORCEWALLREBOUND_FORWARD:
-	case BOTH_FORCEWALLREBOUND_LEFT:
-	case BOTH_FORCEWALLREBOUND_BACK:
-	case BOTH_FORCEWALLREBOUND_RIGHT:
+	case animNumber_t::BOTH_FORCEWALLREBOUND_FORWARD:
+	case animNumber_t::BOTH_FORCEWALLREBOUND_LEFT:
+	case animNumber_t::BOTH_FORCEWALLREBOUND_BACK:
+	case animNumber_t::BOTH_FORCEWALLREBOUND_RIGHT:
 		return true;
 		break;
 	default:
@@ -193,10 +193,10 @@ bool BG_InReboundHold( animNumber_t anim )
 {
 	switch ( anim )
 	{
-	case BOTH_FORCEWALLHOLD_FORWARD:
-	case BOTH_FORCEWALLHOLD_LEFT:
-	case BOTH_FORCEWALLHOLD_BACK:
-	case BOTH_FORCEWALLHOLD_RIGHT:
+	case animNumber_t::BOTH_FORCEWALLHOLD_FORWARD:
+	case animNumber_t::BOTH_FORCEWALLHOLD_LEFT:
+	case animNumber_t::BOTH_FORCEWALLHOLD_BACK:
+	case animNumber_t::BOTH_FORCEWALLHOLD_RIGHT:
 		return true;
 		break;
 	default:
@@ -209,10 +209,10 @@ bool BG_InReboundRelease( animNumber_t anim )
 {
 	switch ( anim )
 	{
-	case BOTH_FORCEWALLRELEASE_FORWARD:
-	case BOTH_FORCEWALLRELEASE_LEFT:
-	case BOTH_FORCEWALLRELEASE_BACK:
-	case BOTH_FORCEWALLRELEASE_RIGHT:
+	case animNumber_t::BOTH_FORCEWALLRELEASE_FORWARD:
+	case animNumber_t::BOTH_FORCEWALLRELEASE_LEFT:
+	case animNumber_t::BOTH_FORCEWALLRELEASE_BACK:
+	case animNumber_t::BOTH_FORCEWALLRELEASE_RIGHT:
 		return true;
 		break;
 	default:
@@ -225,9 +225,9 @@ bool BG_InBackFlip( animNumber_t anim )
 {
 	switch ( anim )
 	{
-	case BOTH_FLIP_BACK1:
-	case BOTH_FLIP_BACK2:
-	case BOTH_FLIP_BACK3:
+	case animNumber_t::BOTH_FLIP_BACK1:
+	case animNumber_t::BOTH_FLIP_BACK2:
+	case animNumber_t::BOTH_FLIP_BACK3:
 		return true;
 		break;
 	default:
@@ -240,10 +240,10 @@ bool BG_DirectFlippingAnim( animNumber_t anim )
 {
 	switch ( (anim) )
 	{
-	case BOTH_FLIP_F:			//# Flip forward
-	case BOTH_FLIP_B:			//# Flip backwards
-	case BOTH_FLIP_L:			//# Flip left
-	case BOTH_FLIP_R:			//# Flip right
+	case animNumber_t::BOTH_FLIP_F:			//# Flip forward
+	case animNumber_t::BOTH_FLIP_B:			//# Flip backwards
+	case animNumber_t::BOTH_FLIP_L:			//# Flip left
+	case animNumber_t::BOTH_FLIP_R:			//# Flip right
 		return true;
 		break;
 	default:
@@ -255,7 +255,7 @@ bool BG_DirectFlippingAnim( animNumber_t anim )
 
 bool BG_SaberInAttackPure( saberMoveName_t move )
 {
-	if ( move >= LS_A_TL2BR && move <= LS_A_T2B )
+	if ( move >= saberMoveName_t::LS_A_TL2BR && move <= saberMoveName_t::LS_A_T2B )
 	{
 		return true;
 	}
@@ -263,63 +263,63 @@ bool BG_SaberInAttackPure( saberMoveName_t move )
 }
 bool BG_SaberInAttack( saberMoveName_t move )
 {
-	if ( move >= LS_A_TL2BR && move <= LS_A_T2B )
+	if ( move >= saberMoveName_t::LS_A_TL2BR && move <= saberMoveName_t::LS_A_T2B )
 	{
 		return true;
 	}
 	switch ( move )
 	{
-	case LS_A_BACK:
-	case LS_A_BACK_CR:
-	case LS_A_BACKSTAB:
-	case LS_ROLL_STAB:
-	case LS_A_LUNGE:
-	case LS_A_JUMP_T__B_:
-	case LS_A_FLIP_STAB:
-	case LS_A_FLIP_SLASH:
-	case LS_JUMPATTACK_DUAL:
-	case LS_JUMPATTACK_ARIAL_LEFT:
-	case LS_JUMPATTACK_ARIAL_RIGHT:
-	case LS_JUMPATTACK_CART_LEFT:
-	case LS_JUMPATTACK_CART_RIGHT:
-	case LS_JUMPATTACK_STAFF_LEFT:
-	case LS_JUMPATTACK_STAFF_RIGHT:
-	case LS_BUTTERFLY_LEFT:
-	case LS_BUTTERFLY_RIGHT:
-	case LS_A_BACKFLIP_ATK:
-	case LS_SPINATTACK_DUAL:
-	case LS_SPINATTACK:
-	case LS_LEAP_ATTACK:
-	case LS_SWOOP_ATTACK_RIGHT:
-	case LS_SWOOP_ATTACK_LEFT:
-	case LS_TAUNTAUN_ATTACK_RIGHT:
-	case LS_TAUNTAUN_ATTACK_LEFT:
-	case LS_KICK_F:
-	case LS_KICK_B:
-	case LS_KICK_R:
-	case LS_KICK_L:
-	case LS_KICK_S:
-	case LS_KICK_BF:
-	case LS_KICK_RL:
-	case LS_KICK_F_AIR:
-	case LS_KICK_B_AIR:
-	case LS_KICK_R_AIR:
-	case LS_KICK_L_AIR:
-	case LS_STABDOWN:
-	case LS_STABDOWN_STAFF:
-	case LS_STABDOWN_DUAL:
-	case LS_DUAL_SPIN_PROTECT:
-	case LS_STAFF_SOULCAL:
-	case LS_A1_SPECIAL:
-	case LS_A2_SPECIAL:
-	case LS_A3_SPECIAL:
-	case LS_UPSIDE_DOWN_ATTACK:
-	case LS_PULL_ATTACK_STAB:
-	case LS_PULL_ATTACK_SWING:
-	case LS_SPINATTACK_ALORA:
-	case LS_DUAL_FB:
-	case LS_DUAL_LR:
-	case LS_HILT_BASH:
+	case saberMoveName_t::LS_A_BACK:
+	case saberMoveName_t::LS_A_BACK_CR:
+	case saberMoveName_t::LS_A_BACKSTAB:
+	case saberMoveName_t::LS_ROLL_STAB:
+	case saberMoveName_t::LS_A_LUNGE:
+	case saberMoveName_t::LS_A_JUMP_T__B_:
+	case saberMoveName_t::LS_A_FLIP_STAB:
+	case saberMoveName_t::LS_A_FLIP_SLASH:
+	case saberMoveName_t::LS_JUMPATTACK_DUAL:
+	case saberMoveName_t::LS_JUMPATTACK_ARIAL_LEFT:
+	case saberMoveName_t::LS_JUMPATTACK_ARIAL_RIGHT:
+	case saberMoveName_t::LS_JUMPATTACK_CART_LEFT:
+	case saberMoveName_t::LS_JUMPATTACK_CART_RIGHT:
+	case saberMoveName_t::LS_JUMPATTACK_STAFF_LEFT:
+	case saberMoveName_t::LS_JUMPATTACK_STAFF_RIGHT:
+	case saberMoveName_t::LS_BUTTERFLY_LEFT:
+	case saberMoveName_t::LS_BUTTERFLY_RIGHT:
+	case saberMoveName_t::LS_A_BACKFLIP_ATK:
+	case saberMoveName_t::LS_SPINATTACK_DUAL:
+	case saberMoveName_t::LS_SPINATTACK:
+	case saberMoveName_t::LS_LEAP_ATTACK:
+	case saberMoveName_t::LS_SWOOP_ATTACK_RIGHT:
+	case saberMoveName_t::LS_SWOOP_ATTACK_LEFT:
+	case saberMoveName_t::LS_TAUNTAUN_ATTACK_RIGHT:
+	case saberMoveName_t::LS_TAUNTAUN_ATTACK_LEFT:
+	case saberMoveName_t::LS_KICK_F:
+	case saberMoveName_t::LS_KICK_B:
+	case saberMoveName_t::LS_KICK_R:
+	case saberMoveName_t::LS_KICK_L:
+	case saberMoveName_t::LS_KICK_S:
+	case saberMoveName_t::LS_KICK_BF:
+	case saberMoveName_t::LS_KICK_RL:
+	case saberMoveName_t::LS_KICK_F_AIR:
+	case saberMoveName_t::LS_KICK_B_AIR:
+	case saberMoveName_t::LS_KICK_R_AIR:
+	case saberMoveName_t::LS_KICK_L_AIR:
+	case saberMoveName_t::LS_STABDOWN:
+	case saberMoveName_t::LS_STABDOWN_STAFF:
+	case saberMoveName_t::LS_STABDOWN_DUAL:
+	case saberMoveName_t::LS_DUAL_SPIN_PROTECT:
+	case saberMoveName_t::LS_STAFF_SOULCAL:
+	case saberMoveName_t::LS_A1_SPECIAL:
+	case saberMoveName_t::LS_A2_SPECIAL:
+	case saberMoveName_t::LS_A3_SPECIAL:
+	case saberMoveName_t::LS_UPSIDE_DOWN_ATTACK:
+	case saberMoveName_t::LS_PULL_ATTACK_STAB:
+	case saberMoveName_t::LS_PULL_ATTACK_SWING:
+	case saberMoveName_t::LS_SPINATTACK_ALORA:
+	case saberMoveName_t::LS_DUAL_FB:
+	case saberMoveName_t::LS_DUAL_LR:
+	case saberMoveName_t::LS_HILT_BASH:
 		return true;
 		break;
 	default:
@@ -332,11 +332,11 @@ bool BG_SaberInKata( saberMoveName_t saberMove )
 {
 	switch ( saberMove )
 	{
-	case LS_A1_SPECIAL:
-	case LS_A2_SPECIAL:
-	case LS_A3_SPECIAL:
-	case LS_DUAL_SPIN_PROTECT:
-	case LS_STAFF_SOULCAL:
+	case saberMoveName_t::LS_A1_SPECIAL:
+	case saberMoveName_t::LS_A2_SPECIAL:
+	case saberMoveName_t::LS_A3_SPECIAL:
+	case saberMoveName_t::LS_DUAL_SPIN_PROTECT:
+	case saberMoveName_t::LS_STAFF_SOULCAL:
 		return true;
 	default:
 		break;
@@ -348,11 +348,11 @@ bool BG_InKataAnim(animNumber_t anim)
 {
 	switch (anim)
 	{
-	case BOTH_A6_SABERPROTECT:
-	case BOTH_A7_SOULCAL:
-	case BOTH_A1_SPECIAL:
-	case BOTH_A2_SPECIAL:
-	case BOTH_A3_SPECIAL:
+	case animNumber_t::BOTH_A6_SABERPROTECT:
+	case animNumber_t::BOTH_A7_SOULCAL:
+	case animNumber_t::BOTH_A1_SPECIAL:
+	case animNumber_t::BOTH_A2_SPECIAL:
+	case animNumber_t::BOTH_A3_SPECIAL:
 		return true;
 	default:
 		break;
@@ -364,57 +364,57 @@ bool BG_SaberInSpecial( saberMoveName_t move )
 {
 	switch( move )
 	{
-	case LS_A_BACK:
-	case LS_A_BACK_CR:
-	case LS_A_BACKSTAB:
-	case LS_ROLL_STAB:
-	case LS_A_LUNGE:
-	case LS_A_JUMP_T__B_:
-	case LS_A_FLIP_STAB:
-	case LS_A_FLIP_SLASH:
-	case LS_JUMPATTACK_DUAL:
-	case LS_JUMPATTACK_ARIAL_LEFT:
-	case LS_JUMPATTACK_ARIAL_RIGHT:
-	case LS_JUMPATTACK_CART_LEFT:
-	case LS_JUMPATTACK_CART_RIGHT:
-	case LS_JUMPATTACK_STAFF_LEFT:
-	case LS_JUMPATTACK_STAFF_RIGHT:
-	case LS_BUTTERFLY_LEFT:
-	case LS_BUTTERFLY_RIGHT:
-	case LS_A_BACKFLIP_ATK:
-	case LS_SPINATTACK_DUAL:
-	case LS_SPINATTACK:
-	case LS_LEAP_ATTACK:
-	case LS_SWOOP_ATTACK_RIGHT:
-	case LS_SWOOP_ATTACK_LEFT:
-	case LS_TAUNTAUN_ATTACK_RIGHT:
-	case LS_TAUNTAUN_ATTACK_LEFT:
-	case LS_KICK_F:
-	case LS_KICK_B:
-	case LS_KICK_R:
-	case LS_KICK_L:
-	case LS_KICK_S:
-	case LS_KICK_BF:
-	case LS_KICK_RL:
-	case LS_KICK_F_AIR:
-	case LS_KICK_B_AIR:
-	case LS_KICK_R_AIR:
-	case LS_KICK_L_AIR:
-	case LS_STABDOWN:
-	case LS_STABDOWN_STAFF:
-	case LS_STABDOWN_DUAL:
-	case LS_DUAL_SPIN_PROTECT:
-	case LS_STAFF_SOULCAL:
-	case LS_A1_SPECIAL:
-	case LS_A2_SPECIAL:
-	case LS_A3_SPECIAL:
-	case LS_UPSIDE_DOWN_ATTACK:
-	case LS_PULL_ATTACK_STAB:
-	case LS_PULL_ATTACK_SWING:
-	case LS_SPINATTACK_ALORA:
-	case LS_DUAL_FB:
-	case LS_DUAL_LR:
-	case LS_HILT_BASH:
+	case saberMoveName_t::LS_A_BACK:
+	case saberMoveName_t::LS_A_BACK_CR:
+	case saberMoveName_t::LS_A_BACKSTAB:
+	case saberMoveName_t::LS_ROLL_STAB:
+	case saberMoveName_t::LS_A_LUNGE:
+	case saberMoveName_t::LS_A_JUMP_T__B_:
+	case saberMoveName_t::LS_A_FLIP_STAB:
+	case saberMoveName_t::LS_A_FLIP_SLASH:
+	case saberMoveName_t::LS_JUMPATTACK_DUAL:
+	case saberMoveName_t::LS_JUMPATTACK_ARIAL_LEFT:
+	case saberMoveName_t::LS_JUMPATTACK_ARIAL_RIGHT:
+	case saberMoveName_t::LS_JUMPATTACK_CART_LEFT:
+	case saberMoveName_t::LS_JUMPATTACK_CART_RIGHT:
+	case saberMoveName_t::LS_JUMPATTACK_STAFF_LEFT:
+	case saberMoveName_t::LS_JUMPATTACK_STAFF_RIGHT:
+	case saberMoveName_t::LS_BUTTERFLY_LEFT:
+	case saberMoveName_t::LS_BUTTERFLY_RIGHT:
+	case saberMoveName_t::LS_A_BACKFLIP_ATK:
+	case saberMoveName_t::LS_SPINATTACK_DUAL:
+	case saberMoveName_t::LS_SPINATTACK:
+	case saberMoveName_t::LS_LEAP_ATTACK:
+	case saberMoveName_t::LS_SWOOP_ATTACK_RIGHT:
+	case saberMoveName_t::LS_SWOOP_ATTACK_LEFT:
+	case saberMoveName_t::LS_TAUNTAUN_ATTACK_RIGHT:
+	case saberMoveName_t::LS_TAUNTAUN_ATTACK_LEFT:
+	case saberMoveName_t::LS_KICK_F:
+	case saberMoveName_t::LS_KICK_B:
+	case saberMoveName_t::LS_KICK_R:
+	case saberMoveName_t::LS_KICK_L:
+	case saberMoveName_t::LS_KICK_S:
+	case saberMoveName_t::LS_KICK_BF:
+	case saberMoveName_t::LS_KICK_RL:
+	case saberMoveName_t::LS_KICK_F_AIR:
+	case saberMoveName_t::LS_KICK_B_AIR:
+	case saberMoveName_t::LS_KICK_R_AIR:
+	case saberMoveName_t::LS_KICK_L_AIR:
+	case saberMoveName_t::LS_STABDOWN:
+	case saberMoveName_t::LS_STABDOWN_STAFF:
+	case saberMoveName_t::LS_STABDOWN_DUAL:
+	case saberMoveName_t::LS_DUAL_SPIN_PROTECT:
+	case saberMoveName_t::LS_STAFF_SOULCAL:
+	case saberMoveName_t::LS_A1_SPECIAL:
+	case saberMoveName_t::LS_A2_SPECIAL:
+	case saberMoveName_t::LS_A3_SPECIAL:
+	case saberMoveName_t::LS_UPSIDE_DOWN_ATTACK:
+	case saberMoveName_t::LS_PULL_ATTACK_STAB:
+	case saberMoveName_t::LS_PULL_ATTACK_SWING:
+	case saberMoveName_t::LS_SPINATTACK_ALORA:
+	case saberMoveName_t::LS_DUAL_FB:
+	case saberMoveName_t::LS_DUAL_LR:
+	case saberMoveName_t::LS_HILT_BASH:
 		return true;
 	default:
 		break;
@@ -426,18 +426,18 @@ bool BG_KickMove( saberMoveName_t move )
 {
 	switch( move )
 	{
-	case LS_KICK_F:
-	case LS_KICK_B:
-	case LS_KICK_R:
-	case LS_KICK_L:
-	case LS_KICK_S:
-	case LS_KICK_BF:
-	case LS_KICK_RL:
-	case LS_KICK_F_AIR:
-	case LS_KICK_B_AIR:
-	case LS_KICK_R_AIR:
-	case LS_KICK_L_AIR:
-	case LS_HILT_BASH:
+	case saberMoveName_t::LS_KICK_F:
+	case saberMoveName_t::LS_KICK_B:
+	case saberMoveName_t::LS_KICK_R:
+	case saberMoveName_t::LS_KICK_L:
+	case saberMoveName_t::LS_KICK_S:
+	case saberMoveName_t::LS_KICK_BF:
+	case saberMoveName_t::LS_KICK_RL:
+	case saberMoveName_t::LS_KICK_F_AIR:
+	case saberMoveName_t::LS_KICK_B_AIR:
+	case saberMoveName_t::LS_KICK_R_AIR:
+	case saberMoveName_t::LS_KICK_L_AIR:
+	case saberMoveName_t::LS_HILT_BASH:
 		return true;
 	default:
 		break;
@@ -449,10 +449,10 @@ bool BG_SaberInIdle( saberMoveName_t move )
 {
 	switch ( move )
 	{
-	case LS_NONE:
-	case LS_READY:
-	case LS_DRAW:
-	case LS_PUTAWAY:
+	case saberMoveName_t::LS_NONE:
+	case saberMoveName_t::LS_READY:
+	case saberMoveName_t::LS_DRAW:
+	case saberMoveName_t::LS_PUTAWAY:
 		return true;
 		break;
 	default:
@@ -465,14 +465,14 @@ bool BG_InExtraDefenseSaberMove( saberMoveName_t move )
 {
 	switch ( move )
 	{
-	case LS_SPINATTACK_DUAL:
-	case LS_SPINATTACK:
-	case LS_DUAL_SPIN_PROTECT:
-	case LS_STAFF_SOULCAL:
-	case LS_A1_SPECIAL:
-	case LS_A2_SPECIAL:
-	case LS_A3_SPECIAL:
-	case LS_JUMPATTACK_DUAL:
+	case saberMoveName_t::LS_SPINATTACK_DUAL:
+	case saberMoveName_t::LS_SPINATTACK:
+	case saberMoveName_t::LS_DUAL_SPIN_PROTECT:
+	case saberMoveName_t::LS_STAFF_SOULCAL:
+	case saberMoveName_t::LS_A1_SPECIAL:
+	case saberMoveName_t::LS_A2_SPECIAL:
+	case saberMoveName_t::LS_A3_SPECIAL:
+	case saberMoveName_t::LS_JUMPATTACK_DUAL:
 		return true;
 		break;
 	default:
@@ -485,42 +485,42 @@ bool BG_FlippingAnim( animNumber_t anim )
 {
 	switch ( anim )
 	{
-	case BOTH_FLIP_F:			//# Flip forward
-	case BOTH_FLIP_B:			//# Flip backwards
-	case BOTH_FLIP_L:			//# Flip left
-	case BOTH_FLIP_R:			//# Flip right
-	case BOTH_WALL_RUN_RIGHT_FLIP:
-	case BOTH_WALL_RUN_LEFT_FLIP:
-	case BOTH_WALL_FLIP_RIGHT:
-	case BOTH_WALL_FLIP_LEFT:
-	case BOTH_FLIP_BACK1:
-	case BOTH_FLIP_BACK2:
-	case BOTH_FLIP_BACK3:
-	case BOTH_WALL_FLIP_BACK1:
+	case animNumber_t::BOTH_FLIP_F:			//# Flip forward
+	case animNumber_t::BOTH_FLIP_B:			//# Flip backwards
+	case animNumber_t::BOTH_FLIP_L:			//# Flip left
+	case animNumber_t::BOTH_FLIP_R:			//# Flip right
+	case animNumber_t::BOTH_WALL_RUN_RIGHT_FLIP:
+	case animNumber_t::BOTH_WALL_RUN_LEFT_FLIP:
+	case animNumber_t::BOTH_WALL_FLIP_RIGHT:
+	case animNumber_t::BOTH_WALL_FLIP_LEFT:
+	case animNumber_t::BOTH_FLIP_BACK1:
+	case animNumber_t::BOTH_FLIP_BACK2:
+	case animNumber_t::BOTH_FLIP_BACK3:
+	case animNumber_t::BOTH_WALL_FLIP_BACK1:
 	//Not really flips, but...
-	case BOTH_WALL_RUN_RIGHT:
-	case BOTH_WALL_RUN_LEFT:
-	case BOTH_WALL_RUN_RIGHT_STOP:
-	case BOTH_WALL_RUN_LEFT_STOP:
-	case BOTH_BUTTERFLY_LEFT:
-	case BOTH_BUTTERFLY_RIGHT:
-	case BOTH_BUTTERFLY_FL1:
-	case BOTH_BUTTERFLY_FR1:
+	case animNumber_t::BOTH_WALL_RUN_RIGHT:
+	case animNumber_t::BOTH_WALL_RUN_LEFT:
+	case animNumber_t::BOTH_WALL_RUN_RIGHT_STOP:
+	case animNumber_t::BOTH_WALL_RUN_LEFT_STOP:
+	case animNumber_t::BOTH_BUTTERFLY_LEFT:
+	case animNumber_t::BOTH_BUTTERFLY_RIGHT:
+	case animNumber_t::BOTH_BUTTERFLY_FL1:
+	case animNumber_t::BOTH_BUTTERFLY_FR1:
 	//
-	case BOTH_ARIAL_LEFT:
-	case BOTH_ARIAL_RIGHT:
-	case BOTH_ARIAL_F1:
-	case BOTH_CARTWHEEL_LEFT:
-	case BOTH_CARTWHEEL_RIGHT:
-	case BOTH_JUMPFLIPSLASHDOWN1:
-	case BOTH_JUMPFLIPSTABDOWN:
-	case BOTH_JUMPATTACK6:
-	case BOTH_JUMPATTACK7:
+	case animNumber_t::BOTH_ARIAL_LEFT:
+	case animNumber_t::BOTH_ARIAL_RIGHT:
+	case animNumber_t::BOTH_ARIAL_F1:
+	case animNumber_t::BOTH_CARTWHEEL_LEFT:
+	case animNumber_t::BOTH_CARTWHEEL_RIGHT:
+	case animNumber_t::BOTH_JUMPFLIPSLASHDOWN1:
+	case animNumber_t::BOTH_JUMPFLIPSTABDOWN:
+	case animNumber_t::BOTH_JUMPATTACK6:
+	case animNumber_t::BOTH_JUMPATTACK7:
 	//JKA
-	case BOTH_FORCEWALLRUNFLIP_END:
-	case BOTH_FORCEWALLRUNFLIP_ALT:
-	case BOTH_FLIP_ATTACK7:
-	case BOTH_A7_SOULCAL:
+	case animNumber_t::BOTH_FORCEWALLRUNFLIP_END:
+	case animNumber_t::BOTH_FORCEWALLRUNFLIP_ALT:
+	case animNumber_t::BOTH_FLIP_ATTACK7:
+	case animNumber_t::BOTH_A7_SOULCAL:
 		return true;
 		break;
 	default:
@@ -534,103 +534,103 @@ bool BG_SpinningSaberAnim( animNumber_t anim )
 	switch ( anim )
 	{
 	//level 1 - FIXME: level 1 will have *no* spins
-	case BOTH_T1_BR_BL:
-	case BOTH_T1__R__L:
-	case BOTH_T1__R_BL:
-	case BOTH_T1_TR_BL:
-	case BOTH_T1_BR_TL:
-	case BOTH_T1_BR__L:
-	case BOTH_T1_TL_BR:
-	case BOTH_T1__L_BR:
-	case BOTH_T1__L__R:
-	case BOTH_T1_BL_BR:
-	case BOTH_T1_BL__R:
-	case BOTH_T1_BL_TR:
+	case animNumber_t::BOTH_T1_BR_BL:
+	case animNumber_t::BOTH_T1__R__L:
+	case animNumber_t::BOTH_T1__R_BL:
+	case animNumber_t::BOTH_T1_TR_BL:
+	case animNumber_t::BOTH_T1_BR_TL:
+	case animNumber_t::BOTH_T1_BR__L:
+	case animNumber_t::BOTH_T1_TL_BR:
+	case animNumber_t::BOTH_T1__L_BR:
+	case animNumber_t::BOTH_T1__L__R:
+	case animNumber_t::BOTH_T1_BL_BR:
+	case animNumber_t::BOTH_T1_BL__R:
+	case animNumber_t::BOTH_T1_BL_TR:
 	//level 2
-	case BOTH_T2_BR__L:
-	case BOTH_T2_BR_BL:
-	case BOTH_T2__R_BL:
-	case BOTH_T2__L_BR:
-	case BOTH_T2_BL_BR:
-	case BOTH_T2_BL__R:
+	case animNumber_t::BOTH_T2_BR__L:
+	case animNumber_t::BOTH_T2_BR_BL:
+	case animNumber_t::BOTH_T2__R_BL:
+	case animNumber_t::BOTH_T2__L_BR:
+	case animNumber_t::BOTH_T2_BL_BR:
+	case animNumber_t::BOTH_T2_BL__R:
 	//level 3
-	case BOTH_T3_BR__L:
-	case BOTH_T3_BR_BL:
-	case BOTH_T3__R_BL:
-	case BOTH_T3__L_BR:
-	case BOTH_T3_BL_BR:
-	case BOTH_T3_BL__R:
+	case animNumber_t::BOTH_T3_BR__L:
+	case animNumber_t::BOTH_T3_BR_BL:
+	case animNumber_t::BOTH_T3__R_BL:
+	case animNumber_t::BOTH_T3__L_BR:
+	case animNumber_t::BOTH_T3_BL_BR:
+	case animNumber_t::BOTH_T3_BL__R:
 	//level 4
-	case BOTH_T4_BR__L:
-	case BOTH_T4_BR_BL:
-	case BOTH_T4__R_BL:
-	case BOTH_T4__L_BR:
-	case BOTH_T4_BL_BR:
-	case BOTH_T4_BL__R:
+	case animNumber_t::BOTH_T4_BR__L:
+	case animNumber_t::BOTH_T4_BR_BL:
+	case animNumber_t::BOTH_T4__R_BL:
+	case animNumber_t::BOTH_T4__L_BR:
+	case animNumber_t::BOTH_T4_BL_BR:
+	case animNumber_t::BOTH_T4_BL__R:
 	//level 5
-	case BOTH_T5_BR_BL:
-	case BOTH_T5__R__L:
-	case BOTH_T5__R_BL:
-	case BOTH_T5_TR_BL:
-	case BOTH_T5_BR_TL:
-	case BOTH_T5_BR__L:
-	case BOTH_T5_TL_BR:
-	case BOTH_T5__L_BR:
-	case BOTH_T5__L__R:
-	case BOTH_T5_BL_BR:
-	case BOTH_T5_BL__R:
-	case BOTH_T5_BL_TR:
+	case animNumber_t::BOTH_T5_BR_BL:
+	case animNumber_t::BOTH_T5__R__L:
+	case animNumber_t::BOTH_T5__R_BL:
+	case animNumber_t::BOTH_T5_TR_BL:
+	case animNumber_t::BOTH_T5_BR_TL:
+	case animNumber_t::BOTH_T5_BR__L:
+	case animNumber_t::BOTH_T5_TL_BR:
+	case animNumber_t::BOTH_T5__L_BR:
+	case animNumber_t::BOTH_T5__L__R:
+	case animNumber_t::BOTH_T5_BL_BR:
+	case animNumber_t::BOTH_T5_BL__R:
+	case animNumber_t::BOTH_T5_BL_TR:
 	//level 6
-	case BOTH_T6_BR_TL:
-	case BOTH_T6__R_TL:
-	case BOTH_T6__R__L:
-	case BOTH_T6__R_BL:
-	case BOTH_T6_TR_TL:
-	case BOTH_T6_TR__L:
-	case BOTH_T6_TR_BL:
-	case BOTH_T6_T__TL:
-	case BOTH_T6_T__BL:
-	case BOTH_T6_TL_BR:
-	case BOTH_T6__L_BR:
-	case BOTH_T6__L__R:
-	case BOTH_T6_TL__R:
-	case BOTH_T6_TL_TR:
-	case BOTH_T6__L_TR:
-	case BOTH_T6__L_T_:
-	case BOTH_T6_BL_T_:
-	case BOTH_T6_BR__L:
-	case BOTH_T6_BR_BL:
-	case BOTH_T6_BL_BR:
-	case BOTH_T6_BL__R:
-	case BOTH_T6_BL_TR:
+	case animNumber_t::BOTH_T6_BR_TL:
+	case animNumber_t::BOTH_T6__R_TL:
+	case animNumber_t::BOTH_T6__R__L:
+	case animNumber_t::BOTH_T6__R_BL:
+	case animNumber_t::BOTH_T6_TR_TL:
+	case animNumber_t::BOTH_T6_TR__L:
+	case animNumber_t::BOTH_T6_TR_BL:
+	case animNumber_t::BOTH_T6_T__TL:
+	case animNumber_t::BOTH_T6_T__BL:
+	case animNumber_t::BOTH_T6_TL_BR:
+	case animNumber_t::BOTH_T6__L_BR:
+	case animNumber_t::BOTH_T6__L__R:
+	case animNumber_t::BOTH_T6_TL__R:
+	case animNumber_t::BOTH_T6_TL_TR:
+	case animNumber_t::BOTH_T6__L_TR:
+	case animNumber_t::BOTH_T6__L_T_:
+	case animNumber_t::BOTH_T6_BL_T_:
+	case animNumber_t::BOTH_T6_BR__L:
+	case animNumber_t::BOTH_T6_BR_BL:
+	case animNumber_t::BOTH_T6_BL_BR:
+	case animNumber_t::BOTH_T6_BL__R:
+	case animNumber_t::BOTH_T6_BL_TR:
 	//level 7
-	case BOTH_T7_BR_TL:
-	case BOTH_T7_BR__L:
-	case BOTH_T7_BR_BL:
-	case BOTH_T7__R__L:
-	case BOTH_T7__R_BL:
-	case BOTH_T7_TR__L:
-	case BOTH_T7_T___R:
-	case BOTH_T7_TL_BR:
-	case BOTH_T7__L_BR:
-	case BOTH_T7__L__R:
-	case BOTH_T7_BL_BR:
-	case BOTH_T7_BL__R:
-	case BOTH_T7_BL_TR:
-	case BOTH_T7_TL_TR:
-	case BOTH_T7_T__BR:
-	case BOTH_T7__L_TR:
-	case BOTH_V7_BL_S7:
+	case animNumber_t::BOTH_T7_BR_TL:
+	case animNumber_t::BOTH_T7_BR__L:
+	case animNumber_t::BOTH_T7_BR_BL:
+	case animNumber_t::BOTH_T7__R__L:
+	case animNumber_t::BOTH_T7__R_BL:
+	case animNumber_t::BOTH_T7_TR__L:
+	case animNumber_t::BOTH_T7_T___R:
+	case animNumber_t::BOTH_T7_TL_BR:
+	case animNumber_t::BOTH_T7__L_BR:
+	case animNumber_t::BOTH_T7__L__R:
+	case animNumber_t::BOTH_T7_BL_BR:
+	case animNumber_t::BOTH_T7_BL__R:
+	case animNumber_t::BOTH_T7_BL_TR:
+	case animNumber_t::BOTH_T7_TL_TR:
+	case animNumber_t::BOTH_T7_T__BR:
+	case animNumber_t::BOTH_T7__L_TR:
+	case animNumber_t::BOTH_V7_BL_S7:
 	//special
-	//case BOTH_A2_STABBACK1:
-	case BOTH_ATTACK_BACK:
-	case BOTH_CROUCHATTACKBACK1:
-	case BOTH_BUTTERFLY_LEFT:
-	case BOTH_BUTTERFLY_RIGHT:
-	case BOTH_FJSS_TR_BL:
-	case BOTH_FJSS_TL_BR:
-	case BOTH_JUMPFLIPSLASHDOWN1:
-	case BOTH_JUMPFLIPSTABDOWN:
+	//case animNumber_t::BOTH_A2_STABBACK1:
+	case animNumber_t::BOTH_ATTACK_BACK:
+	case animNumber_t::BOTH_CROUCHATTACKBACK1:
+	case animNumber_t::BOTH_BUTTERFLY_LEFT:
+	case animNumber_t::BOTH_BUTTERFLY_RIGHT:
+	case animNumber_t::BOTH_FJSS_TR_BL:
+	case animNumber_t::BOTH_FJSS_TL_BR:
+	case animNumber_t::BOTH_JUMPFLIPSLASHDOWN1:
+	case animNumber_t::BOTH_JUMPFLIPSTABDOWN:
 		return true;
 		break;
 	default:
@@ -643,55 +643,55 @@ bool BG_SaberInSpecialAttack( animNumber_t anim )
 {
 	switch ( anim )
 	{
-	case BOTH_A2_STABBACK1:
-	case BOTH_ATTACK_BACK:
-	case BOTH_CROUCHATTACKBACK1:
-	case BOTH_ROLL_STAB:
-	case BOTH_BUTTERFLY_LEFT:
-	case BOTH_BUTTERFLY_RIGHT:
-	case BOTH_BUTTERFLY_FL1:
-	case BOTH_BUTTERFLY_FR1:
-	case BOTH_FJSS_TR_BL:
-	case BOTH_FJSS_TL_BR:
-	case BOTH_LUNGE2_B__T_:
-	case BOTH_FORCELEAP2_T__B_:
-	case BOTH_JUMPFLIPSLASHDOWN1://#
-	case BOTH_JUMPFLIPSTABDOWN://#
-	case BOTH_JUMPATTACK6:
-	case BOTH_JUMPATTACK7:
-	case BOTH_SPINATTACK6:
-	case BOTH_SPINATTACK7:
-	case BOTH_FORCELONGLEAP_ATTACK:
-	case BOTH_VS_ATR_S:
-	case BOTH_VS_ATL_S:
-	case BOTH_VT_ATR_S:
-	case BOTH_VT_ATL_S:
-	case BOTH_A7_KICK_F:
-	case BOTH_A7_KICK_B:
-	case BOTH_A7_KICK_R:
-	case BOTH_A7_KICK_L:
-	case BOTH_A7_KICK_S:
-	case BOTH_A7_KICK_BF:
-	case BOTH_A7_KICK_RL:
-	case BOTH_A7_KICK_F_AIR:
-	case BOTH_A7_KICK_B_AIR:
-	case BOTH_A7_KICK_R_AIR:
-	case BOTH_A7_KICK_L_AIR:
-	case BOTH_STABDOWN:
-	case BOTH_STABDOWN_STAFF:
-	case BOTH_STABDOWN_DUAL:
-	case BOTH_A6_SABERPROTECT:
-	case BOTH_A7_SOULCAL:
-	case BOTH_A1_SPECIAL:
-	case BOTH_A2_SPECIAL:
-	case BOTH_A3_SPECIAL:
-	case BOTH_FLIP_ATTACK7:
-	case BOTH_PULL_IMPALE_STAB:
-	case BOTH_PULL_IMPALE_SWING:
-	case BOTH_ALORA_SPIN_SLASH:
-	case BOTH_A6_FB:
-	case BOTH_A6_LR:
-	case BOTH_A7_HILT:
+	case animNumber_t::BOTH_A2_STABBACK1:
+	case animNumber_t::BOTH_ATTACK_BACK:
+	case animNumber_t::BOTH_CROUCHATTACKBACK1:
+	case animNumber_t::BOTH_ROLL_STAB:
+	case animNumber_t::BOTH_BUTTERFLY_LEFT:
+	case animNumber_t::BOTH_BUTTERFLY_RIGHT:
+	case animNumber_t::BOTH_BUTTERFLY_FL1:
+	case animNumber_t::BOTH_BUTTERFLY_FR1:
+	case animNumber_t::BOTH_FJSS_TR_BL:
+	case animNumber_t::BOTH_FJSS_TL_BR:
+	case animNumber_t::BOTH_LUNGE2_B__T_:
+	case animNumber_t::BOTH_FORCELEAP2_T__B_:
+	case animNumber_t::BOTH_JUMPFLIPSLASHDOWN1://#
+	case animNumber_t::BOTH_JUMPFLIPSTABDOWN://#
+	case animNumber_t::BOTH_JUMPATTACK6:
+	case animNumber_t::BOTH_JUMPATTACK7:
+	case animNumber_t::BOTH_SPINATTACK6:
+	case animNumber_t::BOTH_SPINATTACK7:
+	case animNumber_t::BOTH_FORCELONGLEAP_ATTACK:
+	case animNumber_t::BOTH_VS_ATR_S:
+	case animNumber_t::BOTH_VS_ATL_S:
+	case animNumber_t::BOTH_VT_ATR_S:
+	case animNumber_t::BOTH_VT_ATL_S:
+	case animNumber_t::BOTH_A7_KICK_F:
+	case animNumber_t::BOTH_A7_KICK_B:
+	case animNumber_t::BOTH_A7_KICK_R:
+	case animNumber_t::BOTH_A7_KICK_L:
+	case animNumber_t::BOTH_A7_KICK_S:
+	case animNumber_t::BOTH_A7_KICK_BF:
+	case animNumber_t::BOTH_A7_KICK_RL:
+	case animNumber_t::BOTH_A7_KICK_F_AIR:
+	case animNumber_t::BOTH_A7_KICK_B_AIR:
+	case animNumber_t::BOTH_A7_KICK_R_AIR:
+	case animNumber_t::BOTH_A7_KICK_L_AIR:
+	case animNumber_t::BOTH_STABDOWN:
+	case animNumber_t::BOTH_STABDOWN_STAFF:
+	case animNumber_t::BOTH_STABDOWN_DUAL:
+	case animNumber_t::BOTH_A6_SABERPROTECT:
+	case animNumber_t::BOTH_A7_SOULCAL:
+	case animNumber_t::BOTH_A1_SPECIAL:
+	case animNumber_t::BOTH_A2_SPECIAL:
+	case animNumber_t::BOTH_A3_SPECIAL:
+	case animNumber_t::BOTH_FLIP_ATTACK7:
+	case animNumber_t::BOTH_PULL_IMPALE_STAB:
+	case animNumber_t::BOTH_PULL_IMPALE_SWING:
+	case animNumber_t::BOTH_ALORA_SPIN_SLASH:
+	case animNumber_t::BOTH_A6_FB:
+	case animNumber_t::BOTH_A6_LR:
+	case animNumber_t::BOTH_A7_HILT:
 		return true;
 	default:
 		break;
@@ -703,23 +703,23 @@ bool BG_KickingAnim( animNumber_t anim )
 {
 	switch ( anim )
 	{
-	case BOTH_A7_KICK_F:
-	case BOTH_A7_KICK_B:
-	case BOTH_A7_KICK_R:
-	case BOTH_A7_KICK_L:
-	case BOTH_A7_KICK_S:
-	case BOTH_A7_KICK_BF:
-	case BOTH_A7_KICK_RL:
-	case BOTH_A7_KICK_F_AIR:
-	case BOTH_A7_KICK_B_AIR:
-	case BOTH_A7_KICK_R_AIR:
-	case BOTH_A7_KICK_L_AIR:
-	case BOTH_A7_HILT:
+	case animNumber_t::BOTH_A7_KICK_F:
+	case animNumber_t::BOTH_A7_KICK_B:
+	case animNumber_t::BOTH_A7_KICK_R:
+	case animNumber_t::BOTH_A7_KICK_L:
+	case animNumber_t::BOTH_A7_KICK_S:
+	case animNumber_t::BOTH_A7_KICK_BF:
+	case animNumber_t::BOTH_A7_KICK_RL:
+	case animNumber_t::BOTH_A7_KICK_F_AIR:
+	case animNumber_t::BOTH_A7_KICK_B_AIR:
+	case animNumber_t::BOTH_A7_KICK_R_AIR:
+	case animNumber_t::BOTH_A7_KICK_L_AIR:
+	case animNumber_t::BOTH_A7_HILT:
 	//NOT kicks, but do kick traces anyway
-	case BOTH_GETUP_BROLL_B:
-	case BOTH_GETUP_BROLL_F:
-	case BOTH_GETUP_FROLL_B:
-	case BOTH_GETUP_FROLL_F:
+	case animNumber_t::BOTH_GETUP_BROLL_B:
+	case animNumber_t::BOTH_GETUP_BROLL_F:
+	case animNumber_t::BOTH_GETUP_FROLL_B:
+	case animNumber_t::BOTH_GETUP_FROLL_F:
 		return true;
 		break;
 	default:
@@ -732,15 +732,15 @@ int BG_InGrappleMove(animNumber_t anim)
 {
 	switch (anim)
 	{
-	case BOTH_KYLE_GRAB:
-	case BOTH_KYLE_MISS:
+	case animNumber_t::BOTH_KYLE_GRAB:
+	case animNumber_t::BOTH_KYLE_MISS:
 		return 1; //grabbing at someone
-	case BOTH_KYLE_PA_1:
-	case BOTH_KYLE_PA_2:
+	case animNumber_t::BOTH_KYLE_PA_1:
+	case animNumber_t::BOTH_KYLE_PA_2:
 		return 2; //beating the shit out of someone
-	case BOTH_PLAYER_PA_1:
-	case BOTH_PLAYER_PA_2:
-	case BOTH_PLAYER_PA_FLY:
+	case animNumber_t::BOTH_PLAYER_PA_1:
+	case animNumber_t::BOTH_PLAYER_PA_2:
+	case animNumber_t::BOTH_PLAYER_PA_FLY:
 		return 3; //getting the shit beaten out of you
 		break;
 	default:
@@ -757,34 +757,34 @@ saberMoveName_t BG_BrokenParryForAttack( saberMoveName_t move )
 	//FIXME: need to know which side of the saber was hit!  For now, we presume the saber gets knocked away from the center
 	switch ( saberMoveData[move].startQuad )
 	{
-	case Q_B:
-		return LS_V1_B_;
+	case saberQuadrant_t::Q_B:
+		return saberMoveName_t::LS_V1_B_;
 		break;
-	case Q_BR:
-		return LS_V1_BR;
+	case saberQuadrant_t::Q_BR:
+		return saberMoveName_t::LS_V1_BR;
 		break;
-	case Q_R:
-		return LS_V1__R;
+	case saberQuadrant_t::Q_R:
+		return saberMoveName_t::LS_V1__R;
 		break;
-	case Q_TR:
-		return LS_V1_TR;
+	case saberQuadrant_t::Q_TR:
+		return saberMoveName_t::LS_V1_TR;
 		break;
-	case Q_T:
-		return LS_V1_T_;
+	case saberQuadrant_t::Q_T:
+		return saberMoveName_t::LS_V1_T_;
 		break;
-	case Q_TL:
-		return LS_V1_TL;
+	case saberQuadrant_t::Q_TL:
+		return saberMoveName_t::LS_V1_TL;
 		break;
-	case Q_L:
-		return LS_V1__L;
+	case saberQuadrant_t::Q_L:
+		return saberMoveName_t::LS_V1__L;
 		break;
-	case Q_BL:
-		return LS_V1_BL;
+	case saberQuadrant_t::Q_BL:
+		return saberMoveName_t::LS_V1_BL;
 		break;
 	default:
 		break;
 	}
-	return LS_NONE;
+	return saberMoveName_t::LS_NONE;
 }
 
 saberMoveName_t BG_BrokenParryForParry( saberMoveName_t move )
@@ -793,36 +793,36 @@ saberMoveName_t BG_BrokenParryForParry( saberMoveName_t move )
 	//FIXME: need to know which side of the saber was hit!  For now, we presume the saber gets knocked away from the center
 	switch ( move )
 	{
-	case LS_PARRY_UP:
+	case saberMoveName_t::LS_PARRY_UP:
 		//Hmm... since we don't know what dir the hit came from, randomly pick knock down or knock back
 		if ( Q_irand( 0, 1 ) )
 		{
-			return LS_H1_B_;
+			return saberMoveName_t::LS_H1_B_;
 		}
 		else
 		{
-			return LS_H1_T_;
+			return saberMoveName_t::LS_H1_T_;
 		}
 		break;
-	case LS_PARRY_UR:
-		return LS_H1_TR;
+	case saberMoveName_t::LS_PARRY_UR:
+		return saberMoveName_t::LS_H1_TR;
 		break;
-	case LS_PARRY_UL:
-		return LS_H1_TL;
+	case saberMoveName_t::LS_PARRY_UL:
+		return saberMoveName_t::LS_H1_TL;
 		break;
-	case LS_PARRY_LR:
-		return LS_H1_BR;
+	case saberMoveName_t::LS_PARRY_LR:
+		return saberMoveName_t::LS_H1_BR;
 		break;
-	case LS_PARRY_LL:
-		return LS_H1_BL;
+	case saberMoveName_t::LS_PARRY_LL:
+		return saberMoveName_t::LS_H1_BL;
 		break;
-	case LS_READY:
-		return LS_H1_B_;//???
+	case saberMoveName_t::LS_READY:
+		return saberMoveName_t::LS_H1_B_;//???
 		break;
 	default:
 		break;
 	}
-	return LS_NONE;
+	return saberMoveName_t::LS_NONE;
 }
 
 saberMoveName_t BG_KnockawayForParry( saberBlockedType_t move )
@@ -831,42 +831,42 @@ saberMoveName_t BG_KnockawayForParry( saberBlockedType_t move )
 	//FIXME: need to know which side of the saber was hit!  For now, we presume the saber gets knocked away from the center
 	switch ( move )
 	{
-	case BLOCKED_TOP://LS_PARRY_UP:
-		return LS_K1_T_;//push up
+	case saberBlockedType_t::BLOCKED_TOP://LS_PARRY_UP:
+		return saberMoveName_t::LS_K1_T_;//push up
 		break;
-	case BLOCKED_UPPER_RIGHT://LS_PARRY_UR:
-	default://case LS_READY:
-		return LS_K1_TR;//push up, slightly to right
+	case saberBlockedType_t::BLOCKED_UPPER_RIGHT://LS_PARRY_UR:
+	default://case saberMoveName_t::LS_READY:
+		return saberMoveName_t::LS_K1_TR;//push up, slightly to right
 		break;
-	case BLOCKED_UPPER_LEFT://LS_PARRY_UL:
-		return LS_K1_TL;//push up and to left
+	case saberBlockedType_t::BLOCKED_UPPER_LEFT://LS_PARRY_UL:
+		return saberMoveName_t::LS_K1_TL;//push up and to left
 		break;
-	case BLOCKED_LOWER_RIGHT://LS_PARRY_LR:
-		return LS_K1_BR;//push down and to left
+	case saberBlockedType_t::BLOCKED_LOWER_RIGHT://LS_PARRY_LR:
+		return saberMoveName_t::LS_K1_BR;//push down and to left
 		break;
-	case BLOCKED_LOWER_LEFT://LS_PARRY_LL:
-		return LS_K1_BL;//push down and to right
+	case saberBlockedType_t::BLOCKED_LOWER_LEFT://LS_PARRY_LL:
+		return saberMoveName_t::LS_K1_BL;//push down and to right
 		break;
 	}
-	//return LS_NONE;
+	//return saberMoveName_t::LS_NONE;
 }
 
 bool BG_InRoll( playerState_t *ps, animNumber_t anim )
 {
 	switch ( (anim) )
 	{
-	case BOTH_GETUP_BROLL_B:
-	case BOTH_GETUP_BROLL_F:
-	case BOTH_GETUP_BROLL_L:
-	case BOTH_GETUP_BROLL_R:
-	case BOTH_GETUP_FROLL_B:
-	case BOTH_GETUP_FROLL_F:
-	case BOTH_GETUP_FROLL_L:
-	case BOTH_GETUP_FROLL_R:
-	case BOTH_ROLL_F:
-	case BOTH_ROLL_B:
-	case BOTH_ROLL_R:
-	case BOTH_ROLL_L:
+	case animNumber_t::BOTH_GETUP_BROLL_B:
+	case animNumber_t::BOTH_GETUP_BROLL_F:
+	case animNumber_t::BOTH_GETUP_BROLL_L:
+	case animNumber_t::BOTH_GETUP_BROLL_R:
+	case animNumber_t::BOTH_GETUP_FROLL_B:
+	case animNumber_t::BOTH_GETUP_FROLL_F:
+	case animNumber_t::BOTH_GETUP_FROLL_L:
+	case animNumber_t::BOTH_GETUP_FROLL_R:
+	case animNumber_t::BOTH_ROLL_F:
+	case animNumber_t::BOTH_ROLL_B:
+	case animNumber_t::BOTH_ROLL_R:
+	case animNumber_t::BOTH_ROLL_L:
 		if ( ps->legsTimer > 0 )
 		{
 			return true;
@@ -882,16 +882,16 @@ bool BG_InSpecialDeathAnim( animNumber_t anim )
 {
 	switch( anim )
 	{
-	case BOTH_DEATH_ROLL:		//# Death anim from a roll
-	case BOTH_DEATH_FLIP:		//# Death anim from a flip
-	case BOTH_DEATH_SPIN_90_R:	//# Death anim when facing 90 degrees right
-	case BOTH_DEATH_SPIN_90_L:	//# Death anim when facing 90 degrees left
-	case BOTH_DEATH_SPIN_180:	//# Death anim when facing backwards
-	case BOTH_DEATH_LYING_UP:	//# Death anim when lying on back
-	case BOTH_DEATH_LYING_DN:	//# Death anim when lying on front
-	case BOTH_DEATH_FALLING_DN:	//# Death anim when falling on face
-	case BOTH_DEATH_FALLING_UP:	//# Death anim when falling on back
-	case BOTH_DEATH_CROUCHED:	//# Death anim when crouched
+	case animNumber_t::BOTH_DEATH_ROLL:		//# Death anim from a roll
+	case animNumber_t::BOTH_DEATH_FLIP:		//# Death anim from a flip
+	case animNumber_t::BOTH_DEATH_SPIN_90_R:	//# Death anim when facing 90 degrees right
+	case animNumber_t::BOTH_DEATH_SPIN_90_L:	//# Death anim when facing 90 degrees left
+	case animNumber_t::BOTH_DEATH_SPIN_180:	//# Death anim when facing backwards
+	case animNumber_t::BOTH_DEATH_LYING_UP:	//# Death anim when lying on back
+	case animNumber_t::BOTH_DEATH_LYING_DN:	//# Death anim when lying on front
+	case animNumber_t::BOTH_DEATH_FALLING_DN:	//# Death anim when falling on face
+	case animNumber_t::BOTH_DEATH_FALLING_UP:	//# Death anim when falling on back
+	case animNumber_t::BOTH_DEATH_CROUCHED:	//# Death anim when crouched
 		return true;
 		break;
 	default:
@@ -904,88 +904,88 @@ bool BG_InDeathAnim ( animNumber_t anim )
 {//Purposely does not cover stumbledeath and falldeath...
 	switch( anim )
 	{
-	case BOTH_DEATH1:		//# First Death anim
-	case BOTH_DEATH2:			//# Second Death anim
-	case BOTH_DEATH3:			//# Third Death anim
-	case BOTH_DEATH4:			//# Fourth Death anim
-	case BOTH_DEATH5:			//# Fifth Death anim
-	case BOTH_DEATH6:			//# Sixth Death anim
-	case BOTH_DEATH7:			//# Seventh Death anim
-	case BOTH_DEATH8:			//#
-	case BOTH_DEATH9:			//#
-	case BOTH_DEATH10:			//#
-	case BOTH_DEATH11:			//#
-	case BOTH_DEATH12:			//#
-	case BOTH_DEATH13:			//#
-	case BOTH_DEATH14:			//#
-	case BOTH_DEATH14_UNGRIP:	//# Desann's end death (cin #35)
-	case BOTH_DEATH14_SITUP:		//# Tavion sitting up after having been thrown (cin #23)
-	case BOTH_DEATH15:			//#
-	case BOTH_DEATH16:			//#
-	case BOTH_DEATH17:			//#
-	case BOTH_DEATH18:			//#
-	case BOTH_DEATH19:			//#
-	case BOTH_DEATH20:			//#
-	case BOTH_DEATH21:			//#
-	case BOTH_DEATH22:			//#
-	case BOTH_DEATH23:			//#
-	case BOTH_DEATH24:			//#
-	case BOTH_DEATH25:			//#
+	case animNumber_t::BOTH_DEATH1:		//# First Death anim
+	case animNumber_t::BOTH_DEATH2:			//# Second Death anim
+	case animNumber_t::BOTH_DEATH3:			//# Third Death anim
+	case animNumber_t::BOTH_DEATH4:			//# Fourth Death anim
+	case animNumber_t::BOTH_DEATH5:			//# Fifth Death anim
+	case animNumber_t::BOTH_DEATH6:			//# Sixth Death anim
+	case animNumber_t::BOTH_DEATH7:			//# Seventh Death anim
+	case animNumber_t::BOTH_DEATH8:			//#
+	case animNumber_t::BOTH_DEATH9:			//#
+	case animNumber_t::BOTH_DEATH10:			//#
+	case animNumber_t::BOTH_DEATH11:			//#
+	case animNumber_t::BOTH_DEATH12:			//#
+	case animNumber_t::BOTH_DEATH13:			//#
+	case animNumber_t::BOTH_DEATH14:			//#
+	case animNumber_t::BOTH_DEATH14_UNGRIP:	//# Desann's end death (cin #35)
+	case animNumber_t::BOTH_DEATH14_SITUP:		//# Tavion sitting up after having been thrown (cin #23)
+	case animNumber_t::BOTH_DEATH15:			//#
+	case animNumber_t::BOTH_DEATH16:			//#
+	case animNumber_t::BOTH_DEATH17:			//#
+	case animNumber_t::BOTH_DEATH18:			//#
+	case animNumber_t::BOTH_DEATH19:			//#
+	case animNumber_t::BOTH_DEATH20:			//#
+	case animNumber_t::BOTH_DEATH21:			//#
+	case animNumber_t::BOTH_DEATH22:			//#
+	case animNumber_t::BOTH_DEATH23:			//#
+	case animNumber_t::BOTH_DEATH24:			//#
+	case animNumber_t::BOTH_DEATH25:			//#
 
-	case BOTH_DEATHFORWARD1:		//# First Death in which they get thrown forward
-	case BOTH_DEATHFORWARD2:		//# Second Death in which they get thrown forward
-	case BOTH_DEATHFORWARD3:		//# Tavion's falling in cin# 23
-	case BOTH_DEATHBACKWARD1:	//# First Death in which they get thrown backward
-	case BOTH_DEATHBACKWARD2:	//# Second Death in which they get thrown backward
+	case animNumber_t::BOTH_DEATHFORWARD1:		//# First Death in which they get thrown forward
+	case animNumber_t::BOTH_DEATHFORWARD2:		//# Second Death in which they get thrown forward
+	case animNumber_t::BOTH_DEATHFORWARD3:		//# Tavion's falling in cin# 23
+	case animNumber_t::BOTH_DEATHBACKWARD1:	//# First Death in which they get thrown backward
+	case animNumber_t::BOTH_DEATHBACKWARD2:	//# Second Death in which they get thrown backward
 
-	case BOTH_DEATH1IDLE:		//# Idle while close to death
-	case BOTH_LYINGDEATH1:		//# Death to play when killed lying down
-	case BOTH_STUMBLEDEATH1:		//# Stumble forward and fall face first death
-	case BOTH_FALLDEATH1:		//# Fall forward off a high cliff and splat death - start
-	case BOTH_FALLDEATH1INAIR:	//# Fall forward off a high cliff and splat death - loop
-	case BOTH_FALLDEATH1LAND:	//# Fall forward off a high cliff and splat death - hit bottom
+	case animNumber_t::BOTH_DEATH1IDLE:		//# Idle while close to death
+	case animNumber_t::BOTH_LYINGDEATH1:		//# Death to play when killed lying down
+	case animNumber_t::BOTH_STUMBLEDEATH1:		//# Stumble forward and fall face first death
+	case animNumber_t::BOTH_FALLDEATH1:		//# Fall forward off a high cliff and splat death - start
+	case animNumber_t::BOTH_FALLDEATH1INAIR:	//# Fall forward off a high cliff and splat death - loop
+	case animNumber_t::BOTH_FALLDEATH1LAND:	//# Fall forward off a high cliff and splat death - hit bottom
 	//# #sep case BOTH_ DEAD POSES # Should be last frame of corresponding previous anims
-	case BOTH_DEAD1:				//# First Death finished pose
-	case BOTH_DEAD2:				//# Second Death finished pose
-	case BOTH_DEAD3:				//# Third Death finished pose
-	case BOTH_DEAD4:				//# Fourth Death finished pose
-	case BOTH_DEAD5:				//# Fifth Death finished pose
-	case BOTH_DEAD6:				//# Sixth Death finished pose
-	case BOTH_DEAD7:				//# Seventh Death finished pose
-	case BOTH_DEAD8:				//#
-	case BOTH_DEAD9:				//#
-	case BOTH_DEAD10:			//#
-	case BOTH_DEAD11:			//#
-	case BOTH_DEAD12:			//#
-	case BOTH_DEAD13:			//#
-	case BOTH_DEAD14:			//#
-	case BOTH_DEAD15:			//#
-	case BOTH_DEAD16:			//#
-	case BOTH_DEAD17:			//#
-	case BOTH_DEAD18:			//#
-	case BOTH_DEAD19:			//#
-	case BOTH_DEAD20:			//#
-	case BOTH_DEAD21:			//#
-	case BOTH_DEAD22:			//#
-	case BOTH_DEAD23:			//#
-	case BOTH_DEAD24:			//#
-	case BOTH_DEAD25:			//#
-	case BOTH_DEADFORWARD1:		//# First thrown forward death finished pose
-	case BOTH_DEADFORWARD2:		//# Second thrown forward death finished pose
-	case BOTH_DEADBACKWARD1:		//# First thrown backward death finished pose
-	case BOTH_DEADBACKWARD2:		//# Second thrown backward death finished pose
-	case BOTH_LYINGDEAD1:		//# Killed lying down death finished pose
-	case BOTH_STUMBLEDEAD1:		//# Stumble forward death finished pose
-	case BOTH_FALLDEAD1LAND:		//# Fall forward and splat death finished pose
+	case animNumber_t::BOTH_DEAD1:				//# First Death finished pose
+	case animNumber_t::BOTH_DEAD2:				//# Second Death finished pose
+	case animNumber_t::BOTH_DEAD3:				//# Third Death finished pose
+	case animNumber_t::BOTH_DEAD4:				//# Fourth Death finished pose
+	case animNumber_t::BOTH_DEAD5:				//# Fifth Death finished pose
+	case animNumber_t::BOTH_DEAD6:				//# Sixth Death finished pose
+	case animNumber_t::BOTH_DEAD7:				//# Seventh Death finished pose
+	case animNumber_t::BOTH_DEAD8:				//#
+	case animNumber_t::BOTH_DEAD9:				//#
+	case animNumber_t::BOTH_DEAD10:			//#
+	case animNumber_t::BOTH_DEAD11:			//#
+	case animNumber_t::BOTH_DEAD12:			//#
+	case animNumber_t::BOTH_DEAD13:			//#
+	case animNumber_t::BOTH_DEAD14:			//#
+	case animNumber_t::BOTH_DEAD15:			//#
+	case animNumber_t::BOTH_DEAD16:			//#
+	case animNumber_t::BOTH_DEAD17:			//#
+	case animNumber_t::BOTH_DEAD18:			//#
+	case animNumber_t::BOTH_DEAD19:			//#
+	case animNumber_t::BOTH_DEAD20:			//#
+	case animNumber_t::BOTH_DEAD21:			//#
+	case animNumber_t::BOTH_DEAD22:			//#
+	case animNumber_t::BOTH_DEAD23:			//#
+	case animNumber_t::BOTH_DEAD24:			//#
+	case animNumber_t::BOTH_DEAD25:			//#
+	case animNumber_t::BOTH_DEADFORWARD1:		//# First thrown forward death finished pose
+	case animNumber_t::BOTH_DEADFORWARD2:		//# Second thrown forward death finished pose
+	case animNumber_t::BOTH_DEADBACKWARD1:		//# First thrown backward death finished pose
+	case animNumber_t::BOTH_DEADBACKWARD2:		//# Second thrown backward death finished pose
+	case animNumber_t::BOTH_LYINGDEAD1:		//# Killed lying down death finished pose
+	case animNumber_t::BOTH_STUMBLEDEAD1:		//# Stumble forward death finished pose
+	case animNumber_t::BOTH_FALLDEAD1LAND:		//# Fall forward and splat death finished pose
 	//# #sep case BOTH_ DEAD TWITCH/FLOP # React to being shot from death poses
-	case BOTH_DEADFLOP1:		//# React to being shot from First Death finished pose
-	case BOTH_DEADFLOP2:		//# React to being shot from Second Death finished pose
-	case BOTH_DISMEMBER_HEAD1:	//#
-	case BOTH_DISMEMBER_TORSO1:	//#
-	case BOTH_DISMEMBER_LLEG:	//#
-	case BOTH_DISMEMBER_RLEG:	//#
-	case BOTH_DISMEMBER_RARM:	//#
-	case BOTH_DISMEMBER_LARM:	//#
+	case animNumber_t::BOTH_DEADFLOP1:		//# React to being shot from First Death finished pose
+	case animNumber_t::BOTH_DEADFLOP2:		//# React to being shot from Second Death finished pose
+	case animNumber_t::BOTH_DISMEMBER_HEAD1:	//#
+	case animNumber_t::BOTH_DISMEMBER_TORSO1:	//#
+	case animNumber_t::BOTH_DISMEMBER_LLEG:	//#
+	case animNumber_t::BOTH_DISMEMBER_RLEG:	//#
+	case animNumber_t::BOTH_DISMEMBER_RARM:	//#
+	case animNumber_t::BOTH_DISMEMBER_LARM:	//#
 		return true;
 		break;
 	default:
@@ -998,11 +998,11 @@ bool BG_InKnockDownOnly( animNumber_t anim )
 {
 	switch ( anim )
 	{
-	case BOTH_KNOCKDOWN1:
-	case BOTH_KNOCKDOWN2:
-	case BOTH_KNOCKDOWN3:
-	case BOTH_KNOCKDOWN4:
-	case BOTH_KNOCKDOWN5:
+	case animNumber_t::BOTH_KNOCKDOWN1:
+	case animNumber_t::BOTH_KNOCKDOWN2:
+	case animNumber_t::BOTH_KNOCKDOWN3:
+	case animNumber_t::BOTH_KNOCKDOWN4:
+	case animNumber_t::BOTH_KNOCKDOWN5:
 		return true;
 	default:
 		break;
@@ -1014,10 +1014,10 @@ bool BG_InSaberLockOld( animNumber_t anim )
 {
 	switch ( anim )
 	{
-	case BOTH_BF2LOCK:
-	case BOTH_BF1LOCK:
-	case BOTH_CWCIRCLELOCK:
-	case BOTH_CCWCIRCLELOCK:
+	case animNumber_t::BOTH_BF2LOCK:
+	case animNumber_t::BOTH_BF1LOCK:
+	case animNumber_t::BOTH_CWCIRCLELOCK:
+	case animNumber_t::BOTH_CCWCIRCLELOCK:
 		return true;
 	default:
 		break;
@@ -1029,30 +1029,30 @@ bool BG_InSaberLock( animNumber_t anim )
 {
 	switch ( anim )
 	{
-	case BOTH_LK_S_DL_S_L_1:		//lock if I'm using single vs. a dual
-	case BOTH_LK_S_DL_T_L_1:		//lock if I'm using single vs. a dual
-	case BOTH_LK_S_ST_S_L_1:		//lock if I'm using single vs. a staff
-	case BOTH_LK_S_ST_T_L_1:		//lock if I'm using single vs. a staff
-	case BOTH_LK_S_S_S_L_1:		//lock if I'm using single vs. a single and I initiated
-	case BOTH_LK_S_S_T_L_1:		//lock if I'm using single vs. a single and I initiated
-	case BOTH_LK_DL_DL_S_L_1:	//lock if I'm using dual vs. dual and I initiated
-	case BOTH_LK_DL_DL_T_L_1:	//lock if I'm using dual vs. dual and I initiated
-	case BOTH_LK_DL_ST_S_L_1:	//lock if I'm using dual vs. a staff
-	case BOTH_LK_DL_ST_T_L_1:	//lock if I'm using dual vs. a staff
-	case BOTH_LK_DL_S_S_L_1:		//lock if I'm using dual vs. a single
-	case BOTH_LK_DL_S_T_L_1:		//lock if I'm using dual vs. a single
-	case BOTH_LK_ST_DL_S_L_1:	//lock if I'm using staff vs. dual
-	case BOTH_LK_ST_DL_T_L_1:	//lock if I'm using staff vs. dual
-	case BOTH_LK_ST_ST_S_L_1:	//lock if I'm using staff vs. a staff and I initiated
-	case BOTH_LK_ST_ST_T_L_1:	//lock if I'm using staff vs. a staff and I initiated
-	case BOTH_LK_ST_S_S_L_1:		//lock if I'm using staff vs. a single
-	case BOTH_LK_ST_S_T_L_1:		//lock if I'm using staff vs. a single
-	case BOTH_LK_S_S_S_L_2:
-	case BOTH_LK_S_S_T_L_2:
-	case BOTH_LK_DL_DL_S_L_2:
-	case BOTH_LK_DL_DL_T_L_2:
-	case BOTH_LK_ST_ST_S_L_2:
-	case BOTH_LK_ST_ST_T_L_2:
+	case animNumber_t::BOTH_LK_S_DL_S_L_1:		//lock if I'm using single vs. a dual
+	case animNumber_t::BOTH_LK_S_DL_T_L_1:		//lock if I'm using single vs. a dual
+	case animNumber_t::BOTH_LK_S_ST_S_L_1:		//lock if I'm using single vs. a staff
+	case animNumber_t::BOTH_LK_S_ST_T_L_1:		//lock if I'm using single vs. a staff
+	case animNumber_t::BOTH_LK_S_S_S_L_1:		//lock if I'm using single vs. a single and I initiated
+	case animNumber_t::BOTH_LK_S_S_T_L_1:		//lock if I'm using single vs. a single and I initiated
+	case animNumber_t::BOTH_LK_DL_DL_S_L_1:	//lock if I'm using dual vs. dual and I initiated
+	case animNumber_t::BOTH_LK_DL_DL_T_L_1:	//lock if I'm using dual vs. dual and I initiated
+	case animNumber_t::BOTH_LK_DL_ST_S_L_1:	//lock if I'm using dual vs. a staff
+	case animNumber_t::BOTH_LK_DL_ST_T_L_1:	//lock if I'm using dual vs. a staff
+	case animNumber_t::BOTH_LK_DL_S_S_L_1:		//lock if I'm using dual vs. a single
+	case animNumber_t::BOTH_LK_DL_S_T_L_1:		//lock if I'm using dual vs. a single
+	case animNumber_t::BOTH_LK_ST_DL_S_L_1:	//lock if I'm using staff vs. dual
+	case animNumber_t::BOTH_LK_ST_DL_T_L_1:	//lock if I'm using staff vs. dual
+	case animNumber_t::BOTH_LK_ST_ST_S_L_1:	//lock if I'm using staff vs. a staff and I initiated
+	case animNumber_t::BOTH_LK_ST_ST_T_L_1:	//lock if I'm using staff vs. a staff and I initiated
+	case animNumber_t::BOTH_LK_ST_S_S_L_1:		//lock if I'm using staff vs. a single
+	case animNumber_t::BOTH_LK_ST_S_T_L_1:		//lock if I'm using staff vs. a single
+	case animNumber_t::BOTH_LK_S_S_S_L_2:
+	case animNumber_t::BOTH_LK_S_S_T_L_2:
+	case animNumber_t::BOTH_LK_DL_DL_S_L_2:
+	case animNumber_t::BOTH_LK_DL_DL_T_L_2:
+	case animNumber_t::BOTH_LK_ST_ST_S_L_2:
+	case animNumber_t::BOTH_LK_ST_ST_T_L_2:
 		return true;
 		break;
 	default:
@@ -1067,11 +1067,11 @@ bool PM_InCartwheel( animNumber_t anim )
 {
 	switch ( anim )
 	{
-	case BOTH_ARIAL_LEFT:
-	case BOTH_ARIAL_RIGHT:
-	case BOTH_ARIAL_F1:
-	case BOTH_CARTWHEEL_LEFT:
-	case BOTH_CARTWHEEL_RIGHT:
+	case animNumber_t::BOTH_ARIAL_LEFT:
+	case animNumber_t::BOTH_ARIAL_RIGHT:
+	case animNumber_t::BOTH_ARIAL_F1:
+	case animNumber_t::BOTH_CARTWHEEL_LEFT:
+	case animNumber_t::BOTH_CARTWHEEL_RIGHT:
 		return true;
 		break;
 	default:
@@ -1084,57 +1084,57 @@ bool BG_InKnockDownOnGround( playerState_t *ps )
 {
 	switch ( ps->legsAnim )
 	{
-	case BOTH_KNOCKDOWN1:
-	case BOTH_KNOCKDOWN2:
-	case BOTH_KNOCKDOWN3:
-	case BOTH_KNOCKDOWN4:
-	case BOTH_KNOCKDOWN5:
-	case BOTH_RELEASED:
+	case animNumber_t::BOTH_KNOCKDOWN1:
+	case animNumber_t::BOTH_KNOCKDOWN2:
+	case animNumber_t::BOTH_KNOCKDOWN3:
+	case animNumber_t::BOTH_KNOCKDOWN4:
+	case animNumber_t::BOTH_KNOCKDOWN5:
+	case animNumber_t::BOTH_RELEASED:
 		//if ( PM_AnimLength( g_entities[ps->clientNum].client->clientInfo.animFileIndex, ps->legsAnim ) - ps->legsAnimTimer > 300 )
 		{//at end of fall down anim
 			return true;
 		}
 		break;
-	case BOTH_GETUP1:
-	case BOTH_GETUP2:
-	case BOTH_GETUP3:
-	case BOTH_GETUP4:
-	case BOTH_GETUP5:
-	case BOTH_GETUP_CROUCH_F1:
-	case BOTH_GETUP_CROUCH_B1:
-	case BOTH_FORCE_GETUP_F1:
-	case BOTH_FORCE_GETUP_F2:
-	case BOTH_FORCE_GETUP_B1:
-	case BOTH_FORCE_GETUP_B2:
-	case BOTH_FORCE_GETUP_B3:
-	case BOTH_FORCE_GETUP_B4:
-	case BOTH_FORCE_GETUP_B5:
-	case BOTH_FORCE_GETUP_B6:
+	case animNumber_t::BOTH_GETUP1:
+	case animNumber_t::BOTH_GETUP2:
+	case animNumber_t::BOTH_GETUP3:
+	case animNumber_t::BOTH_GETUP4:
+	case animNumber_t::BOTH_GETUP5:
+	case animNumber_t::BOTH_GETUP_CROUCH_F1:
+	case animNumber_t::BOTH_GETUP_CROUCH_B1:
+	case animNumber_t::BOTH_FORCE_GETUP_F1:
+	case animNumber_t::BOTH_FORCE_GETUP_F2:
+	case animNumber_t::BOTH_FORCE_GETUP_B1:
+	case animNumber_t::BOTH_FORCE_GETUP_B2:
+	case animNumber_t::BOTH_FORCE_GETUP_B3:
+	case animNumber_t::BOTH_FORCE_GETUP_B4:
+	case animNumber_t::BOTH_FORCE_GETUP_B5:
+	case animNumber_t::BOTH_FORCE_GETUP_B6:
 		if ( BG_AnimLength( 0, ps->legsAnim ) - ps->legsTimer < 500 )
 		{//at beginning of getup anim
 			return true;
 		}
 		break;
-	case BOTH_GETUP_BROLL_B:
-	case BOTH_GETUP_BROLL_F:
-	case BOTH_GETUP_BROLL_L:
-	case BOTH_GETUP_BROLL_R:
-	case BOTH_GETUP_FROLL_B:
-	case BOTH_GETUP_FROLL_F:
-	case BOTH_GETUP_FROLL_L:
-	case BOTH_GETUP_FROLL_R:
+	case animNumber_t::BOTH_GETUP_BROLL_B:
+	case animNumber_t::BOTH_GETUP_BROLL_F:
+	case animNumber_t::BOTH_GETUP_BROLL_L:
+	case animNumber_t::BOTH_GETUP_BROLL_R:
+	case animNumber_t::BOTH_GETUP_FROLL_B:
+	case animNumber_t::BOTH_GETUP_FROLL_F:
+	case animNumber_t::BOTH_GETUP_FROLL_L:
+	case animNumber_t::BOTH_GETUP_FROLL_R:
 		if ( BG_AnimLength( 0, ps->legsAnim ) - ps->legsTimer < 500 )
 		{//at beginning of getup anim
 			return true;
 		}
 		break;
-	case BOTH_LK_DL_ST_T_SB_1_L:
+	case animNumber_t::BOTH_LK_DL_ST_T_SB_1_L:
 		if ( ps->legsTimer < 1000 )
 		{
 			return true;
 		}
 		break;
-	case BOTH_PLAYER_PA_3_FLY:
+	case animNumber_t::BOTH_PLAYER_PA_3_FLY:
 		if ( ps->legsTimer < 300 )
 		{
 			return true;
@@ -1150,9 +1150,9 @@ bool BG_StabDownAnim( animNumber_t anim )
 {
 	switch ( anim )
 	{
-	case BOTH_STABDOWN:
-	case BOTH_STABDOWN_STAFF:
-	case BOTH_STABDOWN_DUAL:
+	case animNumber_t::BOTH_STABDOWN:
+	case animNumber_t::BOTH_STABDOWN_STAFF:
+	case animNumber_t::BOTH_STABDOWN_DUAL:
 		return true;
 	default:
 		break;
@@ -1164,71 +1164,71 @@ saberMoveName_t PM_SaberBounceForAttack( saberMoveName_t move )
 {
 	switch ( saberMoveData[move].startQuad )
 	{
-	case Q_B:
-	case Q_BR:
-		return LS_B1_BR;
+	case saberQuadrant_t::Q_B:
+	case saberQuadrant_t::Q_BR:
+		return saberMoveName_t::LS_B1_BR;
 		break;
-	case Q_R:
-		return LS_B1__R;
+	case saberQuadrant_t::Q_R:
+		return saberMoveName_t::LS_B1__R;
 		break;
-	case Q_TR:
-		return LS_B1_TR;
+	case saberQuadrant_t::Q_TR:
+		return saberMoveName_t::LS_B1_TR;
 		break;
-	case Q_T:
-		return LS_B1_T_;
+	case saberQuadrant_t::Q_T:
+		return saberMoveName_t::LS_B1_T_;
 		break;
-	case Q_TL:
-		return LS_B1_TL;
+	case saberQuadrant_t::Q_TL:
+		return saberMoveName_t::LS_B1_TL;
 		break;
-	case Q_L:
-		return LS_B1__L;
+	case saberQuadrant_t::Q_L:
+		return saberMoveName_t::LS_B1__L;
 		break;
-	case Q_BL:
-		return LS_B1_BL;
+	case saberQuadrant_t::Q_BL:
+		return saberMoveName_t::LS_B1_BL;
 		break;
 	default:
 		break;
 	}
-	return LS_NONE;
+	return saberMoveName_t::LS_NONE;
 }
 
 saberMoveName_t PM_SaberDeflectionForQuad( saberQuadrant_t quad )
 {
 	switch ( quad )
 	{
-	case Q_B:
-		return LS_D1_B_;
+	case saberQuadrant_t::Q_B:
+		return saberMoveName_t::LS_D1_B_;
 		break;
-	case Q_BR:
-		return LS_D1_BR;
+	case saberQuadrant_t::Q_BR:
+		return saberMoveName_t::LS_D1_BR;
 		break;
-	case Q_R:
-		return LS_D1__R;
+	case saberQuadrant_t::Q_R:
+		return saberMoveName_t::LS_D1__R;
 		break;
-	case Q_TR:
-		return LS_D1_TR;
+	case saberQuadrant_t::Q_TR:
+		return saberMoveName_t::LS_D1_TR;
 		break;
-	case Q_T:
-		return LS_D1_T_;
+	case saberQuadrant_t::Q_T:
+		return saberMoveName_t::LS_D1_T_;
 		break;
-	case Q_TL:
-		return LS_D1_TL;
+	case saberQuadrant_t::Q_TL:
+		return saberMoveName_t::LS_D1_TL;
 		break;
-	case Q_L:
-		return LS_D1__L;
+	case saberQuadrant_t::Q_L:
+		return saberMoveName_t::LS_D1__L;
 		break;
-	case Q_BL:
-		return LS_D1_BL;
+	case saberQuadrant_t::Q_BL:
+		return saberMoveName_t::LS_D1_BL;
 		break;
 	default:
 		break;
 	}
-	return LS_NONE;
+	return saberMoveName_t::LS_NONE;
 }
 
 bool PM_SaberInDeflect( saberMoveName_t move )
 {
-	if ( move >= LS_D1_BR && move <= LS_D1_B_ )
+	if ( move >= saberMoveName_t::LS_D1_BR && move <= saberMoveName_t::LS_D1_B_ )
 	{
 		return true;
 	}
@@ -1237,7 +1237,7 @@ bool PM_SaberInDeflect( saberMoveName_t move )
 
 bool PM_SaberInParry( saberMoveName_t move )
 {
-	if ( move >= LS_PARRY_UP && move <= LS_PARRY_LL )
+	if ( move >= saberMoveName_t::LS_PARRY_UP && move <= saberMoveName_t::LS_PARRY_LL )
 	{
 		return true;
 	}
@@ -1246,7 +1246,7 @@ bool PM_SaberInParry( saberMoveName_t move )
 
 bool PM_SaberInKnockaway( saberMoveName_t move )
 {
-	if ( move >= LS_K1_T_ && move <= LS_K1_BL )
+	if ( move >= saberMoveName_t::LS_K1_T_ && move <= saberMoveName_t::LS_K1_BL )
 	{
 		return true;
 	}
@@ -1255,7 +1255,7 @@ bool PM_SaberInKnockaway( saberMoveName_t move )
 
 bool PM_SaberInReflect( saberMoveName_t move )
 {
-	if ( move >= LS_REFLECT_UP && move <= LS_REFLECT_LL )
+	if ( move >= saberMoveName_t::LS_REFLECT_UP && move <= saberMoveName_t::LS_REFLECT_LL )
 	{
 		return true;
 	}
@@ -1264,7 +1264,7 @@ bool PM_SaberInReflect( saberMoveName_t move )
 
 bool PM_SaberInStart( saberMoveName_t move )
 {
-	if ( move >= LS_S_TL2BR && move <= LS_S_T2B )
+	if ( move >= saberMoveName_t::LS_S_TL2BR && move <= saberMoveName_t::LS_S_T2B )
 	{
 		return true;
 	}
@@ -1273,7 +1273,7 @@ bool PM_SaberInStart( saberMoveName_t move )
 
 bool PM_SaberInReturn( saberMoveName_t move )
 {
-	if ( move >= LS_R_TL2BR && move <= LS_R_T2B )
+	if ( move >= saberMoveName_t::LS_R_TL2BR && move <= saberMoveName_t::LS_R_T2B )
 	{
 		return true;
 	}
@@ -1287,7 +1287,7 @@ bool BG_SaberInReturn( saberMoveName_t move )
 
 bool PM_InSaberAnim( animNumber_t anim )
 {
-	if ( (anim) >= BOTH_A1_T__B_ && (anim) <= BOTH_H1_S1_BR )
+	if ( (anim) >= animNumber_t::BOTH_A1_T__B_ && (anim) <= animNumber_t::BOTH_H1_S1_BR )
 	{
 		return true;
 	}
@@ -1298,33 +1298,33 @@ bool PM_InKnockDown( playerState_t *ps )
 {
 	switch ( (ps->legsAnim) )
 	{
-	case BOTH_KNOCKDOWN1:
-	case BOTH_KNOCKDOWN2:
-	case BOTH_KNOCKDOWN3:
-	case BOTH_KNOCKDOWN4:
-	case BOTH_KNOCKDOWN5:
+	case animNumber_t::BOTH_KNOCKDOWN1:
+	case animNumber_t::BOTH_KNOCKDOWN2:
+	case animNumber_t::BOTH_KNOCKDOWN3:
+	case animNumber_t::BOTH_KNOCKDOWN4:
+	case animNumber_t::BOTH_KNOCKDOWN5:
 		return true;
 		break;
-	case BOTH_GETUP1:
-	case BOTH_GETUP2:
-	case BOTH_GETUP3:
-	case BOTH_GETUP4:
-	case BOTH_GETUP5:
-	case BOTH_FORCE_GETUP_F1:
-	case BOTH_FORCE_GETUP_F2:
-	case BOTH_FORCE_GETUP_B1:
-	case BOTH_FORCE_GETUP_B2:
-	case BOTH_FORCE_GETUP_B3:
-	case BOTH_FORCE_GETUP_B4:
-	case BOTH_FORCE_GETUP_B5:
-	case BOTH_GETUP_BROLL_B:
-	case BOTH_GETUP_BROLL_F:
-	case BOTH_GETUP_BROLL_L:
-	case BOTH_GETUP_BROLL_R:
-	case BOTH_GETUP_FROLL_B:
-	case BOTH_GETUP_FROLL_F:
-	case BOTH_GETUP_FROLL_L:
-	case BOTH_GETUP_FROLL_R:
+	case animNumber_t::BOTH_GETUP1:
+	case animNumber_t::BOTH_GETUP2:
+	case animNumber_t::BOTH_GETUP3:
+	case animNumber_t::BOTH_GETUP4:
+	case animNumber_t::BOTH_GETUP5:
+	case animNumber_t::BOTH_FORCE_GETUP_F1:
+	case animNumber_t::BOTH_FORCE_GETUP_F2:
+	case animNumber_t::BOTH_FORCE_GETUP_B1:
+	case animNumber_t::BOTH_FORCE_GETUP_B2:
+	case animNumber_t::BOTH_FORCE_GETUP_B3:
+	case animNumber_t::BOTH_FORCE_GETUP_B4:
+	case animNumber_t::BOTH_FORCE_GETUP_B5:
+	case animNumber_t::BOTH_GETUP_BROLL_B:
+	case animNumber_t::BOTH_GETUP_BROLL_F:
+	case animNumber_t::BOTH_GETUP_BROLL_L:
+	case animNumber_t::BOTH_GETUP_BROLL_R:
+	case animNumber_t::BOTH_GETUP_FROLL_B:
+	case animNumber_t::BOTH_GETUP_FROLL_F:
+	case animNumber_t::BOTH_GETUP_FROLL_L:
+	case animNumber_t::BOTH_GETUP_FROLL_R:
 		if ( ps->legsTimer )
 		{
 			return true;
@@ -1340,24 +1340,24 @@ bool PM_PainAnim( animNumber_t anim )
 {
 	switch ( (anim) )
 	{
-		case BOTH_PAIN1:				//# First take pain anim
-		case BOTH_PAIN2:				//# Second take pain anim
-		case BOTH_PAIN3:				//# Third take pain anim
-		case BOTH_PAIN4:				//# Fourth take pain anim
-		case BOTH_PAIN5:				//# Fifth take pain anim - from behind
-		case BOTH_PAIN6:				//# Sixth take pain anim - from behind
-		case BOTH_PAIN7:				//# Seventh take pain anim - from behind
-		case BOTH_PAIN8:				//# Eigth take pain anim - from behind
-		case BOTH_PAIN9:				//#
-		case BOTH_PAIN10:			//#
-		case BOTH_PAIN11:			//#
-		case BOTH_PAIN12:			//#
-		case BOTH_PAIN13:			//#
-		case BOTH_PAIN14:			//#
-		case BOTH_PAIN15:			//#
-		case BOTH_PAIN16:			//#
-		case BOTH_PAIN17:			//#
-		case BOTH_PAIN18:			//#
+		case animNumber_t::BOTH_PAIN1:				//# First take pain anim
+		case animNumber_t::BOTH_PAIN2:				//# Second take pain anim
+		case animNumber_t::BOTH_PAIN3:				//# Third take pain anim
+		case animNumber_t::BOTH_PAIN4:				//# Fourth take pain anim
+		case animNumber_t::BOTH_PAIN5:				//# Fifth take pain anim - from behind
+		case animNumber_t::BOTH_PAIN6:				//# Sixth take pain anim - from behind
+		case animNumber_t::BOTH_PAIN7:				//# Seventh take pain anim - from behind
+		case animNumber_t::BOTH_PAIN8:				//# Eigth take pain anim - from behind
+		case animNumber_t::BOTH_PAIN9:				//#
+		case animNumber_t::BOTH_PAIN10:			//#
+		case animNumber_t::BOTH_PAIN11:			//#
+		case animNumber_t::BOTH_PAIN12:			//#
+		case animNumber_t::BOTH_PAIN13:			//#
+		case animNumber_t::BOTH_PAIN14:			//#
+		case animNumber_t::BOTH_PAIN15:			//#
+		case animNumber_t::BOTH_PAIN16:			//#
+		case animNumber_t::BOTH_PAIN17:			//#
+		case animNumber_t::BOTH_PAIN18:			//#
 		return true;
 		break;
 	default:
@@ -1370,31 +1370,31 @@ bool PM_JumpingAnim( animNumber_t anim )
 {
 	switch ( (anim) )
 	{
-		case BOTH_JUMP1:				//# Jump - wind-up and leave ground
-		case BOTH_INAIR1:			//# In air loop (from jump)
-		case BOTH_LAND1:				//# Landing (from in air loop)
-		case BOTH_LAND2:				//# Landing Hard (from a great height)
-		case BOTH_JUMPBACK1:			//# Jump backwards - wind-up and leave ground
-		case BOTH_INAIRBACK1:		//# In air loop (from jump back)
-		case BOTH_LANDBACK1:			//# Landing backwards(from in air loop)
-		case BOTH_JUMPLEFT1:			//# Jump left - wind-up and leave ground
-		case BOTH_INAIRLEFT1:		//# In air loop (from jump left)
-		case BOTH_LANDLEFT1:			//# Landing left(from in air loop)
-		case BOTH_JUMPRIGHT1:		//# Jump right - wind-up and leave ground
-		case BOTH_INAIRRIGHT1:		//# In air loop (from jump right)
-		case BOTH_LANDRIGHT1:		//# Landing right(from in air loop)
-		case BOTH_FORCEJUMP1:				//# Jump - wind-up and leave ground
-		case BOTH_FORCEINAIR1:			//# In air loop (from jump)
-		case BOTH_FORCELAND1:				//# Landing (from in air loop)
-		case BOTH_FORCEJUMPBACK1:			//# Jump backwards - wind-up and leave ground
-		case BOTH_FORCEINAIRBACK1:		//# In air loop (from jump back)
-		case BOTH_FORCELANDBACK1:			//# Landing backwards(from in air loop)
-		case BOTH_FORCEJUMPLEFT1:			//# Jump left - wind-up and leave ground
-		case BOTH_FORCEINAIRLEFT1:		//# In air loop (from jump left)
-		case BOTH_FORCELANDLEFT1:			//# Landing left(from in air loop)
-		case BOTH_FORCEJUMPRIGHT1:		//# Jump right - wind-up and leave ground
-		case BOTH_FORCEINAIRRIGHT1:		//# In air loop (from jump right)
-		case BOTH_FORCELANDRIGHT1:		//# Landing right(from in air loop)
+		case animNumber_t::BOTH_JUMP1:				//# Jump - wind-up and leave ground
+		case animNumber_t::BOTH_INAIR1:			//# In air loop (from jump)
+		case animNumber_t::BOTH_LAND1:				//# Landing (from in air loop)
+		case animNumber_t::BOTH_LAND2:				//# Landing Hard (from a great height)
+		case animNumber_t::BOTH_JUMPBACK1:			//# Jump backwards - wind-up and leave ground
+		case animNumber_t::BOTH_INAIRBACK1:		//# In air loop (from jump back)
+		case animNumber_t::BOTH_LANDBACK1:			//# Landing backwards(from in air loop)
+		case animNumber_t::BOTH_JUMPLEFT1:			//# Jump left - wind-up and leave ground
+		case animNumber_t::BOTH_INAIRLEFT1:		//# In air loop (from jump left)
+		case animNumber_t::BOTH_LANDLEFT1:			//# Landing left(from in air loop)
+		case animNumber_t::BOTH_JUMPRIGHT1:		//# Jump right - wind-up and leave ground
+		case animNumber_t::BOTH_INAIRRIGHT1:		//# In air loop (from jump right)
+		case animNumber_t::BOTH_LANDRIGHT1:		//# Landing right(from in air loop)
+		case animNumber_t::BOTH_FORCEJUMP1:				//# Jump - wind-up and leave ground
+		case animNumber_t::BOTH_FORCEINAIR1:			//# In air loop (from jump)
+		case animNumber_t::BOTH_FORCELAND1:				//# Landing (from in air loop)
+		case animNumber_t::BOTH_FORCEJUMPBACK1:			//# Jump backwards - wind-up and leave ground
+		case animNumber_t::BOTH_FORCEINAIRBACK1:		//# In air loop (from jump back)
+		case animNumber_t::BOTH_FORCELANDBACK1:			//# Landing backwards(from in air loop)
+		case animNumber_t::BOTH_FORCEJUMPLEFT1:			//# Jump left - wind-up and leave ground
+		case animNumber_t::BOTH_FORCEINAIRLEFT1:		//# In air loop (from jump left)
+		case animNumber_t::BOTH_FORCELANDLEFT1:			//# Landing left(from in air loop)
+		case animNumber_t::BOTH_FORCEJUMPRIGHT1:		//# Jump right - wind-up and leave ground
+		case animNumber_t::BOTH_FORCEINAIRRIGHT1:		//# In air loop (from jump right)
+		case animNumber_t::BOTH_FORCELANDRIGHT1:		//# Landing right(from in air loop)
 		return true;
 		break;
 	default:
@@ -1407,15 +1407,15 @@ bool PM_LandingAnim( animNumber_t anim )
 {
 	switch ( (anim) )
 	{
-		case BOTH_LAND1:				//# Landing (from in air loop)
-		case BOTH_LAND2:				//# Landing Hard (from a great height)
-		case BOTH_LANDBACK1:			//# Landing backwards(from in air loop)
-		case BOTH_LANDLEFT1:			//# Landing left(from in air loop)
-		case BOTH_LANDRIGHT1:		//# Landing right(from in air loop)
-		case BOTH_FORCELAND1:		//# Landing (from in air loop)
-		case BOTH_FORCELANDBACK1:	//# Landing backwards(from in air loop)
-		case BOTH_FORCELANDLEFT1:	//# Landing left(from in air loop)
-		case BOTH_FORCELANDRIGHT1:	//# Landing right(from in air loop)
+		case animNumber_t::BOTH_LAND1:				//# Landing (from in air loop)
+		case animNumber_t::BOTH_LAND2:				//# Landing Hard (from a great height)
+		case animNumber_t::BOTH_LANDBACK1:			//# Landing backwards(from in air loop)
+		case animNumber_t::BOTH_LANDLEFT1:			//# Landing left(from in air loop)
+		case animNumber_t::BOTH_LANDRIGHT1:		//# Landing right(from in air loop)
+		case animNumber_t::BOTH_FORCELAND1:		//# Landing (from in air loop)
+		case animNumber_t::BOTH_FORCELANDBACK1:	//# Landing backwards(from in air loop)
+		case animNumber_t::BOTH_FORCELANDLEFT1:	//# Landing left(from in air loop)
+		case animNumber_t::BOTH_FORCELANDRIGHT1:	//# Landing right(from in air loop)
 		return true;
 		break;
 	default:
@@ -1441,46 +1441,46 @@ bool PM_InOnGroundAnim ( animNumber_t anim )
 {
 	switch( anim )
 	{
-	case BOTH_DEAD1:
-	case BOTH_DEAD2:
-	case BOTH_DEAD3:
-	case BOTH_DEAD4:
-	case BOTH_DEAD5:
-	case BOTH_DEADFORWARD1:
-	case BOTH_DEADBACKWARD1:
-	case BOTH_DEADFORWARD2:
-	case BOTH_DEADBACKWARD2:
-	case BOTH_LYINGDEATH1:
-	case BOTH_LYINGDEAD1:
-	case BOTH_SLEEP1:			//# laying on back-rknee up-rhand on torso
-	case BOTH_KNOCKDOWN1:		//#
-	case BOTH_KNOCKDOWN2:		//#
-	case BOTH_KNOCKDOWN3:		//#
-	case BOTH_KNOCKDOWN4:		//#
-	case BOTH_KNOCKDOWN5:		//#
-	case BOTH_GETUP1:
-	case BOTH_GETUP2:
-	case BOTH_GETUP3:
-	case BOTH_GETUP4:
-	case BOTH_GETUP5:
-	case BOTH_GETUP_CROUCH_F1:
-	case BOTH_GETUP_CROUCH_B1:
-	case BOTH_FORCE_GETUP_F1:
-	case BOTH_FORCE_GETUP_F2:
-	case BOTH_FORCE_GETUP_B1:
-	case BOTH_FORCE_GETUP_B2:
-	case BOTH_FORCE_GETUP_B3:
-	case BOTH_FORCE_GETUP_B4:
-	case BOTH_FORCE_GETUP_B5:
-	case BOTH_FORCE_GETUP_B6:
-	case BOTH_GETUP_BROLL_B:
-	case BOTH_GETUP_BROLL_F:
-	case BOTH_GETUP_BROLL_L:
-	case BOTH_GETUP_BROLL_R:
-	case BOTH_GETUP_FROLL_B:
-	case BOTH_GETUP_FROLL_F:
-	case BOTH_GETUP_FROLL_L:
-	case BOTH_GETUP_FROLL_R:
+	case animNumber_t::BOTH_DEAD1:
+	case animNumber_t::BOTH_DEAD2:
+	case animNumber_t::BOTH_DEAD3:
+	case animNumber_t::BOTH_DEAD4:
+	case animNumber_t::BOTH_DEAD5:
+	case animNumber_t::BOTH_DEADFORWARD1:
+	case animNumber_t::BOTH_DEADBACKWARD1:
+	case animNumber_t::BOTH_DEADFORWARD2:
+	case animNumber_t::BOTH_DEADBACKWARD2:
+	case animNumber_t::BOTH_LYINGDEATH1:
+	case animNumber_t::BOTH_LYINGDEAD1:
+	case animNumber_t::BOTH_SLEEP1:			//# laying on back-rknee up-rhand on torso
+	case animNumber_t::BOTH_KNOCKDOWN1:		//#
+	case animNumber_t::BOTH_KNOCKDOWN2:		//#
+	case animNumber_t::BOTH_KNOCKDOWN3:		//#
+	case animNumber_t::BOTH_KNOCKDOWN4:		//#
+	case animNumber_t::BOTH_KNOCKDOWN5:		//#
+	case animNumber_t::BOTH_GETUP1:
+	case animNumber_t::BOTH_GETUP2:
+	case animNumber_t::BOTH_GETUP3:
+	case animNumber_t::BOTH_GETUP4:
+	case animNumber_t::BOTH_GETUP5:
+	case animNumber_t::BOTH_GETUP_CROUCH_F1:
+	case animNumber_t::BOTH_GETUP_CROUCH_B1:
+	case animNumber_t::BOTH_FORCE_GETUP_F1:
+	case animNumber_t::BOTH_FORCE_GETUP_F2:
+	case animNumber_t::BOTH_FORCE_GETUP_B1:
+	case animNumber_t::BOTH_FORCE_GETUP_B2:
+	case animNumber_t::BOTH_FORCE_GETUP_B3:
+	case animNumber_t::BOTH_FORCE_GETUP_B4:
+	case animNumber_t::BOTH_FORCE_GETUP_B5:
+	case animNumber_t::BOTH_FORCE_GETUP_B6:
+	case animNumber_t::BOTH_GETUP_BROLL_B:
+	case animNumber_t::BOTH_GETUP_BROLL_F:
+	case animNumber_t::BOTH_GETUP_BROLL_L:
+	case animNumber_t::BOTH_GETUP_BROLL_R:
+	case animNumber_t::BOTH_GETUP_FROLL_B:
+	case animNumber_t::BOTH_GETUP_FROLL_F:
+	case animNumber_t::BOTH_GETUP_FROLL_L:
+	case animNumber_t::BOTH_GETUP_FROLL_R:
 		return true;
 		break;
 	default:
@@ -1494,10 +1494,10 @@ bool PM_InRollComplete( playerState_t *ps, animNumber_t anim )
 {
 	switch ( (anim) )
 	{
-	case BOTH_ROLL_F:
-	case BOTH_ROLL_B:
-	case BOTH_ROLL_R:
-	case BOTH_ROLL_L:
+	case animNumber_t::BOTH_ROLL_F:
+	case animNumber_t::BOTH_ROLL_B:
+	case animNumber_t::BOTH_ROLL_R:
+	case animNumber_t::BOTH_ROLL_L:
 		if ( ps->legsTimer < 1 )
 		{
 			return true;
@@ -1511,7 +1511,7 @@ bool PM_InRollComplete( playerState_t *ps, animNumber_t anim )
 
 bool PM_CanRollFromSoulCal( playerState_t *ps )
 {
-	if ( ps->legsAnim == BOTH_A7_SOULCAL
+	if ( ps->legsAnim == animNumber_t::BOTH_A7_SOULCAL
 		&& ps->legsTimer < 700
 		&& ps->legsTimer > 250 )
 	{
@@ -1524,24 +1524,24 @@ bool BG_SuperBreakLoseAnim( animNumber_t anim )
 {
 	switch ( anim )
 	{
-	case BOTH_LK_S_DL_S_SB_1_L:	//super break I lost
-	case BOTH_LK_S_DL_T_SB_1_L:	//super break I lost
-	case BOTH_LK_S_ST_S_SB_1_L:	//super break I lost
-	case BOTH_LK_S_ST_T_SB_1_L:	//super break I lost
-	case BOTH_LK_S_S_S_SB_1_L:	//super break I lost
-	case BOTH_LK_S_S_T_SB_1_L:	//super break I lost
-	case BOTH_LK_DL_DL_S_SB_1_L:	//super break I lost
-	case BOTH_LK_DL_DL_T_SB_1_L:	//super break I lost
-	case BOTH_LK_DL_ST_S_SB_1_L:	//super break I lost
-	case BOTH_LK_DL_ST_T_SB_1_L:	//super break I lost
-	case BOTH_LK_DL_S_S_SB_1_L:	//super break I lost
-	case BOTH_LK_DL_S_T_SB_1_L:	//super break I lost
-	case BOTH_LK_ST_DL_S_SB_1_L:	//super break I lost
-	case BOTH_LK_ST_DL_T_SB_1_L:	//super break I lost
-	case BOTH_LK_ST_ST_S_SB_1_L:	//super break I lost
-	case BOTH_LK_ST_ST_T_SB_1_L:	//super break I lost
-	case BOTH_LK_ST_S_S_SB_1_L:	//super break I lost
-	case BOTH_LK_ST_S_T_SB_1_L:	//super break I lost
+	case animNumber_t::BOTH_LK_S_DL_S_SB_1_L:	//super break I lost
+	case animNumber_t::BOTH_LK_S_DL_T_SB_1_L:	//super break I lost
+	case animNumber_t::BOTH_LK_S_ST_S_SB_1_L:	//super break I lost
+	case animNumber_t::BOTH_LK_S_ST_T_SB_1_L:	//super break I lost
+	case animNumber_t::BOTH_LK_S_S_S_SB_1_L:	//super break I lost
+	case animNumber_t::BOTH_LK_S_S_T_SB_1_L:	//super break I lost
+	case animNumber_t::BOTH_LK_DL_DL_S_SB_1_L:	//super break I lost
+	case animNumber_t::BOTH_LK_DL_DL_T_SB_1_L:	//super break I lost
+	case animNumber_t::BOTH_LK_DL_ST_S_SB_1_L:	//super break I lost
+	case animNumber_t::BOTH_LK_DL_ST_T_SB_1_L:	//super break I lost
+	case animNumber_t::BOTH_LK_DL_S_S_SB_1_L:	//super break I lost
+	case animNumber_t::BOTH_LK_DL_S_T_SB_1_L:	//super break I lost
+	case animNumber_t::BOTH_LK_ST_DL_S_SB_1_L:	//super break I lost
+	case animNumber_t::BOTH_LK_ST_DL_T_SB_1_L:	//super break I lost
+	case animNumber_t::BOTH_LK_ST_ST_S_SB_1_L:	//super break I lost
+	case animNumber_t::BOTH_LK_ST_ST_T_SB_1_L:	//super break I lost
+	case animNumber_t::BOTH_LK_ST_S_S_SB_1_L:	//super break I lost
+	case animNumber_t::BOTH_LK_ST_S_T_SB_1_L:	//super break I lost
 		return true;
 		break;
 	default:
@@ -1554,24 +1554,24 @@ bool BG_SuperBreakWinAnim( animNumber_t anim )
 {
 	switch ( anim )
 	{
-	case BOTH_LK_S_DL_S_SB_1_W:	//super break I won
-	case BOTH_LK_S_DL_T_SB_1_W:	//super break I won
-	case BOTH_LK_S_ST_S_SB_1_W:	//super break I won
-	case BOTH_LK_S_ST_T_SB_1_W:	//super break I won
-	case BOTH_LK_S_S_S_SB_1_W:	//super break I won
-	case BOTH_LK_S_S_T_SB_1_W:	//super break I won
-	case BOTH_LK_DL_DL_S_SB_1_W:	//super break I won
-	case BOTH_LK_DL_DL_T_SB_1_W:	//super break I won
-	case BOTH_LK_DL_ST_S_SB_1_W:	//super break I won
-	case BOTH_LK_DL_ST_T_SB_1_W:	//super break I won
-	case BOTH_LK_DL_S_S_SB_1_W:	//super break I won
-	case BOTH_LK_DL_S_T_SB_1_W:	//super break I won
-	case BOTH_LK_ST_DL_S_SB_1_W:	//super break I won
-	case BOTH_LK_ST_DL_T_SB_1_W:	//super break I won
-	case BOTH_LK_ST_ST_S_SB_1_W:	//super break I won
-	case BOTH_LK_ST_ST_T_SB_1_W:	//super break I won
-	case BOTH_LK_ST_S_S_SB_1_W:	//super break I won
-	case BOTH_LK_ST_S_T_SB_1_W:	//super break I won
+	case animNumber_t::BOTH_LK_S_DL_S_SB_1_W:	//super break I won
+	case animNumber_t::BOTH_LK_S_DL_T_SB_1_W:	//super break I won
+	case animNumber_t::BOTH_LK_S_ST_S_SB_1_W:	//super break I won
+	case animNumber_t::BOTH_LK_S_ST_T_SB_1_W:	//super break I won
+	case animNumber_t::BOTH_LK_S_S_S_SB_1_W:	//super break I won
+	case animNumber_t::BOTH_LK_S_S_T_SB_1_W:	//super break I won
+	case animNumber_t::BOTH_LK_DL_DL_S_SB_1_W:	//super break I won
+	case animNumber_t::BOTH_LK_DL_DL_T_SB_1_W:	//super break I won
+	case animNumber_t::BOTH_LK_DL_ST_S_SB_1_W:	//super break I won
+	case animNumber_t::BOTH_LK_DL_ST_T_SB_1_W:	//super break I won
+	case animNumber_t::BOTH_LK_DL_S_S_SB_1_W:	//super break I won
+	case animNumber_t::BOTH_LK_DL_S_T_SB_1_W:	//super break I won
+	case animNumber_t::BOTH_LK_ST_DL_S_SB_1_W:	//super break I won
+	case animNumber_t::BOTH_LK_ST_DL_T_SB_1_W:	//super break I won
+	case animNumber_t::BOTH_LK_ST_ST_S_SB_1_W:	//super break I won
+	case animNumber_t::BOTH_LK_ST_ST_T_SB_1_W:	//super break I won
+	case animNumber_t::BOTH_LK_ST_S_S_SB_1_W:	//super break I won
+	case animNumber_t::BOTH_LK_ST_S_T_SB_1_W:	//super break I won
 		return true;
 		break;
 	default:
@@ -1585,46 +1585,46 @@ bool BG_SaberLockBreakAnim( animNumber_t anim )
 {
 	switch ( anim )
 	{
-	case BOTH_BF1BREAK:
-	case BOTH_BF2BREAK:
-	case BOTH_CWCIRCLEBREAK:
-	case BOTH_CCWCIRCLEBREAK:
-	case BOTH_LK_S_DL_S_B_1_L:	//normal break I lost
-	case BOTH_LK_S_DL_S_B_1_W:	//normal break I won
-	case BOTH_LK_S_DL_T_B_1_L:	//normal break I lost
-	case BOTH_LK_S_DL_T_B_1_W:	//normal break I won
-	case BOTH_LK_S_ST_S_B_1_L:	//normal break I lost
-	case BOTH_LK_S_ST_S_B_1_W:	//normal break I won
-	case BOTH_LK_S_ST_T_B_1_L:	//normal break I lost
-	case BOTH_LK_S_ST_T_B_1_W:	//normal break I won
-	case BOTH_LK_S_S_S_B_1_L:	//normal break I lost
-	case BOTH_LK_S_S_S_B_1_W:	//normal break I won
-	case BOTH_LK_S_S_T_B_1_L:	//normal break I lost
-	case BOTH_LK_S_S_T_B_1_W:	//normal break I won
-	case BOTH_LK_DL_DL_S_B_1_L:	//normal break I lost
-	case BOTH_LK_DL_DL_S_B_1_W:	//normal break I won
-	case BOTH_LK_DL_DL_T_B_1_L:	//normal break I lost
-	case BOTH_LK_DL_DL_T_B_1_W:	//normal break I won
-	case BOTH_LK_DL_ST_S_B_1_L:	//normal break I lost
-	case BOTH_LK_DL_ST_S_B_1_W:	//normal break I won
-	case BOTH_LK_DL_ST_T_B_1_L:	//normal break I lost
-	case BOTH_LK_DL_ST_T_B_1_W:	//normal break I won
-	case BOTH_LK_DL_S_S_B_1_L:	//normal break I lost
-	case BOTH_LK_DL_S_S_B_1_W:	//normal break I won
-	case BOTH_LK_DL_S_T_B_1_L:	//normal break I lost
-	case BOTH_LK_DL_S_T_B_1_W:	//normal break I won
-	case BOTH_LK_ST_DL_S_B_1_L:	//normal break I lost
-	case BOTH_LK_ST_DL_S_B_1_W:	//normal break I won
-	case BOTH_LK_ST_DL_T_B_1_L:	//normal break I lost
-	case BOTH_LK_ST_DL_T_B_1_W:	//normal break I won
-	case BOTH_LK_ST_ST_S_B_1_L:	//normal break I lost
-	case BOTH_LK_ST_ST_S_B_1_W:	//normal break I won
-	case BOTH_LK_ST_ST_T_B_1_L:	//normal break I lost
-	case BOTH_LK_ST_ST_T_B_1_W:	//normal break I won
-	case BOTH_LK_ST_S_S_B_1_L:	//normal break I lost
-	case BOTH_LK_ST_S_S_B_1_W:	//normal break I won
-	case BOTH_LK_ST_S_T_B_1_L:	//normal break I lost
-	case BOTH_LK_ST_S_T_B_1_W:	//normal break I won
+	case animNumber_t::BOTH_BF1BREAK:
+	case animNumber_t::BOTH_BF2BREAK:
+	case animNumber_t::BOTH_CWCIRCLEBREAK:
+	case animNumber_t::BOTH_CCWCIRCLEBREAK:
+	case animNumber_t::BOTH_LK_S_DL_S_B_1_L:	//normal break I lost
+	case animNumber_t::BOTH_LK_S_DL_S_B_1_W:	//normal break I won
+	case animNumber_t::BOTH_LK_S_DL_T_B_1_L:	//normal break I lost
+	case animNumber_t::BOTH_LK_S_DL_T_B_1_W:	//normal break I won
+	case animNumber_t::BOTH_LK_S_ST_S_B_1_L:	//normal break I lost
+	case animNumber_t::BOTH_LK_S_ST_S_B_1_W:	//normal break I won
+	case animNumber_t::BOTH_LK_S_ST_T_B_1_L:	//normal break I lost
+	case animNumber_t::BOTH_LK_S_ST_T_B_1_W:	//normal break I won
+	case animNumber_t::BOTH_LK_S_S_S_B_1_L:	//normal break I lost
+	case animNumber_t::BOTH_LK_S_S_S_B_1_W:	//normal break I won
+	case animNumber_t::BOTH_LK_S_S_T_B_1_L:	//normal break I lost
+	case animNumber_t::BOTH_LK_S_S_T_B_1_W:	//normal break I won
+	case animNumber_t::BOTH_LK_DL_DL_S_B_1_L:	//normal break I lost
+	case animNumber_t::BOTH_LK_DL_DL_S_B_1_W:	//normal break I won
+	case animNumber_t::BOTH_LK_DL_DL_T_B_1_L:	//normal break I lost
+	case animNumber_t::BOTH_LK_DL_DL_T_B_1_W:	//normal break I won
+	case animNumber_t::BOTH_LK_DL_ST_S_B_1_L:	//normal break I lost
+	case animNumber_t::BOTH_LK_DL_ST_S_B_1_W:	//normal break I won
+	case animNumber_t::BOTH_LK_DL_ST_T_B_1_L:	//normal break I lost
+	case animNumber_t::BOTH_LK_DL_ST_T_B_1_W:	//normal break I won
+	case animNumber_t::BOTH_LK_DL_S_S_B_1_L:	//normal break I lost
+	case animNumber_t::BOTH_LK_DL_S_S_B_1_W:	//normal break I won
+	case animNumber_t::BOTH_LK_DL_S_T_B_1_L:	//normal break I lost
+	case animNumber_t::BOTH_LK_DL_S_T_B_1_W:	//normal break I won
+	case animNumber_t::BOTH_LK_ST_DL_S_B_1_L:	//normal break I lost
+	case animNumber_t::BOTH_LK_ST_DL_S_B_1_W:	//normal break I won
+	case animNumber_t::BOTH_LK_ST_DL_T_B_1_L:	//normal break I lost
+	case animNumber_t::BOTH_LK_ST_DL_T_B_1_W:	//normal break I won
+	case animNumber_t::BOTH_LK_ST_ST_S_B_1_L:	//normal break I lost
+	case animNumber_t::BOTH_LK_ST_ST_S_B_1_W:	//normal break I won
+	case animNumber_t::BOTH_LK_ST_ST_T_B_1_L:	//normal break I lost
+	case animNumber_t::BOTH_LK_ST_ST_T_B_1_W:	//normal break I won
+	case animNumber_t::BOTH_LK_ST_S_S_B_1_L:	//normal break I lost
+	case animNumber_t::BOTH_LK_ST_S_S_B_1_W:	//normal break I won
+	case animNumber_t::BOTH_LK_ST_S_T_B_1_L:	//normal break I lost
+	case animNumber_t::BOTH_LK_ST_S_T_B_1_W:	//normal break I won
 		return true;
 		break;
 	default:
@@ -1638,21 +1638,21 @@ bool BG_FullBodyTauntAnim( animNumber_t anim )
 {
 	switch ( anim )
 	{
-	case BOTH_GESTURE1:
-	case BOTH_DUAL_TAUNT:
-	case BOTH_STAFF_TAUNT:
-	case BOTH_BOW:
-	case BOTH_MEDITATE:
-	case BOTH_SHOWOFF_FAST:
-	case BOTH_SHOWOFF_MEDIUM:
-	case BOTH_SHOWOFF_STRONG:
-	case BOTH_SHOWOFF_DUAL:
-	case BOTH_SHOWOFF_STAFF:
-	case BOTH_VICTORY_FAST:
-	case BOTH_VICTORY_MEDIUM:
-	case BOTH_VICTORY_STRONG:
-	case BOTH_VICTORY_DUAL:
-	case BOTH_VICTORY_STAFF:
+	case animNumber_t::BOTH_GESTURE1:
+	case animNumber_t::BOTH_DUAL_TAUNT:
+	case animNumber_t::BOTH_STAFF_TAUNT:
+	case animNumber_t::BOTH_BOW:
+	case animNumber_t::BOTH_MEDITATE:
+	case animNumber_t::BOTH_SHOWOFF_FAST:
+	case animNumber_t::BOTH_SHOWOFF_MEDIUM:
+	case animNumber_t::BOTH_SHOWOFF_STRONG:
+	case animNumber_t::BOTH_SHOWOFF_DUAL:
+	case animNumber_t::BOTH_SHOWOFF_STAFF:
+	case animNumber_t::BOTH_VICTORY_FAST:
+	case animNumber_t::BOTH_VICTORY_MEDIUM:
+	case animNumber_t::BOTH_VICTORY_STRONG:
+	case animNumber_t::BOTH_VICTORY_DUAL:
+	case animNumber_t::BOTH_VICTORY_STAFF:
 		return true;
 		break;
 	default:
@@ -1672,7 +1672,7 @@ anim while force speeding (as an example) and whatnot into account.
 =============
 */
 int BG_AnimLength( int index, animNumber_t anim ) {
-	if ( anim < FACE_TALK0 || anim >= MAX_ANIMATIONS ) {
+	if ( anim < animNumber_t::FACE_TALK0 || anim >= animNumber_t::MAX_ANIMATIONS ) {
 		return 0;
 	}
 
@@ -1681,7 +1681,7 @@ int BG_AnimLength( int index, animNumber_t anim ) {
 
 //just use whatever pm->animations is
 int PM_AnimLength( int index, animNumber_t anim ) {
-	if ( !pm->animations || anim < FACE_TALK0 || anim >= MAX_ANIMATIONS ) {
+	if ( !pm->animations || anim < animNumber_t::FACE_TALK0 || anim >= animNumber_t::MAX_ANIMATIONS ) {
 		return 0;
 	}
 
@@ -1693,8 +1693,8 @@ void PM_DebugLegsAnim(animNumber_t anim)
 	animNumber_t oldAnim = (pm->ps->legsAnim);
 	animNumber_t newAnim = (anim);
 
-	if (oldAnim < MAX_TOTALANIMATIONS && oldAnim >= BOTH_DEATH1 &&
-		newAnim < MAX_TOTALANIMATIONS && newAnim >= BOTH_DEATH1)
+	if (oldAnim < animNumber_t::MAX_TOTALANIMATIONS && oldAnim >= animNumber_t::BOTH_DEATH1 &&
+		newAnim < animNumber_t::MAX_TOTALANIMATIONS && newAnim >= animNumber_t::BOTH_DEATH1)
 	{
 		Com_Printf("OLD: %s\n", BG_AnimName( oldAnim ));
 		Com_Printf("NEW: %s\n", BG_AnimName( newAnim ));
@@ -1703,7 +1703,7 @@ void PM_DebugLegsAnim(animNumber_t anim)
 
 bool PM_SaberInTransition( saberMoveName_t move )
 {
-	if ( move >= LS_T1_BR__R && move <= LS_T1_BL__L )
+	if ( move >= saberMoveName_t::LS_T1_BR__R && move <= saberMoveName_t::LS_T1_BL__L )
 	{
 		return true;
 	}
@@ -1735,7 +1735,7 @@ END: Animation utility functions (sequence checking)
 
 void BG_FlipPart(playerState_t *ps, setAnimParts_t part)
 {
-	if (part == SETANIM_TORSO)
+	if (part == setAnimParts_t::SETANIM_TORSO)
 	{
 		if (ps->torsoFlip)
 		{
@@ -1746,7 +1746,7 @@ void BG_FlipPart(playerState_t *ps, setAnimParts_t part)
 			ps->torsoFlip = true;
 		}
 	}
-	else if (part == SETANIM_LEGS)
+	else if (part == setAnimParts_t::SETANIM_LEGS)
 	{
 		if (ps->legsFlip)
 		{
@@ -1819,24 +1819,24 @@ void BG_AnimsetFree(animSet_t *animset)
 #ifdef _CGAME //none of this is actually needed serverside. Could just be moved to cgame code but it's here since it used to tie in a lot with the anim loading stuff.
 stringID_table_t animEventTypeTable[MAX_ANIM_EVENTS+1] =
 {
-	ENUM2STRING(AEV_SOUND),			//# animID AEV_SOUND framenum soundpath randomlow randomhi chancetoplay
-	ENUM2STRING(AEV_FOOTSTEP),		//# animID AEV_FOOTSTEP framenum footstepType
-	ENUM2STRING(AEV_EFFECT),		//# animID AEV_EFFECT framenum effectpath boltName
-	ENUM2STRING(AEV_FIRE),			//# animID AEV_FIRE framenum altfire chancetofire
-	ENUM2STRING(AEV_MOVE),			//# animID AEV_MOVE framenum forwardpush rightpush uppush
-	ENUM2STRING(AEV_SOUNDCHAN),		//# animID AEV_SOUNDCHAN framenum CHANNEL soundpath randomlow randomhi chancetoplay
-	ENUM2STRING(AEV_SABER_SWING),	//# animID AEV_SABER_SWING framenum CHANNEL randomlow randomhi chancetoplay
-	ENUM2STRING(AEV_SABER_SPIN),	//# animID AEV_SABER_SPIN framenum CHANNEL chancetoplay
+	ENUM2STRING(animEventType_t, AEV_SOUND),			//# animID AEV_SOUND framenum soundpath randomlow randomhi chancetoplay
+	ENUM2STRING(animEventType_t, AEV_FOOTSTEP),		//# animID AEV_FOOTSTEP framenum footstepType
+	ENUM2STRING(animEventType_t, AEV_EFFECT),		//# animID AEV_EFFECT framenum effectpath boltName
+	ENUM2STRING(animEventType_t, AEV_FIRE),			//# animID AEV_FIRE framenum altfire chancetofire
+	ENUM2STRING(animEventType_t, AEV_MOVE),			//# animID AEV_MOVE framenum forwardpush rightpush uppush
+	ENUM2STRING(animEventType_t, AEV_SOUNDCHAN),		//# animID AEV_SOUNDCHAN framenum CHANNEL soundpath randomlow randomhi chancetoplay
+	ENUM2STRING(animEventType_t, AEV_SABER_SWING),	//# animID AEV_SABER_SWING framenum CHANNEL randomlow randomhi chancetoplay
+	ENUM2STRING(animEventType_t, AEV_SABER_SPIN),	//# animID AEV_SABER_SPIN framenum CHANNEL chancetoplay
 	//must be terminated
 	{ nullptr,-1 }
 };
 
-stringID_table_t footstepTypeTable[to_underlying( NUM_FOOTSTEP_TYPES ) + 1] =
+stringID_table_t footstepTypeTable[to_underlying( footstepType_t::NUM_FOOTSTEP_TYPES ) + 1] =
 {
-	ENUM2STRING(FOOTSTEP_R),
-	ENUM2STRING(FOOTSTEP_L),
-	ENUM2STRING(FOOTSTEP_HEAVY_R),
-	ENUM2STRING(FOOTSTEP_HEAVY_L),
+	ENUM2STRING(footstepType_t, FOOTSTEP_R),
+	ENUM2STRING(footstepType_t, FOOTSTEP_L),
+	ENUM2STRING(footstepType_t, FOOTSTEP_HEAVY_R),
+	ENUM2STRING(footstepType_t, FOOTSTEP_HEAVY_L),
 	//must be terminated
 	{ nullptr,-1 }
 };
@@ -1885,7 +1885,7 @@ void ParseAnimationEvtBlock(const char *aeb_filename, animevent_t *animEvents, a
 	{
 		if ( lastAnimEvent >= MAX_ANIM_EVENTS )
 		{
-			Com_Error( ERR_DROP, "ParseAnimationEvtBlock: number events in animEvent file %s > MAX_ANIM_EVENTS(%i)", aeb_filename, MAX_ANIM_EVENTS );
+			Com_Error( errorParm_t::ERR_DROP, "ParseAnimationEvtBlock: number events in animEvent file %s > MAX_ANIM_EVENTS(%i)", aeb_filename, MAX_ANIM_EVENTS );
 			return;
 		}
 		// Get base frame of sequence
@@ -1927,7 +1927,7 @@ void ParseAnimationEvtBlock(const char *aeb_filename, animevent_t *animEvents, a
 		token = COM_Parse( text_p );
 		const int eventId = GetIDForString(animEventTypeTable, token);
 		eventType = static_cast<animEventType_t>( eventId );
-		if ( eventId == -1 || eventType == AEV_NONE )
+		if ( eventId == -1 || eventType == animEventType_t::AEV_NONE )
 		{//Unrecognized ANIM EVENT TYOE, or we're skipping this line, keep going till you get a good one
 			//Com_Printf(S_COLOR_YELLOW"WARNING: Unknown token %s in animEvent file %s\n", token, aeb_filename );
 			continue;
@@ -1957,28 +1957,28 @@ void ParseAnimationEvtBlock(const char *aeb_filename, animevent_t *animEvents, a
 		//now read out the proper data based on the type
 		switch ( animEvents[curAnimEvent].eventType )
 		{
-		case AEV_SOUNDCHAN:		//# animID AEV_SOUNDCHAN framenum CHANNEL soundpath randomlow randomhi chancetoplay
+		case animEventType_t::AEV_SOUNDCHAN:		//# animID AEV_SOUNDCHAN framenum CHANNEL soundpath randomlow randomhi chancetoplay
 			token = COM_Parse( text_p );
 			if ( !token )
 				break;
 
 				 if ( !Q_stricmp( token, "CHAN_VOICE_ATTEN" ) )
-				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( CHAN_VOICE_ATTEN );
+				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( soundChannel_t::CHAN_VOICE_ATTEN );
 			else if ( !Q_stricmp( token, "CHAN_VOICE_GLOBAL" ) )
-				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( CHAN_VOICE_GLOBAL );
+				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( soundChannel_t::CHAN_VOICE_GLOBAL );
 			else if ( !Q_stricmp( token, "CHAN_ANNOUNCER" ) )
-				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( CHAN_ANNOUNCER );
+				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( soundChannel_t::CHAN_ANNOUNCER );
 			else if ( !Q_stricmp( token, "CHAN_BODY" ) )
-				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( CHAN_BODY );
+				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( soundChannel_t::CHAN_BODY );
 			else if ( !Q_stricmp( token, "CHAN_WEAPON" ) )
-				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( CHAN_WEAPON );
+				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( soundChannel_t::CHAN_WEAPON );
 			else if ( !Q_stricmp( token, "CHAN_VOICE" ) )
-				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( CHAN_VOICE );
+				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( soundChannel_t::CHAN_VOICE );
 			else
-				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( CHAN_AUTO );
+				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( soundChannel_t::CHAN_AUTO );
 
 			//fall through to normal sound
-		case AEV_SOUND:			//# animID AEV_SOUND framenum soundpath randomlow randomhi chancetoplay
+		case animEventType_t::AEV_SOUND:			//# animID AEV_SOUND framenum soundpath randomlow randomhi chancetoplay
 			//get soundstring
 			token = COM_Parse( text_p );
 			if ( !token )
@@ -2054,7 +2054,7 @@ void ParseAnimationEvtBlock(const char *aeb_filename, animevent_t *animEvents, a
 			//last part - cheat and check and see if it's a special overridable saber sound we know of...
 			if ( !Q_stricmpn( "sound/weapons/saber/saberhup", stringData, 28 ) )
 			{//a saber swing
-				animEvents[curAnimEvent].eventType = AEV_SABER_SWING;
+				animEvents[curAnimEvent].eventType = animEventType_t::AEV_SABER_SWING;
 				animEvents[curAnimEvent].eventData[AED_SABER_SWING_SABERNUM] = 0;//since we don't know which one they meant if we're hacking this, always use first saber
 				animEvents[curAnimEvent].eventData[AED_SABER_SWING_PROBABILITY] = animEvents[curAnimEvent].eventData[AED_SOUND_PROBABILITY];
 				if ( lowestVal < 4 )
@@ -2072,7 +2072,7 @@ void ParseAnimationEvtBlock(const char *aeb_filename, animevent_t *animEvents, a
 			}
 			else if ( !Q_stricmpn( "sound/weapons/saber/saberspin", stringData, 29 ) )
 			{//a saber spin
-				animEvents[curAnimEvent].eventType = AEV_SABER_SPIN;
+				animEvents[curAnimEvent].eventType = animEventType_t::AEV_SABER_SPIN;
 				animEvents[curAnimEvent].eventData[AED_SABER_SPIN_SABERNUM] = 0;//since we don't know which one they meant if we're hacking this, always use first saber
 				animEvents[curAnimEvent].eventData[AED_SABER_SPIN_PROBABILITY] = animEvents[curAnimEvent].eventData[AED_SOUND_PROBABILITY];
 				if ( stringData[29] == 'o' )
@@ -2101,7 +2101,7 @@ void ParseAnimationEvtBlock(const char *aeb_filename, animevent_t *animEvents, a
 				}
 			}
 			break;
-		case AEV_FOOTSTEP:		//# animID AEV_FOOTSTEP framenum footstepType
+		case animEventType_t::AEV_FOOTSTEP:		//# animID AEV_FOOTSTEP framenum footstepType
 			//get footstep type
 			token = COM_Parse( text_p );
 			if ( !token )
@@ -2117,7 +2117,7 @@ void ParseAnimationEvtBlock(const char *aeb_filename, animevent_t *animEvents, a
 			}
 			animEvents[curAnimEvent].eventData[AED_FOOTSTEP_PROBABILITY] = atoi( token );
 			break;
-		case AEV_EFFECT:		//# animID AEV_EFFECT framenum effectpath boltName
+		case animEventType_t::AEV_EFFECT:		//# animID AEV_EFFECT framenum effectpath boltName
 			//get effect index
 			token = COM_Parse( text_p );
 			if ( !token )
@@ -2149,7 +2149,7 @@ void ParseAnimationEvtBlock(const char *aeb_filename, animevent_t *animEvents, a
 			}
 			animEvents[curAnimEvent].eventData[AED_EFFECT_PROBABILITY] = atoi( token );
 			break;
-		case AEV_FIRE:			//# animID AEV_FIRE framenum altfire chancetofire
+		case animEventType_t::AEV_FIRE:			//# animID AEV_FIRE framenum altfire chancetofire
 			//get altfire
 			token = COM_Parse( text_p );
 			if ( !token )
@@ -2165,7 +2165,7 @@ void ParseAnimationEvtBlock(const char *aeb_filename, animevent_t *animEvents, a
 			}
 			animEvents[curAnimEvent].eventData[AED_FIRE_PROBABILITY] = atoi( token );
 			break;
-		case AEV_MOVE:			//# animID AEV_MOVE framenum forwardpush rightpush uppush
+		case animEventType_t::AEV_MOVE:			//# animID AEV_MOVE framenum forwardpush rightpush uppush
 			//get forward push
 			token = COM_Parse( text_p );
 			if ( !token )
@@ -2277,8 +2277,8 @@ int BG_ParseAnimationEvtFile( const char *as_filename, int animFileIndex, int ev
 		for( i = 0; i < MAX_ANIM_EVENTS; i++ )
 		{
 			//Type of event
-			torsoAnimEvents[i].eventType = AEV_NONE;
-			legsAnimEvents[i].eventType = AEV_NONE;
+			torsoAnimEvents[i].eventType = animEventType_t::AEV_NONE;
+			legsAnimEvents[i].eventType = animEventType_t::AEV_NONE;
 			//Frame to play event on
 			torsoAnimEvents[i].keyFrame = -1;
 			legsAnimEvents[i].keyFrame = -1;
@@ -2295,7 +2295,7 @@ int BG_ParseAnimationEvtFile( const char *as_filename, int animFileIndex, int ev
 	}
 
 	// load the file
-	len = trap->FS_Open( sfilename, &f, FS_READ );
+	len = trap->FS_Open( sfilename, &f, fsMode_t::FS_READ );
 	if ( len <= 0 )
 	{//no file
 		goto fin;
@@ -2304,7 +2304,7 @@ int BG_ParseAnimationEvtFile( const char *as_filename, int animFileIndex, int ev
 	{
 		trap->FS_Close(f);
 #ifndef FINAL_BUILD
-		Com_Error(ERR_DROP, "File %s too long\n", sfilename );
+		Com_Error(errorParm_t::ERR_DROP, "File %s too long\n", sfilename );
 #else
 		Com_Printf( "File %s too long\n", sfilename );
 #endif
@@ -2454,7 +2454,7 @@ int BG_ParseAnimationFile(const char *filename, animSet_t *animset, bool isHuman
 	// load the file
 	if (!BGPAFtextLoaded || !isHumanoid)
 	{ //rww - We are always using the same animation config now. So only load it once.
-		len = trap->FS_Open( filename, &f, FS_READ );
+		len = trap->FS_Open( filename, &f, fsMode_t::FS_READ );
 		if ( (len <= 0) || (len >= std::ssize( BGPAFtext ) - 1) )
 		{
 			trap->FS_Close( f );
@@ -2464,7 +2464,7 @@ int BG_ParseAnimationFile(const char *filename, animSet_t *animset, bool isHuman
 			}
 			if (len > 0)
 			{
-				Com_Error(ERR_DROP, "%s exceeds the allowed game-side animation buffer!", filename);
+				Com_Error(errorParm_t::ERR_DROP, "%s exceeds the allowed game-side animation buffer!", filename);
 			}
 			return -1;
 		}
@@ -2490,7 +2490,7 @@ int BG_ParseAnimationFile(const char *filename, animSet_t *animset, bool isHuman
 	//FIXME: have some way of playing anims backwards... negative numFrames?
 
 	//initialize anim array so that from 0 to MAX_ANIMATIONS, set default values of 0 1 0 100
-	for(animNumber_t anim = FACE_TALK0; anim < MAX_ANIMATIONS; anim++)
+	for(animNumber_t anim = animNumber_t::FACE_TALK0; anim < animNumber_t::MAX_ANIMATIONS; anim++)
 	{
 		(*animset)[anim].firstFrame = 0;
 		(*animset)[anim].numFrames = 0;
@@ -2568,7 +2568,7 @@ int BG_ParseAnimationFile(const char *filename, animSet_t *animset, bool isHuman
 /*
 #ifdef _DEBUG
 	//Check the array, and print the ones that have nothing in them.
-	for(animNumber_t anim = FACE_TALK0; anim < MAX_ANIMATIONS; anim++)
+	for(animNumber_t anim = animNumber_t::FACE_TALK0; anim < animNumber_t::MAX_ANIMATIONS; anim++)
 	{
 		if (BG_AnimName( anim ) != nullptr)		// This animation reference exists.
 		{
@@ -2634,10 +2634,10 @@ Base animation for overall body
 */
 static void BG_StartLegsAnim( playerState_t *ps, animNumber_t anim )
 {
-	if ( ps->pm_type >= PM_DEAD )
+	if ( ps->pm_type >= pmtype_t::PM_DEAD )
 	{
 		//vehicles are allowed to do this.. IF it's a vehicle death anim
-		if (ps->clientNum < MAX_CLIENTS || anim != BOTH_VT_DEATH1)
+		if (ps->clientNum < MAX_CLIENTS || anim != animNumber_t::BOTH_VT_DEATH1)
 		{
 			return;
 		}
@@ -2649,20 +2649,20 @@ static void BG_StartLegsAnim( playerState_t *ps, animNumber_t anim )
 
 	if (ps->legsAnim == anim)
 	{
-		BG_FlipPart(ps, SETANIM_LEGS);
+		BG_FlipPart(ps, setAnimParts_t::SETANIM_LEGS);
 	}
 #ifdef _GAME
 	else if (ES_LegsAnim( g_entities[ps->clientNum].s ) == anim)
 	{ //toggled anim to one anim then back to the one we were at previously in
 		//one frame, indicating that anim should be restarted.
-		BG_FlipPart(ps, SETANIM_LEGS);
+		BG_FlipPart(ps, setAnimParts_t::SETANIM_LEGS);
 	}
 #elif defined( _CGAME )
 	else if (ps == pm_startPs && pm_startLegsAnim == anim)
 	{ // the server's rule above, in the prediction: its entity state holds the animation its last frame ended with, which
 		// is the one the predicted command starts from. Without it the client restarted the animation once less than the
 		// server within a command that leaves it and takes it again (zoomed with the disruptor: at every tick)
-		BG_FlipPart(ps, SETANIM_LEGS);
+		BG_FlipPart(ps, setAnimParts_t::SETANIM_LEGS);
 	}
 #endif
 	ps->legsAnim = anim;
@@ -2714,25 +2714,25 @@ Override animations for upper body
 */
 void BG_StartTorsoAnim( playerState_t *ps, animNumber_t anim )
 {
-	if ( ps->pm_type >= PM_DEAD )
+	if ( ps->pm_type >= pmtype_t::PM_DEAD )
 	{
 		return;
 	}
 
 	if (ps->torsoAnim == anim)
 	{
-		BG_FlipPart(ps, SETANIM_TORSO);
+		BG_FlipPart(ps, setAnimParts_t::SETANIM_TORSO);
 	}
 #ifdef _GAME
 	else if (ES_TorsoAnim( g_entities[ps->clientNum].s ) == anim)
 	{ //toggled anim to one anim then back to the one we were at previously in
 		//one frame, indicating that anim should be restarted.
-		BG_FlipPart(ps, SETANIM_TORSO);
+		BG_FlipPart(ps, setAnimParts_t::SETANIM_TORSO);
 	}
 #elif defined( _CGAME )
 	else if (ps == pm_startPs && pm_startTorsoAnim == anim)
 	{ // as for the legs (BG_StartLegsAnim)
-		BG_FlipPart(ps, SETANIM_TORSO);
+		BG_FlipPart(ps, setAnimParts_t::SETANIM_TORSO);
 	}
 #endif
 	ps->torsoAnim = anim;
@@ -2786,9 +2786,9 @@ void PM_SetTorsoAnimTimer(int time )
 
 void BG_SaberStartTransAnim( int clientNum, saber_styles_t saberAnimLevel, weapon_t weapon, animNumber_t anim, float *animSpeed, int broken )
 {
-	if ( anim >= BOTH_A1_T__B_ && anim <= BOTH_ROLL_STAB )
+	if ( anim >= animNumber_t::BOTH_A1_T__B_ && anim <= animNumber_t::BOTH_ROLL_STAB )
 	{
-		if ( weapon == WP_SABER )
+		if ( weapon == weapon_t::WP_SABER )
 		{
 			saberInfo_t *saber = BG_MySaber( clientNum, 0 );
 			if ( saber
@@ -2805,38 +2805,38 @@ void BG_SaberStartTransAnim( int clientNum, saber_styles_t saberAnimLevel, weapo
 		}
 	}
 
-	if ( ( (anim) >= BOTH_T1_BR__R &&
-		(anim) <= BOTH_T1_BL_TL ) ||
-		( (anim) >= BOTH_T2_BR__R &&
-		(anim) <= BOTH_T2_BL_TL ) ||
-		( (anim) >= BOTH_T3_BR__R &&
-		(anim) <= BOTH_T3_BL_TL ) )
+	if ( ( (anim) >= animNumber_t::BOTH_T1_BR__R &&
+		(anim) <= animNumber_t::BOTH_T1_BL_TL ) ||
+		( (anim) >= animNumber_t::BOTH_T2_BR__R &&
+		(anim) <= animNumber_t::BOTH_T2_BL_TL ) ||
+		( (anim) >= animNumber_t::BOTH_T3_BR__R &&
+		(anim) <= animNumber_t::BOTH_T3_BL_TL ) )
 	{
-		if ( saberAnimLevel == SS_FAST )
+		if ( saberAnimLevel == saber_styles_t::SS_FAST )
 		{
 			*animSpeed *= 1.5f;
 		}
-		else if ( saberAnimLevel == SS_STRONG )
+		else if ( saberAnimLevel == saber_styles_t::SS_STRONG )
 		{
 			*animSpeed *= 0.75f;
 		}
 
-		if (broken & Bit( BROKENLIMB_RARM ))
+		if (broken & Bit( brokenLimb_t::BROKENLIMB_RARM ))
 		{
 			*animSpeed *= 0.5f;
 		}
-		else if (broken & Bit( BROKENLIMB_LARM ))
+		else if (broken & Bit( brokenLimb_t::BROKENLIMB_LARM ))
 		{
 			*animSpeed *= 0.65f;
 		}
 	}
 	else if (broken && PM_InSaberAnim(anim))
 	{
-		if (broken & Bit( BROKENLIMB_RARM ))
+		if (broken & Bit( brokenLimb_t::BROKENLIMB_RARM ))
 		{
 			*animSpeed *= 0.5f;
 		}
-		else if (broken & Bit( BROKENLIMB_LARM ))
+		else if (broken & Bit( brokenLimb_t::BROKENLIMB_LARM ))
 		{
 			*animSpeed *= 0.65f;
 		}
@@ -2861,30 +2861,30 @@ void BG_SetAnimFinal(playerState_t *ps, animSet_t *animations,
 		return;
 	}
 
-	assert(anim > ANIM_NONE);
+	assert(anim > animNumber_t::ANIM_NONE);
 	assert((*animations)[anim].firstFrame > 0 || (*animations)[anim].numFrames > 0);
 
 	BG_SaberStartTransAnim(ps->clientNum, ps->fd.saberAnimLevel, ps->weapon, anim, &editAnimSpeed, ps->brokenLimbs);
 
 	// Set torso anim
-	if (Any( setAnimParts & SETANIM_TORSO ))
+	if (Any( setAnimParts & setAnimParts_t::SETANIM_TORSO ))
 	{
 		// Don't reset if it's already running the anim
-		if( !Any( setAnimFlags & SETANIM_FLAG_RESTART ) && (ps->torsoAnim) == anim )
+		if( !Any( setAnimFlags & setAnimFlags_t::SETANIM_FLAG_RESTART ) && (ps->torsoAnim) == anim )
 		{
 			goto setAnimLegs;
 		}
 		// or if a more important anim is running
-		if( !Any( setAnimFlags & SETANIM_FLAG_OVERRIDE ) && ((ps->torsoTimer > 0)||(ps->torsoTimer == -1)) )
+		if( !Any( setAnimFlags & setAnimFlags_t::SETANIM_FLAG_OVERRIDE ) && ((ps->torsoTimer > 0)||(ps->torsoTimer == -1)) )
 		{
 			goto setAnimLegs;
 		}
 
 		BG_StartTorsoAnim(ps, anim);
 
-		if (Any( setAnimFlags & SETANIM_FLAG_HOLD ))
+		if (Any( setAnimFlags & setAnimFlags_t::SETANIM_FLAG_HOLD ))
 		{
-			if (Any( setAnimFlags & SETANIM_FLAG_HOLDLESS ))
+			if (Any( setAnimFlags & setAnimFlags_t::SETANIM_FLAG_HOLDLESS ))
 			{	// Make sure to only wait in full 1/20 sec server frame intervals.
 				int dur;
 				int speedDif;
@@ -2906,7 +2906,7 @@ void BG_SetAnimFinal(playerState_t *ps, animSet_t *animations,
 				ps->torsoTimer = (((*animations)[anim].numFrames ) * Q_fabs((float)((*animations)[anim].frameLerp)));
 			}
 
-			if (ps->fd.forcePowersActive & Bit( FP_RAGE ))
+			if (ps->fd.forcePowersActive & Bit( forcePowers_t::FP_RAGE ))
 			{
 				ps->torsoTimer /= 1.7;
 			}
@@ -2915,24 +2915,24 @@ void BG_SetAnimFinal(playerState_t *ps, animSet_t *animations,
 
 setAnimLegs:
 	// Set legs anim
-	if (Any( setAnimParts & SETANIM_LEGS ))
+	if (Any( setAnimParts & setAnimParts_t::SETANIM_LEGS ))
 	{
 		// Don't reset if it's already running the anim
-		if( !Any( setAnimFlags & SETANIM_FLAG_RESTART ) && (ps->legsAnim) == anim )
+		if( !Any( setAnimFlags & setAnimFlags_t::SETANIM_FLAG_RESTART ) && (ps->legsAnim) == anim )
 		{
 			goto setAnimDone;
 		}
 		// or if a more important anim is running
-		if( !Any( setAnimFlags & SETANIM_FLAG_OVERRIDE ) && ((ps->legsTimer > 0)||(ps->legsTimer == -1)) )
+		if( !Any( setAnimFlags & setAnimFlags_t::SETANIM_FLAG_OVERRIDE ) && ((ps->legsTimer > 0)||(ps->legsTimer == -1)) )
 		{
 			goto setAnimDone;
 		}
 
 		BG_StartLegsAnim(ps, anim);
 
-		if (Any( setAnimFlags & SETANIM_FLAG_HOLD ))
+		if (Any( setAnimFlags & setAnimFlags_t::SETANIM_FLAG_HOLD ))
 		{
-			if (Any( setAnimFlags & SETANIM_FLAG_HOLDLESS ))
+			if (Any( setAnimFlags & setAnimFlags_t::SETANIM_FLAG_HOLDLESS ))
 			{	// Make sure to only wait in full 1/20 sec server frame intervals.
 				int dur;
 				int speedDif;
@@ -2957,11 +2957,11 @@ setAnimLegs:
 			if (PM_RunningAnim(anim) ||
 				PM_WalkingAnim(anim)) //these guys are ok, they don't actually reference pm
 			{
-				if (ps->fd.forcePowersActive & Bit( FP_RAGE ))
+				if (ps->fd.forcePowersActive & Bit( forcePowers_t::FP_RAGE ))
 				{
 					ps->legsTimer /= 1.3;
 				}
-				else if (ps->fd.forcePowersActive & Bit( FP_SPEED ))
+				else if (ps->fd.forcePowersActive & Bit( forcePowers_t::FP_SPEED ))
 				{
 					ps->legsTimer /= 1.7;
 				}
@@ -2984,7 +2984,7 @@ bool BG_HasAnimation(int animIndex, animNumber_t animation)
 	animSet_t *animations;
 
 	//must be a valid anim number
-	if ( animation < FACE_TALK0 || animation >= MAX_ANIMATIONS )
+	if ( animation < animNumber_t::FACE_TALK0 || animation >= animNumber_t::MAX_ANIMATIONS )
 	{
 		return false;
 	}
@@ -3036,11 +3036,11 @@ void BG_SetAnim(playerState_t *ps, animSet_t *animations, setAnimParts_t setAnim
 
 	if ((*animations)[anim].firstFrame == 0 && (*animations)[anim].numFrames == 0)
 	{
-		if (anim == BOTH_RUNBACK1 ||
-			anim == BOTH_WALKBACK1 ||
-			anim == BOTH_RUN1)
+		if (anim == animNumber_t::BOTH_RUNBACK1 ||
+			anim == animNumber_t::BOTH_WALKBACK1 ||
+			anim == animNumber_t::BOTH_RUN1)
 		{ //hack for droids
-			anim = BOTH_WALK2;
+			anim = animNumber_t::BOTH_WALK2;
 		}
 
 		if ((*animations)[anim].firstFrame == 0 && (*animations)[anim].numFrames == 0)
@@ -3052,7 +3052,7 @@ void BG_SetAnim(playerState_t *ps, animSet_t *animations, setAnimParts_t setAnim
 	/*
 	if (BG_InSpecialJump(anim))
 	{
-		setAnimFlags |= SETANIM_FLAG_RESTART;
+		setAnimFlags |= setAnimFlags_t::SETANIM_FLAG_RESTART;
 	}
 	*/
 	//Don't know why I put this here originally but it's messing stuff up now and it isn't needed.
@@ -3062,18 +3062,18 @@ void BG_SetAnim(playerState_t *ps, animSet_t *animations, setAnimParts_t setAnim
 //		return;
 //	}
 
-	if (Any( setAnimFlags & SETANIM_FLAG_OVERRIDE ))
+	if (Any( setAnimFlags & setAnimFlags_t::SETANIM_FLAG_OVERRIDE ))
 	{
-		if (Any( setAnimParts & SETANIM_TORSO ))
+		if (Any( setAnimParts & setAnimParts_t::SETANIM_TORSO ))
 		{
-			if( Any( setAnimFlags & SETANIM_FLAG_RESTART ) || (ps->torsoAnim) != anim )
+			if( Any( setAnimFlags & setAnimFlags_t::SETANIM_FLAG_RESTART ) || (ps->torsoAnim) != anim )
 			{
 				BG_SetTorsoAnimTimer(ps, 0);
 			}
 		}
-		if (Any( setAnimParts & SETANIM_LEGS ))
+		if (Any( setAnimParts & setAnimParts_t::SETANIM_LEGS ))
 		{
-			if( Any( setAnimFlags & SETANIM_FLAG_RESTART ) || (ps->legsAnim) != anim )
+			if( Any( setAnimFlags & setAnimFlags_t::SETANIM_FLAG_RESTART ) || (ps->legsAnim) != anim )
 			{
 				BG_SetLegsAnimTimer(ps, 0);
 			}

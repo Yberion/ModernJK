@@ -33,7 +33,6 @@ enum class saberEntityState_t
 	SES_HOVERING = 2,
 	SES_RETURNING = 3,
 };
-using enum saberEntityState_t;
 
 enum class lean_t
 {
@@ -41,7 +40,6 @@ enum class lean_t
 	LEAN_RIGHT,
 	LEAN_LEFT,
 };
-using enum lean_t;
 
 enum class breakableModelType_t
 {
@@ -49,7 +47,6 @@ enum class breakableModelType_t
 	MDL_ARMOR_HEALTH,
 	MDL_AMMO,
 };
-using enum breakableModelType_t;
 
 // the sets of a character's custom sounds; CS_TRY_ALL, no set given, searches them all
 enum class customSoundSet_t
@@ -60,7 +57,6 @@ enum class customSoundSet_t
 	CS_JEDI,
 	CS_TRY_ALL
 };
-using enum customSoundSet_t;
 
 // the background of the HUD's and the datapad's icons
 enum class iconBackground_t
@@ -69,4 +65,3 @@ enum class iconBackground_t
 	ICON_FORCE,
 	ICON_INVENTORY
 };
-using enum iconBackground_t;

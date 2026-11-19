@@ -158,7 +158,6 @@ enum class datapadMoveTitle_t
 	MD_SABER_STAFF,
 	MD_MOVE_TITLE_MAX
 };
-using enum datapadMoveTitle_t;
 
 //Force Warnings
 enum class forceWarning_t
@@ -170,7 +169,6 @@ enum class forceWarning_t
 	FW_VERY_DARK,
 	NUM_FORCE_WARNINGS
 };
-using enum forceWarning_t;
 template <> inline constexpr bool enableEnumArithmetic<forceWarning_t> = true;
 
 typedef struct {
@@ -224,7 +222,7 @@ typedef struct {
 	int			languageCount;
 	int			languageCountIndex;
 
-	EnumArray<forcePowerLevels_t, forcePowers_t, NUM_FORCE_POWERS>	forcePowerLevel;
+	EnumArray<forcePowerLevels_t, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS>	forcePowerLevel;
 }	uiInfo_t;
 
 extern uiInfo_t uiInfo;

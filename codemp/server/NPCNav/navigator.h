@@ -91,7 +91,7 @@ public:
 	static CNode *Create( vec3_t position, navNodeFlags_t flags, int radius, int ID );
 	static CNode *Create( void );
 
-	void AddEdge( int ID, int cost, navEdgeFlags_t flags = EFLAG_NONE );
+	void AddEdge( int ID, int cost, navEdgeFlags_t flags = navEdgeFlags_t::EFLAG_NONE );
 	void AddRank( int ID, int rank );
 
 	void Draw( bool radius );

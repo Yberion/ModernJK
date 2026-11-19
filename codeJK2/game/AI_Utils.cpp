@@ -340,7 +340,7 @@ bool AI_ValidateGroupMember( AIGroupInfo_t *group, gentity_t *member )
 		return false;
 
 	//must be allowed to join groups
-	if ( Any(member->NPC->scriptFlags&SCF_NO_GROUPS) )
+	if ( Any(member->NPC->scriptFlags&scriptFlags_t::SCF_NO_GROUPS) )
 		return false;
 
 	//Must not be in another group
@@ -354,37 +354,37 @@ bool AI_ValidateGroupMember( AIGroupInfo_t *group, gentity_t *member )
 		return false;
 
 	//can't be in an emplaced gun
-	if( Any( member->s.eFlags & EF_LOCKED_TO_WEAPON ) )
+	if( Any( member->s.eFlags & entityFlags_t::EF_LOCKED_TO_WEAPON ) )
 		return false;
 
 	//Must be on the same team
 	if ( member->client->playerTeam != group->team )
 		return false;
 
-	if ( member->client->ps.weapon == WP_SABER ||//!= self->s.weapon )
-		member->client->ps.weapon == WP_THERMAL ||
-		member->client->ps.weapon == WP_DISRUPTOR ||
-		member->client->ps.weapon == WP_EMPLACED_GUN ||
-		member->client->ps.weapon == WP_BOT_LASER ||		// Probe droid	- Laser blast
-		member->client->ps.weapon == WP_MELEE ||
-		member->client->ps.weapon == WP_TURRET ||			// turret guns
-		member->client->ps.weapon == WP_ATST_MAIN ||
-		member->client->ps.weapon == WP_ATST_SIDE ||
-		member->client->ps.weapon == WP_TIE_FIGHTER )
+	if ( member->client->ps.weapon == weapon_t::WP_SABER ||//!= self->s.weapon )
+		member->client->ps.weapon == weapon_t::WP_THERMAL ||
+		member->client->ps.weapon == weapon_t::WP_DISRUPTOR ||
+		member->client->ps.weapon == weapon_t::WP_EMPLACED_GUN ||
+		member->client->ps.weapon == weapon_t::WP_BOT_LASER ||		// Probe droid	- Laser blast
+		member->client->ps.weapon == weapon_t::WP_MELEE ||
+		member->client->ps.weapon == weapon_t::WP_TURRET ||			// turret guns
+		member->client->ps.weapon == weapon_t::WP_ATST_MAIN ||
+		member->client->ps.weapon == weapon_t::WP_ATST_SIDE ||
+		member->client->ps.weapon == weapon_t::WP_TIE_FIGHTER )
 	{//not really a squad-type guy
 		return false;
 	}
 
-	if ( member->client->NPC_class == CLASS_ATST ||
-		member->client->NPC_class == CLASS_PROBE ||
-		member->client->NPC_class == CLASS_SEEKER ||
-		member->client->NPC_class == CLASS_REMOTE ||
-		member->client->NPC_class == CLASS_SENTRY ||
-		member->client->NPC_class == CLASS_INTERROGATOR ||
-		member->client->NPC_class == CLASS_MINEMONSTER ||
-		member->client->NPC_class == CLASS_HOWLER ||
-		member->client->NPC_class == CLASS_MARK1 ||
-		member->client->NPC_class == CLASS_MARK2 )
+	if ( member->client->NPC_class == class_t::CLASS_ATST ||
+		member->client->NPC_class == class_t::CLASS_PROBE ||
+		member->client->NPC_class == class_t::CLASS_SEEKER ||
+		member->client->NPC_class == class_t::CLASS_REMOTE ||
+		member->client->NPC_class == class_t::CLASS_SENTRY ||
+		member->client->NPC_class == class_t::CLASS_INTERROGATOR ||
+		member->client->NPC_class == class_t::CLASS_MINEMONSTER ||
+		member->client->NPC_class == class_t::CLASS_HOWLER ||
+		member->client->NPC_class == class_t::CLASS_MARK1 ||
+		member->client->NPC_class == class_t::CLASS_MARK2 )
 	{//these kinds of enemies don't actually use this group AI
 		return false;
 	}
@@ -444,7 +444,7 @@ void AI_GetGroup( gentity_t *self )
 		return;
 	}
 
-	if ( Any(self->NPC->scriptFlags&SCF_NO_GROUPS) )
+	if ( Any(self->NPC->scriptFlags&scriptFlags_t::SCF_NO_GROUPS) )
 	{
 		self->NPC->group = nullptr;
 		return;
@@ -599,7 +599,7 @@ void AI_GroupMemberKilled( gentity_t *self )
 	{//what group?
 		return;
 	}
-	if ( !self || !self->NPC || self->NPC->rank < RANK_ENSIGN )
+	if ( !self || !self->NPC || self->NPC->rank < rank_t::RANK_ENSIGN )
 	{//I'm not an officer, let's not really care for now
 		return;
 	}
@@ -613,7 +613,7 @@ void AI_GroupMemberKilled( gentity_t *self )
 		{
 			continue;
 		}
-		if ( member->NPC->rank > RANK_ENSIGN )
+		if ( member->NPC->rank > rank_t::RANK_ENSIGN )
 		{//officers do not panic
 			noflee = true;
 		}
@@ -639,21 +639,21 @@ void AI_GroupMemberKilled( gentity_t *self )
 			{
 				continue;
 			}
-			if ( member->NPC->rank < RANK_ENSIGN )
+			if ( member->NPC->rank < rank_t::RANK_ENSIGN )
 			{//grunt
 				if ( group->enemy && DistanceSquared( member->currentOrigin, group->enemy->currentOrigin ) < 65536/*256*256*/ )
 				{//those close to enemy run away!
-					ST_StartFlee( member, group->enemy, member->currentOrigin, AEL_DANGER_GREAT, 3000, 5000 );
+					ST_StartFlee( member, group->enemy, member->currentOrigin, alertEventLevel_e::AEL_DANGER_GREAT, 3000, 5000 );
 				}
 				else if ( DistanceSquared( member->currentOrigin, self->currentOrigin ) < 65536/*256*256*/ )
 				{//those close to me run away!
-					ST_StartFlee( member, group->enemy, member->currentOrigin, AEL_DANGER_GREAT, 3000, 5000 );
+					ST_StartFlee( member, group->enemy, member->currentOrigin, alertEventLevel_e::AEL_DANGER_GREAT, 3000, 5000 );
 				}
 				else
 				{//else, maybe just a random chance
 					if ( Q_irand( 0, to_underlying( self->NPC->rank ) ) > to_underlying( member->NPC->rank ) )
 					{//lower rank they are, higher rank I am, more likely they are to flee
-						ST_StartFlee( member, group->enemy, member->currentOrigin, AEL_DANGER_GREAT, 3000, 5000 );
+						ST_StartFlee( member, group->enemy, member->currentOrigin, alertEventLevel_e::AEL_DANGER_GREAT, 3000, 5000 );
 					}
 					else
 					{
@@ -836,7 +836,7 @@ bool AI_RefreshGroup( AIGroupInfo_t *group )
 	for ( i = 0; i < group->numGroup; i++ )
 	{
 		member = &g_entities[group->member[i].number];
-		if ( member->NPC->rank < RANK_ENSIGN )
+		if ( member->NPC->rank < rank_t::RANK_ENSIGN )
 		{//grunts
 			group->morale++;
 		}
@@ -865,46 +865,46 @@ bool AI_RefreshGroup( AIGroupInfo_t *group )
 		}
 		switch( group->enemy->s.weapon )
 		{
-		case WP_SABER:
+		case weapon_t::WP_SABER:
 			group->morale -= 5;
 			break;
-		case WP_BRYAR_PISTOL:
+		case weapon_t::WP_BRYAR_PISTOL:
 			group->morale += 3;
 			break;
-		case WP_DISRUPTOR:
+		case weapon_t::WP_DISRUPTOR:
 			group->morale += 2;
 			break;
-		case WP_REPEATER:
+		case weapon_t::WP_REPEATER:
 			group->morale -= 1;
 			break;
-		case WP_FLECHETTE:
+		case weapon_t::WP_FLECHETTE:
 			group->morale -= 2;
 			break;
-		case WP_ROCKET_LAUNCHER:
+		case weapon_t::WP_ROCKET_LAUNCHER:
 			group->morale -= 10;
 			break;
-		case WP_THERMAL:
+		case weapon_t::WP_THERMAL:
 			group->morale -= 5;
 			break;
-		case WP_TRIP_MINE:
+		case weapon_t::WP_TRIP_MINE:
 			group->morale -= 3;
 			break;
-		case WP_DET_PACK:
+		case weapon_t::WP_DET_PACK:
 			group->morale -= 10;
 			break;
-		case WP_MELEE:			// Any ol' melee attack
+		case weapon_t::WP_MELEE:			// Any ol' melee attack
 			group->morale += 20;
 			break;
-		case WP_STUN_BATON:
+		case weapon_t::WP_STUN_BATON:
 			group->morale += 10;
 			break;
-		case WP_EMPLACED_GUN:
+		case weapon_t::WP_EMPLACED_GUN:
 			group->morale -= 8;
 			break;
-		case WP_ATST_MAIN:
+		case weapon_t::WP_ATST_MAIN:
 			group->morale -= 8;
 			break;
-		case WP_ATST_SIDE:
+		case weapon_t::WP_ATST_SIDE:
 			group->morale -= 20;
 			break;
 		default:
@@ -996,7 +996,7 @@ bool AI_CheckEnemyCollision( gentity_t *ent, bool takeEnemy )
 	if ( ent == nullptr )
 		return false;
 
-	if ( Any( ent->svFlags & SVF_LOCKEDENEMY ) )
+	if ( Any( ent->svFlags & svFlags_t::SVF_LOCKEDENEMY ) )
 		return false;
 
 	navInfo_t	info;
@@ -1028,7 +1028,7 @@ AI_DistributeAttack
 gentity_t *AI_DistributeAttack( gentity_t *attacker, gentity_t *enemy, team_t team, int threshold )
 {
 	//Don't take new targets
-	if ( Any( NPC->svFlags & SVF_LOCKEDENEMY ) )
+	if ( Any( NPC->svFlags & svFlags_t::SVF_LOCKEDENEMY ) )
 		return enemy;
 
 	int	numSurrounding = AI_GetGroupSize( enemy->currentOrigin, 48, team, attacker );

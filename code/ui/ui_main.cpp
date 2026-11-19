@@ -178,11 +178,10 @@ enum class datapadMoveSound_t
 	MDS_SABER,
 	MDS_MOVE_SOUNDS_MAX
 };
-using enum datapadMoveSound_t;
 
 // Some hard coded badness
 // At some point maybe this should be externalized to a .dat file
-EnumArray<const char *, datapadMoveTitle_t, MD_MOVE_TITLE_MAX> datapadMoveTitleData =
+EnumArray<const char *, datapadMoveTitle_t, datapadMoveTitle_t::MD_MOVE_TITLE_MAX> datapadMoveTitleData =
 {
 "@MENUS_ACROBATICS",
 "@MENUS_SINGLE_FAST",
@@ -192,7 +191,7 @@ EnumArray<const char *, datapadMoveTitle_t, MD_MOVE_TITLE_MAX> datapadMoveTitleD
 "@MENUS_SABER_STAFF",
 };
 
-EnumArray<const char *, datapadMoveTitle_t, MD_MOVE_TITLE_MAX> datapadMoveTitleBaseAnims =
+EnumArray<const char *, datapadMoveTitle_t, datapadMoveTitle_t::MD_MOVE_TITLE_MAX> datapadMoveTitleBaseAnims =
 {
 "BOTH_RUN1",
 "BOTH_SABERFAST_STANCE",
@@ -212,126 +211,126 @@ typedef struct
 	datapadMoveSound_t	sound;
 } datpadmovedata_t;
 
-static EnumArray<datpadmovedata_t[MAX_MOVES], datapadMoveTitle_t, MD_MOVE_TITLE_MAX> datapadMoveData =
+static EnumArray<datpadmovedata_t[MAX_MOVES], datapadMoveTitle_t, datapadMoveTitle_t::MD_MOVE_TITLE_MAX> datapadMoveData =
 {{
 {
 // Acrobatics
-{ "@MENUS_FORCE_JUMP1",				"@MENUS_FORCE_JUMP1_DESC",			"BOTH_FORCEJUMP1",				MDS_FORCE_JUMP },
-{ "@MENUS_FORCE_FLIP",				"@MENUS_FORCE_FLIP_DESC",			"BOTH_FLIP_F",					MDS_FORCE_JUMP },
-{ "@MENUS_ROLL",						"@MENUS_ROLL_DESC",					"BOTH_ROLL_F",					MDS_ROLL },
-{ "@MENUS_BACKFLIP_OFF_WALL",			"@MENUS_BACKFLIP_OFF_WALL_DESC",	"BOTH_WALL_FLIP_BACK1",			MDS_FORCE_JUMP },
-{ "@MENUS_SIDEFLIP_OFF_WALL",			"@MENUS_SIDEFLIP_OFF_WALL_DESC",	"BOTH_WALL_FLIP_RIGHT",			MDS_FORCE_JUMP },
-{ "@MENUS_WALL_RUN",					"@MENUS_WALL_RUN_DESC",				"BOTH_WALL_RUN_RIGHT",			MDS_FORCE_JUMP },
-{ "@MENUS_LONG_JUMP",					"@MENUS_LONG_JUMP_DESC",			"BOTH_FORCELONGLEAP_START",		MDS_FORCE_JUMP },
-{ "@MENUS_WALL_GRAB_JUMP",			"@MENUS_WALL_GRAB_JUMP_DESC",		"BOTH_FORCEWALLREBOUND_FORWARD",MDS_FORCE_JUMP },
-{ "@MENUS_RUN_UP_WALL_BACKFLIP",		"@MENUS_RUN_UP_WALL_BACKFLIP_DESC",	"BOTH_FORCEWALLRUNFLIP_START",	MDS_FORCE_JUMP },
-{ "@MENUS_JUMPUP_FROM_KNOCKDOWN",		"@MENUS_JUMPUP_FROM_KNOCKDOWN_DESC","BOTH_KNOCKDOWN3",				MDS_NONE },
-{ "@MENUS_JUMPKICK_FROM_KNOCKDOWN",	"@MENUS_JUMPKICK_FROM_KNOCKDOWN_DESC","BOTH_KNOCKDOWN2",			MDS_NONE },
-{ "@MENUS_ROLL_FROM_KNOCKDOWN",		"@MENUS_ROLL_FROM_KNOCKDOWN_DESC",	"BOTH_KNOCKDOWN1",				MDS_NONE },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
+{ "@MENUS_FORCE_JUMP1",				"@MENUS_FORCE_JUMP1_DESC",			"BOTH_FORCEJUMP1",				datapadMoveSound_t::MDS_FORCE_JUMP },
+{ "@MENUS_FORCE_FLIP",				"@MENUS_FORCE_FLIP_DESC",			"BOTH_FLIP_F",					datapadMoveSound_t::MDS_FORCE_JUMP },
+{ "@MENUS_ROLL",						"@MENUS_ROLL_DESC",					"BOTH_ROLL_F",					datapadMoveSound_t::MDS_ROLL },
+{ "@MENUS_BACKFLIP_OFF_WALL",			"@MENUS_BACKFLIP_OFF_WALL_DESC",	"BOTH_WALL_FLIP_BACK1",			datapadMoveSound_t::MDS_FORCE_JUMP },
+{ "@MENUS_SIDEFLIP_OFF_WALL",			"@MENUS_SIDEFLIP_OFF_WALL_DESC",	"BOTH_WALL_FLIP_RIGHT",			datapadMoveSound_t::MDS_FORCE_JUMP },
+{ "@MENUS_WALL_RUN",					"@MENUS_WALL_RUN_DESC",				"BOTH_WALL_RUN_RIGHT",			datapadMoveSound_t::MDS_FORCE_JUMP },
+{ "@MENUS_LONG_JUMP",					"@MENUS_LONG_JUMP_DESC",			"BOTH_FORCELONGLEAP_START",		datapadMoveSound_t::MDS_FORCE_JUMP },
+{ "@MENUS_WALL_GRAB_JUMP",			"@MENUS_WALL_GRAB_JUMP_DESC",		"BOTH_FORCEWALLREBOUND_FORWARD",datapadMoveSound_t::MDS_FORCE_JUMP },
+{ "@MENUS_RUN_UP_WALL_BACKFLIP",		"@MENUS_RUN_UP_WALL_BACKFLIP_DESC",	"BOTH_FORCEWALLRUNFLIP_START",	datapadMoveSound_t::MDS_FORCE_JUMP },
+{ "@MENUS_JUMPUP_FROM_KNOCKDOWN",		"@MENUS_JUMPUP_FROM_KNOCKDOWN_DESC","BOTH_KNOCKDOWN3",				datapadMoveSound_t::MDS_NONE },
+{ "@MENUS_JUMPKICK_FROM_KNOCKDOWN",	"@MENUS_JUMPKICK_FROM_KNOCKDOWN_DESC","BOTH_KNOCKDOWN2",			datapadMoveSound_t::MDS_NONE },
+{ "@MENUS_ROLL_FROM_KNOCKDOWN",		"@MENUS_ROLL_FROM_KNOCKDOWN_DESC",	"BOTH_KNOCKDOWN1",				datapadMoveSound_t::MDS_NONE },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
 },
 
 {
 //Single Saber, Fast Style
-{ "@MENUS_STAB_BACK",					"@MENUS_STAB_BACK_DESC",			"BOTH_A2_STABBACK1",			MDS_SABER },
-{ "@MENUS_LUNGE_ATTACK",				"@MENUS_LUNGE_ATTACK_DESC",			"BOTH_LUNGE2_B__T_",			MDS_SABER },
-{ "@MENUS_FORCE_PULL_IMPALE",			"@MENUS_FORCE_PULL_IMPALE_DESC",	"BOTH_PULL_IMPALE_STAB",		MDS_SABER },
-{ "@MENUS_FAST_ATTACK_KATA",			"@MENUS_FAST_ATTACK_KATA_DESC",		"BOTH_A1_SPECIAL",				MDS_SABER },
-{ "@MENUS_ATTACK_ENEMYONGROUND",		"@MENUS_ATTACK_ENEMYONGROUND_DESC", "BOTH_STABDOWN",				MDS_FORCE_JUMP },
-{ "@MENUS_CARTWHEEL",					"@MENUS_CARTWHEEL_DESC",			"BOTH_ARIAL_RIGHT",				MDS_FORCE_JUMP },
-{ "@MENUS_BOTH_ROLL_STAB",			"@MENUS_BOTH_ROLL_STAB2_DESC",		"BOTH_ROLL_STAB",				MDS_SABER },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
+{ "@MENUS_STAB_BACK",					"@MENUS_STAB_BACK_DESC",			"BOTH_A2_STABBACK1",			datapadMoveSound_t::MDS_SABER },
+{ "@MENUS_LUNGE_ATTACK",				"@MENUS_LUNGE_ATTACK_DESC",			"BOTH_LUNGE2_B__T_",			datapadMoveSound_t::MDS_SABER },
+{ "@MENUS_FORCE_PULL_IMPALE",			"@MENUS_FORCE_PULL_IMPALE_DESC",	"BOTH_PULL_IMPALE_STAB",		datapadMoveSound_t::MDS_SABER },
+{ "@MENUS_FAST_ATTACK_KATA",			"@MENUS_FAST_ATTACK_KATA_DESC",		"BOTH_A1_SPECIAL",				datapadMoveSound_t::MDS_SABER },
+{ "@MENUS_ATTACK_ENEMYONGROUND",		"@MENUS_ATTACK_ENEMYONGROUND_DESC", "BOTH_STABDOWN",				datapadMoveSound_t::MDS_FORCE_JUMP },
+{ "@MENUS_CARTWHEEL",					"@MENUS_CARTWHEEL_DESC",			"BOTH_ARIAL_RIGHT",				datapadMoveSound_t::MDS_FORCE_JUMP },
+{ "@MENUS_BOTH_ROLL_STAB",			"@MENUS_BOTH_ROLL_STAB2_DESC",		"BOTH_ROLL_STAB",				datapadMoveSound_t::MDS_SABER },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
 },
 
 {
 //Single Saber, Medium Style
-{ "@MENUS_SLASH_BACK",				"@MENUS_SLASH_BACK_DESC",			"BOTH_ATTACK_BACK",				MDS_SABER },
-{ "@MENUS_FLIP_ATTACK",				"@MENUS_FLIP_ATTACK_DESC",			"BOTH_JUMPFLIPSLASHDOWN1",		MDS_FORCE_JUMP },
-{ "@MENUS_FORCE_PULL_SLASH",			"@MENUS_FORCE_PULL_SLASH_DESC",		"BOTH_PULL_IMPALE_SWING",		MDS_SABER },
-{ "@MENUS_MEDIUM_ATTACK_KATA",		"@MENUS_MEDIUM_ATTACK_KATA_DESC",	"BOTH_A2_SPECIAL",				MDS_SABER },
-{ "@MENUS_ATTACK_ENEMYONGROUND",		"@MENUS_ATTACK_ENEMYONGROUND_DESC", "BOTH_STABDOWN",				MDS_FORCE_JUMP },
-{ "@MENUS_CARTWHEEL",					"@MENUS_CARTWHEEL_DESC",			"BOTH_ARIAL_RIGHT",				MDS_FORCE_JUMP },
-{ "@MENUS_BOTH_ROLL_STAB",			"@MENUS_BOTH_ROLL_STAB2_DESC",		"BOTH_ROLL_STAB",				MDS_SABER },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
+{ "@MENUS_SLASH_BACK",				"@MENUS_SLASH_BACK_DESC",			"BOTH_ATTACK_BACK",				datapadMoveSound_t::MDS_SABER },
+{ "@MENUS_FLIP_ATTACK",				"@MENUS_FLIP_ATTACK_DESC",			"BOTH_JUMPFLIPSLASHDOWN1",		datapadMoveSound_t::MDS_FORCE_JUMP },
+{ "@MENUS_FORCE_PULL_SLASH",			"@MENUS_FORCE_PULL_SLASH_DESC",		"BOTH_PULL_IMPALE_SWING",		datapadMoveSound_t::MDS_SABER },
+{ "@MENUS_MEDIUM_ATTACK_KATA",		"@MENUS_MEDIUM_ATTACK_KATA_DESC",	"BOTH_A2_SPECIAL",				datapadMoveSound_t::MDS_SABER },
+{ "@MENUS_ATTACK_ENEMYONGROUND",		"@MENUS_ATTACK_ENEMYONGROUND_DESC", "BOTH_STABDOWN",				datapadMoveSound_t::MDS_FORCE_JUMP },
+{ "@MENUS_CARTWHEEL",					"@MENUS_CARTWHEEL_DESC",			"BOTH_ARIAL_RIGHT",				datapadMoveSound_t::MDS_FORCE_JUMP },
+{ "@MENUS_BOTH_ROLL_STAB",			"@MENUS_BOTH_ROLL_STAB2_DESC",		"BOTH_ROLL_STAB",				datapadMoveSound_t::MDS_SABER },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
 },
 
 {
 //Single Saber, Strong Style
-{ "@MENUS_SLASH_BACK",				"@MENUS_SLASH_BACK_DESC",			"BOTH_ATTACK_BACK",				MDS_SABER },
-{ "@MENUS_JUMP_ATTACK",				"@MENUS_JUMP_ATTACK_DESC",			"BOTH_FORCELEAP2_T__B_",		MDS_FORCE_JUMP },
-{ "@MENUS_FORCE_PULL_SLASH",			"@MENUS_FORCE_PULL_SLASH_DESC",		"BOTH_PULL_IMPALE_SWING",		MDS_SABER },
-{ "@MENUS_STRONG_ATTACK_KATA",		"@MENUS_STRONG_ATTACK_KATA_DESC",	"BOTH_A3_SPECIAL",				MDS_SABER },
-{ "@MENUS_ATTACK_ENEMYONGROUND",		"@MENUS_ATTACK_ENEMYONGROUND_DESC", "BOTH_STABDOWN",				MDS_FORCE_JUMP },
-{ "@MENUS_CARTWHEEL",					"@MENUS_CARTWHEEL_DESC",			"BOTH_ARIAL_RIGHT",				MDS_FORCE_JUMP },
-{ "@MENUS_BOTH_ROLL_STAB",			"@MENUS_BOTH_ROLL_STAB2_DESC",		"BOTH_ROLL_STAB",				MDS_SABER },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
+{ "@MENUS_SLASH_BACK",				"@MENUS_SLASH_BACK_DESC",			"BOTH_ATTACK_BACK",				datapadMoveSound_t::MDS_SABER },
+{ "@MENUS_JUMP_ATTACK",				"@MENUS_JUMP_ATTACK_DESC",			"BOTH_FORCELEAP2_T__B_",		datapadMoveSound_t::MDS_FORCE_JUMP },
+{ "@MENUS_FORCE_PULL_SLASH",			"@MENUS_FORCE_PULL_SLASH_DESC",		"BOTH_PULL_IMPALE_SWING",		datapadMoveSound_t::MDS_SABER },
+{ "@MENUS_STRONG_ATTACK_KATA",		"@MENUS_STRONG_ATTACK_KATA_DESC",	"BOTH_A3_SPECIAL",				datapadMoveSound_t::MDS_SABER },
+{ "@MENUS_ATTACK_ENEMYONGROUND",		"@MENUS_ATTACK_ENEMYONGROUND_DESC", "BOTH_STABDOWN",				datapadMoveSound_t::MDS_FORCE_JUMP },
+{ "@MENUS_CARTWHEEL",					"@MENUS_CARTWHEEL_DESC",			"BOTH_ARIAL_RIGHT",				datapadMoveSound_t::MDS_FORCE_JUMP },
+{ "@MENUS_BOTH_ROLL_STAB",			"@MENUS_BOTH_ROLL_STAB2_DESC",		"BOTH_ROLL_STAB",				datapadMoveSound_t::MDS_SABER },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
 },
 
 {
 //Dual Sabers
-{ "@MENUS_SLASH_BACK",				"@MENUS_SLASH_BACK_DESC",			"BOTH_ATTACK_BACK",				MDS_SABER },
-{ "@MENUS_FLIP_FORWARD_ATTACK",		"@MENUS_FLIP_FORWARD_ATTACK_DESC",	"BOTH_JUMPATTACK6",				MDS_FORCE_JUMP },
-{ "@MENUS_DUAL_SABERS_TWIRL",			"@MENUS_DUAL_SABERS_TWIRL_DESC",	"BOTH_SPINATTACK6",				MDS_SABER },
-{ "@MENUS_ATTACK_ENEMYONGROUND",		"@MENUS_ATTACK_ENEMYONGROUND_DESC", "BOTH_STABDOWN_DUAL",			MDS_FORCE_JUMP },
-{ "@MENUS_DUAL_SABER_BARRIER",		"@MENUS_DUAL_SABER_BARRIER_DESC",	"BOTH_A6_SABERPROTECT",			MDS_SABER },
-{ "@MENUS_DUAL_STAB_FRONT_BACK",		"@MENUS_DUAL_STAB_FRONT_BACK_DESC", "BOTH_A6_FB",					MDS_SABER },
-{ "@MENUS_DUAL_STAB_LEFT_RIGHT",		"@MENUS_DUAL_STAB_LEFT_RIGHT_DESC", "BOTH_A6_LR",					MDS_SABER },
-{ "@MENUS_CARTWHEEL",					"@MENUS_CARTWHEEL_DESC",			"BOTH_ARIAL_RIGHT",				MDS_FORCE_JUMP },
-{ "@MENUS_BOTH_ROLL_STAB",			"@MENUS_BOTH_ROLL_STAB_DESC",		"BOTH_ROLL_STAB",				MDS_SABER },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
+{ "@MENUS_SLASH_BACK",				"@MENUS_SLASH_BACK_DESC",			"BOTH_ATTACK_BACK",				datapadMoveSound_t::MDS_SABER },
+{ "@MENUS_FLIP_FORWARD_ATTACK",		"@MENUS_FLIP_FORWARD_ATTACK_DESC",	"BOTH_JUMPATTACK6",				datapadMoveSound_t::MDS_FORCE_JUMP },
+{ "@MENUS_DUAL_SABERS_TWIRL",			"@MENUS_DUAL_SABERS_TWIRL_DESC",	"BOTH_SPINATTACK6",				datapadMoveSound_t::MDS_SABER },
+{ "@MENUS_ATTACK_ENEMYONGROUND",		"@MENUS_ATTACK_ENEMYONGROUND_DESC", "BOTH_STABDOWN_DUAL",			datapadMoveSound_t::MDS_FORCE_JUMP },
+{ "@MENUS_DUAL_SABER_BARRIER",		"@MENUS_DUAL_SABER_BARRIER_DESC",	"BOTH_A6_SABERPROTECT",			datapadMoveSound_t::MDS_SABER },
+{ "@MENUS_DUAL_STAB_FRONT_BACK",		"@MENUS_DUAL_STAB_FRONT_BACK_DESC", "BOTH_A6_FB",					datapadMoveSound_t::MDS_SABER },
+{ "@MENUS_DUAL_STAB_LEFT_RIGHT",		"@MENUS_DUAL_STAB_LEFT_RIGHT_DESC", "BOTH_A6_LR",					datapadMoveSound_t::MDS_SABER },
+{ "@MENUS_CARTWHEEL",					"@MENUS_CARTWHEEL_DESC",			"BOTH_ARIAL_RIGHT",				datapadMoveSound_t::MDS_FORCE_JUMP },
+{ "@MENUS_BOTH_ROLL_STAB",			"@MENUS_BOTH_ROLL_STAB_DESC",		"BOTH_ROLL_STAB",				datapadMoveSound_t::MDS_SABER },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
 },
 
 {
 // Saber Staff
-{ "@MENUS_STAB_BACK",					"@MENUS_STAB_BACK_DESC",			"BOTH_A2_STABBACK1",			MDS_SABER },
-{ "@MENUS_BACK_FLIP_ATTACK",			"@MENUS_BACK_FLIP_ATTACK_DESC",		"BOTH_JUMPATTACK7",				MDS_FORCE_JUMP },
-{ "@MENUS_SABER_STAFF_TWIRL",			"@MENUS_SABER_STAFF_TWIRL_DESC",	"BOTH_SPINATTACK7",				MDS_SABER },
-{ "@MENUS_ATTACK_ENEMYONGROUND",		"@MENUS_ATTACK_ENEMYONGROUND_DESC", "BOTH_STABDOWN_STAFF",			MDS_FORCE_JUMP },
-{ "@MENUS_SPINNING_KATA",				"@MENUS_SPINNING_KATA_DESC",		"BOTH_A7_SOULCAL",				MDS_SABER },
-{ "@MENUS_KICK1",						"@MENUS_KICK1_DESC",				"BOTH_A7_KICK_F",				MDS_FORCE_JUMP },
-{ "@MENUS_JUMP_KICK",					"@MENUS_JUMP_KICK_DESC",			"BOTH_A7_KICK_F_AIR",			MDS_FORCE_JUMP },
-{ "@MENUS_SPLIT_KICK",				"@MENUS_SPLIT_KICK_DESC",			"BOTH_A7_KICK_RL",				MDS_FORCE_JUMP },
-{ "@MENUS_SPIN_KICK",					"@MENUS_SPIN_KICK_DESC",			"BOTH_A7_KICK_S",				MDS_FORCE_JUMP },
-{ "@MENUS_FLIP_KICK",					"@MENUS_FLIP_KICK_DESC",			"BOTH_A7_KICK_BF",				MDS_FORCE_JUMP },
-{ "@MENUS_BUTTERFLY_ATTACK",			"@MENUS_BUTTERFLY_ATTACK_DESC",		"BOTH_BUTTERFLY_FR1",			MDS_SABER },
-{ "@MENUS_BOTH_ROLL_STAB",			"@MENUS_BOTH_ROLL_STAB2_DESC",		"BOTH_ROLL_STAB",				MDS_SABER },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
-{ nullptr, nullptr, nullptr,	MDS_NONE },
+{ "@MENUS_STAB_BACK",					"@MENUS_STAB_BACK_DESC",			"BOTH_A2_STABBACK1",			datapadMoveSound_t::MDS_SABER },
+{ "@MENUS_BACK_FLIP_ATTACK",			"@MENUS_BACK_FLIP_ATTACK_DESC",		"BOTH_JUMPATTACK7",				datapadMoveSound_t::MDS_FORCE_JUMP },
+{ "@MENUS_SABER_STAFF_TWIRL",			"@MENUS_SABER_STAFF_TWIRL_DESC",	"BOTH_SPINATTACK7",				datapadMoveSound_t::MDS_SABER },
+{ "@MENUS_ATTACK_ENEMYONGROUND",		"@MENUS_ATTACK_ENEMYONGROUND_DESC", "BOTH_STABDOWN_STAFF",			datapadMoveSound_t::MDS_FORCE_JUMP },
+{ "@MENUS_SPINNING_KATA",				"@MENUS_SPINNING_KATA_DESC",		"BOTH_A7_SOULCAL",				datapadMoveSound_t::MDS_SABER },
+{ "@MENUS_KICK1",						"@MENUS_KICK1_DESC",				"BOTH_A7_KICK_F",				datapadMoveSound_t::MDS_FORCE_JUMP },
+{ "@MENUS_JUMP_KICK",					"@MENUS_JUMP_KICK_DESC",			"BOTH_A7_KICK_F_AIR",			datapadMoveSound_t::MDS_FORCE_JUMP },
+{ "@MENUS_SPLIT_KICK",				"@MENUS_SPLIT_KICK_DESC",			"BOTH_A7_KICK_RL",				datapadMoveSound_t::MDS_FORCE_JUMP },
+{ "@MENUS_SPIN_KICK",					"@MENUS_SPIN_KICK_DESC",			"BOTH_A7_KICK_S",				datapadMoveSound_t::MDS_FORCE_JUMP },
+{ "@MENUS_FLIP_KICK",					"@MENUS_FLIP_KICK_DESC",			"BOTH_A7_KICK_BF",				datapadMoveSound_t::MDS_FORCE_JUMP },
+{ "@MENUS_BUTTERFLY_ATTACK",			"@MENUS_BUTTERFLY_ATTACK_DESC",		"BOTH_BUTTERFLY_FR1",			datapadMoveSound_t::MDS_SABER },
+{ "@MENUS_BOTH_ROLL_STAB",			"@MENUS_BOTH_ROLL_STAB2_DESC",		"BOTH_ROLL_STAB",				datapadMoveSound_t::MDS_SABER },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
+{ nullptr, nullptr, nullptr,	datapadMoveSound_t::MDS_NONE },
 }
 }};
 
@@ -345,11 +344,11 @@ void UI_Load(void);
 
 static std::optional<screenshotFormat_t> UI_GetScreenshotFormatForString( const char *str ) {
 	if ( !Q_stricmp(str, "jpg") || !Q_stricmp(str, "jpeg") )
-		return SSF_JPEG;
+		return screenshotFormat_t::SSF_JPEG;
 	else if ( !Q_stricmp(str, "tga") )
-		return SSF_TGA;
+		return screenshotFormat_t::SSF_TGA;
 	else if ( !Q_stricmp(str, "png") )
-		return SSF_PNG;
+		return screenshotFormat_t::SSF_PNG;
 	else
 		return std::nullopt;
 }
@@ -359,11 +358,11 @@ static const char *UI_GetScreenshotFormatString( screenshotFormat_t format )
 	switch ( format )
 	{
 	default:
-	case SSF_JPEG:
+	case screenshotFormat_t::SSF_JPEG:
 		return "jpg";
-	case SSF_TGA:
+	case screenshotFormat_t::SSF_TGA:
 		return "tga";
-	case SSF_PNG:
+	case screenshotFormat_t::SSF_PNG:
 		return "png";
 	}
 }
@@ -405,16 +404,16 @@ static void UI_UpdateScreenshot( void )
 		if ( !ssf )
 		{
 			ui.Printf( "UI Screenshot Format Type '%s' unrecognised, defaulting to JPEG\n", ui_screenshotType.string );
-			uiInfo.uiDC.screenshotFormat = SSF_JPEG;
+			uiInfo.uiDC.screenshotFormat = screenshotFormat_t::SSF_JPEG;
 			changed = true;
 		}
 		else
 			uiInfo.uiDC.screenshotFormat = *ssf;
 	}
-	else if ( ui_screenshotType.integer < to_underlying( SSF_JPEG ) || ui_screenshotType.integer > to_underlying( SSF_PNG ) )
+	else if ( ui_screenshotType.integer < to_underlying( screenshotFormat_t::SSF_JPEG ) || ui_screenshotType.integer > to_underlying( screenshotFormat_t::SSF_PNG ) )
 	{
 		ui.Printf( "ui_screenshotType %i is out of range, defaulting to 0 (JPEG)\n", ui_screenshotType.integer );
-		uiInfo.uiDC.screenshotFormat = SSF_JPEG;
+		uiInfo.uiDC.screenshotFormat = screenshotFormat_t::SSF_JPEG;
 		changed = true;
 	}
 	else {
@@ -430,33 +429,33 @@ static void UI_UpdateScreenshot( void )
 
 static cvarTable_t cvarTable[] =
 {
-	{ &ui_menuFiles,			"ui_menuFiles",			"ui/menus.txt", nullptr, CVAR_ARCHIVE },
+	{ &ui_menuFiles,			"ui_menuFiles",			"ui/menus.txt", nullptr, cvarFlags_t::CVAR_ARCHIVE },
 #ifdef JK2_MODE
-	{ &ui_hudFiles,				"cg_hudFiles",			"ui/jk2hud.txt", nullptr, CVAR_ARCHIVE},
+	{ &ui_hudFiles,				"cg_hudFiles",			"ui/jk2hud.txt", nullptr, cvarFlags_t::CVAR_ARCHIVE},
 #else
-	{ &ui_hudFiles,				"cg_hudFiles",			"ui/jahud.txt", nullptr, CVAR_ARCHIVE},
+	{ &ui_hudFiles,				"cg_hudFiles",			"ui/jahud.txt", nullptr, cvarFlags_t::CVAR_ARCHIVE},
 #endif
 
-	{ &ui_char_anim,			"ui_char_anim",			"BOTH_WALK1", nullptr, CVAR_NONE},
+	{ &ui_char_anim,			"ui_char_anim",			"BOTH_WALK1", nullptr, cvarFlags_t::CVAR_NONE},
 
-	{ &ui_char_model,			"ui_char_model",		"", nullptr, CVAR_NONE},	//these are filled in by the "g_*" versions on load
-	{ &ui_char_skin_head,		"ui_char_skin_head",	"", nullptr, CVAR_NONE},	//the "g_*" versions are initialized in UI_Init, ui_atoms.cpp
-	{ &ui_char_skin_torso,		"ui_char_skin_torso",	"", nullptr, CVAR_NONE},
-	{ &ui_char_skin_legs,		"ui_char_skin_legs",	"", nullptr, CVAR_NONE},
+	{ &ui_char_model,			"ui_char_model",		"", nullptr, cvarFlags_t::CVAR_NONE},	//these are filled in by the "g_*" versions on load
+	{ &ui_char_skin_head,		"ui_char_skin_head",	"", nullptr, cvarFlags_t::CVAR_NONE},	//the "g_*" versions are initialized in UI_Init, ui_atoms.cpp
+	{ &ui_char_skin_torso,		"ui_char_skin_torso",	"", nullptr, cvarFlags_t::CVAR_NONE},
+	{ &ui_char_skin_legs,		"ui_char_skin_legs",	"", nullptr, cvarFlags_t::CVAR_NONE},
 
-	{ &ui_saber_type,			"ui_saber_type",		"", nullptr, CVAR_NONE},
-	{ &ui_saber,				"ui_saber",				"", nullptr, CVAR_NONE},
-	{ &ui_saber2,				"ui_saber2",			"", nullptr, CVAR_NONE},
-	{ &ui_saber_color,			"ui_saber_color",		"", nullptr, CVAR_NONE},
-	{ &ui_saber2_color,			"ui_saber2_color",		"", nullptr, CVAR_NONE},
+	{ &ui_saber_type,			"ui_saber_type",		"", nullptr, cvarFlags_t::CVAR_NONE},
+	{ &ui_saber,				"ui_saber",				"", nullptr, cvarFlags_t::CVAR_NONE},
+	{ &ui_saber2,				"ui_saber2",			"", nullptr, cvarFlags_t::CVAR_NONE},
+	{ &ui_saber_color,			"ui_saber_color",		"", nullptr, cvarFlags_t::CVAR_NONE},
+	{ &ui_saber2_color,			"ui_saber2_color",		"", nullptr, cvarFlags_t::CVAR_NONE},
 
-	{ &ui_char_color_red,		"ui_char_color_red",	"", nullptr, CVAR_NONE},
-	{ &ui_char_color_green,		"ui_char_color_green",	"", nullptr, CVAR_NONE},
-	{ &ui_char_color_blue,		"ui_char_color_blue",	"", nullptr, CVAR_NONE},
+	{ &ui_char_color_red,		"ui_char_color_red",	"", nullptr, cvarFlags_t::CVAR_NONE},
+	{ &ui_char_color_green,		"ui_char_color_green",	"", nullptr, cvarFlags_t::CVAR_NONE},
+	{ &ui_char_color_blue,		"ui_char_color_blue",	"", nullptr, cvarFlags_t::CVAR_NONE},
 
-	{ &ui_PrecacheModels,		"ui_PrecacheModels",	"1", nullptr, CVAR_ARCHIVE},
+	{ &ui_PrecacheModels,		"ui_PrecacheModels",	"1", nullptr, cvarFlags_t::CVAR_ARCHIVE},
 
-	{ &ui_screenshotType,		"ui_screenshotType",	"jpg", UI_UpdateScreenshot, CVAR_ARCHIVE }
+	{ &ui_screenshotType,		"ui_screenshotType",	"jpg", UI_UpdateScreenshot, cvarFlags_t::CVAR_ARCHIVE }
 };
 
 constexpr int FP_UPDATED_NONE = -1;
@@ -472,7 +471,7 @@ void _UI_Refresh( int realtime )
 	static int index;
 	static int	previousTimes[UI_FPS_FRAMES];
 
-	if ( !Any( Key_GetCatcher() & KEYCATCH_UI ) )
+	if ( !Any( Key_GetCatcher() & keyCatchFlags_t::KEYCATCH_UI ) )
 	{
 		return;
 	}
@@ -910,14 +909,14 @@ static bool UI_RunMenuScript ( const char **args )
 		else if (Q_stricmp(name, "loadAuto") == 0)
 		{
 			Menus_CloseAll();
-			ui.Cmd_ExecuteText( EXEC_APPEND, "load auto\n");	//load game menu
+			ui.Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, "load auto\n");	//load game menu
 		}
 		else if (Q_stricmp(name, "loadgame") == 0)
 		{
 			if (s_savedata[s_savegame.currentLine].currentSaveFileName)// && (*s_file_desc_field.field.buffer))
 			{
 				Menus_CloseAll();
-				ui.Cmd_ExecuteText( EXEC_APPEND, va("load %s\n", s_savedata[s_savegame.currentLine].currentSaveFileName));
+				ui.Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, va("load %s\n", s_savedata[s_savegame.currentLine].currentSaveFileName));
 			}
 			// after loading a game, the list box (and it's highlight) get's reset back to 0, but currentLine sticks around, so set it to 0 here
 			s_savegame.currentLine = 0;
@@ -931,7 +930,7 @@ static bool UI_RunMenuScript ( const char **args )
 				ui.Printf( "%s\n", "Attempting to delete game" );
 #endif
 
-				ui.Cmd_ExecuteText( EXEC_NOW, va("wipe %s\n", s_savedata[s_savegame.currentLine].currentSaveFileName));
+				ui.Cmd_ExecuteText( cbufExec_t::EXEC_NOW, va("wipe %s\n", s_savedata[s_savegame.currentLine].currentSaveFileName));
 
 				if( (s_savegame.currentLine>0) && ((s_savegame.currentLine+1) == s_savegame.saveFileCnt) )
 				{
@@ -970,7 +969,7 @@ static bool UI_RunMenuScript ( const char **args )
 			ui.Cvar_VariableStringBuffer("ui_gameDesc",description,sizeof(description));
 			ui.SG_StoreSaveGameComment(description);
 
-			ui.Cmd_ExecuteText( EXEC_APPEND, va("save %s\n", fileName));
+			ui.Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, va("save %s\n", fileName));
 			s_savegame.saveFileCnt = -1;	//force a refresh the next time around
 		}
 		else if (Q_stricmp(name, "LoadMods") == 0)
@@ -984,24 +983,24 @@ static bool UI_RunMenuScript ( const char **args )
 				Cvar_Set( "fs_game", uiInfo.modList[uiInfo.modIndex].modName);
 				extern	void FS_Restart( int checksumFeed, bool inPlace = false );
 				FS_Restart( 0 );
-				Cbuf_ExecuteText( EXEC_APPEND, "vid_restart;" );
+				Cbuf_ExecuteText( cbufExec_t::EXEC_APPEND, "vid_restart;" );
 			}
 		}
 		else if (Q_stricmp(name, "Quit") == 0)
 		{
-			Cbuf_ExecuteText( EXEC_NOW, "quit");
+			Cbuf_ExecuteText( cbufExec_t::EXEC_NOW, "quit");
 		}
 		else if (Q_stricmp(name, "Controls") == 0)
 		{
 			Cvar_Set( "cl_paused", "1" );
-			trap_Key_SetCatcher( KEYCATCH_UI );
+			trap_Key_SetCatcher( keyCatchFlags_t::KEYCATCH_UI );
 			Menus_CloseAll();
 			Menus_ActivateByName("setup_menu2");
 		}
 		else if (Q_stricmp(name, "Leave") == 0)
 		{
-			Cbuf_ExecuteText( EXEC_APPEND, "disconnect\n" );
-			trap_Key_SetCatcher( KEYCATCH_UI );
+			Cbuf_ExecuteText( cbufExec_t::EXEC_APPEND, "disconnect\n" );
+			trap_Key_SetCatcher( keyCatchFlags_t::KEYCATCH_UI );
 			Menus_CloseAll();
 			//Menus_ActivateByName("mainMenu");
 		}
@@ -1015,27 +1014,27 @@ static bool UI_RunMenuScript ( const char **args )
 		}
 		else if (Q_stricmp(name, "nextDataPadForcePower") == 0)
 		{
-			ui.Cmd_ExecuteText( EXEC_APPEND, "dpforcenext\n");
+			ui.Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, "dpforcenext\n");
 		}
 		else if (Q_stricmp(name, "prevDataPadForcePower") == 0)
 		{
-			ui.Cmd_ExecuteText( EXEC_APPEND, "dpforceprev\n");
+			ui.Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, "dpforceprev\n");
 		}
 		else if (Q_stricmp(name, "nextDataPadWeapon") == 0)
 		{
-			ui.Cmd_ExecuteText( EXEC_APPEND, "dpweapnext\n");
+			ui.Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, "dpweapnext\n");
 		}
 		else if (Q_stricmp(name, "prevDataPadWeapon") == 0)
 		{
-			ui.Cmd_ExecuteText( EXEC_APPEND, "dpweapprev\n");
+			ui.Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, "dpweapprev\n");
 		}
 		else if (Q_stricmp(name, "nextDataPadInventory") == 0)
 		{
-			ui.Cmd_ExecuteText( EXEC_APPEND, "dpinvnext\n");
+			ui.Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, "dpinvnext\n");
 		}
 		else if (Q_stricmp(name, "prevDataPadInventory") == 0)
 		{
-			ui.Cmd_ExecuteText( EXEC_APPEND, "dpinvprev\n");
+			ui.Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, "dpinvprev\n");
 		}
 		else if (Q_stricmp(name, "checkvid1data") == 0)		// Warn user data has changed before leaving screen?
 		{
@@ -1049,9 +1048,9 @@ static bool UI_RunMenuScript ( const char **args )
 		{
 			Menus_CloseAll();
 #ifdef JK2_MODE
-			ui.Cmd_ExecuteText( EXEC_APPEND, "map kejim_post\n" );
+			ui.Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, "map kejim_post\n" );
 #else
-			ui.Cmd_ExecuteText( EXEC_APPEND, "map yavin1\n");
+			ui.Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, "map yavin1\n");
 #endif
 		}
 		else if (Q_stricmp(name, "startmap") == 0)
@@ -1060,11 +1059,11 @@ static bool UI_RunMenuScript ( const char **args )
 
 			String_Parse(args, &mapName);
 
-			ui.Cmd_ExecuteText( EXEC_APPEND, va("maptransition %s\n",mapName));
+			ui.Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, va("maptransition %s\n",mapName));
 		}
 		else if (Q_stricmp(name, "closeingame") == 0)
 		{
-			trap_Key_SetCatcher( trap_Key_GetCatcher() & ~KEYCATCH_UI );
+			trap_Key_SetCatcher( trap_Key_GetCatcher() & ~keyCatchFlags_t::KEYCATCH_UI );
 			trap_Key_ClearStates();
 			Cvar_Set( "cl_paused", "0" );
 			Menus_CloseAll();
@@ -1072,7 +1071,7 @@ static bool UI_RunMenuScript ( const char **args )
 			if (1 == Cvar_VariableIntegerValue("ui_missionfailed"))
 			{
 				Menus_ActivateByName("missionfailed_menu");
-				ui.Key_SetCatcher( KEYCATCH_UI );
+				ui.Key_SetCatcher( keyCatchFlags_t::KEYCATCH_UI );
 			}
 			else
 			{
@@ -1081,7 +1080,7 @@ static bool UI_RunMenuScript ( const char **args )
 		}
 		else if (Q_stricmp(name, "closedatapad") == 0)
 		{
-			trap_Key_SetCatcher( trap_Key_GetCatcher() & ~KEYCATCH_UI );
+			trap_Key_SetCatcher( trap_Key_GetCatcher() & ~keyCatchFlags_t::KEYCATCH_UI );
 			trap_Key_ClearStates();
 			Cvar_Set( "cl_paused", "0" );
 			Menus_CloseAll();
@@ -1113,13 +1112,13 @@ static bool UI_RunMenuScript ( const char **args )
 				item = (itemDef_s *) Menu_FindItemByName((menuDef_t *) menu, itemName);
 				if (item)
 				{
-					item->window.flags &= ~WINDOW_MOUSEOVER;
+					item->window.flags &= ~windowFlags_t::WINDOW_MOUSEOVER;
 				}
 			}
 		}
 		else if (Q_stricmp(name, "setMovesListDefault") == 0)
 		{
-			uiInfo.movesTitleIndex = MD_SINGLE_MEDIUM;
+			uiInfo.movesTitleIndex = datapadMoveTitle_t::MD_SINGLE_MEDIUM;
 		}
 		else if (Q_stricmp(name, "resetMovesDesc") == 0)
 		{
@@ -1173,7 +1172,7 @@ static bool UI_RunMenuScript ( const char **args )
 			UI_GetCharacterCvars();
 			UI_GetSaberCvars();
 
-			uiInfo.movesTitleIndex = MD_ACROBATICS;
+			uiInfo.movesTitleIndex = datapadMoveTitle_t::MD_ACROBATICS;
 
 			menu = Menus_FindByName("datapadMovesMenu");
 
@@ -1537,14 +1536,14 @@ static bool UI_RunMenuScript ( const char **args )
 		else if (Q_stricmp(name, "load_quick") == 0)
 		{
 #ifdef JK2_MODE
-			ui.Cmd_ExecuteText(EXEC_APPEND,"load quik\n");
+			ui.Cmd_ExecuteText(cbufExec_t::EXEC_APPEND,"load quik\n");
 #else
-			ui.Cmd_ExecuteText(EXEC_APPEND,"load quick\n");
+			ui.Cmd_ExecuteText(cbufExec_t::EXEC_APPEND,"load quick\n");
 #endif
 		}
 		else if (Q_stricmp(name, "load_auto") == 0)
 		{
-			ui.Cmd_ExecuteText(EXEC_APPEND,"load *respawn\n");	//death menu, might load a saved game instead if they just loaded on this map
+			ui.Cmd_ExecuteText(cbufExec_t::EXEC_APPEND,"load *respawn\n");	//death menu, might load a saved game instead if they just loaded on this map
 		}
 		else if (Q_stricmp(name, "decrementforcepowerlevel") == 0)
 		{
@@ -1581,7 +1580,7 @@ static float UI_GetValue(int ownerDraw)
   return 0;
 }
 
-EnumArray<const char *, forceWarning_t, NUM_FORCE_WARNINGS> lukeForceStatusSounds =
+EnumArray<const char *, forceWarning_t, forceWarning_t::NUM_FORCE_WARNINGS> lukeForceStatusSounds =
 {
 "sound/chars/luke/misc/MLUK_03.mp3",	// Very Light
 "sound/chars/luke/misc/MLUK_04.mp3",	// Semi Light
@@ -1590,7 +1589,7 @@ EnumArray<const char *, forceWarning_t, NUM_FORCE_WARNINGS> lukeForceStatusSound
 "sound/chars/luke/misc/MLUK_02.mp3",	// Very dark
 };
 
-EnumArray<const char *, forceWarning_t, NUM_FORCE_WARNINGS> kyleForceStatusSounds =
+EnumArray<const char *, forceWarning_t, forceWarning_t::NUM_FORCE_WARNINGS> kyleForceStatusSounds =
 {
 "sound/chars/kyle/misc/MKYK_05.mp3",	// Very Light
 "sound/chars/kyle/misc/MKYK_04.mp3",	// Semi Light
@@ -1603,7 +1602,7 @@ EnumArray<const char *, forceWarning_t, NUM_FORCE_WARNINGS> kyleForceStatusSound
 #ifndef JK2_MODE
 // the points spent on the given powers: their levels added up as numbers
 template <typename... Powers>
-static int UI_LevelSum( const EnumArray<forcePowerLevels_t, forcePowers_t, NUM_FORCE_POWERS> &levels, Powers... powers )
+static int UI_LevelSum( const EnumArray<forcePowerLevels_t, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS> &levels, Powers... powers )
 {
 	return ( to_underlying( levels[powers] ) + ... );
 }
@@ -1612,7 +1611,7 @@ static void UI_CalcForceStatus(void)
 {
 	float		lightSide,darkSide,total;
 	short		who;
-	forceWarning_t	index=FW_VERY_LIGHT;
+	forceWarning_t	index=forceWarning_t::FW_VERY_LIGHT;
 	bool	lukeFlag=true;
 	float		percent;
 	client_t*	cl = &svs.clients[0];	// 0 because only ever us as a player
@@ -1631,9 +1630,9 @@ static void UI_CalcForceStatus(void)
 
 	memset(value, 0, sizeof(value));
 
-	lightSide = UI_LevelSum( pState->forcePowerLevel, FP_HEAL, FP_TELEPATHY, FP_PROTECT, FP_ABSORB );
+	lightSide = UI_LevelSum( pState->forcePowerLevel, forcePowers_t::FP_HEAL, forcePowers_t::FP_TELEPATHY, forcePowers_t::FP_PROTECT, forcePowers_t::FP_ABSORB );
 
-	darkSide = UI_LevelSum( pState->forcePowerLevel, FP_GRIP, FP_LIGHTNING, FP_RAGE, FP_DRAIN );
+	darkSide = UI_LevelSum( pState->forcePowerLevel, forcePowers_t::FP_GRIP, forcePowers_t::FP_LIGHTNING, forcePowers_t::FP_RAGE, forcePowers_t::FP_DRAIN );
 
 	total = lightSide + darkSide;
 
@@ -1642,7 +1641,7 @@ static void UI_CalcForceStatus(void)
 	who = Q_irand( 0, 100 );
 	if (percent >= 0.90f)	//  90 - 100%
 	{
-		index = FW_VERY_LIGHT;
+		index = forceWarning_t::FW_VERY_LIGHT;
 		if (who <50)
 		{
 			strcpy(value,"vlk");	// Very light Kyle
@@ -1656,7 +1655,7 @@ static void UI_CalcForceStatus(void)
 	}
 	else if (percent > 0.60f )
 	{
-		index = FW_SEMI_LIGHT;
+		index = forceWarning_t::FW_SEMI_LIGHT;
 		if ( who<50 )
 		{
 			strcpy(value,"slk");	// Semi-light Kyle
@@ -1669,7 +1668,7 @@ static void UI_CalcForceStatus(void)
 	}
 	else if (percent > 0.40f )
 	{
-		index = FW_NEUTRAL;
+		index = forceWarning_t::FW_NEUTRAL;
 		if ( who<50 )
 		{
 			strcpy(value,"ntk");	// Neutral Kyle
@@ -1682,7 +1681,7 @@ static void UI_CalcForceStatus(void)
 	}
 	else if (percent > 0.10f )
 	{
-		index = FW_SEMI_DARK;
+		index = forceWarning_t::FW_SEMI_DARK;
 		if ( who<50 )
 		{
 			strcpy(value,"sdk");	// Semi-dark Kyle
@@ -1695,7 +1694,7 @@ static void UI_CalcForceStatus(void)
 	}
 	else
 	{
-		index = FW_VERY_DARK;
+		index = forceWarning_t::FW_VERY_DARK;
 		if ( who<50 )
 		{
 			strcpy(value,"vdk");	// Very dark Kyle
@@ -1711,11 +1710,11 @@ static void UI_CalcForceStatus(void)
 
 	if (lukeFlag)
 	{
-		DC->startLocalSound(DC->registerSound(lukeForceStatusSounds[index], false), CHAN_VOICE );
+		DC->startLocalSound(DC->registerSound(lukeForceStatusSounds[index], false), soundChannel_t::CHAN_VOICE );
 	}
 	else
 	{
-		DC->startLocalSound(DC->registerSound(kyleForceStatusSounds[index], false), CHAN_VOICE );
+		DC->startLocalSound(DC->registerSound(kyleForceStatusSounds[index], false), soundChannel_t::CHAN_VOICE );
 	}
 }
 #endif // !JK2_MODE
@@ -1818,7 +1817,7 @@ static int UI_FeederCount(float feederID)
 	}
 	else if (feederID == FEEDER_MOVES_TITLES)
 	{
-		return to_underlying( MD_MOVE_TITLE_MAX );
+		return to_underlying( datapadMoveTitle_t::MD_MOVE_TITLE_MAX );
 	}
 	else if (feederID == FEEDER_MODS)
 	{
@@ -1889,15 +1888,15 @@ static void UI_FeederSelection(float feederID, int index, itemDef_t *item)
 						uiInfo.moveAnimTime += uiInfo.uiDC.realTime;
 
 						// Play sound for anim
-						if (datapadMoveData[uiInfo.movesTitleIndex][index].sound == MDS_FORCE_JUMP)
+						if (datapadMoveData[uiInfo.movesTitleIndex][index].sound == datapadMoveSound_t::MDS_FORCE_JUMP)
 						{
-							DC->startLocalSound(uiInfo.uiDC.Assets.datapadmoveJumpSound, CHAN_LOCAL );
+							DC->startLocalSound(uiInfo.uiDC.Assets.datapadmoveJumpSound, soundChannel_t::CHAN_LOCAL );
 						}
-						else if (datapadMoveData[uiInfo.movesTitleIndex][index].sound == MDS_ROLL)
+						else if (datapadMoveData[uiInfo.movesTitleIndex][index].sound == datapadMoveSound_t::MDS_ROLL)
 						{
-							DC->startLocalSound(uiInfo.uiDC.Assets.datapadmoveRollSound, CHAN_LOCAL );
+							DC->startLocalSound(uiInfo.uiDC.Assets.datapadmoveRollSound, soundChannel_t::CHAN_LOCAL );
 						}
-						else if (datapadMoveData[uiInfo.movesTitleIndex][index].sound == MDS_SABER)
+						else if (datapadMoveData[uiInfo.movesTitleIndex][index].sound == datapadMoveSound_t::MDS_SABER)
 						{
 							// Randomly choose one sound
 							int soundI = Q_irand( 1, 6 );
@@ -1924,7 +1923,7 @@ static void UI_FeederSelection(float feederID, int index, itemDef_t *item)
 								soundPtr = &uiInfo.uiDC.Assets.datapadmoveSaberSound6;
 							}
 
-							DC->startLocalSound(*soundPtr, CHAN_LOCAL );
+							DC->startLocalSound(*soundPtr, soundChannel_t::CHAN_LOCAL );
 						}
 
 						if (datapadMoveData[uiInfo.movesTitleIndex][index].desc)
@@ -2035,9 +2034,9 @@ void Key_GetBindingBuf( fakeAscii_t keynum, char *buf, int buflen );
 
 static bool UI_Crosshair_HandleKey(int flags, float *special, fakeAscii_t key)
 {
-  if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER)
+  if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_ENTER || key == fakeAscii_t::A_KP_ENTER)
   {
-		if (key == A_MOUSE2)
+		if (key == fakeAscii_t::A_MOUSE2)
 		{
 			uiInfo.currentCrosshair--;
 		} else {
@@ -2079,7 +2078,7 @@ class ui_animFileSet_t
 {
 public:
 	char			filename[MAX_QPATH];
-	EnumArray<animation_t, animNumber_t, MAX_ANIMATIONS>	animations;
+	EnumArray<animation_t, animNumber_t, animNumber_t::MAX_ANIMATIONS>	animations;
 }; // ui_animFileSet_t
 static ui_animFileSet_t	ui_knownAnimFileSets[MAX_ANIM_FILES];
 
@@ -2101,7 +2100,7 @@ bool UI_ParseAnimationFile( const char *af_filename )
 	}
 	if ( len >= (int)(sizeof( text ) - 1) )
 	{
-		Com_Error( ERR_FATAL, "UI_ParseAnimationFile: File %s too long\n (%d > %zu)", af_filename, len, sizeof( text ) - 1);
+		Com_Error( errorParm_t::ERR_FATAL, "UI_ParseAnimationFile: File %s too long\n (%d > %zu)", af_filename, len, sizeof( text ) - 1);
 		return false;
 	}
 
@@ -2111,7 +2110,7 @@ bool UI_ParseAnimationFile( const char *af_filename )
 	//FIXME: have some way of playing anims backwards... negative numFrames?
 
 	//initialize anim array so that from 0 to MAX_ANIMATIONS, set default values of 0 1 0 100
-	for(animNumber_t i = FACE_TALK0; i < MAX_ANIMATIONS; i++)
+	for(animNumber_t i = animNumber_t::FACE_TALK0; i < animNumber_t::MAX_ANIMATIONS; i++)
 	{
 		animations[i].firstFrame = 0;
 		animations[i].numFrames = 0;
@@ -2226,7 +2225,7 @@ bool UI_ParseAnimFileSet( const char *animCFG, int *animFileIndex )
 		{
 			Com_Printf("animfile[%d]: %s\n", i, ui_knownAnimFileSets[i].filename);
 		}
-		Com_Error( ERR_FATAL, "UI_ParseAnimFileSet: %d == MAX_ANIM_FILES == %d", ui_numKnownAnimFileSets, MAX_ANIM_FILES);
+		Com_Error( errorParm_t::ERR_FATAL, "UI_ParseAnimFileSet: %d == MAX_ANIM_FILES == %d", ui_numKnownAnimFileSets, MAX_ANIM_FILES);
 	}
 
 	//Okay, time to parse in a new one
@@ -2251,7 +2250,7 @@ int UI_G2SetAnim(CGhoul2Info *ghlInfo, const char *boneName, animNumber_t animNu
 	int animIndex,blendTime;
 	char *GLAName;
 
-	if ( animNum == ANIM_NONE )
+	if ( animNum == animNumber_t::ANIM_NONE )
 	{	// a model item no model_g2anim gave an animation to
 		return 0;
 	}
@@ -2274,7 +2273,7 @@ int UI_G2SetAnim(CGhoul2Info *ghlInfo, const char *boneName, animNumber_t animNu
 		}
 		int sFrame = anim->firstFrame;
 		int eFrame = anim->firstFrame + anim->numFrames;
-		boneFlags_t flags = BONE_ANIM_OVERRIDE;
+		boneFlags_t flags = boneFlags_t::BONE_ANIM_OVERRIDE;
 		int time = uiInfo.uiDC.realTime;
 		float animSpeed = (50.0f / anim->frameLerp);
 
@@ -2285,18 +2284,18 @@ int UI_G2SetAnim(CGhoul2Info *ghlInfo, const char *boneName, animNumber_t animNu
 		{
 			if (anim->loopFrames == -1)
 			{
-				flags = BONE_ANIM_OVERRIDE_FREEZE;
+				flags = boneFlags_t::BONE_ANIM_OVERRIDE_FREEZE;
 			}
 			else
 			{
-				flags = BONE_ANIM_OVERRIDE_LOOP;
+				flags = boneFlags_t::BONE_ANIM_OVERRIDE_LOOP;
 			}
 		}
 		else if (anim->loopFrames != -1)
 		{
-			flags = BONE_ANIM_OVERRIDE_LOOP;
+			flags = boneFlags_t::BONE_ANIM_OVERRIDE_LOOP;
 		}
-		flags |= BONE_ANIM_BLEND;
+		flags |= boneFlags_t::BONE_ANIM_BLEND;
 		blendTime = 150;
 
 
@@ -2376,16 +2375,16 @@ static bool IsImageFile(const char* dirptr, const char* skinname, bool building)
 
 
 	Com_sprintf(fpath, MAX_QPATH, "models/players/%s/icon_%s.jpg", dirptr, skinname);
-	ui.FS_FOpenFile(fpath, &f, FS_READ);
+	ui.FS_FOpenFile(fpath, &f, fsMode_t::FS_READ);
 	if (!f)
 	{ //not there, try png
 		Com_sprintf(fpath, MAX_QPATH, "models/players/%s/icon_%s.png", dirptr, skinname);
-		ui.FS_FOpenFile(fpath, &f, FS_READ);
+		ui.FS_FOpenFile(fpath, &f, fsMode_t::FS_READ);
 	}
 	if (!f)
 	{ //not there, try tga
 		Com_sprintf(fpath, MAX_QPATH, "models/players/%s/icon_%s.tga", dirptr, skinname);
-		ui.FS_FOpenFile(fpath, &f, FS_READ);
+		ui.FS_FOpenFile(fpath, &f, fsMode_t::FS_READ);
 	}
 	if (f)
 	{
@@ -2480,7 +2479,7 @@ static void UI_BuildPlayerModel_List( bool inGameLoad )
 			continue;
 
 		Com_sprintf(fpath, sizeof(fpath), "models/players/%s/PlayerChoice.txt", dirptr);
-		filelen = ui.FS_FOpenFile(fpath, &f, FS_READ);
+		filelen = ui.FS_FOpenFile(fpath, &f, fsMode_t::FS_READ);
 
 		if (f)
 		{
@@ -2527,11 +2526,11 @@ static void UI_BuildPlayerModel_List( bool inGameLoad )
 			{
 				if ( building )
 				{
-					ui.FS_FOpenFile(va("models/players/%s/%s",dirptr,fileptr), &f, FS_READ);
+					ui.FS_FOpenFile(va("models/players/%s/%s",dirptr,fileptr), &f, fsMode_t::FS_READ);
 					if (f) ui.FS_FCloseFile(f);
-					ui.FS_FOpenFile(va("models/players/%s/sounds.cfg", dirptr), &f, FS_READ);
+					ui.FS_FOpenFile(va("models/players/%s/sounds.cfg", dirptr), &f, fsMode_t::FS_READ);
 					if (f) ui.FS_FCloseFile(f);
-					ui.FS_FOpenFile(va("models/players/%s/animevents.cfg", dirptr), &f, FS_READ);
+					ui.FS_FOpenFile(va("models/players/%s/animevents.cfg", dirptr), &f, fsMode_t::FS_READ);
 					if (f) ui.FS_FCloseFile(f);
 				}
 
@@ -2623,7 +2622,7 @@ void _UI_Init( bool inGameLoad )
 	//
 	for (int i=0; i<10; i++)
 	{
-		if (!ui.SP_Register(va("menus%d",i), /*SP_REGISTER_REQUIRED|*/SP_REGISTER_MENU))
+		if (!ui.SP_Register(va("menus%d",i), /*spRegistrationFlags_t::SP_REGISTER_REQUIRED|*/spRegistrationFlags_t::SP_REGISTER_MENU))
 			break;
 	}
 #endif
@@ -2924,7 +2923,7 @@ void UI_LoadMenus(const char *menuFile, bool reset)
 
 		if (len<1)
 		{
-			Com_Error( ERR_FATAL, "default menu file not found: ui/menus.txt, unable to continue!\n" );
+			Com_Error( errorParm_t::ERR_FATAL, "default menu file not found: ui/menus.txt, unable to continue!\n" );
 			return;
 		}
 	}
@@ -3124,7 +3123,7 @@ bool Asset_Parse(char **buffer)
 
 			char sTemp[1024];
 			Q_strncpyz( sTemp, tempStr,  sizeof(sTemp) );
-			if (!ui.SP_Register(sTemp, /*SP_REGISTER_REQUIRED|*/SP_REGISTER_MENU))
+			if (!ui.SP_Register(sTemp, /*spRegistrationFlags_t::SP_REGISTER_REQUIRED|*/spRegistrationFlags_t::SP_REGISTER_MENU))
 			{
 				PC_ParseWarning(va("(.SP file \"%s\" not found)",sTemp));
 				//return false;	// hmmm... dunno about this, don't want to break scripts for just missing subtitles
@@ -3432,7 +3431,7 @@ static void UI_Update(const char *name)
 
 	if (Q_stricmp(name, "s_khz") == 0)
 	{
-		ui.Cmd_ExecuteText( EXEC_APPEND, "snd_restart\n" );
+		ui.Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, "snd_restart\n" );
 		return;
 	}
 
@@ -3811,23 +3810,23 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
 			break;
 
 		case UI_DATAPAD_MISSION:
-			ui.Draw_DataPad(DP_HUD);
-			ui.Draw_DataPad(DP_OBJECTIVES);
+			ui.Draw_DataPad(dpTypes_t::DP_HUD);
+			ui.Draw_DataPad(dpTypes_t::DP_OBJECTIVES);
 			break;
 
 		case UI_DATAPAD_WEAPONS:
-			ui.Draw_DataPad(DP_HUD);
-			ui.Draw_DataPad(DP_WEAPONS);
+			ui.Draw_DataPad(dpTypes_t::DP_HUD);
+			ui.Draw_DataPad(dpTypes_t::DP_WEAPONS);
 			break;
 
 		case UI_DATAPAD_INVENTORY:
-			ui.Draw_DataPad(DP_HUD);
-			ui.Draw_DataPad(DP_INVENTORY);
+			ui.Draw_DataPad(dpTypes_t::DP_HUD);
+			ui.Draw_DataPad(dpTypes_t::DP_INVENTORY);
 			break;
 
 		case UI_DATAPAD_FORCEPOWERS:
-			ui.Draw_DataPad(DP_HUD);
-			ui.Draw_DataPad(DP_FORCEPOWERS);
+			ui.Draw_DataPad(dpTypes_t::DP_HUD);
+			ui.Draw_DataPad(dpTypes_t::DP_FORCEPOWERS);
 			break;
 
 		case UI_ALLMAPS_SELECTION://saved game thumbnail
@@ -4039,7 +4038,7 @@ void _UI_KeyEvent( int key, bool down )
 		if (menu)
 		{
 			//DemoEnd();
-			if (KeyEvent_Key( key ) == A_ESCAPE && down && !Menus_AnyFullScreenVisible() && !Any( menu->window.flags & WINDOW_IGNORE_ESCAPE ))
+			if (KeyEvent_Key( key ) == fakeAscii_t::A_ESCAPE && down && !Menus_AnyFullScreenVisible() && !Any( menu->window.flags & windowFlags_t::WINDOW_IGNORE_ESCAPE ))
 			{
 				Menus_CloseAll();
 			}
@@ -4050,7 +4049,7 @@ void _UI_KeyEvent( int key, bool down )
 		}
 		else
 		{
-			trap_Key_SetCatcher( trap_Key_GetCatcher() & ~KEYCATCH_UI );
+			trap_Key_SetCatcher( trap_Key_GetCatcher() & ~keyCatchFlags_t::KEYCATCH_UI );
 			trap_Key_ClearStates();
 			Cvar_Set( "cl_paused", "0" );
 		}
@@ -4101,7 +4100,7 @@ void UI_DataPadMenu(void)
 	{
 		Menus_ActivateByName("datapadMissionMenu");
 	}
-	ui.Key_SetCatcher( KEYCATCH_UI );
+	ui.Key_SetCatcher( keyCatchFlags_t::KEYCATCH_UI );
 
 }
 
@@ -4125,7 +4124,7 @@ void UI_InGameMenu(const char*menuID)
 	{
 		Menus_ActivateByName("ingameMainMenu");
 	}
-	ui.Key_SetCatcher( KEYCATCH_UI );
+	ui.Key_SetCatcher( keyCatchFlags_t::KEYCATCH_UI );
 }
 
 bool _UI_IsFullscreen( void )
@@ -4156,7 +4155,7 @@ void UI_MainMenu(void)
 	char buf[256];
 	ui.Cvar_Set("sv_killserver", "1");	// let the demo server know it should shut down
 
-	ui.Key_SetCatcher( KEYCATCH_UI );
+	ui.Key_SetCatcher( keyCatchFlags_t::KEYCATCH_UI );
 
 	menuDef_t *m = Menus_ActivateByName("mainMenu");
 	if (!m)
@@ -4211,7 +4210,7 @@ void UI_UpdateVideoSetup ( void )
 //	Cvar_Set ( "cg_shadows", Cvar_VariableString ( "ui_cg_shadows" ) );
 	Cvar_Set ( "ui_r_modified", "0" );
 
-	Cbuf_ExecuteText( EXEC_APPEND, "vid_restart;" );
+	Cbuf_ExecuteText( cbufExec_t::EXEC_APPEND, "vid_restart;" );
 }
 
 /*
@@ -4224,25 +4223,25 @@ interface versions of the cvars.
 */
 void UI_GetVideoSetup ( void )
 {
-	Cvar_Register ( nullptr, "ui_r_glCustom",				"4", CVAR_ARCHIVE );
+	Cvar_Register ( nullptr, "ui_r_glCustom",				"4", cvarFlags_t::CVAR_ARCHIVE );
 
 	// Make sure the cvars are registered as read only.
-	Cvar_Register ( nullptr, "ui_r_mode",					"0", CVAR_ROM );
-	Cvar_Register ( nullptr, "ui_r_fullscreen",			"0", CVAR_ROM );
-	Cvar_Register ( nullptr, "ui_r_colorbits",				"0", CVAR_ROM );
-	Cvar_Register ( nullptr, "ui_r_lodbias",				"0", CVAR_ROM );
-	Cvar_Register ( nullptr, "ui_r_picmip",				"0", CVAR_ROM );
-	Cvar_Register ( nullptr, "ui_r_texturebits",			"0", CVAR_ROM );
-	Cvar_Register ( nullptr, "ui_r_texturemode",			"0", CVAR_ROM );
-	Cvar_Register ( nullptr, "ui_r_detailtextures",		"0", CVAR_ROM );
-	Cvar_Register ( nullptr, "ui_r_ext_compress_textures",	"0", CVAR_ROM );
-	Cvar_Register ( nullptr, "ui_r_depthbits",				"0", CVAR_ROM );
-	Cvar_Register ( nullptr, "ui_r_subdivisions",			"0", CVAR_ROM );
-	Cvar_Register ( nullptr, "ui_r_fastSky",				"0", CVAR_ROM );
-	Cvar_Register ( nullptr, "ui_r_inGameVideo",			"0", CVAR_ROM );
-	Cvar_Register ( nullptr, "ui_r_allowExtensions",		"0", CVAR_ROM );
-//	Cvar_Register ( nullptr, "ui_cg_shadows",				"0", CVAR_ROM );
-	Cvar_Register ( nullptr, "ui_r_modified",				"0", CVAR_ROM );
+	Cvar_Register ( nullptr, "ui_r_mode",					"0", cvarFlags_t::CVAR_ROM );
+	Cvar_Register ( nullptr, "ui_r_fullscreen",			"0", cvarFlags_t::CVAR_ROM );
+	Cvar_Register ( nullptr, "ui_r_colorbits",				"0", cvarFlags_t::CVAR_ROM );
+	Cvar_Register ( nullptr, "ui_r_lodbias",				"0", cvarFlags_t::CVAR_ROM );
+	Cvar_Register ( nullptr, "ui_r_picmip",				"0", cvarFlags_t::CVAR_ROM );
+	Cvar_Register ( nullptr, "ui_r_texturebits",			"0", cvarFlags_t::CVAR_ROM );
+	Cvar_Register ( nullptr, "ui_r_texturemode",			"0", cvarFlags_t::CVAR_ROM );
+	Cvar_Register ( nullptr, "ui_r_detailtextures",		"0", cvarFlags_t::CVAR_ROM );
+	Cvar_Register ( nullptr, "ui_r_ext_compress_textures",	"0", cvarFlags_t::CVAR_ROM );
+	Cvar_Register ( nullptr, "ui_r_depthbits",				"0", cvarFlags_t::CVAR_ROM );
+	Cvar_Register ( nullptr, "ui_r_subdivisions",			"0", cvarFlags_t::CVAR_ROM );
+	Cvar_Register ( nullptr, "ui_r_fastSky",				"0", cvarFlags_t::CVAR_ROM );
+	Cvar_Register ( nullptr, "ui_r_inGameVideo",			"0", cvarFlags_t::CVAR_ROM );
+	Cvar_Register ( nullptr, "ui_r_allowExtensions",		"0", cvarFlags_t::CVAR_ROM );
+//	Cvar_Register ( nullptr, "ui_cg_shadows",				"0", cvarFlags_t::CVAR_ROM );
+	Cvar_Register ( nullptr, "ui_r_modified",				"0", cvarFlags_t::CVAR_ROM );
 
 	// Copy over the real video cvars into their temporary counterparts
 	Cvar_Set ( "ui_r_mode", Cvar_VariableString ( "r_mode" ) );
@@ -4269,7 +4268,7 @@ static void UI_SetSexandSoundForModel(const char* char_model)
 	char		soundpath[MAX_QPATH];
 	bool	isFemale = false;
 
-	i = ui.FS_FOpenFile(va("models/players/%s/sounds.cfg", char_model), &f, FS_READ);
+	i = ui.FS_FOpenFile(va("models/players/%s/sounds.cfg", char_model), &f, fsMode_t::FS_READ);
 	if ( !f )
 	{//no?  oh bother.
 		Cvar_Reset("snd");
@@ -4381,10 +4380,10 @@ static void UI_UpdateFightingStyleChoices ( void )
 
 
 			// Knows Fast style?
-			if (pState->saberStylesKnown & Bit( SS_FAST ))
+			if (pState->saberStylesKnown & Bit( saber_styles_t::SS_FAST ))
 			{
 				// And Medium?
-				if (pState->saberStylesKnown & Bit( SS_MEDIUM ))
+				if (pState->saberStylesKnown & Bit( saber_styles_t::SS_MEDIUM ))
 				{
 					Cvar_Set ( "ui_fightingstylesallowed", "6" );	// Has FAST and MEDIUM, so can only choose STRONG
 					Cvar_Set ( "ui_newfightingstyle", "2" );		// STRONG
@@ -4396,10 +4395,10 @@ static void UI_UpdateFightingStyleChoices ( void )
 				}
 			}
 			// Knows Medium style?
-			else if (pState->saberStylesKnown & Bit( SS_MEDIUM ))
+			else if (pState->saberStylesKnown & Bit( saber_styles_t::SS_MEDIUM ))
 			{
 				// And Strong?
-				if (pState->saberStylesKnown & Bit( SS_STRONG ))
+				if (pState->saberStylesKnown & Bit( saber_styles_t::SS_STRONG ))
 				{
 					Cvar_Set ( "ui_fightingstylesallowed", "4" );	// Has MEDIUM and STRONG, so can only choose FAST
 					Cvar_Set ( "ui_newfightingstyle", "0" );		// FAST
@@ -4411,10 +4410,10 @@ static void UI_UpdateFightingStyleChoices ( void )
 				}
 			}
 			// Knows Strong style?
-			else if (pState->saberStylesKnown & Bit( SS_STRONG ))
+			else if (pState->saberStylesKnown & Bit( saber_styles_t::SS_STRONG ))
 			{
 				// And Fast
-				if (pState->saberStylesKnown & Bit( SS_FAST ))
+				if (pState->saberStylesKnown & Bit( saber_styles_t::SS_FAST ))
 				{
 					Cvar_Set ( "ui_fightingstylesallowed", "5" );	// Has STRONG and FAST, so can only take MEDIUM
 					Cvar_Set ( "ui_newfightingstyle", "1" );		// MEDIUM
@@ -4433,11 +4432,11 @@ static void UI_UpdateFightingStyleChoices ( void )
 			}
 
 			// Determine current style
-			if (pState->saberAnimLevel == SS_FAST)
+			if (pState->saberAnimLevel == saber_styles_t::SS_FAST)
 			{
 				Cvar_Set ( "ui_currentfightingstyle", "0" );			// FAST
 			}
-			else if (pState->saberAnimLevel == SS_STRONG)
+			else if (pState->saberAnimLevel == saber_styles_t::SS_STRONG)
 			{
 				Cvar_Set ( "ui_currentfightingstyle", "2" );			// STRONG
 			}
@@ -4466,40 +4465,40 @@ typedef struct {
 static powerEnum_t powerEnums[MAX_POWER_ENUMS] =
 {
 #ifndef JK2_MODE
-	{ "absorb",		FP_ABSORB },
+	{ "absorb",		forcePowers_t::FP_ABSORB },
 #endif // !JK2_MODE
 
-	{ "heal",			FP_HEAL },
-	{ "mindtrick",	FP_TELEPATHY },
+	{ "heal",			forcePowers_t::FP_HEAL },
+	{ "mindtrick",	forcePowers_t::FP_TELEPATHY },
 
 #ifndef JK2_MODE
-	{ "protect",		FP_PROTECT },
+	{ "protect",		forcePowers_t::FP_PROTECT },
 #endif // !JK2_MODE
 
 				// Core powers
-	{ "jump",			FP_LEVITATION },
-	{ "pull",			FP_PULL },
-	{ "push",			FP_PUSH },
+	{ "jump",			forcePowers_t::FP_LEVITATION },
+	{ "pull",			forcePowers_t::FP_PULL },
+	{ "push",			forcePowers_t::FP_PUSH },
 
 #ifndef JK2_MODE
-	{ "sense",		FP_SEE },
+	{ "sense",		forcePowers_t::FP_SEE },
 #endif // !JK2_MODE
 
-	{ "speed",		FP_SPEED },
-	{ "sabdef",		FP_SABER_DEFENSE },
-	{ "saboff",		FP_SABER_OFFENSE },
-	{ "sabthrow",		FP_SABERTHROW },
+	{ "speed",		forcePowers_t::FP_SPEED },
+	{ "sabdef",		forcePowers_t::FP_SABER_DEFENSE },
+	{ "saboff",		forcePowers_t::FP_SABER_OFFENSE },
+	{ "sabthrow",		forcePowers_t::FP_SABERTHROW },
 
 				// Dark powers
 #ifndef JK2_MODE
-	{ "drain",		FP_DRAIN },
+	{ "drain",		forcePowers_t::FP_DRAIN },
 #endif // !JK2_MODE
 
-	{ "grip",			FP_GRIP },
-	{ "lightning",	FP_LIGHTNING },
+	{ "grip",			forcePowers_t::FP_GRIP },
+	{ "lightning",	forcePowers_t::FP_LIGHTNING },
 
 #ifndef JK2_MODE
-	{ "rage",			FP_RAGE },
+	{ "rage",			forcePowers_t::FP_RAGE },
 #endif // !JK2_MODE
 };
 
@@ -4565,11 +4564,11 @@ static void UI_InitAllocForcePowers ( const char *forceName )
 	if (item)
 	{
 		char itemGraphic[128];
-		Com_sprintf (itemGraphic, sizeof(itemGraphic), "gfx/menus/hex_pattern_%d",to_underlying( forcelevel >= FORCE_LEVEL_4 ? FORCE_LEVEL_3 : forcelevel ));
+		Com_sprintf (itemGraphic, sizeof(itemGraphic), "gfx/menus/hex_pattern_%d",to_underlying( forcelevel >= forcePowerLevels_t::FORCE_LEVEL_4 ? forcePowerLevels_t::FORCE_LEVEL_3 : forcelevel ));
 		item->window.background = ui.R_RegisterShaderNoMip(itemGraphic);
 
 		// If maxed out on power - don't allow update
-		if (forcelevel>=FORCE_LEVEL_3)
+		if (forcelevel>=forcePowerLevels_t::FORCE_LEVEL_3)
 		{
 			Com_sprintf (itemName, sizeof(itemName), "%s_fbutton", powerEnums[forcePowerI].title);
 			item = (itemDef_s *) Menu_FindItemByName(menu, itemName);
@@ -4604,14 +4603,14 @@ static void UI_SetPowerTitleText ( bool showAllocated )
 		item = (itemDef_s *) Menu_FindItemByName(menu, "allocated_text");
 		if (item)
 		{
-			item->window.flags |= WINDOW_VISIBLE;
+			item->window.flags |= windowFlags_t::WINDOW_VISIBLE;
 		}
 
 		// Hide text saying the force point needs to be allocated
 		item = (itemDef_s *) Menu_FindItemByName(menu, "allocate_text");
 		if (item)
 		{
-			item->window.flags &= ~WINDOW_VISIBLE;
+			item->window.flags &= ~windowFlags_t::WINDOW_VISIBLE;
 		}
 	}
 	else
@@ -4620,14 +4619,14 @@ static void UI_SetPowerTitleText ( bool showAllocated )
 		item = (itemDef_s *) Menu_FindItemByName(menu, "allocated_text");
 		if (item)
 		{
-			item->window.flags &= ~WINDOW_VISIBLE;
+			item->window.flags &= ~windowFlags_t::WINDOW_VISIBLE;
 		}
 
 		// Show text saying the force point needs to be allocated
 		item = (itemDef_s *) Menu_FindItemByName(menu, "allocate_text");
 		if (item)
 		{
-			item->window.flags |= WINDOW_VISIBLE;
+			item->window.flags |= windowFlags_t::WINDOW_VISIBLE;
 		}
 	}
 }
@@ -4638,10 +4637,10 @@ static int UI_CountForcePowers( void ) {
 
 	if ( cl && cl->gentity ) {
 		const playerState_t *ps = cl->gentity->client;
-		return		UI_LevelSum( ps->forcePowerLevel, FP_HEAL, FP_TELEPATHY, FP_PROTECT, FP_ABSORB, FP_GRIP, FP_LIGHTNING, FP_RAGE, FP_DRAIN );
+		return		UI_LevelSum( ps->forcePowerLevel, forcePowers_t::FP_HEAL, forcePowers_t::FP_TELEPATHY, forcePowers_t::FP_PROTECT, forcePowers_t::FP_ABSORB, forcePowers_t::FP_GRIP, forcePowers_t::FP_LIGHTNING, forcePowers_t::FP_RAGE, forcePowers_t::FP_DRAIN );
 	}
 	else {
-		return		UI_LevelSum( uiInfo.forcePowerLevel, FP_HEAL, FP_TELEPATHY, FP_PROTECT, FP_ABSORB, FP_GRIP, FP_LIGHTNING, FP_RAGE, FP_DRAIN );
+		return		UI_LevelSum( uiInfo.forcePowerLevel, forcePowers_t::FP_HEAL, forcePowers_t::FP_TELEPATHY, forcePowers_t::FP_PROTECT, forcePowers_t::FP_ABSORB, forcePowers_t::FP_GRIP, forcePowers_t::FP_LIGHTNING, forcePowers_t::FP_RAGE, forcePowers_t::FP_DRAIN );
 	}
 }
 #endif
@@ -4673,11 +4672,11 @@ static void UI_ForcePowerWeaponsButton(bool activeFlag)
 		// Make it active
 		if (activeFlag)
 		{
-			item->window.flags &= ~WINDOW_INACTIVE;
+			item->window.flags &= ~windowFlags_t::WINDOW_INACTIVE;
 		}
 		else
 		{
-			item->window.flags |= WINDOW_INACTIVE;
+			item->window.flags |= windowFlags_t::WINDOW_INACTIVE;
 		}
 	}
 }
@@ -4699,11 +4698,11 @@ static void UI_SetHexPicLevel( const menuDef_t	*menu,const int forcePowerI,const
 		char itemGraphic[128];
 		if (goldFlag)
 		{
-			Com_sprintf (itemGraphic, sizeof(itemGraphic), "gfx/menus/hex_pattern_%d_gold",to_underlying( powerLevel >= FORCE_LEVEL_4 ? FORCE_LEVEL_3 : powerLevel ));
+			Com_sprintf (itemGraphic, sizeof(itemGraphic), "gfx/menus/hex_pattern_%d_gold",to_underlying( powerLevel >= forcePowerLevels_t::FORCE_LEVEL_4 ? forcePowerLevels_t::FORCE_LEVEL_3 : powerLevel ));
 		}
 		else
 		{
-			Com_sprintf (itemGraphic, sizeof(itemGraphic),  "gfx/menus/hex_pattern_%d",to_underlying( powerLevel >= FORCE_LEVEL_4 ? FORCE_LEVEL_3 : powerLevel ));
+			Com_sprintf (itemGraphic, sizeof(itemGraphic),  "gfx/menus/hex_pattern_%d",to_underlying( powerLevel >= forcePowerLevels_t::FORCE_LEVEL_4 ? forcePowerLevels_t::FORCE_LEVEL_3 : powerLevel ));
 		}
 
 		item->window.background = ui.R_RegisterShaderNoMip(itemGraphic);
@@ -4767,63 +4766,63 @@ static void	UI_DemoSetForceLevels( void )
 	if( Q_stricmp( buffer, "t1_sour")==0 )
 	{// NOTE : always set the uiInfo powers
 		// level 1 in all core powers
-		uiInfo.forcePowerLevel[FP_LEVITATION]=FORCE_LEVEL_1;
-		uiInfo.forcePowerLevel[FP_SPEED]=FORCE_LEVEL_1;
-		uiInfo.forcePowerLevel[FP_PUSH]=FORCE_LEVEL_1;
-		uiInfo.forcePowerLevel[FP_PULL]=FORCE_LEVEL_1;
-		uiInfo.forcePowerLevel[FP_SEE]=FORCE_LEVEL_1;
-		uiInfo.forcePowerLevel[FP_SABER_OFFENSE]=FORCE_LEVEL_1;
-		uiInfo.forcePowerLevel[FP_SABER_DEFENSE]=FORCE_LEVEL_1;
-		uiInfo.forcePowerLevel[FP_SABERTHROW]=FORCE_LEVEL_1;
+		uiInfo.forcePowerLevel[forcePowers_t::FP_LEVITATION]=forcePowerLevels_t::FORCE_LEVEL_1;
+		uiInfo.forcePowerLevel[forcePowers_t::FP_SPEED]=forcePowerLevels_t::FORCE_LEVEL_1;
+		uiInfo.forcePowerLevel[forcePowers_t::FP_PUSH]=forcePowerLevels_t::FORCE_LEVEL_1;
+		uiInfo.forcePowerLevel[forcePowers_t::FP_PULL]=forcePowerLevels_t::FORCE_LEVEL_1;
+		uiInfo.forcePowerLevel[forcePowers_t::FP_SEE]=forcePowerLevels_t::FORCE_LEVEL_1;
+		uiInfo.forcePowerLevel[forcePowers_t::FP_SABER_OFFENSE]=forcePowerLevels_t::FORCE_LEVEL_1;
+		uiInfo.forcePowerLevel[forcePowers_t::FP_SABER_DEFENSE]=forcePowerLevels_t::FORCE_LEVEL_1;
+		uiInfo.forcePowerLevel[forcePowers_t::FP_SABERTHROW]=forcePowerLevels_t::FORCE_LEVEL_1;
 		// plus these extras
-		uiInfo.forcePowerLevel[FP_HEAL]=FORCE_LEVEL_1;
-		uiInfo.forcePowerLevel[FP_TELEPATHY]=FORCE_LEVEL_1;
-		uiInfo.forcePowerLevel[FP_GRIP]=FORCE_LEVEL_1;
+		uiInfo.forcePowerLevel[forcePowers_t::FP_HEAL]=forcePowerLevels_t::FORCE_LEVEL_1;
+		uiInfo.forcePowerLevel[forcePowers_t::FP_TELEPATHY]=forcePowerLevels_t::FORCE_LEVEL_1;
+		uiInfo.forcePowerLevel[forcePowers_t::FP_GRIP]=forcePowerLevels_t::FORCE_LEVEL_1;
 
 		// and set the rest to zero
-		uiInfo.forcePowerLevel[FP_ABSORB]=FORCE_LEVEL_0;
-		uiInfo.forcePowerLevel[FP_PROTECT]=FORCE_LEVEL_0;
-		uiInfo.forcePowerLevel[FP_DRAIN]=FORCE_LEVEL_0;
-		uiInfo.forcePowerLevel[FP_LIGHTNING]=FORCE_LEVEL_0;
-		uiInfo.forcePowerLevel[FP_RAGE]=FORCE_LEVEL_0;
+		uiInfo.forcePowerLevel[forcePowers_t::FP_ABSORB]=forcePowerLevels_t::FORCE_LEVEL_0;
+		uiInfo.forcePowerLevel[forcePowers_t::FP_PROTECT]=forcePowerLevels_t::FORCE_LEVEL_0;
+		uiInfo.forcePowerLevel[forcePowers_t::FP_DRAIN]=forcePowerLevels_t::FORCE_LEVEL_0;
+		uiInfo.forcePowerLevel[forcePowers_t::FP_LIGHTNING]=forcePowerLevels_t::FORCE_LEVEL_0;
+		uiInfo.forcePowerLevel[forcePowers_t::FP_RAGE]=forcePowerLevels_t::FORCE_LEVEL_0;
 	}
 	else
 	{
 		// level 3 in all core powers
-		uiInfo.forcePowerLevel[FP_LEVITATION]=FORCE_LEVEL_3;
-		uiInfo.forcePowerLevel[FP_SPEED]=FORCE_LEVEL_3;
-		uiInfo.forcePowerLevel[FP_PUSH]=FORCE_LEVEL_3;
-		uiInfo.forcePowerLevel[FP_PULL]=FORCE_LEVEL_3;
-		uiInfo.forcePowerLevel[FP_SEE]=FORCE_LEVEL_3;
-		uiInfo.forcePowerLevel[FP_SABER_OFFENSE]=FORCE_LEVEL_3;
-		uiInfo.forcePowerLevel[FP_SABER_DEFENSE]=FORCE_LEVEL_3;
-		uiInfo.forcePowerLevel[FP_SABERTHROW]=FORCE_LEVEL_3;
+		uiInfo.forcePowerLevel[forcePowers_t::FP_LEVITATION]=forcePowerLevels_t::FORCE_LEVEL_3;
+		uiInfo.forcePowerLevel[forcePowers_t::FP_SPEED]=forcePowerLevels_t::FORCE_LEVEL_3;
+		uiInfo.forcePowerLevel[forcePowers_t::FP_PUSH]=forcePowerLevels_t::FORCE_LEVEL_3;
+		uiInfo.forcePowerLevel[forcePowers_t::FP_PULL]=forcePowerLevels_t::FORCE_LEVEL_3;
+		uiInfo.forcePowerLevel[forcePowers_t::FP_SEE]=forcePowerLevels_t::FORCE_LEVEL_3;
+		uiInfo.forcePowerLevel[forcePowers_t::FP_SABER_OFFENSE]=forcePowerLevels_t::FORCE_LEVEL_3;
+		uiInfo.forcePowerLevel[forcePowers_t::FP_SABER_DEFENSE]=forcePowerLevels_t::FORCE_LEVEL_3;
+		uiInfo.forcePowerLevel[forcePowers_t::FP_SABERTHROW]=forcePowerLevels_t::FORCE_LEVEL_3;
 
 		// plus these extras
-		uiInfo.forcePowerLevel[FP_HEAL]=FORCE_LEVEL_1;
-		uiInfo.forcePowerLevel[FP_TELEPATHY]=FORCE_LEVEL_1;
-		uiInfo.forcePowerLevel[FP_GRIP]=FORCE_LEVEL_2;
-		uiInfo.forcePowerLevel[FP_LIGHTNING]=FORCE_LEVEL_1;
-		uiInfo.forcePowerLevel[FP_PROTECT]=FORCE_LEVEL_1;
+		uiInfo.forcePowerLevel[forcePowers_t::FP_HEAL]=forcePowerLevels_t::FORCE_LEVEL_1;
+		uiInfo.forcePowerLevel[forcePowers_t::FP_TELEPATHY]=forcePowerLevels_t::FORCE_LEVEL_1;
+		uiInfo.forcePowerLevel[forcePowers_t::FP_GRIP]=forcePowerLevels_t::FORCE_LEVEL_2;
+		uiInfo.forcePowerLevel[forcePowers_t::FP_LIGHTNING]=forcePowerLevels_t::FORCE_LEVEL_1;
+		uiInfo.forcePowerLevel[forcePowers_t::FP_PROTECT]=forcePowerLevels_t::FORCE_LEVEL_1;
 
 		// and set the rest to zero
 
-		uiInfo.forcePowerLevel[FP_ABSORB]=FORCE_LEVEL_0;
-		uiInfo.forcePowerLevel[FP_DRAIN]=FORCE_LEVEL_0;
-		uiInfo.forcePowerLevel[FP_RAGE]=FORCE_LEVEL_0;
+		uiInfo.forcePowerLevel[forcePowers_t::FP_ABSORB]=forcePowerLevels_t::FORCE_LEVEL_0;
+		uiInfo.forcePowerLevel[forcePowers_t::FP_DRAIN]=forcePowerLevels_t::FORCE_LEVEL_0;
+		uiInfo.forcePowerLevel[forcePowers_t::FP_RAGE]=forcePowerLevels_t::FORCE_LEVEL_0;
 	}
 
 	if (pState)
 	{//i am carrying over from a previous level, so get the increased power! (non-core only)
-		uiInfo.forcePowerLevel[FP_HEAL] = Q_max(pState->forcePowerLevel[FP_HEAL], uiInfo.forcePowerLevel[FP_HEAL]);
-		uiInfo.forcePowerLevel[FP_TELEPATHY]=Q_max(pState->forcePowerLevel[FP_TELEPATHY], uiInfo.forcePowerLevel[FP_TELEPATHY]);
-		uiInfo.forcePowerLevel[FP_GRIP]=Q_max(pState->forcePowerLevel[FP_GRIP], uiInfo.forcePowerLevel[FP_GRIP]);
-		uiInfo.forcePowerLevel[FP_LIGHTNING]=Q_max(pState->forcePowerLevel[FP_LIGHTNING], uiInfo.forcePowerLevel[FP_LIGHTNING]);
-		uiInfo.forcePowerLevel[FP_PROTECT]=Q_max(pState->forcePowerLevel[FP_PROTECT], uiInfo.forcePowerLevel[FP_PROTECT]);
+		uiInfo.forcePowerLevel[forcePowers_t::FP_HEAL] = Q_max(pState->forcePowerLevel[forcePowers_t::FP_HEAL], uiInfo.forcePowerLevel[forcePowers_t::FP_HEAL]);
+		uiInfo.forcePowerLevel[forcePowers_t::FP_TELEPATHY]=Q_max(pState->forcePowerLevel[forcePowers_t::FP_TELEPATHY], uiInfo.forcePowerLevel[forcePowers_t::FP_TELEPATHY]);
+		uiInfo.forcePowerLevel[forcePowers_t::FP_GRIP]=Q_max(pState->forcePowerLevel[forcePowers_t::FP_GRIP], uiInfo.forcePowerLevel[forcePowers_t::FP_GRIP]);
+		uiInfo.forcePowerLevel[forcePowers_t::FP_LIGHTNING]=Q_max(pState->forcePowerLevel[forcePowers_t::FP_LIGHTNING], uiInfo.forcePowerLevel[forcePowers_t::FP_LIGHTNING]);
+		uiInfo.forcePowerLevel[forcePowers_t::FP_PROTECT]=Q_max(pState->forcePowerLevel[forcePowers_t::FP_PROTECT], uiInfo.forcePowerLevel[forcePowers_t::FP_PROTECT]);
 
-		uiInfo.forcePowerLevel[FP_ABSORB]=Q_max(pState->forcePowerLevel[FP_ABSORB], uiInfo.forcePowerLevel[FP_ABSORB]);
-		uiInfo.forcePowerLevel[FP_DRAIN]=Q_max(pState->forcePowerLevel[FP_DRAIN], uiInfo.forcePowerLevel[FP_DRAIN]);
-		uiInfo.forcePowerLevel[FP_RAGE]=Q_max(pState->forcePowerLevel[FP_RAGE], uiInfo.forcePowerLevel[FP_RAGE]);
+		uiInfo.forcePowerLevel[forcePowers_t::FP_ABSORB]=Q_max(pState->forcePowerLevel[forcePowers_t::FP_ABSORB], uiInfo.forcePowerLevel[forcePowers_t::FP_ABSORB]);
+		uiInfo.forcePowerLevel[forcePowers_t::FP_DRAIN]=Q_max(pState->forcePowerLevel[forcePowers_t::FP_DRAIN], uiInfo.forcePowerLevel[forcePowers_t::FP_DRAIN]);
+		uiInfo.forcePowerLevel[forcePowers_t::FP_RAGE]=Q_max(pState->forcePowerLevel[forcePowers_t::FP_RAGE], uiInfo.forcePowerLevel[forcePowers_t::FP_RAGE]);
 	}
 }
 #endif // !JK2_MODE
@@ -4842,7 +4841,7 @@ static void	UI_RecordForceLevels( void )
 	}
 
 	const char *s2 = "";
-	for ( forcePowers_t fp = FP_FIRST; fp < NUM_FORCE_POWERS; fp++ )
+	for ( forcePowers_t fp = forcePowers_t::FP_FIRST; fp < forcePowers_t::NUM_FORCE_POWERS; fp++ )
 	{
 		s2 = va("%s %i",s2, to_underlying( uiInfo.forcePowerLevel[fp] ));
 	}
@@ -4867,8 +4866,8 @@ static void	UI_RecordWeapons( void )
 
 	int wpns = 0;
 	// always add blaster and saber
-	wpns |= Bit( WP_SABER );
-	wpns |= Bit( WP_BLASTER_PISTOL );
+	wpns |= Bit( weapon_t::WP_SABER );
+	wpns |= Bit( weapon_t::WP_BLASTER_PISTOL );
 	if ( uiInfo.selectedWeapon1 ) wpns |= Bit( *uiInfo.selectedWeapon1 );
 	if ( uiInfo.selectedWeapon2 ) wpns |= Bit( *uiInfo.selectedWeapon2 );
 	if ( uiInfo.selectedThrowWeapon ) wpns |= Bit( *uiInfo.selectedThrowWeapon );
@@ -4912,7 +4911,7 @@ static void UI_ShutdownForceHelp( void )
 
 		// Set focus on the top left button
 		item = (itemDef_s *) Menu_FindItemByName(menu, "absorb_fbutton");
-		item->window.flags |= WINDOW_HASFOCUS;
+		item->window.flags |= windowFlags_t::WINDOW_HASFOCUS;
 
 		if (item->onFocus)
 		{
@@ -4930,7 +4929,7 @@ static void UI_ShutdownForceHelp( void )
 		item = (itemDef_s *) Menu_FindItemByName(menu, va("%s_fbutton",powerEnums[uiInfo.forcePowerUpdated].title));
 		if (item)
 		{
-			item->window.flags |= WINDOW_HASFOCUS;
+			item->window.flags |= windowFlags_t::WINDOW_HASFOCUS;
 		}
 
 		// Get player state
@@ -4961,7 +4960,7 @@ static void UI_ShutdownForceHelp( void )
 		item = (itemDef_s *) Menu_FindItemByName(menu, itemName);
 		if (item)
 		{
-			item->window.flags |= WINDOW_VISIBLE;
+			item->window.flags |= windowFlags_t::WINDOW_VISIBLE;
 		}
 	}
 
@@ -5022,16 +5021,16 @@ static void UI_DecrementCurrentForcePower ( void )
 		return;
 	}
 
-	DC->startLocalSound(uiInfo.uiDC.Assets.forceUnchosenSound, CHAN_AUTO );
+	DC->startLocalSound(uiInfo.uiDC.Assets.forceUnchosenSound, soundChannel_t::CHAN_AUTO );
 
-	if (forcelevel>FORCE_LEVEL_0)
+	if (forcelevel>forcePowerLevels_t::FORCE_LEVEL_0)
 	{
 		if( pState )
 		{
 			pState->forcePowerLevel[powerEnums[uiInfo.forcePowerUpdated].powerEnum]--;	// Decrement it
 			forcelevel = pState->forcePowerLevel[powerEnums[uiInfo.forcePowerUpdated].powerEnum];
 			// Turn off power if level is 0
-			if (pState->forcePowerLevel[powerEnums[uiInfo.forcePowerUpdated].powerEnum]<FORCE_LEVEL_1)
+			if (pState->forcePowerLevel[powerEnums[uiInfo.forcePowerUpdated].powerEnum]<forcePowerLevels_t::FORCE_LEVEL_1)
 			{
 				pState->forcePowersKnown &= ~Bit( powerEnums[uiInfo.forcePowerUpdated].powerEnum );
 			}
@@ -5055,7 +5054,7 @@ static void UI_DecrementCurrentForcePower ( void )
 		item = (itemDef_s *) Menu_FindItemByName(menu, itemName);
 		if (item)		// This is okay, because core powers don't have a hex button
 		{
-			item->window.flags |= WINDOW_VISIBLE;
+			item->window.flags |= windowFlags_t::WINDOW_VISIBLE;
 		}
 	}
 
@@ -5069,7 +5068,7 @@ static void UI_DecrementCurrentForcePower ( void )
 	item = (itemDef_s *) Menu_FindItemByName(menu, "deallocate_fbutton");
 	if (item)
 	{
-		item->window.flags &= ~WINDOW_VISIBLE;	//
+		item->window.flags &= ~windowFlags_t::WINDOW_VISIBLE;	//
 
 		// Un-grey-out all icons
 		UI_SetItemColor(item,"hexpic","forecolor",color);
@@ -5079,7 +5078,7 @@ static void UI_DecrementCurrentForcePower ( void )
 	item = (itemDef_s *) Menu_FindItemByName(menu, va("%s_fbutton",powerEnums[uiInfo.forcePowerUpdated].title));
 	if (item)
 	{
-		item->window.flags |= WINDOW_HASFOCUS;
+		item->window.flags |= windowFlags_t::WINDOW_HASFOCUS;
 	}
 
 	uiInfo.forcePowerUpdated = FP_UPDATED_NONE;			// It's as if nothing happened.
@@ -5122,13 +5121,13 @@ static void UI_AffectForcePowerLevel ( const char *forceName )
 	}
 
 
-	if (forcelevel>FORCE_LEVEL_2)
+	if (forcelevel>forcePowerLevels_t::FORCE_LEVEL_2)
 	{	// Too big, can't be incremented
 		return;
 	}
 
 	// Increment power level.
-	DC->startLocalSound(uiInfo.uiDC.Assets.forceChosenSound, CHAN_AUTO );
+	DC->startLocalSound(uiInfo.uiDC.Assets.forceChosenSound, soundChannel_t::CHAN_AUTO );
 
 	uiInfo.forcePowerUpdated = forcePowerI;	// Remember which power was updated
 
@@ -5166,7 +5165,7 @@ static void UI_AffectForcePowerLevel ( const char *forceName )
 			item = (itemDef_s *) Menu_FindItemByName(menu, itemName);
 			if (item)		// This is okay, because core powers don't have a hex button
 			{
-				item->window.flags &= ~WINDOW_VISIBLE;
+				item->window.flags &= ~windowFlags_t::WINDOW_VISIBLE;
 			}
 		}
 
@@ -5187,7 +5186,7 @@ static void UI_AffectForcePowerLevel ( const char *forceName )
 			UI_SetItemColor(item,"hexpic","forecolor",color);
 			UI_SetItemColor(item,"iconpic","forecolor",color);
 
-			item->window.flags |= WINDOW_HASFOCUS;
+			item->window.flags |= windowFlags_t::WINDOW_HASFOCUS;
 		}
 	}
 
@@ -5252,7 +5251,7 @@ static void UI_ShowForceLevelDesc ( const char *forceName )
 	item = (itemDef_s *) Menu_FindItemByName(menu, itemName);
 	if (item)
 	{
-		item->window.flags |= WINDOW_VISIBLE;
+		item->window.flags |= windowFlags_t::WINDOW_VISIBLE;
 	}
 
 }
@@ -5296,7 +5295,7 @@ static void UI_ResetForceLevels ( void )
 			item = (itemDef_s *) Menu_FindItemByName(menu, itemName);
 			if (item)		// This is okay, because core powers don't have a hex button
 			{
-				item->window.flags |= WINDOW_VISIBLE;
+				item->window.flags |= windowFlags_t::WINDOW_VISIBLE;
 			}
 		}
 
@@ -5330,23 +5329,23 @@ static void UI_UpdateFightingStyle ( void )
 
 	if (fightingStyle == 1)
 	{
-		saberStyle = SS_MEDIUM;
+		saberStyle = saber_styles_t::SS_MEDIUM;
 	}
 	else if (fightingStyle == 2)
 	{
-		saberStyle = SS_STRONG;
+		saberStyle = saber_styles_t::SS_STRONG;
 	}
 	else if (fightingStyle == 3)
 	{
-		saberStyle = SS_DUAL;
+		saberStyle = saber_styles_t::SS_DUAL;
 	}
 	else if (fightingStyle == 4)
 	{
-		saberStyle = SS_STAFF;
+		saberStyle = saber_styles_t::SS_STAFF;
 	}
 	else // 0 is Fast
 	{
-		saberStyle = SS_FAST;
+		saberStyle = saber_styles_t::SS_FAST;
 	}
 
 	// Get player state
@@ -5489,11 +5488,11 @@ static void UI_WeaponAllocBeginButton(bool activeFlag)
 		// Make it active
 		if (activeFlag)
 		{
-			item->window.flags &= ~WINDOW_INACTIVE;
+			item->window.flags &= ~windowFlags_t::WINDOW_INACTIVE;
 		}
 		else
 		{
-			item->window.flags |= WINDOW_INACTIVE;
+			item->window.flags |= windowFlags_t::WINDOW_INACTIVE;
 		}
 	}
 }
@@ -5568,9 +5567,9 @@ static void UI_ClearWeapons ( void )
 		playerState_t*		pState = cl->gentity->client;
 
 		// Clear out any weapons for the player
-		pState->stats[ STAT_WEAPONS ] = 0;
+		pState->stats[ statIndex_t::STAT_WEAPONS ] = 0;
 
-		pState->weapon = WP_NONE;
+		pState->weapon = weapon_t::WP_NONE;
 
 	}
 
@@ -5590,9 +5589,9 @@ static void UI_GiveWeapon ( const weapon_t weaponIndex )
 	{
 		playerState_t*	pState = cl->gentity->client;
 
-		if (weaponIndex<WP_NUM_WEAPONS)
+		if (weaponIndex<weapon_t::WP_NUM_WEAPONS)
 		{
-			pState->stats[ STAT_WEAPONS ] |= Bit( weaponIndex );
+			pState->stats[ statIndex_t::STAT_WEAPONS ] |= Bit( weaponIndex );
 		}
 	}
 }
@@ -5611,7 +5610,7 @@ static void UI_EquipWeapon ( const weapon_t weaponIndex )
 	{
 		playerState_t*	pState = cl->gentity->client;
 
-		if (weaponIndex<WP_NUM_WEAPONS)
+		if (weaponIndex<weapon_t::WP_NUM_WEAPONS)
 		{
 			pState->weapon = weaponIndex;
 			//force it to change
@@ -5718,7 +5717,7 @@ static void	UI_AddWeaponSelection ( const weapon_t weaponIndex, const ammo_t amm
 	if ((item) && (iconItem))
 	{
 		item->window.background = iconItem->window.background;
-		item->window.flags |= WINDOW_VISIBLE;
+		item->window.flags |= windowFlags_t::WINDOW_VISIBLE;
 	}
 
 	// Turn on chosenweapon button so player can unchoose the weapon
@@ -5726,7 +5725,7 @@ static void	UI_AddWeaponSelection ( const weapon_t weaponIndex, const ammo_t amm
 	if (item)
 	{
 		item->window.background = iconItem->window.background;
-		item->window.flags |= WINDOW_VISIBLE;
+		item->window.flags |= windowFlags_t::WINDOW_VISIBLE;
 	}
 
 	// Switch hex background to be 'on'
@@ -5752,13 +5751,13 @@ static void	UI_AddWeaponSelection ( const weapon_t weaponIndex, const ammo_t amm
 		{
 			playerState_t*	pState = cl->gentity->client;
 
-			if ((weaponIndex>WP_NONE) && (weaponIndex<WP_NUM_WEAPONS))
+			if ((weaponIndex>weapon_t::WP_NONE) && (weaponIndex<weapon_t::WP_NUM_WEAPONS))
 			{
-				pState->stats[ STAT_WEAPONS ] |= Bit( weaponIndex );
+				pState->stats[ statIndex_t::STAT_WEAPONS ] |= Bit( weaponIndex );
 			}
 
 			// Give them ammo too
-			if ((ammoIndex>AMMO_NONE) && (ammoIndex<AMMO_MAX))
+			if ((ammoIndex>ammo_t::AMMO_NONE) && (ammoIndex<ammo_t::AMMO_MAX))
 			{
 				pState->ammo[ ammoIndex ] = ammoAmount;
 			}
@@ -5767,7 +5766,7 @@ static void	UI_AddWeaponSelection ( const weapon_t weaponIndex, const ammo_t amm
 
 	if( soundfile )
 	{
-		DC->startLocalSound(DC->registerSound(soundfile, false), CHAN_LOCAL );
+		DC->startLocalSound(DC->registerSound(soundfile, false), soundChannel_t::CHAN_LOCAL );
 	}
 
 	UI_WeaponsSelectionsComplete();	// Test to see if the mission begin button should turn on or off
@@ -5835,14 +5834,14 @@ static void UI_RemoveWeaponSelection ( const int weaponSelectionIndex )
 	item = (itemDef_s *) Menu_FindItemByName( menu, chosenItemName );
 	if ( item )
 	{
-		item->window.flags &= ~WINDOW_VISIBLE;
+		item->window.flags &= ~windowFlags_t::WINDOW_VISIBLE;
 	}
 
 	// Hide button
 	item = (itemDef_s *) Menu_FindItemByName( menu, chosenButtonName );
 	if ( item )
 	{
-		item->window.flags &= ~WINDOW_VISIBLE;
+		item->window.flags &= ~windowFlags_t::WINDOW_VISIBLE;
 	}
 
 	// Get player state
@@ -5858,13 +5857,13 @@ static void UI_RemoveWeaponSelection ( const int weaponSelectionIndex )
 		{
 			playerState_t*	pState = cl->gentity->client;
 
-			if ((weaponIndex>WP_NONE) && (weaponIndex<WP_NUM_WEAPONS))
+			if ((weaponIndex>weapon_t::WP_NONE) && (weaponIndex<weapon_t::WP_NUM_WEAPONS))
 			{
-				pState->stats[ STAT_WEAPONS ]  &= ~Bit( *weaponIndex );
+				pState->stats[ statIndex_t::STAT_WEAPONS ]  &= ~Bit( *weaponIndex );
 			}
 
 			// Remove ammo too
-			if ((ammoIndex>AMMO_NONE) && (ammoIndex<AMMO_MAX))
+			if ((ammoIndex>ammo_t::AMMO_NONE) && (ammoIndex<ammo_t::AMMO_MAX))
 			{	// But don't take it away if the other weapon is using that ammo
 				if ( uiInfo.selectedWeapon1AmmoIndex != uiInfo.selectedWeapon2AmmoIndex )
 				{
@@ -5880,18 +5879,18 @@ static void UI_RemoveWeaponSelection ( const int weaponSelectionIndex )
 	{
 		uiInfo.selectedWeapon1 = std::nullopt;
 		memset(uiInfo.selectedWeapon1ItemName,0,sizeof(uiInfo.selectedWeapon1ItemName));
-		uiInfo.selectedWeapon1AmmoIndex = AMMO_NONE;
+		uiInfo.selectedWeapon1AmmoIndex = ammo_t::AMMO_NONE;
 	}
 	else if ( weaponSelectionIndex == 2 )
 	{
 		uiInfo.selectedWeapon2 = std::nullopt;
 		memset(uiInfo.selectedWeapon2ItemName,0,sizeof(uiInfo.selectedWeapon2ItemName));
-		uiInfo.selectedWeapon2AmmoIndex = AMMO_NONE;
+		uiInfo.selectedWeapon2AmmoIndex = ammo_t::AMMO_NONE;
 	}
 
 #ifndef JK2_MODE
 	//FIXME hack to prevent error in jk2 by disabling
-	DC->startLocalSound(DC->registerSound("sound/interface/weapon_deselect.mp3", false), CHAN_LOCAL );
+	DC->startLocalSound(DC->registerSound("sound/interface/weapon_deselect.mp3", false), soundChannel_t::CHAN_LOCAL );
 #endif
 
 	UI_WeaponsSelectionsComplete();	// Test to see if the mission begin button should turn on or off
@@ -6009,7 +6008,7 @@ static void	UI_AddThrowWeaponSelection ( const weapon_t weaponIndex, const ammo_
 	if ((item) && (iconItem))
 	{
 		item->window.background = iconItem->window.background;
-		item->window.flags |= WINDOW_VISIBLE;
+		item->window.flags |= windowFlags_t::WINDOW_VISIBLE;
 	}
 
 	// Turn on throwchosenweapon button so player can unchoose the weapon
@@ -6017,7 +6016,7 @@ static void	UI_AddThrowWeaponSelection ( const weapon_t weaponIndex, const ammo_
 	if (item)
 	{
 		item->window.background = iconItem->window.background;
-		item->window.flags |= WINDOW_VISIBLE;
+		item->window.flags |= windowFlags_t::WINDOW_VISIBLE;
 	}
 
 	// Switch hex background to be 'on'
@@ -6044,13 +6043,13 @@ static void	UI_AddThrowWeaponSelection ( const weapon_t weaponIndex, const ammo_
 		{
 			playerState_t*	pState = cl->gentity->client;
 
-			if ((weaponIndex>WP_NONE) && (weaponIndex<WP_NUM_WEAPONS))
+			if ((weaponIndex>weapon_t::WP_NONE) && (weaponIndex<weapon_t::WP_NUM_WEAPONS))
 			{
-				pState->stats[ STAT_WEAPONS ] |= Bit( weaponIndex );
+				pState->stats[ statIndex_t::STAT_WEAPONS ] |= Bit( weaponIndex );
 			}
 
 			// Give them ammo too
-			if ((ammoIndex>AMMO_NONE) && (ammoIndex<AMMO_MAX))
+			if ((ammoIndex>ammo_t::AMMO_NONE) && (ammoIndex<ammo_t::AMMO_MAX))
 			{
 				pState->ammo[ ammoIndex ] = ammoAmount;
 			}
@@ -6059,7 +6058,7 @@ static void	UI_AddThrowWeaponSelection ( const weapon_t weaponIndex, const ammo_
 
 	if( soundfile )
 	{
-		DC->startLocalSound(DC->registerSound(soundfile, false), CHAN_LOCAL );
+		DC->startLocalSound(DC->registerSound(soundfile, false), soundChannel_t::CHAN_LOCAL );
 	}
 
 	UI_WeaponsSelectionsComplete();	// Test to see if the mission begin button should turn on or off
@@ -6100,14 +6099,14 @@ static void UI_RemoveThrowWeaponSelection ( void )
 	item = (itemDef_s *) Menu_FindItemByName( menu, chosenItemName );
 	if ( item )
 	{
-		item->window.flags &= ~WINDOW_VISIBLE;
+		item->window.flags &= ~windowFlags_t::WINDOW_VISIBLE;
 	}
 
 	// Hide button
 	item = (itemDef_s *) Menu_FindItemByName( menu, chosenButtonName );
 	if ( item )
 	{
-		item->window.flags &= ~WINDOW_VISIBLE;
+		item->window.flags &= ~windowFlags_t::WINDOW_VISIBLE;
 	}
 
 	// Get player state
@@ -6123,13 +6122,13 @@ static void UI_RemoveThrowWeaponSelection ( void )
 		{
 			playerState_t*	pState = cl->gentity->client;
 
-			if ((uiInfo.selectedThrowWeapon>WP_NONE) && (uiInfo.selectedThrowWeapon<WP_NUM_WEAPONS))
+			if ((uiInfo.selectedThrowWeapon>weapon_t::WP_NONE) && (uiInfo.selectedThrowWeapon<weapon_t::WP_NUM_WEAPONS))
 			{
-				pState->stats[ STAT_WEAPONS ]  &= ~Bit( *uiInfo.selectedThrowWeapon );
+				pState->stats[ statIndex_t::STAT_WEAPONS ]  &= ~Bit( *uiInfo.selectedThrowWeapon );
 			}
 
 			// Remove ammo too
-			if ((uiInfo.selectedThrowWeaponAmmoIndex>AMMO_NONE) && (uiInfo.selectedThrowWeaponAmmoIndex<AMMO_MAX))
+			if ((uiInfo.selectedThrowWeaponAmmoIndex>ammo_t::AMMO_NONE) && (uiInfo.selectedThrowWeaponAmmoIndex<ammo_t::AMMO_MAX))
 			{
 				pState->ammo[ uiInfo.selectedThrowWeaponAmmoIndex ] = 0;
 			}
@@ -6140,7 +6139,7 @@ static void UI_RemoveThrowWeaponSelection ( void )
 	// Now do a little clean up
 	uiInfo.selectedThrowWeapon = std::nullopt;
 	memset(uiInfo.selectedThrowWeaponItemName,0,sizeof(uiInfo.selectedThrowWeaponItemName));
-	uiInfo.selectedThrowWeaponAmmoIndex = AMMO_NONE;
+	uiInfo.selectedThrowWeaponAmmoIndex = ammo_t::AMMO_NONE;
 
 	if (uiInfo.weaponThrowButton)
 	{
@@ -6150,7 +6149,7 @@ static void UI_RemoveThrowWeaponSelection ( void )
 
 #ifndef JK2_MODE
 	//FIXME hack to prevent error in jk2 by disabling
-	DC->startLocalSound(DC->registerSound("sound/interface/weapon_deselect.mp3", false), CHAN_LOCAL );
+	DC->startLocalSound(DC->registerSound("sound/interface/weapon_deselect.mp3", false), soundChannel_t::CHAN_LOCAL );
 #endif
 
 	UI_WeaponsSelectionsComplete();	// Test to see if the mission begin button should turn on or off
@@ -6229,7 +6228,7 @@ static void UI_UpdateCharacterSkin( void )
 
 	if (!item)
 	{
-		Com_Error( ERR_FATAL, "UI_UpdateCharacterSkin: Could not find item (character) in menu (%s)", menu->window.name);
+		Com_Error( errorParm_t::ERR_FATAL, "UI_UpdateCharacterSkin: Could not find item (character) in menu (%s)", menu->window.name);
 	}
 
 	Com_sprintf( skin, sizeof( skin ), "models/players/%s/|%s|%s|%s",
@@ -6259,7 +6258,7 @@ static void UI_UpdateCharacter( bool changedModel )
 
 	if (!item)
 	{
-		Com_Error( ERR_FATAL, "UI_UpdateCharacter: Could not find item (character) in menu (%s)", menu->window.name);
+		Com_Error( errorParm_t::ERR_FATAL, "UI_UpdateCharacter: Could not find item (character) in menu (%s)", menu->window.name);
 	}
 
 	ItemParse_model_g2anim_go( item, ui_char_anim.string );
@@ -6320,7 +6319,7 @@ static void UI_UpdateSaberHilt( bool secondSaber )
 
 	if(!item)
 	{
-		Com_Error( ERR_FATAL, "UI_UpdateSaberHilt: Could not find item (%s) in menu (%s)", itemName, menu->window.name);
+		Com_Error( errorParm_t::ERR_FATAL, "UI_UpdateSaberHilt: Could not find item (%s) in menu (%s)", itemName, menu->window.name);
 	}
 	DC->getCVarString( saberCvarName, model, sizeof(model) );
 	//read this from the sabers.cfg
@@ -6350,7 +6349,7 @@ static void UI_UpdateSaberColor( bool secondSaber )
 	else
 		sabernumber = 1;
 
-	ui.Cmd_ExecuteText( EXEC_APPEND, va("sabercolor %i %s\n",sabernumber, Cvar_VariableString("g_saber_color")));
+	ui.Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, va("sabercolor %i %s\n",sabernumber, Cvar_VariableString("g_saber_color")));
 }
 */
 char GoToMenu[1024];
@@ -6392,7 +6391,7 @@ void UI_CheckVid1Data(const char *menuTo,const char *warningMenuName)
 		return;
 	}
 
-	if (Any( applyChanges->window.flags & WINDOW_VISIBLE ))	// Is the APPLY CHANGES button active?
+	if (Any( applyChanges->window.flags & windowFlags_t::WINDOW_VISIBLE ))	// Is the APPLY CHANGES button active?
 	{
 //		Menus_SaveGoToMenu(menuTo);							// Save menu you're going to
 //		Menus_HideItems(menu->window.name);					// HIDE videMenu in case you have to come back
@@ -6412,10 +6411,10 @@ UI_ResetDefaults
 */
 void UI_ResetDefaults( void )
 {
-	ui.Cmd_ExecuteText( EXEC_APPEND, "cvar_restart\n");
+	ui.Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, "cvar_restart\n");
 	Controls_SetDefaults();
-	ui.Cmd_ExecuteText( EXEC_APPEND, "exec default.cfg\n");
-	ui.Cmd_ExecuteText( EXEC_APPEND, "vid_restart\n" );
+	ui.Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, "exec default.cfg\n");
+	ui.Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, "vid_restart\n" );
 }
 
 /*

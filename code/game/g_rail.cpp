@@ -409,15 +409,15 @@ public:
 		mOriginOffset			*= 0.5f;
 		mOriginOffset[2]		= 0;//((ent->maxs[2] - ent->mins[2]) * 0.5);
 
-		ent->e_ReachedFunc		= reachedF_NULL;
-		ent->moverState			= MOVER_POS1;
-		ent->svFlags			= SVF_USE_CURRENT_ORIGIN;
-		ent->s.eType			= ET_MOVER;
-		ent->s.eFlags			|= EF_NODRAW;
-		ent->contents			= CONTENTS_NONE;
-		ent->clipmask			= CONTENTS_NONE;
+		ent->e_ReachedFunc		= reachedFunc_t::reachedF_NULL;
+		ent->moverState			= moverState_t::MOVER_POS1;
+		ent->svFlags			= svFlags_t::SVF_USE_CURRENT_ORIGIN;
+		ent->s.eType			= entityType_t::ET_MOVER;
+		ent->s.eFlags			|= entityFlags_t::EF_NODRAW;
+		ent->contents			= contentsFlags_t::CONTENTS_NONE;
+		ent->clipmask			= contentsFlags_t::CONTENTS_NONE;
 
-		ent->s.pos.trType		= TR_STATIONARY;
+		ent->s.pos.trType		= trType_t::TR_STATIONARY;
 		ent->s.pos.trDuration	= 0;
 		ent->s.pos.trTime		= 0;
 
@@ -724,7 +724,7 @@ void	Rail_Update()
 							G_SoundAtSpot(wooshSoundPos, wooshSound, false);
 							if (WOOSH_DEBUG)
 							{
-								CG_DrawEdge(player->currentOrigin, wooshSoundPos, EDGE_WHITE_TWOSECOND);
+								CG_DrawEdge(player->currentOrigin, wooshSoundPos, edgeType_t::EDGE_WHITE_TWOSECOND);
 							}
 						}
 					}
@@ -896,8 +896,8 @@ void	CRailTrack::Update()
 				VectorCopy(mVelocity.v, mover->mEnt->s.pos.trDelta);
 				mover->mEnt->s.pos.trTime		= level.time;
 				mover->mEnt->s.pos.trDuration	= mTravelTimeMilliseconds + (mNextUpdateDelay*mover->mRows);
-				mover->mEnt->s.pos.trType		= TR_LINEAR_STOP;
-				mover->mEnt->s.eFlags			&= ~EF_NODRAW;
+				mover->mEnt->s.pos.trType		= trType_t::TR_LINEAR_STOP;
+				mover->mEnt->s.eFlags			&= ~entityFlags_t::EF_NODRAW;
 
 				mover->mSoundPlayed				= false;
 

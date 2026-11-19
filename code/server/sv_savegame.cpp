@@ -48,7 +48,7 @@ static char	saveGameComment[iSG_COMMENT_SIZE];
 
 int giSaveGameVersion;	// filled in when a savegame file is opened
 
-SavedGameJustLoaded_e eSavedGameJustLoaded = eNO;
+SavedGameJustLoaded_e eSavedGameJustLoaded = SavedGameJustLoaded_e::eNO;
 
 char sLastSaveFileLoaded[MAX_QPATH]={0};
 
@@ -125,7 +125,7 @@ void SG_Shutdown()
 
 	saved_game.close();
 
-	eSavedGameJustLoaded = eNO;
+	eSavedGameJustLoaded = SavedGameJustLoaded_e::eNO;
 	// important to do this if we ERR_DROP during loading, else next map you load after
 	// a bad save-file you'll arrive at dead :-)
 
@@ -297,7 +297,7 @@ void SV_SaveGame_f(void)
 		return;
 	}
 
-	if (sv.state != SS_GAME)
+	if (sv.state != serverState_t::SS_GAME)
 	{
 		Com_Printf (S_COLOR_RED "You must be in a game to save.\n");
 		return;
@@ -312,7 +312,7 @@ void SV_SaveGame_f(void)
 	}
 
 
-	if (svs.clients[0].frames[svs.clients[0].netchan.outgoingSequence & PACKET_MASK].ps.stats[STAT_HEALTH] <= 0)
+	if (svs.clients[0].frames[svs.clients[0].netchan.outgoingSequence & PACKET_MASK].ps.stats[statIndex_t::STAT_HEALTH] <= 0)
 	{
 #ifdef JK2_MODE
 		Com_Printf (S_COLOR_RED "\nCan't savegame while dead!\n");
@@ -325,7 +325,7 @@ void SV_SaveGame_f(void)
 	//this check catches deaths even the instant you die, like during a slo-mo death!
 	gentity_t			*svent;
 	svent = SV_GentityNum(0);
-	if (svent->client->stats[STAT_HEALTH]<=0)
+	if (svent->client->stats[statIndex_t::STAT_HEALTH]<=0)
 	{
 #ifdef JK2_MODE
 		Com_Printf (S_COLOR_RED "\nCan't savegame while dead!\n");
@@ -533,9 +533,9 @@ void SG_WriteCvars(void)
 	for (var = cvar_vars; var; var = var->next)
 	{
 #ifdef JK2_MODE
-		if (!Any(var->flags & (CVAR_SAVEGAME|CVAR_USERINFO)))
+		if (!Any(var->flags & (cvarFlags_t::CVAR_SAVEGAME|cvarFlags_t::CVAR_USERINFO)))
 #else
-		if (!Any(var->flags & CVAR_SAVEGAME))
+		if (!Any(var->flags & cvarFlags_t::CVAR_SAVEGAME))
 #endif
 		{
 			continue;
@@ -554,9 +554,9 @@ void SG_WriteCvars(void)
 	for (var = cvar_vars; var; var = var->next)
 	{
 #ifdef JK2_MODE
-		if (!Any(var->flags & (CVAR_SAVEGAME|CVAR_USERINFO)))
+		if (!Any(var->flags & (cvarFlags_t::CVAR_SAVEGAME|cvarFlags_t::CVAR_USERINFO)))
 #else
-		if (!Any(var->flags & CVAR_SAVEGAME))
+		if (!Any(var->flags & cvarFlags_t::CVAR_SAVEGAME))
 #endif
 		{
 			continue;
@@ -908,7 +908,7 @@ static bool SG_ReadScreenshot(
 	{
 		jpeg_data = static_cast<byte*>(::Z_Malloc(
 			static_cast<int>(screenshot_length + 4096),
-			TAG_TEMP_WORKSPACE,
+			memtag::TAG_TEMP_WORKSPACE,
 			false));
 	}
 
@@ -1093,7 +1093,7 @@ static void SG_WriteScreenshot(bool qbAutosave, const char *psMapName)
 
 	size_t iJPGDataSize = 0;
 	size_t bufSize = SG_SCR_WIDTH * SG_SCR_HEIGHT * 3;
-	byte *pJPGData = (byte *)Z_Malloc( static_cast<int>(bufSize), TAG_TEMP_WORKSPACE, false, 4 );
+	byte *pJPGData = (byte *)Z_Malloc( static_cast<int>(bufSize), memtag::TAG_TEMP_WORKSPACE, false, 4 );
 
 	iJPGDataSize = re.SaveJPGToBuffer(pJPGData, bufSize, JPEG_IMAGE_QUALITY, SG_SCR_WIDTH, SG_SCR_HEIGHT, pbRawScreenShot, 0, false );
 	delete[] byBlank;
@@ -1126,7 +1126,7 @@ bool SG_GameAllowedToSaveHere(bool inCamera)
 			return false;	//nope, not during a video
 		}
 
-		if (sv.state != SS_GAME)
+		if (sv.state != serverState_t::SS_GAME)
 		{
 			return false;	//		Com_Printf (S_COLOR_RED "You must be in a game to save.\n");
 		}
@@ -1137,7 +1137,7 @@ bool SG_GameAllowedToSaveHere(bool inCamera)
 			return false;	//		Com_Printf (S_COLOR_RED "Cannot save on holodeck or brig.\n");
 		}
 
-		if (svs.clients[0].frames[svs.clients[0].netchan.outgoingSequence & PACKET_MASK].ps.stats[STAT_HEALTH] <= 0)
+		if (svs.clients[0].frames[svs.clients[0].netchan.outgoingSequence & PACKET_MASK].ps.stats[statIndex_t::STAT_HEALTH] <= 0)
 		{
 			return false;	//		Com_Printf (S_COLOR_RED "\nCan't savegame while dead!\n");
 		}
@@ -1320,13 +1320,13 @@ bool SG_ReadSavegame(
 	// read game state
 	const bool qbAutosave = ::ReadGame();
 
-	::eSavedGameJustLoaded = (qbAutosave ? eAUTO : eFULL);
+	::eSavedGameJustLoaded = (qbAutosave ? SavedGameJustLoaded_e::eAUTO : SavedGameJustLoaded_e::eFULL);
 
 	// note that this also trashes the whole G_Alloc pool as well (of course)
 	::SV_SpawnServer(
 		sMapCmd,
-		eForceReload_NOTHING,
-		(::eSavedGameJustLoaded != eFULL ? true : false));
+		ForceReload_e::eForceReload_NOTHING,
+		(::eSavedGameJustLoaded != SavedGameJustLoaded_e::eFULL ? true : false));
 
 	// read in all the level data...
 	//
@@ -1354,7 +1354,7 @@ bool SG_ReadSavegame(
 
 void SG_TestSave(void)
 {
-	if (sv_testsave->integer && sv.state == SS_GAME)
+	if (sv_testsave->integer && sv.state == serverState_t::SS_GAME)
 	{
 		WriteGame(false);
 		ge->WriteLevel(false);

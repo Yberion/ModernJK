@@ -72,46 +72,46 @@ void	Svcmd_EntityList_f (void) {
 		}
 		gi.Printf("%3i:", e);
 		switch ( check->s.eType ) {
-		case ET_GENERAL:
+		case entityType_t::ET_GENERAL:
 			gi.Printf( "ET_GENERAL          " );
 			break;
-		case ET_PLAYER:
+		case entityType_t::ET_PLAYER:
 			gi.Printf( "ET_PLAYER           " );
 			break;
-		case ET_ITEM:
+		case entityType_t::ET_ITEM:
 			gi.Printf( "ET_ITEM             " );
 			break;
-		case ET_MISSILE:
+		case entityType_t::ET_MISSILE:
 			gi.Printf( "ET_MISSILE          " );
 			break;
-		case ET_MOVER:
+		case entityType_t::ET_MOVER:
 			gi.Printf( "ET_MOVER            " );
 			break;
-		case ET_BEAM:
+		case entityType_t::ET_BEAM:
 			gi.Printf( "ET_BEAM             " );
 			break;
-		case ET_PORTAL:
+		case entityType_t::ET_PORTAL:
 			gi.Printf( "ET_PORTAL           " );
 			break;
-		case ET_SPEAKER:
+		case entityType_t::ET_SPEAKER:
 			gi.Printf( "ET_SPEAKER          " );
 			break;
-		case ET_PUSH_TRIGGER:
+		case entityType_t::ET_PUSH_TRIGGER:
 			gi.Printf( "ET_PUSH_TRIGGER     " );
 			break;
-		case ET_TELEPORT_TRIGGER:
+		case entityType_t::ET_TELEPORT_TRIGGER:
 			gi.Printf( "ET_TELEPORT_TRIGGER " );
 			break;
-		case ET_INVISIBLE:
+		case entityType_t::ET_INVISIBLE:
 			gi.Printf( "ET_INVISIBLE        " );
 			break;
-		case ET_THINKER:
+		case entityType_t::ET_THINKER:
 			gi.Printf( "ET_THINKER          " );
 			break;
-		case ET_CLOUD:
+		case entityType_t::ET_CLOUD:
 			gi.Printf( "ET_CLOUD            " );
 			break;
-		case ET_TERRAIN:
+		case entityType_t::ET_TERRAIN:
 			gi.Printf( "ET_TERRAIN          " );
 			break;
 		default:
@@ -153,11 +153,11 @@ extern cvar_t	*g_skippingcin;
 	else if ( !G_ClearViewEntity( player ) )
 	{//didn't exit control of a droid or turret
 		//okay, now try exiting emplaced guns or AT-ST's
-		if ( Any( player->s.eFlags & EF_LOCKED_TO_WEAPON ) )
+		if ( Any( player->s.eFlags & entityFlags_t::EF_LOCKED_TO_WEAPON ) )
 		{//get out of emplaced gun
 			ExitEmplacedWeapon( player );
 		}
-		else if ( player->client && player->client->NPC_class == CLASS_ATST )
+		else if ( player->client && player->client->NPC_class == class_t::CLASS_ATST )
 		{//a player trying to get out of his ATST
 			GEntity_UseFunc( player->activator, player, player );
 		}
@@ -169,7 +169,7 @@ gentity_t *G_GetSelfForPlayerCmd( void )
 	if ( g_entities[0].client->ps.viewEntity > 0
 		&& g_entities[0].client->ps.viewEntity < ENTITYNUM_WORLD
 		&& g_entities[g_entities[0].client->ps.viewEntity].client
-		&& g_entities[g_entities[0].client->ps.viewEntity].s.weapon == WP_SABER )
+		&& g_entities[g_entities[0].client->ps.viewEntity].s.weapon == weapon_t::WP_SABER )
 	{//you're controlling another NPC
 		return (&g_entities[g_entities[0].client->ps.viewEntity]);
 	}
@@ -203,7 +203,7 @@ static void Svcmd_Saber_f()
 
 	gi.cvar_set( "g_saber", saber );
 	WP_SetSaber( &g_entities[0], 0, saber );
-	if ( saber2 && saber2[0] && !Any( g_entities[0].client->ps.saber[0].saberFlags & SFL_TWO_HANDED ) )
+	if ( saber2 && saber2[0] && !Any( g_entities[0].client->ps.saber[0].saberFlags & saberFlags_t::SFL_TWO_HANDED ) )
 	{//want to use a second saber and first one is not twoHanded
 		gi.cvar_set( "g_saber2", saber2 );
 		WP_SetSaber( &g_entities[0], 1, saber2 );
@@ -305,23 +305,23 @@ struct SetForceCmd {
 	const forcePowerLevels_t maxlevel;
 };
 
-EnumArray<SetForceCmd, forcePowers_t, NUM_FORCE_POWERS> SetForceTable = {{
-	{ "forceHeal",			"setForceHeal",			FORCE_LEVEL_3			},
-	{ "forceJump",			"setForceJump",			FORCE_LEVEL_3			},
-	{ "forceSpeed",			"setForceSpeed",		FORCE_LEVEL_3			},
-	{ "forcePush",			"setForcePush",			FORCE_LEVEL_3			},
-	{ "forcePull",			"setForcePull",			FORCE_LEVEL_3			},
-	{ "forceMindTrick",		"setForceMindTrick",	FORCE_LEVEL_4			},
-	{ "forceGrip",			"setForceGrip",			FORCE_LEVEL_3			},
-	{ "forceLightning",		"setForceLightning",	FORCE_LEVEL_3			},
-	{ "saberThrow",			"setSaberThrow",		FORCE_LEVEL_3			},
-	{ "saberDefense",		"setSaberDefense",		FORCE_LEVEL_3			},
-	{ "saberOffense",		"setSaberOffense",		FORCE_LEVEL_0 + ( SS_NUM_SABER_STYLES - SS_FAST )	},	// one level per style, past FORCE_LEVEL_5
-	{ "forceRage",			"setForceRage",			FORCE_LEVEL_3			},
-	{ "forceProtect",		"setForceProtect",		FORCE_LEVEL_3			},
-	{ "forceAbsorb",		"setForceAbsorb",		FORCE_LEVEL_3			},
-	{ "forceDrain",			"setForceDrain",		FORCE_LEVEL_3			},
-	{ "forceSight",			"setForceSight",		FORCE_LEVEL_3			},
+EnumArray<SetForceCmd, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS> SetForceTable = {{
+	{ "forceHeal",			"setForceHeal",			forcePowerLevels_t::FORCE_LEVEL_3			},
+	{ "forceJump",			"setForceJump",			forcePowerLevels_t::FORCE_LEVEL_3			},
+	{ "forceSpeed",			"setForceSpeed",		forcePowerLevels_t::FORCE_LEVEL_3			},
+	{ "forcePush",			"setForcePush",			forcePowerLevels_t::FORCE_LEVEL_3			},
+	{ "forcePull",			"setForcePull",			forcePowerLevels_t::FORCE_LEVEL_3			},
+	{ "forceMindTrick",		"setForceMindTrick",	forcePowerLevels_t::FORCE_LEVEL_4			},
+	{ "forceGrip",			"setForceGrip",			forcePowerLevels_t::FORCE_LEVEL_3			},
+	{ "forceLightning",		"setForceLightning",	forcePowerLevels_t::FORCE_LEVEL_3			},
+	{ "saberThrow",			"setSaberThrow",		forcePowerLevels_t::FORCE_LEVEL_3			},
+	{ "saberDefense",		"setSaberDefense",		forcePowerLevels_t::FORCE_LEVEL_3			},
+	{ "saberOffense",		"setSaberOffense",		forcePowerLevels_t::FORCE_LEVEL_0 + ( saber_styles_t::SS_NUM_SABER_STYLES - saber_styles_t::SS_FAST )	},	// one level per style, past FORCE_LEVEL_5
+	{ "forceRage",			"setForceRage",			forcePowerLevels_t::FORCE_LEVEL_3			},
+	{ "forceProtect",		"setForceProtect",		forcePowerLevels_t::FORCE_LEVEL_3			},
+	{ "forceAbsorb",		"setForceAbsorb",		forcePowerLevels_t::FORCE_LEVEL_3			},
+	{ "forceDrain",			"setForceDrain",		forcePowerLevels_t::FORCE_LEVEL_3			},
+	{ "forceSight",			"setForceSight",		forcePowerLevels_t::FORCE_LEVEL_3			},
 }};
 
 static void Svcmd_ForceSetLevel_f( forcePowers_t forcePower )
@@ -338,7 +338,7 @@ static void Svcmd_ForceSetLevel_f( forcePowers_t forcePower )
 		return;
 	}
 	const forcePowerLevels_t val = static_cast<forcePowerLevels_t>( atoi(newVal) );
-	if ( val > FORCE_LEVEL_0 )
+	if ( val > forcePowerLevels_t::FORCE_LEVEL_0 )
 	{
 		g_entities[0].client->ps.forcePowersKnown |= Bit( forcePower );
 	}
@@ -347,9 +347,9 @@ static void Svcmd_ForceSetLevel_f( forcePowers_t forcePower )
 		g_entities[0].client->ps.forcePowersKnown &= ~Bit( forcePower );
 	}
 	g_entities[0].client->ps.forcePowerLevel[forcePower] = val;
-	if ( g_entities[0].client->ps.forcePowerLevel[forcePower] < FORCE_LEVEL_0 )
+	if ( g_entities[0].client->ps.forcePowerLevel[forcePower] < forcePowerLevels_t::FORCE_LEVEL_0 )
 	{
-		g_entities[0].client->ps.forcePowerLevel[forcePower] = FORCE_LEVEL_0;
+		g_entities[0].client->ps.forcePowerLevel[forcePower] = forcePowerLevels_t::FORCE_LEVEL_0;
 	}
 	else if ( g_entities[0].client->ps.forcePowerLevel[forcePower] > SetForceTable[forcePower].maxlevel )
 	{
@@ -369,7 +369,7 @@ void Svcmd_SaberAttackCycle_f( void )
 	}
 
 	gentity_t *self = G_GetSelfForPlayerCmd();
-	if ( self->s.weapon != WP_SABER )
+	if ( self->s.weapon != weapon_t::WP_SABER )
 	{// saberAttackCycle button also switches to saber
 		gi.SendConsoleCommand("weapon 1" );
 		return;
@@ -387,14 +387,14 @@ void Svcmd_SaberAttackCycle_f( void )
 					skipThisBlade = false;
 					if ( WP_SaberBladeUseSecondBladeStyle( &self->client->ps.saber[1], bladeNum ) )
 					{//check to see if we should check the secondary style's flags
-						if ( Any( self->client->ps.saber[1].saberFlags2 & SFL2_NO_MANUAL_DEACTIVATE2 ) )
+						if ( Any( self->client->ps.saber[1].saberFlags2 & saberFlags2_t::SFL2_NO_MANUAL_DEACTIVATE2 ) )
 						{
 							skipThisBlade = true;
 						}
 					}
 					else
 					{//use the primary style's flags
-						if ( Any( self->client->ps.saber[1].saberFlags2 & SFL2_NO_MANUAL_DEACTIVATE ) )
+						if ( Any( self->client->ps.saber[1].saberFlags2 & saberFlags2_t::SFL2_NO_MANUAL_DEACTIVATE ) )
 						{
 							skipThisBlade = true;
 						}
@@ -402,7 +402,7 @@ void Svcmd_SaberAttackCycle_f( void )
 					if ( !skipThisBlade )
 					{
 						self->client->ps.saber[1].BladeActivate( bladeNum, false );
-						G_SoundIndexOnEnt( self, CHAN_WEAPON, self->client->ps.saber[1].soundOff );
+						G_SoundIndexOnEnt( self, soundChannel_t::CHAN_WEAPON, self->client->ps.saber[1].soundOff );
 					}
 				}
 			}
@@ -421,14 +421,14 @@ void Svcmd_SaberAttackCycle_f( void )
 		}
 	}
 	else if ( self->client->ps.saber[0].numBlades > 1
-		&& WP_SaberCanTurnOffSomeBlades( &self->client->ps.saber[0] ) )//self->client->ps.saber[0].type == SABER_STAFF )
+		&& WP_SaberCanTurnOffSomeBlades( &self->client->ps.saber[0] ) )//self->client->ps.saber[0].type == saberType_t::SABER_STAFF )
 	{//can't cycle styles with saberstaff, so just toggles saber blades on/off
 		if ( self->client->ps.saberInFlight )
 		{//can't turn second blade back on if it's in the air, you naughty boy!
 			return;
 		}
 		/*
-		if ( self->client->ps.saber[0].singleBladeStyle == SS_NONE )
+		if ( self->client->ps.saber[0].singleBladeStyle == saber_styles_t::SS_NONE )
 		{//can't use just one blade?
 			return;
 		}
@@ -453,14 +453,14 @@ void Svcmd_SaberAttackCycle_f( void )
 				skipThisBlade = false;
 				if ( WP_SaberBladeUseSecondBladeStyle( &self->client->ps.saber[1], bladeNum ) )
 				{//check to see if we should check the secondary style's flags
-					if ( Any( self->client->ps.saber[1].saberFlags2 & SFL2_NO_MANUAL_DEACTIVATE2 ) )
+					if ( Any( self->client->ps.saber[1].saberFlags2 & saberFlags2_t::SFL2_NO_MANUAL_DEACTIVATE2 ) )
 					{
 						skipThisBlade = true;
 					}
 				}
 				else
 				{//use the primary style's flags
-					if ( Any( self->client->ps.saber[1].saberFlags2 & SFL2_NO_MANUAL_DEACTIVATE ) )
+					if ( Any( self->client->ps.saber[1].saberFlags2 & saberFlags2_t::SFL2_NO_MANUAL_DEACTIVATE ) )
 					{
 						skipThisBlade = true;
 					}
@@ -470,7 +470,7 @@ void Svcmd_SaberAttackCycle_f( void )
 					self->client->ps.saber[0].BladeActivate( bladeNum, false );
 					if ( !playedSound )
 					{
-						G_SoundIndexOnEnt( self, CHAN_WEAPON, self->client->ps.saber[0].soundOff );
+						G_SoundIndexOnEnt( self, soundChannel_t::CHAN_WEAPON, self->client->ps.saber[0].soundOff );
 						playedSound = true;
 					}
 				}
@@ -484,18 +484,18 @@ void Svcmd_SaberAttackCycle_f( void )
 		&& self->client->ps.saber[0].Active()
 		&& self->client->ps.saber[1].Active() )
 	{
-		allowedStyles |= Bit( SS_DUAL );
-		for ( saber_styles_t styleNum = SS_NONE+1; styleNum < SS_NUM_SABER_STYLES; styleNum++ )
+		allowedStyles |= Bit( saber_styles_t::SS_DUAL );
+		for ( saber_styles_t styleNum = saber_styles_t::SS_NONE+1; styleNum < saber_styles_t::SS_NUM_SABER_STYLES; styleNum++ )
 		{
-			if ( styleNum == SS_TAVION
-				&& ((self->client->ps.saber[0].stylesLearned&Bit( SS_TAVION ))||(self->client->ps.saber[1].stylesLearned&Bit( SS_TAVION )))//was given this style by one of my sabers
-				&& !(self->client->ps.saber[0].stylesForbidden&Bit( SS_TAVION ))
-				&& !(self->client->ps.saber[1].stylesForbidden&Bit( SS_TAVION )) )
+			if ( styleNum == saber_styles_t::SS_TAVION
+				&& ((self->client->ps.saber[0].stylesLearned&Bit( saber_styles_t::SS_TAVION ))||(self->client->ps.saber[1].stylesLearned&Bit( saber_styles_t::SS_TAVION )))//was given this style by one of my sabers
+				&& !(self->client->ps.saber[0].stylesForbidden&Bit( saber_styles_t::SS_TAVION ))
+				&& !(self->client->ps.saber[1].stylesForbidden&Bit( saber_styles_t::SS_TAVION )) )
 			{//if have both sabers on, allow tavion only if one of our sabers specifically wanted to use it... (unless specifically forbidden)
 			}
-			else if ( styleNum == SS_DUAL
-				&& !(self->client->ps.saber[0].stylesForbidden&Bit( SS_DUAL ))
-				&& !(self->client->ps.saber[1].stylesForbidden&Bit( SS_DUAL )) )
+			else if ( styleNum == saber_styles_t::SS_DUAL
+				&& !(self->client->ps.saber[0].stylesForbidden&Bit( saber_styles_t::SS_DUAL ))
+				&& !(self->client->ps.saber[1].stylesForbidden&Bit( saber_styles_t::SS_DUAL )) )
 			{//if have both sabers on, only dual style is allowed (unless specifically forbidden)
 			}
 			else
@@ -523,12 +523,12 @@ void Svcmd_SaberAttackCycle_f( void )
 	int sanityCheck = 0;
 	while ( self->client->ps.saberAnimLevel != saberAnimLevel
 		&& !(allowedStyles&Bit( saberAnimLevel ))
-		&& sanityCheck < to_underlying( SS_NUM_SABER_STYLES )+1 )
+		&& sanityCheck < to_underlying( saber_styles_t::SS_NUM_SABER_STYLES )+1 )
 	{
 		saberAnimLevel++;
-		if ( saberAnimLevel > SS_STAFF )
+		if ( saberAnimLevel > saber_styles_t::SS_STAFF )
 		{
-			saberAnimLevel = SS_FAST;
+			saberAnimLevel = saber_styles_t::SS_FAST;
 		}
 		sanityCheck++;
 	}
@@ -551,31 +551,31 @@ void Svcmd_SaberAttackCycle_f( void )
 #ifndef FINAL_BUILD
 	switch ( saberAnimLevel )
 	{
-	case SS_FAST:
+	case saber_styles_t::SS_FAST:
 		gi.Printf( S_COLOR_BLUE "Lightsaber Combat Style: Fast\n" );
 		//LIGHTSABERCOMBATSTYLE_FAST
 		break;
-	case SS_MEDIUM:
+	case saber_styles_t::SS_MEDIUM:
 		gi.Printf( S_COLOR_YELLOW "Lightsaber Combat Style: Medium\n" );
 		//LIGHTSABERCOMBATSTYLE_MEDIUM
 		break;
-	case SS_STRONG:
+	case saber_styles_t::SS_STRONG:
 		gi.Printf( S_COLOR_RED "Lightsaber Combat Style: Strong\n" );
 		//LIGHTSABERCOMBATSTYLE_STRONG
 		break;
-	case SS_DESANN:
+	case saber_styles_t::SS_DESANN:
 		gi.Printf( S_COLOR_CYAN "Lightsaber Combat Style: Desann\n" );
 		//LIGHTSABERCOMBATSTYLE_DESANN
 		break;
-	case SS_TAVION:
+	case saber_styles_t::SS_TAVION:
 		gi.Printf( S_COLOR_MAGENTA "Lightsaber Combat Style: Tavion\n" );
 		//LIGHTSABERCOMBATSTYLE_TAVION
 		break;
-	case SS_DUAL:
+	case saber_styles_t::SS_DUAL:
 		gi.Printf( S_COLOR_MAGENTA "Lightsaber Combat Style: Dual\n" );
 		//LIGHTSABERCOMBATSTYLE_TAVION
 		break;
-	case SS_STAFF:
+	case saber_styles_t::SS_STAFF:
 		gi.Printf( S_COLOR_MAGENTA "Lightsaber Combat Style: Staff\n" );
 		//LIGHTSABERCOMBATSTYLE_TAVION
 		break;
@@ -632,14 +632,14 @@ static void Svcmd_ForceSetLevel_f(void)
 
 static void Svcmd_SetForceAll_f(void)
 {
-	for ( forcePowers_t i = FP_HEAL; i < NUM_FORCE_POWERS; i++ )
+	for ( forcePowers_t i = forcePowers_t::FP_HEAL; i < forcePowers_t::NUM_FORCE_POWERS; i++ )
 	{
 		Svcmd_ForceSetLevel_f( i );
 	}
 
 	if( gi.argc() > 1 )
 	{
-		for ( saber_styles_t i = SS_NONE+1; i < SS_NUM_SABER_STYLES; i++ )
+		for ( saber_styles_t i = saber_styles_t::SS_NONE+1; i < saber_styles_t::SS_NUM_SABER_STYLES; i++ )
 		{
 			g_entities[0].client->ps.saberStylesKnown |= Bit( i );
 		}
@@ -648,10 +648,10 @@ static void Svcmd_SetForceAll_f(void)
 
 static void Svcmd_SetSaberAll_f(void)
 {
-	Svcmd_ForceSetLevel_f( FP_SABERTHROW );
-	Svcmd_ForceSetLevel_f( FP_SABER_DEFENSE );
-	Svcmd_ForceSetLevel_f( FP_SABER_OFFENSE );
-	for ( saber_styles_t i = SS_NONE+1; i < SS_NUM_SABER_STYLES; i++ )
+	Svcmd_ForceSetLevel_f( forcePowers_t::FP_SABERTHROW );
+	Svcmd_ForceSetLevel_f( forcePowers_t::FP_SABER_DEFENSE );
+	Svcmd_ForceSetLevel_f( forcePowers_t::FP_SABER_OFFENSE );
+	for ( saber_styles_t i = saber_styles_t::SS_NONE+1; i < saber_styles_t::SS_NUM_SABER_STYLES; i++ )
 	{
 		g_entities[0].client->ps.saberStylesKnown |= Bit( i );
 	}
@@ -697,7 +697,7 @@ static void Svcmd_PlayerTeam_f(void)
 		gi.Printf( S_COLOR_RED "'playerteam' - change player team, requires a team name!\n" );
 		gi.Printf( S_COLOR_RED "Current team is: %s\n", GetStringForID( TeamTable, to_underlying( g_entities[0].client->playerTeam ) ) );
 		gi.Printf( S_COLOR_RED "Valid team names are:\n");
-		for ( team_t n = TEAM_FREE + 1; n < TEAM_NUM_TEAMS; n++ )
+		for ( team_t n = team_t::TEAM_FREE + 1; n < team_t::TEAM_NUM_TEAMS; n++ )
 		{
 			gi.Printf( S_COLOR_RED "%s\n", GetStringForID( TeamTable, to_underlying( n ) ) );
 		}
@@ -711,7 +711,7 @@ static void Svcmd_PlayerTeam_f(void)
 			gi.Printf( S_COLOR_RED "'playerteam' unrecognized team name %s!\n", cmd2 );
 			gi.Printf( S_COLOR_RED "Current team is: %s\n", GetStringForID( TeamTable, to_underlying( g_entities[0].client->playerTeam ) ) );
 			gi.Printf( S_COLOR_RED "Valid team names are:\n");
-			for ( team_t n = TEAM_FREE; n < TEAM_NUM_TEAMS; n++ )
+			for ( team_t n = team_t::TEAM_FREE; n < team_t::TEAM_NUM_TEAMS; n++ )
 			{
 				gi.Printf( S_COLOR_RED "%s\n", GetStringForID( TeamTable, to_underlying( n ) ) );
 			}
@@ -805,17 +805,17 @@ static void Svcmd_PlayerTint_f(void)
 static void Svcmd_IKnowKungfu_f(void)
 {
 	gi.cvar_set( "g_debugMelee", "1" );
-	G_SetWeapon( &g_entities[0], WP_MELEE );
-	for ( forcePowers_t i = FP_FIRST; i < NUM_FORCE_POWERS; i++ )
+	G_SetWeapon( &g_entities[0], weapon_t::WP_MELEE );
+	for ( forcePowers_t i = forcePowers_t::FP_FIRST; i < forcePowers_t::NUM_FORCE_POWERS; i++ )
 	{
 		g_entities[0].client->ps.forcePowersKnown |= Bit( i );
-		if ( i == FP_TELEPATHY )
+		if ( i == forcePowers_t::FP_TELEPATHY )
 		{
-			g_entities[0].client->ps.forcePowerLevel[i] = FORCE_LEVEL_4;
+			g_entities[0].client->ps.forcePowerLevel[i] = forcePowerLevels_t::FORCE_LEVEL_4;
 		}
 		else
 		{
-			g_entities[0].client->ps.forcePowerLevel[i] = FORCE_LEVEL_3;
+			g_entities[0].client->ps.forcePowerLevel[i] = forcePowerLevels_t::FORCE_LEVEL_3;
 		}
 	}
 }
@@ -887,7 +887,6 @@ enum class commandFlags_t
 	CMD_CHEAT				= 0x00000001u,
 	CMD_ALIVE				= 0x00000002u,
 };
-using enum commandFlags_t;
 template <> inline constexpr bool enableEnumFlags<commandFlags_t> = true;
 
 typedef struct svcmd_s {
@@ -902,58 +901,58 @@ static int svcmdcmp( const void *a, const void *b ) {
 
 // FIXME some of these should be made CMD_ALIVE too!
 static svcmd_t svcmds[] = {
-	{ "entitylist",					Svcmd_EntityList_f,							CMD_NONE },
-	{ "game_memory",				Svcmd_GameMem_f,							CMD_NONE },
+	{ "entitylist",					Svcmd_EntityList_f,							commandFlags_t::CMD_NONE },
+	{ "game_memory",				Svcmd_GameMem_f,							commandFlags_t::CMD_NONE },
 
-	{ "nav",						Svcmd_Nav_f,								CMD_CHEAT },
-	{ "npc",						Svcmd_NPC_f,								CMD_CHEAT },
-	{ "use",						Svcmd_Use_f,								CMD_CHEAT },
-	{ "ICARUS",						Svcmd_ICARUS_f,								CMD_CHEAT },
+	{ "nav",						Svcmd_Nav_f,								commandFlags_t::CMD_CHEAT },
+	{ "npc",						Svcmd_NPC_f,								commandFlags_t::CMD_CHEAT },
+	{ "use",						Svcmd_Use_f,								commandFlags_t::CMD_CHEAT },
+	{ "ICARUS",						Svcmd_ICARUS_f,								commandFlags_t::CMD_CHEAT },
 
-	{ "saberColor",					Svcmd_SaberColor_f,							CMD_CHEAT },
-	{ "saber",						Svcmd_Saber_f,								CMD_CHEAT },
-	{ "saberBlade",					Svcmd_SaberBlade_f,							CMD_CHEAT },
+	{ "saberColor",					Svcmd_SaberColor_f,							commandFlags_t::CMD_CHEAT },
+	{ "saber",						Svcmd_Saber_f,								commandFlags_t::CMD_CHEAT },
+	{ "saberBlade",					Svcmd_SaberBlade_f,							commandFlags_t::CMD_CHEAT },
 
-	{ "setForceJump",				Svcmd_ForceSetLevel_f<FP_LEVITATION>,		CMD_CHEAT },
-	{ "setSaberThrow",				Svcmd_ForceSetLevel_f<FP_SABERTHROW>,		CMD_CHEAT },
-	{ "setForceHeal",				Svcmd_ForceSetLevel_f<FP_HEAL>,				CMD_CHEAT },
-	{ "setForcePush",				Svcmd_ForceSetLevel_f<FP_PUSH>,				CMD_CHEAT },
-	{ "setForcePull",				Svcmd_ForceSetLevel_f<FP_PULL>,				CMD_CHEAT },
-	{ "setForceSpeed",				Svcmd_ForceSetLevel_f<FP_SPEED>,			CMD_CHEAT },
-	{ "setForceGrip",				Svcmd_ForceSetLevel_f<FP_GRIP>,				CMD_CHEAT },
-	{ "setForceLightning",			Svcmd_ForceSetLevel_f<FP_LIGHTNING>,		CMD_CHEAT },
-	{ "setMindTrick",				Svcmd_ForceSetLevel_f<FP_TELEPATHY>,		CMD_CHEAT },
-	{ "setSaberDefense",			Svcmd_ForceSetLevel_f<FP_SABER_DEFENSE>,	CMD_CHEAT },
-	{ "setSaberOffense",			Svcmd_ForceSetLevel_f<FP_SABER_OFFENSE>,	CMD_CHEAT },
-	{ "setForceRage",				Svcmd_ForceSetLevel_f<FP_RAGE>,				CMD_CHEAT },
-	{ "setForceDrain",				Svcmd_ForceSetLevel_f<FP_DRAIN>,			CMD_CHEAT },
-	{ "setForceProtect",			Svcmd_ForceSetLevel_f<FP_PROTECT>,			CMD_CHEAT },
-	{ "setForceAbsorb",				Svcmd_ForceSetLevel_f<FP_ABSORB>,			CMD_CHEAT },
-	{ "setForceSight",				Svcmd_ForceSetLevel_f<FP_SEE>,				CMD_CHEAT },
-	{ "setForceAll",				Svcmd_SetForceAll_f,						CMD_CHEAT },
-	{ "setSaberAll",				Svcmd_SetSaberAll_f,						CMD_CHEAT },
+	{ "setForceJump",				Svcmd_ForceSetLevel_f<forcePowers_t::FP_LEVITATION>,		commandFlags_t::CMD_CHEAT },
+	{ "setSaberThrow",				Svcmd_ForceSetLevel_f<forcePowers_t::FP_SABERTHROW>,		commandFlags_t::CMD_CHEAT },
+	{ "setForceHeal",				Svcmd_ForceSetLevel_f<forcePowers_t::FP_HEAL>,				commandFlags_t::CMD_CHEAT },
+	{ "setForcePush",				Svcmd_ForceSetLevel_f<forcePowers_t::FP_PUSH>,				commandFlags_t::CMD_CHEAT },
+	{ "setForcePull",				Svcmd_ForceSetLevel_f<forcePowers_t::FP_PULL>,				commandFlags_t::CMD_CHEAT },
+	{ "setForceSpeed",				Svcmd_ForceSetLevel_f<forcePowers_t::FP_SPEED>,			commandFlags_t::CMD_CHEAT },
+	{ "setForceGrip",				Svcmd_ForceSetLevel_f<forcePowers_t::FP_GRIP>,				commandFlags_t::CMD_CHEAT },
+	{ "setForceLightning",			Svcmd_ForceSetLevel_f<forcePowers_t::FP_LIGHTNING>,		commandFlags_t::CMD_CHEAT },
+	{ "setMindTrick",				Svcmd_ForceSetLevel_f<forcePowers_t::FP_TELEPATHY>,		commandFlags_t::CMD_CHEAT },
+	{ "setSaberDefense",			Svcmd_ForceSetLevel_f<forcePowers_t::FP_SABER_DEFENSE>,	commandFlags_t::CMD_CHEAT },
+	{ "setSaberOffense",			Svcmd_ForceSetLevel_f<forcePowers_t::FP_SABER_OFFENSE>,	commandFlags_t::CMD_CHEAT },
+	{ "setForceRage",				Svcmd_ForceSetLevel_f<forcePowers_t::FP_RAGE>,				commandFlags_t::CMD_CHEAT },
+	{ "setForceDrain",				Svcmd_ForceSetLevel_f<forcePowers_t::FP_DRAIN>,			commandFlags_t::CMD_CHEAT },
+	{ "setForceProtect",			Svcmd_ForceSetLevel_f<forcePowers_t::FP_PROTECT>,			commandFlags_t::CMD_CHEAT },
+	{ "setForceAbsorb",				Svcmd_ForceSetLevel_f<forcePowers_t::FP_ABSORB>,			commandFlags_t::CMD_CHEAT },
+	{ "setForceSight",				Svcmd_ForceSetLevel_f<forcePowers_t::FP_SEE>,				commandFlags_t::CMD_CHEAT },
+	{ "setForceAll",				Svcmd_SetForceAll_f,						commandFlags_t::CMD_CHEAT },
+	{ "setSaberAll",				Svcmd_SetSaberAll_f,						commandFlags_t::CMD_CHEAT },
 
-	{ "saberAttackCycle",			Svcmd_SaberAttackCycle_f,					CMD_NONE },
+	{ "saberAttackCycle",			Svcmd_SaberAttackCycle_f,					commandFlags_t::CMD_NONE },
 
-	{ "runscript",					Svcmd_RunScript_f,							CMD_CHEAT },
+	{ "runscript",					Svcmd_RunScript_f,							commandFlags_t::CMD_CHEAT },
 
-	{ "playerTeam",					Svcmd_PlayerTeam_f,							CMD_CHEAT },
+	{ "playerTeam",					Svcmd_PlayerTeam_f,							commandFlags_t::CMD_CHEAT },
 
-	{ "control",					Svcmd_Control_f,							CMD_CHEAT },
-	{ "grab",						Svcmd_Grab_f,								CMD_CHEAT },
-	{ "knockdown",					Svcmd_Knockdown_f,							CMD_CHEAT },
+	{ "control",					Svcmd_Control_f,							commandFlags_t::CMD_CHEAT },
+	{ "grab",						Svcmd_Grab_f,								commandFlags_t::CMD_CHEAT },
+	{ "knockdown",					Svcmd_Knockdown_f,							commandFlags_t::CMD_CHEAT },
 
-	{ "playerModel",				Svcmd_PlayerModel_f,						CMD_NONE },
-	{ "playerTint",					Svcmd_PlayerTint_f,							CMD_NONE },
+	{ "playerModel",				Svcmd_PlayerModel_f,						commandFlags_t::CMD_NONE },
+	{ "playerTint",					Svcmd_PlayerTint_f,							commandFlags_t::CMD_NONE },
 
-	{ "nexttestaxes",				G_NextTestAxes,								CMD_NONE },
+	{ "nexttestaxes",				G_NextTestAxes,								commandFlags_t::CMD_NONE },
 
-	{ "exitview",					Svcmd_ExitView_f,							CMD_NONE },
+	{ "exitview",					Svcmd_ExitView_f,							commandFlags_t::CMD_NONE },
 
-	{ "iknowkungfu",				Svcmd_IKnowKungfu_f,						CMD_CHEAT },
+	{ "iknowkungfu",				Svcmd_IKnowKungfu_f,						commandFlags_t::CMD_CHEAT },
 
-	{ "secrets",					Svcmd_Secrets_f,							CMD_NONE },
-	{ "difficulty",					Svcmd_Difficulty_f,							CMD_NONE },
+	{ "secrets",					Svcmd_Secrets_f,							commandFlags_t::CMD_NONE },
+	{ "difficulty",					Svcmd_Difficulty_f,							commandFlags_t::CMD_NONE },
 
 	//{ "say",						Svcmd_Say_f,						true },
 	//{ "toggleallowvote",			Svcmd_ToggleAllowVote_f,			false },
@@ -973,13 +972,13 @@ bool	ConsoleCommand( void ) {
 	if ( !command )
 		return false;
 
-	if ( Any( command->flags & CMD_CHEAT )
+	if ( Any( command->flags & commandFlags_t::CMD_CHEAT )
 		&& !g_cheats->integer )
 	{
 		gi.Printf( "Cheats are not enabled on this server.\n" );
 		return true;
 	}
-	else if ( Any( command->flags & CMD_ALIVE )
+	else if ( Any( command->flags & commandFlags_t::CMD_ALIVE )
 		&& (g_entities[0].health <= 0) )
 	{
 		gi.Printf( "You must be alive to use this command.\n" );

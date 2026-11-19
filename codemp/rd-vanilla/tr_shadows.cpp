@@ -330,7 +330,7 @@ void RB_DoShadowTessEnd( vec3_t lightPos )
 
 	GL_Bind( tr.whiteImage );
 	//qglEnable( GL_CULL_FACE );
-	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO );
+	GL_State( glStateBits_t::GLS_SRCBLEND_ONE | glStateBits_t::GLS_DSTBLEND_ZERO );
 
 #ifndef _DEBUG_STENCIL_SHADOWS
 	qglColor3f( 0.2f, 0.2f, 0.2f );
@@ -352,7 +352,7 @@ void RB_DoShadowTessEnd( vec3_t lightPos )
 	//now using the Carmack Reverse<tm> -rww
 	if ( glConfigExt.doStencilShadowsInOneDrawcall )
 	{
-		GL_Cull(CT_TWO_SIDED);
+		GL_Cull(cullType_t::CT_TWO_SIDED);
 		qglStencilOpSeparate(GL_FRONT, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
 		qglStencilOpSeparate(GL_BACK, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
 
@@ -361,12 +361,12 @@ void RB_DoShadowTessEnd( vec3_t lightPos )
 	}
 	else
 	{
-		GL_Cull(CT_FRONT_SIDED);
+		GL_Cull(cullType_t::CT_FRONT_SIDED);
 		qglStencilOp(GL_KEEP, GL_INCR, GL_KEEP);
 
 		R_RenderShadowEdges();
 
-		GL_Cull(CT_BACK_SIDED);
+		GL_Cull(cullType_t::CT_BACK_SIDED);
 		qglStencilOp(GL_KEEP, GL_DECR, GL_KEEP);
 
 		R_RenderShadowEdges();
@@ -440,7 +440,7 @@ void RB_ShadowFinish( void ) {
 		planeZeroBack = true;
 		qglDisable (GL_CLIP_PLANE0);
 	}
-	GL_Cull(CT_TWO_SIDED);
+	GL_Cull(cullType_t::CT_TWO_SIDED);
 	//qglDisable (GL_CULL_FACE);
 
 	GL_Bind( tr.whiteImage );
@@ -449,14 +449,14 @@ void RB_ShadowFinish( void ) {
     qglLoadIdentity ();
 
 //	qglColor3f( 0.6f, 0.6f, 0.6f );
-//	GL_State( GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO );
+//	GL_State( glStateBits_t::GLS_DEPTHMASK_TRUE | glStateBits_t::GLS_SRCBLEND_DST_COLOR | glStateBits_t::GLS_DSTBLEND_ZERO );
 
 //	qglColor3f( 1, 0, 0 );
-//	GL_State( GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO );
+//	GL_State( glStateBits_t::GLS_DEPTHMASK_TRUE | glStateBits_t::GLS_SRCBLEND_ONE | glStateBits_t::GLS_DSTBLEND_ZERO );
 
 	qglColor4f( 0.0f, 0.0f, 0.0f, 0.5f );
-	//GL_State( GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA );
-	GL_State( GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA );
+	//GL_State( glStateBits_t::GLS_DEPTHMASK_TRUE | glStateBits_t::GLS_SRCBLEND_SRC_ALPHA | glStateBits_t::GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA );
+	GL_State( glStateBits_t::GLS_SRCBLEND_SRC_ALPHA | glStateBits_t::GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA );
 
 	qglBegin( GL_QUADS );
 	qglVertex3f( -100, 100, -10 );
@@ -537,7 +537,7 @@ void RB_CaptureScreenImage(void)
 	static byte *tmp = nullptr;
 	if (!tmp)
 	{
-		tmp = (byte *)Z_Malloc((sizeof(byte)*4)*(glConfig.vidWidth*glConfig.vidHeight), TAG_ICARUS, true);
+		tmp = (byte *)Z_Malloc((sizeof(byte)*4)*(glConfig.vidWidth*glConfig.vidHeight), memtag::TAG_ICARUS, true);
 	}
 	qglReadPixels(0, 0, glConfig.vidWidth, glConfig.vidHeight, GL_RGBA, GL_UNSIGNED_BYTE, tmp);
 	qglTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 512, 512, 0, GL_RGBA, GL_UNSIGNED_BYTE, tmp);
@@ -612,7 +612,7 @@ void RB_DistortionFill(void)
 	qglStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
 	qglDisable (GL_CLIP_PLANE0);
-	GL_Cull( CT_TWO_SIDED );
+	GL_Cull( cullType_t::CT_TWO_SIDED );
 
 	//reset the view matrices and go into ortho mode
 	qglMatrixMode(GL_PROJECTION);
@@ -647,11 +647,11 @@ void RB_DistortionFill(void)
 
 	if (alpha != 1.0f)
 	{ //blend
-		GL_State(GLS_SRCBLEND_SRC_ALPHA|GLS_DSTBLEND_SRC_ALPHA);
+		GL_State(glStateBits_t::GLS_SRCBLEND_SRC_ALPHA|glStateBits_t::GLS_DSTBLEND_SRC_ALPHA);
 	}
 	else
 	{ //be sure to reset the draw state
-		GL_State(GLS_NONE);
+		GL_State(glStateBits_t::GLS_NONE);
 	}
 
 	qglBegin(GL_QUADS);
@@ -674,12 +674,12 @@ void RB_DistortionFill(void)
 		if (tr_distortionNegate)
 		{ //probably the crazy alternate saber trail
 			alpha = 0.8f;
-			GL_State(GLS_SRCBLEND_ZERO|GLS_DSTBLEND_ONE_MINUS_SRC_COLOR);
+			GL_State(glStateBits_t::GLS_SRCBLEND_ZERO|glStateBits_t::GLS_DSTBLEND_ONE_MINUS_SRC_COLOR);
 		}
 		else
 		{
 			alpha = 0.5f;
-			GL_State(GLS_SRCBLEND_SRC_ALPHA|GLS_DSTBLEND_SRC_ALPHA);
+			GL_State(glStateBits_t::GLS_SRCBLEND_SRC_ALPHA|glStateBits_t::GLS_DSTBLEND_SRC_ALPHA);
 		}
 
 		spost = Q_sin(tr.refdef.time*0.0008f);

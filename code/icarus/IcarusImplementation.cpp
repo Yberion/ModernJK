@@ -238,7 +238,7 @@ void CIcarus::DeleteIcarusID( int& icarusID )
 	CTaskManager	*taskManager = sequencer->GetTaskManager();
 	if (taskManager->IsResident())
 	{
-		IGameInterface::GetGame()->DebugPrint( IGameInterface::WL_ERROR, "Refusing DeleteIcarusID(%d) because it is running!\n", icarusID);
+		IGameInterface::GetGame()->DebugPrint( IGameInterface::e_DebugPrintLevel::WL_ERROR, "Refusing DeleteIcarusID(%d) because it is running!\n", icarusID);
 		assert(0);
 		return;
 	}
@@ -354,11 +354,11 @@ void CIcarus::Precache(char* buffer, long length)
 		//Determine what type of block this is
 		switch( block.GetBlockID() )
 		{
-		case ID_CAMERA:	// to cache ROFF files
+		case icarusToken_t::ID_CAMERA:	// to cache ROFF files
 			{
 				float f = *(float *) block.GetMemberData( 0 );
 
-				if (f == (float) to_underlying( TYPE_PATH ))
+				if (f == (float) to_underlying( icarusToken_t::TYPE_PATH ))
 				{
 					sVal1 = (const char *) block.GetMemberData( 1 );
 
@@ -367,7 +367,7 @@ void CIcarus::Precache(char* buffer, long length)
 			}
 			break;
 
-		case ID_PLAY:	// to cache ROFF files
+		case icarusToken_t::ID_PLAY:	// to cache ROFF files
 
 			sVal1 = (const char *) block.GetMemberData( 0 );
 
@@ -380,23 +380,23 @@ void CIcarus::Precache(char* buffer, long length)
 			break;
 
 		//Run commands
-		case ID_RUN:
+		case icarusToken_t::ID_RUN:
 			sVal1 = (const char *) block.GetMemberData( 0 );
 			game->PrecacheScript( sVal1 );
 			break;
 
-		case ID_SOUND:
+		case icarusToken_t::ID_SOUND:
 			sVal1 = (const char *) block.GetMemberData( 1 );	//0 is channel, 1 is filename
 			game->PrecacheSound(sVal1);
 			break;
 
-		case ID_SET:
+		case icarusToken_t::ID_SET:
 			blockMember = block.GetMember( 0 );
 
 			//NOTENOTE: This will not catch special case get() inlines! (There's not really a good way to do that)
 
 			//Make sure we're testing against strings
-			if ( blockMember->GetID() == TK_STRING )
+			if ( blockMember->GetID() == icarusToken_t::TK_STRING )
 			{
 				sVal1 = (const char *) block.GetMemberData( 0 );
 				sVal2 = (const char *) block.GetMemberData( 1 );
@@ -430,7 +430,7 @@ CSequencer* CIcarus::FindSequencer(int sequencerID)
 bool CIcarus::Run(int icarusID, char* buffer, long length)
 {
 	CSequencer* sequencer = FindSequencer(icarusID);
-	return sequencer && sequencer->Run(buffer, length, this) == CSequencer::SEQ_OK;
+	return sequencer && sequencer->Run(buffer, length, this) == CSequencer::sequencerResult_t::SEQ_OK;
 }
 
 int CIcarus::SaveSequenceIDTable()
@@ -702,7 +702,7 @@ int CIcarus::Load()
 	if ( version != ICARUS_VERSION )
 	{
 		DestroyBuffer();
-		game->DebugPrint( IGameInterface::WL_ERROR, "save game data contains outdated ICARUS version information!\n");
+		game->DebugPrint( IGameInterface::e_DebugPrintLevel::WL_ERROR, "save game data contains outdated ICARUS version information!\n");
 		return false;
 	}
 
@@ -718,7 +718,7 @@ int CIcarus::Load()
 	if (sg_buffer_size < 0 || static_cast<size_t>(sg_buffer_size) > MAX_BUFFER_SIZE)
 	{
 		DestroyBuffer();
-		game->DebugPrint( IGameInterface::WL_ERROR, "invalid ISEQ length: %d bytes\n", sg_buffer_size);
+		game->DebugPrint( IGameInterface::e_DebugPrintLevel::WL_ERROR, "invalid ISEQ length: %d bytes\n", sg_buffer_size);
 		return false;
 	}
 
@@ -731,7 +731,7 @@ int CIcarus::Load()
 	if ( LoadSignals() == false )
 	{
 		DestroyBuffer();
-		game->DebugPrint( IGameInterface::WL_ERROR, "failed to load signals from save game!\n");
+		game->DebugPrint( IGameInterface::e_DebugPrintLevel::WL_ERROR, "failed to load signals from save game!\n");
 		return false;
 	}
 
@@ -739,7 +739,7 @@ int CIcarus::Load()
 	if ( LoadSequences() == false )
 	{
 		DestroyBuffer();
-		game->DebugPrint( IGameInterface::WL_ERROR, "failed to load sequences from save game!\n");
+		game->DebugPrint( IGameInterface::e_DebugPrintLevel::WL_ERROR, "failed to load sequences from save game!\n");
 		return false;
 	}
 
@@ -747,7 +747,7 @@ int CIcarus::Load()
 	if ( LoadSequencers() == false )
 	{
 		DestroyBuffer();
-		game->DebugPrint( IGameInterface::WL_ERROR, "failed to load sequencers from save game!\n");
+		game->DebugPrint( IGameInterface::e_DebugPrintLevel::WL_ERROR, "failed to load sequencers from save game!\n");
 		return false;
 	}
 
@@ -812,7 +812,7 @@ void CIcarus::BufferWrite( void *pSrcData, unsigned long ulNumBytesToWrite )
 	// Make sure we have enough space in the buffer to write to.
 	if ( MAX_BUFFER_SIZE - m_ulBufferCurPos < ulNumBytesToWrite )
 	{	// Write out the buffer with all our collected data so far...
-		IGameInterface::GetGame()->DebugPrint( IGameInterface::WL_ERROR, "BufferWrite: Out of buffer space, Flushing." );
+		IGameInterface::GetGame()->DebugPrint( IGameInterface::e_DebugPrintLevel::WL_ERROR, "BufferWrite: Out of buffer space, Flushing." );
 
 		ojk::SavedGameHelper saved_game(
 			IGameInterface::GetGame()->get_saved_game_file());
@@ -841,7 +841,7 @@ void CIcarus::BufferRead( void *pDstBuff, unsigned long ulNumBytesToRead )
 	// If we can read this data...
 	if ( m_ulBytesRead + ulNumBytesToRead > MAX_BUFFER_SIZE )
 	{// We've tried to read past the buffer...
-		IGameInterface::GetGame()->DebugPrint( IGameInterface::WL_ERROR, "BufferRead: Buffer underflow, Looking for new block." );
+		IGameInterface::GetGame()->DebugPrint( IGameInterface::e_DebugPrintLevel::WL_ERROR, "BufferRead: Buffer underflow, Looking for new block." );
 		// Read in the next block.
 
 		ojk::SavedGameHelper saved_game(
@@ -857,7 +857,7 @@ void CIcarus::BufferRead( void *pDstBuff, unsigned long ulNumBytesToRead )
 
 		if (sg_buffer_size < 0 || static_cast<size_t>(sg_buffer_size) > MAX_BUFFER_SIZE)
 		{
-			IGameInterface::GetGame()->DebugPrint( IGameInterface::WL_ERROR, "invalid ISEQ length: %d bytes\n", sg_buffer_size);
+			IGameInterface::GetGame()->DebugPrint( IGameInterface::e_DebugPrintLevel::WL_ERROR, "invalid ISEQ length: %d bytes\n", sg_buffer_size);
 			return;
 		}
 

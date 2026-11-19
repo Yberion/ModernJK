@@ -77,7 +77,7 @@ void PM_VehicleImpact(bgEntity_t *pEnt, trace_t *trace)
 
 	if (!hitEnt ||
 		(pSelfVeh && pSelfVeh->m_pPilot &&
-		hitEnt && hitEnt->s.eType == ET_MISSILE && hitEnt->inuse &&
+		hitEnt && hitEnt->s.eType == entityType_t::ET_MISSILE && hitEnt->inuse &&
 		hitEnt->r.ownerNum == pSelfVeh->m_pPilot->s.number)
 		)
 	{
@@ -87,7 +87,7 @@ void PM_VehicleImpact(bgEntity_t *pEnt, trace_t *trace)
 	if ( pSelfVeh//I have a vehicle struct
 		&& Any( pSelfVeh->m_iRemovedSurfaces ) )//vehicle has bits removed
 	{//spiralling to our deaths, explode on any solid impact
-		if ( hitEnt->s.NPC_class == CLASS_VEHICLE )
+		if ( hitEnt->s.NPC_class == class_t::CLASS_VEHICLE )
 		{//hit another vehicle, explode!
 			//Give credit to whoever got me into this death spiral state
 			gentity_t *parent = (gentity_t *)pSelfVeh->m_pParentEntity;
@@ -103,7 +103,7 @@ void PM_VehicleImpact(bgEntity_t *pEnt, trace_t *trace)
 				}
 			}
 			//FIXME: damage hitEnt, some, too?  Our explosion should hurt them some, but...
-			G_Damage( (gentity_t *)pEnt, killer, killer, nullptr, pm->ps->origin, 999999, DAMAGE_NO_ARMOR, MOD_FALLING );//FIXME: MOD_IMPACT
+			G_Damage( (gentity_t *)pEnt, killer, killer, nullptr, pm->ps->origin, 999999, damageFlags_t::DAMAGE_NO_ARMOR, meansOfDeath_t::MOD_FALLING );//FIXME: MOD_IMPACT
 			return;
 		}
 		else if ( !VectorCompare( trace->plane.normal, vec3_origin )
@@ -129,15 +129,15 @@ void PM_VehicleImpact(bgEntity_t *pEnt, trace_t *trace)
 						killer = potentialKiller;
 					}
 				}
-				G_Damage( (gentity_t *)pEnt, killer, killer, nullptr, pm->ps->origin, 999999, DAMAGE_NO_ARMOR, MOD_FALLING );//FIXME: MOD_IMPACT
+				G_Damage( (gentity_t *)pEnt, killer, killer, nullptr, pm->ps->origin, 999999, damageFlags_t::DAMAGE_NO_ARMOR, meansOfDeath_t::MOD_FALLING );//FIXME: MOD_IMPACT
 				return;
 			}
 		}
 	}
 
 	if ( trace->entityNum < ENTITYNUM_WORLD
-		&& hitEnt->s.eType == ET_MOVER
-		&& hitEnt->s.apos.trType != TR_STATIONARY//rotating
+		&& hitEnt->s.eType == entityType_t::ET_MOVER
+		&& hitEnt->s.apos.trType != trType_t::TR_STATIONARY//rotating
 		&& (hitEnt->spawnflags&16) //IMPACT
 		&& Q_stricmp( "func_rotating", hitEnt->classname ) == 0 )
 	{//hit a func_rotating that is supposed to destroy anything it touches!
@@ -151,7 +151,7 @@ void PM_VehicleImpact(bgEntity_t *pEnt, trace_t *trace)
 		&& pm->ps->velocity[2] > -100.0f )
 #endif
 		/*
-	if ( (Any( pSelfVeh->m_ulFlags & VEH_GEARSOPEN ))
+	if ( (Any( pSelfVeh->m_ulFlags & vehFlags_t::VEH_GEARSOPEN ))
 		&& trace->plane.normal[2] > 0.7f
 		&& fabs(pSelfVeh->m_vOrientation[PITCH]) < 0.2f
 		&& fabs(pSelfVeh->m_vOrientation[ROLL]) < 0.2f )*/
@@ -171,7 +171,7 @@ void PM_VehicleImpact(bgEntity_t *pEnt, trace_t *trace)
 		//this was annoying me -rww
 		//FIXME: this shouldn't even be getting called when the vehicle is at rest!
 #ifdef _GAME
-		if (hitEnt && (hitEnt->s.eType == ET_PLAYER || hitEnt->s.eType == ET_NPC) && pSelfVeh->m_pVehicleInfo->type == VH_FIGHTER)
+		if (hitEnt && (hitEnt->s.eType == entityType_t::ET_PLAYER || hitEnt->s.eType == entityType_t::ET_NPC) && pSelfVeh->m_pVehicleInfo->type == vehicleType_t::VH_FIGHTER)
 		{ //always smack players
 		}
 		else
@@ -181,7 +181,7 @@ void PM_VehicleImpact(bgEntity_t *pEnt, trace_t *trace)
 		}
 	}
 	if ( pSelfVeh &&
-		(pSelfVeh->m_pVehicleInfo->type == VH_SPEEDER || pSelfVeh->m_pVehicleInfo->type == VH_FIGHTER) && //this is kind of weird on tauntauns and atst's..
+		(pSelfVeh->m_pVehicleInfo->type == vehicleType_t::VH_SPEEDER || pSelfVeh->m_pVehicleInfo->type == vehicleType_t::VH_FIGHTER) && //this is kind of weird on tauntauns and atst's..
 		(magnitude >= 100||forceSurfDestruction) )
 	{
 		if ( pEnt->m_pVehicle->m_iHitDebounce < pm->cmd.serverTime
@@ -205,7 +205,7 @@ void PM_VehicleImpact(bgEntity_t *pEnt, trace_t *trace)
 				if ( (trace->entityNum == ENTITYNUM_WORLD || hitEnt->s.solid == SOLID_BMODEL)//bounce off any brush
 					 && !VectorCompare(trace->plane.normal, vec3_origin) )//have a valid plane to bounce off of
 				{ //bounce off in the opposite direction of the impact
-					if (pSelfVeh->m_pVehicleInfo->type == VH_SPEEDER)
+					if (pSelfVeh->m_pVehicleInfo->type == vehicleType_t::VH_SPEEDER)
 					{
 						pm->ps->speed *= pml.frametime;
 						VectorCopy(trace->plane.normal, bounceDir);
@@ -218,22 +218,22 @@ void PM_VehicleImpact(bgEntity_t *pEnt, trace_t *trace)
 					}
 					else
 					{
-						if (pSelfVeh->m_pVehicleInfo->type == VH_FIGHTER)
+						if (pSelfVeh->m_pVehicleInfo->type == vehicleType_t::VH_FIGHTER)
 						{
 							turnFromImpact = true;
 						}
 						VectorCopy(trace->plane.normal, bounceDir);
 					}
 				}
-				else if ( pSelfVeh->m_pVehicleInfo->type == VH_FIGHTER )
+				else if ( pSelfVeh->m_pVehicleInfo->type == vehicleType_t::VH_FIGHTER )
 				{//check for impact with another fighter
 #ifdef _CGAME
 					bgEntity_t *hitEnt = PM_BGEntForNum(trace->entityNum);
 #endif
-					if ( hitEnt->s.NPC_class == CLASS_VEHICLE
+					if ( hitEnt->s.NPC_class == class_t::CLASS_VEHICLE
 						&& hitEnt->m_pVehicle
 						&& hitEnt->m_pVehicle->m_pVehicleInfo
-						&& hitEnt->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER )
+						&& hitEnt->m_pVehicle->m_pVehicleInfo->type == vehicleType_t::VH_FIGHTER )
 					{//two vehicles hit each other, turn away from the impact
 						turnFromImpact = true;
 						turnHitEnt = true;
@@ -453,14 +453,14 @@ void PM_VehicleImpact(bgEntity_t *pEnt, trace_t *trace)
 			{
 				//G_PlayEffectID( pSelfVeh->m_pVehicleInfo->iImpactFX, pm->ps->origin, vehUp );
 				//tempent use bad!
-				G_AddEvent((gentity_t *)pEnt, EV_PLAY_EFFECT_ID, pSelfVeh->m_pVehicleInfo->iImpactFX);
+				G_AddEvent((gentity_t *)pEnt, entity_event_t::EV_PLAY_EFFECT_ID, pSelfVeh->m_pVehicleInfo->iImpactFX);
 			}
 			pEnt->m_pVehicle->m_iHitDebounce = pm->cmd.serverTime + 200;
 			magnitude /= pSelfVeh->m_pVehicleInfo->toughness * 50.0f;
 
-			if (hitEnt && (hitEnt->s.eType != ET_TERRAIN || !(hitEnt->spawnflags & 1) || pSelfVeh->m_pVehicleInfo->type == VH_FIGHTER))
+			if (hitEnt && (hitEnt->s.eType != entityType_t::ET_TERRAIN || !(hitEnt->spawnflags & 1) || pSelfVeh->m_pVehicleInfo->type == vehicleType_t::VH_FIGHTER))
 			{ //don't damage the vehicle from terrain that doesn't want to damage vehicles
-				if (pSelfVeh->m_pVehicleInfo->type == VH_FIGHTER)
+				if (pSelfVeh->m_pVehicleInfo->type == vehicleType_t::VH_FIGHTER)
 				{ //increase the damage...
 					float mult = (pSelfVeh->m_vOrientation[PITCH]*0.1f);
 					if (mult < 1.0f)
@@ -470,8 +470,8 @@ void PM_VehicleImpact(bgEntity_t *pEnt, trace_t *trace)
 					if (hitEnt->inuse && hitEnt->takedamage)
 					{ //if the other guy takes damage, don't hurt us a lot for ramming him
 						//unless it's a vehicle, then we get 1.5 times damage
-						if (hitEnt->s.eType == ET_NPC &&
-							hitEnt->s.NPC_class == CLASS_VEHICLE &&
+						if (hitEnt->s.eType == entityType_t::ET_NPC &&
+							hitEnt->s.NPC_class == class_t::CLASS_VEHICLE &&
 							hitEnt->m_pVehicle)
 						{
 							mult = 1.5f;
@@ -487,14 +487,14 @@ void PM_VehicleImpact(bgEntity_t *pEnt, trace_t *trace)
 				pSelfVeh->m_iLastImpactDmg = magnitude;
 				//FIXME: what about proper death credit to the guy who shot you down?
 				//FIXME: actually damage part of the ship that impacted?
-				G_Damage( (gentity_t *)pEnt, nullptr, nullptr, nullptr, pm->ps->origin, magnitude*5, DAMAGE_NO_ARMOR, MOD_FALLING );//FIXME: MOD_IMPACT
+				G_Damage( (gentity_t *)pEnt, nullptr, nullptr, nullptr, pm->ps->origin, magnitude*5, damageFlags_t::DAMAGE_NO_ARMOR, meansOfDeath_t::MOD_FALLING );//FIXME: MOD_IMPACT
 
 				if (pSelfVeh->m_pVehicleInfo->surfDestruction)
 				{
 					G_FlyVehicleSurfaceDestruction((gentity_t *)pEnt, trace, magnitude, forceSurfDestruction );
 				}
 
-				pSelfVeh->m_ulFlags |= VEH_CRASHING;
+				pSelfVeh->m_ulFlags |= vehFlags_t::VEH_CRASHING;
 			}
 
 			if (hitEnt &&
@@ -505,10 +505,10 @@ void PM_VehicleImpact(bgEntity_t *pEnt, trace_t *trace)
 				int finalD;
 				gentity_t *attackEnt;
 
-				if ( (hitEnt->s.eType == ET_PLAYER && hitEnt->s.number < MAX_CLIENTS) ||
-					 (hitEnt->s.eType == ET_NPC && hitEnt->s.NPC_class != CLASS_VEHICLE) )
+				if ( (hitEnt->s.eType == entityType_t::ET_PLAYER && hitEnt->s.number < MAX_CLIENTS) ||
+					 (hitEnt->s.eType == entityType_t::ET_NPC && hitEnt->s.NPC_class != class_t::CLASS_VEHICLE) )
 				{ //probably a humanoid, or something
-					if (pSelfVeh->m_pVehicleInfo->type == VH_FIGHTER)
+					if (pSelfVeh->m_pVehicleInfo->type == vehicleType_t::VH_FIGHTER)
 					{ //player die good.. if me fighter
 						pmult = 2000.0f;
 					}
@@ -521,9 +521,9 @@ void PM_VehicleImpact(bgEntity_t *pEnt, trace_t *trace)
 						BG_KnockDownable(&hitEnt->client->ps) &&
 						G_CanBeEnemy((gentity_t *)pEnt, hitEnt))
 					{ //smash!
-						if (hitEnt->client->ps.forceHandExtend != HANDEXTEND_KNOCKDOWN)
+						if (hitEnt->client->ps.forceHandExtend != forceHandAnims_t::HANDEXTEND_KNOCKDOWN)
 						{
-							hitEnt->client->ps.forceHandExtend = HANDEXTEND_KNOCKDOWN;
+							hitEnt->client->ps.forceHandExtend = forceHandAnims_t::HANDEXTEND_KNOCKDOWN;
 							hitEnt->client->ps.forceHandExtendTime = pm->cmd.serverTime + 1100;
 							hitEnt->client->ps.forceDodgeAnim = 0; //this toggles between 1 and 0, when it's 1 we should play the get up anim
 						}
@@ -553,7 +553,7 @@ void PM_VehicleImpact(bgEntity_t *pEnt, trace_t *trace)
 				{
 					finalD = 1;
 				}
-				G_Damage( hitEnt, attackEnt, attackEnt, nullptr, pm->ps->origin, finalD, DAMAGE_NORMAL, MOD_MELEE );//FIXME: MOD_IMPACT
+				G_Damage( hitEnt, attackEnt, attackEnt, nullptr, pm->ps->origin, finalD, damageFlags_t::DAMAGE_NORMAL, meansOfDeath_t::MOD_MELEE );//FIXME: MOD_IMPACT
 			}
 #else	//this is gonna result in "double effects" for the client doing the prediction.
 		//it doesn't look bad though. could just use predicted events, but I'm too lazy.
@@ -565,7 +565,7 @@ void PM_VehicleImpact(bgEntity_t *pEnt, trace_t *trace)
 				pEnt->m_pVehicle->m_iHitDebounce = pm->cmd.serverTime + 200;
 				trap->FX_PlayEffectID( pSelfVeh->m_pVehicleInfo->iImpactFX, pm->ps->origin, vehUp, -1, -1, false );
 
-				pSelfVeh->m_ulFlags |= VEH_CRASHING;
+				pSelfVeh->m_ulFlags |= vehFlags_t::VEH_CRASHING;
 			}
 #endif
 		}
@@ -578,14 +578,14 @@ bool PM_GroundSlideOkay( float zNormal )
 	{
 		if ( pm->ps->velocity[2] > 0 )
 		{
-			if ( pm->ps->legsAnim == BOTH_WALL_RUN_RIGHT
-				|| pm->ps->legsAnim == BOTH_WALL_RUN_LEFT
-				|| pm->ps->legsAnim == BOTH_WALL_RUN_RIGHT_STOP
-				|| pm->ps->legsAnim == BOTH_WALL_RUN_LEFT_STOP
-				|| pm->ps->legsAnim == BOTH_FORCEWALLRUNFLIP_START
-				|| pm->ps->legsAnim == BOTH_FORCELONGLEAP_START
-				|| pm->ps->legsAnim == BOTH_FORCELONGLEAP_ATTACK
-				|| pm->ps->legsAnim == BOTH_FORCELONGLEAP_LAND
+			if ( pm->ps->legsAnim == animNumber_t::BOTH_WALL_RUN_RIGHT
+				|| pm->ps->legsAnim == animNumber_t::BOTH_WALL_RUN_LEFT
+				|| pm->ps->legsAnim == animNumber_t::BOTH_WALL_RUN_RIGHT_STOP
+				|| pm->ps->legsAnim == animNumber_t::BOTH_WALL_RUN_LEFT_STOP
+				|| pm->ps->legsAnim == animNumber_t::BOTH_FORCEWALLRUNFLIP_START
+				|| pm->ps->legsAnim == animNumber_t::BOTH_FORCELONGLEAP_START
+				|| pm->ps->legsAnim == animNumber_t::BOTH_FORCELONGLEAP_ATTACK
+				|| pm->ps->legsAnim == animNumber_t::BOTH_FORCELONGLEAP_LAND
 				|| BG_InReboundJump( pm->ps->legsAnim ))
 			{
 				return false;
@@ -622,7 +622,7 @@ bool PM_ClientImpact( trace_t *trace )
 	traceEnt = &g_entities[otherEntityNum];
 
 	if( VectorLength( pm->ps->velocity ) >= 100
-		&& pm_entSelf->s.NPC_class != CLASS_VEHICLE
+		&& pm_entSelf->s.NPC_class != class_t::CLASS_VEHICLE
 		&& pm->ps->lastOnGround+100 < level.time )
 		//&& pm->ps->groundEntityNum == ENTITYNUM_NONE )
 	{
@@ -731,7 +731,7 @@ bool	PM_SlideMove( bool gravity ) {
 		{
 			bgEntity_t *pEnt = pm_entSelf;
 
-			if (pEnt && pEnt->s.eType == ET_NPC && pEnt->s.NPC_class == CLASS_VEHICLE &&
+			if (pEnt && pEnt->s.eType == entityType_t::ET_NPC && pEnt->s.NPC_class == class_t::CLASS_VEHICLE &&
 				pEnt->m_pVehicle)
 			{ //do vehicle impact stuff then
 				PM_VehicleImpact(pEnt, &trace);
@@ -768,7 +768,7 @@ bool	PM_SlideMove( bool gravity ) {
 		// out along it, which fixes some epsilon issues with
 		// non-axial planes
 		//
-		if ( !Any(pm->ps->pm_flags&PMF_STUCK_TO_WALL) )
+		if ( !Any(pm->ps->pm_flags&pmoveFlags_t::PMF_STUCK_TO_WALL) )
 		{//no sliding if stuck to wall!
 			for ( i = 0 ; i < numplanes ; i++ ) {
 				if ( VectorCompare( normal, planes[i] ) ) {//DotProduct( normal, planes[i] ) > 0.99 ) {
@@ -902,7 +902,7 @@ void PM_StepSlideMove( bool gravity ) {
 
 	if (pm->ps->clientNum >= MAX_CLIENTS)
 	{
-		if (pEnt && pEnt->s.NPC_class == CLASS_VEHICLE &&
+		if (pEnt && pEnt->s.NPC_class == class_t::CLASS_VEHICLE &&
 			pEnt->m_pVehicle && pEnt->m_pVehicle->m_pVehicleInfo->hoverHeight > 0)
 		{
 			return;
@@ -929,13 +929,13 @@ void PM_StepSlideMove( bool gravity ) {
 	{
 		// apply ground friction, even if on ladder
 		if (pEnt &&
-			(pEnt->s.NPC_class == CLASS_ATST ||
-			(pEnt->s.NPC_class == CLASS_VEHICLE && pEnt->m_pVehicle && pEnt->m_pVehicle->m_pVehicleInfo->type == VH_WALKER) ) )
+			(pEnt->s.NPC_class == class_t::CLASS_ATST ||
+			(pEnt->s.NPC_class == class_t::CLASS_VEHICLE && pEnt->m_pVehicle && pEnt->m_pVehicle->m_pVehicleInfo->type == vehicleType_t::VH_WALKER) ) )
 		{//AT-STs can step high
 			up[2] += 66.0f;
 			isGiant = true;
 		}
-		else if ( pEnt && pEnt->s.NPC_class == CLASS_RANCOR )
+		else if ( pEnt && pEnt->s.NPC_class == class_t::CLASS_RANCOR )
 		{//also can step up high
 			up[2] += 64.0f;
 			isGiant = true;
@@ -1000,7 +1000,7 @@ void PM_StepSlideMove( bool gravity ) {
 			&& isGiant
 			&& trace.entityNum < MAX_CLIENTS
 			&& pEnt
-			&& pEnt->s.NPC_class == CLASS_RANCOR )
+			&& pEnt->s.NPC_class == class_t::CLASS_RANCOR )
 		{//Rancor don't step on clients
 			if ( pm->stepSlideFix )
 			{
@@ -1018,7 +1018,7 @@ void PM_StepSlideMove( bool gravity ) {
 			&& isGiant
 			&& trace.entityNum < MAX_CLIENTS
 			&& pEnt
-			&& pEnt->s.NPC_class == CLASS_ATST
+			&& pEnt->s.NPC_class == class_t::CLASS_ATST
 			&& OnSameTeam( pEnt, traceEnt) )
 		{//NPC AT-ST's don't step up on allies
 			VectorCopy (start_o, pm->ps->origin);
@@ -1070,13 +1070,13 @@ void PM_StepSlideMove( bool gravity ) {
 		delta = pm->ps->origin[2] - start_o[2];
 		if ( delta > 2 ) {
 			if ( delta < 7 ) {
-				PM_AddEvent( EV_STEP_4 );
+				PM_AddEvent( entity_event_t::EV_STEP_4 );
 			} else if ( delta < 11 ) {
-				PM_AddEvent( EV_STEP_8 );
+				PM_AddEvent( entity_event_t::EV_STEP_8 );
 			} else if ( delta < 15 ) {
-				PM_AddEvent( EV_STEP_12 );
+				PM_AddEvent( entity_event_t::EV_STEP_12 );
 			} else {
-				PM_AddEvent( EV_STEP_16 );
+				PM_AddEvent( entity_event_t::EV_STEP_16 );
 			}
 		}
 		if ( pm->debugLevel ) {

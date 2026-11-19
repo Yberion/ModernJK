@@ -248,8 +248,8 @@ public:
 
 		mNumBones = header->numBones;
 		mBones = new SBoneCalc[mNumBones];
-		mFinalBones = (CTransformBone*) R_Malloc(sizeof(CTransformBone) * mNumBones, TAG_GHOUL2, true);
-		mSmoothBones = (CTransformBone*) R_Malloc(sizeof(CTransformBone) * mNumBones, TAG_GHOUL2, true);
+		mFinalBones = (CTransformBone*) R_Malloc(sizeof(CTransformBone) * mNumBones, memtag::TAG_GHOUL2, true);
+		mSmoothBones = (CTransformBone*) R_Malloc(sizeof(CTransformBone) * mNumBones, memtag::TAG_GHOUL2, true);
 		mSkels = new mdxaSkel_t*[mNumBones];
 		mdxaSkelOffsets_t *offsets;
 		mdxaSkel_t		*skel;
@@ -761,19 +761,19 @@ static cullResult_t R_GCullModel( trRefEntity_t *ent ) {
 	// cull bounding sphere
   	switch ( R_CullLocalPointAndRadius( vec3_origin,  ent->e.radius * largestScale) )
   	{
-  	case CULL_OUT:
+  	case cullResult_t::CULL_OUT:
   		tr.pc.c_sphere_cull_md3_out++;
-  		return CULL_OUT;
+  		return cullResult_t::CULL_OUT;
 
-	case CULL_IN:
+	case cullResult_t::CULL_IN:
 		tr.pc.c_sphere_cull_md3_in++;
-		return CULL_IN;
+		return cullResult_t::CULL_IN;
 
-	case CULL_CLIP:
+	case cullResult_t::CULL_CLIP:
 		tr.pc.c_sphere_cull_md3_clip++;
-		return CULL_IN;
+		return cullResult_t::CULL_IN;
  	}
-	return CULL_IN;
+	return cullResult_t::CULL_IN;
 }
 
 
@@ -788,7 +788,7 @@ static int R_GComputeFogNum( trRefEntity_t *ent ) {
 	int				i;
 	fog_t			*fog;
 
-	if ( Any( tr.refdef.rdflags & RDF_NOWORLDMODEL ) ) {
+	if ( Any( tr.refdef.rdflags & refdefFlags_t::RDF_NOWORLDMODEL ) ) {
 		return 0;
 	}
 
@@ -982,7 +982,7 @@ void G2_TimingModel(boneInfo_t &bone,int currentTime,int numFramesInFile,int &cu
 			((animSpeed < 0.0f) && (newFrame_g < endFrame+1)))
 		{
 			// yep - decide what to do
-			if (Any( bone.flags & BONE_ANIM_OVERRIDE_LOOP ))
+			if (Any( bone.flags & boneFlags_t::BONE_ANIM_OVERRIDE_LOOP ))
 			{
 				// get our new animation frame back within the bounds of the animation set
 				if (animSpeed < 0.0f)
@@ -1071,7 +1071,7 @@ void G2_TimingModel(boneInfo_t &bone,int currentTime,int numFramesInFile,int &cu
 			}
 			else
 			{
-				if (((bone.flags & (BONE_ANIM_OVERRIDE_FREEZE)) == (BONE_ANIM_OVERRIDE_FREEZE)))
+				if (((bone.flags & (boneFlags_t::BONE_ANIM_OVERRIDE_FREEZE)) == (boneFlags_t::BONE_ANIM_OVERRIDE_FREEZE)))
 				{
 					// if we are supposed to reset the default anim, then do so
 					if (animSpeed > 0.0f)
@@ -1091,7 +1091,7 @@ void G2_TimingModel(boneInfo_t &bone,int currentTime,int numFramesInFile,int &cu
 				}
 				else
 				{
-					bone.flags &= ~(BONE_ANIM_TOTAL);
+					bone.flags &= ~(boneFlags_t::BONE_ANIM_TOTAL);
 				}
 
 			}
@@ -1115,7 +1115,7 @@ void G2_TimingModel(boneInfo_t &bone,int currentTime,int numFramesInFile,int &cu
 				if (newFrame >= (int)endFrame)
 				{
 					// we only want to lerp with the first frame of the anim if we are looping
-					if (Any( bone.flags & BONE_ANIM_OVERRIDE_LOOP ))
+					if (Any( bone.flags & boneFlags_t::BONE_ANIM_OVERRIDE_LOOP ))
 					{
 					  	newFrame = bone.startFrame;
 						assert(newFrame>=0&&newFrame<numFramesInFile);
@@ -1147,7 +1147,7 @@ void G2_TimingModel(boneInfo_t &bone,int currentTime,int numFramesInFile,int &cu
 					if (newFrame < endFrame+1)
 					{
 						// we only want to lerp with the first frame of the anim if we are looping
-						if (Any( bone.flags & BONE_ANIM_OVERRIDE_LOOP ))
+						if (Any( bone.flags & boneFlags_t::BONE_ANIM_OVERRIDE_LOOP ))
 						{
 					  		newFrame = bone.startFrame;
 							assert(newFrame>=0&&newFrame<numFramesInFile);
@@ -1334,7 +1334,7 @@ void G2_TransformBone (int child,CBoneCache &BC)
 	mdxaSkelOffsets_t *offsets;
 	boneInfo_v		&boneList = *BC.rootBoneList;
 	int				j, boneListIndex;
-	boneFlags_t				angleOverride = BONE_NONE;
+	boneFlags_t				angleOverride = boneFlags_t::BONE_NONE;
 
 #if DEBUG_G2_TIMING
 	bool printTiming=false;
@@ -1346,13 +1346,13 @@ void G2_TransformBone (int child,CBoneCache &BC)
 		// we found a bone in the list - we need to override something here.
 
 		// do we override the rotational angles?
-		if (Any( (boneList[boneListIndex].flags) & (BONE_ANGLES_TOTAL) ))
+		if (Any( (boneList[boneListIndex].flags) & (boneFlags_t::BONE_ANGLES_TOTAL) ))
 		{
-			angleOverride = (boneList[boneListIndex].flags) & (BONE_ANGLES_TOTAL);
+			angleOverride = (boneList[boneListIndex].flags) & (boneFlags_t::BONE_ANGLES_TOTAL);
 		}
 
 		// set blending stuff if we need to
-		if (Any( boneList[boneListIndex].flags & BONE_ANIM_BLEND ))
+		if (Any( boneList[boneListIndex].flags & boneFlags_t::BONE_ANIM_BLEND ))
 		{
 			float blendTime = BC.incomingTime - boneList[boneListIndex].blendStart;
 			// only set up the blend anim if we actually have some blend time left on this bone anim - otherwise we might corrupt some blend higher up the hiearchy
@@ -1368,21 +1368,21 @@ void G2_TransformBone (int child,CBoneCache &BC)
 				TB.blendMode = false;
 			}
 		}
-		else if (r_Ghoul2NoBlend->integer||Any((boneList[boneListIndex].flags) & (BONE_ANIM_OVERRIDE_LOOP | BONE_ANIM_OVERRIDE)))
+		else if (r_Ghoul2NoBlend->integer||Any((boneList[boneListIndex].flags) & (boneFlags_t::BONE_ANIM_OVERRIDE_LOOP | boneFlags_t::BONE_ANIM_OVERRIDE)))
 		// turn off blending if we are just doing a straing animation override
 		{
 			TB.blendMode = false;
 		}
 
 		// should this animation be overridden by an animation in the bone list?
-		if (Any( (boneList[boneListIndex].flags) & (BONE_ANIM_OVERRIDE_LOOP | BONE_ANIM_OVERRIDE) ))
+		if (Any( (boneList[boneListIndex].flags) & (boneFlags_t::BONE_ANIM_OVERRIDE_LOOP | boneFlags_t::BONE_ANIM_OVERRIDE) ))
 		{
 			G2_TimingModel(boneList[boneListIndex],BC.incomingTime,BC.header->numFrames,TB.currentFrame,TB.newFrame,TB.backlerp);
 		}
 #if DEBUG_G2_TIMING
 		printTiming=true;
 #endif
-		if ((r_Ghoul2NoLerp->integer)||Any((boneList[boneListIndex].flags) & (BONE_ANIM_NO_LERP)))
+		if ((r_Ghoul2NoLerp->integer)||Any((boneList[boneListIndex].flags) & (boneFlags_t::BONE_ANIM_NO_LERP)))
 		{
 			TB.backlerp = 0.0f;
 		}
@@ -1434,7 +1434,7 @@ void G2_TransformBone (int child,CBoneCache &BC)
 		}
 		OutputDebugString(mess);
 		const boneInfo_t &bone=boneList[boneListIndex];
-		if (bone.flags&BONE_ANIM_BLEND)
+		if (bone.flags&boneFlags_t::BONE_ANIM_BLEND)
 		{
 			sprintf(mess,"                                                                    bfb[%2d] %5d  %5d  (%5d-%5d) %4.2f %4x   bt(%5d-%5d) %7.2f %5d\n",
 				boneListIndex,
@@ -1557,12 +1557,12 @@ void G2_TransformBone (int child,CBoneCache &BC)
 
 	int parent=BC.mFinalBones[child].parent;
 	assert((parent==-1&&child==0)||(parent>=0&&parent<BC.mNumBones));
-	if (Any( angleOverride & BONE_ANGLES_REPLACE ))
+	if (Any( angleOverride & boneFlags_t::BONE_ANGLES_REPLACE ))
 	{
-		bool isRag=!!Any(angleOverride & BONE_ANGLES_RAGDOLL);
+		bool isRag=!!Any(angleOverride & boneFlags_t::BONE_ANGLES_RAGDOLL);
 		if (!isRag)
 		{ //do the same for ik.. I suppose.
-			isRag = !!Any(angleOverride & BONE_ANGLES_IK);
+			isRag = !!Any(angleOverride & boneFlags_t::BONE_ANGLES_IK);
 		}
 
 		mdxaBone_t &bone = BC.mFinalBones[child].boneMatrix;
@@ -1732,9 +1732,9 @@ void G2_TransformBone (int child,CBoneCache &BC)
 			}
 		}
 	}
-	else if (Any( angleOverride & BONE_ANGLES_PREMULT ))
+	else if (Any( angleOverride & boneFlags_t::BONE_ANGLES_PREMULT ))
 	{
-		if (Any(angleOverride&BONE_ANGLES_RAGDOLL) || Any(angleOverride&BONE_ANGLES_IK))
+		if (Any(angleOverride&boneFlags_t::BONE_ANGLES_RAGDOLL) || Any(angleOverride&boneFlags_t::BONE_ANGLES_IK))
 		{
 			mdxaBone_t	tmp;
 			if (!child)
@@ -1797,7 +1797,7 @@ void G2_TransformBone (int child,CBoneCache &BC)
 	}
 
 	// now multiply our resulting bone by an override matrix should we need to
-	if (Any( angleOverride & BONE_ANGLES_POSTMULT ))
+	if (Any( angleOverride & boneFlags_t::BONE_ANGLES_POSTMULT ))
 	{
 		mdxaBone_t	tempMatrix;
 		memcpy (&tempMatrix,&BC.mFinalBones[child].boneMatrix, sizeof(mdxaBone_t));
@@ -1860,12 +1860,12 @@ void G2_TransformGhoulBones(boneInfo_v &rootBoneList,mdxaBone_t &rootMatrix, CGh
 	{
 		ghoul2.mBoneCache->mLastTouch=ghoul2.mBoneCache->mLastLastTouch;
 
-		if(Any( ghoul2.mFlags & GHOUL2_RAG_STARTED ))
+		if(Any( ghoul2.mFlags & ghoul2Flags_t::GHOUL2_RAG_STARTED ))
 		{
 			for (size_t k=0;k<rootBoneList.size();k++)
 			{
 				boneInfo_t &bone=rootBoneList[k];
-				if (Any( bone.flags&BONE_ANGLES_RAGDOLL ))
+				if (Any( bone.flags&boneFlags_t::BONE_ANGLES_RAGDOLL ))
 				{
 					if (bone.firstCollisionTime &&
 						bone.firstCollisionTime>time-250 &&
@@ -1946,7 +1946,7 @@ void G2_ProcessSurfaceBolt2(CBoneCache &boneCache, const mdxmSurface_t *surface,
  	int				j, k;
 
 	// now there are two types of tag surface - model ones and procedural generated types - lets decide which one we have here.
-	if (surfInfo && surfInfo->offFlags == G2SURFACEFLAG_GENERATED)
+	if (surfInfo && surfInfo->offFlags == g2SurfaceFlags_t::G2SURFACEFLAG_GENERATED)
 	{
 		int surfNumber = surfInfo->genPolySurfaceIndex & 0x0ffff;
 		int	polyNumber = (surfInfo->genPolySurfaceIndex >> 16) & 0x0ffff;
@@ -2217,16 +2217,16 @@ void G2API_SetSurfaceOnOffFromSkin (CGhoul2Info *ghlInfo, qhandle_t renderSkin)
 			g2SurfaceFlags_t flags;
 			int surfaceNum = G2_IsSurfaceLegal(ghlInfo->currentModel, skin->surfaces[j]->name, &flags);
 			// the names have both been lowercased
-			if ( !Any(flags&G2SURFACEFLAG_OFF) && !strcmp( skin->surfaces[j]->shader->name , "*off") )
+			if ( !Any(flags&g2SurfaceFlags_t::G2SURFACEFLAG_OFF) && !strcmp( skin->surfaces[j]->shader->name , "*off") )
 			{
-				G2_SetSurfaceOnOff(ghlInfo, skin->surfaces[j]->name, G2SURFACEFLAG_OFF);
+				G2_SetSurfaceOnOff(ghlInfo, skin->surfaces[j]->name, g2SurfaceFlags_t::G2SURFACEFLAG_OFF);
 			}
 			else
 			{
 				//if ( strcmp( &skin->surfaces[j]->name[strlen(skin->surfaces[j]->name)-4],"_off") )
-				if ( (surfaceNum != -1) && (!Any(flags&G2SURFACEFLAG_OFF)) )	//only turn on if it's not an "_off" surface
+				if ( (surfaceNum != -1) && (!Any(flags&g2SurfaceFlags_t::G2SURFACEFLAG_OFF)) )	//only turn on if it's not an "_off" surface
 				{
-					//G2_SetSurfaceOnOff(ghlInfo, skin->surfaces[j]->name, G2SURFACEFLAG_NONE);
+					//G2_SetSurfaceOnOff(ghlInfo, skin->surfaces[j]->name, g2SurfaceFlags_t::G2SURFACEFLAG_NONE);
 				}
 			}
 		}
@@ -2238,7 +2238,7 @@ void RenderSurfaces(CRenderSurface &RS)
 {
 	int			i;
 	const shader_t	*shader = nullptr;
-	g2SurfaceFlags_t			offFlags = G2SURFACEFLAG_NONE;
+	g2SurfaceFlags_t			offFlags = g2SurfaceFlags_t::G2SURFACEFLAG_NONE;
 #ifdef _G2_GORE
 	bool		drawGore = true;
 #endif
@@ -2297,9 +2297,9 @@ void RenderSurfaces(CRenderSurface &RS)
 		if ( /*!RS.personalModel
 			&& */r_shadows->integer == 2
 //			&& RS.fogNum == 0
-			&& Any(RS.renderfx & RF_SHADOW_PLANE )
-			&& !Any(RS.renderfx & ( RF_NOSHADOW | RF_DEPTHHACK ) )
-			&& shader->sort == (float)SS_OPAQUE )
+			&& Any(RS.renderfx & renderFxFlags_t::RF_SHADOW_PLANE )
+			&& !Any(RS.renderfx & ( renderFxFlags_t::RF_NOSHADOW | renderFxFlags_t::RF_DEPTHHACK ) )
+			&& shader->sort == (float)shaderSort_t::SS_OPAQUE )
 		{		// set the surface info to point at the where the transformed bone list is going to be for when the surface gets rendered out
 			CRenderableSurface *newSurf = AllocRS();
 			if (surface->numVerts >= SHADER_MAX_VERTEXES/2)
@@ -2318,9 +2318,9 @@ void RenderSurfaces(CRenderSurface &RS)
 		// projection shadows work fine with personal models
 		if ( r_shadows->integer == 3
 //			&& RS.fogNum == 0
-			&& Any(RS.renderfx & RF_SHADOW_PLANE )
-			&& !Any(RS.renderfx & ( RF_NOSHADOW ) )
-			&& shader->sort == (float)SS_OPAQUE )
+			&& Any(RS.renderfx & renderFxFlags_t::RF_SHADOW_PLANE )
+			&& !Any(RS.renderfx & ( renderFxFlags_t::RF_NOSHADOW ) )
+			&& shader->sort == (float)shaderSort_t::SS_OPAQUE )
 		{		// set the surface info to point at the where the transformed bone list is going to be for when the surface gets rendered out
 			CRenderableSurface *newSurf = AllocRS();
 			newSurf->surfaceData = surface;
@@ -2423,7 +2423,7 @@ void RenderSurfaces(CRenderSurface &RS)
 	}
 
 	// if we are turning off all descendants, then stop this recursion now
-	if (Any( offFlags & G2SURFACEFLAG_NODESCENDANTS ))
+	if (Any( offFlags & g2SurfaceFlags_t::G2SURFACEFLAG_NODESCENDANTS ))
 	{
 		return;
 	}
@@ -2510,7 +2510,7 @@ static void RootMatrix(CGhoul2Info_v &ghoul2,int time,const vec3_t scale,mdxaBon
 	{
 		if (ghoul2[i].mModelindex != -1&&ghoul2[i].mValid)
 		{
-			if (Any( ghoul2[i].mFlags & GHOUL2_NEWORIGIN ))
+			if (Any( ghoul2[i].mFlags & ghoul2Flags_t::GHOUL2_NEWORIGIN ))
 			{
 				mdxaBone_t bolt;
 				mdxaBone_t		tempMatrix;
@@ -2586,7 +2586,7 @@ void R_AddGhoulSurfaces( trRefEntity_t *ent ) {
 	// cull the entire model if merged bounding box of both frames
 	// is outside the view frustum.
 	cull = R_GCullModel (ent );
-	if ( cull == CULL_OUT )
+	if ( cull == cullResult_t::CULL_OUT )
 	{
 		return;
 	}
@@ -2595,7 +2595,7 @@ void R_AddGhoulSurfaces( trRefEntity_t *ent ) {
 	RootMatrix(ghoul2,currentTime, ent->e.modelScale,rootMatrix);
 
    	// don't add third_person objects if not in a portal
-	personalModel = (Any(ent->e.renderfx & RF_THIRD_PERSON) && !tr.viewParms.isPortal);
+	personalModel = (Any(ent->e.renderfx & renderFxFlags_t::RF_THIRD_PERSON) && !tr.viewParms.isPortal);
 
 	int modelList[32];
 	assert(ghoul2.size()<=31);
@@ -2627,7 +2627,7 @@ void R_AddGhoulSurfaces( trRefEntity_t *ent ) {
 	for (j=0; j<modelCount; j++)
 	{
 		i = modelList[j];
-		if (ghoul2[i].mValid&&!Any(ghoul2[i].mFlags & GHOUL2_NOMODEL)&&!Any(ghoul2[i].mFlags & GHOUL2_NORENDER))
+		if (ghoul2[i].mValid&&!Any(ghoul2[i].mFlags & ghoul2Flags_t::GHOUL2_NOMODEL)&&!Any(ghoul2[i].mFlags & ghoul2Flags_t::GHOUL2_NORENDER))
 		{
 			//
 			// figure out whether we should be using a custom shader for this model
@@ -2663,7 +2663,7 @@ void R_AddGhoulSurfaces( trRefEntity_t *ent ) {
 			{
 				G2_TransformGhoulBones(ghoul2[i].mBlist, rootMatrix, ghoul2[i],currentTime);
 			}
-			if ( Any( ent->e.renderfx & RF_G2MINLOD ) )
+			if ( Any( ent->e.renderfx & renderFxFlags_t::RF_G2MINLOD ) )
 			{
 				whichLod = G2_ComputeLOD( ent, ghoul2[i].currentModel, 10 );
 			} else
@@ -2686,9 +2686,9 @@ void R_AddGhoulSurfaces( trRefEntity_t *ent ) {
 #else
 			CRenderSurface RS(ghoul2[i].mSurfaceRoot, ghoul2[i].mSlist, cust_shader, fogNum, personalModel, ghoul2[i].mBoneCache, ent->e.renderfx, skin,ghoul2[i].currentModel, whichLod, ghoul2[i].mBltlist);
 #endif
-			if (!personalModel && Any(RS.renderfx & RF_SHADOW_PLANE) && !bInShadowRange(ent->e.origin))
+			if (!personalModel && Any(RS.renderfx & renderFxFlags_t::RF_SHADOW_PLANE) && !bInShadowRange(ent->e.origin))
 			{
-				RS.renderfx |= RF_NOSHADOW;
+				RS.renderfx |= renderFxFlags_t::RF_NOSHADOW;
 			}
 			RenderSurfaces(RS);
 		}
@@ -3585,19 +3585,19 @@ bool R_LoadMDXM( model_t *mod, void *buffer, const char *mod_name, bool &bAlread
 
 	if (version != MDXM_VERSION) {
 #ifdef _DEBUG
-		Com_Error( ERR_DROP,       "R_LoadMDXM: %s has wrong version (%i should be %i)\n", mod_name, version, MDXM_VERSION);
+		Com_Error( errorParm_t::ERR_DROP,       "R_LoadMDXM: %s has wrong version (%i should be %i)\n", mod_name, version, MDXM_VERSION);
 #else
-		ri.Printf( PRINT_WARNING, "R_LoadMDXM: %s has wrong version (%i should be %i)\n", mod_name, version, MDXM_VERSION);
+		ri.Printf( printParm_t::PRINT_WARNING, "R_LoadMDXM: %s has wrong version (%i should be %i)\n", mod_name, version, MDXM_VERSION);
 #endif
 		return false;
 	}
 
-	mod->type	   = MOD_MDXM;
+	mod->type	   = modtype_t::MOD_MDXM;
 	mod->dataSize += size;
 
 	bool bAlreadyFound = false;
 	mdxm = mod->mdxm = (mdxmHeader_t*) //R_Hunk_Alloc( size );
-										RE_RegisterModels_Malloc(size, buffer, mod_name, &bAlreadyFound, TAG_MODEL_GLM);
+										RE_RegisterModels_Malloc(size, buffer, mod_name, &bAlreadyFound, memtag::TAG_MODEL_GLM);
 
 	assert(bAlreadyCached == bAlreadyFound);
 
@@ -3667,7 +3667,7 @@ bool R_LoadMDXM( model_t *mod, void *buffer, const char *mod_name, bool &bAlread
 
 	if (!mdxm->animIndex)
 	{
-		ri.Printf( PRINT_WARNING, "R_LoadMDXM: missing animation file %s for mesh %s\n", mdxm->animName, mdxm->name);
+		ri.Printf( printParm_t::PRINT_WARNING, "R_LoadMDXM: missing animation file %s for mesh %s\n", mdxm->animName, mdxm->name);
 		return false;
 	}
 #ifndef JK2_MODE
@@ -3682,14 +3682,14 @@ bool R_LoadMDXM( model_t *mod, void *buffer, const char *mod_name, bool &bAlread
 		{
 			if ( isAnOldModelFile )
 			{
-				ri.Printf( PRINT_WARNING, "R_LoadMDXM: converting jk2 model %s\n", mod_name);
+				ri.Printf( printParm_t::PRINT_WARNING, "R_LoadMDXM: converting jk2 model %s\n", mod_name);
 			}
 			else
 			{
 #ifdef _DEBUG
-				Com_Error( ERR_DROP,       "R_LoadMDXM: %s has different bones than anim (%i != %i)\n", mod_name, mdxm->numBones, tr.models[mdxm->animIndex]->mdxa->numBones);
+				Com_Error( errorParm_t::ERR_DROP,       "R_LoadMDXM: %s has different bones than anim (%i != %i)\n", mod_name, mdxm->numBones, tr.models[mdxm->animIndex]->mdxa->numBones);
 #else
-				ri.Printf( PRINT_WARNING, "R_LoadMDXM: %s has different bones than anim (%i != %i)\n", mod_name, mdxm->numBones, tr.models[mdxm->animIndex]->mdxa->numBones);
+				ri.Printf( printParm_t::PRINT_WARNING, "R_LoadMDXM: %s has different bones than anim (%i != %i)\n", mod_name, mdxm->numBones, tr.models[mdxm->animIndex]->mdxa->numBones);
 #endif
 			}
 			if ( !isAnOldModelFile )
@@ -3795,16 +3795,16 @@ bool R_LoadMDXM( model_t *mod, void *buffer, const char *mod_name, bool &bAlread
 			LL(surf->ofsEnd);
 
 			if ( surf->numVerts > SHADER_MAX_VERTEXES ) {
-				Com_Error (ERR_DROP, "R_LoadMDXM: %s has more than %i verts on a surface (%i)",
+				Com_Error (errorParm_t::ERR_DROP, "R_LoadMDXM: %s has more than %i verts on a surface (%i)",
 					mod_name, SHADER_MAX_VERTEXES, surf->numVerts );
 			}
 			if ( surf->numTriangles*3 > SHADER_MAX_INDEXES ) {
-				Com_Error (ERR_DROP, "R_LoadMDXM: %s has more than %i triangles on a surface (%i)",
+				Com_Error (errorParm_t::ERR_DROP, "R_LoadMDXM: %s has more than %i triangles on a surface (%i)",
 					mod_name, SHADER_MAX_INDEXES / 3, surf->numTriangles );
 			}
 
 			// change to surface identifier
-			surf->ident = to_underlying( SF_MDX );
+			surf->ident = to_underlying( surfaceType_t::SF_MDX );
 
 			// register the shaders
 #ifdef Q3_BIG_ENDIAN
@@ -3933,17 +3933,17 @@ bool R_LoadMDXA( model_t *mod, void *buffer, const char *mod_name, bool &bAlread
 	}
 
 	if (version != MDXA_VERSION) {
-		ri.Printf( PRINT_WARNING, "R_LoadMDXA: %s has wrong version (%i should be %i)\n",
+		ri.Printf( printParm_t::PRINT_WARNING, "R_LoadMDXA: %s has wrong version (%i should be %i)\n",
 				 mod_name, version, MDXA_VERSION);
 		return false;
 	}
 
-	mod->type		= MOD_MDXA;
+	mod->type		= modtype_t::MOD_MDXA;
 	mod->dataSize  += size;
 
 	bool bAlreadyFound = false;
 	mdxa = mod->mdxa = (mdxaHeader_t*) //R_Hunk_Alloc( size );
-										RE_RegisterModels_Malloc(size, buffer, mod_name, &bAlreadyFound, TAG_MODEL_GLA);
+										RE_RegisterModels_Malloc(size, buffer, mod_name, &bAlreadyFound, memtag::TAG_MODEL_GLA);
 
 	assert(bAlreadyCached == bAlreadyFound);
 
@@ -3971,7 +3971,7 @@ bool R_LoadMDXA( model_t *mod, void *buffer, const char *mod_name, bool &bAlread
 	}
 
  	if ( mdxa->numFrames < 1 ) {
-		ri.Printf( PRINT_WARNING, "R_LoadMDXA: %s has no frames\n", mod_name );
+		ri.Printf( printParm_t::PRINT_WARNING, "R_LoadMDXA: %s has no frames\n", mod_name );
 		return false;
 	}
 

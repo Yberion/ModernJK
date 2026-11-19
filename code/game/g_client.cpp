@@ -72,11 +72,11 @@ void SP_info_player_deathmatch(gentity_t *ent) {
 
 	if ( ent->spawnflags & 32 ) // STUN_BATON
 	{
-		RegisterItem( FindItemForWeapon( WP_STUN_BATON ));
+		RegisterItem( FindItemForWeapon( weapon_t::WP_STUN_BATON ));
 	}
 	else
 	{
-		RegisterItem( FindItemForWeapon( WP_SABER ) );	//these are given in ClientSpawn(), but we register them now before cgame starts
+		RegisterItem( FindItemForWeapon( weapon_t::WP_SABER ) );	//these are given in ClientSpawn(), but we register them now before cgame starts
 		saberInfo_t	saber;
 		WP_SaberParseParms( g_saber->string, &saber );//get saber sounds and models cached before client begins
 		if (saber.model) G_ModelIndex( saber.model );
@@ -140,11 +140,11 @@ bool SpotWouldTelefrag( gentity_t *spot, team_t checkteam )
 	for (i=0 ; i<num ; i++)
 	{
 		hit = touch[i];
-		if ( hit != spot && hit->client && hit->client->ps.stats[STAT_HEALTH] > 0 )
+		if ( hit != spot && hit->client && hit->client->ps.stats[statIndex_t::STAT_HEALTH] > 0 )
 		{
-			if ( Any( hit->contents & CONTENTS_BODY ) )
+			if ( Any( hit->contents & contentsFlags_t::CONTENTS_BODY ) )
 			{
-				if( checkteam == TEAM_FREE || hit->client->playerTeam == checkteam )
+				if( checkteam == team_t::TEAM_FREE || hit->client->playerTeam == checkteam )
 				{//checking against teammates only...?
 					return true;
 				}
@@ -249,7 +249,7 @@ gentity_t *SelectRandomDeathmatchSpawnPoint( team_t team ) {
 			//this search routine should never find a spot that is targetted
 			continue;
 		}
-		if ( SpotWouldTelefrag( spot, TEAM_FREE ) ) {
+		if ( SpotWouldTelefrag( spot, team_t::TEAM_FREE ) ) {
 			continue;
 		}
 		spots[ count ] = spot;
@@ -320,7 +320,7 @@ gentity_t *SelectSpawnPoint ( vec3_t avoidPoint, team_t team, vec3_t origin, vec
 		trace_t		tr;
 
 		origin[2] = MIN_WORLD_COORD;
-		gi.trace(&tr, spot->s.origin, playerMins, playerMaxs, origin, ENTITYNUM_NONE, MASK_PLAYERSOLID, G2_NOCOLLIDE, 0 );
+		gi.trace(&tr, spot->s.origin, playerMins, playerMaxs, origin, ENTITYNUM_NONE, MASK_PLAYERSOLID, EG2_Collision::G2_NOCOLLIDE, 0 );
 		if ( tr.fraction < 1.0 && !tr.allsolid && !tr.startsolid )
 		{//found a floor
 			VectorCopy(tr.endpos, origin );
@@ -476,7 +476,7 @@ void ClientUserinfoChanged( int clientNum ) {
 	client->pers.maxHealth = health;
 	if ( client->pers.maxHealth < 1 || client->pers.maxHealth > maxHealth )
 		client->pers.maxHealth = 100;
-	client->ps.stats[STAT_MAX_HEALTH] = client->pers.maxHealth;
+	client->ps.stats[statIndex_t::STAT_MAX_HEALTH] = client->pers.maxHealth;
 
 	// sounds
 	Q_strncpyz( sound, Info_ValueForKey (userinfo, "snd"), sizeof( sound ) );
@@ -528,20 +528,20 @@ char *ClientConnect( int clientNum, bool firstTime, SavedGameJustLoaded_e eSaved
 	gclient_t *client = ent->client;
 
 //	if (!qbFromSavedGame)
-	if (eSavedGameJustLoaded != eFULL)
+	if (eSavedGameJustLoaded != SavedGameJustLoaded_e::eFULL)
 	{
 		clientSession_t savedSess = client->sess;	//
 		memset( client, 0, sizeof(*client) );
 		client->sess = savedSess;
 		if ( firstTime ) {	//not loading full, and directconnect
-			client->playerTeam = TEAM_PLAYER;	//set these now because after an auto_load kyle can see your team for a bit before you really join.
-			client->enemyTeam = TEAM_ENEMY;
+			client->playerTeam = team_t::TEAM_PLAYER;	//set these now because after an auto_load kyle can see your team for a bit before you really join.
+			client->enemyTeam = team_t::TEAM_ENEMY;
 		}
 	}
 
-	client->pers.connected = CON_CONNECTING;
+	client->pers.connected = clientConnected_t::CON_CONNECTING;
 
-	if (eSavedGameJustLoaded == eFULL)//qbFromSavedGame)
+	if (eSavedGameJustLoaded == SavedGameJustLoaded_e::eFULL)//qbFromSavedGame)
 	{
 		// G_WriteClientSessionData( client ); // forget it, this is DM stuff anyway
 		// get and distribute relevent paramters
@@ -585,9 +585,9 @@ void ClientBegin( int clientNum, usercmd_t *cmd, SavedGameJustLoaded_e eSavedGam
 	ent = g_entities + clientNum;
 	client = level.clients + clientNum;
 
-	if (eSavedGameJustLoaded == eFULL)//qbFromSavedGame)
+	if (eSavedGameJustLoaded == SavedGameJustLoaded_e::eFULL)//qbFromSavedGame)
 	{
-		client->pers.connected = CON_CONNECTED;
+		client->pers.connected = clientConnected_t::CON_CONNECTED;
 		ent->client = client;
 		ClientSpawn( ent, eSavedGameJustLoaded );
 	}
@@ -597,12 +597,12 @@ void ClientBegin( int clientNum, usercmd_t *cmd, SavedGameJustLoaded_e eSavedGam
 			gi.unlinkentity( ent );
 		}
 		G_InitGentity( ent, false );
-		ent->e_TouchFunc = touchF_NULL;
-		ent->e_PainFunc  = painF_PlayerPain;//painF_NULL;
+		ent->e_TouchFunc = touchFunc_t::touchF_NULL;
+		ent->e_PainFunc  = painFunc_t::painF_PlayerPain;//painFunc_t::painF_NULL;
 		ent->client = client;
 
-		client->pers.connected = CON_CONNECTED;
-		client->pers.teamState.state = TEAM_BEGIN;
+		client->pers.connected = clientConnected_t::CON_CONNECTED;
+		client->pers.teamState.state = playerTeamStateState_t::TEAM_BEGIN;
 		VectorCopyM( cmd->angles, client->pers.cmd_angles );
 
 		memset( &client->ps, 0, sizeof( client->ps ) );
@@ -617,8 +617,8 @@ void ClientBegin( int clientNum, usercmd_t *cmd, SavedGameJustLoaded_e eSavedGam
 		{
 			// send teleport event
 		}
-		client->ps.inventory[INV_GOODIE_KEY] = 0;
-		client->ps.inventory[INV_SECURITY_KEY] = 0;
+		client->ps.inventory[inventory_t::INV_GOODIE_KEY] = 0;
+		client->ps.inventory[inventory_t::INV_SECURITY_KEY] = 0;
 	}
 }
 
@@ -644,13 +644,13 @@ void Player_CacheFromPrevLevel(void)
 		int iDummy, bits, ibits;
 
 		sscanf( s, "%i %i %i %i",
-			&iDummy,//client->ps.stats[STAT_HEALTH],
-			&iDummy,//client->ps.stats[STAT_ARMOR],
-			&bits,	//client->ps.stats[STAT_WEAPONS]
-			&ibits	//client->ps.stats[STAT_ITEMS]
+			&iDummy,//client->ps.stats[statIndex_t::STAT_HEALTH],
+			&iDummy,//client->ps.stats[statIndex_t::STAT_ARMOR],
+			&bits,	//client->ps.stats[statIndex_t::STAT_WEAPONS]
+			&ibits	//client->ps.stats[statIndex_t::STAT_ITEMS]
 			);
 
-		for ( weapon_t w = WP_SABER ; w < WP_ATST_SIDE ; w++ )
+		for ( weapon_t w = weapon_t::WP_SABER ; w < weapon_t::WP_ATST_SIDE ; w++ )
 		{
 			if ( bits & Bit( w ) )
 			{
@@ -704,10 +704,10 @@ static void Player_RestoreFromPrevLevel(gentity_t *ent, SavedGameJustLoaded_e eS
 			unsigned int saber2BladeColor[8];
 
 			sscanf( s, "%i %i %i %i %i %i %i %f %f %f %i %i %i %i %i %s %i %i %i %i %i %i %i %i %u %u %u %u %u %u %u %u %s %i %i %i %i %i %i %i %i %u %u %u %u %u %u %u %u %i %i %i %i",
-								&client->ps.stats[STAT_HEALTH],
-								&client->ps.stats[STAT_ARMOR],
-								&client->ps.stats[STAT_WEAPONS],
-								&client->ps.stats[STAT_ITEMS],
+								&client->ps.stats[statIndex_t::STAT_HEALTH],
+								&client->ps.stats[statIndex_t::STAT_ARMOR],
+								&client->ps.stats[statIndex_t::STAT_WEAPONS],
+								&client->ps.stats[statIndex_t::STAT_ITEMS],
 								&weapon,
 								&weaponstate,
 								&client->ps.batteryCharge,
@@ -773,14 +773,14 @@ static void Player_RestoreFromPrevLevel(gentity_t *ent, SavedGameJustLoaded_e eS
 				client->ps.saber[1].blade[j].color = (saber_colors_t)saber2BladeColor[j];
 			}
 
-			ent->health = client->ps.stats[STAT_HEALTH];
+			ent->health = client->ps.stats[statIndex_t::STAT_HEALTH];
 
-			if(ent->client->ps.saber[0].name && gi.bIsFromZone(ent->client->ps.saber[0].name, TAG_G_ALLOC)) {
+			if(ent->client->ps.saber[0].name && gi.bIsFromZone(ent->client->ps.saber[0].name, memtag::TAG_G_ALLOC)) {
 				gi.Free(ent->client->ps.saber[0].name);
 			}
 			ent->client->ps.saber[0].name=nullptr;
 
-			if(ent->client->ps.saber[1].name && gi.bIsFromZone(ent->client->ps.saber[1].name, TAG_G_ALLOC) ) {
+			if(ent->client->ps.saber[1].name && gi.bIsFromZone(ent->client->ps.saber[1].name, memtag::TAG_G_ALLOC) ) {
 				gi.Free(ent->client->ps.saber[1].name);
 			}
 			ent->client->ps.saber[1].name=nullptr;
@@ -817,7 +817,7 @@ static void Player_RestoreFromPrevLevel(gentity_t *ent, SavedGameJustLoaded_e eS
 			  /* Get next token: */
 			  var = strtok( nullptr, " " );
 			}
-			assert (i==to_underlying( AMMO_MAX ));
+			assert (i==to_underlying( ammo_t::AMMO_MAX ));
 
 			//inventory
 			gi.Cvar_VariableStringBuffer( "playerinv", s, sizeof(s) );
@@ -830,13 +830,13 @@ static void Player_RestoreFromPrevLevel(gentity_t *ent, SavedGameJustLoaded_e eS
 			  /* Get next token: */
 			  var = strtok( nullptr, " " );
 			}
-			assert (i==to_underlying( INV_MAX ));
+			assert (i==to_underlying( inventory_t::INV_MAX ));
 
 
 			// the new JK2 stuff - force powers, etc...
 			//
 			gi.Cvar_VariableStringBuffer( "playerfplvl", s, sizeof(s) );
-			forcePowers_t fp = FP_FIRST;
+			forcePowers_t fp = forcePowers_t::FP_FIRST;
 			var = strtok( s, " " );
 			while( var != nullptr )
 			{
@@ -845,7 +845,7 @@ static void Player_RestoreFromPrevLevel(gentity_t *ent, SavedGameJustLoaded_e eS
 				/* Get next token: */
 				var = strtok( nullptr, " " );
 			}
-			assert (fp==NUM_FORCE_POWERS);
+			assert (fp==forcePowers_t::NUM_FORCE_POWERS);
 
 			client->ps.forceGripEntityNum = client->ps.forceDrainEntityNum = ENTITYNUM_NONE;
 		}
@@ -947,12 +947,12 @@ bool G_ClassHasBadBones( class_t NPC_class )
 {
 	switch ( NPC_class )
 	{
-	case CLASS_WAMPA:
-	case CLASS_ROCKETTROOPER:
-	case CLASS_SABER_DROID:
-	case CLASS_HAZARD_TROOPER:
-	case CLASS_ASSASSIN_DROID:
-	case CLASS_RANCOR:
+	case class_t::CLASS_WAMPA:
+	case class_t::CLASS_ROCKETTROOPER:
+	case class_t::CLASS_SABER_DROID:
+	case class_t::CLASS_HAZARD_TROOPER:
+	case class_t::CLASS_ASSASSIN_DROID:
+	case class_t::CLASS_RANCOR:
 		return true;
 	default:
 		break;
@@ -971,7 +971,7 @@ const EnumArray<const char *, Eorientations, 7> AxesNames =
 	"NEGATIVE_Y"//NEGATIVE_Y
 };
 
-Eorientations testAxes[3]={POSITIVE_X,POSITIVE_Z,POSITIVE_Y};
+Eorientations testAxes[3]={Eorientations::POSITIVE_X,Eorientations::POSITIVE_Z,Eorientations::POSITIVE_Y};
 int axes_0 = 0;
 int axes_1 = 0;
 int axes_2 = 0;
@@ -1004,17 +1004,17 @@ void G_NextTestAxes( void )
 				}
 			}
 		}
-		testAxes[0] = POSITIVE_X + axes_0%6;
-		testAxes[1] = POSITIVE_X + axes_1%6;
-		testAxes[2] = POSITIVE_X + axes_2%6;
+		testAxes[0] = Eorientations::POSITIVE_X + axes_0%6;
+		testAxes[1] = Eorientations::POSITIVE_X + axes_1%6;
+		testAxes[2] = Eorientations::POSITIVE_X + axes_2%6;
 	} while ( testAxes[1] == testAxes[0] || (testAxes[1]-testAxes[0]) == 3 || (testAxes[0]-testAxes[1]) == 3
 		|| testAxes[2] == testAxes[0] || (testAxes[2]-testAxes[0]) == 3 || (testAxes[0]-testAxes[2]) == 3
 		|| testAxes[2] == testAxes[1] || (testAxes[2]-testAxes[1]) == 3 || (testAxes[1]-testAxes[2]) == 3 );
 
 	Com_Printf( "Up: %s\nRight: %s\nForward: %s\n", AxesNames[testAxes[0]], AxesNames[testAxes[1]], AxesNames[testAxes[2]] );
-	if ( testAxes[0] == POSITIVE_X
-		&& testAxes[1] == POSITIVE_Z
-		&& testAxes[2] == POSITIVE_Y )
+	if ( testAxes[0] == Eorientations::POSITIVE_X
+		&& testAxes[1] == Eorientations::POSITIVE_Z
+		&& testAxes[2] == Eorientations::POSITIVE_Y )
 	{
 		Com_Printf( S_COLOR_RED"WRAPPED\n" );
 	}
@@ -1023,96 +1023,96 @@ void G_NextTestAxes( void )
 void G_BoneOrientationsForClass( class_t NPC_class, const char *boneName, Eorientations *oUp, Eorientations *oRt, Eorientations *oFwd )
 {
 	//defaults
-	*oUp = POSITIVE_X;
-	*oRt = NEGATIVE_Y;
-	*oFwd = NEGATIVE_Z;
+	*oUp = Eorientations::POSITIVE_X;
+	*oRt = Eorientations::NEGATIVE_Y;
+	*oFwd = Eorientations::NEGATIVE_Z;
 	//switch off class
 	switch ( NPC_class )
 	{
-	case CLASS_RANCOR:
-		*oUp = NEGATIVE_X;
-		*oRt = POSITIVE_Y;
-		*oFwd = POSITIVE_Z;
+	case class_t::CLASS_RANCOR:
+		*oUp = Eorientations::NEGATIVE_X;
+		*oRt = Eorientations::POSITIVE_Y;
+		*oFwd = Eorientations::POSITIVE_Z;
 		//*oUp = testAxes[0];
 		//*oRt = testAxes[1];
 		//*oFwd = testAxes[2];
 		break;
-	case CLASS_ROCKETTROOPER:
-	case CLASS_HAZARD_TROOPER:
+	case class_t::CLASS_ROCKETTROOPER:
+	case class_t::CLASS_HAZARD_TROOPER:
 		//Root is:
-		//*oUp = POSITIVE_Z;
-		//*oRt = NEGATIVE_X;
-		//*oFwd = NEGATIVE_Y;
+		//*oUp = Eorientations::POSITIVE_Z;
+		//*oRt = Eorientations::NEGATIVE_X;
+		//*oFwd = Eorientations::NEGATIVE_Y;
 		if ( Q_stricmp( "pelvis", boneName ) == 0 )
 		{//child of root
 			//in ModView:
-			//*oUp = NEGATIVE_X;
-			//*oRt = NEGATIVE_Z;
-			//*oFwd = NEGATIVE_Y;
+			//*oUp = Eorientations::NEGATIVE_X;
+			//*oRt = Eorientations::NEGATIVE_Z;
+			//*oFwd = Eorientations::NEGATIVE_Y;
 			//actual, when differences with root are accounted for:
-			*oUp = POSITIVE_Z;
-			*oRt = NEGATIVE_X;
-			*oFwd = NEGATIVE_Y;
+			*oUp = Eorientations::POSITIVE_Z;
+			*oRt = Eorientations::NEGATIVE_X;
+			*oFwd = Eorientations::NEGATIVE_Y;
 		}
 		else
 		{//all the rest are the same, children of root (not pelvis)
 			//in ModView:
-			//*oUp = POSITIVE_X;
-			//*oRt = POSITIVE_Y;
-			//*oFwd = POSITIVE_Z;
+			//*oUp = Eorientations::POSITIVE_X;
+			//*oRt = Eorientations::POSITIVE_Y;
+			//*oFwd = Eorientations::POSITIVE_Z;
 			//actual, when differences with root are accounted for:
-			//*oUp = POSITIVE_Z;
-			//*oRt = NEGATIVE_Y;
-			//*oFwd = NEGATIVE_X;
-			*oUp = NEGATIVE_X;
-			*oRt = POSITIVE_Y;
-			*oFwd = POSITIVE_Z;
+			//*oUp = Eorientations::POSITIVE_Z;
+			//*oRt = Eorientations::NEGATIVE_Y;
+			//*oFwd = Eorientations::NEGATIVE_X;
+			*oUp = Eorientations::NEGATIVE_X;
+			*oRt = Eorientations::POSITIVE_Y;
+			*oFwd = Eorientations::POSITIVE_Z;
 		}
 		break;
-	case CLASS_SABER_DROID:
+	case class_t::CLASS_SABER_DROID:
 		if ( Q_stricmp( "pelvis", boneName ) == 0
 			|| Q_stricmp( "thoracic", boneName ) == 0 )
 		{
-			*oUp = NEGATIVE_X;
-			*oRt = NEGATIVE_Z;
-			*oFwd = NEGATIVE_Y;
+			*oUp = Eorientations::NEGATIVE_X;
+			*oRt = Eorientations::NEGATIVE_Z;
+			*oFwd = Eorientations::NEGATIVE_Y;
 		}
 		else
 		{
-			*oUp = NEGATIVE_X;//POSITIVE_X;
-			*oRt = POSITIVE_Y;
-			*oFwd = POSITIVE_Z;
+			*oUp = Eorientations::NEGATIVE_X;//Eorientations::POSITIVE_X;
+			*oRt = Eorientations::POSITIVE_Y;
+			*oFwd = Eorientations::POSITIVE_Z;
 		}
 		break;
-	case CLASS_WAMPA:
+	case class_t::CLASS_WAMPA:
 		if ( Q_stricmp( "pelvis", boneName ) == 0 )
 		{
-			*oUp = NEGATIVE_X;
-			*oRt = POSITIVE_Y;
-			*oFwd = NEGATIVE_Z;
+			*oUp = Eorientations::NEGATIVE_X;
+			*oRt = Eorientations::POSITIVE_Y;
+			*oFwd = Eorientations::NEGATIVE_Z;
 		}
 		else
 		{
-			//*oUp = POSITIVE_X;
-			//*oRt = POSITIVE_Y;
-			//*oFwd = POSITIVE_Z;
+			//*oUp = Eorientations::POSITIVE_X;
+			//*oRt = Eorientations::POSITIVE_Y;
+			//*oFwd = Eorientations::POSITIVE_Z;
 			//kinda worked
-			*oUp = NEGATIVE_X;
-			*oRt = POSITIVE_Y;
-			*oFwd = POSITIVE_Z;
+			*oUp = Eorientations::NEGATIVE_X;
+			*oRt = Eorientations::POSITIVE_Y;
+			*oFwd = Eorientations::POSITIVE_Z;
 		}
 		break;
-	case CLASS_ASSASSIN_DROID:
+	case class_t::CLASS_ASSASSIN_DROID:
 		if ( Q_stricmp( "pelvis", boneName ) == 0
 			|| Q_stricmp( "lower_lumbar", boneName ) == 0
 			|| Q_stricmp( "upper_lumbar", boneName ) == 0 )
 		{//only these 3 bones on them are wrong
-			//*oUp = POSITIVE_X;
-			//*oRt = POSITIVE_Y;
-			//*oFwd = POSITIVE_Z;
-			*oUp = NEGATIVE_X;
-			*oRt = POSITIVE_Y;
-			*oFwd = POSITIVE_Z;
+			//*oUp = Eorientations::POSITIVE_X;
+			//*oRt = Eorientations::POSITIVE_Y;
+			//*oFwd = Eorientations::POSITIVE_Z;
+			*oUp = Eorientations::NEGATIVE_X;
+			*oRt = Eorientations::POSITIVE_Y;
+			*oFwd = Eorientations::POSITIVE_Z;
 		}
 		break;
 	default:
@@ -1142,7 +1142,7 @@ bool G_SetG2PlayerModelInfo( gentity_t *ent, const char *modelName, const char *
 					break;
 				}
 				//turn off this surf
-				gi.G2API_SetSurfaceOnOff( &ent->ghoul2[ent->playerModel], token, G2SURFACEFLAG_OFF );
+				gi.G2API_SetSurfaceOnOff( &ent->ghoul2[ent->playerModel], token, g2SurfaceFlags_t::G2SURFACEFLAG_OFF );
 
 			}
 			COM_EndParseSession();
@@ -1159,13 +1159,13 @@ bool G_SetG2PlayerModelInfo( gentity_t *ent, const char *modelName, const char *
 					break;
 				}
 				//turn on this surf
-				gi.G2API_SetSurfaceOnOff( &ent->ghoul2[ent->playerModel], token, G2SURFACEFLAG_NONE );
+				gi.G2API_SetSurfaceOnOff( &ent->ghoul2[ent->playerModel], token, g2SurfaceFlags_t::G2SURFACEFLAG_NONE );
 			}
 			COM_EndParseSession();
 		}
-		if ( ent->client->NPC_class == CLASS_IMPERIAL && ent->message )
+		if ( ent->client->NPC_class == class_t::CLASS_IMPERIAL && ent->message )
 		{//carrying a key, turn on the key sleeve surface (assuming we have one)
-			gi.G2API_SetSurfaceOnOff( &ent->ghoul2[ent->playerModel], "l_arm_key", G2SURFACEFLAG_NONE );
+			gi.G2API_SetSurfaceOnOff( &ent->ghoul2[ent->playerModel], "l_arm_key", g2SurfaceFlags_t::G2SURFACEFLAG_NONE );
 		}
 
 		G_LoadAnimFileSet( ent, modelName );
@@ -1199,20 +1199,20 @@ bool G_SetG2PlayerModelInfo( gentity_t *ent, const char *modelName, const char *
 			ent->kneeRBolt = gi.G2API_AddBolt(&ent->ghoul2[ent->playerModel], "*hips_r_knee");
 			ent->footLBolt = gi.G2API_AddBolt(&ent->ghoul2[ent->playerModel], "*l_leg_foot");
 			ent->footRBolt = gi.G2API_AddBolt(&ent->ghoul2[ent->playerModel], "*r_leg_foot");
-			if ( ent->client->NPC_class == CLASS_BOBAFETT
-				|| ent->client->NPC_class == CLASS_ROCKETTROOPER )
+			if ( ent->client->NPC_class == class_t::CLASS_BOBAFETT
+				|| ent->client->NPC_class == class_t::CLASS_ROCKETTROOPER )
 			{//get jet bolts
 				ent->genericBolt1 = gi.G2API_AddBolt( &ent->ghoul2[ent->playerModel], "*jet1" );
 				ent->genericBolt2 = gi.G2API_AddBolt( &ent->ghoul2[ent->playerModel], "*jet2" );
 			}
-			if ( ent->client->NPC_class == CLASS_BOBAFETT )
+			if ( ent->client->NPC_class == class_t::CLASS_BOBAFETT )
 			{//get the flamethrower bolt
 				ent->genericBolt3 = gi.G2API_AddBolt(&ent->ghoul2[ent->playerModel], "*flamethrower");
 			}
 		}
 		else
 		{
-			if ( ent->client->NPC_class == CLASS_VEHICLE )
+			if ( ent->client->NPC_class == class_t::CLASS_VEHICLE )
 			{//do vehicles tags
 
 				// Setup the driver tag (where the driver is mounted to).
@@ -1242,7 +1242,7 @@ bool G_SetG2PlayerModelInfo( gentity_t *ent, const char *modelName, const char *
 					}
 				}
 			}
-			else if ( ent->client->NPC_class == CLASS_HOWLER )
+			else if ( ent->client->NPC_class == class_t::CLASS_HOWLER )
 			{
 				ent->genericBolt1 = gi.G2API_AddBolt(&ent->ghoul2[ent->playerModel], "Tongue01" );// tongue base
 				ent->genericBolt2 = gi.G2API_AddBolt(&ent->ghoul2[ent->playerModel], "Tongue08" );// tongue tip
@@ -1282,7 +1282,7 @@ bool G_SetG2PlayerModelInfo( gentity_t *ent, const char *modelName, const char *
 				ent->headBolt = -1;
 				ent->handRBolt = ent->genericBolt1 = gi.G2API_AddBolt(&ent->ghoul2[ent->playerModel], "*flash");		// Blaster Gun 1
 			}
-			else if (!Q_stricmp( "atst",modelName) )//&& (ent->client->playerTeam != TEAM_PLAYER))
+			else if (!Q_stricmp( "atst",modelName) )//&& (ent->client->playerTeam != team_t::TEAM_PLAYER))
 			{
 				ent->headBolt = gi.G2API_AddBolt(&ent->ghoul2[ent->playerModel], "*head");
 
@@ -1363,7 +1363,7 @@ bool G_SetG2PlayerModelInfo( gentity_t *ent, const char *modelName, const char *
 #ifndef FINAL_BUILD
 		if ( g_developer->integer && ent->rootBone == -1 )
 		{
-			Com_Error(ERR_DROP,"ERROR: model %s has no model_root bone (and hence cannot animate)!!!\n", modelName );
+			Com_Error(errorParm_t::ERR_DROP,"ERROR: model %s has no model_root bone (and hence cannot animate)!!!\n", modelName );
 		}
 #endif
 		ent->footLBone = BONE_INDEX_INVALID;
@@ -1371,11 +1371,11 @@ bool G_SetG2PlayerModelInfo( gentity_t *ent, const char *modelName, const char *
 		ent->humerusRBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "rhumerus", true );
 
 		// now add overrides on specific joints so the client can set angle overrides on the legs, torso and head
-		if ( ent->client->NPC_class == CLASS_VEHICLE )
+		if ( ent->client->NPC_class == class_t::CLASS_VEHICLE )
 		{//do vehicles tags
 			//vehicleInfo_t *vehicle = ent->m_pVehicle->m_pVehicleInfo;
 		}
-		else if ( ent->client->NPC_class == CLASS_HOWLER )
+		else if ( ent->client->NPC_class == class_t::CLASS_HOWLER )
 		{
 		}
 		else if ( !Q_stricmp( "gonk", modelName ) || !Q_stricmp( "seeker", modelName ) || !Q_stricmp( "remote", modelName ) )
@@ -1389,12 +1389,12 @@ bool G_SetG2PlayerModelInfo( gentity_t *ent, const char *modelName, const char *
 			ent->craniumBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "cranium", true );
 			if (ent->craniumBone>=0)
 			{
-				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->craniumBone, angles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, 0 );
+				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->craniumBone, angles, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_X, Eorientations::NEGATIVE_Y, Eorientations::NEGATIVE_Z, nullptr, 0, 0 );
 			}
 			ent->thoracicBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "pelvis", true );
 			if (ent->thoracicBone>=0)
 			{
-				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->thoracicBone, angles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, 0 );
+				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->thoracicBone, angles, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_X, Eorientations::NEGATIVE_Y, Eorientations::NEGATIVE_Z, nullptr, 0, 0 );
 			}
 		}
 		else if (!Q_stricmp( "interrogator", modelName ))
@@ -1402,17 +1402,17 @@ bool G_SetG2PlayerModelInfo( gentity_t *ent, const char *modelName, const char *
 			ent->genericBone1 = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "left_arm", true );
 			if (ent->genericBone1>=0)
 			{
-				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->genericBone1, angles, BONE_ANGLES_POSTMULT, NEGATIVE_Y, NEGATIVE_X, NEGATIVE_Z, nullptr, 0, 0 );
+				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->genericBone1, angles, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::NEGATIVE_Y, Eorientations::NEGATIVE_X, Eorientations::NEGATIVE_Z, nullptr, 0, 0 );
 			}
 			ent->genericBone2 = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "right_arm", true );
 			if (ent->genericBone2>=0)
 			{
-				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->genericBone2, angles, BONE_ANGLES_POSTMULT, NEGATIVE_Y, NEGATIVE_X, NEGATIVE_Z, nullptr, 0, 0 );
+				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->genericBone2, angles, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::NEGATIVE_Y, Eorientations::NEGATIVE_X, Eorientations::NEGATIVE_Z, nullptr, 0, 0 );
 			}
 			ent->genericBone3 = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "claw", true );
 			if (ent->genericBone3>=0)
 			{
-				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->genericBone3, angles, BONE_ANGLES_POSTMULT, NEGATIVE_Y, NEGATIVE_X, NEGATIVE_Z, nullptr, 0, 0 );
+				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->genericBone3, angles, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::NEGATIVE_Y, Eorientations::NEGATIVE_X, Eorientations::NEGATIVE_Z, nullptr, 0, 0 );
 			}
 		}
 		else if (!Q_stricmpn( "r2d2", modelName, 4 ))
@@ -1420,17 +1420,17 @@ bool G_SetG2PlayerModelInfo( gentity_t *ent, const char *modelName, const char *
 			ent->craniumBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "cranium", true );
 			if (ent->craniumBone>=0)
 			{
-				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->craniumBone, angles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, 0 );
+				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->craniumBone, angles, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_X, Eorientations::NEGATIVE_Y, Eorientations::NEGATIVE_Z, nullptr, 0, 0 );
 			}
 			ent->thoracicBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "body", true );
 			if (ent->thoracicBone>=0)
 			{
-				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->thoracicBone, angles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, 0 );
+				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->thoracicBone, angles, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_X, Eorientations::NEGATIVE_Y, Eorientations::NEGATIVE_Z, nullptr, 0, 0 );
 			}
 			ent->genericBone1 = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "f_eye", true );
 			if (ent->genericBone1>=0)
 			{
-				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->genericBone1, angles, BONE_ANGLES_POSTMULT, NEGATIVE_Y, NEGATIVE_X, NEGATIVE_Z, nullptr, 0, 0 );
+				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->genericBone1, angles, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::NEGATIVE_Y, Eorientations::NEGATIVE_X, Eorientations::NEGATIVE_Z, nullptr, 0, 0 );
 			}
 		}
 		else if (!Q_stricmpn( "r5d2", modelName, 4 ))
@@ -1438,12 +1438,12 @@ bool G_SetG2PlayerModelInfo( gentity_t *ent, const char *modelName, const char *
 			ent->craniumBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "cranium", true );
 			if (ent->craniumBone>=0)
 			{
-				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->craniumBone, angles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, 0 );
+				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->craniumBone, angles, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_X, Eorientations::NEGATIVE_Y, Eorientations::NEGATIVE_Z, nullptr, 0, 0 );
 			}
 			ent->thoracicBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "body", true );
 			if (ent->thoracicBone>=0)
 			{
-				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->thoracicBone, angles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, 0 );
+				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->thoracicBone, angles, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_X, Eorientations::NEGATIVE_Y, Eorientations::NEGATIVE_Z, nullptr, 0, 0 );
 			}
 		}
 		else if ( !Q_stricmp( "atst", modelName ))
@@ -1451,22 +1451,22 @@ bool G_SetG2PlayerModelInfo( gentity_t *ent, const char *modelName, const char *
 			ent->craniumBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "cranium", true );
 			if (ent->craniumBone>=0)
 			{
-				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->craniumBone, angles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, 0 );
+				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->craniumBone, angles, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_X, Eorientations::NEGATIVE_Y, Eorientations::NEGATIVE_Z, nullptr, 0, 0 );
 			}
 			ent->thoracicBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "thoracic", true );
 			if (ent->thoracicBone>=0)
 			{
-				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->thoracicBone, angles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, 0 );
+				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->thoracicBone, angles, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_X, Eorientations::NEGATIVE_Y, Eorientations::NEGATIVE_Z, nullptr, 0, 0 );
 			}
 			ent->footLBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "l_tarsal", true );
 			if (ent->footLBone>=0)
 			{
-				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->footLBone, angles, BONE_ANGLES_POSTMULT, POSITIVE_Z, NEGATIVE_Y, NEGATIVE_X, nullptr, 0, 0 );
+				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->footLBone, angles, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_Z, Eorientations::NEGATIVE_Y, Eorientations::NEGATIVE_X, nullptr, 0, 0 );
 			}
 			ent->footRBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "r_tarsal", true );
 			if (ent->footRBone>=0)
 			{
-				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->footRBone, angles, BONE_ANGLES_POSTMULT, POSITIVE_Z, NEGATIVE_Y, NEGATIVE_X, nullptr, 0, 0 );
+				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->footRBone, angles, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_Z, Eorientations::NEGATIVE_Y, Eorientations::NEGATIVE_X, nullptr, 0, 0 );
 			}
 		}
 		else if ( !Q_stricmp( "mark1", modelName ))
@@ -1474,12 +1474,12 @@ bool G_SetG2PlayerModelInfo( gentity_t *ent, const char *modelName, const char *
 			ent->craniumBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "cranium", true );
 			if (ent->craniumBone>=0)
 			{
-				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->craniumBone, angles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, 0 );
+				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->craniumBone, angles, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_X, Eorientations::NEGATIVE_Y, Eorientations::NEGATIVE_Z, nullptr, 0, 0 );
 			}
 			ent->upperLumbarBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "cranium", true );
 			if (ent->upperLumbarBone>=0)
 			{
-				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->upperLumbarBone, angles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, 0 );
+				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->upperLumbarBone, angles, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_X, Eorientations::NEGATIVE_Y, Eorientations::NEGATIVE_Z, nullptr, 0, 0 );
 			}
 		}
 		else if ( !Q_stricmp( "mark2", modelName ))
@@ -1487,12 +1487,12 @@ bool G_SetG2PlayerModelInfo( gentity_t *ent, const char *modelName, const char *
 			ent->craniumBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "cranium", true );
 			if (ent->craniumBone>=0)
 			{
-				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->craniumBone, angles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, 0 );
+				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->craniumBone, angles, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_X, Eorientations::NEGATIVE_Y, Eorientations::NEGATIVE_Z, nullptr, 0, 0 );
 			}
 			ent->thoracicBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "thoracic", true );
 			if (ent->thoracicBone>=0)
 			{
-				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->thoracicBone, angles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, 0 );
+				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->thoracicBone, angles, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_X, Eorientations::NEGATIVE_Y, Eorientations::NEGATIVE_Z, nullptr, 0, 0 );
 			}
 		}
 		else if ( !Q_stricmp( "minemonster", modelName ))
@@ -1500,15 +1500,15 @@ bool G_SetG2PlayerModelInfo( gentity_t *ent, const char *modelName, const char *
 			ent->thoracicBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "thoracic1", true );
 			if (ent->thoracicBone>=0)
 			{
-				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->thoracicBone, angles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, 0 );
+				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->thoracicBone, angles, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_X, Eorientations::NEGATIVE_Y, Eorientations::NEGATIVE_Z, nullptr, 0, 0 );
 			}
 			ent->craniumBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "cranium", true );
 			if (ent->craniumBone>=0)
 			{
-				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->craniumBone, angles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, 0 );
+				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->craniumBone, angles, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_X, Eorientations::NEGATIVE_Y, Eorientations::NEGATIVE_Z, nullptr, 0, 0 );
 			}
 		}
-		else if ( ent->client->NPC_class == CLASS_RANCOR )
+		else if ( ent->client->NPC_class == class_t::CLASS_RANCOR )
 			/*!Q_stricmp( "rancor", modelName )	|| !Q_stricmp( "mutant_rancor", modelName ) )*/
 		{
 			Eorientations oUp, oRt, oFwd;
@@ -1517,19 +1517,19 @@ bool G_SetG2PlayerModelInfo( gentity_t *ent, const char *modelName, const char *
 			if (ent->lowerLumbarBone>=0)
 			{
 				G_BoneOrientationsForClass( ent->client->NPC_class, "lower_lumbar", &oUp, &oRt, &oFwd );
-				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->lowerLumbarBone, angles, BONE_ANGLES_POSTMULT, oUp, oRt, oFwd, nullptr, 0, 0 );
+				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->lowerLumbarBone, angles, boneFlags_t::BONE_ANGLES_POSTMULT, oUp, oRt, oFwd, nullptr, 0, 0 );
 			}
 			ent->upperLumbarBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "mid_spine", true );
 			if (ent->upperLumbarBone>=0)
 			{
 				G_BoneOrientationsForClass( ent->client->NPC_class, "upper_lumbar", &oUp, &oRt, &oFwd );
-				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->upperLumbarBone, angles, BONE_ANGLES_POSTMULT, oUp, oRt, oFwd, nullptr, 0, 0 );
+				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->upperLumbarBone, angles, boneFlags_t::BONE_ANGLES_POSTMULT, oUp, oRt, oFwd, nullptr, 0, 0 );
 			}
 			ent->thoracicBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "upper_spine", true );
 			if (ent->thoracicBone>=0)
 			{
 				G_BoneOrientationsForClass( ent->client->NPC_class, "thoracic", &oUp, &oRt, &oFwd );
-				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->thoracicBone, angles, BONE_ANGLES_POSTMULT, oUp, oRt, oFwd, nullptr, 0, 0 );
+				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->thoracicBone, angles, boneFlags_t::BONE_ANGLES_POSTMULT, oUp, oRt, oFwd, nullptr, 0, 0 );
 			}
 		}
 		else if ( !Q_stricmp( "sand_creature", modelName ))
@@ -1545,7 +1545,7 @@ bool G_SetG2PlayerModelInfo( gentity_t *ent, const char *modelName, const char *
 			if (ent->hipsBone>=0)
 			{
 				G_BoneOrientationsForClass( ent->client->NPC_class, "pelvis", &oUp, &oRt, &oFwd );
-				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->hipsBone, angles, BONE_ANGLES_POSTMULT, oUp, oRt, oFwd, nullptr );
+				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->hipsBone, angles, boneFlags_t::BONE_ANGLES_POSTMULT, oUp, oRt, oFwd, nullptr );
 			}
 			*/
 			/*
@@ -1554,7 +1554,7 @@ bool G_SetG2PlayerModelInfo( gentity_t *ent, const char *modelName, const char *
 			if (ent->lowerLumbarBone>=0)
 			{
 				G_BoneOrientationsForClass( ent->client->NPC_class, "lower_lumbar", &oUp, &oRt, &oFwd );
-				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->lowerLumbarBone, angles, BONE_ANGLES_POSTMULT, oUp, oRt, oFwd, nullptr );
+				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->lowerLumbarBone, angles, boneFlags_t::BONE_ANGLES_POSTMULT, oUp, oRt, oFwd, nullptr );
 			}
 			*/
 			/*
@@ -1563,25 +1563,25 @@ bool G_SetG2PlayerModelInfo( gentity_t *ent, const char *modelName, const char *
 			if (ent->upperLumbarBone>=0)
 			{
 				G_BoneOrientationsForClass( ent->client->NPC_class, "upper_lumbar", &oUp, &oRt, &oFwd );
-				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->upperLumbarBone, angles, BONE_ANGLES_POSTMULT, oUp, oRt, oFwd, nullptr );
+				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->upperLumbarBone, angles, boneFlags_t::BONE_ANGLES_POSTMULT, oUp, oRt, oFwd, nullptr );
 			}
 			ent->thoracicBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "thoracic", true );
 			if (ent->thoracicBone>=0)
 			{
 				G_BoneOrientationsForClass( ent->client->NPC_class, "thoracic", &oUp, &oRt, &oFwd );
-				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->thoracicBone, angles, BONE_ANGLES_POSTMULT, oUp, oRt, oFwd, nullptr );
+				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->thoracicBone, angles, boneFlags_t::BONE_ANGLES_POSTMULT, oUp, oRt, oFwd, nullptr );
 			}
 			ent->cervicalBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "cervical", true );
 			if (ent->cervicalBone>=0)
 			{
 				G_BoneOrientationsForClass( ent->client->NPC_class, "cervical", &oUp, &oRt, &oFwd );
-				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->cervicalBone, angles, BONE_ANGLES_POSTMULT, oUp, oRt, oFwd, nullptr );
+				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->cervicalBone, angles, boneFlags_t::BONE_ANGLES_POSTMULT, oUp, oRt, oFwd, nullptr );
 			}
 			ent->craniumBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "cranium", true );
 			if (ent->craniumBone>=0)
 			{
 				G_BoneOrientationsForClass( ent->client->NPC_class, "cranium", &oUp, &oRt, &oFwd );
-				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->craniumBone, angles, BONE_ANGLES_POSTMULT, oUp, oRt, oFwd, nullptr );
+				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->craniumBone, angles, boneFlags_t::BONE_ANGLES_POSTMULT, oUp, oRt, oFwd, nullptr );
 			}
 			*/
 		}
@@ -1598,13 +1598,13 @@ bool G_SetG2PlayerModelInfo( gentity_t *ent, const char *modelName, const char *
 				if (ent->upperLumbarBone>=0)
 				{
 					G_BoneOrientationsForClass( ent->client->NPC_class, "upper_lumbar", &oUp, &oRt, &oFwd );
-					gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->upperLumbarBone, angles, BONE_ANGLES_POSTMULT, oUp, oRt, oFwd, nullptr, 0, 0 );
+					gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->upperLumbarBone, angles, boneFlags_t::BONE_ANGLES_POSTMULT, oUp, oRt, oFwd, nullptr, 0, 0 );
 				}
 				ent->lowerLumbarBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "lower_lumbar", true );
 				if (ent->lowerLumbarBone>=0)
 				{
 					G_BoneOrientationsForClass( ent->client->NPC_class, "lower_lumbar", &oUp, &oRt, &oFwd );
-					gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->lowerLumbarBone, angles, BONE_ANGLES_POSTMULT, oUp, oRt, oFwd, nullptr, 0, 0 );
+					gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->lowerLumbarBone, angles, boneFlags_t::BONE_ANGLES_POSTMULT, oUp, oRt, oFwd, nullptr, 0, 0 );
 				}
 			}
 			if ( Q_stricmp( "hazardtrooper", modelName ) )
@@ -1615,20 +1615,20 @@ bool G_SetG2PlayerModelInfo( gentity_t *ent, const char *modelName, const char *
 					if (ent->thoracicBone>=0)
 					{
 						G_BoneOrientationsForClass( ent->client->NPC_class, "thoracic", &oUp, &oRt, &oFwd );
-						gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->thoracicBone, angles, BONE_ANGLES_POSTMULT, oUp, oRt, oFwd, nullptr, 0, 0 );
+						gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->thoracicBone, angles, boneFlags_t::BONE_ANGLES_POSTMULT, oUp, oRt, oFwd, nullptr, 0, 0 );
 					}
 				}
 				ent->cervicalBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "cervical", true );
 				if (ent->cervicalBone>=0)
 				{
 					G_BoneOrientationsForClass( ent->client->NPC_class, "cervical", &oUp, &oRt, &oFwd );
-					gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->cervicalBone, angles, BONE_ANGLES_POSTMULT, oUp, oRt, oFwd, nullptr, 0, 0 );
+					gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->cervicalBone, angles, boneFlags_t::BONE_ANGLES_POSTMULT, oUp, oRt, oFwd, nullptr, 0, 0 );
 				}
 				ent->craniumBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "cranium", true );
 				if (ent->craniumBone>=0)
 				{
 					G_BoneOrientationsForClass( ent->client->NPC_class, "cranium", &oUp, &oRt, &oFwd );
-					gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->craniumBone, angles, BONE_ANGLES_POSTMULT, oUp, oRt, oFwd, nullptr, 0, 0 );
+					gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->craniumBone, angles, boneFlags_t::BONE_ANGLES_POSTMULT, oUp, oRt, oFwd, nullptr, 0, 0 );
 				}
 			}
 		}
@@ -1638,57 +1638,57 @@ bool G_SetG2PlayerModelInfo( gentity_t *ent, const char *modelName, const char *
 			ent->motionBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "Motion", true );
 			if (ent->motionBone>=0)
 			{
-				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->motionBone, angles, BONE_ANGLES_POSTMULT, POSITIVE_Z, NEGATIVE_X, NEGATIVE_Y, nullptr, 0, 0 );
+				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->motionBone, angles, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_Z, Eorientations::NEGATIVE_X, Eorientations::NEGATIVE_Y, nullptr, 0, 0 );
 			}
 			ent->motionBolt = gi.G2API_AddBolt(&ent->ghoul2[ent->playerModel], "Motion");
 			//bone needed for turning anims
 			ent->hipsBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "pelvis", true );
 			if (ent->hipsBone>=0)
 			{
-				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->hipsBone, angles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, 0 );
+				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->hipsBone, angles, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_X, Eorientations::NEGATIVE_Y, Eorientations::NEGATIVE_Z, nullptr, 0, 0 );
 			}
 			//regular bones we need
 			ent->upperLumbarBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "upper_lumbar", true );
 			if (ent->upperLumbarBone>=0)
 			{
-				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->upperLumbarBone, angles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, 0 );
+				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->upperLumbarBone, angles, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_X, Eorientations::NEGATIVE_Y, Eorientations::NEGATIVE_Z, nullptr, 0, 0 );
 			}
 			ent->lowerLumbarBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "lower_lumbar", true );
 			if (ent->lowerLumbarBone>=0)
 			{
-				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->lowerLumbarBone, angles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, 0 );
+				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->lowerLumbarBone, angles, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_X, Eorientations::NEGATIVE_Y, Eorientations::NEGATIVE_Z, nullptr, 0, 0 );
 			}
 
 			ent->faceBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "face", true );
 			if (ent->faceBone>=0)
 			{
-				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->faceBone, angles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, 0 );
+				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->faceBone, angles, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_X, Eorientations::NEGATIVE_Y, Eorientations::NEGATIVE_Z, nullptr, 0, 0 );
 			}
 			ent->craniumBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "cranium", true );
 			if (ent->craniumBone>=0)
 			{
-				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->craniumBone, angles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, 0 );
+				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->craniumBone, angles, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_X, Eorientations::NEGATIVE_Y, Eorientations::NEGATIVE_Z, nullptr, 0, 0 );
 			}
 			ent->cervicalBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "cervical", true );
 			if (ent->cervicalBone>=0)
 			{
-				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->cervicalBone, angles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, 0 );
+				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->cervicalBone, angles, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_X, Eorientations::NEGATIVE_Y, Eorientations::NEGATIVE_Z, nullptr, 0, 0 );
 			}
 			ent->thoracicBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "thoracic", true );
 			if (ent->thoracicBone>=0)
 			{
-				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->thoracicBone, angles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, 0 );
+				gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->thoracicBone, angles, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_X, Eorientations::NEGATIVE_Y, Eorientations::NEGATIVE_Z, nullptr, 0, 0 );
 			}
 		}
 		ent->client->clientInfo.infoValid = true;
 
 	}
 
-	if ( ent->client->NPC_class == CLASS_SAND_CREATURE )
+	if ( ent->client->NPC_class == class_t::CLASS_SAND_CREATURE )
 	{
 		ent->s.radius = 256;
 	}
-	else if ( ent->client->NPC_class == CLASS_RANCOR )
+	else if ( ent->client->NPC_class == class_t::CLASS_RANCOR )
 	{
 		if ( (ent->spawnflags&1) )
 		{//mutant
@@ -1769,7 +1769,7 @@ void G_SetG2PlayerModel( gentity_t * const ent, const char *modelName, const cha
 	}
 	int skin = gi.RE_RegisterSkin( skinName );
 	//now generate the ghoul2 model this client should be.
-	if ( ent->client->NPC_class == CLASS_VEHICLE )
+	if ( ent->client->NPC_class == class_t::CLASS_VEHICLE )
 	{//vehicles actually grab their model from the appropriate vehicle data entry
 
 		// This will register the model and other assets.
@@ -1792,7 +1792,7 @@ void G_SetG2PlayerModel( gentity_t * const ent, const char *modelName, const cha
 	}
 	if (ent->playerModel == -1)
 	{//very bad thing here!
-		Com_Error(ERR_DROP, "Cannot fall back to default model %s!", modelName);
+		Com_Error(errorParm_t::ERR_DROP, "Cannot fall back to default model %s!", modelName);
 	}
 
 	gi.G2API_SetSkin( &ent->ghoul2[ent->playerModel], G_SkinIndex( skinName ), skin );//this is going to set the surfs on/off matching the skin file
@@ -1842,11 +1842,11 @@ void G_AddWeaponModels( gentity_t *ent )
 	}
 	if ( ent->weaponModel[0] == -1 )
 	{
-		if ( ent->client->ps.weapon == WP_SABER )
+		if ( ent->client->ps.weapon == weapon_t::WP_SABER )
 		{
 			WP_SaberAddG2SaberModels( ent );
 		}
-		else if ( ent->client->ps.weapon != WP_NONE )
+		else if ( ent->client->ps.weapon != weapon_t::WP_NONE )
 		{
 			G_CreateG2AttachedWeaponModel( ent, weaponData[ent->client->ps.weapon].weaponMdl, ent->handRBolt, 0 );
 		}
@@ -1868,7 +1868,7 @@ void G_SetSabersFromCVars( gentity_t *ent )
 		{
 			ent->client->ps.saberStylesKnown |= ent->client->ps.saber[0].stylesLearned;
 		}
-		if ( ent->client->ps.saber[0].singleBladeStyle != SS_NONE )
+		if ( ent->client->ps.saber[0].singleBladeStyle != saber_styles_t::SS_NONE )
 		{
 			ent->client->ps.saberStylesKnown |= Bit( ent->client->ps.saber[0].singleBladeStyle );
 		}
@@ -1876,13 +1876,13 @@ void G_SetSabersFromCVars( gentity_t *ent )
 
 	if ( player
 		&& player->client
-		&& player->client->sess.mission_objectives[LIGHTSIDE_OBJ].status == 2
+		&& player->client->sess.mission_objectives[objectiveNumber_t::LIGHTSIDE_OBJ].status == 2
 		&& g_saberDarkSideSaberColor->integer )
 	{//dark side!
 		//always use red
 		for ( int n = 0; n < MAX_BLADES; n++ )
 		{
-			ent->client->ps.saber[0].blade[n].color = SABER_RED;
+			ent->client->ps.saber[0].blade[n].color = saber_colors_t::SABER_RED;
 		}
 	}
 	else if ( g_saber_color->string )
@@ -1898,18 +1898,18 @@ void G_SetSabersFromCVars( gentity_t *ent )
 		&& Q_stricmp( "none", g_saber2->string )
 		&& Q_stricmp( "NULL", g_saber2->string ) )
 	{
-		if ( !Any( ent->client->ps.saber[0].saberFlags & SFL_TWO_HANDED ) )
+		if ( !Any( ent->client->ps.saber[0].saberFlags & saberFlags_t::SFL_TWO_HANDED ) )
 		{//can't use a second saber if first one is a two-handed saber...?
 			WP_SaberParseParms( g_saber2->string, &ent->client->ps.saber[1] );
 			if ( ent->client->ps.saber[1].stylesLearned )
 			{
 				ent->client->ps.saberStylesKnown |= ent->client->ps.saber[1].stylesLearned;
 			}
-			if ( ent->client->ps.saber[1].singleBladeStyle != SS_NONE )
+			if ( ent->client->ps.saber[1].singleBladeStyle != saber_styles_t::SS_NONE )
 			{
 				ent->client->ps.saberStylesKnown |= Bit( ent->client->ps.saber[1].singleBladeStyle );
 			}
-			if ( Any( ent->client->ps.saber[1].saberFlags & SFL_TWO_HANDED ) )
+			if ( Any( ent->client->ps.saber[1].saberFlags & saberFlags_t::SFL_TWO_HANDED ) )
 			{//tsk tsk, can't use a twoHanded saber as second saber
 				WP_RemoveSaber( ent, 1 );
 			}
@@ -1918,13 +1918,13 @@ void G_SetSabersFromCVars( gentity_t *ent )
 				ent->client->ps.dualSabers = true;
 				if ( player
 					&& player->client
-					&& player->client->sess.mission_objectives[LIGHTSIDE_OBJ].status == 2
+					&& player->client->sess.mission_objectives[objectiveNumber_t::LIGHTSIDE_OBJ].status == 2
 					&& g_saberDarkSideSaberColor->integer )
 				{//dark side!
 					//always use red
 					for ( int n = 0; n < MAX_BLADES; n++ )
 					{
-						ent->client->ps.saber[1].blade[n].color = SABER_RED;
+						ent->client->ps.saber[1].blade[n].color = saber_colors_t::SABER_RED;
 					}
 				}
 				else if ( g_saber2_color->string )
@@ -1949,7 +1949,7 @@ void G_InitPlayerFromCvars( gentity_t *ent )
 		G_ChangePlayerModel( ent, va("%s|%s|%s|%s", g_char_model->string, g_char_skin_head->string, g_char_skin_torso->string, g_char_skin_legs->string) );
 
 	//FIXME: parse these 2 from some cvar or require playermodel to be in a *.npc?
-	if( ent->NPC_type && gi.bIsFromZone(ent->NPC_type, TAG_G_ALLOC) ) {
+	if( ent->NPC_type && gi.bIsFromZone(ent->NPC_type, memtag::TAG_G_ALLOC) ) {
 		gi.Free( (void *)ent->NPC_type);
 	}
 
@@ -1957,7 +1957,7 @@ void G_InitPlayerFromCvars( gentity_t *ent )
 	// and you can't free a const-pointer later on. This seemed like the
 	// better options.
 	ent->NPC_type = (char *)"player";//default for now
-	if( ent->client->clientInfo.customBasicSoundDir && gi.bIsFromZone(ent->client->clientInfo.customBasicSoundDir, TAG_G_ALLOC) ) {
+	if( ent->client->clientInfo.customBasicSoundDir && gi.bIsFromZone(ent->client->clientInfo.customBasicSoundDir, memtag::TAG_G_ALLOC) ) {
 		gi.Free(ent->client->clientInfo.customBasicSoundDir);
 	}
 
@@ -1971,8 +1971,8 @@ void G_InitPlayerFromCvars( gentity_t *ent )
 	G_SetSabersFromCVars( ent );
 	//set up weapon models, etc.
 	G_AddWeaponModels( ent );
-	NPC_SetAnim( ent, SETANIM_LEGS, ent->client->ps.legsAnim, SETANIM_FLAG_NORMAL|SETANIM_FLAG_RESTART );
-	NPC_SetAnim( ent, SETANIM_TORSO, ent->client->ps.torsoAnim, SETANIM_FLAG_NORMAL|SETANIM_FLAG_RESTART );
+	NPC_SetAnim( ent, setAnimParts_t::SETANIM_LEGS, ent->client->ps.legsAnim, setAnimFlags_t::SETANIM_FLAG_NORMAL|setAnimFlags_t::SETANIM_FLAG_RESTART );
+	NPC_SetAnim( ent, setAnimParts_t::SETANIM_TORSO, ent->client->ps.torsoAnim, setAnimFlags_t::SETANIM_FLAG_NORMAL|setAnimFlags_t::SETANIM_FLAG_RESTART );
 	if ( !ent->s.number )
 	{//the actual player, not an NPC pretending to be a player
 		ClientUserinfoChanged( ent->s.number );
@@ -2005,7 +2005,7 @@ void G_ChangePlayerModel( gentity_t *ent, const char *newModel )
 	}
 
 	//attempt to free the string (currently can't since it's always "player" )
-	if( ent->NPC_type && gi.bIsFromZone(ent->NPC_type, TAG_G_ALLOC) ) {
+	if( ent->NPC_type && gi.bIsFromZone(ent->NPC_type, memtag::TAG_G_ALLOC) ) {
 		gi.Free( (void *)ent->NPC_type);
 	}
 	ent->NPC_type = G_NewString( newModel );
@@ -2032,12 +2032,12 @@ void G_ChangePlayerModel( gentity_t *ent, const char *newModel )
 		if ( NPC_ParseParms( ent->NPC_type, ent ) )
 		{
 			G_AddWeaponModels( ent );
-			NPC_SetAnim( ent, SETANIM_LEGS, ent->client->ps.legsAnim, SETANIM_FLAG_NORMAL|SETANIM_FLAG_RESTART );
-			NPC_SetAnim( ent, SETANIM_TORSO, ent->client->ps.torsoAnim, SETANIM_FLAG_NORMAL|SETANIM_FLAG_RESTART );
+			NPC_SetAnim( ent, setAnimParts_t::SETANIM_LEGS, ent->client->ps.legsAnim, setAnimFlags_t::SETANIM_FLAG_NORMAL|setAnimFlags_t::SETANIM_FLAG_RESTART );
+			NPC_SetAnim( ent, setAnimParts_t::SETANIM_TORSO, ent->client->ps.torsoAnim, setAnimFlags_t::SETANIM_FLAG_NORMAL|setAnimFlags_t::SETANIM_FLAG_RESTART );
 			ClientUserinfoChanged( ent->s.number );
 			//Ugh, kind of a hack for now:
-			if ( ent->client->NPC_class == CLASS_BOBAFETT
-				|| ent->client->NPC_class == CLASS_ROCKETTROOPER )
+			if ( ent->client->NPC_class == class_t::CLASS_BOBAFETT
+				|| ent->client->NPC_class == class_t::CLASS_ROCKETTROOPER )
 			{
 				//FIXME: remove saber, too?
 				Boba_Precache();	// player as boba?
@@ -2061,7 +2061,7 @@ void G_ReloadSaberData( gentity_t *ent )
 		{
 			ent->client->ps.saberStylesKnown |= ent->client->ps.saber[0].stylesLearned;
 		}
-		if ( ent->client->ps.saber[0].singleBladeStyle != SS_NONE )
+		if ( ent->client->ps.saber[0].singleBladeStyle != saber_styles_t::SS_NONE )
 		{
 			ent->client->ps.saberStylesKnown |= Bit( ent->client->ps.saber[0].singleBladeStyle );
 		}
@@ -2073,7 +2073,7 @@ void G_ReloadSaberData( gentity_t *ent )
 		{
 			ent->client->ps.saberStylesKnown |= ent->client->ps.saber[1].stylesLearned;
 		}
-		if ( ent->client->ps.saber[1].singleBladeStyle != SS_NONE )
+		if ( ent->client->ps.saber[1].singleBladeStyle != saber_styles_t::SS_NONE )
 		{
 			ent->client->ps.saberStylesKnown |= Bit( ent->client->ps.saber[1].singleBladeStyle );
 		}
@@ -2084,7 +2084,7 @@ bool G_PlayerSpawned( void )
 {
 	if ( !player
 		|| !player->client
-		|| player->client->pers.teamState.state != TEAM_ACTIVE
+		|| player->client->pers.teamState.state != playerTeamStateState_t::TEAM_ACTIVE
 		|| level.time - player->client->pers.enterTime < 100 )
 	{//player hasn't spawned yet
 		return false;
@@ -2104,16 +2104,16 @@ Initializes all non-persistant parts of playerState
 
 bool G_CheckPlayerDarkSide( void )
 {
-	if ( player && player->client && player->client->sess.mission_objectives[LIGHTSIDE_OBJ].status == 2 )
+	if ( player && player->client && player->client->sess.mission_objectives[objectiveNumber_t::LIGHTSIDE_OBJ].status == 2 )
 	{//dark side player!
-		player->client->playerTeam = TEAM_FREE;
-		player->client->enemyTeam = TEAM_FREE;
+		player->client->playerTeam = team_t::TEAM_FREE;
+		player->client->enemyTeam = team_t::TEAM_FREE;
 		if ( g_saberDarkSideSaberColor->integer )
 		{//dark side!
 			//always use red
 			for ( int n = 0; n < MAX_BLADES; n++ )
 			{
-				player->client->ps.saber[0].blade[n].color = player->client->ps.saber[1].blade[n].color = SABER_RED;
+				player->client->ps.saber[0].blade[n].color = player->client->ps.saber[1].blade[n].color = saber_colors_t::SABER_RED;
 			}
 		}
 		G_SoundIndex( "sound/chars/jedi2/28je2008.wav" );
@@ -2143,12 +2143,12 @@ bool ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded )
 	index = ent - g_entities;
 	client = ent->client;
 
-	if ( eSavedGameJustLoaded == eFULL && g_qbLoadTransition == false )//qbFromSavedGame)
+	if ( eSavedGameJustLoaded == SavedGameJustLoaded_e::eFULL && g_qbLoadTransition == false )//qbFromSavedGame)
 	{//loading up a full save game
-		ent->client->pers.teamState.state = TEAM_ACTIVE;
+		ent->client->pers.teamState.state = playerTeamStateState_t::TEAM_ACTIVE;
 
 		// increment the spawncount so the client will detect the respawn
-		client->ps.persistant[PERS_SPAWN_COUNT]++;
+		client->ps.persistant[persEnum_t::PERS_SPAWN_COUNT]++;
 		PS_SetTeam( client->ps, client->sess.sessionTeam );
 
 		client->airOutTime = level.time + 12000;
@@ -2198,7 +2198,7 @@ bool ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded )
 		spawnPoint = SelectSpawnPoint ( ent->client->ps.origin,
 			PS_Team( ent->client->ps ), spawn_origin, spawn_angles);
 
-		ent->client->pers.teamState.state = TEAM_ACTIVE;
+		ent->client->pers.teamState.state = playerTeamStateState_t::TEAM_ACTIVE;
 
 		// clear everything but the persistant data
 		saved = client->pers;
@@ -2216,13 +2216,13 @@ bool ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded )
 		client->ps.persistant = persistant;
 
 		// increment the spawncount so the client will detect the respawn
-		client->ps.persistant[PERS_SPAWN_COUNT]++;
+		client->ps.persistant[persEnum_t::PERS_SPAWN_COUNT]++;
 		PS_SetTeam( client->ps, client->sess.sessionTeam );
 
 		client->airOutTime = level.time + 12000;
 
 		// clear entity values
-		client->ps.stats[STAT_MAX_HEALTH] = client->pers.maxHealth;
+		client->ps.stats[statIndex_t::STAT_MAX_HEALTH] = client->pers.maxHealth;
 		ent->s.groundEntityNum = ENTITYNUM_NONE;
 		ent->client = &level.clients[index];
 		ent->mass = 10;
@@ -2236,23 +2236,23 @@ bool ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded )
 		}
 		ent->classname = "player";
 		ent->targetname = ent->script_targetname = "player";
-		if ( ent->client->NPC_class == CLASS_NONE )
+		if ( ent->client->NPC_class == class_t::CLASS_NONE )
 		{
-			ent->client->NPC_class = CLASS_PLAYER;
+			ent->client->NPC_class = class_t::CLASS_PLAYER;
 		}
-		client->playerTeam = TEAM_PLAYER;
-		client->enemyTeam = TEAM_ENEMY;
-		ent->contents = CONTENTS_BODY;
+		client->playerTeam = team_t::TEAM_PLAYER;
+		client->enemyTeam = team_t::TEAM_ENEMY;
+		ent->contents = contentsFlags_t::CONTENTS_BODY;
 		ent->clipmask = MASK_PLAYERSOLID;
-		ent->e_DieFunc = dieF_player_die;
+		ent->e_DieFunc = dieFunc_t::dieF_player_die;
 		ent->waterlevel = 0;
-		ent->watertype = CONTENTS_NONE;
+		ent->watertype = contentsFlags_t::CONTENTS_NONE;
 		client->ps.friction = 6;
 		client->ps.gravity = g_gravity->value;
-		ent->flags &= ~FL_NO_KNOCKBACK;
+		ent->flags &= ~gentityFlags_t::FL_NO_KNOCKBACK;
 		client->renderInfo.lookTarget = ENTITYNUM_NONE;
 		client->renderInfo.lookTargetClearTime = 0;
-		client->renderInfo.lookMode = LM_ENT;
+		client->renderInfo.lookMode = lookMode_t::LM_ENT;
 
 		VectorCopy (playerMins, ent->mins);
 		VectorCopy (playerMaxs, ent->maxs);
@@ -2263,33 +2263,33 @@ bool ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded )
 
 		// give default weapons
 		//these are precached in g_items, ClearRegisteredItems()
-		client->ps.stats[STAT_WEAPONS] = Bit( WP_NONE );
-		//client->ps.inventory[INV_ELECTROBINOCULARS] = 1;
-		//ent->client->ps.inventory[INV_BACTA_CANISTER] = 1;
+		client->ps.stats[statIndex_t::STAT_WEAPONS] = Bit( weapon_t::WP_NONE );
+		//client->ps.inventory[inventory_t::INV_ELECTROBINOCULARS] = 1;
+		//ent->client->ps.inventory[inventory_t::INV_BACTA_CANISTER] = 1;
 
 		// give EITHER the saber or the stun baton..never both
 		if ( spawnPoint->spawnflags & 32 ) // STUN_BATON
 		{
-			client->ps.stats[STAT_WEAPONS] |= Bit( WP_STUN_BATON );
-			client->ps.weapon = WP_STUN_BATON;
+			client->ps.stats[statIndex_t::STAT_WEAPONS] |= Bit( weapon_t::WP_STUN_BATON );
+			client->ps.weapon = weapon_t::WP_STUN_BATON;
 		}
 		else
 		{	// give the saber because most test maps will not have the STUN BATON flag set
-			client->ps.stats[STAT_WEAPONS] |= Bit( WP_SABER );	//this is precached in SP_info_player_deathmatch
-			client->ps.weapon = WP_SABER;
+			client->ps.stats[statIndex_t::STAT_WEAPONS] |= Bit( weapon_t::WP_SABER );	//this is precached in SP_info_player_deathmatch
+			client->ps.weapon = weapon_t::WP_SABER;
 		}
 		// force the base weapon up
-		client->ps.weaponstate = WEAPON_READY;
+		client->ps.weaponstate = weaponstate_t::WEAPON_READY;
 
 		for ( weapon_t w = FIRST_WEAPON; w < MAX_PLAYER_WEAPONS; w++ ) // don't give ammo for explosives
 		{
-			if ( (client->ps.stats[STAT_WEAPONS]&Bit( w )) )
+			if ( (client->ps.stats[statIndex_t::STAT_WEAPONS]&Bit( w )) )
 			{//if starting with this weapon, gimme max ammo for it
 				client->ps.ammo[weaponData[w].ammoIndex] = ammoData[weaponData[w].ammoIndex].max;
 			}
 		}
 
-		if ( eSavedGameJustLoaded == eNO )
+		if ( eSavedGameJustLoaded == SavedGameJustLoaded_e::eNO )
 		{
 			//FIXME: get player's info from NPCs.cfg
 			client->ps.dualSabers = false;
@@ -2312,7 +2312,7 @@ bool ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded )
 		}
 		//
 
-		ent->health = client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH];
+		ent->health = client->ps.stats[statIndex_t::STAT_HEALTH] = client->ps.stats[statIndex_t::STAT_MAX_HEALTH];
 		ent->client->dismemberProbHead = 0;
 		ent->client->dismemberProbArms = 5;
 		ent->client->dismemberProbHands = 20;
@@ -2325,7 +2325,7 @@ bool ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded )
 		VectorCopy( spawn_origin, ent->currentOrigin );
 
 		// the respawned flag will be cleared after the attack and jump keys come up
-		client->ps.pm_flags |= PMF_RESPAWNED;
+		client->ps.pm_flags |= pmoveFlags_t::PMF_RESPAWNED;
 
 		SetClientViewAngle( ent, spawn_angles );
 
@@ -2333,15 +2333,15 @@ bool ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded )
 		gi.linkentity (ent);
 
 		// don't allow full run speed for a bit
-		client->ps.pm_flags |= PMF_TIME_KNOCKBACK;
+		client->ps.pm_flags |= pmoveFlags_t::PMF_TIME_KNOCKBACK;
 		client->ps.pm_time = 100;
 
 		client->respawnTime = level.time;
-		client->latched_buttons = BUTTON_NONE;
+		client->latched_buttons = buttonFlags_t::BUTTON_NONE;
 
 		// set default animations
-		client->ps.torsoAnim = BOTH_STAND2;
-		client->ps.legsAnim = BOTH_STAND2;
+		client->ps.torsoAnim = animNumber_t::BOTH_STAND2;
+		client->ps.legsAnim = animNumber_t::BOTH_STAND2;
 
 		//clear IK grabbing stuff
 		client->ps.heldClient = client->ps.heldByClient = ENTITYNUM_NONE;
@@ -2352,11 +2352,11 @@ bool ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded )
 		Player_RestoreFromPrevLevel(ent, eSavedGameJustLoaded);
 
 		//FIXME: put this BEFORE the Player_RestoreFromPrevLevel check above?
-		if (eSavedGameJustLoaded == eNO)
+		if (eSavedGameJustLoaded == SavedGameJustLoaded_e::eNO)
 		{//fresh start
 			if (!(spawnPoint->spawnflags&1))		// not KEEP_PREV
 			{//then restore health and armor
-				ent->health = client->ps.stats[STAT_ARMOR] = client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH];
+				ent->health = client->ps.stats[statIndex_t::STAT_ARMOR] = client->ps.stats[statIndex_t::STAT_HEALTH] = client->ps.stats[statIndex_t::STAT_MAX_HEALTH];
 				ent->client->ps.forcePower = ent->client->ps.forcePowerMax;
 			}
 			G_InitPlayerFromCvars( ent );
@@ -2409,23 +2409,23 @@ bool ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded )
 
 		if ( spawnPoint->spawnflags & 64 )	//NOWEAPON
 		{//player starts with absolutely no weapons
-			ent->client->ps.stats[STAT_WEAPONS] = Bit( WP_NONE );
-			ent->client->ps.ammo[weaponData[WP_NONE].ammoIndex] = 32000;
-			ent->client->ps.weapon = WP_NONE;
-			ent->client->ps.weaponstate = WEAPON_READY;
+			ent->client->ps.stats[statIndex_t::STAT_WEAPONS] = Bit( weapon_t::WP_NONE );
+			ent->client->ps.ammo[weaponData[weapon_t::WP_NONE].ammoIndex] = 32000;
+			ent->client->ps.weapon = weapon_t::WP_NONE;
+			ent->client->ps.weaponstate = weaponstate_t::WEAPON_READY;
 			ent->client->ps.dualSabers = false;
 		}
 
-		if ( ent->client->ps.stats[STAT_WEAPONS] & Bit( WP_SABER ) )
+		if ( ent->client->ps.stats[statIndex_t::STAT_WEAPONS] & Bit( weapon_t::WP_SABER ) )
 		{//set up so has lightsaber
 			WP_SaberInitBladeData( ent );
 			if ( (ent->weaponModel[0] <= 0 || (ent->weaponModel[1]<=0&&ent->client->ps.dualSabers)) //one or both of the saber models is not initialized
-				&& ent->client->ps.weapon == WP_SABER )//current weapon is saber
+				&& ent->client->ps.weapon == weapon_t::WP_SABER )//current weapon is saber
 			{//add the proper models
 				WP_SaberAddG2SaberModels( ent );
 			}
 		}
-		if ( ent->weaponModel[0] == -1 && ent->client->ps.weapon != WP_NONE )
+		if ( ent->weaponModel[0] == -1 && ent->client->ps.weapon != weapon_t::WP_NONE )
 		{
 			G_CreateG2AttachedWeaponModel( ent, weaponData[ent->client->ps.weapon].weaponMdl, ent->handRBolt, 0 );
 		}
@@ -2439,9 +2439,9 @@ bool ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded )
 			/*
 			// select the highest weapon number available, after any
 			// spawn given items have fired
-			client->ps.weapon = WP_SABER;
-			for ( weapon_t w = WP_NUM_WEAPONS - 1 ; w > WP_NONE ; w-- ) {
-				if ( client->ps.stats[STAT_WEAPONS] & Bit( w ) ) {
+			client->ps.weapon = weapon_t::WP_SABER;
+			for ( weapon_t w = weapon_t::WP_NUM_WEAPONS - 1 ; w > weapon_t::WP_NONE ; w-- ) {
+				if ( client->ps.stats[statIndex_t::STAT_WEAPONS] & Bit( w ) ) {
 					client->ps.weapon = w;
 					break;
 				}
@@ -2450,12 +2450,12 @@ bool ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded )
 	}
 
 	client->pers.enterTime = level.time;//needed mainly to stop the weapon switch to WP_NONE that happens on loads
-	ent->max_health = client->ps.stats[STAT_MAX_HEALTH];
+	ent->max_health = client->ps.stats[statIndex_t::STAT_MAX_HEALTH];
 
-	if ( eSavedGameJustLoaded == eNO )
+	if ( eSavedGameJustLoaded == SavedGameJustLoaded_e::eNO )
 	{//on map transitions, Ghoul2 frame gets reset to zero, restart our anim
-		NPC_SetAnim( ent, SETANIM_LEGS, ent->client->ps.legsAnim, SETANIM_FLAG_NORMAL|SETANIM_FLAG_RESTART );
-		NPC_SetAnim( ent, SETANIM_TORSO, ent->client->ps.torsoAnim, SETANIM_FLAG_NORMAL|SETANIM_FLAG_RESTART );
+		NPC_SetAnim( ent, setAnimParts_t::SETANIM_LEGS, ent->client->ps.legsAnim, setAnimFlags_t::SETANIM_FLAG_NORMAL|setAnimFlags_t::SETANIM_FLAG_RESTART );
+		NPC_SetAnim( ent, setAnimParts_t::SETANIM_TORSO, ent->client->ps.torsoAnim, setAnimFlags_t::SETANIM_FLAG_NORMAL|setAnimFlags_t::SETANIM_FLAG_RESTART );
 	}
 
 	if ( ent->s.number == 0 )
@@ -2463,10 +2463,10 @@ bool ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded )
 		G_CheckPlayerDarkSide();
 	}
 
-	if ( (ent->client->ps.stats[STAT_WEAPONS]&Bit( WP_SABER ))
+	if ( (ent->client->ps.stats[statIndex_t::STAT_WEAPONS]&Bit( weapon_t::WP_SABER ))
 		&& !ent->client->ps.saberStylesKnown )
 	{//um, if you have a saber, you need at least 1 style to use it with...
-		ent->client->ps.saberStylesKnown |= Bit( SS_MEDIUM );
+		ent->client->ps.saberStylesKnown |= Bit( saber_styles_t::SS_MEDIUM );
 	}
 
 	return beamInEffect;
@@ -2490,7 +2490,7 @@ void ClientDisconnect( int clientNum ) {
 	}
 
 	// send effect if they were completely connected
-/*	if ( ent->client->pers.connected == CON_CONNECTED ) {
+/*	if ( ent->client->pers.connected == clientConnected_t::CON_CONNECTED ) {
 		// They don't get to take powerups with them!
 		// Especially important for stuff like CTF flags
 		TossClientItems ( ent );
@@ -2501,8 +2501,8 @@ void ClientDisconnect( int clientNum ) {
 	ent->inuse = false;
 	ClearInUse(ent);
 	ent->classname = "disconnected";
-	ent->client->pers.connected = CON_DISCONNECTED;
-	PS_SetTeam( ent->client->ps, TEAM_FREE );
+	ent->client->pers.connected = clientConnected_t::CON_DISCONNECTED;
+	PS_SetTeam( ent->client->ps, team_t::TEAM_FREE );
 
 	gi.SetConfigstring( CS_PLAYERS + clientNum, "");
 

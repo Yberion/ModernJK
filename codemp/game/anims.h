@@ -1814,7 +1814,6 @@ enum class animNumber_t //# animNumber_e
 	MAX_TOTALANIMATIONS,
 	ANIM_NONE = -1,	// no animation, where one is stored
 };
-using enum animNumber_t;
 template <> inline constexpr bool enableEnumArithmetic<animNumber_t> = true;
 
-inline constexpr int SABER_ANIM_GROUP_SIZE = BOTH_A2_T__B_ - BOTH_A1_T__B_;
+inline constexpr int SABER_ANIM_GROUP_SIZE = animNumber_t::BOTH_A2_T__B_ - animNumber_t::BOTH_A1_T__B_;

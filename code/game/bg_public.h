@@ -88,7 +88,6 @@ enum class pmtype_t {
 	PM_FREEZE,		// stuck in place with no control
 	PM_INTERMISSION	// no movement or status bar
 };
-using enum pmtype_t;
 
 enum class weaponstate_t {
 	WEAPON_READY,
@@ -99,7 +98,6 @@ enum class weaponstate_t {
 	WEAPON_CHARGING_ALT,
 	WEAPON_IDLE, //lowered
 };
-using enum weaponstate_t;
 
 // pmove->pm_flags
 enum class pmoveFlags_t
@@ -127,7 +125,6 @@ enum class pmoveFlags_t
 	PMF_FIX_MINS		= (1<<19),//524288	// Mins raised for dual forward jump, fix them
 	PMF_ALL_TIMES	= (PMF_TIME_WATERJUMP|PMF_TIME_LAND|PMF_TIME_KNOCKBACK|PMF_TIME_NOFRICTION),
 };
-using enum pmoveFlags_t;
 template <> inline constexpr bool enableEnumFlags<pmoveFlags_t> = true;
 
 inline constexpr int MAXTOUCH = 32;
@@ -200,11 +197,10 @@ enum class persEnum_t {
 	PERS_ENEMIES_KILLED,			// scoreboard - number of enemies player killed
 	PERS_TEAMMATES_KILLED			// scoreboard - number of teammates killed
 };
-using enum persEnum_t;
 
 // The player's team is kept in a cell of the networked persistant array, whose cells are integers
-[[nodiscard]] inline team_t PS_Team( const playerState_t &ps ) { return static_cast<team_t>( ps.persistant[PERS_TEAM] ); }
-inline void PS_SetTeam( playerState_t &ps, team_t team ) { ps.persistant[PERS_TEAM] = to_underlying( team ); }
+[[nodiscard]] inline team_t PS_Team( const playerState_t &ps ) { return static_cast<team_t>( ps.persistant[persEnum_t::PERS_TEAM] ); }
+inline void PS_SetTeam( playerState_t &ps, team_t team ) { ps.persistant[persEnum_t::PERS_TEAM] = to_underlying( team ); }
 
 // A user command's weapon, a byte of the client packet: the one conversion of the field
 [[nodiscard]] inline weapon_t UC_Weapon( const usercmd_t &cmd ) { return static_cast<weapon_t>( cmd.weapon ); }
@@ -256,7 +252,6 @@ enum class entityFlags_t : uint32_t
 	EF_FORCE_DRAINED		= 0x40000000,	// Force drained effect
 	EF_BLOCKED_MOVER		= 0x80000000,	// for movers that are blocked - shared with previous
 };
-using enum entityFlags_t;
 template <> inline constexpr bool enableEnumFlags<entityFlags_t> = true;
 
 enum class powerup_t {
@@ -279,10 +274,9 @@ enum class powerup_t {
 
 	PW_NUM_POWERUPS
 };
-using enum powerup_t;
 template <> inline constexpr bool enableEnumArithmetic<powerup_t> = true;
 
-inline constexpr int PW_REMOVE_AT_DEATH = Bit( PW_QUAD )|Bit( PW_BATTLESUIT )|Bit( PW_HASTE )|Bit( PW_CLOAKED )|Bit( PW_UNCLOAKING )|Bit( PW_UNCLOAKING )|Bit( PW_GALAK_SHIELD )|Bit( PW_DISINT_2 )|Bit( PW_INVINCIBLE )|Bit( PW_SEEKER );
+inline constexpr int PW_REMOVE_AT_DEATH = Bit( powerup_t::PW_QUAD )|Bit( powerup_t::PW_BATTLESUIT )|Bit( powerup_t::PW_HASTE )|Bit( powerup_t::PW_CLOAKED )|Bit( powerup_t::PW_UNCLOAKING )|Bit( powerup_t::PW_UNCLOAKING )|Bit( powerup_t::PW_GALAK_SHIELD )|Bit( powerup_t::PW_DISINT_2 )|Bit( powerup_t::PW_INVINCIBLE )|Bit( powerup_t::PW_SEEKER );
 // entityState_t->event values
 // entity events are for effects that take place relative
 // to an existing entities origin.  Very network efficient.
@@ -473,7 +467,6 @@ enum class entity_event_t {
 
 	EV_NUM_ENTITY_EVENTS
 };
-using enum entity_event_t;
 template <> inline constexpr bool enableEnumArithmetic<entity_event_t> = true;
 
 // The fields that carry an event with the two sequence bits above (an entity state's event, a player state's
@@ -563,7 +556,6 @@ enum class animEventType_t
 	AEV_SABER_SPIN,  //# animID AEV_SABER_SPIN framenum CHANNEL chancetoplay
 	AEV_NUM_AEV
 };
-using enum animEventType_t;
 
 typedef struct animevent_s
 {
@@ -606,7 +598,6 @@ enum class footstepType_t
 	FOOTSTEP_HEAVY_L,
 	NUM_FOOTSTEP_TYPES
 };
-using enum footstepType_t;
 
 // means of death
 enum class meansOfDeath_t {
@@ -667,7 +658,6 @@ enum class meansOfDeath_t {
 	NUM_MODS,
 
 };
-using enum meansOfDeath_t;
 
 
 //---------------------------------------------------------
@@ -685,7 +675,6 @@ enum class itemType_t
 	IT_HOLOCRON,
 
 };
-using enum itemType_t;
 
 
 
@@ -713,7 +702,7 @@ typedef struct gitem_s {
 [[nodiscard]] inline inventory_t GI_Inventory( const gitem_t &item ) { return static_cast<inventory_t>( item.giTag ); }
 
 // included in both the game dll and the client
-extern	EnumArray<gitem_t, itemNum_t, to_underlying( ITM_NUM_ITEMS ) + 1>	bg_itemlist;
+extern	EnumArray<gitem_t, itemNum_t, to_underlying( itemNum_t::ITM_NUM_ITEMS ) + 1>	bg_itemlist;
 extern	const int		bg_numItems;
 
 
@@ -730,10 +719,10 @@ typedef struct ginfoitem_s
 
 //==============================================================================
 
-extern EnumArray<weaponData_t, weapon_t, WP_NUM_WEAPONS> weaponData;
+extern EnumArray<weaponData_t, weapon_t, weapon_t::WP_NUM_WEAPONS> weaponData;
 
 //==============================================================================
-extern EnumArray<ammoData_t, ammo_t, AMMO_MAX> ammoData;
+extern EnumArray<ammoData_t, ammo_t, ammo_t::AMMO_MAX> ammoData;
 
 //==============================================================================
 
@@ -750,17 +739,17 @@ bool	BG_CanItemBeGrabbed( const entityState_t *ent, const playerState_t *ps );
 
 
 // content masks
-inline constexpr contentsFlags_t MASK_ALL = CONTENTS_ALL;
-inline constexpr contentsFlags_t MASK_SOLID = CONTENTS_SOLID | CONTENTS_TERRAIN;
-inline constexpr contentsFlags_t MASK_PLAYERSOLID = CONTENTS_SOLID | CONTENTS_PLAYERCLIP | CONTENTS_BODY | CONTENTS_TERRAIN;
-inline constexpr contentsFlags_t MASK_NPCSOLID = CONTENTS_SOLID | CONTENTS_MONSTERCLIP | CONTENTS_BODY | CONTENTS_TERRAIN;
-inline constexpr contentsFlags_t MASK_DEADSOLID = CONTENTS_SOLID | CONTENTS_PLAYERCLIP | CONTENTS_TERRAIN;
-inline constexpr contentsFlags_t MASK_WATER = CONTENTS_WATER | CONTENTS_LAVA | CONTENTS_SLIME;
-inline constexpr contentsFlags_t MASK_OPAQUE = CONTENTS_OPAQUE | CONTENTS_SLIME | CONTENTS_LAVA;//was CONTENTS_SOLID, not CONTENTS_OPAQUE...?
+inline constexpr contentsFlags_t MASK_ALL = contentsFlags_t::CONTENTS_ALL;
+inline constexpr contentsFlags_t MASK_SOLID = contentsFlags_t::CONTENTS_SOLID | contentsFlags_t::CONTENTS_TERRAIN;
+inline constexpr contentsFlags_t MASK_PLAYERSOLID = contentsFlags_t::CONTENTS_SOLID | contentsFlags_t::CONTENTS_PLAYERCLIP | contentsFlags_t::CONTENTS_BODY | contentsFlags_t::CONTENTS_TERRAIN;
+inline constexpr contentsFlags_t MASK_NPCSOLID = contentsFlags_t::CONTENTS_SOLID | contentsFlags_t::CONTENTS_MONSTERCLIP | contentsFlags_t::CONTENTS_BODY | contentsFlags_t::CONTENTS_TERRAIN;
+inline constexpr contentsFlags_t MASK_DEADSOLID = contentsFlags_t::CONTENTS_SOLID | contentsFlags_t::CONTENTS_PLAYERCLIP | contentsFlags_t::CONTENTS_TERRAIN;
+inline constexpr contentsFlags_t MASK_WATER = contentsFlags_t::CONTENTS_WATER | contentsFlags_t::CONTENTS_LAVA | contentsFlags_t::CONTENTS_SLIME;
+inline constexpr contentsFlags_t MASK_OPAQUE = contentsFlags_t::CONTENTS_OPAQUE | contentsFlags_t::CONTENTS_SLIME | contentsFlags_t::CONTENTS_LAVA;//was CONTENTS_SOLID, not CONTENTS_OPAQUE...?
 /*
 Ghoul2 Insert Start
 */
-inline constexpr contentsFlags_t MASK_SHOT = CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_CORPSE | CONTENTS_SHOTCLIP | CONTENTS_TERRAIN;
+inline constexpr contentsFlags_t MASK_SHOT = contentsFlags_t::CONTENTS_SOLID | contentsFlags_t::CONTENTS_BODY | contentsFlags_t::CONTENTS_CORPSE | contentsFlags_t::CONTENTS_SHOTCLIP | contentsFlags_t::CONTENTS_TERRAIN;
 /*
 Ghoul2 Insert End
 */
@@ -788,12 +777,11 @@ enum class entityType_t {
 							// by setting eType to ET_EVENTS + eventNum
 							// this avoids having to set eFlags and eventNum
 };
-using enum entityType_t;
 
 // An event entity's eType is ET_EVENTS plus its event as an event field holds it (BG_PackEvent): written and
 // read through these only
-[[nodiscard]] inline entityType_t BG_EventEntityType( int packedEvent ) { return static_cast<entityType_t>( to_underlying( ET_EVENTS ) + packedEvent ); }
-[[nodiscard]] inline int BG_EventEntityEvent( entityType_t eType ) { return to_underlying( eType ) - to_underlying( ET_EVENTS ); }
+[[nodiscard]] inline entityType_t BG_EventEntityType( int packedEvent ) { return static_cast<entityType_t>( to_underlying( entityType_t::ET_EVENTS ) + packedEvent ); }
+[[nodiscard]] inline int BG_EventEntityEvent( entityType_t eType ) { return to_underlying( eType ) - to_underlying( entityType_t::ET_EVENTS ); }
 
 
 

@@ -114,7 +114,7 @@ void AAS_ClearShownDebugLines(void)
 	{
 		if (debuglines[i])
 		{
-			//botimport.DebugLineShow(debuglines[i], nullptr, nullptr, LINECOLOR_NONE);
+			//botimport.DebugLineShow(debuglines[i], nullptr, nullptr, lineColor_t::LINECOLOR_NONE);
 			botimport.DebugLineDelete(debuglines[i]);
 			debuglines[i] = 0;
 			debuglinevisible[i] = false;
@@ -289,13 +289,13 @@ void AAS_ShowBoundingBox(vec3_t origin, vec3_t mins, vec3_t maxs)
 		} //end for
 		//top plane
 		botimport.DebugLineShow(lines[0], bboxcorners[i],
-									bboxcorners[(i+1)&3], LINECOLOR_RED);
+									bboxcorners[(i+1)&3], lineColor_t::LINECOLOR_RED);
 		//bottom plane
 		botimport.DebugLineShow(lines[1], bboxcorners[4+i],
-									bboxcorners[4+((i+1)&3)], LINECOLOR_RED);
+									bboxcorners[4+((i+1)&3)], lineColor_t::LINECOLOR_RED);
 		//vertical lines
 		botimport.DebugLineShow(lines[2], bboxcorners[i],
-									bboxcorners[4+i], LINECOLOR_RED);
+									bboxcorners[4+i], lineColor_t::LINECOLOR_RED);
 	} //end for
 } //end of the function AAS_ShowBoundingBox
 //===========================================================================
@@ -313,11 +313,11 @@ void AAS_ShowFace(int facenum)
 	aas_plane_t *plane;
 	vec3_t start, end;
 
-	color = LINECOLOR_YELLOW;
+	color = lineColor_t::LINECOLOR_YELLOW;
 	//check if face number is in range
 	if (facenum >= aasworld.numfaces)
 	{
-		botimport.Print(PRT_ERROR, "facenum %d out of range\n", facenum);
+		botimport.Print(printType_t::PRT_ERROR, "facenum %d out of range\n", facenum);
 	} //end if
 	face = &aasworld.faces[facenum];
 	//walk through the edges of the face
@@ -328,13 +328,13 @@ void AAS_ShowFace(int facenum)
 		//check if edge number is in range
 		if (edgenum >= aasworld.numedges)
 		{
-			botimport.Print(PRT_ERROR, "edgenum %d out of range\n", edgenum);
+			botimport.Print(printType_t::PRT_ERROR, "edgenum %d out of range\n", edgenum);
 		} //end if
 		edge = &aasworld.edges[edgenum];
-		if (color == LINECOLOR_RED) color = LINECOLOR_GREEN;
-		else if (color == LINECOLOR_GREEN) color = LINECOLOR_BLUE;
-		else if (color == LINECOLOR_BLUE) color = LINECOLOR_YELLOW;
-		else color = LINECOLOR_RED;
+		if (color == lineColor_t::LINECOLOR_RED) color = lineColor_t::LINECOLOR_GREEN;
+		else if (color == lineColor_t::LINECOLOR_GREEN) color = lineColor_t::LINECOLOR_BLUE;
+		else if (color == lineColor_t::LINECOLOR_BLUE) color = lineColor_t::LINECOLOR_YELLOW;
+		else color = lineColor_t::LINECOLOR_RED;
 		AAS_DebugLine(aasworld.vertexes[edge->v[0]],
 										aasworld.vertexes[edge->v[1]],
 										color);
@@ -344,7 +344,7 @@ void AAS_ShowFace(int facenum)
 	edge = &aasworld.edges[edgenum];
 	VectorCopy(aasworld.vertexes[edge->v[0]], start);
 	VectorMA(start, 20, plane->normal, end);
-	AAS_DebugLine(start, end, LINECOLOR_RED);
+	AAS_DebugLine(start, end, lineColor_t::LINECOLOR_RED);
 } //end of the function AAS_ShowFace
 //===========================================================================
 //
@@ -362,7 +362,7 @@ void AAS_ShowFacePolygon(int facenum, lineColor_t color, int flip)
 	//check if face number is in range
 	if (facenum >= aasworld.numfaces)
 	{
-		botimport.Print(PRT_ERROR, "facenum %d out of range\n", facenum);
+		botimport.Print(printType_t::PRT_ERROR, "facenum %d out of range\n", facenum);
 	} //end if
 	face = &aasworld.faces[facenum];
 	//walk through the edges of the face
@@ -401,7 +401,7 @@ void AAS_ShowArea(int areanum, int groundfacesonly)
 {
 	int areaedges[MAX_DEBUGLINES];
 	int numareaedges, i, j, n, line;
-	lineColor_t color = LINECOLOR_NONE;
+	lineColor_t color = lineColor_t::LINECOLOR_NONE;
 	int facenum, edgenum;
 	aas_area_t *area;
 	aas_face_t *face;
@@ -412,7 +412,7 @@ void AAS_ShowArea(int areanum, int groundfacesonly)
 	//
 	if (areanum < 0 || areanum >= aasworld.numareas)
 	{
-		botimport.Print(PRT_ERROR, "area %d out of range [0, %d]\n",
+		botimport.Print(printType_t::PRT_ERROR, "area %d out of range [0, %d]\n",
 								areanum, aasworld.numareas);
 		return;
 	} //end if
@@ -425,13 +425,13 @@ void AAS_ShowArea(int areanum, int groundfacesonly)
 		//check if face number is in range
 		if (facenum >= aasworld.numfaces)
 		{
-			botimport.Print(PRT_ERROR, "facenum %d out of range\n", facenum);
+			botimport.Print(printType_t::PRT_ERROR, "facenum %d out of range\n", facenum);
 		} //end if
 		face = &aasworld.faces[facenum];
 		//ground faces only
 		if (groundfacesonly)
 		{
-			if (!Any( face->faceflags & (FACE_GROUND | FACE_LADDER) )) continue;
+			if (!Any( face->faceflags & (faceFlags_t::FACE_GROUND | faceFlags_t::FACE_LADDER) )) continue;
 		} //end if
 		//walk through the edges of the face
 		for (j = 0; j < face->numedges; j++)
@@ -441,7 +441,7 @@ void AAS_ShowArea(int areanum, int groundfacesonly)
 			//check if edge number is in range
 			if (edgenum >= aasworld.numedges)
 			{
-				botimport.Print(PRT_ERROR, "edgenum %d out of range\n", edgenum);
+				botimport.Print(printType_t::PRT_ERROR, "edgenum %d out of range\n", edgenum);
 			} //end if
 			//check if the edge is stored already
 			for (n = 0; n < numareaedges; n++)
@@ -473,10 +473,10 @@ void AAS_ShowArea(int areanum, int groundfacesonly)
 		} //end for
 		if (line >= MAX_DEBUGLINES) return;
 		edge = &aasworld.edges[areaedges[n]];
-		if (color == LINECOLOR_RED) color = LINECOLOR_BLUE;
-		else if (color == LINECOLOR_BLUE) color = LINECOLOR_GREEN;
-		else if (color == LINECOLOR_GREEN) color = LINECOLOR_YELLOW;
-		else color = LINECOLOR_RED;
+		if (color == lineColor_t::LINECOLOR_RED) color = lineColor_t::LINECOLOR_BLUE;
+		else if (color == lineColor_t::LINECOLOR_BLUE) color = lineColor_t::LINECOLOR_GREEN;
+		else if (color == lineColor_t::LINECOLOR_GREEN) color = lineColor_t::LINECOLOR_YELLOW;
+		else color = lineColor_t::LINECOLOR_RED;
 		botimport.DebugLineShow(debuglines[line],
 									aasworld.vertexes[edge->v[0]],
 									aasworld.vertexes[edge->v[1]],
@@ -499,7 +499,7 @@ void AAS_ShowAreaPolygons(int areanum, lineColor_t color, int groundfacesonly)
 	//
 	if (areanum < 0 || areanum >= aasworld.numareas)
 	{
-		botimport.Print(PRT_ERROR, "area %d out of range [0, %d]\n",
+		botimport.Print(printType_t::PRT_ERROR, "area %d out of range [0, %d]\n",
 								areanum, aasworld.numareas);
 		return;
 	} //end if
@@ -512,13 +512,13 @@ void AAS_ShowAreaPolygons(int areanum, lineColor_t color, int groundfacesonly)
 		//check if face number is in range
 		if (facenum >= aasworld.numfaces)
 		{
-			botimport.Print(PRT_ERROR, "facenum %d out of range\n", facenum);
+			botimport.Print(printType_t::PRT_ERROR, "facenum %d out of range\n", facenum);
 		} //end if
 		face = &aasworld.faces[facenum];
 		//ground faces only
 		if (groundfacesonly)
 		{
-			if (!Any( face->faceflags & (FACE_GROUND | FACE_LADDER) )) continue;
+			if (!Any( face->faceflags & (faceFlags_t::FACE_GROUND | faceFlags_t::FACE_LADDER) )) continue;
 		} //end if
 		AAS_ShowFacePolygon(facenum, color, face->frontarea != areanum);
 	} //end for
@@ -554,27 +554,27 @@ void AAS_PrintTravelType(travelTypeFlags_t traveltype)
 #ifdef DEBUG
 	char *str;
 	//
-	switch(traveltype & TRAVELTYPE_MASK)
+	switch(traveltype & travelTypeFlags_t::TRAVELTYPE_MASK)
 	{
-		case TRAVEL_INVALID: str = "TRAVEL_INVALID"; break;
-		case TRAVEL_WALK: str = "TRAVEL_WALK"; break;
-		case TRAVEL_CROUCH: str = "TRAVEL_CROUCH"; break;
-		case TRAVEL_BARRIERJUMP: str = "TRAVEL_BARRIERJUMP"; break;
-		case TRAVEL_JUMP: str = "TRAVEL_JUMP"; break;
-		case TRAVEL_LADDER: str = "TRAVEL_LADDER"; break;
-		case TRAVEL_WALKOFFLEDGE: str = "TRAVEL_WALKOFFLEDGE"; break;
-		case TRAVEL_SWIM: str = "TRAVEL_SWIM"; break;
-		case TRAVEL_WATERJUMP: str = "TRAVEL_WATERJUMP"; break;
-		case TRAVEL_TELEPORT: str = "TRAVEL_TELEPORT"; break;
-		case TRAVEL_ELEVATOR: str = "TRAVEL_ELEVATOR"; break;
-		case TRAVEL_ROCKETJUMP: str = "TRAVEL_ROCKETJUMP"; break;
-		case TRAVEL_BFGJUMP: str = "TRAVEL_BFGJUMP"; break;
-		case TRAVEL_GRAPPLEHOOK: str = "TRAVEL_GRAPPLEHOOK"; break;
-		case TRAVEL_JUMPPAD: str = "TRAVEL_JUMPPAD"; break;
-		case TRAVEL_FUNCBOB: str = "TRAVEL_FUNCBOB"; break;
+		case travelTypeFlags_t::TRAVEL_INVALID: str = "TRAVEL_INVALID"; break;
+		case travelTypeFlags_t::TRAVEL_WALK: str = "TRAVEL_WALK"; break;
+		case travelTypeFlags_t::TRAVEL_CROUCH: str = "TRAVEL_CROUCH"; break;
+		case travelTypeFlags_t::TRAVEL_BARRIERJUMP: str = "TRAVEL_BARRIERJUMP"; break;
+		case travelTypeFlags_t::TRAVEL_JUMP: str = "TRAVEL_JUMP"; break;
+		case travelTypeFlags_t::TRAVEL_LADDER: str = "TRAVEL_LADDER"; break;
+		case travelTypeFlags_t::TRAVEL_WALKOFFLEDGE: str = "TRAVEL_WALKOFFLEDGE"; break;
+		case travelTypeFlags_t::TRAVEL_SWIM: str = "TRAVEL_SWIM"; break;
+		case travelTypeFlags_t::TRAVEL_WATERJUMP: str = "TRAVEL_WATERJUMP"; break;
+		case travelTypeFlags_t::TRAVEL_TELEPORT: str = "TRAVEL_TELEPORT"; break;
+		case travelTypeFlags_t::TRAVEL_ELEVATOR: str = "TRAVEL_ELEVATOR"; break;
+		case travelTypeFlags_t::TRAVEL_ROCKETJUMP: str = "TRAVEL_ROCKETJUMP"; break;
+		case travelTypeFlags_t::TRAVEL_BFGJUMP: str = "TRAVEL_BFGJUMP"; break;
+		case travelTypeFlags_t::TRAVEL_GRAPPLEHOOK: str = "TRAVEL_GRAPPLEHOOK"; break;
+		case travelTypeFlags_t::TRAVEL_JUMPPAD: str = "TRAVEL_JUMPPAD"; break;
+		case travelTypeFlags_t::TRAVEL_FUNCBOB: str = "TRAVEL_FUNCBOB"; break;
 		default: str = "UNKNOWN TRAVEL TYPE"; break;
 	} //end switch
-	botimport.Print(PRT_MESSAGE, "%s", str);
+	botimport.Print(printType_t::PRT_MESSAGE, "%s", str);
 #endif
 } //end of the function AAS_PrintTravelType
 //===========================================================================
@@ -615,12 +615,12 @@ void AAS_ShowReachability(aas_reachability_t *reach)
 	float speed, zvel;
 	aas_clientmove_t move;
 
-	AAS_ShowAreaPolygons(reach->areanum, LINECOLOR_MAGENTA, true);
+	AAS_ShowAreaPolygons(reach->areanum, lineColor_t::LINECOLOR_MAGENTA, true);
 	//AAS_ShowArea(reach->areanum, true);
-	AAS_DrawArrow(reach->start, reach->end, LINECOLOR_BLUE, LINECOLOR_YELLOW);
+	AAS_DrawArrow(reach->start, reach->end, lineColor_t::LINECOLOR_BLUE, lineColor_t::LINECOLOR_YELLOW);
 	//
-	if ((reach->traveltype & TRAVELTYPE_MASK) == TRAVEL_JUMP ||
-		(reach->traveltype & TRAVELTYPE_MASK) == TRAVEL_WALKOFFLEDGE)
+	if ((reach->traveltype & travelTypeFlags_t::TRAVELTYPE_MASK) == travelTypeFlags_t::TRAVEL_JUMP ||
+		(reach->traveltype & travelTypeFlags_t::TRAVELTYPE_MASK) == travelTypeFlags_t::TRAVEL_WALKOFFLEDGE)
 	{
 		AAS_HorizontalVelocityForJump(aassettings.phys_jumpvel, reach->start, reach->end, &speed);
 		//
@@ -633,18 +633,18 @@ void AAS_ShowReachability(aas_reachability_t *reach)
 		VectorClear(cmdmove);
 		cmdmove[2] = aassettings.phys_jumpvel;
 		//
-		AAS_PredictClientMovement(&move, -1, reach->start, PRESENCE_NORMAL, true,
+		AAS_PredictClientMovement(&move, -1, reach->start, presenceFlags_t::PRESENCE_NORMAL, true,
 									velocity, cmdmove, 3, 30, 0.1f,
-									SE_HITGROUND|SE_ENTERWATER|SE_ENTERSLIME|
-									SE_ENTERLAVA|SE_HITGROUNDDAMAGE, 0, true);
+									stopEventFlags_t::SE_HITGROUND|stopEventFlags_t::SE_ENTERWATER|stopEventFlags_t::SE_ENTERSLIME|
+									stopEventFlags_t::SE_ENTERLAVA|stopEventFlags_t::SE_HITGROUNDDAMAGE, 0, true);
 		//
-		if ((reach->traveltype & TRAVELTYPE_MASK) == TRAVEL_JUMP)
+		if ((reach->traveltype & travelTypeFlags_t::TRAVELTYPE_MASK) == travelTypeFlags_t::TRAVEL_JUMP)
 		{
 			AAS_JumpReachRunStart(reach, dir);
-			AAS_DrawCross(dir, 4, LINECOLOR_BLUE);
+			AAS_DrawCross(dir, 4, lineColor_t::LINECOLOR_BLUE);
 		} //end if
 	} //end if
-	else if ((reach->traveltype & TRAVELTYPE_MASK) == TRAVEL_ROCKETJUMP)
+	else if ((reach->traveltype & travelTypeFlags_t::TRAVELTYPE_MASK) == travelTypeFlags_t::TRAVEL_ROCKETJUMP)
 	{
 		zvel = AAS_RocketJumpZVelocity(reach->start);
 		AAS_HorizontalVelocityForJump(zvel, reach->start, reach->end, &speed);
@@ -656,13 +656,13 @@ void AAS_ShowReachability(aas_reachability_t *reach)
 		VectorScale(dir, speed, cmdmove);
 		VectorSet(velocity, 0, 0, zvel);
 		//
-		AAS_PredictClientMovement(&move, -1, reach->start, PRESENCE_NORMAL, true,
+		AAS_PredictClientMovement(&move, -1, reach->start, presenceFlags_t::PRESENCE_NORMAL, true,
 									velocity, cmdmove, 30, 30, 0.1f,
-									SE_ENTERWATER|SE_ENTERSLIME|
-									SE_ENTERLAVA|SE_HITGROUNDDAMAGE|
-									SE_TOUCHJUMPPAD|SE_HITGROUNDAREA, reach->areanum, true);
+									stopEventFlags_t::SE_ENTERWATER|stopEventFlags_t::SE_ENTERSLIME|
+									stopEventFlags_t::SE_ENTERLAVA|stopEventFlags_t::SE_HITGROUNDDAMAGE|
+									stopEventFlags_t::SE_TOUCHJUMPPAD|stopEventFlags_t::SE_HITGROUNDAREA, reach->areanum, true);
 	} //end else if
-	else if ((reach->traveltype & TRAVELTYPE_MASK) == TRAVEL_JUMPPAD)
+	else if ((reach->traveltype & travelTypeFlags_t::TRAVELTYPE_MASK) == travelTypeFlags_t::TRAVEL_JUMPPAD)
 	{
 		VectorSet(cmdmove, 0, 0, 0);
 		//
@@ -675,11 +675,11 @@ void AAS_ShowReachability(aas_reachability_t *reach)
 		//NOTE: the facenum is the Z velocity
 		velocity[2] = reach->facenum;
 		//
-		AAS_PredictClientMovement(&move, -1, reach->start, PRESENCE_NORMAL, true,
+		AAS_PredictClientMovement(&move, -1, reach->start, presenceFlags_t::PRESENCE_NORMAL, true,
 									velocity, cmdmove, 30, 30, 0.1f,
-									SE_ENTERWATER|SE_ENTERSLIME|
-									SE_ENTERLAVA|SE_HITGROUNDDAMAGE|
-									SE_TOUCHJUMPPAD|SE_HITGROUNDAREA, reach->areanum, true);
+									stopEventFlags_t::SE_ENTERWATER|stopEventFlags_t::SE_ENTERSLIME|
+									stopEventFlags_t::SE_ENTERLAVA|stopEventFlags_t::SE_HITGROUNDDAMAGE|
+									stopEventFlags_t::SE_TOUCHJUMPPAD|stopEventFlags_t::SE_HITGROUNDAREA, reach->areanum, true);
 	} //end else if
 } //end of the function AAS_ShowReachability
 //===========================================================================
@@ -711,8 +711,8 @@ void AAS_ShowReachableAreas(int areanum)
 		Com_Memcpy(&reach, &aasworld.reachability[settings->firstreachablearea + index], sizeof(aas_reachability_t));
 		index++;
 		lasttime = AAS_Time();
-		AAS_PrintTravelType(reach.traveltype & TRAVELTYPE_MASK);
-		botimport.Print(PRT_MESSAGE, "\n");
+		AAS_PrintTravelType(reach.traveltype & travelTypeFlags_t::TRAVELTYPE_MASK);
+		botimport.Print(printType_t::PRT_MESSAGE, "\n");
 	} //end if
 	AAS_ShowReachability(&reach);
 } //end of the function ShowReachableAreas
@@ -725,7 +725,7 @@ void AAS_FloodAreas_r(int areanum, int cluster, int *done)
 	aas_areasettings_t *settings;
 	aas_reachability_t *reach;
 
-	AAS_ShowAreaPolygons(areanum, LINECOLOR_RED, true);
+	AAS_ShowAreaPolygons(areanum, lineColor_t::LINECOLOR_RED, true);
 	//pointer to the convex area
 	area = &aasworld.areas[areanum];
 	settings = &aasworld.areasettings[areanum];
@@ -743,7 +743,7 @@ void AAS_FloodAreas_r(int areanum, int cluster, int *done)
 		if (done[nextareanum])
 			continue;
 		done[nextareanum] = true;
-		if (Any( aasworld.areasettings[nextareanum].contents & AREACONTENTS_VIEWPORTAL ))
+		if (Any( aasworld.areasettings[nextareanum].contents & areaContentsFlags_t::AREACONTENTS_VIEWPORTAL ))
 			continue;
 		if (AAS_AreaCluster(nextareanum) != cluster)
 			continue;
@@ -759,14 +759,14 @@ void AAS_FloodAreas_r(int areanum, int cluster, int *done)
 		if (done[nextareanum])
 			continue;
 		done[nextareanum] = true;
-		if (Any( aasworld.areasettings[nextareanum].contents & AREACONTENTS_VIEWPORTAL ))
+		if (Any( aasworld.areasettings[nextareanum].contents & areaContentsFlags_t::AREACONTENTS_VIEWPORTAL ))
 			continue;
 		if (AAS_AreaCluster(nextareanum) != cluster)
 			continue;
 		/*
-		if ((reach->traveltype & TRAVELTYPE_MASK) == TRAVEL_WALKOFFLEDGE)
+		if ((reach->traveltype & travelTypeFlags_t::TRAVELTYPE_MASK) == travelTypeFlags_t::TRAVEL_WALKOFFLEDGE)
 		{
-			AAS_DebugLine(reach->start, reach->end, LINECOLOR_RED);
+			AAS_DebugLine(reach->start, reach->end, lineColor_t::LINECOLOR_RED);
 		}
 		*/
 		AAS_FloodAreas_r(nextareanum, cluster, done);

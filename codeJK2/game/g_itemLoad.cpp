@@ -34,7 +34,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //bool COM_ParseString( char **data, char **s );
 //bool COM_ParseFloat( char **data, float *f );
 
-extern EnumArray<gitem_t, itemNum_t, to_underlying( ITM_NUM_ITEMS ) + 1>	bg_itemlist;
+extern EnumArray<gitem_t, itemNum_t, to_underlying( itemNum_t::ITM_NUM_ITEMS ) + 1>	bg_itemlist;
 
 static itemNum_t itemNum;
 
@@ -91,169 +91,169 @@ static void IT_Name( const char **holdBuf ) {
 	}
 
 	if ( !Q_stricmp( tokenStr, "ITM_NONE" ) ) {
-		itemNum = ITM_NONE;
+		itemNum = itemNum_t::ITM_NONE;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_STUN_BATON_PICKUP" ) ) {
-		itemNum = ITM_STUN_BATON_PICKUP;
+		itemNum = itemNum_t::ITM_STUN_BATON_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_SABER_PICKUP" ) ) {
-		itemNum = ITM_SABER_PICKUP;
+		itemNum = itemNum_t::ITM_SABER_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_BRYAR_PISTOL_PICKUP" ) ) {
-		itemNum = ITM_BRYAR_PISTOL_PICKUP;
+		itemNum = itemNum_t::ITM_BRYAR_PISTOL_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_BLASTER_PICKUP" ) ) {
-		itemNum = ITM_BLASTER_PICKUP;
+		itemNum = itemNum_t::ITM_BLASTER_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_DISRUPTOR_PICKUP" ) ) {
-		itemNum = ITM_DISRUPTOR_PICKUP;
+		itemNum = itemNum_t::ITM_DISRUPTOR_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_BOWCASTER_PICKUP" ) ) {
-		itemNum = ITM_BOWCASTER_PICKUP;
+		itemNum = itemNum_t::ITM_BOWCASTER_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_REPEATER_PICKUP" ) ) {
-		itemNum = ITM_REPEATER_PICKUP;
+		itemNum = itemNum_t::ITM_REPEATER_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_DEMP2_PICKUP" ) ) {
-		itemNum = ITM_DEMP2_PICKUP;
+		itemNum = itemNum_t::ITM_DEMP2_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_FLECHETTE_PICKUP" ) ) {
-		itemNum = ITM_FLECHETTE_PICKUP;
+		itemNum = itemNum_t::ITM_FLECHETTE_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_ROCKET_LAUNCHER_PICKUP" ) ) {
-		itemNum = ITM_ROCKET_LAUNCHER_PICKUP;
+		itemNum = itemNum_t::ITM_ROCKET_LAUNCHER_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_THERMAL_DET_PICKUP" ) ) {
-		itemNum = ITM_THERMAL_DET_PICKUP;
+		itemNum = itemNum_t::ITM_THERMAL_DET_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_TRIP_MINE_PICKUP" ) ) {
-		itemNum = ITM_TRIP_MINE_PICKUP;
+		itemNum = itemNum_t::ITM_TRIP_MINE_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_DET_PACK_PICKUP" ) ) {
-		itemNum = ITM_DET_PACK_PICKUP;
+		itemNum = itemNum_t::ITM_DET_PACK_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_BOT_LASER_PICKUP" ) ) {
-		itemNum = ITM_BOT_LASER_PICKUP;
+		itemNum = itemNum_t::ITM_BOT_LASER_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_EMPLACED_GUN_PICKUP" ) ) {
-		itemNum = ITM_EMPLACED_GUN_PICKUP;
+		itemNum = itemNum_t::ITM_EMPLACED_GUN_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_TURRET_PICKUP" ) ) {
-		itemNum = ITM_TURRET_PICKUP;
+		itemNum = itemNum_t::ITM_TURRET_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_MELEE" ) ) {
-		itemNum = ITM_MELEE;
+		itemNum = itemNum_t::ITM_MELEE;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_ATST_MAIN_PICKUP" ) ) {
-		itemNum = ITM_ATST_MAIN_PICKUP;
+		itemNum = itemNum_t::ITM_ATST_MAIN_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_ATST_SIDE_PICKUP" ) ) {
-		itemNum = ITM_ATST_SIDE_PICKUP;
+		itemNum = itemNum_t::ITM_ATST_SIDE_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_TIE_FIGHTER_PICKUP" ) ) {
-		itemNum = ITM_TIE_FIGHTER_PICKUP;
+		itemNum = itemNum_t::ITM_TIE_FIGHTER_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_RAPID_FIRE_CONC_PICKUP" ) ) {
-		itemNum = ITM_RAPID_FIRE_CONC_PICKUP;
+		itemNum = itemNum_t::ITM_RAPID_FIRE_CONC_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_AMMO_FORCE_PICKUP" ) ) {
-		itemNum = ITM_AMMO_FORCE_PICKUP;
+		itemNum = itemNum_t::ITM_AMMO_FORCE_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_AMMO_BLASTER_PICKUP" ) ) {
-		itemNum = ITM_AMMO_BLASTER_PICKUP;
+		itemNum = itemNum_t::ITM_AMMO_BLASTER_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_AMMO_POWERCELL_PICKUP" ) ) {
-		itemNum = ITM_AMMO_POWERCELL_PICKUP;
+		itemNum = itemNum_t::ITM_AMMO_POWERCELL_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_AMMO_METAL_BOLTS_PICKUP" ) ) {
-		itemNum = ITM_AMMO_METAL_BOLTS_PICKUP;
+		itemNum = itemNum_t::ITM_AMMO_METAL_BOLTS_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_AMMO_ROCKETS_PICKUP" ) ) {
-		itemNum = ITM_AMMO_ROCKETS_PICKUP;
+		itemNum = itemNum_t::ITM_AMMO_ROCKETS_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_AMMO_EMPLACED_PICKUP" ) ) {
-		itemNum = ITM_AMMO_EMPLACED_PICKUP;
+		itemNum = itemNum_t::ITM_AMMO_EMPLACED_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_AMMO_THERMAL_PICKUP" ) ) {
-		itemNum = ITM_AMMO_THERMAL_PICKUP;
+		itemNum = itemNum_t::ITM_AMMO_THERMAL_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_AMMO_TRIPMINE_PICKUP" ) ) {
-		itemNum = ITM_AMMO_TRIPMINE_PICKUP;
+		itemNum = itemNum_t::ITM_AMMO_TRIPMINE_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_AMMO_DETPACK_PICKUP" ) ) {
-		itemNum = ITM_AMMO_DETPACK_PICKUP;
+		itemNum = itemNum_t::ITM_AMMO_DETPACK_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_FORCE_HEAL_PICKUP" ) ) {
-		itemNum = ITM_FORCE_HEAL_PICKUP;
+		itemNum = itemNum_t::ITM_FORCE_HEAL_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_FORCE_LEVITATION_PICKUP" ) ) {
-		itemNum = ITM_FORCE_LEVITATION_PICKUP;
+		itemNum = itemNum_t::ITM_FORCE_LEVITATION_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_FORCE_SPEED_PICKUP" ) ) {
-		itemNum = ITM_FORCE_SPEED_PICKUP;
+		itemNum = itemNum_t::ITM_FORCE_SPEED_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_FORCE_PUSH_PICKUP" ) ) {
-		itemNum = ITM_FORCE_PUSH_PICKUP;
+		itemNum = itemNum_t::ITM_FORCE_PUSH_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_FORCE_PULL_PICKUP" ) ) {
-		itemNum = ITM_FORCE_PULL_PICKUP;
+		itemNum = itemNum_t::ITM_FORCE_PULL_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_FORCE_TELEPATHY_PICKUP" ) ) {
-		itemNum = ITM_FORCE_TELEPATHY_PICKUP;
+		itemNum = itemNum_t::ITM_FORCE_TELEPATHY_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_FORCE_GRIP_PICKUP" ) ) {
-		itemNum = ITM_FORCE_GRIP_PICKUP;
+		itemNum = itemNum_t::ITM_FORCE_GRIP_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_FORCE_LIGHTNING_PICKUP" ) ) {
-		itemNum = ITM_FORCE_LIGHTNING_PICKUP;
+		itemNum = itemNum_t::ITM_FORCE_LIGHTNING_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_FORCE_SABERTHROW_PICKUP" ) ) {
-		itemNum = ITM_FORCE_SABERTHROW_PICKUP;
+		itemNum = itemNum_t::ITM_FORCE_SABERTHROW_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_BATTERY_PICKUP" ) ) {
-		itemNum = ITM_BATTERY_PICKUP;
+		itemNum = itemNum_t::ITM_BATTERY_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_SEEKER_PICKUP" ) ) {
-		itemNum = ITM_SEEKER_PICKUP;
+		itemNum = itemNum_t::ITM_SEEKER_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_SHIELD_PICKUP" ) ) {
-		itemNum = ITM_SHIELD_PICKUP;
+		itemNum = itemNum_t::ITM_SHIELD_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_BACTA_PICKUP" ) ) {
-		itemNum = ITM_BACTA_PICKUP;
+		itemNum = itemNum_t::ITM_BACTA_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_DATAPAD_PICKUP" ) ) {
-		itemNum = ITM_DATAPAD_PICKUP;
+		itemNum = itemNum_t::ITM_DATAPAD_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_BINOCULARS_PICKUP" ) ) {
-		itemNum = ITM_BINOCULARS_PICKUP;
+		itemNum = itemNum_t::ITM_BINOCULARS_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_SENTRY_GUN_PICKUP" ) ) {
-		itemNum = ITM_SENTRY_GUN_PICKUP;
+		itemNum = itemNum_t::ITM_SENTRY_GUN_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_LA_GOGGLES_PICKUP" ) ) {
-		itemNum = ITM_LA_GOGGLES_PICKUP;
+		itemNum = itemNum_t::ITM_LA_GOGGLES_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_BLASTER_PISTOL_PICKUP" ) ) {
-		itemNum = ITM_BLASTER_PISTOL_PICKUP;
+		itemNum = itemNum_t::ITM_BLASTER_PISTOL_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_MEDPAK_PICKUP" ) ) {
-		itemNum = ITM_MEDPAK_PICKUP;
+		itemNum = itemNum_t::ITM_MEDPAK_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_SHIELD_SM_PICKUP" ) ) {
-		itemNum = ITM_SHIELD_SM_PICKUP;
+		itemNum = itemNum_t::ITM_SHIELD_SM_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_SHIELD_LRG_PICKUP" ) ) {
-		itemNum = ITM_SHIELD_LRG_PICKUP;
+		itemNum = itemNum_t::ITM_SHIELD_LRG_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_GOODIE_KEY_PICKUP" ) ) {
-		itemNum = ITM_GOODIE_KEY_PICKUP;
+		itemNum = itemNum_t::ITM_GOODIE_KEY_PICKUP;
 	}
 	else if ( !Q_stricmp( tokenStr, "ITM_SECURITY_KEY_PICKUP" ) ) {
-		itemNum = ITM_SECURITY_KEY_PICKUP;
+		itemNum = itemNum_t::ITM_SECURITY_KEY_PICKUP;
 	}
 	else {
-		itemNum = ITM_NONE;
+		itemNum = itemNum_t::ITM_NONE;
 		gi.Printf( "WARNING: bad itemname in external item data '%s'\n", tokenStr );
 	}
 
@@ -303,169 +303,169 @@ static void IT_Tag( const char **holdBuf ) {
 	}
 
 	if ( !Q_stricmp( tokenStr, "WP_NONE" ) ) {
-		tag = to_underlying( WP_NONE );
+		tag = to_underlying( weapon_t::WP_NONE );
 	}
 	else if ( !Q_stricmp( tokenStr,"WP_STUN_BATON" ) ) {
-		tag = to_underlying( WP_STUN_BATON );
+		tag = to_underlying( weapon_t::WP_STUN_BATON );
 	}
 	else if ( !Q_stricmp( tokenStr,"WP_SABER" ) ) {
-		tag = to_underlying( WP_SABER );
+		tag = to_underlying( weapon_t::WP_SABER );
 	}
 	else if ( !Q_stricmp( tokenStr,"WP_BRYAR_PISTOL" ) ) {
-		tag = to_underlying( WP_BRYAR_PISTOL );
+		tag = to_underlying( weapon_t::WP_BRYAR_PISTOL );
 	}
 	else if ( !Q_stricmp( tokenStr,"WP_BLASTER" ) ) {
-		tag = to_underlying( WP_BLASTER );
+		tag = to_underlying( weapon_t::WP_BLASTER );
 	}
 	else if ( !Q_stricmp( tokenStr,"WP_DISRUPTOR" ) ) {
-		tag = to_underlying( WP_DISRUPTOR );
+		tag = to_underlying( weapon_t::WP_DISRUPTOR );
 	}
 	else if ( !Q_stricmp( tokenStr,"WP_BOWCASTER" ) ) {
-		tag = to_underlying( WP_BOWCASTER );
+		tag = to_underlying( weapon_t::WP_BOWCASTER );
 	}
 	else if ( !Q_stricmp( tokenStr,"WP_REPEATER" ) ) {
-		tag = to_underlying( WP_REPEATER );
+		tag = to_underlying( weapon_t::WP_REPEATER );
 	}
 	else if ( !Q_stricmp( tokenStr,"WP_DEMP2" ) ) {
-		tag = to_underlying( WP_DEMP2 );
+		tag = to_underlying( weapon_t::WP_DEMP2 );
 	}
 	else if ( !Q_stricmp( tokenStr,"WP_FLECHETTE" ) ) {
-		tag = to_underlying( WP_FLECHETTE );
+		tag = to_underlying( weapon_t::WP_FLECHETTE );
 	}
 	else if ( !Q_stricmp( tokenStr,"WP_ROCKET_LAUNCHER" ) ) {
-		tag = to_underlying( WP_ROCKET_LAUNCHER );
+		tag = to_underlying( weapon_t::WP_ROCKET_LAUNCHER );
 	}
 	else if ( !Q_stricmp( tokenStr,"WP_THERMAL" ) ) {
-		tag = to_underlying( WP_THERMAL );
+		tag = to_underlying( weapon_t::WP_THERMAL );
 	}
 	else if ( !Q_stricmp( tokenStr,"WP_TRIP_MINE" ) ) {
-		tag = to_underlying( WP_TRIP_MINE );
+		tag = to_underlying( weapon_t::WP_TRIP_MINE );
 	}
 	else if ( !Q_stricmp( tokenStr,"WP_DET_PACK" ) ) {
-		tag = to_underlying( WP_DET_PACK );
+		tag = to_underlying( weapon_t::WP_DET_PACK );
 	}
 	else if ( !Q_stricmp( tokenStr,"WP_BOT_LASER" ) ) {
-		tag = to_underlying( WP_BOT_LASER );
+		tag = to_underlying( weapon_t::WP_BOT_LASER );
 	}
 	else if ( !Q_stricmp( tokenStr,"WP_EMPLACED_GUN" ) ) {
-		tag = to_underlying( WP_EMPLACED_GUN );
+		tag = to_underlying( weapon_t::WP_EMPLACED_GUN );
 	}
 	else if ( !Q_stricmp( tokenStr,"WP_MELEE" ) ) {
-		tag = to_underlying( WP_MELEE );
+		tag = to_underlying( weapon_t::WP_MELEE );
 	}
 	else if ( !Q_stricmp( tokenStr,"WP_TURRET" ) ) {
-		tag = to_underlying( WP_TURRET );
+		tag = to_underlying( weapon_t::WP_TURRET );
 	}
 	else if ( !Q_stricmp( tokenStr,"WP_ATST_MAIN" ) ) {
-		tag = to_underlying( WP_ATST_MAIN );
+		tag = to_underlying( weapon_t::WP_ATST_MAIN );
 	}
 	else if ( !Q_stricmp( tokenStr,"WP_ATST_SIDE" ) ) {
-		tag = to_underlying( WP_ATST_SIDE );
+		tag = to_underlying( weapon_t::WP_ATST_SIDE );
 	}
 	else if ( !Q_stricmp( tokenStr,"WP_TIE_FIGHTER" ) ) {
-		tag = to_underlying( WP_TIE_FIGHTER );
+		tag = to_underlying( weapon_t::WP_TIE_FIGHTER );
 	}
 	else if ( !Q_stricmp( tokenStr,"WP_RAPID_FIRE_CONC" ) ) {
-		tag = to_underlying( WP_RAPID_FIRE_CONC );
+		tag = to_underlying( weapon_t::WP_RAPID_FIRE_CONC );
 	}
 	else if ( !Q_stricmp( tokenStr,"WP_BLASTER_PISTOL" ) ) {
-		tag = to_underlying( WP_BLASTER_PISTOL );
+		tag = to_underlying( weapon_t::WP_BLASTER_PISTOL );
 	}
 	else if ( !Q_stricmp( tokenStr,"AMMO_FORCE" ) ) {
-		tag = to_underlying( AMMO_FORCE );
+		tag = to_underlying( ammo_t::AMMO_FORCE );
 	}
 	else if ( !Q_stricmp( tokenStr,"AMMO_BLASTER" ) ) {
-		tag = to_underlying( AMMO_BLASTER );
+		tag = to_underlying( ammo_t::AMMO_BLASTER );
 	}
 	else if ( !Q_stricmp( tokenStr,"AMMO_POWERCELL" ) ) {
-		tag = to_underlying( AMMO_POWERCELL );
+		tag = to_underlying( ammo_t::AMMO_POWERCELL );
 	}
 	else if ( !Q_stricmp( tokenStr,"AMMO_METAL_BOLTS" ) ) {
-		tag = to_underlying( AMMO_METAL_BOLTS );
+		tag = to_underlying( ammo_t::AMMO_METAL_BOLTS );
 	}
 	else if ( !Q_stricmp( tokenStr,"AMMO_ROCKETS" ) ) {
-		tag = to_underlying( AMMO_ROCKETS );
+		tag = to_underlying( ammo_t::AMMO_ROCKETS );
 	}
 	else if ( !Q_stricmp( tokenStr,"AMMO_EMPLACED" ) ) {
-		tag = to_underlying( AMMO_EMPLACED );
+		tag = to_underlying( ammo_t::AMMO_EMPLACED );
 	}
 	else if ( !Q_stricmp( tokenStr,"AMMO_THERMAL" ) ) {
-		tag = to_underlying( AMMO_THERMAL );
+		tag = to_underlying( ammo_t::AMMO_THERMAL );
 	}
 	else if ( !Q_stricmp( tokenStr,"AMMO_TRIPMINE" ) ) {
-		tag = to_underlying( AMMO_TRIPMINE );
+		tag = to_underlying( ammo_t::AMMO_TRIPMINE );
 	}
 	else if ( !Q_stricmp( tokenStr,"AMMO_DETPACK" ) ) {
-		tag = to_underlying( AMMO_DETPACK );
+		tag = to_underlying( ammo_t::AMMO_DETPACK );
 	}
 	else if ( !Q_stricmp( tokenStr,"FP_HEAL" ) ) {
-		tag = to_underlying( FP_HEAL );
+		tag = to_underlying( forcePowers_t::FP_HEAL );
 	}
 	else if ( !Q_stricmp( tokenStr,"FP_LEVITATION" ) ) {
-		tag = to_underlying( FP_LEVITATION );
+		tag = to_underlying( forcePowers_t::FP_LEVITATION );
 	}
 	else if ( !Q_stricmp( tokenStr,"FP_SPEED" ) ) {
-		tag = to_underlying( FP_SPEED );
+		tag = to_underlying( forcePowers_t::FP_SPEED );
 	}
 	else if ( !Q_stricmp( tokenStr,"FP_PUSH" ) ) {
-		tag = to_underlying( FP_PUSH );
+		tag = to_underlying( forcePowers_t::FP_PUSH );
 	}
 	else if ( !Q_stricmp( tokenStr,"FP_PULL" ) ) {
-		tag = to_underlying( FP_PULL );
+		tag = to_underlying( forcePowers_t::FP_PULL );
 	}
 	else if ( !Q_stricmp( tokenStr,"FP_TELEPATHY" ) ) {
-		tag = to_underlying( FP_TELEPATHY );
+		tag = to_underlying( forcePowers_t::FP_TELEPATHY );
 	}
 	else if ( !Q_stricmp( tokenStr,"FP_GRIP" ) ) {
-		tag = to_underlying( FP_GRIP );
+		tag = to_underlying( forcePowers_t::FP_GRIP );
 	}
 	else if ( !Q_stricmp( tokenStr,"FP_LIGHTNING" ) ) {
-		tag = to_underlying( FP_LIGHTNING );
+		tag = to_underlying( forcePowers_t::FP_LIGHTNING );
 	}
 	else if ( !Q_stricmp( tokenStr,"FP_SABERTHROW" ) ) {
-		tag = to_underlying( FP_SABERTHROW );
+		tag = to_underlying( forcePowers_t::FP_SABERTHROW );
 	}
 	else if ( !Q_stricmp( tokenStr,"ITM_BATTERY_PICKUP" ) ) {
-		tag = to_underlying( ITM_BATTERY_PICKUP );
+		tag = to_underlying( itemNum_t::ITM_BATTERY_PICKUP );
 	}
 	else if ( !Q_stricmp( tokenStr,"INV_SEEKER" ) ) {
-		tag = to_underlying( INV_SEEKER );
+		tag = to_underlying( inventory_t::INV_SEEKER );
 	}
 	else if ( !Q_stricmp( tokenStr,"ITM_SHIELD_PICKUP" ) ) {
-		tag = to_underlying( ITM_SHIELD_PICKUP );
+		tag = to_underlying( itemNum_t::ITM_SHIELD_PICKUP );
 	}
 	else if ( !Q_stricmp( tokenStr,"INV_BACTA_CANISTER" ) ) {
-		tag = to_underlying( INV_BACTA_CANISTER );
+		tag = to_underlying( inventory_t::INV_BACTA_CANISTER );
 	}
 	else if ( !Q_stricmp( tokenStr,"ITM_DATAPAD_PICKUP" ) ) {
-		tag = to_underlying( ITM_DATAPAD_PICKUP );
+		tag = to_underlying( itemNum_t::ITM_DATAPAD_PICKUP );
 	}
 	else if ( !Q_stricmp( tokenStr,"INV_ELECTROBINOCULARS" ) ) {
-		tag = to_underlying( INV_ELECTROBINOCULARS );
+		tag = to_underlying( inventory_t::INV_ELECTROBINOCULARS );
 	}
 	else if ( !Q_stricmp( tokenStr,"INV_SENTRY" ) ) {
-		tag = to_underlying( INV_SENTRY );
+		tag = to_underlying( inventory_t::INV_SENTRY );
 	}
 	else if ( !Q_stricmp( tokenStr,"INV_LIGHTAMP_GOGGLES" ) ) {
-		tag = to_underlying( INV_LIGHTAMP_GOGGLES );
+		tag = to_underlying( inventory_t::INV_LIGHTAMP_GOGGLES );
 	}
 	else if ( !Q_stricmp( tokenStr,"INV_GOODIE_KEY" ) ) {
-		tag = to_underlying( INV_GOODIE_KEY );
+		tag = to_underlying( inventory_t::INV_GOODIE_KEY );
 	}
 	else if ( !Q_stricmp( tokenStr,"INV_SECURITY_KEY" ) ) {
-		tag = to_underlying( INV_SECURITY_KEY );
+		tag = to_underlying( inventory_t::INV_SECURITY_KEY );
 	}
 	else if ( !Q_stricmp( tokenStr,"ITM_MEDPAK_PICKUP" ) ) {
-		tag = to_underlying( ITM_MEDPAK_PICKUP );
+		tag = to_underlying( itemNum_t::ITM_MEDPAK_PICKUP );
 	}
 	else if ( !Q_stricmp( tokenStr,"ITM_SHIELD_SM_PICKUP" ) ) {
-		tag = to_underlying( ITM_SHIELD_SM_PICKUP );
+		tag = to_underlying( itemNum_t::ITM_SHIELD_SM_PICKUP );
 	}
 	else if ( !Q_stricmp( tokenStr,"ITM_SHIELD_LRG_PICKUP" ) ) {
-		tag = to_underlying( ITM_SHIELD_LRG_PICKUP );
+		tag = to_underlying( itemNum_t::ITM_SHIELD_LRG_PICKUP );
 	}
 	else {
-		tag = to_underlying( WP_BRYAR_PISTOL );
+		tag = to_underlying( weapon_t::WP_BRYAR_PISTOL );
 		gi.Printf( "WARNING: bad tagname in external item data '%s'\n", tokenStr );
 	}
 
@@ -482,31 +482,31 @@ static void IT_Type( const char **holdBuf ) {
 	}
 
 	if ( !Q_stricmp( tokenStr, "IT_BAD" ) ) {
-		type = IT_BAD;
+		type = itemType_t::IT_BAD;
 	}
 	else if ( !Q_stricmp( tokenStr, "IT_WEAPON" ) ) {
-		type = IT_WEAPON;
+		type = itemType_t::IT_WEAPON;
 	}
 	else if ( !Q_stricmp( tokenStr, "IT_AMMO" ) ) {
-		type = IT_AMMO;
+		type = itemType_t::IT_AMMO;
 	}
 	else if ( !Q_stricmp( tokenStr, "IT_ARMOR" ) ) {
-		type = IT_ARMOR;
+		type = itemType_t::IT_ARMOR;
 	}
 	else if ( !Q_stricmp( tokenStr, "IT_HEALTH" ) ) {
-		type = IT_HEALTH;
+		type = itemType_t::IT_HEALTH;
 	}
 	else if ( !Q_stricmp( tokenStr, "IT_HOLDABLE" ) ) {
-		type = IT_HOLDABLE;
+		type = itemType_t::IT_HOLDABLE;
 	}
 	else if ( !Q_stricmp( tokenStr, "IT_BATTERY" ) ) {
-		type = IT_BATTERY;
+		type = itemType_t::IT_BATTERY;
 	}
 	else if ( !Q_stricmp( tokenStr, "IT_HOLOCRON" ) ) {
-		type = IT_HOLOCRON;
+		type = itemType_t::IT_HOLOCRON;
 	}
 	else {
-		type = IT_BAD;
+		type = itemType_t::IT_BAD;
 		gi.Printf( "WARNING: bad itemname in external item data '%s'\n", tokenStr );
 	}
 

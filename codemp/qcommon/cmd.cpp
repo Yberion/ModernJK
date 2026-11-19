@@ -148,7 +148,7 @@ void Cbuf_ExecuteText (cbufExec_t exec_when, const char *text)
 {
 	switch (exec_when)
 	{
-	case EXEC_NOW:
+	case cbufExec_t::EXEC_NOW:
 		if (text && strlen(text) > 0) {
 			Com_DPrintf(S_COLOR_YELLOW "EXEC_NOW %s\n", text);
 			Cmd_ExecuteString (text);
@@ -157,14 +157,14 @@ void Cbuf_ExecuteText (cbufExec_t exec_when, const char *text)
 			Com_DPrintf(S_COLOR_YELLOW "EXEC_NOW %s\n", cmd_text.data);
 		}
 		break;
-	case EXEC_INSERT:
+	case cbufExec_t::EXEC_INSERT:
 		Cbuf_InsertText (text);
 		break;
-	case EXEC_APPEND:
+	case cbufExec_t::EXEC_APPEND:
 		Cbuf_AddText (text);
 		break;
 	default:
-		Com_Error (ERR_FATAL, "Cbuf_ExecuteText: bad exec_when");
+		Com_Error (errorParm_t::ERR_FATAL, "Cbuf_ExecuteText: bad exec_when");
 	}
 }
 

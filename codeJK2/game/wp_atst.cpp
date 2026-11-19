@@ -35,7 +35,7 @@ void WP_ATSTMainFire( gentity_t *ent )
 {
 	float vel = ATST_MAIN_VEL;
 
-//	if ( ent->client && Any(ent->client->ps.eFlags & EF_IN_ATST ))
+//	if ( ent->client && Any(ent->client->ps.eFlags & entityFlags_t::EF_IN_ATST ))
 //	{
 //		vel = 4500.0f;
 //	}
@@ -49,12 +49,12 @@ void WP_ATSTMainFire( gentity_t *ent )
 	gentity_t	*missile = CreateMissile( wpMuzzle, wpFwd, vel, 10000, ent );
 
 	missile->classname = "atst_main_proj";
-	missile->s.weapon = WP_ATST_MAIN;
+	missile->s.weapon = weapon_t::WP_ATST_MAIN;
 
-	missile->damage = weaponData[WP_ATST_MAIN].damage;
-	missile->dflags = DAMAGE_DEATH_KNOCKBACK|DAMAGE_HEAVY_WEAP_CLASS;
-	missile->methodOfDeath = MOD_ENERGY;
-	missile->clipmask = MASK_SHOT | CONTENTS_LIGHTSABER;
+	missile->damage = weaponData[weapon_t::WP_ATST_MAIN].damage;
+	missile->dflags = damageFlags_t::DAMAGE_DEATH_KNOCKBACK|damageFlags_t::DAMAGE_HEAVY_WEAP_CLASS;
+	missile->methodOfDeath = meansOfDeath_t::MOD_ENERGY;
+	missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
 
 	missile->owner = ent;
 
@@ -68,10 +68,10 @@ void WP_ATSTMainFire( gentity_t *ent )
 void WP_ATSTSideAltFire( gentity_t *ent )
 //---------------------------------------------------------
 {
-	int	damage	= weaponData[WP_ATST_SIDE].altDamage;
+	int	damage	= weaponData[weapon_t::WP_ATST_SIDE].altDamage;
 	float	vel = ATST_SIDE_ALT_NPC_VELOCITY;
 
-	if ( ent->client && Any(ent->client->ps.eFlags & EF_IN_ATST ))
+	if ( ent->client && Any(ent->client->ps.eFlags & entityFlags_t::EF_IN_ATST ))
 	{
 		vel = ATST_SIDE_ALT_VELOCITY;
 	}
@@ -79,7 +79,7 @@ void WP_ATSTSideAltFire( gentity_t *ent )
 	gentity_t *missile = CreateMissile( wpMuzzle, wpFwd, vel, 10000, ent, true );
 
 	missile->classname = "atst_rocket";
-	missile->s.weapon = WP_ATST_SIDE;
+	missile->s.weapon = weapon_t::WP_ATST_SIDE;
 
 	missile->mass = 10;
 
@@ -107,14 +107,14 @@ void WP_ATSTSideAltFire( gentity_t *ent )
 	VectorScale( missile->maxs, -1, missile->mins );
 
 	missile->damage = damage;
-	missile->dflags = DAMAGE_DEATH_KNOCKBACK | DAMAGE_HEAVY_WEAP_CLASS;
-	missile->methodOfDeath = MOD_EXPLOSIVE;
-	missile->splashMethodOfDeath = MOD_EXPLOSIVE_SPLASH;
-	missile->clipmask = MASK_SHOT | CONTENTS_LIGHTSABER;
+	missile->dflags = damageFlags_t::DAMAGE_DEATH_KNOCKBACK | damageFlags_t::DAMAGE_HEAVY_WEAP_CLASS;
+	missile->methodOfDeath = meansOfDeath_t::MOD_EXPLOSIVE;
+	missile->splashMethodOfDeath = meansOfDeath_t::MOD_EXPLOSIVE_SPLASH;
+	missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
 
 	// Scale damage down a bit if it is coming from an NPC
-	missile->splashDamage = weaponData[WP_ATST_SIDE].altSplashDamage * ( ent->s.number == 0 ? 1.0f : ATST_SIDE_ALT_ROCKET_SPLASH_SCALE );
-	missile->splashRadius = weaponData[WP_ATST_SIDE].altSplashRadius;
+	missile->splashDamage = weaponData[weapon_t::WP_ATST_SIDE].altSplashDamage * ( ent->s.number == 0 ? 1.0f : ATST_SIDE_ALT_ROCKET_SPLASH_SCALE );
+	missile->splashRadius = weaponData[weapon_t::WP_ATST_SIDE].altSplashRadius;
 
 	// we don't want it to ever bounce
 	missile->bounceCount = 0;
@@ -125,12 +125,12 @@ void WP_ATSTSideAltFire( gentity_t *ent )
 void WP_ATSTSideFire( gentity_t *ent )
 //---------------------------------------------------------
 {
-	int	damage	= weaponData[WP_ATST_SIDE].damage;
+	int	damage	= weaponData[weapon_t::WP_ATST_SIDE].damage;
 
 	gentity_t *missile = CreateMissile( wpMuzzle, wpFwd, ATST_SIDE_MAIN_VELOCITY, 10000, ent, false );
 
 	missile->classname = "atst_side_proj";
-	missile->s.weapon = WP_ATST_SIDE;
+	missile->s.weapon = weapon_t::WP_ATST_SIDE;
 
 	// Do the damages
 	if ( ent->s.number != 0 )
@@ -153,12 +153,12 @@ void WP_ATSTSideFire( gentity_t *ent )
 	VectorScale( missile->maxs, -1, missile->mins );
 
 	missile->damage = damage;
-	missile->dflags = DAMAGE_DEATH_KNOCKBACK|DAMAGE_HEAVY_WEAP_CLASS;
-	missile->methodOfDeath = MOD_ENERGY;
-	missile->clipmask = MASK_SHOT | CONTENTS_LIGHTSABER;
+	missile->dflags = damageFlags_t::DAMAGE_DEATH_KNOCKBACK|damageFlags_t::DAMAGE_HEAVY_WEAP_CLASS;
+	missile->methodOfDeath = meansOfDeath_t::MOD_ENERGY;
+	missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
 
-	missile->splashDamage = weaponData[WP_ATST_SIDE].splashDamage * ( ent->s.number == 0 ? 1.0f : 0.6f );
-	missile->splashRadius = weaponData[WP_ATST_SIDE].splashRadius;
+	missile->splashDamage = weaponData[weapon_t::WP_ATST_SIDE].splashDamage * ( ent->s.number == 0 ? 1.0f : 0.6f );
+	missile->splashRadius = weaponData[weapon_t::WP_ATST_SIDE].splashRadius;
 
 	// we don't want it to bounce
 	missile->bounceCount = 0;

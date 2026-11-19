@@ -156,7 +156,7 @@ bool RE_RegisterModels_GetDiskFile( const char *psModelFileName, void **ppvBuffe
 			{
 				// return fake params as though it was found on disk...
 				//
-				void *pvFakeGLAFile = R_Malloc( sizeof(FakeGLAFile), TAG_FILESYS, false );
+				void *pvFakeGLAFile = R_Malloc( sizeof(FakeGLAFile), memtag::TAG_FILESYS, false );
 				memcpy(pvFakeGLAFile, &FakeGLAFile[0],  sizeof(FakeGLAFile));
 				*ppvBuffer = pvFakeGLAFile;
 				*pqbAlreadyCached = false;	// faking it like this should mean that it works fine on the Mac as well
@@ -245,9 +245,9 @@ void *RE_RegisterModels_Malloc(int iSize, void *pvDiskBufferIfJustLoaded, const 
 //
 static int GetModelDataAllocSize(void)
 {
-	return	R_MemSize( TAG_MODEL_MD3) +
-			R_MemSize( TAG_MODEL_GLM) +
-			R_MemSize( TAG_MODEL_GLA);
+	return	R_MemSize( memtag::TAG_MODEL_MD3) +
+			R_MemSize( memtag::TAG_MODEL_GLM) +
+			R_MemSize( memtag::TAG_MODEL_GLA);
 }
 extern cvar_t *r_modelpoolmegs;
 //
@@ -288,8 +288,8 @@ bool RE_RegisterModels_LevelLoadEnd(bool bDeleteEverythingNotUsedThisLevel /* = 
 			{
 	#ifdef _DEBUG
 //				LPCSTR psModelName = (*itModel).first.c_str();
-//				ri.Printf( PRINT_DEVELOPER, "Dumping \"%s\"", psModelName);
-//				ri.Printf( PRINT_DEVELOPER, ", used on lvl %d\n",CachedModel.iLastLevelUsedOn);
+//				ri.Printf( printParm_t::PRINT_DEVELOPER, "Dumping \"%s\"", psModelName);
+//				ri.Printf( printParm_t::PRINT_DEVELOPER, ", used on lvl %d\n",CachedModel.iLastLevelUsedOn);
 	#endif
 
 				if (CachedModel.pModelDiskImage) {
@@ -308,7 +308,7 @@ bool RE_RegisterModels_LevelLoadEnd(bool bDeleteEverythingNotUsedThisLevel /* = 
 		}
 	}
 
-	//ri.Printf( PRINT_DEVELOPER, "RE_RegisterModels_LevelLoadEnd(): Ok\n");
+	//ri.Printf( printParm_t::PRINT_DEVELOPER, "RE_RegisterModels_LevelLoadEnd(): Ok\n");
 
 	return bAtLeastoneModelFreed;
 }
@@ -328,15 +328,15 @@ void RE_RegisterModels_Info_f( void )
 	{
 		CachedEndianedModelBinary_t &CachedModel = (*itModel).second;
 
-		ri.Printf( PRINT_ALL, "%d/%d: \"%s\" (%d bytes)",iModel,iModels,(*itModel).first.c_str(),CachedModel.iAllocSize );
+		ri.Printf( printParm_t::PRINT_ALL, "%d/%d: \"%s\" (%d bytes)",iModel,iModels,(*itModel).first.c_str(),CachedModel.iAllocSize );
 
 		#ifdef _DEBUG
-		ri.Printf( PRINT_ALL, ", lvl %d\n",CachedModel.iLastLevelUsedOn);
+		ri.Printf( printParm_t::PRINT_ALL, ", lvl %d\n",CachedModel.iLastLevelUsedOn);
 		#endif
 
 		iTotalBytes += CachedModel.iAllocSize;
 	}
-	ri.Printf( PRINT_ALL, "%d bytes total (%.2fMB)\n",iTotalBytes, (float)iTotalBytes / 1024.0f / 1024.0f);
+	ri.Printf( printParm_t::PRINT_ALL, "%d bytes total (%.2fMB)\n",iTotalBytes, (float)iTotalBytes / 1024.0f / 1024.0f);
 }
 
 
@@ -378,18 +378,18 @@ void RE_RegisterMedia_LevelLoadBegin(const char *psMapName, ForceReload_e eForce
 	//
 	switch (eForceReload)
 	{
-		case eForceReload_BSP:
+		case ForceReload_e::eForceReload_BSP:
 
 			ri.CM_DeleteCachedMap(true);
 			R_Images_DeleteLightMaps();
 			break;
 
-		case eForceReload_MODELS:
+		case ForceReload_e::eForceReload_MODELS:
 
 			RE_RegisterModels_DeleteAll();
 			break;
 
-		case eForceReload_ALL:
+		case ForceReload_e::eForceReload_ALL:
 
 			// BSP...
 			//
@@ -557,12 +557,12 @@ Ghoul2 Insert End
 */
 
 	if ( !name || !name[0] ) {
-		ri.Printf( PRINT_WARNING, "RE_RegisterModel: NULL name\n" );
+		ri.Printf( printParm_t::PRINT_WARNING, "RE_RegisterModel: NULL name\n" );
 		return 0;
 	}
 
 	if ( strlen( name ) >= MAX_QPATH ) {
-		ri.Printf( PRINT_DEVELOPER, "Model name exceeds MAX_QPATH\n" );
+		ri.Printf( printParm_t::PRINT_DEVELOPER, "Model name exceeds MAX_QPATH\n" );
 		return 0;
 	}
 
@@ -570,7 +570,7 @@ Ghoul2 Insert End
 Ghoul2 Insert Start
 */
 //	if (!tr.registered) {
-//		ri.Printf( PRINT_WARNING, "RE_RegisterModel (%s) called before ready!\n",name );
+//		ri.Printf( printParm_t::PRINT_WARNING, "RE_RegisterModel (%s) called before ready!\n",name );
 //		return 0;
 //	}
 	//
@@ -584,7 +584,7 @@ Ghoul2 Insert Start
 	//_
 	for (mh=mhHashTable[hash]; mh; mh=mh->next) {
 		if (Q_stricmp(mh->name, name) == 0) {
-			if (tr.models[mh->handle]->type == MOD_BAD)
+			if (tr.models[mh->handle]->type == modtype_t::MOD_BAD)
 			{
 				return 0;
 			}
@@ -620,7 +620,7 @@ Ghoul2 Insert End
 	// allocate a new model_t
 
 	if ( ( mod = R_AllocModel() ) == nullptr ) {
-		ri.Printf( PRINT_WARNING, "RE_RegisterModel: R_AllocModel() failed for '%s'\n", name);
+		ri.Printf( printParm_t::PRINT_WARNING, "RE_RegisterModel: R_AllocModel() failed for '%s'\n", name);
 		return 0;
 	}
 
@@ -661,7 +661,7 @@ Ghoul2 Insert End
 		{
 			if (numLoaded)	//we loaded one already, but a higher LOD is missing!
 			{
-				Com_Error (ERR_DROP, "R_LoadMD3: %s has LOD %d but is missing LOD %d ('%s')!", mod->name, lod+1, lod, filename);
+				Com_Error (errorParm_t::ERR_DROP, "R_LoadMD3: %s has LOD %d but is missing LOD %d ('%s')!", mod->name, lod+1, lod, filename);
 			}
 			continue;
 		}
@@ -700,7 +700,7 @@ Ghoul2 Insert End
 
 			default:
 
-				ri.Printf (PRINT_WARNING,"RE_RegisterModel: unknown fileid for %s\n", filename);
+				ri.Printf (printParm_t::PRINT_WARNING,"RE_RegisterModel: unknown fileid for %s\n", filename);
 				goto fail;
 		}
 
@@ -710,7 +710,7 @@ Ghoul2 Insert End
 
 		if ( !loaded ) {
 			if ( lod == 0 ) {
-				ri.Printf (PRINT_WARNING,"RE_RegisterModel: cannot load %s\n", filename);
+				ri.Printf (printParm_t::PRINT_WARNING,"RE_RegisterModel: cannot load %s\n", filename);
 				goto fail;
 			} else {
 				break;
@@ -750,7 +750,7 @@ Ghoul2 Insert End
 fail:
 	// we still keep the model_t around, so if the model name is asked for
 	// again, we won't bother scanning the filesystem
-	mod->type = MOD_BAD;
+	mod->type = modtype_t::MOD_BAD;
 	RE_InsertModelIntoHash(name, mod);
 	return 0;
 }
@@ -812,16 +812,16 @@ static bool R_LoadMD3 (model_t *mod, int lod, void *buffer, const char *mod_name
 	}
 
 	if (version != MD3_VERSION) {
-		ri.Printf( PRINT_WARNING, "R_LoadMD3: %s has wrong version (%i should be %i)\n",
+		ri.Printf( printParm_t::PRINT_WARNING, "R_LoadMD3: %s has wrong version (%i should be %i)\n",
 				 mod_name, version, MD3_VERSION);
 		return false;
 	}
 
-	mod->type      = MOD_MESH;
+	mod->type      = modtype_t::MOD_MESH;
 	mod->dataSize += size;
 
 	bool bAlreadyFound = false;
-	mod->md3[lod] = (md3Header_t *) RE_RegisterModels_Malloc(size, buffer, mod_name, &bAlreadyFound, TAG_MODEL_MD3);
+	mod->md3[lod] = (md3Header_t *) RE_RegisterModels_Malloc(size, buffer, mod_name, &bAlreadyFound, memtag::TAG_MODEL_MD3);
 
 	assert(bAlreadyCached == bAlreadyFound);
 
@@ -849,7 +849,7 @@ static bool R_LoadMD3 (model_t *mod, int lod, void *buffer, const char *mod_name
 	}
 
 	if ( mod->md3[lod]->numFrames < 1 ) {
-		ri.Printf( PRINT_WARNING, "R_LoadMD3: %s has no frames\n", mod_name );
+		ri.Printf( printParm_t::PRINT_WARNING, "R_LoadMD3: %s has no frames\n", mod_name );
 		return false;
 	}
 
@@ -897,16 +897,16 @@ static bool R_LoadMD3 (model_t *mod, int lod, void *buffer, const char *mod_name
         LL(surf->ofsEnd);
 
 		if ( surf->numVerts > SHADER_MAX_VERTEXES ) {
-			Com_Error (ERR_DROP, "R_LoadMD3: %s has more than %i verts on a surface (%i)",
+			Com_Error (errorParm_t::ERR_DROP, "R_LoadMD3: %s has more than %i verts on a surface (%i)",
 				mod_name, SHADER_MAX_VERTEXES, surf->numVerts );
 		}
 		if ( surf->numTriangles*3 > SHADER_MAX_INDEXES ) {
-			Com_Error (ERR_DROP, "R_LoadMD3: %s has more than %i triangles on a surface (%i)",
+			Com_Error (errorParm_t::ERR_DROP, "R_LoadMD3: %s has more than %i triangles on a surface (%i)",
 				mod_name, SHADER_MAX_INDEXES / 3, surf->numTriangles );
 		}
 
 		// change to surface identifier
-		surf->ident = to_underlying( SF_MD3 );
+		surf->ident = to_underlying( surfaceType_t::SF_MD3 );
 
 		// lowercase the surface name so skin compares are faster
 		Q_strlwr( surf->name );
@@ -1021,7 +1021,7 @@ Ghoul2 Insert End
 */
 
 	mod = R_AllocModel();
-	mod->type = MOD_BAD;
+	mod->type = modtype_t::MOD_BAD;
 
 }
 
@@ -1044,28 +1044,28 @@ void R_Modellist_f( void ) {
 		{
 			default:
 				assert(0);
-				ri.Printf( PRINT_ALL, "UNKNOWN  :      %s\n", mod->name );
+				ri.Printf( printParm_t::PRINT_ALL, "UNKNOWN  :      %s\n", mod->name );
 				break;
 
-			case MOD_BAD:
-				ri.Printf( PRINT_ALL, "MOD_BAD  :      %s\n", mod->name );
+			case modtype_t::MOD_BAD:
+				ri.Printf( printParm_t::PRINT_ALL, "MOD_BAD  :      %s\n", mod->name );
 				break;
 
-			case MOD_BRUSH:
-				ri.Printf( PRINT_ALL, "%8i : (%i) %s\n", mod->dataSize, mod->numLods, mod->name );
+			case modtype_t::MOD_BRUSH:
+				ri.Printf( printParm_t::PRINT_ALL, "%8i : (%i) %s\n", mod->dataSize, mod->numLods, mod->name );
 				break;
 
-			case MOD_MDXA:
+			case modtype_t::MOD_MDXA:
 
-				ri.Printf( PRINT_ALL, "%8i : (%i) %s\n", mod->dataSize, mod->numLods, mod->name );
+				ri.Printf( printParm_t::PRINT_ALL, "%8i : (%i) %s\n", mod->dataSize, mod->numLods, mod->name );
 				break;
 
-			case MOD_MDXM:
+			case modtype_t::MOD_MDXM:
 
-				ri.Printf( PRINT_ALL, "%8i : (%i) %s\n", mod->dataSize, mod->numLods, mod->name );
+				ri.Printf( printParm_t::PRINT_ALL, "%8i : (%i) %s\n", mod->dataSize, mod->numLods, mod->name );
 				break;
 
-			case MOD_MESH:
+			case modtype_t::MOD_MESH:
 
 				lods = 1;
 				for ( j = 1 ; j < MD3_MAX_LODS ; j++ ) {
@@ -1073,16 +1073,16 @@ void R_Modellist_f( void ) {
 						lods++;
 					}
 				}
-				ri.Printf( PRINT_ALL, "%8i : (%i) %s\n",mod->dataSize, lods, mod->name );
+				ri.Printf( printParm_t::PRINT_ALL, "%8i : (%i) %s\n",mod->dataSize, lods, mod->name );
 				break;
 		}
 		total += mod->dataSize;
 	}
-	ri.Printf( PRINT_ALL, "%8i : Total models\n", total );
+	ri.Printf( printParm_t::PRINT_ALL, "%8i : Total models\n", total );
 
 /*	this doesn't work with the new hunks
 	if ( tr.world ) {
-		ri.Printf( PRINT_ALL, "%8i : %s\n", tr.world->dataSize, tr.world->name );
+		ri.Printf( printParm_t::PRINT_ALL, "%8i : %s\n", tr.world->dataSize, tr.world->name );
 	} */
 }
 

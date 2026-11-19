@@ -153,7 +153,7 @@ const char	*bg_customSiegeSoundNames[MAX_CUSTOM_SIEGE_SOUNDS] =
 //rww - not putting @ in front of these because
 //we don't need them in a cgame StringEd lookup.
 //Let me know if this causes problems, pat.
-const EnumArray<const char *, forceMasteries_t, NUM_FORCE_MASTERY_LEVELS> forceMasteryLevels =
+const EnumArray<const char *, forceMasteries_t, forceMasteries_t::NUM_FORCE_MASTERY_LEVELS> forceMasteryLevels =
 {
 	"MASTERY0",	//"Uninitiated",	// FORCE_MASTERY_UNINITIATED,
 	"MASTERY1",	//"Initiate",		// FORCE_MASTERY_INITIATE,
@@ -165,7 +165,7 @@ const EnumArray<const char *, forceMasteries_t, NUM_FORCE_MASTERY_LEVELS> forceM
 	"MASTERY7",	//"Jedi Master"		// FORCE_MASTERY_JEDI_MASTER,
 };
 
-const EnumArray<int, forceMasteries_t, NUM_FORCE_MASTERY_LEVELS> forceMasteryPoints =
+const EnumArray<int, forceMasteries_t, forceMasteries_t::NUM_FORCE_MASTERY_LEVELS> forceMasteryPoints =
 {
 	0,		// FORCE_MASTERY_UNINITIATED,
 	5,		// FORCE_MASTERY_INITIATE,
@@ -177,7 +177,7 @@ const EnumArray<int, forceMasteries_t, NUM_FORCE_MASTERY_LEVELS> forceMasteryPoi
 	100		// FORCE_MASTERY_JEDI_MASTER,
 };
 
-EnumArray<EnumArray<int, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS>, forcePowers_t, NUM_FORCE_POWERS> bgForcePowerCost = //0 == neutral
+EnumArray<EnumArray<int, forcePowerLevels_t, forcePowerLevels_t::NUM_FORCE_POWER_LEVELS>, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS> bgForcePowerCost = //0 == neutral
 {{
 	{	0,	2,	4,	6	},	// Heal			// FP_HEAL
 	{	0,	0,	2,	6	},	// Jump			//FP_LEVITATION,//hold/duration
@@ -200,29 +200,29 @@ EnumArray<EnumArray<int, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS>, forcePower
 	//NUM_FORCE_POWERS
 }};
 
-forcePowers_t forcePowerSorted[to_underlying( NUM_FORCE_POWERS )] =
+forcePowers_t forcePowerSorted[to_underlying( forcePowers_t::NUM_FORCE_POWERS )] =
 { //rww - always use this order when drawing force powers for any reason
-	FP_TELEPATHY,
-	FP_HEAL,
-	FP_ABSORB,
-	FP_PROTECT,
-	FP_TEAM_HEAL,
-	FP_LEVITATION,
-	FP_SPEED,
-	FP_PUSH,
-	FP_PULL,
-	FP_SEE,
-	FP_LIGHTNING,
-	FP_DRAIN,
-	FP_RAGE,
-	FP_GRIP,
-	FP_TEAM_FORCE,
-	FP_SABER_OFFENSE,
-	FP_SABER_DEFENSE,
-	FP_SABERTHROW
+	forcePowers_t::FP_TELEPATHY,
+	forcePowers_t::FP_HEAL,
+	forcePowers_t::FP_ABSORB,
+	forcePowers_t::FP_PROTECT,
+	forcePowers_t::FP_TEAM_HEAL,
+	forcePowers_t::FP_LEVITATION,
+	forcePowers_t::FP_SPEED,
+	forcePowers_t::FP_PUSH,
+	forcePowers_t::FP_PULL,
+	forcePowers_t::FP_SEE,
+	forcePowers_t::FP_LIGHTNING,
+	forcePowers_t::FP_DRAIN,
+	forcePowers_t::FP_RAGE,
+	forcePowers_t::FP_GRIP,
+	forcePowers_t::FP_TEAM_FORCE,
+	forcePowers_t::FP_SABER_OFFENSE,
+	forcePowers_t::FP_SABER_DEFENSE,
+	forcePowers_t::FP_SABERTHROW
 };
 
-EnumArray<int, forcePowers_t, NUM_FORCE_POWERS> forcePowerDarkLight = //0 == neutral
+EnumArray<int, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS> forcePowerDarkLight = //0 == neutral
 { //nothing should be usable at rank 0..
 	FORCE_LIGHTSIDE,//FP_HEAL,//instant
 	0,//FP_LEVITATION,//hold/duration
@@ -245,82 +245,82 @@ EnumArray<int, forcePowers_t, NUM_FORCE_POWERS> forcePowerDarkLight = //0 == neu
 		//NUM_FORCE_POWERS
 };
 
-EnumArray<animNumber_t, weapon_t, WP_NUM_WEAPONS> WeaponReadyAnim =
+EnumArray<animNumber_t, weapon_t, weapon_t::WP_NUM_WEAPONS> WeaponReadyAnim =
 {
-	TORSO_DROPWEAP1,//WP_NONE,
+	animNumber_t::TORSO_DROPWEAP1,//WP_NONE,
 
-	TORSO_WEAPONREADY3,//WP_STUN_BATON,
-	TORSO_WEAPONREADY3,//WP_MELEE,
-	BOTH_STAND2,//WP_SABER,
-	TORSO_WEAPONREADY2,//WP_BRYAR_PISTOL,
-	TORSO_WEAPONREADY3,//WP_BLASTER,
-	TORSO_WEAPONREADY3,//TORSO_WEAPONREADY4,//WP_DISRUPTOR,
-	TORSO_WEAPONREADY3,//TORSO_WEAPONREADY5,//WP_BOWCASTER,
-	TORSO_WEAPONREADY3,//TORSO_WEAPONREADY6,//WP_REPEATER,
-	TORSO_WEAPONREADY3,//TORSO_WEAPONREADY7,//WP_DEMP2,
-	TORSO_WEAPONREADY3,//TORSO_WEAPONREADY8,//WP_FLECHETTE,
-	TORSO_WEAPONREADY3,//TORSO_WEAPONREADY9,//WP_ROCKET_LAUNCHER,
-	TORSO_WEAPONREADY10,//WP_THERMAL,
-	TORSO_WEAPONREADY10,//TORSO_WEAPONREADY11,//WP_TRIP_MINE,
-	TORSO_WEAPONREADY10,//TORSO_WEAPONREADY12,//WP_DET_PACK,
-	TORSO_WEAPONREADY3,//WP_CONCUSSION
-	TORSO_WEAPONREADY2,//WP_BRYAR_OLD,
+	animNumber_t::TORSO_WEAPONREADY3,//WP_STUN_BATON,
+	animNumber_t::TORSO_WEAPONREADY3,//WP_MELEE,
+	animNumber_t::BOTH_STAND2,//WP_SABER,
+	animNumber_t::TORSO_WEAPONREADY2,//WP_BRYAR_PISTOL,
+	animNumber_t::TORSO_WEAPONREADY3,//WP_BLASTER,
+	animNumber_t::TORSO_WEAPONREADY3,//TORSO_WEAPONREADY4,//WP_DISRUPTOR,
+	animNumber_t::TORSO_WEAPONREADY3,//TORSO_WEAPONREADY5,//WP_BOWCASTER,
+	animNumber_t::TORSO_WEAPONREADY3,//TORSO_WEAPONREADY6,//WP_REPEATER,
+	animNumber_t::TORSO_WEAPONREADY3,//TORSO_WEAPONREADY7,//WP_DEMP2,
+	animNumber_t::TORSO_WEAPONREADY3,//TORSO_WEAPONREADY8,//WP_FLECHETTE,
+	animNumber_t::TORSO_WEAPONREADY3,//TORSO_WEAPONREADY9,//WP_ROCKET_LAUNCHER,
+	animNumber_t::TORSO_WEAPONREADY10,//WP_THERMAL,
+	animNumber_t::TORSO_WEAPONREADY10,//TORSO_WEAPONREADY11,//WP_TRIP_MINE,
+	animNumber_t::TORSO_WEAPONREADY10,//TORSO_WEAPONREADY12,//WP_DET_PACK,
+	animNumber_t::TORSO_WEAPONREADY3,//WP_CONCUSSION
+	animNumber_t::TORSO_WEAPONREADY2,//WP_BRYAR_OLD,
 
 	//NOT VALID (e.g. should never really be used):
-	BOTH_STAND1,//WP_EMPLACED_GUN,
-	TORSO_WEAPONREADY1//WP_TURRET,
+	animNumber_t::BOTH_STAND1,//WP_EMPLACED_GUN,
+	animNumber_t::TORSO_WEAPONREADY1//WP_TURRET,
 };
 
-EnumArray<animNumber_t, weapon_t, WP_NUM_WEAPONS> WeaponReadyLegsAnim =
+EnumArray<animNumber_t, weapon_t, weapon_t::WP_NUM_WEAPONS> WeaponReadyLegsAnim =
 {
-	BOTH_STAND1,//WP_NONE,
+	animNumber_t::BOTH_STAND1,//WP_NONE,
 
-	BOTH_STAND1,//WP_STUN_BATON,
-	BOTH_STAND1,//WP_MELEE,
-	BOTH_STAND2,//WP_SABER,
-	BOTH_STAND1,//WP_BRYAR_PISTOL,
-	BOTH_STAND1,//WP_BLASTER,
-	BOTH_STAND1,//TORSO_WEAPONREADY4,//WP_DISRUPTOR,
-	BOTH_STAND1,//TORSO_WEAPONREADY5,//WP_BOWCASTER,
-	BOTH_STAND1,//TORSO_WEAPONREADY6,//WP_REPEATER,
-	BOTH_STAND1,//TORSO_WEAPONREADY7,//WP_DEMP2,
-	BOTH_STAND1,//TORSO_WEAPONREADY8,//WP_FLECHETTE,
-	BOTH_STAND1,//TORSO_WEAPONREADY9,//WP_ROCKET_LAUNCHER,
-	BOTH_STAND1,//WP_THERMAL,
-	BOTH_STAND1,//TORSO_WEAPONREADY11,//WP_TRIP_MINE,
-	BOTH_STAND1,//TORSO_WEAPONREADY12,//WP_DET_PACK,
-	BOTH_STAND1,//WP_CONCUSSION
-	BOTH_STAND1,//WP_BRYAR_OLD,
+	animNumber_t::BOTH_STAND1,//WP_STUN_BATON,
+	animNumber_t::BOTH_STAND1,//WP_MELEE,
+	animNumber_t::BOTH_STAND2,//WP_SABER,
+	animNumber_t::BOTH_STAND1,//WP_BRYAR_PISTOL,
+	animNumber_t::BOTH_STAND1,//WP_BLASTER,
+	animNumber_t::BOTH_STAND1,//TORSO_WEAPONREADY4,//WP_DISRUPTOR,
+	animNumber_t::BOTH_STAND1,//TORSO_WEAPONREADY5,//WP_BOWCASTER,
+	animNumber_t::BOTH_STAND1,//TORSO_WEAPONREADY6,//WP_REPEATER,
+	animNumber_t::BOTH_STAND1,//TORSO_WEAPONREADY7,//WP_DEMP2,
+	animNumber_t::BOTH_STAND1,//TORSO_WEAPONREADY8,//WP_FLECHETTE,
+	animNumber_t::BOTH_STAND1,//TORSO_WEAPONREADY9,//WP_ROCKET_LAUNCHER,
+	animNumber_t::BOTH_STAND1,//WP_THERMAL,
+	animNumber_t::BOTH_STAND1,//TORSO_WEAPONREADY11,//WP_TRIP_MINE,
+	animNumber_t::BOTH_STAND1,//TORSO_WEAPONREADY12,//WP_DET_PACK,
+	animNumber_t::BOTH_STAND1,//WP_CONCUSSION
+	animNumber_t::BOTH_STAND1,//WP_BRYAR_OLD,
 
 	//NOT VALID (e.g. should never really be used):
-	BOTH_STAND1,//WP_EMPLACED_GUN,
-	BOTH_STAND1//WP_TURRET,
+	animNumber_t::BOTH_STAND1,//WP_EMPLACED_GUN,
+	animNumber_t::BOTH_STAND1//WP_TURRET,
 };
 
-EnumArray<animNumber_t, weapon_t, WP_NUM_WEAPONS> WeaponAttackAnim =
+EnumArray<animNumber_t, weapon_t, weapon_t::WP_NUM_WEAPONS> WeaponAttackAnim =
 {
-	BOTH_ATTACK1,//WP_NONE, //(shouldn't happen)
+	animNumber_t::BOTH_ATTACK1,//WP_NONE, //(shouldn't happen)
 
-	BOTH_ATTACK3,//WP_STUN_BATON,
-	BOTH_ATTACK3,//WP_MELEE,
-	BOTH_STAND2,//WP_SABER, //(has its own handling)
-	BOTH_ATTACK2,//WP_BRYAR_PISTOL,
-	BOTH_ATTACK3,//WP_BLASTER,
-	BOTH_ATTACK3,//BOTH_ATTACK4,//WP_DISRUPTOR,
-	BOTH_ATTACK3,//BOTH_ATTACK5,//WP_BOWCASTER,
-	BOTH_ATTACK3,//BOTH_ATTACK6,//WP_REPEATER,
-	BOTH_ATTACK3,//BOTH_ATTACK7,//WP_DEMP2,
-	BOTH_ATTACK3,//BOTH_ATTACK8,//WP_FLECHETTE,
-	BOTH_ATTACK3,//BOTH_ATTACK9,//WP_ROCKET_LAUNCHER,
-	BOTH_THERMAL_THROW,//WP_THERMAL,
-	BOTH_ATTACK3,//BOTH_ATTACK11,//WP_TRIP_MINE,
-	BOTH_ATTACK3,//BOTH_ATTACK12,//WP_DET_PACK,
-	BOTH_ATTACK3,//WP_CONCUSSION,
-	BOTH_ATTACK2,//WP_BRYAR_OLD,
+	animNumber_t::BOTH_ATTACK3,//WP_STUN_BATON,
+	animNumber_t::BOTH_ATTACK3,//WP_MELEE,
+	animNumber_t::BOTH_STAND2,//WP_SABER, //(has its own handling)
+	animNumber_t::BOTH_ATTACK2,//WP_BRYAR_PISTOL,
+	animNumber_t::BOTH_ATTACK3,//WP_BLASTER,
+	animNumber_t::BOTH_ATTACK3,//BOTH_ATTACK4,//WP_DISRUPTOR,
+	animNumber_t::BOTH_ATTACK3,//BOTH_ATTACK5,//WP_BOWCASTER,
+	animNumber_t::BOTH_ATTACK3,//BOTH_ATTACK6,//WP_REPEATER,
+	animNumber_t::BOTH_ATTACK3,//BOTH_ATTACK7,//WP_DEMP2,
+	animNumber_t::BOTH_ATTACK3,//BOTH_ATTACK8,//WP_FLECHETTE,
+	animNumber_t::BOTH_ATTACK3,//BOTH_ATTACK9,//WP_ROCKET_LAUNCHER,
+	animNumber_t::BOTH_THERMAL_THROW,//WP_THERMAL,
+	animNumber_t::BOTH_ATTACK3,//BOTH_ATTACK11,//WP_TRIP_MINE,
+	animNumber_t::BOTH_ATTACK3,//BOTH_ATTACK12,//WP_DET_PACK,
+	animNumber_t::BOTH_ATTACK3,//WP_CONCUSSION,
+	animNumber_t::BOTH_ATTACK2,//WP_BRYAR_OLD,
 
 	//NOT VALID (e.g. should never really be used):
-	BOTH_STAND1,//WP_EMPLACED_GUN,
-	BOTH_ATTACK1//WP_TURRET,
+	animNumber_t::BOTH_STAND1,//WP_EMPLACED_GUN,
+	animNumber_t::BOTH_ATTACK1//WP_TURRET,
 };
 
 void BG_FixWeaponAttackAnim(void) {
@@ -329,22 +329,22 @@ void BG_FixWeaponAttackAnim(void) {
 #elif defined(_CGAME)
 	const char *cs = CG_ConfigString(CS_LEGACY_FIXES);
 	const uint32_t legacyFixes = strtoul(cs, nullptr, 0);
-	const bool doFix = !!(legacyFixes & Bit( LEGACYFIX_WEAPONATTACKANIM ));
+	const bool doFix = !!(legacyFixes & Bit( legacyFixes_t::LEGACYFIX_WEAPONATTACKANIM ));
 #elif defined(UI_BUILD)
 	const bool doFix = true; // no chance of prediction error from UI code
 #endif
 	animNumber_t *move;
 
-	for (weapon_t wpIndex = WP_NONE; wpIndex < WP_NUM_WEAPONS; wpIndex++) {
+	for (weapon_t wpIndex = weapon_t::WP_NONE; wpIndex < weapon_t::WP_NUM_WEAPONS; wpIndex++) {
 		move = &WeaponAttackAnim[wpIndex];
-		if (wpIndex == WP_CONCUSSION) {
-			*move = doFix ? BOTH_ATTACK3 : BOTH_ATTACK2;
-		} else if (wpIndex == WP_BRYAR_OLD) {
-			*move = doFix ? BOTH_ATTACK2 : BOTH_STAND1;
-		} else if (wpIndex == WP_EMPLACED_GUN) {
-			*move = doFix ? BOTH_STAND1 : BOTH_ATTACK1;
-		} else if (wpIndex == WP_TURRET) {
-			*move = doFix ? BOTH_ATTACK1 : BOTH_ATTACK2; // better than UB?
+		if (wpIndex == weapon_t::WP_CONCUSSION) {
+			*move = doFix ? animNumber_t::BOTH_ATTACK3 : animNumber_t::BOTH_ATTACK2;
+		} else if (wpIndex == weapon_t::WP_BRYAR_OLD) {
+			*move = doFix ? animNumber_t::BOTH_ATTACK2 : animNumber_t::BOTH_STAND1;
+		} else if (wpIndex == weapon_t::WP_EMPLACED_GUN) {
+			*move = doFix ? animNumber_t::BOTH_STAND1 : animNumber_t::BOTH_ATTACK1;
+		} else if (wpIndex == weapon_t::WP_TURRET) {
+			*move = doFix ? animNumber_t::BOTH_ATTACK1 : animNumber_t::BOTH_ATTACK2; // better than UB?
 		}
 	}
 }
@@ -352,7 +352,7 @@ void BG_FixWeaponAttackAnim(void) {
 bool BG_FileExists( const char *fileName ) {
 	if ( fileName && fileName[0] ) {
 		fileHandle_t f = NULL_FILE;
-		trap->FS_Open( fileName, &f, FS_READ );
+		trap->FS_Open( fileName, &f, fsMode_t::FS_READ );
 		if ( f > 0 ) {
 			trap->FS_Close( f );
 			return true;
@@ -366,37 +366,37 @@ void BG_GiveMeVectorFromMatrix(mdxaBone_t *boltMatrix, orientations_t flags, vec
 {
 	switch (flags)
 	{
-	case ORIGIN:
+	case orientations_t::ORIGIN:
 		vec[0] = boltMatrix->matrix[0][3];
 		vec[1] = boltMatrix->matrix[1][3];
 		vec[2] = boltMatrix->matrix[2][3];
 		break;
-	case POSITIVE_Y:
+	case orientations_t::POSITIVE_Y:
 		vec[0] = boltMatrix->matrix[0][1];
 		vec[1] = boltMatrix->matrix[1][1];
 		vec[2] = boltMatrix->matrix[2][1];
  		break;
-	case POSITIVE_X:
+	case orientations_t::POSITIVE_X:
 		vec[0] = boltMatrix->matrix[0][0];
 		vec[1] = boltMatrix->matrix[1][0];
 		vec[2] = boltMatrix->matrix[2][0];
 		break;
-	case POSITIVE_Z:
+	case orientations_t::POSITIVE_Z:
 		vec[0] = boltMatrix->matrix[0][2];
 		vec[1] = boltMatrix->matrix[1][2];
 		vec[2] = boltMatrix->matrix[2][2];
 		break;
-	case NEGATIVE_Y:
+	case orientations_t::NEGATIVE_Y:
 		vec[0] = -boltMatrix->matrix[0][1];
 		vec[1] = -boltMatrix->matrix[1][1];
 		vec[2] = -boltMatrix->matrix[2][1];
 		break;
-	case NEGATIVE_X:
+	case orientations_t::NEGATIVE_X:
 		vec[0] = -boltMatrix->matrix[0][0];
 		vec[1] = -boltMatrix->matrix[1][0];
 		vec[2] = -boltMatrix->matrix[2][0];
 		break;
-	case NEGATIVE_Z:
+	case orientations_t::NEGATIVE_Z:
 		vec[0] = -boltMatrix->matrix[0][2];
 		vec[1] = -boltMatrix->matrix[1][2];
 		vec[2] = -boltMatrix->matrix[2][2];
@@ -426,10 +426,10 @@ bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, forceMasteries
 	int c = 0;
 	int allowedPoints = 0;
 	int usedPoints = 0;
-	forcePowerLevels_t countDown = FORCE_LEVEL_0;
+	forcePowerLevels_t countDown = forcePowerLevels_t::FORCE_LEVEL_0;
 
 	int final_Side;
-	EnumArray<forcePowerLevels_t, forcePowers_t, NUM_FORCE_POWERS> final_Powers = {};
+	EnumArray<forcePowerLevels_t, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS> final_Powers = {};
 
 	if ( powerLen >= 128 )
 	{ //This should not happen. If it does, this is obviously a bogus string.
@@ -478,9 +478,9 @@ bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, forceMasteries
 
 	//Now we have established a valid rank, and a valid side.
 	//Read the force powers in, and cut them down based on the various rules supplied.
-	forcePowers_t readPower = FP_FIRST;
+	forcePowers_t readPower = forcePowers_t::FP_FIRST;
 	while (i < std::ssize( powerBuf ) && powerBuf[i] && powerBuf[i] != '\n' && powerBuf[i] != '\r'
-		&& powerBuf[i] >= '0' && powerBuf[i] <= '3' && readPower < NUM_FORCE_POWERS)
+		&& powerBuf[i] >= '0' && powerBuf[i] <= '3' && readPower < forcePowers_t::NUM_FORCE_POWERS)
 	{
 		readBuf[0] = powerBuf[i];
 		readBuf[1] = 0;
@@ -493,42 +493,42 @@ bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, forceMasteries
 	//Set the maximum allowed points used based on the max rank level, and count the points actually used.
 	allowedPoints = forceMasteryPoints[maxRank];
 
-	for ( forcePowers_t fp = FP_FIRST; fp < NUM_FORCE_POWERS; fp++ )
+	for ( forcePowers_t fp = forcePowers_t::FP_FIRST; fp < forcePowers_t::NUM_FORCE_POWERS; fp++ )
 	{ //if this power doesn't match the side we're on, then 0 it now.
-		if (final_Powers[fp] != FORCE_LEVEL_0 &&
+		if (final_Powers[fp] != forcePowerLevels_t::FORCE_LEVEL_0 &&
 			forcePowerDarkLight[fp] &&
 			forcePowerDarkLight[fp] != final_Side)
 		{
-			final_Powers[fp] = FORCE_LEVEL_0;
+			final_Powers[fp] = forcePowerLevels_t::FORCE_LEVEL_0;
 			//This is only likely to happen with g_forceBasedTeams. Let it slide.
 		}
 
-		if ( final_Powers[fp] != FORCE_LEVEL_0 &&
+		if ( final_Powers[fp] != forcePowerLevels_t::FORCE_LEVEL_0 &&
 			(fpDisabled & Bit( fp )) )
 		{ //if this power is disabled on the server via said server option, then we don't get it.
-			final_Powers[fp] = FORCE_LEVEL_0;
+			final_Powers[fp] = forcePowerLevels_t::FORCE_LEVEL_0;
 		}
 	}
 
-	if (gametype < GT_TEAM)
+	if (gametype < gametype_t::GT_TEAM)
 	{ //don't bother with team powers then
-		final_Powers[FP_TEAM_HEAL] = FORCE_LEVEL_0;
-		final_Powers[FP_TEAM_FORCE] = FORCE_LEVEL_0;
+		final_Powers[forcePowers_t::FP_TEAM_HEAL] = forcePowerLevels_t::FORCE_LEVEL_0;
+		final_Powers[forcePowers_t::FP_TEAM_FORCE] = forcePowerLevels_t::FORCE_LEVEL_0;
 	}
 
 	usedPoints = 0;
-	for ( forcePowers_t fp = FP_FIRST; fp < NUM_FORCE_POWERS; fp++ )
+	for ( forcePowers_t fp = forcePowers_t::FP_FIRST; fp < forcePowers_t::NUM_FORCE_POWERS; fp++ )
 	{
-		countDown = std::clamp( final_Powers[fp], FORCE_LEVEL_0, NUM_FORCE_POWER_LEVELS );
+		countDown = std::clamp( final_Powers[fp], forcePowerLevels_t::FORCE_LEVEL_0, forcePowerLevels_t::NUM_FORCE_POWER_LEVELS );
 
-		while (countDown > FORCE_LEVEL_0)
+		while (countDown > forcePowerLevels_t::FORCE_LEVEL_0)
 		{
 			usedPoints += bgForcePowerCost[fp][countDown]; //[fp index][fp level]
 			//if this is jump, or we have a free saber and it's offense or defense, take the level back down on level 1
-			if ( countDown == FORCE_LEVEL_1 &&
-				((fp == FP_LEVITATION) ||
-				 (fp == FP_SABER_OFFENSE && freeSaber) ||
-				 (fp == FP_SABER_DEFENSE && freeSaber)) )
+			if ( countDown == forcePowerLevels_t::FORCE_LEVEL_1 &&
+				((fp == forcePowers_t::FP_LEVITATION) ||
+				 (fp == forcePowers_t::FP_SABER_OFFENSE && freeSaber) ||
+				 (fp == forcePowers_t::FP_SABER_DEFENSE && freeSaber)) )
 			{
 				usedPoints -= bgForcePowerCost[fp][countDown];
 			}
@@ -539,39 +539,39 @@ bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, forceMasteries
 	if (usedPoints > allowedPoints)
 	{ //Time to do the fancy stuff. (meaning, slowly cut parts off while taking a guess at what is most or least important in the config)
 		int attemptedCycles = 0;
-		forcePowerLevels_t powerCycle = FORCE_LEVEL_2;
-		forcePowerLevels_t minPow = FORCE_LEVEL_0;
+		forcePowerLevels_t powerCycle = forcePowerLevels_t::FORCE_LEVEL_2;
+		forcePowerLevels_t minPow = forcePowerLevels_t::FORCE_LEVEL_0;
 
 		if (freeSaber)
 		{
-			minPow = FORCE_LEVEL_1;
+			minPow = forcePowerLevels_t::FORCE_LEVEL_1;
 		}
 
 		maintainsValidity = false;
 
 		while (usedPoints > allowedPoints)
 		{
-			forcePowers_t fp = FP_FIRST;
+			forcePowers_t fp = forcePowers_t::FP_FIRST;
 
-			while (fp < NUM_FORCE_POWERS && usedPoints > allowedPoints)
+			while (fp < forcePowers_t::NUM_FORCE_POWERS && usedPoints > allowedPoints)
 			{
-				if (final_Powers[fp] != FORCE_LEVEL_0 && final_Powers[fp] < powerCycle)
+				if (final_Powers[fp] != forcePowerLevels_t::FORCE_LEVEL_0 && final_Powers[fp] < powerCycle)
 				{ //kill in order of lowest powers, because the higher powers are probably more important
-					if (fp == FP_SABER_OFFENSE &&
-						(final_Powers[FP_SABER_DEFENSE] > minPow || final_Powers[FP_SABERTHROW] > FORCE_LEVEL_0))
+					if (fp == forcePowers_t::FP_SABER_OFFENSE &&
+						(final_Powers[forcePowers_t::FP_SABER_DEFENSE] > minPow || final_Powers[forcePowers_t::FP_SABERTHROW] > forcePowerLevels_t::FORCE_LEVEL_0))
 					{ //if we're on saber attack, only suck it down if we have no def or throw either
-						forcePowers_t whichOne = FP_SABERTHROW; //first try throw
+						forcePowers_t whichOne = forcePowers_t::FP_SABERTHROW; //first try throw
 
-						if (final_Powers[whichOne] == FORCE_LEVEL_0)
+						if (final_Powers[whichOne] == forcePowerLevels_t::FORCE_LEVEL_0)
 						{
-							whichOne = FP_SABER_DEFENSE; //if no throw, drain defense
+							whichOne = forcePowers_t::FP_SABER_DEFENSE; //if no throw, drain defense
 						}
 
-						while (final_Powers[whichOne] > FORCE_LEVEL_0 && usedPoints > allowedPoints)
+						while (final_Powers[whichOne] > forcePowerLevels_t::FORCE_LEVEL_0 && usedPoints > allowedPoints)
 						{
-							if ( final_Powers[whichOne] > FORCE_LEVEL_1 ||
-								( (whichOne != FP_SABER_OFFENSE || !freeSaber) &&
-								  (whichOne != FP_SABER_DEFENSE || !freeSaber) ) )
+							if ( final_Powers[whichOne] > forcePowerLevels_t::FORCE_LEVEL_1 ||
+								( (whichOne != forcePowers_t::FP_SABER_OFFENSE || !freeSaber) &&
+								  (whichOne != forcePowers_t::FP_SABER_DEFENSE || !freeSaber) ) )
 							{ //don't take attack or defend down on level 1 still, if it's free
 								usedPoints -= bgForcePowerCost[whichOne][final_Powers[whichOne]];
 								final_Powers[whichOne]--;
@@ -584,12 +584,12 @@ bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, forceMasteries
 					}
 					else
 					{
-						while (final_Powers[fp] > FORCE_LEVEL_0 && usedPoints > allowedPoints)
+						while (final_Powers[fp] > forcePowerLevels_t::FORCE_LEVEL_0 && usedPoints > allowedPoints)
 						{
-							if ( final_Powers[fp] > FORCE_LEVEL_1 ||
-								((fp != FP_LEVITATION) &&
-								(fp != FP_SABER_OFFENSE || !freeSaber) &&
-								(fp != FP_SABER_DEFENSE || !freeSaber)) )
+							if ( final_Powers[fp] > forcePowerLevels_t::FORCE_LEVEL_1 ||
+								((fp != forcePowers_t::FP_LEVITATION) &&
+								(fp != forcePowers_t::FP_SABER_OFFENSE || !freeSaber) &&
+								(fp != forcePowers_t::FP_SABER_DEFENSE || !freeSaber)) )
 							{
 								usedPoints -= bgForcePowerCost[fp][final_Powers[fp]];
 								final_Powers[fp]--;
@@ -608,7 +608,7 @@ bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, forceMasteries
 			powerCycle++;
 			attemptedCycles++;
 
-			if (attemptedCycles > to_underlying( NUM_FORCE_POWERS ))
+			if (attemptedCycles > to_underlying( forcePowers_t::NUM_FORCE_POWERS ))
 			{ //I think this should be impossible. But just in case.
 				break;
 			}
@@ -616,14 +616,14 @@ bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, forceMasteries
 
 		if (usedPoints > allowedPoints)
 		{ //Still? Fine then.. we will kill all of your powers, except the freebies.
-			for ( forcePowers_t fp = FP_FIRST; fp < NUM_FORCE_POWERS; fp++ )
+			for ( forcePowers_t fp = forcePowers_t::FP_FIRST; fp < forcePowers_t::NUM_FORCE_POWERS; fp++ )
 			{
-				final_Powers[fp] = FORCE_LEVEL_0;
-				if (fp == FP_LEVITATION ||
-					(fp == FP_SABER_OFFENSE && freeSaber) ||
-					(fp == FP_SABER_DEFENSE && freeSaber))
+				final_Powers[fp] = forcePowerLevels_t::FORCE_LEVEL_0;
+				if (fp == forcePowers_t::FP_LEVITATION ||
+					(fp == forcePowers_t::FP_SABER_OFFENSE && freeSaber) ||
+					(fp == forcePowers_t::FP_SABER_DEFENSE && freeSaber))
 				{
-					final_Powers[fp] = FORCE_LEVEL_1;
+					final_Powers[fp] = forcePowerLevels_t::FORCE_LEVEL_1;
 				}
 			}
 			usedPoints = 0;
@@ -632,36 +632,36 @@ bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, forceMasteries
 
 	if (freeSaber)
 	{
-		if (final_Powers[FP_SABER_OFFENSE] < FORCE_LEVEL_1)
-			final_Powers[FP_SABER_OFFENSE] = FORCE_LEVEL_1;
-		if (final_Powers[FP_SABER_DEFENSE] < FORCE_LEVEL_1)
-			final_Powers[FP_SABER_DEFENSE] = FORCE_LEVEL_1;
+		if (final_Powers[forcePowers_t::FP_SABER_OFFENSE] < forcePowerLevels_t::FORCE_LEVEL_1)
+			final_Powers[forcePowers_t::FP_SABER_OFFENSE] = forcePowerLevels_t::FORCE_LEVEL_1;
+		if (final_Powers[forcePowers_t::FP_SABER_DEFENSE] < forcePowerLevels_t::FORCE_LEVEL_1)
+			final_Powers[forcePowers_t::FP_SABER_DEFENSE] = forcePowerLevels_t::FORCE_LEVEL_1;
 	}
-	if (final_Powers[FP_LEVITATION] < FORCE_LEVEL_1)
-		final_Powers[FP_LEVITATION] = FORCE_LEVEL_1;
+	if (final_Powers[forcePowers_t::FP_LEVITATION] < forcePowerLevels_t::FORCE_LEVEL_1)
+		final_Powers[forcePowers_t::FP_LEVITATION] = forcePowerLevels_t::FORCE_LEVEL_1;
 
-	for ( forcePowers_t fp = FP_FIRST; fp < NUM_FORCE_POWERS; fp++ )
+	for ( forcePowers_t fp = forcePowers_t::FP_FIRST; fp < forcePowers_t::NUM_FORCE_POWERS; fp++ )
 	{
-		if (final_Powers[fp] > FORCE_LEVEL_3)
-			final_Powers[fp] = FORCE_LEVEL_3;
+		if (final_Powers[fp] > forcePowerLevels_t::FORCE_LEVEL_3)
+			final_Powers[fp] = forcePowerLevels_t::FORCE_LEVEL_3;
 	}
 
 	if (fpDisabled)
 	{ //If we specifically have attack or def disabled, force them up to level 3. It's the way
 	  //things work for the case of all powers disabled.
 	  //If jump is disabled, down-cap it to level 1. Otherwise don't do a thing.
-		if (fpDisabled & Bit( FP_LEVITATION ))
-			final_Powers[FP_LEVITATION] = FORCE_LEVEL_1;
-		if (fpDisabled & Bit( FP_SABER_OFFENSE ))
-			final_Powers[FP_SABER_OFFENSE] = FORCE_LEVEL_3;
-		if (fpDisabled & Bit( FP_SABER_DEFENSE ))
-			final_Powers[FP_SABER_DEFENSE] = FORCE_LEVEL_3;
+		if (fpDisabled & Bit( forcePowers_t::FP_LEVITATION ))
+			final_Powers[forcePowers_t::FP_LEVITATION] = forcePowerLevels_t::FORCE_LEVEL_1;
+		if (fpDisabled & Bit( forcePowers_t::FP_SABER_OFFENSE ))
+			final_Powers[forcePowers_t::FP_SABER_OFFENSE] = forcePowerLevels_t::FORCE_LEVEL_3;
+		if (fpDisabled & Bit( forcePowers_t::FP_SABER_DEFENSE ))
+			final_Powers[forcePowers_t::FP_SABER_DEFENSE] = forcePowerLevels_t::FORCE_LEVEL_3;
 	}
 
-	if (final_Powers[FP_SABER_OFFENSE] < FORCE_LEVEL_1)
+	if (final_Powers[forcePowers_t::FP_SABER_OFFENSE] < forcePowerLevels_t::FORCE_LEVEL_1)
 	{
-		final_Powers[FP_SABER_DEFENSE] = FORCE_LEVEL_0;
-		final_Powers[FP_SABERTHROW] = FORCE_LEVEL_0;
+		final_Powers[forcePowers_t::FP_SABER_DEFENSE] = forcePowerLevels_t::FORCE_LEVEL_0;
+		final_Powers[forcePowers_t::FP_SABERTHROW] = forcePowerLevels_t::FORCE_LEVEL_0;
 	}
 
 	//We finally have all the force powers legalized and stored locally.
@@ -670,7 +670,7 @@ bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, forceMasteries
 	Q_strcat(powerOut, powerOutSize, va("%i-", final_Side));
 
 	i = strlen(powerOut);
-	for ( forcePowers_t fp = FP_FIRST; fp < NUM_FORCE_POWERS; fp++ )
+	for ( forcePowers_t fp = forcePowers_t::FP_FIRST; fp < forcePowers_t::NUM_FORCE_POWERS; fp++ )
 	{
 		Q_strncpyz(readBuf, va( "%i", to_underlying( final_Powers[fp] ) ), sizeof( readBuf ) );
 		powerOut[i] = readBuf[0];
@@ -709,7 +709,7 @@ gitem_t	bg_itemlist[] =
 /* icon */		nullptr,		// icon
 /* pickup */	//nullptr,		// pickup_name
 		0,					// quantity
-		IT_BAD,				// giType (IT_*)
+		itemType_t::IT_BAD,				// giType (IT_*)
 		0,					// giTag
 /* precache */ "",			// precaches
 /* sounds */ "",			// sounds
@@ -732,7 +732,7 @@ Instant shield pickup, restores 25
 /* icon */		"gfx/mp/small_shield",
 /* pickup *///	"Shield Small",
 		25,
-		IT_ARMOR,
+		itemType_t::IT_ARMOR,
 		1, //special for shield - max on pickup is maxhealth*tag, thus small shield goes up to 100 shield
 /* precache */ "",
 /* sounds */ ""
@@ -751,7 +751,7 @@ Instant shield pickup, restores 100
 /* icon */		"gfx/mp/large_shield",
 /* pickup *///	"Shield Large",
 		100,
-		IT_ARMOR,
+		itemType_t::IT_ARMOR,
 		2, //special for shield - max on pickup is maxhealth*tag, thus large shield goes up to 200 shield
 /* precache */ "",
 /* sounds */ "",
@@ -770,7 +770,7 @@ Instant medpack pickup, heals 25
 /* icon */		"gfx/hud/i_icon_medkit",
 /* pickup *///	"Medpack",
 		25,
-		IT_HEALTH,
+		itemType_t::IT_HEALTH,
 		0,
 /* precache */ "",
 /* sounds */ "",
@@ -794,8 +794,8 @@ Instant medpack pickup, heals 25
 /* icon */		"gfx/hud/i_icon_seeker",
 /* pickup *///	"Seeker Drone",
 		120,
-		IT_HOLDABLE,
-		to_underlying( HI_SEEKER ),
+		itemType_t::IT_HOLDABLE,
+		to_underlying( holdable_t::HI_SEEKER ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_AN_ATTACK_DRONE_SIMILAR"					// description
@@ -813,8 +813,8 @@ Portable shield
 /* icon */		"gfx/hud/i_icon_shieldwall",
 /* pickup *///	"Forcefield",
 		120,
-		IT_HOLDABLE,
-		to_underlying( HI_SHIELD ),
+		itemType_t::IT_HOLDABLE,
+		to_underlying( holdable_t::HI_SHIELD ),
 /* precache */ "",
 /* sounds */ "sound/weapons/detpack/stick.wav sound/movers/doors/forcefield_on.wav sound/movers/doors/forcefield_off.wav sound/movers/doors/forcefield_lp.wav sound/effects/bumpfield.wav",
 		"@MENUS_THIS_STATIONARY_ENERGY"					// description
@@ -832,8 +832,8 @@ Bacta canister pickup, heals 25 on use
 /* icon */		"gfx/hud/i_icon_bacta",
 /* pickup *///	"Bacta Canister",
 		25,
-		IT_HOLDABLE,
-		to_underlying( HI_MEDPAC ),
+		itemType_t::IT_HOLDABLE,
+		to_underlying( holdable_t::HI_MEDPAC ),
 /* precache */ "",
 /* sounds */ "",
 		"@SP_INGAME_BACTA_DESC"					// description
@@ -851,8 +851,8 @@ Big bacta canister pickup, heals 50 on use
 /* icon */		"gfx/hud/i_icon_big_bacta",
 /* pickup *///	"Bacta Canister",
 		25,
-		IT_HOLDABLE,
-		to_underlying( HI_MEDPAC_BIG ),
+		itemType_t::IT_HOLDABLE,
+		to_underlying( holdable_t::HI_MEDPAC_BIG ),
 /* precache */ "",
 /* sounds */ "",
 		"@SP_INGAME_BACTA_DESC"					// description
@@ -870,8 +870,8 @@ These will be standard equipment on the player - DO NOT PLACE
 /* icon */		"gfx/hud/i_icon_zoom",
 /* pickup *///	"Binoculars",
 		60,
-		IT_HOLDABLE,
-		to_underlying( HI_BINOCULARS ),
+		itemType_t::IT_HOLDABLE,
+		to_underlying( holdable_t::HI_BINOCULARS ),
 /* precache */ "",
 /* sounds */ "",
 		"@SP_INGAME_LA_GOGGLES_DESC"					// description
@@ -889,8 +889,8 @@ Sentry gun inventory pickup.
 /* icon */		"gfx/hud/i_icon_sentrygun",
 /* pickup *///	"Sentry Gun",
 		120,
-		IT_HOLDABLE,
-		to_underlying( HI_SENTRY_GUN ),
+		itemType_t::IT_HOLDABLE,
+		to_underlying( holdable_t::HI_SENTRY_GUN ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_THIS_DEADLY_WEAPON_IS"					// description
@@ -908,8 +908,8 @@ Do not place.
 /* icon */		"gfx/hud/i_icon_jetpack",
 /* pickup *///	"Sentry Gun",
 		120,
-		IT_HOLDABLE,
-		to_underlying( HI_JETPACK ),
+		itemType_t::IT_HOLDABLE,
+		to_underlying( holdable_t::HI_JETPACK ),
 /* precache */ "effects/boba/jet.efx",
 /* sounds */ "sound/chars/boba/JETON.wav sound/chars/boba/JETHOVER.wav sound/effects/fire_lp.wav",
 		"@MENUS_JETPACK_DESC"					// description
@@ -927,8 +927,8 @@ Do not place. For siege classes ONLY.
 /* icon */		"gfx/hud/i_icon_healthdisp",
 /* pickup *///	"Sentry Gun",
 		120,
-		IT_HOLDABLE,
-		to_underlying( HI_HEALTHDISP ),
+		itemType_t::IT_HOLDABLE,
+		to_underlying( holdable_t::HI_HEALTHDISP ),
 /* precache */ "",
 /* sounds */ "",
 		""					// description
@@ -946,8 +946,8 @@ Do not place. For siege classes ONLY.
 /* icon */		"gfx/hud/i_icon_ammodisp",
 /* pickup *///	"Sentry Gun",
 		120,
-		IT_HOLDABLE,
-		to_underlying( HI_AMMODISP ),
+		itemType_t::IT_HOLDABLE,
+		to_underlying( holdable_t::HI_AMMODISP ),
 /* precache */ "",
 /* sounds */ "",
 		""					// description
@@ -965,8 +965,8 @@ Do not place. For siege classes ONLY.
 /* icon */		"gfx/hud/i_icon_eweb",
 /* pickup *///	"Sentry Gun",
 		120,
-		IT_HOLDABLE,
-		to_underlying( HI_EWEB ),
+		itemType_t::IT_HOLDABLE,
+		to_underlying( holdable_t::HI_EWEB ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_EWEB_DESC"					// description
@@ -984,8 +984,8 @@ Do not place. For siege classes ONLY.
 /* icon */		"gfx/hud/i_icon_cloak",
 /* pickup *///	"Seeker Drone",
 		120,
-		IT_HOLDABLE,
-		to_underlying( HI_CLOAK ),
+		itemType_t::IT_HOLDABLE,
+		to_underlying( holdable_t::HI_CLOAK ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_CLOAK_DESC"					// description
@@ -1003,8 +1003,8 @@ Adds one rank to all Force powers temporarily. Only light jedi can use.
 /* icon */		"gfx/hud/mpi_jlight",
 /* pickup *///	"Light Force Enlightenment",
 		25,
-		IT_POWERUP,
-		to_underlying( PW_FORCE_ENLIGHTENED_LIGHT ),
+		itemType_t::IT_POWERUP,
+		to_underlying( powerup_t::PW_FORCE_ENLIGHTENED_LIGHT ),
 /* precache */ "",
 /* sounds */ "",
 		""					// description
@@ -1022,8 +1022,8 @@ Adds one rank to all Force powers temporarily. Only dark jedi can use.
 /* icon */		"gfx/hud/mpi_dklight",
 /* pickup *///	"Dark Force Enlightenment",
 		25,
-		IT_POWERUP,
-		to_underlying( PW_FORCE_ENLIGHTENED_DARK ),
+		itemType_t::IT_POWERUP,
+		to_underlying( powerup_t::PW_FORCE_ENLIGHTENED_DARK ),
 /* precache */ "",
 /* sounds */ "",
 		""					// description
@@ -1041,8 +1041,8 @@ Unlimited Force Pool for a short time.
 /* icon */		"gfx/hud/mpi_fboon",
 /* pickup *///	"Force Boon",
 		25,
-		IT_POWERUP,
-		to_underlying( PW_FORCE_BOON ),
+		itemType_t::IT_POWERUP,
+		to_underlying( powerup_t::PW_FORCE_BOON ),
 /* precache */ "",
 /* sounds */ "",
 		""					// description
@@ -1060,8 +1060,8 @@ A small lizard carried on the player, which prevents the possessor from using an
 /* icon */		"gfx/hud/mpi_ysamari",
 /* pickup *///	"Ysalamiri",
 		25,
-		IT_POWERUP,
-		to_underlying( PW_YSALAMIRI ),
+		itemType_t::IT_POWERUP,
+		to_underlying( powerup_t::PW_YSALAMIRI ),
 /* precache */ "",
 /* sounds */ "",
 		""					// description
@@ -1083,8 +1083,8 @@ Don't place this
 /* icon */		"gfx/hud/w_icon_stunbaton",
 /* pickup *///	"Stun Baton",
 		100,
-		IT_WEAPON,
-		to_underlying( WP_STUN_BATON ),
+		itemType_t::IT_WEAPON,
+		to_underlying( weapon_t::WP_STUN_BATON ),
 /* precache */ "",
 /* sounds */ "",
 		""					// description
@@ -1102,8 +1102,8 @@ Don't place this
 /* icon */		"gfx/hud/w_icon_melee",
 /* pickup *///	"Stun Baton",
 		100,
-		IT_WEAPON,
-		to_underlying( WP_MELEE ),
+		itemType_t::IT_WEAPON,
+		to_underlying( weapon_t::WP_MELEE ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_MELEE_DESC"					// description
@@ -1121,8 +1121,8 @@ Don't place this
 /* icon */		"gfx/hud/w_icon_lightsaber",
 /* pickup *///	"Lightsaber",
 		100,
-		IT_WEAPON,
-		to_underlying( WP_SABER ),
+		itemType_t::IT_WEAPON,
+		to_underlying( weapon_t::WP_SABER ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_AN_ELEGANT_WEAPON_FOR"				// description
@@ -1141,8 +1141,8 @@ Don't place this
 /* icon */		"gfx/hud/w_icon_blaster_pistol",//"gfx/hud/w_icon_rifle",
 /* pickup *///	"Bryar Pistol",
 		100,
-		IT_WEAPON,
-		to_underlying( WP_BRYAR_PISTOL ),
+		itemType_t::IT_WEAPON,
+		to_underlying( weapon_t::WP_BRYAR_PISTOL ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_BLASTER_PISTOL_DESC"					// description
@@ -1159,8 +1159,8 @@ Don't place this
 /* icon */		"gfx/hud/w_icon_c_rifle",//"gfx/hud/w_icon_rifle",
 /* pickup *///	"Concussion Rifle",
 		50,
-		IT_WEAPON,
-		to_underlying( WP_CONCUSSION ),
+		itemType_t::IT_WEAPON,
+		to_underlying( weapon_t::WP_CONCUSSION ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_CONC_RIFLE_DESC"					// description
@@ -1178,8 +1178,8 @@ Don't place this
 /* icon */		"gfx/hud/w_icon_briar",//"gfx/hud/w_icon_rifle",
 /* pickup *///	"Bryar Pistol",
 		100,
-		IT_WEAPON,
-		to_underlying( WP_BRYAR_OLD ),
+		itemType_t::IT_WEAPON,
+		to_underlying( weapon_t::WP_BRYAR_OLD ),
 /* precache */ "",
 /* sounds */ "",
 		"@SP_INGAME_BLASTER_PISTOL"					// description
@@ -1196,8 +1196,8 @@ Don't place this
 /* icon */		"gfx/hud/w_icon_blaster",
 /* pickup *///	"E11 Blaster Rifle",
 		100,
-		IT_WEAPON,
-		to_underlying( WP_BLASTER ),
+		itemType_t::IT_WEAPON,
+		to_underlying( weapon_t::WP_BLASTER ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_THE_PRIMARY_WEAPON_OF"				// description
@@ -1214,8 +1214,8 @@ Don't place this
 /* icon */		"gfx/hud/w_icon_disruptor",
 /* pickup *///	"Tenloss Disruptor Rifle",
 		100,
-		IT_WEAPON,
-		to_underlying( WP_DISRUPTOR ),
+		itemType_t::IT_WEAPON,
+		to_underlying( weapon_t::WP_DISRUPTOR ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_THIS_NEFARIOUS_WEAPON"					// description
@@ -1232,8 +1232,8 @@ Don't place this
 /* icon */		"gfx/hud/w_icon_bowcaster",
 /* pickup *///	"Wookiee Bowcaster",
 		100,
-		IT_WEAPON,
-		to_underlying( WP_BOWCASTER ),
+		itemType_t::IT_WEAPON,
+		to_underlying( weapon_t::WP_BOWCASTER ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_THIS_ARCHAIC_LOOKING"					// description
@@ -1250,8 +1250,8 @@ Don't place this
 /* icon */		"gfx/hud/w_icon_repeater",
 /* pickup *///	"Imperial Heavy Repeater",
 		100,
-		IT_WEAPON,
-		to_underlying( WP_REPEATER ),
+		itemType_t::IT_WEAPON,
+		to_underlying( weapon_t::WP_REPEATER ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_THIS_DESTRUCTIVE_PROJECTILE"					// description
@@ -1269,8 +1269,8 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 /* icon */		"gfx/hud/w_icon_demp2",
 /* pickup *///	"DEMP2",
 		100,
-		IT_WEAPON,
-		to_underlying( WP_DEMP2 ),
+		itemType_t::IT_WEAPON,
+		to_underlying( weapon_t::WP_DEMP2 ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_COMMONLY_REFERRED_TO"					// description
@@ -1287,8 +1287,8 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 /* icon */		"gfx/hud/w_icon_flechette",
 /* pickup *///	"Golan Arms Flechette",
 		100,
-		IT_WEAPON,
-		to_underlying( WP_FLECHETTE ),
+		itemType_t::IT_WEAPON,
+		to_underlying( weapon_t::WP_FLECHETTE ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_WIDELY_USED_BY_THE_CORPORATE"					// description
@@ -1305,8 +1305,8 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 /* icon */		"gfx/hud/w_icon_merrsonn",
 /* pickup *///	"Merr-Sonn Missile System",
 		3,
-		IT_WEAPON,
-		to_underlying( WP_ROCKET_LAUNCHER ),
+		itemType_t::IT_WEAPON,
+		to_underlying( weapon_t::WP_ROCKET_LAUNCHER ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_THE_PLX_2M_IS_AN_EXTREMELY"					// description
@@ -1323,8 +1323,8 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 /* icon */		"gfx/hud/w_icon_thermal",
 /* pickup *///	"Thermal Detonators",
 		4,
-		IT_AMMO,
-		to_underlying( AMMO_THERMAL ),
+		itemType_t::IT_AMMO,
+		to_underlying( ammo_t::AMMO_THERMAL ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_THE_THERMAL_DETONATOR"					// description
@@ -1341,8 +1341,8 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 /* icon */		"gfx/hud/w_icon_tripmine",
 /* pickup *///	"Trip Mines",
 		3,
-		IT_AMMO,
-		to_underlying( AMMO_TRIPMINE ),
+		itemType_t::IT_AMMO,
+		to_underlying( ammo_t::AMMO_TRIPMINE ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_TRIP_MINES_CONSIST_OF"					// description
@@ -1358,8 +1358,8 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 /* icon */		"gfx/hud/w_icon_detpack",
 /* pickup *///	"Det Packs",
 		3,
-		IT_AMMO,
-		to_underlying( AMMO_DETPACK ),
+		itemType_t::IT_AMMO,
+		to_underlying( ammo_t::AMMO_DETPACK ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_A_DETONATION_PACK_IS"					// description
@@ -1376,8 +1376,8 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 /* icon */		"gfx/hud/w_icon_thermal",
 /* pickup *///	"Thermal Detonator",
 		4,
-		IT_WEAPON,
-		to_underlying( WP_THERMAL ),
+		itemType_t::IT_WEAPON,
+		to_underlying( weapon_t::WP_THERMAL ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_THE_THERMAL_DETONATOR"					// description
@@ -1394,8 +1394,8 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 /* icon */		"gfx/hud/w_icon_tripmine",
 /* pickup *///	"Trip Mine",
 		3,
-		IT_WEAPON,
-		to_underlying( WP_TRIP_MINE ),
+		itemType_t::IT_WEAPON,
+		to_underlying( weapon_t::WP_TRIP_MINE ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_TRIP_MINES_CONSIST_OF"					// description
@@ -1411,8 +1411,8 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 /* icon */		"gfx/hud/w_icon_detpack",
 /* pickup *///	"Det Pack",
 		3,
-		IT_WEAPON,
-		to_underlying( WP_DET_PACK ),
+		itemType_t::IT_WEAPON,
+		to_underlying( weapon_t::WP_DET_PACK ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_A_DETONATION_PACK_IS"					// description
@@ -1429,8 +1429,8 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 /* icon */		"gfx/hud/w_icon_blaster",
 /* pickup *///	"Emplaced Gun",
 		50,
-		IT_WEAPON,
-		to_underlying( WP_EMPLACED_GUN ),
+		itemType_t::IT_WEAPON,
+		to_underlying( weapon_t::WP_EMPLACED_GUN ),
 /* precache */ "",
 /* sounds */ "",
 		""					// description
@@ -1447,8 +1447,8 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 /* icon */		"gfx/hud/w_icon_blaster",
 /* pickup *///	"Turret Gun",
 		50,
-		IT_WEAPON,
-		to_underlying( WP_TURRET ),
+		itemType_t::IT_WEAPON,
+		to_underlying( weapon_t::WP_TURRET ),
 /* precache */ "",
 /* sounds */ "",
 		""					// description
@@ -1470,8 +1470,8 @@ Don't place this
 /* icon */		"gfx/hud/w_icon_blaster",
 /* pickup *///	"Force??",
 		100,
-		IT_AMMO,
-		to_underlying( AMMO_FORCE ),
+		itemType_t::IT_AMMO,
+		to_underlying( ammo_t::AMMO_FORCE ),
 /* precache */ "",
 /* sounds */ "",
 		""					// description
@@ -1489,8 +1489,8 @@ Ammo for the Bryar and Blaster pistols.
 /* icon */		"gfx/hud/i_icon_battery",
 /* pickup *///	"Blaster Pack",
 		100,
-		IT_AMMO,
-		to_underlying( AMMO_BLASTER ),
+		itemType_t::IT_AMMO,
+		to_underlying( ammo_t::AMMO_BLASTER ),
 /* precache */ "",
 /* sounds */ "",
 		""					// description
@@ -1508,8 +1508,8 @@ Ammo for Tenloss Disruptor, Wookie Bowcaster, and the Destructive Electro Magnet
 /* icon */		"gfx/mp/ammo_power_cell",
 /* pickup *///	"Power Cell",
 		100,
-		IT_AMMO,
-		to_underlying( AMMO_POWERCELL ),
+		itemType_t::IT_AMMO,
+		to_underlying( ammo_t::AMMO_POWERCELL ),
 /* precache */ "",
 /* sounds */ "",
 		""					// description
@@ -1527,8 +1527,8 @@ Ammo for Imperial Heavy Repeater and the Golan Arms Flechette
 /* icon */		"gfx/mp/ammo_metallic_bolts",
 /* pickup *///	"Metallic Bolts",
 		100,
-		IT_AMMO,
-		to_underlying( AMMO_METAL_BOLTS ),
+		itemType_t::IT_AMMO,
+		to_underlying( ammo_t::AMMO_METAL_BOLTS ),
 /* precache */ "",
 /* sounds */ "",
 		""					// description
@@ -1546,8 +1546,8 @@ Ammo for Merr-Sonn portable missile launcher
 /* icon */		"gfx/mp/ammo_rockets",
 /* pickup *///	"Rockets",
 		3,
-		IT_AMMO,
-		to_underlying( AMMO_ROCKETS ),
+		itemType_t::IT_AMMO,
+		to_underlying( ammo_t::AMMO_ROCKETS ),
 /* precache */ "",
 /* sounds */ "",
 		""					// description
@@ -1566,7 +1566,7 @@ dispensing ability
 /* icon */		"gfx/mp/ammo_rockets", //replace me
 /* pickup *///	"Rockets",
 		0,
-		IT_AMMO,
+		itemType_t::IT_AMMO,
 		-1,
 /* precache */ "",
 /* sounds */ "",
@@ -1588,8 +1588,8 @@ Only in CTF games
 /* icon */		"gfx/hud/mpi_rflag",
 /* pickup *///	"Red Flag",
 		0,
-		IT_TEAM,
-		to_underlying( PW_REDFLAG ),
+		itemType_t::IT_TEAM,
+		to_underlying( powerup_t::PW_REDFLAG ),
 /* precache */ "",
 /* sounds */ "",
 		""					// description
@@ -1607,8 +1607,8 @@ Only in CTF games
 /* icon */		"gfx/hud/mpi_bflag",
 /* pickup *///	"Blue Flag",
 		0,
-		IT_TEAM,
-		to_underlying( PW_BLUEFLAG ),
+		itemType_t::IT_TEAM,
+		to_underlying( powerup_t::PW_BLUEFLAG ),
 /* precache */ "",
 /* sounds */ "",
 		""					// description
@@ -1630,8 +1630,8 @@ Only in One Flag CTF games
 /* icon */		"icons/iconf_neutral1",
 /* pickup *///	"Neutral Flag",
 		0,
-		IT_TEAM,
-		to_underlying( PW_NEUTRALFLAG ),
+		itemType_t::IT_TEAM,
+		to_underlying( powerup_t::PW_NEUTRALFLAG ),
 /* precache */ "",
 /* sounds */ "",
 		""					// description
@@ -1646,7 +1646,7 @@ Only in One Flag CTF games
 /* icon */		"icons/iconh_rorb",
 /* pickup *///	"Red Cube",
 		0,
-		IT_TEAM,
+		itemType_t::IT_TEAM,
 		0,
 /* precache */ "",
 /* sounds */ "",
@@ -1662,7 +1662,7 @@ Only in One Flag CTF games
 /* icon */		"icons/iconh_borb",
 /* pickup *///	"Blue Cube",
 		0,
-		IT_TEAM,
+		itemType_t::IT_TEAM,
 		0,
 /* precache */ "",
 /* sounds */ "",
@@ -1698,13 +1698,13 @@ float vectoyaw( const vec3_t vec ) {
 
 bool BG_HasYsalamiri(gametype_t gametype, playerState_t *ps)
 {
-	if (gametype == GT_CTY &&
-		(ps->powerups[PW_REDFLAG] || ps->powerups[PW_BLUEFLAG]))
+	if (gametype == gametype_t::GT_CTY &&
+		(ps->powerups[powerup_t::PW_REDFLAG] || ps->powerups[powerup_t::PW_BLUEFLAG]))
 	{
 		return true;
 	}
 
-	if (ps->powerups[PW_YSALAMIRI])
+	if (ps->powerups[powerup_t::PW_YSALAMIRI])
 	{
 		return true;
 	}
@@ -1724,7 +1724,7 @@ bool BG_CanUseFPNow(gametype_t gametype, playerState_t *ps, int time, forcePower
 		return false;
 	}
 
-	if (ps->weapon == WP_EMPLACED_GUN)
+	if (ps->weapon == weapon_t::WP_EMPLACED_GUN)
 	{ //can't use any of your powers while on an emplaced weapon
 		return false;
 	}
@@ -1736,10 +1736,10 @@ bool BG_CanUseFPNow(gametype_t gametype, playerState_t *ps, int time, forcePower
 
 	if (ps->duelInProgress)
 	{
-		if (power != FP_SABER_OFFENSE && power != FP_SABER_DEFENSE && /*power != FP_SABERTHROW &&*/
-			power != FP_LEVITATION)
+		if (power != forcePowers_t::FP_SABER_OFFENSE && power != forcePowers_t::FP_SABER_DEFENSE && /*power != forcePowers_t::FP_SABERTHROW &&*/
+			power != forcePowers_t::FP_LEVITATION)
 		{
-			if (!ps->saberLockFrame || power != FP_PUSH)
+			if (!ps->saberLockFrame || power != forcePowers_t::FP_PUSH)
 			{
 				return false;
 			}
@@ -1748,7 +1748,7 @@ bool BG_CanUseFPNow(gametype_t gametype, playerState_t *ps, int time, forcePower
 
 	if (ps->saberLockFrame || ps->saberLockTime > time)
 	{
-		if (power != FP_PUSH)
+		if (power != forcePowers_t::FP_PUSH)
 		{
 			return false;
 		}
@@ -1759,16 +1759,16 @@ bool BG_CanUseFPNow(gametype_t gametype, playerState_t *ps, int time, forcePower
 		return false;
 	}
 
-	if ((ps->brokenLimbs & Bit( BROKENLIMB_RARM )) ||
-		(ps->brokenLimbs & Bit( BROKENLIMB_LARM )))
+	if ((ps->brokenLimbs & Bit( brokenLimb_t::BROKENLIMB_RARM )) ||
+		(ps->brokenLimbs & Bit( brokenLimb_t::BROKENLIMB_LARM )))
 	{ //powers we can't use with a broken arm
         switch (power)
 		{
-		case FP_PUSH:
-		case FP_PULL:
-		case FP_GRIP:
-		case FP_LIGHTNING:
-		case FP_DRAIN:
+		case forcePowers_t::FP_PUSH:
+		case forcePowers_t::FP_PULL:
+		case forcePowers_t::FP_GRIP:
+		case forcePowers_t::FP_LIGHTNING:
+		case forcePowers_t::FP_DRAIN:
 			return false;
 		default:
 			break;
@@ -1787,8 +1787,8 @@ gitem_t	*BG_FindItemForPowerup( powerup_t pw ) {
 	int		i;
 
 	for ( i = 0 ; i < bg_numItems ; i++ ) {
-		if ( (bg_itemlist[i].giType == IT_POWERUP ||
-					bg_itemlist[i].giType == IT_TEAM) &&
+		if ( (bg_itemlist[i].giType == itemType_t::IT_POWERUP ||
+					bg_itemlist[i].giType == itemType_t::IT_TEAM) &&
 			GI_Powerup( bg_itemlist[i] ) == pw ) {
 			return &bg_itemlist[i];
 		}
@@ -1807,12 +1807,12 @@ gitem_t	*BG_FindItemForHoldable( holdable_t pw ) {
 	int		i;
 
 	for ( i = 0 ; i < bg_numItems ; i++ ) {
-		if ( bg_itemlist[i].giType == IT_HOLDABLE && GI_Holdable( bg_itemlist[i] ) == pw ) {
+		if ( bg_itemlist[i].giType == itemType_t::IT_HOLDABLE && GI_Holdable( bg_itemlist[i] ) == pw ) {
 			return &bg_itemlist[i];
 		}
 	}
 
-	Com_Error( ERR_DROP, "HoldableItem not found" );
+	Com_Error( errorParm_t::ERR_DROP, "HoldableItem not found" );
 
 	return nullptr;
 }
@@ -1828,12 +1828,12 @@ gitem_t	*BG_FindItemForWeapon( weapon_t weapon ) {
 	gitem_t	*it;
 
 	for ( it = bg_itemlist + 1 ; it->classname ; it++) {
-		if ( it->giType == IT_WEAPON && GI_Weapon( *it ) == weapon ) {
+		if ( it->giType == itemType_t::IT_WEAPON && GI_Weapon( *it ) == weapon ) {
 			return it;
 		}
 	}
 
-	Com_Error( ERR_DROP, "Couldn't find item for weapon %i", to_underlying( weapon ));
+	Com_Error( errorParm_t::ERR_DROP, "Couldn't find item for weapon %i", to_underlying( weapon ));
 	return nullptr;
 }
 
@@ -1847,12 +1847,12 @@ gitem_t	*BG_FindItemForAmmo( ammo_t ammo ) {
 	gitem_t	*it;
 
 	for ( it = bg_itemlist + 1 ; it->classname ; it++) {
-		if ( it->giType == IT_AMMO && GI_Ammo( *it ) == ammo ) {
+		if ( it->giType == itemType_t::IT_AMMO && GI_Ammo( *it ) == ammo ) {
 			return it;
 		}
 	}
 
-	Com_Error( ERR_DROP, "Couldn't find item for ammo %i", to_underlying( ammo ));
+	Com_Error( errorParm_t::ERR_DROP, "Couldn't find item for ammo %i", to_underlying( ammo ));
 	return nullptr;
 }
 
@@ -1916,7 +1916,7 @@ void BG_CycleForce( playerState_t *ps, int direction ) {
 	std::optional<forcePowers_t> foundnext;
 
 	// no valid force powers
-	if ( ps->fd.forcePowerSelected >= NUM_FORCE_POWERS || ps->fd.forcePowerSelected == FP_UNKNOWN )
+	if ( ps->fd.forcePowerSelected >= forcePowers_t::NUM_FORCE_POWERS || ps->fd.forcePowerSelected == forcePowers_t::FP_UNKNOWN )
 		return;
 
 	presel = x = BG_ProperForceIndex( ps->fd.forcePowerSelected );
@@ -1924,8 +1924,8 @@ void BG_CycleForce( playerState_t *ps, int direction ) {
 	// get the next/prev power and handle overflow
 	if ( direction == 1 )	x++;
 	else					x--;
-	if ( x >= to_underlying( NUM_FORCE_POWERS ) )	x = 0;
-	if ( x < 0 )					x = to_underlying( NUM_FORCE_POWERS )-1;
+	if ( x >= to_underlying( forcePowers_t::NUM_FORCE_POWERS ) )	x = 0;
+	if ( x < 0 )					x = to_underlying( forcePowers_t::NUM_FORCE_POWERS )-1;
 
 	i = forcePowerSorted[x]; //the "sorted" value of this power
 
@@ -1933,7 +1933,7 @@ void BG_CycleForce( playerState_t *ps, int direction ) {
 		// loop around to the current force power
 		if ( ps->fd.forcePowersKnown & Bit( i ) && i != ps->fd.forcePowerSelected ) {
 			// we have this power
-			if ( i != FP_LEVITATION && i != FP_SABER_OFFENSE && i != FP_SABER_DEFENSE && i != FP_SABERTHROW ) {
+			if ( i != forcePowers_t::FP_LEVITATION && i != forcePowers_t::FP_SABER_OFFENSE && i != forcePowers_t::FP_SABER_DEFENSE && i != forcePowers_t::FP_SABERTHROW ) {
 				// it's selectable
 				foundnext = i;
 				break;
@@ -1943,8 +1943,8 @@ void BG_CycleForce( playerState_t *ps, int direction ) {
 		// get the next/prev power and handle overflow
 		if ( direction == 1 )	x++;
 		else					x--;
-		if ( x >= to_underlying( NUM_FORCE_POWERS ) )	x = 0;
-		if ( x < 0 )					x = to_underlying( NUM_FORCE_POWERS )-1;
+		if ( x >= to_underlying( forcePowers_t::NUM_FORCE_POWERS ) )	x = 0;
+		if ( x < 0 )					x = to_underlying( forcePowers_t::NUM_FORCE_POWERS )-1;
 
 		i = forcePowerSorted[x]; //set to the sorted value again
 	}
@@ -1974,19 +1974,19 @@ int BG_GetItemIndexByTag(int tag, itemType_t type)
 
 int BG_GetItemIndexByTag( holdable_t item )
 {
-	return BG_GetItemIndexByTag( to_underlying( item ), IT_HOLDABLE );
+	return BG_GetItemIndexByTag( to_underlying( item ), itemType_t::IT_HOLDABLE );
 }
 
 int BG_GetItemIndexByTag( weapon_t weapon )
 {
-	return BG_GetItemIndexByTag( to_underlying( weapon ), IT_WEAPON );
+	return BG_GetItemIndexByTag( to_underlying( weapon ), itemType_t::IT_WEAPON );
 }
 
 //yeah..
 bool BG_IsItemSelectable(playerState_t *ps, holdable_t item)
 {
-	if (item == HI_HEALTHDISP || item == HI_AMMODISP ||
-		item == HI_JETPACK)
+	if (item == holdable_t::HI_HEALTHDISP || item == holdable_t::HI_AMMODISP ||
+		item == holdable_t::HI_JETPACK)
 	{
 		return false;
 	}
@@ -1999,33 +1999,33 @@ void BG_CycleInven(playerState_t *ps, int direction)
 	int dontFreeze = 0;
 	holdable_t original;
 
-	i = GI_Holdable( bg_itemlist[ps->stats[STAT_HOLDABLE_ITEM]] );
+	i = GI_Holdable( bg_itemlist[ps->stats[statIndex_t::STAT_HOLDABLE_ITEM]] );
 	original = i;
 
 	if (direction == 1)
 	{ //next
 		i++;
-		if (i == HI_NUM_HOLDABLE)
+		if (i == holdable_t::HI_NUM_HOLDABLE)
 		{
-			i = HI_NONE + 1;
+			i = holdable_t::HI_NONE + 1;
 		}
 	}
 	else
 	{ //previous
 		i--;
-		if (i == HI_NONE)
+		if (i == holdable_t::HI_NONE)
 		{
-			i = HI_NUM_HOLDABLE-1;
+			i = holdable_t::HI_NUM_HOLDABLE-1;
 		}
 	}
 
 	while (i != original)
 	{ //go in a full loop until hitting something, if hit nothing then select nothing
-		if (ps->stats[STAT_HOLDABLE_ITEMS] & Bit( i ))
+		if (ps->stats[statIndex_t::STAT_HOLDABLE_ITEMS] & Bit( i ))
 		{ //we have it, select it.
 			if (BG_IsItemSelectable(ps, i))
 			{
-				ps->stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag( i );
+				ps->stats[statIndex_t::STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag( i );
 				break;
 			}
 		}
@@ -2039,13 +2039,13 @@ void BG_CycleInven(playerState_t *ps, int direction)
 			i--;
 		}
 
-		if (i <= HI_NONE)
+		if (i <= holdable_t::HI_NONE)
 		{ //wrap around to the last
-			i = HI_NUM_HOLDABLE-1;
+			i = holdable_t::HI_NUM_HOLDABLE-1;
 		}
-		else if (i >= HI_NUM_HOLDABLE)
+		else if (i >= holdable_t::HI_NUM_HOLDABLE)
 		{ //wrap around to the first
-			i = HI_NONE + 1;
+			i = holdable_t::HI_NONE + 1;
 		}
 
 		dontFreeze++;
@@ -2068,7 +2068,7 @@ bool BG_CanItemBeGrabbed( gametype_t gametype, const entityState_t *ent, const p
 	gitem_t	*item;
 
 	if ( ent->modelindex < 1 || ent->modelindex >= bg_numItems ) {
-		Com_Error( ERR_DROP, "BG_CanItemBeGrabbed: index out of range" );
+		Com_Error( errorParm_t::ERR_DROP, "BG_CanItemBeGrabbed: index out of range" );
 	}
 
 	item = &bg_itemlist[ent->modelindex];
@@ -2077,25 +2077,25 @@ bool BG_CanItemBeGrabbed( gametype_t gametype, const entityState_t *ent, const p
 	{
 		if ( ps->trueJedi )
 		{//force powers and saber only
-			if ( item->giType != IT_TEAM //not a flag
-				&& item->giType != IT_ARMOR//not shields
-				&& (item->giType != IT_WEAPON || GI_Weapon( *item ) != WP_SABER)//not a saber
-				&& (item->giType != IT_HOLDABLE || GI_Holdable( *item ) != HI_SEEKER)//not a seeker
-				&& (item->giType != IT_POWERUP || GI_Powerup( *item ) == PW_YSALAMIRI) )//not a force pick-up
+			if ( item->giType != itemType_t::IT_TEAM //not a flag
+				&& item->giType != itemType_t::IT_ARMOR//not shields
+				&& (item->giType != itemType_t::IT_WEAPON || GI_Weapon( *item ) != weapon_t::WP_SABER)//not a saber
+				&& (item->giType != itemType_t::IT_HOLDABLE || GI_Holdable( *item ) != holdable_t::HI_SEEKER)//not a seeker
+				&& (item->giType != itemType_t::IT_POWERUP || GI_Powerup( *item ) == powerup_t::PW_YSALAMIRI) )//not a force pick-up
 			{
 				return false;
 			}
 		}
 		else if ( ps->trueNonJedi )
 		{//can't pick up force powerups
-			if ( (item->giType == IT_POWERUP && GI_Powerup( *item ) != PW_YSALAMIRI) //if a powerup, can only can pick up ysalamiri
-				|| (item->giType == IT_HOLDABLE && GI_Holdable( *item ) == HI_SEEKER)//if holdable, cannot pick up seeker
-				|| (item->giType == IT_WEAPON && GI_Weapon( *item ) == WP_SABER ) )//or if it's a saber
+			if ( (item->giType == itemType_t::IT_POWERUP && GI_Powerup( *item ) != powerup_t::PW_YSALAMIRI) //if a powerup, can only can pick up ysalamiri
+				|| (item->giType == itemType_t::IT_HOLDABLE && GI_Holdable( *item ) == holdable_t::HI_SEEKER)//if holdable, cannot pick up seeker
+				|| (item->giType == itemType_t::IT_WEAPON && GI_Weapon( *item ) == weapon_t::WP_SABER ) )//or if it's a saber
 			{
 				return false;
 			}
 		}
-		if ( ps->isJediMaster && item && (item->giType == IT_WEAPON || item->giType == IT_AMMO))
+		if ( ps->isJediMaster && item && (item->giType == itemType_t::IT_WEAPON || item->giType == itemType_t::IT_AMMO))
 		{//jedi master cannot pick up weapons
 			return false;
 		}
@@ -2110,17 +2110,17 @@ bool BG_CanItemBeGrabbed( gametype_t gametype, const entityState_t *ent, const p
 	}
 
 	switch( item->giType ) {
-	case IT_WEAPON:
+	case itemType_t::IT_WEAPON:
 		if (ent->generic1 == ps->clientNum && ent->powerups)
 		{
 			return false;
 		}
-		if (!Any(ent->eFlags & EF_DROPPEDWEAPON) && (ps->stats[STAT_WEAPONS] & Bit( GI_Weapon( *item ) )) &&
-			GI_Weapon( *item ) != WP_THERMAL && GI_Weapon( *item ) != WP_TRIP_MINE && GI_Weapon( *item ) != WP_DET_PACK)
+		if (!Any(ent->eFlags & entityFlags_t::EF_DROPPEDWEAPON) && (ps->stats[statIndex_t::STAT_WEAPONS] & Bit( GI_Weapon( *item ) )) &&
+			GI_Weapon( *item ) != weapon_t::WP_THERMAL && GI_Weapon( *item ) != weapon_t::WP_TRIP_MINE && GI_Weapon( *item ) != weapon_t::WP_DET_PACK)
 		{ //weaponstay stuff.. if this isn't dropped, and you already have it, you don't get it.
 			return false;
 		}
-		if (GI_Weapon( *item ) == WP_THERMAL || GI_Weapon( *item ) == WP_TRIP_MINE || GI_Weapon( *item ) == WP_DET_PACK)
+		if (GI_Weapon( *item ) == weapon_t::WP_THERMAL || GI_Weapon( *item ) == weapon_t::WP_TRIP_MINE || GI_Weapon( *item ) == weapon_t::WP_DET_PACK)
 		{ //check to see if full on ammo for this, if so, then..
 			const ammo_t ammoIndex = weaponData[GI_Weapon( *item )].ammoIndex;
 			if (ps->ammo[ammoIndex] >= ammoData[ammoIndex].max)
@@ -2130,7 +2130,7 @@ bool BG_CanItemBeGrabbed( gametype_t gametype, const entityState_t *ent, const p
 		}
 		return true;	// weapons are always picked up
 
-	case IT_AMMO:
+	case itemType_t::IT_AMMO:
 		if (item->giTag == -1)
 		{ //special case for "all ammo" packs
 			return true;
@@ -2140,71 +2140,71 @@ bool BG_CanItemBeGrabbed( gametype_t gametype, const entityState_t *ent, const p
 		}
 		return true;
 
-	case IT_ARMOR:
-		if ( ps->stats[STAT_ARMOR] >= ps->stats[STAT_MAX_HEALTH]/* * item->giTag*/ ) {
+	case itemType_t::IT_ARMOR:
+		if ( ps->stats[statIndex_t::STAT_ARMOR] >= ps->stats[statIndex_t::STAT_MAX_HEALTH]/* * item->giTag*/ ) {
 			return false;
 		}
 		return true;
 
-	case IT_HEALTH:
+	case itemType_t::IT_HEALTH:
 		// small and mega healths will go over the max, otherwise
 		// don't pick up if already at max
-		if ((ps->fd.forcePowersActive & Bit( FP_RAGE )))
+		if ((ps->fd.forcePowersActive & Bit( forcePowers_t::FP_RAGE )))
 		{
 			return false;
 		}
 
 		if ( item->quantity == 5 || item->quantity == 100 ) {
-			if ( ps->stats[STAT_HEALTH] >= ps->stats[STAT_MAX_HEALTH] * 2 ) {
+			if ( ps->stats[statIndex_t::STAT_HEALTH] >= ps->stats[statIndex_t::STAT_MAX_HEALTH] * 2 ) {
 				return false;
 			}
 			return true;
 		}
 
-		if ( ps->stats[STAT_HEALTH] >= ps->stats[STAT_MAX_HEALTH] ) {
+		if ( ps->stats[statIndex_t::STAT_HEALTH] >= ps->stats[statIndex_t::STAT_MAX_HEALTH] ) {
 			return false;
 		}
 		return true;
 
-	case IT_POWERUP:
-		if (ps && (ps->powerups[PW_YSALAMIRI]))
+	case itemType_t::IT_POWERUP:
+		if (ps && (ps->powerups[powerup_t::PW_YSALAMIRI]))
 		{
-			if (GI_Powerup( *item ) != PW_YSALAMIRI)
+			if (GI_Powerup( *item ) != powerup_t::PW_YSALAMIRI)
 			{
 				return false;
 			}
 		}
 		return true;	// powerups are always picked up
 
-	case IT_TEAM: // team items, such as flags
-		if( gametype == GT_CTF || gametype == GT_CTY ) {
+	case itemType_t::IT_TEAM: // team items, such as flags
+		if( gametype == gametype_t::GT_CTF || gametype == gametype_t::GT_CTY ) {
 			// ent->modelindex2 is non-zero on items if they are dropped
 			// we need to know this because we can pick up our dropped flag (and return it)
 			// but we can't pick up our flag at base
-			if (PS_Team( *ps ) == TEAM_RED) {
-				if (GI_Powerup( *item ) == PW_BLUEFLAG ||
-					(GI_Powerup( *item ) == PW_REDFLAG && ent->modelindex2) ||
-					(GI_Powerup( *item ) == PW_REDFLAG && ps->powerups[PW_BLUEFLAG]) )
+			if (PS_Team( *ps ) == team_t::TEAM_RED) {
+				if (GI_Powerup( *item ) == powerup_t::PW_BLUEFLAG ||
+					(GI_Powerup( *item ) == powerup_t::PW_REDFLAG && ent->modelindex2) ||
+					(GI_Powerup( *item ) == powerup_t::PW_REDFLAG && ps->powerups[powerup_t::PW_BLUEFLAG]) )
 					return true;
-			} else if (PS_Team( *ps ) == TEAM_BLUE) {
-				if (GI_Powerup( *item ) == PW_REDFLAG ||
-					(GI_Powerup( *item ) == PW_BLUEFLAG && ent->modelindex2) ||
-					(GI_Powerup( *item ) == PW_BLUEFLAG && ps->powerups[PW_REDFLAG]) )
+			} else if (PS_Team( *ps ) == team_t::TEAM_BLUE) {
+				if (GI_Powerup( *item ) == powerup_t::PW_REDFLAG ||
+					(GI_Powerup( *item ) == powerup_t::PW_BLUEFLAG && ent->modelindex2) ||
+					(GI_Powerup( *item ) == powerup_t::PW_BLUEFLAG && ps->powerups[powerup_t::PW_REDFLAG]) )
 					return true;
 			}
 		}
 
 		return false;
 
-	case IT_HOLDABLE:
-		if ( ps->stats[STAT_HOLDABLE_ITEMS] & (1 << item->giTag))
+	case itemType_t::IT_HOLDABLE:
+		if ( ps->stats[statIndex_t::STAT_HOLDABLE_ITEMS] & (1 << item->giTag))
 		{
 			return false;
 		}
 		return true;
 
-        case IT_BAD:
-            Com_Error( ERR_DROP, "BG_CanItemBeGrabbed: IT_BAD" );
+        case itemType_t::IT_BAD:
+            Com_Error( errorParm_t::ERR_DROP, "BG_CanItemBeGrabbed: IT_BAD" );
         default:
 #ifndef NDEBUG // bk0001204
           Com_Printf("BG_CanItemBeGrabbed: unknown enum %d\n", to_underlying( item->giType ) );
@@ -2228,20 +2228,20 @@ void BG_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result ) 
 	float		phase;
 
 	switch( tr->trType ) {
-	case TR_STATIONARY:
-	case TR_INTERPOLATE:
+	case trType_t::TR_STATIONARY:
+	case trType_t::TR_INTERPOLATE:
 		VectorCopy( tr->trBase, result );
 		break;
-	case TR_LINEAR:
+	case trType_t::TR_LINEAR:
 		deltaTime = ( atTime - tr->trTime ) * 0.001;	// milliseconds to seconds
 		VectorMA( tr->trBase, deltaTime, tr->trDelta, result );
 		break;
-	case TR_SINE:
+	case trType_t::TR_SINE:
 		deltaTime = ( atTime - tr->trTime ) / (float) tr->trDuration;
 		phase = Q_sinpif( deltaTime * 2.0f );
 		VectorMA( tr->trBase, phase, tr->trDelta, result );
 		break;
-	case TR_LINEAR_STOP:
+	case trType_t::TR_LINEAR_STOP:
 		if ( atTime > tr->trTime + tr->trDuration ) {
 			atTime = tr->trTime + tr->trDuration;
 		}
@@ -2251,7 +2251,7 @@ void BG_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result ) 
 		}
 		VectorMA( tr->trBase, deltaTime, tr->trDelta, result );
 		break;
-	case TR_NONLINEAR_STOP:
+	case trType_t::TR_NONLINEAR_STOP:
 		if ( atTime > tr->trTime + tr->trDuration )
 		{
 			atTime = tr->trTime + tr->trDuration;
@@ -2267,16 +2267,16 @@ void BG_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result ) 
 		}
 		VectorMA( tr->trBase, deltaTime, tr->trDelta, result );
 		break;
-	case TR_GRAVITY:
+	case trType_t::TR_GRAVITY:
 		deltaTime = ( atTime - tr->trTime ) * 0.001;	// milliseconds to seconds
 		VectorMA( tr->trBase, deltaTime, tr->trDelta, result );
 		result[2] -= 0.5 * DEFAULT_GRAVITY * deltaTime * deltaTime;		// FIXME: local gravity...
 		break;
 	default:
 #ifdef _GAME
-		Com_Error( ERR_DROP, "BG_EvaluateTrajectory: [ GAME] unknown trType: %i", to_underlying( tr->trType ) );
+		Com_Error( errorParm_t::ERR_DROP, "BG_EvaluateTrajectory: [ GAME] unknown trType: %i", to_underlying( tr->trType ) );
 #else
-		Com_Error( ERR_DROP, "BG_EvaluateTrajectory: [CGAME] unknown trType: %i", to_underlying( tr->trType ) );
+		Com_Error( errorParm_t::ERR_DROP, "BG_EvaluateTrajectory: [CGAME] unknown trType: %i", to_underlying( tr->trType ) );
 #endif
 		break;
 	}
@@ -2294,27 +2294,27 @@ void BG_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t resu
 	float	phase;
 
 	switch( tr->trType ) {
-	case TR_STATIONARY:
-	case TR_INTERPOLATE:
+	case trType_t::TR_STATIONARY:
+	case trType_t::TR_INTERPOLATE:
 		VectorClear( result );
 		break;
-	case TR_LINEAR:
+	case trType_t::TR_LINEAR:
 		VectorCopy( tr->trDelta, result );
 		break;
-	case TR_SINE:
+	case trType_t::TR_SINE:
 		deltaTime = ( atTime - tr->trTime ) / (float) tr->trDuration;
 		phase = Q_cospif( deltaTime * 2.0f );	// derivative of sin = cos
 		phase *= 0.5;
 		VectorScale( tr->trDelta, phase, result );
 		break;
-	case TR_LINEAR_STOP:
+	case trType_t::TR_LINEAR_STOP:
 		if ( atTime > tr->trTime + tr->trDuration ) {
 			VectorClear( result );
 			return;
 		}
 		VectorCopy( tr->trDelta, result );
 		break;
-	case TR_NONLINEAR_STOP:
+	case trType_t::TR_NONLINEAR_STOP:
 		if ( atTime - tr->trTime > tr->trDuration || atTime - tr->trTime <= 0  )
 		{
 			VectorClear( result );
@@ -2323,22 +2323,22 @@ void BG_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t resu
 		deltaTime = tr->trDuration*0.001f*Q_cospif( (90.0f - (90.0f*((float)(atTime-tr->trTime))/(float)tr->trDuration)) / 180.0f );
 		VectorScale( tr->trDelta, deltaTime, result );
 		break;
-	case TR_GRAVITY:
+	case trType_t::TR_GRAVITY:
 		deltaTime = ( atTime - tr->trTime ) * 0.001;	// milliseconds to seconds
 		VectorCopy( tr->trDelta, result );
 		result[2] -= DEFAULT_GRAVITY * deltaTime;		// FIXME: local gravity...
 		break;
 	default:
 #ifdef _GAME
-		Com_Error( ERR_DROP, "BG_EvaluateTrajectoryDelta: [ GAME] unknown trType: %i", to_underlying( tr->trType ) );
+		Com_Error( errorParm_t::ERR_DROP, "BG_EvaluateTrajectoryDelta: [ GAME] unknown trType: %i", to_underlying( tr->trType ) );
 #else
-		Com_Error( ERR_DROP, "BG_EvaluateTrajectoryDelta: [CGAME] unknown trType: %i", to_underlying( tr->trType ) );
+		Com_Error( errorParm_t::ERR_DROP, "BG_EvaluateTrajectoryDelta: [CGAME] unknown trType: %i", to_underlying( tr->trType ) );
 #endif
 		break;
 	}
 }
 
-EnumArray<const char *, entity_event_t, EV_NUM_ENTITY_EVENTS> eventnames = {
+EnumArray<const char *, entity_event_t, entity_event_t::EV_NUM_ENTITY_EVENTS> eventnames = {
 	"EV_NONE",
 
 	"EV_CLIENTJOIN",
@@ -2591,7 +2591,7 @@ void BG_AddPredictableEventToPlayerstate( entity_event_t newEvent, int eventParm
 
 		if (!isRegistered)
 		{
-			trap->Cvar_Register(&showEvents, "showevents", "0", CVAR_NONE);
+			trap->Cvar_Register(&showEvents, "showevents", "0", cvarFlags_t::CVAR_NONE);
 			isRegistered = true;
 		}
 
@@ -2616,7 +2616,7 @@ BG_TouchJumpPad
 */
 void BG_TouchJumpPad( playerState_t *ps, entityState_t *jumppad ) {
 	// spectators don't use jump pads
-	if ( ps->pm_type != PM_NORMAL && ps->pm_type != PM_JETPACK && ps->pm_type != PM_FLOAT ) {
+	if ( ps->pm_type != pmtype_t::PM_NORMAL && ps->pm_type != pmtype_t::PM_JETPACK && ps->pm_type != pmtype_t::PM_FLOAT ) {
 		return;
 	}
 
@@ -2639,7 +2639,7 @@ void BG_TouchJumpPad( playerState_t *ps, entityState_t *jumppad ) {
 	// give the player the velocity from the jumppad
 	VectorCopy( jumppad->origin2, ps->velocity );
 	// fix: no more force draining after bouncing the jumppad
-	ps->fd.forcePowersActive &= ~Bit( FP_LEVITATION );
+	ps->fd.forcePowersActive &= ~Bit( forcePowers_t::FP_LEVITATION );
 }
 
 /*
@@ -2718,13 +2718,13 @@ bool BG_ValidateSkinForTeam( const char *modelName, char *skinName, team_t team,
 {
 	if (strlen (modelName) > 5 && Q_stricmpn (modelName, "jedi_", 5) == 0)
 	{ //argh, it's a custom player skin!
-		if (team == TEAM_RED && colors)
+		if (team == team_t::TEAM_RED && colors)
 		{
 			colors[0] = 1.0f;
 			colors[1] = 0.0f;
 			colors[2] = 0.0f;
 		}
-		else if (team == TEAM_BLUE && colors)
+		else if (team == team_t::TEAM_BLUE && colors)
 		{
 			colors[0] = 0.0f;
 			colors[1] = 0.0f;
@@ -2733,7 +2733,7 @@ bool BG_ValidateSkinForTeam( const char *modelName, char *skinName, team_t team,
 		return true;
 	}
 
-	if (team == TEAM_RED)
+	if (team == team_t::TEAM_RED)
 	{
 		if ( Q_stricmp( "red", skinName ) != 0 )
 		{//not "red"
@@ -2778,7 +2778,7 @@ bool BG_ValidateSkinForTeam( const char *modelName, char *skinName, team_t team,
 		}
 
 	}
-	else if (team == TEAM_BLUE)
+	else if (team == team_t::TEAM_BLUE)
 	{
 		if ( Q_stricmp( "blue", skinName ) != 0 )
 		{
@@ -2835,17 +2835,17 @@ and after local prediction on the client
 */
 void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, bool snap ) {
 
-	if ( ps->pm_type == PM_INTERMISSION || ps->pm_type == PM_SPECTATOR ) {
-		s->eType = ET_INVISIBLE;
-	} else if ( ps->stats[STAT_HEALTH] <= GIB_HEALTH ) {
-		s->eType = ET_INVISIBLE;
+	if ( ps->pm_type == pmtype_t::PM_INTERMISSION || ps->pm_type == pmtype_t::PM_SPECTATOR ) {
+		s->eType = entityType_t::ET_INVISIBLE;
+	} else if ( ps->stats[statIndex_t::STAT_HEALTH] <= GIB_HEALTH ) {
+		s->eType = entityType_t::ET_INVISIBLE;
 	} else {
-		s->eType = ET_PLAYER;
+		s->eType = entityType_t::ET_PLAYER;
 	}
 
 	s->number = ps->clientNum;
 
-	s->pos.trType = TR_INTERPOLATE;
+	s->pos.trType = trType_t::TR_INTERPOLATE;
 	VectorCopy( ps->origin, s->pos.trBase );
 	if ( snap ) {
 		SnapVector( s->pos.trBase );
@@ -2853,7 +2853,7 @@ void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, bool snap
 	// set the trDelta for flag direction
 	VectorCopy( ps->velocity, s->pos.trDelta );
 
-	s->apos.trType = TR_INTERPOLATE;
+	s->apos.trType = trType_t::TR_INTERPOLATE;
 	VectorCopy( ps->viewangles, s->apos.trBase );
 	if ( snap ) {
 		SnapVector( s->apos.trBase );
@@ -2906,13 +2906,13 @@ void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, bool snap
 
 	if (ps->genericEnemyIndex != -1)
 	{
-		s->eFlags |= EF_SEEKERDRONE;
+		s->eFlags |= entityFlags_t::EF_SEEKERDRONE;
 	}
 
-	if ( ps->stats[STAT_HEALTH] <= 0 ) {
-		s->eFlags |= EF_DEAD;
+	if ( ps->stats[statIndex_t::STAT_HEALTH] <= 0 ) {
+		s->eFlags |= entityFlags_t::EF_DEAD;
 	} else {
-		s->eFlags &= ~EF_DEAD;
+		s->eFlags &= ~entityFlags_t::EF_DEAD;
 	}
 
 	if ( ps->externalEvent ) {
@@ -2935,7 +2935,7 @@ void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, bool snap
 	s->groundEntityNum = ps->groundEntityNum;
 
 	s->powerups = 0;
-	for ( powerup_t p = PW_NONE ; p < PW_NUM_POWERUPS ; p++ ) {
+	for ( powerup_t p = powerup_t::PW_NONE ; p < powerup_t::PW_NUM_POWERUPS ; p++ ) {
 		if ( ps->powerups[ p ] ) {
 			s->powerups |= Bit( p );
 		}
@@ -2984,17 +2984,17 @@ and after local prediction on the client
 */
 void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s, int time, bool snap ) {
 
-	if ( ps->pm_type == PM_INTERMISSION || ps->pm_type == PM_SPECTATOR ) {
-		s->eType = ET_INVISIBLE;
-	} else if ( ps->stats[STAT_HEALTH] <= GIB_HEALTH ) {
-		s->eType = ET_INVISIBLE;
+	if ( ps->pm_type == pmtype_t::PM_INTERMISSION || ps->pm_type == pmtype_t::PM_SPECTATOR ) {
+		s->eType = entityType_t::ET_INVISIBLE;
+	} else if ( ps->stats[statIndex_t::STAT_HEALTH] <= GIB_HEALTH ) {
+		s->eType = entityType_t::ET_INVISIBLE;
 	} else {
-		s->eType = ET_PLAYER;
+		s->eType = entityType_t::ET_PLAYER;
 	}
 
 	s->number = ps->clientNum;
 
-	s->pos.trType = TR_LINEAR_STOP;
+	s->pos.trType = trType_t::TR_LINEAR_STOP;
 	VectorCopy( ps->origin, s->pos.trBase );
 	if ( snap ) {
 		SnapVector( s->pos.trBase );
@@ -3006,7 +3006,7 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
 	// set maximum extra polation time
 	s->pos.trDuration = 50; // 1000 / sv_fps (default = 20)
 
-	s->apos.trType = TR_INTERPOLATE;
+	s->apos.trType = trType_t::TR_INTERPOLATE;
 	VectorCopy( ps->viewangles, s->apos.trBase );
 	if ( snap ) {
 		SnapVector( s->apos.trBase );
@@ -3059,13 +3059,13 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
 
 	if (ps->genericEnemyIndex != -1)
 	{
-		s->eFlags |= EF_SEEKERDRONE;
+		s->eFlags |= entityFlags_t::EF_SEEKERDRONE;
 	}
 
-	if ( ps->stats[STAT_HEALTH] <= 0 ) {
-		s->eFlags |= EF_DEAD;
+	if ( ps->stats[statIndex_t::STAT_HEALTH] <= 0 ) {
+		s->eFlags |= entityFlags_t::EF_DEAD;
 	} else {
-		s->eFlags &= ~EF_DEAD;
+		s->eFlags &= ~entityFlags_t::EF_DEAD;
 	}
 
 	if ( ps->externalEvent ) {
@@ -3086,7 +3086,7 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
 	s->groundEntityNum = ps->groundEntityNum;
 
 	s->powerups = 0;
-	for ( powerup_t p = PW_NONE ; p < PW_NUM_POWERUPS ; p++ ) {
+	for ( powerup_t p = powerup_t::PW_NONE ; p < powerup_t::PW_NUM_POWERUPS ; p++ ) {
 		if ( ps->powerups[ p ] ) {
 			s->powerups |= Bit( p );
 		}
@@ -3188,7 +3188,7 @@ void *BG_Alloc ( int size )
 
 	if (bg_poolSize + size > bg_poolTail)
 	{
-		Com_Error( ERR_DROP, "BG_Alloc: buffer exceeded tail (%d > %d)", bg_poolSize + size, bg_poolTail);
+		Com_Error( errorParm_t::ERR_DROP, "BG_Alloc: buffer exceeded tail (%d > %d)", bg_poolSize + size, bg_poolTail);
 		return nullptr;
 	}
 
@@ -3201,7 +3201,7 @@ void *BG_AllocUnaligned ( int size )
 {
 	if (bg_poolSize + size > bg_poolTail)
 	{
-		Com_Error( ERR_DROP, "BG_AllocUnaligned: buffer exceeded tail (%d > %d)", bg_poolSize + size, bg_poolTail);
+		Com_Error( errorParm_t::ERR_DROP, "BG_AllocUnaligned: buffer exceeded tail (%d > %d)", bg_poolSize + size, bg_poolTail);
 		return nullptr;
 	}
 
@@ -3216,7 +3216,7 @@ void *BG_TempAlloc( int size )
 
 	if (bg_poolTail - size < bg_poolSize)
 	{
-		Com_Error( ERR_DROP, "BG_TempAlloc: buffer exceeded head (%d > %d)", bg_poolTail - size, bg_poolSize);
+		Com_Error( errorParm_t::ERR_DROP, "BG_TempAlloc: buffer exceeded head (%d > %d)", bg_poolTail - size, bg_poolSize);
 		return nullptr;
 	}
 
@@ -3231,7 +3231,7 @@ void BG_TempFree( int size )
 
 	if (bg_poolTail+size > MAX_POOL_SIZE)
 	{
-		Com_Error( ERR_DROP, "BG_TempFree: tail greater than size (%d > %d)", bg_poolTail+size, MAX_POOL_SIZE );
+		Com_Error( errorParm_t::ERR_DROP, "BG_TempFree: tail greater than size (%d > %d)", bg_poolTail+size, MAX_POOL_SIZE );
 	}
 
 	bg_poolTail += size;
@@ -3249,7 +3249,7 @@ bool BG_OutOfMemory ( void )
 	return bg_poolSize >= MAX_POOL_SIZE;
 }
 
-const EnumArray<const char *, gametype_t, GT_MAX_GAME_TYPE> gametypeStringShort = {
+const EnumArray<const char *, gametype_t, gametype_t::GT_MAX_GAME_TYPE> gametypeStringShort = {
 	"FFA",
 	"HOLO",
 	"JM",
@@ -3266,26 +3266,26 @@ const char *BG_GetGametypeString( gametype_t gametype )
 {
 	switch ( gametype )
 	{
-	case GT_FFA:
+	case gametype_t::GT_FFA:
 		return "Free For All";
-	case GT_HOLOCRON:
+	case gametype_t::GT_HOLOCRON:
 		return "Holocron";
-	case GT_JEDIMASTER:
+	case gametype_t::GT_JEDIMASTER:
 		return "Jedi Master";
-	case GT_DUEL:
+	case gametype_t::GT_DUEL:
 		return "Duel";
-	case GT_POWERDUEL:
+	case gametype_t::GT_POWERDUEL:
 		return "Power Duel";
-	case GT_SINGLE_PLAYER:
+	case gametype_t::GT_SINGLE_PLAYER:
 		return "Cooperative";
 
-	case GT_TEAM:
+	case gametype_t::GT_TEAM:
 		return "Team Deathmatch";
-	case GT_SIEGE:
+	case gametype_t::GT_SIEGE:
 		return "Siege";
-	case GT_CTF:
+	case gametype_t::GT_CTF:
 		return "Capture The Flag";
-	case GT_CTY:
+	case gametype_t::GT_CTY:
 		return "Capture The Ysalimiri";
 
 	default:
@@ -3296,18 +3296,18 @@ const char *BG_GetGametypeString( gametype_t gametype )
 gametype_t BG_GetGametypeForString( const char *gametype )
 {
 		 if ( !Q_stricmp( gametype, "ffa" )
-			||!Q_stricmp( gametype, "dm" ) )			return GT_FFA;
-	else if ( !Q_stricmp( gametype, "holocron" ) )		return GT_HOLOCRON;
-	else if ( !Q_stricmp( gametype, "jm" ) )			return GT_JEDIMASTER;
-	else if ( !Q_stricmp( gametype, "duel" ) )			return GT_DUEL;
-	else if ( !Q_stricmp( gametype, "powerduel" ) )		return GT_POWERDUEL;
+			||!Q_stricmp( gametype, "dm" ) )			return gametype_t::GT_FFA;
+	else if ( !Q_stricmp( gametype, "holocron" ) )		return gametype_t::GT_HOLOCRON;
+	else if ( !Q_stricmp( gametype, "jm" ) )			return gametype_t::GT_JEDIMASTER;
+	else if ( !Q_stricmp( gametype, "duel" ) )			return gametype_t::GT_DUEL;
+	else if ( !Q_stricmp( gametype, "powerduel" ) )		return gametype_t::GT_POWERDUEL;
 	else if ( !Q_stricmp( gametype, "sp" )
-			||!Q_stricmp( gametype, "coop" ) )			return GT_SINGLE_PLAYER;
+			||!Q_stricmp( gametype, "coop" ) )			return gametype_t::GT_SINGLE_PLAYER;
 	else if ( !Q_stricmp( gametype, "tdm" )
 			||!Q_stricmp( gametype, "tffa" )
-			||!Q_stricmp( gametype, "team" ) )			return GT_TEAM;
-	else if ( !Q_stricmp( gametype, "siege" ) )			return GT_SIEGE;
-	else if ( !Q_stricmp( gametype, "ctf" ) )			return GT_CTF;
-	else if ( !Q_stricmp( gametype, "cty" ) )			return GT_CTY;
-	else												return GT_UNKNOWN;
+			||!Q_stricmp( gametype, "team" ) )			return gametype_t::GT_TEAM;
+	else if ( !Q_stricmp( gametype, "siege" ) )			return gametype_t::GT_SIEGE;
+	else if ( !Q_stricmp( gametype, "ctf" ) )			return gametype_t::GT_CTF;
+	else if ( !Q_stricmp( gametype, "cty" ) )			return gametype_t::GT_CTY;
+	else												return gametype_t::GT_UNKNOWN;
 }

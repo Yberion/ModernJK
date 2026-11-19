@@ -45,35 +45,35 @@ static void CacheChunkEffects( material_t material )
 	{
 	default:
 		break;
-	case MAT_GLASS:
+	case material_t::MAT_GLASS:
 		G_EffectIndex( "chunks/glassbreak" );
 		break;
-	case MAT_GLASS_METAL:
+	case material_t::MAT_GLASS_METAL:
 		G_EffectIndex( "chunks/glassbreak" );
 		G_EffectIndex( "chunks/metalexplode" );
 		break;
-	case MAT_ELECTRICAL:
-	case MAT_ELEC_METAL:
+	case material_t::MAT_ELECTRICAL:
+	case material_t::MAT_ELEC_METAL:
 		G_EffectIndex( "chunks/sparkexplode" );
 		break;
-	case MAT_METAL:
-	case MAT_METAL2:
-	case MAT_METAL3:
-	case MAT_CRATE1:
-	case MAT_CRATE2:
+	case material_t::MAT_METAL:
+	case material_t::MAT_METAL2:
+	case material_t::MAT_METAL3:
+	case material_t::MAT_CRATE1:
+	case material_t::MAT_CRATE2:
 		G_EffectIndex( "chunks/metalexplode" );
 		break;
-	case MAT_GRATE1:
+	case material_t::MAT_GRATE1:
 		G_EffectIndex( "chunks/grateexplode" );
 		break;
-	case MAT_DRK_STONE:
-	case MAT_LT_STONE:
-	case MAT_GREY_STONE:
-	case MAT_WHITE_METAL: // what is this crap really supposed to be??
+	case material_t::MAT_DRK_STONE:
+	case material_t::MAT_LT_STONE:
+	case material_t::MAT_GREY_STONE:
+	case material_t::MAT_WHITE_METAL: // what is this crap really supposed to be??
 		G_EffectIndex( "chunks/rockbreaklg" );
 		G_EffectIndex( "chunks/rockbreakmed" );
 		break;
-	case MAT_ROPE:
+	case material_t::MAT_ROPE:
 		G_EffectIndex( "chunks/ropebreak" );
 //		G_SoundIndex(); // FIXME: give it a sound
 		break;
@@ -92,16 +92,16 @@ void funcBBrushDieGo (gentity_t *self)
 	// if a missile is stuck to us, blow it up so we don't look dumb
 	for ( int i = 0; i < MAX_GENTITIES; i++ )
 	{
-		if ( g_entities[i].s.groundEntityNum == self->s.number && Any( g_entities[i].s.eFlags & EF_MISSILE_STICK ))
+		if ( g_entities[i].s.groundEntityNum == self->s.number && Any( g_entities[i].s.eFlags & entityFlags_t::EF_MISSILE_STICK ))
 		{
-			G_Damage( &g_entities[i], self, self, nullptr, nullptr, 99999, DAMAGE_NORMAL, MOD_CRUSH ); //?? MOD?
+			G_Damage( &g_entities[i], self, self, nullptr, nullptr, 99999, damageFlags_t::DAMAGE_NORMAL, meansOfDeath_t::MOD_CRUSH ); //?? MOD?
 		}
 	}
 
 	//So chunks don't get stuck inside me
 	self->s.solid = 0;
-	self->contents = CONTENTS_NONE;
-	self->clipmask = CONTENTS_NONE;
+	self->contents = contentsFlags_t::CONTENTS_NONE;
+	self->clipmask = contentsFlags_t::CONTENTS_NONE;
 	gi.linkentity(self);
 
 	VectorSet(up, 0, 0, 1);
@@ -160,24 +160,24 @@ void funcBBrushDieGo (gentity_t *self)
 	if ( self->splashDamage > 0 && self->splashRadius > 0 )
 	{
 		//explode
-		AddSightEvent( attacker, org, 256, AEL_DISCOVERED, 100 );
-		AddSoundEvent( attacker, org, 128, AEL_DISCOVERED );
-		G_RadiusDamage( org, self, self->splashDamage, self->splashRadius, self, MOD_UNKNOWN );
+		AddSightEvent( attacker, org, 256, alertEventLevel_e::AEL_DISCOVERED, 100 );
+		AddSoundEvent( attacker, org, 128, alertEventLevel_e::AEL_DISCOVERED );
+		G_RadiusDamage( org, self, self->splashDamage, self->splashRadius, self, meansOfDeath_t::MOD_UNKNOWN );
 
-		gentity_t *te = G_TempEntity( org, EV_GENERAL_SOUND );
+		gentity_t *te = G_TempEntity( org, entity_event_t::EV_GENERAL_SOUND );
 		te->s.eventParm = G_SoundIndex("sound/weapons/explosions/cargoexplode.wav");
 	}
 	else
 	{//just break
-		AddSightEvent( attacker, org, 128, AEL_DISCOVERED );
-		AddSoundEvent( attacker, org, 64, AEL_SUSPICIOUS );
+		AddSightEvent( attacker, org, 128, alertEventLevel_e::AEL_DISCOVERED );
+		AddSoundEvent( attacker, org, 64, alertEventLevel_e::AEL_SUSPICIOUS );
 	}
 
 	//FIXME: base numChunks off size?
 	CG_Chunks( self->s.number, org, dir, self->mins, self->maxs, 300, numChunks, chunkType, 0, scale );
 
 	gi.AdjustAreaPortalState( self, true );
-	self->e_ThinkFunc = thinkF_G_FreeEntity;
+	self->e_ThinkFunc = thinkFunc_t::thinkF_G_FreeEntity;
 	self->nextthink = level.time + 50;
 	//G_FreeEntity( self );
 }
@@ -190,7 +190,7 @@ void funcBBrushDie (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, 
 
 	if(self->delay)
 	{
-		self->e_ThinkFunc = thinkF_funcBBrushDieGo;
+		self->e_ThinkFunc = thinkFunc_t::thinkF_funcBBrushDieGo;
 		self->nextthink = level.time + floor(self->delay * 1000.0f);
 		return;
 	}
@@ -200,7 +200,7 @@ void funcBBrushDie (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, 
 
 void funcBBrushUse (gentity_t *self, gentity_t *other, gentity_t *activator)
 {
-	G_ActivateBehavior( self, BSET_USE );
+	G_ActivateBehavior( self, bSet_t::BSET_USE );
 	if(self->spawnflags & 64)
 	{//Using it doesn't break it, makes it use it's targets
 		if(self->target && self->target[0])
@@ -210,7 +210,7 @@ void funcBBrushUse (gentity_t *self, gentity_t *other, gentity_t *activator)
 	}
 	else
 	{
-		funcBBrushDie(self, other, activator, self->health, MOD_UNKNOWN);
+		funcBBrushDie(self, other, activator, self->health, meansOfDeath_t::MOD_UNKNOWN);
 	}
 }
 
@@ -226,11 +226,11 @@ void funcBBrushPain(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, 
 		G_UseTargets2 (self, self->activator, self->paintarget);
 	}
 
-	G_ActivateBehavior( self, BSET_PAIN );
+	G_ActivateBehavior( self, bSet_t::BSET_PAIN );
 
-	if ( self->material == MAT_DRK_STONE
-		|| self->material == MAT_LT_STONE
-		|| self->material == MAT_GREY_STONE )
+	if ( self->material == material_t::MAT_DRK_STONE
+		|| self->material == material_t::MAT_LT_STONE
+		|| self->material == material_t::MAT_GREY_STONE )
 	{
 		vec3_t	org, dir;
 		float	scale;
@@ -255,7 +255,7 @@ void funcBBrushPain(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, 
 
 	if ( self->wait == -1 )
 	{
-		self->e_PainFunc = painF_NULL;
+		self->e_PainFunc = painFunc_t::painF_NULL;
 		return;
 	}
 
@@ -272,9 +272,9 @@ static void InitBBrush ( gentity_t *ent )
 
 	gi.SetBrushModel( ent, ent->model );
 
-	ent->e_DieFunc = dieF_funcBBrushDie;
+	ent->e_DieFunc = dieFunc_t::dieF_funcBBrushDie;
 
-	ent->svFlags |= SVF_BBRUSH;
+	ent->svFlags |= svFlags_t::SVF_BBRUSH;
 
 	// if the "model2" key is set, use a seperate model
 	// for drawing, but clip against the brushes
@@ -311,13 +311,13 @@ static void InitBBrush ( gentity_t *ent )
 
 	if(ent->spawnflags & 128)
 	{//Can be used by the player's BUTTON_USE
-		ent->svFlags |= SVF_PLAYER_USABLE;
+		ent->svFlags |= svFlags_t::SVF_PLAYER_USABLE;
 	}
 
-	ent->s.eType = ET_MOVER;
+	ent->s.eType = entityType_t::ET_MOVER;
 	gi.linkentity (ent);
 
-	ent->s.pos.trType = TR_STATIONARY;
+	ent->s.pos.trType = trType_t::TR_STATIONARY;
 	VectorCopy( ent->pos1, ent->s.pos.trBase );
 }
 
@@ -362,7 +362,7 @@ Don't know if these work:
 
 "material" - default is "0 - MAT_METAL" - choose from this list:
 0 = MAT_METAL		(basic blue-grey scorched-DEFAULT)
-1 = MAT_GLASS
+1 = material_t::MAT_GLASS
 2 = MAT_ELECTRICAL	(sparks only)
 3 = MAT_ELEC_METAL	(METAL2 chunks and sparks)
 4 =	MAT_DRK_STONE	(brown stone chunks)
@@ -391,11 +391,11 @@ void SP_func_breakable( gentity_t *self )
 
 	if ( self->spawnflags & 16 ) // saber only
 	{
-		self->flags |= FL_DMG_BY_SABER_ONLY;
+		self->flags |= gentityFlags_t::FL_DMG_BY_SABER_ONLY;
 	}
 	else if ( self->spawnflags & 32 ) // heavy weap
 	{
-		self->flags |= FL_DMG_BY_HEAVY_WEAP_ONLY;
+		self->flags |= gentityFlags_t::FL_DMG_BY_HEAVY_WEAP_ONLY;
 	}
 
 	if (self->health)
@@ -408,19 +408,19 @@ void SP_func_breakable( gentity_t *self )
 	G_SpawnInt( "material", "0", (int*)&self->material );
 	CacheChunkEffects( self->material );
 
-	self->e_UseFunc = useF_funcBBrushUse;
+	self->e_UseFunc = useFunc_t::useF_funcBBrushUse;
 
 	//if ( self->paintarget )
 	{
-		self->e_PainFunc = painF_funcBBrushPain;
+		self->e_PainFunc = painFunc_t::painF_funcBBrushPain;
 	}
 
-	self->e_TouchFunc = touchF_funcBBrushTouch;
+	self->e_TouchFunc = touchFunc_t::touchF_funcBBrushTouch;
 
 	if ( self->team && self->team[0] )
 	{
 		self->noDamageTeam = TranslateTeamName( self->team );
-		if(self->noDamageTeam == TEAM_FREE)
+		if(self->noDamageTeam == team_t::TEAM_FREE)
 		{
 			G_Error("team name %s not recognized", self->team);
 		}
@@ -444,7 +444,7 @@ void misc_model_breakable_pain ( gentity_t *self, gentity_t *inflictor, gentity_
 		}
 
 		// Don't do script if dead
-		G_ActivateBehavior( self, BSET_PAIN );
+		G_ActivateBehavior( self, bSet_t::BSET_PAIN );
 	}
 }
 
@@ -457,7 +457,7 @@ void misc_model_breakable_die( gentity_t *self, gentity_t *inflictor, gentity_t 
 	//NOTE: Stop any scripts that are currently running (FLUSH)... ?
 	//Turn off animation
 	self->s.frame = self->startFrame = self->endFrame = 0;
-	self->svFlags &= ~SVF_ANIMATING;
+	self->svFlags &= ~svFlags_t::SVF_ANIMATING;
 
 	self->health = 0;
 
@@ -496,17 +496,17 @@ void misc_model_breakable_die( gentity_t *self, gentity_t *inflictor, gentity_t 
 
 	CG_Chunks( self->s.number, dis, dir, self->absmin, self->absmax, 300, numChunks, self->material, self->s.modelindex3, scale );
 
-	self->e_PainFunc = painF_NULL;
-	self->e_DieFunc  = dieF_NULL;
-//	self->e_UseFunc  = useF_NULL;
+	self->e_PainFunc = painFunc_t::painF_NULL;
+	self->e_DieFunc  = dieFunc_t::dieF_NULL;
+//	self->e_UseFunc  = useFunc_t::useF_NULL;
 
 	self->takedamage = false;
 
 	if ( !(self->spawnflags & 4) )
 	{//We don't want to stay solid
 		self->s.solid = 0;
-		self->contents = CONTENTS_NONE;
-		self->clipmask = CONTENTS_NONE;
+		self->contents = contentsFlags_t::CONTENTS_NONE;
+		self->clipmask = contentsFlags_t::CONTENTS_NONE;
 		gi.linkentity(self);
 	}
 
@@ -533,8 +533,8 @@ void misc_model_breakable_die( gentity_t *self, gentity_t *inflictor, gentity_t 
 		if(self->splashDamage > 0 && self->splashRadius > 0)
 		{//explode
 			vec3_t org;
-			AddSightEvent( attacker, self->currentOrigin, 256, AEL_DISCOVERED, 100 );
-			AddSoundEvent( attacker, self->currentOrigin, 128, AEL_DISCOVERED );
+			AddSightEvent( attacker, self->currentOrigin, 256, alertEventLevel_e::AEL_DISCOVERED, 100 );
+			AddSoundEvent( attacker, self->currentOrigin, 128, alertEventLevel_e::AEL_DISCOVERED );
 			//FIXME: specify type of explosion?  (barrel, electrical, etc.)  Also, maybe just use the explosion effect below since it's
 			//				a bit better?
 			// up the origin a little for the damage check, because several models have their origin on the ground, so they don't alwasy do damage, not the optimal solution...
@@ -544,7 +544,7 @@ void misc_model_breakable_die( gentity_t *self, gentity_t *inflictor, gentity_t 
 				//center the origin
 				org[2] = self->currentOrigin[2] + self->mins[2] + (self->maxs[2] - self->mins[2])/2.0f;
 			}
-			G_RadiusDamage( org, self, self->splashDamage, self->splashRadius, self, MOD_UNKNOWN );
+			G_RadiusDamage( org, self, self->splashDamage, self->splashRadius, self, meansOfDeath_t::MOD_UNKNOWN );
 
 			if ( self->model && Q_stricmp( "models/map_objects/ships/tie_fighter.md3", self->model ) == 0 )
 			{//TEMP HACK for Tie Fighters- they're HUGE
@@ -559,22 +559,22 @@ void misc_model_breakable_die( gentity_t *self, gentity_t *inflictor, gentity_t 
 		}
 		else
 		{//just break
-			AddSightEvent( attacker, self->currentOrigin, 128, AEL_DISCOVERED );
-			AddSoundEvent( attacker, self->currentOrigin, 64, AEL_SUSPICIOUS );
+			AddSightEvent( attacker, self->currentOrigin, 128, alertEventLevel_e::AEL_DISCOVERED );
+			AddSoundEvent( attacker, self->currentOrigin, 64, alertEventLevel_e::AEL_SUSPICIOUS );
 			// This is the default explosion
 			CG_MiscModelExplosion( self->absmin, self->absmax, size, self->material );
 			G_Sound(self, G_SoundIndex("sound/weapons/explosions/cargoexplode.wav"));
 		}
 	}
 
-	self->e_ThinkFunc = thinkF_NULL;
+	self->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
 	self->nextthink = -1;
 
 	if(self->s.modelindex2 != -1 && !(self->spawnflags & 8))
 	{//FIXME: modelindex doesn't get set to -1 if the damage model doesn't exist
-		self->svFlags |= SVF_BROKEN;
+		self->svFlags |= svFlags_t::SVF_BROKEN;
 		self->s.modelindex = self->s.modelindex2;
-		G_ActivateBehavior( self, BSET_DEATH );
+		G_ActivateBehavior( self, bSet_t::BSET_DEATH );
 	}
 	else
 	{
@@ -590,7 +590,7 @@ void misc_model_use (gentity_t *self, gentity_t *other, gentity_t *activator)
 		return;
 	}
 
-	G_ActivateBehavior( self, BSET_USE );
+	G_ActivateBehavior( self, bSet_t::BSET_USE );
 	//Don't explode if they've requested it to not
 	if ( self->spawnflags & 64 )
 	{//Usemodels toggling
@@ -609,7 +609,7 @@ void misc_model_use (gentity_t *self, gentity_t *other, gentity_t *activator)
 		return;
 	}
 
-	misc_model_breakable_die( self, other, activator, self->health, MOD_UNKNOWN );
+	misc_model_breakable_die( self, other, activator, self->health, meansOfDeath_t::MOD_UNKNOWN );
 }
 
 #include "qcommon/q_spsets.h"
@@ -618,7 +618,7 @@ void misc_model_breakable_init( gentity_t *ent )
 {
 	breakableModelType_t	type;
 
-	type = MDL_OTHER;
+	type = breakableModelType_t::MDL_OTHER;
 
 	if (!ent->model) {
 		G_Error("no model set on %s at (%.1f %.1f %.1f)", ent->classname, ent->s.origin[0],ent->s.origin[1],ent->s.origin[2]);
@@ -628,31 +628,31 @@ void misc_model_breakable_init( gentity_t *ent )
 
 	if ( ent->spawnflags & 1 )
 	{//Blocks movement
-		ent->contents = CONTENTS_SOLID|CONTENTS_OPAQUE|CONTENTS_BODY|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP;//Was CONTENTS_SOLID, but only architecture should be this
+		ent->contents = contentsFlags_t::CONTENTS_SOLID|contentsFlags_t::CONTENTS_OPAQUE|contentsFlags_t::CONTENTS_BODY|contentsFlags_t::CONTENTS_MONSTERCLIP|contentsFlags_t::CONTENTS_BOTCLIP;//Was CONTENTS_SOLID, but only architecture should be this
 	}
 	else if ( ent->health )
 	{//Can only be shot
-		ent->contents = CONTENTS_SHOTCLIP;
+		ent->contents = contentsFlags_t::CONTENTS_SHOTCLIP;
 	}
 
-	if (type == MDL_OTHER)
+	if (type == breakableModelType_t::MDL_OTHER)
 	{
-		ent->e_UseFunc = useF_misc_model_use;
+		ent->e_UseFunc = useFunc_t::useF_misc_model_use;
 	}
-	else if ( type == MDL_ARMOR_HEALTH )
+	else if ( type == breakableModelType_t::MDL_ARMOR_HEALTH )
 	{
 //		G_SoundIndex("sound/player/suithealth.wav");
-		ent->e_UseFunc = useF_health_use;
+		ent->e_UseFunc = useFunc_t::useF_health_use;
 		if (!ent->count)
 		{
 			ent->count = 100;
 		}
 		ent->health = 60;
 	}
-	else if ( type == MDL_AMMO )
+	else if ( type == breakableModelType_t::MDL_AMMO )
 	{
 //		G_SoundIndex("sound/player/suitenergy.wav");
-		ent->e_UseFunc = useF_ammo_use;
+		ent->e_UseFunc = useFunc_t::useF_ammo_use;
 		if (!ent->count)
 		{
 			ent->count = 100;
@@ -665,8 +665,8 @@ void misc_model_breakable_init( gentity_t *ent )
 		G_SoundIndex("sound/weapons/explosions/cargoexplode.wav");
 		ent->max_health = ent->health;
 		ent->takedamage = true;
-		ent->e_PainFunc = painF_misc_model_breakable_pain;
-		ent->e_DieFunc  = dieF_misc_model_breakable_die;
+		ent->e_PainFunc = painFunc_t::painF_misc_model_breakable_pain;
+		ent->e_DieFunc  = dieFunc_t::dieF_misc_model_breakable_die;
 	}
 }
 
@@ -724,18 +724,18 @@ void TieFighterThink ( gentity_t *self )
 
 						bolt->classname = "tie_proj";
 						bolt->nextthink = level.time + 10000;
-						bolt->e_ThinkFunc = thinkF_G_FreeEntity;
-						bolt->s.eType = ET_MISSILE;
-						bolt->s.weapon = WP_BLASTER;
+						bolt->e_ThinkFunc = thinkFunc_t::thinkF_G_FreeEntity;
+						bolt->s.eType = entityType_t::ET_MISSILE;
+						bolt->s.weapon = weapon_t::WP_BLASTER;
 						bolt->owner = self;
 						bolt->damage = 30;
-						bolt->dflags = DAMAGE_NO_KNOCKBACK;		// Don't push them around, or else we are constantly re-aiming
+						bolt->dflags = damageFlags_t::DAMAGE_NO_KNOCKBACK;		// Don't push them around, or else we are constantly re-aiming
 						bolt->splashDamage = 0;
 						bolt->splashRadius = 0;
-						bolt->methodOfDeath = MOD_ENERGY;	// ?
+						bolt->methodOfDeath = meansOfDeath_t::MOD_ENERGY;	// ?
 						bolt->clipmask = MASK_SHOT;
 
-						bolt->s.pos.trType = TR_LINEAR;
+						bolt->s.pos.trType = trType_t::TR_LINEAR;
 						bolt->s.pos.trTime = level.time;		// move a bit on the very first frame
 						VectorCopy( self->currentOrigin, bolt->s.pos.trBase );
 						VectorScale( fwd, 8000, bolt->s.pos.trDelta );
@@ -744,11 +744,11 @@ void TieFighterThink ( gentity_t *self )
 
 						if ( !Q_irand( 0, 2 ) )
 						{
-							G_SoundOnEnt( bolt, CHAN_VOICE, "sound/weapons/tie_fighter/tie_fire.wav" );
+							G_SoundOnEnt( bolt, soundChannel_t::CHAN_VOICE, "sound/weapons/tie_fighter/tie_fire.wav" );
 						}
 						else
 						{
-							G_SoundOnEnt( bolt, CHAN_VOICE, va( "sound/weapons/tie_fighter/tie_fire%d.wav", Q_irand( 2, 3 ) ) );
+							G_SoundOnEnt( bolt, soundChannel_t::CHAN_VOICE, va( "sound/weapons/tie_fighter/tie_fire%d.wav", Q_irand( 2, 3 ) ) );
 						}
 						self->attackDebounceTime = level.time + Q_irand( 300, 2000 );
 					}
@@ -762,7 +762,7 @@ void TieFighterThink ( gentity_t *self )
 			{
 				if ( !self->fly_sound_debounce_time )
 				{//start sound
-					G_SoundOnEnt( self, CHAN_VOICE, va( "sound/weapons/tie_fighter/tiepass%d.wav", Q_irand( 1, 5 ) ) );
+					G_SoundOnEnt( self, soundChannel_t::CHAN_VOICE, va( "sound/weapons/tie_fighter/tiepass%d.wav", Q_irand( 1, 5 ) ) );
 					self->fly_sound_debounce_time = 2000;
 				}
 				else
@@ -780,9 +780,9 @@ void TieFighterThink ( gentity_t *self )
 
 void misc_model_breakable_gravity_init( gentity_t *ent, bool dropToFloor )
 {
-	ent->s.eType = ET_GENERAL;
-	ent->s.eFlags |= EF_BOUNCE_HALF;
-	ent->clipmask = MASK_SOLID|CONTENTS_BODY|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP;//?
+	ent->s.eType = entityType_t::ET_GENERAL;
+	ent->s.eFlags |= entityFlags_t::EF_BOUNCE_HALF;
+	ent->clipmask = MASK_SOLID|contentsFlags_t::CONTENTS_BODY|contentsFlags_t::CONTENTS_MONSTERCLIP|contentsFlags_t::CONTENTS_BOTCLIP;//?
 	ent->physicsBounce = ent->mass = VectorLength( ent->maxs ) + VectorLength( ent->mins );
 	//drop to floor
 	trace_t		tr;
@@ -794,7 +794,7 @@ void misc_model_breakable_gravity_init( gentity_t *ent, bool dropToFloor )
 		top[2] += 1;
 		VectorCopy( ent->currentOrigin, bottom );
 		bottom[2] = MIN_WORLD_COORD;
-		gi.trace( &tr, top, ent->mins, ent->maxs, bottom, ent->s.number, MASK_NPCSOLID, G2_NOCOLLIDE, 0 );
+		gi.trace( &tr, top, ent->mins, ent->maxs, bottom, ent->s.number, MASK_NPCSOLID, EG2_Collision::G2_NOCOLLIDE, 0 );
 		if ( !tr.allsolid && !tr.startsolid && tr.fraction < 1.0 )
 		{
 			G_SetOrigin( ent, tr.endpos );
@@ -809,28 +809,28 @@ void misc_model_breakable_gravity_init( gentity_t *ent, bool dropToFloor )
 	//set up for object thinking
 	if ( VectorCompare( ent->s.pos.trDelta, vec3_origin ) )
 	{//not moving
-		ent->s.pos.trType = TR_STATIONARY;
+		ent->s.pos.trType = trType_t::TR_STATIONARY;
 	}
 	else
 	{
-		ent->s.pos.trType = TR_GRAVITY;
+		ent->s.pos.trType = trType_t::TR_GRAVITY;
 	}
 	VectorCopy( ent->currentOrigin, ent->s.pos.trBase );
 	VectorClear( ent->s.pos.trDelta );
 	ent->s.pos.trTime = level.time;
 	if ( VectorCompare( ent->s.apos.trDelta, vec3_origin ) )
 	{//not moving
-		ent->s.apos.trType = TR_STATIONARY;
+		ent->s.apos.trType = trType_t::TR_STATIONARY;
 	}
 	else
 	{
-		ent->s.apos.trType = TR_LINEAR;
+		ent->s.apos.trType = trType_t::TR_LINEAR;
 	}
 	VectorCopy( ent->currentAngles, ent->s.apos.trBase );
 	VectorClear( ent->s.apos.trDelta );
 	ent->s.apos.trTime = level.time;
 	ent->nextthink = level.time + FRAMETIME;
-	ent->e_ThinkFunc = thinkF_G_RunObject;
+	ent->e_ThinkFunc = thinkFunc_t::thinkF_G_RunObject;
 }
 /*QUAKED misc_model_breakable (1 0 0) (-16 -16 -16) (16 16 16) SOLID AUTOANIMATE DEADSOLID NO_DMODEL NO_SMOKE USE_MODEL USE_NOT_BREAK PLAYER_USE NO_EXPLOSION
 SOLID - Movement is blocked by it, if not set, can still be broken by explosions and shots if it has health
@@ -864,7 +864,7 @@ Damage: default is none
 
 "material" - default is "8 - MAT_NONE" - choose from this list:
 0 = MAT_METAL		(grey metal)
-1 = MAT_GLASS
+1 = material_t::MAT_GLASS
 2 = MAT_ELECTRICAL	(sparks only)
 3 = MAT_ELEC_METAL	(METAL chunks and sparks)
 4 =	MAT_DRK_STONE	(brown stone chunks)
@@ -928,7 +928,7 @@ void SP_misc_model_breakable( gentity_t *ent )
 
 	if ( ent->spawnflags & 2 )
 	{
-		ent->s.eFlags |= EF_ANIM_ALLFAST;
+		ent->s.eFlags |= entityFlags_t::EF_ANIM_ALLFAST;
 	}
 
 	G_SetOrigin( ent, ent->s.origin );
@@ -937,13 +937,13 @@ void SP_misc_model_breakable( gentity_t *ent )
 
 	if ( ent->spawnflags & 128 )
 	{//Can be used by the player's BUTTON_USE
-		ent->svFlags |= SVF_PLAYER_USABLE;
+		ent->svFlags |= svFlags_t::SVF_PLAYER_USABLE;
 	}
 
 	if ( ent->team && ent->team[0] )
 	{
 		ent->noDamageTeam = TranslateTeamName( ent->team );
-		if ( ent->noDamageTeam == TEAM_FREE )
+		if ( ent->noDamageTeam == team_t::TEAM_FREE )
 		{
 			G_Error("team name %s not recognized", ent->team);
 		}
@@ -964,7 +964,7 @@ void SP_misc_model_breakable( gentity_t *ent )
 		G_SoundIndex( "sound/weapons/tie_fighter/tie_fire2.wav" );
 		G_SoundIndex( "sound/weapons/tie_fighter/tie_fire3.wav" );
 		G_SoundIndex( "sound/weapons/tie_fighter/TIEexplode.wav" );
-		ent->e_ThinkFunc = thinkF_TieFighterThink;
+		ent->e_ThinkFunc = thinkFunc_t::thinkF_TieFighterThink;
 		ent->nextthink = level.time + FRAMETIME;
 	}
 	float grav = 0;
@@ -997,9 +997,9 @@ void funcGlassDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, i
 	// if a missile is stuck to us, blow it up so we don't look dumb....we could, alternately, just let the missile drop off??
 	for ( int i = 0; i < MAX_GENTITIES; i++ )
 	{
-		if ( g_entities[i].s.groundEntityNum == self->s.number && Any( g_entities[i].s.eFlags & EF_MISSILE_STICK ))
+		if ( g_entities[i].s.groundEntityNum == self->s.number && Any( g_entities[i].s.eFlags & entityFlags_t::EF_MISSILE_STICK ))
 		{
-			G_Damage( &g_entities[i], self, self, nullptr, nullptr, 99999, DAMAGE_NORMAL, MOD_CRUSH ); //?? MOD?
+			G_Damage( &g_entities[i], self, self, nullptr, nullptr, 99999, damageFlags_t::DAMAGE_NORMAL, meansOfDeath_t::MOD_CRUSH ); //?? MOD?
 		}
 	}
 
@@ -1013,8 +1013,8 @@ void funcGlassDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, i
 
 	//So chunks don't get stuck inside me
 	self->s.solid = 0;
-	self->contents = CONTENTS_NONE;
-	self->clipmask = CONTENTS_NONE;
+	self->contents = contentsFlags_t::CONTENTS_NONE;
+	self->clipmask = contentsFlags_t::CONTENTS_NONE;
 	gi.linkentity(self);
 
 	if ( self->target && attacker != nullptr )
@@ -1032,7 +1032,7 @@ void funcGlassUse( gentity_t *self, gentity_t *other, gentity_t *activator )
 	vec3_t temp1, temp2;
 
 	// For now, we just break on use
-	G_ActivateBehavior( self, BSET_USE );
+	G_ActivateBehavior( self, bSet_t::BSET_USE );
 
 	VectorAdd( self->mins, self->maxs, temp1 );
 	VectorScale( temp1, 0.5f, temp1 );
@@ -1048,7 +1048,7 @@ void funcGlassUse( gentity_t *self, gentity_t *other, gentity_t *activator )
 
 	self->splashRadius = 40; // ?? some random number, maybe it's ok?
 
-	funcGlassDie( self, other, activator, self->health, MOD_UNKNOWN );
+	funcGlassDie( self, other, activator, self->health, meansOfDeath_t::MOD_UNKNOWN );
 }
 
 //-----------------------------------------------------
@@ -1078,18 +1078,18 @@ void SP_func_glass( gentity_t *self )
 		self->takedamage = true;
 	}
 
-	self->e_UseFunc = useF_funcGlassUse;
-	self->e_DieFunc = dieF_funcGlassDie;
+	self->e_UseFunc = useFunc_t::useF_funcGlassUse;
+	self->e_DieFunc = dieFunc_t::dieF_funcGlassDie;
 
 	VectorCopy( self->s.origin, self->pos1 );
 
 	gi.SetBrushModel( self, self->model );
-	self->svFlags |= (SVF_GLASS_BRUSH|SVF_BBRUSH);
-	self->material = MAT_GLASS;
+	self->svFlags |= (svFlags_t::SVF_GLASS_BRUSH|svFlags_t::SVF_BBRUSH);
+	self->material = material_t::MAT_GLASS;
 
-	self->s.eType = ET_MOVER;
+	self->s.eType = entityType_t::ET_MOVER;
 
-	self->s.pos.trType = TR_STATIONARY;
+	self->s.pos.trType = trType_t::TR_STATIONARY;
 	VectorCopy( self->pos1, self->s.pos.trBase );
 
 	G_SoundIndex( "sound/effects/glassbreak1.wav" );
@@ -1106,11 +1106,11 @@ bool G_EntIsBreakable( int entityNum )
 	}
 
 	gentity_t *ent = &g_entities[entityNum];
-	if ( Any( ent->svFlags & SVF_GLASS_BRUSH ) )
+	if ( Any( ent->svFlags & svFlags_t::SVF_GLASS_BRUSH ) )
 	{
 		return true;
 	}
-	if ( Any( ent->svFlags & SVF_BBRUSH ) )
+	if ( Any( ent->svFlags & svFlags_t::SVF_BBRUSH ) )
 	{
 		return true;
 	}

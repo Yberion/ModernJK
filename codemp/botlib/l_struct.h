@@ -53,7 +53,6 @@ enum class fieldTypeFlags_t
 	FT_BOUNDED					= 0x0200,	// bounded value
 	FT_UNSIGNED					= 0x0400,
 };
-using enum fieldTypeFlags_t;
 template <> inline constexpr bool enableEnumFlags<fieldTypeFlags_t> = true;
 
 //structure field definition

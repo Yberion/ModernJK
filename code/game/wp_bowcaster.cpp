@@ -34,7 +34,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 static void WP_BowcasterMainFire( gentity_t *ent )
 //---------------------------------------------------------
 {
-	int			damage	= weaponData[WP_BOWCASTER].damage, count;
+	int			damage	= weaponData[weapon_t::WP_BOWCASTER].damage, count;
 	float		vel;
 	vec3_t		angs, dir, start;
 	gentity_t	*missile;
@@ -90,8 +90,8 @@ static void WP_BowcasterMainFire( gentity_t *ent )
 
 		vectoangles( forwardVec, angs );
 
-		if ( !(ent->client->ps.forcePowersActive&Bit( FP_SEE ))
-			|| ent->client->ps.forcePowerLevel[FP_SEE] < FORCE_LEVEL_2 )
+		if ( !(ent->client->ps.forcePowersActive&Bit( forcePowers_t::FP_SEE ))
+			|| ent->client->ps.forcePowerLevel[forcePowers_t::FP_SEE] < forcePowerLevels_t::FORCE_LEVEL_2 )
 		{//force sight 2+ gives perfect aim
 			//FIXME: maybe force sight level 3 autoaims some?
 			// add some slop to the fire direction
@@ -109,7 +109,7 @@ static void WP_BowcasterMainFire( gentity_t *ent )
 		missile = CreateMissile( start, dir, vel, 10000, ent );
 
 		missile->classname = "bowcaster_proj";
-		missile->s.weapon = WP_BOWCASTER;
+		missile->s.weapon = weapon_t::WP_BOWCASTER;
 
 		VectorSet( missile->maxs, BOWCASTER_SIZE, BOWCASTER_SIZE, BOWCASTER_SIZE );
 		VectorScale( missile->maxs, -1, missile->mins );
@@ -120,11 +120,11 @@ static void WP_BowcasterMainFire( gentity_t *ent )
 //		}
 
 		missile->damage = damage;
-		missile->dflags = DAMAGE_DEATH_KNOCKBACK;
-		missile->methodOfDeath = MOD_BOWCASTER;
-		missile->clipmask = MASK_SHOT | CONTENTS_LIGHTSABER;
-		missile->splashDamage = weaponData[WP_BOWCASTER].splashDamage;
-		missile->splashRadius = weaponData[WP_BOWCASTER].splashRadius;
+		missile->dflags = damageFlags_t::DAMAGE_DEATH_KNOCKBACK;
+		missile->methodOfDeath = meansOfDeath_t::MOD_BOWCASTER;
+		missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
+		missile->splashDamage = weaponData[weapon_t::WP_BOWCASTER].splashDamage;
+		missile->splashRadius = weaponData[weapon_t::WP_BOWCASTER].splashRadius;
 
 		// we don't want it to bounce
 		missile->bounceCount = 0;
@@ -137,7 +137,7 @@ static void WP_BowcasterAltFire( gentity_t *ent )
 //---------------------------------------------------------
 {
 	vec3_t	start;
-	int		damage	= weaponData[WP_BOWCASTER].altDamage;
+	int		damage	= weaponData[weapon_t::WP_BOWCASTER].altDamage;
 
 	VectorCopy( muzzle, start );
 	WP_TraceSetStart( ent, start, vec3_origin, vec3_origin );//make sure our start point isn't on the other side of a wall
@@ -147,7 +147,7 @@ static void WP_BowcasterAltFire( gentity_t *ent )
 	gentity_t *missile = CreateMissile( start, forwardVec, BOWCASTER_VELOCITY, 10000, ent, true );
 
 	missile->classname = "bowcaster_alt_proj";
-	missile->s.weapon = WP_BOWCASTER;
+	missile->s.weapon = weapon_t::WP_BOWCASTER;
 
 	// Do the damages
 	if ( ent->s.number != 0 )
@@ -176,15 +176,15 @@ static void WP_BowcasterAltFire( gentity_t *ent )
 //		damage *= 2;
 //	}
 
-	missile->s.eFlags |= EF_BOUNCE;
+	missile->s.eFlags |= entityFlags_t::EF_BOUNCE;
 	missile->bounceCount = 3;
 
 	missile->damage = damage;
-	missile->dflags = DAMAGE_DEATH_KNOCKBACK;
-	missile->methodOfDeath = MOD_BOWCASTER_ALT;
-	missile->clipmask = MASK_SHOT | CONTENTS_LIGHTSABER;
-	missile->splashDamage = weaponData[WP_BOWCASTER].altSplashDamage;
-	missile->splashRadius = weaponData[WP_BOWCASTER].altSplashRadius;
+	missile->dflags = damageFlags_t::DAMAGE_DEATH_KNOCKBACK;
+	missile->methodOfDeath = meansOfDeath_t::MOD_BOWCASTER_ALT;
+	missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
+	missile->splashDamage = weaponData[weapon_t::WP_BOWCASTER].altSplashDamage;
+	missile->splashRadius = weaponData[weapon_t::WP_BOWCASTER].altSplashRadius;
 }
 
 //---------------------------------------------------------

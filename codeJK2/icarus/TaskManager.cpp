@@ -33,7 +33,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <assert.h>
 #include "../code/qcommon/ojk_saved_game_helper.h"
 
-#define ICARUS_VALIDATE(a) if ( a == false ) return TASK_FAILED;
+#define ICARUS_VALIDATE(a) if ( a == false ) return taskResult_t::TASK_FAILED;
 // in the functions that return true or false
 #define ICARUS_VALIDATE_BOOL(a) if ( a == false ) return false;
 
@@ -136,7 +136,7 @@ Add
 taskResult_t CTaskGroup::Add( CTask *task )
 {
 	m_completedTasks[ task->GetGUID() ] = false;
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 }
 
 /*
@@ -195,7 +195,7 @@ taskResult_t	CTaskManager::Init( CSequencer *owner )
 {
 	//TODO: Emit warning
 	if ( owner == nullptr )
-		return TASK_FAILED;
+		return taskResult_t::TASK_FAILED;
 
 	m_tasks.clear();
 	m_owner		= owner;
@@ -204,7 +204,7 @@ taskResult_t	CTaskManager::Init( CSequencer *owner )
 	m_GUID		= 0;
 	m_resident	= false;
 
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 }
 
 /*
@@ -236,7 +236,7 @@ taskResult_t CTaskManager::Free( void )
 	m_taskGroupNameMap.clear();
 	m_taskGroupIDMap.clear();
 
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 }
 
 /*
@@ -283,7 +283,7 @@ CTaskGroup *CTaskManager::AddTaskGroup( const char *name )
 	assert( group );
 	if ( group == nullptr )
 	{
-		(m_owner->GetInterface())->I_DPrintf( WL_ERROR, "Unable to allocate task group \"%s\"\n", name );
+		(m_owner->GetInterface())->I_DPrintf( WL_e::WL_ERROR, "Unable to allocate task group \"%s\"\n", name );
 		return nullptr;
 	}
 
@@ -312,7 +312,7 @@ CTaskGroup *CTaskManager::GetTaskGroup( const char *name )
 
 	if ( tgi == m_taskGroupNameMap.end() )
 	{
-		(m_owner->GetInterface())->I_DPrintf( WL_WARNING, "Could not find task group \"%s\"\n", name );
+		(m_owner->GetInterface())->I_DPrintf( WL_e::WL_WARNING, "Could not find task group \"%s\"\n", name );
 		return nullptr;
 	}
 
@@ -327,7 +327,7 @@ CTaskGroup *CTaskManager::GetTaskGroup( int id )
 
 	if ( tgi == m_taskGroupIDMap.end() )
 	{
-		(m_owner->GetInterface())->I_DPrintf( WL_WARNING, "Could not find task group \"%d\"\n", id );
+		(m_owner->GetInterface())->I_DPrintf( WL_e::WL_WARNING, "Could not find task group \"%d\"\n", id );
 		return nullptr;
 	}
 
@@ -342,9 +342,9 @@ Update
 
 taskResult_t CTaskManager::Update( void )
 {
-	if ( Any( g_entities[m_ownerID].svFlags & SVF_ICARUS_FREEZE ) )
+	if ( Any( g_entities[m_ownerID].svFlags & svFlags_t::SVF_ICARUS_FREEZE ) )
 	{
-		return TASK_FAILED;
+		return taskResult_t::TASK_FAILED;
 	}
 	m_count = 0;	//Needed for runaway init
 	m_resident = true;
@@ -392,7 +392,7 @@ int CTaskManager::GetFloat( int entID, CBlock *block, int &memberNum, float &val
 	icarusToken_t	type;
 
 	//See if this is a get() command replacement
-	if ( Check( ID_GET, block, memberNum ) )
+	if ( Check( icarusToken_t::ID_GET, block, memberNum ) )
 	{
 		//Update the member past the header id
 		memberNum++;
@@ -402,9 +402,9 @@ int CTaskManager::GetFloat( int entID, CBlock *block, int &memberNum, float &val
 		name = (char *) block->GetMemberData( memberNum++ );
 
 		//TODO: Emit warning
-		if ( type != TK_FLOAT )
+		if ( type != icarusToken_t::TK_FLOAT )
 		{
-			(m_owner->GetInterface())->I_DPrintf( WL_ERROR, "Get() call tried to return a non-FLOAT parameter!\n" );
+			(m_owner->GetInterface())->I_DPrintf( WL_e::WL_ERROR, "Get() call tried to return a non-FLOAT parameter!\n" );
 			return false;
 		}
 
@@ -412,7 +412,7 @@ int CTaskManager::GetFloat( int entID, CBlock *block, int &memberNum, float &val
 	}
 
 	//Look for a Q_flrand(0.0f, 1.0f) inline call
-	if ( Check( ID_RANDOM, block, memberNum ) )
+	if ( Check( icarusToken_t::ID_RANDOM, block, memberNum ) )
 	{
 		float	min, max;
 
@@ -427,26 +427,26 @@ int CTaskManager::GetFloat( int entID, CBlock *block, int &memberNum, float &val
 	}
 
 	//Look for a tag() inline call
-	if ( Check( ID_TAG, block, memberNum ) )
+	if ( Check( icarusToken_t::ID_TAG, block, memberNum ) )
 	{
-		(m_owner->GetInterface())->I_DPrintf( WL_WARNING, "Invalid use of \"tag\" inline.  Not a valid replacement for type FLOAT\n" );
+		(m_owner->GetInterface())->I_DPrintf( WL_e::WL_WARNING, "Invalid use of \"tag\" inline.  Not a valid replacement for type FLOAT\n" );
 		return false;
 	}
 
 	CBlockMember	*bm	= block->GetMember( memberNum );
 
-	if ( bm->GetID() == TK_INT )
+	if ( bm->GetID() == icarusToken_t::TK_INT )
 	{
 		value = (float) (*(int *) block->GetMemberData( memberNum++ ));
 	}
-	else if ( bm->GetID() == TK_FLOAT )
+	else if ( bm->GetID() == icarusToken_t::TK_FLOAT )
 	{
 		value = *(float *) block->GetMemberData( memberNum++ );
 	}
 	else
 	{
 		assert(0);
-		(m_owner->GetInterface())->I_DPrintf( WL_WARNING, "Unexpected value; expected type FLOAT\n" );
+		(m_owner->GetInterface())->I_DPrintf( WL_e::WL_WARNING, "Unexpected value; expected type FLOAT\n" );
 		return false;
 	}
 
@@ -484,7 +484,7 @@ int CTaskManager::GetVector( int entID, CBlock *block, int &memberNum, vector_t 
 	int		i;
 
 	//See if this is a get() command replacement
-	if ( Check( ID_GET, block, memberNum ) )
+	if ( Check( icarusToken_t::ID_GET, block, memberNum ) )
 	{
 		//Update the member past the header id
 		memberNum++;
@@ -494,16 +494,16 @@ int CTaskManager::GetVector( int entID, CBlock *block, int &memberNum, vector_t 
 		name = (char *) block->GetMemberData( memberNum++ );
 
 		//TODO: Emit warning
-		if ( type != TK_VECTOR )
+		if ( type != icarusToken_t::TK_VECTOR )
 		{
-			(m_owner->GetInterface())->I_DPrintf( WL_ERROR, "Get() call tried to return a non-VECTOR parameter!\n" );
+			(m_owner->GetInterface())->I_DPrintf( WL_e::WL_ERROR, "Get() call tried to return a non-VECTOR parameter!\n" );
 		}
 
 		return (m_owner->GetInterface())->I_GetVector( entID, type, name, value );
 	}
 
 	//Look for a Q_flrand(0.0f, 1.0f) inline call
-	if ( Check( ID_RANDOM, block, memberNum ) )
+	if ( Check( icarusToken_t::ID_RANDOM, block, memberNum ) )
 	{
 		float	min, max;
 
@@ -521,7 +521,7 @@ int CTaskManager::GetVector( int entID, CBlock *block, int &memberNum, vector_t 
 	}
 
 	//Look for a tag() inline call
-	if ( Check( ID_TAG, block, memberNum ) )
+	if ( Check( icarusToken_t::ID_TAG, block, memberNum ) )
 	{
 		const char	*tagName;
 		icarusToken_t	tagLookup;
@@ -532,7 +532,7 @@ int CTaskManager::GetVector( int entID, CBlock *block, int &memberNum, vector_t 
 
 		if ( (m_owner->GetInterface())->I_GetTag( entID, tagName, tagLookup, value ) == false)
 		{
-			(m_owner->GetInterface())->I_DPrintf( WL_ERROR, "Unable to find tag \"%s\"!\n", tagName );
+			(m_owner->GetInterface())->I_DPrintf( WL_e::WL_ERROR, "Unable to find tag \"%s\"!\n", tagName );
 			assert(0);
 			return false;
 		}
@@ -543,9 +543,9 @@ int CTaskManager::GetVector( int entID, CBlock *block, int &memberNum, vector_t 
 	//Check for a real vector here
 	type = block->GetMemberToken( memberNum );
 
-	if ( type != TK_VECTOR )
+	if ( type != icarusToken_t::TK_VECTOR )
 	{
-//		(m_owner->GetInterface())->I_DPrintf( WL_WARNING, "Unexpected value; expected type VECTOR\n" );
+//		(m_owner->GetInterface())->I_DPrintf( WL_e::WL_WARNING, "Unexpected value; expected type VECTOR\n" );
 		return false;
 	}
 
@@ -575,7 +575,7 @@ int CTaskManager::Get( int entID, CBlock *block, int &memberNum, const char **va
 	icarusToken_t	type;
 
 	//Look for a get() inline call
-	if ( Check( ID_GET, block, memberNum ) )
+	if ( Check( icarusToken_t::ID_GET, block, memberNum ) )
 	{
 		//Update the member past the header id
 		memberNum++;
@@ -589,23 +589,23 @@ int CTaskManager::Get( int entID, CBlock *block, int &memberNum, const char **va
 		//FIXME: STRING MANAGEMENT NEEDS TO BE IMPLEMENTED, MY CURRENT SOLUTION IS NOT ACCEPTABLE!!
 		switch ( type )
 		{
-		case TK_STRING:
+		case icarusToken_t::TK_STRING:
 			if ( ( m_owner->GetInterface())->I_GetString( entID, type, name, value ) == false )
 			{
-				(m_owner->GetInterface())->I_DPrintf( WL_ERROR, "Get() parameter \"%s\" could not be found!\n", name );
+				(m_owner->GetInterface())->I_DPrintf( WL_e::WL_ERROR, "Get() parameter \"%s\" could not be found!\n", name );
 				return false;
 			}
 
 			return true;
 			break;
 
-		case TK_FLOAT:
+		case icarusToken_t::TK_FLOAT:
 			{
 				float	temp;
 
 				if ( (m_owner->GetInterface())->I_GetFloat( entID, type, name, &temp ) == false )
 				{
-					(m_owner->GetInterface())->I_DPrintf( WL_ERROR, "Get() parameter \"%s\" could not be found!\n", name );
+					(m_owner->GetInterface())->I_DPrintf( WL_e::WL_ERROR, "Get() parameter \"%s\" could not be found!\n", name );
 					return false;
 				}
 
@@ -616,13 +616,13 @@ int CTaskManager::Get( int entID, CBlock *block, int &memberNum, const char **va
 			return true;
 			break;
 
-		case TK_VECTOR:
+		case icarusToken_t::TK_VECTOR:
 			{
 				vector_t	vval;
 
 				if ( (m_owner->GetInterface())->I_GetVector( entID, type, name, vval )  == false )
 				{
-					(m_owner->GetInterface())->I_DPrintf( WL_ERROR, "Get() parameter \"%s\" could not be found!\n", name );
+					(m_owner->GetInterface())->I_DPrintf( WL_e::WL_ERROR, "Get() parameter \"%s\" could not be found!\n", name );
 					return false;
 				}
 
@@ -634,14 +634,14 @@ int CTaskManager::Get( int entID, CBlock *block, int &memberNum, const char **va
 			break;
 
 		default:
-			(m_owner->GetInterface())->I_DPrintf( WL_ERROR, "Get() call tried to return an unknown type!\n" );
+			(m_owner->GetInterface())->I_DPrintf( WL_e::WL_ERROR, "Get() call tried to return an unknown type!\n" );
 			return false;
 			break;
 		}
 	}
 
 	//Look for a Q_flrand(0.0f, 1.0f) inline call
-	if ( Check( ID_RANDOM, block, memberNum ) )
+	if ( Check( icarusToken_t::ID_RANDOM, block, memberNum ) )
 	{
 		float	min, max, ret;
 
@@ -659,7 +659,7 @@ int CTaskManager::Get( int entID, CBlock *block, int &memberNum, const char **va
 	}
 
 	//Look for a tag() inline call
-	if ( Check( ID_TAG, block, memberNum ) )
+	if ( Check( icarusToken_t::ID_TAG, block, memberNum ) )
 	{
 		memberNum++;
 		ICARUS_VALIDATE_BOOL ( Get( entID, block, memberNum, &tagName ) );
@@ -667,7 +667,7 @@ int CTaskManager::Get( int entID, CBlock *block, int &memberNum, const char **va
 
 		if ( ( m_owner->GetInterface())->I_GetTag( entID, tagName, tagLookup, vector ) == false)
 		{
-			(m_owner->GetInterface())->I_DPrintf( WL_ERROR, "Unable to find tag \"%s\"!\n", tagName );
+			(m_owner->GetInterface())->I_DPrintf( WL_e::WL_ERROR, "Unable to find tag \"%s\"!\n", tagName );
 			assert(0 && "Unable to find tag");
 			return false;
 		}
@@ -682,7 +682,7 @@ int CTaskManager::Get( int entID, CBlock *block, int &memberNum, const char **va
 
 	CBlockMember	*bm	= block->GetMember( memberNum );
 
-	if ( bm->GetID() == TK_INT )
+	if ( bm->GetID() == icarusToken_t::TK_INT )
 	{
 		float fval = (float) (*(int *) block->GetMemberData( memberNum++ ));
 		Com_sprintf( tempBuffer, sizeof( tempBuffer ), "%f", fval );
@@ -690,7 +690,7 @@ int CTaskManager::Get( int entID, CBlock *block, int &memberNum, const char **va
 
 		return true;
 	}
-	else if ( bm->GetID() == TK_FLOAT )
+	else if ( bm->GetID() == icarusToken_t::TK_FLOAT )
 	{
 		float fval = *(float *) block->GetMemberData( memberNum++ );
 		Com_sprintf( tempBuffer, sizeof( tempBuffer ), "%f", fval );
@@ -698,7 +698,7 @@ int CTaskManager::Get( int entID, CBlock *block, int &memberNum, const char **va
 
 		return true;
 	}
-	else if ( bm->GetID() == TK_VECTOR )
+	else if ( bm->GetID() == icarusToken_t::TK_VECTOR )
 	{
 		vector_t	vval;
 
@@ -715,7 +715,7 @@ int CTaskManager::Get( int entID, CBlock *block, int &memberNum, const char **va
 
 		return true;
 	}
-	else if ( ( bm->GetID() == TK_STRING ) || ( bm->GetID() == TK_IDENTIFIER ) )
+	else if ( ( bm->GetID() == icarusToken_t::TK_STRING ) || ( bm->GetID() == icarusToken_t::TK_IDENTIFIER ) )
 	{
 		*value = (char *) block->GetMemberData( memberNum++ );
 
@@ -724,7 +724,7 @@ int CTaskManager::Get( int entID, CBlock *block, int &memberNum, const char **va
 
 	//TODO: Emit warning
 	assert( 0 );
-	(m_owner->GetInterface())->I_DPrintf( WL_WARNING, "Unexpected value; expected type STRING\n" );
+	(m_owner->GetInterface())->I_DPrintf( WL_e::WL_WARNING, "Unexpected value; expected type STRING\n" );
 
 	return false;
 }
@@ -744,21 +744,21 @@ taskResult_t	CTaskManager::Go( void )
 	if ( m_count++ > RUNAWAY_LIMIT )
 	{
 		assert(0);
-		(m_owner->GetInterface())->I_DPrintf( WL_ERROR, "Runaway loop detected!\n" );
-		return TASK_FAILED;
+		(m_owner->GetInterface())->I_DPrintf( WL_e::WL_ERROR, "Runaway loop detected!\n" );
+		return taskResult_t::TASK_FAILED;
 	}
 
 	//If there are tasks to complete, do so
 	if ( m_tasks.empty() == false )
 	{
 		//Get the next task
-		task = PopTask( POP_BACK );
+		task = PopTask( pushPop_t::POP_BACK );
 
 		assert( task );
 		if ( task == nullptr )
 		{
-			(m_owner->GetInterface())->I_DPrintf( WL_ERROR, "Invalid task found in Go()!\n" );
-			return TASK_FAILED;
+			(m_owner->GetInterface())->I_DPrintf( WL_e::WL_ERROR, "Invalid task found in Go()!\n" );
+			return taskResult_t::TASK_FAILED;
 		}
 
 		//If this hasn't been stamped, do so
@@ -768,98 +768,98 @@ taskResult_t	CTaskManager::Go( void )
 		//Switch and call the proper function
 		switch( task->GetID() )
 		{
-		case ID_WAIT:
+		case icarusToken_t::ID_WAIT:
 
 			Wait( task, completed );
 
 			//Push it to consider it again on the next frame if not complete
 			if ( completed == false )
 			{
-				PushTask( task, PUSH_BACK );
-				return TASK_OK;
+				PushTask( task, pushPop_t::PUSH_BACK );
+				return taskResult_t::TASK_OK;
 			}
 
 			Completed( task->GetGUID() );
 
 			break;
 
-		case ID_WAITSIGNAL:
+		case icarusToken_t::ID_WAITSIGNAL:
 
 			WaitSignal( task, completed );
 
 			//Push it to consider it again on the next frame if not complete
 			if ( completed == false )
 			{
-				PushTask( task, PUSH_BACK );
-				return TASK_OK;
+				PushTask( task, pushPop_t::PUSH_BACK );
+				return taskResult_t::TASK_OK;
 			}
 
 			Completed( task->GetGUID() );
 
 			break;
 
-		case ID_PRINT:	//print( STRING )
+		case icarusToken_t::ID_PRINT:	//print( STRING )
 			Print( task );
 			break;
 
-		case ID_SOUND:	//sound( name )
+		case icarusToken_t::ID_SOUND:	//sound( name )
 			Sound( task );
 			break;
 
-		case ID_MOVE:	//move ( ORIGIN, ANGLES, DURATION )
+		case icarusToken_t::ID_MOVE:	//move ( Eorientations::ORIGIN, ANGLES, DURATION )
 			Move( task );
 			break;
 
-		case ID_ROTATE:	//rotate( ANGLES, DURATION )
+		case icarusToken_t::ID_ROTATE:	//rotate( ANGLES, DURATION )
 			Rotate( task );
 			break;
 
-		case ID_KILL:	//kill( NAME )
+		case icarusToken_t::ID_KILL:	//kill( NAME )
 			Kill( task );
 			break;
 
-		case ID_REMOVE:	//remove( NAME )
+		case icarusToken_t::ID_REMOVE:	//remove( NAME )
 			Remove( task );
 			break;
 
-		case ID_CAMERA:	//camera( ? )
+		case icarusToken_t::ID_CAMERA:	//camera( ? )
 			Camera( task );
 			break;
 
-		case ID_SET:	//set( NAME, ? )
+		case icarusToken_t::ID_SET:	//set( NAME, ? )
 			Set( task );
 			break;
 
-		case ID_USE:	//use( NAME )
+		case icarusToken_t::ID_USE:	//use( NAME )
 			Use( task );
 			break;
 
-		case ID_DECLARE://declare( TYPE, NAME )
+		case icarusToken_t::ID_DECLARE://declare( TYPE, NAME )
 			DeclareVariable( task );
 			break;
 
-		case ID_FREE:	//free( NAME )
+		case icarusToken_t::ID_FREE:	//free( NAME )
 			FreeVariable( task );
 			break;
 
-		case ID_SIGNAL:	//signal( NAME )
+		case icarusToken_t::ID_SIGNAL:	//signal( NAME )
 			Signal( task );
 			break;
 
-		case ID_PLAY:	//play ( NAME )
+		case icarusToken_t::ID_PLAY:	//play ( NAME )
 			Play( task );
 			break;
 
 		default:
 			assert(0);
 			task->Free();
-			(m_owner->GetInterface())->I_DPrintf( WL_ERROR, "Found unknown task type!\n" );
-			return TASK_FAILED;
+			(m_owner->GetInterface())->I_DPrintf( WL_e::WL_ERROR, "Found unknown task type!\n" );
+			return taskResult_t::TASK_FAILED;
 			break;
 		}
 
 		//Pump the sequencer for another task
-		CallbackCommand( task, TASK_RETURN_COMPLETE );
+		CallbackCommand( task, taskReturn_t::TASK_RETURN_COMPLETE );
 
 		task->Free();
 	}
@@ -867,7 +867,7 @@ taskResult_t	CTaskManager::Go( void )
 	//FIXME: A command surge limiter could be implemented at this point to be sure a script doesn't
 	//		 execute too many commands in one cycle.  This may, however, cause timing errors to surface.
 
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 }
 
 /*
@@ -890,13 +890,13 @@ taskResult_t	CTaskManager::SetCommand( CBlock *command, pushPop_t type )
 	assert( task );
 	if ( task == nullptr )
 	{
-		(m_owner->GetInterface())->I_DPrintf( WL_ERROR, "Unable to allocate new task!\n" );
-		return TASK_FAILED;
+		(m_owner->GetInterface())->I_DPrintf( WL_e::WL_ERROR, "Unable to allocate new task!\n" );
+		return taskResult_t::TASK_FAILED;
 	}
 
 	PushTask( task, type );
 
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 }
 
 /*
@@ -912,9 +912,9 @@ taskResult_t CTaskManager::MarkTask( int id, taskMark_t operation )
 	assert( group );
 
 	if ( group == nullptr )
-		return TASK_FAILED;
+		return taskResult_t::TASK_FAILED;
 
-	if ( operation == TASK_START )
+	if ( operation == taskMark_t::TASK_START )
 	{
 		//Reset all the completion information
 		group->Init();
@@ -922,11 +922,11 @@ taskResult_t CTaskManager::MarkTask( int id, taskMark_t operation )
 		group->SetParent( m_curGroup );
 		m_curGroup = group;
 	}
-	else if ( operation == TASK_END )
+	else if ( operation == taskMark_t::TASK_END )
 	{
 		assert( m_curGroup );
 		if ( m_curGroup == nullptr )
-			return TASK_FAILED;
+			return taskResult_t::TASK_FAILED;
 
 		m_curGroup = m_curGroup->GetParent();
 	}
@@ -938,7 +938,7 @@ taskResult_t CTaskManager::MarkTask( int id, taskMark_t operation )
 	}
 #endif
 
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 }
 
 /*
@@ -959,7 +959,7 @@ taskResult_t CTaskManager::Completed( int id )
 			break;
 	}
 
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 }
 
 /*
@@ -970,13 +970,13 @@ CallbackCommand
 
 taskResult_t	CTaskManager::CallbackCommand( CTask *task, taskReturn_t returnCode )
 {
-	if ( m_owner->Callback( this, task->GetBlock(), returnCode ) == SEQ_OK )
+	if ( m_owner->Callback( this, task->GetBlock(), returnCode ) == sequencerResult_t::SEQ_OK )
 		return Go( );
 
 	assert(0);
 
-	(m_owner->GetInterface())->I_DPrintf( WL_ERROR, "Command callback failure!\n" );
-	return TASK_FAILED;
+	(m_owner->GetInterface())->I_DPrintf( WL_e::WL_ERROR, "Command callback failure!\n" );
+	return taskResult_t::TASK_FAILED;
 }
 
 /*
@@ -989,7 +989,7 @@ CBlock *CTaskManager::RecallTask( void )
 {
 	CTask	*task;
 
-	task = PopTask( POP_BACK );
+	task = PopTask( pushPop_t::POP_BACK );
 
 	if ( task )
 	{
@@ -1012,20 +1012,20 @@ PushTask
 
 taskResult_t	CTaskManager::PushTask( CTask *task, pushPop_t flag )
 {
-	assert( (flag == PUSH_FRONT) || (flag == PUSH_BACK) );
+	assert( (flag == pushPop_t::PUSH_FRONT) || (flag == pushPop_t::PUSH_BACK) );
 
 	switch ( flag )
 	{
-	case PUSH_FRONT:
+	case pushPop_t::PUSH_FRONT:
 		m_tasks.insert(m_tasks.begin(), task);
 
-		return TASK_OK;
+		return taskResult_t::TASK_OK;
 		break;
 
-	case PUSH_BACK:
+	case pushPop_t::PUSH_BACK:
 		m_tasks.insert(m_tasks.end(), task);
 
-		return TASK_OK;
+		return taskResult_t::TASK_OK;
 		break;
 
 	default:
@@ -1033,7 +1033,7 @@ taskResult_t	CTaskManager::PushTask( CTask *task, pushPop_t flag )
 	}
 
 	//Invalid flag
-	return TASK_FAILED;
+	return taskResult_t::TASK_FAILED;
 }
 
 /*
@@ -1046,21 +1046,21 @@ CTask *CTaskManager::PopTask( pushPop_t flag )
 {
 	CTask	*task;
 
-	assert( (flag == POP_FRONT) || (flag == POP_BACK) );
+	assert( (flag == pushPop_t::POP_FRONT) || (flag == pushPop_t::POP_BACK) );
 
 	if ( m_tasks.empty() )
 		return nullptr;
 
 	switch ( flag )
 	{
-	case POP_FRONT:
+	case pushPop_t::POP_FRONT:
 		task = m_tasks.front();
 		m_tasks.pop_front();
 
 		return task;
 		break;
 
-	case POP_BACK:
+	case pushPop_t::POP_BACK:
 		task = m_tasks.back();
 		m_tasks.pop_back();
 
@@ -1083,7 +1083,7 @@ GetCurrentTask
 
 CBlock *CTaskManager::GetCurrentTask( void )
 {
-	CTask *task = PopTask( POP_BACK );
+	CTask *task = PopTask( pushPop_t::POP_BACK );
 
 	if ( task == nullptr )
 		return nullptr;
@@ -1116,14 +1116,14 @@ taskResult_t CTaskManager::Wait( CTask *task, bool &completed  )
 	bm = block->GetMember( 0 );
 
 	//Check if this is a task completion wait
-	if ( bm->GetID() == TK_STRING )
+	if ( bm->GetID() == icarusToken_t::TK_STRING )
 	{
 		ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal ) );
 
 		if ( task->GetTimeStamp() == (m_owner->GetInterface())->I_GetTime() )
 		{
 			//Print out the debug info
-			(m_owner->GetInterface())->I_DPrintf( WL_DEBUG, "%4d wait(\"%s\"); [%d]", m_ownerID, sVal, task->GetTimeStamp() );
+			(m_owner->GetInterface())->I_DPrintf( WL_e::WL_DEBUG, "%4d wait(\"%s\"); [%d]", m_ownerID, sVal, task->GetTimeStamp() );
 		}
 
 		CTaskGroup	*group = GetTaskGroup( sVal );
@@ -1132,14 +1132,14 @@ taskResult_t CTaskManager::Wait( CTask *task, bool &completed  )
 		{
 			//TODO: Emit warning
 			completed = false;
-			return TASK_FAILED;
+			return taskResult_t::TASK_FAILED;
 		}
 
 		completed = group->Complete();
 	}
 	else	//Otherwise it's a time completion wait
 	{
-		if ( Check( ID_RANDOM, block, memberNum ) )
+		if ( Check( icarusToken_t::ID_RANDOM, block, memberNum ) )
 		{//get it random only the first time
 			float	min, max;
 
@@ -1163,14 +1163,14 @@ taskResult_t CTaskManager::Wait( CTask *task, bool &completed  )
 		if ( task->GetTimeStamp() == (m_owner->GetInterface())->I_GetTime() )
 		{
 			//Print out the debug info
-			(m_owner->GetInterface())->I_DPrintf( WL_DEBUG, "%4d wait( %d ); [%d]", m_ownerID, (int) dwtime, task->GetTimeStamp() );
+			(m_owner->GetInterface())->I_DPrintf( WL_e::WL_DEBUG, "%4d wait( %d ); [%d]", m_ownerID, (int) dwtime, task->GetTimeStamp() );
 		}
 
 		if ( (task->GetTimeStamp() + dwtime) < ((m_owner->GetInterface())->I_GetTime()) )
 		{
 			completed = true;
 			memberNum = 0;
-			if ( Check( ID_RANDOM, block, memberNum ) )
+			if ( Check( icarusToken_t::ID_RANDOM, block, memberNum ) )
 			{//set the data back to 0 so it will be re-randomized next time
 				dwtime = Q3_INFINITE;
 				bm->SetData( &dwtime, sizeof( dwtime ) );
@@ -1178,7 +1178,7 @@ taskResult_t CTaskManager::Wait( CTask *task, bool &completed  )
 		}
 	}
 
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 }
 
 /*
@@ -1200,7 +1200,7 @@ taskResult_t CTaskManager::WaitSignal( CTask *task, bool &completed  )
 	if ( task->GetTimeStamp() == (m_owner->GetInterface())->I_GetTime() )
 	{
 		//Print out the debug info
-		(m_owner->GetInterface())->I_DPrintf( WL_DEBUG, "%4d waitsignal(\"%s\"); [%d]", m_ownerID, sVal, task->GetTimeStamp() );
+		(m_owner->GetInterface())->I_DPrintf( WL_e::WL_DEBUG, "%4d waitsignal(\"%s\"); [%d]", m_ownerID, sVal, task->GetTimeStamp() );
 	}
 
 	if ( (m_owner->GetOwner())->CheckSignal( sVal ) )
@@ -1209,7 +1209,7 @@ taskResult_t CTaskManager::WaitSignal( CTask *task, bool &completed  )
 		(m_owner->GetOwner())->ClearSignal( sVal );
 	}
 
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 }
 
 /*
@@ -1226,13 +1226,13 @@ taskResult_t CTaskManager::Print( CTask *task )
 
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal ) );
 
-	(m_owner->GetInterface())->I_DPrintf( WL_DEBUG, "%4d print(\"%s\"); [%d]", m_ownerID, sVal, task->GetTimeStamp() );
+	(m_owner->GetInterface())->I_DPrintf( WL_e::WL_DEBUG, "%4d print(\"%s\"); [%d]", m_ownerID, sVal, task->GetTimeStamp() );
 
 	(m_owner->GetInterface())->I_CenterPrint( "%s", sVal );
 
 	Completed( task->GetGUID() );
 
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 }
 
 /*
@@ -1250,13 +1250,13 @@ taskResult_t CTaskManager::Sound( CTask *task )
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal ) );
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal2 ) );
 
-	(m_owner->GetInterface())->I_DPrintf( WL_DEBUG, "%4d sound(\"%s\", \"%s\"); [%d]", m_ownerID, sVal, sVal2, task->GetTimeStamp() );
+	(m_owner->GetInterface())->I_DPrintf( WL_e::WL_DEBUG, "%4d sound(\"%s\", \"%s\"); [%d]", m_ownerID, sVal, sVal2, task->GetTimeStamp() );
 
 	//Only instantly complete if the user has requested it
 	if( (m_owner->GetInterface())->I_PlaySound( task->GetGUID(), m_ownerID, sVal2, sVal ) )
 		Completed( task->GetGUID() );
 
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 }
 
 /*
@@ -1275,7 +1275,7 @@ taskResult_t CTaskManager::Rotate( CTask *task )
 	int			memberNum = 0;
 
 	//Check for a tag reference
-	if ( Check( ID_TAG, block, memberNum ) )
+	if ( Check( icarusToken_t::ID_TAG, block, memberNum ) )
 	{
 		memberNum++;
 
@@ -1285,9 +1285,9 @@ taskResult_t CTaskManager::Rotate( CTask *task )
 		if ( (m_owner->GetInterface())->I_GetTag( m_ownerID, tagName, tagLookup, vector ) == false )
 		{
 			//TODO: Emit warning
-			(m_owner->GetInterface())->I_DPrintf( WL_ERROR, "Unable to find tag \"%s\"!\n", tagName );
+			(m_owner->GetInterface())->I_DPrintf( WL_e::WL_ERROR, "Unable to find tag \"%s\"!\n", tagName );
 			assert(0);
-			return TASK_FAILED;
+			return taskResult_t::TASK_FAILED;
 		}
 	}
 	else
@@ -1299,10 +1299,10 @@ taskResult_t CTaskManager::Rotate( CTask *task )
 	//Find the duration
 	ICARUS_VALIDATE( GetFloat( m_ownerID, block, memberNum, duration ) );
 
-	(m_owner->GetInterface())->I_DPrintf( WL_DEBUG, "%4d rotate( <%f,%f,%f>, %d); [%d]", m_ownerID, vector[0], vector[1], vector[2], (int) duration, task->GetTimeStamp() );
+	(m_owner->GetInterface())->I_DPrintf( WL_e::WL_DEBUG, "%4d rotate( <%f,%f,%f>, %d); [%d]", m_ownerID, vector[0], vector[1], vector[2], (int) duration, task->GetTimeStamp() );
 	(m_owner->GetInterface())->I_Lerp2Angles( task->GetGUID(), m_ownerID, vector, duration );
 
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 }
 
 /*
@@ -1319,12 +1319,12 @@ taskResult_t CTaskManager::Remove( CTask *task )
 
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal ) );
 
-	(m_owner->GetInterface())->I_DPrintf( WL_DEBUG, "%4d remove(\"%s\"); [%d]", m_ownerID, sVal, task->GetTimeStamp() );
+	(m_owner->GetInterface())->I_DPrintf( WL_e::WL_DEBUG, "%4d remove(\"%s\"); [%d]", m_ownerID, sVal, task->GetTimeStamp() );
 	(m_owner->GetInterface())->I_Remove( m_ownerID, sVal );
 
 	Completed( task->GetGUID() );
 
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 }
 
 /*
@@ -1348,76 +1348,76 @@ taskResult_t CTaskManager::Camera( CTask *task )
 
 	switch ( type )
 	{
-	case TYPE_PAN:
+	case icarusToken_t::TYPE_PAN:
 
 		ICARUS_VALIDATE( GetVector( m_ownerID, block, memberNum, vector ) );
 		ICARUS_VALIDATE( GetVector( m_ownerID, block, memberNum, vector2 ) );
 
 		ICARUS_VALIDATE( GetFloat( m_ownerID, block, memberNum, fVal ) );
 
-		(m_owner->GetInterface())->I_DPrintf( WL_DEBUG, "%4d camera( PAN, <%f %f %f>, <%f %f %f>, %f); [%d]", m_ownerID, vector[0], vector[1], vector[2], vector2[0], vector2[1], vector2[2], fVal, task->GetTimeStamp() );
+		(m_owner->GetInterface())->I_DPrintf( WL_e::WL_DEBUG, "%4d camera( PAN, <%f %f %f>, <%f %f %f>, %f); [%d]", m_ownerID, vector[0], vector[1], vector[2], vector2[0], vector2[1], vector2[2], fVal, task->GetTimeStamp() );
 		ie->I_CameraPan( vector, vector2, fVal );
 		break;
 
-	case TYPE_ZOOM:
+	case icarusToken_t::TYPE_ZOOM:
 
 		ICARUS_VALIDATE( GetFloat( m_ownerID, block, memberNum, fVal ) );
 		ICARUS_VALIDATE( GetFloat( m_ownerID, block, memberNum, fVal2 ) );
 
-		(m_owner->GetInterface())->I_DPrintf( WL_DEBUG, "%4d camera( ZOOM, %f, %f); [%d]", m_ownerID, fVal, fVal2, task->GetTimeStamp() );
+		(m_owner->GetInterface())->I_DPrintf( WL_e::WL_DEBUG, "%4d camera( ZOOM, %f, %f); [%d]", m_ownerID, fVal, fVal2, task->GetTimeStamp() );
 		ie->I_CameraZoom( fVal, fVal2 );
 		break;
 
-	case TYPE_MOVE:
+	case icarusToken_t::TYPE_MOVE:
 
 		ICARUS_VALIDATE( GetVector( m_ownerID, block, memberNum, vector ) );
 		ICARUS_VALIDATE( GetFloat( m_ownerID, block, memberNum, fVal ) );
 
-		(m_owner->GetInterface())->I_DPrintf( WL_DEBUG, "%4d camera( MOVE, <%f %f %f>, %f); [%d]", m_ownerID, vector[0], vector[1], vector[2], fVal, task->GetTimeStamp() );
+		(m_owner->GetInterface())->I_DPrintf( WL_e::WL_DEBUG, "%4d camera( MOVE, <%f %f %f>, %f); [%d]", m_ownerID, vector[0], vector[1], vector[2], fVal, task->GetTimeStamp() );
 		ie->I_CameraMove( vector, fVal );
 		break;
 
-	case TYPE_ROLL:
+	case icarusToken_t::TYPE_ROLL:
 
 		ICARUS_VALIDATE( GetFloat( m_ownerID, block, memberNum, fVal ) );
 		ICARUS_VALIDATE( GetFloat( m_ownerID, block, memberNum, fVal2 ) );
 
-		(m_owner->GetInterface())->I_DPrintf( WL_DEBUG, "%4d camera( ROLL, %f, %f); [%d]", m_ownerID, fVal, fVal2, task->GetTimeStamp() );
+		(m_owner->GetInterface())->I_DPrintf( WL_e::WL_DEBUG, "%4d camera( ROLL, %f, %f); [%d]", m_ownerID, fVal, fVal2, task->GetTimeStamp() );
 		ie->I_CameraRoll( fVal, fVal2 );
 
 		break;
 
-	case TYPE_FOLLOW:
+	case icarusToken_t::TYPE_FOLLOW:
 
 		ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal ) );
 		ICARUS_VALIDATE( GetFloat( m_ownerID, block, memberNum, fVal ) );
 		ICARUS_VALIDATE( GetFloat( m_ownerID, block, memberNum, fVal2 ) );
 
-		(m_owner->GetInterface())->I_DPrintf( WL_DEBUG, "%4d camera( FOLLOW, \"%s\", %f, %f); [%d]", m_ownerID, sVal, fVal, fVal2, task->GetTimeStamp() );
+		(m_owner->GetInterface())->I_DPrintf( WL_e::WL_DEBUG, "%4d camera( FOLLOW, \"%s\", %f, %f); [%d]", m_ownerID, sVal, fVal, fVal2, task->GetTimeStamp() );
 		ie->I_CameraFollow( (const char *) sVal, fVal, fVal2 );
 
 		break;
 
-	case TYPE_TRACK:
+	case icarusToken_t::TYPE_TRACK:
 
 		ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal ) );
 		ICARUS_VALIDATE( GetFloat( m_ownerID, block, memberNum, fVal ) );
 		ICARUS_VALIDATE( GetFloat( m_ownerID, block, memberNum, fVal2 ) );
 
-		(m_owner->GetInterface())->I_DPrintf( WL_DEBUG, "%4d camera( TRACK, \"%s\", %f, %f); [%d]", m_ownerID, sVal, fVal, fVal2, task->GetTimeStamp() );
+		(m_owner->GetInterface())->I_DPrintf( WL_e::WL_DEBUG, "%4d camera( TRACK, \"%s\", %f, %f); [%d]", m_ownerID, sVal, fVal, fVal2, task->GetTimeStamp() );
 		ie->I_CameraTrack( (const char *) sVal, fVal, fVal2 );
 		break;
 
-	case TYPE_DISTANCE:
+	case icarusToken_t::TYPE_DISTANCE:
 
 		ICARUS_VALIDATE( GetFloat( m_ownerID, block, memberNum, fVal ) );
 		ICARUS_VALIDATE( GetFloat( m_ownerID, block, memberNum, fVal2 ) );
 
-		(m_owner->GetInterface())->I_DPrintf( WL_DEBUG, "%4d camera( DISTANCE, %f, %f); [%d]", m_ownerID, fVal, fVal2, task->GetTimeStamp() );
+		(m_owner->GetInterface())->I_DPrintf( WL_e::WL_DEBUG, "%4d camera( DISTANCE, %f, %f); [%d]", m_ownerID, fVal, fVal2, task->GetTimeStamp() );
 		ie->I_CameraDistance( fVal, fVal2 );
 		break;
 
-	case TYPE_FADE:
+	case icarusToken_t::TYPE_FADE:
 
 		ICARUS_VALIDATE( GetVector( m_ownerID, block, memberNum, vector ) );
 		ICARUS_VALIDATE( GetFloat( m_ownerID, block, memberNum, fVal ) );
@@ -1427,32 +1427,32 @@ taskResult_t CTaskManager::Camera( CTask *task )
 
 		ICARUS_VALIDATE( GetFloat( m_ownerID, block, memberNum, fVal3 ) );
 
-		(m_owner->GetInterface())->I_DPrintf( WL_DEBUG, "%4d camera( FADE, <%f %f %f>, %f, <%f %f %f>, %f, %f); [%d]", m_ownerID, vector[0], vector[1], vector[2], fVal, vector2[0], vector2[1], vector2[2], fVal2, fVal3, task->GetTimeStamp() );
+		(m_owner->GetInterface())->I_DPrintf( WL_e::WL_DEBUG, "%4d camera( FADE, <%f %f %f>, %f, <%f %f %f>, %f, %f); [%d]", m_ownerID, vector[0], vector[1], vector[2], fVal, vector2[0], vector2[1], vector2[2], fVal2, fVal3, task->GetTimeStamp() );
 		ie->I_CameraFade( vector[0], vector[1], vector[2], fVal, vector2[0], vector2[1], vector2[2], fVal2, fVal3 );
 		break;
 
-	case TYPE_PATH:
+	case icarusToken_t::TYPE_PATH:
 		ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal ) );
 
-		(m_owner->GetInterface())->I_DPrintf( WL_DEBUG, "%4d camera( PATH, \"%s\"); [%d]", m_ownerID, sVal, task->GetTimeStamp() );
+		(m_owner->GetInterface())->I_DPrintf( WL_e::WL_DEBUG, "%4d camera( PATH, \"%s\"); [%d]", m_ownerID, sVal, task->GetTimeStamp() );
 		ie->I_CameraPath( sVal );
 		break;
 
-	case TYPE_ENABLE:
-		(m_owner->GetInterface())->I_DPrintf( WL_DEBUG, "%4d camera( ENABLE ); [%d]", m_ownerID, task->GetTimeStamp() );
+	case icarusToken_t::TYPE_ENABLE:
+		(m_owner->GetInterface())->I_DPrintf( WL_e::WL_DEBUG, "%4d camera( ENABLE ); [%d]", m_ownerID, task->GetTimeStamp() );
 		ie->I_CameraEnable();
 		break;
 
-	case TYPE_DISABLE:
-		(m_owner->GetInterface())->I_DPrintf( WL_DEBUG, "%4d camera( DISABLE ); [%d]", m_ownerID, task->GetTimeStamp() );
+	case icarusToken_t::TYPE_DISABLE:
+		(m_owner->GetInterface())->I_DPrintf( WL_e::WL_DEBUG, "%4d camera( DISABLE ); [%d]", m_ownerID, task->GetTimeStamp() );
 		ie->I_CameraDisable();
 		break;
 
-	case TYPE_SHAKE:
+	case icarusToken_t::TYPE_SHAKE:
 		ICARUS_VALIDATE( GetFloat( m_ownerID, block, memberNum, fVal ) );
 		ICARUS_VALIDATE( GetFloat( m_ownerID, block, memberNum, fVal2 ) );
 
-		(m_owner->GetInterface())->I_DPrintf( WL_DEBUG, "%4d camera( SHAKE, %f, %f ); [%d]", m_ownerID, fVal, fVal2, task->GetTimeStamp() );
+		(m_owner->GetInterface())->I_DPrintf( WL_e::WL_DEBUG, "%4d camera( SHAKE, %f, %f ); [%d]", m_ownerID, fVal, fVal2, task->GetTimeStamp() );
 		ie->I_CameraShake( fVal, (int) fVal2 );
 		break;
 
@@ -1462,7 +1462,7 @@ taskResult_t CTaskManager::Camera( CTask *task )
 
 	Completed( task->GetGUID() );
 
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 }
 
 /*
@@ -1487,19 +1487,19 @@ taskResult_t CTaskManager::Move( CTask *task )
 		ICARUS_VALIDATE( GetFloat( m_ownerID, block, memberNum, duration ) );
 
 
-		(m_owner->GetInterface())->I_DPrintf( WL_DEBUG, "%4d move( <%f %f %f>, %f ); [%d]", m_ownerID, vector[0], vector[1], vector[2], duration, task->GetTimeStamp() );
+		(m_owner->GetInterface())->I_DPrintf( WL_e::WL_DEBUG, "%4d move( <%f %f %f>, %f ); [%d]", m_ownerID, vector[0], vector[1], vector[2], duration, task->GetTimeStamp() );
 		(m_owner->GetInterface())->I_Lerp2Pos( task->GetGUID(), m_ownerID, vector, nullptr, duration );
 
-		return TASK_OK;
+		return taskResult_t::TASK_OK;
 	}
 
 	//Get the duration and make the call
 	ICARUS_VALIDATE( GetFloat( m_ownerID, block, memberNum, duration ) );
 
-	(m_owner->GetInterface())->I_DPrintf( WL_DEBUG, "%4d move( <%f %f %f>, <%f %f %f>, %f ); [%d]", m_ownerID, vector[0], vector[1], vector[2], vector2[0], vector2[1], vector2[2], duration, task->GetTimeStamp() );
+	(m_owner->GetInterface())->I_DPrintf( WL_e::WL_DEBUG, "%4d move( <%f %f %f>, <%f %f %f>, %f ); [%d]", m_ownerID, vector[0], vector[1], vector[2], vector2[0], vector2[1], vector2[2], duration, task->GetTimeStamp() );
 	(m_owner->GetInterface())->I_Lerp2Pos( task->GetGUID(), m_ownerID, vector, vector2, duration );
 
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 }
 
 /*
@@ -1516,12 +1516,12 @@ taskResult_t CTaskManager::Kill( CTask *task )
 
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal ) );
 
-	(m_owner->GetInterface())->I_DPrintf( WL_DEBUG, "%4d kill( \"%s\" ); [%d]", m_ownerID, sVal, task->GetTimeStamp() );
+	(m_owner->GetInterface())->I_DPrintf( WL_e::WL_DEBUG, "%4d kill( \"%s\" ); [%d]", m_ownerID, sVal, task->GetTimeStamp() );
 	(m_owner->GetInterface())->I_Kill( m_ownerID, sVal );
 
 	Completed( task->GetGUID() );
 
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 }
 
 /*
@@ -1539,10 +1539,10 @@ taskResult_t CTaskManager::Set( CTask *task )
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal ) );
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal2 ) );
 
-	(m_owner->GetInterface())->I_DPrintf( WL_DEBUG, "%4d set( \"%s\", \"%s\" ); [%d]", m_ownerID, sVal, sVal2, task->GetTimeStamp() );
+	(m_owner->GetInterface())->I_DPrintf( WL_e::WL_DEBUG, "%4d set( \"%s\", \"%s\" ); [%d]", m_ownerID, sVal, sVal2, task->GetTimeStamp() );
 	(m_owner->GetInterface())->I_Set( task->GetGUID(), m_ownerID, sVal, sVal2 );
 
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 }
 
 /*
@@ -1559,12 +1559,12 @@ taskResult_t CTaskManager::Use( CTask *task )
 
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal ) );
 
-	(m_owner->GetInterface())->I_DPrintf( WL_DEBUG, "%4d use( \"%s\" ); [%d]", m_ownerID, sVal, task->GetTimeStamp() );
+	(m_owner->GetInterface())->I_DPrintf( WL_e::WL_DEBUG, "%4d use( \"%s\" ); [%d]", m_ownerID, sVal, task->GetTimeStamp() );
 	(m_owner->GetInterface())->I_Use( m_ownerID, sVal );
 
 	Completed( task->GetGUID() );
 
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 }
 
 /*
@@ -1583,12 +1583,12 @@ taskResult_t CTaskManager::DeclareVariable( CTask *task )
 	ICARUS_VALIDATE( GetToken( m_ownerID, block, memberNum, type ) );
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal ) );
 
-	(m_owner->GetInterface())->I_DPrintf( WL_DEBUG, "%4d declare( %d, \"%s\" ); [%d]", m_ownerID, to_underlying( type ), sVal, task->GetTimeStamp() );
+	(m_owner->GetInterface())->I_DPrintf( WL_e::WL_DEBUG, "%4d declare( %d, \"%s\" ); [%d]", m_ownerID, to_underlying( type ), sVal, task->GetTimeStamp() );
 	(m_owner->GetInterface())->I_DeclareVariable( type, sVal );
 
 	Completed( task->GetGUID() );
 
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 
 }
 
@@ -1606,12 +1606,12 @@ taskResult_t CTaskManager::FreeVariable( CTask *task )
 
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal ) );
 
-	(m_owner->GetInterface())->I_DPrintf( WL_DEBUG, "%4d free( \"%s\" ); [%d]", m_ownerID, sVal, task->GetTimeStamp() );
+	(m_owner->GetInterface())->I_DPrintf( WL_e::WL_DEBUG, "%4d free( \"%s\" ); [%d]", m_ownerID, sVal, task->GetTimeStamp() );
 	(m_owner->GetInterface())->I_FreeVariable( sVal );
 
 	Completed( task->GetGUID() );
 
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 
 }
 
@@ -1629,12 +1629,12 @@ taskResult_t CTaskManager::Signal( CTask *task )
 
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal ) );
 
-	(m_owner->GetInterface())->I_DPrintf( WL_DEBUG, "%4d signal( \"%s\" ); [%d]", m_ownerID, sVal, task->GetTimeStamp() );
+	(m_owner->GetInterface())->I_DPrintf( WL_e::WL_DEBUG, "%4d signal( \"%s\" ); [%d]", m_ownerID, sVal, task->GetTimeStamp() );
 	m_owner->GetOwner()->Signal( (const char *) sVal );
 
 	Completed( task->GetGUID() );
 
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 }
 
 /*
@@ -1652,10 +1652,10 @@ taskResult_t CTaskManager::Play( CTask *task )
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal ) );
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal2 ) );
 
-	(m_owner->GetInterface())->I_DPrintf( WL_DEBUG, "%4d play( \"%s\", \"%s\" ); [%d]", m_ownerID, sVal, sVal2, task->GetTimeStamp() );
+	(m_owner->GetInterface())->I_DPrintf( WL_e::WL_DEBUG, "%4d play( \"%s\", \"%s\" ); [%d]", m_ownerID, sVal, sVal2, task->GetTimeStamp() );
 	(m_owner->GetInterface())->I_Play( task->GetGUID(), m_ownerID, (const char *) sVal, (const char *) sVal2 );
 
-	return TASK_OK;
+	return taskResult_t::TASK_OK;
 }
 
 /*
@@ -2007,36 +2007,36 @@ void CTaskManager::Load( void )
 			const icarusToken_t memberID = static_cast<icarusToken_t>( bID );
 			switch ( memberID )
 			{
-			case TK_FLOAT:
-				block->Write( TK_FLOAT, *(float *) bData );
+			case icarusToken_t::TK_FLOAT:
+				block->Write( icarusToken_t::TK_FLOAT, *(float *) bData );
 				break;
 
-			case TK_IDENTIFIER:
-				block->Write( TK_IDENTIFIER, (char *) bData );
+			case icarusToken_t::TK_IDENTIFIER:
+				block->Write( icarusToken_t::TK_IDENTIFIER, (char *) bData );
 				break;
 
-			case TK_STRING:
-				block->Write( TK_STRING, (char *) bData );
+			case icarusToken_t::TK_STRING:
+				block->Write( icarusToken_t::TK_STRING, (char *) bData );
 				break;
 
-			case TK_VECTOR:
-				block->Write( TK_VECTOR, *(vec3_t *) bData );
+			case icarusToken_t::TK_VECTOR:
+				block->Write( icarusToken_t::TK_VECTOR, *(vec3_t *) bData );
 				break;
 
-			case ID_RANDOM:
-				block->Write( ID_RANDOM, *(float *) bData );//to_underlying( ID_RANDOM ) );
+			case icarusToken_t::ID_RANDOM:
+				block->Write( icarusToken_t::ID_RANDOM, *(float *) bData );//to_underlying( icarusToken_t::ID_RANDOM ) );
 				break;
 
-			case ID_TAG:
-				block->Write( ID_TAG, (float) to_underlying( ID_TAG ) );
+			case icarusToken_t::ID_TAG:
+				block->Write( icarusToken_t::ID_TAG, (float) to_underlying( icarusToken_t::ID_TAG ) );
 				break;
 
-			case ID_GET:
-				block->Write( ID_GET, (float) to_underlying( ID_GET ) );
+			case icarusToken_t::ID_GET:
+				block->Write( icarusToken_t::ID_GET, (float) to_underlying( icarusToken_t::ID_GET ) );
 				break;
 
 			default:
-				(m_owner->GetInterface())->I_DPrintf( WL_ERROR, "Invalid Block id %d\n", bID);
+				(m_owner->GetInterface())->I_DPrintf( WL_e::WL_ERROR, "Invalid Block id %d\n", bID);
 				assert( 0 );
 				break;
 			}

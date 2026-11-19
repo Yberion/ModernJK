@@ -104,11 +104,11 @@ void R_DlightBmodel( bmodel_t *bmodel, bool NoLight ) {
 	for ( i = 0 ; i < bmodel->numSurfaces ; i++ ) {
 		surf = bmodel->firstSurface + i;
 
-		if ( *surf->data == SF_FACE ) {
+		if ( *surf->data == surfaceType_t::SF_FACE ) {
 			((srfSurfaceFace_t *)surf->data)->dlightBits = mask;
-		} else if ( *surf->data == SF_GRID ) {
+		} else if ( *surf->data == surfaceType_t::SF_GRID ) {
 			((srfGridMesh_t *)surf->data)->dlightBits = mask;
-		} else if ( *surf->data == SF_TRIANGLES ) {
+		} else if ( *surf->data == surfaceType_t::SF_TRIANGLES ) {
 			((srfTriangles_t *)surf->data)->dlightBits = mask;
 		}
 	}
@@ -142,7 +142,7 @@ static void R_SetupEntityLightingGrid( trRefEntity_t *ent ) {
 	float			totalFactor;
 	unsigned short	*startGridPos;
 
-	if (r_fullbright->integer || Any(tr.refdef.rdflags & RDF_doLAGoggles) )
+	if (r_fullbright->integer || Any(tr.refdef.rdflags & refdefFlags_t::RDF_doLAGoggles) )
 	{
 		ent->ambientLight[0] = ent->ambientLight[1] = ent->ambientLight[2] = 255.0;
 		ent->directedLight[0] = ent->directedLight[1] = ent->directedLight[2] = 255.0;
@@ -150,7 +150,7 @@ static void R_SetupEntityLightingGrid( trRefEntity_t *ent ) {
 		return;
 	}
 
-	if ( Any( ent->e.renderfx & RF_LIGHTING_ORIGIN ) ) {
+	if ( Any( ent->e.renderfx & renderFxFlags_t::RF_LIGHTING_ORIGIN ) ) {
 		// seperate lightOrigins are needed so an object that is
 		// sinking into the ground can still be lit, and so
 		// multi-part models can be lit identically
@@ -283,15 +283,15 @@ static void R_SetupEntityLightingGrid( trRefEntity_t *ent ) {
 			refEntity_t refEnt;
 			refEnt.hModel = 0;
 			refEnt.ghoul2 = nullptr;
-			refEnt.renderfx = RF_NONE;
+			refEnt.renderfx = renderFxFlags_t::RF_NONE;
 			VectorCopy( gridOrg, refEnt.origin );
 			vectoangles( normal, refEnt.angles );
 			AnglesToAxis( refEnt.angles, refEnt.axis );
-			refEnt.reType = RT_MODEL;
+			refEnt.reType = refEntityType_t::RT_MODEL;
 			RE_AddRefEntityToScene( &refEnt );
 
-			refEnt.renderfx = RF_DEPTHHACK;
-			refEnt.reType = RT_SPRITE;
+			refEnt.renderfx = renderFxFlags_t::RF_DEPTHHACK;
+			refEnt.reType = refEntityType_t::RT_SPRITE;
 			refEnt.customShader = RE_RegisterShader( "gfx/misc/debugAmbient" );
 			refEnt.shaderRGBA[0] = data->ambientLight[0][0];
 			refEnt.shaderRGBA[1] = data->ambientLight[0][1];
@@ -301,7 +301,7 @@ static void R_SetupEntityLightingGrid( trRefEntity_t *ent ) {
 			refEnt.rotation = 0;			// don't let the sprite wobble around
 			RE_AddRefEntityToScene( &refEnt );
 
-			refEnt.reType = RT_LINE;
+			refEnt.reType = refEntityType_t::RT_LINE;
 			refEnt.customShader = RE_RegisterShader( "gfx/misc/debugArrow" );
 			refEnt.shaderRGBA[0] = data->directLight[0][0];
 			refEnt.shaderRGBA[1] = data->directLight[0][1];
@@ -338,7 +338,7 @@ static void LogLight( trRefEntity_t *ent ) {
 	int	max1, max2;
 
 	/*
-	if ( !(ent->e.renderfx & RF_FIRST_PERSON ) ) {
+	if ( !(ent->e.renderfx & renderFxFlags_t::RF_FIRST_PERSON ) ) {
 		return;
 	}
 	*/
@@ -363,7 +363,7 @@ static void LogLight( trRefEntity_t *ent ) {
 	}
 	*/
 
-	ri.Printf( PRINT_ALL, "amb:%i  dir:%i  direction: (%4.2f, %4.2f, %4.2f)\n", max1, max2, ent->lightDir[0], ent->lightDir[1], ent->lightDir[2] );
+	ri.Printf( printParm_t::PRINT_ALL, "amb:%i  dir:%i  direction: (%4.2f, %4.2f, %4.2f)\n", max1, max2, ent->lightDir[0], ent->lightDir[1], ent->lightDir[2] );
 }
 
 /*
@@ -392,7 +392,7 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 	//
 	// trace a sample point down to find ambient light
 	//
-	if ( Any( ent->e.renderfx & RF_LIGHTING_ORIGIN ) ) {
+	if ( Any( ent->e.renderfx & renderFxFlags_t::RF_LIGHTING_ORIGIN ) ) {
 		// seperate lightOrigins are needed so an object that is
 		// sinking into the ground can still be lit, and so
 		// multi-part models can be lit identically
@@ -402,7 +402,7 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 	}
 
 	// if NOWORLDMODEL, only use dynamic lights (menu system, etc)
-	if ( !Any(refdef->rdflags & RDF_NOWORLDMODEL )
+	if ( !Any(refdef->rdflags & refdefFlags_t::RDF_NOWORLDMODEL )
 		&& tr.world->lightGridData ) {
 		R_SetupEntityLightingGrid( ent );
 	} else {
@@ -414,7 +414,7 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 	}
 
 	// bonus items and view weapons have a fixed minimum add
-	if (  Any( ent->e.renderfx & RF_MORELIGHT )  ) {
+	if (  Any( ent->e.renderfx & renderFxFlags_t::RF_MORELIGHT )  ) {
 		ent->ambientLight[0] += tr.identityLight * 96;
 		ent->ambientLight[1] += tr.identityLight * 96;
 		ent->ambientLight[2] += tr.identityLight * 96;

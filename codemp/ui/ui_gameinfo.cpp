@@ -97,7 +97,7 @@ int UI_ParseInfos( char *buf, int max, char *infos[] ) {
 				if (botFile && botFile[0])
 				{
 					int fh = 0;
-					trap->FS_Open(botFile, &fh, FS_READ);
+					trap->FS_Open(botFile, &fh, fsMode_t::FS_READ);
 					if (fh)
 					{
 						trap->FS_Close(fh);
@@ -121,7 +121,7 @@ static void UI_LoadArenasFromFile( char *filename ) {
 	fileHandle_t	f;
 	char			buf[MAX_ARENAS_TEXT];
 
-	len = trap->FS_Open( filename, &f, FS_READ );
+	len = trap->FS_Open( filename, &f, fsMode_t::FS_READ );
 	if ( !f ) {
 		trap->Print( S_COLOR_RED "file not found: %s\n", filename );
 		return;
@@ -186,37 +186,37 @@ void UI_LoadArenas( void ) {
 		// if no type specified, it will be treated as "ffa"
 		if( *type ) {
 			if( strstr( type, "ffa" ) ) {
-				uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( GT_FFA );
-				uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( GT_TEAM );
-				uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( GT_JEDIMASTER );
+				uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( gametype_t::GT_FFA );
+				uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( gametype_t::GT_TEAM );
+				uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( gametype_t::GT_JEDIMASTER );
 			}
 			if( strstr( type, "holocron" ) ) {
-				uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( GT_HOLOCRON );
+				uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( gametype_t::GT_HOLOCRON );
 			}
 			if( strstr( type, "jedimaster" ) ) {
-				uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( GT_JEDIMASTER );
+				uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( gametype_t::GT_JEDIMASTER );
 			}
 			if( strstr( type, "duel" ) ) {
-				uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( GT_DUEL );
-				uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( GT_POWERDUEL );
+				uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( gametype_t::GT_DUEL );
+				uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( gametype_t::GT_POWERDUEL );
 			}
 			if( strstr( type, "powerduel" ) ) {
-				uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( GT_DUEL );
-				uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( GT_POWERDUEL );
+				uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( gametype_t::GT_DUEL );
+				uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( gametype_t::GT_POWERDUEL );
 			}
 			if( strstr( type, "siege" ) ) {
-				uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( GT_SIEGE );
+				uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( gametype_t::GT_SIEGE );
 			}
 			if( strstr( type, "ctf" ) ) {
-				uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( GT_CTF );
-				uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( GT_CTY );
+				uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( gametype_t::GT_CTF );
+				uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( gametype_t::GT_CTY );
 			}
 			if( strstr( type, "cty" ) ) {
-				uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( GT_CTY );
+				uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( gametype_t::GT_CTY );
 			}
 		} else {
-			uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( GT_FFA );
-			uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( GT_JEDIMASTER );
+			uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( gametype_t::GT_FFA );
+			uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( gametype_t::GT_JEDIMASTER );
 		}
 
 		uiInfo.mapCount++;
@@ -238,7 +238,7 @@ static void UI_LoadBotsFromFile( const char *filename ) {
 	char			buf[MAX_BOTS_TEXT];
 	char			*stopMark;
 
-	len = trap->FS_Open( filename, &f, FS_READ );
+	len = trap->FS_Open( filename, &f, fsMode_t::FS_READ );
 	if ( !f ) {
 		trap->Print( S_COLOR_RED "file not found: %s\n", filename );
 		return;
@@ -293,7 +293,7 @@ void UI_LoadBots( void ) {
 
 	ui_numBots = 0;
 
-	trap->Cvar_Register( &botsFile, "g_botsFile", "", CVAR_INIT|CVAR_ROM );
+	trap->Cvar_Register( &botsFile, "g_botsFile", "", cvarFlags_t::CVAR_INIT|cvarFlags_t::CVAR_ROM );
 	if( *botsFile.string ) {
 		UI_LoadBotsFromFile(botsFile.string);
 	}

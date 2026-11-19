@@ -34,14 +34,12 @@ enum class taskReturn_t
 	TASK_RETURN_COMPLETE,
 	TASK_RETURN_FAILED,
 };
-using enum taskReturn_t;
 
 enum class taskResult_t
 {
 	TASK_OK,
 	TASK_FAILED,
 };
-using enum taskResult_t;
 
 // what MarkTask does to a task group
 enum class taskMark_t
@@ -49,7 +47,6 @@ enum class taskMark_t
 	TASK_START,
 	TASK_END,
 };
-using enum taskMark_t;
 
 // CTask
 

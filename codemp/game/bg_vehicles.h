@@ -37,7 +37,6 @@ enum class vehicleType_t
 	VH_FLIER,		//animal you ride on top of that flies, like a giant mynoc?
 	VH_NUM_VEHICLES
 };
-using enum vehicleType_t;
 
 enum class EWeaponPose
 {
@@ -46,9 +45,8 @@ enum class EWeaponPose
 	WPOSE_SABERLEFT,
 	WPOSE_SABERRIGHT,
 };
-using enum EWeaponPose;
 
-extern stringID_table_t VehicleTable[to_underlying( VH_NUM_VEHICLES ) + 1];
+extern stringID_table_t VehicleTable[to_underlying( vehicleType_t::VH_NUM_VEHICLES ) + 1];
 
 //===========================================================================================================
 //START VEHICLE WEAPONS
@@ -422,7 +420,6 @@ enum class vehEject_t
 	VEH_EJECT_TOP,
 	VEH_EJECT_BOTTOM
 };
-using enum vehEject_t;
 template <> inline constexpr bool enableEnumArithmetic<vehEject_t> = true;
 
 // Vehicle flags.
@@ -434,7 +431,6 @@ enum class vehFlags_t
 	VEH_OUTOFCONTROL = 0x00000200,
 	VEH_SABERINLEFTHAND = 0x00000400
 };
-using enum vehFlags_t;
 template <> inline constexpr bool enableEnumFlags<vehFlags_t> = true;
 
 //defines for impact damage surface stuff
@@ -464,7 +460,6 @@ enum class shipSurfaceFlags_t
 	SHIPSURF_BROKEN_F	= (1<<5), //wing 4
 	SHIPSURF_BROKEN_G	= (1<<6), //front
 };
-using enum shipSurfaceFlags_t;
 template <> inline constexpr bool enableEnumFlags<shipSurfaceFlags_t> = true;
 
 typedef struct vehWeaponStatus_s {

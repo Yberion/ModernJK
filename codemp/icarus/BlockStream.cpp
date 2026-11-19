@@ -40,7 +40,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 CBlockMember::CBlockMember( void )
 {
-	m_id = TK_EOF;
+	m_id = icarusToken_t::TK_EOF;
 	m_size = -1;
 	m_data = nullptr;
 }
@@ -63,7 +63,7 @@ void CBlockMember::Free( void )
 		ICARUS_Free ( m_data );
 		m_data = nullptr;
 
-		m_id = TK_EOF;
+		m_id = icarusToken_t::TK_EOF;
 		m_size = -1;
 	}
 }
@@ -120,7 +120,7 @@ int CBlockMember::ReadMember( char **stream, int *streamPos )
 	m_id = static_cast<icarusToken_t>( LittleLong(*(int *) (*stream + *((int *)streamPos))) );
 	*streamPos += sizeof( int );
 
-	if ( m_id == ID_RANDOM )
+	if ( m_id == icarusToken_t::ID_RANDOM )
 	{//special case, need to initialize this member's data to Q3_INFINITE so we can randomize the number only the first time random is checked when inside a wait
 		m_size = sizeof( float );
 		*streamPos += sizeof( int );
@@ -136,7 +136,7 @@ int CBlockMember::ReadMember( char **stream, int *streamPos )
 		memcpy( m_data, (*stream + *streamPos), m_size );
 #ifdef Q3_BIG_ENDIAN
 		// only TK_INT, TK_VECTOR and TK_FLOAT has to be swapped, but just in case
-		if (m_size == 4 && m_id != TK_STRING && m_id != TK_IDENTIFIER && m_id != TK_CHAR)
+		if (m_size == 4 && m_id != icarusToken_t::TK_STRING && m_id != icarusToken_t::TK_IDENTIFIER && m_id != icarusToken_t::TK_CHAR)
 			*(int *)m_data = LittleLong(*(int *)m_data);
 #endif
 	}
@@ -191,8 +191,8 @@ CBlockMember *CBlockMember::Duplicate( void )
 
 CBlock::CBlock( void )
 {
-	m_flags			= BF_NONE;
-	m_id			= TK_UNDEFINED;
+	m_flags			= blockFlags_t::BF_NONE;
+	m_id			= icarusToken_t::TK_UNDEFINED;
 }
 
 CBlock::~CBlock( void )
@@ -208,8 +208,8 @@ Init
 
 int CBlock::Init( void )
 {
-	m_flags			= BF_NONE;
-	m_id			= TK_UNDEFINED;
+	m_flags			= blockFlags_t::BF_NONE;
+	m_id			= icarusToken_t::TK_UNDEFINED;
 
 	return true;
 }

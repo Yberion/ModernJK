@@ -45,7 +45,7 @@ void G_ClearEnemy (gentity_t *self)
 
 	if ( self->enemy )
 	{
-		if ( ( G_ValidEnemy(self, self->enemy ) ) && Any( self->svFlags & SVF_LOCKEDENEMY ) )
+		if ( ( G_ValidEnemy(self, self->enemy ) ) && Any( self->svFlags & svFlags_t::SVF_LOCKEDENEMY ) )
 		{
 			return;
 		}
@@ -77,7 +77,7 @@ constexpr int ANGER_ALERT_SOUND_RADIUS = 256;
 
 void G_AngerAlert( gentity_t *self )
 {
-	if ( self && self->NPC && Any(self->NPC->scriptFlags&SCF_NO_GROUPS) )
+	if ( self && self->NPC && Any(self->NPC->scriptFlags&scriptFlags_t::SCF_NO_GROUPS) )
 	{//I'm not a team playa...
 		return;
 	}
@@ -100,11 +100,11 @@ bool G_TeamEnemy( gentity_t *self )
 	int	i;
 	gentity_t	*ent;
 
-	if ( !self->client || self->client->playerTeam == TEAM_FREE )
+	if ( !self->client || self->client->playerTeam == team_t::TEAM_FREE )
 	{
 		return false;
 	}
-	if ( self && self->NPC && Any(self->NPC->scriptFlags&SCF_NO_GROUPS) )
+	if ( self && self->NPC && Any(self->NPC->scriptFlags&scriptFlags_t::SCF_NO_GROUPS) )
 	{//I'm not a team playa...
 		return false;
 	}
@@ -154,8 +154,8 @@ bool G_CheckSaberAllyAttackDelay( gentity_t *self, gentity_t *enemy )
 	if ( self->NPC
 		&& self->client->leader == player
 		&& self->enemy
-		&& self->enemy->s.weapon != WP_SABER
-		&& self->s.weapon == WP_SABER )
+		&& self->enemy->s.weapon != weapon_t::WP_SABER
+		&& self->s.weapon == weapon_t::WP_SABER )
 	{//assisting the player and I'm using a saber and my enemy is not
 		TIMER_Set( self, "allyJediDelay", -level.time );
 		//use the distance to the enemy to determine how long to delay
@@ -201,7 +201,7 @@ void G_AttackDelay( gentity_t *self, gentity_t *enemy )
 		//dir[2] = fwd[2] = 0;//ignore z diff?
 
 		attDelay = (4-g_spskill->integer)*500;//initial: from 1000ms delay on hard to 2000ms delay on easy
-		if ( self->client->playerTeam == TEAM_PLAYER )
+		if ( self->client->playerTeam == team_t::TEAM_PLAYER )
 		{//invert
 			attDelay = 2000-attDelay;
 		}
@@ -213,11 +213,11 @@ void G_AttackDelay( gentity_t *self, gentity_t *enemy )
 		//NOTE: attDelay should be somewhere between 1000 to 6000 milliseconds
 		switch ( self->client->NPC_class )
 		{
-		case CLASS_IMPERIAL://they give orders and hang back
+		case class_t::CLASS_IMPERIAL://they give orders and hang back
 			attDelay += Q_irand( 500, 1500 );
 			break;
-		case CLASS_STORMTROOPER://stormtroopers shoot sooner
-			if ( self->NPC->rank >= RANK_LT )
+		case class_t::CLASS_STORMTROOPER://stormtroopers shoot sooner
+			if ( self->NPC->rank >= rank_t::RANK_LT )
 			{//officers shoot even sooner
 				attDelay -= Q_irand( 500, 1500 );
 			}
@@ -226,58 +226,58 @@ void G_AttackDelay( gentity_t *self, gentity_t *enemy )
 				attDelay -= Q_irand( 0, 1000 );
 			}
 			break;
-		case CLASS_SWAMPTROOPER://shoot very quickly?  What about guys in water?
+		case class_t::CLASS_SWAMPTROOPER://shoot very quickly?  What about guys in water?
 			attDelay -= Q_irand( 1000, 2000 );
 			break;
-		case CLASS_IMPWORKER://they panic, don't fire right away
+		case class_t::CLASS_IMPWORKER://they panic, don't fire right away
 			attDelay += Q_irand( 1000, 2500 );
 			break;
-		case CLASS_TRANDOSHAN:
+		case class_t::CLASS_TRANDOSHAN:
 			attDelay -= Q_irand( 500, 1500 );
 			break;
-		case CLASS_JAN:
-		case CLASS_LANDO:
-		case CLASS_PRISONER:
-		case CLASS_REBEL:
+		case class_t::CLASS_JAN:
+		case class_t::CLASS_LANDO:
+		case class_t::CLASS_PRISONER:
+		case class_t::CLASS_REBEL:
 			attDelay -= Q_irand( 500, 1500 );
 			break;
-		case CLASS_GALAKMECH:
-		case CLASS_ATST:
+		case class_t::CLASS_GALAKMECH:
+		case class_t::CLASS_ATST:
 			attDelay -= Q_irand( 1000, 2000 );
 			break;
-		case CLASS_REELO:
-		case CLASS_UGNAUGHT:
-		case CLASS_JAWA:
+		case class_t::CLASS_REELO:
+		case class_t::CLASS_UGNAUGHT:
+		case class_t::CLASS_JAWA:
 			return;
 			break;
-		case CLASS_MINEMONSTER:
-		case CLASS_MURJJ:
+		case class_t::CLASS_MINEMONSTER:
+		case class_t::CLASS_MURJJ:
 			return;
 			break;
-		case CLASS_INTERROGATOR:
-		case CLASS_PROBE:
-		case CLASS_MARK1:
-		case CLASS_MARK2:
-		case CLASS_SENTRY:
+		case class_t::CLASS_INTERROGATOR:
+		case class_t::CLASS_PROBE:
+		case class_t::CLASS_MARK1:
+		case class_t::CLASS_MARK2:
+		case class_t::CLASS_SENTRY:
 			return;
 			break;
-		case CLASS_REMOTE:
-		case CLASS_SEEKER:
+		case class_t::CLASS_REMOTE:
+		case class_t::CLASS_SEEKER:
 			return;
 			break;
 		/*
-		case CLASS_GRAN:
-		case CLASS_RODIAN:
-		case CLASS_WEEQUAY:
-		case CLASS_TUSKEN:
+		case class_t::CLASS_GRAN:
+		case class_t::CLASS_RODIAN:
+		case class_t::CLASS_WEEQUAY:
+		case class_t::CLASS_TUSKEN:
 			break;
-		case CLASS_JEDI:
-		case CLASS_SHADOWTROOPER:
-		case CLASS_TAVION:
-		case CLASS_REBORN:
-		case CLASS_LUKE:
-		case CLASS_KYLE:
-		case CLASS_DESANN:
+		case class_t::CLASS_JEDI:
+		case class_t::CLASS_SHADOWTROOPER:
+		case class_t::CLASS_TAVION:
+		case class_t::CLASS_REBORN:
+		case class_t::CLASS_LUKE:
+		case class_t::CLASS_KYLE:
+		case class_t::CLASS_DESANN:
 			break;
 		*/
 		default:
@@ -286,14 +286,14 @@ void G_AttackDelay( gentity_t *self, gentity_t *enemy )
 
 		switch ( self->s.weapon )
 		{
-		case WP_NONE:
-		case WP_SABER:
+		case weapon_t::WP_NONE:
+		case weapon_t::WP_SABER:
 			return;
 			break;
-		case WP_BRYAR_PISTOL:
+		case weapon_t::WP_BRYAR_PISTOL:
 			break;
-		case WP_BLASTER:
-			if ( Any( self->NPC->scriptFlags & SCF_ALT_FIRE ) )
+		case weapon_t::WP_BLASTER:
+			if ( Any( self->NPC->scriptFlags & scriptFlags_t::SCF_ALT_FIRE ) )
 			{//rapid-fire blasters
 				attDelay += Q_irand( 0, 500 );
 			}
@@ -302,71 +302,71 @@ void G_AttackDelay( gentity_t *self, gentity_t *enemy )
 				attDelay -= Q_irand( 0, 500 );
 			}
 			break;
-		case WP_BOWCASTER:
+		case weapon_t::WP_BOWCASTER:
 			attDelay += Q_irand( 0, 500 );
 			break;
-		case WP_REPEATER:
-			if ( !Any(self->NPC->scriptFlags&SCF_ALT_FIRE) )
+		case weapon_t::WP_REPEATER:
+			if ( !Any(self->NPC->scriptFlags&scriptFlags_t::SCF_ALT_FIRE) )
 			{//rapid-fire blasters
 				attDelay += Q_irand( 0, 500 );
 			}
 			break;
-		case WP_FLECHETTE:
+		case weapon_t::WP_FLECHETTE:
 			attDelay += Q_irand( 500, 1500 );
 			break;
-		case WP_ROCKET_LAUNCHER:
+		case weapon_t::WP_ROCKET_LAUNCHER:
 			attDelay += Q_irand( 500, 1500 );
 			break;
-		case WP_CONCUSSION:
+		case weapon_t::WP_CONCUSSION:
 			attDelay += Q_irand( 500, 1500 );
 			break;
-		case WP_BLASTER_PISTOL:	// apparently some enemy only version of the blaster
+		case weapon_t::WP_BLASTER_PISTOL:	// apparently some enemy only version of the blaster
 			attDelay -= Q_irand( 500, 1500 );
 			break;
-		case WP_DISRUPTOR://sniper's don't delay?
+		case weapon_t::WP_DISRUPTOR://sniper's don't delay?
 			return;
 			break;
-		case WP_THERMAL://grenade-throwing has a built-in delay
+		case weapon_t::WP_THERMAL://grenade-throwing has a built-in delay
 			return;
 			break;
-		case WP_MELEE:			// Any ol' melee attack
+		case weapon_t::WP_MELEE:			// Any ol' melee attack
 			return;
 			break;
-		case WP_EMPLACED_GUN:
+		case weapon_t::WP_EMPLACED_GUN:
 			return;
 			break;
-		case WP_TURRET:			// turret guns
+		case weapon_t::WP_TURRET:			// turret guns
 			return;
 			break;
-		case WP_BOT_LASER:		// Probe droid	- Laser blast
+		case weapon_t::WP_BOT_LASER:		// Probe droid	- Laser blast
 			return;
 			break;
-		case WP_NOGHRI_STICK:
+		case weapon_t::WP_NOGHRI_STICK:
 			attDelay += Q_irand( 0, 500 );
 			break;
 		/*
-		case WP_DEMP2:
+		case weapon_t::WP_DEMP2:
 			break;
-		case WP_TRIP_MINE:
+		case weapon_t::WP_TRIP_MINE:
 			break;
-		case WP_DET_PACK:
+		case weapon_t::WP_DET_PACK:
 			break;
-		case WP_STUN_BATON:
+		case weapon_t::WP_STUN_BATON:
 			break;
-		case WP_ATST_MAIN:
+		case weapon_t::WP_ATST_MAIN:
 			break;
-		case WP_ATST_SIDE:
+		case weapon_t::WP_ATST_SIDE:
 			break;
-		case WP_TIE_FIGHTER:
+		case weapon_t::WP_TIE_FIGHTER:
 			break;
-		case WP_RAPID_FIRE_CONC:
+		case weapon_t::WP_RAPID_FIRE_CONC:
 			break;
 		*/
 		default:
 			break;
 		}
 
-		if ( self->client->playerTeam == TEAM_PLAYER )
+		if ( self->client->playerTeam == team_t::TEAM_PLAYER )
 		{//clamp it
 			if ( attDelay > 2000 )
 			{
@@ -404,7 +404,7 @@ void Saboteur_Cloak( gentity_t *self );
 void G_AimSet( gentity_t *self, int aim );
 void G_SetEnemy( gentity_t *self, gentity_t *enemy )
 {
-	entity_event_t	event = EV_NONE;
+	entity_event_t	event = entity_event_t::EV_NONE;
 
 	//Must be valid
 	if ( enemy == nullptr )
@@ -423,7 +423,7 @@ void G_SetEnemy( gentity_t *self, gentity_t *enemy )
 	}
 
 	//Don't take the enemy if in notarget
-	if ( Any( enemy->flags & FL_NOTARGET ) )
+	if ( Any( enemy->flags & gentityFlags_t::FL_NOTARGET ) )
 		return;
 
 	if ( !self->NPC )
@@ -446,7 +446,7 @@ void G_SetEnemy( gentity_t *self, gentity_t *enemy )
 
 //	if ( enemy->client && enemy->client->playerTeam == TEAM_DISGUISE )
 //	{//unmask the player
-//		enemy->client->playerTeam = TEAM_PLAYER;
+//		enemy->client->playerTeam = team_t::TEAM_PLAYER;
 //	}
 
 	if ( self->client && self->NPC && enemy->client && enemy->client->playerTeam == self->client->playerTeam )
@@ -457,7 +457,7 @@ void G_SetEnemy( gentity_t *self, gentity_t *enemy )
 		}
 	}
 
-	if ( self->NPC && self->client && self->client->ps.weapon == WP_SABER )
+	if ( self->NPC && self->client && self->client->ps.weapon == weapon_t::WP_SABER )
 	{
 		//when get new enemy, set a base aggression based on what that enemy is using, how far they are, etc.
 		NPC_Jedi_RateNewEnemy( self, enemy );
@@ -477,7 +477,7 @@ void G_SetEnemy( gentity_t *self, gentity_t *enemy )
 		//FIXME: Have to do this to prevent alert cascading
 		G_ClearEnemy( self );
 		self->enemy = enemy;
-		if (self->client && self->client->NPC_class == CLASS_SABOTEUR)
+		if (self->client && self->client->NPC_class == class_t::CLASS_SABOTEUR)
 		{
 			Saboteur_Cloak(NPC);					// Cloak
 			TIMER_Set(self, "decloakwait", 3000);	// Wait 3 sec before decloak and attack
@@ -485,21 +485,21 @@ void G_SetEnemy( gentity_t *self, gentity_t *enemy )
 
 
 		//Special case- if player is being hunted by his own people, set the player's team to team_free
-		if ( self->client->playerTeam == TEAM_PLAYER
+		if ( self->client->playerTeam == team_t::TEAM_PLAYER
 			&& enemy->s.number == 0
 			&& enemy->client
-			&& enemy->client->playerTeam == TEAM_PLAYER )
+			&& enemy->client->playerTeam == team_t::TEAM_PLAYER )
 		{//make the player "evil" so that everyone goes after him
-			enemy->client->enemyTeam = TEAM_FREE;
-			enemy->client->playerTeam = TEAM_FREE;
+			enemy->client->enemyTeam = team_t::TEAM_FREE;
+			enemy->client->playerTeam = team_t::TEAM_FREE;
 		}
 
 		//If have an anger script, run that instead of yelling
-		if( G_ActivateBehavior( self, BSET_ANGER ) )
+		if( G_ActivateBehavior( self, bSet_t::BSET_ANGER ) )
 		{
 		}
 		else if ( self->client
-			&& self->client->NPC_class == CLASS_KYLE
+			&& self->client->NPC_class == class_t::CLASS_KYLE
 			&& self->client->leader == player
 			&& !TIMER_Done( self, "kyleAngerSoundDebounce" ) )
 		{//don't yell that you have an enemy more than once every five seconds
@@ -510,10 +510,10 @@ void G_SetEnemy( gentity_t *self, gentity_t *enemy )
 			//		 Basically, you're first one to notice enemies
 			if ( self->forcePushTime < level.time ) // not currently being pushed
 			{
-				if ( !G_TeamEnemy( self ) &&  self->client->NPC_class != CLASS_BOBAFETT)
+				if ( !G_TeamEnemy( self ) &&  self->client->NPC_class != class_t::CLASS_BOBAFETT)
 				{//team did not have an enemy previously
 					if ( self->NPC
-						&& self->client->playerTeam == TEAM_PLAYER
+						&& self->client->playerTeam == team_t::TEAM_PLAYER
 						&& enemy->s.number < MAX_CLIENTS
 						&& self->client->clientInfo.customBasicSoundDir
 						&& self->client->clientInfo.customBasicSoundDir[0]
@@ -522,13 +522,13 @@ void G_SetEnemy( gentity_t *self, gentity_t *enemy )
 						switch ( Q_irand( 0, 2 ) )
 						{
 						case 0:
-							G_SoundOnEnt( self, CHAN_VOICE, "sound/chars/jedi2/28je2008.wav" );
+							G_SoundOnEnt( self, soundChannel_t::CHAN_VOICE, "sound/chars/jedi2/28je2008.wav" );
 							break;
 						case 1:
-							G_SoundOnEnt( self, CHAN_VOICE, "sound/chars/jedi2/28je2009.wav" );
+							G_SoundOnEnt( self, soundChannel_t::CHAN_VOICE, "sound/chars/jedi2/28je2009.wav" );
 							break;
 						case 2:
-							G_SoundOnEnt( self, CHAN_VOICE, "sound/chars/jedi2/28je2012.wav" );
+							G_SoundOnEnt( self, soundChannel_t::CHAN_VOICE, "sound/chars/jedi2/28je2012.wav" );
 							break;
 						}
 						self->NPC->blockedSpeechDebounceTime = level.time + 2000;
@@ -537,20 +537,20 @@ void G_SetEnemy( gentity_t *self, gentity_t *enemy )
 					{
 						if ( Q_irand( 0, 1 ))
 						{//hell, we're loading them, might as well use them!
-							event = Q_irand(EV_CHASE1, EV_CHASE3);
+							event = Q_irand(entity_event_t::EV_CHASE1, entity_event_t::EV_CHASE3);
 						}
 						else
 						{
-							event = Q_irand(EV_ANGER1, EV_ANGER3);
+							event = Q_irand(entity_event_t::EV_ANGER1, entity_event_t::EV_ANGER3);
 						}
 					}
 				}
 			}
 
-			if ( event != EV_NONE )
+			if ( event != entity_event_t::EV_NONE )
 			{//yell
 				if ( self->client
-					&& self->client->NPC_class == CLASS_KYLE
+					&& self->client->NPC_class == class_t::CLASS_KYLE
 					&& self->client->leader == player )
 				{//don't yell that you have an enemy more than once every 4-8 seconds
 					TIMER_Set( self, "kyleAngerSoundDebounce", Q_irand( 4000, 8000 ) );
@@ -559,13 +559,13 @@ void G_SetEnemy( gentity_t *self, gentity_t *enemy )
 			}
 		}
 
-		if ( self->s.weapon == WP_BLASTER || self->s.weapon == WP_REPEATER ||
-			self->s.weapon == WP_THERMAL || self->s.weapon == WP_BLASTER_PISTOL
-			|| self->s.weapon == WP_BOWCASTER )
+		if ( self->s.weapon == weapon_t::WP_BLASTER || self->s.weapon == weapon_t::WP_REPEATER ||
+			self->s.weapon == weapon_t::WP_THERMAL || self->s.weapon == weapon_t::WP_BLASTER_PISTOL
+			|| self->s.weapon == weapon_t::WP_BOWCASTER )
 		{//Hmm, how about sniper and bowcaster?
 			//When first get mad, aim is bad
 			//Hmm, base on game difficulty, too?  Rank?
-			if ( self->client->playerTeam == TEAM_PLAYER )
+			if ( self->client->playerTeam == team_t::TEAM_PLAYER )
 			{
 				G_AimSet( self, Q_irand( self->NPC->stats.aim - (5*(g_spskill->integer)), self->NPC->stats.aim - g_spskill->integer ) );
 			}
@@ -573,12 +573,12 @@ void G_SetEnemy( gentity_t *self, gentity_t *enemy )
 			{
 				int minErr = 3;
 				int maxErr = 12;
-				if ( self->client->NPC_class == CLASS_IMPWORKER )
+				if ( self->client->NPC_class == class_t::CLASS_IMPWORKER )
 				{
 					minErr = 15;
 					maxErr = 30;
 				}
-				else if ( self->client->NPC_class == CLASS_STORMTROOPER && self->NPC && self->NPC->rank <= RANK_CREWMAN )
+				else if ( self->client->NPC_class == class_t::CLASS_STORMTROOPER && self->NPC && self->NPC->rank <= rank_t::RANK_CREWMAN )
 				{
 					minErr = 5;
 					maxErr = 15;
@@ -591,7 +591,7 @@ void G_SetEnemy( gentity_t *self, gentity_t *enemy )
 		//Alert anyone else in the area
 		if ( Q_stricmp( "desperado", self->NPC_type ) != 0 && Q_stricmp( "paladin", self->NPC_type ) != 0 )
 		{//special holodeck enemies exception
-			if ( !Any(self->client->ps.eFlags&EF_FORCE_GRIPPED) )
+			if ( !Any(self->client->ps.eFlags&entityFlags_t::EF_FORCE_GRIPPED) )
 			{//gripped people can't call for help
 				G_AngerAlert( self );
 			}
@@ -604,21 +604,21 @@ void G_SetEnemy( gentity_t *self, gentity_t *enemy )
 		}
 
 		//FIXME: this is a disgusting hack that is supposed to make the Imperials start with their weapon holstered- need a better way
-		if ( self->client->ps.weapon == WP_NONE && !Q_stricmpn( self->NPC_type, "imp", 3 ) && !Any(self->NPC->scriptFlags & SCF_FORCED_MARCH)  )
+		if ( self->client->ps.weapon == weapon_t::WP_NONE && !Q_stricmpn( self->NPC_type, "imp", 3 ) && !Any(self->NPC->scriptFlags & scriptFlags_t::SCF_FORCED_MARCH)  )
 		{
-			if ( self->client->ps.stats[STAT_WEAPONS] & Bit( WP_BLASTER ) )
+			if ( self->client->ps.stats[statIndex_t::STAT_WEAPONS] & Bit( weapon_t::WP_BLASTER ) )
 			{
-				ChangeWeapon( self, WP_BLASTER );
-				self->client->ps.weapon = WP_BLASTER;
-				self->client->ps.weaponstate = WEAPON_READY;
-				G_CreateG2AttachedWeaponModel( self, weaponData[WP_BLASTER].weaponMdl, self->handRBolt, 0 );
+				ChangeWeapon( self, weapon_t::WP_BLASTER );
+				self->client->ps.weapon = weapon_t::WP_BLASTER;
+				self->client->ps.weaponstate = weaponstate_t::WEAPON_READY;
+				G_CreateG2AttachedWeaponModel( self, weaponData[weapon_t::WP_BLASTER].weaponMdl, self->handRBolt, 0 );
 			}
-			else if ( self->client->ps.stats[STAT_WEAPONS] & Bit( WP_BLASTER_PISTOL ) )
+			else if ( self->client->ps.stats[statIndex_t::STAT_WEAPONS] & Bit( weapon_t::WP_BLASTER_PISTOL ) )
 			{
-				ChangeWeapon( self, WP_BLASTER_PISTOL );
-				self->client->ps.weapon = WP_BLASTER_PISTOL;
-				self->client->ps.weaponstate = WEAPON_READY;
-				G_CreateG2AttachedWeaponModel( self, weaponData[WP_BLASTER_PISTOL].weaponMdl, self->handRBolt, 0 );
+				ChangeWeapon( self, weapon_t::WP_BLASTER_PISTOL );
+				self->client->ps.weapon = weapon_t::WP_BLASTER_PISTOL;
+				self->client->ps.weaponstate = weaponstate_t::WEAPON_READY;
+				G_CreateG2AttachedWeaponModel( self, weaponData[weapon_t::WP_BLASTER_PISTOL].weaponMdl, self->handRBolt, 0 );
 			}
 		}
 		return;
@@ -626,7 +626,7 @@ void G_SetEnemy( gentity_t *self, gentity_t *enemy )
 
 	//Otherwise, just picking up another enemy
 
-	if ( event != EV_NONE )
+	if ( event != entity_event_t::EV_NONE )
 	{
 		G_AddVoiceEvent( self, event, 2000 );
 	}
@@ -648,7 +648,7 @@ weapon_t ChooseBestWeapon( void )
 	{
 		weapon = NPCInfo->weaponOrder[n];
 
-		if ( weapon == WP_NONE )
+		if ( weapon == weapon_t::WP_NONE )
 		{
 			break;
 		}
@@ -665,7 +665,7 @@ weapon_t ChooseBestWeapon( void )
 	}
 
 	// check weapons serially (mainly in case a weapon is not on the NPC's list)
-	for ( weapon = WP_SABER; weapon < WP_NUM_WEAPONS; weapon++ )
+	for ( weapon = weapon_t::WP_SABER; weapon < weapon_t::WP_NUM_WEAPONS; weapon++ )
 	{
 		if ( !HaveWeapon( weapon ) )
 		{
@@ -697,16 +697,16 @@ void ChangeWeapon( gentity_t *ent, weapon_t newWeapon )
 
 	switch ( newWeapon )
 	{
-	case WP_BRYAR_PISTOL://prifle
-		ent->NPC->aiFlags &= ~NPCAI_BURST_WEAPON;
+	case weapon_t::WP_BRYAR_PISTOL://prifle
+		ent->NPC->aiFlags &= ~npcAiFlags_t::NPCAI_BURST_WEAPON;
 		ent->NPC->burstSpacing = 1000;//attackdebounce
 		break;
 
-	case WP_BLASTER_PISTOL:
-		ent->NPC->aiFlags &= ~NPCAI_BURST_WEAPON;
+	case weapon_t::WP_BLASTER_PISTOL:
+		ent->NPC->aiFlags &= ~npcAiFlags_t::NPCAI_BURST_WEAPON;
 		if ( ent->weaponModel[1] > 0 )
 		{//commando
-			ent->NPC->aiFlags |= NPCAI_BURST_WEAPON;
+			ent->NPC->aiFlags |= npcAiFlags_t::NPCAI_BURST_WEAPON;
 			ent->NPC->burstMin = 4;
 #ifdef BASE_SAVE_COMPAT
 			ent->NPC->burstMean = 8;
@@ -719,7 +719,7 @@ void ChangeWeapon( gentity_t *ent, weapon_t newWeapon )
 			else
 				ent->NPC->burstSpacing = 250;//attack debounce
 		}
-		else if ( ent->client->NPC_class == CLASS_SABOTEUR )
+		else if ( ent->client->NPC_class == class_t::CLASS_SABOTEUR )
 		{
 			if ( g_spskill->integer == 0 )
 				ent->NPC->burstSpacing = 900;//attack debounce
@@ -740,8 +740,8 @@ void ChangeWeapon( gentity_t *ent, weapon_t newWeapon )
 		}
 		break;
 
-	case WP_BOT_LASER://probe attack
-		ent->NPC->aiFlags &= ~NPCAI_BURST_WEAPON;
+	case weapon_t::WP_BOT_LASER://probe attack
+		ent->NPC->aiFlags &= ~npcAiFlags_t::NPCAI_BURST_WEAPON;
 	//	ent->NPC->burstSpacing = 600;//attackdebounce
 		if ( g_spskill->integer == 0 )
 			ent->NPC->burstSpacing = 600;//attack debounce
@@ -751,14 +751,14 @@ void ChangeWeapon( gentity_t *ent, weapon_t newWeapon )
 			ent->NPC->burstSpacing = 200;//attack debounce
 		break;
 
-	case WP_SABER:
-		ent->NPC->aiFlags &= ~NPCAI_BURST_WEAPON;
+	case weapon_t::WP_SABER:
+		ent->NPC->aiFlags &= ~npcAiFlags_t::NPCAI_BURST_WEAPON;
 		ent->NPC->burstSpacing = 0;//attackdebounce
 		break;
 
-	case WP_DISRUPTOR:
-		ent->NPC->aiFlags &= ~NPCAI_BURST_WEAPON;
-		if ( Any( ent->NPC->scriptFlags & SCF_ALT_FIRE ) )
+	case weapon_t::WP_DISRUPTOR:
+		ent->NPC->aiFlags &= ~npcAiFlags_t::NPCAI_BURST_WEAPON;
+		if ( Any( ent->NPC->scriptFlags & scriptFlags_t::SCF_ALT_FIRE ) )
 		{
 			switch( g_spskill->integer )
 			{
@@ -779,9 +779,9 @@ void ChangeWeapon( gentity_t *ent, weapon_t newWeapon )
 		}
 		break;
 
-	case WP_TUSKEN_RIFLE:
-		ent->NPC->aiFlags &= ~NPCAI_BURST_WEAPON;
-		if ( Any( ent->NPC->scriptFlags & SCF_ALT_FIRE ) )
+	case weapon_t::WP_TUSKEN_RIFLE:
+		ent->NPC->aiFlags &= ~npcAiFlags_t::NPCAI_BURST_WEAPON;
+		if ( Any( ent->NPC->scriptFlags & scriptFlags_t::SCF_ALT_FIRE ) )
 		{
 			switch( g_spskill->integer )
 			{
@@ -802,8 +802,8 @@ void ChangeWeapon( gentity_t *ent, weapon_t newWeapon )
 		}
 		break;
 
-	case WP_BOWCASTER:
-		ent->NPC->aiFlags &= ~NPCAI_BURST_WEAPON;
+	case weapon_t::WP_BOWCASTER:
+		ent->NPC->aiFlags &= ~npcAiFlags_t::NPCAI_BURST_WEAPON;
 	//	ent->NPC->burstSpacing = 1000;//attackdebounce
 		if ( g_spskill->integer == 0 )
 			ent->NPC->burstSpacing = 1000;//attack debounce
@@ -813,15 +813,15 @@ void ChangeWeapon( gentity_t *ent, weapon_t newWeapon )
 			ent->NPC->burstSpacing = 500;//attack debounce
 		break;
 
-	case WP_REPEATER:
-		if ( Any( ent->NPC->scriptFlags & SCF_ALT_FIRE ) )
+	case weapon_t::WP_REPEATER:
+		if ( Any( ent->NPC->scriptFlags & scriptFlags_t::SCF_ALT_FIRE ) )
 		{
-			ent->NPC->aiFlags &= ~NPCAI_BURST_WEAPON;
+			ent->NPC->aiFlags &= ~npcAiFlags_t::NPCAI_BURST_WEAPON;
 			ent->NPC->burstSpacing = 2000;//attackdebounce
 		}
 		else
 		{
-			ent->NPC->aiFlags |= NPCAI_BURST_WEAPON;
+			ent->NPC->aiFlags |= npcAiFlags_t::NPCAI_BURST_WEAPON;
 			ent->NPC->burstMin = 3;
 #ifdef BASE_SAVE_COMPAT
 			ent->NPC->burstMean = 6;
@@ -836,14 +836,14 @@ void ChangeWeapon( gentity_t *ent, weapon_t newWeapon )
 		}
 		break;
 
-	case WP_DEMP2:
-		ent->NPC->aiFlags &= ~NPCAI_BURST_WEAPON;
+	case weapon_t::WP_DEMP2:
+		ent->NPC->aiFlags &= ~npcAiFlags_t::NPCAI_BURST_WEAPON;
 		ent->NPC->burstSpacing = 1000;//attackdebounce
 		break;
 
-	case WP_FLECHETTE:
-		ent->NPC->aiFlags &= ~NPCAI_BURST_WEAPON;
-		if ( Any( ent->NPC->scriptFlags & SCF_ALT_FIRE ) )
+	case weapon_t::WP_FLECHETTE:
+		ent->NPC->aiFlags &= ~npcAiFlags_t::NPCAI_BURST_WEAPON;
+		if ( Any( ent->NPC->scriptFlags & scriptFlags_t::SCF_ALT_FIRE ) )
 		{
 			ent->NPC->burstSpacing = 2000;//attackdebounce
 		}
@@ -853,8 +853,8 @@ void ChangeWeapon( gentity_t *ent, weapon_t newWeapon )
 		}
 		break;
 
-	case WP_ROCKET_LAUNCHER:
-		ent->NPC->aiFlags &= ~NPCAI_BURST_WEAPON;
+	case weapon_t::WP_ROCKET_LAUNCHER:
+		ent->NPC->aiFlags &= ~npcAiFlags_t::NPCAI_BURST_WEAPON;
 	//	ent->NPC->burstSpacing = 2500;//attackdebounce
 		if ( g_spskill->integer == 0 )
 			ent->NPC->burstSpacing = 2500;//attack debounce
@@ -864,9 +864,9 @@ void ChangeWeapon( gentity_t *ent, weapon_t newWeapon )
 			ent->NPC->burstSpacing = 1500;//attack debounce
 		break;
 
-	case WP_CONCUSSION:
-		ent->NPC->aiFlags &= ~NPCAI_BURST_WEAPON;
-		if ( Any( ent->NPC->scriptFlags & SCF_ALT_FIRE ) )
+	case weapon_t::WP_CONCUSSION:
+		ent->NPC->aiFlags &= ~npcAiFlags_t::NPCAI_BURST_WEAPON;
+		if ( Any( ent->NPC->scriptFlags & scriptFlags_t::SCF_ALT_FIRE ) )
 		{//beam
 			ent->NPC->burstSpacing = 1200;//attackdebounce
 		}
@@ -881,8 +881,8 @@ void ChangeWeapon( gentity_t *ent, weapon_t newWeapon )
 		}
 		break;
 
-	case WP_THERMAL:
-		ent->NPC->aiFlags &= ~NPCAI_BURST_WEAPON;
+	case weapon_t::WP_THERMAL:
+		ent->NPC->aiFlags &= ~npcAiFlags_t::NPCAI_BURST_WEAPON;
 	//	ent->NPC->burstSpacing = 3000;//attackdebounce
 		if ( g_spskill->integer == 0 )
 //			ent->NPC->burstSpacing = 3000;//attack debounce
@@ -895,8 +895,8 @@ void ChangeWeapon( gentity_t *ent, weapon_t newWeapon )
 		break;
 
 	/*
-	case WP_SABER:
-		ent->NPC->aiFlags |= NPCAI_BURST_WEAPON;
+	case weapon_t::WP_SABER:
+		ent->NPC->aiFlags |= npcAiFlags_t::NPCAI_BURST_WEAPON;
 		ent->NPC->burstMin = 5;//0.5 sec
 		ent->NPC->burstMax = 20;//3 seconds
 		ent->NPC->burstSpacing = 2000;//2 seconds
@@ -904,10 +904,10 @@ void ChangeWeapon( gentity_t *ent, weapon_t newWeapon )
 		break;
 	*/
 
-	case WP_BLASTER:
-		if ( Any( ent->NPC->scriptFlags & SCF_ALT_FIRE ) )
+	case weapon_t::WP_BLASTER:
+		if ( Any( ent->NPC->scriptFlags & scriptFlags_t::SCF_ALT_FIRE ) )
 		{
-			ent->NPC->aiFlags |= NPCAI_BURST_WEAPON;
+			ent->NPC->aiFlags |= npcAiFlags_t::NPCAI_BURST_WEAPON;
 			ent->NPC->burstMin = 3;
 #ifdef BASE_SAVE_COMPAT
 			ent->NPC->burstMean = 3;
@@ -922,7 +922,7 @@ void ChangeWeapon( gentity_t *ent, weapon_t newWeapon )
 		}
 		else
 		{
-			ent->NPC->aiFlags &= ~NPCAI_BURST_WEAPON;
+			ent->NPC->aiFlags &= ~npcAiFlags_t::NPCAI_BURST_WEAPON;
 			if ( g_spskill->integer == 0 )
 				ent->NPC->burstSpacing = 1000;//attack debounce
 			else if ( g_spskill->integer == 1 )
@@ -933,15 +933,15 @@ void ChangeWeapon( gentity_t *ent, weapon_t newWeapon )
 		}
 		break;
 
-	case WP_MELEE:
-	case WP_TUSKEN_STAFF:
-		ent->NPC->aiFlags &= ~NPCAI_BURST_WEAPON;
+	case weapon_t::WP_MELEE:
+	case weapon_t::WP_TUSKEN_STAFF:
+		ent->NPC->aiFlags &= ~npcAiFlags_t::NPCAI_BURST_WEAPON;
 		ent->NPC->burstSpacing = 1000;//attackdebounce
 		break;
 
-	case WP_ATST_MAIN:
-	case WP_ATST_SIDE:
-		ent->NPC->aiFlags &= ~NPCAI_BURST_WEAPON;
+	case weapon_t::WP_ATST_MAIN:
+	case weapon_t::WP_ATST_SIDE:
+		ent->NPC->aiFlags &= ~npcAiFlags_t::NPCAI_BURST_WEAPON;
 	//	ent->NPC->burstSpacing = 1000;//attackdebounce
 			if ( g_spskill->integer == 0 )
 				ent->NPC->burstSpacing = 1000;//attack debounce
@@ -951,11 +951,11 @@ void ChangeWeapon( gentity_t *ent, weapon_t newWeapon )
 				ent->NPC->burstSpacing = 500;//attack debounce
 		break;
 
-	case WP_EMPLACED_GUN:
+	case weapon_t::WP_EMPLACED_GUN:
 		//FIXME: give some designer-control over this?
-		if ( ent->client && ent->client->NPC_class == CLASS_REELO )
+		if ( ent->client && ent->client->NPC_class == class_t::CLASS_REELO )
 		{
-			ent->NPC->aiFlags &= ~NPCAI_BURST_WEAPON;
+			ent->NPC->aiFlags &= ~npcAiFlags_t::NPCAI_BURST_WEAPON;
 			ent->NPC->burstSpacing = 1000;//attack debounce
 	//		if ( g_spskill->integer == 0 )
 	//			ent->NPC->burstSpacing = 300;//attack debounce
@@ -966,7 +966,7 @@ void ChangeWeapon( gentity_t *ent, weapon_t newWeapon )
 		}
 		else
 		{
-			ent->NPC->aiFlags |= NPCAI_BURST_WEAPON;
+			ent->NPC->aiFlags |= npcAiFlags_t::NPCAI_BURST_WEAPON;
 			ent->NPC->burstMin = 2; // 3 shots, really
 #ifdef BASE_SAVE_COMPAT
 			ent->NPC->burstMean = 2;
@@ -1008,8 +1008,8 @@ void ChangeWeapon( gentity_t *ent, weapon_t newWeapon )
 		}
 		break;
 
-	case WP_NOGHRI_STICK:
-		ent->NPC->aiFlags &= ~NPCAI_BURST_WEAPON;
+	case weapon_t::WP_NOGHRI_STICK:
+		ent->NPC->aiFlags &= ~npcAiFlags_t::NPCAI_BURST_WEAPON;
 		if ( g_spskill->integer == 0 )
 			ent->NPC->burstSpacing = 2250;//attack debounce
 		else if ( g_spskill->integer == 1 )
@@ -1019,7 +1019,7 @@ void ChangeWeapon( gentity_t *ent, weapon_t newWeapon )
 		break;
 
 	default:
-		ent->NPC->aiFlags &= ~NPCAI_BURST_WEAPON;
+		ent->NPC->aiFlags &= ~npcAiFlags_t::NPCAI_BURST_WEAPON;
 		break;
 	}
 }
@@ -1036,9 +1036,9 @@ void NPC_ChangeWeapon( weapon_t newWeapon )
 		G_RemoveWeaponModels( NPC );
 	}
 	ChangeWeapon( NPC, newWeapon );
-	if ( changing && NPC->client->ps.weapon != WP_NONE )
+	if ( changing && NPC->client->ps.weapon != weapon_t::WP_NONE )
 	{
-		if ( NPC->client->ps.weapon == WP_SABER )
+		if ( NPC->client->ps.weapon == weapon_t::WP_SABER )
 		{
 			WP_SaberAddG2SaberModels( NPC );
 		}
@@ -1062,12 +1062,12 @@ void NPC_ApplyWeaponFireDelay(void)
 
 	switch(client->ps.weapon)
 	{
-	case WP_BOT_LASER:
+	case weapon_t::WP_BOT_LASER:
 		NPCInfo->burstCount = 0;
 		client->fireDelay = 500;
 		break;
 
-	case WP_THERMAL:
+	case weapon_t::WP_THERMAL:
 		if ( client->ps.clientNum )
 		{//NPCs delay...
 			//FIXME: player should, too, but would feel weird in 1st person, even though it
@@ -1078,16 +1078,16 @@ void NPC_ApplyWeaponFireDelay(void)
 		}
 		break;
 
-	case WP_MELEE:
-	case WP_TUSKEN_STAFF:
+	case weapon_t::WP_MELEE:
+	case weapon_t::WP_TUSKEN_STAFF:
 		if ( !PM_DroidMelee( client->NPC_class ) )
 		{//FIXME: should be unique per melee anim
 			client->fireDelay = 300;
 		}
 		break;
 
-	case WP_TUSKEN_RIFLE:
-		if ( !Any(NPCInfo->scriptFlags&SCF_ALT_FIRE) )
+	case weapon_t::WP_TUSKEN_RIFLE:
+		if ( !Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_ALT_FIRE) )
 		{//FIXME: should be unique per melee anim
 			client->fireDelay = 300;
 		}
@@ -1108,13 +1108,13 @@ void ShootThink( void )
 {
 	int			delay;
 
-	ucmd.buttons |= BUTTON_ATTACK;
+	ucmd.buttons |= buttonFlags_t::BUTTON_ATTACK;
 
 	NPCInfo->currentAmmo = client->ps.ammo[weaponData[client->ps.weapon].ammoIndex];	// checkme
 
 	NPC_ApplyWeaponFireDelay();
 
-	if ( Any( NPCInfo->aiFlags & NPCAI_BURST_WEAPON ) )
+	if ( Any( NPCInfo->aiFlags & npcAiFlags_t::NPCAI_BURST_WEAPON ) )
 	{
 		if ( !NPCInfo->burstCount )
 		{
@@ -1137,7 +1137,7 @@ void ShootThink( void )
 		if ( !delay )
 		{
 			// HACK: dirty little emplaced bits, but is done because it would otherwise require some sort of new variable...
-			if ( client->ps.weapon == WP_EMPLACED_GUN )
+			if ( client->ps.weapon == weapon_t::WP_EMPLACED_GUN )
 			{
 				if ( NPC->owner ) // try and get the debounce values from the chair if we can
 				{
@@ -1189,32 +1189,32 @@ Added: hacks for Borg
 */
 void WeaponThink( bool inCombat )
 {
-	ucmd.buttons &= ~BUTTON_ATTACK;
-	if ( client->ps.weaponstate == WEAPON_RAISING || client->ps.weaponstate == WEAPON_DROPPING )
+	ucmd.buttons &= ~buttonFlags_t::BUTTON_ATTACK;
+	if ( client->ps.weaponstate == weaponstate_t::WEAPON_RAISING || client->ps.weaponstate == weaponstate_t::WEAPON_DROPPING )
 	{
 		UC_SetWeapon( ucmd, client->ps.weapon );
 		return;
 	}
 
 	// can't shoot while shield is up
-	if (Any( NPC->flags & FL_SHIELDED ) && NPC->client->NPC_class==CLASS_ASSASSIN_DROID)
+	if (Any( NPC->flags & gentityFlags_t::FL_SHIELDED ) && NPC->client->NPC_class==class_t::CLASS_ASSASSIN_DROID)
 	{
 		return;
 	}
 
 	// Can't Fire While Cloaked
 	if (NPC->client &&
-		(NPC->client->ps.powerups[PW_CLOAKED] || (level.time<NPC->client->ps.powerups[PW_UNCLOAKING])))
+		(NPC->client->ps.powerups[powerup_t::PW_CLOAKED] || (level.time<NPC->client->ps.powerups[powerup_t::PW_UNCLOAKING])))
 	{
 		return;
 	}
 
-	if ( client->ps.weapon == WP_NONE )
+	if ( client->ps.weapon == weapon_t::WP_NONE )
 	{
 		return;
 	}
 
-	if ( client->ps.weaponstate != WEAPON_READY && client->ps.weaponstate != WEAPON_FIRING && client->ps.weaponstate != WEAPON_IDLE)
+	if ( client->ps.weaponstate != weaponstate_t::WEAPON_READY && client->ps.weaponstate != weaponstate_t::WEAPON_FIRING && client->ps.weaponstate != weaponstate_t::WEAPON_IDLE)
 	{
 		return;
 	}
@@ -1246,7 +1246,7 @@ HaveWeapon
 
 bool HaveWeapon( weapon_t weapon )
 {
-	return ( client->ps.stats[STAT_WEAPONS] & Bit( weapon ) );
+	return ( client->ps.stats[statIndex_t::STAT_WEAPONS] & Bit( weapon ) );
 }
 
 bool EntIsGlass (gentity_t *check)
@@ -1270,7 +1270,7 @@ bool ShotThroughGlass (trace_t *tr, gentity_t *target, vec3_t spot, contentsFlag
 		vec3_t		muzzle;
 
 		VectorCopy(tr->endpos, muzzle);
-		gi.trace (tr, muzzle, nullptr, nullptr, spot, skip, mask, G2_NOCOLLIDE, 0 );
+		gi.trace (tr, muzzle, nullptr, nullptr, spot, skip, mask, EG2_Collision::G2_NOCOLLIDE, 0 );
 		return true;
 	}
 
@@ -1292,10 +1292,10 @@ bool CanShoot ( gentity_t *ent, gentity_t *shooter )
 	vec3_t		spot, diff;
 	gentity_t	*traceEnt;
 
-	CalcEntitySpot( shooter, SPOT_WEAPON, muzzle );
-	CalcEntitySpot( ent, SPOT_ORIGIN, spot );		//FIXME preferred target locations for some weapons (feet for R/L)
+	CalcEntitySpot( shooter, spot_t::SPOT_WEAPON, muzzle );
+	CalcEntitySpot( ent, spot_t::SPOT_ORIGIN, spot );		//FIXME preferred target locations for some weapons (feet for R/L)
 
-	gi.trace ( &tr, muzzle, nullptr, nullptr, spot, shooter->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
+	gi.trace ( &tr, muzzle, nullptr, nullptr, spot, shooter->s.number, MASK_SHOT, EG2_Collision::G2_NOCOLLIDE, 0 );
 	traceEnt = &g_entities[ tr.entityNum ];
 
 	// point blank, baby!
@@ -1317,8 +1317,8 @@ bool CanShoot ( gentity_t *ent, gentity_t *shooter )
 //MCG - Begin
 	else
 	{//ok, can't hit them in center, try their head
-		CalcEntitySpot( ent, SPOT_HEAD, spot );
-		gi.trace ( &tr, muzzle, nullptr, nullptr, spot, shooter->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
+		CalcEntitySpot( ent, spot_t::SPOT_HEAD, spot );
+		gi.trace ( &tr, muzzle, nullptr, nullptr, spot, shooter->s.number, MASK_SHOT, EG2_Collision::G2_NOCOLLIDE, 0 );
 		traceEnt = &g_entities[ tr.entityNum ];
 		if ( traceEnt == ent)
 		{
@@ -1370,21 +1370,21 @@ void NPC_CheckPossibleEnemy( gentity_t *other, visibility_t vis )
 	if ( other == NPC->enemy )
 		return;
 
-	if ( Any( other->flags & FL_NOTARGET ) )
+	if ( Any( other->flags & gentityFlags_t::FL_NOTARGET ) )
 		return;
 
 	// we already have an enemy and this guy is in our FOV, see if this guy would be better
-	if ( NPC->enemy && vis == VIS_FOV )
+	if ( NPC->enemy && vis == visibility_t::VIS_FOV )
 	{
 		if ( NPCInfo->enemyLastSeenTime - level.time < 2000 )
 		{
 			return;
 		}
-		if ( enemyVisibility == VIS_UNKNOWN )
+		if ( enemyVisibility == visibility_t::VIS_UNKNOWN )
 		{
-			enemyVisibility = NPC_CheckVisibility ( NPC->enemy, CHECK_360|CHECK_FOV );
+			enemyVisibility = NPC_CheckVisibility ( NPC->enemy, visCheckFlags_t::CHECK_360|visCheckFlags_t::CHECK_FOV );
 		}
-		if ( enemyVisibility == VIS_FOV )
+		if ( enemyVisibility == visibility_t::VIS_FOV )
 		{
 			return;
 		}
@@ -1395,7 +1395,7 @@ void NPC_CheckPossibleEnemy( gentity_t *other, visibility_t vis )
 		G_SetEnemy( NPC, other );
 	}
 
-	if ( vis == VIS_FOV )
+	if ( vis == visibility_t::VIS_FOV )
 	{
 		NPCInfo->enemyLastSeenTime = level.time;
 		VectorCopy( other->currentOrigin, NPCInfo->enemyLastSeenLocation );
@@ -1428,20 +1428,20 @@ int NPC_AttackDebounceForWeapon (void)
 	switch ( NPC->client->ps.weapon )
 	{
 /*
-	case WP_BLASTER://scav rifle
+	case weapon_t::WP_BLASTER://scav rifle
 		return 1000;
 		break;
 
-	case WP_BRYAR_PISTOL://prifle
+	case weapon_t::WP_BRYAR_PISTOL://prifle
 		return 3000;
 		break;
 
-	case WP_SABER:
+	case weapon_t::WP_SABER:
 		return 100;
 		break;
 */
-	case WP_SABER:
-		if ( NPC->client->NPC_class == CLASS_KYLE
+	case weapon_t::WP_SABER:
+		if ( NPC->client->NPC_class == class_t::CLASS_KYLE
 			&& (NPC->spawnflags&1) )
 		{
 			return Q_irand( 1500, 5000 );
@@ -1452,7 +1452,7 @@ int NPC_AttackDebounceForWeapon (void)
 		}
 		break;
 
-	case WP_BOT_LASER:
+	case weapon_t::WP_BOT_LASER:
 
 		if ( g_spskill->integer == 0 )
 			return 2000;
@@ -1479,21 +1479,21 @@ float NPC_MaxDistSquaredForWeapon (void)
 
 	switch ( NPC->s.weapon )
 	{
-	case WP_BLASTER://scav rifle
+	case weapon_t::WP_BLASTER://scav rifle
 		return 1024 * 1024;//should be shorter?
 		break;
 
-	case WP_BRYAR_PISTOL://prifle
+	case weapon_t::WP_BRYAR_PISTOL://prifle
 		return 1024 * 1024;
 		break;
 
-	case WP_BLASTER_PISTOL://prifle
+	case weapon_t::WP_BLASTER_PISTOL://prifle
 		return 1024 * 1024;
 		break;
 
-	case WP_DISRUPTOR://disruptor
-	case WP_TUSKEN_RIFLE:
-		if ( Any( NPCInfo->scriptFlags & SCF_ALT_FIRE ) )
+	case weapon_t::WP_DISRUPTOR://disruptor
+	case weapon_t::WP_TUSKEN_RIFLE:
+		if ( Any( NPCInfo->scriptFlags & scriptFlags_t::SCF_ALT_FIRE ) )
 		{
 			return ( 4096 * 4096 );
 		}
@@ -1503,11 +1503,11 @@ float NPC_MaxDistSquaredForWeapon (void)
 		}
 		break;
 /*
-	case WP_SABER:
+	case weapon_t::WP_SABER:
 		return 1024 * 1024;
 		break;
 */
-	case WP_SABER:
+	case weapon_t::WP_SABER:
 		if ( NPC->client && NPC->client->ps.SaberLength() )
 		{//FIXME: account for whether enemy and I are heading towards each other!
 			return (NPC->client->ps.SaberLength() + NPC->maxs[0]*1.5)*(NPC->client->ps.SaberLength() + NPC->maxs[0]*1.5);
@@ -1533,7 +1533,7 @@ bool NPC_EnemyTooFar(gentity_t *enemy, float dist, bool toShoot)
 
 	if ( !toShoot )
 	{//Not trying to actually press fire button with this check
-		if ( NPC->client->ps.weapon == WP_SABER )
+		if ( NPC->client->ps.weapon == weapon_t::WP_SABER )
 		{//Just have to get to him
 			return false;
 		}
@@ -1580,37 +1580,37 @@ gentity_t *NPC_PickEnemy( gentity_t *closestTo, team_t enemyTeam, bool checkVis,
 	float		relDist;
 	float		bestDist = Q3_INFINITE;
 	bool	failed = false;
-	visCheckFlags_t			visChecks = (CHECK_360|CHECK_FOV|CHECK_VISRANGE);
-	visibility_t	minVis = VIS_FOV;
+	visCheckFlags_t			visChecks = (visCheckFlags_t::CHECK_360|visCheckFlags_t::CHECK_FOV|visCheckFlags_t::CHECK_VISRANGE);
+	visibility_t	minVis = visibility_t::VIS_FOV;
 
-	if ( enemyTeam == TEAM_NEUTRAL )
+	if ( enemyTeam == team_t::TEAM_NEUTRAL )
 	{
 		return nullptr;
 	}
 
-	if ( NPCInfo->behaviorState == BS_STAND_AND_SHOOT ||
-		NPCInfo->behaviorState == BS_HUNT_AND_KILL )
+	if ( NPCInfo->behaviorState == bState_t::BS_STAND_AND_SHOOT ||
+		NPCInfo->behaviorState == bState_t::BS_HUNT_AND_KILL )
 	{//Formations guys don't require inFov to pick up a target
 		//These other behavior states are active battle states and should not
 		//use FOV.  FOV checks are for enemies who are patrolling, guarding, etc.
-		visChecks &= ~CHECK_FOV;
-		minVis = VIS_360;
+		visChecks &= ~visCheckFlags_t::CHECK_FOV;
+		minVis = visibility_t::VIS_360;
 	}
 
 	if( findPlayersFirst )
 	{//try to find a player first
 		newenemy = &g_entities[0];
-		if( newenemy->client && !Any( newenemy->flags & FL_NOTARGET ) && !Any(newenemy->s.eFlags & EF_NODRAW))
+		if( newenemy->client && !Any( newenemy->flags & gentityFlags_t::FL_NOTARGET ) && !Any(newenemy->s.eFlags & entityFlags_t::EF_NODRAW))
 		{
 			if( newenemy->health > 0 )
 			{
-				if( NPC_ValidEnemy( newenemy) )//enemyTeam == TEAM_PLAYER || newenemy->client->playerTeam == enemyTeam || ( enemyTeam == TEAM_PLAYER ) )
+				if( NPC_ValidEnemy( newenemy) )//enemyTeam == team_t::TEAM_PLAYER || newenemy->client->playerTeam == enemyTeam || ( enemyTeam == team_t::TEAM_PLAYER ) )
 				{//FIXME:  check for range and FOV or vis?
 					if( newenemy != NPC->lastEnemy )
 					{//Make sure we're not just going back and forth here
 						if ( gi.inPVS(newenemy->currentOrigin, NPC->currentOrigin) )
 						{
-							if(NPCInfo->behaviorState == BS_INVESTIGATE ||	NPCInfo->behaviorState == BS_PATROL)
+							if(NPCInfo->behaviorState == bState_t::BS_INVESTIGATE ||	NPCInfo->behaviorState == bState_t::BS_PATROL)
 							{
 								if(!NPC->enemy)
 								{
@@ -1618,7 +1618,7 @@ gentity_t *NPC_PickEnemy( gentity_t *closestTo, team_t enemyTeam, bool checkVis,
 									{
 										failed = true;
 									}
-									else if(NPC_CheckVisibility ( newenemy, CHECK_360|CHECK_FOV|CHECK_VISRANGE ) != VIS_FOV)
+									else if(NPC_CheckVisibility ( newenemy, visCheckFlags_t::CHECK_360|visCheckFlags_t::CHECK_FOV|visCheckFlags_t::CHECK_VISRANGE ) != visibility_t::VIS_FOV)
 									{
 										failed = true;
 									}
@@ -1645,7 +1645,7 @@ gentity_t *NPC_PickEnemy( gentity_t *closestTo, team_t enemyTeam, bool checkVis,
 											}
 											else
 											{
-												Debug_Printf(debugNPCAI, DEBUG_LEVEL_INFO, "%s saw %s trying to hide - hiddenDir %s targetDir %s dot %f\n", NPC->targetname, newenemy->targetname, vtos(newenemy->client->hiddenDir), vtos(diff), dot );
+												Debug_Printf(debugNPCAI, aiDebugLevel_t::DEBUG_LEVEL_INFO, "%s saw %s trying to hide - hiddenDir %s targetDir %s dot %f\n", NPC->targetname, newenemy->targetname, vtos(newenemy->client->hiddenDir), vtos(diff), dot );
 											}
 										}
 										else
@@ -1655,7 +1655,7 @@ gentity_t *NPC_PickEnemy( gentity_t *closestTo, team_t enemyTeam, bool checkVis,
 									}
 									else
 									{
-										Debug_Printf(debugNPCAI, DEBUG_LEVEL_INFO, "%s saw %s trying to hide - hiddenDist %f\n", NPC->targetname, newenemy->targetname, newenemy->client->hiddenDist );
+										Debug_Printf(debugNPCAI, aiDebugLevel_t::DEBUG_LEVEL_INFO, "%s saw %s trying to hide - hiddenDist %f\n", NPC->targetname, newenemy->targetname, newenemy->client->hiddenDist );
 									}
 								}
 
@@ -1687,7 +1687,7 @@ gentity_t *NPC_PickEnemy( gentity_t *closestTo, team_t enemyTeam, bool checkVis,
 									{
 										if(checkVis)
 										{
-											if( NPC_CheckVisibility ( newenemy, CHECK_360|CHECK_FOV|CHECK_VISRANGE ) == VIS_FOV )
+											if( NPC_CheckVisibility ( newenemy, visCheckFlags_t::CHECK_360|visCheckFlags_t::CHECK_FOV|visCheckFlags_t::CHECK_VISRANGE ) == visibility_t::VIS_FOV )
 											{
 												choice[num_choices++] = newenemy->s.number;
 											}
@@ -1718,7 +1718,7 @@ gentity_t *NPC_PickEnemy( gentity_t *closestTo, team_t enemyTeam, bool checkVis,
 
 	/*
 	//FIXME: used to have an option to look *only* for the player... now...?  Still need it?
-	if ( enemyTeam == TEAM_PLAYER )
+	if ( enemyTeam == team_t::TEAM_PLAYER )
 	{//couldn't find the player
 		return nullptr;
 	}
@@ -1732,14 +1732,14 @@ gentity_t *NPC_PickEnemy( gentity_t *closestTo, team_t enemyTeam, bool checkVis,
 	{
 		newenemy = &g_entities[entNum];
 
-		if ( newenemy != NPC && (newenemy->client || Any( newenemy->svFlags & SVF_NONNPC_ENEMY )) && !Any( newenemy->flags & FL_NOTARGET ) && !Any(newenemy->s.eFlags & EF_NODRAW))
+		if ( newenemy != NPC && (newenemy->client || Any( newenemy->svFlags & svFlags_t::SVF_NONNPC_ENEMY )) && !Any( newenemy->flags & gentityFlags_t::FL_NOTARGET ) && !Any(newenemy->s.eFlags & entityFlags_t::EF_NODRAW))
 		{
 			if ( newenemy->health > 0 )
 			{
 				if ( (newenemy->client && NPC_ValidEnemy( newenemy))
 					|| (!newenemy->client && newenemy->noDamageTeam == enemyTeam) )
 				{//FIXME:  check for range and FOV or vis?
-					if ( NPC->client->playerTeam == TEAM_PLAYER && enemyTeam == TEAM_PLAYER )
+					if ( NPC->client->playerTeam == team_t::TEAM_PLAYER && enemyTeam == team_t::TEAM_PLAYER )
 					{//player allies turning on ourselves?  How?
 						if ( newenemy->s.number )
 						{//only turn on the player, not other player allies
@@ -1754,7 +1754,7 @@ gentity_t *NPC_PickEnemy( gentity_t *closestTo, team_t enemyTeam, bool checkVis,
 							continue;
 						}
 
-						if ( NPCInfo->behaviorState == BS_INVESTIGATE || NPCInfo->behaviorState == BS_PATROL )
+						if ( NPCInfo->behaviorState == bState_t::BS_INVESTIGATE || NPCInfo->behaviorState == bState_t::BS_PATROL )
 						{
 							if ( !NPC->enemy )
 							{
@@ -1762,7 +1762,7 @@ gentity_t *NPC_PickEnemy( gentity_t *closestTo, team_t enemyTeam, bool checkVis,
 								{
 									continue;
 								}
-								else if ( NPC_CheckVisibility ( newenemy, CHECK_360|CHECK_FOV|CHECK_VISRANGE ) != VIS_FOV )
+								else if ( NPC_CheckVisibility ( newenemy, visCheckFlags_t::CHECK_360|visCheckFlags_t::CHECK_FOV|visCheckFlags_t::CHECK_VISRANGE ) != visibility_t::VIS_FOV )
 								{
 									continue;
 								}
@@ -1788,7 +1788,7 @@ gentity_t *NPC_PickEnemy( gentity_t *closestTo, team_t enemyTeam, bool checkVis,
 									}
 									else
 									{
-										Debug_Printf(debugNPCAI, DEBUG_LEVEL_INFO, "%s saw %s trying to hide - hiddenDir %s targetDir %s dot %f\n", NPC->targetname, newenemy->targetname, vtos(newenemy->client->hiddenDir), vtos(diff), dot );
+										Debug_Printf(debugNPCAI, aiDebugLevel_t::DEBUG_LEVEL_INFO, "%s saw %s trying to hide - hiddenDir %s targetDir %s dot %f\n", NPC->targetname, newenemy->targetname, vtos(newenemy->client->hiddenDir), vtos(diff), dot );
 									}
 								}
 								else
@@ -1798,7 +1798,7 @@ gentity_t *NPC_PickEnemy( gentity_t *closestTo, team_t enemyTeam, bool checkVis,
 							}
 							else
 							{
-								Debug_Printf(debugNPCAI, DEBUG_LEVEL_INFO, "%s saw %s trying to hide - hiddenDist %f\n", NPC->targetname, newenemy->targetname, newenemy->client->hiddenDist );
+								Debug_Printf(debugNPCAI, aiDebugLevel_t::DEBUG_LEVEL_INFO, "%s saw %s trying to hide - hiddenDist %f\n", NPC->targetname, newenemy->targetname, newenemy->client->hiddenDist );
 							}
 						}
 
@@ -1812,7 +1812,7 @@ gentity_t *NPC_PickEnemy( gentity_t *closestTo, team_t enemyTeam, bool checkVis,
 									{
 										//FIXME: NPCs need to be able to pick up other NPCs behind them,
 										//but for now, commented out because it was picking up enemies it shouldn't
-										//if ( NPC_CheckVisibility ( newenemy, CHECK_360|CHECK_VISRANGE ) >= VIS_360 )
+										//if ( NPC_CheckVisibility ( newenemy, visCheckFlags_t::CHECK_360|visCheckFlags_t::CHECK_VISRANGE ) >= visibility_t::VIS_360 )
 										if ( NPC_CheckVisibility ( newenemy, visChecks ) == minVis )
 										{
 											bestDist = relDist;
@@ -1831,8 +1831,8 @@ gentity_t *NPC_PickEnemy( gentity_t *closestTo, team_t enemyTeam, bool checkVis,
 						{
 							if ( checkVis )
 							{
-								//if( NPC_CheckVisibility ( newenemy, CHECK_360|CHECK_FOV|CHECK_VISRANGE ) == VIS_FOV )
-								if ( NPC_CheckVisibility ( newenemy, CHECK_360|CHECK_VISRANGE ) >= VIS_360 )
+								//if( NPC_CheckVisibility ( newenemy, visCheckFlags_t::CHECK_360|visCheckFlags_t::CHECK_FOV|visCheckFlags_t::CHECK_VISRANGE ) == visibility_t::VIS_FOV )
+								if ( NPC_CheckVisibility ( newenemy, visCheckFlags_t::CHECK_360|visCheckFlags_t::CHECK_VISRANGE ) >= visibility_t::VIS_360 )
 								{
 									choice[num_choices++] = newenemy->s.number;
 								}
@@ -1886,7 +1886,7 @@ gentity_t *NPC_PickAlly ( bool facingEachOther, float range, bool ignoreGroup, b
 			if ( ally->health > 0 )
 			{
 				if ( ally->client && ( ally->client->playerTeam == NPC->client->playerTeam ||
-					 NPC->client->playerTeam == TEAM_ENEMY ) )// && ally->client->playerTeam == TEAM_DISGUISE ) ) )
+					 NPC->client->playerTeam == team_t::TEAM_ENEMY ) )// && ally->client->playerTeam == TEAM_DISGUISE ) ) )
 				{//if on same team or if player is disguised as your team
 					if ( ignoreGroup )
 					{
@@ -1944,7 +1944,7 @@ gentity_t *NPC_PickAlly ( bool facingEachOther, float range, bool ignoreGroup, b
 							//I am facing him
 						}
 
-						if ( NPC_CheckVisibility ( ally, CHECK_360|CHECK_VISRANGE ) >= VIS_360 )
+						if ( NPC_CheckVisibility ( ally, visCheckFlags_t::CHECK_360|visCheckFlags_t::CHECK_VISRANGE ) >= visibility_t::VIS_360 )
 						{
 							bestDist = relDist;
 							closestAlly = ally;
@@ -1972,7 +1972,7 @@ gentity_t *NPC_CheckEnemy( bool findNew, bool tooFarOk, bool setEnemy )
 	//TEMP FIX:
 	//if(NPC->enemy->client)
 	//{
-	//	NPC->enemy->health = NPC->enemy->client->ps.stats[STAT_HEALTH];
+	//	NPC->enemy->health = NPC->enemy->client->ps.stats[statIndex_t::STAT_HEALTH];
 	//}
 
 	if ( NPC->enemy )
@@ -1986,7 +1986,7 @@ gentity_t *NPC_CheckEnemy( bool findNew, bool tooFarOk, bool setEnemy )
 		}
 	}
 
-	if ( Any( NPC->svFlags & SVF_IGNORE_ENEMIES ) )
+	if ( Any( NPC->svFlags & svFlags_t::SVF_IGNORE_ENEMIES ) )
 	{//We're ignoring all enemies for now
 		if ( setEnemy )
 		{
@@ -1996,7 +1996,7 @@ gentity_t *NPC_CheckEnemy( bool findNew, bool tooFarOk, bool setEnemy )
 	}
 
 	// Kyle does not get new enemies if not close to his leader
-	if (NPC->client->NPC_class==CLASS_KYLE &&
+	if (NPC->client->NPC_class==class_t::CLASS_KYLE &&
 		NPC->client->leader &&
 		Distance(NPC->client->leader->currentOrigin, NPC->currentOrigin)>3000
 		)
@@ -2009,16 +2009,16 @@ gentity_t *NPC_CheckEnemy( bool findNew, bool tooFarOk, bool setEnemy )
 	}
 
 
-	if ( Any( NPC->svFlags & SVF_LOCKEDENEMY ) )
+	if ( Any( NPC->svFlags & svFlags_t::SVF_LOCKEDENEMY ) )
 	{//keep this enemy until dead
 		if ( NPC->enemy )
 		{
-			if ( (!NPC->NPC && !Any( NPC->svFlags & SVF_NONNPC_ENEMY ) ) || NPC->enemy->health > 0 )
+			if ( (!NPC->NPC && !Any( NPC->svFlags & svFlags_t::SVF_NONNPC_ENEMY ) ) || NPC->enemy->health > 0 )
 			{//Enemy never had health (a train or info_not_null, etc) or did and is now dead (NPCs, turrets, etc)
 				return nullptr;
 			}
 		}
-		NPC->svFlags &= ~SVF_LOCKEDENEMY;
+		NPC->svFlags &= ~svFlags_t::SVF_LOCKEDENEMY;
 	}
 
 	if ( NPC->enemy )
@@ -2055,7 +2055,7 @@ gentity_t *NPC_CheckEnemy( bool findNew, bool tooFarOk, bool setEnemy )
 				/*
 				switch( NPCInfo->behaviorState )
 				{
-				case BS_HUNT_AND_KILL:
+				case bState_t::BS_HUNT_AND_KILL:
 					//Okay to lose PVS, we're chasing them
 					break;
 				case BS_RUN_AND_SHOOT:
@@ -2078,7 +2078,7 @@ gentity_t *NPC_CheckEnemy( bool findNew, bool tooFarOk, bool setEnemy )
 
 	if ( NPC->enemy )
 	{
-		if ( NPC->enemy->health <= 0 || Any( NPC->enemy->flags & FL_NOTARGET ) )
+		if ( NPC->enemy->health <= 0 || Any( NPC->enemy->flags & gentityFlags_t::FL_NOTARGET ) )
 		{
 			if ( setEnemy )
 			{
@@ -2131,7 +2131,7 @@ gentity_t *NPC_CheckEnemy( bool findNew, bool tooFarOk, bool setEnemy )
 		}
 
 		//If enemy dead or unshootable, look for others on out enemy's team
-		if ( NPC->client->enemyTeam != TEAM_NEUTRAL)
+		if ( NPC->client->enemyTeam != team_t::TEAM_NEUTRAL)
 		{
 			//NOTE:  this only checks vis if can't hit enemy for 10 tries, which I suppose
 			//			means they need to find one that in more than just PVS
@@ -2166,12 +2166,12 @@ gentity_t *NPC_CheckEnemy( bool findNew, bool tooFarOk, bool setEnemy )
 
 	if ( NPC->enemy && NPC->enemy->client )
 	{
-		if(NPC->enemy->client->playerTeam != TEAM_FREE
-			&& NPC->enemy->client->playerTeam != TEAM_FREE)
+		if(NPC->enemy->client->playerTeam != team_t::TEAM_FREE
+			&& NPC->enemy->client->playerTeam != team_t::TEAM_FREE)
 		{
 //			assert( NPC->client->playerTeam != NPC->enemy->client->playerTeam);
 			if( NPC->client->playerTeam != NPC->enemy->client->playerTeam
-				&& NPC->client->enemyTeam != TEAM_FREE
+				&& NPC->client->enemyTeam != team_t::TEAM_FREE
 				&& NPC->client->enemyTeam != NPC->enemy->client->playerTeam )
 			{
 				NPC->client->enemyTeam = NPC->enemy->client->playerTeam;
@@ -2195,21 +2195,21 @@ bool NPC_ClearShot( gentity_t *ent )
 	vec3_t	muzzle;
 	trace_t	tr;
 
-	CalcEntitySpot( NPC, SPOT_WEAPON, muzzle );
+	CalcEntitySpot( NPC, spot_t::SPOT_WEAPON, muzzle );
 
 	// add aim error
 	// use weapon instead of specific npc types, although you could add certain npc classes if you wanted
 //	if ( NPC->client->playerTeam == TEAM_SCAVENGERS )
-	if( NPC->s.weapon == WP_BLASTER || NPC->s.weapon == WP_BLASTER_PISTOL ) // any other guns to check for?
+	if( NPC->s.weapon == weapon_t::WP_BLASTER || NPC->s.weapon == weapon_t::WP_BLASTER_PISTOL ) // any other guns to check for?
 	{
 		vec3_t	mins = { -2, -2, -2 };
 		vec3_t	maxs = {  2,  2,  2 };
 
-		gi.trace ( &tr, muzzle, mins, maxs, ent->currentOrigin, NPC->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
+		gi.trace ( &tr, muzzle, mins, maxs, ent->currentOrigin, NPC->s.number, MASK_SHOT, EG2_Collision::G2_NOCOLLIDE, 0 );
 	}
 	else
 	{
-		gi.trace ( &tr, muzzle, nullptr, nullptr, ent->currentOrigin, NPC->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
+		gi.trace ( &tr, muzzle, nullptr, nullptr, ent->currentOrigin, NPC->s.number, MASK_SHOT, EG2_Collision::G2_NOCOLLIDE, 0 );
 	}
 
 	if ( tr.startsolid || tr.allsolid )
@@ -2238,38 +2238,38 @@ int NPC_ShotEntity( gentity_t *ent, vec3_t impactPos )
 	vec3_t targ;
 	trace_t	tr;
 
-	if ( NPC->s.weapon == WP_THERMAL )
+	if ( NPC->s.weapon == weapon_t::WP_THERMAL )
 	{//thermal aims from slightly above head
 		//FIXME: what about low-angle shots, rolling the thermal under something?
 		vec3_t	angles, forward, end;
 
-		CalcEntitySpot( NPC, SPOT_HEAD, muzzle );
+		CalcEntitySpot( NPC, spot_t::SPOT_HEAD, muzzle );
 		VectorSet( angles, 0, NPC->client->ps.viewangles[1], 0 );
 		AngleVectors( angles, forward, nullptr, nullptr );
 		VectorMA( muzzle, 8, forward, end );
 		end[2] += 24;
-		gi.trace ( &tr, muzzle, vec3_origin, vec3_origin, end, NPC->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
+		gi.trace ( &tr, muzzle, vec3_origin, vec3_origin, end, NPC->s.number, MASK_SHOT, EG2_Collision::G2_NOCOLLIDE, 0 );
 		VectorCopy( tr.endpos, muzzle );
 	}
 	else
 	{
-		CalcEntitySpot( NPC, SPOT_WEAPON, muzzle );
+		CalcEntitySpot( NPC, spot_t::SPOT_WEAPON, muzzle );
 	}
-	CalcEntitySpot( ent, SPOT_CHEST, targ );
+	CalcEntitySpot( ent, spot_t::SPOT_CHEST, targ );
 
 	// add aim error
 	// use weapon instead of specific npc types, although you could add certain npc classes if you wanted
 //	if ( NPC->client->playerTeam == TEAM_SCAVENGERS )
-	if( NPC->s.weapon == WP_BLASTER || NPC->s.weapon == WP_BLASTER_PISTOL ) // any other guns to check for?
+	if( NPC->s.weapon == weapon_t::WP_BLASTER || NPC->s.weapon == weapon_t::WP_BLASTER_PISTOL ) // any other guns to check for?
 	{
 		vec3_t	mins = { -2, -2, -2 };
 		vec3_t	maxs = {  2,  2,  2 };
 
-		gi.trace ( &tr, muzzle, mins, maxs, targ, NPC->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
+		gi.trace ( &tr, muzzle, mins, maxs, targ, NPC->s.number, MASK_SHOT, EG2_Collision::G2_NOCOLLIDE, 0 );
 	}
 	else
 	{
-		gi.trace ( &tr, muzzle, nullptr, nullptr, targ, NPC->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
+		gi.trace ( &tr, muzzle, nullptr, nullptr, targ, NPC->s.number, MASK_SHOT, EG2_Collision::G2_NOCOLLIDE, 0 );
 	}
 	//FIXME: if using a bouncing weapon like the bowcaster, should we check the reflection of the wall, too?
 	if ( impactPos )
@@ -2292,7 +2292,7 @@ bool NPC_EvaluateShot( int hit, bool glassOK )
 		return false;
 	}
 
-	if ( hit == NPC->enemy->s.number || Any( g_entities[hit].svFlags & SVF_GLASS_BRUSH ) )
+	if ( hit == NPC->enemy->s.number || Any( g_entities[hit].svFlags & svFlags_t::SVF_GLASS_BRUSH ) )
 	{//can hit enemy or will hit glass, so shoot anyway
 		return true;
 	}
@@ -2354,7 +2354,7 @@ bool NPC_CheckCanAttack (float attack_scale, bool stationary)
 	trace_t		tr;
 	gentity_t	*traceEnt = nullptr;
 
-	if(Any( NPC->enemy->flags & FL_NOTARGET ))
+	if(Any( NPC->enemy->flags & gentityFlags_t::FL_NOTARGET ))
 	{
 		return false;
 	}
@@ -2366,10 +2366,10 @@ bool NPC_CheckCanAttack (float attack_scale, bool stationary)
 		attack_scale = 1.0;
 	}
 	//Yaw to enemy
-	CalcEntitySpot( NPC->enemy, SPOT_HEAD, enemy_org );
+	CalcEntitySpot( NPC->enemy, spot_t::SPOT_HEAD, enemy_org );
 	NPC_AimWiggle( enemy_org );
 
-	CalcEntitySpot( NPC, SPOT_WEAPON, muzzle );
+	CalcEntitySpot( NPC, spot_t::SPOT_WEAPON, muzzle );
 
 	VectorSubtract (enemy_org, muzzle, delta);
 	vectoangles ( delta, angleToEnemy );
@@ -2390,27 +2390,27 @@ bool NPC_CheckCanAttack (float attack_scale, bool stationary)
 		return false;
 	}
 
-	if(Any(NPCInfo->scriptFlags & SCF_DONT_FIRE))
+	if(Any(NPCInfo->scriptFlags & scriptFlags_t::SCF_DONT_FIRE))
 	{
 		return false;
 	}
 
 	NPCInfo->enemyLastVisibility = enemyVisibility;
 	//See if they're in our FOV and we have a clear shot to them
-	enemyVisibility = NPC_CheckVisibility ( NPC->enemy, CHECK_360|CHECK_FOV);////CHECK_PVS|
+	enemyVisibility = NPC_CheckVisibility ( NPC->enemy, visCheckFlags_t::CHECK_360|visCheckFlags_t::CHECK_FOV);////CHECK_PVS|
 
-	if(enemyVisibility >= VIS_FOV)
+	if(enemyVisibility >= visibility_t::VIS_FOV)
 	{//He's in our FOV
 
 		attack_ok = true;
-		//CalcEntitySpot( NPC->enemy, SPOT_HEAD, enemy_head);
+		//CalcEntitySpot( NPC->enemy, spot_t::SPOT_HEAD, enemy_head);
 
 		//Check to duck
 		if ( NPC->enemy->client )
 		{
 			if ( NPC->enemy->enemy == NPC )
 			{
-				if ( Any( NPC->enemy->client->buttons & BUTTON_ATTACK ) )
+				if ( Any( NPC->enemy->client->buttons & buttonFlags_t::BUTTON_ATTACK ) )
 				{//FIXME: determine if enemy fire angles would hit me or get close
 					if ( NPC_CheckDefend( 1.0 ) )//FIXME: Check self-preservation?  Health?
 					{//duck and don't shoot
@@ -2427,7 +2427,7 @@ bool NPC_CheckCanAttack (float attack_scale, bool stationary)
 			//NEW: use actual forward facing
 			AngleVectors( client->ps.viewangles, forward, nullptr, nullptr );
 			VectorMA( muzzle, distanceToEnemy, forward, hitspot );
-			gi.trace( &tr, muzzle, nullptr, nullptr, hitspot, NPC->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
+			gi.trace( &tr, muzzle, nullptr, nullptr, hitspot, NPC->s.number, MASK_SHOT, EG2_Collision::G2_NOCOLLIDE, 0 );
 			ShotThroughGlass( &tr, NPC->enemy, hitspot, MASK_SHOT );
 			/*
 			//OLD: trace regardless of facing
@@ -2455,16 +2455,16 @@ bool NPC_CheckCanAttack (float attack_scale, bool stationary)
 
 			VectorCopy( tr.endpos, hitspot );
 
-			if( traceEnt == NPC->enemy || (traceEnt->client && NPC->client->enemyTeam != TEAM_FREE && NPC->client->enemyTeam == traceEnt->client->playerTeam) )
+			if( traceEnt == NPC->enemy || (traceEnt->client && NPC->client->enemyTeam != team_t::TEAM_FREE && NPC->client->enemyTeam == traceEnt->client->playerTeam) )
 			{
 				dead_on = true;
 			}
 			else
 			{
 				attack_scale *= 0.5;
-				if(NPC->client->playerTeam != TEAM_FREE)
+				if(NPC->client->playerTeam != team_t::TEAM_FREE)
 				{
-					if(traceEnt && traceEnt->client && traceEnt->client->playerTeam != TEAM_FREE)
+					if(traceEnt && traceEnt->client && traceEnt->client->playerTeam != team_t::TEAM_FREE)
 					{
 						if(NPC->client->playerTeam == traceEnt->client->playerTeam)
 						{//Don't shoot our own team
@@ -2488,7 +2488,7 @@ bool NPC_CheckCanAttack (float attack_scale, bool stationary)
 				//see if where we're going to shoot is too far from his origin
 				if(traceEnt && (traceEnt->health <= 30 || EntIsGlass(traceEnt)))
 				{//easy to kill - go for it
-					if(traceEnt->e_DieFunc == dieF_ExplodeDeath_Wait && traceEnt->splashDamage)
+					if(traceEnt->e_DieFunc == dieFunc_t::dieF_ExplodeDeath_Wait && traceEnt->splashDamage)
 					{//going to explode, don't shoot if close to self
 						VectorSubtract(NPC->currentOrigin, traceEnt->currentOrigin, diff);
 						if(VectorLengthSquared(diff) < traceEnt->splashRadius*traceEnt->splashRadius)
@@ -2533,7 +2533,7 @@ bool NPC_CheckCanAttack (float attack_scale, bool stationary)
 	{
 		if( NPC_CheckAttack( attack_scale ))
 		{//check aggression to decide if we should shoot
-			enemyVisibility = VIS_SHOOT;
+			enemyVisibility = visibility_t::VIS_SHOOT;
 			WeaponThink(true);
 		}
 		else
@@ -2558,22 +2558,22 @@ float IdealDistance ( gentity_t *self )
 	ideal = 225 - 20 * NPCInfo->stats.aggression;
 	switch ( NPC->s.weapon )
 	{
-	case WP_ROCKET_LAUNCHER:
+	case weapon_t::WP_ROCKET_LAUNCHER:
 		ideal += 200;
 		break;
 
-	case WP_CONCUSSION:
+	case weapon_t::WP_CONCUSSION:
 		ideal += 200;
 		break;
 
-	case WP_THERMAL:
+	case weapon_t::WP_THERMAL:
 		ideal += 50;
 		break;
 
-	case WP_SABER:
-	case WP_BRYAR_PISTOL:
-	case WP_BLASTER_PISTOL:
-	case WP_BLASTER:
+	case weapon_t::WP_SABER:
+	case weapon_t::WP_BRYAR_PISTOL:
+	case weapon_t::WP_BLASTER_PISTOL:
+	case weapon_t::WP_BLASTER:
 	default:
 		break;
 	}
@@ -2621,7 +2621,7 @@ void SP_point_combat( gentity_t *self )
 
 	level.numCombatPoints++;
 
-	NAV::SpawnedPoint(self, NAV::PT_COMBATNODE);
+	NAV::SpawnedPoint(self, NAV::EPointType::PT_COMBATNODE);
 
 	G_FreeEntity(self);
 };
@@ -2663,28 +2663,28 @@ static int NPC_CollectCombatPoints( const vec3_t origin, const float radius, com
 			continue;
 
 		//If we want a duck space, make sure this is one
-		if ( Any( flags & CP_DUCK ) && !Any( level.combatPoints[i].flags & CPF_DUCK ) )
+		if ( Any( flags & combatPointSearchFlags_t::CP_DUCK ) && !Any( level.combatPoints[i].flags & combatPointFlags_t::CPF_DUCK ) )
 			continue;
 
 		//If we want a flee point, make sure this is one
-		if ( Any( flags & CP_FLEE ) && !Any( level.combatPoints[i].flags & CPF_FLEE ) )
+		if ( Any( flags & combatPointSearchFlags_t::CP_FLEE ) && !Any( level.combatPoints[i].flags & combatPointFlags_t::CPF_FLEE ) )
 			continue;
 
 		//If we want a snipe point, make sure this is one
-		if ( Any( flags & CP_SNIPE ) && !Any( level.combatPoints[i].flags & CPF_SNIPE ) )
+		if ( Any( flags & combatPointSearchFlags_t::CP_SNIPE ) && !Any( level.combatPoints[i].flags & combatPointFlags_t::CPF_SNIPE ) )
 			continue;
 
 		//Skips the investigate points when one is wanted, the reverse of the comment below: kept (decided 18 November
 		//2026), since no map of the game has an investigate point and an investigating NPC would otherwise find none
 		///Make sure this is an investigate combat point
-		if ( Any( flags & CP_INVESTIGATE ) && Any( level.combatPoints[i].flags & CPF_INVESTIGATE ) )
+		if ( Any( flags & combatPointSearchFlags_t::CP_INVESTIGATE ) && Any( level.combatPoints[i].flags & combatPointFlags_t::CPF_INVESTIGATE ) )
 			continue;
 
 		//Squad points are only valid if we're looking for them
-		if ( Any( level.combatPoints[i].flags & CPF_SQUAD ) && !Any( flags & CP_SQUAD ) )
+		if ( Any( level.combatPoints[i].flags & combatPointFlags_t::CPF_SQUAD ) && !Any( flags & combatPointSearchFlags_t::CP_SQUAD ) )
 			continue;
 
-		if ( Any(flags&CP_NO_PVS) )
+		if ( Any(flags&combatPointSearchFlags_t::CP_NO_PVS) )
 		{//must not be within PVS of mu current origin
 			if ( gi.inPVS( origin, level.combatPoints[i].origin ) )
 			{
@@ -2692,7 +2692,7 @@ static int NPC_CollectCombatPoints( const vec3_t origin, const float radius, com
 			}
 		}
 
-		if ( Any(flags&CP_HORZ_DIST_COLL) )
+		if ( Any(flags&combatPointSearchFlags_t::CP_HORZ_DIST_COLL) )
 		{
 			distance = 	DistanceHorizontalSquared( origin, level.combatPoints[i].origin );
 		}
@@ -2740,7 +2740,7 @@ int NPC_FindCombatPoint( const vec3_t position, const vec3_t avoidPosition, vec3
 	float					distSqNPCToEnemyHoriz;
 	float					distSqNPCToEnemyCheck;
 	float					visRangeSq = (NPCInfo->stats.visrange*NPCInfo->stats.visrange);
-	bool					useHorizDist = (NPC->s.weapon==WP_THERMAL) || Any(flags & CP_HORZ_DIST_COLL);
+	bool					useHorizDist = (NPC->s.weapon==weapon_t::WP_THERMAL) || Any(flags & combatPointSearchFlags_t::CP_HORZ_DIST_COLL);
 
 	if (NPC->enemy)
 	{
@@ -2770,7 +2770,7 @@ int NPC_FindCombatPoint( const vec3_t position, const vec3_t avoidPosition, vec3
 
 
 	//Collect our nearest points
-	if ( Any(flags & CP_NO_PVS) || Any(flags & CP_TRYFAR))
+	if ( Any(flags & combatPointSearchFlags_t::CP_NO_PVS) || Any(flags & combatPointSearchFlags_t::CP_TRYFAR))
 	{//much larger radius since most will be dropped?
 		collRad = CP_COLLECT_RADIUS*4;
 	}
@@ -2800,31 +2800,31 @@ int NPC_FindCombatPoint( const vec3_t position, const vec3_t avoidPosition, vec3
 
 
 		//Ignore points that are farther than currently located
-		if ( Any(flags & CP_APPROACH_ENEMY) && (distSqPointToEnemyCheck > distSqNPCToEnemyCheck))
+		if ( Any(flags & combatPointSearchFlags_t::CP_APPROACH_ENEMY) && (distSqPointToEnemyCheck > distSqNPCToEnemyCheck))
 		{
 			continue;
 		}
 
 		//Ignore points that are closer than currently located
-		if ( Any(flags & CP_RETREAT) && (distSqPointToEnemyCheck < distSqNPCToEnemyCheck))
+		if ( Any(flags & combatPointSearchFlags_t::CP_RETREAT) && (distSqPointToEnemyCheck < distSqNPCToEnemyCheck))
 		{
 			continue;
 		}
 
 		//Ignore points that are out of vis range
-		if ( Any(flags & CP_CLEAR) && (distSqPointToEnemyCheck > visRangeSq))
+		if ( Any(flags & combatPointSearchFlags_t::CP_CLEAR) && (distSqPointToEnemyCheck > visRangeSq))
 		{
 			continue;
 		}
 
 		//Avoid this position?
-		if ( avoidPosition && !Any(flags & CP_AVOID_ENEMY) && Any(flags & CP_AVOID) && (DistanceSquared(level.combatPoints[i].origin, avoidPosition)<avoidDist) )
+		if ( avoidPosition && !Any(flags & combatPointSearchFlags_t::CP_AVOID_ENEMY) && Any(flags & combatPointSearchFlags_t::CP_AVOID) && (DistanceSquared(level.combatPoints[i].origin, avoidPosition)<avoidDist) )
 		{
 			continue;
 		}
 
 		//We want a point on other side of the enemy from current pos
-		if (Any(flags & CP_FLANK) )
+		if (Any(flags & combatPointSearchFlags_t::CP_FLANK) )
 		{
 			VectorSubtract( position, enemyPosition, eDir2Me );
 			VectorNormalize( eDir2Me );
@@ -2842,14 +2842,14 @@ int NPC_FindCombatPoint( const vec3_t position, const vec3_t avoidPosition, vec3
 		}
 
 		//we must have a route to the combat point
-		if ( Any(flags & CP_HAS_ROUTE) && !NAV::InSameRegion(NPC, level.combatPoints[i].origin))
+		if ( Any(flags & combatPointSearchFlags_t::CP_HAS_ROUTE) && !NAV::InSameRegion(NPC, level.combatPoints[i].origin))
 		{
 			continue;
 		}
 
 
 		//See if we're trying to avoid our enemy
-		if (Any(flags & CP_AVOID_ENEMY))
+		if (Any(flags & combatPointSearchFlags_t::CP_AVOID_ENEMY))
 		{
 			//Can't be too close to the enemy
 			if (distSqPointToEnemy<avoidDist)
@@ -2866,7 +2866,7 @@ int NPC_FindCombatPoint( const vec3_t position, const vec3_t avoidPosition, vec3
 		}
 
 		//Okay, now make sure it's not blocked
-		gi.trace( &tr, level.combatPoints[i].origin, NPC->mins, NPC->maxs, level.combatPoints[i].origin, NPC->s.number, NPC->clipmask, G2_NOCOLLIDE, 0 );
+		gi.trace( &tr, level.combatPoints[i].origin, NPC->mins, NPC->maxs, level.combatPoints[i].origin, NPC->s.number, NPC->clipmask, EG2_Collision::G2_NOCOLLIDE, 0 );
 		if ( tr.allsolid || tr.startsolid )
 		{
 			continue;
@@ -2875,9 +2875,9 @@ int NPC_FindCombatPoint( const vec3_t position, const vec3_t avoidPosition, vec3
 		if (NPC->enemy)
 		{
 			// Ignore Points That Do Not Have A Clear LOS To The Player
-			if ( Any(flags & CP_CLEAR) )
+			if ( Any(flags & combatPointSearchFlags_t::CP_CLEAR) )
 			{
-				CalcEntitySpot(NPC, SPOT_WEAPON, weaponOffset);
+				CalcEntitySpot(NPC, spot_t::SPOT_WEAPON, weaponOffset);
 				VectorSubtract(weaponOffset, NPC->currentOrigin, weaponOffset);
 				VectorAdd(weaponOffset, level.combatPoints[i].origin, weaponOffset);
 
@@ -2888,7 +2888,7 @@ int NPC_FindCombatPoint( const vec3_t position, const vec3_t avoidPosition, vec3
 			}
 
 			// Ignore points that are not behind cover
-			if ( Any(flags & CP_COVER) && NPC_ClearLOS(level.combatPoints[i].origin, NPC->enemy)==true)
+			if ( Any(flags & combatPointSearchFlags_t::CP_COVER) && NPC_ClearLOS(level.combatPoints[i].origin, NPC->enemy)==true)
 			{
 				continue;
 			}
@@ -2915,86 +2915,86 @@ int NPC_FindCombatPointRetry( const vec3_t position,
 								*cpFlags,
 								avoidDist,
 								ignorePoint );
-	while ( cp == -1 && (*cpFlags&~CP_HAS_ROUTE) != CP_ANY )
+	while ( cp == -1 && (*cpFlags&~combatPointSearchFlags_t::CP_HAS_ROUTE) != combatPointSearchFlags_t::CP_ANY )
 	{//start "OR"ing out certain flags to see if we can find *any* point
-		if ( Any( *cpFlags & CP_INVESTIGATE ) )
+		if ( Any( *cpFlags & combatPointSearchFlags_t::CP_INVESTIGATE ) )
 		{//don't need to investigate
-			*cpFlags &= ~CP_INVESTIGATE;
+			*cpFlags &= ~combatPointSearchFlags_t::CP_INVESTIGATE;
 		}
-		else if ( Any( *cpFlags & CP_SQUAD ) )
+		else if ( Any( *cpFlags & combatPointSearchFlags_t::CP_SQUAD ) )
 		{//don't need to stick to squads
-			*cpFlags &= ~CP_SQUAD;
+			*cpFlags &= ~combatPointSearchFlags_t::CP_SQUAD;
 		}
-		else if ( Any( *cpFlags & CP_DUCK ) )
+		else if ( Any( *cpFlags & combatPointSearchFlags_t::CP_DUCK ) )
 		{//don't need to duck
-			*cpFlags &= ~CP_DUCK;
+			*cpFlags &= ~combatPointSearchFlags_t::CP_DUCK;
 		}
-		else if ( Any( *cpFlags & CP_NEAREST ) )
+		else if ( Any( *cpFlags & combatPointSearchFlags_t::CP_NEAREST ) )
 		{//don't need closest one to me
-			*cpFlags &= ~CP_NEAREST;
+			*cpFlags &= ~combatPointSearchFlags_t::CP_NEAREST;
 		}
-		else if ( Any( *cpFlags & CP_FLANK ) )
+		else if ( Any( *cpFlags & combatPointSearchFlags_t::CP_FLANK ) )
 		{//don't need to flank enemy
-			*cpFlags &= ~CP_FLANK;
+			*cpFlags &= ~combatPointSearchFlags_t::CP_FLANK;
 		}
-		else if ( Any( *cpFlags & CP_SAFE ) )
+		else if ( Any( *cpFlags & combatPointSearchFlags_t::CP_SAFE ) )
 		{//don't need one that hasn't been shot at recently
-			*cpFlags &= ~CP_SAFE;
+			*cpFlags &= ~combatPointSearchFlags_t::CP_SAFE;
 		}
-		else if ( Any( *cpFlags & CP_CLOSEST ) )
+		else if ( Any( *cpFlags & combatPointSearchFlags_t::CP_CLOSEST ) )
 		{//don't need to get closest to enemy
-			*cpFlags &= ~CP_CLOSEST;
+			*cpFlags &= ~combatPointSearchFlags_t::CP_CLOSEST;
 			//but let's try to approach at least
-			*cpFlags |= CP_APPROACH_ENEMY;
+			*cpFlags |= combatPointSearchFlags_t::CP_APPROACH_ENEMY;
 		}
-		else if ( Any( *cpFlags & CP_APPROACH_ENEMY ) )
+		else if ( Any( *cpFlags & combatPointSearchFlags_t::CP_APPROACH_ENEMY ) )
 		{//don't need to approach enemy
-			*cpFlags &= ~CP_APPROACH_ENEMY;
+			*cpFlags &= ~combatPointSearchFlags_t::CP_APPROACH_ENEMY;
 		}
-		else if ( Any( *cpFlags & CP_COVER ) )
+		else if ( Any( *cpFlags & combatPointSearchFlags_t::CP_COVER ) )
 		{//don't need cover
-			*cpFlags &= ~CP_COVER;
+			*cpFlags &= ~combatPointSearchFlags_t::CP_COVER;
 			//but let's pick one that makes us duck
-			//*cpFlags |= CP_DUCK;
+			//*cpFlags |= combatPointSearchFlags_t::CP_DUCK;
 		}
-	//	else if ( Any( *cpFlags & CP_CLEAR ) )
+	//	else if ( Any( *cpFlags & combatPointSearchFlags_t::CP_CLEAR ) )
 	//	{//don't need a clear shot to enemy
-	//		*cpFlags &= ~CP_CLEAR;
+	//		*cpFlags &= ~combatPointSearchFlags_t::CP_CLEAR;
 	//	}
 	//	Never Give Up On Avoiding The Enemy
-	//	else if ( Any( *cpFlags & CP_AVOID_ENEMY ) )
+	//	else if ( Any( *cpFlags & combatPointSearchFlags_t::CP_AVOID_ENEMY ) )
 	//	{//don't need to avoid enemy
-	//		*cpFlags &= ~CP_AVOID_ENEMY;
+	//		*cpFlags &= ~combatPointSearchFlags_t::CP_AVOID_ENEMY;
 	//	}
-		else if ( Any( *cpFlags & CP_RETREAT ) )
+		else if ( Any( *cpFlags & combatPointSearchFlags_t::CP_RETREAT ) )
 		{//don't need to retreat
-			*cpFlags &= ~CP_RETREAT;
+			*cpFlags &= ~combatPointSearchFlags_t::CP_RETREAT;
 		}
-		else if ( Any( *cpFlags &CP_FLEE ) )
+		else if ( Any( *cpFlags &combatPointSearchFlags_t::CP_FLEE ) )
 		{//don't need to flee
-			*cpFlags &= ~CP_FLEE;
+			*cpFlags &= ~combatPointSearchFlags_t::CP_FLEE;
 			//but at least avoid enemy and pick one that gives cover
-			*cpFlags |= (CP_COVER|CP_AVOID_ENEMY);
+			*cpFlags |= (combatPointSearchFlags_t::CP_COVER|combatPointSearchFlags_t::CP_AVOID_ENEMY);
 		}
-		else if ( Any( *cpFlags & CP_AVOID ) )
+		else if ( Any( *cpFlags & combatPointSearchFlags_t::CP_AVOID ) )
 		{//okay, even pick one right by me
-			*cpFlags &= ~CP_AVOID;
+			*cpFlags &= ~combatPointSearchFlags_t::CP_AVOID;
 		}
-		else if ( Any( *cpFlags & CP_SHORTEST_PATH ) )
+		else if ( Any( *cpFlags & combatPointSearchFlags_t::CP_SHORTEST_PATH ) )
 		{//okay, don't need the one with the shortest path
-			*cpFlags &= ~CP_SHORTEST_PATH;
+			*cpFlags &= ~combatPointSearchFlags_t::CP_SHORTEST_PATH;
 		}
 		else
 		{//screw it, we give up!
 			return -1;
 			/*
-			if ( Any( *cpFlags & CP_HAS_ROUTE ) )
+			if ( Any( *cpFlags & combatPointSearchFlags_t::CP_HAS_ROUTE ) )
 			{//NOTE: this is really an absolute worst case scenario - will go to the first cp on the map!
-				*cpFlags &= ~CP_HAS_ROUTE;
+				*cpFlags &= ~combatPointSearchFlags_t::CP_HAS_ROUTE;
 			}
 			else
 			{//NOTE: this is really an absolute worst case scenario - will go to the first cp on the map!
-				*cpFlags = CP_ANY;
+				*cpFlags = combatPointSearchFlags_t::CP_ANY;
 			}
 			*/
 		}
@@ -3024,7 +3024,7 @@ int NPC_FindSquadPoint( vec3_t position )
 	for ( int i = 0; i < level.numCombatPoints; i++ )
 	{
 		//Squad points are only valid if we're looking for them
-		if ( !Any( level.combatPoints[i].flags & CPF_SQUAD ) )
+		if ( !Any( level.combatPoints[i].flags & combatPointFlags_t::CPF_SQUAD ) )
 			continue;
 
 		//Must be vacant
@@ -3142,15 +3142,15 @@ gentity_t *NPC_SearchForWeapons( void )
 		found=&g_entities[i];
 
 		//FIXME: Also look for ammo_racks that have weapons on them?
-		if ( found->s.eType != ET_ITEM )
+		if ( found->s.eType != entityType_t::ET_ITEM )
 		{
 			continue;
 		}
-		if ( found->item->giType != IT_WEAPON )
+		if ( found->item->giType != itemType_t::IT_WEAPON )
 		{
 			continue;
 		}
-		if ( Any( found->s.eFlags & EF_NODRAW ) )
+		if ( Any( found->s.eFlags & entityFlags_t::EF_NODRAW ) )
 		{
 			continue;
 		}
@@ -3183,8 +3183,8 @@ void NPC_SetPickUpGoal( gentity_t *foundWeap )
 	org[2] += 24 - (foundWeap->mins[2]*-1);//adjust the origin so that I am on the ground
 	NPC_SetMoveGoal( NPC, org, foundWeap->maxs[0]*0.75, false, -1, foundWeap );
 	NPCInfo->tempGoal->waypoint = foundWeap->waypoint;
-	NPCInfo->tempBehavior = BS_DEFAULT;
-	NPCInfo->squadState = SQUAD_TRANSITION;
+	NPCInfo->tempBehavior = bState_t::BS_DEFAULT;
+	NPCInfo->squadState = squadState_t::SQUAD_TRANSITION;
 }
 
 extern void Q3_TaskIDComplete( gentity_t *ent, taskID_t taskType );
@@ -3196,7 +3196,7 @@ void NPC_CheckGetNewWeapon( void )
 	{//this NPC can't pick up weapons...
 		return;
 	}
-	if ( NPC->s.weapon == WP_NONE && NPC->enemy )
+	if ( NPC->s.weapon == weapon_t::WP_NONE && NPC->enemy )
 	{//if running away because dropped weapon...
 		if ( NPCInfo->goalEntity
 			&& NPCInfo->goalEntity == NPCInfo->tempGoal
@@ -3204,7 +3204,7 @@ void NPC_CheckGetNewWeapon( void )
 			&& !NPCInfo->goalEntity->enemy->inuse )
 		{//maybe was running at a weapon that was picked up
 			NPC_ClearGoal();
-			Q3_TaskIDComplete( NPC, TID_MOVE_NAV );
+			Q3_TaskIDComplete( NPC, taskID_t::TID_MOVE_NAV );
 			//NPCInfo->goalEntity = nullptr;
 		}
 		if ( TIMER_Done( NPC, "panic" ) && NPCInfo->goalEntity == nullptr )

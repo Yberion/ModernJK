@@ -77,7 +77,7 @@ int ReadValue(source_t *source, float *value)
 		}
 	}
 
-	if (token.type != TT_NUMBER)
+	if (token.type != tokenType_t::TT_NUMBER)
 	{
 		SourceError(source, "invalid return value %s", token.string);
 		return false;
@@ -172,7 +172,7 @@ fuzzyseperator_t *ReadFuzzySeperators_r(source_t *source)
 	firstfs = nullptr;
 	lastfs = nullptr;
 	if (!PC_ExpectTokenString(source, "(")) return nullptr;
-	if (!PC_ExpectTokenType(source, TT_NUMBER, TT_INTEGER, &token)) return nullptr;
+	if (!PC_ExpectTokenType(source, tokenType_t::TT_NUMBER, TT_INTEGER, &token)) return nullptr;
 	index = token.intvalue;
 	if (!PC_ExpectTokenString(source, ")")) return nullptr;
 	if (!PC_ExpectTokenString(source, "{")) return nullptr;
@@ -200,7 +200,7 @@ fuzzyseperator_t *ReadFuzzySeperators_r(source_t *source)
 			} //end if
 			else
 			{
-				if (!PC_ExpectTokenType(source, TT_NUMBER, TT_INTEGER, &token))
+				if (!PC_ExpectTokenType(source, tokenType_t::TT_NUMBER, TT_INTEGER, &token))
 				{
 					FreeFuzzySeperators_r(firstfs);
 					return nullptr;
@@ -317,14 +317,14 @@ weightconfig_t *ReadWeightConfig(char *filename)
 			} //end if
 			if( strcmp( filename, config->filename ) == 0 )
 			{
-				//botimport.Print( PRT_MESSAGE, "retained %s\n", filename );
+				//botimport.Print( printType_t::PRT_MESSAGE, "retained %s\n", filename );
 				return config;
 			} //end if
 		} //end for
 
 		if( avail == -1 )
 		{
-			botimport.Print( PRT_ERROR, "weightFileList was full trying to load %s\n", filename );
+			botimport.Print( printType_t::PRT_ERROR, "weightFileList was full trying to load %s\n", filename );
 			return nullptr;
 		} //end if
 	} //end if
@@ -333,7 +333,7 @@ weightconfig_t *ReadWeightConfig(char *filename)
 	source = LoadSourceFile(filename);
 	if (!source)
 	{
-		botimport.Print(PRT_ERROR, "counldn't load %s\n", filename);
+		botimport.Print(printType_t::PRT_ERROR, "counldn't load %s\n", filename);
 		return nullptr;
 	} //end if
 	//
@@ -350,7 +350,7 @@ weightconfig_t *ReadWeightConfig(char *filename)
 				SourceWarning(source, "too many fuzzy weights");
 				break;
 			} //end if
-			if (!PC_ExpectTokenType(source, TT_STRING, 0, &token))
+			if (!PC_ExpectTokenType(source, tokenType_t::TT_STRING, 0, &token))
 			{
 				FreeWeightConfig(config);
 				FreeSource(source);
@@ -432,11 +432,11 @@ weightconfig_t *ReadWeightConfig(char *filename)
 	//free the source at the end of a pass
 	FreeSource(source);
 	//if the file was located in a pak file
-	botimport.Print(PRT_MESSAGE, "loaded %s\n", filename);
+	botimport.Print(printType_t::PRT_MESSAGE, "loaded %s\n", filename);
 #ifdef DEBUG
 	if (botDeveloper)
 	{
-		botimport.Print(PRT_MESSAGE, "weights loaded in %d msec\n", Sys_MilliSeconds() - starttime);
+		botimport.Print(printType_t::PRT_MESSAGE, "weights loaded in %d msec\n", Sys_MilliSeconds() - starttime);
 	} //end if
 #endif //DEBUG
 	//
@@ -851,7 +851,7 @@ int InterbreedFuzzySeperator_r(fuzzyseperator_t *fs1, fuzzyseperator_t *fs2,
 	{
 		if (!fs2->child || !fsout->child)
 		{
-			botimport.Print(PRT_ERROR, "cannot interbreed weight configs, unequal child\n");
+			botimport.Print(printType_t::PRT_ERROR, "cannot interbreed weight configs, unequal child\n");
 			return false;
 		} //end if
 		if (!InterbreedFuzzySeperator_r(fs2->child, fs2->child, fsout->child))
@@ -863,7 +863,7 @@ int InterbreedFuzzySeperator_r(fuzzyseperator_t *fs1, fuzzyseperator_t *fs2,
 	{
 		if (fs2->type != WT_BALANCE || fsout->type != WT_BALANCE)
 		{
-			botimport.Print(PRT_ERROR, "cannot interbreed weight configs, unequal balance\n");
+			botimport.Print(printType_t::PRT_ERROR, "cannot interbreed weight configs, unequal balance\n");
 			return false;
 		} //end if
 		fsout->weight = (fs1->weight + fs2->weight) / 2;
@@ -874,7 +874,7 @@ int InterbreedFuzzySeperator_r(fuzzyseperator_t *fs1, fuzzyseperator_t *fs2,
 	{
 		if (!fs2->next || !fsout->next)
 		{
-			botimport.Print(PRT_ERROR, "cannot interbreed weight configs, unequal next\n");
+			botimport.Print(printType_t::PRT_ERROR, "cannot interbreed weight configs, unequal next\n");
 			return false;
 		} //end if
 		if (!InterbreedFuzzySeperator_r(fs1->next, fs2->next, fsout->next))
@@ -899,7 +899,7 @@ void InterbreedWeightConfigs(weightconfig_t *config1, weightconfig_t *config2,
 	if (config1->numweights != config2->numweights ||
 		config1->numweights != configout->numweights)
 	{
-		botimport.Print(PRT_ERROR, "cannot interbreed weight configs, unequal numweights\n");
+		botimport.Print(printType_t::PRT_ERROR, "cannot interbreed weight configs, unequal numweights\n");
 		return;
 	} //end if
 	for (i = 0; i < config1->numweights; i++)

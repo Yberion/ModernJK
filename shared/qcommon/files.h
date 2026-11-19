@@ -46,7 +46,6 @@ enum class fsRefFlags_t
 	FS_GAME_REF		= 0x08,
 	FS_ALL_REF		= FS_GENERAL_REF | FS_UI_REF | FS_CGAME_REF | FS_GAME_REF,
 };
-using enum fsRefFlags_t;
 template <> inline constexpr bool enableEnumFlags<fsRefFlags_t> = true;
 // number of id paks that will never be autodownloaded from base
 inline constexpr int NUM_ID_PAKS = 9;

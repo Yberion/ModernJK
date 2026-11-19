@@ -38,7 +38,7 @@ static cvar_t	*sp_leet;
 
 /*enum
 {
-	SP_LANGUAGE_ENGLISH = 0,
+	spLanguage_t::SP_LANGUAGE_ENGLISH = 0,
 	SP_LANGUAGE_FRENCH,
 	SP_LANGUAGE_GERMAN,
 	SP_LANGUAGE_BRITISH,
@@ -49,7 +49,7 @@ static cvar_t	*sp_leet;
 	SP_LANGUAGE_JAPANESE,
 	SP_LANGUAGE_10,
 	SP_LANGUGAGE_MAX,
-	SP_LANGUAGE_ALL = 255
+	spLanguage_t::SP_LANGUAGE_ALL = 255
 };*/
 
 
@@ -85,7 +85,7 @@ public:
 
 	void			Register(spRegistrationFlags_t newRegistration) { Registration |= newRegistration; }
 	bool			UnRegister(spRegistrationFlags_t oldRegistration) { Registration &= ~oldRegistration; return (!Any( Registration )); }
-	bool			RegisteredOnServer(void) const { return(Any( Registration & SP_REGISTER_SERVER )); }
+	bool			RegisteredOnServer(void) const { return(Any( Registration & spRegistrationFlags_t::SP_REGISTER_SERVER )); }
 	spRegistrationFlags_t	GetRegistration(void) const { return(Registration); }
 
 	void			SetID(unsigned char newID) { ID = newID; }
@@ -170,11 +170,10 @@ enum class stripToken_t
 	TK_CONFIG,
 	TK_END
 };
-using enum stripToken_t;
 template <> inline constexpr bool enableEnumArithmetic<stripToken_t> = true;
 
 
-const EnumArray<const char *, stripToken_t, TK_END> Tokens =
+const EnumArray<const char *, stripToken_t, stripToken_t::TK_END> Tokens =
 {
 	"TEXT_LANGUAGE1",
 	"TEXT_LANGUAGE2",
@@ -212,32 +211,32 @@ const EnumArray<const char *, stripToken_t, TK_END> Tokens =
 
 sFlagPair FlagPairs[] =
 {
-	{ TK_SP_FLAG1,		SP_FLAG1 },
-	{ TK_SP_FLAG2,		SP_FLAG2 },
-	{ TK_SP_FLAG3,		SP_FLAG3 },
-	{ TK_SP_FLAG4,		SP_FLAG4 },
-	{ TK_SP_FLAG5,		SP_FLAG5 },
-	{ TK_SP_FLAG6,		SP_FLAG6 },
-	{ TK_SP_FLAG7,		SP_FLAG7 },
-	{ TK_SP_FLAG8,		SP_FLAG8 },
-	{ TK_SP_FLAG9,		SP_FLAG9 },
-	{ TK_SP_FLAG_ORIGINAL,		SP_FLAG_ORIGINAL },
-	{ TK_INVALID,				SP_FLAG_NONE }
+	{ stripToken_t::TK_SP_FLAG1,		spStringFlags_t::SP_FLAG1 },
+	{ stripToken_t::TK_SP_FLAG2,		spStringFlags_t::SP_FLAG2 },
+	{ stripToken_t::TK_SP_FLAG3,		spStringFlags_t::SP_FLAG3 },
+	{ stripToken_t::TK_SP_FLAG4,		spStringFlags_t::SP_FLAG4 },
+	{ stripToken_t::TK_SP_FLAG5,		spStringFlags_t::SP_FLAG5 },
+	{ stripToken_t::TK_SP_FLAG6,		spStringFlags_t::SP_FLAG6 },
+	{ stripToken_t::TK_SP_FLAG7,		spStringFlags_t::SP_FLAG7 },
+	{ stripToken_t::TK_SP_FLAG8,		spStringFlags_t::SP_FLAG8 },
+	{ stripToken_t::TK_SP_FLAG9,		spStringFlags_t::SP_FLAG9 },
+	{ stripToken_t::TK_SP_FLAG_ORIGINAL,		spStringFlags_t::SP_FLAG_ORIGINAL },
+	{ stripToken_t::TK_INVALID,				spStringFlags_t::SP_FLAG_NONE }
 };
 
 sLanguagePair LanguagePairs[] =
 {
-	{ TK_TEXT_LANGUAGE1,	SP_LANGUAGE_ENGLISH },
-	{ TK_TEXT_LANGUAGE2,	SP_LANGUAGE_FRENCH },
-	{ TK_TEXT_LANGUAGE3,	SP_LANGUAGE_GERMAN },
-	{ TK_TEXT_LANGUAGE4,	SP_LANGUAGE_BRITISH },
-	{ TK_TEXT_LANGUAGE5,	SP_LANGUAGE_KOREAN },
-	{ TK_TEXT_LANGUAGE6,	SP_LANGUAGE_TAIWANESE },
-	{ TK_TEXT_LANGUAGE7,	SP_LANGUAGE_ITALIAN },
-	{ TK_TEXT_LANGUAGE8,	SP_LANGUAGE_SPANISH },
-	{ TK_TEXT_LANGUAGE9,	SP_LANGUAGE_JAPANESE },
-	{ TK_TEXT_LANGUAGE10,	SP_LANGUAGE_10},
-	{ TK_INVALID,		SP_LANGUAGE_ENGLISH }
+	{ stripToken_t::TK_TEXT_LANGUAGE1,	spLanguage_t::SP_LANGUAGE_ENGLISH },
+	{ stripToken_t::TK_TEXT_LANGUAGE2,	spLanguage_t::SP_LANGUAGE_FRENCH },
+	{ stripToken_t::TK_TEXT_LANGUAGE3,	spLanguage_t::SP_LANGUAGE_GERMAN },
+	{ stripToken_t::TK_TEXT_LANGUAGE4,	spLanguage_t::SP_LANGUAGE_BRITISH },
+	{ stripToken_t::TK_TEXT_LANGUAGE5,	spLanguage_t::SP_LANGUAGE_KOREAN },
+	{ stripToken_t::TK_TEXT_LANGUAGE6,	spLanguage_t::SP_LANGUAGE_TAIWANESE },
+	{ stripToken_t::TK_TEXT_LANGUAGE7,	spLanguage_t::SP_LANGUAGE_ITALIAN },
+	{ stripToken_t::TK_TEXT_LANGUAGE8,	spLanguage_t::SP_LANGUAGE_SPANISH },
+	{ stripToken_t::TK_TEXT_LANGUAGE9,	spLanguage_t::SP_LANGUAGE_JAPANESE },
+	{ stripToken_t::TK_TEXT_LANGUAGE10,	spLanguage_t::SP_LANGUAGE_10},
+	{ stripToken_t::TK_INVALID,		spLanguage_t::SP_LANGUAGE_ENGLISH }
 };
 
 /************************************************************************************************
@@ -256,7 +255,7 @@ stripToken_t FindToken(char *token, bool whole)
 	stripToken_t token_value;
 	int	i;
 
-	for(token_value = TK_TEXT_LANGUAGE1; token_value != TK_END; token_value++)
+	for(token_value = stripToken_t::TK_TEXT_LANGUAGE1; token_value != stripToken_t::TK_END; token_value++)
 	{
 		if (whole)
 		{
@@ -281,7 +280,7 @@ stripToken_t FindToken(char *token, bool whole)
 		}
 	}
 
-	return TK_INVALID;
+	return stripToken_t::TK_INVALID;
 }
 
 /************************************************************************************************
@@ -332,7 +331,7 @@ void GetLine(char *&Data, int &Size, stripToken_t &token, char *&data)
 	char			*test_token, *pos;
 
 	save_data[0] = 0;
-	token = TK_INVALID;
+	token = stripToken_t::TK_INVALID;
 	data = save_data;
 
 	if (!ReadData(Data, Size, temp_data, sizeof(temp_data)))
@@ -448,7 +447,7 @@ cStrings::~cStrings(void)
  ************************************************************************************************/
 void cStrings::Clear(void)
 {
-	Flags = SP_FLAG_NONE;
+	Flags = spStringFlags_t::SP_FLAG_NONE;
 
 	if (Reference)
 	{
@@ -494,11 +493,11 @@ bool cStrings::UnderstandToken(stripToken_t token, char *data )
 
 	switch(token)
 	{
-		case TK_FLAGS:
-			while(token != TK_INVALID)
+		case stripToken_t::TK_FLAGS:
+			while(token != stripToken_t::TK_INVALID)
 			{
 				token = FindToken(data, false);
-				for(FlagPair = FlagPairs; FlagPair->Name != TK_INVALID; FlagPair++)
+				for(FlagPair = FlagPairs; FlagPair->Name != stripToken_t::TK_INVALID; FlagPair++)
 				{
 					if (FlagPair->Name == token)
 					{
@@ -509,18 +508,18 @@ bool cStrings::UnderstandToken(stripToken_t token, char *data )
 			}
 			return true;
 
-		case TK_REFERENCE:
+		case stripToken_t::TK_REFERENCE:
 			SetReference(data);
 			return true;
 
-		case TK_RIGHT_BRACE:
+		case stripToken_t::TK_RIGHT_BRACE:
 			return false;
 
 		default:
 			break;
 	}
 
-	if (token == TK_INVALID)
+	if (token == stripToken_t::TK_INVALID)
 	{
 		return false;
 	}
@@ -549,7 +548,7 @@ bool cStrings::Load(char *&Data, int &Size )
 	Clear();
 
 	GetLine(Data, Size, token, data);
-	if (token != TK_LEFT_BRACE)
+	if (token != stripToken_t::TK_LEFT_BRACE)
 	{
 		return false;
 	}
@@ -560,7 +559,7 @@ bool cStrings::Load(char *&Data, int &Size )
 		GetLine(Data, Size, token, data);
 	}
 
-	if (token != TK_RIGHT_BRACE)
+	if (token != stripToken_t::TK_RIGHT_BRACE)
 	{
 		return false;
 	}
@@ -719,14 +718,14 @@ bool cStringsSingle::UnderstandToken(stripToken_t token, char *data )
 //	switch(token)
 //	{
 //		default:
-			for(LanguagePair = LanguagePairs; LanguagePair->Name != TK_INVALID; LanguagePair++)
+			for(LanguagePair = LanguagePairs; LanguagePair->Name != stripToken_t::TK_INVALID; LanguagePair++)
 			{
-				if (LanguagePair->Name == TK_TEXT_LANGUAGE1 && token == TK_TEXT_LANGUAGE1 && !Text)
+				if (LanguagePair->Name == stripToken_t::TK_TEXT_LANGUAGE1 && token == stripToken_t::TK_TEXT_LANGUAGE1 && !Text)
 				{	// default to english in case there is no foreign
-					if (LanguagePair->Name == TK_TEXT_LANGUAGE1 ||
-						LanguagePair->Name == TK_TEXT_LANGUAGE2 ||
-						LanguagePair->Name == TK_TEXT_LANGUAGE3 ||
-						LanguagePair->Name == TK_TEXT_LANGUAGE8
+					if (LanguagePair->Name == stripToken_t::TK_TEXT_LANGUAGE1 ||
+						LanguagePair->Name == stripToken_t::TK_TEXT_LANGUAGE2 ||
+						LanguagePair->Name == stripToken_t::TK_TEXT_LANGUAGE3 ||
+						LanguagePair->Name == stripToken_t::TK_TEXT_LANGUAGE8
 						)
 					{
 						FixIllegalChars(data);
@@ -736,10 +735,10 @@ bool cStringsSingle::UnderstandToken(stripToken_t token, char *data )
 				}
 				else if (LanguagePair->Name == token && LanguagePair->Language == static_cast<spLanguage_t>( sp_language->integer ))
 				{
-					if (LanguagePair->Name == TK_TEXT_LANGUAGE1 ||
-						LanguagePair->Name == TK_TEXT_LANGUAGE2 ||
-						LanguagePair->Name == TK_TEXT_LANGUAGE3 ||
-						LanguagePair->Name == TK_TEXT_LANGUAGE8
+					if (LanguagePair->Name == stripToken_t::TK_TEXT_LANGUAGE1 ||
+						LanguagePair->Name == stripToken_t::TK_TEXT_LANGUAGE2 ||
+						LanguagePair->Name == stripToken_t::TK_TEXT_LANGUAGE3 ||
+						LanguagePair->Name == stripToken_t::TK_TEXT_LANGUAGE8
 						)
 					{
 						FixIllegalChars(data);
@@ -758,7 +757,7 @@ bool cStringsSingle::UnderstandToken(stripToken_t token, char *data )
 cStringPackage::cStringPackage(const char *in, unsigned char initID, char *initDescription, char *initReference)
 {
 	ID = initID;
-	Registration = SP_REGISTER_NONE;
+	Registration = spRegistrationFlags_t::SP_REGISTER_NONE;
 	name = in;
 	Reference = nullptr;
 
@@ -796,14 +795,14 @@ bool cStringPackage::UnderstandToken(char *&Data, int &Size, stripToken_t token,
 {
 	switch(token)
 	{
-		case TK_ID:
+		case stripToken_t::TK_ID:
 			ID = (unsigned char)atol(data);
 			return true;
 
-		case TK_CONFIG:
+		case stripToken_t::TK_CONFIG:
 			return true;
 
-		case TK_REFERENCE:
+		case stripToken_t::TK_REFERENCE:
 			SetReference(data);
 			return true;
 
@@ -811,7 +810,7 @@ bool cStringPackage::UnderstandToken(char *&Data, int &Size, stripToken_t token,
 			break;
 	}
 
-	if (token == TK_INVALID)
+	if (token == stripToken_t::TK_INVALID)
 	{
 		return false;
 	}
@@ -855,7 +854,7 @@ bool cStringPackage::Load(char *Data, int &Size )
 	stripToken_t	token;
 
 	GetLine(Data, Size, token, token_data);
-	if (token != TK_VERSION || atol(token_data) != STRIP_VERSION)
+	if (token != stripToken_t::TK_VERSION || atol(token_data) != STRIP_VERSION)
 	{
 		return false;
 	}
@@ -931,13 +930,13 @@ bool cStringPackageSingle::UnderstandToken(char *&Data, int &Size, stripToken_t 
 
 	switch(token)
 	{
-		case TK_COUNT:
+		case stripToken_t::TK_COUNT:
 			count = atol(data);
 
 			for(i=0;i<count;i++)
 			{
 				GetLine(Data, Size, token, data);
-				if (token != TK_INDEX)
+				if (token != stripToken_t::TK_INDEX)
 				{
 					return false;
 				}
@@ -1002,9 +1001,9 @@ bool JK2SP_Register(const char *inPackage, spRegistrationFlags_t Registration)
 		size = FS_ReadFile(va("strip/%s.sp", Package), (void **)&buffer);
 		if (size == -1)
 		{
-			if ( Any( Registration & SP_REGISTER_REQUIRED ) )
+			if ( Any( Registration & spRegistrationFlags_t::SP_REGISTER_REQUIRED ) )
 			{
-				Com_Error(ERR_FATAL, "Could not open string package '%s'", Package);
+				Com_Error(errorParm_t::ERR_FATAL, "Could not open string package '%s'", Package);
 			}
 			return false;
 		}
@@ -1014,7 +1013,7 @@ bool JK2SP_Register(const char *inPackage, spRegistrationFlags_t Registration)
 		new_sp->Load(buffer, size );
 		FS_FreeFile(buffer);
 
-		if (Any( Registration & SP_REGISTER_CLIENT ))
+		if (Any( Registration & spRegistrationFlags_t::SP_REGISTER_CLIENT ))
 		{
 			Com_DPrintf(S_COLOR_YELLOW "JK2SP_Register: Registered client string package '%s' with ID %02x\n", Package, (int)new_sp->GetID());
 		}
@@ -1103,7 +1102,7 @@ cStringsSingle *JK2SP_GetString(unsigned short ID)
 	i = JK2SP_ListByID.find(SP_GET_PACKAGE(ID));
 	if (i == JK2SP_ListByID.end())
 	{
-		Com_Error(ERR_DROP, "String package not registered for ID %04x", ID);
+		Com_Error(errorParm_t::ERR_DROP, "String package not registered for ID %04x", ID);
 		return nullptr;
 	}
 
@@ -1112,7 +1111,7 @@ cStringsSingle *JK2SP_GetString(unsigned short ID)
 
 	if (!string)
 	{
-		Com_Error(ERR_DROP, "String ID %04x not defined\n", ID);
+		Com_Error(errorParm_t::ERR_DROP, "String ID %04x not defined\n", ID);
 	}
 	return string;
 }
@@ -1207,7 +1206,7 @@ static void JK2SP_UpdateLanguage(void)
 		sps.push_back(cStringPackageID((*it).second->GetName(), (*it).second->GetRegistration()));
 	}
 	// Clear out all pointers
-	JK2SP_Unload(SP_REGISTER_CLIENT | SP_REGISTER_SERVER | SP_REGISTER_MENU | SP_REGISTER_REQUIRED);
+	JK2SP_Unload(spRegistrationFlags_t::SP_REGISTER_CLIENT | spRegistrationFlags_t::SP_REGISTER_SERVER | spRegistrationFlags_t::SP_REGISTER_MENU | spRegistrationFlags_t::SP_REGISTER_REQUIRED);
 
 	// Reinitialise with new language
 	for(spit = sps.begin(); spit != sps.end(); ++spit)
@@ -1219,16 +1218,16 @@ static void JK2SP_UpdateLanguage(void)
 
 void JK2SP_Init(void)
 {
-	sp_language = Cvar_Get("sp_language", va("%d", to_underlying( SP_LANGUAGE_ENGLISH )), CVAR_ARCHIVE | CVAR_NORESTART);
-	sp_show_strip = Cvar_Get ("sp_show_strip", "0", CVAR_NONE);		// don't switch this on!!!!!!, test only (apparently)
-	sp_leet = Cvar_Get ("sp_leet", "0", CVAR_ROM);		// do NOT leave this on in final product!!!!  (only works when == 42 anyway ;-)
+	sp_language = Cvar_Get("sp_language", va("%d", to_underlying( spLanguage_t::SP_LANGUAGE_ENGLISH )), cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_NORESTART);
+	sp_show_strip = Cvar_Get ("sp_show_strip", "0", cvarFlags_t::CVAR_NONE);		// don't switch this on!!!!!!, test only (apparently)
+	sp_leet = Cvar_Get ("sp_leet", "0", cvarFlags_t::CVAR_ROM);		// do NOT leave this on in final product!!!!  (only works when == 42 anyway ;-)
 
-//	Cvar_Set("sp_language", va("%d", SP_LANGUAGE_JAPANESE));	// stetest, do NOT leave in
+//	Cvar_Set("sp_language", va("%d", spLanguage_t::SP_LANGUAGE_JAPANESE));	// stetest, do NOT leave in
 
 	JK2SP_UpdateLanguage();
 	sp_language->modified = false;
 
-	JK2SP_Register("con_text", SP_REGISTER_REQUIRED);	//reference is CON_TEXT
+	JK2SP_Register("con_text", spRegistrationFlags_t::SP_REGISTER_REQUIRED);	//reference is CON_TEXT
 }
 
 // called in Com_Frame, so don't take up any time! (can also be called during dedicated)

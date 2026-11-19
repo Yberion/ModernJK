@@ -138,22 +138,22 @@ void CG_ClientList_f( void )
 
 		switch( ci->team )
 		{
-		case TEAM_FREE:
+		case team_t::TEAM_FREE:
 			Com_Printf( "%2d " S_COLOR_YELLOW "F   " S_COLOR_WHITE "%s" S_COLOR_WHITE "%s\n", i, ci->name, (ci->botSkill != -1) ? " (bot)" : "" );
 			break;
 
-		case TEAM_RED:
+		case team_t::TEAM_RED:
 			Com_Printf( "%2d " S_COLOR_RED "R   " S_COLOR_WHITE "%s" S_COLOR_WHITE "%s\n", i,
 				ci->name, (ci->botSkill != -1) ? " (bot)" : "" );
 			break;
 
-		case TEAM_BLUE:
+		case team_t::TEAM_BLUE:
 			Com_Printf( "%2d " S_COLOR_BLUE "B   " S_COLOR_WHITE "%s" S_COLOR_WHITE "%s\n", i,
 				ci->name, (ci->botSkill != -1) ? " (bot)" : "" );
 			break;
 
 		default:
-		case TEAM_SPECTATOR:
+		case team_t::TEAM_SPECTATOR:
 			Com_Printf( "%2d " S_COLOR_YELLOW "S   " S_COLOR_WHITE "%s" S_COLOR_WHITE "%s\n", i, ci->name, (ci->botSkill != -1) ? " (bot)" : "" );
 			break;
 		}
@@ -224,7 +224,7 @@ static void CG_SiegeBriefing_f(void)
 {
 	team_t team;
 
-	if (cgs.gametype != GT_SIEGE)
+	if (cgs.gametype != gametype_t::GT_SIEGE)
 	{ //Cannot be displayed unless in this gametype
 		return;
 	}
@@ -244,7 +244,7 @@ static void CG_SiegeCvarUpdate_f(void)
 {
 	team_t team;
 
-	if (cgs.gametype != GT_SIEGE)
+	if (cgs.gametype != gametype_t::GT_SIEGE)
 	{ //Cannot be displayed unless in this gametype
 		return;
 	}
@@ -262,7 +262,7 @@ static void CG_SiegeCvarUpdate_f(void)
 
 static void CG_SiegeCompleteCvarUpdate_f(void)
 {
-	if (cgs.gametype != GT_SIEGE)
+	if (cgs.gametype != gametype_t::GT_SIEGE)
 	{ //Cannot be displayed unless in this gametype
 		return;
 	}

@@ -75,7 +75,6 @@ enum class fxSpawnFlags_t
 
 	FX_SND_LESS_ATTENUATION	= 0x20000	// attenuate sounds less
 };
-using enum fxSpawnFlags_t;
 template <> inline constexpr bool enableEnumFlags<fxSpawnFlags_t> = true;
 
 //-----------------------------------------------------------------
@@ -166,7 +165,6 @@ enum class EPrimType
 	CameraShake,
 	ScreenFlash
 };
-using enum EPrimType;
 
 
 //-----------------------------------------------------------------

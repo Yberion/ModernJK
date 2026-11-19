@@ -67,7 +67,7 @@ void QDECL AAS_Error(const char *fmt, ...)
 	va_start(arglist, fmt);
 	Q_vsnprintf(str, sizeof(str), fmt, arglist);
 	va_end(arglist);
-	botimport.Print(PRT_FATAL, "%s", str);
+	botimport.Print(printType_t::PRT_FATAL, "%s", str);
 } //end of the function AAS_Error
 //===========================================================================
 //
@@ -98,7 +98,7 @@ int AAS_Initialized(void)
 void AAS_SetInitialized(void)
 {
 	aasworld.initialized = true;
-	botimport.Print(PRT_MESSAGE, "AAS initialized.\n");
+	botimport.Print(printType_t::PRT_MESSAGE, "AAS initialized.\n");
 #ifdef DEBUG
 	//create all the routing cache
 	//AAS_CreateAllRoutingCache();
@@ -131,11 +131,11 @@ void AAS_ContinueInit(float time)
 		//save the AAS file
 		if (AAS_WriteAASFile(aasworld.filename))
 		{
-			botimport.Print(PRT_MESSAGE, "%s written successfully\n", aasworld.filename);
+			botimport.Print(printType_t::PRT_MESSAGE, "%s written successfully\n", aasworld.filename);
 		} //end if
 		else
 		{
-			botimport.Print(PRT_ERROR, "couldn't write %s\n", aasworld.filename);
+			botimport.Print(printType_t::PRT_ERROR, "couldn't write %s\n", aasworld.filename);
 		} //end else
 	} //end if
 	//initialize the routing
@@ -188,7 +188,7 @@ botlibError_t AAS_StartFrame(float time)
 	} //end if
 	//
 	aasworld.numframes++;
-	return BLERR_NOERROR;
+	return botlibError_t::BLERR_NOERROR;
 } //end of the function AAS_StartFrame
 //===========================================================================
 //
@@ -239,12 +239,12 @@ botlibError_t AAS_LoadFiles(const char *mapname)
 	//load the aas file
 	Com_sprintf(aasfile, MAX_PATH, "maps/%s.aas", mapname);
 	errnum = AAS_LoadAASFile(aasfile);
-	if (errnum != BLERR_NOERROR)
+	if (errnum != botlibError_t::BLERR_NOERROR)
 		return errnum;
 
-	botimport.Print(PRT_MESSAGE, "loaded %s\n", aasfile);
+	botimport.Print(printType_t::PRT_MESSAGE, "loaded %s\n", aasfile);
 	strncpy(aasworld.filename, aasfile, MAX_PATH);
-	return BLERR_NOERROR;
+	return botlibError_t::BLERR_NOERROR;
 } //end of the function AAS_LoadFiles
 //===========================================================================
 // called everytime a map changes
@@ -260,7 +260,7 @@ botlibError_t AAS_LoadMap(const char *mapname)
 	//if no mapname is provided then the string indexes are updated
 	if (!mapname)
 	{
-		return BLERR_NOERROR;
+		return botlibError_t::BLERR_NOERROR;
 	} //end if
 	//
 	aasworld.initialized = false;
@@ -270,7 +270,7 @@ botlibError_t AAS_LoadMap(const char *mapname)
 	AAS_FreeRoutingCaches();
 	//load the map
 	errnum = AAS_LoadFiles(mapname);
-	if (errnum != BLERR_NOERROR)
+	if (errnum != botlibError_t::BLERR_NOERROR)
 	{
 		aasworld.loaded = false;
 		return errnum;
@@ -286,7 +286,7 @@ botlibError_t AAS_LoadMap(const char *mapname)
 	//initialize the alternative routing
 	AAS_InitAlternativeRouting();
 	//everything went ok
-	return BLERR_NOERROR;
+	return botlibError_t::BLERR_NOERROR;
 } //end of the function AAS_LoadMap
 //===========================================================================
 // called when the library is first loaded
@@ -310,7 +310,7 @@ botlibError_t AAS_Setup(void)
 	//LibVarSet("forceclustering", "1");			//force clustering calculation
 	//LibVarSet("forcereachability", "1");		//force reachability calculation
 	aasworld.numframes = 0;
-	return BLERR_NOERROR;
+	return botlibError_t::BLERR_NOERROR;
 } //end of the function AAS_Setup
 //===========================================================================
 //
@@ -340,5 +340,5 @@ void AAS_Shutdown(void)
 	//NOTE: as soon as a new .bsp file is loaded the .bsp file memory is
 	// freed and reallocated, so there's no need to free that memory here
 	//print shutdown
-//	botimport.Print(PRT_MESSAGE, "AAS shutdown.\n");
+//	botimport.Print(printType_t::PRT_MESSAGE, "AAS shutdown.\n");
 } //end of the function AAS_Shutdown

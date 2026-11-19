@@ -636,28 +636,28 @@ int ICARUS_Instance::Load( void )
 	//Versions must match!
 	if ( version != ICARUS_VERSION )
 	{
-		m_interface->I_DPrintf( WL_ERROR, "save game data contains outdated ICARUS version information!\n");
+		m_interface->I_DPrintf( WL_e::WL_ERROR, "save game data contains outdated ICARUS version information!\n");
 		return false;
 	}
 
 	//Load all signals
 	if ( LoadSignals() == false )
 	{
-		m_interface->I_DPrintf( WL_ERROR, "failed to load signals from save game!\n");
+		m_interface->I_DPrintf( WL_e::WL_ERROR, "failed to load signals from save game!\n");
 		return false;
 	}
 
 	//Load in all sequences
 	if ( LoadSequences() == false )
 	{
-		m_interface->I_DPrintf( WL_ERROR, "failed to load sequences from save game!\n");
+		m_interface->I_DPrintf( WL_e::WL_ERROR, "failed to load sequences from save game!\n");
 		return false;
 	}
 
 	//Load in all sequencers
 	if ( LoadSequencers() == false )
 	{
-		m_interface->I_DPrintf( WL_ERROR, "failed to load sequencers from save game!\n");
+		m_interface->I_DPrintf( WL_e::WL_ERROR, "failed to load sequencers from save game!\n");
 		return false;
 	}
 

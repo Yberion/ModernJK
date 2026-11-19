@@ -66,14 +66,14 @@ void DeathmatchScoreboardMessage( gentity_t *ent ) {
 	}
 
 	// estimate prefix length to avoid oversize of final string
-	prefix = Com_sprintf( entry, sizeof(entry), "scores %i %i %i", level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE], level.numConnectedClients );
+	prefix = Com_sprintf( entry, sizeof(entry), "scores %i %i %i", level.teamScores[team_t::TEAM_RED], level.teamScores[team_t::TEAM_BLUE], level.numConnectedClients );
 
 	for (i=0 ; i < numSorted ; i++) {
 		int		ping;
 
 		cl = &level.clients[level.sortedClients[i]];
 
-		if ( cl->pers.connected == CON_CONNECTING ) {
+		if ( cl->pers.connected == clientConnected_t::CON_CONNECTING ) {
 			ping = -1;
 		} else {
 			ping = cl->ps.ping < 999 ? cl->ps.ping : 999;
@@ -85,19 +85,19 @@ void DeathmatchScoreboardMessage( gentity_t *ent ) {
 		else {
 			accuracy = 0;
 		}
-		perfect = ( cl->ps.persistant[PERS_RANK] == 0 && cl->ps.persistant[PERS_KILLED] == 0 ) ? 1 : 0;
+		perfect = ( cl->ps.persistant[persEnum_t::PERS_RANK] == 0 && cl->ps.persistant[persEnum_t::PERS_KILLED] == 0 ) ? 1 : 0;
 
 		j = Com_sprintf (entry, sizeof(entry),
 			" %i %i %i %i %i %i %i %i %i %i %i %i %i %i", level.sortedClients[i],
-			cl->ps.persistant[PERS_SCORE], ping, (level.time - cl->pers.enterTime)/60000,
+			cl->ps.persistant[persEnum_t::PERS_SCORE], ping, (level.time - cl->pers.enterTime)/60000,
 			scoreFlags, g_entities[level.sortedClients[i]].s.powerups, accuracy,
-			cl->ps.persistant[PERS_IMPRESSIVE_COUNT],
-			cl->ps.persistant[PERS_EXCELLENT_COUNT],
-			cl->ps.persistant[PERS_GAUNTLET_FRAG_COUNT],
-			cl->ps.persistant[PERS_DEFEND_COUNT],
-			cl->ps.persistant[PERS_ASSIST_COUNT],
+			cl->ps.persistant[persEnum_t::PERS_IMPRESSIVE_COUNT],
+			cl->ps.persistant[persEnum_t::PERS_EXCELLENT_COUNT],
+			cl->ps.persistant[persEnum_t::PERS_GAUNTLET_FRAG_COUNT],
+			cl->ps.persistant[persEnum_t::PERS_DEFEND_COUNT],
+			cl->ps.persistant[persEnum_t::PERS_ASSIST_COUNT],
 			perfect,
-			cl->ps.persistant[PERS_CAPTURES]);
+			cl->ps.persistant[persEnum_t::PERS_CAPTURES]);
 
 		if (stringlength + j + prefix >= std::ssize(string))
 			break;
@@ -107,7 +107,7 @@ void DeathmatchScoreboardMessage( gentity_t *ent ) {
 	}
 
 	trap->SendServerCommand( ent-g_entities, va("scores %i %i %i%s", level.numConnectedClients,
-		level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE],
+		level.teamScores[team_t::TEAM_RED], level.teamScores[team_t::TEAM_BLUE],
 		string ) );
 }
 
@@ -194,9 +194,9 @@ int ClientNumberFromString( gentity_t *to, const char *s, bool allowconnecting )
 		if ( idnum >= 0 && idnum < level.maxclients )
 		{
 			cl = &level.clients[idnum];
-			if ( cl->pers.connected == CON_CONNECTED )
+			if ( cl->pers.connected == clientConnected_t::CON_CONNECTED )
 				return idnum;
-			else if ( allowconnecting && cl->pers.connected == CON_CONNECTING )
+			else if ( allowconnecting && cl->pers.connected == clientConnected_t::CON_CONNECTING )
 				return idnum;
 		}
 	}
@@ -206,8 +206,8 @@ int ClientNumberFromString( gentity_t *to, const char *s, bool allowconnecting )
 
 	for ( idnum=0,cl=level.clients; idnum < level.maxclients; idnum++,cl++ )
 	{// check for a name match
-		if ( cl->pers.connected != CON_CONNECTED )
-			if ( !allowconnecting || cl->pers.connected < CON_CONNECTING )
+		if ( cl->pers.connected != clientConnected_t::CON_CONNECTED )
+			if ( !allowconnecting || cl->pers.connected < clientConnected_t::CON_CONNECTING )
 				continue;
 
 		if ( !Q_stricmp( cl->pers.netname_nocolor, cleanInput ) )
@@ -237,20 +237,20 @@ void G_Give( gentity_t *ent, const char *name, const char *args, int argc )
 
 	if ( give_all )
 	{
-		for ( holdable_t h = HI_NONE; h < HI_NUM_HOLDABLE; h++ )
-			ent->client->ps.stats[STAT_HOLDABLE_ITEMS] |= Bit( h );
+		for ( holdable_t h = holdable_t::HI_NONE; h < holdable_t::HI_NUM_HOLDABLE; h++ )
+			ent->client->ps.stats[statIndex_t::STAT_HOLDABLE_ITEMS] |= Bit( h );
 	}
 
 	if ( give_all || !Q_stricmp( name, "health") )
 	{
 		if ( argc == 3 )
-			ent->health = Com_Clampi( 1, ent->client->ps.stats[STAT_MAX_HEALTH], atoi( args ) );
+			ent->health = Com_Clampi( 1, ent->client->ps.stats[statIndex_t::STAT_MAX_HEALTH], atoi( args ) );
 		else
 		{
-			if ( level.gametype == GT_SIEGE && ent->client->siegeClass != -1 )
+			if ( level.gametype == gametype_t::GT_SIEGE && ent->client->siegeClass != -1 )
 				ent->health = bgSiegeClasses[ent->client->siegeClass].maxhealth;
 			else
-				ent->health = ent->client->ps.stats[STAT_MAX_HEALTH];
+				ent->health = ent->client->ps.stats[statIndex_t::STAT_MAX_HEALTH];
 		}
 		if ( !give_all )
 			return;
@@ -259,13 +259,13 @@ void G_Give( gentity_t *ent, const char *name, const char *args, int argc )
 	if ( give_all || !Q_stricmp( name, "armor" ) || !Q_stricmp( name, "shield" ) )
 	{
 		if ( argc == 3 )
-			ent->client->ps.stats[STAT_ARMOR] = Com_Clampi( 0, ent->client->ps.stats[STAT_MAX_HEALTH], atoi( args ) );
+			ent->client->ps.stats[statIndex_t::STAT_ARMOR] = Com_Clampi( 0, ent->client->ps.stats[statIndex_t::STAT_MAX_HEALTH], atoi( args ) );
 		else
 		{
-			if ( level.gametype == GT_SIEGE && ent->client->siegeClass != -1 )
-				ent->client->ps.stats[STAT_ARMOR] = bgSiegeClasses[ent->client->siegeClass].maxarmor;
+			if ( level.gametype == gametype_t::GT_SIEGE && ent->client->siegeClass != -1 )
+				ent->client->ps.stats[statIndex_t::STAT_ARMOR] = bgSiegeClasses[ent->client->siegeClass].maxarmor;
 			else
-				ent->client->ps.stats[STAT_ARMOR] = ent->client->ps.stats[STAT_MAX_HEALTH];
+				ent->client->ps.stats[statIndex_t::STAT_ARMOR] = ent->client->ps.stats[statIndex_t::STAT_MAX_HEALTH];
 		}
 
 		if ( !give_all )
@@ -285,14 +285,14 @@ void G_Give( gentity_t *ent, const char *name, const char *args, int argc )
 
 	if ( give_all || !Q_stricmp( name, "weapons" ) )
 	{
-		ent->client->ps.stats[STAT_WEAPONS] = Bit( LAST_USEABLE_WEAPON + 1 ) - Bit( WP_NONE );
+		ent->client->ps.stats[statIndex_t::STAT_WEAPONS] = Bit( LAST_USEABLE_WEAPON + 1 ) - Bit( weapon_t::WP_NONE );
 		if ( !give_all )
 			return;
 	}
 
 	if ( !give_all && !Q_stricmp( name, "weaponnum" ) )
 	{
-		ent->client->ps.stats[STAT_WEAPONS] |= (1 << atoi( args ));
+		ent->client->ps.stats[statIndex_t::STAT_WEAPONS] |= (1 << atoi( args ));
 		return;
 	}
 
@@ -301,30 +301,30 @@ void G_Give( gentity_t *ent, const char *name, const char *args, int argc )
 		int num = 999;
 		if ( argc == 3 )
 			num = Com_Clampi( 0, 999, atoi( args ) );
-		for ( ammo_t a=AMMO_BLASTER; a<AMMO_MAX; a++ )
+		for ( ammo_t a=ammo_t::AMMO_BLASTER; a<ammo_t::AMMO_MAX; a++ )
 			ent->client->ps.ammo[a] = num;
 		if ( !give_all )
 			return;
 	}
 
 	if ( !Q_stricmp( name, "excellent" ) ) {
-		ent->client->ps.persistant[PERS_EXCELLENT_COUNT]++;
+		ent->client->ps.persistant[persEnum_t::PERS_EXCELLENT_COUNT]++;
 		return;
 	}
 	if ( !Q_stricmp( name, "impressive" ) ) {
-		ent->client->ps.persistant[PERS_IMPRESSIVE_COUNT]++;
+		ent->client->ps.persistant[persEnum_t::PERS_IMPRESSIVE_COUNT]++;
 		return;
 	}
 	if ( !Q_stricmp( name, "gauntletaward" ) ) {
-		ent->client->ps.persistant[PERS_GAUNTLET_FRAG_COUNT]++;
+		ent->client->ps.persistant[persEnum_t::PERS_GAUNTLET_FRAG_COUNT]++;
 		return;
 	}
 	if ( !Q_stricmp( name, "defend" ) ) {
-		ent->client->ps.persistant[PERS_DEFEND_COUNT]++;
+		ent->client->ps.persistant[persEnum_t::PERS_DEFEND_COUNT]++;
 		return;
 	}
 	if ( !Q_stricmp( name, "assist" ) ) {
-		ent->client->ps.persistant[PERS_ASSIST_COUNT]++;
+		ent->client->ps.persistant[persEnum_t::PERS_ASSIST_COUNT]++;
 		return;
 	}
 
@@ -381,7 +381,7 @@ void Cmd_GiveOther_f( gentity_t *ent )
 		return;
 	}
 
-	if ( (otherEnt->health <= 0 || otherEnt->client->tempSpectate >= level.time || otherEnt->client->sess.sessionTeam == TEAM_SPECTATOR) )
+	if ( (otherEnt->health <= 0 || otherEnt->client->tempSpectate >= level.time || otherEnt->client->sess.sessionTeam == team_t::TEAM_SPECTATOR) )
 	{
 		// Intentionally displaying for the command user
 		trap->SendServerCommand( ent-g_entities, va( "print \"%s\n\"", G_GetStringEdString( "MP_SVGAME", "MUSTBEALIVE" ) ) );
@@ -405,8 +405,8 @@ argv(0) god
 void Cmd_God_f( gentity_t *ent ) {
 	const char *msg = nullptr;
 
-	ent->flags ^= FL_GODMODE;
-	if ( !Any( ent->flags & FL_GODMODE ) )
+	ent->flags ^= gentityFlags_t::FL_GODMODE;
+	if ( !Any( ent->flags & gentityFlags_t::FL_GODMODE ) )
 		msg = "godmode OFF";
 	else
 		msg = "godmode ON";
@@ -427,8 +427,8 @@ argv(0) notarget
 void Cmd_Notarget_f( gentity_t *ent ) {
 	const char *msg = nullptr;
 
-	ent->flags ^= FL_NOTARGET;
-	if ( !Any( ent->flags & FL_NOTARGET ) )
+	ent->flags ^= gentityFlags_t::FL_NOTARGET;
+	if ( !Any( ent->flags & gentityFlags_t::FL_NOTARGET ) )
 		msg = "notarget OFF";
 	else
 		msg = "notarget ON";
@@ -476,7 +476,7 @@ void Cmd_LevelShot_f( gentity_t *ent )
 	}
 
 	// doesn't work in single player
-	if ( level.gametype == GT_SINGLE_PLAYER )
+	if ( level.gametype == gametype_t::GT_SINGLE_PLAYER )
 	{
 		trap->SendServerCommand(ent-g_entities, "print \"Must not be in singleplayer mode for levelshot\n\"" );
 		return;
@@ -514,7 +514,7 @@ void Cmd_TeamTask_f( gentity_t *ent ) {
 #endif
 
 void G_Kill( gentity_t *ent ) {
-	if ((level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL) &&
+	if ((level.gametype == gametype_t::GT_DUEL || level.gametype == gametype_t::GT_POWERDUEL) &&
 		level.numPlayingClients > 1 && !level.warmupTime)
 	{
 		if (!g_allowDuelSuicide.integer)
@@ -524,9 +524,9 @@ void G_Kill( gentity_t *ent ) {
 		}
 	}
 
-	ent->flags &= ~FL_GODMODE;
-	ent->client->ps.stats[STAT_HEALTH] = ent->health = -999;
-	player_die (ent, ent, ent, 100000, MOD_SUICIDE);
+	ent->flags &= ~gentityFlags_t::FL_GODMODE;
+	ent->client->ps.stats[statIndex_t::STAT_HEALTH] = ent->health = -999;
+	player_die (ent, ent, ent, 100000, meansOfDeath_t::MOD_SUICIDE);
 }
 
 /*
@@ -560,7 +560,7 @@ void Cmd_KillOther_f( gentity_t *ent )
 		return;
 	}
 
-	if ( (otherEnt->health <= 0 || otherEnt->client->tempSpectate >= level.time || otherEnt->client->sess.sessionTeam == TEAM_SPECTATOR) )
+	if ( (otherEnt->health <= 0 || otherEnt->client->tempSpectate >= level.time || otherEnt->client->sess.sessionTeam == team_t::TEAM_SPECTATOR) )
 	{
 		// Intentionally displaying for the command user
 		trap->SendServerCommand( ent-g_entities, va( "print \"%s\n\"", G_GetStringEdString( "MP_SVGAME", "MUSTBEALIVE" ) ) );
@@ -581,26 +581,26 @@ void BroadcastTeamChange( gclient_t *client, std::optional<team_t> oldTeam )
 {
 	client->ps.fd.forceDoInit = 1; //every time we change teams make sure our force powers are set right
 
-	if (level.gametype == GT_SIEGE)
+	if (level.gametype == gametype_t::GT_SIEGE)
 	{ //don't announce these things in siege
 		return;
 	}
 
-	if ( client->sess.sessionTeam == TEAM_RED ) {
+	if ( client->sess.sessionTeam == team_t::TEAM_RED ) {
 		trap->SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " %s\n\"",
 			client->pers.netname, G_GetStringEdString("MP_SVGAME", "JOINEDTHEREDTEAM")) );
-	} else if ( client->sess.sessionTeam == TEAM_BLUE ) {
+	} else if ( client->sess.sessionTeam == team_t::TEAM_BLUE ) {
 		trap->SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " %s\n\"",
 		client->pers.netname, G_GetStringEdString("MP_SVGAME", "JOINEDTHEBLUETEAM")));
-	} else if ( client->sess.sessionTeam == TEAM_SPECTATOR && oldTeam != TEAM_SPECTATOR ) {
+	} else if ( client->sess.sessionTeam == team_t::TEAM_SPECTATOR && oldTeam != team_t::TEAM_SPECTATOR ) {
 		trap->SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " %s\n\"",
 		client->pers.netname, G_GetStringEdString("MP_SVGAME", "JOINEDTHESPECTATORS")));
-	} else if ( client->sess.sessionTeam == TEAM_FREE ) {
+	} else if ( client->sess.sessionTeam == team_t::TEAM_FREE ) {
 		trap->SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " %s\n\"",
 		client->pers.netname, G_GetStringEdString("MP_SVGAME", "JOINEDTHEBATTLE")));
 	}
 
-	G_LogPrintf( "ChangeTeam: %i [%s] (%s) \"%s^7\" %s -> %s\n", (int)(client - level.clients), client->sess.IP, client->pers.guid, client->pers.netname, TeamName( oldTeam.value_or( TEAM_FREE ) ), TeamName( client->sess.sessionTeam ) );
+	G_LogPrintf( "ChangeTeam: %i [%s] (%s) \"%s^7\" %s -> %s\n", (int)(client - level.clients), client->sess.IP, client->pers.guid, client->pers.netname, TeamName( oldTeam.value_or( team_t::TEAM_FREE ) ), TeamName( client->sess.sessionTeam ) );
 }
 
 bool G_PowerDuelCheckFail(gentity_t *ent)
@@ -608,19 +608,19 @@ bool G_PowerDuelCheckFail(gentity_t *ent)
 	int			loners = 0;
 	int			doubles = 0;
 
-	if (!ent->client || ent->client->sess.duelTeam == DUELTEAM_FREE)
+	if (!ent->client || ent->client->sess.duelTeam == duelTeam_t::DUELTEAM_FREE)
 	{
 		return true;
 	}
 
 	G_PowerDuelCount(&loners, &doubles, false);
 
-	if (ent->client->sess.duelTeam == DUELTEAM_LONE && loners >= 1)
+	if (ent->client->sess.duelTeam == duelTeam_t::DUELTEAM_LONE && loners >= 1)
 	{
 		return true;
 	}
 
-	if (ent->client->sess.duelTeam == DUELTEAM_DOUBLE && doubles >= 2)
+	if (ent->client->sess.duelTeam == duelTeam_t::DUELTEAM_DOUBLE && doubles >= 2)
 	{
 		return true;
 	}
@@ -657,28 +657,28 @@ void SetTeam( gentity_t *ent, const char *s ) {
 
 	clientNum = client - level.clients;
 	specClient = 0;
-	specState = SPECTATOR_NOT;
+	specState = spectatorState_t::SPECTATOR_NOT;
 	if ( !Q_stricmp( s, "scoreboard" ) || !Q_stricmp( s, "score" )  ) {
-		team = TEAM_SPECTATOR;
-		specState = SPECTATOR_FREE; // SPECTATOR_SCOREBOARD disabling this for now since it is totally broken on client side
+		team = team_t::TEAM_SPECTATOR;
+		specState = spectatorState_t::SPECTATOR_FREE; // SPECTATOR_SCOREBOARD disabling this for now since it is totally broken on client side
 	} else if ( !Q_stricmp( s, "follow1" ) ) {
-		team = TEAM_SPECTATOR;
-		specState = SPECTATOR_FOLLOW;
+		team = team_t::TEAM_SPECTATOR;
+		specState = spectatorState_t::SPECTATOR_FOLLOW;
 		specClient = -1;
 	} else if ( !Q_stricmp( s, "follow2" ) ) {
-		team = TEAM_SPECTATOR;
-		specState = SPECTATOR_FOLLOW;
+		team = team_t::TEAM_SPECTATOR;
+		specState = spectatorState_t::SPECTATOR_FOLLOW;
 		specClient = -2;
 	} else if ( !Q_stricmp( s, "spectator" ) || !Q_stricmp( s, "s" ) ) {
-		team = TEAM_SPECTATOR;
-		specState = SPECTATOR_FREE;
-	} else if ( level.gametype >= GT_TEAM ) {
+		team = team_t::TEAM_SPECTATOR;
+		specState = spectatorState_t::SPECTATOR_FREE;
+	} else if ( level.gametype >= gametype_t::GT_TEAM ) {
 		// if running a team game, assign player to one of the teams
-		specState = SPECTATOR_NOT;
+		specState = spectatorState_t::SPECTATOR_NOT;
 		if ( !Q_stricmp( s, "red" ) || !Q_stricmp( s, "r" ) ) {
-			team = TEAM_RED;
+			team = team_t::TEAM_RED;
 		} else if ( !Q_stricmp( s, "blue" ) || !Q_stricmp( s, "b" ) ) {
-			team = TEAM_BLUE;
+			team = team_t::TEAM_BLUE;
 		} else {
 			// pick the team with the least number of players
 			//For now, don't do this. The legalize function will set powers properly now.
@@ -687,11 +687,11 @@ void SetTeam( gentity_t *ent, const char *s ) {
 			{
 				if (ent->client->ps.fd.forceSide == FORCE_LIGHTSIDE)
 				{
-					team = TEAM_BLUE;
+					team = team_t::TEAM_BLUE;
 				}
 				else
 				{
-					team = TEAM_RED;
+					team = team_t::TEAM_RED;
 				}
 			}
 			else
@@ -702,14 +702,14 @@ void SetTeam( gentity_t *ent, const char *s ) {
 		}
 
 		if ( g_teamForceBalance.integer && !g_jediVmerc.integer ) {
-			EnumArray<int, team_t, TEAM_NUM_TEAMS>	counts;
+			EnumArray<int, team_t, team_t::TEAM_NUM_TEAMS>	counts;
 
 			//JAC: Invalid clientNum was being used
-			counts[TEAM_BLUE] = TeamCount( ent-g_entities, TEAM_BLUE );
-			counts[TEAM_RED] = TeamCount( ent-g_entities, TEAM_RED );
+			counts[team_t::TEAM_BLUE] = TeamCount( ent-g_entities, team_t::TEAM_BLUE );
+			counts[team_t::TEAM_RED] = TeamCount( ent-g_entities, team_t::TEAM_RED );
 
 			// We allow a spread of two
-			if ( team == TEAM_RED && counts[TEAM_RED] - counts[TEAM_BLUE] > 1 ) {
+			if ( team == team_t::TEAM_RED && counts[team_t::TEAM_RED] - counts[team_t::TEAM_BLUE] > 1 ) {
 				//For now, don't do this. The legalize function will set powers properly now.
 				/*
 				if (g_forceBasedTeams.integer && ent->client->ps.fd.forceSide == FORCE_DARKSIDE)
@@ -726,7 +726,7 @@ void SetTeam( gentity_t *ent, const char *s ) {
 				}
 				return; // ignore the request
 			}
-			if ( team == TEAM_BLUE && counts[TEAM_BLUE] - counts[TEAM_RED] > 1 ) {
+			if ( team == team_t::TEAM_BLUE && counts[team_t::TEAM_BLUE] - counts[team_t::TEAM_RED] > 1 ) {
 				//For now, don't do this. The legalize function will set powers properly now.
 				/*
 				if (g_forceBasedTeams.integer && ent->client->ps.fd.forceSide == FORCE_LIGHTSIDE)
@@ -751,12 +751,12 @@ void SetTeam( gentity_t *ent, const char *s ) {
 		/*
 		if (g_forceBasedTeams.integer)
 		{
-			if (team == TEAM_BLUE && ent->client->ps.fd.forceSide != FORCE_LIGHTSIDE)
+			if (team == team_t::TEAM_BLUE && ent->client->ps.fd.forceSide != FORCE_LIGHTSIDE)
 			{
 				trap->SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "MUSTBELIGHT")) );
 				return;
 			}
-			if (team == TEAM_RED && ent->client->ps.fd.forceSide != FORCE_DARKSIDE)
+			if (team == team_t::TEAM_RED && ent->client->ps.fd.forceSide != FORCE_DARKSIDE)
 			{
 				trap->SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "MUSTBEDARK")) );
 				return;
@@ -766,26 +766,26 @@ void SetTeam( gentity_t *ent, const char *s ) {
 
 	} else {
 		// force them to spectators if there aren't any spots free
-		team = TEAM_FREE;
+		team = team_t::TEAM_FREE;
 	}
 
 	oldTeam = client->sess.sessionTeam;
 
-	if (level.gametype == GT_SIEGE)
+	if (level.gametype == gametype_t::GT_SIEGE)
 	{
 		if (client->tempSpectate >= level.time &&
-			team == TEAM_SPECTATOR)
+			team == team_t::TEAM_SPECTATOR)
 		{ //sorry, can't do that.
 			return;
 		}
 
-		if ( team == oldTeam && team != TEAM_SPECTATOR )
+		if ( team == oldTeam && team != team_t::TEAM_SPECTATOR )
 			return;
 
 		client->sess.siegeDesiredTeam = team;
 		//oh well, just let them go.
 		/*
-		if (team != TEAM_SPECTATOR)
+		if (team != team_t::TEAM_SPECTATOR)
 		{ //can't switch to anything in siege unless you want to switch to being a fulltime spectator
 			//fill them in on their objectives for this team now
 			trap->SendServerCommand(ent-g_entities, va("sb %i", client->sess.siegeDesiredTeam));
@@ -794,8 +794,8 @@ void SetTeam( gentity_t *ent, const char *s ) {
 			return;
 		}
 		*/
-		if (client->sess.sessionTeam != TEAM_SPECTATOR &&
-			team != TEAM_SPECTATOR)
+		if (client->sess.sessionTeam != team_t::TEAM_SPECTATOR &&
+			team != team_t::TEAM_SPECTATOR)
 		{ //not a spectator now, and not switching to spec, so you have to wait til you die.
 			//trap->SendServerCommand( ent-g_entities, va("print \"You will be on the selected team the next time you respawn.\n\"") );
 			bool doBegin;
@@ -813,9 +813,9 @@ void SetTeam( gentity_t *ent, const char *s ) {
 				// Kill them so they automatically respawn in the team they wanted.
 				if (ent->health > 0)
 				{
-					ent->flags &= ~FL_GODMODE;
-					ent->client->ps.stats[STAT_HEALTH] = ent->health = 0;
-					player_die( ent, ent, ent, 100000, MOD_TEAM_CHANGE );
+					ent->flags &= ~gentityFlags_t::FL_GODMODE;
+					ent->client->ps.stats[statIndex_t::STAT_HEALTH] = ent->health = 0;
+					player_die( ent, ent, ent, 100000, meansOfDeath_t::MOD_TEAM_CHANGE );
 				}
 			}
 
@@ -829,26 +829,26 @@ void SetTeam( gentity_t *ent, const char *s ) {
 	}
 
 	// override decision if limiting the players
-	if ( (level.gametype == GT_DUEL)
+	if ( (level.gametype == gametype_t::GT_DUEL)
 		&& level.numNonSpectatorClients >= 2 )
 	{
-		team = TEAM_SPECTATOR;
+		team = team_t::TEAM_SPECTATOR;
 	}
-	else if ( (level.gametype == GT_POWERDUEL)
+	else if ( (level.gametype == gametype_t::GT_POWERDUEL)
 		&& (level.numPlayingClients >= 3 || G_PowerDuelCheckFail(ent)) )
 	{
-		team = TEAM_SPECTATOR;
+		team = team_t::TEAM_SPECTATOR;
 	}
 	else if ( g_maxGameClients.integer > 0 &&
 		level.numNonSpectatorClients >= g_maxGameClients.integer )
 	{
-		team = TEAM_SPECTATOR;
+		team = team_t::TEAM_SPECTATOR;
 	}
 
 	//
 	// decide if we will allow the change
 	//
-	if ( team == oldTeam && team != TEAM_SPECTATOR ) {
+	if ( team == oldTeam && team != team_t::TEAM_SPECTATOR ) {
 		return;
 	}
 
@@ -857,33 +857,33 @@ void SetTeam( gentity_t *ent, const char *s ) {
 	//
 
 	//If it's siege then show the mission briefing for the team you just joined.
-//	if (level.gametype == GT_SIEGE && team != TEAM_SPECTATOR)
+//	if (level.gametype == gametype_t::GT_SIEGE && team != team_t::TEAM_SPECTATOR)
 //	{
 //		trap->SendServerCommand(clientNum, va("sb %i", team));
 //	}
 
 	// if the player was dead leave the body
-	if ( client->ps.stats[STAT_HEALTH] <= 0 && client->sess.sessionTeam != TEAM_SPECTATOR ) {
+	if ( client->ps.stats[statIndex_t::STAT_HEALTH] <= 0 && client->sess.sessionTeam != team_t::TEAM_SPECTATOR ) {
 		MaintainBodyQueue(ent);
 	}
 
 	// he starts at 'base'
-	client->pers.teamState.state = TEAM_BEGIN;
-	if ( oldTeam != TEAM_SPECTATOR ) {
+	client->pers.teamState.state = playerTeamStateState_t::TEAM_BEGIN;
+	if ( oldTeam != team_t::TEAM_SPECTATOR ) {
 		// Kill him (makes sure he loses flags, etc)
-		ent->flags &= ~FL_GODMODE;
-		ent->client->ps.stats[STAT_HEALTH] = ent->health = 0;
+		ent->flags &= ~gentityFlags_t::FL_GODMODE;
+		ent->client->ps.stats[statIndex_t::STAT_HEALTH] = ent->health = 0;
 		g_dontPenalizeTeam = true;
-		player_die (ent, ent, ent, 100000, MOD_SUICIDE);
+		player_die (ent, ent, ent, 100000, meansOfDeath_t::MOD_SUICIDE);
 		g_dontPenalizeTeam = false;
 
 	}
 	// they go to the end of the line for tournaments
-	if ( team == TEAM_SPECTATOR && oldTeam != team )
+	if ( team == team_t::TEAM_SPECTATOR && oldTeam != team )
 		AddTournamentQueue( client );
 
 	// clear votes if going to spectator (specs can't vote)
-	if ( team == TEAM_SPECTATOR )
+	if ( team == team_t::TEAM_SPECTATOR )
 		G_ClearVote( ent );
 	// also clear team votes if switching red/blue or going to spec
 	G_ClearTeamVote( ent, oldTeam );
@@ -893,15 +893,15 @@ void SetTeam( gentity_t *ent, const char *s ) {
 	client->sess.spectatorClient = specClient;
 
 	client->sess.teamLeader = false;
-	if ( team == TEAM_RED || team == TEAM_BLUE ) {
+	if ( team == team_t::TEAM_RED || team == team_t::TEAM_BLUE ) {
 		teamLeader = TeamLeader( team );
 		// if there is no team leader or the team leader is a bot and this client is not a bot
-		if ( teamLeader == -1 || ( !Any( g_entities[clientNum].r.svFlags & SVF_BOT ) && Any( g_entities[teamLeader].r.svFlags & SVF_BOT ) ) ) {
+		if ( teamLeader == -1 || ( !Any( g_entities[clientNum].r.svFlags & svFlags_t::SVF_BOT ) && Any( g_entities[teamLeader].r.svFlags & svFlags_t::SVF_BOT ) ) ) {
 			//SetLeader( team, clientNum );
 		}
 	}
 	// make sure there is a team leader on the team the player came from
-	if ( oldTeam == TEAM_RED || oldTeam == TEAM_BLUE ) {
+	if ( oldTeam == team_t::TEAM_RED || oldTeam == team_t::TEAM_BLUE ) {
 		CheckTeamLeader( oldTeam );
 	}
 
@@ -909,9 +909,9 @@ void SetTeam( gentity_t *ent, const char *s ) {
 
 	//make a disappearing effect where they were before teleporting them to the appropriate spawn point,
 	//if we were not on the spec team
-	if (oldTeam != TEAM_SPECTATOR)
+	if (oldTeam != team_t::TEAM_SPECTATOR)
 	{
-		gentity_t *tent = G_TempEntity( client->ps.origin, EV_PLAYER_TELEPORT_OUT );
+		gentity_t *tent = G_TempEntity( client->ps.origin, entity_event_t::EV_PLAYER_TELEPORT_OUT );
 		tent->s.clientNum = clientNum;
 	}
 
@@ -935,34 +935,34 @@ to free floating spectator mode
 */
 extern void G_LeaveVehicle( gentity_t *ent, bool ConCheck );
 void StopFollowing( gentity_t *ent ) {
-	PS_SetTeam( ent->client->ps, TEAM_SPECTATOR );
-	ent->client->sess.sessionTeam = TEAM_SPECTATOR;
-	ent->client->sess.spectatorState = SPECTATOR_FREE;
-	ent->client->ps.pm_flags &= ~PMF_FOLLOW;
-	ent->r.svFlags &= ~SVF_BOT;
+	PS_SetTeam( ent->client->ps, team_t::TEAM_SPECTATOR );
+	ent->client->sess.sessionTeam = team_t::TEAM_SPECTATOR;
+	ent->client->sess.spectatorState = spectatorState_t::SPECTATOR_FREE;
+	ent->client->ps.pm_flags &= ~pmoveFlags_t::PMF_FOLLOW;
+	ent->r.svFlags &= ~svFlags_t::SVF_BOT;
 	ent->client->ps.clientNum = ent - g_entities;
-	ent->client->ps.weapon = WP_NONE;
+	ent->client->ps.weapon = weapon_t::WP_NONE;
 	G_LeaveVehicle( ent, false ); // clears m_iVehicleNum as well
 	ent->client->ps.emplacedIndex = 0;
 	//ent->client->ps.m_iVehicleNum = 0;
 	ent->client->ps.viewangles[ROLL] = 0.0f;
-	ent->client->ps.forceHandExtend = HANDEXTEND_NONE;
+	ent->client->ps.forceHandExtend = forceHandAnims_t::HANDEXTEND_NONE;
 	ent->client->ps.forceHandExtendTime = 0;
 	ent->client->ps.zoomMode = 0;
 	ent->client->ps.zoomLocked = false;
 	ent->client->ps.zoomLockTime = 0;
-	ent->client->ps.saberMove = LS_NONE;
-	ent->client->ps.legsAnim = FACE_TALK0;
+	ent->client->ps.saberMove = saberMoveName_t::LS_NONE;
+	ent->client->ps.legsAnim = animNumber_t::FACE_TALK0;
 	ent->client->ps.legsTimer = 0;
-	ent->client->ps.torsoAnim = FACE_TALK0;
+	ent->client->ps.torsoAnim = animNumber_t::FACE_TALK0;
 	ent->client->ps.torsoTimer = 0;
 	ent->client->ps.isJediMaster = false; // major exploit if you are spectating somebody and they are JM and you reconnect
 	ent->client->ps.cloakFuel = 100; // so that fuel goes away after stop following them
 	ent->client->ps.jetpackFuel = 100; // so that fuel goes away after stop following them
-	ent->health = ent->client->ps.stats[STAT_HEALTH] = 100; // so that you don't keep dead angles if you were spectating a dead person
+	ent->health = ent->client->ps.stats[statIndex_t::STAT_HEALTH] = 100; // so that you don't keep dead angles if you were spectating a dead person
 	ent->client->ps.bobCycle = 0;
-	ent->client->ps.pm_type = PM_SPECTATOR;
-	ent->client->ps.eFlags &= ~EF_DISINTEGRATION;
+	ent->client->ps.pm_type = pmtype_t::PM_SPECTATOR;
+	ent->client->ps.eFlags &= ~entityFlags_t::EF_DISINTEGRATION;
 	ent->client->ps.powerups = {};
 }
 
@@ -979,16 +979,16 @@ void Cmd_Team_f( gentity_t *ent ) {
 
 	if ( trap->Argc() != 2 ) {
 		switch ( oldTeam ) {
-		case TEAM_BLUE:
+		case team_t::TEAM_BLUE:
 			trap->SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "PRINTBLUETEAM")) );
 			break;
-		case TEAM_RED:
+		case team_t::TEAM_RED:
 			trap->SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "PRINTREDTEAM")) );
 			break;
-		case TEAM_FREE:
+		case team_t::TEAM_FREE:
 			trap->SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "PRINTFREETEAM")) );
 			break;
-		case TEAM_SPECTATOR:
+		case team_t::TEAM_SPECTATOR:
 			trap->SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "PRINTSPECTEAM")) );
 			break;
 		default:
@@ -1008,8 +1008,8 @@ void Cmd_Team_f( gentity_t *ent ) {
 	}
 
 	// if they are playing a tournament game, count as a loss
-	if ( level.gametype == GT_DUEL
-		&& ent->client->sess.sessionTeam == TEAM_FREE ) {//in a tournament game
+	if ( level.gametype == gametype_t::GT_DUEL
+		&& ent->client->sess.sessionTeam == team_t::TEAM_FREE ) {//in a tournament game
 		//disallow changing teams
 		trap->SendServerCommand( ent-g_entities, "print \"Cannot switch teams in Duel\n\"" );
 		return;
@@ -1017,7 +1017,7 @@ void Cmd_Team_f( gentity_t *ent ) {
 		//ent->client->sess.losses++;
 	}
 
-	if (level.gametype == GT_POWERDUEL)
+	if (level.gametype == gametype_t::GT_POWERDUEL)
 	{ //don't let clients change teams manually at all in powerduel, it will be taken care of through automated stuff
 		trap->SendServerCommand( ent-g_entities, "print \"Cannot switch teams in Power Duel\n\"" );
 		return;
@@ -1042,13 +1042,13 @@ void Cmd_DuelTeam_f(gentity_t *ent)
 	duelTeam_t	oldTeam;
 	char		s[MAX_TOKEN_CHARS];
 
-	if (level.gametype != GT_POWERDUEL)
+	if (level.gametype != gametype_t::GT_POWERDUEL)
 	{ //don't bother doing anything if this is not power duel
 		return;
 	}
 
 	/*
-	if (ent->client->sess.sessionTeam != TEAM_SPECTATOR)
+	if (ent->client->sess.sessionTeam != team_t::TEAM_SPECTATOR)
 	{
 		trap->SendServerCommand( ent-g_entities, va("print \"You cannot change your duel team unless you are a spectator.\n\""));
 		return;
@@ -1060,13 +1060,13 @@ void Cmd_DuelTeam_f(gentity_t *ent)
 		oldTeam = ent->client->sess.duelTeam;
 		switch ( oldTeam )
 		{
-		case DUELTEAM_FREE:
+		case duelTeam_t::DUELTEAM_FREE:
 			trap->SendServerCommand( ent-g_entities, va("print \"None\n\"") );
 			break;
-		case DUELTEAM_LONE:
+		case duelTeam_t::DUELTEAM_LONE:
 			trap->SendServerCommand( ent-g_entities, va("print \"Single\n\"") );
 			break;
-		case DUELTEAM_DOUBLE:
+		case duelTeam_t::DUELTEAM_DOUBLE:
 			trap->SendServerCommand( ent-g_entities, va("print \"Double\n\"") );
 			break;
 		default:
@@ -1087,15 +1087,15 @@ void Cmd_DuelTeam_f(gentity_t *ent)
 
 	if (!Q_stricmp(s, "free"))
 	{
-		ent->client->sess.duelTeam = DUELTEAM_FREE;
+		ent->client->sess.duelTeam = duelTeam_t::DUELTEAM_FREE;
 	}
 	else if (!Q_stricmp(s, "single"))
 	{
-		ent->client->sess.duelTeam = DUELTEAM_LONE;
+		ent->client->sess.duelTeam = duelTeam_t::DUELTEAM_LONE;
 	}
 	else if (!Q_stricmp(s, "double"))
 	{
-		ent->client->sess.duelTeam = DUELTEAM_DOUBLE;
+		ent->client->sess.duelTeam = duelTeam_t::DUELTEAM_DOUBLE;
 	}
 	else
 	{
@@ -1107,11 +1107,11 @@ void Cmd_DuelTeam_f(gentity_t *ent)
 		return;
 	}
 
-	if (ent->client->sess.sessionTeam != TEAM_SPECTATOR)
+	if (ent->client->sess.sessionTeam != team_t::TEAM_SPECTATOR)
 	{ //ok..die
 		duelTeam_t curTeam = ent->client->sess.duelTeam;
 		ent->client->sess.duelTeam = oldTeam;
-		G_Damage(ent, ent, ent, nullptr, ent->client->ps.origin, 99999, DAMAGE_NO_PROTECTION, MOD_SUICIDE);
+		G_Damage(ent, ent, ent, nullptr, ent->client->ps.origin, 99999, damageFlags_t::DAMAGE_NO_PROTECTION, meansOfDeath_t::MOD_SUICIDE);
 		ent->client->sess.duelTeam = curTeam;
 	}
 	//reset wins and losses
@@ -1177,7 +1177,7 @@ void Cmd_SiegeClass_f( gentity_t *ent )
 	int preScore;
 	bool startedAsSpec = false;
 
-	if (level.gametype != GT_SIEGE)
+	if (level.gametype != gametype_t::GT_SIEGE)
 	{ //classes are only valid for this gametype
 		return;
 	}
@@ -1198,7 +1198,7 @@ void Cmd_SiegeClass_f( gentity_t *ent )
 		return;
 	}
 
-	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR)
+	if (ent->client->sess.sessionTeam == team_t::TEAM_SPECTATOR)
 	{
 		startedAsSpec = true;
 	}
@@ -1215,11 +1215,11 @@ void Cmd_SiegeClass_f( gentity_t *ent )
 	if (ent->client->sess.sessionTeam != team)
 	{ //try changing it then
 		g_preventTeamBegin = true;
-		if (team == TEAM_RED)
+		if (team == team_t::TEAM_RED)
 		{
 			SetTeam(ent, "red");
 		}
-		else if (team == TEAM_BLUE)
+		else if (team == team_t::TEAM_BLUE)
 		{
 			SetTeam(ent, "blue");
 		}
@@ -1227,7 +1227,7 @@ void Cmd_SiegeClass_f( gentity_t *ent )
 
 		if (ent->client->sess.sessionTeam != team)
 		{ //failed, oh well
-			if (ent->client->sess.sessionTeam != TEAM_SPECTATOR ||
+			if (ent->client->sess.sessionTeam != team_t::TEAM_SPECTATOR ||
 				ent->client->sess.siegeDesiredTeam != team)
 			{
 				trap->SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOCLASSTEAM")) );
@@ -1237,7 +1237,7 @@ void Cmd_SiegeClass_f( gentity_t *ent )
 	}
 
 	//preserve 'is score
-	preScore = ent->client->ps.persistant[PERS_SCORE];
+	preScore = ent->client->ps.persistant[persEnum_t::PERS_SCORE];
 
 	//Make sure the class is valid for the team
 	BG_SiegeCheckClassLegality(*team, className);
@@ -1254,18 +1254,18 @@ void Cmd_SiegeClass_f( gentity_t *ent )
 		// Kill him (makes sure he loses flags, etc)
 		if (ent->health > 0 && !startedAsSpec)
 		{
-			ent->flags &= ~FL_GODMODE;
-			ent->client->ps.stats[STAT_HEALTH] = ent->health = 0;
-			player_die (ent, ent, ent, 100000, MOD_SUICIDE);
+			ent->flags &= ~gentityFlags_t::FL_GODMODE;
+			ent->client->ps.stats[statIndex_t::STAT_HEALTH] = ent->health = 0;
+			player_die (ent, ent, ent, 100000, meansOfDeath_t::MOD_SUICIDE);
 		}
 
-		if (ent->client->sess.sessionTeam == TEAM_SPECTATOR || startedAsSpec)
+		if (ent->client->sess.sessionTeam == team_t::TEAM_SPECTATOR || startedAsSpec)
 		{ //respawn them instantly.
 			ClientBegin( ent->s.number, false );
 		}
 	}
 	//set it back after we do all the stuff
-	ent->client->ps.persistant[PERS_SCORE] = preScore;
+	ent->client->ps.persistant[persEnum_t::PERS_SCORE] = preScore;
 
 	ent->client->switchClassTime = level.time + 5000;
 }
@@ -1280,7 +1280,7 @@ void Cmd_ForceChanged_f( gentity_t *ent )
 	char fpChStr[1024];
 	const char *buf;
 //	Cmd_Kill_f(ent);
-	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR)
+	if (ent->client->sess.sessionTeam == team_t::TEAM_SPECTATOR)
 	{ //if it's a spec, just make the changes now
 		//trap->SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "FORCEAPPLIED")) );
 		//No longer print it, as the UI calls this a lot.
@@ -1296,7 +1296,7 @@ void Cmd_ForceChanged_f( gentity_t *ent )
 
 	ent->client->ps.fd.forceDoInit = 1;
 argCheck:
-	if (level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL)
+	if (level.gametype == gametype_t::GT_DUEL || level.gametype == gametype_t::GT_POWERDUEL)
 	{ //If this is duel, don't even bother changing team in relation to this.
 		return;
 	}
@@ -1320,7 +1320,7 @@ bool G_SetSaber(gentity_t *ent, int saberNum, const char *saberName, bool siegeO
 {
 	char truncSaberName[MAX_QPATH] = {0};
 
-	if ( !siegeOverride && level.gametype == GT_SIEGE && ent->client->siegeClass != -1 &&
+	if ( !siegeOverride && level.gametype == gametype_t::GT_SIEGE && ent->client->siegeClass != -1 &&
 		(bgSiegeClasses[ent->client->siegeClass].saberStance || bgSiegeClasses[ent->client->siegeClass].saber1[0] || bgSiegeClasses[ent->client->siegeClass].saber2[0]) )
 	{ //don't let it be changed if the siege class has forced any saber-related things
 		return false;
@@ -1368,13 +1368,13 @@ void Cmd_Follow_f( gentity_t *ent ) {
 	int		i;
 	char	arg[MAX_TOKEN_CHARS];
 
-	if ( ent->client->sess.spectatorState == SPECTATOR_NOT && ent->client->switchTeamTime > level.time ) {
+	if ( ent->client->sess.spectatorState == spectatorState_t::SPECTATOR_NOT && ent->client->switchTeamTime > level.time ) {
 		trap->SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOSWITCH")) );
 		return;
 	}
 
 	if ( trap->Argc() != 2 ) {
-		if ( ent->client->sess.spectatorState == SPECTATOR_FOLLOW ) {
+		if ( ent->client->sess.spectatorState == spectatorState_t::SPECTATOR_FOLLOW ) {
 			StopFollowing( ent );
 		}
 		return;
@@ -1392,7 +1392,7 @@ void Cmd_Follow_f( gentity_t *ent ) {
 	}
 
 	// can't follow another spectator
-	if ( level.clients[ i ].sess.sessionTeam == TEAM_SPECTATOR ) {
+	if ( level.clients[ i ].sess.sessionTeam == team_t::TEAM_SPECTATOR ) {
 		return;
 	}
 
@@ -1401,21 +1401,21 @@ void Cmd_Follow_f( gentity_t *ent ) {
 	}
 
 	// if they are playing a tournament game, count as a loss
-	if ( (level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL)
-		&& ent->client->sess.sessionTeam == TEAM_FREE ) {
+	if ( (level.gametype == gametype_t::GT_DUEL || level.gametype == gametype_t::GT_POWERDUEL)
+		&& ent->client->sess.sessionTeam == team_t::TEAM_FREE ) {
 		//WTF???
 		ent->client->sess.losses++;
 	}
 
 	// first set them to spectator
-	if ( ent->client->sess.sessionTeam != TEAM_SPECTATOR ) {
+	if ( ent->client->sess.sessionTeam != team_t::TEAM_SPECTATOR ) {
 		SetTeam( ent, "spectator" );
 		// fix: update team switch time only if team change really happend
-		if (ent->client->sess.sessionTeam == TEAM_SPECTATOR)
+		if (ent->client->sess.sessionTeam == team_t::TEAM_SPECTATOR)
 			ent->client->switchTeamTime = level.time + 5000;
 	}
 
-	ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
+	ent->client->sess.spectatorState = spectatorState_t::SPECTATOR_FOLLOW;
 	ent->client->sess.spectatorClient = i;
 }
 
@@ -1429,27 +1429,27 @@ void Cmd_FollowCycle_f( gentity_t *ent, int dir ) {
 	int		original;
 	bool	looped = false;
 
-	if ( ent->client->sess.spectatorState == SPECTATOR_NOT && ent->client->switchTeamTime > level.time ) {
+	if ( ent->client->sess.spectatorState == spectatorState_t::SPECTATOR_NOT && ent->client->switchTeamTime > level.time ) {
 		trap->SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOSWITCH")) );
 		return;
 	}
 
 	// if they are playing a tournament game, count as a loss
-	if ( (level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL)
-		&& ent->client->sess.sessionTeam == TEAM_FREE ) {\
+	if ( (level.gametype == gametype_t::GT_DUEL || level.gametype == gametype_t::GT_POWERDUEL)
+		&& ent->client->sess.sessionTeam == team_t::TEAM_FREE ) {\
 		//WTF???
 		ent->client->sess.losses++;
 	}
 	// first set them to spectator
-	if ( ent->client->sess.spectatorState == SPECTATOR_NOT ) {
+	if ( ent->client->sess.spectatorState == spectatorState_t::SPECTATOR_NOT ) {
 		SetTeam( ent, "spectator" );
 		// fix: update team switch time only if team change really happend
-		if (ent->client->sess.sessionTeam == TEAM_SPECTATOR)
+		if (ent->client->sess.sessionTeam == team_t::TEAM_SPECTATOR)
 			ent->client->switchTeamTime = level.time + 5000;
 	}
 
 	if ( dir != 1 && dir != -1 ) {
-		trap->Error( ERR_DROP, "Cmd_FollowCycle_f: bad dir %i", dir );
+		trap->Error( errorParm_t::ERR_DROP, "Cmd_FollowCycle_f: bad dir %i", dir );
 	}
 
 	clientnum = ent->client->sess.spectatorClient;
@@ -1485,12 +1485,12 @@ void Cmd_FollowCycle_f( gentity_t *ent, int dir ) {
 		}
 
 		// can only follow connected clients
-		if ( level.clients[ clientnum ].pers.connected != CON_CONNECTED ) {
+		if ( level.clients[ clientnum ].pers.connected != clientConnected_t::CON_CONNECTED ) {
 			continue;
 		}
 
 		// can't follow another spectator
-		if ( level.clients[ clientnum ].sess.sessionTeam == TEAM_SPECTATOR ) {
+		if ( level.clients[ clientnum ].sess.sessionTeam == team_t::TEAM_SPECTATOR ) {
 			continue;
 		}
 
@@ -1501,7 +1501,7 @@ void Cmd_FollowCycle_f( gentity_t *ent, int dir ) {
 
 		// this is good, we can use it
 		ent->client->sess.spectatorClient = clientnum;
-		ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
+		ent->client->sess.spectatorState = spectatorState_t::SPECTATOR_FOLLOW;
 		return;
 	} while ( clientnum != original );
 
@@ -1533,26 +1533,26 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, sayMode_t mode, int color
 	if (!other->client) {
 		return;
 	}
-	if ( other->client->pers.connected != CON_CONNECTED ) {
+	if ( other->client->pers.connected != clientConnected_t::CON_CONNECTED ) {
 		return;
 	}
-	if ( mode == SAY_TEAM  && !OnSameTeam(ent, other) ) {
+	if ( mode == sayMode_t::SAY_TEAM  && !OnSameTeam(ent, other) ) {
 		return;
 	}
 	/*
 	// no chatting to players in tournaments
-	if ( (level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL)
-		&& other->client->sess.sessionTeam == TEAM_FREE
-		&& ent->client->sess.sessionTeam != TEAM_FREE ) {
+	if ( (level.gametype == gametype_t::GT_DUEL || level.gametype == gametype_t::GT_POWERDUEL)
+		&& other->client->sess.sessionTeam == team_t::TEAM_FREE
+		&& ent->client->sess.sessionTeam != team_t::TEAM_FREE ) {
 		//Hmm, maybe some option to do so if allowed?  Or at least in developer mode...
 		return;
 	}
 	*/
 	//They've requested I take this out.
 
-	if (level.gametype == GT_SIEGE &&
-		ent->client && (ent->client->tempSpectate >= level.time || ent->client->sess.sessionTeam == TEAM_SPECTATOR) &&
-		other->client->sess.sessionTeam != TEAM_SPECTATOR &&
+	if (level.gametype == gametype_t::GT_SIEGE &&
+		ent->client && (ent->client->tempSpectate >= level.time || ent->client->sess.sessionTeam == team_t::TEAM_SPECTATOR) &&
+		other->client->sess.sessionTeam != team_t::TEAM_SPECTATOR &&
 		other->client->tempSpectate < level.time)
 	{ //siege temp spectators should not communicate to ingame players
 		return;
@@ -1561,13 +1561,13 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, sayMode_t mode, int color
 	if (locMsg)
 	{
 		trap->SendServerCommand( other-g_entities, va("%s \"%s\" \"%s\" \"%c\" \"%s\" %i",
-			mode == SAY_TEAM ? "ltchat" : "lchat",
+			mode == sayMode_t::SAY_TEAM ? "ltchat" : "lchat",
 			name, locMsg, color, message, ent->s.number));
 	}
 	else
 	{
 		trap->SendServerCommand( other-g_entities, va("%s \"%s%c%c%s\" %i",
-			mode == SAY_TEAM ? "tchat" : "chat",
+			mode == sayMode_t::SAY_TEAM ? "tchat" : "chat",
 			name, Q_COLOR_ESCAPE, color, message, ent->s.number));
 	}
 }
@@ -1582,8 +1582,8 @@ void G_Say( gentity_t *ent, gentity_t *target, sayMode_t mode, const char *chatT
 	char		location[64];
 	char		*locMsg = nullptr;
 
-	if ( level.gametype < GT_TEAM && mode == SAY_TEAM ) {
-		mode = SAY_ALL;
+	if ( level.gametype < gametype_t::GT_TEAM && mode == sayMode_t::SAY_TEAM ) {
+		mode = sayMode_t::SAY_ALL;
 	}
 
 	Q_strncpyz( text, chatText, sizeof(text) );
@@ -1592,12 +1592,12 @@ void G_Say( gentity_t *ent, gentity_t *target, sayMode_t mode, const char *chatT
 
 	switch ( mode ) {
 	default:
-	case SAY_ALL:
+	case sayMode_t::SAY_ALL:
 		G_LogPrintf( "say: %s: %s\n", ent->client->pers.netname, text );
 		Com_sprintf (name, sizeof(name), "%s%c%c" EC": ", ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
 		color = COLOR_GREEN;
 		break;
-	case SAY_TEAM:
+	case sayMode_t::SAY_TEAM:
 		G_LogPrintf( "sayteam: %s: %s\n", ent->client->pers.netname, text );
 		if (Team_GetLocationMsg(ent, location, sizeof(location)))
 		{
@@ -1612,8 +1612,8 @@ void G_Say( gentity_t *ent, gentity_t *target, sayMode_t mode, const char *chatT
 		}
 		color = COLOR_CYAN;
 		break;
-	case SAY_TELL:
-		if (target && target->inuse && target->client && level.gametype >= GT_TEAM &&
+	case sayMode_t::SAY_TELL:
+		if (target && target->inuse && target->client && level.gametype >= gametype_t::GT_TEAM &&
 			target->client->sess.sessionTeam == ent->client->sess.sessionTeam &&
 			Team_GetLocationMsg(ent, location, sizeof(location)))
 		{
@@ -1664,7 +1664,7 @@ static void Cmd_Say_f( gentity_t *ent ) {
 		G_SecurityLogPrintf( "Cmd_Say_f from %d (%s) has been truncated: %s\n", ent->s.number, ent->client->pers.netname, p );
 	}
 
-	G_Say( ent, nullptr, SAY_ALL, p );
+	G_Say( ent, nullptr, sayMode_t::SAY_ALL, p );
 }
 
 /*
@@ -1685,7 +1685,7 @@ static void Cmd_SayTeam_f( gentity_t *ent ) {
 		G_SecurityLogPrintf( "Cmd_SayTeam_f from %d (%s) has been truncated: %s\n", ent->s.number, ent->client->pers.netname, p );
 	}
 
-	G_Say( ent, nullptr, (level.gametype>=GT_TEAM) ? SAY_TEAM : SAY_ALL, p );
+	G_Say( ent, nullptr, (level.gametype>=gametype_t::GT_TEAM) ? sayMode_t::SAY_TEAM : sayMode_t::SAY_ALL, p );
 }
 
 /*
@@ -1723,11 +1723,11 @@ static void Cmd_Tell_f( gentity_t *ent ) {
 	}
 
 	G_LogPrintf( "tell: %s to %s: %s\n", ent->client->pers.netname, target->client->pers.netname, p );
-	G_Say( ent, target, SAY_TELL, p );
+	G_Say( ent, target, sayMode_t::SAY_TELL, p );
 	// don't tell to the player self if it was already directed to this player
 	// also don't send the chat back to a bot
-	if ( ent != target && !Any( ent->r.svFlags & SVF_BOT )) {
-		G_Say( ent, ent, SAY_TELL, p );
+	if ( ent != target && !Any( ent->r.svFlags & svFlags_t::SVF_BOT )) {
+		G_Say( ent, ent, sayMode_t::SAY_TELL, p );
 	}
 }
 
@@ -1739,7 +1739,7 @@ static void Cmd_VoiceCommand_f(gentity_t *ent)
 	char *s;
 	int i = 0;
 
-	if (level.gametype < GT_TEAM)
+	if (level.gametype < gametype_t::GT_TEAM)
 	{
 		return;
 	}
@@ -1749,7 +1749,7 @@ static void Cmd_VoiceCommand_f(gentity_t *ent)
 		return;
 	}
 
-	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR ||
+	if (ent->client->sess.sessionTeam == team_t::TEAM_SPECTATOR ||
 		ent->client->tempSpectate >= level.time)
 	{
 		trap->SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOVOICECHATASSPEC")) );
@@ -1785,10 +1785,10 @@ static void Cmd_VoiceCommand_f(gentity_t *ent)
 		return;
 	}
 
-	te = G_TempEntity(vec3_origin, EV_VOICECMD_SOUND);
+	te = G_TempEntity(vec3_origin, entity_event_t::EV_VOICECMD_SOUND);
 	te->s.groundEntityNum = ent->s.number;
 	te->s.eventParm = G_SoundIndex((char *)bg_customSiegeSoundNames[i]);
-	te->r.svFlags |= SVF_BROADCAST;
+	te->r.svFlags |= svFlags_t::SVF_BROADCAST;
 }
 
 
@@ -1832,11 +1832,11 @@ void Cmd_GameCommand_f( gentity_t *ent ) {
 		return;
 
 	G_LogPrintf( "tell: %s to %s: %s\n", ent->client->pers.netname, target->client->pers.netname, gc_orders[order] );
-	G_Say( ent, target, SAY_TELL, gc_orders[order] );
+	G_Say( ent, target, sayMode_t::SAY_TELL, gc_orders[order] );
 	// don't tell to the player self if it was already directed to this player
 	// also don't send the chat back to a bot
-	if ( ent != target && !Any( ent->r.svFlags & SVF_BOT ) )
-		G_Say( ent, ent, SAY_TELL, gc_orders[order] );
+	if ( ent != target && !Any( ent->r.svFlags & svFlags_t::SVF_BOT ) )
+		G_Say( ent, ent, sayMode_t::SAY_TELL, gc_orders[order] );
 }
 
 /*
@@ -1846,7 +1846,7 @@ Cmd_Where_f
 */
 void Cmd_Where_f( gentity_t *ent ) {
 	//JAC: This wasn't working for non-spectators since s.origin doesn't update for active players.
-	if(ent->client && ent->client->sess.sessionTeam != TEAM_SPECTATOR )
+	if(ent->client && ent->client->sess.sessionTeam != team_t::TEAM_SPECTATOR )
 	{//active players use currentOrigin
 		trap->SendServerCommand( ent-g_entities, va("print \"%s\n\"", vtos( ent->r.currentOrigin ) ) );
 	}
@@ -1857,7 +1857,7 @@ void Cmd_Where_f( gentity_t *ent ) {
 	//trap->SendServerCommand( ent-g_entities, va("print \"%s\n\"", vtos( ent->s.origin ) ) );
 }
 
-static const EnumArray<const char *, gametype_t, GT_MAX_GAME_TYPE> gameNames = {
+static const EnumArray<const char *, gametype_t, gametype_t::GT_MAX_GAME_TYPE> gameNames = {
 	"Free For All",
 	"Holocron FFA",
 	"Jedi Master",
@@ -1893,7 +1893,7 @@ bool G_VoteClientkick( gentity_t *ent, int numArgs, const char *arg1, const char
 		return false;
 	}
 
-	if ( g_entities[n].client->pers.connected == CON_DISCONNECTED ) {
+	if ( g_entities[n].client->pers.connected == clientConnected_t::CON_DISCONNECTED ) {
 		trap->SendServerCommand( ent-g_entities, va( "print \"there is no client with the client number %d.\n\"", n ) );
 		return false;
 	}
@@ -1919,23 +1919,23 @@ bool G_VoteGametype( gentity_t *ent, int numArgs, const char *arg1, const char *
 	// ffa, ctf, tdm, etc
 	if ( arg2[0] && isalpha( arg2[0] ) ) {
 		gt = BG_GetGametypeForString( arg2 );
-		if ( gt == GT_UNKNOWN )
+		if ( gt == gametype_t::GT_UNKNOWN )
 		{
 			trap->SendServerCommand( ent-g_entities, va( "print \"Gametype (%s) unrecognised, defaulting to FFA/Deathmatch\n\"", arg2 ) );
-			gt = GT_FFA;
+			gt = gametype_t::GT_FFA;
 		}
 	}
 	// numeric but out of range
-	else if ( number < 0 || number >= to_underlying( GT_MAX_GAME_TYPE ) ) {
+	else if ( number < 0 || number >= to_underlying( gametype_t::GT_MAX_GAME_TYPE ) ) {
 		trap->SendServerCommand( ent-g_entities, va( "print \"Gametype (%i) is out of range, defaulting to FFA/Deathmatch\n\"", number ) );
-		gt = GT_FFA;
+		gt = gametype_t::GT_FFA;
 	}
 	else {
 		gt = static_cast<gametype_t>( number );
 	}
 
 	// logically invalid gametypes, or gametypes not fully implemented in MP
-	if ( gt == GT_SINGLE_PLAYER ) {
+	if ( gt == gametype_t::GT_SINGLE_PLAYER ) {
 		trap->SendServerCommand( ent-g_entities, va( "print \"This gametype is not supported (%s).\n\"", arg2 ) );
 		return false;
 	}
@@ -2009,7 +2009,7 @@ bool G_VoteMap( gentity_t *ent, int numArgs, const char *arg1, const char *arg2 
 	}
 
 	Com_sprintf( bspName, sizeof(bspName), "maps/%s.bsp", arg2 );
-	if ( trap->FS_Open( bspName, &fp, FS_READ ) <= 0 ) {
+	if ( trap->FS_Open( bspName, &fp, fsMode_t::FS_READ ) <= 0 ) {
 		trap->SendServerCommand( ent-g_entities, va( "print \"Can't find map %s on server\n\"", bspName ) );
 		if( fp != NULL_FILE )
 			trap->FS_Close( fp );
@@ -2102,16 +2102,16 @@ typedef struct voteString_s {
 
 static voteString_t validVoteStrings[] = {
 	//	vote string				aliases										# args	valid gametypes							exec delay		short help
-	{	"capturelimit",			"caps",				G_VoteCapturelimit,		1,		Bit( GT_CTF )|Bit( GT_CTY ),						true,			"<num>" },
+	{	"capturelimit",			"caps",				G_VoteCapturelimit,		1,		Bit( gametype_t::GT_CTF )|Bit( gametype_t::GT_CTY ),						true,			"<num>" },
 	{	"clientkick",			nullptr,				G_VoteClientkick,		1,		GTB_ALL,								false,			"<clientnum>" },
-	{	"fraglimit",			"frags",			G_VoteFraglimit,		1,		GTB_ALL & ~(Bit( GT_SIEGE )|Bit( GT_CTF )|Bit( GT_CTY )),	true,			"<num>" },
+	{	"fraglimit",			"frags",			G_VoteFraglimit,		1,		GTB_ALL & ~(Bit( gametype_t::GT_SIEGE )|Bit( gametype_t::GT_CTF )|Bit( gametype_t::GT_CTY )),	true,			"<num>" },
 	{	"g_doWarmup",			"dowarmup warmup",	G_VoteWarmup,			1,		GTB_ALL,								true,			"<0-1>" },
 	{	"g_gametype",			"gametype gt mode",	G_VoteGametype,			1,		GTB_ALL,								true,			"<num or name>" },
 	{	"kick",					nullptr,				G_VoteKick,				1,		GTB_ALL,								false,			"<client name>" },
 	{	"map",					nullptr,				G_VoteMap,				0,		GTB_ALL,								true,			"<name>" },
 	{	"map_restart",			"restart",			G_VoteMapRestart,		0,		GTB_ALL,								true,			"<optional delay>" },
 	{	"nextmap",				nullptr,				G_VoteNextmap,			0,		GTB_ALL,								true,			nullptr },
-	{	"timelimit",			"time",				G_VoteTimelimit,		1,		GTB_ALL &~Bit( GT_SIEGE ),					true,			"<num>" },
+	{	"timelimit",			"time",				G_VoteTimelimit,		1,		GTB_ALL &~Bit( gametype_t::GT_SIEGE ),					true,			"<num>" },
 };
 static const int validVoteStringsSize = ARRAY_LEN( validVoteStrings );
 
@@ -2162,7 +2162,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	}
 
 	// can't vote as a spectator, except in (power)duel
-	else if ( level.gametype != GT_DUEL && level.gametype != GT_POWERDUEL && ent->client->sess.sessionTeam == TEAM_SPECTATOR ) {
+	else if ( level.gametype != gametype_t::GT_DUEL && level.gametype != gametype_t::GT_POWERDUEL && ent->client->sess.sessionTeam == team_t::TEAM_SPECTATOR ) {
 		trap->SendServerCommand( ent-g_entities, va( "print \"%s\n\"", G_GetStringEdString( "MP_SVGAME", "NOSPECVOTE" ) ) );
 		return;
 	}
@@ -2250,7 +2250,7 @@ validVote:
 	// there is still a vote to be executed, execute it and store the new vote
 	if ( level.voteExecuteTime ) {
 		level.voteExecuteTime = 0;
-		trap->SendConsoleCommand( EXEC_APPEND, va( "%s\n", level.voteString ) );
+		trap->SendConsoleCommand( cbufExec_t::EXEC_APPEND, va( "%s\n", level.voteString ) );
 	}
 
 	// pass the args onto vote-specific handlers for parsing/filtering
@@ -2274,11 +2274,11 @@ validVote:
 	level.voteNo = 0;
 
 	for ( i=0; i<level.maxclients; i++ ) {
-		level.clients[i].mGameFlags &= ~PSG_VOTED;
+		level.clients[i].mGameFlags &= ~voteFlags_t::PSG_VOTED;
 		level.clients[i].pers.vote = 0;
 	}
 
-	ent->client->mGameFlags |= PSG_VOTED;
+	ent->client->mGameFlags |= voteFlags_t::PSG_VOTED;
 	ent->client->pers.vote = 1;
 
 	trap->SetConfigstring( CS_VOTE_TIME,	va( "%i", level.voteTime ) );
@@ -2299,13 +2299,13 @@ void Cmd_Vote_f( gentity_t *ent ) {
 		trap->SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOVOTEINPROG")) );
 		return;
 	}
-	if ( Any( ent->client->mGameFlags & PSG_VOTED ) ) {
+	if ( Any( ent->client->mGameFlags & voteFlags_t::PSG_VOTED ) ) {
 		trap->SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "VOTEALREADY")) );
 		return;
 	}
-	if (level.gametype != GT_DUEL && level.gametype != GT_POWERDUEL)
+	if (level.gametype != gametype_t::GT_DUEL && level.gametype != gametype_t::GT_POWERDUEL)
 	{
-		if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR ) {
+		if ( ent->client->sess.sessionTeam == team_t::TEAM_SPECTATOR ) {
 			trap->SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOVOTEASSPEC")) );
 			return;
 		}
@@ -2313,7 +2313,7 @@ void Cmd_Vote_f( gentity_t *ent ) {
 
 	trap->SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "PLVOTECAST")) );
 
-	ent->client->mGameFlags |= PSG_VOTED;
+	ent->client->mGameFlags |= voteFlags_t::PSG_VOTED;
 
 	trap->Argv( 1, msg, sizeof( msg ) );
 
@@ -2365,15 +2365,15 @@ void Cmd_CallTeamVote_f( gentity_t *ent ) {
 	char	arg1[MAX_CVAR_VALUE_STRING] = {0};
 	char	arg2[MAX_CVAR_VALUE_STRING] = {0};
 
-	if ( g_gametype.integer < to_underlying( GT_TEAM ) )
+	if ( g_gametype.integer < to_underlying( gametype_t::GT_TEAM ) )
 	{
 		trap->SendServerCommand( ent-g_entities, "print \"Cannot call a team vote in a non-team gametype!\n\"" );
 		return;
 	}
 
-	if ( team == TEAM_RED )
+	if ( team == team_t::TEAM_RED )
 		cs_offset = 0;
-	else if ( team == TEAM_BLUE )
+	else if ( team == team_t::TEAM_BLUE )
 		cs_offset = 1;
 	else
 		return;
@@ -2391,7 +2391,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent ) {
 	}
 
 	// can't vote as a spectator
-	else if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR ) {
+	else if ( ent->client->sess.sessionTeam == team_t::TEAM_SPECTATOR ) {
 		trap->SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOSPECVOTE")) );
 		return;
 	}
@@ -2422,7 +2422,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent ) {
 	Q_strstrip( level.teamVoteStringClean[cs_offset], "\"\n\r", nullptr );
 
 	for ( i=0; i<level.maxclients; i++ ) {
-		if ( level.clients[i].pers.connected == CON_DISCONNECTED )
+		if ( level.clients[i].pers.connected == clientConnected_t::CON_DISCONNECTED )
 			continue;
 		if ( level.clients[i].sess.sessionTeam == team )
 			trap->SendServerCommand( i, va("print \"%s^7 called a team vote (%s)\n\"", ent->client->pers.netname, level.teamVoteStringClean[cs_offset] ) );
@@ -2434,14 +2434,14 @@ void Cmd_CallTeamVote_f( gentity_t *ent ) {
 	level.teamVoteNo[cs_offset] = 0;
 
 	for ( i=0; i<level.maxclients; i++ ) {
-		if ( level.clients[i].pers.connected == CON_DISCONNECTED )
+		if ( level.clients[i].pers.connected == clientConnected_t::CON_DISCONNECTED )
 			continue;
 		if ( level.clients[i].sess.sessionTeam == team ) {
-			level.clients[i].mGameFlags &= ~PSG_TEAMVOTED;
+			level.clients[i].mGameFlags &= ~voteFlags_t::PSG_TEAMVOTED;
 			level.clients[i].pers.teamvote = 0;
 		}
 	}
-	ent->client->mGameFlags |= PSG_TEAMVOTED;
+	ent->client->mGameFlags |= voteFlags_t::PSG_TEAMVOTED;
 	ent->client->pers.teamvote = 1;
 
 	trap->SetConfigstring( CS_TEAMVOTE_TIME + cs_offset, va("%i", level.teamVoteTime[cs_offset] ) );
@@ -2460,9 +2460,9 @@ void Cmd_TeamVote_f( gentity_t *ent ) {
 	int			cs_offset=0;
 	char		msg[64] = {0};
 
-	if ( team == TEAM_RED )
+	if ( team == team_t::TEAM_RED )
 		cs_offset = 0;
-	else if ( team == TEAM_BLUE )
+	else if ( team == team_t::TEAM_BLUE )
 		cs_offset = 1;
 	else
 		return;
@@ -2471,18 +2471,18 @@ void Cmd_TeamVote_f( gentity_t *ent ) {
 		trap->SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOTEAMVOTEINPROG")) );
 		return;
 	}
-	if ( Any( ent->client->mGameFlags & PSG_TEAMVOTED ) ) {
+	if ( Any( ent->client->mGameFlags & voteFlags_t::PSG_TEAMVOTED ) ) {
 		trap->SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "TEAMVOTEALREADYCAST")) );
 		return;
 	}
-	if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR ) {
+	if ( ent->client->sess.sessionTeam == team_t::TEAM_SPECTATOR ) {
 		trap->SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOVOTEASSPEC")) );
 		return;
 	}
 
 	trap->SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "PLTEAMVOTECAST")) );
 
-	ent->client->mGameFlags |= PSG_TEAMVOTED;
+	ent->client->mGameFlags |= voteFlags_t::PSG_TEAMVOTED;
 
 	trap->Argv( 1, msg, sizeof( msg ) );
 
@@ -2538,7 +2538,7 @@ void G_LeaveVehicle( gentity_t* ent, bool ConCheck ) {
 		{
 			if ( ConCheck ) { // check connection
 				clientConnected_t pCon = ent->client->pers.connected;
-				ent->client->pers.connected = CON_DISCONNECTED;
+				ent->client->pers.connected = clientConnected_t::CON_DISCONNECTED;
 				veh->m_pVehicle->m_pVehicleInfo->Eject(veh->m_pVehicle, (bgEntity_t *)ent, true);
 				ent->client->pers.connected = pCon;
 			} else { // or not.
@@ -2559,7 +2559,7 @@ int G_ItemUsable(playerState_t *ps, holdable_t forcedUse)
 	trace_t tr;
 
 	// fix: dead players shouldn't use items
-	if (ps->stats[STAT_HEALTH] <= 0) {
+	if (ps->stats[statIndex_t::STAT_HEALTH] <= 0) {
 		return 0;
 	}
 
@@ -2568,14 +2568,14 @@ int G_ItemUsable(playerState_t *ps, holdable_t forcedUse)
 		return 0;
 	}
 
-	if (Any( ps->pm_flags & PMF_USE_ITEM_HELD ))
+	if (Any( ps->pm_flags & pmoveFlags_t::PMF_USE_ITEM_HELD ))
 	{ //force to let go first
 		return 0;
 	}
 
-	if (forcedUse == HI_NONE)
+	if (forcedUse == holdable_t::HI_NONE)
 	{
-		forcedUse = GI_Holdable( bg_itemlist[ps->stats[STAT_HOLDABLE_ITEM]] );
+		forcedUse = GI_Holdable( bg_itemlist[ps->stats[statIndex_t::STAT_HOLDABLE_ITEM]] );
 	}
 
 	if (!BG_IsItemSelectable(ps, forcedUse))
@@ -2585,31 +2585,31 @@ int G_ItemUsable(playerState_t *ps, holdable_t forcedUse)
 
 	switch (forcedUse)
 	{
-	case HI_MEDPAC:
-	case HI_MEDPAC_BIG:
-		if (ps->stats[STAT_HEALTH] >= ps->stats[STAT_MAX_HEALTH])
+	case holdable_t::HI_MEDPAC:
+	case holdable_t::HI_MEDPAC_BIG:
+		if (ps->stats[statIndex_t::STAT_HEALTH] >= ps->stats[statIndex_t::STAT_MAX_HEALTH])
 		{
 			return 0;
 		}
 
-		if (ps->stats[STAT_HEALTH] <= 0)
+		if (ps->stats[statIndex_t::STAT_HEALTH] <= 0)
 		{
 			return 0;
 		}
 
 		return 1;
-	case HI_SEEKER:
-		if (Any( ps->eFlags & EF_SEEKERDRONE ))
+	case holdable_t::HI_SEEKER:
+		if (Any( ps->eFlags & entityFlags_t::EF_SEEKERDRONE ))
 		{
-			G_AddEvent(&g_entities[ps->clientNum], EV_ITEMUSEFAIL, to_underlying( SEEKER_ALREADYDEPLOYED ));
+			G_AddEvent(&g_entities[ps->clientNum], entity_event_t::EV_ITEMUSEFAIL, to_underlying( itemUseFail_t::SEEKER_ALREADYDEPLOYED ));
 			return 0;
 		}
 
 		return 1;
-	case HI_SENTRY_GUN:
+	case holdable_t::HI_SENTRY_GUN:
 		if (ps->fd.sentryDeployed)
 		{
-			G_AddEvent(&g_entities[ps->clientNum], EV_ITEMUSEFAIL, to_underlying( SENTRY_ALREADYPLACED ));
+			G_AddEvent(&g_entities[ps->clientNum], entity_event_t::EV_ITEMUSEFAIL, to_underlying( itemUseFail_t::SENTRY_ALREADYPLACED ));
 			return 0;
 		}
 
@@ -2630,16 +2630,16 @@ int G_ItemUsable(playerState_t *ps, holdable_t forcedUse)
 		trtest[1] = fwdorg[1] + fwd[1]*16;
 		trtest[2] = fwdorg[2] + fwd[2]*16;
 
-		trap->Trace(&tr, ps->origin, mins, maxs, trtest, ps->clientNum, MASK_PLAYERSOLID, false, G2TRFLAG_NONE, 0);
+		trap->Trace(&tr, ps->origin, mins, maxs, trtest, ps->clientNum, MASK_PLAYERSOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 		if ((tr.fraction != 1 && tr.entityNum != ps->clientNum) || tr.startsolid || tr.allsolid)
 		{
-			G_AddEvent(&g_entities[ps->clientNum], EV_ITEMUSEFAIL, to_underlying( SENTRY_NOROOM ));
+			G_AddEvent(&g_entities[ps->clientNum], entity_event_t::EV_ITEMUSEFAIL, to_underlying( itemUseFail_t::SENTRY_NOROOM ));
 			return 0;
 		}
 
 		return 1;
-	case HI_SHIELD:
+	case holdable_t::HI_SHIELD:
 		mins[0] = -8;
 		mins[1] = -8;
 		mins[2] = 0;
@@ -2651,28 +2651,28 @@ int G_ItemUsable(playerState_t *ps, holdable_t forcedUse)
 		AngleVectors (ps->viewangles, fwd, nullptr, nullptr);
 		fwd[2] = 0;
 		VectorMA(ps->origin, 64, fwd, dest);
-		trap->Trace(&tr, ps->origin, mins, maxs, dest, ps->clientNum, MASK_SHOT, false, G2TRFLAG_NONE, 0 );
+		trap->Trace(&tr, ps->origin, mins, maxs, dest, ps->clientNum, MASK_SHOT, false, g2TraceFlags_t::G2TRFLAG_NONE, 0 );
 		if (tr.fraction > 0.9 && !tr.startsolid && !tr.allsolid)
 		{
 			VectorCopy(tr.endpos, pos);
 			VectorSet( dest, pos[0], pos[1], pos[2] - 4096 );
-			trap->Trace( &tr, pos, mins, maxs, dest, ps->clientNum, MASK_SOLID, false, G2TRFLAG_NONE, 0 );
+			trap->Trace( &tr, pos, mins, maxs, dest, ps->clientNum, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0 );
 			if ( !tr.startsolid && !tr.allsolid )
 			{
 				return 1;
 			}
 		}
-		G_AddEvent(&g_entities[ps->clientNum], EV_ITEMUSEFAIL, to_underlying( SHIELD_NOROOM ));
+		G_AddEvent(&g_entities[ps->clientNum], entity_event_t::EV_ITEMUSEFAIL, to_underlying( itemUseFail_t::SHIELD_NOROOM ));
 		return 0;
-	case HI_JETPACK: //do something?
+	case holdable_t::HI_JETPACK: //do something?
 		return 1;
-	case HI_HEALTHDISP:
+	case holdable_t::HI_HEALTHDISP:
 		return 1;
-	case HI_AMMODISP:
+	case holdable_t::HI_AMMODISP:
 		return 1;
-	case HI_EWEB:
+	case holdable_t::HI_EWEB:
 		return 1;
-	case HI_CLOAK:
+	case holdable_t::HI_CLOAK:
 		return 1;
 	default:
 		return 1;
@@ -2700,12 +2700,12 @@ void Cmd_ToggleSaber_f(gentity_t *ent)
 		return;
 	}
 
-	if (ent->client->ps.forceHandExtend != HANDEXTEND_NONE)
+	if (ent->client->ps.forceHandExtend != forceHandAnims_t::HANDEXTEND_NONE)
 	{
 		return;
 	}
 
-	if (ent->client->ps.weapon != WP_SABER)
+	if (ent->client->ps.weapon != weapon_t::WP_SABER)
 	{
 		return;
 	}
@@ -2733,11 +2733,11 @@ void Cmd_ToggleSaber_f(gentity_t *ent)
 
 			if (ent->client->saber[0].soundOn)
 			{
-				G_Sound(ent, CHAN_AUTO, ent->client->saber[0].soundOn);
+				G_Sound(ent, soundChannel_t::CHAN_AUTO, ent->client->saber[0].soundOn);
 			}
 			if (ent->client->saber[1].soundOn)
 			{
-				G_Sound(ent, CHAN_AUTO, ent->client->saber[1].soundOn);
+				G_Sound(ent, soundChannel_t::CHAN_AUTO, ent->client->saber[1].soundOn);
 			}
 		}
 		else
@@ -2745,12 +2745,12 @@ void Cmd_ToggleSaber_f(gentity_t *ent)
 			ent->client->ps.saberHolstered = 2;
 			if (ent->client->saber[0].soundOff)
 			{
-				G_Sound(ent, CHAN_AUTO, ent->client->saber[0].soundOff);
+				G_Sound(ent, soundChannel_t::CHAN_AUTO, ent->client->saber[0].soundOff);
 			}
 			if (ent->client->saber[1].soundOff &&
 				ent->client->saber[1].model[0])
 			{
-				G_Sound(ent, CHAN_AUTO, ent->client->saber[1].soundOff);
+				G_Sound(ent, soundChannel_t::CHAN_AUTO, ent->client->saber[1].soundOff);
 			}
 			//prevent anything from being done for 400ms after holster
 			ent->client->ps.weaponTime = 400;
@@ -2763,7 +2763,7 @@ extern vmCvar_t		d_saberStanceDebug;
 extern bool WP_SaberCanTurnOffSomeBlades( saberInfo_t *saber );
 void Cmd_SaberAttackCycle_f(gentity_t *ent)
 {
-	saber_styles_t selectLevel = SS_NONE;
+	saber_styles_t selectLevel = saber_styles_t::SS_NONE;
 	bool usingSiegeStyle = false;
 
 	if ( !ent || !ent->client )
@@ -2779,14 +2779,14 @@ void Cmd_SaberAttackCycle_f(gentity_t *ent)
 
 	if ( ent->health <= 0
 			|| ent->client->tempSpectate >= level.time
-			|| ent->client->sess.sessionTeam == TEAM_SPECTATOR )
+			|| ent->client->sess.sessionTeam == team_t::TEAM_SPECTATOR )
 	{
 		trap->SendServerCommand( ent-g_entities, va( "print \"%s\n\"", G_GetStringEdString( "MP_SVGAME", "MUSTBEALIVE" ) ) );
 		return;
 	}
 
 
-	if ( ent->client->ps.weapon != WP_SABER )
+	if ( ent->client->ps.weapon != weapon_t::WP_SABER )
 	{
         return;
 	}
@@ -2804,27 +2804,27 @@ void Cmd_SaberAttackCycle_f(gentity_t *ent)
 			if ( ent->client->ps.saberHolstered == 1 )
 			{//have one holstered
 				//unholster it
-				G_Sound(ent, CHAN_AUTO, ent->client->saber[1].soundOn);
+				G_Sound(ent, soundChannel_t::CHAN_AUTO, ent->client->saber[1].soundOn);
 				ent->client->ps.saberHolstered = 0;
 				//g_active should take care of this, but...
-				ent->client->ps.fd.saberAnimLevel = SS_DUAL;
+				ent->client->ps.fd.saberAnimLevel = saber_styles_t::SS_DUAL;
 			}
 			else if ( ent->client->ps.saberHolstered == 0 )
 			{//have none holstered
-				if ( Any( ent->client->saber[1].saberFlags2 & SFL2_NO_MANUAL_DEACTIVATE ) )
+				if ( Any( ent->client->saber[1].saberFlags2 & saberFlags2_t::SFL2_NO_MANUAL_DEACTIVATE ) )
 				{//can't turn it off manually
 				}
 				else if ( ent->client->saber[1].bladeStyle2Start > 0
-					&& Any( ent->client->saber[1].saberFlags2 & SFL2_NO_MANUAL_DEACTIVATE2 ) )
+					&& Any( ent->client->saber[1].saberFlags2 & saberFlags2_t::SFL2_NO_MANUAL_DEACTIVATE2 ) )
 				{//can't turn it off manually
 				}
 				else
 				{
 					//turn it off
-					G_Sound(ent, CHAN_AUTO, ent->client->saber[1].soundOff);
+					G_Sound(ent, soundChannel_t::CHAN_AUTO, ent->client->saber[1].soundOff);
 					ent->client->ps.saberHolstered = 1;
 					//g_active should take care of this, but...
-					ent->client->ps.fd.saberAnimLevel = SS_FAST;
+					ent->client->ps.fd.saberAnimLevel = saber_styles_t::SS_FAST;
 				}
 			}
 
@@ -2849,7 +2849,7 @@ void Cmd_SaberAttackCycle_f(gentity_t *ent)
 				return;
 			}
 			//turn it on
-			G_Sound(ent, CHAN_AUTO, ent->client->saber[0].soundOn);
+			G_Sound(ent, soundChannel_t::CHAN_AUTO, ent->client->saber[0].soundOn);
 			ent->client->ps.saberHolstered = 0;
 			//g_active should take care of this, but...
 			if ( ent->client->saber[0].stylesForbidden )
@@ -2867,20 +2867,20 @@ void Cmd_SaberAttackCycle_f(gentity_t *ent)
 		}
 		else if ( ent->client->ps.saberHolstered == 0 )
 		{//both blades on
-			if ( Any( ent->client->saber[0].saberFlags2 & SFL2_NO_MANUAL_DEACTIVATE ) )
+			if ( Any( ent->client->saber[0].saberFlags2 & saberFlags2_t::SFL2_NO_MANUAL_DEACTIVATE ) )
 			{//can't turn it off manually
 			}
 			else if ( ent->client->saber[0].bladeStyle2Start > 0
-				&& Any( ent->client->saber[0].saberFlags2 & SFL2_NO_MANUAL_DEACTIVATE2 ) )
+				&& Any( ent->client->saber[0].saberFlags2 & saberFlags2_t::SFL2_NO_MANUAL_DEACTIVATE2 ) )
 			{//can't turn it off manually
 			}
 			else
 			{
 				//turn second one off
-				G_Sound(ent, CHAN_AUTO, ent->client->saber[0].soundOff);
+				G_Sound(ent, soundChannel_t::CHAN_AUTO, ent->client->saber[0].soundOff);
 				ent->client->ps.saberHolstered = 1;
 				//g_active should take care of this, but...
-				if ( ent->client->saber[0].singleBladeStyle != SS_NONE )
+				if ( ent->client->saber[0].singleBladeStyle != saber_styles_t::SS_NONE )
 				{
 					if ( ent->client->ps.weaponTime <= 0 )
 					{ //not busy, set it now
@@ -2900,7 +2900,7 @@ void Cmd_SaberAttackCycle_f(gentity_t *ent)
 		return;
 	}
 
-	if (ent->client->saberCycleQueue != SS_NONE)
+	if (ent->client->saberCycleQueue != saber_styles_t::SS_NONE)
 	{ //resume off of the queue if we haven't gotten a chance to update it yet
 		selectLevel = ent->client->saberCycleQueue;
 	}
@@ -2909,7 +2909,7 @@ void Cmd_SaberAttackCycle_f(gentity_t *ent)
 		selectLevel = ent->client->ps.fd.saberAnimLevel;
 	}
 
-	if (level.gametype == GT_SIEGE &&
+	if (level.gametype == gametype_t::GT_SIEGE &&
 		ent->client->siegeClass != -1 &&
 		bgSiegeClasses[ent->client->siegeClass].saberStance)
 	{ //we have a flag of useable stances so cycle through it instead
@@ -2919,9 +2919,9 @@ void Cmd_SaberAttackCycle_f(gentity_t *ent)
 
 		while (i != selectLevel)
 		{ //cycle around upward til we hit the next style or end up back on this one
-			if (i >= SS_NUM_SABER_STYLES)
+			if (i >= saber_styles_t::SS_NUM_SABER_STYLES)
 			{ //loop back around to the first valid
-				i = SS_FAST;
+				i = saber_styles_t::SS_FAST;
 			}
 
 			if (bgSiegeClasses[ent->client->siegeClass].saberStance & Bit( i ))
@@ -2940,9 +2940,9 @@ void Cmd_SaberAttackCycle_f(gentity_t *ent)
 	else
 	{
 		selectLevel++;
-		if ( selectLevel > BG_MaxSaberStyle( ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] ) )
+		if ( selectLevel > BG_MaxSaberStyle( ent->client->ps.fd.forcePowerLevel[forcePowers_t::FP_SABER_OFFENSE] ) )
 		{
-			selectLevel = SS_FAST;
+			selectLevel = saber_styles_t::SS_FAST;
 		}
 		if (d_saberStanceDebug.integer)
 		{
@@ -2953,13 +2953,13 @@ void Cmd_SaberAttackCycle_f(gentity_t *ent)
 #ifndef FINAL_BUILD
 	switch ( selectLevel )
 	{
-	case FORCE_LEVEL_1:
+	case forcePowerLevels_t::FORCE_LEVEL_1:
 		trap->SendServerCommand( ent-g_entities, va("print \"Lightsaber Combat Style: %sfast\n\"", S_COLOR_BLUE) );
 		break;
-	case FORCE_LEVEL_2:
+	case forcePowerLevels_t::FORCE_LEVEL_2:
 		trap->SendServerCommand( ent-g_entities, va("print \"Lightsaber Combat Style: %smedium\n\"", S_COLOR_YELLOW) );
 		break;
-	case FORCE_LEVEL_3:
+	case forcePowerLevels_t::FORCE_LEVEL_3:
 		trap->SendServerCommand( ent-g_entities, va("print \"Lightsaber Combat Style: %sstrong\n\"", S_COLOR_RED) );
 		break;
 	}
@@ -3010,14 +3010,14 @@ void Cmd_EngageDuel_f(gentity_t *ent)
 		return;
 	}
 
-	if (level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL)
+	if (level.gametype == gametype_t::GT_DUEL || level.gametype == gametype_t::GT_POWERDUEL)
 	{ //rather pointless in this mode..
 		trap->SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NODUEL_GAMETYPE")) );
 		return;
 	}
 
-	//if (level.gametype >= GT_TEAM && level.gametype != GT_SIEGE)
-	if (level.gametype >= GT_TEAM)
+	//if (level.gametype >= gametype_t::GT_TEAM && level.gametype != gametype_t::GT_SIEGE)
+	if (level.gametype >= gametype_t::GT_TEAM)
 	{ //no private dueling in team modes
 		trap->SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NODUEL_GAMETYPE")) );
 		return;
@@ -3028,7 +3028,7 @@ void Cmd_EngageDuel_f(gentity_t *ent)
 		return;
 	}
 
-	if (ent->client->ps.weapon != WP_SABER)
+	if (ent->client->ps.weapon != weapon_t::WP_SABER)
 	{
 		return;
 	}
@@ -3070,21 +3070,21 @@ void Cmd_EngageDuel_f(gentity_t *ent)
 	fwdOrg[1] = ent->client->ps.origin[1] + forward[1]*256;
 	fwdOrg[2] = (ent->client->ps.origin[2]+ent->client->ps.viewheight) + forward[2]*256;
 
-	trap->Trace(&tr, ent->client->ps.origin, nullptr, nullptr, fwdOrg, ent->s.number, MASK_PLAYERSOLID, false, G2TRFLAG_NONE, 0);
+	trap->Trace(&tr, ent->client->ps.origin, nullptr, nullptr, fwdOrg, ent->s.number, MASK_PLAYERSOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 	if (tr.fraction != 1 && tr.entityNum < MAX_CLIENTS)
 	{
 		gentity_t *challenged = &g_entities[tr.entityNum];
 
 		if (!challenged || !challenged->client || !challenged->inuse ||
-			challenged->health < 1 || challenged->client->ps.stats[STAT_HEALTH] < 1 ||
-			challenged->client->ps.weapon != WP_SABER || challenged->client->ps.duelInProgress ||
+			challenged->health < 1 || challenged->client->ps.stats[statIndex_t::STAT_HEALTH] < 1 ||
+			challenged->client->ps.weapon != weapon_t::WP_SABER || challenged->client->ps.duelInProgress ||
 			challenged->client->ps.saberInFlight)
 		{
 			return;
 		}
 
-		if (level.gametype >= GT_TEAM && OnSameTeam(ent, challenged))
+		if (level.gametype >= gametype_t::GT_TEAM && OnSameTeam(ent, challenged))
 		{
 			return;
 		}
@@ -3099,8 +3099,8 @@ void Cmd_EngageDuel_f(gentity_t *ent)
 			ent->client->ps.duelTime = level.time + 2000;
 			challenged->client->ps.duelTime = level.time + 2000;
 
-			G_AddEvent(ent, EV_PRIVATE_DUEL, 1);
-			G_AddEvent(challenged, EV_PRIVATE_DUEL, 1);
+			G_AddEvent(ent, entity_event_t::EV_PRIVATE_DUEL, 1);
+			G_AddEvent(challenged, entity_event_t::EV_PRIVATE_DUEL, 1);
 
 			//Holster their sabers now, until the duel starts (then they'll get auto-turned on to look cool)
 
@@ -3108,12 +3108,12 @@ void Cmd_EngageDuel_f(gentity_t *ent)
 			{
 				if (ent->client->saber[0].soundOff)
 				{
-					G_Sound(ent, CHAN_AUTO, ent->client->saber[0].soundOff);
+					G_Sound(ent, soundChannel_t::CHAN_AUTO, ent->client->saber[0].soundOff);
 				}
 				if (ent->client->saber[1].soundOff &&
 					ent->client->saber[1].model[0])
 				{
-					G_Sound(ent, CHAN_AUTO, ent->client->saber[1].soundOff);
+					G_Sound(ent, soundChannel_t::CHAN_AUTO, ent->client->saber[1].soundOff);
 				}
 				ent->client->ps.weaponTime = 400;
 				ent->client->ps.saberHolstered = 2;
@@ -3122,12 +3122,12 @@ void Cmd_EngageDuel_f(gentity_t *ent)
 			{
 				if (challenged->client->saber[0].soundOff)
 				{
-					G_Sound(challenged, CHAN_AUTO, challenged->client->saber[0].soundOff);
+					G_Sound(challenged, soundChannel_t::CHAN_AUTO, challenged->client->saber[0].soundOff);
 				}
 				if (challenged->client->saber[1].soundOff &&
 					challenged->client->saber[1].model[0])
 				{
-					G_Sound(challenged, CHAN_AUTO, challenged->client->saber[1].soundOff);
+					G_Sound(challenged, soundChannel_t::CHAN_AUTO, challenged->client->saber[1].soundOff);
 				}
 				challenged->client->ps.weaponTime = 400;
 				challenged->client->ps.saberHolstered = 2;
@@ -3142,7 +3142,7 @@ void Cmd_EngageDuel_f(gentity_t *ent)
 
 		challenged->client->ps.fd.privateDuelTime = 0; //reset the timer in case this player just got out of a duel. He should still be able to accept the challenge.
 
-		ent->client->ps.forceHandExtend = HANDEXTEND_DUELCHALLENGE;
+		ent->client->ps.forceHandExtend = forceHandAnims_t::HANDEXTEND_DUELCHALLENGE;
 		ent->client->ps.forceHandExtendTime = level.time + 1000;
 
 		ent->client->ps.duelIndex = challenged->s.number;
@@ -3171,17 +3171,17 @@ void Cmd_DebugSetSaberMove_f(gentity_t *self)
 
 	const int move = atoi( arg );
 
-	if ( move < to_underlying( LS_NONE ) )
+	if ( move < to_underlying( saberMoveName_t::LS_NONE ) )
 	{	// no move has a negative number
 		return;
 	}
 
 	self->client->ps.saberMove = static_cast<saberMoveName_t>( move );
-	self->client->ps.saberBlocked = BLOCKED_BOUNCE_MOVE;
+	self->client->ps.saberBlocked = saberBlockedType_t::BLOCKED_BOUNCE_MOVE;
 
-	if (self->client->ps.saberMove >= LS_MOVE_MAX)
+	if (self->client->ps.saberMove >= saberMoveName_t::LS_MOVE_MAX)
 	{
-		self->client->ps.saberMove = LS_MOVE_MAX-1;
+		self->client->ps.saberMove = saberMoveName_t::LS_MOVE_MAX-1;
 	}
 
 	Com_Printf("Anim for move: %s\n", BG_AnimName( saberMoveData[self->client->ps.saberMove].animToUse ));
@@ -3191,7 +3191,7 @@ void Cmd_DebugSetBodyAnim_f(gentity_t *self)
 {
 	int argNum = trap->Argc();
 	char arg[MAX_STRING_CHARS];
-	animNumber_t i = FACE_TALK0;
+	animNumber_t i = animNumber_t::FACE_TALK0;
 
 	if (argNum < 2)
 	{
@@ -3205,7 +3205,7 @@ void Cmd_DebugSetBodyAnim_f(gentity_t *self)
 		return;
 	}
 
-	while (i < MAX_ANIMATIONS)
+	while (i < animNumber_t::MAX_ANIMATIONS)
 	{
 		if (!Q_stricmp(arg, BG_AnimName( i )))
 		{
@@ -3214,13 +3214,13 @@ void Cmd_DebugSetBodyAnim_f(gentity_t *self)
 		i++;
 	}
 
-	if (i == MAX_ANIMATIONS)
+	if (i == animNumber_t::MAX_ANIMATIONS)
 	{
 		Com_Printf("Animation '%s' does not exist\n", arg);
 		return;
 	}
 
-	G_SetAnim(self, nullptr, SETANIM_BOTH, i, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0);
+	G_SetAnim(self, nullptr, setAnimParts_t::SETANIM_BOTH, i, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD, 0);
 
 	Com_Printf("Set body anim to %s\n", arg);
 }
@@ -3228,7 +3228,7 @@ void Cmd_DebugSetBodyAnim_f(gentity_t *self)
 
 void StandardSetBodyAnim(gentity_t *self, animNumber_t anim, setAnimFlags_t flags)
 {
-	G_SetAnim(self, nullptr, SETANIM_BOTH, anim, flags, 0);
+	G_SetAnim(self, nullptr, setAnimParts_t::SETANIM_BOTH, anim, flags, 0);
 }
 
 void DismembermentTest(gentity_t *self);
@@ -3246,7 +3246,7 @@ bool TryGrapple(gentity_t *ent)
 	{ //weapon busy
 		return false;
 	}
-	if (ent->client->ps.forceHandExtend != HANDEXTEND_NONE)
+	if (ent->client->ps.forceHandExtend != forceHandAnims_t::HANDEXTEND_NONE)
 	{ //force power or knockdown or something
 		return false;
 	}
@@ -3255,12 +3255,12 @@ bool TryGrapple(gentity_t *ent)
 		return false;
 	}
 
-	if (ent->client->ps.weapon != WP_SABER && ent->client->ps.weapon != WP_MELEE)
+	if (ent->client->ps.weapon != weapon_t::WP_SABER && ent->client->ps.weapon != weapon_t::WP_MELEE)
 	{
 		return false;
 	}
 
-	if (ent->client->ps.weapon == WP_SABER && !ent->client->ps.saberHolstered)
+	if (ent->client->ps.weapon == weapon_t::WP_SABER && !ent->client->ps.saberHolstered)
 	{
 		Cmd_ToggleSaber_f(ent);
 		if (!ent->client->ps.saberHolstered)
@@ -3269,9 +3269,9 @@ bool TryGrapple(gentity_t *ent)
 		}
 	}
 
-	//G_SetAnim(ent, &ent->client->pers.cmd, SETANIM_BOTH, BOTH_KYLE_PA_1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0);
-	G_SetAnim(ent, &ent->client->pers.cmd, SETANIM_BOTH, BOTH_KYLE_GRAB, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0);
-	if (ent->client->ps.torsoAnim == BOTH_KYLE_GRAB)
+	//G_SetAnim(ent, &ent->client->pers.cmd, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_KYLE_PA_1, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD, 0);
+	G_SetAnim(ent, &ent->client->pers.cmd, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_KYLE_GRAB, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD, 0);
+	if (ent->client->ps.torsoAnim == animNumber_t::BOTH_KYLE_GRAB)
 	{ //providing the anim set succeeded..
 		ent->client->ps.torsoTimer += 500; //make the hand stick out a little longer than it normally would
 		if (ent->client->ps.legsAnim == ent->client->ps.torsoAnim)
@@ -3306,7 +3306,7 @@ void Cmd_TargetUse_f( gentity_t *ent )
 }
 
 void Cmd_TheDestroyer_f( gentity_t *ent ) {
-	if ( !ent->client->ps.saberHolstered || ent->client->ps.weapon != WP_SABER )
+	if ( !ent->client->ps.saberHolstered || ent->client->ps.weapon != weapon_t::WP_SABER )
 		return;
 
 	Cmd_ToggleSaber_f( ent );
@@ -3395,7 +3395,6 @@ enum class commandFlags_t
 	CMD_CHEAT				= 1<<1,
 	CMD_ALIVE				= 1<<2,
 };
-using enum commandFlags_t;
 template <> inline constexpr bool enableEnumFlags<commandFlags_t> = true;
 
 typedef struct command_s {
@@ -3409,45 +3408,45 @@ int cmdcmp( const void *a, const void *b ) {
 }
 
 command_t commands[] = {
-	{ "addbot",				Cmd_AddBot_f,				CMD_NONE },
-	{ "callteamvote",		Cmd_CallTeamVote_f,			CMD_NOINTERMISSION },
-	{ "callvote",			Cmd_CallVote_f,				CMD_NOINTERMISSION },
-	{ "debugBMove_Back",	Cmd_BotMoveBack_f,			CMD_CHEAT|CMD_ALIVE },
-	{ "debugBMove_Forward",	Cmd_BotMoveForward_f,		CMD_CHEAT|CMD_ALIVE },
-	{ "debugBMove_Left",	Cmd_BotMoveLeft_f,			CMD_CHEAT|CMD_ALIVE },
-	{ "debugBMove_Right",	Cmd_BotMoveRight_f,			CMD_CHEAT|CMD_ALIVE },
-	{ "debugBMove_Up",		Cmd_BotMoveUp_f,			CMD_CHEAT|CMD_ALIVE },
-	{ "duelteam",			Cmd_DuelTeam_f,				CMD_NOINTERMISSION },
-	{ "follow",				Cmd_Follow_f,				CMD_NOINTERMISSION },
-	{ "follownext",			Cmd_FollowNext_f,			CMD_NOINTERMISSION },
-	{ "followprev",			Cmd_FollowPrev_f,			CMD_NOINTERMISSION },
-	{ "forcechanged",		Cmd_ForceChanged_f,			CMD_NONE },
-	{ "gc",					Cmd_GameCommand_f,			CMD_NOINTERMISSION },
-	{ "give",				Cmd_Give_f,					CMD_CHEAT|CMD_ALIVE|CMD_NOINTERMISSION },
-	{ "giveother",			Cmd_GiveOther_f,			CMD_CHEAT|CMD_NOINTERMISSION },
-	{ "god",				Cmd_God_f,					CMD_CHEAT|CMD_ALIVE|CMD_NOINTERMISSION },
-	{ "kill",				Cmd_Kill_f,					CMD_ALIVE|CMD_NOINTERMISSION },
-	{ "killother",			Cmd_KillOther_f,			CMD_CHEAT|CMD_NOINTERMISSION },
+	{ "addbot",				Cmd_AddBot_f,				commandFlags_t::CMD_NONE },
+	{ "callteamvote",		Cmd_CallTeamVote_f,			commandFlags_t::CMD_NOINTERMISSION },
+	{ "callvote",			Cmd_CallVote_f,				commandFlags_t::CMD_NOINTERMISSION },
+	{ "debugBMove_Back",	Cmd_BotMoveBack_f,			commandFlags_t::CMD_CHEAT|commandFlags_t::CMD_ALIVE },
+	{ "debugBMove_Forward",	Cmd_BotMoveForward_f,		commandFlags_t::CMD_CHEAT|commandFlags_t::CMD_ALIVE },
+	{ "debugBMove_Left",	Cmd_BotMoveLeft_f,			commandFlags_t::CMD_CHEAT|commandFlags_t::CMD_ALIVE },
+	{ "debugBMove_Right",	Cmd_BotMoveRight_f,			commandFlags_t::CMD_CHEAT|commandFlags_t::CMD_ALIVE },
+	{ "debugBMove_Up",		Cmd_BotMoveUp_f,			commandFlags_t::CMD_CHEAT|commandFlags_t::CMD_ALIVE },
+	{ "duelteam",			Cmd_DuelTeam_f,				commandFlags_t::CMD_NOINTERMISSION },
+	{ "follow",				Cmd_Follow_f,				commandFlags_t::CMD_NOINTERMISSION },
+	{ "follownext",			Cmd_FollowNext_f,			commandFlags_t::CMD_NOINTERMISSION },
+	{ "followprev",			Cmd_FollowPrev_f,			commandFlags_t::CMD_NOINTERMISSION },
+	{ "forcechanged",		Cmd_ForceChanged_f,			commandFlags_t::CMD_NONE },
+	{ "gc",					Cmd_GameCommand_f,			commandFlags_t::CMD_NOINTERMISSION },
+	{ "give",				Cmd_Give_f,					commandFlags_t::CMD_CHEAT|commandFlags_t::CMD_ALIVE|commandFlags_t::CMD_NOINTERMISSION },
+	{ "giveother",			Cmd_GiveOther_f,			commandFlags_t::CMD_CHEAT|commandFlags_t::CMD_NOINTERMISSION },
+	{ "god",				Cmd_God_f,					commandFlags_t::CMD_CHEAT|commandFlags_t::CMD_ALIVE|commandFlags_t::CMD_NOINTERMISSION },
+	{ "kill",				Cmd_Kill_f,					commandFlags_t::CMD_ALIVE|commandFlags_t::CMD_NOINTERMISSION },
+	{ "killother",			Cmd_KillOther_f,			commandFlags_t::CMD_CHEAT|commandFlags_t::CMD_NOINTERMISSION },
 //	{ "kylesmash",			TryGrapple,					CMD_NONE },
-	{ "levelshot",			Cmd_LevelShot_f,			CMD_CHEAT|CMD_ALIVE|CMD_NOINTERMISSION },
-	{ "maplist",			Cmd_MapList_f,				CMD_NOINTERMISSION },
-	{ "noclip",				Cmd_Noclip_f,				CMD_CHEAT|CMD_ALIVE|CMD_NOINTERMISSION },
-	{ "notarget",			Cmd_Notarget_f,				CMD_CHEAT|CMD_ALIVE|CMD_NOINTERMISSION },
-	{ "npc",				Cmd_NPC_f,					CMD_CHEAT|CMD_ALIVE },
-	{ "say",				Cmd_Say_f,					CMD_NONE },
-	{ "say_team",			Cmd_SayTeam_f,				CMD_NONE },
-	{ "score",				Cmd_Score_f,				CMD_NONE },
-	{ "setviewpos",			Cmd_SetViewpos_f,			CMD_CHEAT|CMD_NOINTERMISSION },
-	{ "siegeclass",			Cmd_SiegeClass_f,			CMD_NOINTERMISSION },
-	{ "team",				Cmd_Team_f,					CMD_NOINTERMISSION },
+	{ "levelshot",			Cmd_LevelShot_f,			commandFlags_t::CMD_CHEAT|commandFlags_t::CMD_ALIVE|commandFlags_t::CMD_NOINTERMISSION },
+	{ "maplist",			Cmd_MapList_f,				commandFlags_t::CMD_NOINTERMISSION },
+	{ "noclip",				Cmd_Noclip_f,				commandFlags_t::CMD_CHEAT|commandFlags_t::CMD_ALIVE|commandFlags_t::CMD_NOINTERMISSION },
+	{ "notarget",			Cmd_Notarget_f,				commandFlags_t::CMD_CHEAT|commandFlags_t::CMD_ALIVE|commandFlags_t::CMD_NOINTERMISSION },
+	{ "npc",				Cmd_NPC_f,					commandFlags_t::CMD_CHEAT|commandFlags_t::CMD_ALIVE },
+	{ "say",				Cmd_Say_f,					commandFlags_t::CMD_NONE },
+	{ "say_team",			Cmd_SayTeam_f,				commandFlags_t::CMD_NONE },
+	{ "score",				Cmd_Score_f,				commandFlags_t::CMD_NONE },
+	{ "setviewpos",			Cmd_SetViewpos_f,			commandFlags_t::CMD_CHEAT|commandFlags_t::CMD_NOINTERMISSION },
+	{ "siegeclass",			Cmd_SiegeClass_f,			commandFlags_t::CMD_NOINTERMISSION },
+	{ "team",				Cmd_Team_f,					commandFlags_t::CMD_NOINTERMISSION },
 //	{ "teamtask",			Cmd_TeamTask_f,				CMD_NOINTERMISSION },
-	{ "teamvote",			Cmd_TeamVote_f,				CMD_NOINTERMISSION },
-	{ "tell",				Cmd_Tell_f,					CMD_NONE },
-	{ "thedestroyer",		Cmd_TheDestroyer_f,			CMD_CHEAT|CMD_ALIVE|CMD_NOINTERMISSION },
-	{ "t_use",				Cmd_TargetUse_f,			CMD_CHEAT|CMD_ALIVE },
-	{ "voice_cmd",			Cmd_VoiceCommand_f,			CMD_NOINTERMISSION },
-	{ "vote",				Cmd_Vote_f,					CMD_NOINTERMISSION },
-	{ "where",				Cmd_Where_f,				CMD_NOINTERMISSION },
+	{ "teamvote",			Cmd_TeamVote_f,				commandFlags_t::CMD_NOINTERMISSION },
+	{ "tell",				Cmd_Tell_f,					commandFlags_t::CMD_NONE },
+	{ "thedestroyer",		Cmd_TheDestroyer_f,			commandFlags_t::CMD_CHEAT|commandFlags_t::CMD_ALIVE|commandFlags_t::CMD_NOINTERMISSION },
+	{ "t_use",				Cmd_TargetUse_f,			commandFlags_t::CMD_CHEAT|commandFlags_t::CMD_ALIVE },
+	{ "voice_cmd",			Cmd_VoiceCommand_f,			commandFlags_t::CMD_NOINTERMISSION },
+	{ "vote",				Cmd_Vote_f,					commandFlags_t::CMD_NOINTERMISSION },
+	{ "where",				Cmd_Where_f,				commandFlags_t::CMD_NOINTERMISSION },
 };
 static const size_t numCommands = ARRAY_LEN( commands );
 
@@ -3457,7 +3456,7 @@ void ClientCommand( int clientNum ) {
 	command_t	*command = nullptr;
 
 	ent = g_entities + clientNum;
-	if ( !ent->client || ent->client->pers.connected != CON_CONNECTED ) {
+	if ( !ent->client || ent->client->pers.connected != clientConnected_t::CON_CONNECTED ) {
 		G_SecurityLogPrintf( "ClientCommand(%d) without an active connection\n", clientNum );
 		return;		// not fully in game yet
 	}
@@ -3476,24 +3475,24 @@ void ClientCommand( int clientNum ) {
 		return;
 	}
 
-	else if ( Any( command->flags & CMD_NOINTERMISSION )
+	else if ( Any( command->flags & commandFlags_t::CMD_NOINTERMISSION )
 		&& ( level.intermissionQueued || level.intermissiontime ) )
 	{
 		trap->SendServerCommand( clientNum, va( "print \"%s (%s)\n\"", G_GetStringEdString( "MP_SVGAME", "CANNOT_TASK_INTERMISSION" ), cmd ) );
 		return;
 	}
 
-	else if ( Any( command->flags & CMD_CHEAT )
+	else if ( Any( command->flags & commandFlags_t::CMD_CHEAT )
 		&& !sv_cheats.integer )
 	{
 		trap->SendServerCommand( clientNum, va( "print \"%s\n\"", G_GetStringEdString( "MP_SVGAME", "NOCHEATS" ) ) );
 		return;
 	}
 
-	else if ( Any( command->flags & CMD_ALIVE )
+	else if ( Any( command->flags & commandFlags_t::CMD_ALIVE )
 		&& (ent->health <= 0
 			|| ent->client->tempSpectate >= level.time
-			|| ent->client->sess.sessionTeam == TEAM_SPECTATOR) )
+			|| ent->client->sess.sessionTeam == team_t::TEAM_SPECTATOR) )
 	{
 		trap->SendServerCommand( clientNum, va( "print \"%s\n\"", G_GetStringEdString( "MP_SVGAME", "MUSTBEALIVE" ) ) );
 		return;

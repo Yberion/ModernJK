@@ -49,7 +49,6 @@ enum class pushPop_t
 	PUSH_FRONT,
 	PUSH_BACK
 };
-using enum pushPop_t;
 
 // Templates
 

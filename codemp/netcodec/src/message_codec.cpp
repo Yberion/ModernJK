@@ -13,7 +13,6 @@ namespace detail {
 namespace {
 
 using ctx::Of;
-using enum ctx::Scalar;
 
 constexpr size_t kMaxOps = 4096;               // decoder limit against malformed input
 constexpr uint32_t kEfNodraw = 1U << 8U;
@@ -345,9 +344,9 @@ void PutEntities(O &io, PredCtx &c, R &nw, SnapshotReader &old, const BaselineTa
 		const int64_t gap = num - prevnum - 1;
 		prevnum = num;
 		if (gap < int64_t{ kEntityGapRaw }) {
-			io.Symbol(Of(kEntGap), static_cast<uint64_t>(gap));
+			io.Symbol(Of(ctx::Scalar::kEntGap), static_cast<uint64_t>(gap));
 		} else {
-			io.Symbol(Of(kEntGap), kEntityGapRaw);
+			io.Symbol(Of(ctx::Scalar::kEntGap), kEntityGapRaw);
 			io.Raw(static_cast<uint64_t>(gap), 10);
 		}
 		io.Symbol(ctx::kEntityOp + prevop, op);
@@ -358,7 +357,7 @@ void PutEntities(O &io, PredCtx &c, R &nw, SnapshotReader &old, const BaselineTa
 		c.older = older.empty() ? nullptr : older.data();
 		PutEntity(io, c, ne, basest, std::span<const uint8_t>(list.data(), nch), m);
 	}
-	io.Symbol(Of(kEntGap), kEntityListEnd);
+	io.Symbol(Of(ctx::Scalar::kEntGap), kEntityListEnd);
 }
 
 // out: a RingSink or a TableSink
@@ -377,7 +376,7 @@ NETCODEC_ALWAYS_INLINE bool GetEntities(In &io, PredCtx &c, RingReader old, cons
 	const FieldDesc &typeField = kEntityFields[kEntityTypeIndex];
 	EntityCursor<RingReader> olderList(c.olderSnap);
 	for (;;) {
-		const uint32_t g = io.Symbol(Of(kEntGap));
+		const uint32_t g = io.Symbol(Of(ctx::Scalar::kEntGap));
 		if (g == kEntityListEnd) break;
 		const uint64_t gap = g == kEntityGapRaw ? io.Raw(10) : g;
 		const uint64_t num = static_cast<uint64_t>(prevnum + 1) + gap;
@@ -482,7 +481,7 @@ std::string_view HeldCommand(int64_t seq, std::span<const Op> before, int64_t kn
 }
 
 uint32_t SameCtx(bool prevSame, bool refNumber) noexcept {
-	return Of(kCmdSame0) + (prevSame ? 0U : 1U) + (refNumber ? 0U : 2U);
+	return Of(ctx::Scalar::kCmdSame0) + (prevSame ? 0U : 1U) + (refNumber ? 0U : 2U);
 }
 
 template <class O>
@@ -498,13 +497,13 @@ void PutCommand(O &io, const Op &op, std::span<const Op> before, int64_t known, 
 		if (t.data() != nullptr && Verb(t) == verb) ref = t;
 	}
 	if (ref.data() == nullptr) {
-		io.Class(Of(kCmdRef), 0);
+		io.Class(Of(ctx::Scalar::kCmdRef), 0);
 		PutCommandText(io, op.text);
 		return;
 	}
-	io.Class(Of(kCmdRef), static_cast<uint64_t>(dist));
+	io.Class(Of(ctx::Scalar::kCmdRef), static_cast<uint64_t>(dist));
 	const size_t nr = Tokens::Count(ref);
-	io.Class(Of(kCmdTokens), Zz(static_cast<int64_t>(nn) - static_cast<int64_t>(nr)));
+	io.Class(Of(ctx::Scalar::kCmdTokens), Zz(static_cast<int64_t>(nn) - static_cast<int64_t>(nr)));
 	Tokens nt(op.text), rt(ref);
 	bool prevSame = true;
 	for (size_t i = 0; i < nn; i++) {
@@ -521,22 +520,22 @@ void PutCommand(O &io, const Op &op, std::span<const Op> before, int64_t known, 
 		}
 		int64_t v = 0;
 		const bool number = ParseNumber(tok, v);
-		io.Symbol(refNumber ? Of(kCmdKindRefNum) : Of(kCmdKindOther), number ? 0 : 1);
-		if (number && refNumber) io.Class(Of(kCmdNumDelta), Zz(v - rv));
-		else if (number) io.Class(Of(kCmdNum), Zz(v));
+		io.Symbol(refNumber ? Of(ctx::Scalar::kCmdKindRefNum) : Of(ctx::Scalar::kCmdKindOther), number ? 0 : 1);
+		if (number && refNumber) io.Class(Of(ctx::Scalar::kCmdNumDelta), Zz(v - rv));
+		else if (number) io.Class(Of(ctx::Scalar::kCmdNum), Zz(v));
 		else PutCommandText(io, tok);
 	}
 }
 
 bool GetCommand(In &io, Op &op, std::span<const Op> before, int64_t known, const CommandHistory &history) {
 	op.text.clear();
-	const uint64_t dist = io.Class(Of(kCmdRef));
+	const uint64_t dist = io.Class(Of(ctx::Scalar::kCmdRef));
 	if (dist == 0) return GetCommandText(io, op.text);
 	if (dist > static_cast<uint64_t>(kCommandWindow)) return false;
 	const std::string_view ref = HeldCommand(op.seq - static_cast<int64_t>(dist), before, known, history);
 	if (ref.data() == nullptr) return false;
 	const size_t nr = Tokens::Count(ref);
-	const int64_t n = static_cast<int64_t>(nr) + Unzz(io.Class(Of(kCmdTokens)));
+	const int64_t n = static_cast<int64_t>(nr) + Unzz(io.Class(Of(ctx::Scalar::kCmdTokens)));
 	if (n < 1 || n > kMaxTokens) return false;
 	Tokens rt(ref);
 	bool prevSame = true;
@@ -555,10 +554,10 @@ bool GetCommand(In &io, Op &op, std::span<const Op> before, int64_t known, const
 				continue;
 			}
 		}
-		if (io.Symbol(refNumber ? Of(kCmdKindRefNum) : Of(kCmdKindOther)) == 0) {
+		if (io.Symbol(refNumber ? Of(ctx::Scalar::kCmdKindRefNum) : Of(ctx::Scalar::kCmdKindOther)) == 0) {
 			// unsigned addition: a malformed difference wraps around instead of overflowing
-			const uint64_t x = refNumber ? static_cast<uint64_t>(rv) + static_cast<uint64_t>(Unzz(io.Class(Of(kCmdNumDelta))))
-			                             : static_cast<uint64_t>(Unzz(io.Class(Of(kCmdNum))));
+			const uint64_t x = refNumber ? static_cast<uint64_t>(rv) + static_cast<uint64_t>(Unzz(io.Class(Of(ctx::Scalar::kCmdNumDelta))))
+			                             : static_cast<uint64_t>(Unzz(io.Class(Of(ctx::Scalar::kCmdNum))));
 			const auto res = std::to_chars(digits.data(), digits.data() + digits.size(), static_cast<int64_t>(x));
 			op.text.append(digits.data(), res.ptr);
 		} else {
@@ -576,12 +575,12 @@ template <class O>
 void PutMessage(O &io, const Message &msg, const Base &base, const BaselineTable &baselines,
                 const CommandHistory &history, HeaderRecord &rec, const Model &m, bool escaped) {
 	const HeaderRecord *bh = base.header;
-	io.Symbol(Of(kMDelta), base.delta + (escaped ? kEscapedDelta : 0U));   // one symbol for both
+	io.Symbol(Of(ctx::Scalar::kMDelta), base.delta + (escaped ? kEscapedDelta : 0U));   // one symbol for both
 	PredCtx c;
 	c.escaped = escaped;
 	c.btime = bh != nullptr ? bh->time : std::nullopt;
 	c.olderSnap = bh != nullptr ? bh->older : nullptr;
-	io.Class(Of(kMAck), Zz(msg.ack - (bh != nullptr ? bh->ack : 0)));
+	io.Class(Of(ctx::Scalar::kMAck), Zz(msg.ack - (bh != nullptr ? bh->ack : 0)));
 	const bool sameId = bh != nullptr && bh->serverId == msg.serverId;   // the serverId: unchanged, or raw
 	if (bh != nullptr) io.Symbol(ctx::kServerIdSame, sameId ? 1 : 0);
 	if (!sameId) io.Raw(static_cast<uint32_t>(msg.serverId), 32);
@@ -596,48 +595,48 @@ void PutMessage(O &io, const Message &msg, const Base &base, const BaselineTable
 		prev = t;
 		switch (op.type) {
 		case OpType::Command:
-			io.Class(Of(kMCmdSeq), Zz(op.seq - (lastcmd + 1)));
+			io.Class(Of(ctx::Scalar::kMCmdSeq), Zz(op.seq - (lastcmd + 1)));
 			lastcmd = op.seq;
 			PutCommand(io, op, std::span<const Op>(msg.ops.data(), static_cast<size_t>(&op - msg.ops.data())), known, history);
 			break;
 		case OpType::SetGame:
-			io.String(Of(kStrSetgame), op.text);
+			io.String(Of(ctx::Scalar::kStrSetgame), op.text);
 			break;
 		case OpType::GameState: {
 			const GameState &gs = op.gameState;
-			io.Class(Of(kMRelSeq), Zz(gs.relSeq));
-			io.Class(Of(kMNumCs), gs.configStrings.size());
+			io.Class(Of(ctx::Scalar::kMRelSeq), Zz(gs.relSeq));
+			io.Class(Of(ctx::Scalar::kMNumCs), gs.configStrings.size());
 			int64_t pi = -1;
 			for (const ConfigString &cs : gs.configStrings) {
-				io.Class(Of(kMCsGap), static_cast<uint64_t>(cs.index - pi - 1));
+				io.Class(Of(ctx::Scalar::kMCsGap), static_cast<uint64_t>(cs.index - pi - 1));
 				pi = cs.index;
-				io.String(Of(kStrCs), cs.text);
+				io.String(Of(ctx::Scalar::kStrCs), cs.text);
 			}
 			TableReader nw(gs.baselines);
 			SnapshotReader old(EntityRing{});
 			PutEntities(io, c, nw, old, BaselineTable{}, m);
-			io.Class(Of(kMClientNum), Zz(gs.clientNum));
+			io.Class(Of(ctx::Scalar::kMClientNum), Zz(gs.clientNum));
 			io.Raw(static_cast<uint32_t>(gs.checksum), 32);
 			bl = &gs.baselines;
 			break;
 		}
 		case OpType::Download:
-			io.Class(Of(kMDlBlock), op.block);
-			if (op.block == 0) io.Class(Of(kMDlSize), Zz(op.fileSize));
-			io.Class(Of(kMDlLen), op.data.size());
-			for (const uint8_t b : op.data) io.Symbol(Of(kDlByte), b);
+			io.Class(Of(ctx::Scalar::kMDlBlock), op.block);
+			if (op.block == 0) io.Class(Of(ctx::Scalar::kMDlSize), Zz(op.fileSize));
+			io.Class(Of(ctx::Scalar::kMDlLen), op.data.size());
+			for (const uint8_t b : op.data) io.Symbol(Of(ctx::Scalar::kDlByte), b);
 			break;
 		case OpType::Snapshot: {
 			time = op.time;
 			c.time = op.time;
-			io.Class(Of(kHTime), Zz(op.time - (bh != nullptr && bh->time ? *bh->time : 0)));
-			io.Symbol(Of(kHFlags), op.flags);
+			io.Class(Of(ctx::Scalar::kHTime), Zz(op.time - (bh != nullptr && bh->time ? *bh->time : 0)));
+			io.Symbol(Of(ctx::Scalar::kHFlags), op.flags);
 			io.Symbol(ctx::kInputMargin, static_cast<uint32_t>(op.inputMargin + 128));
-			io.Symbol(Of(kHArea), op.areas.size());
-			for (const uint8_t a : op.areas) io.Symbol(Of(kHArea), a);
+			io.Symbol(Of(ctx::Scalar::kHArea), op.areas.size());
+			for (const uint8_t a : op.areas) io.Symbol(Of(ctx::Scalar::kHArea), a);
 			const Snapshot &sn = op.snap;
 			const bool pilot = IsPilot(sn.ps);
-			io.Symbol(Of(kPsPilot), pilot ? 1 : 0);
+			io.Symbol(Of(ctx::Scalar::kPsPilot), pilot ? 1 : 0);
 			const ImageView basePs = base.snap != nullptr ? base.snap->ps : ImageView(ZeroPlayer());
 			if (pilot) PutPlayer(io, c, kPilotFields, ctx::PlayerGap(1), sn.ps, basePs, OlderPlayer(c, false), m);
 			else PutPlayer(io, c, kPlayerFields, ctx::PlayerGap(0), sn.ps, basePs, OlderPlayer(c, false), m);
@@ -698,7 +697,7 @@ Op &NextOp(Message &msg, size_t &used) {
 bool GetMessage(In &io, const BaseLookup &lookup, const CommandHistory &history, const BaselineTable &baselines,
                 const BaselineTableOut &gamestate, const SnapshotOut &out, Message &msg, uint32_t &delta, HeaderRecord &rec,
                 const Model &m) {
-	delta = io.Symbol(Of(kMDelta));
+	delta = io.Symbol(Of(ctx::Scalar::kMDelta));
 	const bool escaped = delta >= kEscapedDelta;
 	if (escaped) delta -= kEscapedDelta;
 	const Snapshot *base = nullptr;
@@ -712,7 +711,7 @@ bool GetMessage(In &io, const BaseLookup &lookup, const CommandHistory &history,
 	c.escaped = escaped;
 	c.btime = bh != nullptr ? bh->time : std::nullopt;
 	c.olderSnap = bh != nullptr ? bh->older : nullptr;
-	msg.ack = (bh != nullptr ? bh->ack : 0) + Unzz(io.Class(Of(kMAck)));
+	msg.ack = (bh != nullptr ? bh->ack : 0) + Unzz(io.Class(Of(ctx::Scalar::kMAck)));
 	msg.serverId = bh != nullptr && io.Symbol(ctx::kServerIdSame) != 0 ? bh->serverId : S32(static_cast<uint32_t>(io.Raw(32)));
 	int64_t lastcmd = bh != nullptr ? bh->cmdSeq : 0;
 	const int64_t known = lastcmd;
@@ -730,54 +729,54 @@ bool GetMessage(In &io, const BaseLookup &lookup, const CommandHistory &history,
 		op.type = static_cast<OpType>(t);
 		switch (op.type) {
 		case OpType::Command:
-			op.seq = lastcmd + 1 + Unzz(io.Class(Of(kMCmdSeq)));
+			op.seq = lastcmd + 1 + Unzz(io.Class(Of(ctx::Scalar::kMCmdSeq)));
 			lastcmd = op.seq;
 			if (!GetCommand(io, op, std::span<const Op>(msg.ops.data(), used - 1), known, history)) return false;
 			break;
 		case OpType::SetGame:
-			if (!io.String(Of(kStrSetgame), op.text)) return false;
+			if (!io.String(Of(ctx::Scalar::kStrSetgame), op.text)) return false;
 			break;
 		case OpType::GameState: {
 			GameState &gs = op.gameState;
-			gs.relSeq = Unzz(io.Class(Of(kMRelSeq)));
-			const uint64_t n = io.Class(Of(kMNumCs));
+			gs.relSeq = Unzz(io.Class(Of(ctx::Scalar::kMRelSeq)));
+			const uint64_t n = io.Class(Of(ctx::Scalar::kMNumCs));
 			int64_t pi = -1;
 			for (uint64_t k = 0; k < n; k++) {
-				const int64_t idx = pi + 1 + static_cast<int64_t>(io.Class(Of(kMCsGap)));
+				const int64_t idx = pi + 1 + static_cast<int64_t>(io.Class(Of(ctx::Scalar::kMCsGap)));
 				if (idx > 0xFFFF) return false;
 				pi = idx;
 				ConfigString &cs = gs.configStrings.emplace_back();
 				cs.index = static_cast<uint16_t>(idx);
-				if (!io.String(Of(kStrCs), cs.text)) return false;
+				if (!io.String(Of(ctx::Scalar::kStrCs), cs.text)) return false;
 			}
 			TableSink sink(gamestate);
 			for (uint32_t e = 0; e < kMaxEntities; e++) std::ranges::fill(gamestate.bytes.subspan(e * gamestate.stride, kEntityBytes), uint8_t{ 0 });
 			if (!GetEntities(io, c, RingReader(EntityRing{}), BaselineTable{}, sink, m)) return false;
 			table = BaselineTable{ .bytes = gamestate.bytes, .stride = gamestate.stride };
 			gs.baselines = table;
-			gs.clientNum = Unzz(io.Class(Of(kMClientNum)));
+			gs.clientNum = Unzz(io.Class(Of(ctx::Scalar::kMClientNum)));
 			gs.checksum = S32(static_cast<uint32_t>(io.Raw(32)));
 			break;
 		}
 		case OpType::Download: {
-			op.block = static_cast<uint32_t>(io.Class(Of(kMDlBlock)));
-			op.fileSize = op.block == 0 ? Unzz(io.Class(Of(kMDlSize))) : 0;
-			op.data.resize(static_cast<uint32_t>(io.Class(Of(kMDlLen))));   // below 2^19 (20 classes)
-			for (uint8_t &b : op.data) b = static_cast<uint8_t>(io.Symbol(Of(kDlByte)));
+			op.block = static_cast<uint32_t>(io.Class(Of(ctx::Scalar::kMDlBlock)));
+			op.fileSize = op.block == 0 ? Unzz(io.Class(Of(ctx::Scalar::kMDlSize))) : 0;
+			op.data.resize(static_cast<uint32_t>(io.Class(Of(ctx::Scalar::kMDlLen))));   // below 2^19 (20 classes)
+			for (uint8_t &b : op.data) b = static_cast<uint8_t>(io.Symbol(Of(ctx::Scalar::kDlByte)));
 			break;
 		}
 		case OpType::Snapshot: {
 			if (hadSnapshot) return false;   // one snapshot per message: it is written to the caller's storage
 			hadSnapshot = true;
-			op.time = (bh != nullptr && bh->time ? *bh->time : 0) + Unzz(io.Class(Of(kHTime)));
+			op.time = (bh != nullptr && bh->time ? *bh->time : 0) + Unzz(io.Class(Of(ctx::Scalar::kHTime)));
 			time = op.time;
 			c.time = op.time;
-			op.flags = io.Symbol(Of(kHFlags));
+			op.flags = io.Symbol(Of(ctx::Scalar::kHFlags));
 			op.inputMargin = static_cast<int32_t>(io.Symbol(ctx::kInputMargin)) - 128;
-			op.areas.resize(io.Symbol(Of(kHArea)));
-			for (uint8_t &a : op.areas) a = static_cast<uint8_t>(io.Symbol(Of(kHArea)));
+			op.areas.resize(io.Symbol(Of(ctx::Scalar::kHArea)));
+			for (uint8_t &a : op.areas) a = static_cast<uint8_t>(io.Symbol(Of(ctx::Scalar::kHArea)));
 			Snapshot &sn = op.snap;
-			const bool pilot = io.Symbol(Of(kPsPilot)) != 0;
+			const bool pilot = io.Symbol(Of(ctx::Scalar::kPsPilot)) != 0;
 			const ImageView basePs = base != nullptr ? base->ps : ImageView(ZeroPlayer());
 			const ImageRef ps = out.ps.first(kPlayerBytes);
 			const bool okPs = pilot ? GetPlayer(io, c, kPilotFields, ctx::PlayerGap(1), basePs, ps, OlderPlayer(c, false), m)

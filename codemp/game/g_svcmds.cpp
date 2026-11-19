@@ -315,55 +315,55 @@ void	Svcmd_EntityList_f (void) {
 		}
 		trap->Print("%3i:", e);
 		switch ( check->s.eType ) {
-		case ET_GENERAL:
+		case entityType_t::ET_GENERAL:
 			trap->Print("ET_GENERAL          ");
 			break;
-		case ET_PLAYER:
+		case entityType_t::ET_PLAYER:
 			trap->Print("ET_PLAYER           ");
 			break;
-		case ET_ITEM:
+		case entityType_t::ET_ITEM:
 			trap->Print("ET_ITEM             ");
 			break;
-		case ET_MISSILE:
+		case entityType_t::ET_MISSILE:
 			trap->Print("ET_MISSILE          ");
 			break;
-		case ET_SPECIAL:
+		case entityType_t::ET_SPECIAL:
 			trap->Print("ET_SPECIAL          ");
 			break;
-		case ET_HOLOCRON:
+		case entityType_t::ET_HOLOCRON:
 			trap->Print("ET_HOLOCRON         ");
 			break;
-		case ET_MOVER:
+		case entityType_t::ET_MOVER:
 			trap->Print("ET_MOVER            ");
 			break;
-		case ET_BEAM:
+		case entityType_t::ET_BEAM:
 			trap->Print("ET_BEAM             ");
 			break;
-		case ET_PORTAL:
+		case entityType_t::ET_PORTAL:
 			trap->Print("ET_PORTAL           ");
 			break;
-		case ET_SPEAKER:
+		case entityType_t::ET_SPEAKER:
 			trap->Print("ET_SPEAKER          ");
 			break;
-		case ET_PUSH_TRIGGER:
+		case entityType_t::ET_PUSH_TRIGGER:
 			trap->Print("ET_PUSH_TRIGGER     ");
 			break;
-		case ET_TELEPORT_TRIGGER:
+		case entityType_t::ET_TELEPORT_TRIGGER:
 			trap->Print("ET_TELEPORT_TRIGGER ");
 			break;
-		case ET_INVISIBLE:
+		case entityType_t::ET_INVISIBLE:
 			trap->Print("ET_INVISIBLE        ");
 			break;
-		case ET_NPC:
+		case entityType_t::ET_NPC:
 			trap->Print("ET_NPC              ");
 			break;
-		case ET_BODY:
+		case entityType_t::ET_BODY:
 			trap->Print("ET_BODY             ");
 			break;
-		case ET_TERRAIN:
+		case entityType_t::ET_TERRAIN:
 			trap->Print("ET_TERRAIN          ");
 			break;
-		case ET_FX:
+		case entityType_t::ET_FX:
 			trap->Print("ET_FX               ");
 			break;
 		default:
@@ -394,7 +394,7 @@ gclient_t	*ClientForString( const char *s ) {
 		idnum = atoi( s );
 		if ( idnum >= 0 && idnum < level.maxclients ) {
 			cl = &level.clients[idnum];
-			if ( cl->pers.connected == CON_CONNECTED ) {
+			if ( cl->pers.connected == clientConnected_t::CON_CONNECTED ) {
 				return cl;
 			}
 		}
@@ -405,7 +405,7 @@ gclient_t	*ClientForString( const char *s ) {
 
 	// check for a name match
 	for ( idnum=0,cl=level.clients ; idnum < level.maxclients ; idnum++,cl++ ) {
-		if ( cl->pers.connected != CON_CONNECTED ) {
+		if ( cl->pers.connected != clientConnected_t::CON_CONNECTED ) {
 			continue;
 		}
 		if ( !Q_stricmp( cl->pers.netname_nocolor, cleanInput ) ) {
@@ -470,8 +470,8 @@ void Svcmd_Say_f( void ) {
 
 // gamestats: the combat statistics since the last call (g_stats), then reset; the ratios per saber swing are what must not
 // change with the server frame rate (plan step 14)
-extern EnumArray<const char *, meansOfDeath_t, MOD_MAX> modNames;
-extern EnumArray<const char *, entity_event_t, EV_NUM_ENTITY_EVENTS> eventnames;
+extern EnumArray<const char *, meansOfDeath_t, meansOfDeath_t::MOD_MAX> modNames;
+extern EnumArray<const char *, entity_event_t, entity_event_t::EV_NUM_ENTITY_EVENTS> eventnames;
 extern bool PM_SaberInBounce( saberMoveName_t move );
 
 // gamestats: a client's saber move after its Pmove: attacks started, and moves sent into a bounce or a deflection (an
@@ -480,7 +480,7 @@ void G_StatsSaberMove( gentity_t *ent, saberMoveName_t oldSaberMove ) {
 	const saberMoveName_t move = ent->client->ps.saberMove;
 	const saber_styles_t style = ent->client->ps.fd.saberAnimLevel;
 
-	if ( ent->s.number >= MAX_CLIENTS || move == oldSaberMove || style < SS_NONE || style >= SS_NUM_SABER_STYLES ) {
+	if ( ent->s.number >= MAX_CLIENTS || move == oldSaberMove || style < saber_styles_t::SS_NONE || style >= saber_styles_t::SS_NUM_SABER_STYLES ) {
 		return;
 	}
 	if ( BG_SaberInAttack( move ) && !BG_SaberInAttack( oldSaberMove ) ) {
@@ -493,34 +493,34 @@ void G_StatsSaberMove( gentity_t *ent, saberMoveName_t oldSaberMove ) {
 
 // the central counters: events by type, health taken and deaths by cause, shots by weapon, saber attacks and bounces by style
 static void G_PrintCentralStats( void ) {
-	static const EnumArray<const char *, saber_styles_t, SS_NUM_SABER_STYLES> styles = { "none", "fast", "medium", "strong", "desann", "tavion", "dual", "staff" };
+	static const EnumArray<const char *, saber_styles_t, saber_styles_t::SS_NUM_SABER_STYLES> styles = { "none", "fast", "medium", "strong", "desann", "tavion", "dual", "staff" };
 	const gameStats_t *s = &g_stats;
 	char line[4096];
 	weapon_t i;
 
 	Q_strncpyz( line, "event statistics:", sizeof( line ) );
-	for ( entity_event_t ev = EV_NONE + 1; ev < EV_NUM_ENTITY_EVENTS; ev++ ) {
+	for ( entity_event_t ev = entity_event_t::EV_NONE + 1; ev < entity_event_t::EV_NUM_ENTITY_EVENTS; ev++ ) {
 		if ( s->events[ev] ) {
 			Q_strcat( line, sizeof( line ), va( " %s %d", eventnames[ev], s->events[ev] ) );
 		}
 	}
 	trap->Print( "%s\n", line );
 	Q_strncpyz( line, "damage statistics (health taken from clients and deaths, by cause):", sizeof( line ) );
-	for ( meansOfDeath_t mod = MOD_UNKNOWN; mod < MOD_MAX; mod++ ) {
+	for ( meansOfDeath_t mod = meansOfDeath_t::MOD_UNKNOWN; mod < meansOfDeath_t::MOD_MAX; mod++ ) {
 		if ( s->modDamage[mod] || s->modKills[mod] ) {
 			Q_strcat( line, sizeof( line ), va( " %s %d %d", modNames[mod], s->modDamage[mod], s->modKills[mod] ) );
 		}
 	}
 	trap->Print( "%s\n", line );
 	Q_strncpyz( line, "shot statistics (primary and alternate fire, by weapon number):", sizeof( line ) );
-	for ( i = WP_NONE; i < WP_NUM_WEAPONS; i++ ) {
+	for ( i = weapon_t::WP_NONE; i < weapon_t::WP_NUM_WEAPONS; i++ ) {
 		if ( s->shots[i][0] || s->shots[i][1] ) {
 			Q_strcat( line, sizeof( line ), va( " w%d %d %d", to_underlying( i ), s->shots[i][0], s->shots[i][1] ) );
 		}
 	}
 	trap->Print( "%s\n", line );
 	Q_strncpyz( line, "saber style statistics (attacks started, moves bounced or deflected):", sizeof( line ) );
-	for ( saber_styles_t style = SS_FAST; style < SS_NUM_SABER_STYLES; style++ ) {
+	for ( saber_styles_t style = saber_styles_t::SS_FAST; style < saber_styles_t::SS_NUM_SABER_STYLES; style++ ) {
 		if ( s->styleAttacks[style] || s->styleBounces[style] ) {
 			Q_strcat( line, sizeof( line ), va( " %s %d %d", styles[style], s->styleAttacks[style], s->styleBounces[style] ) );
 		}
@@ -542,8 +542,8 @@ void Svcmd_GameStats_f( void ) {
 		s->saberLocks, s->saberTouches, s->missileBlocks, s->forceDamage, s->deaths, s->saberHitEffects );
 	{ // raw counts of the powers whose timing depends on the frame rate: gamestats_agg.py computes the rates
 		static const struct { forcePowers_t power; const char *name; } shown[] = {
-			{ FP_GRIP, "grip" }, { FP_RAGE, "rage" }, { FP_PROTECT, "protect" }, { FP_ABSORB, "absorb" },
-			{ FP_LIGHTNING, "lightning" }, { FP_DRAIN, "drain" },
+			{ forcePowers_t::FP_GRIP, "grip" }, { forcePowers_t::FP_RAGE, "rage" }, { forcePowers_t::FP_PROTECT, "protect" }, { forcePowers_t::FP_ABSORB, "absorb" },
+			{ forcePowers_t::FP_LIGHTNING, "lightning" }, { forcePowers_t::FP_DRAIN, "drain" },
 		};
 		char line[MAX_STRING_CHARS] = "force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power:";
 		size_t i;

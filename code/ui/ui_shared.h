@@ -29,7 +29,6 @@ enum class screenshotFormat_t {
 	SSF_TGA,
 	SSF_PNG
 };
-using enum screenshotFormat_t;
 
 inline constexpr int MAX_OPEN_MENUS = 16;
 inline constexpr int MAX_TEXTSCROLL_LINES = 256;
@@ -106,7 +105,6 @@ enum class itemCvarFlags_t
 	CVAR_HIDE		= 0x00000008,
 	CVAR_SUBSTRING	= 0x00000010,	//when using enable or disable, just check for strstr instead of ==
 };
-using enum itemCvarFlags_t;
 template <> inline constexpr bool enableEnumFlags<itemCvarFlags_t> = true;
 
 inline constexpr int STRING_POOL_SIZE = 2*1024*1024;
@@ -288,7 +286,6 @@ enum class windowFlags_t
 	WINDOW_INTRANSITIONMODEL	= 0x04000000,	// delayed script waiting to run
 	WINDOW_IGNORE_ESCAPE	= 0x08000000,	// ignore normal closeall menus escape functionality
 };
-using enum windowFlags_t;
 template <> inline constexpr bool enableEnumFlags<windowFlags_t> = true;
 
 typedef struct {

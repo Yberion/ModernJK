@@ -28,6 +28,5 @@ enum class eventType_t //# eventType_e
 	EV_BAD = 0,
 
 };
-using enum eventType_t;
 
 #endif	//__EVENTS__

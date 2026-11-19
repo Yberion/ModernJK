@@ -360,14 +360,14 @@ private:
 
 		// If The Bounds Are Contained Entirely Within The Query Range, We Report The Sub Tree
 		//-------------------------------------------------------------------------------------
-		if (Side==Side_AllIn)
+		if (Side==ESide::Side_AllIn)
 		{
 			tree_search_report_sub_tree(query, curNode);
 		}
 
 		// Otherwise, If Our Bounds Intersect The Query Range, We Need To Look Further
 		//-----------------------------------------------------------------------------
-		else if (Side==Side_In)
+		else if (Side==ESide::Side_In)
 		{
 			// Test The Left Child
 			//---------------------
@@ -415,14 +415,14 @@ private:
     ////////////////////////////////////////////////////////////////////////////////////
 	ESide		tree_search_bounds_in_range(range_query& query, range_bounds& bounds)
 	{
-		ESide	S = Side_AllIn;
+		ESide	S = ESide::Side_AllIn;
 		for (int dim=0; dim<DIMENSION; dim++)
 		{
 			// If Any Of Our Dimensions Are Undefined Right Now, Always Return INTERSECT
 			//---------------------------------------------------------------------------
 			if (!bounds.mMaxs[dim] || !bounds.mMins[dim])
 			{
-				return Side_In;
+				return ESide::Side_In;
 			}
 
 			// Check To See If They Intersect At All?
@@ -430,7 +430,7 @@ private:
 			if ((mPool[bounds.mMaxs[dim]].mData[dim]<query.mMins[dim]) ||
 				(query.mMaxs[dim]<mPool[bounds.mMins[dim]].mData[dim]))
 			{
-				return Side_None;
+				return ESide::Side_None;
 			}
 
 			// Check To See If It Is Contained
@@ -438,7 +438,7 @@ private:
 			if ((mPool[bounds.mMins[dim]].mData[dim]<query.mMins[dim]) ||
 				(query.mMaxs[dim]<mPool[bounds.mMaxs[dim]].mData[dim]))
 			{
-				S = Side_In;
+				S = ESide::Side_In;
 			}
 		}
 		return S;

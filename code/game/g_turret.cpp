@@ -49,7 +49,7 @@ void TurretPain( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, con
 	VectorSubtract( point, self->currentOrigin, dir );
 	VectorNormalize( dir );
 
-	if ( mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT )
+	if ( mod == meansOfDeath_t::MOD_DEMP2 || mod == meansOfDeath_t::MOD_DEMP2_ALT )
 	{
 		// DEMP2 makes the turret stop shooting for a bit..and does extra feedback
 		self->attackDebounceTime = level.time + 800 + Q_flrand(0.0f, 1.0f) * 500;
@@ -71,11 +71,11 @@ void turret_die ( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, in
 	vec3_t	forward = { 0,0,-1 }, pos;
 
 	// Turn off the thinking of the base & use it's targets
-	self->e_ThinkFunc = thinkF_NULL;
-	self->e_UseFunc = useF_NULL;
+	self->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
+	self->e_UseFunc = useFunc_t::useF_NULL;
 
 	// clear my data
-	self->e_DieFunc  = dieF_NULL;
+	self->e_DieFunc  = dieFunc_t::dieF_NULL;
 	self->takedamage = false;
 	self->health = 0;
 	self->s.loopSound = 0;
@@ -103,15 +103,15 @@ void turret_die ( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, in
 
 	if ( self->splashDamage > 0 && self->splashRadius > 0 )
 	{
-		G_RadiusDamage( self->currentOrigin, attacker, self->splashDamage, self->splashRadius, attacker, MOD_UNKNOWN );
+		G_RadiusDamage( self->currentOrigin, attacker, self->splashDamage, self->splashRadius, attacker, meansOfDeath_t::MOD_UNKNOWN );
 	}
 
-	if ( Any( self->s.eFlags & EF_SHADER_ANIM ) )
+	if ( Any( self->s.eFlags & entityFlags_t::EF_SHADER_ANIM ) )
 	{
 		self->s.frame = 1; // black
 	}
 
-	self->s.weapon = WP_NONE; // crosshair code uses this to mark crosshair red
+	self->s.weapon = weapon_t::WP_NONE; // crosshair code uses this to mark crosshair red
 
 	if ( self->s.modelindex2 )
 	{
@@ -151,7 +151,7 @@ void TurboLaser_SetBoneAnim(gentity_t *eweb, int startFrame, int endFrame)
 	//now set the animation on the server ghoul2 instance.
 	assert(&eweb->ghoul2[0]);
 	gi.G2API_SetBoneAnim(&eweb->ghoul2[0], "model_root", startFrame, endFrame,
-		(BONE_ANIM_OVERRIDE_FREEZE|BONE_ANIM_BLEND), 1.0f, level.time, -1, 100);
+		(boneFlags_t::BONE_ANIM_OVERRIDE_FREEZE|boneFlags_t::BONE_ANIM_BLEND), 1.0f, level.time, -1, 100);
 }
 
 constexpr int START_DIS = 15;
@@ -186,7 +186,7 @@ static void turret_fire ( gentity_t *ent, vec3_t start, vec3_t dir )
 	{
 		//muzzle flash
 		G_PlayEffect( G_EffectIndex( "turret/turb_muzzle_flash" ), org, ang );
-		G_SoundOnEnt( ent, CHAN_LESS_ATTEN, "sound/vehicles/weapons/turbolaser/fire1" );
+		G_SoundOnEnt( ent, soundChannel_t::CHAN_LESS_ATTEN, "sound/vehicles/weapons/turbolaser/fire1" );
 
 		WP_FireTurboLaserMissile( ent, start, dir );
 		if ( ent->alt_fire )
@@ -206,21 +206,21 @@ static void turret_fire ( gentity_t *ent, vec3_t start, vec3_t dir )
 
 		bolt->classname = "turret_proj";
 		bolt->nextthink = level.time + 10000;
-		bolt->e_ThinkFunc = thinkF_G_FreeEntity;
-		bolt->s.eType = ET_MISSILE;
-		bolt->s.weapon = WP_BLASTER;
+		bolt->e_ThinkFunc = thinkFunc_t::thinkF_G_FreeEntity;
+		bolt->s.eType = entityType_t::ET_MISSILE;
+		bolt->s.weapon = weapon_t::WP_BLASTER;
 		bolt->owner = ent;
 		bolt->damage = ent->damage;
-		bolt->dflags = DAMAGE_NO_KNOCKBACK | DAMAGE_HEAVY_WEAP_CLASS;		// Don't push them around, or else we are constantly re-aiming
+		bolt->dflags = damageFlags_t::DAMAGE_NO_KNOCKBACK | damageFlags_t::DAMAGE_HEAVY_WEAP_CLASS;		// Don't push them around, or else we are constantly re-aiming
 		bolt->splashDamage = 0;
 		bolt->splashRadius = 0;
-		bolt->methodOfDeath = MOD_ENERGY;
-		bolt->clipmask = MASK_SHOT | CONTENTS_LIGHTSABER;
+		bolt->methodOfDeath = meansOfDeath_t::MOD_ENERGY;
+		bolt->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
 		bolt->trigger_formation = false;		// don't draw tail on first frame
 
 		VectorSet( bolt->maxs, 1.5, 1.5, 1.5 );
 		VectorScale( bolt->maxs, -1, bolt->mins );
-		bolt->s.pos.trType = TR_LINEAR;
+		bolt->s.pos.trType = trType_t::TR_LINEAR;
 		bolt->s.pos.trTime = level.time;
 		VectorCopy( start, bolt->s.pos.trBase );
 		VectorScale( dir, 1100, bolt->s.pos.trDelta );
@@ -257,15 +257,15 @@ void turret_head_think( gentity_t *self )
 			self->alt_fire = !self->alt_fire;
 		}
 
-		gi.G2API_GiveMeVectorFromMatrix( boltMatrix, ORIGIN, org );
+		gi.G2API_GiveMeVectorFromMatrix( boltMatrix, Eorientations::ORIGIN, org );
 
 		if ( (self->spawnflags&SPF_TURRETG2_TURBO) )
 		{
-			gi.G2API_GiveMeVectorFromMatrix( boltMatrix, NEGATIVE_Y, fwd );
+			gi.G2API_GiveMeVectorFromMatrix( boltMatrix, Eorientations::NEGATIVE_Y, fwd );
 		}
 		else
 		{
-			gi.G2API_GiveMeVectorFromMatrix( boltMatrix, POSITIVE_Y, fwd );
+			gi.G2API_GiveMeVectorFromMatrix( boltMatrix, Eorientations::POSITIVE_Y, fwd );
 		}
 
 		VectorMA( org, START_DIS, fwd, org );
@@ -323,7 +323,7 @@ static void turret_aim( gentity_t *self )
 					nullptr,
 					self->modelScale );
 
-		gi.G2API_GiveMeVectorFromMatrix( boltMatrix, ORIGIN, org2 );
+		gi.G2API_GiveMeVectorFromMatrix( boltMatrix, Eorientations::ORIGIN, org2 );
 
 		VectorSubtract( org, org2, enemyDir );
 		vectoangles( enemyDir, desiredAngles );
@@ -351,7 +351,7 @@ static void turret_aim( gentity_t *self )
 		VectorCopy( self->currentAngles, self->s.apos.trBase );
 		VectorScale( setAngle,- 5, self->s.apos.trDelta );
 		self->s.apos.trTime = level.time;
-		self->s.apos.trType = TR_LINEAR;
+		self->s.apos.trType = trType_t::TR_LINEAR;
 	}
 
 	if ( diffPitch )
@@ -392,7 +392,7 @@ static void turret_aim( gentity_t *self )
 				VectorSet( desiredAngles, -self->speed, 0.0f, 0.0f );
 			}
 			gi.G2API_SetBoneAngles( &self->ghoul2[0], "Bone_body", desiredAngles,
-							BONE_ANGLES_POSTMULT, POSITIVE_Y, POSITIVE_Z, POSITIVE_X, nullptr, 100, cg.time );
+							boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_Y, Eorientations::POSITIVE_Z, Eorientations::POSITIVE_X, nullptr, 100, cg.time );
 		}
 	}
 
@@ -477,7 +477,7 @@ static bool turret_find_enemies( gentity_t *self )
 			// only attack clients
 			continue;
 		}
-		if ( target == self || !target->takedamage || target->health <= 0 || Any( target->flags & FL_NOTARGET ))
+		if ( target == self || !target->takedamage || target->health <= 0 || Any( target->flags & gentityFlags_t::FL_NOTARGET ))
 		{
 			continue;
 		}
@@ -503,7 +503,7 @@ static bool turret_find_enemies( gentity_t *self )
 		}
 
 		trace_t	tr;
-		gi.trace( &tr, org2, nullptr, nullptr, org, self->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
+		gi.trace( &tr, org2, nullptr, nullptr, org, self->s.number, MASK_SHOT, EG2_Collision::G2_NOCOLLIDE, 0 );
 
 		if ( !tr.allsolid && !tr.startsolid && ( tr.fraction == 1.0 || tr.entityNum == target->s.number ))
 		{
@@ -533,8 +533,8 @@ static bool turret_find_enemies( gentity_t *self )
 	{
 		if ( !self->enemy )
 		{//just aquired one
-			AddSoundEvent( bestTarget, self->currentOrigin, 256, AEL_DISCOVERED );
-			AddSightEvent( bestTarget, self->currentOrigin, 512, AEL_DISCOVERED, 20 );
+			AddSoundEvent( bestTarget, self->currentOrigin, 256, alertEventLevel_e::AEL_DISCOVERED );
+			AddSightEvent( bestTarget, self->currentOrigin, 512, alertEventLevel_e::AEL_DISCOVERED, 20 );
 		}
 		G_SetEnemy( self, bestTarget );
 		if ( VALIDSTRING( self->target2 ))
@@ -563,13 +563,13 @@ void turret_base_think( gentity_t *self )
 		turret_aim( self );
 
 		// No target
-		self->flags |= FL_NOTARGET;
+		self->flags |= gentityFlags_t::FL_NOTARGET;
 		return;
 	}
 	else
 	{
 		// I'm all hot and bothered
-		self->flags &= ~FL_NOTARGET;
+		self->flags &= ~gentityFlags_t::FL_NOTARGET;
 	}
 
 	if ( !self->enemy )
@@ -612,7 +612,7 @@ void turret_base_think( gentity_t *self )
 					{
 						org2[2] -= 10;
 					}
-					gi.trace( &tr, org2, nullptr, nullptr, org, self->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
+					gi.trace( &tr, org2, nullptr, nullptr, org, self->s.number, MASK_SHOT, EG2_Collision::G2_NOCOLLIDE, 0 );
 
 					if ( self->spawnflags & SPF_TURRETG2_TURBO || ( !tr.allsolid && !tr.startsolid && tr.entityNum == self->enemy->s.number ) )
 					{
@@ -648,7 +648,7 @@ void turret_base_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 	// Toggle on and off
 	self->spawnflags = (self->spawnflags ^ 1);
 
-	if (Any( self->s.eFlags & EF_SHADER_ANIM ) && ( self->spawnflags & 1 )) // Start_Off
+	if (Any( self->s.eFlags & entityFlags_t::EF_SHADER_ANIM ) && ( self->spawnflags & 1 )) // Start_Off
 	{
 		self->s.frame = 1; // black
 	}
@@ -736,11 +736,11 @@ void turret_SetBoneAngles(gentity_t *ent, const char *bone, const vec3_t angles)
 		return;
 	}
 
-	boneFlags_t flags = BONE_ANGLES_POSTMULT;
+	boneFlags_t flags = boneFlags_t::BONE_ANGLES_POSTMULT;
 	Eorientations up, right, forward;
-	up = POSITIVE_Y;
-	right = NEGATIVE_Z;
-	forward = NEGATIVE_X;
+	up = Eorientations::POSITIVE_Y;
+	right = Eorientations::NEGATIVE_Z;
+	forward = Eorientations::NEGATIVE_X;
 
 	//first 3 bits is forward, second 3 bits is right, third 3 bits is up
 	//ent->s.boneOrient = ((forward)|(right<<3)|(up<<6));
@@ -868,7 +868,7 @@ void SP_misc_turret( gentity_t *base )
 	base->s.radius = 80.0f;*/
 	turret_set_models( base, false );
 
-	gi.G2API_SetBoneAngles( &base->ghoul2[base->playerModel], "Bone_body", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_Y, POSITIVE_Z, POSITIVE_X, nullptr, 0, 0 );
+	gi.G2API_SetBoneAngles( &base->ghoul2[base->playerModel], "Bone_body", vec3_origin, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_Y, Eorientations::POSITIVE_Z, Eorientations::POSITIVE_X, nullptr, 0, 0 );
 	base->torsoBolt = gi.G2API_AddBolt( &base->ghoul2[base->playerModel], "*flash03" );
 
 	finish_spawning_turret( base );
@@ -881,7 +881,7 @@ void SP_misc_turret( gentity_t *base )
 	{
 		base->s.frame = 0; // glow
 	}
-	base->s.eFlags |= EF_SHADER_ANIM;
+	base->s.eFlags |= entityFlags_t::EF_SHADER_ANIM;
 }
 
 //-----------------------------------------------------
@@ -900,9 +900,9 @@ void finish_spawning_turret( gentity_t *base )
 
 	G_SetOrigin(base, base->s.origin);
 
-	base->noDamageTeam = TEAM_ENEMY;
+	base->noDamageTeam = team_t::TEAM_ENEMY;
 
-	base->s.eType = ET_GENERAL;
+	base->s.eType = entityType_t::ET_GENERAL;
 
 	if ( base->team && base->team[0] )
 	{
@@ -914,11 +914,11 @@ void finish_spawning_turret( gentity_t *base )
 	base->fxID = G_EffectIndex( "turret/explode" );
 	G_EffectIndex( "sparks/spark_exp_nosnd" );
 
-	base->e_UseFunc = useF_turret_base_use;
-	base->e_PainFunc = painF_TurretPain;
+	base->e_UseFunc = useFunc_t::useF_turret_base_use;
+	base->e_PainFunc = painFunc_t::painF_TurretPain;
 
 	// don't start working right away
-	base->e_ThinkFunc = thinkF_turret_base_think;
+	base->e_ThinkFunc = thinkFunc_t::thinkF_turret_base_think;
 	base->nextthink = level.time + FRAMETIME * 5;
 
 	// this is really the pitch angle.....
@@ -981,11 +981,11 @@ void finish_spawning_turret( gentity_t *base )
 		TurboLaser_SetBoneAnim( base, 4, 5 );
 
 		// Make sure it doesn't do sparks and such when saber contacts with it.
-		base->flags = FL_DMG_BY_HEAVY_WEAP_ONLY;
+		base->flags = gentityFlags_t::FL_DMG_BY_HEAVY_WEAP_ONLY;
 		base->takedamage = false;
-		base->contents = CONTENTS_BODY|CONTENTS_PLAYERCLIP|CONTENTS_MONSTERCLIP|CONTENTS_SHOTCLIP;
+		base->contents = contentsFlags_t::CONTENTS_BODY|contentsFlags_t::CONTENTS_PLAYERCLIP|contentsFlags_t::CONTENTS_MONSTERCLIP|contentsFlags_t::CONTENTS_SHOTCLIP;
 
-		base->noDamageTeam = TEAM_NEUTRAL;
+		base->noDamageTeam = team_t::TEAM_NEUTRAL;
 		base->team = nullptr;
 	}
 	else
@@ -1038,7 +1038,7 @@ void finish_spawning_turret( gentity_t *base )
 		}
 
 		base->takedamage = true;
-		base->contents = CONTENTS_BODY|CONTENTS_PLAYERCLIP|CONTENTS_MONSTERCLIP|CONTENTS_SHOTCLIP;
+		base->contents = contentsFlags_t::CONTENTS_BODY|contentsFlags_t::CONTENTS_PLAYERCLIP|contentsFlags_t::CONTENTS_MONSTERCLIP|contentsFlags_t::CONTENTS_SHOTCLIP;
 	}
 
 	// Precache special FX and moving sounds
@@ -1050,7 +1050,7 @@ void finish_spawning_turret( gentity_t *base )
 		//FIXME: Turbo Laser Cannon sounds!
 		G_SoundIndex( "sound/vehicles/weapons/turbolaser/turn.wav" );
 		G_EffectIndex( "explosions/fighter_explosion2" );
-		RegisterItem( FindItemForWeapon( WP_TIE_FIGHTER ));
+		RegisterItem( FindItemForWeapon( weapon_t::WP_TIE_FIGHTER ));
 	}
 	else
 	{
@@ -1062,26 +1062,26 @@ void finish_spawning_turret( gentity_t *base )
 	}
 
 	base->max_health = base->health;
-	base->e_DieFunc  = dieF_turret_die;
+	base->e_DieFunc  = dieFunc_t::dieF_turret_die;
 
-	base->material = MAT_METAL;
+	base->material = material_t::MAT_METAL;
 
 	if ( (base->spawnflags&SPF_TURRETG2_TURBO) )
 	{
-		RegisterItem( FindItemForWeapon( WP_TURRET ));
+		RegisterItem( FindItemForWeapon( weapon_t::WP_TURRET ));
 
-		base->svFlags |= SVF_NO_TELEPORT|SVF_SELF_ANIMATING;
+		base->svFlags |= svFlags_t::SVF_NO_TELEPORT|svFlags_t::SVF_SELF_ANIMATING;
 	}
 	else
 	{
 		// Register this so that we can use it for the missile effect
-		RegisterItem( FindItemForWeapon( WP_BLASTER ));
+		RegisterItem( FindItemForWeapon( weapon_t::WP_BLASTER ));
 
-		base->svFlags |= SVF_NO_TELEPORT|SVF_NONNPC_ENEMY|SVF_SELF_ANIMATING;
+		base->svFlags |= svFlags_t::SVF_NO_TELEPORT|svFlags_t::SVF_NONNPC_ENEMY|svFlags_t::SVF_SELF_ANIMATING;
 	}
 
 	// But set us as a turret so that we can be identified as a turret
-	base->s.weapon = WP_TURRET;
+	base->s.weapon = weapon_t::WP_TURRET;
 
 	gi.linkentity( base );
 }
@@ -1117,7 +1117,7 @@ void SP_misc_ns_turret( gentity_t *base )
 	base->playerModel = gi.G2API_InitGhoul2Model( base->ghoul2, "models/map_objects/nar_shaddar/turret/turret.glm", base->s.modelindex, NULL_HANDLE, NULL_HANDLE, 0, 0 );
 	base->s.radius = 80.0f;
 
-	gi.G2API_SetBoneAngles( &base->ghoul2[base->playerModel], "Bone_body", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_Y, POSITIVE_Z, POSITIVE_X, nullptr, 0, 0 );
+	gi.G2API_SetBoneAngles( &base->ghoul2[base->playerModel], "Bone_body", vec3_origin, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_Y, Eorientations::POSITIVE_Z, Eorientations::POSITIVE_X, nullptr, 0, 0 );
 	base->torsoBolt = gi.G2API_AddBolt( &base->ghoul2[base->playerModel], "*flash02" );
 
 	finish_spawning_turret( base );
@@ -1134,7 +1134,7 @@ void laser_arm_fire (gentity_t *ent)
 	{
 		// If I'm firing the laser and it's time to quit....then quit!
 		ent->alt_fire = false;
-//		ent->e_ThinkFunc = thinkF_NULL;
+//		ent->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
 //		return;
 	}
 
@@ -1148,7 +1148,7 @@ void laser_arm_fire (gentity_t *ent)
 	//VectorMA( start, -3, up, start );
 	VectorMA( start, 4096, fwd, end );
 
-	gi.trace( &trace, start, nullptr, nullptr, end, ENTITYNUM_NONE, MASK_SHOT, G2_NOCOLLIDE, 0 );//ignore
+	gi.trace( &trace, start, nullptr, nullptr, end, ENTITYNUM_NONE, MASK_SHOT, EG2_Collision::G2_NOCOLLIDE, 0 );//ignore
 	ent->fly_sound_debounce_time = level.time;//used as lastShotTime
 
 	// Only deal damage when in alt-fire mode
@@ -1159,7 +1159,7 @@ void laser_arm_fire (gentity_t *ent)
 			gentity_t *hapless_victim = &g_entities[trace.entityNum];
 			if ( hapless_victim && hapless_victim->takedamage && ent->damage )
 			{
-				G_Damage( hapless_victim, ent, ent->nextTrain->activator, fwd, trace.endpos, ent->damage, DAMAGE_IGNORE_TEAM, MOD_UNKNOWN );
+				G_Damage( hapless_victim, ent, ent->nextTrain->activator, fwd, trace.endpos, ent->damage, damageFlags_t::DAMAGE_IGNORE_TEAM, meansOfDeath_t::MOD_UNKNOWN );
 			}
 		}
 	}
@@ -1185,7 +1185,7 @@ void laser_arm_use (gentity_t *self, gentity_t *other, gentity_t *activator)
 	default:
 		//Fire
 		//gi.Printf("FIRE!\n");
-//		self->lastEnemy->lastEnemy->e_ThinkFunc = thinkF_laser_arm_fire;
+//		self->lastEnemy->lastEnemy->e_ThinkFunc = thinkFunc_t::thinkF_laser_arm_fire;
 //		self->lastEnemy->lastEnemy->nextthink = level.time + FRAMETIME;
 		//For 3 seconds
 		self->lastEnemy->lastEnemy->alt_fire = true; // Let 'er rip!
@@ -1262,7 +1262,7 @@ void laser_arm_start (gentity_t *base)
 	vec3_t	armAngles;
 	vec3_t	headAngles;
 
-	base->e_ThinkFunc = thinkF_NULL;
+	base->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
 	//We're the base, spawn the arm and head
 	gentity_t *arm = G_Spawn();
 	gentity_t *head = G_Spawn();
@@ -1296,7 +1296,7 @@ void laser_arm_start (gentity_t *base)
 	gi.linkentity(base);
 	//FIXME: need an actual model
 	base->s.modelindex = G_ModelIndex("models/mapobjects/dn/laser_base.md3");
-	base->s.eType = ET_GENERAL;
+	base->s.eType = entityType_t::ET_GENERAL;
 	G_SpawnVector4( "startRGBA", "1.0 0.85 0.15 0.75", (float *)&base->startRGBA );
 	//anglespeed - how fast it can track the player, entered in degrees per second, so we divide by FRAMETIME/1000
 	if ( !base->speed )
@@ -1307,7 +1307,7 @@ void laser_arm_start (gentity_t *base)
 	{
 		base->speed *= FRAMETIME/1000.0f;
 	}
-	base->e_UseFunc = useF_laser_arm_use;
+	base->e_UseFunc = useFunc_t::useF_laser_arm_use;
 	base->nextthink = level.time + FRAMETIME;
 
 	//Arm
@@ -1331,11 +1331,11 @@ void laser_arm_start (gentity_t *base)
 	}
 	G_SetAngles( head, headAngles );
 	head->s.modelindex = G_ModelIndex("models/mapobjects/dn/laser_head.md3");
-	head->s.eType = ET_GENERAL;
-//	head->svFlags |= SVF_BROADCAST;// Broadcast to all clients
+	head->s.eType = entityType_t::ET_GENERAL;
+//	head->svFlags |= svFlags_t::SVF_BROADCAST;// Broadcast to all clients
 	VectorSet( head->mins, -8, -8, -8 );
 	VectorSet( head->maxs, 8, 8, 8 );
-	head->contents = CONTENTS_BODY;
+	head->contents = contentsFlags_t::CONTENTS_BODY;
 	gi.linkentity(head);
 
 	//dmg
@@ -1371,14 +1371,14 @@ void laser_arm_start (gentity_t *base)
 	arm->nextTrain = head->nextTrain = base;
 
 	// The head should always think, since it will be either firing a damage laser or just a target laser
-	head->e_ThinkFunc = thinkF_laser_arm_fire;
+	head->e_ThinkFunc = thinkFunc_t::thinkF_laser_arm_fire;
 	head->nextthink = level.time + FRAMETIME;
 	head->alt_fire = false; // Don't do damage until told to
 }
 
 void SP_laser_arm (gentity_t *base)
 {
-	base->e_ThinkFunc = thinkF_laser_arm_start;
+	base->e_ThinkFunc = thinkFunc_t::thinkF_laser_arm_start;
 	base->nextthink = level.time + START_TIME_LINK_ENTS;
 }
 
@@ -1398,12 +1398,12 @@ void pas_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 	if ( self->spawnflags & 1 )
 	{
 		self->nextthink = 0; // turn off and do nothing
-		self->e_ThinkFunc = thinkF_NULL;
+		self->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
 	}
 	else
 	{
 		self->nextthink = level.time + 50;
-		self->e_ThinkFunc = thinkF_pas_think;
+		self->e_ThinkFunc = thinkFunc_t::thinkF_pas_think;
 	}
 }
 
@@ -1420,8 +1420,8 @@ void pas_fire( gentity_t *ent )
 				&boltMatrix, ent->currentAngles, ent->s.origin, (cg.time?cg.time:level.time),
 				nullptr, ent->s.modelScale );
 
-	gi.G2API_GiveMeVectorFromMatrix( boltMatrix, ORIGIN, org );
-	gi.G2API_GiveMeVectorFromMatrix( boltMatrix, POSITIVE_Y, fwd );
+	gi.G2API_GiveMeVectorFromMatrix( boltMatrix, Eorientations::ORIGIN, org );
+	gi.G2API_GiveMeVectorFromMatrix( boltMatrix, Eorientations::POSITIVE_Y, fwd );
 
 	G_PlayEffect( "turret/muzzle_flash", org, fwd );
 
@@ -1431,21 +1431,21 @@ void pas_fire( gentity_t *ent )
 
 	bolt->classname = "turret_proj";
 	bolt->nextthink = level.time + 10000;
-	bolt->e_ThinkFunc = thinkF_G_FreeEntity;
-	bolt->s.eType = ET_MISSILE;
-	bolt->s.weapon = WP_TURRET;
+	bolt->e_ThinkFunc = thinkFunc_t::thinkF_G_FreeEntity;
+	bolt->s.eType = entityType_t::ET_MISSILE;
+	bolt->s.weapon = weapon_t::WP_TURRET;
 	bolt->owner = ent;
 	bolt->damage = PAS_DAMAGE;
-	bolt->dflags = DAMAGE_NO_KNOCKBACK;		// Don't push them around, or else we are constantly re-aiming
+	bolt->dflags = damageFlags_t::DAMAGE_NO_KNOCKBACK;		// Don't push them around, or else we are constantly re-aiming
 	bolt->splashDamage = 0;
 	bolt->splashRadius = 0;
-	bolt->methodOfDeath = MOD_ENERGY;
-	bolt->clipmask = MASK_SHOT | CONTENTS_LIGHTSABER;
+	bolt->methodOfDeath = meansOfDeath_t::MOD_ENERGY;
+	bolt->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
 
 	VectorSet( bolt->maxs, 1, 1, 1 );
 	VectorScale( bolt->maxs, -1, bolt->mins );
 
-	bolt->s.pos.trType = TR_LINEAR;
+	bolt->s.pos.trType = trType_t::TR_LINEAR;
 	bolt->s.pos.trTime = level.time;		// move a bit on the very first frame
 	VectorCopy( org, bolt->s.pos.trBase );
 	VectorScale( fwd, 900, bolt->s.pos.trDelta );
@@ -1482,7 +1482,7 @@ static bool pas_find_enemies( gentity_t *self )
 				&boltMatrix, self->currentAngles, self->s.origin, (cg.time?cg.time:level.time),
 				nullptr, self->s.modelScale );
 
-	gi.G2API_GiveMeVectorFromMatrix( boltMatrix, ORIGIN, org2 );
+	gi.G2API_GiveMeVectorFromMatrix( boltMatrix, Eorientations::ORIGIN, org2 );
 
 	count = G_RadiusList( org2, self->radius, self, true, entity_list );
 
@@ -1494,7 +1494,7 @@ static bool pas_find_enemies( gentity_t *self )
 		{
 			continue;
 		}
-		if ( target == self || !target->takedamage || target->health <= 0 || Any( target->flags & FL_NOTARGET ))
+		if ( target == self || !target->takedamage || target->health <= 0 || Any( target->flags & gentityFlags_t::FL_NOTARGET ))
 		{
 			continue;
 		}
@@ -1519,7 +1519,7 @@ static bool pas_find_enemies( gentity_t *self )
 		}
 
 		trace_t	tr;
-		gi.trace( &tr, org2, nullptr, nullptr, org, self->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
+		gi.trace( &tr, org2, nullptr, nullptr, org, self->s.number, MASK_SHOT, EG2_Collision::G2_NOCOLLIDE, 0 );
 
 		if ( !tr.allsolid && !tr.startsolid && ( tr.fraction == 1.0 || tr.entityNum == target->s.number ))
 		{
@@ -1529,7 +1529,7 @@ static bool pas_find_enemies( gentity_t *self )
 
 			if ( target->s.number ) // don't do this for the player
 			{
-				G_StartFlee( target, self, self->currentOrigin, AEL_DANGER, 3000, 5000 );
+				G_StartFlee( target, self, self->currentOrigin, alertEventLevel_e::AEL_DANGER, 3000, 5000 );
 			}
 
 			if ( enemyDist < bestDist )// all things equal, keep current
@@ -1580,7 +1580,7 @@ void pas_adjust_enemy( gentity_t *ent )
 					&boltMatrix, ent->currentAngles, ent->s.origin, (cg.time?cg.time:level.time),
 					nullptr, ent->s.modelScale );
 
-		gi.G2API_GiveMeVectorFromMatrix( boltMatrix, ORIGIN, org2 );
+		gi.G2API_GiveMeVectorFromMatrix( boltMatrix, Eorientations::ORIGIN, org2 );
 
 		if ( ent->enemy->client )
 		{
@@ -1593,7 +1593,7 @@ void pas_adjust_enemy( gentity_t *ent )
 		}
 
 		trace_t	tr;
-		gi.trace( &tr, org2, nullptr, nullptr, org, ent->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
+		gi.trace( &tr, org2, nullptr, nullptr, org, ent->s.number, MASK_SHOT, EG2_Collision::G2_NOCOLLIDE, 0 );
 
 		if ( tr.allsolid || tr.startsolid || tr.entityNum != ent->enemy->s.number )
 		{
@@ -1625,7 +1625,7 @@ void pas_think( gentity_t *ent )
 	{
 		// let us do our animation, then we are good to go in terms of pounding the crap out of enemies.
 		ent->damage = 1;
-		gi.G2API_SetBoneAnimIndex( &ent->ghoul2[ent->playerModel], ent->rootBone, 0, 11, BONE_ANIM_OVERRIDE_FREEZE, 0.8f, cg.time, -1, -1 );
+		gi.G2API_SetBoneAnimIndex( &ent->ghoul2[ent->playerModel], ent->rootBone, 0, 11, boneFlags_t::BONE_ANIM_OVERRIDE_FREEZE, 0.8f, cg.time, -1, -1 );
 		ent->nextthink = level.time + 1200;
 		return;
 	}
@@ -1722,11 +1722,11 @@ void pas_think( gentity_t *ent )
 	VectorSet( backAngles, 0.0f, 0.0f, ent->speed - ent->s.angles[YAW] );
 
 	gi.G2API_SetBoneAngles( &ent->ghoul2[ent->playerModel], "bone_barrel", frontAngles,
-						BONE_ANGLES_POSTMULT, POSITIVE_Y, POSITIVE_Z, NEGATIVE_X, nullptr,100,cg.time);
+						boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_Y, Eorientations::POSITIVE_Z, Eorientations::NEGATIVE_X, nullptr,100,cg.time);
 	gi.G2API_SetBoneAngles( &ent->ghoul2[ent->playerModel], "bone_gback", frontAngles,
-						BONE_ANGLES_POSTMULT, POSITIVE_Y, POSITIVE_Z, NEGATIVE_X, nullptr,100,cg.time);
+						boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_Y, Eorientations::POSITIVE_Z, Eorientations::NEGATIVE_X, nullptr,100,cg.time);
 	gi.G2API_SetBoneAngles( &ent->ghoul2[ent->playerModel], "bone_hinge", backAngles,
-						BONE_ANGLES_POSTMULT, POSITIVE_Y, POSITIVE_Z, POSITIVE_X, nullptr,100,cg.time);
+						boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_Y, Eorientations::POSITIVE_Z, Eorientations::POSITIVE_X, nullptr,100,cg.time);
 
 	if ( moved )
 	{
@@ -1793,13 +1793,13 @@ void SP_PAS( gentity_t *base )
 	VectorSet( base->s.modelScale, 1.0f, 1.0f, 1.0f );
 
 	base->rootBone = gi.G2API_GetBoneIndex( &base->ghoul2[base->playerModel], "model_root", true );
-	gi.G2API_SetBoneAngles( &base->ghoul2[base->playerModel], "bone_hinge", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_Y, POSITIVE_Z, POSITIVE_X, nullptr, 0, 0 );
-	gi.G2API_SetBoneAngles( &base->ghoul2[base->playerModel], "bone_gback", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_Y, POSITIVE_Z, POSITIVE_X, nullptr, 0, 0 );
-	gi.G2API_SetBoneAngles( &base->ghoul2[base->playerModel], "bone_barrel", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_Y, POSITIVE_Z, POSITIVE_X, nullptr, 0, 0 );
+	gi.G2API_SetBoneAngles( &base->ghoul2[base->playerModel], "bone_hinge", vec3_origin, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_Y, Eorientations::POSITIVE_Z, Eorientations::POSITIVE_X, nullptr, 0, 0 );
+	gi.G2API_SetBoneAngles( &base->ghoul2[base->playerModel], "bone_gback", vec3_origin, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_Y, Eorientations::POSITIVE_Z, Eorientations::POSITIVE_X, nullptr, 0, 0 );
+	gi.G2API_SetBoneAngles( &base->ghoul2[base->playerModel], "bone_barrel", vec3_origin, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_Y, Eorientations::POSITIVE_Z, Eorientations::POSITIVE_X, nullptr, 0, 0 );
 
 	base->torsoBolt = gi.G2API_AddBolt( &base->ghoul2[base->playerModel], "*flash02" );
 
-	base->s.eType = ET_GENERAL;
+	base->s.eType = entityType_t::ET_GENERAL;
 
 	if ( !base->radius )
 	{
@@ -1812,18 +1812,18 @@ void SP_PAS( gentity_t *base )
 		base->count = 150;
 	}
 
-	base->e_UseFunc = useF_pas_use;
+	base->e_UseFunc = useFunc_t::useF_pas_use;
 
 	base->damage = 0; // start animation flag
 
-	base->contents = CONTENTS_SHOTCLIP|CONTENTS_CORPSE;//for certain traces
+	base->contents = contentsFlags_t::CONTENTS_SHOTCLIP|contentsFlags_t::CONTENTS_CORPSE;//for certain traces
 	VectorSet( base->mins, -8, -8, 0 );
 	VectorSet( base->maxs, 8, 8, 18 );
 
 	if ( !(base->spawnflags & 1 )) // START_OFF
 	{
 		base->nextthink = level.time + 1000; // we aren't starting off, so start working right away
-		base->e_ThinkFunc = thinkF_pas_think;
+		base->e_ThinkFunc = thinkFunc_t::thinkF_pas_think;
 	}
 
 	// Set up our explosion effect for the ExplodeDeath code....
@@ -1837,8 +1837,8 @@ void SP_PAS( gentity_t *base )
 	base->max_health = base->health;
 
 	base->takedamage = true;
-	base->e_PainFunc = painF_TurretPain;
-	base->e_DieFunc  = dieF_turret_die;
+	base->e_PainFunc = painFunc_t::painF_TurretPain;
+	base->e_DieFunc  = dieFunc_t::dieF_turret_die;
 
 	// hack this flag on so that when it calls the turret die code, it will orient the effect up
 	// HACK
@@ -1846,12 +1846,12 @@ void SP_PAS( gentity_t *base )
 	base->spawnflags |= 2;
 
 	// Use this for our missile effect
-	RegisterItem( FindItemForWeapon( WP_TURRET ));
-	base->s.weapon = WP_TURRET;
+	RegisterItem( FindItemForWeapon( weapon_t::WP_TURRET ));
+	base->s.weapon = weapon_t::WP_TURRET;
 
-	base->svFlags |= SVF_NONNPC_ENEMY;
+	base->svFlags |= svFlags_t::SVF_NONNPC_ENEMY;
 
-	base->noDamageTeam = TEAM_NEUTRAL;
+	base->noDamageTeam = team_t::TEAM_NEUTRAL;
 	if ( base->team && base->team[0] )
 	{
 		base->noDamageTeam = (team_t)GetIDForString( TeamTable, base->team );
@@ -1879,14 +1879,14 @@ bool place_portable_assault_sentry( gentity_t *self, vec3_t origin, vec3_t angs 
 
 	// and move a consistent distance away from us so we don't have the dumb thing spawning inside of us.
 	VectorMA( origin, 30, fwd, pos );
-	gi.trace( &tr, origin, nullptr, nullptr, pos, self->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
+	gi.trace( &tr, origin, nullptr, nullptr, pos, self->s.number, MASK_SHOT, EG2_Collision::G2_NOCOLLIDE, 0 );
 
 	// find the ground
 	tr.endpos[2] += 20;
 	VectorCopy( tr.endpos, pos );
 	pos[2] -= 64;
 
-	gi.trace( &tr, tr.endpos, mins, maxs, pos, self->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
+	gi.trace( &tr, tr.endpos, mins, maxs, pos, self->s.number, MASK_SHOT, EG2_Collision::G2_NOCOLLIDE, 0 );
 
 	// check for a decent surface, meaning mostly flat...should probably also check surface parms so we don't set us down on lava or something.
 	if ( !tr.startsolid && !tr.allsolid && tr.fraction < 1.0f && tr.plane.normal[2] > 0.9f && tr.entityNum >= ENTITYNUM_WORLD )
@@ -1899,9 +1899,9 @@ bool place_portable_assault_sentry( gentity_t *self, vec3_t origin, vec3_t angs 
 			VectorCopy( tr.endpos, pas->s.origin );
 			SP_PAS( pas );
 
-			pas->contents |= CONTENTS_PLAYERCLIP; // player placed ones can block players but not npcs
+			pas->contents |= contentsFlags_t::CONTENTS_PLAYERCLIP; // player placed ones can block players but not npcs
 
-			pas->e_UseFunc = useF_NULL; // placeable ones never need to be used
+			pas->e_UseFunc = useFunc_t::useF_NULL; // placeable ones never need to be used
 
 			// we don't hurt us or anyone who belongs to the same team as us.
 			if ( self->client )
@@ -1956,8 +1956,8 @@ void ion_cannon_think( gentity_t *self )
 					&boltMatrix, self->s.angles, self->s.origin, (cg.time?cg.time:level.time),
 					nullptr, self->s.modelScale );
 
-		gi.G2API_GiveMeVectorFromMatrix( boltMatrix, ORIGIN, org );
-		gi.G2API_GiveMeVectorFromMatrix( boltMatrix, POSITIVE_Y, fwd );
+		gi.G2API_GiveMeVectorFromMatrix( boltMatrix, Eorientations::ORIGIN, org );
+		gi.G2API_GiveMeVectorFromMatrix( boltMatrix, Eorientations::POSITIVE_Y, fwd );
 
 		G_PlayEffect( self->fxID, org, fwd );
 	}
@@ -1968,7 +1968,7 @@ void ion_cannon_think( gentity_t *self )
 		G_UseTargets2( self, self, self->target2 );
 	}
 
-	gi.G2API_SetBoneAnimIndex( &self->ghoul2[self->playerModel], self->rootBone, 0, 8, BONE_ANIM_OVERRIDE_FREEZE, 0.6f, cg.time, -1, -1 );
+	gi.G2API_SetBoneAnimIndex( &self->ghoul2[self->playerModel], self->rootBone, 0, 8, boneFlags_t::BONE_ANIM_OVERRIDE_FREEZE, 0.6f, cg.time, -1, -1 );
 	self->nextthink = level.time + self->wait + Q_flrand(-1.0f, 1.0f) * self->random;
 }
 
@@ -1987,8 +1987,8 @@ void ion_cannon_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker,
 	self->s.modelindex2 = 0;
 
 		// Turn off the thinking of the base & use it's targets
-	self->e_ThinkFunc = thinkF_NULL;
-	self->e_UseFunc = useF_NULL;
+	self->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
+	self->e_UseFunc = useFunc_t::useF_NULL;
 
 	if ( self->target )
 	{
@@ -1996,7 +1996,7 @@ void ion_cannon_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker,
 	}
 
 	// clear my data
-	self->e_DieFunc  = dieF_NULL;
+	self->e_DieFunc  = dieFunc_t::dieF_NULL;
 	self->takedamage = false;
 	self->health = 0;
 
@@ -2004,7 +2004,7 @@ void ion_cannon_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker,
 	self->s.loopSound = 0;
 
 	// not solid anymore
-	self->contents = CONTENTS_NONE;
+	self->contents = contentsFlags_t::CONTENTS_NONE;
 
 	VectorCopy( self->currentOrigin, self->s.pos.trBase );
 
@@ -2015,7 +2015,7 @@ void ion_cannon_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker,
 	if ( self->splashDamage > 0 && self->splashRadius > 0 )
 	{
 		G_RadiusDamage( self->currentOrigin, attacker, self->splashDamage, self->splashRadius,
-				attacker, MOD_UNKNOWN );
+				attacker, meansOfDeath_t::MOD_UNKNOWN );
 	}
 
 	gi.linkentity( self );
@@ -2026,15 +2026,15 @@ void ion_cannon_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 //----------------------------------------------------------------------------
 {
 	// toggle
-	if ( self->e_ThinkFunc == thinkF_NULL )
+	if ( self->e_ThinkFunc == thinkFunc_t::thinkF_NULL )
 	{
 		// start thinking now
-		self->e_ThinkFunc = thinkF_ion_cannon_think;
+		self->e_ThinkFunc = thinkFunc_t::thinkF_ion_cannon_think;
 		self->nextthink = level.time + FRAMETIME; // fires right on being used
 	}
 	else
 	{
-		self->e_ThinkFunc = thinkF_NULL;
+		self->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
 	}
 }
 
@@ -2076,7 +2076,7 @@ void SP_misc_ion_cannon( gentity_t *base )
 	// register damage model
 	base->s.modelindex2 = G_ModelIndex( "models/map_objects/imp_mine/ion_cannon_damage.md3" );
 
-	base->e_UseFunc = useF_ion_cannon_use;
+	base->e_UseFunc = useFunc_t::useF_ion_cannon_use;
 
 	// How quickly to fire
 	if ( base->wait == 0.0f )
@@ -2103,26 +2103,26 @@ void SP_misc_ion_cannon( gentity_t *base )
 	}
 
 	// we only take damage from a heavy weapon class missile
-	base->flags |= FL_DMG_BY_HEAVY_WEAP_ONLY;
+	base->flags |= gentityFlags_t::FL_DMG_BY_HEAVY_WEAP_ONLY;
 
 	if ( base->spawnflags & 4 )//shielded
 	{
-		base->flags |= FL_SHIELDED; //technically, this would only take damage from a lightsaber, but the other flag just above would cancel that out too.
+		base->flags |= gentityFlags_t::FL_SHIELDED; //technically, this would only take damage from a lightsaber, but the other flag just above would cancel that out too.
 	}
 
 	G_SpawnInt( "health", "2000", &base->health );
-	base->e_DieFunc = dieF_ion_cannon_die;
+	base->e_DieFunc = dieFunc_t::dieF_ion_cannon_die;
 	base->takedamage = true;
 
 	// Start Off?
 	if ( base->spawnflags & 1 )
 	{
-		base->e_ThinkFunc = thinkF_NULL;
+		base->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
 	}
 	else
 	{
 		// start thinking now, otherwise, we'll wait until we are used
-		base->e_ThinkFunc = thinkF_ion_cannon_think;
+		base->e_ThinkFunc = thinkFunc_t::thinkF_ion_cannon_think;
 		base->nextthink = level.time + base->wait + Q_flrand(-1.0f, 1.0f) * base->random;
 	}
 
@@ -2138,7 +2138,7 @@ void SP_misc_ion_cannon( gentity_t *base )
 	// Set up our explosion effect for the ExplodeDeath code....
 	G_EffectIndex( "env/ion_cannon_explosion" );
 
-	base->contents = CONTENTS_BODY;
+	base->contents = contentsFlags_t::CONTENTS_BODY;
 
 	VectorSet( base->mins, -141.0f, -148.0f, 0.0f );
 	VectorSet( base->maxs, 142.0f, 135.0f, 245.0f );
@@ -2150,16 +2150,16 @@ void SP_misc_ion_cannon( gentity_t *base )
 //-----------------------------------------------------
 void spotlight_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
-	if ( self->e_ThinkFunc == thinkF_NULL )
+	if ( self->e_ThinkFunc == thinkFunc_t::thinkF_NULL )
 	{
 		// start thinking now, otherwise, we'll wait until we are used
-		self->e_ThinkFunc = thinkF_spotlight_think;
+		self->e_ThinkFunc = thinkFunc_t::thinkF_spotlight_think;
 		self->nextthink = level.time + FRAMETIME;
 	}
 	else
 	{
-		self->e_ThinkFunc = thinkF_NULL;
-		self->s.eFlags &= ~EF_ALT_FIRING;
+		self->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
+		self->s.eFlags &= ~entityFlags_t::EF_ALT_FIRING;
 	}
 }
 
@@ -2170,15 +2170,15 @@ void spotlight_think( gentity_t *ent )
 	trace_t		tr;
 
 	// dumb hack flag so that we can draw an interpolated light cone cgame side.
-	ent->s.eFlags |= EF_ALT_FIRING;
+	ent->s.eFlags |= entityFlags_t::EF_ALT_FIRING;
 
 	VectorSubtract( ent->enemy->currentOrigin, ent->currentOrigin, dir );
 	VectorNormalize( dir );
 	vectoangles( dir, ent->s.apos.trBase );
-	ent->s.apos.trType = TR_INTERPOLATE;
+	ent->s.apos.trType = trType_t::TR_INTERPOLATE;
 
 	VectorMA( ent->currentOrigin, 2048, dir, end ); // just pick some max trace distance
-	gi.trace( &tr, ent->currentOrigin, vec3_origin, vec3_origin, end, ent->s.number, CONTENTS_SOLID, G2_NOCOLLIDE, 0 );
+	gi.trace( &tr, ent->currentOrigin, vec3_origin, vec3_origin, end, ent->s.number, contentsFlags_t::CONTENTS_SOLID, EG2_Collision::G2_NOCOLLIDE, 0 );
 
 	ent->radius = tr.fraction * 2048.0f;
 
@@ -2190,7 +2190,7 @@ void spotlight_think( gentity_t *ent )
 			G_UseTargets2( ent, &g_entities[0], ent->target2 );
 
 #ifndef FINAL_BUILD
-			if ( g_developer->integer == to_underlying( PRINT_DEVELOPER ) )
+			if ( g_developer->integer == to_underlying( printParm_t::PRINT_DEVELOPER ) )
 			{
 				Com_Printf( S_COLOR_MAGENTA "Spotlight hit player at time: %d!!!\n", level.time );
 			}
@@ -2220,13 +2220,13 @@ void spotlight_link( gentity_t *ent )
 	// Start Off?
 	if ( ent->spawnflags & 1 )
 	{
-		ent->e_ThinkFunc = thinkF_NULL;
-		ent->s.eFlags &= ~EF_ALT_FIRING;
+		ent->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
+		ent->s.eFlags &= ~entityFlags_t::EF_ALT_FIRING;
 	}
 	else
 	{
 		// start thinking now, otherwise, we'll wait until we are used
-		ent->e_ThinkFunc = thinkF_spotlight_think;
+		ent->e_ThinkFunc = thinkFunc_t::thinkF_spotlight_think;
 		ent->nextthink = level.time + FRAMETIME;
 	}
 }
@@ -2264,11 +2264,11 @@ void SP_misc_spotlight( gentity_t *base )
 	// Set up our lightcone effect, though we will have it draw cgame side so it looks better
 	G_EffectIndex( "env/light_cone" );
 
-	base->contents = CONTENTS_BODY;
-	base->e_UseFunc = useF_spotlight_use;
+	base->contents = contentsFlags_t::CONTENTS_BODY;
+	base->e_UseFunc = useFunc_t::useF_spotlight_use;
 
 	// the thing we need to target may not have spawned yet, so try back in a bit
-	base->e_ThinkFunc = thinkF_spotlight_link;
+	base->e_ThinkFunc = thinkFunc_t::thinkF_spotlight_link;
 	base->nextthink = level.time + 100;
 
 	gi.linkentity( base );
@@ -2302,7 +2302,7 @@ void panel_turret_shoot( gentity_t *self, vec3_t org, vec3_t dir)
 	gentity_t *missile = CreateMissile( org, dir, self->speed, 10000, self );
 
 	missile->classname = "b_proj";
-	missile->s.weapon = WP_TIE_FIGHTER;
+	missile->s.weapon = weapon_t::WP_TIE_FIGHTER;
 
 	VectorSet( missile->maxs, 9, 9, 9 );
 	VectorScale( missile->maxs, -1, missile->mins );
@@ -2310,11 +2310,11 @@ void panel_turret_shoot( gentity_t *self, vec3_t org, vec3_t dir)
 	missile->bounceCount = 0;
 
 	missile->damage = self->damage;
-	missile->dflags = DAMAGE_DEATH_KNOCKBACK;
-	missile->methodOfDeath = MOD_ENERGY;
-	missile->clipmask = MASK_SHOT | CONTENTS_LIGHTSABER;
+	missile->dflags = damageFlags_t::DAMAGE_DEATH_KNOCKBACK;
+	missile->methodOfDeath = meansOfDeath_t::MOD_ENERGY;
+	missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
 
-	G_SoundOnEnt( self, CHAN_AUTO, "sound/movers/objects/ladygun_fire" );
+	G_SoundOnEnt( self, soundChannel_t::CHAN_AUTO, "sound/movers/objects/ladygun_fire" );
 
 	VectorMA( org, 32, dir, org );
 	org[2] -= 4;
@@ -2332,7 +2332,7 @@ void misc_panel_turret_die( gentity_t *self, gentity_t *inflictor, gentity_t *at
 	// FIXME: might need some other kind of logic or functionality in here??
 	G_UseTargets2( self, player, self->target2 );
 	G_ClearViewEntity( player );
-	cg.overrides.active &= ~CG_OVERRIDE_FOV;
+	cg.overrides.active &= ~cgOverrideFlags_t::CG_OVERRIDE_FOV;
 	cg.overrides.fov = 0;
 }
 
@@ -2386,11 +2386,11 @@ void panel_turret_think( gentity_t *self )
 		}
 
 		// Let cgame interpolation smooth out the angle changes
-		self->s.apos.trType = TR_INTERPOLATE;
-		self->s.pos.trType	= TR_INTERPOLATE; // not really moving, but this fixes an interpolation bug in cg_ents.
+		self->s.apos.trType = trType_t::TR_INTERPOLATE;
+		self->s.pos.trType	= trType_t::TR_INTERPOLATE; // not really moving, but this fixes an interpolation bug in cg_ents.
 
 		// Check for backing out of turret
-		if ( ( self->useDebounceTime < level.time ) && (Any(ucmd->buttons & BUTTON_USE) || ucmd->forwardmove || ucmd->rightmove || ucmd->upmove) )
+		if ( ( self->useDebounceTime < level.time ) && (Any(ucmd->buttons & buttonFlags_t::BUTTON_USE) || ucmd->forwardmove || ucmd->rightmove || ucmd->upmove) )
 		{
 			self->useDebounceTime = level.time + 200;
 
@@ -2398,7 +2398,7 @@ void panel_turret_think( gentity_t *self )
 			G_ClearViewEntity( player );
 			G_Sound( player, self->soundPos2 );
 
-			cg.overrides.active &= ~CG_OVERRIDE_FOV;
+			cg.overrides.active &= ~cgOverrideFlags_t::CG_OVERRIDE_FOV;
 			cg.overrides.fov = 0;
 			if ( ucmd->upmove > 0 )
 			{//stop player from doing anything for a half second after
@@ -2406,22 +2406,22 @@ void panel_turret_think( gentity_t *self )
 			}
 
 			// can be drawn
-//			self->s.eFlags &= ~EF_NODRAW;
+//			self->s.eFlags &= ~entityFlags_t::EF_NODRAW;
 		}
 		else
 		{
 			// don't draw me when being looked through
-//			self->s.eFlags |= EF_NODRAW;
+//			self->s.eFlags |= entityFlags_t::EF_NODRAW;
 //			self->s.modelindex = 0;
 
 			// we only need to think when we are being used
 			self->nextthink = level.time + 50;
 
-			cg.overrides.active |= CG_OVERRIDE_FOV;
+			cg.overrides.active |= cgOverrideFlags_t::CG_OVERRIDE_FOV;
 			cg.overrides.fov = 90;
 		}
 
-		if ( Any( ucmd->buttons & BUTTON_ATTACK ) || Any( ucmd->buttons & BUTTON_ALT_ATTACK ) )
+		if ( Any( ucmd->buttons & buttonFlags_t::BUTTON_ATTACK ) || Any( ucmd->buttons & buttonFlags_t::BUTTON_ALT_ATTACK ) )
 		{
 			if ( self->attackDebounceTime < level.time )
 			{
@@ -2472,7 +2472,7 @@ void panel_turret_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 
 	G_Sound( activator, self->soundPos1 );
 
-	self->e_ThinkFunc = thinkF_panel_turret_think;
+	self->e_ThinkFunc = thinkFunc_t::thinkF_panel_turret_think;
 //	panel_turret_think( self );
 	self->nextthink = level.time + 150;
 }
@@ -2491,11 +2491,11 @@ void SP_misc_panel_turret( gentity_t *self )
 	if ( self->spawnflags & 1 ) // heatlh
 	{
 		self->takedamage = true;
-		self->contents = CONTENTS_SHOTCLIP;
+		self->contents = contentsFlags_t::CONTENTS_SHOTCLIP;
 		G_SpawnInt( "health", "200", &self->health );
 
 		self->max_health = self->health;
-		self->dflags |= DAMAGE_CUSTOM_HUD; // dumb, but we draw a custom hud
+		self->dflags |= damageFlags_t::DAMAGE_CUSTOM_HUD; // dumb, but we draw a custom hud
 		G_SoundIndex( "sound/movers/objects/ladygun_on" );
 	}
 
@@ -2512,15 +2512,15 @@ void SP_misc_panel_turret( gentity_t *self )
 
 	VectorSet( self->mins, -8, -8, -12 );
 	VectorSet( self->maxs, 8, 8, 0 );
-	self->contents = CONTENTS_SOLID;
+	self->contents = contentsFlags_t::CONTENTS_SOLID;
 
-	self->s.weapon = WP_TURRET;
+	self->s.weapon = weapon_t::WP_TURRET;
 
-	RegisterItem( FindItemForWeapon( WP_EMPLACED_GUN ));
+	RegisterItem( FindItemForWeapon( weapon_t::WP_EMPLACED_GUN ));
 	gi.linkentity( self );
 
-	self->e_UseFunc = useF_panel_turret_use;
-	self->e_DieFunc = dieF_misc_panel_turret_die;
+	self->e_UseFunc = useFunc_t::useF_panel_turret_use;
+	self->e_DieFunc = dieFunc_t::dieF_misc_panel_turret_die;
 }
 
 #undef name

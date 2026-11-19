@@ -201,12 +201,12 @@ void Q_strcat( char *dest, int size, const char *src ) {
 
 	l1 = strlen( dest );
 	if ( l1 >= size ) {
-		//Com_Error( ERR_FATAL, "Q_strcat: already overflowed" );
+		//Com_Error( errorParm_t::ERR_FATAL, "Q_strcat: already overflowed" );
 		return;
 	}
 	if ( strlen(src)+1 > (size_t)(size - l1))
 	{	//do the error here instead of in Q_strncpyz to get a meaningful msg
-		//Com_Error(ERR_FATAL,"Q_strcat: cannot append \"%s\" to \"%s\"", src, dest);
+		//Com_Error(errorParm_t::ERR_FATAL,"Q_strcat: cannot append \"%s\" to \"%s\"", src, dest);
 		return;
 	}
 	Q_strncpyz( dest + l1, src, size - l1 );

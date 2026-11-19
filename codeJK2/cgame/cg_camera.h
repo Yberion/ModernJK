@@ -44,7 +44,6 @@ enum class cameraStateFlags_t
 	CAMERA_ROFFING		= 0x00000080,
 	CAMERA_SMOOTHING	= 0x00000100,
 };
-using enum cameraStateFlags_t;
 template <> inline constexpr bool enableEnumFlags<cameraStateFlags_t> = true;
 
 // NOTE!! This structure is now saved out as part of the load/save game, so tell me if you put any pointers or

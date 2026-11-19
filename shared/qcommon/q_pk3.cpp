@@ -175,7 +175,7 @@ static const char *PK3_FindDirectory( pk3Archive_t *archive, uint64_t *at, uint6
 	if ( tailLen < ZIP_END_SIZE ) {
 		return why;
 	}
-	tail = (byte *)Z_Malloc( (int)tailLen, TAG_FILESYS, false );
+	tail = (byte *)Z_Malloc( (int)tailLen, memtag::TAG_FILESYS, false );
 	if ( !PK3_ReadAt( archive, archive->length - tailLen, tail, tailLen ) ) {
 		why = "it cannot be read";
 	} else {
@@ -303,7 +303,7 @@ static pk3Archive_t *PK3_Load( pk3Archive_t *opened, const char **why ) {
 		return nullptr;
 	}
 	if ( size ) {
-		cd = (byte *)Z_Malloc( (int)size, TAG_FILESYS, false );
+		cd = (byte *)Z_Malloc( (int)size, memtag::TAG_FILESYS, false );
 		if ( !PK3_ReadAt( opened, at, cd, (size_t)size ) ) {
 			namesLen = -1;
 		}
@@ -322,7 +322,7 @@ static pk3Archive_t *PK3_Load( pk3Archive_t *opened, const char **why ) {
 		return nullptr;
 	}
 
-	archive = (pk3Archive_t *)Z_Malloc( (int)bytes, TAG_FILESYS, true );
+	archive = (pk3Archive_t *)Z_Malloc( (int)bytes, memtag::TAG_FILESYS, true );
 	*archive = *opened;
 	archive->count = (int)count;
 	archive->users = 1;
@@ -413,7 +413,7 @@ pk3File_t *PK3_OpenFile( pk3Archive_t *archive, int index ) {
 		return nullptr;
 	}
 
-	file = (pk3File_t *)Z_Malloc( sizeof( *file ), TAG_FILESYS, false );
+	file = (pk3File_t *)Z_Malloc( sizeof( *file ), memtag::TAG_FILESYS, false );
 	memset( file, 0, offsetof( pk3File_t, in ) );
 	file->archive = archive;
 	file->entry = e;
@@ -513,17 +513,17 @@ int PK3_Seek( pk3File_t *file, long offset, fsOrigin_t origin ) {
 	byte			skipped[PK3_INPUT_SIZE];
 
 	switch ( origin ) {
-		case FS_SEEK_SET:
+		case fsOrigin_t::FS_SEEK_SET:
 			target = offset;
 			break;
-		case FS_SEEK_CUR:
+		case fsOrigin_t::FS_SEEK_CUR:
 			target = (int64_t)file->out + offset;
 			break;
-		case FS_SEEK_END:
+		case fsOrigin_t::FS_SEEK_END:
 			target = (int64_t)e->usize + offset;
 			break;
 		default:
-			Com_Error( ERR_FATAL, "Bad origin in FS_Seek" );
+			Com_Error( errorParm_t::ERR_FATAL, "Bad origin in FS_Seek" );
 			return -1;
 	}
 	if ( target < 0 ) {

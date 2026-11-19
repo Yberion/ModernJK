@@ -46,7 +46,7 @@ static cvar_t *const com_journal = nullptr;
 
 // no temporary memory on the hunk
 static inline void *Hunk_AllocateTempMemory( int size ) {
-	return Z_Malloc( size, TAG_TEMP_WORKSPACE, false );
+	return Z_Malloc( size, memtag::TAG_TEMP_WORKSPACE, false );
 }
 static inline void Hunk_FreeTempMemory( void *buffer ) {
 	Z_Free( buffer );

@@ -114,7 +114,7 @@ void SV_AddServerCommand( client_t *client, const char *cmd ) {
 	int		index, i;
 
 	// do not send commands until the gamestate has been sent
-	if ( client->state < CS_PRIMED ) {
+	if ( client->state < clientState_t::CS_PRIMED ) {
 		return;
 	}
 
@@ -273,7 +273,7 @@ void SV_MasterHeartbeat( void ) {
 		Com_Printf ("Sending heartbeat to %s\n", sv_master[i]->string );
 		// this command should be changed if the server info / status format
 		// ever incompatably changes
-		NET_OutOfBandPrint( NS_SERVER, &adr[i], "heartbeat %s\n", HEARTBEAT_GAME );
+		NET_OutOfBandPrint( netsrc_t::NS_SERVER, &adr[i], "heartbeat %s\n", HEARTBEAT_GAME );
 	}
 }
 
@@ -319,7 +319,7 @@ static leakyBucket_t *SVC_BucketForAddress( const netadr_t *address, int burst, 
 	static std::map<int, leakyBucket_t> bucketMap;
 	static int lastGC = 0;
 
-	if (address->type != NA_IP) {
+	if (address->type != netadrtype_t::NA_IP) {
 		return nullptr;
 	}
 
@@ -421,7 +421,7 @@ void SVC_Status( const netadr_t *from ) {
 
 	// ignore if we are in single player
 	/*
-	if ( Cvar_VariableValue( "g_gametype" ) == GT_SINGLE_PLAYER ) {
+	if ( Cvar_VariableValue( "g_gametype" ) == gametype_t::GT_SINGLE_PLAYER ) {
 		return;
 	}
 	*/
@@ -430,7 +430,7 @@ void SVC_Status( const netadr_t *from ) {
 	if(strlen(Cmd_Argv(1)) > 128)
 		return;
 
-	Q_strncpyz( infostring, Cvar_InfoString( CVAR_SERVERINFO ), sizeof( infostring ) );
+	Q_strncpyz( infostring, Cvar_InfoString( cvarFlags_t::CVAR_SERVERINFO ), sizeof( infostring ) );
 
 	// echo back the parameter to status. so master servers can use it as a challenge
 	// to prevent timed spoofed reply packets that add ghost servers
@@ -441,10 +441,10 @@ void SVC_Status( const netadr_t *from ) {
 
 	for (i=0 ; i < sv_maxclients->integer ; i++) {
 		cl = &svs.clients[i];
-		if ( cl->state >= CS_CONNECTED ) {
+		if ( cl->state >= clientState_t::CS_CONNECTED ) {
 			ps = SV_GameClientNum( i );
 			Com_sprintf (player, sizeof(player), "%i %i \"%s\"\n",
-				ps->persistant[PERS_SCORE], cl->ping, cl->name);
+				ps->persistant[persEnum_t::PERS_SCORE], cl->ping, cl->name);
 			playerLength = strlen(player);
 			if (statusLength + playerLength >= (int)sizeof(status) ) {
 				break;		// can't hold any more
@@ -454,7 +454,7 @@ void SVC_Status( const netadr_t *from ) {
 		}
 	}
 
-	NET_OutOfBandPrint( NS_SERVER, from, "statusResponse\n%s\n%s", infostring, status );
+	NET_OutOfBandPrint( netsrc_t::NS_SERVER, from, "statusResponse\n%s\n%s", infostring, status );
 }
 
 /*
@@ -472,7 +472,7 @@ void SVC_Info( const netadr_t *from ) {
 
 	// ignore if we are in single player
 	/*
-	if ( Cvar_VariableValue( "g_gametype" ) == GT_SINGLE_PLAYER || Cvar_VariableValue("ui_singlePlayerActive")) {
+	if ( Cvar_VariableValue( "g_gametype" ) == gametype_t::GT_SINGLE_PLAYER || Cvar_VariableValue("ui_singlePlayerActive")) {
 		return;
 	}
 	*/
@@ -494,9 +494,9 @@ void SVC_Info( const netadr_t *from ) {
 	// don't count privateclients
 	count = humans = 0;
 	for ( i = sv_privateClients->integer ; i < sv_maxclients->integer ; i++ ) {
-		if ( svs.clients[i].state >= CS_CONNECTED ) {
+		if ( svs.clients[i].state >= clientState_t::CS_CONNECTED ) {
 			count++;
-			if ( svs.clients[i].netchan.remoteAddress.type != NA_BOT ) {
+			if ( svs.clients[i].netchan.remoteAddress.type != netadrtype_t::NA_BOT ) {
 				humans++;
 			}
 		}
@@ -518,7 +518,7 @@ void SVC_Info( const netadr_t *from ) {
 	Info_SetValueForKey( infostring, "gametype", va("%i", sv_gametype->integer ) );
 	Info_SetValueForKey( infostring, "needpass", va("%i", sv_needpass->integer ) );
 	Info_SetValueForKey( infostring, "truejedi", va("%i", Cvar_VariableIntegerValue( "g_jediVmerc" ) ) );
-	if ( sv_gametype->integer == to_underlying( GT_DUEL ) || sv_gametype->integer == to_underlying( GT_POWERDUEL ) )
+	if ( sv_gametype->integer == to_underlying( gametype_t::GT_DUEL ) || sv_gametype->integer == to_underlying( gametype_t::GT_POWERDUEL ) )
 	{
 		wDisable = Cvar_VariableIntegerValue( "g_duelWeaponDisable" );
 	}
@@ -542,7 +542,7 @@ void SVC_Info( const netadr_t *from ) {
 		Info_SetValueForKey( infostring, "game", gamedir );
 	}
 
-	NET_OutOfBandPrint( NS_SERVER, from, "infoResponse\n%s", infostring );
+	NET_OutOfBandPrint( netsrc_t::NS_SERVER, from, "infoResponse\n%s", infostring );
 }
 
 /*
@@ -552,7 +552,7 @@ SVC_FlushRedirect
 ================
 */
 void SV_FlushRedirect( char *outputbuf ) {
-	NET_OutOfBandPrint( NS_SERVER, &svs.redirectAddress, "print\n%s", outputbuf );
+	NET_OutOfBandPrint( netsrc_t::NS_SERVER, &svs.redirectAddress, "print\n%s", outputbuf );
 }
 
 /*
@@ -631,7 +631,7 @@ void SVC_LoadWhitelist( void ) {
 		return;
 	}
 
-	data = (int32_t *)Z_Malloc(len, TAG_TEMP_WORKSPACE);
+	data = (int32_t *)Z_Malloc(len, memtag::TAG_TEMP_WORKSPACE);
 
 	FS_Read(data, len, f);
 	FS_FCloseFile(f);
@@ -649,7 +649,7 @@ void SVC_LoadWhitelist( void ) {
 void SVC_WhitelistAdr( const netadr_t *adr ) {
 	fileHandle_t f;
 
-	if (adr->type != NA_IP) {
+	if (adr->type != netadrtype_t::NA_IP) {
 		return;
 	}
 
@@ -670,7 +670,7 @@ void SVC_WhitelistAdr( const netadr_t *adr ) {
 }
 
 static bool SVC_IsWhitelisted( const netadr_t *adr ) {
-	if (adr->type == NA_IP) {
+	if (adr->type == netadrtype_t::NA_IP) {
 		return (svc_whitelist.find(adr->ipi) != svc_whitelist.end());
 	} else {
 		return true;
@@ -775,13 +775,12 @@ void SV_ConnectionlessPacket( const netadr_t *from, msg_t *msg ) {
 // snapshots are parts of it, and so are the players' commands (with their movement), which run in the ticks. Client
 // packets are decoded when they arrive, outside the frames.
 enum class svCost_t { SV_COST_FRAME, SV_COST_GAME, SV_COST_BOTS, SV_COST_COMMANDS, SV_COST_SNAPSHOTS, SV_COST_PACKETS, SV_COST_COUNT };
-using enum svCost_t;
 template <> inline constexpr bool enableEnumArithmetic<svCost_t> = true;
 
 static struct {
-	EnumArray<int, svCost_t, SV_COST_COUNT>			calls;
-	EnumArray<long long, svCost_t, SV_COST_COUNT>	sum;
-	EnumArray<long long, svCost_t, SV_COST_COUNT>	max;
+	EnumArray<int, svCost_t, svCost_t::SV_COST_COUNT>			calls;
+	EnumArray<long long, svCost_t, svCost_t::SV_COST_COUNT>	sum;
+	EnumArray<long long, svCost_t, svCost_t::SV_COST_COUNT>	max;
 	int			framesOverInterval;	// server frames that took longer than the interval between frames
 	long long	since;				// when the statistics started (SV_Microseconds), 0 before the first measure
 } s_cost;
@@ -805,7 +804,7 @@ static long long SV_CostAdd( svCost_t part, long long start ) {
 }
 
 void SV_CostStats( void ) {
-	static const EnumArray<const char *, svCost_t, SV_COST_COUNT> names = { "server frames", "game frames", "bot frames", "player commands",
+	static const EnumArray<const char *, svCost_t, svCost_t::SV_COST_COUNT> names = { "server frames", "game frames", "bot frames", "player commands",
 		"snapshots sent", "client packets" };
 	const long long now = SV_Microseconds();
 	const double seconds = s_cost.since ? ( now - s_cost.since ) / 1e6 : 0.0;
@@ -813,21 +812,21 @@ void SV_CostStats( void ) {
 
 	for ( int i = 0; i < sv_maxclients->integer; i++ ) {
 		const client_t *cl = &svs.clients[i];
-		if ( cl->state < CS_CONNECTED ) {
+		if ( cl->state < clientState_t::CS_CONNECTED ) {
 			continue;
 		}
-		if ( cl->netchan.remoteAddress.type == NA_BOT ) {
+		if ( cl->netchan.remoteAddress.type == netadrtype_t::NA_BOT ) {
 			bots++;
 		} else {
 			humans++;
 		}
 	}
 	Com_Printf( "server CPU over %.1f s, %d humans, %d bots:", seconds, humans, bots );
-	for ( svCost_t i = SV_COST_FRAME; i < SV_COST_COUNT; i++ ) {
+	for ( svCost_t i = svCost_t::SV_COST_FRAME; i < svCost_t::SV_COST_COUNT; i++ ) {
 		Com_Printf( " %s %d, %.1f us each, max %lld us;", names[i], s_cost.calls[i],
 			s_cost.calls[i] ? (double)s_cost.sum[i] / s_cost.calls[i] : 0.0, s_cost.max[i] );
 	}
-	const long long busy = s_cost.sum[SV_COST_FRAME] + s_cost.sum[SV_COST_PACKETS];
+	const long long busy = s_cost.sum[svCost_t::SV_COST_FRAME] + s_cost.sum[svCost_t::SV_COST_PACKETS];
 	Com_Printf( " %d server frames longer than the interval; %.2f %% of one core\n", s_cost.framesOverInterval,
 		seconds > 0.0 ? busy / ( seconds * 1e4 ) : 0.0 );
 	Com_Memset( &s_cost, 0, sizeof( s_cost ) );
@@ -858,7 +857,7 @@ void SV_PacketEvent( const netadr_t *from, msg_t *msg ) {
 
 	// find which client the message is from
 	for (i=0, cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++) {
-		if (cl->state == CS_FREE) {
+		if (cl->state == clientState_t::CS_FREE) {
 			continue;
 		}
 		if ( !NET_CompareBaseAdr( from, &cl->netchan.remoteAddress ) ) {
@@ -883,11 +882,11 @@ void SV_PacketEvent( const netadr_t *from, msg_t *msg ) {
 			// zombie clients still need to do the Netchan_Process
 			// to make sure they don't need to retransmit the final
 			// reliable message, but they don't do any other processing
-			if (cl->state != CS_ZOMBIE) {
+			if (cl->state != clientState_t::CS_ZOMBIE) {
 				cl->lastPacketTime = svs.time;	// don't timeout
 				const long long start = SV_Microseconds();
 				SV_ExecuteClientMessage( cl, msg );
-				SV_CostAdd( SV_COST_PACKETS, start );
+				SV_CostAdd( svCost_t::SV_COST_PACKETS, start );
 			}
 		}
 		return;
@@ -895,7 +894,7 @@ void SV_PacketEvent( const netadr_t *from, msg_t *msg ) {
 
 	// if we received a sequenced packet from an address we don't recognize,
 	// send an out of band disconnect packet to it
-	NET_OutOfBandPrint( NS_SERVER, from, "disconnect" );
+	NET_OutOfBandPrint( netsrc_t::NS_SERVER, from, "disconnect" );
 }
 
 
@@ -915,7 +914,7 @@ void SV_CalcPings( void ) {
 
 	for (i=0 ; i < sv_maxclients->integer ; i++) {
 		cl = &svs.clients[i];
-		if ( cl->state != CS_ACTIVE ) {
+		if ( cl->state != clientState_t::CS_ACTIVE ) {
 			cl->ping = 999;
 			continue;
 		}
@@ -923,7 +922,7 @@ void SV_CalcPings( void ) {
 			cl->ping = 999;
 			continue;
 		}
-		if ( Any( cl->gentity->r.svFlags & SVF_BOT ) ) {
+		if ( Any( cl->gentity->r.svFlags & svFlags_t::SVF_BOT ) ) {
 			cl->ping = 0;
 			continue;
 		}
@@ -976,24 +975,24 @@ void SV_CheckTimeouts( void ) {
 	zombiepoint = svs.time - 1000 * SV_ZOMBIE_TIME;
 
 	for (i=0,cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++) {
-		droppoint = svs.time - 1000 * ( cl->state == CS_ACTIVE ? TIMEOUT_ACTIVE : TIMEOUT_CONNECTING );
+		droppoint = svs.time - 1000 * ( cl->state == clientState_t::CS_ACTIVE ? TIMEOUT_ACTIVE : TIMEOUT_CONNECTING );
 		// message times may be wrong across a changelevel
 		if (cl->lastPacketTime > svs.time) {
 			cl->lastPacketTime = svs.time;
 		}
 
-		if (cl->state == CS_ZOMBIE
+		if (cl->state == clientState_t::CS_ZOMBIE
 		&& cl->lastPacketTime < zombiepoint) {
 			Com_DPrintf( "Going from CS_ZOMBIE to CS_FREE for %s\n", cl->name );
-			cl->state = CS_FREE;	// can now be reused
+			cl->state = clientState_t::CS_FREE;	// can now be reused
 			continue;
 		}
-		if ( cl->state >= CS_CONNECTED && cl->lastPacketTime < droppoint) {
+		if ( cl->state >= clientState_t::CS_CONNECTED && cl->lastPacketTime < droppoint) {
 			// wait several frames so a debugger session doesn't
 			// cause a timeout
 			if ( ++cl->timeoutCount > 5 ) {
 				SV_DropClient (cl, "timed out");
-				cl->state = CS_FREE;	// don't bother with zombie state
+				cl->state = clientState_t::CS_FREE;	// don't bother with zombie state
 			}
 		} else {
 			cl->timeoutCount = 0;
@@ -1019,7 +1018,7 @@ bool SV_CheckPaused( void ) {
 	// only pause if there is just a single client connected
 	count = 0;
 	for (i=0,cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++) {
-		if ( cl->state >= CS_CONNECTED && cl->netchan.remoteAddress.type != NA_BOT ) {
+		if ( cl->state >= clientState_t::CS_CONNECTED && cl->netchan.remoteAddress.type != netadrtype_t::NA_BOT ) {
 			count++;
 		}
 	}
@@ -1142,13 +1141,13 @@ void SV_Frame( int msec ) {
 	}
 
 	// update infostrings if anything has been changed
-	if ( Any( cvar_modifiedFlags & CVAR_SERVERINFO ) ) {
-		SV_SetConfigstring( CS_SERVERINFO, Cvar_InfoString( CVAR_SERVERINFO ) );
-		cvar_modifiedFlags &= ~CVAR_SERVERINFO;
+	if ( Any( cvar_modifiedFlags & cvarFlags_t::CVAR_SERVERINFO ) ) {
+		SV_SetConfigstring( CS_SERVERINFO, Cvar_InfoString( cvarFlags_t::CVAR_SERVERINFO ) );
+		cvar_modifiedFlags &= ~cvarFlags_t::CVAR_SERVERINFO;
 	}
-	if ( Any( cvar_modifiedFlags & CVAR_SYSTEMINFO ) ) {
-		SV_SetConfigstring( CS_SYSTEMINFO, Cvar_InfoString_Big( CVAR_SYSTEMINFO ) );
-		cvar_modifiedFlags &= ~CVAR_SYSTEMINFO;
+	if ( Any( cvar_modifiedFlags & cvarFlags_t::CVAR_SYSTEMINFO ) ) {
+		SV_SetConfigstring( CS_SYSTEMINFO, Cvar_InfoString_Big( cvarFlags_t::CVAR_SYSTEMINFO ) );
+		cvar_modifiedFlags &= ~cvarFlags_t::CVAR_SYSTEMINFO;
 	}
 
 	if ( com_speeds->integer ) {
@@ -1167,10 +1166,10 @@ void SV_Frame( int msec ) {
 		// the bots' AI and their commands up to the coming tick, then the players' commands up to it (plan step 14)
 		const long long botStart = SV_Microseconds();
 		SV_BotFrame( sv.time );
-		SV_CostAdd( SV_COST_BOTS, botStart );
+		SV_CostAdd( svCost_t::SV_COST_BOTS, botStart );
 		const long long commandsStart = SV_Microseconds();
 		SV_RunClientCommands( sv.time + frameMsec, frameMsec );
-		SV_CostAdd( SV_COST_COMMANDS, commandsStart );
+		SV_CostAdd( svCost_t::SV_COST_COMMANDS, commandsStart );
 
 		sv.timeResidual -= frameMsec;
 		svs.time += frameMsec;
@@ -1179,7 +1178,7 @@ void SV_Frame( int msec ) {
 		// let everything in the world think and move
 		const long long start = SV_Microseconds();
 		GVM_RunFrame( sv.time );
-		SV_CostAdd( SV_COST_GAME, start );
+		SV_CostAdd( svCost_t::SV_COST_GAME, start );
 	}
 
 	//rww - RAGDOLL_BEGIN
@@ -1200,8 +1199,8 @@ void SV_Frame( int msec ) {
 	// send messages back to the clients
 	const long long sendStart = SV_Microseconds();
 	SV_SendClientMessages();
-	SV_CostAdd( SV_COST_SNAPSHOTS, sendStart );
-	if ( SV_CostAdd( SV_COST_FRAME, frameStart ) > frameMsec * 1000LL ) {
+	SV_CostAdd( svCost_t::SV_COST_SNAPSHOTS, sendStart );
+	if ( SV_CostAdd( svCost_t::SV_COST_FRAME, frameStart ) > frameMsec * 1000LL ) {
 		s_cost.framesOverInterval++;
 	}
 

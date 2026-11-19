@@ -50,7 +50,6 @@ enum class taskID_t //# taskID_e
 	TID_SHOOT,			// Waiting for fire event
 	NUM_TIDS,			// for def of taskID array
 };
-using enum taskID_t;
 template <> inline constexpr bool enableEnumArithmetic<taskID_t> = true;
 
 
@@ -76,7 +75,6 @@ enum class material_t //# material_e
 	NUM_MATERIALS
 
 };
-using enum material_t;
 
 //===From cg_local.h================================================
 #define	DEFAULT_HEADMODEL	""
@@ -179,7 +177,6 @@ enum class moverState_t
 	MOVER_1TO2,
 	MOVER_2TO1
 };
-using enum moverState_t;
 
 // Rendering information structure
 
@@ -196,7 +193,6 @@ enum class targetModel_t
 	MODEL_EXTRA2,
 	NUM_TARGET_MODELS
 };
-using enum targetModel_t;
 
 //renderFlags
 inline constexpr int RF_LOCKEDANGLE = 1;
@@ -428,13 +424,11 @@ enum class clientConnected_t {
 	CON_CONNECTING,
 	CON_CONNECTED
 };
-using enum clientConnected_t;
 
 enum class playerTeamStateState_t {
 	TEAM_BEGIN,		// Beginning a team game, spawn at base
 	TEAM_ACTIVE		// Now actively playing
 };
-using enum playerTeamStateState_t;
 
 // !!!!!!!!!! LOADSAVE-affecting structure !!!!!!!!!!
 class playerTeamState_t
@@ -531,8 +525,8 @@ public:
 	int				armAttacksCnt;					// # of times arm were hit with saber
 	int				torsoAttacksCnt;				// # of times torso was hit with saber
 	int				otherAttacksCnt;				// # of times anything else on a monster was hit with saber
-	EnumArray<int, forcePowers_t, NUM_FORCE_POWERS>	forceUsed;	// # of times each force power was used
-	EnumArray<int, weapon_t, WP_NUM_WEAPONS>	weaponUsed;		// # of times each weapon was used
+	EnumArray<int, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS>	forceUsed;	// # of times each force power was used
+	EnumArray<int, weapon_t, weapon_t::WP_NUM_WEAPONS>	weaponUsed;		// # of times each weapon was used
 
 
 	void sg_export(
@@ -671,7 +665,6 @@ enum class saberBlockedType_t {
 	BLOCKED_LOWER_LEFT_PROJ,
 	BLOCKED_TOP_PROJ
 };
-using enum saberBlockedType_t;
 
 enum class movetype_t //# movetype_e
 {
@@ -681,7 +674,6 @@ enum class movetype_t //# movetype_e
 	MT_FLYSWIM,
 	NUM_MOVETYPES
 };
-using enum movetype_t;
 
 // !!!!!!!!!! LOADSAVE-affecting structure !!!!!!!!!!
 
@@ -993,7 +985,6 @@ enum class damageFlags_t
 	DAMAGE_SABER_KNOCKBACK1_B2 = 0x00040000,	// scale knockback based on saber1's knockbackScale2 value
 	DAMAGE_SABER_KNOCKBACK2_B2 = 0x00080000,	// scale knockback based on saber2's knockbackScale2 value
 };
-using enum damageFlags_t;
 template <> inline constexpr bool enableEnumFlags<damageFlags_t> = true;
 
 inline constexpr int MAX_INHAND_WEAPONS = 2;
@@ -1129,7 +1120,7 @@ Ghoul2 Insert End
 	meansOfDeath_t	methodOfDeath;
 	meansOfDeath_t	splashMethodOfDeath;
 	//hitLocation_t			hitLoc;//where you were last hit
-	EnumArray<int, hitLocation_t, HL_MAX>	locationDamage;		// Damage accumulated on different body locations
+	EnumArray<int, hitLocation_t, hitLocation_t::HL_MAX>	locationDamage;		// Damage accumulated on different body locations
 
 //Entity pointers
 	gentity_t	*chain;
@@ -1181,9 +1172,9 @@ Ghoul2 Insert End
 
 //Script/ICARUS-related fields
 	int				m_iIcarusID;
-	EnumArray<int, taskID_t, NUM_TIDS>				taskID;
+	EnumArray<int, taskID_t, taskID_t::NUM_TIDS>				taskID;
 	parms_t			*parms;
-	EnumArray<char *, bSet_t, NUM_BSETS>	behaviorSet;
+	EnumArray<char *, bSet_t, bSet_t::NUM_BSETS>	behaviorSet;
 	const char	*script_targetname;
 	int			delayScriptTime;
 
@@ -1780,7 +1771,6 @@ enum class edgeType_t
 	EDGE_RED_ONESECOND,
 	EDGE_RED_TWOSECOND,
 };
-using enum edgeType_t;
 
 enum class nodeType_t
 {
@@ -1789,6 +1779,5 @@ enum class nodeType_t
 	NODE_GOAL,
 	NODE_NAVGOAL,
 };
-using enum nodeType_t;
 
 #endif // #ifndef __G_SHARED_H__

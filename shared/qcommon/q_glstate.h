@@ -65,5 +65,4 @@ enum class glStateBits_t : uint32_t
 	GLS_DEFAULT			= GLS_DEPTHMASK_TRUE,
 	GLS_ALPHA			= (GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA)
 };
-using enum glStateBits_t;
 template <> inline constexpr bool enableEnumFlags<glStateBits_t> = true;

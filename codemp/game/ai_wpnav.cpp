@@ -39,7 +39,7 @@ int gLastPrintedIndex = -1;
 nodeobject_t nodetable[MAX_NODETABLE_SIZE];
 int nodenum; //so we can connect broken trails
 
-botLevelFlags_t gLevelFlags = LEVELFLAG_NONE;
+botLevelFlags_t gLevelFlags = botLevelFlags_t::LEVELFLAG_NONE;
 
 char *GetFlagStr( waypointFlags_t flags )
 {
@@ -55,67 +55,67 @@ char *GetFlagStr( waypointFlags_t flags )
 		goto fend;
 	}
 
-	if (Any( flags & WPFLAG_JUMP ))
+	if (Any( flags & waypointFlags_t::WPFLAG_JUMP ))
 	{
 		flagstr[i] = 'j';
 		i++;
 	}
 
-	if (Any( flags & WPFLAG_DUCK ))
+	if (Any( flags & waypointFlags_t::WPFLAG_DUCK ))
 	{
 		flagstr[i] = 'd';
 		i++;
 	}
 
-	if (Any( flags & WPFLAG_SNIPEORCAMPSTAND ))
+	if (Any( flags & waypointFlags_t::WPFLAG_SNIPEORCAMPSTAND ))
 	{
 		flagstr[i] = 'c';
 		i++;
 	}
 
-	if (Any( flags & WPFLAG_WAITFORFUNC ))
+	if (Any( flags & waypointFlags_t::WPFLAG_WAITFORFUNC ))
 	{
 		flagstr[i] = 'f';
 		i++;
 	}
 
-	if (Any( flags & WPFLAG_SNIPEORCAMP ))
+	if (Any( flags & waypointFlags_t::WPFLAG_SNIPEORCAMP ))
 	{
 		flagstr[i] = 's';
 		i++;
 	}
 
-	if (Any( flags & WPFLAG_ONEWAY_FWD ))
+	if (Any( flags & waypointFlags_t::WPFLAG_ONEWAY_FWD ))
 	{
 		flagstr[i] = 'x';
 		i++;
 	}
 
-	if (Any( flags & WPFLAG_ONEWAY_BACK ))
+	if (Any( flags & waypointFlags_t::WPFLAG_ONEWAY_BACK ))
 	{
 		flagstr[i] = 'y';
 		i++;
 	}
 
-	if (Any( flags & WPFLAG_GOALPOINT ))
+	if (Any( flags & waypointFlags_t::WPFLAG_GOALPOINT ))
 	{
 		flagstr[i] = 'g';
 		i++;
 	}
 
-	if (Any( flags & WPFLAG_NOVIS ))
+	if (Any( flags & waypointFlags_t::WPFLAG_NOVIS ))
 	{
 		flagstr[i] = 'n';
 		i++;
 	}
 
-	if (Any( flags & WPFLAG_NOMOVEFUNC ))
+	if (Any( flags & waypointFlags_t::WPFLAG_NOMOVEFUNC ))
 	{
 		flagstr[i] = 'm';
 		i++;
 	}
 
-	if (Any( flags & WPFLAG_RED_FLAG ))
+	if (Any( flags & waypointFlags_t::WPFLAG_RED_FLAG ))
 	{
 		if (i)
 		{
@@ -140,7 +140,7 @@ char *GetFlagStr( waypointFlags_t flags )
 		i++;
 	}
 
-	if (Any( flags & WPFLAG_BLUE_FLAG ))
+	if (Any( flags & waypointFlags_t::WPFLAG_BLUE_FLAG ))
 	{
 		if (i)
 		{
@@ -167,7 +167,7 @@ char *GetFlagStr( waypointFlags_t flags )
 		i++;
 	}
 
-	if (Any( flags & WPFLAG_SIEGE_IMPERIALOBJ ))
+	if (Any( flags & waypointFlags_t::WPFLAG_SIEGE_IMPERIALOBJ ))
 	{
 		if (i)
 		{
@@ -192,7 +192,7 @@ char *GetFlagStr( waypointFlags_t flags )
 		i++;
 	}
 
-	if (Any( flags & WPFLAG_SIEGE_REBELOBJ ))
+	if (Any( flags & waypointFlags_t::WPFLAG_SIEGE_REBELOBJ ))
 	{
 		if (i)
 		{
@@ -232,12 +232,12 @@ void G_TestLine(vec3_t start, vec3_t end, int color, int time)
 {
 	gentity_t *te;
 
-	te = G_TempEntity( start, EV_TESTLINE );
+	te = G_TempEntity( start, entity_event_t::EV_TESTLINE );
 	VectorCopy(start, te->s.origin);
 	VectorCopy(end, te->s.origin2);
 	te->s.time2 = time;
 	ES_SetWeaponParm( te->s, color );
-	te->r.svFlags |= SVF_BROADCAST;
+	te->r.svFlags |= svFlags_t::SVF_BROADCAST;
 }
 
 void BotWaypointRender(void)
@@ -274,8 +274,8 @@ void BotWaypointRender(void)
 	{
 		if (gWPArray[i] && gWPArray[i]->inuse)
 		{
-			plum = G_TempEntity( gWPArray[i]->origin, EV_SCOREPLUM );
-			plum->r.svFlags |= SVF_BROADCAST;
+			plum = G_TempEntity( gWPArray[i]->origin, entity_event_t::EV_SCOREPLUM );
+			plum->r.svFlags |= svFlags_t::SVF_BROADCAST;
 			plum->s.time = i;
 
 			n = 0;
@@ -355,8 +355,8 @@ checkprint:
 		//GetFlagStr allocates 128 bytes for this, if it's changed then obviously this must be as well
 		B_TempFree(128); //flagstr
 
-		plum = G_TempEntity( gWPArray[bestindex]->origin, EV_SCOREPLUM );
-		plum->r.svFlags |= SVF_BROADCAST;
+		plum = G_TempEntity( gWPArray[bestindex]->origin, entity_event_t::EV_SCOREPLUM );
+		plum->r.svFlags |= svFlags_t::SVF_BROADCAST;
 		plum->s.time = bestindex; //render it once
 	}
 	else if (!gotbestindex)
@@ -458,12 +458,12 @@ void CreateNewWP_FromObject(wpobject_t *wp)
 		i--;
 	}
 
-	if (Any( gWPArray[gWPNum]->flags & WPFLAG_RED_FLAG ))
+	if (Any( gWPArray[gWPNum]->flags & waypointFlags_t::WPFLAG_RED_FLAG ))
 	{
 		flagRed = gWPArray[gWPNum];
 		oFlagRed = flagRed;
 	}
-	else if (Any( gWPArray[gWPNum]->flags & WPFLAG_BLUE_FLAG ))
+	else if (Any( gWPArray[gWPNum]->flags & waypointFlags_t::WPFLAG_BLUE_FLAG ))
 	{
 		flagBlue = gWPArray[gWPNum];
 		oFlagBlue = flagBlue;
@@ -830,7 +830,7 @@ int CanGetToVector(vec3_t org1, vec3_t org2, vec3_t mins, vec3_t maxs)
 {
 	trace_t tr;
 
-	trap->Trace(&tr, org1, mins, maxs, org2, ENTITYNUM_NONE, MASK_SOLID, false, G2TRFLAG_NONE, 0);
+	trap->Trace(&tr, org1, mins, maxs, org2, ENTITYNUM_NONE, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 	if (tr.fraction == 1 && !tr.startsolid && !tr.allsolid)
 	{
@@ -933,7 +933,7 @@ int CanGetToVectorTravel(vec3_t org1, vec3_t moveTo, vec3_t mins, vec3_t maxs)
 		stepGoal[1] = workingOrg[1] + stepSub[1]*stepSize;
 		stepGoal[2] = workingOrg[2] + stepSub[2]*stepSize;
 
-		trap->Trace(&tr, workingOrg, mins, maxs, stepGoal, ENTITYNUM_NONE, traceMask, false, G2TRFLAG_NONE, 0);
+		trap->Trace(&tr, workingOrg, mins, maxs, stepGoal, ENTITYNUM_NONE, traceMask, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 		if (!tr.startsolid && !tr.allsolid && tr.fraction)
 		{
@@ -970,7 +970,7 @@ int CanGetToVectorTravel(vec3_t org1, vec3_t moveTo, vec3_t mins, vec3_t maxs)
 
 			if (VectorLength(vecMeasure) > 1)
 			{
-				trap->Trace(&tr, trFrom, mins, maxs, trTo, ENTITYNUM_NONE, traceMask, false, G2TRFLAG_NONE, 0);
+				trap->Trace(&tr, trFrom, mins, maxs, trTo, ENTITYNUM_NONE, traceMask, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 				if (!tr.startsolid && !tr.allsolid && tr.fraction == 1)
 				{ //clear trace here, probably up a step
@@ -980,7 +980,7 @@ int CanGetToVectorTravel(vec3_t org1, vec3_t moveTo, vec3_t mins, vec3_t maxs)
 					VectorCopy(tr.endpos, trDown);
 					trDown[2] -= 16;
 
-					trap->Trace(&tr, trFrom, mins, maxs, trTo, ENTITYNUM_NONE, traceMask, false, G2TRFLAG_NONE, 0);
+					trap->Trace(&tr, trFrom, mins, maxs, trTo, ENTITYNUM_NONE, traceMask, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 					if (!tr.startsolid && !tr.allsolid)
 					{ //plop us down on the step after moving up
@@ -1038,11 +1038,11 @@ int ConnectTrail(int startindex, int endindex, bool behindTheScenes)
 
 	if (RMG.integer)
 	{ //this might be temporary. Or not.
-		if (!Any( gWPArray[startindex]->flags & WPFLAG_NEVERONEWAY ) &&
-			!Any( gWPArray[endindex]->flags & WPFLAG_NEVERONEWAY ))
+		if (!Any( gWPArray[startindex]->flags & waypointFlags_t::WPFLAG_NEVERONEWAY ) &&
+			!Any( gWPArray[endindex]->flags & waypointFlags_t::WPFLAG_NEVERONEWAY ))
 		{
-			gWPArray[startindex]->flags |= WPFLAG_ONEWAY_FWD;
-			gWPArray[endindex]->flags |= WPFLAG_ONEWAY_BACK;
+			gWPArray[startindex]->flags |= waypointFlags_t::WPFLAG_ONEWAY_FWD;
+			gWPArray[endindex]->flags |= waypointFlags_t::WPFLAG_ONEWAY_BACK;
 		}
 		return 0;
 	}
@@ -1077,7 +1077,7 @@ int ConnectTrail(int startindex, int endindex, bool behindTheScenes)
 
 	while (i < MAX_NODETABLE_SIZE) //clear it out before using it
 	{
-		nodetable[i].flags = WPFLAG_NONE;
+		nodetable[i].flags = waypointFlags_t::WPFLAG_NONE;
 //		nodetable[i].index = 0;
 		nodetable[i].inuse = 0;
 		nodetable[i].neighbornum = 0;
@@ -1104,7 +1104,7 @@ int ConnectTrail(int startindex, int endindex, bool behindTheScenes)
 
 	starttrace[2] -= 4096;
 
-	trap->Trace(&tr, startplace, nullptr, nullptr, starttrace, ENTITYNUM_NONE, MASK_SOLID, false, G2TRFLAG_NONE, 0);
+	trap->Trace(&tr, startplace, nullptr, nullptr, starttrace, ENTITYNUM_NONE, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 	baseheight = startplace[2] - tr.endpos[2];
 
@@ -1177,7 +1177,7 @@ int ConnectTrail(int startindex, int endindex, bool behindTheScenes)
 
 				starttrace[2] -= 4096;
 
-				trap->Trace(&tr, testspot, nullptr, nullptr, starttrace, ENTITYNUM_NONE, MASK_SOLID, false, G2TRFLAG_NONE, 0);
+				trap->Trace(&tr, testspot, nullptr, nullptr, starttrace, ENTITYNUM_NONE, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 				testspot[2] = tr.endpos[2]+baseheight;
 
@@ -1190,7 +1190,7 @@ int ConnectTrail(int startindex, int endindex, bool behindTheScenes)
 					nodetable[nodenum].neighbornum = i;
 					if ((nodetable[i].origin[2] - nodetable[nodenum].origin[2]) > 50)
 					{ //if there's a big drop, make sure we know we can't just magically fly back up
-						nodetable[nodenum].flags = WPFLAG_ONEWAY_FWD;
+						nodetable[nodenum].flags = waypointFlags_t::WPFLAG_ONEWAY_FWD;
 					}
 					nodenum++;
 					cancontinue = 1;
@@ -1208,7 +1208,7 @@ int ConnectTrail(int startindex, int endindex, bool behindTheScenes)
 
 				starttrace[2] -= 4096;
 
-				trap->Trace(&tr, testspot, nullptr, nullptr, starttrace, ENTITYNUM_NONE, MASK_SOLID, false, G2TRFLAG_NONE, 0);
+				trap->Trace(&tr, testspot, nullptr, nullptr, starttrace, ENTITYNUM_NONE, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 				testspot[2] = tr.endpos[2]+baseheight;
 
@@ -1221,7 +1221,7 @@ int ConnectTrail(int startindex, int endindex, bool behindTheScenes)
 					nodetable[nodenum].neighbornum = i;
 					if ((nodetable[i].origin[2] - nodetable[nodenum].origin[2]) > 50)
 					{ //if there's a big drop, make sure we know we can't just magically fly back up
-						nodetable[nodenum].flags = WPFLAG_ONEWAY_FWD;
+						nodetable[nodenum].flags = waypointFlags_t::WPFLAG_ONEWAY_FWD;
 					}
 					nodenum++;
 					cancontinue = 1;
@@ -1239,7 +1239,7 @@ int ConnectTrail(int startindex, int endindex, bool behindTheScenes)
 
 				starttrace[2] -= 4096;
 
-				trap->Trace(&tr, testspot, nullptr, nullptr, starttrace, ENTITYNUM_NONE, MASK_SOLID, false, G2TRFLAG_NONE, 0);
+				trap->Trace(&tr, testspot, nullptr, nullptr, starttrace, ENTITYNUM_NONE, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 				testspot[2] = tr.endpos[2]+baseheight;
 
@@ -1252,7 +1252,7 @@ int ConnectTrail(int startindex, int endindex, bool behindTheScenes)
 					nodetable[nodenum].neighbornum = i;
 					if ((nodetable[i].origin[2] - nodetable[nodenum].origin[2]) > 50)
 					{ //if there's a big drop, make sure we know we can't just magically fly back up
-						nodetable[nodenum].flags = WPFLAG_ONEWAY_FWD;
+						nodetable[nodenum].flags = waypointFlags_t::WPFLAG_ONEWAY_FWD;
 					}
 					nodenum++;
 					cancontinue = 1;
@@ -1270,7 +1270,7 @@ int ConnectTrail(int startindex, int endindex, bool behindTheScenes)
 
 				starttrace[2] -= 4096;
 
-				trap->Trace(&tr, testspot, nullptr, nullptr, starttrace, ENTITYNUM_NONE, MASK_SOLID, false, G2TRFLAG_NONE, 0);
+				trap->Trace(&tr, testspot, nullptr, nullptr, starttrace, ENTITYNUM_NONE, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 				testspot[2] = tr.endpos[2]+baseheight;
 
@@ -1283,7 +1283,7 @@ int ConnectTrail(int startindex, int endindex, bool behindTheScenes)
 					nodetable[nodenum].neighbornum = i;
 					if ((nodetable[i].origin[2] - nodetable[nodenum].origin[2]) > 50)
 					{ //if there's a big drop, make sure we know we can't just magically fly back up
-						nodetable[nodenum].flags = WPFLAG_ONEWAY_FWD;
+						nodetable[nodenum].flags = waypointFlags_t::WPFLAG_ONEWAY_FWD;
 					}
 					nodenum++;
 					cancontinue = 1;
@@ -1309,8 +1309,8 @@ int ConnectTrail(int startindex, int endindex, bool behindTheScenes)
 		{
 			trap->Print(S_COLOR_RED "Could not link %i to %i, unreachable by node branching.\n", startindex, endindex);
 		}
-		gWPArray[startindex]->flags |= WPFLAG_ONEWAY_FWD;
-		gWPArray[endindex]->flags |= WPFLAG_ONEWAY_BACK;
+		gWPArray[startindex]->flags |= waypointFlags_t::WPFLAG_ONEWAY_FWD;
+		gWPArray[endindex]->flags |= waypointFlags_t::WPFLAG_ONEWAY_BACK;
 		if (!behindTheScenes)
 		{
 			trap->Print(S_COLOR_YELLOW "Since points cannot be connected, point %i has been flagged as only-forward and point %i has been flagged as only-backward.\n", startindex, endindex);
@@ -1385,7 +1385,7 @@ int ConnectTrail(int startindex, int endindex, bool behindTheScenes)
 		VectorSubtract(validspotpos, nodetable[i].origin, a);
 		if (!nodetable[nodetable[i].neighbornum].inuse || !CanGetToVectorTravel(validspotpos, /*nodetable[nodetable[i].neighbornum].origin*/nodetable[i].origin, mins, maxs) || VectorLength(a) > maxDistFactor || (!CanGetToVectorTravel(validspotpos, gWPArray[endindex]->origin, mins, maxs) && CanGetToVectorTravel(nodetable[i].origin, gWPArray[endindex]->origin, mins, maxs)) )
 		{
-			nodetable[i].flags |= WPFLAG_CALCULATED;
+			nodetable[i].flags |= waypointFlags_t::WPFLAG_CALCULATED;
 			if (!CreateNewWP_InTrail(nodetable[i].origin, nodetable[i].flags, insertindex))
 			{
 				if (!behindTheScenes)
@@ -1423,8 +1423,8 @@ int OpposingEnds(int start, int end)
 		return 0;
 	}
 
-	if (Any( gWPArray[start]->flags & WPFLAG_ONEWAY_FWD ) &&
-		Any( gWPArray[end]->flags & WPFLAG_ONEWAY_BACK ))
+	if (Any( gWPArray[start]->flags & waypointFlags_t::WPFLAG_ONEWAY_FWD ) &&
+		Any( gWPArray[end]->flags & waypointFlags_t::WPFLAG_ONEWAY_BACK ))
 	{
 		return 1;
 	}
@@ -1443,7 +1443,7 @@ int DoorBlockingSection(int start, int end)
 		return 0;
 	}
 
-	trap->Trace(&tr, gWPArray[start]->origin, nullptr, nullptr, gWPArray[end]->origin, ENTITYNUM_NONE, MASK_SOLID, false, G2TRFLAG_NONE, 0);
+	trap->Trace(&tr, gWPArray[start]->origin, nullptr, nullptr, gWPArray[end]->origin, ENTITYNUM_NONE, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 	if (tr.fraction == 1)
 	{
@@ -1464,7 +1464,7 @@ int DoorBlockingSection(int start, int end)
 
 	start_trace_index = tr.entityNum;
 
-	trap->Trace(&tr, gWPArray[end]->origin, nullptr, nullptr, gWPArray[start]->origin, ENTITYNUM_NONE, MASK_SOLID, false, G2TRFLAG_NONE, 0);
+	trap->Trace(&tr, gWPArray[end]->origin, nullptr, nullptr, gWPArray[start]->origin, ENTITYNUM_NONE, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 	if (tr.fraction == 1)
 	{
@@ -1507,9 +1507,9 @@ int RepairPaths(bool behindTheScenes)
 		{
 			VectorSubtract(gWPArray[i]->origin, gWPArray[i+1]->origin, a);
 
-			if (!Any( gWPArray[i+1]->flags & WPFLAG_NOVIS ) &&
-				!Any( gWPArray[i+1]->flags & WPFLAG_JUMP ) && //don't calculate on jump points because they might not always want to be visible (in cases of force jumping)
-				!Any( gWPArray[i]->flags & WPFLAG_CALCULATED ) && //don't calculate it again
+			if (!Any( gWPArray[i+1]->flags & waypointFlags_t::WPFLAG_NOVIS ) &&
+				!Any( gWPArray[i+1]->flags & waypointFlags_t::WPFLAG_JUMP ) && //don't calculate on jump points because they might not always want to be visible (in cases of force jumping)
+				!Any( gWPArray[i]->flags & waypointFlags_t::WPFLAG_CALCULATED ) && //don't calculate it again
 				!OpposingEnds(i, i+1) &&
 				((bot_wp_distconnect.value && VectorLength(a) > maxDistFactor) || (!OrgVisible(gWPArray[i]->origin, gWPArray[i+1]->origin, ENTITYNUM_NONE) && bot_wp_visconnect.value) ) &&
 				!DoorBlockingSection(i, i+1))
@@ -1543,11 +1543,11 @@ int OrgVisibleCurve(vec3_t org1, vec3_t mins, vec3_t maxs, vec3_t org2, int igno
 	VectorCopy(org1, evenorg1);
 	evenorg1[2] = org2[2];
 
-	trap->Trace(&tr, evenorg1, mins, maxs, org2, ignore, MASK_SOLID, false, G2TRFLAG_NONE, 0);
+	trap->Trace(&tr, evenorg1, mins, maxs, org2, ignore, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 	if (tr.fraction == 1 && !tr.startsolid && !tr.allsolid)
 	{
-		trap->Trace(&tr, evenorg1, mins, maxs, org1, ignore, MASK_SOLID, false, G2TRFLAG_NONE, 0);
+		trap->Trace(&tr, evenorg1, mins, maxs, org1, ignore, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 		if (tr.fraction == 1 && !tr.startsolid && !tr.allsolid)
 		{
@@ -1790,11 +1790,11 @@ void CalculateSiegeGoals(void)
 			{ //found the waypoint nearest the center of this objective-related object
 				if (ent->side == SIEGETEAM_TEAM1)
 				{
-					gWPArray[wpindex]->flags |= WPFLAG_SIEGE_IMPERIALOBJ;
+					gWPArray[wpindex]->flags |= waypointFlags_t::WPFLAG_SIEGE_IMPERIALOBJ;
 				}
 				else
 				{
-					gWPArray[wpindex]->flags |= WPFLAG_SIEGE_REBELOBJ;
+					gWPArray[wpindex]->flags |= waypointFlags_t::WPFLAG_SIEGE_REBELOBJ;
 				}
 
 				gWPArray[wpindex]->associated_entity = tent->s.number;
@@ -1805,7 +1805,7 @@ void CalculateSiegeGoals(void)
 	}
 }
 
-EnumArray<float, weapon_t, WP_NUM_WEAPONS> botGlobalNavWeaponWeights =
+EnumArray<float, weapon_t, weapon_t::WP_NUM_WEAPONS> botGlobalNavWeaponWeights =
 {
 	0,//WP_NONE,
 
@@ -1884,9 +1884,9 @@ void CalculateWeightGoals(void)
 			{
 				gWPArray[i]->weight = 0;
 
-				if (Any( gWPArray[i]->flags & WPFLAG_GOALPOINT ))
+				if (Any( gWPArray[i]->flags & waypointFlags_t::WPFLAG_GOALPOINT ))
 				{
-					gWPArray[i]->flags &= ~WPFLAG_GOALPOINT;
+					gWPArray[i]->flags &= ~waypointFlags_t::WPFLAG_GOALPOINT;
 				}
 			}
 
@@ -1940,7 +1940,7 @@ void CalculateWeightGoals(void)
 			{
 				weight = botGlobalNavWeaponWeights[GI_Weapon( *ent->item )];
 			}
-			else if (ent->item && ent->item->giType == IT_AMMO)
+			else if (ent->item && ent->item->giType == itemType_t::IT_AMMO)
 			{
 				weight = 3;
 			}
@@ -1953,7 +1953,7 @@ void CalculateWeightGoals(void)
 			if (wpindex != -1 && gWPArray[wpindex] && gWPArray[wpindex]->inuse)
 			{ //found the waypoint nearest the center of this object
 				gWPArray[wpindex]->weight = weight;
-				gWPArray[wpindex]->flags |= WPFLAG_GOALPOINT;
+				gWPArray[wpindex]->flags |= waypointFlags_t::WPFLAG_GOALPOINT;
 				gWPArray[wpindex]->associated_entity = ent->s.number;
 			}
 		}
@@ -1972,7 +1972,7 @@ void CalculateJumpRoutes(void)
 	{
 		if (gWPArray[i] && gWPArray[i]->inuse)
 		{
-			if (Any( gWPArray[i]->flags & WPFLAG_JUMP ))
+			if (Any( gWPArray[i]->flags & waypointFlags_t::WPFLAG_JUMP ))
 			{
 				nheightdif = 0;
 				pheightdif = 0;
@@ -1998,15 +1998,15 @@ void CalculateJumpRoutes(void)
 				{
 					if (pheightdif > 500)
 					{
-						gWPArray[i]->forceJumpTo = 999; //FORCE_LEVEL_3; //FJSR
+						gWPArray[i]->forceJumpTo = 999; //forcePowerLevels_t::FORCE_LEVEL_3; //FJSR
 					}
 					else if (pheightdif > 256)
 					{
-						gWPArray[i]->forceJumpTo = 999; //FORCE_LEVEL_2; //FJSR
+						gWPArray[i]->forceJumpTo = 999; //forcePowerLevels_t::FORCE_LEVEL_2; //FJSR
 					}
 					else if (pheightdif > 128)
 					{
-						gWPArray[i]->forceJumpTo = 999; //FORCE_LEVEL_1; //FJSR
+						gWPArray[i]->forceJumpTo = 999; //forcePowerLevels_t::FORCE_LEVEL_1; //FJSR
 					}
 				}
 			}
@@ -2034,7 +2034,7 @@ int LoadPathData(const char *filename)
 
 	Com_sprintf(routePath, 1024, "botroutes/%s.wnt", filename);
 
-	len = trap->FS_Open(routePath, &f, FS_READ);
+	len = trap->FS_Open(routePath, &f, fsMode_t::FS_READ);
 
 	B_TempFree(1024); //routePath
 
@@ -2079,7 +2079,7 @@ int LoadPathData(const char *filename)
 	}
 	else
 	{
-		gLevelFlags = LEVELFLAG_NONE;
+		gLevelFlags = botLevelFlags_t::LEVELFLAG_NONE;
 	}
 
 	while (i < len)
@@ -2087,7 +2087,7 @@ int LoadPathData(const char *filename)
 		i_cv = 0;
 
 		thiswp.index = 0;
-		thiswp.flags = WPFLAG_NONE;
+		thiswp.flags = waypointFlags_t::WPFLAG_NONE;
 		thiswp.inuse = 0;
 		thiswp.neighbornum = 0;
 		thiswp.origin[0] = 0;
@@ -2246,7 +2246,7 @@ int LoadPathData(const char *filename)
 
 	trap->FS_Close(f);
 
-	if (level.gametype == GT_SIEGE)
+	if (level.gametype == gametype_t::GT_SIEGE)
 	{
 		CalculateSiegeGoals();
 	}
@@ -2320,7 +2320,7 @@ void FlagObjects(void)
 
 			if (tlen < bestdist)
 			{
-				trap->Trace(&tr, flag_red->s.pos.trBase, mins, maxs, gWPArray[i]->origin, flag_red->s.number, MASK_SOLID, false, G2TRFLAG_NONE, 0);
+				trap->Trace(&tr, flag_red->s.pos.trBase, mins, maxs, gWPArray[i]->origin, flag_red->s.number, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 				if (tr.fraction == 1 || tr.entityNum == flag_red->s.number)
 				{
@@ -2337,7 +2337,7 @@ void FlagObjects(void)
 
 	if (found)
 	{
-		gWPArray[bestindex]->flags |= WPFLAG_RED_FLAG;
+		gWPArray[bestindex]->flags |= waypointFlags_t::WPFLAG_RED_FLAG;
 		flagRed = gWPArray[bestindex];
 		oFlagRed = flagRed;
 		eFlagRed = flag_red;
@@ -2357,7 +2357,7 @@ void FlagObjects(void)
 
 			if (tlen < bestdist)
 			{
-				trap->Trace(&tr, flag_blue->s.pos.trBase, mins, maxs, gWPArray[i]->origin, flag_blue->s.number, MASK_SOLID, false, G2TRFLAG_NONE, 0);
+				trap->Trace(&tr, flag_blue->s.pos.trBase, mins, maxs, gWPArray[i]->origin, flag_blue->s.number, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 				if (tr.fraction == 1 || tr.entityNum == flag_blue->s.number)
 				{
@@ -2374,7 +2374,7 @@ void FlagObjects(void)
 
 	if (found)
 	{
-		gWPArray[bestindex]->flags |= WPFLAG_BLUE_FLAG;
+		gWPArray[bestindex]->flags |= waypointFlags_t::WPFLAG_BLUE_FLAG;
 		flagBlue = gWPArray[bestindex];
 		oFlagBlue = flagBlue;
 		eFlagBlue = flag_blue;
@@ -2403,7 +2403,7 @@ int SavePathData(const char *filename)
 
 	Com_sprintf(routePath, 1024, "botroutes/%s.wnt", filename);
 
-	trap->FS_Open(routePath, &f, FS_WRITE);
+	trap->FS_Open(routePath, &f, fsMode_t::FS_WRITE);
 
 	B_TempFree(1024); //routePath
 
@@ -2553,7 +2553,7 @@ void G_NodeClearForNext(void)
 
 	while (i < nodenum)
 	{
-		nodetable[i].flags = WPFLAG_NONE;
+		nodetable[i].flags = waypointFlags_t::WPFLAG_NONE;
 		nodetable[i].weight = 99999;
 
 		i++;
@@ -2566,7 +2566,7 @@ void G_NodeClearFlags(void)
 
 	while (i < nodenum)
 	{
-		nodetable[i].flags = WPFLAG_NONE;
+		nodetable[i].flags = waypointFlags_t::WPFLAG_NONE;
 
 		i++;
 	}
@@ -2664,12 +2664,12 @@ int G_RecursiveConnection(int start, int end, int weight, bool traceCheck, float
 		}
 		else if (indexDirections[i] != -1)
 		{ //otherwise mark it as used.
-			nodetable[indexDirections[i]].flags = WPFLAG_NODE_USED;
+			nodetable[indexDirections[i]].flags = waypointFlags_t::WPFLAG_NODE_USED;
 		}
 
 		if (indexDirections[i] != -1 && traceCheck)
 		{ //if we care about trace visibility between nodes, perform the check and mark as not valid if the trace isn't clear.
-			trap->Trace(&tr, nodetable[start].origin, nullptr, nullptr, nodetable[indexDirections[i]].origin, ENTITYNUM_NONE, CONTENTS_SOLID, false, G2TRFLAG_NONE, 0);
+			trap->Trace(&tr, nodetable[start].origin, nullptr, nullptr, nodetable[indexDirections[i]].origin, ENTITYNUM_NONE, contentsFlags_t::CONTENTS_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
 			if (tr.fraction != 1)
 			{
@@ -2719,7 +2719,7 @@ void G_DebugNodeFile()
 		i++;
 	}
 
-	trap->FS_Open("ROUTEDEBUG.txt", &f, FS_WRITE);
+	trap->FS_Open("ROUTEDEBUG.txt", &f, fsMode_t::FS_WRITE);
 	trap->FS_Write(fileString, strlen(fileString), f);
 	trap->FS_Close(f);
 }
@@ -2771,11 +2771,11 @@ void CreateAsciiTableRepresentation()
 
 			if (gotit)
 			{
-				if (Any( gWPArray[i]->flags & WPFLAG_ONEWAY_FWD ))
+				if (Any( gWPArray[i]->flags & waypointFlags_t::WPFLAG_ONEWAY_FWD ))
 				{
 					bChr = 'F';
 				}
-				else if (Any( gWPArray[i]->flags & WPFLAG_ONEWAY_BACK ))
+				else if (Any( gWPArray[i]->flags & waypointFlags_t::WPFLAG_ONEWAY_BACK ))
 				{
 					bChr = 'B';
 				}
@@ -2851,7 +2851,7 @@ void CreateAsciiTableRepresentation()
 
 	fileString[sP] = 0;
 
-	trap->FS_Open("ROUTEDRAWN.txt", &f, FS_WRITE);
+	trap->FS_Open("ROUTEDRAWN.txt", &f, fsMode_t::FS_WRITE);
 	trap->FS_Write(fileString, strlen(fileString), f);
 	trap->FS_Close(f);
 }
@@ -2975,7 +2975,7 @@ void CreateAsciiNodeTableRepresentation(int start, int end)
 
 	fileString[sP] = 0;
 
-	trap->FS_Open("ROUTEDRAWN.txt", &f, FS_WRITE);
+	trap->FS_Open("ROUTEDRAWN.txt", &f, fsMode_t::FS_WRITE);
 	trap->FS_Write(fileString, strlen(fileString), f);
 	trap->FS_Close(f);
 }
@@ -3015,8 +3015,8 @@ bool G_BackwardAttachment(int start, int finalDestination, int insertAfter)
 		{
 			if (indexDirections[i] == finalDestination)
 			{ //hooray, we've found the original point and linked all the way back to it.
-				CreateNewWP_InsertUnder(nodetable[start].origin, WPFLAG_NONE, insertAfter);
-				CreateNewWP_InsertUnder(nodetable[indexDirections[i]].origin, WPFLAG_NONE, insertAfter);
+				CreateNewWP_InsertUnder(nodetable[start].origin, waypointFlags_t::WPFLAG_NONE, insertAfter);
+				CreateNewWP_InsertUnder(nodetable[indexDirections[i]].origin, waypointFlags_t::WPFLAG_NONE, insertAfter);
 				return true;
 			}
 
@@ -3033,14 +3033,14 @@ bool G_BackwardAttachment(int start, int finalDestination, int insertAfter)
 	{ //Create a waypoint here, and then recursively call this function for the next neighbor with the lowest weight.
 		if (gWPNum < 3900)
 		{
-			CreateNewWP_InsertUnder(nodetable[start].origin, WPFLAG_NONE, insertAfter);
+			CreateNewWP_InsertUnder(nodetable[start].origin, waypointFlags_t::WPFLAG_NONE, insertAfter);
 		}
 		else
 		{
 			return false;
 		}
 
-		nodetable[start].flags = WPFLAG_NODE_USED;
+		nodetable[start].flags = waypointFlags_t::WPFLAG_NODE_USED;
 		return G_BackwardAttachment(desiredIndex, finalDestination, insertAfter);
 	}
 
@@ -3067,7 +3067,7 @@ void G_RMGPathing(void)
 	trace_t tr;
 	gentity_t *terrain = G_Find( nullptr, FOFS(classname), "terrain" );
 
-	if (!terrain || !terrain->inuse || terrain->s.eType != ET_TERRAIN)
+	if (!terrain || !terrain->inuse || terrain->s.eType != entityType_t::ET_TERRAIN)
 	{
 		trap->Print("Error: RMG with no terrain!\n");
 		return;
@@ -3109,9 +3109,9 @@ void G_RMGPathing(void)
 
 			VectorCopy(nodetable[nodenum].origin, downVec);
 			downVec[2] -= 3000;
-			trap->Trace(&tr, nodetable[nodenum].origin, trMins, trMaxs, downVec, ENTITYNUM_NONE, MASK_SOLID, false, G2TRFLAG_NONE, 0);
+			trap->Trace(&tr, nodetable[nodenum].origin, trMins, trMaxs, downVec, ENTITYNUM_NONE, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
-			if ((tr.entityNum >= ENTITYNUM_WORLD || g_entities[tr.entityNum].s.eType == ET_TERRAIN) && tr.endpos[2] < terrain->r.absmin[2]+750)
+			if ((tr.entityNum >= ENTITYNUM_WORLD || g_entities[tr.entityNum].s.eType == entityType_t::ET_TERRAIN) && tr.endpos[2] < terrain->r.absmin[2]+750)
 			{ //only drop nodes on terrain directly
 				VectorCopy(tr.endpos, nodetable[nodenum].origin);
 				nodenum++;
@@ -3183,11 +3183,11 @@ void G_RMGPathing(void)
 		if (G_BackwardAttachment(nearestIndexForNext, nearestIndex, gWPNum-1))
 		{ //successfully connected the trail from nearestIndex to nearestIndexForNext
 			if (gSpawnPoints[i+1]->inuse && gSpawnPoints[i+1]->item &&
-				gSpawnPoints[i+1]->item->giType == IT_TEAM)
+				gSpawnPoints[i+1]->item->giType == itemType_t::IT_TEAM)
 			{ //This point is actually a CTF flag.
-				if (GI_Powerup( *gSpawnPoints[i+1]->item ) == PW_REDFLAG || GI_Powerup( *gSpawnPoints[i+1]->item ) == PW_BLUEFLAG)
+				if (GI_Powerup( *gSpawnPoints[i+1]->item ) == powerup_t::PW_REDFLAG || GI_Powerup( *gSpawnPoints[i+1]->item ) == powerup_t::PW_BLUEFLAG)
 				{ //Place a waypoint on the flag next in the trail, so the nearest grid point will link to it.
-					CreateNewWP_InsertUnder(gSpawnPoints[i+1]->s.origin, WPFLAG_NEVERONEWAY, gWPNum-1);
+					CreateNewWP_InsertUnder(gSpawnPoints[i+1]->s.origin, waypointFlags_t::WPFLAG_NEVERONEWAY, gWPNum-1);
 				}
 			}
 
@@ -3226,7 +3226,7 @@ void BeginAutoPathRoutine(void)
 
 	gSpawnPointNum = 0;
 
-	CreateNewWP(vec3_origin, WPFLAG_NONE); //create a dummy waypoint to insert under
+	CreateNewWP(vec3_origin, waypointFlags_t::WPFLAG_NONE); //create a dummy waypoint to insert under
 
 	while (i < level.num_entities)
 	{
@@ -3240,8 +3240,8 @@ void BeginAutoPathRoutine(void)
 				gSpawnPointNum++;
 			}
 		}
-		else if (ent && ent->inuse && ent->item && ent->item->giType == IT_TEAM &&
-			(GI_Powerup( *ent->item ) == PW_REDFLAG || GI_Powerup( *ent->item ) == PW_BLUEFLAG))
+		else if (ent && ent->inuse && ent->item && ent->item->giType == itemType_t::IT_TEAM &&
+			(GI_Powerup( *ent->item ) == powerup_t::PW_REDFLAG || GI_Powerup( *ent->item ) == powerup_t::PW_BLUEFLAG))
 		{ //also make it path to flags in CTF.
 			gSpawnPoints[gSpawnPointNum] = ent;
 			gSpawnPointNum++;
@@ -3285,11 +3285,11 @@ void LoadPath_ThisLevel(void)
 	int			i = 0;
 	gentity_t	*ent = nullptr;
 
-	trap->Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
+	trap->Cvar_Register( &mapname, "mapname", "", cvarFlags_t::CVAR_SERVERINFO | cvarFlags_t::CVAR_ROM );
 
 	if (RMG.integer)
 	{ //If RMG, generate the path on-the-fly
-		trap->Cvar_Register(&bot_normgpath, "bot_normgpath", "1", CVAR_CHEAT);
+		trap->Cvar_Register(&bot_normgpath, "bot_normgpath", "1", cvarFlags_t::CVAR_CHEAT);
 		//note: This is disabled for now as I'm using standard bot nav
 		//on premade terrain levels.
 
@@ -3302,7 +3302,7 @@ void LoadPath_ThisLevel(void)
 			LoadPathData(mapname.string);
 		}
 
-		gLevelFlags |= LEVELFLAG_NOPOINTPREDICTION;
+		gLevelFlags |= botLevelFlags_t::LEVELFLAG_NOPOINTPREDICTION;
 	}
 	else
 	{
@@ -3439,7 +3439,7 @@ int AcceptBotCommand(char *cmd, gentity_t *pl)
 
 	OptionalArgument = 0;
 	i = 0;
-	FlagsFromArgument = WPFLAG_NONE;
+	FlagsFromArgument = waypointFlags_t::WPFLAG_NONE;
 	OptionalSArgument = nullptr;
 	RequiredSArgument = nullptr;
 
@@ -3476,11 +3476,11 @@ int AcceptBotCommand(char *cmd, gentity_t *pl)
 
 		if (OptionalSArgument && OptionalSArgument[0])
 		{
-			CreateNewWP_InTrail(pl->client->ps.origin, WPFLAG_NONE, OptionalArgument);
+			CreateNewWP_InTrail(pl->client->ps.origin, waypointFlags_t::WPFLAG_NONE, OptionalArgument);
 		}
 		else
 		{
-			CreateNewWP(pl->client->ps.origin, WPFLAG_NONE);
+			CreateNewWP(pl->client->ps.origin, waypointFlags_t::WPFLAG_NONE);
 		}
 		return 1;
 	}
@@ -3564,43 +3564,43 @@ int AcceptBotCommand(char *cmd, gentity_t *pl)
 		{
 			if (RequiredSArgument[i] == 'j')
 			{
-				FlagsFromArgument |= WPFLAG_JUMP;
+				FlagsFromArgument |= waypointFlags_t::WPFLAG_JUMP;
 			}
 			else if (RequiredSArgument[i] == 'd')
 			{
-				FlagsFromArgument |= WPFLAG_DUCK;
+				FlagsFromArgument |= waypointFlags_t::WPFLAG_DUCK;
 			}
 			else if (RequiredSArgument[i] == 'c')
 			{
-				FlagsFromArgument |= WPFLAG_SNIPEORCAMPSTAND;
+				FlagsFromArgument |= waypointFlags_t::WPFLAG_SNIPEORCAMPSTAND;
 			}
 			else if (RequiredSArgument[i] == 'f')
 			{
-				FlagsFromArgument |= WPFLAG_WAITFORFUNC;
+				FlagsFromArgument |= waypointFlags_t::WPFLAG_WAITFORFUNC;
 			}
 			else if (RequiredSArgument[i] == 's')
 			{
-				FlagsFromArgument |= WPFLAG_SNIPEORCAMP;
+				FlagsFromArgument |= waypointFlags_t::WPFLAG_SNIPEORCAMP;
 			}
 			else if (RequiredSArgument[i] == 'x')
 			{
-				FlagsFromArgument |= WPFLAG_ONEWAY_FWD;
+				FlagsFromArgument |= waypointFlags_t::WPFLAG_ONEWAY_FWD;
 			}
 			else if (RequiredSArgument[i] == 'y')
 			{
-				FlagsFromArgument |= WPFLAG_ONEWAY_BACK;
+				FlagsFromArgument |= waypointFlags_t::WPFLAG_ONEWAY_BACK;
 			}
 			else if (RequiredSArgument[i] == 'g')
 			{
-				FlagsFromArgument |= WPFLAG_GOALPOINT;
+				FlagsFromArgument |= waypointFlags_t::WPFLAG_GOALPOINT;
 			}
 			else if (RequiredSArgument[i] == 'n')
 			{
-				FlagsFromArgument |= WPFLAG_NOVIS;
+				FlagsFromArgument |= waypointFlags_t::WPFLAG_NOVIS;
 			}
 			else if (RequiredSArgument[i] == 'm')
 			{
-				FlagsFromArgument |= WPFLAG_NOMOVEFUNC;
+				FlagsFromArgument |= waypointFlags_t::WPFLAG_NOMOVEFUNC;
 			}
 
 			i++;
@@ -3640,43 +3640,43 @@ int AcceptBotCommand(char *cmd, gentity_t *pl)
 		{
 			if (RequiredSArgument[i] == 'j')
 			{
-				FlagsFromArgument |= WPFLAG_JUMP;
+				FlagsFromArgument |= waypointFlags_t::WPFLAG_JUMP;
 			}
 			else if (RequiredSArgument[i] == 'd')
 			{
-				FlagsFromArgument |= WPFLAG_DUCK;
+				FlagsFromArgument |= waypointFlags_t::WPFLAG_DUCK;
 			}
 			else if (RequiredSArgument[i] == 'c')
 			{
-				FlagsFromArgument |= WPFLAG_SNIPEORCAMPSTAND;
+				FlagsFromArgument |= waypointFlags_t::WPFLAG_SNIPEORCAMPSTAND;
 			}
 			else if (RequiredSArgument[i] == 'f')
 			{
-				FlagsFromArgument |= WPFLAG_WAITFORFUNC;
+				FlagsFromArgument |= waypointFlags_t::WPFLAG_WAITFORFUNC;
 			}
 			else if (RequiredSArgument[i] == 's')
 			{
-				FlagsFromArgument |= WPFLAG_SNIPEORCAMP;
+				FlagsFromArgument |= waypointFlags_t::WPFLAG_SNIPEORCAMP;
 			}
 			else if (RequiredSArgument[i] == 'x')
 			{
-				FlagsFromArgument |= WPFLAG_ONEWAY_FWD;
+				FlagsFromArgument |= waypointFlags_t::WPFLAG_ONEWAY_FWD;
 			}
 			else if (RequiredSArgument[i] == 'y')
 			{
-				FlagsFromArgument |= WPFLAG_ONEWAY_BACK;
+				FlagsFromArgument |= waypointFlags_t::WPFLAG_ONEWAY_BACK;
 			}
 			else if (RequiredSArgument[i] == 'g')
 			{
-				FlagsFromArgument |= WPFLAG_GOALPOINT;
+				FlagsFromArgument |= waypointFlags_t::WPFLAG_GOALPOINT;
 			}
 			else if (RequiredSArgument[i] == 'n')
 			{
-				FlagsFromArgument |= WPFLAG_NOVIS;
+				FlagsFromArgument |= waypointFlags_t::WPFLAG_NOVIS;
 			}
 			else if (RequiredSArgument[i] == 'm')
 			{
-				FlagsFromArgument |= WPFLAG_NOMOVEFUNC;
+				FlagsFromArgument |= waypointFlags_t::WPFLAG_NOMOVEFUNC;
 			}
 
 			i++;
@@ -3708,13 +3708,13 @@ int AcceptBotCommand(char *cmd, gentity_t *pl)
 		{
 			if (gWPArray[i] && gWPArray[i]->inuse)
 			{
-				if (Any( gWPArray[i]->flags & WPFLAG_ONEWAY_FWD ))
+				if (Any( gWPArray[i]->flags & waypointFlags_t::WPFLAG_ONEWAY_FWD ))
 				{
-					gWPArray[i]->flags &= ~WPFLAG_ONEWAY_FWD;
+					gWPArray[i]->flags &= ~waypointFlags_t::WPFLAG_ONEWAY_FWD;
 				}
-				if (Any( gWPArray[i]->flags & WPFLAG_ONEWAY_BACK ))
+				if (Any( gWPArray[i]->flags & waypointFlags_t::WPFLAG_ONEWAY_BACK ))
 				{
-					gWPArray[i]->flags &= ~WPFLAG_ONEWAY_BACK;
+					gWPArray[i]->flags &= ~waypointFlags_t::WPFLAG_ONEWAY_BACK;
 				}
 			}
 
@@ -3727,7 +3727,7 @@ int AcceptBotCommand(char *cmd, gentity_t *pl)
 	if (Q_stricmp (cmd, "bot_wp_save") == 0)
 	{
 		gDeactivated = 0;
-		trap->Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
+		trap->Cvar_Register( &mapname, "mapname", "", cvarFlags_t::CVAR_SERVERINFO | cvarFlags_t::CVAR_ROM );
 		SavePathData(mapname.string);
 		return 1;
 	}

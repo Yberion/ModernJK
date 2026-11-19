@@ -33,7 +33,6 @@ enum class netadrtype_t
 	NA_BROADCAST,
 	NA_IP
 };
-using enum netadrtype_t;
 
 typedef struct netadr_s
 {
@@ -62,7 +61,6 @@ enum class joystickAxis_t {
 	AXIS_PITCH,
 	MAX_JOYSTICK_AXIS
 };
-using enum joystickAxis_t;
 template <> inline constexpr bool enableEnumArithmetic<joystickAxis_t> = true;
 
 enum class sysEventType_t {
@@ -75,7 +73,6 @@ enum class sysEventType_t {
 	SE_CONSOLE,	// evPtr is a char*
 	SE_MAX
 };
-using enum sysEventType_t;
 
 typedef struct sysEvent_s {
 	int				evTime;
@@ -164,7 +161,6 @@ enum class graphicsApi_t
 	// Only OpenGL needs special treatment..
 	GRAPHICS_API_OPENGL,
 };
-using enum graphicsApi_t;
 
 // Graphics API
 typedef struct window_s
@@ -179,14 +175,12 @@ enum class glProfile_t
 	GLPROFILE_CORE,
 	GLPROFILE_ES,
 };
-using enum glProfile_t;
 
 enum class glContextFlags_t
 {
 	GLCONTEXT_NONE = 0,
 	GLCONTEXT_DEBUG = (1 << 1),
 };
-using enum glContextFlags_t;
 template <> inline constexpr bool enableEnumFlags<glContextFlags_t> = true;
 
 typedef struct windowDesc_s

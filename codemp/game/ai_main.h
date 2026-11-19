@@ -60,7 +60,6 @@ enum class waypointFlags_t
 	WPFLAG_CALCULATED		= 0x00400000, //don't calculate it again
 	WPFLAG_NEVERONEWAY		= 0x00800000, //never flag it as one-way
 };
-using enum waypointFlags_t;
 template <> inline constexpr bool enableEnumFlags<waypointFlags_t> = true;
 
 enum class botLevelFlags_t
@@ -70,7 +69,6 @@ enum class botLevelFlags_t
 	LEVELFLAG_IGNOREINFALLBACK			= 2, //ignore enemies when in a fallback navigation routine
 	LEVELFLAG_IMUSTNTRUNAWAY			= 4, //don't be scared
 };
-using enum botLevelFlags_t;
 template <> inline constexpr bool enableEnumFlags<botLevelFlags_t> = true;
 
 inline constexpr int WP_KEEP_FLAG_DIST = 128;
@@ -82,7 +80,6 @@ enum class botWeaponRange_t
 	BWEAPONRANGE_LONG,
 	BWEAPONRANGE_SABER,
 };
-using enum botWeaponRange_t;
 
 inline constexpr int MELEE_ATTACK_RANGE = 256;
 inline constexpr int SABER_ATTACK_RANGE = 128;
@@ -124,7 +121,6 @@ enum class bot_ctf_state_t
 	CTFSTATE_GETFLAGHOME,
 	CTFSTATE_MAXCTFSTATES
 };
-using enum bot_ctf_state_t;
 
 enum class bot_siege_state_t
 {
@@ -133,7 +129,6 @@ enum class bot_siege_state_t
 	SIEGESTATE_DEFENDER,
 	SIEGESTATE_MAXSIEGESTATES
 };
-using enum bot_siege_state_t;
 
 enum class bot_teamplay_state_t
 {
@@ -143,7 +138,6 @@ enum class bot_teamplay_state_t
 	TEAMPLAYSTATE_REGROUP,
 	TEAMPLAYSTATE_MAXTPSTATES
 };
-using enum bot_teamplay_state_t;
 
 typedef struct botattachment_s
 {
@@ -330,7 +324,7 @@ typedef struct bot_state_s
 
 	int					deathActivitiesDone;
 
-	EnumArray<float, weapon_t, WP_NUM_WEAPONS>	botWeaponWeights;
+	EnumArray<float, weapon_t, weapon_t::WP_NUM_WEAPONS>	botWeaponWeights;
 
 	bot_ctf_state_t		ctfState;
 

@@ -428,7 +428,7 @@ void CG_DrawCaptionText(void)
 	if((textcolor_caption[0] == 0) && (textcolor_caption[1] == 0) &&
 		(textcolor_caption[2] == 0) && (textcolor_caption[3] == 0))
 	{
-		VectorCopy4( colorTable[CT_WHITE], textcolor_caption );
+		VectorCopy4( colorTable[ct_table_t::CT_WHITE], textcolor_caption );
 	}
 
 	cgi_R_SetColor(textcolor_caption);
@@ -489,7 +489,7 @@ void CG_ScrollText( const char *str, int iPixelWidth )
 	//
 	// malloc space to hold it...
 	//
-	char *psText = (char *) cgi_Z_Malloc( i+1, TAG_TEMP_WORKSPACE );
+	char *psText = (char *) cgi_Z_Malloc( i+1, memtag::TAG_TEMP_WORKSPACE );
 	//
 	// now get the string...
 	//
@@ -610,7 +610,7 @@ void CG_DrawScrollText(void)
 
 	y = cg.printTextY - (cg.time - cg.scrollTextTime) * SCROLL_LPM;
 
-//	cgi_R_Font_DrawString(320, 200, va("Scrolltext printing @ %d",y), colorTable[CT_LTGOLD1], cgs.media.qhFontMedium, -1, 1.0f);
+//	cgi_R_Font_DrawString(320, 200, va("Scrolltext printing @ %d",y), colorTable[ct_table_t::CT_LTGOLD1], cgs.media.qhFontMedium, -1, 1.0f);
 
 	// See if text has finished scrolling off screen
 	if ((y + cg.scrollTextLines * fontHeight) < 1)
@@ -724,7 +724,7 @@ void CG_DrawCenterString( void )
 	if((textcolor_center[0] == 0) && (textcolor_center[1] == 0) &&
 		(textcolor_center[2] == 0) && (textcolor_center[3] == 0))
 	{
-		VectorCopy4( colorTable[CT_WHITE], textcolor_center );
+		VectorCopy4( colorTable[ct_table_t::CT_WHITE], textcolor_center );
 	}
 
 	start = cg.centerPrint;

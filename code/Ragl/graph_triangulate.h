@@ -622,7 +622,7 @@ private:
 
 		// Similarly, Make Sure Node B.y Is Greater Than Node C.y
 		//--------------------------------------------------------
-		if (mGraph.get_node(C).LRTest(mGraph.get_node(A), mGraph.get_node(B))==Side_Left)
+		if (mGraph.get_node(C).LRTest(mGraph.get_node(A), mGraph.get_node(B))==ESide::Side_Left)
 		{
 			Temp	= C;
 			C		= B;
@@ -635,9 +635,9 @@ private:
 		// WITH MORE THAN 2 COLINEAR POINTS ON THE SAME FACE.  INSERT HULL WILL FAIL IN THIS
 		// FACE.  INSERT HULL WILL FAIL IN THIS SITUATION
 
-		assert(mGraph.get_node(C).LRTest(mGraph.get_node(A), mGraph.get_node(B))==Side_Right);
-		assert(mGraph.get_node(A).LRTest(mGraph.get_node(B), mGraph.get_node(C))==Side_Right);
-		assert(mGraph.get_node(B).LRTest(mGraph.get_node(C), mGraph.get_node(A))==Side_Right);
+		assert(mGraph.get_node(C).LRTest(mGraph.get_node(A), mGraph.get_node(B))==ESide::Side_Right);
+		assert(mGraph.get_node(A).LRTest(mGraph.get_node(B), mGraph.get_node(C))==ESide::Side_Right);
+		assert(mGraph.get_node(B).LRTest(mGraph.get_node(C), mGraph.get_node(A))==ESide::Side_Right);
 		//====================================================================================
 
 		mFaces[nFace].mA		= A;
@@ -691,7 +691,7 @@ private:
 
 			// Can This Edge "See" The node Handle We Have Passed In?
 			//---------------------------------------------------------
-			if ( mGraph.get_node(nodeHandle).LRTest(mGraph.get_node(curEdge.mA), mGraph.get_node(curEdge.mB))==Side_Left )
+			if ( mGraph.get_node(nodeHandle).LRTest(mGraph.get_node(curEdge.mA), mGraph.get_node(curEdge.mB))==ESide::Side_Left )
 			{
 				// Then Add The Face And Remove This Edge From The Hull
 				//------------------------------------------------------

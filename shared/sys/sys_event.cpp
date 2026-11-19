@@ -43,7 +43,7 @@ static uint32_t		eventHead = 0, eventTail = 0;
 
 static const char *Sys_EventName( sysEventType_t evType ) {
 
-	static const EnumArray<const char *, sysEventType_t, SE_MAX> evNames = {
+	static const EnumArray<const char *, sysEventType_t, sysEventType_t::SE_MAX> evNames = {
 		"SE_NONE",
 		"SE_KEY",
 		"SE_CHAR",
@@ -52,7 +52,7 @@ static const char *Sys_EventName( sysEventType_t evType ) {
 		"SE_CONSOLE"
 	};
 
-	if ( evType >= SE_MAX ) {
+	if ( evType >= sysEventType_t::SE_MAX ) {
 		return "SE_UNKNOWN";
 	} else {
 		return evNames[evType];
@@ -76,9 +76,9 @@ sysEvent_t Sys_GetEvent( void ) {
 		int		len;
 
 		len = strlen( s ) + 1;
-		b = (char *)Z_Malloc( len,TAG_EVENT,false );
+		b = (char *)Z_Malloc( len,memtag::TAG_EVENT,false );
 		strcpy( b, s );
-		Sys_QueEvent( 0, SE_CONSOLE, 0, 0, len, b );
+		Sys_QueEvent( 0, sysEventType_t::SE_CONSOLE, 0, 0, len, b );
 	}
 
 	// return if we have data
@@ -112,7 +112,7 @@ void Sys_QueEvent( int evTime, sysEventType_t evType, int value, int value2, int
 	}
 
 	// try to combine all sequential mouse moves in one event
-	if ( evType == SE_MOUSE && lastEvent && lastEvent->evType == SE_MOUSE ) {
+	if ( evType == sysEventType_t::SE_MOUSE && lastEvent && lastEvent->evType == sysEventType_t::SE_MOUSE ) {
 		// try to reuse already processed item
 		if ( eventTail == eventHead ) {
 			lastEvent->evValue = value;

@@ -291,7 +291,7 @@ void CL_NetcodecParseServerMessage( msg_t *msg ) {
 	s_frames[slot].seq = -1;
 	if ( cm.snapshot ) {
 		if ( cm.numAreas > sizeof( newSnap.areamask ) ) {
-			Com_Error( ERR_DROP, "CL_NetcodecParseServerMessage: Invalid size %u for areamask", cm.numAreas );
+			Com_Error( errorParm_t::ERR_DROP, "CL_NetcodecParseServerMessage: Invalid size %u for areamask", cm.numAreas );
 			return;
 		}
 		s_stats.snapshots++;

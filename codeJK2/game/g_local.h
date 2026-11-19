@@ -69,7 +69,6 @@ enum class gentityFlags_t
 	FL_FORCE_PULLABLE_ONLY	= 0x00040000,	// cannot be force pushed
 	FL_NO_IMPACT_DMG		= 0x00080000,	// Will not take impact damage
 };
-using enum gentityFlags_t;
 template <> inline constexpr bool enableEnumFlags<gentityFlags_t> = true;
 
 //Pointer safety utilities
@@ -118,7 +117,6 @@ enum class alertEventType_e
 	AET_SIGHT,
 	AET_SOUND,
 };
-using enum alertEventType_e;
 
 enum class alertEventLevel_e
 {
@@ -129,7 +127,6 @@ enum class alertEventLevel_e
 	AEL_DANGER,			//Enemy should try to find cover
 	AEL_DANGER_GREAT,	//Enemy should run like hell!
 };
-using enum alertEventLevel_e;
 
 // !!!!!!!!! LOADSAVE-affecting struct !!!!!!!!!!
 class alertEvent_t
@@ -198,7 +195,6 @@ enum class worldFlags_t
 	WF_RAINING	= 0x00000001,	//raining
 	WF_SNOWING	= 0x00000002,	//snowing
 };
-using enum worldFlags_t;
 template <> inline constexpr bool enableEnumFlags<worldFlags_t> = true;
 
 // !!!!!!!!!! LOADSAVE-affecting structure !!!!!!!!!!
@@ -414,7 +410,7 @@ void	G_DebugLine(vec3_t A, vec3_t B, int duration, int color, bool deleteornot);
 // g_combat.cpp
 //
 bool CanDamage (gentity_t *targ, vec3_t origin);
-void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t dir, vec3_t point, int damage, damageFlags_t dflags, meansOfDeath_t mod, hitLocation_t hitLoc=HL_NONE );
+void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t dir, vec3_t point, int damage, damageFlags_t dflags, meansOfDeath_t mod, hitLocation_t hitLoc=hitLocation_t::HL_NONE );
 void G_RadiusDamage (vec3_t origin, gentity_t *attacker, float damage, float radius, gentity_t *ignore, meansOfDeath_t mod);
 gentity_t *TossClientItems( gentity_t *self );
 void ExplodeDeath_Wait( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath,damageFlags_t dFlags,hitLocation_t hitLoc );
@@ -582,7 +578,7 @@ void G_WriteSessionData( void );
 extern void AddSightEvent( gentity_t *owner, vec3_t position, float radius, alertEventLevel_e alertLevel, float addLight=0.0f );
 extern void AddSoundEvent( gentity_t *owner, vec3_t position, float radius, alertEventLevel_e alertLevel, bool needLOS = false );
 extern bool G_CheckForDanger( gentity_t *self, int alertEvent );
-extern int G_CheckAlertEvents( gentity_t *self, bool checkSight, bool checkSound, float maxSeeDist, float maxHearDist, int ignoreAlert = -1, bool mustHaveOwner = false, alertEventLevel_e minAlertLevel = AEL_MINOR );
+extern int G_CheckAlertEvents( gentity_t *self, bool checkSight, bool checkSound, float maxSeeDist, float maxHearDist, int ignoreAlert = -1, bool mustHaveOwner = false, alertEventLevel_e minAlertLevel = alertEventLevel_e::AEL_MINOR );
 extern bool G_CheckForDanger( gentity_t *self, int alertEvent );
 extern bool G_ClearLOS( gentity_t *self, const vec3_t start, const vec3_t end );
 extern bool G_ClearLOS( gentity_t *self, gentity_t *ent, const vec3_t end );

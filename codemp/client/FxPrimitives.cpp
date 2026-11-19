@@ -32,8 +32,8 @@ extern int		drawnFx;
 //
 //--------------------------
 CEffect::CEffect(void) :
-	mFlags(FX_NONE),
-	mMatImpactFX(MATIMPACTFX_NONE),
+	mFlags(fxPrimitiveFlags_t::FX_NONE),
+	mMatImpactFX(EMatImpactEffect::MATIMPACTFX_NONE),
 	mMatImpactParm(-1),
 	mSoundRadius(-1),
 	mSoundVolume(-1)
@@ -51,7 +51,7 @@ CEffect::CEffect(void) :
 void CParticle::Init(void)
 {
 	mRefEnt.radius = 0.0f;
-	if (Any( mFlags & FX_PLAYER_VIEW ))
+	if (Any( mFlags & fxPrimitiveFlags_t::FX_PLAYER_VIEW ))
 	{
 		mOrigin1[0] = Q_irand(0, 639);
 		mOrigin1[1] = Q_irand(0, 479);
@@ -61,7 +61,7 @@ void CParticle::Init(void)
 //----------------------------
 void CParticle::Die(void)
 {
-	if ( Any( mFlags & FX_DEATH_RUNS_FX ) && !Any(mFlags & FX_KILL_ON_IMPACT) )
+	if ( Any( mFlags & fxPrimitiveFlags_t::FX_DEATH_RUNS_FX ) && !Any(mFlags & fxPrimitiveFlags_t::FX_KILL_ON_IMPACT) )
 	{
 		vec3_t	norm;
 
@@ -78,7 +78,7 @@ bool CParticle::Cull(void)
 {
 	vec3_t	dir;
 
-	if (Any( mFlags & FX_PLAYER_VIEW ))
+	if (Any( mFlags & fxPrimitiveFlags_t::FX_PLAYER_VIEW ))
 	{
 		// this will be drawn as a 2D effect so don't cull it
 		return false;
@@ -94,7 +94,7 @@ bool CParticle::Cull(void)
 	}
 
 	// don't cull if this is hacked to show up close to the inview wpn
-	if (Any( mFlags & FX_DEPTH_HACK ))
+	if (Any( mFlags & fxPrimitiveFlags_t::FX_DEPTH_HACK ))
 	{
 		return false;
 	}
@@ -111,13 +111,13 @@ bool CParticle::Cull(void)
 //----------------------------
 void CParticle::Draw(void)
 {
-	if ( Any( mFlags & FX_DEPTH_HACK ) )
+	if ( Any( mFlags & fxPrimitiveFlags_t::FX_DEPTH_HACK ) )
 	{
 		// Not sure if first person needs to be set, but it can't hurt?
-		mRefEnt.renderfx |= RF_DEPTHHACK;
+		mRefEnt.renderfx |= renderFxFlags_t::RF_DEPTHHACK;
 	}
 
-	if (Any( mFlags & FX_PLAYER_VIEW ))
+	if (Any( mFlags & fxPrimitiveFlags_t::FX_PLAYER_VIEW ))
 	{
 		vec4_t	color;
 
@@ -150,7 +150,7 @@ bool CParticle::Update(void)
 		return false;
 	}
 
-	if ( Any( mFlags & FX_RELATIVE ) )
+	if ( Any( mFlags & fxPrimitiveFlags_t::FX_RELATIVE ) )
 	{
 		if ( !re->G2API_IsGhoul2InfovValid (*mGhoul2))
 		{	// the thing we are bolted to is no longer valid, so we may as well just die.
@@ -225,16 +225,16 @@ bool CParticle::UpdateOrigin(void)
 	new_origin[2] = mOrigin1[2] + (theFxHelper.mRealTime * mVel[2]);// + (theFxHelper.mHalfRealTimeSq * mVel[2]);
 
 	// Only perform physics if this object is tagged to do so
-	if ( Any(mFlags & FX_APPLY_PHYSICS) && !Any(mFlags & FX_PLAYER_VIEW) )
+	if ( Any(mFlags & fxPrimitiveFlags_t::FX_APPLY_PHYSICS) && !Any(mFlags & fxPrimitiveFlags_t::FX_PLAYER_VIEW) )
 	{
-		if ( Any( mFlags & FX_EXPENSIVE_PHYSICS ) )
+		if ( Any( mFlags & fxPrimitiveFlags_t::FX_EXPENSIVE_PHYSICS ) )
 		{
 			trace_t	trace;
 			float	dot;
 
-			if ( Any( mFlags & FX_USE_BBOX ) )
+			if ( Any( mFlags & fxPrimitiveFlags_t::FX_USE_BBOX ) )
 			{
-				if (Any( mFlags & FX_GHOUL2_TRACE ))
+				if (Any( mFlags & fxPrimitiveFlags_t::FX_GHOUL2_TRACE ))
 				{
 					theFxHelper.G2Trace( trace, mOrigin1, mMin, mMax, new_origin, -1, MASK_SOLID );
 				}
@@ -245,7 +245,7 @@ bool CParticle::UpdateOrigin(void)
 			}
 			else
 			{
-				if (Any( mFlags & FX_GHOUL2_TRACE ))
+				if (Any( mFlags & fxPrimitiveFlags_t::FX_GHOUL2_TRACE ))
 				{
 					theFxHelper.G2Trace( trace, mOrigin1, nullptr, nullptr, new_origin, -1, MASK_PLAYERSOLID );
 				}
@@ -261,20 +261,20 @@ bool CParticle::UpdateOrigin(void)
 				VectorClear( mVel );
 				VectorClear( mAccel );
 
-				if (Any(mFlags & FX_GHOUL2_TRACE) && Any(mFlags & FX_IMPACT_RUNS_FX))
+				if (Any(mFlags & fxPrimitiveFlags_t::FX_GHOUL2_TRACE) && Any(mFlags & fxPrimitiveFlags_t::FX_IMPACT_RUNS_FX))
 				{
 					static vec3_t bsNormal = {0, 1, 0};
 
 					theFxScheduler.PlayEffect( mImpactFxID, trace.endpos, bsNormal );
 				}
 
-				mFlags &= ~(FX_APPLY_PHYSICS | FX_IMPACT_RUNS_FX);
+				mFlags &= ~(fxPrimitiveFlags_t::FX_APPLY_PHYSICS | fxPrimitiveFlags_t::FX_IMPACT_RUNS_FX);
 
 				return true;
 			}
 			else if ( trace.fraction < 1.0f )//&& !trace.startsolid && !trace.allsolid )
 			{
-				if ( Any( mFlags & FX_IMPACT_RUNS_FX ) && !Any( trace.surfaceFlags & SURF_NOIMPACT ))
+				if ( Any( mFlags & fxPrimitiveFlags_t::FX_IMPACT_RUNS_FX ) && !Any( trace.surfaceFlags & surfaceFlags_t::SURF_NOIMPACT ))
 				{
 					theFxScheduler.PlayEffect( mImpactFxID, trace.endpos, trace.plane.normal );
 				}
@@ -282,7 +282,7 @@ bool CParticle::UpdateOrigin(void)
 				// may need to interact with the material type we hit
 				theFxScheduler.MaterialImpact(&trace, (CEffect*)this);
 
-				if ( Any( mFlags & FX_KILL_ON_IMPACT )	)
+				if ( Any( mFlags & fxPrimitiveFlags_t::FX_KILL_ON_IMPACT )	)
 				{
 					// time to die
 					return false;
@@ -305,7 +305,7 @@ bool CParticle::UpdateOrigin(void)
 					VectorClear( mVel );
 					VectorClear( mAccel );
 
-					mFlags &= ~(FX_APPLY_PHYSICS | FX_IMPACT_RUNS_FX);
+					mFlags &= ~(fxPrimitiveFlags_t::FX_APPLY_PHYSICS | fxPrimitiveFlags_t::FX_IMPACT_RUNS_FX);
 				}
 
 				// Set the origin to the exact impact point
@@ -318,7 +318,7 @@ bool CParticle::UpdateOrigin(void)
 	// No physics were done to this object, move it
 	VectorCopy( new_origin, mOrigin1 );
 
-	if (Any( mFlags & FX_PLAYER_VIEW ))
+	if (Any( mFlags & fxPrimitiveFlags_t::FX_PLAYER_VIEW ))
 	{
 		if (mOrigin1[0] < 0 || mOrigin1[0] > 639 || mOrigin1[1] < 0 || mOrigin1[1] > 479)
 		{
@@ -337,14 +337,14 @@ void CParticle::UpdateSize(void)
 	// completely biased towards start if it doesn't get overridden
 	float	perc1 = 1.0f, perc2 = 1.0f;
 
-	if ( Any(mFlags & FX_SIZE_LINEAR) )
+	if ( Any(mFlags & fxPrimitiveFlags_t::FX_SIZE_LINEAR) )
 	{
 		// calculate element biasing
 		perc1 = 1.0f - (float)(theFxHelper.mTime - mTimeStart) / (float)(mTimeEnd - mTimeStart);
 	}
 
 	// We can combine FX_LINEAR with _either_ FX_NONLINEAR, FX_WAVE, or FX_CLAMP
-	if (( mFlags & FX_SIZE_PARM_MASK ) == FX_SIZE_NONLINEAR )
+	if (( mFlags & fxPrimitiveFlags_t::FX_SIZE_PARM_MASK ) == fxPrimitiveFlags_t::FX_SIZE_NONLINEAR )
 	{
 		if ( theFxHelper.mTime > mSizeParm )
 		{
@@ -352,7 +352,7 @@ void CParticle::UpdateSize(void)
 			perc2 = 1.0f - (float)(theFxHelper.mTime - mSizeParm) / (float)(mTimeEnd - mSizeParm);
 		}
 
-		if ( Any( mFlags & FX_SIZE_LINEAR ) )
+		if ( Any( mFlags & fxPrimitiveFlags_t::FX_SIZE_LINEAR ) )
 		{
 			// do an even blend
 			perc1 = perc1 * 0.5f + perc2 * 0.5f;
@@ -363,12 +363,12 @@ void CParticle::UpdateSize(void)
 			perc1 = perc2;
 		}
 	}
-	else if (( mFlags & FX_SIZE_PARM_MASK ) == FX_SIZE_WAVE )
+	else if (( mFlags & fxPrimitiveFlags_t::FX_SIZE_PARM_MASK ) == fxPrimitiveFlags_t::FX_SIZE_WAVE )
 	{
 		// wave gen, with parm being the frequency multiplier
 		perc1 = perc1 * Q_cosf( (theFxHelper.mTime - mTimeStart) * mSizeParm );
 	}
-	else if (( mFlags & FX_SIZE_PARM_MASK ) == FX_SIZE_CLAMP )
+	else if (( mFlags & fxPrimitiveFlags_t::FX_SIZE_PARM_MASK ) == fxPrimitiveFlags_t::FX_SIZE_CLAMP )
 	{
 		if ( theFxHelper.mTime < mSizeParm )
 		{
@@ -380,7 +380,7 @@ void CParticle::UpdateSize(void)
 			perc2 = 0.0f; // make it full size??
 		}
 
-		if ( Any(mFlags & FX_SIZE_LINEAR) )
+		if ( Any(mFlags & fxPrimitiveFlags_t::FX_SIZE_LINEAR) )
 		{
 			// do an even blend
 			perc1 = perc1 * 0.5f + perc2 * 0.5f;
@@ -393,7 +393,7 @@ void CParticle::UpdateSize(void)
 	}
 
 	// If needed, RAND can coexist with linear and either non-linear or wave.
-	if ( Any( mFlags & FX_SIZE_RAND ) )
+	if ( Any( mFlags & fxPrimitiveFlags_t::FX_SIZE_RAND ) )
 	{
 		// Random simply modulates the existing value
 		perc1 = Q_flrand(0.0f, perc1);
@@ -427,14 +427,14 @@ void CParticle::UpdateRGB(void)
 	float	perc1 = 1.0f, perc2 = 1.0f;
 	vec3_t	res;
 
-	if ( Any(mFlags & FX_RGB_LINEAR) )
+	if ( Any(mFlags & fxPrimitiveFlags_t::FX_RGB_LINEAR) )
 	{
 		// calculate element biasing
 		perc1 = 1.0f - (float)( theFxHelper.mTime - mTimeStart ) / (float)( mTimeEnd - mTimeStart );
 	}
 
 	// We can combine FX_LINEAR with _either_ FX_NONLINEAR, FX_WAVE, or FX_CLAMP
-	if (( mFlags & FX_RGB_PARM_MASK ) == FX_RGB_NONLINEAR )
+	if (( mFlags & fxPrimitiveFlags_t::FX_RGB_PARM_MASK ) == fxPrimitiveFlags_t::FX_RGB_NONLINEAR )
 	{
 		if ( theFxHelper.mTime > mRGBParm )
 		{
@@ -442,7 +442,7 @@ void CParticle::UpdateRGB(void)
 			perc2 = 1.0f - (float)( theFxHelper.mTime - mRGBParm ) / (float)( mTimeEnd - mRGBParm );
 		}
 
-		if ( Any(mFlags & FX_RGB_LINEAR) )
+		if ( Any(mFlags & fxPrimitiveFlags_t::FX_RGB_LINEAR) )
 		{
 			// do an even blend
 			perc1 = perc1 * 0.5f + perc2 * 0.5f;
@@ -453,12 +453,12 @@ void CParticle::UpdateRGB(void)
 			perc1 = perc2;
 		}
 	}
-	else if (( mFlags & FX_RGB_PARM_MASK ) == FX_RGB_WAVE )
+	else if (( mFlags & fxPrimitiveFlags_t::FX_RGB_PARM_MASK ) == fxPrimitiveFlags_t::FX_RGB_WAVE )
 	{
 		// wave gen, with parm being the frequency multiplier
 		perc1 = perc1 * Q_cosf(( theFxHelper.mTime - mTimeStart ) * mRGBParm );
 	}
-	else if (( mFlags & FX_RGB_PARM_MASK ) == FX_RGB_CLAMP )
+	else if (( mFlags & fxPrimitiveFlags_t::FX_RGB_PARM_MASK ) == fxPrimitiveFlags_t::FX_RGB_CLAMP )
 	{
 		if ( theFxHelper.mTime < mRGBParm )
 		{
@@ -470,7 +470,7 @@ void CParticle::UpdateRGB(void)
 			perc2 = 0.0f; // make it full size??
 		}
 
-		if (Any( mFlags & FX_RGB_LINEAR ))
+		if (Any( mFlags & fxPrimitiveFlags_t::FX_RGB_LINEAR ))
 		{
 			// do an even blend
 			perc1 = perc1 * 0.5f + perc2 * 0.5f;
@@ -483,7 +483,7 @@ void CParticle::UpdateRGB(void)
 	}
 
 	// If needed, RAND can coexist with linear and either non-linear or wave.
-	if ( Any( mFlags & FX_RGB_RAND ) )
+	if ( Any( mFlags & fxPrimitiveFlags_t::FX_RGB_RAND ) )
 	{
 		// Random simply modulates the existing value
 		perc1 = Q_flrand(0.0f, perc1);
@@ -506,14 +506,14 @@ void CParticle::UpdateAlpha(void)
 	// completely biased towards start if it doesn't get overridden
 	float	perc1 = 1.0f, perc2 = 1.0f;
 
-	if ( Any(mFlags & FX_ALPHA_LINEAR) )
+	if ( Any(mFlags & fxPrimitiveFlags_t::FX_ALPHA_LINEAR) )
 	{
 		// calculate element biasing
 		perc1 = 1.0f - (float)(theFxHelper.mTime - mTimeStart) / (float)(mTimeEnd - mTimeStart);
 	}
 
 	// We can combine FX_LINEAR with _either_ FX_NONLINEAR, FX_WAVE, or FX_CLAMP
-	if (( mFlags & FX_ALPHA_PARM_MASK ) == FX_ALPHA_NONLINEAR )
+	if (( mFlags & fxPrimitiveFlags_t::FX_ALPHA_PARM_MASK ) == fxPrimitiveFlags_t::FX_ALPHA_NONLINEAR )
 	{
 		if ( theFxHelper.mTime > mAlphaParm )
 		{
@@ -521,7 +521,7 @@ void CParticle::UpdateAlpha(void)
 			perc2 = 1.0f - (float)(theFxHelper.mTime - mAlphaParm) / (float)(mTimeEnd - mAlphaParm);
 		}
 
-		if (Any( mFlags & FX_ALPHA_LINEAR ))
+		if (Any( mFlags & fxPrimitiveFlags_t::FX_ALPHA_LINEAR ))
 		{
 			// do an even blend
 			perc1 = perc1 * 0.5f + perc2 * 0.5f;
@@ -532,12 +532,12 @@ void CParticle::UpdateAlpha(void)
 			perc1 = perc2;
 		}
 	}
-	else if (( mFlags & FX_ALPHA_PARM_MASK ) == FX_ALPHA_WAVE )
+	else if (( mFlags & fxPrimitiveFlags_t::FX_ALPHA_PARM_MASK ) == fxPrimitiveFlags_t::FX_ALPHA_WAVE )
 	{
 		// wave gen, with parm being the frequency multiplier
 		perc1 = perc1 * Q_cosf( (theFxHelper.mTime - mTimeStart) * mAlphaParm );
 	}
-	else if (( mFlags & FX_ALPHA_PARM_MASK ) == FX_ALPHA_CLAMP )
+	else if (( mFlags & fxPrimitiveFlags_t::FX_ALPHA_PARM_MASK ) == fxPrimitiveFlags_t::FX_ALPHA_CLAMP )
 	{
 		if ( theFxHelper.mTime < mAlphaParm )
 		{
@@ -549,7 +549,7 @@ void CParticle::UpdateAlpha(void)
 			perc2 = 0.0f; // make it full size??
 		}
 
-		if (Any( mFlags & FX_ALPHA_LINEAR ))
+		if (Any( mFlags & fxPrimitiveFlags_t::FX_ALPHA_LINEAR ))
 		{
 			// do an even blend
 			perc1 = perc1 * 0.5f + perc2 * 0.5f;
@@ -567,14 +567,14 @@ void CParticle::UpdateAlpha(void)
 	perc1 = Com_Clamp(0.0f, 1.0f, perc1);
 
 	// If needed, RAND can coexist with linear and either non-linear or wave.
-	if ( Any( mFlags & FX_ALPHA_RAND ) )
+	if ( Any( mFlags & fxPrimitiveFlags_t::FX_ALPHA_RAND ) )
 	{
 		// Random simply modulates the existing value
 		perc1 = Q_flrand(0.0f, perc1);
 	}
 
 	alpha = Com_Clamp(0, 255, perc1 * 255.0f);
-	if ( Any( mFlags & FX_USE_ALPHA ) )
+	if ( Any( mFlags & fxPrimitiveFlags_t::FX_USE_ALPHA ) )
 	{
 		// should use this when using art that has an alpha channel
 		 mRefEnt.shaderRGBA[3] = (byte)alpha;
@@ -603,7 +603,7 @@ void CParticle::UpdateRotation(void)
 //--------------------------------
 COrientedParticle::COrientedParticle(void)
 {
-	mRefEnt.reType = RT_ORIENTED_QUAD;
+	mRefEnt.reType = refEntityType_t::RT_ORIENTED_QUAD;
 }
 
 //----------------------------
@@ -624,7 +624,7 @@ bool COrientedParticle::Cull(void)
 //	len = VectorLengthSquared( dir );
 
 	// don't cull stuff that's associated with inview wpns
-	if ( Any( mFlags & FX_DEPTH_HACK ) )
+	if ( Any( mFlags & fxPrimitiveFlags_t::FX_DEPTH_HACK ) )
 	{
 		return false;
 	}
@@ -640,15 +640,15 @@ bool COrientedParticle::Cull(void)
 //----------------------------
 void COrientedParticle::Draw(void)
 {
-	if ( Any( mFlags & FX_DEPTH_HACK ) )
+	if ( Any( mFlags & fxPrimitiveFlags_t::FX_DEPTH_HACK ) )
 	{
 		// Not sure if first person needs to be set
-		mRefEnt.renderfx |= RF_DEPTHHACK;
+		mRefEnt.renderfx |= renderFxFlags_t::RF_DEPTHHACK;
 	}
 
 	// Add our refEntity to the scene
 	VectorCopy( mOrigin1, mRefEnt.origin );
-	if ( !Any(mFlags&FX_RELATIVE) )
+	if ( !Any(mFlags&fxPrimitiveFlags_t::FX_RELATIVE) )
 	{
 		VectorCopy( mNormal, mRefEnt.axis[0] );
 		MakeNormalVectors( mRefEnt.axis[0], mRefEnt.axis[1], mRefEnt.axis[2] );
@@ -669,7 +669,7 @@ bool COrientedParticle::Update(void)
 		return false;
 	}
 
-	if ( Any( mFlags & FX_RELATIVE ) )
+	if ( Any( mFlags & fxPrimitiveFlags_t::FX_RELATIVE ) )
 	{
 		if ( !re->G2API_IsGhoul2InfovValid (*mGhoul2))
 		{	// the thing we are bolted to is no longer valid, so we may as well just die.
@@ -747,7 +747,7 @@ bool COrientedParticle::Update(void)
 //----------------------------
 CLine::CLine(void)
 {
-	mRefEnt.reType = RT_LINE;
+	mRefEnt.reType = refEntityType_t::RT_LINE;
 }
 
 //----------------------------
@@ -777,10 +777,10 @@ bool CLine::Cull( void )
 //----------------------------
 void CLine::Draw(void)
 {
-	if ( Any( mFlags & FX_DEPTH_HACK ) )
+	if ( Any( mFlags & fxPrimitiveFlags_t::FX_DEPTH_HACK ) )
 	{
 		// Not sure if first person needs to be set, but it can't hurt?
-		mRefEnt.renderfx |= RF_DEPTHHACK;
+		mRefEnt.renderfx |= renderFxFlags_t::RF_DEPTHHACK;
 	}
 
 	VectorCopy( mOrigin1, mRefEnt.origin );
@@ -799,7 +799,7 @@ bool CLine::Update(void)
 		return false;
 	}
 
-	if ( Any( mFlags & FX_RELATIVE ) )
+	if ( Any( mFlags & fxPrimitiveFlags_t::FX_RELATIVE ) )
 	{
 		if ( !re->G2API_IsGhoul2InfovValid (*mGhoul2))
 		{	// the thing we are bolted to is no longer valid, so we may as well just die.
@@ -840,7 +840,7 @@ bool CLine::Update(void)
 //----------------------------
 CElectricity::CElectricity(void)
 {
-	mRefEnt.reType = RT_ELECTRICITY;
+	mRefEnt.reType = refEntityType_t::RT_ELECTRICITY;
 }
 
 //----------------------------
@@ -849,24 +849,24 @@ void CElectricity::Initialize(void)
 	mRefEnt.frame = Q_flrand(0.0f, 1.0f) * 1265536.0f;
 	mRefEnt.axis[0][2] = theFxHelper.mTime + (mTimeEnd - mTimeStart); // endtime
 
-	if ( Any( mFlags & FX_DEPTH_HACK ) )
+	if ( Any( mFlags & fxPrimitiveFlags_t::FX_DEPTH_HACK ) )
 	{
-		mRefEnt.renderfx |= RF_DEPTHHACK;
+		mRefEnt.renderfx |= renderFxFlags_t::RF_DEPTHHACK;
 	}
 
-	if ( Any( mFlags & FX_BRANCH ) )
+	if ( Any( mFlags & fxPrimitiveFlags_t::FX_BRANCH ) )
 	{
-		mRefEnt.renderfx |= RF_FORKED;
+		mRefEnt.renderfx |= renderFxFlags_t::RF_FORKED;
 	}
 
-	if ( Any( mFlags & FX_TAPER ) )
+	if ( Any( mFlags & fxPrimitiveFlags_t::FX_TAPER ) )
 	{
-		mRefEnt.renderfx |= RF_TAPERED;
+		mRefEnt.renderfx |= renderFxFlags_t::RF_TAPERED;
 	}
 
-	if ( Any( mFlags & FX_GROW ) )
+	if ( Any( mFlags & fxPrimitiveFlags_t::FX_GROW ) )
 	{
-		mRefEnt.renderfx |= RF_GROW;
+		mRefEnt.renderfx |= renderFxFlags_t::RF_GROW;
 	}
 }
 
@@ -891,7 +891,7 @@ bool CElectricity::Update(void)
 		return false;
 	}
 
-	if ( Any( mFlags & FX_RELATIVE ) )
+	if ( Any( mFlags & fxPrimitiveFlags_t::FX_RELATIVE ) )
 	{
 		if ( !re->G2API_IsGhoul2InfovValid (*mGhoul2))
 		{	// the thing we are bolted to is no longer valid, so we may as well just die.
@@ -932,16 +932,16 @@ bool CElectricity::Update(void)
 //----------------------------
 CTail::CTail(void)
 {
-	mRefEnt.reType = RT_LINE;
+	mRefEnt.reType = refEntityType_t::RT_LINE;
 }
 
 //----------------------------
 void CTail::Draw(void)
 {
-	if ( Any( mFlags & FX_DEPTH_HACK ) )
+	if ( Any( mFlags & fxPrimitiveFlags_t::FX_DEPTH_HACK ) )
 	{
 		// Not sure if first person needs to be set
-		mRefEnt.renderfx |= RF_DEPTHHACK;
+		mRefEnt.renderfx |= renderFxFlags_t::RF_DEPTHHACK;
 	}
 
 	VectorCopy( mOrigin1, mRefEnt.origin );
@@ -959,7 +959,7 @@ bool CTail::Update(void)
 		return false;
 	}
 
-	if ( Any( mFlags & FX_RELATIVE ) )
+	if ( Any( mFlags & fxPrimitiveFlags_t::FX_RELATIVE ) )
 	{
 		if ( !re->G2API_IsGhoul2InfovValid (*mGhoul2))
 		{	// the thing we are bolted to is no longer valid, so we may as well just die.
@@ -1038,14 +1038,14 @@ void CTail::UpdateLength(void)
 	// completely biased towards start if it doesn't get overridden
 	float	perc1 = 1.0f, perc2 = 1.0f;
 
-	if ( Any( mFlags & FX_LENGTH_LINEAR ) )
+	if ( Any( mFlags & fxPrimitiveFlags_t::FX_LENGTH_LINEAR ) )
 	{
 		// calculate element biasing
 		perc1 = 1.0f - (float)(theFxHelper.mTime - mTimeStart) / (float)(mTimeEnd - mTimeStart);
 	}
 
 	// We can combine FX_LINEAR with _either_ FX_NONLINEAR or FX_WAVE
-	if (( mFlags & FX_LENGTH_PARM_MASK ) == FX_LENGTH_NONLINEAR )
+	if (( mFlags & fxPrimitiveFlags_t::FX_LENGTH_PARM_MASK ) == fxPrimitiveFlags_t::FX_LENGTH_NONLINEAR )
 	{
 		if ( theFxHelper.mTime > mLengthParm )
 		{
@@ -1053,7 +1053,7 @@ void CTail::UpdateLength(void)
 			perc2 = 1.0f - (float)(theFxHelper.mTime - mLengthParm) / (float)(mTimeEnd - mLengthParm);
 		}
 
-		if ( Any( mFlags & FX_LENGTH_LINEAR ) )
+		if ( Any( mFlags & fxPrimitiveFlags_t::FX_LENGTH_LINEAR ) )
 		{
 			// do an even blend
 			perc1 = perc1 * 0.5f + perc2 * 0.5f;
@@ -1064,12 +1064,12 @@ void CTail::UpdateLength(void)
 			perc1 = perc2;
 		}
 	}
-	else if (( mFlags & FX_LENGTH_PARM_MASK ) == FX_LENGTH_WAVE )
+	else if (( mFlags & fxPrimitiveFlags_t::FX_LENGTH_PARM_MASK ) == fxPrimitiveFlags_t::FX_LENGTH_WAVE )
 	{
 		// wave gen, with parm being the frequency multiplier
 		perc1 = perc1 * Q_cosf( (theFxHelper.mTime - mTimeStart) * mLengthParm );
 	}
-	else if (( mFlags & FX_LENGTH_PARM_MASK ) == FX_LENGTH_CLAMP )
+	else if (( mFlags & fxPrimitiveFlags_t::FX_LENGTH_PARM_MASK ) == fxPrimitiveFlags_t::FX_LENGTH_CLAMP )
 	{
 		if ( theFxHelper.mTime < mLengthParm )
 		{
@@ -1081,7 +1081,7 @@ void CTail::UpdateLength(void)
 			perc2 = 0.0f; // make it full size??
 		}
 
-		if ( Any( mFlags & FX_LENGTH_LINEAR ) )
+		if ( Any( mFlags & fxPrimitiveFlags_t::FX_LENGTH_LINEAR ) )
 		{
 			// do an even blend
 			perc1 = perc1 * 0.5f + perc2 * 0.5f;
@@ -1094,7 +1094,7 @@ void CTail::UpdateLength(void)
 	}
 
 	// If needed, RAND can coexist with linear and either non-linear or wave.
-	if ( Any( mFlags & FX_LENGTH_RAND ) )
+	if ( Any( mFlags & fxPrimitiveFlags_t::FX_LENGTH_RAND ) )
 	{
 		// Random simply modulates the existing value
 		perc1 = Q_flrand(0.0f, perc1);
@@ -1126,7 +1126,7 @@ void CTail::CalcNewEndpoint(void)
 //----------------------------
 CCylinder::CCylinder(void)
 {
-	mRefEnt.reType = RT_CYLINDER;
+	mRefEnt.reType = refEntityType_t::RT_CYLINDER;
 	mTraceEnd = false;
 }
 
@@ -1161,10 +1161,10 @@ void CCylinder::UpdateLength(void)
 //----------------------------
 void CCylinder::Draw(void)
 {
-	if ( Any( mFlags & FX_DEPTH_HACK ) )
+	if ( Any( mFlags & fxPrimitiveFlags_t::FX_DEPTH_HACK ) )
 	{
 		// Not sure if first person needs to be set, but it can't hurt?
-		mRefEnt.renderfx |= RF_DEPTHHACK;
+		mRefEnt.renderfx |= renderFxFlags_t::RF_DEPTHHACK;
 	}
 
 	VectorCopy( mOrigin1, mRefEnt.origin );
@@ -1182,14 +1182,14 @@ void CCylinder::UpdateSize2(void)
 	// completely biased towards start if it doesn't get overridden
 	float	perc1 = 1.0f, perc2 = 1.0f;
 
-	if ( Any( mFlags & FX_SIZE2_LINEAR ) )
+	if ( Any( mFlags & fxPrimitiveFlags_t::FX_SIZE2_LINEAR ) )
 	{
 		// calculate element biasing
 		perc1 = 1.0f - (float)(theFxHelper.mTime - mTimeStart) / (float)(mTimeEnd - mTimeStart);
 	}
 
 	// We can combine FX_LINEAR with _either_ FX_NONLINEAR or FX_WAVE
-	if (( mFlags & FX_SIZE2_PARM_MASK ) == FX_SIZE2_NONLINEAR )
+	if (( mFlags & fxPrimitiveFlags_t::FX_SIZE2_PARM_MASK ) == fxPrimitiveFlags_t::FX_SIZE2_NONLINEAR )
 	{
 		if ( theFxHelper.mTime > mSize2Parm )
 		{
@@ -1197,7 +1197,7 @@ void CCylinder::UpdateSize2(void)
 			perc2 = 1.0f - (float)(theFxHelper.mTime - mSize2Parm) / (float)(mTimeEnd - mSize2Parm);
 		}
 
-		if ( Any(mFlags & FX_SIZE2_LINEAR) )
+		if ( Any(mFlags & fxPrimitiveFlags_t::FX_SIZE2_LINEAR) )
 		{
 			// do an even blend
 			perc1 = perc1 * 0.5f + perc2 * 0.5f;
@@ -1208,12 +1208,12 @@ void CCylinder::UpdateSize2(void)
 			perc1 = perc2;
 		}
 	}
-	else if (( mFlags & FX_SIZE2_PARM_MASK ) == FX_SIZE2_WAVE )
+	else if (( mFlags & fxPrimitiveFlags_t::FX_SIZE2_PARM_MASK ) == fxPrimitiveFlags_t::FX_SIZE2_WAVE )
 	{
 		// wave gen, with parm being the frequency multiplier
 		perc1 = perc1 * Q_cosf( (theFxHelper.mTime - mTimeStart) * mSize2Parm );
 	}
-	else if (( mFlags & FX_SIZE2_PARM_MASK ) == FX_SIZE2_CLAMP )
+	else if (( mFlags & fxPrimitiveFlags_t::FX_SIZE2_PARM_MASK ) == fxPrimitiveFlags_t::FX_SIZE2_CLAMP )
 	{
 		if ( theFxHelper.mTime < mSize2Parm )
 		{
@@ -1225,7 +1225,7 @@ void CCylinder::UpdateSize2(void)
 			perc2 = 0.0f; // make it full size??
 		}
 
-		if ( Any( mFlags & FX_SIZE2_LINEAR ) )
+		if ( Any( mFlags & fxPrimitiveFlags_t::FX_SIZE2_LINEAR ) )
 		{
 			// do an even blend
 			perc1 = perc1 * 0.5f + perc2 * 0.5f;
@@ -1238,7 +1238,7 @@ void CCylinder::UpdateSize2(void)
 	}
 
 	// If needed, RAND can coexist with linear and either non-linear or wave.
-	if ( Any( mFlags & FX_SIZE2_RAND ) )
+	if ( Any( mFlags & fxPrimitiveFlags_t::FX_SIZE2_RAND ) )
 	{
 		// Random simply modulates the existing value
 		perc1 = Q_flrand(0.0f, perc1);
@@ -1256,7 +1256,7 @@ bool CCylinder::Update(void)
 		return false;
 	}
 
-	if ( Any( mFlags & FX_RELATIVE ) )
+	if ( Any( mFlags & fxPrimitiveFlags_t::FX_RELATIVE ) )
 	{
 		if ( !re->G2API_IsGhoul2InfovValid (*mGhoul2))
 		{	// the thing we are bolted to is no longer valid, so we may as well just die.
@@ -1306,7 +1306,7 @@ CEmitter::CEmitter(void)
 {
 	// There may or may not be a model, but if there isn't one,
 	//	we just won't bother adding the refEnt in our Draw func
-	mRefEnt.reType = RT_MODEL;
+	mRefEnt.reType = refEntityType_t::RT_MODEL;
 }
 
 //----------------------------
@@ -1320,7 +1320,7 @@ CEmitter::~CEmitter(void)
 void CEmitter::Draw(void)
 {
 	// Emitters don't draw themselves, but they may need to add an attached model
-	if ( Any( mFlags & FX_ATTACHED_MODEL ) )
+	if ( Any( mFlags & fxPrimitiveFlags_t::FX_ATTACHED_MODEL ) )
 	{
 		mRefEnt.nonNormalizedAxes = true;
 
@@ -1336,7 +1336,7 @@ void CEmitter::Draw(void)
 
 	// If we are emitting effects, we had better be careful because just calling it every cgame frame could
 	//	either choke up the effects system on a fast machine, or look really nasty on a low end one.
-	if ( Any( mFlags & FX_EMIT_FX ) )
+	if ( Any( mFlags & fxPrimitiveFlags_t::FX_EMIT_FX ) )
 	{
 		vec3_t	org, v;
 		float	ftime, time2, step;
@@ -1399,7 +1399,7 @@ bool CEmitter::Update(void)
 	VectorCopy( mOrigin1, mOldOrigin );
 	VectorCopy( mVel, mOldVelocity );
 
-	if ( Any( mFlags & FX_RELATIVE ) )
+	if ( Any( mFlags & fxPrimitiveFlags_t::FX_RELATIVE ) )
 	{
 		if ( !re->G2API_IsGhoul2InfovValid (*mGhoul2))
 		{	// the thing we are bolted to is no longer valid, so we may as well just die.
@@ -1427,7 +1427,7 @@ bool CEmitter::Update(void)
 		moving = true;
 	}
 
-	if ( Any( mFlags & FX_PAPER_PHYSICS ) )
+	if ( Any( mFlags & fxPrimitiveFlags_t::FX_PAPER_PHYSICS ) )
 	{
 		// do this in a more framerate independent manner
 		float sc = ( 20.0f / theFxHelper.mFrameTime);
@@ -1496,7 +1496,7 @@ bool CLight::Update(void)
 		return false;
 	}
 
-	if ( Any( mFlags & FX_RELATIVE ) )
+	if ( Any( mFlags & fxPrimitiveFlags_t::FX_RELATIVE ) )
 	{
 		if ( !re->G2API_IsGhoul2InfovValid (*mGhoul2))
 		{	// the thing we are bolted to is no longer valid, so we may as well just die.
@@ -1531,14 +1531,14 @@ void CLight::UpdateSize(void)
 	// completely biased towards start if it doesn't get overridden
 	float	perc1 = 1.0f, perc2 = 1.0f;
 
-	if ( Any( mFlags & FX_SIZE_LINEAR ) )
+	if ( Any( mFlags & fxPrimitiveFlags_t::FX_SIZE_LINEAR ) )
 	{
 		// calculate element biasing
 		perc1 = 1.0f - (float)(theFxHelper.mTime - mTimeStart) / (float)(mTimeEnd - mTimeStart);
 	}
 
 	// We can combine FX_LINEAR with _either_ FX_NONLINEAR or FX_WAVE
-	if (( mFlags & FX_SIZE_PARM_MASK ) == FX_SIZE_NONLINEAR )
+	if (( mFlags & fxPrimitiveFlags_t::FX_SIZE_PARM_MASK ) == fxPrimitiveFlags_t::FX_SIZE_NONLINEAR )
 	{
 		if ( theFxHelper.mTime > mSizeParm )
 		{
@@ -1546,7 +1546,7 @@ void CLight::UpdateSize(void)
 			perc2 = 1.0f - (float)(theFxHelper.mTime - mSizeParm) / (float)(mTimeEnd - mSizeParm);
 		}
 
-		if ( Any(mFlags & FX_SIZE_LINEAR) )
+		if ( Any(mFlags & fxPrimitiveFlags_t::FX_SIZE_LINEAR) )
 		{
 			// do an even blend
 			perc1 = perc1 * 0.5f + perc2 * 0.5f;
@@ -1557,12 +1557,12 @@ void CLight::UpdateSize(void)
 			perc1 = perc2;
 		}
 	}
-	else if (( mFlags & FX_SIZE_PARM_MASK ) == FX_SIZE_WAVE )
+	else if (( mFlags & fxPrimitiveFlags_t::FX_SIZE_PARM_MASK ) == fxPrimitiveFlags_t::FX_SIZE_WAVE )
 	{
 		// wave gen, with parm being the frequency multiplier
 		perc1 = perc1 * Q_cosf( (theFxHelper.mTime - mTimeStart) * mSizeParm );
 	}
-	else if (( mFlags & FX_SIZE_PARM_MASK ) == FX_SIZE_CLAMP )
+	else if (( mFlags & fxPrimitiveFlags_t::FX_SIZE_PARM_MASK ) == fxPrimitiveFlags_t::FX_SIZE_CLAMP )
 	{
 		if ( theFxHelper.mTime < mSizeParm )
 		{
@@ -1574,7 +1574,7 @@ void CLight::UpdateSize(void)
 			perc2 = 0.0f; // make it full size??
 		}
 
-		if ( Any( mFlags & FX_SIZE_LINEAR ) )
+		if ( Any( mFlags & fxPrimitiveFlags_t::FX_SIZE_LINEAR ) )
 		{
 			// do an even blend
 			perc1 = perc1 * 0.5f + perc2 * 0.5f;
@@ -1587,7 +1587,7 @@ void CLight::UpdateSize(void)
 	}
 
 	// If needed, RAND can coexist with linear and either non-linear or wave.
-	if ( Any( mFlags & FX_SIZE_RAND ) )
+	if ( Any( mFlags & fxPrimitiveFlags_t::FX_SIZE_RAND ) )
 	{
 		// Random simply modulates the existing value
 		perc1 = Q_flrand(0.0f, perc1);
@@ -1605,14 +1605,14 @@ void CLight::UpdateRGB(void)
 	float	perc1 = 1.0f, perc2 = 1.0f;
 	vec3_t	res;
 
-	if ( Any( mFlags & FX_RGB_LINEAR ) )
+	if ( Any( mFlags & fxPrimitiveFlags_t::FX_RGB_LINEAR ) )
 	{
 		// calculate element biasing
 		perc1 = 1.0f - (float)( theFxHelper.mTime - mTimeStart ) / (float)( mTimeEnd - mTimeStart );
 	}
 
 	// We can combine FX_LINEAR with _either_ FX_NONLINEAR or FX_WAVE
-	if (( mFlags & FX_RGB_PARM_MASK ) == FX_RGB_NONLINEAR )
+	if (( mFlags & fxPrimitiveFlags_t::FX_RGB_PARM_MASK ) == fxPrimitiveFlags_t::FX_RGB_NONLINEAR )
 	{
 		if ( theFxHelper.mTime > mRGBParm )
 		{
@@ -1620,7 +1620,7 @@ void CLight::UpdateRGB(void)
 			perc2 = 1.0f - (float)( theFxHelper.mTime - mRGBParm ) / (float)( mTimeEnd - mRGBParm );
 		}
 
-		if ( Any( mFlags & FX_RGB_LINEAR ) )
+		if ( Any( mFlags & fxPrimitiveFlags_t::FX_RGB_LINEAR ) )
 		{
 			// do an even blend
 			perc1 = perc1 * 0.5f + perc2 * 0.5f;
@@ -1631,12 +1631,12 @@ void CLight::UpdateRGB(void)
 			perc1 = perc2;
 		}
 	}
-	else if (( mFlags & FX_RGB_PARM_MASK ) == FX_RGB_WAVE )
+	else if (( mFlags & fxPrimitiveFlags_t::FX_RGB_PARM_MASK ) == fxPrimitiveFlags_t::FX_RGB_WAVE )
 	{
 		// wave gen, with parm being the frequency multiplier
 		perc1 = perc1 * Q_cosf(( theFxHelper.mTime - mTimeStart ) * mRGBParm );
 	}
-	else if (( mFlags & FX_RGB_PARM_MASK ) == FX_RGB_CLAMP )
+	else if (( mFlags & fxPrimitiveFlags_t::FX_RGB_PARM_MASK ) == fxPrimitiveFlags_t::FX_RGB_CLAMP )
 	{
 		if ( theFxHelper.mTime < mRGBParm )
 		{
@@ -1648,7 +1648,7 @@ void CLight::UpdateRGB(void)
 			perc2 = 0.0f; // make it full size??
 		}
 
-		if ( Any( mFlags & FX_RGB_LINEAR ) )
+		if ( Any( mFlags & fxPrimitiveFlags_t::FX_RGB_LINEAR ) )
 		{
 			// do an even blend
 			perc1 = perc1 * 0.5f + perc2 * 0.5f;
@@ -1661,7 +1661,7 @@ void CLight::UpdateRGB(void)
 	}
 
 	// If needed, RAND can coexist with linear and either non-linear or wave.
-	if ( Any( mFlags & FX_RGB_RAND ) )
+	if ( Any( mFlags & fxPrimitiveFlags_t::FX_RGB_RAND ) )
 	{
 		// Random simply modulates the existing value
 		perc1 = Q_flrand(0.0f, perc1);
@@ -2257,7 +2257,7 @@ void CFlash::Init( void )
 	VectorScale( mRGBStart, mod, mRGBStart );
 	VectorScale( mRGBEnd, mod, mRGBEnd );
 
-	if ( Any( mFlags & FX_LOCALIZED_FLASH ) )
+	if ( Any( mFlags & fxPrimitiveFlags_t::FX_LOCALIZED_FLASH ) )
 	{
 		FX_WorldToScreen(mOrigin1, &mScreenX, &mScreenY);
 
@@ -2275,9 +2275,9 @@ void CFlash::Draw( void )
     // Interestingly, if znear is set > than this, then the flash
     // doesn't appear at all.
     const float FLASH_DISTANCE_FROM_VIEWER = 12.0f;
-	mRefEnt.reType = RT_SPRITE;
+	mRefEnt.reType = refEntityType_t::RT_SPRITE;
 
-	if ( Any( mFlags & FX_LOCALIZED_FLASH ) )
+	if ( Any( mFlags & fxPrimitiveFlags_t::FX_LOCALIZED_FLASH ) )
 	{
 		vec4_t	color;
 

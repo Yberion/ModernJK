@@ -287,21 +287,21 @@ void NORETURN QDECL Com_Error( errorParm_t code, const char *fmt, ... ) {
 	// when we are running automated scripts, make sure we
 	// know if anything failed
 	if ( com_buildScript && com_buildScript->integer ) {
-		code = ERR_FATAL;
+		code = errorParm_t::ERR_FATAL;
 	}
 
 	// ERR_DROPs on dedicated drop to an interactive console
 	// which doesn't make sense for dedicated as it's generally
 	// run unattended
 	if ( com_dedicated && com_dedicated->integer ) {
-		code = ERR_FATAL;
+		code = errorParm_t::ERR_FATAL;
 	}
 
 	// if we are getting a solid stream of ERR_DROP, do an ERR_FATAL
 	currentTime = Sys_Milliseconds();
 	if ( currentTime - lastErrorTime < 100 ) {
 		if ( ++errorCount > 3 ) {
-			code = ERR_FATAL;
+			code = errorParm_t::ERR_FATAL;
 		}
 	} else {
 		errorCount = 0;
@@ -312,12 +312,12 @@ void NORETURN QDECL Com_Error( errorParm_t code, const char *fmt, ... ) {
 	Q_vsnprintf (com_errorMessage,sizeof(com_errorMessage), fmt,argptr);
 	va_end (argptr);
 
-	if ( code != ERR_DISCONNECT && code != ERR_NEED_CD ) {
-		Cvar_Get("com_errorMessage", "", CVAR_ROM);	//give com_errorMessage a default so it won't come back to life after a resetDefaults
+	if ( code != errorParm_t::ERR_DISCONNECT && code != errorParm_t::ERR_NEED_CD ) {
+		Cvar_Get("com_errorMessage", "", cvarFlags_t::CVAR_ROM);	//give com_errorMessage a default so it won't come back to life after a resetDefaults
 		Cvar_Set("com_errorMessage", com_errorMessage);
 	}
 
-	if ( code == ERR_DISCONNECT || code == ERR_SERVERDISCONNECT || code == ERR_DROP || code == ERR_NEED_CD ) {
+	if ( code == errorParm_t::ERR_DISCONNECT || code == errorParm_t::ERR_SERVERDISCONNECT || code == errorParm_t::ERR_DROP || code == errorParm_t::ERR_NEED_CD ) {
 		throw code;
 	} else {
 		CL_Shutdown ();
@@ -737,7 +737,7 @@ Com_InitJournaling
 */
 void Com_InitJournaling( void ) {
 	Com_StartupVariable( "journal" );
-	com_journal = Cvar_Get ("journal", "0", CVAR_INIT);
+	com_journal = Cvar_Get ("journal", "0", cvarFlags_t::CVAR_INIT);
 	if ( !com_journal->integer ) {
 		return;
 	}
@@ -773,13 +773,13 @@ sysEvent_t	Com_GetRealEvent( void ) {
 	if ( com_journal->integer == 2 ) {
 		r = FS_Read( &ev, sizeof(ev), com_journalFile );
 		if ( r != sizeof(ev) ) {
-			Com_Error( ERR_FATAL, "Error reading from journal file" );
+			Com_Error( errorParm_t::ERR_FATAL, "Error reading from journal file" );
 		}
 		if ( ev.evPtrLength ) {
-			ev.evPtr = Z_Malloc( ev.evPtrLength, TAG_EVENT, true );
+			ev.evPtr = Z_Malloc( ev.evPtrLength, memtag::TAG_EVENT, true );
 			r = FS_Read( ev.evPtr, ev.evPtrLength, com_journalFile );
 			if ( r != ev.evPtrLength ) {
-				Com_Error( ERR_FATAL, "Error reading from journal file" );
+				Com_Error( errorParm_t::ERR_FATAL, "Error reading from journal file" );
 			}
 		}
 	} else {
@@ -789,12 +789,12 @@ sysEvent_t	Com_GetRealEvent( void ) {
 		if ( com_journal->integer == 1 ) {
 			r = FS_Write( &ev, sizeof(ev), com_journalFile );
 			if ( r != sizeof(ev) ) {
-				Com_Error( ERR_FATAL, "Error writing to journal file" );
+				Com_Error( errorParm_t::ERR_FATAL, "Error writing to journal file" );
 			}
 			if ( ev.evPtrLength ) {
 				r = FS_Write( ev.evPtr, ev.evPtrLength, com_journalFile );
 				if ( r != ev.evPtrLength ) {
-					Com_Error( ERR_FATAL, "Error writing to journal file" );
+					Com_Error( errorParm_t::ERR_FATAL, "Error writing to journal file" );
 				}
 			}
 		}
@@ -906,13 +906,13 @@ int Com_EventLoop( void ) {
 		ev = Com_GetEvent();
 
 		// if no more events are available
-		if ( ev.evType == SE_NONE ) {
+		if ( ev.evType == sysEventType_t::SE_NONE ) {
 			// manually send packet events for the loopback channel
-			while ( NET_GetLoopPacket( NS_CLIENT, &evFrom, &buf ) ) {
+			while ( NET_GetLoopPacket( netsrc_t::NS_CLIENT, &evFrom, &buf ) ) {
 				CL_PacketEvent( &evFrom, &buf );
 			}
 
-			while ( NET_GetLoopPacket( NS_SERVER, &evFrom, &buf ) ) {
+			while ( NET_GetLoopPacket( netsrc_t::NS_SERVER, &evFrom, &buf ) ) {
 				// if the server just shut down, flush the events
 				if ( com_sv_running->integer ) {
 					Com_RunAndTimeServerPacket( &evFrom, &buf );
@@ -925,23 +925,23 @@ int Com_EventLoop( void ) {
 
 		switch ( ev.evType ) {
 		default:
-			Com_Error( ERR_FATAL, "Com_EventLoop: bad event type %i", to_underlying( ev.evType ) );
+			Com_Error( errorParm_t::ERR_FATAL, "Com_EventLoop: bad event type %i", to_underlying( ev.evType ) );
 			break;
-        case SE_NONE:
+        case sysEventType_t::SE_NONE:
             break;
-		case SE_KEY:
+		case sysEventType_t::SE_KEY:
 			CL_KeyEvent( static_cast<fakeAscii_t>( ev.evValue ), ev.evValue2, ev.evTime );
 			break;
-		case SE_CHAR:
+		case sysEventType_t::SE_CHAR:
 			CL_CharEvent( ev.evValue );
 			break;
-		case SE_MOUSE:
+		case sysEventType_t::SE_MOUSE:
 			CL_MouseEvent( ev.evValue, ev.evValue2, ev.evTime );
 			break;
-		case SE_JOYSTICK_AXIS:
+		case sysEventType_t::SE_JOYSTICK_AXIS:
 			CL_JoystickEvent( ev.evValue, ev.evValue2, ev.evTime );
 			break;
-		case SE_CONSOLE:
+		case sysEventType_t::SE_CONSOLE:
 			if ( ((char *)ev.evPtr)[0] == '\\' || ((char *)ev.evPtr)[0] == '/' )
 			{
 				Cbuf_AddText( (char *)ev.evPtr+1 );
@@ -977,10 +977,10 @@ int Com_Milliseconds (void) {
 	do {
 
 		ev = Com_GetRealEvent();
-		if ( ev.evType != SE_NONE ) {
+		if ( ev.evType != sysEventType_t::SE_NONE ) {
 			Com_PushEvent( &ev );
 		}
-	} while ( ev.evType != SE_NONE );
+	} while ( ev.evType != sysEventType_t::SE_NONE );
 
 	return ev.evTime;
 }
@@ -997,9 +997,9 @@ test error shutdown procedures
 */
 static void NORETURN Com_Error_f (void) {
 	if ( Cmd_Argc() > 1 ) {
-		Com_Error( ERR_DROP, "Testing drop error" );
+		Com_Error( errorParm_t::ERR_DROP, "Testing drop error" );
 	} else {
-		Com_Error( ERR_FATAL, "Testing fatal error" );
+		Com_Error( errorParm_t::ERR_FATAL, "Testing fatal error" );
 	}
 }
 
@@ -1053,15 +1053,15 @@ Com_ExecuteCfg
 
 void Com_ExecuteCfg(void)
 {
-	Cbuf_ExecuteText(EXEC_NOW, "exec mpdefault.cfg\n");
+	Cbuf_ExecuteText(cbufExec_t::EXEC_NOW, "exec mpdefault.cfg\n");
 	Cbuf_Execute(); // Always execute after exec to prevent text buffer overflowing
 
 	if(!Com_SafeMode())
 	{
 		// skip the q3config.cfg and autoexec.cfg if "safe" is on the command line
-		Cbuf_ExecuteText(EXEC_NOW, "exec " Q3CONFIG_CFG "\n");
+		Cbuf_ExecuteText(cbufExec_t::EXEC_NOW, "exec " Q3CONFIG_CFG "\n");
 		Cbuf_Execute();
-		Cbuf_ExecuteText(EXEC_NOW, "exec autoexec.cfg\n");
+		Cbuf_ExecuteText(cbufExec_t::EXEC_NOW, "exec autoexec.cfg\n");
 		Cbuf_Execute();
 	}
 }
@@ -1091,15 +1091,15 @@ static const char *Com_ErrorString ( errorParm_t code )
 {
 	switch ( code )
 	{
-		case ERR_DISCONNECT:
+		case errorParm_t::ERR_DISCONNECT:
 		// fallthrough
-		case ERR_SERVERDISCONNECT:
+		case errorParm_t::ERR_SERVERDISCONNECT:
 			return "DISCONNECTED";
 
-		case ERR_DROP:
+		case errorParm_t::ERR_DROP:
 			return "DROPPED";
 
-		case ERR_NEED_CD:
+		case errorParm_t::ERR_NEED_CD:
 			return "NEED CD";
 
 		default:
@@ -1115,14 +1115,14 @@ Handles freeing up of resources when Com_Error is called.
 */
 static void Com_CatchError ( errorParm_t code )
 {
-	if ( code == ERR_DISCONNECT || code == ERR_SERVERDISCONNECT ) {
+	if ( code == errorParm_t::ERR_DISCONNECT || code == errorParm_t::ERR_SERVERDISCONNECT ) {
 		SV_Shutdown( "Server disconnected" );
 		CL_Disconnect( true );
 		CL_FlushMemory(  );
 		// make sure we can get at our local stuff
 		FS_PureServerSetLoadedPaks( "", "" );
 		com_errorEntered = false;
-	} else if ( code == ERR_DROP ) {
+	} else if ( code == errorParm_t::ERR_DROP ) {
 		Com_Printf ("********************\n"
 					"ERROR: %s\n"
 					"********************\n", com_errorMessage);
@@ -1132,7 +1132,7 @@ static void Com_CatchError ( errorParm_t code )
 		// make sure we can get at our local stuff
 		FS_PureServerSetLoadedPaks( "", "" );
 		com_errorEntered = false;
-	} else if ( code == ERR_NEED_CD ) {
+	} else if ( code == errorParm_t::ERR_NEED_CD ) {
 		SV_Shutdown( "Server didn't have CD" );
 		if ( com_cl_running && com_cl_running->integer ) {
 			CL_Disconnect( true );
@@ -1183,12 +1183,12 @@ void Com_Init( char *commandLine ) {
 		Cmd_Init ();
 
 		// get the developer cvar set as early as possible
-		com_developer = Cvar_Get("developer", "0", CVAR_TEMP, "Developer mode" );
+		com_developer = Cvar_Get("developer", "0", cvarFlags_t::CVAR_TEMP, "Developer mode" );
 
 		// done early so bind command exists
 		CL_InitKeyCommands();
 
-		com_homepath = Cvar_Get("com_homepath", "", CVAR_INIT);
+		com_homepath = Cvar_Get("com_homepath", "", cvarFlags_t::CVAR_INIT);
 
 		// Init network before filesystem
 		NET_Init();
@@ -1217,7 +1217,7 @@ void Com_Init( char *commandLine ) {
 
 	  // get dedicated here for proper hunk megs initialization
 	#ifdef DEDICATED
-		com_dedicated = Cvar_Get ("dedicated", "2", CVAR_INIT);
+		com_dedicated = Cvar_Get ("dedicated", "2", cvarFlags_t::CVAR_INIT);
 		Cvar_CheckRange( com_dedicated, 1, 2, true );
 	#else
 		//OJKFIXME: Temporarily disabled dedicated server when not using the dedicated server binary.
@@ -1226,7 +1226,7 @@ void Com_Init( char *commandLine ) {
 		//			Until we fully remove the renderer from the server, the client executable
 		//				will not have dedicated support capabilities.
 		//			Use the dedicated server package.
-		com_dedicated = Cvar_Get ("_dedicated", "0", CVAR_ROM|CVAR_INIT|CVAR_PROTECTED);
+		com_dedicated = Cvar_Get ("_dedicated", "0", cvarFlags_t::CVAR_ROM|cvarFlags_t::CVAR_INIT|cvarFlags_t::CVAR_PROTECTED);
 	//	Cvar_CheckRange( com_dedicated, 0, 2, true );
 	#endif
 		// allocate the stack based hunk allocator
@@ -1234,44 +1234,44 @@ void Com_Init( char *commandLine ) {
 
 		// if any archived cvars are modified after this, we will trigger a writing
 		// of the config file
-		cvar_modifiedFlags &= ~CVAR_ARCHIVE;
+		cvar_modifiedFlags &= ~cvarFlags_t::CVAR_ARCHIVE;
 
 		//
 		// init commands and vars
 		//
-		com_logfile = Cvar_Get ("logfile", "0", CVAR_TEMP );
+		com_logfile = Cvar_Get ("logfile", "0", cvarFlags_t::CVAR_TEMP );
 
-		com_timescale = Cvar_Get ("timescale", "1", CVAR_CHEAT | CVAR_SYSTEMINFO );
-		com_fixedtime = Cvar_Get ("fixedtime", "0", CVAR_CHEAT);
-		com_showtrace = Cvar_Get ("com_showtrace", "0", CVAR_CHEAT);
+		com_timescale = Cvar_Get ("timescale", "1", cvarFlags_t::CVAR_CHEAT | cvarFlags_t::CVAR_SYSTEMINFO );
+		com_fixedtime = Cvar_Get ("fixedtime", "0", cvarFlags_t::CVAR_CHEAT);
+		com_showtrace = Cvar_Get ("com_showtrace", "0", cvarFlags_t::CVAR_CHEAT);
 
-		com_speeds = Cvar_Get ("com_speeds", "0", CVAR_NONE);
-		com_timedemo = Cvar_Get ("timedemo", "0", CVAR_NONE);
-		com_cameraMode = Cvar_Get ("com_cameraMode", "0", CVAR_CHEAT);
+		com_speeds = Cvar_Get ("com_speeds", "0", cvarFlags_t::CVAR_NONE);
+		com_timedemo = Cvar_Get ("timedemo", "0", cvarFlags_t::CVAR_NONE);
+		com_cameraMode = Cvar_Get ("com_cameraMode", "0", cvarFlags_t::CVAR_CHEAT);
 
-		com_optvehtrace = Cvar_Get("com_optvehtrace", "0", CVAR_NONE);
+		com_optvehtrace = Cvar_Get("com_optvehtrace", "0", cvarFlags_t::CVAR_NONE);
 
-		cl_paused = Cvar_Get ("cl_paused", "0", CVAR_ROM);
-		sv_paused = Cvar_Get ("sv_paused", "0", CVAR_ROM);
-		com_sv_running = Cvar_Get ("sv_running", "0", CVAR_ROM, "Is a server running?" );
-		com_cl_running = Cvar_Get ("cl_running", "0", CVAR_ROM, "Is the client running?" );
-		com_buildScript = Cvar_Get( "com_buildScript", "0", CVAR_NONE );
+		cl_paused = Cvar_Get ("cl_paused", "0", cvarFlags_t::CVAR_ROM);
+		sv_paused = Cvar_Get ("sv_paused", "0", cvarFlags_t::CVAR_ROM);
+		com_sv_running = Cvar_Get ("sv_running", "0", cvarFlags_t::CVAR_ROM, "Is a server running?" );
+		com_cl_running = Cvar_Get ("cl_running", "0", cvarFlags_t::CVAR_ROM, "Is the client running?" );
+		com_buildScript = Cvar_Get( "com_buildScript", "0", cvarFlags_t::CVAR_NONE );
 #ifndef _WIN32
-		com_ansiColor = Cvar_Get( "com_ansiColor", "0", CVAR_ARCHIVE_ND );
+		com_ansiColor = Cvar_Get( "com_ansiColor", "0", cvarFlags_t::CVAR_ARCHIVE_ND );
 #endif
 
 #ifdef G2_PERFORMANCE_ANALYSIS
-		com_G2Report = Cvar_Get("com_G2Report", "0", CVAR_NONE);
+		com_G2Report = Cvar_Get("com_G2Report", "0", cvarFlags_t::CVAR_NONE);
 #endif
 
-		com_affinity = Cvar_Get( "com_affinity", "0", CVAR_ARCHIVE_ND );
-		com_busyWait = Cvar_Get( "com_busyWait", "0", CVAR_ARCHIVE_ND );
+		com_affinity = Cvar_Get( "com_affinity", "0", cvarFlags_t::CVAR_ARCHIVE_ND );
+		com_busyWait = Cvar_Get( "com_busyWait", "0", cvarFlags_t::CVAR_ARCHIVE_ND );
 
-		com_bootlogo = Cvar_Get( "com_bootlogo", "1", CVAR_ARCHIVE_ND, "Show intro movies" );
+		com_bootlogo = Cvar_Get( "com_bootlogo", "1", cvarFlags_t::CVAR_ARCHIVE_ND, "Show intro movies" );
 
-		com_timestamps = Cvar_Get( "com_timestamps", "1", CVAR_ARCHIVE_ND, "Show timestamps in terminal and qconsole.log" );
+		com_timestamps = Cvar_Get( "com_timestamps", "1", cvarFlags_t::CVAR_ARCHIVE_ND, "Show timestamps in terminal and qconsole.log" );
 
-		com_version = Cvar_Get ("version", JK_VERSION " " PLATFORM_STRING " " SOURCE_DATE, CVAR_ROM | CVAR_SERVERINFO );
+		com_version = Cvar_Get ("version", JK_VERSION " " PLATFORM_STRING " " SOURCE_DATE, cvarFlags_t::CVAR_ROM | cvarFlags_t::CVAR_SERVERINFO );
 
 		SE_Init();
 
@@ -1360,10 +1360,10 @@ void Com_WriteConfiguration( void ) {
 		return;
 	}
 
-	if ( !Any(cvar_modifiedFlags & CVAR_ARCHIVE ) ) {
+	if ( !Any(cvar_modifiedFlags & cvarFlags_t::CVAR_ARCHIVE ) ) {
 		return;
 	}
-	cvar_modifiedFlags &= ~CVAR_ARCHIVE;
+	cvar_modifiedFlags &= ~cvarFlags_t::CVAR_ARCHIVE;
 
 	Com_WriteConfigToFile( Q3CONFIG_CFG );
 }
@@ -1607,7 +1607,7 @@ void Com_Frame( void ) {
 		// but before the client tries to auto-connect
 		if ( com_dedicated->modified ) {
 			// get the latched value
-			Cvar_Get( "_dedicated", "0", CVAR_NONE );
+			Cvar_Get( "_dedicated", "0", cvarFlags_t::CVAR_NONE );
 			com_dedicated->modified = false;
 			if ( !com_dedicated->integer ) {
 				CL_Init();

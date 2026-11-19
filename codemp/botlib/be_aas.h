@@ -86,7 +86,6 @@ enum class travelFlags_t
 		TFL_TELEPORT|TFL_ELEVATOR|
 		TFL_AIR|TFL_WATER|TFL_JUMPPAD|TFL_FUNCBOB,
 };
-using enum travelFlags_t;
 template <> inline constexpr bool enableEnumFlags<travelFlags_t> = true;
 
 enum class solid_t
@@ -96,7 +95,6 @@ enum class solid_t
 	SOLID_BBOX,			// touch on edge
 	SOLID_BSP			// bsp clip, touch on edge
 };
-using enum solid_t;
 
 //a trace is returned when a box is swept through the AAS world
 typedef struct aas_trace_s
@@ -195,7 +193,6 @@ enum class stopEventFlags_t
 	SE_HITBOUNDINGBOX		= 2048,	// hit the specified bounding box
 	SE_TOUCHCLUSTERPORTAL	= 4096,	// touching a cluster portal
 };
-using enum stopEventFlags_t;
 template <> inline constexpr bool enableEnumFlags<stopEventFlags_t> = true;
 
 typedef struct aas_clientmove_s
@@ -219,7 +216,6 @@ enum class altRouteGoalFlags_t
 	ALTROUTEGOAL_CLUSTERPORTALS		= 2,
 	ALTROUTEGOAL_VIEWPORTALS		= 4,
 };
-using enum altRouteGoalFlags_t;
 template <> inline constexpr bool enableEnumFlags<altRouteGoalFlags_t> = true;
 
 typedef struct aas_altroutegoal_s
@@ -240,7 +236,6 @@ enum class routeStopEventFlags_t
 	RSE_ENTERCONTENTS		= 4,	//stop when entering the given contents
 	RSE_ENTERAREA			= 8,	//stop when entering the given area
 };
-using enum routeStopEventFlags_t;
 template <> inline constexpr bool enableEnumFlags<routeStopEventFlags_t> = true;
 
 typedef struct aas_predictroute_s

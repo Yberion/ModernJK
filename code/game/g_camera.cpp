@@ -36,7 +36,7 @@ void misc_camera_focus_think (gentity_t *self)
 
 void misc_camera_focus_use (gentity_t *self, gentity_t *other, gentity_t *activator)
 {
-	G_ActivateBehavior(self,BSET_USE);
+	G_ActivateBehavior(self,bSet_t::BSET_USE);
 
 	//First, find everyone in my cameraGroup, if I have one
 
@@ -48,7 +48,7 @@ void misc_camera_focus_use (gentity_t *self, gentity_t *other, gentity_t *activa
 	misc_camera_focus_think(self);
 
 	self->e_clThinkFunc = clThinkF_CG_MiscCameraFocusThink;	// blurgh!...
-	self->s.eType = ET_THINKER;
+	self->s.eType = entityType_t::ET_THINKER;
 
 	self->aimDebounceTime = level.time;
 }
@@ -139,9 +139,9 @@ void misc_camera_track_think (gentity_t *self)
 		}
 		else
 		{//stop thinking if this is the last one
-			self->e_ThinkFunc = thinkF_NULL;
-			self->e_clThinkFunc = clThinkF_NULL;
-			self->s.eType = ET_GENERAL;
+			self->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
+			self->e_clThinkFunc = clThinkFunc_t::clThinkF_NULL;
+			self->s.eType = entityType_t::ET_GENERAL;
 			self->nextthink = -1;
 		}
 	}
@@ -157,7 +157,7 @@ void misc_camera_track_think (gentity_t *self)
 void misc_camera_track_use (gentity_t *self, gentity_t *other, gentity_t *activator)
 {
 
-	G_ActivateBehavior(self,BSET_USE);
+	G_ActivateBehavior(self,bSet_t::BSET_USE);
 
 	//Start thinking
 
@@ -165,7 +165,7 @@ void misc_camera_track_use (gentity_t *self, gentity_t *other, gentity_t *activa
 	misc_camera_track_think(self);
 
 	self->e_clThinkFunc = clThinkF_CG_MiscCameraTrackThink;
-	self->s.eType = ET_THINKER;
+	self->s.eType = entityType_t::ET_THINKER;
 }
 */
 /*QUAK-ED misc_camera_track (0 0 1) (-4 -4 -4) (4 4 4)

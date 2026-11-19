@@ -82,7 +82,7 @@ SafeFS_Write
 static QINLINE void SafeFS_Write( const void *buffer, int len, fileHandle_t f )
 {
   if( FS_Write( buffer, len, f ) < len )
-    Com_Error( ERR_DROP, "Failed to write avi file" );
+    Com_Error( errorParm_t::ERR_DROP, "Failed to write avi file" );
 }
 
 /*
@@ -142,7 +142,7 @@ static QINLINE void START_CHUNK( const char *s )
 {
   if( afd.chunkStackTop == MAX_RIFF_CHUNKS )
   {
-    Com_Error( ERR_DROP, "ERROR: Top of chunkstack breached" );
+    Com_Error( errorParm_t::ERR_DROP, "ERROR: Top of chunkstack breached" );
   }
 
   afd.chunkStack[ afd.chunkStackTop ] = bufIndex;
@@ -162,7 +162,7 @@ static QINLINE void END_CHUNK( void )
 
   if( afd.chunkStackTop <= 0 )
   {
-    Com_Error( ERR_DROP, "ERROR: Bottom of chunkstack breached" );
+    Com_Error( errorParm_t::ERR_DROP, "ERROR: Bottom of chunkstack breached" );
   }
 
   afd.chunkStackTop--;
@@ -372,12 +372,12 @@ bool CL_OpenAVIForWriting( const char *fileName )
   // Allocate a bit more space for the capture buffer to account for possible
   // padding at the end of pixel lines, and padding for alignment
   constexpr int MAX_PACK_LEN = 16;
-  afd.cBuffer = (byte *)Z_Malloc((afd.width * 3 + MAX_PACK_LEN - 1) * afd.height + MAX_PACK_LEN - 1, TAG_AVI, true);
+  afd.cBuffer = (byte *)Z_Malloc((afd.width * 3 + MAX_PACK_LEN - 1) * afd.height + MAX_PACK_LEN - 1, memtag::TAG_AVI, true);
   // raw avi files have pixel lines start on 4-byte boundaries
-  afd.eBuffer = (byte *)Z_Malloc(PAD(afd.width * 3, AVI_LINE_PADDING) * afd.height, TAG_AVI, true);
+  afd.eBuffer = (byte *)Z_Malloc(PAD(afd.width * 3, AVI_LINE_PADDING) * afd.height, memtag::TAG_AVI, true);
 
   afd.a.rate = dma.speed;
-  afd.a.format = WAV_FORMAT_PCM;
+  afd.a.format = wavFormat_t::WAV_FORMAT_PCM;
   afd.a.channels = dma.channels;
   afd.a.bits = dma.samplebits;
   afd.a.sampleSize = ( afd.a.bits / 8 ) * afd.a.channels;
@@ -604,7 +604,7 @@ bool CL_CloseAVI( void )
 
   afd.fileOpen = false;
 
-  FS_Seek( afd.idxF, 4, FS_SEEK_SET );
+  FS_Seek( afd.idxF, 4, fsOrigin_t::FS_SEEK_SET );
   bufIndex = 0;
   WRITE_4BYTES( indexSize );
   SafeFS_Write( buffer, bufIndex, afd.idxF );
@@ -639,7 +639,7 @@ bool CL_CloseAVI( void )
   FS_HomeRemove( idxFileName );
 
   // Write the real header
-  FS_Seek( afd.f, 0, FS_SEEK_SET );
+  FS_Seek( afd.f, 0, fsOrigin_t::FS_SEEK_SET );
   CL_WriteAVIHeader( );
 
   bufIndex = 4;

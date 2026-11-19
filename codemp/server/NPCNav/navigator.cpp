@@ -43,8 +43,8 @@ cvar_t		*d_patched;
 
 void NAV_CvarInit()
 {
-	d_altRoutes = Cvar_Get("d_altRoutes", "0", CVAR_CHEAT);
-	d_patched = Cvar_Get("d_patched", "0", CVAR_CHEAT);
+	d_altRoutes = Cvar_Get("d_altRoutes", "0", cvarFlags_t::CVAR_CHEAT);
+	d_patched = Cvar_Get("d_patched", "0", cvarFlags_t::CVAR_CHEAT);
 }
 
 void NAV_Free()
@@ -227,10 +227,10 @@ Draw
 void CNode::Draw( bool showRadius )
 { //rwwFIXMEFIXME: ...
 	/*
-	CG_DrawNode( m_position, NODE_NORMAL );
+	CG_DrawNode( m_position, nodeType_t::NODE_NORMAL );
 	if( showRadius )
 	{
-		CG_DrawRadius( m_position, m_radius, NODE_NORMAL );
+		CG_DrawRadius( m_position, m_radius, nodeType_t::NODE_NORMAL );
 	}
 	*/
 }
@@ -298,7 +298,7 @@ GetEdgeFlags
 navEdgeFlags_t CNode::GetEdgeFlags( int edgeNum )
 {
 	if ( edgeNum > m_numEdges )
-		return EFLAG_NONE;
+		return navEdgeFlags_t::EFLAG_NONE;
 
 	int count = 0;
 
@@ -313,7 +313,7 @@ navEdgeFlags_t CNode::GetEdgeFlags( int edgeNum )
 		count++;
 	}
 
-	return EFLAG_NONE;
+	return navEdgeFlags_t::EFLAG_NONE;
 }
 
 /*
@@ -614,7 +614,7 @@ bool CNavigator::Load( const char *filename, int checksum )
 	Free();
 
 	//Attempt to load the file
-	FS_FOpenFileByMode( va( "maps/%s.nav", filename ), &file, FS_READ );
+	FS_FOpenFileByMode( va( "maps/%s.nav", filename ), &file, fsMode_t::FS_READ );
 
 	//See if we succeeded
 	if ( file == 0 )
@@ -677,7 +677,7 @@ bool CNavigator::Save( const char *filename, int checksum )
 	fileHandle_t	file;
 
 	//Attempt to load the file
-	FS_FOpenFileByMode( va( "maps/%s.nav", filename ), &file, FS_WRITE );
+	FS_FOpenFileByMode( va( "maps/%s.nav", filename ), &file, fsMode_t::FS_WRITE );
 
 	if ( file == 0 )
 		return false;
@@ -723,7 +723,7 @@ int CNavigator::AddRawPoint( vec3_t point, navNodeFlags_t flags, int radius )
 
 	if ( node == nullptr )
 	{
-		Com_Error( ERR_DROP, "Error adding node!\n" );
+		Com_Error( errorParm_t::ERR_DROP, "Error adding node!\n" );
 		return -1;
 	}
 
@@ -755,7 +755,7 @@ int	CNavigator::GetEdgeCost( CNode *first, CNode *second )
 	first->GetPosition( start );
 	second->GetPosition( end );
 
-	SV_Trace( &trace, start, mins, maxs, end, ENTITYNUM_NONE, MASK_SOLID, false, G2TRFLAG_NONE, 10 );
+	SV_Trace( &trace, start, mins, maxs, end, ENTITYNUM_NONE, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 10 );
 
 	if ( trace.fraction < 1.0f || trace.allsolid || trace.startsolid )
 		return Q3_INFINITE; // return -1;
@@ -880,7 +880,7 @@ void CNavigator::CalculatePath( CNode *node )
 
 	}
 
-	node->RemoveFlag( NF_RECALC );
+	node->RemoveFlag( navNodeFlags_t::NF_RECALC );
 
 	delete pathList;
 	delete [] checked;
@@ -1022,11 +1022,11 @@ void CNavigator::ShowEdges( void )
 
 			/*
 			if ( EdgeFailed( id, (*ni)->GetID() ) != -1 )//flags & EFLAG_FAILED )
-				CG_DrawEdge( start, end, EDGE_FAILED );
-			else if ( Any( flags & EFLAG_BLOCKED ) )
-				CG_DrawEdge( start, end, EDGE_BLOCKED );
+				CG_DrawEdge( start, end, edgeType_t::EDGE_FAILED );
+			else if ( Any( flags & navEdgeFlags_t::EFLAG_BLOCKED ) )
+				CG_DrawEdge( start, end, edgeType_t::EDGE_BLOCKED );
 			else
-				CG_DrawEdge( start, end, EDGE_NORMAL );
+				CG_DrawEdge( start, end, edgeType_t::EDGE_NORMAL );
 			*/
 			//rwwFIXMEFIXME: ...
 		}
@@ -1060,7 +1060,7 @@ void CNavigator::CheckBlockedEdges( void )
 		for ( edgeNum = 0; edgeNum < (*ni)->GetNumEdges(); edgeNum++ )
 		{
 			flags = (*ni)->GetEdgeFlags( edgeNum );
-			if ( Any(flags&EFLAG_BLOCKED) )
+			if ( Any(flags&navEdgeFlags_t::EFLAG_BLOCKED) )
 			{
 				first	= (*ni)->GetID();
 				second	= (*ni)->GetEdge( edgeNum );
@@ -1072,7 +1072,7 @@ void CNavigator::CheckBlockedEdges( void )
 				end->GetPosition( p2 );
 
 				//FIXME: can't we just store the trace.entityNum from the HardConnect trace?  So we don't have to do another trace here...
-				SV_Trace( &trace, p1, wpMins, wpMaxs, p2, ENTITYNUM_NONE, MASK_SOLID|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP, false, G2TRFLAG_NONE, 10 );
+				SV_Trace( &trace, p1, wpMins, wpMaxs, p2, ENTITYNUM_NONE, MASK_SOLID|contentsFlags_t::CONTENTS_MONSTERCLIP|contentsFlags_t::CONTENTS_BOTCLIP, false, g2TraceFlags_t::G2TRFLAG_NONE, 10 );
 
 				if ( trace.entityNum < ENTITYNUM_WORLD && (trace.fraction < 1.0f || trace.startsolid || trace.allsolid) )
 				{//could be assumed, since failed before
@@ -1134,15 +1134,15 @@ void CNavigator::HardConnect( int first, int second )
 
 	trace_t	trace;
 
-	navEdgeFlags_t	flags = EFLAG_NONE;
+	navEdgeFlags_t	flags = navEdgeFlags_t::EFLAG_NONE;
 
-	SV_Trace( &trace, p1, wpMins, wpMaxs, p2, ENTITYNUM_NONE, MASK_SOLID|CONTENTS_BOTCLIP|CONTENTS_MONSTERCLIP, false, G2TRFLAG_NONE, 10 );
+	SV_Trace( &trace, p1, wpMins, wpMaxs, p2, ENTITYNUM_NONE, MASK_SOLID|contentsFlags_t::CONTENTS_BOTCLIP|contentsFlags_t::CONTENTS_MONSTERCLIP, false, g2TraceFlags_t::G2TRFLAG_NONE, 10 );
 
 	int cost = Distance( p1, p2 );
 
 	if ( trace.fraction != 1.0f || trace.startsolid || trace.allsolid )
 	{
-		flags |= EFLAG_BLOCKED;
+		flags |= navEdgeFlags_t::EFLAG_BLOCKED;
 	}
 
 	start->AddEdge( second, cost, flags );
@@ -1163,7 +1163,7 @@ int CNavigator::TestNodePath( sharedEntity_t *ent, int okToHitEntNum, vec3_t pos
 
 	if ( !includeEnts )
 	{
-		clipmask &= ~CONTENTS_BODY;
+		clipmask &= ~contentsFlags_t::CONTENTS_BODY;
 	}
 	//Check the path
 	if ( GVM_NAV_ClearPathToPoint( ent->s.number, ent->r.mins, ent->r.maxs, position, clipmask, okToHitEntNum ) == false )
@@ -1350,7 +1350,7 @@ constexpr int MAX_Z_DELTA = 18;
 	CNode				*node, *node2;
 	int					nodeNum, nodeNum2;
 	int					nextNode = NODE_NONE, bestNode = NODE_NONE;
-	navNodeFlags_t		nodeFlags = NF_ANY;
+	navNodeFlags_t		nodeFlags = navNodeFlags_t::NF_ANY;
 //	bool				recalc = false;
 
 	ent->waypoint = NODE_NONE;
@@ -1387,7 +1387,7 @@ constexpr int MAX_Z_DELTA = 18;
 				//We're not *within* this node, so check clear path, etc.
 
 				//FIXME: any way to call G_FindClosestPointOnLineSegment and see if I can at least get to the waypoint's path
-				if ( Any( flags & NF_CLEAR_PATH ) )//|| Any(flags & NF_CLEAR_LOS) )
+				if ( Any( flags & navNodeFlags_t::NF_CLEAR_PATH ) )//|| Any(flags & NF_CLEAR_LOS) )
 				{//need a clear path or LOS
 					if ( !SV_inPVS( ent->r.currentOrigin, position ) )
 					{//not even potentially clear
@@ -1397,7 +1397,7 @@ constexpr int MAX_Z_DELTA = 18;
 				}
 
 				//Do we need a clear path?
-				if ( Any( flags & NF_CLEAR_PATH ) )
+				if ( Any( flags & navNodeFlags_t::NF_CLEAR_PATH ) )
 				{
 					if ( TestNodePath( ent, goal->s.number, position, true ) == false )
 					{
@@ -1413,7 +1413,7 @@ constexpr int MAX_Z_DELTA = 18;
 		{
 			//calc the paths for this node if they're out of date
 			nodeFlags = node->GetFlags();
-			if ( Any(nodeFlags&NF_RECALC) )
+			if ( Any(nodeFlags&navNodeFlags_t::NF_RECALC) )
 			{
 				//Com_Printf( S_COLOR_CYAN"%d recalcing paths from node %d\n", svs.time, nodeNum );
 				CalculatePath( node );
@@ -1428,7 +1428,7 @@ constexpr int MAX_Z_DELTA = 18;
 			{
 				//calc the paths for this node if they're out of date
 				nodeFlags = node2->GetFlags();
-				if ( Any(nodeFlags&NF_RECALC) )
+				if ( Any(nodeFlags&navNodeFlags_t::NF_RECALC) )
 				{
 					//Com_Printf( S_COLOR_CYAN"%d recalcing paths from node %d\n", svs.time, nodeNum2 );
 					CalculatePath( node2 );
@@ -1476,7 +1476,7 @@ constexpr int MAX_Z_DELTA = 18;
 				{
 					//We're not *within* this node, so check clear path, etc.
 
-					if ( Any( flags & NF_CLEAR_PATH ) )//|| Any(flags & NF_CLEAR_LOS) )
+					if ( Any( flags & navNodeFlags_t::NF_CLEAR_PATH ) )//|| Any(flags & NF_CLEAR_LOS) )
 					{//need a clear path or LOS
 						if ( !SV_inPVS( goal->r.currentOrigin, position2 ) )
 						{//not even potentially clear
@@ -1485,7 +1485,7 @@ constexpr int MAX_Z_DELTA = 18;
 						}
 					}
 					//Do we need a clear path?
-					if ( Any( flags & NF_CLEAR_PATH ) )
+					if ( Any( flags & navNodeFlags_t::NF_CLEAR_PATH ) )
 					{
 						if ( TestNodePath( goal, ent->s.number, position2, false ) == false )//true?
 						{
@@ -1589,7 +1589,7 @@ constexpr int MAX_Z_DELTA = 18;
 		else
 		{
 			//Do we need a clear path?
-			if ( Any( flags & NF_CLEAR_PATH ) )
+			if ( Any( flags & navNodeFlags_t::NF_CLEAR_PATH ) )
 			{
 				if ( TestNodePath( ent, ENTITYNUM_NONE, position, false ) == false )//true?
 				{
@@ -1680,7 +1680,7 @@ void CNavigator::ShowPath( int start, int end )
 
 		//Draw the edge
 		//rwwFIXMEFIXME: ...
-		//CG_DrawEdge( startPos, endPos, EDGE_PATH );
+		//CG_DrawEdge( startPos, endPos, edgeType_t::EDGE_PATH );
 
 		//Take a new best node
 		moveNode = testNode;
@@ -1750,13 +1750,13 @@ void CNavigator::CheckFailedNodes( sharedEntity_t *ent )
 				failed++;
 				//-1 because 0 is a valid node but also the default, so we add one when we add one
 				m_nodes[ent->failedWaypoints[j]-1]->GetPosition( nodePos );
-				if ( !GVM_NAV_ClearPathToPoint( ent->s.number, ent->r.mins, ent->r.maxs, nodePos, (CONTENTS_SOLID|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP), ENTITYNUM_NONE ) )
+				if ( !GVM_NAV_ClearPathToPoint( ent->s.number, ent->r.mins, ent->r.maxs, nodePos, (contentsFlags_t::CONTENTS_SOLID|contentsFlags_t::CONTENTS_MONSTERCLIP|contentsFlags_t::CONTENTS_BOTCLIP), ENTITYNUM_NONE ) )
 				{//no path clear of architecture, so clear this since we can't check against entities
 					ent->failedWaypoints[j] = 0;
 					failed--;
 				}
 				//have clear architectural path, now check against ents only
-				else if ( GVM_NAV_ClearPathToPoint( ent->s.number, ent->r.mins, ent->r.maxs, nodePos, CONTENTS_BODY, ENTITYNUM_NONE ) )
+				else if ( GVM_NAV_ClearPathToPoint( ent->s.number, ent->r.mins, ent->r.maxs, nodePos, contentsFlags_t::CONTENTS_BODY, ENTITYNUM_NONE ) )
 				{//clear of ents, too, so all clear, clear this one out
 					ent->failedWaypoints[j] = 0;
 					failed--;
@@ -1855,14 +1855,14 @@ void CNavigator::ClearFailedEdge( failedEdge_t *failedEdge )
 	navEdgeFlags_t	flags;
 	if ( edgeNum != -1 )
 	{
-		flags = node->GetEdgeFlags( edgeNum )&~EFLAG_FAILED;
+		flags = node->GetEdgeFlags( edgeNum )&~navEdgeFlags_t::EFLAG_FAILED;
 		node->SetEdgeFlags( edgeNum, flags );
 	}
 	node = m_nodes[failedEdge->endID];
 	edgeNum = node->GetEdgeNumToNode( failedEdge->startID );
 	if ( edgeNum != -1 )
 	{
-		flags = node->GetEdgeFlags( edgeNum )&~EFLAG_FAILED;
+		flags = node->GetEdgeFlags( edgeNum )&~navEdgeFlags_t::EFLAG_FAILED;
 		node->SetEdgeFlags( edgeNum, flags );
 	}
 	*/
@@ -2032,14 +2032,14 @@ void CNavigator::AddFailedEdge( int entID, int startID, int endID )
 			navEdgeFlags_t	flags;
 			if ( edgeNum != -1 )
 			{
-				flags = node->GetEdgeFlags( edgeNum )|EFLAG_FAILED;
+				flags = node->GetEdgeFlags( edgeNum )|navEdgeFlags_t::EFLAG_FAILED;
 				node->SetEdgeFlags( edgeNum, flags );
 			}
 			node = m_nodes[endID];
 			edgeNum = node->GetEdgeNumToNode( startID );
 			if ( edgeNum != -1 )
 			{
-				flags = node->GetEdgeFlags( edgeNum )|EFLAG_FAILED;
+				flags = node->GetEdgeFlags( edgeNum )|navEdgeFlags_t::EFLAG_FAILED;
 				node->SetEdgeFlags( edgeNum, flags );
 			}
 			*/
@@ -2052,7 +2052,7 @@ void CNavigator::AddFailedEdge( int entID, int startID, int endID )
 				//reconnect the nodes and mark every node's flag NF_RECALC
 				//Com_Printf( S_COLOR_CYAN"%d marking all nodes for recalc\n", svs.time );
 				SetEdgeCost( startID, endID, Q3_INFINITE );
-				FlagAllNodes( NF_RECALC );
+				FlagAllNodes( navNodeFlags_t::NF_RECALC );
 			}
 			return;
 		}
@@ -2081,8 +2081,8 @@ bool CNavigator::CheckFailedEdge( failedEdge_t *failedEdge )
 			sharedEntity_t	*ent = SV_GentityNum(failedEdge->entID); //(failedEdge->entID<ENTITYNUM_WORLD)?&g_entities[failedEdge->entID]:nullptr;
 			int			hitEntNum;
 
-			if ( !ent || /*!ent->inuse || !ent->client || ent->health <= 0*/ (ent->s.eType != ET_PLAYER && ent->s.eType != ET_NPC) ||
-				Any(ent->s.eFlags & EF_DEAD))
+			if ( !ent || /*!ent->inuse || !ent->client || ent->health <= 0*/ (ent->s.eType != entityType_t::ET_PLAYER && ent->s.eType != entityType_t::ET_NPC) ||
+				Any(ent->s.eFlags & entityFlags_t::EF_DEAD))
 			{
 				VectorSet( mins, -15, -15, DEFAULT_MINS_2+STEPSIZE );
 				VectorSet( maxs, 15, 15, DEFAULT_MAXS_2 );
@@ -2108,7 +2108,7 @@ bool CNavigator::CheckFailedEdge( failedEdge_t *failedEdge )
 
 			//See if it's NAV_ClearPath...
 #if 0
-			hitEntNum = NAVNEW_ClearPathBetweenPoints( start, end, mins, maxs, ignore, clipmask|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP );//NOTE: should we really always include monsterclip (physically blocks NPCs) and botclip (do not enter)?
+			hitEntNum = NAVNEW_ClearPathBetweenPoints( start, end, mins, maxs, ignore, clipmask|contentsFlags_t::CONTENTS_MONSTERCLIP|contentsFlags_t::CONTENTS_BOTCLIP );//NOTE: should we really always include monsterclip (physically blocks NPCs) and botclip (do not enter)?
 #else
 			trace_t	trace;
 
@@ -2118,7 +2118,7 @@ bool CNavigator::CheckFailedEdge( failedEdge_t *failedEdge )
 				return false;
 			}
 
-			SV_Trace( &trace, start, mins, maxs, end, ignore, clipmask|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP, false, G2TRFLAG_NONE, 10 );//NOTE: should we really always include monsterclip (physically blocks NPCs) and botclip (do not enter)?
+			SV_Trace( &trace, start, mins, maxs, end, ignore, clipmask|contentsFlags_t::CONTENTS_MONSTERCLIP|contentsFlags_t::CONTENTS_BOTCLIP, false, g2TraceFlags_t::G2TRFLAG_NONE, 10 );//NOTE: should we really always include monsterclip (physically blocks NPCs) and botclip (do not enter)?
 
 			if( trace.startsolid || trace.allsolid )
 			{
@@ -2172,7 +2172,7 @@ void CNavigator::CheckAllFailedEdges( void )
 		{
 			//reconnect the nodes and mark every node's flag NF_RECALC
 			//Com_Printf( S_COLOR_CYAN"%d marking all nodes for recalc\n", svs.time );
-			FlagAllNodes( NF_RECALC );
+			FlagAllNodes( navNodeFlags_t::NF_RECALC );
 		}
 	}
 }

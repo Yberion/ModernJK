@@ -132,11 +132,11 @@ int AAS_AlternativeRouteGoals(vec3_t start, int startareanum, vec3_t goal, int g
 	for (i = 1; i < aasworld.numareas; i++)
 	{
 		//
-		if (!Any( type & ALTROUTEGOAL_ALL ))
+		if (!Any( type & altRouteGoalFlags_t::ALTROUTEGOAL_ALL ))
 		{
-			if (!(Any( type & ALTROUTEGOAL_CLUSTERPORTALS ) && Any( aasworld.areasettings[i].contents & AREACONTENTS_CLUSTERPORTAL )))
+			if (!(Any( type & altRouteGoalFlags_t::ALTROUTEGOAL_CLUSTERPORTALS ) && Any( aasworld.areasettings[i].contents & areaContentsFlags_t::AREACONTENTS_CLUSTERPORTAL )))
 			{
-				if (!(Any( type & ALTROUTEGOAL_VIEWPORTALS ) && Any( aasworld.areasettings[i].contents & AREACONTENTS_VIEWPORTAL )))
+				if (!(Any( type & altRouteGoalFlags_t::ALTROUTEGOAL_VIEWPORTALS ) && Any( aasworld.areasettings[i].contents & areaContentsFlags_t::AREACONTENTS_VIEWPORTAL )))
 				{
 					continue;
 				} //end if
@@ -201,13 +201,13 @@ int AAS_AlternativeRouteGoals(vec3_t start, int startareanum, vec3_t goal, int g
 		numaltroutegoals++;
 		//
 #ifdef ALTROUTE_DEBUG
-		AAS_ShowAreaPolygons(bestareanum, LINECOLOR_RED, true);
+		AAS_ShowAreaPolygons(bestareanum, lineColor_t::LINECOLOR_RED, true);
 #endif
 		//don't return more than the maximum alternative route goals
 		if (numaltroutegoals >= maxaltroutegoals) break;
 	} //end for
 #ifdef ALTROUTE_DEBUG
-	botimport.Print(PRT_MESSAGE, "alternative route goals in %d msec\n", Sys_MilliSeconds() - startmillisecs);
+	botimport.Print(printType_t::PRT_MESSAGE, "alternative route goals in %d msec\n", Sys_MilliSeconds() - startmillisecs);
 #endif
 	return numaltroutegoals;
 #endif

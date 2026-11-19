@@ -198,7 +198,6 @@ enum class leType_t {
 	LE_QUAD,
 	LE_SPRITE,
 };
-using enum leType_t;
 
 #include "qcommon/q_clientflags.h"
 
@@ -207,8 +206,7 @@ enum class leBounceSound_t
 	LEBS_NONE,
 	LEBS_METAL,
 	LEBS_ROCK
-};
-using enum leBounceSound_t;	// fragment local entities can make sounds on impacts
+};	// fragment local entities can make sounds on impacts
 
 typedef struct localEntity_s {
 	struct localEntity_s	*prev, *next;
@@ -485,7 +483,7 @@ Ghoul2 Insert End
 inline constexpr int MAX_SHOWPOWERS = 12;
 extern forcePowers_t showPowers[MAX_SHOWPOWERS];
 extern const char *showPowersName[MAX_SHOWPOWERS];
-extern EnumArray<int, forcePowers_t, NUM_FORCE_POWERS> force_icons;
+extern EnumArray<int, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS> force_icons;
 inline constexpr int MAX_DPSHOWPOWERS = 16;
 
 //==============================================================================
@@ -680,7 +678,6 @@ enum class textStyleFlags_t
 	CG_INVERSE		= 0x00002000,
 	CG_PULSE		= 0x00004000,
 };
-using enum textStyleFlags_t;
 template <> inline constexpr bool enableEnumFlags<textStyleFlags_t> = true;
 
 
@@ -740,7 +737,7 @@ void CG_GetTagWorldPosition( refEntity_t *model, const char *tag, vec3_t pos, ve
 //
 contentsFlags_t	CG_PointContents( const vec3_t point, int passEntityNum );
 void CG_Trace( trace_t *result, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
-					 const int skipNumber, const contentsFlags_t mask, const EG2_Collision eG2TraceType=G2_NOCOLLIDE, const int useLod=0 );
+					 const int skipNumber, const contentsFlags_t mask, const EG2_Collision eG2TraceType=EG2_Collision::G2_NOCOLLIDE, const int useLod=0 );
 void CG_PredictPlayerState( void );
 
 //
@@ -960,7 +957,7 @@ void	cgi_S_StopSounds( void );
 // a local sound is always played full volume
 void	cgi_S_StartLocalSound( sfxHandle_t sfx, soundChannel_t channelNum );
 void	cgi_S_ClearLoopingSounds( void );
-void	cgi_S_AddLoopingSound(int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx, soundChannel_t chan = CHAN_AUTO );
+void	cgi_S_AddLoopingSound(int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx, soundChannel_t chan = soundChannel_t::CHAN_AUTO );
 void	cgi_S_UpdateEntityPosition( int entityNum, const vec3_t origin );
 
 // repatialize recalculates the volumes of sound as they should be heard by the

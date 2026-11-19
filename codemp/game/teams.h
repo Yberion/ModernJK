@@ -33,7 +33,6 @@ enum class npcteam_t //# team_e
 	//# #eol
 	NPCTEAM_NUM_TEAMS
 };
-using enum npcteam_t;
 template <> inline constexpr bool enableEnumArithmetic<npcteam_t> = true;
 
 // This list is made up from the model directories, this MUST be in the same order as the ClassNames array in NPC_stats.cpp
@@ -98,5 +97,4 @@ enum class class_t
 
 	CLASS_NUM_CLASSES
 };
-using enum class_t;
 template <> inline constexpr bool enableEnumArithmetic<class_t> = true;

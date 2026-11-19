@@ -82,11 +82,11 @@ void AAS_PresenceTypeBoundingBox(presenceFlags_t presencetype, vec3_t mins, vec3
 	vec3_t boxmins[3] = {{0, 0, 0}, {-15, -15, -24}, {-15, -15, -24}};
 	vec3_t boxmaxs[3] = {{0, 0, 0}, { 15,  15,  32}, { 15,  15,   8}};
 
-	if (presencetype == PRESENCE_NORMAL) index = 1;
-	else if (presencetype == PRESENCE_CROUCH) index = 2;
+	if (presencetype == presenceFlags_t::PRESENCE_NORMAL) index = 1;
+	else if (presencetype == presenceFlags_t::PRESENCE_CROUCH) index = 2;
 	else
 	{
-		botimport.Print(PRT_FATAL, "AAS_PresenceTypeBoundingBox: unknown presence type\n");
+		botimport.Print(printType_t::PRT_FATAL, "AAS_PresenceTypeBoundingBox: unknown presence type\n");
 		index = 2;
 	} //end if
 	VectorCopy(boxmins[index], mins);
@@ -159,7 +159,7 @@ aas_link_t *AAS_AllocAASLink(void)
 		if (botDeveloper)
 #endif
 		{
-			botimport.Print(PRT_FATAL, "empty aas link heap\n");
+			botimport.Print(printType_t::PRT_FATAL, "empty aas link heap\n");
 		} //end if
 		return nullptr;
 	} //end if
@@ -224,7 +224,7 @@ int AAS_PointAreaNum(vec3_t point)
 
 	if (!aasworld.loaded)
 	{
-		botimport.Print(PRT_ERROR, "AAS_PointAreaNum: aas not loaded\n");
+		botimport.Print(printType_t::PRT_ERROR, "AAS_PointAreaNum: aas not loaded\n");
 		return 0;
 	} //end if
 
@@ -232,11 +232,11 @@ int AAS_PointAreaNum(vec3_t point)
 	nodenum = 1;
 	while (nodenum > 0)
 	{
-//		botimport.Print(PRT_MESSAGE, "[%d]", nodenum);
+//		botimport.Print(printType_t::PRT_MESSAGE, "[%d]", nodenum);
 #ifdef AAS_SAMPLE_DEBUG
 		if (nodenum >= aasworld.numnodes)
 		{
-			botimport.Print(PRT_ERROR, "nodenum = %d >= aasworld.numnodes = %d\n", nodenum, aasworld.numnodes);
+			botimport.Print(printType_t::PRT_ERROR, "nodenum = %d >= aasworld.numnodes = %d\n", nodenum, aasworld.numnodes);
 			return 0;
 		} //end if
 #endif //AAS_SAMPLE_DEBUG
@@ -244,7 +244,7 @@ int AAS_PointAreaNum(vec3_t point)
 #ifdef AAS_SAMPLE_DEBUG
 		if (node->planenum < 0 || node->planenum >= aasworld.numplanes)
 		{
-			botimport.Print(PRT_ERROR, "node->planenum = %d >= aasworld.numplanes = %d\n", node->planenum, aasworld.numplanes);
+			botimport.Print(printType_t::PRT_ERROR, "node->planenum = %d >= aasworld.numplanes = %d\n", node->planenum, aasworld.numplanes);
 			return 0;
 		} //end if
 #endif //AAS_SAMPLE_DEBUG
@@ -256,7 +256,7 @@ int AAS_PointAreaNum(vec3_t point)
 	if (!nodenum)
 	{
 #ifdef AAS_SAMPLE_DEBUG
-		botimport.Print(PRT_MESSAGE, "in solid\n");
+		botimport.Print(printType_t::PRT_MESSAGE, "in solid\n");
 #endif //AAS_SAMPLE_DEBUG
 		return 0;
 	} //end if
@@ -314,7 +314,7 @@ int AAS_AreaCluster(int areanum)
 {
 	if (areanum <= 0 || areanum >= aasworld.numareas)
 	{
-		botimport.Print(PRT_ERROR, "AAS_AreaCluster: invalid area number\n");
+		botimport.Print(printType_t::PRT_ERROR, "AAS_AreaCluster: invalid area number\n");
 		return 0;
 	} //end if
 	return aasworld.areasettings[areanum].cluster;
@@ -328,11 +328,11 @@ int AAS_AreaCluster(int areanum)
 //===========================================================================
 presenceFlags_t AAS_AreaPresenceType(int areanum)
 {
-	if (!aasworld.loaded) return PRESENCE_EMPTY;
+	if (!aasworld.loaded) return presenceFlags_t::PRESENCE_EMPTY;
 	if (areanum <= 0 || areanum >= aasworld.numareas)
 	{
-		botimport.Print(PRT_ERROR, "AAS_AreaPresenceType: invalid area number\n");
-		return PRESENCE_EMPTY;
+		botimport.Print(printType_t::PRT_ERROR, "AAS_AreaPresenceType: invalid area number\n");
+		return presenceFlags_t::PRESENCE_EMPTY;
 	} //end if
 	return aasworld.areasettings[areanum].presencetype;
 } //end of the function AAS_AreaPresenceType
@@ -347,10 +347,10 @@ presenceFlags_t AAS_PointPresenceType(vec3_t point)
 {
 	int areanum;
 
-	if (!aasworld.loaded) return PRESENCE_EMPTY;
+	if (!aasworld.loaded) return presenceFlags_t::PRESENCE_EMPTY;
 
 	areanum = AAS_PointAreaNum(point);
-	if (!areanum) return PRESENCE_NONE;
+	if (!areanum) return presenceFlags_t::PRESENCE_NONE;
 	return aasworld.areasettings[areanum].presencetype;
 } //end of the function AAS_PointPresenceType
 //===========================================================================
@@ -428,7 +428,7 @@ bool AAS_AreaEntityCollision(int areanum, vec3_t start, vec3_t end,
 		if (link->entnum == passent) continue;
 		//
 		if (AAS_EntityCollision(link->entnum, start, boxmins, boxmaxs, end,
-												CONTENTS_SOLID|CONTENTS_PLAYERCLIP, &bsptrace))
+												contentsFlags_t::CONTENTS_SOLID|contentsFlags_t::CONTENTS_PLAYERCLIP, &bsptrace))
 		{
 			collision = true;
 		} //end if
@@ -505,11 +505,11 @@ aas_trace_t AAS_TraceClientBBox(vec3_t start, vec3_t end, presenceFlags_t presen
 #ifdef AAS_SAMPLE_DEBUG
 			if (-nodenum > aasworld.numareasettings)
 			{
-				botimport.Print(PRT_ERROR, "AAS_TraceBoundingBox: -nodenum out of range\n");
+				botimport.Print(printType_t::PRT_ERROR, "AAS_TraceBoundingBox: -nodenum out of range\n");
 				return trace;
 			} //end if
 #endif //AAS_SAMPLE_DEBUG
-			//botimport.Print(PRT_MESSAGE, "areanum = %d, must be %d\n", -nodenum, AAS_PointAreaNum(start));
+			//botimport.Print(printType_t::PRT_MESSAGE, "areanum = %d, must be %d\n", -nodenum, AAS_PointAreaNum(start));
 			//if can't enter the area because it hasn't got the right presence type
 			if (!Any( aasworld.areasettings[-nodenum].presencetype & presencetype ))
 			{
@@ -598,7 +598,7 @@ aas_trace_t AAS_TraceClientBBox(vec3_t start, vec3_t end, presenceFlags_t presen
 #ifdef AAS_SAMPLE_DEBUG
 		if (nodenum > aasworld.numnodes)
 		{
-			botimport.Print(PRT_ERROR, "AAS_TraceBoundingBox: nodenum out of range\n");
+			botimport.Print(printType_t::PRT_ERROR, "AAS_TraceBoundingBox: nodenum out of range\n");
 			return trace;
 		} //end if
 #endif //AAS_SAMPLE_DEBUG
@@ -614,19 +614,19 @@ aas_trace_t AAS_TraceClientBBox(vec3_t start, vec3_t end, presenceFlags_t presen
 //		switch(static_cast<planeType_t>( plane->type ))
 		{/*FIXME: wtf doesn't this work? obviously the axial node planes aren't always facing positive!!!
 			//check for axial planes
-			case PLANE_X:
+			case planeType_t::PLANE_X:
 			{
 				front = cur_start[0] - plane->dist;
 				back = cur_end[0] - plane->dist;
 				break;
 			} //end case
-			case PLANE_Y:
+			case planeType_t::PLANE_Y:
 			{
 				front = cur_start[1] - plane->dist;
 				back = cur_end[1] - plane->dist;
 				break;
 			} //end case
-			case PLANE_Z:
+			case planeType_t::PLANE_Z:
 			{
 				front = cur_start[2] - plane->dist;
 				back = cur_end[2] - plane->dist;
@@ -650,7 +650,7 @@ aas_trace_t AAS_TraceClientBBox(vec3_t start, vec3_t end, presenceFlags_t presen
 			tstack_p++;
 			if (tstack_p >= &tracestack[127])
 			{
-				botimport.Print(PRT_ERROR, "AAS_TraceBoundingBox: stack overflow\n");
+				botimport.Print(printType_t::PRT_ERROR, "AAS_TraceBoundingBox: stack overflow\n");
 				return trace;
 			} //end if
 		} //end if
@@ -664,7 +664,7 @@ aas_trace_t AAS_TraceClientBBox(vec3_t start, vec3_t end, presenceFlags_t presen
 			tstack_p++;
 			if (tstack_p >= &tracestack[127])
 			{
-				botimport.Print(PRT_ERROR, "AAS_TraceBoundingBox: stack overflow\n");
+				botimport.Print(printType_t::PRT_ERROR, "AAS_TraceBoundingBox: stack overflow\n");
 				return trace;
 			} //end if
 		} //end if
@@ -689,7 +689,7 @@ aas_trace_t AAS_TraceClientBBox(vec3_t start, vec3_t end, presenceFlags_t presen
 			cur_mid[1] = cur_start[1] + (cur_end[1] - cur_start[1]) * frac;
 			cur_mid[2] = cur_start[2] + (cur_end[2] - cur_start[2]) * frac;
 
-//			AAS_DrawPlaneCross(cur_mid, plane->normal, plane->dist, plane->type, LINECOLOR_RED);
+//			AAS_DrawPlaneCross(cur_mid, plane->normal, plane->dist, plane->type, lineColor_t::LINECOLOR_RED);
 			//side the front part of the line is on
 			side = front < 0;
 			//first put the end part of the line on the stack (back side)
@@ -701,7 +701,7 @@ aas_trace_t AAS_TraceClientBBox(vec3_t start, vec3_t end, presenceFlags_t presen
 			tstack_p++;
 			if (tstack_p >= &tracestack[127])
 			{
-				botimport.Print(PRT_ERROR, "AAS_TraceBoundingBox: stack overflow\n");
+				botimport.Print(printType_t::PRT_ERROR, "AAS_TraceBoundingBox: stack overflow\n");
 				return trace;
 			} //end if
 			//now put the part near the start of the line on the stack so we will
@@ -714,7 +714,7 @@ aas_trace_t AAS_TraceClientBBox(vec3_t start, vec3_t end, presenceFlags_t presen
 			tstack_p++;
 			if (tstack_p >= &tracestack[127])
 			{
-				botimport.Print(PRT_ERROR, "AAS_TraceBoundingBox: stack overflow\n");
+				botimport.Print(printType_t::PRT_ERROR, "AAS_TraceBoundingBox: stack overflow\n");
 				return trace;
 			} //end if
 		} //end else
@@ -770,11 +770,11 @@ int AAS_TraceAreas(vec3_t start, vec3_t end, int *areas, vec3_t *points, int max
 #ifdef AAS_SAMPLE_DEBUG
 			if (-nodenum > aasworld.numareasettings)
 			{
-				botimport.Print(PRT_ERROR, "AAS_TraceAreas: -nodenum = %d out of range\n", -nodenum);
+				botimport.Print(printType_t::PRT_ERROR, "AAS_TraceAreas: -nodenum = %d out of range\n", -nodenum);
 				return numareas;
 			} //end if
 #endif //AAS_SAMPLE_DEBUG
-			//botimport.Print(PRT_MESSAGE, "areanum = %d, must be %d\n", -nodenum, AAS_PointAreaNum(start));
+			//botimport.Print(printType_t::PRT_MESSAGE, "areanum = %d, must be %d\n", -nodenum, AAS_PointAreaNum(start));
 			areas[numareas] = -nodenum;
 			if (points) VectorCopy(tstack_p->start, points[numareas]);
 			numareas++;
@@ -789,7 +789,7 @@ int AAS_TraceAreas(vec3_t start, vec3_t end, int *areas, vec3_t *points, int max
 #ifdef AAS_SAMPLE_DEBUG
 		if (nodenum > aasworld.numnodes)
 		{
-			botimport.Print(PRT_ERROR, "AAS_TraceAreas: nodenum out of range\n");
+			botimport.Print(printType_t::PRT_ERROR, "AAS_TraceAreas: nodenum out of range\n");
 			return numareas;
 		} //end if
 #endif //AAS_SAMPLE_DEBUG
@@ -805,19 +805,19 @@ int AAS_TraceAreas(vec3_t start, vec3_t end, int *areas, vec3_t *points, int max
 //		switch(static_cast<planeType_t>( plane->type ))
 		{/*FIXME: wtf doesn't this work? obviously the node planes aren't always facing positive!!!
 			//check for axial planes
-			case PLANE_X:
+			case planeType_t::PLANE_X:
 			{
 				front = cur_start[0] - plane->dist;
 				back = cur_end[0] - plane->dist;
 				break;
 			} //end case
-			case PLANE_Y:
+			case planeType_t::PLANE_Y:
 			{
 				front = cur_start[1] - plane->dist;
 				back = cur_end[1] - plane->dist;
 				break;
 			} //end case
-			case PLANE_Z:
+			case planeType_t::PLANE_Z:
 			{
 				front = cur_start[2] - plane->dist;
 				back = cur_end[2] - plane->dist;
@@ -841,7 +841,7 @@ int AAS_TraceAreas(vec3_t start, vec3_t end, int *areas, vec3_t *points, int max
 			tstack_p++;
 			if (tstack_p >= &tracestack[127])
 			{
-				botimport.Print(PRT_ERROR, "AAS_TraceAreas: stack overflow\n");
+				botimport.Print(printType_t::PRT_ERROR, "AAS_TraceAreas: stack overflow\n");
 				return numareas;
 			} //end if
 		} //end if
@@ -855,7 +855,7 @@ int AAS_TraceAreas(vec3_t start, vec3_t end, int *areas, vec3_t *points, int max
 			tstack_p++;
 			if (tstack_p >= &tracestack[127])
 			{
-				botimport.Print(PRT_ERROR, "AAS_TraceAreas: stack overflow\n");
+				botimport.Print(printType_t::PRT_ERROR, "AAS_TraceAreas: stack overflow\n");
 				return numareas;
 			} //end if
 		} //end if
@@ -875,7 +875,7 @@ int AAS_TraceAreas(vec3_t start, vec3_t end, int *areas, vec3_t *points, int max
 			cur_mid[1] = cur_start[1] + (cur_end[1] - cur_start[1]) * frac;
 			cur_mid[2] = cur_start[2] + (cur_end[2] - cur_start[2]) * frac;
 
-//			AAS_DrawPlaneCross(cur_mid, plane->normal, plane->dist, plane->type, LINECOLOR_RED);
+//			AAS_DrawPlaneCross(cur_mid, plane->normal, plane->dist, plane->type, lineColor_t::LINECOLOR_RED);
 			//side the front part of the line is on
 			side = front < 0;
 			//first put the end part of the line on the stack (back side)
@@ -887,7 +887,7 @@ int AAS_TraceAreas(vec3_t start, vec3_t end, int *areas, vec3_t *points, int max
 			tstack_p++;
 			if (tstack_p >= &tracestack[127])
 			{
-				botimport.Print(PRT_ERROR, "AAS_TraceAreas: stack overflow\n");
+				botimport.Print(printType_t::PRT_ERROR, "AAS_TraceAreas: stack overflow\n");
 				return numareas;
 			} //end if
 			//now put the part near the start of the line on the stack so we will
@@ -900,7 +900,7 @@ int AAS_TraceAreas(vec3_t start, vec3_t end, int *areas, vec3_t *points, int max
 			tstack_p++;
 			if (tstack_p >= &tracestack[127])
 			{
-				botimport.Print(PRT_ERROR, "AAS_TraceAreas: stack overflow\n");
+				botimport.Print(printType_t::PRT_ERROR, "AAS_TraceAreas: stack overflow\n");
 				return numareas;
 			} //end if
 		} //end else
@@ -953,7 +953,7 @@ bool AAS_InsideFace(aas_face_t *face, vec3_t pnormal, vec3_t point, float epsilo
 #ifdef AAS_SAMPLE_DEBUG
 		if (lastvertex && lastvertex != edge->v[firstvertex])
 		{
-			botimport.Print(PRT_MESSAGE, "winding not counter clockwise\n");
+			botimport.Print(printType_t::PRT_MESSAGE, "winding not counter clockwise\n");
 		} //end if
 		lastvertex = edge->v[!firstvertex];
 #endif //AAS_SAMPLE_DEBUG
@@ -1036,7 +1036,7 @@ aas_face_t *AAS_AreaGroundFace(int areanum, vec3_t point)
 		facenum = aasworld.faceindex[area->firstface + i];
 		face = &aasworld.faces[abs(facenum)];
 		//if this is a ground face
-		if (Any( face->faceflags & FACE_GROUND ))
+		if (Any( face->faceflags & faceFlags_t::FACE_GROUND ))
 		{
 			//get the up or down normal
 			if (aasworld.planes[face->planenum].normal[2] < 0) VectorNegate(up, normal);
@@ -1235,7 +1235,7 @@ aas_link_t *AAS_AASLinkEntity(vec3_t absmins, vec3_t absmaxs, int entnum)
 
 	if (!aasworld.loaded)
 	{
-		botimport.Print(PRT_ERROR, "AAS_LinkEntity: aas not loaded\n");
+		botimport.Print(printType_t::PRT_ERROR, "AAS_LinkEntity: aas not loaded\n");
 		return nullptr;
 	} //end if
 
@@ -1301,7 +1301,7 @@ aas_link_t *AAS_AASLinkEntity(vec3_t absmins, vec3_t absmaxs, int entnum)
 		} //end if
 		if (lstack_p >= &linkstack[127])
 		{
-			botimport.Print(PRT_ERROR, "AAS_LinkEntity: stack overflow\n");
+			botimport.Print(printType_t::PRT_ERROR, "AAS_LinkEntity: stack overflow\n");
 			break;
 		} //end if
 		//if on the back side of the node
@@ -1312,7 +1312,7 @@ aas_link_t *AAS_AASLinkEntity(vec3_t absmins, vec3_t absmaxs, int entnum)
 		} //end if
 		if (lstack_p >= &linkstack[127])
 		{
-			botimport.Print(PRT_ERROR, "AAS_LinkEntity: stack overflow\n");
+			botimport.Print(printType_t::PRT_ERROR, "AAS_LinkEntity: stack overflow\n");
 			break;
 		} //end if
 	} //end while
@@ -1371,7 +1371,7 @@ int AAS_AreaInfo( int areanum, aas_areainfo_t *info )
 		return 0;
 	if (areanum <= 0 || areanum >= aasworld.numareas)
 	{
-		botimport.Print(PRT_ERROR, "AAS_AreaInfo: areanum %d out of range\n", areanum);
+		botimport.Print(printType_t::PRT_ERROR, "AAS_AreaInfo: areanum %d out of range\n", areanum);
 		return 0;
 	} //end if
 	settings = &aasworld.areasettings[areanum];

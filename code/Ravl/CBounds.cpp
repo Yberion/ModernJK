@@ -174,9 +174,9 @@ ESide CBBox::InOutTest(const CVec3 &v) const
 {
 	if (v>mMin && v<mMax)
 	{
-		return Side_In;
+		return ESide::Side_In;
 	}
-	return Side_Out;
+	return ESide::Side_Out;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -188,15 +188,15 @@ ESide CBBox::InOutTest(const CVec3 &v,float tolout,float tolin) const
 		v[1]<mMin[1]-tolout||v[1]>mMax[1]+tolout||
 		v[2]<mMin[2]-tolout||v[2]>mMax[2]+tolout)
 	{
-		return Side_Out;
+		return ESide::Side_Out;
 	}
 	if (v[0]>mMin[0]+tolin&&v[0]<mMax[0]-tolin&&
 		v[1]>mMin[1]+tolin&&v[1]<mMax[1]-tolin&&
 		v[2]>mMin[2]+tolin&&v[2]<mMax[2]-tolin)
 	{
-		return Side_In;
+		return ESide::Side_In;
 	}
-	return Side_None;
+	return ESide::Side_None;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////

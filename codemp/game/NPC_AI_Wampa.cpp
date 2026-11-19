@@ -28,7 +28,6 @@ constexpr int MIN_DISTANCE = 48;
 
 constexpr int MAX_DISTANCE = 1024;
 
-using enum monsterLocalState_t;
 
 float enemyDist = 0;
 
@@ -84,12 +83,12 @@ Wampa_Idle
 */
 void Wampa_Idle( void )
 {
-	NPC_SetLocalState( *NPCS.NPCInfo, LSTATE_CLEAR );
+	NPC_SetLocalState( *NPCS.NPCInfo, monsterLocalState_t::LSTATE_CLEAR );
 
 	//If we have somewhere to go, then do that
 	if ( UpdateGoal() )
 	{
-		NPCS.ucmd.buttons &= ~BUTTON_WALKING;
+		NPCS.ucmd.buttons &= ~buttonFlags_t::BUTTON_WALKING;
 		NPC_MoveToGoal( true );
 	}
 }
@@ -99,7 +98,7 @@ bool Wampa_CheckRoar( gentity_t *self )
 	if ( self->wait < level.time )
 	{
 		self->wait = level.time + Q_irand( 5000, 20000 );
-		NPC_SetAnim( self, SETANIM_BOTH, Q_irand(BOTH_GESTURE1,BOTH_GESTURE2), (SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD) );
+		NPC_SetAnim( self, setAnimParts_t::SETANIM_BOTH, Q_irand(animNumber_t::BOTH_GESTURE1,animNumber_t::BOTH_GESTURE2), (setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD) );
 		TIMER_Set( self, "rageTime", self->client->ps.legsTimer );
 		return true;
 	}
@@ -112,12 +111,12 @@ Wampa_Patrol
 */
 void Wampa_Patrol( void )
 {
-	NPC_SetLocalState( *NPCS.NPCInfo, LSTATE_CLEAR );
+	NPC_SetLocalState( *NPCS.NPCInfo, monsterLocalState_t::LSTATE_CLEAR );
 
 	//If we have somewhere to go, then do that
 	if ( UpdateGoal() )
 	{
-		NPCS.ucmd.buttons |= BUTTON_WALKING;
+		NPCS.ucmd.buttons |= buttonFlags_t::BUTTON_WALKING;
 		NPC_MoveToGoal( true );
 	}
 	else
@@ -144,21 +143,21 @@ Wampa_Move
 */
 void Wampa_Move( bool visible )
 {
-	if ( NPC_LocalState<monsterLocalState_t>( *NPCS.NPCInfo ) != LSTATE_WAITING )
+	if ( NPC_LocalState<monsterLocalState_t>( *NPCS.NPCInfo ) != monsterLocalState_t::LSTATE_WAITING )
 	{
 		NPCS.NPCInfo->goalEntity = NPCS.NPC->enemy;
 
 		if ( NPCS.NPC->enemy )
 		{//pick correct movement speed and anim
 			//run by default
-			NPCS.ucmd.buttons &= ~BUTTON_WALKING;
+			NPCS.ucmd.buttons &= ~buttonFlags_t::BUTTON_WALKING;
 			if ( !TIMER_Done( NPCS.NPC, "runfar" )
 				|| !TIMER_Done( NPCS.NPC, "runclose" ) )
 			{//keep running with this anim & speed for a bit
 			}
 			else if ( !TIMER_Done( NPCS.NPC, "walk" ) )
 			{//keep walking for a bit
-				NPCS.ucmd.buttons |= BUTTON_WALKING;
+				NPCS.ucmd.buttons |= buttonFlags_t::BUTTON_WALKING;
 			}
 			else if ( visible && enemyDist > 384 && NPCS.NPCInfo->stats.runSpeed == 180 )
 			{//fast run, all fours
@@ -173,14 +172,14 @@ void Wampa_Move( bool visible )
 			else if ( enemyDist < 128 )
 			{//walk
 				NPCS.NPCInfo->stats.runSpeed = 180;
-				NPCS.ucmd.buttons |= BUTTON_WALKING;
+				NPCS.ucmd.buttons |= buttonFlags_t::BUTTON_WALKING;
 				TIMER_Set( NPCS.NPC, "walk", Q_irand( 4000, 6000 ) );
 			}
 		}
 
 		if ( NPCS.NPCInfo->stats.runSpeed == 300 )
 		{//need to use the alternate run - hunched over on all fours
-			NPCS.NPC->client->ps.eFlags2 |= EF2_USE_ALT_ANIM;
+			NPCS.NPC->client->ps.eFlags2 |= entityFlags2_t::EF2_USE_ALT_ANIM;
 		}
 		NPC_MoveToGoal( true );
 		NPCS.NPCInfo->goalRadius = MAX_DISTANCE;	// just get us within combat range
@@ -225,7 +224,7 @@ void Wampa_Slash( int boltIndex, bool backhand )
 		if ( DistanceSquared( radiusEnt->r.currentOrigin, boltOrg ) <= radiusSquared )
 		{
 			//smack
-			G_Damage( radiusEnt, NPCS.NPC, NPCS.NPC, vec3_origin, radiusEnt->r.currentOrigin, damage, ((backhand)?DAMAGE_NO_ARMOR:(DAMAGE_NO_ARMOR|DAMAGE_NO_KNOCKBACK)), MOD_MELEE );
+			G_Damage( radiusEnt, NPCS.NPC, NPCS.NPC, vec3_origin, radiusEnt->r.currentOrigin, damage, ((backhand)?damageFlags_t::DAMAGE_NO_ARMOR:(damageFlags_t::DAMAGE_NO_ARMOR|damageFlags_t::DAMAGE_NO_KNOCKBACK)), meansOfDeath_t::MOD_MELEE );
 			if ( backhand )
 			{
 				//actually push the enemy
@@ -235,15 +234,15 @@ void Wampa_Slash( int boltIndex, bool backhand )
 				angs[YAW] += Q_flrand( 25, 50 );
 				angs[PITCH] = Q_flrand( -25, -15 );
 				AngleVectors( angs, pushDir, nullptr, nullptr );
-				if ( radiusEnt->client->NPC_class != CLASS_WAMPA
-					&& radiusEnt->client->NPC_class != CLASS_RANCOR
-					&& radiusEnt->client->NPC_class != CLASS_ATST )
+				if ( radiusEnt->client->NPC_class != class_t::CLASS_WAMPA
+					&& radiusEnt->client->NPC_class != class_t::CLASS_RANCOR
+					&& radiusEnt->client->NPC_class != class_t::CLASS_ATST )
 				{
 					G_Throw( radiusEnt, pushDir, 65 );
 					if ( BG_KnockDownable(&radiusEnt->client->ps) &&
 						radiusEnt->health > 0 && Q_irand( 0, 1 ) )
 					{//do pain on enemy
-						radiusEnt->client->ps.forceHandExtend = HANDEXTEND_KNOCKDOWN;
+						radiusEnt->client->ps.forceHandExtend = forceHandAnims_t::HANDEXTEND_KNOCKDOWN;
 						radiusEnt->client->ps.forceDodgeAnim = 0;
 						radiusEnt->client->ps.forceHandExtendTime = level.time + 1100;
 						radiusEnt->client->ps.quickerGetup = false;
@@ -254,14 +253,14 @@ void Wampa_Slash( int boltIndex, bool backhand )
 			{//killed them, chance of dismembering
 				if ( !Q_irand( 0, 1 ) )
 				{//bite something off
-					g2ModelParts_t hitLoc = Q_irand( G2_MODELPART_HEAD, G2_MODELPART_RLEG );
-					if ( hitLoc == G2_MODELPART_HEAD )
+					g2ModelParts_t hitLoc = Q_irand( g2ModelParts_t::G2_MODELPART_HEAD, g2ModelParts_t::G2_MODELPART_RLEG );
+					if ( hitLoc == g2ModelParts_t::G2_MODELPART_HEAD )
 					{
-						NPC_SetAnim( radiusEnt, SETANIM_BOTH, BOTH_DEATH17, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD );
+						NPC_SetAnim( radiusEnt, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_DEATH17, setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD );
 					}
-					else if ( hitLoc == G2_MODELPART_WAIST )
+					else if ( hitLoc == g2ModelParts_t::G2_MODELPART_WAIST )
 					{
-						NPC_SetAnim( radiusEnt, SETANIM_BOTH, BOTH_DEATHBACKWARD2, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD );
+						NPC_SetAnim( radiusEnt, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_DEATHBACKWARD2, setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD );
 					}
 					G_Dismember( radiusEnt, NPCS.NPC, radiusEnt->r.currentOrigin, hitLoc, 90, 0, radiusEnt->client->ps.torsoAnim, true);
 				}
@@ -276,7 +275,7 @@ void Wampa_Slash( int boltIndex, bool backhand )
 				AngleVectors( angs, pushDir, nullptr, nullptr );
 				G_Knockdown( radiusEnt );
 			}
-			G_Sound( radiusEnt, CHAN_WEAPON, G_SoundIndex( "sound/chars/rancor/swipehit.wav" ) );
+			G_Sound( radiusEnt, soundChannel_t::CHAN_WEAPON, G_SoundIndex( "sound/chars/rancor/swipehit.wav" ) );
 		}
 	}
 }
@@ -288,14 +287,14 @@ void Wampa_Attack( float distance, bool doCharge )
 	{
 		if ( Q_irand(0, 2) && !doCharge )
 		{//double slash
-			NPC_SetAnim( NPCS.NPC, SETANIM_BOTH, BOTH_ATTACK1, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD );
+			NPC_SetAnim( NPCS.NPC, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_ATTACK1, setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD );
 			TIMER_Set( NPCS.NPC, "attack_dmg", 750 );
 		}
 		else if ( doCharge || (distance > 270 && distance < 430 && !Q_irand(0, 1)) )
 		{//leap
 			vec3_t	fwd, yawAng;
 			VectorSet( yawAng, 0, NPCS.NPC->client->ps.viewangles[YAW], 0 );
-			NPC_SetAnim( NPCS.NPC, SETANIM_BOTH, BOTH_ATTACK2, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD );
+			NPC_SetAnim( NPCS.NPC, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_ATTACK2, setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD );
 			TIMER_Set( NPCS.NPC, "attack_dmg", 500 );
 			AngleVectors( yawAng, fwd, nullptr, nullptr );
 			VectorScale( fwd, distance*1.5f, NPCS.NPC->client->ps.velocity );
@@ -304,7 +303,7 @@ void Wampa_Attack( float distance, bool doCharge )
 		}
 		else
 		{//backhand
-			NPC_SetAnim( NPCS.NPC, SETANIM_BOTH, BOTH_ATTACK3, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD );
+			NPC_SetAnim( NPCS.NPC, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_ATTACK3, setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD );
 			TIMER_Set( NPCS.NPC, "attack_dmg", 250 );
 		}
 
@@ -321,16 +320,16 @@ void Wampa_Attack( float distance, bool doCharge )
 	{
 		switch ( NPCS.NPC->client->ps.legsAnim )
 		{
-		case BOTH_ATTACK1:
+		case animNumber_t::BOTH_ATTACK1:
 			Wampa_Slash( NPCS.NPC->client->renderInfo.handRBolt, false );
 			//do second hit
 			TIMER_Set( NPCS.NPC, "attack_dmg2", 100 );
 			break;
-		case BOTH_ATTACK2:
+		case animNumber_t::BOTH_ATTACK2:
 			Wampa_Slash( NPCS.NPC->client->renderInfo.handRBolt, false );
 			TIMER_Set( NPCS.NPC, "attack_dmg2", 100 );
 			break;
-		case BOTH_ATTACK3:
+		case animNumber_t::BOTH_ATTACK3:
 			Wampa_Slash( NPCS.NPC->client->renderInfo.handLBolt, true );
 			break;
 		default:
@@ -341,10 +340,10 @@ void Wampa_Attack( float distance, bool doCharge )
 	{
 		switch ( NPCS.NPC->client->ps.legsAnim )
 		{
-		case BOTH_ATTACK1:
+		case animNumber_t::BOTH_ATTACK1:
 			Wampa_Slash( NPCS.NPC->client->renderInfo.handLBolt, false );
 			break;
-		case BOTH_ATTACK2:
+		case animNumber_t::BOTH_ATTACK2:
 			Wampa_Slash( NPCS.NPC->client->renderInfo.handLBolt, false );
 			break;
 		default:
@@ -355,9 +354,9 @@ void Wampa_Attack( float distance, bool doCharge )
 	// Just using this to remove the attacking flag at the right time
 	TIMER_Done2( NPCS.NPC, "attacking", true );
 
-	if ( NPCS.NPC->client->ps.legsAnim == BOTH_ATTACK1 && distance > (NPCS.NPC->r.maxs[0]+MIN_DISTANCE) )
+	if ( NPCS.NPC->client->ps.legsAnim == animNumber_t::BOTH_ATTACK1 && distance > (NPCS.NPC->r.maxs[0]+MIN_DISTANCE) )
 	{//okay to keep moving
-		NPCS.ucmd.buttons |= BUTTON_WALKING;
+		NPCS.ucmd.buttons |= buttonFlags_t::BUTTON_WALKING;
 		Wampa_Move( true );
 	}
 }
@@ -418,11 +417,11 @@ void Wampa_Combat( void )
 			}
 		}
 
-		if (( advance || NPC_LocalState<monsterLocalState_t>( *NPCS.NPCInfo ) == LSTATE_WAITING ) && TIMER_Done( NPCS.NPC, "attacking" )) // waiting monsters can't attack
+		if (( advance || NPC_LocalState<monsterLocalState_t>( *NPCS.NPCInfo ) == monsterLocalState_t::LSTATE_WAITING ) && TIMER_Done( NPCS.NPC, "attacking" )) // waiting monsters can't attack
 		{
 			if ( TIMER_Done2( NPCS.NPC, "takingPain", true ))
 			{
-				NPC_SetLocalState( *NPCS.NPCInfo, LSTATE_CLEAR );
+				NPC_SetLocalState( *NPCS.NPCInfo, monsterLocalState_t::LSTATE_CLEAR );
 			}
 			else
 			{
@@ -454,19 +453,19 @@ NPC_Wampa_Pain
 void NPC_Wampa_Pain( gentity_t *self, gentity_t *attacker, int damage )
 {
 	bool hitByWampa = false;
-	if ( attacker&&attacker->client&&attacker->client->NPC_class==CLASS_WAMPA )
+	if ( attacker&&attacker->client&&attacker->client->NPC_class==class_t::CLASS_WAMPA )
 	{
 		hitByWampa = true;
 	}
 	if ( attacker
 		&& attacker->inuse
 		&& attacker != self->enemy
-		&& !Any( attacker->flags & FL_NOTARGET ) )
+		&& !Any( attacker->flags & gentityFlags_t::FL_NOTARGET ) )
 	{
 		if ( (!attacker->s.number&&!Q_irand(0,3))
 			|| !self->enemy
 			|| self->enemy->health == 0
-			|| (self->enemy->client&&self->enemy->client->NPC_class == CLASS_WAMPA)
+			|| (self->enemy->client&&self->enemy->client->NPC_class == class_t::CLASS_WAMPA)
 			|| (!Q_irand(0, 4 ) && DistanceSquared( attacker->r.currentOrigin, self->r.currentOrigin ) < DistanceSquared( self->enemy->r.currentOrigin, self->r.currentOrigin )) )
 		{//if my enemy is dead (or attacked by player) and I'm not still holding/eating someone, turn on the attacker
 			//FIXME: if can't nav to my enemy, take this guy if I can nav to him
@@ -479,15 +478,15 @@ void NPC_Wampa_Pain( gentity_t *self, gentity_t *attacker, int damage )
 		}
 	}
 	if ( (hitByWampa|| Q_irand( 0, 100 ) < damage )//hit by wampa, hit while holding live victim, or took a lot of damage
-		&& self->client->ps.legsAnim != BOTH_GESTURE1
-		&& self->client->ps.legsAnim != BOTH_GESTURE2
+		&& self->client->ps.legsAnim != animNumber_t::BOTH_GESTURE1
+		&& self->client->ps.legsAnim != animNumber_t::BOTH_GESTURE2
 		&& TIMER_Done( self, "takingPain" ) )
 	{
 		if ( !Wampa_CheckRoar( self ) )
 		{
-			if ( self->client->ps.legsAnim != BOTH_ATTACK1
-				&& self->client->ps.legsAnim != BOTH_ATTACK2
-				&& self->client->ps.legsAnim != BOTH_ATTACK3 )
+			if ( self->client->ps.legsAnim != animNumber_t::BOTH_ATTACK1
+				&& self->client->ps.legsAnim != animNumber_t::BOTH_ATTACK2
+				&& self->client->ps.legsAnim != animNumber_t::BOTH_ATTACK3 )
 			{//cant interrupt one of the big attack anims
 				if ( self->health > 100 || hitByWampa )
 				{
@@ -497,11 +496,11 @@ void NPC_Wampa_Pain( gentity_t *self, gentity_t *attacker, int damage )
 
 					if ( !Q_irand( 0, 1 ) )
 					{
-						NPC_SetAnim( self, SETANIM_BOTH, BOTH_PAIN2, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD );
+						NPC_SetAnim( self, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_PAIN2, setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD );
 					}
 					else
 					{
-						NPC_SetAnim( self, SETANIM_BOTH, BOTH_PAIN1, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD );
+						NPC_SetAnim( self, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_PAIN1, setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD );
 					}
 					TIMER_Set( self, "takingPain", self->client->ps.legsTimer+Q_irand(0, 500) );
 					//allow us to re-evaluate our running speed/anim
@@ -511,7 +510,7 @@ void NPC_Wampa_Pain( gentity_t *self, gentity_t *attacker, int damage )
 
 					if ( self->NPC )
 					{
-						NPC_SetLocalState( *self->NPC, LSTATE_WAITING );
+						NPC_SetLocalState( *self->NPC, monsterLocalState_t::LSTATE_WAITING );
 					}
 				}
 			}
@@ -527,7 +526,7 @@ NPC_BSWampa_Default
 void NPC_BSWampa_Default( void )
 {
 
-	NPCS.NPC->client->ps.eFlags2 &= ~EF2_USE_ALT_ANIM;
+	NPCS.NPC->client->ps.eFlags2 &= ~entityFlags2_t::EF2_USE_ALT_ANIM;
 	//NORMAL ANIMS
 	//	stand1 = normal stand
 	//	walk1 = normal, non-angry walk
@@ -560,12 +559,12 @@ void NPC_BSWampa_Default( void )
 		{
 			if ( TIMER_Done(NPCS.NPC,"angrynoise") )
 			{
-				G_Sound( NPCS.NPC, CHAN_VOICE, G_SoundIndex( va("sound/chars/wampa/misc/anger%d.wav", Q_irand(1, 2)) ) );
+				G_Sound( NPCS.NPC, soundChannel_t::CHAN_VOICE, G_SoundIndex( va("sound/chars/wampa/misc/anger%d.wav", Q_irand(1, 2)) ) );
 
 				TIMER_Set( NPCS.NPC, "angrynoise", Q_irand( 5000, 10000 ) );
 			}
 			//else, if he's in our hand, we eat, else if he's on the ground, we keep attacking his dead body for a while
-			if( NPCS.NPC->enemy->client && NPCS.NPC->enemy->client->NPC_class == CLASS_WAMPA )
+			if( NPCS.NPC->enemy->client && NPCS.NPC->enemy->client->NPC_class == class_t::CLASS_WAMPA )
 			{//got mad at another Wampa, look for a valid enemy
 				if ( TIMER_Done( NPCS.NPC, "wampaInfight" ) )
 				{
@@ -585,13 +584,13 @@ void NPC_BSWampa_Default( void )
 						//just lost my enemy
 						if ( (NPCS.NPC->spawnflags&2) )
 						{//search around me if I don't have an enemy
-							NPC_BSSearchStart( NPCS.NPC->waypoint, BS_SEARCH );
-							NPCS.NPCInfo->tempBehavior = BS_DEFAULT;
+							NPC_BSSearchStart( NPCS.NPC->waypoint, bState_t::BS_SEARCH );
+							NPCS.NPCInfo->tempBehavior = bState_t::BS_DEFAULT;
 						}
 						else if ( (NPCS.NPC->spawnflags&1) )
 						{//wander if I don't have an enemy
-							NPC_BSSearchStart( NPCS.NPC->waypoint, BS_WANDER );
-							NPCS.NPCInfo->tempBehavior = BS_DEFAULT;
+							NPC_BSSearchStart( NPCS.NPC->waypoint, bState_t::BS_WANDER );
+							NPCS.NPCInfo->tempBehavior = bState_t::BS_DEFAULT;
 						}
 						return;
 					}
@@ -623,7 +622,7 @@ void NPC_BSWampa_Default( void )
 	{
 		if ( TIMER_Done(NPCS.NPC,"idlenoise") )
 		{
-			G_Sound( NPCS.NPC, CHAN_AUTO, G_SoundIndex( "sound/chars/wampa/misc/anger3.wav" ) );
+			G_Sound( NPCS.NPC, soundChannel_t::CHAN_AUTO, G_SoundIndex( "sound/chars/wampa/misc/anger3.wav" ) );
 
 			TIMER_Set( NPCS.NPC, "idlenoise", Q_irand( 2000, 4000 ) );
 		}
@@ -631,22 +630,22 @@ void NPC_BSWampa_Default( void )
 		{//search around me if I don't have an enemy
 			if ( NPCS.NPCInfo->homeWp == WAYPOINT_NONE )
 			{//no homewap, initialize the search behavior
-				NPC_BSSearchStart( WAYPOINT_NONE, BS_SEARCH );
-				NPCS.NPCInfo->tempBehavior = BS_DEFAULT;
+				NPC_BSSearchStart( WAYPOINT_NONE, bState_t::BS_SEARCH );
+				NPCS.NPCInfo->tempBehavior = bState_t::BS_DEFAULT;
 			}
-			NPCS.ucmd.buttons |= BUTTON_WALKING;
+			NPCS.ucmd.buttons |= buttonFlags_t::BUTTON_WALKING;
 			NPC_BSSearch();//this automatically looks for enemies
 		}
 		else if ( (NPCS.NPC->spawnflags&1) )
 		{//wander if I don't have an enemy
 			if ( NPCS.NPCInfo->homeWp == WAYPOINT_NONE )
 			{//no homewap, initialize the wander behavior
-				NPC_BSSearchStart( WAYPOINT_NONE, BS_WANDER );
-				NPCS.NPCInfo->tempBehavior = BS_DEFAULT;
+				NPC_BSSearchStart( WAYPOINT_NONE, bState_t::BS_WANDER );
+				NPCS.NPCInfo->tempBehavior = bState_t::BS_DEFAULT;
 			}
-			NPCS.ucmd.buttons |= BUTTON_WALKING;
+			NPCS.ucmd.buttons |= buttonFlags_t::BUTTON_WALKING;
 			NPC_BSWander();
-			if ( Any( NPCS.NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES ) )
+			if ( Any( NPCS.NPCInfo->scriptFlags & scriptFlags_t::SCF_LOOK_FOR_ENEMIES ) )
 			{
 				if ( NPC_CheckEnemyExt( true ) == false )
 				{
@@ -661,7 +660,7 @@ void NPC_BSWampa_Default( void )
 		}
 		else
 		{
-			if ( Any( NPCS.NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES ) )
+			if ( Any( NPCS.NPCInfo->scriptFlags & scriptFlags_t::SCF_LOOK_FOR_ENEMIES ) )
 			{
 				Wampa_Patrol();
 			}

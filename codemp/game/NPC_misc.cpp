@@ -38,13 +38,13 @@ void Debug_Printf (vmCvar_t *cv, aiDebugLevel_t debugLevel, const char *fmt, ...
 	if (cv->value < to_underlying( debugLevel ))
 		return;
 
-	if (debugLevel == DEBUG_LEVEL_DETAIL)
+	if (debugLevel == aiDebugLevel_t::DEBUG_LEVEL_DETAIL)
 		color = S_COLOR_WHITE;
-	else if (debugLevel == DEBUG_LEVEL_INFO)
+	else if (debugLevel == aiDebugLevel_t::DEBUG_LEVEL_INFO)
 		color = S_COLOR_GREEN;
-	else if (debugLevel == DEBUG_LEVEL_WARNING)
+	else if (debugLevel == aiDebugLevel_t::DEBUG_LEVEL_WARNING)
 		color = S_COLOR_YELLOW;
-	else // if (debugLevel == DEBUG_LEVEL_ERROR)
+	else // if (debugLevel == aiDebugLevel_t::DEBUG_LEVEL_ERROR)
 		color = S_COLOR_RED;
 
 	va_start (argptr,fmt);
@@ -74,13 +74,13 @@ void Debug_NPCPrintf (gentity_t *printNPC, vmCvar_t *cv, aiDebugLevel_t debugLev
 //		return;
 //	}
 
-	if (debugLevel == DEBUG_LEVEL_DETAIL)
+	if (debugLevel == aiDebugLevel_t::DEBUG_LEVEL_DETAIL)
 		color = COLOR_WHITE;
-	else if (debugLevel == DEBUG_LEVEL_INFO)
+	else if (debugLevel == aiDebugLevel_t::DEBUG_LEVEL_INFO)
 		color = COLOR_GREEN;
-	else if (debugLevel == DEBUG_LEVEL_WARNING)
+	else if (debugLevel == aiDebugLevel_t::DEBUG_LEVEL_WARNING)
 		color = COLOR_YELLOW;
-	else // if (debugLevel == DEBUG_LEVEL_ERROR)
+	else // if (debugLevel == aiDebugLevel_t::DEBUG_LEVEL_ERROR)
 		color = COLOR_RED;
 
 	va_start (argptr,fmt);

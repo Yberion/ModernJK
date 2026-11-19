@@ -35,10 +35,10 @@ extern forceMasteries_t uiMaxRank;
 extern int uiForceUsed;
 extern int uiForceAvailable;
 extern bool gTouchedForce;
-extern EnumArray<bool, forcePowers_t, NUM_FORCE_POWERS> uiForcePowersDisabled;
-extern EnumArray<forcePowerLevels_t, forcePowers_t, NUM_FORCE_POWERS> uiForcePowersRank;
-extern EnumArray<int, forcePowers_t, NUM_FORCE_POWERS> uiForcePowerDarkLight;
-extern EnumArray<int, saber_colors_t, NUM_SABER_COLORS> uiSaberColorShaders;
+extern EnumArray<bool, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS> uiForcePowersDisabled;
+extern EnumArray<forcePowerLevels_t, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS> uiForcePowersRank;
+extern EnumArray<int, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS> uiForcePowerDarkLight;
+extern EnumArray<int, saber_colors_t, saber_colors_t::NUM_SABER_COLORS> uiSaberColorShaders;
 // Dots above or equal to a given rank carry a certain color.
 
 void UI_InitForceShaders(void);

@@ -44,7 +44,7 @@ static_assert( sizeof( playerState_t ) == 1536, "player-state images of the code
 // the player-state fields client packets are coded against (codemp/netcodec/src/client_codec.cpp), and usercmd_t
 static_assert( offsetof( playerState_t, commandTime ) == 0 && offsetof( playerState_t, delta_angles ) == 80 &&
 	offsetof( playerState_t, weapon ) == 172 && offsetof( playerState_t, viewangles ) == 180 &&
-	offsetof( playerState_t, stats ) + to_underlying( STAT_HOLDABLE_ITEM ) * sizeof( int ) == 244 &&
+	offsetof( playerState_t, stats ) + to_underlying( statIndex_t::STAT_HOLDABLE_ITEM ) * sizeof( int ) == 244 &&
 	offsetof( playerState_t, fd.forcePowerSelected ) == 868, "player-state offsets of the client packet codec" );
 static_assert( sizeof( usercmd_t ) == 28 && offsetof( usercmd_t, angles ) == 4 && offsetof( usercmd_t, buttons ) == 16 &&
 	offsetof( usercmd_t, weapon ) == 20 && offsetof( usercmd_t, upmove ) == 26, "usercmd_t images of the client packet codec" );
@@ -124,7 +124,7 @@ static struct {
 } s_packetBudget[MAX_CLIENTS];
 
 static bool SV_NetcodecPacketAllowed( const client_t *client ) {
-	if ( client->netchan.remoteAddress.type == NA_LOOPBACK ) {
+	if ( client->netchan.remoteAddress.type == netadrtype_t::NA_LOOPBACK ) {
 		return true;	// a local client sends a packet every frame
 	}
 	const int full = SV_PACKET_BURST * 1000;
@@ -190,7 +190,7 @@ static void SV_NetcodecCompare( client_t *client, const eng::ServerMessage &sm, 
 		MSG_WriteLong( &msg, client->lastClientCommand );
 		SV_UpdateServerCommandsToClient( client, &msg );
 		if ( sm.setGame ) {
-			MSG_WriteByte( &msg, to_underlying( svc_setgame ) );
+			MSG_WriteByte( &msg, to_underlying( svc_ops_e::svc_setgame ) );
 			for ( const char *c = sm.setGame; *c; c++ ) {
 				MSG_WriteByte( &msg, *c );
 			}
@@ -200,10 +200,10 @@ static void SV_NetcodecCompare( client_t *client, const eng::ServerMessage &sm, 
 			SV_WriteSnapshotToClient( client, &msg, oldframe, lastframe );
 		}
 		if ( sm.mapChange ) {
-			MSG_WriteByte( &msg, to_underlying( svc_mapchange ) );
+			MSG_WriteByte( &msg, to_underlying( svc_ops_e::svc_mapchange ) );
 		}
 	}
-	MSG_WriteByte( &msg, to_underlying( svc_EOF ) );
+	MSG_WriteByte( &msg, to_underlying( svc_ops_e::svc_EOF ) );
 	if ( msg.overflowed ) {
 		return;
 	}
@@ -223,7 +223,7 @@ static int SV_NetcodecAcknowledged( const client_t *client ) {
 static CommandsDue SV_NetcodecCommandsDue( const client_t *client, int seq ) {
 	auto &c = s_commands[ClientIndex( client )];
 	const int now = Sys_Milliseconds();
-	const bool notInGame = client->state != CS_ACTIVE || client->netchan.remoteAddress.type == NA_BOT;
+	const bool notInGame = client->state != clientState_t::CS_ACTIVE || client->netchan.remoteAddress.type == netadrtype_t::NA_BOT;
 	const bool lost = client->messageAcknowledge >= c.carrier;	// the carrier arrived without them
 	const bool fresh = client->reliableSequence > c.sent;			// a new command
 	const bool timeout = now - c.time > 2 * client->ping + 1000 / MAX_PACKET_RATE;	// no news of the carrier
@@ -398,7 +398,7 @@ static bool SV_NetcodecSend( client_t *client, eng::ServerMessage &sm, clientSna
 	msg.data = buf;
 	msg.maxsize = sizeof( buf );
 	msg.cursize = (int)size;
-	if ( sm.snapshot && size && client->netchan.remoteAddress.type != NA_BOT ) {
+	if ( sm.snapshot && size && client->netchan.remoteAddress.type != netadrtype_t::NA_BOT ) {
 		SV_NetcodecMeasureSend( client, sm.delta != 0 );
 	}
 	SV_SendMessageToClient( &msg, client );
@@ -576,7 +576,7 @@ void SV_NetcodecStats_f( void ) {
 	for ( int i = 0; i < sv_maxclients->integer; i++ ) {
 		client_t *cl = &svs.clients[i];
 		netcodecStats_t &st = cl->netcodecStats;
-		if ( cl->state < CS_CONNECTED || ( !st.messages && !st.packets ) ) {
+		if ( cl->state < clientState_t::CS_CONNECTED || ( !st.messages && !st.packets ) ) {
 			continue;
 		}
 		const int decoded = st.packets - st.packetsNotDecoded - st.packetsLimited;
@@ -614,20 +614,20 @@ static void SV_NetcodecComparePacket( client_t *client, const eng::ClientPacket 
 	MSG_WriteLong( &msg, p.ack );
 	MSG_WriteLong( &msg, p.reliableAck );
 	for ( uint32_t i = 0; i < p.numCommands; i++ ) {
-		MSG_WriteByte( &msg, to_underlying( clc_clientCommand ) );
+		MSG_WriteByte( &msg, to_underlying( clc_ops_e::clc_clientCommand ) );
 		MSG_WriteLong( &msg, p.commands[i].seq );
 		MSG_WriteString( &msg, p.commands[i].text );
 	}
 	if ( p.move != eng::Move::kNone ) {
 		const int key = sv.checksumFeed ^ p.ack ^ Com_HashKey( client->reliableCommands[p.reliableAck & ( MAX_RELIABLE_COMMANDS - 1 )], 32 );
 		Com_Memcpy( &cmds[1], p.userCmds, p.numUserCmds * sizeof( usercmd_t ) );
-		MSG_WriteByte( &msg, to_underlying( p.move == eng::Move::kDelta ? clc_move : clc_moveNoDelta ) );
+		MSG_WriteByte( &msg, to_underlying( p.move == eng::Move::kDelta ? clc_ops_e::clc_move : clc_ops_e::clc_moveNoDelta ) );
 		MSG_WriteByte( &msg, (int)p.numUserCmds );
 		for ( uint32_t i = 1; i <= p.numUserCmds; i++ ) {
 			MSG_WriteDeltaUsercmdKey( &msg, key, &cmds[i - 1], &cmds[i] );
 		}
 	}
-	MSG_WriteByte( &msg, to_underlying( clc_EOF ) );
+	MSG_WriteByte( &msg, to_underlying( clc_ops_e::clc_EOF ) );
 	if ( msg.overflowed ) {
 		return;
 	}

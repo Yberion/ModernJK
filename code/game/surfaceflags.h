@@ -66,7 +66,6 @@ enum class contentsFlags_t : uint32_t
 	CONTENTS_TRANSLUCENT	= 0x80000000u,	// don't consume surface fragments inside
 	CONTENTS_ALL			= 0xFFFFFFFFu,
 };
-using enum contentsFlags_t;
 template <> inline constexpr bool enableEnumFlags<contentsFlags_t> = true;
 
 #include "qcommon/q_surfaceflags.h"

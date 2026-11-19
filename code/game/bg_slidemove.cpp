@@ -75,20 +75,20 @@ bool	PM_SlideMove( float gravMod ) {
 		if ( pml.walking //walking on the ground
 			|| (pm->ps->groundEntityNum != ENTITYNUM_NONE //in air
 				&& PM_InSpecialJump( pm->ps->legsAnim )//in a special jump
-				&& !Any(pm->ps->eFlags&EF_FORCE_GRIPPED)//not being gripped
-				&& !Any(pm->ps->pm_flags&PMF_TIME_KNOCKBACK)
+				&& !Any(pm->ps->eFlags&entityFlags_t::EF_FORCE_GRIPPED)//not being gripped
+				&& !Any(pm->ps->pm_flags&pmoveFlags_t::PMF_TIME_KNOCKBACK)
 				&& pm->gent
 				&& pm->gent->forcePushTime < level.time) )//not being pushed
 		{//
 			// If we're a vehicle, ignore this if we're being driven
 			if ( !pm->gent //not an game ent
 				|| !pm->gent->client //not a client
-				|| pm->gent->client->NPC_class != CLASS_VEHICLE//not a vehicle
+				|| pm->gent->client->NPC_class != class_t::CLASS_VEHICLE//not a vehicle
 				|| !pm->gent->m_pVehicle //no vehicle
 				|| !pm->gent->m_pVehicle->m_pPilot//no pilot
 				|| pm->gent->m_pVehicle->m_pPilot->s.number >= MAX_CLIENTS )//pilot is not the player
 			{//then treat do not enter brushes as SOLID
-				slideMoveContents |= CONTENTS_BOTCLIP;
+				slideMoveContents |= contentsFlags_t::CONTENTS_BOTCLIP;
 			}
 		}
 	}
@@ -100,7 +100,7 @@ bool	PM_SlideMove( float gravMod ) {
 
 	if ( gravMod )
 	{
-		if ( !Any(pm->ps->eFlags&EF_FORCE_GRIPPED) && !Any(pm->ps->eFlags&EF_FORCE_DRAINED) )
+		if ( !Any(pm->ps->eFlags&entityFlags_t::EF_FORCE_GRIPPED) && !Any(pm->ps->eFlags&entityFlags_t::EF_FORCE_DRAINED) )
 		{
 			endVelocity[2] -= pm->ps->gravity * pml.frametime * gravMod;
 		}
@@ -144,18 +144,18 @@ bool	PM_SlideMove( float gravMod ) {
 		VectorMA( pm->ps->origin, time_left, pm->ps->velocity, end );
 
 		// see if we can make it there
-		pm->trace ( &trace, pm->ps->origin, pm->mins, pm->maxs, end, pm->ps->clientNum, slideMoveContents, G2_NOCOLLIDE, 0 );
-		if ( Any( trace.contents&CONTENTS_BOTCLIP )
-			&& Any( slideMoveContents&CONTENTS_BOTCLIP ) )
+		pm->trace ( &trace, pm->ps->origin, pm->mins, pm->maxs, end, pm->ps->clientNum, slideMoveContents, EG2_Collision::G2_NOCOLLIDE, 0 );
+		if ( Any( trace.contents&contentsFlags_t::CONTENTS_BOTCLIP )
+			&& Any( slideMoveContents&contentsFlags_t::CONTENTS_BOTCLIP ) )
 		{//hit a do not enter brush
 			if ( trace.allsolid || trace.startsolid  )//inside the botclip
 			{//crap, we're in a do not enter brush, take it out for the remainder of the traces and re-trace this one right now without it
-				slideMoveContents &= ~CONTENTS_BOTCLIP;
-				pm->trace ( &trace, pm->ps->origin, pm->mins, pm->maxs, end, pm->ps->clientNum, slideMoveContents, G2_NOCOLLIDE, 0 );
+				slideMoveContents &= ~contentsFlags_t::CONTENTS_BOTCLIP;
+				pm->trace ( &trace, pm->ps->origin, pm->mins, pm->maxs, end, pm->ps->clientNum, slideMoveContents, EG2_Collision::G2_NOCOLLIDE, 0 );
 			}
 			else if ( trace.plane.normal[2] > 0.0f )
 			{//on top of a do not enter brush, it, just redo this one trace without it
-				pm->trace ( &trace, pm->ps->origin, pm->mins, pm->maxs, end, pm->ps->clientNum, (slideMoveContents&~CONTENTS_BOTCLIP), G2_NOCOLLIDE, 0 );
+				pm->trace ( &trace, pm->ps->origin, pm->mins, pm->maxs, end, pm->ps->clientNum, (slideMoveContents&~contentsFlags_t::CONTENTS_BOTCLIP), EG2_Collision::G2_NOCOLLIDE, 0 );
 			}
 		}
 
@@ -181,7 +181,7 @@ bool	PM_SlideMove( float gravMod ) {
 		PM_AddTouchEnt( trace.entityNum );
 
 		//Hit it
-		if ( Any( trace.surfaceFlags&SURF_NODAMAGE ) )
+		if ( Any( trace.surfaceFlags&surfaceFlags_t::SURF_NODAMAGE ) )
 		{
 			damageSelf = false;
 		}
@@ -200,11 +200,11 @@ bool	PM_SlideMove( float gravMod ) {
 		}
 
 		if (pm->gent->client &&
-			pm->gent->client->NPC_class == CLASS_VEHICLE &&
+			pm->gent->client->NPC_class == class_t::CLASS_VEHICLE &&
 			trace.plane.normal[2]<pm->gent->m_pVehicle->m_pVehicleInfo->maxSlope
 			)
 		{
-			pm->ps->pm_flags |= PMF_BUMPED;
+			pm->ps->pm_flags |= pmoveFlags_t::PMF_BUMPED;
 		}
 
 		time_left -= time_left * trace.fraction;
@@ -229,7 +229,7 @@ bool	PM_SlideMove( float gravMod ) {
 		// out along it, which fixes some epsilon issues with
 		// non-axial planes
 		//
-		if ( !Any(pm->ps->pm_flags&PMF_STUCK_TO_WALL) )
+		if ( !Any(pm->ps->pm_flags&pmoveFlags_t::PMF_STUCK_TO_WALL) )
 		{//no sliding if stuck to wall!
 			for ( i = 0 ; i < numplanes ; i++ ) {
 				if ( DotProduct( normal, planes[i] ) > 0.99 ) {
@@ -357,7 +357,7 @@ void PM_StepSlideMove( float gravMod )
 		return;		// we got exactly where we wanted to go first try
 	}//else Bumped into something, see if we can step over it
 
-	if ( pm->gent && pm->gent->client && pm->gent->client->NPC_class == CLASS_VEHICLE && pm->gent->m_pVehicle->m_pVehicleInfo->hoverHeight > 0 )
+	if ( pm->gent && pm->gent->client && pm->gent->client->NPC_class == class_t::CLASS_VEHICLE && pm->gent->m_pVehicle->m_pVehicleInfo->hoverHeight > 0 )
 	{//Hovering vehicles don't do steps
 		//FIXME: maybe make hovering vehicles go up steps, but not down them?
 		return;
@@ -365,10 +365,10 @@ void PM_StepSlideMove( float gravMod )
 
 	if ( pm->gent
 		&& pm->gent->client
-		&& (pm->gent->client->NPC_class == CLASS_ATST||pm->gent->client->NPC_class == CLASS_RANCOR) )
+		&& (pm->gent->client->NPC_class == class_t::CLASS_ATST||pm->gent->client->NPC_class == class_t::CLASS_RANCOR) )
 	{
 		isGiant = true;
-		if ( pm->gent->client->NPC_class == CLASS_RANCOR )
+		if ( pm->gent->client->NPC_class == class_t::CLASS_RANCOR )
 		{
 			if ( (pm->gent->spawnflags&1) )
 			{
@@ -392,7 +392,7 @@ void PM_StepSlideMove( float gravMod )
 	//Q3Final addition...
 	VectorCopy(start_o, down);
 	down[2] -= stepSize;
-	pm->trace (&trace, start_o, pm->mins, pm->maxs, down, pm->ps->clientNum, pm->tracemask, G2_NOCOLLIDE, 0);
+	pm->trace (&trace, start_o, pm->mins, pm->maxs, down, pm->ps->clientNum, pm->tracemask, EG2_Collision::G2_NOCOLLIDE, 0);
 	VectorSet(up, 0, 0, 1);
 	// never step up when you still have up velocity
 	if ( pm->ps->velocity[2] > 0 && (trace.fraction == 1.0 ||
@@ -413,7 +413,7 @@ void PM_StepSlideMove( float gravMod )
 
 	// test the player position if they were a stepheight higher
 
-	pm->trace (&trace, start_o, pm->mins, pm->maxs, up, pm->ps->clientNum, pm->tracemask, G2_NOCOLLIDE, 0);
+	pm->trace (&trace, start_o, pm->mins, pm->maxs, up, pm->ps->clientNum, pm->tracemask, EG2_Collision::G2_NOCOLLIDE, 0);
 	if ( trace.allsolid || trace.startsolid || trace.fraction == 0) {
 		if ( pm->debugLevel ) {
 			Com_Printf("%i:bend can't step\n", c_pmove);
@@ -453,7 +453,7 @@ void PM_StepSlideMove( float gravMod )
 		// push down the final amount
 		VectorCopy (pm->ps->origin, down);
 		down[2] -= stepSize;
-		pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, down, pm->ps->clientNum, pm->tracemask, G2_NOCOLLIDE, 0);
+		pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, down, pm->ps->clientNum, pm->tracemask, EG2_Collision::G2_NOCOLLIDE, 0);
 		if ( pm->debugLevel )
 		{
 			G_DebugLine(pm->ps->origin,trace.endpos,2000,0xffffff,true);
@@ -492,7 +492,7 @@ void PM_StepSlideMove( float gravMod )
 				&& g_entities[trace.entityNum].client
 				&& pm->gent
 				&& pm->gent->client
-				&& pm->gent->client->NPC_class == CLASS_RANCOR )
+				&& pm->gent->client->NPC_class == class_t::CLASS_RANCOR )
 			{//Rancor don't step on clients
 				if ( g_stepSlideFix->integer )
 				{
@@ -578,13 +578,13 @@ void PM_StepSlideMove( float gravMod )
 		delta = pm->ps->origin[2] - start_o[2];
 		if ( delta > 2 ) {
 			if ( delta < 7 ) {
-				PM_AddEvent( EV_STEP_4 );
+				PM_AddEvent( entity_event_t::EV_STEP_4 );
 			} else if ( delta < 11 ) {
-				PM_AddEvent( EV_STEP_8 );
+				PM_AddEvent( entity_event_t::EV_STEP_8 );
 			} else if ( delta < 15 ) {
-				PM_AddEvent( EV_STEP_12 );
+				PM_AddEvent( entity_event_t::EV_STEP_12 );
 			} else {
-				PM_AddEvent( EV_STEP_16 );
+				PM_AddEvent( entity_event_t::EV_STEP_16 );
 			}
 		}
 		if ( pm->debugLevel ) {

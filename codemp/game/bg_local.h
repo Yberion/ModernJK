@@ -80,7 +80,7 @@ extern	float	pm_flightfriction;
 
 extern	int		c_pmove;
 
-extern EnumArray<EnumArray<int, forcePowers_t, NUM_FORCE_POWERS>, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forcePowerNeeded;
+extern EnumArray<EnumArray<int, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS>, forcePowerLevels_t, forcePowerLevels_t::NUM_FORCE_POWER_LEVELS> forcePowerNeeded;
 
 //PM anim utility functions:
 bool PM_SaberInParry( saberMoveName_t move );

@@ -333,7 +333,6 @@ enum class setType_t //# setType_e
 	SET_,
 	SET_UNKNOWN = -1	// a name that matches no set field (GetIDForString's -1)
 };
-using enum setType_t;
 template <> inline constexpr bool enableEnumArithmetic<setType_t> = true;
 
 
@@ -348,7 +347,6 @@ enum class playType_t //# playType_e
 	PLAY_NUMBEROF
 
 };
-using enum playType_t;
 
 
 const	int	Q3_TIME_SCALE	= 1;	//MILLISECONDS
@@ -412,12 +410,10 @@ class CQuake3GameInterface : public IGameInterface
 public:
 	// Variable enums
 	enum class variableType_t { VTYPE_NONE = 0, VTYPE_FLOAT, VTYPE_STRING, VTYPE_VECTOR };
-	using enum variableType_t;
 	static constexpr int MAX_VARIABLES = 32;
 
 	// Register enums.
 	enum class scriptRegistration_t { SCRIPT_COULDNOTREGISTER = 0, SCRIPT_REGISTERED, SCRIPT_ALREADYREGISTERED };
-	using enum scriptRegistration_t;
 
 private:
 	// A list of script buffers (to ensure we cache a script only once).
@@ -556,7 +552,7 @@ public:
 	int		CreateIcarus( int entID) OVERRIDE;
 			//Polls the engine for the sequencer of the entity matching the name passed
 	int		GetByName( const char *name ) OVERRIDE;
-	// (g_entities[m_ownerID].svFlags&SVF_ICARUS_FREEZE)	// return -1 indicates invalid
+	// (g_entities[m_ownerID].svFlags&svFlags_t::SVF_ICARUS_FREEZE)	// return -1 indicates invalid
 	int		IsFrozen(int entID) OVERRIDE;
 	void	Free(void* data) OVERRIDE;
 	void	*Malloc( int size ) OVERRIDE;

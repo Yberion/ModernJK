@@ -228,7 +228,7 @@ void FX_Add( bool portal )
 			{
 				// Clean up old effects, calling any death effects as needed
 				// this flag just has to be cleared otherwise death effects might not happen correctly
-				ef->mEffect->ClearFlags( FX_KILL_ON_IMPACT );
+				ef->mEffect->ClearFlags( fxPrimitiveFlags_t::FX_KILL_ON_IMPACT );
 				FX_FreeMember( ef );
 			}
 			else
@@ -421,7 +421,7 @@ CParticle *FX_AddParticle(  int clientID, const vec3_t org, const vec3_t vel, co
 
 	if ( fx )
 	{
-		if (Any( flags&FX_RELATIVE ) && clientID>=0)
+		if (Any( flags&fxPrimitiveFlags_t::FX_RELATIVE ) && clientID>=0)
 		{
 			fx->SetOrigin1( nullptr );
 			fx->SetOrgOffset( org );
@@ -439,11 +439,11 @@ CParticle *FX_AddParticle(  int clientID, const vec3_t org, const vec3_t vel, co
 		fx->SetRGBStart( sRGB );
 		fx->SetRGBEnd( eRGB );
 
-		if (( flags & FX_RGB_PARM_MASK ) == FX_RGB_WAVE )
+		if (( flags & fxPrimitiveFlags_t::FX_RGB_PARM_MASK ) == fxPrimitiveFlags_t::FX_RGB_WAVE )
 		{
 			fx->SetRGBParm( rgbParm * PI * 0.001f );
 		}
-		else if ( Any( flags & FX_RGB_PARM_MASK ) )
+		else if ( Any( flags & fxPrimitiveFlags_t::FX_RGB_PARM_MASK ) )
 		{
 			// rgbParm should be a value from 0-100..
 			fx->SetRGBParm( rgbParm * 0.01f * killTime + theFxHelper.mTime );
@@ -453,11 +453,11 @@ CParticle *FX_AddParticle(  int clientID, const vec3_t org, const vec3_t vel, co
 		fx->SetAlphaStart( alpha1 );
 		fx->SetAlphaEnd( alpha2 );
 
-		if (( flags & FX_ALPHA_PARM_MASK ) == FX_ALPHA_WAVE )
+		if (( flags & fxPrimitiveFlags_t::FX_ALPHA_PARM_MASK ) == fxPrimitiveFlags_t::FX_ALPHA_WAVE )
 		{
 			fx->SetAlphaParm( alphaParm * PI * 0.001f );
 		}
-		else if ( Any( flags & FX_ALPHA_PARM_MASK ) )
+		else if ( Any( flags & fxPrimitiveFlags_t::FX_ALPHA_PARM_MASK ) )
 		{
 			fx->SetAlphaParm( alphaParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -466,11 +466,11 @@ CParticle *FX_AddParticle(  int clientID, const vec3_t org, const vec3_t vel, co
 		fx->SetSizeStart( size1 );
 		fx->SetSizeEnd( size2 );
 
-		if (( flags & FX_SIZE_PARM_MASK ) == FX_SIZE_WAVE )
+		if (( flags & fxPrimitiveFlags_t::FX_SIZE_PARM_MASK ) == fxPrimitiveFlags_t::FX_SIZE_WAVE )
 		{
 			fx->SetSizeParm( sizeParm * PI * 0.001f );
 		}
-		else if ( Any( flags & FX_SIZE_PARM_MASK ) )
+		else if ( Any( flags & fxPrimitiveFlags_t::FX_SIZE_PARM_MASK ) )
 		{
 			fx->SetSizeParm( sizeParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -510,7 +510,7 @@ CLine *FX_AddLine( int clientID, vec3_t start, vec3_t end, float size1, float si
 
 	if ( fx )
 	{
-		if (Any( flags&FX_RELATIVE ) && clientID>=0)
+		if (Any( flags&fxPrimitiveFlags_t::FX_RELATIVE ) && clientID>=0)
 		{
 			fx->SetOrigin1( nullptr );
 			fx->SetOrgOffset( start ); //offset from bolt pos
@@ -526,11 +526,11 @@ CLine *FX_AddLine( int clientID, vec3_t start, vec3_t end, float size1, float si
 		fx->SetRGBStart( sRGB );
 		fx->SetRGBEnd( eRGB );
 
-		if (( flags & FX_RGB_PARM_MASK ) == FX_RGB_WAVE )
+		if (( flags & fxPrimitiveFlags_t::FX_RGB_PARM_MASK ) == fxPrimitiveFlags_t::FX_RGB_WAVE )
 		{
 			fx->SetRGBParm( rgbParm * PI * 0.001f );
 		}
-		else if ( Any( flags & FX_RGB_PARM_MASK ) )
+		else if ( Any( flags & fxPrimitiveFlags_t::FX_RGB_PARM_MASK ) )
 		{
 			// rgbParm should be a value from 0-100..
 			fx->SetRGBParm( rgbParm * 0.01f * killTime + theFxHelper.mTime );
@@ -540,11 +540,11 @@ CLine *FX_AddLine( int clientID, vec3_t start, vec3_t end, float size1, float si
 		fx->SetAlphaStart( alpha1 );
 		fx->SetAlphaEnd( alpha2 );
 
-		if (( flags & FX_ALPHA_PARM_MASK ) == FX_ALPHA_WAVE )
+		if (( flags & fxPrimitiveFlags_t::FX_ALPHA_PARM_MASK ) == fxPrimitiveFlags_t::FX_ALPHA_WAVE )
 		{
 			fx->SetAlphaParm( alphaParm * PI * 0.001f );
 		}
-		else if ( Any( flags & FX_ALPHA_PARM_MASK ) )
+		else if ( Any( flags & fxPrimitiveFlags_t::FX_ALPHA_PARM_MASK ) )
 		{
 			fx->SetAlphaParm( alphaParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -553,11 +553,11 @@ CLine *FX_AddLine( int clientID, vec3_t start, vec3_t end, float size1, float si
 		fx->SetSizeStart( size1 );
 		fx->SetSizeEnd( size2 );
 
-		if (( flags & FX_SIZE_PARM_MASK ) == FX_SIZE_WAVE )
+		if (( flags & fxPrimitiveFlags_t::FX_SIZE_PARM_MASK ) == fxPrimitiveFlags_t::FX_SIZE_WAVE )
 		{
 			fx->SetSizeParm( sizeParm * PI * 0.001f );
 		}
-		else if ( Any( flags & FX_SIZE_PARM_MASK ) )
+		else if ( Any( flags & fxPrimitiveFlags_t::FX_SIZE_PARM_MASK ) )
 		{
 			fx->SetSizeParm( sizeParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -592,7 +592,7 @@ CElectricity *FX_AddElectricity( int clientID, vec3_t start, vec3_t end, float s
 
 	if ( fx )
 	{
-		if (Any( flags&FX_RELATIVE ) && clientID>=0)
+		if (Any( flags&fxPrimitiveFlags_t::FX_RELATIVE ) && clientID>=0)
 		{
 			fx->SetOrigin1( nullptr );
 			fx->SetOrgOffset( start );//offset
@@ -609,11 +609,11 @@ CElectricity *FX_AddElectricity( int clientID, vec3_t start, vec3_t end, float s
 		fx->SetRGBStart( sRGB );
 		fx->SetRGBEnd( eRGB );
 
-		if (( flags & FX_RGB_PARM_MASK ) == FX_RGB_WAVE )
+		if (( flags & fxPrimitiveFlags_t::FX_RGB_PARM_MASK ) == fxPrimitiveFlags_t::FX_RGB_WAVE )
 		{
 			fx->SetRGBParm( rgbParm * PI * 0.001f );
 		}
-		else if ( Any( flags & FX_RGB_PARM_MASK ) )
+		else if ( Any( flags & fxPrimitiveFlags_t::FX_RGB_PARM_MASK ) )
 		{
 			// rgbParm should be a value from 0-100..
 			fx->SetRGBParm( rgbParm * 0.01f * killTime + theFxHelper.mTime );
@@ -623,11 +623,11 @@ CElectricity *FX_AddElectricity( int clientID, vec3_t start, vec3_t end, float s
 		fx->SetAlphaStart( alpha1 );
 		fx->SetAlphaEnd( alpha2 );
 
-		if (( flags & FX_ALPHA_PARM_MASK ) == FX_ALPHA_WAVE )
+		if (( flags & fxPrimitiveFlags_t::FX_ALPHA_PARM_MASK ) == fxPrimitiveFlags_t::FX_ALPHA_WAVE )
 		{
 			fx->SetAlphaParm( alphaParm * PI * 0.001f );
 		}
-		else if ( Any( flags & FX_ALPHA_PARM_MASK ) )
+		else if ( Any( flags & fxPrimitiveFlags_t::FX_ALPHA_PARM_MASK ) )
 		{
 			fx->SetAlphaParm( alphaParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -636,11 +636,11 @@ CElectricity *FX_AddElectricity( int clientID, vec3_t start, vec3_t end, float s
 		fx->SetSizeStart( size1 );
 		fx->SetSizeEnd( size2 );
 
-		if (( flags & FX_SIZE_PARM_MASK ) == FX_SIZE_WAVE )
+		if (( flags & fxPrimitiveFlags_t::FX_SIZE_PARM_MASK ) == fxPrimitiveFlags_t::FX_SIZE_WAVE )
 		{
 			fx->SetSizeParm( sizeParm * PI * 0.001f );
 		}
-		else if ( Any( flags & FX_SIZE_PARM_MASK ) )
+		else if ( Any( flags & fxPrimitiveFlags_t::FX_SIZE_PARM_MASK ) )
 		{
 			fx->SetSizeParm( sizeParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -684,7 +684,7 @@ CTail *FX_AddTail( int clientID, vec3_t org, vec3_t vel, vec3_t accel,
 
 	if ( fx )
 	{
-		if (Any( flags&FX_RELATIVE ) && clientID>=0)
+		if (Any( flags&fxPrimitiveFlags_t::FX_RELATIVE ) && clientID>=0)
 		{
 			fx->SetOrigin1( nullptr );
 			fx->SetOrgOffset( org );
@@ -700,11 +700,11 @@ CTail *FX_AddTail( int clientID, vec3_t org, vec3_t vel, vec3_t accel,
 		fx->SetRGBStart( sRGB );
 		fx->SetRGBEnd( eRGB );
 
-		if (( flags & FX_RGB_PARM_MASK ) == FX_RGB_WAVE )
+		if (( flags & fxPrimitiveFlags_t::FX_RGB_PARM_MASK ) == fxPrimitiveFlags_t::FX_RGB_WAVE )
 		{
 			fx->SetRGBParm( rgbParm * PI * 0.001f );
 		}
-		else if ( Any( flags & FX_RGB_PARM_MASK ) )
+		else if ( Any( flags & fxPrimitiveFlags_t::FX_RGB_PARM_MASK ) )
 		{
 			// rgbParm should be a value from 0-100..
 			fx->SetRGBParm( rgbParm * 0.01f * killTime + theFxHelper.mTime );
@@ -714,11 +714,11 @@ CTail *FX_AddTail( int clientID, vec3_t org, vec3_t vel, vec3_t accel,
 		fx->SetAlphaStart( alpha1 );
 		fx->SetAlphaEnd( alpha2 );
 
-		if (( flags & FX_ALPHA_PARM_MASK ) == FX_ALPHA_WAVE )
+		if (( flags & fxPrimitiveFlags_t::FX_ALPHA_PARM_MASK ) == fxPrimitiveFlags_t::FX_ALPHA_WAVE )
 		{
 			fx->SetAlphaParm( alphaParm * PI * 0.001f );
 		}
-		else if ( Any( flags & FX_ALPHA_PARM_MASK ) )
+		else if ( Any( flags & fxPrimitiveFlags_t::FX_ALPHA_PARM_MASK ) )
 		{
 			fx->SetAlphaParm( alphaParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -727,11 +727,11 @@ CTail *FX_AddTail( int clientID, vec3_t org, vec3_t vel, vec3_t accel,
 		fx->SetSizeStart( size1 );
 		fx->SetSizeEnd( size2 );
 
-		if (( flags & FX_SIZE_PARM_MASK ) == FX_SIZE_WAVE )
+		if (( flags & fxPrimitiveFlags_t::FX_SIZE_PARM_MASK ) == fxPrimitiveFlags_t::FX_SIZE_WAVE )
 		{
 			fx->SetSizeParm( sizeParm * PI * 0.001f );
 		}
-		else if ( Any( flags & FX_SIZE_PARM_MASK ) )
+		else if ( Any( flags & fxPrimitiveFlags_t::FX_SIZE_PARM_MASK ) )
 		{
 			fx->SetSizeParm( sizeParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -740,11 +740,11 @@ CTail *FX_AddTail( int clientID, vec3_t org, vec3_t vel, vec3_t accel,
 		fx->SetLengthStart( length1 );
 		fx->SetLengthEnd( length2 );
 
-		if (( flags & FX_LENGTH_PARM_MASK ) == FX_LENGTH_WAVE )
+		if (( flags & fxPrimitiveFlags_t::FX_LENGTH_PARM_MASK ) == fxPrimitiveFlags_t::FX_LENGTH_WAVE )
 		{
 			fx->SetLengthParm( lengthParm * PI * 0.001f );
 		}
-		else if ( Any( flags & FX_LENGTH_PARM_MASK ) )
+		else if ( Any( flags & fxPrimitiveFlags_t::FX_LENGTH_PARM_MASK ) )
 		{
 			fx->SetLengthParm( lengthParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -785,7 +785,7 @@ CCylinder *FX_AddCylinder( int clientID, vec3_t start, vec3_t normal,
 
 	if ( fx )
 	{
-		if (Any( flags&FX_RELATIVE ) && clientID>=0)
+		if (Any( flags&fxPrimitiveFlags_t::FX_RELATIVE ) && clientID>=0)
 		{
 			fx->SetOrigin1( nullptr );
 			fx->SetOrgOffset( start );//offset
@@ -803,11 +803,11 @@ CCylinder *FX_AddCylinder( int clientID, vec3_t start, vec3_t normal,
 		fx->SetRGBStart( rgb1 );
 		fx->SetRGBEnd( rgb2 );
 
-		if (( flags & FX_RGB_PARM_MASK ) == FX_RGB_WAVE )
+		if (( flags & fxPrimitiveFlags_t::FX_RGB_PARM_MASK ) == fxPrimitiveFlags_t::FX_RGB_WAVE )
 		{
 			fx->SetRGBParm( rgbParm * PI * 0.001f );
 		}
-		else if ( Any( flags & FX_RGB_PARM_MASK ) )
+		else if ( Any( flags & fxPrimitiveFlags_t::FX_RGB_PARM_MASK ) )
 		{
 			// rgbParm should be a value from 0-100..
 			fx->SetRGBParm( rgbParm * 0.01f * killTime + theFxHelper.mTime );
@@ -817,11 +817,11 @@ CCylinder *FX_AddCylinder( int clientID, vec3_t start, vec3_t normal,
 		fx->SetSizeStart( size1s );
 		fx->SetSizeEnd( size1e );
 
-		if (( flags & FX_SIZE_PARM_MASK ) == FX_SIZE_WAVE )
+		if (( flags & fxPrimitiveFlags_t::FX_SIZE_PARM_MASK ) == fxPrimitiveFlags_t::FX_SIZE_WAVE )
 		{
 			fx->SetSizeParm( sizeParm * PI * 0.001f );
 		}
-		else if ( Any( flags & FX_SIZE_PARM_MASK ) )
+		else if ( Any( flags & fxPrimitiveFlags_t::FX_SIZE_PARM_MASK ) )
 		{
 			fx->SetSizeParm( sizeParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -830,11 +830,11 @@ CCylinder *FX_AddCylinder( int clientID, vec3_t start, vec3_t normal,
 		fx->SetSize2Start( size2s );
 		fx->SetSize2End( size2e );
 
-		if (( flags & FX_SIZE2_PARM_MASK ) == FX_SIZE2_WAVE )
+		if (( flags & fxPrimitiveFlags_t::FX_SIZE2_PARM_MASK ) == fxPrimitiveFlags_t::FX_SIZE2_WAVE )
 		{
 			fx->SetSize2Parm( size2Parm * PI * 0.001f );
 		}
-		else if ( Any( flags & FX_SIZE2_PARM_MASK ) )
+		else if ( Any( flags & fxPrimitiveFlags_t::FX_SIZE2_PARM_MASK ) )
 		{
 			fx->SetSize2Parm( size2Parm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -843,11 +843,11 @@ CCylinder *FX_AddCylinder( int clientID, vec3_t start, vec3_t normal,
 		fx->SetLengthStart( length1 );
 		fx->SetLengthEnd( length2 );
 
-		if (( flags & FX_LENGTH_PARM_MASK ) == FX_LENGTH_WAVE )
+		if (( flags & fxPrimitiveFlags_t::FX_LENGTH_PARM_MASK ) == fxPrimitiveFlags_t::FX_LENGTH_WAVE )
 		{
 			fx->SetLengthParm( lengthParm * PI * 0.001f );
 		}
-		else if ( Any( flags & FX_LENGTH_PARM_MASK ) )
+		else if ( Any( flags & fxPrimitiveFlags_t::FX_LENGTH_PARM_MASK ) )
 		{
 			fx->SetLengthParm( lengthParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -856,11 +856,11 @@ CCylinder *FX_AddCylinder( int clientID, vec3_t start, vec3_t normal,
 		fx->SetAlphaStart( alpha1 );
 		fx->SetAlphaEnd( alpha2 );
 
-		if (( flags & FX_ALPHA_PARM_MASK ) == FX_ALPHA_WAVE )
+		if (( flags & fxPrimitiveFlags_t::FX_ALPHA_PARM_MASK ) == fxPrimitiveFlags_t::FX_ALPHA_WAVE )
 		{
 			fx->SetAlphaParm( alphaParm * PI * 0.001f );
 		}
-		else if ( Any( flags & FX_ALPHA_PARM_MASK ) )
+		else if ( Any( flags & fxPrimitiveFlags_t::FX_ALPHA_PARM_MASK ) )
 		{
 			fx->SetAlphaParm( alphaParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -904,11 +904,11 @@ CEmitter *FX_AddEmitter( vec3_t org, vec3_t vel, vec3_t accel,
 		fx->SetRGBStart( rgb1 );
 		fx->SetRGBEnd( rgb2 );
 
-		if (( flags & FX_RGB_PARM_MASK ) == FX_RGB_WAVE )
+		if (( flags & fxPrimitiveFlags_t::FX_RGB_PARM_MASK ) == fxPrimitiveFlags_t::FX_RGB_WAVE )
 		{
 			fx->SetRGBParm( rgbParm * PI * 0.001f );
 		}
-		else if ( Any( flags & FX_RGB_PARM_MASK ) )
+		else if ( Any( flags & fxPrimitiveFlags_t::FX_RGB_PARM_MASK ) )
 		{
 			// rgbParm should be a value from 0-100..
 			fx->SetRGBParm( rgbParm * 0.01f * killTime + theFxHelper.mTime );
@@ -918,11 +918,11 @@ CEmitter *FX_AddEmitter( vec3_t org, vec3_t vel, vec3_t accel,
 		fx->SetSizeStart( size1 );
 		fx->SetSizeEnd( size2 );
 
-		if (( flags & FX_SIZE_PARM_MASK ) == FX_SIZE_WAVE )
+		if (( flags & fxPrimitiveFlags_t::FX_SIZE_PARM_MASK ) == fxPrimitiveFlags_t::FX_SIZE_WAVE )
 		{
 			fx->SetSizeParm( sizeParm * PI * 0.001f );
 		}
-		else if ( Any( flags & FX_SIZE_PARM_MASK ) )
+		else if ( Any( flags & fxPrimitiveFlags_t::FX_SIZE_PARM_MASK ) )
 		{
 			fx->SetSizeParm( sizeParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -931,11 +931,11 @@ CEmitter *FX_AddEmitter( vec3_t org, vec3_t vel, vec3_t accel,
 		fx->SetAlphaStart( alpha1 );
 		fx->SetAlphaEnd( alpha2 );
 
-		if (( flags & FX_ALPHA_PARM_MASK ) == FX_ALPHA_WAVE )
+		if (( flags & fxPrimitiveFlags_t::FX_ALPHA_PARM_MASK ) == fxPrimitiveFlags_t::FX_ALPHA_WAVE )
 		{
 			fx->SetAlphaParm( alphaParm * PI * 0.001f );
 		}
-		else if ( Any( flags & FX_ALPHA_PARM_MASK ) )
+		else if ( Any( flags & fxPrimitiveFlags_t::FX_ALPHA_PARM_MASK ) )
 		{
 			fx->SetAlphaParm( alphaParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -986,11 +986,11 @@ CLight *FX_AddLight( vec3_t org, float size1, float size2, float sizeParm,
 		fx->SetRGBStart( rgb1 );
 		fx->SetRGBEnd( rgb2 );
 
-		if (( flags & FX_RGB_PARM_MASK ) == FX_RGB_WAVE )
+		if (( flags & fxPrimitiveFlags_t::FX_RGB_PARM_MASK ) == fxPrimitiveFlags_t::FX_RGB_WAVE )
 		{
 			fx->SetRGBParm( rgbParm * PI * 0.001f );
 		}
-		else if ( Any( flags & FX_RGB_PARM_MASK ) )
+		else if ( Any( flags & fxPrimitiveFlags_t::FX_RGB_PARM_MASK ) )
 		{
 			// rgbParm should be a value from 0-100..
 			fx->SetRGBParm( rgbParm * 0.01f * killTime + theFxHelper.mTime );
@@ -1000,11 +1000,11 @@ CLight *FX_AddLight( vec3_t org, float size1, float size2, float sizeParm,
 		fx->SetSizeStart( size1 );
 		fx->SetSizeEnd( size2 );
 
-		if (( flags & FX_SIZE_PARM_MASK ) == FX_SIZE_WAVE )
+		if (( flags & fxPrimitiveFlags_t::FX_SIZE_PARM_MASK ) == fxPrimitiveFlags_t::FX_SIZE_WAVE )
 		{
 			fx->SetSizeParm( sizeParm * PI * 0.001f );
 		}
-		else if ( Any( flags & FX_SIZE_PARM_MASK ) )
+		else if ( Any( flags & fxPrimitiveFlags_t::FX_SIZE_PARM_MASK ) )
 		{
 			fx->SetSizeParm( sizeParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -1041,7 +1041,7 @@ COrientedParticle *FX_AddOrientedParticle( int clientID, vec3_t org, vec3_t norm
 
 	if ( fx )
 	{
-		if (Any( flags&FX_RELATIVE ) && clientID>=0)
+		if (Any( flags&fxPrimitiveFlags_t::FX_RELATIVE ) && clientID>=0)
 		{
 			fx->SetOrigin1( nullptr );
 			fx->SetOrgOffset( org );//offset
@@ -1060,11 +1060,11 @@ COrientedParticle *FX_AddOrientedParticle( int clientID, vec3_t org, vec3_t norm
 		fx->SetRGBStart( rgb1 );
 		fx->SetRGBEnd( rgb2 );
 
-		if (( flags & FX_RGB_PARM_MASK ) == FX_RGB_WAVE )
+		if (( flags & fxPrimitiveFlags_t::FX_RGB_PARM_MASK ) == fxPrimitiveFlags_t::FX_RGB_WAVE )
 		{
 			fx->SetRGBParm( rgbParm * PI * 0.001f );
 		}
-		else if ( Any( flags & FX_RGB_PARM_MASK ) )
+		else if ( Any( flags & fxPrimitiveFlags_t::FX_RGB_PARM_MASK ) )
 		{
 			// rgbParm should be a value from 0-100..
 			fx->SetRGBParm( rgbParm * 0.01f * killTime + theFxHelper.mTime );
@@ -1074,11 +1074,11 @@ COrientedParticle *FX_AddOrientedParticle( int clientID, vec3_t org, vec3_t norm
 		fx->SetAlphaStart( alpha1 );
 		fx->SetAlphaEnd( alpha2 );
 
-		if (( flags & FX_ALPHA_PARM_MASK ) == FX_ALPHA_WAVE )
+		if (( flags & fxPrimitiveFlags_t::FX_ALPHA_PARM_MASK ) == fxPrimitiveFlags_t::FX_ALPHA_WAVE )
 		{
 			fx->SetAlphaParm( alphaParm * PI * 0.001f );
 		}
-		else if ( Any( flags & FX_ALPHA_PARM_MASK ) )
+		else if ( Any( flags & fxPrimitiveFlags_t::FX_ALPHA_PARM_MASK ) )
 		{
 			fx->SetAlphaParm( alphaParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -1087,11 +1087,11 @@ COrientedParticle *FX_AddOrientedParticle( int clientID, vec3_t org, vec3_t norm
 		fx->SetSizeStart( size1 );
 		fx->SetSizeEnd( size2 );
 
-		if (( flags & FX_SIZE_PARM_MASK ) == FX_SIZE_WAVE )
+		if (( flags & fxPrimitiveFlags_t::FX_SIZE_PARM_MASK ) == fxPrimitiveFlags_t::FX_SIZE_WAVE )
 		{
 			fx->SetSizeParm( sizeParm * PI * 0.001f );
 		}
-		else if ( Any( flags & FX_SIZE_PARM_MASK ) )
+		else if ( Any( flags & fxPrimitiveFlags_t::FX_SIZE_PARM_MASK ) )
 		{
 			fx->SetSizeParm( sizeParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -1147,11 +1147,11 @@ CPoly *FX_AddPoly( vec3_t *verts, vec2_t *st, int numVerts,
 		fx->SetRGBStart( rgb1 );
 		fx->SetRGBEnd( rgb2 );
 
-		if (( flags & FX_RGB_PARM_MASK ) == FX_RGB_WAVE )
+		if (( flags & fxPrimitiveFlags_t::FX_RGB_PARM_MASK ) == fxPrimitiveFlags_t::FX_RGB_WAVE )
 		{
 			fx->SetRGBParm( rgbParm * PI * 0.001f );
 		}
-		else if ( Any( flags & FX_RGB_PARM_MASK ) )
+		else if ( Any( flags & fxPrimitiveFlags_t::FX_RGB_PARM_MASK ) )
 		{
 			// rgbParm should be a value from 0-100..
 			fx->SetRGBParm( rgbParm * 0.01f * killTime + theFxHelper.mTime );
@@ -1161,11 +1161,11 @@ CPoly *FX_AddPoly( vec3_t *verts, vec2_t *st, int numVerts,
 		fx->SetAlphaStart( alpha1 );
 		fx->SetAlphaEnd( alpha2 );
 
-		if (( flags & FX_ALPHA_PARM_MASK ) == FX_ALPHA_WAVE )
+		if (( flags & fxPrimitiveFlags_t::FX_ALPHA_PARM_MASK ) == fxPrimitiveFlags_t::FX_ALPHA_WAVE )
 		{
 			fx->SetAlphaParm( alphaParm * PI * 0.001f );
 		}
-		else if ( Any( flags & FX_ALPHA_PARM_MASK ) )
+		else if ( Any( flags & fxPrimitiveFlags_t::FX_ALPHA_PARM_MASK ) )
 		{
 			fx->SetAlphaParm( alphaParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -1218,11 +1218,11 @@ CBezier *FX_AddBezier( const vec3_t start, const vec3_t end,
 		fx->SetRGBStart( sRGB );
 		fx->SetRGBEnd( eRGB );
 
-		if (( flags & FX_RGB_PARM_MASK ) == FX_RGB_WAVE )
+		if (( flags & fxPrimitiveFlags_t::FX_RGB_PARM_MASK ) == fxPrimitiveFlags_t::FX_RGB_WAVE )
 		{
 			fx->SetRGBParm( rgbParm * PI * 0.001f );
 		}
-		else if ( Any( flags & FX_RGB_PARM_MASK ) )
+		else if ( Any( flags & fxPrimitiveFlags_t::FX_RGB_PARM_MASK ) )
 		{
 			// rgbParm should be a value from 0-100..
 			fx->SetRGBParm( rgbParm * 0.01f * killTime + theFxHelper.mTime );
@@ -1232,11 +1232,11 @@ CBezier *FX_AddBezier( const vec3_t start, const vec3_t end,
 		fx->SetAlphaStart( alpha1 );
 		fx->SetAlphaEnd( alpha2 );
 
-		if (( flags & FX_ALPHA_PARM_MASK ) == FX_ALPHA_WAVE )
+		if (( flags & fxPrimitiveFlags_t::FX_ALPHA_PARM_MASK ) == fxPrimitiveFlags_t::FX_ALPHA_WAVE )
 		{
 			fx->SetAlphaParm( alphaParm * PI * 0.001f );
 		}
-		else if ( Any( flags & FX_ALPHA_PARM_MASK ) )
+		else if ( Any( flags & fxPrimitiveFlags_t::FX_ALPHA_PARM_MASK ) )
 		{
 			fx->SetAlphaParm( alphaParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -1245,11 +1245,11 @@ CBezier *FX_AddBezier( const vec3_t start, const vec3_t end,
 		fx->SetSizeStart( size1 );
 		fx->SetSizeEnd( size2 );
 
-		if (( flags & FX_SIZE_PARM_MASK ) == FX_SIZE_WAVE )
+		if (( flags & fxPrimitiveFlags_t::FX_SIZE_PARM_MASK ) == fxPrimitiveFlags_t::FX_SIZE_WAVE )
 		{
 			fx->SetSizeParm( sizeParm * PI * 0.001f );
 		}
-		else if ( Any( flags & FX_SIZE_PARM_MASK ) )
+		else if ( Any( flags & fxPrimitiveFlags_t::FX_SIZE_PARM_MASK ) )
 		{
 			fx->SetSizeParm( sizeParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -1269,7 +1269,7 @@ CBezier *FX_AddBezier( const vec3_t start, const vec3_t end,
 //  FX_AddFlash
 //-------------------------
 CFlash *FX_AddFlash( vec3_t origin, vec3_t sRGB, vec3_t eRGB, float rgbParm,
-						int killTime, qhandle_t shader, fxPrimitiveFlags_t flags = FX_NONE )
+						int killTime, qhandle_t shader, fxPrimitiveFlags_t flags = fxPrimitiveFlags_t::FX_NONE )
 {
 	if ( theFxHelper.mFrameTime < 1 )
 	{ // disallow adding new effects when the system is paused
@@ -1286,11 +1286,11 @@ CFlash *FX_AddFlash( vec3_t origin, vec3_t sRGB, vec3_t eRGB, float rgbParm,
 		fx->SetRGBStart( sRGB );
 		fx->SetRGBEnd( eRGB );
 
-		if (( flags & FX_RGB_PARM_MASK ) == FX_RGB_WAVE )
+		if (( flags & fxPrimitiveFlags_t::FX_RGB_PARM_MASK ) == fxPrimitiveFlags_t::FX_RGB_WAVE )
 		{
 			fx->SetRGBParm( rgbParm * PI * 0.001f );
 		}
-		else if ( Any( flags & FX_RGB_PARM_MASK ) )
+		else if ( Any( flags & fxPrimitiveFlags_t::FX_RGB_PARM_MASK ) )
 		{
 			// rgbParm should be a value from 0-100..
 			fx->SetRGBParm( rgbParm * 0.01f * killTime + theFxHelper.mTime );
@@ -1300,11 +1300,11 @@ CFlash *FX_AddFlash( vec3_t origin, vec3_t sRGB, vec3_t eRGB, float rgbParm,
 		fx->SetAlphaStart( alpha1 );
 		fx->SetAlphaEnd( alpha2 );
 
-		if (( flags & FX_ALPHA_PARM_MASK ) == FX_ALPHA_WAVE )
+		if (( flags & fxPrimitiveFlags_t::FX_ALPHA_PARM_MASK ) == fxPrimitiveFlags_t::FX_ALPHA_WAVE )
 		{
 			fx->SetAlphaParm( alphaParm * PI * 0.001f );
 		}
-		else if ( flags & FX_ALPHA_PARM_MASK )
+		else if ( flags & fxPrimitiveFlags_t::FX_ALPHA_PARM_MASK )
 		{
 			fx->SetAlphaParm( alphaParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -1313,11 +1313,11 @@ CFlash *FX_AddFlash( vec3_t origin, vec3_t sRGB, vec3_t eRGB, float rgbParm,
 		fx->SetSizeStart( size1 );
 		fx->SetSizeEnd( size2 );
 
-		if (( flags & FX_SIZE_PARM_MASK ) == FX_SIZE_WAVE )
+		if (( flags & fxPrimitiveFlags_t::FX_SIZE_PARM_MASK ) == fxPrimitiveFlags_t::FX_SIZE_WAVE )
 		{
 			fx->SetSizeParm( sizeParm * PI * 0.001f );
 		}
-		else if ( flags & FX_SIZE_PARM_MASK )
+		else if ( flags & fxPrimitiveFlags_t::FX_SIZE_PARM_MASK )
 		{
 			fx->SetSizeParm( sizeParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -1357,7 +1357,7 @@ void FX_AddSprite( vec3_t origin, vec3_t vel, vec3_t accel,
 							rotation, 0,
 							vec3_origin, vec3_origin, bounce,
 							0, 0,
-							life, shader, flags | FX_ALPHA_LINEAR );
+							life, shader, flags | fxPrimitiveFlags_t::FX_ALPHA_LINEAR );
 }
 
 //---------------------------------------------------
@@ -1374,7 +1374,7 @@ void FX_AddSprite( vec3_t origin, vec3_t vel, vec3_t accel,
 							rotation, 0,
 							vec3_origin, vec3_origin, bounce,
 							0, 0,
-							life, shader, flags | FX_ALPHA_LINEAR );
+							life, shader, flags | fxPrimitiveFlags_t::FX_ALPHA_LINEAR );
 }
 
 //---------------------------------------------------
@@ -1386,7 +1386,7 @@ void FX_AddLine( vec3_t start, vec3_t end, float stScale,
 	FX_AddLine( -1, start, end, width, width, 0,
 							sAlpha, eAlpha, 0,
 							WHITE, WHITE, 0,
-							life, shader, 0, flags | FX_ALPHA_LINEAR );
+							life, shader, 0, flags | fxPrimitiveFlags_t::FX_ALPHA_LINEAR );
 }
 
 //---------------------------------------------------
@@ -1399,7 +1399,7 @@ void FX_AddLine( vec3_t start, vec3_t end, float stScale,
 	FX_AddLine( -1, start, end, width, width, 0,
 							sAlpha, eAlpha, 0,
 							sRGB, eRGB, 0,
-							life, shader, 0, flags | FX_ALPHA_LINEAR );
+							life, shader, 0, flags | fxPrimitiveFlags_t::FX_ALPHA_LINEAR );
 }
 
 //---------------------------------------------------
@@ -1416,5 +1416,5 @@ void FX_AddQuad( vec3_t origin, vec3_t normal,
 							sRGB, eRGB, 0.0f,
 							rotation, 0.0f,
 							nullptr, nullptr, 0.0f, 0, 0, life,
-							shader, FX_NONE );
+							shader, fxPrimitiveFlags_t::FX_NONE );
 }

@@ -234,7 +234,7 @@ void SV_LinkEntity( gentity_t *gEnt ) {
 	// encode the size into the entityState_t for client prediction
 	if ( gEnt->bmodel ) {
 		gEnt->s.solid = SOLID_BMODEL;		// a solid_box will never create this value
-	} else if ( Any( gEnt->contents & ( CONTENTS_SOLID | CONTENTS_BODY ) ) ) {
+	} else if ( Any( gEnt->contents & ( contentsFlags_t::CONTENTS_SOLID | contentsFlags_t::CONTENTS_BODY ) ) ) {
 		// assume that x/y are equal and symetric
 		i = gEnt->maxs[0];
 		if (i<1)
@@ -314,7 +314,7 @@ void SV_LinkEntity( gentity_t *gEnt ) {
 		{	// doors may legally straggle two areas,
 			// but nothing should evern need more than that
 			if (ent->areanum != -1 && ent->areanum != area) {
-				if (ent->areanum2 != -1 && ent->areanum2 != area && sv.state == SS_LOADING) {
+				if (ent->areanum2 != -1 && ent->areanum2 != area && sv.state == serverState_t::SS_LOADING) {
 					Com_DPrintf ("Object %i touching 3 areas at %f %f %f\n",
 					gEnt->s.number,
 					gEnt->absmin[0], gEnt->absmin[1], gEnt->absmin[2]);
@@ -654,7 +654,7 @@ void SV_ClipMoveToEntities( moveclip_t *clip ) {
 		{
 			shrinkBox=false;
 		}
-		else if (trace.entityNum == touch->s.number&&touch->ghoul2.size()&&!Any( touch->contents & CONTENTS_LIGHTSABER ))
+		else if (trace.entityNum == touch->s.number&&touch->ghoul2.size()&&!Any( touch->contents & contentsFlags_t::CONTENTS_LIGHTSABER ))
 		{
 			shrinkBox=false;
 		}
@@ -729,10 +729,10 @@ Ghoul2 Insert Start
 */
 
 		// decide if we should do the ghoul2 collision detection right here
-		if ((trace.entityNum == touch->s.number) && (clip->eG2TraceType != G2_NOCOLLIDE))
+		if ((trace.entityNum == touch->s.number) && (clip->eG2TraceType != EG2_Collision::G2_NOCOLLIDE))
 		{
 			// do we actually have a ghoul2 model here?
-			if (touch->ghoul2.size() && !Any( touch->contents & CONTENTS_LIGHTSABER ))
+			if (touch->ghoul2.size() && !Any( touch->contents & contentsFlags_t::CONTENTS_LIGHTSABER ))
 			{
 				int			oldTraceRecSize = 0;
 				int			newTraceRecSize = 0;

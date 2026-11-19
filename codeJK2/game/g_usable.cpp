@@ -32,7 +32,7 @@ extern gentity_t	*G_TestEntityPosition( gentity_t *ent );
 void func_wait_return_solid( gentity_t *self )
 {
 	//once a frame, see if it's clear.
-	self->clipmask = CONTENTS_BODY;//|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP;
+	self->clipmask = contentsFlags_t::CONTENTS_BODY;//|contentsFlags_t::CONTENTS_MONSTERCLIP|contentsFlags_t::CONTENTS_BOTCLIP;
 	if ( !(self->spawnflags&16) || G_TestEntityPosition( self ) == nullptr )
 	{
 		gi.SetBrushModel( self, self->model );
@@ -45,15 +45,15 @@ void func_wait_return_solid( gentity_t *self )
 		//if we moved, we want the *current* origin, not our start origin!
 		VectorCopy( self->currentOrigin, self->s.pos.trBase );
 		gi.linkentity( self );
-		self->svFlags &= ~SVF_NOCLIENT;
-		self->s.eFlags &= ~EF_NODRAW;
-		self->e_UseFunc = useF_func_usable_use;
-		self->clipmask = CONTENTS_NONE;
+		self->svFlags &= ~svFlags_t::SVF_NOCLIENT;
+		self->s.eFlags &= ~entityFlags_t::EF_NODRAW;
+		self->e_UseFunc = useFunc_t::useF_func_usable_use;
+		self->clipmask = contentsFlags_t::CONTENTS_NONE;
 		if ( self->target2 && self->target2[0] )
 		{
 			G_UseTargets2( self, self->activator, self->target2 );
 		}
-		if ( Any( self->s.eFlags & EF_ANIM_ONCE ) )
+		if ( Any( self->s.eFlags & entityFlags_t::EF_ANIM_ONCE ) )
 		{//Start our anim
 			self->s.frame = 0;
 		}
@@ -64,8 +64,8 @@ void func_wait_return_solid( gentity_t *self )
 	}
 	else
 	{
-		self->clipmask = CONTENTS_NONE;
-		self->e_ThinkFunc = thinkF_func_wait_return_solid;
+		self->clipmask = contentsFlags_t::CONTENTS_NONE;
+		self->e_ThinkFunc = thinkFunc_t::thinkF_func_wait_return_solid;
 		self->nextthink = level.time + FRAMETIME;
 	}
 }
@@ -74,9 +74,9 @@ void func_usable_think( gentity_t *self )
 {
 	if ( self->spawnflags & 8 )
 	{
-		self->svFlags |= SVF_PLAYER_USABLE;	//Replace the usable flag
-		self->e_UseFunc = useF_func_usable_use;
-		self->e_ThinkFunc = thinkF_NULL;
+		self->svFlags |= svFlags_t::SVF_PLAYER_USABLE;	//Replace the usable flag
+		self->e_UseFunc = useFunc_t::useF_func_usable_use;
+		self->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
 	}
 }
 
@@ -85,7 +85,7 @@ bool G_EntIsRemovableUsable( int entNum )
 	gentity_t *ent = &g_entities[entNum];
 	if ( ent->classname && !Q_stricmp( "func_usable", ent->classname ) )
 	{
-		if ( !Any(ent->s.eFlags&EF_SHADER_ANIM) && !(ent->spawnflags&8) && ent->targetname )
+		if ( !Any(ent->s.eFlags&entityFlags_t::EF_SHADER_ANIM) && !(ent->spawnflags&8) && ent->targetname )
 		{//not just a shader-animator and not ALWAYS_ON, so it must be removable somehow
 			return true;
 		}
@@ -106,8 +106,8 @@ void func_usable_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 		}
 	}
 
-	G_ActivateBehavior( self, BSET_USE );
-	if ( Any( self->s.eFlags & EF_SHADER_ANIM ) )
+	G_ActivateBehavior( self, bSet_t::BSET_USE );
+	if ( Any( self->s.eFlags & entityFlags_t::EF_SHADER_ANIM ) )
 	{//animate shader when used
 		self->s.frame++;//inc frame
 		if ( self->s.frame > self->endFrame )
@@ -122,9 +122,9 @@ void func_usable_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 	else if ( self->spawnflags & 8 )
 	{//ALWAYS_ON
 		//Remove the ability to use the entity directly
-		self->svFlags &= ~SVF_PLAYER_USABLE;
+		self->svFlags &= ~svFlags_t::SVF_PLAYER_USABLE;
 		//also remove ability to call any use func at all!
-		self->e_UseFunc = useF_NULL;
+		self->e_UseFunc = useFunc_t::useF_NULL;
 
 		if(self->target && self->target[0])
 		{
@@ -133,7 +133,7 @@ void func_usable_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 
 		if ( self->wait )
 		{
-			self->e_ThinkFunc = thinkF_func_usable_think;
+			self->e_ThinkFunc = thinkFunc_t::thinkF_func_usable_think;
 			self->nextthink = level.time + ( self->wait * 1000 );
 		}
 
@@ -148,17 +148,17 @@ void func_usable_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 	else
 	{
 		self->s.solid = 0;
-		self->contents = CONTENTS_NONE;
-		self->clipmask = CONTENTS_NONE;
-		self->svFlags |= SVF_NOCLIENT;
-		self->s.eFlags |= EF_NODRAW;
+		self->contents = contentsFlags_t::CONTENTS_NONE;
+		self->clipmask = contentsFlags_t::CONTENTS_NONE;
+		self->svFlags |= svFlags_t::SVF_NOCLIENT;
+		self->s.eFlags |= entityFlags_t::EF_NODRAW;
 		self->count = 0;
 
 		if(self->target && self->target[0])
 		{
 			G_UseTargets(self, activator);
 		}
-		self->e_ThinkFunc = thinkF_NULL;
+		self->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
 		self->nextthink = -1;
 		if ( !(self->spawnflags&1) )
 		{//START_OFF doesn't effect area portals
@@ -213,36 +213,36 @@ void SP_func_usable( gentity_t *self )
 	if (self->spawnflags & 1)
 	{
 		self->s.solid = 0;
-		self->contents = CONTENTS_NONE;
-		self->clipmask = CONTENTS_NONE;
-		self->svFlags |= SVF_NOCLIENT;
-		self->s.eFlags |= EF_NODRAW;
+		self->contents = contentsFlags_t::CONTENTS_NONE;
+		self->clipmask = contentsFlags_t::CONTENTS_NONE;
+		self->svFlags |= svFlags_t::SVF_NOCLIENT;
+		self->s.eFlags |= entityFlags_t::EF_NODRAW;
 		self->count = 0;
 	}
 
 	if (self->spawnflags & 2)
 	{
-		self->s.eFlags |= EF_ANIM_ALLFAST;
+		self->s.eFlags |= entityFlags_t::EF_ANIM_ALLFAST;
 	}
 
 	if (self->spawnflags & 4)
 	{//FIXME: need to be able to do change to something when it's done?  Or not be usable until it's done?
-		self->s.eFlags |= EF_ANIM_ONCE;
+		self->s.eFlags |= entityFlags_t::EF_ANIM_ONCE;
 	}
 
-	self->e_UseFunc = useF_func_usable_use;
+	self->e_UseFunc = useFunc_t::useF_func_usable_use;
 
 	if ( self->health )
 	{
 		self->takedamage = true;
-		self->e_DieFunc = dieF_func_usable_die;
-		self->e_PainFunc = painF_func_usable_pain;
+		self->e_DieFunc = dieFunc_t::dieF_func_usable_die;
+		self->e_PainFunc = painFunc_t::painF_func_usable_pain;
 	}
 
 	if ( self->endFrame > 0 )
 	{
 		self->s.frame = self->startFrame = 0;
-		self->s.eFlags |= EF_SHADER_ANIM;
+		self->s.eFlags |= entityFlags_t::EF_SHADER_ANIM;
 	}
 
 	gi.linkentity (self);

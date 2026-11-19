@@ -86,7 +86,7 @@ void CGCam_Enable( void )
 	client_camera.bar_height_dest = 480/10;
 	client_camera.bar_height = 0.0f;
 
-	client_camera.info_state |= CAMERA_BAR_FADING;
+	client_camera.info_state |= cameraStateFlags_t::CAMERA_BAR_FADING;
 
 	client_camera.FOV	= CAMERA_DEFAULT_FOV;
 	client_camera.FOV2	= CAMERA_DEFAULT_FOV;
@@ -99,7 +99,7 @@ void CGCam_Enable( void )
 	{
 		//Player zero not allowed to do anything
 		VectorClear( g_entities[0].client->ps.velocity );
-		g_entities[0].contents = CONTENTS_NONE;
+		g_entities[0].contents = contentsFlags_t::CONTENTS_NONE;
 
 		if ( cg.zoomMode )
 		{
@@ -116,7 +116,7 @@ void CGCam_Enable( void )
 			}
 		}
 
-		for ( forcePowers_t i = FP_FIRST; i < NUM_FORCE_POWERS; i++ )
+		for ( forcePowers_t i = forcePowers_t::FP_FIRST; i < forcePowers_t::NUM_FORCE_POWERS; i++ )
 		{//deactivate any active force powers
 			g_entities[0].client->ps.forcePowerDuration[i] = 0;
 extern void WP_ForcePowerStop( gentity_t *self, forcePowers_t forcePower );
@@ -146,11 +146,11 @@ void CGCam_Disable( void )
 	client_camera.bar_height_source = 480/10;
 	client_camera.bar_height_dest = 0.0f;
 
-	client_camera.info_state |= CAMERA_BAR_FADING;
+	client_camera.info_state |= cameraStateFlags_t::CAMERA_BAR_FADING;
 
 	if ( g_entities[0].inuse && g_entities[0].client )
 	{
-		g_entities[0].contents = CONTENTS_BODY;//MASK_PLAYERSOLID;
+		g_entities[0].contents = contentsFlags_t::CONTENTS_BODY;//MASK_PLAYERSOLID;
 	}
 
 	gi.SendServerCommand( 0, "cts");
@@ -186,9 +186,9 @@ CGCam_Move
 
 void CGCam_Move( vec3_t dest, float duration )
 {
-	if ( Any( client_camera.info_state & CAMERA_ROFFING ) )
+	if ( Any( client_camera.info_state & cameraStateFlags_t::CAMERA_ROFFING ) )
 	{
-		client_camera.info_state &= ~CAMERA_ROFFING;
+		client_camera.info_state &= ~cameraStateFlags_t::CAMERA_ROFFING;
 	}
 
 	CGCam_TrackDisable();
@@ -196,12 +196,12 @@ void CGCam_Move( vec3_t dest, float duration )
 
 	if ( !duration )
 	{
-		client_camera.info_state &= ~CAMERA_MOVING;
+		client_camera.info_state &= ~cameraStateFlags_t::CAMERA_MOVING;
 		CGCam_SetPosition( dest );
 		return;
 	}
 
-	client_camera.info_state |= CAMERA_MOVING;
+	client_camera.info_state |= cameraStateFlags_t::CAMERA_MOVING;
 
 	VectorCopy( dest, client_camera.origin2 );
 
@@ -239,7 +239,7 @@ void CGCam_Pan( vec3_t dest, vec3_t panDirection, float duration )
 	if ( !duration )
 	{
 		CGCam_SetAngles( dest );
-		client_camera.info_state &= ~CAMERA_PANNING;
+		client_camera.info_state &= ~cameraStateFlags_t::CAMERA_PANNING;
 		return;
 	}
 
@@ -303,7 +303,7 @@ void CGCam_Pan( vec3_t dest, vec3_t panDirection, float duration )
 	}
 	//VectorCopy( dest, client_camera.angles2 );
 
-	client_camera.info_state |= CAMERA_PANNING;
+	client_camera.info_state |= cameraStateFlags_t::CAMERA_PANNING;
 
 	client_camera.pan_duration = duration;
 	client_camera.pan_time = cg.time;
@@ -335,7 +335,7 @@ void CGCam_Roll( float	dest, float duration )
 	}
 
 	//FIXME/NOTE: this will override current panning!!!
-	client_camera.info_state |= CAMERA_PANNING;
+	client_camera.info_state |= cameraStateFlags_t::CAMERA_PANNING;
 
 	VectorCopy( client_camera.angles, client_camera.angles2 );
 	client_camera.angles2[2] = AngleDelta( dest, client_camera.angles[2] );
@@ -368,7 +368,7 @@ void CGCam_Zoom( float FOV, float duration )
 		CGCam_SetFOV( FOV );
 		return;
 	}
-	client_camera.info_state |= CAMERA_ZOOMING;
+	client_camera.info_state |= cameraStateFlags_t::CAMERA_ZOOMING;
 
 	client_camera.FOV_time	= cg.time;
 	client_camera.FOV2		= FOV;
@@ -383,7 +383,7 @@ void CGCam_Zoom2( float FOV, float FOV2, float duration )
 		CGCam_SetFOV( FOV2 );
 		return;
 	}
-	client_camera.info_state |= CAMERA_ZOOMING;
+	client_camera.info_state |= cameraStateFlags_t::CAMERA_ZOOMING;
 
 	client_camera.FOV_time	= cg.time;
 	client_camera.FOV = FOV;
@@ -398,7 +398,7 @@ void CGCam_ZoomAccel( float initialFOV, float fovVelocity, float fovAccel, float
 	{
 		return;
 	}
-	client_camera.info_state |= CAMERA_ACCEL;
+	client_camera.info_state |= cameraStateFlags_t::CAMERA_ACCEL;
 
 	client_camera.FOV_time	= cg.time;
 	client_camera.FOV2 = initialFOV;
@@ -416,7 +416,7 @@ CGCam_Fade
 
 void CGCam_SetFade( vec4_t dest )
 {//Instant completion
-	client_camera.info_state &= ~CAMERA_FADING;
+	client_camera.info_state &= ~cameraStateFlags_t::CAMERA_FADING;
 	client_camera.fade_duration = 0;
 	VectorCopy4( dest, client_camera.fade_source );
 	VectorCopy4( dest, client_camera.fade_color );
@@ -442,12 +442,12 @@ void CGCam_Fade( vec4_t source, vec4_t dest, float duration )
 	client_camera.fade_duration = duration;
 	client_camera.fade_time = cg.time;
 
-	client_camera.info_state |= CAMERA_FADING;
+	client_camera.info_state |= cameraStateFlags_t::CAMERA_FADING;
 }
 
 void CGCam_FollowDisable( void )
 {
-	client_camera.info_state &= ~CAMERA_FOLLOWING;
+	client_camera.info_state &= ~cameraStateFlags_t::CAMERA_FOLLOWING;
 	client_camera.cameraGroup[0] = 0;
 	client_camera.cameraGroupZOfs = 0;
 	client_camera.cameraGroupTag[0] = 0;
@@ -455,7 +455,7 @@ void CGCam_FollowDisable( void )
 
 void CGCam_TrackDisable( void )
 {
-	client_camera.info_state &= ~CAMERA_TRACKING;
+	client_camera.info_state &= ~cameraStateFlags_t::CAMERA_TRACKING;
 	client_camera.trackEntNum = ENTITYNUM_WORLD;
 }
 
@@ -490,8 +490,8 @@ void CGCam_Follow( const char *cameraGroup, float speed, float initLerp )
 	}
 
 	//NOTE: if this interrupts a pan before it's done, need to copy the cg.refdef.viewAngles to the camera.angles!
-	client_camera.info_state |= CAMERA_FOLLOWING;
-	client_camera.info_state &= ~CAMERA_PANNING;
+	client_camera.info_state |= cameraStateFlags_t::CAMERA_FOLLOWING;
+	client_camera.info_state &= ~cameraStateFlags_t::CAMERA_PANNING;
 
 	//null-terminate last char in case they type a name too long
 	Q_strncpyz( client_camera.cameraGroup, cameraGroup, sizeof(client_camera.cameraGroup) );
@@ -580,8 +580,8 @@ void CGCam_Track( const char *trackName, float speed, float initLerp )
 		return;
 	}
 
-	client_camera.info_state |= CAMERA_TRACKING;
-	client_camera.info_state &= ~CAMERA_MOVING;
+	client_camera.info_state |= cameraStateFlags_t::CAMERA_TRACKING;
+	client_camera.info_state &= ~cameraStateFlags_t::CAMERA_MOVING;
 
 	client_camera.trackEntNum = trackEnt->s.number;
 	client_camera.initSpeed = speed/10.0f;
@@ -597,7 +597,7 @@ void CGCam_Track( const char *trackName, float speed, float initLerp )
 		client_camera.trackInitLerp = false;
 	}
 	/*
-	if ( Any( client_camera.info_state & CAMERA_FOLLOWING ) )
+	if ( Any( client_camera.info_state & cameraStateFlags_t::CAMERA_FOLLOWING ) )
 	{//Used to snap angles?  Do what...?
 	}
 	*/
@@ -731,15 +731,15 @@ void CGCam_FollowUpdate ( void )
 					vec3_t	fromAngles = {0,from->client->ps.legsYaw,0};
 
 					gi.G2API_GetBoltMatrix( fromCent->gent->ghoul2, from->playerModel, newBolt, &boltMatrix, fromAngles, fromCent->lerpOrigin, cg.time, cgs.model_draw, fromCent->currentState.modelScale );
-					gi.G2API_GiveMeVectorFromMatrix( boltMatrix, ORIGIN, focus[num_subjects] );
+					gi.G2API_GiveMeVectorFromMatrix( boltMatrix, Eorientations::ORIGIN, focus[num_subjects] );
 
 					focused = true;
 				}
 			}
 			if ( !focused )
 			{
-				if ( from->s.pos.trType != TR_STATIONARY )
-//				if ( from->s.pos.trType == TR_INTERPOLATE )
+				if ( from->s.pos.trType != trType_t::TR_STATIONARY )
+//				if ( from->s.pos.trType == trType_t::TR_INTERPOLATE )
 				{//use interpolated origin?
 					if ( !VectorCompare( vec3_origin, fromCent->lerpOrigin ) )
 					{//hunh?  Somehow we've never seen this gentity on the client, so there is no lerpOrigin, so cheat over to the game and use the currentOrigin
@@ -902,7 +902,7 @@ void CGCam_TrackEntUpdate ( void )
 
 	if ( newTrackEnt )
 	{//Update will lerp this
-		client_camera.info_state |= CAMERA_TRACKING;
+		client_camera.info_state |= cameraStateFlags_t::CAMERA_TRACKING;
 		client_camera.trackEntNum = newTrackEnt->s.number;
 		VectorCopy( newTrackEnt->currentOrigin, client_camera.trackToOrg );
 	}
@@ -932,7 +932,7 @@ void CGCam_TrackUpdate ( void )
 		goalDist = 10;
 	}
 
-	if ( client_camera.distance && Any( client_camera.info_state & CAMERA_FOLLOWING ) )
+	if ( client_camera.distance && Any( client_camera.info_state & cameraStateFlags_t::CAMERA_FOLLOWING ) )
 	{
 		float	adjust = 0.0f, desiredSpeed = 0.0f;
 		float	dot;
@@ -1044,7 +1044,7 @@ void CGCam_UpdateBarFade( void )
 	if ( client_camera.bar_time + BAR_DURATION < cg.time )
 	{
 		client_camera.bar_alpha = client_camera.bar_alpha_dest;
-		client_camera.info_state &= ~CAMERA_BAR_FADING;
+		client_camera.info_state &= ~cameraStateFlags_t::CAMERA_BAR_FADING;
 		client_camera.bar_height = client_camera.bar_height_dest;
 	}
 	else
@@ -1062,12 +1062,12 @@ CGCam_UpdateFade
 
 void CGCam_UpdateFade( void )
 {
-	if ( Any( client_camera.info_state & CAMERA_FADING ) )
+	if ( Any( client_camera.info_state & cameraStateFlags_t::CAMERA_FADING ) )
 	{
 		if ( client_camera.fade_time + client_camera.fade_duration < cg.time )
 		{
 			VectorCopy4( client_camera.fade_dest, client_camera.fade_color );
-			client_camera.info_state &= ~CAMERA_FADING;
+			client_camera.info_state &= ~cameraStateFlags_t::CAMERA_FADING;
 		}
 		else
 		{
@@ -1092,13 +1092,13 @@ void CGCam_Update( void )
 	bool	checkTrack = false;
 
 	// Apply new roff data to the camera as needed
-	if ( Any( client_camera.info_state & CAMERA_ROFFING ) )
+	if ( Any( client_camera.info_state & cameraStateFlags_t::CAMERA_ROFFING ) )
 	{
 		CGCam_Roff();
 	}
 
 	//Check for a zoom
-	if (Any(client_camera.info_state & CAMERA_ACCEL))
+	if (Any(client_camera.info_state & cameraStateFlags_t::CAMERA_ACCEL))
 	{
 		// x = x0 + vt + 0.5*a*t*t
 		float	actualFOV_X = client_camera.FOV;
@@ -1114,7 +1114,7 @@ void CGCam_Update( void )
 #endif
 		if ( client_camera.FOV_time + fovDuration < cg.time )
 		{
-			client_camera.info_state &= ~CAMERA_ACCEL;
+			client_camera.info_state &= ~cameraStateFlags_t::CAMERA_ACCEL;
 		}
 		else
 		{
@@ -1162,14 +1162,14 @@ void CGCam_Update( void )
 		}
 		CG_CalcFOVFromX( actualFOV_X );
 	}
-	else if ( Any( client_camera.info_state & CAMERA_ZOOMING ) )
+	else if ( Any( client_camera.info_state & cameraStateFlags_t::CAMERA_ZOOMING ) )
 	{
 		float	actualFOV_X;
 
 		if ( client_camera.FOV_time + client_camera.FOV_duration < cg.time )
 		{
 			actualFOV_X = client_camera.FOV = client_camera.FOV2;
-			client_camera.info_state &= ~CAMERA_ZOOMING;
+			client_camera.info_state &= ~cameraStateFlags_t::CAMERA_ZOOMING;
 		}
 		else
 		{
@@ -1183,9 +1183,9 @@ void CGCam_Update( void )
 	}
 
 	//Check for roffing angles
-	if ( Any(client_camera.info_state & CAMERA_ROFFING) && !Any(client_camera.info_state & CAMERA_FOLLOWING) )
+	if ( Any(client_camera.info_state & cameraStateFlags_t::CAMERA_ROFFING) && !Any(client_camera.info_state & cameraStateFlags_t::CAMERA_FOLLOWING) )
 	{
-		if (Any(client_camera.info_state & CAMERA_CUT))
+		if (Any(client_camera.info_state & cameraStateFlags_t::CAMERA_CUT))
 		{
 			// we're doing a cut, so just go to the new angles. none of this hifalutin lerping business.
 			for ( i = 0; i < 3; i++ )
@@ -1201,9 +1201,9 @@ void CGCam_Update( void )
 			}
 		}
 	}
-	else if ( Any( client_camera.info_state & CAMERA_PANNING ) )
+	else if ( Any( client_camera.info_state & cameraStateFlags_t::CAMERA_PANNING ) )
 	{
-		if (Any(client_camera.info_state & CAMERA_CUT))
+		if (Any(client_camera.info_state & cameraStateFlags_t::CAMERA_CUT))
 		{
 			// we're doing a cut, so just go to the new angles. none of this hifalutin lerping business.
 			for ( i = 0; i < 3; i++ )
@@ -1221,7 +1221,7 @@ void CGCam_Update( void )
 					client_camera.angles[i] = AngleNormalize360( ( client_camera.angles[i] + client_camera.angles2[i] ) );
 				}
 
-				client_camera.info_state &= ~CAMERA_PANNING;
+				client_camera.info_state &= ~cameraStateFlags_t::CAMERA_PANNING;
 				VectorCopy(client_camera.angles, cg.refdefViewAngles );
 			}
 			else
@@ -1240,18 +1240,18 @@ void CGCam_Update( void )
 	}
 
 	//Check for movement
-	if ( Any( client_camera.info_state & CAMERA_MOVING ) )
+	if ( Any( client_camera.info_state & cameraStateFlags_t::CAMERA_MOVING ) )
 	{
 		//NOTE: does not actually move the camera until the movement time is done!
 		if ( client_camera.move_time + client_camera.move_duration < cg.time )
 		{
 			VectorCopy( client_camera.origin2, client_camera.origin );
-			client_camera.info_state &= ~CAMERA_MOVING;
+			client_camera.info_state &= ~cameraStateFlags_t::CAMERA_MOVING;
 			VectorCopy( client_camera.origin, cg.refdef.vieworg );
 		}
 		else
 		{
-			if (Any(client_camera.info_state & CAMERA_CUT))
+			if (Any(client_camera.info_state & cameraStateFlags_t::CAMERA_CUT))
 			{
 				// we're doing a cut, so just go to the new origin. none of this fancypants lerping stuff.
 				for ( i = 0; i < 3; i++ )
@@ -1275,7 +1275,7 @@ void CGCam_Update( void )
 
 	if ( checkFollow )
 	{
-		if ( Any( client_camera.info_state & CAMERA_FOLLOWING ) )
+		if ( Any( client_camera.info_state & cameraStateFlags_t::CAMERA_FOLLOWING ) )
 		{//This needs to be done after camera movement
 			CGCam_FollowUpdate();
 		}
@@ -1284,7 +1284,7 @@ void CGCam_Update( void )
 
 	if ( checkTrack )
 	{
-		if ( Any( client_camera.info_state & CAMERA_TRACKING ) )
+		if ( Any( client_camera.info_state & cameraStateFlags_t::CAMERA_TRACKING ) )
 		{//This has to run AFTER Follow if the camera is following a cameraGroup
 			CGCam_TrackUpdate();
 		}
@@ -1293,7 +1293,7 @@ void CGCam_Update( void )
 	}
 
 	//Bar fading
-	if ( Any( client_camera.info_state & CAMERA_BAR_FADING ) )
+	if ( Any( client_camera.info_state & cameraStateFlags_t::CAMERA_BAR_FADING ) )
 	{
 		CGCam_UpdateBarFade();
 	}
@@ -1416,10 +1416,10 @@ void CGCam_Smooth( float intensity, int duration )
 	client_camera.smooth_active=false; // means smooth_origin and angles are valid
 	if ( intensity>1.0f||intensity==0.0f||duration<1)
 	{
-		client_camera.info_state &= ~CAMERA_SMOOTHING;
+		client_camera.info_state &= ~cameraStateFlags_t::CAMERA_SMOOTHING;
 		return;
 	}
-	client_camera.info_state |= CAMERA_SMOOTHING;
+	client_camera.info_state |= cameraStateFlags_t::CAMERA_SMOOTHING;
 	client_camera.smooth_intensity = intensity;
 	client_camera.smooth_duration = duration;
 	client_camera.smooth_start = cg.time;
@@ -1427,9 +1427,9 @@ void CGCam_Smooth( float intensity, int duration )
 
 void CGCam_UpdateSmooth( vec3_t origin, vec3_t angles )
 {
-	if (!Any(client_camera.info_state&CAMERA_SMOOTHING)||cg.time > ( client_camera.smooth_start + client_camera.smooth_duration ))
+	if (!Any(client_camera.info_state&cameraStateFlags_t::CAMERA_SMOOTHING)||cg.time > ( client_camera.smooth_start + client_camera.smooth_duration ))
 	{
-		client_camera.info_state &= ~CAMERA_SMOOTHING;
+		client_camera.info_state &= ~cameraStateFlags_t::CAMERA_SMOOTHING;
 		return;
 	}
 	if (!client_camera.smooth_active)
@@ -1760,7 +1760,7 @@ static void CG_RoffNotetrackCallback(const char *notetrack)
 
 	if (strcmp(type, "cut") == 0)
 	{
-		client_camera.info_state |= CAMERA_CUT;
+		client_camera.info_state |= cameraStateFlags_t::CAMERA_CUT;
 		if (cg_roffdebug.integer)
 		{
 			Com_Printf("notetrack: 'cut' on frame %d\n", client_camera.roff_frame);
@@ -1817,8 +1817,8 @@ void CGCam_StartRoff( char *roff )
 
 	// Set up the roff state info..we'll hijack the moving and panning code until told otherwise
 	//	...CAMERA_FOLLOWING would be a case that could override this..
-	client_camera.info_state |= CAMERA_MOVING;
-	client_camera.info_state |= CAMERA_PANNING;
+	client_camera.info_state |= cameraStateFlags_t::CAMERA_MOVING;
+	client_camera.info_state |= cameraStateFlags_t::CAMERA_PANNING;
 
 	if ( !G_LoadRoff( roff ) )
 	{
@@ -1827,7 +1827,7 @@ void CGCam_StartRoff( char *roff )
 		return;
 	};
 
-	client_camera.info_state |= CAMERA_ROFFING;
+	client_camera.info_state |= cameraStateFlags_t::CAMERA_ROFFING;
 
 	Q_strncpyz(client_camera.sRoff,roff,sizeof(client_camera.sRoff));
 	client_camera.roff_frame = 0;
@@ -1845,8 +1845,8 @@ Stops camera rof
 static void CGCam_StopRoff( void )
 {
 	// Clear the roff flag
-	client_camera.info_state &= ~CAMERA_ROFFING;
-	client_camera.info_state &= ~CAMERA_MOVING;
+	client_camera.info_state &= ~cameraStateFlags_t::CAMERA_ROFFING;
+	client_camera.info_state &= ~cameraStateFlags_t::CAMERA_MOVING;
 }
 
 /*
@@ -1884,7 +1884,7 @@ static void CGCam_Roff( void )
 		VectorCopy( data->rotate_delta, ang );
 
 		// since we just hit a new frame, clear our CUT flag
-		client_camera.info_state &= ~CAMERA_CUT;
+		client_camera.info_state &= ~cameraStateFlags_t::CAMERA_CUT;
 
 		if (data->mStartNote != -1 || data->mNumNotes)
 		{
@@ -1914,7 +1914,7 @@ static void CGCam_Roff( void )
 	if ( client_camera.roff_frame )
 	{
 		// Don't mess with angles if we are following
-		if ( !Any(client_camera.info_state & CAMERA_FOLLOWING) )
+		if ( !Any(client_camera.info_state & cameraStateFlags_t::CAMERA_FOLLOWING) )
 		{
 			VectorAdd( client_camera.angles, client_camera.angles2, client_camera.angles );
 		}
@@ -1923,7 +1923,7 @@ static void CGCam_Roff( void )
 	}
 
 	// Don't mess with angles if we are following
-	if ( !Any(client_camera.info_state & CAMERA_FOLLOWING) )
+	if ( !Any(client_camera.info_state & cameraStateFlags_t::CAMERA_FOLLOWING) )
 	{
 		VectorCopy( ang, client_camera.angles2 );
 		client_camera.pan_time = cg.time;

@@ -37,8 +37,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ////////////////////////////////////////////////////////////////////////////////////////
 // HFile Bindings
 ////////////////////////////////////////////////////////////////////////////////////////
-bool	HFILEopen_read(int& handle,	const char* filepath)		{gi.FS_FOpenFile(filepath, &handle, FS_READ);	return (handle!=0);}
-bool	HFILEopen_write(int& handle, const char* filepath)		{gi.FS_FOpenFile(filepath, &handle, FS_WRITE);	return (handle!=0);}
+bool	HFILEopen_read(int& handle,	const char* filepath)		{gi.FS_FOpenFile(filepath, &handle, fsMode_t::FS_READ);	return (handle!=0);}
+bool	HFILEopen_write(int& handle, const char* filepath)		{gi.FS_FOpenFile(filepath, &handle, fsMode_t::FS_WRITE);	return (handle!=0);}
 bool	HFILEread(int& handle,		void*		data, int size)	{return (gi.FS_Read(data, size, handle)!=0);}
 bool	HFILEwrite(int& handle,		const void* data, int size)	{return (gi.FS_Write(data, size, handle)!=0);}
 bool	HFILEclose(int& handle)									{gi.FS_FCloseFile(handle); return true;}
@@ -183,8 +183,7 @@ public:
 		WN_NOAUTOCONNECT,
 		WN_MAX
 	};
-	using enum EWayNodeFlags;
-	ratl::bits_vs<to_underlying( WN_MAX )>	mFlags;
+	ratl::bits_vs<to_underlying( EWayNodeFlags::WN_MAX )>	mFlags;
 
 	////////////////////////////////////////////////////////////////////////////////////
 	// Access Operator (For Cells)(For Triangulation)
@@ -244,8 +243,7 @@ public:
 
 		WE_MAX
 	};
-	using enum EWayEdgeFlags;
-	ratl::bits_vs<to_underlying( WE_MAX )>	mFlags;		// Should be only one int
+	ratl::bits_vs<to_underlying( EWayEdgeFlags::WE_MAX )>	mFlags;		// Should be only one int
 
 
 	////////////////////////////////////////////////////////////////////////////////////
@@ -253,23 +251,23 @@ public:
 	////////////////////////////////////////////////////////////////////////////////////
 	inline EWayEdgeFlags	Blocking()
 	{
-		if (mFlags.get_bit( to_underlying( WE_BLOCKING_BREAK ) ))
+		if (mFlags.get_bit( to_underlying( EWayEdgeFlags::WE_BLOCKING_BREAK ) ))
 		{
-			return WE_BLOCKING_BREAK;
+			return EWayEdgeFlags::WE_BLOCKING_BREAK;
 		}
-		if (mFlags.get_bit( to_underlying( WE_BLOCKING_WALL ) ))
+		if (mFlags.get_bit( to_underlying( EWayEdgeFlags::WE_BLOCKING_WALL ) ))
 		{
-			return WE_BLOCKING_WALL;
+			return EWayEdgeFlags::WE_BLOCKING_WALL;
 		}
-		if (mFlags.get_bit( to_underlying( WE_BLOCKING_DOOR ) ))
+		if (mFlags.get_bit( to_underlying( EWayEdgeFlags::WE_BLOCKING_DOOR ) ))
 		{
-			return WE_BLOCKING_DOOR;
+			return EWayEdgeFlags::WE_BLOCKING_DOOR;
 		}
-		return WE_NONE;
+		return EWayEdgeFlags::WE_NONE;
 	}
-	inline	bool	BlockingBreakable()		{return (mFlags.get_bit( to_underlying( WE_BLOCKING_BREAK ) ));}
-	inline	bool	BlockingWall()			{return (mFlags.get_bit( to_underlying( WE_BLOCKING_WALL ) ));}
-	inline	bool	BlockingDoor()			{return (mFlags.get_bit( to_underlying( WE_BLOCKING_DOOR ) ));}
+	inline	bool	BlockingBreakable()		{return (mFlags.get_bit( to_underlying( EWayEdgeFlags::WE_BLOCKING_BREAK ) ));}
+	inline	bool	BlockingWall()			{return (mFlags.get_bit( to_underlying( EWayEdgeFlags::WE_BLOCKING_WALL ) ));}
+	inline	bool	BlockingDoor()			{return (mFlags.get_bit( to_underlying( EWayEdgeFlags::WE_BLOCKING_DOOR ) ));}
 
 
 	////////////////////////////////////////////////////////////////////////////////////
@@ -277,7 +275,7 @@ public:
 	////////////////////////////////////////////////////////////////////////////////////
 	inline EWayEdgeFlags	Size() const
 	{
-		return (mFlags.get_bit( to_underlying( WE_SIZE_MEDIUM ) )?(WE_SIZE_MEDIUM):(WE_SIZE_LARGE));
+		return (mFlags.get_bit( to_underlying( EWayEdgeFlags::WE_SIZE_MEDIUM ) )?(EWayEdgeFlags::WE_SIZE_MEDIUM):(EWayEdgeFlags::WE_SIZE_LARGE));
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////
@@ -509,7 +507,7 @@ public:
 	void	ClearActor()
 	{
 		mActor = nullptr;
-		mActorSize = CWayEdge::WE_NONE;
+		mActorSize = CWayEdge::EWayEdgeFlags::WE_NONE;
 		mDangerSpotRadiusSq = 0;
 	}
 
@@ -537,7 +535,7 @@ public:
 	////////////////////////////////////////////////////////////////////////////////////
 	virtual		bool	can_be_invalid(const CWayEdge& Edge) const
 	{
-		return (Edge.mFlags.get_bit( to_underlying( CWayEdge::WE_CANBEINVAL ) ));
+		return (Edge.mFlags.get_bit( to_underlying( CWayEdge::EWayEdgeFlags::WE_CANBEINVAL ) ));
 	}
 
 
@@ -548,14 +546,14 @@ public:
 	{
 		// If The Actor Can't Fly, But This Is A Flying Edge, It's Invalid
 		//-----------------------------------------------------------------
-		if (mActor && Edge.mFlags.get_bit( to_underlying( CWayEdge::WE_FLYING ) ) && mActor->NPC && !Any(mActor->NPC->scriptFlags&SCF_NAV_CAN_FLY))
+		if (mActor && Edge.mFlags.get_bit( to_underlying( CWayEdge::EWayEdgeFlags::WE_FLYING ) ) && mActor->NPC && !Any(mActor->NPC->scriptFlags&scriptFlags_t::SCF_NAV_CAN_FLY))
 		{
 			return false;
 		}
 
 		// If The Actor Can't Fly, But This Is A Flying Edge, It's Invalid
 		//-----------------------------------------------------------------
-		if (mActor && Edge.mFlags.get_bit( to_underlying( CWayEdge::WE_JUMPING ) ) && mActor->NPC && !Any(mActor->NPC->scriptFlags&SCF_NAV_CAN_JUMP))
+		if (mActor && Edge.mFlags.get_bit( to_underlying( CWayEdge::EWayEdgeFlags::WE_JUMPING ) ) && mActor->NPC && !Any(mActor->NPC->scriptFlags&scriptFlags_t::SCF_NAV_CAN_JUMP))
 		{
 			return false;
 		}
@@ -579,7 +577,7 @@ public:
 				//------------------------------------------------------
 				if ((mActor) &&
 					(mActor->NPC) &&
-					Any(mActor->NPC->aiFlags&NPCAI_NAV_THROUGH_BREAKABLES) &&
+					Any(mActor->NPC->aiFlags&npcAiFlags_t::NPCAI_NAV_THROUGH_BREAKABLES) &&
 					(Edge.BlockingBreakable()) &&
 					(G_EntIsBreakable(Edge.mEntityNum, mActor))
 					)
@@ -592,7 +590,7 @@ public:
 				if (Edge.BlockingDoor())
 				{
 					bool	StartOpen	= (ent->spawnflags & 1);
-					bool	Closed		= (StartOpen)?(ent->moverState==MOVER_POS2):(ent->moverState==MOVER_POS1);
+					bool	Closed		= (StartOpen)?(ent->moverState==moverState_t::MOVER_POS2):(ent->moverState==moverState_t::MOVER_POS1);
 
 					// If It Is Closed, We Want To Check If It Will Auto Open For Us
 					//---------------------------------------------------------------
@@ -603,7 +601,7 @@ public:
 						{
 							// Check To See If The Owner Is Inactive Or Locked, Or Unavailable To The NPC
 							//----------------------------------------------------------------------------
-							if (Any( owner->svFlags & SVF_INACTIVE ) ||
+							if (Any( owner->svFlags & svFlags_t::SVF_INACTIVE ) ||
 								(owner==ent && (owner->spawnflags & (MOVER_PLAYER_USE|MOVER_FORCE_ACTIVATE|MOVER_LOCKED))) ||
 								(owner!=ent && (owner->spawnflags & (1 /*PLAYERONLY*/|4 /*USE_BOTTON*/))))
 							{
@@ -637,7 +635,7 @@ public:
 				//-------------------------------------------------
 				else if (Edge.BlockingWall())
 				{
-					return !Any( ent->contents&CONTENTS_SOLID );
+					return !Any( ent->contents&contentsFlags_t::CONTENTS_SOLID );
 				}
 			}
 		}
@@ -645,12 +643,12 @@ public:
 		{//we had a breakable in our way, now it's gone, see if there is anything else in the way
 			if ( NAV::TestEdge( Edge.mNodeA, Edge.mNodeB, false ) )
 			{//clear it
-				Edge.mFlags.clear_bit( to_underlying( CWayEdge::WE_BLOCKING_BREAK ) );
+				Edge.mFlags.clear_bit( to_underlying( CWayEdge::EWayEdgeFlags::WE_BLOCKING_BREAK ) );
 			}
 			//NOTE: if this fails with the SC_LARGE size
 		}
 
-		return (Edge.mFlags.get_bit( to_underlying( CWayEdge::WE_VALID ) ));
+		return (Edge.mFlags.get_bit( to_underlying( CWayEdge::EWayEdgeFlags::WE_VALID ) ));
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////
@@ -693,7 +691,7 @@ public:
 		}
 
 
-		if (B.mType==NAV::PT_WAYNODE)
+		if (B.mType==NAV::EPointType::PT_WAYNODE)
 		{
             return (Edge.mDistance + DangerBias);
 		}
@@ -723,14 +721,14 @@ public:
 		Edge.mEntityNum		= ENTITYNUM_NONE;
 		Edge.mOwnerNum		= ENTITYNUM_NONE;
 		Edge.mFlags.clear();
-		Edge.mFlags.set_bit( to_underlying( CWayEdge::WE_VALID ) );
+		Edge.mFlags.set_bit( to_underlying( CWayEdge::EWayEdgeFlags::WE_VALID ) );
 		if (CanBeInvalid)
 		{
-			Edge.mFlags.set_bit( to_underlying( CWayEdge::WE_CANBEINVAL ) );
+			Edge.mFlags.set_bit( to_underlying( CWayEdge::EWayEdgeFlags::WE_CANBEINVAL ) );
 		}
 		if (OnHull)
 		{
-			Edge.mFlags.set_bit( to_underlying( CWayEdge::WE_ONHULL ) );
+			Edge.mFlags.set_bit( to_underlying( CWayEdge::EWayEdgeFlags::WE_ONHULL ) );
 		}
 	}
 };
@@ -828,10 +826,10 @@ int					GetIslandRegion()
 ////////////////////////////////////////////////////////////////////////////////////////
 bool		ViewTrace(const CVec3& a, const CVec3& b)
 {
-	contentsFlags_t contents	= (CONTENTS_SOLID|CONTENTS_TERRAIN|CONTENTS_MONSTERCLIP);
+	contentsFlags_t contents	= (contentsFlags_t::CONTENTS_SOLID|contentsFlags_t::CONTENTS_TERRAIN|contentsFlags_t::CONTENTS_MONSTERCLIP);
 
 	mViewTraceCount++;
-	gi.trace(&mViewTrace, a.v, nullptr, nullptr, b.v, ENTITYNUM_NONE, contents, G2_NOCOLLIDE, 0);
+	gi.trace(&mViewTrace, a.v, nullptr, nullptr, b.v, ENTITYNUM_NONE, contents, EG2_Collision::G2_NOCOLLIDE, 0);
 
 	if ((mViewTrace.allsolid==false) && (mViewTrace.startsolid==false ) && (mViewTrace.fraction==1.0f))
 	{
@@ -845,10 +843,10 @@ bool		ViewTrace(const CVec3& a, const CVec3& b)
 ////////////////////////////////////////////////////////////////////////////////////////
 bool		ViewNavTrace(const CVec3& a, const CVec3& b)
 {
-	contentsFlags_t contents	= (CONTENTS_SOLID|CONTENTS_TERRAIN|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP);
+	contentsFlags_t contents	= (contentsFlags_t::CONTENTS_SOLID|contentsFlags_t::CONTENTS_TERRAIN|contentsFlags_t::CONTENTS_MONSTERCLIP|contentsFlags_t::CONTENTS_BOTCLIP);
 
 	mViewTraceCount++;
-	gi.trace(&mViewTrace, a.v, nullptr, nullptr, b.v, ENTITYNUM_NONE, contents, G2_NOCOLLIDE, 0);
+	gi.trace(&mViewTrace, a.v, nullptr, nullptr, b.v, ENTITYNUM_NONE, contents, EG2_Collision::G2_NOCOLLIDE, 0);
 
 	if ((mViewTrace.allsolid==false) && (mViewTrace.startsolid==false ) && (mViewTrace.fraction==1.0f))
 	{
@@ -865,7 +863,7 @@ bool		MoveTrace(const CVec3& Start, const CVec3& Stop, const CVec3& Mins, const 
 					  bool CheckForDoNotEnter=false,
 					  bool RetryIfStartInDoNotEnter=true,
 					  bool IgnoreAllEnts=false,
-					  contentsFlags_t OverrideContents=CONTENTS_NONE)
+					  contentsFlags_t OverrideContents=contentsFlags_t::CONTENTS_NONE)
 {
 	contentsFlags_t contents	= (MASK_NPCSOLID);
 	if (Any( OverrideContents ))
@@ -874,18 +872,18 @@ bool		MoveTrace(const CVec3& Start, const CVec3& Stop, const CVec3& Mins, const 
 	}
 	if (CheckForDoNotEnter)
 	{
-		contents |= CONTENTS_BOTCLIP;
+		contents |= contentsFlags_t::CONTENTS_BOTCLIP;
 	}
 	if (IgnoreAllEnts)
 	{
-		contents &= ~CONTENTS_BODY;
+		contents &= ~contentsFlags_t::CONTENTS_BODY;
 	}
 
 
 	// Run The Trace
 	//---------------
 	mMoveTraceCount++;
-	gi.trace(&mMoveTrace, Start.v, Mins.v, Maxs.v, Stop.v, IgnoreEnt, contents, G2_NOCOLLIDE, 0);
+	gi.trace(&mMoveTrace, Start.v, Mins.v, Maxs.v, Stop.v, IgnoreEnt, contents, EG2_Collision::G2_NOCOLLIDE, 0);
 
 
 	// Did It Make It?
@@ -899,12 +897,12 @@ bool		MoveTrace(const CVec3& Start, const CVec3& Stop, const CVec3& Mins, const 
 	//----------------------------------------------------------------------------------------
 	if (CheckForDoNotEnter && RetryIfStartInDoNotEnter && ((mMoveTrace.allsolid==true) || (mMoveTrace.startsolid==true)))
 	{
-		contents &= ~CONTENTS_BOTCLIP;
+		contents &= ~contentsFlags_t::CONTENTS_BOTCLIP;
 
 		// Run The Trace
 		//---------------
 		mMoveTraceCount++;
-		gi.trace(&mMoveTrace, Start.v, Mins.v, Maxs.v, Stop.v, IgnoreEnt, contents, G2_NOCOLLIDE, 0);
+		gi.trace(&mMoveTrace, Start.v, Mins.v, Maxs.v, Stop.v, IgnoreEnt, contents, EG2_Collision::G2_NOCOLLIDE, 0);
 
 		// Did It Make It?
 		//-----------------
@@ -1229,8 +1227,8 @@ bool			NAV::TestEdge( TNodeHandle NodeA, TNodeHandle NodeB, bool IsDebugEdge )
 	const char*	aName = (a.mName.empty())?(mLocStringA):(a.mName.c_str());
 	const char*	bName = (b.mName.empty())?(mLocStringB):(b.mName.c_str());
 
-	float		radius = (at.Size()==CWayEdge::WE_SIZE_LARGE)?(SC_LARGE_RADIUS):(SC_MEDIUM_RADIUS);
-	float		height = (at.Size()==CWayEdge::WE_SIZE_LARGE)?(SC_LARGE_HEIGHT):(SC_MEDIUM_HEIGHT);
+	float		radius = (at.Size()==CWayEdge::EWayEdgeFlags::WE_SIZE_LARGE)?(SC_LARGE_RADIUS):(SC_MEDIUM_RADIUS);
+	float		height = (at.Size()==CWayEdge::EWayEdgeFlags::WE_SIZE_LARGE)?(SC_LARGE_HEIGHT):(SC_MEDIUM_HEIGHT);
 
 	Mins[0] = Mins[1] = (radius) * -1.0f;
 	Maxs[0] = Maxs[1] = (radius);
@@ -1239,8 +1237,8 @@ bool			NAV::TestEdge( TNodeHandle NodeA, TNodeHandle NodeB, bool IsDebugEdge )
 
 	// If Either Start Or End Points Are Too Small, Don' Bother At This Size
 	//-----------------------------------------------------------------------
-	if ((a.mType==PT_WAYNODE && a.mRadius<radius) ||
-		(b.mType==PT_WAYNODE && b.mRadius<radius))
+	if ((a.mType==EPointType::PT_WAYNODE && a.mRadius<radius) ||
+		(b.mType==EPointType::PT_WAYNODE && b.mRadius<radius))
 	{
 		if (IsDebugEdge)
 		{
@@ -1258,12 +1256,12 @@ bool			NAV::TestEdge( TNodeHandle NodeA, TNodeHandle NodeB, bool IsDebugEdge )
 
 	// Check For A Flying Edge
 	//-------------------------
-	if (a.mFlags.get_bit( to_underlying( CWayNode::WN_FLOATING ) ) || b.mFlags.get_bit( to_underlying( CWayNode::WN_FLOATING ) ))
+	if (a.mFlags.get_bit( to_underlying( CWayNode::EWayNodeFlags::WN_FLOATING ) ) || b.mFlags.get_bit( to_underlying( CWayNode::EWayNodeFlags::WN_FLOATING ) ))
 	{
-		at.mFlags.set_bit( to_underlying( CWayEdge::WE_FLYING ) );
-		if (!a.mFlags.get_bit( to_underlying( CWayNode::WN_FLOATING ) ) || !b.mFlags.get_bit( to_underlying( CWayNode::WN_FLOATING ) ))
+		at.mFlags.set_bit( to_underlying( CWayEdge::EWayEdgeFlags::WE_FLYING ) );
+		if (!a.mFlags.get_bit( to_underlying( CWayNode::EWayNodeFlags::WN_FLOATING ) ) || !b.mFlags.get_bit( to_underlying( CWayNode::EWayNodeFlags::WN_FLOATING ) ))
 		{
-			at.mFlags.set_bit( to_underlying( CWayEdge::WE_CANBEINVAL ) );
+			at.mFlags.set_bit( to_underlying( CWayEdge::EWayEdgeFlags::WE_CANBEINVAL ) );
 		}
 	}
 
@@ -1287,21 +1285,21 @@ bool			NAV::TestEdge( TNodeHandle NodeA, TNodeHandle NodeB, bool IsDebugEdge )
 		//--------------------------------------
 		if (!Q_stricmp("func_door", ent->classname))
 		{
-			at.mFlags.set_bit( to_underlying( CWayEdge::WE_BLOCKING_DOOR ) );
+			at.mFlags.set_bit( to_underlying( CWayEdge::EWayEdgeFlags::WE_BLOCKING_DOOR ) );
 		}
 		else if (
 			!Q_stricmp("func_wall", ent->classname) ||
 			!Q_stricmp("func_static", ent->classname) ||
 			!Q_stricmp("func_usable", ent->classname))
 		{
-			at.mFlags.set_bit( to_underlying( CWayEdge::WE_BLOCKING_WALL ) );
+			at.mFlags.set_bit( to_underlying( CWayEdge::EWayEdgeFlags::WE_BLOCKING_WALL ) );
 		}
 		else if (
 			!Q_stricmp("func_glass", ent->classname) ||
 			!Q_stricmp("func_breakable", ent->classname) ||
 			!Q_stricmp("misc_model_breakable", ent->classname))
 		{
-			at.mFlags.set_bit( to_underlying( CWayEdge::WE_BLOCKING_BREAK ) );
+			at.mFlags.set_bit( to_underlying( CWayEdge::EWayEdgeFlags::WE_BLOCKING_BREAK ) );
 		}
 		else if (ent->NPC || ent->s.number==0)
 		{
@@ -1327,7 +1325,7 @@ bool			NAV::TestEdge( TNodeHandle NodeA, TNodeHandle NodeB, bool IsDebugEdge )
 			// Find The Master
 			//-----------------
 			gentity_t *master = ent;
-			while (master && master->teammaster && Any( master->flags & FL_TEAMSLAVE ))
+			while (master && master->teammaster && Any( master->flags & gentityFlags_t::FL_TEAMSLAVE ))
 			{
 				master = master->teammaster;
 			}
@@ -1396,7 +1394,7 @@ bool			NAV::TestEdge( TNodeHandle NodeA, TNodeHandle NodeB, bool IsDebugEdge )
 		{
 			ent->wayedge		= atHandle;
 			at.mEntityNum		= EntHit;
-			at.mFlags.set_bit( to_underlying( CWayEdge::WE_CANBEINVAL ) );
+			at.mFlags.set_bit( to_underlying( CWayEdge::EWayEdgeFlags::WE_CANBEINVAL ) );
 
 			// Add It To The Edge Map
 			//------------------------
@@ -1475,7 +1473,7 @@ bool			NAV::TestEdge( TNodeHandle NodeA, TNodeHandle NodeB, bool IsDebugEdge )
 			//-----------------------------------------------------
 			else if (at.BlockingBreakable())
 			{//we'll do the trace again later if this ent gets broken
-				at.mFlags.clear_bit( to_underlying( CWayEdge::WE_VALID ) );
+				at.mFlags.clear_bit( to_underlying( CWayEdge::EWayEdgeFlags::WE_VALID ) );
 			}
 		}
 	}
@@ -1545,7 +1543,7 @@ bool			NAV::LoadFromEntitiesAndSaveToFile(const char *filename, int checksum)
 			{
 				NPCs.set_bit(curEnt);
 				ent->lastMoveTime = to_underlying( ent->contents );
-				ent->contents = CONTENTS_NONE;
+				ent->contents = contentsFlags_t::CONTENTS_NONE;
 				gi.linkentity(ent);
 			}
 
@@ -1631,20 +1629,20 @@ bool			NAV::LoadFromEntitiesAndSaveToFile(const char *filename, int checksum)
 		at				= &(*nodeIter);
 		atRoof			= at->mPoint;
 		atFloor			= at->mPoint;
-		if (at->mFlags.get_bit( to_underlying( CWayNode::WN_DROPTOFLOOR ) ))
+		if (at->mFlags.get_bit( to_underlying( CWayNode::EWayNodeFlags::WN_DROPTOFLOOR ) ))
 		{
 			atFloor[2]	-= MAX_EDGE_FLOOR_DIST;
 		}
 		atFloor[2]		-= (MAX_EDGE_FLOOR_DIST * 1.5f);
 		atOnFloor		= !ViewTrace(atRoof, atFloor);
-		if (at->mFlags.get_bit( to_underlying( CWayNode::WN_DROPTOFLOOR ) ))
+		if (at->mFlags.get_bit( to_underlying( CWayNode::EWayNodeFlags::WN_DROPTOFLOOR ) ))
 		{
 			at->mPoint		= mViewTrace.endpos;
 			at->mPoint[2]	+= 5.0f;
 		}
-		else if (!atOnFloor && (at->mType==PT_WAYNODE || at->mType==PT_GOALNODE))
+		else if (!atOnFloor && (at->mType==EPointType::PT_WAYNODE || at->mType==EPointType::PT_GOALNODE))
 		{
-			at->mFlags.set_bit( to_underlying( CWayNode::WN_FLOATING ) );
+			at->mFlags.set_bit( to_underlying( CWayNode::EWayNodeFlags::WN_FLOATING ) );
 		}
 	}
 
@@ -1713,22 +1711,22 @@ bool			NAV::LoadFromEntitiesAndSaveToFile(const char *filename, int checksum)
 						//-----------------------------------------------
 						if (tgtNum == (NAV::NUM_TARGETS-1))
 						{
-							mGraph.get_edge(edge).mFlags.set_bit( to_underlying( CWayEdge::WE_JUMPING ) );
+							mGraph.get_edge(edge).mFlags.set_bit( to_underlying( CWayEdge::EWayEdgeFlags::WE_JUMPING ) );
 						}
-						mGraph.get_edge(edge).mFlags.set_bit( to_underlying( CWayEdge::WE_DESIGNERPLACED ) );
+						mGraph.get_edge(edge).mFlags.set_bit( to_underlying( CWayEdge::EWayEdgeFlags::WE_DESIGNERPLACED ) );
 						continue;
 					}
 
 					// Setup The Edge
 					//----------------
 					mUser.setup_edge(atToTgt, atHandle, tgtHandle, false, mGraph.get_node(atHandle), mGraph.get_node(tgtHandle), false);
-					atToTgt.mFlags.set_bit( to_underlying( CWayEdge::WE_DESIGNERPLACED ) );
+					atToTgt.mFlags.set_bit( to_underlying( CWayEdge::EWayEdgeFlags::WE_DESIGNERPLACED ) );
 
 					// If It Is The Jump Edge (Last Target), Mark It
 					//-----------------------------------------------
 					if (tgtNum == (NAV::NUM_TARGETS-1))
 					{
-						atToTgt.mFlags.set_bit( to_underlying( CWayEdge::WE_JUMPING ) );
+						atToTgt.mFlags.set_bit( to_underlying( CWayEdge::EWayEdgeFlags::WE_JUMPING ) );
 					}
 
 					// Now Tell The Graph Which Edge Index To Store Between The Two Points
@@ -1741,8 +1739,8 @@ bool			NAV::LoadFromEntitiesAndSaveToFile(const char *filename, int checksum)
 
 		// If It Is A Combat Or Goal Nav, Try To "Auto Connect" To A Few Nearby Way Points
 		//---------------------------------------------------------------------------------
-		if (!at->mFlags.get_bit( to_underlying( CWayNode::WN_NOAUTOCONNECT ) ) &&
-			(at->mType==NAV::PT_COMBATNODE || at->mType==NAV::PT_GOALNODE))
+		if (!at->mFlags.get_bit( to_underlying( CWayNode::EWayNodeFlags::WN_NOAUTOCONNECT ) ) &&
+			(at->mType==NAV::EPointType::PT_COMBATNODE || at->mType==NAV::EPointType::PT_GOALNODE))
 		{
 			// Get The List Of Nodes For This Cell Of The Map
 			//------------------------------------------------
@@ -1791,7 +1789,7 @@ bool			NAV::LoadFromEntitiesAndSaveToFile(const char *filename, int checksum)
 
 				// Connecting To Another Combat Point Or Goal Node It Must Be Half The Max Connect Distance
 				//------------------------------------------------------------------------------------------
-				if (node.mType==NAV::PT_COMBATNODE || node.mType==NAV::PT_GOALNODE)
+				if (node.mType==NAV::EPointType::PT_COMBATNODE || node.mType==NAV::EPointType::PT_GOALNODE)
 				{
 					nonWPCount++;
 					if (nonWPCount>NAV::MAX_NONWP_NEIGHBORS)
@@ -1876,11 +1874,11 @@ bool			NAV::LoadFromEntitiesAndSaveToFile(const char *filename, int checksum)
 		const char*	bName = (b.mName.empty())?(mLocStringB):(b.mName.c_str());
 
 
-		if (at.mFlags.get_bit( to_underlying( CWayEdge::WE_JUMPING ) ))
+		if (at.mFlags.get_bit( to_underlying( CWayEdge::EWayEdgeFlags::WE_JUMPING ) ))
 		{
-			at.mFlags.set_bit( to_underlying( CWayEdge::WE_SIZE_LARGE ) );
-			at.mFlags.set_bit( to_underlying( CWayEdge::WE_CANBEINVAL ) );
-			at.mFlags.set_bit( to_underlying( CWayEdge::WE_DESIGNERPLACED ) );
+			at.mFlags.set_bit( to_underlying( CWayEdge::EWayEdgeFlags::WE_SIZE_LARGE ) );
+			at.mFlags.set_bit( to_underlying( CWayEdge::EWayEdgeFlags::WE_CANBEINVAL ) );
+			at.mFlags.set_bit( to_underlying( CWayEdge::EWayEdgeFlags::WE_DESIGNERPLACED ) );
 			continue;
 		}
 
@@ -1904,7 +1902,7 @@ bool			NAV::LoadFromEntitiesAndSaveToFile(const char *filename, int checksum)
 
 		// Try Large
 		//-----------
-		at.mFlags.set_bit( to_underlying( CWayEdge::WE_SIZE_LARGE ) );
+		at.mFlags.set_bit( to_underlying( CWayEdge::EWayEdgeFlags::WE_SIZE_LARGE ) );
 		if (IsDebugEdge)
 		{
 			gi.Printf("Nav(%s)<->(%s): Attempting Size Large...\n", aName, bName);
@@ -1915,8 +1913,8 @@ bool			NAV::LoadFromEntitiesAndSaveToFile(const char *filename, int checksum)
 		CanGo = TestEdge( at.mNodeA, at.mNodeB, IsDebugEdge );
 		if (!CanGo)
 		{
-			at.mFlags.clear_bit( to_underlying( CWayEdge::WE_SIZE_LARGE ) );
-			at.mFlags.set_bit( to_underlying( CWayEdge::WE_SIZE_MEDIUM ) );
+			at.mFlags.clear_bit( to_underlying( CWayEdge::EWayEdgeFlags::WE_SIZE_LARGE ) );
+			at.mFlags.set_bit( to_underlying( CWayEdge::EWayEdgeFlags::WE_SIZE_MEDIUM ) );
 			if (IsDebugEdge)
 			{
 				gi.Printf("Nav(%s)<->(%s): Attempting Size Medium...\n", aName, bName);
@@ -1949,19 +1947,19 @@ bool			NAV::LoadFromEntitiesAndSaveToFile(const char *filename, int checksum)
 					gentity_t*	ent		= &g_entities[mMoveTrace.entityNum];
 					gi.Printf("Nav(%s)<->(%s):     on entity Type (%s), TargetName (%s)\n", aName, bName, ent->classname, ent->targetname);
 				}
-				if (Any( (mMoveTrace.contents)&CONTENTS_MONSTERCLIP ))
+				if (Any( (mMoveTrace.contents)&contentsFlags_t::CONTENTS_MONSTERCLIP ))
 				{
 					gi.Printf("Nav(%s)<->(%s):     with contents BLOCKNPC\n", aName, bName);
 				}
-				else if (Any( (mMoveTrace.contents)&CONTENTS_BOTCLIP ))
+				else if (Any( (mMoveTrace.contents)&contentsFlags_t::CONTENTS_BOTCLIP ))
 				{
 					gi.Printf("Nav(%s)<->(%s):     with contents DONOTENTER\n", aName, bName);
 				}
-				else if (Any( (mMoveTrace.contents)&CONTENTS_SOLID ))
+				else if (Any( (mMoveTrace.contents)&contentsFlags_t::CONTENTS_SOLID ))
 				{
 					gi.Printf("Nav(%s)<->(%s):     with contents SOLID\n", aName, bName);
 				}
-				else if (Any( (mMoveTrace.contents)&CONTENTS_WATER ))
+				else if (Any( (mMoveTrace.contents)&contentsFlags_t::CONTENTS_WATER ))
 				{
 					gi.Printf("Nav(%s)<->(%s):     with contents WATER\n", aName, bName);
 				}
@@ -1987,7 +1985,7 @@ bool			NAV::LoadFromEntitiesAndSaveToFile(const char *filename, int checksum)
 	for (int RemIndex=0;RemIndex<ToBeRemoved->size(); RemIndex++)
 	{
 		CWayEdge& at = mGraph.get_edge((*ToBeRemoved)[RemIndex]);
-		if (at.mFlags.get_bit( to_underlying( CWayEdge::WE_DESIGNERPLACED ) ))
+		if (at.mFlags.get_bit( to_underlying( CWayEdge::EWayEdgeFlags::WE_DESIGNERPLACED ) ))
 		{
 #ifdef _DEBUG
 			hstring		aHstr = mGraph.get_node(at.mNodeA).mName;
@@ -2019,16 +2017,16 @@ bool			NAV::LoadFromEntitiesAndSaveToFile(const char *filename, int checksum)
 		{
 			at->mPoint.ToStr(mLocStringA);
 
-			at->mFlags.set_bit( to_underlying( CWayNode::WN_ISLAND ) );
+			at->mFlags.set_bit( to_underlying( CWayNode::EWayNodeFlags::WN_ISLAND ) );
 			mIslandCount++;
-			if (at->mType==NAV::PT_COMBATNODE)
+			if (at->mType==NAV::EPointType::PT_COMBATNODE)
 			{
 #ifndef FINAL_BUILD
 				gi.Printf( S_COLOR_RED"ERROR: Combat Point %s@%s Is Not Connected To Anything\n", at->mName.c_str(), mLocStringA);
 				delayedShutDown = level.time + 100;
 #endif
 			}
-			if (at->mType==NAV::PT_GOALNODE)
+			if (at->mType==NAV::EPointType::PT_GOALNODE)
 			{
 				// Try To Trace Down, If We Don't Hit Any Ground, Assume This Is An "Air Point"
 				//------------------------------------------------------------------------------
@@ -2056,7 +2054,7 @@ bool			NAV::LoadFromEntitiesAndSaveToFile(const char *filename, int checksum)
 	for (nodeIter=mGraph.nodes_begin(); nodeIter!=mGraph.nodes_end(); nodeIter++)
 	{
 		at				= &(*nodeIter);
-		if (at->mFlags.get_bit( to_underlying( CWayNode::WN_ISLAND ) ))
+		if (at->mFlags.get_bit( to_underlying( CWayNode::EWayNodeFlags::WN_ISLAND ) ))
 		{
 			mRegion.assign_region(nodeIter.index(), mIslandRegion);
 		}
@@ -2113,7 +2111,7 @@ bool			NAV::LoadFromEntitiesAndSaveToFile(const char *filename, int checksum)
 			//--------------------------------------
 			else if (Walls.get_bit(curEnt))
 			{
-				ent->contents = CONTENTS_NONE;
+				ent->contents = contentsFlags_t::CONTENTS_NONE;
 				gi.linkentity(ent);
 			}
 
@@ -2210,7 +2208,7 @@ void			NAV::RegisterDangerSense(gentity_t* actor, int alertEventIndex)
 	//=====================================================
 	if (NAVDEBUG_showRadius)
 	{
-		CG_DrawRadius(ae.position, ae.radius, NODE_GOAL);
+		CG_DrawRadius(ae.position, ae.radius, nodeType_t::NODE_GOAL);
 	}
 	//=====================================================
 
@@ -2284,7 +2282,7 @@ void			NAV::WayEdgesNowClear(gentity_t* ent)
 				if (EdgeHandle!=0)
 				{
 					CWayEdge& edge = mGraph.get_edge(EdgeHandle);
-					edge.mFlags.set_bit( to_underlying( CWayEdge::WE_VALID ) );
+					edge.mFlags.set_bit( to_underlying( CWayEdge::EWayEdgeFlags::WE_VALID ) );
 					edge.mEntityNum = ENTITYNUM_NONE;
 					edge.mOwnerNum = ENTITYNUM_NONE;
 				}
@@ -2343,13 +2341,13 @@ void			NAV::SpawnedPoint(gentity_t* ent, NAV::EPointType type)
 	node.mRadius		= ent->radius;
 	node.mType			= type;
 	node.mFlags.clear();
-	if (type==NAV::PT_WAYNODE && (ent->spawnflags & 2))
+	if (type==NAV::EPointType::PT_WAYNODE && (ent->spawnflags & 2))
 	{
-		node.mFlags.set_bit( to_underlying( CWayNode::WN_DROPTOFLOOR ) );
+		node.mFlags.set_bit( to_underlying( CWayNode::EWayNodeFlags::WN_DROPTOFLOOR ) );
 	}
 	if (ent->spawnflags & 4)
 	{
-		node.mFlags.set_bit( to_underlying( CWayNode::WN_NOAUTOCONNECT ) );
+		node.mFlags.set_bit( to_underlying( CWayNode::EWayNodeFlags::WN_NOAUTOCONNECT ) );
 	}
 
 	// TO AVOID PROBLEMS WITH THE TRIANGULATION, WE MOVE THE POINTS AROUND JUST A BIT
@@ -2428,7 +2426,7 @@ NAV::TNodeHandle		NAV::GetNearestNode(gentity_t* ent, bool forceRecalcNow, NAV::
 			ent->waypoint,
 			goal,
 			ent->s.number,
-			(ent->client && ent->client->moveType==MT_FLYSWIM));
+			(ent->client && ent->client->moveType==movetype_t::MT_FLYSWIM));
 		ent->noWaypointTime = level.time + 1000;	// Don't Erase This Result For 5 Seconds
 	}
 
@@ -2495,7 +2493,7 @@ NAV::TNodeHandle		NAV::GetNearestNode(const vec3_t& position, NAV::TNodeHandle p
 
 				// Bias Points That Are Not Connected To Anything
 				//------------------------------------------------
-				if (node.mFlags.get_bit( to_underlying( CWayNode::WN_ISLAND ) ))
+				if (node.mFlags.get_bit( to_underlying( CWayNode::EWayNodeFlags::WN_ISLAND ) ))
 				{
 					NodeSort.mDistance *= 3.0f;
 				}
@@ -2880,13 +2878,13 @@ bool	NAV::FindPath(gentity_t* actor, NAV::TNodeHandle target, float MaxDangerLev
 	//-------------
 	if (actor->enemy && actor->enemy->client)
 	{
-		if (actor->enemy->client->ps.weapon==WP_SABER)
+		if (actor->enemy->client->ps.weapon==weapon_t::WP_SABER)
 		{
 			mUser.SetDangerSpot(actor->enemy->currentOrigin, 200.0f);
 		}
 		else if (
-			actor->enemy->client->NPC_class==CLASS_RANCOR ||
-			actor->enemy->client->NPC_class==CLASS_WAMPA)
+			actor->enemy->client->NPC_class==class_t::CLASS_RANCOR ||
+			actor->enemy->client->NPC_class==class_t::CLASS_WAMPA)
 		{
 			mUser.SetDangerSpot(actor->enemy->currentOrigin, 400.0f);
 		}
@@ -2907,10 +2905,10 @@ bool	NAV::FindPath(gentity_t* actor, NAV::TNodeHandle target, float MaxDangerLev
 	CVec3	At(actor->currentOrigin);
 	float	AtTime	= level.time;
 	float	AtSpeed = actor->NPC->stats.runSpeed;
-	if (!Any(actor->NPC->scriptFlags&SCF_RUNNING) &&
-		(Any(actor->NPC->scriptFlags&SCF_WALKING) ||
-		 Any(actor->NPC->aiFlags&NPCAI_WALKING) ||
-		 Any(ucmd.buttons&BUTTON_WALKING)
+	if (!Any(actor->NPC->scriptFlags&scriptFlags_t::SCF_RUNNING) &&
+		(Any(actor->NPC->scriptFlags&scriptFlags_t::SCF_WALKING) ||
+		 Any(actor->NPC->aiFlags&npcAiFlags_t::NPCAI_WALKING) ||
+		 Any(ucmd.buttons&buttonFlags_t::BUTTON_WALKING)
 		))
 	{
 		AtSpeed	= actor->NPC->stats.walkSpeed;
@@ -2954,7 +2952,7 @@ bool	NAV::FindPath(gentity_t* actor, NAV::TNodeHandle target, float MaxDangerLev
 			PPoint.mSpeed				= AtSpeed;
 			PPoint.mSlowingRadius		= 0.0f;
 			PPoint.mReachedRadius		= Max(radius*3.0f, (mGraph.get_node(PPoint.mNode).mRadius * 0.40f));
-			if (mGraph.get_node(PPoint.mNode).mFlags.get_bit( to_underlying( CWayNode::WN_FLOATING ) ))
+			if (mGraph.get_node(PPoint.mNode).mFlags.get_bit( to_underlying( CWayNode::EWayNodeFlags::WN_FLOATING ) ))
 			{
 				PPoint.mReachedRadius	= 20.0f;
 			}
@@ -3026,7 +3024,7 @@ bool	NAV::FindPath(gentity_t* actor, NAV::TNodeHandle target, float MaxDangerLev
 		// Check To See If This Is The Apex Of A Sharp Turn
 		//--------------------------------------------------
 		if (i!=0 &&			//is there a next point?
-			!mGraph.get_node(PPoint.mNode).mFlags.get_bit( to_underlying( CWayNode::WN_FLOATING ) )
+			!mGraph.get_node(PPoint.mNode).mFlags.get_bit( to_underlying( CWayNode::EWayNodeFlags::WN_FLOATING ) )
 			)
 		{
 			NextToBeyond = (puser.mPath[i-1].mPoint - PPoint.mPoint);
@@ -3333,8 +3331,8 @@ bool			NAV::OnNeighboringPoints(TNodeHandle A, TNodeHandle B)
 	}
 	int edgeNum = mGraph.get_edge_across(A, B);
 	if (edgeNum &&
-		!mGraph.get_edge(edgeNum).mFlags.get_bit( to_underlying( CWayEdge::WE_JUMPING ) ) &&
-		!mGraph.get_edge(edgeNum).mFlags.get_bit( to_underlying( CWayEdge::WE_FLYING ) ) &&
+		!mGraph.get_edge(edgeNum).mFlags.get_bit( to_underlying( CWayEdge::EWayEdgeFlags::WE_JUMPING ) ) &&
+		!mGraph.get_edge(edgeNum).mFlags.get_bit( to_underlying( CWayEdge::EWayEdgeFlags::WE_FLYING ) ) &&
 		 mGraph.get_edge(edgeNum).mDistance<SAFE_NEIGHBORINGPOINT_DIST)
 	{
 		return true;
@@ -3419,15 +3417,15 @@ bool			NAV::InSafeRadius(CVec3 at, TNodeHandle atNode, TNodeHandle targetNode)
 
 			// Is The Edge Valid?
 			//--------------------
-			if (!atToTargetEdge.mFlags.get_bit( to_underlying( CWayEdge::WE_FLYING ) ) &&
-				!atToTargetEdge.mFlags.get_bit( to_underlying( CWayEdge::WE_JUMPING ) ) &&
+			if (!atToTargetEdge.mFlags.get_bit( to_underlying( CWayEdge::EWayEdgeFlags::WE_FLYING ) ) &&
+				!atToTargetEdge.mFlags.get_bit( to_underlying( CWayEdge::EWayEdgeFlags::WE_JUMPING ) ) &&
 				mUser.is_valid(atToTargetEdge, targetNode))
 			{
 				float	atDistToEdge = at.DistToLine(atToTargetEdge.PointA(), atToTargetEdge.PointB());
 
 				// Now Are We Close Enough To The Edge
 				//-------------------------------------
-				if (atToTargetEdge.mFlags.get_bit( to_underlying( CWayEdge::WE_SIZE_LARGE ) ))
+				if (atToTargetEdge.mFlags.get_bit( to_underlying( CWayEdge::EWayEdgeFlags::WE_SIZE_LARGE ) ))
 				{
 					return (atDistToEdge<SC_LARGE_RADIUS);
 				}
@@ -3508,11 +3506,11 @@ bool			NAV::NextPosition(gentity_t* actor, CVec3& Position, float& SlowingRadius
 
 	SlowingRadius	= next.mSlowingRadius;
 	Position		= next.mPoint;
-	Fly				= node.mFlags.get_bit( to_underlying( CWayNode::WN_FLOATING ) );
+	Fly				= node.mFlags.get_bit( to_underlying( CWayNode::EWayNodeFlags::WN_FLOATING ) );
 
 	if (edgeIndex)
 	{
-		Jump		= mGraph.get_edge(edgeIndex).mFlags.get_bit( to_underlying( CWayEdge::WE_JUMPING ) );
+		Jump		= mGraph.get_edge(edgeIndex).mFlags.get_bit( to_underlying( CWayEdge::EWayEdgeFlags::WE_JUMPING ) );
 	}
 
 	return true;
@@ -3691,9 +3689,9 @@ float			NAV::PathDangerLevel(gentity_t* actor)
 	//-----------------------------------------------------
 	if (actor->enemy && actor->enemy->client)
 	{
-		if (actor->enemy->client->ps.weapon==WP_SABER ||
-			actor->enemy->client->NPC_class==CLASS_RANCOR ||
-			actor->enemy->client->NPC_class==CLASS_WAMPA)
+		if (actor->enemy->client->ps.weapon==weapon_t::WP_SABER ||
+			actor->enemy->client->NPC_class==class_t::CLASS_RANCOR ||
+			actor->enemy->client->NPC_class==class_t::CLASS_WAMPA)
 		{
 			enemyPos = (actor->enemy->currentOrigin);
 			enemySafeDist = actor->enemy->radius * 10.0f;
@@ -3810,11 +3808,11 @@ CWayEdge::EWayEdgeFlags	NAV::ClassifyEntSize(gentity_t* ent)
 
 		if ((radius > SC_MEDIUM_RADIUS) || height > (SC_MEDIUM_HEIGHT))
 		{
-			return CWayEdge::WE_SIZE_LARGE;
+			return CWayEdge::EWayEdgeFlags::WE_SIZE_LARGE;
 		}
-		return CWayEdge::WE_SIZE_MEDIUM;
+		return CWayEdge::EWayEdgeFlags::WE_SIZE_MEDIUM;
 	}
-	return CWayEdge::WE_NONE;
+	return CWayEdge::EWayEdgeFlags::WE_NONE;
 }
 
 
@@ -3839,62 +3837,62 @@ void			NAV::ShowDebugInfo(const vec3_t& PlayerPosition, int PlayerWaypoint)
 
 			if (gi.inPVS(PlayerPosition, at.mPoint.v))
 			{
-				if (at.mType==NAV::PT_WAYNODE && NAVDEBUG_showNodes)
+				if (at.mType==NAV::EPointType::PT_WAYNODE && NAVDEBUG_showNodes)
 				{
 					if (NAVDEBUG_showPointLines)
 					{
-						if (at.mFlags.get_bit( to_underlying( CWayNode::WN_FLOATING ) ))
+						if (at.mFlags.get_bit( to_underlying( CWayNode::EWayNodeFlags::WN_FLOATING ) ))
 						{
-							CG_DrawEdge(at.mPoint.v, atEnd.v, EDGE_NODE_FLOATING );
+							CG_DrawEdge(at.mPoint.v, atEnd.v, edgeType_t::EDGE_NODE_FLOATING );
 						}
 						else
 						{
-							CG_DrawEdge(at.mPoint.v, atEnd.v, EDGE_NODE_NORMAL );
+							CG_DrawEdge(at.mPoint.v, atEnd.v, edgeType_t::EDGE_NODE_NORMAL );
 						}
 					}
 					else
 					{
-						if (at.mFlags.get_bit( to_underlying( CWayNode::WN_FLOATING ) ))
+						if (at.mFlags.get_bit( to_underlying( CWayNode::EWayNodeFlags::WN_FLOATING ) ))
 						{
-							CG_DrawNode(at.mPoint.v, NODE_FLOATING );
+							CG_DrawNode(at.mPoint.v, nodeType_t::NODE_FLOATING );
 						}
 						else
 						{
-							CG_DrawNode(at.mPoint.v, NODE_NORMAL );
+							CG_DrawNode(at.mPoint.v, nodeType_t::NODE_NORMAL );
 						}
 					}
 					if (NAVDEBUG_showRadius && at.mPoint.Dist2(PlayerPosition)<(at.mRadius*at.mRadius))
 					{
-						if (at.mFlags.get_bit( to_underlying( CWayNode::WN_FLOATING ) ))
+						if (at.mFlags.get_bit( to_underlying( CWayNode::EWayNodeFlags::WN_FLOATING ) ))
 						{
-							CG_DrawRadius(at.mPoint.v, at.mRadius, NODE_FLOATING );
+							CG_DrawRadius(at.mPoint.v, at.mRadius, nodeType_t::NODE_FLOATING );
 						}
 						else
 						{
-							CG_DrawRadius(at.mPoint.v, at.mRadius, NODE_NORMAL );
+							CG_DrawRadius(at.mPoint.v, at.mRadius, nodeType_t::NODE_NORMAL );
 						}
 					}
 				}
-				else if (at.mType==NAV::PT_COMBATNODE && NAVDEBUG_showCombatPoints)
+				else if (at.mType==NAV::EPointType::PT_COMBATNODE && NAVDEBUG_showCombatPoints)
 				{
 					if (NAVDEBUG_showPointLines)
 					{
-						CG_DrawEdge(at.mPoint.v, atEnd.v, EDGE_NODE_COMBAT );
+						CG_DrawEdge(at.mPoint.v, atEnd.v, edgeType_t::EDGE_NODE_COMBAT );
 					}
 					else
 					{
 						CG_DrawCombatPoint(at.mPoint.v, 0);
 					}
 				}
-				else if (at.mType==NAV::PT_GOALNODE && NAVDEBUG_showNavGoals)
+				else if (at.mType==NAV::EPointType::PT_GOALNODE && NAVDEBUG_showNavGoals)
 				{
 					if (NAVDEBUG_showPointLines)
 					{
-						CG_DrawEdge(at.mPoint.v, atEnd.v, EDGE_NODE_GOAL );
+						CG_DrawEdge(at.mPoint.v, atEnd.v, edgeType_t::EDGE_NODE_GOAL );
 					}
 					else
 					{
-						CG_DrawNode(at.mPoint.v, NODE_NAVGOAL);
+						CG_DrawNode(at.mPoint.v, nodeType_t::NODE_NAVGOAL);
 					}
 				}
 			}
@@ -3918,26 +3916,26 @@ void			NAV::ShowDebugInfo(const vec3_t& PlayerPosition, int PlayerWaypoint)
 			{
 				if (mUser.is_valid(at))
 				{
-					if (at.mFlags.get_bit( to_underlying( CWayEdge::WE_JUMPING ) ))
+					if (at.mFlags.get_bit( to_underlying( CWayEdge::EWayEdgeFlags::WE_JUMPING ) ))
 					{
-						CG_DrawEdge(a.mPoint.v, b.mPoint.v, EDGE_JUMP);
+						CG_DrawEdge(a.mPoint.v, b.mPoint.v, edgeType_t::EDGE_JUMP);
 					}
-					else if (at.mFlags.get_bit( to_underlying( CWayEdge::WE_FLYING ) ))
+					else if (at.mFlags.get_bit( to_underlying( CWayEdge::EWayEdgeFlags::WE_FLYING ) ))
 					{
-						CG_DrawEdge(a.mPoint.v, b.mPoint.v, EDGE_FLY);
+						CG_DrawEdge(a.mPoint.v, b.mPoint.v, edgeType_t::EDGE_FLY);
 					}
-					else if (at.Size()==CWayEdge::WE_SIZE_LARGE)
+					else if (at.Size()==CWayEdge::EWayEdgeFlags::WE_SIZE_LARGE)
 					{
-						CG_DrawEdge(a.mPoint.v, b.mPoint.v, EDGE_LARGE);
+						CG_DrawEdge(a.mPoint.v, b.mPoint.v, edgeType_t::EDGE_LARGE);
 					}
 					else
 					{
-						CG_DrawEdge(a.mPoint.v, b.mPoint.v, EDGE_NORMAL);
+						CG_DrawEdge(a.mPoint.v, b.mPoint.v, edgeType_t::EDGE_NORMAL);
 					}
 				}
 				else
 				{
-					CG_DrawEdge(a.mPoint.v, b.mPoint.v, EDGE_BLOCKED);
+					CG_DrawEdge(a.mPoint.v, b.mPoint.v, edgeType_t::EDGE_BLOCKED);
 				}
 			}
 		}
@@ -3956,10 +3954,10 @@ void			NAV::ShowDebugInfo(const vec3_t& PlayerPosition, int PlayerWaypoint)
 				mCells.get_cell_upperleft(x,y, x1, y1);
 				mCells.get_cell_lowerright(x,y, x2, y2);
 
-				edgeType_t type = EDGE_CELL_EMPTY;
+				edgeType_t type = edgeType_t::EDGE_CELL_EMPTY;
 				if (nodes.size())
 				{
-					type = EDGE_CELL;
+					type = edgeType_t::EDGE_CELL;
 					z = mGraph.get_node(nodes[0])[2] - 10.0f;
 				}
 
@@ -3994,7 +3992,7 @@ void			NAV::ShowDebugInfo(const vec3_t& PlayerPosition, int PlayerWaypoint)
 		{
 			CWayNode& node	= mGraph.get_node(PlayerWaypoint);
 
-			CG_DrawEdge(PPos.v, node.mPoint.v, (player->waypoint)?(EDGE_NEARESTVALID):(EDGE_NEARESTINVALID));
+			CG_DrawEdge(PPos.v, node.mPoint.v, (player->waypoint)?(edgeType_t::EDGE_NEARESTVALID):(edgeType_t::EDGE_NEARESTINVALID));
 		}
 		else
 		{
@@ -4002,7 +4000,7 @@ void			NAV::ShowDebugInfo(const vec3_t& PlayerPosition, int PlayerWaypoint)
 			CVec3 PosOnLine(PlayerPosition);
 			PosOnLine.ProjectToLineSeg(edge.PointA(), edge.PointB());
 
-			CG_DrawEdge(PPos.v, PosOnLine.v, (player->waypoint)?(EDGE_NEARESTVALID):(EDGE_NEARESTINVALID));
+			CG_DrawEdge(PPos.v, PosOnLine.v, (player->waypoint)?(edgeType_t::EDGE_NEARESTVALID):(edgeType_t::EDGE_NEARESTINVALID));
 		}
 	}
 }
@@ -4123,10 +4121,10 @@ void			STEER::Activate(gentity_t* actor)
 	suser.mRadius		= RadiusFromBounds(actor->mins, actor->maxs);
 	suser.mMaxForce		= 150.0f;		//STEER_TODO: Get From actor Somehow
 	suser.mMass			= 1.0f;			//STEER_TODO: Get From actor Somehow
-	if (!Any(actor->NPC->scriptFlags&SCF_RUNNING) &&
-		(Any(actor->NPC->scriptFlags&SCF_WALKING) ||
-		 Any(actor->NPC->aiFlags&NPCAI_WALKING) ||
-		 Any(ucmd.buttons&BUTTON_WALKING)
+	if (!Any(actor->NPC->scriptFlags&scriptFlags_t::SCF_RUNNING) &&
+		(Any(actor->NPC->scriptFlags&scriptFlags_t::SCF_WALKING) ||
+		 Any(actor->NPC->aiFlags&npcAiFlags_t::NPCAI_WALKING) ||
+		 Any(ucmd.buttons&buttonFlags_t::BUTTON_WALKING)
 		))
 	{
 		suser.mMaxSpeed	= actor->NPC->stats.walkSpeed;
@@ -4144,7 +4142,7 @@ void			STEER::Activate(gentity_t* actor)
 	suser.mNeighbors.clear();
 	float	RangeSize = suser.mRadius + STEER::NEIGHBOR_RANGE;
 
-	CVec3	Range(RangeSize, RangeSize, (actor->client->moveType==MT_FLYSWIM)?(RangeSize):(suser.mRadius*2.0f));
+	CVec3	Range(RangeSize, RangeSize, (actor->client->moveType==movetype_t::MT_FLYSWIM)?(RangeSize):(suser.mRadius*2.0f));
 	CVec3	Mins(suser.mPosition - Range);
 	CVec3	Maxs(suser.mPosition + Range);
 
@@ -4179,7 +4177,7 @@ void			STEER::Activate(gentity_t* actor)
 //==================================================================================
 	suser.mProjectFwd	= suser.mPosition + (suser.mVelocity * 1.0f);
 	suser.mProjectSide	=                   (suser.mVelocity * 0.3f);
-	suser.mProjectSide.Reposition(suser.mPosition, (actor->NPC->avoidSide==Side_Left)?(40.0f):(-40.0f));
+	suser.mProjectSide.Reposition(suser.mPosition, (actor->NPC->avoidSide==ESide::Side_Left)?(40.0f):(-40.0f));
 
 
 	// STEER_TODO: Project The Point The Path (If The character has one)
@@ -4230,8 +4228,8 @@ void			STEER::DeActivate(gentity_t* actor, usercmd_t* ucmd)
 			CVec3 EndThrust(suser.mPosition+suser.mSteering);
 			CVec3 EndVelocity(suser.mPosition+suser.mVelocity);
 
-			CG_DrawEdge(suser.mPosition.v, EndThrust.v,		EDGE_THRUST);
-			CG_DrawEdge(suser.mPosition.v, EndVelocity.v,	EDGE_VELOCITY);
+			CG_DrawEdge(suser.mPosition.v, EndThrust.v,		edgeType_t::EDGE_THRUST);
+			CG_DrawEdge(suser.mPosition.v, EndVelocity.v,	edgeType_t::EDGE_VELOCITY);
 		}
 		//=================================================================
 	}
@@ -4270,7 +4268,7 @@ void			STEER::DeActivate(gentity_t* actor, usercmd_t* ucmd)
 
 // PHASE III - ASSIGN ALL THIS DATA TO THE ACTOR ENTITY
 //======================================================
-		actor->NPC->aiFlags |= NPCAI_NO_SLOWDOWN;
+		actor->NPC->aiFlags |= npcAiFlags_t::NPCAI_NO_SLOWDOWN;
 
 		VectorCopy(MoveDir.v,
 			actor->client->ps.moveDir);
@@ -4298,16 +4296,16 @@ void			STEER::DeActivate(gentity_t* actor, usercmd_t* ucmd)
 
 			if (suser.mSpeed<(actor->NPC->stats.walkSpeed + 5.0f))
 			{
-				ucmd->buttons |= BUTTON_WALKING;
+				ucmd->buttons |= buttonFlags_t::BUTTON_WALKING;
 			}
 			else
 			{
-				ucmd->buttons &= ~BUTTON_WALKING;
+				ucmd->buttons &= ~buttonFlags_t::BUTTON_WALKING;
 			}
 
 			// Handle Fly Swim Movement
 			//--------------------------
-			if (actor->client->moveType==MT_FLYSWIM)
+			if (actor->client->moveType==movetype_t::MT_FLYSWIM)
 			{
 				ucmd->forwardmove	= 0.0f;
 				ucmd->rightmove		= 0.0f;
@@ -4323,7 +4321,7 @@ void			STEER::DeActivate(gentity_t* actor, usercmd_t* ucmd)
 
 			// Handle Fly Swim Movement
 			//--------------------------
-			if (actor->client->moveType==MT_FLYSWIM)
+			if (actor->client->moveType==movetype_t::MT_FLYSWIM)
 			{
 				VectorClear(actor->client->ps.velocity);
 			}
@@ -4344,9 +4342,9 @@ void			STEER::DeActivate(gentity_t* actor, usercmd_t* ucmd)
 		{
 			// If Not Previously Blocked, Record The Start Time And Any Entites Involved
 			//---------------------------------------------------------------------------
-			if (!Any(actor->NPC->aiFlags&NPCAI_BLOCKED))
+			if (!Any(actor->NPC->aiFlags&npcAiFlags_t::NPCAI_BLOCKED))
 			{
-				actor->NPC->aiFlags				|= NPCAI_BLOCKED;
+				actor->NPC->aiFlags				|= npcAiFlags_t::NPCAI_BLOCKED;
 				actor->NPC->blockedDebounceTime  = level.time;
 			}
 
@@ -4363,9 +4361,9 @@ void			STEER::DeActivate(gentity_t* actor, usercmd_t* ucmd)
 		{
 			// Nothing Blocking, So Turn Off The Blocked Stuff If It Is There
 			//----------------------------------------------------------------
-			if (Any(actor->NPC->aiFlags&NPCAI_BLOCKED))
+			if (Any(actor->NPC->aiFlags&npcAiFlags_t::NPCAI_BLOCKED))
 			{
-				actor->NPC->aiFlags				&= ~NPCAI_BLOCKED;
+				actor->NPC->aiFlags				&= ~npcAiFlags_t::NPCAI_BLOCKED;
 				actor->NPC->blockedDebounceTime  = 0;
 				actor->NPC->blockedTargetEntity	 = nullptr;
 			}
@@ -4377,18 +4375,18 @@ void			STEER::DeActivate(gentity_t* actor, usercmd_t* ucmd)
 		{
 			if (NAVDEBUG_showEnemyPath)
 			{
-				CG_DrawEdge(actor->currentOrigin, actor->NPC->blockedTargetPosition, EDGE_PATHBLOCKED);
+				CG_DrawEdge(actor->currentOrigin, actor->NPC->blockedTargetPosition, edgeType_t::EDGE_PATHBLOCKED);
 				if (actor->waypoint)
 				{
 					CVec3	Dumb(NAV::GetNodePosition(actor->waypoint));
-					CG_DrawEdge(actor->currentOrigin, Dumb.v, EDGE_BLOCKED);
+					CG_DrawEdge(actor->currentOrigin, Dumb.v, edgeType_t::EDGE_BLOCKED);
 				}
 			}
 
 			// If He Can Fly Or Jump, Try That
 			//---------------------------------
-			if (Any(actor->NPC->scriptFlags&SCF_NAV_CAN_FLY) ||
-				Any(actor->NPC->scriptFlags&SCF_NAV_CAN_JUMP)
+			if (Any(actor->NPC->scriptFlags&scriptFlags_t::SCF_NAV_CAN_FLY) ||
+				Any(actor->NPC->scriptFlags&scriptFlags_t::SCF_NAV_CAN_JUMP)
 				)
 			{
 				// Ok, Well, How About Jumping To The Last Waypoint We Had That Was Valid
@@ -4405,7 +4403,7 @@ void			STEER::DeActivate(gentity_t* actor, usercmd_t* ucmd)
 						)
 					{
 						G_SetOrigin(actor, NAV::GetNodePosition(actor->lastWaypoint));
-						G_SoundOnEnt( NPC, CHAN_BODY, "sound/weapons/force/jump.wav" );
+						G_SoundOnEnt( NPC, soundChannel_t::CHAN_BODY, "sound/weapons/force/jump.wav" );
 					}
 					else
 					{
@@ -4502,7 +4500,7 @@ bool			STEER::SafeToGoTo(gentity_t* actor, const vec3_t& targetPosition, int tar
 					if (NAVDEBUG_showCollision)
 					{
 						CVec3 Dumb(targetPosition);
-						CG_DrawEdge(actor->currentOrigin, Dumb.v, EDGE_WHITE_TWOSECOND);
+						CG_DrawEdge(actor->currentOrigin, Dumb.v, edgeType_t::EDGE_WHITE_TWOSECOND);
 					}
 				}
 				else
@@ -4510,7 +4508,7 @@ bool			STEER::SafeToGoTo(gentity_t* actor, const vec3_t& targetPosition, int tar
 					if (NAVDEBUG_showCollision)
 					{
 						CVec3 Dumb(targetPosition);
-						CG_DrawEdge(actor->currentOrigin, Dumb.v, EDGE_RED_TWOSECOND);
+						CG_DrawEdge(actor->currentOrigin, Dumb.v, edgeType_t::EDGE_RED_TWOSECOND);
 					}
 				}
 			}
@@ -4535,7 +4533,7 @@ bool			STEER::GoTo(gentity_t* actor,  gentity_t* target, float reachedRadius, bo
 
 	// If Within Reached Radius, Just Stop Right Here
 	//------------------------------------------------
-	if (STEER::Reached(actor, target->currentOrigin, reachedRadius, (actor->client && actor->client->moveType==MT_FLYSWIM)))
+	if (STEER::Reached(actor, target->currentOrigin, reachedRadius, (actor->client && actor->client->moveType==movetype_t::MT_FLYSWIM)))
 	{
 		NAV::ClearPath(actor);
 		STEER::Stop(actor);
@@ -4566,7 +4564,7 @@ bool			STEER::GoTo(gentity_t* actor,  gentity_t* target, float reachedRadius, bo
 
 	if (NAVDEBUG_showEnemyPath)
 	{
-		CG_DrawEdge(actor->currentOrigin, target->currentOrigin, EDGE_FOLLOWPOS);
+		CG_DrawEdge(actor->currentOrigin, target->currentOrigin, edgeType_t::EDGE_FOLLOWPOS);
 	}
 	return true;
 }
@@ -4578,7 +4576,7 @@ bool			STEER::GoTo(gentity_t* actor, const vec3_t& position, float reachedRadius
 {
 	// If Within Reached Radius, Just Stop Right Here
 	//------------------------------------------------
-	if (STEER::Reached(actor, position, reachedRadius, (actor->client && actor->client->moveType==MT_FLYSWIM)))
+	if (STEER::Reached(actor, position, reachedRadius, (actor->client && actor->client->moveType==movetype_t::MT_FLYSWIM)))
 	{
 		NAV::ClearPath(actor);
 		STEER::Stop(actor);
@@ -4607,7 +4605,7 @@ bool			STEER::GoTo(gentity_t* actor, const vec3_t& position, float reachedRadius
 	if (NAVDEBUG_showEnemyPath)
 	{
 		CVec3	Dumb(position);
-		CG_DrawEdge(actor->currentOrigin, Dumb.v, EDGE_FOLLOWPOS);
+		CG_DrawEdge(actor->currentOrigin, Dumb.v, edgeType_t::EDGE_FOLLOWPOS);
 	}
 	return true;
 }
@@ -4645,7 +4643,7 @@ void			STEER::Blocked(gentity_t* actor, const vec3_t& target)
 bool			STEER::HasBeenBlockedFor(gentity_t* actor, int duration)
 {
 	return (
-		Any(actor->NPC->aiFlags&NPCAI_BLOCKED) &&
+		Any(actor->NPC->aiFlags&npcAiFlags_t::NPCAI_BLOCKED) &&
 		(level.time - actor->NPC->blockedDebounceTime)>duration
 		);
 }
@@ -4666,12 +4664,12 @@ float			STEER::Stop(gentity_t* actor, float weight)
 	suser.mDesiredSpeed		=  0.0f;
 	suser.mSteering			+= ((suser.mDesiredVelocity - suser.mVelocity) * weight);
 
-	if (Any(actor->NPC->aiFlags&NPCAI_FLY))
+	if (Any(actor->NPC->aiFlags&npcAiFlags_t::NPCAI_FLY))
 	{
 		int nearestNode = NAV::GetNearestNode(actor);
-		if (nearestNode>0 && !mGraph.get_node(nearestNode).mFlags.get_bit( to_underlying( CWayNode::WN_FLOATING ) ))
+		if (nearestNode>0 && !mGraph.get_node(nearestNode).mFlags.get_bit( to_underlying( CWayNode::EWayNodeFlags::WN_FLOATING ) ))
 		{
-			actor->NPC->aiFlags &= ~NPCAI_FLY;
+			actor->NPC->aiFlags &= ~npcAiFlags_t::NPCAI_FLY;
 		}
 	}
 
@@ -4930,7 +4928,7 @@ float			STEER::Separation(gentity_t* actor, float Scale)
 					if (NAVDEBUG_showCollision)
 					{
 						CVec3	Prj(suser.mPosition + NbrToAct);
-						CG_DrawEdge(suser.mPosition.v,	Prj.v, EDGE_IMPACT_POSSIBLE);	// Separation
+						CG_DrawEdge(suser.mPosition.v,	Prj.v, edgeType_t::EDGE_IMPACT_POSSIBLE);	// Separation
 					}
 				}
 			}
@@ -5014,14 +5012,14 @@ float			STEER::Path(gentity_t* actor)
 		//------------------------------------------
 		if (Fly)
 		{
-			actor->NPC->aiFlags |= NPCAI_FLY;
+			actor->NPC->aiFlags |= npcAiFlags_t::NPCAI_FLY;
 		}
 
 		// Otherwise, If Next Point Is On The Ground, No Need To Fly Any Longer
 		//----------------------------------------------------------------------
-		else if (Any(actor->NPC->aiFlags&NPCAI_FLY))
+		else if (Any(actor->NPC->aiFlags&npcAiFlags_t::NPCAI_FLY))
 		{
-			actor->NPC->aiFlags &= ~NPCAI_FLY;
+			actor->NPC->aiFlags &= ~npcAiFlags_t::NPCAI_FLY;
 		}
 
 		// Start Jumping If Next Point Is A Jump
@@ -5030,11 +5028,11 @@ float			STEER::Path(gentity_t* actor)
 		{
 			if (NPC_TryJump(NextPosition.v))
 			{
-				actor->NPC->aiFlags |= NPCAI_JUMP;
+				actor->NPC->aiFlags |= npcAiFlags_t::NPCAI_JUMP;
 				return 1.0f;
 			}
 		}
-		actor->NPC->aiFlags &=~NPCAI_JUMP;
+		actor->NPC->aiFlags &=~npcAiFlags_t::NPCAI_JUMP;
 
 
 		// Preview His Path
@@ -5045,7 +5043,7 @@ float			STEER::Path(gentity_t* actor)
 			TPath&	path = mPathUsers[mPathUserIndex[actor->s.number]].mPath;
 			for (int i=path.size()-1; i>=0; i--)
 			{
-				CG_DrawEdge(Prev.v, path[i].mPoint.v, EDGE_PATH);
+				CG_DrawEdge(Prev.v, path[i].mPoint.v, edgeType_t::EDGE_PATH);
 				Prev = path[i].mPoint;
 			}
 		}
@@ -5145,7 +5143,7 @@ float			STEER::FollowLeader(gentity_t* actor, gentity_t* leader, float dist)
 
 	if (NAVDEBUG_showEnemyPath)
 	{
-		CG_DrawEdge(leader->currentOrigin, leader->followPos, EDGE_FOLLOWPOS);
+		CG_DrawEdge(leader->currentOrigin, leader->followPos, edgeType_t::EDGE_FOLLOWPOS);
 	}
 
 	return 0.0;
@@ -5164,7 +5162,7 @@ bool		TestCollision(gentity_t* actor, SSteerUser& suser, const CVec3& ProjectVel
 {
 	// Test To See If The Projected Position Is Safe
 	//-----------------------------------------------
-	bool Safe = (Side==Side_None)?(MoveTrace(actor, suser.mProjectFwd)):(MoveTrace(actor, suser.mProjectSide));
+	bool Safe = (Side==ESide::Side_None)?(MoveTrace(actor, suser.mProjectFwd)):(MoveTrace(actor, suser.mProjectSide));
 	if (mMoveTrace.entityNum!=ENTITYNUM_NONE && mMoveTrace.entityNum!=ENTITYNUM_WORLD)
 	{
 		// The Ignore Entity Is Safe
@@ -5184,7 +5182,7 @@ bool		TestCollision(gentity_t* actor, SSteerUser& suser, const CVec3& ProjectVel
 
 		// If It's Breakable And We Can Go Through It, Then That's Safe Too
 		//------------------------------------------------------------------
-		if (Any(actor->NPC->aiFlags&NPCAI_NAV_THROUGH_BREAKABLES) &&
+		if (Any(actor->NPC->aiFlags&npcAiFlags_t::NPCAI_NAV_THROUGH_BREAKABLES) &&
 			G_EntIsBreakable(mMoveTrace.entityNum, actor))
 		{
 			Safe = true;
@@ -5201,7 +5199,7 @@ bool		TestCollision(gentity_t* actor, SSteerUser& suser, const CVec3& ProjectVel
 	int		ContactNum =  mMoveTrace.entityNum;
 
 
-	if (!Safe && Side==Side_None)
+	if (!Safe && Side==ESide::Side_None)
 	{
 		// Did We Hit A Client?
 		//----------------------
@@ -5294,23 +5292,23 @@ bool		TestCollision(gentity_t* actor, SSteerUser& suser, const CVec3& ProjectVel
 
 			// Only Force A Particular Steering Side For A Max Of 2 Seconds, Then Retest Dot Product
 			//---------------------------------------------------------------------------------------
-			if (actor->NPC->lastAvoidSteerSide!=Side_None && actor->NPC->lastAvoidSteerSideDebouncer<level.time)
+			if (actor->NPC->lastAvoidSteerSide!=ESide::Side_None && actor->NPC->lastAvoidSteerSideDebouncer<level.time)
 			{
-				actor->NPC->lastAvoidSteerSide				= Side_None;
+				actor->NPC->lastAvoidSteerSide				= ESide::Side_None;
 				actor->NPC->lastAvoidSteerSideDebouncer		= level.time + Q_irand(500, STEER::SIDE_LOCKED_TIMER);
 			}
 
 			// Make Sure The Normal Is Going The Same Way As The Velocity
 			//-----------------------------------------------------------
-			if ((actor->NPC->lastAvoidSteerSide==Side_Right) ||
-				(actor->NPC->lastAvoidSteerSide==Side_None && ContactNormal.Dot(ProjectDirection)<0.0f))
+			if ((actor->NPC->lastAvoidSteerSide==ESide::Side_Right) ||
+				(actor->NPC->lastAvoidSteerSide==ESide::Side_None && ContactNormal.Dot(ProjectDirection)<0.0f))
 			{
 				ContactNormal *= -1.0f;
-				actor->NPC->lastAvoidSteerSide  = Side_Right;
+				actor->NPC->lastAvoidSteerSide  = ESide::Side_Right;
 			}
 			else
 			{
-				actor->NPC->lastAvoidSteerSide  = Side_Left;
+				actor->NPC->lastAvoidSteerSide  = ESide::Side_Left;
 			}
 			ContactNormal[2] = 0.0f;
 
@@ -5326,9 +5324,9 @@ bool		TestCollision(gentity_t* actor, SSteerUser& suser, const CVec3& ProjectVel
 
 		// If It Was Safe, Reset Our Avoid Side Data
 		//-------------------------------------------
-		else if (Side==Side_None)
+		else if (Side==ESide::Side_None)
 		{
-			actor->NPC->lastAvoidSteerSide = Side_None;
+			actor->NPC->lastAvoidSteerSide = ESide::Side_None;
 		}
 	}
 
@@ -5340,16 +5338,16 @@ bool		TestCollision(gentity_t* actor, SSteerUser& suser, const CVec3& ProjectVel
 	//=================================================================
 	if (NAVDEBUG_showCollision)
 	{
-		CVec3	Prj((Side==Side_None)?(suser.mProjectFwd):(suser.mProjectSide));
+		CVec3	Prj((Side==ESide::Side_None)?(suser.mProjectFwd):(suser.mProjectSide));
 
 		if (Safe)
 		{
-			CG_DrawEdge(suser.mPosition.v,	Prj.v,				EDGE_IMPACT_SAFE);		// WHITE LINE
+			CG_DrawEdge(suser.mPosition.v,	Prj.v,				edgeType_t::EDGE_IMPACT_SAFE);		// WHITE LINE
 		}
 		else
 		{
-			CG_DrawEdge(suser.mPosition.v,	mMoveTrace.endpos,	EDGE_IMPACT_POSSIBLE);	// RED LINE
-			CG_DrawEdge(mMoveTrace.endpos,	ContactPoint.v,		EDGE_IMPACT_POSSIBLE);	// RED LINE
+			CG_DrawEdge(suser.mPosition.v,	mMoveTrace.endpos,	edgeType_t::EDGE_IMPACT_POSSIBLE);	// RED LINE
+			CG_DrawEdge(mMoveTrace.endpos,	ContactPoint.v,		edgeType_t::EDGE_IMPACT_POSSIBLE);	// RED LINE
 		}
 	}
 	//=================================================================
@@ -5390,7 +5388,7 @@ float			STEER::AvoidCollisions(gentity_t* actor, gentity_t* leader)
 
 	// Select An Ignore Entity
 	//-------------------------
-	if (actor->NPC->behaviorState!=BS_CINEMATIC)
+	if (actor->NPC->behaviorState!=bState_t::BS_CINEMATIC)
 	{
 		if (actor->NPC->greetEnt && actor->NPC->greetEnt->owner==NPC)
 		{
@@ -5412,7 +5410,7 @@ float			STEER::AvoidCollisions(gentity_t* actor, gentity_t* leader)
 	if (ProjectedSpeed>0.01f)
 	{
 		CVec3	ProjectVelocitySide(ProjectedVelocity);
-		ProjectVelocitySide.Reposition(CVec3::mZero, (actor->NPC->avoidSide==Side_Left)?(40.0f):(-40.0f));
+		ProjectVelocitySide.Reposition(CVec3::mZero, (actor->NPC->avoidSide==ESide::Side_Left)?(40.0f):(-40.0f));
 
 		// Project Based On Our ProjectedVelocity
 		//-----------------------------------------
@@ -5421,13 +5419,13 @@ float			STEER::AvoidCollisions(gentity_t* actor, gentity_t* leader)
 
 		// Test For Collisions In The Front And On The Sides
 		//---------------------------------------------------
-		bool	HitFront	= TestCollision(actor, suser, ProjectedVelocity, ProjectedSpeed, Side_None, 1.0f);
+		bool	HitFront	= TestCollision(actor, suser, ProjectedVelocity, ProjectedSpeed, ESide::Side_None, 1.0f);
 		bool	HitSide		= TestCollision(actor, suser, ProjectedVelocity, ProjectedSpeed, actor->NPC->avoidSide, 0.5f);
 		if (!HitSide)
 		{
 			// If The Side Is Clear, Try The Other Side
 			//------------------------------------------
-			actor->NPC->avoidSide = (actor->NPC->avoidSide==Side_Left)?(Side_Right):(Side_Left);
+			actor->NPC->avoidSide = (actor->NPC->avoidSide==ESide::Side_Left)?(ESide::Side_Right):(ESide::Side_Left);
 		}
 
 		// Hit Something!

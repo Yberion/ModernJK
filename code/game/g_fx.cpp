@@ -60,7 +60,7 @@ void fx_runner_think( gentity_t *ent )
 	EvaluateTrajectory( &ent->s.apos, level.time, ent->currentAngles );
 
 	// call the effect with the desired position and orientation
-	G_AddEvent( ent, EV_PLAY_EFFECT, ent->fxID );
+	G_AddEvent( ent, entity_event_t::EV_PLAY_EFFECT, ent->fxID );
 
 	// Assume angles, we'll do a cross product on the other end to finish up
 	AngleVectors( ent->currentAngles, ent->pos3, nullptr, nullptr );
@@ -70,7 +70,7 @@ void fx_runner_think( gentity_t *ent )
 
 	if ( ent->spawnflags & 4 ) // damage
 	{
-		G_RadiusDamage( ent->currentOrigin, ent, ent->splashDamage, ent->splashRadius, ent, MOD_UNKNOWN );
+		G_RadiusDamage( ent->currentOrigin, ent, ent->splashDamage, ent->splashRadius, ent, meansOfDeath_t::MOD_UNKNOWN );
 	}
 
 	if ( ent->target2 )
@@ -99,7 +99,7 @@ void fx_runner_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
 	if (self->s.isPortalEnt)
 	{ //rww - mark it as broadcast upon first use if it's within the area of a skyportal
-		self->svFlags |= SVF_BROADCAST;
+		self->svFlags |= svFlags_t::SVF_BROADCAST;
 	}
 
 	if ( self->spawnflags & 2 ) // ONESHOT
@@ -117,13 +117,13 @@ void fx_runner_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 
 		if ( VALIDSTRING( self->soundSet ) == true )
 		{
-			G_AddEvent( self, EV_BMODEL_SOUND, CAS_GetBModelSound( self->soundSet, BMS_START ));
+			G_AddEvent( self, entity_event_t::EV_BMODEL_SOUND, CAS_GetBModelSound( self->soundSet, BMS_START ));
 		}
 	}
 	else
 	{
 		// ensure we are working with the right think function
-		self->e_ThinkFunc = thinkF_fx_runner_think;
+		self->e_ThinkFunc = thinkFunc_t::thinkF_fx_runner_think;
 
 		// toggle our state
 		if ( self->nextthink == -1 )
@@ -134,7 +134,7 @@ void fx_runner_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 
 			if ( VALIDSTRING( self->soundSet ) == true )
 			{
-				G_AddEvent( self, EV_BMODEL_SOUND, CAS_GetBModelSound( self->soundSet, BMS_START ));
+				G_AddEvent( self, entity_event_t::EV_BMODEL_SOUND, CAS_GetBModelSound( self->soundSet, BMS_START ));
 				self->s.loopSound = CAS_GetBModelSound( self->soundSet, BMS_MID );
 
 				if ( self->s.loopSound < 0 )
@@ -150,7 +150,7 @@ void fx_runner_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 
 			if ( VALIDSTRING( self->soundSet ) == true )
 			{
-				G_AddEvent( self, EV_BMODEL_SOUND, CAS_GetBModelSound( self->soundSet, BMS_END ));
+				G_AddEvent( self, entity_event_t::EV_BMODEL_SOUND, CAS_GetBModelSound( self->soundSet, BMS_END ));
 				self->s.loopSound = 0;
 			}
 		}
@@ -224,7 +224,7 @@ void fx_runner_link( gentity_t *ent )
 	// make us useable if we can be targeted
 	if ( ent->targetname )
 	{
-		ent->e_UseFunc = useF_fx_runner_use;
+		ent->e_UseFunc = useFunc_t::useF_fx_runner_use;
 	}
 }
 
@@ -254,10 +254,10 @@ void SP_fx_runner( gentity_t *ent )
 	//	until the CGAME trys to register it...
 	ent->fxID = G_EffectIndex( ent->fxFile );
 
-	ent->s.eType = ET_MOVER;
+	ent->s.eType = entityType_t::ET_MOVER;
 
 	// Give us a bit of time to spawn in the other entities, since we may have to target one of 'em
-	ent->e_ThinkFunc = thinkF_fx_runner_link;
+	ent->e_ThinkFunc = thinkFunc_t::thinkF_fx_runner_link;
 	ent->nextthink = level.time + 400;
 
 	// Save our position and link us up!
@@ -275,7 +275,7 @@ This world effect will spawn snow globally into the level.
 */
 void SP_CreateSnow( gentity_t *ent )
 {
-	cvar_t *r_weatherScale = gi.cvar( "r_weatherScale", "1", CVAR_ARCHIVE );
+	cvar_t *r_weatherScale = gi.cvar( "r_weatherScale", "1", cvarFlags_t::CVAR_ARCHIVE );
 	if ( r_weatherScale->value == 0.0f )
 	{
 		return;
@@ -324,7 +324,7 @@ SWIRLING  causes random swirls of wind
 */
 void SP_CreateWind( gentity_t *ent )
 {
-	cvar_t *r_weatherScale = gi.cvar( "r_weatherScale", "1", CVAR_ARCHIVE );
+	cvar_t *r_weatherScale = gi.cvar( "r_weatherScale", "1", cvarFlags_t::CVAR_ARCHIVE );
 	if ( r_weatherScale->value <= 0.0f )
 	{
 		return;
@@ -390,7 +390,7 @@ Generates local wind forces
 */
 void SP_CreateWindZone( gentity_t *ent )
 {
-	cvar_t *r_weatherScale = gi.cvar( "r_weatherScale", "1", CVAR_ARCHIVE );
+	cvar_t *r_weatherScale = gi.cvar( "r_weatherScale", "1", cvarFlags_t::CVAR_ARCHIVE );
 	if ( r_weatherScale->value <= 0.0f )
 	{
 		return;
@@ -593,7 +593,7 @@ void SP_CreateRain( gentity_t *ent )
 		G_SoundIndex("sound/ambience/thunder_close1");
 		G_SoundIndex("sound/ambience/thunder_close2");
 		G_EffectIndex( "env/huge_lightning" );
-		ent->e_ThinkFunc = thinkF_fx_rain_think;
+		ent->e_ThinkFunc = thinkFunc_t::thinkF_fx_rain_think;
 		ent->nextthink = level.time + Q_irand(4000, 8000);
 
 		if (!G_SpawnVector( "flashcolor", "200 200 200", ent->pos3))
@@ -682,7 +682,7 @@ void SP_CreatePuffSystem( gentity_t *ent )
 
 	// Initialize the puff system to either 1000 particles or whatever they choose.
 	G_SpawnInt( "count", "1000", &ent->count );
-	cvar_t *r_weatherScale = gi.cvar( "r_weatherScale", "1", CVAR_ARCHIVE );
+	cvar_t *r_weatherScale = gi.cvar( "r_weatherScale", "1", cvarFlags_t::CVAR_ARCHIVE );
 
 	// See which puff system to use.
 	int iPuffSystem = 0;
@@ -693,7 +693,7 @@ void SP_CreatePuffSystem( gentity_t *ent )
 		if ( iPuffSystem < 0 || iPuffSystem > 1 )
 		{
 			iPuffSystem = 0;
-			//ri.Error( ERR_DROP, "Weather Effect: Invalid value for whichsystem key" );
+			//ri.Error( errorParm_t::ERR_DROP, "Weather Effect: Invalid value for whichsystem key" );
 			Com_Printf( "Weather Effect: Invalid value for whichsystem key\n" );
 		}
 	}
@@ -711,9 +711,9 @@ void SP_CreatePuffSystem( gentity_t *ent )
 	iVal = 0;
 	G_SpawnInt( "sabersparks", "0", &iVal );
 	if ( iVal == 1 )
-		level.worldFlags |= WF_PUFFING;
+		level.worldFlags |= worldFlags_t::WF_PUFFING;
 	else
-		level.worldFlags &= ~WF_PUFFING;
+		level.worldFlags &= ~worldFlags_t::WF_PUFFING;
 
 	// Go through all the fields and assign the values to the created puff system now.
 	for ( int i = 0; i < 20; i++ )
@@ -777,26 +777,26 @@ void fx_explosion_trail_think( gentity_t *ent )
 
 	if ( ent->spawnflags & 1 ) // gravity
 	{
-		ent->s.pos.trType = TR_GRAVITY;
+		ent->s.pos.trType = trType_t::TR_GRAVITY;
 	}
 	else
 	{
-		ent->s.pos.trType = TR_LINEAR;
+		ent->s.pos.trType = trType_t::TR_LINEAR;
 	}
 
 	EvaluateTrajectory( &ent->s.pos, level.time, origin );
 
 	gi.trace( &tr, ent->currentOrigin, vec3_origin, vec3_origin, origin,
-				ent->owner ? ent->owner->s.number : ENTITYNUM_NONE, ent->clipmask, G2_RETURNONHIT, 10 );
+				ent->owner ? ent->owner->s.number : ENTITYNUM_NONE, ent->clipmask, EG2_Collision::G2_RETURNONHIT, 10 );
 
 	if ( tr.fraction < 1.0f )
 	{
 		// never explode or bounce on sky
-		if ( !Any( tr.surfaceFlags & SURF_NOIMPACT ))
+		if ( !Any( tr.surfaceFlags & surfaceFlags_t::SURF_NOIMPACT ))
 		{
 			if ( ent->splashDamage && ent->splashRadius )
 			{
-				G_RadiusDamage( tr.endpos, ent, ent->splashDamage, ent->splashRadius, ent, MOD_EXPLOSIVE_SPLASH );
+				G_RadiusDamage( tr.endpos, ent, ent->splashDamage, ent->splashRadius, ent, meansOfDeath_t::MOD_EXPLOSIVE_SPLASH );
 			}
 		}
 
@@ -808,14 +808,14 @@ void fx_explosion_trail_think( gentity_t *ent )
 
 		if ( VALIDSTRING( ent->soundSet ) == true )
 		{
-			G_AddEvent( ent, EV_BMODEL_SOUND, CAS_GetBModelSound( ent->soundSet, BMS_END ));
+			G_AddEvent( ent, entity_event_t::EV_BMODEL_SOUND, CAS_GetBModelSound( ent->soundSet, BMS_END ));
 		}
 
 		G_FreeEntity( ent );
 		return;
 	}
 
-	G_RadiusDamage( origin, ent, ent->damage, ent->radius, ent, MOD_EXPLOSIVE_SPLASH );
+	G_RadiusDamage( origin, ent, ent->damage, ent->radius, ent, meansOfDeath_t::MOD_EXPLOSIVE_SPLASH );
 
 	// call the effect with the desired position and orientation
 	G_PlayEffect( ent->fxID, origin, ent->currentAngles );
@@ -835,9 +835,9 @@ void fx_explosion_trail_use( gentity_t *self, gentity_t *other, gentity_t *activ
 		missile->classname = "fx_exp_trail";
 
 		missile->nextthink = level.time + 50;
-		missile->e_ThinkFunc = thinkF_fx_explosion_trail_think;
+		missile->e_ThinkFunc = thinkFunc_t::thinkF_fx_explosion_trail_think;
 
-		missile->s.eType = ET_MOVER;
+		missile->s.eType = entityType_t::ET_MOVER;
 
 		missile->owner = self;
 
@@ -847,11 +847,11 @@ void fx_explosion_trail_use( gentity_t *self, gentity_t *other, gentity_t *activ
 		G_SetOrigin( missile, self->currentOrigin );
 		if ( self->spawnflags & 1 ) // gravity
 		{
-			missile->s.pos.trType = TR_GRAVITY;
+			missile->s.pos.trType = trType_t::TR_GRAVITY;
 		}
 		else
 		{
-			missile->s.pos.trType = TR_LINEAR;
+			missile->s.pos.trType = trType_t::TR_LINEAR;
 		}
 
 		missile->spawnflags = self->spawnflags;
@@ -872,7 +872,7 @@ void fx_explosion_trail_use( gentity_t *self, gentity_t *other, gentity_t *activ
 
 		if ( VALIDSTRING( self->soundSet ) == true )
 		{
-			G_AddEvent( self, EV_BMODEL_SOUND, CAS_GetBModelSound( self->soundSet, BMS_START ));
+			G_AddEvent( self, entity_event_t::EV_BMODEL_SOUND, CAS_GetBModelSound( self->soundSet, BMS_START ));
 			missile->s.loopSound = CAS_GetBModelSound( self->soundSet, BMS_MID );
 			missile->soundSet = G_NewString(self->soundSet);//get my own copy so i can free it when i die
 
@@ -891,7 +891,7 @@ void fx_explosion_trail_link( gentity_t *ent )
 	gentity_t	*target = nullptr;
 
 	// we ony activate when used
-	ent->e_UseFunc = useF_fx_explosion_trail_use;
+	ent->e_UseFunc = useFunc_t::useF_fx_explosion_trail_use;
 
 	if ( ent->target )
 	{
@@ -974,7 +974,7 @@ void SP_fx_explosion_trail( gentity_t *ent )
 	}
 
 	// Give us a bit of time to spawn in the other entities, since we may have to target one of 'em
-	ent->e_ThinkFunc = thinkF_fx_explosion_trail_link;
+	ent->e_ThinkFunc = thinkFunc_t::thinkF_fx_explosion_trail_link;
 	ent->nextthink = level.time + 500;
 
 	// Save our position and link us up!
@@ -999,7 +999,7 @@ void fx_target_beam_set_debounce( gentity_t *self )
 	}
 	else if ( self->wait < 0 )
 	{
-		self->e_UseFunc = useF_NULL;
+		self->e_UseFunc = useFunc_t::useF_NULL;
 	}
 	else
 	{
@@ -1030,7 +1030,7 @@ void fx_target_beam_fire( gentity_t *ent )
 	VectorSubtract( org, ent->s.origin, dir );
 	VectorNormalize( dir );
 
-	gi.trace( &trace, ent->s.origin, nullptr, nullptr, org, ENTITYNUM_NONE, MASK_SHOT, G2_NOCOLLIDE, 0 );//ignore
+	gi.trace( &trace, ent->s.origin, nullptr, nullptr, org, ENTITYNUM_NONE, MASK_SHOT, EG2_Collision::G2_NOCOLLIDE, 0 );//ignore
 	if ( ent->spawnflags & 2 )
 	{
 		open = true;
@@ -1051,17 +1051,17 @@ void fx_target_beam_fire( gentity_t *ent )
 			{
 				if ( ent->spawnflags & 4 ) // NO_KNOCKBACK
 				{
-					G_Damage( victim, ent, ent->activator, dir, trace.endpos, ent->damage, DAMAGE_NO_KNOCKBACK, MOD_UNKNOWN );
+					G_Damage( victim, ent, ent->activator, dir, trace.endpos, ent->damage, damageFlags_t::DAMAGE_NO_KNOCKBACK, meansOfDeath_t::MOD_UNKNOWN );
 				}
 				else
 				{
-					G_Damage( victim, ent, ent->activator, dir, trace.endpos, ent->damage, DAMAGE_NORMAL, MOD_UNKNOWN );
+					G_Damage( victim, ent, ent->activator, dir, trace.endpos, ent->damage, damageFlags_t::DAMAGE_NORMAL, meansOfDeath_t::MOD_UNKNOWN );
 				}
 			}
 		}
 	}
 
-	G_AddEvent( ent, EV_TARGET_BEAM_DRAW, ent->fxID );
+	G_AddEvent( ent, entity_event_t::EV_TARGET_BEAM_DRAW, ent->fxID );
 	VectorCopy( end, ent->s.origin2 );
 
 	if ( open )
@@ -1073,7 +1073,7 @@ void fx_target_beam_fire( gentity_t *ent )
 		VectorCopy( trace.plane.normal, ent->pos1 );
 	}
 
-	ent->e_ThinkFunc = thinkF_fx_target_beam_think;
+	ent->e_ThinkFunc = thinkFunc_t::thinkF_fx_target_beam_think;
 	ent->nextthink = level.time + FRAMETIME;
 }
 
@@ -1081,7 +1081,7 @@ void fx_target_beam_fire( gentity_t *ent )
 void fx_target_beam_fire_start( gentity_t *self )
 {
 	fx_target_beam_set_debounce( self );
-	self->e_ThinkFunc		= thinkF_fx_target_beam_think;
+	self->e_ThinkFunc		= thinkFunc_t::thinkF_fx_target_beam_think;
 	self->nextthink			= level.time + FRAMETIME;
 	self->painDebounceTime	= level.time + self->speed + Q_irand( -500, 500 );
 	fx_target_beam_fire( self );
@@ -1093,16 +1093,16 @@ void fx_target_beam_use( gentity_t *self, gentity_t *other, gentity_t *activator
 	if ( self->spawnflags & 8 ) // one shot
 	{
 		fx_target_beam_fire( self );
-		self->e_ThinkFunc	= thinkF_NULL;
+		self->e_ThinkFunc	= thinkFunc_t::thinkF_NULL;
 	}
-	else if ( self->e_ThinkFunc == thinkF_NULL )
+	else if ( self->e_ThinkFunc == thinkFunc_t::thinkF_NULL )
 	{
-		self->e_ThinkFunc	= thinkF_fx_target_beam_think;
+		self->e_ThinkFunc	= thinkFunc_t::thinkF_fx_target_beam_think;
 		self->nextthink		= level.time + 50;
 	}
 	else
 	{
-		self->e_ThinkFunc	= thinkF_NULL;
+		self->e_ThinkFunc	= thinkFunc_t::thinkF_NULL;
 	}
 
 	self->activator = activator;
@@ -1150,19 +1150,19 @@ void fx_target_beam_link( gentity_t *ent )
 	if ( ent->spawnflags & 1 )
 	{
 		// Do nothing
-		ent->e_ThinkFunc	= thinkF_NULL;
+		ent->e_ThinkFunc	= thinkFunc_t::thinkF_NULL;
 	}
 	else
 	{
 		if ( !(ent->spawnflags & 8 )) // one_shot, only calls when used
 		{
 			// switch think functions to avoid doing the bolt_link every time
-			ent->e_ThinkFunc = thinkF_fx_target_beam_think;
+			ent->e_ThinkFunc = thinkFunc_t::thinkF_fx_target_beam_think;
 			ent->nextthink	= level.time + FRAMETIME;
 		}
 	}
 
-	ent->e_UseFunc = useF_fx_target_beam_use;
+	ent->e_UseFunc = useFunc_t::useF_fx_target_beam_use;
 	gi.linkentity( ent );
 }
 
@@ -1216,7 +1216,7 @@ void SP_fx_target_beam( gentity_t *ent )
 	ent->activator = ent;
 	ent->owner	= nullptr;
 
-	ent->e_ThinkFunc = thinkF_fx_target_beam_link;
+	ent->e_ThinkFunc = thinkFunc_t::thinkF_fx_target_beam_link;
 	ent->nextthink	= level.time + START_TIME_LINK_ENTS;
 
 	VectorSet( ent->maxs, FX_ENT_RADIUS, FX_ENT_RADIUS, FX_ENT_RADIUS );
@@ -1248,11 +1248,11 @@ void SP_fx_cloudlayer( gentity_t *ent )
 	G_SpawnFloat( "random", "128", &ent->random );
 	G_SpawnFloat( "wait", "0", &ent->wait );
 
-	ent->s.eType = ET_CLOUD; // dumb
+	ent->s.eType = entityType_t::ET_CLOUD; // dumb
 
 	G_SetOrigin( ent, ent->s.origin );
 
-	ent->contents = CONTENTS_NONE;
+	ent->contents = contentsFlags_t::CONTENTS_NONE;
 	VectorSet( ent->maxs, 200, 200, 200 );
 	VectorScale( ent->maxs, -1, ent->mins );
 

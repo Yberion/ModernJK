@@ -900,8 +900,8 @@ bool CROFFSystem::ApplyROFF( SROFFEntity *roff_ent, CROFFSystem::CROFF *roff )
 
 	if ( roff_ent->mROFFFrame >= roff->mROFFEntries )
 	{ // we are done roffing, so stop moving and flag this ent to be removed
-		SetLerp( originTrajectory, TR_STATIONARY, origin, nullptr, sv.time, roff->mLerp );
-		SetLerp( angleTrajectory, TR_STATIONARY, angle, nullptr, sv.time, roff->mLerp );
+		SetLerp( originTrajectory, trType_t::TR_STATIONARY, origin, nullptr, sv.time, roff->mLerp );
+		SetLerp( angleTrajectory, trType_t::TR_STATIONARY, angle, nullptr, sv.time, roff->mLerp );
 		if (!roff_ent->mIsClient)
 		{
 			ent->r.mIsRoffing = false;
@@ -922,10 +922,10 @@ bool CROFFSystem::ApplyROFF( SROFFEntity *roff_ent, CROFFSystem::CROFF *roff )
 	}
 
 	// Set up our origin interpolation
-	SetLerp( originTrajectory, TR_LINEAR, origin, result, sv.time, roff->mLerp );
+	SetLerp( originTrajectory, trType_t::TR_LINEAR, origin, result, sv.time, roff->mLerp );
 
 	// Set up our angle interpolation
-	SetLerp( angleTrajectory, TR_LINEAR, angle,
+	SetLerp( angleTrajectory, trType_t::TR_LINEAR, angle,
 				roff->mMoveRotateList[roff_ent->mROFFFrame].mRotateOffset, sv.time, roff->mLerp );
 
 	if (roff->mMoveRotateList[roff_ent->mROFFFrame].mStartNote >= 0)
@@ -1044,8 +1044,8 @@ bool CROFFSystem::ClearLerp( SROFFEntity *roff_ent )
 		angle = ent->r.currentAngles;
 	}
 
-	SetLerp( originTrajectory, TR_STATIONARY, origin, nullptr, sv.time, ROFF_SAMPLE_RATE );
-	SetLerp( angleTrajectory, TR_STATIONARY, angle, nullptr, sv.time, ROFF_SAMPLE_RATE );
+	SetLerp( originTrajectory, trType_t::TR_STATIONARY, origin, nullptr, sv.time, ROFF_SAMPLE_RATE );
+	SetLerp( angleTrajectory, trType_t::TR_STATIONARY, angle, nullptr, sv.time, ROFF_SAMPLE_RATE );
 
 	return true;
 }

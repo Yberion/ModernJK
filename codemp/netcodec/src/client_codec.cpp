@@ -23,7 +23,6 @@ namespace detail {
 namespace {
 
 using ctx::Of;
-using enum ctx::ClientScalar;
 
 // playerState_t offsets (the engine checks them, sv_netcodec.cpp and cl_netcodec.cpp)
 constexpr size_t kPsCommandTime = 0, kPsDeltaAngles = 80, kPsWeapon = 172, kPsViewAngles = 180, kPsHoldable = 244,
@@ -113,25 +112,25 @@ static_assert(kAckWindow == 256, "the acknowledged message travels as its low 8 
 
 template <class O> void PutClientPacket(O &io, const ClientPacket &p, const BaseValues &b) {
 	io.Raw(static_cast<uint64_t>(p.ack) & (kAckWindow - 1), 8);
-	io.Symbol(Of(kBase), b.has ? 1 : 0);
+	io.Symbol(Of(ctx::ClientScalar::kBase), b.has ? 1 : 0);
 	if (b.has) {
 		const bool same = p.serverId == b.serverId;
-		io.Symbol(Of(kSameServerId), same ? 1 : 0);
+		io.Symbol(Of(ctx::ClientScalar::kSameServerId), same ? 1 : 0);
 		if (!same) io.Raw(static_cast<uint32_t>(p.serverId), 32);
-		io.Class(Of(kRelAck), Zz(p.reliableAck - b.cmdSeq));
+		io.Class(Of(ctx::ClientScalar::kRelAck), Zz(p.reliableAck - b.cmdSeq));
 	} else {
 		io.Raw(static_cast<uint32_t>(p.serverId), 32);
 		io.Raw(static_cast<uint32_t>(p.reliableAck), 32);
 	}
-	io.Class(Of(kNumCommands), p.commands.size());
+	io.Class(Of(ctx::ClientScalar::kNumCommands), p.commands.size());
 	if (!p.commands.empty()) {
-		if (b.has) io.Class(Of(kCommandSeq), Zz(p.commands.front().seq - (b.ack + 1)));
+		if (b.has) io.Class(Of(ctx::ClientScalar::kCommandSeq), Zz(p.commands.front().seq - (b.ack + 1)));
 		else io.Raw(static_cast<uint32_t>(p.commands.front().seq), 32);
 		for (const ClientCommand &c : p.commands) PutCommandText(io, c.text);
 	}
-	io.Symbol(Of(kMove), static_cast<uint32_t>(p.move));
+	io.Symbol(Of(ctx::ClientScalar::kMove), static_cast<uint32_t>(p.move));
 	if (p.move == Move::kNone) return;
-	io.Symbol(Of(kNumUserCmds), p.userCmds.size());
+	io.Symbol(Of(ctx::ClientScalar::kNumUserCmds), p.userCmds.size());
 	std::array<uint32_t, 3> prevAngle = b.angles;
 	std::array<uint32_t, 3> prevClass{};
 	Bytes prevBytes = b.first;
@@ -141,13 +140,13 @@ template <class O> void PutClientPacket(O &io, const ClientPacket &p, const Base
 		const UserCmd &c = p.userCmds[i];
 		const int64_t t = Load32(c, kCmdTime);
 		if (i == 0) {
-			if (b.has) PutSigned(io, Of(kTime0), t - b.commandTime);
+			if (b.has) PutSigned(io, Of(ctx::ClientScalar::kTime0), t - b.commandTime);
 			else io.Raw(static_cast<uint32_t>(t), 32);
 		} else {
 			const int64_t dt = t - prevTime;
 			const uint32_t s = dt >= 0 && dt < int64_t{ kStepEscaped } ? static_cast<uint32_t>(dt) : kStepEscaped;
 			io.Symbol(ctx::ClientStep(prevStep), s);
-			if (s == kStepEscaped) io.Class(Of(kStepEscape), Zz(dt));
+			if (s == kStepEscaped) io.Class(Of(ctx::ClientScalar::kStepEscape), Zz(dt));
 			prevStep = s;
 		}
 		prevTime = t;
@@ -167,33 +166,33 @@ bool GetClientPacket(In &io, int64_t latest, const ClientBaseLookup &lookup, Cli
 	const uint64_t low = io.Raw(8);
 	p.ack = latest - static_cast<int64_t>((static_cast<uint64_t>(latest) - low) & (kAckWindow - 1));
 	BaseValues b;
-	if (io.Symbol(Of(kBase)) != 0) {
+	if (io.Symbol(Of(ctx::ClientScalar::kBase)) != 0) {
 		ClientBase cb;
 		if (!lookup.Find(p.ack, cb)) return false;
 		b = Values(&cb);
-		p.serverId = io.Symbol(Of(kSameServerId)) != 0 ? b.serverId : S32(static_cast<uint32_t>(io.Raw(32)));
-		p.reliableAck = b.cmdSeq + Unzz(io.Class(Of(kRelAck)));
+		p.serverId = io.Symbol(Of(ctx::ClientScalar::kSameServerId)) != 0 ? b.serverId : S32(static_cast<uint32_t>(io.Raw(32)));
+		p.reliableAck = b.cmdSeq + Unzz(io.Class(Of(ctx::ClientScalar::kRelAck)));
 	} else {
 		p.serverId = S32(static_cast<uint32_t>(io.Raw(32)));
 		p.reliableAck = S32(static_cast<uint32_t>(io.Raw(32)));
 	}
-	const uint64_t numCommands = io.Class(Of(kNumCommands));
+	const uint64_t numCommands = io.Class(Of(ctx::ClientScalar::kNumCommands));
 	if (numCommands > kMaxClientCommands) return false;
 	p.commands.resize(static_cast<size_t>(numCommands));   // at most kMaxClientCommands
 	if (numCommands != 0) {
-		int64_t seq = b.has ? b.ack + 1 + Unzz(io.Class(Of(kCommandSeq))) : S32(static_cast<uint32_t>(io.Raw(32)));
+		int64_t seq = b.has ? b.ack + 1 + Unzz(io.Class(Of(ctx::ClientScalar::kCommandSeq))) : S32(static_cast<uint32_t>(io.Raw(32)));
 		for (ClientCommand &c : p.commands) {
 			c.seq = seq++;
 			c.text.clear();
 			if (!GetCommandText(io, c.text, kMaxClientCommandLength)) return false;
 		}
 	}
-	p.move = static_cast<Move>(io.Symbol(Of(kMove)));
+	p.move = static_cast<Move>(io.Symbol(Of(ctx::ClientScalar::kMove)));
 	if (p.move == Move::kNone) {
 		p.userCmds.clear();
 		return true;
 	}
-	const uint32_t n = io.Symbol(Of(kNumUserCmds));
+	const uint32_t n = io.Symbol(Of(ctx::ClientScalar::kNumUserCmds));
 	if (n == 0) return false;
 	p.userCmds.resize(n);
 	std::array<uint32_t, 3> prevAngle = b.angles;
@@ -207,10 +206,10 @@ bool GetClientPacket(In &io, int64_t latest, const ClientBaseLookup &lookup, Cli
 		int64_t t = 0;
 		if (i == 0) {
 			uint32_t s = 0;
-			t = b.has ? S32(b.commandTime + GetSigned(io, Of(kTime0), s)) : S32(static_cast<uint32_t>(io.Raw(32)));
+			t = b.has ? S32(b.commandTime + GetSigned(io, Of(ctx::ClientScalar::kTime0), s)) : S32(static_cast<uint32_t>(io.Raw(32)));
 		} else {
 			const uint32_t s = io.Symbol(ctx::ClientStep(prevStep));
-			t = S32(prevTime + (s == kStepEscaped ? Unzz(io.Class(Of(kStepEscape))) : s));
+			t = S32(prevTime + (s == kStepEscaped ? Unzz(io.Class(Of(ctx::ClientScalar::kStepEscape))) : s));
 			prevStep = s;
 		}
 		Store32(c, kCmdTime, static_cast<int32_t>(t));

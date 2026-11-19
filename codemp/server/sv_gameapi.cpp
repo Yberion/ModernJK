@@ -341,7 +341,7 @@ static bool SV_EntityContact( const vec3_t mins, const vec3_t maxs, const shared
 
 	ch = SV_ClipHandleForEntity( gEnt );
 	CM_TransformedBoxTrace ( &trace, vec3_origin, vec3_origin, mins, maxs,
-		ch, CONTENTS_ALL, origin, angles, capsule );
+		ch, contentsFlags_t::CONTENTS_ALL, origin, angles, capsule );
 
 	return trace.startsolid;
 }
@@ -352,7 +352,7 @@ static void SV_SetBrushModel( sharedEntity_t *ent, const char *name ) {
 
 	if (!name)
 	{
-		Com_Error( ERR_DROP, "SV_SetBrushModel: NULL" );
+		Com_Error( errorParm_t::ERR_DROP, "SV_SetBrushModel: NULL" );
 	}
 
 	if (name[0] == '*')
@@ -384,13 +384,13 @@ static void SV_SetBrushModel( sharedEntity_t *ent, const char *name ) {
 
 		//rwwNOTE: We don't ever want to set contents -1, it includes CONTENTS_LIGHTSABER.
 		//Lots of stuff will explode if there's a brush with CONTENTS_LIGHTSABER that isn't attached to a client owner.
-		//ent->contents = CONTENTS_ALL;		// we don't know exactly what is in the brushes
+		//ent->contents = contentsFlags_t::CONTENTS_ALL;		// we don't know exactly what is in the brushes
 		h = CM_InlineModel( ent->s.modelindex );
 		ent->r.contents = CM_ModelContents( h, CM_FindSubBSP(ent->s.modelindex) );
 	}
 	else
 	{
-		Com_Error( ERR_DROP, "SV_SetBrushModel: %s isn't a brush model", name );
+		Com_Error( errorParm_t::ERR_DROP, "SV_SetBrushModel: %s isn't a brush model", name );
 	}
 }
 
@@ -416,10 +416,10 @@ static bool SV_inPVSIgnorePortals( const vec3_t p1, const vec3_t p2 ) {
 
 static void SV_GetServerinfo( char *buffer, int bufferSize ) {
 	if ( bufferSize < 1 ) {
-		Com_Error( ERR_DROP, "SV_GetServerinfo: bufferSize == %i", bufferSize );
+		Com_Error( errorParm_t::ERR_DROP, "SV_GetServerinfo: bufferSize == %i", bufferSize );
 		return;
 	}
-	Q_strncpyz( buffer, Cvar_InfoString( CVAR_SERVERINFO ), bufferSize );
+	Q_strncpyz( buffer, Cvar_InfoString( cvarFlags_t::CVAR_SERVERINFO ), bufferSize );
 }
 
 static void SV_AdjustAreaPortalState( sharedEntity_t *ent, bool open ) {
@@ -434,7 +434,7 @@ static void SV_AdjustAreaPortalState( sharedEntity_t *ent, bool open ) {
 
 static void SV_GetUsercmd( int clientNum, usercmd_t *cmd ) {
 	if ( clientNum < 0 || clientNum >= sv_maxclients->integer ) {
-		Com_Error( ERR_DROP, "SV_GetUsercmd: bad clientNum:%i", clientNum );
+		Com_Error( errorParm_t::ERR_DROP, "SV_GetUsercmd: bad clientNum:%i", clientNum );
 		return;
 	}
 	*cmd = svs.clients[clientNum].lastUsercmd;
@@ -1592,7 +1592,7 @@ static void SV_G2API_GetSurfaceName( void *ghoul2, int surfNumber, int modelInde
 }
 
 static void GVM_Cvar_Set( const char *var_name, const char *value ) {
-	Cvar_VM_Set( var_name, value, VM_GAME );
+	Cvar_VM_Set( var_name, value, vmSlots_t::VM_GAME );
 }
 
 void SV_InitGame( bool restart ) {
@@ -1615,7 +1615,7 @@ void SV_BindGame( void ) {
 
 	memset( &gi, 0, sizeof( gi ) );
 
-	gvm = VM_Create( VM_GAME );
+	gvm = VM_Create( vmSlots_t::VM_GAME );
 	if ( gvm ) {
 		gi.Print								= Com_Printf;
 		gi.Error								= Com_Error;
@@ -1932,7 +1932,7 @@ void SV_BindGame( void ) {
 		if ( !ret ) {
 			//free VM?
 			svs.gameStarted = false;
-			Com_Error( ERR_FATAL, "GetGameAPI failed on %s", dllName );
+			Com_Error( errorParm_t::ERR_FATAL, "GetGameAPI failed on %s", dllName );
 		}
 		ge = ret;
 
@@ -1940,7 +1940,7 @@ void SV_BindGame( void ) {
 	}
 
 	svs.gameStarted = false;
-	Com_Error( ERR_DROP, "VM_Create on game failed" );
+	Com_Error( errorParm_t::ERR_DROP, "VM_Create on game failed" );
 }
 
 void SV_UnbindGame( void ) {
@@ -1956,7 +1956,7 @@ void SV_RestartGame( void ) {
 	SV_BindGame();
 	if ( !gvm ) {
 		svs.gameStarted = false;
-		Com_Error( ERR_DROP, "VM_Restart on game failed" );
+		Com_Error( errorParm_t::ERR_DROP, "VM_Restart on game failed" );
 		return;
 	}
 

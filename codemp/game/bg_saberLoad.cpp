@@ -51,82 +51,82 @@ constexpr int MAX_SABER_DATA_SIZE = 1024*1024; // 1mb, was 512kb
 static char saberParms[MAX_SABER_DATA_SIZE];
 
 stringID_table_t saberTable[] = {
-	ENUM2STRING( SABER_NONE ),
-	ENUM2STRING( SABER_SINGLE ),
-	ENUM2STRING( SABER_STAFF ),
-	ENUM2STRING( SABER_BROAD ),
-	ENUM2STRING( SABER_PRONG ),
-	ENUM2STRING( SABER_DAGGER ),
-	ENUM2STRING( SABER_ARC ),
-	ENUM2STRING( SABER_SAI ),
-	ENUM2STRING( SABER_CLAW ),
-	ENUM2STRING( SABER_LANCE ),
-	ENUM2STRING( SABER_STAR ),
-	ENUM2STRING( SABER_TRIDENT ),
+	ENUM2STRING( saberType_t, SABER_NONE ),
+	ENUM2STRING( saberType_t, SABER_SINGLE ),
+	ENUM2STRING( saberType_t, SABER_STAFF ),
+	ENUM2STRING( saberType_t, SABER_BROAD ),
+	ENUM2STRING( saberType_t, SABER_PRONG ),
+	ENUM2STRING( saberType_t, SABER_DAGGER ),
+	ENUM2STRING( saberType_t, SABER_ARC ),
+	ENUM2STRING( saberType_t, SABER_SAI ),
+	ENUM2STRING( saberType_t, SABER_CLAW ),
+	ENUM2STRING( saberType_t, SABER_LANCE ),
+	ENUM2STRING( saberType_t, SABER_STAR ),
+	ENUM2STRING( saberType_t, SABER_TRIDENT ),
 	{ "", -1 }
 };
 
 stringID_table_t saberMoveTable[] = {
-	ENUM2STRING( LS_NONE ),
+	ENUM2STRING( saberMoveName_t, LS_NONE ),
 	// Attacks
-	ENUM2STRING( LS_A_TL2BR ),
-	ENUM2STRING( LS_A_L2R ),
-	ENUM2STRING( LS_A_BL2TR ),
-	ENUM2STRING( LS_A_BR2TL ),
-	ENUM2STRING( LS_A_R2L ),
-	ENUM2STRING( LS_A_TR2BL ),
-	ENUM2STRING( LS_A_T2B ),
-	ENUM2STRING( LS_A_BACKSTAB ),
-	ENUM2STRING( LS_A_BACK ),
-	ENUM2STRING( LS_A_BACK_CR ),
-	ENUM2STRING( LS_ROLL_STAB ),
-	ENUM2STRING( LS_A_LUNGE ),
-	ENUM2STRING( LS_A_JUMP_T__B_ ),
-	ENUM2STRING( LS_A_FLIP_STAB ),
-	ENUM2STRING( LS_A_FLIP_SLASH ),
-	ENUM2STRING( LS_JUMPATTACK_DUAL ),
-	ENUM2STRING( LS_JUMPATTACK_ARIAL_LEFT ),
-	ENUM2STRING( LS_JUMPATTACK_ARIAL_RIGHT ),
-	ENUM2STRING( LS_JUMPATTACK_CART_LEFT ),
-	ENUM2STRING( LS_JUMPATTACK_CART_RIGHT ),
-	ENUM2STRING( LS_JUMPATTACK_STAFF_LEFT ),
-	ENUM2STRING( LS_JUMPATTACK_STAFF_RIGHT ),
-	ENUM2STRING( LS_BUTTERFLY_LEFT ),
-	ENUM2STRING( LS_BUTTERFLY_RIGHT ),
-	ENUM2STRING( LS_A_BACKFLIP_ATK ),
-	ENUM2STRING( LS_SPINATTACK_DUAL ),
-	ENUM2STRING( LS_SPINATTACK ),
-	ENUM2STRING( LS_LEAP_ATTACK ),
-	ENUM2STRING( LS_SWOOP_ATTACK_RIGHT ),
-	ENUM2STRING( LS_SWOOP_ATTACK_LEFT ),
-	ENUM2STRING( LS_TAUNTAUN_ATTACK_RIGHT ),
-	ENUM2STRING( LS_TAUNTAUN_ATTACK_LEFT ),
-	ENUM2STRING( LS_KICK_F ),
-	ENUM2STRING( LS_KICK_B ),
-	ENUM2STRING( LS_KICK_R ),
-	ENUM2STRING( LS_KICK_L ),
-	ENUM2STRING( LS_KICK_S ),
-	ENUM2STRING( LS_KICK_BF ),
-	ENUM2STRING( LS_KICK_RL ),
-	ENUM2STRING( LS_KICK_F_AIR ),
-	ENUM2STRING( LS_KICK_B_AIR ),
-	ENUM2STRING( LS_KICK_R_AIR ),
-	ENUM2STRING( LS_KICK_L_AIR ),
-	ENUM2STRING( LS_STABDOWN ),
-	ENUM2STRING( LS_STABDOWN_STAFF ),
-	ENUM2STRING( LS_STABDOWN_DUAL ),
-	ENUM2STRING( LS_DUAL_SPIN_PROTECT ),
-	ENUM2STRING( LS_STAFF_SOULCAL ),
-	ENUM2STRING( LS_A1_SPECIAL ),
-	ENUM2STRING( LS_A2_SPECIAL ),
-	ENUM2STRING( LS_A3_SPECIAL ),
-	ENUM2STRING( LS_UPSIDE_DOWN_ATTACK ),
-	ENUM2STRING( LS_PULL_ATTACK_STAB ),
-	ENUM2STRING( LS_PULL_ATTACK_SWING ),
-	ENUM2STRING( LS_SPINATTACK_ALORA ),
-	ENUM2STRING( LS_DUAL_FB ),
-	ENUM2STRING( LS_DUAL_LR ),
-	ENUM2STRING( LS_HILT_BASH ),
+	ENUM2STRING( saberMoveName_t, LS_A_TL2BR ),
+	ENUM2STRING( saberMoveName_t, LS_A_L2R ),
+	ENUM2STRING( saberMoveName_t, LS_A_BL2TR ),
+	ENUM2STRING( saberMoveName_t, LS_A_BR2TL ),
+	ENUM2STRING( saberMoveName_t, LS_A_R2L ),
+	ENUM2STRING( saberMoveName_t, LS_A_TR2BL ),
+	ENUM2STRING( saberMoveName_t, LS_A_T2B ),
+	ENUM2STRING( saberMoveName_t, LS_A_BACKSTAB ),
+	ENUM2STRING( saberMoveName_t, LS_A_BACK ),
+	ENUM2STRING( saberMoveName_t, LS_A_BACK_CR ),
+	ENUM2STRING( saberMoveName_t, LS_ROLL_STAB ),
+	ENUM2STRING( saberMoveName_t, LS_A_LUNGE ),
+	ENUM2STRING( saberMoveName_t, LS_A_JUMP_T__B_ ),
+	ENUM2STRING( saberMoveName_t, LS_A_FLIP_STAB ),
+	ENUM2STRING( saberMoveName_t, LS_A_FLIP_SLASH ),
+	ENUM2STRING( saberMoveName_t, LS_JUMPATTACK_DUAL ),
+	ENUM2STRING( saberMoveName_t, LS_JUMPATTACK_ARIAL_LEFT ),
+	ENUM2STRING( saberMoveName_t, LS_JUMPATTACK_ARIAL_RIGHT ),
+	ENUM2STRING( saberMoveName_t, LS_JUMPATTACK_CART_LEFT ),
+	ENUM2STRING( saberMoveName_t, LS_JUMPATTACK_CART_RIGHT ),
+	ENUM2STRING( saberMoveName_t, LS_JUMPATTACK_STAFF_LEFT ),
+	ENUM2STRING( saberMoveName_t, LS_JUMPATTACK_STAFF_RIGHT ),
+	ENUM2STRING( saberMoveName_t, LS_BUTTERFLY_LEFT ),
+	ENUM2STRING( saberMoveName_t, LS_BUTTERFLY_RIGHT ),
+	ENUM2STRING( saberMoveName_t, LS_A_BACKFLIP_ATK ),
+	ENUM2STRING( saberMoveName_t, LS_SPINATTACK_DUAL ),
+	ENUM2STRING( saberMoveName_t, LS_SPINATTACK ),
+	ENUM2STRING( saberMoveName_t, LS_LEAP_ATTACK ),
+	ENUM2STRING( saberMoveName_t, LS_SWOOP_ATTACK_RIGHT ),
+	ENUM2STRING( saberMoveName_t, LS_SWOOP_ATTACK_LEFT ),
+	ENUM2STRING( saberMoveName_t, LS_TAUNTAUN_ATTACK_RIGHT ),
+	ENUM2STRING( saberMoveName_t, LS_TAUNTAUN_ATTACK_LEFT ),
+	ENUM2STRING( saberMoveName_t, LS_KICK_F ),
+	ENUM2STRING( saberMoveName_t, LS_KICK_B ),
+	ENUM2STRING( saberMoveName_t, LS_KICK_R ),
+	ENUM2STRING( saberMoveName_t, LS_KICK_L ),
+	ENUM2STRING( saberMoveName_t, LS_KICK_S ),
+	ENUM2STRING( saberMoveName_t, LS_KICK_BF ),
+	ENUM2STRING( saberMoveName_t, LS_KICK_RL ),
+	ENUM2STRING( saberMoveName_t, LS_KICK_F_AIR ),
+	ENUM2STRING( saberMoveName_t, LS_KICK_B_AIR ),
+	ENUM2STRING( saberMoveName_t, LS_KICK_R_AIR ),
+	ENUM2STRING( saberMoveName_t, LS_KICK_L_AIR ),
+	ENUM2STRING( saberMoveName_t, LS_STABDOWN ),
+	ENUM2STRING( saberMoveName_t, LS_STABDOWN_STAFF ),
+	ENUM2STRING( saberMoveName_t, LS_STABDOWN_DUAL ),
+	ENUM2STRING( saberMoveName_t, LS_DUAL_SPIN_PROTECT ),
+	ENUM2STRING( saberMoveName_t, LS_STAFF_SOULCAL ),
+	ENUM2STRING( saberMoveName_t, LS_A1_SPECIAL ),
+	ENUM2STRING( saberMoveName_t, LS_A2_SPECIAL ),
+	ENUM2STRING( saberMoveName_t, LS_A3_SPECIAL ),
+	ENUM2STRING( saberMoveName_t, LS_UPSIDE_DOWN_ATTACK ),
+	ENUM2STRING( saberMoveName_t, LS_PULL_ATTACK_STAB ),
+	ENUM2STRING( saberMoveName_t, LS_PULL_ATTACK_SWING ),
+	ENUM2STRING( saberMoveName_t, LS_SPINATTACK_ALORA ),
+	ENUM2STRING( saberMoveName_t, LS_DUAL_FB ),
+	ENUM2STRING( saberMoveName_t, LS_DUAL_LR ),
+	ENUM2STRING( saberMoveName_t, LS_HILT_BASH ),
 	{ "", -1 }
 };
 
@@ -166,61 +166,61 @@ bool BG_ParseLiteralSilent( const char **data, const char *string ) {
 
 saber_colors_t TranslateSaberColor( const char *name ) {
 	if ( !Q_stricmp( name, "red" ) )
-		return SABER_RED;
+		return saber_colors_t::SABER_RED;
 	if ( !Q_stricmp( name, "orange" ) )
-		return SABER_ORANGE;
+		return saber_colors_t::SABER_ORANGE;
 	if ( !Q_stricmp( name, "yellow" ) )
-		return SABER_YELLOW;
+		return saber_colors_t::SABER_YELLOW;
 	if ( !Q_stricmp( name, "green" ) )
-		return SABER_GREEN;
+		return saber_colors_t::SABER_GREEN;
 	if ( !Q_stricmp( name, "blue" ) )
-		return SABER_BLUE;
+		return saber_colors_t::SABER_BLUE;
 	if ( !Q_stricmp( name, "purple" ) )
-		return SABER_PURPLE;
+		return saber_colors_t::SABER_PURPLE;
 	if ( !Q_stricmp( name, "random" ) )
-		return Q_irand( SABER_ORANGE, SABER_PURPLE );
+		return Q_irand( saber_colors_t::SABER_ORANGE, saber_colors_t::SABER_PURPLE );
 
-	return SABER_BLUE;
+	return saber_colors_t::SABER_BLUE;
 }
 
 const char *SaberColorToString( saber_colors_t color ) {
-	if ( color == SABER_RED )		return "red";
-	if ( color == SABER_ORANGE )	return "orange";
-	if ( color == SABER_YELLOW )	return "yellow";
-	if ( color == SABER_GREEN )		return "green";
-	if ( color == SABER_BLUE )		return "blue";
-	if ( color == SABER_PURPLE )	return "purple";
+	if ( color == saber_colors_t::SABER_RED )		return "red";
+	if ( color == saber_colors_t::SABER_ORANGE )	return "orange";
+	if ( color == saber_colors_t::SABER_YELLOW )	return "yellow";
+	if ( color == saber_colors_t::SABER_GREEN )		return "green";
+	if ( color == saber_colors_t::SABER_BLUE )		return "blue";
+	if ( color == saber_colors_t::SABER_PURPLE )	return "purple";
 
 	return nullptr;
 }
 
 saber_styles_t TranslateSaberStyle( const char *name ) {
-	if ( !Q_stricmp( name, "fast" ) )		return SS_FAST;
-	if ( !Q_stricmp( name, "medium" ) ) 	return SS_MEDIUM;
-	if ( !Q_stricmp( name, "strong" ) ) 	return SS_STRONG;
-	if ( !Q_stricmp( name, "desann" ) ) 	return SS_DESANN;
-	if ( !Q_stricmp( name, "tavion" ) ) 	return SS_TAVION;
-	if ( !Q_stricmp( name, "dual" ) )		return SS_DUAL;
-	if ( !Q_stricmp( name, "staff" ) )		return SS_STAFF;
+	if ( !Q_stricmp( name, "fast" ) )		return saber_styles_t::SS_FAST;
+	if ( !Q_stricmp( name, "medium" ) ) 	return saber_styles_t::SS_MEDIUM;
+	if ( !Q_stricmp( name, "strong" ) ) 	return saber_styles_t::SS_STRONG;
+	if ( !Q_stricmp( name, "desann" ) ) 	return saber_styles_t::SS_DESANN;
+	if ( !Q_stricmp( name, "tavion" ) ) 	return saber_styles_t::SS_TAVION;
+	if ( !Q_stricmp( name, "dual" ) )		return saber_styles_t::SS_DUAL;
+	if ( !Q_stricmp( name, "staff" ) )		return saber_styles_t::SS_STAFF;
 
-	return SS_NONE;
+	return saber_styles_t::SS_NONE;
 }
 
 saberType_t TranslateSaberType( const char *name ) {
-	if ( !Q_stricmp( name, "SABER_SINGLE" ) )		return SABER_SINGLE;
-	if ( !Q_stricmp( name, "SABER_STAFF" ) ) 		return SABER_STAFF;
-	if ( !Q_stricmp( name, "SABER_DAGGER" ) ) 		return SABER_DAGGER;
-	if ( !Q_stricmp( name, "SABER_BROAD" ) ) 		return SABER_BROAD;
-	if ( !Q_stricmp( name, "SABER_PRONG" ) ) 		return SABER_PRONG;
-	if ( !Q_stricmp( name, "SABER_ARC" ) )			return SABER_ARC;
-	if ( !Q_stricmp( name, "SABER_SAI" ) )			return SABER_SAI;
-	if ( !Q_stricmp( name, "SABER_CLAW" ) )			return SABER_CLAW;
-	if ( !Q_stricmp( name, "SABER_LANCE" ) )		return SABER_LANCE;
-	if ( !Q_stricmp( name, "SABER_STAR" ) )			return SABER_STAR;
-	if ( !Q_stricmp( name, "SABER_TRIDENT" ) )		return SABER_TRIDENT;
-	if ( !Q_stricmp( name, "SABER_SITH_SWORD" ) )	return SABER_SITH_SWORD;
+	if ( !Q_stricmp( name, "SABER_SINGLE" ) )		return saberType_t::SABER_SINGLE;
+	if ( !Q_stricmp( name, "SABER_STAFF" ) ) 		return saberType_t::SABER_STAFF;
+	if ( !Q_stricmp( name, "SABER_DAGGER" ) ) 		return saberType_t::SABER_DAGGER;
+	if ( !Q_stricmp( name, "SABER_BROAD" ) ) 		return saberType_t::SABER_BROAD;
+	if ( !Q_stricmp( name, "SABER_PRONG" ) ) 		return saberType_t::SABER_PRONG;
+	if ( !Q_stricmp( name, "SABER_ARC" ) )			return saberType_t::SABER_ARC;
+	if ( !Q_stricmp( name, "SABER_SAI" ) )			return saberType_t::SABER_SAI;
+	if ( !Q_stricmp( name, "SABER_CLAW" ) )			return saberType_t::SABER_CLAW;
+	if ( !Q_stricmp( name, "SABER_LANCE" ) )		return saberType_t::SABER_LANCE;
+	if ( !Q_stricmp( name, "SABER_STAR" ) )			return saberType_t::SABER_STAR;
+	if ( !Q_stricmp( name, "SABER_TRIDENT" ) )		return saberType_t::SABER_TRIDENT;
+	if ( !Q_stricmp( name, "SABER_SITH_SWORD" ) )	return saberType_t::SABER_SITH_SWORD;
 
-	return SABER_SINGLE;
+	return saberType_t::SABER_SINGLE;
 }
 
 bool WP_SaberBladeUseSecondBladeStyle( saberInfo_t *saber, int bladeNum ) {
@@ -234,11 +234,11 @@ bool WP_SaberBladeUseSecondBladeStyle( saberInfo_t *saber, int bladeNum ) {
 
 bool WP_SaberBladeDoTransitionDamage( saberInfo_t *saber, int bladeNum ) {
 	//use first blade style for this blade
-	if ( !WP_SaberBladeUseSecondBladeStyle( saber, bladeNum ) && Any( saber->saberFlags2 & SFL2_TRANSITION_DAMAGE ) )
+	if ( !WP_SaberBladeUseSecondBladeStyle( saber, bladeNum ) && Any( saber->saberFlags2 & saberFlags2_t::SFL2_TRANSITION_DAMAGE ) )
 		return true;
 
 	//use second blade style for this blade
-	else if ( WP_SaberBladeUseSecondBladeStyle( saber, bladeNum ) && Any( saber->saberFlags2 & SFL2_TRANSITION_DAMAGE2 ) )
+	else if ( WP_SaberBladeUseSecondBladeStyle( saber, bladeNum ) && Any( saber->saberFlags2 & saberFlags2_t::SFL2_TRANSITION_DAMAGE2 ) )
 		return true;
 
 	return false;
@@ -286,7 +286,7 @@ bool WP_UseFirstValidSaberStyle( saberInfo_t *saber1, saberInfo_t *saber2, int s
 	}
 
 	//initially, all styles are valid
-	validStyles = Bit( SS_NUM_SABER_STYLES )-2; // mask off 1<<SS_NONE
+	validStyles = Bit( saber_styles_t::SS_NUM_SABER_STYLES )-2; // mask off 1<<SS_NONE
 
 	// check for invalid styles
 	if ( saber1Active && saber1 && saber1->model[0] && saber1->stylesForbidden ) {
@@ -316,7 +316,7 @@ bool WP_UseFirstValidSaberStyle( saberInfo_t *saber1, saberInfo_t *saber2, int s
 
 	//using an invalid style and have at least one valid style to use, so switch to it
 	else if ( styleInvalid ) {
-		for ( saber_styles_t styleNum=SS_FAST; styleNum<SS_NUM_SABER_STYLES; styleNum++ ) {
+		for ( saber_styles_t styleNum=saber_styles_t::SS_FAST; styleNum<saber_styles_t::SS_NUM_SABER_STYLES; styleNum++ ) {
 			if ( (validStyles & Bit( styleNum )) ) {
 				*saberAnimLevel = styleNum;
 				return true;
@@ -368,13 +368,13 @@ bool WP_SaberStyleValidForSaber( saberInfo_t *saber1, saberInfo_t *saber2, int s
 				return false;
 		}
 		//now: if using dual sabers, only dual and tavion (if given with this saber) are allowed
-		if ( saberAnimLevel != SS_DUAL ) {
-			if ( saberAnimLevel != SS_TAVION )
+		if ( saberAnimLevel != saber_styles_t::SS_DUAL ) {
+			if ( saberAnimLevel != saber_styles_t::SS_TAVION )
 				return false;
 			else {
 				//see if "tavion" style is okay
-				if ( !(saber1Active && (saber1->stylesLearned & Bit( SS_TAVION )))
-					|| !(saber2->stylesLearned & Bit( SS_TAVION )) )
+				if ( !(saber1Active && (saber1->stylesLearned & Bit( saber_styles_t::SS_TAVION )))
+					|| !(saber2->stylesLearned & Bit( saber_styles_t::SS_TAVION )) )
 					return false;
 			}
 		}
@@ -386,12 +386,12 @@ bool WP_SaberStyleValidForSaber( saberInfo_t *saber1, saberInfo_t *saber2, int s
 bool WP_SaberCanTurnOffSomeBlades( saberInfo_t *saber ) {
 	if ( saber->bladeStyle2Start > 0 && saber->numBlades > saber->bladeStyle2Start ) {
 		// check if all blades are always on
-		if ( Any( saber->saberFlags2 & SFL2_NO_MANUAL_DEACTIVATE ) && Any( saber->saberFlags2 & SFL2_NO_MANUAL_DEACTIVATE2 ) )
+		if ( Any( saber->saberFlags2 & saberFlags2_t::SFL2_NO_MANUAL_DEACTIVATE ) && Any( saber->saberFlags2 & saberFlags2_t::SFL2_NO_MANUAL_DEACTIVATE2 ) )
 			return false;
 	}
 	else {
 		// check if all blades are always on
-		if ( Any( saber->saberFlags2 & SFL2_NO_MANUAL_DEACTIVATE ) )
+		if ( Any( saber->saberFlags2 & saberFlags2_t::SFL2_NO_MANUAL_DEACTIVATE ) )
 			return false;
 	}
 	//you can turn some off
@@ -403,7 +403,7 @@ void WP_SaberSetDefaults( saberInfo_t *saber ) {
 
 	//Set defaults so that, if it fails, there's at least something there
 	for ( i=0; i<MAX_BLADES; i++ ) {
-		saber->blade[i].color = SABER_RED;
+		saber->blade[i].color = saber_colors_t::SABER_RED;
 		saber->blade[i].radius = SABER_RADIUS_STANDARD;
 		saber->blade[i].lengthMax = 32;
 	}
@@ -416,7 +416,7 @@ void WP_SaberSetDefaults( saberInfo_t *saber ) {
 	saber->soundLoop			= BG_SoundIndex( "sound/weapons/saber/saberhum3.wav" );
 	saber->soundOff				= BG_SoundIndex( "sound/weapons/saber/enemy_saber_off.wav" );
 	saber->numBlades			= 1;
-	saber->type					= SABER_SINGLE;
+	saber->type					= saberType_t::SABER_SINGLE;
 	saber->stylesLearned		= 0;
 	saber->stylesForbidden		= 0;			// allow all styles
 	saber->maxChain				= 0;			// 0 = use default behavior
@@ -427,12 +427,12 @@ void WP_SaberSetDefaults( saberInfo_t *saber ) {
 	saber->breakParryBonus2		= 0;
 	saber->disarmBonus			= 0;
 	saber->disarmBonus2			= 0;
-	saber->singleBladeStyle		= SS_NONE;		// makes it so that you use a different style if you only have the first blade active
+	saber->singleBladeStyle		= saber_styles_t::SS_NONE;		// makes it so that you use a different style if you only have the first blade active
 
 //===NEW========================================================================================
 	//done in cgame (client-side code)
-	saber->saberFlags			= SFL_NONE;			// see all the SFL_ flags
-	saber->saberFlags2			= SFL2_NONE;			// see all the SFL2_ flags
+	saber->saberFlags			= saberFlags_t::SFL_NONE;			// see all the SFL_ flags
+	saber->saberFlags2			= saberFlags2_t::SFL2_NONE;			// see all the SFL2_ flags
 
 	saber->spinSound			= 0;			// none - if set, plays this sound as it spins when thrown
 	saber->swingSound[0]		= 0;			// none - if set, plays one of these 3 sounds when swung during an attack - NOTE: must provide all 3!!!
@@ -443,21 +443,21 @@ void WP_SaberSetDefaults( saberInfo_t *saber ) {
 	saber->moveSpeedScale		= 1.0f;			// 1.0 - you move faster/slower when using this saber
 	saber->animSpeedScale		= 1.0f;			// 1.0 - plays normal attack animations faster/slower
 
-	saber->kataMove				= LS_INVALID;	// LS_INVALID - if set, player will execute this move when they press both attack buttons at the same time
-	saber->lungeAtkMove			= LS_INVALID;	// LS_INVALID - if set, player will execute this move when they crouch+fwd+attack
-	saber->jumpAtkUpMove		= LS_INVALID;	// LS_INVALID - if set, player will execute this move when they jump+attack
-	saber->jumpAtkFwdMove		= LS_INVALID;	// LS_INVALID - if set, player will execute this move when they jump+fwd+attack
-	saber->jumpAtkBackMove		= LS_INVALID;	// LS_INVALID - if set, player will execute this move when they jump+back+attack
-	saber->jumpAtkRightMove		= LS_INVALID;	// LS_INVALID - if set, player will execute this move when they jump+rightattack
-	saber->jumpAtkLeftMove		= LS_INVALID;	// LS_INVALID - if set, player will execute this move when they jump+left+attack
-	saber->readyAnim			= ANIM_NONE;	// ANIM_NONE - anim to use when standing idle
-	saber->drawAnim				= ANIM_NONE;	// ANIM_NONE - anim to use when drawing weapon
-	saber->putawayAnim			= ANIM_NONE;	// ANIM_NONE - anim to use when putting weapon away
-	saber->tauntAnim			= ANIM_NONE;	// ANIM_NONE - anim to use when hit "taunt"
-	saber->bowAnim				= ANIM_NONE;	// ANIM_NONE - anim to use when hit "bow"
-	saber->meditateAnim			= ANIM_NONE;	// ANIM_NONE - anim to use when hit "meditate"
-	saber->flourishAnim			= ANIM_NONE;	// ANIM_NONE - anim to use when hit "flourish"
-	saber->gloatAnim			= ANIM_NONE;	// ANIM_NONE - anim to use when hit "gloat"
+	saber->kataMove				= saberMoveName_t::LS_INVALID;	// LS_INVALID - if set, player will execute this move when they press both attack buttons at the same time
+	saber->lungeAtkMove			= saberMoveName_t::LS_INVALID;	// LS_INVALID - if set, player will execute this move when they crouch+fwd+attack
+	saber->jumpAtkUpMove		= saberMoveName_t::LS_INVALID;	// LS_INVALID - if set, player will execute this move when they jump+attack
+	saber->jumpAtkFwdMove		= saberMoveName_t::LS_INVALID;	// LS_INVALID - if set, player will execute this move when they jump+fwd+attack
+	saber->jumpAtkBackMove		= saberMoveName_t::LS_INVALID;	// LS_INVALID - if set, player will execute this move when they jump+back+attack
+	saber->jumpAtkRightMove		= saberMoveName_t::LS_INVALID;	// LS_INVALID - if set, player will execute this move when they jump+rightattack
+	saber->jumpAtkLeftMove		= saberMoveName_t::LS_INVALID;	// LS_INVALID - if set, player will execute this move when they jump+left+attack
+	saber->readyAnim			= animNumber_t::ANIM_NONE;	// ANIM_NONE - anim to use when standing idle
+	saber->drawAnim				= animNumber_t::ANIM_NONE;	// ANIM_NONE - anim to use when drawing weapon
+	saber->putawayAnim			= animNumber_t::ANIM_NONE;	// ANIM_NONE - anim to use when putting weapon away
+	saber->tauntAnim			= animNumber_t::ANIM_NONE;	// ANIM_NONE - anim to use when hit "taunt"
+	saber->bowAnim				= animNumber_t::ANIM_NONE;	// ANIM_NONE - anim to use when hit "bow"
+	saber->meditateAnim			= animNumber_t::ANIM_NONE;	// ANIM_NONE - anim to use when hit "meditate"
+	saber->flourishAnim			= animNumber_t::ANIM_NONE;	// ANIM_NONE - anim to use when hit "flourish"
+	saber->gloatAnim			= animNumber_t::ANIM_NONE;	// ANIM_NONE - anim to use when hit "gloat"
 
 	//***NOTE: you can only have a maximum of 2 "styles" of blades, so this next value, "bladeStyle2Start" is the number of the first blade to use these value on... all blades before this use the normal values above, all blades at and after this number use the secondary values below***
 	saber->bladeStyle2Start		= 0;			// 0 - if set, blades from this number and higher use the following values (otherwise, they use the normal values already set)
@@ -531,7 +531,7 @@ static void Saber_ParseSaberType( saberInfo_t *saber, const char **p ) {
 	if ( COM_ParseString( p, &value ) )
 		return;
 	saberType = GetIDForString( saberTable, value );
-	if ( saberType >= to_underlying( SABER_SINGLE ) && saberType < to_underlying( NUM_SABERS ) )
+	if ( saberType >= to_underlying( saberType_t::SABER_SINGLE ) && saberType < to_underlying( saberType_t::NUM_SABERS ) )
 		saber->type = (saberType_t)saberType;
 }
 static void Saber_ParseSaberModel( saberInfo_t *saber, const char **p ) {
@@ -571,7 +571,7 @@ static void Saber_ParseNumBlades( saberInfo_t *saber, const char **p ) {
 		return;
 	}
 	if ( n < 1 || n > MAX_BLADES ) {
-		Com_Error( ERR_DROP, "WP_SaberParseParms: saber %s has illegal number of blades (%d) max: %d", saber->name, n, MAX_BLADES );
+		Com_Error( errorParm_t::ERR_DROP, "WP_SaberParseParms: saber %s has illegal number of blades (%d) max: %d", saber->name, n, MAX_BLADES );
 		return;
 	}
 	saber->numBlades = n;
@@ -819,7 +819,7 @@ static void Saber_ParseSaberStyle( saberInfo_t *saber, const char **p ) {
 	saber->stylesLearned = Bit( style );
 	//forbid all other styles
 	saber->stylesForbidden = 0;
-	for ( saber_styles_t styleNum=SS_NONE+1; styleNum<SS_NUM_SABER_STYLES; styleNum++ ) {
+	for ( saber_styles_t styleNum=saber_styles_t::SS_NONE+1; styleNum<saber_styles_t::SS_NUM_SABER_STYLES; styleNum++ ) {
 		if ( styleNum != style )
 			saber->stylesForbidden |= Bit( styleNum );
 	}
@@ -851,7 +851,7 @@ static void Saber_ParseLockable( saberInfo_t *saber, const char **p ) {
 		return;
 	}
 	if ( n == 0 )
-		saber->saberFlags |= SFL_NOT_LOCKABLE;
+		saber->saberFlags |= saberFlags_t::SFL_NOT_LOCKABLE;
 }
 static void Saber_ParseThrowable( saberInfo_t *saber, const char **p ) {
 	int n;
@@ -860,7 +860,7 @@ static void Saber_ParseThrowable( saberInfo_t *saber, const char **p ) {
 		return;
 	}
 	if ( n == 0 )
-		saber->saberFlags |= SFL_NOT_THROWABLE;
+		saber->saberFlags |= saberFlags_t::SFL_NOT_THROWABLE;
 }
 static void Saber_ParseDisarmable( saberInfo_t *saber, const char **p ) {
 	int n;
@@ -869,7 +869,7 @@ static void Saber_ParseDisarmable( saberInfo_t *saber, const char **p ) {
 		return;
 	}
 	if ( n == 0 )
-		saber->saberFlags |= SFL_NOT_DISARMABLE;
+		saber->saberFlags |= saberFlags_t::SFL_NOT_DISARMABLE;
 }
 static void Saber_ParseBlocking( saberInfo_t *saber, const char **p ) {
 	int n;
@@ -878,7 +878,7 @@ static void Saber_ParseBlocking( saberInfo_t *saber, const char **p ) {
 		return;
 	}
 	if ( n == 0 )
-		saber->saberFlags |= SFL_NOT_ACTIVE_BLOCKING;
+		saber->saberFlags |= saberFlags_t::SFL_NOT_ACTIVE_BLOCKING;
 }
 static void Saber_ParseTwoHanded( saberInfo_t *saber, const char **p ) {
 	int n;
@@ -887,7 +887,7 @@ static void Saber_ParseTwoHanded( saberInfo_t *saber, const char **p ) {
 		return;
 	}
 	if ( n )
-		saber->saberFlags |= SFL_TWO_HANDED;
+		saber->saberFlags |= saberFlags_t::SFL_TWO_HANDED;
 }
 static void Saber_ParseForceRestrict( saberInfo_t *saber, const char **p ) {
 	const char *value;
@@ -961,7 +961,7 @@ static void Saber_ParseSingleBladeThrowable( saberInfo_t *saber, const char **p 
 		return;
 	}
 	if ( n )
-		saber->saberFlags |= SFL_SINGLE_BLADE_THROWABLE;
+		saber->saberFlags |= saberFlags_t::SFL_SINGLE_BLADE_THROWABLE;
 }
 static void Saber_ParseBrokenSaber1( saberInfo_t *saber, const char **p ) {
 	const char *value;
@@ -982,7 +982,7 @@ static void Saber_ParseReturnDamage( saberInfo_t *saber, const char **p ) {
 		return;
 	}
 	if ( n )
-		saber->saberFlags |= SFL_RETURN_DAMAGE;
+		saber->saberFlags |= saberFlags_t::SFL_RETURN_DAMAGE;
 }
 static void Saber_ParseSpinSound( saberInfo_t *saber, const char **p ) {
 	const char *value;
@@ -1031,7 +1031,7 @@ static void Saber_ParseBounceOnWalls( saberInfo_t *saber, const char **p ) {
 		return;
 	}
 	if ( n )
-		saber->saberFlags |= SFL_BOUNCE_ON_WALLS;
+		saber->saberFlags |= saberFlags_t::SFL_BOUNCE_ON_WALLS;
 }
 static void Saber_ParseBoltToWrist( saberInfo_t *saber, const char **p ) {
 	int n;
@@ -1040,7 +1040,7 @@ static void Saber_ParseBoltToWrist( saberInfo_t *saber, const char **p ) {
 		return;
 	}
 	if ( n )
-		saber->saberFlags |= SFL_BOLT_TO_WRIST;
+		saber->saberFlags |= saberFlags_t::SFL_BOLT_TO_WRIST;
 }
 // a move a saber file names; the name table holds moves only, so GetIDForString's -1 for an unknown name is LS_INVALID
 static void Saber_ParseMove( saberMoveName_t &move, const char **p ) {
@@ -1048,7 +1048,7 @@ static void Saber_ParseMove( saberMoveName_t &move, const char **p ) {
 	if ( COM_ParseString( p, &value ) )
 		return;
 	const int saberMove = GetIDForString( saberMoveTable, value );
-	if ( saberMove >= to_underlying( LS_INVALID ) && saberMove < to_underlying( LS_MOVE_MAX ) )
+	if ( saberMove >= to_underlying( saberMoveName_t::LS_INVALID ) && saberMove < to_underlying( saberMoveName_t::LS_MOVE_MAX ) )
 		move = static_cast<saberMoveName_t>( saberMove );
 }
 static void Saber_ParseKataMove( saberInfo_t *saber, const char **p ) {
@@ -1078,7 +1078,7 @@ static void Saber_ParseAnim( animNumber_t &anim, const char **p ) {
 	if ( COM_ParseString( p, &value ) )
 		return;
 	const std::optional<animNumber_t> named = BG_AnimFromName( value );
-	if ( named && *named >= FACE_TALK0 && *named < MAX_ANIMATIONS )
+	if ( named && *named >= animNumber_t::FACE_TALK0 && *named < animNumber_t::MAX_ANIMATIONS )
 		anim = *named;
 }
 static void Saber_ParseReadyAnim( saberInfo_t *saber, const char **p ) {
@@ -1112,7 +1112,7 @@ static void Saber_ParseNoRollStab( saberInfo_t *saber, const char **p ) {
 		return;
 	}
 	if ( n )
-		saber->saberFlags |= SFL_NO_ROLL_STAB;
+		saber->saberFlags |= saberFlags_t::SFL_NO_ROLL_STAB;
 }
 static void Saber_ParseNoPullAttack( saberInfo_t *saber, const char **p ) {
 	int n;
@@ -1121,7 +1121,7 @@ static void Saber_ParseNoPullAttack( saberInfo_t *saber, const char **p ) {
 		return;
 	}
 	if ( n )
-		saber->saberFlags |= SFL_NO_PULL_ATTACK;
+		saber->saberFlags |= saberFlags_t::SFL_NO_PULL_ATTACK;
 }
 static void Saber_ParseNoBackAttack( saberInfo_t *saber, const char **p ) {
 	int n;
@@ -1130,7 +1130,7 @@ static void Saber_ParseNoBackAttack( saberInfo_t *saber, const char **p ) {
 		return;
 	}
 	if ( n )
-		saber->saberFlags |= SFL_NO_BACK_ATTACK;
+		saber->saberFlags |= saberFlags_t::SFL_NO_BACK_ATTACK;
 }
 static void Saber_ParseNoStabDown( saberInfo_t *saber, const char **p ) {
 	int n;
@@ -1139,7 +1139,7 @@ static void Saber_ParseNoStabDown( saberInfo_t *saber, const char **p ) {
 		return;
 	}
 	if ( n )
-		saber->saberFlags |= SFL_NO_STABDOWN;
+		saber->saberFlags |= saberFlags_t::SFL_NO_STABDOWN;
 }
 static void Saber_ParseNoWallRuns( saberInfo_t *saber, const char **p ) {
 	int n;
@@ -1148,7 +1148,7 @@ static void Saber_ParseNoWallRuns( saberInfo_t *saber, const char **p ) {
 		return;
 	}
 	if ( n )
-		saber->saberFlags |= SFL_NO_WALL_RUNS;
+		saber->saberFlags |= saberFlags_t::SFL_NO_WALL_RUNS;
 }
 static void Saber_ParseNoWallFlips( saberInfo_t *saber, const char **p ) {
 	int n;
@@ -1157,7 +1157,7 @@ static void Saber_ParseNoWallFlips( saberInfo_t *saber, const char **p ) {
 		return;
 	}
 	if ( n )
-		saber->saberFlags |= SFL_NO_WALL_FLIPS;
+		saber->saberFlags |= saberFlags_t::SFL_NO_WALL_FLIPS;
 }
 static void Saber_ParseNoWallGrab( saberInfo_t *saber, const char **p ) {
 	int n;
@@ -1166,7 +1166,7 @@ static void Saber_ParseNoWallGrab( saberInfo_t *saber, const char **p ) {
 		return;
 	}
 	if ( n )
-		saber->saberFlags |= SFL_NO_WALL_GRAB;
+		saber->saberFlags |= saberFlags_t::SFL_NO_WALL_GRAB;
 }
 static void Saber_ParseNoRolls( saberInfo_t *saber, const char **p ) {
 	int n;
@@ -1175,7 +1175,7 @@ static void Saber_ParseNoRolls( saberInfo_t *saber, const char **p ) {
 		return;
 	}
 	if ( n )
-		saber->saberFlags |= SFL_NO_ROLLS;
+		saber->saberFlags |= saberFlags_t::SFL_NO_ROLLS;
 }
 static void Saber_ParseNoFlips( saberInfo_t *saber, const char **p ) {
 	int n;
@@ -1184,7 +1184,7 @@ static void Saber_ParseNoFlips( saberInfo_t *saber, const char **p ) {
 		return;
 	}
 	if ( n )
-		saber->saberFlags |= SFL_NO_FLIPS;
+		saber->saberFlags |= saberFlags_t::SFL_NO_FLIPS;
 }
 static void Saber_ParseNoCartwheels( saberInfo_t *saber, const char **p ) {
 	int n;
@@ -1193,7 +1193,7 @@ static void Saber_ParseNoCartwheels( saberInfo_t *saber, const char **p ) {
 		return;
 	}
 	if ( n )
-		saber->saberFlags |= SFL_NO_CARTWHEELS;
+		saber->saberFlags |= saberFlags_t::SFL_NO_CARTWHEELS;
 }
 static void Saber_ParseNoKicks( saberInfo_t *saber, const char **p ) {
 	int n;
@@ -1202,7 +1202,7 @@ static void Saber_ParseNoKicks( saberInfo_t *saber, const char **p ) {
 		return;
 	}
 	if ( n )
-		saber->saberFlags |= SFL_NO_KICKS;
+		saber->saberFlags |= saberFlags_t::SFL_NO_KICKS;
 }
 static void Saber_ParseNoMirrorAttacks( saberInfo_t *saber, const char **p ) {
 	int n;
@@ -1211,7 +1211,7 @@ static void Saber_ParseNoMirrorAttacks( saberInfo_t *saber, const char **p ) {
 		return;
 	}
 	if ( n )
-		saber->saberFlags |= SFL_NO_MIRROR_ATTACKS;
+		saber->saberFlags |= saberFlags_t::SFL_NO_MIRROR_ATTACKS;
 }
 static void Saber_ParseOnInWater( saberInfo_t *saber, const char **p ) {
 	SkipRestOfLine( p );
@@ -1234,7 +1234,7 @@ static void Saber_ParseNoWallMarks( saberInfo_t *saber, const char **p ) {
 		return;
 	}
 	if ( n )
-		saber->saberFlags2 |= SFL2_NO_WALL_MARKS;
+		saber->saberFlags2 |= saberFlags2_t::SFL2_NO_WALL_MARKS;
 }
 static void Saber_ParseNoDLight( saberInfo_t *saber, const char **p ) {
 	int n;
@@ -1243,7 +1243,7 @@ static void Saber_ParseNoDLight( saberInfo_t *saber, const char **p ) {
 		return;
 	}
 	if ( n )
-		saber->saberFlags2 |= SFL2_NO_DLIGHT;
+		saber->saberFlags2 |= saberFlags2_t::SFL2_NO_DLIGHT;
 }
 static void Saber_ParseNoBlade( saberInfo_t *saber, const char **p ) {
 	int n;
@@ -1252,7 +1252,7 @@ static void Saber_ParseNoBlade( saberInfo_t *saber, const char **p ) {
 		return;
 	}
 	if ( n )
-		saber->saberFlags2 |= SFL2_NO_BLADE;
+		saber->saberFlags2 |= saberFlags2_t::SFL2_NO_BLADE;
 }
 static void Saber_ParseTrailStyle( saberInfo_t *saber, const char **p ) {
 	int n;
@@ -1309,7 +1309,7 @@ static void Saber_ParseNoDismemberment( saberInfo_t *saber, const char **p ) {
 		return;
 	}
 	if ( n )
-		saber->saberFlags2 |= SFL2_NO_DISMEMBERMENT;
+		saber->saberFlags2 |= saberFlags2_t::SFL2_NO_DISMEMBERMENT;
 }
 static void Saber_ParseNoIdleEffect( saberInfo_t *saber, const char **p ) {
 	int n;
@@ -1318,7 +1318,7 @@ static void Saber_ParseNoIdleEffect( saberInfo_t *saber, const char **p ) {
 		return;
 	}
 	if ( n )
-		saber->saberFlags2 |= SFL2_NO_IDLE_EFFECT;
+		saber->saberFlags2 |= saberFlags2_t::SFL2_NO_IDLE_EFFECT;
 }
 static void Saber_ParseAlwaysBlock( saberInfo_t *saber, const char **p ) {
 	int n;
@@ -1327,7 +1327,7 @@ static void Saber_ParseAlwaysBlock( saberInfo_t *saber, const char **p ) {
 		return;
 	}
 	if ( n )
-		saber->saberFlags2 |= SFL2_ALWAYS_BLOCK;
+		saber->saberFlags2 |= saberFlags2_t::SFL2_ALWAYS_BLOCK;
 }
 static void Saber_ParseNoManualDeactivate( saberInfo_t *saber, const char **p ) {
 	int n;
@@ -1336,7 +1336,7 @@ static void Saber_ParseNoManualDeactivate( saberInfo_t *saber, const char **p ) 
 		return;
 	}
 	if ( n )
-		saber->saberFlags2 |= SFL2_NO_MANUAL_DEACTIVATE;
+		saber->saberFlags2 |= saberFlags2_t::SFL2_NO_MANUAL_DEACTIVATE;
 }
 static void Saber_ParseTransitionDamage( saberInfo_t *saber, const char **p ) {
 	int n;
@@ -1345,7 +1345,7 @@ static void Saber_ParseTransitionDamage( saberInfo_t *saber, const char **p ) {
 		return;
 	}
 	if ( n )
-		saber->saberFlags2 |= SFL2_TRANSITION_DAMAGE;
+		saber->saberFlags2 |= saberFlags2_t::SFL2_TRANSITION_DAMAGE;
 }
 static void Saber_ParseSplashRadius( saberInfo_t *saber, const char **p ) {
 	float f;
@@ -1472,7 +1472,7 @@ static void Saber_ParseNoClashFlare( saberInfo_t *saber, const char **p ) {
 		return;
 	}
 	if ( n )
-		saber->saberFlags2 |= SFL2_NO_CLASH_FLARE;
+		saber->saberFlags2 |= saberFlags2_t::SFL2_NO_CLASH_FLARE;
 }
 static void Saber_ParseNoWallMarks2( saberInfo_t *saber, const char **p ) {
 	int n;
@@ -1481,7 +1481,7 @@ static void Saber_ParseNoWallMarks2( saberInfo_t *saber, const char **p ) {
 		return;
 	}
 	if ( n )
-		saber->saberFlags2 |= SFL2_NO_WALL_MARKS2;
+		saber->saberFlags2 |= saberFlags2_t::SFL2_NO_WALL_MARKS2;
 }
 static void Saber_ParseNoDLight2( saberInfo_t *saber, const char **p ) {
 	int n;
@@ -1490,7 +1490,7 @@ static void Saber_ParseNoDLight2( saberInfo_t *saber, const char **p ) {
 		return;
 	}
 	if ( n )
-		saber->saberFlags2 |= SFL2_NO_DLIGHT2;
+		saber->saberFlags2 |= saberFlags2_t::SFL2_NO_DLIGHT2;
 }
 static void Saber_ParseNoBlade2( saberInfo_t *saber, const char **p ) {
 	int n;
@@ -1499,7 +1499,7 @@ static void Saber_ParseNoBlade2( saberInfo_t *saber, const char **p ) {
 		return;
 	}
 	if ( n )
-		saber->saberFlags2 |= SFL2_NO_BLADE2;
+		saber->saberFlags2 |= saberFlags2_t::SFL2_NO_BLADE2;
 }
 static void Saber_ParseTrailStyle2( saberInfo_t *saber, const char **p ) {
 	int n;
@@ -1556,7 +1556,7 @@ static void Saber_ParseNoDismemberment2( saberInfo_t *saber, const char **p ) {
 		return;
 	}
 	if ( n )
-		saber->saberFlags2 |= SFL2_NO_DISMEMBERMENT2;
+		saber->saberFlags2 |= saberFlags2_t::SFL2_NO_DISMEMBERMENT2;
 }
 static void Saber_ParseNoIdleEffect2( saberInfo_t *saber, const char **p ) {
 	int n;
@@ -1565,7 +1565,7 @@ static void Saber_ParseNoIdleEffect2( saberInfo_t *saber, const char **p ) {
 		return;
 	}
 	if ( n )
-		saber->saberFlags2 |= SFL2_NO_IDLE_EFFECT2;
+		saber->saberFlags2 |= saberFlags2_t::SFL2_NO_IDLE_EFFECT2;
 }
 static void Saber_ParseAlwaysBlock2( saberInfo_t *saber, const char **p ) {
 	int n;
@@ -1574,7 +1574,7 @@ static void Saber_ParseAlwaysBlock2( saberInfo_t *saber, const char **p ) {
 		return;
 	}
 	if ( n )
-		saber->saberFlags2 |= SFL2_ALWAYS_BLOCK2;
+		saber->saberFlags2 |= saberFlags2_t::SFL2_ALWAYS_BLOCK2;
 }
 static void Saber_ParseNoManualDeactivate2( saberInfo_t *saber, const char **p ) {
 	int n;
@@ -1583,7 +1583,7 @@ static void Saber_ParseNoManualDeactivate2( saberInfo_t *saber, const char **p )
 		return;
 	}
 	if ( n )
-		saber->saberFlags2 |= SFL2_NO_MANUAL_DEACTIVATE2;
+		saber->saberFlags2 |= saberFlags2_t::SFL2_NO_MANUAL_DEACTIVATE2;
 }
 static void Saber_ParseTransitionDamage2( saberInfo_t *saber, const char **p ) {
 	int n;
@@ -1592,7 +1592,7 @@ static void Saber_ParseTransitionDamage2( saberInfo_t *saber, const char **p ) {
 		return;
 	}
 	if ( n )
-		saber->saberFlags2 |= SFL2_TRANSITION_DAMAGE2;
+		saber->saberFlags2 |= saberFlags2_t::SFL2_TRANSITION_DAMAGE2;
 }
 static void Saber_ParseSplashRadius2( saberInfo_t *saber, const char **p ) {
 	float f;
@@ -1719,7 +1719,7 @@ static void Saber_ParseNoClashFlare2( saberInfo_t *saber, const char **p ) {
 		return;
 	}
 	if ( n )
-		saber->saberFlags2 |= SFL2_NO_CLASH_FLARE2;
+		saber->saberFlags2 |= saberFlags2_t::SFL2_NO_CLASH_FLARE2;
 }
 
 
@@ -2160,12 +2160,12 @@ void WP_SetSaber( int entNum, saberInfo_t *sabers, int saberNum, const char *sab
 	{
 		WP_SaberParseParms( saberName, &sabers[saberNum] );//get saber info
 	}
-	if (Any( sabers[1].saberFlags & SFL_TWO_HANDED ))
+	if (Any( sabers[1].saberFlags & saberFlags_t::SFL_TWO_HANDED ))
 	{//not allowed to use a 2-handed saber as second saber
 		WP_RemoveSaber( sabers, 1 );
 		return;
 	}
-	else if (Any( sabers[0].saberFlags & SFL_TWO_HANDED ) &&
+	else if (Any( sabers[0].saberFlags & saberFlags_t::SFL_TWO_HANDED ) &&
 		sabers[1].model[0])
 	{ //you can't use a two-handed saber with a second saber, so remove saber 2
 		WP_RemoveSaber( sabers, 1 );
@@ -2205,7 +2205,7 @@ void WP_SaberLoadParms( void )
 	for ( i=0; i<fileCnt; i++, holdChar += saberExtFNLen+1 ) {
 		saberExtFNLen = strlen( holdChar );
 
-		len = trap->FS_Open( va( "ext_data/sabers/%s", holdChar ), &f, FS_READ );
+		len = trap->FS_Open( va( "ext_data/sabers/%s", holdChar ), &f, fsMode_t::FS_READ );
 
 		if ( !f ) {
 			Com_Printf( "WP_SaberLoadParms: error reading file: %s\n", holdChar );
@@ -2215,9 +2215,9 @@ void WP_SaberLoadParms( void )
 		if ( (totallen + len+1) >= MAX_SABER_DATA_SIZE ) {
 			trap->FS_Close( f );
 #ifdef UI_BUILD
-			Com_Error( ERR_FATAL, "WP_SaberLoadParms: Saber extensions (*.sab) are too large!\nRan out of space before reading %s", holdChar );
+			Com_Error( errorParm_t::ERR_FATAL, "WP_SaberLoadParms: Saber extensions (*.sab) are too large!\nRan out of space before reading %s", holdChar );
 #else
-			Com_Error( ERR_DROP, "WP_SaberLoadParms: Saber extensions (*.sab) are too large!\nRan out of space before reading %s", holdChar );
+			Com_Error( errorParm_t::ERR_DROP, "WP_SaberLoadParms: Saber extensions (*.sab) are too large!\nRan out of space before reading %s", holdChar );
 #endif
 		}
 

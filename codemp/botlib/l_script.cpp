@@ -86,79 +86,79 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 punctuation_t default_punctuations[] =
 {
 	//binary operators
-	{">>=",P_RSHIFT_ASSIGN, nullptr},
-	{"<<=",P_LSHIFT_ASSIGN, nullptr},
+	{">>=",punctuationId_t::P_RSHIFT_ASSIGN, nullptr},
+	{"<<=",punctuationId_t::P_LSHIFT_ASSIGN, nullptr},
 	//
-	{"...",P_PARMS, nullptr},
+	{"...",punctuationId_t::P_PARMS, nullptr},
 	//define merge operator
-	{"##",P_PRECOMPMERGE, nullptr},
+	{"##",punctuationId_t::P_PRECOMPMERGE, nullptr},
 	//logic operators
-	{"&&",P_LOGIC_AND, nullptr},
-	{"||",P_LOGIC_OR, nullptr},
-	{">=",P_LOGIC_GEQ, nullptr},
-	{"<=",P_LOGIC_LEQ, nullptr},
-	{"==",P_LOGIC_EQ, nullptr},
-	{"!=",P_LOGIC_UNEQ, nullptr},
+	{"&&",punctuationId_t::P_LOGIC_AND, nullptr},
+	{"||",punctuationId_t::P_LOGIC_OR, nullptr},
+	{">=",punctuationId_t::P_LOGIC_GEQ, nullptr},
+	{"<=",punctuationId_t::P_LOGIC_LEQ, nullptr},
+	{"==",punctuationId_t::P_LOGIC_EQ, nullptr},
+	{"!=",punctuationId_t::P_LOGIC_UNEQ, nullptr},
 	//arithmatic operators
-	{"*=",P_MUL_ASSIGN, nullptr},
-	{"/=",P_DIV_ASSIGN, nullptr},
-	{"%=",P_MOD_ASSIGN, nullptr},
-	{"+=",P_ADD_ASSIGN, nullptr},
-	{"-=",P_SUB_ASSIGN, nullptr},
-	{"++",P_INC, nullptr},
-	{"--",P_DEC, nullptr},
+	{"*=",punctuationId_t::P_MUL_ASSIGN, nullptr},
+	{"/=",punctuationId_t::P_DIV_ASSIGN, nullptr},
+	{"%=",punctuationId_t::P_MOD_ASSIGN, nullptr},
+	{"+=",punctuationId_t::P_ADD_ASSIGN, nullptr},
+	{"-=",punctuationId_t::P_SUB_ASSIGN, nullptr},
+	{"++",punctuationId_t::P_INC, nullptr},
+	{"--",punctuationId_t::P_DEC, nullptr},
 	//binary operators
-	{"&=",P_BIN_AND_ASSIGN, nullptr},
-	{"|=",P_BIN_OR_ASSIGN, nullptr},
-	{"^=",P_BIN_XOR_ASSIGN, nullptr},
-	{">>",P_RSHIFT, nullptr},
-	{"<<",P_LSHIFT, nullptr},
+	{"&=",punctuationId_t::P_BIN_AND_ASSIGN, nullptr},
+	{"|=",punctuationId_t::P_BIN_OR_ASSIGN, nullptr},
+	{"^=",punctuationId_t::P_BIN_XOR_ASSIGN, nullptr},
+	{">>",punctuationId_t::P_RSHIFT, nullptr},
+	{"<<",punctuationId_t::P_LSHIFT, nullptr},
 	//reference operators
-	{"->",P_POINTERREF, nullptr},
+	{"->",punctuationId_t::P_POINTERREF, nullptr},
 	//C++
-	{"::",P_CPP1, nullptr},
-	{".*",P_CPP2, nullptr},
+	{"::",punctuationId_t::P_CPP1, nullptr},
+	{".*",punctuationId_t::P_CPP2, nullptr},
 	//arithmatic operators
-	{"*",P_MUL, nullptr},
-	{"/",P_DIV, nullptr},
-	{"%",P_MOD, nullptr},
-	{"+",P_ADD, nullptr},
-	{"-",P_SUB, nullptr},
-	{"=",P_ASSIGN, nullptr},
+	{"*",punctuationId_t::P_MUL, nullptr},
+	{"/",punctuationId_t::P_DIV, nullptr},
+	{"%",punctuationId_t::P_MOD, nullptr},
+	{"+",punctuationId_t::P_ADD, nullptr},
+	{"-",punctuationId_t::P_SUB, nullptr},
+	{"=",punctuationId_t::P_ASSIGN, nullptr},
 	//binary operators
-	{"&",P_BIN_AND, nullptr},
-	{"|",P_BIN_OR, nullptr},
-	{"^",P_BIN_XOR, nullptr},
-	{"~",P_BIN_NOT, nullptr},
+	{"&",punctuationId_t::P_BIN_AND, nullptr},
+	{"|",punctuationId_t::P_BIN_OR, nullptr},
+	{"^",punctuationId_t::P_BIN_XOR, nullptr},
+	{"~",punctuationId_t::P_BIN_NOT, nullptr},
 	//logic operators
-	{"!",P_LOGIC_NOT, nullptr},
-	{">",P_LOGIC_GREATER, nullptr},
-	{"<",P_LOGIC_LESS, nullptr},
+	{"!",punctuationId_t::P_LOGIC_NOT, nullptr},
+	{">",punctuationId_t::P_LOGIC_GREATER, nullptr},
+	{"<",punctuationId_t::P_LOGIC_LESS, nullptr},
 	//reference operator
-	{".",P_REF, nullptr},
+	{".",punctuationId_t::P_REF, nullptr},
 	//seperators
-	{",",P_COMMA, nullptr},
-	{";",P_SEMICOLON, nullptr},
+	{",",punctuationId_t::P_COMMA, nullptr},
+	{";",punctuationId_t::P_SEMICOLON, nullptr},
 	//label indication
-	{":",P_COLON, nullptr},
+	{":",punctuationId_t::P_COLON, nullptr},
 	//if statement
-	{"?",P_QUESTIONMARK, nullptr},
+	{"?",punctuationId_t::P_QUESTIONMARK, nullptr},
 	//embracements
-	{"(",P_PARENTHESESOPEN, nullptr},
-	{")",P_PARENTHESESCLOSE, nullptr},
-	{"{",P_BRACEOPEN, nullptr},
-	{"}",P_BRACECLOSE, nullptr},
-	{"[",P_SQBRACKETOPEN, nullptr},
-	{"]",P_SQBRACKETCLOSE, nullptr},
+	{"(",punctuationId_t::P_PARENTHESESOPEN, nullptr},
+	{")",punctuationId_t::P_PARENTHESESCLOSE, nullptr},
+	{"{",punctuationId_t::P_BRACEOPEN, nullptr},
+	{"}",punctuationId_t::P_BRACECLOSE, nullptr},
+	{"[",punctuationId_t::P_SQBRACKETOPEN, nullptr},
+	{"]",punctuationId_t::P_SQBRACKETCLOSE, nullptr},
 	//
-	{"\\",P_BACKSLASH, nullptr},
+	{"\\",punctuationId_t::P_BACKSLASH, nullptr},
 	//precompiler operator
-	{"#",P_PRECOMP, nullptr},
+	{"#",punctuationId_t::P_PRECOMP, nullptr},
 #ifdef DOLLAR
-	{"$",P_DOLLAR, nullptr},
+	{"$",punctuationId_t::P_DOLLAR, nullptr},
 #endif //DOLLAR
 	// StringEd key
-	{"@",P_ATSIGN, nullptr},
+	{"@",punctuationId_t::P_ATSIGN, nullptr},
 	{nullptr, {}}
 };
 
@@ -235,13 +235,13 @@ void QDECL ScriptError(script_t *script, const char *str, ...)
 	char text[1024];
 	va_list ap;
 
-	if (Any( script->flags & SCFL_NOERRORS )) return;
+	if (Any( script->flags & scriptParseFlags_t::SCFL_NOERRORS )) return;
 
 	va_start(ap, str);
 	Q_vsnprintf(text, sizeof(text), str, ap);
 	va_end(ap);
 #ifdef BOTLIB
-	botimport.Print(PRT_ERROR, "file %s, line %d: %s\n", script->filename, script->line, text);
+	botimport.Print(printType_t::PRT_ERROR, "file %s, line %d: %s\n", script->filename, script->line, text);
 #endif //BOTLIB
 #ifdef MEQCC
 	printf("error: file %s, line %d: %s\n", script->filename, script->line, text);
@@ -261,13 +261,13 @@ void QDECL ScriptWarning(script_t *script, const char *str, ...)
 	char text[1024];
 	va_list ap;
 
-	if (Any( script->flags & SCFL_NOWARNINGS )) return;
+	if (Any( script->flags & scriptParseFlags_t::SCFL_NOWARNINGS )) return;
 
 	va_start(ap, str);
 	Q_vsnprintf(text, sizeof(text), str, ap);
 	va_end(ap);
 #ifdef BOTLIB
-	botimport.Print(PRT_WARNING, "file %s, line %d: %s\n", script->filename, script->line, text);
+	botimport.Print(printType_t::PRT_WARNING, "file %s, line %d: %s\n", script->filename, script->line, text);
 #endif //BOTLIB
 #ifdef MEQCC
 	printf("warning: file %s, line %d: %s\n", script->filename, script->line, text);
@@ -441,8 +441,8 @@ int PS_ReadString(script_t *script, token_t *token, int quote)
 	int len, tmpline;
 	char *tmpscript_p;
 
-	if (quote == '\"') token->type = TT_STRING;
-	else token->type = TT_LITERAL;
+	if (quote == '\"') token->type = tokenType_t::TT_STRING;
+	else token->type = tokenType_t::TT_LITERAL;
 
 	len = 0;
 	//leading quote
@@ -458,7 +458,7 @@ int PS_ReadString(script_t *script, token_t *token, int quote)
 		} //end if
 		//if there is an escape character and
 		//if escape characters inside a string are allowed
-		if (*script->script_p == '\\' && !Any( script->flags & SCFL_NOSTRINGESCAPECHARS ))
+		if (*script->script_p == '\\' && !Any( script->flags & scriptParseFlags_t::SCFL_NOSTRINGESCAPECHARS ))
 		{
 			if (!PS_ReadEscapeCharacter(script, &token->string[len]))
 			{
@@ -473,7 +473,7 @@ int PS_ReadString(script_t *script, token_t *token, int quote)
 			//step over the double quote
 			script->script_p++;
 			//if white spaces in a string are not allowed
-			if (Any( script->flags & SCFL_NOSTRINGWHITESPACES )) break;
+			if (Any( script->flags & scriptParseFlags_t::SCFL_NOSTRINGWHITESPACES )) break;
 			//
 			tmpscript_p = script->script_p;
 			tmpline = script->line;
@@ -530,7 +530,7 @@ int PS_ReadName(script_t *script, token_t *token)
 	int len = 0;
 	char c;
 
-	token->type = TT_NAME;
+	token->type = tokenType_t::TT_NAME;
 	do
 	{
 		token->string[len++] = *script->script_p++;
@@ -635,7 +635,7 @@ int PS_ReadNumber(script_t *script, token_t *token)
 //	unsigned long int intvalue = 0;
 //	long double floatvalue = 0;
 
-	token->type = TT_NUMBER;
+	token->type = tokenType_t::TT_NUMBER;
 	//check for a hexadecimal number
 	if (*script->script_p == '0' &&
 		(*(script->script_p + 1) == 'x' ||
@@ -737,7 +737,7 @@ int PS_ReadNumber(script_t *script, token_t *token)
 //============================================================================
 int PS_ReadLiteral(script_t *script, token_t *token)
 {
-	token->type = TT_LITERAL;
+	token->type = tokenType_t::TT_LITERAL;
 	//first quote
 	token->string[0] = *script->script_p++;
 	//check for end of file
@@ -808,7 +808,7 @@ int PS_ReadPunctuation(script_t *script, token_t *token)
 			{
 				Q_strncpyz(token->string, p, MAX_TOKEN);
 				script->script_p += len;
-				token->type = TT_PUNCTUATION;
+				token->type = tokenType_t::TT_PUNCTUATION;
 				//sub type is the number of the punctuation
 				Token_SetPunctuation(*token, punc->n);
 				return 1;
@@ -895,7 +895,7 @@ int PS_ReadToken(script_t *script, token_t *token)
 		if (!PS_ReadNumber(script, token)) return 0;
 	} //end if
 	//if this is a primitive script
-	else if (Any( script->flags & SCFL_PRIMITIVE ))
+	else if (Any( script->flags & scriptParseFlags_t::SCFL_PRIMITIVE ))
 	{
 		return PS_ReadPrimitive(script, token);
 	} //end else if
@@ -959,15 +959,15 @@ int PS_ExpectTokenType(script_t *script, tokenType_t type, int subtype, token_t 
 	if (token->type != type)
 	{
 		strcpy(str, "");
-		if (type == TT_STRING) strcpy(str, "string");
-		if (type == TT_LITERAL) strcpy(str, "literal");
-		if (type == TT_NUMBER) strcpy(str, "number");
-		if (type == TT_NAME) strcpy(str, "name");
-		if (type == TT_PUNCTUATION) strcpy(str, "punctuation");
+		if (type == tokenType_t::TT_STRING) strcpy(str, "string");
+		if (type == tokenType_t::TT_LITERAL) strcpy(str, "literal");
+		if (type == tokenType_t::TT_NUMBER) strcpy(str, "number");
+		if (type == tokenType_t::TT_NAME) strcpy(str, "name");
+		if (type == tokenType_t::TT_PUNCTUATION) strcpy(str, "punctuation");
 		ScriptError(script, "expected a %s, found %s", str, token->string);
 		return 0;
 	} //end if
-	if (token->type == TT_NUMBER)
+	if (token->type == tokenType_t::TT_NUMBER)
 	{
 		if ((token->subtype & subtype) != subtype)
 		{
@@ -984,7 +984,7 @@ int PS_ExpectTokenType(script_t *script, tokenType_t type, int subtype, token_t 
 			return 0;
 		} //end if
 	} //end if
-	else if (token->type == TT_PUNCTUATION)
+	else if (token->type == tokenType_t::TT_PUNCTUATION)
 	{
 		if (subtype < 0)
 		{
@@ -1169,7 +1169,7 @@ long double ReadSignedFloat(script_t *script)
 		sign = -1;
 	}
 
-	if (token.type != TT_NUMBER)
+	if (token.type != tokenType_t::TT_NUMBER)
 	{
 		ScriptError(script, "expected float value, found %s", token.string);
 		return 0;
@@ -1200,7 +1200,7 @@ signed long int ReadSignedInt(script_t *script)
 		sign = -1;
 	}
 
-	if (token.type != TT_NUMBER || token.subtype == TT_FLOAT)
+	if (token.type != tokenType_t::TT_NUMBER || token.subtype == TT_FLOAT)
 	{
 		ScriptError(script, "expected integer value, found %s", token.string);
 		return 0;
@@ -1342,7 +1342,7 @@ script_t *LoadScriptFile(const char *filename)
 		Com_sprintf(pathname, sizeof(pathname), "%s/%s", basefolder, filename);
 	else
 		Com_sprintf(pathname, sizeof(pathname), "%s", filename);
-	length = botimport.FS_FOpenFile( pathname, &fp, FS_READ );
+	length = botimport.FS_FOpenFile( pathname, &fp, fsMode_t::FS_READ );
 	if (!fp) return nullptr;
 #else
 	fp = fopen(filename, "rb");

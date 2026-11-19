@@ -125,9 +125,9 @@ void GL_TextureMode( const char *string ) {
 	}
 
 	if ( i == numTextureModes ) {
-		ri.Printf (PRINT_ALL, "bad filter name\n");
+		ri.Printf (printParm_t::PRINT_ALL, "bad filter name\n");
 		for ( i = 0; i < numTextureModes ; i++ ) {
-			ri.Printf( PRINT_ALL, "%s\n", modes[i].name);
+			ri.Printf( printParm_t::PRINT_ALL, "%s\n", modes[i].name);
 		}
 		return;
 	}
@@ -260,7 +260,7 @@ void R_ImageList_f( void ) {
 	float	texBytes = 0.0f;
 	const char *yesno[] = {"no ", "yes"};
 
-	ri.Printf (PRINT_ALL, "\n      -w-- -h-- -fsK- -mm- -if- wrap --name-------\n");
+	ri.Printf (printParm_t::PRINT_ALL, "\n      -w-- -h-- -fsK- -mm- -if- wrap --name-------\n");
 
 	int iNumImages = R_Images_StartIteration();
 	while ( (image = R_Images_GetNextIteration()) != nullptr)
@@ -270,71 +270,71 @@ void R_ImageList_f( void ) {
 //		totalFileSizeK += (image->imgfileSize+1023)/1024;
 		//ri.Printf (PRINT_ALL,  "%4i: %4i %4i %5i  %s ",
 		//	i, image->width, image->height,(image->fileSize+1023)/1024, yesno[image->mipmap] );
-		ri.Printf (PRINT_ALL,  "%4i: %4i %4i  %s ",
+		ri.Printf (printParm_t::PRINT_ALL,  "%4i: %4i %4i  %s ",
 			i, image->width, image->height,yesno[image->mipmap] );
 
 		switch ( image->internalFormat ) {
 		case 1:
-			ri.Printf( PRINT_ALL, "I    " );
+			ri.Printf( printParm_t::PRINT_ALL, "I    " );
 			break;
 		case 2:
-			ri.Printf( PRINT_ALL, "IA   " );
+			ri.Printf( printParm_t::PRINT_ALL, "IA   " );
 			break;
 		case 3:
-			ri.Printf( PRINT_ALL, "RGB  " );
+			ri.Printf( printParm_t::PRINT_ALL, "RGB  " );
 			break;
 		case 4:
-			ri.Printf( PRINT_ALL, "RGBA " );
+			ri.Printf( printParm_t::PRINT_ALL, "RGBA " );
 			break;
 		case GL_RGBA8:
-			ri.Printf( PRINT_ALL, "RGBA8" );
+			ri.Printf( printParm_t::PRINT_ALL, "RGBA8" );
 			break;
 		case GL_RGB8:
-			ri.Printf( PRINT_ALL, "RGB8 " );
+			ri.Printf( printParm_t::PRINT_ALL, "RGB8 " );
 			break;
 		case GL_RGB4_S3TC:
-			ri.Printf( PRINT_ALL, "S3TC " );
+			ri.Printf( printParm_t::PRINT_ALL, "S3TC " );
 			break;
 		case GL_COMPRESSED_RGB_S3TC_DXT1_EXT:
-			ri.Printf( PRINT_ALL, "DXT1 " );
+			ri.Printf( printParm_t::PRINT_ALL, "DXT1 " );
 			break;
 		case GL_COMPRESSED_RGBA_S3TC_DXT5_EXT:
-			ri.Printf( PRINT_ALL, "DXT5 " );
+			ri.Printf( printParm_t::PRINT_ALL, "DXT5 " );
 			break;
 		case GL_RGBA4:
-			ri.Printf( PRINT_ALL, "RGBA4" );
+			ri.Printf( printParm_t::PRINT_ALL, "RGBA4" );
 			break;
 		case GL_RGB5:
-			ri.Printf( PRINT_ALL, "RGB5 " );
+			ri.Printf( printParm_t::PRINT_ALL, "RGB5 " );
 			break;
 		default:
-			ri.Printf( PRINT_ALL, "???? " );
+			ri.Printf( printParm_t::PRINT_ALL, "???? " );
 		}
 
 		switch ( image->wrapClampMode ) {
 		case GL_REPEAT:
-			ri.Printf( PRINT_ALL, "rept " );
+			ri.Printf( printParm_t::PRINT_ALL, "rept " );
 			break;
 		case GL_CLAMP:
-			ri.Printf( PRINT_ALL, "clmp " );
+			ri.Printf( printParm_t::PRINT_ALL, "clmp " );
 			break;
 		case GL_CLAMP_TO_EDGE:
-			ri.Printf( PRINT_ALL, "clpE " );
+			ri.Printf( printParm_t::PRINT_ALL, "clpE " );
 			break;
 		default:
-			ri.Printf( PRINT_ALL, "%4i ", image->wrapClampMode );
+			ri.Printf( printParm_t::PRINT_ALL, "%4i ", image->wrapClampMode );
 			break;
 		}
 
-		ri.Printf( PRINT_ALL, "%s\n", image->imgName );
+		ri.Printf( printParm_t::PRINT_ALL, "%s\n", image->imgName );
 		i++;
 	}
-	ri.Printf (PRINT_ALL, " ---------\n");
-	ri.Printf (PRINT_ALL, "      -w-- -h-- -mm- -if- wrap --name-------\n");
-	ri.Printf (PRINT_ALL, " %i total texels (not including mipmaps)\n", texels );
-//	ri.Printf (PRINT_ALL, " %iMB total filesize\n", (totalFileSizeK+1023)/1024 );
-	ri.Printf (PRINT_ALL, " %.2fMB total texture mem (not including mipmaps)\n", texBytes/1048576.0f );
-	ri.Printf (PRINT_ALL, " %i total images\n\n", iNumImages );
+	ri.Printf (printParm_t::PRINT_ALL, " ---------\n");
+	ri.Printf (printParm_t::PRINT_ALL, "      -w-- -h-- -mm- -if- wrap --name-------\n");
+	ri.Printf (printParm_t::PRINT_ALL, " %i total texels (not including mipmaps)\n", texels );
+//	ri.Printf (printParm_t::PRINT_ALL, " %iMB total filesize\n", (totalFileSizeK+1023)/1024 );
+	ri.Printf (printParm_t::PRINT_ALL, " %.2fMB total texture mem (not including mipmaps)\n", texBytes/1048576.0f );
+	ri.Printf (printParm_t::PRINT_ALL, " %i total images\n\n", iNumImages );
 }
 
 //=======================================================================
@@ -417,7 +417,7 @@ static void R_MipMap2( unsigned *in, int inWidth, int inHeight ) {
 
 	outWidth = inWidth >> 1;
 	outHeight = inHeight >> 1;
-	temp = (unsigned int *) R_Malloc( outWidth * outHeight * 4, TAG_TEMP_WORKSPACE, false );
+	temp = (unsigned int *) R_Malloc( outWidth * outHeight * 4, memtag::TAG_TEMP_WORKSPACE, false );
 
 	inWidthMask = inWidth - 1;
 	inHeightMask = inHeight - 1;
@@ -630,11 +630,11 @@ static void Upload32( unsigned *data,
 	    // select proper internal format
 	    if ( samples == 3 )
 	    {
-		    if ( glConfig.textureCompression == TC_S3TC && allowTC )
+		    if ( glConfig.textureCompression == textureCompression_t::TC_S3TC && allowTC )
 		    {
 			    *pformat = GL_RGB4_S3TC;
 		    }
-		    else if ( glConfig.textureCompression == TC_S3TC_DXT && allowTC )
+		    else if ( glConfig.textureCompression == textureCompression_t::TC_S3TC_DXT && allowTC )
 		    {	// Compress purely color - no alpha
 			    if ( r_texturebits->integer == 16 ) {
 				    *pformat = GL_COMPRESSED_RGB_S3TC_DXT1_EXT;	//this format cuts to 16 bit
@@ -670,7 +670,7 @@ static void Upload32( unsigned *data,
 	    }
 	    else if ( samples == 4 )
 	    {
-		    if ( glConfig.textureCompression == TC_S3TC_DXT && allowTC)
+		    if ( glConfig.textureCompression == textureCompression_t::TC_S3TC_DXT && allowTC)
 		    {	// Compress both alpha and color
 			    *pformat = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
 		    }
@@ -872,22 +872,22 @@ void RE_RegisterImages_Info_f( void )
 	int iNumImages	= R_Images_StartIteration();
 	while ( (pImage	= R_Images_GetNextIteration()) != nullptr)
 	{
-		ri.Printf( PRINT_ALL, "%d: (%4dx%4dy) \"%s\"",iImage, pImage->width, pImage->height, pImage->imgName);
-		ri.Printf( PRINT_ALL, ", levused %d",pImage->iLastLevelUsedOn);
-		ri.Printf( PRINT_ALL, "\n");
+		ri.Printf( printParm_t::PRINT_ALL, "%d: (%4dx%4dy) \"%s\"",iImage, pImage->width, pImage->height, pImage->imgName);
+		ri.Printf( printParm_t::PRINT_ALL, ", levused %d",pImage->iLastLevelUsedOn);
+		ri.Printf( printParm_t::PRINT_ALL, "\n");
 
 		iTexels += pImage->width * pImage->height;
 		iImage++;
 	}
-	ri.Printf( PRINT_ALL, "%d Images. %d (%.2fMB) texels total, (not including mipmaps)\n",iNumImages, iTexels, (float)iTexels / 1024.0f / 1024.0f);
-	ri.Printf( PRINT_DEVELOPER, "RE_RegisterMedia_GetLevel(): %d",RE_RegisterMedia_GetLevel());
+	ri.Printf( printParm_t::PRINT_ALL, "%d Images. %d (%.2fMB) texels total, (not including mipmaps)\n",iNumImages, iTexels, (float)iTexels / 1024.0f / 1024.0f);
+	ri.Printf( printParm_t::PRINT_DEVELOPER, "RE_RegisterMedia_GetLevel(): %d",RE_RegisterMedia_GetLevel());
 }
 
 // currently, this just goes through all the images and dumps any not referenced on this level...
 //
 bool RE_RegisterImages_LevelLoadEnd(void)
 {
-	//ri.Printf( PRINT_DEVELOPER, "RE_RegisterImages_LevelLoadEnd():\n");
+	//ri.Printf( printParm_t::PRINT_DEVELOPER, "RE_RegisterImages_LevelLoadEnd():\n");
 
 	bool imageDeleted = false;
 	for (AllocatedImages_t::iterator itImage = AllocatedImages.begin(); itImage != AllocatedImages.end(); /* blank */)
@@ -903,7 +903,7 @@ bool RE_RegisterImages_LevelLoadEnd(void)
 			//
 			if ( pImage->iLastLevelUsedOn != RE_RegisterMedia_GetLevel() )
 			{	// nope, so dump it...
-				//ri.Printf( PRINT_DEVELOPER, "Dumping image \"%s\"\n",pImage->imgName);
+				//ri.Printf( printParm_t::PRINT_DEVELOPER, "Dumping image \"%s\"\n",pImage->imgName);
 				R_Images_DeleteImageContents(pImage);
 
 				AllocatedImages.erase(itImage++);
@@ -918,7 +918,7 @@ bool RE_RegisterImages_LevelLoadEnd(void)
 		}
 	}
 
-	//ri.Printf( PRINT_DEVELOPER, "RE_RegisterImages_LevelLoadEnd(): Ok\n");
+	//ri.Printf( printParm_t::PRINT_DEVELOPER, "RE_RegisterImages_LevelLoadEnd(): Ok\n");
 
 	GL_ResetBinds();
 
@@ -952,13 +952,13 @@ static image_t *R_FindImageFile_NoLoad(const char *name, bool mipmap, bool allow
 		//
 		if ( strcmp( pName, "*white" ) ) {
 			if ( pImage->mipmap != !!mipmap ) {
-				ri.Printf( PRINT_WARNING, "WARNING: reused image %s with mixed mipmap parm\n", pName );
+				ri.Printf( printParm_t::PRINT_WARNING, "WARNING: reused image %s with mixed mipmap parm\n", pName );
 			}
 			if ( pImage->allowPicmip != !!allowPicmip ) {
-				ri.Printf( PRINT_WARNING, "WARNING: reused image %s with mixed allowPicmip parm\n", pName );
+				ri.Printf( printParm_t::PRINT_WARNING, "WARNING: reused image %s with mixed allowPicmip parm\n", pName );
 			}
 			if ( pImage->wrapClampMode != glWrapClampMode ) {
-				ri.Printf( PRINT_WARNING, "WARNING: reused image %s with mixed glWrapClampMode parm\n", pName );
+				ri.Printf( printParm_t::PRINT_WARNING, "WARNING: reused image %s with mixed glWrapClampMode parm\n", pName );
 			}
 		}
 
@@ -985,7 +985,7 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
 	bool	isLightmap = false;
 
 	if (strlen(name) >= MAX_QPATH ) {
-		Com_Error (ERR_DROP, "R_CreateImage: \"%s\" is too long\n", name);
+		Com_Error (errorParm_t::ERR_DROP, "R_CreateImage: \"%s\" is too long\n", name);
 	}
 
 	if(glConfig.clampToEdgeAvailable && glWrapClampMode == GL_CLAMP) {
@@ -999,7 +999,7 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
 
 	if ( (width&(width-1)) || (height&(height-1)) )
 	{
-		Com_Error( ERR_FATAL, "R_CreateImage: %s dimensions (%i x %i) not power of 2!\n",name,width,height);
+		Com_Error( errorParm_t::ERR_FATAL, "R_CreateImage: %s dimensions (%i x %i) not power of 2!\n",name,width,height);
 	}
 
 	image = R_FindImageFile_NoLoad(name, mipmap, allowPicmip, allowTC, glWrapClampMode );
@@ -1007,7 +1007,7 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
 		return image;
 	}
 
-	image = (image_t*) R_Malloc( sizeof( image_t ), TAG_IMAGE_T, true );
+	image = (image_t*) R_Malloc( sizeof( image_t ), memtag::TAG_IMAGE_T, true );
 
 	//image->imgfileSize=fileSize;
 
@@ -1245,7 +1245,7 @@ static void R_CreateFogImage( void ) {
 	float	d;
 	float	borderColor[4];
 
-	data = (byte*) R_Malloc( FOG_S * FOG_T * 4, TAG_TEMP_WORKSPACE, false );
+	data = (byte*) R_Malloc( FOG_S * FOG_T * 4, memtag::TAG_TEMP_WORKSPACE, false );
 
 	// S is distance, T is depth
 	for (x=0 ; x<FOG_S ; x++) {

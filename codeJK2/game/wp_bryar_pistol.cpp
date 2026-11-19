@@ -48,7 +48,7 @@ void WP_FireBryarPistol( gentity_t *ent, bool alt_fire )
 
 		vectoangles( wpFwd, angs );
 
-		if ( ent->client->NPC_class == CLASS_IMPWORKER )
+		if ( ent->client->NPC_class == class_t::CLASS_IMPWORKER )
 		{//*sigh*, hack to make impworkers less accurate without affecteing imperial officer accuracy
 			angs[PITCH] += ( Q_flrand(-1.0f, 1.0f) * (BLASTER_NPC_SPREAD+(6-ent->NPC->currentAim)*0.25f));//was 0.5f
 			angs[YAW]	+= ( Q_flrand(-1.0f, 1.0f) * (BLASTER_NPC_SPREAD+(6-ent->NPC->currentAim)*0.25f));//was 0.5f
@@ -65,7 +65,7 @@ void WP_FireBryarPistol( gentity_t *ent, bool alt_fire )
 	gentity_t	*missile = CreateMissile( start, wpFwd, BRYAR_PISTOL_VEL, 10000, ent, alt_fire );
 
 	missile->classname = "bryar_proj";
-	missile->s.weapon = WP_BRYAR_PISTOL;
+	missile->s.weapon = weapon_t::WP_BRYAR_PISTOL;
 
 	if ( alt_fire )
 	{
@@ -92,18 +92,18 @@ void WP_FireBryarPistol( gentity_t *ent, bool alt_fire )
 //	}
 
 	missile->damage = damage;
-	missile->dflags = DAMAGE_DEATH_KNOCKBACK;
+	missile->dflags = damageFlags_t::DAMAGE_DEATH_KNOCKBACK;
 
 	if ( alt_fire )
 	{
-		missile->methodOfDeath = MOD_BRYAR_ALT;
+		missile->methodOfDeath = meansOfDeath_t::MOD_BRYAR_ALT;
 	}
 	else
 	{
-		missile->methodOfDeath = MOD_BRYAR;
+		missile->methodOfDeath = meansOfDeath_t::MOD_BRYAR;
 	}
 
-	missile->clipmask = MASK_SHOT | CONTENTS_LIGHTSABER;
+	missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
 
 	// we don't want it to bounce forever
 	missile->bounceCount = 8;

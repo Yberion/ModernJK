@@ -83,15 +83,15 @@ static cullResult_t R_CullModel( md3Header_t *header, trRefEntity_t *ent ) {
 		{
 			switch ( R_CullLocalPointAndRadius( newFrame->localOrigin, newFrame->radius ) )
 			{
-			case CULL_OUT:
+			case cullResult_t::CULL_OUT:
 				tr.pc.c_sphere_cull_md3_out++;
-				return CULL_OUT;
+				return cullResult_t::CULL_OUT;
 
-			case CULL_IN:
+			case cullResult_t::CULL_IN:
 				tr.pc.c_sphere_cull_md3_in++;
-				return CULL_IN;
+				return cullResult_t::CULL_IN;
 
-			case CULL_CLIP:
+			case cullResult_t::CULL_CLIP:
 				tr.pc.c_sphere_cull_md3_clip++;
 				break;
 			}
@@ -109,15 +109,15 @@ static cullResult_t R_CullModel( md3Header_t *header, trRefEntity_t *ent ) {
 
 			if ( sphereCull == sphereCullB )
 			{
-				if ( sphereCull == CULL_OUT )
+				if ( sphereCull == cullResult_t::CULL_OUT )
 				{
 					tr.pc.c_sphere_cull_md3_out++;
-					return CULL_OUT;
+					return cullResult_t::CULL_OUT;
 				}
-				else if ( sphereCull == CULL_IN )
+				else if ( sphereCull == cullResult_t::CULL_IN )
 				{
 					tr.pc.c_sphere_cull_md3_in++;
-					return CULL_IN;
+					return cullResult_t::CULL_IN;
 				}
 				else
 				{
@@ -135,16 +135,16 @@ static cullResult_t R_CullModel( md3Header_t *header, trRefEntity_t *ent ) {
 
 	switch ( R_CullLocalBox( bounds ) )
 	{
-	case CULL_IN:
+	case cullResult_t::CULL_IN:
 		tr.pc.c_box_cull_md3_in++;
-		return CULL_IN;
-	case CULL_CLIP:
+		return cullResult_t::CULL_IN;
+	case cullResult_t::CULL_CLIP:
 		tr.pc.c_box_cull_md3_clip++;
-		return CULL_CLIP;
-	case CULL_OUT:
+		return cullResult_t::CULL_CLIP;
+	case cullResult_t::CULL_OUT:
 	default:
 		tr.pc.c_box_cull_md3_out++;
-		return CULL_OUT;
+		return cullResult_t::CULL_OUT;
 	}
 }
 
@@ -259,7 +259,7 @@ int R_ComputeFogNum( md3Header_t *header, trRefEntity_t *ent ) {
 	md3Frame_t		*md3Frame;
 	vec3_t			localOrigin;
 
-	if ( Any( tr.refdef.rdflags & RDF_NOWORLDMODEL ) ) {
+	if ( Any( tr.refdef.rdflags & refdefFlags_t::RDF_NOWORLDMODEL ) ) {
 		return 0;
 	}
 
@@ -302,9 +302,9 @@ void R_AddMD3Surfaces( trRefEntity_t *ent ) {
 	bool		personalModel;
 
 	// don't add third_person objects if not in a portal
-	personalModel = (Any(ent->e.renderfx & RF_THIRD_PERSON) && !tr.viewParms.isPortal);
+	personalModel = (Any(ent->e.renderfx & renderFxFlags_t::RF_THIRD_PERSON) && !tr.viewParms.isPortal);
 
-	if ( Any( ent->e.renderfx & RF_WRAP_FRAMES ) ) {
+	if ( Any( ent->e.renderfx & renderFxFlags_t::RF_WRAP_FRAMES ) ) {
 		ent->e.frame %= tr.currentModel->md3[0]->numFrames;
 		ent->e.oldframe %= tr.currentModel->md3[0]->numFrames;
 	}
@@ -319,7 +319,7 @@ void R_AddMD3Surfaces( trRefEntity_t *ent ) {
 		|| (ent->e.frame < 0)
 		|| (ent->e.oldframe >= tr.currentModel->md3[0]->numFrames)
 		|| (ent->e.oldframe < 0) ) {
-			ri.Printf( PRINT_DEVELOPER, S_COLOR_RED "R_AddMD3Surfaces: no such frame %d to %d for '%s'\n",
+			ri.Printf( printParm_t::PRINT_DEVELOPER, S_COLOR_RED "R_AddMD3Surfaces: no such frame %d to %d for '%s'\n",
 				ent->e.oldframe, ent->e.frame,
 				tr.currentModel->name );
 			ent->e.frame = 0;
@@ -338,7 +338,7 @@ void R_AddMD3Surfaces( trRefEntity_t *ent ) {
 	// is outside the view frustum.
 	//
 	cull = R_CullModel ( header, ent );
-	if ( cull == CULL_OUT ) {
+	if ( cull == cullResult_t::CULL_OUT ) {
 		return;
 	}
 
@@ -378,10 +378,10 @@ void R_AddMD3Surfaces( trRefEntity_t *ent ) {
 				}
 			}
 			if (shader == tr.defaultShader) {
-				ri.Printf( PRINT_DEVELOPER, S_COLOR_RED "WARNING: no shader for surface %s in skin %s\n", surface->name, skin->name);
+				ri.Printf( printParm_t::PRINT_DEVELOPER, S_COLOR_RED "WARNING: no shader for surface %s in skin %s\n", surface->name, skin->name);
 			}
 			else if (shader->defaultShader) {
-				ri.Printf( PRINT_DEVELOPER, S_COLOR_RED "WARNING: shader %s in skin %s not found\n", shader->name, skin->name);
+				ri.Printf( printParm_t::PRINT_DEVELOPER, S_COLOR_RED "WARNING: shader %s in skin %s not found\n", shader->name, skin->name);
 			}
 		} else if ( surface->numShaders <= 0 ) {
 			shader = tr.defaultShader;
@@ -398,16 +398,16 @@ void R_AddMD3Surfaces( trRefEntity_t *ent ) {
 		if ( !personalModel
 			&& r_shadows->integer == 2
 			&& fogNum == 0
-			&& !Any(ent->e.renderfx & ( RF_NOSHADOW | RF_DEPTHHACK ) )
-			&& shader->sort == (float)SS_OPAQUE ) {
+			&& !Any(ent->e.renderfx & ( renderFxFlags_t::RF_NOSHADOW | renderFxFlags_t::RF_DEPTHHACK ) )
+			&& shader->sort == (float)shaderSort_t::SS_OPAQUE ) {
 			R_AddDrawSurf( (surfaceType_t *)surface, tr.shadowShader, 0, false );
 		}
 
 		// projection shadows work fine with personal models
 		if ( r_shadows->integer == 3
 			&& fogNum == 0
-			&& Any(ent->e.renderfx & RF_SHADOW_PLANE )
-			&& shader->sort == (float)SS_OPAQUE ) {
+			&& Any(ent->e.renderfx & renderFxFlags_t::RF_SHADOW_PLANE )
+			&& shader->sort == (float)shaderSort_t::SS_OPAQUE ) {
 			R_AddDrawSurf( (surfaceType_t *)surface, tr.projectionShadowShader, 0, false );
 		}
 

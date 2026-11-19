@@ -118,7 +118,7 @@ bool CL_GetUserCmd( int cmdNumber, usercmd_t *ucmd ) {
 
 	// can't return anything that we haven't created yet
 	if ( cmdNumber > cl.cmdNumber ) {
-		Com_Error( ERR_DROP, "CL_GetUserCmd: %i >= %i", cmdNumber, cl.cmdNumber );
+		Com_Error( errorParm_t::ERR_DROP, "CL_GetUserCmd: %i >= %i", cmdNumber, cl.cmdNumber );
 	}
 
 	// the usercmd has been overwritten in the wrapping
@@ -180,7 +180,7 @@ bool	CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
 	int				i, count;
 
 	if ( snapshotNumber > cl.frame.messageNum ) {
-		Com_Error( ERR_DROP, "CL_GetSnapshot: snapshotNumber > cl.frame.messageNum" );
+		Com_Error( errorParm_t::ERR_DROP, "CL_GetSnapshot: snapshotNumber > cl.frame.messageNum" );
 	}
 
 	// if the frame has fallen out of the circular buffer, we can't return it
@@ -240,8 +240,8 @@ bool CL_GetDefaultState(int index, entityState_t *state)
 	}
 
 	// Is this safe? I think so. But it's still ugly as sin.
-	if (!Any(sv.svEntities[index].baseline.eFlags & EF_PERMANENT))
-//	if (!Any(cl.entityBaselines[index].eFlags & EF_PERMANENT))
+	if (!Any(sv.svEntities[index].baseline.eFlags & entityFlags_t::EF_PERMANENT))
+//	if (!Any(cl.entityBaselines[index].eFlags & entityFlags_t::EF_PERMANENT))
 	{
 		return false;
 	}
@@ -289,7 +289,7 @@ void CL_ConfigstringModified( void ) {
 
 	index = atoi( Cmd_Argv(1) );
 	if ( index < 0 || index >= MAX_CONFIGSTRINGS ) {
-		Com_Error( ERR_DROP, "configstring > MAX_CONFIGSTRINGS" );
+		Com_Error( errorParm_t::ERR_DROP, "configstring > MAX_CONFIGSTRINGS" );
 	}
 	s = Cmd_Argv(2);
 
@@ -319,7 +319,7 @@ void CL_ConfigstringModified( void ) {
 		len = strlen( dup );
 
 		if ( len + 1 + cl.gameState.dataCount > MAX_GAMESTATE_CHARS ) {
-			Com_Error( ERR_DROP, "MAX_GAMESTATE_CHARS exceeded" );
+			Com_Error( errorParm_t::ERR_DROP, "MAX_GAMESTATE_CHARS exceeded" );
 		}
 
 		// append it to the gameState string buffer
@@ -349,12 +349,12 @@ bool CL_GetServerCommand( int serverCommandNumber ) {
 
 	// if we have irretrievably lost a reliable command, drop the connection
 	if ( serverCommandNumber <= clc.serverCommandSequence - MAX_RELIABLE_COMMANDS ) {
-		Com_Error( ERR_DROP, "CL_GetServerCommand: a reliable command was cycled out" );
+		Com_Error( errorParm_t::ERR_DROP, "CL_GetServerCommand: a reliable command was cycled out" );
 		return false;
 	}
 
 	if ( serverCommandNumber > clc.serverCommandSequence ) {
-		Com_Error( ERR_DROP, "CL_GetServerCommand: requested a command not received" );
+		Com_Error( errorParm_t::ERR_DROP, "CL_GetServerCommand: requested a command not received" );
 		return false;
 	}
 
@@ -366,7 +366,7 @@ bool CL_GetServerCommand( int serverCommandNumber ) {
 	cmd = Cmd_Argv(0);
 
 	if ( !strcmp( cmd, "disconnect" ) ) {
-		Com_Error (ERR_DISCONNECT,"Server disconnected\n");
+		Com_Error (errorParm_t::ERR_DISCONNECT,"Server disconnected\n");
 	}
 
 	if ( !strcmp( cmd, "cs" ) ) {
@@ -427,7 +427,7 @@ void CL_ShutdownCGame( void ) {
 	if ( !cgvm.entryPoint) {
 		return;
 	}
-	VM_Call( CG_SHUTDOWN );
+	VM_Call( cgameExport_t::CG_SHUTDOWN );
 
 //	VM_Free( cgvm );
 //	cgvm = nullptr;
@@ -447,350 +447,350 @@ std::optional<cgameImport_t> CL_ConvertJK2SysCall( cgameJK2Import_t import )
 	// FIXME: This was a 5-minute slap-hack job in order to test if this really works. CLEAN ME UP! --eez
 	switch(import)
 	{
-		case CG_PRINT_JK2:
-			return CG_PRINT;
+		case cgameJK2Import_t::CG_PRINT_JK2:
+			return cgameImport_t::CG_PRINT;
 			break;
-		case CG_ERROR_JK2:
-			return CG_ERROR;
+		case cgameJK2Import_t::CG_ERROR_JK2:
+			return cgameImport_t::CG_ERROR;
 			break;
-		case CG_MILLISECONDS_JK2:
-			return CG_MILLISECONDS;
+		case cgameJK2Import_t::CG_MILLISECONDS_JK2:
+			return cgameImport_t::CG_MILLISECONDS;
 			break;
-		case CG_CVAR_REGISTER_JK2:
-			return CG_CVAR_REGISTER;
+		case cgameJK2Import_t::CG_CVAR_REGISTER_JK2:
+			return cgameImport_t::CG_CVAR_REGISTER;
 			break;
-		case CG_CVAR_UPDATE_JK2:
-			return CG_CVAR_UPDATE;
+		case cgameJK2Import_t::CG_CVAR_UPDATE_JK2:
+			return cgameImport_t::CG_CVAR_UPDATE;
 			break;
-		case CG_CVAR_SET_JK2:
-			return CG_CVAR_SET;
+		case cgameJK2Import_t::CG_CVAR_SET_JK2:
+			return cgameImport_t::CG_CVAR_SET;
 			break;
-		case CG_ARGC_JK2:
-			return CG_ARGC;
+		case cgameJK2Import_t::CG_ARGC_JK2:
+			return cgameImport_t::CG_ARGC;
 			break;
-		case CG_ARGV_JK2:
-			return CG_ARGV;
+		case cgameJK2Import_t::CG_ARGV_JK2:
+			return cgameImport_t::CG_ARGV;
 			break;
-		case CG_ARGS_JK2:
-			return CG_ARGS;
+		case cgameJK2Import_t::CG_ARGS_JK2:
+			return cgameImport_t::CG_ARGS;
 			break;
-		case CG_FS_FOPENFILE_JK2:
-			return CG_FS_FOPENFILE;
+		case cgameJK2Import_t::CG_FS_FOPENFILE_JK2:
+			return cgameImport_t::CG_FS_FOPENFILE;
 			break;
-		case CG_FS_READ_JK2:
-			return CG_FS_READ;
+		case cgameJK2Import_t::CG_FS_READ_JK2:
+			return cgameImport_t::CG_FS_READ;
 			break;
-		case CG_FS_WRITE_JK2:
-			return CG_FS_WRITE;
+		case cgameJK2Import_t::CG_FS_WRITE_JK2:
+			return cgameImport_t::CG_FS_WRITE;
 			break;
-		case CG_FS_FCLOSEFILE_JK2:
-			return CG_FS_FCLOSEFILE;
+		case cgameJK2Import_t::CG_FS_FCLOSEFILE_JK2:
+			return cgameImport_t::CG_FS_FCLOSEFILE;
 			break;
-		case CG_SENDCONSOLECOMMAND_JK2:
-			return CG_SENDCONSOLECOMMAND;
+		case cgameJK2Import_t::CG_SENDCONSOLECOMMAND_JK2:
+			return cgameImport_t::CG_SENDCONSOLECOMMAND;
 			break;
-		case CG_ADDCOMMAND_JK2:
-			return CG_ADDCOMMAND;
+		case cgameJK2Import_t::CG_ADDCOMMAND_JK2:
+			return cgameImport_t::CG_ADDCOMMAND;
 			break;
-		case CG_SENDCLIENTCOMMAND_JK2:
-			return CG_SENDCLIENTCOMMAND;
+		case cgameJK2Import_t::CG_SENDCLIENTCOMMAND_JK2:
+			return cgameImport_t::CG_SENDCLIENTCOMMAND;
 			break;
-		case CG_UPDATESCREEN_JK2:
-			return CG_UPDATESCREEN;
+		case cgameJK2Import_t::CG_UPDATESCREEN_JK2:
+			return cgameImport_t::CG_UPDATESCREEN;
 			break;
-		case CG_CM_LOADMAP_JK2:
-			return CG_CM_LOADMAP;
+		case cgameJK2Import_t::CG_CM_LOADMAP_JK2:
+			return cgameImport_t::CG_CM_LOADMAP;
 			break;
-		case CG_CM_NUMINLINEMODELS_JK2:
-			return CG_CM_NUMINLINEMODELS;
+		case cgameJK2Import_t::CG_CM_NUMINLINEMODELS_JK2:
+			return cgameImport_t::CG_CM_NUMINLINEMODELS;
 			break;
-		case CG_CM_INLINEMODEL_JK2:
-			return CG_CM_INLINEMODEL;
+		case cgameJK2Import_t::CG_CM_INLINEMODEL_JK2:
+			return cgameImport_t::CG_CM_INLINEMODEL;
 			break;
-		case CG_CM_TEMPBOXMODEL_JK2:
-			return CG_CM_TEMPBOXMODEL;
+		case cgameJK2Import_t::CG_CM_TEMPBOXMODEL_JK2:
+			return cgameImport_t::CG_CM_TEMPBOXMODEL;
 			break;
-		case CG_CM_POINTCONTENTS_JK2:
-			return CG_CM_POINTCONTENTS;
+		case cgameJK2Import_t::CG_CM_POINTCONTENTS_JK2:
+			return cgameImport_t::CG_CM_POINTCONTENTS;
 			break;
-		case CG_CM_TRANSFORMEDPOINTCONTENTS_JK2:
-			return CG_CM_TRANSFORMEDPOINTCONTENTS;
+		case cgameJK2Import_t::CG_CM_TRANSFORMEDPOINTCONTENTS_JK2:
+			return cgameImport_t::CG_CM_TRANSFORMEDPOINTCONTENTS;
 			break;
-		case CG_CM_BOXTRACE_JK2:
-			return CG_CM_BOXTRACE;
+		case cgameJK2Import_t::CG_CM_BOXTRACE_JK2:
+			return cgameImport_t::CG_CM_BOXTRACE;
 			break;
-		case CG_CM_TRANSFORMEDBOXTRACE_JK2:
-			return CG_CM_TRANSFORMEDBOXTRACE;
+		case cgameJK2Import_t::CG_CM_TRANSFORMEDBOXTRACE_JK2:
+			return cgameImport_t::CG_CM_TRANSFORMEDBOXTRACE;
 			break;
-		case CG_CM_MARKFRAGMENTS_JK2:
-			return CG_CM_MARKFRAGMENTS;
+		case cgameJK2Import_t::CG_CM_MARKFRAGMENTS_JK2:
+			return cgameImport_t::CG_CM_MARKFRAGMENTS;
 			break;
-		case CG_CM_SNAPPVS_JK2:
-			return CG_CM_SNAPPVS;
+		case cgameJK2Import_t::CG_CM_SNAPPVS_JK2:
+			return cgameImport_t::CG_CM_SNAPPVS;
 			break;
-		case CG_S_STARTSOUND_JK2:
-			return CG_S_STARTSOUND;
+		case cgameJK2Import_t::CG_S_STARTSOUND_JK2:
+			return cgameImport_t::CG_S_STARTSOUND;
 			break;
-		case CG_S_STARTLOCALSOUND_JK2:
-			return CG_S_STARTLOCALSOUND;
+		case cgameJK2Import_t::CG_S_STARTLOCALSOUND_JK2:
+			return cgameImport_t::CG_S_STARTLOCALSOUND;
 			break;
-		case CG_S_CLEARLOOPINGSOUNDS_JK2:
-			return CG_S_CLEARLOOPINGSOUNDS;
+		case cgameJK2Import_t::CG_S_CLEARLOOPINGSOUNDS_JK2:
+			return cgameImport_t::CG_S_CLEARLOOPINGSOUNDS;
 			break;
-		case CG_S_ADDLOOPINGSOUND_JK2:
-			return CG_S_ADDLOOPINGSOUND;
+		case cgameJK2Import_t::CG_S_ADDLOOPINGSOUND_JK2:
+			return cgameImport_t::CG_S_ADDLOOPINGSOUND;
 			break;
-		case CG_S_UPDATEENTITYPOSITION_JK2:
-			return CG_S_UPDATEENTITYPOSITION;
+		case cgameJK2Import_t::CG_S_UPDATEENTITYPOSITION_JK2:
+			return cgameImport_t::CG_S_UPDATEENTITYPOSITION;
 			break;
-		case CG_S_RESPATIALIZE_JK2:
-			return CG_S_RESPATIALIZE;
+		case cgameJK2Import_t::CG_S_RESPATIALIZE_JK2:
+			return cgameImport_t::CG_S_RESPATIALIZE;
 			break;
-		case CG_S_REGISTERSOUND_JK2:
-			return CG_S_REGISTERSOUND;
+		case cgameJK2Import_t::CG_S_REGISTERSOUND_JK2:
+			return cgameImport_t::CG_S_REGISTERSOUND;
 			break;
-		case CG_S_STARTBACKGROUNDTRACK_JK2:
-			return CG_S_STARTBACKGROUNDTRACK;
+		case cgameJK2Import_t::CG_S_STARTBACKGROUNDTRACK_JK2:
+			return cgameImport_t::CG_S_STARTBACKGROUNDTRACK;
 			break;
-		case CG_R_LOADWORLDMAP_JK2:
-			return CG_R_LOADWORLDMAP;
+		case cgameJK2Import_t::CG_R_LOADWORLDMAP_JK2:
+			return cgameImport_t::CG_R_LOADWORLDMAP;
 			break;
-		case CG_R_REGISTERMODEL_JK2:
-			return CG_R_REGISTERMODEL;
+		case cgameJK2Import_t::CG_R_REGISTERMODEL_JK2:
+			return cgameImport_t::CG_R_REGISTERMODEL;
 			break;
-		case CG_R_REGISTERSKIN_JK2:
-			return CG_R_REGISTERSKIN;
+		case cgameJK2Import_t::CG_R_REGISTERSKIN_JK2:
+			return cgameImport_t::CG_R_REGISTERSKIN;
 			break;
-		case CG_R_REGISTERSHADER_JK2:
-			return CG_R_REGISTERSHADER;
+		case cgameJK2Import_t::CG_R_REGISTERSHADER_JK2:
+			return cgameImport_t::CG_R_REGISTERSHADER;
 			break;
-		case CG_R_REGISTERSHADERNOMIP_JK2:
-			return CG_R_REGISTERSHADERNOMIP;
+		case cgameJK2Import_t::CG_R_REGISTERSHADERNOMIP_JK2:
+			return cgameImport_t::CG_R_REGISTERSHADERNOMIP;
 			break;
-		case CG_R_REGISTERFONT_JK2:
-			return CG_R_REGISTERFONT;
+		case cgameJK2Import_t::CG_R_REGISTERFONT_JK2:
+			return cgameImport_t::CG_R_REGISTERFONT;
 			break;
-		case CG_R_FONTSTRLENPIXELS_JK2:
-			return CG_R_FONTSTRLENPIXELS;
+		case cgameJK2Import_t::CG_R_FONTSTRLENPIXELS_JK2:
+			return cgameImport_t::CG_R_FONTSTRLENPIXELS;
 			break;
-		case CG_R_FONTSTRLENCHARS_JK2:
-			return CG_R_FONTSTRLENCHARS;
+		case cgameJK2Import_t::CG_R_FONTSTRLENCHARS_JK2:
+			return cgameImport_t::CG_R_FONTSTRLENCHARS;
 			break;
-		case CG_R_FONTHEIGHTPIXELS_JK2:
-			return CG_R_FONTHEIGHTPIXELS;
+		case cgameJK2Import_t::CG_R_FONTHEIGHTPIXELS_JK2:
+			return cgameImport_t::CG_R_FONTHEIGHTPIXELS;
 			break;
-		case CG_R_FONTDRAWSTRING_JK2:
-			return CG_R_FONTDRAWSTRING;
+		case cgameJK2Import_t::CG_R_FONTDRAWSTRING_JK2:
+			return cgameImport_t::CG_R_FONTDRAWSTRING;
 			break;
-		case CG_LANGUAGE_ISASIAN_JK2:
-			return CG_LANGUAGE_ISASIAN;
+		case cgameJK2Import_t::CG_LANGUAGE_ISASIAN_JK2:
+			return cgameImport_t::CG_LANGUAGE_ISASIAN;
 			break;
-		case CG_LANGUAGE_USESSPACES_JK2:
-			return CG_LANGUAGE_USESSPACES;
+		case cgameJK2Import_t::CG_LANGUAGE_USESSPACES_JK2:
+			return cgameImport_t::CG_LANGUAGE_USESSPACES;
 			break;
-		case CG_ANYLANGUAGE_READFROMSTRING_JK2:
-			return CG_ANYLANGUAGE_READFROMSTRING;
+		case cgameJK2Import_t::CG_ANYLANGUAGE_READFROMSTRING_JK2:
+			return cgameImport_t::CG_ANYLANGUAGE_READFROMSTRING;
 			break;
-		case CG_R_CLEARSCENE_JK2:
-			return CG_R_CLEARSCENE;
+		case cgameJK2Import_t::CG_R_CLEARSCENE_JK2:
+			return cgameImport_t::CG_R_CLEARSCENE;
 			break;
-		case CG_R_ADDREFENTITYTOSCENE_JK2:
-			return CG_R_ADDREFENTITYTOSCENE;
+		case cgameJK2Import_t::CG_R_ADDREFENTITYTOSCENE_JK2:
+			return cgameImport_t::CG_R_ADDREFENTITYTOSCENE;
 			break;
-		case CG_R_GETLIGHTING_JK2:
-			return CG_R_GETLIGHTING;
+		case cgameJK2Import_t::CG_R_GETLIGHTING_JK2:
+			return cgameImport_t::CG_R_GETLIGHTING;
 			break;
-		case CG_R_ADDPOLYTOSCENE_JK2:
-			return CG_R_ADDPOLYTOSCENE;
+		case cgameJK2Import_t::CG_R_ADDPOLYTOSCENE_JK2:
+			return cgameImport_t::CG_R_ADDPOLYTOSCENE;
 			break;
-		case CG_R_ADDLIGHTTOSCENE_JK2:
-			return CG_R_ADDLIGHTTOSCENE;
+		case cgameJK2Import_t::CG_R_ADDLIGHTTOSCENE_JK2:
+			return cgameImport_t::CG_R_ADDLIGHTTOSCENE;
 			break;
-		case CG_R_RENDERSCENE_JK2:
-			return CG_R_RENDERSCENE;
+		case cgameJK2Import_t::CG_R_RENDERSCENE_JK2:
+			return cgameImport_t::CG_R_RENDERSCENE;
 			break;
-		case CG_R_SETCOLOR_JK2:
-			return CG_R_SETCOLOR;
+		case cgameJK2Import_t::CG_R_SETCOLOR_JK2:
+			return cgameImport_t::CG_R_SETCOLOR;
 			break;
-		case CG_R_DRAWSTRETCHPIC_JK2:
-			return CG_R_DRAWSTRETCHPIC;
+		case cgameJK2Import_t::CG_R_DRAWSTRETCHPIC_JK2:
+			return cgameImport_t::CG_R_DRAWSTRETCHPIC;
 			break;
-		case CG_R_DRAWSCREENSHOT_JK2:
-			return CG_R_DRAWSCREENSHOT;
+		case cgameJK2Import_t::CG_R_DRAWSCREENSHOT_JK2:
+			return cgameImport_t::CG_R_DRAWSCREENSHOT;
 			break;
-		case CG_R_MODELBOUNDS_JK2:
-			return CG_R_MODELBOUNDS;
+		case cgameJK2Import_t::CG_R_MODELBOUNDS_JK2:
+			return cgameImport_t::CG_R_MODELBOUNDS;
 			break;
-		case CG_R_LERPTAG_JK2:
-			return CG_R_LERPTAG;
+		case cgameJK2Import_t::CG_R_LERPTAG_JK2:
+			return cgameImport_t::CG_R_LERPTAG;
 			break;
-		case CG_R_DRAWROTATEPIC_JK2:
-			return CG_R_DRAWROTATEPIC;
+		case cgameJK2Import_t::CG_R_DRAWROTATEPIC_JK2:
+			return cgameImport_t::CG_R_DRAWROTATEPIC;
 			break;
-		case CG_R_DRAWROTATEPIC2_JK2:
-			return CG_R_DRAWROTATEPIC2;
+		case cgameJK2Import_t::CG_R_DRAWROTATEPIC2_JK2:
+			return cgameImport_t::CG_R_DRAWROTATEPIC2;
 			break;
-		case CG_R_LA_GOGGLES_JK2:
-			return CG_R_LA_GOGGLES;
+		case cgameJK2Import_t::CG_R_LA_GOGGLES_JK2:
+			return cgameImport_t::CG_R_LA_GOGGLES;
 			break;
-		case CG_R_SCISSOR_JK2:
-			return CG_R_SCISSOR;
+		case cgameJK2Import_t::CG_R_SCISSOR_JK2:
+			return cgameImport_t::CG_R_SCISSOR;
 			break;
-		case CG_GETGLCONFIG_JK2:
-			return CG_GETGLCONFIG;
+		case cgameJK2Import_t::CG_GETGLCONFIG_JK2:
+			return cgameImport_t::CG_GETGLCONFIG;
 			break;
-		case CG_GETGAMESTATE_JK2:
-			return CG_GETGAMESTATE;
+		case cgameJK2Import_t::CG_GETGAMESTATE_JK2:
+			return cgameImport_t::CG_GETGAMESTATE;
 			break;
-		case CG_GETCURRENTSNAPSHOTNUMBER_JK2:
-			return CG_GETCURRENTSNAPSHOTNUMBER;
+		case cgameJK2Import_t::CG_GETCURRENTSNAPSHOTNUMBER_JK2:
+			return cgameImport_t::CG_GETCURRENTSNAPSHOTNUMBER;
 			break;
-		case CG_GETSNAPSHOT_JK2:
-			return CG_GETSNAPSHOT;
+		case cgameJK2Import_t::CG_GETSNAPSHOT_JK2:
+			return cgameImport_t::CG_GETSNAPSHOT;
 			break;
-		case CG_GETSERVERCOMMAND_JK2:
-			return CG_GETSERVERCOMMAND;
+		case cgameJK2Import_t::CG_GETSERVERCOMMAND_JK2:
+			return cgameImport_t::CG_GETSERVERCOMMAND;
 			break;
-		case CG_GETCURRENTCMDNUMBER_JK2:
-			return CG_GETCURRENTCMDNUMBER;
+		case cgameJK2Import_t::CG_GETCURRENTCMDNUMBER_JK2:
+			return cgameImport_t::CG_GETCURRENTCMDNUMBER;
 			break;
-		case CG_GETUSERCMD_JK2:
-			return CG_GETUSERCMD;
+		case cgameJK2Import_t::CG_GETUSERCMD_JK2:
+			return cgameImport_t::CG_GETUSERCMD;
 			break;
-		case CG_SETUSERCMDVALUE_JK2:
-			return CG_SETUSERCMDVALUE;
+		case cgameJK2Import_t::CG_SETUSERCMDVALUE_JK2:
+			return cgameImport_t::CG_SETUSERCMDVALUE;
 			break;
-		case CG_SETUSERCMDANGLES_JK2:
-			return CG_SETUSERCMDANGLES;
+		case cgameJK2Import_t::CG_SETUSERCMDANGLES_JK2:
+			return cgameImport_t::CG_SETUSERCMDANGLES;
 			break;
-		case CG_S_UPDATEAMBIENTSET_JK2:
-			return CG_S_UPDATEAMBIENTSET;
+		case cgameJK2Import_t::CG_S_UPDATEAMBIENTSET_JK2:
+			return cgameImport_t::CG_S_UPDATEAMBIENTSET;
 			break;
-		case CG_S_ADDLOCALSET_JK2:
-			return CG_S_ADDLOCALSET;
+		case cgameJK2Import_t::CG_S_ADDLOCALSET_JK2:
+			return cgameImport_t::CG_S_ADDLOCALSET;
 			break;
-		case CG_AS_PARSESETS_JK2:
-			return CG_AS_PARSESETS;
+		case cgameJK2Import_t::CG_AS_PARSESETS_JK2:
+			return cgameImport_t::CG_AS_PARSESETS;
 			break;
-		case CG_AS_ADDENTRY_JK2:
-			return CG_AS_ADDENTRY;
+		case cgameJK2Import_t::CG_AS_ADDENTRY_JK2:
+			return cgameImport_t::CG_AS_ADDENTRY;
 			break;
-		case CG_AS_GETBMODELSOUND_JK2:
-			return CG_AS_GETBMODELSOUND;
+		case cgameJK2Import_t::CG_AS_GETBMODELSOUND_JK2:
+			return cgameImport_t::CG_AS_GETBMODELSOUND;
 			break;
-		case CG_S_GETSAMPLELENGTH_JK2:
-			return CG_S_GETSAMPLELENGTH;
+		case cgameJK2Import_t::CG_S_GETSAMPLELENGTH_JK2:
+			return cgameImport_t::CG_S_GETSAMPLELENGTH;
 			break;
-		case COM_SETORGANGLES_JK2:
-			return COM_SETORGANGLES;
+		case cgameJK2Import_t::COM_SETORGANGLES_JK2:
+			return cgameImport_t::COM_SETORGANGLES;
 			break;
 /*
 Ghoul2 Insert Start
 */
-		case CG_G2_LISTBONES_JK2:
-			return CG_G2_LISTBONES;
+		case cgameJK2Import_t::CG_G2_LISTBONES_JK2:
+			return cgameImport_t::CG_G2_LISTBONES;
 			break;
-		case CG_G2_LISTSURFACES_JK2:
-			return CG_G2_LISTSURFACES;
+		case cgameJK2Import_t::CG_G2_LISTSURFACES_JK2:
+			return cgameImport_t::CG_G2_LISTSURFACES;
 			break;
-		case CG_G2_HAVEWEGHOULMODELS_JK2:
-			return CG_G2_HAVEWEGHOULMODELS;
+		case cgameJK2Import_t::CG_G2_HAVEWEGHOULMODELS_JK2:
+			return cgameImport_t::CG_G2_HAVEWEGHOULMODELS;
 			break;
-		case CG_G2_SETMODELS_JK2:
-			return CG_G2_SETMODELS;
+		case cgameJK2Import_t::CG_G2_SETMODELS_JK2:
+			return cgameImport_t::CG_G2_SETMODELS;
 			break;
 /*
 Ghoul2 Insert End
 */
 
-		case CG_R_GET_LIGHT_STYLE_JK2:
-			return CG_R_GET_LIGHT_STYLE;
+		case cgameJK2Import_t::CG_R_GET_LIGHT_STYLE_JK2:
+			return cgameImport_t::CG_R_GET_LIGHT_STYLE;
 			break;
-		case CG_R_SET_LIGHT_STYLE_JK2:
-			return CG_R_SET_LIGHT_STYLE;
+		case cgameJK2Import_t::CG_R_SET_LIGHT_STYLE_JK2:
+			return cgameImport_t::CG_R_SET_LIGHT_STYLE;
 			break;
-		case CG_R_GET_BMODEL_VERTS_JK2:
-			return CG_R_GET_BMODEL_VERTS;
+		case cgameJK2Import_t::CG_R_GET_BMODEL_VERTS_JK2:
+			return cgameImport_t::CG_R_GET_BMODEL_VERTS;
 			break;
-		case CG_R_WORLD_EFFECT_COMMAND_JK2:
-			return CG_R_WORLD_EFFECT_COMMAND;
+		case cgameJK2Import_t::CG_R_WORLD_EFFECT_COMMAND_JK2:
+			return cgameImport_t::CG_R_WORLD_EFFECT_COMMAND;
 			break;
 
-		case CG_CIN_PLAYCINEMATIC_JK2:
-			return CG_CIN_PLAYCINEMATIC;
+		case cgameJK2Import_t::CG_CIN_PLAYCINEMATIC_JK2:
+			return cgameImport_t::CG_CIN_PLAYCINEMATIC;
 			break;
-		case CG_CIN_STOPCINEMATIC_JK2:
-			return CG_CIN_STOPCINEMATIC;
+		case cgameJK2Import_t::CG_CIN_STOPCINEMATIC_JK2:
+			return cgameImport_t::CG_CIN_STOPCINEMATIC;
 			break;
-		case CG_CIN_RUNCINEMATIC_JK2:
-			return CG_CIN_RUNCINEMATIC;
+		case cgameJK2Import_t::CG_CIN_RUNCINEMATIC_JK2:
+			return cgameImport_t::CG_CIN_RUNCINEMATIC;
 			break;
-		case CG_CIN_DRAWCINEMATIC_JK2:
-			return CG_CIN_DRAWCINEMATIC;
+		case cgameJK2Import_t::CG_CIN_DRAWCINEMATIC_JK2:
+			return cgameImport_t::CG_CIN_DRAWCINEMATIC;
 			break;
-		case CG_CIN_SETEXTENTS_JK2:
-			return CG_CIN_SETEXTENTS;
+		case cgameJK2Import_t::CG_CIN_SETEXTENTS_JK2:
+			return cgameImport_t::CG_CIN_SETEXTENTS;
 			break;
-		case CG_Z_MALLOC_JK2:
-			return CG_Z_MALLOC;
+		case cgameJK2Import_t::CG_Z_MALLOC_JK2:
+			return cgameImport_t::CG_Z_MALLOC;
 			break;
-		case CG_Z_FREE_JK2:
-			return CG_Z_FREE;
+		case cgameJK2Import_t::CG_Z_FREE_JK2:
+			return cgameImport_t::CG_Z_FREE;
 			break;
-		case CG_UI_MENU_RESET_JK2:
-			return CG_UI_MENU_RESET;
+		case cgameJK2Import_t::CG_UI_MENU_RESET_JK2:
+			return cgameImport_t::CG_UI_MENU_RESET;
 			break;
-		case CG_UI_MENU_NEW_JK2:
-			return CG_UI_MENU_NEW;
+		case cgameJK2Import_t::CG_UI_MENU_NEW_JK2:
+			return cgameImport_t::CG_UI_MENU_NEW;
 			break;
-		case CG_UI_PARSE_INT_JK2:
-			return CG_UI_PARSE_INT;
+		case cgameJK2Import_t::CG_UI_PARSE_INT_JK2:
+			return cgameImport_t::CG_UI_PARSE_INT;
 			break;
-		case CG_UI_PARSE_STRING_JK2:
-			return CG_UI_PARSE_STRING;
+		case cgameJK2Import_t::CG_UI_PARSE_STRING_JK2:
+			return cgameImport_t::CG_UI_PARSE_STRING;
 			break;
-		case CG_UI_PARSE_FLOAT_JK2:
-			return CG_UI_PARSE_FLOAT;
+		case cgameJK2Import_t::CG_UI_PARSE_FLOAT_JK2:
+			return cgameImport_t::CG_UI_PARSE_FLOAT;
 			break;
-		case CG_UI_STARTPARSESESSION_JK2:
-			return CG_UI_STARTPARSESESSION;
+		case cgameJK2Import_t::CG_UI_STARTPARSESESSION_JK2:
+			return cgameImport_t::CG_UI_STARTPARSESESSION;
 			break;
-		case CG_UI_ENDPARSESESSION_JK2:
-			return CG_UI_ENDPARSESESSION;
+		case cgameJK2Import_t::CG_UI_ENDPARSESESSION_JK2:
+			return cgameImport_t::CG_UI_ENDPARSESESSION;
 			break;
-		case CG_UI_PARSEEXT_JK2:
-			return CG_UI_PARSEEXT;
+		case cgameJK2Import_t::CG_UI_PARSEEXT_JK2:
+			return cgameImport_t::CG_UI_PARSEEXT;
 			break;
-		case CG_UI_MENUPAINT_ALL_JK2:
-			return CG_UI_MENUPAINT_ALL;
+		case cgameJK2Import_t::CG_UI_MENUPAINT_ALL_JK2:
+			return cgameImport_t::CG_UI_MENUPAINT_ALL;
 			break;
-		case CG_UI_STRING_INIT_JK2:
-			return CG_UI_STRING_INIT;
+		case cgameJK2Import_t::CG_UI_STRING_INIT_JK2:
+			return cgameImport_t::CG_UI_STRING_INIT;
 			break;
-		case CG_UI_GETMENUINFO_JK2:
-			return CG_UI_GETMENUINFO;
+		case cgameJK2Import_t::CG_UI_GETMENUINFO_JK2:
+			return cgameImport_t::CG_UI_GETMENUINFO;
 			break;
-		case CG_SP_REGISTER_JK2:
-			return CG_SP_REGISTER;
+		case cgameJK2Import_t::CG_SP_REGISTER_JK2:
+			return cgameImport_t::CG_SP_REGISTER;
 			break;
-		case CG_SP_GETSTRINGTEXT_JK2:
-			return CG_SP_GETSTRINGTEXT;
+		case cgameJK2Import_t::CG_SP_GETSTRINGTEXT_JK2:
+			return cgameImport_t::CG_SP_GETSTRINGTEXT;
 			break;
-		case CG_SP_GETSTRINGTEXTSTRING_JK2:
+		case cgameJK2Import_t::CG_SP_GETSTRINGTEXTSTRING_JK2:
 			// Both of these do the same thing --eez
-			return CG_SP_GETSTRINGTEXTSTRING;
+			return cgameImport_t::CG_SP_GETSTRINGTEXTSTRING;
 			break;
-		case CG_UI_GETITEMTEXT_JK2:
-			return CG_UI_GETITEMTEXT;
+		case cgameJK2Import_t::CG_UI_GETITEMTEXT_JK2:
+			return cgameImport_t::CG_UI_GETITEMTEXT;
 			break;
-		case CG_ANYLANGUAGE_READFROMSTRING2_JK2:
-			return CG_ANYLANGUAGE_READFROMSTRING2;
+		case cgameJK2Import_t::CG_ANYLANGUAGE_READFROMSTRING2_JK2:
+			return cgameImport_t::CG_ANYLANGUAGE_READFROMSTRING2;
 			break;
-		case CG_MODERNJK_MENU_PAINT_JK2:
-			return CG_MODERNJK_MENU_PAINT;
+		case cgameJK2Import_t::CG_MODERNJK_MENU_PAINT_JK2:
+			return cgameImport_t::CG_MODERNJK_MENU_PAINT;
 			break;
-		case CG_MODERNJK_GETMENU_BYNAME_JK2:
-			return CG_MODERNJK_GETMENU_BYNAME;
+		case cgameJK2Import_t::CG_MODERNJK_GETMENU_BYNAME_JK2:
+			return cgameImport_t::CG_MODERNJK_GETMENU_BYNAME;
 			break;
 	}
 	return std::nullopt;
@@ -811,98 +811,98 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 #ifdef JK2_MODE
 	const std::optional<cgameImport_t> call = CL_ConvertJK2SysCall( static_cast<cgameJK2Import_t>( args[0] ) );
 	if ( !call ) {
-		Com_Error( ERR_DROP, "Bad cgame system trap: %ld", (long int) args[0] );
+		Com_Error( errorParm_t::ERR_DROP, "Bad cgame system trap: %ld", (long int) args[0] );
 	}
 	args[0] = to_underlying( *call );
 #endif
 	switch( static_cast<cgameImport_t>( args[0] ) ) {
-	case CG_PRINT:
+	case cgameImport_t::CG_PRINT:
 		Com_Printf( "%s", (const char *)VMA(1) );
 		return 0;
-	case CG_ERROR:
-		Com_Error( ERR_DROP, S_COLOR_RED"%s", (const char *)VMA(1) );
+	case cgameImport_t::CG_ERROR:
+		Com_Error( errorParm_t::ERR_DROP, S_COLOR_RED"%s", (const char *)VMA(1) );
 		return 0;
-	case CG_MILLISECONDS:
+	case cgameImport_t::CG_MILLISECONDS:
 		return Sys_Milliseconds();
-	case CG_CVAR_REGISTER:
+	case cgameImport_t::CG_CVAR_REGISTER:
 		Cvar_Register( (vmCvar_t *) VMA(1), (const char *) VMA(2), (const char *) VMA(3), static_cast<cvarFlags_t>( args[4] ) );
 		return 0;
-	case CG_CVAR_UPDATE:
+	case cgameImport_t::CG_CVAR_UPDATE:
 		Cvar_Update( (vmCvar_t *) VMA(1) );
 		return 0;
-	case CG_CVAR_SET:
+	case cgameImport_t::CG_CVAR_SET:
 		Cvar_Set( (const char *) VMA(1), (const char *) VMA(2) );
 		return 0;
-	case CG_ARGC:
+	case cgameImport_t::CG_ARGC:
 		return Cmd_Argc();
-	case CG_ARGV:
+	case cgameImport_t::CG_ARGV:
 		Cmd_ArgvBuffer( args[1], (char *) VMA(2), args[3] );
 		return 0;
-	case CG_ARGS:
+	case cgameImport_t::CG_ARGS:
 		Cmd_ArgsBuffer( (char *) VMA(1), args[2] );
 		return 0;
-	case CG_FS_FOPENFILE:
+	case cgameImport_t::CG_FS_FOPENFILE:
 		return FS_FOpenFileByMode( (const char *) VMA(1), (int *) VMA(2), (fsMode_t) args[3] );
-	case CG_FS_READ:
+	case cgameImport_t::CG_FS_READ:
 		FS_Read( VMA(1), args[2], args[3] );
 		return 0;
-	case CG_FS_WRITE:
+	case cgameImport_t::CG_FS_WRITE:
 		FS_Write( VMA(1), args[2], args[3] );
 		return 0;
-	case CG_FS_FCLOSEFILE:
+	case cgameImport_t::CG_FS_FCLOSEFILE:
 		FS_FCloseFile( args[1] );
 		return 0;
-	case CG_SENDCONSOLECOMMAND:
+	case cgameImport_t::CG_SENDCONSOLECOMMAND:
 		Cbuf_AddText( (const char *) VMA(1) );
 		return 0;
-	case CG_ADDCOMMAND:
+	case cgameImport_t::CG_ADDCOMMAND:
 		CL_AddCgameCommand( (const char *) VMA(1) );
 		return 0;
-	case CG_SENDCLIENTCOMMAND:
+	case cgameImport_t::CG_SENDCLIENTCOMMAND:
 		CL_AddReliableCommand( (const char *) VMA(1) );
 		return 0;
-	case CG_UPDATESCREEN:
+	case cgameImport_t::CG_UPDATESCREEN:
 		// this is used during lengthy level loading, so pump message loop
 		Com_EventLoop();	// FIXME: if a server restarts here, BAD THINGS HAPPEN!
 		SCR_UpdateScreen();
 		return 0;
-	case CG_RMG_INIT:
+	case cgameImport_t::CG_RMG_INIT:
 		return 0;
-	case CG_CM_REGISTER_TERRAIN:
-		return 0;
-
-	case CG_RE_INIT_RENDERER_TERRAIN:
+	case cgameImport_t::CG_CM_REGISTER_TERRAIN:
 		return 0;
 
-	case CG_CM_LOADMAP:
+	case cgameImport_t::CG_RE_INIT_RENDERER_TERRAIN:
+		return 0;
+
+	case cgameImport_t::CG_CM_LOADMAP:
 		CL_CM_LoadMap( (const char *) VMA(1), (args[2] != 0) );
 		return 0;
-	case CG_CM_NUMINLINEMODELS:
+	case cgameImport_t::CG_CM_NUMINLINEMODELS:
 		return CM_NumInlineModels();
-	case CG_CM_INLINEMODEL:
+	case cgameImport_t::CG_CM_INLINEMODEL:
 		return CM_InlineModel( args[1] );
-	case CG_CM_TEMPBOXMODEL:
+	case cgameImport_t::CG_CM_TEMPBOXMODEL:
 		return CM_TempBoxModel( (const float *) VMA(1), (const float *) VMA(2) );//, (int) VMA(3) );
-	case CG_CM_POINTCONTENTS:
+	case cgameImport_t::CG_CM_POINTCONTENTS:
 		return to_underlying( CM_PointContents( (float *)VMA(1), args[2] ) );
-	case CG_CM_TRANSFORMEDPOINTCONTENTS:
+	case cgameImport_t::CG_CM_TRANSFORMEDPOINTCONTENTS:
 		return to_underlying( CM_TransformedPointContents( (const float *) VMA(1), args[2], (const float *) VMA(3), (const float *) VMA(4) ) );
-	case CG_CM_BOXTRACE:
+	case cgameImport_t::CG_CM_BOXTRACE:
 		CM_BoxTrace( (trace_t *) VMA(1), (const float *) VMA(2), (const float *) VMA(3), (const float *) VMA(4), (const float *) VMA(5), args[6], static_cast<contentsFlags_t>( args[7] ) );
 		return 0;
-	case CG_CM_TRANSFORMEDBOXTRACE:
+	case cgameImport_t::CG_CM_TRANSFORMEDBOXTRACE:
 		CM_TransformedBoxTrace( (trace_t *) VMA(1), (const float *) VMA(2), (const float *) VMA(3), (const float *) VMA(4), (const float *) VMA(5), args[6], static_cast<contentsFlags_t>( args[7] ), (const float *) VMA(8), (const float *) VMA(9) );
 		return 0;
-	case CG_CM_MARKFRAGMENTS:
+	case cgameImport_t::CG_CM_MARKFRAGMENTS:
 		return re.MarkFragments( args[1], (float(*)[3]) VMA(2), (const float *) VMA(3), args[4], (float *) VMA(5), args[6], (markFragment_t *) VMA(7) );
-	case CG_CM_SNAPPVS:
+	case cgameImport_t::CG_CM_SNAPPVS:
 		CM_SnapPVS((float(*))VMA(1),(byte *) VMA(2));
 		return 0;
-	case CG_S_STOPSOUNDS:
+	case cgameImport_t::CG_S_STOPSOUNDS:
 		S_StopSounds( );
 		return 0;
 
-	case CG_S_STARTSOUND:
+	case cgameImport_t::CG_S_STARTSOUND:
 		// stops an ERR_DROP internally if called illegally from game side, but note that it also gets here
 		//	legally during level start where normally the internal s_soundStarted check would return. So ok to hit this.
 		if (!cls.cgameStarted) {
@@ -910,7 +910,7 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 		}
 		S_StartSound( (float *) VMA(1), args[2], (soundChannel_t)args[3], args[4] );
 		return 0;
-	case CG_S_UPDATEAMBIENTSET:
+	case cgameImport_t::CG_S_UPDATEAMBIENTSET:
 		// stops an ERR_DROP internally if called illegally from game side, but note that it also gets here
 		//	legally during level start where normally the internal s_soundStarted check would return. So ok to hit this.
 		if (!cls.cgameStarted) {
@@ -918,17 +918,17 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 		}
 		S_UpdateAmbientSet( (const char *) VMA(1), (float *) VMA(2) );
 		return 0;
-	case CG_S_ADDLOCALSET:
+	case cgameImport_t::CG_S_ADDLOCALSET:
 		return S_AddLocalSet( (const char *) VMA(1), (float *) VMA(2), (float *) VMA(3), args[4], args[5] );
-	case CG_AS_PARSESETS:
+	case cgameImport_t::CG_AS_PARSESETS:
 		AS_ParseSets();
 		return 0;
-	case CG_AS_ADDENTRY:
+	case cgameImport_t::CG_AS_ADDENTRY:
 		AS_AddPrecacheEntry( (const char *) VMA(1) );
 		return 0;
-	case CG_AS_GETBMODELSOUND:
+	case cgameImport_t::CG_AS_GETBMODELSOUND:
 		return AS_GetBModelSound( (const char *) VMA(1), args[2] );
-	case CG_S_STARTLOCALSOUND:
+	case cgameImport_t::CG_S_STARTLOCALSOUND:
 		// stops an ERR_DROP internally if called illegally from game side, but note that it also gets here
 		//	legally during level start where normally the internal s_soundStarted check would return. So ok to hit this.
 		if (!cls.cgameStarted) {
@@ -936,10 +936,10 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 		}
 		S_StartLocalSound( args[1], static_cast<soundChannel_t>( args[2] ) );
 		return 0;
-	case CG_S_CLEARLOOPINGSOUNDS:
+	case cgameImport_t::CG_S_CLEARLOOPINGSOUNDS:
 		S_ClearLoopingSounds();
 		return 0;
-	case CG_S_ADDLOOPINGSOUND:
+	case cgameImport_t::CG_S_ADDLOOPINGSOUND:
 		// stops an ERR_DROP internally if called illegally from game side, but note that it also gets here
 		//	legally during level start where normally the internal s_soundStarted check would return. So ok to hit this.
 		if (!cls.cgameStarted) {
@@ -947,153 +947,153 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 		}
 		S_AddLoopingSound( args[1], (const float *) VMA(2), (const float *) VMA(3), args[4], (soundChannel_t)args[5] );
 		return 0;
-	case CG_S_UPDATEENTITYPOSITION:
+	case cgameImport_t::CG_S_UPDATEENTITYPOSITION:
 		S_UpdateEntityPosition( args[1], (const float *) VMA(2) );
 		return 0;
-	case CG_S_RESPATIALIZE:
+	case cgameImport_t::CG_S_RESPATIALIZE:
 		S_Respatialize( args[1], (const float *) VMA(2), (float(*)[3]) VMA(3), (args[4] != 0) );
 		return 0;
-	case CG_S_REGISTERSOUND:
+	case cgameImport_t::CG_S_REGISTERSOUND:
 		return S_RegisterSound( (const char *) VMA(1) );
-	case CG_S_STARTBACKGROUNDTRACK:
+	case cgameImport_t::CG_S_STARTBACKGROUNDTRACK:
 		S_StartBackgroundTrack( (const char *) VMA(1), (const char *) VMA(2), (args[3] != 0) );
 		return 0;
-	case CG_S_GETSAMPLELENGTH:
+	case cgameImport_t::CG_S_GETSAMPLELENGTH:
 		return S_GetSampleLengthInMilliSeconds(  args[1]);
-	case CG_R_LOADWORLDMAP:
+	case cgameImport_t::CG_R_LOADWORLDMAP:
 		re.LoadWorld( (const char *) VMA(1) );
 		return 0;
-	case CG_R_REGISTERMODEL:
+	case cgameImport_t::CG_R_REGISTERMODEL:
 		return re.RegisterModel( (const char *) VMA(1) );
-	case CG_R_REGISTERSKIN:
+	case cgameImport_t::CG_R_REGISTERSKIN:
 		return re.RegisterSkin( (const char *) VMA(1) );
-	case CG_R_REGISTERSHADER:
+	case cgameImport_t::CG_R_REGISTERSHADER:
 		return re.RegisterShader( (const char *) VMA(1) );
-	case CG_R_REGISTERSHADERNOMIP:
+	case cgameImport_t::CG_R_REGISTERSHADERNOMIP:
 		return re.RegisterShaderNoMip( (const char *) VMA(1) );
-	case CG_R_REGISTERFONT:
+	case cgameImport_t::CG_R_REGISTERFONT:
 		return re.RegisterFont( (const char *) VMA(1) );
-	case CG_R_FONTSTRLENPIXELS:
+	case cgameImport_t::CG_R_FONTSTRLENPIXELS:
 		return re.Font_StrLenPixels( (const char *) VMA(1), args[2], VMF(3) );
-	case CG_R_FONTSTRLENCHARS:
+	case cgameImport_t::CG_R_FONTSTRLENCHARS:
 		return re.Font_StrLenChars( (const char *) VMA(1) );
-	case CG_R_FONTHEIGHTPIXELS:
+	case cgameImport_t::CG_R_FONTHEIGHTPIXELS:
 		return re.Font_HeightPixels( args[1], VMF(2) );
-	case CG_R_FONTDRAWSTRING:
+	case cgameImport_t::CG_R_FONTDRAWSTRING:
 		re.Font_DrawString(args[1],args[2], (const char *) VMA(3), (float*)args[4], args[5], args[6], VMF(7));
 		return 0;
-	case CG_LANGUAGE_ISASIAN:
+	case cgameImport_t::CG_LANGUAGE_ISASIAN:
 		return re.Language_IsAsian();
-	case CG_LANGUAGE_USESSPACES:
+	case cgameImport_t::CG_LANGUAGE_USESSPACES:
 		return re.Language_UsesSpaces();
-	case CG_ANYLANGUAGE_READFROMSTRING:
+	case cgameImport_t::CG_ANYLANGUAGE_READFROMSTRING:
 		return re.AnyLanguage_ReadCharFromString( (char *) VMA(1), (int *) VMA(2), (bool *) VMA(3) );
-	case CG_ANYLANGUAGE_READFROMSTRING2:
+	case cgameImport_t::CG_ANYLANGUAGE_READFROMSTRING2:
 		return re.AnyLanguage_ReadCharFromString2( (char **) VMA(1), (bool *) VMA(3) );
-	case CG_R_SETREFRACTIONPROP:
+	case cgameImport_t::CG_R_SETREFRACTIONPROP:
 		*(re.tr_distortionAlpha()) = VMF(1);
 		*(re.tr_distortionStretch()) = VMF(2);
 		*(re.tr_distortionPrePost()) = args[3];
 		*(re.tr_distortionNegate()) = args[4];
 		return 0;
-	case CG_R_CLEARSCENE:
+	case cgameImport_t::CG_R_CLEARSCENE:
 		re.ClearScene();
 		return 0;
-	case CG_R_ADDREFENTITYTOSCENE:
+	case cgameImport_t::CG_R_ADDREFENTITYTOSCENE:
 		re.AddRefEntityToScene( (const refEntity_t *) VMA(1) );
 		return 0;
 
-	case CG_R_INPVS:
+	case cgameImport_t::CG_R_INPVS:
 		return re.R_inPVS((float *) VMA(1), (float *) VMA(2));
 
-	case CG_R_GETLIGHTING:
+	case cgameImport_t::CG_R_GETLIGHTING:
 		return re.GetLighting( (const float * ) VMA(1), (float *) VMA(2), (float *) VMA(3), (float *) VMA(4) );
-	case CG_R_ADDPOLYTOSCENE:
+	case cgameImport_t::CG_R_ADDPOLYTOSCENE:
 		re.AddPolyToScene( args[1], args[2], (const polyVert_t *) VMA(3) );
 		return 0;
-	case CG_R_ADDLIGHTTOSCENE:
+	case cgameImport_t::CG_R_ADDLIGHTTOSCENE:
 		re.AddLightToScene( (const float *) VMA(1), VMF(2), VMF(3), VMF(4), VMF(5) );
 		return 0;
-	case CG_R_RENDERSCENE:
+	case cgameImport_t::CG_R_RENDERSCENE:
 		re.RenderScene( (const refdef_t *) VMA(1) );
 		return 0;
-	case CG_R_SETCOLOR:
+	case cgameImport_t::CG_R_SETCOLOR:
 		re.SetColor( (const float *) VMA(1) );
 		return 0;
-	case CG_R_DRAWSTRETCHPIC:
+	case cgameImport_t::CG_R_DRAWSTRETCHPIC:
 		re.DrawStretchPic( VMF(1), VMF(2), VMF(3), VMF(4), VMF(5), VMF(6), VMF(7), VMF(8), args[9] );
 		return 0;
 		// The below was commented out for whatever reason... /me shrugs --eez
-	case CG_R_DRAWSCREENSHOT:
+	case cgameImport_t::CG_R_DRAWSCREENSHOT:
 		re.DrawStretchRaw( VMF(1), VMF(2), VMF(3), VMF(4), SG_SCR_WIDTH, SG_SCR_HEIGHT, SCR_GetScreenshot(nullptr), 0, true);
 		return 0;
-	case CG_R_MODELBOUNDS:
+	case cgameImport_t::CG_R_MODELBOUNDS:
 		re.ModelBounds( args[1], (float *) VMA(2), (float *) VMA(3) );
 		return 0;
-	case CG_R_LERPTAG:
+	case cgameImport_t::CG_R_LERPTAG:
 		re.LerpTag( (orientation_t *) VMA(1), args[2], args[3], args[4], VMF(5), (const char *) VMA(6) );
 		return 0;
-	case CG_R_DRAWROTATEPIC:
+	case cgameImport_t::CG_R_DRAWROTATEPIC:
 		re.DrawRotatePic( VMF(1), VMF(2), VMF(3), VMF(4), VMF(5), VMF(6), VMF(7), VMF(8), VMF(9), args[10] );
 		return 0;
-	case CG_R_DRAWROTATEPIC2:
+	case cgameImport_t::CG_R_DRAWROTATEPIC2:
 		re.DrawRotatePic2( VMF(1), VMF(2), VMF(3), VMF(4), VMF(5), VMF(6), VMF(7), VMF(8), VMF(9), args[10] );
 		return 0;
-	case CG_R_SETRANGEFOG:
+	case cgameImport_t::CG_R_SETRANGEFOG:
 		re.SetRangedFog( VMF( 1 ) );
 		return 0;
-	case CG_R_LA_GOGGLES:
+	case cgameImport_t::CG_R_LA_GOGGLES:
 		re.LAGoggles();
 		return 0;
-	case CG_R_SCISSOR:
+	case cgameImport_t::CG_R_SCISSOR:
 		re.Scissor( VMF(1), VMF(2), VMF(3), VMF(4));
 		return 0;
-	case CG_GETGLCONFIG:
+	case cgameImport_t::CG_GETGLCONFIG:
 		CL_GetGlconfig( (glconfig_t *) VMA(1) );
 		return 0;
-	case CG_GETGAMESTATE:
+	case cgameImport_t::CG_GETGAMESTATE:
 		CL_GetGameState( (gameState_t *) VMA(1) );
 		return 0;
-	case CG_GETCURRENTSNAPSHOTNUMBER:
+	case cgameImport_t::CG_GETCURRENTSNAPSHOTNUMBER:
 		CL_GetCurrentSnapshotNumber( (int *) VMA(1), (int *) VMA(2) );
 		return 0;
-	case CG_GETSNAPSHOT:
+	case cgameImport_t::CG_GETSNAPSHOT:
 		return CL_GetSnapshot( args[1], (snapshot_t *) VMA(2) );
 
-	case CG_GETDEFAULTSTATE:
+	case cgameImport_t::CG_GETDEFAULTSTATE:
 		return CL_GetDefaultState(args[1], (entityState_t *)VMA(2));
 
-	case CG_GETSERVERCOMMAND:
+	case cgameImport_t::CG_GETSERVERCOMMAND:
 		return CL_GetServerCommand( args[1] );
-	case CG_GETCURRENTCMDNUMBER:
+	case cgameImport_t::CG_GETCURRENTCMDNUMBER:
 		return CL_GetCurrentCmdNumber();
-	case CG_GETUSERCMD:
+	case cgameImport_t::CG_GETUSERCMD:
 		return CL_GetUserCmd( args[1], (usercmd_s *) VMA(2) );
-	case CG_SETUSERCMDVALUE:
+	case cgameImport_t::CG_SETUSERCMDVALUE:
 		CL_SetUserCmdValue( args[1], VMF(2), VMF(3), VMF(4) );
 		return 0;
-	case CG_SETUSERCMDANGLES:
+	case cgameImport_t::CG_SETUSERCMDANGLES:
 		CL_SetUserCmdAngles( VMF(1), VMF(2), VMF(3) );
 		return 0;
-	case COM_SETORGANGLES:
+	case cgameImport_t::COM_SETORGANGLES:
 		Com_SetOrgAngles((float *)VMA(1),(float *)VMA(2));
 		return 0;
 /*
 Ghoul2 Insert Start
 */
 
-	case CG_G2_LISTSURFACES:
+	case cgameImport_t::CG_G2_LISTSURFACES:
 		re.G2API_ListSurfaces( (CGhoul2Info *) VMA(1) );
 		return 0;
 
-	case CG_G2_LISTBONES:
+	case cgameImport_t::CG_G2_LISTBONES:
 		re.G2API_ListBones( (CGhoul2Info *) VMA(1), args[2]);
 		return 0;
 
-	case CG_G2_HAVEWEGHOULMODELS:
+	case cgameImport_t::CG_G2_HAVEWEGHOULMODELS:
 		return re.G2API_HaveWeGhoul2Models( *((CGhoul2Info_v *)VMA(1)) );
 
-	case CG_G2_SETMODELS:
+	case cgameImport_t::CG_G2_SETMODELS:
 		re.G2API_SetGhoul2ModelIndexes( *((CGhoul2Info_v *)VMA(1)),(qhandle_t *)VMA(2),(qhandle_t *)VMA(3));
 		return 0;
 
@@ -1101,113 +1101,113 @@ Ghoul2 Insert Start
 Ghoul2 Insert End
 */
 
-	case CG_R_GET_LIGHT_STYLE:
+	case cgameImport_t::CG_R_GET_LIGHT_STYLE:
 		re.GetLightStyle(args[1], (byte*) VMA(2) );
 		return 0;
-	case CG_R_SET_LIGHT_STYLE:
+	case cgameImport_t::CG_R_SET_LIGHT_STYLE:
 		re.SetLightStyle(args[1], args[2] );
 		return 0;
 
-	case CG_R_GET_BMODEL_VERTS:
+	case cgameImport_t::CG_R_GET_BMODEL_VERTS:
 		re.GetBModelVerts( args[1], (float (*)[3])VMA(2), (float *)VMA(3) );
 		return 0;
 
-	case CG_R_WORLD_EFFECT_COMMAND:
+	case cgameImport_t::CG_R_WORLD_EFFECT_COMMAND:
 		re.WorldEffectCommand( (const char *) VMA(1) );
 		return 0;
 
-	case CG_CIN_PLAYCINEMATIC:
+	case cgameImport_t::CG_CIN_PLAYCINEMATIC:
 	  return CIN_PlayCinematic( (const char *) VMA(1), args[2], args[3], args[4], args[5], static_cast<cinematicFlags_t>( args[6] ), (const char *) VMA(7));
 
-	case CG_CIN_STOPCINEMATIC:
+	case cgameImport_t::CG_CIN_STOPCINEMATIC:
 	  return to_underlying( CIN_StopCinematic(args[1]) );
 
-	case CG_CIN_RUNCINEMATIC:
+	case cgameImport_t::CG_CIN_RUNCINEMATIC:
 	  return to_underlying( CIN_RunCinematic(args[1]) );
 
-	case CG_CIN_DRAWCINEMATIC:
+	case cgameImport_t::CG_CIN_DRAWCINEMATIC:
 	  CIN_DrawCinematic(args[1]);
 	  return 0;
 
-	case CG_CIN_SETEXTENTS:
+	case cgameImport_t::CG_CIN_SETEXTENTS:
 	  CIN_SetExtents(args[1], args[2], args[3], args[4], args[5]);
 	  return 0;
 
-	case CG_Z_MALLOC:
+	case cgameImport_t::CG_Z_MALLOC:
 		return (intptr_t)Z_Malloc(args[1], (memtag_t) args[2], false);
 
-	case CG_Z_FREE:
+	case cgameImport_t::CG_Z_FREE:
 		Z_Free((void *) VMA(1));
 		return 0;
 
-	case CG_UI_SETACTIVE_MENU:
+	case cgameImport_t::CG_UI_SETACTIVE_MENU:
 		UI_SetActiveMenu((const char *) VMA(1),nullptr);
 		return 0;
 
-	case CG_UI_MENU_OPENBYNAME:
+	case cgameImport_t::CG_UI_MENU_OPENBYNAME:
 		Menus_OpenByName((const char *) VMA(1));
 		return 0;
 
-	case CG_UI_MENU_RESET:
+	case cgameImport_t::CG_UI_MENU_RESET:
 		Menu_Reset();
 		return 0;
 
-	case CG_UI_MENU_NEW:
+	case cgameImport_t::CG_UI_MENU_NEW:
 		Menu_New((char *) VMA(1));
 		return 0;
 
-	case CG_UI_PARSE_INT:
+	case cgameImport_t::CG_UI_PARSE_INT:
 		PC_ParseInt((int *) VMA(1));
 		return 0;
 
-	case CG_UI_PARSE_STRING:
+	case cgameImport_t::CG_UI_PARSE_STRING:
 		PC_ParseString((const char **) VMA(1));
 		return 0;
 
-	case CG_UI_PARSE_FLOAT:
+	case cgameImport_t::CG_UI_PARSE_FLOAT:
 		PC_ParseFloat((float *) VMA(1));
 		return 0;
 
-	case CG_UI_STARTPARSESESSION:
+	case cgameImport_t::CG_UI_STARTPARSESESSION:
 		return(PC_StartParseSession((char *) VMA(1),(char **) VMA(2)));
 
-	case CG_UI_ENDPARSESESSION:
+	case cgameImport_t::CG_UI_ENDPARSESESSION:
 		PC_EndParseSession((char *) VMA(1));
 		return 0;
 
-	case CG_UI_PARSEEXT:
+	case cgameImport_t::CG_UI_PARSEEXT:
 		char **holdPtr;
 
 		holdPtr = (char **) VMA(1);
 
 		if(!holdPtr)
 		{
-			Com_Error(ERR_FATAL, "CG_UI_PARSEEXT: NULL holdPtr");
+			Com_Error(errorParm_t::ERR_FATAL, "CG_UI_PARSEEXT: NULL holdPtr");
 		}
 
 		*holdPtr = PC_ParseExt();
 		return 0;
 
-	case CG_UI_MENUCLOSE_ALL:
+	case cgameImport_t::CG_UI_MENUCLOSE_ALL:
 		Menus_CloseAll();
 		return 0;
 
-	case CG_UI_MENUPAINT_ALL:
+	case cgameImport_t::CG_UI_MENUPAINT_ALL:
 		Menu_PaintAll();
 		return 0;
 
-	case CG_MODERNJK_MENU_PAINT:
+	case cgameImport_t::CG_MODERNJK_MENU_PAINT:
 		Menu_Paint( (menuDef_t *)VMA(1), (args[2] != 0) );
 		return 0;
 
-	case CG_MODERNJK_GETMENU_BYNAME:
+	case cgameImport_t::CG_MODERNJK_GETMENU_BYNAME:
 		return (intptr_t)Menus_FindByName( (const char *)VMA(1) );
 
-	case CG_UI_STRING_INIT:
+	case cgameImport_t::CG_UI_STRING_INIT:
 		String_Init();
 		return 0;
 
-	case CG_UI_GETMENUINFO:
+	case cgameImport_t::CG_UI_GETMENUINFO:
 		menuDef_t *menu;
 		int		*xPos,*yPos,*w,*h,result;
 #ifndef JK2_MODE
@@ -1249,7 +1249,7 @@ Ghoul2 Insert End
 #endif
 		break;
 
-	case CG_UI_GETITEMTEXT:
+	case cgameImport_t::CG_UI_GETITEMTEXT:
 		itemDef_t *item;
 		menu = Menus_FindByName((char *) VMA(1));	// Get menu
 
@@ -1273,7 +1273,7 @@ Ghoul2 Insert End
 
 		return result;
 
-	case CG_UI_GETITEMINFO:
+	case cgameImport_t::CG_UI_GETITEMINFO:
 		menu = Menus_FindByName((char *) VMA(1));	// Get menu
 
 		if (menu)
@@ -1326,14 +1326,14 @@ Ghoul2 Insert End
 		return result;
 
 #ifdef JK2_MODE
-	case CG_SP_GETSTRINGTEXTSTRING:
-	case CG_SP_GETSTRINGTEXT:
+	case cgameImport_t::CG_SP_GETSTRINGTEXTSTRING:
+	case cgameImport_t::CG_SP_GETSTRINGTEXT:
 		const char* text;
 
 		assert(VMA(1));
 //		assert(VMA(2));	// can now pass in nullptr to just query the size
 
-		if (static_cast<cgameImport_t>( args[0] ) == CG_SP_GETSTRINGTEXT)
+		if (static_cast<cgameImport_t>( args[0] ) == cgameImport_t::CG_SP_GETSTRINGTEXT)
 		{
 			text = JK2SP_GetStringText( args[1] );
 		}
@@ -1355,10 +1355,10 @@ Ghoul2 Insert End
 		}
 		return strlen(text);
 
-	case CG_SP_REGISTER:
-		return JK2SP_Register((const char *)VMA(1), args[2] ? (SP_REGISTER_MENU | SP_REGISTER_REQUIRED) : SP_REGISTER_CLIENT);
+	case cgameImport_t::CG_SP_REGISTER:
+		return JK2SP_Register((const char *)VMA(1), args[2] ? (spRegistrationFlags_t::SP_REGISTER_MENU | spRegistrationFlags_t::SP_REGISTER_REQUIRED) : spRegistrationFlags_t::SP_REGISTER_CLIENT);
 #else
-	case CG_SP_GETSTRINGTEXTSTRING:
+	case cgameImport_t::CG_SP_GETSTRINGTEXTSTRING:
 		const char* text;
 
 		assert(VMA(1));
@@ -1379,7 +1379,7 @@ Ghoul2 Insert End
 #endif
 
 	default:
-		Com_Error( ERR_DROP, "Bad cgame system trap: %ld", (long int) args[0] );
+		Com_Error( errorParm_t::ERR_DROP, "Bad cgame system trap: %ld", (long int) args[0] );
 	}
 	return 0;
 }
@@ -1408,10 +1408,10 @@ void CL_InitCGame( void ) {
 	mapname = Info_ValueForKey( info, "mapname" );
 	Com_sprintf( cl.mapname, sizeof( cl.mapname ), "maps/%s.bsp", mapname );
 
-	cls.state = CA_LOADING;
+	cls.state = connstate_t::CA_LOADING;
 
 	// init for this gamestate
-	VM_Call( CG_INIT, clc.serverCommandSequence );
+	VM_Call( cgameExport_t::CG_INIT, clc.serverCommandSequence );
 
 	// reset any CVAR_CHEAT cvars registered by cgame
 	if ( !cl_connectedToCheatServer )
@@ -1419,7 +1419,7 @@ void CL_InitCGame( void ) {
 
 	// we will send a usercmd this frame, which
 	// will cause the server to send us the first snapshot
-	cls.state = CA_PRIMED;
+	cls.state = connstate_t::CA_PRIMED;
 
 	//t2 = Sys_Milliseconds();
 
@@ -1447,11 +1447,11 @@ See if the current console command is claimed by the cgame
 ====================
 */
 bool CL_GameCommand( void ) {
-	if ( cls.state != CA_ACTIVE ) {
+	if ( cls.state != connstate_t::CA_ACTIVE ) {
 		return false;
 	}
 
-	return (VM_Call( CG_CONSOLE_COMMAND ) != 0);
+	return (VM_Call( cgameExport_t::CG_CONSOLE_COMMAND ) != 0);
 }
 
 
@@ -1463,7 +1463,7 @@ CL_CGameRendering
 */
 void CL_CGameRendering( stereoFrame_t stereo ) {
 #if 0
-	if ( cls.state == CA_ACTIVE ) {
+	if ( cls.state == connstate_t::CA_ACTIVE ) {
 		static int counter;
 
 		if ( ++counter == 40 ) {
@@ -1477,7 +1477,7 @@ void CL_CGameRendering( stereoFrame_t stereo ) {
 		timei-=0;
 	}
 	re.G2API_SetTime(cl.serverTime,G2T_CG_TIME);
-	VM_Call( CG_DRAW_ACTIVE_FRAME,timei, stereo, false );
+	VM_Call( cgameExport_t::CG_DRAW_ACTIVE_FRAME,timei, stereo, false );
 //	VM_Debug( 0 );
 }
 
@@ -1583,7 +1583,7 @@ void CL_FirstSnapshot( void ) {
 
 	re.RegisterMedia_LevelLoadEnd();
 
-	cls.state = CA_ACTIVE;
+	cls.state = connstate_t::CA_ACTIVE;
 
 	// set the timedelta so we are exactly on this first frame
 	cl.serverTimeDelta = cl.frame.serverTime - cls.realtime;
@@ -1607,8 +1607,8 @@ CL_SetCGameTime
 void CL_SetCGameTime( void ) {
 
 	// getting a valid frame message ends the connection process
-	if ( cls.state != CA_ACTIVE ) {
-		if ( cls.state != CA_PRIMED ) {
+	if ( cls.state != connstate_t::CA_ACTIVE ) {
+		if ( cls.state != connstate_t::CA_PRIMED ) {
 			return;
 		}
 		if ( cl.newSnapshots ) {
@@ -1616,14 +1616,14 @@ void CL_SetCGameTime( void ) {
 			CL_FirstSnapshot();
 		}
 
-		if ( cls.state != CA_ACTIVE ) {
+		if ( cls.state != connstate_t::CA_ACTIVE ) {
 			return;
 		}
 	}
 
 	// if we have gotten to this point, cl.frame is guaranteed to be valid
 	if ( !cl.frame.valid ) {
-		Com_Error( ERR_DROP, "CL_SetCGameTime: !cl.snap.valid" );
+		Com_Error( errorParm_t::ERR_DROP, "CL_SetCGameTime: !cl.snap.valid" );
 	}
 
 	// allow pause in single player
@@ -1633,7 +1633,7 @@ void CL_SetCGameTime( void ) {
 	}
 
 	if ( cl.frame.serverTime < cl.oldFrameServerTime ) {
-		Com_Error( ERR_DROP, "cl.frame.serverTime < cl.oldFrameServerTime" );
+		Com_Error( errorParm_t::ERR_DROP, "cl.frame.serverTime < cl.oldFrameServerTime" );
 	}
 	cl.oldFrameServerTime = cl.frame.serverTime;
 

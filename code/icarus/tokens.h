@@ -137,4 +137,3 @@ enum class icarusToken_t
 
 	NUM_TYPES
 };
-using enum icarusToken_t;

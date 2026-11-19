@@ -177,7 +177,7 @@ void CL_AddReliableCommand( const char *cmd, bool isDisconnectCmd ) {
 		if(com_errorEntered)
 			return;
 		else
-			Com_Error(ERR_DROP, "Client command overflow");
+			Com_Error(errorParm_t::ERR_DROP, "Client command overflow");
 	}
 
 	Q_strncpyz(clc.reliableCommands[++clc.reliableSequence & (MAX_RELIABLE_COMMANDS - 1)],
@@ -260,7 +260,7 @@ void CL_Record_f( void ) {
 		return;
 	}
 
-	if ( cls.state != CA_ACTIVE ) {
+	if ( cls.state != connstate_t::CA_ACTIVE ) {
 		Com_Printf ("You must be in a level to record.\n");
 		return;
 	}
@@ -344,7 +344,7 @@ void CL_DemoCompleted( void ) {
 	//after a demo is finished playing instead.
 	CL_Disconnect_f();
 	S_StopAllSounds();
-	UIVM_SetActiveMenu( UIMENU_MAIN );
+	UIVM_SetActiveMenu( uiMenuCommand_t::UIMENU_MAIN );
 
 	CL_NextDemo();
 }
@@ -388,7 +388,7 @@ void CL_ReadDemoMessage( void ) {
 		return;
 	}
 	if ( buf.cursize > buf.maxsize ) {
-		Com_Error (ERR_DROP, "CL_ReadDemoMessage: demoMsglen > MAX_MSGLEN");
+		Com_Error (errorParm_t::ERR_DROP, "CL_ReadDemoMessage: demoMsglen > MAX_MSGLEN");
 	}
 	r = FS_Read( buf.data, buf.cursize, clc.demofile );
 	if ( r != buf.cursize ) {
@@ -455,11 +455,11 @@ void CL_PlayDemo_f( void ) {
 	if (!clc.demofile) {
 		if (!Q_stricmp(arg, "(null)"))
 		{
-			Com_Error( ERR_DROP, "%s", SE_GetString("CON_TEXT_NO_DEMO_SELECTED") );
+			Com_Error( errorParm_t::ERR_DROP, "%s", SE_GetString("CON_TEXT_NO_DEMO_SELECTED") );
 		}
 		else
 		{
-			Com_Error( ERR_DROP, "couldn't open %s", name);
+			Com_Error( errorParm_t::ERR_DROP, "couldn't open %s", name);
 		}
 		return;
 	}
@@ -467,12 +467,12 @@ void CL_PlayDemo_f( void ) {
 
 	Con_Close();
 
-	cls.state = CA_CONNECTED;
+	cls.state = connstate_t::CA_CONNECTED;
 	clc.demoplaying = true;
 	Q_strncpyz( cls.servername, Cmd_Argv(1), sizeof( cls.servername ) );
 
 	// read demo messages until connected
-	while ( cls.state >= CA_CONNECTED && cls.state < CA_PRIMED ) {
+	while ( cls.state >= connstate_t::CA_CONNECTED && cls.state < connstate_t::CA_PRIMED ) {
 		CL_ReadDemoMessage();
 	}
 	// don't get the first snapshot this frame, to prevent the long
@@ -491,7 +491,7 @@ Closing the main menu will restart the demo loop
 void CL_StartDemoLoop( void ) {
 	// start the demo loop again
 	Cbuf_AddText ("d1\n");
-	Key_SetCatcher( KEYCATCH_NONE );
+	Key_SetCatcher( keyCatchFlags_t::KEYCATCH_NONE );
 }
 
 /*
@@ -605,11 +605,11 @@ void CL_MapLoading( void ) {
 	Cvar_Set( "cl_currentServerIP", "loopback");
 
 	Con_Close();
-	Key_SetCatcher( KEYCATCH_NONE );
+	Key_SetCatcher( keyCatchFlags_t::KEYCATCH_NONE );
 
 	// if we are already connected to the local host, stay connected
-	if ( cls.state >= CA_CONNECTED && !Q_stricmp( cls.servername, "localhost" ) ) {
-		cls.state = CA_CONNECTED;		// so the connect screen is drawn
+	if ( cls.state >= connstate_t::CA_CONNECTED && !Q_stricmp( cls.servername, "localhost" ) ) {
+		cls.state = connstate_t::CA_CONNECTED;		// so the connect screen is drawn
 		Com_Memset( cls.updateInfoString, 0, sizeof( cls.updateInfoString ) );
 		Com_Memset( clc.serverMessage, 0, sizeof( clc.serverMessage ) );
 		Com_Memset( &cl.gameState, 0, sizeof( cl.gameState ) );
@@ -620,8 +620,8 @@ void CL_MapLoading( void ) {
 		Cvar_Set( "nextmap", "" );
 		CL_Disconnect( true );
 		Q_strncpyz( cls.servername, "localhost", sizeof(cls.servername) );
-		cls.state = CA_CHALLENGING;		// so the connect screen is drawn
-		Key_SetCatcher( KEYCATCH_NONE );
+		cls.state = connstate_t::CA_CHALLENGING;		// so the connect screen is drawn
+		Key_SetCatcher( keyCatchFlags_t::KEYCATCH_NONE );
 		SCR_UpdateScreen();
 		clc.connectTime = -RETRANSMIT_TIMEOUT;
 		NET_StringToAdr( cls.servername, &clc.serverAddress);
@@ -663,7 +663,7 @@ static void CL_UpdateGUID( const char *prefix, int prefix_len )
 
 		// initialize the cvar here in case it's unset or was user-created
 		// while tracking was disabled (removes CVAR_USER_CREATED)
-		Cvar_Get( "ja_guid", "", CVAR_USERINFO | CVAR_ROM, "Client GUID" );
+		Cvar_Get( "ja_guid", "", cvarFlags_t::CVAR_USERINFO | cvarFlags_t::CVAR_ROM, "Client GUID" );
 
 		if( len != QKEY_SIZE ) {
 			Cvar_Set( "ja_guid", "" );
@@ -675,8 +675,8 @@ static void CL_UpdateGUID( const char *prefix, int prefix_len )
 		// Remove the cvar entirely if tracking is disabled
 		const std::optional<cvarFlags_t> flags = Cvar_Flags("ja_guid");
 		// keep the cvar if it's user-created, but destroy it otherwise
-		if (flags && !Any(*flags & CVAR_USER_CREATED)) {
-			cvar_t *ja_guid = Cvar_Get("ja_guid", "", CVAR_NONE, "Client GUID" );
+		if (flags && !Any(*flags & cvarFlags_t::CVAR_USER_CREATED)) {
+			cvar_t *ja_guid = Cvar_Get("ja_guid", "", cvarFlags_t::CVAR_NONE, "Client GUID" );
 			Cvar_Unset(ja_guid);
 		}
 	}
@@ -717,7 +717,7 @@ void CL_Disconnect( bool showMainMenu ) {
 	}
 
 	if ( cls.uiStarted && showMainMenu ) {
-		UIVM_SetActiveMenu( UIMENU_NONE );
+		UIVM_SetActiveMenu( uiMenuCommand_t::UIMENU_NONE );
 	}
 
 	SCR_StopCinematic ();
@@ -725,7 +725,7 @@ void CL_Disconnect( bool showMainMenu ) {
 
 	// send a disconnect message to the server
 	// send it a few times in case one is dropped
-	if ( cls.state >= CA_CONNECTED ) {
+	if ( cls.state >= connstate_t::CA_CONNECTED ) {
 		CL_AddReliableCommand( "disconnect", true );
 		CL_WritePacket();
 		CL_WritePacket();
@@ -741,7 +741,7 @@ void CL_Disconnect( bool showMainMenu ) {
 	// wipe the client connection
 	Com_Memset( &clc, 0, sizeof( clc ) );
 
-	cls.state = CA_DISCONNECTED;
+	cls.state = connstate_t::CA_DISCONNECTED;
 
 	// allow cheats locally
 	Cvar_Set( "sv_cheats", "1" );
@@ -779,7 +779,7 @@ void CL_ForwardCommandToServer( const char *string ) {
 		return;
 	}
 
-	if (clc.demoplaying || cls.state < CA_CONNECTED || cmd[0] == '+' ) {
+	if (clc.demoplaying || cls.state < connstate_t::CA_CONNECTED || cmd[0] == '+' ) {
 		Com_Printf ("Unknown command \"%s" S_COLOR_WHITE "\"\n", cmd);
 		return;
 	}
@@ -828,7 +828,7 @@ void CL_RequestMotd( void ) {
 		Com_Printf( "CL_RequestMotd: Error: could not resolve address of motd server %s\n", motdaddress );
 		return;
 	}
-	to.type = NA_IP;
+	to.type = netadrtype_t::NA_IP;
 	to.port = BigShort( PORT_UPDATE );
 
 	Com_Printf( "Requesting motd from update %s (%s)...\n", motdaddress, NET_AdrToString( &to ) );
@@ -858,7 +858,7 @@ void CL_RequestMotd( void ) {
 	Info_SetValueForKey( info, "joystick", Cvar_VariableString("in_joystick") );
 	Info_SetValueForKey( info, "colorbits", va("%d",cls.glconfig.colorBits) );
 
-	NET_OutOfBandPrint( NS_CLIENT, &cls.updateServer, "getmotd \"%s\"\n", info );
+	NET_OutOfBandPrint( netsrc_t::NS_CLIENT, &cls.updateServer, "getmotd \"%s\"\n", info );
 }
 
 
@@ -876,7 +876,7 @@ CL_ForwardToServer_f
 ==================
 */
 void CL_ForwardToServer_f( void ) {
-	if ( cls.state != CA_ACTIVE || clc.demoplaying ) {
+	if ( cls.state != connstate_t::CA_ACTIVE || clc.demoplaying ) {
 		Com_Printf ("Not connected to a server.\n");
 		return;
 	}
@@ -896,8 +896,8 @@ CL_Disconnect_f
 void CL_Disconnect_f( void ) {
 	SCR_StopCinematic();
 	Cvar_Set("ui_singlePlayerActive", "0");
-	if ( cls.state != CA_DISCONNECTED && cls.state != CA_CINEMATIC ) {
-		Com_Error (ERR_DISCONNECT, "Disconnected from server");
+	if ( cls.state != connstate_t::CA_DISCONNECTED && cls.state != connstate_t::CA_CINEMATIC ) {
+		Com_Error (errorParm_t::ERR_DISCONNECT, "Disconnected from server");
 	}
 }
 
@@ -960,7 +960,7 @@ void CL_Connect_f( void ) {
 
 	if (!NET_StringToAdr( cls.servername, &clc.serverAddress) ) {
 		Com_Printf ("Bad server address\n");
-		cls.state = CA_DISCONNECTED;
+		cls.state = connstate_t::CA_DISCONNECTED;
 		return;
 	}
 	if (clc.serverAddress.port == 0) {
@@ -978,16 +978,16 @@ void CL_Connect_f( void ) {
 
 	// if we aren't playing on a lan, we need to authenticate
 	if ( NET_IsLocalAddress( &clc.serverAddress ) ) {
-		cls.state = CA_CHALLENGING;
+		cls.state = connstate_t::CA_CHALLENGING;
 	} else {
-		cls.state = CA_CONNECTING;
+		cls.state = connstate_t::CA_CONNECTING;
 
 		// Set a client challenge number that ideally is mirrored back by the server: the system's random bytes, which
 		// an attacker cannot guess
 		Com_RandomBytes( (byte *)&clc.challenge, sizeof( clc.challenge ) );
 	}
 
-	Key_SetCatcher( KEYCATCH_NONE );
+	Key_SetCatcher( keyCatchFlags_t::KEYCATCH_NONE );
 	clc.connectTime = -99999;	// CL_CheckForResend() will fire immediately
 	clc.connectPacketCount = 0;
 
@@ -1045,7 +1045,7 @@ void CL_Rcon_f( void ) {
 	// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=543
 	Q_strcat (message, MAX_RCON_MESSAGE, Cmd_Cmd()+5);
 
-	if ( cls.state >= CA_CONNECTED ) {
+	if ( cls.state >= connstate_t::CA_CONNECTED ) {
 		rcon_address = clc.netchan.remoteAddress;
 	} else {
 		if (!strlen(rconAddress->string)) {
@@ -1061,7 +1061,7 @@ void CL_Rcon_f( void ) {
 		}
 	}
 
-	NET_SendPacket (NS_CLIENT, strlen(message)+1, message, &rcon_address);
+	NET_SendPacket (netsrc_t::NS_CLIENT, strlen(message)+1, message, &rcon_address);
 }
 
 /*
@@ -1123,7 +1123,7 @@ void CL_Vid_Restart_f( void ) {
 	// client is no longer pure untill new checksums are sent
 	CL_ResetPureClientAtServer();
 	// clear pak references
-	FS_ClearPakReferences( FS_UI_REF | FS_CGAME_REF );
+	FS_ClearPakReferences( fsRefFlags_t::FS_UI_REF | fsRefFlags_t::FS_CGAME_REF );
 	// reinitialize the filesystem if the game directory or checksum has changed
 	FS_ConditionalRestart( clc.checksumFeed );
 
@@ -1153,7 +1153,7 @@ void CL_Vid_Restart_f( void ) {
 	CL_StartHunkUsers();
 
 	// start the cgame if connected
-	if ( cls.state > CA_CONNECTED && cls.state != CA_CINEMATIC ) {
+	if ( cls.state > connstate_t::CA_CONNECTED && cls.state != connstate_t::CA_CINEMATIC ) {
 		cls.cgameStarted = true;
 		CL_InitCGame();
 		// send pure checksums
@@ -1215,7 +1215,7 @@ void CL_Configstrings_f( void ) {
 	int		i;
 	int		ofs;
 
-	if ( cls.state != CA_ACTIVE ) {
+	if ( cls.state != connstate_t::CA_ACTIVE ) {
 		Com_Printf( "Not connected to a server.\n");
 		return;
 	}
@@ -1239,7 +1239,7 @@ void CL_Clientinfo_f( void ) {
 	Com_Printf( "state: %i\n", to_underlying( cls.state ) );
 	Com_Printf( "Server: %s\n", cls.servername );
 	Com_Printf ("User info settings:\n");
-	Info_Print( Cvar_InfoString( CVAR_USERINFO ) );
+	Info_Print( Cvar_InfoString( cvarFlags_t::CVAR_USERINFO ) );
 	Com_Printf( "--------------------------------------\n" );
 }
 
@@ -1272,14 +1272,14 @@ void CL_DownloadsComplete( void ) {
 	}
 
 	// let the client game init and load data
-	cls.state = CA_LOADING;
+	cls.state = connstate_t::CA_LOADING;
 
 	// Pump the loop, this may change gamestate!
 	Com_EventLoop();
 
 	// if the gamestate was changed by calling Com_EventLoop
 	// then we loaded everything already and we don't want to do it again.
-	if ( cls.state != CA_LOADING ) {
+	if ( cls.state != connstate_t::CA_LOADING ) {
 		return;
 	}
 
@@ -1374,7 +1374,7 @@ void CL_NextDownload(void) {
 		zippath[strlen(zippath)-1] = '\0';
 
 		if(!FS_CompareZipChecksum(zippath))
-			Com_Error(ERR_DROP, "Incorrect checksum for file: %s", clc.downloadName);
+			Com_Error(errorParm_t::ERR_DROP, "Incorrect checksum for file: %s", clc.downloadName);
 	}
 
 	*clc.downloadTempName = *clc.downloadName = 0;
@@ -1404,7 +1404,7 @@ void CL_NextDownload(void) {
 			s = localName + strlen(localName); // point at the nul byte
 
 		if (!cl_allowDownload->integer) {
-			Com_Error(ERR_DROP, "UDP Downloads are disabled on your client. (cl_allowDownload is %d)", cl_allowDownload->integer);
+			Com_Error(errorParm_t::ERR_DROP, "UDP Downloads are disabled on your client. (cl_allowDownload is %d)", cl_allowDownload->integer);
 			return;
 		}
 		else {
@@ -1469,7 +1469,7 @@ void CL_InitDownloads(void) {
 			Com_Printf("Skipping downloads, because the server does not allow downloads\n");
 		} else if ( *clc.downloadList ) {
 			// if autodownloading is not enabled on the server
-			cls.state = CA_CONNECTED;
+			cls.state = connstate_t::CA_CONNECTED;
 
 			*clc.downloadTempName = *clc.downloadName = 0;
 			Cvar_Set( "cl_downloadName", "" );
@@ -1500,7 +1500,7 @@ void CL_CheckForResend( void ) {
 	}
 
 	// resend if we haven't gotten a reply yet
-	if ( cls.state != CA_CONNECTING && cls.state != CA_CHALLENGING ) {
+	if ( cls.state != connstate_t::CA_CONNECTING && cls.state != connstate_t::CA_CHALLENGING ) {
 		return;
 	}
 
@@ -1513,34 +1513,34 @@ void CL_CheckForResend( void ) {
 
 
 	switch ( cls.state ) {
-	case CA_CONNECTING:
+	case connstate_t::CA_CONNECTING:
 		// requesting a challenge
 
 		// The challenge request shall be followed by a client challenge so no malicious server can hijack this connection.
 		Com_sprintf(data, sizeof(data), "getchallenge %d", clc.challenge);
 
-		NET_OutOfBandPrint(NS_CLIENT, &clc.serverAddress, "%s", data);
+		NET_OutOfBandPrint(netsrc_t::NS_CLIENT, &clc.serverAddress, "%s", data);
 		break;
 
-	case CA_CHALLENGING:
+	case connstate_t::CA_CHALLENGING:
 		// sending back the challenge
 		port = (int) Cvar_VariableValue ("net_qport");
 
-		Q_strncpyz( info, Cvar_InfoString( CVAR_USERINFO ), sizeof( info ) );
+		Q_strncpyz( info, Cvar_InfoString( cvarFlags_t::CVAR_USERINFO ), sizeof( info ) );
 		Info_SetValueForKey( info, "protocol", va("%i", PROTOCOL_VERSION ) );
 		Info_SetValueForKey( info, "qport", va("%i", port ) );
 		Info_SetValueForKey( info, "challenge", va("%i", clc.challenge ) );
 
 		Com_sprintf(data, sizeof(data), "connect \"%s\"", info );
-		NET_OutOfBandData( NS_CLIENT, &clc.serverAddress, (byte *)data, strlen(data) );
+		NET_OutOfBandData( netsrc_t::NS_CLIENT, &clc.serverAddress, (byte *)data, strlen(data) );
 
 		// the most current userinfo has been sent, so watch for any
 		// newer changes to userinfo variables
-		cvar_modifiedFlags &= ~CVAR_USERINFO;
+		cvar_modifiedFlags &= ~cvarFlags_t::CVAR_USERINFO;
 		break;
 
 	default:
-		Com_Error( ERR_FATAL, "CL_CheckForResend: bad cls.state" );
+		Com_Error( errorParm_t::ERR_FATAL, "CL_CheckForResend: bad cls.state" );
 	}
 }
 
@@ -1556,7 +1556,7 @@ to the client so it doesn't have to wait for the full timeout period.
 ===================
 */
 void CL_DisconnectPacket( const netadr_t *from ) {
-	if ( cls.state < CA_AUTHORIZING ) {
+	if ( cls.state < connstate_t::CA_AUTHORIZING ) {
 		return;
 	}
 
@@ -1626,7 +1626,7 @@ void CL_InitServerInfo( serverInfo_t *server, const netadr_t *address ) {
 	server->weaponDisable = 0;
 	server->forceDisable = 0;
 	server->ping = 0;
-	server->state = LANSERVER_NOT_ASKED;
+	server->state = lanServerState_t::LANSERVER_NOT_ASKED;
 	server->game[0] = '\0';
 	server->gameType = 0;
 	server->humans = server->bots = 0;
@@ -1681,7 +1681,7 @@ void CL_ServersResponsePacket( const netadr_t *from, msg_t *msg ) {
 			for(size_t i = 0; i < sizeof(addresses[numservers].ip); i++)
 				addresses[numservers].ip[i] = *buffptr++;
 
-			addresses[numservers].type = NA_IP;
+			addresses[numservers].type = netadrtype_t::NA_IP;
 		}
 		else
 			// syntax error!
@@ -1842,7 +1842,7 @@ void CL_ConnectionlessPacket( const netadr_t *from, msg_t *msg ) {
 	// challenge from the server we are connecting to
 	if ( !Q_stricmp(c, "challengeResponse") )
 	{
-		if ( cls.state != CA_CONNECTING )
+		if ( cls.state != connstate_t::CA_CONNECTING )
 		{
 			Com_Printf( "Unwanted challenge response received.  Ignored.\n" );
 			return;
@@ -1867,7 +1867,7 @@ void CL_ConnectionlessPacket( const netadr_t *from, msg_t *msg ) {
 
 		// start sending challenge response instead of challenge request packets
 		clc.challenge = atoi(Cmd_Argv(1));
-		cls.state = CA_CHALLENGING;
+		cls.state = connstate_t::CA_CHALLENGING;
 		clc.connectPacketCount = 0;
 		clc.connectTime = -99999;
 
@@ -1880,11 +1880,11 @@ void CL_ConnectionlessPacket( const netadr_t *from, msg_t *msg ) {
 
 	// server connection
 	if ( !Q_stricmp(c, "connectResponse") ) {
-		if ( cls.state >= CA_CONNECTED ) {
+		if ( cls.state >= connstate_t::CA_CONNECTED ) {
 			Com_Printf ("Dup connect received. Ignored.\n");
 			return;
 		}
-		if ( cls.state != CA_CHALLENGING ) {
+		if ( cls.state != connstate_t::CA_CHALLENGING ) {
 			Com_Printf ("connectResponse packet while not connecting. Ignored.\n");
 			return;
 		}
@@ -1892,8 +1892,8 @@ void CL_ConnectionlessPacket( const netadr_t *from, msg_t *msg ) {
 			Com_Printf( "connectResponse from wrong address. Ignored.\n" );
 			return;
 		}
-		Netchan_Setup (NS_CLIENT, &clc.netchan, from, Cvar_VariableValue( "net_qport" ) );
-		cls.state = CA_CONNECTED;
+		Netchan_Setup (netsrc_t::NS_CLIENT, &clc.netchan, from, Cvar_VariableValue( "net_qport" ) );
+		cls.state = connstate_t::CA_CONNECTED;
 		clc.lastPacketSentTime = -9999;		// send first packet immediately
 		return;
 	}
@@ -1919,7 +1919,7 @@ void CL_ConnectionlessPacket( const netadr_t *from, msg_t *msg ) {
 
 	// echo request from server
 	if ( !Q_stricmp(c, "echo") ) {
-		NET_OutOfBandPrint( NS_CLIENT, from, "%s", Cmd_Argv(1) );
+		NET_OutOfBandPrint( netsrc_t::NS_CLIENT, from, "%s", Cmd_Argv(1) );
 		return;
 	}
 
@@ -1976,7 +1976,7 @@ void CL_PacketEvent( const netadr_t *from, msg_t *msg ) {
 		return;
 	}
 
-	if ( cls.state < CA_CONNECTED ) {
+	if ( cls.state < connstate_t::CA_CONNECTED ) {
 		return;		// can't be a valid sequenced packet
 	}
 
@@ -2021,12 +2021,12 @@ void CL_CheckTimeout( void ) {
 	// check timeout
 	//
 	if ( ( !CL_CheckPaused() || !sv_paused->integer )
-		&& cls.state >= CA_CONNECTED && cls.state != CA_CINEMATIC
-	    && cls.realtime - clc.lastPacketTime > 1000 * ( cls.state == CA_ACTIVE ? TIMEOUT_ACTIVE : TIMEOUT_CONNECTING ) ) {
+		&& cls.state >= connstate_t::CA_CONNECTED && cls.state != connstate_t::CA_CINEMATIC
+	    && cls.realtime - clc.lastPacketTime > 1000 * ( cls.state == connstate_t::CA_ACTIVE ? TIMEOUT_ACTIVE : TIMEOUT_CONNECTING ) ) {
 		if (++cl.timeoutcount > 5) {	// timeoutcount saves debugger
 			const char *psTimedOut = SE_GetString("MP_SVGAME_SERVER_CONNECTION_TIMED_OUT");
 			Com_Printf ("\n%s\n",psTimedOut);
-			Com_Error(ERR_DROP, "%s", psTimedOut);
+			Com_Error(errorParm_t::ERR_DROP, "%s", psTimedOut);
 			//CL_Disconnect( true );
 			return;
 		}
@@ -2062,7 +2062,7 @@ CL_CheckUserinfo
 */
 void CL_CheckUserinfo( void ) {
 	// don't add reliable commands when not yet connected
-	if ( cls.state < CA_CONNECTED ) {
+	if ( cls.state < connstate_t::CA_CONNECTED ) {
 		return;
 	}
 	// don't overflow the reliable command buffer when paused
@@ -2070,9 +2070,9 @@ void CL_CheckUserinfo( void ) {
 		return;
 	}
 	// send a reliable userinfo update if needed
-	if ( Any( cvar_modifiedFlags & CVAR_USERINFO ) ) {
-		cvar_modifiedFlags &= ~CVAR_USERINFO;
-		CL_AddReliableCommand( va("userinfo \"%s\"", Cvar_InfoString( CVAR_USERINFO ) ), false );
+	if ( Any( cvar_modifiedFlags & cvarFlags_t::CVAR_USERINFO ) ) {
+		cvar_modifiedFlags &= ~cvarFlags_t::CVAR_USERINFO;
+		CL_AddReliableCommand( va("userinfo \"%s\"", Cvar_InfoString( cvarFlags_t::CVAR_USERINFO ) ), false );
 	}
 
 }
@@ -2096,16 +2096,16 @@ void CL_Frame ( int msec ) {
 	SE_CheckForLanguageUpdates();	// will take zero time to execute unless language changes, then will reload strings.
 									//	of course this still doesn't work for menus...
 
-	if ( cls.state == CA_DISCONNECTED && !Any( Key_GetCatcher( ) & KEYCATCH_UI )
+	if ( cls.state == connstate_t::CA_DISCONNECTED && !Any( Key_GetCatcher( ) & keyCatchFlags_t::KEYCATCH_UI )
 		&& !com_sv_running->integer && cls.uiStarted ) {
 		// if disconnected, bring up the menu
 		S_StopAllSounds();
-		UIVM_SetActiveMenu( UIMENU_MAIN );
+		UIVM_SetActiveMenu( uiMenuCommand_t::UIMENU_MAIN );
 	}
 
 	// if recording an avi, lock to a fixed fps
 	if ( CL_VideoRecording( ) && cl_aviFrameRate->integer && msec) {
-		if ( cls.state == CA_ACTIVE || cl_forceavidemo->integer) {
+		if ( cls.state == connstate_t::CA_ACTIVE || cl_forceavidemo->integer) {
 			float fps = Q_min(cl_aviFrameRate->value * com_timescale->value, 1000.0f);
 			float frameDuration = Q_max(1000.0f / fps, 1.0f) + clc.aviVideoFrameRemainder;
 			takeVideoFrame = true;
@@ -2200,13 +2200,13 @@ void QDECL CL_RefPrintf( printParm_t print_level, const char *fmt, ...) {
 	Q_vsnprintf(msg, sizeof(msg), fmt, argptr);
 	va_end (argptr);
 
-	if ( print_level == PRINT_ALL ) {
+	if ( print_level == printParm_t::PRINT_ALL ) {
 		Com_Printf ("%s", msg);
-	} else if ( print_level == PRINT_WARNING ) {
+	} else if ( print_level == printParm_t::PRINT_WARNING ) {
 		Com_Printf (S_COLOR_YELLOW "%s", msg);		// yellow
-	} else if ( print_level == PRINT_DEVELOPER ) {
+	} else if ( print_level == printParm_t::PRINT_DEVELOPER ) {
 		Com_DPrintf (S_COLOR_RED "%s", msg);		// red
-	} else if ( print_level == PRINT_ERROR ) {
+	} else if ( print_level == printParm_t::PRINT_ERROR ) {
 		Com_Printf (S_COLOR_RED "%s", msg);		// red
 	}
 }
@@ -2331,7 +2331,7 @@ void CL_InitRef( void ) {
 
 	Com_Printf( "----- Initializing Renderer ----\n" );
 
-	cl_renderer = Cvar_Get( "cl_renderer", DEFAULT_RENDER_LIBRARY, CVAR_ARCHIVE|CVAR_LATCH, "Which renderer library to use" );
+	cl_renderer = Cvar_Get( "cl_renderer", DEFAULT_RENDER_LIBRARY, cvarFlags_t::CVAR_ARCHIVE|cvarFlags_t::CVAR_LATCH, "Which renderer library to use" );
 
 	Com_sprintf( dllName, sizeof( dllName ), "%s_" ARCH_STRING DLL_EXT, cl_renderer->string );
 
@@ -2345,14 +2345,14 @@ void CL_InitRef( void ) {
 	}
 
 	if ( !rendererLib ) {
-		Com_Error( ERR_FATAL, "Failed to load renderer\n" );
+		Com_Error( errorParm_t::ERR_FATAL, "Failed to load renderer\n" );
 	}
 
 	memset( &ri, 0, sizeof( ri ) );
 
 	GetRefAPI = (GetRefAPI_t)Sys_LoadFunction( rendererLib, "GetRefAPI" );
 	if ( !GetRefAPI )
-		Com_Error( ERR_FATAL, "Can't load symbol GetRefAPI: '%s'", Sys_LibraryError() );
+		Com_Error( errorParm_t::ERR_FATAL, "Can't load symbol GetRefAPI: '%s'", Sys_LibraryError() );
 
 	//set up the import table
 	ri.Printf = CL_RefPrintf;
@@ -2443,7 +2443,7 @@ void CL_InitRef( void ) {
 //	Com_Printf( "-------------------------------\n");
 
 	if ( !ret ) {
-		Com_Error (ERR_FATAL, "Couldn't initialize refresh" );
+		Com_Error (errorParm_t::ERR_FATAL, "Couldn't initialize refresh" );
 	}
 
 	re = ret;
@@ -2555,7 +2555,7 @@ void CL_StopVideo_f( void )
 }
 
 static void CL_AddFavorite_f( void ) {
-	const bool connected = (cls.state == CA_ACTIVE) && !clc.demoplaying;
+	const bool connected = (cls.state == connstate_t::CA_ACTIVE) && !clc.demoplaying;
 	const int argc = Cmd_Argc();
 	if ( !connected && argc != 2 ) {
 		Com_Printf( "syntax: addFavorite <ip or hostname>\n" );
@@ -2638,7 +2638,7 @@ void CL_Init( void ) {
 
 	CL_ClearState ();
 
-	cls.state = CA_DISCONNECTED;	// no longer CA_UNINITIALIZED
+	cls.state = connstate_t::CA_DISCONNECTED;	// no longer CA_UNINITIALIZED
 
 	cls.realtime = 0;
 
@@ -2647,121 +2647,121 @@ void CL_Init( void ) {
 	//
 	// register our variables
 	//
-	cl_noprint = Cvar_Get( "cl_noprint", "0", CVAR_NONE );
-	cl_motd = Cvar_Get ("cl_motd", "1", CVAR_ARCHIVE_ND, "Display welcome message from master server on the bottom of connection screen" );
-	cl_motdServer[0] = Cvar_Get( "cl_motdServer1", UPDATE_SERVER_NAME, CVAR_NONE );
-	cl_motdServer[1] = Cvar_Get( "cl_motdServer2", JKHUB_UPDATE_SERVER_NAME, CVAR_NONE );
+	cl_noprint = Cvar_Get( "cl_noprint", "0", cvarFlags_t::CVAR_NONE );
+	cl_motd = Cvar_Get ("cl_motd", "1", cvarFlags_t::CVAR_ARCHIVE_ND, "Display welcome message from master server on the bottom of connection screen" );
+	cl_motdServer[0] = Cvar_Get( "cl_motdServer1", UPDATE_SERVER_NAME, cvarFlags_t::CVAR_NONE );
+	cl_motdServer[1] = Cvar_Get( "cl_motdServer2", JKHUB_UPDATE_SERVER_NAME, cvarFlags_t::CVAR_NONE );
 	for ( int index = 2; index < MAX_MASTER_SERVERS; index++ )
-		cl_motdServer[index] = Cvar_Get( va( "cl_motdServer%d", index + 1 ), "", CVAR_ARCHIVE_ND );
+		cl_motdServer[index] = Cvar_Get( va( "cl_motdServer%d", index + 1 ), "", cvarFlags_t::CVAR_ARCHIVE_ND );
 
-	cl_debugInterpForce = Cvar_Get ("cl_debugInterpForce", "0", CVAR_CHEAT, "Debug: 1 shows the world cl_debugInterpDelay ms behind the newest snapshot instead of the computed delay" );
-	cl_debugInterpDelay = Cvar_Get ("cl_debugInterpDelay", "50", CVAR_CHEAT, "Debug: the interpolation delay forced by cl_debugInterpForce, in ms behind the newest snapshot when it arrives" );
-	cl_shownet = Cvar_Get ("cl_shownet", "0", CVAR_TEMP );
-	cl_showSend = Cvar_Get ("cl_showSend", "0", CVAR_TEMP );
-	cl_showTimeDelta = Cvar_Get ("cl_showTimeDelta", "0", CVAR_TEMP );
-	cl_freezeDemo = Cvar_Get ("cl_freezeDemo", "0", CVAR_TEMP );
-	rcon_client_password = Cvar_Get ("rconPassword", "", CVAR_TEMP, "Password for remote console access" );
-	cl_activeAction = Cvar_Get( "activeAction", "", CVAR_TEMP );
+	cl_debugInterpForce = Cvar_Get ("cl_debugInterpForce", "0", cvarFlags_t::CVAR_CHEAT, "Debug: 1 shows the world cl_debugInterpDelay ms behind the newest snapshot instead of the computed delay" );
+	cl_debugInterpDelay = Cvar_Get ("cl_debugInterpDelay", "50", cvarFlags_t::CVAR_CHEAT, "Debug: the interpolation delay forced by cl_debugInterpForce, in ms behind the newest snapshot when it arrives" );
+	cl_shownet = Cvar_Get ("cl_shownet", "0", cvarFlags_t::CVAR_TEMP );
+	cl_showSend = Cvar_Get ("cl_showSend", "0", cvarFlags_t::CVAR_TEMP );
+	cl_showTimeDelta = Cvar_Get ("cl_showTimeDelta", "0", cvarFlags_t::CVAR_TEMP );
+	cl_freezeDemo = Cvar_Get ("cl_freezeDemo", "0", cvarFlags_t::CVAR_TEMP );
+	rcon_client_password = Cvar_Get ("rconPassword", "", cvarFlags_t::CVAR_TEMP, "Password for remote console access" );
+	cl_activeAction = Cvar_Get( "activeAction", "", cvarFlags_t::CVAR_TEMP );
 
-	cl_timedemo = Cvar_Get ("timedemo", "0", CVAR_NONE);
-	cl_aviFrameRate = Cvar_Get ("cl_aviFrameRate", "25", CVAR_ARCHIVE);
-	cl_aviMotionJpeg = Cvar_Get ("cl_aviMotionJpeg", "1", CVAR_ARCHIVE);
-	cl_avi2GBLimit = Cvar_Get ("cl_avi2GBLimit", "1", CVAR_ARCHIVE );
-	cl_forceavidemo = Cvar_Get ("cl_forceavidemo", "0", CVAR_NONE);
+	cl_timedemo = Cvar_Get ("timedemo", "0", cvarFlags_t::CVAR_NONE);
+	cl_aviFrameRate = Cvar_Get ("cl_aviFrameRate", "25", cvarFlags_t::CVAR_ARCHIVE);
+	cl_aviMotionJpeg = Cvar_Get ("cl_aviMotionJpeg", "1", cvarFlags_t::CVAR_ARCHIVE);
+	cl_avi2GBLimit = Cvar_Get ("cl_avi2GBLimit", "1", cvarFlags_t::CVAR_ARCHIVE );
+	cl_forceavidemo = Cvar_Get ("cl_forceavidemo", "0", cvarFlags_t::CVAR_NONE);
 
-	rconAddress = Cvar_Get ("rconAddress", "", CVAR_NONE, "Alternate server address to remotely access via rcon protocol");
+	rconAddress = Cvar_Get ("rconAddress", "", cvarFlags_t::CVAR_NONE, "Alternate server address to remotely access via rcon protocol");
 
-	cl_yawspeed = Cvar_Get ("cl_yawspeed", "140", CVAR_ARCHIVE_ND );
-	cl_pitchspeed = Cvar_Get ("cl_pitchspeed", "140", CVAR_ARCHIVE_ND );
-	cl_anglespeedkey = Cvar_Get ("cl_anglespeedkey", "1.5", CVAR_ARCHIVE_ND );
+	cl_yawspeed = Cvar_Get ("cl_yawspeed", "140", cvarFlags_t::CVAR_ARCHIVE_ND );
+	cl_pitchspeed = Cvar_Get ("cl_pitchspeed", "140", cvarFlags_t::CVAR_ARCHIVE_ND );
+	cl_anglespeedkey = Cvar_Get ("cl_anglespeedkey", "1.5", cvarFlags_t::CVAR_ARCHIVE_ND );
 
-	cl_run = Cvar_Get ("cl_run", "1", CVAR_ARCHIVE_ND, "Always run");
-	cl_sensitivity = Cvar_Get ("sensitivity", "5", CVAR_ARCHIVE, "Mouse sensitivity value");
-	cl_mouseAccel = Cvar_Get ("cl_mouseAccel", "0", CVAR_ARCHIVE_ND, "Mouse acceleration value");
-	cl_freelook = Cvar_Get( "cl_freelook", "1", CVAR_ARCHIVE_ND, "Mouse look" );
+	cl_run = Cvar_Get ("cl_run", "1", cvarFlags_t::CVAR_ARCHIVE_ND, "Always run");
+	cl_sensitivity = Cvar_Get ("sensitivity", "5", cvarFlags_t::CVAR_ARCHIVE, "Mouse sensitivity value");
+	cl_mouseAccel = Cvar_Get ("cl_mouseAccel", "0", cvarFlags_t::CVAR_ARCHIVE_ND, "Mouse acceleration value");
+	cl_freelook = Cvar_Get( "cl_freelook", "1", cvarFlags_t::CVAR_ARCHIVE_ND, "Mouse look" );
 
 	// 0: legacy mouse acceleration
 	// 1: new implementation
-	cl_mouseAccelStyle = Cvar_Get( "cl_mouseAccelStyle", "0", CVAR_ARCHIVE_ND, "Mouse accelration style (0:legacy, 1:QuakeLive)" );
+	cl_mouseAccelStyle = Cvar_Get( "cl_mouseAccelStyle", "0", cvarFlags_t::CVAR_ARCHIVE_ND, "Mouse accelration style (0:legacy, 1:QuakeLive)" );
 	// offset for the power function (for style 1, ignored otherwise)
 	// this should be set to the max rate value
-	cl_mouseAccelOffset = Cvar_Get( "cl_mouseAccelOffset", "5", CVAR_ARCHIVE_ND, "Mouse acceleration offset for style 1" );
+	cl_mouseAccelOffset = Cvar_Get( "cl_mouseAccelOffset", "5", cvarFlags_t::CVAR_ARCHIVE_ND, "Mouse acceleration offset for style 1" );
 
-	cl_showMouseRate = Cvar_Get ("cl_showmouserate", "0", CVAR_NONE);
-	cl_framerate	= Cvar_Get ("cl_framerate", "0", CVAR_TEMP);
-	cl_allowDownload = Cvar_Get ("cl_allowDownload", "1", CVAR_ARCHIVE_ND, "Allow downloading custom paks from server");
-	cl_allowAltEnter = Cvar_Get ("cl_allowAltEnter", "1", CVAR_ARCHIVE_ND, "Enables use of ALT+ENTER keyboard combo to toggle fullscreen" );
+	cl_showMouseRate = Cvar_Get ("cl_showmouserate", "0", cvarFlags_t::CVAR_NONE);
+	cl_framerate	= Cvar_Get ("cl_framerate", "0", cvarFlags_t::CVAR_TEMP);
+	cl_allowDownload = Cvar_Get ("cl_allowDownload", "1", cvarFlags_t::CVAR_ARCHIVE_ND, "Allow downloading custom paks from server");
+	cl_allowAltEnter = Cvar_Get ("cl_allowAltEnter", "1", cvarFlags_t::CVAR_ARCHIVE_ND, "Enables use of ALT+ENTER keyboard combo to toggle fullscreen" );
 
-	cl_autolodscale = Cvar_Get( "cl_autolodscale", "1", CVAR_ARCHIVE_ND );
+	cl_autolodscale = Cvar_Get( "cl_autolodscale", "1", cvarFlags_t::CVAR_ARCHIVE_ND );
 
-	cl_conXOffset = Cvar_Get ("cl_conXOffset", "0", CVAR_NONE);
-	cl_inGameVideo = Cvar_Get ("r_inGameVideo", "1", CVAR_ARCHIVE_ND );
+	cl_conXOffset = Cvar_Get ("cl_conXOffset", "0", cvarFlags_t::CVAR_NONE);
+	cl_inGameVideo = Cvar_Get ("r_inGameVideo", "1", cvarFlags_t::CVAR_ARCHIVE_ND );
 
-	cl_serverStatusResendTime = Cvar_Get ("cl_serverStatusResendTime", "750", CVAR_NONE);
+	cl_serverStatusResendTime = Cvar_Get ("cl_serverStatusResendTime", "750", cvarFlags_t::CVAR_NONE);
 
 	// init autoswitch so the ui will have it correctly even
 	// if the cgame hasn't been started
-	Cvar_Get ("cg_autoswitch", "1", CVAR_ARCHIVE);
+	Cvar_Get ("cg_autoswitch", "1", cvarFlags_t::CVAR_ARCHIVE);
 
-	m_pitchVeh = Cvar_Get ("m_pitchVeh", "0.022", CVAR_ARCHIVE_ND);
-	m_pitch = Cvar_Get ("m_pitch", "0.022", CVAR_ARCHIVE_ND);
-	m_yaw = Cvar_Get ("m_yaw", "0.022", CVAR_ARCHIVE_ND);
-	m_forward = Cvar_Get ("m_forward", "0.25", CVAR_ARCHIVE_ND);
-	m_side = Cvar_Get ("m_side", "0.25", CVAR_ARCHIVE_ND);
+	m_pitchVeh = Cvar_Get ("m_pitchVeh", "0.022", cvarFlags_t::CVAR_ARCHIVE_ND);
+	m_pitch = Cvar_Get ("m_pitch", "0.022", cvarFlags_t::CVAR_ARCHIVE_ND);
+	m_yaw = Cvar_Get ("m_yaw", "0.022", cvarFlags_t::CVAR_ARCHIVE_ND);
+	m_forward = Cvar_Get ("m_forward", "0.25", cvarFlags_t::CVAR_ARCHIVE_ND);
+	m_side = Cvar_Get ("m_side", "0.25", cvarFlags_t::CVAR_ARCHIVE_ND);
 #ifdef MACOS_X
         // Input is jittery on OS X w/o this
-	m_filter = Cvar_Get ("m_filter", "1", CVAR_ARCHIVE_ND);
+	m_filter = Cvar_Get ("m_filter", "1", cvarFlags_t::CVAR_ARCHIVE_ND);
 #else
-	m_filter = Cvar_Get ("m_filter", "0", CVAR_ARCHIVE_ND);
+	m_filter = Cvar_Get ("m_filter", "0", cvarFlags_t::CVAR_ARCHIVE_ND);
 #endif
 
-	cl_motdString = Cvar_Get( "cl_motdString", "", CVAR_ROM );
+	cl_motdString = Cvar_Get( "cl_motdString", "", cvarFlags_t::CVAR_ROM );
 
-	Cvar_Get( "cl_maxPing", "800", CVAR_ARCHIVE_ND, "Max. ping for servers when searching the serverlist" );
+	Cvar_Get( "cl_maxPing", "800", cvarFlags_t::CVAR_ARCHIVE_ND, "Max. ping for servers when searching the serverlist" );
 
-	cl_drawRecording = Cvar_Get("cl_drawRecording", "1", CVAR_ARCHIVE);
+	cl_drawRecording = Cvar_Get("cl_drawRecording", "1", cvarFlags_t::CVAR_ARCHIVE);
 
 	// enable the ja_guid player identifier in userinfo by default in OpenJK
-	cl_enableGuid = Cvar_Get("cl_enableGuid", "1", CVAR_ARCHIVE_ND, "Enable GUID userinfo identifier" );
-	cl_guidServerUniq = Cvar_Get ("cl_guidServerUniq", "1", CVAR_ARCHIVE_ND, "Use a unique guid value per server" );
+	cl_enableGuid = Cvar_Get("cl_enableGuid", "1", cvarFlags_t::CVAR_ARCHIVE_ND, "Enable GUID userinfo identifier" );
+	cl_guidServerUniq = Cvar_Get ("cl_guidServerUniq", "1", cvarFlags_t::CVAR_ARCHIVE_ND, "Use a unique guid value per server" );
 
 	// ~ and `, as keys and characters
-	cl_consoleKeys = Cvar_Get( "cl_consoleKeys", "~ ` 0x7e 0x60 0xb2", CVAR_ARCHIVE, "Which keys are used to toggle the console");
-	cl_consoleUseScanCode = Cvar_Get( "cl_consoleUseScanCode", "1", CVAR_ARCHIVE, "Use native console key detection" );
-	cl_consoleShiftRequirement = Cvar_Get( "cl_consoleShiftRequirement", "0", CVAR_ARCHIVE, "Require shift key to be pressed for native console key detection" );
+	cl_consoleKeys = Cvar_Get( "cl_consoleKeys", "~ ` 0x7e 0x60 0xb2", cvarFlags_t::CVAR_ARCHIVE, "Which keys are used to toggle the console");
+	cl_consoleUseScanCode = Cvar_Get( "cl_consoleUseScanCode", "1", cvarFlags_t::CVAR_ARCHIVE, "Use native console key detection" );
+	cl_consoleShiftRequirement = Cvar_Get( "cl_consoleShiftRequirement", "0", cvarFlags_t::CVAR_ARCHIVE, "Require shift key to be pressed for native console key detection" );
 
-	cl_filterGames = Cvar_Get( "cl_filterGames", "MBII MBIIOpenBeta", CVAR_ARCHIVE_ND, "List of fs_game to filter (space separated)" );
+	cl_filterGames = Cvar_Get( "cl_filterGames", "MBII MBIIOpenBeta", cvarFlags_t::CVAR_ARCHIVE_ND, "List of fs_game to filter (space separated)" );
 
-	cl_downloadName = Cvar_Get( "cl_downloadName", "", CVAR_INTERNAL );
-	cl_downloadPrompt = Cvar_Get( "cl_downloadPrompt", "1", CVAR_ARCHIVE, "Confirm pk3 downloads from the server" );
-	cl_downloadOverlay = Cvar_Get( "cl_downloadOverlay", "1", CVAR_ARCHIVE, "Draw download info overlay" );
+	cl_downloadName = Cvar_Get( "cl_downloadName", "", cvarFlags_t::CVAR_INTERNAL );
+	cl_downloadPrompt = Cvar_Get( "cl_downloadPrompt", "1", cvarFlags_t::CVAR_ARCHIVE, "Confirm pk3 downloads from the server" );
+	cl_downloadOverlay = Cvar_Get( "cl_downloadOverlay", "1", cvarFlags_t::CVAR_ARCHIVE, "Draw download info overlay" );
 
-	cl_reconnectArgs = Cvar_Get( "cl_reconnectArgs", "", CVAR_ARCHIVE, "Arguments provided when last connecting to a server" );
+	cl_reconnectArgs = Cvar_Get( "cl_reconnectArgs", "", cvarFlags_t::CVAR_ARCHIVE, "Arguments provided when last connecting to a server" );
 
 	// userinfo
-	Cvar_Get ("name", "Padawan", CVAR_USERINFO | CVAR_ARCHIVE_ND, "Player name" );
-	Cvar_Get ("model", DEFAULT_MODEL"/default", CVAR_USERINFO | CVAR_ARCHIVE, "Player model" );
-	Cvar_Get ("forcepowers", "7-1-032330000000001333", CVAR_USERINFO | CVAR_ARCHIVE, "Player forcepowers" );
-//	Cvar_Get ("g_redTeam", DEFAULT_REDTEAM_NAME, CVAR_SERVERINFO | CVAR_ARCHIVE);
-//	Cvar_Get ("g_blueTeam", DEFAULT_BLUETEAM_NAME, CVAR_SERVERINFO | CVAR_ARCHIVE);
-	Cvar_Get ("color1",  "4", CVAR_USERINFO | CVAR_ARCHIVE, "Player saber1 color" );
-	Cvar_Get ("color2", "4", CVAR_USERINFO | CVAR_ARCHIVE, "Player saber2 color" );
-	Cvar_Get ("handicap", "100", CVAR_USERINFO | CVAR_ARCHIVE, "Player handicap" );
-	Cvar_Get ("sex", "male", CVAR_USERINFO | CVAR_ARCHIVE, "Player sex" );
-	Cvar_Get ("password", "", CVAR_USERINFO, "Password to join server" );
-	Cvar_Get ("cg_predictItems", "1", CVAR_USERINFO | CVAR_ARCHIVE );
+	Cvar_Get ("name", "Padawan", cvarFlags_t::CVAR_USERINFO | cvarFlags_t::CVAR_ARCHIVE_ND, "Player name" );
+	Cvar_Get ("model", DEFAULT_MODEL"/default", cvarFlags_t::CVAR_USERINFO | cvarFlags_t::CVAR_ARCHIVE, "Player model" );
+	Cvar_Get ("forcepowers", "7-1-032330000000001333", cvarFlags_t::CVAR_USERINFO | cvarFlags_t::CVAR_ARCHIVE, "Player forcepowers" );
+//	Cvar_Get ("g_redTeam", DEFAULT_REDTEAM_NAME, cvarFlags_t::CVAR_SERVERINFO | cvarFlags_t::CVAR_ARCHIVE);
+//	Cvar_Get ("g_blueTeam", DEFAULT_BLUETEAM_NAME, cvarFlags_t::CVAR_SERVERINFO | cvarFlags_t::CVAR_ARCHIVE);
+	Cvar_Get ("color1",  "4", cvarFlags_t::CVAR_USERINFO | cvarFlags_t::CVAR_ARCHIVE, "Player saber1 color" );
+	Cvar_Get ("color2", "4", cvarFlags_t::CVAR_USERINFO | cvarFlags_t::CVAR_ARCHIVE, "Player saber2 color" );
+	Cvar_Get ("handicap", "100", cvarFlags_t::CVAR_USERINFO | cvarFlags_t::CVAR_ARCHIVE, "Player handicap" );
+	Cvar_Get ("sex", "male", cvarFlags_t::CVAR_USERINFO | cvarFlags_t::CVAR_ARCHIVE, "Player sex" );
+	Cvar_Get ("password", "", cvarFlags_t::CVAR_USERINFO, "Password to join server" );
+	Cvar_Get ("cg_predictItems", "1", cvarFlags_t::CVAR_USERINFO | cvarFlags_t::CVAR_ARCHIVE );
 
 	//default sabers
-	Cvar_Get ("saber1",  DEFAULT_SABER, CVAR_USERINFO | CVAR_ARCHIVE, "Player default right hand saber" );
-	Cvar_Get ("saber2",  "none", CVAR_USERINFO | CVAR_ARCHIVE, "Player left hand saber" );
+	Cvar_Get ("saber1",  DEFAULT_SABER, cvarFlags_t::CVAR_USERINFO | cvarFlags_t::CVAR_ARCHIVE, "Player default right hand saber" );
+	Cvar_Get ("saber2",  "none", cvarFlags_t::CVAR_USERINFO | cvarFlags_t::CVAR_ARCHIVE, "Player left hand saber" );
 
 	//skin color
-	Cvar_Get ("char_color_red",  "255", CVAR_USERINFO | CVAR_ARCHIVE, "Player tint (Red)" );
-	Cvar_Get ("char_color_green",  "255", CVAR_USERINFO | CVAR_ARCHIVE, "Player tint (Green)" );
-	Cvar_Get ("char_color_blue",  "255", CVAR_USERINFO | CVAR_ARCHIVE, "Player tint (Blue)" );
+	Cvar_Get ("char_color_red",  "255", cvarFlags_t::CVAR_USERINFO | cvarFlags_t::CVAR_ARCHIVE, "Player tint (Red)" );
+	Cvar_Get ("char_color_green",  "255", cvarFlags_t::CVAR_USERINFO | cvarFlags_t::CVAR_ARCHIVE, "Player tint (Green)" );
+	Cvar_Get ("char_color_blue",  "255", cvarFlags_t::CVAR_USERINFO | cvarFlags_t::CVAR_ARCHIVE, "Player tint (Blue)" );
 
 	// cgame might not be initialized before menu is used
-	Cvar_Get ("cg_viewsize", "100", CVAR_ARCHIVE_ND );
+	Cvar_Get ("cg_viewsize", "100", cvarFlags_t::CVAR_ARCHIVE_ND );
 
 	//
 	// register our commands
@@ -2878,14 +2878,14 @@ void CL_Shutdown( void ) {
 	recursive = false;
 
 	Com_Memset( &cls, 0, sizeof( cls ) );
-	Key_SetCatcher( KEYCATCH_NONE );
+	Key_SetCatcher( keyCatchFlags_t::KEYCATCH_NONE );
 
 	//Com_Printf( "-----------------------\n" );
 
 }
 
 bool CL_ConnectedToRemoteServer( void ) {
-	return ( com_sv_running && !com_sv_running->integer && cls.state >= CA_CONNECTED && !clc.demoplaying );
+	return ( com_sv_running && !com_sv_running->integer && cls.state >= connstate_t::CA_CONNECTED && !clc.demoplaying );
 }
 
 static void CL_SetServerInfo(serverInfo_t *server, const char *info, lanServerState_t state, int ping) {
@@ -2992,8 +2992,8 @@ void CL_ServerInfoPacket( const netadr_t *from, msg_t *msg ) {
 			// NOTE: make sure these types are in sync with the netnames strings in the UI
 			switch (from->type)
 			{
-				case NA_BROADCAST:
-				case NA_IP:
+				case netadrtype_t::NA_BROADCAST:
+				case netadrtype_t::NA_IP:
 					type = 1;
 					break;
 
@@ -3002,14 +3002,14 @@ void CL_ServerInfoPacket( const netadr_t *from, msg_t *msg ) {
 					break;
 			}
 			Info_SetValueForKey( cl_pinglist[i].info, "nettype", va("%d", type) );
-			CL_SetServerInfoByAddress(from, infoString, LANSERVER_ANSWERED, cl_pinglist[i].time);
+			CL_SetServerInfoByAddress(from, infoString, lanServerState_t::LANSERVER_ANSWERED, cl_pinglist[i].time);
 
 			return;
 		}
 	}
 
 	// if not just sent a local broadcast or pinging local servers
-	if (cls.pingUpdateSource != AS_LOCAL) {
+	if (cls.pingUpdateSource != lanSource_t::AS_LOCAL) {
 		return;
 	}
 
@@ -3121,7 +3121,7 @@ int CL_ServerStatus( const char *serverAddress, char *serverStatusString, int ma
 			serverStatus->retrieved = false;
 			serverStatus->time = 0;
 			serverStatus->startTime = Com_Milliseconds();
-			NET_OutOfBandPrint( NS_CLIENT, &to, "getstatus" );
+			NET_OutOfBandPrint( netsrc_t::NS_CLIENT, &to, "getstatus" );
 			return false;
 		}
 	}
@@ -3133,7 +3133,7 @@ int CL_ServerStatus( const char *serverAddress, char *serverStatusString, int ma
 		serverStatus->retrieved = false;
 		serverStatus->startTime = Com_Milliseconds();
 		serverStatus->time = 0;
-		NET_OutOfBandPrint( NS_CLIENT, &to, "getstatus" );
+		NET_OutOfBandPrint( netsrc_t::NS_CLIENT, &to, "getstatus" );
 		return false;
 	}
 	return false;
@@ -3248,7 +3248,7 @@ void CL_LocalServers_f( void ) {
 
 	// reset the list, waiting for response
 	cls.numlocalservers = 0;
-	cls.pingUpdateSource = AS_LOCAL;
+	cls.pingUpdateSource = lanSource_t::AS_LOCAL;
 
 	for (i = 0; i < MAX_OTHER_SERVERS; i++) {
 		bool b = cls.localServers[i].visible;
@@ -3270,8 +3270,8 @@ void CL_LocalServers_f( void ) {
 		for ( j = 0 ; j < NUM_SERVER_PORTS ; j++ ) {
 			to.port = BigShort( (short)(PORT_SERVER + j) );
 
-			to.type = NA_BROADCAST;
-			NET_SendPacket( NS_CLIENT, strlen( message ), message, &to );
+			to.type = netadrtype_t::NA_BROADCAST;
+			NET_SendPacket( netsrc_t::NS_CLIENT, strlen( message ), message, &to );
 		}
 	}
 }
@@ -3342,13 +3342,13 @@ void CL_GlobalServers_f( void ) {
 		Com_Printf( "CL_GlobalServers_f: Error: could not resolve address of master %s\n", masteraddress );
 		return;
 	}
-	to.type = NA_IP;
+	to.type = netadrtype_t::NA_IP;
 	to.port = BigShort(PORT_MASTER);
 
 	Com_Printf( "Requesting servers from the master %s (%s)...\n", masteraddress, NET_AdrToString( &to ) );
 
 	cls.numglobalservers = -1;
-	cls.pingUpdateSource = AS_GLOBAL;
+	cls.pingUpdateSource = lanSource_t::AS_GLOBAL;
 
 	Com_sprintf(command, sizeof(command), "getservers %s", Cmd_Argv(2));
 
@@ -3359,7 +3359,7 @@ void CL_GlobalServers_f( void ) {
 		Q_strcat(command, sizeof(command), Cmd_Argv(i));
 	}
 
-	NET_OutOfBandPrint( NS_SERVER, &to, "%s", command );
+	NET_OutOfBandPrint( netsrc_t::NS_SERVER, &to, "%s", command );
 }
 
 /*
@@ -3379,14 +3379,14 @@ lanServerState_t CL_GetPing( int n, char *buf, int buflen, int *pingtime )
 		// empty or invalid slot
 		buf[0]    = '\0';
 		*pingtime = 0;
-		return LANSERVER_NOT_ASKED;
+		return lanServerState_t::LANSERVER_NOT_ASKED;
 	}
 
 	str = NET_AdrToString( &cl_pinglist[n].adr );
 	Q_strncpyz( buf, str, buflen );
 
 	time = cl_pinglist[n].time;
-	state = LANSERVER_ANSWERED;
+	state = lanServerState_t::LANSERVER_ANSWERED;
 	if (!cl_pinglist[n].answered)
 	{
 		// check for timeout
@@ -3399,11 +3399,11 @@ lanServerState_t CL_GetPing( int n, char *buf, int buflen, int *pingtime )
 		{
 			// not timed out yet
 			time = 0;
-			state = LANSERVER_WAITING;
+			state = lanServerState_t::LANSERVER_WAITING;
 		}
 		else
 		{
-			state = LANSERVER_NO_ANSWER;
+			state = lanServerState_t::LANSERVER_NO_ANSWER;
 		}
 	}
 
@@ -3554,9 +3554,9 @@ void CL_Ping_f( void ) {
 	pingptr->time  = 0;
 	pingptr->answered = false;
 
-	CL_SetServerInfoByAddress(&pingptr->adr, nullptr, LANSERVER_WAITING, 0);
+	CL_SetServerInfoByAddress(&pingptr->adr, nullptr, lanServerState_t::LANSERVER_WAITING, 0);
 
-	NET_OutOfBandPrint( NS_CLIENT, &to, "getinfo xxx" );
+	NET_OutOfBandPrint( netsrc_t::NS_CLIENT, &to, "getinfo xxx" );
 }
 
 /*
@@ -3571,7 +3571,7 @@ bool CL_UpdateVisiblePings_f(lanSource_t source) {
 	int			max;
 	bool status = false;
 
-	if (source < AS_LOCAL || source > AS_FAVORITES) {
+	if (source < lanSource_t::AS_LOCAL || source > lanSource_t::AS_FAVORITES) {
 		return false;
 	}
 
@@ -3582,15 +3582,15 @@ bool CL_UpdateVisiblePings_f(lanSource_t source) {
 		serverInfo_t *server = nullptr;
 
 		switch (source) {
-			case AS_LOCAL :
+			case lanSource_t::AS_LOCAL :
 				server = &cls.localServers[0];
 				max = cls.numlocalservers;
 			break;
-			case AS_GLOBAL :
+			case lanSource_t::AS_GLOBAL :
 				server = &cls.globalServers[0];
 				max = cls.numglobalservers;
 			break;
-			case AS_FAVORITES :
+			case lanSource_t::AS_FAVORITES :
 				server = &cls.favoriteServers[0];
 				max = cls.numfavoriteservers;
 			break;
@@ -3599,7 +3599,7 @@ bool CL_UpdateVisiblePings_f(lanSource_t source) {
 		}
 		for (i = 0; i < max; i++) {
 			if (server[i].visible) {
-				if (server[i].state == LANSERVER_NOT_ASKED) {
+				if (server[i].state == lanServerState_t::LANSERVER_NOT_ASKED) {
 					int j;
 
 					if (slots >= MAX_PINGREQUESTS) {
@@ -3625,15 +3625,15 @@ bool CL_UpdateVisiblePings_f(lanSource_t source) {
 						cl_pinglist[j].start = Sys_Milliseconds();
 						cl_pinglist[j].time = 0;
 						cl_pinglist[j].answered = false;
-						NET_OutOfBandPrint( NS_CLIENT, &cl_pinglist[j].adr, "getinfo xxx" );
+						NET_OutOfBandPrint( netsrc_t::NS_CLIENT, &cl_pinglist[j].adr, "getinfo xxx" );
 						slots++;
 					}
 				}
 				// if the server has a ping higher than cl_maxPing or
 				// the ping packet got lost
-				else if (server[i].state == LANSERVER_NO_ANSWER) {
+				else if (server[i].state == lanServerState_t::LANSERVER_NO_ANSWER) {
 					// if we are updating global servers
-					if (source == AS_GLOBAL) {
+					if (source == lanSource_t::AS_GLOBAL) {
 						//
 						if ( cls.numGlobalServerAddresses > 0 ) {
 							// overwrite this server with one from the additional global servers
@@ -3654,7 +3654,7 @@ bool CL_UpdateVisiblePings_f(lanSource_t source) {
 		if (!cl_pinglist[i].adr.port) {
 			continue;
 		}
-		if (CL_GetPing( i, buff, MAX_STRING_CHARS, &pingTime ) != LANSERVER_WAITING) {
+		if (CL_GetPing( i, buff, MAX_STRING_CHARS, &pingTime ) != lanServerState_t::LANSERVER_WAITING) {
 			CL_ClearPing(i);
 			status = true;
 		}
@@ -3674,7 +3674,7 @@ void CL_ServerStatus_f(void) {
 	serverStatus_t *serverStatus;
 
 	if ( Cmd_Argc() != 2 ) {
-		if ( cls.state != CA_ACTIVE || clc.demoplaying ) {
+		if ( cls.state != connstate_t::CA_ACTIVE || clc.demoplaying ) {
 			Com_Printf ("Not connected to a server.\n");
 			Com_Printf( "Usage: serverstatus [server]\n");
 			return;
@@ -3694,7 +3694,7 @@ void CL_ServerStatus_f(void) {
 			return;
 	}
 
-	NET_OutOfBandPrint( NS_CLIENT, toptr, "getstatus" );
+	NET_OutOfBandPrint( netsrc_t::NS_CLIENT, toptr, "getstatus" );
 
 	serverStatus = CL_GetServerStatus( toptr );
 	serverStatus->address = *toptr;
@@ -3990,7 +3990,7 @@ void CL_DrawEngineMenus( void ) {
 }
 
 void CL_UpdateCursorPosition( int dx, int dy ) {
-	if ( Any( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) ) return;
+	if ( Any( Key_GetCatcher( ) & keyCatchFlags_t::KEYCATCH_CONSOLE ) ) return;
 
 	cls.cursorX = Com_Clampi( 0, SCREEN_WIDTH, cls.cursorX + dx );
 	cls.cursorY = Com_Clampi( 0, SCREEN_HEIGHT, cls.cursorY + dy );
@@ -3998,7 +3998,7 @@ void CL_UpdateCursorPosition( int dx, int dy ) {
 
 void CL_CursorButton( fakeAscii_t key ) {
 	int i;
-	if ( key == A_MOUSE1 ) {
+	if ( key == fakeAscii_t::A_MOUSE1 ) {
 		for ( i = 0; i < menuButtonsActive; i++ ) {
 			if ( CL_IsCursorOnMenuButton(&menuButtons[i]) ) {
 				menuButtons[i].action();

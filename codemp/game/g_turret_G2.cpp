@@ -117,10 +117,10 @@ void G2Tur_SetBoneAngles(gentity_t *ent, const char *bone, vec3_t angles)
 		return;
 	}
 
-	flags = BONE_ANGLES_POSTMULT;
-	up = POSITIVE_Y;
-	right = NEGATIVE_Z;
-	forward = NEGATIVE_X;
+	flags = boneFlags_t::BONE_ANGLES_POSTMULT;
+	up = orientations_t::POSITIVE_Y;
+	right = orientations_t::NEGATIVE_Z;
+	forward = orientations_t::NEGATIVE_X;
 
 	//first 3 bits is forward, second 3 bits is right, third 3 bits is up
 	ent->s.boneOrient = ((to_underlying( forward ))|(to_underlying( right )<<3)|(to_underlying( up )<<6));
@@ -235,7 +235,7 @@ void TurretG2Pain( gentity_t *self, gentity_t *attacker, int damage )
 		}
 	}
 
-	if ( attacker->client && attacker->client->ps.weapon == WP_DEMP2 )
+	if ( attacker->client && attacker->client->ps.weapon == weapon_t::WP_DEMP2 )
 	{
 		self->attackDebounceTime = level.time + 2000 + Q_flrand(0.0f, 1.0f) * 500;
 		self->painDebounceTime = self->attackDebounceTime;
@@ -276,7 +276,7 @@ void turretG2_die ( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, 
 //	VectorCopy( self->r.currentOrigin, self->s.pos.trBase );
 
 	VectorMA( self->r.currentOrigin, 12, forward, pos );
-	G_PlayEffect( EFFECT_EXPLOSION_TURRET, pos, forward );
+	G_PlayEffect( effectTypes_t::EFFECT_EXPLOSION_TURRET, pos, forward );
 
 	if ( self->splashDamage > 0 && self->splashRadius > 0 )
 	{
@@ -286,15 +286,15 @@ void turretG2_die ( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, 
 						self->splashRadius,
 						attacker,
 						nullptr,
-						MOD_UNKNOWN );
+						meansOfDeath_t::MOD_UNKNOWN );
 	}
 
-	if ( Any( self->s.eFlags & EF_SHADER_ANIM ) )
+	if ( Any( self->s.eFlags & entityFlags_t::EF_SHADER_ANIM ) )
 	{
 		self->s.frame = 1; // black
 	}
 
-	self->s.weapon = WP_NONE; // crosshair code uses this to mark crosshair red
+	self->s.weapon = weapon_t::WP_NONE; // crosshair code uses this to mark crosshair red
 
 	if ( self->s.modelindex2 )
 	{
@@ -329,7 +329,7 @@ constexpr int START_DIS = 15;
 void TurboLaser_SetBoneAnim(gentity_t *eweb, int startFrame, int endFrame)
 {
 	//set info on the entity so it knows to start the anim on the client next snapshot.
-	eweb->s.eFlags |= EF_G2ANIMATING;
+	eweb->s.eFlags |= entityFlags_t::EF_G2ANIMATING;
 
 	if (eweb->s.torsoAnim == startFrame && eweb->s.legsAnim == endFrame)
 	{ //already playing this anim, let's flag it to restart
@@ -344,7 +344,7 @@ void TurboLaser_SetBoneAnim(gentity_t *eweb, int startFrame, int endFrame)
 	//now set the animation on the server ghoul2 instance.
 	assert(eweb->ghoul2);
 	trap->G2API_SetBoneAnim(eweb->ghoul2, 0, "model_root", startFrame, endFrame,
-		(BONE_ANIM_OVERRIDE_FREEZE|BONE_ANIM_BLEND), 1.0f, level.time, -1, 100);
+		(boneFlags_t::BONE_ANIM_OVERRIDE_FREEZE|boneFlags_t::BONE_ANIM_BLEND), 1.0f, level.time, -1, 100);
 }
 
 extern void WP_FireTurboLaserMissile( gentity_t *ent, vec3_t start, vec3_t dir );
@@ -394,23 +394,23 @@ static void turretG2_fire ( gentity_t *ent, vec3_t start, vec3_t dir )
 		bolt->classname = "turret_proj";
 		bolt->nextthink = level.time + 10000;
 		bolt->think = G_FreeEntity;
-		bolt->s.eType = ET_MISSILE;
-		bolt->s.weapon = WP_BLASTER;
+		bolt->s.eType = entityType_t::ET_MISSILE;
+		bolt->s.weapon = weapon_t::WP_BLASTER;
 		bolt->r.ownerNum = ent->s.number;
 		bolt->damage = ent->damage;
 		bolt->alliedTeam = ent->alliedTeam;
 		bolt->teamnodmg = ent->teamnodmg;
-		bolt->dflags = (DAMAGE_NO_KNOCKBACK|DAMAGE_HEAVY_WEAP_CLASS);		// Don't push them around, or else we are constantly re-aiming
+		bolt->dflags = (damageFlags_t::DAMAGE_NO_KNOCKBACK|damageFlags_t::DAMAGE_HEAVY_WEAP_CLASS);		// Don't push them around, or else we are constantly re-aiming
 		bolt->splashDamage = ent->splashDamage;
 		bolt->splashRadius = ent->splashDamage;
-		bolt->methodOfDeath = MOD_TARGET_LASER;//MOD_ENERGY;
-		bolt->splashMethodOfDeath = MOD_TARGET_LASER;//MOD_ENERGY;
-		bolt->clipmask = MASK_SHOT | CONTENTS_LIGHTSABER;
+		bolt->methodOfDeath = meansOfDeath_t::MOD_TARGET_LASER;//MOD_ENERGY;
+		bolt->splashMethodOfDeath = meansOfDeath_t::MOD_TARGET_LASER;//MOD_ENERGY;
+		bolt->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
 		//bolt->trigger_formation = false;		// don't draw tail on first frame
 
 		VectorSet( bolt->r.maxs, 1.5, 1.5, 1.5 );
 		VectorScale( bolt->r.maxs, -1, bolt->r.mins );
-		bolt->s.pos.trType = TR_LINEAR;
+		bolt->s.pos.trType = trType_t::TR_LINEAR;
 		bolt->s.pos.trTime = level.time;
 		VectorCopy( start, bolt->s.pos.trBase );
 		VectorScale( dir, ent->mass, bolt->s.pos.trDelta );
@@ -426,11 +426,11 @@ void turretG2_respawn( gentity_t *self )
 	self->takedamage = true;
 	self->s.shouldtarget = true;
 	//self->s.owner = MAX_CLIENTS; //not owned by any client
-	if ( Any( self->s.eFlags & EF_SHADER_ANIM ) )
+	if ( Any( self->s.eFlags & entityFlags_t::EF_SHADER_ANIM ) )
 	{
 		self->s.frame = 0; // normal
 	}
-	self->s.weapon = WP_TURRET; // crosshair code uses this to mark crosshair red
+	self->s.weapon = weapon_t::WP_TURRET; // crosshair code uses this to mark crosshair red
 
 	turretG2_set_models( self, false );
 	self->s.health = self->health = self->genericValue6;
@@ -470,15 +470,15 @@ void turretG2_head_think( gentity_t *self )
 			self->alt_fire = !self->alt_fire;
 		}
 
-		BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, org );
-		//BG_GiveMeVectorFromMatrix( &boltMatrix, POSITIVE_Y, fwd );
+		BG_GiveMeVectorFromMatrix( &boltMatrix, orientations_t::ORIGIN, org );
+		//BG_GiveMeVectorFromMatrix( &boltMatrix, orientations_t::POSITIVE_Y, fwd );
 		if ( (self->spawnflags&SPF_TURRETG2_TURBO) )
 		{
-			BG_GiveMeVectorFromMatrix( &boltMatrix, POSITIVE_X, fwd );
+			BG_GiveMeVectorFromMatrix( &boltMatrix, orientations_t::POSITIVE_X, fwd );
 		}
 		else
 		{
-			BG_GiveMeVectorFromMatrix( &boltMatrix, NEGATIVE_X, fwd );
+			BG_GiveMeVectorFromMatrix( &boltMatrix, orientations_t::NEGATIVE_X, fwd );
 		}
 
 		VectorMA( org, START_DIS, fwd, org );
@@ -553,7 +553,7 @@ static void turretG2_aim( gentity_t *self )
 					nullptr,
 					self->modelScale );
 
-		BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, org2 );
+		BG_GiveMeVectorFromMatrix( &boltMatrix, orientations_t::ORIGIN, org2 );
 
 		VectorSubtract( org, org2, enemyDir );
 		vectoangles( enemyDir, desiredAngles );
@@ -581,7 +581,7 @@ static void turretG2_aim( gentity_t *self )
 		VectorCopy( self->r.currentAngles, self->s.apos.trBase );
 		VectorScale( setAngle,- 5, self->s.apos.trDelta );
 		self->s.apos.trTime = level.time;
-		self->s.apos.trType = TR_LINEAR;
+		self->s.apos.trType = trType_t::TR_LINEAR;
 	}
 
 	if ( diffPitch )
@@ -670,7 +670,7 @@ static void turretG2_turnoff( gentity_t *self )
 	// shut-down sound
 	if ( !(self->spawnflags&SPF_TURRETG2_TURBO) )
 	{
-		G_Sound( self, CHAN_BODY, G_SoundIndex( "sound/chars/turret/shutdown.wav" ));
+		G_Sound( self, soundChannel_t::CHAN_BODY, G_SoundIndex( "sound/chars/turret/shutdown.wav" ));
 	}
 
 	// make turret play ping sound for 5 seconds
@@ -699,7 +699,7 @@ static bool turretG2_find_enemies( gentity_t *self )
 		{
 			if ( !(self->spawnflags&SPF_TURRETG2_TURBO) )
 			{
-				G_Sound(self, CHAN_BODY, G_SoundIndex( "sound/chars/turret/ping.wav" ));
+				G_Sound(self, soundChannel_t::CHAN_BODY, G_SoundIndex( "sound/chars/turret/ping.wav" ));
 			}
 			self->painDebounceTime = level.time + 1000;
 		}
@@ -725,7 +725,7 @@ static bool turretG2_find_enemies( gentity_t *self )
 		if ( !target->client )
 		{
 			// only attack clients
-			if ( !Any( target->flags & FL_BBRUSH )//not a breakable brush
+			if ( !Any( target->flags & gentityFlags_t::FL_BBRUSH )//not a breakable brush
 				|| !target->takedamage//is a bbrush, but invincible
 				|| (target->NPC_targetname&&self->targetname&&Q_stricmp(target->NPC_targetname,self->targetname)!=0) )//not in invicible bbrush, but can only be broken by an NPC that is not me
 			{
@@ -733,11 +733,11 @@ static bool turretG2_find_enemies( gentity_t *self )
 			}
 			//else: we will shoot at bbrushes!
 		}
-		if ( target == self || !target->takedamage || target->health <= 0 || Any( target->flags & FL_NOTARGET ))
+		if ( target == self || !target->takedamage || target->health <= 0 || Any( target->flags & gentityFlags_t::FL_NOTARGET ))
 		{
 			continue;
 		}
-		if ( target->client && target->client->sess.sessionTeam == TEAM_SPECTATOR )
+		if ( target->client && target->client->sess.sessionTeam == team_t::TEAM_SPECTATOR )
 		{
 			continue;
 		}
@@ -745,7 +745,7 @@ static bool turretG2_find_enemies( gentity_t *self )
 		{
 			continue;
 		}
-		if ( self->alliedTeam != TEAM_FREE )
+		if ( self->alliedTeam != team_t::TEAM_FREE )
 		{
 			if ( target->client )
 			{
@@ -784,7 +784,7 @@ static bool turretG2_find_enemies( gentity_t *self )
 			org[2] += 5;
 		}
 
-		trap->Trace( &tr, org2, nullptr, nullptr, org, self->s.number, MASK_SHOT, false, G2TRFLAG_NONE, 0 );
+		trap->Trace( &tr, org2, nullptr, nullptr, org, self->s.number, MASK_SHOT, false, g2TraceFlags_t::G2TRFLAG_NONE, 0 );
 
 		if ( !tr.allsolid && !tr.startsolid && ( tr.fraction == 1.0 || tr.entityNum == target->s.number ))
 		{
@@ -799,7 +799,7 @@ static bool turretG2_find_enemies( gentity_t *self )
 					// We haven't fired or acquired an enemy in the last 2 seconds-start-up sound
 					if ( !(self->spawnflags&SPF_TURRETG2_TURBO) )
 					{
-						G_Sound( self, CHAN_BODY, G_SoundIndex( "sound/chars/turret/startup.wav" ));
+						G_Sound( self, soundChannel_t::CHAN_BODY, G_SoundIndex( "sound/chars/turret/startup.wav" ));
 					}
 
 					// Wind up turrets for a bit
@@ -822,8 +822,8 @@ static bool turretG2_find_enemies( gentity_t *self )
 		/*
 		if ( !self->enemy )
 		{//just aquired one
-			AddSoundEvent( bestTarget, self->r.currentOrigin, 256, AEL_DISCOVERED );
-			AddSightEvent( bestTarget, self->r.currentOrigin, 512, AEL_DISCOVERED, 20 );
+			AddSoundEvent( bestTarget, self->r.currentOrigin, 256, alertEventLevel_e::AEL_DISCOVERED );
+			AddSightEvent( bestTarget, self->r.currentOrigin, 512, alertEventLevel_e::AEL_DISCOVERED, 20 );
 		}
 		*/
 		G_SetEnemy( self, bestTarget );
@@ -863,13 +863,13 @@ void turretG2_base_think( gentity_t *self )
 		turretG2_aim( self );
 
 		// No target
-		self->flags |= FL_NOTARGET;
+		self->flags |= gentityFlags_t::FL_NOTARGET;
 		return;
 	}
 	else
 	{
 		// I'm all hot and bothered
-		self->flags &= ~FL_NOTARGET;
+		self->flags &= ~gentityFlags_t::FL_NOTARGET;
 	}
 
 	if ( self->enemy )
@@ -899,7 +899,7 @@ void turretG2_base_think( gentity_t *self )
 
 	if ( self->enemy != nullptr )
 	{
-		if ( self->enemy->client && self->enemy->client->sess.sessionTeam == TEAM_SPECTATOR )
+		if ( self->enemy->client && self->enemy->client->sess.sessionTeam == team_t::TEAM_SPECTATOR )
 		{//don't keep going after spectators
 			self->enemy = nullptr;
 		}
@@ -938,7 +938,7 @@ void turretG2_base_think( gentity_t *self )
 					{
 						org2[2] -= 10;
 					}
-					trap->Trace( &tr, org2, nullptr, nullptr, org, self->s.number, MASK_SHOT, false, G2TRFLAG_NONE, 0 );
+					trap->Trace( &tr, org2, nullptr, nullptr, org, self->s.number, MASK_SHOT, false, g2TraceFlags_t::G2TRFLAG_NONE, 0 );
 
 					if ( !tr.allsolid && !tr.startsolid && tr.entityNum == self->enemy->s.number )
 					{
@@ -977,7 +977,7 @@ void turretG2_base_use( gentity_t *self, gentity_t *other, gentity_t *activator 
 	// Toggle on and off
 	self->spawnflags = (self->spawnflags ^ 1);
 
-	if (Any( self->s.eFlags & EF_SHADER_ANIM ) && ( self->spawnflags & 1 )) // Start_Off
+	if (Any( self->s.eFlags & entityFlags_t::EF_SHADER_ANIM ) && ( self->spawnflags & 1 )) // Start_Off
 	{
 		self->s.frame = 1; // black
 	}
@@ -1083,12 +1083,12 @@ void SP_misc_turretG2( gentity_t *base )
 	}
 	if ( !(base->spawnflags&SPF_TURRETG2_TURBO) )
 	{
-		base->s.eFlags |= EF_SHADER_ANIM;
+		base->s.eFlags |= entityFlags_t::EF_SHADER_ANIM;
 	}
 
 	if (base->spawnflags & SPF_SHOWONRADAR)
 	{
-		base->s.eFlags |= EF_RADAROBJECT;
+		base->s.eFlags |= entityFlags_t::EF_RADAROBJECT;
 	}
 #undef name
 #undef name2
@@ -1112,10 +1112,10 @@ void finish_spawning_turretG2( gentity_t *base )
 
 	G_SetOrigin(base, base->s.origin);
 
-	base->s.eType = ET_GENERAL;
+	base->s.eType = entityType_t::ET_GENERAL;
 
-	if ( base->team && base->team[0] && //level.gametype == GT_SIEGE &&
-		base->teamnodmg == TEAM_FREE)
+	if ( base->team && base->team[0] && //level.gametype == gametype_t::GT_SIEGE &&
+		base->teamnodmg == team_t::TEAM_FREE)
 	{
 		base->teamnodmg = G_TeamFromKey( base->team );
 	}
@@ -1194,10 +1194,10 @@ void finish_spawning_turretG2( gentity_t *base )
 		}
 		//start in "off" anim
 		TurboLaser_SetBoneAnim( base, 4, 5 );
-		if ( level.gametype == GT_SIEGE )
+		if ( level.gametype == gametype_t::GT_SIEGE )
 		{//FIXME: designer-specified?
 			//FIXME: put on other entities, too, particularly siege objectives and bbrushes...
-			base->s.eFlags2 |= EF2_BRACKET_ENTITY;
+			base->s.eFlags2 |= entityFlags2_t::EF2_BRACKET_ENTITY;
 		}
 	}
 	else
@@ -1293,20 +1293,20 @@ void finish_spawning_turretG2( gentity_t *base )
 		G_SoundIndex( "sound/chars/turret/move.wav" );
 	}
 
-	base->r.contents = CONTENTS_BODY|CONTENTS_PLAYERCLIP|CONTENTS_MONSTERCLIP|CONTENTS_SHOTCLIP;
+	base->r.contents = contentsFlags_t::CONTENTS_BODY|contentsFlags_t::CONTENTS_PLAYERCLIP|contentsFlags_t::CONTENTS_MONSTERCLIP|contentsFlags_t::CONTENTS_SHOTCLIP;
 
 	//base->max_health = base->health;
 	base->takedamage = true;
 	base->die  = turretG2_die;
 
-	base->material = MAT_METAL;
+	base->material = material_t::MAT_METAL;
 	//base->r.svFlags |= SVF_NO_TELEPORT|SVF_NONNPC_ENEMY|SVF_SELF_ANIMATING;
 
 	// Register this so that we can use it for the missile effect
-	RegisterItem( BG_FindItemForWeapon( WP_BLASTER ));
+	RegisterItem( BG_FindItemForWeapon( weapon_t::WP_BLASTER ));
 
 	// But set us as a turret so that we can be identified as a turret
-	base->s.weapon = WP_TURRET;
+	base->s.weapon = weapon_t::WP_TURRET;
 
 	trap->LinkEntity( (sharedEntity_t *)base );
 }

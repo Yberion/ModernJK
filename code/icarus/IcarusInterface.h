@@ -79,7 +79,6 @@ protected:
 public:
 	//For system-wide prints
 	enum class e_DebugPrintLevel { WL_ERROR = 1, WL_WARNING, WL_VERBOSE, WL_DEBUG };
-	using enum e_DebugPrintLevel;
 
 	// How many flavors are needed.
 	static int s_IcarusFlavorsNeeded;
@@ -153,7 +152,7 @@ public:
 
 	virtual int		CreateIcarus( int gameID) = 0;
 	virtual int		GetByName( const char *name ) = 0;		//Polls the engine for the sequencer of the entity matching the name passed
-	virtual int		IsFrozen(int gameID) = 0;					// (g_entities[m_ownerID].svFlags&SVF_ICARUS_FREEZE)																	// return -1 indicates invalid
+	virtual int		IsFrozen(int gameID) = 0;					// (g_entities[m_ownerID].svFlags&svFlags_t::SVF_ICARUS_FREEZE)																	// return -1 indicates invalid
 	virtual void	Free(void* data) = 0;
 	virtual void*	Malloc( int size ) = 0;
 	virtual float	MaxFloat(void) = 0;

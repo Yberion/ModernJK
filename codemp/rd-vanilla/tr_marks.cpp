@@ -53,7 +53,7 @@ static void R_ChopPolyBehindPlane( int numInPoints, vec3_t inPoints[MAX_VERTS_ON
 		return;
 	}
 
-	counts[SIDE_FRONT] = counts[SIDE_BACK] = counts[SIDE_ON] = 0;
+	counts[planeSide_t::SIDE_FRONT] = counts[planeSide_t::SIDE_BACK] = counts[planeSide_t::SIDE_ON] = 0;
 
 	// determine sides for each point
 	for ( i = 0 ; i < numInPoints ; i++ ) {
@@ -61,11 +61,11 @@ static void R_ChopPolyBehindPlane( int numInPoints, vec3_t inPoints[MAX_VERTS_ON
 		dot -= dist;
 		dists[i] = dot;
 		if ( dot > epsilon ) {
-			sides[i] = SIDE_FRONT;
+			sides[i] = planeSide_t::SIDE_FRONT;
 		} else if ( dot < -epsilon ) {
-			sides[i] = SIDE_BACK;
+			sides[i] = planeSide_t::SIDE_BACK;
 		} else {
-			sides[i] = SIDE_ON;
+			sides[i] = planeSide_t::SIDE_ON;
 		}
 		counts[sides[i]]++;
 	}
@@ -74,10 +74,10 @@ static void R_ChopPolyBehindPlane( int numInPoints, vec3_t inPoints[MAX_VERTS_ON
 
 	*numOutPoints = 0;
 
-	if ( !counts[SIDE_FRONT] ) {
+	if ( !counts[planeSide_t::SIDE_FRONT] ) {
 		return;
 	}
-	if ( !counts[SIDE_BACK] ) {
+	if ( !counts[planeSide_t::SIDE_BACK] ) {
 		*numOutPoints = numInPoints;
 		memcpy( outPoints, inPoints, numInPoints * sizeof(vec3_t) );
 		return;
@@ -87,19 +87,19 @@ static void R_ChopPolyBehindPlane( int numInPoints, vec3_t inPoints[MAX_VERTS_ON
 		p1 = inPoints[i];
 		clip = outPoints[ *numOutPoints ];
 
-		if ( sides[i] == SIDE_ON ) {
+		if ( sides[i] == planeSide_t::SIDE_ON ) {
 			VectorCopy( p1, clip );
 			(*numOutPoints)++;
 			continue;
 		}
 
-		if ( sides[i] == SIDE_FRONT ) {
+		if ( sides[i] == planeSide_t::SIDE_FRONT ) {
 			VectorCopy( p1, clip );
 			(*numOutPoints)++;
 			clip = outPoints[ *numOutPoints ];
 		}
 
-		if ( sides[i+1] == SIDE_ON || sides[i+1] == sides[i] ) {
+		if ( sides[i+1] == planeSide_t::SIDE_ON || sides[i+1] == sides[i] ) {
 			continue;
 		}
 
@@ -156,12 +156,12 @@ void R_BoxSurfaces_r(mnode_t *node, vec3_t mins, vec3_t maxs, surfaceType_t **li
 		//
 		surf = *mark;
 		// check if the surface has NOIMPACT or NOMARKS set
-		if ( Any( surf->shader->surfaceFlags & ( SURF_NOIMPACT | SURF_NOMARKS ) )
-			|| Any( surf->shader->contentFlags & CONTENTS_FOG ) ) {
+		if ( Any( surf->shader->surfaceFlags & ( surfaceFlags_t::SURF_NOIMPACT | surfaceFlags_t::SURF_NOMARKS ) )
+			|| Any( surf->shader->contentFlags & contentsFlags_t::CONTENTS_FOG ) ) {
 			surf->viewCount = tr.viewCount;
 		}
 		// extra check for surfaces to avoid list overflows
-		else if (*(surf->data) == SF_FACE) {
+		else if (*(surf->data) == surfaceType_t::SF_FACE) {
 			// the face plane should go through the box
 			s = BoxOnPlaneSide( mins, maxs, &(( srfSurfaceFace_t * ) surf->data)->plane );
 			if (s == 1 || s == 2) {
@@ -171,8 +171,8 @@ void R_BoxSurfaces_r(mnode_t *node, vec3_t mins, vec3_t maxs, surfaceType_t **li
 				surf->viewCount = tr.viewCount;
 			}
 		}
-		else if (*(surfaceType_t *) (surf->data) != SF_GRID &&
-			 *(surfaceType_t *) (surf->data) != SF_TRIANGLES)
+		else if (*(surfaceType_t *) (surf->data) != surfaceType_t::SF_GRID &&
+			 *(surfaceType_t *) (surf->data) != surfaceType_t::SF_TRIANGLES)
 			surf->viewCount = tr.viewCount;
 		// check the viewCount because the surface may have
 		// already been added if it spans multiple leafs
@@ -316,7 +316,7 @@ int R_MarkFragments( int numPoints, const vec3_t *points, const vec3_t projectio
 
 	for ( i = 0 ; i < numsurfaces ; i++ ) {
 
-		if (*surfaces[i] == SF_GRID) {
+		if (*surfaces[i] == surfaceType_t::SF_GRID) {
 
 			cv = (srfGridMesh_t *) surfaces[i];
 			for ( m = 0 ; m < cv->height - 1 ; m++ ) {
@@ -396,7 +396,7 @@ int R_MarkFragments( int numPoints, const vec3_t *points, const vec3_t projectio
 				}
 			}
 		}
-		else if (*surfaces[i] == SF_FACE) {
+		else if (*surfaces[i] == surfaceType_t::SF_FACE) {
 
 			srfSurfaceFace_t *surf = ( srfSurfaceFace_t * ) surfaces[i];
 			// check the normal of this face
@@ -422,7 +422,7 @@ int R_MarkFragments( int numPoints, const vec3_t *points, const vec3_t projectio
 			}
 			continue;
 		}
-		else if(*surfaces[i] == SF_TRIANGLES && r_marksOnTriangleMeshes->integer) {
+		else if(*surfaces[i] == surfaceType_t::SF_TRIANGLES && r_marksOnTriangleMeshes->integer) {
 
 			srfTriangles_t *surf = (srfTriangles_t *) surfaces[i];
 

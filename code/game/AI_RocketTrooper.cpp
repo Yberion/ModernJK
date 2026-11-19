@@ -50,13 +50,13 @@ void RT_RunStormtrooperAI( void )
 {
 	bState_t bState;
 	//Execute our bState
-	if(NPCInfo->tempBehavior != BS_DEFAULT)
+	if(NPCInfo->tempBehavior != bState_t::BS_DEFAULT)
 	{//Overrides normal behavior until cleared
 		bState = NPCInfo->tempBehavior;
 	}
 	else
 	{
-		if(NPCInfo->behaviorState == BS_DEFAULT)
+		if(NPCInfo->behaviorState == bState_t::BS_DEFAULT)
 			NPCInfo->behaviorState = NPCInfo->defaultBehavior;
 
 		bState = NPCInfo->behaviorState;
@@ -103,10 +103,10 @@ void RT_FireDecide( void )
 
 	if ( enemyDist < MIN_ROCKET_DIST_SQUARED )//128
 	{//enemy within 128
-		if ( (NPC->client->ps.weapon == WP_FLECHETTE || NPC->client->ps.weapon == WP_REPEATER) &&
-			Any(NPCInfo->scriptFlags & SCF_ALT_FIRE) )
+		if ( (NPC->client->ps.weapon == weapon_t::WP_FLECHETTE || NPC->client->ps.weapon == weapon_t::WP_REPEATER) &&
+			Any(NPCInfo->scriptFlags & scriptFlags_t::SCF_ALT_FIRE) )
 		{//shooting an explosive, but enemy too close, switch to primary fire
-			NPCInfo->scriptFlags &= ~SCF_ALT_FIRE;
+			NPCInfo->scriptFlags &= ~scriptFlags_t::SCF_ALT_FIRE;
 			//FIXME: we can never go back to alt-fire this way since, after this, we don't know if we were initially supposed to use alt-fire or not...
 		}
 	}
@@ -119,15 +119,15 @@ void RT_FireDecide( void )
 			NPCInfo->enemyLastSeenTime = level.time;
 			enemyLOS = true;
 
-			if ( NPC->client->ps.weapon == WP_NONE )
+			if ( NPC->client->ps.weapon == weapon_t::WP_NONE )
 			{
 				enemyCS = false;//not true, but should stop us from firing
 			}
 			else
 			{//can we shoot our target?
-				if ( (NPC->client->ps.weapon == WP_ROCKET_LAUNCHER
-					|| (NPC->client->ps.weapon == WP_CONCUSSION && !Any(NPCInfo->scriptFlags&SCF_ALT_FIRE))
-					|| (NPC->client->ps.weapon == WP_FLECHETTE && Any(NPCInfo->scriptFlags&SCF_ALT_FIRE))) && enemyDist < MIN_ROCKET_DIST_SQUARED )//128*128
+				if ( (NPC->client->ps.weapon == weapon_t::WP_ROCKET_LAUNCHER
+					|| (NPC->client->ps.weapon == weapon_t::WP_CONCUSSION && !Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_ALT_FIRE))
+					|| (NPC->client->ps.weapon == weapon_t::WP_FLECHETTE && Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_ALT_FIRE))) && enemyDist < MIN_ROCKET_DIST_SQUARED )//128*128
 				{
 					enemyCS = false;//not true, but should stop us from firing
 					hitAlly = true;//us!
@@ -140,7 +140,7 @@ void RT_FireDecide( void )
 
 					if ( hit == NPC->enemy->s.number
 						|| ( hitEnt && hitEnt->client && hitEnt->client->playerTeam == NPC->client->enemyTeam )
-						|| ( hitEnt && hitEnt->takedamage && (Any( hitEnt->svFlags & SVF_GLASS_BRUSH )||hitEnt->health < 40||NPC->s.weapon == WP_EMPLACED_GUN) ) )
+						|| ( hitEnt && hitEnt->takedamage && (Any( hitEnt->svFlags & svFlags_t::SVF_GLASS_BRUSH )||hitEnt->health < 40||NPC->s.weapon == weapon_t::WP_EMPLACED_GUN) ) )
 					{//can hit enemy or enemy ally or will hit glass or other minor breakable (or in emplaced gun), so shoot anyway
 						enemyCS = true;
 						//NPC_AimAdjust( 2 );//adjust aim better longer we have clear shot at enemy
@@ -170,7 +170,7 @@ void RT_FireDecide( void )
 			//NPC_AimAdjust( -1 );//adjust aim worse longer we cannot see enemy
 		}
 
-		if ( NPC->client->ps.weapon == WP_NONE )
+		if ( NPC->client->ps.weapon == weapon_t::WP_NONE )
 		{
 			shoot = false;
 		}
@@ -199,7 +199,7 @@ void RT_FireDecide( void )
 						bool tooClose = false;
 						bool tooFar = false;
 
-						CalcEntitySpot( NPC, SPOT_HEAD, muzzle );
+						CalcEntitySpot( NPC, spot_t::SPOT_HEAD, muzzle );
 						if ( VectorCompare( impactPos, vec3_origin ) )
 						{//never checked ShotEntity this frame, so must do a trace...
 							trace_t tr;
@@ -207,7 +207,7 @@ void RT_FireDecide( void )
 							vec3_t	forward, end;
 							AngleVectors( NPC->client->ps.viewangles, forward, nullptr, nullptr );
 							VectorMA( muzzle, 8192, forward, end );
-							gi.trace( &tr, muzzle, vec3_origin, vec3_origin, end, NPC->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
+							gi.trace( &tr, muzzle, vec3_origin, vec3_origin, end, NPC->s.number, MASK_SHOT, EG2_Collision::G2_NOCOLLIDE, 0 );
 							VectorCopy( tr.endpos, impactPos );
 						}
 
@@ -215,21 +215,21 @@ void RT_FireDecide( void )
 						float distThreshold = 16384/*128*128*/;//default
 						switch ( NPC->s.weapon )
 						{
-						case WP_ROCKET_LAUNCHER:
-						case WP_FLECHETTE:
-						case WP_THERMAL:
-						case WP_TRIP_MINE:
-						case WP_DET_PACK:
+						case weapon_t::WP_ROCKET_LAUNCHER:
+						case weapon_t::WP_FLECHETTE:
+						case weapon_t::WP_THERMAL:
+						case weapon_t::WP_TRIP_MINE:
+						case weapon_t::WP_DET_PACK:
 							distThreshold = 65536/*256*256*/;
 							break;
-						case WP_REPEATER:
-							if ( Any(NPCInfo->scriptFlags&SCF_ALT_FIRE) )
+						case weapon_t::WP_REPEATER:
+							if ( Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_ALT_FIRE) )
 							{
 								distThreshold = 65536/*256*256*/;
 							}
 							break;
-						case WP_CONCUSSION:
-							if ( !Any(NPCInfo->scriptFlags&SCF_ALT_FIRE) )
+						case weapon_t::WP_CONCUSSION:
+							if ( !Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_ALT_FIRE) )
 							{
 								distThreshold = 65536/*256*256*/;
 							}
@@ -251,21 +251,21 @@ void RT_FireDecide( void )
 							distThreshold = 65536/*256*256*/;//default
 							switch ( NPC->s.weapon )
 							{
-							case WP_ROCKET_LAUNCHER:
-							case WP_FLECHETTE:
-							case WP_THERMAL:
-							case WP_TRIP_MINE:
-							case WP_DET_PACK:
+							case weapon_t::WP_ROCKET_LAUNCHER:
+							case weapon_t::WP_FLECHETTE:
+							case weapon_t::WP_THERMAL:
+							case weapon_t::WP_TRIP_MINE:
+							case weapon_t::WP_DET_PACK:
 								distThreshold = 262144/*512*512*/;
 								break;
-							case WP_REPEATER:
-								if ( Any(NPCInfo->scriptFlags&SCF_ALT_FIRE) )
+							case weapon_t::WP_REPEATER:
+								if ( Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_ALT_FIRE) )
 								{
 									distThreshold = 262144/*512*512*/;
 								}
 								break;
-							case WP_CONCUSSION:
-								if ( !Any(NPCInfo->scriptFlags&SCF_ALT_FIRE) )
+							case weapon_t::WP_CONCUSSION:
+								if ( !Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_ALT_FIRE) )
 								{
 									distThreshold = 262144/*512*512*/;
 								}
@@ -299,8 +299,8 @@ void RT_FireDecide( void )
 		//FIXME: don't shoot right away!
 		if ( NPC->client->fireDelay )
 		{
-			if ( NPC->s.weapon == WP_ROCKET_LAUNCHER
-				|| (NPC->s.weapon == WP_CONCUSSION&&!Any(NPCInfo->scriptFlags&SCF_ALT_FIRE)) )
+			if ( NPC->s.weapon == weapon_t::WP_ROCKET_LAUNCHER
+				|| (NPC->s.weapon == weapon_t::WP_CONCUSSION&&!Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_ALT_FIRE)) )
 			{
 				if ( !enemyLOS || !enemyCS )
 				{//cancel it
@@ -316,29 +316,29 @@ void RT_FireDecide( void )
 		{//try to shoot if it's time
 			if ( TIMER_Done( NPC, "nextAttackDelay" ) )
 			{
-				if( !Any(NPCInfo->scriptFlags & SCF_FIRE_WEAPON) ) // we've already fired, no need to do it again here
+				if( !Any(NPCInfo->scriptFlags & scriptFlags_t::SCF_FIRE_WEAPON) ) // we've already fired, no need to do it again here
 				{
 					WeaponThink( true );
 				}
 				//NASTY
 				int altChance = 6;//FIXME: base on g_spskill
-				if ( NPC->s.weapon == WP_ROCKET_LAUNCHER )
+				if ( NPC->s.weapon == weapon_t::WP_ROCKET_LAUNCHER )
 				{
-					if ( Any(ucmd.buttons&BUTTON_ATTACK)
+					if ( Any(ucmd.buttons&buttonFlags_t::BUTTON_ATTACK)
 						&& !Q_irand( 0, altChance ) )
 					{//every now and then, shoot a homing rocket
-						ucmd.buttons &= ~BUTTON_ATTACK;
-						ucmd.buttons |= BUTTON_ALT_ATTACK;
+						ucmd.buttons &= ~buttonFlags_t::BUTTON_ATTACK;
+						ucmd.buttons |= buttonFlags_t::BUTTON_ALT_ATTACK;
 						NPC->client->fireDelay = Q_irand( 1000, 3000 );//FIXME: base on g_spskill
 					}
 				}
-				else if ( NPC->s.weapon == WP_CONCUSSION )
+				else if ( NPC->s.weapon == weapon_t::WP_CONCUSSION )
 				{
-					if ( Any(ucmd.buttons&BUTTON_ATTACK)
+					if ( Any(ucmd.buttons&buttonFlags_t::BUTTON_ATTACK)
 						&& Q_irand( 0, altChance*5 ) )
 					{//fire the beam shot
-						ucmd.buttons &= ~BUTTON_ATTACK;
-						ucmd.buttons |= BUTTON_ALT_ATTACK;
+						ucmd.buttons &= ~buttonFlags_t::BUTTON_ATTACK;
+						ucmd.buttons |= buttonFlags_t::BUTTON_ALT_ATTACK;
 						TIMER_Set( NPC, "nextAttackDelay", Q_irand( 1500, 2500 ) );//FIXME: base on g_spskill
 					}
 					else
@@ -356,7 +356,7 @@ void RT_FireDecide( void )
 //=====================================================================================
 bool RT_Flying( gentity_t *self )
 {
-	return ((self->client->moveType==MT_FLYSWIM));
+	return ((self->client->moveType==movetype_t::MT_FLYSWIM));
 }
 
 void RT_FlyStart( gentity_t *self )
@@ -365,12 +365,12 @@ void RT_FlyStart( gentity_t *self )
 		&& !RT_Flying( self ) )
 	{
 		self->client->ps.gravity = 0;
-		self->svFlags |= SVF_CUSTOM_GRAVITY;
-		self->client->moveType = MT_FLYSWIM;
+		self->svFlags |= svFlags_t::SVF_CUSTOM_GRAVITY;
+		self->client->moveType = movetype_t::MT_FLYSWIM;
 		//Inform NPC_HandleAIFlags we want to fly
 
 		if (self->NPC){
-			self->NPC->aiFlags |= NPCAI_FLY;
+			self->NPC->aiFlags |= npcAiFlags_t::NPCAI_FLY;
 			self->lastInAirTime = level.time;
 		}
 
@@ -386,7 +386,7 @@ void RT_FlyStart( gentity_t *self )
 		}
 
 		//take-off sound
-		G_SoundOnEnt( self, CHAN_ITEM, "sound/chars/boba/bf_blast-off.wav" );
+		G_SoundOnEnt( self, soundChannel_t::CHAN_ITEM, "sound/chars/boba/bf_blast-off.wav" );
 		//jet loop sound
 		self->s.loopSound = G_SoundIndex( "sound/chars/boba/bf_jetpack_lp.wav"  );
 		if ( self->NPC )
@@ -399,8 +399,8 @@ void RT_FlyStart( gentity_t *self )
 void RT_FlyStop( gentity_t *self )
 {
 	self->client->ps.gravity = g_gravity->value;
-	self->svFlags &= ~SVF_CUSTOM_GRAVITY;
-	self->client->moveType = MT_RUNJUMP;
+	self->svFlags &= ~svFlags_t::SVF_CUSTOM_GRAVITY;
+	self->client->moveType = movetype_t::MT_RUNJUMP;
 	//Stop the effect
 	self->client->jetPackTime = 0;
 	if ( self->genericBolt1 != -1 )
@@ -413,7 +413,7 @@ void RT_FlyStop( gentity_t *self )
 	}
 	//stop jet loop sound
 	self->s.loopSound = 0;
-	G_SoundOnEnt( self, CHAN_ITEM, "sound/chars/boba/bf_land.wav" );
+	G_SoundOnEnt( self, soundChannel_t::CHAN_ITEM, "sound/chars/boba/bf_land.wav" );
 
 	if ( self->NPC )
 	{
@@ -435,7 +435,7 @@ void RT_JetPackEffect( int duration )
 	}
 
 	//take-off sound
-	G_SoundOnEnt( NPC, CHAN_ITEM, "sound/chars/boba/bf_blast-off.wav" );
+	G_SoundOnEnt( NPC, soundChannel_t::CHAN_ITEM, "sound/chars/boba/bf_blast-off.wav" );
 }
 
 void RT_Flying_ApplyFriction( float frictionScale )
@@ -473,7 +473,7 @@ void RT_Flying_MaintainHeight( void )
 		return;
 	}
 
-	if ( Any(NPC->client->ps.pm_flags&PMF_TIME_KNOCKBACK) )
+	if ( Any(NPC->client->ps.pm_flags&pmoveFlags_t::PMF_TIME_KNOCKBACK) )
 	{//don't slow down for a bit
 		if ( NPC->client->ps.pm_time > 0 )
 		{
@@ -483,7 +483,7 @@ void RT_Flying_MaintainHeight( void )
 	}
 
 	/*
-	if ( Any(NPC->client->ps.eFlags&EF_FORCE_GRIPPED) )
+	if ( Any(NPC->client->ps.eFlags&entityFlags_t::EF_FORCE_GRIPPED) )
 	{
 		RT_Flying_ApplyFriction( 3.0f );
 		return;
@@ -491,7 +491,7 @@ void RT_Flying_MaintainHeight( void )
 	*/
 	// If we have an enemy, we should try to hover at or a little below enemy eye level
 	if ( NPC->enemy
-		&& (!Q3_TaskIDPending( NPC, TID_MOVE_NAV ) || !NPCInfo->goalEntity ) )
+		&& (!Q3_TaskIDPending( NPC, taskID_t::TID_MOVE_NAV ) || !NPCInfo->goalEntity ) )
 	{
 		if (TIMER_Done( NPC, "heightChange" ))
 		{
@@ -500,7 +500,7 @@ void RT_Flying_MaintainHeight( void )
 			float enemyZHeight = NPC->enemy->currentOrigin[2];
 			if ( NPC->enemy->client
 				&& NPC->enemy->client->ps.groundEntityNum == ENTITYNUM_NONE
-				&& (NPC->enemy->client->ps.forcePowersActive&Bit( FP_LEVITATION )) )
+				&& (NPC->enemy->client->ps.forcePowersActive&Bit( forcePowers_t::FP_LEVITATION )) )
 			{//so we don't go up when they force jump up at us
 				enemyZHeight = NPC->enemy->client->ps.forceJumpZStart;
 			}
@@ -527,7 +527,7 @@ void RT_Flying_MaintainHeight( void )
 			float enemyZHeight = NPC->enemy->currentOrigin[2];
 			if ( NPC->enemy->client
 				&& NPC->enemy->client->ps.groundEntityNum == ENTITYNUM_NONE
-				&& (NPC->enemy->client->ps.forcePowersActive&Bit( FP_LEVITATION )) )
+				&& (NPC->enemy->client->ps.forcePowersActive&Bit( forcePowers_t::FP_LEVITATION )) )
 			{//so we don't go up when they force jump up at us
 				enemyZHeight = NPC->enemy->client->ps.forceJumpZStart;
 			}
@@ -639,7 +639,7 @@ void RT_Flying_Strafe( void )
 		side = ( rand() & 1 ) ? -1 : 1;
 		VectorMA( NPC->currentOrigin, RT_FLYING_STRAFE_DIS * side, right, end );
 
-		gi.trace( &tr, NPC->currentOrigin, nullptr, nullptr, end, NPC->s.number, MASK_SOLID, G2_NOCOLLIDE, 0 );
+		gi.trace( &tr, NPC->currentOrigin, nullptr, nullptr, end, NPC->s.number, MASK_SOLID, EG2_Collision::G2_NOCOLLIDE, 0 );
 
 		// Close enough
 		if ( tr.fraction > 0.9f )
@@ -679,7 +679,7 @@ void RT_Flying_Strafe( void )
 		// then add a very small bit of random in front of/behind the player action
 		VectorMA( end, Q_flrand(-1.0f, 1.0f) * 25, dir, end );
 
-		gi.trace( &tr, NPC->currentOrigin, nullptr, nullptr, end, NPC->s.number, MASK_SOLID, G2_NOCOLLIDE, 0 );
+		gi.trace( &tr, NPC->currentOrigin, nullptr, nullptr, end, NPC->s.number, MASK_SOLID, EG2_Collision::G2_NOCOLLIDE, 0 );
 
 		// Close enough
 		if ( tr.fraction > 0.9f )
@@ -727,7 +727,7 @@ void RT_Flying_Hunt( bool visible, bool advance )
 	vec3_t	forward;
 
 	if ( NPC->forcePushTime >= level.time )
-		//|| Any(NPC->client->ps.eFlags&EF_FORCE_GRIPPED) )
+		//|| Any(NPC->client->ps.eFlags&entityFlags_t::EF_FORCE_GRIPPED) )
 	{//if being pushed, we don't have control over our movement
 		NPC->delay = 0;
 		return;
@@ -805,7 +805,7 @@ void RT_Flying_Hunt( bool visible, bool advance )
 
 void RT_Flying_Ranged( bool visible, bool advance )
 {
-	if ( Any( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
+	if ( Any( NPCInfo->scriptFlags & scriptFlags_t::SCF_CHASE_ENEMIES ) )
 	{
 		RT_Flying_Hunt( visible, advance );
 	}
@@ -824,7 +824,7 @@ void RT_Flying_Attack( void )
 	// If we cannot see our target, move to see it
 	if ( visible == false )
 	{
-		if ( Any( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
+		if ( Any( NPCInfo->scriptFlags & scriptFlags_t::SCF_CHASE_ENEMIES ) )
 		{
 			RT_Flying_Hunt( visible, advance );
 			return;
@@ -836,7 +836,7 @@ void RT_Flying_Attack( void )
 
 void RT_Flying_Think( void )
 {
-	if ( Q3_TaskIDPending( NPC, TID_MOVE_NAV )
+	if ( Q3_TaskIDPending( NPC, taskID_t::TID_MOVE_NAV )
 		&& UpdateGoal() )
 	{//being scripted to go to a certain spot, don't maintain height
 		if ( NPC_MoveToGoal( true ) )
@@ -894,10 +894,10 @@ void NPC_BSRT_Default( void )
 	//FIXME: this doesn't belong here
 	if ( NPC->client->ps.groundEntityNum != ENTITYNUM_NONE )
 	{
-		if ( NPCInfo->rank >= RANK_LT )//&& !Q_irand( 0, 50 ) )
+		if ( NPCInfo->rank >= rank_t::RANK_LT )//&& !Q_irand( 0, 50 ) )
 		{//officers always stay in the air
 			NPC->client->ps.velocity[2] = Q_irand( 50, 125 );
-			NPC->NPC->aiFlags |= NPCAI_FLY;	//fixme also, Inform NPC_HandleAIFlags we want to fly
+			NPC->NPC->aiFlags |= npcAiFlags_t::NPCAI_FLY;	//fixme also, Inform NPC_HandleAIFlags we want to fly
 		}
 	}
 

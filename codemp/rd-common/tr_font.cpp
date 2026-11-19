@@ -45,14 +45,13 @@ enum class Language_e
 	eChinese,	// 15x15 glyphs tucked against TL of 16x16 space
 	eThai,		// 16x16 cells with glyphs against left edge, special file (tha_widths.dat) for variable widths
 };
-using enum Language_e;
 
 // this is to cut down on all the stupid string compares I've been doing, and convert asian stuff to switch-case
 //
 Language_e GetLanguageEnum()
 {
 	static int			iSE_Language_ModificationCount = -1234;	// any old silly value that won't match the cvar mod count
-	static Language_e	eLanguage = eWestern;
+	static Language_e	eLanguage = Language_e::eWestern;
 
 	// only re-strcmp() when language string has changed from what we knew it as...
 	//
@@ -60,14 +59,14 @@ Language_e GetLanguageEnum()
 	{
 		iSE_Language_ModificationCount  = se_language->modificationCount;
 
-				if ( Language_IsRussian()	)	eLanguage = eRussian;
-		else	if ( Language_IsPolish()	)	eLanguage = ePolish;
-		else	if ( Language_IsKorean()	)	eLanguage = eKorean;
-		else	if ( Language_IsTaiwanese()	)	eLanguage = eTaiwanese;
-		else	if ( Language_IsJapanese()	)	eLanguage = eJapanese;
-		else	if ( Language_IsChinese()	)	eLanguage = eChinese;
-		else	if ( Language_IsThai()		)	eLanguage = eThai;
-		else	eLanguage = eWestern;
+				if ( Language_IsRussian()	)	eLanguage = Language_e::eRussian;
+		else	if ( Language_IsPolish()	)	eLanguage = Language_e::ePolish;
+		else	if ( Language_IsKorean()	)	eLanguage = Language_e::eKorean;
+		else	if ( Language_IsTaiwanese()	)	eLanguage = Language_e::eTaiwanese;
+		else	if ( Language_IsJapanese()	)	eLanguage = Language_e::eJapanese;
+		else	if ( Language_IsChinese()	)	eLanguage = Language_e::eChinese;
+		else	if ( Language_IsThai()		)	eLanguage = Language_e::eThai;
+		else	eLanguage = Language_e::eWestern;
 	}
 
 	return eLanguage;
@@ -83,9 +82,9 @@ struct SBCSOverrideLanguages_t
 //
 SBCSOverrideLanguages_t g_SBCSOverrideLanguages[]=
 {
-	{"russian",	eRussian},
-	{"polish",	ePolish},
-	{nullptr,		eWestern}
+	{"russian",	Language_e::eRussian},
+	{"polish",	Language_e::ePolish},
+	{nullptr,		Language_e::eWestern}
 };
 
 
@@ -698,7 +697,7 @@ unsigned int AnyLanguage_ReadCharFromString( const char *psText, int *piAdvanceC
 
 	switch ( GetLanguageEnum() )
 	{
-		case eKorean:
+		case Language_e::eKorean:
 		{
 			if ( Korean_ValidKSC5601Hangul( psString[0], psString[1] ))
 			{
@@ -718,7 +717,7 @@ unsigned int AnyLanguage_ReadCharFromString( const char *psText, int *piAdvanceC
 		}
 		break;
 
-		case eTaiwanese:
+		case Language_e::eTaiwanese:
 		{
 			if ( Taiwanese_ValidBig5Code( (psString[0] * 256) + psString[1] ))
 			{
@@ -737,7 +736,7 @@ unsigned int AnyLanguage_ReadCharFromString( const char *psText, int *piAdvanceC
 		}
 		break;
 
-		case eJapanese:
+		case Language_e::eJapanese:
 		{
 			if ( Japanese_ValidShiftJISCode( psString[0], psString[1] ))
 			{
@@ -756,7 +755,7 @@ unsigned int AnyLanguage_ReadCharFromString( const char *psText, int *piAdvanceC
 		}
 		break;
 
-		case eChinese:
+		case Language_e::eChinese:
 		{
 			if ( Chinese_ValidGBCode( (psString[0] * 256) + psString[1] ))
 			{
@@ -775,7 +774,7 @@ unsigned int AnyLanguage_ReadCharFromString( const char *psText, int *piAdvanceC
 		}
 		break;
 
-		case eThai:
+		case Language_e::eThai:
 		{
 			int iThaiBytes;
 			uiLetter = Thai_ValidTISCode( psString, iThaiBytes );
@@ -824,11 +823,11 @@ bool Language_IsAsian(void)
 {
 	switch ( GetLanguageEnum() )
 	{
-		case eKorean:
-		case eTaiwanese:
-		case eJapanese:
-		case eChinese:
-		case eThai:	// this is asian, but the query is normally used for scaling
+		case Language_e::eKorean:
+		case Language_e::eTaiwanese:
+		case Language_e::eJapanese:
+		case Language_e::eChinese:
+		case Language_e::eThai:	// this is asian, but the query is normally used for scaling
 			return true;
 		default:
 			break;
@@ -842,10 +841,10 @@ bool Language_UsesSpaces(void)
 	// ( korean uses spaces )
 	switch ( GetLanguageEnum() )
 	{
-		case eTaiwanese:
-		case eJapanese:
-		case eChinese:
-		case eThai:
+		case Language_e::eTaiwanese:
+		case Language_e::eJapanese:
+		case Language_e::eChinese:
+		case Language_e::eThai:
 			return false;
 		default:
 			break;
@@ -1040,7 +1039,7 @@ void CFontInfo::UpdateAsianIfNeeded( bool bForceReEval /* = false */ )
 	{
 		Language_e eLanguage = GetLanguageEnum();
 
-		if (eLanguage == eKorean || eLanguage == eTaiwanese || eLanguage == eJapanese || eLanguage == eChinese || eLanguage == eThai)
+		if (eLanguage == Language_e::eKorean || eLanguage == Language_e::eTaiwanese || eLanguage == Language_e::eJapanese || eLanguage == Language_e::eChinese || eLanguage == Language_e::eThai)
 		{
 			int iCappedHeight = mHeight < 16 ? 16: mHeight;	// arbitrary limit on small char sizes because Asian chars don't squash well
 
@@ -1053,11 +1052,11 @@ void CFontInfo::UpdateAsianIfNeeded( bool bForceReEval /* = false */ )
 
 				switch ( eLanguage )
 				{
-					case eKorean:		m_iAsianGlyphsAcross = Korean_InitFields(iGlyphTPs, psLang);	break;
-					case eTaiwanese:	m_iAsianGlyphsAcross = Taiwanese_InitFields(iGlyphTPs, psLang);	break;
-					case eJapanese:		m_iAsianGlyphsAcross = Japanese_InitFields(iGlyphTPs, psLang);	break;
-					case eChinese:		m_iAsianGlyphsAcross = Chinese_InitFields(iGlyphTPs, psLang);	break;
-					case eThai:
+					case Language_e::eKorean:		m_iAsianGlyphsAcross = Korean_InitFields(iGlyphTPs, psLang);	break;
+					case Language_e::eTaiwanese:	m_iAsianGlyphsAcross = Taiwanese_InitFields(iGlyphTPs, psLang);	break;
+					case Language_e::eJapanese:		m_iAsianGlyphsAcross = Japanese_InitFields(iGlyphTPs, psLang);	break;
+					case Language_e::eChinese:		m_iAsianGlyphsAcross = Chinese_InitFields(iGlyphTPs, psLang);	break;
+					case Language_e::eThai:
 					{
 						m_iAsianGlyphsAcross = Thai_InitFields(iGlyphTPs, psLang);
 
@@ -1073,7 +1072,7 @@ void CFontInfo::UpdateAsianIfNeeded( bool bForceReEval /* = false */ )
 								// failed to load a needed file, reset to English...
 								//
 								ri.Cvar_Set("se_language", "english");
-								Com_Error( ERR_DROP, "%s", psFailureReason );
+								Com_Error( errorParm_t::ERR_DROP, "%s", psFailureReason );
 							}
 						}
 					}
@@ -1120,12 +1119,12 @@ void CFontInfo::UpdateAsianIfNeeded( bool bForceReEval /* = false */ )
 				switch (eLanguage)
 				{
 					default:		m_AsianGlyph.horizAdvance	= iCappedHeight;	break;
-					case eKorean:	m_AsianGlyph.horizAdvance	= iCappedHeight - 1;break;	// korean has a small amount of space at the edge of the glyph
+					case Language_e::eKorean:	m_AsianGlyph.horizAdvance	= iCappedHeight - 1;break;	// korean has a small amount of space at the edge of the glyph
 
-					case eTaiwanese:
-					case eJapanese:
-					case eChinese:	m_AsianGlyph.horizAdvance	= iCappedHeight + 3;	// need to force some spacing for these
-//					case eThai:	// this is done dynamically elsewhere, since Thai glyphs are variable width
+					case Language_e::eTaiwanese:
+					case Language_e::eJapanese:
+					case Language_e::eChinese:	m_AsianGlyph.horizAdvance	= iCappedHeight + 3;	// need to force some spacing for these
+//					case Language_e::eThai:	// this is done dynamically elsewhere, since Thai glyphs are variable width
 				}
 				m_AsianGlyph.horizOffset	= 0;				// ""
 				m_AsianGlyph.baseline		= mAscender + ((iCappedHeight - mHeight) >> 1);
@@ -1221,7 +1220,7 @@ const glyphInfo_t *CFontInfo::GetLetter(const unsigned int uiLetter, int *piShad
 
 				switch ( GetLanguageEnum() )
 				{
-					case eKorean:
+					case Language_e::eKorean:
 					default:
 					{
 						m_AsianGlyph.s  = (float)( iColumn    ) / (float)m_iAsianGlyphsAcross;
@@ -1231,7 +1230,7 @@ const glyphInfo_t *CFontInfo::GetLetter(const unsigned int uiLetter, int *piShad
 					}
 					break;
 
-					case eTaiwanese:
+					case Language_e::eTaiwanese:
 					{
 						m_AsianGlyph.s  = (float)(((1024 / m_iAsianGlyphsAcross) * ( iColumn    ))+1) / 1024.0f;
 						m_AsianGlyph.t  = (float)(((1024 / iAsianGlyphsDown    ) * ( iRow       ))+1) / 1024.0f;
@@ -1240,8 +1239,8 @@ const glyphInfo_t *CFontInfo::GetLetter(const unsigned int uiLetter, int *piShad
 					}
 					break;
 
-					case eJapanese:
-					case eChinese:
+					case Language_e::eJapanese:
+					case Language_e::eChinese:
 					{
 						m_AsianGlyph.s  = (float)(((1024 / m_iAsianGlyphsAcross) * ( iColumn    ))  ) / 1024.0f;
 						m_AsianGlyph.t  = (float)(((1024 / iAsianGlyphsDown    ) * ( iRow       ))  ) / 1024.0f;
@@ -1250,7 +1249,7 @@ const glyphInfo_t *CFontInfo::GetLetter(const unsigned int uiLetter, int *piShad
 					}
 					break;
 
-					case eThai:
+					case Language_e::eThai:
 					{
 						int iGlyphXpos = (1024 / m_iAsianGlyphsAcross) * ( iColumn );
 						int iGlyphWidth = g_ThaiCodes.GetWidth( iOriginalCollapsedAsianCode );
@@ -1324,11 +1323,11 @@ const int CFontInfo::GetCollapsedAsianCode(ulong uiLetter) const
 	{
 		switch ( GetLanguageEnum() )
 		{
-			case eKorean:		iCollapsedAsianCode = Korean_CollapseKSC5601HangulCode( uiLetter );	break;
-			case eTaiwanese:	iCollapsedAsianCode = Taiwanese_CollapseBig5Code( uiLetter );		break;
-			case eJapanese:		iCollapsedAsianCode = Japanese_CollapseShiftJISCode( uiLetter );	break;
-			case eChinese:		iCollapsedAsianCode = Chinese_CollapseGBCode( uiLetter );			break;
-			case eThai:			iCollapsedAsianCode = Thai_CollapseTISCode( uiLetter );				break;
+			case Language_e::eKorean:		iCollapsedAsianCode = Korean_CollapseKSC5601HangulCode( uiLetter );	break;
+			case Language_e::eTaiwanese:	iCollapsedAsianCode = Taiwanese_CollapseBig5Code( uiLetter );		break;
+			case Language_e::eJapanese:		iCollapsedAsianCode = Japanese_CollapseShiftJISCode( uiLetter );	break;
+			case Language_e::eChinese:		iCollapsedAsianCode = Chinese_CollapseGBCode( uiLetter );			break;
+			case Language_e::eThai:			iCollapsedAsianCode = Thai_CollapseTISCode( uiLetter );				break;
 			default:			assert(0);	/* unhandled asian language */							break;
 		}
 	}
@@ -1512,7 +1511,7 @@ int RE_Font_StrLenChars(const char *psText)
 				break;	// colour code (note next-char skip)
 			case 10:								break;	// linefeed
 			case 13:								break;	// return
-			case '_':	iCharCount += (GetLanguageEnum() == eThai && (((unsigned char *)psText)[0] >= TIS_GLYPHS_START))?0:1; break;	// special word-break hack
+			case '_':	iCharCount += (GetLanguageEnum() == Language_e::eThai && (((unsigned char *)psText)[0] >= TIS_GLYPHS_START))?0:1; break;	// special word-break hack
 			default:	iCharCount++;				break;
 		}
 	}
@@ -1559,18 +1558,18 @@ void RE_Font_DrawString(int ox, int oy, const char *psText, const float *rgba, c
 	}
 
 //	// test code only
-//	if (GetLanguageEnum() == eTaiwanese)
+//	if (GetLanguageEnum() == Language_e::eTaiwanese)
 //	{
 //		psText = "Wp:¶}·F§a ¿p·G´µ¡A§Æ±æ§A¹³¥L­Ì»¡ªº¤@¼Ë¦æ¡C";
 //	}
 //	else
-//	if (GetLanguageEnum() == eChinese)
+//	if (GetLanguageEnum() == Language_e::eChinese)
 //	{
 //		//psText = "Ó¶±øÕ½³¡II  Ô¼º²?ÄªÁÖË¹  ÈÎÎñÊ§°Ü  ÄãÒªÌ×ÓÃ»­ÃæÉè¶¨µÄ±ä¸üÂð£¿  Ô¤Éè,S3 Ñ¹Ëõ,DXT1 Ñ¹Ëõ,DXT5 Ñ¹Ëõ,16 Bit,32 Bit";
 //		psText = "Ó¶±øÕ½³¡II";
 //	}
 //	else
-//	if (GetLanguageEnum() == eThai)
+//	if (GetLanguageEnum() == Language_e::eThai)
 //	{
 //		//psText = "ÁÒµÃ°Ò¹¼ÅÔµÀÑ³±ìÍØµÊÒË¡ÃÃÁÃËÑÊÊÓËÃÑºÍÑ¡¢ÃÐä·Â·Õèãªé¡Ñº¤ÍÁ¾ÔÇàµÍÃì";
 //		psText = "ÁÒµÃ°Ò¹¼ÅÔµ";
@@ -1578,25 +1577,25 @@ void RE_Font_DrawString(int ox, int oy, const char *psText, const float *rgba, c
 //		psText = "ÃËÑÊÊÓËÃÑº   ÍÒ_¡Ô¹_¤ÍÃì·_1415";
 //	}
 //	else
-//	if (GetLanguageEnum() == eKorean)
+//	if (GetLanguageEnum() == Language_e::eKorean)
 //	{
 //		psText = "Wp:¼îÅ¸ÀÓÀÌ´Ù ¸Ö¸°. ±×µéÀÌ ¸»ÇÑ´ë·Î ³×°¡ ÀßÇÒÁö ±â´ëÇÏ°Ú´Ù.";
 //	}
 //	else
-//	if (GetLanguageEnum() == eJapanese)
+//	if (GetLanguageEnum() == Language_e::eJapanese)
 //	{
 //		static char sBlah[200];
 //		sprintf(sBlah,va("%c%c%c%c%c%c%c%c",0x82,0xA9,0x82,0xC8,0x8A,0xBF,0x8E,0x9A));
 //		psText = &sBlah[0];
 //	}
 //	else
-//	if (GetLanguageEnum() == eRussian)
+//	if (GetLanguageEnum() == Language_e::eRussian)
 //	{
 ////		//psText = "Íà âåðøèíå õîëìà ñòîèò ñòàðûé äîì ñ ïðèâèäåíèÿìè è áàøíÿ ñ âîëøåáíûìè ÷àñàìè."
 //		psText = "Íà âåðøèíå õîëìà ñòîèò";
 //	}
 //	else
-//	if (GetLanguageEnum() == ePolish)
+//	if (GetLanguageEnum() == Language_e::ePolish)
 //	{
 //		psText = "za³o¿ony w 1364 roku, jest najstarsz¹ polsk¹ uczelni¹ i nale¿y...";
 //		psText = "za³o¿ony nale¿y";
@@ -1666,7 +1665,7 @@ void RE_Font_DrawString(int ox, int oy, const char *psText, const float *rgba, c
 			bNextTextWouldOverflow = ( iMaxPixelWidth != -1 && ((fx-fox) > (float)iMaxPixelWidth) ) ? true : false; // yeuch
 			break;
 		case '_':	// has a special word-break usage if in Thai (and followed by a thai char), and should not be displayed, else treat as normal
-			if (GetLanguageEnum()== eThai && ((unsigned char *)psText)[0] >= TIS_GLYPHS_START)
+			if (GetLanguageEnum()== Language_e::eThai && ((unsigned char *)psText)[0] >= TIS_GLYPHS_START)
 			{
 				break;
 			}
@@ -1700,7 +1699,7 @@ void RE_Font_DrawString(int ox, int oy, const char *psText, const float *rgba, c
 
 			// sigh, super-language-specific hack...
 			//
-			if (uiLetter == TIS_SARA_AM && GetLanguageEnum() == eThai)
+			if (uiLetter == TIS_SARA_AM && GetLanguageEnum() == Language_e::eThai)
 			{
 				fx -= curfont->mbRoundCalcs ? Round(7.0f * fThisScale) : 7.0f * fThisScale;
 			}
@@ -1802,7 +1801,7 @@ int RE_RegisterFont(const char *psName) {
 			}
 		}
 	} else {
-		ri.Printf( PRINT_WARNING, "RE_RegisterFont: Couldn't find font %s\n", psName );
+		ri.Printf( printParm_t::PRINT_WARNING, "RE_RegisterFont: Couldn't find font %s\n", psName );
 	}
 
 	return oriFontHandle;
@@ -1813,7 +1812,7 @@ void R_InitFonts(void)
 	g_iCurrentFontIndex = 1;			// entry 0 is reserved for "missing/invalid"
 	g_iNonScaledCharRange = INT_MAX;	// default all chars to have no special scaling (other than user supplied)
 
-	r_fontSharpness = ri.Cvar_Get( "r_fontSharpness", "1", CVAR_ARCHIVE_ND, "" );
+	r_fontSharpness = ri.Cvar_Get( "r_fontSharpness", "1", cvarFlags_t::CVAR_ARCHIVE_ND, "" );
 }
 
 /*

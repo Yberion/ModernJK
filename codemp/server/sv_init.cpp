@@ -95,7 +95,7 @@ void SV_UpdateConfigstrings(client_t *client)
 
 		// do not always send server info to all clients
 		if ( index == CS_SERVERINFO && client->gentity &&
-			Any( client->gentity->r.svFlags & SVF_NOSERVERINFO ) ) {
+			Any( client->gentity->r.svFlags & svFlags_t::SVF_NOSERVERINFO ) ) {
 			continue;
 		}
 		SV_SendConfigstring(client, index);
@@ -114,7 +114,7 @@ void SV_SetConfigstring (int index, const char *val) {
 	client_t	*client;
 
 	if ( index < 0 || index >= MAX_CONFIGSTRINGS ) {
-		Com_Error (ERR_DROP, "SV_SetConfigstring: bad index %i\n", index);
+		Com_Error (errorParm_t::ERR_DROP, "SV_SetConfigstring: bad index %i\n", index);
 	}
 
 	if ( !val ) {
@@ -132,17 +132,17 @@ void SV_SetConfigstring (int index, const char *val) {
 
 	// send it to all the clients if we aren't
 	// spawning a new server
-	if ( sv.state == SS_GAME || sv.restarting ) {
+	if ( sv.state == serverState_t::SS_GAME || sv.restarting ) {
 
 		// send the data to all relevent clients
 		for (i = 0, client = svs.clients; i < sv_maxclients->integer ; i++, client++) {
-			if ( client->state < CS_ACTIVE ) {
-				if ( client->state == CS_PRIMED )
+			if ( client->state < clientState_t::CS_ACTIVE ) {
+				if ( client->state == clientState_t::CS_PRIMED )
 					client->csUpdated[ index ] = true;
 				continue;
 			}
 			// do not always send server info to all clients
-			if ( index == CS_SERVERINFO && client->gentity && Any( client->gentity->r.svFlags & SVF_NOSERVERINFO ) ) {
+			if ( index == CS_SERVERINFO && client->gentity && Any( client->gentity->r.svFlags & svFlags_t::SVF_NOSERVERINFO ) ) {
 				continue;
 			}
 
@@ -159,10 +159,10 @@ SV_GetConfigstring
 */
 void SV_GetConfigstring( int index, char *buffer, int bufferSize ) {
 	if ( bufferSize < 1 ) {
-		Com_Error( ERR_DROP, "SV_GetConfigstring: bufferSize == %i", bufferSize );
+		Com_Error( errorParm_t::ERR_DROP, "SV_GetConfigstring: bufferSize == %i", bufferSize );
 	}
 	if ( index < 0 || index >= MAX_CONFIGSTRINGS ) {
-		Com_Error (ERR_DROP, "SV_GetConfigstring: bad index %i\n", index);
+		Com_Error (errorParm_t::ERR_DROP, "SV_GetConfigstring: bad index %i\n", index);
 	}
 	if ( !sv.configstrings[index] ) {
 		buffer[0] = 0;
@@ -180,7 +180,7 @@ SV_SetUserinfo
 */
 void SV_SetUserinfo( int index, const char *val ) {
 	if ( index < 0 || index >= sv_maxclients->integer ) {
-		Com_Error (ERR_DROP, "SV_SetUserinfo: bad index %i\n", index);
+		Com_Error (errorParm_t::ERR_DROP, "SV_SetUserinfo: bad index %i\n", index);
 	}
 
 	if ( !val ) {
@@ -199,10 +199,10 @@ SV_GetUserinfo
 */
 void SV_GetUserinfo( int index, char *buffer, int bufferSize ) {
 	if ( bufferSize < 1 ) {
-		Com_Error( ERR_DROP, "SV_GetUserinfo: bufferSize == %i", bufferSize );
+		Com_Error( errorParm_t::ERR_DROP, "SV_GetUserinfo: bufferSize == %i", bufferSize );
 	}
 	if ( index < 0 || index >= sv_maxclients->integer ) {
-		Com_Error (ERR_DROP, "SV_GetUserinfo: bad index %i\n", index);
+		Com_Error (errorParm_t::ERR_DROP, "SV_GetUserinfo: bad index %i\n", index);
 	}
 	Q_strncpyz( buffer, svs.clients[ index ].userinfo, bufferSize );
 }
@@ -242,7 +242,7 @@ SV_BoundMaxClients
 */
 void SV_BoundMaxClients( int minimum ) {
 	// get the current maxclients value
-	Cvar_Get( "sv_maxclients", "8", CVAR_NONE );
+	Cvar_Get( "sv_maxclients", "8", cvarFlags_t::CVAR_NONE );
 
 	sv_maxclients->modified = false;
 
@@ -265,11 +265,11 @@ the menu system first.
 */
 void SV_Startup( void ) {
 	if ( svs.initialized ) {
-		Com_Error( ERR_FATAL, "SV_Startup: svs.initialized" );
+		Com_Error( errorParm_t::ERR_FATAL, "SV_Startup: svs.initialized" );
 	}
 	SV_BoundMaxClients( 1 );
 
-	svs.clients = (struct client_s *)Z_Malloc (sizeof(client_t) * sv_maxclients->integer, TAG_CLIENTS, true );
+	svs.clients = (struct client_s *)Z_Malloc (sizeof(client_t) * sv_maxclients->integer, memtag::TAG_CLIENTS, true );
 	svs.numSnapshotEntities = SV_SNAPSHOT_ENTITIES;
 	if ( com_dedicated->integer ) {
 		Cvar_Set( "r_ghoul2animsmooth", "0");
@@ -315,7 +315,7 @@ void SV_ChangeMaxClients( void ) {
 	// get the highest client number in use
 	count = 0;
 	for ( i = 0 ; i < sv_maxclients->integer ; i++ ) {
-		if ( svs.clients[i].state >= CS_CONNECTED ) {
+		if ( svs.clients[i].state >= clientState_t::CS_CONNECTED ) {
 			if (i > count)
 				count = i;
 		}
@@ -333,7 +333,7 @@ void SV_ChangeMaxClients( void ) {
 	oldClients = (struct client_s *)Hunk_AllocateTempMemory( count * sizeof(client_t) );
 	// copy the clients to hunk memory
 	for ( i = 0 ; i < count ; i++ ) {
-		if ( svs.clients[i].state >= CS_CONNECTED ) {
+		if ( svs.clients[i].state >= clientState_t::CS_CONNECTED ) {
 			oldClients[i] = svs.clients[i];
 		}
 		else {
@@ -345,12 +345,12 @@ void SV_ChangeMaxClients( void ) {
 	Z_Free( svs.clients );
 
 	// allocate new clients
-	svs.clients = (struct client_s *)Z_Malloc ( sv_maxclients->integer * sizeof(client_t), TAG_CLIENTS, true );
+	svs.clients = (struct client_s *)Z_Malloc ( sv_maxclients->integer * sizeof(client_t), memtag::TAG_CLIENTS, true );
 	Com_Memset( svs.clients, 0, sv_maxclients->integer * sizeof(client_t) );
 
 	// copy the clients over
 	for ( i = 0 ; i < count ; i++ ) {
-		if ( oldClients[i].state >= CS_CONNECTED ) {
+		if ( oldClients[i].state >= clientState_t::CS_CONNECTED ) {
 			svs.clients[i] = oldClients[i];
 		}
 	}
@@ -418,9 +418,9 @@ void SV_SendMapChange(void)
 	{
 		for (i=0 ; i<sv_maxclients->integer ; i++)
 		{
-			if (svs.clients[i].state >= CS_CONNECTED)
+			if (svs.clients[i].state >= clientState_t::CS_CONNECTED)
 			{
-				if ( svs.clients[i].netchan.remoteAddress.type != NA_BOT ||
+				if ( svs.clients[i].netchan.remoteAddress.type != netadrtype_t::NA_BOT ||
 					svs.clients[i].demo.demorecording )
 				{
 					SV_SendClientMapChange( &svs.clients[i] ) ;
@@ -530,19 +530,19 @@ Ghoul2 Insert Start
 	SV_SendMapChange();
 
 	// clear pak references
-	FS_ClearPakReferences(FS_ALL_REF);
+	FS_ClearPakReferences(fsRefFlags_t::FS_ALL_REF);
 
 /*
 Ghoul2 Insert Start
 */
 	// allocate the snapshot entities on the hunk
-//	svs.snapshotEntities = (struct entityState_s *)Hunk_Alloc( sizeof(entityState_t)*svs.numSnapshotEntities, h_high );
+//	svs.snapshotEntities = (struct entityState_s *)Hunk_Alloc( sizeof(entityState_t)*svs.numSnapshotEntities, ha_pref::h_high );
 
 	// allocate the snapshot entities, zeroed by the system: a place nothing was stored in yet is not memory in use
 	// (cleared by hand, the whole array was: 69.7 MB at a window of 128 messages; plan step 14, part 5)
 	svs.snapshotEntities = (entityState_t *)calloc( svs.numSnapshotEntities, sizeof( entityState_t ) );
 	if ( !svs.snapshotEntities ) {
-		Com_Error( ERR_FATAL, "SV_SpawnServer: no memory for the snapshot entities" );
+		Com_Error( errorParm_t::ERR_FATAL, "SV_SpawnServer: no memory for the snapshot entities" );
 	}
 
 /*
@@ -551,7 +551,7 @@ Ghoul2 Insert End
 
 	// toggle the server bit so clients can detect that a
 	// server has changed
-	svs.snapFlagServerBit ^= SNAPFLAG_SERVERCOUNT;
+	svs.snapFlagServerBit ^= snapFlags_t::SNAPFLAG_SERVERCOUNT;
 
 	// set nextmap to the same map, but it may be overriden
 	// by the game startup or another console command
@@ -560,7 +560,7 @@ Ghoul2 Insert End
 
 	for (i=0 ; i<sv_maxclients->integer ; i++) {
 		// save when the server started for each client already connected
-		if (svs.clients[i].state >= CS_CONNECTED) {
+		if (svs.clients[i].state >= clientState_t::CS_CONNECTED) {
 			svs.clients[i].oldServerTime = sv.time;
 		}
 	}
@@ -605,7 +605,7 @@ Ghoul2 Insert End
 	// media configstring setting should be done during
 	// the loading stage, so connected clients don't have
 	// to load during actual gameplay
-	sv.state = SS_LOADING;
+	sv.state = serverState_t::SS_LOADING;
 
 	// load and spawn all other entities
 	SV_InitGameProgs();
@@ -632,10 +632,10 @@ Ghoul2 Insert End
 
 	for (i=0 ; i<sv_maxclients->integer ; i++) {
 		// send the new gamestate to all connected clients
-		if (svs.clients[i].state >= CS_CONNECTED) {
+		if (svs.clients[i].state >= clientState_t::CS_CONNECTED) {
 			const char	*denied;
 
-			if ( svs.clients[i].netchan.remoteAddress.type == NA_BOT ) {
+			if ( svs.clients[i].netchan.remoteAddress.type == netadrtype_t::NA_BOT ) {
 				if ( killBots ) {
 					SV_DropClient( &svs.clients[i], "" );
 					continue;
@@ -656,14 +656,14 @@ Ghoul2 Insert End
 				if( !isBot ) {
 					// when we get the next packet from a connected client,
 					// the new gamestate will be sent
-					svs.clients[i].state = CS_CONNECTED;
+					svs.clients[i].state = clientState_t::CS_CONNECTED;
 				}
 				else {
 					client_t		*client;
 					sharedEntity_t	*ent;
 
 					client = &svs.clients[i];
-					client->state = CS_ACTIVE;
+					client->state = clientState_t::CS_ACTIVE;
 					ent = SV_GentityNum( i );
 					ent->s.number = i;
 					client->gentity = ent;
@@ -715,17 +715,17 @@ Ghoul2 Insert End
 	Cvar_Set( "sv_referencedPakNames", p );
 
 	// save systeminfo and serverinfo strings
-	Q_strncpyz( systemInfo, Cvar_InfoString_Big( CVAR_SYSTEMINFO ), sizeof( systemInfo ) );
-	cvar_modifiedFlags &= ~CVAR_SYSTEMINFO;
+	Q_strncpyz( systemInfo, Cvar_InfoString_Big( cvarFlags_t::CVAR_SYSTEMINFO ), sizeof( systemInfo ) );
+	cvar_modifiedFlags &= ~cvarFlags_t::CVAR_SYSTEMINFO;
 	SV_SetConfigstring( CS_SYSTEMINFO, systemInfo );
 
-	SV_SetConfigstring( CS_SERVERINFO, Cvar_InfoString( CVAR_SERVERINFO ) );
-	cvar_modifiedFlags &= ~CVAR_SERVERINFO;
+	SV_SetConfigstring( CS_SERVERINFO, Cvar_InfoString( cvarFlags_t::CVAR_SERVERINFO ) );
+	cvar_modifiedFlags &= ~cvarFlags_t::CVAR_SERVERINFO;
 
 	// any media configstring setting now should issue a warning
 	// and any configstring changes should be reliably transmitted
 	// to all clients
-	sv.state = SS_GAME;
+	sv.state = serverState_t::SS_GAME;
 
 	// send a heartbeat now so the master will get up to date info
 	SV_Heartbeat_f();
@@ -743,7 +743,7 @@ Ghoul2 Insert End
 	for ( client_t *client = svs.clients; client - svs.clients < sv_maxclients->integer; client++) {
 		// bots will not request gamestate, so it must be manually sent
 		// cannot do this above where it says it will because mapname is not set at that time
-		if ( client->netchan.remoteAddress.type == NA_BOT && client->demo.demorecording ) {
+		if ( client->netchan.remoteAddress.type == netadrtype_t::NA_BOT && client->demo.demorecording ) {
 			SV_SendClientGameState( client );
 		}
 	}
@@ -783,13 +783,13 @@ void QDECL SV_RefPrintf( printParm_t print_level, const char *fmt, ...) {
 	Q_vsnprintf(msg, sizeof(msg), fmt, argptr);
 	va_end (argptr);
 
-	if ( print_level == PRINT_ALL ) {
+	if ( print_level == printParm_t::PRINT_ALL ) {
 		Com_Printf ("%s", msg);
-	} else if ( print_level == PRINT_WARNING ) {
+	} else if ( print_level == printParm_t::PRINT_WARNING ) {
 		Com_Printf (S_COLOR_YELLOW "%s", msg);		// yellow
-	} else if ( print_level == PRINT_DEVELOPER ) {
+	} else if ( print_level == printParm_t::PRINT_DEVELOPER ) {
 		Com_DPrintf (S_COLOR_RED "%s", msg);		// red
-	} else if ( print_level == PRINT_ERROR ) {
+	} else if ( print_level == printParm_t::PRINT_ERROR ) {
 		Com_Printf (S_COLOR_RED "%s", msg);		// red
 	}
 }
@@ -908,7 +908,7 @@ static void SV_InitRef( void ) {
 //	Com_Printf( "-------------------------------\n");
 
 	if ( !ret ) {
-		Com_Error (ERR_FATAL, "Couldn't initialize refresh" );
+		Com_Error (errorParm_t::ERR_FATAL, "Couldn't initialize refresh" );
 	}
 
 	re = ret;
@@ -922,77 +922,77 @@ void SV_Init (void) {
 	SV_AddOperatorCommands ();
 
 	// serverinfo vars
-	Cvar_Get ("dmflags", "0", CVAR_SERVERINFO);
-	Cvar_Get ("fraglimit", "20", CVAR_SERVERINFO);
-	Cvar_Get ("timelimit", "0", CVAR_SERVERINFO);
-	Cvar_Get ("capturelimit", "0", CVAR_SERVERINFO);
+	Cvar_Get ("dmflags", "0", cvarFlags_t::CVAR_SERVERINFO);
+	Cvar_Get ("fraglimit", "20", cvarFlags_t::CVAR_SERVERINFO);
+	Cvar_Get ("timelimit", "0", cvarFlags_t::CVAR_SERVERINFO);
+	Cvar_Get ("capturelimit", "0", cvarFlags_t::CVAR_SERVERINFO);
 
 	// Get these to establish them and to make sure they have a default before the menus decide to stomp them.
-	Cvar_Get ("g_maxHolocronCarry", "3", CVAR_SERVERINFO);
-	Cvar_Get ("g_privateDuel", "1", CVAR_SERVERINFO );
-	Cvar_Get ("g_saberLocking", "1", CVAR_SERVERINFO );
-	Cvar_Get ("g_maxForceRank", "7", CVAR_SERVERINFO );
-	Cvar_Get ("duel_fraglimit", "10", CVAR_SERVERINFO);
-	Cvar_Get ("g_forceBasedTeams", "0", CVAR_SERVERINFO);
-	Cvar_Get ("g_duelWeaponDisable", "1", CVAR_SERVERINFO);
+	Cvar_Get ("g_maxHolocronCarry", "3", cvarFlags_t::CVAR_SERVERINFO);
+	Cvar_Get ("g_privateDuel", "1", cvarFlags_t::CVAR_SERVERINFO );
+	Cvar_Get ("g_saberLocking", "1", cvarFlags_t::CVAR_SERVERINFO );
+	Cvar_Get ("g_maxForceRank", "7", cvarFlags_t::CVAR_SERVERINFO );
+	Cvar_Get ("duel_fraglimit", "10", cvarFlags_t::CVAR_SERVERINFO);
+	Cvar_Get ("g_forceBasedTeams", "0", cvarFlags_t::CVAR_SERVERINFO);
+	Cvar_Get ("g_duelWeaponDisable", "1", cvarFlags_t::CVAR_SERVERINFO);
 
-	sv_gametype = Cvar_Get ("g_gametype", "0", CVAR_SERVERINFO | CVAR_LATCH, "Server gametype value" );
-	sv_needpass = Cvar_Get ("g_needpass", "0", CVAR_SERVERINFO | CVAR_ROM, "Server needs password to join" );
-	Cvar_Get ("sv_keywords", "", CVAR_SERVERINFO);
-	Cvar_Get ("protocol", va("%i", PROTOCOL_VERSION), CVAR_SERVERINFO | CVAR_ROM);
-	sv_mapname = Cvar_Get ("mapname", "nomap", CVAR_SERVERINFO | CVAR_ROM);
-	sv_privateClients = Cvar_Get ("sv_privateClients", "0", CVAR_SERVERINFO, "Number of reserved client slots available with password" );
+	sv_gametype = Cvar_Get ("g_gametype", "0", cvarFlags_t::CVAR_SERVERINFO | cvarFlags_t::CVAR_LATCH, "Server gametype value" );
+	sv_needpass = Cvar_Get ("g_needpass", "0", cvarFlags_t::CVAR_SERVERINFO | cvarFlags_t::CVAR_ROM, "Server needs password to join" );
+	Cvar_Get ("sv_keywords", "", cvarFlags_t::CVAR_SERVERINFO);
+	Cvar_Get ("protocol", va("%i", PROTOCOL_VERSION), cvarFlags_t::CVAR_SERVERINFO | cvarFlags_t::CVAR_ROM);
+	sv_mapname = Cvar_Get ("mapname", "nomap", cvarFlags_t::CVAR_SERVERINFO | cvarFlags_t::CVAR_ROM);
+	sv_privateClients = Cvar_Get ("sv_privateClients", "0", cvarFlags_t::CVAR_SERVERINFO, "Number of reserved client slots available with password" );
 	Cvar_CheckRange( sv_privateClients, 0, MAX_CLIENTS, true );
-	sv_hostname = Cvar_Get ("sv_hostname", "*Jedi*", CVAR_SERVERINFO | CVAR_ARCHIVE, "The name of the server that is displayed in the serverlist" );
-	sv_maxclients = Cvar_Get ("sv_maxclients", "8", CVAR_SERVERINFO | CVAR_LATCH, "Max. connected clients" );
+	sv_hostname = Cvar_Get ("sv_hostname", "*Jedi*", cvarFlags_t::CVAR_SERVERINFO | cvarFlags_t::CVAR_ARCHIVE, "The name of the server that is displayed in the serverlist" );
+	sv_maxclients = Cvar_Get ("sv_maxclients", "8", cvarFlags_t::CVAR_SERVERINFO | cvarFlags_t::CVAR_LATCH, "Max. connected clients" );
 
 
-	sv_minPing = Cvar_Get ("sv_minPing", "0", CVAR_ARCHIVE_ND | CVAR_SERVERINFO );
-	sv_maxPing = Cvar_Get ("sv_maxPing", "0", CVAR_ARCHIVE_ND | CVAR_SERVERINFO );
-	sv_floodProtect = Cvar_Get ("sv_floodProtect", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, "Protect against flooding of server commands" );
-	sv_floodProtectSlow = Cvar_Get ("sv_floodProtectSlow", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, "Use original method of delaying commands with flood protection" );
+	sv_minPing = Cvar_Get ("sv_minPing", "0", cvarFlags_t::CVAR_ARCHIVE_ND | cvarFlags_t::CVAR_SERVERINFO );
+	sv_maxPing = Cvar_Get ("sv_maxPing", "0", cvarFlags_t::CVAR_ARCHIVE_ND | cvarFlags_t::CVAR_SERVERINFO );
+	sv_floodProtect = Cvar_Get ("sv_floodProtect", "1", cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_SERVERINFO, "Protect against flooding of server commands" );
+	sv_floodProtectSlow = Cvar_Get ("sv_floodProtectSlow", "1", cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_SERVERINFO, "Use original method of delaying commands with flood protection" );
 	// systeminfo
-	Cvar_Get ("sv_cheats", "1", CVAR_SYSTEMINFO | CVAR_ROM, "Allow cheats on server if set to 1" );
-	sv_serverid = Cvar_Get ("sv_serverid", "0", CVAR_SYSTEMINFO | CVAR_ROM );
-	sv_pure = Cvar_Get ("sv_pure", "0", CVAR_SYSTEMINFO, "Pure server" );
-	Cvar_Get ("sv_paks", "", CVAR_SYSTEMINFO | CVAR_ROM );
-	Cvar_Get ("sv_pakNames", "", CVAR_SYSTEMINFO | CVAR_ROM );
-	Cvar_Get ("sv_referencedPaks", "", CVAR_SYSTEMINFO | CVAR_ROM );
-	Cvar_Get ("sv_referencedPakNames", "", CVAR_SYSTEMINFO | CVAR_ROM );
+	Cvar_Get ("sv_cheats", "1", cvarFlags_t::CVAR_SYSTEMINFO | cvarFlags_t::CVAR_ROM, "Allow cheats on server if set to 1" );
+	sv_serverid = Cvar_Get ("sv_serverid", "0", cvarFlags_t::CVAR_SYSTEMINFO | cvarFlags_t::CVAR_ROM );
+	sv_pure = Cvar_Get ("sv_pure", "0", cvarFlags_t::CVAR_SYSTEMINFO, "Pure server" );
+	Cvar_Get ("sv_paks", "", cvarFlags_t::CVAR_SYSTEMINFO | cvarFlags_t::CVAR_ROM );
+	Cvar_Get ("sv_pakNames", "", cvarFlags_t::CVAR_SYSTEMINFO | cvarFlags_t::CVAR_ROM );
+	Cvar_Get ("sv_referencedPaks", "", cvarFlags_t::CVAR_SYSTEMINFO | cvarFlags_t::CVAR_ROM );
+	Cvar_Get ("sv_referencedPakNames", "", cvarFlags_t::CVAR_SYSTEMINFO | cvarFlags_t::CVAR_ROM );
 
 	// server vars
-	sv_rconPassword = Cvar_Get ("rconPassword", "", CVAR_TEMP );
-	sv_privatePassword = Cvar_Get ("sv_privatePassword", "", CVAR_TEMP );
-	Cvar_Get ("nextmap", "", CVAR_TEMP );
+	sv_rconPassword = Cvar_Get ("rconPassword", "", cvarFlags_t::CVAR_TEMP );
+	sv_privatePassword = Cvar_Get ("sv_privatePassword", "", cvarFlags_t::CVAR_TEMP );
+	Cvar_Get ("nextmap", "", cvarFlags_t::CVAR_TEMP );
 
-	sv_allowDownload = Cvar_Get ("sv_allowDownload", "0", CVAR_SERVERINFO, "Allow clients to download mod files via UDP from the server");
-	sv_master[0] = Cvar_Get ("sv_master1", MASTER_SERVER_NAME, CVAR_PROTECTED );
-	sv_master[1] = Cvar_Get ("sv_master2", JKHUB_MASTER_SERVER_NAME, CVAR_PROTECTED);
+	sv_allowDownload = Cvar_Get ("sv_allowDownload", "0", cvarFlags_t::CVAR_SERVERINFO, "Allow clients to download mod files via UDP from the server");
+	sv_master[0] = Cvar_Get ("sv_master1", MASTER_SERVER_NAME, cvarFlags_t::CVAR_PROTECTED );
+	sv_master[1] = Cvar_Get ("sv_master2", JKHUB_MASTER_SERVER_NAME, cvarFlags_t::CVAR_PROTECTED);
 	for(int index = 2; index < MAX_MASTER_SERVERS; index++)
-		sv_master[index] = Cvar_Get(va("sv_master%d", index + 1), "", CVAR_ARCHIVE_ND|CVAR_PROTECTED);
-	sv_reconnectlimit = Cvar_Get ("sv_reconnectlimit", "3", CVAR_NONE);
-	sv_showghoultraces = Cvar_Get ("sv_showghoultraces", "0", CVAR_NONE);
-	sv_showloss = Cvar_Get ("sv_showloss", "0", CVAR_NONE);
-	sv_netcodecCompare = Cvar_Get ("sv_netcodecCompare", "0", CVAR_TEMP, "Debug: also code each message in the legacy format and print the byte ratio (1: every 10 seconds, 2: every message)");
-	sv_netcodecMaxBytes = Cvar_Get ("sv_netcodecMaxBytes", "0", CVAR_TEMP, "Debug: the largest message the server codes, in bytes (0: MAX_MSGLEN, 49152), to test what happens to larger ones: snapshots are cut, a gamestate drops the client");
-	sv_killserver = Cvar_Get ("sv_killserver", "0", CVAR_NONE);
-	sv_mapChecksum = Cvar_Get ("sv_mapChecksum", "", CVAR_ROM);
+		sv_master[index] = Cvar_Get(va("sv_master%d", index + 1), "", cvarFlags_t::CVAR_ARCHIVE_ND|cvarFlags_t::CVAR_PROTECTED);
+	sv_reconnectlimit = Cvar_Get ("sv_reconnectlimit", "3", cvarFlags_t::CVAR_NONE);
+	sv_showghoultraces = Cvar_Get ("sv_showghoultraces", "0", cvarFlags_t::CVAR_NONE);
+	sv_showloss = Cvar_Get ("sv_showloss", "0", cvarFlags_t::CVAR_NONE);
+	sv_netcodecCompare = Cvar_Get ("sv_netcodecCompare", "0", cvarFlags_t::CVAR_TEMP, "Debug: also code each message in the legacy format and print the byte ratio (1: every 10 seconds, 2: every message)");
+	sv_netcodecMaxBytes = Cvar_Get ("sv_netcodecMaxBytes", "0", cvarFlags_t::CVAR_TEMP, "Debug: the largest message the server codes, in bytes (0: MAX_MSGLEN, 49152), to test what happens to larger ones: snapshots are cut, a gamestate drops the client");
+	sv_killserver = Cvar_Get ("sv_killserver", "0", cvarFlags_t::CVAR_NONE);
+	sv_mapChecksum = Cvar_Get ("sv_mapChecksum", "", cvarFlags_t::CVAR_ROM);
 
-	sv_filterCommands = Cvar_Get( "sv_filterCommands", "1", CVAR_ARCHIVE );
+	sv_filterCommands = Cvar_Get( "sv_filterCommands", "1", cvarFlags_t::CVAR_ARCHIVE );
 
-//	sv_debugserver = Cvar_Get ("sv_debugserver", "0", CVAR_NONE);
+//	sv_debugserver = Cvar_Get ("sv_debugserver", "0", cvarFlags_t::CVAR_NONE);
 
-	sv_autoDemo = Cvar_Get( "sv_autoDemo", "0", CVAR_ARCHIVE_ND | CVAR_SERVERINFO, "Automatically take server-side demos" );
-	sv_autoDemoBots = Cvar_Get( "sv_autoDemoBots", "0", CVAR_ARCHIVE_ND, "Record server-side demos for bots" );
-	sv_autoDemoMaxMaps = Cvar_Get( "sv_autoDemoMaxMaps", "0", CVAR_ARCHIVE_ND );
+	sv_autoDemo = Cvar_Get( "sv_autoDemo", "0", cvarFlags_t::CVAR_ARCHIVE_ND | cvarFlags_t::CVAR_SERVERINFO, "Automatically take server-side demos" );
+	sv_autoDemoBots = Cvar_Get( "sv_autoDemoBots", "0", cvarFlags_t::CVAR_ARCHIVE_ND, "Record server-side demos for bots" );
+	sv_autoDemoMaxMaps = Cvar_Get( "sv_autoDemoMaxMaps", "0", cvarFlags_t::CVAR_ARCHIVE_ND );
 
-	sv_legacyFixes = Cvar_Get( "sv_legacyFixes", "1", CVAR_ARCHIVE );
+	sv_legacyFixes = Cvar_Get( "sv_legacyFixes", "1", cvarFlags_t::CVAR_ARCHIVE );
 
-	sv_banFile = Cvar_Get( "sv_banFile", "serverbans.dat", CVAR_ARCHIVE, "File to use to store bans and exceptions" );
+	sv_banFile = Cvar_Get( "sv_banFile", "serverbans.dat", cvarFlags_t::CVAR_ARCHIVE, "File to use to store bans and exceptions" );
 
-	sv_maxOOBRate = Cvar_Get("sv_maxOOBRate", "1000", CVAR_ARCHIVE, "Maximum rate of handling incoming server commands" );
-	sv_maxOOBRateIP = Cvar_Get("sv_maxOOBRateIP", "1", CVAR_ARCHIVE, "Maximum rate of handling incoming server commands per IP address" );
-	sv_autoWhitelist = Cvar_Get("sv_autoWhitelist", "1", CVAR_ARCHIVE, "Save player IPs to allow them using server during DOS attack" );
+	sv_maxOOBRate = Cvar_Get("sv_maxOOBRate", "1000", cvarFlags_t::CVAR_ARCHIVE, "Maximum rate of handling incoming server commands" );
+	sv_maxOOBRateIP = Cvar_Get("sv_maxOOBRateIP", "1", cvarFlags_t::CVAR_ARCHIVE, "Maximum rate of handling incoming server commands per IP address" );
+	sv_autoWhitelist = Cvar_Get("sv_autoWhitelist", "1", cvarFlags_t::CVAR_ARCHIVE, "Save player IPs to allow them using server during DOS attack" );
 
 	// initialize bot cvars so they are listed and can be set before loading the botlib
 	SV_BotInitCvars();
@@ -1031,9 +1031,9 @@ void SV_FinalMessage( const char *message ) {
 	// send it twice, ignoring rate
 	for ( j = 0 ; j < 2 ; j++ ) {
 		for (i=0, cl = svs.clients ; i < sv_maxclients->integer ; i++, cl++) {
-			if (cl->state >= CS_CONNECTED) {
+			if (cl->state >= clientState_t::CS_CONNECTED) {
 				// don't send a disconnect to a local client
-				if ( cl->netchan.remoteAddress.type != NA_LOOPBACK ) {
+				if ( cl->netchan.remoteAddress.type != netadrtype_t::NA_LOOPBACK ) {
 					SV_SendServerCommand( cl, "print \"%s\"", message );
 					SV_SendServerCommand( cl, "disconnect" );
 				}

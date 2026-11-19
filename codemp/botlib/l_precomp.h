@@ -66,7 +66,6 @@ enum class defineFlags_t
 	DEFINE_FIXED			= 0x0001,
 	DEFINE_GLOBAL			= 0x0002,
 };
-using enum defineFlags_t;
 template <> inline constexpr bool enableEnumFlags<defineFlags_t> = true;
 
 enum class builtinDefine_t
@@ -78,7 +77,6 @@ enum class builtinDefine_t
 	BUILTIN_TIME,
 	BUILTIN_STDC,
 };
-using enum builtinDefine_t;
 
 enum class indentFlags_t
 {
@@ -89,7 +87,6 @@ enum class indentFlags_t
 	INDENT_IFDEF			= 0x0008,
 	INDENT_IFNDEF			= 0x0010,
 };
-using enum indentFlags_t;
 template <> inline constexpr bool enableEnumFlags<indentFlags_t> = true;
 
 //macro definitions

@@ -64,7 +64,7 @@ void NPC_Blocked( gentity_t *self, gentity_t *blocker )
 		return;
 
 	//Attempt to run any blocked scripts
-	if ( G_ActivateBehavior( self, BSET_BLOCKED ) )
+	if ( G_ActivateBehavior( self, bSet_t::BSET_BLOCKED ) )
 	{
 		return;
 	}
@@ -76,7 +76,7 @@ void NPC_Blocked( gentity_t *self, gentity_t *blocker )
 		return;
 	}
 
-	Debug_Printf( debugNPCAI, DEBUG_LEVEL_WARNING, "%s: Excuse me, %s %s!\n", self->targetname, blocker->classname, blocker->targetname );
+	Debug_Printf( debugNPCAI, aiDebugLevel_t::DEBUG_LEVEL_WARNING, "%s: Excuse me, %s %s!\n", self->targetname, blocker->classname, blocker->targetname );
 
 	//If we're being blocked by the player, say something to them
 	if ( ( blocker->s.number == 0 ) && ( ( blocker->client->playerTeam == self->client->playerTeam ) ) )
@@ -121,7 +121,7 @@ void NPC_SetMoveGoal( gentity_t *ent, vec3_t point, int radius, bool isNavGoal, 
 
 	ent->NPC->tempGoal->target = nullptr;
 	ent->NPC->tempGoal->clipmask = ent->clipmask;
-	ent->NPC->tempGoal->svFlags &= ~SVF_NAVGOAL;
+	ent->NPC->tempGoal->svFlags &= ~svFlags_t::SVF_NAVGOAL;
 	if ( targetEnt && targetEnt->waypoint >= 0 )
 	{
 		ent->NPC->tempGoal->waypoint = targetEnt->waypoint;
@@ -135,7 +135,7 @@ void NPC_SetMoveGoal( gentity_t *ent, vec3_t point, int radius, bool isNavGoal, 
 	if ( isNavGoal )
 	{
 		assert(ent->NPC->tempGoal->owner);
-		ent->NPC->tempGoal->svFlags |= SVF_NAVGOAL;
+		ent->NPC->tempGoal->svFlags |= svFlags_t::SVF_NAVGOAL;
 	}
 
 	ent->NPC->tempGoal->combatPoint = combatPoint;
@@ -211,7 +211,7 @@ NAV_ClearPathToPoint
 bool NAV_ClearPathToPoint( gentity_t *self, vec3_t pmins, vec3_t pmaxs, vec3_t point, contentsFlags_t clipmask, int okToHitEntNum )
 {
 //	trace_t	trace;
-//	return NAV_CheckAhead( self, point, trace, clipmask|CONTENTS_BOTCLIP );
+//	return NAV_CheckAhead( self, point, trace, clipmask|contentsFlags_t::CONTENTS_BOTCLIP );
 
 	vec3_t	mins, maxs;
 	trace_t	trace;
@@ -220,7 +220,7 @@ bool NAV_ClearPathToPoint( gentity_t *self, vec3_t pmins, vec3_t pmaxs, vec3_t p
 	if ( !gi.inPVS( self->currentOrigin, point ) )
 		return false;
 
-	if ( Any( self->svFlags & SVF_NAVGOAL ) )
+	if ( Any( self->svFlags & svFlags_t::SVF_NAVGOAL ) )
 	{
 		if ( !self->owner )
 		{
@@ -237,7 +237,7 @@ bool NAV_ClearPathToPoint( gentity_t *self, vec3_t pmins, vec3_t pmaxs, vec3_t p
 		VectorCopy( pmaxs, maxs );
 	}
 
-	if ( self->client || Any( self->svFlags & SVF_NAVGOAL ) )
+	if ( self->client || Any( self->svFlags & svFlags_t::SVF_NAVGOAL ) )
 	{
 		//Clients can step up things, or if this is a navgoal check, a client will be using this info
 		mins[2] += STEPSIZE;
@@ -249,14 +249,14 @@ bool NAV_ClearPathToPoint( gentity_t *self, vec3_t pmins, vec3_t pmaxs, vec3_t p
 		}
 	}
 
-	if ( Any( self->svFlags & SVF_NAVGOAL ) )
+	if ( Any( self->svFlags & svFlags_t::SVF_NAVGOAL ) )
 	{
 		//Trace from point to navgoal
-		gi.trace( &trace, point, mins, maxs, self->currentOrigin, self->owner->s.number, (clipmask|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP)&~CONTENTS_BODY, G2_NOCOLLIDE, 0 );
-		if ( trace.startsolid&&Any( trace.contents&CONTENTS_BOTCLIP ) )
+		gi.trace( &trace, point, mins, maxs, self->currentOrigin, self->owner->s.number, (clipmask|contentsFlags_t::CONTENTS_MONSTERCLIP|contentsFlags_t::CONTENTS_BOTCLIP)&~contentsFlags_t::CONTENTS_BODY, EG2_Collision::G2_NOCOLLIDE, 0 );
+		if ( trace.startsolid&&Any( trace.contents&contentsFlags_t::CONTENTS_BOTCLIP ) )
 		{//started inside do not enter, so ignore them
-			clipmask &= ~CONTENTS_BOTCLIP;
-			gi.trace( &trace, point, mins, maxs, self->currentOrigin, self->owner->s.number, (clipmask|CONTENTS_MONSTERCLIP)&~CONTENTS_BODY, G2_NOCOLLIDE, 0 );
+			clipmask &= ~contentsFlags_t::CONTENTS_BOTCLIP;
+			gi.trace( &trace, point, mins, maxs, self->currentOrigin, self->owner->s.number, (clipmask|contentsFlags_t::CONTENTS_MONSTERCLIP)&~contentsFlags_t::CONTENTS_BODY, EG2_Collision::G2_NOCOLLIDE, 0 );
 		}
 
 		if ( trace.startsolid || trace.allsolid )
@@ -287,7 +287,7 @@ bool NAV_ClearPathToPoint( gentity_t *self, vec3_t pmins, vec3_t pmaxs, vec3_t p
 				if ( trace.entityNum < ENTITYNUM_WORLD && !g_entities[trace.entityNum].bmodel )
 				{
 					vec3_t	p1, p2;
-					CG_DrawEdge( point, trace.endpos, EDGE_PATH );
+					CG_DrawEdge( point, trace.endpos, edgeType_t::EDGE_PATH );
 					VectorAdd(g_entities[trace.entityNum].mins, g_entities[trace.entityNum].currentOrigin, p1);
 					VectorAdd(g_entities[trace.entityNum].maxs, g_entities[trace.entityNum].currentOrigin, p2);
 					CG_CubeOutline( p1, p2, FRAMETIME, 0x0000ff, 0.5 );
@@ -298,11 +298,11 @@ bool NAV_ClearPathToPoint( gentity_t *self, vec3_t pmins, vec3_t pmaxs, vec3_t p
 	}
 	else
 	{
-		gi.trace( &trace, self->currentOrigin, mins, maxs, point, self->s.number, clipmask|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP, G2_NOCOLLIDE, 0);
-		if ( trace.startsolid&&Any( trace.contents&CONTENTS_BOTCLIP ) )
+		gi.trace( &trace, self->currentOrigin, mins, maxs, point, self->s.number, clipmask|contentsFlags_t::CONTENTS_MONSTERCLIP|contentsFlags_t::CONTENTS_BOTCLIP, EG2_Collision::G2_NOCOLLIDE, 0);
+		if ( trace.startsolid&&Any( trace.contents&contentsFlags_t::CONTENTS_BOTCLIP ) )
 		{//started inside do not enter, so ignore them
-			clipmask &= ~CONTENTS_BOTCLIP;
-			gi.trace( &trace, self->currentOrigin, mins, maxs, point, self->s.number, clipmask|CONTENTS_MONSTERCLIP, G2_NOCOLLIDE, 0);
+			clipmask &= ~contentsFlags_t::CONTENTS_BOTCLIP;
+			gi.trace( &trace, self->currentOrigin, mins, maxs, point, self->s.number, clipmask|contentsFlags_t::CONTENTS_MONSTERCLIP, EG2_Collision::G2_NOCOLLIDE, 0);
 		}
 
 		if( ( ( trace.startsolid == false ) && ( trace.allsolid == false ) ) && ( trace.fraction == 1.0f ) )
@@ -320,7 +320,7 @@ bool NAV_ClearPathToPoint( gentity_t *self, vec3_t pmins, vec3_t pmaxs, vec3_t p
 			if ( trace.entityNum < ENTITYNUM_WORLD && !g_entities[trace.entityNum].bmodel )
 			{
 				vec3_t	p1, p2;
-				CG_DrawEdge( self->currentOrigin, trace.endpos, EDGE_PATH );
+				CG_DrawEdge( self->currentOrigin, trace.endpos, edgeType_t::EDGE_PATH );
 				VectorAdd(g_entities[trace.entityNum].mins, g_entities[trace.entityNum].currentOrigin, p1);
 				VectorAdd(g_entities[trace.entityNum].maxs, g_entities[trace.entityNum].currentOrigin, p2);
 				CG_CubeOutline( p1, p2, FRAMETIME, 0x0000ff, 0.5 );
@@ -341,7 +341,7 @@ NAV_FindClosestWaypointForEnt
 int NAV_FindClosestWaypointForEnt( gentity_t *ent, int targWp )
 {
 	//FIXME: Take the target into account
-	return navigator.GetNearestNode( ent, ent->waypoint, NF_CLEAR_PATH, targWp );
+	return navigator.GetNearestNode( ent, ent->waypoint, navNodeFlags_t::NF_CLEAR_PATH, targWp );
 }
 
 int NAV_FindClosestWaypointForPoint( gentity_t *ent, vec3_t point )
@@ -363,7 +363,7 @@ int NAV_FindClosestWaypointForPoint( gentity_t *ent, vec3_t point )
 	marker->clipmask = ent->clipmask;
 	marker->waypoint = WAYPOINT_NONE;
 
-	bestWP = navigator.GetNearestNode( marker, marker->waypoint, NF_CLEAR_PATH, WAYPOINT_NONE );
+	bestWP = navigator.GetNearestNode( marker, marker->waypoint, navNodeFlags_t::NF_CLEAR_PATH, WAYPOINT_NONE );
 
 	G_FreeEntity( marker );
 
@@ -389,7 +389,7 @@ int NAV_FindClosestWaypointForPoint( vec3_t point )
 	marker->clipmask = MASK_NPCSOLID;
 	marker->waypoint = WAYPOINT_NONE;
 
-	bestWP = navigator.GetNearestNode( marker, marker->waypoint, NF_CLEAR_PATH, WAYPOINT_NONE );
+	bestWP = navigator.GetNearestNode( marker, marker->waypoint, navNodeFlags_t::NF_CLEAR_PATH, WAYPOINT_NONE );
 
 	G_FreeEntity( marker );
 
@@ -404,7 +404,7 @@ NAV_ClearBlockedInfo
 
 void NAV_ClearBlockedInfo( gentity_t *self )
 {
-	self->NPC->aiFlags &= ~NPCAI_BLOCKED;
+	self->NPC->aiFlags &= ~npcAiFlags_t::NPCAI_BLOCKED;
 	self->NPC->blockingEntNum = ENTITYNUM_WORLD;
 }
 
@@ -416,7 +416,7 @@ NAV_SetBlockedInfo
 
 void NAV_SetBlockedInfo( gentity_t *self, int entId )
 {
-	self->NPC->aiFlags |= NPCAI_BLOCKED;
+	self->NPC->aiFlags |= npcAiFlags_t::NPCAI_BLOCKED;
 	self->NPC->blockingEntNum = entId;
 }
 
@@ -451,18 +451,18 @@ int NAV_Steer( gentity_t *self, vec3_t dir, float distance )
 	//Draw for debug purposes
 	if ( NAVDEBUG_showCollision )
 	{
-		CG_DrawEdge( self->currentOrigin, right_test, EDGE_PATH );
-		CG_DrawEdge( self->currentOrigin, left_test,  EDGE_PATH );
+		CG_DrawEdge( self->currentOrigin, right_test, edgeType_t::EDGE_PATH );
+		CG_DrawEdge( self->currentOrigin, left_test,  edgeType_t::EDGE_PATH );
 	}
 
 	//Find the right influence
 	trace_t	tr;
-	NAV_CheckAhead( self, right_test, tr, self->clipmask|CONTENTS_BOTCLIP );
+	NAV_CheckAhead( self, right_test, tr, self->clipmask|contentsFlags_t::CONTENTS_BOTCLIP );
 
 	float	right_push = -45 * ( 1.0f - tr.fraction );
 
 	//Find the left influence
-	NAV_CheckAhead( self, left_test, tr, self->clipmask|CONTENTS_BOTCLIP );
+	NAV_CheckAhead( self, left_test, tr, self->clipmask|contentsFlags_t::CONTENTS_BOTCLIP );
 
 	float	left_push = 45 * ( 1.0f - tr.fraction );
 
@@ -486,12 +486,12 @@ bool NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t &trace, contentsFlags_
 	//Offset the step height
 	VectorSet( mins, self->mins[0], self->mins[1], self->mins[2] + STEPSIZE );
 
-	gi.trace( &trace, self->currentOrigin, mins, self->maxs, end, self->s.number, clipmask, G2_NOCOLLIDE, 0 );
+	gi.trace( &trace, self->currentOrigin, mins, self->maxs, end, self->s.number, clipmask, EG2_Collision::G2_NOCOLLIDE, 0 );
 
-	if ( trace.startsolid&&Any( trace.contents&CONTENTS_BOTCLIP ) )
+	if ( trace.startsolid&&Any( trace.contents&contentsFlags_t::CONTENTS_BOTCLIP ) )
 	{//started inside do not enter, so ignore them
-		clipmask &= ~CONTENTS_BOTCLIP;
-		gi.trace( &trace, self->currentOrigin, mins, self->maxs, end, self->s.number, clipmask, G2_NOCOLLIDE, 0 );
+		clipmask &= ~contentsFlags_t::CONTENTS_BOTCLIP;
+		gi.trace( &trace, self->currentOrigin, mins, self->maxs, end, self->s.number, clipmask, EG2_Collision::G2_NOCOLLIDE, 0 );
 	}
 	//Do a simple check
 	if ( ( trace.allsolid == false ) && ( trace.startsolid == false ) && ( trace.fraction == 1.0f ) )
@@ -551,11 +551,11 @@ static bool NAV_TestBypass( gentity_t *self, float yaw, float blocked_dist, vec3
 
 	if ( NAVDEBUG_showCollision )
 	{
-		CG_DrawEdge( self->currentOrigin, block_pos, EDGE_BLOCKED );
+		CG_DrawEdge( self->currentOrigin, block_pos, edgeType_t::EDGE_BLOCKED );
 	}
 
 	//See if we're clear to move in that direction
-	if ( NAV_CheckAhead( self, block_pos, tr, ( self->clipmask & ~CONTENTS_BODY )|CONTENTS_BOTCLIP ) )
+	if ( NAV_CheckAhead( self, block_pos, tr, ( self->clipmask & ~contentsFlags_t::CONTENTS_BODY )|contentsFlags_t::CONTENTS_BOTCLIP ) )
 	{
 		VectorCopy( block_test, movedir );
 
@@ -579,7 +579,7 @@ bool NAV_Bypass( gentity_t *self, gentity_t *blocker, vec3_t blocked_dir, float 
 	//Draw debug info if requested
 	if ( NAVDEBUG_showCollision )
 	{
-		CG_DrawEdge( self->currentOrigin, blocker->currentOrigin, EDGE_NORMAL );
+		CG_DrawEdge( self->currentOrigin, blocker->currentOrigin, edgeType_t::EDGE_NORMAL );
 	}
 
 	AngleVectors( self->currentAngles, nullptr, right, nullptr );
@@ -609,7 +609,7 @@ bool NAV_Bypass( gentity_t *self, gentity_t *blocker, vec3_t blocked_dir, float 
 			trace_t	tr;
 			VectorScale( blocker_movedir, -1, blocker_movedir );
 			VectorMA( self->currentOrigin, blocked_dist, blocker_movedir, block_pos );
-			if ( NAV_CheckAhead( self, block_pos, tr, ( self->clipmask & ~CONTENTS_BODY )|CONTENTS_BOTCLIP ) )
+			if ( NAV_CheckAhead( self, block_pos, tr, ( self->clipmask & ~contentsFlags_t::CONTENTS_BODY )|contentsFlags_t::CONTENTS_BOTCLIP ) )
 			{
 				VectorCopy( blocker_movedir, movedir );
 				return true;
@@ -744,7 +744,7 @@ bool NAV_StackedCanyon( gentity_t *self, gentity_t *blocker, vec3_t pathDir )
 {
 	vec3_t	perp, cross, test;
 	float	avoidRadius;
-	contentsFlags_t	extraClip = CONTENTS_BOTCLIP;
+	contentsFlags_t	extraClip = contentsFlags_t::CONTENTS_BOTCLIP;
 
 	PerpendicularVector( perp, pathDir );
 	CrossProduct( pathDir, perp, cross );
@@ -755,11 +755,11 @@ bool NAV_StackedCanyon( gentity_t *self, gentity_t *blocker, vec3_t pathDir )
 	VectorMA( blocker->currentOrigin, avoidRadius, cross, test );
 
 	trace_t	tr;
-	gi.trace( &tr, test, self->mins, self->maxs, test, self->s.number, self->clipmask|extraClip, G2_NOCOLLIDE, 0 );
-	if ( tr.startsolid&&Any( tr.contents&CONTENTS_BOTCLIP ) )
+	gi.trace( &tr, test, self->mins, self->maxs, test, self->s.number, self->clipmask|extraClip, EG2_Collision::G2_NOCOLLIDE, 0 );
+	if ( tr.startsolid&&Any( tr.contents&contentsFlags_t::CONTENTS_BOTCLIP ) )
 	{//started inside do not enter, so ignore them
-		extraClip &= ~CONTENTS_BOTCLIP;
-		gi.trace( &tr, test, self->mins, self->maxs, test, self->s.number, self->clipmask|extraClip, G2_NOCOLLIDE, 0 );
+		extraClip &= ~contentsFlags_t::CONTENTS_BOTCLIP;
+		gi.trace( &tr, test, self->mins, self->maxs, test, self->s.number, self->clipmask|extraClip, EG2_Collision::G2_NOCOLLIDE, 0 );
 	}
 
 	if ( NAVDEBUG_showCollision )
@@ -777,11 +777,11 @@ bool NAV_StackedCanyon( gentity_t *self, gentity_t *blocker, vec3_t pathDir )
 
 	VectorMA( blocker->currentOrigin, -avoidRadius, cross, test );
 
-	gi.trace( &tr, test, self->mins, self->maxs, test, self->s.number, self->clipmask|extraClip, G2_NOCOLLIDE, 0 );
-	if ( tr.startsolid&&Any( tr.contents&CONTENTS_BOTCLIP ) )
+	gi.trace( &tr, test, self->mins, self->maxs, test, self->s.number, self->clipmask|extraClip, EG2_Collision::G2_NOCOLLIDE, 0 );
+	if ( tr.startsolid&&Any( tr.contents&contentsFlags_t::CONTENTS_BOTCLIP ) )
 	{//started inside do not enter, so ignore them
-		extraClip &= ~CONTENTS_BOTCLIP;
-		gi.trace( &tr, test, self->mins, self->maxs, test, self->s.number, self->clipmask|extraClip, G2_NOCOLLIDE, 0 );
+		extraClip &= ~contentsFlags_t::CONTENTS_BOTCLIP;
+		gi.trace( &tr, test, self->mins, self->maxs, test, self->s.number, self->clipmask|extraClip, EG2_Collision::G2_NOCOLLIDE, 0 );
 	}
 
 	if ( tr.startsolid == false && tr.allsolid == false )
@@ -859,12 +859,12 @@ bool NAV_TestForBlocked( gentity_t *self, gentity_t *goal, gentity_t *blocker, f
 	if ( goal == nullptr )
 		return false;
 
-	if ( blocker->s.eType == ET_ITEM )
+	if ( blocker->s.eType == entityType_t::ET_ITEM )
 		return false;
 
 	if ( NAV_HitNavGoal( blocker->currentOrigin, blocker->mins, blocker->maxs, goal->currentOrigin, 12, false ) )
 	{
-		flags |= NIF_BLOCKED;
+		flags |= navInfoFlags_t::NIF_BLOCKED;
 
 		if ( distance <= MIN_STOP_DIST )
 		{
@@ -902,11 +902,11 @@ bool NAV_AvoidCollision( gentity_t *self, gentity_t *goal, navInfo_t &info )
 	VectorCopy( info.direction, movedir );
 
 	//Now test against entities
-	if ( NAV_CheckAhead( self, movepos, info.trace, CONTENTS_BODY ) == false )
+	if ( NAV_CheckAhead( self, movepos, info.trace, contentsFlags_t::CONTENTS_BODY ) == false )
 	{
 		//Get the blocker
 		info.blocker = &g_entities[ info.trace.entityNum ];
-		info.flags |= NIF_COLLISION;
+		info.flags |= navInfoFlags_t::NIF_COLLISION;
 
 		//Ok to hit our goal entity
 		if ( goal == info.blocker )
@@ -921,7 +921,7 @@ bool NAV_AvoidCollision( gentity_t *self, gentity_t *goal, navInfo_t &info )
 			return false;
 
 		//If the above function said we're blocked, don't do the extra checks
-		if ( Any( info.flags & NIF_BLOCKED ) )
+		if ( Any( info.flags & navInfoFlags_t::NIF_BLOCKED ) )
 			return true;
 
 		//See if we can get that entity to move out of our way
@@ -936,7 +936,7 @@ bool NAV_AvoidCollision( gentity_t *self, gentity_t *goal, navInfo_t &info )
 	//Our path is clear, just move there
 	if ( NAVDEBUG_showCollision )
 	{
-		CG_DrawEdge( self->currentOrigin, movepos, EDGE_PATH );
+		CG_DrawEdge( self->currentOrigin, movepos, edgeType_t::EDGE_PATH );
 	}
 
 	return true;
@@ -953,7 +953,7 @@ int NAV_TestBestNode( gentity_t *self, int startID, int endID, bool failEdge )
 	vec3_t	end;
 	trace_t	trace;
 	vec3_t	mins;
-	contentsFlags_t	clipmask = (NPC->clipmask&~CONTENTS_BODY)|CONTENTS_BOTCLIP;
+	contentsFlags_t	clipmask = (NPC->clipmask&~contentsFlags_t::CONTENTS_BODY)|contentsFlags_t::CONTENTS_BOTCLIP;
 
 	//get the position for the test choice
 	navigator.GetNodePosition( endID, end );
@@ -961,12 +961,12 @@ int NAV_TestBestNode( gentity_t *self, int startID, int endID, bool failEdge )
 	//Offset the step height
 	VectorSet( mins, self->mins[0], self->mins[1], self->mins[2] + STEPSIZE );
 
-	gi.trace( &trace, self->currentOrigin, mins, self->maxs, end, self->s.number, clipmask, G2_NOCOLLIDE, 0 );
+	gi.trace( &trace, self->currentOrigin, mins, self->maxs, end, self->s.number, clipmask, EG2_Collision::G2_NOCOLLIDE, 0 );
 
-	if ( trace.startsolid&&Any( trace.contents&CONTENTS_BOTCLIP ) )
+	if ( trace.startsolid&&Any( trace.contents&contentsFlags_t::CONTENTS_BOTCLIP ) )
 	{//started inside do not enter, so ignore them
-		clipmask &= ~CONTENTS_BOTCLIP;
-		gi.trace( &trace, self->currentOrigin, mins, self->maxs, end, self->s.number, clipmask, G2_NOCOLLIDE, 0 );
+		clipmask &= ~contentsFlags_t::CONTENTS_BOTCLIP;
+		gi.trace( &trace, self->currentOrigin, mins, self->maxs, end, self->s.number, clipmask, EG2_Collision::G2_NOCOLLIDE, 0 );
 	}
 	//Do a simple check
 	if ( ( trace.allsolid == false ) && ( trace.startsolid == false ) && ( trace.fraction == 1.0f ) )
@@ -975,7 +975,7 @@ int NAV_TestBestNode( gentity_t *self, int startID, int endID, bool failEdge )
 	}
 
 	//See if we're too far above
-	if ( self->s.weapon != WP_SABER && fabs( self->currentOrigin[2] - end[2] ) > 48 )
+	if ( self->s.weapon != weapon_t::WP_SABER && fabs( self->currentOrigin[2] - end[2] ) > 48 )
 	{
 	}
 	else
@@ -1007,7 +1007,7 @@ int NAV_TestBestNode( gentity_t *self, int startID, int endID, bool failEdge )
 					return startID;
 				}
 				//we can keep heading to the door, it should open
-				if ( self->s.weapon != WP_SABER && fabs( self->currentOrigin[2] - end[2] ) > 48 )
+				if ( self->s.weapon != weapon_t::WP_SABER && fabs( self->currentOrigin[2] - end[2] ) > 48 )
 				{//too far above
 				}
 				else
@@ -1039,7 +1039,7 @@ int NAV_TestBestNode( gentity_t *self, int startID, int endID, bool failEdge )
 					navigator.AddFailedEdge( self->s.number, startID, endID );
 				}
 			}
-			else if ( blocker->targetname && blocker->s.solid == SOLID_BMODEL && (Any( blocker->contents&CONTENTS_MONSTERCLIP )|| Any( blocker->contents&CONTENTS_BOTCLIP )) )
+			else if ( blocker->targetname && blocker->s.solid == SOLID_BMODEL && (Any( blocker->contents&contentsFlags_t::CONTENTS_MONSTERCLIP )|| Any( blocker->contents&contentsFlags_t::CONTENTS_BOTCLIP )) )
 			{//some other kind of do not enter entity brush that will probably be removed
 				//path is blocked by a removable brushent, mark it as such if instructed to do so
 				if ( failEdge )
@@ -1062,7 +1062,7 @@ NAV_GetNearestNode
 
 int NAV_GetNearestNode( gentity_t *self, int lastNode )
 {
-	return navigator.GetNearestNode( self, lastNode, NF_CLEAR_PATH, WAYPOINT_NONE );
+	return navigator.GetNearestNode( self, lastNode, navNodeFlags_t::NF_CLEAR_PATH, WAYPOINT_NONE );
 }
 
 /*
@@ -1127,9 +1127,9 @@ int	NAV_MoveToGoal( gentity_t *self, navInfo_t &info )
 			navigator.GetNodePosition( self->NPC->goalEntity->waypoint, torigin );
 			navigator.GetNodePosition( self->waypoint, origin );
 
-			CG_DrawNode( torigin, NODE_GOAL );
-			CG_DrawNode( origin, NODE_GOAL );
-			CG_DrawNode( self->NPC->goalEntity->currentOrigin, NODE_START );
+			CG_DrawNode( torigin, nodeType_t::NODE_GOAL );
+			CG_DrawNode( origin, nodeType_t::NODE_GOAL );
+			CG_DrawNode( self->NPC->goalEntity->currentOrigin, nodeType_t::NODE_START );
 		}
 
 		return WAYPOINT_NONE;
@@ -1150,13 +1150,13 @@ int	NAV_MoveToGoal( gentity_t *self, navInfo_t &info )
 	//	return WAYPOINT_NONE;
 
 	//Test the path connection from our current position to the best node
-	if ( NAV_CheckAhead( self, origin, info.trace, (self->clipmask&~CONTENTS_BODY)|CONTENTS_BOTCLIP ) == false )
+	if ( NAV_CheckAhead( self, origin, info.trace, (self->clipmask&~contentsFlags_t::CONTENTS_BODY)|contentsFlags_t::CONTENTS_BOTCLIP ) == false )
 	{
 		//First attempt to move to the closest point on the line between the waypoints
 		G_FindClosestPointOnLineSegment( origin, end, self->currentOrigin, origin );
 
 		//See if we can go there
-		if ( NAV_CheckAhead( self, origin, info.trace, (self->clipmask&~CONTENTS_BODY)|CONTENTS_BOTCLIP ) == false )
+		if ( NAV_CheckAhead( self, origin, info.trace, (self->clipmask&~contentsFlags_t::CONTENTS_BODY)|contentsFlags_t::CONTENTS_BOTCLIP ) == false )
 		{
 			//Just move towards our current waypoint
 			bestNode = self->waypoint;
@@ -1181,8 +1181,8 @@ int	NAV_MoveToGoal( gentity_t *self, navInfo_t &info )
 		navigator.GetNodePosition( bestNode, start );
 
 		//Draw the route
-		CG_DrawNode( start, NODE_START );
-		CG_DrawNode( dest, NODE_GOAL );
+		CG_DrawNode( start, nodeType_t::NODE_START );
+		CG_DrawNode( dest, nodeType_t::NODE_GOAL );
 		navigator.ShowPath( self->waypoint, self->NPC->goalEntity->waypoint );
 	}
 
@@ -1213,7 +1213,7 @@ unsigned int waypoint_testDirection( vec3_t origin, float yaw, unsigned int minD
 //	VectorMA( origin, MAX_RADIUS_CHECK, trace_dir, test_pos );
 	VectorMA( origin, minDist, trace_dir, test_pos );
 
-	gi.trace( &tr, origin, mins, maxs, test_pos, ENTITYNUM_NONE, ( CONTENTS_SOLID | CONTENTS_MONSTERCLIP | CONTENTS_BOTCLIP ), G2_NOCOLLIDE, 0 );
+	gi.trace( &tr, origin, mins, maxs, test_pos, ENTITYNUM_NONE, ( contentsFlags_t::CONTENTS_SOLID | contentsFlags_t::CONTENTS_MONSTERCLIP | contentsFlags_t::CONTENTS_BOTCLIP ), EG2_Collision::G2_NOCOLLIDE, 0 );
 
 	//return (unsigned int) ( (float) MAX_RADIUS_CHECK * tr.fraction );
 	return (unsigned int) ( (float) minDist * tr.fraction );
@@ -1255,7 +1255,7 @@ void SP_waypoint ( gentity_t *ent )
 		VectorSet(ent->mins, DEFAULT_MINS_0, DEFAULT_MINS_1, DEFAULT_MINS_2);
 		VectorSet(ent->maxs, DEFAULT_MAXS_0, DEFAULT_MAXS_1, DEFAULT_MAXS_2);
 
-		ent->contents = CONTENTS_TRIGGER;
+		ent->contents = contentsFlags_t::CONTENTS_TRIGGER;
 		ent->clipmask = MASK_DEADSOLID;
 
 		gi.linkentity( ent );
@@ -1301,7 +1301,7 @@ void SP_waypoint_small (gentity_t *ent)
 		VectorSet(ent->mins, -2, -2, DEFAULT_MINS_2);
 		VectorSet(ent->maxs, 2, 2, DEFAULT_MAXS_2);
 
-		ent->contents = CONTENTS_TRIGGER;
+		ent->contents = contentsFlags_t::CONTENTS_TRIGGER;
 		ent->clipmask = MASK_DEADSOLID;
 
 		gi.linkentity( ent );
@@ -1580,7 +1580,7 @@ void Svcmd_Nav_f( void )
 
 		if ( Q_stricmp( cmd, "testgoal" ) == 0 )
 		{
-			NAVDEBUG_curGoal = navigator.GetNearestNode( &g_entities[0], g_entities[0].waypoint, NF_CLEAR_PATH, WAYPOINT_NONE );
+			NAVDEBUG_curGoal = navigator.GetNearestNode( &g_entities[0], g_entities[0].waypoint, navNodeFlags_t::NF_CLEAR_PATH, WAYPOINT_NONE );
 		}
 	}
 	else if ( Q_stricmp( cmd, "totals" ) == 0 )
@@ -1649,7 +1649,7 @@ bool NAV_WaypointsTooFar( gentity_t *wp1, gentity_t *wp2 )
 		len = strlen( temp );
 		if ( (fatalErrorPointer-fatalErrorString)+len >= (int)sizeof( fatalErrorString ) )
 		{
-			Com_Error( ERR_DROP, "%s%s%dTOO MANY FATAL NAV ERRORS!!!\n", fatalErrorString, temp, fatalErrors );
+			Com_Error( errorParm_t::ERR_DROP, "%s%s%dTOO MANY FATAL NAV ERRORS!!!\n", fatalErrorString, temp, fatalErrors );
 			return true;
 		}
 		strcat( fatalErrorPointer, temp );
@@ -1670,7 +1670,7 @@ void NAV_StoreWaypoint( gentity_t *ent )
 {
 	if ( !tempWaypointList )
 	{
-		tempWaypointList = (waypointData_t *) gi.Malloc(sizeof(waypointData_t)*MAX_STORED_WAYPOINTS, TAG_TEMP_WORKSPACE, true);
+		tempWaypointList = (waypointData_t *) gi.Malloc(sizeof(waypointData_t)*MAX_STORED_WAYPOINTS, memtag::TAG_TEMP_WORKSPACE, true);
 	}
 
 	if ( numStoredWaypoints >= MAX_STORED_WAYPOINTS )
@@ -1816,7 +1816,7 @@ void NAV_CalculatePaths( const char *filename, int checksum )
 #ifndef FINAL_BUILD
 	if ( fatalErrors )
 	{
-		//Com_Error( ERR_DROP, "%s%d FATAL NAV ERRORS\n", fatalErrorString, fatalErrors );
+		//Com_Error( errorParm_t::ERR_DROP, "%s%d FATAL NAV ERRORS\n", fatalErrorString, fatalErrors );
 		gi.Printf( "%s%d FATAL NAV ERRORS\n", fatalErrorString, fatalErrors );
 	}
 #endif
@@ -1854,7 +1854,7 @@ void NAV_ShowDebugInfo( void )
 	if ( NAVDEBUG_showTestPath )
 	{
 		//Get the nearest node to the player
-		int	nearestNode = navigator.GetNearestNode( &g_entities[0], g_entities[0].waypoint, NF_ANY, WAYPOINT_NONE );
+		int	nearestNode = navigator.GetNearestNode( &g_entities[0], g_entities[0].waypoint, navNodeFlags_t::NF_ANY, WAYPOINT_NONE );
 		int	testNode = navigator.GetBestNode( nearestNode, NAVDEBUG_curGoal );
 
 		nearestNode = NAV_TestBestNode( &g_entities[0], nearestNode, testNode, false );
@@ -1866,8 +1866,8 @@ void NAV_ShowDebugInfo( void )
 		navigator.GetNodePosition( NAVDEBUG_curGoal, dest );
 		navigator.GetNodePosition( nearestNode, start );
 
-		CG_DrawNode( start, NODE_START );
-		CG_DrawNode( dest, NODE_GOAL );
+		CG_DrawNode( start, nodeType_t::NODE_START );
+		CG_DrawNode( dest, nodeType_t::NODE_GOAL );
 		navigator.ShowPath( nearestNode, NAVDEBUG_curGoal );
 	}
 
@@ -1893,7 +1893,7 @@ NAV_FindPlayerWaypoint
 
 void NAV_FindPlayerWaypoint( void )
 {
-	g_entities[0].waypoint = navigator.GetNearestNode( &g_entities[0], g_entities[0].lastWaypoint, NF_CLEAR_PATH, WAYPOINT_NONE );
+	g_entities[0].waypoint = navigator.GetNearestNode( &g_entities[0], g_entities[0].lastWaypoint, navNodeFlags_t::NF_CLEAR_PATH, WAYPOINT_NONE );
 }
 
 //

@@ -98,7 +98,6 @@ ITM_SECURITY_KEY_PICKUP,
 
 ITM_NUM_ITEMS
 };
-using enum itemNum_t;
 template <> inline constexpr bool enableEnumArithmetic<itemNum_t> = true;
 
 // Inventory item enums
@@ -115,7 +114,6 @@ enum class inventory_t //# item_e
 
 	INV_MAX						// Be sure to update MAX_INVENTORY
 };
-using enum inventory_t;
 template <> inline constexpr bool enableEnumArithmetic<inventory_t> = true;
 
 #endif

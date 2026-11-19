@@ -71,7 +71,6 @@ namespace NAV
 
 		PT_MAX
 	};
-	using enum EPointType;
 
 
 
@@ -82,7 +81,7 @@ namespace NAV
 	bool			LoadFromFile(const char *filename, int checksum);
 	bool			TestEdge( TNodeHandle NodeA, TNodeHandle NodeB, bool IsDebugEdge );
 	bool			LoadFromEntitiesAndSaveToFile(const char *filename, int checksum);
-	void			SpawnedPoint(gentity_t* ent, EPointType type=PT_WAYNODE);
+	void			SpawnedPoint(gentity_t* ent, EPointType type=EPointType::PT_WAYNODE);
 
 
 	////////////////////////////////////////////////////////////////////////////////////

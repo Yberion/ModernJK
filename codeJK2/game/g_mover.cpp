@@ -101,12 +101,12 @@ void G_PlayDoorSound( gentity_t *ent, int type )
 
 	vec3_t	doorcenter;
 	CalcTeamDoorCenter( ent, doorcenter );
-	if ( ent->activator && ent->activator->client && ent->activator->client->playerTeam == TEAM_PLAYER )
+	if ( ent->activator && ent->activator->client && ent->activator->client->playerTeam == team_t::TEAM_PLAYER )
 	{
-		AddSoundEvent( ent->activator, doorcenter, 128, AEL_MINOR );
+		AddSoundEvent( ent->activator, doorcenter, 128, alertEventLevel_e::AEL_MINOR );
 	}
 
-	G_AddEvent( ent, EV_BMODEL_SOUND, sfx );
+	G_AddEvent( ent, entity_event_t::EV_BMODEL_SOUND, sfx );
 }
 
 /*
@@ -129,17 +129,17 @@ gentity_t	*G_TestEntityPosition( gentity_t *ent ) {
 	}
 	if ( ent->client )
 	{
-		gi.trace( &tr, ent->client->ps.origin, ent->mins, ent->maxs, ent->client->ps.origin, ent->s.number, mask, G2_NOCOLLIDE, 0 );
+		gi.trace( &tr, ent->client->ps.origin, ent->mins, ent->maxs, ent->client->ps.origin, ent->s.number, mask, EG2_Collision::G2_NOCOLLIDE, 0 );
 	}
 	else
 	{
-		if ( Any( ent->s.eFlags & EF_MISSILE_STICK ) )//Arggh, this is dumb...but when it used the bbox, it was pretty much always in solid when it is riding something..which is wrong..so I changed it to basically be a point contents check
+		if ( Any( ent->s.eFlags & entityFlags_t::EF_MISSILE_STICK ) )//Arggh, this is dumb...but when it used the bbox, it was pretty much always in solid when it is riding something..which is wrong..so I changed it to basically be a point contents check
 		{
-			gi.trace( &tr, ent->s.pos.trBase, vec3_origin, vec3_origin, ent->s.pos.trBase, ent->s.number, mask, G2_NOCOLLIDE, 0 );
+			gi.trace( &tr, ent->s.pos.trBase, vec3_origin, vec3_origin, ent->s.pos.trBase, ent->s.number, mask, EG2_Collision::G2_NOCOLLIDE, 0 );
 		}
 		else
 		{
-			gi.trace( &tr, ent->s.pos.trBase, ent->mins, ent->maxs, ent->s.pos.trBase, ent->s.number, mask, G2_NOCOLLIDE, 0 );
+			gi.trace( &tr, ent->s.pos.trBase, ent->mins, ent->maxs, ent->s.pos.trBase, ent->s.number, mask, EG2_Collision::G2_NOCOLLIDE, 0 );
 		}
 	}
 
@@ -213,7 +213,7 @@ bool	G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move, vec3_
 	}
 
 	/*
-	if ( check->client && check->health <= 0 && check->contents == CONTENTS_CORPSE )
+	if ( check->client && check->health <= 0 && check->contents == contentsFlags_t::CONTENTS_CORPSE )
 	{//sigh... allow pushing corpses into walls... problem is, they'll be stuck in there... maybe just remove them?
 		return true;
 	}
@@ -248,7 +248,7 @@ bool	G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move, vec3_
 	// blocked
 	if ( pusher->damage )
 	{//Do damage
-		G_Damage(check, pusher, pusher->activator, move, check->currentOrigin, pusher->damage, DAMAGE_NORMAL, MOD_CRUSH );
+		G_Damage(check, pusher, pusher->activator, move, check->currentOrigin, pusher->damage, damageFlags_t::DAMAGE_NORMAL, meansOfDeath_t::MOD_CRUSH );
 	}
 
 	return false;
@@ -338,20 +338,20 @@ bool G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **obst
 	for ( e = 0 ; e < listedEntities ; e++ ) {
 		check = entityList[ e ];
 
-		if (Any( check->s.eFlags & EF_MISSILE_STICK ) && (notMoving || check->s.groundEntityNum < 0 || check->s.groundEntityNum >= ENTITYNUM_NONE ))
+		if (Any( check->s.eFlags & entityFlags_t::EF_MISSILE_STICK ) && (notMoving || check->s.groundEntityNum < 0 || check->s.groundEntityNum >= ENTITYNUM_NONE ))
 		{
 			// special case hack for sticky things, destroy it if we aren't attached to the thing that is moving, but the moving thing is pushing us
-			G_Damage( check, pusher, pusher, nullptr, nullptr, 99999, DAMAGE_NORMAL, MOD_CRUSH );
+			G_Damage( check, pusher, pusher, nullptr, nullptr, 99999, damageFlags_t::DAMAGE_NORMAL, meansOfDeath_t::MOD_CRUSH );
 			continue;
 		}
 
 		// only push items and players
-		if ( check->s.eType != ET_ITEM )
+		if ( check->s.eType != entityType_t::ET_ITEM )
 		{
 			//FIXME: however it allows items to be pushed through stuff, do same for corpses?
-			if ( check->s.eType != ET_PLAYER )
+			if ( check->s.eType != entityType_t::ET_PLAYER )
 			{
-				if ( !Any( check->s.eFlags & EF_MISSILE_STICK ))
+				if ( !Any( check->s.eFlags & entityFlags_t::EF_MISSILE_STICK ))
 				{
 					// cannot be pushed by this mover
 					continue;
@@ -410,10 +410,10 @@ bool G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **obst
 			//Damage on impact
 			if ( pusher->damage )
 			{//Do damage
-				G_Damage( check, pusher, pusher->activator, move, check->currentOrigin, pusher->damage, DAMAGE_NORMAL, MOD_CRUSH );
+				G_Damage( check, pusher, pusher->activator, move, check->currentOrigin, pusher->damage, damageFlags_t::DAMAGE_NORMAL, meansOfDeath_t::MOD_CRUSH );
 				if ( pusher->health >= 0 && pusher->takedamage && !(pusher->spawnflags&1) )
 				{//do some damage to me, too
-					G_Damage( pusher, check, pusher->activator, move, pusher->s.pos.trBase, floor(pusher->damage/4.0f), DAMAGE_NORMAL, MOD_CRUSH );
+					G_Damage( pusher, check, pusher->activator, move, pusher->s.pos.trBase, floor(pusher->damage/4.0f), damageFlags_t::DAMAGE_NORMAL, meansOfDeath_t::MOD_CRUSH );
 				}
 			}
 		}
@@ -432,12 +432,12 @@ bool G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **obst
 		if ( G_TryPushingEntity( check, pusher, move, amove ) )
 		{
 			// the mover wasn't blocked
-			if ( Any( check->s.eFlags & EF_MISSILE_STICK ) )
+			if ( Any( check->s.eFlags & entityFlags_t::EF_MISSILE_STICK ) )
 			{
 				if ( !VectorCompare( oldOrg, check->s.pos.trBase ))
 				{
 					// and the rider was actually pushed, so interpolate position change to smooth out the ride
-					check->s.pos.trType = TR_INTERPOLATE;
+					check->s.pos.trType = trType_t::TR_INTERPOLATE;
 					continue;
 				}
 				//else..the mover wasn't blocked & we are riding the mover & but the rider did not move even though the mover itself did...so
@@ -450,10 +450,10 @@ bool G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **obst
 		}
 
 		// the move was blocked even after pushing this rider
-		if ( Any( check->s.eFlags & EF_MISSILE_STICK ) )
+		if ( Any( check->s.eFlags & entityFlags_t::EF_MISSILE_STICK ) )
 		{
 			// so nuke 'em so they don't block us anymore
-			G_Damage( check, pusher, pusher, nullptr, nullptr, 99999, DAMAGE_NORMAL, MOD_CRUSH );
+			G_Damage( check, pusher, pusher, nullptr, nullptr, 99999, damageFlags_t::DAMAGE_NORMAL, meansOfDeath_t::MOD_CRUSH );
 			continue;
 		}
 
@@ -498,7 +498,7 @@ void G_MoverTeam( gentity_t *ent ) {
 	for (part = ent ; part ; part=part->teamchain)
 	{
 		// get current position
-		part->s.eFlags &= ~EF_BLOCKED_MOVER;
+		part->s.eFlags &= ~entityFlags_t::EF_BLOCKED_MOVER;
 		EvaluateTrajectory( &part->s.pos, level.time, origin );
 		EvaluateTrajectory( &part->s.apos, level.time, angles );
 		VectorSubtract( origin, part->currentOrigin, move );
@@ -521,10 +521,10 @@ void G_MoverTeam( gentity_t *ent ) {
 			EvaluateTrajectory( &part->s.pos, level.time, part->currentOrigin );
 			EvaluateTrajectory( &part->s.apos, level.time, part->currentAngles );
 			gi.linkentity( part );
-			part->s.eFlags |= EF_BLOCKED_MOVER;
+			part->s.eFlags |= entityFlags_t::EF_BLOCKED_MOVER;
 		}
 
-		if ( ent->e_BlockedFunc != blockedF_NULL )
+		if ( ent->e_BlockedFunc != blockedFunc_t::blockedF_NULL )
 		{// this check no longer necessary, done internally below, but it's here for reference
 			GEntity_BlockedFunc( ent, obstacle );
 		}
@@ -535,8 +535,8 @@ void G_MoverTeam( gentity_t *ent ) {
 	for ( part = ent ; part ; part = part->teamchain )
 	{
 		// call the reached function if time is at or past end point
-		if ( part->s.pos.trType == TR_LINEAR_STOP ||
-			part->s.pos.trType == TR_NONLINEAR_STOP )
+		if ( part->s.pos.trType == trType_t::TR_LINEAR_STOP ||
+			part->s.pos.trType == trType_t::TR_NONLINEAR_STOP )
 		{
 			if ( level.time >= part->s.pos.trTime + part->s.pos.trDuration )
 			{
@@ -556,12 +556,12 @@ G_RunMover
 void G_RunMover( gentity_t *ent ) {
 	// if not a team captain, don't do anything, because
 	// the captain will handle everything
-	if ( Any( ent->flags & FL_TEAMSLAVE ) ) {
+	if ( Any( ent->flags & gentityFlags_t::FL_TEAMSLAVE ) ) {
 		return;
 	}
 
 	// if stationary at one of the positions, don't move anything
-	if ( ent->s.pos.trType != TR_STATIONARY || ent->s.apos.trType != TR_STATIONARY ) {
+	if ( ent->s.pos.trType != trType_t::TR_STATIONARY || ent->s.apos.trType != trType_t::TR_STATIONARY ) {
 		G_MoverTeam( ent );
 	}
 
@@ -628,43 +628,43 @@ void SetMoverState( gentity_t *ent, moverState_t moverState, int time ) {
 	}
 
 	switch( moverState ) {
-	case MOVER_POS1:
+	case moverState_t::MOVER_POS1:
 		VectorCopy( ent->pos1, ent->s.pos.trBase );
-		ent->s.pos.trType = TR_STATIONARY;
+		ent->s.pos.trType = trType_t::TR_STATIONARY;
 		break;
-	case MOVER_POS2:
+	case moverState_t::MOVER_POS2:
 		VectorCopy( ent->pos2, ent->s.pos.trBase );
-		ent->s.pos.trType = TR_STATIONARY;
+		ent->s.pos.trType = trType_t::TR_STATIONARY;
 		break;
-	case MOVER_1TO2:
+	case moverState_t::MOVER_1TO2:
 		VectorCopy( ent->pos1, ent->s.pos.trBase );
 		VectorSubtract( ent->pos2, ent->pos1, delta );
 		f = 1000.0 / ent->s.pos.trDuration;
 		VectorScale( delta, f, ent->s.pos.trDelta );
 		if ( ent->alt_fire )
 		{
-			ent->s.pos.trType = TR_LINEAR_STOP;
+			ent->s.pos.trType = trType_t::TR_LINEAR_STOP;
 		}
 		else
 		{
-			ent->s.pos.trType = TR_NONLINEAR_STOP;
+			ent->s.pos.trType = trType_t::TR_NONLINEAR_STOP;
 		}
-		ent->s.eFlags &= ~EF_BLOCKED_MOVER;
+		ent->s.eFlags &= ~entityFlags_t::EF_BLOCKED_MOVER;
 		break;
-	case MOVER_2TO1:
+	case moverState_t::MOVER_2TO1:
 		VectorCopy( ent->pos2, ent->s.pos.trBase );
 		VectorSubtract( ent->pos1, ent->pos2, delta );
 		f = 1000.0 / ent->s.pos.trDuration;
 		VectorScale( delta, f, ent->s.pos.trDelta );
 		if ( ent->alt_fire )
 		{
-			ent->s.pos.trType = TR_LINEAR_STOP;
+			ent->s.pos.trType = trType_t::TR_LINEAR_STOP;
 		}
 		else
 		{
-			ent->s.pos.trType = TR_NONLINEAR_STOP;
+			ent->s.pos.trType = trType_t::TR_NONLINEAR_STOP;
 		}
-		ent->s.eFlags &= ~EF_BLOCKED_MOVER;
+		ent->s.eFlags &= ~entityFlags_t::EF_BLOCKED_MOVER;
 		break;
 	}
 	EvaluateTrajectory( &ent->s.pos, level.time, ent->currentOrigin );
@@ -695,11 +695,11 @@ ReturnToPos1
 ================
 */
 void ReturnToPos1( gentity_t *ent ) {
-	ent->e_ThinkFunc = thinkF_NULL;
+	ent->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
 	ent->nextthink = 0;
 	ent->s.time = level.time;
 
-	MatchTeam( ent, MOVER_2TO1, level.time );
+	MatchTeam( ent, moverState_t::MOVER_2TO1, level.time );
 
 	// starting sound
 	G_PlayDoorLoopSound( ent );
@@ -718,16 +718,16 @@ void Reached_BinaryMover( gentity_t *ent )
 	// stop the looping sound
 	ent->s.loopSound = 0;
 
-	if ( ent->moverState == MOVER_1TO2 )
+	if ( ent->moverState == moverState_t::MOVER_1TO2 )
 	{//reached open
 		// reached pos2
-		SetMoverState( ent, MOVER_POS2, level.time );
+		SetMoverState( ent, moverState_t::MOVER_POS2, level.time );
 
 		vec3_t	doorcenter;
 		CalcTeamDoorCenter( ent, doorcenter );
-		if ( ent->activator && ent->activator->client && ent->activator->client->playerTeam == TEAM_PLAYER )
+		if ( ent->activator && ent->activator->client && ent->activator->client->playerTeam == team_t::TEAM_PLAYER )
 		{
-			AddSightEvent( ent->activator, doorcenter, 256, AEL_MINOR, 1 );
+			AddSightEvent( ent->activator, doorcenter, 256, alertEventLevel_e::AEL_MINOR, 1 );
 		}
 
 		// play sound
@@ -735,14 +735,14 @@ void Reached_BinaryMover( gentity_t *ent )
 
 		if ( ent->wait < 0 )
 		{//Done for good
-			ent->e_ThinkFunc = thinkF_NULL;
+			ent->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
 			ent->nextthink = -1;
-			ent->e_UseFunc = useF_NULL;
+			ent->e_UseFunc = useFunc_t::useF_NULL;
 		}
 		else
 		{
 			// return to pos1 after a delay
-			ent->e_ThinkFunc = thinkF_ReturnToPos1;
+			ent->e_ThinkFunc = thinkFunc_t::thinkF_ReturnToPos1;
 			if(ent->spawnflags & 8)
 			{//Toggle, keep think, wait for next use?
 				ent->nextthink = -1;
@@ -760,16 +760,16 @@ void Reached_BinaryMover( gentity_t *ent )
 		}
 		G_UseTargets2( ent, ent->activator, ent->opentarget );
 	}
-	else if ( ent->moverState == MOVER_2TO1 )
+	else if ( ent->moverState == moverState_t::MOVER_2TO1 )
 	{//closed
 		// reached pos1
-		SetMoverState( ent, MOVER_POS1, level.time );
+		SetMoverState( ent, moverState_t::MOVER_POS1, level.time );
 
 		vec3_t	doorcenter;
 		CalcTeamDoorCenter( ent, doorcenter );
-		if ( ent->activator && ent->activator->client && ent->activator->client->playerTeam == TEAM_PLAYER )
+		if ( ent->activator && ent->activator->client && ent->activator->client->playerTeam == team_t::TEAM_PLAYER )
 		{
-			AddSightEvent( ent->activator, doorcenter, 256, AEL_MINOR, 1 );
+			AddSightEvent( ent->activator, doorcenter, 256, alertEventLevel_e::AEL_MINOR, 1 );
 		}
 		// play sound
 		G_PlayDoorSound( ent, BMS_END );
@@ -802,17 +802,17 @@ void Use_BinaryMover_Go( gentity_t *ent )
 
 	ent->activator = activator;
 
-	if ( ent->moverState == MOVER_POS1 )
+	if ( ent->moverState == moverState_t::MOVER_POS1 )
 	{
 		// start moving 50 msec later, becase if this was player
 		// triggered, level.time hasn't been advanced yet
-		MatchTeam( ent, MOVER_1TO2, level.time + 50 );
+		MatchTeam( ent, moverState_t::MOVER_1TO2, level.time + 50 );
 
 		vec3_t	doorcenter;
 		CalcTeamDoorCenter( ent, doorcenter );
-		if ( ent->activator && ent->activator->client && ent->activator->client->playerTeam == TEAM_PLAYER )
+		if ( ent->activator && ent->activator->client && ent->activator->client->playerTeam == team_t::TEAM_PLAYER )
 		{
-			AddSightEvent( ent->activator, doorcenter, 256, AEL_MINOR, 1 );
+			AddSightEvent( ent->activator, doorcenter, 256, alertEventLevel_e::AEL_MINOR, 1 );
 		}
 
 		// starting sound
@@ -829,9 +829,9 @@ void Use_BinaryMover_Go( gentity_t *ent )
 	}
 
 	// if all the way up, just delay before coming down
-	if ( ent->moverState == MOVER_POS2 ) {
+	if ( ent->moverState == moverState_t::MOVER_POS2 ) {
 		//have to do this because the delay sets our think to Use_BinaryMover_Go
-		ent->e_ThinkFunc = thinkF_ReturnToPos1;
+		ent->e_ThinkFunc = thinkFunc_t::thinkF_ReturnToPos1;
 		if ( ent->spawnflags & 8 )
 		{//TOGGLE doors don't use wait!
 			ent->nextthink = level.time + FRAMETIME;
@@ -845,10 +845,10 @@ void Use_BinaryMover_Go( gentity_t *ent )
 	}
 
 	// only partway down before reversing
-	if ( ent->moverState == MOVER_2TO1 )
+	if ( ent->moverState == moverState_t::MOVER_2TO1 )
 	{
 		total = ent->s.pos.trDuration-50;
-		if ( ent->s.pos.trType == TR_NONLINEAR_STOP )
+		if ( ent->s.pos.trType == trType_t::TR_NONLINEAR_STOP )
 		{
 			vec3_t curDelta;
 			VectorSubtract( ent->currentOrigin, ent->pos1, curDelta );
@@ -871,7 +871,7 @@ void Use_BinaryMover_Go( gentity_t *ent )
 		}
 		ent->s.pos.trTime = level.time - ( total - partial );//ent->s.time;
 
-		MatchTeam( ent, MOVER_1TO2, ent->s.pos.trTime );
+		MatchTeam( ent, moverState_t::MOVER_1TO2, ent->s.pos.trTime );
 
 		G_PlayDoorSound( ent, BMS_START );
 
@@ -879,10 +879,10 @@ void Use_BinaryMover_Go( gentity_t *ent )
 	}
 
 	// only partway up before reversing
-	if ( ent->moverState == MOVER_1TO2 )
+	if ( ent->moverState == moverState_t::MOVER_1TO2 )
 	{
 		total = ent->s.pos.trDuration-50;
-		if ( ent->s.pos.trType == TR_NONLINEAR_STOP )
+		if ( ent->s.pos.trType == trType_t::TR_NONLINEAR_STOP )
 		{
 			vec3_t curDelta;
 			VectorSubtract( ent->currentOrigin, ent->pos2, curDelta );
@@ -904,7 +904,7 @@ void Use_BinaryMover_Go( gentity_t *ent )
 		}
 
 		ent->s.pos.trTime = level.time - ( total - partial );//ent->s.time;
-		MatchTeam( ent, MOVER_2TO1, ent->s.pos.trTime );
+		MatchTeam( ent, moverState_t::MOVER_2TO1, ent->s.pos.trTime );
 
 		G_PlayDoorSound( ent, BMS_START );
 
@@ -950,19 +950,19 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator )
 	std::optional<inventory_t>	key;
 	const char *text;
 
-	if ( ent->e_UseFunc == useF_NULL )
+	if ( ent->e_UseFunc == useFunc_t::useF_NULL )
 	{//I cannot be used anymore, must be a door with a wait of -1 that's opened.
 		return;
 	}
 
 	// only the master should be used
-	if ( Any( ent->flags & FL_TEAMSLAVE ) )
+	if ( Any( ent->flags & gentityFlags_t::FL_TEAMSLAVE ) )
 	{
 		Use_BinaryMover( ent->teammaster, other, activator );
 		return;
 	}
 
-	if ( Any( ent->svFlags & SVF_INACTIVE ) )
+	if ( Any( ent->svFlags & svFlags_t::SVF_INACTIVE ) )
 	{
 		return;
 	}
@@ -1001,13 +1001,13 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator )
 		}
 	}
 
-	G_ActivateBehavior(ent,BSET_USE);
+	G_ActivateBehavior(ent,bSet_t::BSET_USE);
 
 	G_SetEnemy( ent, other );
 	ent->activator = activator;
 	if(ent->delay)
 	{
-		ent->e_ThinkFunc = thinkF_Use_BinaryMover_Go;
+		ent->e_ThinkFunc = thinkFunc_t::thinkF_Use_BinaryMover_Go;
 		ent->nextthink = level.time + ent->delay;
 	}
 	else
@@ -1031,7 +1031,7 @@ void InitMoverTrData( gentity_t *ent )
 	vec3_t		move;
 	float		distance;
 
-	ent->s.pos.trType = TR_STATIONARY;
+	ent->s.pos.trType = trType_t::TR_STATIONARY;
 	VectorCopy( ent->pos1, ent->s.pos.trBase );
 
 	// calculate time to reach second position from speed
@@ -1101,20 +1101,20 @@ void InitMover( gentity_t *ent )
 		ent->s.constantLight = r | ( g << 8 ) | ( b << 16 ) | ( i << 24 );
 	}
 
-	ent->e_UseFunc	   = useF_Use_BinaryMover;
-	ent->e_ReachedFunc = reachedF_Reached_BinaryMover;
+	ent->e_UseFunc	   = useFunc_t::useF_Use_BinaryMover;
+	ent->e_ReachedFunc = reachedFunc_t::reachedF_Reached_BinaryMover;
 
-	ent->moverState = MOVER_POS1;
-	ent->svFlags = SVF_USE_CURRENT_ORIGIN;
+	ent->moverState = moverState_t::MOVER_POS1;
+	ent->svFlags = svFlags_t::SVF_USE_CURRENT_ORIGIN;
 	if ( ent->spawnflags & MOVER_INACTIVE )
 	{// Make it inactive
-		ent->svFlags |= SVF_INACTIVE;
+		ent->svFlags |= svFlags_t::SVF_INACTIVE;
 	}
 	if(ent->spawnflags & MOVER_PLAYER_USE)
 	{//Can be used by the player's BUTTON_USE
-		ent->svFlags |= SVF_PLAYER_USABLE;
+		ent->svFlags |= svFlags_t::SVF_PLAYER_USABLE;
 	}
-	ent->s.eType = ET_MOVER;
+	ent->s.eType = entityType_t::ET_MOVER;
 	VectorCopy( ent->pos1, ent->currentOrigin );
 	gi.linkentity( ent );
 
@@ -1143,12 +1143,12 @@ void Blocked_Door( gentity_t *ent, gentity_t *other ) {
 	// remove anything other than a client -- no longer the case
 
 	// don't remove security keys or goodie keys
-	if ( (other->s.eType == ET_ITEM) && (GI_Inventory( *other->item ) >= INV_GOODIE_KEY && GI_Inventory( *other->item ) <= INV_SECURITY_KEY) )
+	if ( (other->s.eType == entityType_t::ET_ITEM) && (GI_Inventory( *other->item ) >= inventory_t::INV_GOODIE_KEY && GI_Inventory( *other->item ) <= inventory_t::INV_SECURITY_KEY) )
 	{
 		// should we be doing anything special if a key blocks it... move it somehow..?
 	}
 	// if your not a client, or your a dead client remove yourself...
-	else if ( other->s.number && (!other->client || (other->client && other->health <= 0 && other->contents == CONTENTS_CORPSE && !other->message)) )
+	else if ( other->s.number && (!other->client || (other->client && other->health <= 0 && other->contents == contentsFlags_t::CONTENTS_CORPSE && !other->message)) )
 	{
 		if ( !other->taskManager || !other->taskManager->IsRunning() )
 		{
@@ -1159,7 +1159,7 @@ void Blocked_Door( gentity_t *ent, gentity_t *other ) {
 	}
 
 	if ( ent->damage ) {
-		G_Damage( other, ent, ent, nullptr, nullptr, ent->damage, DAMAGE_NORMAL, MOD_CRUSH );
+		G_Damage( other, ent, ent, nullptr, nullptr, ent->damage, damageFlags_t::DAMAGE_NORMAL, meansOfDeath_t::MOD_CRUSH );
 	}
 	if ( ent->spawnflags & MOVER_CRUSHER ) {
 		return;		// crushers don't reverse
@@ -1178,7 +1178,7 @@ Touch_DoorTrigger
 
 void Touch_DoorTrigger( gentity_t *ent, gentity_t *other, trace_t *trace )
 {
-	if ( Any( ent->svFlags & SVF_INACTIVE ) )
+	if ( Any( ent->svFlags & svFlags_t::SVF_INACTIVE ) )
 	{
 		return;
 	}
@@ -1188,9 +1188,9 @@ void Touch_DoorTrigger( gentity_t *ent, gentity_t *other, trace_t *trace )
 		return;
 	}
 
-	if ( ent->owner->moverState != MOVER_1TO2 )
+	if ( ent->owner->moverState != moverState_t::MOVER_1TO2 )
 	{//Door is not already opening
-		//if ( ent->owner->moverState == MOVER_POS1 || ent->owner->moverState == MOVER_2TO1 )
+		//if ( ent->owner->moverState == moverState_t::MOVER_POS1 || ent->owner->moverState == moverState_t::MOVER_2TO1 )
 		//{//only check these if closed or closing
 
 		//If door is closed, opening or open, check this
@@ -1199,7 +1199,7 @@ void Touch_DoorTrigger( gentity_t *ent, gentity_t *other, trace_t *trace )
 
 	/*
 	//Old style
-	if ( ent->owner->moverState != MOVER_1TO2 ) {
+	if ( ent->owner->moverState != moverState_t::MOVER_1TO2 ) {
 		Use_BinaryMover( ent->owner, ent, other );
 	}
 	*/
@@ -1252,8 +1252,8 @@ void Think_SpawnNewDoorTrigger( gentity_t *ent )
 	VectorCopy (mins, other->mins);
 	VectorCopy (maxs, other->maxs);
 	other->owner = ent;
-	other->contents = CONTENTS_TRIGGER;
-	other->e_TouchFunc = touchF_Touch_DoorTrigger;
+	other->contents = contentsFlags_t::CONTENTS_TRIGGER;
+	other->e_TouchFunc = touchFunc_t::touchF_Touch_DoorTrigger;
 	gi.linkentity (other);
 	other->classname = "trigger_door";
 
@@ -1284,9 +1284,9 @@ gentity_t *G_FindDoorTrigger( gentity_t *ent )
 {
 	gentity_t *owner = nullptr;
 	gentity_t *door = ent;
-	if ( Any( door->flags & FL_TEAMSLAVE ) )
+	if ( Any( door->flags & gentityFlags_t::FL_TEAMSLAVE ) )
 	{//not the master door, get the master door
-		while ( door->teammaster && Any( door->flags & FL_TEAMSLAVE ))
+		while ( door->teammaster && Any( door->flags & gentityFlags_t::FL_TEAMSLAVE ))
 		{
 			door = door->teammaster;
 		}
@@ -1296,7 +1296,7 @@ gentity_t *G_FindDoorTrigger( gentity_t *ent )
 		//FIXME: if ent->targetname, check what kind of trigger/ent is targetting it?  If a normal trigger (active, etc), then it's okay?
 		while ( (owner = G_Find( owner, FOFS( target ), door->targetname )) != nullptr )
 		{
-			if ( owner && Any( owner->contents&CONTENTS_TRIGGER ) )
+			if ( owner && Any( owner->contents&contentsFlags_t::CONTENTS_TRIGGER ) )
 			{
 				return owner;
 			}
@@ -1304,7 +1304,7 @@ gentity_t *G_FindDoorTrigger( gentity_t *ent )
 		owner = nullptr;
 		while ( (owner = G_Find( owner, FOFS( target2 ), door->targetname )) != nullptr )
 		{
-			if ( owner && Any( owner->contents&CONTENTS_TRIGGER ) )
+			if ( owner && Any( owner->contents&contentsFlags_t::CONTENTS_TRIGGER ) )
 			{
 				return owner;
 			}
@@ -1335,9 +1335,9 @@ bool G_EntIsUnlockedDoor( int entityNum )
 	{
 		gentity_t *ent = &g_entities[entityNum];
 		gentity_t *owner = nullptr;
-		if ( Any( ent->flags & FL_TEAMSLAVE ) )
+		if ( Any( ent->flags & gentityFlags_t::FL_TEAMSLAVE ) )
 		{//not the master door, get the master door
-			while ( ent->teammaster && Any( ent->flags & FL_TEAMSLAVE ))
+			while ( ent->teammaster && Any( ent->flags & gentityFlags_t::FL_TEAMSLAVE ))
 			{
 				ent = ent->teammaster;
 			}
@@ -1372,12 +1372,12 @@ bool G_EntIsUnlockedDoor( int entityNum )
 		else
 		{//check the door's auto-created trigger instead
 			owner = G_FindDoorTrigger( ent );
-			if ( owner && Any( owner->svFlags & SVF_INACTIVE ) )
+			if ( owner && Any( owner->svFlags & svFlags_t::SVF_INACTIVE ) )
 			{//owning auto-created trigger is inactive
 				return false;
 			}
 		}
-		if ( !Any( ent->svFlags & SVF_INACTIVE ) && //assumes that the reactivate trigger isn't right next to the door!
+		if ( !Any( ent->svFlags & svFlags_t::SVF_INACTIVE ) && //assumes that the reactivate trigger isn't right next to the door!
 			!ent->health &&
 			!(ent->spawnflags & MOVER_PLAYER_USE) &&
 			!(ent->spawnflags & MOVER_FORCE_ACTIVATE) &&
@@ -1427,7 +1427,7 @@ void SP_func_door (gentity_t *ent)
 	vec3_t	size;
 	float	lip;
 
-	ent->e_BlockedFunc = blockedF_Blocked_Door;
+	ent->e_BlockedFunc = blockedFunc_t::blockedF_Blocked_Door;
 
 	if ( ent->spawnflags & MOVER_GOODIE )
 	{
@@ -1481,14 +1481,14 @@ void SP_func_door (gentity_t *ent)
 
 	if ( ent->spawnflags & MOVER_LOCKED )
 	{//a locked door, set up as locked until used directly
-		ent->s.eFlags |= EF_SHADER_ANIM;//use frame-controlled shader anim
+		ent->s.eFlags |= entityFlags_t::EF_SHADER_ANIM;//use frame-controlled shader anim
 		ent->s.frame = 0;//first stage of anim
 	}
 	InitMover( ent );
 
 	ent->nextthink = level.time + FRAMETIME;
 
-	if ( !Any( ent->flags & FL_TEAMSLAVE ) )
+	if ( !Any( ent->flags & gentityFlags_t::FL_TEAMSLAVE ) )
 	{
 		int health;
 
@@ -1502,11 +1502,11 @@ void SP_func_door (gentity_t *ent)
 		if ( !(ent->spawnflags&MOVER_LOCKED) && (ent->targetname || health || ent->spawnflags & MOVER_PLAYER_USE || ent->spawnflags & MOVER_FORCE_ACTIVATE) )
 		{
 			// non touch/shoot doors
-			ent->e_ThinkFunc = thinkF_Think_MatchTeam;
+			ent->e_ThinkFunc = thinkFunc_t::thinkF_Think_MatchTeam;
 		}
 		else
 		{//locked doors still spawn a trigger
-			ent->e_ThinkFunc = thinkF_Think_SpawnNewDoorTrigger;
+			ent->e_ThinkFunc = thinkFunc_t::thinkF_Think_SpawnNewDoorTrigger;
 		}
 	}
 }
@@ -1527,12 +1527,12 @@ Don't allow decent if a living player is on it
 ===============
 */
 void Touch_Plat( gentity_t *ent, gentity_t *other, trace_t *trace ) {
-	if ( !other->client || other->client->ps.stats[STAT_HEALTH] <= 0 ) {
+	if ( !other->client || other->client->ps.stats[statIndex_t::STAT_HEALTH] <= 0 ) {
 		return;
 	}
 
 	// delay return-to-pos1 by one second
-	if ( ent->moverState == MOVER_POS2 ) {
+	if ( ent->moverState == moverState_t::MOVER_POS2 ) {
 		ent->nextthink = level.time + 1000;
 	}
 }
@@ -1549,7 +1549,7 @@ void Touch_PlatCenterTrigger(gentity_t *ent, gentity_t *other, trace_t *trace ) 
 		return;
 	}
 
-	if ( ent->owner->moverState == MOVER_POS1 ) {
+	if ( ent->owner->moverState == moverState_t::MOVER_POS1 ) {
 		Use_BinaryMover( ent->owner, ent, other );
 	}
 }
@@ -1571,8 +1571,8 @@ void SpawnPlatTrigger( gentity_t *ent ) {
 	// the middle trigger will be a thin trigger just
 	// above the starting position
 	trigger = G_Spawn();
-	trigger->e_TouchFunc = touchF_Touch_PlatCenterTrigger;
-	trigger->contents = CONTENTS_TRIGGER;
+	trigger->e_TouchFunc = touchFunc_t::touchF_Touch_PlatCenterTrigger;
+	trigger->contents = contentsFlags_t::CONTENTS_TRIGGER;
 	trigger->owner = ent;
 
 	tmin[0] = ent->pos1[0] + ent->mins[0] + 33;
@@ -1644,9 +1644,9 @@ void SP_func_plat (gentity_t *ent) {
 
 	// touch function keeps the plat from returning while
 	// a live player is standing on it
-	ent->e_TouchFunc = touchF_Touch_Plat;
+	ent->e_TouchFunc = touchFunc_t::touchF_Touch_Plat;
 
-	ent->e_BlockedFunc = blockedF_Blocked_Door;
+	ent->e_BlockedFunc = blockedFunc_t::blockedF_Blocked_Door;
 
 	ent->owner = ent;	// so it can be treated as a door
 
@@ -1676,7 +1676,7 @@ void Touch_Button(gentity_t *ent, gentity_t *other, trace_t *trace ) {
 		return;
 	}
 
-	if ( ent->moverState == MOVER_POS1 ) {
+	if ( ent->moverState == moverState_t::MOVER_POS1 ) {
 		Use_BinaryMover( ent, other, other );
 	}
 }
@@ -1736,7 +1736,7 @@ void SP_func_button( gentity_t *ent ) {
 		ent->takedamage = true;
 	} else {
 		// touchable button
-		ent->e_TouchFunc = touchF_Touch_Button;
+		ent->e_TouchFunc = touchFunc_t::touchF_Touch_Button;
 	}
 
 	InitMover( ent );
@@ -1767,17 +1767,17 @@ void Think_BeginMoving( gentity_t *ent ) {
 	if ( ent->spawnflags & 2048 )
 	{
 		// this tie fighter hack is done for doom_detention, where the shooting gallery takes place. let them draw again when they start moving
-		ent->s.eFlags &= ~EF_NODRAW;
+		ent->s.eFlags &= ~entityFlags_t::EF_NODRAW;
 	}
 
 	ent->s.pos.trTime = level.time;
 	if ( ent->alt_fire )
 	{
-		ent->s.pos.trType = TR_LINEAR_STOP;
+		ent->s.pos.trType = trType_t::TR_LINEAR_STOP;
 	}
 	else
 	{
-		ent->s.pos.trType = TR_NONLINEAR_STOP;
+		ent->s.pos.trType = trType_t::TR_NONLINEAR_STOP;
 	}
 }
 
@@ -1834,7 +1834,7 @@ void Reached_Train( gentity_t *ent ) {
 	G_PlayDoorLoopSound( ent );
 
 	// start it going
-	SetMoverState( ent, MOVER_1TO2, level.time );
+	SetMoverState( ent, moverState_t::MOVER_1TO2, level.time );
 
 	if (( next->spawnflags & 1 ))
 	{
@@ -1853,11 +1853,11 @@ void Reached_Train( gentity_t *ent ) {
 		ent->s.apos.trDuration = 2000;
 		if ( ent->alt_fire )
 		{
-			ent->s.apos.trType = TR_LINEAR_STOP;
+			ent->s.apos.trType = trType_t::TR_LINEAR_STOP;
 		}
 		else
 		{
-			ent->s.apos.trType = TR_NONLINEAR_STOP;
+			ent->s.apos.trType = trType_t::TR_NONLINEAR_STOP;
 		}
 	}
 	else
@@ -1883,11 +1883,11 @@ void Reached_Train( gentity_t *ent ) {
 			ent->s.apos.trDuration = 2000;
 			if ( ent->alt_fire )
 			{
-				ent->s.apos.trType = TR_LINEAR_STOP;
+				ent->s.apos.trType = trType_t::TR_LINEAR_STOP;
 			}
 			else
 			{
-				ent->s.apos.trType = TR_NONLINEAR_STOP;
+				ent->s.apos.trType = trType_t::TR_NONLINEAR_STOP;
 			}
 		}
 	}
@@ -1895,20 +1895,20 @@ void Reached_Train( gentity_t *ent ) {
 	// This is for the tie fighter shooting gallery on doom detention, you could see them waiting under the bay, but the architecture couldn't easily be changed..
 	if (( next->spawnflags & 2 ))
 	{
-		ent->s.eFlags |= EF_NODRAW; // make us invisible until we start moving again
+		ent->s.eFlags |= entityFlags_t::EF_NODRAW; // make us invisible until we start moving again
 	}
 
 	// if there is a "wait" value on the target, don't start moving yet
 	if ( next->wait )
 	{
 		ent->nextthink = level.time + next->wait * 1000;
-		ent->e_ThinkFunc = thinkF_Think_BeginMoving;
-		ent->s.pos.trType = TR_STATIONARY;
+		ent->e_ThinkFunc = thinkFunc_t::thinkF_Think_BeginMoving;
+		ent->s.pos.trType = trType_t::TR_STATIONARY;
 	}
 	else if (!( next->spawnflags & 2 ))
 	{
 		// we aren't waiting to start, so let us draw right away
-		ent->s.eFlags &= ~EF_NODRAW;
+		ent->s.eFlags &= ~entityFlags_t::EF_NODRAW;
 	}
 }
 
@@ -2092,33 +2092,33 @@ void SP_func_train (gentity_t *self) {
 		self->s.modelindex2 = G_ModelIndex( "models/map_objects/ships/tie_fighter.md3" );
 		G_EffectIndex( "fighter_explosion2" );
 
-		self->contents = CONTENTS_SHOTCLIP;
+		self->contents = contentsFlags_t::CONTENTS_SHOTCLIP;
 		self->takedamage = true;
 		VectorSet( self->maxs, 112, 112, 112 );
 		VectorSet( self->mins, -112, -112, -112 );
-		self->e_DieFunc  = dieF_func_train_die;
+		self->e_DieFunc  = dieFunc_t::dieF_func_train_die;
 		gi.linkentity( self );
 		//HACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACK
 	}
 
 	if ( self->targetname )
 	{
-		self->e_UseFunc = useF_TrainUse;
+		self->e_UseFunc = useFunc_t::useF_TrainUse;
 	}
 
-	self->e_ReachedFunc = reachedF_Reached_Train;
+	self->e_ReachedFunc = reachedFunc_t::reachedF_Reached_Train;
 
 	// start trains on the second frame, to make sure their targets have had
 	// a chance to spawn
 	self->nextthink = level.time + START_TIME_LINK_ENTS;
-	self->e_ThinkFunc = thinkF_Think_SetupTrainTargets;
+	self->e_ThinkFunc = thinkFunc_t::thinkF_Think_SetupTrainTargets;
 
 
 	if ( self->playerModel >= 0 && self->spawnflags & 32 ) // loop...dunno, could support it on other things, but for now I need it for the glider...so...kill the flag
 	{
 		self->spawnflags &= ~32; // once only
 
-		gi.G2API_SetBoneAnim( &self->ghoul2[self->playerModel], "model_root", self->startFrame, self->endFrame, BONE_ANIM_OVERRIDE_LOOP, 1.0f + Q_flrand(-1.0f, 1.0f) * 0.1f, 0, -1, -1 );
+		gi.G2API_SetBoneAnim( &self->ghoul2[self->playerModel], "model_root", self->startFrame, self->endFrame, boneFlags_t::BONE_ANIM_OVERRIDE_LOOP, 1.0f + Q_flrand(-1.0f, 1.0f) * 0.1f, 0, -1, -1 );
 		self->endFrame = 0; // don't allow it to do anything with the animation function in G_main
 	}
 }
@@ -2157,20 +2157,20 @@ void SP_func_static( gentity_t *ent )
 
 	InitMover( ent );
 
-	ent->e_UseFunc = useF_func_static_use;
-	ent->e_ReachedFunc = reachedF_NULL;
+	ent->e_UseFunc = useFunc_t::useF_func_static_use;
+	ent->e_ReachedFunc = reachedFunc_t::reachedF_NULL;
 
 	G_SetOrigin( ent, ent->s.origin );
 	G_SetAngles( ent, ent->s.angles );
 
 	if( ent->spawnflags & 2048 )
 	{								   // yes this is very very evil, but for now (pre-alpha) it's a solution
-		ent->svFlags |= SVF_BROADCAST; // I need to rotate something that is huge and it's touching too many area portals...
+		ent->svFlags |= svFlags_t::SVF_BROADCAST; // I need to rotate something that is huge and it's touching too many area portals...
 	}
 
 	if ( ent->spawnflags & 4/*SWITCH_SHADER*/ )
 	{
-		ent->s.eFlags |= EF_SHADER_ANIM;//use frame-controlled shader anim
+		ent->s.eFlags |= entityFlags_t::EF_SHADER_ANIM;//use frame-controlled shader anim
 		ent->s.frame = 0;//first stage of anim
 	}
 	gi.linkentity( ent );
@@ -2178,7 +2178,7 @@ void SP_func_static( gentity_t *ent )
 
 void func_static_use ( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
-	G_ActivateBehavior( self, BSET_USE );
+	G_ActivateBehavior( self, bSet_t::BSET_USE );
 
 	if ( self->spawnflags & 4/*SWITCH_SHADER*/ )
 	{
@@ -2203,44 +2203,44 @@ void func_rotating_touch( gentity_t *self, gentity_t *other, trace_t *trace )
 		return;
 	}
 	// yeah, this is a bit hacky...
-	if(	self->s.apos.trType != TR_STATIONARY && !Any( other->flags & FL_DISINTEGRATED ) ) // only damage if it's moving
+	if(	self->s.apos.trType != trType_t::TR_STATIONARY && !Any( other->flags & gentityFlags_t::FL_DISINTEGRATED ) ) // only damage if it's moving
 	{
 //		VectorCopy( self->currentOrigin, spot );
-//		tent = G_TempEntity( spot, EV_DISINTEGRATION );
-//		tent->s.eventParm = PW_DISRUPTION;
+//		tent = G_TempEntity( spot, entity_event_t::EV_DISINTEGRATION );
+//		tent->s.eventParm = powerup_t::PW_DISRUPTION;
 //		tent->owner = self;
 		// let G_Damage call the fx instead, beside, this way you can disintegrate a corpse this way
 		G_Sound( other, G_SoundIndex( "sound/effects/energy_crackle.wav" ) );
-		G_Damage( other, self, self, nullptr, nullptr, 10000, DAMAGE_NO_KNOCKBACK, MOD_SNIPER );
+		G_Damage( other, self, self, nullptr, nullptr, 10000, damageFlags_t::DAMAGE_NO_KNOCKBACK, meansOfDeath_t::MOD_SNIPER );
 	}
 }
 
 
 void func_rotating_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
-	if(	self->s.apos.trType == TR_LINEAR )
+	if(	self->s.apos.trType == trType_t::TR_LINEAR )
 	{
-		self->s.apos.trType = TR_STATIONARY;
+		self->s.apos.trType = trType_t::TR_STATIONARY;
 		// stop the sound if it stops moving
 		self->s.loopSound = 0;
 		// play stop sound too?
 		if ( VALIDSTRING( self->soundSet ) == true )
 		{
-			G_AddEvent( self, EV_BMODEL_SOUND, CAS_GetBModelSound( self->soundSet, BMS_END ));
+			G_AddEvent( self, entity_event_t::EV_BMODEL_SOUND, CAS_GetBModelSound( self->soundSet, BMS_END ));
 		}
 	}
 	else
 	{
 		if ( VALIDSTRING( self->soundSet ) == true )
 		{
-			G_AddEvent( self, EV_BMODEL_SOUND, CAS_GetBModelSound( self->soundSet, BMS_START ));
+			G_AddEvent( self, entity_event_t::EV_BMODEL_SOUND, CAS_GetBModelSound( self->soundSet, BMS_START ));
 			self->s.loopSound = CAS_GetBModelSound( self->soundSet, BMS_MID );
 			if ( self->s.loopSound < 0 )
 			{
 				self->s.loopSound = 0;
 			}
 		}
-		self->s.apos.trType = TR_LINEAR;
+		self->s.apos.trType = trType_t::TR_LINEAR;
 	}
 }
 
@@ -2266,10 +2266,10 @@ void SP_func_rotating (gentity_t *ent) {
 	}
 
 
-	ent->s.apos.trType = TR_STATIONARY;
+	ent->s.apos.trType = trType_t::TR_STATIONARY;
 	if( ent->spawnflags & 1 )	// start on
 	{
-		ent->s.apos.trType = TR_LINEAR;
+		ent->s.apos.trType = trType_t::TR_LINEAR;
 	}
 	// set the axis of rotation
 	if ( ent->spawnflags & 4 ) {
@@ -2290,7 +2290,7 @@ void SP_func_rotating (gentity_t *ent) {
 
 	if ( ent->targetname )
 	{
-		ent->e_UseFunc = useF_func_rotating_use;
+		ent->e_UseFunc = useFunc_t::useF_func_rotating_use;
 	}
 
 	VectorCopy( ent->s.origin, ent->s.pos.trBase );
@@ -2298,7 +2298,7 @@ void SP_func_rotating (gentity_t *ent) {
 	VectorCopy( ent->s.apos.trBase, ent->currentAngles );
 	if( ent->spawnflags & 2 )
 	{
-		ent->e_TouchFunc = touchF_func_rotating_touch;
+		ent->e_TouchFunc = touchFunc_t::touchF_func_rotating_touch;
 		G_SoundIndex( "sound/effects/energy_crackle.wav" );
 	}
 
@@ -2317,9 +2317,9 @@ BOBBING
 void func_bobbing_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
 	// Toggle our move state
-	if ( self->s.pos.trType == TR_SINE )
+	if ( self->s.pos.trType == trType_t::TR_SINE )
 	{
-		self->s.pos.trType = TR_INTERPOLATE;
+		self->s.pos.trType = trType_t::TR_INTERPOLATE;
 
 		// Save off roughly where we were
 		VectorCopy( self->currentOrigin, self->s.pos.trBase );
@@ -2328,7 +2328,7 @@ void func_bobbing_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 	}
 	else
 	{
-		self->s.pos.trType = TR_SINE;
+		self->s.pos.trType = trType_t::TR_SINE;
 
 		// Set the time based on the saved phase value
 		self->s.pos.trTime = level.time - self->s.pos.trDuration * self->radius;
@@ -2380,7 +2380,7 @@ void SP_func_bobbing (gentity_t *ent) {
 
 	if ( ent->spawnflags & 4 ) // start_off
 	{
-		ent->s.pos.trType = TR_INTERPOLATE;
+		ent->s.pos.trType = trType_t::TR_INTERPOLATE;
 
 		// Now use the phase to calculate where it should be at the start.
 		ent->radius = phase;
@@ -2389,12 +2389,12 @@ void SP_func_bobbing (gentity_t *ent) {
 
 		if ( ent->targetname )
 		{
-			ent->e_UseFunc = useF_func_bobbing_use;
+			ent->e_UseFunc = useFunc_t::useF_func_bobbing_use;
 		}
 	}
 	else
 	{
-		ent->s.pos.trType = TR_SINE;
+		ent->s.pos.trType = trType_t::TR_SINE;
 	}
 }
 
@@ -2452,7 +2452,7 @@ void SP_func_pendulum(gentity_t *ent) {
 
 	ent->s.apos.trDuration = 1000 / freq;
 	ent->s.apos.trTime = ent->s.apos.trDuration * phase;
-	ent->s.apos.trType = TR_SINE;
+	ent->s.apos.trType = trType_t::TR_SINE;
 
 	ent->s.apos.trDelta[2] = speed;
 }
@@ -2468,14 +2468,14 @@ WALL
 //static -slc
 void use_wall( gentity_t *ent, gentity_t *other, gentity_t *activator )
 {
-	G_ActivateBehavior(ent,BSET_USE);
+	G_ActivateBehavior(ent,bSet_t::BSET_USE);
 
 	// Not there so make it there
-	if (!Any( ent->contents & CONTENTS_SOLID ))
+	if (!Any( ent->contents & contentsFlags_t::CONTENTS_SOLID ))
 	{
-		ent->svFlags &= ~SVF_NOCLIENT;
-		ent->s.eFlags &= ~EF_NODRAW;
-		ent->contents = CONTENTS_SOLID;
+		ent->svFlags &= ~svFlags_t::SVF_NOCLIENT;
+		ent->s.eFlags &= ~entityFlags_t::EF_NODRAW;
+		ent->contents = contentsFlags_t::CONTENTS_SOLID;
 		if ( !(ent->spawnflags&1) )
 		{//START_OFF doesn't effect area portals
 			gi.AdjustAreaPortalState( ent, false );
@@ -2484,9 +2484,9 @@ void use_wall( gentity_t *ent, gentity_t *other, gentity_t *activator )
 	// Make it go away
 	else
 	{
-		ent->contents = CONTENTS_NONE;
-		ent->svFlags |= SVF_NOCLIENT;
-		ent->s.eFlags |= EF_NODRAW;
+		ent->contents = contentsFlags_t::CONTENTS_NONE;
+		ent->svFlags |= svFlags_t::SVF_NOCLIENT;
+		ent->s.eFlags |= entityFlags_t::EF_NODRAW;
 		if ( !(ent->spawnflags&1) )
 		{//START_OFF doesn't effect area portals
 			gi.AdjustAreaPortalState( ent, true );
@@ -2524,16 +2524,16 @@ void SP_func_wall( gentity_t *ent )
 	// it must be START_OFF
 	if (ent->spawnflags & FUNC_WALL_OFF)
 	{
-		ent->contents = CONTENTS_NONE;
-		ent->svFlags |= SVF_NOCLIENT;
-		ent->s.eFlags |= EF_NODRAW;
+		ent->contents = contentsFlags_t::CONTENTS_NONE;
+		ent->svFlags |= svFlags_t::SVF_NOCLIENT;
+		ent->s.eFlags |= entityFlags_t::EF_NODRAW;
 	}
 
 	if (!(ent->spawnflags & FUNC_WALL_ANIM))
 	{
-		ent->s.eFlags |= EF_ANIM_ALLFAST;
+		ent->s.eFlags |= entityFlags_t::EF_ANIM_ALLFAST;
 	}
-	ent->e_UseFunc = useF_use_wall;
+	ent->e_UseFunc = useFunc_t::useF_use_wall;
 
 	gi.linkentity (ent);
 
@@ -2555,14 +2555,14 @@ void security_panel_use( gentity_t *self, gentity_t *other, gentity_t *activator
 		INV_SecurityKeyTake( activator, self->message );
 		if ( activator->ghoul2.size() )
 		{
-			gi.G2API_SetSurfaceOnOff( &activator->ghoul2[activator->playerModel], "l_arm_key", G2SURFACEFLAG_OFF );
+			gi.G2API_SetSurfaceOnOff( &activator->ghoul2[activator->playerModel], "l_arm_key", g2SurfaceFlags_t::G2SURFACEFLAG_OFF );
 		}
 		//FIXME: maybe set frame on me to have key sticking out?
 		//self->s.frame = 1;
 		//play sound
 		G_Sound( self, self->soundPos2 );
 		//unusable
-		self->e_UseFunc = useF_NULL;
+		self->e_UseFunc = useFunc_t::useF_NULL;
 	}
 	else
 	{//failure sound/display
@@ -2600,14 +2600,14 @@ void SP_misc_security_panel ( gentity_t *self )
 	G_SetAngles( self, self->s.angles );
 	VectorSet( self->mins, -8, -8, -8 );
 	VectorSet( self->maxs, 8, 8, 8 );
-	self->contents = CONTENTS_SOLID;
+	self->contents = contentsFlags_t::CONTENTS_SOLID;
 	gi.linkentity( self );
 
 	//NOTE: self->message is the key
-	self->svFlags |= SVF_PLAYER_USABLE;
+	self->svFlags |= svFlags_t::SVF_PLAYER_USABLE;
 	if(self->spawnflags & 128)
 	{
-		self->svFlags |= SVF_INACTIVE;
+		self->svFlags |= svFlags_t::SVF_INACTIVE;
 	}
-	self->e_UseFunc = useF_security_panel_use;
+	self->e_UseFunc = useFunc_t::useF_security_panel_use;
 }

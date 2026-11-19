@@ -59,7 +59,7 @@ void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *
 	// make sure rows and cols are powers of 2
 	if ( (cols&(cols-1)) || (rows&(rows-1)) )
 	{
-		Com_Error (ERR_DROP, "Draw_StretchRaw: size not a power of 2: %i by %i", cols, rows);
+		Com_Error (errorParm_t::ERR_DROP, "Draw_StretchRaw: size not a power of 2: %i by %i", cols, rows);
 	}
 
 	GL_Bind( tr.scratchImage[iClient] );
@@ -88,7 +88,7 @@ void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *
 		if ( r_ignore->integer )
 		{
 			end = ri.Milliseconds();
-			ri.Printf( PRINT_ALL, "qglTexImage2D %i, %i: %i msec\n", cols, rows, end - start );
+			ri.Printf( printParm_t::PRINT_ALL, "qglTexImage2D %i, %i: %i msec\n", cols, rows, end - start );
 		}
 #endif
 	}
@@ -112,7 +112,7 @@ void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *
 			if ( r_ignore->integer )
 			{
 				end = ri.Milliseconds();
-				ri.Printf( PRINT_ALL, "qglTexSubImage2D %i, %i: %i msec\n", cols, rows, end - start );
+				ri.Printf( printParm_t::PRINT_ALL, "qglTexSubImage2D %i, %i: %i msec\n", cols, rows, end - start );
 			}
 	#endif
 		}
@@ -371,7 +371,6 @@ enum class Dissolve_e
 	eDISSOLVE_NUMBEROF
 
 };
-using enum Dissolve_e;
 template <> inline constexpr bool enableEnumArithmetic<Dissolve_e> = true;
 
 typedef struct
@@ -425,7 +424,7 @@ static void RE_Blit(float fX0, float fY0, float fX1, float fY1, float fX2, float
 
 	GL_Bind( pImage );
 	GL_State(iGLState);
-	GL_Cull( CT_TWO_SIDED ) ;
+	GL_Cull( cullType_t::CT_TWO_SIDED ) ;
 
 	qglColor3f( 1.0f, 1.0f, 1.0f );
 
@@ -496,7 +495,7 @@ bool RE_ProcessDissolve(void)
 
 		int iDissolvePercentage = ((ri.Milliseconds() - Dissolve.iStartTime)*100) / (1000.0f * fDISSOLVE_SECONDS);
 
-//		ri.Printf(PRINT_ALL,"iDissolvePercentage %d\n",iDissolvePercentage);
+//		ri.Printf(printParm_t::PRINT_ALL,"iDissolvePercentage %d\n",iDissolvePercentage);
 
 		if (iDissolvePercentage <= 100)
 		{
@@ -516,7 +515,7 @@ bool RE_ProcessDissolve(void)
 
 			switch (Dissolve.eDissolveType)
 			{
-				case eDISSOLVE_RT_TO_LT:
+				case Dissolve_e::eDISSOLVE_RT_TO_LT:
 				{
 					float fXboundary = (float) Dissolve.iWidth - (((float)(Dissolve.iWidth+Dissolve.pDissolve->width)*(float)iDissolvePercentage)/100.0f);
 
@@ -531,7 +530,7 @@ bool RE_ProcessDissolve(void)
 					x3 = x0;
 					y3 = y2;
 
-					RE_Blit(x0,y0,x1,y1,x2,y2,x3,y3, Dissolve.pDissolve, GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ZERO | GLS_DSTBLEND_ONE | GLS_ATEST_LT_80);
+					RE_Blit(x0,y0,x1,y1,x2,y2,x3,y3, Dissolve.pDissolve, glStateBits_t::GLS_DEPTHMASK_TRUE | glStateBits_t::GLS_SRCBLEND_ZERO | glStateBits_t::GLS_DSTBLEND_ONE | glStateBits_t::GLS_ATEST_LT_80);
 
 					// blit a blank thing over the area the old screen is to be displayed on to enable screen-writing...
 					// (to the left of fXboundary)
@@ -544,11 +543,11 @@ bool RE_ProcessDissolve(void)
 					y2 = fYScaleFactor * Dissolve.iHeight;
 					x3 = x0;
 					y3 = y2;
-					RE_Blit(x0,y0,x1,y1,x2,y2,x3,y3, Dissolve.pBlack, GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ZERO | GLS_DSTBLEND_ONE);
+					RE_Blit(x0,y0,x1,y1,x2,y2,x3,y3, Dissolve.pBlack, glStateBits_t::GLS_DEPTHMASK_TRUE | glStateBits_t::GLS_SRCBLEND_ZERO | glStateBits_t::GLS_DSTBLEND_ONE);
 				}
 				break;
 
-				case eDISSOLVE_LT_TO_RT:
+				case Dissolve_e::eDISSOLVE_LT_TO_RT:
 				{
 					float fXboundary = (((float)(Dissolve.iWidth+(2*Dissolve.pDissolve->width))*(float)iDissolvePercentage)/100.0f) - Dissolve.pDissolve->width;
 
@@ -563,7 +562,7 @@ bool RE_ProcessDissolve(void)
 					x3 = x0;
 					y3 = y2;
 
-					RE_Blit(x0,y0,x1,y1,x2,y2,x3,y3, Dissolve.pDissolve, GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ZERO | GLS_DSTBLEND_ONE | GLS_ATEST_LT_80);
+					RE_Blit(x0,y0,x1,y1,x2,y2,x3,y3, Dissolve.pDissolve, glStateBits_t::GLS_DEPTHMASK_TRUE | glStateBits_t::GLS_SRCBLEND_ZERO | glStateBits_t::GLS_DSTBLEND_ONE | glStateBits_t::GLS_ATEST_LT_80);
 
 					// blit a blank thing over the area the old screen is to be displayed on to enable screen-writing...
 					// (to the right of fXboundary)
@@ -576,11 +575,11 @@ bool RE_ProcessDissolve(void)
 					y2 = fYScaleFactor * Dissolve.iHeight;
 					x3 = x0;
 					y3 = y2;
-					RE_Blit(x0,y0,x1,y1,x2,y2,x3,y3, Dissolve.pBlack, GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ZERO | GLS_DSTBLEND_ONE);
+					RE_Blit(x0,y0,x1,y1,x2,y2,x3,y3, Dissolve.pBlack, glStateBits_t::GLS_DEPTHMASK_TRUE | glStateBits_t::GLS_SRCBLEND_ZERO | glStateBits_t::GLS_DSTBLEND_ONE);
 				}
 				break;
 
-				case eDISSOLVE_TP_TO_BT:
+				case Dissolve_e::eDISSOLVE_TP_TO_BT:
 				{
 					float fYboundary = (((float)(Dissolve.iHeight+(2*Dissolve.pDissolve->width))*(float)iDissolvePercentage)/100.0f) - Dissolve.pDissolve->width;
 
@@ -595,7 +594,7 @@ bool RE_ProcessDissolve(void)
 					x3 = x2;
 					y3 = y0;
 
-					RE_Blit(x0,y0,x1,y1,x2,y2,x3,y3, Dissolve.pDissolve, GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ZERO | GLS_DSTBLEND_ONE | GLS_ATEST_LT_80);
+					RE_Blit(x0,y0,x1,y1,x2,y2,x3,y3, Dissolve.pDissolve, glStateBits_t::GLS_DEPTHMASK_TRUE | glStateBits_t::GLS_SRCBLEND_ZERO | glStateBits_t::GLS_DSTBLEND_ONE | glStateBits_t::GLS_ATEST_LT_80);
 
 					// blit a blank thing over the area the old screen is to be displayed on to enable screen-writing...
 					// (underneath fYboundary)
@@ -608,11 +607,11 @@ bool RE_ProcessDissolve(void)
 					y2 = fYScaleFactor * Dissolve.iHeight;
 					x3 = x0;
 					y3 = y2;
-					RE_Blit(x0,y0,x1,y1,x2,y2,x3,y3, Dissolve.pBlack, GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ZERO | GLS_DSTBLEND_ONE);
+					RE_Blit(x0,y0,x1,y1,x2,y2,x3,y3, Dissolve.pBlack, glStateBits_t::GLS_DEPTHMASK_TRUE | glStateBits_t::GLS_SRCBLEND_ZERO | glStateBits_t::GLS_DSTBLEND_ONE);
 				}
 				break;
 
-				case eDISSOLVE_BT_TO_TP:
+				case Dissolve_e::eDISSOLVE_BT_TO_TP:
 				{
 					float fYboundary = Dissolve.iHeight - (((float)(Dissolve.iHeight+Dissolve.pDissolve->width)*(float)iDissolvePercentage)/100.0f);
 
@@ -627,7 +626,7 @@ bool RE_ProcessDissolve(void)
 					x3 = x2;
 					y3 = y0;
 
-					RE_Blit(x0,y0,x1,y1,x2,y2,x3,y3, Dissolve.pDissolve, GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ZERO | GLS_DSTBLEND_ONE | GLS_ATEST_LT_80);
+					RE_Blit(x0,y0,x1,y1,x2,y2,x3,y3, Dissolve.pDissolve, glStateBits_t::GLS_DEPTHMASK_TRUE | glStateBits_t::GLS_SRCBLEND_ZERO | glStateBits_t::GLS_DSTBLEND_ONE | glStateBits_t::GLS_ATEST_LT_80);
 
 					// blit a blank thing over the area the old screen is to be displayed on to enable screen-writing...
 					// (above fYboundary)
@@ -640,11 +639,11 @@ bool RE_ProcessDissolve(void)
 					y2 = fYScaleFactor * (fYboundary + iSAFETY_SPRITE_OVERLAP);
 					x3 = x0;
 					y3 = y2;
-					RE_Blit(x0,y0,x1,y1,x2,y2,x3,y3, Dissolve.pBlack, GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ZERO | GLS_DSTBLEND_ONE);
+					RE_Blit(x0,y0,x1,y1,x2,y2,x3,y3, Dissolve.pBlack, glStateBits_t::GLS_DEPTHMASK_TRUE | glStateBits_t::GLS_SRCBLEND_ZERO | glStateBits_t::GLS_DSTBLEND_ONE);
 				}
 				break;
 
-				case eDISSOLVE_CIRCULAR_IN:
+				case Dissolve_e::eDISSOLVE_CIRCULAR_IN:
 				{
 					float fDiagZoom = ( ((float)Dissolve.iWidth*0.8) * (100-iDissolvePercentage))/100.0f;
 
@@ -660,11 +659,11 @@ bool RE_ProcessDissolve(void)
 					x3 = x0;
 					y3 = y2;
 
-					RE_Blit(x0,y0,x1,y1,x2,y2,x3,y3, Dissolve.pDissolve, GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ZERO | GLS_DSTBLEND_ONE | GLS_ATEST_LT_80);
+					RE_Blit(x0,y0,x1,y1,x2,y2,x3,y3, Dissolve.pDissolve, glStateBits_t::GLS_DEPTHMASK_TRUE | glStateBits_t::GLS_SRCBLEND_ZERO | glStateBits_t::GLS_DSTBLEND_ONE | glStateBits_t::GLS_ATEST_LT_80);
 				}
 				break;
 
-				case eDISSOLVE_CIRCULAR_OUT:
+				case Dissolve_e::eDISSOLVE_CIRCULAR_OUT:
 				{
 					float fDiagZoom = ( ((float)Dissolve.iWidth*0.8) * iDissolvePercentage)/100.0f;
 
@@ -680,7 +679,7 @@ bool RE_ProcessDissolve(void)
 					x3 = x0;
 					y3 = y2;
 
-					RE_Blit(x0,y0,x1,y1,x2,y2,x3,y3, Dissolve.pDissolve, GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ZERO | GLS_DSTBLEND_ONE | GLS_ATEST_LT_80);
+					RE_Blit(x0,y0,x1,y1,x2,y2,x3,y3, Dissolve.pDissolve, glStateBits_t::GLS_DEPTHMASK_TRUE | glStateBits_t::GLS_SRCBLEND_ZERO | glStateBits_t::GLS_DSTBLEND_ONE | glStateBits_t::GLS_ATEST_LT_80);
 					// now blit the 4 black squares around it to mask off the rest of the screen...
 					//
 					// LHS, top to bottom...
@@ -689,7 +688,7 @@ bool RE_ProcessDissolve(void)
 							x0+iSAFETY_SPRITE_OVERLAP,0,		// x1,y1
 							x0+iSAFETY_SPRITE_OVERLAP,(fYScaleFactor * Dissolve.iHeight),// x2,y2
 							0,(fYScaleFactor * Dissolve.iHeight),	// x3,y3,
-							Dissolve.pBlack, GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ZERO | GLS_DSTBLEND_ONE
+							Dissolve.pBlack, glStateBits_t::GLS_DEPTHMASK_TRUE | glStateBits_t::GLS_SRCBLEND_ZERO | glStateBits_t::GLS_DSTBLEND_ONE
 							);
 
 					// RHS top to bottom...
@@ -698,7 +697,7 @@ bool RE_ProcessDissolve(void)
 							(fXScaleFactor * Dissolve.iWidth),0,	// x1,y1
 							(fXScaleFactor * Dissolve.iWidth),(fYScaleFactor * Dissolve.iHeight),// x2,y2
 							x1-iSAFETY_SPRITE_OVERLAP,(fYScaleFactor * Dissolve.iHeight),	// x3,y3,
-							Dissolve.pBlack, GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ZERO | GLS_DSTBLEND_ONE
+							Dissolve.pBlack, glStateBits_t::GLS_DEPTHMASK_TRUE | glStateBits_t::GLS_SRCBLEND_ZERO | glStateBits_t::GLS_DSTBLEND_ONE
 							);
 
 					// top...
@@ -707,7 +706,7 @@ bool RE_ProcessDissolve(void)
 							x1+iSAFETY_SPRITE_OVERLAP,0,		// x1,y1
 							x1+iSAFETY_SPRITE_OVERLAP,y0 + iSAFETY_SPRITE_OVERLAP,	// x2,y2
 							x0-iSAFETY_SPRITE_OVERLAP,y0 + iSAFETY_SPRITE_OVERLAP,	// x3,y3
-							Dissolve.pBlack, GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ZERO | GLS_DSTBLEND_ONE
+							Dissolve.pBlack, glStateBits_t::GLS_DEPTHMASK_TRUE | glStateBits_t::GLS_SRCBLEND_ZERO | glStateBits_t::GLS_DSTBLEND_ONE
 							);
 
 					// bottom...
@@ -716,7 +715,7 @@ bool RE_ProcessDissolve(void)
 							x1+iSAFETY_SPRITE_OVERLAP,y2-iSAFETY_SPRITE_OVERLAP,		// x1,y1
 							x1+iSAFETY_SPRITE_OVERLAP,(fYScaleFactor * Dissolve.iHeight),	// x2,y2
 							x0-iSAFETY_SPRITE_OVERLAP,(fYScaleFactor * Dissolve.iHeight),	// x3,y3
-							Dissolve.pBlack, GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ZERO | GLS_DSTBLEND_ONE
+							Dissolve.pBlack, glStateBits_t::GLS_DEPTHMASK_TRUE | glStateBits_t::GLS_SRCBLEND_ZERO | glStateBits_t::GLS_DSTBLEND_ONE
 							);
 				}
 				break;
@@ -744,7 +743,7 @@ bool RE_ProcessDissolve(void)
 				x3 = x0;
 				y3 = y2;
 
-				RE_Blit(x0,y0,x1,y1,x2,y2,x3,y3, Dissolve.pImage,GLS_DEPTHFUNC_EQUAL);
+				RE_Blit(x0,y0,x1,y1,x2,y2,x3,y3, Dissolve.pImage,glStateBits_t::GLS_DEPTHFUNC_EQUAL);
 			}
 		}
 
@@ -763,7 +762,7 @@ bool RE_InitDissolve(bool bForceCircularExtroWipe)
 {
 	R_IssuePendingRenderCommands();
 
-//	ri.Printf( PRINT_ALL, "RE_InitDissolve()\n");
+//	ri.Printf( printParm_t::PRINT_ALL, "RE_InitDissolve()\n");
 	bool bReturn = false;
 
 	if (//Dissolve.iStartTime == 0	// no point in interruping an existing one
@@ -777,7 +776,7 @@ bool RE_InitDissolve(bool bForceCircularExtroWipe)
 		int iPow2VidHeight	= PowerOf2( glConfig.vidHeight);
 
 		int iBufferBytes	= iPow2VidWidth * iPow2VidHeight * 4;
-		byte *pBuffer = (byte *) R_Malloc( iBufferBytes, TAG_TEMP_WORKSPACE, false);
+		byte *pBuffer = (byte *) R_Malloc( iBufferBytes, memtag::TAG_TEMP_WORKSPACE, false);
 		if (pBuffer)
 		{
 			// read current screen image...  (GL_RGBA should work even on 3DFX in that the RGB parts will be valid at least)
@@ -815,7 +814,7 @@ bool RE_InitDissolve(bool bForceCircularExtroWipe)
 			//	but of course the damn thing's upside down (thanks, GL), so invert it, but only within
 			//	the picture pixels, NOT the upload texture as a whole...
 			//
-			byte *pbSwapLineBuffer = (byte *)R_Malloc( iCopyBytes, TAG_TEMP_WORKSPACE, false);
+			byte *pbSwapLineBuffer = (byte *)R_Malloc( iCopyBytes, memtag::TAG_TEMP_WORKSPACE, false);
 			pbSrc = &pBuffer[0];
 			pbDst = &pBuffer[(glConfig.vidHeight-1) * iPow2VidWidth * 4];
 			for (int y = 0; y < glConfig.vidHeight/2; y++)
@@ -864,7 +863,7 @@ bool RE_InitDissolve(bool bForceCircularExtroWipe)
 											iPow2VidHeight == Dissolve.iUploadHeight
 										)?
 										nullptr :
-										(byte*) R_Malloc( iPow2VidWidth * iPow2VidHeight * 4, TAG_TEMP_WORKSPACE, false);
+										(byte*) R_Malloc( iPow2VidWidth * iPow2VidHeight * 4, memtag::TAG_TEMP_WORKSPACE, false);
 
 			// re-sample screen...
 			//
@@ -918,19 +917,19 @@ bool RE_InitDissolve(bool bForceCircularExtroWipe)
 			static Dissolve_e eDissolve = (Dissolve_e) 0;
 			Dissolve.eDissolveType =	eDissolve;
 										eDissolve = (Dissolve_e) (eDissolve+1);
-									if (eDissolve == eDISSOLVE_RAND_LIMIT)
+									if (eDissolve == Dissolve_e::eDISSOLVE_RAND_LIMIT)
 										eDissolve = (Dissolve_e) (eDissolve+1);
-									if (eDissolve >= eDISSOLVE_NUMBEROF)
+									if (eDissolve >= Dissolve_e::eDISSOLVE_NUMBEROF)
 										eDissolve = (Dissolve_e) 0;
 #else
 			// final (& random) version...
 			//
-			Dissolve.eDissolveType = Q_irand( eDISSOLVE_RT_TO_LT, eDISSOLVE_RAND_LIMIT - 1 );
+			Dissolve.eDissolveType = Q_irand( Dissolve_e::eDISSOLVE_RT_TO_LT, Dissolve_e::eDISSOLVE_RAND_LIMIT - 1 );
 #endif
 
 			if (bForceCircularExtroWipe)
 			{
-				Dissolve.eDissolveType = eDISSOLVE_CIRCULAR_IN;
+				Dissolve.eDissolveType = Dissolve_e::eDISSOLVE_CIRCULAR_IN;
 			}
 
 			// ... and load appropriate graphics...
@@ -973,7 +972,7 @@ bool RE_InitDissolve(bool bForceCircularExtroWipe)
 
 			switch (Dissolve.eDissolveType)
 			{
-				case eDISSOLVE_CIRCULAR_IN:
+				case Dissolve_e::eDISSOLVE_CIRCULAR_IN:
 				{
 					Dissolve.pDissolve = R_FindImageFile(	"gfx/2d/iris_mono_rev",		// const char *name
 															false,						// bool mipmap
@@ -984,7 +983,7 @@ bool RE_InitDissolve(bool bForceCircularExtroWipe)
 				}
 				break;
 
-				case eDISSOLVE_CIRCULAR_OUT:
+				case Dissolve_e::eDISSOLVE_CIRCULAR_OUT:
 				{
 					Dissolve.pDissolve = R_FindImageFile(	"gfx/2d/iris_mono",			// const char *name
 															false,						// bool mipmap

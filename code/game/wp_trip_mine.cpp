@@ -37,7 +37,7 @@ constexpr int TRIPWIRE_STYLE = 2;
 void touchLaserTrap( gentity_t *ent, gentity_t *other, trace_t *trace )
 //---------------------------------------------------------
 {
-	ent->s.eType = ET_GENERAL;
+	ent->s.eType = entityType_t::ET_GENERAL;
 
 	// a tripwire so add draw line flag
 	VectorCopy( trace->plane.normal, ent->movedir );
@@ -47,12 +47,12 @@ void touchLaserTrap( gentity_t *ent, gentity_t *other, trace_t *trace )
 	VectorSet( ent->maxs, 4, 4, 4 );
 
 	ent->clipmask = MASK_SHOT;
-	ent->contents = CONTENTS_SHOTCLIP;
+	ent->contents = contentsFlags_t::CONTENTS_SHOTCLIP;
 	ent->takedamage = true;
 	ent->health = 15;
 
-	ent->e_DieFunc = dieF_WP_ExplosiveDie;
-	ent->e_TouchFunc = touchF_NULL;
+	ent->e_DieFunc = dieFunc_t::dieF_WP_ExplosiveDie;
+	ent->e_TouchFunc = touchFunc_t::touchF_NULL;
 
 	// so we can trip it too
 	ent->activator = ent->owner;
@@ -65,14 +65,14 @@ void touchLaserTrap( gentity_t *ent, gentity_t *other, trace_t *trace )
 		vec3_t		mins = {-4,-4,-4}, maxs = {4,4,4};//FIXME: global these
 		trace_t		tr;
 		VectorMA( ent->currentOrigin, 32, ent->movedir, ent->s.origin2 );
-		gi.trace( &tr, ent->s.origin2, mins, maxs, ent->currentOrigin, ent->s.number, MASK_SHOT, G2_RETURNONHIT, 0 );
+		gi.trace( &tr, ent->s.origin2, mins, maxs, ent->currentOrigin, ent->s.number, MASK_SHOT, EG2_Collision::G2_RETURNONHIT, 0 );
 		VectorCopy( tr.endpos, ent->s.origin2 );
 
-		ent->e_ThinkFunc = thinkF_laserTrapThink;
+		ent->e_ThinkFunc = thinkFunc_t::thinkF_laserTrapThink;
 	}
 	else
 	{
-		ent->e_ThinkFunc = thinkF_WP_prox_mine_think;
+		ent->e_ThinkFunc = thinkFunc_t::thinkF_WP_prox_mine_think;
 	}
 
 	ent->nextthink = level.time + LT_ACTIVATION_DELAY;
@@ -91,7 +91,7 @@ void WP_prox_mine_think( gentity_t *ent )
 	{
 		// play activated warning
 		ent->count = 0;
-		ent->s.eFlags |= EF_PROX_TRIP;
+		ent->s.eFlags |= entityFlags_t::EF_PROX_TRIP;
 		G_Sound( ent, G_SoundIndex( "sound/weapons/laser_trap/warning.wav" ));
 	}
 
@@ -118,7 +118,7 @@ void WP_prox_mine_think( gentity_t *ent )
 	if ( blow )
 	{
 //		G_Sound( ent, G_SoundIndex( "sound/weapons/flechette/warning.wav" ));
-		ent->e_ThinkFunc = thinkF_WP_Explode;
+		ent->e_ThinkFunc = thinkFunc_t::thinkF_WP_Explode;
 		ent->nextthink = level.time + 200;
 	}
 	else
@@ -137,20 +137,20 @@ void laserTrapThink( gentity_t *ent )
 	trace_t		tr;
 
 	// turn on the beam effect
-	if ( !Any(ent->s.eFlags & EF_FIRING ))
+	if ( !Any(ent->s.eFlags & entityFlags_t::EF_FIRING ))
 	{
 		// arm me
 		G_Sound( ent, G_SoundIndex( "sound/weapons/laser_trap/warning.wav" ));
 		ent->s.loopSound = G_SoundIndex( "sound/weapons/laser_trap/hum_loop.wav" );
-		ent->s.eFlags |= EF_FIRING;
+		ent->s.eFlags |= entityFlags_t::EF_FIRING;
 	}
 
-	ent->e_ThinkFunc = thinkF_laserTrapThink;
+	ent->e_ThinkFunc = thinkFunc_t::thinkF_laserTrapThink;
 	ent->nextthink = level.time + FRAMETIME;
 
 	// Find the main impact point
 	VectorMA( ent->s.pos.trBase, 2048, ent->movedir, end );
-	gi.trace( &tr, ent->s.origin2, mins, maxs, end, ent->s.number, MASK_SHOT, G2_RETURNONHIT, 0 );
+	gi.trace( &tr, ent->s.origin2, mins, maxs, end, ent->s.number, MASK_SHOT, EG2_Collision::G2_RETURNONHIT, 0 );
 
 	traceEnt = &g_entities[ tr.entityNum ];
 
@@ -161,14 +161,14 @@ void laserTrapThink( gentity_t *ent )
 	{
 		// go boom
 		WP_Explode( ent );
-		ent->s.eFlags &= ~EF_FIRING; // don't draw beam if we are dead
+		ent->s.eFlags &= ~entityFlags_t::EF_FIRING; // don't draw beam if we are dead
 	}
 	else
 	{
 		/*
 		// FIXME: they need to avoid the beam!
-		AddSoundEvent( ent->owner, ent->currentOrigin, ent->splashRadius*2, AEL_DANGER );
-		AddSightEvent( ent->owner, ent->currentOrigin, ent->splashRadius*2, AEL_DANGER, 50 );
+		AddSoundEvent( ent->owner, ent->currentOrigin, ent->splashRadius*2, alertEventLevel_e::AEL_DANGER );
+		AddSightEvent( ent->owner, ent->currentOrigin, ent->splashRadius*2, alertEventLevel_e::AEL_DANGER, 50 );
 		*/
 	}
 }
@@ -184,20 +184,20 @@ void CreateLaserTrap( gentity_t *laserTrap, vec3_t start, gentity_t *owner )
 		laserTrap->classname = "tripmine";
 	}
 
-	laserTrap->splashDamage = weaponData[WP_TRIP_MINE].splashDamage;
-	laserTrap->splashRadius = weaponData[WP_TRIP_MINE].splashRadius;
-	laserTrap->damage = weaponData[WP_TRIP_MINE].damage;
-	laserTrap->methodOfDeath = MOD_LASERTRIP;
-	laserTrap->splashMethodOfDeath = MOD_LASERTRIP;//? SPLASH;
+	laserTrap->splashDamage = weaponData[weapon_t::WP_TRIP_MINE].splashDamage;
+	laserTrap->splashRadius = weaponData[weapon_t::WP_TRIP_MINE].splashRadius;
+	laserTrap->damage = weaponData[weapon_t::WP_TRIP_MINE].damage;
+	laserTrap->methodOfDeath = meansOfDeath_t::MOD_LASERTRIP;
+	laserTrap->splashMethodOfDeath = meansOfDeath_t::MOD_LASERTRIP;//? SPLASH;
 
-	laserTrap->s.eType = ET_MISSILE;
-	laserTrap->svFlags = SVF_USE_CURRENT_ORIGIN;
-	laserTrap->s.weapon = WP_TRIP_MINE;
+	laserTrap->s.eType = entityType_t::ET_MISSILE;
+	laserTrap->svFlags = svFlags_t::SVF_USE_CURRENT_ORIGIN;
+	laserTrap->s.weapon = weapon_t::WP_TRIP_MINE;
 
 	laserTrap->owner = owner;
 //	VectorSet( laserTrap->mins, -LT_SIZE, -LT_SIZE, -LT_SIZE );
 //	VectorSet( laserTrap->maxs, LT_SIZE, LT_SIZE, LT_SIZE );
-	laserTrap->clipmask = (CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_SHOTCLIP);//MASK_SHOT;
+	laserTrap->clipmask = (contentsFlags_t::CONTENTS_SOLID|contentsFlags_t::CONTENTS_BODY|contentsFlags_t::CONTENTS_SHOTCLIP);//MASK_SHOT;
 
 	laserTrap->s.pos.trTime = level.time;		// move a bit on the very first frame
 	VectorCopy( start, laserTrap->s.pos.trBase );
@@ -207,11 +207,11 @@ void CreateLaserTrap( gentity_t *laserTrap, vec3_t start, gentity_t *owner )
 
 	laserTrap->fxID = G_EffectIndex( "tripMine/explosion" );
 
-	laserTrap->e_TouchFunc = touchF_touchLaserTrap;
+	laserTrap->e_TouchFunc = touchFunc_t::touchF_touchLaserTrap;
 
 	laserTrap->s.radius = 60;
 	VectorSet( laserTrap->s.modelScale, 1.0f, 1.0f, 1.0f );
-	gi.G2API_InitGhoul2Model( laserTrap->ghoul2, weaponData[WP_TRIP_MINE].missileMdl, G_ModelIndex( weaponData[WP_TRIP_MINE].missileMdl ),
+	gi.G2API_InitGhoul2Model( laserTrap->ghoul2, weaponData[weapon_t::WP_TRIP_MINE].missileMdl, G_ModelIndex( weaponData[weapon_t::WP_TRIP_MINE].missileMdl ),
 		NULL_HANDLE, NULL_HANDLE, 0, 0);
 }
 
@@ -294,16 +294,16 @@ void WP_PlaceLaserTrap( gentity_t *ent, bool alt_fire )
 		// set player-created-specific fields
 		laserTrap->setTime = level.time;//remember when we placed it
 
-		laserTrap->s.eFlags |= EF_MISSILE_STICK;
-		laserTrap->s.pos.trType = TR_GRAVITY;
+		laserTrap->s.eFlags |= entityFlags_t::EF_MISSILE_STICK;
+		laserTrap->s.pos.trType = trType_t::TR_GRAVITY;
 		VectorScale( forwardVec, LT_VELOCITY, laserTrap->s.pos.trDelta );
 
 		if ( alt_fire )
 		{
 			laserTrap->count = PROXIMITY_STYLE;
 			laserTrap->delay = level.time + 40000; // will auto-blow in 40 seconds.
-			laserTrap->methodOfDeath = MOD_LASERTRIP_ALT;
-			laserTrap->splashMethodOfDeath = MOD_LASERTRIP_ALT;//? SPLASH;
+			laserTrap->methodOfDeath = meansOfDeath_t::MOD_LASERTRIP_ALT;
+			laserTrap->splashMethodOfDeath = meansOfDeath_t::MOD_LASERTRIP_ALT;//? SPLASH;
 		}
 		else
 		{

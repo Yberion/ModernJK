@@ -42,17 +42,16 @@ enum class decalPolyType_t
 	DECALPOLY_TYPE_FADE,
 	DECALPOLY_TYPE_MAX
 };
-using enum decalPolyType_t;
 template <> inline constexpr bool enableEnumArithmetic<decalPolyType_t> = true;
 
 constexpr int DECAL_FADE_TIME = 1000;
 
 decalPoly_t*		RE_AllocDecal( decalPolyType_t type );
 
-static EnumArray<decalPoly_t[MAX_DECAL_POLYS], decalPolyType_t, DECALPOLY_TYPE_MAX>	re_decalPolys;
+static EnumArray<decalPoly_t[MAX_DECAL_POLYS], decalPolyType_t, decalPolyType_t::DECALPOLY_TYPE_MAX>	re_decalPolys;
 
-static EnumArray<int, decalPolyType_t, DECALPOLY_TYPE_MAX>	re_decalPolyHead;
-static EnumArray<int, decalPolyType_t, DECALPOLY_TYPE_MAX>	re_decalPolyTotal;
+static EnumArray<int, decalPolyType_t, decalPolyType_t::DECALPOLY_TYPE_MAX>	re_decalPolyHead;
+static EnumArray<int, decalPolyType_t, decalPolyType_t::DECALPOLY_TYPE_MAX>	re_decalPolyTotal;
 
 /*
 ===================
@@ -75,10 +74,10 @@ void RE_FreeDecal( decalPolyType_t type, int index ) {
 	if ( !re_decalPolys[type][index].time )
 		return;
 
-	if ( type == DECALPOLY_TYPE_NORMAL ) {
+	if ( type == decalPolyType_t::DECALPOLY_TYPE_NORMAL ) {
 		decalPoly_t* fade;
 
-		fade = RE_AllocDecal( DECALPOLY_TYPE_FADE );
+		fade = RE_AllocDecal( decalPolyType_t::DECALPOLY_TYPE_FADE );
 
 		memcpy( fade, &re_decalPolys[type][index], sizeof( decalPoly_t ) );
 
@@ -177,7 +176,7 @@ void RE_AddDecalToScene( qhandle_t decalShader, const vec3_t origin, const vec3_
 		return;
 
 	if ( radius <= 0 )
-		Com_Error( ERR_FATAL, "RE_AddDecalToScene:  called with <= 0 radius" );
+		Com_Error( errorParm_t::ERR_FATAL, "RE_AddDecalToScene:  called with <= 0 radius" );
 
 	// create the texture axis
 	VectorNormalize2( dir, axis[0] );
@@ -240,7 +239,7 @@ void RE_AddDecalToScene( qhandle_t decalShader, const vec3_t origin, const vec3_
 		}
 
 		// otherwise save it persistantly
-		decal = RE_AllocDecal( DECALPOLY_TYPE_NORMAL );
+		decal = RE_AllocDecal( decalPolyType_t::DECALPOLY_TYPE_NORMAL );
 		decal->time = tr.refdef.time;
 		decal->shader = decalShader;
 		decal->poly.numVerts = mf->numPoints;
@@ -273,7 +272,7 @@ void R_AddDecals( void )
 	if ( r_markcount->integer <= 0 )
 		return;
 
-	for ( type = DECALPOLY_TYPE_NORMAL; type < DECALPOLY_TYPE_MAX; type ++ )
+	for ( type = decalPolyType_t::DECALPOLY_TYPE_NORMAL; type < decalPolyType_t::DECALPOLY_TYPE_MAX; type ++ )
 	{
 		decalPoly = re_decalPolyHead[type];
 

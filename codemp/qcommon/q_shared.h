@@ -188,7 +188,6 @@ enum class cbufExec_t {
 	EXEC_INSERT,		// insert at current position, but don't run yet
 	EXEC_APPEND			// add to end of the command buffer (normal case)
 };
-using enum cbufExec_t;
 
 
 //
@@ -207,7 +206,6 @@ enum class WL_e {
 	WL_VERBOSE,
 	WL_DEBUG
 };
-using enum WL_e;
 
 extern float forceSpeedLevels[4];
 
@@ -218,7 +216,6 @@ enum class printParm_t {
 	PRINT_WARNING,
 	PRINT_ERROR
 };
-using enum printParm_t;
 
 
 #ifdef ERR_FATAL
@@ -233,7 +230,6 @@ enum class errorParm_t {
 	ERR_DISCONNECT,				// client disconnected from the server
 	ERR_NEED_CD					// pop up the need-cd dialog
 };
-using enum errorParm_t;
 
 
 // font rendering values used by ui and cgame
@@ -267,7 +263,6 @@ enum class textStyleFlags_t
 	UI_INVERSE		= 0x00002000,
 	UI_PULSE		= 0x00004000,
 };
-using enum textStyleFlags_t;
 template <> inline constexpr bool enableEnumFlags<textStyleFlags_t> = true;
 
 #if defined(_DEBUG) && !defined(BSPC)
@@ -279,7 +274,6 @@ enum class ha_pref {
 	h_low,
 	h_dontcare
 };
-using enum ha_pref;
 
 void *Hunk_Alloc( int size, ha_pref preference );
 
@@ -293,7 +287,6 @@ enum class saberBlockType_t {
 	BLK_TIGHT,		// Block only attacks and shots around the saber itself, a bbox of around 12x12x12
 	BLK_WIDE		// Block all attacks in an area around the player in a rough arc of 180 degrees
 };
-using enum saberBlockType_t;
 
 enum class saberBlockedType_t {
 	BLOCKED_NONE,
@@ -311,7 +304,6 @@ enum class saberBlockedType_t {
 	BLOCKED_LOWER_LEFT_PROJ,
 	BLOCKED_TOP_PROJ
 };
-using enum saberBlockedType_t;
 
 enum class saber_colors_t
 {
@@ -323,7 +315,6 @@ enum class saber_colors_t
 	SABER_PURPLE,
 	NUM_SABER_COLORS
 };
-using enum saber_colors_t;
 
 enum class forcePowers_t
 {
@@ -349,7 +340,6 @@ enum class forcePowers_t
 	FP_SABERTHROW,
 	NUM_FORCE_POWERS
 };
-using enum forcePowers_t;
 template <> inline constexpr bool enableEnumArithmetic<forcePowers_t> = true;
 
 #include "qcommon/q_forcelevels.h"
@@ -365,7 +355,6 @@ enum class sharedERagPhase
 	RP_SET_PELVIS_OFFSET,  // this actually does nothing but set the pelvisAnglesOffset, and pelvisPositionOffset
 	RP_DISABLE_EFFECTORS  // this removes effectors given by the effectorsToTurnOff member
 };
-using enum sharedERagPhase;
 
 #include "qcommon/q_ghoul2flags.h"
 
@@ -435,7 +424,6 @@ enum class sharedEIKMoveState
 	IKS_NONE = 0,
 	IKS_DYNAMIC
 };
-using enum sharedEIKMoveState;
 
 //material stuff needs to be shared
 enum class material_t //# material_e
@@ -460,7 +448,6 @@ enum class material_t //# material_e
 
 	NUM_MATERIALS
 };
-using enum material_t;
 
 //rww - bot stuff that needs to be shared
 inline constexpr int MAX_WPARRAY_SIZE = 4096;
@@ -539,7 +526,6 @@ enum class tokenType_t
 	TT_NAME,								// name
 	TT_PUNCTUATION,							// punctuation
 };
-using enum tokenType_t;
 
 typedef struct pc_token_s
 {
@@ -576,14 +562,12 @@ enum class fsMode_t {
 	FS_APPEND,
 	FS_APPEND_SYNC
 };
-using enum fsMode_t;
 
 enum class fsOrigin_t {
 	FS_SEEK_CUR,
 	FS_SEEK_END,
 	FS_SEEK_SET
 };
-using enum fsOrigin_t;
 
 //=============================================
 
@@ -668,7 +652,6 @@ enum class cvarFlags_t
 	// These flags are only returned by the Cvar_Flags() function
 	CVAR_MODIFIED		= 0x40000000u,	// Cvar was modified
 };
-using enum cvarFlags_t;
 template <> inline constexpr bool enableEnumFlags<cvarFlags_t> = true;
 
 // nothing outside the Cvar_*() functions should modify these fields!
@@ -794,7 +777,6 @@ enum class keyCatchFlags_t
 	KEYCATCH_MESSAGE		= 0x0004,
 	KEYCATCH_CGAME			= 0x0008,
 };
-using enum keyCatchFlags_t;
 template <> inline constexpr bool enableEnumFlags<keyCatchFlags_t> = true;
 
 
@@ -817,7 +799,6 @@ enum class soundChannel_t {
 	CHAN_VOICE_GLOBAL,  //## %s !!"W:\game\base\!!sound\voice\*.wav;*.mp3" # Causes mouth animation and is broadcast, like announcer
 	CHAN_MUSIC,	//## %s !!"W:\game\base\!!sound\*.wav;*.mp3" #music played as a looping sound - added by BTO (VV)
 };
-using enum soundChannel_t;
 
 
 /*
@@ -838,7 +819,6 @@ enum class snapFlags_t
 	SNAPFLAG_NOT_ACTIVE		= 2,	// snapshot used during connection and for zombies
 	SNAPFLAG_SERVERCOUNT	= 4,	// toggled every map_restart so transitions can be detected
 };
-using enum snapFlags_t;
 template <> inline constexpr bool enableEnumFlags<snapFlags_t> = true;
 
 // The fixed simulation tick in milliseconds, shared by the server, the client and the game module (plan step 14; it
@@ -912,24 +892,23 @@ enum class trackchan_t {
 	TRACK_CHANNEL_5, // force sight
 	NUM_TRACK_CHANNELS
 };
-using enum trackchan_t;
 template <> inline constexpr bool enableEnumArithmetic<trackchan_t> = true;
 
-inline constexpr int TRACK_CHANNEL_MAX = NUM_TRACK_CHANNELS - TRACK_CHANNEL_NONE;
+inline constexpr int TRACK_CHANNEL_MAX = trackchan_t::NUM_TRACK_CHANNELS - trackchan_t::TRACK_CHANNEL_NONE;
 
 enum class saber_styles_t;	// bg_public.h
 typedef struct forcedata_s {
-	EnumArray<int, forcePowers_t, NUM_FORCE_POWERS>	forcePowerDebounce;	//for effects that must have an interval
+	EnumArray<int, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS>	forcePowerDebounce;	//for effects that must have an interval
 	int			forcePowersKnown;
 	int			forcePowersActive;
 	forcePowers_t	forcePowerSelected;
 	int			forceButtonNeedRelease;
-	EnumArray<int, forcePowers_t, NUM_FORCE_POWERS>	forcePowerDuration;
+	EnumArray<int, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS>	forcePowerDuration;
 	int			forcePower;
 	int			forcePowerMax;
 	int			forcePowerRegenDebounceTime;
-	EnumArray<forcePowerLevels_t, forcePowers_t, NUM_FORCE_POWERS>	forcePowerLevel;		//so we know the max forceJump power you have
-	EnumArray<forcePowerLevels_t, forcePowers_t, NUM_FORCE_POWERS>	forcePowerBaseLevel;
+	EnumArray<forcePowerLevels_t, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS>	forcePowerLevel;		//so we know the max forceJump power you have
+	EnumArray<forcePowerLevels_t, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS>	forcePowerBaseLevel;
 	int			forceUsingAdded;
 	float		forceJumpZStart;					//So when you land, you don't get hurt as much
 	float		forceJumpCharge;					//you're current forceJump charge-up level, increases the longer you hold the force jump button down
@@ -982,7 +961,6 @@ enum class itemUseFail_t {
 	SHIELD_NOROOM,
 	SEEKER_ALREADYDEPLOYED
 };
-using enum itemUseFail_t;
 
 // bit field limits
 inline constexpr int MAX_WEAPONS = 19;
@@ -1171,7 +1149,7 @@ typedef struct playerState_s {
 
 	bool	hasDetPackPlanted; //better than taking up an eFlag isn't it?
 
-	EnumArray<float, forcePowers_t, NUM_FORCE_POWERS>	holocronsCarried;
+	EnumArray<float, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS>	holocronsCarried;
 	int			holocronCantTouch;
 	float		holocronCantTouchTime; //for keeping track of the last holocron that just popped out of me (if any)
 	int			holocronBits;
@@ -1352,7 +1330,6 @@ enum class buttonFlags_t
 	BUTTON_FOLLOWME		= 1024,
 	*/
 };
-using enum buttonFlags_t;
 template <> inline constexpr bool enableEnumFlags<buttonFlags_t> = true;
 
 										// then BUTTON_WALKING should be set
@@ -1392,7 +1369,6 @@ enum class genCmds_t
 	GENCMD_FLOURISH,
 	GENCMD_GLOAT
 };
-using enum genCmds_t;
 
 // usercmd_t is sent to the server each client frame
 typedef struct usercmd_s {
@@ -1494,7 +1470,6 @@ enum class fxPrimitiveFlags_t : uint32_t
 	FX_BRANCH			= 0x02000000,		// enables lightning branching
 	FX_GROW				= 0x04000000		// lightning grows from start point to end point over the course of its life
 };
-using enum fxPrimitiveFlags_t;
 template <> inline constexpr bool enableEnumFlags<fxPrimitiveFlags_t> = true;
 
 //rww - unsightly hack to allow us to make an FX call that takes a horrible amount of args
@@ -1611,7 +1586,6 @@ enum class trType_t {
 	TR_SINE,					// value = base + sin( time / duration ) * delta
 	TR_GRAVITY
 };
-using enum trType_t;
 
 typedef struct trajectory_s {
 	trType_t	trType;
@@ -1804,7 +1778,6 @@ enum class connstate_t {
 	CA_ACTIVE,			// game views should be displayed
 	CA_CINEMATIC		// playing a cinematic or a static pic, not connected to a server
 };
-using enum connstate_t;
 
 
 #define Square(x) ((x)*(x))
@@ -1834,7 +1807,6 @@ enum class lanSource_t {
 
 	AS_MPLAYER, // (Obsolete)
 };
-using enum lanSource_t;
 
 // cinematic states
 enum class e_status {
@@ -1846,7 +1818,6 @@ enum class e_status {
 	FMV_LOOPED,
 	FMV_ID_WAIT
 };
-using enum e_status;
 
 inline constexpr int MAX_GLOBAL_SERVERS = 2048;
 inline constexpr int MAX_OTHER_SERVERS = 128;
@@ -1859,7 +1830,6 @@ enum class sayMode_t {
 	SAY_TEAM,
 	SAY_TELL
 };
-using enum sayMode_t;
 
 /*
 Ghoul2 Insert Start
@@ -1881,7 +1851,6 @@ enum class orientations_t
 	NEGATIVE_Z,
 	NEGATIVE_Y
 };
-using enum orientations_t;
 typedef orientations_t Eorientations;
 /*
 Ghoul2 Insert End
@@ -1893,7 +1862,6 @@ Ghoul2 Insert End
 enum class memtag {
 	#include "qcommon/tags.h"
 };
-using enum memtag;
 template <> inline constexpr bool enableEnumArithmetic<memtag> = true;
 typedef memtag memtag_t;
 
@@ -1941,7 +1909,7 @@ String ID Tables
 
 ========================================================================
 */
-#define ENUM2STRING(arg)   { #arg, to_underlying( arg ) }
+#define ENUM2STRING(type, arg)   { #arg, to_underlying( type::arg ) }
 typedef struct stringID_table_s
 {
 	const char	*name;
@@ -1962,7 +1930,6 @@ enum class ForceReload_e
 	eForceReload_ALL
 
 };
-using enum ForceReload_e;
 
 
 // the font of a menu's or cgame's text, the handle registered for it chosen by MenuFontToHandle
@@ -1973,7 +1940,6 @@ enum class menuFont_t {
 	FONT_LARGE,
 	FONT_SMALL2
 };
-using enum menuFont_t;
 
 void NET_AddrToString( char *out, size_t size, void *addr );
 

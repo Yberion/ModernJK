@@ -33,22 +33,22 @@ static float *TableForFunc( genFunc_t func )
 {
 	switch ( func )
 	{
-	case GF_SIN:
+	case genFunc_t::GF_SIN:
 		return tr.sinTable;
-	case GF_TRIANGLE:
+	case genFunc_t::GF_TRIANGLE:
 		return tr.triangleTable;
-	case GF_SQUARE:
+	case genFunc_t::GF_SQUARE:
 		return tr.squareTable;
-	case GF_SAWTOOTH:
+	case genFunc_t::GF_SAWTOOTH:
 		return tr.sawToothTable;
-	case GF_INVERSE_SAWTOOTH:
+	case genFunc_t::GF_INVERSE_SAWTOOTH:
 		return tr.inverseSawToothTable;
-	case GF_NONE:
+	case genFunc_t::GF_NONE:
 	default:
 		break;
 	}
 
-	Com_Error( ERR_DROP, "TableForFunc called with invalid function '%d' in shader '%s'\n", to_underlying( func ), tess.shader->name );
+	Com_Error( errorParm_t::ERR_DROP, "TableForFunc called with invalid function '%d' in shader '%s'\n", to_underlying( func ), tess.shader->name );
 	return nullptr;
 }
 
@@ -61,9 +61,9 @@ static float EvalWaveForm( const waveForm_t *wf )
 {
 	float	*table;
 
-	if ( wf->func == GF_NOISE ) {
+	if ( wf->func == genFunc_t::GF_NOISE ) {
 		return  ( wf->base + R_NoiseGet4f( 0, 0, 0, ( backEnd.refdef.floatTime + wf->phase ) * wf->frequency ) * wf->amplitude );
-	} else if (wf->func == GF_RAND) {
+	} else if (wf->func == genFunc_t::GF_RAND) {
 		if( GetNoiseTime( backEnd.refdef.time + wf->phase ) <= wf->frequency ) {
 			return (wf->base + wf->amplitude);
 		} else {
@@ -384,10 +384,10 @@ static void AutospriteDeform( void ) {
 	vec3_t	leftDir, upDir;
 
 	if ( tess.numVertexes & 3 ) {
-		Com_Error( ERR_DROP, "Autosprite shader %s had odd vertex count", tess.shader->name );
+		Com_Error( errorParm_t::ERR_DROP, "Autosprite shader %s had odd vertex count", tess.shader->name );
 	}
 	if ( tess.numIndexes != ( tess.numVertexes >> 2 ) * 6 ) {
-		Com_Error( ERR_DROP, "Autosprite shader %s had odd index count", tess.shader->name );
+		Com_Error( errorParm_t::ERR_DROP, "Autosprite shader %s had odd index count", tess.shader->name );
 	}
 
 	oldVerts = tess.numVertexes;
@@ -448,10 +448,10 @@ static void Autosprite2Deform( void ) {
 	vec3_t	forward;
 
 	if ( tess.numVertexes & 3 ) {
-		ri.Printf( PRINT_WARNING, "Autosprite shader %s had odd vertex count", tess.shader->name );
+		ri.Printf( printParm_t::PRINT_WARNING, "Autosprite shader %s had odd vertex count", tess.shader->name );
 	}
 	if ( tess.numIndexes != ( tess.numVertexes >> 2 ) * 6 ) {
-		ri.Printf( PRINT_WARNING, "Autosprite shader %s had odd index count", tess.shader->name );
+		ri.Printf( printParm_t::PRINT_WARNING, "Autosprite shader %s had odd index count", tess.shader->name );
 	}
 
 	if ( backEnd.currentEntity != &tr.worldEntity ) {
@@ -558,38 +558,38 @@ void RB_DeformTessGeometry( void ) {
 		ds = tess.shader->deforms[ i ];
 
 		switch ( ds->deformation ) {
-        case DEFORM_NONE:
+        case deform_t::DEFORM_NONE:
             break;
-		case DEFORM_NORMALS:
+		case deform_t::DEFORM_NORMALS:
 			RB_CalcDeformNormals( ds );
 			break;
-		case DEFORM_WAVE:
+		case deform_t::DEFORM_WAVE:
 			RB_CalcDeformVertexes( ds );
 			break;
-		case DEFORM_BULGE:
+		case deform_t::DEFORM_BULGE:
 			RB_CalcBulgeVertexes( ds );
 			break;
-		case DEFORM_MOVE:
+		case deform_t::DEFORM_MOVE:
 			RB_CalcMoveVertexes( ds );
 			break;
-		case DEFORM_PROJECTION_SHADOW:
+		case deform_t::DEFORM_PROJECTION_SHADOW:
 			RB_ProjectionShadowDeform();
 			break;
-		case DEFORM_AUTOSPRITE:
+		case deform_t::DEFORM_AUTOSPRITE:
 			AutospriteDeform();
 			break;
-		case DEFORM_AUTOSPRITE2:
+		case deform_t::DEFORM_AUTOSPRITE2:
 			Autosprite2Deform();
 			break;
-		case DEFORM_TEXT0:
-		case DEFORM_TEXT1:
-		case DEFORM_TEXT2:
-		case DEFORM_TEXT3:
-		case DEFORM_TEXT4:
-		case DEFORM_TEXT5:
-		case DEFORM_TEXT6:
-		case DEFORM_TEXT7:
-//			DeformText( backEnd.refdef.text[ds->deformation - DEFORM_TEXT0] );
+		case deform_t::DEFORM_TEXT0:
+		case deform_t::DEFORM_TEXT1:
+		case deform_t::DEFORM_TEXT2:
+		case deform_t::DEFORM_TEXT3:
+		case deform_t::DEFORM_TEXT4:
+		case deform_t::DEFORM_TEXT5:
+		case deform_t::DEFORM_TEXT6:
+		case deform_t::DEFORM_TEXT7:
+//			DeformText( backEnd.refdef.text[ds->deformation - deform_t::DEFORM_TEXT0] );
 			DeformText( "Raven Software" );
 			break;
 		}
@@ -694,7 +694,7 @@ void RB_CalcWaveColor( const waveForm_t *wf, unsigned char *dstColors )
 	int *colors = ( int * ) dstColors;
 	byte	color[4];
 
-	if ( wf->func == GF_NOISE ) {
+	if ( wf->func == genFunc_t::GF_NOISE ) {
 		glow = wf->base + R_NoiseGet4f( 0, 0, 0, ( backEnd.refdef.floatTime + wf->phase ) * wf->frequency ) * wf->amplitude;
 	} else {
 		glow = EvalWaveForm( wf ) * tr.identityLight;
@@ -909,7 +909,7 @@ void RB_CalcEnvironmentTexCoords( float *st )
 	v = tess.xyz[0];
 	normal = tess.normal[0];
 
-	if (backEnd.currentEntity && Any( backEnd.currentEntity->e.renderfx&RF_FIRST_PERSON ))	//this is a view model so we must use world lights instead of vieworg
+	if (backEnd.currentEntity && Any( backEnd.currentEntity->e.renderfx&renderFxFlags_t::RF_FIRST_PERSON ))	//this is a view model so we must use world lights instead of vieworg
 	{
 		for (i = 0 ; i < tess.numVertexes ; i++, v += 4, normal += 4, st += 2 )
 		{
@@ -1243,7 +1243,7 @@ void RB_CalcDisintegrateColors( unsigned char *colors, colorGen_t rgbGen )
 
 	numVertexes = tess.numVertexes;
 
-	if ( Any( ent->renderfx & RF_DISINTEGRATE1 ) )
+	if ( Any( ent->renderfx & renderFxFlags_t::RF_DISINTEGRATE1 ) )
 	{
 		// this handles the blacken and fading out of the regular player model
 		for ( i = 0 ; i < numVertexes ; i++, v += 4 )
@@ -1268,7 +1268,7 @@ void RB_CalcDisintegrateColors( unsigned char *colors, colorGen_t rgbGen )
 			else if ( dis < threshold * threshold + 150 )
 			{
 				// darken more
-				if ( rgbGen == CGEN_LIGHTING_DIFFUSE_ENTITY )
+				if ( rgbGen == colorGen_t::CGEN_LIGHTING_DIFFUSE_ENTITY )
 				{
 					colors[i*4+0] = backEnd.currentEntity->e.shaderRGBA[0]*0x6f/255.0f;
 					colors[i*4+1] = backEnd.currentEntity->e.shaderRGBA[1]*0x6f/255.0f;
@@ -1285,7 +1285,7 @@ void RB_CalcDisintegrateColors( unsigned char *colors, colorGen_t rgbGen )
 			else if ( dis < threshold * threshold + 180 )
 			{
 				// darken at edge of burn
-				if ( rgbGen == CGEN_LIGHTING_DIFFUSE_ENTITY )
+				if ( rgbGen == colorGen_t::CGEN_LIGHTING_DIFFUSE_ENTITY )
 				{
 					colors[i*4+0] = backEnd.currentEntity->e.shaderRGBA[0]*0xaf/255.0f;
 					colors[i*4+1] = backEnd.currentEntity->e.shaderRGBA[1]*0xaf/255.0f;
@@ -1302,7 +1302,7 @@ void RB_CalcDisintegrateColors( unsigned char *colors, colorGen_t rgbGen )
 			else
 			{
 				// not burning at all yet
-				if ( rgbGen == CGEN_LIGHTING_DIFFUSE_ENTITY )
+				if ( rgbGen == colorGen_t::CGEN_LIGHTING_DIFFUSE_ENTITY )
 				{
 					colors[i*4+0] = backEnd.currentEntity->e.shaderRGBA[0];
 					colors[i*4+1] = backEnd.currentEntity->e.shaderRGBA[1];
@@ -1318,7 +1318,7 @@ void RB_CalcDisintegrateColors( unsigned char *colors, colorGen_t rgbGen )
 			}
 		}
 	}
-	else if ( Any( ent->renderfx & RF_DISINTEGRATE2 ) )
+	else if ( Any( ent->renderfx & renderFxFlags_t::RF_DISINTEGRATE2 ) )
 	{
 		// this handles the glowing, burning bit that scales away from the model
 		for ( i = 0 ; i < numVertexes ; i++, v += 4 )
@@ -1355,7 +1355,7 @@ void RB_CalcDisintegrateVertDeform( void )
 	float	scale;
 	vec3_t	temp;
 
-	if ( Any( backEnd.currentEntity->e.renderfx & RF_DISINTEGRATE2 ) )
+	if ( Any( backEnd.currentEntity->e.renderfx & renderFxFlags_t::RF_DISINTEGRATE2 ) )
 	{
 		float	threshold = (backEnd.refdef.time - backEnd.currentEntity->e.endTime) * 0.045f;
 

@@ -70,7 +70,6 @@ enum class svFlags_t : uint32_t
 	SVF_NO_EXTRA_SOUNDS		= 0x40000000,	// Don't load extra custom sound set
 	SVF_MOVER_ADJ_AREA_PORTALS	= 0x80000000,	// For scripted movers only- must *explicitly instruct* them to affect area portals
 };
-using enum svFlags_t;
 template <> inline constexpr bool enableEnumFlags<svFlags_t> = true;
 //===============================================================
 
@@ -88,7 +87,6 @@ enum class SavedGameJustLoaded_e
 	eFULL,
 	eAUTO,
 };
-using enum SavedGameJustLoaded_e;
 
 
 

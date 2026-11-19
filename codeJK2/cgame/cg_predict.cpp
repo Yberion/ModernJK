@@ -94,10 +94,10 @@ void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins, const vec3_t
 			continue;
 		}
 
-		if ( ent->eType == ET_PUSH_TRIGGER ) {
+		if ( ent->eType == entityType_t::ET_PUSH_TRIGGER ) {
 			continue;
 		}
-		if ( ent->eType == ET_TELEPORT_TRIGGER ) {
+		if ( ent->eType == entityType_t::ET_TELEPORT_TRIGGER ) {
 			continue;
 		}
 
@@ -149,7 +149,7 @@ CG_Trace
 ================
 */
 void	CG_Trace( trace_t *result, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
-					 const int skipNumber, const contentsFlags_t mask, const EG2_Collision eG2TraceType/*=G2_NOCOLLIDE*/, const int useLod/*=0*/) {
+					 const int skipNumber, const contentsFlags_t mask, const EG2_Collision eG2TraceType/*=EG2_Collision::G2_NOCOLLIDE*/, const int useLod/*=0*/) {
 	trace_t	t;
 
 	cgi_CM_BoxTrace ( &t, start, end, mins, maxs, 0, mask);
@@ -291,11 +291,11 @@ bool CG_OnMovingPlat( playerState_t *ps )
 	if ( ps->groundEntityNum != ENTITYNUM_NONE )
 	{
 		entityState_t *es = &cg_entities[ps->groundEntityNum].currentState;
-		if ( es->eType == ET_MOVER )
+		if ( es->eType == entityType_t::ET_MOVER )
 		{//on a mover
-			if ( es->pos.trType != TR_STATIONARY )
+			if ( es->pos.trType != trType_t::TR_STATIONARY )
 			{
-				if ( es->pos.trType != TR_LINEAR_STOP && es->pos.trType != TR_NONLINEAR_STOP )
+				if ( es->pos.trType != trType_t::TR_LINEAR_STOP && es->pos.trType != trType_t::TR_NONLINEAR_STOP )
 				{//a constant mover
 					if ( !VectorCompare( vec3_origin, es->pos.trDelta ) )
 					{//is moving
@@ -390,7 +390,7 @@ void CG_InterpolatePlayerState( bool grabAngles ) {
 	if (out->groundEntityNum>0)
 	{
 		pent=&cg_entities[out->groundEntityNum];
-		if (pent->currentState.eType == ET_MOVER )
+		if (pent->currentState.eType == entityType_t::ET_MOVER )
 
 		{
 			onPlat=true;
@@ -484,18 +484,18 @@ void CG_TouchItem( centity_t *cent ) {
 	item = &bg_itemlist[ ES_ItemNum( cent->currentState ) ];
 
 	// grab it
-	AddEventToPlayerstate( EV_ITEM_PICKUP, cent->currentState.modelindex , &cg.predicted_player_state);
+	AddEventToPlayerstate( entity_event_t::EV_ITEM_PICKUP, cent->currentState.modelindex , &cg.predicted_player_state);
 
 	// remove it from the frame so it won't be drawn
-	cent->currentState.eFlags |= EF_NODRAW;
+	cent->currentState.eFlags |= entityFlags_t::EF_NODRAW;
 
 	// don't touch it again this prediction
 	cent->miscTime = cg.time;
 
 	// if its a weapon, give them some predicted ammo so the autoswitch will work
-	if ( item->giType == IT_WEAPON ) {
+	if ( item->giType == itemType_t::IT_WEAPON ) {
 		const ammo_t ammotype = weaponData[GI_Weapon( *item )].ammoIndex;
-		cg.predicted_player_state.stats[ STAT_WEAPONS ] |= Bit( GI_Weapon( *item ) );
+		cg.predicted_player_state.stats[ statIndex_t::STAT_WEAPONS ] |= Bit( GI_Weapon( *item ) );
 		if ( !cg.predicted_player_state.ammo[ ammotype] ) {
 			cg.predicted_player_state.ammo[ ammotype ] = 1;
 		}
@@ -520,13 +520,13 @@ void CG_TouchTriggerPrediction( void ) {
 	bool	spectator;
 
 	// dead clients don't activate triggers
-	if ( cg.predicted_player_state.stats[STAT_HEALTH] <= 0 ) {
+	if ( cg.predicted_player_state.stats[statIndex_t::STAT_HEALTH] <= 0 ) {
 		return;
 	}
 
-	spectator = ( cg.predicted_player_state.pm_type == PM_SPECTATOR );
+	spectator = ( cg.predicted_player_state.pm_type == pmtype_t::PM_SPECTATOR );
 
-	if ( cg.predicted_player_state.pm_type != PM_NORMAL && !spectator ) {
+	if ( cg.predicted_player_state.pm_type != pmtype_t::PM_NORMAL && !spectator ) {
 		return;
 	}
 
@@ -534,12 +534,12 @@ void CG_TouchTriggerPrediction( void ) {
 		cent = &cg_entities[ cg.snap->entities[ i ].number ];
 		ent = &cent->currentState;
 
-		if ( ent->eType == ET_ITEM && !spectator ) {
+		if ( ent->eType == entityType_t::ET_ITEM && !spectator ) {
 			CG_TouchItem( cent );
 			continue;
 		}
 
-		if ( ent->eType != ET_PUSH_TRIGGER && ent->eType != ET_TELEPORT_TRIGGER ) {
+		if ( ent->eType != entityType_t::ET_PUSH_TRIGGER && ent->eType != entityType_t::ET_TELEPORT_TRIGGER ) {
 			continue;
 		}
 
@@ -553,13 +553,13 @@ void CG_TouchTriggerPrediction( void ) {
 		}
 
 		cgi_CM_BoxTrace( &trace, cg.predicted_player_state.origin, cg.predicted_player_state.origin,
-			cg_pmove.mins, cg_pmove.maxs, cmodel, CONTENTS_ALL );
+			cg_pmove.mins, cg_pmove.maxs, cmodel, contentsFlags_t::CONTENTS_ALL );
 
 		if ( !trace.startsolid ) {
 			continue;
 		}
 
-		if ( ent->eType == ET_TELEPORT_TRIGGER ) {
+		if ( ent->eType == entityType_t::ET_TELEPORT_TRIGGER ) {
 			cg.hyperspace = true;
 		} else {
 			// we hit this push trigger
@@ -708,13 +708,13 @@ void CG_PredictPlayerState( void ) {
 		gentity_t *ent = &g_entities[0];//cheating and dirty, I know, but this is a SP game so prediction can cheat
 		if ( player_locked ||
 			(ent && !ent->s.number&&ent->aimDebounceTime>level.time) ||
-			(ent && ent->client && ent->client->ps.pm_time && Any(ent->client->ps.pm_flags&PMF_TIME_KNOCKBACK)) ||
+			(ent && ent->client && ent->client->ps.pm_time && Any(ent->client->ps.pm_flags&pmoveFlags_t::PMF_TIME_KNOCKBACK)) ||
 			(ent && ent->forcePushTime > level.time) )
 		{//lock out player control unless dead
 			//VectorClear( cg_pmove.cmd.angles );
 			cg_pmove.cmd.forwardmove = 0;
 			cg_pmove.cmd.rightmove = 0;
-			cg_pmove.cmd.buttons = BUTTON_NONE;
+			cg_pmove.cmd.buttons = buttonFlags_t::BUTTON_NONE;
 			cg_pmove.cmd.upmove = 0;
 		}
 		CG_CheckModifyUCmd( &cg_pmove.cmd, nullptr );

@@ -44,16 +44,16 @@ void G_MissileBounceEffect( gentity_t *ent, vec3_t org, vec3_t dir )
 	//FIXME: have an EV_BOUNCE_MISSILE event that checks the s.weapon and does the appropriate effect
 	switch( ent->s.weapon )
 	{
-	case WP_BOWCASTER:
+	case weapon_t::WP_BOWCASTER:
 		G_PlayEffect( "bowcaster/deflect", ent->currentOrigin, dir );
 		break;
-	case WP_BLASTER:
-	case WP_BRYAR_PISTOL:
+	case weapon_t::WP_BLASTER:
+	case weapon_t::WP_BRYAR_PISTOL:
 		G_PlayEffect( "blaster/deflect", ent->currentOrigin, dir );
 		break;
 	default:
 		{
-			gentity_t *tent = G_TempEntity( org, EV_GRENADE_BOUNCE );
+			gentity_t *tent = G_TempEntity( org, entity_event_t::EV_GRENADE_BOUNCE );
 			VectorCopy( dir, tent->pos1 );
 			tent->s.weapon = ent->s.weapon;
 		}
@@ -66,11 +66,11 @@ void G_MissileReflectEffect( gentity_t *ent, vec3_t org, vec3_t dir )
 	//FIXME: have an EV_BOUNCE_MISSILE event that checks the s.weapon and does the appropriate effect
 	switch( ent->s.weapon )
 	{
-	case WP_BOWCASTER:
+	case weapon_t::WP_BOWCASTER:
 		G_PlayEffect( "bowcaster/deflect", ent->currentOrigin, dir );
 		break;
-	case WP_BLASTER:
-	case WP_BRYAR_PISTOL:
+	case weapon_t::WP_BLASTER:
+	case weapon_t::WP_BRYAR_PISTOL:
 	default:
 		G_PlayEffect( "blaster/deflect", ent->currentOrigin, dir );
 		break;
@@ -104,20 +104,20 @@ static void G_MissileStick( gentity_t *missile, gentity_t *other, trace_t *tr )
 		else
 		{
 			// fall till we hit the ground
-			missile->s.pos.trType = TR_GRAVITY;
+			missile->s.pos.trType = trType_t::TR_GRAVITY;
 		}
 
 		return; // don't stick yet
 	}
 
-	if ( missile->e_TouchFunc != touchF_NULL )
+	if ( missile->e_TouchFunc != touchFunc_t::touchF_NULL )
 	{
 		GEntity_TouchFunc( missile, other, tr );
 	}
 
-	G_AddEvent( missile, EV_MISSILE_STICK, 0 );
+	G_AddEvent( missile, entity_event_t::EV_MISSILE_STICK, 0 );
 
-	if ( other->s.eType == ET_MOVER || other->e_DieFunc == dieF_funcBBrushDie || other->e_DieFunc == dieF_funcGlassDie)
+	if ( other->s.eType == entityType_t::ET_MOVER || other->e_DieFunc == dieFunc_t::dieF_funcBBrushDie || other->e_DieFunc == dieFunc_t::dieF_funcGlassDie)
 	{
 		// movers and breakable brushes need extra info...so sticky missiles can ride lifts and blow up when the thing they are attached to goes away.
 		missile->s.groundEntityNum = tr->entityNum;
@@ -149,7 +149,7 @@ void G_ReflectMissile( gentity_t *ent, gentity_t *missile, vec3_t forward )
 	speed = VectorNormalize( missile->s.pos.trDelta );
 
 	if ( ent && owner && owner->client && !owner->client->ps.saberInFlight &&
-		(owner->client->ps.forcePowerLevel[FP_SABER_DEFENSE] > FORCE_LEVEL_2 || (owner->client->ps.forcePowerLevel[FP_SABER_DEFENSE]>FORCE_LEVEL_1&&!Q_irand( 0, 3 )) ) )
+		(owner->client->ps.forcePowerLevel[forcePowers_t::FP_SABER_DEFENSE] > forcePowerLevels_t::FORCE_LEVEL_2 || (owner->client->ps.forcePowerLevel[forcePowers_t::FP_SABER_DEFENSE]>forcePowerLevels_t::FORCE_LEVEL_1&&!Q_irand( 0, 3 )) ) )
 	{//if high enough defense skill and saber in-hand (100% at level 3, 25% at level 2, 0% at level 1), reflections are perfectly deflected toward an enemy
 		gentity_t *enemy;
 		if ( owner->enemy && Q_irand( 0, 3 ) )
@@ -163,7 +163,7 @@ void G_ReflectMissile( gentity_t *ent, gentity_t *missile, vec3_t forward )
 		if ( enemy )
 		{
 			vec3_t	bullseye;
-			CalcEntitySpot( enemy, SPOT_HEAD, bullseye );
+			CalcEntitySpot( enemy, spot_t::SPOT_HEAD, bullseye );
 			bullseye[0] += Q_irand( -4, 4 );
 			bullseye[1] += Q_irand( -4, 4 );
 			bullseye[2] += Q_irand( -16, 4 );
@@ -196,7 +196,7 @@ void G_ReflectMissile( gentity_t *ent, gentity_t *missile, vec3_t forward )
 	}
 	if ( !reflected )
 	{
-		if ( missile->owner && missile->s.weapon != WP_SABER )
+		if ( missile->owner && missile->s.weapon != weapon_t::WP_SABER )
 		{//bounce back at them if you can
 			VectorSubtract( missile->owner->currentOrigin, missile->currentOrigin, bounce_dir );
 			VectorNormalize( bounce_dir );
@@ -210,7 +210,7 @@ void G_ReflectMissile( gentity_t *ent, gentity_t *missile, vec3_t forward )
 			VectorScale( bounce_dir, DotProduct( forward, missile_dir ), bounce_dir );
 			VectorNormalize( bounce_dir );
 		}
-		if ( owner->s.weapon == WP_SABER && owner->client )
+		if ( owner->s.weapon == weapon_t::WP_SABER && owner->client )
 		{//saber
 			if ( owner->client->ps.saberInFlight )
 			{//reflecting off a thrown saber is totally wild
@@ -219,7 +219,7 @@ void G_ReflectMissile( gentity_t *ent, gentity_t *missile, vec3_t forward )
 					bounce_dir[i] += Q_flrand( -0.8f, 0.8f );
 				}
 			}
-			else if ( owner->client->ps.forcePowerLevel[FP_SABER_DEFENSE] <= FORCE_LEVEL_1 )
+			else if ( owner->client->ps.forcePowerLevel[forcePowers_t::FP_SABER_DEFENSE] <= forcePowerLevels_t::FORCE_LEVEL_1 )
 			{// at level 1
 				for ( i = 0; i < 3; i++ )
 				{
@@ -270,7 +270,7 @@ void G_ReflectMissile( gentity_t *ent, gentity_t *missile, vec3_t forward )
 #endif// _DEBUG
 	missile->s.pos.trTime = level.time - 10;		// move a bit on the very first frame
 	VectorCopy( missile->currentOrigin, missile->s.pos.trBase );
-	if ( missile->s.weapon != WP_SABER )
+	if ( missile->s.weapon != weapon_t::WP_SABER )
 	{//you are mine, now!
 		if ( !missile->lastEnemy )
 		{//remember who originally shot this missile
@@ -278,9 +278,9 @@ void G_ReflectMissile( gentity_t *ent, gentity_t *missile, vec3_t forward )
 		}
 		missile->owner = owner;
 	}
-	if ( missile->s.weapon == WP_ROCKET_LAUNCHER )
+	if ( missile->s.weapon == weapon_t::WP_ROCKET_LAUNCHER )
 	{//stop homing
-		missile->e_ThinkFunc = thinkF_NULL;
+		missile->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
 	}
 }
 
@@ -329,7 +329,7 @@ void G_BounceRollMissile( gentity_t *ent, trace_t *trace )
 		G_SetOrigin( ent, trace->endpos );
 		VectorCopy( ent->currentAngles, ent->s.apos.trBase );
 		VectorClear( ent->s.apos.trDelta );
-		ent->s.apos.trType = TR_STATIONARY;
+		ent->s.apos.trType = trType_t::TR_STATIONARY;
 		return;
 	}
 
@@ -361,10 +361,10 @@ void G_BounceMissile( gentity_t *ent, trace_t *trace ) {
 	dot = DotProduct( velocity, trace->plane.normal );
 	VectorMA( velocity, -2*dot, trace->plane.normal, ent->s.pos.trDelta );
 
-	if ( Any( ent->s.eFlags & EF_BOUNCE_SHRAPNEL ) )
+	if ( Any( ent->s.eFlags & entityFlags_t::EF_BOUNCE_SHRAPNEL ) )
 	{
 		VectorScale( ent->s.pos.trDelta, 0.25f, ent->s.pos.trDelta );
-		ent->s.pos.trType = TR_GRAVITY;
+		ent->s.pos.trType = trType_t::TR_GRAVITY;
 
 		// check for stop
 		if ( trace->plane.normal[2] > 0.7 && ent->s.pos.trDelta[2] < 40 ) //this can happen even on very slightly sloped walls, so changed it from > 0 to > 0.7
@@ -374,16 +374,16 @@ void G_BounceMissile( gentity_t *ent, trace_t *trace ) {
 			return;
 		}
 	}
-	else if ( Any( ent->s.eFlags & EF_BOUNCE_HALF ) )
+	else if ( Any( ent->s.eFlags & entityFlags_t::EF_BOUNCE_HALF ) )
 	{
 		VectorScale( ent->s.pos.trDelta, 0.5, ent->s.pos.trDelta );
 
 		// check for stop
 		if ( trace->plane.normal[2] > 0.7 && ent->s.pos.trDelta[2] < 40 ) //this can happen even on very slightly sloped walls, so changed it from > 0 to > 0.7
 		{
-			if ( ent->s.weapon == WP_THERMAL )
+			if ( ent->s.weapon == weapon_t::WP_THERMAL )
 			{//roll when you "stop"
-				ent->s.pos.trType = TR_INTERPOLATE;
+				ent->s.pos.trType = trType_t::TR_INTERPOLATE;
 			}
 			else
 			{
@@ -393,7 +393,7 @@ void G_BounceMissile( gentity_t *ent, trace_t *trace ) {
 			}
 		}
 
-		if ( ent->s.weapon == WP_THERMAL )
+		if ( ent->s.weapon == weapon_t::WP_THERMAL )
 		{
 			ent->has_bounced = true;
 		}
@@ -421,10 +421,10 @@ void G_BounceMissile( gentity_t *ent, trace_t *trace ) {
 	VectorCopy( ent->currentOrigin, ent->s.pos.trBase );
 	VectorCopy( trace->plane.normal, ent->pos1 );
 
-	if ( ent->s.weapon != WP_SABER
-		&& ent->s.weapon != WP_THERMAL
-		&& ent->e_clThinkFunc != clThinkF_CG_Limb
-		&& ent->e_ThinkFunc != thinkF_LimbThink )
+	if ( ent->s.weapon != weapon_t::WP_SABER
+		&& ent->s.weapon != weapon_t::WP_THERMAL
+		&& ent->e_clThinkFunc != clThinkFunc_t::clThinkF_CG_Limb
+		&& ent->e_ThinkFunc != thinkFunc_t::thinkF_LimbThink )
 	{//not a saber, bouncing thermal or limb
 		//now you can damage the guy you came from
 		ent->owner = nullptr;
@@ -441,7 +441,7 @@ G_MissileImpact
 extern void WP_SaberBlock( gentity_t *saber, vec3_t hitloc, bool missleBlock );
 extern void laserTrapStick( gentity_t *ent, vec3_t endpos, vec3_t normal );
 extern bool W_AccuracyLoggableWeapon( weapon_t weapon, bool alt_fire, meansOfDeath_t mod );
-void G_MissileImpacted( gentity_t *ent, gentity_t *other, vec3_t impactPos, vec3_t normal, hitLocation_t hitLoc=HL_NONE )
+void G_MissileImpacted( gentity_t *ent, gentity_t *other, vec3_t impactPos, vec3_t normal, hitLocation_t hitLoc=hitLocation_t::HL_NONE )
 {
 	// impact damage
 	if ( other->takedamage )
@@ -464,17 +464,17 @@ void G_MissileImpacted( gentity_t *ent, gentity_t *other, vec3_t impactPos, vec3
 				class_t	npc_class = other->client->NPC_class;
 
 				// If we are a robot and we aren't currently doing the full body electricity...
-				if ( npc_class == CLASS_SEEKER || npc_class == CLASS_PROBE || npc_class == CLASS_MOUSE ||
-					   npc_class == CLASS_GONK || npc_class == CLASS_R2D2 || npc_class == CLASS_R5D2 || npc_class == CLASS_REMOTE ||
-					   npc_class == CLASS_MARK1 || npc_class == CLASS_MARK2 || //npc_class == CLASS_PROTOCOL ||//no protocol, looks odd
-					   npc_class == CLASS_INTERROGATOR || npc_class == CLASS_ATST || npc_class == CLASS_SENTRY )
+				if ( npc_class == class_t::CLASS_SEEKER || npc_class == class_t::CLASS_PROBE || npc_class == class_t::CLASS_MOUSE ||
+					   npc_class == class_t::CLASS_GONK || npc_class == class_t::CLASS_R2D2 || npc_class == class_t::CLASS_R5D2 || npc_class == class_t::CLASS_REMOTE ||
+					   npc_class == class_t::CLASS_MARK1 || npc_class == class_t::CLASS_MARK2 || //npc_class == class_t::CLASS_PROTOCOL ||//no protocol, looks odd
+					   npc_class == class_t::CLASS_INTERROGATOR || npc_class == class_t::CLASS_ATST || npc_class == class_t::CLASS_SENTRY )
 				{
 					// special droid only behaviors
-					if ( other->client->ps.powerups[PW_SHOCKED] < level.time + 100 )
+					if ( other->client->ps.powerups[powerup_t::PW_SHOCKED] < level.time + 100 )
 					{
 						// ... do the effect for a split second for some more feedback
-						other->s.powerups |= Bit( PW_SHOCKED );
-						other->client->ps.powerups[PW_SHOCKED] = level.time + 450;
+						other->s.powerups |= Bit( powerup_t::PW_SHOCKED );
+						other->client->ps.powerups[powerup_t::PW_SHOCKED] = level.time + 450;
 					}
 					//FIXME: throw some sparks off droids,too
 				}
@@ -490,14 +490,14 @@ void G_MissileImpacted( gentity_t *ent, gentity_t *other, vec3_t impactPos, vec3
 	// one, rather than changing the missile into the explosion?
 	//G_FreeEntity(ent);
 
-	if ( (other->takedamage && other->client ) || (ent->s.weapon == WP_FLECHETTE && Any( other->contents&CONTENTS_LIGHTSABER )) )
+	if ( (other->takedamage && other->client ) || (ent->s.weapon == weapon_t::WP_FLECHETTE && Any( other->contents&contentsFlags_t::CONTENTS_LIGHTSABER )) )
 	{
-		G_AddEvent( ent, EV_MISSILE_HIT, DirToByte( normal ) );
+		G_AddEvent( ent, entity_event_t::EV_MISSILE_HIT, DirToByte( normal ) );
 		ent->s.otherEntityNum = other->s.number;
 	}
 	else
 	{
-		G_AddEvent( ent, EV_MISSILE_MISS, DirToByte( normal ) );
+		G_AddEvent( ent, entity_event_t::EV_MISSILE_MISS, DirToByte( normal ) );
 		ent->s.otherEntityNum = other->s.number;
 	}
 
@@ -506,14 +506,14 @@ void G_MissileImpacted( gentity_t *ent, gentity_t *other, vec3_t impactPos, vec3
 	if ( ent->owner )//&& ent->owner->s.number == 0 )
 	{
 		//Add the event
-		AddSoundEvent( ent->owner, ent->currentOrigin, 256, AEL_SUSPICIOUS );
-		AddSightEvent( ent->owner, ent->currentOrigin, 512, AEL_DISCOVERED, 75 );
+		AddSoundEvent( ent->owner, ent->currentOrigin, 256, alertEventLevel_e::AEL_SUSPICIOUS );
+		AddSightEvent( ent->owner, ent->currentOrigin, 512, alertEventLevel_e::AEL_DISCOVERED, 75 );
 	}
 
 	ent->freeAfterEvent = true;
 
 	// change over to a normal entity right at the point of impact
-	ent->s.eType = ET_GENERAL;
+	ent->s.eType = entityType_t::ET_GENERAL;
 
 	//SnapVectorTowards( trace->endpos, ent->s.pos.trBase );	// save net bandwidth
 	VectorCopy( impactPos, ent->s.pos.trBase );
@@ -534,20 +534,20 @@ void G_MissileImpacted( gentity_t *ent, gentity_t *other, vec3_t impactPos, vec3
 static void G_MissileAddAlerts( gentity_t *ent )
 {
 	//Add the event
-	if ( ent->s.weapon == WP_THERMAL && ent->s.pos.trType == TR_STATIONARY )
+	if ( ent->s.weapon == weapon_t::WP_THERMAL && ent->s.pos.trType == trType_t::TR_STATIONARY )
 	{
-		AddSoundEvent( ent->owner, ent->currentOrigin, ent->splashRadius*2, AEL_DANGER );
-		AddSightEvent( ent->owner, ent->currentOrigin, ent->splashRadius*2, AEL_DANGER, 20 );
+		AddSoundEvent( ent->owner, ent->currentOrigin, ent->splashRadius*2, alertEventLevel_e::AEL_DANGER );
+		AddSightEvent( ent->owner, ent->currentOrigin, ent->splashRadius*2, alertEventLevel_e::AEL_DANGER, 20 );
 	}
 	else
 	{
-		AddSoundEvent( ent->owner, ent->currentOrigin, 128, AEL_DISCOVERED );
-		AddSightEvent( ent->owner, ent->currentOrigin, 256, AEL_DISCOVERED, 40 );
+		AddSoundEvent( ent->owner, ent->currentOrigin, 128, alertEventLevel_e::AEL_DISCOVERED );
+		AddSightEvent( ent->owner, ent->currentOrigin, 256, alertEventLevel_e::AEL_DISCOVERED, 40 );
 	}
 }
 
 //------------------------------------------------------
-void G_MissileImpact( gentity_t *ent, trace_t *trace, hitLocation_t hitLoc=HL_NONE )
+void G_MissileImpact( gentity_t *ent, trace_t *trace, hitLocation_t hitLoc=hitLocation_t::HL_NONE )
 {
 	gentity_t		*other;
 	vec3_t			diff;
@@ -575,7 +575,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace, hitLocation_t hitLoc=HL_NO
 		{//a missile that was not reflected or, if so, still is owned by original owner
 			if( LogAccuracyHit( other, ent->owner ) )
 			{
-				ent->owner->client->ps.persistant[PERS_ACCURACY_HITS]++;
+				ent->owner->client->ps.persistant[persEnum_t::PERS_ACCURACY_HITS]++;
 			}
 			if ( ent->owner->client && !ent->owner->s.number )
 			{
@@ -589,22 +589,22 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace, hitLocation_t hitLoc=HL_NO
 	// check for bounce
 	//OR: if the surfaceParm is has a reflect property (magnetic shielding) and the missile isn't an exploding missile
 	bool bounce = (
-		(!other->takedamage && Any(ent->s.eFlags & (EF_BOUNCE | EF_BOUNCE_HALF))) ||
-		((Any( trace->surfaceFlags & SURF_FORCEFIELD ) || Any( other->flags & FL_SHIELDED )) &&
+		(!other->takedamage && Any(ent->s.eFlags & (entityFlags_t::EF_BOUNCE | entityFlags_t::EF_BOUNCE_HALF))) ||
+		((Any( trace->surfaceFlags & surfaceFlags_t::SURF_FORCEFIELD ) || Any( other->flags & gentityFlags_t::FL_SHIELDED )) &&
 			!ent->splashDamage &&
 			!ent->splashRadius));
 
-	if ( Any( ent->dflags & DAMAGE_HEAVY_WEAP_CLASS ) )
+	if ( Any( ent->dflags & damageFlags_t::DAMAGE_HEAVY_WEAP_CLASS ) )
 	{
 		// heavy class missiles generally never bounce.
 		bounce = false;
 	}
 
-	if ( Any( other->flags & (FL_DMG_BY_HEAVY_WEAP_ONLY | FL_SHIELDED ) ))
+	if ( Any( other->flags & (gentityFlags_t::FL_DMG_BY_HEAVY_WEAP_ONLY | gentityFlags_t::FL_SHIELDED ) ))
 	{
 		// Dumb assumption, but I guess we must be a shielded ion_cannon??  We should probably verify
 		// if it's an ion_cannon that's Heavy Weapon only, we don't want to make it shielded do we...?
-		if ( (!strcmp( "misc_ion_cannon", other->classname )) && Any( other->flags & FL_SHIELDED ) )
+		if ( (!strcmp( "misc_ion_cannon", other->classname )) && Any( other->flags & gentityFlags_t::FL_SHIELDED ) )
 		{
 			// Anything will bounce off of us.
 			bounce = true;
@@ -614,7 +614,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace, hitLocation_t hitLoc=HL_NO
 		}
 	}
 
-	if ( ent->s.weapon == WP_DEMP2 )
+	if ( ent->s.weapon == weapon_t::WP_DEMP2 )
 	{
 		// demp2 shots can never bounce
 		bounce = false;
@@ -638,13 +638,13 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace, hitLocation_t hitLoc=HL_NO
 			// decrement number of bounces and then see if it should be done bouncing
 			if ( !(--ent->bounceCount) ) {
 				// He (or she) will bounce no more (after this current bounce, that is).
-				ent->s.eFlags &= ~( EF_BOUNCE | EF_BOUNCE_HALF );
+				ent->s.eFlags &= ~( entityFlags_t::EF_BOUNCE | entityFlags_t::EF_BOUNCE_HALF );
 			}
 		}
 
 		if ( other->NPC )
 		{
-			G_Damage( other, ent, ent->owner, ent->currentOrigin, ent->s.pos.trDelta, 0, DAMAGE_NO_DAMAGE, MOD_UNKNOWN );
+			G_Damage( other, ent, ent->owner, ent->currentOrigin, ent->s.pos.trDelta, 0, damageFlags_t::DAMAGE_NO_DAMAGE, meansOfDeath_t::MOD_UNKNOWN );
 		}
 
 		G_BounceMissile( ent, trace );
@@ -659,20 +659,20 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace, hitLocation_t hitLoc=HL_NO
 	}
 
 	// I would glom onto the EF_BOUNCE code section above, but don't feel like risking breaking something else
-	if ( (!other->takedamage && Any( ent->s.eFlags&(EF_BOUNCE_SHRAPNEL) ) )
-		|| (Any( trace->surfaceFlags&SURF_FORCEFIELD )&&!ent->splashDamage&&!ent->splashRadius) )
+	if ( (!other->takedamage && Any( ent->s.eFlags&(entityFlags_t::EF_BOUNCE_SHRAPNEL) ) )
+		|| (Any( trace->surfaceFlags&surfaceFlags_t::SURF_FORCEFIELD )&&!ent->splashDamage&&!ent->splashRadius) )
 	{
-		if ( !Any( other->contents&CONTENTS_LIGHTSABER )
+		if ( !Any( other->contents&contentsFlags_t::CONTENTS_LIGHTSABER )
 			|| g_spskill->integer <= 0//on easy, it reflects all shots
-			|| (g_spskill->integer == 1 && ent->s.weapon != WP_FLECHETTE && ent->s.weapon != WP_DEMP2 )//on medium it won't reflect flechette or demp shots
-			|| (g_spskill->integer >= 2 && ent->s.weapon != WP_FLECHETTE && ent->s.weapon != WP_DEMP2 && ent->s.weapon != WP_BOWCASTER && ent->s.weapon != WP_REPEATER )//on hard it won't reflect flechette, demp, repeater or bowcaster shots
+			|| (g_spskill->integer == 1 && ent->s.weapon != weapon_t::WP_FLECHETTE && ent->s.weapon != weapon_t::WP_DEMP2 )//on medium it won't reflect flechette or demp shots
+			|| (g_spskill->integer >= 2 && ent->s.weapon != weapon_t::WP_FLECHETTE && ent->s.weapon != weapon_t::WP_DEMP2 && ent->s.weapon != weapon_t::WP_BOWCASTER && ent->s.weapon != weapon_t::WP_REPEATER )//on hard it won't reflect flechette, demp, repeater or bowcaster shots
 			)
 		{
 			G_BounceMissile( ent, trace );
 
 			if ( --ent->bounceCount < 0 )
 			{
-				ent->s.eFlags &= ~EF_BOUNCE_SHRAPNEL;
+				ent->s.eFlags &= ~entityFlags_t::EF_BOUNCE_SHRAPNEL;
 			}
 			G_MissileBounceEffect( ent, trace->endpos, trace->plane.normal );
 			return;
@@ -680,7 +680,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace, hitLocation_t hitLoc=HL_NO
 	}
 
 	if ( (!other->takedamage || (other->client && other->health <= 0))
-		&& ent->s.weapon == WP_THERMAL
+		&& ent->s.weapon == weapon_t::WP_THERMAL
 		&& !ent->alt_fire )
 	{//rolling thermal det - FIXME: make this an eFlag like bounce & stick!!!
 		//G_BounceRollMissile( ent, trace );
@@ -693,24 +693,24 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace, hitLocation_t hitLoc=HL_NO
 	}
 
 	// check for sticking
-	if ( Any( ent->s.eFlags & EF_MISSILE_STICK ) )
+	if ( Any( ent->s.eFlags & entityFlags_t::EF_MISSILE_STICK ) )
 	{
 		if ( ent->owner )//&& ent->owner->s.number == 0 )
 		{
 			//Add the event
-			if ( ent->s.weapon == WP_TRIP_MINE )
+			if ( ent->s.weapon == weapon_t::WP_TRIP_MINE )
 			{
-				AddSoundEvent( ent->owner, ent->currentOrigin, ent->splashRadius/2, AEL_DISCOVERED/*AEL_DANGER*/ );
-				AddSightEvent( ent->owner, ent->currentOrigin, ent->splashRadius*2, AEL_DISCOVERED/*AEL_DANGER*/, 60 );
+				AddSoundEvent( ent->owner, ent->currentOrigin, ent->splashRadius/2, alertEventLevel_e::AEL_DISCOVERED/*alertEventLevel_e::AEL_DANGER*/ );
+				AddSightEvent( ent->owner, ent->currentOrigin, ent->splashRadius*2, alertEventLevel_e::AEL_DISCOVERED/*alertEventLevel_e::AEL_DANGER*/, 60 );
 				/*
-				AddSoundEvent( ent->owner, ent->currentOrigin, ent->splashRadius*2, AEL_DANGER );
-				AddSightEvent( ent->owner, ent->currentOrigin, ent->splashRadius*2, AEL_DANGER, 60 );
+				AddSoundEvent( ent->owner, ent->currentOrigin, ent->splashRadius*2, alertEventLevel_e::AEL_DANGER );
+				AddSightEvent( ent->owner, ent->currentOrigin, ent->splashRadius*2, alertEventLevel_e::AEL_DANGER, 60 );
 				*/
 			}
 			else
 			{
-				AddSoundEvent( ent->owner, ent->currentOrigin, 128, AEL_DISCOVERED );
-				AddSightEvent( ent->owner, ent->currentOrigin, 256, AEL_DISCOVERED, 10 );
+				AddSoundEvent( ent->owner, ent->currentOrigin, 128, alertEventLevel_e::AEL_DISCOVERED );
+				AddSightEvent( ent->owner, ent->currentOrigin, 256, alertEventLevel_e::AEL_DISCOVERED, 10 );
 			}
 		}
 
@@ -719,23 +719,23 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace, hitLocation_t hitLoc=HL_NO
 	}
 
 	// check for hitting a lightsaber
-	if ( Any( other->contents & CONTENTS_LIGHTSABER ) )
+	if ( Any( other->contents & contentsFlags_t::CONTENTS_LIGHTSABER ) )
 	{
 		if ( other->owner && !other->owner->s.number && other->owner->client )
 		{
 			other->owner->client->sess.missionStats.saberBlocksCnt++;
 		}
 		if ( ( g_spskill->integer <= 0//on easy, it reflects all shots
-				|| (g_spskill->integer == 1 && ent->s.weapon != WP_FLECHETTE && ent->s.weapon != WP_DEMP2 )//on medium it won't reflect flechette or demp shots
-				|| (g_spskill->integer >= 2 && ent->s.weapon != WP_FLECHETTE && ent->s.weapon != WP_DEMP2 && ent->s.weapon != WP_BOWCASTER && ent->s.weapon != WP_REPEATER )//on hard it won't reflect flechette, demp, repeater or bowcaster shots
+				|| (g_spskill->integer == 1 && ent->s.weapon != weapon_t::WP_FLECHETTE && ent->s.weapon != weapon_t::WP_DEMP2 )//on medium it won't reflect flechette or demp shots
+				|| (g_spskill->integer >= 2 && ent->s.weapon != weapon_t::WP_FLECHETTE && ent->s.weapon != weapon_t::WP_DEMP2 && ent->s.weapon != weapon_t::WP_BOWCASTER && ent->s.weapon != weapon_t::WP_REPEATER )//on hard it won't reflect flechette, demp, repeater or bowcaster shots
 			 )
 			&& (!ent->splashDamage || !ent->splashRadius) )//this would be cool, though, to "bat" the thermal det away...
 		{
 			//FIXME: take other's owner's FP_SABER_DEFENSE into account here somehow?
 			if ( !other->owner || !other->owner->client || other->owner->client->ps.saberInFlight || InFront( ent->currentOrigin, other->owner->currentOrigin, other->owner->client->ps.viewangles, SABER_REFLECT_MISSILE_CONE ) )//other->owner->s.number != 0 ||
 			{//Jedi cannot block shots from behind!
-				if ( (other->owner->client->ps.forcePowerLevel[FP_SABER_DEFENSE] > FORCE_LEVEL_1 && Q_irand( 0, 3 ))
-					||(other->owner->client->ps.forcePowerLevel[FP_SABER_DEFENSE] > FORCE_LEVEL_0 && Q_irand( 0, 1 )))
+				if ( (other->owner->client->ps.forcePowerLevel[forcePowers_t::FP_SABER_DEFENSE] > forcePowerLevels_t::FORCE_LEVEL_1 && Q_irand( 0, 3 ))
+					||(other->owner->client->ps.forcePowerLevel[forcePowers_t::FP_SABER_DEFENSE] > forcePowerLevels_t::FORCE_LEVEL_0 && Q_irand( 0, 1 )))
 				{//level 1 reflects 50% of the time, level 2 reflects 75% of the time
 					VectorSubtract(ent->currentOrigin, other->currentOrigin, diff);
 					VectorNormalize(diff);
@@ -744,7 +744,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace, hitLocation_t hitLoc=HL_NO
 					//WP_SaberBlock( other, ent->currentOrigin, true );
 					if ( other->owner && other->owner->client )
 					{
-						other->owner->client->ps.saberEventFlags |= SEF_DEFLECTED;
+						other->owner->client->ps.saberEventFlags |= saberEventFlags_t::SEF_DEFLECTED;
 					}
 					//do the effect
 					VectorCopy( ent->s.pos.trDelta, diff );
@@ -786,11 +786,11 @@ void G_ExplodeMissile( gentity_t *ent )
 	if ( ent->owner )//&& ent->owner->s.number == 0 )
 	{
 		//Add the event
-		AddSoundEvent( ent->owner, ent->currentOrigin, 256, AEL_DISCOVERED );
-		AddSightEvent( ent->owner, ent->currentOrigin, 512, AEL_DISCOVERED, 100 );
+		AddSoundEvent( ent->owner, ent->currentOrigin, 256, alertEventLevel_e::AEL_DISCOVERED );
+		AddSightEvent( ent->owner, ent->currentOrigin, 512, alertEventLevel_e::AEL_DISCOVERED, 100 );
 	}
-/*	ent->s.eType = ET_GENERAL;
-	G_AddEvent( ent, EV_MISSILE_MISS, DirToByte( dir ) );
+/*	ent->s.eType = entityType_t::ET_GENERAL;
+	G_AddEvent( ent, entity_event_t::EV_MISSILE_MISS, DirToByte( dir ) );
 
 	ent->freeAfterEvent = true;*/
 
@@ -814,10 +814,10 @@ void G_RunStuckMissile( gentity_t *ent )
 		{
 			gentity_t *other = &g_entities[ent->s.groundEntityNum];
 
-			if ( (!VectorCompare( vec3_origin, other->s.pos.trDelta ) && other->s.pos.trType != TR_STATIONARY) ||
-				(!VectorCompare( vec3_origin, other->s.apos.trDelta ) && other->s.apos.trType != TR_STATIONARY) )
+			if ( (!VectorCompare( vec3_origin, other->s.pos.trDelta ) && other->s.pos.trType != trType_t::TR_STATIONARY) ||
+				(!VectorCompare( vec3_origin, other->s.apos.trDelta ) && other->s.apos.trType != trType_t::TR_STATIONARY) )
 			{//thing I stuck to is moving or rotating now, kill me
-				G_Damage( ent, other, other, nullptr, nullptr, 99999, DAMAGE_NORMAL, MOD_CRUSH );
+				G_Damage( ent, other, other, nullptr, nullptr, 99999, damageFlags_t::DAMAGE_NORMAL, meansOfDeath_t::MOD_CRUSH );
 				return;
 			}
 		}
@@ -842,7 +842,7 @@ int G_GroundTrace( gentity_t *ent, pml_t *pPml )
 	point[1] = ent->currentOrigin[1];
 	point[2] = ent->currentOrigin[2] - 0.25;
 
-	gi.trace ( &trace, ent->currentOrigin, ent->mins, ent->maxs, point, ent->s.number, ent->clipmask, G2_NOCOLLIDE, 0 );
+	gi.trace ( &trace, ent->currentOrigin, ent->mins, ent->maxs, point, ent->s.number, ent->clipmask, EG2_Collision::G2_NOCOLLIDE, 0 );
 	pPml->groundTrace = trace;
 
 	// do something corrective if the trace starts in a solid...
@@ -974,7 +974,7 @@ void G_RollMissile( gentity_t *ent )
 		VectorMA( ent->currentOrigin, time_left, ent->s.pos.trDelta, end );
 
 		// see if we can make it there
-		gi.trace ( &trace, ent->currentOrigin, ent->mins, ent->maxs, end, ent->s.number, ent->clipmask, G2_RETURNONHIT, 10 );
+		gi.trace ( &trace, ent->currentOrigin, ent->mins, ent->maxs, end, ent->s.number, ent->clipmask, EG2_Collision::G2_RETURNONHIT, 10 );
 
 		//TEMP HACK:
 		//had to move this up above the trace.allsolid check now that for some reason ghoul2 impacts tell me I'm allsolid?!
@@ -982,10 +982,10 @@ void G_RollMissile( gentity_t *ent )
 		if ( trace.entityNum < ENTITYNUM_WORLD )
 		{//hit another ent
 			hitEnt = &g_entities[trace.entityNum];
-			if ( hitEnt && (hitEnt->takedamage || Any( hitEnt->contents&CONTENTS_LIGHTSABER ) ) )
+			if ( hitEnt && (hitEnt->takedamage || Any( hitEnt->contents&contentsFlags_t::CONTENTS_LIGHTSABER ) ) )
 			{
 				G_MissileImpact( ent, &trace );
-				if ( ent->s.eType == ET_GENERAL )
+				if ( ent->s.eType == entityType_t::ET_GENERAL )
 				{//exploded
 					return;
 				}
@@ -1011,7 +1011,7 @@ void G_RollMissile( gentity_t *ent )
 			 break;		// moved the entire distance
 		}
 
-		//pm->ps->pm_flags |= PMF_BUMPED;
+		//pm->ps->pm_flags |= pmoveFlags_t::PMF_BUMPED;
 
 		// save entity for contact
 		//PM_AddTouchEnt( trace.entityNum );
@@ -1168,20 +1168,20 @@ void G_RunMissile( gentity_t *ent )
 {
 	vec3_t		origin, oldOrg;
 	trace_t		tr;
-	hitLocation_t			trHitLoc=HL_NONE;
+	hitLocation_t			trHitLoc=hitLocation_t::HL_NONE;
 
 	VectorCopy( ent->currentOrigin, oldOrg );
 
 	// get current position
-	if ( ent->s.pos.trType == TR_INTERPOLATE )
+	if ( ent->s.pos.trType == trType_t::TR_INTERPOLATE )
 	{//rolling missile?
 		//FIXME: WTF?!!  Sticks to stick missiles?
 		//FIXME: they stick inside the player
 		G_RollMissile( ent );
-		if ( ent->s.eType != ET_GENERAL )
+		if ( ent->s.eType != entityType_t::ET_GENERAL )
 		{//didn't explode
 			VectorCopy( ent->currentOrigin, ent->s.pos.trBase );
-			gi.trace( &tr, oldOrg, ent->mins, ent->maxs, ent->currentOrigin, ent->s.number, ent->clipmask, G2_RETURNONHIT, 10 );
+			gi.trace( &tr, oldOrg, ent->mins, ent->maxs, ent->currentOrigin, ent->s.number, ent->clipmask, EG2_Collision::G2_RETURNONHIT, 10 );
 			if ( VectorCompare( ent->s.pos.trDelta, vec3_origin ) )
 			{
 				//VectorCopy( ent->currentAngles, ent->s.apos.trBase );
@@ -1192,7 +1192,7 @@ void G_RunMissile( gentity_t *ent )
 				vec3_t	ang, fwdDir, rtDir;
 				float	speed;
 
-				ent->s.apos.trType = TR_INTERPOLATE;
+				ent->s.apos.trType = trType_t::TR_INTERPOLATE;
 				VectorSet( ang, 0, ent->s.apos.trBase[1], 0 );
 				AngleVectors( ang, fwdDir, rtDir, nullptr );
 				speed = VectorLength( ent->s.pos.trDelta )*4;
@@ -1218,30 +1218,30 @@ void G_RunMissile( gentity_t *ent )
 		// ignoring interactions with the missile owner
 		/*
 		gi.trace( &tr, ent->currentOrigin, ent->mins, ent->maxs, origin,
-			ent->owner ? ent->owner->s.number : ENTITYNUM_NONE, ent->clipmask, G2_RETURNONHIT, 10 );
+			ent->owner ? ent->owner->s.number : ENTITYNUM_NONE, ent->clipmask, EG2_Collision::G2_RETURNONHIT, 10 );
 		*/
 		gi.trace( &tr, ent->currentOrigin, ent->mins, ent->maxs, origin,
-			ent->owner ? ent->owner->s.number : ent->s.number, ent->clipmask, G2_COLLIDE, 10 );
+			ent->owner ? ent->owner->s.number : ent->s.number, ent->clipmask, EG2_Collision::G2_COLLIDE, 10 );
 		/*
 		if ( !VectorCompare( ent->mins, vec3_origin ) || !VectorCompare( ent->maxs, vec3_origin ) )
 		{//don't do ghoul trace if ent has size because g2 just ignores that anyway
 			gi.trace( &tr, ent->currentOrigin, ent->mins, ent->maxs, origin,
-				ent->owner ? ent->owner->s.number : ENTITYNUM_NONE, ent->clipmask, G2_NOCOLLIDE, 10 );
+				ent->owner ? ent->owner->s.number : ENTITYNUM_NONE, ent->clipmask, EG2_Collision::G2_NOCOLLIDE, 10 );
 		}
 		else
 		//Now we always do ghoul trace, regardless of bbox size of missile, this is presuming that non-point ghoul traces will be possible...?
 		{
 			gi.trace( &tr, ent->currentOrigin, vec3_origin, vec3_origin, origin,
-				ent->owner ? ent->owner->s.number : ENTITYNUM_NONE, ent->clipmask, G2_RETURNONHIT, 10 );
+				ent->owner ? ent->owner->s.number : ENTITYNUM_NONE, ent->clipmask, EG2_Collision::G2_RETURNONHIT, 10 );
 		}
 		*/
 		/*
 		if ( tr.fraction == 0.0f && tr.plane.normal[2] == 1.0f && origin[2] < ent->currentOrigin[2] )
 		{
-			if ( ent->s.pos.trType == TR_GRAVITY && !Any(ent->s.eFlags&EF_BOUNCE) && !Any(ent->s.eFlags&EF_BOUNCE_HALF) && ent->s.weapon == WP_THERMAL )//FIXME: EF_ROLLING
+			if ( ent->s.pos.trType == trType_t::TR_GRAVITY && !Any(ent->s.eFlags&entityFlags_t::EF_BOUNCE) && !Any(ent->s.eFlags&entityFlags_t::EF_BOUNCE_HALF) && ent->s.weapon == weapon_t::WP_THERMAL )//FIXME: EF_ROLLING
 			{
 				//FIXME: Needs to stop sometime!
-				ent->s.pos.trType = TR_LINEAR;
+				ent->s.pos.trType = trType_t::TR_LINEAR;
 				ent->s.pos.trDelta[2] = 0;
 				EvaluateTrajectory( &ent->s.pos, level.time, origin );
 				// trace a line from the previous position to the current position,
@@ -1254,7 +1254,7 @@ void G_RunMissile( gentity_t *ent )
 					VectorScale( ent->s.pos.trDelta, 0.975f, ent->s.pos.trDelta );
 					ent->s.pos.trTime = level.time;
 				}
-				ent->s.pos.trType = TR_GRAVITY;
+				ent->s.pos.trType = trType_t::TR_GRAVITY;
 			}
 		}
 		*/
@@ -1263,12 +1263,12 @@ void G_RunMissile( gentity_t *ent )
 		{
 			gentity_t *other = &g_entities[tr.entityNum];
 			// check for hitting a lightsaber
-			if ( Any( other->contents & CONTENTS_LIGHTSABER ) )
+			if ( Any( other->contents & contentsFlags_t::CONTENTS_LIGHTSABER ) )
 			{//hit a lightsaber bbox
 				if ( other->owner && other->owner->client && !other->owner->client->ps.saberInFlight && !InFront( ent->currentOrigin, other->owner->currentOrigin, other->owner->client->ps.viewangles, SABER_REFLECT_MISSILE_CONE ) )//other->owner->s.number == 0 &&
 				{//Jedi cannot block shots from behind!
 					//re-trace from here, ignoring the lightsaber
-					gi.trace( &tr, tr.endpos, ent->mins, ent->maxs, origin, tr.entityNum, ent->clipmask, G2_RETURNONHIT, 10 );
+					gi.trace( &tr, tr.endpos, ent->mins, ent->maxs, origin, tr.entityNum, ent->clipmask, EG2_Collision::G2_RETURNONHIT, 10 );
 				}
 			}
 		}
@@ -1339,7 +1339,7 @@ void G_RunMissile( gentity_t *ent )
 //				G_SetBoltSurfaceRemoval(coll.mEntityNum, coll.mModelIndex, newBolt, newSurface, 10000);
 //				hitModel = true;
 
-				if (trHitLoc==HL_NONE)
+				if (trHitLoc==hitLocation_t::HL_NONE)
 				{
 					G_GetHitLocFromSurfName( &g_entities[coll.mEntityNum], gi.G2API_GetSurfaceName( &g_entities[coll.mEntityNum].ghoul2[coll.mModelIndex], coll.mSurfaceIndex ), &trHitLoc, coll.mCollisionPosition, nullptr, nullptr, ent->methodOfDeath );
 				}
@@ -1357,7 +1357,7 @@ void G_RunMissile( gentity_t *ent )
 
 	gi.linkentity( ent );
 
-	if ( ent->s.pos.trType == TR_STATIONARY && Any(ent->s.eFlags&EF_MISSILE_STICK) )
+	if ( ent->s.pos.trType == trType_t::TR_STATIONARY && Any(ent->s.eFlags&entityFlags_t::EF_MISSILE_STICK) )
 	{//stuck missiles should check some special stuff
 		G_RunStuckMissile( ent );
 		return;
@@ -1366,7 +1366,7 @@ void G_RunMissile( gentity_t *ent )
 	// check think function
 	G_RunThink( ent );
 
-	if ( ent->s.eType != ET_MISSILE )
+	if ( ent->s.eType != entityType_t::ET_MISSILE )
 	{
 		return;		// exploded
 	}
@@ -1376,44 +1376,44 @@ void G_RunMissile( gentity_t *ent )
 		G_MoverTouchPushTriggers( ent, oldOrg );
 	}
 	/*
-	if ( !Any(ent->s.eFlags & EF_TELEPORT_BIT) )
+	if ( !Any(ent->s.eFlags & entityFlags_t::EF_TELEPORT_BIT) )
 	{
 		G_MoverTouchTeleportTriggers( ent, oldOrg );
-		if ( Any( ent->s.eFlags & EF_TELEPORT_BIT ) )
+		if ( Any( ent->s.eFlags & entityFlags_t::EF_TELEPORT_BIT ) )
 		{//was teleported
 			return;
 		}
 	}
 	else
 	{
-		ent->s.eFlags &= ~EF_TELEPORT_BIT;
+		ent->s.eFlags &= ~entityFlags_t::EF_TELEPORT_BIT;
 	}
 	*/
 
-	AddSightEvent( ent->owner, ent->currentOrigin, 512, AEL_DISCOVERED, 75 );//wakes them up when see a shot passes in front of them
+	AddSightEvent( ent->owner, ent->currentOrigin, 512, alertEventLevel_e::AEL_DISCOVERED, 75 );//wakes them up when see a shot passes in front of them
 	if ( !Q_irand( 0, 10 ) )
 	{//not so often...
 		if ( ent->splashDamage && ent->splashRadius )
 		{//I'm an exploder, let people around me know danger is coming
-			if ( ent->s.weapon == WP_TRIP_MINE )
+			if ( ent->s.weapon == weapon_t::WP_TRIP_MINE )
 			{//???
 			}
 			else
 			{
-				if ( ent->s.weapon == WP_ROCKET_LAUNCHER && ent->e_ThinkFunc == thinkF_rocketThink )
+				if ( ent->s.weapon == weapon_t::WP_ROCKET_LAUNCHER && ent->e_ThinkFunc == thinkFunc_t::thinkF_rocketThink )
 				{//homing rocket- run like hell!
-					AddSightEvent( ent->owner, ent->currentOrigin, ent->splashRadius, AEL_DANGER_GREAT, 50 );
+					AddSightEvent( ent->owner, ent->currentOrigin, ent->splashRadius, alertEventLevel_e::AEL_DANGER_GREAT, 50 );
 				}
 				else
 				{
-					AddSightEvent( ent->owner, ent->currentOrigin, ent->splashRadius, AEL_DANGER, 50 );
+					AddSightEvent( ent->owner, ent->currentOrigin, ent->splashRadius, alertEventLevel_e::AEL_DANGER, 50 );
 				}
-				AddSoundEvent( ent->owner, ent->currentOrigin, ent->splashRadius, AEL_DANGER );
+				AddSoundEvent( ent->owner, ent->currentOrigin, ent->splashRadius, alertEventLevel_e::AEL_DANGER );
 			}
 		}
 		else
 		{//makes them run from near misses
-			AddSightEvent( ent->owner, ent->currentOrigin, 48, AEL_DANGER, 50 );
+			AddSightEvent( ent->owner, ent->currentOrigin, 48, alertEventLevel_e::AEL_DANGER, 50 );
 		}
 	}
 
@@ -1423,7 +1423,7 @@ void G_RunMissile( gentity_t *ent )
 	}
 
 	// never explode or bounce on sky
-	if ( Any( tr.surfaceFlags & SURF_NOIMPACT ) )
+	if ( Any( tr.surfaceFlags & surfaceFlags_t::SURF_NOIMPACT ) )
 	{
 		G_FreeEntity( ent );
 		return;

@@ -88,7 +88,7 @@ int SFxHelper::OpenFile( const char *file, fileHandle_t *fh, int mode )
 //	char path[256];
 
 //	sprintf( path, "%s/%s", FX_FILE_PATH, file );
-	return cgi_FS_FOpenFile( file, fh, FS_READ );
+	return cgi_FS_FOpenFile( file, fh, fsMode_t::FS_READ );
 }
 
 //------------------------------------------------------
@@ -125,8 +125,8 @@ void SFxHelper::Trace( trace_t *tr, vec3_t start, vec3_t min, vec3_t max,
 void SFxHelper::G2Trace( trace_t *tr, vec3_t start, vec3_t min, vec3_t max,
 						vec3_t end, int skipEntNum, contentsFlags_t flags )
 {
-	//CG_Trace( tr, start, min, max, end, skipEntNum, flags, G2_COLLIDE );
-	gi.trace(tr, start, nullptr, nullptr, end, skipEntNum, flags, G2_COLLIDE, 0);
+	//CG_Trace( tr, start, min, max, end, skipEntNum, flags, EG2_Collision::G2_COLLIDE );
+	gi.trace(tr, start, nullptr, nullptr, end, skipEntNum, flags, EG2_Collision::G2_COLLIDE, 0);
 }
 
 //------------------------------------------------------
@@ -184,15 +184,15 @@ int SFxHelper::GetOriginAxisFromBolt(const centity_t &cent, int modelNum, int bo
 	int doesBoltExist;
 	mdxaBone_t 	boltMatrix;
 	vec3_t	G2Angles = {cent.lerpAngles[0] , cent.lerpAngles[1], cent.lerpAngles[2]};
-	if ( cent.currentState.eType == ET_PLAYER )
+	if ( cent.currentState.eType == entityType_t::ET_PLAYER )
 	{//players use cent.renderAngles
 		VectorCopy( cent.renderAngles, G2Angles );
 
 		if ( cent.gent //has a game entity
 			&& cent.gent->s.m_iVehicleNum != 0 //in a vehicle
 			&& cent.gent->m_pVehicle //have a valid vehicle pointer
-			&& cent.gent->m_pVehicle->m_pVehicleInfo->type != VH_FIGHTER //it's not a fighter
-			&& cent.gent->m_pVehicle->m_pVehicleInfo->type != VH_SPEEDER //not a speeder
+			&& cent.gent->m_pVehicle->m_pVehicleInfo->type != vehicleType_t::VH_FIGHTER //it's not a fighter
+			&& cent.gent->m_pVehicle->m_pVehicleInfo->type != vehicleType_t::VH_SPEEDER //not a speeder
 			)
 		{
 			G2Angles[PITCH]=0;

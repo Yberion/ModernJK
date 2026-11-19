@@ -142,7 +142,6 @@ public:
 	}
 
 public:
-	using enum icarusToken_t;	// the ICARUS code writes them CIcarus::TK_FLOAT
 
 	// Used by the new Icarus Save code.
 	static constexpr int MAX_BUFFER_SIZE = 100000;

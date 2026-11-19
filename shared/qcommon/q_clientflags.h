@@ -35,7 +35,6 @@ enum class cinematicFlags_t
 	CIN_silent	= 8,
 	CIN_shader	= 16,
 };
-using enum cinematicFlags_t;
 template <> inline constexpr bool enableEnumFlags<cinematicFlags_t> = true;
 
 enum class leFlags_t {
@@ -45,7 +44,6 @@ enum class leFlags_t {
 	LEF_FADE_RGB		= 0x0004,			// explicitly fade
 	LEF_NO_RANDOM_ROTATE= 0x0008			// MakeExplosion adds random rotate which could be bad in some cases
 };
-using enum leFlags_t;
 template <> inline constexpr bool enableEnumFlags<leFlags_t> = true;
 
 enum class cgOverrideFlags_t
@@ -60,7 +58,6 @@ enum class cgOverrideFlags_t
 	CG_OVERRIDE_3RD_PERSON_APH	= 0x00000040,
 	CG_OVERRIDE_FOV				= 0x00000080,
 };
-using enum cgOverrideFlags_t;
 template <> inline constexpr bool enableEnumFlags<cgOverrideFlags_t> = true;
 
 enum class itemModelFlags_t
@@ -73,5 +70,4 @@ enum class itemModelFlags_t
 
 	ITF_ISANYSABER		= (ITF_ISSABER|ITF_ISSABER2),	//either saber
 };
-using enum itemModelFlags_t;
 template <> inline constexpr bool enableEnumFlags<itemModelFlags_t> = true;

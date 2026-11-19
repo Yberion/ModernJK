@@ -89,7 +89,7 @@ static void MissionPrint_Line(const ct_table_t color, const objectiveNumber_t ob
 		{
 			y += 32 + 4;
 		}
-		//CG_DrawProportionalString(108, y,str, CG_SMALLFONT, colorTable[color] );
+		//CG_DrawProportionalString(108, y,str, textStyleFlags_t::CG_SMALLFONT, colorTable[color] );
 		cgi_R_Font_DrawString (108, y, str, colorTable[color], cgs.media.qhFontMedium, -1, 1.0f);
 		++missionYcnt;
 	}
@@ -132,7 +132,7 @@ static void MissionPrint_Line(const ct_table_t color, const objectiveNumber_t ob
 
 				y = missionYpos + (iYPixelsPerLine * missionYcnt);
 
-				CG_DrawProportionalString(108, y, holdText, CG_SMALLFONT, colorTable[color] );
+				CG_DrawProportionalString(108, y, holdText, textStyleFlags_t::CG_SMALLFONT, colorTable[color] );
 				++missionYcnt;
 			}
 			else if (*(str+1) == '\0')
@@ -142,7 +142,7 @@ static void MissionPrint_Line(const ct_table_t color, const objectiveNumber_t ob
 				y = missionYpos + (iYPixelsPerLine * missionYcnt);
 
 				Q_strncpyz( holdText, strBegin, charLen);
-				CG_DrawProportionalString(108, y, holdText, CG_SMALLFONT, colorTable[color] );
+				CG_DrawProportionalString(108, y, holdText, textStyleFlags_t::CG_SMALLFONT, colorTable[color] );
 				++missionYcnt;
 				break;
 			}
@@ -153,21 +153,21 @@ static void MissionPrint_Line(const ct_table_t color, const objectiveNumber_t ob
 	}
 
 	// Special case hack
-	if (objectIndex == DOOM_COMM_OBJ4)
+	if (objectIndex == objectiveNumber_t::DOOM_COMM_OBJ4)
 	{
 		y = missionYpos + (iYPixelsPerLine * missionYcnt);
 		graphic = cgi_R_RegisterShaderNoMip("textures/system/securitycode");
 		CG_DrawPic( 320 - (128/2), y+8, 128, 32, graphic );
 		obj_graphics[0] = true;
 	}
-	else if (objectIndex == KEJIM_POST_OBJ3)
+	else if (objectIndex == objectiveNumber_t::KEJIM_POST_OBJ3)
 	{
 		y = missionYpos + (iYPixelsPerLine * missionYcnt);
 		graphic = cgi_R_RegisterShaderNoMip("textures/system/securitycode_red");
 		CG_DrawPic( 320 - (32/2), y+8, 32, 32, graphic );
 		obj_graphics[1] = true;
 	}
-	else if (objectIndex == KEJIM_POST_OBJ4)
+	else if (objectIndex == objectiveNumber_t::KEJIM_POST_OBJ4)
 	{
 		y =missionYpos + (iYPixelsPerLine * missionYcnt);
 		if (obj_graphics[1])
@@ -178,7 +178,7 @@ static void MissionPrint_Line(const ct_table_t color, const objectiveNumber_t ob
 		CG_DrawPic( 320 - (32/2), y+8, 32, 32, graphic );
 		obj_graphics[2] = true;
 	}
-	else if (objectIndex == KEJIM_POST_OBJ5)
+	else if (objectIndex == objectiveNumber_t::KEJIM_POST_OBJ5)
 	{
 		y =missionYpos + (iYPixelsPerLine * missionYcnt);
 		if (obj_graphics[1])
@@ -211,15 +211,15 @@ void MissionInformation_Draw( centity_t *cent )
 	// Frame
 	char text[1024]={0};
 	cgi_SP_GetStringTextString( "INGAME_OBJECTIVES", text, sizeof(text) );
-	cgi_R_Font_DrawString (96, missionYpos-23, text, colorTable[CT_WHITE], cgs.media.qhFontMedium, -1, 1.0f);
+	cgi_R_Font_DrawString (96, missionYpos-23, text, colorTable[ct_table_t::CT_WHITE], cgs.media.qhFontMedium, -1, 1.0f);
 
 	int missionYcnt = 0;
 
 	obj_graphics[0] = obj_graphics[1] = obj_graphics[2] = obj_graphics[3] = false;
 
 	// Print active objectives
-	cgi_R_SetColor(colorTable[CT_BLUE3]);
-	for (objectiveNumber_t o = KEJIM_POST_OBJ1; o < MAX_OBJECTIVES; o++)
+	cgi_R_SetColor(colorTable[ct_table_t::CT_BLUE3]);
+	for (objectiveNumber_t o = objectiveNumber_t::KEJIM_POST_OBJ1; o < objectiveNumber_t::MAX_OBJECTIVES; o++)
 	{
 		if (cent->gent->client->sess.mission_objectives[o].display)
 		{
@@ -247,15 +247,15 @@ void MissionInformation_Draw( centity_t *cent )
 			{
 				CG_DrawPic( 88,   totalY,   16,  16, cgs.media.messageLitOn);	// Center Dot
 			}
-			MissionPrint_Line(CT_BLUE3, o, missionYcnt );
+			MissionPrint_Line(ct_table_t::CT_BLUE3, o, missionYcnt );
 		}
 	}
 
 	if (!missionYcnt)
 	{
 		cgi_SP_GetStringTextString( "INGAME_OBJNONE", text, sizeof(text) );
-//		CG_DrawProportionalString(108, missionYpos, text, CG_SMALLFONT, colorTable[CT_LTBLUE1] );
-		cgi_R_Font_DrawString (108, missionYpos, text, colorTable[CT_LTBLUE1], cgs.media.qhFontMedium, -1, 1.0f);
+//		CG_DrawProportionalString(108, missionYpos, text, textStyleFlags_t::CG_SMALLFONT, colorTable[ct_table_t::CT_LTBLUE1] );
+		cgi_R_Font_DrawString (108, missionYpos, text, colorTable[ct_table_t::CT_LTBLUE1], cgs.media.qhFontMedium, -1, 1.0f);
 	}
 }
 
@@ -272,20 +272,20 @@ static void CG_DrawForceCount( const forcePowers_t force, int x, float *y, const
 
 	sscanf( s, "%d",&val );
 
-	if ((val<1) || (val> to_underlying( NUM_FORCE_POWERS )))
+	if ((val<1) || (val> to_underlying( forcePowers_t::NUM_FORCE_POWERS )))
 	{
 		return;
 	}
 
-	textColor = CT_ICON_BLUE;
+	textColor = ct_table_t::CT_ICON_BLUE;
 
 	// Draw title
 	cgi_SP_GetStringTextString( showLoadPowersName[force], text, sizeof(text) );
-	CG_DrawProportionalString( x, *y, text, CG_BIGFONT, colorTable[textColor] );
+	CG_DrawProportionalString( x, *y, text, textStyleFlags_t::CG_BIGFONT, colorTable[textColor] );
 
 
 	// Draw icons
-	cgi_R_SetColor( colorTable[CT_WHITE]);
+	cgi_R_SetColor( colorTable[ct_table_t::CT_WHITE]);
 	const int iconSize = 30;
 	if ( val >= 0 )
 	{
@@ -322,30 +322,30 @@ static void CG_LoadScreen_PersonalInfo(void)
 	x = 300;
 	hasForcePowers=false;
 
-	CG_DrawForceCount( FP_HEAL, x, &y, pad,&hasForcePowers);
-	CG_DrawForceCount( FP_LEVITATION, x, &y, pad,&hasForcePowers );
-	CG_DrawForceCount( FP_SPEED, x, &y, pad,&hasForcePowers );
-	CG_DrawForceCount( FP_PUSH, x, &y, pad,&hasForcePowers );
-	CG_DrawForceCount( FP_PULL, x, &y, pad,&hasForcePowers );
-	CG_DrawForceCount( FP_TELEPATHY, x, &y, pad,&hasForcePowers );
-	CG_DrawForceCount( FP_GRIP, x, &y, pad,&hasForcePowers );
-	CG_DrawForceCount( FP_LIGHTNING, x, &y, pad,&hasForcePowers );
-	CG_DrawForceCount( FP_SABERTHROW, x, &y, pad,&hasForcePowers );
-	CG_DrawForceCount( FP_SABER_OFFENSE, x, &y, pad,&hasForcePowers );
-	CG_DrawForceCount( FP_SABER_DEFENSE, x, &y, pad,&hasForcePowers );
+	CG_DrawForceCount( forcePowers_t::FP_HEAL, x, &y, pad,&hasForcePowers);
+	CG_DrawForceCount( forcePowers_t::FP_LEVITATION, x, &y, pad,&hasForcePowers );
+	CG_DrawForceCount( forcePowers_t::FP_SPEED, x, &y, pad,&hasForcePowers );
+	CG_DrawForceCount( forcePowers_t::FP_PUSH, x, &y, pad,&hasForcePowers );
+	CG_DrawForceCount( forcePowers_t::FP_PULL, x, &y, pad,&hasForcePowers );
+	CG_DrawForceCount( forcePowers_t::FP_TELEPATHY, x, &y, pad,&hasForcePowers );
+	CG_DrawForceCount( forcePowers_t::FP_GRIP, x, &y, pad,&hasForcePowers );
+	CG_DrawForceCount( forcePowers_t::FP_LIGHTNING, x, &y, pad,&hasForcePowers );
+	CG_DrawForceCount( forcePowers_t::FP_SABERTHROW, x, &y, pad,&hasForcePowers );
+	CG_DrawForceCount( forcePowers_t::FP_SABER_OFFENSE, x, &y, pad,&hasForcePowers );
+	CG_DrawForceCount( forcePowers_t::FP_SABER_DEFENSE, x, &y, pad,&hasForcePowers );
 
 	if (hasForcePowers)
 	{
 		cgi_SP_GetStringTextString( "INGAME_CURRENTFORCEPOWERS", text, sizeof(text) );
-		CG_DrawProportionalString( 200, 65, text, CG_CENTER | CG_BIGFONT, colorTable[CT_WHITE] );
+		CG_DrawProportionalString( 200, 65, text, textStyleFlags_t::CG_CENTER | textStyleFlags_t::CG_BIGFONT, colorTable[ct_table_t::CT_WHITE] );
 	}
 	else
 	{	//you are only totally empty on the very first map?
 //		cgi_SP_GetStringTextString( "INGAME_NONE", text, sizeof(text) );
-//		CG_DrawProportionalString( 320, y+30, text, CG_CENTER | CG_BIGFONT, colorTable[CT_ICON_BLUE] );
+//		CG_DrawProportionalString( 320, y+30, text, textStyleFlags_t::CG_CENTER | textStyleFlags_t::CG_BIGFONT, colorTable[ct_table_t::CT_ICON_BLUE] );
 		cgi_SP_GetStringTextString( "INGAME_ALONGTIME", text, sizeof(text) );
 		int w = cgi_R_Font_StrLenPixels(text,cgs.media.qhFontMedium, 1.5f);
-		cgi_R_Font_DrawString((320)-(w/2), y+40, text,  colorTable[CT_ICON_BLUE], cgs.media.qhFontMedium, -1, 1.5f);
+		cgi_R_Font_DrawString((320)-(w/2), y+40, text,  colorTable[ct_table_t::CT_ICON_BLUE], cgs.media.qhFontMedium, -1, 1.5f);
 	}
 
 }
@@ -360,7 +360,7 @@ static void CG_LoadBar(void)
 	const int barheight = tickheight + tickpady*2, bartop = 480-barheight;
 	const int capleft = barleft+tickpadx, tickleft = capleft+capwidth, ticktop = bartop+tickpady;
 
-	cgi_R_SetColor( colorTable[CT_WHITE]);
+	cgi_R_SetColor( colorTable[ct_table_t::CT_WHITE]);
 	// Draw background
 	CG_DrawPic(barleft, bartop, barwidth, barheight, cgs.media.levelLoad);
 
@@ -402,7 +402,7 @@ void CG_DrawInformation( void ) {
 
 	extern SavedGameJustLoaded_e g_eSavedGameJustLoaded;	// hack! (hey, it's the last week of coding, ok?
 #ifdef JK2_MODE
-	if ( !levelshot || g_eSavedGameJustLoaded == eFULL )
+	if ( !levelshot || g_eSavedGameJustLoaded == SavedGameJustLoaded_e::eFULL )
 	{
 		// keep whatever's in the screen buffer so far (either the last ingame rendered-image (eg for maptransition)
 		//	or the screenshot built-in to a loaded save game...
@@ -417,13 +417,13 @@ void CG_DrawInformation( void ) {
 		CG_DrawPic( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, levelshot );
 	}
 
-	if ( g_eSavedGameJustLoaded != eFULL && !strcmp(s,"kejim_post") )//special case for first map!
+	if ( g_eSavedGameJustLoaded != SavedGameJustLoaded_e::eFULL && !strcmp(s,"kejim_post") )//special case for first map!
 	{
 		char	text[1024]={0};
 		cgi_SP_GetStringTextString( "INGAME_ALONGTIME", text, sizeof(text) );
 
 		int w = cgi_R_Font_StrLenPixels(text,cgs.media.qhFontMedium, 1.0f);
-		cgi_R_Font_DrawString((320)-(w/2), 140, text,  colorTable[CT_ICON_BLUE], cgs.media.qhFontMedium, -1, 1.0f);
+		cgi_R_Font_DrawString((320)-(w/2), 140, text,  colorTable[ct_table_t::CT_ICON_BLUE], cgs.media.qhFontMedium, -1, 1.0f);
 	}
 	else
 	if (cg_missionstatusscreen.integer )
@@ -440,7 +440,7 @@ void CG_DrawInformation( void ) {
 		// print the current item being loaded
 
 #ifndef NDEBUG
-		cgi_R_Font_DrawString( 48, 398, va("LOADING ... %s",cg.infoScreenText),colorTable[CT_LTGOLD1], cgs.media.qhFontSmall, -1, 1.0f );
+		cgi_R_Font_DrawString( 48, 398, va("LOADING ... %s",cg.infoScreenText),colorTable[ct_table_t::CT_LTGOLD1], cgs.media.qhFontSmall, -1, 1.0f );
 #endif
 	}
 
@@ -456,11 +456,11 @@ void CG_DrawInformation( void ) {
 		{
 			char text[1024]={0};
 			cgi_SP_GetStringTextString( s+1, text, sizeof(text) );
-			cgi_R_Font_DrawString( 15, y, va("\"%s\"",text),colorTable[CT_WHITE],cgs.media.qhFontMedium, -1, 1.0f );
+			cgi_R_Font_DrawString( 15, y, va("\"%s\"",text),colorTable[ct_table_t::CT_WHITE],cgs.media.qhFontMedium, -1, 1.0f );
 		}
 		else
 		{
-			cgi_R_Font_DrawString( 15, y, va("\"%s\"",s),colorTable[CT_WHITE],cgs.media.qhFontMedium, -1, 1.0f );
+			cgi_R_Font_DrawString( 15, y, va("\"%s\"",s),colorTable[ct_table_t::CT_WHITE],cgs.media.qhFontMedium, -1, 1.0f );
 		}
 		y += 20;
 	}

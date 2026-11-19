@@ -43,7 +43,6 @@ enum class spLanguage_t
 	SP_LANGUGAGE_MAX,
 	SP_LANGUAGE_ALL = 255
 };
-using enum spLanguage_t;
 
 
 inline constexpr int SP_PACKAGE = 0xff00;
@@ -66,7 +65,6 @@ enum class spStringFlags_t
 	SP_FLAG9				= 0x00000100,
 	SP_FLAG_ORIGINAL		= 0x00000200,
 };
-using enum spStringFlags_t;
 template <> inline constexpr bool enableEnumFlags<spStringFlags_t> = true;
 
 // Registration
@@ -78,7 +76,6 @@ enum class spRegistrationFlags_t
 	SP_REGISTER_MENU	 = (0x04),
 	SP_REGISTER_REQUIRED = (0x08),
 };
-using enum spRegistrationFlags_t;
 template <> inline constexpr bool enableEnumFlags<spRegistrationFlags_t> = true;
 
 
@@ -99,7 +96,7 @@ void					JK2SP_Init(void);
 void					JK2SP_CheckForLanguageUpdates(void);
 inline void				JK2SP_Shutdown(void)
 {
-	JK2SP_Unload(SP_REGISTER_CLIENT | SP_REGISTER_SERVER | SP_REGISTER_MENU | SP_REGISTER_REQUIRED );
+	JK2SP_Unload(spRegistrationFlags_t::SP_REGISTER_CLIENT | spRegistrationFlags_t::SP_REGISTER_SERVER | spRegistrationFlags_t::SP_REGISTER_MENU | spRegistrationFlags_t::SP_REGISTER_REQUIRED );
 }
 
 extern cvar_t	*sp_language;
@@ -107,17 +104,17 @@ extern cvar_t	*sp_language;
 //
 /*inline bool Language_IsKorean(void)
 {
-	return (sp_language && sp_language->integer == SP_LANGUAGE_KOREAN);
+	return (sp_language && sp_language->integer == spLanguage_t::SP_LANGUAGE_KOREAN);
 }
 
 inline bool Language_IsTaiwanese(void)
 {
-	return (sp_language && sp_language->integer == SP_LANGUAGE_TAIWANESE);
+	return (sp_language && sp_language->integer == spLanguage_t::SP_LANGUAGE_TAIWANESE);
 }
 
 inline bool Language_IsJapanese(void)
 {
-	return (sp_language && sp_language->integer == SP_LANGUAGE_JAPANESE);
+	return (sp_language && sp_language->integer == spLanguage_t::SP_LANGUAGE_JAPANESE);
 }
 */
 inline int Language_GetIntegerValue(void)

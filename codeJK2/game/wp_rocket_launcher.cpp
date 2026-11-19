@@ -52,13 +52,13 @@ void rocketThink( gentity_t *ent )
 		{
 			switch( ent->enemy->client->NPC_class )
 			{
-			case CLASS_ATST:
+			case class_t::CLASS_ATST:
 				org[2] += 80;
 				break;
-			case CLASS_MARK1:
+			case class_t::CLASS_MARK1:
 				org[2] += 40;
 				break;
-			case CLASS_PROBE:
+			case class_t::CLASS_PROBE:
 				org[2] += 60;
 				break;
 			default:
@@ -143,7 +143,7 @@ void WP_FireRocket( gentity_t *ent, bool alt_fire )
 //---------------------------------------------------------
 {
 	vec3_t	start;
-	int		damage	= weaponData[WP_ROCKET_LAUNCHER].damage;
+	int		damage	= weaponData[weapon_t::WP_ROCKET_LAUNCHER].damage;
 	float	vel = ROCKET_VELOCITY;
 
 	if ( alt_fire )
@@ -157,7 +157,7 @@ void WP_FireRocket( gentity_t *ent, bool alt_fire )
 	gentity_t *missile = CreateMissile( start, wpFwd, vel, 10000, ent, alt_fire );
 
 	missile->classname = "rocket_proj";
-	missile->s.weapon = WP_ROCKET_LAUNCHER;
+	missile->s.weapon = weapon_t::WP_ROCKET_LAUNCHER;
 	missile->mass = 10;
 
 	// Do the damages
@@ -221,7 +221,7 @@ void WP_FireRocket( gentity_t *ent, bool alt_fire )
 
 					if ( DotProduct( dir, dir2 ) < 0.0f )
 					{
-						G_StartFlee( missile->enemy, ent, missile->enemy->currentOrigin, AEL_DANGER_GREAT, 3000, 5000 );
+						G_StartFlee( missile->enemy, ent, missile->enemy->currentOrigin, alertEventLevel_e::AEL_DANGER_GREAT, 3000, 5000 );
 					}
 				}
 			}
@@ -229,7 +229,7 @@ void WP_FireRocket( gentity_t *ent, bool alt_fire )
 
 		VectorCopy( wpFwd, missile->movedir );
 
-		missile->e_ThinkFunc = thinkF_rocketThink;
+		missile->e_ThinkFunc = thinkFunc_t::thinkF_rocketThink;
 		missile->random = 1.0f;
 		missile->nextthink = level.time + ROCKET_ALT_THINK_TIME;
 	}
@@ -239,22 +239,22 @@ void WP_FireRocket( gentity_t *ent, bool alt_fire )
 	VectorScale( missile->maxs, -1, missile->mins );
 
 	missile->damage = damage;
-	missile->dflags = DAMAGE_DEATH_KNOCKBACK;
+	missile->dflags = damageFlags_t::DAMAGE_DEATH_KNOCKBACK;
 
 	if ( alt_fire )
 	{
-		missile->methodOfDeath = MOD_ROCKET_ALT;
-		missile->splashMethodOfDeath = MOD_ROCKET_ALT;// ?SPLASH;
+		missile->methodOfDeath = meansOfDeath_t::MOD_ROCKET_ALT;
+		missile->splashMethodOfDeath = meansOfDeath_t::MOD_ROCKET_ALT;// ?SPLASH;
 	}
 	else
 	{
-		missile->methodOfDeath = MOD_ROCKET;
-		missile->splashMethodOfDeath = MOD_ROCKET;// ?SPLASH;
+		missile->methodOfDeath = meansOfDeath_t::MOD_ROCKET;
+		missile->splashMethodOfDeath = meansOfDeath_t::MOD_ROCKET;// ?SPLASH;
 	}
 
-	missile->clipmask = MASK_SHOT | CONTENTS_LIGHTSABER;
-	missile->splashDamage = weaponData[WP_ROCKET_LAUNCHER].splashDamage;
-	missile->splashRadius = weaponData[WP_ROCKET_LAUNCHER].splashRadius;
+	missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
+	missile->splashDamage = weaponData[weapon_t::WP_ROCKET_LAUNCHER].splashDamage;
+	missile->splashRadius = weaponData[weapon_t::WP_ROCKET_LAUNCHER].splashRadius;
 
 	// we don't want it to ever bounce
 	missile->bounceCount = 0;

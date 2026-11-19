@@ -1816,12 +1816,11 @@ enum class animNumber_t //# animNumber_e
 	MAX_TOTALANIMATIONS,
 	ANIM_NONE = -1	// no animation (a saber's optional animations)
 };
-using enum animNumber_t;
 template <> inline constexpr bool enableEnumArithmetic<animNumber_t> = true;
 
-inline constexpr int SABER_ANIM_GROUP_SIZE = BOTH_A2_T__B_ - BOTH_A1_T__B_;
+inline constexpr int SABER_ANIM_GROUP_SIZE = animNumber_t::BOTH_A2_T__B_ - animNumber_t::BOTH_A1_T__B_;
 
-extern stringID_table_t animTable [to_underlying( MAX_ANIMATIONS )+1];
+extern stringID_table_t animTable [to_underlying( animNumber_t::MAX_ANIMATIONS )+1];
 
 // the animation a file or a script names; none for a name that matches none
 [[nodiscard]] inline std::optional<animNumber_t> BG_AnimFromName( const char *name ) {

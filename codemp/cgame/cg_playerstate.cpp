@@ -43,28 +43,28 @@ void CG_CheckAmmo( void ) {
 	int		weapons;
 
 	// see about how many seconds of ammo we have remaining
-	weapons = cg.snap->ps.stats[ STAT_WEAPONS ];
+	weapons = cg.snap->ps.stats[ statIndex_t::STAT_WEAPONS ];
 	total = 0;
-	for ( i = WP_BRYAR_PISTOL; i < WP_NUM_WEAPONS ; i++ ) {
+	for ( i = weapon_t::WP_BRYAR_PISTOL; i < weapon_t::WP_NUM_WEAPONS ; i++ ) {
 		if ( ! ( weapons & ( 1 << i ) ) ) {
 			continue;
 		}
 		switch ( i )
 		{
-		case WP_BRYAR_PISTOL:
-		case WP_CONCUSSION:
-		case WP_BRYAR_OLD:
-		case WP_BLASTER:
-		case WP_DISRUPTOR:
-		case WP_BOWCASTER:
-		case WP_REPEATER:
-		case WP_DEMP2:
-		case WP_FLECHETTE:
-		case WP_ROCKET_LAUNCHER:
-		case WP_THERMAL:
-		case WP_TRIP_MINE:
-		case WP_DET_PACK:
-		case WP_EMPLACED_GUN:
+		case weapon_t::WP_BRYAR_PISTOL:
+		case weapon_t::WP_CONCUSSION:
+		case weapon_t::WP_BRYAR_OLD:
+		case weapon_t::WP_BLASTER:
+		case weapon_t::WP_DISRUPTOR:
+		case weapon_t::WP_BOWCASTER:
+		case weapon_t::WP_REPEATER:
+		case weapon_t::WP_DEMP2:
+		case weapon_t::WP_FLECHETTE:
+		case weapon_t::WP_ROCKET_LAUNCHER:
+		case weapon_t::WP_THERMAL:
+		case weapon_t::WP_TRIP_MINE:
+		case weapon_t::WP_DET_PACK:
+		case weapon_t::WP_EMPLACED_GUN:
 			total += cg.snap->ps.ammo[weaponData[i].ammoIndex] * 1000;
 			break;
 		default:
@@ -85,14 +85,14 @@ void CG_CheckAmmo( void ) {
 		cg.lowAmmoWarning = 1;
 	}
 
-	if (cg.snap->ps.weapon == WP_SABER)
+	if (cg.snap->ps.weapon == weapon_t::WP_SABER)
 	{
 		cg.lowAmmoWarning = 0;
 	}
 
 	// play a sound on transitions
 	if ( cg.lowAmmoWarning != previous ) {
-		trap->S_StartLocalSound( cgs.media.noAmmoSound, CHAN_LOCAL_SOUND );
+		trap->S_StartLocalSound( cgs.media.noAmmoSound, soundChannel_t::CHAN_LOCAL_SOUND );
 	}
 #endif
 	//disabled silly ammo warning stuff for now
@@ -117,7 +117,7 @@ void CG_DamageFeedback( int yawByte, int pitchByte, int damage ) {
 	cg.attackerTime = cg.time;
 
 	// the lower on health you are, the greater the view kick will be
-	health = cg.snap->ps.stats[STAT_HEALTH];
+	health = cg.snap->ps.stats[statIndex_t::STAT_HEALTH];
 	if ( health < 40 ) {
 		scale = 1;
 	} else {
@@ -327,96 +327,96 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 	}
 
 	// hit changes
-	if ( ps->persistant[PERS_HITS] > ops->persistant[PERS_HITS] ) {
-		armor  = ps->persistant[PERS_ATTACKEE_ARMOR] & 0xff;
-		health = ps->persistant[PERS_ATTACKEE_ARMOR] >> 8;
+	if ( ps->persistant[persEnum_t::PERS_HITS] > ops->persistant[persEnum_t::PERS_HITS] ) {
+		armor  = ps->persistant[persEnum_t::PERS_ATTACKEE_ARMOR] & 0xff;
+		health = ps->persistant[persEnum_t::PERS_ATTACKEE_ARMOR] >> 8;
 
 		if (armor > health/2)
 		{	// We also hit shields along the way, so consider them "pierced".
-//			trap->S_StartLocalSound( cgs.media.shieldPierceSound, CHAN_LOCAL_SOUND );
+//			trap->S_StartLocalSound( cgs.media.shieldPierceSound, soundChannel_t::CHAN_LOCAL_SOUND );
 		}
 		else
 		{	// Shields didn't really stand in our way.
-//			trap->S_StartLocalSound( cgs.media.hitSound, CHAN_LOCAL_SOUND );
+//			trap->S_StartLocalSound( cgs.media.hitSound, soundChannel_t::CHAN_LOCAL_SOUND );
 		}
 
 		//FIXME: Hit sounds?
 		/*
 		if (armor > 50 ) {
-			trap->S_StartLocalSound( cgs.media.hitSoundHighArmor, CHAN_LOCAL_SOUND );
+			trap->S_StartLocalSound( cgs.media.hitSoundHighArmor, soundChannel_t::CHAN_LOCAL_SOUND );
 		} else if (armor || health > 100) {
-			trap->S_StartLocalSound( cgs.media.hitSoundLowArmor, CHAN_LOCAL_SOUND );
+			trap->S_StartLocalSound( cgs.media.hitSoundLowArmor, soundChannel_t::CHAN_LOCAL_SOUND );
 		} else {
-			trap->S_StartLocalSound( cgs.media.hitSound, CHAN_LOCAL_SOUND );
+			trap->S_StartLocalSound( cgs.media.hitSound, soundChannel_t::CHAN_LOCAL_SOUND );
 		}
 		*/
-	} else if ( ps->persistant[PERS_HITS] < ops->persistant[PERS_HITS] ) {
-		//trap->S_StartLocalSound( cgs.media.hitTeamSound, CHAN_LOCAL_SOUND );
+	} else if ( ps->persistant[persEnum_t::PERS_HITS] < ops->persistant[persEnum_t::PERS_HITS] ) {
+		//trap->S_StartLocalSound( cgs.media.hitTeamSound, soundChannel_t::CHAN_LOCAL_SOUND );
 	}
 
 	// health changes of more than -3 should make pain sounds
 	if (cg_oldPainSounds.integer)
 	{
-		if ( ps->stats[STAT_HEALTH] < (ops->stats[STAT_HEALTH] - 3))
+		if ( ps->stats[statIndex_t::STAT_HEALTH] < (ops->stats[statIndex_t::STAT_HEALTH] - 3))
 		{
-			if ( ps->stats[STAT_HEALTH] > 0 )
+			if ( ps->stats[statIndex_t::STAT_HEALTH] > 0 )
 			{
-				CG_PainEvent( &cg_entities[cg.predictedPlayerState.clientNum], ps->stats[STAT_HEALTH] );
+				CG_PainEvent( &cg_entities[cg.predictedPlayerState.clientNum], ps->stats[statIndex_t::STAT_HEALTH] );
 			}
 		}
 	}
 
 	// if we are going into the intermission, don't start any voices
-	if ( cg.intermissionStarted || (cg.snap && cg.snap->ps.pm_type == PM_INTERMISSION) ) {
+	if ( cg.intermissionStarted || (cg.snap && cg.snap->ps.pm_type == pmtype_t::PM_INTERMISSION) ) {
 		return;
 	}
 
 #ifdef JK2AWARDS
 	// reward sounds
 	reward = false;
-	if (ps->persistant[PERS_CAPTURES] != ops->persistant[PERS_CAPTURES]) {
-		pushReward(cgs.media.captureAwardSound, cgs.media.medalCapture, ps->persistant[PERS_CAPTURES]);
+	if (ps->persistant[persEnum_t::PERS_CAPTURES] != ops->persistant[persEnum_t::PERS_CAPTURES]) {
+		pushReward(cgs.media.captureAwardSound, cgs.media.medalCapture, ps->persistant[persEnum_t::PERS_CAPTURES]);
 		reward = true;
 		//Com_Printf("capture\n");
 	}
-	if (ps->persistant[PERS_IMPRESSIVE_COUNT] != ops->persistant[PERS_IMPRESSIVE_COUNT]) {
+	if (ps->persistant[persEnum_t::PERS_IMPRESSIVE_COUNT] != ops->persistant[persEnum_t::PERS_IMPRESSIVE_COUNT]) {
 		sfx = cgs.media.impressiveSound;
 
-		pushReward(sfx, cgs.media.medalImpressive, ps->persistant[PERS_IMPRESSIVE_COUNT]);
+		pushReward(sfx, cgs.media.medalImpressive, ps->persistant[persEnum_t::PERS_IMPRESSIVE_COUNT]);
 		reward = true;
 		//Com_Printf("impressive\n");
 	}
-	if (ps->persistant[PERS_EXCELLENT_COUNT] != ops->persistant[PERS_EXCELLENT_COUNT]) {
+	if (ps->persistant[persEnum_t::PERS_EXCELLENT_COUNT] != ops->persistant[persEnum_t::PERS_EXCELLENT_COUNT]) {
 		sfx = cgs.media.excellentSound;
-		pushReward(sfx, cgs.media.medalExcellent, ps->persistant[PERS_EXCELLENT_COUNT]);
+		pushReward(sfx, cgs.media.medalExcellent, ps->persistant[persEnum_t::PERS_EXCELLENT_COUNT]);
 		reward = true;
 		//Com_Printf("excellent\n");
 	}
-	if (ps->persistant[PERS_GAUNTLET_FRAG_COUNT] != ops->persistant[PERS_GAUNTLET_FRAG_COUNT]) {
+	if (ps->persistant[persEnum_t::PERS_GAUNTLET_FRAG_COUNT] != ops->persistant[persEnum_t::PERS_GAUNTLET_FRAG_COUNT]) {
 		sfx = cgs.media.humiliationSound;
-		pushReward(sfx, cgs.media.medalGauntlet, ps->persistant[PERS_GAUNTLET_FRAG_COUNT]);
+		pushReward(sfx, cgs.media.medalGauntlet, ps->persistant[persEnum_t::PERS_GAUNTLET_FRAG_COUNT]);
 		reward = true;
 		//Com_Printf("gauntlet frag\n");
 	}
-	if (ps->persistant[PERS_DEFEND_COUNT] != ops->persistant[PERS_DEFEND_COUNT]) {
-		pushReward(cgs.media.defendSound, cgs.media.medalDefend, ps->persistant[PERS_DEFEND_COUNT]);
+	if (ps->persistant[persEnum_t::PERS_DEFEND_COUNT] != ops->persistant[persEnum_t::PERS_DEFEND_COUNT]) {
+		pushReward(cgs.media.defendSound, cgs.media.medalDefend, ps->persistant[persEnum_t::PERS_DEFEND_COUNT]);
 		reward = true;
 		//Com_Printf("defend\n");
 	}
-	if (ps->persistant[PERS_ASSIST_COUNT] != ops->persistant[PERS_ASSIST_COUNT]) {
-		//pushReward(cgs.media.assistSound, cgs.media.medalAssist, ps->persistant[PERS_ASSIST_COUNT]);
+	if (ps->persistant[persEnum_t::PERS_ASSIST_COUNT] != ops->persistant[persEnum_t::PERS_ASSIST_COUNT]) {
+		//pushReward(cgs.media.assistSound, cgs.media.medalAssist, ps->persistant[persEnum_t::PERS_ASSIST_COUNT]);
 		//reward = true;
 		//Com_Printf("assist\n");
 	}
 	// if any of the player event bits changed
-	if (ps->persistant[PERS_PLAYEREVENTS] != ops->persistant[PERS_PLAYEREVENTS]) {
-		if (( PS_PlayerEvents( *ps ) & PLAYEREVENT_DENIEDREWARD ) !=
-				( PS_PlayerEvents( *ops ) & PLAYEREVENT_DENIEDREWARD )) {
-			trap->S_StartLocalSound( cgs.media.deniedSound, CHAN_ANNOUNCER );
+	if (ps->persistant[persEnum_t::PERS_PLAYEREVENTS] != ops->persistant[persEnum_t::PERS_PLAYEREVENTS]) {
+		if (( PS_PlayerEvents( *ps ) & playerEventFlags_t::PLAYEREVENT_DENIEDREWARD ) !=
+				( PS_PlayerEvents( *ops ) & playerEventFlags_t::PLAYEREVENT_DENIEDREWARD )) {
+			trap->S_StartLocalSound( cgs.media.deniedSound, soundChannel_t::CHAN_ANNOUNCER );
 		}
-		else if (( PS_PlayerEvents( *ps ) & PLAYEREVENT_GAUNTLETREWARD ) !=
-				( PS_PlayerEvents( *ops ) & PLAYEREVENT_GAUNTLETREWARD )) {
-			trap->S_StartLocalSound( cgs.media.humiliationSound, CHAN_ANNOUNCER );
+		else if (( PS_PlayerEvents( *ps ) & playerEventFlags_t::PLAYEREVENT_GAUNTLETREWARD ) !=
+				( PS_PlayerEvents( *ops ) & playerEventFlags_t::PLAYEREVENT_GAUNTLETREWARD )) {
+			trap->S_StartLocalSound( cgs.media.humiliationSound, soundChannel_t::CHAN_ANNOUNCER );
 		}
 		reward = true;
 	}
@@ -426,20 +426,20 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 	// lead changes
 	if (!reward && cgAnnouncerTime < cg.time) {
 		//
-		if ( !cg.warmup && cgs.gametype != GT_POWERDUEL ) {
+		if ( !cg.warmup && cgs.gametype != gametype_t::GT_POWERDUEL ) {
 			// never play lead changes during warmup and powerduel
-			if ( ps->persistant[PERS_RANK] != ops->persistant[PERS_RANK] ) {
-				if ( cgs.gametype < GT_TEAM) {
+			if ( ps->persistant[persEnum_t::PERS_RANK] != ops->persistant[persEnum_t::PERS_RANK] ) {
+				if ( cgs.gametype < gametype_t::GT_TEAM) {
 					/*
-					if (  ps->persistant[PERS_RANK] == 0 ) {
+					if (  ps->persistant[persEnum_t::PERS_RANK] == 0 ) {
 						CG_AddBufferedSound(cgs.media.takenLeadSound);
 						cgAnnouncerTime = cg.time + 3000;
-					} else if ( ps->persistant[PERS_RANK] == RANK_TIED_FLAG ) {
+					} else if ( ps->persistant[persEnum_t::PERS_RANK] == RANK_TIED_FLAG ) {
 						//CG_AddBufferedSound(cgs.media.tiedLeadSound);
-					} else if ( ( ops->persistant[PERS_RANK] & ~RANK_TIED_FLAG ) == 0 ) {
+					} else if ( ( ops->persistant[persEnum_t::PERS_RANK] & ~RANK_TIED_FLAG ) == 0 ) {
 						//rww - only bother saying this if you have more than 1 kill already.
 						//joining the server and hearing "the force is not with you" is silly.
-						if (ps->persistant[PERS_SCORE] > 0)
+						if (ps->persistant[persEnum_t::PERS_SCORE] > 0)
 						{
 							CG_AddBufferedSound(cgs.media.lostLeadSound);
 							cgAnnouncerTime = cg.time + 3000;
@@ -458,24 +458,24 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 		msec = cg.time - cgs.levelStartTime;
 		if ( !( cg.timelimitWarnings & 4 ) && msec > ( cgs.timelimit * 60 + 2 ) * 1000 ) {
 			cg.timelimitWarnings |= 1 | 2 | 4;
-			//trap->S_StartLocalSound( cgs.media.suddenDeathSound, CHAN_ANNOUNCER );
+			//trap->S_StartLocalSound( cgs.media.suddenDeathSound, soundChannel_t::CHAN_ANNOUNCER );
 		}
 		else if ( !( cg.timelimitWarnings & 2 ) && msec > (cgs.timelimit - 1) * 60 * 1000 ) {
 			cg.timelimitWarnings |= 1 | 2;
-			trap->S_StartLocalSound( cgs.media.oneMinuteSound, CHAN_ANNOUNCER );
+			trap->S_StartLocalSound( cgs.media.oneMinuteSound, soundChannel_t::CHAN_ANNOUNCER );
 			cgAnnouncerTime = cg.time + 3000;
 		}
 		else if ( cgs.timelimit > 5 && !( cg.timelimitWarnings & 1 ) && msec > (cgs.timelimit - 5) * 60 * 1000 ) {
 			cg.timelimitWarnings |= 1;
-			trap->S_StartLocalSound( cgs.media.fiveMinuteSound, CHAN_ANNOUNCER );
+			trap->S_StartLocalSound( cgs.media.fiveMinuteSound, soundChannel_t::CHAN_ANNOUNCER );
 			cgAnnouncerTime = cg.time + 3000;
 		}
 	}
 
 	// fraglimit warnings
-	if ( cgs.fraglimit > 0 && cgs.gametype < GT_CTF && cgs.gametype != GT_DUEL && cgs.gametype != GT_POWERDUEL && cgs.gametype != GT_SIEGE && cgAnnouncerTime < cg.time) {
+	if ( cgs.fraglimit > 0 && cgs.gametype < gametype_t::GT_CTF && cgs.gametype != gametype_t::GT_DUEL && cgs.gametype != gametype_t::GT_POWERDUEL && cgs.gametype != gametype_t::GT_SIEGE && cgAnnouncerTime < cg.time) {
 		highScore = cgs.scores1;
-		if ( cgs.gametype == GT_TEAM && cgs.scores2 > highScore )
+		if ( cgs.gametype == gametype_t::GT_TEAM && cgs.scores2 > highScore )
 			highScore = cgs.scores2;
 
 		if ( !( cg.fraglimitWarnings & 4 ) && highScore == (cgs.fraglimit - 1) ) {
@@ -516,7 +516,7 @@ void CG_TransitionPlayerState( playerState_t *ps, playerState_t *ops ) {
 	}
 
 	// respawning
-	if ( ps->persistant[PERS_SPAWN_COUNT] != ops->persistant[PERS_SPAWN_COUNT] ) {
+	if ( ps->persistant[persEnum_t::PERS_SPAWN_COUNT] != ops->persistant[persEnum_t::PERS_SPAWN_COUNT] ) {
 		CG_Respawn();
 	}
 
@@ -525,8 +525,8 @@ void CG_TransitionPlayerState( playerState_t *ps, playerState_t *ops ) {
 		cg.mapRestart = false;
 	}
 
-	if ( cg.snap->ps.pm_type != PM_INTERMISSION
-		&& PS_Team( *ps ) != TEAM_SPECTATOR ) {
+	if ( cg.snap->ps.pm_type != pmtype_t::PM_INTERMISSION
+		&& PS_Team( *ps ) != team_t::TEAM_SPECTATOR ) {
 		CG_CheckLocalSounds( ps, ops );
 	}
 

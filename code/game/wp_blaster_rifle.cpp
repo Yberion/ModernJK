@@ -36,9 +36,9 @@ void WP_FireBlasterMissile( gentity_t *ent, vec3_t start, vec3_t dir, bool altFi
 //---------------------------------------------------------
 {
 	int velocity	= BLASTER_VELOCITY;
-	int	damage		= altFire ? weaponData[WP_BLASTER].altDamage : weaponData[WP_BLASTER].damage;
+	int	damage		= altFire ? weaponData[weapon_t::WP_BLASTER].altDamage : weaponData[weapon_t::WP_BLASTER].damage;
 
-	if ( ent && ent->client && ent->client->NPC_class == CLASS_VEHICLE )
+	if ( ent && ent->client && ent->client->NPC_class == class_t::CLASS_VEHICLE )
 	{
 		damage *= 3;
 		velocity = ATST_MAIN_VEL + ent->client->ps.speed;
@@ -46,7 +46,7 @@ void WP_FireBlasterMissile( gentity_t *ent, vec3_t start, vec3_t dir, bool altFi
 	else
 	{
 		// If an enemy is shooting at us, lower the velocity so you have a chance to evade
-		if ( ent->client && ent->client->ps.clientNum != 0 && ent->client->NPC_class != CLASS_BOBAFETT )
+		if ( ent->client && ent->client->ps.clientNum != 0 && ent->client->NPC_class != class_t::CLASS_BOBAFETT )
 		{
 			if ( g_spskill->integer < 2 )
 			{
@@ -66,10 +66,10 @@ void WP_FireBlasterMissile( gentity_t *ent, vec3_t start, vec3_t dir, bool altFi
 	gentity_t *missile = CreateMissile( start, dir, velocity, 10000, ent, altFire );
 
 	missile->classname = "blaster_proj";
-	missile->s.weapon = WP_BLASTER;
+	missile->s.weapon = weapon_t::WP_BLASTER;
 
 	// Do the damages
-	if ( ent->s.number != 0 && ent->client->NPC_class != CLASS_BOBAFETT )
+	if ( ent->s.number != 0 && ent->client->NPC_class != class_t::CLASS_BOBAFETT )
 	{
 		if ( g_spskill->integer == 0 )
 		{
@@ -96,16 +96,16 @@ void WP_FireBlasterMissile( gentity_t *ent, vec3_t start, vec3_t dir, bool altFi
 //	}
 
 	missile->damage = damage;
-	missile->dflags = DAMAGE_DEATH_KNOCKBACK;
+	missile->dflags = damageFlags_t::DAMAGE_DEATH_KNOCKBACK;
 	if ( altFire )
 	{
-		missile->methodOfDeath = MOD_BLASTER_ALT;
+		missile->methodOfDeath = meansOfDeath_t::MOD_BLASTER_ALT;
 	}
 	else
 	{
-		missile->methodOfDeath = MOD_BLASTER;
+		missile->methodOfDeath = meansOfDeath_t::MOD_BLASTER;
 	}
-	missile->clipmask = MASK_SHOT | CONTENTS_LIGHTSABER;
+	missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
 
 	// we don't want it to bounce forever
 	missile->bounceCount = 8;
@@ -119,11 +119,11 @@ void WP_FireBlaster( gentity_t *ent, bool alt_fire )
 
 	vectoangles( forwardVec, angs );
 
-	if ( ent->client && ent->client->NPC_class == CLASS_VEHICLE )
+	if ( ent->client && ent->client->NPC_class == class_t::CLASS_VEHICLE )
 	{//no inherent aim screw up
 	}
-	else if ( !(ent->client->ps.forcePowersActive&Bit( FP_SEE ))
-		|| ent->client->ps.forcePowerLevel[FP_SEE] < FORCE_LEVEL_2 )
+	else if ( !(ent->client->ps.forcePowersActive&Bit( forcePowers_t::FP_SEE ))
+		|| ent->client->ps.forcePowerLevel[forcePowers_t::FP_SEE] < forcePowerLevels_t::FORCE_LEVEL_2 )
 	{//force sight 2+ gives perfect aim
 		//FIXME: maybe force sight level 3 autoaims some?
 		if ( alt_fire )
@@ -137,8 +137,8 @@ void WP_FireBlaster( gentity_t *ent, bool alt_fire )
 			// Troopers use their aim values as well as the gun's inherent inaccuracy
 			// so check for all classes of stormtroopers and anyone else that has aim error
 			if ( ent->client && ent->NPC &&
-				( ent->client->NPC_class == CLASS_STORMTROOPER ||
-				ent->client->NPC_class == CLASS_SWAMPTROOPER ) )
+				( ent->client->NPC_class == class_t::CLASS_STORMTROOPER ||
+				ent->client->NPC_class == class_t::CLASS_SWAMPTROOPER ) )
 			{
 				angs[PITCH] += ( Q_flrand(-1.0f, 1.0f) * (BLASTER_NPC_SPREAD+(6-ent->NPC->currentAim)*0.25f));//was 0.5f
 				angs[YAW]	+= ( Q_flrand(-1.0f, 1.0f) * (BLASTER_NPC_SPREAD+(6-ent->NPC->currentAim)*0.25f));//was 0.5f

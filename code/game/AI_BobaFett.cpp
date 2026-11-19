@@ -208,7 +208,6 @@ enum class EBobaTacticsState
 
 	BTS_MAX
 };
-using enum EBobaTacticsState;
 
 
 
@@ -266,7 +265,7 @@ void	Boba_DustFallNear(const vec3_t origin, int dustcount)
 		testDirection[2] = 1.0f;
 
 		VectorMA(origin, 1000.0f, testDirection, testEndPos);
-		gi.trace (&testTrace, origin, nullptr, nullptr, testEndPos, (player && player->inuse)?(0):(ENTITYNUM_NONE), MASK_SHOT, G2_NOCOLLIDE, 0 );
+		gi.trace (&testTrace, origin, nullptr, nullptr, testEndPos, (player && player->inuse)?(0):(ENTITYNUM_NONE), MASK_SHOT, EG2_Collision::G2_NOCOLLIDE, 0 );
 
 		if (!testTrace.startsolid &&
 			!testTrace.allsolid &&
@@ -288,7 +287,7 @@ void Boba_ChangeWeapon( weapon_t wp )
 		return;
 	}
 	NPC_ChangeWeapon( wp );
-	G_AddEvent( NPC, EV_GENERAL_SOUND, G_SoundIndex( "sound/weapons/change.wav" ));
+	G_AddEvent( NPC, entity_event_t::EV_GENERAL_SOUND, G_SoundIndex( "sound/weapons/change.wav" ));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -296,12 +295,12 @@ void Boba_ChangeWeapon( weapon_t wp )
 ////////////////////////////////////////////////////////////////////////////////////////
 bool Boba_StopKnockdown( gentity_t *self, gentity_t *pusher, const vec3_t pushDir, bool forceKnockdown )
 {
-	if ( self->client->NPC_class != CLASS_BOBAFETT )
+	if ( self->client->NPC_class != class_t::CLASS_BOBAFETT )
 	{
 		return false;
 	}
 
-	if ( self->client->moveType == MT_FLYSWIM )
+	if ( self->client->moveType == movetype_t::MT_FLYSWIM )
 	{//can't knock me down when I'm flying
 		return true;
 	}
@@ -340,7 +339,7 @@ bool Boba_StopKnockdown( gentity_t *self, gentity_t *pusher, const vec3_t pushDi
 			TIMER_Set( self, "strafeLeft", strafeTime );
 			TIMER_Set( self, "strafeRight", -1 );
 		}
-		G_AddEvent( self, EV_JUMP, 0 );
+		G_AddEvent( self, entity_event_t::EV_JUMP, 0 );
 		if ( !Q_irand( 0, 1 ) )
 		{//flip
 			self->client->ps.forceJumpCharge = 280;//FIXME: calc this intelligently?
@@ -369,8 +368,8 @@ bool Boba_StopKnockdown( gentity_t *self, gentity_t *pusher, const vec3_t pushDi
 ////////////////////////////////////////////////////////////////////////////////////////
 bool Boba_Flying( gentity_t *self )
 {
-	assert(self && self->client && self->client->NPC_class==CLASS_BOBAFETT);//self->NPC &&
-	return ((self->client->moveType==MT_FLYSWIM));
+	assert(self && self->client && self->client->NPC_class==class_t::CLASS_BOBAFETT);//self->NPC &&
+	return ((self->client->moveType==movetype_t::MT_FLYSWIM));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -378,7 +377,7 @@ bool Boba_Flying( gentity_t *self )
 ////////////////////////////////////////////////////////////////////////////////////////
 bool	Boba_CanSeeEnemy( gentity_t *self )
 {
-	assert(self && self->NPC && self->client && self->client->NPC_class==CLASS_BOBAFETT);
+	assert(self && self->NPC && self->client && self->client->NPC_class==class_t::CLASS_BOBAFETT);
  	return ((level.time - self->NPC->enemyLastSeenTime)<1000);
 }
 
@@ -387,13 +386,13 @@ bool	Boba_CanSeeEnemy( gentity_t *self )
 ////////////////////////////////////////////////////////////////////////////////////////
 void	Boba_Pain( gentity_t *self, gentity_t *inflictor, int damage, meansOfDeath_t mod)
 {
-	if (mod==MOD_SABER && !Any(NPCInfo->aiFlags&NPCAI_FLAMETHROW))
+	if (mod==meansOfDeath_t::MOD_SABER && !Any(NPCInfo->aiFlags&npcAiFlags_t::NPCAI_FLAMETHROW))
 	{
 		TIMER_Set( self, "Boba_TacticsSelect", 0);	// Hurt By The Saber, Time To Try Something New
 	}
-	if (Any(self->NPC->aiFlags&NPCAI_FLAMETHROW))
+	if (Any(self->NPC->aiFlags&npcAiFlags_t::NPCAI_FLAMETHROW))
 	{
-		NPC_SetAnim( self, SETANIM_TORSO, BOTH_FORCELIGHTNING_HOLD, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+		NPC_SetAnim( self, setAnimParts_t::SETANIM_TORSO, animNumber_t::BOTH_FORCELIGHTNING_HOLD, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD );
 	 	self->client->ps.torsoAnimTimer  =	level.time - TIMER_Get(self, "falmeTime");
 	}
 }
@@ -407,8 +406,8 @@ void Boba_FlyStart( gentity_t *self )
 		&& !Boba_Flying( self ) )
 	{
 		self->client->ps.gravity = 0;
-		self->svFlags |= SVF_CUSTOM_GRAVITY;
-		self->client->moveType = MT_FLYSWIM;
+		self->svFlags |= svFlags_t::SVF_CUSTOM_GRAVITY;
+		self->client->moveType = movetype_t::MT_FLYSWIM;
 		//start jet effect
 		self->client->jetPackTime = level.time + Q_irand( 3000, 10000 );
 		if ( self->genericBolt1 != -1 )
@@ -421,7 +420,7 @@ void Boba_FlyStart( gentity_t *self )
 		}
 
 		//take-off sound
-		G_SoundOnEnt( self, CHAN_ITEM, "sound/chars/boba/bf_blast-off.wav" );
+		G_SoundOnEnt( self, soundChannel_t::CHAN_ITEM, "sound/chars/boba/bf_blast-off.wav" );
 		//jet loop sound
 		self->s.loopSound = G_SoundIndex( "sound/chars/boba/bf_jetpack_lp.wav" );
 		if ( self->NPC )
@@ -437,8 +436,8 @@ void Boba_FlyStart( gentity_t *self )
 void Boba_FlyStop( gentity_t *self )
 {
 	self->client->ps.gravity = g_gravity->value;
-	self->svFlags &= ~SVF_CUSTOM_GRAVITY;
-	self->client->moveType = MT_RUNJUMP;
+	self->svFlags &= ~svFlags_t::SVF_CUSTOM_GRAVITY;
+	self->client->moveType = movetype_t::MT_RUNJUMP;
 	//Stop effect
 	self->client->jetPackTime = 0;
 	if ( self->genericBolt1 != -1 )
@@ -451,7 +450,7 @@ void Boba_FlyStop( gentity_t *self )
 	}
 
 	//stop jet loop sound
-	G_SoundOnEnt( self, CHAN_ITEM, "sound/chars/boba/bf_land.wav" );
+	G_SoundOnEnt( self, soundChannel_t::CHAN_ITEM, "sound/chars/boba/bf_land.wav" );
 
 	self->s.loopSound = 0;
 	if ( self->NPC )
@@ -485,14 +484,14 @@ void Boba_FireFlameThrower( gentity_t *self )
 
 	if (g_bobaDebug->integer)
 	{
-		CG_DrawEdge(start, end, EDGE_IMPACT_POSSIBLE);
+		CG_DrawEdge(start, end, edgeType_t::EDGE_IMPACT_POSSIBLE);
 	}
-	gi.trace( &tr, start, self->mins, self->maxs, end, self->s.number, MASK_SHOT, G2_NOCOLLIDE, 0);
+	gi.trace( &tr, start, self->mins, self->maxs, end, self->s.number, MASK_SHOT, EG2_Collision::G2_NOCOLLIDE, 0);
 
 	traceEnt = &g_entities[tr.entityNum];
 	if ( tr.entityNum < ENTITYNUM_WORLD && traceEnt->takedamage )
 	{
-		G_Damage( traceEnt, self, self, dir, tr.endpos, damage, DAMAGE_NO_ARMOR|DAMAGE_NO_KNOCKBACK|DAMAGE_NO_HIT_LOC|DAMAGE_IGNORE_TEAM, MOD_LAVA, HL_NONE );
+		G_Damage( traceEnt, self, self, dir, tr.endpos, damage, damageFlags_t::DAMAGE_NO_ARMOR|damageFlags_t::DAMAGE_NO_KNOCKBACK|damageFlags_t::DAMAGE_NO_HIT_LOC|damageFlags_t::DAMAGE_IGNORE_TEAM, meansOfDeath_t::MOD_LAVA, hitLocation_t::HL_NONE );
 		if (traceEnt->health>0)
 		{
 //			G_Knockdown( traceEnt, self, dir, Q_irand(200, 330), false);
@@ -512,16 +511,16 @@ void Boba_StopFlameThrower( gentity_t *self )
 		G_StopEffect( G_EffectIndex("boba/fthrw"), self->playerModel, self->genericBolt3, self->s.number);
 		return;
 	}
-	if (Any(NPCInfo->aiFlags&NPCAI_FLAMETHROW))
+	if (Any(NPCInfo->aiFlags&npcAiFlags_t::NPCAI_FLAMETHROW))
 	{
-		self->NPC->aiFlags				&= ~NPCAI_FLAMETHROW;
+		self->NPC->aiFlags				&= ~npcAiFlags_t::NPCAI_FLAMETHROW;
 		self->client->ps.torsoAnimTimer  =	0;
 
 		TIMER_Set( self, "flameTime",			0);
 		TIMER_Set( self, "nextAttackDelay",		0);
 		TIMER_Set( self, "Boba_TacticsSelect",	0);
 
-	//	G_SoundOnEnt( self, CHAN_WEAPON, "sound/effects/flameoff.mp3" );
+	//	G_SoundOnEnt( self, soundChannel_t::CHAN_WEAPON, "sound/effects/flameoff.mp3" );
 		G_StopEffect( G_EffectIndex("boba/fthrw"), self->playerModel, self->genericBolt3, self->s.number);
 
 		Boba_Printf("FlameThrower OFF");
@@ -533,11 +532,11 @@ void Boba_StopFlameThrower( gentity_t *self )
 ////////////////////////////////////////////////////////////////////////////////////////
 void Boba_StartFlameThrower( gentity_t *self )
 {
-	if (!Any(NPCInfo->aiFlags&NPCAI_FLAMETHROW))
+	if (!Any(NPCInfo->aiFlags&npcAiFlags_t::NPCAI_FLAMETHROW))
 	{
-		NPC_SetAnim( self, SETANIM_TORSO, BOTH_FORCELIGHTNING_HOLD, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+		NPC_SetAnim( self, setAnimParts_t::SETANIM_TORSO, animNumber_t::BOTH_FORCELIGHTNING_HOLD, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD );
 
-		self->NPC->aiFlags				|=  NPCAI_FLAMETHROW;
+		self->NPC->aiFlags				|=  npcAiFlags_t::NPCAI_FLAMETHROW;
 	 	self->client->ps.torsoAnimTimer  =	BOBA_FLAMEDURATION;
 
 		TIMER_Set( self, "flameTime",			BOBA_FLAMEDURATION);
@@ -545,7 +544,7 @@ void Boba_StartFlameThrower( gentity_t *self )
 		TIMER_Set( self, "nextFlameDelay",		BOBA_FLAMEDURATION*2);
 		TIMER_Set( self, "Boba_TacticsSelect",	BOBA_FLAMEDURATION);
 
-		G_SoundOnEnt( self, CHAN_WEAPON, "sound/weapons/boba/bf_flame.mp3" );
+		G_SoundOnEnt( self, soundChannel_t::CHAN_WEAPON, "sound/weapons/boba/bf_flame.mp3" );
 		G_PlayEffect( G_EffectIndex("boba/fthrw"), self->playerModel, self->genericBolt3, self->s.number, self->s.origin, 1 );
 
 		Boba_Printf("FlameThrower ON");
@@ -561,24 +560,24 @@ void Boba_DoFlameThrower( gentity_t *self )
 	{
 		if ( self->client )
 		{
-			if ( !self->client->ps.forcePowerDuration[FP_LIGHTNING] )
+			if ( !self->client->ps.forcePowerDuration[forcePowers_t::FP_LIGHTNING] )
 			{
-				NPC_SetAnim( self, SETANIM_TORSO, BOTH_FORCELIGHTNING_HOLD, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+				NPC_SetAnim( self, setAnimParts_t::SETANIM_TORSO, animNumber_t::BOTH_FORCELIGHTNING_HOLD, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD );
 	 			self->client->ps.torsoAnimTimer  =	BOBA_FLAMEDURATION;
-				G_SoundOnEnt( self, CHAN_WEAPON, "sound/weapons/boba/bf_flame.mp3" );
+				G_SoundOnEnt( self, soundChannel_t::CHAN_WEAPON, "sound/weapons/boba/bf_flame.mp3" );
 				G_PlayEffect( G_EffectIndex("boba/fthrw"), self->playerModel, self->genericBolt3, self->s.number, self->s.origin, 1 );
-				self->client->ps.forcePowerDuration[FP_LIGHTNING] = 1;
+				self->client->ps.forcePowerDuration[forcePowers_t::FP_LIGHTNING] = 1;
 			}
 			Boba_FireFlameThrower( self );
 		}
 		return;
 	}
-	if (!Any(NPCInfo->aiFlags&NPCAI_FLAMETHROW) && TIMER_Done(self, "nextAttackDelay"))
+	if (!Any(NPCInfo->aiFlags&npcAiFlags_t::NPCAI_FLAMETHROW) && TIMER_Done(self, "nextAttackDelay"))
 	{
 		Boba_StartFlameThrower( self );
 	}
 
-	if ( Any(NPCInfo->aiFlags&NPCAI_FLAMETHROW))
+	if ( Any(NPCInfo->aiFlags&npcAiFlags_t::NPCAI_FLAMETHROW))
 	{
 		Boba_FireFlameThrower( self );
 	}
@@ -599,7 +598,7 @@ void		Boba_DoSniper( gentity_t *self)
 	if (TIMER_Done(NPC, "PickNewSniperPoint"))
 	{
 		TIMER_Set(NPC, "PickNewSniperPoint", Q_irand(15000, 25000));
- 		int		SniperPoint = NPC_FindCombatPoint(NPC->currentOrigin, nullptr, NPC->currentOrigin, CP_SNIPE|CP_CLEAR|CP_HAS_ROUTE|CP_TRYFAR|CP_HORZ_DIST_COLL, 0, -1);
+ 		int		SniperPoint = NPC_FindCombatPoint(NPC->currentOrigin, nullptr, NPC->currentOrigin, combatPointSearchFlags_t::CP_SNIPE|combatPointSearchFlags_t::CP_CLEAR|combatPointSearchFlags_t::CP_HAS_ROUTE|combatPointSearchFlags_t::CP_TRYFAR|combatPointSearchFlags_t::CP_HORZ_DIST_COLL, 0, -1);
 		if (SniperPoint!=-1)
 		{
 			NPC_SetCombatPoint(SniperPoint);
@@ -617,8 +616,8 @@ void		Boba_DoSniper( gentity_t *self)
 
 	// Resolve Blocked Problems
 	//--------------------------
-	if (Any(NPCInfo->aiFlags&NPCAI_BLOCKED) &&
-		NPC->client->moveType!=MT_FLYSWIM &&
+	if (Any(NPCInfo->aiFlags&npcAiFlags_t::NPCAI_BLOCKED) &&
+		NPC->client->moveType!=movetype_t::MT_FLYSWIM &&
 		((level.time - NPCInfo->blockedDebounceTime)>3000)
 		)
 	{
@@ -646,68 +645,68 @@ void	Boba_Fire()
 
 	// If Actually Fired, Decide To Apply Alt Fire And Calc Next Attack Delay
 	//------------------------------------------------------------------------
-	if (Any( ucmd.buttons&BUTTON_ATTACK ))
+	if (Any( ucmd.buttons&buttonFlags_t::BUTTON_ATTACK ))
 	{
 		switch (NPC->s.weapon)
 		{
-		case WP_ROCKET_LAUNCHER:
+		case weapon_t::WP_ROCKET_LAUNCHER:
 			TIMER_Set( NPC, "nextAttackDelay", Q_irand(1000, 2000));
 
 			// Occasionally Shoot A Homing Missile
 			//-------------------------------------
 			if (!Q_irand(0,3))
 			{
-				ucmd.buttons &= ~BUTTON_ATTACK;
-				ucmd.buttons |=  BUTTON_ALT_ATTACK;
+				ucmd.buttons &= ~buttonFlags_t::BUTTON_ATTACK;
+				ucmd.buttons |=  buttonFlags_t::BUTTON_ALT_ATTACK;
 				NPC->client->fireDelay = Q_irand( 1000, 3000 );
 			}
 			break;
 
-		case WP_DISRUPTOR:
+		case weapon_t::WP_DISRUPTOR:
 			TIMER_Set(NPC, "nextAttackDelay", Q_irand(1000, 4000));
 
 			// Occasionally Alt-Fire
 			//-----------------------
 			if (!Q_irand(0,3))
 			{
-				ucmd.buttons &= ~BUTTON_ATTACK;
-				ucmd.buttons |=  BUTTON_ALT_ATTACK;
+				ucmd.buttons &= ~buttonFlags_t::BUTTON_ATTACK;
+				ucmd.buttons |=  buttonFlags_t::BUTTON_ALT_ATTACK;
 				NPC->client->fireDelay = Q_irand( 1000, 3000 );
 			}
 			break;
 
-		case WP_BLASTER:
+		case weapon_t::WP_BLASTER:
 
 			if (TIMER_Done(NPC, "nextBlasterAltFireDecide"))
 			{
  			 	if (Q_irand(0, (NPC->count*2)+3)>2)
 				{
 			 		TIMER_Set(NPC, "nextBlasterAltFireDecide", Q_irand(3000, 8000));
-					if (!Any(NPCInfo->scriptFlags&SCF_ALT_FIRE))
+					if (!Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_ALT_FIRE))
 					{
 						Boba_Printf("ALT FIRE On");
-						NPCInfo->scriptFlags |= SCF_ALT_FIRE;
-						NPC_ChangeWeapon(WP_BLASTER);			// Update Delay Timers
+						NPCInfo->scriptFlags |= scriptFlags_t::SCF_ALT_FIRE;
+						NPC_ChangeWeapon(weapon_t::WP_BLASTER);			// Update Delay Timers
 					}
 				}
 				else
 				{
 					TIMER_Set(NPC, "nextBlasterAltFireDecide", Q_irand(2000, 5000));
-					if ( Any(NPCInfo->scriptFlags&SCF_ALT_FIRE))
+					if ( Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_ALT_FIRE))
 					{
 						Boba_Printf("ALT FIRE Off");
-						NPCInfo->scriptFlags &=~SCF_ALT_FIRE;
-						NPC_ChangeWeapon(WP_BLASTER);			// Update Delay Timers
+						NPCInfo->scriptFlags &=~scriptFlags_t::SCF_ALT_FIRE;
+						NPC_ChangeWeapon(weapon_t::WP_BLASTER);			// Update Delay Timers
 					}
 				}
 			}
 
 			// Occasionally Alt Fire
 			//-----------------------
-			if (Any(NPCInfo->scriptFlags&SCF_ALT_FIRE))
+			if (Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_ALT_FIRE))
 			{
-				ucmd.buttons &= ~BUTTON_ATTACK;
-				ucmd.buttons |=  BUTTON_ALT_ATTACK;
+				ucmd.buttons &= ~buttonFlags_t::BUTTON_ATTACK;
+				ucmd.buttons |=  buttonFlags_t::BUTTON_ALT_ATTACK;
 			}
 			break;
 		default:
@@ -726,9 +725,9 @@ void Boba_FireDecide( void )
 	//--------------------------
 	if (!NPC ||											// Only NPCs
 		!NPC->client ||									// Only Clients
-		 NPC->client->NPC_class!=CLASS_BOBAFETT ||		// Only Boba
+		 NPC->client->NPC_class!=class_t::CLASS_BOBAFETT ||		// Only Boba
 		!NPC->enemy ||									// Only If There Is An Enemy
-		 NPC->s.weapon==WP_NONE ||						// Only If Using A Valid Weapon
+		 NPC->s.weapon==weapon_t::WP_NONE ||						// Only If Using A Valid Weapon
 		!TIMER_Done(NPC, "nextAttackDelay") ||			// Only If Ready To Shoot Again
 		!Boba_CanSeeEnemy(NPC)							// Only If Enemy Recently Seen
 		)
@@ -740,19 +739,19 @@ void Boba_FireDecide( void )
 	//-----------------------------------------------------------------------
 	switch (NPC->s.weapon)
 	{
-	case WP_ROCKET_LAUNCHER:
+	case weapon_t::WP_ROCKET_LAUNCHER:
 		if (Distance(NPC->currentOrigin, NPC->enemy->currentOrigin)>400.0f)
 		{
 			Boba_Fire();
 		}
 		break;
 
-	case WP_DISRUPTOR:
+	case weapon_t::WP_DISRUPTOR:
 		// TODO: Add Conditions Here
 		Boba_Fire();
 		break;
 
-	case WP_BLASTER:
+	case weapon_t::WP_BLASTER:
 		// TODO: Add Conditions Here
 		Boba_Fire();
 		break;
@@ -802,7 +801,7 @@ void	Boba_TacticsSelect()
 	//-----------------------
 	if (!enemyAlive)
 	{
-		nextState = BTS_RIFLE;
+		nextState = EBobaTacticsState::BTS_RIFLE;
 	}
 	else if (enemyInFlameRange)
 	{
@@ -810,14 +809,14 @@ void	Boba_TacticsSelect()
 		//-----------------------------------------------------------------------------
 		if (TIMER_Done(NPC, "nextFlameDelay"))
 		{
-			nextState = BTS_FLAMETHROW;
+			nextState = EBobaTacticsState::BTS_FLAMETHROW;
 		}
 
 		// Otherwise, He's Probably Too Close, So Try To Get Clear Of Him
 		//----------------------------------------------------------------
 		else
 		{
-			nextState = BTS_RIFLE;
+			nextState = EBobaTacticsState::BTS_RIFLE;
 		}
 	}
 
@@ -828,7 +827,7 @@ void	Boba_TacticsSelect()
 		// At First, Boba will prefer to use his blaster against the player, but
 		//  the more times he is driven away (NPC->count), he will be less likely to
 		//  choose the blaster, and more likely to go for the missile launcher
-		nextState = (!enemyInRocketRange || Q_irand(0, NPC->count)<1)?(BTS_RIFLE):(BTS_MISSILE);
+		nextState = (!enemyInRocketRange || Q_irand(0, NPC->count)<1)?(EBobaTacticsState::BTS_RIFLE):(EBobaTacticsState::BTS_MISSILE);
 	}
 
 	// Hmmm...  Havn't Seen The Player In A While, We Might Want To Try Something Sneaky
@@ -840,7 +839,7 @@ void	Boba_TacticsSelect()
 
 		if (Q_irand(0, NPC->count)>0)
 		{
-			int		SniperPoint = NPC_FindCombatPoint(NPC->currentOrigin, nullptr, NPC->currentOrigin, CP_SNIPE|CP_CLEAR|CP_HAS_ROUTE|CP_TRYFAR|CP_HORZ_DIST_COLL, 0, -1);
+			int		SniperPoint = NPC_FindCombatPoint(NPC->currentOrigin, nullptr, NPC->currentOrigin, combatPointSearchFlags_t::CP_SNIPE|combatPointSearchFlags_t::CP_CLEAR|combatPointSearchFlags_t::CP_HAS_ROUTE|combatPointSearchFlags_t::CP_TRYFAR|combatPointSearchFlags_t::CP_HORZ_DIST_COLL, 0, -1);
 			if (SniperPoint!=-1)
 			{
 				NPC_SetCombatPoint(SniperPoint);
@@ -855,16 +854,16 @@ void	Boba_TacticsSelect()
 		{
 			TIMER_Set(NPC, "Boba_NoSniperTime", 120000);				// Don't snipe again for a while
 			TIMER_Set(NPC, "Boba_TacticsSelect", Q_irand(35000, 45000));// More patience here
-			nextState = BTS_SNIPER;
+			nextState = EBobaTacticsState::BTS_SNIPER;
 		}
 		else if (AmbushPointNear)
 		{
 			TIMER_Set(NPC, "Boba_TacticsSelect", Q_irand(15000, 25000));// More patience here
-			nextState = BTS_AMBUSHWAIT;
+			nextState = EBobaTacticsState::BTS_AMBUSHWAIT;
 		}
 		else
 		{
-			nextState = (!enemyInRocketRange || Q_irand(0, NPC->count)<1)?(BTS_RIFLE):(BTS_MISSILE);
+			nextState = (!enemyInRocketRange || Q_irand(0, NPC->count)<1)?(EBobaTacticsState::BTS_RIFLE):(EBobaTacticsState::BTS_MISSILE);
 		}
 	}
 
@@ -877,30 +876,30 @@ void	Boba_TacticsSelect()
 		NPC_SetLocalState( *NPCInfo, nextState );
 		switch ( nextState )
 		{
-		case BTS_FLAMETHROW:
+		case EBobaTacticsState::BTS_FLAMETHROW:
 			Boba_Printf("NEW TACTIC: Flame Thrower");
-			Boba_ChangeWeapon(WP_NONE);
+			Boba_ChangeWeapon(weapon_t::WP_NONE);
 			Boba_DoFlameThrower(NPC);
 			break;
 
-		case BTS_RIFLE:
+		case EBobaTacticsState::BTS_RIFLE:
 			Boba_Printf("NEW TACTIC: Rifle");
-			Boba_ChangeWeapon(WP_BLASTER);
+			Boba_ChangeWeapon(weapon_t::WP_BLASTER);
 			break;
 
-		case BTS_MISSILE:
+		case EBobaTacticsState::BTS_MISSILE:
 			Boba_Printf("NEW TACTIC: Rocket Launcher");
-			Boba_ChangeWeapon(WP_ROCKET_LAUNCHER);
+			Boba_ChangeWeapon(weapon_t::WP_ROCKET_LAUNCHER);
 			break;
 
-		case BTS_SNIPER:
+		case EBobaTacticsState::BTS_SNIPER:
 			Boba_Printf("NEW TACTIC: Sniper");
-			Boba_ChangeWeapon(WP_DISRUPTOR);
+			Boba_ChangeWeapon(weapon_t::WP_DISRUPTOR);
 			break;
 
-		case BTS_AMBUSHWAIT:
+		case EBobaTacticsState::BTS_AMBUSHWAIT:
 			Boba_Printf("NEW TACTIC: Ambush");
-			Boba_ChangeWeapon(WP_NONE);
+			Boba_ChangeWeapon(weapon_t::WP_NONE);
 			break;
 
 		default:
@@ -935,30 +934,30 @@ bool	Boba_Tactics()
 
 	// These Tactics Require Seeker & Jedi Movement
 	//----------------------------------------------
-	if (tactics == BTS_NONE ||
-		 tactics == BTS_RIFLE ||
-		 tactics == BTS_MISSILE)
+	if (tactics == EBobaTacticsState::BTS_NONE ||
+		 tactics == EBobaTacticsState::BTS_RIFLE ||
+		 tactics == EBobaTacticsState::BTS_MISSILE)
 	{
 		return false;
 	}
 
 	// Flame Thrower - Locked In Place
 	//---------------------------------
-	if (tactics == BTS_FLAMETHROW)
+	if (tactics == EBobaTacticsState::BTS_FLAMETHROW)
 	{
 		Boba_DoFlameThrower( NPC );
 	}
 
 	// Sniper - Move Around, And Take Shots
 	//--------------------------------------
-	else if (tactics == BTS_SNIPER)
+	else if (tactics == EBobaTacticsState::BTS_SNIPER)
 	{
 		Boba_DoSniper( NPC );
 	}
 
 	// Ambush Wait
 	//------------
-	else if (tactics == BTS_AMBUSHWAIT)
+	else if (tactics == EBobaTacticsState::BTS_AMBUSHWAIT)
 	{
 		Boba_DoAmbushWait( NPC );
 	}
@@ -980,11 +979,11 @@ bool	Boba_Respawn()
 
 	// Try To Predict Where The Enemy Is Going
 	//-----------------------------------------
-	if (AverageEnemyDirectionSamples && NPC->behaviorSet[BSET_DEATH]==nullptr)
+	if (AverageEnemyDirectionSamples && NPC->behaviorSet[bSet_t::BSET_DEATH]==nullptr)
 	{
 		vec3_t	endPos;
 	 	VectorMA(NPC->enemy->currentOrigin, 1000.0f / (float)AverageEnemyDirectionSamples, AverageEnemyDirection, endPos);
-		cp = NPC_FindCombatPoint(endPos, nullptr, endPos, CP_FLEE|CP_TRYFAR|CP_HORZ_DIST_COLL, 0, -1);
+		cp = NPC_FindCombatPoint(endPos, nullptr, endPos, combatPointSearchFlags_t::CP_FLEE|combatPointSearchFlags_t::CP_TRYFAR|combatPointSearchFlags_t::CP_HORZ_DIST_COLL, 0, -1);
 		Boba_Printf("Attempting Predictive Spawn Point");
 	}
 
@@ -992,7 +991,7 @@ bool	Boba_Respawn()
 	//-------------------------------------------------
 	if (cp==-1)
 	{
-		cp = NPC_FindCombatPoint(NPC->enemy->currentOrigin, nullptr, NPC->enemy->currentOrigin, CP_FLEE|CP_TRYFAR|CP_HORZ_DIST_COLL, 0, -1);
+		cp = NPC_FindCombatPoint(NPC->enemy->currentOrigin, nullptr, NPC->enemy->currentOrigin, combatPointSearchFlags_t::CP_FLEE|combatPointSearchFlags_t::CP_TRYFAR|combatPointSearchFlags_t::CP_HORZ_DIST_COLL, 0, -1);
 		Boba_Printf("Attempting Closest Current Spawn Point");
 	}
 
@@ -1003,7 +1002,7 @@ bool	Boba_Respawn()
 		NPC_SetCombatPoint( cp );
 		NPCInfo->surrenderTime = 0;
 		NPC->health = NPC->max_health;
-		NPC->svFlags &=~SVF_NOCLIENT;
+		NPC->svFlags &=~svFlags_t::SVF_NOCLIENT;
 		NPC->count ++;										// This is the number of times spawned
 		G_SetOrigin(NPC, level.combatPoints[cp].origin);
 
@@ -1030,19 +1029,19 @@ void	Boba_Update()
 	if (player && player->inuse && !NPC->enemy)
 	{
 		G_SetEnemy(NPC, player);
-		NPC->svFlags				|= SVF_LOCKEDENEMY;	// Don't forget about the enemy once you've found him
+		NPC->svFlags				|= svFlags_t::SVF_LOCKEDENEMY;	// Don't forget about the enemy once you've found him
 	}
 
 	// Hey, This Is Boba, He Tests The Trace All The Time
 	//----------------------------------------------------
 	if (NPC->enemy)
 	{
-		if (!Any( NPC->svFlags & SVF_NOCLIENT ))
+		if (!Any( NPC->svFlags & svFlags_t::SVF_NOCLIENT ))
 		{
 			trace_t		testTrace;
 			vec3_t		eyes;
-			CalcEntitySpot( NPC, SPOT_HEAD_LEAN, eyes );
-			gi.trace (&testTrace, eyes, nullptr, nullptr, NPC->enemy->currentOrigin, NPC->s.number, MASK_SHOT, G2_NOCOLLIDE, 0);
+			CalcEntitySpot( NPC, spot_t::SPOT_HEAD_LEAN, eyes );
+			gi.trace (&testTrace, eyes, nullptr, nullptr, NPC->enemy->currentOrigin, NPC->s.number, MASK_SHOT, EG2_Collision::G2_NOCOLLIDE, 0);
 
 			bool	wasSeen = Boba_CanSeeEnemy(NPC);
 
@@ -1072,7 +1071,7 @@ void	Boba_Update()
 				{
 					Boba_Printf("Enemy Lost");
 				}
-				CG_DrawEdge(NPC->currentOrigin, NPC->enemy->currentOrigin, (nowSeen)?(EDGE_IMPACT_SAFE):(EDGE_IMPACT_POSSIBLE));
+				CG_DrawEdge(NPC->currentOrigin, NPC->enemy->currentOrigin, (nowSeen)?(edgeType_t::EDGE_IMPACT_SAFE):(edgeType_t::EDGE_IMPACT_POSSIBLE));
 			}
 		}
 
@@ -1090,7 +1089,7 @@ void	Boba_Update()
 
 	// Make Sure He Always Appears In The Last Area With Full Health When His Death Script Is Turned On
 	//--------------------------------------------------------------------------------------------------
-	if (!BobaHadDeathScript && NPC->behaviorSet[BSET_DEATH]!=nullptr)
+	if (!BobaHadDeathScript && NPC->behaviorSet[bSet_t::BSET_DEATH]!=nullptr)
 	{
 		if (!gi.inPVS(NPC->enemy->currentOrigin, NPC->currentOrigin))
 		{
@@ -1110,7 +1109,7 @@ void	Boba_Update()
 
 	// Don't Forget To Turn Off That Flame Thrower, Mr. Fett - You're Waisting Precious Natural Gases
 	//------------------------------------------------------------------------------------------------
-	if (Any(NPCInfo->aiFlags&NPCAI_FLAMETHROW) && (TIMER_Done(NPC, "flameTime")))
+	if (Any(NPCInfo->aiFlags&npcAiFlags_t::NPCAI_FLAMETHROW) && (TIMER_Done(NPC, "flameTime")))
 	{
 		Boba_StopFlameThrower(NPC);
 	}
@@ -1135,7 +1134,7 @@ void	Boba_Update()
 
 		// Find The Closest Flee Point That I Can Get To
 		//-----------------------------------------------
-		int cp = NPC_FindCombatPoint(NPC->currentOrigin, nullptr, NPC->currentOrigin, CP_FLEE|CP_HAS_ROUTE|CP_TRYFAR|CP_HORZ_DIST_COLL, 0, -1);
+		int cp = NPC_FindCombatPoint(NPC->currentOrigin, nullptr, NPC->currentOrigin, combatPointSearchFlags_t::CP_FLEE|combatPointSearchFlags_t::CP_HAS_ROUTE|combatPointSearchFlags_t::CP_TRYFAR|combatPointSearchFlags_t::CP_HORZ_DIST_COLL, 0, -1);
 		if (cp!=-1)
 		{
 			NPC_SetCombatPoint( cp );
@@ -1172,7 +1171,7 @@ bool	Boba_Flee()
 	//----------------------------------------
  	if (!EnemyRecentlySeen || ReachedEscapePoint)
 	{
-		NPC->svFlags |= SVF_NOCLIENT;
+		NPC->svFlags |= svFlags_t::SVF_NOCLIENT;
 		if (HasBeenGoneEnough)
 		{
 			if ((level.time - NPCInfo->enemyLastSeenTime)>400000)
@@ -1235,7 +1234,7 @@ bool	Boba_Flee()
 			{
 				vec3_t	endPos;
 				VectorMA(NPC->enemy->currentOrigin, 500.0f / (float)AverageEnemyDirectionSamples, AverageEnemyDirection, endPos);
-				CG_DrawEdge(NPC->enemy->currentOrigin, endPos, EDGE_IMPACT_POSSIBLE);
+				CG_DrawEdge(NPC->enemy->currentOrigin, endPos, edgeType_t::EDGE_IMPACT_POSSIBLE);
 			}
 		}
 	}
@@ -1246,7 +1245,7 @@ bool	Boba_Flee()
 
 	// Finish The Flame Thrower First...
 	//-----------------------------------
-	if (Any(NPCInfo->aiFlags&NPCAI_FLAMETHROW))
+	if (Any(NPCInfo->aiFlags&npcAiFlags_t::NPCAI_FLAMETHROW))
 	{
 		Boba_DoFlameThrower( NPC );
 		NPC_FacePosition( NPC->enemy->currentOrigin, true);
@@ -1256,8 +1255,8 @@ bool	Boba_Flee()
 
 	bool	IsOnAPath = !!NPC_MoveToGoal(true);
 	if (!ReachedEscapePoint &&
-		Any(NPCInfo->aiFlags&NPCAI_BLOCKED) &&
-		NPC->client->moveType!=MT_FLYSWIM &&
+		Any(NPCInfo->aiFlags&npcAiFlags_t::NPCAI_BLOCKED) &&
+		NPC->client->moveType!=movetype_t::MT_FLYSWIM &&
 		((level.time - NPCInfo->blockedDebounceTime)>1000)
 		)
 	{

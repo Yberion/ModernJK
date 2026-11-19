@@ -52,7 +52,7 @@ struct surfaceInfo_t
 	int			genLod;			// used to determine original lod of original surface and poly hit location
 
 surfaceInfo_t():
-	offFlags(G2SURFACEFLAG_NONE),
+	offFlags(g2SurfaceFlags_t::G2SURFACEFLAG_NONE),
 	surface(0),
 	genBarycentricJ(0),
 	genBarycentricI(0),
@@ -103,7 +103,6 @@ enum class boneFlags_t
 	BONE_ANIM_NO_LERP			= 0x1000,
 	BONE_ANIM_TOTAL				= (BONE_ANIM_NO_LERP| BONE_ANIM_OVERRIDE | BONE_ANIM_OVERRIDE_LOOP | BONE_ANIM_OVERRIDE_FREEZE | BONE_ANIM_BLEND )
 };
-using enum boneFlags_t;
 template <> inline constexpr bool enableEnumFlags<boneFlags_t> = true;
 
 inline constexpr int BONE_INDEX_INVALID = -1;
@@ -203,7 +202,7 @@ struct  boneInfo_t
 
 boneInfo_t():
 	boneNumber(-1),
-	flags(BONE_NONE),
+	flags(boneFlags_t::BONE_NONE),
 	startFrame(0),
 	endFrame(0),
 	startTime(0),
@@ -383,7 +382,7 @@ struct boltInfo_t{
 	boltInfo_t():
 	boneNumber(-1),
 	surfaceNumber(-1),
-	surfaceType(G2SURFACEFLAG_NONE),
+	surfaceType(g2SurfaceFlags_t::G2SURFACEFLAG_NONE),
 	boltUsed(0)
 	{}
 
@@ -432,7 +431,6 @@ enum class ghoul2Flags_t
 	GHOUL2_RAG_COLLISION_SLIDE				= 0x0800,		// ever have gotten a collision (slide) event
 	GHOUL2_RAG_FORCESOLVE					= 0x1000		//api-override, determine if ragdoll should be forced to continue solving even if it thinks it is settled
 };
-using enum ghoul2Flags_t;
 template <> inline constexpr bool enableEnumFlags<ghoul2Flags_t> = true;
 
 
@@ -521,7 +519,7 @@ public:
 	mAnimFrameDefault(0),
 	mSkelFrameNum(-1),
 	mMeshFrameNum(-1),
-	mFlags(GHOUL2_NONE),
+	mFlags(ghoul2Flags_t::GHOUL2_NONE),
 	mTransformedVertsArray(nullptr),
 	mBoneCache(nullptr),
 	mSkin(0),
@@ -826,7 +824,6 @@ enum class EG2_Collision
 	G2_COLLIDE,
 	G2_RETURNONHIT
 };
-using enum EG2_Collision;
 
 
 

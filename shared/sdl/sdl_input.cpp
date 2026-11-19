@@ -95,7 +95,6 @@ static bool IN_IsConsoleKey( fakeAscii_t key, int character )
 			QUAKE_KEY,
 			CHARACTER
 		};
-		using enum consoleKeyType_t;
 		consoleKeyType_t type;
 
 		union
@@ -134,16 +133,16 @@ static bool IN_IsConsoleKey( fakeAscii_t key, int character )
 
 			if( charCode > 0 )
 			{
-				c->type = consoleKey_t::CHARACTER;
+				c->type = consoleKey_t::consoleKeyType_t::CHARACTER;
 				c->u.character = charCode;
 			}
 			else
 			{
-				c->type = consoleKey_t::QUAKE_KEY;
-				c->u.key = Key_StringToKeynum( token ).value_or( A_NULL );
+				c->type = consoleKey_t::consoleKeyType_t::QUAKE_KEY;
+				c->u.key = Key_StringToKeynum( token ).value_or( fakeAscii_t::A_NULL );
 
 				// 0 isn't a key
-				if( c->u.key <= A_NULL )
+				if( c->u.key <= fakeAscii_t::A_NULL )
 					continue;
 			}
 
@@ -153,7 +152,7 @@ static bool IN_IsConsoleKey( fakeAscii_t key, int character )
 
 	// If the character is the same as the key, prefer the character
 	if( to_underlying( key ) == character )
-		key = A_NULL;
+		key = fakeAscii_t::A_NULL;
 
 	for( i = 0; i < numConsoleKeys; i++ )
 	{
@@ -161,12 +160,12 @@ static bool IN_IsConsoleKey( fakeAscii_t key, int character )
 
 		switch( c->type )
 		{
-			case consoleKey_t::QUAKE_KEY:
-				if( key != A_NULL && c->u.key == key )
+			case consoleKey_t::consoleKeyType_t::QUAKE_KEY:
+				if( key != fakeAscii_t::A_NULL && c->u.key == key )
 					return true;
 				break;
 
-			case consoleKey_t::CHARACTER:
+			case consoleKey_t::consoleKeyType_t::CHARACTER:
 				if( c->u.character == character )
 					return true;
 				break;
@@ -195,7 +194,7 @@ static void IN_TranslateNumpad( SDL_Keysym *keysym, fakeAscii_t *key )
 {
 	// with num lock, keypad keys type digits in the console, chat and menus; in game, and while the UI waits for a
 	// key to bind, they stay KP_* keys (they used to become digits everywhere, so KP_* binds never fired)
-	static cvar_t *com_waitingForKey = Cvar_Get( "com_waitingForKey", "0", CVAR_TEMP );
+	static cvar_t *com_waitingForKey = Cvar_Get( "com_waitingForKey", "0", cvarFlags_t::CVAR_TEMP );
 	if ( IN_NumLockEnabled() && Any( Key_GetCatcher() ) && !com_waitingForKey->integer )
 	{
 		switch ( keysym->sym )
@@ -203,52 +202,52 @@ static void IN_TranslateNumpad( SDL_Keysym *keysym, fakeAscii_t *key )
 		case SDLK_KP_0:
 			keysym->scancode = SDL_SCANCODE_0;
 			keysym->sym = SDLK_0;
-			*key = A_0;
+			*key = fakeAscii_t::A_0;
 			break;
 		case SDLK_KP_1:
 			keysym->scancode = SDL_SCANCODE_1;
 			keysym->sym = SDLK_1;
-			*key = A_1;
+			*key = fakeAscii_t::A_1;
 			break;
 		case SDLK_KP_2:
 			keysym->scancode = SDL_SCANCODE_2;
 			keysym->sym = SDLK_2;
-			*key = A_2;
+			*key = fakeAscii_t::A_2;
 			break;
 		case SDLK_KP_3:
 			keysym->scancode = SDL_SCANCODE_3;
 			keysym->sym = SDLK_3;
-			*key = A_3;
+			*key = fakeAscii_t::A_3;
 			break;
 		case SDLK_KP_4:
 			keysym->scancode = SDL_SCANCODE_4;
 			keysym->sym = SDLK_4;
-			*key = A_4;
+			*key = fakeAscii_t::A_4;
 			break;
 		case SDLK_KP_5:
 			keysym->scancode = SDL_SCANCODE_5;
 			keysym->sym = SDLK_5;
-			*key = A_5;
+			*key = fakeAscii_t::A_5;
 			break;
 		case SDLK_KP_6:
 			keysym->scancode = SDL_SCANCODE_6;
 			keysym->sym = SDLK_6;
-			*key = A_6;
+			*key = fakeAscii_t::A_6;
 			break;
 		case SDLK_KP_7:
 			keysym->scancode = SDL_SCANCODE_7;
 			keysym->sym = SDLK_7;
-			*key = A_7;
+			*key = fakeAscii_t::A_7;
 			break;
 		case SDLK_KP_8:
 			keysym->scancode = SDL_SCANCODE_8;
 			keysym->sym = SDLK_8;
-			*key = A_8;
+			*key = fakeAscii_t::A_8;
 			break;
 		case SDLK_KP_9:
 			keysym->scancode = SDL_SCANCODE_9;
 			keysym->sym = SDLK_9;
-			*key = A_9;
+			*key = fakeAscii_t::A_9;
 			break;
 		default:
 			break;
@@ -269,7 +268,7 @@ static bool IN_ModTogglesConsole( int mod ) {
 		return !!(mod & KMOD_SHIFT);
 	case 1:
 	default:
-		return ((mod & KMOD_SHIFT) || Any(Key_GetCatcher() & KEYCATCH_CONSOLE));
+		return ((mod & KMOD_SHIFT) || Any(Key_GetCatcher() & keyCatchFlags_t::KEYCATCH_CONSOLE));
 	}
 }
 
@@ -279,14 +278,14 @@ IN_TranslateSDLToJKKey
 ===============
 */
 static fakeAscii_t IN_TranslateSDLToJKKey( SDL_Keysym *keysym, bool down ) {
-	fakeAscii_t key = A_NULL;
+	fakeAscii_t key = fakeAscii_t::A_NULL;
 	// SDL's keycode of a character key is the character, which the key numbers follow
 	const fakeAscii_t sym = static_cast<fakeAscii_t>( keysym->sym );
 
-	if ( sym >= A_LOW_A && sym <= A_LOW_Z )
-		key = A_CAP_A + ( sym - A_LOW_A );
-	else if ( sym >= A_LOW_AGRAVE && sym <= A_LOW_THORN && sym != A_DIVIDE )
-		key = A_CAP_AGRAVE + ( sym - A_LOW_AGRAVE );
+	if ( sym >= fakeAscii_t::A_LOW_A && sym <= fakeAscii_t::A_LOW_Z )
+		key = fakeAscii_t::A_CAP_A + ( sym - fakeAscii_t::A_LOW_A );
+	else if ( sym >= fakeAscii_t::A_LOW_AGRAVE && sym <= fakeAscii_t::A_LOW_THORN && sym != fakeAscii_t::A_DIVIDE )
+		key = fakeAscii_t::A_CAP_AGRAVE + ( sym - fakeAscii_t::A_LOW_AGRAVE );
 	else if ( keysym->sym >= SDLK_SPACE && keysym->sym < SDLK_DELETE )
 		key = sym;
 	else
@@ -295,98 +294,98 @@ static fakeAscii_t IN_TranslateSDLToJKKey( SDL_Keysym *keysym, bool down ) {
 
 		switch( keysym->sym )
 		{
-			case SDLK_PAGEUP:       key = A_PAGE_UP;       break;
-			case SDLK_KP_9:         key = A_KP_9;          break;
-			case SDLK_PAGEDOWN:     key = A_PAGE_DOWN;     break;
-			case SDLK_KP_3:         key = A_KP_3;          break;
-			case SDLK_KP_7:         key = A_KP_7;          break;
-			case SDLK_HOME:         key = A_HOME;          break;
-			case SDLK_KP_1:         key = A_KP_1;          break;
-			case SDLK_END:          key = A_END;           break;
-			case SDLK_KP_4:         key = A_KP_4;          break;
-			case SDLK_LEFT:         key = A_CURSOR_LEFT;   break;
-			case SDLK_KP_6:         key = A_KP_6;          break;
-			case SDLK_RIGHT:        key = A_CURSOR_RIGHT;  break;
-			case SDLK_KP_2:         key = A_KP_2;          break;
-			case SDLK_DOWN:         key = A_CURSOR_DOWN;   break;
-			case SDLK_KP_8:         key = A_KP_8;          break;
-			case SDLK_UP:           key = A_CURSOR_UP;     break;
-			case SDLK_ESCAPE:       key = A_ESCAPE;        break;
-			case SDLK_KP_ENTER:     key = A_KP_ENTER;      break;
-			case SDLK_RETURN:       key = A_ENTER;         break;
-			case SDLK_TAB:          key = A_TAB;           break;
-			case SDLK_F1:           key = A_F1;            break;
-			case SDLK_F2:           key = A_F2;            break;
-			case SDLK_F3:           key = A_F3;            break;
-			case SDLK_F4:           key = A_F4;            break;
-			case SDLK_F5:           key = A_F5;            break;
-			case SDLK_F6:           key = A_F6;            break;
-			case SDLK_F7:           key = A_F7;            break;
-			case SDLK_F8:           key = A_F8;            break;
-			case SDLK_F9:           key = A_F9;            break;
-			case SDLK_F10:          key = A_F10;           break;
-			case SDLK_F11:          key = A_F11;           break;
-			case SDLK_F12:          key = A_F12;           break;
+			case SDLK_PAGEUP:       key = fakeAscii_t::A_PAGE_UP;       break;
+			case SDLK_KP_9:         key = fakeAscii_t::A_KP_9;          break;
+			case SDLK_PAGEDOWN:     key = fakeAscii_t::A_PAGE_DOWN;     break;
+			case SDLK_KP_3:         key = fakeAscii_t::A_KP_3;          break;
+			case SDLK_KP_7:         key = fakeAscii_t::A_KP_7;          break;
+			case SDLK_HOME:         key = fakeAscii_t::A_HOME;          break;
+			case SDLK_KP_1:         key = fakeAscii_t::A_KP_1;          break;
+			case SDLK_END:          key = fakeAscii_t::A_END;           break;
+			case SDLK_KP_4:         key = fakeAscii_t::A_KP_4;          break;
+			case SDLK_LEFT:         key = fakeAscii_t::A_CURSOR_LEFT;   break;
+			case SDLK_KP_6:         key = fakeAscii_t::A_KP_6;          break;
+			case SDLK_RIGHT:        key = fakeAscii_t::A_CURSOR_RIGHT;  break;
+			case SDLK_KP_2:         key = fakeAscii_t::A_KP_2;          break;
+			case SDLK_DOWN:         key = fakeAscii_t::A_CURSOR_DOWN;   break;
+			case SDLK_KP_8:         key = fakeAscii_t::A_KP_8;          break;
+			case SDLK_UP:           key = fakeAscii_t::A_CURSOR_UP;     break;
+			case SDLK_ESCAPE:       key = fakeAscii_t::A_ESCAPE;        break;
+			case SDLK_KP_ENTER:     key = fakeAscii_t::A_KP_ENTER;      break;
+			case SDLK_RETURN:       key = fakeAscii_t::A_ENTER;         break;
+			case SDLK_TAB:          key = fakeAscii_t::A_TAB;           break;
+			case SDLK_F1:           key = fakeAscii_t::A_F1;            break;
+			case SDLK_F2:           key = fakeAscii_t::A_F2;            break;
+			case SDLK_F3:           key = fakeAscii_t::A_F3;            break;
+			case SDLK_F4:           key = fakeAscii_t::A_F4;            break;
+			case SDLK_F5:           key = fakeAscii_t::A_F5;            break;
+			case SDLK_F6:           key = fakeAscii_t::A_F6;            break;
+			case SDLK_F7:           key = fakeAscii_t::A_F7;            break;
+			case SDLK_F8:           key = fakeAscii_t::A_F8;            break;
+			case SDLK_F9:           key = fakeAscii_t::A_F9;            break;
+			case SDLK_F10:          key = fakeAscii_t::A_F10;           break;
+			case SDLK_F11:          key = fakeAscii_t::A_F11;           break;
+			case SDLK_F12:          key = fakeAscii_t::A_F12;           break;
 
-			case SDLK_BACKSPACE:    key = A_BACKSPACE;     break;
-			case SDLK_KP_PERIOD:    key = A_KP_PERIOD;     break;
-			case SDLK_DELETE:       key = A_DELETE;        break;
-			case SDLK_PAUSE:        key = A_PAUSE;         break;
+			case SDLK_BACKSPACE:    key = fakeAscii_t::A_BACKSPACE;     break;
+			case SDLK_KP_PERIOD:    key = fakeAscii_t::A_KP_PERIOD;     break;
+			case SDLK_DELETE:       key = fakeAscii_t::A_DELETE;        break;
+			case SDLK_PAUSE:        key = fakeAscii_t::A_PAUSE;         break;
 
-			case SDLK_LSHIFT:       key = A_SHIFT;         break;
-			case SDLK_RSHIFT:       key = A_SHIFT2;        break;
+			case SDLK_LSHIFT:       key = fakeAscii_t::A_SHIFT;         break;
+			case SDLK_RSHIFT:       key = fakeAscii_t::A_SHIFT2;        break;
 
-			case SDLK_LCTRL:        key = A_CTRL;          break;
-			case SDLK_RCTRL:        key = A_CTRL2;         break;
+			case SDLK_LCTRL:        key = fakeAscii_t::A_CTRL;          break;
+			case SDLK_RCTRL:        key = fakeAscii_t::A_CTRL2;         break;
 
-			case SDLK_LALT:         key = A_ALT;           break;
-			case SDLK_RALT:         key = A_ALT2;          break;
+			case SDLK_LALT:         key = fakeAscii_t::A_ALT;           break;
+			case SDLK_RALT:         key = fakeAscii_t::A_ALT2;          break;
 
-			case SDLK_KP_5:         key = A_KP_5;          break;
-			case SDLK_INSERT:       key = A_INSERT;        break;
-			case SDLK_KP_0:         key = A_KP_0;          break;
-			case SDLK_KP_MULTIPLY:  key = A_MULTIPLY;      break;
-			case SDLK_KP_PLUS:      key = A_KP_PLUS;       break;
-			case SDLK_KP_MINUS:     key = A_KP_MINUS;      break;
-			case SDLK_KP_DIVIDE:    key = A_DIVIDE;        break;
+			case SDLK_KP_5:         key = fakeAscii_t::A_KP_5;          break;
+			case SDLK_INSERT:       key = fakeAscii_t::A_INSERT;        break;
+			case SDLK_KP_0:         key = fakeAscii_t::A_KP_0;          break;
+			case SDLK_KP_MULTIPLY:  key = fakeAscii_t::A_MULTIPLY;      break;
+			case SDLK_KP_PLUS:      key = fakeAscii_t::A_KP_PLUS;       break;
+			case SDLK_KP_MINUS:     key = fakeAscii_t::A_KP_MINUS;      break;
+			case SDLK_KP_DIVIDE:    key = fakeAscii_t::A_DIVIDE;        break;
 
-			case SDLK_SCROLLLOCK:   key = A_SCROLLLOCK;    break;
-			case SDLK_NUMLOCKCLEAR: key = A_NUMLOCK;       break;
-			case SDLK_CAPSLOCK:     key = A_CAPSLOCK;      break;
+			case SDLK_SCROLLLOCK:   key = fakeAscii_t::A_SCROLLLOCK;    break;
+			case SDLK_NUMLOCKCLEAR: key = fakeAscii_t::A_NUMLOCK;       break;
+			case SDLK_CAPSLOCK:     key = fakeAscii_t::A_CAPSLOCK;      break;
 
-			case L'\u00D7':			key = A_MULTIPLY;		break;
-			case L'\u00E0':			key = A_LOW_AGRAVE;		break;
-			case L'\u00E1':			key = A_LOW_AACUTE;		break;
-			case L'\u00E2':			key = A_LOW_ACIRCUMFLEX; break;
-			case L'\u00E3':			key = A_LOW_ATILDE;		break;
-			case L'\u00E4':			key = A_LOW_ADIERESIS;	break;
-			case L'\u00E5':			key = A_LOW_ARING;		break;
-			case L'\u00E6':			key = A_LOW_AE;			break;
-			case L'\u00E7':			key = A_LOW_CCEDILLA;	break;
-			case L'\u00E8':			key = A_LOW_EGRAVE;		break;
-			case L'\u00E9':			key = A_LOW_EACUTE;		break;
-			case L'\u00EA':			key = A_LOW_ECIRCUMFLEX; break;
-			case L'\u00EB':			key = A_LOW_EDIERESIS;	break;
-			case L'\u00EC':			key = A_LOW_IGRAVE;		break;
-			case L'\u00ED':			key = A_LOW_IACUTE;		break;
-			case L'\u00EE':			key = A_LOW_ICIRCUMFLEX; break;
-			case L'\u00EF':			key = A_LOW_IDIERESIS;	break;
-			case L'\u00F0':			key = A_LOW_ETH;		break;
-			case L'\u00F1':			key = A_LOW_NTILDE;		break;
-			case L'\u00F2':			key = A_LOW_OGRAVE;		break;
-			case L'\u00F3':			key = A_LOW_OACUTE;		break;
-			case L'\u00F4':			key = A_LOW_OCIRCUMFLEX; break;
-			case L'\u00F5':			key = A_LOW_OTILDE;		break;
-			case L'\u00F6':			key = A_LOW_ODIERESIS;	break;
-			case L'\u00F7':			key = A_DIVIDE;			break;
-			case L'\u00F8':			key = A_LOW_OSLASH;		break;
-			case L'\u00F9':			key = A_LOW_UGRAVE;		break;
-			case L'\u00FA':			key = A_LOW_UACUTE;		break;
-			case L'\u00FB':			key = A_LOW_UCIRCUMFLEX; break;
-			case L'\u00FC':			key = A_LOW_UDIERESIS;	break;
-			case L'\u00FD':			key = A_LOW_YACUTE;		break;
-			case L'\u00FE':			key = A_LOW_THORN;		break;
-			case L'\u00FF':			key = A_LOW_YDIERESIS;	break;
+			case L'\u00D7':			key = fakeAscii_t::A_MULTIPLY;		break;
+			case L'\u00E0':			key = fakeAscii_t::A_LOW_AGRAVE;		break;
+			case L'\u00E1':			key = fakeAscii_t::A_LOW_AACUTE;		break;
+			case L'\u00E2':			key = fakeAscii_t::A_LOW_ACIRCUMFLEX; break;
+			case L'\u00E3':			key = fakeAscii_t::A_LOW_ATILDE;		break;
+			case L'\u00E4':			key = fakeAscii_t::A_LOW_ADIERESIS;	break;
+			case L'\u00E5':			key = fakeAscii_t::A_LOW_ARING;		break;
+			case L'\u00E6':			key = fakeAscii_t::A_LOW_AE;			break;
+			case L'\u00E7':			key = fakeAscii_t::A_LOW_CCEDILLA;	break;
+			case L'\u00E8':			key = fakeAscii_t::A_LOW_EGRAVE;		break;
+			case L'\u00E9':			key = fakeAscii_t::A_LOW_EACUTE;		break;
+			case L'\u00EA':			key = fakeAscii_t::A_LOW_ECIRCUMFLEX; break;
+			case L'\u00EB':			key = fakeAscii_t::A_LOW_EDIERESIS;	break;
+			case L'\u00EC':			key = fakeAscii_t::A_LOW_IGRAVE;		break;
+			case L'\u00ED':			key = fakeAscii_t::A_LOW_IACUTE;		break;
+			case L'\u00EE':			key = fakeAscii_t::A_LOW_ICIRCUMFLEX; break;
+			case L'\u00EF':			key = fakeAscii_t::A_LOW_IDIERESIS;	break;
+			case L'\u00F0':			key = fakeAscii_t::A_LOW_ETH;		break;
+			case L'\u00F1':			key = fakeAscii_t::A_LOW_NTILDE;		break;
+			case L'\u00F2':			key = fakeAscii_t::A_LOW_OGRAVE;		break;
+			case L'\u00F3':			key = fakeAscii_t::A_LOW_OACUTE;		break;
+			case L'\u00F4':			key = fakeAscii_t::A_LOW_OCIRCUMFLEX; break;
+			case L'\u00F5':			key = fakeAscii_t::A_LOW_OTILDE;		break;
+			case L'\u00F6':			key = fakeAscii_t::A_LOW_ODIERESIS;	break;
+			case L'\u00F7':			key = fakeAscii_t::A_DIVIDE;			break;
+			case L'\u00F8':			key = fakeAscii_t::A_LOW_OSLASH;		break;
+			case L'\u00F9':			key = fakeAscii_t::A_LOW_UGRAVE;		break;
+			case L'\u00FA':			key = fakeAscii_t::A_LOW_UACUTE;		break;
+			case L'\u00FB':			key = fakeAscii_t::A_LOW_UCIRCUMFLEX; break;
+			case L'\u00FC':			key = fakeAscii_t::A_LOW_UDIERESIS;	break;
+			case L'\u00FD':			key = fakeAscii_t::A_LOW_YACUTE;		break;
+			case L'\u00FE':			key = fakeAscii_t::A_LOW_THORN;		break;
+			case L'\u00FF':			key = fakeAscii_t::A_LOW_YDIERESIS;	break;
 
 			default:
 				break;
@@ -401,7 +400,7 @@ static fakeAscii_t IN_TranslateSDLToJKKey( SDL_Keysym *keysym, bool down ) {
 		if ( keysym->scancode == SDL_SCANCODE_GRAVE )
 		{
 			if ( IN_ModTogglesConsole(keysym->mod) ) {
-				key = A_CONSOLE;
+				key = fakeAscii_t::A_CONSOLE;
 			}
 		}
 	}
@@ -410,7 +409,7 @@ static fakeAscii_t IN_TranslateSDLToJKKey( SDL_Keysym *keysym, bool down ) {
 		if ( IN_IsConsoleKey( key, 0 ) )
 		{
 			// Console keys can't be bound or generate characters
-			key = A_CONSOLE;
+			key = fakeAscii_t::A_CONSOLE;
 		}
 	}
 
@@ -509,32 +508,32 @@ static void IN_DeactivateMouse( void )
 
 // a key's event for the engine's queue
 static void IN_QueKey( fakeAscii_t key, bool down ) {
-	Sys_QueEvent( 0, SE_KEY, to_underlying( key ), down, 0, nullptr );
+	Sys_QueEvent( 0, sysEventType_t::SE_KEY, to_underlying( key ), down, 0, nullptr );
 }
 
 // We translate axes movement into keypresses
 static fakeAscii_t joy_keys[16] = {
-	A_CURSOR_LEFT, A_CURSOR_RIGHT,
-	A_CURSOR_UP, A_CURSOR_DOWN,
-	A_JOY16, A_JOY17,
-	A_JOY18, A_JOY19,
-	A_JOY20, A_JOY21,
-	A_JOY22, A_JOY23,
-	A_JOY24, A_JOY25,
-	A_JOY26, A_JOY27
+	fakeAscii_t::A_CURSOR_LEFT, fakeAscii_t::A_CURSOR_RIGHT,
+	fakeAscii_t::A_CURSOR_UP, fakeAscii_t::A_CURSOR_DOWN,
+	fakeAscii_t::A_JOY16, fakeAscii_t::A_JOY17,
+	fakeAscii_t::A_JOY18, fakeAscii_t::A_JOY19,
+	fakeAscii_t::A_JOY20, fakeAscii_t::A_JOY21,
+	fakeAscii_t::A_JOY22, fakeAscii_t::A_JOY23,
+	fakeAscii_t::A_JOY24, fakeAscii_t::A_JOY25,
+	fakeAscii_t::A_JOY26, fakeAscii_t::A_JOY27
 };
 
 // translate hat events into keypresses
 // the 4 highest buttons are used for the first hat ...
 static fakeAscii_t hat_keys[16] = {
-	A_JOY28, A_JOY29,
-	A_JOY30, A_JOY31,
-	A_JOY24, A_JOY25,
-	A_JOY26, A_JOY27,
-	A_JOY20, A_JOY21,
-	A_JOY22, A_JOY23,
-	A_JOY16, A_JOY17,
-	A_JOY18, A_JOY19
+	fakeAscii_t::A_JOY28, fakeAscii_t::A_JOY29,
+	fakeAscii_t::A_JOY30, fakeAscii_t::A_JOY31,
+	fakeAscii_t::A_JOY24, fakeAscii_t::A_JOY25,
+	fakeAscii_t::A_JOY26, fakeAscii_t::A_JOY27,
+	fakeAscii_t::A_JOY20, fakeAscii_t::A_JOY21,
+	fakeAscii_t::A_JOY22, fakeAscii_t::A_JOY23,
+	fakeAscii_t::A_JOY16, fakeAscii_t::A_JOY17,
+	fakeAscii_t::A_JOY18, fakeAscii_t::A_JOY19
 };
 
 
@@ -542,7 +541,7 @@ struct stick_state_s
 {
 	bool buttons[16];  // !!! FIXME: these might be too many.
 	unsigned int oldaxes;
-	int oldaaxes[to_underlying( MAX_JOYSTICK_AXIS )];
+	int oldaaxes[to_underlying( joystickAxis_t::MAX_JOYSTICK_AXIS )];
 	unsigned int oldhats;
 } stick_state;
 
@@ -584,7 +583,7 @@ static void IN_InitJoystick( void )
 		Q_strcat(buf, sizeof(buf), "\n");
 	}
 
-	Cvar_Get( "in_availableJoysticks", buf, CVAR_ROM );
+	Cvar_Get( "in_availableJoysticks", buf, cvarFlags_t::CVAR_ROM );
 
 	if( !in_joystick->integer ) {
 		Com_DPrintf( "Joystick is not active.\n" );
@@ -592,13 +591,13 @@ static void IN_InitJoystick( void )
 		return;
 	}
 
-	in_joystickNo = Cvar_Get( "in_joystickNo", "0", CVAR_ARCHIVE_ND );
+	in_joystickNo = Cvar_Get( "in_joystickNo", "0", cvarFlags_t::CVAR_ARCHIVE_ND );
 	if( in_joystickNo->integer < 0 || in_joystickNo->integer >= total )
 		Cvar_Set( "in_joystickNo", "0" );
 
-	in_joystickUseAnalog = Cvar_Get( "in_joystickUseAnalog", "0", CVAR_ARCHIVE_ND );
+	in_joystickUseAnalog = Cvar_Get( "in_joystickUseAnalog", "0", cvarFlags_t::CVAR_ARCHIVE_ND );
 
-	in_joystickThreshold = Cvar_Get( "joy_threshold", "0.15", CVAR_ARCHIVE_ND );
+	in_joystickThreshold = Cvar_Get( "joy_threshold", "0.15", cvarFlags_t::CVAR_ARCHIVE_ND );
 
 	stick = SDL_JoystickOpen( in_joystickNo->integer );
 
@@ -623,7 +622,7 @@ void IN_Init( void *windowData )
 {
 	if( !SDL_WasInit( SDL_INIT_VIDEO ) )
 	{
-		Com_Error( ERR_FATAL, "IN_Init called before SDL_Init( SDL_INIT_VIDEO )" );
+		Com_Error( errorParm_t::ERR_FATAL, "IN_Init called before SDL_Init( SDL_INIT_VIDEO )" );
 		return;
 	}
 
@@ -632,13 +631,13 @@ void IN_Init( void *windowData )
 	Com_DPrintf( "\n------- Input Initialization -------\n" );
 
 	// joystick variables
-	in_keyboardDebug = Cvar_Get( "in_keyboardDebug", "0", CVAR_ARCHIVE_ND );
+	in_keyboardDebug = Cvar_Get( "in_keyboardDebug", "0", cvarFlags_t::CVAR_ARCHIVE_ND );
 
-	in_joystick = Cvar_Get( "in_joystick", "0", CVAR_ARCHIVE_ND|CVAR_LATCH );
+	in_joystick = Cvar_Get( "in_joystick", "0", cvarFlags_t::CVAR_ARCHIVE_ND|cvarFlags_t::CVAR_LATCH );
 
 	// mouse variables
-	in_mouse = Cvar_Get( "in_mouse", "1", CVAR_ARCHIVE );
-	in_nograb = Cvar_Get( "in_nograb", "0", CVAR_ARCHIVE_ND );
+	in_mouse = Cvar_Get( "in_mouse", "1", cvarFlags_t::CVAR_ARCHIVE );
+	in_nograb = Cvar_Get( "in_nograb", "0", cvarFlags_t::CVAR_ARCHIVE_ND );
 
 	SDL_StartTextInput( );
 
@@ -828,8 +827,8 @@ void SNDDMA_Activate( bool activate );
 static void IN_ProcessEvents( void )
 {
 	SDL_Event e;
-	fakeAscii_t key = A_NULL;
-	static fakeAscii_t lastKeyDown = A_NULL;
+	fakeAscii_t key = fakeAscii_t::A_NULL;
+	static fakeAscii_t lastKeyDown = fakeAscii_t::A_NULL;
 
 	if( !SDL_WasInit( SDL_INIT_VIDEO ) )
 			return;
@@ -840,27 +839,27 @@ static void IN_ProcessEvents( void )
 		{
 			case SDL_KEYDOWN:
 				key = IN_TranslateSDLToJKKey( &e.key.keysym, true );
-				if ( key != A_NULL )
+				if ( key != fakeAscii_t::A_NULL )
 					IN_QueKey( key, true );
 
-				if ( key == A_BACKSPACE )
-					Sys_QueEvent( 0, SE_CHAR, CTRL('h'), false, 0, nullptr);
-				else if ( kg.keys[A_CTRL].down && key >= A_CAP_A && key <= A_CAP_Z )
-					Sys_QueEvent( 0, SE_CHAR, CTRL(tolower(to_underlying(key))), false, 0, nullptr );
+				if ( key == fakeAscii_t::A_BACKSPACE )
+					Sys_QueEvent( 0, sysEventType_t::SE_CHAR, CTRL('h'), false, 0, nullptr);
+				else if ( kg.keys[fakeAscii_t::A_CTRL].down && key >= fakeAscii_t::A_CAP_A && key <= fakeAscii_t::A_CAP_Z )
+					Sys_QueEvent( 0, sysEventType_t::SE_CHAR, CTRL(tolower(to_underlying(key))), false, 0, nullptr );
 
 				lastKeyDown = key;
 				break;
 
 			case SDL_KEYUP:
 				key = IN_TranslateSDLToJKKey( &e.key.keysym, false );
-				if( key != A_NULL )
+				if( key != fakeAscii_t::A_NULL )
 					IN_QueKey( key, false );
 
-				lastKeyDown = A_NULL;
+				lastKeyDown = fakeAscii_t::A_NULL;
 				break;
 
 			case SDL_TEXTINPUT:
-				if( lastKeyDown != A_CONSOLE )
+				if( lastKeyDown != fakeAscii_t::A_CONSOLE )
 				{
 					char *c = e.text.text;
 
@@ -870,15 +869,15 @@ static void IN_ProcessEvents( void )
 						uint32_t utf32 = ConvertUTF8ToUTF32( c, &c );
 						if( utf32 != 0 )
 						{
-							if( IN_IsConsoleKey( A_NULL, utf32 ) && !cl_consoleUseScanCode->integer )
+							if( IN_IsConsoleKey( fakeAscii_t::A_NULL, utf32 ) && !cl_consoleUseScanCode->integer )
 							{
-								IN_QueKey( A_CONSOLE, true );
-								IN_QueKey( A_CONSOLE, false );
+								IN_QueKey( fakeAscii_t::A_CONSOLE, true );
+								IN_QueKey( fakeAscii_t::A_CONSOLE, false );
 							}
 							else
 							{
 								uint8_t encoded = ConvertUTF32ToExpectedCharset( utf32 );
-								Sys_QueEvent( 0, SE_CHAR, encoded, 0, 0, nullptr );
+								Sys_QueEvent( 0, sysEventType_t::SE_CHAR, encoded, 0, 0, nullptr );
 							}
 						}
 					}
@@ -890,7 +889,7 @@ static void IN_ProcessEvents( void )
 				{
 					if ( !e.motion.xrel && !e.motion.yrel )
 						break;
-					Sys_QueEvent( 0, SE_MOUSE, e.motion.xrel, e.motion.yrel, 0, nullptr );
+					Sys_QueEvent( 0, sysEventType_t::SE_MOUSE, e.motion.xrel, e.motion.yrel, 0, nullptr );
 				}
 				break;
 
@@ -900,12 +899,12 @@ static void IN_ProcessEvents( void )
 					fakeAscii_t b;
 					switch( e.button.button )
 					{
-						case SDL_BUTTON_LEFT:	b = A_MOUSE1;     break;
-						case SDL_BUTTON_MIDDLE:	b = A_MOUSE3;     break;
-						case SDL_BUTTON_RIGHT:	b = A_MOUSE2;     break;
-						case SDL_BUTTON_X1:		b = A_MOUSE4;     break;
-						case SDL_BUTTON_X2:		b = A_MOUSE5;     break;
-						default: b = A_AUX0 + ( e.button.button - 6 ) % 32; break;
+						case SDL_BUTTON_LEFT:	b = fakeAscii_t::A_MOUSE1;     break;
+						case SDL_BUTTON_MIDDLE:	b = fakeAscii_t::A_MOUSE3;     break;
+						case SDL_BUTTON_RIGHT:	b = fakeAscii_t::A_MOUSE2;     break;
+						case SDL_BUTTON_X1:		b = fakeAscii_t::A_MOUSE4;     break;
+						case SDL_BUTTON_X2:		b = fakeAscii_t::A_MOUSE5;     break;
+						default: b = fakeAscii_t::A_AUX0 + ( e.button.button - 6 ) % 32; break;
 					}
 					IN_QueKey( b,
 						( e.type == SDL_MOUSEBUTTONDOWN ? true : false ) );
@@ -915,18 +914,18 @@ static void IN_ProcessEvents( void )
 			case SDL_MOUSEWHEEL:
 				if( e.wheel.y > 0 )
 				{
-					IN_QueKey( A_MWHEELUP, true );
-					IN_QueKey( A_MWHEELUP, false );
+					IN_QueKey( fakeAscii_t::A_MWHEELUP, true );
+					IN_QueKey( fakeAscii_t::A_MWHEELUP, false );
 				}
 				else if( e.wheel.y < 0 )
 				{
-					IN_QueKey( A_MWHEELDOWN, true );
-					IN_QueKey( A_MWHEELDOWN, false );
+					IN_QueKey( fakeAscii_t::A_MWHEELDOWN, true );
+					IN_QueKey( fakeAscii_t::A_MWHEELDOWN, false );
 				}
 				break;
 
 			case SDL_QUIT:
-				Cbuf_ExecuteText(EXEC_NOW, "quit Closed window\n");
+				Cbuf_ExecuteText(cbufExec_t::EXEC_NOW, "quit Closed window\n");
 				break;
 
 			case SDL_WINDOWEVENT:
@@ -996,7 +995,7 @@ static void IN_JoyMove( void )
 				balldx *= 2;
 			if (abs(balldy) > 1)
 				balldy *= 2;
-			Sys_QueEvent( 0, SE_MOUSE, balldx, balldy, 0, nullptr );
+			Sys_QueEvent( 0, sysEventType_t::SE_MOUSE, balldx, balldy, 0, nullptr );
 		}
 	}
 
@@ -1011,7 +1010,7 @@ static void IN_JoyMove( void )
 			bool pressed = (SDL_JoystickGetButton(stick, i) != 0);
 			if (pressed != stick_state.buttons[i])
 			{
-				IN_QueKey( A_JOY1 + i, pressed );
+				IN_QueKey( fakeAscii_t::A_JOY1 + i, pressed );
 				stick_state.buttons[i] = pressed;
 			}
 		}
@@ -1112,7 +1111,7 @@ static void IN_JoyMove( void )
 	{
 		if (in_joystickUseAnalog->integer)
 		{
-			if (total > to_underlying( MAX_JOYSTICK_AXIS )) total = to_underlying( MAX_JOYSTICK_AXIS );
+			if (total > to_underlying( joystickAxis_t::MAX_JOYSTICK_AXIS )) total = to_underlying( joystickAxis_t::MAX_JOYSTICK_AXIS );
 			for (i = 0; i < total; i++)
 			{
 				Sint16 axis = SDL_JoystickGetAxis(stick, i);
@@ -1122,7 +1121,7 @@ static void IN_JoyMove( void )
 
 				if ( axis != stick_state.oldaaxes[i] )
 				{
-					Sys_QueEvent( 0, SE_JOYSTICK_AXIS, i, axis, 0, nullptr );
+					Sys_QueEvent( 0, sysEventType_t::SE_JOYSTICK_AXIS, i, axis, 0, nullptr );
 					stick_state.oldaaxes[i] = axis;
 				}
 			}
@@ -1168,9 +1167,9 @@ void IN_Frame (void) {
 	IN_JoyMove( );
 
 	// If not DISCONNECTED (main menu) or ACTIVE (in game), we're loading
-	loading = ( cls.state != CA_DISCONNECTED && cls.state != CA_ACTIVE );
+	loading = ( cls.state != connstate_t::CA_DISCONNECTED && cls.state != connstate_t::CA_ACTIVE );
 
-	if( !cls.glconfig.isFullscreen && Any( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) )
+	if( !cls.glconfig.isFullscreen && Any( Key_GetCatcher( ) & keyCatchFlags_t::KEYCATCH_CONSOLE ) )
 	{
 		// Console is down in windowed mode
 		IN_DeactivateMouse( );

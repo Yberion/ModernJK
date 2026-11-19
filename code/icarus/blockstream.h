@@ -122,8 +122,8 @@ public:
 
 	CBlock()
 	{
-		m_flags			= BF_NONE;
-		m_id			= TK_UNDEFINED;
+		m_flags			= blockFlags_t::BF_NONE;
+		m_id			= icarusToken_t::TK_UNDEFINED;
 	}
 	~CBlock() {	assert(!GetNumMembers()); }
 

@@ -85,7 +85,7 @@ void CG_BuildSolidList( void ) {
 		cent = &cg_entities[ snap->entities[ i ].number ];
 		ent = &cent->currentState;
 
-		if ( ent->eType == ET_ITEM || ent->eType == ET_PUSH_TRIGGER || ent->eType == ET_TELEPORT_TRIGGER ) {
+		if ( ent->eType == entityType_t::ET_ITEM || ent->eType == entityType_t::ET_PUSH_TRIGGER || ent->eType == entityType_t::ET_TELEPORT_TRIGGER ) {
 			cg_triggerEntities[cg_numTriggerEntities] = cent;
 			cg_numTriggerEntities++;
 			continue;
@@ -144,7 +144,7 @@ void CG_BuildSolidList( void ) {
 	{
 		cent = cg_permanents[i];
 		VectorSubtract(cent->lerpOrigin, snap->ps.origin, difference);
-		if (cent->currentState.eType == ET_TERRAIN ||
+		if (cent->currentState.eType == entityType_t::ET_TERRAIN ||
 			((difference[0]*difference[0]) + (difference[1]*difference[1]) + (difference[2]*difference[2])) <= dsquared)
 		{
 			cent->currentValid = true;
@@ -168,8 +168,8 @@ static QINLINE bool CG_VehicleClipCheck(centity_t *ignored, trace_t *trace)
 		return true;
 	}
 
-	if (ignored->currentState.eType != ET_PLAYER &&
-		ignored->currentState.eType != ET_NPC)
+	if (ignored->currentState.eType != entityType_t::ET_PLAYER &&
+		ignored->currentState.eType != entityType_t::ET_NPC)
 	{ //can't possibly be valid then
 		return true;
 	}
@@ -179,8 +179,8 @@ static QINLINE bool CG_VehicleClipCheck(centity_t *ignored, trace_t *trace)
 		//if they belong to each other, we don't want to collide them.
 		centity_t *otherguy = &cg_entities[trace->entityNum];
 
-		if (otherguy->currentState.eType != ET_PLAYER &&
-			otherguy->currentState.eType != ET_NPC)
+		if (otherguy->currentState.eType != entityType_t::ET_PLAYER &&
+			otherguy->currentState.eType != entityType_t::ET_NPC)
 		{ //can't possibly be valid then
 			return true;
 		}
@@ -189,8 +189,8 @@ static QINLINE bool CG_VehicleClipCheck(centity_t *ignored, trace_t *trace)
 		{ //alright, both of these are either a vehicle or a player who is on a vehicle
 			int index;
 
-			if (ignored->currentState.eType == ET_PLAYER
-				|| (ignored->currentState.eType == ET_NPC && ignored->currentState.NPC_class != CLASS_VEHICLE) )
+			if (ignored->currentState.eType == entityType_t::ET_PLAYER
+				|| (ignored->currentState.eType == entityType_t::ET_NPC && ignored->currentState.NPC_class != class_t::CLASS_VEHICLE) )
 			{ //must be a player or NPC riding a vehicle
 				index = ignored->currentState.m_iVehicleNum;
 			}
@@ -205,8 +205,8 @@ static QINLINE bool CG_VehicleClipCheck(centity_t *ignored, trace_t *trace)
 			}
 			else
 			{//see if I'm hitting one of my own passengers
-				if (otherguy->currentState.eType == ET_PLAYER
-					|| (otherguy->currentState.eType == ET_NPC && otherguy->currentState.NPC_class != CLASS_VEHICLE) )
+				if (otherguy->currentState.eType == entityType_t::ET_PLAYER
+					|| (otherguy->currentState.eType == entityType_t::ET_NPC && otherguy->currentState.NPC_class != class_t::CLASS_VEHICLE) )
 				{ //must be a player or NPC riding a vehicle
 					if (otherguy->currentState.m_iVehicleNum==ignored->currentState.number)
 					{ //this means we're other guy is riding the ignored ent
@@ -276,7 +276,7 @@ static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins, const
 			bmins[2] = -zd;
 			bmaxs[2] = zu;
 
-			if (ent->eType == ET_NPC && ent->NPC_class == CLASS_VEHICLE &&
+			if (ent->eType == entityType_t::ET_NPC && ent->NPC_class == class_t::CLASS_VEHICLE &&
 				cent->m_pVehicle)
 			{ //try to dynamically adjust his bbox dynamically, if possible
 				float *old = cent->m_pVehicle->m_vOrientation;
@@ -355,7 +355,7 @@ static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins, const
 				trace = oldTrace;
 				*tr = trace;
 			}
-			else if (hit->currentState.eType == ET_MISSILE &&
+			else if (hit->currentState.eType == entityType_t::ET_MISSILE &&
 				hit->currentState.owner == ignored->currentState.number)
 			{ //hack, don't hit own missiles
 				trace = oldTrace;
@@ -574,12 +574,12 @@ static void CG_TouchItem( centity_t *cent ) {
 		return;
 	}
 
-	if (Any( cent->currentState.eFlags & EF_ITEMPLACEHOLDER ))
+	if (Any( cent->currentState.eFlags & entityFlags_t::EF_ITEMPLACEHOLDER ))
 	{
 		return;
 	}
 
-	if (Any( cent->currentState.eFlags & EF_NODRAW ))
+	if (Any( cent->currentState.eFlags & entityFlags_t::EF_NODRAW ))
 	{
 		return;
 	}
@@ -599,23 +599,23 @@ static void CG_TouchItem( centity_t *cent ) {
 	//if the server has touched them in the same order. This results often in grabbing an item in the prediction and the server giving you the other
 	//item. So for now prediction of armor, health, and ammo is disabled.
 /*
-	if (item->giType == IT_ARMOR)
+	if (item->giType == itemType_t::IT_ARMOR)
 	{ //rww - this will be stomped next update, but it's set so that we don't try to pick up two shields in one prediction and have the server cancel one
-	//	cg.predictedPlayerState.stats[STAT_ARMOR] += item->quantity;
+	//	cg.predictedPlayerState.stats[statIndex_t::STAT_ARMOR] += item->quantity;
 
 		//FIXME: This can't be predicted properly at the moment
 		return;
 	}
 
-	if (item->giType == IT_HEALTH)
+	if (item->giType == itemType_t::IT_HEALTH)
 	{ //same as above, for health
-	//	cg.predictedPlayerState.stats[STAT_HEALTH] += item->quantity;
+	//	cg.predictedPlayerState.stats[statIndex_t::STAT_HEALTH] += item->quantity;
 
 		//FIXME: This can't be predicted properly at the moment
 		return;
 	}
 
-	if (item->giType == IT_AMMO)
+	if (item->giType == itemType_t::IT_AMMO)
 	{ //same as above, for ammo
 	//	cg.predictedPlayerState.ammo[item->giTag] += item->quantity;
 
@@ -623,27 +623,27 @@ static void CG_TouchItem( centity_t *cent ) {
 		return;
 	}
 
-	if (item->giType == IT_HOLDABLE)
+	if (item->giType == itemType_t::IT_HOLDABLE)
 	{ //same as above, for holdables
-	//	cg.predictedPlayerState.stats[STAT_HOLDABLE_ITEMS] |= (1 << item->giTag);
+	//	cg.predictedPlayerState.stats[statIndex_t::STAT_HOLDABLE_ITEMS] |= (1 << item->giTag);
 	}
 */
 	// Special case for flags.
 	// We don't predict touching our own flag
 	// Make sure the item type is also a flag too
-	if( cgs.gametype == GT_CTF || cgs.gametype == GT_CTY ) {
-		if (PS_Team( cg.predictedPlayerState ) == TEAM_RED &&
-			item->giType == IT_TEAM && GI_Powerup( *item ) == PW_REDFLAG)
+	if( cgs.gametype == gametype_t::GT_CTF || cgs.gametype == gametype_t::GT_CTY ) {
+		if (PS_Team( cg.predictedPlayerState ) == team_t::TEAM_RED &&
+			item->giType == itemType_t::IT_TEAM && GI_Powerup( *item ) == powerup_t::PW_REDFLAG)
 			return;
-		if (PS_Team( cg.predictedPlayerState ) == TEAM_BLUE &&
-			item->giType == IT_TEAM && GI_Powerup( *item ) == PW_BLUEFLAG)
+		if (PS_Team( cg.predictedPlayerState ) == team_t::TEAM_BLUE &&
+			item->giType == itemType_t::IT_TEAM && GI_Powerup( *item ) == powerup_t::PW_BLUEFLAG)
 			return;
 	}
 
-	if (item->giType == IT_POWERUP &&
-		(GI_Powerup( *item ) == PW_FORCE_ENLIGHTENED_LIGHT || GI_Powerup( *item ) == PW_FORCE_ENLIGHTENED_DARK))
+	if (item->giType == itemType_t::IT_POWERUP &&
+		(GI_Powerup( *item ) == powerup_t::PW_FORCE_ENLIGHTENED_LIGHT || GI_Powerup( *item ) == powerup_t::PW_FORCE_ENLIGHTENED_DARK))
 	{
-		if (GI_Powerup( *item ) == PW_FORCE_ENLIGHTENED_LIGHT)
+		if (GI_Powerup( *item ) == powerup_t::PW_FORCE_ENLIGHTENED_LIGHT)
 		{
 			if (cg.predictedPlayerState.fd.forceSide != FORCE_LIGHTSIDE)
 			{
@@ -661,17 +661,17 @@ static void CG_TouchItem( centity_t *cent ) {
 
 
 	// grab it
-	BG_AddPredictableEventToPlayerstate( EV_ITEM_PICKUP, cent->currentState.number , &cg.predictedPlayerState);
+	BG_AddPredictableEventToPlayerstate( entity_event_t::EV_ITEM_PICKUP, cent->currentState.number , &cg.predictedPlayerState);
 
 	// remove it from the frame so it won't be drawn
-	cent->currentState.eFlags |= EF_NODRAW;
+	cent->currentState.eFlags |= entityFlags_t::EF_NODRAW;
 
 	// don't touch it again this prediction
 	cent->miscTime = cg.time;
 
 	// if its a weapon, give them some predicted ammo so the autoswitch will work
-	if ( item->giType == IT_WEAPON ) {
-		cg.predictedPlayerState.stats[ STAT_WEAPONS ] |= Bit( GI_Weapon( *item ) );
+	if ( item->giType == itemType_t::IT_WEAPON ) {
+		cg.predictedPlayerState.stats[ statIndex_t::STAT_WEAPONS ] |= Bit( GI_Weapon( *item ) );
 		if ( !cg.predictedPlayerState.ammo[ weaponData[GI_Weapon( *item )].ammoIndex ] ) {
 			cg.predictedPlayerState.ammo[ weaponData[GI_Weapon( *item )].ammoIndex ] = 1;
 		}
@@ -695,13 +695,13 @@ static void CG_TouchTriggerPrediction( void ) {
 	bool	spectator;
 
 	// dead clients don't activate triggers
-	if ( cg.predictedPlayerState.stats[STAT_HEALTH] <= 0 ) {
+	if ( cg.predictedPlayerState.stats[statIndex_t::STAT_HEALTH] <= 0 ) {
 		return;
 	}
 
-	spectator = ( cg.predictedPlayerState.pm_type == PM_SPECTATOR );
+	spectator = ( cg.predictedPlayerState.pm_type == pmtype_t::PM_SPECTATOR );
 
-	if ( cg.predictedPlayerState.pm_type != PM_NORMAL && cg.predictedPlayerState.pm_type != PM_JETPACK && cg.predictedPlayerState.pm_type != PM_FLOAT && !spectator ) {
+	if ( cg.predictedPlayerState.pm_type != pmtype_t::PM_NORMAL && cg.predictedPlayerState.pm_type != pmtype_t::PM_JETPACK && cg.predictedPlayerState.pm_type != pmtype_t::PM_FLOAT && !spectator ) {
 		return;
 	}
 
@@ -709,7 +709,7 @@ static void CG_TouchTriggerPrediction( void ) {
 		cent = cg_triggerEntities[ i ];
 		ent = &cent->currentState;
 
-		if ( ent->eType == ET_ITEM && !spectator ) {
+		if ( ent->eType == entityType_t::ET_ITEM && !spectator ) {
 			CG_TouchItem( cent );
 			continue;
 		}
@@ -723,15 +723,15 @@ static void CG_TouchTriggerPrediction( void ) {
 			continue;
 		}
 
-		trap->CM_Trace( &trace, cg.predictedPlayerState.origin, cg.predictedPlayerState.origin, cg_pmove.mins, cg_pmove.maxs, cmodel, CONTENTS_ALL, 0 );
+		trap->CM_Trace( &trace, cg.predictedPlayerState.origin, cg.predictedPlayerState.origin, cg_pmove.mins, cg_pmove.maxs, cmodel, contentsFlags_t::CONTENTS_ALL, 0 );
 
 		if ( !trace.startsolid ) {
 			continue;
 		}
 
-		if ( ent->eType == ET_TELEPORT_TRIGGER ) {
+		if ( ent->eType == entityType_t::ET_TELEPORT_TRIGGER ) {
 			cg.hyperspace = true;
-		} else if ( ent->eType == ET_PUSH_TRIGGER ) {
+		} else if ( ent->eType == entityType_t::ET_PUSH_TRIGGER ) {
 			BG_TouchJumpPad( &cg.predictedPlayerState, ent );
 		}
 	}
@@ -808,13 +808,13 @@ static QINLINE void CG_EntityStateToPlayerState( entityState_t *s, playerState_t
 	ps->genericEnemyIndex = -1; //no real option for this
 
 	//The client has no knowledge of health levels (except for the client entity)
-	if (Any( s->eFlags & EF_DEAD ))
+	if (Any( s->eFlags & entityFlags_t::EF_DEAD ))
 	{
-		ps->stats[STAT_HEALTH] = 0;
+		ps->stats[statIndex_t::STAT_HEALTH] = 0;
 	}
 	else
 	{
-		ps->stats[STAT_HEALTH] = 100;
+		ps->stats[statIndex_t::STAT_HEALTH] = 100;
 	}
 
 	if ( ps->externalEvent ) {
@@ -888,8 +888,8 @@ void CG_PmoveClientPointerUpdate()
 //check if local client is on an eweb
 bool CG_UsingEWeb(void)
 {
-	if (cg.predictedPlayerState.weapon == WP_EMPLACED_GUN && cg.predictedPlayerState.emplacedIndex &&
-		cg_entities[cg.predictedPlayerState.emplacedIndex].currentState.weapon == WP_NONE)
+	if (cg.predictedPlayerState.weapon == weapon_t::WP_EMPLACED_GUN && cg.predictedPlayerState.emplacedIndex &&
+		cg_entities[cg.predictedPlayerState.emplacedIndex].currentState.weapon == weapon_t::WP_NONE)
 	{
 		return true;
 	}
@@ -936,7 +936,7 @@ typedef struct {
 static void CG_CheckShownFlicker( const playerState_t *ps ) {
 	static shown_t	shown[2];	// the last two frames, newest first
 	const shown_t	now = { to_underlying( ps->legsAnim ) | ( ps->legsFlip ? 0x10000 : 0 ), to_underlying( ps->torsoAnim ) | ( ps->torsoFlip ? 0x10000 : 0 ),
-		Any( ps->pm_flags & PMF_DUCKED ) ? 1 : 0, ps->commandTime };
+		Any( ps->pm_flags & pmoveFlags_t::PMF_DUCKED ) ? 1 : 0, ps->commandTime };
 
 	if ( cg_showMiss.integer ) {
 		if ( now.legs == shown[1].legs && now.legs != shown[0].legs ) {
@@ -1038,8 +1038,8 @@ static void CG_CheckPredictedAnims( const playerState_t *base ) {
 static void CG_CarryUnsentFields( playerState_t *base ) {
 	const playerState_t *own = CG_PredictedAt( base->commandTime );
 
-	if ( !own || own->persistant[PERS_SPAWN_COUNT] != base->persistant[PERS_SPAWN_COUNT]
-		|| Any( ( own->eFlags ^ base->eFlags ) & EF_TELEPORT_BIT ) ) {
+	if ( !own || own->persistant[persEnum_t::PERS_SPAWN_COUNT] != base->persistant[persEnum_t::PERS_SPAWN_COUNT]
+		|| Any( ( own->eFlags ^ base->eFlags ) & entityFlags_t::EF_TELEPORT_BIT ) ) {
 		return;
 	}
 	base->fd.forcePowerDebounce = own->fd.forcePowerDebounce;
@@ -1072,10 +1072,10 @@ static snapshot_t *CG_SnapshotAhead( const snapshot_t *next ) {
 		aheadNum = cg.latestSnapshotNum;
 	}
 	if ( ahead.serverTime <= next->serverTime || ahead.ps.clientNum != next->ps.clientNum
-		|| Any( ( ahead.ps.eFlags ^ next->ps.eFlags ) & EF_TELEPORT_BIT )
-		|| ahead.ps.persistant[PERS_SPAWN_COUNT] != next->ps.persistant[PERS_SPAWN_COUNT]
-		|| Any( ( ahead.snapFlags ^ next->snapFlags ) & SNAPFLAG_SERVERCOUNT )
-		|| Any( ahead.ps.pm_flags & PMF_FOLLOW ) || ahead.ps.m_iVehicleNum != next->ps.m_iVehicleNum ) {
+		|| Any( ( ahead.ps.eFlags ^ next->ps.eFlags ) & entityFlags_t::EF_TELEPORT_BIT )
+		|| ahead.ps.persistant[persEnum_t::PERS_SPAWN_COUNT] != next->ps.persistant[persEnum_t::PERS_SPAWN_COUNT]
+		|| Any( ( ahead.snapFlags ^ next->snapFlags ) & snapFlags_t::SNAPFLAG_SERVERCOUNT )
+		|| Any( ahead.ps.pm_flags & pmoveFlags_t::PMF_FOLLOW ) || ahead.ps.m_iVehicleNum != next->ps.m_iVehicleNum ) {
 		return nullptr;
 	}
 	return &ahead;
@@ -1108,10 +1108,9 @@ constexpr int PREDICT_MISS_POSITIONS = 80;
 constexpr int PREDICT_MISS_ANIMS = 30;
 // the kind of a miss: the causes of a position that differs, then an animation only
 enum class predictMissKind_t { MISS_TELEPORT, MISS_HIT, MISS_ENTITY, MISS_OTHER, MISS_ANIM, MISS_KINDS };
-using enum predictMissKind_t;
 template <> inline constexpr bool enableEnumArithmetic<predictMissKind_t> = true;
-constexpr int MISS_CAUSES = to_underlying( MISS_ANIM );	// the causes of a position, the kinds before MISS_ANIM
-static const EnumArray<const char *, predictMissKind_t, MISS_KINDS> cg_predictMissKinds = { "a teleport or a respawn", "within 200 ms of a hit",
+constexpr int MISS_CAUSES = to_underlying( predictMissKind_t::MISS_ANIM );	// the causes of a position, the kinds before MISS_ANIM
+static const EnumArray<const char *, predictMissKind_t, predictMissKind_t::MISS_KINDS> cg_predictMissKinds = { "a teleport or a respawn", "within 200 ms of a hit",
 	"in contact with an entity", "none of these", "animation only" };
 
 typedef struct {
@@ -1166,7 +1165,7 @@ static void CG_KeepPredictMiss( predictMissKind_t kind, float d, const playerSta
 	for ( i = 0; i < cg.snap->numEntities; i++ ) {
 		const centity_t *cent = &cg_entities[cg.snap->entities[i].number];
 
-		if ( ( cent->currentState.eType == ET_PLAYER || cent->currentState.eType == ET_NPC )
+		if ( ( cent->currentState.eType == entityType_t::ET_PLAYER || cent->currentState.eType == entityType_t::ET_NPC )
 			&& cent->currentState.number != predicted->clientNum ) {
 			const float dist = Distance( cent->lerpOrigin, predicted->origin );
 
@@ -1185,7 +1184,7 @@ static bool CG_PlayerWithin( const vec3_t origin, int self, float range ) {
 	for ( i = 0; i < cg.snap->numEntities; i++ ) {
 		const centity_t *cent = &cg_entities[cg.snap->entities[i].number];
 
-		if ( ( cent->currentState.eType == ET_PLAYER || cent->currentState.eType == ET_NPC ) && cent->currentState.number != self
+		if ( ( cent->currentState.eType == entityType_t::ET_PLAYER || cent->currentState.eType == entityType_t::ET_NPC ) && cent->currentState.number != self
 			&& Distance( cent->lerpOrigin, origin ) < range ) {
 			return true;
 		}
@@ -1228,7 +1227,7 @@ static void CG_CountPredictMiss( const playerState_t *base ) {
 	if ( any ) {
 		cg_predictMiss.differing++;
 	}
-	if ( Any( base->pm_flags & PMF_TIME_KNOCKBACK ) || base->damageEvent != predicted->damageEvent ) {
+	if ( Any( base->pm_flags & pmoveFlags_t::PMF_TIME_KNOCKBACK ) || base->damageEvent != predicted->damageEvent ) {
 		cg_predictMiss.lastHit = base->commandTime;
 	}
 	// a player standing on a mover is moved with it by the server at the instants; the prediction leaves that to the
@@ -1244,23 +1243,23 @@ static void CG_CountPredictMiss( const playerState_t *base ) {
 		const float d = Distance( riding, base->origin );
 		predictMissKind_t cause;
 
-		if ( Any( ( predicted->eFlags ^ base->eFlags ) & EF_TELEPORT_BIT )
-			|| predicted->persistant[PERS_SPAWN_COUNT] != base->persistant[PERS_SPAWN_COUNT] ) {
-			cause = MISS_TELEPORT;
+		if ( Any( ( predicted->eFlags ^ base->eFlags ) & entityFlags_t::EF_TELEPORT_BIT )
+			|| predicted->persistant[persEnum_t::PERS_SPAWN_COUNT] != base->persistant[persEnum_t::PERS_SPAWN_COUNT] ) {
+			cause = predictMissKind_t::MISS_TELEPORT;
 		} else if ( cg_predictMiss.lastHit && base->commandTime - cg_predictMiss.lastHit <= 200 ) {
-			cause = MISS_HIT;
+			cause = predictMissKind_t::MISS_HIT;
 		} else if ( base->groundEntityNum < ENTITYNUM_WORLD || predicted->groundEntityNum < ENTITYNUM_WORLD
 			|| cg_predicted[slot].numTouch || CG_PlayerWithin( predicted->origin, predicted->clientNum, 64.0f ) ) {
-			cause = MISS_ENTITY;
+			cause = predictMissKind_t::MISS_ENTITY;
 		} else {
-			cause = MISS_OTHER;
+			cause = predictMissKind_t::MISS_OTHER;
 		}
 		cg_predictMiss.origin[cause]++;
 		cg_predictMiss.originSum[cause] += d;
 		if ( d > cg_predictMiss.originMax[cause] ) {
 			cg_predictMiss.originMax[cause] = d;
 		}
-		if ( cause >= MISS_ENTITY && cg_predictMiss.positions < PREDICT_MISS_POSITIONS ) {
+		if ( cause >= predictMissKind_t::MISS_ENTITY && cg_predictMiss.positions < PREDICT_MISS_POSITIONS ) {
 			cg_predictMiss.positions++;
 			CG_KeepPredictMiss( cause, d, predicted, base );
 		}
@@ -1269,7 +1268,7 @@ static void CG_CountPredictMiss( const playerState_t *base ) {
 		cg_predictMiss.animOnly++;
 		if ( cg_predictMiss.anims < PREDICT_MISS_ANIMS ) {
 			cg_predictMiss.anims++;
-			CG_KeepPredictMiss( MISS_ANIM, 0.0f, predicted, base );
+			CG_KeepPredictMiss( predictMissKind_t::MISS_ANIM, 0.0f, predicted, base );
 		}
 	}
 }
@@ -1286,7 +1285,7 @@ static void CG_WritePredictMiss( fileHandle_t f ) {
 	Com_sprintf( line, sizeof( line ), "predictmiss: %d ticks compared, %d with a difference in a field the server sets\n",
 		cg_predictMiss.checked, cg_predictMiss.differing );
 	CG_PredictMissLine( f, line );
-	for ( predictMissKind_t cause = MISS_TELEPORT; cause < MISS_ANIM; cause++ ) {
+	for ( predictMissKind_t cause = predictMissKind_t::MISS_TELEPORT; cause < predictMissKind_t::MISS_ANIM; cause++ ) {
 		Com_sprintf( line, sizeof( line ), "predictmiss: position, %s: %d ticks, mean %.2f units, max %.2f\n", cg_predictMissKinds[cause],
 			cg_predictMiss.origin[cause], cg_predictMiss.origin[cause] ? cg_predictMiss.originSum[cause] / cg_predictMiss.origin[cause] : 0.0f,
 			cg_predictMiss.originMax[cause] );
@@ -1353,14 +1352,14 @@ void CG_PredictMiss_f( void ) {
 
 		trap->Print( "predictmiss: %d ticks compared, %d with a difference in a field the server sets\n", cg_predictMiss.checked,
 			cg_predictMiss.differing );
-		for ( predictMissKind_t cause = MISS_TELEPORT; cause < MISS_ANIM; cause++ ) {
+		for ( predictMissKind_t cause = predictMissKind_t::MISS_TELEPORT; cause < predictMissKind_t::MISS_ANIM; cause++ ) {
 			trap->Print( "predictmiss: position, %s: %d ticks, mean %.2f units, max %.2f\n", cg_predictMissKinds[cause],
 				cg_predictMiss.origin[cause], cg_predictMiss.origin[cause] ? cg_predictMiss.originSum[cause] / cg_predictMiss.origin[cause] : 0.0f,
 				cg_predictMiss.originMax[cause] );
 		}
 		trap->Print( "predictmiss: an animation only: %d ticks\n", cg_predictMiss.animOnly );
 		trap->Print( "predictmiss: %d frames predicted from a snapshot ahead of the drawn ones\n", cg_predictMiss.ahead );
-		trap->FS_Open( "predictmiss.txt", &f, FS_WRITE );
+		trap->FS_Open( "predictmiss.txt", &f, fsMode_t::FS_WRITE );
 		if ( f ) {
 			CG_WritePredictMiss( f );
 			trap->FS_Close( f );
@@ -1394,8 +1393,8 @@ static void CG_InterpolateTicks( playerState_t *out, int current ) {
 		cg.cmdTime = now.serverTime;
 	}
 	if ( prev && !CG_Piloting( out->m_iVehicleNum ) && cg.cmdTime >= prev->commandTime && cg.cmdTime < out->commandTime
-		&& !Any( ( prev->eFlags ^ out->eFlags ) & EF_TELEPORT_BIT )
-		&& prev->persistant[PERS_SPAWN_COUNT] == out->persistant[PERS_SPAWN_COUNT] ) {
+		&& !Any( ( prev->eFlags ^ out->eFlags ) & entityFlags_t::EF_TELEPORT_BIT )
+		&& prev->persistant[persEnum_t::PERS_SPAWN_COUNT] == out->persistant[persEnum_t::PERS_SPAWN_COUNT] ) {
 		const float f = (float)( cg.cmdTime - prev->commandTime ) / TICK_MSEC;
 
 		for ( i = 0; i < 3; i++ ) {
@@ -1458,11 +1457,11 @@ static void CG_PreparePmove( centity_t *pEnt, clientInfo_t *ci ) {
 	{
 		if ( ci->saber[0].numBlades > 0 )
 		{
-			cg_pmove.ps->fd.saberAnimLevelBase = SS_STAFF;
+			cg_pmove.ps->fd.saberAnimLevelBase = saber_styles_t::SS_STAFF;
 		}
 		else if ( ci->saber[1].model[0] )
 		{
-			cg_pmove.ps->fd.saberAnimLevelBase = SS_DUAL;
+			cg_pmove.ps->fd.saberAnimLevelBase = saber_styles_t::SS_DUAL;
 		}
 	}
 }
@@ -1497,7 +1496,7 @@ void CG_PredictPlayerState( void ) {
 	}
 
 	// demo playback just copies the moves
-	if ( cg.demoPlayback || Any(cg.snap->ps.pm_flags & PMF_FOLLOW) ) {
+	if ( cg.demoPlayback || Any(cg.snap->ps.pm_flags & pmoveFlags_t::PMF_FOLLOW) ) {
 		CG_InterpolatePlayerState( false );
 		if (CG_Piloting(cg.predictedPlayerState.m_iVehicleNum))
 		{
@@ -1527,8 +1526,8 @@ void CG_PredictPlayerState( void ) {
 	{
 		if (cg.snap &&
 			pEnt->ghoul2 &&
-			!Any(cg.snap->ps.pm_flags & PMF_FOLLOW) &&
-			PS_Team( cg.snap->ps ) != TEAM_SPECTATOR)
+			!Any(cg.snap->ps.pm_flags & pmoveFlags_t::PMF_FOLLOW) &&
+			PS_Team( cg.snap->ps ) != team_t::TEAM_SPECTATOR)
 		{
 			cg_pmove.ghoul2 = pEnt->ghoul2;
 			cg_pmove.g2Bolts_LFoot = trap->G2API_AddBolt(pEnt->ghoul2, 0, "*l_leg_foot");
@@ -1546,16 +1545,16 @@ void CG_PredictPlayerState( void ) {
 	VectorCopy(pEnt->modelScale, cg_pmove.modelScale);
 	//rww end bgghoul2
 
-	if ( cg_pmove.ps->pm_type == PM_DEAD ) {
-		cg_pmove.tracemask = MASK_PLAYERSOLID & ~CONTENTS_BODY;
+	if ( cg_pmove.ps->pm_type == pmtype_t::PM_DEAD ) {
+		cg_pmove.tracemask = MASK_PLAYERSOLID & ~contentsFlags_t::CONTENTS_BODY;
 	}
 	else {
 		cg_pmove.tracemask = MASK_PLAYERSOLID;
 	}
-	if ( PS_Team( cg.snap->ps ) == TEAM_SPECTATOR || cg.snap->ps.pm_type == PM_SPECTATOR ) {
-		cg_pmove.tracemask &= ~CONTENTS_BODY;	// spectators can fly through bodies
+	if ( PS_Team( cg.snap->ps ) == team_t::TEAM_SPECTATOR || cg.snap->ps.pm_type == pmtype_t::PM_SPECTATOR ) {
+		cg_pmove.tracemask &= ~contentsFlags_t::CONTENTS_BODY;	// spectators can fly through bodies
 	}
-	cg_pmove.noFootsteps = Any( cgs.dmflags & DF_NO_FOOTSTEPS );
+	cg_pmove.noFootsteps = Any( cgs.dmflags & dmFlags_t::DF_NO_FOOTSTEPS );
 
 	// save the state before the pmove so we can detect transitions
 	oldPlayerState = cg.predictedPlayerState;
@@ -1622,8 +1621,8 @@ void CG_PredictPlayerState( void ) {
 		//a small precious fraction of time and adds up in the loop.. so says
 		//the precision timer!)
 
-		if (cg_entities[i].currentState.eType == ET_PLAYER ||
-			cg_entities[i].currentState.eType == ET_NPC)
+		if (cg_entities[i].currentState.eType == entityType_t::ET_PLAYER ||
+			cg_entities[i].currentState.eType == entityType_t::ET_NPC)
 		{
 			// Need a new playerState_t on Xbox
 			VectorCopy( cg_entities[i].currentState.pos.trBase, cgSendPS[i]->origin );
@@ -1794,7 +1793,7 @@ void CG_PredictPlayerState( void ) {
 		CG_RecordPredictedMove( &cg_pmove, baseTime );
 
 		if (CG_Piloting(cg.predictedPlayerState.m_iVehicleNum) &&
-			cg.predictedPlayerState.pm_type != PM_INTERMISSION)
+			cg.predictedPlayerState.pm_type != pmtype_t::PM_INTERMISSION)
 		{ //we're riding a vehicle, let's predict it
 			centity_t *veh = &cg_entities[cg.predictedPlayerState.m_iVehicleNum];
 			int x, zd, zu;
@@ -1808,9 +1807,9 @@ void CG_PredictPlayerState( void ) {
 
 				trap->GetUserCmd( cmdNum, &veh->m_pVehicle->m_ucmd );
 
-				if ( Any( veh->m_pVehicle->m_ucmd.buttons & BUTTON_TALK ) )
+				if ( Any( veh->m_pVehicle->m_ucmd.buttons & buttonFlags_t::BUTTON_TALK ) )
 				{ //forced input if "chat bubble" is up
-					veh->m_pVehicle->m_ucmd.buttons = BUTTON_TALK;
+					veh->m_pVehicle->m_ucmd.buttons = buttonFlags_t::BUTTON_TALK;
 					veh->m_pVehicle->m_ucmd.forwardmove = 0;
 					veh->m_pVehicle->m_ucmd.rightmove = 0;
 					veh->m_pVehicle->m_ucmd.upmove = 0;
@@ -1870,7 +1869,7 @@ void CG_PredictPlayerState( void ) {
 					cg_vehPmoveSet = true;
 				}
 
-				cg_vehPmove.noFootsteps = Any( cgs.dmflags & DF_NO_FOOTSTEPS );
+				cg_vehPmove.noFootsteps = Any( cgs.dmflags & dmFlags_t::DF_NO_FOOTSTEPS );
 
 				cg_entities[cg.predictedPlayerState.clientNum].playerState = &cg.predictedPlayerState;
 				veh->playerState = &cg.predictedVehicleState;
@@ -1987,8 +1986,8 @@ revertES:
 	//copy some stuff back into the entstates to help actually "predict" them if applicable
 	for ( i = 0 ; i < MAX_GENTITIES ; i++ )
 	{
-		if (cg_entities[i].currentState.eType == ET_PLAYER ||
-			cg_entities[i].currentState.eType == ET_NPC)
+		if (cg_entities[i].currentState.eType == entityType_t::ET_PLAYER ||
+			cg_entities[i].currentState.eType == entityType_t::ET_NPC)
 		{
 			ES_SetTorsoAnim( cg_entities[i].currentState, cgSendPS[i]->torsoAnim );
 			ES_SetLegsAnim( cg_entities[i].currentState, cgSendPS[i]->legsAnim );

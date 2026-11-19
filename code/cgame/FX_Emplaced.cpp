@@ -61,7 +61,7 @@ void FX_EmplacedProjectileThink( centity_t *cent, const struct weaponInfo_s *wea
 	}
 
 	// If tie-fighter missle use green shot.
-	if ( cent->currentState.weapon == WP_TIE_FIGHTER )
+	if ( cent->currentState.weapon == weapon_t::WP_TIE_FIGHTER )
 	{
 		theFxScheduler.PlayEffect( "ships/imp_blastershot", cent->lerpOrigin, forward );
 	}

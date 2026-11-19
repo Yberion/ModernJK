@@ -500,7 +500,7 @@ void CStringEdPackage::AddFlagReference( const char *psLocalReference, const cha
 static char *CopeWithDumbStringData( const char *psSentence, const char *psThisLanguage )
 {
 	const int iBufferSize = strlen(psSentence)*3;	// *3 to allow for expansion of anything even stupid string consisting entirely of elipsis chars
-	char *psNewString = (char *) Z_Malloc(iBufferSize, TAG_TEMP_WORKSPACE, false);
+	char *psNewString = (char *) Z_Malloc(iBufferSize, memtag::TAG_TEMP_WORKSPACE, false);
 	Q_strncpyz(psNewString, psSentence, iBufferSize);
 
 	// this is annoying, I have to just guess at which languages to do it for (ie NOT ASIAN/MBCS!!!) since the
@@ -971,7 +971,7 @@ const char *SE_Load( const char *psFileName, SE_BOOL bLoadDebug = SE_TRUE, SE_BO
 		if (bFailIsCritical)
 		{
 	//		TheStringPackage.Clear(TRUE);	// Will we want to do this?  Any errors that arise should be fixed immediately
-			Com_Error( ERR_DROP, "SE_Load(): Couldn't load \"%s\"!\n\nError: \"%s\"\n", psFileName, psErrorMessage );
+			Com_Error( errorParm_t::ERR_DROP, "SE_Load(): Couldn't load \"%s\"!\n\nError: \"%s\"\n", psFileName, psErrorMessage );
 		}
 		else
 		{
@@ -1184,9 +1184,9 @@ void SE_Init(void)
 //	int iNumLanguages = SE_GetNumLanguages();
 #endif
 
-	se_language = Cvar_Get("se_language", "english", CVAR_ARCHIVE | CVAR_NORESTART);
-	se_debug = Cvar_Get("se_debug", "0", CVAR_NONE);
-	sp_leet = Cvar_Get("sp_leet", "0", CVAR_ROM );
+	se_language = Cvar_Get("se_language", "english", cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_NORESTART);
+	se_debug = Cvar_Get("se_debug", "0", cvarFlags_t::CVAR_NONE);
+	sp_leet = Cvar_Get("sp_leet", "0", cvarFlags_t::CVAR_ROM );
 
 	// if doing a buildscript, load all languages...
 	//
@@ -1205,7 +1205,7 @@ void SE_Init(void)
 	const char *psErrorMessage = SE_LoadLanguage( se_language->string );
 	if (psErrorMessage)
 	{
-		Com_Error( ERR_DROP, "SE_Init() Unable to load language: \"%s\"!\nError: \"%s\"\n", se_language->string,psErrorMessage );
+		Com_Error( errorParm_t::ERR_DROP, "SE_Init() Unable to load language: \"%s\"!\nError: \"%s\"\n", se_language->string,psErrorMessage );
 	}
 }
 
@@ -1268,7 +1268,7 @@ void SE_CheckForLanguageUpdates(void)
 		const char *psErrorMessage = SE_LoadLanguage( se_language->string, SE_TRUE );
 		if ( psErrorMessage )
 		{
-			Com_Error( ERR_DROP, "%s", psErrorMessage );
+			Com_Error( errorParm_t::ERR_DROP, "%s", psErrorMessage );
 		}
 		se_language->modified = SE_FALSE;
 	}

@@ -81,7 +81,7 @@ void FX_ConcAltShot( vec3_t start, vec3_t end )
 							1.0f, 0.0f, 0.0f,
 							WHITE, WHITE, 0.0f,
 							175, cgi_R_RegisterShader( "gfx/effects/blueLine" ),
-							0, FX_SIZE_LINEAR | FX_ALPHA_LINEAR );
+							0, fxPrimitiveFlags_t::FX_SIZE_LINEAR | fxPrimitiveFlags_t::FX_ALPHA_LINEAR );
 
 	vec3_t	BRIGHT={0.75f,0.5f,1.0f};
 
@@ -90,7 +90,7 @@ void FX_ConcAltShot( vec3_t start, vec3_t end )
 						1.0f, 0.0f, 0.0f,
 						BRIGHT, BRIGHT, 0.0f,
 						150, cgi_R_RegisterShader( "gfx/misc/whiteline2" ),
-						0, FX_SIZE_LINEAR | FX_ALPHA_LINEAR );
+						0, fxPrimitiveFlags_t::FX_SIZE_LINEAR | fxPrimitiveFlags_t::FX_ALPHA_LINEAR );
 }
 
 
@@ -112,7 +112,7 @@ void FX_ConcAltMiss( vec3_t origin, vec3_t normal )
 	VectorAdd( origin, normal, pos );
 	pos[2] += 28;
 
-	FX_AddBezier( origin, pos, c1, vec3_origin, c2, vec3_origin, 6.0f, 6.0f, 0.0f, 0.0f, 0.2f, 0.5f, WHITE, WHITE, 0.0f, 4000, cgi_R_RegisterShader( "gfx/effects/smokeTrail" ), FX_ALPHA_WAVE );
+	FX_AddBezier( origin, pos, c1, vec3_origin, c2, vec3_origin, 6.0f, 6.0f, 0.0f, 0.0f, 0.2f, 0.5f, WHITE, WHITE, 0.0f, 4000, cgi_R_RegisterShader( "gfx/effects/smokeTrail" ), fxPrimitiveFlags_t::FX_ALPHA_WAVE );
 
 	theFxScheduler.PlayEffect( "concussion/alt_miss", origin, normal );
 }

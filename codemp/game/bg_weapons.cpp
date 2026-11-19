@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "bg_local.h"
 
 // Muzzle point table...
-EnumArray<vec3_t, weapon_t, WP_NUM_WEAPONS> WP_MuzzlePoint =
+EnumArray<vec3_t, weapon_t, weapon_t::WP_NUM_WEAPONS> WP_MuzzlePoint =
 {{//	Fwd,	right,	up.
 	{0,		0,		0	},	// WP_NONE,
 	{0	,	8,		0	},	// WP_STUN_BATON,
@@ -48,11 +48,11 @@ EnumArray<vec3_t, weapon_t, WP_NUM_WEAPONS> WP_MuzzlePoint =
 	{12,	6,		-6	},	// WP_BRYAR_OLD,
 }};
 
-EnumArray<weaponData_t, weapon_t, WP_NUM_WEAPONS> weaponData =
+EnumArray<weaponData_t, weapon_t, weapon_t::WP_NUM_WEAPONS> weaponData =
 {{
 	{	// WP_NONE
 //		"No Weapon",			//	char	classname[32];		// Spawning name
-		AMMO_NONE,				//	int		ammoIndex;			// Index to proper ammo slot
+		ammo_t::AMMO_NONE,				//	int		ammoIndex;			// Index to proper ammo slot
 		0,						//	int		ammoLow;			// Count when ammo is low
 		0,						//	int		energyPerShot;		// Amount of energy used per shot
 		0,						//	int		fireTime;			// Amount of time between firings
@@ -69,7 +69,7 @@ EnumArray<weaponData_t, weapon_t, WP_NUM_WEAPONS> weaponData =
 	},
 	{	// WP_STUN_BATON
 //		"Stun Baton",			//	char	classname[32];		// Spawning name
-		AMMO_NONE,				//	int		ammoIndex;			// Index to proper ammo slot
+		ammo_t::AMMO_NONE,				//	int		ammoIndex;			// Index to proper ammo slot
 		5,						//	int		ammoLow;			// Count when ammo is low
 		0,						//	int		energyPerShot;		// Amount of energy used per shot
 		400,					//	int		fireTime;			// Amount of time between firings
@@ -86,7 +86,7 @@ EnumArray<weaponData_t, weapon_t, WP_NUM_WEAPONS> weaponData =
 	},
 	{	// WP_MELEE
 //		"Melee",			//	char	classname[32];		// Spawning name
-		AMMO_NONE,				//	int		ammoIndex;			// Index to proper ammo slot
+		ammo_t::AMMO_NONE,				//	int		ammoIndex;			// Index to proper ammo slot
 		5,						//	int		ammoLow;			// Count when ammo is low
 		0,						//	int		energyPerShot;		// Amount of energy used per shot
 		400,					//	int		fireTime;			// Amount of time between firings
@@ -103,7 +103,7 @@ EnumArray<weaponData_t, weapon_t, WP_NUM_WEAPONS> weaponData =
 	},
 	{	// WP_SABER,
 //		"Lightsaber",			//	char	classname[32];		// Spawning name
-		AMMO_NONE,				//	int		ammoIndex;			// Index to proper ammo slot
+		ammo_t::AMMO_NONE,				//	int		ammoIndex;			// Index to proper ammo slot
 		5,						//	int		ammoLow;			// Count when ammo is low
 		0,						//	int		energyPerShot;		// Amount of energy used per shot
 		100,					//	int		fireTime;			// Amount of time between firings
@@ -120,7 +120,7 @@ EnumArray<weaponData_t, weapon_t, WP_NUM_WEAPONS> weaponData =
 	},
 	{	// WP_BRYAR_PISTOL,
 //		"Bryar Pistol",			//	char	classname[32];		// Spawning name
-		AMMO_BLASTER,			//	int		ammoIndex;			// Index to proper ammo slot
+		ammo_t::AMMO_BLASTER,			//	int		ammoIndex;			// Index to proper ammo slot
 		0,//15,						//	int		ammoLow;			// Count when ammo is low
 		0,//2,						//	int		energyPerShot;		// Amount of energy used per shot
 		800,//400,					//	int		fireTime;			// Amount of time between firings
@@ -137,7 +137,7 @@ EnumArray<weaponData_t, weapon_t, WP_NUM_WEAPONS> weaponData =
 	},
 	{	// WP_BLASTER
 //		"E11 Blaster Rifle",	//	char	classname[32];		// Spawning name
-		AMMO_BLASTER,			//	int		ammoIndex;			// Index to proper ammo slot
+		ammo_t::AMMO_BLASTER,			//	int		ammoIndex;			// Index to proper ammo slot
 		5,						//	int		ammoLow;			// Count when ammo is low
 		2,						//	int		energyPerShot;		// Amount of energy used per shot
 		350,					//	int		fireTime;			// Amount of time between firings
@@ -154,7 +154,7 @@ EnumArray<weaponData_t, weapon_t, WP_NUM_WEAPONS> weaponData =
 	},
 	{	// WP_DISRUPTOR
 //		"Tenloss Disruptor Rifle",//	char	classname[32];		// Spawning name
-		AMMO_POWERCELL,			//	int		ammoIndex;			// Index to proper ammo slot
+		ammo_t::AMMO_POWERCELL,			//	int		ammoIndex;			// Index to proper ammo slot
 		5,						//	int		ammoLow;			// Count when ammo is low
 		5,						//	int		energyPerShot;		// Amount of energy used per shot
 		600,					//	int		fireTime;			// Amount of time between firings
@@ -171,7 +171,7 @@ EnumArray<weaponData_t, weapon_t, WP_NUM_WEAPONS> weaponData =
 	},
 	{	// WP_BOWCASTER
 //		"Wookiee Bowcaster",		//	char	classname[32];		// Spawning name
-		AMMO_POWERCELL,			//	int		ammoIndex;			// Index to proper ammo slot
+		ammo_t::AMMO_POWERCELL,			//	int		ammoIndex;			// Index to proper ammo slot
 		5,						//	int		ammoLow;			// Count when ammo is low
 		5,						//	int		energyPerShot;		// Amount of energy used per shot
 		1000,					//	int		fireTime;			// Amount of time between firings
@@ -188,7 +188,7 @@ EnumArray<weaponData_t, weapon_t, WP_NUM_WEAPONS> weaponData =
 	},
 	{	// WP_REPEATER
 //		"Imperial Heavy Repeater",//	char	classname[32];		// Spawning name
-		AMMO_METAL_BOLTS,		//	int		ammoIndex;			// Index to proper ammo slot
+		ammo_t::AMMO_METAL_BOLTS,		//	int		ammoIndex;			// Index to proper ammo slot
 		5,						//	int		ammoLow;			// Count when ammo is low
 		1,						//	int		energyPerShot;		// Amount of energy used per shot
 		100,					//	int		fireTime;			// Amount of time between firings
@@ -205,7 +205,7 @@ EnumArray<weaponData_t, weapon_t, WP_NUM_WEAPONS> weaponData =
 	},
 	{	// WP_DEMP2
 //		"DEMP2",				//	char	classname[32];		// Spawning name
-		AMMO_POWERCELL,			//	int		ammoIndex;			// Index to proper ammo slot
+		ammo_t::AMMO_POWERCELL,			//	int		ammoIndex;			// Index to proper ammo slot
 		5,						//	int		ammoLow;			// Count when ammo is low
 		8,						//	int		energyPerShot;		// Amount of energy used per shot
 		500,					//	int		fireTime;			// Amount of time between firings
@@ -222,7 +222,7 @@ EnumArray<weaponData_t, weapon_t, WP_NUM_WEAPONS> weaponData =
 	},
 	{	// WP_FLECHETTE
 //		"Golan Arms Flechette",	//	char	classname[32];		// Spawning name
-		AMMO_METAL_BOLTS,		//	int		ammoIndex;			// Index to proper ammo slot
+		ammo_t::AMMO_METAL_BOLTS,		//	int		ammoIndex;			// Index to proper ammo slot
 		5,						//	int		ammoLow;			// Count when ammo is low
 		10,						//	int		energyPerShot;		// Amount of energy used per shot
 		700,					//	int		fireTime;			// Amount of time between firings
@@ -239,7 +239,7 @@ EnumArray<weaponData_t, weapon_t, WP_NUM_WEAPONS> weaponData =
 	},
 	{	// WP_ROCKET_LAUNCHER
 //		"Merr-Sonn Missile System",	//	char	classname[32];		// Spawning name
-		AMMO_ROCKETS,			//	int		ammoIndex;			// Index to proper ammo slot
+		ammo_t::AMMO_ROCKETS,			//	int		ammoIndex;			// Index to proper ammo slot
 		5,						//	int		ammoLow;			// Count when ammo is low
 		1,						//	int		energyPerShot;		// Amount of energy used per shot
 		900,					//	int		fireTime;			// Amount of time between firings
@@ -256,7 +256,7 @@ EnumArray<weaponData_t, weapon_t, WP_NUM_WEAPONS> weaponData =
 	},
 	{	// WP_THERMAL
 //		"Thermal Detonator",	//	char	classname[32];		// Spawning name
-		AMMO_THERMAL,				//	int		ammoIndex;			// Index to proper ammo slot
+		ammo_t::AMMO_THERMAL,				//	int		ammoIndex;			// Index to proper ammo slot
 		0,						//	int		ammoLow;			// Count when ammo is low
 		1,						//	int		energyPerShot;		// Amount of energy used per shot
 		800,					//	int		fireTime;			// Amount of time between firings
@@ -273,7 +273,7 @@ EnumArray<weaponData_t, weapon_t, WP_NUM_WEAPONS> weaponData =
 	},
 	{	// WP_TRIP_MINE
 //		"Trip Mine",			//	char	classname[32];		// Spawning name
-		AMMO_TRIPMINE,				//	int		ammoIndex;			// Index to proper ammo slot
+		ammo_t::AMMO_TRIPMINE,				//	int		ammoIndex;			// Index to proper ammo slot
 		0,						//	int		ammoLow;			// Count when ammo is low
 		1,						//	int		energyPerShot;		// Amount of energy used per shot
 		800,					//	int		fireTime;			// Amount of time between firings
@@ -290,7 +290,7 @@ EnumArray<weaponData_t, weapon_t, WP_NUM_WEAPONS> weaponData =
 	},
 	{	// WP_DET_PACK
 //		"Det Pack",				//	char	classname[32];		// Spawning name
-		AMMO_DETPACK,				//	int		ammoIndex;			// Index to proper ammo slot
+		ammo_t::AMMO_DETPACK,				//	int		ammoIndex;			// Index to proper ammo slot
 		0,						//	int		ammoLow;			// Count when ammo is low
 		1,						//	int		energyPerShot;		// Amount of energy used per shot
 		800,					//	int		fireTime;			// Amount of time between firings
@@ -307,7 +307,7 @@ EnumArray<weaponData_t, weapon_t, WP_NUM_WEAPONS> weaponData =
 	},
 	{	// WP_CONCUSSION
 //		"Concussion Rifle",		//	char	classname[32];		// Spawning name
-		AMMO_METAL_BOLTS,		//	int		ammoIndex;			// Index to proper ammo slot
+		ammo_t::AMMO_METAL_BOLTS,		//	int		ammoIndex;			// Index to proper ammo slot
 		40,						//	int		ammoLow;			// Count when ammo is low
 		40,						//	int		energyPerShot;		// Amount of energy used per shot
 		800,					//	int		fireTime;			// Amount of time between firings
@@ -324,7 +324,7 @@ EnumArray<weaponData_t, weapon_t, WP_NUM_WEAPONS> weaponData =
 	},
 	{	// WP_BRYAR_OLD,
 //		"Bryar Pistol",			//	char	classname[32];		// Spawning name
-		AMMO_BLASTER,			//	int		ammoIndex;			// Index to proper ammo slot
+		ammo_t::AMMO_BLASTER,			//	int		ammoIndex;			// Index to proper ammo slot
 		15,						//	int		ammoLow;			// Count when ammo is low
 		2,						//	int		energyPerShot;		// Amount of energy used per shot
 		400,					//	int		fireTime;			// Amount of time between firings
@@ -341,7 +341,7 @@ EnumArray<weaponData_t, weapon_t, WP_NUM_WEAPONS> weaponData =
 	},
 	{	// WP_EMPLCACED_GUN
 //		"Emplaced Gun",			//	char	classname[32];		// Spawning name
-		/*AMMO_BLASTER*/AMMO_NONE,			//	int		ammoIndex;			// Index to proper ammo slot
+		/*AMMO_BLASTER*/ammo_t::AMMO_NONE,			//	int		ammoIndex;			// Index to proper ammo slot
 		/*5*/0,						//	int		ammoLow;			// Count when ammo is low
 		/*2*/0,						//	int		energyPerShot;		// Amount of energy used per shot
 		100,					//	int		fireTime;			// Amount of time between firings
@@ -358,7 +358,7 @@ EnumArray<weaponData_t, weapon_t, WP_NUM_WEAPONS> weaponData =
 	},
 	{	// WP_TURRET - NOTE NOT ACTUALLY USEABLE BY PLAYER!
 //		"Emplaced Gun",			//	char	classname[32];		// Spawning name
-		/*AMMO_BLASTER*/AMMO_NONE,			//	int		ammoIndex;			// Index to proper ammo slot
+		/*AMMO_BLASTER*/ammo_t::AMMO_NONE,			//	int		ammoIndex;			// Index to proper ammo slot
 		/*5*/0,						//	int		ammoLow;			// Count when ammo is low
 		/*2*/0,						//	int		energyPerShot;		// Amount of energy used per shot
 		0,					//	int		fireTime;			// Amount of time between firings
@@ -375,7 +375,7 @@ EnumArray<weaponData_t, weapon_t, WP_NUM_WEAPONS> weaponData =
 	}
 }};
 
-EnumArray<ammoData_t, ammo_t, AMMO_MAX> ammoData =
+EnumArray<ammoData_t, ammo_t, ammo_t::AMMO_MAX> ammoData =
 {
 {
 	{	// AMMO_NONE

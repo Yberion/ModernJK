@@ -33,12 +33,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 void GEntity_ThinkFunc(gentity_t *self)
 {
-//#define THINKCASE(blah) case thinkF_ ## blah: blah(self); OutputDebugString(va("%s\n",#blah));break;
-#define THINKCASE(blah) case thinkF_ ## blah: blah(self); break;
+//#define THINKCASE(blah) case thinkFunc_t::thinkF_ ## blah: blah(self); OutputDebugString(va("%s\n",#blah));break;
+#define THINKCASE(blah) case thinkFunc_t::thinkF_ ## blah: blah(self); break;
 
 	switch (self->e_ThinkFunc)
 	{
-	case thinkF_NULL:
+	case thinkFunc_t::thinkF_NULL:
 		break;
 
 	THINKCASE( funcBBrushDieGo )
@@ -132,7 +132,7 @@ void GEntity_ThinkFunc(gentity_t *self)
 	THINKCASE( spawn_rack_goods ) // delay spawn of goods to help on ents
 
 	default:
-		Com_Error(ERR_DROP, "GEntity_ThinkFunc: case %d not handled!\n",to_underlying( self->e_ThinkFunc ));
+		Com_Error(errorParm_t::ERR_DROP, "GEntity_ThinkFunc: case %d not handled!\n",to_underlying( self->e_ThinkFunc ));
 		break;
 	}
 }
@@ -141,12 +141,12 @@ void GEntity_ThinkFunc(gentity_t *self)
 //
 void CEntity_ThinkFunc(centity_s *cent)
 {
-//#define CLTHINKCASE(blah) case clThinkF_ ## blah: blah(cent); OutputDebugString(va("%s\n",#blah));break;
-#define CLTHINKCASE(blah) case clThinkF_ ## blah: blah(cent); break;
+//#define CLTHINKCASE(blah) case clThinkFunc_t::clThinkF_ ## blah: blah(cent); OutputDebugString(va("%s\n",#blah));break;
+#define CLTHINKCASE(blah) case clThinkFunc_t::clThinkF_ ## blah: blah(cent); break;
 
 	switch (cent->gent->e_clThinkFunc)
 	{
-	case clThinkF_NULL:
+	case clThinkFunc_t::clThinkF_NULL:
 		break;
 
 	CLTHINKCASE( CG_DLightThink )
@@ -154,7 +154,7 @@ void CEntity_ThinkFunc(centity_s *cent)
 	CLTHINKCASE( CG_Limb )
 
 	default:
-		Com_Error(ERR_DROP, "CEntity_ThinkFunc: case %d not handled!\n",to_underlying( cent->gent->e_clThinkFunc ));
+		Com_Error(errorParm_t::ERR_DROP, "CEntity_ThinkFunc: case %d not handled!\n",to_underlying( cent->gent->e_clThinkFunc ));
 		break;
 	}
 }
@@ -162,12 +162,12 @@ void CEntity_ThinkFunc(centity_s *cent)
 
 void GEntity_ReachedFunc(gentity_t *self)
 {
-//#define REACHEDCASE(blah) case reachedF_ ## blah: blah(self); OutputDebugString(va("%s\n",#blah));break;
-#define REACHEDCASE(blah) case reachedF_ ## blah: blah(self); break;
+//#define REACHEDCASE(blah) case reachedFunc_t::reachedF_ ## blah: blah(self); OutputDebugString(va("%s\n",#blah));break;
+#define REACHEDCASE(blah) case reachedFunc_t::reachedF_ ## blah: blah(self); break;
 
 	switch (self->e_ReachedFunc)
 	{
-	case reachedF_NULL:
+	case reachedFunc_t::reachedF_NULL:
 		break;
 
 	REACHEDCASE( Reached_BinaryMover )
@@ -176,7 +176,7 @@ void GEntity_ReachedFunc(gentity_t *self)
 	REACHEDCASE( moveAndRotateCallback )
 
 	default:
-		Com_Error(ERR_DROP, "GEntity_ReachedFunc: case %d not handled!\n",to_underlying( self->e_ReachedFunc ));
+		Com_Error(errorParm_t::ERR_DROP, "GEntity_ReachedFunc: case %d not handled!\n",to_underlying( self->e_ReachedFunc ));
 		break;
 	}
 }
@@ -185,31 +185,31 @@ void GEntity_ReachedFunc(gentity_t *self)
 
 void GEntity_BlockedFunc(gentity_t *self, gentity_t *other)
 {
-//#define BLOCKEDCASE(blah) case blockedF_ ## blah: blah(self,other); OutputDebugString(va("%s\n",#blah));break;
-#define BLOCKEDCASE(blah) case blockedF_ ## blah: blah(self,other); break;
+//#define BLOCKEDCASE(blah) case blockedFunc_t::blockedF_ ## blah: blah(self,other); OutputDebugString(va("%s\n",#blah));break;
+#define BLOCKEDCASE(blah) case blockedFunc_t::blockedF_ ## blah: blah(self,other); break;
 
 	switch (self->e_BlockedFunc)
 	{
-	case blockedF_NULL:
+	case blockedFunc_t::blockedF_NULL:
 		break;
 
 	BLOCKEDCASE( Blocked_Door )
 	BLOCKEDCASE( Blocked_Mover )
 
 	default:
-		Com_Error(ERR_DROP, "GEntity_BlockedFunc: case %d not handled!\n",to_underlying( self->e_BlockedFunc ));
+		Com_Error(errorParm_t::ERR_DROP, "GEntity_BlockedFunc: case %d not handled!\n",to_underlying( self->e_BlockedFunc ));
 		break;
 	}
 }
 
 void GEntity_TouchFunc(gentity_t *self, gentity_t *other, trace_t *trace)
 {
-//#define TOUCHCASE(blah) case touchF_ ## blah: blah(self,other,trace); OutputDebugString(va("%s\n",#blah));break;
-#define TOUCHCASE(blah) case touchF_ ## blah: blah(self,other,trace); break;
+//#define TOUCHCASE(blah) case touchFunc_t::touchF_ ## blah: blah(self,other,trace); OutputDebugString(va("%s\n",#blah));break;
+#define TOUCHCASE(blah) case touchFunc_t::touchF_ ## blah: blah(self,other,trace); break;
 
 	switch (self->e_TouchFunc)
 	{
-	case touchF_NULL:
+	case touchFunc_t::touchF_NULL:
 		break;
 
 	TOUCHCASE( Touch_Item )
@@ -231,22 +231,22 @@ void GEntity_TouchFunc(gentity_t *self, gentity_t *other, trace_t *trace)
 	TOUCHCASE( func_rotating_touch )
 
 	default:
-		Com_Error(ERR_DROP, "GEntity_TouchFunc: case %d not handled!\n",to_underlying( self->e_TouchFunc ));
+		Com_Error(errorParm_t::ERR_DROP, "GEntity_TouchFunc: case %d not handled!\n",to_underlying( self->e_TouchFunc ));
 	}
 }
 
 void GEntity_UseFunc(gentity_t *self, gentity_t *other, gentity_t *activator)
 {
-	if ( !self || Any( self->svFlags & SVF_INACTIVE ) )
+	if ( !self || Any( self->svFlags & svFlags_t::SVF_INACTIVE ) )
 	{
 		return;
 	}
-//#define USECASE(blah) case useF_ ## blah: blah(self,other,activator); OutputDebugString(va("%s\n",#blah));break;
-#define USECASE(blah) case useF_ ## blah: blah(self,other,activator); break;
+//#define USECASE(blah) case useFunc_t::useF_ ## blah: blah(self,other,activator); OutputDebugString(va("%s\n",#blah));break;
+#define USECASE(blah) case useFunc_t::useF_ ## blah: blah(self,other,activator); break;
 
 	switch (self->e_UseFunc)
 	{
-	case useF_NULL:
+	case useFunc_t::useF_NULL:
 		break;
 
 	USECASE( funcBBrushUse )
@@ -322,18 +322,18 @@ void GEntity_UseFunc(gentity_t *self, gentity_t *other, gentity_t *activator)
 	USECASE( item_spawn_use )
 
 	default:
-		Com_Error(ERR_DROP, "GEntity_UseFunc: case %d not handled!\n",to_underlying( self->e_UseFunc ));
+		Com_Error(errorParm_t::ERR_DROP, "GEntity_UseFunc: case %d not handled!\n",to_underlying( self->e_UseFunc ));
 	}
 }
 
 void GEntity_PainFunc(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, meansOfDeath_t mod,hitLocation_t hitLoc)
 {
-//#define PAINCASE(blah) case painF_ ## blah: blah(self,attacker,damage); OutputDebugString(va("%s\n",#blah));break;
-#define PAINCASE(blah) case painF_ ## blah: blah(self,inflictor,attacker,point,damage,mod,hitLoc); break;
+//#define PAINCASE(blah) case painFunc_t::painF_ ## blah: blah(self,attacker,damage); OutputDebugString(va("%s\n",#blah));break;
+#define PAINCASE(blah) case painFunc_t::painF_ ## blah: blah(self,inflictor,attacker,point,damage,mod,hitLoc); break;
 
 	switch (self->e_PainFunc)
 	{
-	case painF_NULL:
+	case painFunc_t::painF_NULL:
 		break;
 
 	PAINCASE( funcBBrushPain )
@@ -361,19 +361,19 @@ void GEntity_PainFunc(gentity_t *self, gentity_t *inflictor, gentity_t *attacker
 	PAINCASE( TurretPain )
 
 	default:
-		Com_Error(ERR_DROP, "GEntity_PainFunc: case %d not handled!\n",to_underlying( self->e_PainFunc ));
+		Com_Error(errorParm_t::ERR_DROP, "GEntity_PainFunc: case %d not handled!\n",to_underlying( self->e_PainFunc ));
 	}
 }
 
 
 void GEntity_DieFunc(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod, damageFlags_t dFlags, hitLocation_t hitLoc)
 {
-//#define DIECASE(blah) case dieF_ ## blah: blah(self,inflictor,attacker,damage,mod); OutputDebugString(va("%s\n",#blah));break;
-#define DIECASE(blah) case dieF_ ## blah: blah(self,inflictor,attacker,damage,mod,dFlags,hitLoc); break;
+//#define DIECASE(blah) case dieFunc_t::dieF_ ## blah: blah(self,inflictor,attacker,damage,mod); OutputDebugString(va("%s\n",#blah));break;
+#define DIECASE(blah) case dieFunc_t::dieF_ ## blah: blah(self,inflictor,attacker,damage,mod,dFlags,hitLoc); break;
 
 	switch (self->e_DieFunc)
 	{
-	case dieF_NULL:
+	case dieFunc_t::dieF_NULL:
 		break;
 
 	DIECASE( funcBBrushDie )
@@ -399,7 +399,7 @@ void GEntity_DieFunc(gentity_t *self, gentity_t *inflictor, gentity_t *attacker,
 	DIECASE( thermal_die )
 
 	default:
-		Com_Error(ERR_DROP, "GEntity_DieFunc: case %d not handled!\n",to_underlying( self->e_DieFunc ));
+		Com_Error(errorParm_t::ERR_DROP, "GEntity_DieFunc: case %d not handled!\n",to_underlying( self->e_DieFunc ));
 	}
 }
 

@@ -106,7 +106,7 @@ int G2_Add_Bolt_Surf_Num(CGhoul2Info *ghlInfo, boltInfo_v &bltlist, surfaceInfo_
 		{
 			// if we found an entry that had a -1 for the bone / surface number, then we hit a surface / bone slot that was empty
 			bltlist[i].surfaceNumber = surfNum;
-			bltlist[i].surfaceType = G2SURFACEFLAG_GENERATED;
+			bltlist[i].surfaceType = g2SurfaceFlags_t::G2SURFACEFLAG_GENERATED;
 			bltlist[i].boltUsed = 1;
 	 		return i;
 		}
@@ -114,7 +114,7 @@ int G2_Add_Bolt_Surf_Num(CGhoul2Info *ghlInfo, boltInfo_v &bltlist, surfaceInfo_
 
 	// ok, we didn't find an existing surface of that name, or an empty slot. Lets add an entry
 	tempBolt.surfaceNumber = surfNum;
-	tempBolt.surfaceType = G2SURFACEFLAG_GENERATED;
+	tempBolt.surfaceType = g2SurfaceFlags_t::G2SURFACEFLAG_GENERATED;
 	tempBolt.boneNumber = -1;
 	tempBolt.boltUsed = 1;
 	bltlist.push_back(tempBolt);
@@ -161,7 +161,7 @@ int G2_Add_Bolt(CGhoul2Info *ghlInfo, boltInfo_v &bltlist, surfaceInfo_v &slist,
 				// if we found an entry that had a -1 for the bone / surface number, then we hit a surface / bone slot that was empty
 				bltlist[i].surfaceNumber = surfNum;
 				bltlist[i].boltUsed = 1;
-				bltlist[i].surfaceType = G2SURFACEFLAG_NONE;
+				bltlist[i].surfaceType = g2SurfaceFlags_t::G2SURFACEFLAG_NONE;
 		 		return i;
 			}
 		}
@@ -170,7 +170,7 @@ int G2_Add_Bolt(CGhoul2Info *ghlInfo, boltInfo_v &bltlist, surfaceInfo_v &slist,
 		tempBolt.surfaceNumber = surfNum;
 		tempBolt.boneNumber = -1;
 		tempBolt.boltUsed = 1;
-		tempBolt.surfaceType = G2SURFACEFLAG_NONE;
+		tempBolt.surfaceType = g2SurfaceFlags_t::G2SURFACEFLAG_NONE;
 		bltlist.push_back(tempBolt);
 		return bltlist.size()-1;
 	}
@@ -223,7 +223,7 @@ int G2_Add_Bolt(CGhoul2Info *ghlInfo, boltInfo_v &bltlist, surfaceInfo_v &slist,
 			// if we found an entry that had a -1 for the bonenumber, then we hit a bone slot that was empty
 			bltlist[i].boneNumber = x;
 			bltlist[i].boltUsed = 1;
-			bltlist[i].surfaceType = G2SURFACEFLAG_NONE;
+			bltlist[i].surfaceType = g2SurfaceFlags_t::G2SURFACEFLAG_NONE;
 	 		return i;
 		}
 	}
@@ -232,7 +232,7 @@ int G2_Add_Bolt(CGhoul2Info *ghlInfo, boltInfo_v &bltlist, surfaceInfo_v &slist,
 	tempBolt.boneNumber = x;
 	tempBolt.surfaceNumber = -1;
 	tempBolt.boltUsed = 1;
- 	tempBolt.surfaceType = G2SURFACEFLAG_NONE;
+ 	tempBolt.surfaceType = g2SurfaceFlags_t::G2SURFACEFLAG_NONE;
 	bltlist.push_back(tempBolt);
 	return bltlist.size()-1;
 

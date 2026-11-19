@@ -64,7 +64,7 @@ int SV_OrgVisibleBox(vec3_t org1, vec3_t mins, vec3_t maxs, vec3_t org2, int ign
 	trace_t tr;
 
 
-	SV_Trace(&tr, org1, mins, maxs, org2, ignore, MASK_SOLID, 0, G2TRFLAG_NONE, 10);
+	SV_Trace(&tr, org1, mins, maxs, org2, ignore, MASK_SOLID, 0, g2TraceFlags_t::G2TRFLAG_NONE, 10);
 
 	if (tr.fraction == 1 && !tr.startsolid && !tr.allsolid)
 	{
@@ -192,7 +192,7 @@ int SV_BotAllocateClient(void) {
 
 	// find a client slot
 	for ( i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++ ) {
-		if ( cl->state == CS_FREE ) {
+		if ( cl->state == clientState_t::CS_FREE ) {
 			break;
 		}
 	}
@@ -203,9 +203,9 @@ int SV_BotAllocateClient(void) {
 
 	cl->gentity = SV_GentityNum( i );
 	cl->gentity->s.number = i;
-	cl->state = CS_ACTIVE;
+	cl->state = clientState_t::CS_ACTIVE;
 	cl->lastPacketTime = svs.time;
-	cl->netchan.remoteAddress.type = NA_BOT;
+	cl->netchan.remoteAddress.type = netadrtype_t::NA_BOT;
 
 	// cannot start recording auto demos here since bot's name is not set yet
 	return i;
@@ -220,13 +220,13 @@ void SV_BotFreeClient( int clientNum ) {
 	client_t	*cl;
 
 	if ( clientNum < 0 || clientNum >= sv_maxclients->integer ) {
-		Com_Error( ERR_DROP, "SV_BotFreeClient: bad clientNum: %i", clientNum );
+		Com_Error( errorParm_t::ERR_DROP, "SV_BotFreeClient: bad clientNum: %i", clientNum );
 	}
 	cl = &svs.clients[clientNum];
-	cl->state = CS_FREE;
+	cl->state = clientState_t::CS_FREE;
 	cl->name[0] = 0;
 	if ( cl->gentity ) {
-		cl->gentity->r.svFlags &= ~SVF_BOT;
+		cl->gentity->r.svFlags &= ~svFlags_t::SVF_BOT;
 	}
 
 	if ( cl->demo.demorecording ) {
@@ -247,18 +247,18 @@ void BotDrawDebugPolygons(void (*drawPoly)(int color, int numPoints, float *poin
 	if (!debugpolygons)
 		return;
 	//bot debugging
-	if (!bot_debug) bot_debug = Cvar_Get("bot_debug", "0", CVAR_NONE);
+	if (!bot_debug) bot_debug = Cvar_Get("bot_debug", "0", cvarFlags_t::CVAR_NONE);
 	//
 	if (bot_enable && bot_debug->integer) {
 		//show reachabilities
-		if (!bot_reachability) bot_reachability = Cvar_Get("bot_reachability", "0", CVAR_NONE);
+		if (!bot_reachability) bot_reachability = Cvar_Get("bot_reachability", "0", cvarFlags_t::CVAR_NONE);
 		//show ground faces only
-		if (!bot_groundonly) bot_groundonly = Cvar_Get("bot_groundonly", "1", CVAR_NONE);
+		if (!bot_groundonly) bot_groundonly = Cvar_Get("bot_groundonly", "1", cvarFlags_t::CVAR_NONE);
 		//get the hightlight area
-		if (!bot_highlightarea) bot_highlightarea = Cvar_Get("bot_highlightarea", "0", CVAR_NONE);
+		if (!bot_highlightarea) bot_highlightarea = Cvar_Get("bot_highlightarea", "0", cvarFlags_t::CVAR_NONE);
 		//
 		parm0 = 0;
-		if (Any( svs.clients[0].lastUsercmd.buttons & BUTTON_ATTACK )) parm0 |= 1;
+		if (Any( svs.clients[0].lastUsercmd.buttons & buttonFlags_t::BUTTON_ATTACK )) parm0 |= 1;
 		if (bot_reachability->integer) parm0 |= 2;
 		if (bot_groundonly->integer) parm0 |= 4;
 		botlib_export->BotLibVarSet("bot_highlightarea", bot_highlightarea->string);
@@ -289,24 +289,24 @@ void QDECL BotImport_Print(printType_t type, const char *fmt, ...)
 	va_end(ap);
 
 	switch(type) {
-		case PRT_MESSAGE: {
+		case printType_t::PRT_MESSAGE: {
 			Com_Printf("%s", str);
 			break;
 		}
-		case PRT_WARNING: {
+		case printType_t::PRT_WARNING: {
 			Com_Printf(S_COLOR_YELLOW "Warning: %s", str);
 			break;
 		}
-		case PRT_ERROR: {
+		case printType_t::PRT_ERROR: {
 			Com_Printf(S_COLOR_RED "Error: %s", str);
 			break;
 		}
-		case PRT_FATAL: {
+		case printType_t::PRT_FATAL: {
 			Com_Printf(S_COLOR_RED "Fatal: %s", str);
 			break;
 		}
-		case PRT_EXIT: {
-			Com_Error(ERR_DROP, S_COLOR_RED "Exit: %s", str);
+		case printType_t::PRT_EXIT: {
+			Com_Error(errorParm_t::ERR_DROP, S_COLOR_RED "Exit: %s", str);
 			break;
 		}
 		default: {
@@ -324,7 +324,7 @@ BotImport_Trace
 void BotImport_Trace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int passent, contentsFlags_t contentmask) {
 	trace_t trace;
 
-	SV_Trace(&trace, start, mins, maxs, end, passent, contentmask, false, G2TRFLAG_NONE, 10);
+	SV_Trace(&trace, start, mins, maxs, end, passent, contentmask, false, g2TraceFlags_t::G2TRFLAG_NONE, 10);
 	//copy the trace information
 	bsptrace->allsolid = trace.allsolid;
 	bsptrace->startsolid = trace.startsolid;
@@ -338,7 +338,7 @@ void BotImport_Trace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t ma
 	bsptrace->ent = trace.entityNum;
 	bsptrace->exp_dist = 0;
 	bsptrace->sidenum = 0;
-	bsptrace->contents = CONTENTS_NONE;
+	bsptrace->contents = contentsFlags_t::CONTENTS_NONE;
 }
 
 /*
@@ -363,7 +363,7 @@ void BotImport_EntityTrace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec
 	bsptrace->ent = trace.entityNum;
 	bsptrace->exp_dist = 0;
 	bsptrace->sidenum = 0;
-	bsptrace->contents = CONTENTS_NONE;
+	bsptrace->contents = contentsFlags_t::CONTENTS_NONE;
 }
 
 
@@ -430,7 +430,7 @@ BotImport_GetMemoryGame
 void *Bot_GetMemoryGame(int size) {
 	void *ptr;
 
-	ptr = Z_Malloc( size, TAG_BOTGAME, true );
+	ptr = Z_Malloc( size, memtag::TAG_BOTGAME, true );
 
 	return ptr;
 }
@@ -452,7 +452,7 @@ BotImport_GetMemory
 void *BotImport_GetMemory(int size) {
 	void *ptr;
 
-	ptr = Z_Malloc( size, TAG_BOTLIB, true );
+	ptr = Z_Malloc( size, memtag::TAG_BOTLIB, true );
 	return ptr;
 }
 
@@ -472,9 +472,9 @@ BotImport_HunkAlloc
 */
 void *BotImport_HunkAlloc( int size ) {
 	if( Hunk_CheckMark() ) {
-		Com_Error( ERR_DROP, "SV_Bot_HunkAlloc: Alloc with marks already set\n" );
+		Com_Error( errorParm_t::ERR_DROP, "SV_Bot_HunkAlloc: Alloc with marks already set\n" );
 	}
-	return Hunk_Alloc( size, h_high );
+	return Hunk_Alloc( size, ha_pref::h_high );
 }
 
 /*
@@ -613,36 +613,36 @@ SV_BotInitCvars
 */
 void SV_BotInitCvars(void) {
 
-	Cvar_Get("bot_enable", "1", CVAR_NONE);						//enable the bot
-	Cvar_Get("bot_developer", "0", CVAR_CHEAT);			//bot developer mode
-	Cvar_Get("bot_debug", "0", CVAR_CHEAT);				//enable bot debugging
-	Cvar_Get("bot_maxdebugpolys", "2", CVAR_NONE);				//maximum number of debug polys
-	Cvar_Get("bot_groundonly", "1", CVAR_NONE);					//only show ground faces of areas
-	Cvar_Get("bot_reachability", "0", CVAR_NONE);				//show all reachabilities to other areas
-	Cvar_Get("bot_visualizejumppads", "0", CVAR_CHEAT);	//show jumppads
-	Cvar_Get("bot_forceclustering", "0", CVAR_NONE);			//force cluster calculations
-	Cvar_Get("bot_forcereachability", "0", CVAR_NONE);			//force reachability calculations
-	Cvar_Get("bot_forcewrite", "0", CVAR_NONE);					//force writing aas file
-	Cvar_Get("bot_aasoptimize", "0", CVAR_NONE);				//no aas file optimisation
-	Cvar_Get("bot_saveroutingcache", "0", CVAR_NONE);			//save routing cache
-	Cvar_Get("bot_thinktime", "100", CVAR_CHEAT);		//msec the bots thinks
-	Cvar_Get("bot_reloadcharacters", "0", CVAR_NONE);			//reload the bot characters each time
-	Cvar_Get("bot_testichat", "0", CVAR_NONE);					//test ichats
-	Cvar_Get("bot_testrchat", "0", CVAR_NONE);					//test rchats
-	Cvar_Get("bot_testsolid", "0", CVAR_CHEAT);			//test for solid areas
-	Cvar_Get("bot_testclusters", "0", CVAR_CHEAT);		//test the AAS clusters
-	Cvar_Get("bot_fastchat", "0", CVAR_NONE);					//fast chatting bots
-	Cvar_Get("bot_nochat", "0", CVAR_NONE);						//disable chats
-	Cvar_Get("bot_pause", "0", CVAR_CHEAT);				//pause the bots thinking
-	Cvar_Get("bot_report", "0", CVAR_CHEAT);			//get a full report in ctf
-	Cvar_Get("bot_grapple", "0", CVAR_NONE);					//enable grapple
-	Cvar_Get("bot_rocketjump", "1", CVAR_NONE);					//enable rocket jumping
-	Cvar_Get("bot_challenge", "0", CVAR_NONE);					//challenging bot
-	Cvar_Get("bot_minplayers", "0", CVAR_NONE);					//minimum players in a team or the game
-	Cvar_Get("bot_interbreedchar", "", CVAR_CHEAT);		//bot character used for interbreeding
-	Cvar_Get("bot_interbreedbots", "10", CVAR_CHEAT);	//number of bots used for interbreeding
-	Cvar_Get("bot_interbreedcycle", "20", CVAR_CHEAT);	//bot interbreeding cycle
-	Cvar_Get("bot_interbreedwrite", "", CVAR_CHEAT);	//write interbreeded bots to this file
+	Cvar_Get("bot_enable", "1", cvarFlags_t::CVAR_NONE);						//enable the bot
+	Cvar_Get("bot_developer", "0", cvarFlags_t::CVAR_CHEAT);			//bot developer mode
+	Cvar_Get("bot_debug", "0", cvarFlags_t::CVAR_CHEAT);				//enable bot debugging
+	Cvar_Get("bot_maxdebugpolys", "2", cvarFlags_t::CVAR_NONE);				//maximum number of debug polys
+	Cvar_Get("bot_groundonly", "1", cvarFlags_t::CVAR_NONE);					//only show ground faces of areas
+	Cvar_Get("bot_reachability", "0", cvarFlags_t::CVAR_NONE);				//show all reachabilities to other areas
+	Cvar_Get("bot_visualizejumppads", "0", cvarFlags_t::CVAR_CHEAT);	//show jumppads
+	Cvar_Get("bot_forceclustering", "0", cvarFlags_t::CVAR_NONE);			//force cluster calculations
+	Cvar_Get("bot_forcereachability", "0", cvarFlags_t::CVAR_NONE);			//force reachability calculations
+	Cvar_Get("bot_forcewrite", "0", cvarFlags_t::CVAR_NONE);					//force writing aas file
+	Cvar_Get("bot_aasoptimize", "0", cvarFlags_t::CVAR_NONE);				//no aas file optimisation
+	Cvar_Get("bot_saveroutingcache", "0", cvarFlags_t::CVAR_NONE);			//save routing cache
+	Cvar_Get("bot_thinktime", "100", cvarFlags_t::CVAR_CHEAT);		//msec the bots thinks
+	Cvar_Get("bot_reloadcharacters", "0", cvarFlags_t::CVAR_NONE);			//reload the bot characters each time
+	Cvar_Get("bot_testichat", "0", cvarFlags_t::CVAR_NONE);					//test ichats
+	Cvar_Get("bot_testrchat", "0", cvarFlags_t::CVAR_NONE);					//test rchats
+	Cvar_Get("bot_testsolid", "0", cvarFlags_t::CVAR_CHEAT);			//test for solid areas
+	Cvar_Get("bot_testclusters", "0", cvarFlags_t::CVAR_CHEAT);		//test the AAS clusters
+	Cvar_Get("bot_fastchat", "0", cvarFlags_t::CVAR_NONE);					//fast chatting bots
+	Cvar_Get("bot_nochat", "0", cvarFlags_t::CVAR_NONE);						//disable chats
+	Cvar_Get("bot_pause", "0", cvarFlags_t::CVAR_CHEAT);				//pause the bots thinking
+	Cvar_Get("bot_report", "0", cvarFlags_t::CVAR_CHEAT);			//get a full report in ctf
+	Cvar_Get("bot_grapple", "0", cvarFlags_t::CVAR_NONE);					//enable grapple
+	Cvar_Get("bot_rocketjump", "1", cvarFlags_t::CVAR_NONE);					//enable rocket jumping
+	Cvar_Get("bot_challenge", "0", cvarFlags_t::CVAR_NONE);					//challenging bot
+	Cvar_Get("bot_minplayers", "0", cvarFlags_t::CVAR_NONE);					//minimum players in a team or the game
+	Cvar_Get("bot_interbreedchar", "", cvarFlags_t::CVAR_CHEAT);		//bot character used for interbreeding
+	Cvar_Get("bot_interbreedbots", "10", cvarFlags_t::CVAR_CHEAT);	//number of bots used for interbreeding
+	Cvar_Get("bot_interbreedcycle", "20", cvarFlags_t::CVAR_CHEAT);	//bot interbreeding cycle
+	Cvar_Get("bot_interbreedwrite", "", cvarFlags_t::CVAR_CHEAT);	//write interbreeded bots to this file
 }
 
 extern botlib_export_t *GetBotLibAPI( int apiVersion, botlib_import_t *import );
@@ -654,7 +654,7 @@ extern botlib_export_t *GetBotLibAPI( int apiVersion, botlib_import_t *import );
 static int bot_Z_AvailableMemory(void)
 {
 	const int iMaxBOTLIBMem = 8 * 1024 * 1024;	// adjust accordingly.
-	return iMaxBOTLIBMem - Z_MemSize( TAG_BOTLIB );
+	return iMaxBOTLIBMem - Z_MemSize( memtag::TAG_BOTLIB );
 }
 
 /*
@@ -667,7 +667,7 @@ void SV_BotInitBotLib(void) {
 
 	if (debugpolygons) Z_Free(debugpolygons);
 	bot_maxdebugpolys = Cvar_VariableIntegerValue("bot_maxdebugpolys");
-	debugpolygons = (struct bot_debugpoly_s *)Z_Malloc(sizeof(bot_debugpoly_t) * bot_maxdebugpolys, TAG_BOTLIB, true);
+	debugpolygons = (struct bot_debugpoly_s *)Z_Malloc(sizeof(bot_debugpoly_t) * bot_maxdebugpolys, memtag::TAG_BOTLIB, true);
 
 	botlib_import.Print = BotImport_Print;
 	botlib_import.Trace = BotImport_Trace;

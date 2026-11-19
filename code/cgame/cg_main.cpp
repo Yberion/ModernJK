@@ -63,7 +63,7 @@ Ghoul2 Insert End
 
 
 void CG_LoadHudMenu(void);
-EnumArray<int, inventory_t, INV_MAX> inv_icons;
+EnumArray<int, inventory_t, inventory_t::INV_MAX> inv_icons;
 EnumArray<const char *, inventory_t, 16> inv_names =
 {
 "ELECTROBINOCULARS",
@@ -83,7 +83,7 @@ EnumArray<const char *, inventory_t, 16> inv_names =
 "SECURITY KEY",
 };
 
-EnumArray<int, forcePowers_t, NUM_FORCE_POWERS>	force_icons;
+EnumArray<int, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS>	force_icons;
 
 
 void CG_DrawDataPadHUD( centity_t *cent );
@@ -104,46 +104,46 @@ extern "C" Q_EXPORT intptr_t QDECL vmMain( int command, intptr_t arg0, intptr_t 
 	centity_t		*cent;
 
 	switch ( static_cast<cgameExport_t>( command ) ) {
-	case CG_INIT:
+	case cgameExport_t::CG_INIT:
 		CG_Init( arg0 );
 		return 0;
-	case CG_SHUTDOWN:
+	case cgameExport_t::CG_SHUTDOWN:
 		CG_Shutdown();
 		return 0;
-	case CG_CONSOLE_COMMAND:
+	case cgameExport_t::CG_CONSOLE_COMMAND:
 		return CG_ConsoleCommand();
-	case CG_DRAW_ACTIVE_FRAME:
+	case cgameExport_t::CG_DRAW_ACTIVE_FRAME:
 		CG_DrawActiveFrame( arg0, (stereoFrame_t) arg1 );
 		return 0;
-	case CG_CROSSHAIR_PLAYER:
+	case cgameExport_t::CG_CROSSHAIR_PLAYER:
 		return CG_CrosshairPlayer();
-	case CG_CAMERA_POS:
+	case cgameExport_t::CG_CAMERA_POS:
 		return CG_GetCameraPos( (float*)arg0);
-	case CG_CAMERA_ANG:
+	case cgameExport_t::CG_CAMERA_ANG:
 		return CG_GetCameraAng( (float*)arg0);
 /*
 Ghoul2 Insert Start
 */
-	case CG_RESIZE_G2:
+	case cgameExport_t::CG_RESIZE_G2:
 		CG_ResizeG2((CGhoul2Info_v *)arg0, arg1);
 		return 0;
-	case CG_RESIZE_G2_BOLT:
+	case cgameExport_t::CG_RESIZE_G2_BOLT:
 		CG_ResizeG2Bolt((boltInfo_v *)arg0, arg1);
 		return 0;
-	case CG_RESIZE_G2_BONE:
+	case cgameExport_t::CG_RESIZE_G2_BONE:
 		CG_ResizeG2Bone((boneInfo_v *)arg0, arg1);
 		return 0;
-	case CG_RESIZE_G2_SURFACE:
+	case cgameExport_t::CG_RESIZE_G2_SURFACE:
 		CG_ResizeG2Surface((surfaceInfo_v *)arg0, arg1);
 		return 0;
-	case CG_RESIZE_G2_TEMPBONE:
+	case cgameExport_t::CG_RESIZE_G2_TEMPBONE:
 		CG_ResizeG2TempBone((mdxaBone_v *)arg0, arg1);
 		return 0;
 
 /*
 Ghoul2 Insert End
 */
-	case CG_DRAW_DATAPAD_HUD:
+	case cgameExport_t::CG_DRAW_DATAPAD_HUD:
 		if (cg.snap)
 		{
 			cent = &cg_entities[cg.snap->ps.clientNum];
@@ -151,7 +151,7 @@ Ghoul2 Insert End
 		}
 		return 0;
 
-	case CG_DRAW_DATAPAD_OBJECTIVES:
+	case cgameExport_t::CG_DRAW_DATAPAD_OBJECTIVES:
 		if (cg.snap)
 		{
 			cent = &cg_entities[cg.snap->ps.clientNum];
@@ -159,24 +159,24 @@ Ghoul2 Insert End
 		}
 		return 0;
 
-	case CG_DRAW_DATAPAD_WEAPONS:
+	case cgameExport_t::CG_DRAW_DATAPAD_WEAPONS:
 		if (cg.snap)
 		{
-			CG_DrawDataPadIconBackground(ICON_WEAPONS);
+			CG_DrawDataPadIconBackground(iconBackground_t::ICON_WEAPONS);
 			CG_DrawDataPadWeaponSelect();
 		}
 		return 0;
-	case CG_DRAW_DATAPAD_INVENTORY:
+	case cgameExport_t::CG_DRAW_DATAPAD_INVENTORY:
 		if (cg.snap)
 		{
-			CG_DrawDataPadIconBackground(ICON_INVENTORY);
+			CG_DrawDataPadIconBackground(iconBackground_t::ICON_INVENTORY);
 			CG_DrawDataPadInventorySelect();
 		}
 		return 0;
-	case CG_DRAW_DATAPAD_FORCEPOWERS:
+	case cgameExport_t::CG_DRAW_DATAPAD_FORCEPOWERS:
 		if (cg.snap)
 		{
-			CG_DrawDataPadIconBackground(ICON_FORCE);
+			CG_DrawDataPadIconBackground(iconBackground_t::ICON_FORCE);
 			CG_DrawDataPadForceSelect();
 		}
 		return 0;
@@ -233,7 +233,7 @@ typedef struct {
 	char			description[128];
 } inventoryInfo_t;
 
-EnumArray<inventoryInfo_t, inventory_t, INV_MAX>		cg_inventory;
+EnumArray<inventoryInfo_t, inventory_t, inventory_t::INV_MAX>		cg_inventory;
 
 vmCvar_t	cg_runpitch;
 vmCvar_t	cg_runroll;
@@ -347,61 +347,61 @@ typedef struct {
 } cvarTable_t;
 
 static cvarTable_t cvarTable[] = {
-	{ &cg_autoswitch, "cg_autoswitch", "1", CVAR_ARCHIVE },
-	{ &cg_drawGun, "cg_drawGun", "1", CVAR_ARCHIVE },
-	{ &cg_fov, "cg_fov", "80", CVAR_ARCHIVE },
-	{ &cg_fovAspectAdjust, "cg_fovAspectAdjust", "0", CVAR_ARCHIVE },
-	{ &cg_stereoSeparation, "cg_stereoSeparation", "0.4", CVAR_ARCHIVE  },
-	{ &cg_shadows, "cg_shadows", "1", CVAR_ARCHIVE  },
-	{ &cg_renderToTextureFX, "cg_renderToTextureFX", "1", CVAR_ARCHIVE  },
-	{ &cg_shadowCullDistance, "r_shadowRange", "1000", CVAR_ARCHIVE },
-	{ &cg_footsteps, "cg_footsteps", "3", CVAR_ARCHIVE  },//1 = sounds, 2 = sounds & effects, 3 = sounds, effects & marks, 4 = always
-	{ &cg_saberEntMarks, "cg_saberEntMarks", "1", CVAR_ARCHIVE  },
+	{ &cg_autoswitch, "cg_autoswitch", "1", cvarFlags_t::CVAR_ARCHIVE },
+	{ &cg_drawGun, "cg_drawGun", "1", cvarFlags_t::CVAR_ARCHIVE },
+	{ &cg_fov, "cg_fov", "80", cvarFlags_t::CVAR_ARCHIVE },
+	{ &cg_fovAspectAdjust, "cg_fovAspectAdjust", "0", cvarFlags_t::CVAR_ARCHIVE },
+	{ &cg_stereoSeparation, "cg_stereoSeparation", "0.4", cvarFlags_t::CVAR_ARCHIVE  },
+	{ &cg_shadows, "cg_shadows", "1", cvarFlags_t::CVAR_ARCHIVE  },
+	{ &cg_renderToTextureFX, "cg_renderToTextureFX", "1", cvarFlags_t::CVAR_ARCHIVE  },
+	{ &cg_shadowCullDistance, "r_shadowRange", "1000", cvarFlags_t::CVAR_ARCHIVE },
+	{ &cg_footsteps, "cg_footsteps", "3", cvarFlags_t::CVAR_ARCHIVE  },//1 = sounds, 2 = sounds & effects, 3 = sounds, effects & marks, 4 = always
+	{ &cg_saberEntMarks, "cg_saberEntMarks", "1", cvarFlags_t::CVAR_ARCHIVE  },
 
-	{ &cg_draw2D, "cg_draw2D", "1", CVAR_ARCHIVE  },
-	{ &cg_drawStatus, "cg_drawStatus", "1", CVAR_ARCHIVE  },
-	{ &cg_drawHUD, "cg_drawHUD", "1", CVAR_NONE  },
-	{ &cg_drawTimer, "cg_drawTimer", "0", CVAR_ARCHIVE  },
-	{ &cg_drawFPS, "cg_drawFPS", "0", CVAR_ARCHIVE  },
-	{ &cg_drawSnapshot, "cg_drawSnapshot", "0", CVAR_ARCHIVE  },
-	{ &cg_drawAmmoWarning, "cg_drawAmmoWarning", "1", CVAR_ARCHIVE  },
-	{ &cg_drawCrosshair, "cg_drawCrosshair", "1", CVAR_ARCHIVE },
-	{ &cg_dynamicCrosshair, "cg_dynamicCrosshair", "1", CVAR_ARCHIVE },
+	{ &cg_draw2D, "cg_draw2D", "1", cvarFlags_t::CVAR_ARCHIVE  },
+	{ &cg_drawStatus, "cg_drawStatus", "1", cvarFlags_t::CVAR_ARCHIVE  },
+	{ &cg_drawHUD, "cg_drawHUD", "1", cvarFlags_t::CVAR_NONE  },
+	{ &cg_drawTimer, "cg_drawTimer", "0", cvarFlags_t::CVAR_ARCHIVE  },
+	{ &cg_drawFPS, "cg_drawFPS", "0", cvarFlags_t::CVAR_ARCHIVE  },
+	{ &cg_drawSnapshot, "cg_drawSnapshot", "0", cvarFlags_t::CVAR_ARCHIVE  },
+	{ &cg_drawAmmoWarning, "cg_drawAmmoWarning", "1", cvarFlags_t::CVAR_ARCHIVE  },
+	{ &cg_drawCrosshair, "cg_drawCrosshair", "1", cvarFlags_t::CVAR_ARCHIVE },
+	{ &cg_dynamicCrosshair, "cg_dynamicCrosshair", "1", cvarFlags_t::CVAR_ARCHIVE },
 	// NOTE : I also create this in UI_Init()
-	{ &cg_crosshairIdentifyTarget, "cg_crosshairIdentifyTarget", "1", CVAR_ARCHIVE },
-	{ &cg_crosshairForceHint, "cg_crosshairForceHint", "1", CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART },
-	{ &cg_endcredits, "cg_endcredits", "0", CVAR_NONE},
-	{ &cg_updatedDataPadForcePower1, "cg_updatedDataPadForcePower1", "0", CVAR_NONE},
-	{ &cg_updatedDataPadForcePower2, "cg_updatedDataPadForcePower2", "0", CVAR_NONE},
-	{ &cg_updatedDataPadForcePower3, "cg_updatedDataPadForcePower3", "0", CVAR_NONE},
-	{ &cg_updatedDataPadObjective, "cg_updatedDataPadObjective", "0", CVAR_NONE},
+	{ &cg_crosshairIdentifyTarget, "cg_crosshairIdentifyTarget", "1", cvarFlags_t::CVAR_ARCHIVE },
+	{ &cg_crosshairForceHint, "cg_crosshairForceHint", "1", cvarFlags_t::CVAR_ARCHIVE|cvarFlags_t::CVAR_SAVEGAME|cvarFlags_t::CVAR_NORESTART },
+	{ &cg_endcredits, "cg_endcredits", "0", cvarFlags_t::CVAR_NONE},
+	{ &cg_updatedDataPadForcePower1, "cg_updatedDataPadForcePower1", "0", cvarFlags_t::CVAR_NONE},
+	{ &cg_updatedDataPadForcePower2, "cg_updatedDataPadForcePower2", "0", cvarFlags_t::CVAR_NONE},
+	{ &cg_updatedDataPadForcePower3, "cg_updatedDataPadForcePower3", "0", cvarFlags_t::CVAR_NONE},
+	{ &cg_updatedDataPadObjective, "cg_updatedDataPadObjective", "0", cvarFlags_t::CVAR_NONE},
 
-	{ &cg_crosshairSize, "cg_crosshairSize", "24", CVAR_ARCHIVE },
-	{ &cg_crosshairX, "cg_crosshairX", "0", CVAR_ARCHIVE },
-	{ &cg_crosshairY, "cg_crosshairY", "0", CVAR_ARCHIVE },
-	{ &cg_simpleItems, "cg_simpleItems", "0", CVAR_ARCHIVE },
+	{ &cg_crosshairSize, "cg_crosshairSize", "24", cvarFlags_t::CVAR_ARCHIVE },
+	{ &cg_crosshairX, "cg_crosshairX", "0", cvarFlags_t::CVAR_ARCHIVE },
+	{ &cg_crosshairY, "cg_crosshairY", "0", cvarFlags_t::CVAR_ARCHIVE },
+	{ &cg_simpleItems, "cg_simpleItems", "0", cvarFlags_t::CVAR_ARCHIVE },
 	// NOTE : I also create this in UI_Init()
-	{ &cg_addMarks, "cg_marks", "1", CVAR_ARCHIVE },
+	{ &cg_addMarks, "cg_marks", "1", cvarFlags_t::CVAR_ARCHIVE },
 	// NOTE : I also create these weapon sway cvars in UI_Init()
-	{ &cg_runpitch, "cg_runpitch", "0.002", CVAR_ARCHIVE},
-	{ &cg_runroll, "cg_runroll", "0.005", CVAR_ARCHIVE },
-	{ &cg_bobup , "cg_bobup", "0.005", CVAR_ARCHIVE },
-	{ &cg_bobpitch, "cg_bobpitch", "0.002", CVAR_ARCHIVE },
-	{ &cg_bobroll, "cg_bobroll", "0.002", CVAR_ARCHIVE },
+	{ &cg_runpitch, "cg_runpitch", "0.002", cvarFlags_t::CVAR_ARCHIVE},
+	{ &cg_runroll, "cg_runroll", "0.005", cvarFlags_t::CVAR_ARCHIVE },
+	{ &cg_bobup , "cg_bobup", "0.005", cvarFlags_t::CVAR_ARCHIVE },
+	{ &cg_bobpitch, "cg_bobpitch", "0.002", cvarFlags_t::CVAR_ARCHIVE },
+	{ &cg_bobroll, "cg_bobroll", "0.002", cvarFlags_t::CVAR_ARCHIVE },
 
-	{ &cg_debugAnim, "cg_debuganim", "0", CVAR_CHEAT },
+	{ &cg_debugAnim, "cg_debuganim", "0", cvarFlags_t::CVAR_CHEAT },
 #ifndef FINAL_BUILD
-	{ &cg_gun_frame, "gun_frame", "0", CVAR_CHEAT },
-	{ &cg_debugAnimTarget, "cg_debugAnimTarget", "0", CVAR_CHEAT },
+	{ &cg_gun_frame, "gun_frame", "0", cvarFlags_t::CVAR_CHEAT },
+	{ &cg_debugAnimTarget, "cg_debugAnimTarget", "0", cvarFlags_t::CVAR_CHEAT },
 #endif
-	{ &cg_gun_x, "cg_gunX", "0", CVAR_ARCHIVE },
-	{ &cg_gun_y, "cg_gunY", "0", CVAR_ARCHIVE },
-	{ &cg_gun_z, "cg_gunZ", "0", CVAR_ARCHIVE },
-	{ &cg_debugSaber, "cg_debugsaber", "0", CVAR_CHEAT },
-	{ &cg_debugEvents, "cg_debugevents", "0", CVAR_CHEAT },
-	{ &cg_errorDecay, "cg_errordecay", "100", CVAR_NONE },
+	{ &cg_gun_x, "cg_gunX", "0", cvarFlags_t::CVAR_ARCHIVE },
+	{ &cg_gun_y, "cg_gunY", "0", cvarFlags_t::CVAR_ARCHIVE },
+	{ &cg_gun_z, "cg_gunZ", "0", cvarFlags_t::CVAR_ARCHIVE },
+	{ &cg_debugSaber, "cg_debugsaber", "0", cvarFlags_t::CVAR_CHEAT },
+	{ &cg_debugEvents, "cg_debugevents", "0", cvarFlags_t::CVAR_CHEAT },
+	{ &cg_errorDecay, "cg_errordecay", "100", cvarFlags_t::CVAR_NONE },
 
-	{ &cg_drawBreath, "cg_drawBreath", "0", CVAR_ARCHIVE },		// Added 11/07/02
+	{ &cg_drawBreath, "cg_drawBreath", "0", cvarFlags_t::CVAR_ARCHIVE },		// Added 11/07/02
 	{ &cg_roffdebug, "cg_roffdebug", "0" },
 #ifndef FINAL_BUILD
 	{ &cg_roffval1, "cg_roffval1", "0" },
@@ -409,53 +409,53 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_roffval3, "cg_roffval3", "0" },
 	{ &cg_roffval4, "cg_roffval4", "0" },
 #endif
-	{ &cg_thirdPerson, "cg_thirdPerson", "1", CVAR_SAVEGAME },
-	{ &cg_thirdPersonRange, "cg_thirdPersonRange", "80", CVAR_ARCHIVE },
-	{ &cg_thirdPersonMaxRange, "cg_thirdPersonMaxRange", "150", CVAR_NONE },
-	{ &cg_thirdPersonAngle, "cg_thirdPersonAngle", "0", CVAR_NONE },
-	{ &cg_thirdPersonPitchOffset, "cg_thirdPersonPitchOffset", "0", CVAR_NONE },
-	{ &cg_thirdPersonVertOffset, "cg_thirdPersonVertOffset", "16", CVAR_NONE},
-	{ &cg_thirdPersonCameraDamp, "cg_thirdPersonCameraDamp", "0.3", CVAR_NONE},
-	{ &cg_thirdPersonTargetDamp, "cg_thirdPersonTargetDamp", "0.5", CVAR_NONE},
+	{ &cg_thirdPerson, "cg_thirdPerson", "1", cvarFlags_t::CVAR_SAVEGAME },
+	{ &cg_thirdPersonRange, "cg_thirdPersonRange", "80", cvarFlags_t::CVAR_ARCHIVE },
+	{ &cg_thirdPersonMaxRange, "cg_thirdPersonMaxRange", "150", cvarFlags_t::CVAR_NONE },
+	{ &cg_thirdPersonAngle, "cg_thirdPersonAngle", "0", cvarFlags_t::CVAR_NONE },
+	{ &cg_thirdPersonPitchOffset, "cg_thirdPersonPitchOffset", "0", cvarFlags_t::CVAR_NONE },
+	{ &cg_thirdPersonVertOffset, "cg_thirdPersonVertOffset", "16", cvarFlags_t::CVAR_NONE},
+	{ &cg_thirdPersonCameraDamp, "cg_thirdPersonCameraDamp", "0.3", cvarFlags_t::CVAR_NONE},
+	{ &cg_thirdPersonTargetDamp, "cg_thirdPersonTargetDamp", "0.5", cvarFlags_t::CVAR_NONE},
 
-	{ &cg_thirdPersonHorzOffset, "cg_thirdPersonHorzOffset", "0", CVAR_NONE},
-	{ &cg_thirdPersonAlpha, "cg_thirdPersonAlpha", "1.0", CVAR_ARCHIVE },
-	{ &cg_thirdPersonAutoAlpha,	"cg_thirdPersonAutoAlpha",	"0", CVAR_NONE },
+	{ &cg_thirdPersonHorzOffset, "cg_thirdPersonHorzOffset", "0", cvarFlags_t::CVAR_NONE},
+	{ &cg_thirdPersonAlpha, "cg_thirdPersonAlpha", "1.0", cvarFlags_t::CVAR_ARCHIVE },
+	{ &cg_thirdPersonAutoAlpha,	"cg_thirdPersonAutoAlpha",	"0", cvarFlags_t::CVAR_NONE },
 	// NOTE: also declare this in UI_Init
-	{ &cg_gunAutoFirst, "cg_gunAutoFirst", "1", CVAR_ARCHIVE },
+	{ &cg_gunAutoFirst, "cg_gunAutoFirst", "1", cvarFlags_t::CVAR_ARCHIVE },
 
-	{ &cg_pano, "pano", "0", CVAR_NONE },
-	{ &cg_panoNumShots, "panoNumShots", "10", CVAR_NONE },
+	{ &cg_pano, "pano", "0", cvarFlags_t::CVAR_NONE },
+	{ &cg_panoNumShots, "panoNumShots", "10", cvarFlags_t::CVAR_NONE },
 
-	{ &fx_freeze, "fx_freeze", "0", CVAR_NONE },
-	{ &fx_debug, "fx_debug", "0", CVAR_NONE },
+	{ &fx_freeze, "fx_freeze", "0", cvarFlags_t::CVAR_NONE },
+	{ &fx_debug, "fx_debug", "0", cvarFlags_t::CVAR_NONE },
 	// the following variables are created in other parts of the system,
 	// but we also reference them here
 
-	{ &cg_paused, "cl_paused", "0", CVAR_ROM },
-	{ &cg_developer, "developer", "", CVAR_NONE },
-	{ &cg_timescale, "timescale", "1", CVAR_NONE },
-	{ &cg_skippingcin, "skippingCinematic", "0", CVAR_ROM},
-	{ &cg_missionInfoFlashTime, "cg_missionInfoFlashTime", "10000", CVAR_NONE  },
-	{ &cg_hudFiles, "cg_hudFiles", "ui/jahud.txt", CVAR_ARCHIVE},
+	{ &cg_paused, "cl_paused", "0", cvarFlags_t::CVAR_ROM },
+	{ &cg_developer, "developer", "", cvarFlags_t::CVAR_NONE },
+	{ &cg_timescale, "timescale", "1", cvarFlags_t::CVAR_NONE },
+	{ &cg_skippingcin, "skippingCinematic", "0", cvarFlags_t::CVAR_ROM},
+	{ &cg_missionInfoFlashTime, "cg_missionInfoFlashTime", "10000", cvarFlags_t::CVAR_NONE  },
+	{ &cg_hudFiles, "cg_hudFiles", "ui/jahud.txt", cvarFlags_t::CVAR_ARCHIVE},
 
-	{ &cg_VariantSoundCap, "cg_VariantSoundCap", "0", CVAR_NONE },
-	{ &cg_turnAnims, "cg_turnAnims", "0", CVAR_NONE },
-	{ &cg_motionBoneComp, "cg_motionBoneComp", "2", CVAR_NONE },
-	{ &cg_distributeMBCorrection, "cg_distributeMBCorrection", "1", CVAR_NONE },
-	{ &cg_reliableAnimEvents, "cg_reliableAnimEvents", "1", CVAR_ARCHIVE },
-	{ &cg_smoothPlayerPos, "cg_smoothPlayerPos", "0.5", CVAR_NONE},
-	{ &cg_smoothPlayerPlat, "cg_smoothPlayerPlat", "0.75", CVAR_NONE},
-	{ &cg_smoothPlayerPlatAccel, "cg_smoothPlayerPlatAccel", "3.25", CVAR_NONE},
-	{ &cg_g2Marks, "cg_g2Marks", "1", CVAR_ARCHIVE },
-	{ &fx_expensivePhysics, "fx_expensivePhysics", "1", CVAR_ARCHIVE },
-	{ &cg_debugHealthBars,	"cg_debugHealthBars",	"0", CVAR_CHEAT },
+	{ &cg_VariantSoundCap, "cg_VariantSoundCap", "0", cvarFlags_t::CVAR_NONE },
+	{ &cg_turnAnims, "cg_turnAnims", "0", cvarFlags_t::CVAR_NONE },
+	{ &cg_motionBoneComp, "cg_motionBoneComp", "2", cvarFlags_t::CVAR_NONE },
+	{ &cg_distributeMBCorrection, "cg_distributeMBCorrection", "1", cvarFlags_t::CVAR_NONE },
+	{ &cg_reliableAnimEvents, "cg_reliableAnimEvents", "1", cvarFlags_t::CVAR_ARCHIVE },
+	{ &cg_smoothPlayerPos, "cg_smoothPlayerPos", "0.5", cvarFlags_t::CVAR_NONE},
+	{ &cg_smoothPlayerPlat, "cg_smoothPlayerPlat", "0.75", cvarFlags_t::CVAR_NONE},
+	{ &cg_smoothPlayerPlatAccel, "cg_smoothPlayerPlatAccel", "3.25", cvarFlags_t::CVAR_NONE},
+	{ &cg_g2Marks, "cg_g2Marks", "1", cvarFlags_t::CVAR_ARCHIVE },
+	{ &fx_expensivePhysics, "fx_expensivePhysics", "1", cvarFlags_t::CVAR_ARCHIVE },
+	{ &cg_debugHealthBars,	"cg_debugHealthBars",	"0", cvarFlags_t::CVAR_CHEAT },
 
-	{ &cg_speedTrail, "cg_speedTrail", "1", CVAR_ARCHIVE },
-	{ &cg_fovViewmodel, "cg_fovViewmodel", "0", CVAR_ARCHIVE },
-	{ &cg_fovViewmodelAdjust, "cg_fovViewmodelAdjust", "1", CVAR_ARCHIVE },
+	{ &cg_speedTrail, "cg_speedTrail", "1", cvarFlags_t::CVAR_ARCHIVE },
+	{ &cg_fovViewmodel, "cg_fovViewmodel", "0", cvarFlags_t::CVAR_ARCHIVE },
+	{ &cg_fovViewmodelAdjust, "cg_fovViewmodelAdjust", "1", cvarFlags_t::CVAR_ARCHIVE },
 
-	{ &cg_scaleVehicleSensitivity, "cg_scaleVehicleSensitivity", "1", CVAR_ARCHIVE },
+	{ &cg_scaleVehicleSensitivity, "cg_scaleVehicleSensitivity", "1", cvarFlags_t::CVAR_ARCHIVE },
 };
 
 static const size_t cvarTableSize = ARRAY_LEN( cvarTable );
@@ -534,7 +534,7 @@ int CG_GetCameraPos( vec3_t camerapos ) {
 		VectorCopy( cg.refdef.vieworg, camerapos );
 		return 1;
 	}
-	else if (cg.snap && (cg.snap->ps.weapon == WP_SABER||cg.snap->ps.weapon == WP_MELEE) )//implied: !cg.renderingThirdPerson
+	else if (cg.snap && (cg.snap->ps.weapon == weapon_t::WP_SABER||cg.snap->ps.weapon == weapon_t::WP_MELEE) )//implied: !cg.renderingThirdPerson
 	{//first person saber hack
 		VectorCopy( cg.refdef.vieworg, camerapos );
 		return 1;
@@ -717,7 +717,7 @@ static void CG_RegisterSounds( void ) {
 	cgs.media.watrOutSound = cgi_S_RegisterSound ("sound/player/watr_out.wav");
 	cgs.media.watrUnSound = cgi_S_RegisterSound ("sound/player/watr_un.wav");
 
-	if ( Any( gi.totalMapContents()&CONTENTS_LAVA ) )
+	if ( Any( gi.totalMapContents()&contentsFlags_t::CONTENTS_LAVA ) )
 	{
 		cgs.media.lavaInSound = cgi_S_RegisterSound ("sound/player/inlava.wav");
 		cgs.media.lavaOutSound = cgi_S_RegisterSound ("sound/player/watr_out.wav");
@@ -739,68 +739,68 @@ static void CG_RegisterSounds( void ) {
 
 	for (i=0 ; i<4 ; i++) {
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/stone_step%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_STONEWALK][i] = cgi_S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_STONEWALK][i] = cgi_S_RegisterSound (name);
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/stone_run%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_STONERUN][i] = cgi_S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_STONERUN][i] = cgi_S_RegisterSound (name);
 
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/metal_step%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_METALWALK][i] = cgi_S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_METALWALK][i] = cgi_S_RegisterSound (name);
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/metal_run%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_METALRUN][i] = cgi_S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_METALRUN][i] = cgi_S_RegisterSound (name);
 
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/pipe_step%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_PIPEWALK][i] = cgi_S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_PIPEWALK][i] = cgi_S_RegisterSound (name);
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/pipe_run%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_PIPERUN][i] = cgi_S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_PIPERUN][i] = cgi_S_RegisterSound (name);
 
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/water_run%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_SPLASH][i] = cgi_S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_SPLASH][i] = cgi_S_RegisterSound (name);
 
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/water_walk%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_WADE][i] = cgi_S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_WADE][i] = cgi_S_RegisterSound (name);
 
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/water_wade_0%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_SWIM][i] = cgi_S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_SWIM][i] = cgi_S_RegisterSound (name);
 
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/snow_step%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_SNOWWALK][i] = cgi_S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_SNOWWALK][i] = cgi_S_RegisterSound (name);
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/snow_run%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_SNOWRUN][i] = cgi_S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_SNOWRUN][i] = cgi_S_RegisterSound (name);
 
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/sand_walk%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_SANDWALK][i] = cgi_S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_SANDWALK][i] = cgi_S_RegisterSound (name);
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/sand_run%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_SANDRUN][i] = cgi_S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_SANDRUN][i] = cgi_S_RegisterSound (name);
 
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/grass_step%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_GRASSWALK][i] = cgi_S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_GRASSWALK][i] = cgi_S_RegisterSound (name);
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/grass_run%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_GRASSRUN][i] = cgi_S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_GRASSRUN][i] = cgi_S_RegisterSound (name);
 
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/dirt_step%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_DIRTWALK][i] = cgi_S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_DIRTWALK][i] = cgi_S_RegisterSound (name);
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/dirt_run%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_DIRTRUN][i] = cgi_S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_DIRTRUN][i] = cgi_S_RegisterSound (name);
 
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/mud_walk%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_MUDWALK][i] = cgi_S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_MUDWALK][i] = cgi_S_RegisterSound (name);
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/mud_run%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_MUDRUN][i] = cgi_S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_MUDRUN][i] = cgi_S_RegisterSound (name);
 
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/gravel_walk%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_GRAVELWALK][i] = cgi_S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_GRAVELWALK][i] = cgi_S_RegisterSound (name);
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/gravel_run%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_GRAVELRUN][i] = cgi_S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_GRAVELRUN][i] = cgi_S_RegisterSound (name);
 
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/rug_step%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_RUGWALK][i] = cgi_S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_RUGWALK][i] = cgi_S_RegisterSound (name);
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/rug_run%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_RUGRUN][i] = cgi_S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_RUGRUN][i] = cgi_S_RegisterSound (name);
 
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/wood_walk%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_WOODWALK][i] = cgi_S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_WOODWALK][i] = cgi_S_RegisterSound (name);
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/wood_run%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_WOODRUN][i] = cgi_S_RegisterSound (name);
+		cgs.media.footsteps[footstep_t::FOOTSTEP_WOODRUN][i] = cgi_S_RegisterSound (name);
 	}
 
 	cg.loadLCARSStage = 1;
@@ -811,7 +811,7 @@ static void CG_RegisterSounds( void ) {
 	//Raz: Fixed buffer overflow
 	Q_strncpyz(items, CG_ConfigString(CS_ITEMS), sizeof(items));
 
-	for ( itemNum_t itemNum = ITM_NONE + 1 ; itemNum < ITM_NUM_ITEMS ; itemNum++ ) {
+	for ( itemNum_t itemNum = itemNum_t::ITM_NONE + 1 ; itemNum < itemNum_t::ITM_NUM_ITEMS ; itemNum++ ) {
 		if ( items[ to_underlying( itemNum ) ] == '1' )	//even with sound pooling, don't clutter it for low end machines
 		{
 			CG_RegisterItemSounds( itemNum );
@@ -1137,16 +1137,16 @@ static void CG_RegisterEffects( void )
 	cgs.effects.landingSnow = theFxScheduler.RegisterEffect( "materials/snow_large" );
 	cgs.effects.landingGravel = theFxScheduler.RegisterEffect( "materials/gravel_large" );
 	//splashes
-	if ( Any( gi.totalMapContents()&CONTENTS_WATER ) )
+	if ( Any( gi.totalMapContents()&contentsFlags_t::CONTENTS_WATER ) )
 	{
 		theFxScheduler.RegisterEffect( "env/water_impact" );
 		theFxScheduler.RegisterEffect( "misc/waterbreath" );
 	}
-	if ( Any( gi.totalMapContents()&CONTENTS_LAVA ) )
+	if ( Any( gi.totalMapContents()&contentsFlags_t::CONTENTS_LAVA ) )
 	{
 		theFxScheduler.RegisterEffect( "env/lava_splash" );
 	}
-	if ( Any( gi.totalMapContents()&CONTENTS_SLIME ) )
+	if ( Any( gi.totalMapContents()&contentsFlags_t::CONTENTS_SLIME ) )
 	{
 		theFxScheduler.RegisterEffect( "env/acid_splash" );
 	}
@@ -1227,7 +1227,7 @@ HUDMenuItem_t healthTics[] =
 };
 
 
-EnumArray<HUDMenuItem_t, otherhudbits_t, OHB_MAX> otherHUDBits =
+EnumArray<HUDMenuItem_t, otherhudbits_t, otherhudbits_t::OHB_MAX> otherHUDBits =
 { {
 	{ "lefthud", "healthamount",			0,  0,  0,  0, { 0.0f, 0.0f, 0.0f, 0.0f }, NULL_HANDLE },	// OHB_HEALTHAMOUNT
 	{ "lefthud", "armoramount",			0,  0,  0,  0, { 0.0f, 0.0f, 0.0f, 0.0f }, NULL_HANDLE },	// OHB_ARMORAMOUNT
@@ -1389,14 +1389,14 @@ static void CG_RegisterGraphics( void ) {
 	//FIXME: jfm:? bother to conditionally load these if an ent has this material type?
 	for ( i = 0; i < NUM_CHUNK_MODELS; i++ )
 	{
-		cgs.media.chunkModels[CHUNK_METAL2][i]	= cgi_R_RegisterModel( va( "models/chunks/metal/metal1_%i.md3", i+1 ) ); //_ /switched\ _
-		cgs.media.chunkModels[CHUNK_METAL1][i]	= cgi_R_RegisterModel( va( "models/chunks/metal/metal2_%i.md3", i+1 ) ); //  \switched/
-		cgs.media.chunkModels[CHUNK_ROCK1][i]	= cgi_R_RegisterModel( va( "models/chunks/rock/rock1_%i.md3", i+1 ) );
-		cgs.media.chunkModels[CHUNK_ROCK2][i]	= cgi_R_RegisterModel( va( "models/chunks/rock/rock2_%i.md3", i+1 ) );
-		cgs.media.chunkModels[CHUNK_ROCK3][i]	= cgi_R_RegisterModel( va( "models/chunks/rock/rock3_%i.md3", i+1 ) );
-		cgs.media.chunkModels[CHUNK_CRATE1][i]	= cgi_R_RegisterModel( va( "models/chunks/crate/crate1_%i.md3", i+1 ) );
-		cgs.media.chunkModels[CHUNK_CRATE2][i]	= cgi_R_RegisterModel( va( "models/chunks/crate/crate2_%i.md3", i+1 ) );
-		cgs.media.chunkModels[CHUNK_WHITE_METAL][i]	= cgi_R_RegisterModel( va( "models/chunks/metal/wmetal1_%i.md3", i+1 ) );
+		cgs.media.chunkModels[chunkType_t::CHUNK_METAL2][i]	= cgi_R_RegisterModel( va( "models/chunks/metal/metal1_%i.md3", i+1 ) ); //_ /switched\ _
+		cgs.media.chunkModels[chunkType_t::CHUNK_METAL1][i]	= cgi_R_RegisterModel( va( "models/chunks/metal/metal2_%i.md3", i+1 ) ); //  \switched/
+		cgs.media.chunkModels[chunkType_t::CHUNK_ROCK1][i]	= cgi_R_RegisterModel( va( "models/chunks/rock/rock1_%i.md3", i+1 ) );
+		cgs.media.chunkModels[chunkType_t::CHUNK_ROCK2][i]	= cgi_R_RegisterModel( va( "models/chunks/rock/rock2_%i.md3", i+1 ) );
+		cgs.media.chunkModels[chunkType_t::CHUNK_ROCK3][i]	= cgi_R_RegisterModel( va( "models/chunks/rock/rock3_%i.md3", i+1 ) );
+		cgs.media.chunkModels[chunkType_t::CHUNK_CRATE1][i]	= cgi_R_RegisterModel( va( "models/chunks/crate/crate1_%i.md3", i+1 ) );
+		cgs.media.chunkModels[chunkType_t::CHUNK_CRATE2][i]	= cgi_R_RegisterModel( va( "models/chunks/crate/crate2_%i.md3", i+1 ) );
+		cgs.media.chunkModels[chunkType_t::CHUNK_WHITE_METAL][i]	= cgi_R_RegisterModel( va( "models/chunks/metal/wmetal1_%i.md3", i+1 ) );
 	}
 
 	cgs.media.chunkSound			= cgi_S_RegisterSound("sound/weapons/explosions/glasslcar");
@@ -1432,7 +1432,7 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.useableHint = cgi_R_RegisterShader("gfx/hud/useableHint");
 
 	// Load up other HUD bits
-	for (otherhudbits_t i = OHB_HEALTHAMOUNT; i < OHB_MAX; i++)
+	for (otherhudbits_t i = otherhudbits_t::OHB_HEALTHAMOUNT; i < otherhudbits_t::OHB_MAX; i++)
 	{
 		cgi_UI_GetMenuItemInfo(
 			otherHUDBits[i].menuName,
@@ -1497,7 +1497,7 @@ static void CG_RegisterGraphics( void ) {
 	// only register the items that the server says we need
 	Q_strncpyz(items, CG_ConfigString(CS_ITEMS), sizeof(items));
 
-	for ( itemNum_t itemNum = ITM_NONE + 1 ; itemNum < ITM_NUM_ITEMS ; itemNum++ ) {
+	for ( itemNum_t itemNum = itemNum_t::ITM_NONE + 1 ; itemNum < itemNum_t::ITM_NUM_ITEMS ; itemNum++ ) {
 		if ( items[ to_underlying( itemNum ) ] == '1' )
 		{
 			if (bg_itemlist[itemNum].classname)
@@ -1506,9 +1506,9 @@ static void CG_RegisterGraphics( void ) {
 				CG_RegisterItemVisuals( itemNum );
 			}
 		}
-		if (bg_itemlist[itemNum].giType == IT_HOLDABLE)
+		if (bg_itemlist[itemNum].giType == itemType_t::IT_HOLDABLE)
 		{
-			if (GI_Inventory( bg_itemlist[itemNum] ) < INV_MAX)
+			if (GI_Inventory( bg_itemlist[itemNum] ) < inventory_t::INV_MAX)
 			{
 				inv_icons[GI_Inventory( bg_itemlist[itemNum] )] = cgi_R_RegisterShaderNoMip( bg_itemlist[itemNum].icon );
 			}
@@ -1516,8 +1516,8 @@ static void CG_RegisterGraphics( void ) {
 	}
 
 	//precache force power icons here
-/*	forcePowers_t fp = FP_FIRST;
-	while (fp < NUM_FORCE_POWERS)
+/*	forcePowers_t fp = forcePowers_t::FP_FIRST;
+	while (fp < forcePowers_t::NUM_FORCE_POWERS)
 	{
 		cgs.media.forcePowerIcons[fp] = cgi_R_RegisterShaderNoMip(HolocronIcons[fp]);
 		fp++;
@@ -1659,7 +1659,7 @@ Ghoul2 Insert End
 					}
 				}
 			}
-			else if ( Any( g_entities[i].svFlags & SVF_NPC_PRECACHE ) && g_entities[i].NPC_type && g_entities[i].NPC_type[0] )
+			else if ( Any( g_entities[i].svFlags & svFlags_t::SVF_NPC_PRECACHE ) && g_entities[i].NPC_type && g_entities[i].NPC_type[0] )
 			{//Precache the NPC_type
 				//FIXME: make sure we didn't precache this NPC_type already
 				CG_LoadingString( va("NPC %s", g_entities[i].NPC_type ) );
@@ -1835,7 +1835,7 @@ static void CG_GameStateReceived( void ) {
 	if (!qbVidRestartOccured)
 	{
 		CG_Init_CG();
-		cg.weaponSelect = WP_NONE;
+		cg.weaponSelect = weapon_t::WP_NONE;
 		cg.forcepowerSelect = 0;
 	}
 
@@ -1963,19 +1963,19 @@ void CG_CreateMiscEntFromGent(gentity_t *ent, const vec3_t scale, float zOff)
 { //store the model data
 	if (NumMiscEnts == MAX_MISC_ENTS)
 	{
-		Com_Error(ERR_DROP,"Maximum misc_model_static reached (%d)\n",MAX_MISC_ENTS);
+		Com_Error(errorParm_t::ERR_DROP,"Maximum misc_model_static reached (%d)\n",MAX_MISC_ENTS);
 		return;
 	}
 
 	if (!ent || !ent->model || !ent->model[0])
 	{
-		Com_Error(ERR_DROP, "misc_model_static with no model.");
+		Com_Error(errorParm_t::ERR_DROP, "misc_model_static with no model.");
 		return;
 	}
 	const size_t len = strlen(ent->model);
 	if (len < 4 || Q_stricmp(&ent->model[len-4],".md3")!=0)
 	{
-		Com_Error(ERR_DROP, "misc_model_static model(%s) is not an md3.",ent->model);
+		Com_Error(errorParm_t::ERR_DROP, "misc_model_static model(%s) is not an md3.",ent->model);
 		return;
 	}
 	cgMiscEntData_t	*MiscEnt = &MiscEnts[NumMiscEnts++];
@@ -2002,7 +2002,7 @@ void CG_CreateMiscEnts(void)
 		MiscEnt->hModel = cgi_R_RegisterModel(MiscEnt->model);
 		if (MiscEnt->hModel == 0)
 		{
-			Com_Error(ERR_DROP, "misc_model_static failed to load model '%s'",MiscEnt->model);
+			Com_Error(errorParm_t::ERR_DROP, "misc_model_static failed to load model '%s'",MiscEnt->model);
 			continue;
 		}
 
@@ -2023,9 +2023,9 @@ void CG_DrawMiscEnts(void)
 	vec3_t		cullOrigin;
 
 	memset (&refEnt, 0, sizeof(refEnt));
-	refEnt.reType = RT_MODEL;
+	refEnt.reType = refEntityType_t::RT_MODEL;
 	refEnt.frame = 0;
-	refEnt.renderfx = RF_LIGHTING_ORIGIN;
+	refEnt.renderfx = renderFxFlags_t::RF_LIGHTING_ORIGIN;
 	for(i=0;i<NumMiscEnts;i++)
 	{
 		VectorCopy(MiscEnt->origin, cullOrigin);
@@ -2118,7 +2118,7 @@ void CG_Init( int serverCommandSequence ) {
 	cgs.media.loadTick		= cgi_R_RegisterShaderNoMip( "gfx/hud/load_tick" );
 	cgs.media.loadTickCap	= cgi_R_RegisterShaderNoMip( "gfx/hud/load_tick_cap" );
 
-	EnumArray<const char *, forcePowers_t, NUM_FORCE_POWERS>	force_icon_files =
+	EnumArray<const char *, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS>	force_icon_files =
 	{//icons matching enums forcePowers_t
 		"gfx/mp/f_icon_lt_heal",		//FP_HEAL,
 		"gfx/mp/f_icon_levitation",		//FP_LEVITATION,
@@ -2139,7 +2139,7 @@ void CG_Init( int serverCommandSequence ) {
 	};
 
 	// Precache inventory icons
-	for ( forcePowers_t i = FP_FIRST; i < NUM_FORCE_POWERS; i++ )
+	for ( forcePowers_t i = forcePowers_t::FP_FIRST; i < forcePowers_t::NUM_FORCE_POWERS; i++ )
 	{
 		if (force_icon_files[i])
 		{
@@ -2196,7 +2196,7 @@ void CG_DrawNode( vec3_t origin, nodeType_t type )
 
 	ex = CG_AllocLocalEntity();
 
-	ex->leType = LE_SPRITE;
+	ex->leType = leType_t::LE_SPRITE;
 	ex->startTime = cg.time;
 	ex->endTime = ex->startTime + 51;
 	VectorCopy( origin, ex->refEntity.origin );
@@ -2207,27 +2207,27 @@ void CG_DrawNode( vec3_t origin, nodeType_t type )
 
 	switch ( type )
 	{
-	case NODE_NORMAL:
+	case nodeType_t::NODE_NORMAL:
 		ex->color[0] = 255;
 		ex->color[1] = 255;
 		ex->color[2] = 0;
 		break;
 
-	case NODE_FLOATING:
+	case nodeType_t::NODE_FLOATING:
 		ex->color[0] = 0;
 		ex->color[1] = 255;
 		ex->color[2] = 255;
 		scale += 16.0f;
 		break;
 
-	case NODE_GOAL:
+	case nodeType_t::NODE_GOAL:
 		ex->color[0] = 255;
 		ex->color[1] = 0;
 		ex->color[2] = 0;
 		scale += 16.0f;
 		break;
 
-	case NODE_NAVGOAL:
+	case nodeType_t::NODE_NAVGOAL:
 		ex->color[0] = 0;
 		ex->color[1] = 255;
 		ex->color[2] = 0;
@@ -2249,7 +2249,7 @@ void CG_DrawRadius( vec3_t origin, unsigned int radius, nodeType_t type )
 
 	ex = CG_AllocLocalEntity();
 
-	ex->leType = LE_QUAD;
+	ex->leType = leType_t::LE_QUAD;
 	ex->radius = radius;
 	ex->startTime = cg.time;
 	ex->endTime = ex->startTime + 51;
@@ -2259,25 +2259,25 @@ void CG_DrawRadius( vec3_t origin, unsigned int radius, nodeType_t type )
 
 	switch ( type )
 	{
-	case NODE_NORMAL:
+	case nodeType_t::NODE_NORMAL:
 		ex->color[0] = 255;
 		ex->color[1] = 255;
 		ex->color[2] = 0;
 		break;
 
-	case NODE_FLOATING:
+	case nodeType_t::NODE_FLOATING:
 		ex->color[0] = 0;
 		ex->color[1] = 255;
 		ex->color[2] = 255;
 		break;
 
-	case NODE_GOAL:
+	case nodeType_t::NODE_GOAL:
 		ex->color[0] = 255;
 		ex->color[1] = 0;
 		ex->color[2] = 0;
 		break;
 
-	case NODE_NAVGOAL:
+	case nodeType_t::NODE_NAVGOAL:
 		ex->color[0] = 0;
 		ex->color[1] = 255;
 		ex->color[2] = 0;
@@ -2297,32 +2297,32 @@ void CG_DrawEdge( vec3_t start, vec3_t end, edgeType_t type )
 	{
 		// NAVIGATION EDGES BETWEEN POINTS
 		//=====================================
-	case EDGE_NORMAL:
+	case edgeType_t::EDGE_NORMAL:
 		{
-			FX_AddLine( start, end, 8.0f, 4.0f, 0.0f, 0.5f, 0.5f, 51, cgi_R_RegisterShader( "gfx/misc/nav_line" ), FX_NONE );
+			FX_AddLine( start, end, 8.0f, 4.0f, 0.0f, 0.5f, 0.5f, 51, cgi_R_RegisterShader( "gfx/misc/nav_line" ), fxPrimitiveFlags_t::FX_NONE );
 		}
 		break;
-	case EDGE_LARGE:
+	case edgeType_t::EDGE_LARGE:
 		{
-			FX_AddLine( start, end, 8.0f, 15.0f, 0.0f, 0.5f, 0.5f, 51, cgi_R_RegisterShader( "gfx/misc/nav_line" ), FX_NONE );
+			FX_AddLine( start, end, 8.0f, 15.0f, 0.0f, 0.5f, 0.5f, 51, cgi_R_RegisterShader( "gfx/misc/nav_line" ), fxPrimitiveFlags_t::FX_NONE );
 		}
 		break;
-	case EDGE_BLOCKED:
+	case edgeType_t::EDGE_BLOCKED:
 		{
 			vec3_t	color = { 255, 0, 0 };	// RED
-			FX_AddLine( start, end, 8.0f, 4.0f, 0.0f, 0.5f, 0.5f, color, color, 51, cgi_R_RegisterShader( "gfx/misc/nav_line" ), FX_NONE );
+			FX_AddLine( start, end, 8.0f, 4.0f, 0.0f, 0.5f, 0.5f, color, color, 51, cgi_R_RegisterShader( "gfx/misc/nav_line" ), fxPrimitiveFlags_t::FX_NONE );
 		}
 		break;
-	case EDGE_FLY:
+	case edgeType_t::EDGE_FLY:
 		{
 			vec3_t	color = { 0, 255, 255 };// GREEN
-			FX_AddLine( start, end, 8.0f, 4.0f, 0.0f, 0.5f, 0.5f, color, color, 51, cgi_R_RegisterShader( "gfx/misc/nav_line" ), FX_NONE );
+			FX_AddLine( start, end, 8.0f, 4.0f, 0.0f, 0.5f, 0.5f, color, color, 51, cgi_R_RegisterShader( "gfx/misc/nav_line" ), fxPrimitiveFlags_t::FX_NONE );
 		}
 		break;
-	case EDGE_JUMP:
+	case edgeType_t::EDGE_JUMP:
 		{
 			vec3_t	color = { 0, 0, 255 };	// BLUE
-			FX_AddLine( start, end, 8.0f, 4.0f, 0.0f, 0.5f, 0.5f, color, color, 51, cgi_R_RegisterShader( "gfx/misc/nav_line" ), FX_NONE );
+			FX_AddLine( start, end, 8.0f, 4.0f, 0.0f, 0.5f, 0.5f, color, color, 51, cgi_R_RegisterShader( "gfx/misc/nav_line" ), fxPrimitiveFlags_t::FX_NONE );
 		}
 		break;
 
@@ -2330,28 +2330,28 @@ void CG_DrawEdge( vec3_t start, vec3_t end, edgeType_t type )
 
 		// EDGE NODES
 		//=====================================
-	case EDGE_NODE_NORMAL:
+	case edgeType_t::EDGE_NODE_NORMAL:
 		{
 			vec3_t	color = { 155, 155, 155 };
-			FX_AddLine( start, end, 2.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), FX_NONE );
+			FX_AddLine( start, end, 2.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), fxPrimitiveFlags_t::FX_NONE );
 		}
 		break;
-	case EDGE_NODE_FLOATING:
+	case edgeType_t::EDGE_NODE_FLOATING:
 		{
 			vec3_t	color = { 155, 155, 0 };
-			FX_AddLine( start, end, 2.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), FX_NONE );
+			FX_AddLine( start, end, 2.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), fxPrimitiveFlags_t::FX_NONE );
 		}
 		break;
-	case EDGE_NODE_GOAL:
+	case edgeType_t::EDGE_NODE_GOAL:
 		{
 			vec3_t	color = { 0, 0, 155 };
-			FX_AddLine( start, end, 2.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), FX_NONE );
+			FX_AddLine( start, end, 2.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), fxPrimitiveFlags_t::FX_NONE );
 		}
 		break;
-	case EDGE_NODE_COMBAT:
+	case edgeType_t::EDGE_NODE_COMBAT:
 		{
 			vec3_t	color = { 155, 0, 0 };
-			FX_AddLine( start, end, 2.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), FX_NONE );
+			FX_AddLine( start, end, 2.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), fxPrimitiveFlags_t::FX_NONE );
 		}
 		break;
 
@@ -2360,113 +2360,113 @@ void CG_DrawEdge( vec3_t start, vec3_t end, edgeType_t type )
 
 		// NEAREST NAV
 		//=====================================
-	case EDGE_NEARESTVALID:
+	case edgeType_t::EDGE_NEARESTVALID:
 		{
 			vec3_t	color = { 155, 155, 155 };	// WHITE
-			FX_AddLine( -1, start, end, 1.0f, 1.0f, 0, 1.0f, 1.0f, 0, color, color, 0, 51, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0, FX_ALPHA_LINEAR );
+			FX_AddLine( -1, start, end, 1.0f, 1.0f, 0, 1.0f, 1.0f, 0, color, color, 0, 51, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0, fxPrimitiveFlags_t::FX_ALPHA_LINEAR );
 		}
 		break;
 
-	case EDGE_NEARESTINVALID:
+	case edgeType_t::EDGE_NEARESTINVALID:
 		{
 			vec3_t	color = { 155, 0, 0 };	// WHITE
-			FX_AddLine( -1, start, end, 1.0f, 1.0f, 0, 1.0f, 1.0f, 0, color, color, 0, 51, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0, FX_ALPHA_LINEAR );
+			FX_AddLine( -1, start, end, 1.0f, 1.0f, 0, 1.0f, 1.0f, 0, color, color, 0, 51, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0, fxPrimitiveFlags_t::FX_ALPHA_LINEAR );
 		}
 		break;
 
 
 		// NEAREST NAV CELLS
 		//=====================================
-	case EDGE_CELL:
+	case edgeType_t::EDGE_CELL:
 		{
 			vec3_t	color = { 155, 155, 155 };	// WHITE
-			FX_AddLine( -1, start, end, 1.0f, 1.0f, 0, 1.0f, 1.0f, 0, color, color, 0, 51, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0, FX_ALPHA_LINEAR );
+			FX_AddLine( -1, start, end, 1.0f, 1.0f, 0, 1.0f, 1.0f, 0, color, color, 0, 51, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0, fxPrimitiveFlags_t::FX_ALPHA_LINEAR );
 		}
 		break;
-	case EDGE_CELL_EMPTY:
+	case edgeType_t::EDGE_CELL_EMPTY:
 		{
 			vec3_t	color = { 255, 0, 0 };		// RED
-			FX_AddLine( -1, start, end, 1.0f, 1.0f, 0, 1.0f, 1.0f, 0, color, color, 0, 51, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0, FX_ALPHA_LINEAR );
+			FX_AddLine( -1, start, end, 1.0f, 1.0f, 0, 1.0f, 1.0f, 0, color, color, 0, 51, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0, fxPrimitiveFlags_t::FX_ALPHA_LINEAR );
 		}
 		break;
 
 
 		// ACTOR PATHS
 		//=============
-	case EDGE_PATH:
+	case edgeType_t::EDGE_PATH:
 		{
   			vec3_t	color = { 0, 0, 155 };		// WHITE
- 			FX_AddLine( start, end, 5.0f, 5.0f, 0.0f, 0.5f, 0.5f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/nav_arrow_new" ), FX_NONE );
+ 			FX_AddLine( start, end, 5.0f, 5.0f, 0.0f, 0.5f, 0.5f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/nav_arrow_new" ), fxPrimitiveFlags_t::FX_NONE );
 		}
 		break;
 
-	case EDGE_PATHBLOCKED:
+	case edgeType_t::EDGE_PATHBLOCKED:
 		{
  			vec3_t	color = { 255, 0, 0 };		// RED
-			FX_AddLine( start, end, 5.0f, 5.0f, 0.0f, 0.5f, 0.5f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/nav_arrow_new" ), FX_NONE );
+			FX_AddLine( start, end, 5.0f, 5.0f, 0.0f, 0.5f, 0.5f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/nav_arrow_new" ), fxPrimitiveFlags_t::FX_NONE );
 			break;
 		}
 
-	case EDGE_FOLLOWPOS:
+	case edgeType_t::EDGE_FOLLOWPOS:
 		{
 			vec3_t	color = { 0, 255, 0 };		// GREEN
-			FX_AddLine( start, end, 5.0f, 5.0f, 0.0f, 0.5f, 0.5f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/nav_arrow_new" ), FX_NONE );
+			FX_AddLine( start, end, 5.0f, 5.0f, 0.0f, 0.5f, 0.5f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/nav_arrow_new" ), fxPrimitiveFlags_t::FX_NONE );
 			break;
 		}
 
 
 		// STEERING
 		//=====================================
-	case EDGE_IMPACT_SAFE:
+	case edgeType_t::EDGE_IMPACT_SAFE:
 		{
 			vec3_t	color = { 155, 155, 155 };	// WHITE
-			FX_AddLine( start, end, 2.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), FX_NONE );
+			FX_AddLine( start, end, 2.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), fxPrimitiveFlags_t::FX_NONE );
 		}
 		break;
-	case EDGE_IMPACT_POSSIBLE:
+	case edgeType_t::EDGE_IMPACT_POSSIBLE:
 		{
 			vec3_t	color = { 255, 0, 0 };		// RED
-			FX_AddLine( start, end, 2.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), FX_NONE );
+			FX_AddLine( start, end, 2.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), fxPrimitiveFlags_t::FX_NONE );
 		}
 		break;
-	case EDGE_VELOCITY:
+	case edgeType_t::EDGE_VELOCITY:
 		{
 			vec3_t	color = { 0, 255, 0 };		// GREEN
-			FX_AddLine( start, end, 4.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), FX_NONE );
+			FX_AddLine( start, end, 4.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), fxPrimitiveFlags_t::FX_NONE );
 		}
 		break;
-	case EDGE_THRUST:
+	case edgeType_t::EDGE_THRUST:
 		{
 			vec3_t	color = { 0, 0, 255 };		// BLUE
-			FX_AddLine( start, end, 3.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), FX_NONE );
+			FX_AddLine( start, end, 3.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), fxPrimitiveFlags_t::FX_NONE );
 		}
 		break;
 
 
 		// MISC Colored Lines
 		//=====================================
-	case EDGE_WHITE_ONESECOND:
+	case edgeType_t::EDGE_WHITE_ONESECOND:
 		{
 			vec3_t	color = { 155, 155, 155 };	// WHITE
-			FX_AddLine( start, end, 3.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 1051, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), FX_NONE );
+			FX_AddLine( start, end, 3.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 1051, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), fxPrimitiveFlags_t::FX_NONE );
 		}
 		break;
-	case EDGE_WHITE_TWOSECOND:
+	case edgeType_t::EDGE_WHITE_TWOSECOND:
 		{
 			vec3_t	color = { 155, 155, 155 };	// WHITE
-			FX_AddLine( start, end, 3.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 1051, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), FX_NONE );
+			FX_AddLine( start, end, 3.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 1051, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), fxPrimitiveFlags_t::FX_NONE );
 		}
 		break;
-	case EDGE_RED_ONESECOND:
+	case edgeType_t::EDGE_RED_ONESECOND:
 		{
 			vec3_t	color = { 255, 0, 0 };		// RED
-			FX_AddLine( start, end, 3.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 2051, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), FX_NONE );
+			FX_AddLine( start, end, 3.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 2051, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), fxPrimitiveFlags_t::FX_NONE );
 		}
 		break;
-	case EDGE_RED_TWOSECOND:
+	case edgeType_t::EDGE_RED_TWOSECOND:
 		{
 			vec3_t	color = { 255, 0, 0 };		// RED
-			FX_AddLine( start, end, 3.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 2051, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), FX_NONE );
+			FX_AddLine( start, end, 3.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 2051, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), fxPrimitiveFlags_t::FX_NONE );
 		}
 		break;
 
@@ -2487,7 +2487,7 @@ void CG_DrawCombatPoint( vec3_t origin, int type )
 
 	ex = CG_AllocLocalEntity();
 
-	ex->leType = LE_SPRITE;
+	ex->leType = leType_t::LE_SPRITE;
 	ex->startTime = cg.time;
 	ex->radius = 8;
 	ex->endTime = ex->startTime + 51;
@@ -2882,7 +2882,7 @@ void CG_LoadMenus(const char *menuFile)
 
 	//start = cgi_Milliseconds();
 
-	len = cgi_FS_FOpenFile( menuFile, &f, FS_READ );
+	len = cgi_FS_FOpenFile( menuFile, &f, fsMode_t::FS_READ );
 	if ( !f )
 	{
 		if ( Q_isanumber( menuFile ) ) // cg_hudFiles 1
@@ -2890,7 +2890,7 @@ void CG_LoadMenus(const char *menuFile)
 		else
 			CG_Printf( S_COLOR_YELLOW "hud menu file not found: %s, using default\n", menuFile );
 
-		len = cgi_FS_FOpenFile( "ui/jahud.txt", &f, FS_READ );
+		len = cgi_FS_FOpenFile( "ui/jahud.txt", &f, fsMode_t::FS_READ );
 		if (!f)
 		{
 			cgi_Error( S_COLOR_RED "default menu file not found: ui/hud.txt, unable to continue!\n" );
@@ -3074,13 +3074,13 @@ void CG_DPPrevInventory_f( void )
 
 	const inventory_t original = cg.DataPadInventorySelect;
 
-	for ( i = INV_ELECTROBINOCULARS ; i < INV_MAX ; i++ )
+	for ( i = inventory_t::INV_ELECTROBINOCULARS ; i < inventory_t::INV_MAX ; i++ )
 	{
 		cg.DataPadInventorySelect--;
 
-		if ((cg.DataPadInventorySelect < INV_ELECTROBINOCULARS) || (cg.DataPadInventorySelect >= INV_MAX))
+		if ((cg.DataPadInventorySelect < inventory_t::INV_ELECTROBINOCULARS) || (cg.DataPadInventorySelect >= inventory_t::INV_MAX))
 		{
-			cg.DataPadInventorySelect = (INV_MAX - 1);
+			cg.DataPadInventorySelect = (inventory_t::INV_MAX - 1);
 		}
 
 		if ( CG_InventorySelectable( cg.DataPadInventorySelect ) )
@@ -3107,13 +3107,13 @@ void CG_DPNextInventory_f( void )
 
 	const inventory_t original = cg.DataPadInventorySelect;
 
-	for ( i = INV_ELECTROBINOCULARS ; i < INV_MAX ; i++ )
+	for ( i = inventory_t::INV_ELECTROBINOCULARS ; i < inventory_t::INV_MAX ; i++ )
 	{
 		cg.DataPadInventorySelect++;
 
-		if ((cg.DataPadInventorySelect < INV_ELECTROBINOCULARS) || (cg.DataPadInventorySelect >= INV_MAX))
+		if ((cg.DataPadInventorySelect < inventory_t::INV_ELECTROBINOCULARS) || (cg.DataPadInventorySelect >= inventory_t::INV_MAX))
 		{
-			cg.DataPadInventorySelect = INV_ELECTROBINOCULARS;
+			cg.DataPadInventorySelect = inventory_t::INV_ELECTROBINOCULARS;
 		}
 
 		if ( CG_InventorySelectable( cg.DataPadInventorySelect ) && (inv_icons[cg.DataPadInventorySelect]))
@@ -3150,18 +3150,18 @@ void CG_NextInventory_f( void )
 
 	const inventory_t original = cg.inventorySelect;
 
-	for ( i = INV_ELECTROBINOCULARS ; i < INV_MAX ; i++ )
+	for ( i = inventory_t::INV_ELECTROBINOCULARS ; i < inventory_t::INV_MAX ; i++ )
 	{
 		cg.inventorySelect++;
 
-		if ((cg.inventorySelect < INV_ELECTROBINOCULARS) || (cg.inventorySelect >= INV_MAX))
+		if ((cg.inventorySelect < inventory_t::INV_ELECTROBINOCULARS) || (cg.inventorySelect >= inventory_t::INV_MAX))
 		{
-			cg.inventorySelect = INV_ELECTROBINOCULARS;
+			cg.inventorySelect = inventory_t::INV_ELECTROBINOCULARS;
 		}
 
 		if ( CG_InventorySelectable( cg.inventorySelect ) && (inv_icons[cg.inventorySelect]))
 		{
-			cgi_S_StartSound (nullptr, 0, CHAN_AUTO, cgs.media.selectSound2 );
+			cgi_S_StartSound (nullptr, 0, soundChannel_t::CHAN_AUTO, cgs.media.selectSound2 );
 			SetInventoryTime();
 			return;
 		}
@@ -3204,18 +3204,18 @@ void CG_PrevInventory_f( void )
 
 	const inventory_t original = cg.inventorySelect;
 
-	for ( i = INV_ELECTROBINOCULARS ; i < INV_MAX ; i++ )
+	for ( i = inventory_t::INV_ELECTROBINOCULARS ; i < inventory_t::INV_MAX ; i++ )
 	{
 		cg.inventorySelect--;
 
-		if ((cg.inventorySelect < INV_ELECTROBINOCULARS) || (cg.inventorySelect >= INV_MAX))
+		if ((cg.inventorySelect < inventory_t::INV_ELECTROBINOCULARS) || (cg.inventorySelect >= inventory_t::INV_MAX))
 		{
-			cg.inventorySelect = (INV_MAX - 1);
+			cg.inventorySelect = (inventory_t::INV_MAX - 1);
 		}
 
 		if ( CG_InventorySelectable( cg.inventorySelect ) && (inv_icons[cg.inventorySelect]))
 		{
-			cgi_S_StartSound (nullptr, 0, CHAN_AUTO, cgs.media.selectSound2 );
+			cgi_S_StartSound (nullptr, 0, soundChannel_t::CHAN_AUTO, cgs.media.selectSound2 );
 			SetInventoryTime();
 			return;
 		}
@@ -3232,9 +3232,9 @@ FindInventoryItemTag
 */
 gitem_t *FindInventoryItemTag(inventory_t tag)
 {
-	for ( itemNum_t i = ITM_NONE + 1 ; i < ITM_NUM_ITEMS ; i++ )
+	for ( itemNum_t i = itemNum_t::ITM_NONE + 1 ; i < itemNum_t::ITM_NUM_ITEMS ; i++ )
 	{
-		if ( GI_Inventory( bg_itemlist[i] ) == tag && bg_itemlist[i].giType == IT_HOLDABLE ) // I guess giTag's aren't unique amongst items..must also make sure it's a holdable
+		if ( GI_Inventory( bg_itemlist[i] ) == tag && bg_itemlist[i].giType == itemType_t::IT_HOLDABLE ) // I guess giTag's aren't unique amongst items..must also make sure it's a holdable
 		{
 			return &bg_itemlist[i];
 		}
@@ -3265,7 +3265,7 @@ void CG_DrawInventorySelect( void )
 	char			text[1024]={0};
 
 	// don't display if dead
-	if ( cg.predicted_player_state.stats[STAT_HEALTH] <= 0 || ( cg.snap->ps.viewEntity > 0 && cg.snap->ps.viewEntity < ENTITYNUM_WORLD ))
+	if ( cg.predicted_player_state.stats[statIndex_t::STAT_HEALTH] <= 0 || ( cg.snap->ps.viewEntity > 0 && cg.snap->ps.viewEntity < ENTITYNUM_WORLD ))
 	{
 		return;
 	}
@@ -3288,7 +3288,7 @@ void CG_DrawInventorySelect( void )
 
 	// count the number of items owned
 	count = 0;
-	for ( i = INV_ELECTROBINOCULARS ; i < INV_MAX ; i++ )
+	for ( i = inventory_t::INV_ELECTROBINOCULARS ; i < inventory_t::INV_MAX ; i++ )
 	{
 		if (CG_InventorySelectable(i) && inv_icons[i])
 		{
@@ -3301,7 +3301,7 @@ void CG_DrawInventorySelect( void )
 		cgi_SP_GetStringTextString("SP_INGAME_EMPTY_INV",text, sizeof(text) );
 		int w = cgi_R_Font_StrLenPixels( text, cgs.media.qhFontSmall, 1.0f );
 		int x = ( SCREEN_WIDTH - w ) / 2;
-		CG_DrawProportionalString(x, y2 + 22, text, CG_CENTER | CG_SMALLFONT, colorTable[CT_ICON_BLUE]);
+		CG_DrawProportionalString(x, y2 + 22, text, textStyleFlags_t::CG_CENTER | textStyleFlags_t::CG_SMALLFONT, colorTable[ct_table_t::CT_ICON_BLUE]);
 		return;
 	}
 
@@ -3326,9 +3326,9 @@ void CG_DrawInventorySelect( void )
 	}
 
 	i = cg.inventorySelect - 1;
-	if (i<INV_ELECTROBINOCULARS)
+	if (i<inventory_t::INV_ELECTROBINOCULARS)
 	{
-		i = INV_MAX-1;
+		i = inventory_t::INV_MAX-1;
 	}
 
 	const int smallIconSize = 40;
@@ -3346,9 +3346,9 @@ void CG_DrawInventorySelect( void )
 
 	for (iconCnt=0;iconCnt<sideLeftIconCnt;i--)
 	{
-		if (i<INV_ELECTROBINOCULARS)
+		if (i<inventory_t::INV_ELECTROBINOCULARS)
 		{
-			i = INV_MAX-1;
+			i = inventory_t::INV_MAX-1;
 		}
 
 		if ((!CG_InventorySelectable(i)) || (!inv_icons[i]))
@@ -3363,9 +3363,9 @@ void CG_DrawInventorySelect( void )
 			cgi_R_SetColor(nullptr);
 			CG_DrawPic( holdX, y+10, smallIconSize, smallIconSize, inv_icons[i] );
 
-			cgi_R_SetColor(colorTable[CT_ICON_BLUE]);
+			cgi_R_SetColor(colorTable[ct_table_t::CT_ICON_BLUE]);
 			CG_DrawNumField (holdX + addX, y + smallIconSize, 2, cg.snap->ps.inventory[i], 6, 12,
-				NUM_FONT_SMALL,false);
+				numFont_t::NUM_FONT_SMALL,false);
 
 			holdX -= (smallIconSize+pad);
 		}
@@ -3378,9 +3378,9 @@ void CG_DrawInventorySelect( void )
 		cgi_R_SetColor(nullptr);
 		CG_DrawPic( x-(bigIconSize/2), (y-((bigIconSize-smallIconSize)/2))+10, bigIconSize, bigIconSize, inv_icons[cg.inventorySelect] );
 		addX = (float) bigIconSize * .75;
-		cgi_R_SetColor(colorTable[CT_ICON_BLUE]);
+		cgi_R_SetColor(colorTable[ct_table_t::CT_ICON_BLUE]);
 		CG_DrawNumField ((x-(bigIconSize/2)) + addX, y, 2, cg.snap->ps.inventory[cg.inventorySelect], 6, 12,
-			NUM_FONT_SMALL,false);
+			numFont_t::NUM_FONT_SMALL,false);
 
 		if (inv_names[cg.inventorySelect])
 		{
@@ -3405,9 +3405,9 @@ void CG_DrawInventorySelect( void )
 	}
 
 	i = cg.inventorySelect + 1;
-	if (i> INV_MAX-1)
+	if (i> inventory_t::INV_MAX-1)
 	{
-		i = INV_ELECTROBINOCULARS;
+		i = inventory_t::INV_ELECTROBINOCULARS;
 	}
 
 	// Right side ICONS
@@ -3417,9 +3417,9 @@ void CG_DrawInventorySelect( void )
 	addX = (float) smallIconSize * .75;
 	for (iconCnt=0;iconCnt<sideRightIconCnt;i++)
 	{
-		if (i> INV_MAX-1)
+		if (i> inventory_t::INV_MAX-1)
 		{
-			i = INV_ELECTROBINOCULARS;
+			i = inventory_t::INV_ELECTROBINOCULARS;
 		}
 
 		if ((!CG_InventorySelectable(i)) || (!inv_icons[i]))
@@ -3434,9 +3434,9 @@ void CG_DrawInventorySelect( void )
 			cgi_R_SetColor(nullptr);
 			CG_DrawPic( holdX, y+10, smallIconSize, smallIconSize, inv_icons[i] );
 
-			cgi_R_SetColor(colorTable[CT_ICON_BLUE]);
+			cgi_R_SetColor(colorTable[ct_table_t::CT_ICON_BLUE]);
 			CG_DrawNumField (holdX + addX, y + smallIconSize, 2, cg.snap->ps.inventory[i], 6, 12,
-				NUM_FONT_SMALL,false);
+				numFont_t::NUM_FONT_SMALL,false);
 
 			holdX += (smallIconSize+pad);
 		}
@@ -3477,7 +3477,7 @@ void CG_DrawDataPadInventorySelect( void )
 
 	// count the number of items owned
 	count = 0;
-	for ( i = INV_ELECTROBINOCULARS ; i < INV_MAX ; i++ )
+	for ( i = inventory_t::INV_ELECTROBINOCULARS ; i < inventory_t::INV_MAX ; i++ )
 	{
 		if (CG_InventorySelectable(i) && inv_icons[i])
 		{
@@ -3491,7 +3491,7 @@ void CG_DrawDataPadInventorySelect( void )
 		cgi_SP_GetStringTextString("SP_INGAME_EMPTY_INV",text, sizeof(text) );
 		int w = cgi_R_Font_StrLenPixels( text, cgs.media.qhFontSmall, 1.0f );
 		int x = ( SCREEN_WIDTH - w ) / 2;
-		CG_DrawProportionalString(x, 300 + 22, text, CG_CENTER | CG_SMALLFONT, colorTable[CT_ICON_BLUE]);
+		CG_DrawProportionalString(x, 300 + 22, text, textStyleFlags_t::CG_CENTER | textStyleFlags_t::CG_SMALLFONT, colorTable[ct_table_t::CT_ICON_BLUE]);
 		return;
 	}
 
@@ -3516,9 +3516,9 @@ void CG_DrawDataPadInventorySelect( void )
 	}
 
 	i = cg.DataPadInventorySelect - 1;
-	if (i<INV_ELECTROBINOCULARS)
+	if (i<inventory_t::INV_ELECTROBINOCULARS)
 	{
-		i = INV_MAX-1;
+		i = inventory_t::INV_MAX-1;
 	}
 
 
@@ -3539,9 +3539,9 @@ void CG_DrawDataPadInventorySelect( void )
 
 	for (iconCnt=0;iconCnt<sideLeftIconCnt;i--)
 	{
-		if (i<INV_ELECTROBINOCULARS)
+		if (i<inventory_t::INV_ELECTROBINOCULARS)
 		{
-			i = INV_MAX-1;
+			i = inventory_t::INV_MAX-1;
 		}
 
 		if ((!CG_InventorySelectable(i)) || (!inv_icons[i]))
@@ -3553,12 +3553,12 @@ void CG_DrawDataPadInventorySelect( void )
 
 		if (inv_icons[i])
 		{
-			cgi_R_SetColor(colorTable[CT_WHITE]);
+			cgi_R_SetColor(colorTable[ct_table_t::CT_WHITE]);
 			CG_DrawPic( holdX, graphicYPos+10, smallIconSize, smallIconSize, inv_icons[i] );
 
-			cgi_R_SetColor(colorTable[CT_ICON_BLUE]);
+			cgi_R_SetColor(colorTable[ct_table_t::CT_ICON_BLUE]);
 			CG_DrawNumField (holdX + addX, graphicYPos + smallIconSize, 2, cg.snap->ps.inventory[i], 6, 12,
-				NUM_FONT_SMALL,false);
+				numFont_t::NUM_FONT_SMALL,false);
 
 			holdX -= (smallIconSize+pad);
 		}
@@ -3568,19 +3568,19 @@ void CG_DrawDataPadInventorySelect( void )
 	//height = bigIconSize * cg.iconHUDPercent;
 	if (inv_icons[cg.DataPadInventorySelect])
 	{
-		cgi_R_SetColor(colorTable[CT_WHITE]);
+		cgi_R_SetColor(colorTable[ct_table_t::CT_WHITE]);
 		CG_DrawPic( centerXPos-(bigIconSize/2), (graphicYPos-((bigIconSize-smallIconSize)/2))+10, bigIconSize, bigIconSize, inv_icons[cg.DataPadInventorySelect] );
 		addX = (float) bigIconSize * .75;
-		cgi_R_SetColor(colorTable[CT_ICON_BLUE]);
+		cgi_R_SetColor(colorTable[ct_table_t::CT_ICON_BLUE]);
 		CG_DrawNumField ((centerXPos-(bigIconSize/2)) + addX, graphicYPos, 2, cg.snap->ps.inventory[cg.DataPadInventorySelect], 6, 12,
-			NUM_FONT_SMALL,false);
+			numFont_t::NUM_FONT_SMALL,false);
 
 	}
 
 	i = cg.DataPadInventorySelect + 1;
-	if (i> INV_MAX-1)
+	if (i> inventory_t::INV_MAX-1)
 	{
-		i = INV_ELECTROBINOCULARS;
+		i = inventory_t::INV_ELECTROBINOCULARS;
 	}
 
 	// Right side ICONS
@@ -3590,9 +3590,9 @@ void CG_DrawDataPadInventorySelect( void )
 	addX = (float) smallIconSize * .75;
 	for (iconCnt=0;iconCnt<sideRightIconCnt;i++)
 	{
-		if (i> INV_MAX-1)
+		if (i> inventory_t::INV_MAX-1)
 		{
-			i = INV_ELECTROBINOCULARS;
+			i = inventory_t::INV_ELECTROBINOCULARS;
 		}
 
 		if ((!CG_InventorySelectable(i)) || (!inv_icons[i]))
@@ -3604,19 +3604,19 @@ void CG_DrawDataPadInventorySelect( void )
 
 		if (inv_icons[i])
 		{
-			cgi_R_SetColor(colorTable[CT_WHITE]);
+			cgi_R_SetColor(colorTable[ct_table_t::CT_WHITE]);
 			CG_DrawPic( holdX, graphicYPos+10, smallIconSize, smallIconSize, inv_icons[i] );
 
-			cgi_R_SetColor(colorTable[CT_ICON_BLUE]);
+			cgi_R_SetColor(colorTable[ct_table_t::CT_ICON_BLUE]);
 			CG_DrawNumField (holdX + addX, graphicYPos + smallIconSize, 2, cg.snap->ps.inventory[i], 6, 12,
-				NUM_FONT_SMALL,false);
+				numFont_t::NUM_FONT_SMALL,false);
 
 			holdX += (smallIconSize+pad);
 		}
 	}
 
 	// draw the weapon description
-	if ((cg.DataPadInventorySelect>=INV_ELECTROBINOCULARS) && (to_underlying( cg.DataPadInventorySelect )<13))
+	if ((cg.DataPadInventorySelect>=inventory_t::INV_ELECTROBINOCULARS) && (to_underlying( cg.DataPadInventorySelect )<13))
 	{
 		cgi_SP_GetStringTextString( va("SP_INGAME_%s",inventoryDesc[cg.DataPadInventorySelect]), text, sizeof(text) );
 
@@ -3653,20 +3653,20 @@ void SetForcePowerTime(void)
 
 forcePowers_t showPowers[MAX_SHOWPOWERS] =
 {
-	FP_ABSORB,
-	FP_HEAL,
-	FP_PROTECT,
-	FP_TELEPATHY,
+	forcePowers_t::FP_ABSORB,
+	forcePowers_t::FP_HEAL,
+	forcePowers_t::FP_PROTECT,
+	forcePowers_t::FP_TELEPATHY,
 
-	FP_SPEED,
-	FP_PUSH,
-	FP_PULL,
-	FP_SEE,
+	forcePowers_t::FP_SPEED,
+	forcePowers_t::FP_PUSH,
+	forcePowers_t::FP_PULL,
+	forcePowers_t::FP_SEE,
 
-	FP_DRAIN,
-	FP_LIGHTNING,
-	FP_RAGE,
-	FP_GRIP,
+	forcePowers_t::FP_DRAIN,
+	forcePowers_t::FP_LIGHTNING,
+	forcePowers_t::FP_RAGE,
+	forcePowers_t::FP_GRIP,
 };
 
 const char *showPowersName[MAX_SHOWPOWERS] =
@@ -3691,26 +3691,26 @@ const char *showPowersName[MAX_SHOWPOWERS] =
 forcePowers_t showDataPadPowers[MAX_DPSHOWPOWERS] =
 {
 	// Light side
-	FP_ABSORB,
-	FP_HEAL,
-	FP_PROTECT,
-	FP_TELEPATHY,
+	forcePowers_t::FP_ABSORB,
+	forcePowers_t::FP_HEAL,
+	forcePowers_t::FP_PROTECT,
+	forcePowers_t::FP_TELEPATHY,
 
 	// Core Powers
-	FP_LEVITATION,
-	FP_SPEED,
-	FP_PUSH,
-	FP_PULL,
-	FP_SABERTHROW,
-	FP_SABER_DEFENSE,
-	FP_SABER_OFFENSE,
-	FP_SEE,
+	forcePowers_t::FP_LEVITATION,
+	forcePowers_t::FP_SPEED,
+	forcePowers_t::FP_PUSH,
+	forcePowers_t::FP_PULL,
+	forcePowers_t::FP_SABERTHROW,
+	forcePowers_t::FP_SABER_DEFENSE,
+	forcePowers_t::FP_SABER_OFFENSE,
+	forcePowers_t::FP_SEE,
 
 	//Dark Side
-	FP_DRAIN,
-	FP_LIGHTNING,
-	FP_RAGE,
-	FP_GRIP,
+	forcePowers_t::FP_DRAIN,
+	forcePowers_t::FP_LIGHTNING,
+	forcePowers_t::FP_RAGE,
+	forcePowers_t::FP_GRIP,
 };
 
 // the power a cg_updatedDataPadForcePower cvar names: the game writes the power + 1, 0 for none
@@ -3746,7 +3746,7 @@ bool ForcePower_Valid(int index)
 	assert (MAX_SHOWPOWERS == ( sizeof(showPowers)/sizeof(showPowers[0]) ));
 	assert (index < MAX_SHOWPOWERS );	//is this a valid index?
 	if (player->client->ps.forcePowersKnown & Bit( showPowers[index] ) &&
-		player->client->ps.forcePowerLevel[showPowers[index]] != FORCE_LEVEL_0)	// Does he have the force power?
+		player->client->ps.forcePowerLevel[showPowers[index]] != forcePowerLevels_t::FORCE_LEVEL_0)	// Does he have the force power?
 	{
 		return true;
 	}
@@ -3788,7 +3788,7 @@ void CG_NextForcePower_f( void )
 
 		if (ForcePower_Valid(cg.forcepowerSelect))	// Does he have the force power?
 		{
-			cgi_S_StartSound (nullptr, 0, CHAN_AUTO, cgs.media.selectSound2 );
+			cgi_S_StartSound (nullptr, 0, soundChannel_t::CHAN_AUTO, cgs.media.selectSound2 );
 			return;
 		}
 	}
@@ -3830,7 +3830,7 @@ void CG_PrevForcePower_f( void )
 
 		if (ForcePower_Valid(cg.forcepowerSelect))	// Does he have the force power?
 		{
-			cgi_S_StartSound (nullptr, 0, CHAN_AUTO, cgs.media.selectSound2 );
+			cgi_S_StartSound (nullptr, 0, soundChannel_t::CHAN_AUTO, cgs.media.selectSound2 );
 			return;
 		}
 	}
@@ -3856,7 +3856,7 @@ void CG_DrawForceSelect( void )
 
 
 	// don't display if dead
-	if ( cg.predicted_player_state.stats[STAT_HEALTH] <= 0 || ( cg.snap->ps.viewEntity > 0 && cg.snap->ps.viewEntity < ENTITYNUM_WORLD ))
+	if ( cg.predicted_player_state.stats[statIndex_t::STAT_HEALTH] <= 0 || ( cg.snap->ps.viewEntity > 0 && cg.snap->ps.viewEntity < ENTITYNUM_WORLD ))
 	{
 		return;
 	}
@@ -3992,7 +3992,7 @@ void CG_DrawForceSelect( void )
 	{
 			int w = cgi_R_Font_StrLenPixels(text, cgs.media.qhFontSmall, 1.0f);
 			int x = ( SCREEN_WIDTH - w ) / 2;
-			cgi_R_Font_DrawString(x, (SCREEN_HEIGHT - 24) + yOffset, text, colorTable[CT_ICON_BLUE], cgs.media.qhFontSmall, -1, 1.0f);
+			cgi_R_Font_DrawString(x, (SCREEN_HEIGHT - 24) + yOffset, text, colorTable[ct_table_t::CT_ICON_BLUE], cgs.media.qhFontSmall, -1, 1.0f);
 	}
 }
 
@@ -4007,7 +4007,7 @@ bool ForcePowerDataPad_Valid(int index)
 
 	assert (index < MAX_DPSHOWPOWERS);
 	if (player->client->ps.forcePowersKnown & Bit( showDataPadPowers[index] ) &&
-		player->client->ps.forcePowerLevel[showDataPadPowers[index]] != FORCE_LEVEL_0)	// Does he have the force power?
+		player->client->ps.forcePowerLevel[showDataPadPowers[index]] != forcePowerLevels_t::FORCE_LEVEL_0)	// Does he have the force power?
 	{
 		return true;
 	}
@@ -4208,7 +4208,7 @@ void CG_DrawDataPadForceSelect( void )
 
 	// Time to switch new icon colors
 	// Faded side icon color
-//	memcpy(fadeColor, colorTable[CT_WHITE], sizeof(vec4_t));
+//	memcpy(fadeColor, colorTable[ct_table_t::CT_WHITE], sizeof(vec4_t));
 
 	cg.iconSelectTime = cg.forcepowerSelectTime;
 
@@ -4249,7 +4249,7 @@ void CG_DrawDataPadForceSelect( void )
 
 	// Print icons to the left of the center
 
-	cgi_R_SetColor(colorTable[CT_WHITE]);
+	cgi_R_SetColor(colorTable[ct_table_t::CT_WHITE]);
 	// Work backwards from current icon
 	holdX = centerXPos - ((bigIconSize/2) + bigPad + smallIconSize);
 	for (iconCnt=1;iconCnt<(sideLeftIconCnt+1);i--)
@@ -4289,7 +4289,7 @@ void CG_DrawDataPadForceSelect( void )
 	if (force_icons[showDataPadPowers[cg.DataPadforcepowerSelect]])
 	{
 
-		cgi_R_SetColor(colorTable[CT_WHITE]);
+		cgi_R_SetColor(colorTable[ct_table_t::CT_WHITE]);
 		CG_DrawPic( centerXPos-(bigIconSize/2), (graphicYPos-((bigIconSize-smallIconSize)/2)), bigIconSize, bigIconSize, force_icons[showDataPadPowers[cg.DataPadforcepowerSelect]] );
 
 		// New force power
@@ -4308,7 +4308,7 @@ void CG_DrawDataPadForceSelect( void )
 		i = 0;
 	}
 
-	cgi_R_SetColor(colorTable[CT_WHITE]);
+	cgi_R_SetColor(colorTable[ct_table_t::CT_WHITE]);
 
 	// Work forwards from current icon
 	holdX = centerXPos + (bigIconSize/2) + bigPad;
@@ -4347,11 +4347,11 @@ void CG_DrawDataPadForceSelect( void )
 
 	cgi_SP_GetStringTextString( va("SP_INGAME_%s",forcepowerDesc[cg.DataPadforcepowerSelect]), text, sizeof(text) );
 
-	if (player->client->ps.forcePowerLevel[showDataPadPowers[cg.DataPadforcepowerSelect]]==FORCE_LEVEL_1)
+	if (player->client->ps.forcePowerLevel[showDataPadPowers[cg.DataPadforcepowerSelect]]==forcePowerLevels_t::FORCE_LEVEL_1)
 	{
 		cgi_SP_GetStringTextString( va("SP_INGAME_%s",forcepowerLvl1Desc[cg.DataPadforcepowerSelect]), text2, sizeof(text2) );
 	}
-	else if (player->client->ps.forcePowerLevel[showDataPadPowers[cg.DataPadforcepowerSelect]]==FORCE_LEVEL_2)
+	else if (player->client->ps.forcePowerLevel[showDataPadPowers[cg.DataPadforcepowerSelect]]==forcePowerLevels_t::FORCE_LEVEL_2)
 	{
 		cgi_SP_GetStringTextString( va("SP_INGAME_%s",forcepowerLvl2Desc[cg.DataPadforcepowerSelect]), text2, sizeof(text2) );
 	}
@@ -4371,7 +4371,7 @@ void CG_DrawDataPadForceSelect( void )
 		CG_DisplayBoxedText(textboxXPos,textboxYPos,textboxWidth,textboxHeight,va("%s%s",text,text2),
 													CG_MagicFontToReal(4),
 													textScale,
-													colorTable[CT_WHITE]
+													colorTable[ct_table_t::CT_WHITE]
 													);
 	}
 }
@@ -4420,7 +4420,7 @@ int CG_MagicFontToReal( int menuFontIndex )
 
 #pragma warning ( disable : 4505)		// unreferenced local function has been removed
 static int CG_PlayCinematic(const char *name, float x, float y, float w, float h) {
-  return trap_CIN_PlayCinematic(name, x, y, w, h, CIN_loop);
+  return trap_CIN_PlayCinematic(name, x, y, w, h, cinematicFlags_t::CIN_loop);
 }
 
 static void CG_StopCinematic(int handle) {

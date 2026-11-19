@@ -145,12 +145,12 @@ static const char *Music_BuildFileName(const char *psFileNameBase, MusicState_e 
 	static sstring_t sFileName;
 
 	//HACK!
-	if (eMusicState == eBGRNDTRACK_DEATH)
+	if (eMusicState == MusicState_e::eBGRNDTRACK_DEATH)
 	{
 		return "music/death_music.mp3";
 	}
 
-	const char *psDirName = (eMusicState == eBGRNDTRACK_BOSS) ? gsLevelNameForBossLoad.c_str() : gsLevelNameForLoad.c_str();
+	const char *psDirName = (eMusicState == MusicState_e::eBGRNDTRACK_BOSS) ? gsLevelNameForBossLoad.c_str() : gsLevelNameForLoad.c_str();
 
 	sFileName = va("music/%s/%s.mp3",psDirName,psFileNameBase);
 	return sFileName.c_str();
@@ -161,23 +161,23 @@ const char *Music_BaseStateToString( MusicState_e eMusicState, bool bDebugPrintQ
 {
 	switch (eMusicState)
 	{
-		case eBGRNDTRACK_EXPLORE:	return "explore";
-		case eBGRNDTRACK_ACTION:	return "action";
-		case eBGRNDTRACK_BOSS:		return "boss";
-		case eBGRNDTRACK_SILENCE:	return "silence";	// not used in this module, but snd_dma uses it now it's de-static'd
-		case eBGRNDTRACK_DEATH:		return "death";
+		case MusicState_e::eBGRNDTRACK_EXPLORE:	return "explore";
+		case MusicState_e::eBGRNDTRACK_ACTION:	return "action";
+		case MusicState_e::eBGRNDTRACK_BOSS:		return "boss";
+		case MusicState_e::eBGRNDTRACK_SILENCE:	return "silence";	// not used in this module, but snd_dma uses it now it's de-static'd
+		case MusicState_e::eBGRNDTRACK_DEATH:		return "death";
 
 		// info only, not map<> lookup keys (unlike above)...
 		//
-		case eBGRNDTRACK_ACTIONTRANS0:		if (bDebugPrintQuery) return "action_tr0";
-		case eBGRNDTRACK_ACTIONTRANS1:		if (bDebugPrintQuery) return "action_tr1";
-		case eBGRNDTRACK_ACTIONTRANS2:		if (bDebugPrintQuery) return "action_tr2";
-		case eBGRNDTRACK_ACTIONTRANS3:		if (bDebugPrintQuery) return "action_tr3";
-		case eBGRNDTRACK_EXPLORETRANS0:		if (bDebugPrintQuery) return "explore_tr0";
-		case eBGRNDTRACK_EXPLORETRANS1:		if (bDebugPrintQuery) return "explore_tr1";
-		case eBGRNDTRACK_EXPLORETRANS2:		if (bDebugPrintQuery) return "explore_tr2";
-		case eBGRNDTRACK_EXPLORETRANS3:		if (bDebugPrintQuery) return "explore_tr3";
-		case eBGRNDTRACK_FADE:				if (bDebugPrintQuery) return "fade";
+		case MusicState_e::eBGRNDTRACK_ACTIONTRANS0:		if (bDebugPrintQuery) return "action_tr0";
+		case MusicState_e::eBGRNDTRACK_ACTIONTRANS1:		if (bDebugPrintQuery) return "action_tr1";
+		case MusicState_e::eBGRNDTRACK_ACTIONTRANS2:		if (bDebugPrintQuery) return "action_tr2";
+		case MusicState_e::eBGRNDTRACK_ACTIONTRANS3:		if (bDebugPrintQuery) return "action_tr3";
+		case MusicState_e::eBGRNDTRACK_EXPLORETRANS0:		if (bDebugPrintQuery) return "explore_tr0";
+		case MusicState_e::eBGRNDTRACK_EXPLORETRANS1:		if (bDebugPrintQuery) return "explore_tr1";
+		case MusicState_e::eBGRNDTRACK_EXPLORETRANS2:		if (bDebugPrintQuery) return "explore_tr2";
+		case MusicState_e::eBGRNDTRACK_EXPLORETRANS3:		if (bDebugPrintQuery) return "explore_tr3";
+		case MusicState_e::eBGRNDTRACK_FADE:				if (bDebugPrintQuery) return "fade";
 		default: break;
 	}
 
@@ -284,7 +284,7 @@ static bool Music_ParseMusic(CGenericParser2 &Parser, MusicData_t *MusicData, CG
 				//
 				switch (eMusicState)
 				{
-					case eBGRNDTRACK_EXPLORE:
+					case MusicState_e::eBGRNDTRACK_EXPLORE:
 						if (iNumExitPoints > iMAX_EXPLORE_TRANSITIONS)
 						{
 							MUSIC_PARSE_ERROR( va("\"%s\" has > %d %s transitions defined!\n",psMusicName,iMAX_EXPLORE_TRANSITIONS,psMusicNameKey) );
@@ -292,7 +292,7 @@ static bool Music_ParseMusic(CGenericParser2 &Parser, MusicData_t *MusicData, CG
 						}
 						break;
 
-					case eBGRNDTRACK_ACTION:
+					case MusicState_e::eBGRNDTRACK_ACTION:
 						if (iNumExitPoints > iMAX_ACTION_TRANSITIONS)
 						{
 							MUSIC_PARSE_ERROR( va("\"%s\" has > %d %s transitions defined!\n",psMusicName,iMAX_ACTION_TRANSITIONS,psMusicNameKey) );
@@ -300,8 +300,8 @@ static bool Music_ParseMusic(CGenericParser2 &Parser, MusicData_t *MusicData, CG
 						}
 						break;
 
-					case eBGRNDTRACK_BOSS:
-					case eBGRNDTRACK_DEATH:
+					case MusicState_e::eBGRNDTRACK_BOSS:
+					case MusicState_e::eBGRNDTRACK_DEATH:
 
 						MUSIC_PARSE_ERROR( va("\"%s\" has %s transitions defined, this is not allowed!\n",psMusicName,psMusicNameKey) );
 						break;
@@ -316,7 +316,7 @@ static bool Music_ParseMusic(CGenericParser2 &Parser, MusicData_t *MusicData, CG
 		//
 		bReturn = true;
 
-		if (eMusicState != eBGRNDTRACK_BOSS && eMusicState != eBGRNDTRACK_DEATH)	// boss & death pieces can omit entry/exit stuff
+		if (eMusicState != MusicState_e::eBGRNDTRACK_BOSS && eMusicState != MusicState_e::eBGRNDTRACK_DEATH)	// boss & death pieces can omit entry/exit stuff
 		{
 			if (!bEntryFound)
 			{
@@ -398,7 +398,7 @@ static char *StripTrailingWhiteSpaceOnEveryLine(char *pText)
 		strNewText += "\n";
 	}
 
-	char  *pNewText = (char *) Z_Malloc( strlen(strNewText.c_str())+1, TAG_TEMP_WORKSPACE, false);
+	char  *pNewText = (char *) Z_Malloc( strlen(strNewText.c_str())+1, memtag::TAG_TEMP_WORKSPACE, false);
 	strcpy(pNewText, strNewText.c_str());
 	return pNewText;
 }
@@ -575,19 +575,19 @@ static bool Music_ParseLeveldata(const char *psLevelName)
 							//
 							if (bReturn && psName_Explore)
 							{
-								bReturn = Music_ParseMusic(Parser, MusicData, pgMusicFiles, psName_Explore,	sKEY_EXPLORE, eBGRNDTRACK_EXPLORE);
+								bReturn = Music_ParseMusic(Parser, MusicData, pgMusicFiles, psName_Explore,	sKEY_EXPLORE, MusicState_e::eBGRNDTRACK_EXPLORE);
 							}
 							if (bReturn && psName_Action)
 							{
-								bReturn = Music_ParseMusic(Parser, MusicData, pgMusicFiles, psName_Action,	sKEY_ACTION,  eBGRNDTRACK_ACTION);
+								bReturn = Music_ParseMusic(Parser, MusicData, pgMusicFiles, psName_Action,	sKEY_ACTION,  MusicState_e::eBGRNDTRACK_ACTION);
 							}
 							if (bReturn && psName_Boss)
 							{
-								bReturn = Music_ParseMusic(Parser, MusicData, pgMusicFiles, psName_Boss,	sKEY_BOSS,    eBGRNDTRACK_BOSS);
+								bReturn = Music_ParseMusic(Parser, MusicData, pgMusicFiles, psName_Boss,	sKEY_BOSS,    MusicState_e::eBGRNDTRACK_BOSS);
 							}
 							if (bReturn /*&& psName_Death*/)	// LAST MINUTE HACK!!, always force in some death music!!!!
 							{
-								//bReturn = Music_ParseMusic(Parser, MusicData, pgMusicFiles, psName_Death,	sKEY_DEATH,   eBGRNDTRACK_DEATH);
+								//bReturn = Music_ParseMusic(Parser, MusicData, pgMusicFiles, psName_Death,	sKEY_DEATH,   MusicState_e::eBGRNDTRACK_DEATH);
 
 								MusicFile_t m;
 											m.sFileNameBase = "death_music";
@@ -638,7 +638,7 @@ static bool Music_ParseLeveldata(const char *psLevelName)
 
 			// kludge up an enum, only interested in boss or not at the moment, so...
 			//
-			MusicState_e eMusicState = !Q_stricmp(psMusicStateType,"boss") ? eBGRNDTRACK_BOSS : !Q_stricmp(psMusicStateType,"death") ? eBGRNDTRACK_DEATH : eBGRNDTRACK_EXPLORE;
+			MusicState_e eMusicState = !Q_stricmp(psMusicStateType,"boss") ? MusicState_e::eBGRNDTRACK_BOSS : !Q_stricmp(psMusicStateType,"death") ? MusicState_e::eBGRNDTRACK_DEATH : MusicState_e::eBGRNDTRACK_EXPLORE;
 
 			if (!MusicFile.MusicExitTimes.empty())
 			{
@@ -672,11 +672,11 @@ static bool Music_ParseLeveldata(const char *psLevelName)
 				{
 					// then this must be "action" music under current rules...
 					//
-					assert( !strcmp(psMusicStateType, Music_BaseStateToString(eBGRNDTRACK_ACTION) ? Music_BaseStateToString(eBGRNDTRACK_ACTION):"") );
+					assert( !strcmp(psMusicStateType, Music_BaseStateToString(MusicState_e::eBGRNDTRACK_ACTION) ? Music_BaseStateToString(MusicState_e::eBGRNDTRACK_ACTION):"") );
 					//
 					// does this marker exist in the explore piece?
 					//
-					MusicData_t::iterator itExploreMusicData = MusicData->find( Music_BaseStateToString(eBGRNDTRACK_EXPLORE) );
+					MusicData_t::iterator itExploreMusicData = MusicData->find( Music_BaseStateToString(MusicState_e::eBGRNDTRACK_EXPLORE) );
 					if (itExploreMusicData != MusicData->end())
 					{
 						MusicFile_t &MusicFile_Explore = (*itExploreMusicData).second;
@@ -689,7 +689,7 @@ static bool Music_ParseLeveldata(const char *psLevelName)
 					}
 					else
 					{
-						MUSIC_PARSE_ERROR( va("Unable to find %s piece to match \"%s\"\n", Music_BaseStateToString(eBGRNDTRACK_EXPLORE), MusicFile.sFileNameBase.c_str() ) );
+						MUSIC_PARSE_ERROR( va("Unable to find %s piece to match \"%s\"\n", Music_BaseStateToString(MusicState_e::eBGRNDTRACK_EXPLORE), MusicFile.sFileNameBase.c_str() ) );
 						return false;		// have to return, because music data destroyed now
 					}
 				}
@@ -786,7 +786,7 @@ bool Music_DynamicDataAvailable(const char *psDynamicMusicLabel)
 	{
 		if (Music_ParseLeveldata(sLevelName))
 		{
-			return (!!(Music_GetBaseMusicFile (eBGRNDTRACK_EXPLORE) && Music_GetBaseMusicFile (eBGRNDTRACK_ACTION)));
+			return (!!(Music_GetBaseMusicFile (MusicState_e::eBGRNDTRACK_EXPLORE) && Music_GetBaseMusicFile (MusicState_e::eBGRNDTRACK_ACTION)));
 		}
 	}
 
@@ -798,10 +798,10 @@ const char *Music_GetFileNameForState( MusicState_e eMusicState)
 	MusicFile_t *pMusicFile = nullptr;
 	switch (eMusicState)
 	{
-		case eBGRNDTRACK_EXPLORE:
-		case eBGRNDTRACK_ACTION:
-		case eBGRNDTRACK_BOSS:
-		case eBGRNDTRACK_DEATH:
+		case MusicState_e::eBGRNDTRACK_EXPLORE:
+		case MusicState_e::eBGRNDTRACK_ACTION:
+		case MusicState_e::eBGRNDTRACK_BOSS:
+		case MusicState_e::eBGRNDTRACK_DEATH:
 
 			pMusicFile = Music_GetBaseMusicFile( eMusicState );
 			if (pMusicFile)
@@ -810,15 +810,15 @@ const char *Music_GetFileNameForState( MusicState_e eMusicState)
 			}
 			break;
 
-		case eBGRNDTRACK_ACTIONTRANS0:
-		case eBGRNDTRACK_ACTIONTRANS1:
-		case eBGRNDTRACK_ACTIONTRANS2:
-		case eBGRNDTRACK_ACTIONTRANS3:
+		case MusicState_e::eBGRNDTRACK_ACTIONTRANS0:
+		case MusicState_e::eBGRNDTRACK_ACTIONTRANS1:
+		case MusicState_e::eBGRNDTRACK_ACTIONTRANS2:
+		case MusicState_e::eBGRNDTRACK_ACTIONTRANS3:
 
-			pMusicFile = Music_GetBaseMusicFile( eBGRNDTRACK_ACTION );
+			pMusicFile = Music_GetBaseMusicFile( MusicState_e::eBGRNDTRACK_ACTION );
 			if (pMusicFile)
 			{
-				unsigned int iTransNum = eMusicState - eBGRNDTRACK_ACTIONTRANS0;
+				unsigned int iTransNum = eMusicState - MusicState_e::eBGRNDTRACK_ACTIONTRANS0;
 				if (iTransNum < pMusicFile->MusicExitPoints.size())
 				{
 					return Music_BuildFileName( pMusicFile->MusicExitPoints[iTransNum].sNextFile.c_str(), eMusicState );
@@ -826,15 +826,15 @@ const char *Music_GetFileNameForState( MusicState_e eMusicState)
 			}
 			break;
 
-		case eBGRNDTRACK_EXPLORETRANS0:
-		case eBGRNDTRACK_EXPLORETRANS1:
-		case eBGRNDTRACK_EXPLORETRANS2:
-		case eBGRNDTRACK_EXPLORETRANS3:
+		case MusicState_e::eBGRNDTRACK_EXPLORETRANS0:
+		case MusicState_e::eBGRNDTRACK_EXPLORETRANS1:
+		case MusicState_e::eBGRNDTRACK_EXPLORETRANS2:
+		case MusicState_e::eBGRNDTRACK_EXPLORETRANS3:
 
-			pMusicFile = Music_GetBaseMusicFile( eBGRNDTRACK_EXPLORE );
+			pMusicFile = Music_GetBaseMusicFile( MusicState_e::eBGRNDTRACK_EXPLORE );
 			if (pMusicFile)
 			{
-				unsigned int iTransNum = eMusicState - eBGRNDTRACK_EXPLORETRANS0;
+				unsigned int iTransNum = eMusicState - MusicState_e::eBGRNDTRACK_EXPLORETRANS0;
 				if (iTransNum < pMusicFile->MusicExitPoints.size())
 				{
 					return Music_BuildFileName( pMusicFile->MusicExitPoints[iTransNum].sNextFile.c_str(), eMusicState );
@@ -865,28 +865,28 @@ bool Music_StateCanBeInterrupted( MusicState_e eMusicState, MusicState_e ePropos
 {
 	// death music can interrupt anything...
 	//
-	if (eProposedMusicState == eBGRNDTRACK_DEATH)
+	if (eProposedMusicState == MusicState_e::eBGRNDTRACK_DEATH)
 		return true;
 	//
 	// ... and can't be interrupted once started...(though it will internally-switch to silence at the end, rather than loop)
 	//
-	if (eMusicState == eBGRNDTRACK_DEATH)
+	if (eMusicState == MusicState_e::eBGRNDTRACK_DEATH)
 	{
 		return false;
 	}
 
 	// boss music can interrupt anything (other than death, but that's already handled above)...
 	//
-	if (eProposedMusicState == eBGRNDTRACK_BOSS)
+	if (eProposedMusicState == MusicState_e::eBGRNDTRACK_BOSS)
 		return true;
 	//
 	// ... and can't be interrupted once started...
 	//
-	if (eMusicState == eBGRNDTRACK_BOSS)
+	if (eMusicState == MusicState_e::eBGRNDTRACK_BOSS)
 	{
 		// ...except by silence (or death, but again, that's already handled above)
 		//
-		if (eProposedMusicState == eBGRNDTRACK_SILENCE)
+		if (eProposedMusicState == MusicState_e::eBGRNDTRACK_SILENCE)
 			return true;
 
 		return false;
@@ -894,7 +894,7 @@ bool Music_StateCanBeInterrupted( MusicState_e eMusicState, MusicState_e ePropos
 
 	// action music can interrupt anything (after boss & death filters above)...
 	//
-	if (eProposedMusicState == eBGRNDTRACK_ACTION)
+	if (eProposedMusicState == MusicState_e::eBGRNDTRACK_ACTION)
 		return true;
 
 	// nothing can interrupt a transition (after above filters)...
@@ -959,7 +959,7 @@ bool Music_AllowedToTransition( float			fPlayingTimeElapsed,
 				//
 				// the two params to give back...
 				//
-				MusicState_e	eFeedBackTransition			= eBGRNDTRACK_EXPLORETRANS0;	// any old default
+				MusicState_e	eFeedBackTransition			= MusicState_e::eBGRNDTRACK_EXPLORETRANS0;	// any old default
 				float			fFeedBackNewTrackEntryTime	= 0.0f;
 				//
 				// check legality in case of crap data...
@@ -970,16 +970,16 @@ bool Music_AllowedToTransition( float			fPlayingTimeElapsed,
 
 					switch (eMusicState)
 					{
-						case eBGRNDTRACK_EXPLORE:
+						case MusicState_e::eBGRNDTRACK_EXPLORE:
 						{
 							assert(iExitPoint < iMAX_EXPLORE_TRANSITIONS);	// already been checked, but sanity
 							assert(!ExitPoint.sNextMark.c_str()[0]);		// simple error checking, but harmless if tripped. explore transitions go to silence, hence no entry time for [silence] state after transition
 
-							eFeedBackTransition = eBGRNDTRACK_EXPLORETRANS0 + static_cast<int>( iExitPoint );
+							eFeedBackTransition = MusicState_e::eBGRNDTRACK_EXPLORETRANS0 + static_cast<int>( iExitPoint );
 						}
 						break;
 
-						case eBGRNDTRACK_ACTION:
+						case MusicState_e::eBGRNDTRACK_ACTION:
 						{
 							assert(iExitPoint < iMAX_ACTION_TRANSITIONS);	// already been checked, but sanity
 
@@ -987,7 +987,7 @@ bool Music_AllowedToTransition( float			fPlayingTimeElapsed,
 							//
 							if (ExitPoint.sNextMark.c_str()[0])
 							{
-								MusicData_t::iterator itExploreMusicData = MusicData->find( Music_BaseStateToString(eBGRNDTRACK_EXPLORE) );
+								MusicData_t::iterator itExploreMusicData = MusicData->find( Music_BaseStateToString(MusicState_e::eBGRNDTRACK_EXPLORE) );
 								//
 								// find "explore" music...
 								//
@@ -1001,7 +1001,7 @@ bool Music_AllowedToTransition( float			fPlayingTimeElapsed,
 									if (itEntryTime != MusicFile_Explore.MusicEntryTimes.end())
 									{
 										fFeedBackNewTrackEntryTime = (*itEntryTime).second;
-										eFeedBackTransition = eBGRNDTRACK_ACTIONTRANS0 + static_cast<int>( iExitPoint );
+										eFeedBackTransition = MusicState_e::eBGRNDTRACK_ACTIONTRANS0 + static_cast<int>( iExitPoint );
 									}
 									else
 									{
@@ -1016,14 +1016,14 @@ bool Music_AllowedToTransition( float			fPlayingTimeElapsed,
 								{
 									#ifndef FINAL_BUILD
 									assert(0);	// sanity, should have been caught elsewhere, but harmless to do this
-									Com_Printf( S_COLOR_RED "Music_AllowedToTransition() unable to find %s version of \"%s\"\n",Music_BaseStateToString(eBGRNDTRACK_EXPLORE), pMusicFile->sFileNameBase.c_str());
+									Com_Printf( S_COLOR_RED "Music_AllowedToTransition() unable to find %s version of \"%s\"\n",Music_BaseStateToString(MusicState_e::eBGRNDTRACK_EXPLORE), pMusicFile->sFileNameBase.c_str());
 									#endif
 									return false;
 								}
 							}
 							else
 							{
-								eFeedBackTransition			= eBGRNDTRACK_ACTIONTRANS0;
+								eFeedBackTransition			= MusicState_e::eBGRNDTRACK_ACTIONTRANS0;
 								fFeedBackNewTrackEntryTime	= 0.0f;		// already set to this, but FYI
 							}
 						}

@@ -509,7 +509,7 @@ bool	CVec4::PtInCircle(const CVec4 &Circle, float Radius) const
 
 
 ////////////////////////////////////////////////////////////////////////////////////////
-// Line Intersects Circle  (True/False)
+// EPrimType::Line Intersects Circle  (True/False)
 //
 //  r	- Radius Of The Circle
 //  A	- Start Of Line Segment
@@ -1084,7 +1084,7 @@ bool	CVec3::PtInCircle(const CVec3 &Circle, float Radius) const
 
 
 ////////////////////////////////////////////////////////////////////////////////////////
-// Line Intersects Circle  (True/False)
+// EPrimType::Line Intersects Circle  (True/False)
 //
 //  r	- Radius Of The Circle
 //  A	- Start Of Line Segment

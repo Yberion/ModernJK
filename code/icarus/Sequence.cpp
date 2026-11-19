@@ -39,7 +39,7 @@ inline CSequence::CSequence( void )
 {
 	m_numCommands	= 0;
 //	m_numChildren	= 0;
-	m_flags			= SQ_COMMON;
+	m_flags			= sequenceFlags_t::SQ_COMMON;
 	m_iterations	= 1;
 
 	m_parent		= nullptr;
@@ -67,7 +67,7 @@ CSequence *CSequence::Create( void )
 	if ( seq == nullptr )
 		return nullptr;
 
-	seq->SetFlag( SQ_COMMON );
+	seq->SetFlag( sequenceFlags_t::SQ_COMMON );
 
 	return seq;
 }
@@ -204,11 +204,11 @@ void CSequence::SetParent( CSequence *parent )
 		return;
 
 	//Inherit the parent's properties (this avoids messy tree walks later on)
-	if ( Any( parent->m_flags & SQ_RETAIN ) )
-		m_flags |= SQ_RETAIN;
+	if ( Any( parent->m_flags & sequenceFlags_t::SQ_RETAIN ) )
+		m_flags |= sequenceFlags_t::SQ_RETAIN;
 
-	if ( Any( parent->m_flags & SQ_PENDING ) )
-		m_flags |= SQ_PENDING;
+	if ( Any( parent->m_flags & sequenceFlags_t::SQ_PENDING ) )
+		m_flags |= sequenceFlags_t::SQ_PENDING;
 }
 
 /*
@@ -222,14 +222,14 @@ CBlock *CSequence::PopCommand( pushPop_t type )
 	CBlock	*command = nullptr;
 
 	//Make sure everything is ok
-	assert( (type == POP_FRONT) || (type == POP_BACK) );
+	assert( (type == pushPop_t::POP_FRONT) || (type == pushPop_t::POP_BACK) );
 
 	if ( m_commands.empty() )
 		return nullptr;
 
 	switch ( type )
 	{
-	case POP_FRONT:
+	case pushPop_t::POP_FRONT:
 
 		command = m_commands.front();
 		m_commands.pop_front();
@@ -238,7 +238,7 @@ CBlock *CSequence::PopCommand( pushPop_t type )
 		return command;
 		break;
 
-	case POP_BACK:
+	case pushPop_t::POP_BACK:
 
 		command = m_commands.back();
 		m_commands.pop_back();
@@ -264,12 +264,12 @@ PushCommand
 int CSequence::PushCommand( CBlock *block, pushPop_t type )
 {
 	//Make sure everything is ok
-	assert( (type == PUSH_FRONT) || (type == PUSH_BACK) );
+	assert( (type == pushPop_t::PUSH_FRONT) || (type == pushPop_t::PUSH_BACK) );
 	assert( block );
 
 	switch ( type )
 	{
-	case PUSH_FRONT:
+	case pushPop_t::PUSH_FRONT:
 
 		m_commands.push_front( block );
 		m_numCommands++;
@@ -277,7 +277,7 @@ int CSequence::PushCommand( CBlock *block, pushPop_t type )
 		return true;
 		break;
 
-	case PUSH_BACK:
+	case pushPop_t::PUSH_BACK:
 
 		m_commands.push_back( block );
 		m_numCommands++;
@@ -502,45 +502,45 @@ int CSequence::LoadCommand( CBlock *block, CIcarus *icarus )
 		const icarusToken_t memberID = static_cast<icarusToken_t>( bID );
 		switch ( memberID )
 		{
-		case CIcarus::TK_INT:
+		case icarusToken_t::TK_INT:
 			{
 				assert(0);
 				int data = *(int *) bData;
-				block->Write( CIcarus::TK_FLOAT, (float) data, icarus );
+				block->Write( icarusToken_t::TK_FLOAT, (float) data, icarus );
 			}
 			break;
 
-		case CIcarus::TK_FLOAT:
-			block->Write( CIcarus::TK_FLOAT, *(float *) bData, icarus );
+		case icarusToken_t::TK_FLOAT:
+			block->Write( icarusToken_t::TK_FLOAT, *(float *) bData, icarus );
 			break;
 
-		case CIcarus::TK_STRING:
-		case CIcarus::TK_IDENTIFIER:
-		case CIcarus::TK_CHAR:
-			block->Write( CIcarus::TK_STRING, (char *) bData, icarus );
+		case icarusToken_t::TK_STRING:
+		case icarusToken_t::TK_IDENTIFIER:
+		case icarusToken_t::TK_CHAR:
+			block->Write( icarusToken_t::TK_STRING, (char *) bData, icarus );
 			break;
 
-		case CIcarus::TK_VECTOR:
-		case CIcarus::TK_VECTOR_START:
-			block->Write( CIcarus::TK_VECTOR, *(vec3_t *) bData, icarus );
+		case icarusToken_t::TK_VECTOR:
+		case icarusToken_t::TK_VECTOR_START:
+			block->Write( icarusToken_t::TK_VECTOR, *(vec3_t *) bData, icarus );
 			break;
 
-		case CIcarus::ID_TAG:
-			block->Write( CIcarus::ID_TAG, (float) to_underlying( CIcarus::ID_TAG ), icarus );
+		case icarusToken_t::ID_TAG:
+			block->Write( icarusToken_t::ID_TAG, (float) to_underlying( icarusToken_t::ID_TAG ), icarus );
 			break;
 
-		case CIcarus::ID_GET:
-			block->Write( CIcarus::ID_GET, (float) to_underlying( CIcarus::ID_GET ), icarus );
+		case icarusToken_t::ID_GET:
+			block->Write( icarusToken_t::ID_GET, (float) to_underlying( icarusToken_t::ID_GET ), icarus );
 			break;
 
-		case CIcarus::ID_RANDOM:
-			block->Write( CIcarus::ID_RANDOM, *(float *) bData, icarus );//(float) to_underlying( ID_RANDOM ) );
+		case icarusToken_t::ID_RANDOM:
+			block->Write( icarusToken_t::ID_RANDOM, *(float *) bData, icarus );//(float) to_underlying( icarusToken_t::ID_RANDOM ) );
 			break;
 
-		case CIcarus::TK_EQUALS:
-		case CIcarus::TK_GREATER_THAN:
-		case CIcarus::TK_LESS_THAN:
-		case CIcarus::TK_NOT:
+		case icarusToken_t::TK_EQUALS:
+		case icarusToken_t::TK_GREATER_THAN:
+		case icarusToken_t::TK_LESS_THAN:
+		case icarusToken_t::TK_NOT:
 			block->Write( memberID, 0, icarus );
 			break;
 
@@ -699,7 +699,7 @@ int CSequence::Load( CIcarus* icarus )
 
 		//Save the block
 		//STL_INSERT( m_commands, block );
-		PushCommand( block, PUSH_BACK );
+		PushCommand( block, pushPop_t::PUSH_BACK );
 	}
 
 	return true;

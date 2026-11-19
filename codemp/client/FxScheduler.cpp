@@ -318,7 +318,7 @@ int CFxScheduler::RegisterEffect( const char *file, bool bHasCorrectPath /*= fal
 		finalFilename += strTemp;
 	}
 
-	len = theFxHelper.OpenFile( finalFilename.c_str(), &fh, FS_READ );
+	len = theFxHelper.OpenFile( finalFilename.c_str(), &fh, fsMode_t::FS_READ );
 
 	/*
 	if (bHasCorrectPath)
@@ -331,7 +331,7 @@ int CFxScheduler::RegisterEffect( const char *file, bool bHasCorrectPath /*= fal
 		sprintf( temp, "%s/%s.efx", FX_FILE_PATH, sfile );
 		pfile = temp;
 	}
-	len = theFxHelper.OpenFile( pfile, &fh, FS_READ );
+	len = theFxHelper.OpenFile( pfile, &fh, fsMode_t::FS_READ );
 	*/
 
 
@@ -385,19 +385,19 @@ int CFxScheduler::RegisterEffect( const char *file, bool bHasCorrectPath /*= fal
 //------------------------------------------------------
 
 struct primitiveType_s { const char *name; EPrimType type; } primitiveTypes[] = {
-	{ "particle", Particle },
-	{ "line", Line },
-	{ "tail", Tail },
-	{ "sound", Sound },
-	{ "cylinder", Cylinder },
-	{ "electricity", Electricity },
-	{ "emitter", Emitter },
-	{ "decal", Decal },
-	{ "orientedparticle", OrientedParticle },
-	{ "fxrunner", FxRunner },
-	{ "light", Light },
-	{ "cameraShake", CameraShake },
-	{ "flash", ScreenFlash },
+	{ "particle", EPrimType::Particle },
+	{ "line", EPrimType::Line },
+	{ "tail", EPrimType::Tail },
+	{ "sound", EPrimType::Sound },
+	{ "cylinder", EPrimType::Cylinder },
+	{ "electricity", EPrimType::Electricity },
+	{ "emitter", EPrimType::Emitter },
+	{ "decal", EPrimType::Decal },
+	{ "orientedparticle", EPrimType::OrientedParticle },
+	{ "fxrunner", EPrimType::FxRunner },
+	{ "light", EPrimType::Light },
+	{ "cameraShake", EPrimType::CameraShake },
+	{ "flash", EPrimType::ScreenFlash },
 };
 static const size_t numPrimitiveTypes = ARRAY_LEN( primitiveTypes );
 
@@ -437,7 +437,7 @@ int CFxScheduler::ParseEffect( const char *file, CGPGroup *base )
 	{
 		grpName = primitiveGroup->GetName();
 
-		type = None;
+		type = EPrimType::None;
 		for ( size_t i=0; i<numPrimitiveTypes; i++ ) {
 			if ( !Q_stricmp( grpName, primitiveTypes[i].name ) ) {
 				type = primitiveTypes[i].type;
@@ -445,7 +445,7 @@ int CFxScheduler::ParseEffect( const char *file, CGPGroup *base )
 			}
 		}
 
-		if ( type != None )
+		if ( type != EPrimType::None )
 		{
 			prim = new CPrimitiveTemplate;
 
@@ -648,21 +648,21 @@ void	CFxScheduler::MaterialImpact(trace_t *tr, CEffect *effect)
 /*	EMatImpactEffect matImpactEffect = effect->GetMatImpactFX();
 	int impactParm = effect->GetMatImpactParm();
 
-	if (matImpactEffect == MATIMPACTFX_NONE)
+	if (matImpactEffect == EMatImpactEffect::MATIMPACTFX_NONE)
 	{
 		return;
 	}
-	else if (matImpactEffect == MATIMPACTFX_SHELLSOUND)
+	else if (matImpactEffect == EMatImpactEffect::MATIMPACTFX_SHELLSOUND)
 	{
 		// only want to play this for the first impact
-		effect->SetMatImpactFX(MATIMPACTFX_NONE);
+		effect->SetMatImpactFX(EMatImpactEffect::MATIMPACTFX_NONE);
 
 		surfaceMaterial_t	material = SURF_Material( tr->surfaceFlags );
 		const char *ammoName = CWeaponSystem::GetAmmoName(impactParm);
 
 		if(ammoName && materials[material].HasShellSound(ammoName))
 		{
-			theFxHelper.PlaySound( tr->endpos, ENTITYNUM_NONE, CHAN_AUTO, materials[material].GetShellSoundHandle(ammoName) );
+			theFxHelper.PlaySound( tr->endpos, ENTITYNUM_NONE, soundChannel_t::CHAN_AUTO, materials[material].GetShellSoundHandle(ammoName) );
 		}
 	}*/
 }
@@ -761,7 +761,7 @@ void GetRGB_Colors( CPrimitiveTemplate *fx, vec3_t outStartRGB, vec3_t outEndRGB
 {
 	float	percent;
 
-	if ( Any( fx->mSpawnFlags & FX_RGB_COMPONENT_INTERP ) )
+	if ( Any( fx->mSpawnFlags & fxSpawnFlags_t::FX_RGB_COMPONENT_INTERP ) )
 	{
 		percent = Q_flrand(0.0f, 1.0f);
 
@@ -888,7 +888,7 @@ void CFxScheduler::PlayEffect( int id, vec3_t origin, matrix3_t axis, const int 
 			prim->mRefCount = count;
 		}
 
-		if ( Any( prim->mSpawnFlags & FX_EVEN_DISTRIBUTION ) )
+		if ( Any( prim->mSpawnFlags & fxSpawnFlags_t::FX_EVEN_DISTRIBUTION ) )
 		{
 			factor = abs(prim->mSpawnDelay.GetMax() - prim->mSpawnDelay.GetMin()) / (float)count;
 		}
@@ -897,7 +897,7 @@ void CFxScheduler::PlayEffect( int id, vec3_t origin, matrix3_t axis, const int 
 		for ( int t = 0; t < count; t++ )
 		{
 			totalEffects++;
-			if ( Any( prim->mSpawnFlags & FX_EVEN_DISTRIBUTION ) )
+			if ( Any( prim->mSpawnFlags & fxSpawnFlags_t::FX_EVEN_DISTRIBUTION ) )
 			{
 				delay = t * factor;
 			}
@@ -929,7 +929,7 @@ void CFxScheduler::PlayEffect( int id, vec3_t origin, matrix3_t axis, const int 
 
 				if ( sfx == nullptr )
 				{
-					Com_Error (ERR_DROP, "ERROR: Failed to allocate EFX from memory pool.");
+					Com_Error (errorParm_t::ERR_DROP, "ERROR: Failed to allocate EFX from memory pool.");
 					return;
 				}
 
@@ -1217,22 +1217,22 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ma
 	{//since you passed in these values, mark as relative to use them if it is supported
 		switch( fx->mType )
 		{
-		case Particle:
-		case Line:
-		case Tail:
-		case Electricity:
-		case Cylinder:
-		case Emitter:
-		case OrientedParticle:
-		case Light:
-			flags |= FX_RELATIVE;
+		case EPrimType::Particle:
+		case EPrimType::Line:
+		case EPrimType::Tail:
+		case EPrimType::Electricity:
+		case EPrimType::Cylinder:
+		case EPrimType::Emitter:
+		case EPrimType::OrientedParticle:
+		case EPrimType::Light:
+			flags |= fxPrimitiveFlags_t::FX_RELATIVE;
 			break;
-		case Decal:
-		case FxRunner:
-		case ScreenFlash:
+		case EPrimType::Decal:
+		case EPrimType::FxRunner:
+		case EPrimType::ScreenFlash:
 			//not supported yet
-		case Sound:
-		case CameraShake:
+		case EPrimType::Sound:
+		case EPrimType::CameraShake:
 			//does not work bolted
 			break;
 		default:
@@ -1240,7 +1240,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ma
 		}
 	}
 
-	if( Any( fx->mSpawnFlags & FX_RAND_ROT_AROUND_FWD ) )
+	if( Any( fx->mSpawnFlags & fxSpawnFlags_t::FX_RAND_ROT_AROUND_FWD ) )
 	{
 		RotatePointAroundVector( ax[1], ax[0], axis[1], Q_flrand(0.0f, 360.0f) );
 		CrossProduct( ax[0], ax[1], ax[2] );
@@ -1248,7 +1248,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ma
 
 	// Origin calculations
 	//-------------------------------------
-	if ( Any( fx->mSpawnFlags & FX_CHEAP_ORG_CALC ) || Any( flags & FX_RELATIVE )  )
+	if ( Any( fx->mSpawnFlags & fxSpawnFlags_t::FX_CHEAP_ORG_CALC ) || Any( flags & fxPrimitiveFlags_t::FX_RELATIVE )  )
 	{ // let's take the easy way out
 		VectorSet( org, fx->mOrigin1X.GetVal(), fx->mOrigin1Y.GetVal(), fx->mOrigin1Z.GetVal() );
 	}
@@ -1260,13 +1260,13 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ma
 	}
 
 	// We always add our calculated offset to the passed in origin, unless relative!
-	if( !Any(flags & FX_RELATIVE) )
+	if( !Any(flags & fxPrimitiveFlags_t::FX_RELATIVE) )
 	{
 		VectorAdd( org, origin, org );
 	}
 	// Now, we may need to calc a point on a sphere/ellipsoid/cylinder/disk and add that to it
 	//----------------------------------------------------------------
-	if ( Any( fx->mSpawnFlags & FX_ORG_ON_SPHERE ) )
+	if ( Any( fx->mSpawnFlags & fxSpawnFlags_t::FX_ORG_ON_SPHERE ) )
 	{
 		float x, y;
 		float width, height;
@@ -1282,14 +1282,14 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ma
 		VectorSet( temp, Q_sinpif(x) * width * Q_sinpif(y), Q_cospif(x) * width * Q_sinpif(y), Q_cospif(y) * height ); // sinx * siny, cosx * siny, cosy
 		VectorAdd( org, temp, org );
 
-		if ( Any( fx->mSpawnFlags & FX_AXIS_FROM_SPHERE ) )
+		if ( Any( fx->mSpawnFlags & fxSpawnFlags_t::FX_AXIS_FROM_SPHERE ) )
 		{
 			// well, we will now override the axis at the users request
 			VectorNormalize2( temp, ax[0] );
 			MakeNormalVectors( ax[0], ax[1], ax[2] );
 		}
 	}
-	else if ( Any( fx->mSpawnFlags & FX_ORG_ON_CYLINDER ) )
+	else if ( Any( fx->mSpawnFlags & fxSpawnFlags_t::FX_ORG_ON_CYLINDER ) )
 	{
 		vec3_t	pt;
 
@@ -1300,7 +1300,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ma
 
 		VectorAdd( org, temp, org );
 
-		if ( Any( fx->mSpawnFlags & FX_AXIS_FROM_SPHERE ) )
+		if ( Any( fx->mSpawnFlags & fxSpawnFlags_t::FX_AXIS_FROM_SPHERE ) )
 		{
 			vec3_t up={0,0,1};
 
@@ -1318,9 +1318,9 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ma
 		}
 	}
 
-	if ( fx->mType == OrientedParticle )
+	if ( fx->mType == EPrimType::OrientedParticle )
 	{//bolted oriented particles use origin2 as an angular rotation offset...
-		if ( Any( flags & FX_RELATIVE ) )
+		if ( Any( flags & fxPrimitiveFlags_t::FX_RELATIVE ) )
 		{
 			VectorSet( ax[0], fx->mOrigin2X.GetVal(), fx->mOrigin2Y.GetVal(), fx->mOrigin2Z.GetVal() );
 		}
@@ -1328,11 +1328,11 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ma
 
 	// There are only a few types that really use velocity and acceleration, so do extra work for those types
 	//--------------------------------------------------------------------------------------------------------
-	if ( fx->mType == Particle || fx->mType == OrientedParticle || fx->mType == Tail || fx->mType == Emitter )
+	if ( fx->mType == EPrimType::Particle || fx->mType == EPrimType::OrientedParticle || fx->mType == EPrimType::Tail || fx->mType == EPrimType::Emitter )
 	{
 		// Velocity calculations
 		//-------------------------------------
-		if ( Any( fx->mSpawnFlags & FX_VEL_IS_ABSOLUTE ) || Any( flags & FX_RELATIVE ) )
+		if ( Any( fx->mSpawnFlags & fxSpawnFlags_t::FX_VEL_IS_ABSOLUTE ) || Any( flags & fxPrimitiveFlags_t::FX_RELATIVE ) )
 		{
 			VectorSet( vel, fx->mVelX.GetVal(), fx->mVelY.GetVal(), fx->mVelZ.GetVal() );
 		}
@@ -1344,7 +1344,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ma
 		}
 
 		//-------------------------------------
-		if ( Any( fx->mSpawnFlags & FX_AFFECTED_BY_WIND ) )
+		if ( Any( fx->mSpawnFlags & fxSpawnFlags_t::FX_AFFECTED_BY_WIND ) )
 		{
 /*rjr			vec3_t wind;
 
@@ -1356,7 +1356,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ma
 
 		// Acceleration calculations
 		//-------------------------------------
-		if ( Any( fx->mSpawnFlags & FX_ACCEL_IS_ABSOLUTE ) || Any( flags & FX_RELATIVE ) )
+		if ( Any( fx->mSpawnFlags & fxSpawnFlags_t::FX_ACCEL_IS_ABSOLUTE ) || Any( flags & fxPrimitiveFlags_t::FX_RELATIVE ) )
 		{
 			VectorSet( accel, fx->mAccelX.GetVal(), fx->mAccelY.GetVal(), fx->mAccelZ.GetVal() );
 		}
@@ -1391,18 +1391,18 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ma
 
 	// Line type primitives work with an origin2, so do the extra work for them
 	//--------------------------------------------------------------------------
-	if ( fx->mType == Line || fx->mType == Electricity )
+	if ( fx->mType == EPrimType::Line || fx->mType == EPrimType::Electricity )
 	{
 		// We may have to do a trace to find our endpoint
-		if ( Any( fx->mSpawnFlags & FX_ORG2_FROM_TRACE ) )
+		if ( Any( fx->mSpawnFlags & fxSpawnFlags_t::FX_ORG2_FROM_TRACE ) )
 		{
 			VectorMA( org, FX_MAX_TRACE_DIST, ax[0], temp );
 
-			if ( Any( fx->mSpawnFlags & FX_ORG2_IS_OFFSET ) )
+			if ( Any( fx->mSpawnFlags & fxSpawnFlags_t::FX_ORG2_IS_OFFSET ) )
 			{ // add a random flair to the endpoint...note: org2 will have to be pretty large to affect this much
 				// we also do this pre-trace as opposed to post trace since we may have to render an impact effect
 				//	and we will want the normal at the exact endpos...
-				if ( Any( fx->mSpawnFlags & FX_CHEAP_ORG2_CALC ) || Any( flags & FX_RELATIVE ) )
+				if ( Any( fx->mSpawnFlags & fxSpawnFlags_t::FX_CHEAP_ORG2_CALC ) || Any( flags & fxPrimitiveFlags_t::FX_RELATIVE ) )
 				{
 					VectorSet( org2, fx->mOrigin2X.GetVal(), fx->mOrigin2Y.GetVal(), fx->mOrigin2Z.GetVal() );
 					VectorAdd( org2, temp, temp );
@@ -1419,14 +1419,14 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ma
 
 			VectorCopy( tr.endpos, org2 );
 
-			if ( Any( fx->mSpawnFlags & FX_TRACE_IMPACT_FX ) )
+			if ( Any( fx->mSpawnFlags & fxSpawnFlags_t::FX_TRACE_IMPACT_FX ) )
 			{
 				PlayEffect( fx->mImpactFxHandles.GetHandle(), org2, tr.plane.normal );
 			}
 		}
 		else
 		{
-			if ( Any( fx->mSpawnFlags & FX_CHEAP_ORG2_CALC ) || Any( flags & FX_RELATIVE ) )
+			if ( Any( fx->mSpawnFlags & fxSpawnFlags_t::FX_CHEAP_ORG2_CALC ) || Any( flags & fxPrimitiveFlags_t::FX_RELATIVE ) )
 			{
 				VectorSet( org2, fx->mOrigin2X.GetVal(), fx->mOrigin2Y.GetVal(), fx->mOrigin2Z.GetVal() );
 			}
@@ -1436,7 +1436,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ma
 				VectorMA( org2, fx->mOrigin2Y.GetVal(), ax[1], org2 );
 				VectorMA( org2, fx->mOrigin2Z.GetVal(), ax[2], org2 );
 			}
-			if( !Any(flags & FX_RELATIVE) )
+			if( !Any(flags & fxPrimitiveFlags_t::FX_RELATIVE) )
 			{
 				VectorAdd( org2, origin, org2 );
 			}
@@ -1445,7 +1445,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ma
 
 	// handle RGB color, but only for types that will use it
 	//---------------------------------------------------------------------------
-	if ( fx->mType != Sound && fx->mType != FxRunner && fx->mType != CameraShake )
+	if ( fx->mType != EPrimType::Sound && fx->mType != EPrimType::FxRunner && fx->mType != EPrimType::CameraShake )
 	{
 		GetRGB_Colors( fx, sRGB, eRGB );
 	}
@@ -1455,7 +1455,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ma
 	switch( fx->mType )
 	{
 	//---------
-	case Particle:
+	case EPrimType::Particle:
 	//---------
 
 		FX_AddParticle( org, vel, accel,
@@ -1470,7 +1470,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ma
 		break;
 
 	//---------
-	case Line:
+	case EPrimType::Line:
 	//---------
 
 		FX_AddLine( org, org2,
@@ -1482,7 +1482,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ma
 		break;
 
 	//---------
-	case Tail:
+	case EPrimType::Tail:
 	//---------
 
 		FX_AddTail( org, vel, accel,
@@ -1497,7 +1497,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ma
 		break;
 
 	//----------------
-	case Electricity:
+	case EPrimType::Electricity:
 	//----------------
 
 		FX_AddElectricity( org, org2,
@@ -1510,7 +1510,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ma
 		break;
 
 	//---------
-	case Cylinder:
+	case EPrimType::Cylinder:
 	//---------
 
 		FX_AddCylinder( org, ax[0],
@@ -1521,11 +1521,11 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ma
 						sRGB, eRGB, fx->mRGBParm.GetVal(),
 						fx->mLife.GetVal(), fx->mMediaHandles.GetHandle(), flags, fx->mMatImpactFX, fxParm,
 						ghoul2, entNum, modelNum, boltNum,
-						Any( fx->mSpawnFlags & FX_ORG2_FROM_TRACE ));
+						Any( fx->mSpawnFlags & fxSpawnFlags_t::FX_ORG2_FROM_TRACE ));
 		break;
 
 	//---------
-	case Emitter:
+	case EPrimType::Emitter:
 	//---------
 
 		// for chunk angles, you don't really need much control over the end result...you just want variation..
@@ -1557,7 +1557,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ma
 		break;
 
 	//---------
-	case Decal:
+	case EPrimType::Decal:
 	//---------
 
 /* rjr
@@ -1594,8 +1594,8 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ma
 							0,			// impactID
 							20000,		// lifetime
 							fx->mMediaHandles.GetHandle(),
-							(fx->mFlags&~FX_ALPHA_PARM_MASK)|FX_ALPHA_NONLINEAR,
-							MATIMPACTFX_NONE, -1);
+							(fx->mFlags&~fxPrimitiveFlags_t::FX_ALPHA_PARM_MASK)|fxPrimitiveFlags_t::FX_ALPHA_NONLINEAR,
+							EMatImpactEffect::MATIMPACTFX_NONE, -1);
 				}
 				else
 				{	// Use the expensive kind.
@@ -1624,7 +1624,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ma
 
 		theFxHelper.AddDecalToScene ( fx->mMediaHandles.GetHandle(), org, ax[0], fx->mRotation.GetVal(), sRGB[0], sRGB[1], sRGB[2], fx->mAlphaStart.GetVal(), true, fx->mSizeStart.GetVal(), false );
 
-		if (Any( fx->mFlags & FX_GHOUL2_DECALS ))
+		if (Any( fx->mFlags & fxPrimitiveFlags_t::FX_GHOUL2_DECALS ))
 		{
 			theFxHelper.AddGhoul2Decal(fx->mMediaHandles.GetHandle(), org, ax[0], fx->mSizeStart.GetVal());
 		}
@@ -1632,7 +1632,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ma
 		break;
 
 	//-------------------
-	case OrientedParticle:
+	case EPrimType::OrientedParticle:
 	//-------------------
 
 		FX_AddOrientedParticle( org, ax[0], vel, accel,
@@ -1647,27 +1647,27 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ma
 		break;
 
 	//---------
-	case Sound:
+	case EPrimType::Sound:
 	//---------
 		if (gEffectsInPortal)
 		{ //could orient this anyway for panning, but eh. It's going to appear to the player in the sky the same place no matter what, so just make it a local sound.
-			theFxHelper.PlayLocalSound( fx->mMediaHandles.GetHandle(), CHAN_AUTO );
+			theFxHelper.PlayLocalSound( fx->mMediaHandles.GetHandle(), soundChannel_t::CHAN_AUTO );
 		}
 		else
 		{
-			theFxHelper.PlaySound( org, ENTITYNUM_NONE, CHAN_AUTO, fx->mMediaHandles.GetHandle(), fx->mSoundVolume, fx->mSoundRadius );
+			theFxHelper.PlaySound( org, ENTITYNUM_NONE, soundChannel_t::CHAN_AUTO, fx->mMediaHandles.GetHandle(), fx->mSoundVolume, fx->mSoundRadius );
 		}
 		break;
 
 	//---------
-	case FxRunner:
+	case EPrimType::FxRunner:
 	//---------
 
 		PlayEffect( fx->mPlayFxHandles.GetHandle(), org, ax );
 		break;
 
 	//---------
-	case Light:
+	case EPrimType::Light:
 	//---------
 
 		FX_AddLight( org, fx->mSizeStart.GetVal(), fx->mSizeEnd.GetVal(), fx->mSizeParm.GetVal(),
@@ -1677,7 +1677,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ma
 		break;
 
 	//---------
-	case CameraShake:
+	case EPrimType::CameraShake:
 	//---------
 		// It calculates how intense the shake should be based on how close you are to the origin you pass in here
 		//	elasticity is actually the intensity...radius is the distance in which the shake will have some effect
@@ -1686,7 +1686,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ma
 		break;
 
 	//--------------
-	case ScreenFlash:
+	case EPrimType::ScreenFlash:
 	//--------------
 
 		FX_AddFlash( org, fx->mSizeStart.GetVal(), fx->mSizeEnd.GetVal(), fx->mSizeParm.GetVal(),

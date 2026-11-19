@@ -174,7 +174,6 @@ enum class legacyFixes_t {
 	Forks should define their own configstring or serverinfo cvar instead of modifying this
 	*/
 };
-using enum legacyFixes_t;
 
 enum class g2ModelParts_t {
 	G2_MODELPART_HEAD = 10,
@@ -185,7 +184,6 @@ enum class g2ModelParts_t {
 	G2_MODELPART_LLEG,
 	G2_MODELPART_RLEG
 };
-using enum g2ModelParts_t;
 template <> inline constexpr bool enableEnumArithmetic<g2ModelParts_t> = true;
 
 
@@ -220,7 +218,6 @@ enum class forceHandAnims_t {
 
 	HANDEXTEND_JEDITAUNT,
 };
-using enum forceHandAnims_t;
 
 enum class brokenLimb_t
 {
@@ -229,7 +226,6 @@ enum class brokenLimb_t
 	BROKENLIMB_RARM,
 	NUM_BROKENLIMBS
 };
-using enum brokenLimb_t;
 
 //for supplier class items
 inline constexpr int TOSS_DEBOUNCE_TIME = 5000;
@@ -251,11 +247,10 @@ enum class gametype_t {
 	GT_CTY,
 	GT_MAX_GAME_TYPE
 };
-using enum gametype_t;
 
 // masks of game types, one bit per game type
-inline constexpr int GTB_NOTTEAM = Bit( GT_FFA ) | Bit( GT_HOLOCRON ) | Bit( GT_JEDIMASTER ) | Bit( GT_DUEL ) | Bit( GT_POWERDUEL ) | Bit( GT_SINGLE_PLAYER ); // the game types that are not team-based
-inline constexpr int GTB_ALL = GTB_NOTTEAM | Bit( GT_TEAM ) | Bit( GT_SIEGE ) | Bit( GT_CTF ) | Bit( GT_CTY ); // every game type
+inline constexpr int GTB_NOTTEAM = Bit( gametype_t::GT_FFA ) | Bit( gametype_t::GT_HOLOCRON ) | Bit( gametype_t::GT_JEDIMASTER ) | Bit( gametype_t::GT_DUEL ) | Bit( gametype_t::GT_POWERDUEL ) | Bit( gametype_t::GT_SINGLE_PLAYER ); // the game types that are not team-based
+inline constexpr int GTB_ALL = GTB_NOTTEAM | Bit( gametype_t::GT_TEAM ) | Bit( gametype_t::GT_SIEGE ) | Bit( gametype_t::GT_CTF ) | Bit( gametype_t::GT_CTY ); // every game type
 
 enum class flagStatus_t {
 	FLAG_UNSET = -1,	// before the first update, never sent: forces it
@@ -265,14 +260,12 @@ enum class flagStatus_t {
 	FLAG_TAKEN_BLUE,	// One Flag CTF
 	FLAG_DROPPED
 };
-using enum flagStatus_t;
 
 enum class gender_t { GENDER_MALE, GENDER_FEMALE, GENDER_NEUTER };
-using enum gender_t;
 
-extern EnumArray<vec3_t, weapon_t, WP_NUM_WEAPONS> WP_MuzzlePoint;
+extern EnumArray<vec3_t, weapon_t, weapon_t::WP_NUM_WEAPONS> WP_MuzzlePoint;
 
-extern forcePowers_t forcePowerSorted[to_underlying( NUM_FORCE_POWERS )];
+extern forcePowers_t forcePowerSorted[to_underlying( forcePowers_t::NUM_FORCE_POWERS )];
 
 enum class saberLockType_t
 {
@@ -284,7 +277,6 @@ enum class saberLockType_t
 	SABERLOCK_WIN,
 	SABERLOCK_LOSE
 };
-using enum saberLockType_t;
 
 enum class direction_t
 {
@@ -293,7 +285,6 @@ enum class direction_t
 	DIR_FRONT,
 	DIR_BACK
 };
-using enum direction_t;
 
 /*
 ===================================================================================
@@ -318,7 +309,7 @@ typedef struct animation_s {
 #pragma pack(pop)
 
 // the animations of an animation file, indexed by animation
-using animSet_t = EnumArray<animation_t, animNumber_t, MAX_TOTALANIMATIONS>;
+using animSet_t = EnumArray<animation_t, animNumber_t, animNumber_t::MAX_TOTALANIMATIONS>;
 
 extern bool			BGPAFtextLoaded;
 extern animSet_t		bgHumanoidAnimations;
@@ -334,11 +325,10 @@ enum class footstepType_t
 	FOOTSTEP_HEAVY_L,
 	NUM_FOOTSTEP_TYPES
 };
-using enum footstepType_t;
 
 extern stringID_table_t animEventTypeTable[MAX_ANIM_EVENTS+1];
-extern stringID_table_t footstepTypeTable[to_underlying( NUM_FOOTSTEP_TYPES ) + 1];
-extern stringID_table_t animTable[to_underlying( MAX_ANIMATIONS ) + 1];
+extern stringID_table_t footstepTypeTable[to_underlying( footstepType_t::NUM_FOOTSTEP_TYPES ) + 1];
+extern stringID_table_t animTable[to_underlying( animNumber_t::MAX_ANIMATIONS ) + 1];
 
 // the animation a file or a script names, none for a name the table does not have
 [[nodiscard]] inline std::optional<animNumber_t> BG_AnimFromName( const char *name ) {
@@ -399,7 +389,6 @@ enum class animEventType_t
 	AEV_SABER_SPIN,  //# animID AEV_SABER_SPIN framenum CHANNEL chancetoplay
 	AEV_NUM_AEV
 };
-using enum animEventType_t;
 
 typedef struct animevent_s
 {
@@ -450,7 +439,6 @@ enum class pmtype_t {
 	PM_INTERMISSION,	// no movement or status bar
 	PM_SPINTERMISSION	// no movement or status bar
 };
-using enum pmtype_t;
 
 enum class weaponstate_t {
 	WEAPON_READY,
@@ -461,7 +449,6 @@ enum class weaponstate_t {
 	WEAPON_CHARGING_ALT,
 	WEAPON_IDLE, //lowered		// NOTENOTE Added with saber
 };
-using enum weaponstate_t;
 
 
 enum class forceMasteries_t {
@@ -475,13 +462,12 @@ enum class forceMasteries_t {
 	FORCE_MASTERY_JEDI_MASTER,
 	NUM_FORCE_MASTERY_LEVELS
 };
-using enum forceMasteries_t;
 template <> inline constexpr bool enableEnumArithmetic<forceMasteries_t> = true;
 
-extern const EnumArray<const char *, forceMasteries_t, NUM_FORCE_MASTERY_LEVELS> forceMasteryLevels;
-extern const EnumArray<int, forceMasteries_t, NUM_FORCE_MASTERY_LEVELS> forceMasteryPoints;
+extern const EnumArray<const char *, forceMasteries_t, forceMasteries_t::NUM_FORCE_MASTERY_LEVELS> forceMasteryLevels;
+extern const EnumArray<int, forceMasteries_t, forceMasteries_t::NUM_FORCE_MASTERY_LEVELS> forceMasteryPoints;
 
-extern EnumArray<EnumArray<int, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS>, forcePowers_t, NUM_FORCE_POWERS> bgForcePowerCost;
+extern EnumArray<EnumArray<int, forcePowerLevels_t, forcePowerLevels_t::NUM_FORCE_POWER_LEVELS>, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS> bgForcePowerCost;
 
 // pmove->pm_flags
 enum class pmoveFlags_t
@@ -505,7 +491,6 @@ enum class pmoveFlags_t
 
 	PMF_ALL_TIMES	= (PMF_TIME_WATERJUMP|PMF_TIME_LAND|PMF_TIME_KNOCKBACK),
 };
-using enum pmoveFlags_t;
 template <> inline constexpr bool enableEnumFlags<pmoveFlags_t> = true;
 
 inline constexpr int MAXTOUCH = 32;
@@ -611,7 +596,6 @@ enum class statIndex_t {
 	STAT_CLIENTS_READY,				// bit mask of clients wishing to exit the intermission (FIXME: configstring?)
 	STAT_MAX_HEALTH					// health / armor limit, changable by handicap
 };
-using enum statIndex_t;
 
 
 // playerState_t->persistant[] indexes
@@ -636,7 +620,6 @@ enum class persEnum_t {
 	PERS_GAUNTLET_FRAG_COUNT,		// kills with the gauntlet
 	PERS_CAPTURES					// captures
 };
-using enum persEnum_t;
 
 
 // entityState_t->eFlags
@@ -697,7 +680,6 @@ enum class entityFlags_t : uint32_t
 
 	EF_NOT_USED_5			= (1u<<31),		// not used
 };
-using enum entityFlags_t;
 template <> inline constexpr bool enableEnumFlags<entityFlags_t> = true;
 
 //These new EF2_??? flags were added for NPCs, they really should not be used often.
@@ -715,7 +697,6 @@ enum class entityFlags2_t
 	EF2_SHIP_DEATH			= (1<<7),		// "died in ship" mode
 	EF2_NOT_USED_1			= (1<<8),		// not used
 };
-using enum entityFlags2_t;
 template <> inline constexpr bool enableEnumFlags<entityFlags2_t> = true;
 
 
@@ -742,7 +723,6 @@ enum class effectTypes_t {
 	EFFECT_LANDING_GRAVEL,
 	EFFECT_MAX
 };
-using enum effectTypes_t;
 
 // NOTE: may not have more than 16
 enum class powerup_t {
@@ -771,7 +751,6 @@ enum class powerup_t {
 	PW_NUM_POWERUPS
 
 };
-using enum powerup_t;
 template <> inline constexpr bool enableEnumArithmetic<powerup_t> = true;
 
 enum class holdable_t {
@@ -792,7 +771,6 @@ enum class holdable_t {
 
 	HI_NUM_HOLDABLE
 };
-using enum holdable_t;
 template <> inline constexpr bool enableEnumArithmetic<holdable_t> = true;
 
 
@@ -803,7 +781,6 @@ enum class ctfMsg_t {
 	CTFMESSAGE_PLAYER_CAPTURED_FLAG,
 	CTFMESSAGE_PLAYER_GOT_FLAG
 };
-using enum ctfMsg_t;
 
 // reward sounds (stored in ps->persistant[PERS_PLAYEREVENTS])
 enum class playerEventFlags_t
@@ -814,7 +791,6 @@ enum class playerEventFlags_t
 	//OJKFIXME: add holy shit :D
 	PLAYEREVENT_HOLYSHIT			= 0x0004,
 };
-using enum playerEventFlags_t;
 template <> inline constexpr bool enableEnumFlags<playerEventFlags_t> = true;
 
 // entityState_t->event values
@@ -842,7 +818,6 @@ enum class pdSounds_t
 	PDSOUND_FORCEJUMP,
 	PDSOUND_FORCEGRIP
 };
-using enum pdSounds_t;
 
 enum class entity_event_t {
 	EV_NONE,
@@ -1089,8 +1064,7 @@ enum class entity_event_t {
 	EV_SIEGESPEC,
 
 	EV_NUM_ENTITY_EVENTS
-};
-using enum entity_event_t;			// There is a maximum of 256 events (8 bits transmission, 2 high bits for uniqueness)
+};			// There is a maximum of 256 events (8 bits transmission, 2 high bits for uniqueness)
 template <> inline constexpr bool enableEnumArithmetic<entity_event_t> = true;
 
 // The fields that carry an event with the two sequence bits above (an entity state's event, a player state's
@@ -1099,8 +1073,8 @@ template <> inline constexpr bool enableEnumArithmetic<entity_event_t> = true;
 [[nodiscard]] inline entity_event_t BG_UnpackEvent( int packed ) { return static_cast<entity_event_t>( packed & ~EV_EVENT_BITS ); }
 
 // The event of a holdable item's use is EV_USE_ITEM0 plus the item
-[[nodiscard]] inline entity_event_t BG_UseItemEvent( holdable_t item ) { return EV_USE_ITEM0 + to_underlying( item ); }
-[[nodiscard]] inline holdable_t BG_UsedItem( entity_event_t event ) { return static_cast<holdable_t>( event - EV_USE_ITEM0 ); }
+[[nodiscard]] inline entity_event_t BG_UseItemEvent( holdable_t item ) { return entity_event_t::EV_USE_ITEM0 + to_underlying( item ); }
+[[nodiscard]] inline holdable_t BG_UsedItem( entity_event_t event ) { return static_cast<holdable_t>( event - entity_event_t::EV_USE_ITEM0 ); }
 
 
 enum class global_team_sound_t {
@@ -1116,7 +1090,6 @@ enum class global_team_sound_t {
 	GTS_BLUETEAM_TOOK_LEAD,
 	GTS_TEAMS_ARE_TIED
 };
-using enum global_team_sound_t;
 
 
 
@@ -1128,16 +1101,15 @@ enum class team_t {
 
 	TEAM_NUM_TEAMS
 };
-using enum team_t;
 template <> inline constexpr bool enableEnumArithmetic<team_t> = true;
 
 // The player's team is kept in a cell of the networked persistant array, whose cells are integers
-[[nodiscard]] inline team_t PS_Team( const playerState_t &ps ) { return static_cast<team_t>( ps.persistant[PERS_TEAM] ); }
-inline void PS_SetTeam( playerState_t &ps, team_t team ) { ps.persistant[PERS_TEAM] = to_underlying( team ); }
+[[nodiscard]] inline team_t PS_Team( const playerState_t &ps ) { return static_cast<team_t>( ps.persistant[persEnum_t::PERS_TEAM] ); }
+inline void PS_SetTeam( playerState_t &ps, team_t team ) { ps.persistant[persEnum_t::PERS_TEAM] = to_underlying( team ); }
 
 // The reward sounds' bits, flipped in a cell of the networked persistant array so that the client sees each change
-[[nodiscard]] inline playerEventFlags_t PS_PlayerEvents( const playerState_t &ps ) { return static_cast<playerEventFlags_t>( ps.persistant[PERS_PLAYEREVENTS] ); }
-inline void PS_TogglePlayerEvent( playerState_t &ps, playerEventFlags_t event ) { ps.persistant[PERS_PLAYEREVENTS] ^= to_underlying( event ); }
+[[nodiscard]] inline playerEventFlags_t PS_PlayerEvents( const playerState_t &ps ) { return static_cast<playerEventFlags_t>( ps.persistant[persEnum_t::PERS_PLAYEREVENTS] ); }
+inline void PS_TogglePlayerEvent( playerState_t &ps, playerEventFlags_t event ) { ps.persistant[persEnum_t::PERS_PLAYEREVENTS] ^= to_underlying( event ); }
 
 // A user command's weapon, a byte of the client packet: the one conversion of the field
 [[nodiscard]] inline weapon_t UC_Weapon( const usercmd_t &cmd ) { return static_cast<weapon_t>( cmd.weapon ); }
@@ -1150,7 +1122,7 @@ inline void ES_SetWeaponParm( entityState_t &es, int parm ) { es.weapon = static
 
 // EV_NOAMMO's parameter for a weapon out of ammo that the player keeps: past the weapons, so that the client
 // tells it from a weapon taken away
-[[nodiscard]] inline int BG_NoAmmoEventParm( weapon_t weapon ) { return to_underlying( WP_NUM_WEAPONS ) + to_underlying( weapon ); }
+[[nodiscard]] inline int BG_NoAmmoEventParm( weapon_t weapon ) { return to_underlying( weapon_t::WP_NUM_WEAPONS ) + to_underlying( weapon ); }
 
 // An entity state's teamowner, a networked integer: the team of a player's item, a turret or a vehicle, the NPC team of an NPC
 [[nodiscard]] inline team_t ES_Team( const entityState_t &es ) { return static_cast<team_t>( es.teamowner ); }
@@ -1177,7 +1149,6 @@ enum class duelTeam_t {
 
 	DUELTEAM_SINGLE,		// for regular duel matches (not power duel)
 };
-using enum duelTeam_t;
 
 // Time between location updates
 inline constexpr int TEAM_LOCATION_UPDATE_TIME = 1000;
@@ -1196,7 +1167,6 @@ enum class teamtask_t {
 	TEAMTASK_ESCORT,
 	TEAMTASK_CAMP
 };
-using enum teamtask_t;
 
 // means of death
 enum class meansOfDeath_t {
@@ -1251,7 +1221,6 @@ enum class meansOfDeath_t {
 	// I put it back in for now, if it becomes a problem we'll work around it later (it shouldn't though)...
 	MOD_MAX
 };
-using enum meansOfDeath_t;
 template <> inline constexpr bool enableEnumArithmetic<meansOfDeath_t> = true;
 
 
@@ -1271,7 +1240,6 @@ enum class itemType_t {
 	IT_PERSISTANT_POWERUP,
 	IT_TEAM
 };
-using enum itemType_t;
 
 inline constexpr int MAX_ITEM_MODELS = 4;
 
@@ -1328,22 +1296,21 @@ enum class dmFlags_t
 	DF_FIXED_FOV			= 16,
 	DF_NO_FOOTSTEPS			= 32,
 };
-using enum dmFlags_t;
 template <> inline constexpr bool enableEnumFlags<dmFlags_t> = true;
 
 //rwwRMG - added in CONTENTS_TERRAIN
 // content masks
-inline constexpr contentsFlags_t MASK_ALL = CONTENTS_ALL;
-inline constexpr contentsFlags_t MASK_SOLID = CONTENTS_SOLID | CONTENTS_TERRAIN;
-inline constexpr contentsFlags_t MASK_PLAYERSOLID = CONTENTS_SOLID | CONTENTS_PLAYERCLIP | CONTENTS_BODY | CONTENTS_TERRAIN;
-inline constexpr contentsFlags_t MASK_NPCSOLID = CONTENTS_SOLID | CONTENTS_MONSTERCLIP | CONTENTS_BODY | CONTENTS_TERRAIN;
-inline constexpr contentsFlags_t MASK_DEADSOLID = CONTENTS_SOLID | CONTENTS_PLAYERCLIP | CONTENTS_TERRAIN;
-inline constexpr contentsFlags_t MASK_WATER = CONTENTS_WATER | CONTENTS_LAVA | CONTENTS_SLIME;
-inline constexpr contentsFlags_t MASK_OPAQUE = CONTENTS_SOLID | CONTENTS_SLIME | CONTENTS_LAVA | CONTENTS_TERRAIN;
-inline constexpr contentsFlags_t MASK_SHOT = CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_CORPSE | CONTENTS_TERRAIN;
+inline constexpr contentsFlags_t MASK_ALL = contentsFlags_t::CONTENTS_ALL;
+inline constexpr contentsFlags_t MASK_SOLID = contentsFlags_t::CONTENTS_SOLID | contentsFlags_t::CONTENTS_TERRAIN;
+inline constexpr contentsFlags_t MASK_PLAYERSOLID = contentsFlags_t::CONTENTS_SOLID | contentsFlags_t::CONTENTS_PLAYERCLIP | contentsFlags_t::CONTENTS_BODY | contentsFlags_t::CONTENTS_TERRAIN;
+inline constexpr contentsFlags_t MASK_NPCSOLID = contentsFlags_t::CONTENTS_SOLID | contentsFlags_t::CONTENTS_MONSTERCLIP | contentsFlags_t::CONTENTS_BODY | contentsFlags_t::CONTENTS_TERRAIN;
+inline constexpr contentsFlags_t MASK_DEADSOLID = contentsFlags_t::CONTENTS_SOLID | contentsFlags_t::CONTENTS_PLAYERCLIP | contentsFlags_t::CONTENTS_TERRAIN;
+inline constexpr contentsFlags_t MASK_WATER = contentsFlags_t::CONTENTS_WATER | contentsFlags_t::CONTENTS_LAVA | contentsFlags_t::CONTENTS_SLIME;
+inline constexpr contentsFlags_t MASK_OPAQUE = contentsFlags_t::CONTENTS_SOLID | contentsFlags_t::CONTENTS_SLIME | contentsFlags_t::CONTENTS_LAVA | contentsFlags_t::CONTENTS_TERRAIN;
+inline constexpr contentsFlags_t MASK_SHOT = contentsFlags_t::CONTENTS_SOLID | contentsFlags_t::CONTENTS_BODY | contentsFlags_t::CONTENTS_CORPSE | contentsFlags_t::CONTENTS_TERRAIN;
 
 
-// ET_FX States (stored in modelindex2)
+// entityType_t::ET_FX States (stored in modelindex2)
 
 inline constexpr int FX_STATE_OFF = 0;
 inline constexpr int FX_STATE_ONE_SHOT = 1;
@@ -1377,12 +1344,11 @@ enum class entityType_t {
 							// by setting eType to ET_EVENTS + eventNum
 							// this avoids having to set eFlags and eventNum
 };
-using enum entityType_t;
 
 // An event entity's eType is ET_EVENTS plus its event as an event field holds it (BG_PackEvent): written and
 // read through these only
-[[nodiscard]] inline entityType_t BG_EventEntityType( int packedEvent ) { return static_cast<entityType_t>( to_underlying( ET_EVENTS ) + packedEvent ); }
-[[nodiscard]] inline int BG_EventEntityEvent( entityType_t eType ) { return to_underlying( eType ) - to_underlying( ET_EVENTS ); }
+[[nodiscard]] inline entityType_t BG_EventEntityType( int packedEvent ) { return static_cast<entityType_t>( to_underlying( entityType_t::ET_EVENTS ) + packedEvent ); }
+[[nodiscard]] inline int BG_EventEntityEvent( entityType_t eType ) { return to_underlying( eType ) - to_underlying( entityType_t::ET_EVENTS ); }
 
 // Okay, here lies the much-dreaded Pat-created FSM movement chart...  Heretic II strikes again!
 // Why am I inflicting this on you?  Well, it's better than hardcoded states.
@@ -1588,7 +1554,6 @@ enum class saberMoveName_t {
 
 	LS_MOVE_MAX//
 };
-using enum saberMoveName_t;
 template <> inline constexpr bool enableEnumArithmetic<saberMoveName_t> = true;
 
 enum class saberQuadrant_t {
@@ -1602,7 +1567,6 @@ enum class saberQuadrant_t {
 	Q_B,
 	Q_NUM_QUADS
 };
-using enum saberQuadrant_t;
 template <> inline constexpr bool enableEnumArithmetic<saberQuadrant_t> = true;
 
 typedef struct saberMoveData_s {
@@ -1617,7 +1581,7 @@ typedef struct saberMoveData_s {
 	saberMoveName_t chain_attack;		// What move to call if the attack button (and nothing else) is pressed
 	int trailLength;					// milliseconds
 } saberMoveData_t;
-extern EnumArray<saberMoveData_t, saberMoveName_t, LS_MOVE_MAX> saberMoveData;
+extern EnumArray<saberMoveData_t, saberMoveName_t, saberMoveName_t::LS_MOVE_MAX> saberMoveData;
 
 
 enum class saberType_t {
@@ -1636,7 +1600,6 @@ enum class saberType_t {
 	SABER_SITH_SWORD,
 	NUM_SABERS
 };
-using enum saberType_t;
 
 typedef struct saberTrail_s {
 	// Actual trail stuff
@@ -1679,7 +1642,6 @@ enum class saber_styles_t {
 	SS_STAFF,
 	SS_NUM_SABER_STYLES
 };
-using enum saber_styles_t;
 template <> inline constexpr bool enableEnumArithmetic<saber_styles_t> = true;
 
 // the strongest of the three single-saber styles a level of saber offence allows: fast at level 1, medium at 2,
@@ -1878,10 +1840,10 @@ void BG_SI_DeactivateTrail ( saberInfo_t *saber, float duration );
 extern void BG_AttachToRancor( void *ghoul2,float rancYaw,vec3_t rancOrigin,int time,qhandle_t *modelList,vec3_t modelScale,bool inMouth,vec3_t out_origin,vec3_t out_angles,matrix3_t out_axis );
 void BG_ClearRocketLock( playerState_t *ps );
 
-extern EnumArray<animNumber_t, weapon_t, WP_NUM_WEAPONS> WeaponReadyAnim;
-extern EnumArray<animNumber_t, weapon_t, WP_NUM_WEAPONS> WeaponAttackAnim;
+extern EnumArray<animNumber_t, weapon_t, weapon_t::WP_NUM_WEAPONS> WeaponReadyAnim;
+extern EnumArray<animNumber_t, weapon_t, weapon_t::WP_NUM_WEAPONS> WeaponAttackAnim;
 
-extern EnumArray<int, forcePowers_t, NUM_FORCE_POWERS> forcePowerDarkLight;
+extern EnumArray<int, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS> forcePowerDarkLight;
 
 
 inline constexpr int MAX_ARENAS = 1024;
@@ -1894,6 +1856,6 @@ inline constexpr int HYPERSPACE_TIME = 4000; //For hyperspace triggers
 inline constexpr float HYPERSPACE_TELEPORT_FRAC = 0.75f;
 inline constexpr float HYPERSPACE_SPEED = 10000.0f; //was 30000
 
-extern const EnumArray<const char *, gametype_t, GT_MAX_GAME_TYPE> gametypeStringShort;
+extern const EnumArray<const char *, gametype_t, gametype_t::GT_MAX_GAME_TYPE> gametypeStringShort;
 const char *BG_GetGametypeString( gametype_t gametype );
 gametype_t	BG_GetGametypeForString( const char *gametype );

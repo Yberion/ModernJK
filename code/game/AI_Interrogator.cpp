@@ -32,7 +32,6 @@ LSTATE_BLADESTOP=0,
 LSTATE_BLADEUP,
 LSTATE_BLADEDOWN,
 };
-using enum interrogatorLocalState_t;
 
 /*
 -------------------------
@@ -60,24 +59,24 @@ void Interrogator_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacke
 {
 	self->client->ps.velocity[2] = -100;
 	/*
-	self->locationDamage[HL_NONE] += damage;
-	if (self->locationDamage[HL_NONE] > 40)
+	self->locationDamage[hitLocation_t::HL_NONE] += damage;
+	if (self->locationDamage[hitLocation_t::HL_NONE] > 40)
 	{
 		DeathFX(self);
-		self->client->ps.eFlags |= EF_NODRAW;
-		self->contents = CONTENTS_CORPSE;
+		self->client->ps.eFlags |= entityFlags_t::EF_NODRAW;
+		self->contents = contentsFlags_t::CONTENTS_CORPSE;
 	}
 	else
 	*/
 	{
-		self->client->moveType = MT_WALK;
+		self->client->moveType = movetype_t::MT_WALK;
 		self->client->ps.velocity[0] = Q_irand( -20, -10 );
 		self->client->ps.velocity[1] = Q_irand( -20, -10 );
 		self->client->ps.velocity[2] = -100;
 	}
 	//self->takedamage = false;
-	//self->client->ps.eFlags |= EF_NODRAW;
-	//self->contents = CONTENTS_NONE;
+	//self->client->ps.eFlags |= entityFlags_t::EF_NODRAW;
+	//self->contents = contentsFlags_t::CONTENTS_NONE;
 	return;
 }
 
@@ -106,7 +105,7 @@ void Interrogator_PartsMove(void)
 			NPC->pos1[1]=Q_irand( 0, 60 );	// Pitch
 		}
 
-		gi.G2API_SetBoneAnglesIndex( &NPC->ghoul2[NPC->playerModel], NPC->genericBone1, NPC->pos1, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, 0 );
+		gi.G2API_SetBoneAnglesIndex( &NPC->ghoul2[NPC->playerModel], NPC->genericBone1, NPC->pos1, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_X, Eorientations::NEGATIVE_Y, Eorientations::NEGATIVE_Z, nullptr, 0, 0 );
 		TIMER_Set( NPC, "syringeDelay", Q_irand( 100, 1000 ) );
 	}
 
@@ -114,13 +113,13 @@ void Interrogator_PartsMove(void)
 	if ( TIMER_Done(NPC,"scalpelDelay") )
 	{
 		// Change pitch
-		if ( NPC_LocalState<interrogatorLocalState_t>( *NPCInfo ) == LSTATE_BLADEDOWN )	// Blade is moving down
+		if ( NPC_LocalState<interrogatorLocalState_t>( *NPCInfo ) == interrogatorLocalState_t::LSTATE_BLADEDOWN )	// Blade is moving down
 		{
 			NPC->pos2[0]-= 30;
 			if (NPC->pos2[0] < 180)
 			{
 				NPC->pos2[0] = 180;
-				NPC_SetLocalState( *NPCInfo, LSTATE_BLADEUP );	// Make it move up
+				NPC_SetLocalState( *NPCInfo, interrogatorLocalState_t::LSTATE_BLADEUP );	// Make it move up
 			}
 		}
 		else											// Blade is coming back up
@@ -129,19 +128,19 @@ void Interrogator_PartsMove(void)
 			if (NPC->pos2[0] >= 360)
 			{
 				NPC->pos2[0] = 360;
-				NPC_SetLocalState( *NPCInfo, LSTATE_BLADEDOWN );	// Make it move down
+				NPC_SetLocalState( *NPCInfo, interrogatorLocalState_t::LSTATE_BLADEDOWN );	// Make it move down
 				TIMER_Set( NPC, "scalpelDelay", Q_irand( 100, 1000 ) );
 			}
 		}
 
 		NPC->pos2[0] = AngleNormalize360( NPC->pos2[0]);
-		gi.G2API_SetBoneAnglesIndex( &NPC->ghoul2[NPC->playerModel], NPC->genericBone2, NPC->pos2, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, 0 );
+		gi.G2API_SetBoneAnglesIndex( &NPC->ghoul2[NPC->playerModel], NPC->genericBone2, NPC->pos2, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_X, Eorientations::NEGATIVE_Y, Eorientations::NEGATIVE_Z, nullptr, 0, 0 );
 	}
 
 	// Claw
 	NPC->pos3[1] += Q_irand( 10, 30 );
 	NPC->pos3[1] = AngleNormalize360( NPC->pos3[1]);
-	gi.G2API_SetBoneAnglesIndex( &NPC->ghoul2[NPC->playerModel], NPC->genericBone3, NPC->pos3, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, 0 );
+	gi.G2API_SetBoneAnglesIndex( &NPC->ghoul2[NPC->playerModel], NPC->genericBone3, NPC->pos3, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_X, Eorientations::NEGATIVE_Y, Eorientations::NEGATIVE_Z, nullptr, 0, 0 );
 
 }
 
@@ -268,7 +267,7 @@ void Interrogator_Strafe( void )
 	dir = ( rand() & 1 ) ? -1 : 1;
 	VectorMA( NPC->currentOrigin, HUNTER_STRAFE_DIS * dir, right, end );
 
-	gi.trace( &tr, NPC->currentOrigin, nullptr, nullptr, end, NPC->s.number, MASK_SOLID, G2_NOCOLLIDE, 0 );
+	gi.trace( &tr, NPC->currentOrigin, nullptr, nullptr, end, NPC->s.number, MASK_SOLID, EG2_Collision::G2_NOCOLLIDE, 0 );
 
 	// Close enough
 	if ( tr.fraction > 0.9f )
@@ -369,20 +368,20 @@ void Interrogator_Melee( bool visible, bool advance )
 		if ( NPC->currentOrigin[2] >= NPC->enemy->currentOrigin[2]+NPC->enemy->mins[2] && NPC->currentOrigin[2]+NPC->mins[2]+8 < NPC->enemy->currentOrigin[2]+NPC->enemy->maxs[2] )
 		{
 			TIMER_Set( NPC, "attackDelay", Q_irand( 500, 3000 ) );
-			G_Damage( NPC->enemy, NPC, NPC, nullptr, nullptr, 2, DAMAGE_NO_KNOCKBACK, MOD_MELEE );
+			G_Damage( NPC->enemy, NPC, NPC, nullptr, nullptr, 2, damageFlags_t::DAMAGE_NO_KNOCKBACK, meansOfDeath_t::MOD_MELEE );
 
 			NPC->enemy->client->poisonDamage = 18;
 			NPC->enemy->client->poisonTime = level.time + 1000;
 
 			// Drug our enemy up and do the wonky vision thing
-			gentity_t *tent = G_TempEntity( NPC->enemy->currentOrigin, EV_DRUGGED );
+			gentity_t *tent = G_TempEntity( NPC->enemy->currentOrigin, entity_event_t::EV_DRUGGED );
 			tent->owner = NPC->enemy;
 
 			G_Sound( NPC, G_SoundIndex( "sound/chars/interrogator/misc/torture_droid_inject.mp3" ));
 		}
 	}
 
-	if ( Any( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
+	if ( Any( NPCInfo->scriptFlags & scriptFlags_t::SCF_CHASE_ENEMIES ) )
 	{
 		Interrogator_Hunt( visible, advance );
 	}
@@ -403,7 +402,7 @@ void Interrogator_Attack( void )
 	{
 		if (TIMER_Done(NPC,"angerNoise"))
 		{
-			G_SoundOnEnt( NPC, CHAN_AUTO, va("sound/chars/probe/misc/probetalk%d", Q_irand(1, 3)) );
+			G_SoundOnEnt( NPC, soundChannel_t::CHAN_AUTO, va("sound/chars/probe/misc/probetalk%d", Q_irand(1, 3)) );
 
 			TIMER_Set( NPC, "patrolNoise", Q_irand( 4000, 10000 ) );
 		}
@@ -425,7 +424,7 @@ void Interrogator_Attack( void )
 	{
 		advance = true;
 	}
-	if ( Any( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
+	if ( Any( NPCInfo->scriptFlags & scriptFlags_t::SCF_CHASE_ENEMIES ) )
 	{
 		Interrogator_Hunt( visible, advance );
 	}
@@ -447,7 +446,7 @@ void Interrogator_Idle( void )
 {
 	if ( NPC_CheckPlayerTeamStealth() )
 	{
-		G_SoundOnEnt( NPC, CHAN_AUTO, "sound/chars/mark1/misc/anger.wav" );
+		G_SoundOnEnt( NPC, soundChannel_t::CHAN_AUTO, "sound/chars/mark1/misc/anger.wav" );
 		NPC_UpdateAngles( true, true );
 		return;
 	}
@@ -464,7 +463,7 @@ NPC_BSInterrogator_Default
 */
 void NPC_BSInterrogator_Default( void )
 {
-	//NPC->e_DieFunc = dieF_Interrogator_die;
+	//NPC->e_DieFunc = dieFunc_t::dieF_Interrogator_die;
 
 	if ( NPC->enemy )
 	{

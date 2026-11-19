@@ -29,7 +29,6 @@ gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life, gentity_t
 extern gitem_t	*FindItemForAmmo( ammo_t ammo );
 
 //Local state enums
-using enum droidLocalState_t;
 
 void ImperialProbe_Idle( void );
 
@@ -48,8 +47,8 @@ void NPC_Probe_Precache(void)
 	G_EffectIndex( "explosions/probeexplosion1");
 	G_EffectIndex( "bryar/muzzle_flash" );
 
-	RegisterItem( FindItemForAmmo( AMMO_BLASTER ));
-	RegisterItem( FindItemForWeapon( WP_BRYAR_PISTOL ) );
+	RegisterItem( FindItemForAmmo( ammo_t::AMMO_BLASTER ));
+	RegisterItem( FindItemForWeapon( weapon_t::WP_BRYAR_PISTOL ) );
 }
 /*
 -------------------------
@@ -205,7 +204,7 @@ void ImperialProbe_Strafe( void )
 	dir = ( rand() & 1 ) ? -1 : 1;
 	VectorMA( NPC->currentOrigin, HUNTER_STRAFE_DIS * dir, right, end );
 
-	gi.trace( &tr, NPC->currentOrigin, nullptr, nullptr, end, NPC->s.number, MASK_SOLID, G2_NOCOLLIDE, 0 );
+	gi.trace( &tr, NPC->currentOrigin, nullptr, nullptr, end, NPC->s.number, MASK_SOLID, EG2_Collision::G2_NOCOLLIDE, 0 );
 
 	// Close enough
 	if ( tr.fraction > 0.9f )
@@ -235,7 +234,7 @@ void ImperialProbe_Hunt( bool visible, bool advance )
 	float	speed;
 	vec3_t	forward;
 
-	NPC_SetAnim( NPC, SETANIM_BOTH, BOTH_RUN1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+	NPC_SetAnim( NPC, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_RUN1, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD );
 
 	//If we're not supposed to stand still, pursue the player
 	if ( NPCInfo->standTime < level.time )
@@ -290,7 +289,7 @@ void ImperialProbe_FireBlaster(void)
 				&boltMatrix, NPC->currentAngles, NPC->currentOrigin, (cg.time?cg.time:level.time),
 				nullptr, NPC->s.modelScale );
 
-	gi.G2API_GiveMeVectorFromMatrix( boltMatrix, ORIGIN, muzzle1 );
+	gi.G2API_GiveMeVectorFromMatrix( boltMatrix, Eorientations::ORIGIN, muzzle1 );
 
 	G_PlayEffect( "bryar/muzzle_flash", muzzle1 );
 
@@ -298,7 +297,7 @@ void ImperialProbe_FireBlaster(void)
 
 	if (NPC->health)
 	{
-		CalcEntitySpot( NPC->enemy, SPOT_CHEST, enemy_org1 );
+		CalcEntitySpot( NPC->enemy, spot_t::SPOT_CHEST, enemy_org1 );
 		enemy_org1[0]+= Q_irand(0,10);
 		enemy_org1[1]+= Q_irand(0,10);
 		VectorSubtract (enemy_org1, muzzle1, delta1);
@@ -313,7 +312,7 @@ void ImperialProbe_FireBlaster(void)
 	missile = CreateMissile( muzzle1, forward, 1600, 10000, NPC );
 
 	missile->classname = "bryar_proj";
-	missile->s.weapon = WP_BRYAR_PISTOL;
+	missile->s.weapon = weapon_t::WP_BRYAR_PISTOL;
 
 	if ( g_spskill->integer <= 1 )
 	{
@@ -325,9 +324,9 @@ void ImperialProbe_FireBlaster(void)
 	}
 
 
-	missile->dflags = DAMAGE_DEATH_KNOCKBACK;
-	missile->methodOfDeath = MOD_ENERGY;
-	missile->clipmask = MASK_SHOT | CONTENTS_LIGHTSABER;
+	missile->dflags = damageFlags_t::DAMAGE_DEATH_KNOCKBACK;
+	missile->methodOfDeath = meansOfDeath_t::MOD_ENERGY;
+	missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
 
 }
 
@@ -361,10 +360,10 @@ void ImperialProbe_Ranged( bool visible, bool advance )
 
 		TIMER_Set( NPC, "attackDelay", Q_irand( delay_min, delay_max ) );
 		ImperialProbe_FireBlaster();
-//		ucmd.buttons |= BUTTON_ATTACK;
+//		ucmd.buttons |= buttonFlags_t::BUTTON_ATTACK;
 	}
 
-	if ( Any( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
+	if ( Any( NPCInfo->scriptFlags & scriptFlags_t::SCF_CHASE_ENEMIES ) )
 	{
 		ImperialProbe_Hunt( visible, advance );
 	}
@@ -392,7 +391,7 @@ void ImperialProbe_AttackDecision( void )
 	{
 		if (TIMER_Done(NPC,"angerNoise"))
 		{
-			G_SoundOnEnt( NPC, CHAN_AUTO, va("sound/chars/probe/misc/probetalk%d", Q_irand(1, 3)) );
+			G_SoundOnEnt( NPC, soundChannel_t::CHAN_AUTO, va("sound/chars/probe/misc/probetalk%d", Q_irand(1, 3)) );
 
 			TIMER_Set( NPC, "patrolNoise", Q_irand( 4000, 10000 ) );
 		}
@@ -405,18 +404,18 @@ void ImperialProbe_AttackDecision( void )
 		return;
 	}
 
-	NPC_SetAnim( NPC, SETANIM_BOTH, BOTH_RUN1, SETANIM_FLAG_NORMAL);
+	NPC_SetAnim( NPC, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_RUN1, setAnimFlags_t::SETANIM_FLAG_NORMAL);
 
 	// Rate our distance to the target, and our visibilty
 	float		distance	= (int) DistanceHorizontalSquared( NPC->currentOrigin, NPC->enemy->currentOrigin );
-//	distance_e	distRate	= ( distance > MIN_MELEE_RANGE_SQR ) ? DIST_LONG : DIST_MELEE;
+//	distance_e	distRate	= ( distance > MIN_MELEE_RANGE_SQR ) ? distance_e::DIST_LONG : distance_e::DIST_MELEE;
 	bool	visible		= NPC_ClearLOS( NPC->enemy );
 	bool	advance		= (distance > MIN_DISTANCE_SQR);
 
 	// If we cannot see our target, move to see it
 	if ( visible == false )
 	{
-		if ( Any( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
+		if ( Any( NPCInfo->scriptFlags & scriptFlags_t::SCF_CHASE_ENEMIES ) )
 		{
 			ImperialProbe_Hunt( visible, advance );
 			return;
@@ -441,15 +440,15 @@ void NPC_Probe_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, co
 
 	VectorCopy( self->NPC->lastPathAngles, self->s.angles );
 
-	if ( self->health < 30 || mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT ) // demp2 always messes them up real good
+	if ( self->health < 30 || mod == meansOfDeath_t::MOD_DEMP2 || mod == meansOfDeath_t::MOD_DEMP2_ALT ) // demp2 always messes them up real good
 	{
 		vec3_t endPos;
 		trace_t	trace;
 
 		VectorSet( endPos, self->currentOrigin[0], self->currentOrigin[1], self->currentOrigin[2] - 128 );
-		gi.trace( &trace, self->currentOrigin, nullptr, nullptr, endPos, self->s.number, MASK_SOLID, G2_NOCOLLIDE, 0 );
+		gi.trace( &trace, self->currentOrigin, nullptr, nullptr, endPos, self->s.number, MASK_SOLID, EG2_Collision::G2_NOCOLLIDE, 0 );
 
-		if ( trace.fraction == 1.0f || mod == MOD_DEMP2 ) // demp2 always does this
+		if ( trace.fraction == 1.0f || mod == meansOfDeath_t::MOD_DEMP2 ) // demp2 always does this
 		{
 			if (self->client->clientInfo.headModel != 0)
 			{
@@ -461,15 +460,15 @@ void NPC_Probe_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, co
 				G_PlayEffect( "chunks/probehead", origin );
 				G_PlayEffect( "env/med_explode2", origin );
 				self->client->clientInfo.headModel = 0;
-				self->client->moveType = MT_RUNJUMP;
+				self->client->moveType = movetype_t::MT_RUNJUMP;
 				self->client->ps.gravity = g_gravity->value*.1;
 			}
 
-			if ( (mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT) && other )
+			if ( (mod == meansOfDeath_t::MOD_DEMP2 || mod == meansOfDeath_t::MOD_DEMP2_ALT) && other )
 			{
 				vec3_t dir;
 
-				NPC_SetAnim( self, SETANIM_BOTH, BOTH_PAIN1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD);
+				NPC_SetAnim( self, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_PAIN1, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD);
 
 				VectorSubtract( self->currentOrigin, other->currentOrigin, dir );
 				VectorNormalize( dir );
@@ -478,10 +477,10 @@ void NPC_Probe_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, co
 				self->client->ps.velocity[2] -= 127;
 			}
 
-			self->s.powerups |= Bit( PW_SHOCKED );
-			self->client->ps.powerups[PW_SHOCKED] = level.time + 3000;
+			self->s.powerups |= Bit( powerup_t::PW_SHOCKED );
+			self->client->ps.powerups[powerup_t::PW_SHOCKED] = level.time + 3000;
 
-			NPC_SetLocalState( *self->NPC, LSTATE_DROP );
+			NPC_SetLocalState( *self->NPC, droidLocalState_t::LSTATE_DROP );
 		}
 	}
 	else
@@ -490,7 +489,7 @@ void NPC_Probe_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, co
 
 		if ( Q_flrand(0.0f, 1.0f) < pain_chance )	// Spin around in pain?
 		{
-			NPC_SetAnim( self, SETANIM_BOTH, BOTH_PAIN1, SETANIM_FLAG_OVERRIDE);
+			NPC_SetAnim( self, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_PAIN1, setAnimFlags_t::SETANIM_FLAG_OVERRIDE);
 		}
 	}
 
@@ -528,28 +527,28 @@ void ImperialProbe_Patrol( void )
 	//If we have somewhere to go, then do that
 	if (!NPC->enemy)
 	{
-		NPC_SetAnim( NPC, SETANIM_BOTH, BOTH_RUN1, SETANIM_FLAG_NORMAL );
+		NPC_SetAnim( NPC, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_RUN1, setAnimFlags_t::SETANIM_FLAG_NORMAL );
 
 		if ( UpdateGoal() )
 		{
 			//start loop sound once we move
 			NPC->s.loopSound = G_SoundIndex( "sound/chars/probe/misc/probedroidloop" );
-			ucmd.buttons |= BUTTON_WALKING;
+			ucmd.buttons |= buttonFlags_t::BUTTON_WALKING;
 			NPC_MoveToGoal( true );
 		}
 		//randomly talk
 		if (TIMER_Done(NPC,"patrolNoise"))
 		{
-			G_SoundOnEnt( NPC, CHAN_AUTO, va("sound/chars/probe/misc/probetalk%d", Q_irand(1, 3)) );
+			G_SoundOnEnt( NPC, soundChannel_t::CHAN_AUTO, va("sound/chars/probe/misc/probetalk%d", Q_irand(1, 3)) );
 
 			TIMER_Set( NPC, "patrolNoise", Q_irand( 2000, 4000 ) );
 		}
 	}
 	else	// He's got an enemy. Make him angry.
 	{
-		G_SoundOnEnt( NPC, CHAN_AUTO, "sound/chars/probe/misc/anger1" );
+		G_SoundOnEnt( NPC, soundChannel_t::CHAN_AUTO, "sound/chars/probe/misc/anger1" );
 		TIMER_Set( NPC, "angerNoise", Q_irand( 2000, 4000 ) );
-		//NPCInfo->behaviorState = BS_HUNT_AND_KILL;
+		//NPCInfo->behaviorState = bState_t::BS_HUNT_AND_KILL;
 	}
 
 	NPC_UpdateAngles( true, true );
@@ -562,7 +561,7 @@ ImperialProbe_Wait
 */
 void ImperialProbe_Wait(void)
 {
-	if ( NPC_LocalState<droidLocalState_t>( *NPCInfo ) == LSTATE_DROP )
+	if ( NPC_LocalState<droidLocalState_t>( *NPCInfo ) == droidLocalState_t::LSTATE_DROP )
 	{
 		vec3_t endPos;
 		trace_t	trace;
@@ -570,11 +569,11 @@ void ImperialProbe_Wait(void)
 		NPCInfo->desiredYaw = AngleNormalize360( NPCInfo->desiredYaw + 25 );
 
 		VectorSet( endPos, NPC->currentOrigin[0], NPC->currentOrigin[1], NPC->currentOrigin[2] - 32 );
-		gi.trace( &trace, NPC->currentOrigin, nullptr, nullptr, endPos, NPC->s.number, MASK_SOLID, G2_NOCOLLIDE, 0 );
+		gi.trace( &trace, NPC->currentOrigin, nullptr, nullptr, endPos, NPC->s.number, MASK_SOLID, EG2_Collision::G2_NOCOLLIDE, 0 );
 
 		if ( trace.fraction != 1.0f )
 		{
-			G_Damage(NPC, NPC->enemy, NPC->enemy, nullptr, nullptr, 2000, DAMAGE_NORMAL,MOD_UNKNOWN);
+			G_Damage(NPC, NPC->enemy, NPC->enemy, nullptr, nullptr, 2000, damageFlags_t::DAMAGE_NORMAL,meansOfDeath_t::MOD_UNKNOWN);
 		}
 	}
 
@@ -594,11 +593,11 @@ void NPC_BSImperialProbe_Default( void )
 		NPCInfo->goalEntity = NPC->enemy;
 		ImperialProbe_AttackDecision();
 	}
-	else if ( Any( NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES ) )
+	else if ( Any( NPCInfo->scriptFlags & scriptFlags_t::SCF_LOOK_FOR_ENEMIES ) )
 	{
 		ImperialProbe_Patrol();
 	}
-	else if ( NPC_LocalState<droidLocalState_t>( *NPCInfo ) == LSTATE_DROP )
+	else if ( NPC_LocalState<droidLocalState_t>( *NPCInfo ) == droidLocalState_t::LSTATE_DROP )
 	{
 		ImperialProbe_Wait();
 	}

@@ -31,7 +31,6 @@ enum class variableType_t
 	VTYPE_STRING,
 	VTYPE_VECTOR,
 };
-using enum variableType_t;
 
 #if defined( __cplusplus ) && !defined( _GAME )	// the interpreter's own part, the engine's; the game module uses the part above
 

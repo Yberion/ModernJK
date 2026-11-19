@@ -100,11 +100,11 @@ void R_DlightBmodel( bmodel_t *bmodel, bool NoLight )
 	// set the dlight bits in all the surfaces
 	for ( i = 0 ; i < bmodel->numSurfaces ; i++ ) {
 		surf = bmodel->firstSurface + i;
-		if ( *surf->data == SF_FACE ) {
+		if ( *surf->data == surfaceType_t::SF_FACE ) {
 			((srfSurfaceFace_t *)surf->data)->dlightBits = mask;
-		} else if ( *surf->data == SF_GRID ) {
+		} else if ( *surf->data == surfaceType_t::SF_GRID ) {
 			((srfGridMesh_t *)surf->data)->dlightBits = mask;
-		} else if ( *surf->data == SF_TRIANGLES ) {
+		} else if ( *surf->data == surfaceType_t::SF_TRIANGLES ) {
 			((srfTriangles_t *)surf->data)->dlightBits = mask;
 		}
 	}
@@ -149,7 +149,7 @@ static void R_SetupEntityLightingGrid( trRefEntity_t *ent ) {
 		return;
 	}
 
-	if ( Any( ent->e.renderfx & RF_LIGHTING_ORIGIN ) ) {
+	if ( Any( ent->e.renderfx & renderFxFlags_t::RF_LIGHTING_ORIGIN ) ) {
 		// seperate lightOrigins are needed so an object that is
 		// sinking into the ground can still be lit, and so
 		// multi-part models can be lit identically
@@ -272,7 +272,7 @@ LogLight
 static void LogLight( trRefEntity_t *ent ) {
 	int	max1, max2;
 
-	if ( !Any(ent->e.renderfx & RF_FIRST_PERSON ) ) {
+	if ( !Any(ent->e.renderfx & renderFxFlags_t::RF_FIRST_PERSON ) ) {
 		return;
 	}
 
@@ -290,7 +290,7 @@ static void LogLight( trRefEntity_t *ent ) {
 		max2 = ent->directedLight[2];
 	}
 
-	ri.Printf( PRINT_ALL, "amb:%i  dir:%i\n", max1, max2 );
+	ri.Printf( printParm_t::PRINT_ALL, "amb:%i  dir:%i\n", max1, max2 );
 }
 
 /*
@@ -319,7 +319,7 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 	//
 	// trace a sample point down to find ambient light
 	//
-	if ( Any( ent->e.renderfx & RF_LIGHTING_ORIGIN ) ) {
+	if ( Any( ent->e.renderfx & renderFxFlags_t::RF_LIGHTING_ORIGIN ) ) {
 		// seperate lightOrigins are needed so an object that is
 		// sinking into the ground can still be lit, and so
 		// multi-part models can be lit identically
@@ -329,7 +329,7 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 	}
 
 	// if NOWORLDMODEL, only use dynamic lights (menu system, etc)
-	if ( !Any(refdef->rdflags & RDF_NOWORLDMODEL )
+	if ( !Any(refdef->rdflags & refdefFlags_t::RDF_NOWORLDMODEL )
 		&& tr.world->lightGridData ) {
 		R_SetupEntityLightingGrid( ent );
 	} else {
@@ -341,14 +341,14 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 	}
 
 	// bonus items and view weapons have a fixed minimum add
-	if ( 1 /* ent->e.renderfx & RF_MINLIGHT */ ) {
+	if ( 1 /* ent->e.renderfx & renderFxFlags_t::RF_MINLIGHT */ ) {
 		// give everything a minimum light add
 		ent->ambientLight[0] += tr.identityLight * 32;
 		ent->ambientLight[1] += tr.identityLight * 32;
 		ent->ambientLight[2] += tr.identityLight * 32;
 	}
 
-	if (Any( ent->e.renderfx & RF_MINLIGHT ))
+	if (Any( ent->e.renderfx & renderFxFlags_t::RF_MINLIGHT ))
 	{ //the minlight flag is now for items rotating on their holo thing
 		if (ent->e.shaderRGBA[0] == 255 &&
 			ent->e.shaderRGBA[1] == 255 &&

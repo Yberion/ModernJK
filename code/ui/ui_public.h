@@ -165,7 +165,6 @@ enum class dpTypes_t {
 	DP_INVENTORY,
 	DP_FORCEPOWERS
 };
-using enum dpTypes_t;
 
 enum class uiImport_t {
 	UI_ERROR,
@@ -265,6 +264,5 @@ enum class uiImport_t {
 	UI_FLOOR,
 	UI_CEIL
 };
-using enum uiImport_t;
 
 #endif

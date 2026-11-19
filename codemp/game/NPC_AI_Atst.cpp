@@ -28,7 +28,7 @@ constexpr int MIN_MELEE_RANGE_SQR = MIN_MELEE_RANGE * MIN_MELEE_RANGE;
 constexpr int MIN_DISTANCE = 128;
 constexpr int MIN_DISTANCE_SQR = MIN_DISTANCE * MIN_DISTANCE;
 
-constexpr g2SurfaceFlags_t TURN_OFF = G2SURFACEFLAG_NODESCENDANTS;
+constexpr g2SurfaceFlags_t TURN_OFF = g2SurfaceFlags_t::G2SURFACEFLAG_NODESCENDANTS;
 
 [[maybe_unused]] constexpr int LEFT_ARM_HEALTH = 40;
 [[maybe_unused]] constexpr int RIGHT_ARM_HEALTH = 40;
@@ -46,8 +46,8 @@ void NPC_ATST_Precache(void)
 
 //	RegisterItem( BG_FindItemForWeapon( WP_ATST_MAIN ));	//precache the weapon
 	//rwwFIXMEFIXME: add this weapon
-	RegisterItem( BG_FindItemForWeapon( WP_BOWCASTER ));	//precache the weapon
-	RegisterItem( BG_FindItemForWeapon( WP_ROCKET_LAUNCHER ));	//precache the weapon
+	RegisterItem( BG_FindItemForWeapon( weapon_t::WP_BOWCASTER ));	//precache the weapon
+	RegisterItem( BG_FindItemForWeapon( weapon_t::WP_ROCKET_LAUNCHER ));	//precache the weapon
 
 	G_EffectIndex( "env/med_explode2" );
 //	G_EffectIndex( "smaller_chunks" );
@@ -69,8 +69,8 @@ static void ATST_PlayEffect( gentity_t *self, const int boltID, const char *fx )
 					&boltMatrix, self->r.currentAngles, self->r.currentOrigin, level.time,
 					nullptr, self->modelScale );
 
-		BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, org );
-		BG_GiveMeVectorFromMatrix( &boltMatrix, NEGATIVE_Y, dir );
+		BG_GiveMeVectorFromMatrix( &boltMatrix, orientations_t::ORIGIN, org );
+		BG_GiveMeVectorFromMatrix( &boltMatrix, orientations_t::NEGATIVE_Y, dir );
 
 		G_PlayEffectID( G_EffectIndex((char *)fx), org, dir );
 	}
@@ -92,15 +92,15 @@ void G_ATSTCheckPain( gentity_t *self, gentity_t *other, int damage )
 
 	if ( Q_irand( 0, 1 ) )
 	{
-		G_SoundOnEnt( self, CHAN_LESS_ATTEN, "sound/chars/atst/atst_damaged1" );
+		G_SoundOnEnt( self, soundChannel_t::CHAN_LESS_ATTEN, "sound/chars/atst/atst_damaged1" );
 	}
 	else
 	{
-		G_SoundOnEnt( self, CHAN_LESS_ATTEN, "sound/chars/atst/atst_damaged2" );
+		G_SoundOnEnt( self, soundChannel_t::CHAN_LESS_ATTEN, "sound/chars/atst/atst_damaged2" );
 	}
 
 	/*
-	if ((hitLoc==HL_ARM_LT) && (self->locationDamage[to_underlying( HL_ARM_LT )] > LEFT_ARM_HEALTH))
+	if ((hitLoc==hitLocation_t::HL_ARM_LT) && (self->locationDamage[to_underlying( hitLocation_t::HL_ARM_LT )] > LEFT_ARM_HEALTH))
 	{
 		if (self->locationDamage[to_underlying( hitLoc )] >= LEFT_ARM_HEALTH)	// Blow it up?
 		{
@@ -116,7 +116,7 @@ void G_ATSTCheckPain( gentity_t *self, gentity_t *other, int damage )
 			NPC_SetSurfaceOnOff( self, "head_light_blaster_cann", TURN_OFF );
 		}
 	}
-	else if ((hitLoc==HL_ARM_RT) && (self->locationDamage[to_underlying( HL_ARM_RT )] > RIGHT_ARM_HEALTH))	// Blow it up?
+	else if ((hitLoc==hitLocation_t::HL_ARM_RT) && (self->locationDamage[to_underlying( hitLocation_t::HL_ARM_RT )] > RIGHT_ARM_HEALTH))	// Blow it up?
 	{
 		if (self->locationDamage[to_underlying( hitLoc )] >= RIGHT_ARM_HEALTH)
 		{
@@ -177,15 +177,15 @@ void ATST_Ranged( bool visible, bool advance, bool altAttack )
 
 		if (altAttack)
 		{
-			NPCS.ucmd.buttons |= BUTTON_ATTACK|BUTTON_ALT_ATTACK;
+			NPCS.ucmd.buttons |= buttonFlags_t::BUTTON_ATTACK|buttonFlags_t::BUTTON_ALT_ATTACK;
 		}
 		else
 		{
-			NPCS.ucmd.buttons |= BUTTON_ATTACK;
+			NPCS.ucmd.buttons |= buttonFlags_t::BUTTON_ATTACK;
 		}
 	}
 
-	if ( Any( NPCS.NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
+	if ( Any( NPCS.NPCInfo->scriptFlags & scriptFlags_t::SCF_CHASE_ENEMIES ) )
 	{
 		ATST_Hunt( visible, advance );
 	}
@@ -216,14 +216,14 @@ void ATST_Attack( void )
 
 	// Rate our distance to the target, and our visibilty
 	distance	= (int) DistanceHorizontalSquared( NPCS.NPC->r.currentOrigin, NPCS.NPC->enemy->r.currentOrigin );
-	distRate	= ( distance > MIN_MELEE_RANGE_SQR ) ? DIST_LONG : DIST_MELEE;
+	distRate	= ( distance > MIN_MELEE_RANGE_SQR ) ? distance_e::DIST_LONG : distance_e::DIST_MELEE;
 	visible		= NPC_ClearLOS4( NPCS.NPC->enemy );
 	advance		= (distance > MIN_DISTANCE_SQR);
 
 	// If we cannot see our target, move to see it
 	if ( visible == false )
 	{
-		if ( Any( NPCS.NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
+		if ( Any( NPCS.NPCInfo->scriptFlags & scriptFlags_t::SCF_CHASE_ENEMIES ) )
 		{
 			ATST_Hunt( visible, advance );
 			return;
@@ -233,11 +233,11 @@ void ATST_Attack( void )
 	// Decide what type of attack to do
 	switch ( distRate )
 	{
-	case DIST_MELEE:
+	case distance_e::DIST_MELEE:
 //		NPC_ChangeWeapon( WP_ATST_MAIN );
 		break;
 
-	case DIST_LONG:
+	case distance_e::DIST_LONG:
 
 //		NPC_ChangeWeapon( WP_ATST_SIDE );
 		//rwwFIXMEFIXME: make atst weaps work.
@@ -276,7 +276,7 @@ void ATST_Attack( void )
 		}
 		else
 		{
-			NPC_ChangeWeapon( WP_NONE );
+			NPC_ChangeWeapon( weapon_t::WP_NONE );
 		}
 		break;
 	}
@@ -304,7 +304,7 @@ void ATST_Patrol( void )
 	{
 		if ( UpdateGoal() )
 		{
-			NPCS.ucmd.buttons |= BUTTON_WALKING;
+			NPCS.ucmd.buttons |= buttonFlags_t::BUTTON_WALKING;
 			NPC_MoveToGoal( true );
 			NPC_UpdateAngles( true, true );
 		}
@@ -322,7 +322,7 @@ void ATST_Idle( void )
 
 	NPC_BSIdle();
 
-	NPC_SetAnim( NPCS.NPC, SETANIM_BOTH, BOTH_STAND1, SETANIM_FLAG_NORMAL );
+	NPC_SetAnim( NPCS.NPC, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_STAND1, setAnimFlags_t::SETANIM_FLAG_NORMAL );
 }
 
 /*
@@ -334,13 +334,13 @@ void NPC_BSATST_Default( void )
 {
 	if ( NPCS.NPC->enemy )
 	{
-		if( Any(NPCS.NPCInfo->scriptFlags & SCF_CHASE_ENEMIES) )
+		if( Any(NPCS.NPCInfo->scriptFlags & scriptFlags_t::SCF_CHASE_ENEMIES) )
 		{
 			NPCS.NPCInfo->goalEntity = NPCS.NPC->enemy;
 		}
 		ATST_Attack();
 	}
-	else if ( Any( NPCS.NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES ) )
+	else if ( Any( NPCS.NPCInfo->scriptFlags & scriptFlags_t::SCF_LOOK_FOR_ENEMIES ) )
 	{
 		ATST_Patrol();
 	}

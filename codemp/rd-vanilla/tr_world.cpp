@@ -42,7 +42,7 @@ static bool	R_CullTriSurf( srfTriangles_t *cv ) {
 
 	boxCull = R_CullLocalBox( cv->bounds );
 
-	if ( boxCull == CULL_OUT ) {
+	if ( boxCull == cullResult_t::CULL_OUT ) {
 		return true;
 	}
 	return false;
@@ -69,27 +69,27 @@ static bool	R_CullGrid( srfGridMesh_t *cv ) {
 	} else {
 		sphereCull = R_CullPointAndRadius( cv->localOrigin, cv->meshRadius );
 	}
-	boxCull = CULL_OUT;
+	boxCull = cullResult_t::CULL_OUT;
 
 	// check for trivial reject
-	if ( sphereCull == CULL_OUT )
+	if ( sphereCull == cullResult_t::CULL_OUT )
 	{
 		tr.pc.c_sphere_cull_patch_out++;
 		return true;
 	}
 	// check bounding box if necessary
-	else if ( sphereCull == CULL_CLIP )
+	else if ( sphereCull == cullResult_t::CULL_CLIP )
 	{
 		tr.pc.c_sphere_cull_patch_clip++;
 
 		boxCull = R_CullLocalBox( cv->meshBounds );
 
-		if ( boxCull == CULL_OUT )
+		if ( boxCull == cullResult_t::CULL_OUT )
 		{
 			tr.pc.c_box_cull_patch_out++;
 			return true;
 		}
-		else if ( boxCull == CULL_IN )
+		else if ( boxCull == cullResult_t::CULL_IN )
 		{
 			tr.pc.c_box_cull_patch_in++;
 		}
@@ -125,19 +125,19 @@ static bool	R_CullSurface( surfaceType_t *surface, shader_t *shader ) {
 		return false;
 	}
 
-	if ( *surface == SF_GRID ) {
+	if ( *surface == surfaceType_t::SF_GRID ) {
 		return R_CullGrid( (srfGridMesh_t *)surface );
 	}
 
-	if ( *surface == SF_TRIANGLES ) {
+	if ( *surface == surfaceType_t::SF_TRIANGLES ) {
 		return R_CullTriSurf( (srfTriangles_t *)surface );
 	}
 
-	if ( *surface != SF_FACE ) {
+	if ( *surface != surfaceType_t::SF_FACE ) {
 		return false;
 	}
 
-	if ( shader->cullType == CT_TWO_SIDED ) {
+	if ( shader->cullType == cullType_t::CT_TWO_SIDED ) {
 		return false;
 	}
 
@@ -174,11 +174,11 @@ static bool	R_CullSurface( surfaceType_t *surface, shader_t *shader ) {
 			VectorSet(nNormal, 0.0f, 0.0f, 1.0f);
 			VectorMA(basePoint, 8192.0f, nNormal, endPoint);
 
-			ri.CM_BoxTrace(&tr, basePoint, endPoint, nullptr, nullptr, 0, (CONTENTS_SOLID|CONTENTS_TERRAIN), false);
+			ri.CM_BoxTrace(&tr, basePoint, endPoint, nullptr, nullptr, 0, (contentsFlags_t::CONTENTS_SOLID|contentsFlags_t::CONTENTS_TERRAIN), false);
 
 			if (!tr.startsolid &&
 				!tr.allsolid &&
-				(tr.fraction == 1.0f || Any( tr.surfaceFlags & SURF_NOIMPACT )))
+				(tr.fraction == 1.0f || Any( tr.surfaceFlags & surfaceFlags_t::SURF_NOIMPACT )))
 			{ //either hit nothing or sky, so this surface is near the top of the level I guess. Or the floor of a really tall room, but if that's the case we're just screwed.
 				VectorSubtract(basePoint, tr.endpos, v);
 				if (tr.fraction == 1.0f || VectorLength(v) < r_roofCullCeilDist->value)
@@ -192,7 +192,7 @@ static bool	R_CullSurface( surfaceType_t *surface, shader_t *shader ) {
 					while (i < 4096)
 					{
 						VectorMA(basePoint, i, nNormal, endPoint);
-						ri.CM_BoxTrace(&tr, endPoint, endPoint, nullptr, nullptr, 0, (CONTENTS_SOLID|CONTENTS_TERRAIN), false);
+						ri.CM_BoxTrace(&tr, endPoint, endPoint, nullptr, nullptr, 0, (contentsFlags_t::CONTENTS_SOLID|contentsFlags_t::CONTENTS_TERRAIN), false);
 						if (!tr.startsolid &&
 							!tr.allsolid &&
 							tr.fraction == 1.0f)
@@ -214,11 +214,11 @@ static bool	R_CullSurface( surfaceType_t *surface, shader_t *shader ) {
 						//If we hit something within a set amount of units, we will assume it's a bridge type object
 						//and leave it to be drawn. Otherwise we will assume it is a roof or other obstruction and
 						//cull it out.
-						ri.CM_BoxTrace(&tr, basePoint, endPoint, nullptr, nullptr, 0, (CONTENTS_SOLID|CONTENTS_TERRAIN), false);
+						ri.CM_BoxTrace(&tr, basePoint, endPoint, nullptr, nullptr, 0, (contentsFlags_t::CONTENTS_SOLID|contentsFlags_t::CONTENTS_TERRAIN), false);
 
 						if (!tr.startsolid &&
 							!tr.allsolid &&
-							(tr.fraction != 1.0f && !Any( tr.surfaceFlags & SURF_NOIMPACT )))
+							(tr.fraction != 1.0f && !Any( tr.surfaceFlags & surfaceFlags_t::SURF_NOIMPACT )))
 						{ //if we hit nothing or a noimpact going down then this is probably "ground".
 							VectorSubtract(basePoint, tr.endpos, endPoint);
 							if (VectorLength(endPoint) > r_roofCullCeilDist->value)
@@ -237,7 +237,7 @@ static bool	R_CullSurface( surfaceType_t *surface, shader_t *shader ) {
 	// don't cull exactly on the plane, because there are levels of rounding
 	// through the BSP, ICD, and hardware that may cause pixel gaps if an
 	// epsilon isn't allowed here
-	if ( shader->cullType == CT_FRONT_SIDED ) {
+	if ( shader->cullType == cullType_t::CT_FRONT_SIDED ) {
 		if ( d < sface->plane.dist - 8 ) {
 			return true;
 		}
@@ -347,11 +347,11 @@ more dlights if possible.
 ====================
 */
 static int R_DlightSurface( msurface_t *surf, int dlightBits ) {
-	if ( *surf->data == SF_FACE ) {
+	if ( *surf->data == surfaceType_t::SF_FACE ) {
 		dlightBits = R_DlightFace( (srfSurfaceFace_t *)surf->data, dlightBits );
-	} else if ( *surf->data == SF_GRID ) {
+	} else if ( *surf->data == surfaceType_t::SF_GRID ) {
 		dlightBits = R_DlightGrid( (srfGridMesh_t *)surf->data, dlightBits );
-	} else if ( *surf->data == SF_TRIANGLES ) {
+	} else if ( *surf->data == surfaceType_t::SF_TRIANGLES ) {
 		dlightBits = R_DlightTrisurf( (srfTriangles_t *)surf->data, dlightBits );
 	} else {
 		dlightBits = 0;
@@ -383,15 +383,15 @@ static void R_AddWorldSurface( msurface_t *surf, int dlightBits, bool noViewCoun
 		if ( surf->viewCount == tr.viewCount )
 		{
 			// already in this view, but lets make sure all the dlight bits are set
-			if ( *surf->data == SF_FACE )
+			if ( *surf->data == surfaceType_t::SF_FACE )
 			{
 				((srfSurfaceFace_t *)surf->data)->dlightBits |= dlightBits;
 			}
-			else if ( *surf->data == SF_GRID )
+			else if ( *surf->data == surfaceType_t::SF_GRID )
 			{
 				((srfGridMesh_t *)surf->data)->dlightBits |= dlightBits;
 			}
-			else if ( *surf->data == SF_TRIANGLES )
+			else if ( *surf->data == surfaceType_t::SF_TRIANGLES )
 			{
 				((srfTriangles_t *)surf->data)->dlightBits |= dlightBits;
 			}
@@ -432,7 +432,7 @@ static void R_AddWorldSurface( msurface_t *surf, int dlightBits, bool noViewCoun
 	{
 	//	if (g_playerHeight != g_lastHeight ||
 	//		!g_lastHeightValid)
-		if (*surf->data == SF_FACE)
+		if (*surf->data == surfaceType_t::SF_FACE)
 		{ //only do this if we need to
 			bool completelyTransparent = true;
 			int i = 0;
@@ -544,7 +544,7 @@ void R_AddBrushModelSurfaces ( trRefEntity_t *ent ) {
 	bmodel = pModel->bmodel;
 
 	clip = R_CullLocalBox( bmodel->bounds );
-	if ( clip == CULL_OUT ) {
+	if ( clip == cullResult_t::CULL_OUT ) {
 		return;
 	}
 
@@ -721,7 +721,7 @@ static inline wireframeMapSurf_t *R_GetNewWireframeMapSurf(void)
 	}
 
 	//allocate memory for it and pass it back
-	(*next) = (wireframeMapSurf_t *)Z_Malloc(sizeof(wireframeMapSurf_t), TAG_ALL, true);
+	(*next) = (wireframeMapSurf_t *)Z_Malloc(sizeof(wireframeMapSurf_t), memtag::TAG_ALL, true);
 	g_autoMapNextFree = &(*next)->next;
 	return (*next);
 }
@@ -730,7 +730,7 @@ static inline wireframeMapSurf_t *R_GetNewWireframeMapSurf(void)
 //wireframe map render. -rww
 static inline void R_EvaluateWireframeSurf(msurface_t *surf)
 {
-	if (*surf->data == SF_FACE)
+	if (*surf->data == surfaceType_t::SF_FACE)
 	{
 		srfSurfaceFace_t *face = (srfSurfaceFace_t *)surf->data;
 		float *points = &face->points[0][0];
@@ -768,7 +768,7 @@ static inline void R_EvaluateWireframeSurf(msurface_t *surf)
 #endif
 
 			//now go through the indices and add a point for each
-			nextSurf->points = (wireframeSurfPoint_t *)Z_Malloc(sizeof(wireframeSurfPoint_t)*face->numIndices, TAG_ALL, true);
+			nextSurf->points = (wireframeSurfPoint_t *)Z_Malloc(sizeof(wireframeSurfPoint_t)*face->numIndices, memtag::TAG_ALL, true);
 			nextSurf->numPoints = face->numIndices;
 			while (i < face->numIndices)
 			{
@@ -779,12 +779,12 @@ static inline void R_EvaluateWireframeSurf(msurface_t *surf)
 			}
 		}
 	}
-	else if (*surf->data == SF_TRIANGLES)
+	else if (*surf->data == surfaceType_t::SF_TRIANGLES)
 	{
 		//srfTriangles_t *surfTri = (srfTriangles_t *)surf->data;
 		return; //not handled
 	}
-	else if (*surf->data == SF_GRID)
+	else if (*surf->data == surfaceType_t::SF_GRID)
 	{
 		//srfGridMesh_t *gridMesh = (srfGridMesh_t *)surf->data;
 		return; //not handled
@@ -812,7 +812,7 @@ static inline bool R_NodeHasOppositeFaces(mnode_t *node)
 	{
 		surf = *mark;
 
-		if (*surf->data != SF_FACE)
+		if (*surf->data != surfaceType_t::SF_FACE)
 		{ //if this node is not entirely comprised of faces, I guess we shouldn't check it?
 			return false;
 		}
@@ -826,7 +826,7 @@ static inline bool R_NodeHasOppositeFaces(mnode_t *node)
 		{
 			surf2 = *mark2;
 
-			if (*surf2->data != SF_FACE)
+			if (*surf2->data != surfaceType_t::SF_FACE)
 			{
 				return false;
 			}
@@ -980,7 +980,7 @@ bool R_WriteWireframeMapToFile(void)
 	}
 
 	//allocate the memory we will need
-    out = (byte *)Z_Malloc(requiredSize, TAG_ALL, true);
+    out = (byte *)Z_Malloc(requiredSize, memtag::TAG_ALL, true);
 	rOut = out;
 
 	//now go through and put the data into the memory
@@ -1022,14 +1022,14 @@ bool R_GetWireframeMapFromFile(void)
 		return false;
 	}
 
-	surfs = (wireframeMapSurf_t *)Z_Malloc(len, TAG_ALL, true);
+	surfs = (wireframeMapSurf_t *)Z_Malloc(len, memtag::TAG_ALL, true);
 	rSurfs = surfs;
 	ri.FS_Read(surfs, len, f);
 
 	while (i < len)
 	{
 		newSurf = R_GetNewWireframeMapSurf();
-		newSurf->points = (wireframeSurfPoint_t *)Z_Malloc(sizeof(wireframeSurfPoint_t)*surfs->numPoints, TAG_ALL, true);
+		newSurf->points = (wireframeSurfPoint_t *)Z_Malloc(sizeof(wireframeSurfPoint_t)*surfs->numPoints, memtag::TAG_ALL, true);
 
 		//copy the surf data into the new surf
 		//note - the surfs->points pointer is NOT pointing to valid memory, a pointer to that
@@ -1163,13 +1163,13 @@ const void *R_DrawWireframeAutomap(const void *data)
 		{
 			alpha = 1.0f;
 		}
-		GL_State(GLS_SRCBLEND_SRC_ALPHA|GLS_DSTBLEND_SRC_ALPHA);
+		GL_State(glStateBits_t::GLS_SRCBLEND_SRC_ALPHA|glStateBits_t::GLS_DSTBLEND_SRC_ALPHA);
 	}
 	else
 #endif
 	{
 		alpha = 1.0f;
-		GL_State(GLS_NONE);
+		GL_State(glStateBits_t::GLS_NONE);
 	}
 	//black
 	qglColor4f(0.0f, 0.0f, 0.0f, alpha);
@@ -1192,16 +1192,16 @@ const void *R_DrawWireframeAutomap(const void *data)
 	//set the mode to line draw
 	if (r_autoMap->integer == 2)
 	{ //line mode
-		GL_State(GLS_POLYMODE_LINE|GLS_SRCBLEND_SRC_ALPHA|GLS_DSTBLEND_SRC_COLOR|GLS_DEPTHMASK_TRUE);
+		GL_State(glStateBits_t::GLS_POLYMODE_LINE|glStateBits_t::GLS_SRCBLEND_SRC_ALPHA|glStateBits_t::GLS_DSTBLEND_SRC_COLOR|glStateBits_t::GLS_DEPTHMASK_TRUE);
 	}
 	else
 	{ //fill mode
-		//GL_State(GLS_SRCBLEND_SRC_ALPHA|GLS_DSTBLEND_SRC_COLOR|GLS_DEPTHMASK_TRUE);
-		GL_State(GLS_DEPTHMASK_TRUE);
+		//GL_State(glStateBits_t::GLS_SRCBLEND_SRC_ALPHA|glStateBits_t::GLS_DSTBLEND_SRC_COLOR|glStateBits_t::GLS_DEPTHMASK_TRUE);
+		GL_State(glStateBits_t::GLS_DEPTHMASK_TRUE);
 	}
 
 	//set culling
-	GL_Cull(CT_TWO_SIDED);
+	GL_Cull(cullType_t::CT_TWO_SIDED);
 
 #ifndef _ALT_AUTOMAP_METHOD
 	//Draw the triangles
@@ -1524,7 +1524,7 @@ static mnode_t *R_PointInLeaf( const vec3_t p ) {
 	cplane_t	*plane;
 
 	if ( !tr.world ) {
-		Com_Error (ERR_DROP, "R_PointInLeaf: bad model");
+		Com_Error (errorParm_t::ERR_DROP, "R_PointInLeaf: bad model");
 	}
 
 	node = tr.world->nodes;
@@ -1616,7 +1616,7 @@ static void R_MarkLeaves (void) {
 	if ( r_showcluster->modified || r_showcluster->integer ) {
 		r_showcluster->modified = false;
 		if ( r_showcluster->integer ) {
-			ri.Printf( PRINT_ALL, "cluster:%i  area:%i\n", cluster, leaf->area );
+			ri.Printf( printParm_t::PRINT_ALL, "cluster:%i  area:%i\n", cluster, leaf->area );
 		}
 	}
 
@@ -1668,7 +1668,7 @@ void R_AddWorldSurfaces (void) {
 		return;
 	}
 
-	if ( Any( tr.refdef.rdflags & RDF_NOWORLDMODEL ) ) {
+	if ( Any( tr.refdef.rdflags & refdefFlags_t::RDF_NOWORLDMODEL ) ) {
 		return;
 	}
 

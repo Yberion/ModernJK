@@ -44,7 +44,6 @@ bool NPC_CheckPlayerTeamStealth( void );
 static float	enemyDist;
 
 //Local state enums
-using enum soldierLocalState_t;
 
 /*
 -------------------------
@@ -81,15 +80,15 @@ void NPC_Tusken_PlayConfusionSound( gentity_t *self )
 {//FIXME: make this a custom sound in sound set
 	if ( self->health > 0 )
 	{
-		G_AddVoiceEvent( self, Q_irand(EV_CONFUSE1, EV_CONFUSE3), 2000 );
+		G_AddVoiceEvent( self, Q_irand(entity_event_t::EV_CONFUSE1, entity_event_t::EV_CONFUSE3), 2000 );
 	}
 	//reset him to be totally unaware again
 	TIMER_Set( self, "enemyLastVisible", 0 );
 	TIMER_Set( self, "flee", 0 );
-	self->NPC->squadState = SQUAD_IDLE;
-	self->NPC->tempBehavior = BS_DEFAULT;
+	self->NPC->squadState = squadState_t::SQUAD_IDLE;
+	self->NPC->tempBehavior = bState_t::BS_DEFAULT;
 
-	//self->NPC->behaviorState = BS_PATROL;
+	//self->NPC->behaviorState = bState_t::BS_PATROL;
 	G_ClearEnemy( self );//FIXME: or just self->enemy = nullptr;?
 
 	self->NPC->investigateCount = 0;
@@ -104,7 +103,7 @@ NPC_ST_Pain
 
 void NPC_Tusken_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, vec3_t point, int damage, meansOfDeath_t mod )
 {
-	NPC_SetLocalState( *self->NPC, LSTATE_UNDERFIRE );
+	NPC_SetLocalState( *self->NPC, soldierLocalState_t::LSTATE_UNDERFIRE );
 
 	TIMER_Set( self, "duck", -1 );
 	TIMER_Set( self, "stand", 2000 );
@@ -113,7 +112,7 @@ void NPC_Tusken_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, v
 
 	if ( !damage && self->health > 0 )
 	{//FIXME: better way to know I was pushed
-		G_AddVoiceEvent( self, Q_irand(EV_PUSHED1, EV_PUSHED3), 2000 );
+		G_AddVoiceEvent( self, Q_irand(entity_event_t::EV_PUSHED1, entity_event_t::EV_PUSHED3), 2000 );
 	}
 }
 
@@ -162,7 +161,7 @@ void NPC_BSTusken_Patrol( void )
 	if ( NPCInfo->confusionTime < level.time )
 	{
 		//Look for any enemies
-		if ( Any(NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES) )
+		if ( Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_LOOK_FOR_ENEMIES) )
 		{
 			if ( NPC_CheckPlayerTeamStealth() )
 			{
@@ -172,10 +171,10 @@ void NPC_BSTusken_Patrol( void )
 			}
 		}
 
-		if ( !Any(NPCInfo->scriptFlags&SCF_IGNORE_ALERTS) )
+		if ( !Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_IGNORE_ALERTS) )
 		{
 			//Is there danger nearby
-			int alertEvent = NPC_CheckAlertEvents( true, true, -1, false, AEL_SUSPICIOUS );
+			int alertEvent = NPC_CheckAlertEvents( true, true, -1, false, alertEventLevel_e::AEL_SUSPICIOUS );
 			if ( NPC_CheckForDanger( alertEvent ) )
 			{
 				NPC_UpdateAngles( true, true );
@@ -187,7 +186,7 @@ void NPC_BSTusken_Patrol( void )
 				if ( alertEvent >= 0 )//&& level.alertEvents[alertEvent].ID != NPCInfo->lastAlertID )
 				{
 					//NPCInfo->lastAlertID = level.alertEvents[alertEvent].ID;
-					if ( level.alertEvents[alertEvent].level == AEL_DISCOVERED )
+					if ( level.alertEvents[alertEvent].level == alertEventLevel_e::AEL_DISCOVERED )
 					{
 						if ( level.alertEvents[alertEvent].owner &&
 							level.alertEvents[alertEvent].owner->client &&
@@ -204,7 +203,7 @@ void NPC_BSTusken_Patrol( void )
 						//Save the position for movement (if necessary)
 						VectorCopy( level.alertEvents[alertEvent].position, NPCInfo->investigateGoal );
 						NPCInfo->investigateDebounceTime = level.time + Q_irand( 500, 1000 );
-						if ( level.alertEvents[alertEvent].level == AEL_SUSPICIOUS )
+						if ( level.alertEvents[alertEvent].level == alertEventLevel_e::AEL_SUSPICIOUS )
 						{//suspicious looks longer
 							NPCInfo->investigateDebounceTime += Q_irand( 500, 2500 );
 						}
@@ -238,7 +237,7 @@ void NPC_BSTusken_Patrol( void )
 	//If we have somewhere to go, then do that
 	if ( UpdateGoal() )
 	{
-		ucmd.buttons |= BUTTON_WALKING;
+		ucmd.buttons |= buttonFlags_t::BUTTON_WALKING;
 		NPC_MoveToGoal( true );
 	}
 
@@ -248,7 +247,7 @@ void NPC_BSTusken_Patrol( void )
 
 void NPC_Tusken_Taunt( void )
 {
-	NPC_SetAnim( NPC, SETANIM_BOTH, BOTH_TUSKENTAUNT1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+	NPC_SetAnim( NPC, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_TUSKENTAUNT1, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD );
 	TIMER_Set( NPC, "taunting", NPC->client->ps.torsoAnimTimer );
 	TIMER_Set( NPC, "duck", -1 );
 }
@@ -271,7 +270,7 @@ void NPC_BSTusken_Attack( void )
 
 // IN FLEE
 //---------
-	if ( TIMER_Done( NPC, "flee" ) && NPC_CheckForDanger( NPC_CheckAlertEvents( true, true, -1, false, AEL_DANGER ) ) )
+	if ( TIMER_Done( NPC, "flee" ) && NPC_CheckForDanger( NPC_CheckAlertEvents( true, true, -1, false, alertEventLevel_e::AEL_DANGER ) ) )
 	{
 		NPC_UpdateAngles( true, true );
 		return;
@@ -290,7 +289,7 @@ void NPC_BSTusken_Attack( void )
 
 	// Is The Current Enemy A Jawa?
 	//------------------------------
-	if (NPC->enemy->client && NPC->enemy->client->NPC_class==CLASS_JAWA)
+	if (NPC->enemy->client && NPC->enemy->client->NPC_class==class_t::CLASS_JAWA)
 	{
 		// Make Sure His Enemy Is Me
 		//---------------------------
@@ -326,7 +325,7 @@ void NPC_BSTusken_Attack( void )
  	float	lungeRange	= (boundsMin + 65.0f);
 	float	strikeRange = (boundsMin + 40.0f);
 	bool	meleeRange	= (enemyDist<lungeRange);
-	bool	meleeWeapon	= (NPC->client->ps.weapon!=WP_TUSKEN_RIFLE);
+	bool	meleeWeapon	= (NPC->client->ps.weapon!=weapon_t::WP_TUSKEN_RIFLE);
 	bool	canSeeEnemy = ((level.time - NPCInfo->enemyLastSeenTime)<3000);
 
 	// Check To Start Taunting
@@ -347,18 +346,18 @@ void NPC_BSTusken_Attack( void )
 		//------------------
 		if (meleeRange || (!meleeWeapon && canSeeEnemy))
 		{
-			if (!Any(NPCInfo->scriptFlags&SCF_FIRE_WEAPON) && 	// If This Flag Is On, It Calls Attack From Elsewhere
-				!Any(NPCInfo->scriptFlags&SCF_DONT_FIRE) &&	// If This Flag Is On, Don't Fire At All
+			if (!Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_FIRE_WEAPON) && 	// If This Flag Is On, It Calls Attack From Elsewhere
+				!Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_DONT_FIRE) &&	// If This Flag Is On, Don't Fire At All
 				 (TIMER_Done(NPC, "attackDelay"))
 				)
 			{
-				ucmd.buttons &= ~BUTTON_ALT_ATTACK;
+				ucmd.buttons &= ~buttonFlags_t::BUTTON_ALT_ATTACK;
 
 				// If Not In Strike Range, Do Lunge, Or If We Don't Have The Staff, Just Shoot Normally
 				//--------------------------------------------------------------------------------------
 				if (enemyDist > strikeRange)
 				{
-					ucmd.buttons |= BUTTON_ALT_ATTACK;
+					ucmd.buttons |= buttonFlags_t::BUTTON_ALT_ATTACK;
 				}
 
 				WeaponThink( true );
@@ -373,7 +372,7 @@ void NPC_BSTusken_Attack( void )
 
 		// Or Should I Move?
 		//-------------------
-		else if (Any(NPCInfo->scriptFlags & SCF_CHASE_ENEMIES))
+		else if (Any(NPCInfo->scriptFlags & scriptFlags_t::SCF_CHASE_ENEMIES))
 		{
 			NPCInfo->goalEntity = NPC->enemy;
 			NPCInfo->goalRadius = lungeRange;
@@ -417,8 +416,8 @@ void Tusken_StaffTrace( void )
 						boltIndex,
 						&boltMatrix, angles, NPC->currentOrigin, time,
 						nullptr, NPC->s.modelScale );
-			gi.G2API_GiveMeVectorFromMatrix( boltMatrix, ORIGIN, base );
-			gi.G2API_GiveMeVectorFromMatrix( boltMatrix, NEGATIVE_Y, dir );
+			gi.G2API_GiveMeVectorFromMatrix( boltMatrix, Eorientations::ORIGIN, base );
+			gi.G2API_GiveMeVectorFromMatrix( boltMatrix, Eorientations::NEGATIVE_Y, dir );
 			VectorMA( base, -20, dir, base );
 			VectorMA( base, 78, dir, tip );
 	#ifndef FINAL_BUILD
@@ -427,7 +426,7 @@ void Tusken_StaffTrace( void )
 				G_DebugLine(base, tip, 1000, 0x000000ff, true);
 			}
 	#endif
-			gi.trace( &trace, base, mins, maxs, tip, NPC->s.number, MASK_SHOT, G2_RETURNONHIT, 10 );
+			gi.trace( &trace, base, mins, maxs, tip, NPC->s.number, MASK_SHOT, EG2_Collision::G2_RETURNONHIT, 10 );
 			if ( trace.fraction < 1.0f && trace.entityNum != lastHit )
 			{//hit something
 				gentity_t *traceEnt = &g_entities[trace.entityNum];
@@ -438,9 +437,9 @@ void Tusken_StaffTrace( void )
 
 					//FIXME: debounce?
 					G_Sound( traceEnt, G_SoundIndex( va( "sound/weapons/tusken_staff/stickhit%d.wav", Q_irand( 1, 4 ) ) ) );
-					G_Damage( traceEnt, NPC, NPC, vec3_origin, trace.endpos, dmg, DAMAGE_NO_KNOCKBACK, MOD_MELEE );
+					G_Damage( traceEnt, NPC, NPC, vec3_origin, trace.endpos, dmg, damageFlags_t::DAMAGE_NO_KNOCKBACK, meansOfDeath_t::MOD_MELEE );
 					if ( traceEnt->health > 0
-						&& ( (traceEnt->client&&traceEnt->client->NPC_class==CLASS_JAWA&&!Q_irand(0,1))
+						&& ( (traceEnt->client&&traceEnt->client->NPC_class==class_t::CLASS_JAWA&&!Q_irand(0,1))
 							|| dmg > 19 ) )//FIXME: base on skill!
 					{//do pain on enemy
 						G_Knockdown( traceEnt, NPC, dir, 300, true );
@@ -455,10 +454,10 @@ void Tusken_StaffTrace( void )
 
 bool G_TuskenAttackAnimDamage( gentity_t *self )
 {
- 	if (self->client->ps.torsoAnim==BOTH_TUSKENATTACK1 ||
-		self->client->ps.torsoAnim==BOTH_TUSKENATTACK2 ||
-		self->client->ps.torsoAnim==BOTH_TUSKENATTACK3 ||
-		self->client->ps.torsoAnim==BOTH_TUSKENLUNGE1)
+ 	if (self->client->ps.torsoAnim==animNumber_t::BOTH_TUSKENATTACK1 ||
+		self->client->ps.torsoAnim==animNumber_t::BOTH_TUSKENATTACK2 ||
+		self->client->ps.torsoAnim==animNumber_t::BOTH_TUSKENATTACK3 ||
+		self->client->ps.torsoAnim==animNumber_t::BOTH_TUSKENLUNGE1)
 	{
 		float		current	  = 0.0f;
 		int			end		  = 0;
@@ -478,10 +477,10 @@ bool G_TuskenAttackAnimDamage( gentity_t *self )
 			//gi.Printf("%f\n", percentComplete);
 			switch (self->client->ps.torsoAnim)
 			{
-			case BOTH_TUSKENATTACK1: return (percentComplete>0.3 && percentComplete<0.7);
-			case BOTH_TUSKENATTACK2: return (percentComplete>0.3 && percentComplete<0.7);
-			case BOTH_TUSKENATTACK3: return (percentComplete>0.1 && percentComplete<0.5);
-			case BOTH_TUSKENLUNGE1:  return (percentComplete>0.3 && percentComplete<0.5);
+			case animNumber_t::BOTH_TUSKENATTACK1: return (percentComplete>0.3 && percentComplete<0.7);
+			case animNumber_t::BOTH_TUSKENATTACK2: return (percentComplete>0.3 && percentComplete<0.7);
+			case animNumber_t::BOTH_TUSKENATTACK3: return (percentComplete>0.1 && percentComplete<0.5);
+			case animNumber_t::BOTH_TUSKENLUNGE1:  return (percentComplete>0.3 && percentComplete<0.5);
 			default:
 				break;
 			}
@@ -492,7 +491,7 @@ bool G_TuskenAttackAnimDamage( gentity_t *self )
 
 void NPC_BSTusken_Default( void )
 {
-	if( Any( NPCInfo->scriptFlags & SCF_FIRE_WEAPON ) )
+	if( Any( NPCInfo->scriptFlags & scriptFlags_t::SCF_FIRE_WEAPON ) )
 	{
 		WeaponThink( true );
 	}

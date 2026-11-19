@@ -98,7 +98,7 @@ static bool NPC_Jump( vec3_t dest, int goalEntNum )
 
 			VectorCopy( NPC->currentOrigin, tr.trBase );
 			VectorCopy( shotVel, tr.trDelta );
-			tr.trType = TR_GRAVITY;
+			tr.trType = trType_t::TR_GRAVITY;
 			tr.trTime = level.time;
 			travelTime *= 1000.0f;
 			VectorCopy( NPC->currentOrigin, lastPos );
@@ -112,7 +112,7 @@ static bool NPC_Jump( vec3_t dest, int goalEntNum )
 				}
 				EvaluateTrajectory( &tr, level.time + elapsedTime, testPos );
 				//FUCK IT, always check for do not enter...
-				gi.trace( &trace, lastPos, NPC->mins, NPC->maxs, testPos, NPC->s.number, NPC->clipmask|CONTENTS_BOTCLIP, G2_NOCOLLIDE, 0 );
+				gi.trace( &trace, lastPos, NPC->mins, NPC->maxs, testPos, NPC->s.number, NPC->clipmask|contentsFlags_t::CONTENTS_BOTCLIP, EG2_Collision::G2_NOCOLLIDE, 0 );
 				/*
 				if ( testPos[2] < lastPos[2]
 					&& elapsedTime < floor( travelTime ) )
@@ -121,7 +121,7 @@ static bool NPC_Jump( vec3_t dest, int goalEntNum )
 				}
 				else
 				{//going up, check for botclip
-					gi.trace( &trace, lastPos, NPC->mins, NPC->maxs, testPos, NPC->s.number, NPC->clipmask|CONTENTS_BOTCLIP );
+					gi.trace( &trace, lastPos, NPC->mins, NPC->maxs, testPos, NPC->s.number, NPC->clipmask|contentsFlags_t::CONTENTS_BOTCLIP );
 				}
 				*/
 
@@ -129,7 +129,7 @@ static bool NPC_Jump( vec3_t dest, int goalEntNum )
 				{//started in solid
 					if ( NAVDEBUG_showCollision )
 					{
-						CG_DrawEdge( lastPos, trace.endpos, EDGE_RED_TWOSECOND );
+						CG_DrawEdge( lastPos, trace.endpos, edgeType_t::EDGE_RED_TWOSECOND );
 					}
 					return false;//you're hosed, dude
 				}
@@ -137,7 +137,7 @@ static bool NPC_Jump( vec3_t dest, int goalEntNum )
 				{//hit something
 					if ( NAVDEBUG_showCollision )
 					{
-						CG_DrawEdge( lastPos, trace.endpos, EDGE_RED_TWOSECOND );	// TryJump
+						CG_DrawEdge( lastPos, trace.endpos, edgeType_t::EDGE_RED_TWOSECOND );	// TryJump
 					}
 					if ( trace.entityNum == goalEntNum )
 					{//hit the enemy, that's bad!
@@ -156,7 +156,7 @@ static bool NPC_Jump( vec3_t dest, int goalEntNum )
 					}
 					else
 					{
-						if ( Any( trace.contents & CONTENTS_BOTCLIP ) )
+						if ( Any( trace.contents & contentsFlags_t::CONTENTS_BOTCLIP ) )
 						{//hit a do-not-enter brush
 							blocked = true;
 							break;
@@ -182,7 +182,7 @@ static bool NPC_Jump( vec3_t dest, int goalEntNum )
 				{
 					if ( NAVDEBUG_showCollision )
 					{
-						CG_DrawEdge( lastPos, testPos, EDGE_WHITE_TWOSECOND );	// TryJump
+						CG_DrawEdge( lastPos, testPos, edgeType_t::EDGE_WHITE_TWOSECOND );	// TryJump
 					}
 				}
 				if ( elapsedTime == floor( travelTime ) )
@@ -192,7 +192,7 @@ static bool NPC_Jump( vec3_t dest, int goalEntNum )
 						//FIXME: do we care how far below ourselves or our dest we'll land?
 						VectorCopy( trace.endpos, bottom );
 						bottom[2] -= 128;
-						gi.trace( &trace, trace.endpos, NPC->mins, NPC->maxs, bottom, NPC->s.number, NPC->clipmask, G2_NOCOLLIDE, 0 );
+						gi.trace( &trace, trace.endpos, NPC->mins, NPC->maxs, bottom, NPC->s.number, NPC->clipmask, EG2_Collision::G2_NOCOLLIDE, 0 );
 						if ( trace.fraction >= 1.0f )
 						{//would fall too far
 							blocked = true;
@@ -271,8 +271,8 @@ trace_t		mJumpTrace;
 
 bool NPC_CanTryJump()
 {
-	if (!Any(NPCInfo->scriptFlags&SCF_NAV_CAN_JUMP)	||		// Can't Jump
-		Any(NPCInfo->scriptFlags&SCF_NO_ACROBATICS)	||		// If Can't Jump At All
+	if (!Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_NAV_CAN_JUMP)	||		// Can't Jump
+		Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_NO_ACROBATICS)	||		// If Can't Jump At All
 		(level.time<NPCInfo->jumpBackupTime)		||		// If Backing Up, Don't Try The Jump Again
 		(level.time<NPCInfo->jumpNextCheckTime)		||		// Don't Even Try To Jump Again For This Amount Of Time
 		(NPCInfo->jumpTime)							||		// Don't Jump If Already Going
@@ -300,15 +300,15 @@ bool NPC_TryJump(const vec3_t& pos,	float max_xy_dist, float max_z_diff)
 			vec3_t	groundTest;
 			VectorCopy(pos, groundTest);
 			groundTest[2]	+= (NPC->mins[2]*3);
-			gi.trace(&mJumpTrace, NPCInfo->jumpDest, vec3_origin, vec3_origin, groundTest, NPC->s.number, NPC->clipmask, G2_NOCOLLIDE, 0 );
+			gi.trace(&mJumpTrace, NPCInfo->jumpDest, vec3_origin, vec3_origin, groundTest, NPC->s.number, NPC->clipmask, EG2_Collision::G2_NOCOLLIDE, 0 );
 			if (mJumpTrace.fraction >= 1.0f)
 			{
 				return false;	//no ground = no jump
 			}
 		}
 		NPCInfo->jumpTarget			= nullptr;
-		NPCInfo->jumpMaxXYDist		= (max_xy_dist)?(max_xy_dist):((NPC->client->NPC_class==CLASS_ROCKETTROOPER)?1200:750);
-		NPCInfo->jumpMazZDist		= (max_z_diff)?(max_z_diff):((NPC->client->NPC_class==CLASS_ROCKETTROOPER)?-1000:-450);
+		NPCInfo->jumpMaxXYDist		= (max_xy_dist)?(max_xy_dist):((NPC->client->NPC_class==class_t::CLASS_ROCKETTROOPER)?1200:750);
+		NPCInfo->jumpMazZDist		= (max_z_diff)?(max_z_diff):((NPC->client->NPC_class==class_t::CLASS_ROCKETTROOPER)?-1000:-450);
 		NPCInfo->jumpTime			= 0;
 		NPCInfo->jumpBackupTime		= 0;
 		return NPC_TryJump();
@@ -330,8 +330,8 @@ bool NPC_TryJump(gentity_t *goal,	float max_xy_dist, float max_z_diff)
 		}
 		VectorCopy(goal->currentOrigin, NPCInfo->jumpDest);
 		NPCInfo->jumpTarget			= goal;
-		NPCInfo->jumpMaxXYDist		= (max_xy_dist)?(max_xy_dist):((NPC->client->NPC_class==CLASS_ROCKETTROOPER)?1200:750);
-		NPCInfo->jumpMazZDist		= (max_z_diff)?(max_z_diff):((NPC->client->NPC_class==CLASS_ROCKETTROOPER)?-1000:-400);
+		NPCInfo->jumpMaxXYDist		= (max_xy_dist)?(max_xy_dist):((NPC->client->NPC_class==class_t::CLASS_ROCKETTROOPER)?1200:750);
+		NPCInfo->jumpMazZDist		= (max_z_diff)?(max_z_diff):((NPC->client->NPC_class==class_t::CLASS_ROCKETTROOPER)?-1000:-400);
 		NPCInfo->jumpTime			= 0;
 		NPCInfo->jumpBackupTime		= 0;
 		return NPC_TryJump();
@@ -341,46 +341,46 @@ bool NPC_TryJump(gentity_t *goal,	float max_xy_dist, float max_z_diff)
 
 void	 NPC_JumpAnimation()
 {
-	animNumber_t	jumpAnim = BOTH_JUMP1;
+	animNumber_t	jumpAnim = animNumber_t::BOTH_JUMP1;
 
-	if ( NPC->client->NPC_class == CLASS_BOBAFETT
-		|| (NPC->client->NPC_class == CLASS_REBORN && NPC->s.weapon != WP_SABER)
-		|| NPC->client->NPC_class == CLASS_ROCKETTROOPER
-		||( NPCInfo->rank != RANK_CREWMAN && NPCInfo->rank <= RANK_LT_JG ) )
+	if ( NPC->client->NPC_class == class_t::CLASS_BOBAFETT
+		|| (NPC->client->NPC_class == class_t::CLASS_REBORN && NPC->s.weapon != weapon_t::WP_SABER)
+		|| NPC->client->NPC_class == class_t::CLASS_ROCKETTROOPER
+		||( NPCInfo->rank != rank_t::RANK_CREWMAN && NPCInfo->rank <= rank_t::RANK_LT_JG ) )
 	{//can't do acrobatics
-		jumpAnim = BOTH_FORCEJUMP1;
+		jumpAnim = animNumber_t::BOTH_FORCEJUMP1;
 	}
-	else if (NPC->client->NPC_class != CLASS_HOWLER)
+	else if (NPC->client->NPC_class != class_t::CLASS_HOWLER)
 	{
-		if ( NPC->client->NPC_class == CLASS_ALORA && Q_irand( 0, 3 ) )
+		if ( NPC->client->NPC_class == class_t::CLASS_ALORA && Q_irand( 0, 3 ) )
 		{
-			jumpAnim = Q_irand( BOTH_ALORA_FLIP_1, BOTH_ALORA_FLIP_3 );
+			jumpAnim = Q_irand( animNumber_t::BOTH_ALORA_FLIP_1, animNumber_t::BOTH_ALORA_FLIP_3 );
 		}
 		else
 		{
-			jumpAnim = BOTH_FLIP_F;
+			jumpAnim = animNumber_t::BOTH_FLIP_F;
 		}
 	}
-	NPC_SetAnim( NPC, SETANIM_BOTH, jumpAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+	NPC_SetAnim( NPC, setAnimParts_t::SETANIM_BOTH, jumpAnim, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD );
 }
 
 extern void JET_FlyStart(gentity_t* actor);
 
 void	 NPC_JumpSound()
 {
-	if ( NPC->client->NPC_class == CLASS_HOWLER )
+	if ( NPC->client->NPC_class == class_t::CLASS_HOWLER )
 	{
 		//FIXME: can I delay the actual jump so that it matches the anim...?
 	}
-	else if ( NPC->client->NPC_class == CLASS_BOBAFETT
-		|| NPC->client->NPC_class == CLASS_ROCKETTROOPER )
+	else if ( NPC->client->NPC_class == class_t::CLASS_BOBAFETT
+		|| NPC->client->NPC_class == class_t::CLASS_ROCKETTROOPER )
 	{
 		// does this really need to be here?
 		JET_FlyStart(NPC);
 	}
 	else
 	{
-		G_SoundOnEnt( NPC, CHAN_BODY, "sound/weapons/force/jump.wav" );
+		G_SoundOnEnt( NPC, soundChannel_t::CHAN_BODY, "sound/weapons/force/jump.wav" );
 	}
 }
 
@@ -410,14 +410,14 @@ bool NPC_TryJump()
 	{
 		vec3_t	actorProjectedTowardTarget;
 		VectorMA(NPC->currentOrigin, NPC_JUMP_PREP_BACKUP_DIST, targetDirection, actorProjectedTowardTarget);
-		gi.trace(&mJumpTrace, NPC->currentOrigin, vec3_origin, vec3_origin, actorProjectedTowardTarget, NPC->s.number, NPC->clipmask, G2_NOCOLLIDE, 0);
+		gi.trace(&mJumpTrace, NPC->currentOrigin, vec3_origin, vec3_origin, actorProjectedTowardTarget, NPC->s.number, NPC->clipmask, EG2_Collision::G2_NOCOLLIDE, 0);
 		if ((mJumpTrace.fraction < 1.0f) ||
 			(mJumpTrace.allsolid) ||
 			(mJumpTrace.startsolid))
 		{
 			if (NAVDEBUG_showCollision)
 			{
-				CG_DrawEdge(NPC->currentOrigin, actorProjectedTowardTarget, EDGE_RED_TWOSECOND);	// TryJump
+				CG_DrawEdge(NPC->currentOrigin, actorProjectedTowardTarget, edgeType_t::EDGE_RED_TWOSECOND);	// TryJump
 			}
 
 			// TODO: We may want to test to see if it is safe to back up here?
@@ -520,7 +520,7 @@ bool NPC_TryJump()
 				floorPos[0] = NPCInfo->jumpDest[0];
 				floorPos[1] = NPCInfo->jumpDest[1];
 
-				gi.trace(&mJumpTrace, NPCInfo->jumpDest, NPC->mins, NPC->maxs, floorPos, (NPCInfo->jumpTarget)?(NPCInfo->jumpTarget->s.number):(NPC->s.number), (NPC->clipmask|CONTENTS_BOTCLIP), G2_NOCOLLIDE, 0);
+				gi.trace(&mJumpTrace, NPCInfo->jumpDest, NPC->mins, NPC->maxs, floorPos, (NPCInfo->jumpTarget)?(NPCInfo->jumpTarget->s.number):(NPC->s.number), (NPC->clipmask|contentsFlags_t::CONTENTS_BOTCLIP), EG2_Collision::G2_NOCOLLIDE, 0);
 				if ((mJumpTrace.fraction<1.0f) &&
 					(!mJumpTrace.allsolid) &&
 					(!mJumpTrace.startsolid))
@@ -530,7 +530,7 @@ bool NPC_TryJump()
 
 				if ( NAVDEBUG_showCollision )
 				{
-					CG_DrawEdge( NPCInfo->jumpDest, floorPos, EDGE_RED_TWOSECOND );
+					CG_DrawEdge( NPCInfo->jumpDest, floorPos, edgeType_t::EDGE_RED_TWOSECOND );
 				}
 			}
 
@@ -555,9 +555,9 @@ bool NPC_TryJump()
 		NPC_JumpSound();
 
 		NPC->client->ps.forceJumpZStart		 = NPC->currentOrigin[2];
-		NPC->client->ps.pm_flags			|= PMF_JUMPING;
+		NPC->client->ps.pm_flags			|= pmoveFlags_t::PMF_JUMPING;
 		NPC->client->ps.weaponTime			 = NPC->client->ps.torsoAnimTimer;
-		NPC->client->ps.forcePowersActive	|= Bit( FP_LEVITATION );
+		NPC->client->ps.forcePowersActive	|= Bit( forcePowers_t::FP_LEVITATION );
 		ucmd.forwardmove					 = 0;
 		NPCInfo->jumpTime					 = 1;
 
@@ -573,8 +573,8 @@ bool NPC_Jumping()
 {
 	if ( NPCInfo->jumpTime )
 	{
-		if ( !Any(NPC->client->ps.pm_flags & PMF_JUMPING )//forceJumpZStart )
-			&& !Any(NPC->client->ps.pm_flags&PMF_TRIGGER_PUSHED))
+		if ( !Any(NPC->client->ps.pm_flags & pmoveFlags_t::PMF_JUMPING )//forceJumpZStart )
+			&& !Any(NPC->client->ps.pm_flags&pmoveFlags_t::PMF_TRIGGER_PUSHED))
 		{//landed
 			NPCInfo->jumpTime = 0;
 		}
@@ -764,30 +764,30 @@ bool NPC_MoveToGoal( bool tryStraight ) //FIXME: tryStraight not even used!  Sto
 	int	startTime = GetTime(0);
 #endif//	AI_TIMERS
 
-	if ( PM_InKnockDown( &NPC->client->ps ) || ( ( NPC->client->ps.legsAnim >= BOTH_PAIN1 ) && ( NPC->client->ps.legsAnim <= BOTH_PAIN18 ) && NPC->client->ps.legsAnimTimer > 0 ) )
+	if ( PM_InKnockDown( &NPC->client->ps ) || ( ( NPC->client->ps.legsAnim >= animNumber_t::BOTH_PAIN1 ) && ( NPC->client->ps.legsAnim <= animNumber_t::BOTH_PAIN18 ) && NPC->client->ps.legsAnimTimer > 0 ) )
 	{//If taking full body pain, don't move
 		return true;
 	}
 
-	if( Any( NPC->s.eFlags & EF_LOCKED_TO_WEAPON ) )
+	if( Any( NPC->s.eFlags & entityFlags_t::EF_LOCKED_TO_WEAPON ) )
 	{//If in an emplaced gun, never try to navigate!
 		return true;
 	}
 
-	if( Any( NPC->s.eFlags & EF_HELD_BY_RANCOR ) )
+	if( Any( NPC->s.eFlags & entityFlags_t::EF_HELD_BY_RANCOR ) )
 	{//If in a rancor's hand, never try to navigate!
 		return true;
 	}
-	if( Any( NPC->s.eFlags & EF_HELD_BY_WAMPA ) )
+	if( Any( NPC->s.eFlags & entityFlags_t::EF_HELD_BY_WAMPA ) )
 	{//If in a wampa's hand, never try to navigate!
 		return true;
 	}
-	if( Any( NPC->s.eFlags & EF_HELD_BY_SAND_CREATURE ) )
+	if( Any( NPC->s.eFlags & entityFlags_t::EF_HELD_BY_SAND_CREATURE ) )
 	{//If in a worm's mouth, never try to navigate!
 		return true;
 	}
 
-	if ( Any( NPC->watertype & CONTENTS_LADDER ) )
+	if ( Any( NPC->watertype & contentsFlags_t::CONTENTS_LADDER ) )
 	{//Do we still want to do this?
 		vec3_t	dir;
 		VectorSubtract( NPCInfo->goalEntity->currentOrigin, NPC->currentOrigin, dir );

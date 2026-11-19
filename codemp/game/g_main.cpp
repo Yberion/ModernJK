@@ -92,9 +92,9 @@ void G_FindTeams( void ) {
 			continue;
 		if (!e->team)
 			continue;
-		if (Any( e->flags & FL_TEAMSLAVE ))
+		if (Any( e->flags & gentityFlags_t::FL_TEAMSLAVE ))
 			continue;
-		if (e->r.contents==CONTENTS_TRIGGER)
+		if (e->r.contents==contentsFlags_t::CONTENTS_TRIGGER)
 			continue;//triggers NEVER link up in teams!
 		e->teammaster = e;
 		for (j=i+1, e2=e+1 ; j < level.num_entities ; j++,e2++)
@@ -103,14 +103,14 @@ void G_FindTeams( void ) {
 				continue;
 			if (!e2->team)
 				continue;
-			if (Any( e2->flags & FL_TEAMSLAVE ))
+			if (Any( e2->flags & gentityFlags_t::FL_TEAMSLAVE ))
 				continue;
 			if (!strcmp(e->team, e2->team))
 			{
 				e2->teamchain = e->teamchain;
 				e->teamchain = e2;
 				e2->teammaster = e;
-				e2->flags |= FL_TEAMSLAVE;
+				e2->flags |= gentityFlags_t::FL_TEAMSLAVE;
 
 				// make sure that targets only point at the master
 				if ( e2->targetname ) {
@@ -134,18 +134,18 @@ void G_CacheGametype( void )
 	if ( g_gametype.string[0] && isalpha( g_gametype.string[0] ) )
 	{
 		gametype_t gt = BG_GetGametypeForString( g_gametype.string );
-		if ( gt == GT_UNKNOWN )
+		if ( gt == gametype_t::GT_UNKNOWN )
 		{
 			trap->Print( "Gametype '%s' unrecognised, defaulting to FFA/Deathmatch\n", g_gametype.string );
-			level.gametype = GT_FFA;
+			level.gametype = gametype_t::GT_FFA;
 		}
 		else
 			level.gametype = gt;
 	}
-	else if ( g_gametype.integer < 0 || g_gametype.integer >= to_underlying( GT_MAX_GAME_TYPE ) )
+	else if ( g_gametype.integer < 0 || g_gametype.integer >= to_underlying( gametype_t::GT_MAX_GAME_TYPE ) )
 	{
 		trap->Print( "g_gametype %i is out of range, defaulting to 0 (FFA/Deathmatch)\n", g_gametype.integer );
-		level.gametype = GT_FFA;
+		level.gametype = gametype_t::GT_FFA;
 	}
 	else
 		level.gametype = (gametype_t)atoi( g_gametype.string );
@@ -231,7 +231,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 	if ( g_log.string[0] )
 	{
-		trap->FS_Open( g_log.string, &level.logFile, g_logSync.integer ? FS_APPEND_SYNC : FS_APPEND );
+		trap->FS_Open( g_log.string, &level.logFile, g_logSync.integer ? fsMode_t::FS_APPEND_SYNC : fsMode_t::FS_APPEND );
 		if ( level.logFile )
 			trap->Print( "Logging to %s\n", g_log.string );
 		else
@@ -247,9 +247,9 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	if ( g_securityLog.integer )
 	{
 		if ( g_securityLog.integer == 1 )
-			trap->FS_Open( SECURITY_LOG, &level.security.log, FS_APPEND );
+			trap->FS_Open( SECURITY_LOG, &level.security.log, fsMode_t::FS_APPEND );
 		else if ( g_securityLog.integer == 2 )
-			trap->FS_Open( SECURITY_LOG, &level.security.log, FS_APPEND_SYNC );
+			trap->FS_Open( SECURITY_LOG, &level.security.log, fsMode_t::FS_APPEND_SYNC );
 
 		if ( level.security.log )
 			trap->Print( "Logging to " SECURITY_LOG"\n" );
@@ -319,9 +319,9 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	//make sure saber data is loaded before this! (so we can precache the appropriate hilts)
 	InitSiegeMode();
 
-	trap->Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
+	trap->Cvar_Register( &mapname, "mapname", "", cvarFlags_t::CVAR_SERVERINFO | cvarFlags_t::CVAR_ROM );
 	G_CacheMapname( &mapname );
-	trap->Cvar_Register( &ckSum, "sv_mapChecksum", "", CVAR_ROM );
+	trap->Cvar_Register( &ckSum, "sv_mapChecksum", "", cvarFlags_t::CVAR_ROM );
 
 	navCalculatePaths	= ( trap->Nav_Load( mapname.string, ckSum.integer ) == false );
 
@@ -332,15 +332,15 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	G_FindTeams();
 
 	// make sure we have flags for CTF, etc
-	if( level.gametype >= GT_TEAM ) {
+	if( level.gametype >= gametype_t::GT_TEAM ) {
 		G_CheckTeamItems();
 	}
-	else if ( level.gametype == GT_JEDIMASTER )
+	else if ( level.gametype == gametype_t::GT_JEDIMASTER )
 	{
 		trap->SetConfigstring ( CS_CLIENT_JEDIMASTER, "-1" );
 	}
 
-	if (level.gametype == GT_POWERDUEL)
+	if (level.gametype == gametype_t::GT_POWERDUEL)
 	{
 		trap->SetConfigstring ( CS_CLIENT_DUELISTS, va("-1|-1|-1") );
 	}
@@ -356,7 +356,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 	//trap->Print ("-----------------------------------\n");
 
-	if( level.gametype == GT_SINGLE_PLAYER || trap->Cvar_VariableIntegerValue( "com_buildScript" ) ) {
+	if( level.gametype == gametype_t::GT_SINGLE_PLAYER || trap->Cvar_VariableIntegerValue( "com_buildScript" ) ) {
 		G_ModelIndex( SP_PODIUM_MODEL );
 		G_SoundIndex( "sound/player/gurp1.wav" );
 		G_SoundIndex( "sound/player/gurp2.wav" );
@@ -370,7 +370,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		G_LoadArenas();
 	}
 
-	if ( level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL )
+	if ( level.gametype == gametype_t::GT_DUEL || level.gametype == gametype_t::GT_POWERDUEL )
 	{
 		G_LogPrintf("Duel Tournament Begun: kill limit %d, win limit: %d\n", fraglimit.integer, duel_fraglimit.integer );
 	}
@@ -399,7 +399,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		//No loading games in MP.
 	}
 
-	if (level.gametype == GT_SIEGE)
+	if (level.gametype == gametype_t::GT_SIEGE)
 	{ //just get these configstrings registered now...
 		while (i < MAX_CUSTOM_SIEGE_SOUNDS)
 		{
@@ -412,7 +412,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		}
 	}
 
-	if ( level.gametype == GT_JEDIMASTER ) {
+	if ( level.gametype == gametype_t::GT_JEDIMASTER ) {
 		gentity_t *ent = nullptr;
 		int i=0;
 		for ( i=0, ent=g_entities; i<level.num_entities; i++, ent++ ) {
@@ -425,7 +425,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 			gentity_t *spawnpoint = SelectRandomDeathmatchSpawnPoint( false );
 
 			if( !spawnpoint ) {
-				trap->Error( ERR_DROP, "Couldn't find an FFA spawnpoint to drop the jedimaster saber at!\n" );
+				trap->Error( errorParm_t::ERR_DROP, "Couldn't find an FFA spawnpoint to drop the jedimaster saber at!\n" );
 				return;
 			}
 
@@ -556,18 +556,18 @@ void AddTournamentPlayer( void ) {
 
 	for ( i = 0 ; i < level.maxclients ; i++ ) {
 		client = &level.clients[i];
-		if ( client->pers.connected != CON_CONNECTED ) {
+		if ( client->pers.connected != clientConnected_t::CON_CONNECTED ) {
 			continue;
 		}
 		if (!g_allowHighPingDuelist.integer && client->ps.ping >= 999)
 		{ //don't add people who are lagging out if cvar is not set to allow it.
 			continue;
 		}
-		if ( client->sess.sessionTeam != TEAM_SPECTATOR ) {
+		if ( client->sess.sessionTeam != team_t::TEAM_SPECTATOR ) {
 			continue;
 		}
 		// never select the dedicated follow or scoreboard clients
-		if ( client->sess.spectatorState == SPECTATOR_SCOREBOARD ||
+		if ( client->sess.spectatorState == spectatorState_t::SPECTATOR_SCOREBOARD ||
 			client->sess.spectatorClient < 0  ) {
 			continue;
 		}
@@ -603,11 +603,11 @@ void AddTournamentQueue( gclient_t *client )
 	{
 		curclient = &level.clients[index];
 
-		if ( curclient->pers.connected != CON_DISCONNECTED )
+		if ( curclient->pers.connected != clientConnected_t::CON_DISCONNECTED )
 		{
 			if ( curclient == client )
 				curclient->sess.spectatorNum = 0;
-			else if ( curclient->sess.sessionTeam == TEAM_SPECTATOR )
+			else if ( curclient->sess.sessionTeam == team_t::TEAM_SPECTATOR )
 				curclient->sess.spectatorNum++;
 		}
 	}
@@ -629,7 +629,7 @@ void RemoveTournamentLoser( void ) {
 
 	clientNum = level.sortedClients[1];
 
-	if ( level.clients[ clientNum ].pers.connected != CON_CONNECTED ) {
+	if ( level.clients[ clientNum ].pers.connected != clientConnected_t::CON_CONNECTED ) {
 		return;
 	}
 
@@ -646,13 +646,13 @@ void G_PowerDuelCount(int *loners, int *doubles, bool countSpec)
 	{
 		cl = g_entities[i].client;
 
-		if (g_entities[i].inuse && cl && (countSpec || cl->sess.sessionTeam != TEAM_SPECTATOR))
+		if (g_entities[i].inuse && cl && (countSpec || cl->sess.sessionTeam != team_t::TEAM_SPECTATOR))
 		{
-			if (cl->sess.duelTeam == DUELTEAM_LONE)
+			if (cl->sess.duelTeam == duelTeam_t::DUELTEAM_LONE)
 			{
 				(*loners)++;
 			}
-			else if (cl->sess.duelTeam == DUELTEAM_DOUBLE)
+			else if (cl->sess.duelTeam == duelTeam_t::DUELTEAM_DOUBLE)
 			{
 				(*doubles)++;
 			}
@@ -700,27 +700,27 @@ void AddPowerDuelPlayers( void )
 
 	for ( i = 0 ; i < level.maxclients ; i++ ) {
 		client = &level.clients[i];
-		if ( client->pers.connected != CON_CONNECTED ) {
+		if ( client->pers.connected != clientConnected_t::CON_CONNECTED ) {
 			continue;
 		}
-		if ( client->sess.sessionTeam != TEAM_SPECTATOR ) {
+		if ( client->sess.sessionTeam != team_t::TEAM_SPECTATOR ) {
 			continue;
 		}
-		if (client->sess.duelTeam == DUELTEAM_FREE)
+		if (client->sess.duelTeam == duelTeam_t::DUELTEAM_FREE)
 		{
 			continue;
 		}
-		if (client->sess.duelTeam == DUELTEAM_LONE && loners >= 1)
+		if (client->sess.duelTeam == duelTeam_t::DUELTEAM_LONE && loners >= 1)
 		{
 			continue;
 		}
-		if (client->sess.duelTeam == DUELTEAM_DOUBLE && doubles >= 2)
+		if (client->sess.duelTeam == duelTeam_t::DUELTEAM_DOUBLE && doubles >= 2)
 		{
 			continue;
 		}
 
 		// never select the dedicated follow or scoreboard clients
-		if ( client->sess.spectatorState == SPECTATOR_SCOREBOARD ||
+		if ( client->sess.spectatorState == spectatorState_t::SPECTATOR_SCOREBOARD ||
 			client->sess.spectatorClient < 0  ) {
 			continue;
 		}
@@ -756,10 +756,10 @@ void RemovePowerDuelLosers(void)
 		//cl = &level.clients[level.sortedClients[i]];
 		cl = &level.clients[i];
 
-		if (cl->pers.connected == CON_CONNECTED)
+		if (cl->pers.connected == clientConnected_t::CON_CONNECTED)
 		{
-			if ((cl->ps.stats[STAT_HEALTH] <= 0 || cl->iAmALoser) &&
-				(cl->sess.sessionTeam != TEAM_SPECTATOR || cl->iAmALoser))
+			if ((cl->ps.stats[statIndex_t::STAT_HEALTH] <= 0 || cl->iAmALoser) &&
+				(cl->sess.sessionTeam != team_t::TEAM_SPECTATOR || cl->iAmALoser))
 			{ //he was dead or he was spectating as a loser
                 remClients[remNum] = i;
 				remNum++;
@@ -794,17 +794,17 @@ void RemoveDuelDrawLoser(void)
 	int clSec = 0;
 	int clFailure = 0;
 
-	if ( level.clients[ level.sortedClients[0] ].pers.connected != CON_CONNECTED )
+	if ( level.clients[ level.sortedClients[0] ].pers.connected != clientConnected_t::CON_CONNECTED )
 	{
 		return;
 	}
-	if ( level.clients[ level.sortedClients[1] ].pers.connected != CON_CONNECTED )
+	if ( level.clients[ level.sortedClients[1] ].pers.connected != clientConnected_t::CON_CONNECTED )
 	{
 		return;
 	}
 
-	clFirst = level.clients[ level.sortedClients[0] ].ps.stats[STAT_HEALTH] + level.clients[ level.sortedClients[0] ].ps.stats[STAT_ARMOR];
-	clSec = level.clients[ level.sortedClients[1] ].ps.stats[STAT_HEALTH] + level.clients[ level.sortedClients[1] ].ps.stats[STAT_ARMOR];
+	clFirst = level.clients[ level.sortedClients[0] ].ps.stats[statIndex_t::STAT_HEALTH] + level.clients[ level.sortedClients[0] ].ps.stats[statIndex_t::STAT_ARMOR];
+	clSec = level.clients[ level.sortedClients[1] ].ps.stats[statIndex_t::STAT_HEALTH] + level.clients[ level.sortedClients[1] ].ps.stats[statIndex_t::STAT_ARMOR];
 
 	if (clFirst > clSec)
 	{
@@ -843,7 +843,7 @@ void RemoveTournamentWinner( void ) {
 
 	clientNum = level.sortedClients[0];
 
-	if ( level.clients[ clientNum ].pers.connected != CON_CONNECTED ) {
+	if ( level.clients[ clientNum ].pers.connected != clientConnected_t::CON_CONNECTED ) {
 		return;
 	}
 
@@ -859,13 +859,13 @@ AdjustTournamentScores
 void AdjustTournamentScores( void ) {
 	int			clientNum;
 
-	if (level.clients[level.sortedClients[0]].ps.persistant[PERS_SCORE] ==
-		level.clients[level.sortedClients[1]].ps.persistant[PERS_SCORE] &&
-		level.clients[level.sortedClients[0]].pers.connected == CON_CONNECTED &&
-		level.clients[level.sortedClients[1]].pers.connected == CON_CONNECTED)
+	if (level.clients[level.sortedClients[0]].ps.persistant[persEnum_t::PERS_SCORE] ==
+		level.clients[level.sortedClients[1]].ps.persistant[persEnum_t::PERS_SCORE] &&
+		level.clients[level.sortedClients[0]].pers.connected == clientConnected_t::CON_CONNECTED &&
+		level.clients[level.sortedClients[1]].pers.connected == clientConnected_t::CON_CONNECTED)
 	{
-		int clFirst = level.clients[ level.sortedClients[0] ].ps.stats[STAT_HEALTH] + level.clients[ level.sortedClients[0] ].ps.stats[STAT_ARMOR];
-		int clSec = level.clients[ level.sortedClients[1] ].ps.stats[STAT_HEALTH] + level.clients[ level.sortedClients[1] ].ps.stats[STAT_ARMOR];
+		int clFirst = level.clients[ level.sortedClients[0] ].ps.stats[statIndex_t::STAT_HEALTH] + level.clients[ level.sortedClients[0] ].ps.stats[statIndex_t::STAT_ARMOR];
+		int clSec = level.clients[ level.sortedClients[1] ].ps.stats[statIndex_t::STAT_HEALTH] + level.clients[ level.sortedClients[1] ].ps.stats[statIndex_t::STAT_ARMOR];
 		int clFailure = 0;
 		int clSuccess = 0;
 
@@ -918,7 +918,7 @@ void AdjustTournamentScores( void ) {
 	else
 	{
 		clientNum = level.sortedClients[0];
-		if ( level.clients[ clientNum ].pers.connected == CON_CONNECTED ) {
+		if ( level.clients[ clientNum ].pers.connected == clientConnected_t::CON_CONNECTED ) {
 			level.clients[ clientNum ].sess.wins++;
 			ClientUserinfoChanged( clientNum );
 
@@ -926,7 +926,7 @@ void AdjustTournamentScores( void ) {
 		}
 
 		clientNum = level.sortedClients[1];
-		if ( level.clients[ clientNum ].pers.connected == CON_CONNECTED ) {
+		if ( level.clients[ clientNum ].pers.connected == clientConnected_t::CON_CONNECTED ) {
 			level.clients[ clientNum ].sess.losses++;
 			ClientUserinfoChanged( clientNum );
 		}
@@ -945,14 +945,14 @@ int QDECL SortRanks( const void *a, const void *b ) {
 	ca = &level.clients[*(int *)a];
 	cb = &level.clients[*(int *)b];
 
-	if (level.gametype == GT_POWERDUEL)
+	if (level.gametype == gametype_t::GT_POWERDUEL)
 	{
 		//sort single duelists first
-		if (ca->sess.duelTeam == DUELTEAM_LONE && ca->sess.sessionTeam != TEAM_SPECTATOR)
+		if (ca->sess.duelTeam == duelTeam_t::DUELTEAM_LONE && ca->sess.sessionTeam != team_t::TEAM_SPECTATOR)
 		{
 			return -1;
 		}
-		if (cb->sess.duelTeam == DUELTEAM_LONE && cb->sess.sessionTeam != TEAM_SPECTATOR)
+		if (cb->sess.duelTeam == duelTeam_t::DUELTEAM_LONE && cb->sess.sessionTeam != team_t::TEAM_SPECTATOR)
 		{
 			return 1;
 		}
@@ -961,24 +961,24 @@ int QDECL SortRanks( const void *a, const void *b ) {
 	}
 
 	// sort special clients last
-	if ( ca->sess.spectatorState == SPECTATOR_SCOREBOARD || ca->sess.spectatorClient < 0 ) {
+	if ( ca->sess.spectatorState == spectatorState_t::SPECTATOR_SCOREBOARD || ca->sess.spectatorClient < 0 ) {
 		return 1;
 	}
-	if ( cb->sess.spectatorState == SPECTATOR_SCOREBOARD || cb->sess.spectatorClient < 0  ) {
+	if ( cb->sess.spectatorState == spectatorState_t::SPECTATOR_SCOREBOARD || cb->sess.spectatorClient < 0  ) {
 		return -1;
 	}
 
 	// then connecting clients
-	if ( ca->pers.connected == CON_CONNECTING ) {
+	if ( ca->pers.connected == clientConnected_t::CON_CONNECTING ) {
 		return 1;
 	}
-	if ( cb->pers.connected == CON_CONNECTING ) {
+	if ( cb->pers.connected == clientConnected_t::CON_CONNECTING ) {
 		return -1;
 	}
 
 
 	// then spectators
-	if ( ca->sess.sessionTeam == TEAM_SPECTATOR && cb->sess.sessionTeam == TEAM_SPECTATOR ) {
+	if ( ca->sess.sessionTeam == team_t::TEAM_SPECTATOR && cb->sess.sessionTeam == team_t::TEAM_SPECTATOR ) {
 		if ( ca->sess.spectatorNum > cb->sess.spectatorNum ) {
 			return -1;
 		}
@@ -987,20 +987,20 @@ int QDECL SortRanks( const void *a, const void *b ) {
 		}
 		return 0;
 	}
-	if ( ca->sess.sessionTeam == TEAM_SPECTATOR ) {
+	if ( ca->sess.sessionTeam == team_t::TEAM_SPECTATOR ) {
 		return 1;
 	}
-	if ( cb->sess.sessionTeam == TEAM_SPECTATOR ) {
+	if ( cb->sess.sessionTeam == team_t::TEAM_SPECTATOR ) {
 		return -1;
 	}
 
 	// then sort by score
-	if ( ca->ps.persistant[PERS_SCORE]
-		> cb->ps.persistant[PERS_SCORE] ) {
+	if ( ca->ps.persistant[persEnum_t::PERS_SCORE]
+		> cb->ps.persistant[persEnum_t::PERS_SCORE] ) {
 		return -1;
 	}
-	if ( ca->ps.persistant[PERS_SCORE]
-		< cb->ps.persistant[PERS_SCORE] ) {
+	if ( ca->ps.persistant[persEnum_t::PERS_SCORE]
+		< cb->ps.persistant[persEnum_t::PERS_SCORE] ) {
 		return 1;
 	}
 	return 0;
@@ -1021,8 +1021,8 @@ bool G_CanResetDuelists(void)
 		ent = &g_entities[level.sortedClients[i]];
 
 		if (!ent->inuse || !ent->client || ent->health <= 0 ||
-			ent->client->sess.sessionTeam == TEAM_SPECTATOR ||
-			ent->client->sess.duelTeam <= DUELTEAM_FREE)
+			ent->client->sess.sessionTeam == team_t::TEAM_SPECTATOR ||
+			ent->client->sess.duelTeam <= duelTeam_t::DUELTEAM_FREE)
 		{
 			return false;
 		}
@@ -1044,7 +1044,7 @@ void G_ResetDuelists(void)
 		ent = &g_entities[level.sortedClients[i]];
 
 		g_noPDuelCheck = true;
-		player_die(ent, ent, ent, 999, MOD_SUICIDE);
+		player_die(ent, ent, ent, 999, meansOfDeath_t::MOD_SUICIDE);
 		g_noPDuelCheck = false;
 		trap->UnlinkEntity ((sharedEntity_t *)ent);
 		ClientSpawn(ent);
@@ -1083,31 +1083,31 @@ void CalculateRanks( void ) {
 		level.numteamVotingClients[i] = 0;
 	}
 	for ( i = 0 ; i < level.maxclients ; i++ ) {
-		if ( level.clients[i].pers.connected != CON_DISCONNECTED ) {
+		if ( level.clients[i].pers.connected != clientConnected_t::CON_DISCONNECTED ) {
 			level.sortedClients[level.numConnectedClients] = i;
 			level.numConnectedClients++;
 
-			if ( level.clients[i].sess.sessionTeam != TEAM_SPECTATOR || level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL )
+			if ( level.clients[i].sess.sessionTeam != team_t::TEAM_SPECTATOR || level.gametype == gametype_t::GT_DUEL || level.gametype == gametype_t::GT_POWERDUEL )
 			{
-				if (level.clients[i].sess.sessionTeam != TEAM_SPECTATOR)
+				if (level.clients[i].sess.sessionTeam != team_t::TEAM_SPECTATOR)
 				{
 					level.numNonSpectatorClients++;
 					//nonSpecIndex = i;
 				}
 
 				// decide if this should be auto-followed
-				if ( level.clients[i].pers.connected == CON_CONNECTED )
+				if ( level.clients[i].pers.connected == clientConnected_t::CON_CONNECTED )
 				{
-					if (level.clients[i].sess.sessionTeam != TEAM_SPECTATOR || level.clients[i].iAmALoser)
+					if (level.clients[i].sess.sessionTeam != team_t::TEAM_SPECTATOR || level.clients[i].iAmALoser)
 					{
 						level.numPlayingClients++;
 					}
-					if ( !Any( g_entities[i].r.svFlags & SVF_BOT ) )
+					if ( !Any( g_entities[i].r.svFlags & svFlags_t::SVF_BOT ) )
 					{
 						level.numVotingClients++;
-						if ( level.clients[i].sess.sessionTeam == TEAM_RED )
+						if ( level.clients[i].sess.sessionTeam == team_t::TEAM_RED )
 							level.numteamVotingClients[0]++;
-						else if ( level.clients[i].sess.sessionTeam == TEAM_BLUE )
+						else if ( level.clients[i].sess.sessionTeam == team_t::TEAM_BLUE )
 							level.numteamVotingClients[1]++;
 					}
 					if ( level.follow1 == -1 ) {
@@ -1120,23 +1120,23 @@ void CalculateRanks( void ) {
 		}
 	}
 
-	if ( !g_warmup.integer || level.gametype == GT_SIEGE )
+	if ( !g_warmup.integer || level.gametype == gametype_t::GT_SIEGE )
 		level.warmupTime = 0;
 
 	qsort( level.sortedClients, level.numConnectedClients,
 		sizeof(level.sortedClients[0]), SortRanks );
 
 	// set the rank value for all clients that are connected and not spectators
-	if ( level.gametype >= GT_TEAM ) {
+	if ( level.gametype >= gametype_t::GT_TEAM ) {
 		// in team games, rank is just the order of the teams, 0=red, 1=blue, 2=tied
 		for ( i = 0;  i < level.numConnectedClients; i++ ) {
 			cl = &level.clients[ level.sortedClients[i] ];
-			if ( level.teamScores[TEAM_RED] == level.teamScores[TEAM_BLUE] ) {
-				cl->ps.persistant[PERS_RANK] = 2;
-			} else if ( level.teamScores[TEAM_RED] > level.teamScores[TEAM_BLUE] ) {
-				cl->ps.persistant[PERS_RANK] = 0;
+			if ( level.teamScores[team_t::TEAM_RED] == level.teamScores[team_t::TEAM_BLUE] ) {
+				cl->ps.persistant[persEnum_t::PERS_RANK] = 2;
+			} else if ( level.teamScores[team_t::TEAM_RED] > level.teamScores[team_t::TEAM_BLUE] ) {
+				cl->ps.persistant[persEnum_t::PERS_RANK] = 0;
 			} else {
-				cl->ps.persistant[PERS_RANK] = 1;
+				cl->ps.persistant[persEnum_t::PERS_RANK] = 1;
 			}
 		}
 	} else {
@@ -1144,40 +1144,40 @@ void CalculateRanks( void ) {
 		score = 0;
 		for ( i = 0;  i < level.numPlayingClients; i++ ) {
 			cl = &level.clients[ level.sortedClients[i] ];
-			newScore = cl->ps.persistant[PERS_SCORE];
+			newScore = cl->ps.persistant[persEnum_t::PERS_SCORE];
 			if ( i == 0 || newScore != score ) {
 				rank = i;
 				// assume we aren't tied until the next client is checked
-				level.clients[ level.sortedClients[i] ].ps.persistant[PERS_RANK] = rank;
+				level.clients[ level.sortedClients[i] ].ps.persistant[persEnum_t::PERS_RANK] = rank;
 			} else if(i != 0 ){
 				// we are tied with the previous client
-				level.clients[ level.sortedClients[i-1] ].ps.persistant[PERS_RANK] = rank | RANK_TIED_FLAG;
-				level.clients[ level.sortedClients[i] ].ps.persistant[PERS_RANK] = rank | RANK_TIED_FLAG;
+				level.clients[ level.sortedClients[i-1] ].ps.persistant[persEnum_t::PERS_RANK] = rank | RANK_TIED_FLAG;
+				level.clients[ level.sortedClients[i] ].ps.persistant[persEnum_t::PERS_RANK] = rank | RANK_TIED_FLAG;
 			}
 			score = newScore;
-			if ( level.gametype == GT_SINGLE_PLAYER && level.numPlayingClients == 1 ) {
-				level.clients[ level.sortedClients[i] ].ps.persistant[PERS_RANK] = rank | RANK_TIED_FLAG;
+			if ( level.gametype == gametype_t::GT_SINGLE_PLAYER && level.numPlayingClients == 1 ) {
+				level.clients[ level.sortedClients[i] ].ps.persistant[persEnum_t::PERS_RANK] = rank | RANK_TIED_FLAG;
 			}
 		}
 	}
 
 	// set the CS_SCORES1/2 configstrings, which will be visible to everyone
-	if ( level.gametype >= GT_TEAM ) {
-		trap->SetConfigstring( CS_SCORES1, va("%i", level.teamScores[TEAM_RED] ) );
-		trap->SetConfigstring( CS_SCORES2, va("%i", level.teamScores[TEAM_BLUE] ) );
+	if ( level.gametype >= gametype_t::GT_TEAM ) {
+		trap->SetConfigstring( CS_SCORES1, va("%i", level.teamScores[team_t::TEAM_RED] ) );
+		trap->SetConfigstring( CS_SCORES2, va("%i", level.teamScores[team_t::TEAM_BLUE] ) );
 	} else {
 		if ( level.numConnectedClients == 0 ) {
 			trap->SetConfigstring( CS_SCORES1, va("%i", SCORE_NOT_PRESENT) );
 			trap->SetConfigstring( CS_SCORES2, va("%i", SCORE_NOT_PRESENT) );
 		} else if ( level.numConnectedClients == 1 ) {
-			trap->SetConfigstring( CS_SCORES1, va("%i", level.clients[ level.sortedClients[0] ].ps.persistant[PERS_SCORE] ) );
+			trap->SetConfigstring( CS_SCORES1, va("%i", level.clients[ level.sortedClients[0] ].ps.persistant[persEnum_t::PERS_SCORE] ) );
 			trap->SetConfigstring( CS_SCORES2, va("%i", SCORE_NOT_PRESENT) );
 		} else {
-			trap->SetConfigstring( CS_SCORES1, va("%i", level.clients[ level.sortedClients[0] ].ps.persistant[PERS_SCORE] ) );
-			trap->SetConfigstring( CS_SCORES2, va("%i", level.clients[ level.sortedClients[1] ].ps.persistant[PERS_SCORE] ) );
+			trap->SetConfigstring( CS_SCORES1, va("%i", level.clients[ level.sortedClients[0] ].ps.persistant[persEnum_t::PERS_SCORE] ) );
+			trap->SetConfigstring( CS_SCORES2, va("%i", level.clients[ level.sortedClients[1] ].ps.persistant[persEnum_t::PERS_SCORE] ) );
 		}
 
-		if (level.gametype != GT_DUEL && level.gametype != GT_POWERDUEL)
+		if (level.gametype != gametype_t::GT_DUEL && level.gametype != gametype_t::GT_POWERDUEL)
 		{ //when not in duel, use this configstring to pass the index of the player currently in first place
 			if ( level.numConnectedClients >= 1 )
 			{
@@ -1194,7 +1194,7 @@ void CalculateRanks( void ) {
 	CheckExitRules();
 
 	// if we are at the intermission or in multi-frag Duel game mode, send the new info to everyone
-	if ( level.intermissiontime || level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL ) {
+	if ( level.intermissiontime || level.gametype == gametype_t::GT_DUEL || level.gametype == gametype_t::GT_POWERDUEL ) {
 		gQueueScoreMessage = true;
 		gQueueScoreMessageTime = level.time + 500;
 		//SendScoreboardMessageToAllClients();
@@ -1223,7 +1223,7 @@ void SendScoreboardMessageToAllClients( void ) {
 	int		i;
 
 	for ( i = 0 ; i < level.maxclients ; i++ ) {
-		if ( level.clients[ i ].pers.connected == CON_CONNECTED ) {
+		if ( level.clients[ i ].pers.connected == clientConnected_t::CON_CONNECTED ) {
 			DeathmatchScoreboardMessage( g_entities + i );
 		}
 	}
@@ -1240,7 +1240,7 @@ If a new client connects, this will be called after the spawn function.
 extern void G_LeaveVehicle( gentity_t *ent, bool ConCheck );
 void MoveClientToIntermission( gentity_t *ent ) {
 	// take out of follow mode if needed
-	if ( ent->client->sess.spectatorState == SPECTATOR_FOLLOW ) {
+	if ( ent->client->sess.spectatorState == spectatorState_t::SPECTATOR_FOLLOW ) {
 		StopFollowing( ent );
 	}
 
@@ -1249,7 +1249,7 @@ void MoveClientToIntermission( gentity_t *ent ) {
 	VectorCopy( level.intermission_origin, ent->s.origin );
 	VectorCopy( level.intermission_origin, ent->client->ps.origin );
 	VectorCopy (level.intermission_angle, ent->client->ps.viewangles);
-	ent->client->ps.pm_type = PM_INTERMISSION;
+	ent->client->ps.pm_type = pmtype_t::PM_INTERMISSION;
 
 	// clean up powerup info
 	ent->client->ps.powerups = {};
@@ -1259,16 +1259,16 @@ void MoveClientToIntermission( gentity_t *ent ) {
 	ent->client->ps.rocketLockIndex = ENTITYNUM_NONE;
 	ent->client->ps.rocketLockTime = 0;
 
-	ent->client->ps.eFlags = EF_NONE;
-	ent->s.eFlags = EF_NONE;
-	ent->client->ps.eFlags2 = EF2_NONE;
-	ent->s.eFlags2 = EF2_NONE;
-	ent->s.eType = ET_GENERAL;
+	ent->client->ps.eFlags = entityFlags_t::EF_NONE;
+	ent->s.eFlags = entityFlags_t::EF_NONE;
+	ent->client->ps.eFlags2 = entityFlags2_t::EF2_NONE;
+	ent->s.eFlags2 = entityFlags2_t::EF2_NONE;
+	ent->s.eType = entityType_t::ET_GENERAL;
 	ent->s.modelindex = 0;
 	ent->s.loopSound = 0;
 	ent->s.loopIsSoundset = false;
 	ent->s.event = 0;
-	ent->r.contents = CONTENTS_NONE;
+	ent->r.contents = contentsFlags_t::CONTENTS_NONE;
 }
 
 /*
@@ -1287,7 +1287,7 @@ void FindIntermissionPoint( void ) {
 	vec3_t		dir;
 
 	// find the intermission spot
-	if ( level.gametype == GT_SIEGE
+	if ( level.gametype == gametype_t::GT_SIEGE
 		&& level.intermissiontime
 		&& level.intermissiontime <= level.time
 		&& gSiegeRoundEnded )
@@ -1314,7 +1314,7 @@ void FindIntermissionPoint( void ) {
 		ent = G_Find (nullptr, FOFS(classname), "info_player_intermission");
 	}
 	if ( !ent ) {	// the map creator forgot to put in an intermission point...
-		SelectSpawnPoint ( vec3_origin, level.intermission_origin, level.intermission_angle, TEAM_SPECTATOR, false );
+		SelectSpawnPoint ( vec3_origin, level.intermission_origin, level.intermission_angle, team_t::TEAM_SPECTATOR, false );
 	} else {
 		VectorCopy (ent->s.origin, level.intermission_origin);
 		VectorCopy (ent->s.angles, level.intermission_angle);
@@ -1345,10 +1345,10 @@ void BeginIntermission( void ) {
 	}
 
 	// if in tournament mode, change the wins / losses
-	if ( level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL ) {
+	if ( level.gametype == gametype_t::GT_DUEL || level.gametype == gametype_t::GT_POWERDUEL ) {
 		trap->SetConfigstring ( CS_CLIENT_DUELWINNER, "-1" );
 
-		if (level.gametype != GT_POWERDUEL)
+		if (level.gametype != gametype_t::GT_POWERDUEL)
 		{
 			AdjustTournamentScores();
 		}
@@ -1371,9 +1371,9 @@ void BeginIntermission( void ) {
 			continue;
 		// respawn if dead
 		if (client->health <= 0) {
-			if (level.gametype != GT_POWERDUEL ||
+			if (level.gametype != gametype_t::GT_POWERDUEL ||
 				!client->client ||
-				client->client->sess.sessionTeam != TEAM_SPECTATOR)
+				client->client->sess.sessionTeam != team_t::TEAM_SPECTATOR)
 			{ //don't respawn spectators in powerduel or it will mess the line order all up
 				ClientRespawn(client);
 			}
@@ -1392,7 +1392,7 @@ bool DuelLimitHit(void)
 
 	for ( i=0 ; i< sv_maxclients.integer ; i++ ) {
 		cl = level.clients + i;
-		if ( cl->pers.connected != CON_CONNECTED ) {
+		if ( cl->pers.connected != clientConnected_t::CON_CONNECTED ) {
 			continue;
 		}
 
@@ -1412,7 +1412,7 @@ void DuelResetWinsLosses(void)
 
 	for ( i=0 ; i< sv_maxclients.integer ; i++ ) {
 		cl = level.clients + i;
-		if ( cl->pers.connected != CON_CONNECTED ) {
+		if ( cl->pers.connected != clientConnected_t::CON_CONNECTED ) {
 			continue;
 		}
 
@@ -1438,11 +1438,11 @@ void ExitLevel (void) {
 
 	// if we are running a tournament map, kick the loser to spectator status,
 	// which will automatically grab the next spectator and restart
-	if ( level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL ) {
+	if ( level.gametype == gametype_t::GT_DUEL || level.gametype == gametype_t::GT_POWERDUEL ) {
 		if (!DuelLimitHit())
 		{
 			if ( !level.restarted ) {
-				trap->SendConsoleCommand( EXEC_APPEND, "map_restart 0\n" );
+				trap->SendConsoleCommand( cbufExec_t::EXEC_APPEND, "map_restart 0\n" );
 				level.restarted = true;
 				level.changemap = nullptr;
 				level.intermissiontime = 0;
@@ -1454,34 +1454,34 @@ void ExitLevel (void) {
 	}
 
 
-	if (level.gametype == GT_SIEGE &&
+	if (level.gametype == gametype_t::GT_SIEGE &&
 		g_siegeTeamSwitch.integer &&
 		g_siegePersistant.beatingTime)
 	{ //restart same map...
-		trap->SendConsoleCommand( EXEC_APPEND, "map_restart 0\n" );
+		trap->SendConsoleCommand( cbufExec_t::EXEC_APPEND, "map_restart 0\n" );
 	}
 	else
 	{
-		trap->SendConsoleCommand( EXEC_APPEND, "vstr nextmap\n" );
+		trap->SendConsoleCommand( cbufExec_t::EXEC_APPEND, "vstr nextmap\n" );
 	}
 	level.changemap = nullptr;
 	level.intermissiontime = 0;
 
-	if (level.gametype == GT_SIEGE &&
+	if (level.gametype == gametype_t::GT_SIEGE &&
 		g_siegeTeamSwitch.integer)
 	{ //switch out now
 		SiegeDoTeamAssign();
 	}
 
 	// reset all the scores so we don't enter the intermission again
-	level.teamScores[TEAM_RED] = 0;
-	level.teamScores[TEAM_BLUE] = 0;
+	level.teamScores[team_t::TEAM_RED] = 0;
+	level.teamScores[team_t::TEAM_BLUE] = 0;
 	for ( i=0 ; i< sv_maxclients.integer ; i++ ) {
 		cl = level.clients + i;
-		if ( cl->pers.connected != CON_CONNECTED ) {
+		if ( cl->pers.connected != clientConnected_t::CON_CONNECTED ) {
 			continue;
 		}
-		cl->ps.persistant[PERS_SCORE] = 0;
+		cl->ps.persistant[persEnum_t::PERS_SCORE] = 0;
 	}
 
 	// we need to do this here before chaning to CON_CONNECTING
@@ -1490,8 +1490,8 @@ void ExitLevel (void) {
 	// change all client states to connecting, so the early players into the
 	// next level will know the others aren't done reconnecting
 	for (i=0 ; i< sv_maxclients.integer ; i++) {
-		if ( level.clients[i].pers.connected == CON_CONNECTED ) {
-			level.clients[i].pers.connected = CON_CONNECTING;
+		if ( level.clients[i].pers.connected == clientConnected_t::CON_CONNECTED ) {
+			level.clients[i].pers.connected = clientConnected_t::CON_CONNECTING;
 		}
 	}
 
@@ -1588,9 +1588,9 @@ void LogExit( const char *string ) {
 		numSorted = 32;
 	}
 
-	if ( level.gametype >= GT_TEAM ) {
+	if ( level.gametype >= gametype_t::GT_TEAM ) {
 		G_LogPrintf( "red:%i  blue:%i\n",
-			level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE] );
+			level.teamScores[team_t::TEAM_RED], level.teamScores[team_t::TEAM_BLUE] );
 	}
 
 	for (i=0 ; i < numSorted ; i++) {
@@ -1598,22 +1598,22 @@ void LogExit( const char *string ) {
 
 		cl = &level.clients[level.sortedClients[i]];
 
-		if ( cl->sess.sessionTeam == TEAM_SPECTATOR ) {
+		if ( cl->sess.sessionTeam == team_t::TEAM_SPECTATOR ) {
 			continue;
 		}
-		if ( cl->pers.connected == CON_CONNECTING ) {
+		if ( cl->pers.connected == clientConnected_t::CON_CONNECTING ) {
 			continue;
 		}
 
 		ping = cl->ps.ping < 999 ? cl->ps.ping : 999;
 
-		if (level.gametype >= GT_TEAM) {
-			G_LogPrintf( "(%s) score: %i  ping: %i  client: [%s] %i \"%s^7\"\n", TeamName(PS_Team( cl->ps )), cl->ps.persistant[PERS_SCORE], ping, cl->pers.guid, level.sortedClients[i], cl->pers.netname );
+		if (level.gametype >= gametype_t::GT_TEAM) {
+			G_LogPrintf( "(%s) score: %i  ping: %i  client: [%s] %i \"%s^7\"\n", TeamName(PS_Team( cl->ps )), cl->ps.persistant[persEnum_t::PERS_SCORE], ping, cl->pers.guid, level.sortedClients[i], cl->pers.netname );
 		} else {
-			G_LogPrintf( "score: %i  ping: %i  client: [%s] %i \"%s^7\"\n", cl->ps.persistant[PERS_SCORE], ping, cl->pers.guid, level.sortedClients[i], cl->pers.netname );
+			G_LogPrintf( "score: %i  ping: %i  client: [%s] %i \"%s^7\"\n", cl->ps.persistant[persEnum_t::PERS_SCORE], ping, cl->pers.guid, level.sortedClients[i], cl->pers.netname );
 		}
-//		if (g_singlePlayer.integer && (level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL)) {
-//			if (Any( g_entities[cl - level.clients].r.svFlags & SVF_BOT ) && cl->ps.persistant[PERS_RANK] == 0) {
+//		if (g_singlePlayer.integer && (level.gametype == gametype_t::GT_DUEL || level.gametype == gametype_t::GT_POWERDUEL)) {
+//			if (Any( g_entities[cl - level.clients].r.svFlags & svFlags_t::SVF_BOT ) && cl->ps.persistant[persEnum_t::PERS_RANK] == 0) {
 //				won = false;
 //			}
 //		}
@@ -1622,10 +1622,10 @@ void LogExit( const char *string ) {
 	//yeah.. how about not.
 	/*
 	if (g_singlePlayer.integer) {
-		if (level.gametype >= GT_CTF) {
-			won = level.teamScores[TEAM_RED] > level.teamScores[TEAM_BLUE];
+		if (level.gametype >= gametype_t::GT_CTF) {
+			won = level.teamScores[team_t::TEAM_RED] > level.teamScores[team_t::TEAM_BLUE];
 		}
-		trap->SendConsoleCommand( EXEC_APPEND, (won) ? "spWin\n" : "spLose\n" );
+		trap->SendConsoleCommand( cbufExec_t::EXEC_APPEND, (won) ? "spWin\n" : "spLose\n" );
 	}
 	*/
 }
@@ -1654,10 +1654,10 @@ void CheckIntermissionExit( void ) {
 	readyMask = 0;
 	for (i=0 ; i< sv_maxclients.integer ; i++) {
 		cl = level.clients + i;
-		if ( cl->pers.connected != CON_CONNECTED ) {
+		if ( cl->pers.connected != clientConnected_t::CON_CONNECTED ) {
 			continue;
 		}
-		if ( Any( g_entities[i].r.svFlags & SVF_BOT ) ) {
+		if ( Any( g_entities[i].r.svFlags & svFlags_t::SVF_BOT ) ) {
 			continue;
 		}
 
@@ -1671,23 +1671,23 @@ void CheckIntermissionExit( void ) {
 		}
 	}
 
-	if ( (level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL) && !gDidDuelStuff &&
+	if ( (level.gametype == gametype_t::GT_DUEL || level.gametype == gametype_t::GT_POWERDUEL) && !gDidDuelStuff &&
 		(level.time > level.intermissiontime + 2000) )
 	{
 		gDidDuelStuff = true;
 
-		if ( g_austrian.integer && level.gametype != GT_POWERDUEL )
+		if ( g_austrian.integer && level.gametype != gametype_t::GT_POWERDUEL )
 		{
 			G_LogPrintf("Duel Results:\n");
 			//G_LogPrintf("Duel Time: %d\n", level.time );
 			G_LogPrintf("winner: %s, score: %d, wins/losses: %d/%d\n",
 				level.clients[level.sortedClients[0]].pers.netname,
-				level.clients[level.sortedClients[0]].ps.persistant[PERS_SCORE],
+				level.clients[level.sortedClients[0]].ps.persistant[persEnum_t::PERS_SCORE],
 				level.clients[level.sortedClients[0]].sess.wins,
 				level.clients[level.sortedClients[0]].sess.losses );
 			G_LogPrintf("loser: %s, score: %d, wins/losses: %d/%d\n",
 				level.clients[level.sortedClients[1]].pers.netname,
-				level.clients[level.sortedClients[1]].ps.persistant[PERS_SCORE],
+				level.clients[level.sortedClients[1]].ps.persistant[persEnum_t::PERS_SCORE],
 				level.clients[level.sortedClients[1]].sess.wins,
 				level.clients[level.sortedClients[1]].sess.losses );
 		}
@@ -1695,17 +1695,17 @@ void CheckIntermissionExit( void ) {
 		// which will automatically grab the next spectator and restart
 		if (!DuelLimitHit())
 		{
-			if (level.gametype == GT_POWERDUEL)
+			if (level.gametype == gametype_t::GT_POWERDUEL)
 			{
 				RemovePowerDuelLosers();
 				AddPowerDuelPlayers();
 			}
 			else
 			{
-				if (level.clients[level.sortedClients[0]].ps.persistant[PERS_SCORE] ==
-					level.clients[level.sortedClients[1]].ps.persistant[PERS_SCORE] &&
-					level.clients[level.sortedClients[0]].pers.connected == CON_CONNECTED &&
-					level.clients[level.sortedClients[1]].pers.connected == CON_CONNECTED)
+				if (level.clients[level.sortedClients[0]].ps.persistant[persEnum_t::PERS_SCORE] ==
+					level.clients[level.sortedClients[1]].ps.persistant[persEnum_t::PERS_SCORE] &&
+					level.clients[level.sortedClients[0]].pers.connected == clientConnected_t::CON_CONNECTED &&
+					level.clients[level.sortedClients[1]].pers.connected == clientConnected_t::CON_CONNECTED)
 				{
 					RemoveDuelDrawLoser();
 				}
@@ -1718,7 +1718,7 @@ void CheckIntermissionExit( void ) {
 
 			if ( g_austrian.integer )
 			{
-				if (level.gametype == GT_POWERDUEL)
+				if (level.gametype == gametype_t::GT_POWERDUEL)
 				{
 					G_LogPrintf("Power Duel Initiated: %s %d/%d vs %s %d/%d and %s %d/%d, kill limit: %d\n",
 						level.clients[level.sortedClients[0]].pers.netname,
@@ -1745,7 +1745,7 @@ void CheckIntermissionExit( void ) {
 				}
 			}
 
-			if (level.gametype == GT_POWERDUEL)
+			if (level.gametype == gametype_t::GT_POWERDUEL)
 			{
 				if (level.numPlayingClients >= 3 && level.numNonSpectatorClients >= 3)
 				{
@@ -1765,7 +1765,7 @@ void CheckIntermissionExit( void ) {
 			return;
 		}
 
-		if ( g_austrian.integer && level.gametype != GT_POWERDUEL )
+		if ( g_austrian.integer && level.gametype != gametype_t::GT_POWERDUEL )
 		{
 			G_LogPrintf("Duel Tournament Winner: %s wins/losses: %d/%d\n",
 				level.clients[level.sortedClients[0]].pers.netname,
@@ -1773,7 +1773,7 @@ void CheckIntermissionExit( void ) {
 				level.clients[level.sortedClients[0]].sess.losses );
 		}
 
-		if (level.gametype == GT_POWERDUEL)
+		if (level.gametype == gametype_t::GT_POWERDUEL)
 		{
 			RemovePowerDuelLosers();
 			AddPowerDuelPlayers();
@@ -1789,10 +1789,10 @@ void CheckIntermissionExit( void ) {
 			//this means we hit the duel limit so reset the wins/losses
 			//but still push the loser to the back of the line, and retain the order for
 			//the map change
-			if (level.clients[level.sortedClients[0]].ps.persistant[PERS_SCORE] ==
-				level.clients[level.sortedClients[1]].ps.persistant[PERS_SCORE] &&
-				level.clients[level.sortedClients[0]].pers.connected == CON_CONNECTED &&
-				level.clients[level.sortedClients[1]].pers.connected == CON_CONNECTED)
+			if (level.clients[level.sortedClients[0]].ps.persistant[persEnum_t::PERS_SCORE] ==
+				level.clients[level.sortedClients[1]].ps.persistant[persEnum_t::PERS_SCORE] &&
+				level.clients[level.sortedClients[0]].pers.connected == clientConnected_t::CON_CONNECTED &&
+				level.clients[level.sortedClients[1]].pers.connected == clientConnected_t::CON_CONNECTED)
 			{
 				RemoveDuelDrawLoser();
 			}
@@ -1811,7 +1811,7 @@ void CheckIntermissionExit( void ) {
 		}
 	}
 
-	if ((level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL) && !gDuelExit)
+	if ((level.gametype == gametype_t::GT_DUEL || level.gametype == gametype_t::GT_POWERDUEL) && !gDuelExit)
 	{ //in duel, we have different behaviour for between-round intermissions
 		if ( level.time > level.intermissiontime + 4000 )
 		{ //automatically go to next after 4 seconds
@@ -1824,11 +1824,11 @@ void CheckIntermissionExit( void ) {
 		  //yes, I also thinking holding this in a ps value uniquely for each player
 		  //is bad and wrong, but it wasn't my idea.
 			cl = level.clients + i;
-			if ( cl->pers.connected != CON_CONNECTED )
+			if ( cl->pers.connected != clientConnected_t::CON_CONNECTED )
 			{
 				continue;
 			}
-			cl->ps.stats[STAT_CLIENTS_READY] = 0;
+			cl->ps.stats[statIndex_t::STAT_CLIENTS_READY] = 0;
 		}
 		return;
 	}
@@ -1837,10 +1837,10 @@ void CheckIntermissionExit( void ) {
 	// it can be displayed on the scoreboard
 	for (i=0 ; i< sv_maxclients.integer ; i++) {
 		cl = level.clients + i;
-		if ( cl->pers.connected != CON_CONNECTED ) {
+		if ( cl->pers.connected != clientConnected_t::CON_CONNECTED ) {
 			continue;
 		}
-		cl->ps.stats[STAT_CLIENTS_READY] = readyMask;
+		cl->ps.stats[statIndex_t::STAT_CLIENTS_READY] = readyMask;
 	}
 
 	// never exit in less than five seconds
@@ -1893,12 +1893,12 @@ bool ScoreIsTied( void ) {
 		return false;
 	}
 
-	if ( level.gametype >= GT_TEAM ) {
-		return level.teamScores[TEAM_RED] == level.teamScores[TEAM_BLUE];
+	if ( level.gametype >= gametype_t::GT_TEAM ) {
+		return level.teamScores[team_t::TEAM_RED] == level.teamScores[team_t::TEAM_BLUE];
 	}
 
-	a = level.clients[level.sortedClients[0]].ps.persistant[PERS_SCORE];
-	b = level.clients[level.sortedClients[1]].ps.persistant[PERS_SCORE];
+	a = level.clients[level.sortedClients[0]].ps.persistant[persEnum_t::PERS_SCORE];
+	b = level.clients[level.sortedClients[1]].ps.persistant[persEnum_t::PERS_SCORE];
 
 	return a == b;
 }
@@ -1938,8 +1938,8 @@ void CheckExitRules( void ) {
 		{
 			if (g_entities[i].inuse && g_entities[i].client && g_entities[i].health > 0)
 			{
-				if (g_entities[i].client->sess.sessionTeam != TEAM_SPECTATOR &&
-					!Any(g_entities[i].client->ps.pm_flags & PMF_FOLLOW))
+				if (g_entities[i].client->sess.sessionTeam != team_t::TEAM_SPECTATOR &&
+					!Any(g_entities[i].client->ps.pm_flags & pmoveFlags_t::PMF_FOLLOW))
 				{
 					numLiveClients++;
 				}
@@ -1970,7 +1970,7 @@ void CheckExitRules( void ) {
 	}
 
 	/*
-	if (level.gametype == GT_POWERDUEL)
+	if (level.gametype == gametype_t::GT_POWERDUEL)
 	{
 		if (level.numPlayingClients < 3)
 		{
@@ -1988,13 +1988,13 @@ void CheckExitRules( void ) {
 	*/
 
 	// check for sudden death
-	if (level.gametype != GT_SIEGE)
+	if (level.gametype != gametype_t::GT_SIEGE)
 	{
 		if ( ScoreIsTied() ) {
 			// always wait for sudden death
-			if ((level.gametype != GT_DUEL) || !timelimit.value)
+			if ((level.gametype != gametype_t::GT_DUEL) || !timelimit.value)
 			{
-				if (level.gametype != GT_POWERDUEL)
+				if (level.gametype != gametype_t::GT_POWERDUEL)
 				{
 					return;
 				}
@@ -2002,7 +2002,7 @@ void CheckExitRules( void ) {
 		}
 	}
 
-	if (level.gametype != GT_SIEGE)
+	if (level.gametype != gametype_t::GT_SIEGE)
 	{
 		if ( timelimit.value > 0.0f && !level.warmupTime ) {
 			if ( level.time - level.startTime >= timelimit.value*60000 ) {
@@ -2018,7 +2018,7 @@ void CheckExitRules( void ) {
 		}
 	}
 
-	if (level.gametype == GT_POWERDUEL && level.numPlayingClients >= 3)
+	if (level.gametype == gametype_t::GT_POWERDUEL && level.numPlayingClients >= 3)
 	{
 		if (g_endPDuel)
 		{
@@ -2039,8 +2039,8 @@ void CheckExitRules( void ) {
 		{
 			if (!g_entities[duelists[0]].inuse ||
 				!g_entities[duelists[0]].client ||
-				g_entities[duelists[0]].client->ps.stats[STAT_HEALTH] <= 0 ||
-				g_entities[duelists[0]].client->sess.sessionTeam != TEAM_FREE)
+				g_entities[duelists[0]].client->ps.stats[statIndex_t::STAT_HEALTH] <= 0 ||
+				g_entities[duelists[0]].client->sess.sessionTeam != team_t::TEAM_FREE)
 			{ //The lone duelist lost, give the other two wins (if applicable) and him a loss
 				if (g_entities[duelists[0]].inuse &&
 					g_entities[duelists[0]].client)
@@ -2051,8 +2051,8 @@ void CheckExitRules( void ) {
 				if (g_entities[duelists[1]].inuse &&
 					g_entities[duelists[1]].client)
 				{
-					if (g_entities[duelists[1]].client->ps.stats[STAT_HEALTH] > 0 &&
-						g_entities[duelists[1]].client->sess.sessionTeam == TEAM_FREE)
+					if (g_entities[duelists[1]].client->ps.stats[statIndex_t::STAT_HEALTH] > 0 &&
+						g_entities[duelists[1]].client->sess.sessionTeam == team_t::TEAM_FREE)
 					{
 						g_entities[duelists[1]].client->sess.wins++;
 					}
@@ -2065,8 +2065,8 @@ void CheckExitRules( void ) {
 				if (g_entities[duelists[2]].inuse &&
 					g_entities[duelists[2]].client)
 				{
-					if (g_entities[duelists[2]].client->ps.stats[STAT_HEALTH] > 0 &&
-						g_entities[duelists[2]].client->sess.sessionTeam == TEAM_FREE)
+					if (g_entities[duelists[2]].client->ps.stats[statIndex_t::STAT_HEALTH] > 0 &&
+						g_entities[duelists[2]].client->sess.sessionTeam == team_t::TEAM_FREE)
 					{
 						g_entities[duelists[2]].client->sess.wins++;
 					}
@@ -2089,12 +2089,12 @@ void CheckExitRules( void ) {
 			}
 			else if ((!g_entities[duelists[1]].inuse ||
 				!g_entities[duelists[1]].client ||
-				g_entities[duelists[1]].client->sess.sessionTeam != TEAM_FREE ||
-				g_entities[duelists[1]].client->ps.stats[STAT_HEALTH] <= 0) &&
+				g_entities[duelists[1]].client->sess.sessionTeam != team_t::TEAM_FREE ||
+				g_entities[duelists[1]].client->ps.stats[statIndex_t::STAT_HEALTH] <= 0) &&
 				(!g_entities[duelists[2]].inuse ||
 				!g_entities[duelists[2]].client ||
-				g_entities[duelists[2]].client->sess.sessionTeam != TEAM_FREE ||
-				g_entities[duelists[2]].client->ps.stats[STAT_HEALTH] <= 0))
+				g_entities[duelists[2]].client->sess.sessionTeam != team_t::TEAM_FREE ||
+				g_entities[duelists[2]].client->ps.stats[statIndex_t::STAT_HEALTH] <= 0))
 			{ //the coupled duelists lost, give the lone duelist a win (if applicable) and the couple both losses
 				if (g_entities[duelists[1]].inuse &&
 					g_entities[duelists[1]].client)
@@ -2111,8 +2111,8 @@ void CheckExitRules( void ) {
 
 				if (g_entities[duelists[0]].inuse &&
 					g_entities[duelists[0]].client &&
-					g_entities[duelists[0]].client->ps.stats[STAT_HEALTH] > 0 &&
-					g_entities[duelists[0]].client->sess.sessionTeam == TEAM_FREE)
+					g_entities[duelists[0]].client->ps.stats[statIndex_t::STAT_HEALTH] > 0 &&
+					g_entities[duelists[0]].client->sess.sessionTeam == team_t::TEAM_FREE)
 				{
 					g_entities[duelists[0]].client->sess.wins++;
 					ClientUserinfoChanged(duelists[0]);
@@ -2136,7 +2136,7 @@ void CheckExitRules( void ) {
 		return;
 	}
 
-	if (level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL)
+	if (level.gametype == gametype_t::GT_DUEL || level.gametype == gametype_t::GT_POWERDUEL)
 	{
 		if (fraglimit.integer > 1)
 		{
@@ -2152,8 +2152,8 @@ void CheckExitRules( void ) {
 	{
 		sKillLimit = "Kill limit hit.";
 	}
-	if ( level.gametype < GT_SIEGE && fraglimit.integer ) {
-		if ( level.teamScores[TEAM_RED] >= fraglimit.integer ) {
+	if ( level.gametype < gametype_t::GT_SIEGE && fraglimit.integer ) {
+		if ( level.teamScores[team_t::TEAM_RED] >= fraglimit.integer ) {
 			trap->SendServerCommand( -1, va("print \"Red %s\n\"", G_GetStringEdString("MP_SVGAME", "HIT_THE_KILL_LIMIT")) );
 			if (d_powerDuelPrint.integer)
 			{
@@ -2163,7 +2163,7 @@ void CheckExitRules( void ) {
 			return;
 		}
 
-		if ( level.teamScores[TEAM_BLUE] >= fraglimit.integer ) {
+		if ( level.teamScores[team_t::TEAM_BLUE] >= fraglimit.integer ) {
 			trap->SendServerCommand( -1, va("print \"Blue %s\n\"", G_GetStringEdString("MP_SVGAME", "HIT_THE_KILL_LIMIT")) );
 			if (d_powerDuelPrint.integer)
 			{
@@ -2175,14 +2175,14 @@ void CheckExitRules( void ) {
 
 		for ( i=0 ; i< sv_maxclients.integer ; i++ ) {
 			cl = level.clients + i;
-			if ( cl->pers.connected != CON_CONNECTED ) {
+			if ( cl->pers.connected != clientConnected_t::CON_CONNECTED ) {
 				continue;
 			}
-			if ( cl->sess.sessionTeam != TEAM_FREE ) {
+			if ( cl->sess.sessionTeam != team_t::TEAM_FREE ) {
 				continue;
 			}
 
-			if ( (level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL) && duel_fraglimit.integer && cl->sess.wins >= duel_fraglimit.integer )
+			if ( (level.gametype == gametype_t::GT_DUEL || level.gametype == gametype_t::GT_POWERDUEL) && duel_fraglimit.integer && cl->sess.wins >= duel_fraglimit.integer )
 			{
 				if (d_powerDuelPrint.integer)
 				{
@@ -2195,7 +2195,7 @@ void CheckExitRules( void ) {
 				return;
 			}
 
-			if ( cl->ps.persistant[PERS_SCORE] >= fraglimit.integer ) {
+			if ( cl->ps.persistant[persEnum_t::PERS_SCORE] >= fraglimit.integer ) {
 				if (d_powerDuelPrint.integer)
 				{
 					Com_Printf("POWERDUEL WIN CONDITION: Kill limit (3)\n");
@@ -2215,9 +2215,9 @@ void CheckExitRules( void ) {
 		}
 	}
 
-	if ( level.gametype >= GT_CTF && capturelimit.integer ) {
+	if ( level.gametype >= gametype_t::GT_CTF && capturelimit.integer ) {
 
-		if ( level.teamScores[TEAM_RED] >= capturelimit.integer )
+		if ( level.teamScores[team_t::TEAM_RED] >= capturelimit.integer )
 		{
 			trap->SendServerCommand( -1,  va("print \"%s \"", G_GetStringEdString("MP_SVGAME", "PRINTREDTEAM")));
 			trap->SendServerCommand( -1,  va("print \"%s.\n\"", G_GetStringEdString("MP_SVGAME", "HIT_CAPTURE_LIMIT")));
@@ -2225,7 +2225,7 @@ void CheckExitRules( void ) {
 			return;
 		}
 
-		if ( level.teamScores[TEAM_BLUE] >= capturelimit.integer ) {
+		if ( level.teamScores[team_t::TEAM_BLUE] >= capturelimit.integer ) {
 			trap->SendServerCommand( -1,  va("print \"%s \"", G_GetStringEdString("MP_SVGAME", "PRINTBLUETEAM")));
 			trap->SendServerCommand( -1,  va("print \"%s.\n\"", G_GetStringEdString("MP_SVGAME", "HIT_CAPTURE_LIMIT")));
 			LogExit( "Capturelimit hit." );
@@ -2252,7 +2252,7 @@ void G_RemoveDuelist(duelTeam_t team)
 	{
 		ent = &g_entities[i];
 
-		if (ent->inuse && ent->client && ent->client->sess.sessionTeam != TEAM_SPECTATOR &&
+		if (ent->inuse && ent->client && ent->client->sess.sessionTeam != team_t::TEAM_SPECTATOR &&
 			ent->client->sess.duelTeam == team)
 		{
 			SetTeam(ent, "s");
@@ -2272,11 +2272,11 @@ int g_duelPrintTimer = 0;
 void CheckTournament( void ) {
 	// check because we run 3 game frames before calling Connect and/or ClientBegin
 	// for clients on a map_restart
-//	if ( level.numPlayingClients == 0 && (level.gametype != GT_POWERDUEL) ) {
+//	if ( level.numPlayingClients == 0 && (level.gametype != gametype_t::GT_POWERDUEL) ) {
 //		return;
 //	}
 
-	if (level.gametype == GT_POWERDUEL)
+	if (level.gametype == gametype_t::GT_POWERDUEL)
 	{
 		if (level.numPlayingClients >= 3 && level.numNonSpectatorClients >= 3)
 		{
@@ -2291,7 +2291,7 @@ void CheckTournament( void ) {
 		}
 	}
 
-	if ( level.gametype == GT_DUEL )
+	if ( level.gametype == gametype_t::GT_DUEL )
 	{
 		// pull in a spectator if needed
 		if ( level.numPlayingClients < 2 && !level.intermissiontime && !level.intermissionQueued ) {
@@ -2312,7 +2312,7 @@ void CheckTournament( void ) {
 				ps1 = &level.clients[level.sortedClients[0]].ps;
 				ps2 = &level.clients[level.sortedClients[1]].ps;
 				trap->SetConfigstring ( CS_CLIENT_DUELHEALTHS, va("%i|%i|!",
-					ps1->stats[STAT_HEALTH], ps2->stats[STAT_HEALTH]));
+					ps1->stats[statIndex_t::STAT_HEALTH], ps2->stats[statIndex_t::STAT_HEALTH]));
 			}
 		}
 
@@ -2362,13 +2362,13 @@ void CheckTournament( void ) {
 		if ( level.time > level.warmupTime ) {
 			level.warmupTime += 10000;
 			trap->Cvar_Set( "g_restarted", "1" );
-			trap->SendConsoleCommand( EXEC_APPEND, "map_restart 0\n" );
+			trap->SendConsoleCommand( cbufExec_t::EXEC_APPEND, "map_restart 0\n" );
 			level.restarted = true;
 			return;
 		}
 #endif
 	}
-	else if (level.gametype == GT_POWERDUEL)
+	else if (level.gametype == gametype_t::GT_POWERDUEL)
 	{
 		if (level.numPlayingClients < 2)
 		{ //hmm, ok, pull more in.
@@ -2382,11 +2382,11 @@ void CheckTournament( void ) {
 			G_PowerDuelCount(&lone, &dbl, false);
 			if (lone > 1)
 			{
-				G_RemoveDuelist(DUELTEAM_LONE);
+				G_RemoveDuelist(duelTeam_t::DUELTEAM_LONE);
 			}
 			else if (dbl > 2)
 			{
-				G_RemoveDuelist(DUELTEAM_DOUBLE);
+				G_RemoveDuelist(duelTeam_t::DUELTEAM_DOUBLE);
 			}
 		}
 		else if (level.numPlayingClients < 3)
@@ -2412,8 +2412,8 @@ void CheckTournament( void ) {
 			if (level.numPlayingClients >= 3 &&
 				G_CanResetDuelists())
 			{
-				gentity_t *te = G_TempEntity(vec3_origin, EV_GLOBAL_DUEL);
-				te->r.svFlags |= SVF_BROADCAST;
+				gentity_t *te = G_TempEntity(vec3_origin, entity_event_t::EV_GLOBAL_DUEL);
+				te->r.svFlags |= svFlags_t::SVF_BROADCAST;
 				//this is really pretty nasty, but..
 				te->s.otherEntityNum = level.sortedClients[0];
 				te->s.otherEntityNum2 = level.sortedClients[1];
@@ -2448,8 +2448,8 @@ void CheckTournament( void ) {
 			{ //pulled in a needed person
 				if (G_CanResetDuelists())
 				{
-					gentity_t *te = G_TempEntity(vec3_origin, EV_GLOBAL_DUEL);
-					te->r.svFlags |= SVF_BROADCAST;
+					gentity_t *te = G_TempEntity(vec3_origin, entity_event_t::EV_GLOBAL_DUEL);
+					te->r.svFlags |= svFlags_t::SVF_BROADCAST;
 					//this is really pretty nasty, but..
 					te->s.otherEntityNum = level.sortedClients[0];
 					te->s.otherEntityNum2 = level.sortedClients[1];
@@ -2471,7 +2471,7 @@ void CheckTournament( void ) {
 							level.clients[level.sortedClients[2]].sess.losses,
 							fraglimit.integer );
 					}
-					//trap->SendConsoleCommand( EXEC_APPEND, "map_restart 0\n" );
+					//trap->SendConsoleCommand( cbufExec_t::EXEC_APPEND, "map_restart 0\n" );
 					//FIXME: This seems to cause problems. But we'd like to reset things whenever a new opponent is set.
 				}
 			}
@@ -2485,14 +2485,14 @@ void CheckTournament( void ) {
 		return;
 	}
 	else if ( level.warmupTime != 0 ) {
-		EnumArray<int, team_t, TEAM_NUM_TEAMS>	counts;
+		EnumArray<int, team_t, team_t::TEAM_NUM_TEAMS>	counts;
 		bool	notEnough = false;
 
-		if ( level.gametype > GT_TEAM ) {
-			counts[TEAM_BLUE] = TeamCount( -1, TEAM_BLUE );
-			counts[TEAM_RED] = TeamCount( -1, TEAM_RED );
+		if ( level.gametype > gametype_t::GT_TEAM ) {
+			counts[team_t::TEAM_BLUE] = TeamCount( -1, team_t::TEAM_BLUE );
+			counts[team_t::TEAM_RED] = TeamCount( -1, team_t::TEAM_RED );
 
-			if (counts[TEAM_RED] < 1 || counts[TEAM_BLUE] < 1) {
+			if (counts[team_t::TEAM_RED] < 1 || counts[team_t::TEAM_BLUE] < 1) {
 				notEnough = true;
 			}
 		} else if ( level.numPlayingClients < 2 ) {
@@ -2537,7 +2537,7 @@ void CheckTournament( void ) {
 			level.warmupTime += 10000;
 			trap->Cvar_Set( "g_restarted", "1" );
 			trap->Cvar_Update( &g_restarted );
-			trap->SendConsoleCommand( EXEC_APPEND, "map_restart 0\n" );
+			trap->SendConsoleCommand( cbufExec_t::EXEC_APPEND, "map_restart 0\n" );
 			level.restarted = true;
 			return;
 		}
@@ -2552,15 +2552,15 @@ void G_KickAllBots(void)
 	for ( i=0 ; i< sv_maxclients.integer ; i++ )
 	{
 		cl = level.clients + i;
-		if ( cl->pers.connected != CON_CONNECTED )
+		if ( cl->pers.connected != clientConnected_t::CON_CONNECTED )
 		{
 			continue;
 		}
-		if ( !Any( g_entities[i].r.svFlags & SVF_BOT ) )
+		if ( !Any( g_entities[i].r.svFlags & svFlags_t::SVF_BOT ) )
 		{
 			continue;
 		}
-		trap->SendConsoleCommand( EXEC_INSERT, va("clientkick %d\n", i) );
+		trap->SendConsoleCommand( cbufExec_t::EXEC_INSERT, va("clientkick %d\n", i) );
 	}
 }
 
@@ -2572,7 +2572,7 @@ CheckVote
 void CheckVote( void ) {
 	if ( level.voteExecuteTime && level.voteExecuteTime < level.time ) {
 		level.voteExecuteTime = 0;
-		trap->SendConsoleCommand( EXEC_APPEND, va( "%s\n", level.voteString ) );
+		trap->SendConsoleCommand( cbufExec_t::EXEC_APPEND, va( "%s\n", level.voteString ) );
 
 		if (level.votingGametype)
 		{
@@ -2580,7 +2580,7 @@ void CheckVote( void ) {
 			{ //If we're voting to a different game type, be sure to refresh all the map stuff
 				const char *nextMap = G_RefreshNextMap(level.votingGametypeTo, true);
 
-				if (level.votingGametypeTo == GT_SIEGE)
+				if (level.votingGametypeTo == gametype_t::GT_SIEGE)
 				{ //ok, kick all the bots, cause the aren't supported!
                     G_KickAllBots();
 					//just in case, set this to 0 too... I guess...maybe?
@@ -2589,7 +2589,7 @@ void CheckVote( void ) {
 
 				if (nextMap && nextMap[0])
 				{
-					trap->SendConsoleCommand( EXEC_APPEND, va("map %s\n", nextMap ) );
+					trap->SendConsoleCommand( cbufExec_t::EXEC_APPEND, va("map %s\n", nextMap ) );
 				}
 			}
 			else
@@ -2603,29 +2603,29 @@ void CheckVote( void ) {
 				const int currentFL = fraglimit.integer;
 				const int currentTL = timelimit.integer;
 
-				if ((level.votingGametypeTo == GT_DUEL || level.votingGametypeTo == GT_POWERDUEL) && currentGT != GT_DUEL && currentGT != GT_POWERDUEL)
+				if ((level.votingGametypeTo == gametype_t::GT_DUEL || level.votingGametypeTo == gametype_t::GT_POWERDUEL) && currentGT != gametype_t::GT_DUEL && currentGT != gametype_t::GT_POWERDUEL)
 				{
 					if (currentFL > 3 || !currentFL)
 					{ //if voting to duel, and fraglimit is more than 3 (or unlimited), then set it down to 3
-						trap->SendConsoleCommand(EXEC_APPEND, "fraglimit 3\n");
+						trap->SendConsoleCommand(cbufExec_t::EXEC_APPEND, "fraglimit 3\n");
 					}
 					if (currentTL)
 					{ //if voting to duel, and timelimit is set, make it unlimited
-						trap->SendConsoleCommand(EXEC_APPEND, "timelimit 0\n");
+						trap->SendConsoleCommand(cbufExec_t::EXEC_APPEND, "timelimit 0\n");
 					}
 				}
-				else if ((level.votingGametypeTo != GT_DUEL && level.votingGametypeTo != GT_POWERDUEL) &&
-					(currentGT == GT_DUEL || currentGT == GT_POWERDUEL))
+				else if ((level.votingGametypeTo != gametype_t::GT_DUEL && level.votingGametypeTo != gametype_t::GT_POWERDUEL) &&
+					(currentGT == gametype_t::GT_DUEL || currentGT == gametype_t::GT_POWERDUEL))
 				{
 					if (currentFL && currentFL < 20)
 					{ //if voting from duel, an fraglimit is less than 20, then set it up to 20
-						trap->SendConsoleCommand(EXEC_APPEND, "fraglimit 20\n");
+						trap->SendConsoleCommand(cbufExec_t::EXEC_APPEND, "fraglimit 20\n");
 					}
 				}
 			}
 
 			level.votingGametype = false;
-			level.votingGametypeTo = GT_FFA;
+			level.votingGametypeTo = gametype_t::GT_FFA;
 		}
 	}
 	if ( !level.voteTime ) {
@@ -2675,7 +2675,7 @@ SetLeader
 void SetLeader(team_t team, int client) {
 	int i;
 
-	if ( level.clients[client].pers.connected == CON_DISCONNECTED ) {
+	if ( level.clients[client].pers.connected == clientConnected_t::CON_DISCONNECTED ) {
 		PrintTeam(team, va("print \"%s is not connected\n\"", level.clients[client].pers.netname) );
 		return;
 	}
@@ -2714,7 +2714,7 @@ void CheckTeamLeader( team_t team ) {
 		for ( i = 0 ; i < level.maxclients ; i++ ) {
 			if (level.clients[i].sess.sessionTeam != team)
 				continue;
-			if (!Any( g_entities[i].r.svFlags & SVF_BOT )) {
+			if (!Any( g_entities[i].r.svFlags & svFlags_t::SVF_BOT )) {
 				level.clients[i].sess.teamLeader = true;
 				break;
 			}
@@ -2738,9 +2738,9 @@ CheckTeamVote
 void CheckTeamVote( team_t team ) {
 	int cs_offset;
 
-	if ( team == TEAM_RED )
+	if ( team == team_t::TEAM_RED )
 		cs_offset = 0;
-	else if ( team == TEAM_BLUE )
+	else if ( team == team_t::TEAM_BLUE )
 		cs_offset = 1;
 	else
 		return;
@@ -2752,7 +2752,7 @@ void CheckTeamVote( team_t team ) {
 			SetLeader(team, atoi(level.teamVoteString[cs_offset] + 7));
 		}
 		else {
-			trap->SendConsoleCommand( EXEC_APPEND, va("%s\n", level.teamVoteString[cs_offset] ) );
+			trap->SendConsoleCommand( cbufExec_t::EXEC_APPEND, va("%s\n", level.teamVoteString[cs_offset] ) );
 		}
 	}
 
@@ -2837,7 +2837,7 @@ void G_RunThink (gentity_t *ent) {
 
 	ent->nextthink = 0;
 	if (!ent->think) {
-		//trap->Error( ERR_DROP, "NULL ent->think");
+		//trap->Error( errorParm_t::ERR_DROP, "NULL ent->think");
 		goto runicarus;
 	}
 	ent->think (ent);
@@ -2868,8 +2868,8 @@ void NAV_CheckCalcPaths( void )
 		vmCvar_t	mapname;
 		vmCvar_t	ckSum;
 
-		trap->Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
-		trap->Cvar_Register( &ckSum, "sv_mapChecksum", "", CVAR_ROM );
+		trap->Cvar_Register( &mapname, "mapname", "", cvarFlags_t::CVAR_SERVERINFO | cvarFlags_t::CVAR_ROM );
+		trap->Cvar_Register( &ckSum, "sv_mapChecksum", "", cvarFlags_t::CVAR_ROM );
 
 		//clear all the failed edges
 		trap->Nav_ClearAllFailedEdges();
@@ -2934,7 +2934,7 @@ void G_RunFrame( int levelTime ) {
 	void		*timer_Queues;
 #endif
 
-	if (level.gametype == GT_SIEGE &&
+	if (level.gametype == gametype_t::GT_SIEGE &&
 		G_GRID20_STEP &&
 		g_siegeRespawn.integer &&
 		g_siegeRespawnCheck < level.time)
@@ -2946,7 +2946,7 @@ void G_RunFrame( int levelTime ) {
 
 			if (clEnt->inuse && clEnt->client &&
 				clEnt->client->tempSpectate >= level.time &&
-				clEnt->client->sess.sessionTeam != TEAM_SPECTATOR)
+				clEnt->client->sess.sessionTeam != team_t::TEAM_SPECTATOR)
 			{
 				ClientRespawn(clEnt);
 				clEnt->client->tempSpectate = 0;
@@ -3093,17 +3093,17 @@ void G_RunFrame( int levelTime ) {
 				if ( ent->client ) {
 					ent->client->ps.externalEvent = 0;
 					// predicted events should never be set to zero
-					//ent->client->ps.events[0] = EV_NONE;
-					//ent->client->ps.events[1] = EV_NONE;
+					//ent->client->ps.events[0] = entity_event_t::EV_NONE;
+					//ent->client->ps.events[1] = entity_event_t::EV_NONE;
 				}
 			}
 			if ( ent->freeAfterEvent ) {
 				// tempEntities or dropped items completely go away after their event
-				if (Any( ent->s.eFlags & EF_SOUNDTRACKER ))
+				if (Any( ent->s.eFlags & entityFlags_t::EF_SOUNDTRACKER ))
 				{ //don't trigger the event again..
 					ent->s.event = 0;
 					ent->s.eventParm = 0;
-					ent->s.eType = ET_GENERAL;
+					ent->s.eType = entityType_t::ET_GENERAL;
 					ent->eventTime = 0;
 				}
 				else
@@ -3127,14 +3127,14 @@ void G_RunFrame( int levelTime ) {
 			continue;
 		}
 
-		if ( ent->s.eType == ET_MISSILE ) {
+		if ( ent->s.eType == entityType_t::ET_MISSILE ) {
 			G_RunMissile( ent );
 			continue;
 		}
 
-		if ( ent->s.eType == ET_ITEM || ent->physicsObject ) {
+		if ( ent->s.eType == entityType_t::ET_ITEM || ent->physicsObject ) {
 #if 0 //use if body dragging enabled?
-			if (ent->s.eType == ET_BODY)
+			if (ent->s.eType == entityType_t::ET_BODY)
 			{ //special case for bodies
 				float grav = 3.0f;
 				float mass = 0.14f;
@@ -3152,17 +3152,17 @@ void G_RunFrame( int levelTime ) {
 			continue;
 		}
 
-		if ( ent->s.eType == ET_MOVER ) {
+		if ( ent->s.eType == entityType_t::ET_MOVER ) {
 			G_RunMover( ent );
 			continue;
 		}
 
 		//fix for self-deactivating areaportals in Siege
-		if ( ent->s.eType == ET_MOVER && level.gametype == GT_SIEGE && level.intermissiontime)
+		if ( ent->s.eType == entityType_t::ET_MOVER && level.gametype == gametype_t::GT_SIEGE && level.intermissiontime)
 		{
-			if ( !Q_stricmp("func_door", ent->classname) && ent->moverState != MOVER_POS1 )
+			if ( !Q_stricmp("func_door", ent->classname) && ent->moverState != moverState_t::MOVER_POS1 )
 			{
-				SetMoverState( ent, MOVER_POS1, level.time );
+				SetMoverState( ent, moverState_t::MOVER_POS1, level.time );
 				if ( ent->teammaster == ent || !ent->teammaster )
 				{
 					trap->AdjustAreaPortalState( (sharedEntity_t *)ent, false );
@@ -3196,15 +3196,15 @@ void G_RunFrame( int levelTime ) {
 						{ //suffocate!
 							if (ent->health > 0 && ent->takedamage)
 							{ //if they're still alive..
-								G_Damage(ent, spacetrigger, spacetrigger, nullptr, ent->client->ps.origin, Q_irand(50, 70), DAMAGE_NO_ARMOR, MOD_SUICIDE);
+								G_Damage(ent, spacetrigger, spacetrigger, nullptr, ent->client->ps.origin, Q_irand(50, 70), damageFlags_t::DAMAGE_NO_ARMOR, meansOfDeath_t::MOD_SUICIDE);
 
 								if (ent->health > 0)
 								{ //did that last one kill them?
 									//play the choking sound
-									G_EntitySound(ent, CHAN_VOICE, G_SoundIndex(va( "*choke%d.wav", Q_irand( 1, 3 ) )));
+									G_EntitySound(ent, soundChannel_t::CHAN_VOICE, G_SoundIndex(va( "*choke%d.wav", Q_irand( 1, 3 ) )));
 
 									//make them grasp their throat
-									ent->client->ps.forceHandExtend = HANDEXTEND_CHOKE;
+									ent->client->ps.forceHandExtend = forceHandAnims_t::HANDEXTEND_CHOKE;
 									ent->client->ps.forceHandExtendTime = level.time + 2000;
 								}
 							}
@@ -3222,9 +3222,9 @@ void G_RunFrame( int levelTime ) {
 					VectorSubtract(ent->client->ps.viewangles, ent->client->hackingAngles, angDif);
 
 					//keep him in the "use" anim
-					if (ent->client->ps.torsoAnim != BOTH_CONSOLE1)
+					if (ent->client->ps.torsoAnim != animNumber_t::BOTH_CONSOLE1)
 					{
-						G_SetAnim( ent, nullptr, SETANIM_TORSO, BOTH_CONSOLE1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
+						G_SetAnim( ent, nullptr, setAnimParts_t::SETANIM_TORSO, animNumber_t::BOTH_CONSOLE1, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD, 0 );
 					}
 					else
 					{
@@ -3232,7 +3232,7 @@ void G_RunFrame( int levelTime ) {
 					}
 					ent->client->ps.weaponTime = ent->client->ps.torsoTimer;
 
-					if (!Any(ent->client->pers.cmd.buttons & BUTTON_USE))
+					if (!Any(ent->client->pers.cmd.buttons & buttonFlags_t::BUTTON_USE))
 					{ //have to keep holding use
 						ent->client->isHacking = 0;
 						ent->client->ps.hackingTime = 0;
@@ -3288,7 +3288,7 @@ void G_RunFrame( int levelTime ) {
 
 	constexpr int CLOAK_DEFUEL_RATE = 200; //approx. 20 seconds of idle use from a fully charged fuel amt
 	constexpr int CLOAK_REFUEL_RATE = 150; //seems fair
-				if (ent->client->ps.powerups[PW_CLOAKED])
+				if (ent->client->ps.powerups[powerup_t::PW_CLOAKED])
 				{ //using cloak, drain battery
 					if (ent->client->cloakDebReduce < level.time)
 					{
@@ -3311,9 +3311,9 @@ void G_RunFrame( int levelTime ) {
 					}
 				}
 
-				if (level.gametype == GT_SIEGE &&
+				if (level.gametype == gametype_t::GT_SIEGE &&
 					ent->client->siegeClass != -1 &&
-					(bgSiegeClasses[ent->client->siegeClass].classflags & Bit( CFL_STATVIEWER )))
+					(bgSiegeClasses[ent->client->siegeClass].classflags & Bit( siegeClassFlags_t::CFL_STATVIEWER )))
 				{ //see if it's time to send this guy an update of extended info
 					if (ent->client->siegeEDataSend < level.time)
 					{
@@ -3322,7 +3322,7 @@ void G_RunFrame( int levelTime ) {
 					}
 				}
 
-				if((!level.intermissiontime)&&!Any(ent->client->ps.pm_flags&PMF_FOLLOW) && ent->client->sess.sessionTeam != TEAM_SPECTATOR)
+				if((!level.intermissiontime)&&!Any(ent->client->ps.pm_flags&pmoveFlags_t::PMF_FOLLOW) && ent->client->sess.sessionTeam != team_t::TEAM_SPECTATOR)
 				{
 					WP_ForcePowersUpdate(ent, &ent->client->pers.cmd );
 					WP_SaberPositionUpdate(ent, &ent->client->pers.cmd);
@@ -3341,7 +3341,7 @@ void G_RunFrame( int levelTime ) {
 
 			continue;
 		}
-		else if (ent->s.eType == ET_NPC)
+		else if (ent->s.eType == entityType_t::ET_NPC)
 		{
 			if ( G_GRID20_STEP )
 			{ // as for the clients above
@@ -3418,8 +3418,8 @@ void G_RunFrame( int levelTime ) {
 		CheckVote();
 
 		// check team votes
-		CheckTeamVote( TEAM_RED );
-		CheckTeamVote( TEAM_BLUE );
+		CheckTeamVote( team_t::TEAM_RED );
+		CheckTeamVote( team_t::TEAM_BLUE );
 	}
 
 	// for tracking changes

@@ -47,7 +47,7 @@ SV_SetConfigstring
 */
 void SV_SetConfigstring (int index, const char *val) {
 	if ( index < 0 || index >= MAX_CONFIGSTRINGS ) {
-		Com_Error (ERR_DROP, "SV_SetConfigstring: bad index %i\n", index);
+		Com_Error (errorParm_t::ERR_DROP, "SV_SetConfigstring: bad index %i\n", index);
 	}
 
 	if ( !val ) {
@@ -65,7 +65,7 @@ void SV_SetConfigstring (int index, const char *val) {
 
 	// send it to all the clients if we aren't
 	// spawning a new server
-	if ( sv.state == SS_GAME ) {
+	if ( sv.state == serverState_t::SS_GAME ) {
 		SV_SendServerCommand( nullptr, "cs %i \"%s\"\n", index, val );
 	}
 }
@@ -80,10 +80,10 @@ SV_GetConfigstring
 */
 void SV_GetConfigstring( int index, char *buffer, int bufferSize ) {
 	if ( bufferSize < 1 ) {
-		Com_Error( ERR_DROP, "SV_GetConfigstring: bufferSize == %i", bufferSize );
+		Com_Error( errorParm_t::ERR_DROP, "SV_GetConfigstring: bufferSize == %i", bufferSize );
 	}
 	if ( index < 0 || index >= MAX_CONFIGSTRINGS ) {
-		Com_Error (ERR_DROP, "SV_GetConfigstring: bad index %i\n", index);
+		Com_Error (errorParm_t::ERR_DROP, "SV_GetConfigstring: bad index %i\n", index);
 	}
 	if ( !sv.configstrings[index] ) {
 		buffer[0] = 0;
@@ -102,7 +102,7 @@ SV_SetUserinfo
 */
 void SV_SetUserinfo( int index, const char *val ) {
 	if ( index < 0 || index >= 1 ) {
-		Com_Error (ERR_DROP, "SV_SetUserinfo: bad index %i\n", index);
+		Com_Error (errorParm_t::ERR_DROP, "SV_SetUserinfo: bad index %i\n", index);
 	}
 
 	if ( !val ) {
@@ -122,10 +122,10 @@ SV_GetUserinfo
 */
 void SV_GetUserinfo( int index, char *buffer, int bufferSize ) {
 	if ( bufferSize < 1 ) {
-		Com_Error( ERR_DROP, "SV_GetUserinfo: bufferSize == %i", bufferSize );
+		Com_Error( errorParm_t::ERR_DROP, "SV_GetUserinfo: bufferSize == %i", bufferSize );
 	}
 	if ( index < 0 || index >= 1 ) {
-		Com_Error (ERR_DROP, "SV_GetUserinfo: bad index %i\n", index);
+		Com_Error (errorParm_t::ERR_DROP, "SV_GetUserinfo: bad index %i\n", index);
 	}
 	Q_strncpyz( buffer, svs.clients[ index ].userinfo, bufferSize );
 }
@@ -173,10 +173,10 @@ Called when a game is about to begin
 */
 void SV_Startup( void ) {
 	if ( svs.initialized ) {
-		Com_Error( ERR_FATAL, "SV_Startup: svs.initialized" );
+		Com_Error( errorParm_t::ERR_FATAL, "SV_Startup: svs.initialized" );
 	}
 
-	svs.clients = (struct client_s *) Z_Malloc ( sizeof(client_t) * 1, TAG_CLIENTS, true );
+	svs.clients = (struct client_s *) Z_Malloc ( sizeof(client_t) * 1, memtag::TAG_CLIENTS, true );
 	svs.numSnapshotEntities = 2 * 4 * 64;
 	svs.initialized = true;
 
@@ -265,13 +265,13 @@ void SV_SpawnServer( const char *server, ForceReload_e eForceReload, bool bAllow
 	re.SVModelInit();
 
 	// allocate the snapshot entities
-	svs.snapshotEntities = (entityState_t *) Z_Malloc (sizeof(entityState_t)*svs.numSnapshotEntities, TAG_CLIENTS, true );
+	svs.snapshotEntities = (entityState_t *) Z_Malloc (sizeof(entityState_t)*svs.numSnapshotEntities, memtag::TAG_CLIENTS, true );
 
 	Music_SetLevelName(server);
 
 	// toggle the server bit so clients can detect that a
 	// server has changed
-//!@	svs.snapFlagServerBit ^= SNAPFLAG_SERVERCOUNT;
+//!@	svs.snapFlagServerBit ^= snapFlags_t::SNAPFLAG_SERVERCOUNT;
 
 	// set nextmap to the same map, but it may be overriden
 	// by the game startup or another console command
@@ -305,7 +305,7 @@ void SV_SpawnServer( const char *server, ForceReload_e eForceReload, bool bAllow
 	// media configstring setting should be done during
 	// the loading stage, so connected clients don't have
 	// to load during actual gameplay
-	sv.state = SS_LOADING;
+	sv.state = serverState_t::SS_LOADING;
 
 	// load and spawn all other entities
 	SV_InitGameProgs();
@@ -329,17 +329,17 @@ void SV_SpawnServer( const char *server, ForceReload_e eForceReload, bool bAllow
 		svs.clients[i].lastConnectTime = 0;
 
 		// send the new gamestate to all connected clients
-		if (svs.clients[i].state >= CS_CONNECTED) {
+		if (svs.clients[i].state >= clientState_t::CS_CONNECTED) {
 			char	*denied;
 
 			// connect the client again
-			denied = ge->ClientConnect( i, false, eNO/*false*/ );	// firstTime = false, qbFromSavedGame
+			denied = ge->ClientConnect( i, false, SavedGameJustLoaded_e::eNO/*false*/ );	// firstTime = false, qbFromSavedGame
 			if ( denied ) {
 				// this generally shouldn't happen, because the client
 				// was connected before the level change
 				SV_DropClient( &svs.clients[i], denied );
 			} else {
-				svs.clients[i].state = CS_CONNECTED;
+				svs.clients[i].state = clientState_t::CS_CONNECTED;
 				// when we get the next packet from a connected client,
 				// the new gamestate will be sent
 			}
@@ -353,16 +353,16 @@ void SV_SpawnServer( const char *server, ForceReload_e eForceReload, bool bAllow
 
 
 	// save systeminfo and serverinfo strings
-	SV_SetConfigstring( CS_SYSTEMINFO, Cvar_InfoString( CVAR_SYSTEMINFO ) );
-	cvar_modifiedFlags &= ~CVAR_SYSTEMINFO;
+	SV_SetConfigstring( CS_SYSTEMINFO, Cvar_InfoString( cvarFlags_t::CVAR_SYSTEMINFO ) );
+	cvar_modifiedFlags &= ~cvarFlags_t::CVAR_SYSTEMINFO;
 
-	SV_SetConfigstring( CS_SERVERINFO, Cvar_InfoString( CVAR_SERVERINFO ) );
-	cvar_modifiedFlags &= ~CVAR_SERVERINFO;
+	SV_SetConfigstring( CS_SERVERINFO, Cvar_InfoString( cvarFlags_t::CVAR_SERVERINFO ) );
+	cvar_modifiedFlags &= ~cvarFlags_t::CVAR_SERVERINFO;
 
 	// any media configstring setting now should issue a warning
 	// and any configstring changes should be reliably transmitted
 	// to all clients
-	sv.state = SS_GAME;
+	sv.state = serverState_t::SS_GAME;
 
 	Hunk_SetMark();
 	Z_Validate();
@@ -386,26 +386,26 @@ void SV_Init (void) {
 	SV_AddOperatorCommands ();
 
 	// serverinfo vars
-	Cvar_Get ("protocol", va("%i", PROTOCOL_VERSION), CVAR_SERVERINFO | CVAR_ROM);
-	sv_mapname = Cvar_Get ("mapname", "nomap", CVAR_SERVERINFO | CVAR_ROM);
+	Cvar_Get ("protocol", va("%i", PROTOCOL_VERSION), cvarFlags_t::CVAR_SERVERINFO | cvarFlags_t::CVAR_ROM);
+	sv_mapname = Cvar_Get ("mapname", "nomap", cvarFlags_t::CVAR_SERVERINFO | cvarFlags_t::CVAR_ROM);
 
 	// systeminfo
-	Cvar_Get ("helpUsObi", "0", CVAR_SYSTEMINFO );
-	sv_serverid = Cvar_Get ("sv_serverid", "0", CVAR_SYSTEMINFO | CVAR_ROM );
+	Cvar_Get ("helpUsObi", "0", cvarFlags_t::CVAR_SYSTEMINFO );
+	sv_serverid = Cvar_Get ("sv_serverid", "0", cvarFlags_t::CVAR_SYSTEMINFO | cvarFlags_t::CVAR_ROM );
 
 	// server vars
-	sv_fps = Cvar_Get ("sv_fps", "20", CVAR_TEMP );
-	sv_timeout = Cvar_Get ("sv_timeout", "120", CVAR_TEMP );
-	sv_zombietime = Cvar_Get ("sv_zombietime", "2", CVAR_TEMP );
-	Cvar_Get ("nextmap", "", CVAR_TEMP );
-	sv_spawntarget = Cvar_Get ("spawntarget", "", CVAR_NONE );
+	sv_fps = Cvar_Get ("sv_fps", "20", cvarFlags_t::CVAR_TEMP );
+	sv_timeout = Cvar_Get ("sv_timeout", "120", cvarFlags_t::CVAR_TEMP );
+	sv_zombietime = Cvar_Get ("sv_zombietime", "2", cvarFlags_t::CVAR_TEMP );
+	Cvar_Get ("nextmap", "", cvarFlags_t::CVAR_TEMP );
+	sv_spawntarget = Cvar_Get ("spawntarget", "", cvarFlags_t::CVAR_NONE );
 
-	sv_reconnectlimit = Cvar_Get ("sv_reconnectlimit", "3", CVAR_NONE);
-	sv_showloss = Cvar_Get ("sv_showloss", "0", CVAR_NONE);
-	sv_killserver = Cvar_Get ("sv_killserver", "0", CVAR_NONE);
-	sv_mapChecksum = Cvar_Get ("sv_mapChecksum", "", CVAR_ROM);
-	sv_testsave = Cvar_Get ("sv_testsave", "0", CVAR_NONE);
-	sv_compress_saved_games = Cvar_Get ("sv_compress_saved_games", "1", CVAR_NONE);
+	sv_reconnectlimit = Cvar_Get ("sv_reconnectlimit", "3", cvarFlags_t::CVAR_NONE);
+	sv_showloss = Cvar_Get ("sv_showloss", "0", cvarFlags_t::CVAR_NONE);
+	sv_killserver = Cvar_Get ("sv_killserver", "0", cvarFlags_t::CVAR_NONE);
+	sv_mapChecksum = Cvar_Get ("sv_mapChecksum", "", cvarFlags_t::CVAR_ROM);
+	sv_testsave = Cvar_Get ("sv_testsave", "0", cvarFlags_t::CVAR_NONE);
+	sv_compress_saved_games = Cvar_Get ("sv_compress_saved_games", "1", cvarFlags_t::CVAR_NONE);
 
 	// Only allocated once, no point in moving it around and fragmenting
 	// create a heap for Ghoul2 to use for game side model vertex transforms used in collision detection
@@ -433,7 +433,7 @@ void SV_FinalMessage( const char *message ) {
 	SV_SendServerCommand( nullptr, "disconnect" );
 
 	// send it twice, ignoring rate
-	if ( cl->state >= CS_CONNECTED ) {
+	if ( cl->state >= clientState_t::CS_CONNECTED ) {
 		SV_SendClientSnapshot( cl );
 		SV_SendClientSnapshot( cl );
 	}

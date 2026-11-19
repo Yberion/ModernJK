@@ -142,7 +142,7 @@ static void DeathUpdate( Vehicle_t *pVeh )
 				//trace down and place mark
 				VectorCopy( parent->currentOrigin, bottom );
 				bottom[2] -= 80;
-				gi.trace( &trace, parent->currentOrigin, vec3_origin, vec3_origin, bottom, parent->s.number, CONTENTS_SOLID );
+				gi.trace( &trace, parent->currentOrigin, vec3_origin, vec3_origin, bottom, parent->s.number, contentsFlags_t::CONTENTS_SOLID );
 				if ( trace.fraction < 1.0f )
 				{
 					VectorCopy( trace.endpos, bottom );
@@ -159,11 +159,11 @@ static void DeathUpdate( Vehicle_t *pVeh )
 				VectorCopy( parent->maxs, maxs );
 				VectorCopy( parent->currentOrigin, bottom );
 				bottom[2] += parent->mins[2] - 32;
-				gi.trace( &trace, parent->currentOrigin, mins, maxs, bottom, parent->s.number, CONTENTS_SOLID );
-				G_RadiusDamage( trace.endpos, nullptr, pVeh->m_pVehicleInfo->explosionDamage, pVeh->m_pVehicleInfo->explosionRadius, nullptr, MOD_EXPLOSIVE );//FIXME: extern damage and radius or base on fuel
+				gi.trace( &trace, parent->currentOrigin, mins, maxs, bottom, parent->s.number, contentsFlags_t::CONTENTS_SOLID );
+				G_RadiusDamage( trace.endpos, nullptr, pVeh->m_pVehicleInfo->explosionDamage, pVeh->m_pVehicleInfo->explosionRadius, nullptr, meansOfDeath_t::MOD_EXPLOSIVE );//FIXME: extern damage and radius or base on fuel
 			}
 
-			parent->e_ThinkFunc = thinkF_G_FreeEntity;
+			parent->e_ThinkFunc = thinkFunc_t::thinkF_G_FreeEntity;
 			parent->nextthink = level.time + FRAMETIME;
 		}*/
 	}
@@ -216,7 +216,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 
 #ifndef _JK2MP //bad for prediction - fixme
 	// Bucking so we can't do anything.
-	if ( Any( pVeh->m_ulFlags & VEH_BUCKING ) || Any( pVeh->m_ulFlags & VEH_FLYING ) || Any( pVeh->m_ulFlags & VEH_CRASHING ) )
+	if ( Any( pVeh->m_ulFlags & vehFlags_t::VEH_BUCKING ) || Any( pVeh->m_ulFlags & vehFlags_t::VEH_FLYING ) || Any( pVeh->m_ulFlags & vehFlags_t::VEH_CRASHING ) )
 	{
 //#ifdef QAGAME //this was in Update above
 //		((gentity_t *)parent)->client->ps.speed = 0;
@@ -234,8 +234,8 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 
 
 
-	if ( pVeh->m_pPilot /*&& (pilotPS->weapon == WP_NONE || pilotPS->weapon == WP_MELEE )*/ &&
-		Any(pVeh->m_ucmd.buttons & BUTTON_ALT_ATTACK) && pVeh->m_pVehicleInfo->turboSpeed )
+	if ( pVeh->m_pPilot /*&& (pilotPS->weapon == weapon_t::WP_NONE || pilotPS->weapon == weapon_t::WP_MELEE )*/ &&
+		Any(pVeh->m_ucmd.buttons & buttonFlags_t::BUTTON_ALT_ATTACK) && pVeh->m_pVehicleInfo->turboSpeed )
 	{
 		if ((curTime - pVeh->m_iTurboTime)>pVeh->m_pVehicleInfo->turboRecharge)
 		{
@@ -243,7 +243,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 #ifndef _JK2MP //kill me now
 			if (pVeh->m_pVehicleInfo->soundTurbo)
 			{
-				G_SoundIndexOnEnt(pVeh->m_pParentEntity, CHAN_AUTO, pVeh->m_pVehicleInfo->soundTurbo);
+				G_SoundIndexOnEnt(pVeh->m_pParentEntity, soundChannel_t::CHAN_AUTO, pVeh->m_pVehicleInfo->soundTurbo);
 			}
 #endif
 			parentPS->speed = pVeh->m_pVehicleInfo->turboSpeed;	// Instantly Jump To Turbo Speed
@@ -332,7 +332,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 	}
 
 	fWalkSpeedMax = speedMax * 0.275f;
-	if ( curTime>pVeh->m_iTurboTime && Any(pVeh->m_ucmd.buttons & BUTTON_WALKING) && parentPS->speed > fWalkSpeedMax )
+	if ( curTime>pVeh->m_iTurboTime && Any(pVeh->m_ucmd.buttons & buttonFlags_t::BUTTON_WALKING) && parentPS->speed > fWalkSpeedMax )
 	{
 		parentPS->speed = fWalkSpeedMax;
 	}
@@ -377,7 +377,7 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 
 	// Bucking so we can't do anything.
 #ifndef _JK2MP //bad for prediction - fixme
-	if ( Any( pVeh->m_ulFlags & VEH_BUCKING ) || Any( pVeh->m_ulFlags & VEH_FLYING ) || Any( pVeh->m_ulFlags & VEH_CRASHING ) )
+	if ( Any( pVeh->m_ulFlags & vehFlags_t::VEH_BUCKING ) || Any( pVeh->m_ulFlags & vehFlags_t::VEH_FLYING ) || Any( pVeh->m_ulFlags & vehFlags_t::VEH_CRASHING ) )
 	{
 		return;
 	}
@@ -516,12 +516,12 @@ static void AnimalTailSwipe(Vehicle_t* pVeh, gentity_t *parent, gentity_t *pilot
 	trap_G2API_GetBoltMatrix( parent->ghoul2, 0, iRootBone,
 				&boltMatrix, angles, parent->currentOrigin, level.time,
 				nullptr, parent->modelScale );
-	BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, vRoot );
+	BG_GiveMeVectorFromMatrix( &boltMatrix, Eorientations::ORIGIN, vRoot );
 
 	trap_G2API_GetBoltMatrix( parent->ghoul2, 0, iRootTail,
 				&boltMatrix, angles, parent->currentOrigin, level.time,
 				nullptr, parent->modelScale );
-	BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, vTail );
+	BG_GiveMeVectorFromMatrix( &boltMatrix, Eorientations::ORIGIN, vTail );
 #else
 	iRootBone = gi.G2API_GetBoneIndex( &parent->ghoul2[parent->playerModel], "tail_01", true );
 	iRootTail = gi.G2API_GetBoneIndex( &parent->ghoul2[parent->playerModel], "tail_04", true );
@@ -530,12 +530,12 @@ static void AnimalTailSwipe(Vehicle_t* pVeh, gentity_t *parent, gentity_t *pilot
 	gi.G2API_GetBoltMatrix( parent->ghoul2, parent->playerModel, iRootBone,
 				&boltMatrix, angles, parent->currentOrigin, (cg.time?cg.time:level.time),
 				nullptr, parent->s.modelScale );
-	gi.G2API_GiveMeVectorFromMatrix( boltMatrix, ORIGIN, vRoot );
+	gi.G2API_GiveMeVectorFromMatrix( boltMatrix, Eorientations::ORIGIN, vRoot );
 
 	gi.G2API_GetBoltMatrix( parent->ghoul2, parent->playerModel, iRootTail,
 				&boltMatrix, angles, parent->currentOrigin, (cg.time?cg.time:level.time),
 				nullptr, parent->s.modelScale );
-	gi.G2API_GiveMeVectorFromMatrix( boltMatrix, ORIGIN, vTail );
+	gi.G2API_GiveMeVectorFromMatrix( boltMatrix, Eorientations::ORIGIN, vTail );
 #endif
 
 	// Trace from the root of the tail to the very end.
@@ -544,11 +544,11 @@ static void AnimalTailSwipe(Vehicle_t* pVeh, gentity_t *parent, gentity_t *pilot
 	{
 		if ( ENTITYNUM_NONE != trace.entityNum && g_entities[trace.entityNum].client &&
 #ifndef _JK2MP //no rancor in jk2mp (at least not currently)
-			g_entities[trace.entityNum].client->NPC_class != CLASS_RANCOR &&
+			g_entities[trace.entityNum].client->NPC_class != class_t::CLASS_RANCOR &&
 #else //and in mp want to check inuse
 			g_entities[trace.entityNum].inuse &&
 #endif
-			g_entities[trace.entityNum].client->NPC_class != CLASS_VEHICLE )
+			g_entities[trace.entityNum].client->NPC_class != class_t::CLASS_VEHICLE )
 		{
 			vec3_t pushDir;
 			vec3_t angs;
@@ -564,7 +564,7 @@ static void AnimalTailSwipe(Vehicle_t* pVeh, gentity_t *parent, gentity_t *pilot
 
 			// Smack this ho down.
 #ifdef _JK2MP
-			G_Sound( &g_entities[trace.entityNum], CHAN_AUTO, G_SoundIndex( "sound/chars/rancor/swipehit.wav" ) );
+			G_Sound( &g_entities[trace.entityNum], soundChannel_t::CHAN_AUTO, G_SoundIndex( "sound/chars/rancor/swipehit.wav" ) );
 #else
 			G_Sound( &g_entities[trace.entityNum], G_SoundIndex( "sound/chars/rancor/swipehit.wav" ) );
 #endif
@@ -592,7 +592,7 @@ static void AnimalTailSwipe(Vehicle_t* pVeh, gentity_t *parent, gentity_t *pilot
 #else
 				G_Knockdown( hit, parent, pushDir, 300, true );
 #endif
-				G_Damage( hit, parent, parent, nullptr, nullptr, iDamage, DAMAGE_NO_KNOCKBACK | DAMAGE_IGNORE_TEAM, MOD_MELEE );
+				G_Damage( hit, parent, parent, nullptr, nullptr, iDamage, damageFlags_t::DAMAGE_NO_KNOCKBACK | damageFlags_t::DAMAGE_IGNORE_TEAM, meansOfDeath_t::MOD_MELEE );
 				//G_PlayEffect( pVeh->m_pVehicleInfo->explodeFX, parent->currentOrigin );
 			}// Not Dead
 		}// Not Rancor & In USe
@@ -601,9 +601,9 @@ static void AnimalTailSwipe(Vehicle_t* pVeh, gentity_t *parent, gentity_t *pilot
 */
 static void AnimateVehicle( Vehicle_t *pVeh )
 {
-	animNumber_t	Anim = BOTH_VT_IDLE;
+	animNumber_t	Anim = animNumber_t::BOTH_VT_IDLE;
 	int				iBlend = 300;
-	setAnimFlags_t				iFlags = SETANIM_FLAG_NORMAL;
+	setAnimFlags_t				iFlags = setAnimFlags_t::SETANIM_FLAG_NORMAL;
 	gentity_t *		pilot = (gentity_t *)pVeh->m_pPilot;
 	gentity_t *		parent = (gentity_t *)pVeh->m_pParentEntity;
 	//playerState_t *	pilotPS;
@@ -624,33 +624,33 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 		if ( pVeh->m_iBoarding != -999 )	// Animate the death just once!
 		{
 			pVeh->m_iBoarding = -999;
-			iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD;
+			iFlags = setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD;
 
 			// FIXME! Why do you keep repeating over and over!!?!?!? Bastard!
-			//Vehicle_SetAnim( parent, SETANIM_LEGS, BOTH_VT_DEATH1, iFlags, iBlend );
+			//Vehicle_SetAnim( parent, setAnimParts_t::SETANIM_LEGS, animNumber_t::BOTH_VT_DEATH1, iFlags, iBlend );
 		}
 		return;
 	}
 
 	// If they're bucking, play the animation and leave...
-	if ( parent->client->ps.legsAnim == BOTH_VT_BUCK )
+	if ( parent->client->ps.legsAnim == animNumber_t::BOTH_VT_BUCK )
 	{
 		// Done with animation? Erase the flag.
 		if ( parent->client->ps.legsAnimTimer <= 0 )
 		{
-			pVeh->m_ulFlags &= ~VEH_BUCKING;
+			pVeh->m_ulFlags &= ~vehFlags_t::VEH_BUCKING;
 		}
 		else
 		{
 			return;
 		}
 	}
-	else if ( Any( pVeh->m_ulFlags & VEH_BUCKING ) )
+	else if ( Any( pVeh->m_ulFlags & vehFlags_t::VEH_BUCKING ) )
 	{
-		iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD;
-		Anim = BOTH_VT_BUCK;
+		iFlags = setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD;
+		Anim = animNumber_t::BOTH_VT_BUCK;
 		iBlend = 500;
-		Vehicle_SetAnim( parent, SETANIM_LEGS, BOTH_VT_BUCK, iFlags, iBlend );
+		Vehicle_SetAnim( parent, setAnimParts_t::SETANIM_LEGS, animNumber_t::BOTH_VT_BUCK, iFlags, iBlend );
 		return;
 	}
 
@@ -665,15 +665,15 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 			// Boarding from left...
 			if ( pVeh->m_iBoarding == -1 )
 			{
-				Anim = BOTH_VT_MOUNT_L;
+				Anim = animNumber_t::BOTH_VT_MOUNT_L;
 			}
 			else if ( pVeh->m_iBoarding == -2 )
 			{
-				Anim = BOTH_VT_MOUNT_R;
+				Anim = animNumber_t::BOTH_VT_MOUNT_R;
 			}
 			else if ( pVeh->m_iBoarding == -3 )
 			{
-				Anim = BOTH_VT_MOUNT_B;
+				Anim = animNumber_t::BOTH_VT_MOUNT_B;
 			}
 
 			// Set the delay time (which happens to be the time it takes for the animation to complete).
@@ -687,12 +687,12 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 
 			// Set the animation, which won't be interrupted until it's completed.
 			// TODO: But what if he's killed? Should the animation remain persistant???
-			iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD;
+			iFlags = setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD;
 
-			Vehicle_SetAnim( parent, SETANIM_LEGS, Anim, iFlags, iBlend );
+			Vehicle_SetAnim( parent, setAnimParts_t::SETANIM_LEGS, Anim, iFlags, iBlend );
 			if (pilot)
 			{
-				Vehicle_SetAnim(pilot, SETANIM_BOTH, Anim, iFlags, iBlend );
+				Vehicle_SetAnim(pilot, setAnimParts_t::SETANIM_BOTH, Anim, iFlags, iBlend );
 			}
 			return;
 		}
@@ -711,34 +711,34 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 	// Going in reverse...
 	if ( fSpeedPercToMax < -0.01f )
 	{
-		Anim = BOTH_VT_WALK_REV;
+		Anim = animNumber_t::BOTH_VT_WALK_REV;
 		iBlend = 600;
 	}
 	else
 	{
 		bool		Turbo		= (fSpeedPercToMax>0.0f && level.time<pVeh->m_iTurboTime);
-		bool		Walking		= (fSpeedPercToMax>0.0f && (Any(pVeh->m_ucmd.buttons&BUTTON_WALKING) || fSpeedPercToMax<=0.275f));
+		bool		Walking		= (fSpeedPercToMax>0.0f && (Any(pVeh->m_ucmd.buttons&buttonFlags_t::BUTTON_WALKING) || fSpeedPercToMax<=0.275f));
 		bool		Running		= (fSpeedPercToMax>0.275f);
 
 
 		// Remove Crashing Flag
 		//----------------------
-		pVeh->m_ulFlags &= ~VEH_CRASHING;
+		pVeh->m_ulFlags &= ~vehFlags_t::VEH_CRASHING;
 
 		if (Turbo)
 		{// Kicked In Turbo
 			iBlend	= 50;
-			iFlags	= SETANIM_FLAG_OVERRIDE;
-			Anim	= BOTH_VT_TURBO;
+			iFlags	= setAnimFlags_t::SETANIM_FLAG_OVERRIDE;
+			Anim	= animNumber_t::BOTH_VT_TURBO;
 		}
 		else
 		{// No Special Moves
 			iBlend	= 300;
- 			iFlags	= SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLDLESS;
-			Anim	= (Walking)?(BOTH_VT_WALK_FWD  ):((Running)?(BOTH_VT_RUN_FWD  ):(BOTH_VT_IDLE1));
+ 			iFlags	= setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLDLESS;
+			Anim	= (Walking)?(animNumber_t::BOTH_VT_WALK_FWD  ):((Running)?(animNumber_t::BOTH_VT_RUN_FWD  ):(animNumber_t::BOTH_VT_IDLE1));
 		}
 	}
-	Vehicle_SetAnim( parent, SETANIM_LEGS, Anim, iFlags, iBlend );
+	Vehicle_SetAnim( parent, setAnimParts_t::SETANIM_LEGS, Anim, iFlags, iBlend );
 }
 
 //rwwFIXMEFIXME: This is all going to have to be predicted I think, or it will feel awful
@@ -746,9 +746,9 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 // This function makes sure that the rider's in this vehicle are properly animated.
 static void AnimateRiders( Vehicle_t *pVeh )
 {
-	animNumber_t Anim = BOTH_VT_IDLE;
+	animNumber_t Anim = animNumber_t::BOTH_VT_IDLE;
 	int iBlend = 500;
-	setAnimFlags_t iFlags = SETANIM_FLAG_NORMAL;
+	setAnimFlags_t iFlags = setAnimFlags_t::SETANIM_FLAG_NORMAL;
 	gentity_t *pilot = (gentity_t *)pVeh->m_pPilot;
 	gentity_t *parent = (gentity_t *)pVeh->m_pParentEntity;
 	playerState_t *pilotPS;
@@ -779,36 +779,36 @@ static void AnimateRiders( Vehicle_t *pVeh )
 	if ( fSpeedPercToMax < -0.01f )
 #endif
 	{
-		Anim = BOTH_VT_WALK_REV;
+		Anim = animNumber_t::BOTH_VT_WALK_REV;
 		iBlend = 600;
-		bool		HasWeapon	= ((pilotPS->weapon != WP_NONE) && (pilotPS->weapon != WP_MELEE));
+		bool		HasWeapon	= ((pilotPS->weapon != weapon_t::WP_NONE) && (pilotPS->weapon != weapon_t::WP_MELEE));
 		if (HasWeapon)
 		{
 			if (pVeh->m_pPilot->s.number<MAX_CLIENTS)
 			{
-				CG_ChangeWeapon(WP_NONE);
+				CG_ChangeWeapon(weapon_t::WP_NONE);
 			}
 
-			pVeh->m_pPilot->client->ps.weapon = WP_NONE;
+			pVeh->m_pPilot->client->ps.weapon = weapon_t::WP_NONE;
 			G_RemoveWeaponModels(pVeh->m_pPilot);
 		}
 	}
 	else
 */
 	{
-		bool		HasWeapon	= ((pilotPS->weapon != WP_NONE) && (pilotPS->weapon != WP_MELEE));
-		bool		Attacking	= (HasWeapon && !!Any(pVeh->m_ucmd.buttons&BUTTON_ATTACK));
+		bool		HasWeapon	= ((pilotPS->weapon != weapon_t::WP_NONE) && (pilotPS->weapon != weapon_t::WP_MELEE));
+		bool		Attacking	= (HasWeapon && !!Any(pVeh->m_ucmd.buttons&buttonFlags_t::BUTTON_ATTACK));
 		bool		Right		= (pVeh->m_ucmd.rightmove>0);
 		bool		Left		= (pVeh->m_ucmd.rightmove<0);
 		bool		Turbo		= (fSpeedPercToMax>0.0f && level.time<pVeh->m_iTurboTime);
-		bool		Walking		= (fSpeedPercToMax>0.0f && (Any(pVeh->m_ucmd.buttons&BUTTON_WALKING) || fSpeedPercToMax<=0.275f));
+		bool		Walking		= (fSpeedPercToMax>0.0f && (Any(pVeh->m_ucmd.buttons&buttonFlags_t::BUTTON_WALKING) || fSpeedPercToMax<=0.275f));
 		bool		Running		= (fSpeedPercToMax>0.275f);
-		EWeaponPose	WeaponPose	= WPOSE_NONE;
+		EWeaponPose	WeaponPose	= EWeaponPose::WPOSE_NONE;
 
 
 		// Remove Crashing Flag
 		//----------------------
-		pVeh->m_ulFlags &= ~VEH_CRASHING;
+		pVeh->m_ulFlags &= ~vehFlags_t::VEH_CRASHING;
 
 
 		// Put Away Saber When It Is Not Active
@@ -816,14 +816,14 @@ static void AnimateRiders( Vehicle_t *pVeh )
 #ifndef _JK2MP
 		if (HasWeapon &&
 			(pVeh->m_pPilot->s.number>=MAX_CLIENTS || (cg.weaponSelectTime+500)<cg.time) &&
-			(pilotPS->weapon==WP_SABER && (Turbo || !pilotPS->SaberActive())))
+			(pilotPS->weapon==weapon_t::WP_SABER && (Turbo || !pilotPS->SaberActive())))
 		{
 			if (pVeh->m_pPilot->s.number<MAX_CLIENTS)
 			{
-				CG_ChangeWeapon(WP_NONE);
+				CG_ChangeWeapon(weapon_t::WP_NONE);
 			}
 
-			pVeh->m_pPilot->client->ps.weapon = WP_NONE;
+			pVeh->m_pPilot->client->ps.weapon = weapon_t::WP_NONE;
 			G_RemoveWeaponModels(pVeh->m_pPilot);
 		}
 #endif
@@ -836,7 +836,7 @@ static void AnimateRiders( Vehicle_t *pVeh )
 			return;
 		}
 #else
-		if (pilotPS->torsoAnim>=BOTH_VT_ATL_S && pilotPS->torsoAnim<=BOTH_VT_ATF_G)
+		if (pilotPS->torsoAnim>=animNumber_t::BOTH_VT_ATL_S && pilotPS->torsoAnim<=animNumber_t::BOTH_VT_ATF_G)
 		{
 			float		bodyCurrent	  = 0.0f;
 			int			bodyEnd		  = 0;
@@ -852,28 +852,28 @@ static void AnimateRiders( Vehicle_t *pVeh )
 
 		// Compute The Weapon Pose
 		//--------------------------
-		if (pilotPS->weapon==WP_BLASTER)
+		if (pilotPS->weapon==weapon_t::WP_BLASTER)
 		{
-			WeaponPose = WPOSE_BLASTER;
+			WeaponPose = EWeaponPose::WPOSE_BLASTER;
 		}
-		else if (pilotPS->weapon==WP_SABER)
+		else if (pilotPS->weapon==weapon_t::WP_SABER)
 		{
-			if ( (Any( pVeh->m_ulFlags & VEH_SABERINLEFTHAND )) && pilotPS->torsoAnim==BOTH_VT_ATL_TO_R_S)
+			if ( (Any( pVeh->m_ulFlags & vehFlags_t::VEH_SABERINLEFTHAND )) && pilotPS->torsoAnim==animNumber_t::BOTH_VT_ATL_TO_R_S)
 			{
-				pVeh->m_ulFlags	&= ~VEH_SABERINLEFTHAND;
+				pVeh->m_ulFlags	&= ~vehFlags_t::VEH_SABERINLEFTHAND;
 			}
-			if (!(Any( pVeh->m_ulFlags & VEH_SABERINLEFTHAND )) && pilotPS->torsoAnim==BOTH_VT_ATR_TO_L_S)
+			if (!(Any( pVeh->m_ulFlags & vehFlags_t::VEH_SABERINLEFTHAND )) && pilotPS->torsoAnim==animNumber_t::BOTH_VT_ATR_TO_L_S)
 			{
-				pVeh->m_ulFlags	|=  VEH_SABERINLEFTHAND;
+				pVeh->m_ulFlags	|=  vehFlags_t::VEH_SABERINLEFTHAND;
 			}
-			WeaponPose = (Any( pVeh->m_ulFlags & VEH_SABERINLEFTHAND ))?(WPOSE_SABERLEFT):(WPOSE_SABERRIGHT);
+			WeaponPose = (Any( pVeh->m_ulFlags & vehFlags_t::VEH_SABERINLEFTHAND ))?(EWeaponPose::WPOSE_SABERLEFT):(EWeaponPose::WPOSE_SABERRIGHT);
 		}
 
 
- 		if (Attacking && WeaponPose != WPOSE_NONE)
+ 		if (Attacking && WeaponPose != EWeaponPose::WPOSE_NONE)
 		{// Attack!
 			iBlend	= 100;
- 			iFlags	= SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_RESTART;
+ 			iFlags	= setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD|setAnimFlags_t::SETANIM_FLAG_RESTART;
 
 			if (Turbo)
 			{
@@ -899,7 +899,7 @@ static void AnimateRiders( Vehicle_t *pVeh )
 					AngleVectors(pVeh->m_pParentEntity->currentAngles, nullptr, actorRight, nullptr);
 					actorRightDot = DotProduct(toEnemy, actorRight);
 
-	 				if (fabsf(actorRightDot)>0.5f || pilotPS->weapon==WP_SABER)
+	 				if (fabsf(actorRightDot)>0.5f || pilotPS->weapon==weapon_t::WP_SABER)
 					{
 						Left	= (actorRightDot>0.0f);
 						Right	= !Left;
@@ -911,9 +911,9 @@ static void AnimateRiders( Vehicle_t *pVeh )
 				}
 				else
 #endif
-				if (pilotPS->weapon==WP_SABER && !Left && !Right)
+				if (pilotPS->weapon==weapon_t::WP_SABER && !Left && !Right)
 				{
-					Left = (WeaponPose==WPOSE_SABERLEFT);
+					Left = (WeaponPose==EWeaponPose::WPOSE_SABERLEFT);
 					Right	= !Left;
 				}
 			}
@@ -923,9 +923,9 @@ static void AnimateRiders( Vehicle_t *pVeh )
 			{// Attack Left
 				switch(WeaponPose)
 				{
-				case WPOSE_BLASTER:		Anim = BOTH_VT_ATL_G;		break;
-				case WPOSE_SABERLEFT:	Anim = BOTH_VT_ATL_S;		break;
-				case WPOSE_SABERRIGHT:	Anim = BOTH_VT_ATR_TO_L_S;	break;
+				case EWeaponPose::WPOSE_BLASTER:		Anim = animNumber_t::BOTH_VT_ATL_G;		break;
+				case EWeaponPose::WPOSE_SABERLEFT:	Anim = animNumber_t::BOTH_VT_ATL_S;		break;
+				case EWeaponPose::WPOSE_SABERRIGHT:	Anim = animNumber_t::BOTH_VT_ATR_TO_L_S;	break;
 				default:				assert(0);
 				}
 			}
@@ -933,9 +933,9 @@ static void AnimateRiders( Vehicle_t *pVeh )
 			{// Attack Right
 				switch(WeaponPose)
 				{
-				case WPOSE_BLASTER:		Anim = BOTH_VT_ATR_G;		break;
-				case WPOSE_SABERLEFT:	Anim = BOTH_VT_ATL_TO_R_S;	break;
-				case WPOSE_SABERRIGHT:	Anim = BOTH_VT_ATR_S;		break;
+				case EWeaponPose::WPOSE_BLASTER:		Anim = animNumber_t::BOTH_VT_ATR_G;		break;
+				case EWeaponPose::WPOSE_SABERLEFT:	Anim = animNumber_t::BOTH_VT_ATL_TO_R_S;	break;
+				case EWeaponPose::WPOSE_SABERRIGHT:	Anim = animNumber_t::BOTH_VT_ATR_S;		break;
 				default:				assert(0);
 				}
 			}
@@ -943,7 +943,7 @@ static void AnimateRiders( Vehicle_t *pVeh )
 			{// Attack Ahead
 				switch(WeaponPose)
 				{
-				case WPOSE_BLASTER:		Anim = BOTH_VT_ATF_G;		break;
+				case EWeaponPose::WPOSE_BLASTER:		Anim = animNumber_t::BOTH_VT_ATF_G;		break;
 				default:				assert(0);
 				}
 			}
@@ -951,43 +951,43 @@ static void AnimateRiders( Vehicle_t *pVeh )
 		else if (Turbo)
 		{// Kicked In Turbo
 			iBlend	= 50;
-			iFlags	= SETANIM_FLAG_OVERRIDE;
-			Anim	= BOTH_VT_TURBO;
+			iFlags	= setAnimFlags_t::SETANIM_FLAG_OVERRIDE;
+			Anim	= animNumber_t::BOTH_VT_TURBO;
 		}
 		else
 		{// No Special Moves
 			iBlend	= 300;
- 			iFlags	= SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLDLESS;
+ 			iFlags	= setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLDLESS;
 
-			if (WeaponPose==WPOSE_NONE)
+			if (WeaponPose==EWeaponPose::WPOSE_NONE)
 			{
 				if (Walking)
 				{
-					Anim = BOTH_VT_WALK_FWD;
+					Anim = animNumber_t::BOTH_VT_WALK_FWD;
 				}
 				else if (Running)
 				{
-					Anim = BOTH_VT_RUN_FWD;
+					Anim = animNumber_t::BOTH_VT_RUN_FWD;
 				}
 				else
 				{
-					Anim = BOTH_VT_IDLE1;//(Q_irand(0,1)==0)?(BOTH_VT_IDLE):(BOTH_VT_IDLE1);
+					Anim = animNumber_t::BOTH_VT_IDLE1;//(Q_irand(0,1)==0)?(animNumber_t::BOTH_VT_IDLE):(animNumber_t::BOTH_VT_IDLE1);
 				}
 			}
 			else
 			{
 				switch(WeaponPose)
 				{
-				case WPOSE_BLASTER:		Anim = BOTH_VT_IDLE_G;			break;
-				case WPOSE_SABERLEFT:	Anim = BOTH_VT_IDLE_SL;			break;
-				case WPOSE_SABERRIGHT:	Anim = BOTH_VT_IDLE_SR;			break;
+				case EWeaponPose::WPOSE_BLASTER:		Anim = animNumber_t::BOTH_VT_IDLE_G;			break;
+				case EWeaponPose::WPOSE_SABERLEFT:	Anim = animNumber_t::BOTH_VT_IDLE_SL;			break;
+				case EWeaponPose::WPOSE_SABERRIGHT:	Anim = animNumber_t::BOTH_VT_IDLE_SR;			break;
 				default:				assert(0);
 				}
 			}
 		}// No Special Moves
 	}
 
-	Vehicle_SetAnim( pilot, SETANIM_BOTH, Anim, iFlags, iBlend );
+	Vehicle_SetAnim( pilot, setAnimParts_t::SETANIM_BOTH, Anim, iFlags, iBlend );
 }
 #endif //QAGAME
 
@@ -1061,7 +1061,7 @@ void G_CreateAnimalNPC( Vehicle_t **pVeh, const char *strAnimalType )
 	memset(*pVeh, 0, sizeof(Vehicle_t));
 	(*pVeh)->m_pVehicleInfo = &g_vehicleInfo[BG_VehicleGetIndex( strAnimalType )];
 #else
-	(*pVeh) = (Vehicle_t *) gi.Malloc( sizeof(Vehicle_t), TAG_G_ALLOC, true );
+	(*pVeh) = (Vehicle_t *) gi.Malloc( sizeof(Vehicle_t), memtag::TAG_G_ALLOC, true );
 	(*pVeh)->m_pVehicleInfo = &g_vehicleInfo[BG_VehicleGetIndex( strAnimalType )];
 #endif
 }

@@ -60,7 +60,6 @@ enum class footstep_t {
 
 	FOOTSTEP_TOTAL
 };
-using enum footstep_t;
 
 #include "qcommon/q_spsets.h"
 
@@ -99,9 +98,8 @@ enum class otherhudbits_t
 	OHB_FRAME_RIGHT,
 	OHB_MAX
 };
-using enum otherhudbits_t;
 template <> inline constexpr bool enableEnumArithmetic<otherhudbits_t> = true;
-extern EnumArray<HUDMenuItem_t, otherhudbits_t, OHB_MAX> otherHUDBits;
+extern EnumArray<HUDMenuItem_t, otherhudbits_t, otherhudbits_t::OHB_MAX> otherHUDBits;
 
 inline constexpr int NUM_CHUNK_MODELS = 4;
 
@@ -117,7 +115,6 @@ enum class chunkType_t
 	CHUNK_WHITE_METAL,
 	NUM_CHUNK_TYPES
 };
-using enum chunkType_t;
 
 // all of the model, shader, and sound references that are
 // loaded at gamestate time are stored in cgMedia_t
@@ -148,7 +145,7 @@ typedef struct {
 	qhandle_t	turretCrossHairShader;
 
 //Chunks
-	EnumArray<qhandle_t[4], chunkType_t, NUM_CHUNK_TYPES>	chunkModels;
+	EnumArray<qhandle_t[4], chunkType_t, chunkType_t::NUM_CHUNK_TYPES>	chunkModels;
 	sfxHandle_t	chunkSound;
 	sfxHandle_t	grateSound;
 	sfxHandle_t	rockBreakSound;
@@ -252,7 +249,7 @@ typedef struct {
 
 	//new stuff for Jedi Academy
 	//force power icons
-//	EnumArray<qhandle_t, forcePowers_t, NUM_FORCE_POWERS>	forcePowerIcons;
+//	EnumArray<qhandle_t, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS>	forcePowerIcons;
 	qhandle_t	rageRecShader;
 	qhandle_t	playerShieldDamage;
 	qhandle_t	forceSightBubble;
@@ -279,7 +276,7 @@ typedef struct {
 	sfxHandle_t	overchargeEndSound;
 
 //	sfxHandle_t	useNothingSound;
-	EnumArray<sfxHandle_t[4], footstep_t, FOOTSTEP_TOTAL>	footsteps;
+	EnumArray<sfxHandle_t[4], footstep_t, footstep_t::FOOTSTEP_TOTAL>	footsteps;
 
 //	sfxHandle_t talkSound;
 	sfxHandle_t	noAmmoSound;

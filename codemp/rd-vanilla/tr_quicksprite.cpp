@@ -42,7 +42,7 @@ CQuickSpriteSystem SQuickSprite;
 
 CQuickSpriteSystem::CQuickSpriteSystem() :
 	mTexBundle(nullptr),
-	mGLStateBits(GLS_NONE),
+	mGLStateBits(glStateBits_t::GLS_NONE),
 	mFogIndex(-1),
 	mUseFog(false),
 	mNextVert(0)
@@ -135,7 +135,7 @@ void CQuickSpriteSystem::Flush(void)
 		// render the fog pass
 		//
 		GL_Bind( tr.fogImage );
-		GL_State( GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA | GLS_DEPTHFUNC_EQUAL );
+		GL_State( glStateBits_t::GLS_SRCBLEND_SRC_ALPHA | glStateBits_t::GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA | glStateBits_t::GLS_DEPTHFUNC_EQUAL );
 
 		//
 		// set arrays and lock

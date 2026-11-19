@@ -164,7 +164,7 @@ wavinfo_t GetWavinfo (const char *name, byte *wav, int wavlength)
 	data_p += 4+2;
 	info.width = GetLittleShort() / 8;
 
-	if (info.format != WAV_FORMAT_PCM)
+	if (info.format != wavFormat_t::WAV_FORMAT_PCM)
 	{
 		Com_Printf("Microsoft PCM format only\n");
 		return info;
@@ -185,7 +185,7 @@ wavinfo_t GetWavinfo (const char *name, byte *wav, int wavlength)
 	if (info.samples)
 	{
 		if (samples < info.samples)
-			Com_Error (ERR_DROP, "Sound %s has a bad loop length", name);
+			Com_Error (errorParm_t::ERR_DROP, "Sound %s has a bad loop length", name);
 	}
 	else
 		info.samples = samples;
@@ -260,7 +260,7 @@ void S_LoadSound_Finalize(wavinfo_t	*info, sfx_t *sfx, byte *data)
 
 	//len *= info->width;
 
-	sfx->eSoundCompressionMethod = ct_16;
+	sfx->eSoundCompressionMethod = SoundCompressionMethod_t::ct_16;
 	sfx->iSoundLengthInSamples	 = info->samples;
 	ResampleSfx( sfx, info->rate, info->width, data + info->dataofs );
 }
@@ -390,12 +390,12 @@ void R_CheckMP3s( const char *psDir )
 
 						if (!qbForceStereo)	// no point for stereo files, which are for music and therefore no lip-sync
 						{
-							byte *pbUnpackBuffer = (byte *) Z_Malloc( iRawPCMDataSize+10, TAG_TEMP_WORKSPACE, false );	// won't return if fails
+							byte *pbUnpackBuffer = (byte *) Z_Malloc( iRawPCMDataSize+10, memtag::TAG_TEMP_WORKSPACE, false );	// won't return if fails
 
 							iActualUnpackedSize = MP3_UnpackRawPCM( sFilename, pbData, iSize, pbUnpackBuffer );
 							if (iActualUnpackedSize != iRawPCMDataSize)
 							{
-								Com_Error(ERR_DROP, "******* Whoah! MP3 %s unpacked to %d bytes, but size calc said %d!\n",sFilename,iActualUnpackedSize,iRawPCMDataSize);
+								Com_Error(errorParm_t::ERR_DROP, "******* Whoah! MP3 %s unpacked to %d bytes, but size calc said %d!\n",sFilename,iActualUnpackedSize,iRawPCMDataSize);
 							}
 
 							// fake up a WAV structure so I can use the other post-load sound code such as volume calc for lip-synching
@@ -488,7 +488,7 @@ void R_CheckMP3s( const char *psDir )
 					}
 					else
 					{
-						Com_Error(ERR_DROP, "******* This MP3 should be deleted: \"%s\"\n",sFilename);
+						Com_Error(errorParm_t::ERR_DROP, "******* This MP3 should be deleted: \"%s\"\n",sFilename);
 					}
 				}
 				else
@@ -795,7 +795,7 @@ static bool S_LoadSound_Actual( sfx_t *sfx )
 				// unpack and convert into WAV...
 				//
 				{
-					byte *pbUnpackBuffer = (byte *) Z_Malloc( iRawPCMDataSize+10 +2304 /* <g> */, TAG_TEMP_WORKSPACE, false );	// won't return if fails
+					byte *pbUnpackBuffer = (byte *) Z_Malloc( iRawPCMDataSize+10 +2304 /* <g> */, memtag::TAG_TEMP_WORKSPACE, false );	// won't return if fails
 
 					{
 						int iResultBytes = MP3_UnpackRawPCM( sLoadName, data, size, pbUnpackBuffer, false );
@@ -871,9 +871,9 @@ static bool S_LoadSound_Actual( sfx_t *sfx )
 			Com_Printf(S_COLOR_YELLOW "WARNING: %s is not a 22kHz wav file\n", sLoadName);
 		}
 */
-		samples = (short *)Z_Malloc(info.samples * sizeof(short) * 2, TAG_TEMP_WORKSPACE, false);
+		samples = (short *)Z_Malloc(info.samples * sizeof(short) * 2, memtag::TAG_TEMP_WORKSPACE, false);
 
-		sfx->eSoundCompressionMethod = ct_16;
+		sfx->eSoundCompressionMethod = SoundCompressionMethod_t::ct_16;
 		sfx->iSoundLengthInSamples	 = info.samples;
 		sfx->pSoundData = nullptr;
 		ResampleSfx( sfx, info.rate, info.width, data + info.dataofs );

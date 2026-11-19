@@ -243,7 +243,7 @@ void CG_Credits_Init( const char *psStripReference, vec4_t *pv4Color )
 	//
 	// malloc space to hold it...
 	//
-	char *psMallocText = (char *) cgi_Z_Malloc( iStrLen+1, TAG_TEMP_WORKSPACE );
+	char *psMallocText = (char *) cgi_Z_Malloc( iStrLen+1, memtag::TAG_TEMP_WORKSPACE );
 	//
 	// now get the string...
 	//
@@ -270,8 +270,7 @@ void CG_Credits_Init( const char *psStripReference, vec4_t *pv4Color )
 		eCard,
 		eFinished,
 	};
-	using enum Mode_e;
-	Mode_e eMode = eNothing;
+	Mode_e eMode = Mode_e::eNothing;
 
 	bool bCardsFinished = false;
 	int iLineNumber = 0;
@@ -307,35 +306,35 @@ void CG_Credits_Init( const char *psStripReference, vec4_t *pv4Color )
 					{
 						if (!bCardsFinished)
 						{
-							eMode = eCard;
+							eMode = Mode_e::eCard;
 						}
 						else
 						{
 							#ifndef FINAL_BUILD
 							Com_Printf( S_COLOR_YELLOW "CG_Credits_Init(): No current support for cards after scroll!\n" );
 							#endif
-							eMode = eNothing;
+							eMode = Mode_e::eNothing;
 						}
 						break;
 					}
 					else
 					if (!Q_stricmp(sLine, "(#TITLE)"))
 					{
-						eMode = eTitle;
+						eMode = Mode_e::eTitle;
 						bCardsFinished = true;
 						break;
 					}
 					else
 					if (!Q_stricmp(sLine, "(#LINE)"))
 					{
-						eMode = eLine;
+						eMode = Mode_e::eLine;
 						bCardsFinished = true;
 						break;
 					}
 					else
 					if (!Q_stricmp(sLine, "(#DOTENTRY)"))
 					{
-						eMode = eDotEntry;
+						eMode = Mode_e::eDotEntry;
 						bCardsFinished = true;
 						break;
 					}
@@ -344,7 +343,7 @@ void CG_Credits_Init( const char *psStripReference, vec4_t *pv4Color )
 						#ifndef FINAL_BUILD
 						Com_Printf( S_COLOR_YELLOW "CG_Credits_Init(): bad keyword \"%s\"!\n", sLine );
 						#endif
-						eMode = eNothing;
+						eMode = Mode_e::eNothing;
 					}
 				}
 				else
@@ -383,8 +382,8 @@ void CG_Credits_Init( const char *psStripReference, vec4_t *pv4Color )
 			//
 			switch (eMode)
 			{
-				case eNothing:	break;
-				case eLine:
+				case Mode_e::eNothing:	break;
+				case Mode_e::eLine:
 				{
 					CreditLine_t	CreditLine;
 									CreditLine.iLine	= iLineNumber++;
@@ -394,7 +393,7 @@ void CG_Credits_Init( const char *psStripReference, vec4_t *pv4Color )
 				}
 				break;
 
-				case eDotEntry:
+				case Mode_e::eDotEntry:
 				{
 					CreditLine_t	CreditLine;
 									CreditLine.iLine	= iLineNumber;
@@ -426,7 +425,7 @@ void CG_Credits_Init( const char *psStripReference, vec4_t *pv4Color )
 				}
 				break;
 
-				case eTitle:
+				case Mode_e::eTitle:
 				{
 					iLineNumber++;	// leading blank line
 
@@ -439,7 +438,7 @@ void CG_Credits_Init( const char *psStripReference, vec4_t *pv4Color )
 					iLineNumber++;	// trailing blank line
 					break;
 				}
-				case eCard:
+				case Mode_e::eCard:
 				{
 					CreditCard_t CreditCard;
 

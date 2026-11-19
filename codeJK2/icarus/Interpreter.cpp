@@ -31,66 +31,66 @@
 keywordArray_t CInterpreter::m_symbolKeywords[] =
 {
 	//Blocks
-	"{",	to_underlying( TK_BLOCK_START ),
-	"}",	to_underlying( TK_BLOCK_END ),
+	"{",	to_underlying( icarusToken_t::TK_BLOCK_START ),
+	"}",	to_underlying( icarusToken_t::TK_BLOCK_END ),
 
 	//Vectors
-	"<",	to_underlying( TK_VECTOR_START ),
-	">",	to_underlying( TK_VECTOR_END ),
+	"<",	to_underlying( icarusToken_t::TK_VECTOR_START ),
+	">",	to_underlying( icarusToken_t::TK_VECTOR_END ),
 
 	//Groups
-	"(",	to_underlying( TK_OPEN_PARENTHESIS ),
-	")",	to_underlying( TK_CLOSED_PARENTHESIS ),
+	"(",	to_underlying( icarusToken_t::TK_OPEN_PARENTHESIS ),
+	")",	to_underlying( icarusToken_t::TK_CLOSED_PARENTHESIS ),
 
-	"=",	to_underlying( TK_EQUALS ),
-	"!",	to_underlying( TK_NOT ),
+	"=",	to_underlying( icarusToken_t::TK_EQUALS ),
+	"!",	to_underlying( icarusToken_t::TK_NOT ),
 
 	//End
-	"",		to_underlying( TK_EOF ),
+	"",		to_underlying( icarusToken_t::TK_EOF ),
 };
 
 keywordArray_t CInterpreter::m_conditionalKeywords[] =
 {
-	"",		to_underlying( TK_EOF ),
+	"",		to_underlying( icarusToken_t::TK_EOF ),
 };
 
 //ID Table
 
 keywordArray_t CInterpreter::m_IDKeywords[] =
 {
-	"AFFECT",		to_underlying( ID_AFFECT ),
-	"SOUND",		to_underlying( ID_SOUND ),
-	"MOVE",			to_underlying( ID_MOVE ),
-	"ROTATE",		to_underlying( ID_ROTATE ),
-	"WAIT",			to_underlying( ID_WAIT ),
-	"SET",			to_underlying( ID_SET ),
-	"LOOP",			to_underlying( ID_LOOP ),
-	"PRINT",		to_underlying( ID_PRINT ),
-	"TAG",			to_underlying( ID_TAG ),
-	"USE",			to_underlying( ID_USE ),
-	"FLUSH",		to_underlying( ID_FLUSH ),
-	"RUN",			to_underlying( ID_RUN ),
-	"KILL",			to_underlying( ID_KILL ),
-	"REMOVE",		to_underlying( ID_REMOVE ),
-	"CAMERA",		to_underlying( ID_CAMERA ),
-	"GET",			to_underlying( ID_GET ),
-	"RANDOM",		to_underlying( ID_RANDOM ),
-	"IF",			to_underlying( ID_IF ),
-	"ELSE",			to_underlying( ID_ELSE ),
-	"REM",			to_underlying( ID_REM ),
-	"FLOAT",		to_underlying( TK_FLOAT ),
-	"VECTOR",		to_underlying( TK_VECTOR ),
-	"STRING",		to_underlying( TK_STRING ),
-	"TASK",			to_underlying( ID_TASK ),
-	"DO",			to_underlying( ID_DO ),
-	"DECLARE",		to_underlying( ID_DECLARE ),
-	"FREE",			to_underlying( ID_FREE ),
-	"DOWAIT",		to_underlying( ID_DOWAIT ),
-	"SIGNAL",		to_underlying( ID_SIGNAL ),
-	"WAITSIGNAL",	to_underlying( ID_WAITSIGNAL ),
-	"PLAY",			to_underlying( ID_PLAY ),
+	"AFFECT",		to_underlying( icarusToken_t::ID_AFFECT ),
+	"SOUND",		to_underlying( icarusToken_t::ID_SOUND ),
+	"MOVE",			to_underlying( icarusToken_t::ID_MOVE ),
+	"ROTATE",		to_underlying( icarusToken_t::ID_ROTATE ),
+	"WAIT",			to_underlying( icarusToken_t::ID_WAIT ),
+	"SET",			to_underlying( icarusToken_t::ID_SET ),
+	"LOOP",			to_underlying( icarusToken_t::ID_LOOP ),
+	"PRINT",		to_underlying( icarusToken_t::ID_PRINT ),
+	"TAG",			to_underlying( icarusToken_t::ID_TAG ),
+	"USE",			to_underlying( icarusToken_t::ID_USE ),
+	"FLUSH",		to_underlying( icarusToken_t::ID_FLUSH ),
+	"RUN",			to_underlying( icarusToken_t::ID_RUN ),
+	"KILL",			to_underlying( icarusToken_t::ID_KILL ),
+	"REMOVE",		to_underlying( icarusToken_t::ID_REMOVE ),
+	"CAMERA",		to_underlying( icarusToken_t::ID_CAMERA ),
+	"GET",			to_underlying( icarusToken_t::ID_GET ),
+	"RANDOM",		to_underlying( icarusToken_t::ID_RANDOM ),
+	"IF",			to_underlying( icarusToken_t::ID_IF ),
+	"ELSE",			to_underlying( icarusToken_t::ID_ELSE ),
+	"REM",			to_underlying( icarusToken_t::ID_REM ),
+	"FLOAT",		to_underlying( icarusToken_t::TK_FLOAT ),
+	"VECTOR",		to_underlying( icarusToken_t::TK_VECTOR ),
+	"STRING",		to_underlying( icarusToken_t::TK_STRING ),
+	"TASK",			to_underlying( icarusToken_t::ID_TASK ),
+	"DO",			to_underlying( icarusToken_t::ID_DO ),
+	"DECLARE",		to_underlying( icarusToken_t::ID_DECLARE ),
+	"FREE",			to_underlying( icarusToken_t::ID_FREE ),
+	"DOWAIT",		to_underlying( icarusToken_t::ID_DOWAIT ),
+	"SIGNAL",		to_underlying( icarusToken_t::ID_SIGNAL ),
+	"WAITSIGNAL",	to_underlying( icarusToken_t::ID_WAITSIGNAL ),
+	"PLAY",			to_underlying( icarusToken_t::ID_PLAY ),
 
-	"",			to_underlying( ID_EOF ),
+	"",			to_underlying( icarusToken_t::ID_EOF ),
 };
 
 //Type Table
@@ -98,34 +98,34 @@ keywordArray_t CInterpreter::m_IDKeywords[] =
 keywordArray_t CInterpreter::m_typeKeywords[] =
 {
 	//Set types
-	"ANGLES",		to_underlying( TYPE_ANGLES ),
-	"ORIGIN",		to_underlying( TYPE_ORIGIN ),
+	"ANGLES",		to_underlying( icarusToken_t::TYPE_ANGLES ),
+	"ORIGIN",		to_underlying( icarusToken_t::TYPE_ORIGIN ),
 
 	//Affect types
-	"INSERT",		to_underlying( TYPE_INSERT ),
-	"FLUSH",		to_underlying( TYPE_FLUSH ),
+	"INSERT",		to_underlying( icarusToken_t::TYPE_INSERT ),
+	"FLUSH",		to_underlying( icarusToken_t::TYPE_FLUSH ),
 
 	//Get types
-	"FLOAT",		to_underlying( TK_FLOAT ),
-	"INT",			to_underlying( TK_INT ),
-	"VECTOR",		to_underlying( TK_VECTOR ),
-	"STRING",		to_underlying( TK_STRING ),
+	"FLOAT",		to_underlying( icarusToken_t::TK_FLOAT ),
+	"INT",			to_underlying( icarusToken_t::TK_INT ),
+	"VECTOR",		to_underlying( icarusToken_t::TK_VECTOR ),
+	"STRING",		to_underlying( icarusToken_t::TK_STRING ),
 
-	"PAN",			to_underlying( TYPE_PAN ),
-	"ZOOM",			to_underlying( TYPE_ZOOM ),
-	"MOVE",			to_underlying( TYPE_MOVE ),
-	"FADE",			to_underlying( TYPE_FADE ),
-	"PATH",			to_underlying( TYPE_PATH ),
-	"ENABLE",		to_underlying( TYPE_ENABLE ),
-	"DISABLE",		to_underlying( TYPE_DISABLE ),
-	"SHAKE",		to_underlying( TYPE_SHAKE ),
-	"ROLL",			to_underlying( TYPE_ROLL ),
-	"TRACK",		to_underlying( TYPE_TRACK ),
-	"FOLLOW",		to_underlying( TYPE_FOLLOW ),
-	"DISTANCE",		to_underlying( TYPE_DISTANCE ),
+	"PAN",			to_underlying( icarusToken_t::TYPE_PAN ),
+	"ZOOM",			to_underlying( icarusToken_t::TYPE_ZOOM ),
+	"MOVE",			to_underlying( icarusToken_t::TYPE_MOVE ),
+	"FADE",			to_underlying( icarusToken_t::TYPE_FADE ),
+	"PATH",			to_underlying( icarusToken_t::TYPE_PATH ),
+	"ENABLE",		to_underlying( icarusToken_t::TYPE_ENABLE ),
+	"DISABLE",		to_underlying( icarusToken_t::TYPE_DISABLE ),
+	"SHAKE",		to_underlying( icarusToken_t::TYPE_SHAKE ),
+	"ROLL",			to_underlying( icarusToken_t::TYPE_ROLL ),
+	"TRACK",		to_underlying( icarusToken_t::TYPE_TRACK ),
+	"FOLLOW",		to_underlying( icarusToken_t::TYPE_FOLLOW ),
+	"DISTANCE",		to_underlying( icarusToken_t::TYPE_DISTANCE ),
 
 	//End
-	"",				to_underlying( TYPE_EOF ),
+	"",				to_underlying( icarusToken_t::TYPE_EOF ),
 };
 
 
@@ -308,7 +308,7 @@ int CInterpreter::GetVariable( icarusToken_t type )
 	CToken		*token;
 
 	//Get the variable's name
-	token = m_tokenizer->GetToken( TKF_NONE, TKF_NONE );
+	token = m_tokenizer->GetToken( tokenizerFlags_t::TKF_NONE, tokenizerFlags_t::TKF_NONE );
 	varName = token->GetStringValue();
 
 	//See if we already have a variable by this name
@@ -325,9 +325,9 @@ int CInterpreter::GetVariable( icarusToken_t type )
 
 	CBlock	block;
 
-	block.Create( TYPE_VARIABLE );
-	block.Write( TK_FLOAT, (float) to_underlying( type ) );
-	block.Write( TK_STRING, varName );
+	block.Create( icarusToken_t::TYPE_VARIABLE );
+	block.Write( icarusToken_t::TK_FLOAT, (float) to_underlying( type ) );
+	block.Write( icarusToken_t::TK_STRING, varName );
 
 	m_blockStream->WriteBlock( &block );
 
@@ -358,15 +358,15 @@ int CInterpreter::GetVector( CBlock *block )
 		return GetGet( block );
 	}
 
-	if ( Match( TK_VECTOR_START ) )
+	if ( Match( icarusToken_t::TK_VECTOR_START ) )
 	{
 		//Get the vector
-		block->Write( TK_VECTOR, (float) to_underlying( TK_VECTOR ) );
+		block->Write( icarusToken_t::TK_VECTOR, (float) to_underlying( icarusToken_t::TK_VECTOR ) );
 
 		for (int i=0; i<3; i++)
 			GetFloat( block );
 
-		if (!Match( TK_VECTOR_END ))
+		if (!Match( icarusToken_t::TK_VECTOR_END ))
 		{
 			return Error("syntax error : expected end of vector");
 		}
@@ -393,11 +393,11 @@ int CInterpreter::MatchTag( void )
 	const char	*idName;
 	icarusToken_t			id;
 
-	token = m_tokenizer->GetToken( TKF_NONE, TKF_NONE );
+	token = m_tokenizer->GetToken( tokenizerFlags_t::TKF_NONE, tokenizerFlags_t::TKF_NONE );
 	idName = token->GetStringValue();
 	id = FindSymbol( idName, m_IDKeywords );
 
-	if ( id != ID_TAG )
+	if ( id != icarusToken_t::ID_TAG )
 	{
 		//Return the token
 		m_tokenizer->PutBackToken( token );
@@ -424,11 +424,11 @@ int CInterpreter::MatchGet( void )
 	const char	*idName;
 	icarusToken_t			id;
 
-	token = m_tokenizer->GetToken( TKF_NONE, TKF_NONE );
+	token = m_tokenizer->GetToken( tokenizerFlags_t::TKF_NONE, tokenizerFlags_t::TKF_NONE );
 	idName = token->GetStringValue();
 	id = FindSymbol( idName, m_IDKeywords );
 
-	if ( id != ID_GET )
+	if ( id != icarusToken_t::ID_GET )
 	{
 		//Return the token
 		m_tokenizer->PutBackToken( token );
@@ -455,11 +455,11 @@ int CInterpreter::MatchRandom( void )
 	const char	*idName;
 	icarusToken_t			id;
 
-	token = m_tokenizer->GetToken( TKF_NONE, TKF_NONE );
+	token = m_tokenizer->GetToken( tokenizerFlags_t::TKF_NONE, tokenizerFlags_t::TKF_NONE );
 	idName = token->GetStringValue();
 	id = FindSymbol( idName, m_IDKeywords );
 
-	if ( id != ID_RANDOM )
+	if ( id != icarusToken_t::ID_RANDOM )
 	{
 		//Return the token
 		m_tokenizer->PutBackToken( token );
@@ -490,7 +490,7 @@ icarusToken_t CInterpreter::FindSymbol( const char *name,  keywordArray_t *table
 			return static_cast<icarusToken_t>( ids->m_tokenvalue );
 	}
 
-	return TK_EOF;	// in no table
+	return icarusToken_t::TK_EOF;	// in no table
 }
 
 
@@ -510,7 +510,7 @@ int CInterpreter::Match( icarusToken_t token_id )
 {
 	CToken	*token;
 
-	token = m_tokenizer->GetToken( TKF_NONE, TKF_NONE );
+	token = m_tokenizer->GetToken( tokenizerFlags_t::TKF_NONE, tokenizerFlags_t::TKF_NONE );
 
 	if ( token->GetType() != token_id )
 	{
@@ -531,7 +531,7 @@ GetNextType
 
 icarusToken_t CInterpreter::GetNextType( void )
 {
-	CToken	*token = m_tokenizer->GetToken( TKF_NONE, TKF_NONE );
+	CToken	*token = m_tokenizer->GetToken( tokenizerFlags_t::TKF_NONE, tokenizerFlags_t::TKF_NONE );
 	icarusToken_t	id = token->GetType();
 
 	m_tokenizer->PutBackToken( token );
@@ -553,7 +553,7 @@ int CInterpreter::LookAhead( icarusToken_t token_id )
 {
 	CToken	*token;
 
-	token = m_tokenizer->GetToken( TKF_NONE, TKF_NONE );
+	token = m_tokenizer->GetToken( tokenizerFlags_t::TKF_NONE, tokenizerFlags_t::TKF_NONE );
 
 	if ( token->GetType() != token_id )
 	{
@@ -581,23 +581,23 @@ const char *CInterpreter::GetTokenName( icarusToken_t token_id )
 {
 	switch ( token_id )
 	{
-	case TK_STRING:
+	case icarusToken_t::TK_STRING:
 		return "STRING";
 		break;
 
-	case TK_CHAR:
+	case icarusToken_t::TK_CHAR:
 		return "CHARACTER";
 		break;
 
-	case TK_IDENTIFIER:
+	case icarusToken_t::TK_IDENTIFIER:
 		return "IDENTIFIER";
 		break;
 
-	case TK_FLOAT:
+	case icarusToken_t::TK_FLOAT:
 		return "FLOAT";
 		break;
 
-	case TK_INTEGER:
+	case icarusToken_t::TK_INTEGER:
 		return "INTEGER";
 		break;
 
@@ -642,22 +642,22 @@ int CInterpreter::GetFloat( CBlock *block )
 		return GetRandom( block );
 	}
 
-	token = m_tokenizer->GetToken(TKF_NONE,TKF_NONE);
+	token = m_tokenizer->GetToken(tokenizerFlags_t::TKF_NONE,tokenizerFlags_t::TKF_NONE);
 	type = token->GetType();
 
 	//Floats can accept either int or float values
-	if ( ( type != TK_FLOAT ) && ( type != TK_INT ) )
+	if ( ( type != icarusToken_t::TK_FLOAT ) && ( type != icarusToken_t::TK_INT ) )
 	{
 		return Error("syntax error : expected float; found %s", GetTokenName(type) );
 	}
 
-	if (type == TK_FLOAT)
+	if (type == icarusToken_t::TK_FLOAT)
 	{
-		block->Write( TK_FLOAT, (float) token->GetFloatValue() );
+		block->Write( icarusToken_t::TK_FLOAT, (float) token->GetFloatValue() );
 	}
 	else
 	{
-		block->Write( TK_FLOAT, (float) token->GetIntValue() );
+		block->Write( icarusToken_t::TK_FLOAT, (float) token->GetIntValue() );
 	}
 
 	token->Delete();
@@ -707,10 +707,10 @@ int CInterpreter::GetString( CBlock *block )
 		return GetRandom( block );
 	}
 
-	token = m_tokenizer->GetToken(TKF_NONE, TKF_NONE);
+	token = m_tokenizer->GetToken(tokenizerFlags_t::TKF_NONE, tokenizerFlags_t::TKF_NONE);
 	type = token->GetType();
 
-	if ( (type != TK_STRING) && (type != TK_CHAR) )
+	if ( (type != icarusToken_t::TK_STRING) && (type != icarusToken_t::TK_CHAR) )
 	{
 		return Error("syntax error : expected string; found %s", GetTokenName(type));
 	}
@@ -739,7 +739,7 @@ int CInterpreter::GetString( CBlock *block )
 
 //UGLY HACK END!!!
 
-	block->Write( TK_STRING, (const char *) &temp );
+	block->Write( icarusToken_t::TK_STRING, (const char *) &temp );
 
 	token->Delete();
 
@@ -770,15 +770,15 @@ int CInterpreter::GetIdentifier( CBlock *block )
 		return true;
 	}
 
-	token = m_tokenizer->GetToken(TKF_NONE, TKF_NONE);
+	token = m_tokenizer->GetToken(tokenizerFlags_t::TKF_NONE, tokenizerFlags_t::TKF_NONE);
 	type = token->GetType();
 
-	if ( type != TK_IDENTIFIER )
+	if ( type != icarusToken_t::TK_IDENTIFIER )
 	{
 		return Error("syntax error : expected indentifier; found %s", GetTokenName(type));
 	}
 
-	block->Write( TK_IDENTIFIER, (const char *) token->GetStringValue() );
+	block->Write( icarusToken_t::TK_IDENTIFIER, (const char *) token->GetStringValue() );
 
 	token->Delete();
 
@@ -806,24 +806,24 @@ int CInterpreter::GetEvaluator( CBlock *block )
 	if ( MatchRandom() )
 		return false;
 
-	token = m_tokenizer->GetToken(TKF_NONE, TKF_NONE);
+	token = m_tokenizer->GetToken(tokenizerFlags_t::TKF_NONE, tokenizerFlags_t::TKF_NONE);
 	type = token->GetType();
 	token->Delete();
 
 	switch ( type )
 	{
-	case TK_GREATER_THAN:
-	case TK_LESS_THAN:
-	case TK_EQUALS:
-	case TK_NOT:
+	case icarusToken_t::TK_GREATER_THAN:
+	case icarusToken_t::TK_LESS_THAN:
+	case icarusToken_t::TK_EQUALS:
+	case icarusToken_t::TK_NOT:
 		break;
 
-	case TK_VECTOR_START:
-		type = TK_LESS_THAN;
+	case icarusToken_t::TK_VECTOR_START:
+		type = icarusToken_t::TK_LESS_THAN;
 		break;
 
-	case TK_VECTOR_END:
-		type = TK_GREATER_THAN;
+	case icarusToken_t::TK_VECTOR_END:
+		type = icarusToken_t::TK_GREATER_THAN;
 		break;
 
 	default:
@@ -874,41 +874,41 @@ int CInterpreter::GetAny( CBlock *block )
 		return true;
 	}
 
-	token = m_tokenizer->GetToken(TKF_NONE, TKF_NONE);
+	token = m_tokenizer->GetToken(tokenizerFlags_t::TKF_NONE, tokenizerFlags_t::TKF_NONE);
 	type = token->GetType();
 
 	switch ( type )
 	{
-	case TK_FLOAT:
+	case icarusToken_t::TK_FLOAT:
 		m_tokenizer->PutBackToken( token );
 		if ( GetFloat( block ) == false )
 			return false;
 
 		break;
 
-	case TK_INT:
+	case icarusToken_t::TK_INT:
 		m_tokenizer->PutBackToken( token );
 		if ( GetInteger( block ) == false )
 			return false;
 
 		break;
 
-	case TK_VECTOR_START:
+	case icarusToken_t::TK_VECTOR_START:
 		m_tokenizer->PutBackToken( token );
 		if ( GetVector( block ) == false )
 			return false;
 
 		break;
 
-	case TK_STRING:
-	case TK_CHAR:
+	case icarusToken_t::TK_STRING:
+	case icarusToken_t::TK_CHAR:
 		m_tokenizer->PutBackToken( token );
 		if ( GetString( block ) == false )
 			return false;
 
 		break;
 
-	case TK_IDENTIFIER:
+	case icarusToken_t::TK_IDENTIFIER:
 		m_tokenizer->PutBackToken( token );
 		if ( GetIdentifier( block ) == false )
 			return false;
@@ -938,10 +938,10 @@ int CInterpreter::GetType( char *get )
 	char	*string;
 	icarusToken_t		type;
 
-	token = m_tokenizer->GetToken(TKF_NONE, TKF_NONE);
+	token = m_tokenizer->GetToken(tokenizerFlags_t::TKF_NONE, tokenizerFlags_t::TKF_NONE);
 	type = token->GetType();
 
-	if ( type != TK_IDENTIFIER )
+	if ( type != icarusToken_t::TK_IDENTIFIER )
 	{
 		return Error("syntax error : expected identifier; found %s", GetTokenName(type));
 	}
@@ -977,7 +977,7 @@ int CInterpreter::GetID( char *id_name )
 
 	id = FindSymbol( id_name, m_IDKeywords );
 
-	if ( id == TK_EOF )
+	if ( id == icarusToken_t::TK_EOF )
 		return Error("'%s' : unknown identifier", id_name);
 
 	//FIXME: Function pointers would be awfully nice.. but not inside a class!  Weee!!
@@ -987,131 +987,131 @@ int CInterpreter::GetID( char *id_name )
 
 	//Affect takes control of an entity
 
-	case ID_AFFECT:
+	case icarusToken_t::ID_AFFECT:
 		return GetAffect();
 		break;
 
 	//Wait for a specified amount of time
 
-	case ID_WAIT:
+	case icarusToken_t::ID_WAIT:
 		return GetWait();
 		break;
 
 	//Generic set call
 
-	case ID_SET:
+	case icarusToken_t::ID_SET:
 		return GetSet();
 		break;
 
-	case ID_LOOP:
+	case icarusToken_t::ID_LOOP:
 		return GetLoop();
 		break;
 
-	case ID_PRINT:
+	case icarusToken_t::ID_PRINT:
 		return GetPrint();
 		break;
 
-	case ID_USE:
+	case icarusToken_t::ID_USE:
 		return GetUse();
 		break;
 
-	case ID_FLUSH:
+	case icarusToken_t::ID_FLUSH:
 		return GetFlush();
 		break;
 
-	case ID_RUN:
+	case icarusToken_t::ID_RUN:
 		return GetRun();
 		break;
 
-	case ID_KILL:
+	case icarusToken_t::ID_KILL:
 		return GetKill();
 		break;
 
-	case ID_REMOVE:
+	case icarusToken_t::ID_REMOVE:
 		return GetRemove();
 		break;
 
-	case ID_CAMERA:
+	case icarusToken_t::ID_CAMERA:
 		return GetCamera();
 		break;
 
-	case ID_SOUND:
+	case icarusToken_t::ID_SOUND:
 		return GetSound();
 		break;
 
-	case ID_MOVE:
+	case icarusToken_t::ID_MOVE:
 		return GetMove();
 		break;
 
-	case ID_ROTATE:
+	case icarusToken_t::ID_ROTATE:
 		return GetRotate();
 		break;
 
-	case ID_IF:
+	case icarusToken_t::ID_IF:
 		return GetIf();
 		break;
 
-	case ID_ELSE:
+	case icarusToken_t::ID_ELSE:
 		//return Error("syntax error : else without matching if");
 		return GetElse();	//FIXME: Protect this call so that floating else's aren't allowed
 		break;
 
-	case ID_GET:
+	case icarusToken_t::ID_GET:
 		return Error("syntax error : illegal use of \"get\"");
 		break;
 
-	case ID_TAG:
+	case icarusToken_t::ID_TAG:
 		return Error("syntax error : illegal use of \"tag\"");
 		break;
 
-	case ID_TASK:
+	case icarusToken_t::ID_TASK:
 		return GetTask();
 		break;
 
-	case ID_DO:
+	case icarusToken_t::ID_DO:
 		return GetDo();
 		break;
 
-	case ID_DECLARE:
+	case icarusToken_t::ID_DECLARE:
 		return GetDeclare();
 		break;
 
-	case ID_FREE:
+	case icarusToken_t::ID_FREE:
 		return GetFree();
 		break;
 
-	case ID_REM:
+	case icarusToken_t::ID_REM:
 		GetRem();
 		break;
 
-	case ID_DOWAIT:
+	case icarusToken_t::ID_DOWAIT:
 		GetDoWait();
 		break;
 
-	case ID_SIGNAL:
+	case icarusToken_t::ID_SIGNAL:
 		GetSignal();
 		break;
 
-	case ID_WAITSIGNAL:
+	case icarusToken_t::ID_WAITSIGNAL:
 		GetWaitSignal();
 		break;
 
-	case ID_PLAY:
+	case icarusToken_t::ID_PLAY:
 		GetPlay();	//Bad eighties slang joke...  yeah, it's not really funny, I know...
 		break;
 
 		//Local variable types
-	case TK_FLOAT:
-	case TK_INT:
-	case TK_STRING:
-	case TK_VECTOR:
+	case icarusToken_t::TK_FLOAT:
+	case icarusToken_t::TK_INT:
+	case icarusToken_t::TK_STRING:
+	case icarusToken_t::TK_VECTOR:
 		GetVariable( id );
 		break;
 
 	//Unknown ID
 
 	default:
-	case TK_EOF:
+	case icarusToken_t::TK_EOF:
 		return Error("'%s' : unknown identifier", id_name);
 		break;
 	}
@@ -1139,9 +1139,9 @@ int CInterpreter::GetDeclare( void )
 	char	typeName[MAX_STRING_LENGTH];
 	icarusToken_t		type;
 
-	block.Create( ID_DECLARE );
+	block.Create( icarusToken_t::ID_DECLARE );
 
-	if (!Match( TK_OPEN_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_OPEN_PARENTHESIS ))
 		return Error("syntax error : '(' not found");
 
 	if ( GetType( (char *) typeName ) == false )
@@ -1151,10 +1151,10 @@ int CInterpreter::GetDeclare( void )
 
 	switch ( type )
 	{
-	case TK_FLOAT:
-	case TK_VECTOR:
-	case TK_STRING:
-		block.Write( TK_FLOAT, (float) to_underlying( type ) );
+	case icarusToken_t::TK_FLOAT:
+	case icarusToken_t::TK_VECTOR:
+	case icarusToken_t::TK_STRING:
+		block.Write( icarusToken_t::TK_FLOAT, (float) to_underlying( type ) );
 		break;
 
 	default:
@@ -1165,7 +1165,7 @@ int CInterpreter::GetDeclare( void )
 	if ( GetString( &block ) == false )
 		return false;
 
-	if (!Match( TK_CLOSED_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_CLOSED_PARENTHESIS ))
 		return Error("declare : too many parameters");
 
 	m_blockStream->WriteBlock( &block );
@@ -1184,15 +1184,15 @@ int CInterpreter::GetFree( void )
 {
 	CBlock	block;
 
-	block.Create( ID_FREE );
+	block.Create( icarusToken_t::ID_FREE );
 
-	if ( Match( TK_OPEN_PARENTHESIS ) == false )
+	if ( Match( icarusToken_t::TK_OPEN_PARENTHESIS ) == false )
 		return Error("syntax error : '(' not found");
 
 	if ( GetString( &block ) == false )
 		return false;
 
-	if ( Match( TK_CLOSED_PARENTHESIS ) == false )
+	if ( Match( icarusToken_t::TK_CLOSED_PARENTHESIS ) == false )
 		return Error("free : too many parameters");
 
 	m_blockStream->WriteBlock( &block );
@@ -1216,9 +1216,9 @@ int CInterpreter::GetIf( void )
 {
 	CBlock	block;
 
-	block.Create( ID_IF );
+	block.Create( icarusToken_t::ID_IF );
 
-	if ( Match( TK_OPEN_PARENTHESIS ) == false )
+	if ( Match( icarusToken_t::TK_OPEN_PARENTHESIS ) == false )
 		return Error("syntax error : '(' not found");
 
 	if ( GetAny( &block ) == false )
@@ -1230,7 +1230,7 @@ int CInterpreter::GetIf( void )
 	if ( GetAny( &block ) == false )
 		return false;
 
-	if ( Match( TK_CLOSED_PARENTHESIS ) == false )
+	if ( Match( icarusToken_t::TK_CLOSED_PARENTHESIS ) == false )
 		return Error("if : too many parameters");
 
 	m_blockStream->WriteBlock( &block );
@@ -1254,10 +1254,10 @@ int CInterpreter::GetElse( void )
 {
 	CBlock	block;
 
-	block.Create( ID_ELSE );
+	block.Create( icarusToken_t::ID_ELSE );
 
 	/*
-	if ( Match( TK_OPEN_PARENTHESIS ) == false )
+	if ( Match( icarusToken_t::TK_OPEN_PARENTHESIS ) == false )
 		return Error("syntax error : '(' not found");
 	*/
 
@@ -1273,7 +1273,7 @@ int CInterpreter::GetElse( void )
 	*/
 
 	/*
-	if ( Match( TK_CLOSED_PARENTHESIS ) == false )
+	if ( Match( icarusToken_t::TK_CLOSED_PARENTHESIS ) == false )
 		return Error("sound : too many parameters");
 	*/
 
@@ -1298,15 +1298,15 @@ int CInterpreter::GetTask( void )
 {
 	CBlock	block;
 
-	block.Create( ID_TASK );
+	block.Create( icarusToken_t::ID_TASK );
 
-	if (!Match( TK_OPEN_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_OPEN_PARENTHESIS ))
 		return Error("syntax error : '(' not found");
 
 	if ( GetString( &block ) == false )
 		return false;
 
-	if (!Match( TK_CLOSED_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_CLOSED_PARENTHESIS ))
 		return Error("GetTask: too many parameters");
 
 	m_blockStream->WriteBlock( &block );
@@ -1331,15 +1331,15 @@ int CInterpreter::GetDo( void )
 {
 	CBlock	block;
 
-	block.Create( ID_DO );
+	block.Create( icarusToken_t::ID_DO );
 
-	if (!Match( TK_OPEN_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_OPEN_PARENTHESIS ))
 		return Error("syntax error : '(' not found");
 
 	if ( GetString( &block ) == false )
 		return false;
 
-	if (!Match( TK_CLOSED_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_CLOSED_PARENTHESIS ))
 		return Error("do : too many parameters");
 
 	m_blockStream->WriteBlock( &block );
@@ -1364,9 +1364,9 @@ int CInterpreter::GetGet( CBlock *block )
 	char	typeName[MAX_STRING_LENGTH];
 	icarusToken_t		type;
 
-	block->Write( ID_GET, (float) to_underlying( ID_GET ) );
+	block->Write( icarusToken_t::ID_GET, (float) to_underlying( icarusToken_t::ID_GET ) );
 
-	if (!Match( TK_OPEN_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_OPEN_PARENTHESIS ))
 		return Error("syntax error : '(' not found");
 
 	if ( GetType( (char *) typeName ) == false )
@@ -1376,11 +1376,11 @@ int CInterpreter::GetGet( CBlock *block )
 
 	switch ( type )
 	{
-	case TK_FLOAT:
-	case TK_INT:
-	case TK_VECTOR:
-	case TK_STRING:
-		block->Write( TK_FLOAT, (float) to_underlying( type ) );
+	case icarusToken_t::TK_FLOAT:
+	case icarusToken_t::TK_INT:
+	case icarusToken_t::TK_VECTOR:
+	case icarusToken_t::TK_STRING:
+		block->Write( icarusToken_t::TK_FLOAT, (float) to_underlying( type ) );
 		break;
 
 	default:
@@ -1391,7 +1391,7 @@ int CInterpreter::GetGet( CBlock *block )
 	if ( GetString( block ) == false )
 		return false;
 
-	if (!Match( TK_CLOSED_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_CLOSED_PARENTHESIS ))
 		return Error("affect : too many parameters");
 
 	return true;
@@ -1411,9 +1411,9 @@ int CInterpreter::GetGet( CBlock *block )
 
 int CInterpreter::GetRandom( CBlock *block )
 {
-	block->Write( ID_RANDOM, (float) to_underlying( ID_RANDOM ) );
+	block->Write( icarusToken_t::ID_RANDOM, (float) to_underlying( icarusToken_t::ID_RANDOM ) );
 
-	if (!Match( TK_OPEN_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_OPEN_PARENTHESIS ))
 		return Error("syntax error : '(' not found");
 
 	if ( GetFloat( block ) == false )
@@ -1422,7 +1422,7 @@ int CInterpreter::GetRandom( CBlock *block )
 	if ( GetFloat( block ) == false )
 		return false;
 
-	if (!Match( TK_CLOSED_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_CLOSED_PARENTHESIS ))
 		return Error("affect : too many parameters");
 
 	return true;
@@ -1444,9 +1444,9 @@ int CInterpreter::GetSound( void )
 {
 	CBlock	block;
 
-	block.Create( ID_SOUND );
+	block.Create( icarusToken_t::ID_SOUND );
 
-	if (!Match( TK_OPEN_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_OPEN_PARENTHESIS ))
 		return Error("syntax error : '(' not found");
 
 	if ( GetIdentifier( &block ) == false )
@@ -1455,7 +1455,7 @@ int CInterpreter::GetSound( void )
 	if ( GetString( &block ) == false )
 		return false;
 
-	if (!Match( TK_CLOSED_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_CLOSED_PARENTHESIS ))
 		return Error("sound : too many parameters");
 
 	m_blockStream->WriteBlock( &block );
@@ -1473,22 +1473,22 @@ int CInterpreter::GetSound( void )
 ===================================================================================================
 */
 
-// move( ORIGIN, ANGLES, DURATION );
+// move( Eorientations::ORIGIN, ANGLES, DURATION );
 
 int CInterpreter::GetMove( void )
 {
 	CBlock	block;
 
-	block.Create( ID_MOVE );
+	block.Create( icarusToken_t::ID_MOVE );
 
-	if (!Match( TK_OPEN_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_OPEN_PARENTHESIS ))
 		return Error("syntax error : '(' not found");
 
 	if ( GetVector( &block ) == false )
 		return false;
 
 	//Angles are optional
-	if ( LookAhead( TK_VECTOR_START ) || LookAhead( TK_IDENTIFIER ) )
+	if ( LookAhead( icarusToken_t::TK_VECTOR_START ) || LookAhead( icarusToken_t::TK_IDENTIFIER ) )
 	{
 		if ( GetVector( &block ) == false )
 			return false;
@@ -1497,7 +1497,7 @@ int CInterpreter::GetMove( void )
 	if ( GetFloat( &block ) == false )
 		return false;
 
-	if (!Match( TK_CLOSED_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_CLOSED_PARENTHESIS ))
 		return Error("move : too many parameters");
 
 	m_blockStream->WriteBlock( &block );
@@ -1521,9 +1521,9 @@ int CInterpreter::GetRotate( void )
 {
 	CBlock	block;
 
-	block.Create( ID_ROTATE );
+	block.Create( icarusToken_t::ID_ROTATE );
 
-	if (!Match( TK_OPEN_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_OPEN_PARENTHESIS ))
 		return Error("syntax error : '(' not found");
 
 	if ( GetVector( &block ) == false )
@@ -1532,7 +1532,7 @@ int CInterpreter::GetRotate( void )
 	if ( GetFloat( &block ) == false )
 		return false;
 
-	if (!Match( TK_CLOSED_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_CLOSED_PARENTHESIS ))
 		return Error("move : too many parameters");
 
 	m_blockStream->WriteBlock( &block );
@@ -1558,15 +1558,15 @@ int CInterpreter::GetAffect( void )
 	char			typeName[MAX_STRING_SIZE];
 	icarusToken_t				type;
 
-	block.Create( ID_AFFECT );
+	block.Create( icarusToken_t::ID_AFFECT );
 
-	if (!Match( TK_OPEN_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_OPEN_PARENTHESIS ))
 		return Error("syntax error : '(' not found");
 
 	if ( GetString( &block ) == false )
 		return false;
 
-	if (!LookAhead( TK_IDENTIFIER ))
+	if (!LookAhead( icarusToken_t::TK_IDENTIFIER ))
 		return Error("syntax error : identifier not found");
 
 	if ( MatchGet() )
@@ -1579,10 +1579,10 @@ int CInterpreter::GetAffect( void )
 
 	switch ( type )
 	{
-	case TYPE_INSERT:
-	case TYPE_FLUSH:
+	case icarusToken_t::TYPE_INSERT:
+	case icarusToken_t::TYPE_FLUSH:
 
-		block.Write( TK_FLOAT, (float) to_underlying( type ) );
+		block.Write( icarusToken_t::TK_FLOAT, (float) to_underlying( type ) );
 		break;
 
 	default:
@@ -1591,10 +1591,10 @@ int CInterpreter::GetAffect( void )
 
 	}
 
-	if (!Match( TK_CLOSED_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_CLOSED_PARENTHESIS ))
 		return Error("affect : too many parameters");
 
-	if (!LookAhead( TK_BLOCK_START ))
+	if (!LookAhead( icarusToken_t::TK_BLOCK_START ))
 		return Error("syntax error : '{' not found");
 
 	m_blockStream->WriteBlock( &block );
@@ -1618,12 +1618,12 @@ int CInterpreter::GetWait( void )
 {
 	CBlock			block;
 
-	block.Create( ID_WAIT );
+	block.Create( icarusToken_t::ID_WAIT );
 
-	if (!Match( TK_OPEN_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_OPEN_PARENTHESIS ))
 		return Error("syntax error : '(' not found");
 
-	if ( LookAhead( TK_STRING ) )
+	if ( LookAhead( icarusToken_t::TK_STRING ) )
 	{
 		if ( GetString( &block ) == false )
 			return false;
@@ -1634,7 +1634,7 @@ int CInterpreter::GetWait( void )
 			return false;
 	}
 
-	if (!Match( TK_CLOSED_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_CLOSED_PARENTHESIS ))
 		return Error("wait : too many parameters");
 
 	m_blockStream->WriteBlock( &block );
@@ -1658,9 +1658,9 @@ int CInterpreter::GetSet( void )
 {
 	CBlock		block;
 
-	block.Create( ID_SET );
+	block.Create( icarusToken_t::ID_SET );
 
-	if (!Match( TK_OPEN_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_OPEN_PARENTHESIS ))
 		return Error("syntax error : '(' not found");
 
 	if ( GetString( &block ) == false )
@@ -1676,28 +1676,28 @@ int CInterpreter::GetSet( void )
 	{
 		switch( GetNextType() )
 		{
-		case TK_INT:
+		case icarusToken_t::TK_INT:
 
 			if ( GetInteger( &block ) == false )
 				return false;
 
 			break;
 
-		case TK_FLOAT:
+		case icarusToken_t::TK_FLOAT:
 
 			if ( GetFloat( &block ) == false )
 				return false;
 
 			break;
 
-		case TK_STRING:
+		case icarusToken_t::TK_STRING:
 
 			if ( GetString( &block ) == false )
 				return false;
 
 			break;
 
-		case TK_VECTOR_START:
+		case icarusToken_t::TK_VECTOR_START:
 
 			if ( GetVector( &block ) == false )
 				return false;
@@ -1723,7 +1723,7 @@ int CInterpreter::GetSet( void )
 		}
 	}
 
-	if (!Match( TK_CLOSED_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_CLOSED_PARENTHESIS ))
 		return Error("set : too many parameters");
 
 	m_blockStream->WriteBlock( &block );
@@ -1745,15 +1745,15 @@ int CInterpreter::GetLoop( void )
 {
 	CBlock			block;
 
-	block.Create( ID_LOOP );
+	block.Create( icarusToken_t::ID_LOOP );
 
-	if (!Match( TK_OPEN_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_OPEN_PARENTHESIS ))
 		return Error("syntax error : '(' not found");
 
-	if ( LookAhead( TK_CLOSED_PARENTHESIS ) )
+	if ( LookAhead( icarusToken_t::TK_CLOSED_PARENTHESIS ) )
 	{
 		//-1 denotes an infinite loop
-		block.Write( TK_FLOAT, (float) -1);
+		block.Write( icarusToken_t::TK_FLOAT, (float) -1);
 	}
 	else
 	{
@@ -1761,7 +1761,7 @@ int CInterpreter::GetLoop( void )
 			return false;
 	}
 
-	if (!Match( TK_CLOSED_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_CLOSED_PARENTHESIS ))
 		return Error("GetLoop : too many parameters");
 
 	m_blockStream->WriteBlock( &block );
@@ -1783,15 +1783,15 @@ int CInterpreter::GetPrint( void )
 {
 	CBlock			block;
 
-	block.Create( ID_PRINT );
+	block.Create( icarusToken_t::ID_PRINT );
 
-	if (!Match( TK_OPEN_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_OPEN_PARENTHESIS ))
 		return Error("syntax error : '(' not found");
 
 	if ( GetString( &block ) == false )
 		return false;
 
-	if (!Match( TK_CLOSED_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_CLOSED_PARENTHESIS ))
 		return Error("print : too many parameters");
 
 	m_blockStream->WriteBlock( &block );
@@ -1813,15 +1813,15 @@ int CInterpreter::GetUse( void )
 {
 	CBlock			block;
 
-	block.Create( ID_USE );
+	block.Create( icarusToken_t::ID_USE );
 
-	if (!Match( TK_OPEN_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_OPEN_PARENTHESIS ))
 		return Error("syntax error : '(' not found");
 
 	if ( GetString( &block ) == false )
 		return false;
 
-	if (!Match( TK_CLOSED_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_CLOSED_PARENTHESIS ))
 		return Error("use : too many parameters");
 
 	m_blockStream->WriteBlock( &block );
@@ -1843,12 +1843,12 @@ int CInterpreter::GetFlush( void )
 {
 	CBlock	block;
 
-	block.Create( ID_FLUSH );
+	block.Create( icarusToken_t::ID_FLUSH );
 
-	if (!Match( TK_OPEN_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_OPEN_PARENTHESIS ))
 		return Error("syntax error : '(' not found");
 
-	if (!Match( TK_CLOSED_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_CLOSED_PARENTHESIS ))
 		return Error("flush : too many parameters");
 
 	m_blockStream->WriteBlock( &block );
@@ -1870,15 +1870,15 @@ int CInterpreter::GetRun( void )
 {
 	CBlock	block;
 
-	block.Create( ID_RUN );
+	block.Create( icarusToken_t::ID_RUN );
 
-	if (!Match( TK_OPEN_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_OPEN_PARENTHESIS ))
 		return Error("syntax error : '(' not found");
 
 	if ( GetString( &block ) == false )
 		return false;
 
-	if (!Match( TK_CLOSED_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_CLOSED_PARENTHESIS ))
 		return Error("run : too many parameters");
 
 	m_blockStream->WriteBlock( &block );
@@ -1900,15 +1900,15 @@ int CInterpreter::GetKill( void )
 {
 	CBlock	block;
 
-	block.Create( ID_KILL );
+	block.Create( icarusToken_t::ID_KILL );
 
-	if (!Match( TK_OPEN_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_OPEN_PARENTHESIS ))
 		return Error("syntax error : '(' not found");
 
 	if ( GetString( &block ) == false )
 		return false;
 
-	if (!Match( TK_CLOSED_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_CLOSED_PARENTHESIS ))
 		return Error("kill : too many parameters");
 
 	m_blockStream->WriteBlock( &block );
@@ -1930,15 +1930,15 @@ int CInterpreter::GetRemove( void )
 {
 	CBlock	block;
 
-	block.Create( ID_REMOVE );
+	block.Create( icarusToken_t::ID_REMOVE );
 
-	if (!Match( TK_OPEN_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_OPEN_PARENTHESIS ))
 		return Error("syntax error : '(' not found");
 
 	if ( GetString( &block ) == false )
 		return false;
 
-	if (!Match( TK_CLOSED_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_CLOSED_PARENTHESIS ))
 		return Error("remove : too many parameters");
 
 	m_blockStream->WriteBlock( &block );
@@ -1962,19 +1962,19 @@ int CInterpreter::GetRem( void )
 {
 	CBlock	block;
 
-	block.Create( ID_REM );
+	block.Create( icarusToken_t::ID_REM );
 
-	if (!Match( TK_OPEN_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_OPEN_PARENTHESIS ))
 		return Error("syntax error : '(' not found");
 
 	// optional string?
 
-	if (Match( TK_CLOSED_PARENTHESIS ))
+	if (Match( icarusToken_t::TK_CLOSED_PARENTHESIS ))
 		return true;
 
 	GetString( &block );
 
-	if (!Match( TK_CLOSED_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_CLOSED_PARENTHESIS ))
 		return Error("rem : function only takes 1 optional parameter");
 
 	return true;
@@ -1997,9 +1997,9 @@ int CInterpreter::GetCamera( void )
 	char	typeName[MAX_STRING_SIZE];
 	icarusToken_t		type;
 
-	block.Create( ID_CAMERA );
+	block.Create( icarusToken_t::ID_CAMERA );
 
-	if (!Match( TK_OPEN_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_OPEN_PARENTHESIS ))
 		return Error("syntax error : '(' not found");
 
 	if ( GetType( (char *) typeName ) == false )
@@ -2009,36 +2009,12 @@ int CInterpreter::GetCamera( void )
 
 	switch ( type )
 	{
-	case TYPE_PAN:		//PAN  ( ANGLES, DURATION )
+	case icarusToken_t::TYPE_PAN:		//PAN  ( ANGLES, DURATION )
 
-		block.Write( TK_FLOAT, (float) to_underlying( type ) );
-
-		if ( GetVector( &block ) == false )
-			return false;
+		block.Write( icarusToken_t::TK_FLOAT, (float) to_underlying( type ) );
 
 		if ( GetVector( &block ) == false )
 			return false;
-
-		if ( GetFloat( &block ) == false )
-			return false;
-
-		break;
-
-	case TYPE_ZOOM:		//ZOOM ( FOV, DURATION )
-
-		block.Write( TK_FLOAT, (float) to_underlying( type ) );
-
-		if ( GetFloat( &block ) == false )
-			return false;
-
-		if ( GetFloat( &block ) == false )
-			return false;
-
-		break;
-
-	case TYPE_MOVE:		//MOVE ( ORIGIN, DURATION )
-
-		block.Write( TK_FLOAT, (float) to_underlying( type ) );
 
 		if ( GetVector( &block ) == false )
 			return false;
@@ -2048,9 +2024,33 @@ int CInterpreter::GetCamera( void )
 
 		break;
 
-	case TYPE_FADE:		//FADE ( SOURCE(R,G,B,A), DEST(R,G,B,A), DURATION )
+	case icarusToken_t::TYPE_ZOOM:		//ZOOM ( FOV, DURATION )
 
-		block.Write( TK_FLOAT, (float) to_underlying( type ) );
+		block.Write( icarusToken_t::TK_FLOAT, (float) to_underlying( type ) );
+
+		if ( GetFloat( &block ) == false )
+			return false;
+
+		if ( GetFloat( &block ) == false )
+			return false;
+
+		break;
+
+	case icarusToken_t::TYPE_MOVE:		//MOVE ( Eorientations::ORIGIN, DURATION )
+
+		block.Write( icarusToken_t::TK_FLOAT, (float) to_underlying( type ) );
+
+		if ( GetVector( &block ) == false )
+			return false;
+
+		if ( GetFloat( &block ) == false )
+			return false;
+
+		break;
+
+	case icarusToken_t::TYPE_FADE:		//FADE ( SOURCE(R,G,B,A), DEST(R,G,B,A), DURATION )
+
+		block.Write( icarusToken_t::TK_FLOAT, (float) to_underlying( type ) );
 
 		//Source color
 		if ( GetVector( &block ) == false )
@@ -2070,9 +2070,9 @@ int CInterpreter::GetCamera( void )
 
 		break;
 
-	case TYPE_PATH:		//PATH ( FILENAME )
+	case icarusToken_t::TYPE_PATH:		//PATH ( FILENAME )
 
-		block.Write( TK_FLOAT, (float) to_underlying( type ) );
+		block.Write( icarusToken_t::TK_FLOAT, (float) to_underlying( type ) );
 
 		//Filename
 		if ( GetString( &block ) == false )
@@ -2080,15 +2080,15 @@ int CInterpreter::GetCamera( void )
 
 		break;
 
-	case TYPE_ENABLE:
-	case TYPE_DISABLE:
+	case icarusToken_t::TYPE_ENABLE:
+	case icarusToken_t::TYPE_DISABLE:
 
-		block.Write( TK_FLOAT, (float) to_underlying( type ) );
+		block.Write( icarusToken_t::TK_FLOAT, (float) to_underlying( type ) );
 		break;
 
-	case TYPE_SHAKE:	//SHAKE ( INTENSITY, DURATION )
+	case icarusToken_t::TYPE_SHAKE:	//SHAKE ( INTENSITY, DURATION )
 
-		block.Write( TK_FLOAT, (float) to_underlying( type ) );
+		block.Write( icarusToken_t::TK_FLOAT, (float) to_underlying( type ) );
 
 		//Intensity
 		if ( GetFloat( &block ) == false )
@@ -2100,9 +2100,9 @@ int CInterpreter::GetCamera( void )
 
 		break;
 
-	case TYPE_ROLL:		//ROLL ( ANGLE, TIME )
+	case icarusToken_t::TYPE_ROLL:		//ROLL ( ANGLE, TIME )
 
-		block.Write( TK_FLOAT, (float) to_underlying( type ) );
+		block.Write( icarusToken_t::TK_FLOAT, (float) to_underlying( type ) );
 
 		//Angle
 		if ( GetFloat( &block ) == false )
@@ -2114,9 +2114,9 @@ int CInterpreter::GetCamera( void )
 
 		break;
 
-	case TYPE_TRACK:	//TRACK ( TARGETNAME, SPEED, INITLERP )
+	case icarusToken_t::TYPE_TRACK:	//TRACK ( TARGETNAME, SPEED, INITLERP )
 
-		block.Write( TK_FLOAT, (float) to_underlying( type ) );
+		block.Write( icarusToken_t::TK_FLOAT, (float) to_underlying( type ) );
 
 		//Target name
 		if ( GetString( &block ) == false )
@@ -2132,9 +2132,9 @@ int CInterpreter::GetCamera( void )
 
 		break;
 
-	case TYPE_FOLLOW:	//FOLLOW ( CAMERAGROUP, SPEED, INITLERP )
+	case icarusToken_t::TYPE_FOLLOW:	//FOLLOW ( CAMERAGROUP, SPEED, INITLERP )
 
-		block.Write( TK_FLOAT, (float) to_underlying( type ) );
+		block.Write( icarusToken_t::TK_FLOAT, (float) to_underlying( type ) );
 
 		//Camera group
 		if ( GetString( &block ) == false )
@@ -2150,9 +2150,9 @@ int CInterpreter::GetCamera( void )
 
 		break;
 
-	case TYPE_DISTANCE:	//DISTANCE ( DISTANCE, INITLERP )
+	case icarusToken_t::TYPE_DISTANCE:	//DISTANCE ( DISTANCE, INITLERP )
 
-		block.Write( TK_FLOAT, (float) to_underlying( type ) );
+		block.Write( icarusToken_t::TK_FLOAT, (float) to_underlying( type ) );
 
 		//Distance
 		if ( GetFloat( &block ) == false )
@@ -2165,7 +2165,7 @@ int CInterpreter::GetCamera( void )
 		break;
 	}
 
-	if (!Match( TK_CLOSED_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_CLOSED_PARENTHESIS ))
 		return Error("camera : too many parameters");
 
 	m_blockStream->WriteBlock( &block );
@@ -2184,15 +2184,15 @@ int CInterpreter::GetDoWait( void )
 	CBlock	block;
 
 	//Write out the "do" portion
-	block.Create( ID_DO );
+	block.Create( icarusToken_t::ID_DO );
 
-	if (!Match( TK_OPEN_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_OPEN_PARENTHESIS ))
 		return Error("syntax error : '(' not found");
 
 	if ( GetString( &block ) == false )
 		return false;
 
-	if (!Match( TK_CLOSED_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_CLOSED_PARENTHESIS ))
 		return Error("do : too many parameters");
 
 	//Write out the accompanying "wait"
@@ -2200,9 +2200,9 @@ int CInterpreter::GetDoWait( void )
 
 	CBlock	block2;
 
-	block2.Create( ID_WAIT );
+	block2.Create( icarusToken_t::ID_WAIT );
 
-	block2.Write( TK_STRING, (char *) str );
+	block2.Write( icarusToken_t::TK_STRING, (char *) str );
 
 	m_blockStream->WriteBlock( &block );
 	m_blockStream->WriteBlock( &block2 );
@@ -2220,15 +2220,15 @@ int CInterpreter::GetSignal( void )
 {
 	CBlock			block;
 
-	block.Create( ID_SIGNAL );
+	block.Create( icarusToken_t::ID_SIGNAL );
 
-	if (!Match( TK_OPEN_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_OPEN_PARENTHESIS ))
 		return Error("syntax error : '(' not found");
 
 	if ( GetString( &block ) == false )
 		return false;
 
-	if (!Match( TK_CLOSED_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_CLOSED_PARENTHESIS ))
 		return Error("signal : too many parameters");
 
 	m_blockStream->WriteBlock( &block );
@@ -2246,15 +2246,15 @@ int CInterpreter::GetWaitSignal( void )
 {
 	CBlock			block;
 
-	block.Create( ID_WAITSIGNAL );
+	block.Create( icarusToken_t::ID_WAITSIGNAL );
 
-	if (!Match( TK_OPEN_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_OPEN_PARENTHESIS ))
 		return Error("syntax error : '(' not found");
 
 	if ( GetString( &block ) == false )
 		return false;
 
-	if (!Match( TK_CLOSED_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_CLOSED_PARENTHESIS ))
 		return Error("waitsignal : too many parameters");
 
 	m_blockStream->WriteBlock( &block );
@@ -2272,9 +2272,9 @@ int CInterpreter::GetPlay( void )
 {
 	CBlock			block;
 
-	block.Create( ID_PLAY );
+	block.Create( icarusToken_t::ID_PLAY );
 
-	if (!Match( TK_OPEN_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_OPEN_PARENTHESIS ))
 		return Error("syntax error : '(' not found");
 
 	if ( GetString( &block ) == false )
@@ -2283,7 +2283,7 @@ int CInterpreter::GetPlay( void )
 	if ( GetString( &block ) == false )
 		return false;
 
-	if (!Match( TK_CLOSED_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_CLOSED_PARENTHESIS ))
 		return Error("waitsignal : too many parameters");
 
 	m_blockStream->WriteBlock( &block );
@@ -2309,9 +2309,9 @@ int CInterpreter::GetTag( CBlock *block )
 	icarusToken_t		typeID;
 
 	//Mark as a tag
-	block->Write( ID_TAG, (float) to_underlying( ID_TAG ) );
+	block->Write( icarusToken_t::ID_TAG, (float) to_underlying( icarusToken_t::ID_TAG ) );
 
-	if (!Match( TK_OPEN_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_OPEN_PARENTHESIS ))
 		return Error("syntax error : '(' not found");
 
 	//Get the tag name
@@ -2324,14 +2324,14 @@ int CInterpreter::GetTag( CBlock *block )
 	typeID = FindSymbol( (char *) typeName, m_typeKeywords);
 
 	//Tags only contain origin and angles lookups
-	if ( (typeID != TYPE_ORIGIN) && (typeID != TYPE_ANGLES) )
+	if ( (typeID != icarusToken_t::TYPE_ORIGIN) && (typeID != icarusToken_t::TYPE_ANGLES) )
 	{
 		return Error("syntax error : 'tag' : %s is not a valid look up identifier", typeName );
 	}
 
-	block->Write( TK_FLOAT, (float) to_underlying( typeID ) );
+	block->Write( icarusToken_t::TK_FLOAT, (float) to_underlying( typeID ) );
 
-	if (!Match( TK_CLOSED_PARENTHESIS ))
+	if (!Match( icarusToken_t::TK_CLOSED_PARENTHESIS ))
 		return Error("tag : too many parameters");
 
 	return true;
@@ -2363,7 +2363,7 @@ int	CInterpreter::Interpret( CTokenizer *Tokenizer, CBlockStream *BlockStream, c
 	m_blockStream	= BlockStream;
 
 	m_iCurrentLine = m_tokenizer->GetCurLine();
-	token = m_tokenizer->GetToEndOfLine(TK_STRING);
+	token = m_tokenizer->GetToEndOfLine(icarusToken_t::TK_STRING);
 	m_sCurrentLine = token->GetStringValue();
 	m_tokenizer->PutBackToken(token, false, nullptr, true);
 
@@ -2371,53 +2371,53 @@ int	CInterpreter::Interpret( CTokenizer *Tokenizer, CBlockStream *BlockStream, c
 
 	while (m_tokenizer->GetRemainingSize() > 0)
 	{
-		token = m_tokenizer->GetToken( TKF_USES_EOL, TKF_NONE );
+		token = m_tokenizer->GetToken( tokenizerFlags_t::TKF_USES_EOL, tokenizerFlags_t::TKF_NONE );
 		type = token->GetType();
 
 		switch ( type )
 		{
-		case TK_UNDEFINED:
+		case icarusToken_t::TK_UNDEFINED:
 			token->Delete();
 			m_iBadCBlockNumber = -m_iBadCBlockNumber;
 			Error("%d : undefined token", type);
 			return m_iBadCBlockNumber;
 			break;
 
-		case TK_EOF:
+		case icarusToken_t::TK_EOF:
 			break;
 
-		case TK_EOL:
+		case icarusToken_t::TK_EOL:
 			// read the next line, then put it back
 			token->Delete();
 			m_iCurrentLine = m_tokenizer->GetCurLine();
-			token = m_tokenizer->GetToEndOfLine(TK_STRING);
+			token = m_tokenizer->GetToEndOfLine(icarusToken_t::TK_STRING);
 			m_sCurrentLine = token->GetStringValue();
 			m_tokenizer->PutBackToken(token, false, nullptr, true);
 			break;
 
-		case TK_CHAR:
-		case TK_STRING:
+		case icarusToken_t::TK_CHAR:
+		case icarusToken_t::TK_STRING:
 			token->Delete();
 			m_iBadCBlockNumber = -m_iBadCBlockNumber;
 			Error("syntax error : unexpected string");
 			return m_iBadCBlockNumber;
 			break;
 
-		case TK_INT:
+		case icarusToken_t::TK_INT:
 			token->Delete();
 			m_iBadCBlockNumber = -m_iBadCBlockNumber;
 			Error("syntax error : unexpected integer");
 			return m_iBadCBlockNumber;
 			break;
 
-		case TK_FLOAT:
+		case icarusToken_t::TK_FLOAT:
 			token->Delete();
 			m_iBadCBlockNumber = -m_iBadCBlockNumber;
 			Error("syntax error : unexpected float");
 			return m_iBadCBlockNumber;
 			break;
 
-		case TK_IDENTIFIER:
+		case icarusToken_t::TK_IDENTIFIER:
 			m_iBadCBlockNumber++;
 			if (!GetID( (char *) token->GetStringValue() ))
 			{
@@ -2427,7 +2427,7 @@ int	CInterpreter::Interpret( CTokenizer *Tokenizer, CBlockStream *BlockStream, c
 			token->Delete();
 			break;
 
-		case TK_BLOCK_START:
+		case icarusToken_t::TK_BLOCK_START:
 			token->Delete();
 			if (parenthesisLevel)
 			{
@@ -2439,7 +2439,7 @@ int	CInterpreter::Interpret( CTokenizer *Tokenizer, CBlockStream *BlockStream, c
 			blockLevel++;
 			break;
 
-		case TK_BLOCK_END:
+		case icarusToken_t::TK_BLOCK_END:
 			token->Delete();
 			if (parenthesisLevel)
 			{
@@ -2448,20 +2448,20 @@ int	CInterpreter::Interpret( CTokenizer *Tokenizer, CBlockStream *BlockStream, c
 				return m_iBadCBlockNumber;
 			}
 
-			block.Create( ID_BLOCK_END );
+			block.Create( icarusToken_t::ID_BLOCK_END );
 			m_blockStream->WriteBlock( &block );
 			block.Free();
 
 			blockLevel--;
 			break;
 
-		case TK_OPEN_PARENTHESIS:
+		case icarusToken_t::TK_OPEN_PARENTHESIS:
 			token->Delete();
 			blockLevel++;
 			parenthesisLevel++;
 			break;
 
-		case TK_CLOSED_PARENTHESIS:
+		case icarusToken_t::TK_CLOSED_PARENTHESIS:
 			token->Delete();
 			blockLevel--;
 			parenthesisLevel--;
@@ -2474,14 +2474,14 @@ int	CInterpreter::Interpret( CTokenizer *Tokenizer, CBlockStream *BlockStream, c
 			}
 			break;
 
-		case TK_VECTOR_START:
+		case icarusToken_t::TK_VECTOR_START:
 			token->Delete();
 			m_iBadCBlockNumber = -m_iBadCBlockNumber;
 			Error("syntax error : unexpected vector");
 			return m_iBadCBlockNumber;
 			break;
 
-		case TK_VECTOR_END:
+		case icarusToken_t::TK_VECTOR_END:
 			token->Delete();
 			m_iBadCBlockNumber = -m_iBadCBlockNumber;
 			Error("syntax error : unexpected vector");

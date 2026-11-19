@@ -86,7 +86,7 @@ bool CL_Netchan_Process( netchan_t *chan, msg_t *msg ) {
 //	Huff_Decompress( msg, CL_DECODE_START );
 //	for(i=CL_DECODE_START+msg->readcount;i<msg->cursize;i++) {
 //		if (msg->data[i] != chksum[i-(CL_DECODE_START+msg->readcount)]) {
-//			Com_Error(ERR_DROP,"bad %d v %d\n", msg->data[i], chksum[i-(CL_DECODE_START+msg->readcount)]);
+//			Com_Error(errorParm_t::ERR_DROP,"bad %d v %d\n", msg->data[i], chksum[i-(CL_DECODE_START+msg->readcount)]);
 //		}
 //	}
 	newsize += msg->cursize;

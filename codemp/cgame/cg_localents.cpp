@@ -58,7 +58,7 @@ CG_FreeLocalEntity
 */
 void CG_FreeLocalEntity( localEntity_t *le ) {
 	if ( !le->prev ) {
-		trap->Error( ERR_DROP, "CG_FreeLocalEntity: not active" );
+		trap->Error( errorParm_t::ERR_DROP, "CG_FreeLocalEntity: not active" );
 		return;
 	}
 
@@ -139,10 +139,10 @@ void CG_BloodTrail( localEntity_t *le ) {
 					  2000,		// trailTime
 					  t,		// startTime
 					  0,		// fadeInTime
-					  LEF_NONE,	// flags
+					  leFlags_t::LEF_NONE,	// flags
 					  /*cgs.media.bloodTrailShader*/0 );
 		// use the optimized version
-		blood->leType = LE_FALL_SCALE_FADE;
+		blood->leType = leType_t::LE_FALL_SCALE_FADE;
 		// drop a total of 40 units over its lifetime
 		blood->pos.trDelta[2] = 40;
 	}
@@ -157,16 +157,16 @@ CG_FragmentBounceMark
 void CG_FragmentBounceMark( localEntity_t *le, trace_t *trace ) {
 //	int radius;
 
-	if ( le->leMarkType == LEMT_BLOOD ) {
+	if ( le->leMarkType == leMarkType_t::LEMT_BLOOD ) {
 	//	radius = 16 + (rand()&31);
 	//	CG_ImpactMark( cgs.media.bloodMarkShader, trace->endpos, trace->plane.normal, Q_flrand(0.0f, 1.0f)*360, 1,1,1,1, true, radius, false );
-	} else if ( le->leMarkType == LEMT_BURN ) {
+	} else if ( le->leMarkType == leMarkType_t::LEMT_BURN ) {
 	//	radius = 8 + (rand()&15);
 	//	CG_ImpactMark( cgs.media.burnMarkShader, trace->endpos, trace->plane.normal, Q_flrand(0.0f, 1.0f)*360, 1,1,1,1, true, radius, false );
 	}
 
 	// don't allow a fragment to make multiple marks, or they pile up while settling
-	le->leMarkType = LEMT_NONE;
+	le->leMarkType = leMarkType_t::LEMT_NONE;
 }
 
 /*
@@ -182,10 +182,10 @@ void CG_FragmentBounceSound( localEntity_t *le, trace_t *trace ) {
 
 		switch( le->leBounceSoundType )
 		{
-		case LEBS_ROCK:
+		case leBounceSoundType_t::LEBS_ROCK:
 			s = cgs.media.rockBounceSound[Q_irand(0,1)];
 			break;
-		case LEBS_METAL:
+		case leBounceSoundType_t::LEBS_METAL:
 			s = cgs.media.metalBounceSound[Q_irand(0,1)];// FIXME: make sure that this sound is registered properly...might still be rock bounce sound....
 			break;
 		default:
@@ -194,18 +194,18 @@ void CG_FragmentBounceSound( localEntity_t *le, trace_t *trace ) {
 
 		if ( s )
 		{
-			trap->S_StartSound( trace->endpos, ENTITYNUM_WORLD, CHAN_AUTO, s );
+			trap->S_StartSound( trace->endpos, ENTITYNUM_WORLD, soundChannel_t::CHAN_AUTO, s );
 		}
 
 		// bouncers only make the sound once...
 		// FIXME: arbitrary...change if it bugs you
-		le->leBounceSoundType = LEBS_NONE;
+		le->leBounceSoundType = leBounceSoundType_t::LEBS_NONE;
 	}
 	else if ( Q_irand( 0, 1 ) )
 	{
 		// we may end up bouncing again, but each bounce reduces the chance of playing the sound again or they may make a lot of noise when they settle
 		// FIXME: maybe just always do this??
-		le->leBounceSoundType = LEBS_NONE;
+		le->leBounceSoundType = leBounceSoundType_t::LEBS_NONE;
 	}
 }
 
@@ -235,7 +235,7 @@ void CG_ReflectVelocity( localEntity_t *le, trace_t *trace ) {
 	if ( trace->allsolid ||
 		( trace->plane.normal[2] > 0 &&
 		( le->pos.trDelta[2] < 40 || le->pos.trDelta[2] < -cg.frametime * le->pos.trDelta[2] ) ) ) {
-		le->pos.trType = TR_STATIONARY;
+		le->pos.trType = trType_t::TR_STATIONARY;
 	} else {
 
 	}
@@ -252,18 +252,18 @@ void CG_AddFragment( localEntity_t *le ) {
 
 	if (le->forceAlpha)
 	{
-		le->refEntity.renderfx |= RF_FORCE_ENT_ALPHA;
+		le->refEntity.renderfx |= renderFxFlags_t::RF_FORCE_ENT_ALPHA;
 		le->refEntity.shaderRGBA[3] = le->forceAlpha;
 	}
 
-	if ( le->pos.trType == TR_STATIONARY ) {
+	if ( le->pos.trType == trType_t::TR_STATIONARY ) {
 		// sink into the ground if near the removal time
 		int		t;
 		float	t_e;
 
 		t = le->endTime - cg.time;
 		if ( t < (SINK_TIME*2) ) {
-			le->refEntity.renderfx |= RF_FORCE_ENT_ALPHA;
+			le->refEntity.renderfx |= renderFxFlags_t::RF_FORCE_ENT_ALPHA;
 			t_e = (float)((float)(le->endTime - cg.time)/(SINK_TIME*2));
 			t_e = (int)((t_e)*255);
 
@@ -295,12 +295,12 @@ void CG_AddFragment( localEntity_t *le ) {
 	BG_EvaluateTrajectory( &le->pos, cg.time, newOrigin );
 
 	// trace a line from previous position to new position
-	CG_Trace( &trace, le->refEntity.origin, nullptr, nullptr, newOrigin, -1, CONTENTS_SOLID );
+	CG_Trace( &trace, le->refEntity.origin, nullptr, nullptr, newOrigin, -1, contentsFlags_t::CONTENTS_SOLID );
 	if ( trace.fraction == 1.0 ) {
 		// still in free fall
 		VectorCopy( newOrigin, le->refEntity.origin );
 
-		if ( Any( le->leFlags & LEF_TUMBLE ) ) {
+		if ( Any( le->leFlags & leFlags_t::LEF_TUMBLE ) ) {
 			vec3_t angles;
 
 			BG_EvaluateTrajectory( &le->angles, cg.time, angles );
@@ -311,7 +311,7 @@ void CG_AddFragment( localEntity_t *le ) {
 		trap->R_AddRefEntityToScene( &le->refEntity );
 
 		// add a blood trail
-		if ( le->leBounceSoundType == LEBS_BLOOD ) {
+		if ( le->leBounceSoundType == leBounceSoundType_t::LEBS_BLOOD ) {
 			CG_BloodTrail( le );
 		}
 
@@ -321,7 +321,7 @@ void CG_AddFragment( localEntity_t *le ) {
 	// if it is in a nodrop zone, remove it
 	// this keeps gibs from waiting at the bottom of pits of death
 	// and floating levels
-	if ( Any( CG_PointContents( trace.endpos, 0 ) & CONTENTS_NODROP ) ) {
+	if ( Any( CG_PointContents( trace.endpos, 0 ) & contentsFlags_t::CONTENTS_NODROP ) ) {
 		CG_FreeLocalEntity( le );
 		return;
 	}
@@ -336,7 +336,7 @@ void CG_AddFragment( localEntity_t *le ) {
 
 		if (le->bounceSound)
 		{ //specified bounce sound (debris)
-			trap->S_StartSound(le->pos.trBase, ENTITYNUM_WORLD, CHAN_AUTO, le->bounceSound);
+			trap->S_StartSound(le->pos.trBase, ENTITYNUM_WORLD, soundChannel_t::CHAN_AUTO, le->bounceSound);
 		}
 
 		// reflect the velocity on the trace plane
@@ -428,7 +428,7 @@ static void CG_AddMoveScaleFade( localEntity_t *le ) {
 
 	re->shaderRGBA[3] = 0xff * c * le->color[3];
 
-	if ( !Any( le->leFlags & LEF_PUFF_DONT_SCALE ) ) {
+	if ( !Any( le->leFlags & leFlags_t::LEF_PUFF_DONT_SCALE ) ) {
 		re->radius = le->radius * ( 1.0 - c ) + 8;
 	}
 
@@ -466,7 +466,7 @@ static void CG_AddPuff( localEntity_t *le ) {
 	re->shaderRGBA[1] = le->color[1] * c;
 	re->shaderRGBA[2] = le->color[2] * c;
 
-	if ( !Any( le->leFlags & LEF_PUFF_DONT_SCALE ) ) {
+	if ( !Any( le->leFlags & leFlags_t::LEF_PUFF_DONT_SCALE ) ) {
 		re->radius = le->radius * ( 1.0 - c ) + 8;
 	}
 
@@ -610,7 +610,7 @@ static void CG_AddSpriteExplosion( localEntity_t *le ) {
 	re.shaderRGBA[2] = 0xff;
 	re.shaderRGBA[3] = 0xff * c * 0.33;
 
-	re.reType = RT_SPRITE;
+	re.reType = refEntityType_t::RT_SPRITE;
 	re.radius = 42 * ( 1.0 - c ) + 30;
 
 	trap->R_AddRefEntityToScene( &re );
@@ -770,7 +770,7 @@ void CG_AddOLine( localEntity_t *le )
 
 	re->rotation = 90;
 
-	re->reType = RT_ORIENTEDLINE;
+	re->reType = refEntityType_t::RT_ORIENTEDLINE;
 
 	trap->R_AddRefEntityToScene( re );
 }
@@ -788,7 +788,7 @@ void CG_AddLine( localEntity_t *le )
 
 	re = &le->refEntity;
 
-	re->reType = RT_LINE;
+	re->reType = refEntityType_t::RT_LINE;
 
 	trap->R_AddRefEntityToScene( re );
 }
@@ -818,61 +818,61 @@ void CG_AddLocalEntities( void ) {
 		}
 		switch ( le->leType ) {
 		default:
-			trap->Error( ERR_DROP, "Bad leType: %i", to_underlying( le->leType ) );
+			trap->Error( errorParm_t::ERR_DROP, "Bad leType: %i", to_underlying( le->leType ) );
 			break;
 
-		case LE_MARK:
+		case leType_t::LE_MARK:
 			break;
 
-		case LE_SPRITE_EXPLOSION:
+		case leType_t::LE_SPRITE_EXPLOSION:
 			CG_AddSpriteExplosion( le );
 			break;
 
-		case LE_EXPLOSION:
+		case leType_t::LE_EXPLOSION:
 			CG_AddExplosion( le );
 			break;
 
-		case LE_FADE_SCALE_MODEL:
+		case leType_t::LE_FADE_SCALE_MODEL:
 			CG_AddFadeScaleModel( le );
 			break;
 
-		case LE_FRAGMENT:			// gibs and brass
+		case leType_t::LE_FRAGMENT:			// gibs and brass
 			CG_AddFragment( le );
 			break;
 
-		case LE_PUFF:
+		case leType_t::LE_PUFF:
 			CG_AddPuff( le );
 			break;
 
-		case LE_MOVE_SCALE_FADE:		// water bubbles
+		case leType_t::LE_MOVE_SCALE_FADE:		// water bubbles
 			CG_AddMoveScaleFade( le );
 			break;
 
-		case LE_FADE_RGB:				// teleporters, railtrails
+		case leType_t::LE_FADE_RGB:				// teleporters, railtrails
 			CG_AddFadeRGB( le );
 			break;
 
-		case LE_FALL_SCALE_FADE: // gib blood trails
+		case leType_t::LE_FALL_SCALE_FADE: // gib blood trails
 			CG_AddFallScaleFade( le );
 			break;
 
-		case LE_SCALE_FADE:		// rocket trails
+		case leType_t::LE_SCALE_FADE:		// rocket trails
 			CG_AddScaleFade( le );
 			break;
 
-		case LE_SCOREPLUM:
+		case leType_t::LE_SCOREPLUM:
 			CG_AddScorePlum( le );
 			break;
 
-		case LE_OLINE:
+		case leType_t::LE_OLINE:
 			CG_AddOLine( le );
 			break;
 
-		case LE_SHOWREFENTITY:
+		case leType_t::LE_SHOWREFENTITY:
 			CG_AddRefEntity( le );
 			break;
 
-		case LE_LINE:					// oriented lines for FX
+		case leType_t::LE_LINE:					// oriented lines for FX
 			CG_AddLine( le );
 			break;
 		}

@@ -62,14 +62,14 @@ static void	UI_Cache_f( void ) {
 static void UI_OpenMenu_f( void ) {
 	Menus_CloseAll();
 	if ( Menus_ActivateByName( UI_Argv( 1 ) ) )
-		trap->Key_SetCatcher( KEYCATCH_UI );
+		trap->Key_SetCatcher( keyCatchFlags_t::KEYCATCH_UI );
 }
 
 static void UI_OpenSiegeMenu_f( void ) {
-	if ( UI_CvarGametype() == GT_SIEGE ) {
+	if ( UI_CvarGametype() == gametype_t::GT_SIEGE ) {
 		Menus_CloseAll();
 		if ( Menus_ActivateByName( UI_Argv( 1 ) ) )
-			trap->Key_SetCatcher( KEYCATCH_UI );
+			trap->Key_SetCatcher( keyCatchFlags_t::KEYCATCH_UI );
 	}
 }
 

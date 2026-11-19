@@ -36,7 +36,7 @@ static void WP_FlechetteMainFire( gentity_t *ent )
 {
 	vec3_t		fwd, angs, start;
 	gentity_t	*missile;
-	float		damage = weaponData[WP_FLECHETTE].damage, vel = FLECHETTE_VEL;
+	float		damage = weaponData[weapon_t::WP_FLECHETTE].damage, vel = FLECHETTE_VEL;
 
 	VectorCopy( muzzle, start );
 	WP_TraceSetStart( ent, start, vec3_origin, vec3_origin );//make sure our start point isn't on the other side of a wall
@@ -75,7 +75,7 @@ static void WP_FlechetteMainFire( gentity_t *ent )
 		missile = CreateMissile( start, fwd, vel, 10000, ent );
 
 		missile->classname = "flech_proj";
-		missile->s.weapon = WP_FLECHETTE;
+		missile->s.weapon = weapon_t::WP_FLECHETTE;
 
 		VectorSet( missile->maxs, FLECHETTE_SIZE, FLECHETTE_SIZE, FLECHETTE_SIZE );
 		VectorScale( missile->maxs, -1, missile->mins );
@@ -87,15 +87,15 @@ static void WP_FlechetteMainFire( gentity_t *ent )
 //			missile->flags |= FL_OVERCHARGED;
 //		}
 
-		missile->dflags = (DAMAGE_DEATH_KNOCKBACK|DAMAGE_EXTRA_KNOCKBACK);
+		missile->dflags = (damageFlags_t::DAMAGE_DEATH_KNOCKBACK|damageFlags_t::DAMAGE_EXTRA_KNOCKBACK);
 
-		missile->methodOfDeath = MOD_FLECHETTE;
-		missile->clipmask = MASK_SHOT | CONTENTS_LIGHTSABER;
+		missile->methodOfDeath = meansOfDeath_t::MOD_FLECHETTE;
+		missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
 
 		// we don't want it to bounce forever
 		missile->bounceCount = Q_irand(1,2);
 
-		missile->s.eFlags |= EF_BOUNCE_SHRAPNEL;
+		missile->s.eFlags |= entityFlags_t::EF_BOUNCE_SHRAPNEL;
 		ent->client->sess.missionStats.shotsFired++;
 	}
 }
@@ -130,7 +130,7 @@ void prox_mine_think( gentity_t *ent )
 	if ( blow )
 	{
 //		G_Sound( ent, G_SoundIndex( "sound/weapons/flechette/warning.wav" ));
-		ent->e_ThinkFunc = thinkF_WP_Explode;
+		ent->e_ThinkFunc = thinkFunc_t::thinkF_WP_Explode;
 		ent->nextthink = level.time + 200;
 	}
 	else
@@ -145,15 +145,15 @@ void prox_mine_stick( gentity_t *self, gentity_t *other, trace_t *trace )
 //---------------------------------------------------------
 {
 	// turn us into a generic entity so we aren't running missile code
-	self->s.eType = ET_GENERAL;
+	self->s.eType = entityType_t::ET_GENERAL;
 
 	self->s.modelindex = G_ModelIndex("models/weapons2/golan_arms/prox_mine.md3");
-	self->e_TouchFunc = touchF_NULL;
+	self->e_TouchFunc = touchFunc_t::touchF_NULL;
 
-	self->contents = CONTENTS_SOLID;
+	self->contents = contentsFlags_t::CONTENTS_SOLID;
 	self->takedamage = true;
 	self->health = 5;
-	self->e_DieFunc = dieF_WP_ExplosiveDie;
+	self->e_DieFunc = dieFunc_t::dieF_WP_ExplosiveDie;
 
 	VectorSet( self->maxs, 5, 5, 5 );
 	VectorScale( self->maxs, -1, self->mins );
@@ -163,7 +163,7 @@ void prox_mine_stick( gentity_t *self, gentity_t *other, trace_t *trace )
 
 	WP_Stick( self, trace );
 
-	self->e_ThinkFunc = thinkF_prox_mine_think;
+	self->e_ThinkFunc = thinkFunc_t::thinkF_prox_mine_think;
 	self->nextthink = level.time + 450;
 
 	// sticks for twenty seconds, then auto blows.
@@ -181,19 +181,19 @@ static void WP_FlechetteProxMine( gentity_t *ent )
 	missile->fxID = G_EffectIndex( "flechette/explosion" );
 
 	missile->classname = "proxMine";
-	missile->s.weapon = WP_FLECHETTE;
+	missile->s.weapon = weapon_t::WP_FLECHETTE;
 
-	missile->s.pos.trType = TR_GRAVITY;
+	missile->s.pos.trType = trType_t::TR_GRAVITY;
 
-	missile->s.eFlags |= EF_MISSILE_STICK;
-	missile->e_TouchFunc = touchF_prox_mine_stick;
+	missile->s.eFlags |= entityFlags_t::EF_MISSILE_STICK;
+	missile->e_TouchFunc = touchFunc_t::touchF_prox_mine_stick;
 
 	missile->damage = FLECHETTE_MINE_DAMAGE;
-	missile->methodOfDeath = MOD_EXPLOSIVE;
+	missile->methodOfDeath = meansOfDeath_t::MOD_EXPLOSIVE;
 
 	missile->splashDamage = FLECHETTE_MINE_SPLASH_DAMAGE;
 	missile->splashRadius = FLECHETTE_MINE_SPLASH_RADIUS;
-	missile->splashMethodOfDeath = MOD_EXPLOSIVE_SPLASH;
+	missile->splashMethodOfDeath = meansOfDeath_t::MOD_EXPLOSIVE_SPLASH;
 
 	missile->clipmask = MASK_SHOT;
 
@@ -207,7 +207,7 @@ void WP_flechette_alt_blow( gentity_t *ent )
 {
 	EvaluateTrajectory( &ent->s.pos, level.time, ent->currentOrigin ); // Not sure if this is even necessary, but correct origins are cool?
 
-	G_RadiusDamage( ent->currentOrigin, ent->owner, ent->splashDamage, ent->splashRadius, nullptr, MOD_EXPLOSIVE_SPLASH );
+	G_RadiusDamage( ent->currentOrigin, ent->owner, ent->splashDamage, ent->splashRadius, nullptr, meansOfDeath_t::MOD_EXPLOSIVE_SPLASH );
 	G_PlayEffect( "flechette/alt_blow", ent->currentOrigin );
 
 	G_FreeEntity( ent );
@@ -219,9 +219,9 @@ static void WP_CreateFlechetteBouncyThing( vec3_t start, vec3_t fwd, gentity_t *
 {
 	gentity_t	*missile = CreateMissile( start, fwd, 950 + Q_flrand(0.0f, 1.0f) * 700, 1500 + Q_flrand(0.0f, 1.0f) * 2000, self, true );
 
-	missile->e_ThinkFunc = thinkF_WP_flechette_alt_blow;
+	missile->e_ThinkFunc = thinkFunc_t::thinkF_WP_flechette_alt_blow;
 
-	missile->s.weapon = WP_FLECHETTE;
+	missile->s.weapon = weapon_t::WP_FLECHETTE;
 	missile->classname = "flech_alt";
 	missile->mass = 4;
 
@@ -229,22 +229,22 @@ static void WP_CreateFlechetteBouncyThing( vec3_t start, vec3_t fwd, gentity_t *
 	VectorSet( missile->mins, -3.0f, -3.0f, -3.0f );
 	VectorSet( missile->maxs, 3.0f, 3.0f, 3.0f );
 	missile->clipmask = MASK_SHOT;
-	missile->clipmask &= ~CONTENTS_CORPSE;
+	missile->clipmask &= ~contentsFlags_t::CONTENTS_CORPSE;
 
 	// normal ones bounce, alt ones explode on impact
-	missile->s.pos.trType = TR_GRAVITY;
+	missile->s.pos.trType = trType_t::TR_GRAVITY;
 
-	missile->s.eFlags |= EF_BOUNCE_HALF;
+	missile->s.eFlags |= entityFlags_t::EF_BOUNCE_HALF;
 
-	missile->damage = weaponData[WP_FLECHETTE].altDamage;
-	missile->dflags = DAMAGE_NORMAL;
-	missile->splashDamage = weaponData[WP_FLECHETTE].altSplashDamage;
-	missile->splashRadius = weaponData[WP_FLECHETTE].altSplashRadius;
+	missile->damage = weaponData[weapon_t::WP_FLECHETTE].altDamage;
+	missile->dflags = damageFlags_t::DAMAGE_NORMAL;
+	missile->splashDamage = weaponData[weapon_t::WP_FLECHETTE].altSplashDamage;
+	missile->splashRadius = weaponData[weapon_t::WP_FLECHETTE].altSplashRadius;
 
-	missile->svFlags = SVF_USE_CURRENT_ORIGIN;
+	missile->svFlags = svFlags_t::SVF_USE_CURRENT_ORIGIN;
 
-	missile->methodOfDeath = MOD_FLECHETTE_ALT;
-	missile->splashMethodOfDeath = MOD_FLECHETTE_ALT;
+	missile->methodOfDeath = meansOfDeath_t::MOD_FLECHETTE_ALT;
+	missile->splashMethodOfDeath = meansOfDeath_t::MOD_FLECHETTE_ALT;
 
 	VectorCopy( start, missile->pos2 );
 }

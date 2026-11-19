@@ -85,14 +85,14 @@ static client_t *SV_GetPlayerByHandle( void ) {
 		{
 			cl = &svs.clients[plid];
 
-			if ( cl->state != CS_FREE )
+			if ( cl->state != clientState_t::CS_FREE )
 				return cl;
 		}
 	}
 
 	// check for a name match
 	for ( i=0, cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++ ) {
-		if ( cl->state == CS_FREE ) {
+		if ( cl->state == clientState_t::CS_FREE ) {
 			continue;
 		}
 		if ( !Q_stricmp( cl->name, s ) ) {
@@ -150,7 +150,7 @@ static client_t *SV_GetPlayerByNum( void ) {
 	}
 
 	cl = &svs.clients[idnum];
-	if ( cl->state == CS_FREE ) {
+	if ( cl->state == clientState_t::CS_FREE ) {
 		Com_Printf( "Client %i is not active\n", idnum );
 		return nullptr;
 	}
@@ -189,7 +189,7 @@ static void SV_Map_f( void ) {
 	}
 
 	// force latched values to get set
-	Cvar_Get ("g_gametype", "0", CVAR_SERVERINFO | CVAR_LATCH );
+	Cvar_Get ("g_gametype", "0", cvarFlags_t::CVAR_SERVERINFO | cvarFlags_t::CVAR_LATCH );
 
 	cmd = Cmd_Argv(0);
 	if ( !Q_stricmpn( cmd, "devmap", 6 ) ) {
@@ -204,18 +204,18 @@ static void SV_Map_f( void ) {
 	// and thus nuke the arguments of the map command
 	Q_strncpyz(mapname, map, sizeof(mapname));
 
-	ForceReload_e eForceReload = eForceReload_NOTHING;	// default for normal load
+	ForceReload_e eForceReload = ForceReload_e::eForceReload_NOTHING;	// default for normal load
 
 //	if ( !Q_stricmp( cmd, "devmapbsp") ) {	// not relevant in MP codebase
 //		eForceReload = eForceReload_BSP;
 //	}
 //	else
 	if ( !Q_stricmp( cmd, "devmapmdl") ) {
-		eForceReload = eForceReload_MODELS;
+		eForceReload = ForceReload_e::eForceReload_MODELS;
 	}
 	else
 	if ( !Q_stricmp( cmd, "devmapall") ) {
-		eForceReload = eForceReload_ALL;
+		eForceReload = ForceReload_e::eForceReload_ALL;
 	}
 
 	// start up the map
@@ -280,7 +280,7 @@ static void SV_MapRestart_f( void ) {
 		// restart the map the slow way
 		Q_strncpyz( mapname, Cvar_VariableString( "mapname" ), sizeof( mapname ) );
 
-		SV_SpawnServer( mapname, false, eForceReload_NOTHING );
+		SV_SpawnServer( mapname, false, ForceReload_e::eForceReload_NOTHING );
 		return;
 	}
 
@@ -288,7 +288,7 @@ static void SV_MapRestart_f( void ) {
 
 	// toggle the server bit so clients can detect that a
 	// map_restart has happened
-	svs.snapFlagServerBit ^= SNAPFLAG_SERVERCOUNT;
+	svs.snapFlagServerBit ^= snapFlags_t::SNAPFLAG_SERVERCOUNT;
 
 	// generate a new serverid
 	// TTimo - don't update restartedserverId there, otherwise we won't deal correctly with multiple map_restart
@@ -302,7 +302,7 @@ static void SV_MapRestart_f( void ) {
 	// to give them the correct time so that when they finish loading
 	// they don't violate the backwards time check in cl_cgame.c
 	for (i=0 ; i<sv_maxclients->integer ; i++) {
-		if (svs.clients[i].state == CS_PRIMED) {
+		if (svs.clients[i].state == clientState_t::CS_PRIMED) {
 			svs.clients[i].oldServerTime = sv.restartTime;
 		}
 	}
@@ -310,7 +310,7 @@ static void SV_MapRestart_f( void ) {
 	// reset all the vm data in place without changing memory allocation
 	// note that we do NOT set sv.state = SS_LOADING, so configstrings that
 	// had been changed from their default values will generate broadcast updates
-	sv.state = SS_LOADING;
+	sv.state = serverState_t::SS_LOADING;
 	sv.restarting = true;
 
 	SV_RestartGame();
@@ -322,7 +322,7 @@ static void SV_MapRestart_f( void ) {
 		svs.time += 100;
 	}
 
-	sv.state = SS_GAME;
+	sv.state = serverState_t::SS_GAME;
 	sv.restarting = false;
 
 	// connect and begin all the clients
@@ -330,11 +330,11 @@ static void SV_MapRestart_f( void ) {
 		client = &svs.clients[i];
 
 		// send the new gamestate to all connected clients
-		if ( client->state < CS_CONNECTED) {
+		if ( client->state < clientState_t::CS_CONNECTED) {
 			continue;
 		}
 
-		if ( client->netchan.remoteAddress.type == NA_BOT ) {
+		if ( client->netchan.remoteAddress.type == netadrtype_t::NA_BOT ) {
 			isBot = true;
 		} else {
 			isBot = false;
@@ -353,7 +353,7 @@ static void SV_MapRestart_f( void ) {
 			continue;
 		}
 
-		if(client->state == CS_ACTIVE)
+		if(client->state == clientState_t::CS_ACTIVE)
 			SV_ClientEnterWorld(client, &client->lastUsercmd);
 		else
 		{
@@ -391,10 +391,10 @@ static void SV_KickBlankPlayers( void ) {
 
 	// check for a name match
 	for ( i=0, cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++ ) {
-		if ( cl->state == CS_FREE ) {
+		if ( cl->state == clientState_t::CS_FREE ) {
 			continue;
 		}
-		if( cl->netchan.remoteAddress.type == NA_LOOPBACK ) {
+		if( cl->netchan.remoteAddress.type == netadrtype_t::NA_LOOPBACK ) {
 			continue;
 		}
 		if ( !Q_stricmp( cl->name, "" ) ) {
@@ -444,10 +444,10 @@ static void SV_Kick_f( void ) {
 	if ( !cl ) {
 		if ( !Q_stricmp(Cmd_Argv(1), "all") ) {
 			for ( i=0, cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++ ) {
-				if ( cl->state == CS_FREE ) {
+				if ( cl->state == clientState_t::CS_FREE ) {
 					continue;
 				}
-				if( cl->netchan.remoteAddress.type == NA_LOOPBACK ) {
+				if( cl->netchan.remoteAddress.type == netadrtype_t::NA_LOOPBACK ) {
 					continue;
 				}
 				SV_DropClient( cl, SV_GetStringEdString("MP_SVGAME","WAS_KICKED"));	// "was kicked" );
@@ -456,10 +456,10 @@ static void SV_Kick_f( void ) {
 		}
 		else if ( !Q_stricmp(Cmd_Argv(1), "allbots") ) {
 			for ( i=0, cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++ ) {
-				if ( cl->state == CS_FREE ) {
+				if ( cl->state == clientState_t::CS_FREE ) {
 					continue;
 				}
-				if( cl->netchan.remoteAddress.type != NA_BOT ) {
+				if( cl->netchan.remoteAddress.type != netadrtype_t::NA_BOT ) {
 					continue;
 				}
 				SV_DropClient( cl, SV_GetStringEdString("MP_SVGAME","WAS_KICKED"));	// "was kicked" );
@@ -468,7 +468,7 @@ static void SV_Kick_f( void ) {
 		}
 		return;
 	}
-	if( cl->netchan.remoteAddress.type == NA_LOOPBACK ) {
+	if( cl->netchan.remoteAddress.type == netadrtype_t::NA_LOOPBACK ) {
 		Com_Printf("Cannot kick host player\n");
 		return;
 	}
@@ -495,11 +495,11 @@ static void SV_KickBots_f( void ) {
 	}
 
 	for( i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++ ) {
-		if( cl->state == CS_FREE ) {
+		if( cl->state == clientState_t::CS_FREE ) {
 			continue;
 		}
 
-		if( cl->netchan.remoteAddress.type != NA_BOT ) {
+		if( cl->netchan.remoteAddress.type != netadrtype_t::NA_BOT ) {
 			continue;
 		}
 
@@ -525,11 +525,11 @@ static void SV_KickAll_f( void ) {
 	}
 
 	for( i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++ ) {
-		if( cl->state == CS_FREE ) {
+		if( cl->state == clientState_t::CS_FREE ) {
 			continue;
 		}
 
-		if( cl->netchan.remoteAddress.type == NA_LOOPBACK ) {
+		if( cl->netchan.remoteAddress.type == netadrtype_t::NA_LOOPBACK ) {
 			continue;
 		}
 
@@ -563,7 +563,7 @@ static void SV_KickNum_f( void ) {
 	if ( !cl ) {
 		return;
 	}
-	if( cl->netchan.remoteAddress.type == NA_LOOPBACK ) {
+	if( cl->netchan.remoteAddress.type == netadrtype_t::NA_LOOPBACK ) {
 		Com_Printf("Cannot kick host player\n");
 		return;
 	}
@@ -607,7 +607,7 @@ static void SV_RehashBans_f( void )
 			return;
 		}
 
-		curpos = textbuf = (char *)Z_Malloc( filelen, TAG_TEMP_WORKSPACE );
+		curpos = textbuf = (char *)Z_Malloc( filelen, memtag::TAG_TEMP_WORKSPACE );
 
 		filelen = FS_Read( textbuf, filelen, readfrom );
 		FS_FCloseFile( readfrom );
@@ -638,7 +638,7 @@ static void SV_RehashBans_f( void )
 				serverBans[index].isexception = (curpos[0] != '0');
 				serverBans[index].subnet = atoi( maskpos );
 
-				if ( serverBans[index].ip.type == NA_IP &&
+				if ( serverBans[index].ip.type == netadrtype_t::NA_IP &&
 					(serverBans[index].subnet < 1 || serverBans[index].subnet > 32) )
 				{
 					serverBans[index].subnet = 32;
@@ -740,7 +740,7 @@ static bool SV_ParseCIDRNotation( netadr_t *dest, int *mask, const char *adrstr 
 	{
 		*mask = atoi( suffix );
 
-		if ( dest->type == NA_IP )
+		if ( dest->type == netadrtype_t::NA_IP )
 		{
 			if ( *mask < 1 || *mask > 32 )
 				*mask = 32;
@@ -748,7 +748,7 @@ static bool SV_ParseCIDRNotation( netadr_t *dest, int *mask, const char *adrstr 
 		else
 			*mask = 32;
 	}
-	//else if ( dest->type == NA_IP )
+	//else if ( dest->type == netadrtype_t::NA_IP )
 	//	*mask = 32;
 	else
 		*mask = 32;
@@ -824,7 +824,7 @@ static void SV_AddBanToList( bool isexception )
 		{
 			mask = atoi( Cmd_Argv( 2 ) );
 
-			if ( ip.type == NA_IP )
+			if ( ip.type == netadrtype_t::NA_IP )
 			{
 				if ( mask < 1 || mask > 32 )
 					mask = 32;
@@ -836,7 +836,7 @@ static void SV_AddBanToList( bool isexception )
 			mask = 32;
 	}
 
-	if ( ip.type != NA_IP )
+	if ( ip.type != netadrtype_t::NA_IP )
 	{
 		Com_Printf( "Error: Can ban players connected via the internet only.\n" );
 		return;
@@ -1139,8 +1139,8 @@ static void SV_Status_f( void )
 
 	humans = bots = 0;
 	for ( i = 0 ; i < sv_maxclients->integer ; i++ ) {
-		if ( svs.clients[i].state >= CS_CONNECTED ) {
-			if ( svs.clients[i].netchan.remoteAddress.type != NA_BOT ) {
+		if ( svs.clients[i].state >= clientState_t::CS_CONNECTED ) {
+			if ( svs.clients[i].netchan.remoteAddress.type != netadrtype_t::NA_BOT ) {
 				humans++;
 			}
 			else {
@@ -1183,12 +1183,12 @@ static void SV_Status_f( void )
 	Com_Printf ("-- ----- ---- --------------- ---------------------------------------\n");
 	for (i=0,cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++)
 	{
-		if ( cl->state == CS_FREE )
+		if ( cl->state == clientState_t::CS_FREE )
 			continue;
 
-		if ( cl->state == CS_CONNECTED )
+		if ( cl->state == clientState_t::CS_CONNECTED )
 			Q_strncpyz( state, "CON ", sizeof( state ) );
-		else if ( cl->state == CS_ZOMBIE )
+		else if ( cl->state == clientState_t::CS_ZOMBIE )
 			Q_strncpyz( state, "ZMB ", sizeof( state ) );
 		else {
 			ping = cl->ping < 9999 ? cl->ping : 9999;
@@ -1202,7 +1202,7 @@ static void SV_Status_f( void )
 		{
 			Com_Printf ("%2i %5i %s %-15.15s ^7%39s\n",
 				i,
-				ps->persistant[PERS_SCORE],
+				ps->persistant[persEnum_t::PERS_SCORE],
 				state,
 				cl->name,
 				s
@@ -1212,7 +1212,7 @@ static void SV_Status_f( void )
 		{
 			Com_Printf ("%2i %5i %s %s ^7%39s\n",
 				i,
-				ps->persistant[PERS_SCORE],
+				ps->persistant[persEnum_t::PERS_SCORE],
 				state,
 				cl->name,
 				s
@@ -1292,7 +1292,7 @@ static void SV_ConTell_f(void) {
 	SV_SendServerCommand(cl, "chat \"" SVTELL_PREFIX S_COLOR_MAGENTA "%s" S_COLOR_WHITE "\"\n", text);
 }
 
-EnumArray<const char *, forcePowers_t, NUM_FORCE_POWERS> forceToggleNamePrints = {
+EnumArray<const char *, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS> forceToggleNamePrints = {
 	"HEAL",
 	"JUMP",
 	"SPEED",
@@ -1324,7 +1324,7 @@ static void SV_ForceToggle_f( void ) {
 	}
 
 	if ( Cmd_Argc() != 2 ) {
-		for ( forcePowers_t fp = FP_FIRST; fp<NUM_FORCE_POWERS; fp++ ) {
+		for ( forcePowers_t fp = forcePowers_t::FP_FIRST; fp<forcePowers_t::NUM_FORCE_POWERS; fp++ ) {
 			if ( (bits & Bit( fp )) )		Com_Printf( "%2d [X] %s\n", to_underlying( fp ), forceToggleNamePrints[fp] );
 			else							Com_Printf( "%2d [ ] %s\n", to_underlying( fp ), forceToggleNamePrints[fp] );
 		}
@@ -1336,13 +1336,13 @@ static void SV_ForceToggle_f( void ) {
 
 	if( Q_isanumber( s ) ) {
 		const forcePowers_t val = static_cast<forcePowers_t>( atoi(s) );
-		if( val >= FP_FIRST && val < NUM_FORCE_POWERS) {
+		if( val >= forcePowers_t::FP_FIRST && val < forcePowers_t::NUM_FORCE_POWERS) {
 			bits ^= Bit( val );
 			Cvar_SetValue("g_forcePowerDisable", bits);
 			Com_Printf( "%s %s^7\n", forceToggleNamePrints[val], (bits & Bit( val )) ? "^2Enabled" : "^1Disabled" );
 		}
 		else {
-			for ( forcePowers_t fp = FP_FIRST; fp<NUM_FORCE_POWERS; fp++ ) {
+			for ( forcePowers_t fp = forcePowers_t::FP_FIRST; fp<forcePowers_t::NUM_FORCE_POWERS; fp++ ) {
 				if ( (bits & Bit( fp )) )		Com_Printf( "%2d [X] %s\n", to_underlying( fp ), forceToggleNamePrints[fp] );
 				else							Com_Printf( "%2d [ ] %s\n", to_underlying( fp ), forceToggleNamePrints[fp] );
 			}
@@ -1350,7 +1350,7 @@ static void SV_ForceToggle_f( void ) {
 		}
 	}
 	else {
-		for ( forcePowers_t fp = FP_FIRST; fp<NUM_FORCE_POWERS; fp++ ) {
+		for ( forcePowers_t fp = forcePowers_t::FP_FIRST; fp<forcePowers_t::NUM_FORCE_POWERS; fp++ ) {
 			if ( (bits & Bit( fp )) )		Com_Printf( "%2d [X] %s\n", to_underlying( fp ), forceToggleNamePrints[fp] );
 			else							Com_Printf( "%2d [ ] %s\n", to_underlying( fp ), forceToggleNamePrints[fp] );
 		}
@@ -1358,7 +1358,7 @@ static void SV_ForceToggle_f( void ) {
 	}
 }
 
-EnumArray<const char *, weapon_t, WP_NUM_WEAPONS> weaponToggleNamePrints = {
+EnumArray<const char *, weapon_t, weapon_t::WP_NUM_WEAPONS> weaponToggleNamePrints = {
 	"NO WEAPON",
 	"STUN BATON",
 	"MELEE",
@@ -1386,7 +1386,7 @@ static void SV_WeaponToggle_f( void ) {
 	const char *s;
 	const char *cvarStr = nullptr;
 
-	if ( sv_gametype->integer == to_underlying( GT_DUEL ) || sv_gametype->integer == to_underlying( GT_POWERDUEL ) ) {
+	if ( sv_gametype->integer == to_underlying( gametype_t::GT_DUEL ) || sv_gametype->integer == to_underlying( gametype_t::GT_POWERDUEL ) ) {
 		cvarStr = "g_duelWeaponDisable";
 		bits = Cvar_VariableIntegerValue( "g_duelWeaponDisable" );
 	}
@@ -1402,7 +1402,7 @@ static void SV_WeaponToggle_f( void ) {
 	}
 
 	if ( Cmd_Argc() != 2 ) {
-		for ( i = WP_NONE; i<WP_NUM_WEAPONS; i++ ) {
+		for ( i = weapon_t::WP_NONE; i<weapon_t::WP_NUM_WEAPONS; i++ ) {
 			if ( (bits & Bit( i )) )		Com_Printf( "%2d [X] %s\n", to_underlying( i ), weaponToggleNamePrints[i] );
 			else							Com_Printf( "%2d [ ] %s\n", to_underlying( i ), weaponToggleNamePrints[i] );
 		}
@@ -1414,13 +1414,13 @@ static void SV_WeaponToggle_f( void ) {
 
 	if( Q_isanumber( s ) ) {
 		val = static_cast<weapon_t>( atoi(s) );
-		if( val >= WP_NONE && val < WP_NUM_WEAPONS) {
+		if( val >= weapon_t::WP_NONE && val < weapon_t::WP_NUM_WEAPONS) {
 			bits ^= Bit( val );
 			Cvar_SetValue(cvarStr, bits);
 			Com_Printf( "%s %s^7\n", weaponToggleNamePrints[val], (bits & Bit( val )) ? "^2Enabled" : "^1Disabled" );
 		}
 		else {
-			for ( i = WP_NONE; i<WP_NUM_WEAPONS; i++ ) {
+			for ( i = weapon_t::WP_NONE; i<weapon_t::WP_NUM_WEAPONS; i++ ) {
 				if ( (bits & Bit( i )) )		Com_Printf( "%2d [X] %s\n", to_underlying( i ), weaponToggleNamePrints[i] );
 				else							Com_Printf( "%2d [ ] %s\n", to_underlying( i ), weaponToggleNamePrints[i] );
 			}
@@ -1428,7 +1428,7 @@ static void SV_WeaponToggle_f( void ) {
 		}
 	}
 	else {
-		for ( i = WP_NONE; i<WP_NUM_WEAPONS; i++ ) {
+		for ( i = weapon_t::WP_NONE; i<weapon_t::WP_NUM_WEAPONS; i++ ) {
 			if ( (bits & Bit( i )) )		Com_Printf( "%2d [X] %s\n", to_underlying( i ), weaponToggleNamePrints[i] );
 			else							Com_Printf( "%2d [ ] %s\n", to_underlying( i ), weaponToggleNamePrints[i] );
 		}
@@ -1462,7 +1462,7 @@ static void SV_Serverinfo_f( void ) {
 	}
 
 	Com_Printf ("Server info settings:\n");
-	Info_Print ( Cvar_InfoString( CVAR_SERVERINFO ) );
+	Info_Print ( Cvar_InfoString( cvarFlags_t::CVAR_SERVERINFO ) );
 }
 
 /*
@@ -1480,7 +1480,7 @@ static void SV_Systeminfo_f( void ) {
 	}
 
 	Com_Printf ("System info settings:\n");
-	Info_Print ( Cvar_InfoString_Big( CVAR_SYSTEMINFO ) );
+	Info_Print ( Cvar_InfoString_Big( cvarFlags_t::CVAR_SYSTEMINFO ) );
 }
 
 /*
@@ -1609,7 +1609,7 @@ void SV_RecordDemo( client_t *cl, char *demoName ) {
 		return;
 	}
 
-	if ( cl->state != CS_ACTIVE ) {
+	if ( cl->state != clientState_t::CS_ACTIVE ) {
 		Com_Printf( "Client is not active.\n" );
 		return;
 	}
@@ -1625,7 +1625,7 @@ void SV_RecordDemo( client_t *cl, char *demoName ) {
 	}
 	cl->demo.demorecording = true;
 
-	cl->demo.isBot = ( cl->netchan.remoteAddress.type == NA_BOT ) ? true : false;
+	cl->demo.isBot = ( cl->netchan.remoteAddress.type == netadrtype_t::NA_BOT ) ? true : false;
 	cl->demo.botReliableAcknowledge = cl->reliableSent;
 
 	// write out the gamestate message; the messages sent to the client from now on are coded again into the demo
@@ -1706,7 +1706,7 @@ static int QDECL SV_DemoFolderTimeComparator( const void *arg1, const void *arg2
 
 // returns number of folders found.  pass nullptr result pointer for just a count.
 static int SV_FindLeafFolders( const char *baseFolder, char *result, int maxResults, int maxFolderLength ) {
-	char *fileList = (char *)Z_Malloc( MAX_OSPATH * maxResults, TAG_FILESYS ); // too big for stack since this is recursive
+	char *fileList = (char *)Z_Malloc( MAX_OSPATH * maxResults, memtag::TAG_FILESYS ); // too big for stack since this is recursive
 	char fullFolder[MAX_OSPATH];
 	int resultCount = 0;
 	char *fileName;
@@ -1748,8 +1748,8 @@ static int SV_FindLeafFolders( const char *baseFolder, char *result, int maxResu
 void SV_BeginAutoRecordDemos() {
 	if ( sv_autoDemo->integer ) {
 		for ( client_t *client = svs.clients; client - svs.clients < sv_maxclients->integer; client++ ) {
-			if ( client->state == CS_ACTIVE && !client->demo.demorecording ) {
-				if ( client->netchan.remoteAddress.type != NA_BOT || sv_autoDemoBots->integer ) {
+			if ( client->state == clientState_t::CS_ACTIVE && !client->demo.demorecording ) {
+				if ( client->netchan.remoteAddress.type != netadrtype_t::NA_BOT || sv_autoDemoBots->integer ) {
 					SV_AutoRecordDemo( client );
 				}
 			}
@@ -1819,7 +1819,7 @@ static void SV_Record_f( void ) {
 	} else {
 		for ( i=0, cl=svs.clients ; i < sv_maxclients->integer ; i++, cl++ )
 		{
-			if ( cl->state == CS_FREE )
+			if ( cl->state == clientState_t::CS_FREE )
 			{
 				continue;
 			}
@@ -1829,7 +1829,7 @@ static void SV_Record_f( void ) {
 				continue;
 			}
 
-			if ( cl->state == CS_ACTIVE )
+			if ( cl->state == clientState_t::CS_ACTIVE )
 			{
 				break;
 			}
@@ -1846,7 +1846,7 @@ static void SV_Record_f( void ) {
 		return;
 	}
 
-	if ( cl->state != CS_ACTIVE ) {
+	if ( cl->state != clientState_t::CS_ACTIVE ) {
 		Com_Printf( "Client is not active.\n" );
 		return;
 	}

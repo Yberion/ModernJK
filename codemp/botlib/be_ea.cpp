@@ -129,7 +129,7 @@ void EA_Gesture(int client)
 
 	bi = &botinputs[client];
 
-	bi->actionflags |= ACTION_GESTURE;
+	bi->actionflags |= actionFlags_t::ACTION_GESTURE;
 } //end of the function EA_Gesture
 //===========================================================================
 //
@@ -167,7 +167,7 @@ void EA_Attack(int client)
 
 	bi = &botinputs[client];
 
-	bi->actionflags |= ACTION_ATTACK;
+	bi->actionflags |= actionFlags_t::ACTION_ATTACK;
 } //end of the function EA_Attack
 //===========================================================================
 //
@@ -181,7 +181,7 @@ void EA_Alt_Attack(int client)
 
 	bi = &botinputs[client];
 
-	bi->actionflags |= ACTION_ALT_ATTACK;
+	bi->actionflags |= actionFlags_t::ACTION_ALT_ATTACK;
 } //end of the function EA_Alt_Attack
 //===========================================================================
 //
@@ -195,7 +195,7 @@ void EA_ForcePower(int client)
 
 	bi = &botinputs[client];
 
-	bi->actionflags |= ACTION_FORCEPOWER;
+	bi->actionflags |= actionFlags_t::ACTION_FORCEPOWER;
 } //end of the function EA_ForcePower
 //===========================================================================
 //
@@ -209,7 +209,7 @@ void EA_Talk(int client)
 
 	bi = &botinputs[client];
 
-	bi->actionflags |= ACTION_TALK;
+	bi->actionflags |= actionFlags_t::ACTION_TALK;
 } //end of the function EA_Talk
 //===========================================================================
 //
@@ -223,7 +223,7 @@ void EA_Use(int client)
 
 	bi = &botinputs[client];
 
-	bi->actionflags |= ACTION_USE;
+	bi->actionflags |= actionFlags_t::ACTION_USE;
 } //end of the function EA_Use
 //===========================================================================
 //
@@ -237,7 +237,7 @@ void EA_Respawn(int client)
 
 	bi = &botinputs[client];
 
-	bi->actionflags |= ACTION_RESPAWN;
+	bi->actionflags |= actionFlags_t::ACTION_RESPAWN;
 } //end of the function EA_Respawn
 //===========================================================================
 //
@@ -251,13 +251,13 @@ void EA_Jump(int client)
 
 	bi = &botinputs[client];
 
-	if (Any( bi->actionflags & ACTION_JUMPEDLASTFRAME ))
+	if (Any( bi->actionflags & actionFlags_t::ACTION_JUMPEDLASTFRAME ))
 	{
-		bi->actionflags &= ~ACTION_JUMP;
+		bi->actionflags &= ~actionFlags_t::ACTION_JUMP;
 	} //end if
 	else
 	{
-		bi->actionflags |= ACTION_JUMP;
+		bi->actionflags |= actionFlags_t::ACTION_JUMP;
 	} //end if
 } //end of the function EA_Jump
 //===========================================================================
@@ -272,13 +272,13 @@ void EA_DelayedJump(int client)
 
 	bi = &botinputs[client];
 
-	if (Any( bi->actionflags & ACTION_JUMPEDLASTFRAME ))
+	if (Any( bi->actionflags & actionFlags_t::ACTION_JUMPEDLASTFRAME ))
 	{
-		bi->actionflags &= ~ACTION_DELAYEDJUMP;
+		bi->actionflags &= ~actionFlags_t::ACTION_DELAYEDJUMP;
 	} //end if
 	else
 	{
-		bi->actionflags |= ACTION_DELAYEDJUMP;
+		bi->actionflags |= actionFlags_t::ACTION_DELAYEDJUMP;
 	} //end if
 } //end of the function EA_DelayedJump
 //===========================================================================
@@ -293,7 +293,7 @@ void EA_Crouch(int client)
 
 	bi = &botinputs[client];
 
-	bi->actionflags |= ACTION_CROUCH;
+	bi->actionflags |= actionFlags_t::ACTION_CROUCH;
 } //end of the function EA_Crouch
 //===========================================================================
 //
@@ -307,7 +307,7 @@ void EA_Walk(int client)
 
 	bi = &botinputs[client];
 
-	bi->actionflags |= ACTION_WALK;
+	bi->actionflags |= actionFlags_t::ACTION_WALK;
 } //end of the function EA_Walk
 //===========================================================================
 //
@@ -335,7 +335,7 @@ void EA_MoveUp(int client)
 
 	bi = &botinputs[client];
 
-	bi->actionflags |= ACTION_MOVEUP;
+	bi->actionflags |= actionFlags_t::ACTION_MOVEUP;
 } //end of the function EA_MoveUp
 //===========================================================================
 //
@@ -349,7 +349,7 @@ void EA_MoveDown(int client)
 
 	bi = &botinputs[client];
 
-	bi->actionflags |= ACTION_MOVEDOWN;
+	bi->actionflags |= actionFlags_t::ACTION_MOVEDOWN;
 } //end of the function EA_MoveDown
 //===========================================================================
 //
@@ -363,7 +363,7 @@ void EA_MoveForward(int client)
 
 	bi = &botinputs[client];
 
-	bi->actionflags |= ACTION_MOVEFORWARD;
+	bi->actionflags |= actionFlags_t::ACTION_MOVEFORWARD;
 } //end of the function EA_MoveForward
 //===========================================================================
 //
@@ -377,7 +377,7 @@ void EA_MoveBack(int client)
 
 	bi = &botinputs[client];
 
-	bi->actionflags |= ACTION_MOVEBACK;
+	bi->actionflags |= actionFlags_t::ACTION_MOVEBACK;
 } //end of the function EA_MoveBack
 //===========================================================================
 //
@@ -391,7 +391,7 @@ void EA_MoveLeft(int client)
 
 	bi = &botinputs[client];
 
-	bi->actionflags |= ACTION_MOVELEFT;
+	bi->actionflags |= actionFlags_t::ACTION_MOVELEFT;
 } //end of the function EA_MoveLeft
 //===========================================================================
 //
@@ -405,7 +405,7 @@ void EA_MoveRight(int client)
 
 	bi = &botinputs[client];
 
-	bi->actionflags |= ACTION_MOVERIGHT;
+	bi->actionflags |= actionFlags_t::ACTION_MOVERIGHT;
 } //end of the function EA_MoveRight
 //===========================================================================
 //
@@ -474,14 +474,14 @@ void EA_ResetInput(int client)
 	int jumped = false;
 
 	bi = &botinputs[client];
-	bi->actionflags &= ~ACTION_JUMPEDLASTFRAME;
+	bi->actionflags &= ~actionFlags_t::ACTION_JUMPEDLASTFRAME;
 
 	bi->thinktime = 0;
 	VectorClear(bi->dir);
 	bi->speed = 0;
-	jumped = Any( bi->actionflags & ACTION_JUMP );
-	bi->actionflags = ACTION_NONE;
-	if (jumped) bi->actionflags |= ACTION_JUMPEDLASTFRAME;
+	jumped = Any( bi->actionflags & actionFlags_t::ACTION_JUMP );
+	bi->actionflags = actionFlags_t::ACTION_NONE;
+	if (jumped) bi->actionflags |= actionFlags_t::ACTION_JUMPEDLASTFRAME;
 } //end of the function EA_ResetInput
 //===========================================================================
 //
@@ -494,7 +494,7 @@ botlibError_t EA_Setup(void)
 	//initialize the bot inputs
 	botinputs = (bot_input_t *) GetClearedHunkMemory(
 									botlibglobals.maxclients * sizeof(bot_input_t));
-	return BLERR_NOERROR;
+	return botlibError_t::BLERR_NOERROR;
 } //end of the function EA_Setup
 //===========================================================================
 //

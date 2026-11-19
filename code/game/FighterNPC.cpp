@@ -133,7 +133,7 @@ bool BG_FighterUpdate(Vehicle_t *pVeh, const usercmd_t *pUcmd, vec3_t trMins, ve
 
 	if (!parentPS)
 	{
-		Com_Error(ERR_DROP, "NULL PS in BG_FighterUpdate (%s)", pVeh->m_pVehicleInfo->name);
+		Com_Error(errorParm_t::ERR_DROP, "NULL PS in BG_FighterUpdate (%s)", pVeh->m_pVehicleInfo->name);
 		return false;
 	}
 
@@ -142,13 +142,13 @@ bool BG_FighterUpdate(Vehicle_t *pVeh, const usercmd_t *pUcmd, vec3_t trMins, ve
 	{
 		parentPS->gravity = 0;
 #ifndef _JK2MP //don't need this flag in mp, I.. guess
-		pVeh->m_pParentEntity->svFlags |= SVF_CUSTOM_GRAVITY;
+		pVeh->m_pParentEntity->svFlags |= svFlags_t::SVF_CUSTOM_GRAVITY;
 #endif
 	}
 	else
 	{
 #ifndef _JK2MP //don't need this flag in mp, I.. guess
-		pVeh->m_pParentEntity->svFlags &= ~SVF_CUSTOM_GRAVITY;
+		pVeh->m_pParentEntity->svFlags &= ~svFlags_t::SVF_CUSTOM_GRAVITY;
 #else //in MP set grav back to normal gravity
 		if (pVeh->m_pVehicleInfo->gravity)
 		{
@@ -164,7 +164,7 @@ bool BG_FighterUpdate(Vehicle_t *pVeh, const usercmd_t *pUcmd, vec3_t trMins, ve
 #ifdef _JK2MP
 	//isDead = (Any( parentPS->eFlags&EF_DEAD ));
 #else
-	//isDead = (parentPS->stats[STAT_HEALTH] <= 0 );
+	//isDead = (parentPS->stats[statIndex_t::STAT_HEALTH] <= 0 );
 #endif
 
 	/*
@@ -173,8 +173,8 @@ bool BG_FighterUpdate(Vehicle_t *pVeh, const usercmd_t *pUcmd, vec3_t trMins, ve
 			Any( pVeh->m_iRemovedSurfaces ) ) )
 	{//can't land if dead or spiralling out of control
 		pVeh->m_LandTrace.fraction = 1.0f;
-		pVeh->m_LandTrace.contents = CONTENTS_NONE;
-		pVeh->m_LandTrace.surfaceFlags = SURF_NONE;
+		pVeh->m_LandTrace.contents = contentsFlags_t::CONTENTS_NONE;
+		pVeh->m_LandTrace.surfaceFlags = surfaceFlags_t::SURF_NONE;
 		VectorClear( pVeh->m_LandTrace.plane.normal );
 		pVeh->m_LandTrace.allsolid = false;
 		pVeh->m_LandTrace.startsolid = false;
@@ -188,7 +188,7 @@ bool BG_FighterUpdate(Vehicle_t *pVeh, const usercmd_t *pUcmd, vec3_t trMins, ve
 		VectorCopy( parentPS->origin, bottom );
 		bottom[2] -= pVeh->m_pVehicleInfo->landingHeight;
 
-		traceFunc( &pVeh->m_LandTrace, parentPS->origin, trMins, trMaxs, bottom, pVeh->m_pParentEntity->s.number, (MASK_NPCSOLID&~CONTENTS_BODY) );
+		traceFunc( &pVeh->m_LandTrace, parentPS->origin, trMins, trMaxs, bottom, pVeh->m_pParentEntity->s.number, (MASK_NPCSOLID&~contentsFlags_t::CONTENTS_BODY) );
 	//}
 
 	return true;
@@ -423,9 +423,9 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 //MIKE: This is going to play the sound twice for the predicting client, I suggest using
 //a predicted event or only doing it game-side. -rich
 #ifdef QAGAME//MP GAME-side
-					//G_EntitySound( ((gentity_t *)(pVeh->m_pParentEntity)), CHAN_LOCAL, pVeh->m_pVehicleInfo->soundHyper );
+					//G_EntitySound( ((gentity_t *)(pVeh->m_pParentEntity)), soundChannel_t::CHAN_LOCAL, pVeh->m_pVehicleInfo->soundHyper );
 #elif defined CGAME//MP CGAME-side
-					trap_S_StartSound( nullptr, pm->ps->clientNum, CHAN_LOCAL, pVeh->m_pVehicleInfo->soundHyper );
+					trap_S_StartSound( nullptr, pm->ps->clientNum, soundChannel_t::CHAN_LOCAL, pVeh->m_pVehicleInfo->soundHyper );
 #endif
 				}
 
@@ -467,7 +467,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 				&& pVeh->m_pVehicleInfo->soundTakeOff )
 			{//taking off for the first time
 #ifdef QAGAME//MP GAME-side
-				G_EntitySound( ((gentity_t *)(pVeh->m_pParentEntity)), CHAN_AUTO, pVeh->m_pVehicleInfo->soundTakeOff );
+				G_EntitySound( ((gentity_t *)(pVeh->m_pParentEntity)), soundChannel_t::CHAN_AUTO, pVeh->m_pVehicleInfo->soundTakeOff );
 #endif
 			}
 #endif
@@ -531,11 +531,11 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 			if ( pVeh->m_pVehicleInfo->soundTurbo )
 			{
 #ifndef _JK2MP//SP
-				G_SoundIndexOnEnt( pVeh->m_pParentEntity, CHAN_AUTO, pVeh->m_pVehicleInfo->soundTurbo );
+				G_SoundIndexOnEnt( pVeh->m_pParentEntity, soundChannel_t::CHAN_AUTO, pVeh->m_pVehicleInfo->soundTurbo );
 #elif defined QAGAME//MP GAME-side
-				G_EntitySound( ((gentity_t *)(pVeh->m_pParentEntity)), CHAN_AUTO, pVeh->m_pVehicleInfo->soundTurbo );
+				G_EntitySound( ((gentity_t *)(pVeh->m_pParentEntity)), soundChannel_t::CHAN_AUTO, pVeh->m_pVehicleInfo->soundTurbo );
 #elif defined CGAME//MP CGAME-side
-				//trap_S_StartSound( nullptr, pVeh->m_pParentEntity->s.number, CHAN_AUTO, pVeh->m_pVehicleInfo->soundTurbo );
+				//trap_S_StartSound( nullptr, pVeh->m_pParentEntity->s.number, soundChannel_t::CHAN_AUTO, pVeh->m_pVehicleInfo->soundTurbo );
 #endif
 			}
 		}
@@ -550,7 +550,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 		pVeh->m_ucmd.forwardmove = 127;
 #ifdef _JK2MP//SP can cheat and just check m_iTurboTime directly... :)
 		//add flag to let cgame know to draw the iTurboFX effect
-		parentPS->eFlags |= EF_JETPACK_ACTIVE;
+		parentPS->eFlags |= entityFlags_t::EF_JETPACK_ACTIVE;
 #endif
 	}
 	/*
@@ -564,9 +564,9 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 	{//normal max speed
 		speedMax = pVeh->m_pVehicleInfo->speedMax;
 #ifdef _JK2MP//SP can cheat and just check m_iTurboTime directly... :)
-		if ( (parentPS->eFlags&EF_JETPACK_ACTIVE) )
+		if ( (parentPS->eFlags&entityFlags_t::EF_JETPACK_ACTIVE) )
 		{//stop cgame from playing the turbo exhaust effect
-			parentPS->eFlags &= ~EF_JETPACK_ACTIVE;
+			parentPS->eFlags &= ~entityFlags_t::EF_JETPACK_ACTIVE;
 		}
 #endif
 	}
@@ -646,7 +646,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 					}
 				}
 			}
-			if ( pVeh->m_pVehicleInfo->type == VH_FIGHTER )
+			if ( pVeh->m_pVehicleInfo->type == vehicleType_t::VH_FIGHTER )
 			{
 				pVeh->m_ucmd.forwardmove = 127;
 			}
@@ -1057,20 +1057,20 @@ static void FighterDamageRoutine( Vehicle_t *pVeh, bgEntity_t *parent, playerSta
 			}
 		}
 #endif
-		G_Damage(parent, killer, killer, vec3_origin, parent->client->ps.origin, 99999, DAMAGE_NO_ARMOR, MOD_SUICIDE);
+		G_Damage(parent, killer, killer, vec3_origin, parent->client->ps.origin, 99999, damageFlags_t::DAMAGE_NO_ARMOR, meansOfDeath_t::MOD_SUICIDE);
 	}
 #endif
 
-	if ( (Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_C) ||
-		Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_D)) &&
-		(Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_E) ||
-		Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_F)) )
+	if ( (Any(pVeh->m_iRemovedSurfaces & shipSurfaceFlags_t::SHIPSURF_BROKEN_C) ||
+		Any(pVeh->m_iRemovedSurfaces & shipSurfaceFlags_t::SHIPSURF_BROKEN_D)) &&
+		(Any(pVeh->m_iRemovedSurfaces & shipSurfaceFlags_t::SHIPSURF_BROKEN_E) ||
+		Any(pVeh->m_iRemovedSurfaces & shipSurfaceFlags_t::SHIPSURF_BROKEN_F)) )
 	{ //wings on both side broken
 		float factor = 2.0f;
-		if (Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_E) &&
-			Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_F) &&
-			Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_C) &&
-			Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_D))
+		if (Any(pVeh->m_iRemovedSurfaces & shipSurfaceFlags_t::SHIPSURF_BROKEN_E) &&
+			Any(pVeh->m_iRemovedSurfaces & shipSurfaceFlags_t::SHIPSURF_BROKEN_F) &&
+			Any(pVeh->m_iRemovedSurfaces & shipSurfaceFlags_t::SHIPSURF_BROKEN_C) &&
+			Any(pVeh->m_iRemovedSurfaces & shipSurfaceFlags_t::SHIPSURF_BROKEN_D))
 		{ //all wings broken
 			factor *= 2.0f;
 		}
@@ -1082,12 +1082,12 @@ static void FighterDamageRoutine( Vehicle_t *pVeh, bgEntity_t *parent, playerSta
 
 		pVeh->m_vOrientation[ROLL] += (pVeh->m_fTimeModifier*factor); //do some spiralling
 	}
-	else if (Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_C) ||
-		Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_D))
+	else if (Any(pVeh->m_iRemovedSurfaces & shipSurfaceFlags_t::SHIPSURF_BROKEN_C) ||
+		Any(pVeh->m_iRemovedSurfaces & shipSurfaceFlags_t::SHIPSURF_BROKEN_D))
 	{ //left wing broken
 		float factor = 2.0f;
-		if (Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_C) &&
-			Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_D))
+		if (Any(pVeh->m_iRemovedSurfaces & shipSurfaceFlags_t::SHIPSURF_BROKEN_C) &&
+			Any(pVeh->m_iRemovedSurfaces & shipSurfaceFlags_t::SHIPSURF_BROKEN_D))
 		{ //if both are broken..
 			factor *= 2.0f;
 		}
@@ -1099,12 +1099,12 @@ static void FighterDamageRoutine( Vehicle_t *pVeh, bgEntity_t *parent, playerSta
 
 		pVeh->m_vOrientation[ROLL] += factor*pVeh->m_fTimeModifier;
 	}
-	else if (Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_E) ||
-		Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_F))
+	else if (Any(pVeh->m_iRemovedSurfaces & shipSurfaceFlags_t::SHIPSURF_BROKEN_E) ||
+		Any(pVeh->m_iRemovedSurfaces & shipSurfaceFlags_t::SHIPSURF_BROKEN_F))
 	{ //right wing broken
 		float factor = 2.0f;
-		if (Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_E) &&
-			Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_F))
+		if (Any(pVeh->m_iRemovedSurfaces & shipSurfaceFlags_t::SHIPSURF_BROKEN_E) &&
+			Any(pVeh->m_iRemovedSurfaces & shipSurfaceFlags_t::SHIPSURF_BROKEN_F))
 		{ //if both are broken..
 			factor *= 2.0f;
 		}
@@ -1229,7 +1229,7 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 #else
 	parentPS = &parent->client->ps;
 	riderPS = &rider->client->ps;
-	isDead = (parentPS->stats[STAT_HEALTH] <= 0 );
+	isDead = (parentPS->stats[statIndex_t::STAT_HEALTH] <= 0 );
 #endif
 
 #ifdef _JK2MP
@@ -1253,10 +1253,10 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 	if ( isDead || parentPS->electrifyTime>=curTime ||
 		(pVeh->m_pVehicleInfo->surfDestruction &&
 		Any( pVeh->m_iRemovedSurfaces ) &&
-		Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_C) &&
-		Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_D) &&
-		Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_E) &&
-		Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_F)) )
+		Any(pVeh->m_iRemovedSurfaces & shipSurfaceFlags_t::SHIPSURF_BROKEN_C) &&
+		Any(pVeh->m_iRemovedSurfaces & shipSurfaceFlags_t::SHIPSURF_BROKEN_D) &&
+		Any(pVeh->m_iRemovedSurfaces & shipSurfaceFlags_t::SHIPSURF_BROKEN_E) &&
+		Any(pVeh->m_iRemovedSurfaces & shipSurfaceFlags_t::SHIPSURF_BROKEN_F)) )
 	{ //do some special stuff for when all the wings are torn off
 		FighterDamageRoutine(pVeh, parent, parentPS, riderPS, isDead);
 		pVeh->m_vOrientation[ROLL] = AngleNormalize180( pVeh->m_vOrientation[ROLL] );
@@ -1572,7 +1572,7 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 {
 	std::optional<animNumber_t> Anim;
 	int iBlend = 300;
-	setAnimFlags_t iFlags = SETANIM_FLAG_NORMAL;
+	setAnimFlags_t iFlags = setAnimFlags_t::SETANIM_FLAG_NORMAL;
 	bool isLanding = false, isLanded = false;
 #ifdef _JK2MP
 	playerState_t *parentPS = pVeh->m_pParentEntity->playerState;
@@ -1593,10 +1593,10 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 		&& curTime - parentPS->hyperSpaceTime < HYPERSPACE_TIME )
 	{//Going to Hyperspace
 		//close the wings (FIXME: makes sense on X-Wing, not Shuttle?)
-		if ( Any( pVeh->m_ulFlags & VEH_WINGSOPEN ) )
+		if ( Any( pVeh->m_ulFlags & vehFlags_t::VEH_WINGSOPEN ) )
 		{
-			pVeh->m_ulFlags &= ~VEH_WINGSOPEN;
-			Anim = BOTH_WINGS_CLOSE;
+			pVeh->m_ulFlags &= ~vehFlags_t::VEH_WINGSOPEN;
+			Anim = animNumber_t::BOTH_WINGS_CLOSE;
 		}
 	}
 	else
@@ -1608,11 +1608,11 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 		// if we're above launch height (way up in the air)...
 		if ( !isLanding && !isLanded )
 		{
-			if ( !( Any( pVeh->m_ulFlags & VEH_WINGSOPEN ) ) )
+			if ( !( Any( pVeh->m_ulFlags & vehFlags_t::VEH_WINGSOPEN ) ) )
 			{
-				pVeh->m_ulFlags |= VEH_WINGSOPEN;
-				pVeh->m_ulFlags &= ~VEH_GEARSOPEN;
-				Anim = BOTH_WINGS_OPEN;
+				pVeh->m_ulFlags |= vehFlags_t::VEH_WINGSOPEN;
+				pVeh->m_ulFlags &= ~vehFlags_t::VEH_GEARSOPEN;
+				Anim = animNumber_t::BOTH_WINGS_OPEN;
 			}
 		}
 		// otherwise we're below launch height and still taking off.
@@ -1623,38 +1623,38 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 				&& pVeh->m_LandTrace.plane.normal[2] >= MIN_LANDING_SLOPE )
 			{//already landed or trying to land and close to ground
 				// Open gears.
-				if ( !( Any( pVeh->m_ulFlags & VEH_GEARSOPEN ) ) )
+				if ( !( Any( pVeh->m_ulFlags & vehFlags_t::VEH_GEARSOPEN ) ) )
 				{
 #ifdef _JK2MP
 					if ( pVeh->m_pVehicleInfo->soundLand )
 					{//just landed?
 #ifdef QAGAME//MP GAME-side
-						G_EntitySound( ((gentity_t *)(pVeh->m_pParentEntity)), CHAN_AUTO, pVeh->m_pVehicleInfo->soundLand );
+						G_EntitySound( ((gentity_t *)(pVeh->m_pParentEntity)), soundChannel_t::CHAN_AUTO, pVeh->m_pVehicleInfo->soundLand );
 #elif defined CGAME//MP CGAME-side
-						//trap_S_StartSound( nullptr, pVeh->m_pParentEntity->s.number, CHAN_AUTO, pVeh->m_pVehicleInfo->soundLand );
+						//trap_S_StartSound( nullptr, pVeh->m_pParentEntity->s.number, soundChannel_t::CHAN_AUTO, pVeh->m_pVehicleInfo->soundLand );
 #endif
 					}
 #endif
-					pVeh->m_ulFlags |= VEH_GEARSOPEN;
-					Anim = BOTH_GEARS_OPEN;
+					pVeh->m_ulFlags |= vehFlags_t::VEH_GEARSOPEN;
+					Anim = animNumber_t::BOTH_GEARS_OPEN;
 				}
 			}
 			else
 			{//trying to take off and almost halfway off the ground
 				// Close gears (if they're open).
-				if ( Any( pVeh->m_ulFlags & VEH_GEARSOPEN ) )
+				if ( Any( pVeh->m_ulFlags & vehFlags_t::VEH_GEARSOPEN ) )
 				{
-					pVeh->m_ulFlags &= ~VEH_GEARSOPEN;
-					Anim = BOTH_GEARS_CLOSE;
-					//iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD;
+					pVeh->m_ulFlags &= ~vehFlags_t::VEH_GEARSOPEN;
+					Anim = animNumber_t::BOTH_GEARS_CLOSE;
+					//iFlags = setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD;
 				}
 				// If gears are closed, and we are below launch height, close the wings.
 				else
 				{
-					if ( Any( pVeh->m_ulFlags & VEH_WINGSOPEN ) )
+					if ( Any( pVeh->m_ulFlags & vehFlags_t::VEH_WINGSOPEN ) )
 					{
-						pVeh->m_ulFlags &= ~VEH_WINGSOPEN;
-						Anim = BOTH_WINGS_CLOSE;
+						pVeh->m_ulFlags &= ~vehFlags_t::VEH_WINGSOPEN;
+						Anim = animNumber_t::BOTH_WINGS_CLOSE;
 					}
 				}
 			}
@@ -1665,9 +1665,9 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 	{
 		#ifdef _JK2MP
 			BG_SetAnim(pVeh->m_pParentEntity->playerState, bgAllAnims[pVeh->m_pParentEntity->localAnimIndex].anims,
-				SETANIM_BOTH, Anim, iFlags, iBlend);
+				setAnimParts_t::SETANIM_BOTH, Anim, iFlags, iBlend);
 		#else
-			NPC_SetAnim( pVeh->m_pParentEntity, SETANIM_BOTH, *Anim, iFlags, iBlend );
+			NPC_SetAnim( pVeh->m_pParentEntity, setAnimParts_t::SETANIM_BOTH, *Anim, iFlags, iBlend );
 		#endif
 	}
 }
@@ -1746,7 +1746,7 @@ void G_CreateFighterNPC( Vehicle_t **pVeh, const char *strType )
 #endif
 	memset(*pVeh, 0, sizeof(Vehicle_t));
 #else
-	(*pVeh) = (Vehicle_t *) gi.Malloc( sizeof(Vehicle_t), TAG_G_ALLOC, true );
+	(*pVeh) = (Vehicle_t *) gi.Malloc( sizeof(Vehicle_t), memtag::TAG_G_ALLOC, true );
 #endif
 	(*pVeh)->m_pVehicleInfo = &g_vehicleInfo[BG_VehicleGetIndex( strType )];
 }

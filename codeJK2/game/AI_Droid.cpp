@@ -27,10 +27,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 float NPC_GetPainChance( gentity_t *self, int damage );
 extern void G_SoundOnEnt( gentity_t *ent, soundChannel_t channel, const char *soundPath );
 
-constexpr g2SurfaceFlags_t TURN_OFF = G2SURFACEFLAG_NODESCENDANTS;
+constexpr g2SurfaceFlags_t TURN_OFF = g2SurfaceFlags_t::G2SURFACEFLAG_NODESCENDANTS;
 
 //Local state enums
-using enum droidLocalState_t;
 
 /*
 -------------------------
@@ -50,7 +49,7 @@ void R2D2_PartsMove(void)
 
 		if (NPC->genericBone1)
 		{
-			gi.G2API_SetBoneAnglesIndex( &NPC->ghoul2[NPC->playerModel], NPC->genericBone1, NPC->pos1, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, 0 );
+			gi.G2API_SetBoneAnglesIndex( &NPC->ghoul2[NPC->playerModel], NPC->genericBone1, NPC->pos1, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_X, Eorientations::NEGATIVE_Y, Eorientations::NEGATIVE_Z, nullptr, 0, 0 );
 		}
 		TIMER_Set( NPC, "eyeDelay", Q_irand( 100, 1000 ) );
 	}
@@ -80,27 +79,27 @@ void R2D2_TurnAnims ( void )
 
 	turndelta = AngleDelta(NPC->currentAngles[YAW], NPCInfo->desiredYaw);
 
-	if ((fabs(turndelta) > 20) && ((NPC->client->NPC_class == CLASS_R2D2) || (NPC->client->NPC_class == CLASS_R5D2)))
+	if ((fabs(turndelta) > 20) && ((NPC->client->NPC_class == class_t::CLASS_R2D2) || (NPC->client->NPC_class == class_t::CLASS_R5D2)))
 	{
 		anim = NPC->client->ps.legsAnim;
 		if (turndelta<0)
 		{
-			if (anim != BOTH_TURN_LEFT1)
+			if (anim != animNumber_t::BOTH_TURN_LEFT1)
 			{
-				NPC_SetAnim( NPC, SETANIM_BOTH, BOTH_TURN_LEFT1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+				NPC_SetAnim( NPC, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_TURN_LEFT1, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD );
 			}
 		}
 		else
 		{
-			if (anim != BOTH_TURN_RIGHT1)
+			if (anim != animNumber_t::BOTH_TURN_RIGHT1)
 			{
-				NPC_SetAnim( NPC, SETANIM_BOTH, BOTH_TURN_RIGHT1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+				NPC_SetAnim( NPC, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_TURN_RIGHT1, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD );
 			}
 		}
 	}
 	else
 	{
-			NPC_SetAnim( NPC, SETANIM_BOTH, BOTH_RUN1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+			NPC_SetAnim( NPC, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_RUN1, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD );
 	}
 
 }
@@ -115,7 +114,7 @@ void Droid_Patrol( void )
 
 	NPC->pos1[1] = AngleNormalize360( NPC->pos1[1]);
 
-	if ( NPC->client && NPC->client->NPC_class != CLASS_GONK )
+	if ( NPC->client && NPC->client->NPC_class != class_t::CLASS_GONK )
 	{
 		R2D2_PartsMove();		// Get his eye moving.
 		R2D2_TurnAnims();
@@ -124,43 +123,43 @@ void Droid_Patrol( void )
 	//If we have somewhere to go, then do that
 	if ( UpdateGoal() )
 	{
-		ucmd.buttons |= BUTTON_WALKING;
+		ucmd.buttons |= buttonFlags_t::BUTTON_WALKING;
 		NPC_MoveToGoal( true );
 
-		if( NPC->client && NPC->client->NPC_class == CLASS_MOUSE )
+		if( NPC->client && NPC->client->NPC_class == class_t::CLASS_MOUSE )
 		{
 			NPCInfo->desiredYaw += sin(level.time*.5) * 25; // Weaves side to side a little
 
 			if (TIMER_Done(NPC,"patrolNoise"))
 			{
-				G_SoundOnEnt( NPC, CHAN_AUTO, va("sound/chars/mouse/misc/mousego%d.wav", Q_irand(1, 3)) );
+				G_SoundOnEnt( NPC, soundChannel_t::CHAN_AUTO, va("sound/chars/mouse/misc/mousego%d.wav", Q_irand(1, 3)) );
 
 				TIMER_Set( NPC, "patrolNoise", Q_irand( 2000, 4000 ) );
 			}
 		}
-		else if( NPC->client && NPC->client->NPC_class == CLASS_R2D2 )
+		else if( NPC->client && NPC->client->NPC_class == class_t::CLASS_R2D2 )
 		{
 			if (TIMER_Done(NPC,"patrolNoise"))
 			{
-				G_SoundOnEnt( NPC, CHAN_AUTO, va("sound/chars/r2d2/misc/r2d2talk0%d.wav",	Q_irand(1, 3)) );
+				G_SoundOnEnt( NPC, soundChannel_t::CHAN_AUTO, va("sound/chars/r2d2/misc/r2d2talk0%d.wav",	Q_irand(1, 3)) );
 
 				TIMER_Set( NPC, "patrolNoise", Q_irand( 2000, 4000 ) );
 			}
 		}
-		else if( NPC->client && NPC->client->NPC_class == CLASS_R5D2 )
+		else if( NPC->client && NPC->client->NPC_class == class_t::CLASS_R5D2 )
 		{
 			if (TIMER_Done(NPC,"patrolNoise"))
 			{
-				G_SoundOnEnt( NPC, CHAN_AUTO, va("sound/chars/r5d2/misc/r5talk%d.wav", Q_irand(1, 4)) );
+				G_SoundOnEnt( NPC, soundChannel_t::CHAN_AUTO, va("sound/chars/r5d2/misc/r5talk%d.wav", Q_irand(1, 4)) );
 
 				TIMER_Set( NPC, "patrolNoise", Q_irand( 2000, 4000 ) );
 			}
 		}
-		if( NPC->client && NPC->client->NPC_class == CLASS_GONK )
+		if( NPC->client && NPC->client->NPC_class == class_t::CLASS_GONK )
 		{
 			if (TIMER_Done(NPC,"patrolNoise"))
 			{
-				G_SoundOnEnt( NPC, CHAN_AUTO, va("sound/chars/gonk/misc/gonktalk%d.wav", Q_irand(1, 2)) );
+				G_SoundOnEnt( NPC, soundChannel_t::CHAN_AUTO, va("sound/chars/gonk/misc/gonktalk%d.wav", Q_irand(1, 2)) );
 
 				TIMER_Set( NPC, "patrolNoise", Q_irand( 2000, 4000 ) );
 			}
@@ -184,12 +183,12 @@ void Droid_Run( void )
 {
 	R2D2_PartsMove();
 
-	if ( NPC_LocalState<droidLocalState_t>( *NPCInfo ) == LSTATE_BACKINGUP )
+	if ( NPC_LocalState<droidLocalState_t>( *NPCInfo ) == droidLocalState_t::LSTATE_BACKINGUP )
 	{
 		ucmd.forwardmove = -127;
 		NPCInfo->desiredYaw += 5;
 
-		NPC_SetLocalState( *NPCInfo, LSTATE_NONE );	// So he doesn't constantly backup.
+		NPC_SetLocalState( *NPCInfo, droidLocalState_t::LSTATE_NONE );	// So he doesn't constantly backup.
 	}
 	else
 	{
@@ -220,10 +219,10 @@ void Droid_Spin( void )
 
 
 	// Head is gone, spin and spark
-	if ( NPC->client->NPC_class == CLASS_R5D2 )
+	if ( NPC->client->NPC_class == class_t::CLASS_R5D2 )
 	{
 		// No head?
-		if (gi.G2API_GetSurfaceRenderStatus( &NPC->ghoul2[NPC->playerModel], "head" ) != G2SURFACEFLAG_NONE)
+		if (gi.G2API_GetSurfaceRenderStatus( &NPC->ghoul2[NPC->playerModel], "head" ) != g2SurfaceFlags_t::G2SURFACEFLAG_NONE)
 		{
 			if (TIMER_Done(NPC,"smoke") && !TIMER_Done(NPC,"droidsmoketotal"))
 			{
@@ -249,7 +248,7 @@ void Droid_Spin( void )
 		{
 			if (TIMER_Done(NPC,"roam"))
 			{
-				NPC_SetLocalState( *NPCInfo, LSTATE_NONE );
+				NPC_SetLocalState( *NPCInfo, droidLocalState_t::LSTATE_NONE );
 			}
 			else
 			{
@@ -261,7 +260,7 @@ void Droid_Spin( void )
 	{
 		if (TIMER_Done(NPC,"roam"))
 		{
-			NPC_SetLocalState( *NPCInfo, LSTATE_NONE );
+			NPC_SetLocalState( *NPCInfo, droidLocalState_t::LSTATE_NONE );
 		}
 		else
 		{
@@ -284,32 +283,32 @@ void NPC_Droid_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, ve
 
 	VectorCopy( self->NPC->lastPathAngles, self->s.angles );
 
-	if ( self->client->NPC_class == CLASS_R5D2 )
+	if ( self->client->NPC_class == class_t::CLASS_R5D2 )
 	{
 		pain_chance = NPC_GetPainChance( self, damage );
 
 		// Put it in pain
-		if ( mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT || Q_flrand(0.0f, 1.0f) < pain_chance )	// Spin around in pain? Demp2 always does this
+		if ( mod == meansOfDeath_t::MOD_DEMP2 || mod == meansOfDeath_t::MOD_DEMP2_ALT || Q_flrand(0.0f, 1.0f) < pain_chance )	// Spin around in pain? Demp2 always does this
 		{
 			// Health is between 0-30 or was hit by a DEMP2 so pop his head
-			if ( self->health < 30 || mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT )
+			if ( self->health < 30 || mod == meansOfDeath_t::MOD_DEMP2 || mod == meansOfDeath_t::MOD_DEMP2_ALT )
 			{
 				if (!(self->spawnflags & 2))	// Doesn't have to ALWAYSDIE
 				{
-					if ((NPC_LocalState<droidLocalState_t>( *self->NPC ) != LSTATE_SPINNING) &&
-						(gi.G2API_GetSurfaceRenderStatus( &self->ghoul2[self->playerModel], "head" ) == G2SURFACEFLAG_NONE))
+					if ((NPC_LocalState<droidLocalState_t>( *self->NPC ) != droidLocalState_t::LSTATE_SPINNING) &&
+						(gi.G2API_GetSurfaceRenderStatus( &self->ghoul2[self->playerModel], "head" ) == g2SurfaceFlags_t::G2SURFACEFLAG_NONE))
 					{
 						gi.G2API_SetSurfaceOnOff( &self->ghoul2[self->playerModel], "head", TURN_OFF );
 
 //						G_PlayEffect( "small_chunks" , self->currentOrigin );
 						G_PlayEffect( "r5d2head", self->currentOrigin );
 
-						self->s.powerups |= Bit( PW_SHOCKED );
-						self->client->ps.powerups[PW_SHOCKED] = level.time + 3000;
+						self->s.powerups |= Bit( powerup_t::PW_SHOCKED );
+						self->client->ps.powerups[powerup_t::PW_SHOCKED] = level.time + 3000;
 
 						TIMER_Set( self, "droidsmoketotal", 5000);
 						TIMER_Set( self, "droidspark", 100);
-						NPC_SetLocalState( *self->NPC, LSTATE_SPINNING );
+						NPC_SetLocalState( *self->NPC, droidLocalState_t::LSTATE_SPINNING );
 					}
 				}
 			}
@@ -318,64 +317,64 @@ void NPC_Droid_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, ve
 			{
 				anim = self->client->ps.legsAnim;
 
-				if ( anim == BOTH_STAND2 )	// On two legs?
+				if ( anim == animNumber_t::BOTH_STAND2 )	// On two legs?
 				{
-					anim = BOTH_PAIN1;
+					anim = animNumber_t::BOTH_PAIN1;
 				}
 				else						// On three legs
 				{
-					anim = BOTH_PAIN2;
+					anim = animNumber_t::BOTH_PAIN2;
 				}
 
-				NPC_SetAnim( self, SETANIM_BOTH, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+				NPC_SetAnim( self, setAnimParts_t::SETANIM_BOTH, anim, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD );
 
 				// Spin around in pain
-				NPC_SetLocalState( *self->NPC, LSTATE_SPINNING );
+				NPC_SetLocalState( *self->NPC, droidLocalState_t::LSTATE_SPINNING );
 				TIMER_Set( self, "roam", Q_irand(1000,2000));
 			}
 		}
 	}
-	else if (self->client->NPC_class == CLASS_MOUSE)
+	else if (self->client->NPC_class == class_t::CLASS_MOUSE)
 	{
-		if ( mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT )
+		if ( mod == meansOfDeath_t::MOD_DEMP2 || mod == meansOfDeath_t::MOD_DEMP2_ALT )
 		{
-			NPC_SetLocalState( *self->NPC, LSTATE_SPINNING );
-			self->s.powerups |= Bit( PW_SHOCKED );
-			self->client->ps.powerups[PW_SHOCKED] = level.time + 3000;
+			NPC_SetLocalState( *self->NPC, droidLocalState_t::LSTATE_SPINNING );
+			self->s.powerups |= Bit( powerup_t::PW_SHOCKED );
+			self->client->ps.powerups[powerup_t::PW_SHOCKED] = level.time + 3000;
 		}
 		else
 		{
-			NPC_SetLocalState( *self->NPC, LSTATE_BACKINGUP );
+			NPC_SetLocalState( *self->NPC, droidLocalState_t::LSTATE_BACKINGUP );
 		}
 
-		self->NPC->scriptFlags &= ~SCF_LOOK_FOR_ENEMIES;
+		self->NPC->scriptFlags &= ~scriptFlags_t::SCF_LOOK_FOR_ENEMIES;
 	}
-	else if (self->client->NPC_class == CLASS_R2D2)
+	else if (self->client->NPC_class == class_t::CLASS_R2D2)
 	{
 
 		pain_chance = NPC_GetPainChance( self, damage );
 
-		if ( mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT || Q_flrand(0.0f, 1.0f) < pain_chance )	// Spin around in pain? Demp2 always does this
+		if ( mod == meansOfDeath_t::MOD_DEMP2 || mod == meansOfDeath_t::MOD_DEMP2_ALT || Q_flrand(0.0f, 1.0f) < pain_chance )	// Spin around in pain? Demp2 always does this
 		{
 			anim = self->client->ps.legsAnim;
 
-			if ( anim == BOTH_STAND2 )	// On two legs?
+			if ( anim == animNumber_t::BOTH_STAND2 )	// On two legs?
 			{
-				anim = BOTH_PAIN1;
+				anim = animNumber_t::BOTH_PAIN1;
 			}
 			else						// On three legs
 			{
-				anim = BOTH_PAIN2;
+				anim = animNumber_t::BOTH_PAIN2;
 			}
 
-			NPC_SetAnim( self, SETANIM_BOTH, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+			NPC_SetAnim( self, setAnimParts_t::SETANIM_BOTH, anim, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD );
 
 			// Spin around in pain
-			NPC_SetLocalState( *self->NPC, LSTATE_SPINNING );
+			NPC_SetLocalState( *self->NPC, droidLocalState_t::LSTATE_SPINNING );
 			TIMER_Set( self, "roam", Q_irand(1000,2000));
 		}
 	}
-	else if ( self->client->NPC_class == CLASS_INTERROGATOR && ( mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT ) && other )
+	else if ( self->client->NPC_class == class_t::CLASS_INTERROGATOR && ( mod == meansOfDeath_t::MOD_DEMP2 || mod == meansOfDeath_t::MOD_DEMP2_ALT ) && other )
 	{
 		vec3_t dir;
 
@@ -399,7 +398,7 @@ void Droid_Pain(void)
 {
 	if (TIMER_Done(NPC,"droidpain"))	//He's done jumping around
 	{
-		NPC_SetLocalState( *NPCInfo, LSTATE_NONE );
+		NPC_SetLocalState( *NPCInfo, droidLocalState_t::LSTATE_NONE );
 	}
 }
 
@@ -494,7 +493,7 @@ static void R5D2_OffsetLook( float offset, vec3_t out )
 	AngleVectors( angles, forward, nullptr, nullptr );
 	VectorMA( NPC->currentOrigin, 64, forward, out );
 
-	CalcEntitySpot( NPC, SPOT_HEAD, temp );
+	CalcEntitySpot( NPC, spot_t::SPOT_HEAD, temp );
 	out[2] = temp[2];
 }
 */
@@ -541,20 +540,20 @@ NPC_BSDroid_Default
 void NPC_BSDroid_Default( void )
 {
 
-	if ( NPC_LocalState<droidLocalState_t>( *NPCInfo ) == LSTATE_SPINNING )
+	if ( NPC_LocalState<droidLocalState_t>( *NPCInfo ) == droidLocalState_t::LSTATE_SPINNING )
 	{
 		Droid_Spin();
 	}
-	else if ( NPC_LocalState<droidLocalState_t>( *NPCInfo ) == LSTATE_PAIN )
+	else if ( NPC_LocalState<droidLocalState_t>( *NPCInfo ) == droidLocalState_t::LSTATE_PAIN )
 	{
 		Droid_Pain();
 	}
-	else if ( NPC_LocalState<droidLocalState_t>( *NPCInfo ) == LSTATE_DROP )
+	else if ( NPC_LocalState<droidLocalState_t>( *NPCInfo ) == droidLocalState_t::LSTATE_DROP )
 	{
 		NPC_UpdateAngles( true, true );
 		ucmd.upmove = Q_flrand(-1.0f, 1.0f) * 64;
 	}
-	else if ( Any( NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES ) )
+	else if ( Any( NPCInfo->scriptFlags & scriptFlags_t::SCF_LOOK_FOR_ENEMIES ) )
 	{
 		Droid_Patrol();
 	}

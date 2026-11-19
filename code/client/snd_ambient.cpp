@@ -20,7 +20,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// Ambient Sound System (ASS!)
+// Ambient EPrimType::Sound System (ASS!)
 #include "../server/exe_headers.h"
 
 #include "client.h"
@@ -57,7 +57,7 @@ typedef	std::map<sstring_t, unsigned char>	namePrecache_m;
 static namePrecache_m	*pMap;
 
 // Used for enum / string matching
-static const EnumArray<const char *, set_e, NUM_AS_SETS>	setNames =
+static const EnumArray<const char *, set_e, set_e::NUM_AS_SETS>	setNames =
 					{
 						"generalSet",
 						"localSet",
@@ -65,7 +65,7 @@ static const EnumArray<const char *, set_e, NUM_AS_SETS>	setNames =
 					};
 
 // Used for enum / function matching
-static const EnumArray<parseFunc_t, set_e, NUM_AS_SETS>	parseFuncs =
+static const EnumArray<parseFunc_t, set_e, set_e::NUM_AS_SETS>	parseFuncs =
 							{
 								AS_GetGeneralSet,
 								AS_GetLocalSet,
@@ -73,7 +73,7 @@ static const EnumArray<parseFunc_t, set_e, NUM_AS_SETS>	parseFuncs =
 							};
 
 // Used for keyword / enum matching
-static const EnumArray<const char *, setKeyword_e, NUM_AS_KEYWORDS>	keywordNames =
+static const EnumArray<const char *, setKeyword_e, setKeyword_e::NUM_AS_KEYWORDS>	keywordNames =
 					{
 						"timeBetweenWaves",
 						"subWaves",
@@ -136,7 +136,7 @@ ambientSet_t *CSetGroup::AddSet( const char *name )
 	ambientSet_t	*set;
 
 	//Allocate the memory
-	set = (ambientSet_t *) Z_Malloc( sizeof( ambientSet_t ), TAG_AMBIENTSET, true);
+	set = (ambientSet_t *) Z_Malloc( sizeof( ambientSet_t ), memtag::TAG_AMBIENTSET, true);
 
 	//Set up some defaults
 	Q_strncpyz(set->name,name,sizeof(set->name));
@@ -213,15 +213,15 @@ static set_e AS_GetSetNameIDForString( const char *name )
 {
 	//Make sure it's valid
 	if ( name == nullptr || name[0] == '\0' )
-		return AS_SET_UNKNOWN;
+		return set_e::AS_SET_UNKNOWN;
 
-	for ( set_e i = AS_SET_GENERAL; i < NUM_AS_SETS; i++ )
+	for ( set_e i = set_e::AS_SET_GENERAL; i < set_e::NUM_AS_SETS; i++ )
 	{
 		if ( Q_stricmp( name, setNames[i] ) == 0 )
 			return i;
 	}
 
-	return AS_SET_UNKNOWN;
+	return set_e::AS_SET_UNKNOWN;
 }
 
 /*
@@ -234,15 +234,15 @@ static setKeyword_e AS_GetKeywordIDForString( const char *name )
 {
 	//Make sure it's valid
 	if ( name == nullptr || name[0] == '\0' )
-		return SET_KEYWORD_UNKNOWN;
+		return setKeyword_e::SET_KEYWORD_UNKNOWN;
 
-	for ( setKeyword_e i = SET_KEYWORD_TIMEBETWEENWAVES; i < NUM_AS_KEYWORDS; i++ )
+	for ( setKeyword_e i = setKeyword_e::SET_KEYWORD_TIMEBETWEENWAVES; i < setKeyword_e::NUM_AS_KEYWORDS; i++ )
 	{
 		if ( Q_stricmp( name, keywordNames[i] ) == 0 )
 			return i;
 	}
 
-	return SET_KEYWORD_UNKNOWN;
+	return setKeyword_e::SET_KEYWORD_UNKNOWN;
 }
 
 /*
@@ -319,7 +319,7 @@ static void AS_GetSubWaves( ambientSet_t &set )
 	sscanf( parseBuffer+parsePos, "%s %s", tempBuffer, dirBuffer );
 
 	//Move the pointer past these two strings
-	parsePos += ((strlen(keywordNames[SET_KEYWORD_SUBWAVES])+1) + (strlen(dirBuffer)+1));
+	parsePos += ((strlen(keywordNames[setKeyword_e::SET_KEYWORD_SUBWAVES])+1) + (strlen(dirBuffer)+1));
 
 	//Get all the subwaves
 	while ( parsePos <= parseSize )
@@ -456,26 +456,26 @@ static void AS_GetGeneralSet( ambientSet_t &set )
 		//Find and parse the keyword info
 		switch ( keywordID )
 		{
-		case SET_KEYWORD_TIMEBETWEENWAVES:
+		case setKeyword_e::SET_KEYWORD_TIMEBETWEENWAVES:
 			AS_GetTimeBetweenWaves( set );
 			break;
 
-		case SET_KEYWORD_SUBWAVES:
+		case setKeyword_e::SET_KEYWORD_SUBWAVES:
 			AS_GetSubWaves( set );
 			break;
 
-		case SET_KEYWORD_LOOPEDWAVE:
+		case setKeyword_e::SET_KEYWORD_LOOPEDWAVE:
 			AS_GetLoopedWave( set );
 			break;
 
-		case SET_KEYWORD_VOLRANGE:
+		case setKeyword_e::SET_KEYWORD_VOLRANGE:
 			AS_GetVolumeRange( set );
 			break;
 
 		default:
 
 			//Check to see if we've finished this group
-			if ( AS_GetSetNameIDForString( (const char *) &tempBuffer ) == AS_SET_UNKNOWN )
+			if ( AS_GetSetNameIDForString( (const char *) &tempBuffer ) == set_e::AS_SET_UNKNOWN )
 			{
 				//Ignore comments
 				if ( tempBuffer[0] == ';' )
@@ -515,30 +515,30 @@ static void AS_GetLocalSet( ambientSet_t &set )
 		//Find and parse the keyword info
 		switch ( keywordID )
 		{
-		case SET_KEYWORD_TIMEBETWEENWAVES:
+		case setKeyword_e::SET_KEYWORD_TIMEBETWEENWAVES:
 			AS_GetTimeBetweenWaves( set );
 			break;
 
-		case SET_KEYWORD_SUBWAVES:
+		case setKeyword_e::SET_KEYWORD_SUBWAVES:
 			AS_GetSubWaves( set );
 			break;
 
-		case SET_KEYWORD_LOOPEDWAVE:
+		case setKeyword_e::SET_KEYWORD_LOOPEDWAVE:
 			AS_GetLoopedWave( set );
 			break;
 
-		case SET_KEYWORD_VOLRANGE:
+		case setKeyword_e::SET_KEYWORD_VOLRANGE:
 			AS_GetVolumeRange( set );
 			break;
 
-		case SET_KEYWORD_RADIUS:
+		case setKeyword_e::SET_KEYWORD_RADIUS:
 			AS_GetRadius( set );
 			break;
 
 		default:
 
 			//Check to see if we've finished this group
-			if ( AS_GetSetNameIDForString( (const char *) &tempBuffer ) == AS_SET_UNKNOWN )
+			if ( AS_GetSetNameIDForString( (const char *) &tempBuffer ) == set_e::AS_SET_UNKNOWN )
 			{
 				//Ignore comments
 				if ( tempBuffer[0] == ';' )
@@ -578,14 +578,14 @@ static void AS_GetBModelSet( ambientSet_t &set )
 		//Find and parse the keyword info
 		switch ( keywordID )
 		{
-		case SET_KEYWORD_SUBWAVES:
+		case setKeyword_e::SET_KEYWORD_SUBWAVES:
 			AS_GetSubWaves( set );
 			break;
 
 		default:
 
 			//Check to see if we've finished this group
-			if ( AS_GetSetNameIDForString( (const char *) &tempBuffer ) == AS_SET_UNKNOWN )
+			if ( AS_GetSetNameIDForString( (const char *) &tempBuffer ) == set_e::AS_SET_UNKNOWN )
 			{
 				//Ignore comments
 				if ( tempBuffer[0] == ';' )
@@ -617,7 +617,7 @@ static bool AS_ParseSet( set_e setID, CSetGroup *sg )
 	const char		*name;
 
 	//Make sure we're not overstepping the name array
-	if ( setID >= NUM_AS_SETS )
+	if ( setID >= set_e::NUM_AS_SETS )
 		return false;
 
 	//Reset the pointers for this run through
@@ -682,26 +682,26 @@ static void AS_ParseHeader( void )
 
 		switch ( keywordID )
 		{
-		case SET_KEYWORD_TYPE:
+		case setKeyword_e::SET_KEYWORD_TYPE:
 			sscanf( parseBuffer+parsePos, "%s %s", tempBuffer, typeBuffer );
 
 			if ( !Q_stricmp( (const char *) typeBuffer, "ambientSet" ) )
 			{
 				return;
 			}
-			Com_Error( ERR_DROP, "AS_ParseHeader: Set type \"%s\" is not a valid set type!\n", typeBuffer );
+			Com_Error( errorParm_t::ERR_DROP, "AS_ParseHeader: Set type \"%s\" is not a valid set type!\n", typeBuffer );
 
 			break;
 
-		case SET_KEYWORD_AMSDIR:
+		case setKeyword_e::SET_KEYWORD_AMSDIR:
 			//TODO: Implement
 			break;
 
-		case SET_KEYWORD_OUTDIR:
+		case setKeyword_e::SET_KEYWORD_OUTDIR:
 			//TODO: Implement
 			break;
 
-		case SET_KEYWORD_BASEDIR:
+		case setKeyword_e::SET_KEYWORD_BASEDIR:
 			//TODO: Implement
 			break;
 
@@ -733,7 +733,7 @@ static bool AS_ParseFile( const char *filename, CSetGroup *sg )
 	AS_ParseHeader();
 
 	//Parse all the relevent sets out of it
-	for ( set_e i = AS_SET_GENERAL; i < NUM_AS_SETS; i++ )
+	for ( set_e i = set_e::AS_SET_GENERAL; i < set_e::NUM_AS_SETS; i++ )
 		AS_ParseSet( i, sg );
 
 	//Free the memory and close the file
@@ -820,7 +820,7 @@ void AS_ParseSets( void )
 	//Parse all the sets
 	if ( AS_ParseFile( AMBIENT_SET_FILENAME, aSets ) == false )
 	{
-		Com_Error ( ERR_FATAL, S_COLOR_RED"ERROR: Couldn't load ambient sound sets from %s", AMBIENT_SET_FILENAME );
+		Com_Error ( errorParm_t::ERR_FATAL, S_COLOR_RED"ERROR: Couldn't load ambient sound sets from %s", AMBIENT_SET_FILENAME );
 	}
 
 	//Com_Printf( "AS_ParseFile: Loaded %d of %d ambient set(s)\n", pMap.size(), numSets );
@@ -840,7 +840,7 @@ void AS_ParseSets( void )
 
 	if (iErrorsOccured)
 	{
-		Com_Error( ERR_DROP, "....%d missing sound sets! (see above)\n", iErrorsOccured);
+		Com_Error( errorParm_t::ERR_DROP, "....%d missing sound sets! (see above)\n", iErrorsOccured);
 	}
 
 //	//Done with the precache info, it will be rebuilt on a restart

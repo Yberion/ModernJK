@@ -29,13 +29,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 vm_t *currentVM = nullptr;
 
-static const EnumArray<const char *, vmSlots_t, MAX_VM> vmNames = {
+static const EnumArray<const char *, vmSlots_t, vmSlots_t::MAX_VM> vmNames = {
 	"jampgame",
 	"cgame",
 	"ui"
 };
 
-const EnumArray<const char *, vmSlots_t, MAX_VM> vmStrs = {
+const EnumArray<const char *, vmSlots_t, vmSlots_t::MAX_VM> vmStrs = {
 	"GameVM",
 	"CGameVM",
 	"UIVM",
@@ -44,13 +44,13 @@ const EnumArray<const char *, vmSlots_t, MAX_VM> vmStrs = {
 // VM slots are automatically allocated by VM_Create, and freed by VM_Free
 // The VM table should never be directly accessed from other files.
 // Example usage:
-//	cgvm = VM_Create( VM_CGAME );	// vmTable[VM_CGAME] is allocated
+//	cgvm = VM_Create( vmSlots_t::VM_CGAME );	// vmTable[VM_CGAME] is allocated
 //	CGVM_Init( foo, bar );
 //	cgvm = VM_Restart( cgvm );		// vmTable[VM_CGAME] is recreated, we update the cgvm pointer
 //	VM_Free( cgvm );				// vmTable[VM_CGAME] is deallocated and set to nullptr
 //	cgvm = nullptr;					// ...so we update the cgvm pointer
 
-static EnumArray<vm_t *, vmSlots_t, MAX_VM> vmTable;
+static EnumArray<vm_t *, vmSlots_t, vmSlots_t::MAX_VM> vmTable;
 
 void VM_Init( void ) {
 	vmTable = {};
@@ -74,7 +74,7 @@ vm_t *VM_Create( vmSlots_t vmSlot ) {
 		return vmTable[vmSlot];
 
 	// find a free vm
-	vmTable[vmSlot] = (vm_t *)Z_Malloc( sizeof(*vm), TAG_VM, true );
+	vmTable[vmSlot] = (vm_t *)Z_Malloc( sizeof(*vm), memtag::TAG_VM, true );
 	vm = vmTable[vmSlot];
 
 	// initialise it
@@ -132,7 +132,7 @@ void VM_Shifted_Alloc( void **ptr, int size ) {
 		return;
 	}
 
-	mem = Z_Malloc( size + 1, TAG_VM_ALLOCATED, false );
+	mem = Z_Malloc( size + 1, memtag::TAG_VM_ALLOCATED, false );
 	if ( !mem ) {
 		assert( 0 );
 		*ptr = nullptr;

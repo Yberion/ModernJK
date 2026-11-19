@@ -93,7 +93,7 @@ void Remote_MaintainHeight( void )
 				dif *= 10;
 				NPCS.NPC->client->ps.velocity[2] = (NPCS.NPC->client->ps.velocity[2]+dif)/2;
 			//	NPC->fx_time = level.time;
-				G_Sound( NPCS.NPC, CHAN_AUTO, G_SoundIndex("sound/chars/remote/misc/hiss.wav"));
+				G_Sound( NPCS.NPC, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/chars/remote/misc/hiss.wav"));
 			}
 		}
 	}
@@ -165,14 +165,14 @@ void Remote_Strafe( void )
 	dir = ( Q_irand( 0, 1 ) ) ? -1 : 1;
 	VectorMA( NPCS.NPC->r.currentOrigin, REMOTE_STRAFE_DIS * dir, right, end );
 
-	trap->Trace( &tr, NPCS.NPC->r.currentOrigin, nullptr, nullptr, end, NPCS.NPC->s.number, MASK_SOLID, false, G2TRFLAG_NONE, 0 );
+	trap->Trace( &tr, NPCS.NPC->r.currentOrigin, nullptr, nullptr, end, NPCS.NPC->s.number, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0 );
 
 	// Close enough
 	if ( tr.fraction > 0.9f )
 	{
 		VectorMA( NPCS.NPC->client->ps.velocity, REMOTE_STRAFE_VEL * dir, right, NPCS.NPC->client->ps.velocity );
 
-		G_Sound( NPCS.NPC, CHAN_AUTO, G_SoundIndex("sound/chars/remote/misc/hiss.wav"));
+		G_Sound( NPCS.NPC, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/chars/remote/misc/hiss.wav"));
 
 		// Add a slight upward push
 		NPCS.NPC->client->ps.velocity[2] += REMOTE_UPWARD_PUSH;
@@ -250,7 +250,7 @@ void Remote_Fire (void)
 //	static	vec3_t	muzzle;
 	gentity_t	*missile;
 
-	CalcEntitySpot( NPCS.NPC->enemy, SPOT_HEAD, enemy_org1 );
+	CalcEntitySpot( NPCS.NPC->enemy, spot_t::SPOT_HEAD, enemy_org1 );
 	VectorCopy( NPCS.NPC->r.currentOrigin, muzzle1 );
 
 	VectorSubtract (enemy_org1, muzzle1, delta1);
@@ -263,12 +263,12 @@ void Remote_Fire (void)
 	G_PlayEffectID( G_EffectIndex("bryar/muzzle_flash"), NPCS.NPC->r.currentOrigin, forward );
 
 	missile->classname = "briar";
-	missile->s.weapon = WP_BRYAR_PISTOL;
+	missile->s.weapon = weapon_t::WP_BRYAR_PISTOL;
 
 	missile->damage = 10;
-	missile->dflags = DAMAGE_DEATH_KNOCKBACK;
-	missile->methodOfDeath = MOD_BRYAR_PISTOL;
-	missile->clipmask = MASK_SHOT | CONTENTS_LIGHTSABER;
+	missile->dflags = damageFlags_t::DAMAGE_DEATH_KNOCKBACK;
+	missile->methodOfDeath = meansOfDeath_t::MOD_BRYAR_PISTOL;
+	missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
 
 }
 
@@ -285,7 +285,7 @@ void Remote_Ranged( bool visible, bool advance, bool retreat )
 		Remote_Fire();
 	}
 
-	if ( Any( NPCS.NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
+	if ( Any( NPCS.NPCInfo->scriptFlags & scriptFlags_t::SCF_CHASE_ENEMIES ) )
 	{
 		Remote_Hunt( visible, advance, retreat );
 	}
@@ -332,7 +332,7 @@ void Remote_Attack( void )
 	// If we cannot see our target, move to see it
 	if ( visible == false )
 	{
-		if ( Any( NPCS.NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
+		if ( Any( NPCS.NPCInfo->scriptFlags & scriptFlags_t::SCF_CHASE_ENEMIES ) )
 		{
 			Remote_Hunt( visible, advance, retreat );
 			return;
@@ -370,7 +370,7 @@ void Remote_Patrol( void )
 		if ( UpdateGoal() )
 		{
 			//start loop sound once we move
-			NPCS.ucmd.buttons |= BUTTON_WALKING;
+			NPCS.ucmd.buttons |= buttonFlags_t::BUTTON_WALKING;
 			NPC_MoveToGoal( true );
 		}
 	}
@@ -388,7 +388,7 @@ void NPC_BSRemote_Default( void )
 {
 	if ( NPCS.NPC->enemy )
 		Remote_Attack();
-	else if ( Any( NPCS.NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES ) )
+	else if ( Any( NPCS.NPCInfo->scriptFlags & scriptFlags_t::SCF_LOOK_FOR_ENEMIES ) )
 		Remote_Patrol();
 	else
 		Remote_Idle();

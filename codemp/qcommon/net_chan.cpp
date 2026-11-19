@@ -69,9 +69,9 @@ Netchan_Init
 */
 void Netchan_Init( int port ) {
 	port &= 0xffff;
-	showpackets = Cvar_Get ("showpackets", "0", CVAR_TEMP );
-	showdrop = Cvar_Get ("showdrop", "0", CVAR_TEMP );
-	qport = Cvar_Get ("net_qport", va("%i", port), CVAR_INIT );
+	showpackets = Cvar_Get ("showpackets", "0", cvarFlags_t::CVAR_TEMP );
+	showdrop = Cvar_Get ("showdrop", "0", cvarFlags_t::CVAR_TEMP );
+	qport = Cvar_Get ("net_qport", va("%i", port), cvarFlags_t::CVAR_INIT );
 }
 
 /*
@@ -109,7 +109,7 @@ void Netchan_TransmitNextFragment( netchan_t *chan ) {
 	MSG_WriteLong( &send, chan->outgoingSequence | FRAGMENT_BIT );
 
 	// send the qport if we are a client
-	if ( chan->sock == NS_CLIENT ) {
+	if ( chan->sock == netsrc_t::NS_CLIENT ) {
 		MSG_WriteShort( &send, qport->integer );
 	}
 
@@ -160,7 +160,7 @@ void Netchan_Transmit( netchan_t *chan, int length, const byte *data ) {
 	byte		send_buf[MAX_PACKETLEN];
 
 	if ( length > MAX_MSGLEN ) {
-		Com_Error( ERR_DROP, "Netchan_Transmit: length = %i", length );
+		Com_Error( errorParm_t::ERR_DROP, "Netchan_Transmit: length = %i", length );
 	}
 	chan->unsentFragmentStart = 0;
 
@@ -188,7 +188,7 @@ void Netchan_Transmit( netchan_t *chan, int length, const byte *data ) {
 	chan->outgoingSequence++;
 
 	// send the qport if we are a client
-	if ( chan->sock == NS_CLIENT ) {
+	if ( chan->sock == netsrc_t::NS_CLIENT ) {
 		MSG_WriteShort( &send, qport->integer );
 	}
 
@@ -237,7 +237,7 @@ bool Netchan_Process( netchan_t *chan, msg_t *msg ) {
 	}
 
 	// read the qport if we are a server
-	if ( chan->sock == NS_SERVER ) {
+	if ( chan->sock == netsrc_t::NS_SERVER ) {
 		/*qport = */MSG_ReadShort( msg );
 	}
 
@@ -395,10 +395,10 @@ bool NET_CompareBaseAdrMask( const netadr_t *a, const netadr_t *b, unsigned int 
 	if ( a->type != b->type )
 		return false;
 
-	if ( a->type == NA_LOOPBACK )
+	if ( a->type == netadrtype_t::NA_LOOPBACK )
 		return true;
 
-	if ( a->type == NA_IP )
+	if ( a->type == netadrtype_t::NA_IP )
 	{
 		addra = (byte *)&a->ip;
 		addrb = (byte *)&b->ip;
@@ -448,14 +448,14 @@ const char	*NET_AdrToString (const netadr_t *a)
 {
 	static	char	s[NET_ADDRSTRMAXLEN];
 
-	if (a->type == NA_LOOPBACK) {
+	if (a->type == netadrtype_t::NA_LOOPBACK) {
 		Com_sprintf (s, sizeof(s), "loopback");
-	} else if (a->type == NA_BOT) {
+	} else if (a->type == netadrtype_t::NA_BOT) {
 		Com_sprintf (s, sizeof(s), "bot");
-	} else if (a->type == NA_IP) {
+	} else if (a->type == netadrtype_t::NA_IP) {
 		Com_sprintf (s, sizeof(s), "%i.%i.%i.%i:%hu",
 			a->ip[0], a->ip[1], a->ip[2], a->ip[3], BigShort(a->port));
-	} else if (a->type == NA_BAD) {
+	} else if (a->type == netadrtype_t::NA_BAD) {
 		Com_sprintf (s, sizeof(s), "BAD");
 	}
 
@@ -468,7 +468,7 @@ bool	NET_CompareAdr (const netadr_t *a, const netadr_t *b)
 	if (!NET_CompareBaseAdr(a, b))
 		return false;
 
-	if (a->type == NA_IP)
+	if (a->type == netadrtype_t::NA_IP)
 	{
 		if (a->port == b->port)
 			return true;
@@ -481,7 +481,7 @@ bool	NET_CompareAdr (const netadr_t *a, const netadr_t *b)
 
 
 bool	NET_IsLocalAddress( const netadr_t *adr ) {
-	return adr->type == NA_LOOPBACK ? true : false;
+	return adr->type == netadrtype_t::NA_LOOPBACK ? true : false;
 }
 
 
@@ -530,7 +530,7 @@ bool	NET_GetLoopPacket (netsrc_t sock, netadr_t *net_from, msg_t *net_message)
 	Com_Memcpy (net_message->data, loop->msgs[i].data, loop->msgs[i].datalen);
 	net_message->cursize = loop->msgs[i].datalen;
 	Com_Memset (net_from, 0, sizeof(*net_from));
-	net_from->type = NA_LOOPBACK;
+	net_from->type = netadrtype_t::NA_LOOPBACK;
 	return true;
 
 }
@@ -541,7 +541,7 @@ void NET_SendLoopPacket (netsrc_t sock, int length, const void *data)
 	int		i;
 	loopback_t	*loop;
 
-	loop = &loopbacks[sock == NS_CLIENT ? NS_SERVER : NS_CLIENT];
+	loop = &loopbacks[sock == netsrc_t::NS_CLIENT ? netsrc_t::NS_SERVER : netsrc_t::NS_CLIENT];
 
 	i = loop->send & (MAX_LOOPBACK-1);
 	loop->send++;
@@ -560,14 +560,14 @@ void NET_SendPacket( netsrc_t sock, int length, const void *data, const netadr_t
 		Com_Printf ("send packet %4i\n", length);
 	}
 
-	if ( to->type == NA_LOOPBACK ) {
+	if ( to->type == netadrtype_t::NA_LOOPBACK ) {
 		NET_SendLoopPacket (sock, length, data);
 		return;
 	}
-	if ( to->type == NA_BOT ) {
+	if ( to->type == netadrtype_t::NA_BOT ) {
 		return;
 	}
-	if ( to->type == NA_BAD ) {
+	if ( to->type == netadrtype_t::NA_BAD ) {
 		return;
 	}
 
@@ -645,7 +645,7 @@ bool	NET_StringToAdr( const char *s, netadr_t *a ) {
 
 	if (!strcmp (s, "localhost")) {
 		Com_Memset (a, 0, sizeof(*a));
-		a->type = NA_LOOPBACK;
+		a->type = netadrtype_t::NA_LOOPBACK;
 		return true;
 	}
 
@@ -658,13 +658,13 @@ bool	NET_StringToAdr( const char *s, netadr_t *a ) {
 	}
 
 	if ( !Sys_StringToAdr( base, a ) ) {
-		a->type = NA_BAD;
+		a->type = netadrtype_t::NA_BAD;
 		return false;
 	}
 
 	// inet_addr returns this if out of range
 	if ( a->ip[0] == 255 && a->ip[1] == 255 && a->ip[2] == 255 && a->ip[3] == 255 ) {
-		a->type = NA_BAD;
+		a->type = netadrtype_t::NA_BAD;
 		return false;
 	}
 

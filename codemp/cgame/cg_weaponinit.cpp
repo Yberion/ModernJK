@@ -40,7 +40,7 @@ void CG_RegisterWeapon( weapon_t weaponNum) {
 	vec3_t			mins, maxs;
 	int				i;
 
-	if ( weaponNum <= WP_NONE || weaponNum >= WP_NUM_WEAPONS ) {
+	if ( weaponNum <= weapon_t::WP_NONE || weaponNum >= weapon_t::WP_NUM_WEAPONS ) {
 		return;
 	}
 
@@ -57,13 +57,13 @@ void CG_RegisterWeapon( weapon_t weaponNum) {
 	weaponInfo->registered = true;
 
 	for ( item = bg_itemlist + 1 ; item->classname ; item++ ) {
-		if ( item->giType == IT_WEAPON && GI_Weapon( *item ) == weaponNum ) {
+		if ( item->giType == itemType_t::IT_WEAPON && GI_Weapon( *item ) == weaponNum ) {
 			weaponInfo->item = item;
 			break;
 		}
 	}
 	if ( !item->classname ) {
-		trap->Error( ERR_DROP, "Couldn't find weapon %i", to_underlying( weaponNum ) );
+		trap->Error( errorParm_t::ERR_DROP, "Couldn't find weapon %i", to_underlying( weaponNum ) );
 	}
 	CG_RegisterItemVisuals( item - bg_itemlist );
 
@@ -82,7 +82,7 @@ void CG_RegisterWeapon( weapon_t weaponNum) {
 	weaponInfo->ammoIcon = trap->R_RegisterShader( item->icon );
 
 	for ( ammo = bg_itemlist + 1 ; ammo->classname ; ammo++ ) {
-		if ( ammo->giType == IT_AMMO && GI_Ammo( *ammo ) == weaponData[weaponNum].ammoIndex ) {
+		if ( ammo->giType == itemType_t::IT_AMMO && GI_Ammo( *ammo ) == weaponData[weaponNum].ammoIndex ) {
 			break;
 		}
 	}
@@ -95,18 +95,18 @@ void CG_RegisterWeapon( weapon_t weaponNum) {
 //	strcat( path, "_flash.md3" );
 	weaponInfo->flashModel = 0;//trap->R_RegisterModel( path );
 
-	if (weaponNum == WP_DISRUPTOR ||
-		weaponNum == WP_FLECHETTE ||
-		weaponNum == WP_REPEATER ||
-		weaponNum == WP_ROCKET_LAUNCHER ||
-		weaponNum == WP_CONCUSSION)
+	if (weaponNum == weapon_t::WP_DISRUPTOR ||
+		weaponNum == weapon_t::WP_FLECHETTE ||
+		weaponNum == weapon_t::WP_REPEATER ||
+		weaponNum == weapon_t::WP_ROCKET_LAUNCHER ||
+		weaponNum == weapon_t::WP_CONCUSSION)
 	{
 		Q_strncpyz( path, item->view_model, sizeof(path) );
 		COM_StripExtension( path, path, sizeof( path ) );
 		Q_strcat( path, sizeof(path), "_barrel.md3" );
 		weaponInfo->barrelModel = trap->R_RegisterModel( path );
 	}
-	else if (weaponNum == WP_STUN_BATON)
+	else if (weaponNum == weapon_t::WP_STUN_BATON)
 	{ //only weapon with more than 1 barrel..
 		trap->R_RegisterModel("models/weapons2/stun_baton/baton_barrel.md3");
 		trap->R_RegisterModel("models/weapons2/stun_baton/baton_barrel2.md3");
@@ -117,7 +117,7 @@ void CG_RegisterWeapon( weapon_t weaponNum) {
 		weaponInfo->barrelModel = 0;
 	}
 
-	if (weaponNum != WP_SABER)
+	if (weaponNum != weapon_t::WP_SABER)
 	{
 		Q_strncpyz( path, item->view_model, sizeof(path) );
 		COM_StripExtension( path, path, sizeof( path ) );
@@ -134,8 +134,8 @@ void CG_RegisterWeapon( weapon_t weaponNum) {
 //	}
 
 	switch ( weaponNum ) {
-	case WP_STUN_BATON:
-	case WP_MELEE:
+	case weapon_t::WP_STUN_BATON:
+	case weapon_t::WP_MELEE:
 /*		MAKERGB( weaponInfo->flashDlightColor, 0.6f, 0.6f, 1.0f );
 		weaponInfo->firingSound = trap->S_RegisterSound( "sound/weapons/saber/saberhum.wav" );
 //		weaponInfo->flashSound[0] = trap->S_RegisterSound( "sound/weapons/melee/fstatck.wav" );
@@ -143,7 +143,7 @@ void CG_RegisterWeapon( weapon_t weaponNum) {
 		//trap->R_RegisterShader( "gfx/effects/stunPass" );
 		trap->FX_RegisterEffect( "stunBaton/flesh_impact" );
 
-		if (weaponNum == WP_STUN_BATON)
+		if (weaponNum == weapon_t::WP_STUN_BATON)
 		{
 			trap->S_RegisterSound( "sound/weapons/baton/idle.wav" );
 			weaponInfo->flashSound[0] = trap->S_RegisterSound( "sound/weapons/baton/fire.mp3" );
@@ -164,13 +164,13 @@ void CG_RegisterWeapon( weapon_t weaponNum) {
 			//No longer needed, animsound config plays them for us
 		}
 		break;
-	case WP_SABER:
+	case weapon_t::WP_SABER:
 		MAKERGB( weaponInfo->flashDlightColor, 0.6f, 0.6f, 1.0f );
 		weaponInfo->firingSound = trap->S_RegisterSound( "sound/weapons/saber/saberhum1.wav" );
 		weaponInfo->missileModel		= trap->R_RegisterModel( DEFAULT_SABER_MODEL );
 		break;
 
-	case WP_CONCUSSION:
+	case weapon_t::WP_CONCUSSION:
 		weaponInfo->selectSound			= trap->S_RegisterSound("sound/weapons/concussion/select.wav");
 
 		weaponInfo->flashSound[0]		= NULL_SOUND;
@@ -203,8 +203,8 @@ void CG_RegisterWeapon( weapon_t weaponNum) {
 		trap->R_RegisterShader("gfx/misc/whiteline2");
 		break;
 
-	case WP_BRYAR_PISTOL:
-	case WP_BRYAR_OLD:
+	case weapon_t::WP_BRYAR_PISTOL:
+	case weapon_t::WP_BRYAR_OLD:
 		weaponInfo->selectSound			= trap->S_RegisterSound("sound/weapons/bryar/select.wav");
 
 		weaponInfo->flashSound[0]		= trap->S_RegisterSound( "sound/weapons/bryar/fire.wav");
@@ -245,8 +245,8 @@ void CG_RegisterWeapon( weapon_t weaponNum) {
 
 		break;
 
-	case WP_BLASTER:
-	case WP_EMPLACED_GUN: //rww - just use the same as this for now..
+	case weapon_t::WP_BLASTER:
+	case weapon_t::WP_EMPLACED_GUN: //rww - just use the same as this for now..
 		weaponInfo->selectSound			= trap->S_RegisterSound("sound/weapons/blaster/select.wav");
 
 		weaponInfo->flashSound[0]		= trap->S_RegisterSound( "sound/weapons/blaster/fire.wav");
@@ -278,7 +278,7 @@ void CG_RegisterWeapon( weapon_t weaponNum) {
 		cgs.effects.blasterDroidImpactEffect	= trap->FX_RegisterEffect( "blaster/droid_impact" );
 		break;
 
-	case WP_DISRUPTOR:
+	case weapon_t::WP_DISRUPTOR:
 		weaponInfo->selectSound			= trap->S_RegisterSound("sound/weapons/disruptor/select.wav");
 
 		weaponInfo->flashSound[0]		= trap->S_RegisterSound( "sound/weapons/disruptor/fire.wav");
@@ -327,7 +327,7 @@ void CG_RegisterWeapon( weapon_t weaponNum) {
 		cgs.media.disruptorZoomLoop		= trap->S_RegisterSound( "sound/weapons/disruptor/zoomloop.wav" );
 		break;
 
-	case WP_BOWCASTER:
+	case weapon_t::WP_BOWCASTER:
 		weaponInfo->selectSound			= trap->S_RegisterSound("sound/weapons/bowcaster/select.wav");
 
 		weaponInfo->altFlashSound[0]		= trap->S_RegisterSound( "sound/weapons/bowcaster/fire.wav");
@@ -360,7 +360,7 @@ void CG_RegisterWeapon( weapon_t weaponNum) {
 		cgs.media.greenFrontFlash = trap->R_RegisterShader( "gfx/effects/greenFrontFlash" );
 		break;
 
-	case WP_REPEATER:
+	case weapon_t::WP_REPEATER:
 		weaponInfo->selectSound			= trap->S_RegisterSound("sound/weapons/repeater/select.wav");
 
 		weaponInfo->flashSound[0]		= trap->S_RegisterSound( "sound/weapons/repeater/fire.wav");
@@ -393,7 +393,7 @@ void CG_RegisterWeapon( weapon_t weaponNum) {
 		cgs.effects.repeaterAltWallImpactEffect	= trap->FX_RegisterEffect( "repeater/concussion" );
 		break;
 
-	case WP_DEMP2:
+	case weapon_t::WP_DEMP2:
 		weaponInfo->selectSound			= trap->S_RegisterSound("sound/weapons/demp2/select.wav");
 
 		weaponInfo->flashSound[0]		= trap->S_RegisterSound("sound/weapons/demp2/fire.wav");
@@ -428,7 +428,7 @@ void CG_RegisterWeapon( weapon_t weaponNum) {
 		cgs.media.lightningFlash = trap->R_RegisterShader("gfx/misc/lightningFlash");
 		break;
 
-	case WP_FLECHETTE:
+	case weapon_t::WP_FLECHETTE:
 		weaponInfo->selectSound			= trap->S_RegisterSound("sound/weapons/flechette/select.wav");
 
 		weaponInfo->flashSound[0]		= trap->S_RegisterSound( "sound/weapons/flechette/fire.wav");
@@ -459,7 +459,7 @@ void CG_RegisterWeapon( weapon_t weaponNum) {
 		cgs.effects.flechetteFleshImpactEffect	= trap->FX_RegisterEffect( "flechette/flesh_impact" );
 		break;
 
-	case WP_ROCKET_LAUNCHER:
+	case weapon_t::WP_ROCKET_LAUNCHER:
 		weaponInfo->selectSound			= trap->S_RegisterSound("sound/weapons/rocket/select.wav");
 
 		weaponInfo->flashSound[0]		= trap->S_RegisterSound( "sound/weapons/rocket/fire.wav");
@@ -495,7 +495,7 @@ void CG_RegisterWeapon( weapon_t weaponNum) {
 		trap->S_RegisterSound( "sound/weapons/rocket/tick.wav" );
 		break;
 
-	case WP_THERMAL:
+	case weapon_t::WP_THERMAL:
 		weaponInfo->selectSound			= trap->S_RegisterSound("sound/weapons/thermal/select.wav");
 
 		weaponInfo->flashSound[0]		= trap->S_RegisterSound( "sound/weapons/thermal/fire.wav");
@@ -531,7 +531,7 @@ void CG_RegisterWeapon( weapon_t weaponNum) {
 
 		break;
 
-	case WP_TRIP_MINE:
+	case weapon_t::WP_TRIP_MINE:
 		weaponInfo->selectSound			= trap->S_RegisterSound("sound/weapons/detpack/select.wav");
 
 		weaponInfo->flashSound[0]		= trap->S_RegisterSound( "sound/weapons/laser_trap/fire.wav");
@@ -565,7 +565,7 @@ void CG_RegisterWeapon( weapon_t weaponNum) {
 		trap->S_RegisterSound( "sound/weapons/laser_trap/warning.wav" );
 		break;
 
-	case WP_DET_PACK:
+	case weapon_t::WP_DET_PACK:
 		weaponInfo->selectSound			= trap->S_RegisterSound("sound/weapons/detpack/select.wav");
 
 		weaponInfo->flashSound[0]		= trap->S_RegisterSound( "sound/weapons/detpack/fire.wav");
@@ -595,7 +595,7 @@ void CG_RegisterWeapon( weapon_t weaponNum) {
 		trap->S_RegisterSound( "sound/weapons/detpack/warning.wav" );
 		trap->S_RegisterSound( "sound/weapons/explosions/explode5.wav" );
 		break;
-	case WP_TURRET:
+	case weapon_t::WP_TURRET:
 		weaponInfo->flashSound[0]		= NULL_SOUND;
 		weaponInfo->firingSound			= NULL_SOUND;
 		weaponInfo->chargeSound			= NULL_SOUND;

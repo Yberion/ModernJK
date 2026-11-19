@@ -118,7 +118,7 @@ void CL_ParsePacketEntities( msg_t *msg, clSnapshot_t *oldframe, clSnapshot_t *n
 		}
 
 		if ( msg->readcount > msg->cursize ) {
-			Com_Error (ERR_DROP,"CL_ParsePacketEntities: end of message");
+			Com_Error (errorParm_t::ERR_DROP,"CL_ParsePacketEntities: end of message");
 		}
 
 		while ( oldnum < newnum ) {
@@ -387,18 +387,18 @@ void CL_ParseGamestate( msg_t *msg ) {
 			break;
 		}
 
-		if ( cmd == to_underlying( svc_configstring ) ) {
+		if ( cmd == to_underlying( svc_ops_e::svc_configstring ) ) {
 			int		len;
 
 			i = MSG_ReadShort( msg );
 			if ( i < 0 || i >= MAX_CONFIGSTRINGS ) {
-				Com_Error( ERR_DROP, "configstring > MAX_CONFIGSTRINGS" );
+				Com_Error( errorParm_t::ERR_DROP, "configstring > MAX_CONFIGSTRINGS" );
 			}
 			s = MSG_ReadString( msg );
 			len = strlen( s );
 
 			if ( len + 1 + cl.gameState.dataCount > MAX_GAMESTATE_CHARS ) {
-				Com_Error( ERR_DROP, "MAX_GAMESTATE_CHARS exceeded" );
+				Com_Error( errorParm_t::ERR_DROP, "MAX_GAMESTATE_CHARS exceeded" );
 			}
 
 			// append it to the gameState string buffer
@@ -408,10 +408,10 @@ void CL_ParseGamestate( msg_t *msg ) {
 			if ( cl_shownet->integer == 3 ) {
 				Com_Printf ("%3i:  CS# %d %s (%d)\n",msg->readcount, i,s,len);
 			}
-		} else if ( cmd == to_underlying( svc_baseline ) ) {
+		} else if ( cmd == to_underlying( svc_ops_e::svc_baseline ) ) {
 			assert(0);
 		} else {
-			Com_Error( ERR_DROP, "CL_ParseGamestate: bad command byte" );
+			Com_Error( errorParm_t::ERR_DROP, "CL_ParseGamestate: bad command byte" );
 		}
 	}
 
@@ -425,7 +425,7 @@ void CL_ParseGamestate( msg_t *msg ) {
 #endif
 
 	// let the client game init and load data
-	cls.state = CA_LOADING;
+	cls.state = connstate_t::CA_LOADING;
 
 	CL_StartHunkUsers();
 
@@ -498,7 +498,7 @@ void CL_ParseServerMessage( msg_t *msg ) {
 	//
 	while ( 1 ) {
 		if ( msg->readcount > msg->cursize ) {
-			Com_Error (ERR_DROP,"CL_ParseServerMessage: read past end of server message");
+			Com_Error (errorParm_t::ERR_DROP,"CL_ParseServerMessage: read past end of server message");
 			break;
 		}
 
@@ -520,17 +520,17 @@ void CL_ParseServerMessage( msg_t *msg ) {
 	// other commands
 		switch ( static_cast<svc_ops_e>( cmd ) ) {
 		default:
-			Com_Error (ERR_DROP,"CL_ParseServerMessage: Illegible server message\n");
+			Com_Error (errorParm_t::ERR_DROP,"CL_ParseServerMessage: Illegible server message\n");
 			break;
-		case svc_nop:
+		case svc_ops_e::svc_nop:
 			break;
-		case svc_serverCommand:
+		case svc_ops_e::svc_serverCommand:
 			CL_ParseCommandString( msg );
 			break;
-		case svc_gamestate:
+		case svc_ops_e::svc_gamestate:
 			CL_ParseGamestate( msg );
 			break;
-		case svc_snapshot:
+		case svc_ops_e::svc_snapshot:
 			CL_ParseSnapshot( msg );
 			break;
 		}

@@ -71,7 +71,7 @@ void SV_ChallengeInit()
 	// Generate a secret key from the OS RNG
 	byte secretKey[SECRET_KEY_LENGTH];
 	if (!Sys_RandomBytes(secretKey, sizeof(secretKey))) {
-		Com_Error(ERR_FATAL, "SV_ChallengeInit: Sys_RandomBytes failed");
+		Com_Error(errorParm_t::ERR_FATAL, "SV_ChallengeInit: Sys_RandomBytes failed");
 	}
 
 #ifdef DEBUG_SV_CHALLENGE
@@ -144,7 +144,7 @@ Create an unforgeable, temporal challenge for the given client address.
 int SV_CreateChallenge(const netadr_t *from)
 {
 	if (!challengerInitialized) {
-		Com_Error(ERR_FATAL, "SV_CreateChallenge: The challenge subsystem has not been initialized");
+		Com_Error(errorParm_t::ERR_FATAL, "SV_CreateChallenge: The challenge subsystem has not been initialized");
 	}
 
 	// The current time gets 14 bits chopped off to create a challenge timestamp that changes every 16.384 seconds
@@ -163,7 +163,7 @@ Verify a challenge received by the client matches the expected challenge.
 bool SV_VerifyChallenge(int receivedChallenge, const netadr_t *from)
 {
 	if (!challengerInitialized) {
-		Com_Error(ERR_FATAL, "SV_VerifyChallenge: The challenge subsystem has not been initialized");
+		Com_Error(errorParm_t::ERR_FATAL, "SV_VerifyChallenge: The challenge subsystem has not been initialized");
 	}
 
 	int currentTimestamp = svs.time >> 14;

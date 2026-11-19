@@ -68,7 +68,7 @@ static bool SV_Map_( ForceReload_e eForceReload )
 		extern	cvar_t	*com_buildScript;
 		if (com_buildScript && com_buildScript->integer)
 		{//yes, it's happened, someone deleted a map during my build...
-			Com_Error( ERR_FATAL, "Can't find map %s\n", expanded );
+			Com_Error( errorParm_t::ERR_FATAL, "Can't find map %s\n", expanded );
 		}
 		return false;
 	}
@@ -108,10 +108,10 @@ void SV_Player_EndOfLevelSave(void)
 		const char *s;
 #ifdef JK2_MODE
 		s = va("%i %i %i %i %i %i %i %f %f %f %i %i %i %i %i %i",
-						pState->stats[STAT_HEALTH],
-						pState->stats[STAT_ARMOR],
-						pState->stats[STAT_WEAPONS],
-						pState->stats[STAT_ITEMS],
+						pState->stats[statIndex_t::STAT_HEALTH],
+						pState->stats[statIndex_t::STAT_ARMOR],
+						pState->stats[statIndex_t::STAT_WEAPONS],
+						pState->stats[statIndex_t::STAT_ITEMS],
 						to_underlying( pState->weapon ),
 						to_underlying( pState->weaponstate ),
 						pState->batteryCharge,
@@ -128,10 +128,10 @@ void SV_Player_EndOfLevelSave(void)
 #else
 				//				|general info				  |-force powers |-saber 1		|-saber 2										  |-general saber
 				s = va("%i %i %i %i %i %i %i %f %f %f %i %i %i %i %i %s %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %s %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i",
-						pState->stats[STAT_HEALTH],
-						pState->stats[STAT_ARMOR],
-						pState->stats[STAT_WEAPONS],
-						pState->stats[STAT_ITEMS],
+						pState->stats[statIndex_t::STAT_HEALTH],
+						pState->stats[statIndex_t::STAT_ARMOR],
+						pState->stats[statIndex_t::STAT_WEAPONS],
+						pState->stats[statIndex_t::STAT_ITEMS],
 						to_underlying( pState->weapon ),
 						to_underlying( pState->weaponstate ),
 						pState->batteryCharge,
@@ -199,7 +199,7 @@ void SV_Player_EndOfLevelSave(void)
 
 		//inventory
 		s2 = "";
-		for (inventory_t inv=INV_ELECTROBINOCULARS;inv< INV_MAX; inv++)
+		for (inventory_t inv=inventory_t::INV_ELECTROBINOCULARS;inv< inventory_t::INV_MAX; inv++)
 		{
 			s2 = va("%s %i",s2, pState->inventory[inv]);
 		}
@@ -208,7 +208,7 @@ void SV_Player_EndOfLevelSave(void)
 		// the new JK2 stuff - force powers, etc...
 		//
 		s2 = "";
-		for (forcePowers_t fp=FP_FIRST;fp< NUM_FORCE_POWERS; fp++)
+		for (forcePowers_t fp=forcePowers_t::FP_FIRST;fp< forcePowers_t::NUM_FORCE_POWERS; fp++)
 		{
 			s2 = va("%s %i",s2, to_underlying( pState->forcePowerLevel[fp] ));
 		}
@@ -238,7 +238,7 @@ static void SV_MapTransition_f(void)
 		Cvar_Set( "spawntarget", "" );
 	}
 
-	SV_Map_( eForceReload_NOTHING );
+	SV_Map_( ForceReload_e::eForceReload_NOTHING );
 }
 
 /*
@@ -262,15 +262,15 @@ static void SV_Map_f( void )
 	SCR_UnprecacheScreenshot();
 #endif
 
-	ForceReload_e eForceReload = eForceReload_NOTHING;	// default for normal load
+	ForceReload_e eForceReload = ForceReload_e::eForceReload_NOTHING;	// default for normal load
 
 	const char *cmd = Cmd_Argv( 0 );
 	if ( !Q_stricmp( cmd, "devmapbsp") )
-		eForceReload = eForceReload_BSP;
+		eForceReload = ForceReload_e::eForceReload_BSP;
 	else if ( !Q_stricmp( cmd, "devmapmdl") )
-		eForceReload = eForceReload_MODELS;
+		eForceReload = ForceReload_e::eForceReload_MODELS;
 	else if ( !Q_stricmp( cmd, "devmapall") )
-		eForceReload = eForceReload_ALL;
+		eForceReload = ForceReload_e::eForceReload_ALL;
 
 	bool cheat = (!Q_stricmpn( cmd, "devmap", 6 ) );
 
@@ -329,7 +329,7 @@ void SV_LoadTransition_f(void)
 
 	if ( !SV_TryLoadTransition( map ) )
 	{//couldn't load a savegame
-		SV_Map_( eForceReload_NOTHING );
+		SV_Map_( ForceReload_e::eForceReload_NOTHING );
 	}
 	qbLoadTransition = false;
 }
@@ -381,7 +381,7 @@ static void SV_Status_f( void ) {
 #endif
 
 	Com_Printf( "name    : %s^7\n", cl->name );
-	Com_Printf( "score   : %i\n", cl->gentity->client->persistant[PERS_SCORE] );
+	Com_Printf( "score   : %i\n", cl->gentity->client->persistant[persEnum_t::PERS_SCORE] );
 	Com_Printf( "version : %s %s %i\n", STATUS_OS, JK_VERSION, PROTOCOL_VERSION );
 #ifdef JK2_MODE
 	Com_Printf( "game    : Jedi Outcast %s\n", FS_GetCurrentGameDir() );
@@ -400,7 +400,7 @@ Examine the serverinfo string
 */
 static void SV_Serverinfo_f( void ) {
 	Com_Printf ("Server info settings:\n");
-	Info_Print ( Cvar_InfoString( CVAR_SERVERINFO ) );
+	Info_Print ( Cvar_InfoString( cvarFlags_t::CVAR_SERVERINFO ) );
 }
 
 
@@ -413,7 +413,7 @@ Examine or change the serverinfo string
 */
 static void SV_Systeminfo_f( void ) {
 	Com_Printf ("System info settings:\n");
-	Info_Print ( Cvar_InfoString( CVAR_SYSTEMINFO ) );
+	Info_Print ( Cvar_InfoString( cvarFlags_t::CVAR_SYSTEMINFO ) );
 }
 
 
@@ -439,7 +439,7 @@ static void SV_DumpUser_f( void ) {
 	}
 
 	cl = &svs.clients[0];
-	if ( cl->state == CS_FREE ) {
+	if ( cl->state == clientState_t::CS_FREE ) {
 		Com_Printf("Client is not active\n");
 		return;
 	}

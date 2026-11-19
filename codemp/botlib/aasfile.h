@@ -38,7 +38,6 @@ enum class presenceFlags_t
 	PRESENCE_NORMAL				= 2,
 	PRESENCE_CROUCH				= 4,
 };
-using enum presenceFlags_t;
 template <> inline constexpr bool enableEnumFlags<presenceFlags_t> = true;
 
 //travel types
@@ -71,7 +70,6 @@ enum class travelTypeFlags_t
 	TRAVELFLAG_NOTTEAM1			= (1 << 24),
 	TRAVELFLAG_NOTTEAM2			= (2 << 24),
 };
-using enum travelTypeFlags_t;
 template <> inline constexpr bool enableEnumFlags<travelTypeFlags_t> = true;
 
 //face flags
@@ -86,7 +84,6 @@ enum class faceFlags_t
 	FACE_LIQUIDSURFACE			= 32,		//face separating liquid and air
 	FACE_BRIDGE					= 64,		//can walk over this face if bridge is closed
 };
-using enum faceFlags_t;
 template <> inline constexpr bool enableEnumFlags<faceFlags_t> = true;
 
 //area contents
@@ -111,7 +108,6 @@ enum class areaContentsFlags_t : uint32_t
 //number of model of the mover inside this area
 	AREACONTENTS_MODELNUM			= (uint32_t{ AREACONTENTS_MAXMODELNUM } << AREACONTENTS_MODELNUMSHIFT),
 };
-using enum areaContentsFlags_t;
 template <> inline constexpr bool enableEnumFlags<areaContentsFlags_t> = true;
 
 //area flags
@@ -126,7 +122,6 @@ enum class areaFlags_t
 //area flag used for weapon jumping (be_aas_reach.cpp)
 	AREA_WEAPONJUMP				= 8192,	//valid area to weapon jump to
 };
-using enum areaFlags_t;
 template <> inline constexpr bool enableEnumFlags<areaFlags_t> = true;
 
 //aas file header lumps
@@ -148,7 +143,6 @@ enum class aasLump_t
 	AASLUMP_CLUSTERS			= 13,
 	AAS_LUMPS					= 14
 };
-using enum aasLump_t;
 
 //========== bounding box =========
 
@@ -278,7 +272,7 @@ typedef struct aas_header_s
 	int version;
 	int bspchecksum;
 	//data entries
-	EnumArray<aas_lump_t, aasLump_t, AAS_LUMPS> lumps;
+	EnumArray<aas_lump_t, aasLump_t, aasLump_t::AAS_LUMPS> lumps;
 } aas_header_t;
 
 

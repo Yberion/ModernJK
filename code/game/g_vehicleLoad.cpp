@@ -20,7 +20,6 @@ enum class vehFieldType_t {
 	VF_VEHTYPE,
 	VF_ANIM
 };
-using enum vehFieldType_t;
 
 typedef struct
 {
@@ -31,101 +30,101 @@ typedef struct
 
 vehField_t vehFields[VEH_PARM_MAX] =
 {
-	{"name", VFOFS(name), VF_LSTRING},	//unique name of the vehicle
+	{"name", VFOFS(name), vehFieldType_t::VF_LSTRING},	//unique name of the vehicle
 
 	//general data
-	{"type", VFOFS(type), VF_VEHTYPE},	//what kind of vehicle
+	{"type", VFOFS(type), vehFieldType_t::VF_VEHTYPE},	//what kind of vehicle
 
-	{"numHands", VFOFS(numHands), VF_INT},	//if 2 hands, no weapons, if 1 hand, can use 1-handed weapons, if 0 hands, can use 2-handed weapons
-	{"lookPitch", VFOFS(lookPitch), VF_FLOAT},	//How far you can look up and down off the forward of the vehicle
-	{"lookYaw", VFOFS(lookYaw), VF_FLOAT},	//How far you can look left and right off the forward of the vehicle
-	{"length", VFOFS(length), VF_FLOAT},		//how long it is - used for body length traces when turning/moving?
-	{"width", VFOFS(width), VF_FLOAT},		//how wide it is - used for body length traces when turning/moving?
-	{"height", VFOFS(height), VF_FLOAT},		//how tall it is - used for body length traces when turning/moving?
-	{"centerOfGravity", VFOFS(centerOfGravity), VF_VECTOR},//offset from origin: {forward, right, up} as a modifier on that dimension (-1.0f is all the way back, 1.0f is all the way forward)
+	{"numHands", VFOFS(numHands), vehFieldType_t::VF_INT},	//if 2 hands, no weapons, if 1 hand, can use 1-handed weapons, if 0 hands, can use 2-handed weapons
+	{"lookPitch", VFOFS(lookPitch), vehFieldType_t::VF_FLOAT},	//How far you can look up and down off the forward of the vehicle
+	{"lookYaw", VFOFS(lookYaw), vehFieldType_t::VF_FLOAT},	//How far you can look left and right off the forward of the vehicle
+	{"length", VFOFS(length), vehFieldType_t::VF_FLOAT},		//how long it is - used for body length traces when turning/moving?
+	{"width", VFOFS(width), vehFieldType_t::VF_FLOAT},		//how wide it is - used for body length traces when turning/moving?
+	{"height", VFOFS(height), vehFieldType_t::VF_FLOAT},		//how tall it is - used for body length traces when turning/moving?
+	{"centerOfGravity", VFOFS(centerOfGravity), vehFieldType_t::VF_VECTOR},//offset from origin: {forward, right, up} as a modifier on that dimension (-1.0f is all the way back, 1.0f is all the way forward)
 
 	//speed stats
-	{"speedMax", VFOFS(speedMax), VF_FLOAT},		//top speed
-	{"turboSpeed", VFOFS(turboSpeed), VF_FLOAT},	//turbo speed
-	{"speedMin", VFOFS(speedMin), VF_FLOAT},		//if < 0, can go in reverse
-	{"speedIdle", VFOFS(speedIdle), VF_FLOAT},		//what speed it drifts to when no accel/decel input is given
-	{"accelIdle", VFOFS(accelIdle), VF_FLOAT},		//if speedIdle > 0, how quickly it goes up to that speed
-	{"acceleration", VFOFS(acceleration), VF_FLOAT},	//when pressing on accelerator
-	{"decelIdle", VFOFS(decelIdle), VF_FLOAT},		//when giving no input, how quickly it drops to speedIdle
-	{"strafePerc", VFOFS(strafePerc), VF_FLOAT},		//multiplier on current speed for strafing.  If 1.0f, you can strafe at the same speed as you're going forward, 0.5 is half, 0 is no strafing
+	{"speedMax", VFOFS(speedMax), vehFieldType_t::VF_FLOAT},		//top speed
+	{"turboSpeed", VFOFS(turboSpeed), vehFieldType_t::VF_FLOAT},	//turbo speed
+	{"speedMin", VFOFS(speedMin), vehFieldType_t::VF_FLOAT},		//if < 0, can go in reverse
+	{"speedIdle", VFOFS(speedIdle), vehFieldType_t::VF_FLOAT},		//what speed it drifts to when no accel/decel input is given
+	{"accelIdle", VFOFS(accelIdle), vehFieldType_t::VF_FLOAT},		//if speedIdle > 0, how quickly it goes up to that speed
+	{"acceleration", VFOFS(acceleration), vehFieldType_t::VF_FLOAT},	//when pressing on accelerator
+	{"decelIdle", VFOFS(decelIdle), vehFieldType_t::VF_FLOAT},		//when giving no input, how quickly it drops to speedIdle
+	{"strafePerc", VFOFS(strafePerc), vehFieldType_t::VF_FLOAT},		//multiplier on current speed for strafing.  If 1.0f, you can strafe at the same speed as you're going forward, 0.5 is half, 0 is no strafing
 
 	//handling stats
-	{"bankingSpeed", VFOFS(bankingSpeed), VF_FLOAT},	//how quickly it pitches and rolls (not under player control)
-	{"pitchLimit", VFOFS(pitchLimit), VF_FLOAT},		//how far it can roll forward or backward
-	{"rollLimit", VFOFS(rollLimit), VF_FLOAT},		//how far it can roll to either side
-	{"braking", VFOFS(braking), VF_FLOAT},		//when pressing on decelerator
-	{"turningSpeed", VFOFS(turningSpeed), VF_FLOAT},	//how quickly you can turn
-	{"turnWhenStopped", VFOFS(turnWhenStopped), VF_BOOL},//whether or not you can turn when not moving
-	{"traction", VFOFS(traction), VF_FLOAT},		//how much your command input affects velocity
-	{"friction", VFOFS(friction), VF_FLOAT},		//how much velocity is cut on its own
-	{"maxSlope", VFOFS(maxSlope), VF_FLOAT},		//the max slope that it can go up with control
+	{"bankingSpeed", VFOFS(bankingSpeed), vehFieldType_t::VF_FLOAT},	//how quickly it pitches and rolls (not under player control)
+	{"pitchLimit", VFOFS(pitchLimit), vehFieldType_t::VF_FLOAT},		//how far it can roll forward or backward
+	{"rollLimit", VFOFS(rollLimit), vehFieldType_t::VF_FLOAT},		//how far it can roll to either side
+	{"braking", VFOFS(braking), vehFieldType_t::VF_FLOAT},		//when pressing on decelerator
+	{"turningSpeed", VFOFS(turningSpeed), vehFieldType_t::VF_FLOAT},	//how quickly you can turn
+	{"turnWhenStopped", VFOFS(turnWhenStopped), vehFieldType_t::VF_BOOL},//whether or not you can turn when not moving
+	{"traction", VFOFS(traction), vehFieldType_t::VF_FLOAT},		//how much your command input affects velocity
+	{"friction", VFOFS(friction), vehFieldType_t::VF_FLOAT},		//how much velocity is cut on its own
+	{"maxSlope", VFOFS(maxSlope), vehFieldType_t::VF_FLOAT},		//the max slope that it can go up with control
 
 	//durability stats
-	{"mass", VFOFS(mass), VF_INT},			//for momentum and impact force (player mass is 10)
-	{"armor", VFOFS(armor), VF_INT},			//total points of damage it can take
-	{"toughness", VFOFS(toughness), VF_FLOAT},		//modifies incoming damage, 1.0 is normal, 0.5 is half, etc.  Simulates being made of tougher materials/construction
-	{"malfunctionArmorLevel", VFOFS(malfunctionArmorLevel), VF_INT},//when armor drops to or below this point, start malfunctioning
+	{"mass", VFOFS(mass), vehFieldType_t::VF_INT},			//for momentum and impact force (player mass is 10)
+	{"armor", VFOFS(armor), vehFieldType_t::VF_INT},			//total points of damage it can take
+	{"toughness", VFOFS(toughness), vehFieldType_t::VF_FLOAT},		//modifies incoming damage, 1.0 is normal, 0.5 is half, etc.  Simulates being made of tougher materials/construction
+	{"malfunctionArmorLevel", VFOFS(malfunctionArmorLevel), vehFieldType_t::VF_INT},//when armor drops to or below this point, start malfunctioning
 
 	//visuals & sounds
-	{"model", VFOFS(model), VF_LSTRING},			//what model to use - if make it an NPC's primary model, don't need this?
-	{"skin", VFOFS(skin), VF_LSTRING},			//what skin to use - if make it an NPC's primary model, don't need this?
-	{"riderAnim", VFOFS(riderAnim), VF_ANIM},		//what animation the rider uses
-	{"gunswivelBone", VFOFS(gunswivelBone), VF_LSTRING},//gun swivel bones
-	{"lFinBone", VFOFS(lFinBone), VF_LSTRING},			//left fin bone
-	{"rFinBone", VFOFS(rFinBone), VF_LSTRING},			//right fin bone
-	{"lExhaustTag", VFOFS(lExhaustTag), VF_LSTRING},	//left exhaust tag
-	{"rExhaustTag", VFOFS(rExhaustTag), VF_LSTRING},	//right exhaust tag
+	{"model", VFOFS(model), vehFieldType_t::VF_LSTRING},			//what model to use - if make it an NPC's primary model, don't need this?
+	{"skin", VFOFS(skin), vehFieldType_t::VF_LSTRING},			//what skin to use - if make it an NPC's primary model, don't need this?
+	{"riderAnim", VFOFS(riderAnim), vehFieldType_t::VF_ANIM},		//what animation the rider uses
+	{"gunswivelBone", VFOFS(gunswivelBone), vehFieldType_t::VF_LSTRING},//gun swivel bones
+	{"lFinBone", VFOFS(lFinBone), vehFieldType_t::VF_LSTRING},			//left fin bone
+	{"rFinBone", VFOFS(rFinBone), vehFieldType_t::VF_LSTRING},			//right fin bone
+	{"lExhaustTag", VFOFS(lExhaustTag), vehFieldType_t::VF_LSTRING},	//left exhaust tag
+	{"rExhaustTag", VFOFS(rExhaustTag), vehFieldType_t::VF_LSTRING},	//right exhaust tag
 
-	{"soundOn", VFOFS(soundOn), VF_LSTRING},		//sound to play when get on it
-	{"soundLoop", VFOFS(soundLoop), VF_LSTRING},		//sound to loop while riding it
-	{"soundOff", VFOFS(soundOff), VF_LSTRING},		//sound to play when get off
-	{"exhaustFX", VFOFS(exhaustFX), VF_LSTRING},		//exhaust effect, played from "*exhaust" bolt(s)
-	{"trailFX", VFOFS(trailFX), VF_LSTRING},		//trail effect, played from "*trail" bolt(s)
-	{"impactFX", VFOFS(impactFX), VF_LSTRING},		//impact effect, for when it bumps into something
-	{"explodeFX", VFOFS(explodeFX), VF_LSTRING},		//explosion effect, for when it blows up (should have the sound built into explosion effect)
-	{"wakeFX", VFOFS(wakeFX), VF_LSTRING},		//effect it makes when going across water
+	{"soundOn", VFOFS(soundOn), vehFieldType_t::VF_LSTRING},		//sound to play when get on it
+	{"soundLoop", VFOFS(soundLoop), vehFieldType_t::VF_LSTRING},		//sound to loop while riding it
+	{"soundOff", VFOFS(soundOff), vehFieldType_t::VF_LSTRING},		//sound to play when get off
+	{"exhaustFX", VFOFS(exhaustFX), vehFieldType_t::VF_LSTRING},		//exhaust effect, played from "*exhaust" bolt(s)
+	{"trailFX", VFOFS(trailFX), vehFieldType_t::VF_LSTRING},		//trail effect, played from "*trail" bolt(s)
+	{"impactFX", VFOFS(impactFX), vehFieldType_t::VF_LSTRING},		//impact effect, for when it bumps into something
+	{"explodeFX", VFOFS(explodeFX), vehFieldType_t::VF_LSTRING},		//explosion effect, for when it blows up (should have the sound built into explosion effect)
+	{"wakeFX", VFOFS(wakeFX), vehFieldType_t::VF_LSTRING},		//effect it makes when going across water
 
 	//other misc stats
-	{"gravity", VFOFS(gravity), VF_INT},			//normal is 800
-	{"hoverHeight", VFOFS(hoverHeight), VF_FLOAT},	//if 0, it's a ground vehicle
-	{"hoverStrength", VFOFS(hoverStrength), VF_FLOAT},	//how hard it pushes off ground when less than hover height... causes "bounce", like shocks
-	{"waterProof", VFOFS(waterProof), VF_BOOL},		//can drive underwater if it has to
-	{"bouyancy", VFOFS(bouyancy), VF_FLOAT},		//when in water, how high it floats (1 is neutral bouyancy)
-	{"fuelMax", VFOFS(fuelMax), VF_INT},		//how much fuel it can hold (capacity)
-	{"fuelRate", VFOFS(fuelRate), VF_INT},		//how quickly is uses up fuel
-	{"visibility", VFOFS(visibility), VF_INT},		//for sight alerts
-	{"loudness", VFOFS(loudness), VF_INT},		//for sound alerts
-	{"explosionRadius", VFOFS(explosionRadius), VF_FLOAT},//range of explosion
-	{"explosionDamage", VFOFS(explosionDamage), VF_INT},//damage of explosion
+	{"gravity", VFOFS(gravity), vehFieldType_t::VF_INT},			//normal is 800
+	{"hoverHeight", VFOFS(hoverHeight), vehFieldType_t::VF_FLOAT},	//if 0, it's a ground vehicle
+	{"hoverStrength", VFOFS(hoverStrength), vehFieldType_t::VF_FLOAT},	//how hard it pushes off ground when less than hover height... causes "bounce", like shocks
+	{"waterProof", VFOFS(waterProof), vehFieldType_t::VF_BOOL},		//can drive underwater if it has to
+	{"bouyancy", VFOFS(bouyancy), vehFieldType_t::VF_FLOAT},		//when in water, how high it floats (1 is neutral bouyancy)
+	{"fuelMax", VFOFS(fuelMax), vehFieldType_t::VF_INT},		//how much fuel it can hold (capacity)
+	{"fuelRate", VFOFS(fuelRate), vehFieldType_t::VF_INT},		//how quickly is uses up fuel
+	{"visibility", VFOFS(visibility), vehFieldType_t::VF_INT},		//for sight alerts
+	{"loudness", VFOFS(loudness), vehFieldType_t::VF_INT},		//for sound alerts
+	{"explosionRadius", VFOFS(explosionRadius), vehFieldType_t::VF_FLOAT},//range of explosion
+	{"explosionDamage", VFOFS(explosionDamage), vehFieldType_t::VF_INT},//damage of explosion
 
 	//new stuff
-	{"maxPassengers", VFOFS(maxPassengers), VF_INT},	// The max number of passengers this vehicle may have (Default = 0).
-	{"hideRider", VFOFS(hideRider), VF_BOOL },		// rider (and passengers?) should not be drawn
-	{"killRiderOnDeath", VFOFS(killRiderOnDeath), VF_BOOL },//if rider is on vehicle when it dies, they should die
-	{"flammable", VFOFS(flammable), VF_BOOL },		//whether or not the vehicle should catch on fire before it explodes
-	{"explosionDelay", VFOFS(explosionDelay), VF_INT},	//how long the vehicle should be on fire/dying before it explodes
+	{"maxPassengers", VFOFS(maxPassengers), vehFieldType_t::VF_INT},	// The max number of passengers this vehicle may have (Default = 0).
+	{"hideRider", VFOFS(hideRider), vehFieldType_t::VF_BOOL },		// rider (and passengers?) should not be drawn
+	{"killRiderOnDeath", VFOFS(killRiderOnDeath), vehFieldType_t::VF_BOOL },//if rider is on vehicle when it dies, they should die
+	{"flammable", VFOFS(flammable), vehFieldType_t::VF_BOOL },		//whether or not the vehicle should catch on fire before it explodes
+	{"explosionDelay", VFOFS(explosionDelay), vehFieldType_t::VF_INT},	//how long the vehicle should be on fire/dying before it explodes
 	//camera stuff
-	{"cameraOverride", VFOFS(cameraOverride), VF_BOOL },	//override the third person camera with the below values - normal is 0 (off)
-	{"cameraRange", VFOFS(cameraRange), VF_FLOAT},	//how far back the camera should be - normal is 80
-	{"cameraVertOffset", VFOFS(cameraVertOffset), VF_FLOAT},//how high over the vehicle origin the camera should be - normal is 16
-	{"cameraHorzOffset", VFOFS(cameraHorzOffset), VF_FLOAT},//how far to left/right (negative/positive) of of the vehicle origin the camera should be - normal is 0
-	{"cameraPitchOffset", VFOFS(cameraPitchOffset), VF_FLOAT},//a modifier on the camera's pitch (up/down angle) to the vehicle - normal is 0
-	{"cameraFOV", VFOFS(cameraFOV), VF_FLOAT},		//third person camera FOV, default is 80
-	{"cameraAlpha", VFOFS(cameraAlpha), VF_BOOL },	//fade out the vehicle if it's in the way of the crosshair
+	{"cameraOverride", VFOFS(cameraOverride), vehFieldType_t::VF_BOOL },	//override the third person camera with the below values - normal is 0 (off)
+	{"cameraRange", VFOFS(cameraRange), vehFieldType_t::VF_FLOAT},	//how far back the camera should be - normal is 80
+	{"cameraVertOffset", VFOFS(cameraVertOffset), vehFieldType_t::VF_FLOAT},//how high over the vehicle origin the camera should be - normal is 16
+	{"cameraHorzOffset", VFOFS(cameraHorzOffset), vehFieldType_t::VF_FLOAT},//how far to left/right (negative/positive) of of the vehicle origin the camera should be - normal is 0
+	{"cameraPitchOffset", VFOFS(cameraPitchOffset), vehFieldType_t::VF_FLOAT},//a modifier on the camera's pitch (up/down angle) to the vehicle - normal is 0
+	{"cameraFOV", VFOFS(cameraFOV), vehFieldType_t::VF_FLOAT},		//third person camera FOV, default is 80
+	{"cameraAlpha", VFOFS(cameraAlpha), vehFieldType_t::VF_BOOL },	//fade out the vehicle if it's in the way of the crosshair
 };
 
-stringID_table_t VehicleTable[VH_NUM_VEHICLES+1] =
+stringID_table_t VehicleTable[vehicleType_t::VH_NUM_VEHICLES+1] =
 {
-	ENUM2STRING(VH_WALKER),		//something you ride inside of, it walks like you, like an AT-ST
-	ENUM2STRING(VH_FIGHTER),	//something you fly inside of, like an X-Wing or TIE fighter
-	ENUM2STRING(VH_SPEEDER),	//something you ride on that hovers, like a speeder or swoop
-	ENUM2STRING(VH_ANIMAL),		//animal you ride on top of that walks, like a tauntaun
-	ENUM2STRING(VH_FLIER),		//animal you ride on top of that flies, like a giant mynoc?
+	ENUM2STRING(vehicleType_t, VH_WALKER),		//something you ride inside of, it walks like you, like an AT-ST
+	ENUM2STRING(vehicleType_t, VH_FIGHTER),	//something you fly inside of, like an X-Wing or TIE fighter
+	ENUM2STRING(vehicleType_t, VH_SPEEDER),	//something you ride on that hovers, like a speeder or swoop
+	ENUM2STRING(vehicleType_t, VH_ANIMAL),		//animal you ride on top of that walks, like a tauntaun
+	ENUM2STRING(vehicleType_t, VH_FLIER),		//animal you ride on top of that flies, like a giant mynoc?
 	"",	-1
 };
 
@@ -134,7 +133,7 @@ void G_VehicleSetDefaults( vehicleInfo_t *vehicle )
 	vehicle->name = "default";		//unique name of the vehicle
 /*
 	//general data
-	vehicle->type = VH_SPEEDER;				//what kind of vehicle
+	vehicle->type = vehicleType_t::VH_SPEEDER;				//what kind of vehicle
 	//FIXME: no saber or weapons if numHands = 2, should switch to speeder weapon, no attack anim on player
 	vehicle->numHands = 2;					//if 2 hands, no weapons, if 1 hand, can use 1-handed weapons, if 0 hands, can use 2-handed weapons
 	vehicle->lookPitch = 35;				//How far you can look up and down off the forward of the vehicle
@@ -175,7 +174,7 @@ void G_VehicleSetDefaults( vehicleInfo_t *vehicle )
 	vehicle->model = "swoop";								//what model to use - if make it an NPC's primary model, don't need this?
 	vehicle->modelIndex = 0;							//set internally, not until this vehicle is spawned into the level
 	vehicle->skin = nullptr;								//what skin to use - if make it an NPC's primary model, don't need this?
-	vehicle->riderAnim = BOTH_GUNSIT1;					//what animation the rider uses
+	vehicle->riderAnim = animNumber_t::BOTH_GUNSIT1;					//what animation the rider uses
 	vehicle->gunswivelBone = nullptr;						//gun swivel bones
 	vehicle->lFinBone = nullptr;							//left fin bone
 	vehicle->rFinBone = nullptr;							//right fin bone
@@ -285,16 +284,16 @@ static void G_ParseVehicleParms( vehicleInfo_t *vehicle, const char **holdBuf )
 				}
 				switch( vehFields[i].type )
 				{
-				case VF_INT:
+				case vehFieldType_t::VF_INT:
 					*(int *)(b+vehFields[i].ofs) = atoi(value);
 					break;
-				case VF_FLOAT:
+				case vehFieldType_t::VF_FLOAT:
 					*(float *)(b+vehFields[i].ofs) = atof(value);
 					break;
-				case VF_LSTRING:	// string on disk, pointer in memory, TAG_LEVEL
+				case vehFieldType_t::VF_LSTRING:	// string on disk, pointer in memory, TAG_LEVEL
 					*(char **)(b+vehFields[i].ofs) = G_NewString( value );
 					break;
-				case VF_VECTOR:
+				case vehFieldType_t::VF_VECTOR:
 					_iFieldsRead = sscanf (value, "%f %f %f", &vec[0], &vec[1], &vec[2]);
 					assert(_iFieldsRead==3 );
 					if (_iFieldsRead!=3)
@@ -305,15 +304,15 @@ static void G_ParseVehicleParms( vehicleInfo_t *vehicle, const char **holdBuf )
 					((float *)(b+vehFields[i].ofs))[1] = vec[1];
 					((float *)(b+vehFields[i].ofs))[2] = vec[2];
 					break;
-				case VF_BOOL:
+				case vehFieldType_t::VF_BOOL:
 					*(bool *)(b+vehFields[i].ofs) = (atof(value)!=0);
 					break;
-				case VF_VEHTYPE:
+				case vehFieldType_t::VF_VEHTYPE:
 					vehType = (vehicleType_t)GetIDForString( VehicleTable, value );
 					*(vehicleType_t *)(b+vehFields[i].ofs) = vehType;
 					break;
-				case VF_ANIM:	// an unknown name stores ANIM_NONE, as GetIDForString's -1 did
-					*(animNumber_t *)(b+vehFields[i].ofs) = BG_AnimFromName( value ).value_or( ANIM_NONE );
+				case vehFieldType_t::VF_ANIM:	// an unknown name stores ANIM_NONE, as GetIDForString's -1 did
+					*(animNumber_t *)(b+vehFields[i].ofs) = BG_AnimFromName( value ).value_or( animNumber_t::ANIM_NONE );
 					break;
 				}
 				break;
@@ -362,16 +361,16 @@ static void G_VehicleStoreParms( const char *p )
 			G_SetSharedVehicleFunctions( vehicle );
 			switch( vehicle->type )
 			{
-				case VH_SPEEDER:
+				case vehicleType_t::VH_SPEEDER:
 					G_SetSpeederVehicleFunctions( vehicle );
 					break;
-				case VH_ANIMAL:
+				case vehicleType_t::VH_ANIMAL:
 					G_SetAnimalVehicleFunctions( vehicle );
 					break;
-				case VH_FIGHTER:
+				case vehicleType_t::VH_FIGHTER:
 					G_SetFighterVehicleFunctions( vehicle );
 					break;
-				case VH_WALKER:
+				case vehicleType_t::VH_WALKER:
 					G_SetAnimalVehicleFunctions( vehicle );
 					break;
 			}

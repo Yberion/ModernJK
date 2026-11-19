@@ -45,7 +45,6 @@ enum class EMatImpactEffect
 	MATIMPACTFX_NONE = 0,
 	MATIMPACTFX_SHELLSOUND
 };
-using enum EMatImpactEffect;
 
 //------------------------------
 class CEffect
@@ -99,7 +98,7 @@ public:
 	inline void AddFlags( fxPrimitiveFlags_t flags )		{ mFlags |= flags;				}
 	inline void ClearFlags( fxPrimitiveFlags_t flags )		{ mFlags &= ~flags;				}
 	inline void SetOrigin1( vec3_t org )	{ if(org){VectorCopy(org,mOrigin1);}else{VectorClear(mOrigin1);}	}
-	inline void SetTimeStart( int time )	{ mTimeStart = time; if (Any( mFlags&FX_SET_SHADER_TIME )) { mRefEnt.shaderTime = time * 0.001f; }}
+	inline void SetTimeStart( int time )	{ mTimeStart = time; if (Any( mFlags&fxPrimitiveFlags_t::FX_SET_SHADER_TIME )) { mRefEnt.shaderTime = time * 0.001f; }}
 	inline void	SetTimeEnd( int time )		{ mTimeEnd = time;				}
 	inline void SetImpactFxID( int id )		{ mImpactFxID = id;				}
 	inline void SetDeathFxID( int id )		{ mDeathFxID = id;				}
@@ -253,7 +252,7 @@ public:
 
 	inline CParticle(void)
 	{
-		mRefEnt.reType = RT_SPRITE; mEntNum = -1; mModelNum = -1; mBoltNum = -1;
+		mRefEnt.reType = refEntityType_t::RT_SPRITE; mEntNum = -1; mModelNum = -1; mBoltNum = -1;
 	}
 
 	virtual void Init();

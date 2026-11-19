@@ -33,8 +33,8 @@ void WP_FireNoghriStick( gentity_t *ent )
 
 	vectoangles( forwardVec, angs );
 
-	if ( !(ent->client->ps.forcePowersActive&Bit( FP_SEE ))
-		|| ent->client->ps.forcePowerLevel[FP_SEE] < FORCE_LEVEL_2 )
+	if ( !(ent->client->ps.forcePowersActive&Bit( forcePowers_t::FP_SEE ))
+		|| ent->client->ps.forcePowerLevel[forcePowers_t::FP_SEE] < forcePowerLevels_t::FORCE_LEVEL_2 )
 	{//force sight 2+ gives perfect aim
 		//FIXME: maybe force sight level 3 autoaims some?
 		// add some slop to the main-fire direction
@@ -54,7 +54,7 @@ void WP_FireNoghriStick( gentity_t *ent )
 	gentity_t *missile = CreateMissile( muzzle, dir, velocity, 10000, ent, false );
 
 	missile->classname = "noghri_proj";
-	missile->s.weapon = WP_NOGHRI_STICK;
+	missile->s.weapon = weapon_t::WP_NOGHRI_STICK;
 
 	// Do the damages
 	if ( ent->s.number != 0 )
@@ -83,12 +83,12 @@ void WP_FireNoghriStick( gentity_t *ent )
 //		}
 //	}
 
-	missile->dflags = DAMAGE_NO_KNOCKBACK;
-	missile->methodOfDeath = MOD_BLASTER;
-	missile->clipmask = MASK_SHOT | CONTENTS_LIGHTSABER;
+	missile->dflags = damageFlags_t::DAMAGE_NO_KNOCKBACK;
+	missile->methodOfDeath = meansOfDeath_t::MOD_BLASTER;
+	missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
 	missile->splashDamage = 0;
 	missile->splashRadius = 100;
-	missile->splashMethodOfDeath = MOD_GAS;
+	missile->splashMethodOfDeath = meansOfDeath_t::MOD_GAS;
 
 	//Hmm: maybe spew gas on impact?
 }

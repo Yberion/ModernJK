@@ -85,13 +85,13 @@ Netchan_Init
 void Netchan_Init( int port ) {
 	if (!loopbacks)
 	{
-		loopbacks = (EnumArray<loopback_t, netsrc_t, 2> *) Z_Malloc(sizeof(*loopbacks), TAG_NEWDEL, true);
+		loopbacks = (EnumArray<loopback_t, netsrc_t, 2> *) Z_Malloc(sizeof(*loopbacks), memtag::TAG_NEWDEL, true);
 	}
 
 	port &= 0xffff;
-	showpackets = Cvar_Get ("showpackets", "0", CVAR_TEMP );
-	showdrop = Cvar_Get ("showdrop", "0", CVAR_TEMP );
-	qport = Cvar_Get ("net_qport", va("%i", port), CVAR_INIT );
+	showpackets = Cvar_Get ("showpackets", "0", cvarFlags_t::CVAR_TEMP );
+	showdrop = Cvar_Get ("showdrop", "0", cvarFlags_t::CVAR_TEMP );
+	qport = Cvar_Get ("net_qport", va("%i", port), cvarFlags_t::CVAR_INIT );
 }
 
 void Netchan_Shutdown()
@@ -147,7 +147,7 @@ void Netchan_Transmit( netchan_t *chan, int length, const byte *data ) {
 			MSG_WriteLong( &send, chan->incomingSequence );
 
 			// send the qport if we are a client
-			if ( chan->sock == NS_CLIENT ) {
+			if ( chan->sock == netsrc_t::NS_CLIENT ) {
 				MSG_WriteShort( &send, qport->integer );
 			}
 
@@ -192,7 +192,7 @@ void Netchan_Transmit( netchan_t *chan, int length, const byte *data ) {
 	chan->outgoingSequence++;
 
 	// send the qport if we are a client
-	if ( chan->sock == NS_CLIENT ) {
+	if ( chan->sock == netsrc_t::NS_CLIENT ) {
 		MSG_WriteShort( &send, qport->integer );
 	}
 
@@ -242,7 +242,7 @@ bool Netchan_Process( netchan_t *chan, msg_t *msg ) {
 	}
 
 	// read the qport if we are a server
-	if ( chan->sock == NS_SERVER ) {
+	if ( chan->sock == netsrc_t::NS_SERVER ) {
 		/*qport = */MSG_ReadShort( msg );
 	}
 
@@ -385,7 +385,7 @@ bool	NET_CompareBaseAdr (netadr_t a, netadr_t b)
 	if (a.type != b.type)
 		return false;
 
-	if (a.type == NA_LOOPBACK)
+	if (a.type == netadrtype_t::NA_LOOPBACK)
 		return true;
 
 	Com_Printf ("NET_CompareBaseAdr: bad address type\n");
@@ -396,7 +396,7 @@ const char	*NET_AdrToString (netadr_t a)
 {
 	static	char	s[64];
 
-	if (a.type == NA_LOOPBACK) {
+	if (a.type == netadrtype_t::NA_LOOPBACK) {
 		Com_sprintf (s, sizeof(s), "loopback");
 	}
 
@@ -409,7 +409,7 @@ bool	NET_CompareAdr (netadr_t a, netadr_t b)
 	if (a.type != b.type)
 		return false;
 
-	if (a.type == NA_LOOPBACK)
+	if (a.type == netadrtype_t::NA_LOOPBACK)
 		return true;
 
 	Com_Printf ("NET_CompareAdr: bad address type\n");
@@ -418,7 +418,7 @@ bool	NET_CompareAdr (netadr_t a, netadr_t b)
 
 
 bool	NET_IsLocalAddress( netadr_t adr ) {
-	return (adr.type == NA_LOOPBACK);
+	return (adr.type == netadrtype_t::NA_LOOPBACK);
 }
 
 
@@ -471,7 +471,7 @@ bool	NET_GetLoopPacket (netsrc_t sock, netadr_t *net_from, msg_t *net_message)
 	}
 
 	memset (net_from, 0, sizeof(*net_from));
-	net_from->type = NA_LOOPBACK;
+	net_from->type = netadrtype_t::NA_LOOPBACK;
 
 	return true;
 }
@@ -482,7 +482,7 @@ void NET_SendLoopPacket (netsrc_t sock, int length, const void *data, netadr_t t
 	int		i;
 	loopback_t	*loop;
 
-	loop = &(*loopbacks)[sock == NS_CLIENT ? NS_SERVER : NS_CLIENT];
+	loop = &(*loopbacks)[sock == netsrc_t::NS_CLIENT ? netsrc_t::NS_SERVER : netsrc_t::NS_CLIENT];
 
 	//Make sure there is enough free space in the buffer.
 #ifdef _DEBUG
@@ -533,7 +533,7 @@ void NET_SendPacket( netsrc_t sock, int length, const void *data, netadr_t to ) 
 		Com_Printf ("send packet %4i\n", length);
 	}
 
-	if ( to.type == NA_LOOPBACK ) {
+	if ( to.type == netadrtype_t::NA_LOOPBACK ) {
 		NET_SendLoopPacket (sock, length, data, to);
 		return;
 	}
@@ -576,11 +576,11 @@ Traps "localhost" for loopback, passes everything else to system
 bool	NET_StringToAdr( const char *s, netadr_t *a ) {
 	if (!strcmp (s, "localhost")) {
 		memset (a, 0, sizeof(*a));
-		a->type = NA_LOOPBACK;
+		a->type = netadrtype_t::NA_LOOPBACK;
 		return true;
 	}
 
-	a->type = NA_BAD;
+	a->type = netadrtype_t::NA_BAD;
 	return false;
 }
 

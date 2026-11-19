@@ -40,7 +40,7 @@ extern void G_VehicleTrace( trace_t *results, const vec3_t start, const vec3_t t
 static void RegisterAssets( Vehicle_t *pVeh )
 {
 	//atst uses turret weapon
-	RegisterItem(BG_FindItemForWeapon(WP_TURRET));
+	RegisterItem(BG_FindItemForWeapon(weapon_t::WP_TURRET));
 
 	//call the standard RegisterAssets now
 	g_vehicleInfo[VEHICLE_BASE].RegisterAssets( pVeh );
@@ -167,7 +167,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 	}
 
 	fWalkSpeedMax = speedMax * 0.275f;
-	if ( Any( pVeh->m_ucmd.buttons & BUTTON_WALKING ) && parentPS->speed > fWalkSpeedMax )
+	if ( Any( pVeh->m_ucmd.buttons & buttonFlags_t::BUTTON_WALKING ) && parentPS->speed > fWalkSpeedMax )
 	{
 		parentPS->speed = fWalkSpeedMax;
 	}
@@ -180,7 +180,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 		parentPS->speed = speedMin;
 	}
 
-	if (parentPS->stats[STAT_HEALTH] <= 0)
+	if (parentPS->stats[statIndex_t::STAT_HEALTH] <= 0)
 	{ //don't keep moving while you're dying!
 		parentPS->speed = 0;
 	}
@@ -289,7 +289,7 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 			//FIXME: or ramp up to max turnSpeed?
 			turnSpeed = 0.0f;
 		}
-		if (rider->s.eType == ET_NPC)
+		if (rider->s.eType == entityType_t::ET_NPC)
 		{//help NPCs out some
 			turnSpeed *= 2.0f;
 			if (parentPS->speed > 200.0f)
@@ -323,9 +323,9 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 // This function makes sure that the vehicle is properly animated.
 static void AnimateVehicle( Vehicle_t *pVeh )
 {
-	animNumber_t Anim = BOTH_STAND1;
+	animNumber_t Anim = animNumber_t::BOTH_STAND1;
 	int iBlend = 300;
-	setAnimFlags_t iFlags = SETANIM_FLAG_NORMAL;
+	setAnimFlags_t iFlags = setAnimFlags_t::SETANIM_FLAG_NORMAL;
 	gentity_t *parent = (gentity_t *)pVeh->m_pParentEntity;
 	float fSpeedPercToMax;
 
@@ -336,10 +336,10 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 		if ( pVeh->m_iBoarding != -999 )	// Animate the death just once!
 		{
 			pVeh->m_iBoarding = -999;
-			iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD;
+			iFlags = setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD;
 
 			// FIXME! Why do you keep repeating over and over!!?!?!? Bastard!
-			//Vehicle_SetAnim( parent, SETANIM_LEGS, BOTH_VT_DEATH1, iFlags, iBlend );
+			//Vehicle_SetAnim( parent, setAnimParts_t::SETANIM_LEGS, animNumber_t::BOTH_VT_DEATH1, iFlags, iBlend );
 		}
 		*/
 		return;
@@ -369,7 +369,7 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 	//	float fYawDelta;
 
 		iBlend = 300;
-		iFlags = SETANIM_FLAG_OVERRIDE;
+		iFlags = setAnimFlags_t::SETANIM_FLAG_OVERRIDE;
 	//	fYawDelta = pVeh->m_vPrevOrientation[YAW] - pVeh->m_vOrientation[YAW];
 
 		// NOTE: Mikes suggestion for fixing the stuttering walk (left/right) is to maintain the
@@ -377,20 +377,20 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 		// stuff so good luck to him :-p AReis
 
 		// If we're walking (or our speed is less than .275%)...
-		if ( Any( pVeh->m_ucmd.buttons & BUTTON_WALKING ) || fSpeedPercToMax < 0.275f )
+		if ( Any( pVeh->m_ucmd.buttons & buttonFlags_t::BUTTON_WALKING ) || fSpeedPercToMax < 0.275f )
 		{
 			// Make them lean if we're turning.
 			/*if ( fYawDelta < -0.0001f )
 			{
-				Anim = BOTH_VT_WALK_FWD_L;
+				Anim = animNumber_t::BOTH_VT_WALK_FWD_L;
 			}
 			else if ( fYawDelta > 0.0001 )
 			{
-				Anim = BOTH_VT_WALK_FWD_R;
+				Anim = animNumber_t::BOTH_VT_WALK_FWD_R;
 			}
 			else*/
 			{
-				Anim = BOTH_WALK1;
+				Anim = animNumber_t::BOTH_WALK1;
 			}
 		}
 		// otherwise we're running.
@@ -399,15 +399,15 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 			// Make them lean if we're turning.
 			/*if ( fYawDelta < -0.0001f )
 			{
-				Anim = BOTH_VT_RUN_FWD_L;
+				Anim = animNumber_t::BOTH_VT_RUN_FWD_L;
 			}
 			else if ( fYawDelta > 0.0001 )
 			{
-				Anim = BOTH_VT_RUN_FWD_R;
+				Anim = animNumber_t::BOTH_VT_RUN_FWD_R;
 			}
 			else*/
 			{
-				Anim = BOTH_RUN1;
+				Anim = animNumber_t::BOTH_RUN1;
 			}
 		}
 	}
@@ -416,8 +416,8 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 		// Going in reverse...
 		if ( fSpeedPercToMax < -0.018f )
 		{
-			iFlags = SETANIM_FLAG_NORMAL;
-			Anim = BOTH_WALKBACK1;
+			iFlags = setAnimFlags_t::SETANIM_FLAG_NORMAL;
+			Anim = animNumber_t::BOTH_WALKBACK1;
 			iBlend = 500;
 		}
 		else
@@ -425,20 +425,20 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 			//int iChance = Q_irand( 0, 20000 );
 
 			// Every once in a while buck or do a different idle...
-			iFlags = SETANIM_FLAG_NORMAL | SETANIM_FLAG_RESTART | SETANIM_FLAG_HOLD;
+			iFlags = setAnimFlags_t::SETANIM_FLAG_NORMAL | setAnimFlags_t::SETANIM_FLAG_RESTART | setAnimFlags_t::SETANIM_FLAG_HOLD;
 			iBlend = 600;
 			if (parent->client->ps.m_iVehicleNum)
 			{//occupado
-				Anim = BOTH_STAND1;
+				Anim = animNumber_t::BOTH_STAND1;
 			}
 			else
 			{//wide open for you, baby
-				Anim = BOTH_STAND2;
+				Anim = animNumber_t::BOTH_STAND2;
 			}
 		}
 	}
 
-	Vehicle_SetAnim( parent, SETANIM_LEGS, Anim, iFlags, iBlend );
+	Vehicle_SetAnim( parent, setAnimParts_t::SETANIM_LEGS, Anim, iFlags, iBlend );
 }
 
 //rwwFIXMEFIXME: This is all going to have to be predicted I think, or it will feel awful

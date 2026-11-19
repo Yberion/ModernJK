@@ -180,7 +180,7 @@ void NPC_BSAnimal_Default( void )
 	{//player is actually in the level now
 		ThreatLocation = player->currentOrigin;
 	}
-	int	alertEvent = NPC_CheckAlertEvents(true, true, -1, false, AEL_MINOR, false);
+	int	alertEvent = NPC_CheckAlertEvents(true, true, -1, false, alertEventLevel_e::AEL_MINOR, false);
 	if ( alertEvent >= 0 )
 	{
 		alertEvent_t *event = &level.alertEvents[alertEvent];
@@ -328,8 +328,8 @@ void NPC_BSAnimal_Default( void )
 					{
 						// Clear Out Flags From The Previous Substate
 						//--------------------------------------------
-						NPCInfo->aiFlags	&= ~NPCAI_OFF_PATH;
-						NPCInfo->aiFlags	&= ~NPCAI_WALKING;
+						NPCInfo->aiFlags	&= ~npcAiFlags_t::NPCAI_OFF_PATH;
+						NPCInfo->aiFlags	&= ~npcAiFlags_t::NPCAI_WALKING;
 
 
 						// Pick Another Spot
@@ -349,7 +349,7 @@ void NPC_BSAnimal_Default( void )
 							//-----------------
 							if (Q_irand(0, 1)==0)
 							{
-								NPCInfo->aiFlags	|= NPCAI_WALKING;
+								NPCInfo->aiFlags	|= npcAiFlags_t::NPCAI_WALKING;
 							}
 
 							NPCInfo->investigateDebounceTime = level.time + Q_irand(3000, 10000);
@@ -364,11 +364,11 @@ void NPC_BSAnimal_Default( void )
 							//-----------------
 							if (Q_irand(0, 1)==0)
 							{
-								NPCInfo->aiFlags	|= NPCAI_WALKING;
+								NPCInfo->aiFlags	|= npcAiFlags_t::NPCAI_WALKING;
 							}
 
 							NPCInfo->investigateDebounceTime = level.time + Q_irand(3000, 10000);
-							NPCInfo->aiFlags |= NPCAI_OFF_PATH;
+							NPCInfo->aiFlags |= npcAiFlags_t::NPCAI_OFF_PATH;
 						}
 
 						// Just Stand Here
@@ -376,7 +376,7 @@ void NPC_BSAnimal_Default( void )
 						else
 						{
 							NPCInfo->investigateDebounceTime = level.time + Q_irand(2000, 6000);
-							//NPC_SetAnim(NPC, SETANIM_BOTH, ((Q_irand(0, 1)==0)?(BOTH_GUARD_LOOKAROUND1):(BOTH_GUARD_IDLE1)), SETANIM_FLAG_NORMAL);
+							//NPC_SetAnim(NPC, setAnimParts_t::SETANIM_BOTH, ((Q_irand(0, 1)==0)?(animNumber_t::BOTH_GUARD_LOOKAROUND1):(animNumber_t::BOTH_GUARD_IDLE1)), setAnimFlags_t::SETANIM_FLAG_NORMAL);
 						}
 					}
 
@@ -390,7 +390,7 @@ void NPC_BSAnimal_Default( void )
 					//	}
 					//	else
 						{
-							if (Any(NPCInfo->aiFlags & NPCAI_OFF_PATH))
+							if (Any(NPCInfo->aiFlags & npcAiFlags_t::NPCAI_OFF_PATH))
 							{
 								STEER::Wander(NPC);
 								STEER::AvoidCollisions(NPC);

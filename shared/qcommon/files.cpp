@@ -338,7 +338,7 @@ bool FS_Initialized( void ) {
 
 static void FS_AssertInitialised( void ) {
 	if ( !fs_searchpaths ) {
-		Com_Error( ERR_FATAL, "Filesystem call made without initialization\n" );
+		Com_Error( errorParm_t::ERR_FATAL, "Filesystem call made without initialization\n" );
 	}
 }
 
@@ -399,19 +399,19 @@ static fileHandle_t FS_HandleForFile(void) {
 			return i;
 		}
 	}
-	Com_Error( ERR_DROP, "FS_HandleForFile: none free" );
+	Com_Error( errorParm_t::ERR_DROP, "FS_HandleForFile: none free" );
 	return 0;
 }
 
 static FILE	*FS_FileForHandle( fileHandle_t f ) {
 	if ( f < 1 || f >= MAX_FILE_HANDLES ) {
-		Com_Error( ERR_DROP, "FS_FileForHandle: out of range" );
+		Com_Error( errorParm_t::ERR_DROP, "FS_FileForHandle: out of range" );
 	}
 	if (fsh[f].zipFile == true) {
-		Com_Error( ERR_DROP, "FS_FileForHandle: can't get FILE on zip file" );
+		Com_Error( errorParm_t::ERR_DROP, "FS_FileForHandle: can't get FILE on zip file" );
 	}
 	if ( ! fsh[f].handleFiles.file.o ) {
-		Com_Error( ERR_DROP, "FS_FileForHandle: NULL" );
+		Com_Error( errorParm_t::ERR_DROP, "FS_FileForHandle: NULL" );
 	}
 
 	return fsh[f].handleFiles.file.o;
@@ -568,7 +568,7 @@ bool FS_CreatePath (char *OSPath) {
 			// create the directory
 			*ofs = 0;
 			if (!Sys_Mkdir (path)) {
-				Com_Error( ERR_FATAL, "FS_CreatePath: failed to create path \"%s\"",
+				Com_Error( errorParm_t::ERR_FATAL, "FS_CreatePath: failed to create path \"%s\"",
 					path );
 			}
 			*ofs = PATH_SEP;
@@ -590,7 +590,7 @@ static void FS_CheckFilenameIsMutable( const char *filename, const char *functio
 	if( COM_CompareExtension( filename, DLL_EXT )
 		|| COM_CompareExtension( filename, ".pk3" ) )
 	{
-		Com_Error( ERR_FATAL, "%s: Not allowed to manipulate '%s' due "
+		Com_Error( errorParm_t::ERR_FATAL, "%s: Not allowed to manipulate '%s' due "
 			"to %s extension", function, filename, COM_GetExtension( filename ) );
 	}
 }
@@ -627,7 +627,7 @@ void FS_CopyFile( char *fromOSPath, char *toOSPath ) {
 	if ( len == EOF )
 	{
 		fclose( f );
-		Com_Error( ERR_FATAL, "Bad file length in FS_CopyFile()" );
+		Com_Error( errorParm_t::ERR_FATAL, "Bad file length in FS_CopyFile()" );
 	}
 
 	// we are using direct malloc instead of Z_Malloc here, so it
@@ -637,7 +637,7 @@ void FS_CopyFile( char *fromOSPath, char *toOSPath ) {
 	{
 		fclose( f );
 		free ( buf );
-		Com_Error( ERR_FATAL, "Short read in FS_Copyfiles()\n" );
+		Com_Error( errorParm_t::ERR_FATAL, "Short read in FS_Copyfiles()\n" );
 	}
 	fclose( f );
 
@@ -655,7 +655,7 @@ void FS_CopyFile( char *fromOSPath, char *toOSPath ) {
 	{
 		fclose( f );
 		free ( buf );
-		Com_Error( ERR_FATAL, "Short write in FS_Copyfiles()\n" );
+		Com_Error( errorParm_t::ERR_FATAL, "Short write in FS_Copyfiles()\n" );
 	}
 	fclose( f );
 	free( buf );
@@ -1356,11 +1356,11 @@ long FS_FOpenFileRead( const char *filename, fileHandle_t *file, bool uniqueFILE
 	FS_AssertInitialised();
 
 	if ( file == nullptr ) {
-		Com_Error( ERR_FATAL, "FS_FOpenFileRead: NULL 'file' parameter passed\n" );
+		Com_Error( errorParm_t::ERR_FATAL, "FS_FOpenFileRead: NULL 'file' parameter passed\n" );
 	}
 
 	if ( !filename ) {
-		Com_Error( ERR_FATAL, "FS_FOpenFileRead: NULL 'filename' parameter passed\n" );
+		Com_Error( errorParm_t::ERR_FATAL, "FS_FOpenFileRead: NULL 'filename' parameter passed\n" );
 	}
 
 	// qpaths are not supposed to have a leading slash
@@ -1444,21 +1444,21 @@ long FS_FOpenFileRead( const char *filename, fileHandle_t *file, bool uniqueFILE
 							// All others need to be referenced manually by the use of reflists.
 
 							if (!Q_stricmp(get_filename_ext(filename), "bsp")) {
-								pak->referenced |= FS_GENERAL_REF;
+								pak->referenced |= fsRefFlags_t::FS_GENERAL_REF;
 							}
 
 							if (!Q_stricmp(filename, "vm/cgame.qvm") || !Q_stricmp( filename, "cgamex86.dll" )) {
-								pak->referenced |= FS_CGAME_REF;
+								pak->referenced |= fsRefFlags_t::FS_CGAME_REF;
 							}
 
 							if (!Q_stricmp(filename, "vm/ui.qvm") || !Q_stricmp( filename, "uix86.dll" )) {
-								pak->referenced |= FS_UI_REF;
+								pak->referenced |= fsRefFlags_t::FS_UI_REF;
 							}
 
 							// OLD Ref:
 							/*
 							l = strlen( filename );
-							if ( !Any(pak->referenced & FS_GENERAL_REF)) {
+							if ( !Any(pak->referenced & fsRefFlags_t::FS_GENERAL_REF)) {
 								if( !FS_IsExt(filename, ".shader", l) &&
 								    !FS_IsExt(filename, ".txt", l) &&
 								    !FS_IsExt(filename, ".str", l) &&
@@ -1472,7 +1472,7 @@ long FS_FOpenFileRead( const char *filename, fileHandle_t *file, bool uniqueFILE
 								    //Q_stricmp(filename, "vm/qagame.qvm") != 0 &&
 								    !strstr(filename, "levelshots"))
 								{
-									pak->referenced |= FS_GENERAL_REF;
+									pak->referenced |= fsRefFlags_t::FS_GENERAL_REF;
 								}
 							}
 							*/
@@ -1495,7 +1495,7 @@ long FS_FOpenFileRead( const char *filename, fileHandle_t *file, bool uniqueFILE
 	#ifndef DEDICATED
 	#ifndef FINAL_BUILD
 						// Check for unprecached files when in game but not in the menus
-						if((cls.state == CA_ACTIVE) && !Any(Key_GetCatcher( ) & KEYCATCH_UI))
+						if((cls.state == connstate_t::CA_ACTIVE) && !Any(Key_GetCatcher( ) & keyCatchFlags_t::KEYCATCH_UI))
 						{
 							Com_Printf(S_COLOR_YELLOW "WARNING: File %s not precached\n", filename);
 						}
@@ -1623,7 +1623,7 @@ long FS_FOpenFileRead( const char *filename, fileHandle_t *file, bool uniqueFILE
 	#ifndef DEDICATED
 	#ifndef FINAL_BUILD
 				// Check for unprecached files when in game but not in the menus
-				if((cls.state == CA_ACTIVE) && !Any(Key_GetCatcher( ) & KEYCATCH_UI))
+				if((cls.state == connstate_t::CA_ACTIVE) && !Any(Key_GetCatcher( ) & keyCatchFlags_t::KEYCATCH_UI))
 				{
 					Com_Printf(S_COLOR_YELLOW "WARNING: File %s not precached\n", filename);
 				}
@@ -1653,7 +1653,7 @@ bool FS_FindPureDLL(const char *name)
 	fileHandle_t h;
 
 	if(!fs_searchpaths)
-		Com_Error(ERR_FATAL, "Filesystem call made without initialization");
+		Com_Error(errorParm_t::ERR_FATAL, "Filesystem call made without initialization");
 
 	if ( !Cvar_VariableValue( "sv_pure" ) )
 		return true;
@@ -1701,12 +1701,12 @@ int FS_Read( void *buffer, int len, fileHandle_t f ) {
 				if (!tries) {
 					tries = 1;
 				} else {
-					return len-remaining;	//Com_Error (ERR_FATAL, "FS_Read: 0 bytes read");
+					return len-remaining;	//Com_Error (errorParm_t::ERR_FATAL, "FS_Read: 0 bytes read");
 				}
 			}
 
 			if (read == -1) {
-				Com_Error (ERR_FATAL, "FS_Read: -1 bytes read");
+				Com_Error (errorParm_t::ERR_FATAL, "FS_Read: -1 bytes read");
 			}
 
 			remaining -= read;
@@ -1797,18 +1797,18 @@ int FS_Seek( fileHandle_t f, long offset, fsOrigin_t origin ) {
 		FILE *file;
 		file = FS_FileForHandle(f);
 		switch( origin ) {
-		case FS_SEEK_CUR:
+		case fsOrigin_t::FS_SEEK_CUR:
 			_origin = SEEK_CUR;
 			break;
-		case FS_SEEK_END:
+		case fsOrigin_t::FS_SEEK_END:
 			_origin = SEEK_END;
 			break;
-		case FS_SEEK_SET:
+		case fsOrigin_t::FS_SEEK_SET:
 			_origin = SEEK_SET;
 			break;
 		default:
 			_origin = SEEK_CUR;
-			Com_Error( ERR_FATAL, "Bad origin in FS_Seek\n" );
+			Com_Error( errorParm_t::ERR_FATAL, "Bad origin in FS_Seek\n" );
 			break;
 		}
 
@@ -1833,7 +1833,7 @@ int	FS_FileIsInPAK(const char *filename, int *pChecksum ) {
 	FS_AssertInitialised();
 
 	if ( !filename ) {
-		Com_Error( ERR_FATAL, "FS_FOpenFileRead: NULL 'filename' parameter passed\n" );
+		Com_Error( errorParm_t::ERR_FATAL, "FS_FOpenFileRead: NULL 'filename' parameter passed\n" );
 	}
 
 	// qpaths are not supposed to have a leading slash
@@ -1899,7 +1899,7 @@ long FS_ReadFile( const char *qpath, void **buffer ) {
 	FS_AssertInitialised();
 
 	if ( !qpath || !qpath[0] ) {
-		Com_Error( ERR_FATAL, "FS_ReadFile with empty name\n" );
+		Com_Error( errorParm_t::ERR_FATAL, "FS_ReadFile with empty name\n" );
 	}
 
 	FS_QuietSound();
@@ -1936,7 +1936,7 @@ long FS_ReadFile( const char *qpath, void **buffer ) {
 
 			r = FS_Read( buf, len, com_journalDataFile );
 			if ( r != len ) {
-				Com_Error( ERR_FATAL, "Read from journalDataFile failed" );
+				Com_Error( errorParm_t::ERR_FATAL, "Read from journalDataFile failed" );
 			}
 
 			// guarantee that it will have a trailing 0 for string operations
@@ -1974,7 +1974,7 @@ long FS_ReadFile( const char *qpath, void **buffer ) {
 		return len;
 	}
 
-	buf = (byte*)Z_Malloc( len+1, TAG_FILESYS, false);
+	buf = (byte*)Z_Malloc( len+1, memtag::TAG_FILESYS, false);
 	buf[len]='\0';	// because we're not calling Z_Malloc with optional trailing 'bZeroIt' bool
 	*buffer = buf;
 
@@ -2010,7 +2010,7 @@ FS_FreeFile
 void FS_FreeFile( void *buffer ) {
 	FS_AssertInitialised();
 	if ( !buffer ) {
-		Com_Error( ERR_FATAL, "FS_FreeFile( NULL )" );
+		Com_Error( errorParm_t::ERR_FATAL, "FS_FreeFile( NULL )" );
 	}
 
 	Z_Free( buffer );
@@ -2029,7 +2029,7 @@ void FS_WriteFile( const char *qpath, const void *buffer, int size ) {
 	FS_AssertInitialised();
 
 	if ( !qpath || !buffer ) {
-		Com_Error( ERR_FATAL, "FS_WriteFile: NULL parameter" );
+		Com_Error( errorParm_t::ERR_FATAL, "FS_WriteFile: NULL parameter" );
 	}
 
 	f = FS_FOpenFileWrite( qpath );
@@ -2089,9 +2089,9 @@ static pack_t *FS_LoadZipFile( const char *zipfile, const char *basename )
 		len += strlen(filename_inzip) + 1;
 	}
 
-	buildBuffer = (struct fileInPack_s *)Z_Malloc( (numEntries * sizeof( fileInPack_t )) + len, TAG_FILESYS, true );
+	buildBuffer = (struct fileInPack_s *)Z_Malloc( (numEntries * sizeof( fileInPack_t )) + len, memtag::TAG_FILESYS, true );
 	namePtr = ((char *) buildBuffer) + numEntries * sizeof( fileInPack_t );
-	fs_headerLongs = (int *)Z_Malloc( ( numEntries + 1 ) * sizeof(int), TAG_FILESYS, true );
+	fs_headerLongs = (int *)Z_Malloc( ( numEntries + 1 ) * sizeof(int), memtag::TAG_FILESYS, true );
 	fs_headerLongs[ fs_numHeaderLongs++ ] = LittleLong( fs_checksumFeed );
 
 	// get the hash table size from the number of files in the zip
@@ -2102,7 +2102,7 @@ static pack_t *FS_LoadZipFile( const char *zipfile, const char *basename )
 		}
 	}
 
-	pack = (pack_t *)Z_Malloc( sizeof( pack_t ) + i * sizeof(fileInPack_t *), TAG_FILESYS, true );
+	pack = (pack_t *)Z_Malloc( sizeof( pack_t ) + i * sizeof(fileInPack_t *), memtag::TAG_FILESYS, true );
 	pack->hashSize = i;
 	pack->hashTable = (fileInPack_t **) (((char *) pack) + sizeof( pack_t ));
 	for(int j = 0; j < pack->hashSize; j++) {
@@ -2271,7 +2271,7 @@ char **FS_ListFilteredFiles( const char *path, const char *extension, const char
 	char			zpath[MAX_ZPATH];
 
 	if ( !fs_searchpaths ) {
-		Com_Error( ERR_FATAL, "Filesystem call made without initialization\n" );
+		Com_Error( errorParm_t::ERR_FATAL, "Filesystem call made without initialization\n" );
 	}
 
 	if ( !path ) {
@@ -2380,7 +2380,7 @@ char **FS_ListFilteredFiles( const char *path, const char *extension, const char
 		return nullptr;
 	}
 
-	listCopy = (char **)Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ), TAG_FILESYS );
+	listCopy = (char **)Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ), memtag::TAG_FILESYS );
 	for ( i = 0 ; i < nfiles ; i++ ) {
 		listCopy[i] = list[i];
 	}
@@ -2408,7 +2408,7 @@ void FS_FreeFileList( char **fileList ) {
 	int		i;
 
 	if ( !fs_searchpaths ) {
-		Com_Error( ERR_FATAL, "Filesystem call made without initialization\n" );
+		Com_Error( errorParm_t::ERR_FATAL, "Filesystem call made without initialization\n" );
 	}
 
 	if ( !fileList ) {
@@ -2496,7 +2496,7 @@ static char** Sys_ConcatenateFileLists( char **list0, char **list1, char **list2
 	totalLength += Sys_CountFileList(list2);
 
 	/* Create new list. */
-	dst = cat = (char **)Z_Malloc( ( totalLength + 1 ) * sizeof( char* ), TAG_FILESYS, true );
+	dst = cat = (char **)Z_Malloc( ( totalLength + 1 ) * sizeof( char* ), memtag::TAG_FILESYS, true );
 
 	/* Copy over lists. */
 	if (list0) {
@@ -2756,7 +2756,7 @@ void FS_SortFileList(char **filelist, int numfiles) {
 	int i, j, k, numsortedfiles;
 	char **sortedlist;
 
-	sortedlist = (char **)Z_Malloc( ( numfiles + 1 ) * sizeof( *sortedlist ), TAG_FILESYS, true );
+	sortedlist = (char **)Z_Malloc( ( numfiles + 1 ) * sizeof( *sortedlist ), memtag::TAG_FILESYS, true );
 	sortedlist[0] = nullptr;
 	numsortedfiles = 0;
 	for (i = 0; i < numfiles; i++) {
@@ -3013,8 +3013,8 @@ static void FS_AddGameDirectory( const char *path, const char *dir ) {
 	//
 	// add the directory to the search path
 	//
-	search = (struct searchpath_s *)Z_Malloc (sizeof(searchpath_t), TAG_FILESYS, true);
-	search->dir = (directory_t *)Z_Malloc( sizeof( *search->dir ), TAG_FILESYS, true );
+	search = (struct searchpath_s *)Z_Malloc (sizeof(searchpath_t), memtag::TAG_FILESYS, true);
+	search->dir = (directory_t *)Z_Malloc( sizeof( *search->dir ), memtag::TAG_FILESYS, true );
 
 	Q_strncpyz( search->dir->path, path, sizeof( search->dir->path ) );
 	Q_strncpyz( search->dir->fullpath, curpath, sizeof( search->dir->fullpath ) );
@@ -3065,12 +3065,12 @@ static void FS_AddGameDirectory( const char *path, const char *dir ) {
 
 		// if the pk3 is not in base, always reference it (standard jk2 behaviour)
 		if (Q_stricmpn(pak->pakGamename, BASEGAME, (int)strlen(BASEGAME))) {
-			pak->referenced |= FS_GENERAL_REF;
+			pak->referenced |= fsRefFlags_t::FS_GENERAL_REF;
 		}
 
 		fs_packFiles += pak->numfiles;
 
-		search = (searchpath_s *)Z_Malloc (sizeof(searchpath_t), TAG_FILESYS, true);
+		search = (searchpath_s *)Z_Malloc (sizeof(searchpath_t), memtag::TAG_FILESYS, true);
 		search->pack = pak;
 
 		if (fs_dirbeforepak && fs_dirbeforepak->integer && thedir)
@@ -3299,7 +3299,7 @@ void FS_Shutdown( bool closemfp, bool keepModuleFiles ) {
 	for(i = 0; i < MAX_FILE_HANDLES; i++) {
 		if (fsh[i].fileSize) {
 			if ( !keepModuleFiles ) FS_FCloseFile(i);
-			else if ( fsh[i].zipFile ) Com_Error(ERR_FATAL, "FS_Shutdown: tried to keep module files when at least one module file is inside of a pak");
+			else if ( fsh[i].zipFile ) Com_Error(errorParm_t::ERR_FATAL, "FS_Shutdown: tried to keep module files when at least one module file is inside of a pak");
 		}
 	}
 
@@ -3475,12 +3475,12 @@ void FS_LoadReflists( void ) {
 
 			if (f_w && !Q_stristr(mv_whitelist, packstr)) {
 				search->pack->noref = true;
-				search->pack->referenced = FS_NONE;
+				search->pack->referenced = fsRefFlags_t::FS_NONE;
 			} else if (f_b && Q_stristr(mv_blacklist, packstr)) {
 				search->pack->noref = true;
-				search->pack->referenced = FS_NONE;
+				search->pack->referenced = fsRefFlags_t::FS_NONE;
 			} else if (f_f && Q_stristr(mv_forcelist, packstr)) {
-				search->pack->referenced |= FS_GENERAL_REF;
+				search->pack->referenced |= fsRefFlags_t::FS_GENERAL_REF;
 			}
 		}
 	}
@@ -3506,23 +3506,23 @@ void FS_Startup( const char *gameName ) {
 
 	fs_packFiles = 0;
 
-	fs_debug = Cvar_Get( "fs_debug", "0", CVAR_NONE );
+	fs_debug = Cvar_Get( "fs_debug", "0", cvarFlags_t::CVAR_NONE );
 #ifdef _WIN32
-	fs_copyfiles = Cvar_Get( "fs_copyfiles", "0", CVAR_INIT );
+	fs_copyfiles = Cvar_Get( "fs_copyfiles", "0", cvarFlags_t::CVAR_INIT );
 #endif
-	fs_cdpath = Cvar_Get ("fs_cdpath", "", CVAR_INIT|CVAR_PROTECTED, "(Read Only) Location for development files" );
-	fs_basepath = Cvar_Get ("fs_basepath", Sys_DefaultInstallPath(), CVAR_INIT|CVAR_PROTECTED, "(Read Only) Location for game files" );
-	fs_basegame = Cvar_Get ("fs_basegame", "", CVAR_INIT );
+	fs_cdpath = Cvar_Get ("fs_cdpath", "", cvarFlags_t::CVAR_INIT|cvarFlags_t::CVAR_PROTECTED, "(Read Only) Location for development files" );
+	fs_basepath = Cvar_Get ("fs_basepath", Sys_DefaultInstallPath(), cvarFlags_t::CVAR_INIT|cvarFlags_t::CVAR_PROTECTED, "(Read Only) Location for game files" );
+	fs_basegame = Cvar_Get ("fs_basegame", "", cvarFlags_t::CVAR_INIT );
 	homePath = Sys_DefaultHomePath();
 	if (!homePath || !homePath[0]) {
 		homePath = fs_basepath->string;
 	}
-	fs_homepath = Cvar_Get ("fs_homepath", homePath, CVAR_INIT|CVAR_PROTECTED, "(Read/Write) Location for user generated files" );
-	fs_gamedirvar = Cvar_Get ("fs_game", "", CVAR_INIT|CVAR_SYSTEMINFO, "Mod directory" );
+	fs_homepath = Cvar_Get ("fs_homepath", homePath, cvarFlags_t::CVAR_INIT|cvarFlags_t::CVAR_PROTECTED, "(Read/Write) Location for user generated files" );
+	fs_gamedirvar = Cvar_Get ("fs_game", "", cvarFlags_t::CVAR_INIT|cvarFlags_t::CVAR_SYSTEMINFO, "Mod directory" );
 
-	fs_dirbeforepak = Cvar_Get("fs_dirbeforepak", "0", CVAR_INIT|CVAR_PROTECTED, "Prioritize directories before paks if not pure" );
+	fs_dirbeforepak = Cvar_Get("fs_dirbeforepak", "0", cvarFlags_t::CVAR_INIT|cvarFlags_t::CVAR_PROTECTED, "Prioritize directories before paks if not pure" );
 
-	fs_forcegame = Cvar_Get ("fs_forcegame", "", CVAR_INIT, "Folder to use for overriding of fs_game (can not be set by the server)." );
+	fs_forcegame = Cvar_Get ("fs_forcegame", "", cvarFlags_t::CVAR_INIT, "Folder to use for overriding of fs_game (can not be set by the server)." );
 
 	// add search path elements in reverse priority order (lowest priority first)
 	if (fs_cdpath->string[0]) {
@@ -3533,7 +3533,7 @@ void FS_Startup( const char *gameName ) {
 	}
 
 #ifdef MACOS_X
-	fs_apppath = Cvar_Get ("fs_apppath", Sys_DefaultAppPath(), CVAR_INIT|CVAR_PROTECTED, "(Read Only) Location of OSX .app bundle" );
+	fs_apppath = Cvar_Get ("fs_apppath", Sys_DefaultAppPath(), cvarFlags_t::CVAR_INIT|cvarFlags_t::CVAR_PROTECTED, "(Read Only) Location of OSX .app bundle" );
 	// Make MacOSX also include the base path included with the .app bundle
 	if (fs_apppath->string[0]) {
 		FS_AddGameDirectory( fs_apppath->string, gameName );
@@ -3747,9 +3747,9 @@ const char *FS_ReferencedPakPureChecksums( void ) {
 	checksum = fs_checksumFeed;
 	numPaks = 0;
 	// the string's order: cgame, ui, then the general references
-	static constexpr fsRefFlags_t refOrder[] = { FS_CGAME_REF, FS_UI_REF, FS_GENERAL_REF };
+	static constexpr fsRefFlags_t refOrder[] = { fsRefFlags_t::FS_CGAME_REF, fsRefFlags_t::FS_UI_REF, fsRefFlags_t::FS_GENERAL_REF };
 	for (const fsRefFlags_t nFlags : refOrder) {
-		if (Any(nFlags & FS_GENERAL_REF)) {
+		if (Any(nFlags & fsRefFlags_t::FS_GENERAL_REF)) {
 			// add a delimter between must haves and general refs
 			//Q_strcat(info, sizeof(info), "@ ");
 			info[strlen(info)+1] = '\0';
@@ -3761,7 +3761,7 @@ const char *FS_ReferencedPakPureChecksums( void ) {
 			// is the element a pak file and has it been referenced based on flag?
 			if ( search->pack && Any(search->pack->referenced & nFlags)) {
 				Q_strcat( info, sizeof( info ), va("%i ", search->pack->pure_checksum ) );
-				if (Any(nFlags & (FS_CGAME_REF | FS_UI_REF))) {
+				if (Any(nFlags & (fsRefFlags_t::FS_CGAME_REF | fsRefFlags_t::FS_UI_REF))) {
 					break;
 				}
 				checksum ^= search->pack->pure_checksum;
@@ -3978,7 +3978,7 @@ void FS_InitFilesystem( void ) {
 	// busted and error out now, rather than getting an unreadable
 	// graphics screen when the font fails to load
 	if ( FS_ReadFile( FS_DEFAULT_CFG, nullptr ) <= 0 ) {
-		Com_Error( ERR_FATAL, "Couldn't load " FS_DEFAULT_CFG );
+		Com_Error( errorParm_t::ERR_FATAL, "Couldn't load " FS_DEFAULT_CFG );
 		// bk001208 - SafeMode see below, FIXME?
 	}
 
@@ -4006,7 +4006,7 @@ void FS_Restart( int checksumFeed, bool inPlace ) {
 	fs_checksumFeed = checksumFeed;
 
 	// clear pak references
-	FS_ClearPakReferences(FS_ALL_REF);
+	FS_ClearPakReferences(fsRefFlags_t::FS_ALL_REF);
 
 	// try to start up normally
 	FS_Startup( BASEGAME );
@@ -4024,10 +4024,10 @@ void FS_Restart( int checksumFeed, bool inPlace ) {
 			lastValidBase[0] = '\0';
 			lastValidGame[0] = '\0';
 			FS_Restart(checksumFeed);
-			Com_Error( ERR_DROP, "Invalid game folder\n" );
+			Com_Error( errorParm_t::ERR_DROP, "Invalid game folder\n" );
 			return;
 		}
-		Com_Error( ERR_FATAL, "Couldn't load " FS_DEFAULT_CFG );
+		Com_Error( errorParm_t::ERR_FATAL, "Couldn't load " FS_DEFAULT_CFG );
 	}
 
 	if ( Q_stricmp(fs_gamedirvar->string, lastValidGame) && !fs_forcegame->string[0] ) {
@@ -4091,19 +4091,19 @@ int		FS_FOpenFileByMode( const char *qpath, fileHandle_t *f, fsMode_t mode ) {
 	sync = false;
 
 	switch( mode ) {
-	case FS_READ:
+	case fsMode_t::FS_READ:
 		r = FS_FOpenFileRead( qpath, f, true );
 		break;
-	case FS_WRITE:
+	case fsMode_t::FS_WRITE:
 		*f = FS_FOpenFileWrite( qpath );
 		r = 0;
 		if (*f == 0) {
 			r = -1;
 		}
 		break;
-	case FS_APPEND_SYNC:
+	case fsMode_t::FS_APPEND_SYNC:
 		sync = true;
-	case FS_APPEND:
+	case fsMode_t::FS_APPEND:
 		*f = FS_FOpenFileAppend( qpath );
 		r = 0;
 		if (*f == 0) {
@@ -4111,7 +4111,7 @@ int		FS_FOpenFileByMode( const char *qpath, fileHandle_t *f, fsMode_t mode ) {
 		}
 		break;
 	default:
-		Com_Error( ERR_FATAL, "FSH_FOpenFile: bad mode" );
+		Com_Error( errorParm_t::ERR_FATAL, "FSH_FOpenFile: bad mode" );
 		return -1;
 	}
 
@@ -4254,7 +4254,7 @@ bool FS_LoadMachOBundle( const char *name )
 
 	len = entry.size;
 
-	buf = (byte*)Z_Malloc( len+1, TAG_FILESYS, false);
+	buf = (byte*)Z_Malloc( len+1, memtag::TAG_FILESYS, false);
 
 	if (PK3_Read( dllFile, buf, len ) < len)
 	{
@@ -4346,7 +4346,7 @@ bool FS_WriteToTemporaryFile( const void *data, size_t dataLength, char **tempFi
 					if ( tempFilePath )
 					{
 						size_t fileNameLen = strlen(tempFileName);
-						*tempFilePath = (char *)Z_Malloc(fileNameLen + 1, TAG_FILESYS);
+						*tempFilePath = (char *)Z_Malloc(fileNameLen + 1, memtag::TAG_FILESYS);
 						Q_strncpyz(*tempFilePath, tempFileName, fileNameLen + 1);
 					}
 

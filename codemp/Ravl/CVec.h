@@ -100,7 +100,6 @@ enum class ESide
 	Side_Out	= 4,
 	Side_AllIn	= 5
 };
-using enum ESide;
 
 
 
@@ -453,13 +452,13 @@ public:
 		float Area = AreaParallelPipid(Start, End);
 		if (Area>Tolerance)
 		{
-			return Side_Left;
+			return ESide::Side_Left;
 		}
 		if (Area<(Tolerance*-1))
 		{
-			return Side_Right;
+			return ESide::Side_Right;
 		}
-		return Side_None;
+		return ESide::Side_None;
 
 	}
 
@@ -496,7 +495,7 @@ public:
 	bool	PtInCircle(const CVec4 &Circle, float Radius) const;
 
 	////////////////////////////////////////////////////////////////////////////////////
-	// Line Intersects Circle  (True/False)
+	// EPrimType::Line Intersects Circle  (True/False)
 	//
 	//  r	- Radius Of The Circle
 	//  A	- Start Of Line Segment
@@ -924,13 +923,13 @@ public:
 		float Area = AreaParallelPipid(Start, End);
 		if (Area>Tolerance)
 		{
-			return Side_Left;
+			return ESide::Side_Left;
 		}
 		if (Area<(Tolerance*-1))
 		{
-			return Side_Right;
+			return ESide::Side_Right;
 		}
-		return Side_None;
+		return ESide::Side_None;
 
 	}
 
@@ -967,7 +966,7 @@ public:
 	bool	PtInCircle(const CVec3 &Circle, float Radius) const;
 
 	////////////////////////////////////////////////////////////////////////////////////
-	// Line Intersects Circle  (True/False)
+	// EPrimType::Line Intersects Circle  (True/False)
 	//
 	//  r	- Radius Of The Circle
 	//  A	- Start Of Line Segment

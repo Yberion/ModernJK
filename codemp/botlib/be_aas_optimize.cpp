@@ -137,7 +137,7 @@ int AAS_OptimizeEdge(optimized_t *optimized, int edgenum)
 //===========================================================================
 int AAS_KeepFace(aas_face_t *face)
 {
-	if (!Any( face->faceflags & FACE_LADDER )) return 0;
+	if (!Any( face->faceflags & faceFlags_t::FACE_LADDER )) return 0;
 	else return 1;
 } //end of the function AAS_KeepFace
 //===========================================================================
@@ -297,11 +297,11 @@ void AAS_Optimize(void)
 	{
 		//NOTE: for TRAVEL_ELEVATOR the facenum is the model number of
 		//		the elevator
-		if ((aasworld.reachability[i].traveltype & TRAVELTYPE_MASK) == TRAVEL_ELEVATOR) continue;
+		if ((aasworld.reachability[i].traveltype & travelTypeFlags_t::TRAVELTYPE_MASK) == travelTypeFlags_t::TRAVEL_ELEVATOR) continue;
 		//NOTE: for TRAVEL_JUMPPAD the facenum is the Z velocity and the edgenum is the hor velocity
-		if ((aasworld.reachability[i].traveltype & TRAVELTYPE_MASK) == TRAVEL_JUMPPAD) continue;
+		if ((aasworld.reachability[i].traveltype & travelTypeFlags_t::TRAVELTYPE_MASK) == travelTypeFlags_t::TRAVEL_JUMPPAD) continue;
 		//NOTE: for TRAVEL_FUNCBOB the facenum and edgenum contain other coded information
-		if ((aasworld.reachability[i].traveltype & TRAVELTYPE_MASK) == TRAVEL_FUNCBOB) continue;
+		if ((aasworld.reachability[i].traveltype & travelTypeFlags_t::TRAVELTYPE_MASK) == travelTypeFlags_t::TRAVEL_FUNCBOB) continue;
 		//
 		sign = aasworld.reachability[i].facenum;
 		aasworld.reachability[i].facenum = optimized.faceoptimizeindex[abs(aasworld.reachability[i].facenum)];
@@ -313,5 +313,5 @@ void AAS_Optimize(void)
 	//store the optimized AAS data into aasworld
 	AAS_OptimizeStore(&optimized);
 	//print some nice stuff :)
-	botimport.Print(PRT_MESSAGE, "AAS data optimized.\n");
+	botimport.Print(printType_t::PRT_MESSAGE, "AAS data optimized.\n");
 } //end of the function AAS_Optimize

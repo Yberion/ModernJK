@@ -70,7 +70,6 @@ enum class windowFlags_t
 //JLF
 	WINDOW_INTRANSITIONMODEL	= 0x04000000,	// delayed script waiting to run
 };
-using enum windowFlags_t;
 template <> inline constexpr bool enableEnumFlags<windowFlags_t> = true;
 
 
@@ -79,7 +78,6 @@ enum class cursorType_t {
 	CURSOR_ARROW				= 0x00000002,
 	CURSOR_SIZER				= 0x00000004
 };
-using enum cursorType_t;
 
 inline constexpr int STRING_POOL_SIZE = 2*1024*1024;
 
@@ -117,7 +115,6 @@ enum class screenshotFormat_t {
 	SSF_TGA,
 	SSF_PNG
 };
-using enum screenshotFormat_t;
 
 typedef struct scriptDef_s {
   const char *command;
@@ -262,7 +259,6 @@ enum class itemCvarFlags_t
 	CVAR_SHOW			= 0x00000004,
 	CVAR_HIDE			= 0x00000008,
 };
-using enum itemCvarFlags_t;
 template <> inline constexpr bool enableEnumFlags<itemCvarFlags_t> = true;
 
 #include "qcommon/q_clientflags.h"
@@ -565,4 +561,4 @@ void Controls_SetDefaults( void );
 Ghoul2 Insert End
 */
 
-extern EnumArray<const char *, forcePowers_t, NUM_FORCE_POWERS> HolocronIcons;
+extern EnumArray<const char *, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS> HolocronIcons;

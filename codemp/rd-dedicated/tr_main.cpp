@@ -54,7 +54,7 @@ cullResult_t R_CullPointAndRadius( const vec3_t pt, float radius )
 	bool mightBeClipped = false;
 
 	if ( r_nocull->integer==1 ) {
-		return CULL_CLIP;
+		return cullResult_t::CULL_CLIP;
 	}
 
 	// check against frustum planes
@@ -65,7 +65,7 @@ cullResult_t R_CullPointAndRadius( const vec3_t pt, float radius )
 		dist = DotProduct( pt, frust->normal) - frust->dist;
 		if ( dist < -radius )
 		{
-			return CULL_OUT;
+			return cullResult_t::CULL_OUT;
 		}
 		else if ( dist <= radius )
 		{
@@ -75,10 +75,10 @@ cullResult_t R_CullPointAndRadius( const vec3_t pt, float radius )
 
 	if ( mightBeClipped )
 	{
-		return CULL_CLIP;
+		return cullResult_t::CULL_CLIP;
 	}
 
-	return CULL_IN;		// completely inside frustum
+	return cullResult_t::CULL_IN;		// completely inside frustum
 }
 
 /*

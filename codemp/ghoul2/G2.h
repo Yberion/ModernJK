@@ -47,7 +47,6 @@ enum class boneFlags_t
 	BONE_ANIM_BLEND				= 0x0080,
 	BONE_ANIM_TOTAL				= ( BONE_ANIM_OVERRIDE | BONE_ANIM_OVERRIDE_LOOP | BONE_ANIM_OVERRIDE_FREEZE | BONE_ANIM_BLEND)
 };
-using enum boneFlags_t;
 template <> inline constexpr bool enableEnumFlags<boneFlags_t> = true;
 
 

@@ -460,7 +460,7 @@ static bool CL_G2API_GetBoneFrame( void *ghoul2, const char *boneName, const int
 	if ( !ghoul2 ) return false;
 	CGhoul2Info_v &g2 = *((CGhoul2Info_v *)ghoul2);
 	int iDontCare1 = 0, iDontCare2 = 0;
-	boneFlags_t iDontCare3 = BONE_NONE;
+	boneFlags_t iDontCare3 = boneFlags_t::BONE_NONE;
 	float fDontCare1 = 0;
 
 	return re->G2API_GetBoneAnim(g2, modelIndex, boneName, currentTime, currentFrame, &iDontCare1, &iDontCare2, &iDontCare3, &fDontCare1, modelList);
@@ -724,15 +724,15 @@ static void CL_G2API_GetSurfaceName( void *ghoul2, int surfNumber, int modelInde
 
 static void CL_Key_SetCatcher( keyCatchFlags_t catcher ) {
 	// Don't allow the cgame module to close the console
-	Key_SetCatcher( catcher | ( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) );
+	Key_SetCatcher( catcher | ( Key_GetCatcher( ) & keyCatchFlags_t::KEYCATCH_CONSOLE ) );
 }
 
 static void CGVM_Cvar_Set( const char *var_name, const char *value ) {
-	Cvar_VM_Set( var_name, value, VM_CGAME );
+	Cvar_VM_Set( var_name, value, vmSlots_t::VM_CGAME );
 }
 
 static void CGVM_Cmd_RemoveCommand( const char *cmd_name ) {
-	Cmd_VM_RemoveCommand( cmd_name, VM_CGAME );
+	Cmd_VM_RemoveCommand( cmd_name, vmSlots_t::VM_CGAME );
 }
 
 // Stub function for old RMG system.
@@ -746,7 +746,7 @@ void CL_BindCGame( void ) {
 
 	memset( &cgi, 0, sizeof( cgi ) );
 
-	cgvm = VM_Create( VM_CGAME );
+	cgvm = VM_Create( vmSlots_t::VM_CGAME );
 	if ( cgvm ) {
 		cgi.Print								= Com_Printf;
 		cgi.Error								= Com_Error;
@@ -960,7 +960,7 @@ void CL_BindCGame( void ) {
 		if ( !ret ) {
 			//free VM?
 			cls.cgameStarted = false;
-			Com_Error( ERR_FATAL, "GetGameAPI failed on %s", dllName );
+			Com_Error( errorParm_t::ERR_FATAL, "GetGameAPI failed on %s", dllName );
 		}
 		cge = ret;
 
@@ -968,7 +968,7 @@ void CL_BindCGame( void ) {
 	}
 
 	cls.cgameStarted = false;
-	Com_Error( ERR_DROP, "VM_Create on cgame failed" );
+	Com_Error( errorParm_t::ERR_DROP, "VM_Create on cgame failed" );
 }
 
 void CL_UnbindCGame( void ) {

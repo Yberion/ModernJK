@@ -34,7 +34,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 extern bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, hitLocation_t *hitLoc, vec3_t point, vec3_t dir, vec3_t bladeDir, meansOfDeath_t mod );
 hitLocation_t G_GetHitLocFromTrace( trace_t *trace, meansOfDeath_t mod )
 {
-	hitLocation_t hitLoc = HL_NONE;
+	hitLocation_t hitLoc = hitLocation_t::HL_NONE;
 	for (int i=0; i < MAX_G2_COLLISIONS; i++)
 	{
 		if ( trace->G2CollisionMap[i].mEntityNum == -1 )
@@ -57,7 +57,7 @@ hitLocation_t G_GetHitLocFromTrace( trace_t *trace, meansOfDeath_t mod )
 static void WP_DisruptorMainFire( gentity_t *ent )
 //---------------------------------------------------------
 {
-	int			damage = weaponData[WP_DISRUPTOR].damage;
+	int			damage = weaponData[weapon_t::WP_DISRUPTOR].damage;
 	bool	render_impact = true;
 	vec3_t		start, end, spot;
 	trace_t		tr;
@@ -96,12 +96,12 @@ static void WP_DisruptorMainFire( gentity_t *ent )
 	int traces = 0;
 	while ( traces < 10 )
 	{//need to loop this in case we hit a Jedi who dodges the shot
-		gi.trace( &tr, start, nullptr, nullptr, end, ignore, MASK_SHOT, G2_RETURNONHIT, 0 );
+		gi.trace( &tr, start, nullptr, nullptr, end, ignore, MASK_SHOT, EG2_Collision::G2_RETURNONHIT, 0 );
 
 		traceEnt = &g_entities[tr.entityNum];
-		if ( traceEnt && traceEnt->s.weapon == WP_SABER )//&& traceEnt->NPC
+		if ( traceEnt && traceEnt->s.weapon == weapon_t::WP_SABER )//&& traceEnt->NPC
 		{//FIXME: need a more reliable way to know we hit a jedi?
-			if ( Jedi_DodgeEvasion( traceEnt, ent, &tr, HL_NONE ) )
+			if ( Jedi_DodgeEvasion( traceEnt, ent, &tr, hitLocation_t::HL_NONE ) )
 			{//act like we didn't even hit him
 				VectorCopy( tr.endpos, start );
 				ignore = tr.entityNum;
@@ -113,14 +113,14 @@ static void WP_DisruptorMainFire( gentity_t *ent )
 		break;
 	}
 
-	if ( Any( tr.surfaceFlags & SURF_NOIMPACT ) )
+	if ( Any( tr.surfaceFlags & surfaceFlags_t::SURF_NOIMPACT ) )
 	{
 		render_impact = false;
 	}
 
 	// always render a shot beam, doing this the old way because I don't much feel like overriding the effect.
-	tent = G_TempEntity( tr.endpos, EV_DISRUPTOR_MAIN_SHOT );
-	tent->svFlags |= SVF_BROADCAST;
+	tent = G_TempEntity( tr.endpos, entity_event_t::EV_DISRUPTOR_MAIN_SHOT );
+	tent->svFlags |= svFlags_t::SVF_BROADCAST;
 	VectorCopy( wpMuzzle, tent->s.origin2 );
 
 	if ( render_impact )
@@ -132,17 +132,17 @@ static void WP_DisruptorMainFire( gentity_t *ent )
 
 			if ( traceEnt->client && LogAccuracyHit( traceEnt, ent ))
 			{
-				ent->client->ps.persistant[PERS_ACCURACY_HITS]++;
+				ent->client->ps.persistant[persEnum_t::PERS_ACCURACY_HITS]++;
 			}
 
-			hitLocation_t hitLoc = G_GetHitLocFromTrace( &tr, MOD_DISRUPTOR );
-			if ( traceEnt && traceEnt->client && traceEnt->client->NPC_class == CLASS_GALAKMECH )
+			hitLocation_t hitLoc = G_GetHitLocFromTrace( &tr, meansOfDeath_t::MOD_DISRUPTOR );
+			if ( traceEnt && traceEnt->client && traceEnt->client->NPC_class == class_t::CLASS_GALAKMECH )
 			{//hehe
-				G_Damage( traceEnt, ent, ent, wpFwd, tr.endpos, 3, DAMAGE_DEATH_KNOCKBACK, MOD_DISRUPTOR, hitLoc );
+				G_Damage( traceEnt, ent, ent, wpFwd, tr.endpos, 3, damageFlags_t::DAMAGE_DEATH_KNOCKBACK, meansOfDeath_t::MOD_DISRUPTOR, hitLoc );
 			}
 			else
 			{
-				G_Damage( traceEnt, ent, ent, wpFwd, tr.endpos, damage, DAMAGE_DEATH_KNOCKBACK, MOD_DISRUPTOR, hitLoc );
+				G_Damage( traceEnt, ent, ent, wpFwd, tr.endpos, damage, damageFlags_t::DAMAGE_DEATH_KNOCKBACK, meansOfDeath_t::MOD_DISRUPTOR, hitLoc );
 			}
 		}
 		else
@@ -157,17 +157,17 @@ static void WP_DisruptorMainFire( gentity_t *ent )
 	{
 		//FIXME: on a really long shot, this could make a LOT of alerts in one frame...
 		VectorMA( start, dist, wpFwd, spot );
-		AddSightEvent( ent, spot, 256, AEL_DISCOVERED, 50 );
+		AddSightEvent( ent, spot, 256, alertEventLevel_e::AEL_DISCOVERED, 50 );
 	}
 	VectorMA( start, shotDist-4, wpFwd, spot );
-	AddSightEvent( ent, spot, 256, AEL_DISCOVERED, 50 );
+	AddSightEvent( ent, spot, 256, alertEventLevel_e::AEL_DISCOVERED, 50 );
 }
 
 //---------------------------------------------------------
 void WP_DisruptorAltFire( gentity_t *ent )
 //---------------------------------------------------------
 {
-	int			damage = weaponData[WP_DISRUPTOR].altDamage, skip, traces = DISRUPTOR_ALT_TRACES;
+	int			damage = weaponData[weapon_t::WP_DISRUPTOR].altDamage, skip, traces = DISRUPTOR_ALT_TRACES;
 	bool	render_impact = true;
 	vec3_t		start, end;
 	vec3_t		muzzle2, spot, dir;
@@ -227,7 +227,7 @@ void WP_DisruptorAltFire( gentity_t *ent )
 		}
 		//else do full traces
 
-		damage = damage * count + weaponData[WP_DISRUPTOR].damage * 0.5f; // give a boost to low charge shots
+		damage = damage * count + weaponData[weapon_t::WP_DISRUPTOR].damage * 0.5f; // give a boost to low charge shots
 	}
 
 	skip = ent->s.number;
@@ -244,9 +244,9 @@ void WP_DisruptorAltFire( gentity_t *ent )
 
 		//NOTE: if you want to be able to hit guys in emplaced guns, use "G2_COLLIDE, 10" instead of "G2_RETURNONHIT, 0"
 		//alternately, if you end up hitting an emplaced_gun that has a sitter, just redo this one trace with the "G2_COLLIDE, 10" to see if we it the sitter
-		gi.trace( &tr, start, nullptr, nullptr, end, skip, MASK_SHOT, G2_COLLIDE, 10 );//G2_RETURNONHIT, 0 );
+		gi.trace( &tr, start, nullptr, nullptr, end, skip, MASK_SHOT, EG2_Collision::G2_COLLIDE, 10 );//EG2_Collision::G2_RETURNONHIT, 0 );
 
-		if ( Any( tr.surfaceFlags & SURF_NOIMPACT ) )
+		if ( Any( tr.surfaceFlags & surfaceFlags_t::SURF_NOIMPACT ) )
 		{
 			render_impact = false;
 		}
@@ -265,8 +265,8 @@ void WP_DisruptorAltFire( gentity_t *ent )
 		}
 
 		// always render a shot beam, doing this the old way because I don't much feel like overriding the effect.
-		tent = G_TempEntity( tr.endpos, EV_DISRUPTOR_SNIPER_SHOT );
-		tent->svFlags |= SVF_BROADCAST;
+		tent = G_TempEntity( tr.endpos, entity_event_t::EV_DISRUPTOR_SNIPER_SHOT );
+		tent->svFlags |= svFlags_t::SVF_BROADCAST;
 		tent->alt_fire = fullCharge; // mark us so we can alter the effect
 
 		VectorCopy( muzzle2, tent->s.origin2 );
@@ -279,9 +279,9 @@ void WP_DisruptorAltFire( gentity_t *ent )
 
 		traceEnt = &g_entities[tr.entityNum];
 
-		if ( traceEnt && traceEnt->s.weapon == WP_SABER )//&& traceEnt->NPC
+		if ( traceEnt && traceEnt->s.weapon == weapon_t::WP_SABER )//&& traceEnt->NPC
 		{//FIXME: need a more reliable way to know we hit a jedi?
-			hitDodged = Jedi_DodgeEvasion( traceEnt, ent, &tr, HL_NONE );
+			hitDodged = Jedi_DodgeEvasion( traceEnt, ent, &tr, hitLocation_t::HL_NONE );
 			//acts like we didn't even hit him
 		}
 		if ( !hitDodged )
@@ -289,29 +289,29 @@ void WP_DisruptorAltFire( gentity_t *ent )
 			if ( render_impact )
 			{
 				if (( tr.entityNum < ENTITYNUM_WORLD && traceEnt->takedamage ) || !Q_stricmp( traceEnt->classname, "misc_model_breakable" )
-					|| traceEnt->s.eType == ET_MOVER )
+					|| traceEnt->s.eType == entityType_t::ET_MOVER )
 				{
 					// Create a simple impact type mark that doesn't last long in the world
 					G_PlayEffect( G_EffectIndex( "disruptor/alt_hit" ), tr.endpos, tr.plane.normal );
 
 					if ( traceEnt->client && LogAccuracyHit( traceEnt, ent ))
 					{//NOTE: hitting multiple ents can still get you over 100% accuracy
-						ent->client->ps.persistant[PERS_ACCURACY_HITS]++;
+						ent->client->ps.persistant[persEnum_t::PERS_ACCURACY_HITS]++;
 					}
 
-					hitLocation_t hitLoc = G_GetHitLocFromTrace( &tr, MOD_DISRUPTOR );
-					if ( traceEnt && traceEnt->client && traceEnt->client->NPC_class == CLASS_GALAKMECH )
+					hitLocation_t hitLoc = G_GetHitLocFromTrace( &tr, meansOfDeath_t::MOD_DISRUPTOR );
+					if ( traceEnt && traceEnt->client && traceEnt->client->NPC_class == class_t::CLASS_GALAKMECH )
 					{//hehe
-						G_Damage( traceEnt, ent, ent, wpFwd, tr.endpos, 10, DAMAGE_NO_KNOCKBACK|DAMAGE_NO_HIT_LOC, fullCharge ? MOD_SNIPER : MOD_DISRUPTOR, hitLoc );
+						G_Damage( traceEnt, ent, ent, wpFwd, tr.endpos, 10, damageFlags_t::DAMAGE_NO_KNOCKBACK|damageFlags_t::DAMAGE_NO_HIT_LOC, fullCharge ? meansOfDeath_t::MOD_SNIPER : meansOfDeath_t::MOD_DISRUPTOR, hitLoc );
 						break;
 					}
-					G_Damage( traceEnt, ent, ent, wpFwd, tr.endpos, damage, DAMAGE_NO_KNOCKBACK|DAMAGE_NO_HIT_LOC, fullCharge ? MOD_SNIPER : MOD_DISRUPTOR, hitLoc );
+					G_Damage( traceEnt, ent, ent, wpFwd, tr.endpos, damage, damageFlags_t::DAMAGE_NO_KNOCKBACK|damageFlags_t::DAMAGE_NO_HIT_LOC, fullCharge ? meansOfDeath_t::MOD_SNIPER : meansOfDeath_t::MOD_DISRUPTOR, hitLoc );
 				}
 				else
 				{
 					 // we only make this mark on things that can't break or move
-					tent = G_TempEntity( tr.endpos, EV_DISRUPTOR_SNIPER_MISS );
-					tent->svFlags |= SVF_BROADCAST;
+					tent = G_TempEntity( tr.endpos, entity_event_t::EV_DISRUPTOR_SNIPER_MISS );
+					tent->svFlags |= svFlags_t::SVF_BROADCAST;
 					VectorCopy( tr.plane.normal, tent->pos1 );
 					break; // hit solid, but doesn't take damage, so stop the shot...we _could_ allow it to shoot through walls, might be cool?
 				}
@@ -338,11 +338,11 @@ void WP_DisruptorAltFire( gentity_t *ent )
 	{
 		//FIXME: on a really long shot, this could make a LOT of alerts in one frame...
 		VectorMA( wpMuzzle, dist, dir, spot );
-		AddSightEvent( ent, spot, 256, AEL_DISCOVERED, 50 );
+		AddSightEvent( ent, spot, 256, alertEventLevel_e::AEL_DISCOVERED, 50 );
 	}
 	//FIXME: spawn a temp ent that continuously spawns sight alerts here?  And 1 sound alert to draw their attention?
 	VectorMA( start, shotDist-4, wpFwd, spot );
-	AddSightEvent( ent, spot, 256, AEL_DISCOVERED, 50 );
+	AddSightEvent( ent, spot, 256, alertEventLevel_e::AEL_DISCOVERED, 50 );
 }
 
 //---------------------------------------------------------

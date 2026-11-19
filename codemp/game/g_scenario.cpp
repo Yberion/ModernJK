@@ -31,7 +31,6 @@ enum class scenarioType_t {
 	SCN_FORCE,
 	SCN_WEAPON
 };
-using enum scenarioType_t;
 
 static struct {
 	scenarioType_t	type;
@@ -57,7 +56,7 @@ static const signed char scnDirs[8][2] = {
 };
 
 bool G_ScenarioControls( int clientNum ) {
-	return ( scn.type != SCN_NONE && ( clientNum == scn.client[0] || clientNum == scn.client[1] ) ) ? true : false;
+	return ( scn.type != scenarioType_t::SCN_NONE && ( clientNum == scn.client[0] || clientNum == scn.client[1] ) ) ? true : false;
 }
 
 // a place where the attacker stands on a spawn point and the defender on the floor in front of it
@@ -74,14 +73,14 @@ static bool G_ScenarioFindPlace( void ) {
 		VectorCopy( spot->s.origin, start );
 		start[2] += 9;
 		VectorMA( start, scn.dist + 32, fwd, front );
-		trap->Trace( &tr, start, mins, maxs, front, ENTITYNUM_NONE, MASK_SOLID, false, G2TRFLAG_NONE, 0 );
+		trap->Trace( &tr, start, mins, maxs, front, ENTITYNUM_NONE, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0 );
 		if ( tr.fraction < 1.0f || tr.startsolid || tr.allsolid ) {
 			continue;
 		}
 		VectorMA( start, scn.dist, fwd, front );
 		VectorCopy( front, below );
 		below[2] -= 48;
-		trap->Trace( &tr, front, mins, maxs, below, ENTITYNUM_NONE, MASK_SOLID, false, G2TRFLAG_NONE, 0 );
+		trap->Trace( &tr, front, mins, maxs, below, ENTITYNUM_NONE, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0 );
 		if ( tr.fraction >= 1.0f || tr.startsolid || tr.endpos[2] < start[2] - 24 ) {
 			continue;	// no floor at the attacker's height in front
 		}
@@ -93,7 +92,7 @@ static bool G_ScenarioFindPlace( void ) {
 				const gentity_t *m = &g_entities[e];
 				vec3_t center;
 
-				if ( !m->inuse || m->s.eType != ET_MOVER ) {
+				if ( !m->inuse || m->s.eType != entityType_t::ET_MOVER ) {
 					continue;
 				}
 				VectorAdd( m->r.absmin, m->r.absmax, center );
@@ -127,8 +126,8 @@ static void G_ScenarioSaberToHand( gentity_t *ent ) {
 	saberent->think = SaberUpdateSelf;
 	saberent->genericValue5 = 0;
 	saberent->nextthink = level.time;
-	saberent->r.svFlags |= SVF_NOCLIENT;
-	saberent->s.eFlags = EF_NODRAW;
+	saberent->r.svFlags |= svFlags_t::SVF_NOCLIENT;
+	saberent->s.eFlags = entityFlags_t::EF_NODRAW;
 	saberent->s.saberInFlight = false;
 	saberent->s.loopSound = 0;
 	saberent->s.loopIsSoundset = false;
@@ -144,7 +143,7 @@ static void G_ScenarioPlace( gentity_t *ent, const vec3_t origin, float yaw ) {
 	vec3_t angles = { 0, 0, 0 };
 	int i, j;
 
-	if ( ent->health <= 0 || client->ps.stats[STAT_HEALTH] <= 0 ) {
+	if ( ent->health <= 0 || client->ps.stats[statIndex_t::STAT_HEALTH] <= 0 ) {
 		ClientRespawn( ent );
 	}
 	G_ScenarioSaberToHand( ent );
@@ -156,25 +155,25 @@ static void G_ScenarioPlace( gentity_t *ent, const vec3_t origin, float yaw ) {
 			client->saber[i].blade[j].trail.lastTime = 0;
 		}
 	}
-	for ( forcePowers_t fp = FP_FIRST; fp < NUM_FORCE_POWERS; fp++ ) {
+	for ( forcePowers_t fp = forcePowers_t::FP_FIRST; fp < forcePowers_t::NUM_FORCE_POWERS; fp++ ) {
 		if ( client->ps.fd.forcePowersActive & Bit( fp ) ) {
 			WP_ForcePowerStop( ent, fp );
 		}
 		client->ps.fd.forcePowerDuration[fp] = 0;
 		client->ps.fd.forcePowerDebounce[fp] = 0;
 	}
-	ent->health = client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH] = 100;
-	client->ps.stats[STAT_ARMOR] = 0;
+	ent->health = client->ps.stats[statIndex_t::STAT_HEALTH] = client->ps.stats[statIndex_t::STAT_MAX_HEALTH] = 100;
+	client->ps.stats[statIndex_t::STAT_ARMOR] = 0;
 	client->ps.fd.forcePower = 100;
 	client->ps.fd.forcePowerRegenDebounceTime = level.time;
 	client->ps.fd.forceGripBeingGripped = 0;
 	client->ps.fd.forceRageRecoveryTime = 0;
-	client->ps.forceHandExtend = HANDEXTEND_NONE;
+	client->ps.forceHandExtend = forceHandAnims_t::HANDEXTEND_NONE;
 	client->ps.forceHandExtendTime = 0;
 	client->ps.weaponTime = 0;
-	client->ps.weaponstate = WEAPON_READY;
-	client->ps.saberBlocked = BLOCKED_NONE;
-	client->ps.saberMove = LS_READY;
+	client->ps.weaponstate = weaponstate_t::WEAPON_READY;
+	client->ps.saberBlocked = saberBlockedType_t::BLOCKED_NONE;
+	client->ps.saberMove = saberMoveName_t::LS_READY;
 	client->ps.saberHolstered = 0;
 	client->ps.legsTimer = client->ps.torsoTimer = 0;
 	client->ps.electrifyTime = 0;
@@ -182,11 +181,11 @@ static void G_ScenarioPlace( gentity_t *ent, const vec3_t origin, float yaw ) {
 	// PMF_BACKWARDS_RUN and movementDir change only with movement commands, so a still bot kept those of its last step
 	// in the free play: a backward one turns the legs of a pushed player the other way (BG_G2PlayerAngles), which moved
 	// the model points the missiles hit
-	client->ps.pm_flags &= ~( PMF_TIME_KNOCKBACK | PMF_TIME_WATERJUMP | PMF_BACKWARDS_RUN );
+	client->ps.pm_flags &= ~( pmoveFlags_t::PMF_TIME_KNOCKBACK | pmoveFlags_t::PMF_TIME_WATERJUMP | pmoveFlags_t::PMF_BACKWARDS_RUN );
 	client->ps.movementDir = 0;
 	client->ps.saberAttackWound = client->ps.saberIdleWound = 0;
 	client->invulnerableTimer = 0;
-	client->ps.eFlags &= ~EF_INVULNERABLE;
+	client->ps.eFlags &= ~entityFlags_t::EF_INVULNERABLE;
 	// powerups picked up in the free play before the scenario, and the pain sound timers (P_DamageFeedback), which a
 	// pain in the previous repetition or in the free play would carry into this one
 	client->ps.powerups = {};
@@ -201,7 +200,7 @@ static void G_ScenarioPlace( gentity_t *ent, const vec3_t origin, float yaw ) {
 	VectorClear( client->ps.velocity );
 	angles[YAW] = yaw;
 	SetClientViewAngle( ent, angles );
-	client->ps.eFlags ^= EF_TELEPORT_BIT;
+	client->ps.eFlags ^= entityFlags_t::EF_TELEPORT_BIT;
 	BG_PlayerStateToEntityState( &client->ps, &ent->s, true );
 	VectorCopy( client->ps.origin, ent->r.currentOrigin );
 	trap->LinkEntity( (sharedEntity_t *)ent );
@@ -210,37 +209,37 @@ static void G_ScenarioPlace( gentity_t *ent, const vec3_t origin, float yaw ) {
 static void G_ScenarioEquip( gentity_t *ent, bool attacker ) {
 	gclient_t *client = ent->client;
 
-	client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] = FORCE_LEVEL_3;
-	client->ps.fd.forcePowerLevel[FP_SABER_DEFENSE] = FORCE_LEVEL_3;
-	client->ps.fd.forcePowersKnown |= Bit( FP_SABER_OFFENSE ) | Bit( FP_SABER_DEFENSE );
-	if ( scn.type == SCN_FORCE && attacker ) {
-		client->ps.fd.forcePowerLevel[scn.power] = FORCE_LEVEL_3;
+	client->ps.fd.forcePowerLevel[forcePowers_t::FP_SABER_OFFENSE] = forcePowerLevels_t::FORCE_LEVEL_3;
+	client->ps.fd.forcePowerLevel[forcePowers_t::FP_SABER_DEFENSE] = forcePowerLevels_t::FORCE_LEVEL_3;
+	client->ps.fd.forcePowersKnown |= Bit( forcePowers_t::FP_SABER_OFFENSE ) | Bit( forcePowers_t::FP_SABER_DEFENSE );
+	if ( scn.type == scenarioType_t::SCN_FORCE && attacker ) {
+		client->ps.fd.forcePowerLevel[scn.power] = forcePowerLevels_t::FORCE_LEVEL_3;
 		client->ps.fd.forcePowersKnown |= Bit( scn.power );
-		client->ps.fd.forceSide = ( scn.power == FP_PROTECT || scn.power == FP_ABSORB ) ? FORCE_LIGHTSIDE : FORCE_DARKSIDE;
+		client->ps.fd.forceSide = ( scn.power == forcePowers_t::FP_PROTECT || scn.power == forcePowers_t::FP_ABSORB ) ? FORCE_LIGHTSIDE : FORCE_DARKSIDE;
 	}
 
-	if ( scn.type == SCN_WEAPON ) {
-		const weapon_t weapon = attacker ? scn.weapon : WP_MELEE;	// the defender cannot block with a saber
+	if ( scn.type == scenarioType_t::SCN_WEAPON ) {
+		const weapon_t weapon = attacker ? scn.weapon : weapon_t::WP_MELEE;	// the defender cannot block with a saber
 
-		client->ps.stats[STAT_WEAPONS] |= Bit( weapon );
+		client->ps.stats[statIndex_t::STAT_WEAPONS] |= Bit( weapon );
 		client->ps.ammo[weaponData[weapon].ammoIndex] = 999;
 		client->ps.weapon = weapon;
 		return;
 	}
 
-	client->ps.stats[STAT_WEAPONS] |= Bit( WP_SABER );
-	client->ps.weapon = WP_SABER;
-	if ( attacker && scn.type == SCN_SABER ) {
-		G_SetSaber( ent, 0, scn.style == SS_STAFF ? "dual_1" : "single_1", true );
-		G_SetSaber( ent, 1, scn.style == SS_DUAL ? "single_1" : "none", true );
+	client->ps.stats[statIndex_t::STAT_WEAPONS] |= Bit( weapon_t::WP_SABER );
+	client->ps.weapon = weapon_t::WP_SABER;
+	if ( attacker && scn.type == scenarioType_t::SCN_SABER ) {
+		G_SetSaber( ent, 0, scn.style == saber_styles_t::SS_STAFF ? "dual_1" : "single_1", true );
+		G_SetSaber( ent, 1, scn.style == saber_styles_t::SS_DUAL ? "single_1" : "none", true );
 		client->ps.fd.saberAnimLevel = client->ps.fd.saberAnimLevelBase = client->ps.fd.saberDrawAnimLevel = scn.style;
 		client->saberCycleQueue = scn.style;
 	}
 	else {
 		G_SetSaber( ent, 0, "single_1", true );
 		G_SetSaber( ent, 1, "none", true );
-		client->ps.fd.saberAnimLevel = client->ps.fd.saberAnimLevelBase = client->ps.fd.saberDrawAnimLevel = SS_MEDIUM;
-		client->saberCycleQueue = SS_MEDIUM;
+		client->ps.fd.saberAnimLevel = client->ps.fd.saberAnimLevelBase = client->ps.fd.saberDrawAnimLevel = saber_styles_t::SS_MEDIUM;
+		client->saberCycleQueue = saber_styles_t::SS_MEDIUM;
 	}
 }
 
@@ -249,7 +248,7 @@ void G_ScenarioFrame( void ) {
 	vec3_t fwd, front;
 	int seed, i;
 
-	if ( scn.type == SCN_NONE || scn.done ) {
+	if ( scn.type == scenarioType_t::SCN_NONE || scn.done ) {
 		return;
 	}
 	if ( scn.repStart && level.time < scn.repStart + SCN_REP_MSEC ) {
@@ -263,7 +262,7 @@ void G_ScenarioFrame( void ) {
 	}
 	if ( !g_entities[scn.client[0]].inuse || !g_entities[scn.client[1]].inuse ) {
 		trap->Print( "scenario stopped: a bot left\n" );
-		scn.type = SCN_NONE;
+		scn.type = scenarioType_t::SCN_NONE;
 		return;
 	}
 
@@ -286,7 +285,7 @@ void G_ScenarioFrame( void ) {
 		gclient_t *client = g_entities[scn.client[i]].client;
 
 		client->ps.torsoAnim = client->ps.legsAnim = WeaponReadyAnim[client->ps.weapon];
-		client->torsoAnimExecute = client->legsAnimExecute = ANIM_NONE;
+		client->torsoAnimExecute = client->legsAnimExecute = animNumber_t::ANIM_NONE;
 	}
 
 	scn.repStart = level.time;
@@ -309,7 +308,7 @@ void G_ScenarioFrame( void ) {
 			gentity_t *e = &g_entities[i];
 
 			if ( e->inuse && !e->neverFree &&
-				( e->freeAfterEvent || e->s.eType == ET_MISSILE || Any( e->flags & FL_DROPPED_ITEM ) ) ) {
+				( e->freeAfterEvent || e->s.eType == entityType_t::ET_MISSILE || Any( e->flags & gentityFlags_t::FL_DROPPED_ITEM ) ) ) {
 				G_FreeEntity( e );
 			}
 			if ( !e->inuse ) {
@@ -324,7 +323,7 @@ void G_ScenarioFrame( void ) {
 void G_ScenarioTrace( void ) {
 	int n;
 
-	if ( scn.type == SCN_NONE || scn.done || scn.rep < 1 || scn.rep > scn.traceReps ) {
+	if ( scn.type == scenarioType_t::SCN_NONE || scn.done || scn.rep < 1 || scn.rep > scn.traceReps ) {
 		return;
 	}
 	for ( n = 0; n < 2; n++ ) {
@@ -341,7 +340,7 @@ void G_ScenarioTrace( void ) {
 
 // every health loss of a client during the traced repetitions: the tick, the inflictor's position and the point hit
 void G_ScenarioDamageTrace( gentity_t *targ, gentity_t *inflictor, const vec3_t point, int take, meansOfDeath_t mod ) {
-	if ( scn.type == SCN_NONE || scn.done || scn.rep < 1 || scn.rep > scn.traceReps ) {
+	if ( scn.type == scenarioType_t::SCN_NONE || scn.done || scn.rep < 1 || scn.rep > scn.traceReps ) {
 		return;
 	}
 	trap->Print( "SCN %d %4d dmg tick%+d targ%d take%d mod%d surf%d@%+d inf%d p%.1f,%.1f,%.1f io%.1f,%.1f,%.1f\n", scn.rep,
@@ -376,39 +375,39 @@ bool G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd ) {
 	}
 
 	switch ( scn.type ) {
-	case SCN_SABER:
+	case scenarioType_t::SCN_SABER:
 		if ( phase < 100 && ( attacker || scn.counter ) ) {
 			const signed char *dir = scnDirs[( scn.rep + 7 ) % 8];	// repetition 1 in the first direction
 
-			ucmd->buttons = BUTTON_ATTACK;
+			ucmd->buttons = buttonFlags_t::BUTTON_ATTACK;
 			ucmd->forwardmove = dir[0];
 			ucmd->rightmove = attacker ? dir[1] : -dir[1];
 		}
 		break;
-	case SCN_FORCE:
+	case scenarioType_t::SCN_FORCE:
 		if ( !attacker ) {
 			break;
 		}
 		switch ( scn.power ) {
-		case FP_LIGHTNING:
-			if ( phase < 1000 ) ucmd->buttons = BUTTON_FORCE_LIGHTNING;
+		case forcePowers_t::FP_LIGHTNING:
+			if ( phase < 1000 ) ucmd->buttons = buttonFlags_t::BUTTON_FORCE_LIGHTNING;
 			break;
-		case FP_GRIP:
-			if ( phase < 1500 ) ucmd->buttons = BUTTON_FORCEGRIP;
+		case forcePowers_t::FP_GRIP:
+			if ( phase < 1500 ) ucmd->buttons = buttonFlags_t::BUTTON_FORCEGRIP;
 			break;
-		case FP_DRAIN:
-			if ( phase < 1000 ) ucmd->buttons = BUTTON_FORCE_DRAIN;
+		case forcePowers_t::FP_DRAIN:
+			if ( phase < 1000 ) ucmd->buttons = buttonFlags_t::BUTTON_FORCE_DRAIN;
 			break;
 		default:	// powers used on oneself: switched on once, held until the next reset
 			ucmd->forcesel = to_underlying( scn.power );
 			ent->client->ps.fd.forcePowerSelected = scn.power;
-			if ( phase < 50 ) ucmd->buttons = BUTTON_FORCEPOWER;
+			if ( phase < 50 ) ucmd->buttons = buttonFlags_t::BUTTON_FORCEPOWER;
 			break;
 		}
 		break;
-	case SCN_WEAPON:
+	case scenarioType_t::SCN_WEAPON:
 		if ( attacker && phase < 1000 ) {
-			ucmd->buttons = scn.alt ? BUTTON_ALT_ATTACK : BUTTON_ATTACK;
+			ucmd->buttons = scn.alt ? buttonFlags_t::BUTTON_ALT_ATTACK : buttonFlags_t::BUTTON_ATTACK;
 		}
 		break;
 	default:
@@ -433,7 +432,7 @@ void Svcmd_Scenario_f( void ) {
 
 	trap->Argv( 1, type, sizeof( type ) );
 	if ( !Q_stricmp( type, "off" ) || !type[0] ) {
-		scn.type = SCN_NONE;
+		scn.type = scenarioType_t::SCN_NONE;
 		return;
 	}
 	if ( !trap->Cvar_VariableIntegerValue( "sv_cheats" ) ) {
@@ -444,8 +443,8 @@ void Svcmd_Scenario_f( void ) {
 	memset( &scn, 0, sizeof( scn ) );
 	scn.rep = -1;	// the first reset starts the warm-up, repetition 0
 	for ( i = 0; i < MAX_CLIENTS && n < 2; i++ ) {
-		if ( g_entities[i].inuse && g_entities[i].client && Any( g_entities[i].r.svFlags & SVF_BOT )
-			&& g_entities[i].client->pers.connected == CON_CONNECTED ) {
+		if ( g_entities[i].inuse && g_entities[i].client && Any( g_entities[i].r.svFlags & svFlags_t::SVF_BOT )
+			&& g_entities[i].client->pers.connected == clientConnected_t::CON_CONNECTED ) {
 			scn.client[n++] = i;
 		}
 	}
@@ -457,10 +456,10 @@ void Svcmd_Scenario_f( void ) {
 	trap->Argv( 3, arg, sizeof( arg ) );
 	if ( !Q_stricmp( type, "saber" ) ) {
 		static const char *styles[] = { "fast", "medium", "strong", "dual", "staff" };
-		static const saber_styles_t styleValues[] = { SS_FAST, SS_MEDIUM, SS_STRONG, SS_DUAL, SS_STAFF };
+		static const saber_styles_t styleValues[] = { saber_styles_t::SS_FAST, saber_styles_t::SS_MEDIUM, saber_styles_t::SS_STRONG, saber_styles_t::SS_DUAL, saber_styles_t::SS_STAFF };
 		char mode[MAX_TOKEN_CHARS];
 
-		scn.style = SS_MEDIUM;
+		scn.style = saber_styles_t::SS_MEDIUM;
 		for ( i = 0; i < (int)ARRAY_LEN( styles ); i++ ) {
 			if ( !Q_stricmp( arg, styles[i] ) ) {
 				scn.style = styleValues[i];
@@ -469,30 +468,30 @@ void Svcmd_Scenario_f( void ) {
 		trap->Argv( 4, mode, sizeof( mode ) );
 		scn.counter = !Q_stricmp( mode, "attack" ) ? true : false;
 		scn.dist = (float)G_ScenarioArgInt( 5, 56 );
-		scn.type = SCN_SABER;
+		scn.type = scenarioType_t::SCN_SABER;
 	}
 	else if ( !Q_stricmp( type, "force" ) ) {
 		static const char *powers[] = { "lightning", "grip", "drain", "rage", "protect", "absorb" };
-		static const forcePowers_t powerValues[] = { FP_LIGHTNING, FP_GRIP, FP_DRAIN, FP_RAGE, FP_PROTECT, FP_ABSORB };
+		static const forcePowers_t powerValues[] = { forcePowers_t::FP_LIGHTNING, forcePowers_t::FP_GRIP, forcePowers_t::FP_DRAIN, forcePowers_t::FP_RAGE, forcePowers_t::FP_PROTECT, forcePowers_t::FP_ABSORB };
 
-		scn.power = FP_LIGHTNING;
+		scn.power = forcePowers_t::FP_LIGHTNING;
 		for ( i = 0; i < (int)ARRAY_LEN( powers ); i++ ) {
 			if ( !Q_stricmp( arg, powers[i] ) ) {
 				scn.power = powerValues[i];
 			}
 		}
 		scn.dist = (float)G_ScenarioArgInt( 4, 128 );
-		scn.type = SCN_FORCE;
+		scn.type = scenarioType_t::SCN_FORCE;
 	}
 	else if ( !Q_stricmp( type, "weapon" ) ) {
 		scn.weapon = static_cast<weapon_t>( atoi( arg ) );
-		if ( scn.weapon <= WP_NONE || scn.weapon >= WP_NUM_WEAPONS ) {
+		if ( scn.weapon <= weapon_t::WP_NONE || scn.weapon >= weapon_t::WP_NUM_WEAPONS ) {
 			trap->Print( "scenario: bad weapon number\n" );
 			return;
 		}
 		scn.alt = G_ScenarioArgInt( 4, 0 ) ? true : false;
 		scn.dist = (float)G_ScenarioArgInt( 5, 256 );
-		scn.type = SCN_WEAPON;
+		scn.type = scenarioType_t::SCN_WEAPON;
 	}
 	else {
 		trap->Print( "scenario: saber, force, weapon or off\n" );
@@ -500,7 +499,7 @@ void Svcmd_Scenario_f( void ) {
 	}
 	if ( !G_ScenarioFindPlace() ) {
 		trap->Print( "scenario: no open spawn point for a distance of %.0f\n", scn.dist );
-		scn.type = SCN_NONE;
+		scn.type = scenarioType_t::SCN_NONE;
 		return;
 	}
 	scn.traceReps = trap->Cvar_VariableIntegerValue( "scenario_trace" );

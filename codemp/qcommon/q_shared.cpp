@@ -516,7 +516,7 @@ void COM_MatchToken( const char **buf_p, const char *match ) {
 
 	token = COM_Parse( buf_p );
 	if ( strcmp( token, match ) ) {
-		Com_Error( ERR_DROP, "MatchToken: %s != %s", token, match );
+		Com_Error( errorParm_t::ERR_DROP, "MatchToken: %s != %s", token, match );
 	}
 }
 
@@ -754,7 +754,7 @@ const char *Info_ValueForKey( const char *s, const char *key ) {
 	}
 
 	if ( strlen( s ) >= BIG_INFO_STRING ) {
-		Com_Error( ERR_DROP, "Info_ValueForKey: oversize infostring" );
+		Com_Error( errorParm_t::ERR_DROP, "Info_ValueForKey: oversize infostring" );
 	}
 
 	valueindex ^= 1;
@@ -847,7 +847,7 @@ void Info_RemoveKey( char *s, const char *key ) {
 	char	value[MAX_INFO_VALUE] = {0};
 
 	if ( strlen( s ) >= MAX_INFO_STRING ) {
-		Com_Error( ERR_DROP, "Info_RemoveKey: oversize infostring" );
+		Com_Error( errorParm_t::ERR_DROP, "Info_RemoveKey: oversize infostring" );
 		return;
 	}
 
@@ -904,7 +904,7 @@ void Info_RemoveKey_Big( char *s, const char *key ) {
 	pkey[0] = value[0] = '\0';
 
 	if ( strlen( s ) >= BIG_INFO_STRING ) {
-		Com_Error( ERR_DROP, "Info_RemoveKey_Big: oversize infostring" );
+		Com_Error( errorParm_t::ERR_DROP, "Info_RemoveKey_Big: oversize infostring" );
 		return;
 	}
 
@@ -989,7 +989,7 @@ void Info_SetValueForKey( char *s, const char *key, const char *value ) {
 	const char* blacklist = "\\;\"";
 
 	if ( strlen( s ) >= MAX_INFO_STRING ) {
-		Com_Error( ERR_DROP, "Info_SetValueForKey: oversize infostring" );
+		Com_Error( errorParm_t::ERR_DROP, "Info_SetValueForKey: oversize infostring" );
 	}
 
 	for(; *blacklist; ++blacklist)
@@ -1030,7 +1030,7 @@ void Info_SetValueForKey_Big( char *s, const char *key, const char *value ) {
 	const char* blacklist = "\\;\"";
 
 	if ( strlen( s ) >= BIG_INFO_STRING ) {
-		Com_Error( ERR_DROP, "Info_SetValueForKey_Big: oversize infostring" );
+		Com_Error( errorParm_t::ERR_DROP, "Info_SetValueForKey_Big: oversize infostring" );
 	}
 
 	for(; *blacklist; ++blacklist)

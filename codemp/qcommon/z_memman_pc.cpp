@@ -30,7 +30,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #undef TAGDEF
 #endif
 #define TAGDEF(blah) #blah
-const static EnumArray<const char *, memtag, to_underlying( TAG_COUNT ) + 1> psTagStrings=	// +1 because TAG_COUNT will itself become a string here. Oh well.
+const static EnumArray<const char *, memtag, to_underlying( memtag::TAG_COUNT ) + 1> psTagStrings=	// +1 because TAG_COUNT will itself become a string here. Oh well.
 {
 	#include "qcommon/tags.h"
 };
@@ -80,8 +80,8 @@ typedef struct zoneStats_s
 	// I'm keeping these updated on the fly, since it's quicker for cache-pool
 	//	purposes rather than recalculating each time...
 	//
-	EnumArray<int, memtag, TAG_COUNT>	iSizesPerTag;
-	EnumArray<int, memtag, TAG_COUNT>	iCountsPerTag;
+	EnumArray<int, memtag, memtag::TAG_COUNT>	iSizesPerTag;
+	EnumArray<int, memtag, memtag::TAG_COUNT>	iCountsPerTag;
 
 } zoneStats_t;
 
@@ -113,20 +113,20 @@ void Z_Validate(void)
 		int& iAllocCount = mapAllocatedZones[pMemory];
 		if (iAllocCount <= 0)
 		{
-			Com_Error(ERR_FATAL, "Z_Validate(): Bad block allocation count!");
+			Com_Error(errorParm_t::ERR_FATAL, "Z_Validate(): Bad block allocation count!");
 			return;
 		}
 		#endif
 
 		if(pMemory->iMagic != ZONE_MAGIC)
 		{
-			Com_Error(ERR_FATAL, "Z_Validate(): Corrupt zone header!");
+			Com_Error(errorParm_t::ERR_FATAL, "Z_Validate(): Corrupt zone header!");
 			return;
 		}
 
 		if (ZoneTailFromHeader(pMemory)->iMagic != ZONE_MAGIC)
 		{
-			Com_Error(ERR_FATAL, "Z_Validate(): Corrupt zone tail!");
+			Com_Error(errorParm_t::ERR_FATAL, "Z_Validate(): Corrupt zone tail!");
 			return;
 		}
 
@@ -154,20 +154,20 @@ typedef struct StaticMem_s {
 #pragma pack(pop)
 
 StaticZeroMem_t gZeroMalloc  =
-	{ {ZONE_MAGIC, TAG_STATIC,0,nullptr,nullptr},{ZONE_MAGIC}};
+	{ {ZONE_MAGIC, memtag::TAG_STATIC,0,nullptr,nullptr},{ZONE_MAGIC}};
 StaticMem_t gEmptyString =
-	{ {ZONE_MAGIC, TAG_STATIC,2,nullptr,nullptr},{'\0','\0'},{ZONE_MAGIC}};
+	{ {ZONE_MAGIC, memtag::TAG_STATIC,2,nullptr,nullptr},{'\0','\0'},{ZONE_MAGIC}};
 StaticMem_t gNumberString[] = {
-	{ {ZONE_MAGIC, TAG_STATIC,2,nullptr,nullptr},{'0','\0'},{ZONE_MAGIC}},
-	{ {ZONE_MAGIC, TAG_STATIC,2,nullptr,nullptr},{'1','\0'},{ZONE_MAGIC}},
-	{ {ZONE_MAGIC, TAG_STATIC,2,nullptr,nullptr},{'2','\0'},{ZONE_MAGIC}},
-	{ {ZONE_MAGIC, TAG_STATIC,2,nullptr,nullptr},{'3','\0'},{ZONE_MAGIC}},
-	{ {ZONE_MAGIC, TAG_STATIC,2,nullptr,nullptr},{'4','\0'},{ZONE_MAGIC}},
-	{ {ZONE_MAGIC, TAG_STATIC,2,nullptr,nullptr},{'5','\0'},{ZONE_MAGIC}},
-	{ {ZONE_MAGIC, TAG_STATIC,2,nullptr,nullptr},{'6','\0'},{ZONE_MAGIC}},
-	{ {ZONE_MAGIC, TAG_STATIC,2,nullptr,nullptr},{'7','\0'},{ZONE_MAGIC}},
-	{ {ZONE_MAGIC, TAG_STATIC,2,nullptr,nullptr},{'8','\0'},{ZONE_MAGIC}},
-	{ {ZONE_MAGIC, TAG_STATIC,2,nullptr,nullptr},{'9','\0'},{ZONE_MAGIC}},
+	{ {ZONE_MAGIC, memtag::TAG_STATIC,2,nullptr,nullptr},{'0','\0'},{ZONE_MAGIC}},
+	{ {ZONE_MAGIC, memtag::TAG_STATIC,2,nullptr,nullptr},{'1','\0'},{ZONE_MAGIC}},
+	{ {ZONE_MAGIC, memtag::TAG_STATIC,2,nullptr,nullptr},{'2','\0'},{ZONE_MAGIC}},
+	{ {ZONE_MAGIC, memtag::TAG_STATIC,2,nullptr,nullptr},{'3','\0'},{ZONE_MAGIC}},
+	{ {ZONE_MAGIC, memtag::TAG_STATIC,2,nullptr,nullptr},{'4','\0'},{ZONE_MAGIC}},
+	{ {ZONE_MAGIC, memtag::TAG_STATIC,2,nullptr,nullptr},{'5','\0'},{ZONE_MAGIC}},
+	{ {ZONE_MAGIC, memtag::TAG_STATIC,2,nullptr,nullptr},{'6','\0'},{ZONE_MAGIC}},
+	{ {ZONE_MAGIC, memtag::TAG_STATIC,2,nullptr,nullptr},{'7','\0'},{ZONE_MAGIC}},
+	{ {ZONE_MAGIC, memtag::TAG_STATIC,2,nullptr,nullptr},{'8','\0'},{ZONE_MAGIC}},
+	{ {ZONE_MAGIC, memtag::TAG_STATIC,2,nullptr,nullptr},{'9','\0'},{ZONE_MAGIC}},
 };
 
 bool gbMemFreeupOccured = false;
@@ -277,7 +277,7 @@ void *Z_Malloc(int iSize, memtag_t eTag, bool bZeroit /* = false */, int iUnused
 
 			Com_Printf(S_COLOR_RED"Z_Malloc(): Failed to alloc %d bytes (TAG_%s) !!!!!\n", iSize, psTagStrings[eTag]);
 			Z_Details_f();
-			Com_Error(ERR_FATAL,"(Repeat): Z_Malloc(): Failed to alloc %d bytes (TAG_%s) !!!!!\n", iSize, psTagStrings[eTag]);
+			Com_Error(errorParm_t::ERR_FATAL,"(Repeat): Z_Malloc(): Failed to alloc %d bytes (TAG_%s) !!!!!\n", iSize, psTagStrings[eTag]);
 			return nullptr;
 		}
 	}
@@ -329,7 +329,7 @@ void Z_MorphMallocTag( void *pvAddress, memtag_t eDesiredTag )
 
 	if (pMemory->iMagic != ZONE_MAGIC)
 	{
-		Com_Error(ERR_FATAL, "Z_MorphMallocTag(): Not a valid zone header!");
+		Com_Error(errorParm_t::ERR_FATAL, "Z_MorphMallocTag(): Not a valid zone header!");
 		return;	// won't get here
 	}
 
@@ -354,7 +354,7 @@ void Z_MorphMallocTag( void *pvAddress, memtag_t eDesiredTag )
 
 static void Zone_FreeBlock(zoneHeader_t *pMemory)
 {
-	if (pMemory->eTag != TAG_STATIC)	// belt and braces, should never hit this though
+	if (pMemory->eTag != memtag::TAG_STATIC)	// belt and braces, should never hit this though
 	{
 		// Update stats...
 		//
@@ -383,7 +383,7 @@ static void Zone_FreeBlock(zoneHeader_t *pMemory)
 		int& iAllocCount = mapAllocatedZones[pMemory];
 		if (iAllocCount == 0)
 		{
-			Com_Error(ERR_FATAL, "Zone_FreeBlock(): Double-freeing block!");
+			Com_Error(errorParm_t::ERR_FATAL, "Zone_FreeBlock(): Double-freeing block!");
 			return;
 		}
 		iAllocCount--;
@@ -397,14 +397,14 @@ int Z_Size(void *pvAddress)
 {
 	zoneHeader_t *pMemory = ((zoneHeader_t *)pvAddress) - 1;
 
-	if (pMemory->eTag == TAG_STATIC)
+	if (pMemory->eTag == memtag::TAG_STATIC)
 	{
 		return 0;	// kind of
 	}
 
 	if (pMemory->iMagic != ZONE_MAGIC)
 	{
-		Com_Error(ERR_FATAL, "Z_Size(): Not a valid zone header!");
+		Com_Error(errorParm_t::ERR_FATAL, "Z_Size(): Not a valid zone header!");
 		return 0;	// won't get here
 	}
 
@@ -418,13 +418,13 @@ void Z_Free(void *pvAddress)
 {
 	if (pvAddress == nullptr)	// I've put this in as a safety measure because of some bits of #ifdef BSPC stuff	-Ste.
 	{
-		//Com_Error(ERR_FATAL, "Z_Free(): nullptr arg");
+		//Com_Error(errorParm_t::ERR_FATAL, "Z_Free(): nullptr arg");
 		return;
 	}
 
 	zoneHeader_t *pMemory = ((zoneHeader_t *)pvAddress) - 1;
 
-	if (pMemory->eTag == TAG_STATIC)
+	if (pMemory->eTag == memtag::TAG_STATIC)
 	{
 		return;
 	}
@@ -436,19 +436,19 @@ void Z_Free(void *pvAddress)
 	int& iAllocCount = mapAllocatedZones[pMemory];
 	if (iAllocCount <= 0)
 	{
-		Com_Error(ERR_FATAL, "Z_Free(): Block already-freed, or not allocated through Z_Malloc!");
+		Com_Error(errorParm_t::ERR_FATAL, "Z_Free(): Block already-freed, or not allocated through Z_Malloc!");
 		return;
 	}
 	#endif
 
 	if (pMemory->iMagic != ZONE_MAGIC)
 	{
-		Com_Error(ERR_FATAL, "Z_Free(): Corrupt zone header!");
+		Com_Error(errorParm_t::ERR_FATAL, "Z_Free(): Corrupt zone header!");
 		return;
 	}
 	if (ZoneTailFromHeader(pMemory)->iMagic != ZONE_MAGIC)
 	{
-		Com_Error(ERR_FATAL, "Z_Free(): Corrupt zone tail!");
+		Com_Error(errorParm_t::ERR_FATAL, "Z_Free(): Corrupt zone tail!");
 		return;
 	}
 
@@ -473,7 +473,7 @@ void Z_TagFree(memtag_t eTag)
 	while (pMemory)
 	{
 		zoneHeader_t *pNext = pMemory->pNext;
-		if ( (eTag == TAG_ALL) || (pMemory->eTag == eTag))
+		if ( (eTag == memtag::TAG_ALL) || (pMemory->eTag == eTag))
 		{
 			Zone_FreeBlock(pMemory);
 		}
@@ -491,7 +491,7 @@ void Z_TagFree(memtag_t eTag)
 
 
 void *S_Malloc( int iSize ) {
-	return Z_Malloc( iSize, TAG_SMALL );
+	return Z_Malloc( iSize, memtag::TAG_SMALL );
 }
 
 
@@ -504,13 +504,13 @@ static void Z_MemRecoverTest_f(void)
 	while (1)
 	{
 		int iThisMalloc = 5* (1024 * 1024);
-		Z_Malloc(iThisMalloc, TAG_SPECIAL_MEM_TEST, false);	// and lose, just to consume memory
+		Z_Malloc(iThisMalloc, memtag::TAG_SPECIAL_MEM_TEST, false);	// and lose, just to consume memory
 
 		if (gbMemFreeupOccured)
 			break;
 	}
 
-	Z_TagFree(TAG_SPECIAL_MEM_TEST);
+	Z_TagFree(memtag::TAG_SPECIAL_MEM_TEST);
 }
 #endif
 
@@ -539,7 +539,7 @@ static void Z_Details_f(void)
 	Com_Printf("---------------------------------------------------------------------------\n");
 	Com_Printf("%20s %9s\n","Zone Tag","Bytes");
 	Com_Printf("%20s %9s\n","--------","-----");
-	for (memtag i = TAG_ALL; i < TAG_COUNT; i++)
+	for (memtag i = memtag::TAG_ALL; i < memtag::TAG_COUNT; i++)
 	{
 		int iThisCount = TheZone.Stats.iCountsPerTag[i];
 		int iThisSize  = TheZone.Stats.iSizesPerTag	[i];
@@ -576,7 +576,7 @@ void Com_ShutdownZoneMemory(void)
 	if(TheZone.Stats.iCount)
 	{
 		Com_Printf("Automatically freeing %d blocks making up %d bytes\n", TheZone.Stats.iCount, TheZone.Stats.iCurrent);
-		Z_TagFree(TAG_ALL);
+		Z_TagFree(memtag::TAG_ALL);
 
 		assert(!TheZone.Stats.iCount);
 		assert(!TheZone.Stats.iCurrent);
@@ -593,9 +593,9 @@ void Com_InitZoneMemory( void )
 
 void Com_InitZoneMemoryVars( void ) {
 	//#ifdef _DEBUG
-//	com_validateZone = Cvar_Get("com_validateZone", "1", CVAR_NONE);
+//	com_validateZone = Cvar_Get("com_validateZone", "1", cvarFlags_t::CVAR_NONE);
 //#else
-	com_validateZone = Cvar_Get("com_validateZone", "0", CVAR_NONE);
+	com_validateZone = Cvar_Get("com_validateZone", "0", cvarFlags_t::CVAR_NONE);
 //#endif
 
 	Cmd_AddCommand("zone_stats", Z_Stats_f, "Prints out zone memory stats" );
@@ -660,7 +660,7 @@ void Com_TouchMemory( void ) {
 
 bool Com_TheHunkMarkHasBeenMade(void)
 {
-	if (hunk_tag == TAG_HUNK_MARK2)
+	if (hunk_tag == memtag::TAG_HUNK_MARK2)
 	{
 		return true;
 	}
@@ -673,15 +673,15 @@ Com_InitHunkMemory
 =================
 */
 void Com_InitHunkMemory( void ) {
-	hunk_tag = TAG_HUNK_MARK1;
+	hunk_tag = memtag::TAG_HUNK_MARK1;
 	Hunk_Clear();
 }
 
 void Com_ShutdownHunkMemory(void)
 {
 	//Er, ok. Clear it then I guess.
-	Z_TagFree(TAG_HUNK_MARK1);
-	Z_TagFree(TAG_HUNK_MARK2);
+	Z_TagFree(memtag::TAG_HUNK_MARK1);
+	Z_TagFree(memtag::TAG_HUNK_MARK2);
 }
 
 /*
@@ -690,7 +690,7 @@ Hunk_MemoryRemaining
 ====================
 */
 int	Hunk_MemoryRemaining( void ) {
-	return (64*1024*1024) - (Z_MemSize(TAG_HUNK_MARK1)+Z_MemSize(TAG_HUNK_MARK2));	//Yeah. Whatever. We've got no size now.
+	return (64*1024*1024) - (Z_MemSize(memtag::TAG_HUNK_MARK1)+Z_MemSize(memtag::TAG_HUNK_MARK2));	//Yeah. Whatever. We've got no size now.
 }
 
 /*
@@ -701,7 +701,7 @@ The server calls this after the level and game VM have been loaded
 ===================
 */
 void Hunk_SetMark( void ) {
-	hunk_tag = TAG_HUNK_MARK2;
+	hunk_tag = memtag::TAG_HUNK_MARK2;
 }
 
 /*
@@ -712,8 +712,8 @@ The client calls this before starting a vid_restart or snd_restart
 =================
 */
 void Hunk_ClearToMark( void ) {
-	assert(hunk_tag == TAG_HUNK_MARK2); //if this is not true then no mark has been made
-	Z_TagFree(TAG_HUNK_MARK2);
+	assert(hunk_tag == memtag::TAG_HUNK_MARK2); //if this is not true then no mark has been made
+	Z_TagFree(memtag::TAG_HUNK_MARK2);
 }
 
 /*
@@ -723,7 +723,7 @@ Hunk_CheckMark
 */
 bool Hunk_CheckMark( void ) {
 	//if( hunk_low.mark || hunk_high.mark ) {
-	if (hunk_tag != TAG_HUNK_MARK1)
+	if (hunk_tag != memtag::TAG_HUNK_MARK1)
 	{
 		return true;
 	}
@@ -758,9 +758,9 @@ void Hunk_Clear( void ) {
 	CIN_CloseAllVideos();
 #endif
 
-	hunk_tag = TAG_HUNK_MARK1;
-	Z_TagFree(TAG_HUNK_MARK1);
-	Z_TagFree(TAG_HUNK_MARK2);
+	hunk_tag = memtag::TAG_HUNK_MARK1;
+	Z_TagFree(memtag::TAG_HUNK_MARK1);
+	Z_TagFree(memtag::TAG_HUNK_MARK2);
 
 	if ( re && re->HunkClearCrap ) {
 		re->HunkClearCrap();
@@ -802,7 +802,7 @@ When the files-in-use count reaches zero, all temp memory will be deleted
 */
 void *Hunk_AllocateTempMemory( int size ) {
 	// don't bother clearing, because we are going to load a file over it
-	return Z_Malloc(size, TAG_TEMP_HUNKALLOC, false);
+	return Z_Malloc(size, memtag::TAG_TEMP_HUNKALLOC, false);
 }
 
 
@@ -827,5 +827,5 @@ permanent allocs use this side.
 =================
 */
 void Hunk_ClearTempMemory( void ) {
-	Z_TagFree(TAG_TEMP_HUNKALLOC);
+	Z_TagFree(memtag::TAG_TEMP_HUNKALLOC);
 }

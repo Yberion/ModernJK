@@ -316,7 +316,7 @@ typedef struct dheader_s {
 	int			ident;
 	int			version;
 
-	EnumArray<lump_t, bspLump_t, HEADER_LUMPS>	lumps;
+	EnumArray<lump_t, bspLump_t, bspLump_t::HEADER_LUMPS>	lumps;
 } dheader_t;
 static_assert( sizeof( dheader_t ) == 152 );	// the file's header: its identifier, its version and 18 lumps
 
@@ -414,7 +414,6 @@ enum class mapSurfaceType_t {
 	MST_TRIANGLE_SOUP,
 	MST_FLARE
 };
-using enum mapSurfaceType_t;
 
 typedef struct dsurface_s {
 	int			shaderNum;

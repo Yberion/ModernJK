@@ -47,14 +47,14 @@ void Vehicle_SetAnim(gentity_t *ent,setAnimParts_t setAnimParts,animNumber_t ani
 
 void G_VehicleTrace( trace_t *results, const vec3_t start, const vec3_t tMins, const vec3_t tMaxs, const vec3_t end, int passEntityNum, contentsFlags_t contentmask )
 {
-	trap->Trace(results, start, tMins, tMaxs, end, passEntityNum, contentmask, false, G2TRFLAG_NONE, 0);
+	trap->Trace(results, start, tMins, tMaxs, end, passEntityNum, contentmask, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 }
 
 Vehicle_t *G_IsRidingVehicle( gentity_t *pEnt )
 {
 	gentity_t *ent = (gentity_t *)pEnt;
 
-	if ( ent && ent->client && ent->client->NPC_class != CLASS_VEHICLE && ent->s.m_iVehicleNum != 0 ) //ent->client && Any( ent->client->ps.eFlags & EF_IN_VEHICLE ) && ent->owner )
+	if ( ent && ent->client && ent->client->NPC_class != class_t::CLASS_VEHICLE && ent->s.m_iVehicleNum != 0 ) //ent->client && Any( ent->client->ps.eFlags & EF_IN_VEHICLE ) && ent->owner )
 	{
 		return g_entities[ent->s.m_iVehicleNum].m_pVehicle;
 	}
@@ -93,9 +93,9 @@ void G_VehicleSpawn( gentity_t *self )
 	}
 
 	vehEnt->s.angles[YAW] = yaw;
-	if ( vehEnt->m_pVehicle->m_pVehicleInfo->type != VH_ANIMAL )
+	if ( vehEnt->m_pVehicle->m_pVehicleInfo->type != vehicleType_t::VH_ANIMAL )
 	{
-		vehEnt->NPC->behaviorState = BS_CINEMATIC;
+		vehEnt->NPC->behaviorState = bState_t::BS_CINEMATIC;
 	}
 
 	if (vehEnt->spawnflags & 1)
@@ -138,7 +138,7 @@ void G_AttachToVehicle( gentity_t *pEnt, usercmd_t **ucmd )
 	trap->G2API_GetBoltMatrix( vehEnt->ghoul2, 0, crotchBolt, &boltMatrix,
 							vehEnt->m_pVehicle->m_vOrientation, vehEnt->r.currentOrigin,
 							level.time, nullptr, vehEnt->modelScale );
-	BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, ent->client->ps.origin );
+	BG_GiveMeVectorFromMatrix( &boltMatrix, orientations_t::ORIGIN, ent->client->ps.origin );
 	G_SetOrigin(ent, ent->client->ps.origin);
 	trap->LinkEntity( (sharedEntity_t *)ent );
 }
@@ -176,7 +176,7 @@ bool ValidateBoard( Vehicle_t *pVeh, bgEntity_t *pEnt )
 
 	if ( pVeh->m_pPilot != nullptr )
 	{//already have a driver!
-		if ( pVeh->m_pVehicleInfo->type == VH_FIGHTER )
+		if ( pVeh->m_pVehicleInfo->type == vehicleType_t::VH_FIGHTER )
 		{//I know, I know, this should by in the fighters's validateboard()
 			//can never steal a fighter from it's pilot
 			if ( pVeh->m_iNumPassengers < pVeh->m_pVehicleInfo->maxPassengers )
@@ -188,21 +188,21 @@ bool ValidateBoard( Vehicle_t *pVeh, bgEntity_t *pEnt )
 				return false;
 			}
 		}
-		else if ( pVeh->m_pVehicleInfo->type == VH_WALKER )
+		else if ( pVeh->m_pVehicleInfo->type == vehicleType_t::VH_WALKER )
 		{//I know, I know, this should by in the walker's validateboard()
 			if ( !ent->client || ent->client->ps.groundEntityNum != parent->s.number )
 			{//can only steal an occupied AT-ST if you're on top (by the hatch)
 				return false;
 			}
 		}
-		else if (pVeh->m_pVehicleInfo->type == VH_SPEEDER)
+		else if (pVeh->m_pVehicleInfo->type == vehicleType_t::VH_SPEEDER)
 		{//you can only steal the bike from the driver if you landed on the driver or bike
 			return (pVeh->m_iBoarding==VEH_MOUNT_THROW_LEFT || pVeh->m_iBoarding==VEH_MOUNT_THROW_RIGHT);
 		}
 	}
 	// Yes, you shouldn't have put this here (you 'should' have made an 'overriden' ValidateBoard func), but in this
 	// instance it's more than adequate (which is why I do it too :-). Making a whole other function for this is silly.
-	else if ( pVeh->m_pVehicleInfo->type == VH_FIGHTER )
+	else if ( pVeh->m_pVehicleInfo->type == vehicleType_t::VH_FIGHTER )
 	{
 		// If you're a fighter, you allow everyone to enter you from all directions.
 		return true;
@@ -295,7 +295,7 @@ bool Board( Vehicle_t *pVeh, bgEntity_t *pEnt )
 		return false;
 
 	// Bucking so we can't do anything (NOTE: Should probably be a better name since fighters don't buck...).
-	if ( Any( pVeh->m_ulFlags & VEH_BUCKING ) )
+	if ( Any( pVeh->m_ulFlags & vehFlags_t::VEH_BUCKING ) )
 		return false;
 
 	// Validate the entity's ability to board this vehicle.
@@ -360,8 +360,8 @@ bool Board( Vehicle_t *pVeh, bgEntity_t *pEnt )
 			if ( (gParent->spawnflags&2) )
 			{//was being suspended
 				gParent->spawnflags &= ~2;//SUSPENDED - clear this spawnflag, no longer docked, okay to free-fall if not in space
-				//gParent->client->ps.eFlags &= ~EF_RADAROBJECT;
-				G_Sound( gParent, CHAN_AUTO, G_SoundIndex( "sound/vehicles/common/release.wav" ) );
+				//gParent->client->ps.eFlags &= ~entityFlags_t::EF_RADAROBJECT;
+				G_Sound( gParent, soundChannel_t::CHAN_AUTO, G_SoundIndex( "sound/vehicles/common/release.wav" ) );
 				if ( gParent->fly_sound_debounce_time )
 				{//we should drop like a rock for a few seconds
 					pVeh->m_iDropTime = level.time + gParent->fly_sound_debounce_time;
@@ -455,11 +455,11 @@ bool Board( Vehicle_t *pVeh, bgEntity_t *pEnt )
 	// Play the start sounds
 	if ( pVeh->m_pVehicleInfo->soundOn )
 	{
-		G_Sound( parent, CHAN_AUTO, pVeh->m_pVehicleInfo->soundOn );
+		G_Sound( parent, soundChannel_t::CHAN_AUTO, pVeh->m_pVehicleInfo->soundOn );
 	}
 
 #ifdef VEH_CONTROL_SCHEME_4
-	if ( pVeh->m_pVehicleInfo->type == VH_FIGHTER )
+	if ( pVeh->m_pVehicleInfo->type == vehicleType_t::VH_FIGHTER )
 	{//clear their angles
 		FighterStorePilotViewAngles( pVeh, (bgEntity_t *)parent );
 	}
@@ -491,38 +491,38 @@ bool VEH_TryEject( Vehicle_t *pVeh,
 	switch ( ejectDir )
 	{
 		// Left.
-		case VEH_EJECT_LEFT:
+		case vehEject_t::VEH_EJECT_LEFT:
 			AngleVectors( vVehAngles, nullptr, vVehLeaveDir, nullptr );
 			vVehLeaveDir[0] = -vVehLeaveDir[0];
 			vVehLeaveDir[1] = -vVehLeaveDir[1];
 			vVehLeaveDir[2] = -vVehLeaveDir[2];
 			break;
 		// Right.
-		case VEH_EJECT_RIGHT:
+		case vehEject_t::VEH_EJECT_RIGHT:
 			AngleVectors( vVehAngles, nullptr, vVehLeaveDir, nullptr );
 			break;
 		// Front.
-		case VEH_EJECT_FRONT:
+		case vehEject_t::VEH_EJECT_FRONT:
 			AngleVectors( vVehAngles, vVehLeaveDir, nullptr, nullptr );
 			break;
 		// Rear.
-		case VEH_EJECT_REAR:
+		case vehEject_t::VEH_EJECT_REAR:
 			AngleVectors( vVehAngles, vVehLeaveDir, nullptr, nullptr );
 			vVehLeaveDir[0] = -vVehLeaveDir[0];
 			vVehLeaveDir[1] = -vVehLeaveDir[1];
 			vVehLeaveDir[2] = -vVehLeaveDir[2];
 			break;
 		// Top.
-		case VEH_EJECT_TOP:
+		case vehEject_t::VEH_EJECT_TOP:
 			AngleVectors( vVehAngles, nullptr, nullptr, vVehLeaveDir );
 			break;
 		// Bottom?.
-		case VEH_EJECT_BOTTOM:
+		case vehEject_t::VEH_EJECT_BOTTOM:
 			break;
 	}
 	VectorNormalize( vVehLeaveDir );
 	//NOTE: not sure why following line was needed - MCG
-	//pVeh->m_EjectDir = VEH_EJECT_LEFT;
+	//pVeh->m_EjectDir = vehEject_t::VEH_EJECT_LEFT;
 
 	// Since (as of this time) the collidable geometry of the entity is just an axis
 	// aligned box, we need to get the diagonal length of it in case we come out on that side.
@@ -531,7 +531,7 @@ bool VEH_TryEject( Vehicle_t *pVeh,
 	// TODO: DO diagonal for entity.
 
 	fBias = 1.0f;
-	if (pVeh->m_pVehicleInfo->type == VH_WALKER)
+	if (pVeh->m_pVehicleInfo->type == vehicleType_t::VH_WALKER)
 	{ //hacktastic!
 		fBias += 0.2f;
 	}
@@ -584,7 +584,7 @@ void G_EjectDroidUnit( Vehicle_t *pVeh, bool kill )
 #ifdef _GAME
 	{
 		gentity_t *droidEnt = (gentity_t *)pVeh->m_pDroidUnit;
-		droidEnt->flags &= ~FL_UNDYING;
+		droidEnt->flags &= ~gentityFlags_t::FL_UNDYING;
 		droidEnt->r.ownerNum = ENTITYNUM_NONE;
 		if ( droidEnt->client )
 		{
@@ -593,8 +593,8 @@ void G_EjectDroidUnit( Vehicle_t *pVeh, bool kill )
 		if ( kill )
 		{//Kill them, too
 			//FIXME: proper origin, MOD and attacker (for credit/death message)?  Get from vehicle?
-			G_MuteSound(droidEnt->s.number, CHAN_VOICE);
-			G_Damage( droidEnt, nullptr, nullptr, nullptr, droidEnt->s.origin, 10000, DAMAGE_NORMAL, MOD_SUICIDE );//FIXME: proper MOD?  Get from vehicle?
+			G_MuteSound(droidEnt->s.number, soundChannel_t::CHAN_VOICE);
+			G_Damage( droidEnt, nullptr, nullptr, nullptr, droidEnt->s.origin, 10000, damageFlags_t::DAMAGE_NORMAL, meansOfDeath_t::MOD_SUICIDE );//FIXME: proper MOD?  Get from vehicle?
 		}
 	}
 #endif
@@ -620,7 +620,7 @@ bool Eject( Vehicle_t *pVeh, bgEntity_t *pEnt, bool forceEject )
 
 	if (ent)
 	{
-		if (!ent->inuse || !ent->client || ent->client->pers.connected != CON_CONNECTED)
+		if (!ent->inuse || !ent->client || ent->client->pers.connected != clientConnected_t::CON_CONNECTED)
 		{
 			taintedRider = true;
 			parent = (gentity_t *)pVeh->m_pParentEntity;
@@ -650,21 +650,21 @@ bool Eject( Vehicle_t *pVeh, bgEntity_t *pEnt, bool forceEject )
 	parent = (gentity_t *)pVeh->m_pParentEntity;
 
 	//Try ejecting in every direction
-	if ( pVeh->m_EjectDir < VEH_EJECT_LEFT )
+	if ( pVeh->m_EjectDir < vehEject_t::VEH_EJECT_LEFT )
 	{
-		pVeh->m_EjectDir = VEH_EJECT_LEFT;
+		pVeh->m_EjectDir = vehEject_t::VEH_EJECT_LEFT;
 	}
-	else if ( pVeh->m_EjectDir > VEH_EJECT_BOTTOM )
+	else if ( pVeh->m_EjectDir > vehEject_t::VEH_EJECT_BOTTOM )
 	{
-		pVeh->m_EjectDir = VEH_EJECT_BOTTOM;
+		pVeh->m_EjectDir = vehEject_t::VEH_EJECT_BOTTOM;
 	}
 	firstEjectDir = pVeh->m_EjectDir;
 	while ( !VEH_TryEject( pVeh, parent, ent, pVeh->m_EjectDir, vExitPos ) )
 	{
 		pVeh->m_EjectDir++;
-		if ( pVeh->m_EjectDir > VEH_EJECT_BOTTOM )
+		if ( pVeh->m_EjectDir > vehEject_t::VEH_EJECT_BOTTOM )
 		{
-			pVeh->m_EjectDir = VEH_EJECT_LEFT;
+			pVeh->m_EjectDir = vehEject_t::VEH_EJECT_LEFT;
 		}
 		if ( pVeh->m_EjectDir == firstEjectDir )
 		{//they all failed
@@ -823,7 +823,7 @@ getItOutOfMe:
 	if (ent->client->solidHack)
 	{
 		ent->client->solidHack = 0;
-		ent->r.contents = CONTENTS_BODY;
+		ent->r.contents = contentsFlags_t::CONTENTS_BODY;
 	}
 	ent->s.m_iVehicleNum = 0;
 
@@ -840,30 +840,30 @@ getItOutOfMe:
 	// Make sure entity is facing the direction it got off at.
 
 	//if was using vehicle weapon, remove it and switch to normal weapon when hop out...
-	if ( ent->client->ps.weapon == WP_NONE )
+	if ( ent->client->ps.weapon == weapon_t::WP_NONE )
 	{//FIXME: check against this vehicle's gun from the g_vehicleInfo table
 		//remove the vehicle's weapon from me
-		//ent->client->ps.stats[STAT_WEAPONS] &= ~Bit( WP_EMPLACED_GUN );
-		//ent->client->ps.ammo[weaponData[WP_EMPLACED_GUN].ammoIndex] = 0;//maybe store this ammo on the vehicle before clearing it?
+		//ent->client->ps.stats[statIndex_t::STAT_WEAPONS] &= ~Bit( weapon_t::WP_EMPLACED_GUN );
+		//ent->client->ps.ammo[weaponData[weapon_t::WP_EMPLACED_GUN].ammoIndex] = 0;//maybe store this ammo on the vehicle before clearing it?
 		//switch back to a normal weapon we're carrying
 
 		//FIXME: store the weapon we were using when we got on and restore that when hop off
-/*		if ( (ent->client->ps.stats[STAT_WEAPONS]&Bit( WP_SABER )) )
+/*		if ( (ent->client->ps.stats[statIndex_t::STAT_WEAPONS]&Bit( weapon_t::WP_SABER )) )
 		{
-			CG_ChangeWeapon( WP_SABER );
+			CG_ChangeWeapon( weapon_t::WP_SABER );
 		}
 		else
 		{//go through all weapons and switch to highest held
-			for ( weapon_t checkWp = WP_NUM_WEAPONS-1; checkWp > WP_NONE; checkWp-- )
+			for ( weapon_t checkWp = weapon_t::WP_NUM_WEAPONS-1; checkWp > weapon_t::WP_NONE; checkWp-- )
 			{
-				if ( (ent->client->ps.stats[STAT_WEAPONS]&Bit( checkWp )) )
+				if ( (ent->client->ps.stats[statIndex_t::STAT_WEAPONS]&Bit( checkWp )) )
 				{
 					CG_ChangeWeapon( checkWp );
 				}
 			}
-			if ( checkWp == WP_NONE )
+			if ( checkWp == weapon_t::WP_NONE )
 			{
-				CG_ChangeWeapon( WP_NONE );
+				CG_ChangeWeapon( weapon_t::WP_NONE );
 			}
 		}*/
 	}
@@ -874,7 +874,7 @@ getItOutOfMe:
 		//NOTE: this is because you're only allowed to use your first saber's first blade on a vehicle
 	}
 
-/*	if ( !ent->s.number && ent->client->ps.weapon != WP_SABER
+/*	if ( !ent->s.number && ent->client->ps.weapon != weapon_t::WP_SABER
 		&& cg_gunAutoFirst.value )
 	{
 		trap->cvar_set( "cg_thirdperson", "0" );
@@ -893,7 +893,7 @@ bool EjectAll( Vehicle_t *pVeh )
 {
 	// TODO: Setup a default escape for ever vehicle type.
 
-	pVeh->m_EjectDir = VEH_EJECT_TOP;
+	pVeh->m_EjectDir = vehEject_t::VEH_EJECT_TOP;
 	// Make sure no other boarding calls exist. We MUST exit.
 	pVeh->m_iBoarding = 0;
 	pVeh->m_bWasBoarding = false;
@@ -909,8 +909,8 @@ bool EjectAll( Vehicle_t *pVeh )
 		if ( pVeh->m_pVehicleInfo->killRiderOnDeath && pilot )
 		{//Kill them, too
 			//FIXME: proper origin, MOD and attacker (for credit/death message)?  Get from vehicle?
-			G_MuteSound(pilot->s.number, CHAN_VOICE);
-			G_Damage( pilot, nullptr, nullptr, nullptr, pilot->s.origin, 10000, DAMAGE_NORMAL, MOD_SUICIDE );
+			G_MuteSound(pilot->s.number, soundChannel_t::CHAN_VOICE);
+			G_Damage( pilot, nullptr, nullptr, nullptr, pilot->s.origin, 10000, damageFlags_t::DAMAGE_NORMAL, meansOfDeath_t::MOD_SUICIDE );
 		}
 #endif
 	}
@@ -924,8 +924,8 @@ bool EjectAll( Vehicle_t *pVeh )
 		if ( pVeh->m_pVehicleInfo->killRiderOnDeath && pilot )
 		{//Kill them, too
 			//FIXME: proper origin, MOD and attacker (for credit/death message)?  Get from vehicle?
-			G_MuteSound(pilot->s.number, CHAN_VOICE);
-			G_Damage( pilot, nullptr, nullptr, nullptr, pilot->s.origin, 10000, DAMAGE_NORMAL, MOD_SUICIDE );
+			G_MuteSound(pilot->s.number, soundChannel_t::CHAN_VOICE);
+			G_Damage( pilot, nullptr, nullptr, nullptr, pilot->s.origin, 10000, damageFlags_t::DAMAGE_NORMAL, meansOfDeath_t::MOD_SUICIDE );
 		}
 #endif
 	}
@@ -945,8 +945,8 @@ bool EjectAll( Vehicle_t *pVeh )
 				if ( pVeh->m_pVehicleInfo->killRiderOnDeath && rider )
 				{//Kill them, too
 					//FIXME: proper origin, MOD and attacker (for credit/death message)?  Get from vehicle?
-					G_MuteSound(rider->s.number, CHAN_VOICE);
-					G_Damage( rider, nullptr, nullptr, nullptr, rider->s.origin, 10000, DAMAGE_NORMAL, MOD_SUICIDE );//FIXME: proper MOD?  Get from vehicle?
+					G_MuteSound(rider->s.number, soundChannel_t::CHAN_VOICE);
+					G_Damage( rider, nullptr, nullptr, nullptr, rider->s.origin, 10000, damageFlags_t::DAMAGE_NORMAL, meansOfDeath_t::MOD_SUICIDE );//FIXME: proper MOD?  Get from vehicle?
 				}
 #endif
 			}
@@ -1000,7 +1000,7 @@ static void DeathUpdate( Vehicle_t *pVeh )
 				{
 					//FIXME: does this give proper credit to the enemy who shot you down?
 					G_Damage((gentity_t *)pVeh->m_pPilot, (gentity_t *)pVeh->m_pParentEntity, (gentity_t *)pVeh->m_pParentEntity,
-						nullptr, pVeh->m_pParentEntity->playerState->origin, 999, DAMAGE_NO_PROTECTION, MOD_SUICIDE );
+						nullptr, pVeh->m_pParentEntity->playerState->origin, 999, damageFlags_t::DAMAGE_NO_PROTECTION, meansOfDeath_t::MOD_SUICIDE );
 				}
 				if ( pVeh->m_iNumPassengers )
 				{
@@ -1012,7 +1012,7 @@ static void DeathUpdate( Vehicle_t *pVeh )
 						{
 							//FIXME: does this give proper credit to the enemy who shot you down?
 							G_Damage((gentity_t *)pVeh->m_ppPassengers[i], (gentity_t *)pVeh->m_pParentEntity, (gentity_t *)pVeh->m_pParentEntity,
-								nullptr, pVeh->m_pParentEntity->playerState->origin, 999, DAMAGE_NO_PROTECTION, MOD_SUICIDE );
+								nullptr, pVeh->m_pParentEntity->playerState->origin, 999, damageFlags_t::DAMAGE_NO_PROTECTION, meansOfDeath_t::MOD_SUICIDE );
 						}
 					}
 				}
@@ -1034,7 +1034,7 @@ static void DeathUpdate( Vehicle_t *pVeh )
 				//trace down and place mark
 				VectorCopy( parent->r.currentOrigin, bottom );
 				bottom[2] -= 80;
-				G_VehicleTrace( &trace, parent->r.currentOrigin, vec3_origin, vec3_origin, bottom, parent->s.number, CONTENTS_SOLID );
+				G_VehicleTrace( &trace, parent->r.currentOrigin, vec3_origin, vec3_origin, bottom, parent->s.number, contentsFlags_t::CONTENTS_SOLID );
 				if ( trace.fraction < 1.0f )
 				{
 					VectorCopy( trace.endpos, bottom );
@@ -1052,8 +1052,8 @@ static void DeathUpdate( Vehicle_t *pVeh )
 				VectorCopy( parent->r.maxs, lMaxs );
 				VectorCopy( parent->r.currentOrigin, bottom );
 				bottom[2] += parent->r.mins[2] - 32;
-				G_VehicleTrace( &trace, parent->r.currentOrigin, lMins, lMaxs, bottom, parent->s.number, CONTENTS_SOLID );
-				G_RadiusDamage( trace.endpos, nullptr, pVeh->m_pVehicleInfo->explosionDamage, pVeh->m_pVehicleInfo->explosionRadius, nullptr, nullptr, MOD_SUICIDE );//FIXME: extern damage and radius or base on fuel
+				G_VehicleTrace( &trace, parent->r.currentOrigin, lMins, lMaxs, bottom, parent->s.number, contentsFlags_t::CONTENTS_SOLID );
+				G_RadiusDamage( trace.endpos, nullptr, pVeh->m_pVehicleInfo->explosionDamage, pVeh->m_pVehicleInfo->explosionRadius, nullptr, nullptr, meansOfDeath_t::MOD_SUICIDE );//FIXME: extern damage and radius or base on fuel
 			}
 
 			parent->think = G_FreeEntity;
@@ -1082,10 +1082,10 @@ bool Initialize( Vehicle_t *pVeh )
 	parent->s.m_iVehicleNum = 0;
 	{
 	pVeh->m_iArmor = pVeh->m_pVehicleInfo->armor;
-	parent->client->pers.maxHealth = parent->client->ps.stats[STAT_MAX_HEALTH] = parent->NPC->stats.health = parent->health = parent->client->ps.stats[STAT_HEALTH] = pVeh->m_iArmor;
+	parent->client->pers.maxHealth = parent->client->ps.stats[statIndex_t::STAT_MAX_HEALTH] = parent->NPC->stats.health = parent->health = parent->client->ps.stats[statIndex_t::STAT_HEALTH] = pVeh->m_iArmor;
 	pVeh->m_iShields = pVeh->m_pVehicleInfo->shields;
 	G_VehUpdateShields( parent );
-	parent->client->ps.stats[STAT_ARMOR] = pVeh->m_iShields;
+	parent->client->ps.stats[statIndex_t::STAT_ARMOR] = pVeh->m_iShields;
 	}
 	parent->mass = pVeh->m_pVehicleInfo->mass;
 	//initialize the ammo to max
@@ -1113,7 +1113,7 @@ bool Initialize( Vehicle_t *pVeh )
 	{//not normal gravity
 		if ( parent->NPC )
 		{
-			parent->NPC->aiFlags |= NPCAI_CUSTOM_GRAVITY;
+			parent->NPC->aiFlags |= npcAiFlags_t::NPCAI_CUSTOM_GRAVITY;
 		}
 		parent->client->ps.gravity = pVeh->m_pVehicleInfo->gravity;
 	}
@@ -1129,15 +1129,15 @@ bool Initialize( Vehicle_t *pVeh )
 
 	pVeh->m_iNumPassengers = 0;
 	/*
-	if ( pVeh->m_iVehicleTypeID == VH_FIGHTER )
+	if ( pVeh->m_iVehicleTypeID == vehicleType_t::VH_FIGHTER )
 	{
-		pVeh->m_ulFlags = VEH_GEARSOPEN;
+		pVeh->m_ulFlags = vehFlags_t::VEH_GEARSOPEN;
 	}
 	else
 	*/
 	//why?! -rww
 	{
-		pVeh->m_ulFlags = VEH_NONE;
+		pVeh->m_ulFlags = vehFlags_t::VEH_NONE;
 	}
 	pVeh->m_fTimeModifier = 1.0f;
 	pVeh->m_iBoarding = 0;
@@ -1147,7 +1147,7 @@ bool Initialize( Vehicle_t *pVeh )
 	pVeh->m_pPilot = nullptr;
 	memset( &pVeh->m_ucmd, 0, sizeof( usercmd_t ) );
 	pVeh->m_iDieTime = 0;
-	pVeh->m_EjectDir = VEH_EJECT_LEFT;
+	pVeh->m_EjectDir = vehEject_t::VEH_EJECT_LEFT;
 
 	//pVeh->m_iDriverTag = -1;
 	//pVeh->m_iLeftExhaustTag = -1;
@@ -1162,17 +1162,17 @@ bool Initialize( Vehicle_t *pVeh )
 	pVeh->m_iDroidUnitTag = -1;
 
 	//initialize to blaster, just since it's a basic weapon and there's no lightsaber crap...?
-	parent->client->ps.weapon = WP_BLASTER;
-	parent->client->ps.weaponstate = WEAPON_READY;
-	parent->client->ps.stats[STAT_WEAPONS] |= Bit( WP_BLASTER );
+	parent->client->ps.weapon = weapon_t::WP_BLASTER;
+	parent->client->ps.weaponstate = weaponstate_t::WEAPON_READY;
+	parent->client->ps.stats[statIndex_t::STAT_WEAPONS] |= Bit( weapon_t::WP_BLASTER );
 
 	//Initialize to landed (wings closed, gears down) animation
 	{
-		setAnimFlags_t iFlags = SETANIM_FLAG_NORMAL;
-		pVeh->m_ulFlags |= VEH_GEARSOPEN;
+		setAnimFlags_t iFlags = setAnimFlags_t::SETANIM_FLAG_NORMAL;
+		pVeh->m_ulFlags |= vehFlags_t::VEH_GEARSOPEN;
 		BG_SetAnim(pVeh->m_pParentEntity->playerState,
 			bgAllAnims[pVeh->m_pParentEntity->localAnimIndex].anims,
-			SETANIM_BOTH, BOTH_VS_IDLE, iFlags);
+			setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_VS_IDLE, iFlags);
 	}
 
 	return true;
@@ -1240,16 +1240,16 @@ static bool Update( Vehicle_t *pVeh, const usercmd_t *pUmcd )
 
 	//increment shields for rechargable shields
 	if ( pVeh->m_pVehicleInfo->shieldRechargeMS
-		&& parentPS->stats[STAT_ARMOR] > 0 //still have some shields left
-		&& parentPS->stats[STAT_ARMOR] < pVeh->m_pVehicleInfo->shields//its below max
+		&& parentPS->stats[statIndex_t::STAT_ARMOR] > 0 //still have some shields left
+		&& parentPS->stats[statIndex_t::STAT_ARMOR] < pVeh->m_pVehicleInfo->shields//its below max
 		&& pUmcd->serverTime-pVeh->lastShieldInc >= pVeh->m_pVehicleInfo->shieldRechargeMS )//enough time has passed
 	{
-		parentPS->stats[STAT_ARMOR]++;
-		if ( parentPS->stats[STAT_ARMOR] > pVeh->m_pVehicleInfo->shields )
+		parentPS->stats[statIndex_t::STAT_ARMOR]++;
+		if ( parentPS->stats[statIndex_t::STAT_ARMOR] > pVeh->m_pVehicleInfo->shields )
 		{
-			parentPS->stats[STAT_ARMOR] = pVeh->m_pVehicleInfo->shields;
+			parentPS->stats[statIndex_t::STAT_ARMOR] = pVeh->m_pVehicleInfo->shields;
 		}
-		pVeh->m_iShields = parentPS->stats[STAT_ARMOR];
+		pVeh->m_iShields = parentPS->stats[statIndex_t::STAT_ARMOR];
 		G_VehUpdateShields( parent );
 	}
 
@@ -1296,7 +1296,7 @@ static bool Update( Vehicle_t *pVeh, const usercmd_t *pUmcd )
 		pVeh->m_pVehicleInfo->ProcessMoveCommands( pVeh );
 
 		// Setup the move direction.
-		if ( pVeh->m_pVehicleInfo->type == VH_FIGHTER )
+		if ( pVeh->m_pVehicleInfo->type == vehicleType_t::VH_FIGHTER )
 		{
 			AngleVectors( pVeh->m_vOrientation, parent->client->ps.moveDir, nullptr, nullptr );
 		}
@@ -1313,7 +1313,7 @@ static bool Update( Vehicle_t *pVeh, const usercmd_t *pUmcd )
 	else if ( parent->health <= 0 )
 	{
 		// Instant kill.
-		if (pVeh->m_pVehicleInfo->type == VH_FIGHTER &&
+		if (pVeh->m_pVehicleInfo->type == vehicleType_t::VH_FIGHTER &&
 			pVeh->m_iLastImpactDmg > 500)
 		{ //explode instantly in inferno-y death
 			pVeh->m_pVehicleInfo->StartDeathDelay( pVeh, -1/* -1 causes instant death */);
@@ -1343,9 +1343,9 @@ static bool Update( Vehicle_t *pVeh, const usercmd_t *pUmcd )
 			gentity_t *oldPilot = &g_entities[pVeh->m_iPilotLastIndex];
 
 			if (!oldPilot->inuse || !oldPilot->client ||
-				oldPilot->client->pers.connected != CON_CONNECTED)
+				oldPilot->client->pers.connected != clientConnected_t::CON_CONNECTED)
 			{ //no longer in the game?
-				G_Damage(parent, parent, parent, nullptr, parent->client->ps.origin, 99999, DAMAGE_NO_PROTECTION, MOD_SUICIDE);
+				G_Damage(parent, parent, parent, nullptr, parent->client->ps.origin, 99999, damageFlags_t::DAMAGE_NO_PROTECTION, meansOfDeath_t::MOD_SUICIDE);
 			}
 			else
 			{
@@ -1358,7 +1358,7 @@ static bool Update( Vehicle_t *pVeh, const usercmd_t *pUmcd )
 				}
 				else if (pVeh->m_iPilotTime < level.time)
 				{ //dying time
-					G_Damage(parent, parent, parent, nullptr, parent->client->ps.origin, 99999, DAMAGE_NO_PROTECTION, MOD_SUICIDE);
+					G_Damage(parent, parent, parent, nullptr, parent->client->ps.origin, 99999, damageFlags_t::DAMAGE_NO_PROTECTION, meansOfDeath_t::MOD_SUICIDE);
 				}
 			}
 		}
@@ -1371,7 +1371,7 @@ static bool Update( Vehicle_t *pVeh, const usercmd_t *pUmcd )
 		if (pilotEnt)
 		{
 			if (!pilotEnt->inuse || !pilotEnt->client || pilotEnt->health <= 0 ||
-				pilotEnt->client->pers.connected != CON_CONNECTED)
+				pilotEnt->client->pers.connected != clientConnected_t::CON_CONNECTED)
 			{
 				pVeh->m_pVehicleInfo->Eject( pVeh, pVeh->m_pPilot, true );
 				return false;
@@ -1412,7 +1412,7 @@ static bool Update( Vehicle_t *pVeh, const usercmd_t *pUmcd )
 		pilotEnt = (gentity_t *)pVeh->m_pPilot;
 
 		if (!pilotEnt->inuse || !pilotEnt->client || pilotEnt->health <= 0 ||
-			pilotEnt->client->pers.connected != CON_CONNECTED)
+			pilotEnt->client->pers.connected != clientConnected_t::CON_CONNECTED)
 		{
 			pVeh->m_pVehicleInfo->Eject( pVeh, pVeh->m_pPilot, true );
 		}
@@ -1427,7 +1427,7 @@ static bool Update( Vehicle_t *pVeh, const usercmd_t *pUmcd )
 			psngr = (gentity_t *)pVeh->m_ppPassengers[i];
 
 			if ( psngr &&
-				(!psngr->inuse || !psngr->client || psngr->health <= 0 || psngr->client->pers.connected != CON_CONNECTED) )
+				(!psngr->inuse || !psngr->client || psngr->health <= 0 || psngr->client->pers.connected != clientConnected_t::CON_CONNECTED) )
 			{
 				pVeh->m_pVehicleInfo->Eject( pVeh, pVeh->m_ppPassengers[i], true );
 				pVeh->m_iNumPassengers--;
@@ -1437,7 +1437,7 @@ static bool Update( Vehicle_t *pVeh, const usercmd_t *pUmcd )
 
 	// Copy over the commands for local storage.
 	memcpy( &parent->client->pers.cmd, &pVeh->m_ucmd, sizeof( usercmd_t ) );
-	pVeh->m_ucmd.buttons &= ~(BUTTON_TALK);//|BUTTON_GESTURE); //don't want some of these buttons
+	pVeh->m_ucmd.buttons &= ~(buttonFlags_t::BUTTON_TALK);//|buttonFlags_t::BUTTON_GESTURE); //don't want some of these buttons
 
 	/*
 	// Update time modifier.
@@ -1466,7 +1466,7 @@ static bool Update( Vehicle_t *pVeh, const usercmd_t *pUmcd )
 				pVeh->weaponStatus[i].linked = true;
 			}
 		}
-		else if ( Any(pVeh->m_ucmd.buttons&BUTTON_USE_HOLDABLE) )
+		else if ( Any(pVeh->m_ucmd.buttons&buttonFlags_t::BUTTON_USE_HOLDABLE) )
 		{//pilot pressed the "weapon link" toggle button
 			if ( !pVeh->linkWeaponToggleHeld )//so we don't hold it down and toggle it back and forth
 			{//okay to toggle
@@ -1511,7 +1511,7 @@ maintainSelfDuringBoarding:
 	if (pVeh->m_pPilot && pVeh->m_pPilot->playerState && pVeh->m_iBoarding != 0)
 	{
         VectorCopy(pVeh->m_vOrientation, pVeh->m_pPilot->playerState->viewangles);
-		pVeh->m_ucmd.buttons = BUTTON_NONE;
+		pVeh->m_ucmd.buttons = buttonFlags_t::BUTTON_NONE;
 		pVeh->m_ucmd.forwardmove = 0;
 		pVeh->m_ucmd.rightmove = 0;
 		pVeh->m_ucmd.upmove = 0;
@@ -1577,7 +1577,7 @@ maintainSelfDuringBoarding:
 
 
 	// Setup the move direction.
-	if ( pVeh->m_pVehicleInfo->type == VH_FIGHTER )
+	if ( pVeh->m_pVehicleInfo->type == vehicleType_t::VH_FIGHTER )
 	{
 		AngleVectors( pVeh->m_vOrientation, parent->client->ps.moveDir, nullptr, nullptr );
 	}
@@ -1609,8 +1609,8 @@ maintainSelfDuringBoarding:
 			//FIXME: aside from bypassing shields, maybe set m_iShields to 0, too... ?
 
 			// 3 seconds max on death.
-			dmg = (float)parent->client->ps.stats[STAT_MAX_HEALTH] * pVeh->m_fTimeModifier / 180.0f;
-			G_Damage(parent, killer, killer, nullptr, parent->client->ps.origin, dmg, DAMAGE_NO_SELF_PROTECTION|DAMAGE_NO_HIT_LOC|DAMAGE_NO_PROTECTION|DAMAGE_NO_ARMOR, MOD_SUICIDE);
+			dmg = (float)parent->client->ps.stats[statIndex_t::STAT_MAX_HEALTH] * pVeh->m_fTimeModifier / 180.0f;
+			G_Damage(parent, killer, killer, nullptr, parent->client->ps.origin, dmg, damageFlags_t::DAMAGE_NO_SELF_PROTECTION|damageFlags_t::DAMAGE_NO_HIT_LOC|damageFlags_t::DAMAGE_NO_PROTECTION|damageFlags_t::DAMAGE_NO_ARMOR, meansOfDeath_t::MOD_SUICIDE);
 		}
 
 		//make sure playerstate value stays in sync
@@ -1651,15 +1651,15 @@ static bool UpdateRider( Vehicle_t *pVeh, bgEntity_t *pRider, usercmd_t *pUmcd )
 		rider->client->ps.rocketTargetTime = parent->client->ps.rocketTargetTime;
 	}
 	// Regular exit.
-	if ( Any( pUmcd->buttons & BUTTON_USE ) && pVeh->m_pVehicleInfo->type!=VH_SPEEDER)
+	if ( Any( pUmcd->buttons & buttonFlags_t::BUTTON_USE ) && pVeh->m_pVehicleInfo->type!=vehicleType_t::VH_SPEEDER)
 	{
-		if ( pVeh->m_pVehicleInfo->type == VH_WALKER )
+		if ( pVeh->m_pVehicleInfo->type == vehicleType_t::VH_WALKER )
 		{//just get the fuck out
-			pVeh->m_EjectDir = VEH_EJECT_REAR;
+			pVeh->m_EjectDir = vehEject_t::VEH_EJECT_REAR;
 			if ( pVeh->m_pVehicleInfo->Eject( pVeh, pRider, false ) )
 				return false;
 		}
-		else if ( !(Any( pVeh->m_ulFlags & VEH_FLYING )))
+		else if ( !(Any( pVeh->m_ulFlags & vehFlags_t::VEH_FLYING )))
 		{
 			// If going too fast, roll off.
 			if ((parent->client->ps.speed<=600) && pUmcd->rightmove!=0)
@@ -1668,23 +1668,23 @@ static bool UpdateRider( Vehicle_t *pVeh, bgEntity_t *pRider, usercmd_t *pUmcd )
 				{
 					animNumber_t Anim;
 					int iBlend = 300;
-					setAnimFlags_t iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS;
+					setAnimFlags_t iFlags = setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD | setAnimFlags_t::SETANIM_FLAG_HOLDLESS;
 					if ( pUmcd->rightmove > 0 )
 					{
-						Anim = BOTH_ROLL_R;
-						pVeh->m_EjectDir = VEH_EJECT_RIGHT;
+						Anim = animNumber_t::BOTH_ROLL_R;
+						pVeh->m_EjectDir = vehEject_t::VEH_EJECT_RIGHT;
 					}
 					else
 					{
-						Anim = BOTH_ROLL_L;
-						pVeh->m_EjectDir = VEH_EJECT_LEFT;
+						Anim = animNumber_t::BOTH_ROLL_L;
+						pVeh->m_EjectDir = vehEject_t::VEH_EJECT_LEFT;
 					}
 					VectorScale( parent->client->ps.velocity, 0.25f, rider->client->ps.velocity );
-					Vehicle_SetAnim( rider, SETANIM_BOTH, Anim, iFlags, iBlend );
+					Vehicle_SetAnim( rider, setAnimParts_t::SETANIM_BOTH, Anim, iFlags, iBlend );
 
-					//PM_SetAnim(pm,SETANIM_BOTH,anim,SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_HOLDLESS);
+					//PM_SetAnim(pm,setAnimParts_t::SETANIM_BOTH,anim,setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD|setAnimFlags_t::SETANIM_FLAG_HOLDLESS);
 					rider->client->ps.weaponTime = rider->client->ps.torsoTimer - 200;//just to make sure it's cleared when roll is done
-					G_AddEvent( rider, EV_ROLL, 0 );
+					G_AddEvent( rider, entity_event_t::EV_ROLL, 0 );
 					return false;
 				}
 			}
@@ -1693,16 +1693,16 @@ static bool UpdateRider( Vehicle_t *pVeh, bgEntity_t *pRider, usercmd_t *pUmcd )
 				// FIXME: Check trace to see if we should start playing the animation.
 				animNumber_t Anim;
 				int iBlend = 500;
-				setAnimFlags_t iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD;
+				setAnimFlags_t iFlags = setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD;
 				if ( pUmcd->rightmove > 0 )
 				{
-					Anim = BOTH_VS_DISMOUNT_R;
-					pVeh->m_EjectDir = VEH_EJECT_RIGHT;
+					Anim = animNumber_t::BOTH_VS_DISMOUNT_R;
+					pVeh->m_EjectDir = vehEject_t::VEH_EJECT_RIGHT;
 				}
 				else
 				{
-					Anim = BOTH_VS_DISMOUNT_L;
-					pVeh->m_EjectDir = VEH_EJECT_LEFT;
+					Anim = animNumber_t::BOTH_VS_DISMOUNT_L;
+					pVeh->m_EjectDir = vehEject_t::VEH_EJECT_LEFT;
 				}
 
 				if ( pVeh->m_iBoarding <= 1 )
@@ -1714,7 +1714,7 @@ static bool UpdateRider( Vehicle_t *pVeh, bgEntity_t *pRider, usercmd_t *pUmcd )
 					pVeh->m_iBoarding = level.time + iAnimLen;
 					// Weird huh? Well I wanted to reuse flags and this should never be set in an
 					// entity, so what the heck.
-					rider->flags |= FL_VEH_BOARDING;
+					rider->flags |= gentityFlags_t::FL_VEH_BOARDING;
 
 					// Make sure they can't fire when leaving.
 					rider->client->ps.weaponTime = iAnimLen;
@@ -1722,22 +1722,22 @@ static bool UpdateRider( Vehicle_t *pVeh, bgEntity_t *pRider, usercmd_t *pUmcd )
 
 				VectorScale( parent->client->ps.velocity, 0.25f, rider->client->ps.velocity );
 
-				Vehicle_SetAnim( rider, SETANIM_BOTH, Anim, iFlags, iBlend );
+				Vehicle_SetAnim( rider, setAnimParts_t::SETANIM_BOTH, Anim, iFlags, iBlend );
 			}
 		}
 		// Flying, so just fall off.
 		else
 		{
-			pVeh->m_EjectDir = VEH_EJECT_LEFT;
+			pVeh->m_EjectDir = vehEject_t::VEH_EJECT_LEFT;
 			if ( pVeh->m_pVehicleInfo->Eject( pVeh, pRider, false ) )
 				return false;
 		}
 	}
 
 	// Getting off animation complete (if we had one going)?
-	if ( pVeh->m_iBoarding < level.time && Any( rider->flags & FL_VEH_BOARDING ) )
+	if ( pVeh->m_iBoarding < level.time && Any( rider->flags & gentityFlags_t::FL_VEH_BOARDING ) )
 	{
-		rider->flags &= ~FL_VEH_BOARDING;
+		rider->flags &= ~gentityFlags_t::FL_VEH_BOARDING;
 		// Eject this guy now.
 		if ( pVeh->m_pVehicleInfo->Eject( pVeh, pRider, false ) )
 		{
@@ -1745,8 +1745,8 @@ static bool UpdateRider( Vehicle_t *pVeh, bgEntity_t *pRider, usercmd_t *pUmcd )
 		}
 	}
 
-	if ( pVeh->m_pVehicleInfo->type != VH_FIGHTER
-		&& pVeh->m_pVehicleInfo->type != VH_WALKER  )
+	if ( pVeh->m_pVehicleInfo->type != vehicleType_t::VH_FIGHTER
+		&& pVeh->m_pVehicleInfo->type != vehicleType_t::VH_WALKER  )
 	{
 		// Jump off.
 		if ( pUmcd->upmove > 0 )
@@ -1759,11 +1759,11 @@ static bool UpdateRider( Vehicle_t *pVeh, bgEntity_t *pRider, usercmd_t *pUmcd )
 				rider->client->ps.velocity[2] += JUMP_VELOCITY;
 				rider->client->ps.fd.forceJumpZStart = rider->client->ps.origin[2];
 
-				if (!trap->ICARUS_TaskIDPending((sharedEntity_t *)rider, TID_CHAN_VOICE))
+				if (!trap->ICARUS_TaskIDPending((sharedEntity_t *)rider, taskID_t::TID_CHAN_VOICE))
 				{
-					G_AddEvent( rider, EV_JUMP, 0 );
+					G_AddEvent( rider, entity_event_t::EV_JUMP, 0 );
 				}
-				Vehicle_SetAnim( rider, SETANIM_BOTH, BOTH_JUMP1, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, 300 );
+				Vehicle_SetAnim( rider, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_JUMP1, setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD, 300 );
 				return false;
 			}
 		}
@@ -1771,38 +1771,38 @@ static bool UpdateRider( Vehicle_t *pVeh, bgEntity_t *pRider, usercmd_t *pUmcd )
 		// Roll off.
 		if ( pUmcd->upmove < 0 )
 		{
-			animNumber_t Anim = BOTH_ROLL_B;
-			pVeh->m_EjectDir = VEH_EJECT_REAR;
+			animNumber_t Anim = animNumber_t::BOTH_ROLL_B;
+			pVeh->m_EjectDir = vehEject_t::VEH_EJECT_REAR;
 			if ( pUmcd->rightmove > 0 )
 			{
-				Anim = BOTH_ROLL_R;
-				pVeh->m_EjectDir = VEH_EJECT_RIGHT;
+				Anim = animNumber_t::BOTH_ROLL_R;
+				pVeh->m_EjectDir = vehEject_t::VEH_EJECT_RIGHT;
 			}
 			else if ( pUmcd->rightmove < 0 )
 			{
-				Anim = BOTH_ROLL_L;
-				pVeh->m_EjectDir = VEH_EJECT_LEFT;
+				Anim = animNumber_t::BOTH_ROLL_L;
+				pVeh->m_EjectDir = vehEject_t::VEH_EJECT_LEFT;
 			}
 			else if ( pUmcd->forwardmove < 0 )
 			{
-				Anim = BOTH_ROLL_B;
-				pVeh->m_EjectDir = VEH_EJECT_REAR;
+				Anim = animNumber_t::BOTH_ROLL_B;
+				pVeh->m_EjectDir = vehEject_t::VEH_EJECT_REAR;
 			}
 			else if ( pUmcd->forwardmove > 0 )
 			{
-				Anim = BOTH_ROLL_F;
-				pVeh->m_EjectDir = VEH_EJECT_FRONT;
+				Anim = animNumber_t::BOTH_ROLL_F;
+				pVeh->m_EjectDir = vehEject_t::VEH_EJECT_FRONT;
 			}
 
 			if ( pVeh->m_pVehicleInfo->Eject( pVeh, pRider, false ) )
 			{
-				if ( !(Any( pVeh->m_ulFlags & VEH_FLYING )) )
+				if ( !(Any( pVeh->m_ulFlags & vehFlags_t::VEH_FLYING )) )
 				{
 					VectorScale( parent->client->ps.velocity, 0.25f, rider->client->ps.velocity );
-					Vehicle_SetAnim( rider, SETANIM_BOTH, Anim, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS, 300 );
-					//PM_SetAnim(pm,SETANIM_BOTH,anim,SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_HOLDLESS);
+					Vehicle_SetAnim( rider, setAnimParts_t::SETANIM_BOTH, Anim, setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD | setAnimFlags_t::SETANIM_FLAG_HOLDLESS, 300 );
+					//PM_SetAnim(pm,setAnimParts_t::SETANIM_BOTH,anim,setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD|setAnimFlags_t::SETANIM_FLAG_HOLDLESS);
 					rider->client->ps.weaponTime = rider->client->ps.torsoTimer - 200;//just to make sure it's cleared when roll is done
-					G_AddEvent( rider, EV_ROLL, 0 );
+					G_AddEvent( rider, entity_event_t::EV_ROLL, 0 );
 				}
 				return false;
 			}
@@ -1867,7 +1867,7 @@ static void AttachRiders( Vehicle_t *pVeh )
 			trap->G2API_GetBoltMatrix( parent->ghoul2, 0, crotchBolt, &boltMatrix,
 									yawOnlyAngles, parent->client->ps.origin,
 									level.time, nullptr, parent->modelScale );
-			BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, pilot->client->ps.origin );
+			BG_GiveMeVectorFromMatrix( &boltMatrix, orientations_t::ORIGIN, pilot->client->ps.origin );
 
 			G_SetOrigin( pilot, pilot->client->ps.origin );
 			trap->LinkEntity( (sharedEntity_t *)pilot );
@@ -1896,8 +1896,8 @@ static void AttachRiders( Vehicle_t *pVeh )
 			trap->G2API_GetBoltMatrix( parent->ghoul2, 0, pVeh->m_iDroidUnitTag, &boltMatrix,
 									yawOnlyAngles, parent->r.currentOrigin,
 									level.time, nullptr, parent->modelScale );
-			BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, droid->client->ps.origin );
-			BG_GiveMeVectorFromMatrix( &boltMatrix, NEGATIVE_Y, fwd );
+			BG_GiveMeVectorFromMatrix( &boltMatrix, orientations_t::ORIGIN, droid->client->ps.origin );
+			BG_GiveMeVectorFromMatrix( &boltMatrix, orientations_t::NEGATIVE_Y, fwd );
 			vectoangles( fwd, droid->client->ps.viewangles );
 
 			G_SetOrigin( droid, droid->client->ps.origin );
@@ -1907,7 +1907,7 @@ static void AttachRiders( Vehicle_t *pVeh )
 
 			if ( droid->NPC )
 			{
-				NPC_SetAnim( droid, SETANIM_BOTH, BOTH_STAND2, (SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD) );
+				NPC_SetAnim( droid, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_STAND2, (setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD) );
 				droid->client->ps.legsTimer = 500;
 				droid->client->ps.torsoTimer = 500;
 			}
@@ -1926,14 +1926,14 @@ static void Ghost( Vehicle_t *pVeh, bgEntity_t *pEnt )
 	ent = (gentity_t *)pEnt;
 
 	// This was introduced to prevent one extra entity from being sent to the clients
-	ent->r.svFlags |= SVF_NOCLIENT;
+	ent->r.svFlags |= svFlags_t::SVF_NOCLIENT;
 
-	ent->s.eFlags |= EF_NODRAW;
+	ent->s.eFlags |= entityFlags_t::EF_NODRAW;
 	if ( ent->client )
 	{
-		ent->client->ps.eFlags |= EF_NODRAW;
+		ent->client->ps.eFlags |= entityFlags_t::EF_NODRAW;
 	}
-	ent->r.contents = CONTENTS_NONE;
+	ent->r.contents = contentsFlags_t::CONTENTS_NONE;
 }
 
 // Make someone visible and collidable.
@@ -1947,14 +1947,14 @@ static void UnGhost( Vehicle_t *pVeh, bgEntity_t *pEnt )
 	ent = (gentity_t *)pEnt;
 
 	// make sure the client is sent again
-	ent->r.svFlags &= ~SVF_NOCLIENT;
+	ent->r.svFlags &= ~svFlags_t::SVF_NOCLIENT;
 
-	ent->s.eFlags &= ~EF_NODRAW;
+	ent->s.eFlags &= ~entityFlags_t::EF_NODRAW;
 	if ( ent->client )
 	{
-		ent->client->ps.eFlags &= ~EF_NODRAW;
+		ent->client->ps.eFlags &= ~entityFlags_t::EF_NODRAW;
 	}
-	ent->r.contents = CONTENTS_BODY;
+	ent->r.contents = contentsFlags_t::CONTENTS_BODY;
 }
 
 //try to resize the bounding box around a torn apart ship
@@ -1978,10 +1978,10 @@ void G_VehicleDamageBoxSizing(Vehicle_t *pVeh)
 	//for now, let's only do anything if all wings are stripped off.
 	//this is because I want to be able to tear my wings off and fling
 	//myself down narrow hallways to my death. Because it's fun! -rww
-	if (!Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_C) ||
-		!Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_D) ||
-		!Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_E) ||
-		!Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_F) )
+	if (!Any(pVeh->m_iRemovedSurfaces & shipSurfaceFlags_t::SHIPSURF_BROKEN_C) ||
+		!Any(pVeh->m_iRemovedSurfaces & shipSurfaceFlags_t::SHIPSURF_BROKEN_D) ||
+		!Any(pVeh->m_iRemovedSurfaces & shipSurfaceFlags_t::SHIPSURF_BROKEN_E) ||
+		!Any(pVeh->m_iRemovedSurfaces & shipSurfaceFlags_t::SHIPSURF_BROKEN_F) )
 	{
 		return;
 	}
@@ -2002,7 +2002,7 @@ void G_VehicleDamageBoxSizing(Vehicle_t *pVeh)
 	VectorMA(nose, -hDist, up, back);
 
 	//and now, let's trace and see if our new mins/maxs are safe..
-	trap->Trace(&trace, parent->client->ps.origin, back, nose, parent->client->ps.origin, parent->s.number, parent->clipmask, false, G2TRFLAG_NONE, 0);
+	trap->Trace(&trace, parent->client->ps.origin, back, nose, parent->client->ps.origin, parent->s.number, parent->clipmask, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 	if (!trace.allsolid && !trace.startsolid && trace.fraction == 1.0f)
 	{ //all clear!
 		VectorCopy(nose, parent->r.maxs);
@@ -2011,7 +2011,7 @@ void G_VehicleDamageBoxSizing(Vehicle_t *pVeh)
 	else
 	{ //oh well, DIE!
 		//FIXME: does this give proper credit to the enemy who shot you down?
-		G_Damage(parent, parent, parent, nullptr, parent->client->ps.origin, 9999, DAMAGE_NO_PROTECTION, MOD_SUICIDE);
+		G_Damage(parent, parent, parent, nullptr, parent->client->ps.origin, 9999, damageFlags_t::DAMAGE_NO_PROTECTION, meansOfDeath_t::MOD_SUICIDE);
 	}
 }
 
@@ -2039,7 +2039,7 @@ int G_FlyVehicleImpactDir(gentity_t *veh, trace_t *trace)
 
 	//do a trace to determine if the nose is clear
 	VectorMA(veh->client->ps.origin, 256.0f, fwd, fPos);
-	trap->Trace(&localTrace, veh->client->ps.origin, testMins, testMaxs, fPos, veh->s.number, veh->clipmask, false, G2TRFLAG_NONE, 0);
+	trap->Trace(&localTrace, veh->client->ps.origin, testMins, testMaxs, fPos, veh->s.number, veh->clipmask, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 	if (!localTrace.startsolid && !localTrace.allsolid && localTrace.fraction == 1.0f)
 	{ //otherwise I guess it's not clear..
 		noseClear = true;
@@ -2054,11 +2054,11 @@ int G_FlyVehicleImpactDir(gentity_t *veh, trace_t *trace)
 		VectorMA(veh->client->ps.origin, -128.0f, right, lWing);
 
 		//test the right wing - unless it's already removed
-		if (!Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_E) ||
-			!Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_F))
+		if (!Any(pVeh->m_iRemovedSurfaces & shipSurfaceFlags_t::SHIPSURF_BROKEN_E) ||
+			!Any(pVeh->m_iRemovedSurfaces & shipSurfaceFlags_t::SHIPSURF_BROKEN_F))
 		{
 			VectorMA(rWing, 256.0f, fwd, fPos);
-			trap->Trace(&localTrace, rWing, testMins, testMaxs, fPos, veh->s.number, veh->clipmask, false, G2TRFLAG_NONE, 0);
+			trap->Trace(&localTrace, rWing, testMins, testMaxs, fPos, veh->s.number, veh->clipmask, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 			if (localTrace.startsolid || localTrace.allsolid || localTrace.fraction != 1.0f)
 			{ //impact
 				return SHIPSURF_RIGHT;
@@ -2066,11 +2066,11 @@ int G_FlyVehicleImpactDir(gentity_t *veh, trace_t *trace)
 		}
 
 		//test the left wing - unless it's already removed
-		if (!Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_C) ||
-			!Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_D))
+		if (!Any(pVeh->m_iRemovedSurfaces & shipSurfaceFlags_t::SHIPSURF_BROKEN_C) ||
+			!Any(pVeh->m_iRemovedSurfaces & shipSurfaceFlags_t::SHIPSURF_BROKEN_D))
 		{
 			VectorMA(lWing, 256.0f, fwd, fPos);
-			trap->Trace(&localTrace, lWing, testMins, testMaxs, fPos, veh->s.number, veh->clipmask, false, G2TRFLAG_NONE, 0);
+			trap->Trace(&localTrace, lWing, testMins, testMaxs, fPos, veh->s.number, veh->clipmask, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 			if (localTrace.startsolid || localTrace.allsolid || localTrace.fraction != 1.0f)
 			{ //impact
 				return SHIPSURF_LEFT;
@@ -2100,7 +2100,7 @@ int G_FlyVehicleImpactDir(gentity_t *veh, trace_t *trace)
 }
 
 //try to break surfaces off the ship on impact
-constexpr g2SurfaceFlags_t TURN_OFF = G2SURFACEFLAG_NODESCENDANTS;
+constexpr g2SurfaceFlags_t TURN_OFF = g2SurfaceFlags_t::G2SURFACEFLAG_NODESCENDANTS;
 extern void NPC_SetSurfaceOnOff(gentity_t *ent, const char *surfaceName, g2SurfaceFlags_t surfaceFlags); //NPC_utils.cpp
 int G_ShipSurfaceForSurfName( const char *surfaceName )
 {
@@ -2156,12 +2156,12 @@ void G_SetVehDamageFlags( gentity_t *veh, int shipSurf, int damageLevel )
 			{//we have one
 				gentity_t *droidEnt = (gentity_t *)veh->m_pVehicle->m_pDroidUnit;
 				if ( droidEnt
-					&& (Any( droidEnt->flags & FL_UNDYING ) || droidEnt->health > 0) )
+					&& (Any( droidEnt->flags & gentityFlags_t::FL_UNDYING ) || droidEnt->health > 0) )
 				{//boom
 					//make it vulnerable
-					droidEnt->flags &= ~FL_UNDYING;
+					droidEnt->flags &= ~gentityFlags_t::FL_UNDYING;
 					//blow it up
-					G_Damage( droidEnt, veh->enemy, veh->enemy, nullptr, nullptr, 99999, DAMAGE_NORMAL, MOD_UNKNOWN );
+					G_Damage( droidEnt, veh->enemy, veh->enemy, nullptr, nullptr, 99999, damageFlags_t::DAMAGE_NORMAL, meansOfDeath_t::MOD_UNKNOWN );
 				}
 			}
 		}
@@ -2182,9 +2182,9 @@ void G_SetVehDamageFlags( gentity_t *veh, int shipSurf, int damageLevel )
 			{//we have one
 				gentity_t *droidEnt = (gentity_t *)veh->m_pVehicle->m_pDroidUnit;
 				if ( droidEnt
-					&& Any( droidEnt->flags & FL_UNDYING ) )
+					&& Any( droidEnt->flags & gentityFlags_t::FL_UNDYING ) )
 				{//make it vulnerab;e
-					droidEnt->flags &= ~FL_UNDYING;
+					droidEnt->flags &= ~gentityFlags_t::FL_UNDYING;
 				}
 			}
 		}
@@ -2278,7 +2278,7 @@ bool G_FlyVehicleDestroySurface( gentity_t *veh, int surface )
 {
 	const char *surfName[4]; //up to 4 surfs at once
 	int numSurfs = 0;
-	shipSurfaceFlags_t smashedBits = SHIPSURF_BROKEN_NONE;
+	shipSurfaceFlags_t smashedBits = shipSurfaceFlags_t::SHIPSURF_BROKEN_NONE;
 
 	if (surface == -1)
 	{ //not valid?
@@ -2290,7 +2290,7 @@ bool G_FlyVehicleDestroySurface( gentity_t *veh, int surface )
 	case SHIPSURF_FRONT: //break the nose off
 		surfName[0] = "nose";
 
-		smashedBits = (SHIPSURF_BROKEN_G);
+		smashedBits = (shipSurfaceFlags_t::SHIPSURF_BROKEN_G);
 
 		numSurfs = 1;
 		break;
@@ -2302,7 +2302,7 @@ bool G_FlyVehicleDestroySurface( gentity_t *veh, int surface )
 		surfName[2] = "r_gear";
 		surfName[3] = "l_gear";
 
-		smashedBits = (SHIPSURF_BROKEN_A|SHIPSURF_BROKEN_B|SHIPSURF_BROKEN_D|SHIPSURF_BROKEN_F);
+		smashedBits = (shipSurfaceFlags_t::SHIPSURF_BROKEN_A|shipSurfaceFlags_t::SHIPSURF_BROKEN_B|shipSurfaceFlags_t::SHIPSURF_BROKEN_D|shipSurfaceFlags_t::SHIPSURF_BROKEN_F);
 
 		numSurfs = 4;
 		break;
@@ -2313,7 +2313,7 @@ bool G_FlyVehicleDestroySurface( gentity_t *veh, int surface )
 		//get rid of the landing gear
 		surfName[2] = "r_gear";
 
-		smashedBits = (SHIPSURF_BROKEN_B|SHIPSURF_BROKEN_E|SHIPSURF_BROKEN_F);
+		smashedBits = (shipSurfaceFlags_t::SHIPSURF_BROKEN_B|shipSurfaceFlags_t::SHIPSURF_BROKEN_E|shipSurfaceFlags_t::SHIPSURF_BROKEN_F);
 
 		numSurfs = 3;
 		break;
@@ -2324,7 +2324,7 @@ bool G_FlyVehicleDestroySurface( gentity_t *veh, int surface )
 		//get rid of the landing gear
 		surfName[2] = "l_gear";
 
-		smashedBits = (SHIPSURF_BROKEN_A|SHIPSURF_BROKEN_C|SHIPSURF_BROKEN_D);
+		smashedBits = (shipSurfaceFlags_t::SHIPSURF_BROKEN_A|shipSurfaceFlags_t::SHIPSURF_BROKEN_C|shipSurfaceFlags_t::SHIPSURF_BROKEN_D);
 
 		numSurfs = 3;
 		break;
@@ -2347,14 +2347,14 @@ bool G_FlyVehicleDestroySurface( gentity_t *veh, int surface )
 	{//first time something got blown off
 		if ( veh->m_pVehicle->m_pPilot )
 		{//make the pilot scream to his death
-			G_EntitySound((gentity_t*)veh->m_pVehicle->m_pPilot, CHAN_VOICE, G_SoundIndex("*falling1.wav"));
+			G_EntitySound((gentity_t*)veh->m_pVehicle->m_pPilot, soundChannel_t::CHAN_VOICE, G_SoundIndex("*falling1.wav"));
 		}
 	}
 	//so we can check what's broken
 	veh->m_pVehicle->m_iRemovedSurfaces |= smashedBits;
 
 	//do some explosive damage, but don't damage this ship with it
-	G_RadiusDamage(veh->client->ps.origin, veh, 100, 500, veh, nullptr, MOD_SUICIDE);
+	G_RadiusDamage(veh->client->ps.origin, veh, 100, 500, veh, nullptr, meansOfDeath_t::MOD_SUICIDE);
 
 	//when spiraling to your death, do the electical shader
 	veh->client->ps.electrifyTime = level.time + 10000;

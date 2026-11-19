@@ -71,7 +71,6 @@ enum class fieldtypeSAVE_t
 	F_VEHINFO,
 	F_IGNORE
 };
-using enum fieldtypeSAVE_t;
 
 typedef struct
 {

@@ -132,7 +132,7 @@ void RE_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts
 	}
 
 	if ( !hShader ) {
-		ri.Printf( PRINT_ALL, S_COLOR_YELLOW  "WARNING: RE_AddPolyToScene: NULL poly shader\n");
+		ri.Printf( printParm_t::PRINT_ALL, S_COLOR_YELLOW  "WARNING: RE_AddPolyToScene: NULL poly shader\n");
 		return;
 	}
 
@@ -144,12 +144,12 @@ void RE_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts
       since we don't plan on changing the const and making for room for those effects
       simply cut this message to developer only
       */
-			ri.Printf( PRINT_DEVELOPER, S_COLOR_YELLOW  "WARNING: RE_AddPolyToScene: r_max_polys or r_max_polyverts reached\n");
+			ri.Printf( printParm_t::PRINT_DEVELOPER, S_COLOR_YELLOW  "WARNING: RE_AddPolyToScene: r_max_polys or r_max_polyverts reached\n");
 			return;
 		}
 
 		poly = &backEndData->polys[r_numpolys];
-		poly->surfaceType = SF_POLY;
+		poly->surfaceType = surfaceType_t::SF_POLY;
 		poly->hShader = hShader;
 		poly->numVerts = numVerts;
 		poly->verts = &backEndData->polyVerts[r_numpolyverts];
@@ -209,7 +209,7 @@ void RE_AddRefEntityToScene( const refEntity_t *ent ) {
 	}
 
 	if ( r_numentities >= MAX_REFENTITIES ) {
-		ri.Printf(PRINT_DEVELOPER, "RE_AddRefEntityToScene: Dropping refEntity, reached MAX_REFENTITIES\n");
+		ri.Printf(printParm_t::PRINT_DEVELOPER, "RE_AddRefEntityToScene: Dropping refEntity, reached MAX_REFENTITIES\n");
 		return;
 	}
 
@@ -217,27 +217,27 @@ void RE_AddRefEntityToScene( const refEntity_t *ent ) {
 		static bool firstTime = true;
 		if (firstTime) {
 			firstTime = false;
-			ri.Printf( PRINT_WARNING, "RE_AddRefEntityToScene passed a refEntity which has an origin with a NaN component\n");
+			ri.Printf( printParm_t::PRINT_WARNING, "RE_AddRefEntityToScene passed a refEntity which has an origin with a NaN component\n");
 		}
 		return;
 	}*/
 
-	assert(!ent || ent->renderfx >= 0);
+	assert(!ent || to_underlying( ent->renderfx ) >= 0);
 
-	if (ent->reType == RT_ENT_CHAIN)
+	if (ent->reType == refEntityType_t::RT_ENT_CHAIN)
 	{ //minirefents must die.
 		return;
 	}
 
 #ifdef _DEBUG
-	if (ent->reType == RT_MODEL)
+	if (ent->reType == refEntityType_t::RT_MODEL)
 	{
 		assert(ent->hModel || ent->ghoul2 || ent->customShader);
 	}
 #endif
 
-	if ( (int)ent->reType < 0 || ent->reType >= RT_MAX_REF_ENTITY_TYPE ) {
-		Com_Error( ERR_DROP, "RE_AddRefEntityToScene: bad reType %i", to_underlying( ent->reType ) );
+	if ( (int)ent->reType < 0 || ent->reType >= refEntityType_t::RT_MAX_REF_ENTITY_TYPE ) {
+		Com_Error( errorParm_t::ERR_DROP, "RE_AddRefEntityToScene: bad reType %i", to_underlying( ent->reType ) );
 	}
 
 	backEndData->entities[r_numentities].e = *ent;
@@ -249,7 +249,7 @@ void RE_AddRefEntityToScene( const refEntity_t *ent ) {
 
 		if (!ghoul2[0].mModel)
 		{
-			ri.Printf( PRINT_ALL, "Your ghoul2 instance has no model!\n");
+			ri.Printf( printParm_t::PRINT_ALL, "Your ghoul2 instance has no model!\n");
 		}
 	}
 
@@ -364,8 +364,8 @@ void RE_RenderScene( const refdef_t *fd ) {
 
 	startTime = ri.Milliseconds()*ri.Cvar_VariableValue( "timescale" );
 
-	if (!tr.world && !Any( fd->rdflags & RDF_NOWORLDMODEL ) ) {
-		Com_Error (ERR_DROP, "R_RenderScene: NULL worldmodel");
+	if (!tr.world && !Any( fd->rdflags & refdefFlags_t::RDF_NOWORLDMODEL ) ) {
+		Com_Error (errorParm_t::ERR_DROP, "R_RenderScene: NULL worldmodel");
 	}
 
 	memcpy( tr.refdef.text, fd->text, sizeof( tr.refdef.text ) );
@@ -385,7 +385,7 @@ void RE_RenderScene( const refdef_t *fd ) {
 	tr.refdef.time = fd->time;
 	tr.refdef.frametime = fd->time - lastTime;
 
-	if (Any( fd->rdflags & RDF_SKYBOXPORTAL ))
+	if (Any( fd->rdflags & refdefFlags_t::RDF_SKYBOXPORTAL ))
 	{
 		skyboxportal = 1;
 	}
@@ -396,7 +396,7 @@ void RE_RenderScene( const refdef_t *fd ) {
 		lastTime = fd->time;
 	}
 
-	if (Any( fd->rdflags & RDF_DRAWSKYBOX ))
+	if (Any( fd->rdflags & refdefFlags_t::RDF_DRAWSKYBOX ))
 	{
 		drawskyboxportal = 1;
 	}
@@ -418,7 +418,7 @@ void RE_RenderScene( const refdef_t *fd ) {
 	// copy the areamask data over and note if it has changed, which
 	// will force a reset of the visible leafs even if the view hasn't moved
 	tr.refdef.areamaskModified = false;
-	if ( ! Any(tr.refdef.rdflags & RDF_NOWORLDMODEL) ) {
+	if ( ! Any(tr.refdef.rdflags & refdefFlags_t::RDF_NOWORLDMODEL) ) {
 		int		areaDiff;
 		int		i;
 
@@ -452,7 +452,7 @@ void RE_RenderScene( const refdef_t *fd ) {
 
 	// Add the decals here because decals add polys and we need to ensure
 	// that the polys are added before the the renderer is prepared
-	if ( !Any(tr.refdef.rdflags & RDF_NOWORLDMODEL) )
+	if ( !Any(tr.refdef.rdflags & refdefFlags_t::RDF_NOWORLDMODEL) )
 	{
 		R_AddDecals ( );
 	}
@@ -511,7 +511,7 @@ void RE_RenderScene( const refdef_t *fd ) {
 
 	RE_RenderWorldEffects();
 
-	if (Any( tr.refdef.rdflags & RDF_AUTOMAP ))
+	if (Any( tr.refdef.rdflags & refdefFlags_t::RDF_AUTOMAP ))
 	{
 		RE_RenderAutoMap();
 	}

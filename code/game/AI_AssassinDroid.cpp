@@ -32,8 +32,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 	//both_death4 - running death
 
 constexpr int ASSASSIN_SHIELD_SIZE = 75;
-constexpr g2SurfaceFlags_t TURN_ON = G2SURFACEFLAG_NONE;
-constexpr g2SurfaceFlags_t TURN_OFF = G2SURFACEFLAG_NODESCENDANTS;
+constexpr g2SurfaceFlags_t TURN_ON = g2SurfaceFlags_t::G2SURFACEFLAG_NONE;
+constexpr g2SurfaceFlags_t TURN_OFF = g2SurfaceFlags_t::G2SURFACEFLAG_NODESCENDANTS;
 
 
 
@@ -42,7 +42,7 @@ constexpr g2SurfaceFlags_t TURN_OFF = G2SURFACEFLAG_NODESCENDANTS;
 ////////////////////////////////////////////////////////////////////////////////////////
 bool BubbleShield_IsOn()
 {
-	return Any( NPC->flags & FL_SHIELDED );
+	return Any( NPC->flags & gentityFlags_t::FL_SHIELDED );
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -52,8 +52,8 @@ void BubbleShield_TurnOn()
 {
 	if (!BubbleShield_IsOn())
 	{
-		NPC->flags |= FL_SHIELDED;
-		NPC->client->ps.powerups[PW_GALAK_SHIELD] = Q3_INFINITE;
+		NPC->flags |= gentityFlags_t::FL_SHIELDED;
+		NPC->client->ps.powerups[powerup_t::PW_GALAK_SHIELD] = Q3_INFINITE;
 		gi.G2API_SetSurfaceOnOff( &NPC->ghoul2[NPC->playerModel], "force_shield", TURN_ON );
 	}
 }
@@ -65,8 +65,8 @@ void BubbleShield_TurnOff()
 {
 	if ( BubbleShield_IsOn())
 	{
-		NPC->flags &= ~FL_SHIELDED;
-		NPC->client->ps.powerups[PW_GALAK_SHIELD] = 0;
+		NPC->flags &= ~gentityFlags_t::FL_SHIELDED;
+		NPC->client->ps.powerups[powerup_t::PW_GALAK_SHIELD] = 0;
 		gi.G2API_SetSurfaceOnOff( &NPC->ghoul2[NPC->playerModel], "force_shield", TURN_OFF );
 	}
 }
@@ -77,15 +77,15 @@ void BubbleShield_TurnOff()
 ////////////////////////////////////////////////////////////////////////////////////////
 void BubbleShield_PushEnt(gentity_t* pushed, vec3_t smackDir)
 {
-	G_Damage(pushed, NPC, NPC, smackDir, NPC->currentOrigin, (g_spskill->integer+1)*Q_irand( 5, 10), DAMAGE_NO_KNOCKBACK, MOD_ELECTROCUTE);
+	G_Damage(pushed, NPC, NPC, smackDir, NPC->currentOrigin, (g_spskill->integer+1)*Q_irand( 5, 10), damageFlags_t::DAMAGE_NO_KNOCKBACK, meansOfDeath_t::MOD_ELECTROCUTE);
 	G_Throw(pushed, smackDir, 10);
 
 	// Make Em Electric
 	//------------------
- 	pushed->s.powerups |= Bit( PW_SHOCKED );
+ 	pushed->s.powerups |= Bit( powerup_t::PW_SHOCKED );
 	if (pushed->client)
 	{
-		pushed->client->ps.powerups[PW_SHOCKED] = level.time + 1000;
+		pushed->client->ps.powerups[powerup_t::PW_SHOCKED] = level.time + 1000;
 	}
 }
 
@@ -161,10 +161,10 @@ void BubbleShield_Update()
 
 	// Recharge Shields
 	//------------------
- 	NPC->client->ps.stats[STAT_ARMOR] += 1;
-	if (NPC->client->ps.stats[STAT_ARMOR]>250)
+ 	NPC->client->ps.stats[statIndex_t::STAT_ARMOR] += 1;
+	if (NPC->client->ps.stats[statIndex_t::STAT_ARMOR]>250)
 	{
-		NPC->client->ps.stats[STAT_ARMOR] = 250;
+		NPC->client->ps.stats[statIndex_t::STAT_ARMOR] = 250;
 	}
 
 
@@ -172,7 +172,7 @@ void BubbleShield_Update()
 
 	// If We Have Enough Armor And Are Not Shooting Right Now, Kick The Shield On
 	//----------------------------------------------------------------------------
- 	if (NPC->client->ps.stats[STAT_ARMOR]>100 && TIMER_Done(NPC, "ShieldsDown"))
+ 	if (NPC->client->ps.stats[statIndex_t::STAT_ARMOR]>100 && TIMER_Done(NPC, "ShieldsDown"))
 	{
 		// Check On Timers To Raise And Lower Shields
 		//--------------------------------------------
@@ -190,7 +190,7 @@ void BubbleShield_Update()
 	 	 	NPC->client->renderInfo.customRGBA[0] =
 			NPC->client->renderInfo.customRGBA[1] =
 			NPC->client->renderInfo.customRGBA[2] =
-  			NPC->client->renderInfo.customRGBA[3] = (NPC->client->ps.stats[STAT_ARMOR] - 100);
+  			NPC->client->renderInfo.customRGBA[3] = (NPC->client->ps.stats[statIndex_t::STAT_ARMOR] - 100);
 
 
 			// If Touched By An Enemy, ALWAYS Shove Them

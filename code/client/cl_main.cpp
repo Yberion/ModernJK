@@ -119,7 +119,7 @@ void CL_AddReliableCommand( const char *cmd ) {
 	// if we would be losing an old command that hasn't been acknowledged,
 	// we must drop the connection
 	if ( clc.reliableSequence - clc.reliableAcknowledge > MAX_RELIABLE_COMMANDS ) {
-		Com_Error( ERR_DROP, "Client command overflow" );
+		Com_Error( errorParm_t::ERR_DROP, "Client command overflow" );
 	}
 	clc.reliableSequence++;
 	index = clc.reliableSequence & ( MAX_RELIABLE_COMMANDS - 1 );
@@ -178,11 +178,11 @@ void CL_MapLoading( void ) {
 	}
 
 	Con_Close();
-	Key_SetCatcher( KEYCATCH_NONE );
+	Key_SetCatcher( keyCatchFlags_t::KEYCATCH_NONE );
 
 	// if we are already connected to the local host, stay connected
-	if ( cls.state >= CA_CONNECTED && !Q_stricmp( cls.servername, "localhost" ) )  {
-		cls.state = CA_CONNECTED;		// so the connect screen is drawn
+	if ( cls.state >= connstate_t::CA_CONNECTED && !Q_stricmp( cls.servername, "localhost" ) )  {
+		cls.state = connstate_t::CA_CONNECTED;		// so the connect screen is drawn
 		memset( cls.updateInfoString, 0, sizeof( cls.updateInfoString ) );
 //		memset( clc.serverMessage, 0, sizeof( clc.serverMessage ) );
 		memset( &cl.gameState, 0, sizeof( cl.gameState ) );
@@ -193,8 +193,8 @@ void CL_MapLoading( void ) {
 		Cvar_Set( "nextmap", "" );
 		CL_Disconnect();
 		Q_strncpyz( cls.servername, "localhost", sizeof(cls.servername) );
-		cls.state = CA_CHALLENGING;		// so the connect screen is drawn
-		Key_SetCatcher( KEYCATCH_NONE );
+		cls.state = connstate_t::CA_CHALLENGING;		// so the connect screen is drawn
+		Key_SetCatcher( keyCatchFlags_t::KEYCATCH_NONE );
 		SCR_UpdateScreen();
 		clc.connectTime = -RETRANSMIT_TIMEOUT;
 		NET_StringToAdr( cls.servername, &clc.serverAddress);
@@ -263,7 +263,7 @@ void CL_Disconnect( void ) {
 
 	// send a disconnect message to the server
 	// send it a few times in case one is dropped
-	if ( cls.state >= CA_CONNECTED ) {
+	if ( cls.state >= connstate_t::CA_CONNECTED ) {
 		CL_AddReliableCommand( "disconnect" );
 		CL_WritePacket();
 		CL_WritePacket();
@@ -279,7 +279,7 @@ void CL_Disconnect( void ) {
 
 	memset( &clc, 0, sizeof( clc ) );
 
-	cls.state = CA_DISCONNECTED;
+	cls.state = connstate_t::CA_DISCONNECTED;
 
 	// allow cheats locally
 	Cvar_Set( "timescale", "1" );//jic we were skipping
@@ -307,7 +307,7 @@ void CL_ForwardCommandToServer( void ) {
 		return;
 	}
 
-	if ( cls.state != CA_ACTIVE || cmd[0] == '+' ) {
+	if ( cls.state != connstate_t::CA_ACTIVE || cmd[0] == '+' ) {
 		Com_Printf ("Unknown command \"%s\"\n", cmd);
 		return;
 	}
@@ -336,7 +336,7 @@ CL_ForwardToServer_f
 ==================
 */
 void CL_ForwardToServer_f( void ) {
-	if ( cls.state != CA_ACTIVE ) {
+	if ( cls.state != connstate_t::CA_ACTIVE ) {
 		Com_Printf ("Not connected to a server.\n");
 		return;
 	}
@@ -360,8 +360,8 @@ void CL_Disconnect_f( void ) {
 	//	in the menus when disconnected, although having the SCR_StopCinematic() call above is weird.
 	// Either there's a bug, or the new version of that function conditionally-doesn't stop cinematics...
 	//
-	if ( cls.state != CA_DISCONNECTED && cls.state != CA_CINEMATIC ) {
-		Com_Error (ERR_DISCONNECT, "Disconnected from server");
+	if ( cls.state != connstate_t::CA_DISCONNECTED && cls.state != connstate_t::CA_CINEMATIC ) {
+		Com_Error (errorParm_t::ERR_DISCONNECT, "Disconnected from server");
 	}
 }
 
@@ -432,7 +432,7 @@ void CL_Configstrings_f( void ) {
 	int		i;
 	int		ofs;
 
-	if ( cls.state != CA_ACTIVE ) {
+	if ( cls.state != connstate_t::CA_ACTIVE ) {
 		Com_Printf( "Not connected to a server.\n");
 		return;
 	}
@@ -456,7 +456,7 @@ void CL_Clientinfo_f( void ) {
 	Com_Printf( "state: %i\n", to_underlying( cls.state ) );
 	Com_Printf( "Server: %s\n", cls.servername );
 	Com_Printf ("User info settings:\n");
-	Info_Print( Cvar_InfoString( CVAR_USERINFO ) );
+	Info_Print( Cvar_InfoString( cvarFlags_t::CVAR_USERINFO ) );
 	Com_Printf( "--------------------------------------\n" );
 }
 
@@ -476,14 +476,14 @@ void CL_CheckForResend( void ) {
 	int		port;
 	char	info[MAX_INFO_STRING];
 
-//	if ( cls.state == CA_CINEMATIC )
-	if ( cls.state == CA_CINEMATIC || CL_IsRunningInGameCinematic())
+//	if ( cls.state == connstate_t::CA_CINEMATIC )
+	if ( cls.state == connstate_t::CA_CINEMATIC || CL_IsRunningInGameCinematic())
 	{
 		return;
 	}
 
 	// resend if we haven't gotten a reply yet
-	if ( cls.state < CA_CONNECTING || cls.state > CA_CHALLENGING ) {
+	if ( cls.state < connstate_t::CA_CONNECTING || cls.state > connstate_t::CA_CHALLENGING ) {
 		return;
 	}
 
@@ -496,30 +496,30 @@ void CL_CheckForResend( void ) {
 
 	// requesting a challenge
 	switch ( cls.state ) {
-	case CA_CONNECTING:
+	case connstate_t::CA_CONNECTING:
 		UI_UpdateConnectionString( va("(%i)", clc.connectPacketCount ) );
 
-		NET_OutOfBandPrint(NS_CLIENT, clc.serverAddress, "getchallenge");
+		NET_OutOfBandPrint(netsrc_t::NS_CLIENT, clc.serverAddress, "getchallenge");
 		break;
 
-	case CA_CHALLENGING:
+	case connstate_t::CA_CHALLENGING:
 	// sending back the challenge
 		port = Cvar_VariableIntegerValue("net_qport");
 
 		UI_UpdateConnectionString( va("(%i)", clc.connectPacketCount ) );
 
-		Q_strncpyz( info, Cvar_InfoString( CVAR_USERINFO ), sizeof( info ) );
+		Q_strncpyz( info, Cvar_InfoString( cvarFlags_t::CVAR_USERINFO ), sizeof( info ) );
 		Info_SetValueForKey( info, "protocol", va("%i", PROTOCOL_VERSION ) );
 		Info_SetValueForKey( info, "qport", va("%i", port ) );
 		Info_SetValueForKey( info, "challenge", va("%i", clc.challenge ) );
-		NET_OutOfBandPrint( NS_CLIENT, clc.serverAddress, "connect \"%s\"", info );
+		NET_OutOfBandPrint( netsrc_t::NS_CLIENT, clc.serverAddress, "connect \"%s\"", info );
 		// the most current userinfo has been sent, so watch for any
 		// newer changes to userinfo variables
-		cvar_modifiedFlags &= ~CVAR_USERINFO;
+		cvar_modifiedFlags &= ~cvarFlags_t::CVAR_USERINFO;
 		break;
 
 	default:
-		Com_Error( ERR_FATAL, "CL_CheckForResend: bad cls.state" );
+		Com_Error( errorParm_t::ERR_FATAL, "CL_CheckForResend: bad cls.state" );
 	}
 }
 
@@ -535,7 +535,7 @@ to the client so it doesn't have to wait for the full timeout period.
 ===================
 */
 void CL_DisconnectPacket( netadr_t from ) {
-	if ( cls.state != CA_ACTIVE ) {
+	if ( cls.state != connstate_t::CA_ACTIVE ) {
 		return;
 	}
 
@@ -580,12 +580,12 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 
 	// challenge from the server we are connecting to
 	if ( !strcmp(c, "challengeResponse") ) {
-		if ( cls.state != CA_CONNECTING ) {
+		if ( cls.state != connstate_t::CA_CONNECTING ) {
 			Com_Printf( "Unwanted challenge response received.  Ignored.\n" );
 		} else {
 			// start sending challenge repsonse instead of challenge request packets
 			clc.challenge = atoi(Cmd_Argv(1));
-			cls.state = CA_CHALLENGING;
+			cls.state = connstate_t::CA_CHALLENGING;
 			clc.connectPacketCount = 0;
 			clc.connectTime = -99999;
 
@@ -598,11 +598,11 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 
 	// server connection
 	if ( !strcmp(c, "connectResponse") ) {
-		if ( cls.state >= CA_CONNECTED ) {
+		if ( cls.state >= connstate_t::CA_CONNECTED ) {
 			Com_Printf ("Dup connect received.  Ignored.\n");
 			return;
 		}
-		if ( cls.state != CA_CHALLENGING ) {
+		if ( cls.state != connstate_t::CA_CHALLENGING ) {
 			Com_Printf ("connectResponse packet while not connecting.  Ignored.\n");
 			return;
 		}
@@ -612,8 +612,8 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 				NET_AdrToString( clc.serverAddress ) );
 			return;
 		}
-		Netchan_Setup (NS_CLIENT, &clc.netchan, from, Cvar_VariableIntegerValue( "net_qport" ) );
-		cls.state = CA_CONNECTED;
+		Netchan_Setup (netsrc_t::NS_CLIENT, &clc.netchan, from, Cvar_VariableIntegerValue( "net_qport" ) );
+		cls.state = connstate_t::CA_CONNECTED;
 		clc.lastPacketSentTime = -9999;		// send first packet immediately
 		return;
 	}
@@ -627,7 +627,7 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 
 	// echo request from server
 	if ( !strcmp(c, "echo") ) {
-		NET_OutOfBandPrint( NS_CLIENT, from, "%s", Cmd_Argv(1) );
+		NET_OutOfBandPrint( netsrc_t::NS_CLIENT, from, "%s", Cmd_Argv(1) );
 		return;
 	}
 
@@ -659,7 +659,7 @@ void CL_PacketEvent( netadr_t from, msg_t *msg ) {
 		return;
 	}
 
-	if ( cls.state < CA_CONNECTED ) {
+	if ( cls.state < connstate_t::CA_CONNECTED ) {
 		return;		// can't be a valid sequenced packet
 	}
 
@@ -697,8 +697,8 @@ void CL_CheckTimeout( void ) {
 	// check timeout
 	//
 	if ( ( !CL_CheckPaused() || !sv_paused->integer )
-//		&& cls.state >= CA_CONNECTED && cls.state != CA_CINEMATIC
-		&& cls.state >= CA_CONNECTED && (cls.state != CA_CINEMATIC && !CL_IsRunningInGameCinematic())
+//		&& cls.state >= connstate_t::CA_CONNECTED && cls.state != connstate_t::CA_CINEMATIC
+		&& cls.state >= connstate_t::CA_CONNECTED && (cls.state != connstate_t::CA_CINEMATIC && !CL_IsRunningInGameCinematic())
 		&& cls.realtime - clc.lastPacketTime > cl_timeout->value*1000) {
 		if (++cl.timeoutcount > 5) {	// timeoutcount saves debugger
 			Com_Printf ("\nServer connection timed out.\n");
@@ -736,7 +736,7 @@ CL_CheckUserinfo
 ==================
 */
 void CL_CheckUserinfo( void ) {
-	if ( cls.state < CA_CHALLENGING ) {
+	if ( cls.state < connstate_t::CA_CHALLENGING ) {
 		return;
 	}
 	// don't overflow the reliable command buffer when paused
@@ -744,9 +744,9 @@ void CL_CheckUserinfo( void ) {
 		return;
 	}
 	// send a reliable userinfo update if needed
-	if ( Any( cvar_modifiedFlags & CVAR_USERINFO ) ) {
-		cvar_modifiedFlags &= ~CVAR_USERINFO;
-		CL_AddReliableCommand( va("userinfo \"%s\"", Cvar_InfoString( CVAR_USERINFO ) ) );
+	if ( Any( cvar_modifiedFlags & cvarFlags_t::CVAR_USERINFO ) ) {
+		cvar_modifiedFlags &= ~cvarFlags_t::CVAR_USERINFO;
+		CL_AddReliableCommand( va("userinfo \"%s\"", Cvar_InfoString( cvarFlags_t::CVAR_USERINFO ) ) );
 	}
 
 }
@@ -770,7 +770,7 @@ void CL_Frame ( int msec,float fractionMsec ) {
 	// load the ref / cgame if needed
 	CL_StartHunkUsers();
 
-	if ( cls.state == CA_DISCONNECTED && !Any( Key_GetCatcher( ) & KEYCATCH_UI )
+	if ( cls.state == connstate_t::CA_DISCONNECTED && !Any( Key_GetCatcher( ) & keyCatchFlags_t::KEYCATCH_UI )
 		&& !com_sv_running->integer ) {
 		// if disconnected, bring up the menu
 		if (!CL_CheckPendingCinematic())	// this avoid having the menu flash for one frame before pending cinematics
@@ -783,11 +783,11 @@ void CL_Frame ( int msec,float fractionMsec ) {
 	// if recording an avi, lock to a fixed fps
 	if ( cl_avidemo->integer ) {
 		// save the current screen
-		if ( cls.state == CA_ACTIVE ) {
+		if ( cls.state == connstate_t::CA_ACTIVE ) {
 			if (cl_avidemo->integer > 0) {
-				Cbuf_ExecuteText( EXEC_NOW, "screenshot silent\n" );
+				Cbuf_ExecuteText( cbufExec_t::EXEC_NOW, "screenshot silent\n" );
 			} else {
-				Cbuf_ExecuteText( EXEC_NOW, "screenshot_tga silent\n" );
+				Cbuf_ExecuteText( cbufExec_t::EXEC_NOW, "screenshot_tga silent\n" );
 			}
 		}
 		// fixed time for next frame
@@ -847,7 +847,7 @@ void CL_Frame ( int msec,float fractionMsec ) {
 	// decide on the serverTime to render
 	CL_SetCGameTime();
 
-	if (cl_pano->integer && cls.state == CA_ACTIVE) {	//grab some panoramic shots
+	if (cl_pano->integer && cls.state == connstate_t::CA_ACTIVE) {	//grab some panoramic shots
 		int i = 1;
 		int pref = cl_pano->integer;
 		int oldnoprint = cl_noprint->integer;
@@ -856,7 +856,7 @@ void CL_Frame ( int msec,float fractionMsec ) {
 		for (; i <= cl_panoNumShots->integer; i++) {
 			Cvar_SetValue( "pano", i );
 			SCR_UpdateScreen();// update the screen
-			Cbuf_ExecuteText( EXEC_NOW, va("screenshot %dpano%02d\n", pref, i) );	//grab this screen
+			Cbuf_ExecuteText( cbufExec_t::EXEC_NOW, va("screenshot %dpano%02d\n", pref, i) );	//grab this screen
 		}
 		Cvar_SetValue( "pano", 0 );	//done
 		cl_noprint->integer = oldnoprint;
@@ -976,8 +976,8 @@ void CL_StartHunkUsers( void ) {
 		CL_InitUI();
 	}
 
-//	if ( !cls.cgameStarted && cls.state > CA_CONNECTED && cls.state != CA_CINEMATIC ) {
-	if ( !cls.cgameStarted && cls.state > CA_CONNECTED && (cls.state != CA_CINEMATIC && !CL_IsRunningInGameCinematic()) )
+//	if ( !cls.cgameStarted && cls.state > connstate_t::CA_CONNECTED && cls.state != connstate_t::CA_CINEMATIC ) {
+	if ( !cls.cgameStarted && cls.state > connstate_t::CA_CONNECTED && (cls.state != connstate_t::CA_CINEMATIC && !CL_IsRunningInGameCinematic()) )
 	{
 		cls.cgameStarted = true;
 		CL_InitCGame();
@@ -999,13 +999,13 @@ void QDECL CL_RefPrintf( printParm_t print_level, const char *fmt, ...) {
 	Q_vsnprintf(msg, sizeof(msg), fmt, argptr);
 	va_end (argptr);
 
-	if ( print_level == PRINT_ALL ) {
+	if ( print_level == printParm_t::PRINT_ALL ) {
 		Com_Printf ("%s", msg);
-	} else if ( print_level == PRINT_WARNING ) {
+	} else if ( print_level == printParm_t::PRINT_WARNING ) {
 		Com_Printf (S_COLOR_YELLOW "%s", msg);		// yellow
-	} else if ( print_level == PRINT_DEVELOPER ) {
+	} else if ( print_level == printParm_t::PRINT_DEVELOPER ) {
 		Com_DPrintf (S_COLOR_RED "%s", msg);		// red
-	} else if ( print_level == PRINT_ERROR ) {
+	} else if ( print_level == printParm_t::PRINT_ERROR ) {
 		Com_Printf (S_COLOR_RED "%s", msg);		// red
 	}
 }
@@ -1095,7 +1095,7 @@ void CL_InitRef( void ) {
 	GetRefAPI_t	GetRefAPI;
 
 	Com_Printf( "----- Initializing Renderer ----\n" );
-    cl_renderer = Cvar_Get( "cl_renderer", DEFAULT_RENDER_LIBRARY, CVAR_ARCHIVE|CVAR_LATCH );
+    cl_renderer = Cvar_Get( "cl_renderer", DEFAULT_RENDER_LIBRARY, cvarFlags_t::CVAR_ARCHIVE|cvarFlags_t::CVAR_LATCH );
 
 	Com_sprintf( dllName, sizeof( dllName ), "%s_" ARCH_STRING DLL_EXT, cl_renderer->string );
 
@@ -1109,14 +1109,14 @@ void CL_InitRef( void ) {
 	}
 
 	if ( !rendererLib ) {
-		Com_Error( ERR_FATAL, "Failed to load renderer\n" );
+		Com_Error( errorParm_t::ERR_FATAL, "Failed to load renderer\n" );
 	}
 
 	memset( &rit, 0, sizeof( rit ) );
 
 	GetRefAPI = (GetRefAPI_t)Sys_LoadFunction( rendererLib, "GetRefAPI" );
 	if ( !GetRefAPI )
-		Com_Error( ERR_FATAL, "Can't load symbol GetRefAPI: '%s'", Sys_LibraryError() );
+		Com_Error( errorParm_t::ERR_FATAL, "Can't load symbol GetRefAPI: '%s'", Sys_LibraryError() );
 
 #define RIT(y)	rit.y = y
 	RIT(CIN_PlayCinematic);
@@ -1199,7 +1199,7 @@ void CL_InitRef( void ) {
 	ret = GetRefAPI( REF_API_VERSION, &rit );
 
 	if ( !ret ) {
-		Com_Error (ERR_FATAL, "Couldn't initialize refresh" );
+		Com_Error (errorParm_t::ERR_FATAL, "Couldn't initialize refresh" );
 	}
 
 	re = *ret;
@@ -1224,16 +1224,16 @@ void CL_Init( void ) {
 	Com_Printf( "----- Client Initialization -----\n" );
 
 #ifdef JK2_MODE
-	JK2SP_Register("con_text", SP_REGISTER_REQUIRED);	//reference is CON_TEXT
-	JK2SP_Register("keynames", SP_REGISTER_REQUIRED);	// reference is KEYNAMES
+	JK2SP_Register("con_text", spRegistrationFlags_t::SP_REGISTER_REQUIRED);	//reference is CON_TEXT
+	JK2SP_Register("keynames", spRegistrationFlags_t::SP_REGISTER_REQUIRED);	// reference is KEYNAMES
 #endif
 
 	Con_Init ();
 
 	CL_ClearState ();
 
-	cls.state = CA_DISCONNECTED;	// no longer CA_UNINITIALIZED
-	//cls.keyCatchers = KEYCATCH_CONSOLE;
+	cls.state = connstate_t::CA_DISCONNECTED;	// no longer CA_UNINITIALIZED
+	//cls.keyCatchers = keyCatchFlags_t::KEYCATCH_CONSOLE;
 	cls.realtime = 0;
 	cls.realtimeFraction=0.0f;	// fraction of a msec accumulated
 
@@ -1242,70 +1242,70 @@ void CL_Init( void ) {
 	//
 	// register our variables
 	//
-	cl_noprint = Cvar_Get( "cl_noprint", "0", CVAR_NONE );
+	cl_noprint = Cvar_Get( "cl_noprint", "0", cvarFlags_t::CVAR_NONE );
 
-	cl_timeout = Cvar_Get ("cl_timeout", "125", CVAR_NONE);
+	cl_timeout = Cvar_Get ("cl_timeout", "125", cvarFlags_t::CVAR_NONE);
 
-	cl_timeNudge = Cvar_Get ("cl_timeNudge", "0", CVAR_TEMP );
-	cl_shownet = Cvar_Get ("cl_shownet", "0", CVAR_TEMP );
-	cl_showTimeDelta = Cvar_Get ("cl_showTimeDelta", "0", CVAR_TEMP );
-	cl_newClock = Cvar_Get ("cl_newClock", "1", CVAR_NONE);
-	cl_activeAction = Cvar_Get( "activeAction", "", CVAR_TEMP );
+	cl_timeNudge = Cvar_Get ("cl_timeNudge", "0", cvarFlags_t::CVAR_TEMP );
+	cl_shownet = Cvar_Get ("cl_shownet", "0", cvarFlags_t::CVAR_TEMP );
+	cl_showTimeDelta = Cvar_Get ("cl_showTimeDelta", "0", cvarFlags_t::CVAR_TEMP );
+	cl_newClock = Cvar_Get ("cl_newClock", "1", cvarFlags_t::CVAR_NONE);
+	cl_activeAction = Cvar_Get( "activeAction", "", cvarFlags_t::CVAR_TEMP );
 
-	cl_avidemo = Cvar_Get ("cl_avidemo", "0", CVAR_NONE);
-	cl_pano = Cvar_Get ("pano", "0", CVAR_NONE);
-	cl_panoNumShots= Cvar_Get ("panoNumShots", "10", CVAR_ARCHIVE_ND);
-	cl_skippingcin = Cvar_Get ("skippingCinematic", "0", CVAR_ROM);
-	cl_endcredits = Cvar_Get ("cg_endcredits", "0", CVAR_NONE);
+	cl_avidemo = Cvar_Get ("cl_avidemo", "0", cvarFlags_t::CVAR_NONE);
+	cl_pano = Cvar_Get ("pano", "0", cvarFlags_t::CVAR_NONE);
+	cl_panoNumShots= Cvar_Get ("panoNumShots", "10", cvarFlags_t::CVAR_ARCHIVE_ND);
+	cl_skippingcin = Cvar_Get ("skippingCinematic", "0", cvarFlags_t::CVAR_ROM);
+	cl_endcredits = Cvar_Get ("cg_endcredits", "0", cvarFlags_t::CVAR_NONE);
 
-	cl_yawspeed = Cvar_Get ("cl_yawspeed", "140", CVAR_ARCHIVE_ND);
-	cl_pitchspeed = Cvar_Get ("cl_pitchspeed", "140", CVAR_ARCHIVE_ND);
-	cl_anglespeedkey = Cvar_Get ("cl_anglespeedkey", "1.5", CVAR_ARCHIVE_ND);
+	cl_yawspeed = Cvar_Get ("cl_yawspeed", "140", cvarFlags_t::CVAR_ARCHIVE_ND);
+	cl_pitchspeed = Cvar_Get ("cl_pitchspeed", "140", cvarFlags_t::CVAR_ARCHIVE_ND);
+	cl_anglespeedkey = Cvar_Get ("cl_anglespeedkey", "1.5", cvarFlags_t::CVAR_ARCHIVE_ND);
 
-	cl_packetdup = Cvar_Get ("cl_packetdup", "1", CVAR_ARCHIVE_ND );
+	cl_packetdup = Cvar_Get ("cl_packetdup", "1", cvarFlags_t::CVAR_ARCHIVE_ND );
 
-	cl_run = Cvar_Get ("cl_run", "1", CVAR_ARCHIVE_ND);
-	cl_sensitivity = Cvar_Get ("sensitivity", "5", CVAR_ARCHIVE);
-	cl_mouseAccel = Cvar_Get ("cl_mouseAccel", "0", CVAR_ARCHIVE_ND);
-	cl_freelook = Cvar_Get( "cl_freelook", "1", CVAR_ARCHIVE_ND );
+	cl_run = Cvar_Get ("cl_run", "1", cvarFlags_t::CVAR_ARCHIVE_ND);
+	cl_sensitivity = Cvar_Get ("sensitivity", "5", cvarFlags_t::CVAR_ARCHIVE);
+	cl_mouseAccel = Cvar_Get ("cl_mouseAccel", "0", cvarFlags_t::CVAR_ARCHIVE_ND);
+	cl_freelook = Cvar_Get( "cl_freelook", "1", cvarFlags_t::CVAR_ARCHIVE_ND );
 
-	cl_showMouseRate = Cvar_Get ("cl_showmouserate", "0", CVAR_NONE);
+	cl_showMouseRate = Cvar_Get ("cl_showmouserate", "0", cvarFlags_t::CVAR_NONE);
 
-	cl_allowAltEnter = Cvar_Get ("cl_allowAltEnter", "1", CVAR_ARCHIVE_ND);
-	cl_inGameVideo = Cvar_Get ("cl_inGameVideo", "1", CVAR_ARCHIVE_ND);
-	cl_framerate	= Cvar_Get ("cl_framerate", "0", CVAR_TEMP);
+	cl_allowAltEnter = Cvar_Get ("cl_allowAltEnter", "1", cvarFlags_t::CVAR_ARCHIVE_ND);
+	cl_inGameVideo = Cvar_Get ("cl_inGameVideo", "1", cvarFlags_t::CVAR_ARCHIVE_ND);
+	cl_framerate	= Cvar_Get ("cl_framerate", "0", cvarFlags_t::CVAR_TEMP);
 
 	// init autoswitch so the ui will have it correctly even
 	// if the cgame hasn't been started
-	Cvar_Get ("cg_autoswitch", "1", CVAR_ARCHIVE);
+	Cvar_Get ("cg_autoswitch", "1", cvarFlags_t::CVAR_ARCHIVE);
 
-	m_pitch = Cvar_Get ("m_pitch", "0.022", CVAR_ARCHIVE_ND);
-	m_yaw = Cvar_Get ("m_yaw", "0.022", CVAR_ARCHIVE_ND);
-	m_forward = Cvar_Get ("m_forward", "0.25", CVAR_ARCHIVE_ND);
-	m_side = Cvar_Get ("m_side", "0.25", CVAR_ARCHIVE_ND);
-	m_filter = Cvar_Get ("m_filter", "0", CVAR_ARCHIVE_ND);
+	m_pitch = Cvar_Get ("m_pitch", "0.022", cvarFlags_t::CVAR_ARCHIVE_ND);
+	m_yaw = Cvar_Get ("m_yaw", "0.022", cvarFlags_t::CVAR_ARCHIVE_ND);
+	m_forward = Cvar_Get ("m_forward", "0.25", cvarFlags_t::CVAR_ARCHIVE_ND);
+	m_side = Cvar_Get ("m_side", "0.25", cvarFlags_t::CVAR_ARCHIVE_ND);
+	m_filter = Cvar_Get ("m_filter", "0", cvarFlags_t::CVAR_ARCHIVE_ND);
 
 	// ~ and `, as keys and characters
-	cl_consoleKeys = Cvar_Get( "cl_consoleKeys", "~ ` 0x7e 0x60 0xb2", CVAR_ARCHIVE);
-	cl_consoleUseScanCode = Cvar_Get( "cl_consoleUseScanCode", "1", CVAR_ARCHIVE );
-	cl_consoleShiftRequirement = Cvar_Get( "cl_consoleShiftRequirement", "0", CVAR_ARCHIVE );
+	cl_consoleKeys = Cvar_Get( "cl_consoleKeys", "~ ` 0x7e 0x60 0xb2", cvarFlags_t::CVAR_ARCHIVE);
+	cl_consoleUseScanCode = Cvar_Get( "cl_consoleUseScanCode", "1", cvarFlags_t::CVAR_ARCHIVE );
+	cl_consoleShiftRequirement = Cvar_Get( "cl_consoleShiftRequirement", "0", cvarFlags_t::CVAR_ARCHIVE );
 
 	// userinfo
 #ifdef JK2_MODE
-	Cvar_Get ("name", "Kyle", CVAR_USERINFO | CVAR_ARCHIVE_ND );
+	Cvar_Get ("name", "Kyle", cvarFlags_t::CVAR_USERINFO | cvarFlags_t::CVAR_ARCHIVE_ND );
 #else
-	Cvar_Get ("name", "Jaden", CVAR_USERINFO | CVAR_ARCHIVE_ND );
+	Cvar_Get ("name", "Jaden", cvarFlags_t::CVAR_USERINFO | cvarFlags_t::CVAR_ARCHIVE_ND );
 #endif
 
 #ifdef JK2_MODE
 	// this is required for savegame compatibility - not ever actually used
-	Cvar_Get ("snaps", "20", CVAR_USERINFO );
-	Cvar_Get ("sex", "male", CVAR_USERINFO | CVAR_ARCHIVE );
-	Cvar_Get ("handicap", "100", CVAR_USERINFO | CVAR_SAVEGAME );
+	Cvar_Get ("snaps", "20", cvarFlags_t::CVAR_USERINFO );
+	Cvar_Get ("sex", "male", cvarFlags_t::CVAR_USERINFO | cvarFlags_t::CVAR_ARCHIVE );
+	Cvar_Get ("handicap", "100", cvarFlags_t::CVAR_USERINFO | cvarFlags_t::CVAR_SAVEGAME );
 #else
-	Cvar_Get ("sex", "f", CVAR_USERINFO | CVAR_ARCHIVE | CVAR_SAVEGAME | CVAR_NORESTART );
-	Cvar_Get ("snd", "jaden_fmle", CVAR_USERINFO | CVAR_ARCHIVE | CVAR_SAVEGAME | CVAR_NORESTART );//UI_SetSexandSoundForModel changes to match sounds.cfg for model
-	Cvar_Get ("handicap", "100", CVAR_USERINFO | CVAR_SAVEGAME | CVAR_NORESTART);
+	Cvar_Get ("sex", "f", cvarFlags_t::CVAR_USERINFO | cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_SAVEGAME | cvarFlags_t::CVAR_NORESTART );
+	Cvar_Get ("snd", "jaden_fmle", cvarFlags_t::CVAR_USERINFO | cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_SAVEGAME | cvarFlags_t::CVAR_NORESTART );//UI_SetSexandSoundForModel changes to match sounds.cfg for model
+	Cvar_Get ("handicap", "100", cvarFlags_t::CVAR_USERINFO | cvarFlags_t::CVAR_SAVEGAME | cvarFlags_t::CVAR_NORESTART);
 #endif
 
 	//

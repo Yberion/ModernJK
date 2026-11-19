@@ -41,7 +41,7 @@ clipHandle_t SV_ClipHandleForEntity( const sharedEntity_t *ent ) {
 		// explicit hulls in the BSP model
 		return CM_InlineModel( ent->s.modelindex );
 	}
-	if ( Any( ent->r.svFlags & SVF_CAPSULE ) ) {
+	if ( Any( ent->r.svFlags & svFlags_t::SVF_CAPSULE ) ) {
 		// create a temp capsule from bounding box sizes
 		return CM_TempBoxModel( ent->r.mins, ent->r.maxs, true );
 	}
@@ -226,7 +226,7 @@ void SV_LinkEntity( sharedEntity_t *gEnt ) {
 	// encode the size into the entityState_t for client prediction
 	if ( gEnt->r.bmodel ) {
 		gEnt->s.solid = SOLID_BMODEL;		// a solid_box will never create this value
-	} else if ( Any( gEnt->r.contents & ( CONTENTS_SOLID | CONTENTS_BODY ) ) ) {
+	} else if ( Any( gEnt->r.contents & ( contentsFlags_t::CONTENTS_SOLID | contentsFlags_t::CONTENTS_BODY ) ) ) {
 		// assume that x/y are equal and symetric
 		i = gEnt->r.maxs[0];
 		if (i<1)
@@ -312,7 +312,7 @@ void SV_LinkEntity( sharedEntity_t *gEnt ) {
 			// doors may legally straggle two areas,
 			// but nothing should evern need more than that
 			if (ent->areanum != -1 && ent->areanum != area) {
-				if (ent->areanum2 != -1 && ent->areanum2 != area && sv.state == SS_LOADING) {
+				if (ent->areanum2 != -1 && ent->areanum2 != area && sv.state == serverState_t::SS_LOADING) {
 					Com_DPrintf ("Object %i touching 3 areas at %f %f %f\n",
 					gEnt->s.number,
 					gEnt->r.absmin[0], gEnt->r.absmin[1], gEnt->r.absmin[2]);
@@ -556,7 +556,7 @@ static void SV_ClipMoveToEntities( moveclip_t *clip ) {
 		passOwnerNum = -1;
 	}
 
-	if ( Any( SV_GentityNum(clip->passEntityNum)->r.svFlags & SVF_OWNERNOTSHARED ) )
+	if ( Any( SV_GentityNum(clip->passEntityNum)->r.svFlags & svFlags_t::SVF_OWNERNOTSHARED ) )
 	{
 		thisOwnerShared = 0;
 	}
@@ -573,9 +573,9 @@ static void SV_ClipMoveToEntities( moveclip_t *clip ) {
 				continue;	// don't clip against the pass entity
 			}
 			if ( touch->r.ownerNum == clip->passEntityNum) {
-				if (Any( touch->r.svFlags & SVF_OWNERNOTSHARED ))
+				if (Any( touch->r.svFlags & svFlags_t::SVF_OWNERNOTSHARED ))
 				{
-					if ( clip->contentmask != (MASK_SHOT | CONTENTS_LIGHTSABER) &&
+					if ( clip->contentmask != (MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER) &&
 						clip->contentmask != (MASK_SHOT))
 					{ //it's not a laser hitting the other "missile", don't care then
 						continue;
@@ -587,13 +587,13 @@ static void SV_ClipMoveToEntities( moveclip_t *clip ) {
 				}
 			}
 			if ( touch->r.ownerNum == passOwnerNum &&
-				!Any( touch->r.svFlags & SVF_OWNERNOTSHARED ) &&
+				!Any( touch->r.svFlags & svFlags_t::SVF_OWNERNOTSHARED ) &&
 				thisOwnerShared ) {
 				continue;	// don't clip against other missiles from our owner
 			}
 
-			if (touch->s.eType == ET_MISSILE &&
-				!Any( touch->r.svFlags & SVF_OWNERNOTSHARED ) &&
+			if (touch->s.eType == entityType_t::ET_MISSILE &&
+				!Any( touch->r.svFlags & svFlags_t::SVF_OWNERNOTSHARED ) &&
 				touch->r.ownerNum == passOwnerNum)
 			{ //blah, hack
 				continue;
@@ -606,7 +606,7 @@ static void SV_ClipMoveToEntities( moveclip_t *clip ) {
 			continue;
 		}
 
-		if ((clip->contentmask == (MASK_SHOT|CONTENTS_LIGHTSABER) || clip->contentmask == MASK_SHOT) && (!Any( touch->r.contents & CONTENTS_TRANSLUCENT ) && Any( touch->r.contents & CONTENTS_NOSHOT )))
+		if ((clip->contentmask == (MASK_SHOT|contentsFlags_t::CONTENTS_LIGHTSABER) || clip->contentmask == MASK_SHOT) && (!Any( touch->r.contents & contentsFlags_t::CONTENTS_TRANSLUCENT ) && Any( touch->r.contents & contentsFlags_t::CONTENTS_NOSHOT )))
 		{
 			continue;
 		}
@@ -627,7 +627,7 @@ static void SV_ClipMoveToEntities( moveclip_t *clip ) {
 			origin, angles, clip->capsule);
 
 
-		if (Any( clip->traceFlags & G2TRFLAG_DOGHOULTRACE ))
+		if (Any( clip->traceFlags & g2TraceFlags_t::G2TRFLAG_DOGHOULTRACE ))
 		{ // keep these older variables around for a bit, incase we need to replace them in the Ghoul2 Collision check
 			oldTrace = clip->trace;
 		}
@@ -703,7 +703,7 @@ Ghoul2 Insert Start
 #else
 		//rww - since this is multiplayer and we don't have the luxury of violating networking rules in horrible ways,
 		//this must be done somewhat differently.
-		if (Any(clip->traceFlags & G2TRFLAG_DOGHOULTRACE) && trace.entityNum == touch->s.number && touch->ghoul2 && (Any(clip->traceFlags & G2TRFLAG_HITCORPSES) || !Any(touch->s.eFlags & EF_DEAD)))
+		if (Any(clip->traceFlags & g2TraceFlags_t::G2TRFLAG_DOGHOULTRACE) && trace.entityNum == touch->s.number && touch->ghoul2 && (Any(clip->traceFlags & g2TraceFlags_t::G2TRFLAG_HITCORPSES) || !Any(touch->s.eFlags & entityFlags_t::EF_DEAD)))
 		{ //standard behavior will be to ignore g2 col on dead ents, but if traceFlags is set to allow, then we'll try g2 col on EF_DEAD people too.
 			static G2Trace_t G2Trace;
 			vec3_t angles;
@@ -717,7 +717,7 @@ Ghoul2 Insert Start
 				fRadius=(clip->maxs[0]-clip->mins[0])/2.0f;
 			}
 
-			if (Any( clip->traceFlags & G2TRFLAG_THICK ))
+			if (Any( clip->traceFlags & g2TraceFlags_t::G2TRFLAG_THICK ))
 			{ //if using this flag, make sure it's at least 1.0f
 				if (fRadius < 1.0f)
 				{
@@ -753,8 +753,8 @@ Ghoul2 Insert Start
 
 			if (com_optvehtrace &&
 				com_optvehtrace->integer &&
-				touch->s.eType == ET_NPC &&
-				touch->s.NPC_class == CLASS_VEHICLE &&
+				touch->s.eType == entityType_t::ET_NPC &&
+				touch->s.NPC_class == class_t::CLASS_VEHICLE &&
 				touch->m_pVehicle)
 			{ //for vehicles cache the transform data.
 				re->G2API_CollisionDetectCache(G2Trace, *((CGhoul2Info_v *)touch->ghoul2), angles, touch->r.currentOrigin, sv.time, touch->s.number, clip->start, clip->end, touch->modelScale, G2VertSpaceServer, 0, clip->useLod, fRadius);
@@ -788,7 +788,7 @@ Ghoul2 Insert Start
 				VectorCopy(G2Trace[bestTr].mCollisionPosition, clip->trace.endpos);
 				VectorCopy(G2Trace[bestTr].mCollisionNormal, clip->trace.plane.normal);
 
-				if (Any( clip->traceFlags & G2TRFLAG_GETSURFINDEX ))
+				if (Any( clip->traceFlags & g2TraceFlags_t::G2TRFLAG_GETSURFINDEX ))
 				{ //we have requested that surfaceFlags be stomped over with the g2 hit surface index.
 					if (clip->trace.entityNum == G2Trace[bestTr].mEntityNum)
 					{

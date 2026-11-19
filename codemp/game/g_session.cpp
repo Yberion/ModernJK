@@ -160,29 +160,29 @@ void G_InitSessionData( gclient_t *client, char *userinfo, bool isBot ) {
 
 	sess = &client->sess;
 
-	client->sess.siegeDesiredTeam = TEAM_FREE;
+	client->sess.siegeDesiredTeam = team_t::TEAM_FREE;
 
 	// initial team determination
-	if ( level.gametype >= GT_TEAM ) {
-		if ( g_teamAutoJoin.integer && !Any( g_entities[client-level.clients].r.svFlags & SVF_BOT ) ) {
+	if ( level.gametype >= gametype_t::GT_TEAM ) {
+		if ( g_teamAutoJoin.integer && !Any( g_entities[client-level.clients].r.svFlags & svFlags_t::SVF_BOT ) ) {
 			sess->sessionTeam = PickTeam( -1 );
 			client->ps.fd.forceDoInit = 1; //every time we change teams make sure our force powers are set right
 		} else {
 			// always spawn as spectator in team games
 			if (!isBot)
 			{
-				sess->sessionTeam = TEAM_SPECTATOR;
+				sess->sessionTeam = team_t::TEAM_SPECTATOR;
 			}
 			else
 			{ //Bots choose their team on creation
 				value = Info_ValueForKey( userinfo, "team" );
 				if (value[0] == 'r' || value[0] == 'R')
 				{
-					sess->sessionTeam = TEAM_RED;
+					sess->sessionTeam = team_t::TEAM_RED;
 				}
 				else if (value[0] == 'b' || value[0] == 'B')
 				{
-					sess->sessionTeam = TEAM_BLUE;
+					sess->sessionTeam = team_t::TEAM_BLUE;
 				}
 				else
 				{
@@ -195,31 +195,31 @@ void G_InitSessionData( gclient_t *client, char *userinfo, bool isBot ) {
 		value = Info_ValueForKey( userinfo, "team" );
 		if ( value[0] == 's' ) {
 			// a willing spectator, not a waiting-in-line
-			sess->sessionTeam = TEAM_SPECTATOR;
+			sess->sessionTeam = team_t::TEAM_SPECTATOR;
 		} else {
 			switch ( level.gametype ) {
 			default:
-			case GT_FFA:
-			case GT_HOLOCRON:
-			case GT_JEDIMASTER:
-			case GT_SINGLE_PLAYER:
+			case gametype_t::GT_FFA:
+			case gametype_t::GT_HOLOCRON:
+			case gametype_t::GT_JEDIMASTER:
+			case gametype_t::GT_SINGLE_PLAYER:
 				if ( g_maxGameClients.integer > 0 &&
 					level.numNonSpectatorClients >= g_maxGameClients.integer ) {
-					sess->sessionTeam = TEAM_SPECTATOR;
+					sess->sessionTeam = team_t::TEAM_SPECTATOR;
 				} else {
-					sess->sessionTeam = TEAM_FREE;
+					sess->sessionTeam = team_t::TEAM_FREE;
 				}
 				break;
-			case GT_DUEL:
+			case gametype_t::GT_DUEL:
 				// if the game is full, go into a waiting mode
 				if ( level.numNonSpectatorClients >= 2 ) {
-					sess->sessionTeam = TEAM_SPECTATOR;
+					sess->sessionTeam = team_t::TEAM_SPECTATOR;
 				} else {
-					sess->sessionTeam = TEAM_FREE;
+					sess->sessionTeam = team_t::TEAM_FREE;
 				}
 				break;
-			case GT_POWERDUEL:
-				//sess->duelTeam = DUELTEAM_LONE; //default
+			case gametype_t::GT_POWERDUEL:
+				//sess->duelTeam = duelTeam_t::DUELTEAM_LONE; //default
 				{
 					int loners = 0;
 					int doubles = 0;
@@ -228,20 +228,20 @@ void G_InitSessionData( gclient_t *client, char *userinfo, bool isBot ) {
 
 					if (!doubles || loners > (doubles/2))
 					{
-						sess->duelTeam = DUELTEAM_DOUBLE;
+						sess->duelTeam = duelTeam_t::DUELTEAM_DOUBLE;
 					}
 					else
 					{
-						sess->duelTeam = DUELTEAM_LONE;
+						sess->duelTeam = duelTeam_t::DUELTEAM_LONE;
 					}
 				}
-				sess->sessionTeam = TEAM_SPECTATOR;
+				sess->sessionTeam = team_t::TEAM_SPECTATOR;
 				break;
 			}
 		}
 	}
 
-	sess->spectatorState = SPECTATOR_FREE;
+	sess->spectatorState = spectatorState_t::SPECTATOR_FREE;
 	AddTournamentQueue(client);
 
 	sess->siegeClass[0] = 0;
@@ -283,7 +283,7 @@ void G_WriteSessionData( void ) {
 	trap->Cvar_Set( "session", va("%i", to_underlying( level.gametype )) );
 
 	for ( i = 0 ; i < level.maxclients ; i++ ) {
-		if ( level.clients[i].pers.connected == CON_CONNECTED ) {
+		if ( level.clients[i].pers.connected == clientConnected_t::CON_CONNECTED ) {
 			G_WriteClientSessionData( &level.clients[i] );
 		}
 	}

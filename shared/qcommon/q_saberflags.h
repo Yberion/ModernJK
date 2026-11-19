@@ -57,7 +57,6 @@ enum class saberFlags_t
 	SFL_NO_MIRROR_ATTACKS		= 1<<20, //if set, cannot do the simultaneous attack left/right moves (only available in Dual Lightsaber Combat Style)
 	SFL_NO_ROLL_STAB			= 1<<21, //if set, cannot do roll-stab move at end of roll
 };
-using enum saberFlags_t;
 template <> inline constexpr bool enableEnumFlags<saberFlags_t> = true;
 
 //SABER FLAGS2
@@ -85,7 +84,6 @@ enum class saberFlags2_t
 	SFL2_NO_MANUAL_DEACTIVATE2	= 1<<16, //if set, the blades cannot manually be toggled on and off
 	SFL2_TRANSITION_DAMAGE2		= 1<<17, //if set, the blade does damage in start, transition and return anims (like strong style does)
 };
-using enum saberFlags2_t;
 template <> inline constexpr bool enableEnumFlags<saberFlags2_t> = true;
 
 //saberEventFlags
@@ -103,5 +101,4 @@ enum class saberEventFlags_t
 	SEF_INWATER		= 0x80,	//Saber is in water
 	SEF_LOCK_WON	= 0x100,	//Won a saberLock
 };
-using enum saberEventFlags_t;
 template <> inline constexpr bool enableEnumFlags<saberEventFlags_t> = true;

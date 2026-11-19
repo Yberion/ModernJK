@@ -36,15 +36,15 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 void charge_stick( gentity_t *self, gentity_t *other, trace_t *trace )
 //---------------------------------------------------------
 {
-	self->s.eType = ET_GENERAL;
+	self->s.eType = entityType_t::ET_GENERAL;
 
 	// make us so we can take damage
 	self->clipmask = MASK_SHOT;
-	self->contents = CONTENTS_SHOTCLIP;
+	self->contents = contentsFlags_t::CONTENTS_SHOTCLIP;
 	self->takedamage = true;
 	self->health = 25;
 
-	self->e_DieFunc = dieF_WP_ExplosiveDie;
+	self->e_DieFunc = dieFunc_t::dieF_WP_ExplosiveDie;
 
 	VectorSet( self->maxs, 10, 10, 10 );
 	VectorScale( self->maxs, -1, self->mins );
@@ -52,8 +52,8 @@ void charge_stick( gentity_t *self, gentity_t *other, trace_t *trace )
 	self->activator = self->owner;
 	self->owner = nullptr;
 
-	self->e_TouchFunc = touchF_NULL;
-	self->e_ThinkFunc = thinkF_NULL;
+	self->e_TouchFunc = touchFunc_t::touchF_NULL;
+	self->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
 	self->nextthink = -1;
 
 	WP_Stick( self, trace, 1.0f );
@@ -77,31 +77,31 @@ static void WP_DropDetPack( gentity_t *self, vec3_t start, vec3_t dir )
 	missile->fxID = G_EffectIndex( "detpack/explosion" ); // if we set an explosion effect, explode death can use that instead
 
 	missile->classname = "detpack";
-	missile->s.weapon = WP_DET_PACK;
+	missile->s.weapon = weapon_t::WP_DET_PACK;
 
-	missile->s.pos.trType = TR_GRAVITY;
+	missile->s.pos.trType = trType_t::TR_GRAVITY;
 
-	missile->s.eFlags |= EF_MISSILE_STICK;
-	missile->e_TouchFunc = touchF_charge_stick;
+	missile->s.eFlags |= entityFlags_t::EF_MISSILE_STICK;
+	missile->e_TouchFunc = touchFunc_t::touchF_charge_stick;
 
-	missile->damage = weaponData[WP_DET_PACK].damage;
-	missile->methodOfDeath = MOD_DETPACK;
+	missile->damage = weaponData[weapon_t::WP_DET_PACK].damage;
+	missile->methodOfDeath = meansOfDeath_t::MOD_DETPACK;
 
-	missile->splashDamage = weaponData[WP_DET_PACK].splashDamage;
-	missile->splashRadius = weaponData[WP_DET_PACK].splashRadius;
-	missile->splashMethodOfDeath = MOD_DETPACK;// ?SPLASH;
+	missile->splashDamage = weaponData[weapon_t::WP_DET_PACK].splashDamage;
+	missile->splashRadius = weaponData[weapon_t::WP_DET_PACK].splashRadius;
+	missile->splashMethodOfDeath = meansOfDeath_t::MOD_DETPACK;// ?SPLASH;
 
-	missile->clipmask = (CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_SHOTCLIP);//MASK_SHOT;
+	missile->clipmask = (contentsFlags_t::CONTENTS_SOLID|contentsFlags_t::CONTENTS_BODY|contentsFlags_t::CONTENTS_SHOTCLIP);//MASK_SHOT;
 
 	// we don't want it to ever bounce
 	missile->bounceCount = 0;
 
 	missile->s.radius = 30;
 	VectorSet( missile->s.modelScale, 1.0f, 1.0f, 1.0f );
-	gi.G2API_InitGhoul2Model( missile->ghoul2, weaponData[WP_DET_PACK].missileMdl, G_ModelIndex( weaponData[WP_DET_PACK].missileMdl ), NULL_HANDLE, NULL_HANDLE, 0, 0);
+	gi.G2API_InitGhoul2Model( missile->ghoul2, weaponData[weapon_t::WP_DET_PACK].missileMdl, G_ModelIndex( weaponData[weapon_t::WP_DET_PACK].missileMdl ), NULL_HANDLE, NULL_HANDLE, 0, 0);
 
-	AddSoundEvent( nullptr, missile->currentOrigin, 128, AEL_MINOR, true );
-	AddSightEvent( nullptr, missile->currentOrigin, 128, AEL_SUSPICIOUS, 10 );
+	AddSoundEvent( nullptr, missile->currentOrigin, 128, alertEventLevel_e::AEL_MINOR, true );
+	AddSightEvent( nullptr, missile->currentOrigin, 128, alertEventLevel_e::AEL_SUSPICIOUS, 10 );
 }
 
 //---------------------------------------------------------
@@ -115,7 +115,7 @@ void WP_FireDetPack( gentity_t *ent, bool alt_fire )
 
 	if ( alt_fire  )
 	{
-		if ( Any( ent->client->ps.eFlags & EF_PLANTED_CHARGE ) )
+		if ( Any( ent->client->ps.eFlags & entityFlags_t::EF_PLANTED_CHARGE ) )
 		{
 			gentity_t *found = nullptr;
 
@@ -125,23 +125,23 @@ void WP_FireDetPack( gentity_t *ent, bool alt_fire )
 				if ( found->activator == ent )
 				{
 					VectorCopy( found->currentOrigin, found->s.origin );
-					found->e_ThinkFunc = thinkF_WP_Explode;
+					found->e_ThinkFunc = thinkFunc_t::thinkF_WP_Explode;
 					found->nextthink = level.time + 100 + Q_flrand(0.0f, 1.0f) * 100;
 					G_Sound( found, G_SoundIndex( "sound/weapons/detpack/warning.wav" ));
 
 					// would be nice if this actually worked?
-					AddSoundEvent( nullptr, found->currentOrigin, found->splashRadius*2, AEL_DANGER );
-					AddSightEvent( nullptr, found->currentOrigin, found->splashRadius*2, AEL_DISCOVERED, 100 );
+					AddSoundEvent( nullptr, found->currentOrigin, found->splashRadius*2, alertEventLevel_e::AEL_DANGER );
+					AddSightEvent( nullptr, found->currentOrigin, found->splashRadius*2, alertEventLevel_e::AEL_DISCOVERED, 100 );
 				}
 			}
 
-			ent->client->ps.eFlags &= ~EF_PLANTED_CHARGE;
+			ent->client->ps.eFlags &= ~entityFlags_t::EF_PLANTED_CHARGE;
 		}
 	}
 	else
 	{
 		WP_DropDetPack( ent, wpMuzzle, wpFwd );
 
-		ent->client->ps.eFlags |= EF_PLANTED_CHARGE;
+		ent->client->ps.eFlags |= entityFlags_t::EF_PLANTED_CHARGE;
 	}
 }

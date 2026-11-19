@@ -36,7 +36,7 @@ void QDECL Com_Printf( const char *msg, ... )
 	Q_vsnprintf(text, sizeof(text), msg, argptr);
 	va_end(argptr);
 
-	ri.Printf(PRINT_ALL, "%s", text);
+	ri.Printf(printParm_t::PRINT_ALL, "%s", text);
 }
 
 void QDECL Com_Error( errorParm_t level, const char *error, ... )
@@ -67,7 +67,7 @@ void Com_DPrintf(const char *format, ...)
 	Q_vsnprintf(text, sizeof(text), format, argptr);
 	va_end(argptr);
 
-	ri.Printf(PRINT_DEVELOPER, "%s", text);
+	ri.Printf(printParm_t::PRINT_DEVELOPER, "%s", text);
 }
 
 // HUNK
@@ -95,5 +95,5 @@ void R_MorphMallocTag( void *pvBuffer, memtag_t eDesiredTag ) {
 }
 
 void *R_Hunk_Alloc( int iSize, bool bZeroit ) {
-	return ri.Malloc( iSize, TAG_HUNKALLOC, bZeroit, 4 );
+	return ri.Malloc( iSize, memtag::TAG_HUNKALLOC, bZeroit, 4 );
 }

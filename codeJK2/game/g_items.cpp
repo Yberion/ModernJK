@@ -85,15 +85,15 @@ int Pickup_Holdable( gentity_t *ent, gentity_t *other )
 {
 	inventory_t	i,original;
 
-	other->client->ps.stats[STAT_ITEMS] |= Bit( GI_Inventory( *ent->item ) );
+	other->client->ps.stats[statIndex_t::STAT_ITEMS] |= Bit( GI_Inventory( *ent->item ) );
 
-	if ( GI_Inventory( *ent->item ) == INV_SECURITY_KEY )
+	if ( GI_Inventory( *ent->item ) == inventory_t::INV_SECURITY_KEY )
 	{//give the key
 		//FIXME: temp message
 		gi.SendServerCommand( 0, "cp @INGAME_YOU_TOOK_SECURITY_KEY" );
 		INV_SecurityKeyGive( other, ent->message );
 	}
-	else if ( GI_Inventory( *ent->item ) == INV_GOODIE_KEY )
+	else if ( GI_Inventory( *ent->item ) == inventory_t::INV_GOODIE_KEY )
 	{//give the key
 		//FIXME: temp message
 		gi.SendServerCommand( 0, "cp @INGAME_YOU_TOOK_SUPPLY_KEY" );
@@ -107,11 +107,11 @@ int Pickup_Holdable( gentity_t *ent, gentity_t *other )
 
 	// Set the inventory select, just in case it hasn't
 	original = cg.inventorySelect;
-	for ( i = INV_ELECTROBINOCULARS ; i < INV_MAX ; i++ )
+	for ( i = inventory_t::INV_ELECTROBINOCULARS ; i < inventory_t::INV_MAX ; i++ )
 	{
-		if ((cg.inventorySelect < INV_ELECTROBINOCULARS) || (cg.inventorySelect >= INV_MAX))
+		if ((cg.inventorySelect < inventory_t::INV_ELECTROBINOCULARS) || (cg.inventorySelect >= inventory_t::INV_MAX))
 		{
-			cg.inventorySelect = (INV_MAX - 1);
+			cg.inventorySelect = (inventory_t::INV_MAX - 1);
 		}
 
 		if ( G_InventorySelectable( cg.inventorySelect,other ) )
@@ -131,21 +131,21 @@ int Pickup_Holdable( gentity_t *ent, gentity_t *other )
 int Add_Ammo2 (gentity_t *ent, ammo_t ammoType, int count)
 {
 
-	if (ammoType != AMMO_FORCE)
+	if (ammoType != ammo_t::AMMO_FORCE)
 	{
 		ent->client->ps.ammo[ammoType] += count;
 
 		// since the ammo is the weapon in this case, picking up ammo should actually give you the weapon
 		switch( ammoType )
 		{
-		case AMMO_THERMAL:
-			ent->client->ps.stats[STAT_WEAPONS] |= Bit( WP_THERMAL );
+		case ammo_t::AMMO_THERMAL:
+			ent->client->ps.stats[statIndex_t::STAT_WEAPONS] |= Bit( weapon_t::WP_THERMAL );
 			break;
-		case AMMO_DETPACK:
-			ent->client->ps.stats[STAT_WEAPONS] |= Bit( WP_DET_PACK );
+		case ammo_t::AMMO_DETPACK:
+			ent->client->ps.stats[statIndex_t::STAT_WEAPONS] |= Bit( weapon_t::WP_DET_PACK );
 			break;
-		case AMMO_TRIPMINE:
-			ent->client->ps.stats[STAT_WEAPONS] |= Bit( WP_TRIP_MINE );
+		case ammo_t::AMMO_TRIPMINE:
+			ent->client->ps.stats[statIndex_t::STAT_WEAPONS] |= Bit( weapon_t::WP_TRIP_MINE );
 			break;
 
 		default:
@@ -222,7 +222,7 @@ void Add_Batteries( gentity_t *ent, int *count )
 			*count = 0;
 		}
 
-		G_AddEvent( ent, EV_BATTERIES_CHARGED, 0 );
+		G_AddEvent( ent, entity_event_t::EV_BATTERIES_CHARGED, 0 );
 	}
 }
 
@@ -268,7 +268,7 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other)
 	*/
 
 	// dropped items are always picked up
-	if ( Any( ent->flags & FL_DROPPED_ITEM ) )
+	if ( Any( ent->flags & gentityFlags_t::FL_DROPPED_ITEM ) )
 	{
 		quantity = ent->count;
 	}
@@ -278,26 +278,26 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other)
 	}
 
 	// add the weapon
-	if ( other->client->ps.stats[STAT_WEAPONS] & Bit( GI_Weapon( *ent->item ) ) )
+	if ( other->client->ps.stats[statIndex_t::STAT_WEAPONS] & Bit( GI_Weapon( *ent->item ) ) )
 	{
 		hadWeapon = true;
 	}
-	other->client->ps.stats[STAT_WEAPONS] |= Bit( GI_Weapon( *ent->item ) );
+	other->client->ps.stats[statIndex_t::STAT_WEAPONS] |= Bit( GI_Weapon( *ent->item ) );
 
-	if ( GI_Weapon( *ent->item ) == WP_SABER && !hadWeapon )
+	if ( GI_Weapon( *ent->item ) == weapon_t::WP_SABER && !hadWeapon )
 	{
 		WP_SaberInitBladeData( other );
 	}
 
 	if ( other->s.number )
 	{//NPC
-		if ( other->s.weapon == WP_NONE )
+		if ( other->s.weapon == weapon_t::WP_NONE )
 		{//NPC with no weapon picked up a weapon, change to this weapon
 			//FIXME: clear/set the alt-fire flag based on the picked up weapon and my class?
 			other->client->ps.weapon = GI_Weapon( *ent->item );
-			other->client->ps.weaponstate = WEAPON_RAISING;
+			other->client->ps.weaponstate = weaponstate_t::WEAPON_RAISING;
 			ChangeWeapon( other, GI_Weapon( *ent->item ) );
-			if ( GI_Weapon( *ent->item ) == WP_SABER )
+			if ( GI_Weapon( *ent->item ) == weapon_t::WP_SABER )
 			{
 				other->client->ps.saberActive = true;
 				G_CreateG2AttachedWeaponModel( other, other->client->ps.saberModel );
@@ -325,9 +325,9 @@ int ITM_AddHealth (gentity_t *ent, int count)
 
 	ent->health += count;
 
-	if (ent->health > ent->client->ps.stats[STAT_MAX_HEALTH])	// Past max health
+	if (ent->health > ent->client->ps.stats[statIndex_t::STAT_MAX_HEALTH])	// Past max health
 	{
-		ent->health = ent->client->ps.stats[STAT_MAX_HEALTH];
+		ent->health = ent->client->ps.stats[statIndex_t::STAT_MAX_HEALTH];
 
 		return false;
 	}
@@ -340,7 +340,7 @@ int Pickup_Health (gentity_t *ent, gentity_t *other) {
 	int			max;
 	int			quantity;
 
-	max = other->client->ps.stats[STAT_MAX_HEALTH];
+	max = other->client->ps.stats[statIndex_t::STAT_MAX_HEALTH];
 
 	if ( ent->count ) {
 		quantity = ent->count;
@@ -366,11 +366,11 @@ int Pickup_Health (gentity_t *ent, gentity_t *other) {
 int ITM_AddArmor (gentity_t *ent, int count)
 {
 
-	ent->client->ps.stats[STAT_ARMOR] += count;
+	ent->client->ps.stats[statIndex_t::STAT_ARMOR] += count;
 
-	if (ent->client->ps.stats[STAT_ARMOR] > ent->client->ps.stats[STAT_MAX_HEALTH])
+	if (ent->client->ps.stats[statIndex_t::STAT_ARMOR] > ent->client->ps.stats[statIndex_t::STAT_MAX_HEALTH])
 	{
-		ent->client->ps.stats[STAT_ARMOR] = ent->client->ps.stats[STAT_MAX_HEALTH];
+		ent->client->ps.stats[statIndex_t::STAT_ARMOR] = ent->client->ps.stats[statIndex_t::STAT_MAX_HEALTH];
 		return false;
 	}
 
@@ -381,11 +381,11 @@ int ITM_AddArmor (gentity_t *ent, int count)
 int Pickup_Armor( gentity_t *ent, gentity_t *other ) {
 
 	// make sure that the shield effect is on
-	other->client->ps.powerups[PW_BATTLESUIT] = Q3_INFINITE;
+	other->client->ps.powerups[powerup_t::PW_BATTLESUIT] = Q3_INFINITE;
 
-	other->client->ps.stats[STAT_ARMOR] += ent->item->quantity;
-	if ( other->client->ps.stats[STAT_ARMOR] > other->client->ps.stats[STAT_MAX_HEALTH] ) {
-		other->client->ps.stats[STAT_ARMOR] = other->client->ps.stats[STAT_MAX_HEALTH];
+	other->client->ps.stats[statIndex_t::STAT_ARMOR] += ent->item->quantity;
+	if ( other->client->ps.stats[statIndex_t::STAT_ARMOR] > other->client->ps.stats[statIndex_t::STAT_MAX_HEALTH] ) {
+		other->client->ps.stats[statIndex_t::STAT_ARMOR] = other->client->ps.stats[statIndex_t::STAT_MAX_HEALTH];
 	}
 
 	return 30;
@@ -400,7 +400,7 @@ int Pickup_Holocron( gentity_t *ent, gentity_t *other )
 	const forcePowers_t forcePower = static_cast<forcePowers_t>( ent->item->giTag );
 	const forcePowerLevels_t forceLevel = static_cast<forcePowerLevels_t>( ent->count );
 	// check if out of range
-	if( forceLevel < FORCE_LEVEL_0 || forceLevel >= NUM_FORCE_POWER_LEVELS )
+	if( forceLevel < forcePowerLevels_t::FORCE_LEVEL_0 || forceLevel >= forcePowerLevels_t::NUM_FORCE_POWER_LEVELS )
 	{
 		gi.Printf(" Pickup_Holocron : count %d not in valid range\n", ent->count );
 		return 1;
@@ -447,18 +447,18 @@ bool CheckItemCanBePickedUpByNPC( gentity_t *item, gentity_t *pickerupper )
 	if ( !item->item ) {
 		return false;
 	}
-	if ( item->item->giType == IT_HOLDABLE &&
-		GI_Inventory( *item->item ) == INV_SECURITY_KEY ) {
+	if ( item->item->giType == itemType_t::IT_HOLDABLE &&
+		GI_Inventory( *item->item ) == inventory_t::INV_SECURITY_KEY ) {
 		return false;
 	}
-	if ( Any( item->flags & FL_DROPPED_ITEM )
+	if ( Any( item->flags & gentityFlags_t::FL_DROPPED_ITEM )
 		&& item->activator != &g_entities[0]
 		&& pickerupper->s.number
-		&& pickerupper->s.weapon == WP_NONE
+		&& pickerupper->s.weapon == weapon_t::WP_NONE
 		&& pickerupper->enemy
 		&& pickerupper->painDebounceTime < level.time
 		&& pickerupper->NPC && pickerupper->NPC->surrenderTime < level.time //not surrendering
-		&& !Any(pickerupper->NPC->scriptFlags&SCF_FORCED_MARCH) ) // not being forced to march
+		&& !Any(pickerupper->NPC->scriptFlags&scriptFlags_t::SCF_FORCED_MARCH) ) // not being forced to march
 	{//non-player, in combat, picking up a dropped item that does NOT belong to the player and it *not* a security key
 		if ( level.time - item->s.time < 3000 )//was 5000
 		{
@@ -488,30 +488,30 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	}
 
 	// Only monsters can pick it up
-	if ((ent->spawnflags &  ITMSF_MONSTER) && (other->client->playerTeam == TEAM_PLAYER))
+	if ((ent->spawnflags &  ITMSF_MONSTER) && (other->client->playerTeam == team_t::TEAM_PLAYER))
 	{
 		return;
 	}
 
 	// Only starfleet can pick it up
-	if ((ent->spawnflags &  ITMSF_TEAM) && (other->client->playerTeam != TEAM_PLAYER))
+	if ((ent->spawnflags &  ITMSF_TEAM) && (other->client->playerTeam != team_t::TEAM_PLAYER))
 	{
 		return;
 	}
 
 
-	if ( other->client->NPC_class == CLASS_ATST ||
-		other->client->NPC_class == CLASS_GONK ||
-		other->client->NPC_class == CLASS_MARK1 ||
-		other->client->NPC_class == CLASS_MARK2 ||
-		other->client->NPC_class == CLASS_MOUSE ||
-		other->client->NPC_class == CLASS_PROBE ||
-		other->client->NPC_class == CLASS_PROTOCOL ||
-		other->client->NPC_class == CLASS_R2D2 ||
-		other->client->NPC_class == CLASS_R5D2 ||
-		other->client->NPC_class == CLASS_SEEKER ||
-		other->client->NPC_class == CLASS_REMOTE ||
-		other->client->NPC_class == CLASS_SENTRY )
+	if ( other->client->NPC_class == class_t::CLASS_ATST ||
+		other->client->NPC_class == class_t::CLASS_GONK ||
+		other->client->NPC_class == class_t::CLASS_MARK1 ||
+		other->client->NPC_class == class_t::CLASS_MARK2 ||
+		other->client->NPC_class == class_t::CLASS_MOUSE ||
+		other->client->NPC_class == class_t::CLASS_PROBE ||
+		other->client->NPC_class == class_t::CLASS_PROTOCOL ||
+		other->client->NPC_class == class_t::CLASS_R2D2 ||
+		other->client->NPC_class == class_t::CLASS_R5D2 ||
+		other->client->NPC_class == class_t::CLASS_SEEKER ||
+		other->client->NPC_class == class_t::CLASS_REMOTE ||
+		other->client->NPC_class == class_t::CLASS_SENTRY )
 	{//FIXME: some flag would be better
 		//droids can't pick up items/weapons!
 		return;
@@ -524,7 +524,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		if ( other->NPC && other->NPC->goalEntity && other->NPC->goalEntity->enemy == ent )
 		{//they were running to pick me up, they did, so clear goal
 			other->NPC->goalEntity = nullptr;
-			other->NPC->squadState = SQUAD_STAND_AND_SHOOT;
+			other->NPC->squadState = squadState_t::SQUAD_STAND_AND_SHOOT;
 		}
 	}
 	else if (!(ent->spawnflags &  ITMSF_TEAM) && !(ent->spawnflags &  ITMSF_MONSTER))
@@ -542,7 +542,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 
 	if ( other->client )
 	{
-		if ( Any( other->client->ps.eFlags&EF_FORCE_GRIPPED ) )
+		if ( Any( other->client->ps.eFlags&entityFlags_t::EF_FORCE_GRIPPED ) )
 		{//can't pick up anything while being gripped
 			return;
 		}
@@ -559,8 +559,8 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	// call the item-specific pickup function
 	switch( ent->item->giType )
 	{
-	case IT_WEAPON:
-		if ( other->NPC && other->s.weapon == WP_NONE )
+	case itemType_t::IT_WEAPON:
+		if ( other->NPC && other->s.weapon == weapon_t::WP_NONE )
 		{//Make them duck and sit here for a few seconds
 			int pickUpTime = Q_irand( 1000, 3000 );
 			TIMER_Set( other, "duck", pickUpTime );
@@ -570,28 +570,28 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 			TIMER_Set( other, "attackDelay", 600 );
 			respawn = 0;
 		}
-		if ( other->client->ps.stats[STAT_WEAPONS] & Bit( GI_Weapon( *ent->item ) ) )
+		if ( other->client->ps.stats[statIndex_t::STAT_WEAPONS] & Bit( GI_Weapon( *ent->item ) ) )
 		{
 			bHadWeapon = true;
 		}
 		respawn = Pickup_Weapon(ent, other);
 		break;
-	case IT_AMMO:
+	case itemType_t::IT_AMMO:
 		respawn = Pickup_Ammo(ent, other);
 		break;
-	case IT_ARMOR:
+	case itemType_t::IT_ARMOR:
 		respawn = Pickup_Armor(ent, other);
 		break;
-	case IT_HEALTH:
+	case itemType_t::IT_HEALTH:
 		respawn = Pickup_Health(ent, other);
 		break;
-	case IT_HOLDABLE:
+	case itemType_t::IT_HOLDABLE:
 		respawn = Pickup_Holdable(ent, other);
 		break;
-	case IT_BATTERY:
+	case itemType_t::IT_BATTERY:
 		respawn = Pickup_Battery( ent, other );
 		break;
-	case IT_HOLOCRON:
+	case itemType_t::IT_HOLOCRON:
 		respawn = Pickup_Holocron( ent, other );
 		break;
 	default:
@@ -608,7 +608,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	{//SIGH... with timescale on, you lose events left and right
 extern void CG_ItemPickup( itemNum_t itemNum, bool bHadItem );
 		// but we're SP so we'll cheat
-		cgi_S_StartSound( nullptr, other->s.number, CHAN_AUTO,	cgi_S_RegisterSound( ent->item->pickup_sound ) );
+		cgi_S_StartSound( nullptr, other->s.number, soundChannel_t::CHAN_AUTO,	cgi_S_RegisterSound( ent->item->pickup_sound ) );
 		// show icon and name on status bar
 		CG_ItemPickup( ES_ItemNum( ent->s ), bHadWeapon );
 	}
@@ -616,11 +616,11 @@ extern void CG_ItemPickup( itemNum_t itemNum, bool bHadItem );
 	{
 		if ( bHadWeapon )
 		{
-			G_AddEvent( other, EV_ITEM_PICKUP, -ent->s.modelindex );
+			G_AddEvent( other, entity_event_t::EV_ITEM_PICKUP, -ent->s.modelindex );
 		}
 		else
 		{
-			G_AddEvent( other, EV_ITEM_PICKUP, ent->s.modelindex );
+			G_AddEvent( other, entity_event_t::EV_ITEM_PICKUP, ent->s.modelindex );
 		}
 	}
 
@@ -634,8 +634,8 @@ extern void CG_ItemPickup( itemNum_t itemNum, bool bHadItem );
 		G_FreeEntity( ent );
 		/*
 		//NOTE: used to do this:  (for respawning?)
-		ent->svFlags |= SVF_NOCLIENT;
-		ent->s.eFlags |= EF_NODRAW;
+		ent->svFlags |= svFlags_t::SVF_NOCLIENT;
+		ent->s.eFlags |= entityFlags_t::EF_NODRAW;
 		ent->contents = 0;
 		ent->unlinkAfterEvent = true;
 		*/
@@ -658,7 +658,7 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity, char *targ
 
 	dropped = G_Spawn();
 
-	dropped->s.eType = ET_ITEM;
+	dropped->s.eType = entityType_t::ET_ITEM;
 	dropped->s.modelindex = item - bg_itemlist.data();	// store item number in modelindex
 	dropped->s.modelindex2 = 1; // This is non-zero is it's a dropped item
 
@@ -676,7 +676,7 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity, char *targ
 		VectorScale( dropped->maxs, -1, dropped->mins );
 	}
 
-	dropped->contents = CONTENTS_TRIGGER|CONTENTS_ITEM;//CONTENTS_TRIGGER;//not CONTENTS_BODY for dropped items, don't need to ID them
+	dropped->contents = contentsFlags_t::CONTENTS_TRIGGER|contentsFlags_t::CONTENTS_ITEM;//contentsFlags_t::CONTENTS_TRIGGER;//not CONTENTS_BODY for dropped items, don't need to ID them
 
 	if ( target && target[0] )
 	{
@@ -686,28 +686,28 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity, char *targ
 	{
 		// if not targeting something, auto-remove after 30 seconds
 		// only if it's NOT a security or goodie key
-		if (GI_Inventory( *dropped->item ) != INV_SECURITY_KEY )
+		if (GI_Inventory( *dropped->item ) != inventory_t::INV_SECURITY_KEY )
 		{
-			dropped->e_ThinkFunc = thinkF_G_FreeEntity;
+			dropped->e_ThinkFunc = thinkFunc_t::thinkF_G_FreeEntity;
 			dropped->nextthink = level.time + 30000;
 		}
 
-		if ( dropped->item->giType == IT_AMMO && GI_Ammo( *dropped->item ) == AMMO_FORCE )
+		if ( dropped->item->giType == itemType_t::IT_AMMO && GI_Ammo( *dropped->item ) == ammo_t::AMMO_FORCE )
 		{
 			dropped->nextthink = -1;
-			dropped->e_ThinkFunc = thinkF_NULL;
+			dropped->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
 		}
 	}
 
-	dropped->e_TouchFunc = touchF_Touch_Item;
+	dropped->e_TouchFunc = touchFunc_t::touchF_Touch_Item;
 
-	if ( item->giType == IT_WEAPON )
+	if ( item->giType == itemType_t::IT_WEAPON )
 	{
 		// give weapon items zero pitch, a random yaw, and rolled onto their sides...but would be bad to do this for a bowcaster
-		if ( GI_Weapon( *item ) != WP_BOWCASTER
-			&& GI_Weapon( *item ) != WP_THERMAL
-			&& GI_Weapon( *item ) != WP_TRIP_MINE
-			&& GI_Weapon( *item ) != WP_DET_PACK )
+		if ( GI_Weapon( *item ) != weapon_t::WP_BOWCASTER
+			&& GI_Weapon( *item ) != weapon_t::WP_THERMAL
+			&& GI_Weapon( *item ) != weapon_t::WP_TRIP_MINE
+			&& GI_Weapon( *item ) != weapon_t::WP_DET_PACK )
 		{
 			VectorSet( dropped->s.angles, 0, Q_flrand(-1.0f, 1.0f) * 180, 90.0f );
 			G_SetAngles( dropped, dropped->s.angles );
@@ -715,13 +715,13 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity, char *targ
 	}
 
 	G_SetOrigin( dropped, origin );
-	dropped->s.pos.trType = TR_GRAVITY;
+	dropped->s.pos.trType = trType_t::TR_GRAVITY;
 	dropped->s.pos.trTime = level.time;
 	VectorCopy( velocity, dropped->s.pos.trDelta );
 
-	dropped->s.eFlags |= EF_BOUNCE_HALF;
+	dropped->s.eFlags |= entityFlags_t::EF_BOUNCE_HALF;
 
-	dropped->flags = FL_DROPPED_ITEM;
+	dropped->flags = gentityFlags_t::FL_DROPPED_ITEM;
 
 	gi.linkentity (dropped);
 
@@ -772,7 +772,7 @@ Respawn the item
 */
 void Use_Item( gentity_t *ent, gentity_t *other, gentity_t *activator )
 {
-	if ( Any( ent->svFlags & SVF_PLAYER_USABLE ) && other && !other->s.number )
+	if ( Any( ent->svFlags & svFlags_t::SVF_PLAYER_USABLE ) && other && !other->s.number )
 	{//used directly by the player, pick me up
 		GEntity_TouchFunc( ent, other, nullptr );
 	}
@@ -781,14 +781,14 @@ void Use_Item( gentity_t *ent, gentity_t *other, gentity_t *activator )
 		if ( ent->spawnflags & 32 ) // invisible
 		{
 			// If it was invisible, first use makes it visible....
-			ent->s.eFlags &= ~EF_NODRAW;
-			ent->contents = CONTENTS_TRIGGER|CONTENTS_ITEM;
+			ent->s.eFlags &= ~entityFlags_t::EF_NODRAW;
+			ent->contents = contentsFlags_t::CONTENTS_TRIGGER|contentsFlags_t::CONTENTS_ITEM;
 
 			ent->spawnflags &= ~32;
 			return;
 		}
 
-		G_ActivateBehavior( ent, BSET_USE );
+		G_ActivateBehavior( ent, bSet_t::BSET_USE );
 		RespawnItem( ent );
 	}
 }
@@ -832,18 +832,18 @@ void FinishSpawningItem( gentity_t *ent ) {
 		VectorSet (ent->maxs, ITEM_RADIUS, ITEM_RADIUS, ITEM_RADIUS);
 	}
 
-	if ((item->quantity) && (item->giType == IT_AMMO))
+	if ((item->quantity) && (item->giType == itemType_t::IT_AMMO))
 	{
 		ent->count = item->quantity;
 	}
 
-	if ((item->quantity) && (item->giType == IT_BATTERY))
+	if ((item->quantity) && (item->giType == itemType_t::IT_BATTERY))
 	{
 		ent->count = item->quantity;
 	}
 
 
-//	if ( item->giType == IT_WEAPON ) // NOTE: james thought it was ok to just always do this?
+//	if ( item->giType == itemType_t::IT_WEAPON ) // NOTE: james thought it was ok to just always do this?
 	{
 		ent->s.radius = 20;
 		VectorSet( ent->s.modelScale, 1.0f, 1.0f, 1.0f );
@@ -860,15 +860,15 @@ void FinishSpawningItem( gentity_t *ent ) {
 		CrystalAmmoSettings(ent);
 	}
 */
-	ent->s.eType = ET_ITEM;
+	ent->s.eType = entityType_t::ET_ITEM;
 	ent->s.modelindex = ent->item - bg_itemlist.data();		// store item number in modelindex
 	ent->s.modelindex2 = 0; // zero indicates this isn't a dropped item
 
-	ent->contents = CONTENTS_TRIGGER|CONTENTS_ITEM;//CONTENTS_BODY;//CONTENTS_TRIGGER|
-	ent->e_TouchFunc = touchF_Touch_Item;
+	ent->contents = contentsFlags_t::CONTENTS_TRIGGER|contentsFlags_t::CONTENTS_ITEM;//contentsFlags_t::CONTENTS_BODY;//CONTENTS_TRIGGER|
+	ent->e_TouchFunc = touchFunc_t::touchF_Touch_Item;
 	// useing an item causes it to respawn
-	ent->e_UseFunc = useF_Use_Item;
-	ent->svFlags |= SVF_PLAYER_USABLE;//so player can pick it up
+	ent->e_UseFunc = useFunc_t::useF_Use_Item;
+	ent->svFlags |= svFlags_t::SVF_PLAYER_USABLE;//so player can pick it up
 
 	// Hang in air?
 	ent->s.origin[2] += 1;//just to get it off the damn ground because coplanar = insolid
@@ -881,7 +881,7 @@ void FinishSpawningItem( gentity_t *ent ) {
 	{
 		// drop to floor
 		VectorSet( dest, ent->s.origin[0], ent->s.origin[1], MIN_WORLD_COORD );
-		gi.trace( &tr, ent->s.origin, ent->mins, ent->maxs, dest, ent->s.number, MASK_SOLID|CONTENTS_PLAYERCLIP, G2_NOCOLLIDE, 0 );
+		gi.trace( &tr, ent->s.origin, ent->mins, ent->maxs, dest, ent->s.number, MASK_SOLID|contentsFlags_t::CONTENTS_PLAYERCLIP, EG2_Collision::G2_NOCOLLIDE, 0 );
 		if ( tr.startsolid )
 		{
 			if ( g_entities[tr.entityNum].inuse )
@@ -910,21 +910,21 @@ void FinishSpawningItem( gentity_t *ent ) {
 
 /* ? don't need this
 	// team slaves and targeted items aren't present at start
-	if ( Any( ent->flags & FL_TEAMSLAVE ) || ent->targetname ) {
-		ent->s.eFlags |= EF_NODRAW;
+	if ( Any( ent->flags & gentityFlags_t::FL_TEAMSLAVE ) || ent->targetname ) {
+		ent->s.eFlags |= entityFlags_t::EF_NODRAW;
 		ent->contents = 0;
 		return;
 	}
 */
 	if ( ent->spawnflags & ITMSF_INVISIBLE ) // invisible
 	{
-		ent->s.eFlags |= EF_NODRAW;
-		ent->contents = CONTENTS_NONE;
+		ent->s.eFlags |= entityFlags_t::EF_NODRAW;
+		ent->contents = contentsFlags_t::CONTENTS_NONE;
 	}
 
 	if ( ent->spawnflags & ITMSF_NOTSOLID ) // not solid
 	{
-		ent->contents = CONTENTS_NONE;
+		ent->contents = contentsFlags_t::CONTENTS_NONE;
 	}
 
 	gi.linkentity (ent);
@@ -946,9 +946,9 @@ void ClearRegisteredItems( void ) {
 	}
 	itemRegistered[ bg_numItems ] = 0;
 
-	RegisterItem( FindItemForWeapon( WP_BRYAR_PISTOL ) );	//these are given in g_client, ClientSpawn(), but MUST be registered HERE, BEFORE cgame starts.
-	RegisterItem( FindItemForWeapon( WP_STUN_BATON ) );			//these are given in g_client, ClientSpawn(), but MUST be registered HERE, BEFORE cgame starts.
-	RegisterItem( FindItemForInventory( INV_ELECTROBINOCULARS ));
+	RegisterItem( FindItemForWeapon( weapon_t::WP_BRYAR_PISTOL ) );	//these are given in g_client, ClientSpawn(), but MUST be registered HERE, BEFORE cgame starts.
+	RegisterItem( FindItemForWeapon( weapon_t::WP_STUN_BATON ) );			//these are given in g_client, ClientSpawn(), but MUST be registered HERE, BEFORE cgame starts.
+	RegisterItem( FindItemForInventory( inventory_t::INV_ELECTROBINOCULARS ));
 	// saber or baton is cached in SP_info_player_deathmatch now.
 
 extern void Player_CacheFromPrevLevel(void);//g_client.cpp
@@ -1012,9 +1012,9 @@ void item_spawn_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 //-----------------------------------------------------------------------------
 {
 	self->nextthink = level.time + 50;
-	self->e_ThinkFunc = thinkF_FinishSpawningItem;
+	self->e_ThinkFunc = thinkFunc_t::thinkF_FinishSpawningItem;
 	// I could be fancy and add a count or something like that to be able to spawn the item numerous times...
-	self->e_UseFunc = useF_NULL;
+	self->e_UseFunc = useFunc_t::useF_NULL;
 }
 
 /*
@@ -1037,13 +1037,13 @@ void G_SpawnItem (gentity_t *ent, gitem_t *item) {
 	// targetname indicates they want to spawn it later
 	if( ent->targetname )
 	{
-		ent->e_UseFunc = useF_item_spawn_use;
+		ent->e_UseFunc = useFunc_t::useF_item_spawn_use;
 	}
 	else
 	{	// some movers spawn on the second frame, so delay item
 		// spawns until the third frame so they can ride trains
 		ent->nextthink = level.time + START_TIME_MOVERS_SPAWNED + 50;
-		ent->e_ThinkFunc = thinkF_FinishSpawningItem;
+		ent->e_ThinkFunc = thinkFunc_t::thinkF_FinishSpawningItem;
 	}
 
 	ent->physicsBounce = 0.50;		// items are bouncy
@@ -1102,20 +1102,20 @@ void G_RunItem( gentity_t *ent ) {
 	// if groundentity has been set to -1, it may have been pushed off an edge
 	if ( ent->s.groundEntityNum == ENTITYNUM_NONE )
 	{
-		if ( ent->s.pos.trType != TR_GRAVITY )
+		if ( ent->s.pos.trType != trType_t::TR_GRAVITY )
 		{
-			ent->s.pos.trType = TR_GRAVITY;
+			ent->s.pos.trType = trType_t::TR_GRAVITY;
 			ent->s.pos.trTime = level.time;
 		}
 	}
 
-	if ( ent->s.pos.trType == TR_STATIONARY )
+	if ( ent->s.pos.trType == trType_t::TR_STATIONARY )
 	{
 		// check think function
 		G_RunThink( ent );
 		if ( !g_gravity->value )
 		{
-			ent->s.pos.trType = TR_GRAVITY;
+			ent->s.pos.trType = trType_t::TR_GRAVITY;
 			ent->s.pos.trTime = level.time;
 			ent->s.pos.trDelta[0] += Q_flrand(-1.0f, 1.0f) * 40.0f; // I dunno, just do this??
 			ent->s.pos.trDelta[1] += Q_flrand(-1.0f, 1.0f) * 40.0f;
@@ -1134,7 +1134,7 @@ void G_RunItem( gentity_t *ent ) {
 	}
 	else
 	{
-		mask = MASK_SOLID|CONTENTS_PLAYERCLIP;//shouldn't be able to get anywhere player can't
+		mask = MASK_SOLID|contentsFlags_t::CONTENTS_PLAYERCLIP;//shouldn't be able to get anywhere player can't
 	}
 
 	int ignore = ENTITYNUM_NONE;
@@ -1146,7 +1146,7 @@ void G_RunItem( gentity_t *ent ) {
 	{
 		ignore = ent->activator->s.number;
 	}
-	gi.trace( &tr, ent->currentOrigin, ent->mins, ent->maxs, origin, ignore, mask, G2_NOCOLLIDE, 0 );
+	gi.trace( &tr, ent->currentOrigin, ent->mins, ent->maxs, origin, ignore, mask, EG2_Collision::G2_NOCOLLIDE, 0 );
 
 	VectorCopy( tr.endpos, ent->currentOrigin );
 
@@ -1164,10 +1164,10 @@ void G_RunItem( gentity_t *ent ) {
 	{
 		if ( g_gravity->value <= 0 )
 		{
-			if ( ent->s.apos.trType != TR_LINEAR )
+			if ( ent->s.apos.trType != trType_t::TR_LINEAR )
 			{
 				VectorCopy( ent->currentAngles, ent->s.apos.trBase );
-				ent->s.apos.trType = TR_LINEAR;
+				ent->s.apos.trType = trType_t::TR_LINEAR;
 				ent->s.apos.trDelta[1] = Q_flrand( -300, 300 );
 				ent->s.apos.trDelta[0] = Q_flrand( -10, 10 );
 				ent->s.apos.trDelta[2] = Q_flrand( -10, 10 );
@@ -1193,7 +1193,7 @@ void G_RunItem( gentity_t *ent ) {
 
 	// if it is in a nodrop volume, remove it
 	contents = gi.pointcontents( ent->currentOrigin, -1 );
-	if ( Any( contents & CONTENTS_NODROP ) )
+	if ( Any( contents & contentsFlags_t::CONTENTS_NODROP ) )
 	{
 		G_FreeEntity( ent );
 		return;
@@ -1218,19 +1218,19 @@ void ItemUse_Bacta(gentity_t *ent)
 		return;
 	}
 
-	if (ent->health >= ent->client->ps.stats[STAT_MAX_HEALTH] || !ent->client->ps.inventory[INV_BACTA_CANISTER] )
+	if (ent->health >= ent->client->ps.stats[statIndex_t::STAT_MAX_HEALTH] || !ent->client->ps.inventory[inventory_t::INV_BACTA_CANISTER] )
 	{
 		return;
 	}
 
 	ent->health += MAX_BACTA_HEAL_AMOUNT;
 
-	if (ent->health > ent->client->ps.stats[STAT_MAX_HEALTH])
+	if (ent->health > ent->client->ps.stats[statIndex_t::STAT_MAX_HEALTH])
 	{
-		ent->health = ent->client->ps.stats[STAT_MAX_HEALTH];
+		ent->health = ent->client->ps.stats[statIndex_t::STAT_MAX_HEALTH];
 	}
 
-	ent->client->ps.inventory[INV_BACTA_CANISTER]--;
+	ent->client->ps.inventory[inventory_t::INV_BACTA_CANISTER]--;
 
-	G_SoundOnEnt( ent, CHAN_VOICE, va( "sound/weapons/force/heal%d.mp3", Q_irand( 1, 4 ) ) );
+	G_SoundOnEnt( ent, soundChannel_t::CHAN_VOICE, va( "sound/weapons/force/heal%d.mp3", Q_irand( 1, 4 ) ) );
 }

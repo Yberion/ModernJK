@@ -54,7 +54,7 @@ struct surfaceInfo_t
 	int			genLod;			// used to determine original lod of original surface and poly hit location
 
 	surfaceInfo_t()
-	: offFlags(G2SURFACEFLAG_NONE)
+	: offFlags(g2SurfaceFlags_t::G2SURFACEFLAG_NONE)
 	, surface(0)
 	, genBarycentricJ(0)
 	, genBarycentricI(0)
@@ -152,7 +152,7 @@ struct  boneInfo_t
 
 	boneInfo_t()
 	: boneNumber(-1)
-	, flags(BONE_NONE)
+	, flags(boneFlags_t::BONE_NONE)
 	, startFrame(0)
 	, endFrame(0)
 	, startTime(0)
@@ -165,7 +165,7 @@ struct  boneInfo_t
 	, boneBlendTime(0)
 	, boneBlendStart(0)
 	, lastTime(0)
-	, RagFlags(RAG_NONE)
+	, RagFlags(ragBoneFlags_t::RAG_NONE)
 	{
 		Com_Memset(&matrix, 0, sizeof(matrix));
 	}
@@ -181,7 +181,7 @@ struct boltInfo_t{
 	boltInfo_t():
 	boneNumber(-1),
 	surfaceNumber(-1),
-	surfaceType(G2SURFACEFLAG_NONE),
+	surfaceType(g2SurfaceFlags_t::G2SURFACEFLAG_NONE),
 	boltUsed(0)
 	{}
 };
@@ -197,7 +197,6 @@ enum class goreEnum_t
 	PGORE_HEGRENADE,
 	PGORE_COUNT
 };
-using enum goreEnum_t;
 
 struct goreEnumShader_t
 {
@@ -253,7 +252,6 @@ enum class ghoul2Flags_t
 
 	GHOUL2_CRAZY_SMOOTH						= 0x4000		//hack for smoothing during ugly situations. forgive me.
 };
-using enum ghoul2Flags_t;
 template <> inline constexpr bool enableEnumFlags<ghoul2Flags_t> = true;
 
 class CBoneCache;
@@ -315,7 +313,7 @@ public:
 	mAnimFrameDefault(0),
 	mSkelFrameNum(-1),
 	mMeshFrameNum(-1),
-	mFlags(GHOUL2_NONE),
+	mFlags(ghoul2Flags_t::GHOUL2_NONE),
 	mTransformedVertsArray(nullptr),
 	mBoneCache(nullptr),
 	mSkin(0),
@@ -347,7 +345,6 @@ enum class EG2_Collision
 	G2_COLLIDE,
 	G2_RETURNONHIT
 };
-using enum EG2_Collision;
 
 
 //====================================================================

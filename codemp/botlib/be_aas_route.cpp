@@ -97,9 +97,9 @@ int max_routingcachesize;
 #ifdef ROUTING_DEBUG
 void AAS_RoutingInfo(void)
 {
-	botimport.Print(PRT_MESSAGE, "%d area cache updates\n", numareacacheupdates);
-	botimport.Print(PRT_MESSAGE, "%d portal cache updates\n", numportalcacheupdates);
-	botimport.Print(PRT_MESSAGE, "%d bytes routing cache\n", routingcachesize);
+	botimport.Print(printType_t::PRT_MESSAGE, "%d area cache updates\n", numareacacheupdates);
+	botimport.Print(printType_t::PRT_MESSAGE, "%d portal cache updates\n", numportalcacheupdates);
+	botimport.Print(printType_t::PRT_MESSAGE, "%d bytes routing cache\n", routingcachesize);
 } //end of the function AAS_RoutingInfo
 #endif //ROUTING_DEBUG
 //===========================================================================
@@ -140,27 +140,27 @@ void AAS_InitTravelFlagFromType(void)
 {
 	for (travelFlags_t &tfl : aasworld.travelflagfortype)
 	{
-		tfl = TFL_INVALID;
+		tfl = travelFlags_t::TFL_INVALID;
 	} //end for
-	aasworld.travelflagfortype[TRAVEL_INVALID] = TFL_INVALID;
-	aasworld.travelflagfortype[TRAVEL_WALK] = TFL_WALK;
-	aasworld.travelflagfortype[TRAVEL_CROUCH] = TFL_CROUCH;
-	aasworld.travelflagfortype[TRAVEL_BARRIERJUMP] = TFL_BARRIERJUMP;
-	aasworld.travelflagfortype[TRAVEL_JUMP] = TFL_JUMP;
-	aasworld.travelflagfortype[TRAVEL_LADDER] = TFL_LADDER;
-	aasworld.travelflagfortype[TRAVEL_WALKOFFLEDGE] = TFL_WALKOFFLEDGE;
-	aasworld.travelflagfortype[TRAVEL_SWIM] = TFL_SWIM;
-	aasworld.travelflagfortype[TRAVEL_WATERJUMP] = TFL_WATERJUMP;
-	aasworld.travelflagfortype[TRAVEL_TELEPORT] = TFL_TELEPORT;
-	aasworld.travelflagfortype[TRAVEL_ELEVATOR] = TFL_ELEVATOR;
-	aasworld.travelflagfortype[TRAVEL_ROCKETJUMP] = TFL_ROCKETJUMP;
-	aasworld.travelflagfortype[TRAVEL_BFGJUMP] = TFL_BFGJUMP;
-	aasworld.travelflagfortype[TRAVEL_GRAPPLEHOOK] = TFL_GRAPPLEHOOK;
-	aasworld.travelflagfortype[TRAVEL_DOUBLEJUMP] = TFL_DOUBLEJUMP;
-	aasworld.travelflagfortype[TRAVEL_RAMPJUMP] = TFL_RAMPJUMP;
-	aasworld.travelflagfortype[TRAVEL_STRAFEJUMP] = TFL_STRAFEJUMP;
-	aasworld.travelflagfortype[TRAVEL_JUMPPAD] = TFL_JUMPPAD;
-	aasworld.travelflagfortype[TRAVEL_FUNCBOB] = TFL_FUNCBOB;
+	aasworld.travelflagfortype[travelTypeFlags_t::TRAVEL_INVALID] = travelFlags_t::TFL_INVALID;
+	aasworld.travelflagfortype[travelTypeFlags_t::TRAVEL_WALK] = travelFlags_t::TFL_WALK;
+	aasworld.travelflagfortype[travelTypeFlags_t::TRAVEL_CROUCH] = travelFlags_t::TFL_CROUCH;
+	aasworld.travelflagfortype[travelTypeFlags_t::TRAVEL_BARRIERJUMP] = travelFlags_t::TFL_BARRIERJUMP;
+	aasworld.travelflagfortype[travelTypeFlags_t::TRAVEL_JUMP] = travelFlags_t::TFL_JUMP;
+	aasworld.travelflagfortype[travelTypeFlags_t::TRAVEL_LADDER] = travelFlags_t::TFL_LADDER;
+	aasworld.travelflagfortype[travelTypeFlags_t::TRAVEL_WALKOFFLEDGE] = travelFlags_t::TFL_WALKOFFLEDGE;
+	aasworld.travelflagfortype[travelTypeFlags_t::TRAVEL_SWIM] = travelFlags_t::TFL_SWIM;
+	aasworld.travelflagfortype[travelTypeFlags_t::TRAVEL_WATERJUMP] = travelFlags_t::TFL_WATERJUMP;
+	aasworld.travelflagfortype[travelTypeFlags_t::TRAVEL_TELEPORT] = travelFlags_t::TFL_TELEPORT;
+	aasworld.travelflagfortype[travelTypeFlags_t::TRAVEL_ELEVATOR] = travelFlags_t::TFL_ELEVATOR;
+	aasworld.travelflagfortype[travelTypeFlags_t::TRAVEL_ROCKETJUMP] = travelFlags_t::TFL_ROCKETJUMP;
+	aasworld.travelflagfortype[travelTypeFlags_t::TRAVEL_BFGJUMP] = travelFlags_t::TFL_BFGJUMP;
+	aasworld.travelflagfortype[travelTypeFlags_t::TRAVEL_GRAPPLEHOOK] = travelFlags_t::TFL_GRAPPLEHOOK;
+	aasworld.travelflagfortype[travelTypeFlags_t::TRAVEL_DOUBLEJUMP] = travelFlags_t::TFL_DOUBLEJUMP;
+	aasworld.travelflagfortype[travelTypeFlags_t::TRAVEL_RAMPJUMP] = travelFlags_t::TFL_RAMPJUMP;
+	aasworld.travelflagfortype[travelTypeFlags_t::TRAVEL_STRAFEJUMP] = travelFlags_t::TFL_STRAFEJUMP;
+	aasworld.travelflagfortype[travelTypeFlags_t::TRAVEL_JUMPPAD] = travelFlags_t::TFL_JUMPPAD;
+	aasworld.travelflagfortype[travelTypeFlags_t::TRAVEL_FUNCBOB] = travelFlags_t::TFL_FUNCBOB;
 } //end of the function AAS_InitTravelFlagFromType
 //===========================================================================
 //
@@ -172,14 +172,14 @@ static QINLINE travelFlags_t AAS_TravelFlagForType_inline(travelTypeFlags_t trav
 {
 	travelFlags_t tfl;
 
-	tfl = TFL_NONE;
-	if (Any( traveltype & TRAVELFLAG_NOTTEAM1 ))
-		tfl |= TFL_NOTTEAM1;
-	if (Any( traveltype & TRAVELFLAG_NOTTEAM2 ))
-		tfl |= TFL_NOTTEAM2;
-	traveltype &= TRAVELTYPE_MASK;
+	tfl = travelFlags_t::TFL_NONE;
+	if (Any( traveltype & travelTypeFlags_t::TRAVELFLAG_NOTTEAM1 ))
+		tfl |= travelFlags_t::TFL_NOTTEAM1;
+	if (Any( traveltype & travelTypeFlags_t::TRAVELFLAG_NOTTEAM2 ))
+		tfl |= travelFlags_t::TFL_NOTTEAM2;
+	traveltype &= travelTypeFlags_t::TRAVELTYPE_MASK;
 	if (to_underlying( traveltype ) < 0 || to_underlying( traveltype ) >= MAX_TRAVELTYPES)
-		return TFL_INVALID;
+		return travelFlags_t::TFL_INVALID;
 	tfl |= aasworld.travelflagfortype[traveltype];
 	return tfl;
 } //end of the function AAS_TravelFlagForType_inline
@@ -315,20 +315,20 @@ int AAS_EnableRoutingArea(int areanum, int enable)
 	{
 		if (botDeveloper)
 		{
-			botimport.Print(PRT_ERROR, "AAS_EnableRoutingArea: areanum %d out of range\n", areanum);
+			botimport.Print(printType_t::PRT_ERROR, "AAS_EnableRoutingArea: areanum %d out of range\n", areanum);
 		} //end if
 		return 0;
 	} //end if
-	flags = aasworld.areasettings[areanum].areaflags & AREA_DISABLED;
+	flags = aasworld.areasettings[areanum].areaflags & areaFlags_t::AREA_DISABLED;
 	if (enable < 0)
 		return !Any( flags );
 
 	if (enable)
-		aasworld.areasettings[areanum].areaflags &= ~AREA_DISABLED;
+		aasworld.areasettings[areanum].areaflags &= ~areaFlags_t::AREA_DISABLED;
 	else
-		aasworld.areasettings[areanum].areaflags |= AREA_DISABLED;
+		aasworld.areasettings[areanum].areaflags |= areaFlags_t::AREA_DISABLED;
 	// if the status of the area changed
-	if ( (flags & AREA_DISABLED) != (aasworld.areasettings[areanum].areaflags & AREA_DISABLED) )
+	if ( (flags & areaFlags_t::AREA_DISABLED) != (aasworld.areasettings[areanum].areaflags & areaFlags_t::AREA_DISABLED) )
 	{
 		//remove all routing cache involving this area
 		AAS_RemoveRoutingCacheUsingArea( areanum );
@@ -357,23 +357,23 @@ travelFlags_t AAS_GetAreaContentsTravelFlags(int areanum)
 	travelFlags_t tfl;
 
 	contents = aasworld.areasettings[areanum].contents;
-	tfl = TFL_NONE;
-	if (Any( contents & AREACONTENTS_WATER ))
-		tfl |= TFL_WATER;
-	else if (Any( contents & AREACONTENTS_SLIME ))
-		tfl |= TFL_SLIME;
-	else if (Any( contents & AREACONTENTS_LAVA ))
-		tfl |= TFL_LAVA;
+	tfl = travelFlags_t::TFL_NONE;
+	if (Any( contents & areaContentsFlags_t::AREACONTENTS_WATER ))
+		tfl |= travelFlags_t::TFL_WATER;
+	else if (Any( contents & areaContentsFlags_t::AREACONTENTS_SLIME ))
+		tfl |= travelFlags_t::TFL_SLIME;
+	else if (Any( contents & areaContentsFlags_t::AREACONTENTS_LAVA ))
+		tfl |= travelFlags_t::TFL_LAVA;
 	else
-		tfl |= TFL_AIR;
-	if (Any( contents & AREACONTENTS_DONOTENTER ))
-		tfl |= TFL_DONOTENTER;
-	if (Any( contents & AREACONTENTS_NOTTEAM1 ))
-		tfl |= TFL_NOTTEAM1;
-	if (Any( contents & AREACONTENTS_NOTTEAM2 ))
-		tfl |= TFL_NOTTEAM2;
-	if (Any( aasworld.areasettings[areanum].areaflags & AREA_BRIDGE ))
-		tfl |= TFL_BRIDGE;
+		tfl |= travelFlags_t::TFL_AIR;
+	if (Any( contents & areaContentsFlags_t::AREACONTENTS_DONOTENTER ))
+		tfl |= travelFlags_t::TFL_DONOTENTER;
+	if (Any( contents & areaContentsFlags_t::AREACONTENTS_NOTTEAM1 ))
+		tfl |= travelFlags_t::TFL_NOTTEAM1;
+	if (Any( contents & areaContentsFlags_t::AREACONTENTS_NOTTEAM2 ))
+		tfl |= travelFlags_t::TFL_NOTTEAM2;
+	if (Any( aasworld.areasettings[areanum].areaflags & areaFlags_t::AREA_BRIDGE ))
+		tfl |= travelFlags_t::TFL_BRIDGE;
 	return tfl;
 } //end of the function AAS_GetAreaContentsTravelFlags
 //===========================================================================
@@ -447,7 +447,7 @@ void AAS_CreateReversedReachability(void)
 		settings = &aasworld.areasettings[i];
 		//
 		if (settings->numreachableareas >= 128)
-			botimport.Print(PRT_WARNING, "area %d has more than 128 reachabilities\n", i);
+			botimport.Print(printType_t::PRT_WARNING, "area %d has more than 128 reachabilities\n", i);
 		//create reversed links for the reachabilities
 		for (n = 0; n < settings->numreachableareas && n < 128; n++)
 		{
@@ -465,7 +465,7 @@ void AAS_CreateReversedReachability(void)
 		} //end for
 	} //end for
 #ifdef DEBUG
-	botimport.Print(PRT_MESSAGE, "reversed reachability %d msec\n", Sys_MilliSeconds() - starttime);
+	botimport.Print(printType_t::PRT_MESSAGE, "reversed reachability %d msec\n", Sys_MilliSeconds() - starttime);
 #endif
 } //end of the function AAS_CreateReversedReachability
 //===========================================================================
@@ -560,7 +560,7 @@ void AAS_CalculateAreaTravelTimes(void)
 		} //end for
 	} //end for
 #ifdef DEBUG
-	botimport.Print(PRT_MESSAGE, "area travel times %d msec\n", Sys_MilliSeconds() - starttime);
+	botimport.Print(printType_t::PRT_MESSAGE, "area travel times %d msec\n", Sys_MilliSeconds() - starttime);
 #endif
 } //end of the function AAS_CalculateAreaTravelTimes
 //===========================================================================
@@ -614,7 +614,7 @@ void AAS_InitPortalMaxTravelTimes(void)
 	for (i = 0; i < aasworld.numportals; i++)
 	{
 		aasworld.portalmaxtraveltimes[i] = AAS_PortalMaxTravelTime(i);
-		//botimport.Print(PRT_MESSAGE, "portal %d max tt = %d\n", i, aasworld.portalmaxtraveltimes[i]);
+		//botimport.Print(printType_t::PRT_MESSAGE, "portal %d max tt = %d\n", i, aasworld.portalmaxtraveltimes[i]);
 	} //end for
 } //end of the function AAS_InitPortalMaxTravelTimes
 //===========================================================================
@@ -896,7 +896,7 @@ void AAS_CreateAllRoutingCache(void)
 	//int t;
 
 	aasworld.initialized = true;
-	botimport.Print(PRT_MESSAGE, "AAS_CreateAllRoutingCache\n");
+	botimport.Print(printType_t::PRT_MESSAGE, "AAS_CreateAllRoutingCache\n");
 	for (i = 1; i < aasworld.numareas; i++)
 	{
 		if (!AAS_AreaReachability(i)) continue;
@@ -904,8 +904,8 @@ void AAS_CreateAllRoutingCache(void)
 		{
 			if (i == j) continue;
 			if (!AAS_AreaReachability(j)) continue;
-			AAS_AreaTravelTimeToGoalArea(i, aasworld.areas[i].center, j, TFL_DEFAULT);
-			//t = AAS_AreaTravelTimeToGoalArea(i, aasworld.areas[i].center, j, TFL_DEFAULT);
+			AAS_AreaTravelTimeToGoalArea(i, aasworld.areas[i].center, j, travelFlags_t::TFL_DEFAULT);
+			//t = AAS_AreaTravelTimeToGoalArea(i, aasworld.areas[i].center, j, travelFlags_t::TFL_DEFAULT);
 			//Log_Write("traveltime from %d to %d is %d", i, j, t);
 		} //end for
 	} //end for
@@ -967,7 +967,7 @@ void AAS_WriteRouteCache(void)
 	} //end for
 	// open the file for writing
 	Com_sprintf(filename, MAX_QPATH, "maps/%s.rcd", aasworld.mapname);
-	botimport.FS_FOpenFile( filename, &fp, FS_WRITE );
+	botimport.FS_FOpenFile( filename, &fp, fsMode_t::FS_WRITE );
 	if (!fp)
 	{
 		AAS_Error("Unable to open file: %s\n", filename);
@@ -1024,8 +1024,8 @@ void AAS_WriteRouteCache(void)
 	*/
 	//
 	botimport.FS_FCloseFile(fp);
-	botimport.Print(PRT_MESSAGE, "\nroute cache written to %s\n", filename);
-	botimport.Print(PRT_MESSAGE, "written %d bytes of routing cache\n", totalsize);
+	botimport.Print(printType_t::PRT_MESSAGE, "\nroute cache written to %s\n", filename);
+	botimport.Print(printType_t::PRT_MESSAGE, "written %d bytes of routing cache\n", totalsize);
 } //end of the function AAS_WriteRouteCache
 //===========================================================================
 //
@@ -1061,7 +1061,7 @@ int AAS_ReadRouteCache(void)
 	aas_routingcache_t *cache;
 
 	Com_sprintf(filename, MAX_QPATH, "maps/%s.rcd", aasworld.mapname);
-	botimport.FS_FOpenFile( filename, &fp, FS_READ );
+	botimport.FS_FOpenFile( filename, &fp, fsMode_t::FS_READ );
 	if (!fp)
 	{
 		return false;
@@ -1166,41 +1166,41 @@ void AAS_InitReachabilityAreas(void)
 	{
 		reach = &aasworld.reachability[i];
 		numareas = 0;
-		switch(reach->traveltype & TRAVELTYPE_MASK)
+		switch(reach->traveltype & travelTypeFlags_t::TRAVELTYPE_MASK)
 		{
 			//trace areas from start to end
-			case TRAVEL_BARRIERJUMP:
-			case TRAVEL_WATERJUMP:
+			case travelTypeFlags_t::TRAVEL_BARRIERJUMP:
+			case travelTypeFlags_t::TRAVEL_WATERJUMP:
 				VectorCopy(reach->start, end);
 				end[2] = reach->end[2];
 				numareas = AAS_TraceAreas(reach->start, end, areas, nullptr, MAX_REACHABILITYPASSAREAS);
 				break;
-			case TRAVEL_WALKOFFLEDGE:
+			case travelTypeFlags_t::TRAVEL_WALKOFFLEDGE:
 				VectorCopy(reach->end, start);
 				start[2] = reach->start[2];
 				numareas = AAS_TraceAreas(start, reach->end, areas, nullptr, MAX_REACHABILITYPASSAREAS);
 				break;
-			case TRAVEL_GRAPPLEHOOK:
+			case travelTypeFlags_t::TRAVEL_GRAPPLEHOOK:
 				numareas = AAS_TraceAreas(reach->start, reach->end, areas, nullptr, MAX_REACHABILITYPASSAREAS);
 				break;
 
 			//trace arch
-			case TRAVEL_JUMP: break;
-			case TRAVEL_ROCKETJUMP: break;
-			case TRAVEL_BFGJUMP: break;
-			case TRAVEL_JUMPPAD: break;
+			case travelTypeFlags_t::TRAVEL_JUMP: break;
+			case travelTypeFlags_t::TRAVEL_ROCKETJUMP: break;
+			case travelTypeFlags_t::TRAVEL_BFGJUMP: break;
+			case travelTypeFlags_t::TRAVEL_JUMPPAD: break;
 
 			//trace from reach->start to entity center, along entity movement
 			//and from entity center to reach->end
-			case TRAVEL_ELEVATOR: break;
-			case TRAVEL_FUNCBOB: break;
+			case travelTypeFlags_t::TRAVEL_ELEVATOR: break;
+			case travelTypeFlags_t::TRAVEL_FUNCBOB: break;
 
 			//no areas in between
-			case TRAVEL_WALK: break;
-			case TRAVEL_CROUCH: break;
-			case TRAVEL_LADDER: break;
-			case TRAVEL_SWIM: break;
-			case TRAVEL_TELEPORT: break;
+			case travelTypeFlags_t::TRAVEL_WALK: break;
+			case travelTypeFlags_t::TRAVEL_CROUCH: break;
+			case travelTypeFlags_t::TRAVEL_LADDER: break;
+			case travelTypeFlags_t::TRAVEL_SWIM: break;
+			case travelTypeFlags_t::TRAVEL_TELEPORT: break;
 			default: break;
 		} //end switch
 		aasworld.reachabilityareas[i].firstarea = numreachareas;
@@ -1350,7 +1350,7 @@ void AAS_UpdateAreaRoutingCache(aas_routingcache_t *areacache)
 			//if there is used an undesired travel type
 			if (Any( AAS_TravelFlagForType_inline(reach->traveltype) & badtravelflags )) continue;
 			//if not allowed to enter the next area
-			if (Any( aasworld.areasettings[reach->areanum].areaflags & AREA_DISABLED )) continue;
+			if (Any( aasworld.areasettings[reach->areanum].areaflags & areaFlags_t::AREA_DISABLED )) continue;
 			//if the next area has a not allowed travel flag
 			if (Any( AAS_AreaContentsTravelFlags_inline(reach->areanum) & badtravelflags )) continue;
 			//number of the area the reversed reachability leads to
@@ -1610,7 +1610,7 @@ int AAS_AreaRouteToGoalArea(int areanum, vec3_t origin, int goalareanum, travelF
 	{
 		if (botDeveloper)
 		{
-			botimport.Print(PRT_ERROR, "AAS_AreaTravelTimeToGoalArea: areanum %d out of range\n", areanum);
+			botimport.Print(printType_t::PRT_ERROR, "AAS_AreaTravelTimeToGoalArea: areanum %d out of range\n", areanum);
 		} //end if
 		return false;
 	} //end if
@@ -1618,7 +1618,7 @@ int AAS_AreaRouteToGoalArea(int areanum, vec3_t origin, int goalareanum, travelF
 	{
 		if (botDeveloper)
 		{
-			botimport.Print(PRT_ERROR, "AAS_AreaTravelTimeToGoalArea: goalareanum %d out of range\n", goalareanum);
+			botimport.Print(printType_t::PRT_ERROR, "AAS_AreaTravelTimeToGoalArea: goalareanum %d out of range\n", goalareanum);
 		} //end if
 		return false;
 	} //end if
@@ -1629,7 +1629,7 @@ int AAS_AreaRouteToGoalArea(int areanum, vec3_t origin, int goalareanum, travelF
 	//
 	if (Any( AAS_AreaDoNotEnter(areanum) ) || Any( AAS_AreaDoNotEnter(goalareanum) ))
 	{
-		travelflags |= TFL_DONOTENTER;
+		travelflags |= travelFlags_t::TFL_DONOTENTER;
 	} //end if
 	//NOTE: the number of routing updates is limited per frame
 	/*
@@ -1813,10 +1813,10 @@ int AAS_PredictRoute(struct aas_predictroute_s *route, int areanum, vec3_t origi
 	aas_reachabilityareas_t *reachareas;
 
 	//init output
-	route->stopevent = RSE_NONE;
+	route->stopevent = routeStopEventFlags_t::RSE_NONE;
 	route->endarea = goalareanum;
-	route->endcontents = AREACONTENTS_NONE;
-	route->endtravelflags = TFL_NONE;
+	route->endcontents = areaContentsFlags_t::AREACONTENTS_NONE;
+	route->endtravelflags = travelFlags_t::TFL_NONE;
 	VectorCopy(origin, route->endpos);
 	route->time = 0;
 
@@ -1828,16 +1828,16 @@ int AAS_PredictRoute(struct aas_predictroute_s *route, int areanum, vec3_t origi
 		reachnum = AAS_AreaReachabilityToGoalArea(curareanum, curorigin, goalareanum, travelflags);
 		if (!reachnum)
 		{
-			route->stopevent = RSE_NOROUTE;
+			route->stopevent = routeStopEventFlags_t::RSE_NOROUTE;
 			return false;
 		} //end if
 		reach = &aasworld.reachability[reachnum];
 		//
-		if (Any( stopevent & RSE_USETRAVELTYPE ))
+		if (Any( stopevent & routeStopEventFlags_t::RSE_USETRAVELTYPE ))
 		{
 			if (Any( AAS_TravelFlagForType_inline(reach->traveltype) & stoptfl ))
 			{
-				route->stopevent = RSE_USETRAVELTYPE;
+				route->stopevent = routeStopEventFlags_t::RSE_USETRAVELTYPE;
 				route->endarea = curareanum;
 				route->endcontents = aasworld.areasettings[curareanum].contents;
 				route->endtravelflags = AAS_TravelFlagForType_inline(reach->traveltype);
@@ -1846,7 +1846,7 @@ int AAS_PredictRoute(struct aas_predictroute_s *route, int areanum, vec3_t origi
 			} //end if
 			if (Any( AAS_AreaContentsTravelFlags_inline(reach->areanum) & stoptfl ))
 			{
-				route->stopevent = RSE_USETRAVELTYPE;
+				route->stopevent = routeStopEventFlags_t::RSE_USETRAVELTYPE;
 				route->endarea = reach->areanum;
 				route->endcontents = aasworld.areasettings[reach->areanum].contents;
 				route->endtravelflags = AAS_AreaContentsTravelFlags_inline(reach->areanum);
@@ -1863,11 +1863,11 @@ int AAS_PredictRoute(struct aas_predictroute_s *route, int areanum, vec3_t origi
 				testareanum = reach->areanum;
 			else
 				testareanum = aasworld.reachabilityareaindex[reachareas->firstarea + j];
-			if (Any( stopevent & RSE_ENTERCONTENTS ))
+			if (Any( stopevent & routeStopEventFlags_t::RSE_ENTERCONTENTS ))
 			{
 				if (Any( aasworld.areasettings[testareanum].contents & stopcontents ))
 				{
-					route->stopevent = RSE_ENTERCONTENTS;
+					route->stopevent = routeStopEventFlags_t::RSE_ENTERCONTENTS;
 					route->endarea = testareanum;
 					route->endcontents = aasworld.areasettings[testareanum].contents;
 					VectorCopy(reach->end, route->endpos);
@@ -1876,11 +1876,11 @@ int AAS_PredictRoute(struct aas_predictroute_s *route, int areanum, vec3_t origi
 					return true;
 				} //end if
 			} //end if
-			if (Any( stopevent & RSE_ENTERAREA ))
+			if (Any( stopevent & routeStopEventFlags_t::RSE_ENTERAREA ))
 			{
 				if (testareanum == stopareanum)
 				{
-					route->stopevent = RSE_ENTERAREA;
+					route->stopevent = routeStopEventFlags_t::RSE_ENTERAREA;
 					route->endarea = testareanum;
 					route->endcontents = aasworld.areasettings[testareanum].contents;
 					VectorCopy(reach->start, route->endpos);
@@ -1950,7 +1950,7 @@ int AAS_NextAreaReachability(int areanum, int reachnum)
 
 	if (areanum <= 0 || areanum >= aasworld.numareas)
 	{
-		botimport.Print(PRT_ERROR, "AAS_NextAreaReachability: areanum %d out of range\n", areanum);
+		botimport.Print(printType_t::PRT_ERROR, "AAS_NextAreaReachability: areanum %d out of range\n", areanum);
 		return 0;
 	} //end if
 
@@ -1961,7 +1961,7 @@ int AAS_NextAreaReachability(int areanum, int reachnum)
 	} //end if
 	if (reachnum < settings->firstreachablearea)
 	{
-		botimport.Print(PRT_FATAL, "AAS_NextAreaReachability: reachnum < settings->firstreachableara");
+		botimport.Print(printType_t::PRT_FATAL, "AAS_NextAreaReachability: reachnum < settings->firstreachableara");
 		return 0;
 	} //end if
 	reachnum++;
@@ -1987,11 +1987,11 @@ int AAS_NextModelReachability(int num, int modelnum)
 	//
 	for (i = num; i < aasworld.reachabilitysize; i++)
 	{
-		if ((aasworld.reachability[i].traveltype & TRAVELTYPE_MASK) == TRAVEL_ELEVATOR)
+		if ((aasworld.reachability[i].traveltype & travelTypeFlags_t::TRAVELTYPE_MASK) == travelTypeFlags_t::TRAVEL_ELEVATOR)
 		{
 			if (aasworld.reachability[i].facenum == modelnum) return i;
 		} //end if
-		else if ((aasworld.reachability[i].traveltype & TRAVELTYPE_MASK) == TRAVEL_FUNCBOB)
+		else if ((aasworld.reachability[i].traveltype & travelTypeFlags_t::TRAVELTYPE_MASK) == travelTypeFlags_t::TRAVEL_FUNCBOB)
 		{
 			if ((aasworld.reachability[i].facenum & 0x0000FFFF) == modelnum) return i;
 		} //end if
@@ -2028,7 +2028,7 @@ int AAS_RandomGoalArea(int areanum, travelFlags_t travelflags, int *goalareanum,
 				{
 					*goalareanum = n;
 					VectorCopy(aasworld.areas[n].center, goalorigin);
-					//botimport.Print(PRT_MESSAGE, "found random goal area %d\n", *goalareanum);
+					//botimport.Print(printType_t::PRT_MESSAGE, "found random goal area %d\n", *goalareanum);
 					return true;
 				} //end if
 				VectorCopy(aasworld.areas[n].center, start);
@@ -2036,14 +2036,14 @@ int AAS_RandomGoalArea(int areanum, travelFlags_t travelflags, int *goalareanum,
 					Log_Write("area %d center %f %f %f in solid?", n, start[0], start[1], start[2]);
 				VectorCopy(start, end);
 				end[2] -= 300;
-				trace = AAS_TraceClientBBox(start, end, PRESENCE_CROUCH, -1);
+				trace = AAS_TraceClientBBox(start, end, presenceFlags_t::PRESENCE_CROUCH, -1);
 				if (!trace.startsolid && trace.fraction < 1 && AAS_PointAreaNum(trace.endpos) == n)
 				{
 					if (AAS_AreaGroundFaceArea(n) > 300)
 					{
 						*goalareanum = n;
 						VectorCopy(trace.endpos, goalorigin);
-						//botimport.Print(PRT_MESSAGE, "found random goal area %d\n", *goalareanum);
+						//botimport.Print(printType_t::PRT_MESSAGE, "found random goal area %d\n", *goalareanum);
 						return true;
 					} //end if
 				} //end if

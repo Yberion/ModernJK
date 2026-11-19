@@ -31,7 +31,6 @@ enum class wavFormat_t {	// a WAV header's format tag
 	WAV_FORMAT_ADPCM	= 2,	// not actually implemented, but is the value that you get in a header
 	WAV_FORMAT_MP3		= 3,	// not actually used this way, but just ensures we don't match one of the legit formats
 };
-using enum wavFormat_t;
 
 inline constexpr int PAINTBUFFER_SIZE = 1024;
 inline constexpr int MAX_CHANNELS = 32;

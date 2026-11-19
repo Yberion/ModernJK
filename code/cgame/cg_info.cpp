@@ -76,7 +76,7 @@ static void ObjectivePrint_Line(const ct_table_t color, const objectiveNumber_t 
 	cgi_SP_GetStringTextString( va("OBJECTIVES_%s",objectiveTable[to_underlying( objectIndex )].name) , finalText, sizeof(finalText) );
 
 	// A hack to be able to count prisoners
-	if (objectIndex == T2_RANCOR_OBJ5)
+	if (objectIndex == objectiveNumber_t::T2_RANCOR_OBJ5)
 	{
 		char value[64];
 		int	currTotal, minTotal;
@@ -193,7 +193,7 @@ static void ObjectivePrint_Line(const ct_table_t color, const objectiveNumber_t 
 						objectiveStartingXpos,
 						y,
 						holdText,
-						CG_SMALLFONT,
+						textStyleFlags_t::CG_SMALLFONT,
 						colorTable[color] );
 
 					++missionYcnt;
@@ -210,7 +210,7 @@ static void ObjectivePrint_Line(const ct_table_t color, const objectiveNumber_t 
 					CG_DrawProportionalString(
 						objectiveStartingXpos,
 						y, holdText,
-						CG_SMALLFONT,
+						textStyleFlags_t::CG_SMALLFONT,
 						colorTable[color] );
 
 					++missionYcnt;
@@ -223,7 +223,7 @@ static void ObjectivePrint_Line(const ct_table_t color, const objectiveNumber_t 
 		}
 	}
 
-	if (objectIndex == T3_BOUNTY_OBJ1)
+	if (objectIndex == objectiveNumber_t::T3_BOUNTY_OBJ1)
 	{
 		y =objectiveStartingYpos + (iYPixelsPerLine * missionYcnt);
 		if (obj_graphics[1])
@@ -271,12 +271,12 @@ void CG_DrawDataPadObjectives(const centity_t *cent )
 	// Title Text at the top
 	char text[1024]={0};
 	cgi_SP_GetStringTextString( "SP_INGAME_OBJECTIVES", text, sizeof(text) );
-	cgi_R_Font_DrawString (titleXPos, titleYPos, text, colorTable[CT_TITLE], cgs.media.qhFontMedium, -1, 1.0f);
+	cgi_R_Font_DrawString (titleXPos, titleYPos, text, colorTable[ct_table_t::CT_TITLE], cgs.media.qhFontMedium, -1, 1.0f);
 
 	int missionYcnt = 0;
 
 	// Print all active objectives
-	for (objectiveNumber_t o = LIGHTSIDE_OBJ; o < MAX_OBJECTIVES; o++)
+	for (objectiveNumber_t o = objectiveNumber_t::LIGHTSIDE_OBJ; o < objectiveNumber_t::MAX_OBJECTIVES; o++)
 	{
 		// Is there an objective to see?
 		if (cent->gent->client->sess.mission_objectives[o].display)
@@ -285,7 +285,7 @@ void CG_DrawDataPadObjectives(const centity_t *cent )
 			totalY = objectiveStartingYpos + (iYPixelsPerLine * (missionYcnt))+(iYPixelsPerLine/2);
 
 			//	Draw graphics that show if mission has been accomplished or not
-			cgi_R_SetColor(colorTable[CT_BLUE3]);
+			cgi_R_SetColor(colorTable[ct_table_t::CT_BLUE3]);
 			CG_DrawPic( (graphicXpos),   (totalY-graphicYOffset),   graphic_size,  graphic_size, cgs.media.messageObjCircle);	// Circle in front
 			if (cent->gent->client->sess.mission_objectives[o].status == OBJECTIVE_STAT_SUCCEEDED)
 			{
@@ -293,7 +293,7 @@ void CG_DrawDataPadObjectives(const centity_t *cent )
 			}
 
 			// Print current objective text
-			ObjectivePrint_Line(CT_WHITE, o, missionYcnt );
+			ObjectivePrint_Line(ct_table_t::CT_WHITE, o, missionYcnt );
 		}
 	}
 
@@ -310,7 +310,7 @@ void CG_DrawDataPadObjectives(const centity_t *cent )
 			messageXPosition,
 			messageYPosition,
 			text,
-			colorTable[CT_WHITE],
+			colorTable[ct_table_t::CT_WHITE],
 			cgs.media.qhFontMedium,
 			-1,
 			1.0f);
@@ -330,20 +330,20 @@ static void CG_DrawForceCount( const forcePowers_t force, int x, float *y, const
 
 	sscanf( s, "%d",&val );
 
-	if ((val<1) || (val> to_underlying( NUM_FORCE_POWERS )))
+	if ((val<1) || (val> to_underlying( forcePowers_t::NUM_FORCE_POWERS )))
 	{
 		return;
 	}
 
-	textColor = CT_ICON_BLUE;
+	textColor = ct_table_t::CT_ICON_BLUE;
 
 	// Draw title
 	cgi_SP_GetStringTextString( showLoadPowersName[force], text, sizeof(text) );
-	CG_DrawProportionalString( x, *y, text, CG_BIGFONT, colorTable[textColor] );
+	CG_DrawProportionalString( x, *y, text, textStyleFlags_t::CG_BIGFONT, colorTable[textColor] );
 
 
 	// Draw icons
-	cgi_R_SetColor( colorTable[CT_WHITE]);
+	cgi_R_SetColor( colorTable[ct_table_t::CT_WHITE]);
 	const int iconSize = 30;
 	if ( val >= 0 )
 	{
@@ -380,30 +380,30 @@ static void CG_LoadScreen_PersonalInfo(void)
 	x = 300;
 	hasForcePowers=false;
 
-	CG_DrawForceCount( FP_HEAL, x, &y, pad,&hasForcePowers);
-	CG_DrawForceCount( FP_LEVITATION, x, &y, pad,&hasForcePowers );
-	CG_DrawForceCount( FP_SPEED, x, &y, pad,&hasForcePowers );
-	CG_DrawForceCount( FP_PUSH, x, &y, pad,&hasForcePowers );
-	CG_DrawForceCount( FP_PULL, x, &y, pad,&hasForcePowers );
-	CG_DrawForceCount( FP_TELEPATHY, x, &y, pad,&hasForcePowers );
-	CG_DrawForceCount( FP_GRIP, x, &y, pad,&hasForcePowers );
-	CG_DrawForceCount( FP_LIGHTNING, x, &y, pad,&hasForcePowers );
-	CG_DrawForceCount( FP_SABERTHROW, x, &y, pad,&hasForcePowers );
-	CG_DrawForceCount( FP_SABER_OFFENSE, x, &y, pad,&hasForcePowers );
-	CG_DrawForceCount( FP_SABER_DEFENSE, x, &y, pad,&hasForcePowers );
+	CG_DrawForceCount( forcePowers_t::FP_HEAL, x, &y, pad,&hasForcePowers);
+	CG_DrawForceCount( forcePowers_t::FP_LEVITATION, x, &y, pad,&hasForcePowers );
+	CG_DrawForceCount( forcePowers_t::FP_SPEED, x, &y, pad,&hasForcePowers );
+	CG_DrawForceCount( forcePowers_t::FP_PUSH, x, &y, pad,&hasForcePowers );
+	CG_DrawForceCount( forcePowers_t::FP_PULL, x, &y, pad,&hasForcePowers );
+	CG_DrawForceCount( forcePowers_t::FP_TELEPATHY, x, &y, pad,&hasForcePowers );
+	CG_DrawForceCount( forcePowers_t::FP_GRIP, x, &y, pad,&hasForcePowers );
+	CG_DrawForceCount( forcePowers_t::FP_LIGHTNING, x, &y, pad,&hasForcePowers );
+	CG_DrawForceCount( forcePowers_t::FP_SABERTHROW, x, &y, pad,&hasForcePowers );
+	CG_DrawForceCount( forcePowers_t::FP_SABER_OFFENSE, x, &y, pad,&hasForcePowers );
+	CG_DrawForceCount( forcePowers_t::FP_SABER_DEFENSE, x, &y, pad,&hasForcePowers );
 
 	if (hasForcePowers)
 	{
 		cgi_SP_GetStringTextString( "SP_INGAME_CURRENTFORCEPOWERS", text, sizeof(text) );
-		CG_DrawProportionalString( 200, 65, text, CG_CENTER | CG_BIGFONT, colorTable[CT_WHITE] );
+		CG_DrawProportionalString( 200, 65, text, textStyleFlags_t::CG_CENTER | textStyleFlags_t::CG_BIGFONT, colorTable[ct_table_t::CT_WHITE] );
 	}
 	else
 	{	//you are only totally empty on the very first map?
 //		cgi_SP_GetStringTextString( "SP_INGAME_NONE", text, sizeof(text) );
-//		CG_DrawProportionalString( 320, y+30, text, CG_CENTER | CG_BIGFONT, colorTable[CT_ICON_BLUE] );
+//		CG_DrawProportionalString( 320, y+30, text, textStyleFlags_t::CG_CENTER | textStyleFlags_t::CG_BIGFONT, colorTable[ct_table_t::CT_ICON_BLUE] );
 		cgi_SP_GetStringTextString( "SP_INGAME_ALONGTIME", text, sizeof(text) );
 		int w = cgi_R_Font_StrLenPixels(text,cgs.media.qhFontMedium, 1.5f);
-		cgi_R_Font_DrawString((320)-(w/2), y+40, text,  colorTable[CT_ICON_BLUE], cgs.media.qhFontMedium, -1, 1.5f);
+		cgi_R_Font_DrawString((320)-(w/2), y+40, text,  colorTable[ct_table_t::CT_ICON_BLUE], cgs.media.qhFontMedium, -1, 1.5f);
 	}
 
 }
@@ -418,7 +418,7 @@ static void CG_LoadBar(void)
 	const int barheight = tickheight + tickpady*2, bartop = 475-barheight;
 	const int capleft = barleft+tickpadx, tickleft = capleft+capwidth, ticktop = bartop+tickpady;
 
-	cgi_R_SetColor( colorTable[CT_WHITE]);
+	cgi_R_SetColor( colorTable[ct_table_t::CT_WHITE]);
 	// Draw background
 	CG_DrawPic(barleft, bartop, barwidth, barheight, cgs.media.levelLoad);
 
@@ -436,13 +436,13 @@ int CG_WeaponCheck( weapon_t weaponIndex );
 
 // For printing load screen icons
 const int	MAXLOADICONSPERROW = 8;		// Max icons displayed per row
-const weapon_t	MAXLOADWEAPONS = WP_ATST_SIDE;
+const weapon_t	MAXLOADWEAPONS = weapon_t::WP_ATST_SIDE;
 const int	MAXLOAD_FORCEICONSIZE = 40;	// Size of force power icons
 const int	MAXLOAD_FORCEICONPAD = 12;	// Padding space between icons
 
 static weapon_t CG_DrawLoadWeaponsPrintRow( const char *itemName, int weaponsBits,int rowIconCnt, weapon_t startIndex)
 {
-	weapon_t	i,endIndex=WP_NONE;
+	weapon_t	i,endIndex=weapon_t::WP_NONE;
 	int		printedIconCnt=0;
 	int		iconSize;
 	int		holdX,x,y,pad;
@@ -461,7 +461,7 @@ static weapon_t CG_DrawLoadWeaponsPrintRow( const char *itemName, int weaponsBit
 		color,
 		&background))
 	{
-		return(WP_NONE);
+		return(weapon_t::WP_NONE);
 	}
 
 	cgi_R_SetColor( color );
@@ -513,12 +513,12 @@ static weapon_t CG_DrawLoadWeaponsPrintRow( const char *itemName, int weaponsBit
 // Two rows print if there are too many
 static void CG_DrawLoadWeapons( int weaponBits )
 {
-	weapon_t	i,endIndex=WP_NONE;
+	weapon_t	i,endIndex=weapon_t::WP_NONE;
 	int		iconCnt,rowIconCnt;
 
 	// count the number of weapons owned
 	iconCnt = 0;
-	for ( i = WP_SABER ; i < MAXLOADWEAPONS ; i++ )
+	for ( i = weapon_t::WP_SABER ; i < MAXLOADWEAPONS ; i++ )
 	{
 		if ( weaponBits & Bit( i ) )
 		{
@@ -534,13 +534,13 @@ static void CG_DrawLoadWeapons( int weaponBits )
 	// Single line of icons
 	if (iconCnt<=MAXLOADICONSPERROW)
 	{
-		CG_DrawLoadWeaponsPrintRow("weaponicons_singlerow", weaponBits, iconCnt,WP_NONE);
+		CG_DrawLoadWeaponsPrintRow("weaponicons_singlerow", weaponBits, iconCnt,weapon_t::WP_NONE);
 	}
 	// Two lines of icons
 	else
 	{
 		// Print top row
-		endIndex = CG_DrawLoadWeaponsPrintRow("weaponicons_row1", weaponBits, MAXLOADICONSPERROW,WP_NONE);
+		endIndex = CG_DrawLoadWeaponsPrintRow("weaponicons_row1", weaponBits, MAXLOADICONSPERROW,weapon_t::WP_NONE);
 
 		// Print second row
 		rowIconCnt = iconCnt - MAXLOADICONSPERROW;
@@ -604,7 +604,7 @@ static int CG_DrawLoadForcePrintRow( const char *itemName, int forceBits,int row
 	return (endIndex);
 }
 
-EnumArray<int, forcePowers_t, NUM_FORCE_POWERS>	loadForcePowerLevel;
+EnumArray<int, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS>	loadForcePowerLevel;
 
 /*
 ===============
@@ -677,10 +677,10 @@ static void CG_GetLoadScreenInfo(int *weaponBits,int *forceBits)
 	{
 	//				|general info				  |-force powers
 		sscanf( s, "%i %i %i %i %i %i %i %f %f %f %i %i",
-				&iDummy,	//	&client->ps.stats[STAT_HEALTH],
-				&iDummy,	//	&client->ps.stats[STAT_ARMOR],
-				&*weaponBits,//	&client->ps.stats[STAT_WEAPONS],
-				&iDummy,	//	&client->ps.stats[STAT_ITEMS],
+				&iDummy,	//	&client->ps.stats[statIndex_t::STAT_HEALTH],
+				&iDummy,	//	&client->ps.stats[statIndex_t::STAT_ARMOR],
+				&*weaponBits,//	&client->ps.stats[statIndex_t::STAT_WEAPONS],
+				&iDummy,	//	&client->ps.stats[statIndex_t::STAT_ITEMS],
 				&iDummy,	//	&client->ps.weapon,
 				&iDummy,	//	&client->ps.weaponstate,
 				&iDummy,	//	&client->ps.batteryCharge,
@@ -697,7 +697,7 @@ static void CG_GetLoadScreenInfo(int *weaponBits,int *forceBits)
 	// the new JK2 stuff - force powers, etc...
 	//
 	gi.Cvar_VariableStringBuffer( "playerfplvl", s, sizeof(s) );
-	forcePowers_t fp = FP_FIRST;
+	forcePowers_t fp = forcePowers_t::FP_FIRST;
 	var = strtok( s, " " );
 	while( var != nullptr )
 	{
@@ -803,7 +803,7 @@ void CG_DrawInformation( void ) {
 	qhandle_t	levelshot;
 
 	extern SavedGameJustLoaded_e g_eSavedGameJustLoaded;	// hack! (hey, it's the last week of coding, ok?
-//	if ( g_eSavedGameJustLoaded == eFULL )
+//	if ( g_eSavedGameJustLoaded == SavedGameJustLoaded_e::eFULL )
 //	{
 //		levelshot = 0;	//use the loaded thumbnail instead of the levelshot
 //	}
@@ -821,18 +821,18 @@ void CG_DrawInformation( void ) {
 		}
 	}
 
-	if ( g_eSavedGameJustLoaded != eFULL && !strcmp(s,"yavin1") )//special case for first map!
+	if ( g_eSavedGameJustLoaded != SavedGameJustLoaded_e::eFULL && !strcmp(s,"yavin1") )//special case for first map!
 	{
 		char	text[1024]={0};
 
 		//
-		cgi_R_SetColor( colorTable[CT_BLACK] );
+		cgi_R_SetColor( colorTable[ct_table_t::CT_BLACK] );
 		CG_DrawPic( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, cgs.media.whiteShader );
 
 		cgi_SP_GetStringTextString( "SP_INGAME_ALONGTIME", text, sizeof(text) );
 
 		int w = cgi_R_Font_StrLenPixels(text,cgs.media.qhFontMedium, 1.0f);
-		cgi_R_Font_DrawString((320)-(w/2), 140, text,  colorTable[CT_ICON_BLUE], cgs.media.qhFontMedium, -1, 1.0f);
+		cgi_R_Font_DrawString((320)-(w/2), 140, text,  colorTable[ct_table_t::CT_ICON_BLUE], cgs.media.qhFontMedium, -1, 1.0f);
 	}
 	else
 	{
@@ -852,7 +852,7 @@ void CG_DrawInformation( void ) {
 		// print the current item being loaded
 
 #ifdef _DEBUG
-		cgi_R_Font_DrawString( 40, 416, va("LOADING ... %s",cg.infoScreenText),colorTable[CT_LTGOLD1], cgs.media.qhFontSmall, -1, 1.0f );
+		cgi_R_Font_DrawString( 40, 416, va("LOADING ... %s",cg.infoScreenText),colorTable[ct_table_t::CT_LTGOLD1], cgs.media.qhFontSmall, -1, 1.0f );
 #endif
 	}
 
@@ -868,11 +868,11 @@ void CG_DrawInformation( void ) {
 		{
 			char text[1024]={0};
 			cgi_SP_GetStringTextString( s+1, text, sizeof(text) );
-			cgi_R_Font_DrawString( 15, y, va("\"%s\"",text),colorTable[CT_WHITE],cgs.media.qhFontMedium, -1, 1.0f );
+			cgi_R_Font_DrawString( 15, y, va("\"%s\"",text),colorTable[ct_table_t::CT_WHITE],cgs.media.qhFontMedium, -1, 1.0f );
 		}
 		else
 		{
-			cgi_R_Font_DrawString( 15, y, va("\"%s\"",s),colorTable[CT_WHITE],cgs.media.qhFontMedium, -1, 1.0f );
+			cgi_R_Font_DrawString( 15, y, va("\"%s\"",s),colorTable[ct_table_t::CT_WHITE],cgs.media.qhFontMedium, -1, 1.0f );
 		}
 		y += 20;
 	}

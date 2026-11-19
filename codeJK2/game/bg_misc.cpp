@@ -28,8 +28,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_items.h"
 
 
-extern EnumArray<weaponData_t, weapon_t, WP_NUM_WEAPONS> weaponData;
-extern EnumArray<ammoData_t, ammo_t, AMMO_MAX> ammoData;
+extern EnumArray<weaponData_t, weapon_t, weapon_t::WP_NUM_WEAPONS> weaponData;
+extern EnumArray<ammoData_t, ammo_t, ammo_t::AMMO_MAX> ammoData;
 
 
 #define PICKUPSOUND "sound/weapons/w_pkup.wav"
@@ -188,10 +188,10 @@ force saberthrow pickup item
 "count"     level of force power this holocron gives activator ( range: 0-3, default 1)
 */
 
-EnumArray<gitem_t, itemNum_t, to_underlying( ITM_NUM_ITEMS ) + 1>	bg_itemlist;//need a null on the end
+EnumArray<gitem_t, itemNum_t, to_underlying( itemNum_t::ITM_NUM_ITEMS ) + 1>	bg_itemlist;//need a null on the end
 
-//int		bg_numItems = sizeof(bg_itemlist) / sizeof(bg_itemlist[ITM_NONE]) ;
-const int		bg_numItems = to_underlying( ITM_NUM_ITEMS );
+//int		bg_numItems = sizeof(bg_itemlist) / sizeof(bg_itemlist[itemNum_t::ITM_NONE]) ;
+const int		bg_numItems = to_underlying( itemNum_t::ITM_NUM_ITEMS );
 
 
 
@@ -202,13 +202,13 @@ FindItemForWeapon
 ===============
 */
 gitem_t	*FindItemForWeapon( weapon_t weapon ) {
-	for ( itemNum_t i = ITM_NONE + 1 ; i < ITM_NUM_ITEMS ; i++ ) {
-		if ( bg_itemlist[i].giType == IT_WEAPON && GI_Weapon( bg_itemlist[i] ) == weapon ) {
+	for ( itemNum_t i = itemNum_t::ITM_NONE + 1 ; i < itemNum_t::ITM_NUM_ITEMS ; i++ ) {
+		if ( bg_itemlist[i].giType == itemType_t::IT_WEAPON && GI_Weapon( bg_itemlist[i] ) == weapon ) {
 			return &bg_itemlist[i];
 		}
 	}
 
-	Com_Error( ERR_DROP, "Couldn't find item for weapon %i", to_underlying( weapon ));
+	Com_Error( errorParm_t::ERR_DROP, "Couldn't find item for weapon %i", to_underlying( weapon ));
 	return nullptr;
 }
 
@@ -218,11 +218,11 @@ gitem_t	*FindItemForInventory( inventory_t inv )
 	gitem_t	*it;
 
 	// Now just check for any other kind of item.
-	for ( itemNum_t i = ITM_NONE + 1 ; i < ITM_NUM_ITEMS ; i++ )
+	for ( itemNum_t i = itemNum_t::ITM_NONE + 1 ; i < itemNum_t::ITM_NUM_ITEMS ; i++ )
 	{
 		it = &bg_itemlist[i];
 
-		if ( it->giType == IT_HOLDABLE )
+		if ( it->giType == itemType_t::IT_HOLDABLE )
 		{
 			if ( GI_Inventory( *it ) == inv )
 			{
@@ -231,7 +231,7 @@ gitem_t	*FindItemForInventory( inventory_t inv )
 		}
 	}
 
-	Com_Error( ERR_DROP, "Couldn't find item for inventory %i", to_underlying( inv ) );
+	Com_Error( errorParm_t::ERR_DROP, "Couldn't find item for inventory %i", to_underlying( inv ) );
 	return nullptr;
 }
 
@@ -243,15 +243,15 @@ FindItemForWeapon
 */
 gitem_t	*FindItemForAmmo( ammo_t ammo )
 {
-	for ( itemNum_t i = ITM_NONE + 1 ; i < ITM_NUM_ITEMS ; i++ )
+	for ( itemNum_t i = itemNum_t::ITM_NONE + 1 ; i < itemNum_t::ITM_NUM_ITEMS ; i++ )
 	{
-		if ( bg_itemlist[i].giType == IT_AMMO && GI_Ammo( bg_itemlist[i] ) == ammo )
+		if ( bg_itemlist[i].giType == itemType_t::IT_AMMO && GI_Ammo( bg_itemlist[i] ) == ammo )
 		{
 			return &bg_itemlist[i];
 		}
 	}
 
-	Com_Error( ERR_DROP, "Couldn't find item for ammo %i", to_underlying( ammo ) );
+	Com_Error( errorParm_t::ERR_DROP, "Couldn't find item for ammo %i", to_underlying( ammo ) );
 	return nullptr;
 }
 
@@ -262,7 +262,7 @@ FindItem
 ===============
 */
 gitem_t	*FindItem( const char *className ) {
-	for ( itemNum_t i = ITM_NONE + 1 ; i < ITM_NUM_ITEMS ; i++ ) {
+	for ( itemNum_t i = itemNum_t::ITM_NONE + 1 ; i < itemNum_t::ITM_NUM_ITEMS ; i++ ) {
 		if ( !Q_stricmp( bg_itemlist[i].classname, className ) )
 			return &bg_itemlist[i];
 	}
@@ -283,16 +283,16 @@ bool	BG_CanItemBeGrabbed( const entityState_t *ent, const playerState_t *ps ) {
 	gitem_t	*item;
 
 	if ( ent->modelindex < 1 || ent->modelindex >= bg_numItems ) {
-		Com_Error( ERR_DROP, "BG_CanItemBeGrabbed: index out of range" );
+		Com_Error( errorParm_t::ERR_DROP, "BG_CanItemBeGrabbed: index out of range" );
 	}
 
 	item = &bg_itemlist[ES_ItemNum( *ent )];
 
 	switch( item->giType ) {
 
-	case IT_WEAPON:
+	case itemType_t::IT_WEAPON:
 		// See if we already have this weapon.
-		if ( !(ps->stats[ STAT_WEAPONS ] & Bit( GI_Weapon( *item ) )))
+		if ( !(ps->stats[ statIndex_t::STAT_WEAPONS ] & Bit( GI_Weapon( *item ) )))
 		{
 			// Don't have this weapon yet, so pick it up.
 			return true;
@@ -307,27 +307,27 @@ bool	BG_CanItemBeGrabbed( const entityState_t *ent, const playerState_t *ps ) {
 
 		return true; // could use more of this type of ammo, so grab the item
 
-	case IT_AMMO:
+	case itemType_t::IT_AMMO:
 
-		if (GI_Ammo( *item ) != AMMO_FORCE)
+		if (GI_Ammo( *item ) != ammo_t::AMMO_FORCE)
 		{
 			// since the ammo is the weapon in this case, picking up ammo should actually give you the weapon
 			switch( GI_Ammo( *item ) )
 			{
-			case AMMO_THERMAL:
-				if( !(ps->stats[STAT_WEAPONS] & Bit( WP_THERMAL ) ) )
+			case ammo_t::AMMO_THERMAL:
+				if( !(ps->stats[statIndex_t::STAT_WEAPONS] & Bit( weapon_t::WP_THERMAL ) ) )
 				{
 					return true;
 				}
 				break;
-			case AMMO_DETPACK:
-				if( !(ps->stats[STAT_WEAPONS] & Bit( WP_DET_PACK ) ) )
+			case ammo_t::AMMO_DETPACK:
+				if( !(ps->stats[statIndex_t::STAT_WEAPONS] & Bit( weapon_t::WP_DET_PACK ) ) )
 				{
 					return true;
 				}
 				break;
-			case AMMO_TRIPMINE:
-				if( !(ps->stats[STAT_WEAPONS] & Bit( WP_TRIP_MINE ) ) )
+			case ammo_t::AMMO_TRIPMINE:
+				if( !(ps->stats[statIndex_t::STAT_WEAPONS] & Bit( weapon_t::WP_TRIP_MINE ) ) )
 				{
 					return true;
 				}
@@ -353,21 +353,21 @@ bool	BG_CanItemBeGrabbed( const entityState_t *ent, const playerState_t *ps ) {
 
 		return true;
 
-	case IT_ARMOR:
+	case itemType_t::IT_ARMOR:
 		// we also clamp armor to the maxhealth for handicapping
-		if ( ps->stats[STAT_ARMOR] >= ps->stats[STAT_MAX_HEALTH] ) {
+		if ( ps->stats[statIndex_t::STAT_ARMOR] >= ps->stats[statIndex_t::STAT_MAX_HEALTH] ) {
 			return false;
 		}
 		return true;
 
-	case IT_HEALTH:
+	case itemType_t::IT_HEALTH:
 		// don't pick up if already at max
-		if ( ps->stats[STAT_HEALTH] >= ps->stats[STAT_MAX_HEALTH] ) {
+		if ( ps->stats[statIndex_t::STAT_HEALTH] >= ps->stats[statIndex_t::STAT_MAX_HEALTH] ) {
 			return false;
 		}
 		return true;
 
-	case IT_BATTERY:
+	case itemType_t::IT_BATTERY:
 		// don't pick up if already at max
 		if ( ps->batteryCharge >= MAX_BATTERIES )
 		{
@@ -375,13 +375,13 @@ bool	BG_CanItemBeGrabbed( const entityState_t *ent, const playerState_t *ps ) {
 		}
 		return true;
 
-	case IT_HOLOCRON:
+	case itemType_t::IT_HOLOCRON:
 		// pretty lame but for now you can always pick these up
 		return true;
 
 
-	case IT_HOLDABLE:
-		if ( GI_Inventory( *item ) >= INV_ELECTROBINOCULARS && GI_Inventory( *item ) <= INV_SENTRY )
+	case itemType_t::IT_HOLDABLE:
+		if ( GI_Inventory( *item ) >= inventory_t::INV_ELECTROBINOCULARS && GI_Inventory( *item ) <= inventory_t::INV_SENTRY )
 		{
 			// hardcoded--can only pick up five of any holdable
 			if ( ps->inventory[GI_Inventory( *item )] >= 5 )
@@ -412,20 +412,20 @@ void EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result ) {
 	float		phase;
 
 	switch( tr->trType ) {
-	case TR_STATIONARY:
-	case TR_INTERPOLATE:
+	case trType_t::TR_STATIONARY:
+	case trType_t::TR_INTERPOLATE:
 		VectorCopy( tr->trBase, result );
 		break;
-	case TR_LINEAR:
+	case trType_t::TR_LINEAR:
 		deltaTime = ( atTime - tr->trTime ) * 0.001F;	// milliseconds to seconds
 		VectorMA( tr->trBase, deltaTime, tr->trDelta, result );
 		break;
-	case TR_SINE:
+	case trType_t::TR_SINE:
 		deltaTime = ( atTime - tr->trTime ) / (float) tr->trDuration;
 		phase = (float)sin( deltaTime * M_PI * 2 );
 		VectorMA( tr->trBase, phase, tr->trDelta, result );
 		break;
-	case TR_LINEAR_STOP:
+	case trType_t::TR_LINEAR_STOP:
 		if ( atTime > tr->trTime + tr->trDuration )
 		{
 			atTime = tr->trTime + tr->trDuration;
@@ -438,7 +438,7 @@ void EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result ) {
 		}
 		VectorMA( tr->trBase, deltaTime, tr->trDelta, result );
 		break;
-	case TR_NONLINEAR_STOP:
+	case trType_t::TR_NONLINEAR_STOP:
 		if ( atTime > tr->trTime + tr->trDuration )
 		{
 			atTime = tr->trTime + tr->trDuration;
@@ -454,13 +454,13 @@ void EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result ) {
 		}
 		VectorMA( tr->trBase, deltaTime, tr->trDelta, result );
 		break;
-	case TR_GRAVITY:
+	case trType_t::TR_GRAVITY:
 		deltaTime = ( atTime - tr->trTime ) * 0.001F;	// milliseconds to seconds
 		VectorMA( tr->trBase, deltaTime, tr->trDelta, result );
 		result[2] -= 0.5F * g_gravity->value * deltaTime * deltaTime;//DEFAULT_GRAVITY
 		break;
 	default:
-		Com_Error( ERR_DROP, "EvaluateTrajectory: unknown trType: %i", tr->trTime );
+		Com_Error( errorParm_t::ERR_DROP, "EvaluateTrajectory: unknown trType: %i", tr->trTime );
 		break;
 	}
 }
@@ -477,20 +477,20 @@ void EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t result 
 	float	phase;
 
 	switch( tr->trType ) {
-	case TR_STATIONARY:
-	case TR_INTERPOLATE:
+	case trType_t::TR_STATIONARY:
+	case trType_t::TR_INTERPOLATE:
 		VectorClear( result );
 		break;
-	case TR_LINEAR:
+	case trType_t::TR_LINEAR:
 		VectorCopy( tr->trDelta, result );
 		break;
-	case TR_SINE:
+	case trType_t::TR_SINE:
 		deltaTime = ( atTime - tr->trTime ) / (float) tr->trDuration;
 		phase = (float)cos( deltaTime * M_PI * 2 );	// derivative of sin = cos
 		phase *= 0.5;
 		VectorScale( tr->trDelta, phase, result );
 		break;
-	case TR_LINEAR_STOP:
+	case trType_t::TR_LINEAR_STOP:
 		if ( atTime > tr->trTime + tr->trDuration )
 		{
 			VectorClear( result );
@@ -498,7 +498,7 @@ void EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t result 
 		}
 		VectorCopy( tr->trDelta, result );
 		break;
-	case TR_NONLINEAR_STOP:
+	case trType_t::TR_NONLINEAR_STOP:
 		if ( atTime - tr->trTime > tr->trDuration || atTime - tr->trTime <= 0  )
 		{
 			VectorClear( result );
@@ -507,13 +507,13 @@ void EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t result 
 		deltaTime = tr->trDuration*0.001f*((float)cos( DEG2RAD(90.0f - (90.0f*((float)atTime-tr->trTime)/(float)tr->trDuration)) ));
 		VectorScale( tr->trDelta, deltaTime, result );
 		break;
-	case TR_GRAVITY:
+	case trType_t::TR_GRAVITY:
 		deltaTime = ( atTime - tr->trTime ) * 0.001F;	// milliseconds to seconds
 		VectorCopy( tr->trDelta, result );
 		result[2] -= g_gravity->value * deltaTime;		// DEFAULT_GRAVITY
 		break;
 	default:
-		Com_Error( ERR_DROP, "EvaluateTrajectoryDelta: unknown trType: %i", tr->trTime );
+		Com_Error( errorParm_t::ERR_DROP, "EvaluateTrajectoryDelta: unknown trType: %i", tr->trTime );
 		break;
 	}
 }
@@ -552,26 +552,26 @@ and after local prediction on the client
 */
 void PlayerStateToEntityState( playerState_t *ps, entityState_t *s ) {
 
-	if ( ps->pm_type == PM_INTERMISSION || ps->pm_type == PM_SPECTATOR )
+	if ( ps->pm_type == pmtype_t::PM_INTERMISSION || ps->pm_type == pmtype_t::PM_SPECTATOR )
 	{
-		s->eType = ET_INVISIBLE;
+		s->eType = entityType_t::ET_INVISIBLE;
 	}
-	/*else if ( ps->stats[STAT_HEALTH] <= GIB_HEALTH )
+	/*else if ( ps->stats[statIndex_t::STAT_HEALTH] <= GIB_HEALTH )
 	{
-		s->eType = ET_INVISIBLE;
+		s->eType = entityType_t::ET_INVISIBLE;
 	} */
 	else
 	{
-		s->eType = ET_PLAYER;
+		s->eType = entityType_t::ET_PLAYER;
 	}
 
 	s->number = ps->clientNum;
 
-	s->pos.trType = TR_INTERPOLATE;
+	s->pos.trType = trType_t::TR_INTERPOLATE;
 	VectorCopy( ps->origin, s->pos.trBase );
 	//SnapVector( s->pos.trBase );
 
-	s->apos.trType = TR_INTERPOLATE;
+	s->apos.trType = trType_t::TR_INTERPOLATE;
 	VectorCopy( ps->viewangles, s->apos.trBase );
 	//SnapVector( s->apos.trBase );
 
@@ -581,10 +581,10 @@ void PlayerStateToEntityState( playerState_t *ps, entityState_t *s ) {
 	s->clientNum = ps->clientNum;		// ET_PLAYER looks here instead of at number
 										// so corpses can also reference the proper config
 	s->eFlags = ps->eFlags;
-	if ( ps->stats[STAT_HEALTH] <= 0 ) {
-		s->eFlags |= EF_DEAD;
+	if ( ps->stats[statIndex_t::STAT_HEALTH] <= 0 ) {
+		s->eFlags |= entityFlags_t::EF_DEAD;
 	} else {
-		s->eFlags &= ~EF_DEAD;
+		s->eFlags &= ~entityFlags_t::EF_DEAD;
 	}
 
 	// new sabre stuff
@@ -597,7 +597,7 @@ void PlayerStateToEntityState( playerState_t *ps, entityState_t *s ) {
 	s->groundEntityNum = ps->groundEntityNum;
 
 	s->powerups = 0;
-	for ( powerup_t p = PW_NONE ; p < PW_NUM_POWERUPS ; p++ ) {
+	for ( powerup_t p = powerup_t::PW_NONE ; p < powerup_t::PW_NUM_POWERUPS ; p++ ) {
 		if ( ps->powerups[ p ] ) {
 			s->powerups |= Bit( p );
 		}
@@ -615,7 +615,7 @@ void PlayerStateToEntityState( playerState_t *ps, entityState_t *s ) {
 	}
 
 	// show some roll in the body based on velocity and angle
-	if ( ps->stats[STAT_HEALTH] > 0 ) {
+	if ( ps->stats[statIndex_t::STAT_HEALTH] > 0 ) {
 		vec3_t		right;
 		float		sign;
 		float		side;

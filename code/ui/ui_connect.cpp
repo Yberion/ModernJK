@@ -59,7 +59,7 @@ void UI_DrawConnect( const char *servername, const char *updateInfoString ) {
 #if 0
 	// if connecting to a local host, don't draw anything before the
 	// gamestate message.  This allows cinematics to start seamlessly
-	if ( connState < CA_LOADING && !strcmp( cls.servername, "localhost" ) ) {
+	if ( connState < connstate_t::CA_LOADING && !strcmp( cls.servername, "localhost" ) ) {
 		UI_SetColor( g_color_table[0] );
 		re.DrawFill (0, 0, re.scrWidth, re.scrHeight);
 		UI_SetColor( nullptr );
@@ -120,9 +120,9 @@ UI_KeyConnect
 */
 void UI_KeyConnect( fakeAscii_t key )
 {
-	if ( key == A_ESCAPE )
+	if ( key == fakeAscii_t::A_ESCAPE )
 	{
-		ui.Cmd_ExecuteText( EXEC_APPEND, "disconnect\n" );
+		ui.Cmd_ExecuteText( cbufExec_t::EXEC_APPEND, "disconnect\n" );
 		return;
 	}
 }

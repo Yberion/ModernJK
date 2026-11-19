@@ -36,7 +36,7 @@ template <typename E>
 }
 
 // An array indexed by an enumeration, with the size and the layout of T[Count]: `int level[NUM_FORCE_POWERS]`
-// becomes `EnumArray<int, forcePowers_t, NUM_FORCE_POWERS> level`, still indexed `level[FP_PUSH]`.
+// becomes `EnumArray<int, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS> level`, still indexed `level[forcePowers_t::FP_PUSH]`.
 template <typename T, typename E, auto Count>
 	requires std::is_enum_v<E>
 struct EnumArray {
@@ -61,7 +61,7 @@ struct EnumArray {
 };
 
 // The arithmetic of an ordered enumeration whose code walks its values or offsets them (`BOTH_A1_T__B_ + quadrant`,
-// `for ( weapon_t w = WP_SABER; w < WP_NUM_WEAPONS; w++ )`): ++, --, enumeration + int, enumeration - int, and the
+// `for ( weapon_t w = weapon_t::WP_SABER; w < weapon_t::WP_NUM_WEAPONS; w++ )`): ++, --, enumeration + int, enumeration - int, and the
 // distance between two values. An enumeration takes them with `template <> inline constexpr bool
 // enableEnumArithmetic<E> = true;` after its definition.
 template <typename E>

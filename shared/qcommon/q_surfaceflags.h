@@ -61,7 +61,6 @@ enum class surfaceFlags_t : uint32_t
 	SURF_UNUSED40000000		= 0x40000000u, //
 	SURF_UNUSED80000000		= 0x80000000u, //
 };
-using enum surfaceFlags_t;
 template <> inline constexpr bool enableEnumFlags<surfaceFlags_t> = true;
 
 // the values are written in the maps (a surface's flags in the BSP files)
@@ -101,5 +100,4 @@ enum class surfaceMaterial_t
 	MATERIAL_COMPUTER = 31,		// computers/electronic equipment
 	MATERIAL_LAST = 32,			// number of materials
 };
-using enum surfaceMaterial_t;
 template <> inline constexpr bool enableEnumArithmetic<surfaceMaterial_t> = true;

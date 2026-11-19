@@ -72,7 +72,6 @@ enum class lineColor_t
 	LINECOLOR_YELLOW		= 3,//0xdcdddedfL
 	LINECOLOR_MAGENTA		= 5,//0xe0e1e2e3L, orange in Quake 3's palette, which three bits cannot draw
 };
-using enum lineColor_t;
 
 //Print types
 enum class printType_t
@@ -83,7 +82,6 @@ enum class printType_t
 	PRT_FATAL,
 	PRT_EXIT,
 };
-using enum printType_t;
 
 //console message types
 
@@ -104,7 +102,6 @@ enum class botlibError_t
 	BLERR_CANNOTLOADWEAPONWEIGHTS,	//cannot load weapon weights
 	BLERR_CANNOTLOADWEAPONCONFIG,	//cannot load weapon config
 };
-using enum botlibError_t;
 
 //action flags
 enum class actionFlags_t
@@ -137,7 +134,6 @@ enum class actionFlags_t
 	ACTION_FOLLOWME			= 0x8000000,
 */
 };
-using enum actionFlags_t;
 template <> inline constexpr bool enableEnumFlags<actionFlags_t> = true;
 
 //the bot input, will be converted to a usercmd_t

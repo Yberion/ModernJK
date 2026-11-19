@@ -168,7 +168,7 @@ void Remote_Strafe( void )
 	dir = ( rand() & 1 ) ? -1 : 1;
 	VectorMA( NPC->currentOrigin, REMOTE_STRAFE_DIS * dir, right, end );
 
-	gi.trace( &tr, NPC->currentOrigin, nullptr, nullptr, end, NPC->s.number, MASK_SOLID, G2_NOCOLLIDE, 0 );
+	gi.trace( &tr, NPC->currentOrigin, nullptr, nullptr, end, NPC->s.number, MASK_SOLID, EG2_Collision::G2_NOCOLLIDE, 0 );
 
 	// Close enough
 	if ( tr.fraction > 0.9f )
@@ -252,7 +252,7 @@ void Remote_Fire (void)
 	static	vec3_t	forward, vright, up;
 	gentity_t	*missile;
 
-	CalcEntitySpot( NPC->enemy, SPOT_HEAD, enemy_org1 );
+	CalcEntitySpot( NPC->enemy, spot_t::SPOT_HEAD, enemy_org1 );
 	VectorCopy( NPC->currentOrigin, muzzle1 );
 
 	VectorSubtract (enemy_org1, muzzle1, delta1);
@@ -265,12 +265,12 @@ void Remote_Fire (void)
 	G_PlayEffect( "bryar/muzzle_flash", NPC->currentOrigin, forward );
 
 	missile->classname = "briar";
-	missile->s.weapon = WP_BRYAR_PISTOL;
+	missile->s.weapon = weapon_t::WP_BRYAR_PISTOL;
 
 	missile->damage = 10;
-	missile->dflags = DAMAGE_DEATH_KNOCKBACK;
-	missile->methodOfDeath = MOD_ENERGY;
-	missile->clipmask = MASK_SHOT | CONTENTS_LIGHTSABER;
+	missile->dflags = damageFlags_t::DAMAGE_DEATH_KNOCKBACK;
+	missile->methodOfDeath = meansOfDeath_t::MOD_ENERGY;
+	missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
 
 }
 
@@ -288,7 +288,7 @@ void Remote_Ranged( bool visible, bool advance, bool retreat )
 		Remote_Fire();
 	}
 
-	if ( Any( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
+	if ( Any( NPCInfo->scriptFlags & scriptFlags_t::SCF_CHASE_ENEMIES ) )
 	{
 		Remote_Hunt( visible, advance, retreat );
 	}
@@ -324,7 +324,7 @@ void Remote_Attack( void )
 
 	// Rate our distance to the target, and our visibilty
 	float		distance	= (int) DistanceHorizontalSquared( NPC->currentOrigin, NPC->enemy->currentOrigin );
-//	distance_e	distRate	= ( distance > MIN_MELEE_RANGE_SQR ) ? DIST_LONG : DIST_MELEE;
+//	distance_e	distRate	= ( distance > MIN_MELEE_RANGE_SQR ) ? distance_e::DIST_LONG : distance_e::DIST_MELEE;
 	bool	visible		= NPC_ClearLOS( NPC->enemy );
 	float		idealDist	= MIN_DISTANCE_SQR+(MIN_DISTANCE_SQR*Q_flrand( 0, 1 ));
 	bool	advance		= (distance > idealDist*1.25);
@@ -333,7 +333,7 @@ void Remote_Attack( void )
 	// If we cannot see our target, move to see it
 	if ( visible == false )
 	{
-		if ( Any( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
+		if ( Any( NPCInfo->scriptFlags & scriptFlags_t::SCF_CHASE_ENEMIES ) )
 		{
 			Remote_Hunt( visible, advance, retreat );
 			return;
@@ -371,7 +371,7 @@ void Remote_Patrol( void )
 		if ( UpdateGoal() )
 		{
 			//start loop sound once we move
-			ucmd.buttons |= BUTTON_WALKING;
+			ucmd.buttons |= buttonFlags_t::BUTTON_WALKING;
 			NPC_MoveToGoal( true );
 		}
 	}
@@ -391,7 +391,7 @@ void NPC_BSRemote_Default( void )
 	{
 		Remote_Attack();
 	}
-	else if ( Any( NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES ) )
+	else if ( Any( NPCInfo->scriptFlags & scriptFlags_t::SCF_LOOK_FOR_ENEMIES ) )
 	{
 		Remote_Patrol();
 	}

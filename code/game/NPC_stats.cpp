@@ -50,61 +50,61 @@ hstring		modelsAlreadyDone[MAX_MODELS_PER_LEVEL];
 
 stringID_table_t animEventTypeTable[] =
 {
-	ENUM2STRING(AEV_SOUND),			//# animID AEV_SOUND framenum soundpath randomlow randomhi chancetoplay
-	ENUM2STRING(AEV_FOOTSTEP),		//# animID AEV_FOOTSTEP framenum footstepType
-	ENUM2STRING(AEV_EFFECT),		//# animID AEV_EFFECT framenum effectpath boltName
-	ENUM2STRING(AEV_FIRE),			//# animID AEV_FIRE framenum altfire chancetofire
-	ENUM2STRING(AEV_MOVE),			//# animID AEV_MOVE framenum forwardpush rightpush uppush
-	ENUM2STRING(AEV_SOUNDCHAN),		//# animID AEV_SOUNDCHAN framenum CHANNEL soundpath randomlow randomhi chancetoplay
-	ENUM2STRING(AEV_SABER_SWING),	//# animID AEV_SABER_SWING framenum CHANNEL randomlow randomhi chancetoplay
-	ENUM2STRING(AEV_SABER_SPIN),	//# animID AEV_SABER_SPIN framenum CHANNEL chancetoplay
+	ENUM2STRING(animEventType_t, AEV_SOUND),			//# animID AEV_SOUND framenum soundpath randomlow randomhi chancetoplay
+	ENUM2STRING(animEventType_t, AEV_FOOTSTEP),		//# animID AEV_FOOTSTEP framenum footstepType
+	ENUM2STRING(animEventType_t, AEV_EFFECT),		//# animID AEV_EFFECT framenum effectpath boltName
+	ENUM2STRING(animEventType_t, AEV_FIRE),			//# animID AEV_FIRE framenum altfire chancetofire
+	ENUM2STRING(animEventType_t, AEV_MOVE),			//# animID AEV_MOVE framenum forwardpush rightpush uppush
+	ENUM2STRING(animEventType_t, AEV_SOUNDCHAN),		//# animID AEV_SOUNDCHAN framenum CHANNEL soundpath randomlow randomhi chancetoplay
+	ENUM2STRING(animEventType_t, AEV_SABER_SWING),	//# animID AEV_SABER_SWING framenum CHANNEL randomlow randomhi chancetoplay
+	ENUM2STRING(animEventType_t, AEV_SABER_SPIN),	//# animID AEV_SABER_SPIN framenum CHANNEL chancetoplay
 	//must be terminated
 	{ nullptr,-1 }
 };
 
 stringID_table_t footstepTypeTable[] =
 {
-	ENUM2STRING(FOOTSTEP_R),
-	ENUM2STRING(FOOTSTEP_L),
-	ENUM2STRING(FOOTSTEP_HEAVY_R),
-	ENUM2STRING(FOOTSTEP_HEAVY_L),
+	ENUM2STRING(footstepType_t, FOOTSTEP_R),
+	ENUM2STRING(footstepType_t, FOOTSTEP_L),
+	ENUM2STRING(footstepType_t, FOOTSTEP_HEAVY_R),
+	ENUM2STRING(footstepType_t, FOOTSTEP_HEAVY_L),
 	//must be terminated
 	{ nullptr,-1 }
 };
 
 stringID_table_t FPTable[] =
 {
-	ENUM2STRING(FP_HEAL),
-	ENUM2STRING(FP_LEVITATION),
-	ENUM2STRING(FP_SPEED),
-	ENUM2STRING(FP_PUSH),
-	ENUM2STRING(FP_PULL),
-	ENUM2STRING(FP_TELEPATHY),
-	ENUM2STRING(FP_GRIP),
-	ENUM2STRING(FP_LIGHTNING),
-	ENUM2STRING(FP_SABERTHROW),
-	ENUM2STRING(FP_SABER_DEFENSE),
-	ENUM2STRING(FP_SABER_OFFENSE),
+	ENUM2STRING(forcePowers_t, FP_HEAL),
+	ENUM2STRING(forcePowers_t, FP_LEVITATION),
+	ENUM2STRING(forcePowers_t, FP_SPEED),
+	ENUM2STRING(forcePowers_t, FP_PUSH),
+	ENUM2STRING(forcePowers_t, FP_PULL),
+	ENUM2STRING(forcePowers_t, FP_TELEPATHY),
+	ENUM2STRING(forcePowers_t, FP_GRIP),
+	ENUM2STRING(forcePowers_t, FP_LIGHTNING),
+	ENUM2STRING(forcePowers_t, FP_SABERTHROW),
+	ENUM2STRING(forcePowers_t, FP_SABER_DEFENSE),
+	ENUM2STRING(forcePowers_t, FP_SABER_OFFENSE),
 	//new Jedi Academy powers
-	ENUM2STRING(FP_RAGE),
-	ENUM2STRING(FP_PROTECT),
-	ENUM2STRING(FP_ABSORB),
-	ENUM2STRING(FP_DRAIN),
-	ENUM2STRING(FP_SEE),
+	ENUM2STRING(forcePowers_t, FP_RAGE),
+	ENUM2STRING(forcePowers_t, FP_PROTECT),
+	ENUM2STRING(forcePowers_t, FP_ABSORB),
+	ENUM2STRING(forcePowers_t, FP_DRAIN),
+	ENUM2STRING(forcePowers_t, FP_SEE),
 	{ "",	-1 }
 };
 
 
 stringID_table_t TeamTable[] =
 {
-	{ "free", to_underlying( TEAM_FREE ) },			// caution, some code checks a team_t via "if (!team_t_varname)" so I guess this should stay as entry 0, great or what? -slc
-	ENUM2STRING(TEAM_FREE),			// caution, some code checks a team_t via "if (!team_t_varname)" so I guess this should stay as entry 0, great or what? -slc
-	{ "player", to_underlying( TEAM_PLAYER ) },
-	ENUM2STRING(TEAM_PLAYER),
-	{ "enemy", to_underlying( TEAM_ENEMY ) },
-	ENUM2STRING(TEAM_ENEMY),
-	{ "neutral", to_underlying( TEAM_NEUTRAL ) },	// most droids are team_neutral, there are some exceptions like Probe,Seeker,Interrogator
-	ENUM2STRING(TEAM_NEUTRAL),	// most droids are team_neutral, there are some exceptions like Probe,Seeker,Interrogator
+	{ "free", to_underlying( team_t::TEAM_FREE ) },			// caution, some code checks a team_t via "if (!team_t_varname)" so I guess this should stay as entry 0, great or what? -slc
+	ENUM2STRING(team_t, TEAM_FREE),			// caution, some code checks a team_t via "if (!team_t_varname)" so I guess this should stay as entry 0, great or what? -slc
+	{ "player", to_underlying( team_t::TEAM_PLAYER ) },
+	ENUM2STRING(team_t, TEAM_PLAYER),
+	{ "enemy", to_underlying( team_t::TEAM_ENEMY ) },
+	ENUM2STRING(team_t, TEAM_ENEMY),
+	{ "neutral", to_underlying( team_t::TEAM_NEUTRAL ) },	// most droids are team_neutral, there are some exceptions like Probe,Seeker,Interrogator
+	ENUM2STRING(team_t, TEAM_NEUTRAL),	// most droids are team_neutral, there are some exceptions like Probe,Seeker,Interrogator
 	{ "",	-1 }
 };
 
@@ -112,72 +112,72 @@ stringID_table_t TeamTable[] =
 // this list was made using the model directories, this MUST be in the same order as the CLASS_ enum in teams.h
 stringID_table_t ClassTable[] =
 {
-	ENUM2STRING(CLASS_NONE),				// hopefully this will never be used by an npc), just covering all bases
-	ENUM2STRING(CLASS_ATST),				// technically droid...
-	ENUM2STRING(CLASS_BARTENDER),
-	ENUM2STRING(CLASS_BESPIN_COP),
-	ENUM2STRING(CLASS_CLAW),
-	ENUM2STRING(CLASS_COMMANDO),
-	ENUM2STRING(CLASS_DESANN),
-	ENUM2STRING(CLASS_FISH),
-	ENUM2STRING(CLASS_FLIER2),
-	ENUM2STRING(CLASS_GALAK),
-	ENUM2STRING(CLASS_GLIDER),
-	ENUM2STRING(CLASS_GONK),				// droid
-	ENUM2STRING(CLASS_GRAN),
-	ENUM2STRING(CLASS_HOWLER),
-	ENUM2STRING(CLASS_RANCOR),
-	ENUM2STRING(CLASS_SAND_CREATURE),
-	ENUM2STRING(CLASS_WAMPA),
-	ENUM2STRING(CLASS_IMPERIAL),
-	ENUM2STRING(CLASS_IMPWORKER),
-	ENUM2STRING(CLASS_INTERROGATOR),		// droid
-	ENUM2STRING(CLASS_JAN),
-	ENUM2STRING(CLASS_JEDI),
-	ENUM2STRING(CLASS_KYLE),
-	ENUM2STRING(CLASS_LANDO),
-	ENUM2STRING(CLASS_LIZARD),
-	ENUM2STRING(CLASS_LUKE),
-	ENUM2STRING(CLASS_MARK1),			// droid
-	ENUM2STRING(CLASS_MARK2),			// droid
-	ENUM2STRING(CLASS_GALAKMECH),		// droid
-	ENUM2STRING(CLASS_MINEMONSTER),
-	ENUM2STRING(CLASS_MONMOTHA),
-	ENUM2STRING(CLASS_MORGANKATARN),
-	ENUM2STRING(CLASS_MOUSE),			// droid
-	ENUM2STRING(CLASS_MURJJ),
-	ENUM2STRING(CLASS_PRISONER),
-	ENUM2STRING(CLASS_PROBE),			// droid
-	ENUM2STRING(CLASS_PROTOCOL),			// droid
-	ENUM2STRING(CLASS_R2D2),				// droid
-	ENUM2STRING(CLASS_R5D2),				// droid
-	ENUM2STRING(CLASS_REBEL),
-	ENUM2STRING(CLASS_REBORN),
-	ENUM2STRING(CLASS_REELO),
-	ENUM2STRING(CLASS_REMOTE),
-	ENUM2STRING(CLASS_RODIAN),
-	ENUM2STRING(CLASS_SEEKER),			// droid
-	ENUM2STRING(CLASS_SENTRY),
-	ENUM2STRING(CLASS_SHADOWTROOPER),
-	ENUM2STRING(CLASS_SABOTEUR),
-	ENUM2STRING(CLASS_STORMTROOPER),
-	ENUM2STRING(CLASS_SWAMP),
-	ENUM2STRING(CLASS_SWAMPTROOPER),
-	ENUM2STRING(CLASS_NOGHRI),
-	ENUM2STRING(CLASS_TAVION),
-	ENUM2STRING(CLASS_ALORA),
-	ENUM2STRING(CLASS_TRANDOSHAN),
-	ENUM2STRING(CLASS_UGNAUGHT),
-	ENUM2STRING(CLASS_JAWA),
-	ENUM2STRING(CLASS_WEEQUAY),
-	ENUM2STRING(CLASS_TUSKEN),
-	ENUM2STRING(CLASS_BOBAFETT),
-	ENUM2STRING(CLASS_ROCKETTROOPER),
-	ENUM2STRING(CLASS_SABER_DROID),
-	ENUM2STRING(CLASS_PLAYER),
-	ENUM2STRING(CLASS_ASSASSIN_DROID),
-	ENUM2STRING(CLASS_HAZARD_TROOPER),
-	ENUM2STRING(CLASS_VEHICLE),
+	ENUM2STRING(class_t, CLASS_NONE),				// hopefully this will never be used by an npc), just covering all bases
+	ENUM2STRING(class_t, CLASS_ATST),				// technically droid...
+	ENUM2STRING(class_t, CLASS_BARTENDER),
+	ENUM2STRING(class_t, CLASS_BESPIN_COP),
+	ENUM2STRING(class_t, CLASS_CLAW),
+	ENUM2STRING(class_t, CLASS_COMMANDO),
+	ENUM2STRING(class_t, CLASS_DESANN),
+	ENUM2STRING(class_t, CLASS_FISH),
+	ENUM2STRING(class_t, CLASS_FLIER2),
+	ENUM2STRING(class_t, CLASS_GALAK),
+	ENUM2STRING(class_t, CLASS_GLIDER),
+	ENUM2STRING(class_t, CLASS_GONK),				// droid
+	ENUM2STRING(class_t, CLASS_GRAN),
+	ENUM2STRING(class_t, CLASS_HOWLER),
+	ENUM2STRING(class_t, CLASS_RANCOR),
+	ENUM2STRING(class_t, CLASS_SAND_CREATURE),
+	ENUM2STRING(class_t, CLASS_WAMPA),
+	ENUM2STRING(class_t, CLASS_IMPERIAL),
+	ENUM2STRING(class_t, CLASS_IMPWORKER),
+	ENUM2STRING(class_t, CLASS_INTERROGATOR),		// droid
+	ENUM2STRING(class_t, CLASS_JAN),
+	ENUM2STRING(class_t, CLASS_JEDI),
+	ENUM2STRING(class_t, CLASS_KYLE),
+	ENUM2STRING(class_t, CLASS_LANDO),
+	ENUM2STRING(class_t, CLASS_LIZARD),
+	ENUM2STRING(class_t, CLASS_LUKE),
+	ENUM2STRING(class_t, CLASS_MARK1),			// droid
+	ENUM2STRING(class_t, CLASS_MARK2),			// droid
+	ENUM2STRING(class_t, CLASS_GALAKMECH),		// droid
+	ENUM2STRING(class_t, CLASS_MINEMONSTER),
+	ENUM2STRING(class_t, CLASS_MONMOTHA),
+	ENUM2STRING(class_t, CLASS_MORGANKATARN),
+	ENUM2STRING(class_t, CLASS_MOUSE),			// droid
+	ENUM2STRING(class_t, CLASS_MURJJ),
+	ENUM2STRING(class_t, CLASS_PRISONER),
+	ENUM2STRING(class_t, CLASS_PROBE),			// droid
+	ENUM2STRING(class_t, CLASS_PROTOCOL),			// droid
+	ENUM2STRING(class_t, CLASS_R2D2),				// droid
+	ENUM2STRING(class_t, CLASS_R5D2),				// droid
+	ENUM2STRING(class_t, CLASS_REBEL),
+	ENUM2STRING(class_t, CLASS_REBORN),
+	ENUM2STRING(class_t, CLASS_REELO),
+	ENUM2STRING(class_t, CLASS_REMOTE),
+	ENUM2STRING(class_t, CLASS_RODIAN),
+	ENUM2STRING(class_t, CLASS_SEEKER),			// droid
+	ENUM2STRING(class_t, CLASS_SENTRY),
+	ENUM2STRING(class_t, CLASS_SHADOWTROOPER),
+	ENUM2STRING(class_t, CLASS_SABOTEUR),
+	ENUM2STRING(class_t, CLASS_STORMTROOPER),
+	ENUM2STRING(class_t, CLASS_SWAMP),
+	ENUM2STRING(class_t, CLASS_SWAMPTROOPER),
+	ENUM2STRING(class_t, CLASS_NOGHRI),
+	ENUM2STRING(class_t, CLASS_TAVION),
+	ENUM2STRING(class_t, CLASS_ALORA),
+	ENUM2STRING(class_t, CLASS_TRANDOSHAN),
+	ENUM2STRING(class_t, CLASS_UGNAUGHT),
+	ENUM2STRING(class_t, CLASS_JAWA),
+	ENUM2STRING(class_t, CLASS_WEEQUAY),
+	ENUM2STRING(class_t, CLASS_TUSKEN),
+	ENUM2STRING(class_t, CLASS_BOBAFETT),
+	ENUM2STRING(class_t, CLASS_ROCKETTROOPER),
+	ENUM2STRING(class_t, CLASS_SABER_DROID),
+	ENUM2STRING(class_t, CLASS_PLAYER),
+	ENUM2STRING(class_t, CLASS_ASSASSIN_DROID),
+	ENUM2STRING(class_t, CLASS_HAZARD_TROOPER),
+	ENUM2STRING(class_t, CLASS_VEHICLE),
 	{ "",	-1 }
 };
 
@@ -229,78 +229,78 @@ static rank_t TranslateRankName( const char *name )
 {
 	if ( !Q_stricmp( name, "civilian" ) )
 	{
-		return RANK_CIVILIAN;
+		return rank_t::RANK_CIVILIAN;
 	}
 
 	if ( !Q_stricmp( name, "crewman" ) )
 	{
-		return RANK_CREWMAN;
+		return rank_t::RANK_CREWMAN;
 	}
 
 	if ( !Q_stricmp( name, "ensign" ) )
 	{
-		return RANK_ENSIGN;
+		return rank_t::RANK_ENSIGN;
 	}
 
 	if ( !Q_stricmp( name, "ltjg" ) )
 	{
-		return RANK_LT_JG;
+		return rank_t::RANK_LT_JG;
 	}
 
 	if ( !Q_stricmp( name, "lt" ) )
 	{
-		return RANK_LT;
+		return rank_t::RANK_LT;
 	}
 
 	if ( !Q_stricmp( name, "ltcomm" ) )
 	{
-		return RANK_LT_COMM;
+		return rank_t::RANK_LT_COMM;
 	}
 
 	if ( !Q_stricmp( name, "commander" ) )
 	{
-		return RANK_COMMANDER;
+		return rank_t::RANK_COMMANDER;
 	}
 
 	if ( !Q_stricmp( name, "captain" ) )
 	{
-		return RANK_CAPTAIN;
+		return rank_t::RANK_CAPTAIN;
 	}
 
-	return RANK_CIVILIAN;
+	return rank_t::RANK_CIVILIAN;
 }
 
 saber_colors_t TranslateSaberColor( const char *name )
 {
 	if ( !Q_stricmp( name, "red" ) )
 	{
-		return SABER_RED;
+		return saber_colors_t::SABER_RED;
 	}
 	if ( !Q_stricmp( name, "orange" ) )
 	{
-		return SABER_ORANGE;
+		return saber_colors_t::SABER_ORANGE;
 	}
 	if ( !Q_stricmp( name, "yellow" ) )
 	{
-		return SABER_YELLOW;
+		return saber_colors_t::SABER_YELLOW;
 	}
 	if ( !Q_stricmp( name, "green" ) )
 	{
-		return SABER_GREEN;
+		return saber_colors_t::SABER_GREEN;
 	}
 	if ( !Q_stricmp( name, "blue" ) )
 	{
-		return SABER_BLUE;
+		return saber_colors_t::SABER_BLUE;
 	}
 	if ( !Q_stricmp( name, "purple" ) )
 	{
-		return SABER_PURPLE;
+		return saber_colors_t::SABER_PURPLE;
 	}
 	if ( !Q_stricmp( name, "random" ) )
 	{
-		return Q_irand( SABER_ORANGE, SABER_PURPLE );
+		return Q_irand( saber_colors_t::SABER_ORANGE, saber_colors_t::SABER_PURPLE );
 	}
-	return SABER_BLUE;
+	return saber_colors_t::SABER_BLUE;
 }
 
 /* static int MethodNameToNumber( const char *name ) {
@@ -341,22 +341,22 @@ static movetype_t MoveTypeNameToEnum( const char *name )
 {
 	if(!Q_stricmp("runjump", name))
 	{
-		return MT_RUNJUMP;
+		return movetype_t::MT_RUNJUMP;
 	}
 	else if(!Q_stricmp("walk", name))
 	{
-		return MT_WALK;
+		return movetype_t::MT_WALK;
 	}
 	else if(!Q_stricmp("flyswim", name))
 	{
-		return MT_FLYSWIM;
+		return movetype_t::MT_FLYSWIM;
 	}
 	else if(!Q_stricmp("static", name))
 	{
-		return MT_STATIC;
+		return movetype_t::MT_STATIC;
 	}
 
-	return MT_STATIC;
+	return movetype_t::MT_STATIC;
 }
 
 extern void CG_RegisterClientRenderInfo(clientInfo_t *ci, renderInfo_t *ri);
@@ -366,13 +366,13 @@ extern void CG_RegisterNPCCustomSounds( clientInfo_t *ci );
 //#define CONVENIENT_ANIMATION_FILE_DEBUG_THING
 
 #ifdef CONVENIENT_ANIMATION_FILE_DEBUG_THING
-void SpewDebugStuffToFile(EnumArray<animation_t, animNumber_t, MAX_ANIMATIONS> &bgGlobalAnimations)
+void SpewDebugStuffToFile(EnumArray<animation_t, animNumber_t, animNumber_t::MAX_ANIMATIONS> &bgGlobalAnimations)
 {
 	char BGPAFtext[40000];
 	fileHandle_t f;
-	animNumber_t i = FACE_TALK0;
+	animNumber_t i = animNumber_t::FACE_TALK0;
 
-	gi.FS_FOpenFile("file_of_debug_stuff_SP.txt", &f, FS_WRITE);
+	gi.FS_FOpenFile("file_of_debug_stuff_SP.txt", &f, fsMode_t::FS_WRITE);
 
 	if (!f)
 	{
@@ -381,7 +381,7 @@ void SpewDebugStuffToFile(EnumArray<animation_t, animNumber_t, MAX_ANIMATIONS> &
 
 	BGPAFtext[0] = 0;
 
-	while (i < MAX_ANIMATIONS)
+	while (i < animNumber_t::MAX_ANIMATIONS)
 	{
 		strcat(BGPAFtext, va("%i %i\n", to_underlying( i ), bgGlobalAnimations[i].frameLerp));
 		i++;
@@ -416,7 +416,7 @@ int CG_CheckAnimFrameForEventType( animevent_t *animEvents, int keyFrame, animEv
 ParseAnimationEvtBlock
 ======================
 */
-static void ParseAnimationEvtBlock(int glaIndex, unsigned short modelIndex, const char* aeb_filename, animevent_t *animEvents, EnumArray<animation_t, animNumber_t, MAX_ANIMATIONS> &animations, unsigned char &lastAnimEvent, const char **text_p, bool bIsFrameSkipped)
+static void ParseAnimationEvtBlock(int glaIndex, unsigned short modelIndex, const char* aeb_filename, animevent_t *animEvents, EnumArray<animation_t, animNumber_t, animNumber_t::MAX_ANIMATIONS> &animations, unsigned char &lastAnimEvent, const char **text_p, bool bIsFrameSkipped)
 {
 	const char		*token;
 	int				num, n, keyFrame, lowestVal, highestVal, curAnimEvent = 0;
@@ -479,7 +479,7 @@ static void ParseAnimationEvtBlock(int glaIndex, unsigned short modelIndex, cons
 		token = COM_Parse( text_p );
 		const int eventId = GetIDForString(animEventTypeTable, token);
 		eventType = static_cast<animEventType_t>( eventId );
-		if ( eventId == -1 || eventType == AEV_NONE )
+		if ( eventId == -1 || eventType == animEventType_t::AEV_NONE )
 		{//Unrecognized ANIM EVENT TYPE
 			Com_Printf(S_COLOR_RED"ERROR: Unknown EVENT %s in animEvent file %s\n", token, aeb_filename );
 			continue;
@@ -527,7 +527,7 @@ static void ParseAnimationEvtBlock(int glaIndex, unsigned short modelIndex, cons
 		//now read out the proper data based on the type
 		switch ( animEvents[curAnimEvent].eventType )
 		{
-		case AEV_SOUNDCHAN:		//# animID AEV_SOUNDCHAN framenum CHANNEL soundpath randomlow randomhi chancetoplay
+		case animEventType_t::AEV_SOUNDCHAN:		//# animID AEV_SOUNDCHAN framenum CHANNEL soundpath randomlow randomhi chancetoplay
 			token = COM_Parse( text_p );
 			if ( !token )
 			{
@@ -535,34 +535,34 @@ static void ParseAnimationEvtBlock(int glaIndex, unsigned short modelIndex, cons
 			}
 			if ( Q_stricmp( token, "CHAN_VOICE_ATTEN" ) == 0 )
 			{
-				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( CHAN_VOICE_ATTEN );
+				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( soundChannel_t::CHAN_VOICE_ATTEN );
 			}
 			else if ( Q_stricmp( token, "CHAN_VOICE_GLOBAL" ) == 0 )
 			{
-				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( CHAN_VOICE_GLOBAL );
+				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( soundChannel_t::CHAN_VOICE_GLOBAL );
 			}
 			else if ( Q_stricmp( token, "CHAN_ANNOUNCER" ) == 0 )
 			{
-				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( CHAN_ANNOUNCER );
+				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( soundChannel_t::CHAN_ANNOUNCER );
 			}
 			else if ( Q_stricmp( token, "CHAN_BODY" ) == 0 )
 			{
-				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( CHAN_BODY );
+				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( soundChannel_t::CHAN_BODY );
 			}
 			else if ( Q_stricmp( token, "CHAN_WEAPON" ) == 0 )
 			{
-				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( CHAN_WEAPON );
+				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( soundChannel_t::CHAN_WEAPON );
 			}
 			else if ( Q_stricmp( token, "CHAN_VOICE" ) == 0 )
 			{
-				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( CHAN_VOICE );
+				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( soundChannel_t::CHAN_VOICE );
 			}
 			else
 			{
-				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( CHAN_AUTO );
+				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( soundChannel_t::CHAN_AUTO );
 			}
 			//fall through to normal sound
-		case AEV_SOUND:			//# animID AEV_SOUND framenum soundpath randomlow randomhi chancetoplay
+		case animEventType_t::AEV_SOUND:			//# animID AEV_SOUND framenum soundpath randomlow randomhi chancetoplay
 			//get soundstring
 			token = COM_Parse( text_p );
 			if ( !token )
@@ -618,25 +618,25 @@ static void ParseAnimationEvtBlock(int glaIndex, unsigned short modelIndex, cons
 			//last part - cheat and check and see if it's a special overridable saber sound we know of...
 			if ( !Q_stricmpn( "sound/weapons/saber/saberhup", stringData, 28 ) )
 			{//a saber swing
-				animEvents[curAnimEvent].eventType = AEV_SABER_SWING;
+				animEvents[curAnimEvent].eventType = animEventType_t::AEV_SABER_SWING;
 				animEvents[curAnimEvent].eventData[AED_SABER_SWING_SABERNUM] = 0;//since we don't know which one they meant if we're hacking this, always use first saber
 				animEvents[curAnimEvent].eventData[AED_SABER_SWING_PROBABILITY] = animEvents[curAnimEvent].eventData[AED_SOUND_PROBABILITY];
 				if ( lowestVal < 4 )
 				{//fast swing
-					animEvents[curAnimEvent].eventData[AED_SABER_SWING_TYPE] = (short)to_underlying( SWING_FAST );
+					animEvents[curAnimEvent].eventData[AED_SABER_SWING_TYPE] = (short)to_underlying( swingType_t::SWING_FAST );
 				}
 				else if ( lowestVal < 7 )
 				{//medium swing
-					animEvents[curAnimEvent].eventData[AED_SABER_SWING_TYPE] = (short)to_underlying( SWING_MEDIUM );
+					animEvents[curAnimEvent].eventData[AED_SABER_SWING_TYPE] = (short)to_underlying( swingType_t::SWING_MEDIUM );
 				}
 				else
 				{//strong swing
-					animEvents[curAnimEvent].eventData[AED_SABER_SWING_TYPE] = (short)to_underlying( SWING_STRONG );
+					animEvents[curAnimEvent].eventData[AED_SABER_SWING_TYPE] = (short)to_underlying( swingType_t::SWING_STRONG );
 				}
 			}
 			else if ( !Q_stricmpn( "sound/weapons/saber/saberspin", stringData, 29 ) )
 			{//a saber spin
-				animEvents[curAnimEvent].eventType = AEV_SABER_SPIN;
+				animEvents[curAnimEvent].eventType = animEventType_t::AEV_SABER_SPIN;
 				animEvents[curAnimEvent].eventData[AED_SABER_SPIN_SABERNUM] = 0;//since we don't know which one they meant if we're hacking this, always use first saber
 				animEvents[curAnimEvent].eventData[AED_SABER_SPIN_PROBABILITY] = animEvents[curAnimEvent].eventData[AED_SOUND_PROBABILITY];
 				if ( stringData[29] == 'o' )
@@ -665,7 +665,7 @@ static void ParseAnimationEvtBlock(int glaIndex, unsigned short modelIndex, cons
 				}
 			}
 			break;
-		case AEV_FOOTSTEP:		//# animID AEV_FOOTSTEP framenum footstepType
+		case animEventType_t::AEV_FOOTSTEP:		//# animID AEV_FOOTSTEP framenum footstepType
 			//get footstep type
 			token = COM_Parse( text_p );
 			if ( !token )
@@ -681,7 +681,7 @@ static void ParseAnimationEvtBlock(int glaIndex, unsigned short modelIndex, cons
 			}
 			animEvents[curAnimEvent].eventData[AED_FOOTSTEP_PROBABILITY] = atoi( token );
 			break;
-		case AEV_EFFECT:		//# animID AEV_EFFECT framenum effectpath boltName
+		case animEventType_t::AEV_EFFECT:		//# animID AEV_EFFECT framenum effectpath boltName
 			//get effect index
 			token = COM_Parse( text_p );
 			if ( !token )
@@ -722,7 +722,7 @@ static void ParseAnimationEvtBlock(int glaIndex, unsigned short modelIndex, cons
 			}
 			animEvents[curAnimEvent].eventData[AED_EFFECT_PROBABILITY] = atoi( token );
 			break;
-		case AEV_FIRE:			//# animID AEV_FIRE framenum altfire chancetofire
+		case animEventType_t::AEV_FIRE:			//# animID AEV_FIRE framenum altfire chancetofire
 			//get altfire
 			token = COM_Parse( text_p );
 			if ( !token )
@@ -738,7 +738,7 @@ static void ParseAnimationEvtBlock(int glaIndex, unsigned short modelIndex, cons
 			}
 			animEvents[curAnimEvent].eventData[AED_FIRE_PROBABILITY] = atoi( token );
 			break;
-		case AEV_MOVE:			//# animID AEV_MOVE framenum forwardpush rightpush uppush
+		case animEventType_t::AEV_MOVE:			//# animID AEV_MOVE framenum forwardpush rightpush uppush
 			//get forward push
 			token = COM_Parse( text_p );
 			if ( !token )
@@ -812,7 +812,7 @@ void G_ParseAnimationEvtFile(int glaIndex, const char* eventsDirectory, int file
 	// Open The File, Make Sure It Is Safe
 	//-------------------------------------
 	Com_sprintf(eventsPath, MAX_QPATH, "models/players/%s/animevents.cfg", eventsDirectory);
-	len = cgi_FS_FOpenFile(eventsPath, &f, FS_READ);
+	len = cgi_FS_FOpenFile(eventsPath, &f, fsMode_t::FS_READ);
 	if ( len <= 0 )
 	{//no file
 		return;
@@ -1082,7 +1082,7 @@ int		G_ParseAnimFileSet(const char *skeletonName, const char *modelName=nullptr)
 
 		// Initialize The Frames Information
 		//-----------------------------------
-		for(animNumber_t i=FACE_TALK0; i<MAX_ANIMATIONS; i++)
+		for(animNumber_t i=animNumber_t::FACE_TALK0; i<animNumber_t::MAX_ANIMATIONS; i++)
 		{
 			animations[i].firstFrame	= 0;
 			animations[i].numFrames		= 0;
@@ -1096,8 +1096,8 @@ int		G_ParseAnimFileSet(const char *skeletonName, const char *modelName=nullptr)
 		//----------------------------------
 		for(i=0; i<MAX_ANIM_EVENTS; i++)
 		{
-			torsoAnimEvents[i].eventType	= AEV_NONE;		//Type of event
-			legsAnimEvents[i].eventType		= AEV_NONE;
+			torsoAnimEvents[i].eventType	= animEventType_t::AEV_NONE;		//Type of event
+			legsAnimEvents[i].eventType		= animEventType_t::AEV_NONE;
 			torsoAnimEvents[i].keyFrame		= (unsigned short)-1;	//65535 should never be a valid frame... :)
 			legsAnimEvents[i].keyFrame		= (unsigned short)-1;	//Frame to play event on
 			torsoAnimEvents[i].stringData	= nullptr;			//we allow storage of one string, temporarily (in case we have to look up an index later,
@@ -1143,7 +1143,7 @@ int		G_ParseAnimFileSet(const char *skeletonName, const char *modelName=nullptr)
 				assert(cineGLAIndex == normalGLAIndex+1);
 				if (cineGLAIndex != normalGLAIndex+1)
 				{
-					Com_Error(ERR_DROP,"Cinematic GLA was not loaded after the normal GLA.  Cannot continue safely.");
+					Com_Error(errorParm_t::ERR_DROP,"Cinematic GLA was not loaded after the normal GLA.  Cannot continue safely.");
 				}
 				G_ParseAnimationFile(1,    skeletonMapName, fileIndex);
 				G_ParseAnimationEvtFile(1, skeletonMapName, fileIndex, cineGLAIndex, false/*flag for model specific*/);
@@ -1179,7 +1179,7 @@ int		G_ParseAnimFileSet(const char *skeletonName, const char *modelName=nullptr)
 
 		if (curModel == MAX_MODELS_PER_LEVEL)
 		{
-			Com_Error(ERR_DROP, "About to overflow modelsAlreadyDone, increase MAX_MODELS_PER_LEVEL\n");
+			Com_Error(errorParm_t::ERR_DROP, "About to overflow modelsAlreadyDone, increase MAX_MODELS_PER_LEVEL\n");
 		}
 
 		// Nope, Ok, Record The Model As Found And Parse It's Event File
@@ -1246,7 +1246,7 @@ void G_LoadAnimFileSet( gentity_t *ent, const char *pModelName )
 	{
 		Com_Printf( S_COLOR_RED"Failed to load animation file set models/players/%s/animation.cfg\n", modelName );
 #ifndef FINAL_BUILD
-		Com_Error(ERR_FATAL, "Failed to load animation file set models/players/%s/animation.cfg\n", modelName);
+		Com_Error(errorParm_t::ERR_FATAL, "Failed to load animation file set models/players/%s/animation.cfg\n", modelName);
 #endif
 	}
 }
@@ -1371,7 +1371,7 @@ void NPC_PrecacheWeapons( team_t playerTeam, int spawnflags, const char *NPCtype
 {
 	int weapons = NPC_WeaponsForTeam( playerTeam, spawnflags, NPCtype );
 	gitem_t	*item;
-	for ( weapon_t curWeap = WP_SABER; curWeap < WP_NUM_WEAPONS; curWeap++ )
+	for ( weapon_t curWeap = weapon_t::WP_SABER; curWeap < weapon_t::WP_NUM_WEAPONS; curWeap++ )
 	{
 		if ( (weapons & Bit( curWeap )) )
 		{
@@ -1582,7 +1582,7 @@ void CG_NPC_Precache ( gentity_t *spawner )
 {
 	clientInfo_t	ci={};
 	renderInfo_t	ri={};
-	team_t			playerTeam = TEAM_FREE;
+	team_t			playerTeam = team_t::TEAM_FREE;
 	const char	*token;
 	const char	*value;
 	const char	*p;
@@ -1740,7 +1740,7 @@ void CG_NPC_Precache ( gentity_t *spawner )
 			if ( COM_ParseString( &p, &value ) ) {
 				continue;
 			}
-			if ( !Any( spawner->svFlags & SVF_NO_BASIC_SOUNDS ) )
+			if ( !Any( spawner->svFlags & svFlags_t::SVF_NO_BASIC_SOUNDS ) )
 			{
 				//FIXME: store this in some sound field or parse in the soundTable like the animTable...
 				Q_strncpyz( sound, value, sizeof( sound ) );
@@ -1759,7 +1759,7 @@ void CG_NPC_Precache ( gentity_t *spawner )
 			if ( COM_ParseString( &p, &value ) ) {
 				continue;
 			}
-			if ( !Any( spawner->svFlags & SVF_NO_COMBAT_SOUNDS ) )
+			if ( !Any( spawner->svFlags & svFlags_t::SVF_NO_COMBAT_SOUNDS ) )
 			{
 				//FIXME: store this in some sound field or parse in the soundTable like the animTable...
 				Q_strncpyz( sound, value, sizeof( sound ) );
@@ -1778,7 +1778,7 @@ void CG_NPC_Precache ( gentity_t *spawner )
 			if ( COM_ParseString( &p, &value ) ) {
 				continue;
 			}
-			if ( !Any( spawner->svFlags & SVF_NO_EXTRA_SOUNDS ) )
+			if ( !Any( spawner->svFlags & svFlags_t::SVF_NO_EXTRA_SOUNDS ) )
 			{
 				//FIXME: store this in some sound field or parse in the soundTable like the animTable...
 				Q_strncpyz( sound, value, sizeof( sound ) );
@@ -1797,7 +1797,7 @@ void CG_NPC_Precache ( gentity_t *spawner )
 			if ( COM_ParseString( &p, &value ) ) {
 				continue;
 			}
-			if ( !Any( spawner->svFlags & SVF_NO_EXTRA_SOUNDS ) )
+			if ( !Any( spawner->svFlags & svFlags_t::SVF_NO_EXTRA_SOUNDS ) )
 			{
 				//FIXME: store this in some sound field or parse in the soundTable like the animTable...
 				Q_strncpyz( sound, value, sizeof( sound ) );
@@ -1819,9 +1819,9 @@ void CG_NPC_Precache ( gentity_t *spawner )
 				continue;
 			}
 			const std::optional<weapon_t> weap = G_WeaponFromName( value );
-			if ( weap >= WP_NONE && weap < WP_NUM_WEAPONS )
+			if ( weap >= weapon_t::WP_NONE && weap < weapon_t::WP_NUM_WEAPONS )
 			{
-				if ( weap > WP_NONE )
+				if ( weap > weapon_t::WP_NONE )
 				{
 					RegisterItem( FindItemForWeapon( *weap ) );	//precache the weapon
 				}
@@ -1967,17 +1967,17 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 	{
 		stats = &NPC->NPC->stats;
 /*
-	NPC->NPC->allWeaponOrder[0]	= WP_BRYAR_PISTOL;
-	NPC->NPC->allWeaponOrder[1]	= WP_SABER;
+	NPC->NPC->allWeaponOrder[0]	= weapon_t::WP_BRYAR_PISTOL;
+	NPC->NPC->allWeaponOrder[1]	= weapon_t::WP_SABER;
 	NPC->NPC->allWeaponOrder[2]	= WP_IMOD;
 	NPC->NPC->allWeaponOrder[3]	= WP_SCAVENGER_RIFLE;
 	NPC->NPC->allWeaponOrder[4]	= WP_TRICORDER;
-	NPC->NPC->allWeaponOrder[6]	= WP_NONE;
-	NPC->NPC->allWeaponOrder[6]	= WP_NONE;
-	NPC->NPC->allWeaponOrder[7]	= WP_NONE;
+	NPC->NPC->allWeaponOrder[6]	= weapon_t::WP_NONE;
+	NPC->NPC->allWeaponOrder[6]	= weapon_t::WP_NONE;
+	NPC->NPC->allWeaponOrder[7]	= weapon_t::WP_NONE;
 */
 		// fill in defaults
-		stats->sex			= SEX_MALE;
+		stats->sex			= sexType_t::SEX_MALE;
 		stats->aggression	= 3;
 		stats->aim			= 3;
 		stats->earshot		= 1024;
@@ -2033,7 +2033,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 	NPC->client->crouchheight = CROUCH_MAXS_2;
 	NPC->client->standheight = DEFAULT_MAXS_2;
 
-	NPC->client->moveType		= MT_RUNJUMP;
+	NPC->client->moveType		= movetype_t::MT_RUNJUMP;
 
 	NPC->client->dismemberProbHead = 100;
 	NPC->client->dismemberProbArms = 100;
@@ -3071,7 +3071,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 				}
 				else if ( parsingPlayer )
 				{
-					NPC->client->ps.stats[STAT_MAX_HEALTH] = NPC->client->pers.maxHealth = NPC->max_health = n;
+					NPC->client->ps.stats[statIndex_t::STAT_MAX_HEALTH] = NPC->client->pers.maxHealth = NPC->max_health = n;
 				}
 				continue;
 			}
@@ -3121,7 +3121,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 				NPC->client->NPC_class = (class_t)GetIDForString( ClassTable, value );
 
 				// No md3's for vehicles.
-				if ( NPC->client->NPC_class == CLASS_VEHICLE )
+				if ( NPC->client->NPC_class == class_t::CLASS_VEHICLE )
 				{
 					if ( !NPC->m_pVehicle )
 					{//you didn't spawn this guy right!
@@ -3246,10 +3246,10 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 					continue;
 				}
 
-				if ( NPC->client->NPC_class == CLASS_VEHICLE
+				if ( NPC->client->NPC_class == class_t::CLASS_VEHICLE
 					&& NPC->m_pVehicle
 					&& NPC->m_pVehicle->m_pVehicleInfo
-					&& NPC->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER )
+					&& NPC->m_pVehicle->m_pVehicleInfo->type == vehicleType_t::VH_FIGHTER )
 				{//a flying vehicle's origin must be centered in bbox
 					NPC->maxs[2] = NPC->client->standheight = (n/2.0f);
 					NPC->mins[2] = -NPC->maxs[2];
@@ -3379,31 +3379,31 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 					}
 					if ( value[0] == 'm' )
 					{//male
-						stats->sex = SEX_MALE;
+						stats->sex = sexType_t::SEX_MALE;
 					}
 					else if ( value[0] == 'n' )
 					{//neutral
-						stats->sex = SEX_NEUTRAL;
+						stats->sex = sexType_t::SEX_NEUTRAL;
 					}
 					else if ( value[0] == 'a' )
 					{//asexual?
-						stats->sex = SEX_NEUTRAL;
+						stats->sex = sexType_t::SEX_NEUTRAL;
 					}
 					else if ( value[0] == 'f' )
 					{//female
-						stats->sex = SEX_FEMALE;
+						stats->sex = sexType_t::SEX_FEMALE;
 					}
 					else if ( value[0] == 's' )
 					{//shemale?
-						stats->sex = SEX_SHEMALE;
+						stats->sex = sexType_t::SEX_SHEMALE;
 					}
 					else if ( value[0] == 'h' )
 					{//hermaphrodite?
-						stats->sex = SEX_SHEMALE;
+						stats->sex = sexType_t::SEX_SHEMALE;
 					}
 					else if ( value[0] == 't' )
 					{//transsexual/transvestite?
-						stats->sex = SEX_SHEMALE;
+						stats->sex = sexType_t::SEX_SHEMALE;
 					}
 					continue;
 				}
@@ -3416,7 +3416,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 						SkipRestOfLine( &p );
 						continue;
 					}
-					if ( n < to_underlying( BS_DEFAULT ) || n >= to_underlying( NUM_BSTATES ) )
+					if ( n < to_underlying( bState_t::BS_DEFAULT ) || n >= to_underlying( bState_t::NUM_BSTATES ) )
 					{
 						gi.Printf( S_COLOR_YELLOW"WARNING: bad %s in NPC '%s'\n", token, NPCName );
 						continue;
@@ -3436,7 +3436,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 				{
 					continue;
 				}
-				if ( !Any( NPC->svFlags & SVF_NO_BASIC_SOUNDS ) )
+				if ( !Any( NPC->svFlags & svFlags_t::SVF_NO_BASIC_SOUNDS ) )
 				{
 					//FIXME: store this in some sound field or parse in the soundTable like the animTable...
 					Q_strncpyz( sound, value, sizeof( sound ) );
@@ -3457,7 +3457,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 				{
 					continue;
 				}
-				if ( !Any( NPC->svFlags & SVF_NO_COMBAT_SOUNDS ) )
+				if ( !Any( NPC->svFlags & svFlags_t::SVF_NO_COMBAT_SOUNDS ) )
 				{
 					//FIXME: store this in some sound field or parse in the soundTable like the animTable...
 					Q_strncpyz( sound, value, sizeof( sound ) );
@@ -3478,7 +3478,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 				{
 					continue;
 				}
-				if ( !Any( NPC->svFlags & SVF_NO_EXTRA_SOUNDS ) )
+				if ( !Any( NPC->svFlags & svFlags_t::SVF_NO_EXTRA_SOUNDS ) )
 				{
 					//FIXME: store this in some sound field or parse in the soundTable like the animTable...
 					Q_strncpyz( sound, value, sizeof( sound ) );
@@ -3499,7 +3499,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 				{
 					continue;
 				}
-				if ( !Any( NPC->svFlags & SVF_NO_EXTRA_SOUNDS ) )
+				if ( !Any( NPC->svFlags & svFlags_t::SVF_NO_EXTRA_SOUNDS ) )
 				{
 					//FIXME: store this in some sound field or parse in the soundTable like the animTable...
 					Q_strncpyz( sound, value, sizeof( sound ) );
@@ -3523,11 +3523,11 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 				}
 				//FIXME: need to precache the weapon, too?  (in above func)
 				const std::optional<weapon_t> weap = G_WeaponFromName( value );
-				if ( weap >= WP_NONE && weap < WP_NUM_WEAPONS )
+				if ( weap >= weapon_t::WP_NONE && weap < weapon_t::WP_NUM_WEAPONS )
 				{
 					NPC->client->ps.weapon = *weap;
-					NPC->client->ps.stats[STAT_WEAPONS] |= Bit( *weap );
-					if ( weap > WP_NONE )
+					NPC->client->ps.stats[statIndex_t::STAT_WEAPONS] |= Bit( *weap );
+					if ( weap > weapon_t::WP_NONE )
 					{
 						RegisterItem( FindItemForWeapon( *weap ) );	//precache the weapon
 						NPC->client->ps.ammo[weaponData[*weap].ammoIndex] = ammoData[weaponData[*weap].ammoIndex].max;
@@ -3550,7 +3550,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 					{
 						if ( n != 0 )
 						{
-							NPC->NPC->scriptFlags |= SCF_ALT_FIRE;
+							NPC->NPC->scriptFlags |= scriptFlags_t::SCF_ALT_FIRE;
 						}
 					}
 					continue;
@@ -3641,7 +3641,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 				{
 					NPC->client->ps.saberStylesKnown |= NPC->client->ps.saber[0].stylesLearned;
 				}
-				if ( NPC->client->ps.saber[0].singleBladeStyle != SS_NONE )
+				if ( NPC->client->ps.saber[0].singleBladeStyle != saber_styles_t::SS_NONE )
 				{
 					NPC->client->ps.saberStylesKnown |= Bit( NPC->client->ps.saber[0].singleBladeStyle );
 				}
@@ -3656,7 +3656,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 					continue;
 				}
 
-				if ( !Any( NPC->client->ps.saber[0].saberFlags & SFL_TWO_HANDED ) )
+				if ( !Any( NPC->client->ps.saber[0].saberFlags & saberFlags_t::SFL_TWO_HANDED ) )
 				{//can't use a second saber if first one is a two-handed saber...?
 					char *saberName = G_NewString( value );
 					WP_SaberParseParms( saberName, &NPC->client->ps.saber[1] );
@@ -3664,11 +3664,11 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 					{
 						NPC->client->ps.saberStylesKnown |= NPC->client->ps.saber[1].stylesLearned;
 					}
-					if ( NPC->client->ps.saber[1].singleBladeStyle != SS_NONE )
+					if ( NPC->client->ps.saber[1].singleBladeStyle != saber_styles_t::SS_NONE )
 					{
 						NPC->client->ps.saberStylesKnown |= Bit( NPC->client->ps.saber[1].singleBladeStyle );
 					}
-					if ( Any( NPC->client->ps.saber[1].saberFlags & SFL_TWO_HANDED ) )
+					if ( Any( NPC->client->ps.saber[1].saberFlags & saberFlags_t::SFL_TWO_HANDED ) )
 					{//tsk tsk, can't use a twoHanded saber as second saber
 						WP_RemoveSaber( NPC, 1 );
 					}
@@ -3964,13 +3964,13 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 					continue;
 				}
 				//cap
-				if ( n > to_underlying( SS_STAFF ) )
+				if ( n > to_underlying( saber_styles_t::SS_STAFF ) )
 				{
-					n = to_underlying( SS_STAFF );
+					n = to_underlying( saber_styles_t::SS_STAFF );
 				}
-				else if ( n < to_underlying( SS_FAST ) )
+				else if ( n < to_underlying( saber_styles_t::SS_FAST ) )
 				{
-					n = to_underlying( SS_FAST );
+					n = to_underlying( saber_styles_t::SS_FAST );
 				}
 				if ( n )
 				{//set
@@ -4013,13 +4013,13 @@ Ghoul2 Insert Start
 			G_InitPlayerFromCvars( NPC );
 			//now set the weapon, etc.
 			G_MatchPlayerWeapon( NPC );
-			//NPC->NPC->aiFlags |= NPCAI_MATCHPLAYERWEAPON;//FIXME: may not always want this
+			//NPC->NPC->aiFlags |= npcAiFlags_t::NPCAI_MATCHPLAYERWEAPON;//FIXME: may not always want this
 		}
 		else
 		{//do a normal model load
 
 			// If this is a vehicle, set the model name from the vehicle type array.
-			if ( NPC->client->NPC_class == CLASS_VEHICLE )
+			if ( NPC->client->NPC_class == class_t::CLASS_VEHICLE )
 			{
 				int iVehIndex = BG_VehicleGetIndex( NPC->NPC_type );
 				strcpy(customSkin, "default");	// Ignore any custom skin that may have come from the NPC File
@@ -4058,7 +4058,7 @@ Ghoul2 Insert Start
 						}
 						Q_strncpyz( customSkin, *skinarray[Q_irand(0, skinarray.size()-1)], sizeof(customSkin));
 					}
-					if (NPC->soundSet && gi.bIsFromZone(NPC->soundSet, TAG_G_ALLOC)) {
+					if (NPC->soundSet && gi.bIsFromZone(NPC->soundSet, memtag::TAG_G_ALLOC)) {
 						gi.Free(NPC->soundSet);
 					}
 					NPC->soundSet = nullptr; // clear the pointer

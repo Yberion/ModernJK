@@ -31,7 +31,6 @@ constexpr int MIN_DISTANCE_SQR = MIN_DISTANCE * MIN_DISTANCE;
 
 constexpr int MAX_DISTANCE = 128;
 
-using enum monsterLocalState_t;
 
 /*
 -------------------------
@@ -57,7 +56,7 @@ void MineMonster_Idle( void )
 {
 	if ( UpdateGoal() )
 	{
-		ucmd.buttons &= ~BUTTON_WALKING;
+		ucmd.buttons &= ~buttonFlags_t::BUTTON_WALKING;
 		NPC_MoveToGoal( true );
 	}
 }
@@ -70,12 +69,12 @@ MineMonster_Patrol
 */
 void MineMonster_Patrol( void )
 {
-	NPC_SetLocalState( *NPCInfo, LSTATE_CLEAR );
+	NPC_SetLocalState( *NPCInfo, monsterLocalState_t::LSTATE_CLEAR );
 
 	//If we have somewhere to go, then do that
 	if ( UpdateGoal() )
 	{
-		ucmd.buttons &= ~BUTTON_WALKING;
+		ucmd.buttons &= ~buttonFlags_t::BUTTON_WALKING;
 		NPC_MoveToGoal( true );
 	}
 	else
@@ -109,7 +108,7 @@ MineMonster_Move
 */
 void MineMonster_Move( bool visible )
 {
-	if ( NPC_LocalState<monsterLocalState_t>( *NPCInfo ) != LSTATE_WAITING )
+	if ( NPC_LocalState<monsterLocalState_t>( *NPCInfo ) != monsterLocalState_t::LSTATE_WAITING )
 	{
 		NPCInfo->goalEntity = NPC->enemy;
 		NPC_MoveToGoal( true );
@@ -132,16 +131,16 @@ void MineMonster_TryDamage( gentity_t *enemy, int damage )
 	VectorMA( NPC->currentOrigin, MIN_DISTANCE, dir, end );
 
 	// Should probably trace from the mouth, but, ah well.
-	gi.trace( &tr, NPC->currentOrigin, vec3_origin, vec3_origin, end, NPC->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
+	gi.trace( &tr, NPC->currentOrigin, vec3_origin, vec3_origin, end, NPC->s.number, MASK_SHOT, EG2_Collision::G2_NOCOLLIDE, 0 );
 
 	if ( tr.entityNum >= 0 && tr.entityNum < ENTITYNUM_NONE )
 	{
-		G_Damage( &g_entities[tr.entityNum], NPC, NPC, dir, tr.endpos, damage, DAMAGE_NO_KNOCKBACK, MOD_MELEE );
-		G_SoundOnEnt( NPC, CHAN_VOICE_ATTEN, va("sound/chars/mine/misc/bite%i.wav", Q_irand(1,4)));
+		G_Damage( &g_entities[tr.entityNum], NPC, NPC, dir, tr.endpos, damage, damageFlags_t::DAMAGE_NO_KNOCKBACK, meansOfDeath_t::MOD_MELEE );
+		G_SoundOnEnt( NPC, soundChannel_t::CHAN_VOICE_ATTEN, va("sound/chars/mine/misc/bite%i.wav", Q_irand(1,4)));
 	}
 	else
 	{
-		G_SoundOnEnt( NPC, CHAN_VOICE_ATTEN, va("sound/chars/mine/misc/miss%i.wav", Q_irand(1,4)));
+		G_SoundOnEnt( NPC, soundChannel_t::CHAN_VOICE_ATTEN, va("sound/chars/mine/misc/miss%i.wav", Q_irand(1,4)));
 	}
 }
 
@@ -156,7 +155,7 @@ void MineMonster_Attack( void )
 		{
 			// Going to do ATTACK4
 			TIMER_Set( NPC, "attacking", 1750 + Q_flrand(0.0f, 1.0f) * 200 );
-			NPC_SetAnim( NPC, SETANIM_BOTH, BOTH_ATTACK4, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD );
+			NPC_SetAnim( NPC, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_ATTACK4, setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD );
 
 			TIMER_Set( NPC, "attack2_dmg", 950 ); // level two damage
 		}
@@ -166,7 +165,7 @@ void MineMonster_Attack( void )
 			{
 				// Going to do ATTACK3, (rare)
 				TIMER_Set( NPC, "attacking", 850 );
-				NPC_SetAnim( NPC, SETANIM_BOTH, BOTH_ATTACK3, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD );
+				NPC_SetAnim( NPC, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_ATTACK3, setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD );
 
 				TIMER_Set( NPC, "attack2_dmg", 400 ); // level two damage
 			}
@@ -174,7 +173,7 @@ void MineMonster_Attack( void )
 			{
 				// Going to do ATTACK1
 				TIMER_Set( NPC, "attacking", 850 );
-				NPC_SetAnim( NPC, SETANIM_BOTH, BOTH_ATTACK1, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD );
+				NPC_SetAnim( NPC, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_ATTACK1, setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD );
 
 				TIMER_Set( NPC, "attack1_dmg", 450 ); // level one damage
 			}
@@ -183,7 +182,7 @@ void MineMonster_Attack( void )
 		{
 			// Going to do ATTACK2
 			TIMER_Set( NPC, "attacking", 1250 );
-			NPC_SetAnim( NPC, SETANIM_BOTH, BOTH_ATTACK2, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD );
+			NPC_SetAnim( NPC, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_ATTACK2, setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD );
 
 			TIMER_Set( NPC, "attack1_dmg", 700 ); // level one damage
 		}
@@ -226,11 +225,11 @@ void MineMonster_Combat( void )
 
 	bool	advance = ( distance > MIN_DISTANCE_SQR ? true : false  );
 
-	if (( advance || NPC_LocalState<monsterLocalState_t>( *NPCInfo ) == LSTATE_WAITING ) && TIMER_Done( NPC, "attacking" )) // waiting monsters can't attack
+	if (( advance || NPC_LocalState<monsterLocalState_t>( *NPCInfo ) == monsterLocalState_t::LSTATE_WAITING ) && TIMER_Done( NPC, "attacking" )) // waiting monsters can't attack
 	{
 		if ( TIMER_Done2( NPC, "takingPain", true ))
 		{
-			NPC_SetLocalState( *NPCInfo, LSTATE_CLEAR );
+			NPC_SetLocalState( *NPCInfo, monsterLocalState_t::LSTATE_CLEAR );
 		}
 		else
 		{
@@ -250,7 +249,7 @@ NPC_MineMonster_Pain
 */
 void NPC_MineMonster_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, vec3_t point, int damage, meansOfDeath_t mod,hitLocation_t hitLoc )
 {
-	G_AddEvent( self, EV_PAIN, floor((float)self->health/self->max_health*100.0f) );
+	G_AddEvent( self, entity_event_t::EV_PAIN, floor((float)self->health/self->max_health*100.0f) );
 
 	if ( damage >= 10 )
 	{
@@ -261,11 +260,11 @@ void NPC_MineMonster_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *oth
 
 		VectorCopy( self->NPC->lastPathAngles, self->s.angles );
 
-		NPC_SetAnim( self, SETANIM_BOTH, BOTH_PAIN1, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD );
+		NPC_SetAnim( self, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_PAIN1, setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD );
 
 		if ( self->NPC )
 		{
-			NPC_SetLocalState( *self->NPC, LSTATE_WAITING );
+			NPC_SetLocalState( *self->NPC, monsterLocalState_t::LSTATE_WAITING );
 		}
 	}
 }
@@ -282,7 +281,7 @@ void NPC_BSMineMonster_Default( void )
 	{
 		MineMonster_Combat();
 	}
-	else if ( Any( NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES ) )
+	else if ( Any( NPCInfo->scriptFlags & scriptFlags_t::SCF_LOOK_FOR_ENEMIES ) )
 	{
 		MineMonster_Patrol();
 	}

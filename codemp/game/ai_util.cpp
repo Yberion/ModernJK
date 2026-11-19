@@ -641,7 +641,7 @@ void BotUtilizePersonality(bot_state_t *bs)
 	char *buf = (char *)B_TempAlloc(131072);
 	char *readbuf, *group;
 
-	len = trap->FS_Open(bs->settings.personalityfile, &f, FS_READ);
+	len = trap->FS_Open(bs->settings.personalityfile, &f, fsMode_t::FS_READ);
 
 	failed = 0;
 
@@ -809,68 +809,68 @@ void BotUtilizePersonality(bot_state_t *bs)
 	{
 		if (GetPairedValue(group, "WP_STUN_BATON", readbuf))
 		{
-			bs->botWeaponWeights[WP_STUN_BATON] = atoi(readbuf);
-			bs->botWeaponWeights[WP_MELEE] = bs->botWeaponWeights[WP_STUN_BATON];
+			bs->botWeaponWeights[weapon_t::WP_STUN_BATON] = atoi(readbuf);
+			bs->botWeaponWeights[weapon_t::WP_MELEE] = bs->botWeaponWeights[weapon_t::WP_STUN_BATON];
 		}
 
 		if (GetPairedValue(group, "WP_SABER", readbuf))
 		{
-			bs->botWeaponWeights[WP_SABER] = atoi(readbuf);
+			bs->botWeaponWeights[weapon_t::WP_SABER] = atoi(readbuf);
 		}
 
 		if (GetPairedValue(group, "WP_BRYAR_PISTOL", readbuf))
 		{
-			bs->botWeaponWeights[WP_BRYAR_PISTOL] = atoi(readbuf);
+			bs->botWeaponWeights[weapon_t::WP_BRYAR_PISTOL] = atoi(readbuf);
 		}
 
 		if (GetPairedValue(group, "WP_BLASTER", readbuf))
 		{
-			bs->botWeaponWeights[WP_BLASTER] = atoi(readbuf);
+			bs->botWeaponWeights[weapon_t::WP_BLASTER] = atoi(readbuf);
 		}
 
 		if (GetPairedValue(group, "WP_DISRUPTOR", readbuf))
 		{
-			bs->botWeaponWeights[WP_DISRUPTOR] = atoi(readbuf);
+			bs->botWeaponWeights[weapon_t::WP_DISRUPTOR] = atoi(readbuf);
 		}
 
 		if (GetPairedValue(group, "WP_BOWCASTER", readbuf))
 		{
-			bs->botWeaponWeights[WP_BOWCASTER] = atoi(readbuf);
+			bs->botWeaponWeights[weapon_t::WP_BOWCASTER] = atoi(readbuf);
 		}
 
 		if (GetPairedValue(group, "WP_REPEATER", readbuf))
 		{
-			bs->botWeaponWeights[WP_REPEATER] = atoi(readbuf);
+			bs->botWeaponWeights[weapon_t::WP_REPEATER] = atoi(readbuf);
 		}
 
 		if (GetPairedValue(group, "WP_DEMP2", readbuf))
 		{
-			bs->botWeaponWeights[WP_DEMP2] = atoi(readbuf);
+			bs->botWeaponWeights[weapon_t::WP_DEMP2] = atoi(readbuf);
 		}
 
 		if (GetPairedValue(group, "WP_FLECHETTE", readbuf))
 		{
-			bs->botWeaponWeights[WP_FLECHETTE] = atoi(readbuf);
+			bs->botWeaponWeights[weapon_t::WP_FLECHETTE] = atoi(readbuf);
 		}
 
 		if (GetPairedValue(group, "WP_ROCKET_LAUNCHER", readbuf))
 		{
-			bs->botWeaponWeights[WP_ROCKET_LAUNCHER] = atoi(readbuf);
+			bs->botWeaponWeights[weapon_t::WP_ROCKET_LAUNCHER] = atoi(readbuf);
 		}
 
 		if (GetPairedValue(group, "WP_THERMAL", readbuf))
 		{
-			bs->botWeaponWeights[WP_THERMAL] = atoi(readbuf);
+			bs->botWeaponWeights[weapon_t::WP_THERMAL] = atoi(readbuf);
 		}
 
 		if (GetPairedValue(group, "WP_TRIP_MINE", readbuf))
 		{
-			bs->botWeaponWeights[WP_TRIP_MINE] = atoi(readbuf);
+			bs->botWeaponWeights[weapon_t::WP_TRIP_MINE] = atoi(readbuf);
 		}
 
 		if (GetPairedValue(group, "WP_DET_PACK", readbuf))
 		{
-			bs->botWeaponWeights[WP_DET_PACK] = atoi(readbuf);
+			bs->botWeaponWeights[weapon_t::WP_DET_PACK] = atoi(readbuf);
 		}
 	}
 

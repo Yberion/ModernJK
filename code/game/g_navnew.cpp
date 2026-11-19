@@ -96,12 +96,12 @@ bool NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t &trace, contentsFlags_
 	//Offset the step height
 	VectorSet( mins, self->mins[0], self->mins[1], self->mins[2] + STEPSIZE );
 
-	gi.trace( &trace, self->currentOrigin, mins, self->maxs, end, self->s.number, clipmask, G2_NOCOLLIDE, 0 );
+	gi.trace( &trace, self->currentOrigin, mins, self->maxs, end, self->s.number, clipmask, EG2_Collision::G2_NOCOLLIDE, 0 );
 
-	if ( trace.startsolid&&Any( trace.contents&CONTENTS_BOTCLIP ) )
+	if ( trace.startsolid&&Any( trace.contents&contentsFlags_t::CONTENTS_BOTCLIP ) )
 	{//started inside do not enter, so ignore them
-		clipmask &= ~CONTENTS_BOTCLIP;
-		gi.trace( &trace, self->currentOrigin, mins, self->maxs, end, self->s.number, clipmask, G2_NOCOLLIDE, 0 );
+		clipmask &= ~contentsFlags_t::CONTENTS_BOTCLIP;
+		gi.trace( &trace, self->currentOrigin, mins, self->maxs, end, self->s.number, clipmask, EG2_Collision::G2_NOCOLLIDE, 0 );
 	}
 	//Do a simple check
 	if ( ( trace.allsolid == false ) && ( trace.startsolid == false ) && ( trace.fraction == 1.0f ) )
@@ -156,7 +156,7 @@ bool NPC_ClearPathToGoal( vec3_t dir, gentity_t *goal )
 	//	return false;
 
 	//Look ahead and see if we're clear to move to our goal position
-	if ( NAV_CheckAhead( NPC, goal->currentOrigin, trace, ( NPC->clipmask & ~CONTENTS_BODY )|CONTENTS_BOTCLIP ) )
+	if ( NAV_CheckAhead( NPC, goal->currentOrigin, trace, ( NPC->clipmask & ~contentsFlags_t::CONTENTS_BODY )|contentsFlags_t::CONTENTS_BOTCLIP ) )
 	{
 		//VectorSubtract( goal->currentOrigin, NPC->currentOrigin, dir );
 		return true;
@@ -178,7 +178,7 @@ bool NPC_ClearPathToGoal( vec3_t dir, gentity_t *goal )
 		return true;
 
 	//See if we're looking for a navgoal
-	if ( Any( goal->svFlags & SVF_NAVGOAL ) )
+	if ( Any( goal->svFlags & svFlags_t::SVF_NAVGOAL ) )
 	{
 		//Okay, didn't get all the way there, let's see if we got close enough:
 		if ( NAV_HitNavGoal( trace.endpos, NPC->mins, NPC->maxs, goal->currentOrigin, NPCInfo->goalRadius, FlyingCreature( NPC ) ) )
@@ -201,7 +201,7 @@ bool NAV_DirSafe( gentity_t *self, vec3_t dir, float dist )
 	//Offset the step height
 	VectorSet( mins, self->mins[0], self->mins[1], self->mins[2] + STEPSIZE );
 
-	gi.trace( &trace, self->currentOrigin, mins, self->maxs, end, self->s.number, CONTENTS_BOTCLIP, G2_NOCOLLIDE, 0 );
+	gi.trace( &trace, self->currentOrigin, mins, self->maxs, end, self->s.number, contentsFlags_t::CONTENTS_BOTCLIP, EG2_Collision::G2_NOCOLLIDE, 0 );
 
 	//Do a simple check
 	if ( ( trace.allsolid == false ) && ( trace.startsolid == false ) && ( trace.fraction == 1.0f ) )

@@ -88,7 +88,7 @@ bool CG_SpawnString( const char *key, const char *defaultString, char **out ) {
 
 	if( !cg.spawning ) {
 		*out = (char*)defaultString;
-		// trap->Error( ERR_DROP, "CG_SpawnString() called while not spawning" );
+		// trap->Error( errorParm_t::ERR_DROP, "CG_SpawnString() called while not spawning" );
 	}
 
 	for( i = 0; i < cg.numSpawnVars; i++ ) {
@@ -180,13 +180,13 @@ void SP_misc_model_static( void ) {
 	cg_staticmodel_t *staticmodel;
 
 	if( cgs.numMiscStaticModels >= MAX_STATIC_MODELS ) {
-		trap->Error( ERR_DROP, "MAX_STATIC_MODELS(%i) hit", MAX_STATIC_MODELS );
+		trap->Error( errorParm_t::ERR_DROP, "MAX_STATIC_MODELS(%i) hit", MAX_STATIC_MODELS );
 	}
 
 	CG_SpawnString( "model", "", &model );
 
 	if( !model || !model[0] ) {
-		trap->Error( ERR_DROP, "misc_model_static with no model." );
+		trap->Error( errorParm_t::ERR_DROP, "misc_model_static with no model." );
 	}
 
 	CG_SpawnVector( "origin", "0 0 0", org );
@@ -206,7 +206,7 @@ void SP_misc_model_static( void ) {
 
 	modelIndex = trap->R_RegisterModel( model );
 	if( modelIndex == 0 ) {
-		trap->Error( ERR_DROP, "misc_model_static failed to load model '%s'", model );
+		trap->Error( errorParm_t::ERR_DROP, "misc_model_static failed to load model '%s'", model );
 		return;
 	}
 
@@ -261,7 +261,7 @@ void SP_misc_weather_zone( void ) {
 	CG_SpawnString( "model", "", &model );
 
 	if( !model || !model[0] ) {
-		trap->Error( ERR_DROP, "misc_weather_zone with invalid brush model data." );
+		trap->Error( errorParm_t::ERR_DROP, "misc_weather_zone with invalid brush model data." );
 		return;
 	}
 
@@ -299,18 +299,18 @@ void CG_ParseEntityFromSpawnVars( void ) {
 	char *classname;
 	char *p, *value;
 	const char *gametypeName;
-	static const EnumArray<const char *, gametype_t, GT_MAX_GAME_TYPE> gametypeNames = { "ffa", "holocron", "jedimaster", "duel", "powerduel", "single", "team", "siege", "ctf", "cty" };
+	static const EnumArray<const char *, gametype_t, gametype_t::GT_MAX_GAME_TYPE> gametypeNames = { "ffa", "holocron", "jedimaster", "duel", "powerduel", "single", "team", "siege", "ctf", "cty" };
 
 	// check for "notsingle" flag
-	if( cgs.gametype == GT_SINGLE_PLAYER ) {
+	if( cgs.gametype == gametype_t::GT_SINGLE_PLAYER ) {
 		CG_SpawnInt( "notsingle", "0", &i );
 		if( i ) {
 			return;
 		}
 	}
 
-	// check for "notteam" flag (GT_FFA, GT_DUEL, GT_SINGLE_PLAYER)
-	if( cgs.gametype >= GT_TEAM ) {
+	// check for "notteam" flag (gametype_t::GT_FFA, gametype_t::GT_DUEL, gametype_t::GT_SINGLE_PLAYER)
+	if( cgs.gametype >= gametype_t::GT_TEAM ) {
 		CG_SpawnInt( "notteam", "0", &i );
 		if( i ) {
 			return;
@@ -324,7 +324,7 @@ void CG_ParseEntityFromSpawnVars( void ) {
 	}
 
 	if( CG_SpawnString( "gametype", nullptr, &value ) ) {
-		if( cgs.gametype >= GT_FFA && cgs.gametype < GT_MAX_GAME_TYPE ) {
+		if( cgs.gametype >= gametype_t::GT_FFA && cgs.gametype < gametype_t::GT_MAX_GAME_TYPE ) {
 			gametypeName = gametypeNames[cgs.gametype];
 
 			p = strstr( value, gametypeName );
@@ -351,7 +351,7 @@ char *CG_AddSpawnVarToken( const char *string ) {
 
 	l = strlen( string );
 	if( cg.numSpawnVarChars + l + 1 > MAX_SPAWN_VARS_CHARS ) {
-		trap->Error( ERR_DROP, "CG_AddSpawnVarToken: MAX_SPAWN_VARS_CHARS" );
+		trap->Error( errorParm_t::ERR_DROP, "CG_AddSpawnVarToken: MAX_SPAWN_VARS_CHARS" );
 	}
 
 	dest = cg.spawnVarChars + cg.numSpawnVarChars;
@@ -385,14 +385,14 @@ bool CG_ParseSpawnVars( void ) {
 	}
 
 	if( com_token[0] != '{' ) {
-		trap->Error( ERR_DROP, "CG_ParseSpawnVars: found %s when expecting {", com_token );
+		trap->Error( errorParm_t::ERR_DROP, "CG_ParseSpawnVars: found %s when expecting {", com_token );
 	}
 
 	// go through all the key / value pairs
 	while( 1 ) {
 		// parse key
 		if( !trap->R_GetEntityToken( keyname, sizeof( keyname ) ) ) {
-			trap->Error( ERR_DROP, "CG_ParseSpawnVars: EOF without closing brace" );
+			trap->Error( errorParm_t::ERR_DROP, "CG_ParseSpawnVars: EOF without closing brace" );
 		}
 
 		if( keyname[0] == '}' ) {
@@ -401,15 +401,15 @@ bool CG_ParseSpawnVars( void ) {
 
 		// parse value
 		if( !trap->R_GetEntityToken( com_token, sizeof( com_token ) ) ) {
-			trap->Error( ERR_DROP, "CG_ParseSpawnVars: EOF without closing brace" );
+			trap->Error( errorParm_t::ERR_DROP, "CG_ParseSpawnVars: EOF without closing brace" );
 		}
 
 		if( com_token[0] == '}' ) {
-			trap->Error( ERR_DROP, "CG_ParseSpawnVars: closing brace without data" );
+			trap->Error( errorParm_t::ERR_DROP, "CG_ParseSpawnVars: closing brace without data" );
 		}
 
 		if( cg.numSpawnVars == MAX_SPAWN_VARS ) {
-			trap->Error( ERR_DROP, "CG_ParseSpawnVars: MAX_SPAWN_VARS" );
+			trap->Error( errorParm_t::ERR_DROP, "CG_ParseSpawnVars: MAX_SPAWN_VARS" );
 		}
 
 		cg.spawnVars[cg.numSpawnVars][0]	= CG_AddSpawnVarToken( keyname );
@@ -426,7 +426,7 @@ void SP_worldspawn( void ) {
 
 	CG_SpawnString( "classname", "", &s );
 	if( Q_stricmp( s, "worldspawn" ) ) {
-		trap->Error( ERR_DROP, "SP_worldspawn: The first entity isn't 'worldspawn'" );
+		trap->Error( errorParm_t::ERR_DROP, "SP_worldspawn: The first entity isn't 'worldspawn'" );
 	}
 
 	CG_SpawnFloat( "fogstart", "0", &cg_linearFogOverride );
@@ -451,7 +451,7 @@ void CG_ParseEntitiesFromString( void ) {
 	// has a "spawn" function to perform any global setup
 	// needed by a level (setting configstrings or cvars, etc)
 	if( !CG_ParseSpawnVars() ) {
-		trap->Error( ERR_DROP, "ParseEntities: no entities" );
+		trap->Error( errorParm_t::ERR_DROP, "ParseEntities: no entities" );
 	}
 
 	SP_worldspawn();
