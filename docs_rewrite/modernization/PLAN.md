@@ -250,9 +250,9 @@ The platforms kept: Windows x64 (MSVC, and MinGW with llvm-mingw clang), Linux x
 - With the first pass in the code: the comments that still name a person as the author of a decision, rephrased with the date only (12 lines: `codemp/netcodec/scripts/ab_clang.sh`, `ab_gcc.sh`, `ab_gcc_multi.sh`, `ab_gcc_podman.sh`, `ab_msvc.bat`, `codemp/netcodec/test/pmove/pmove_det.c`, `codemp/game/bg_pmove.c`, `codemp/cgame/cg_predict.c`, `docs_rewrite/modernization/tools/gamestats/gamestats.sh`, `gamestats_windows.sh`, `scenarios40.sh`).
 - Check: the VM validations (netcodec changes) with every preset left; the determinism hashes, the round-trip hashes and the codec benchmarks unchanged in x64 (its x64 code does not change); the 40 scenarios `golden: SAME`; no new warning with MSVC, GCC and clang; the multiplayer game played on the loopback and on the VPS as before.
 
-### ⏳ Step 18: the C code in C++ (M)
+### ✅ Step 18: the C code in C++ (M)
 
-In progress since 16 November 2026: parts 1 and 3 done together, then part 2 ([progress/step-18-cxx.md](progress/step-18-cxx.md)); part 4 done on 19 November 2026 (the modules' legacy interface removed, all 203 named enumerations class enums, the conversions written so far audited, the 169 unnamed ones named, made constants or removed, the families of flags flag enumerations, the numeric `#define` constants `constexpr` and their sets class enums, the enumerators written qualified, netcodec's schema generated again and its legacy benchmark compiling again, validated on the VMs; section 5 of the step document); the math functions and the random numbers through the project's libraries in every tree on 19 November 2026 (section 6); then the line endings and the game played.
+In progress since 16 November 2026: parts 1 and 3 done together, then part 2 ([progress/step-18-cxx.md](progress/step-18-cxx.md)); part 4 done on 19 November 2026 (the modules' legacy interface removed, all 203 named enumerations class enums, the conversions written so far audited, the 169 unnamed ones named, made constants or removed, the families of flags flag enumerations, the numeric `#define` constants `constexpr` and their sets class enums, the enumerators written qualified, netcodec's schema generated again and its legacy benchmark compiling again, validated on the VMs; section 5 of the step document); the math functions and the random numbers through the project's libraries in every tree on 19 November 2026 (section 6); the line endings on 19 November 2026 (`* text=auto eol=lf`, no file changed; section 7); then the game played on Windows and on the VPS, the single player at its beginning (section 8). Done on 19 November 2026.
 
 Depends on: step 17. Added on 15 November 2026 (everything in one language): the multiplayer game, cgame and UI modules (`codemp/game`, 86 files; `codemp/cgame`, 35; `codemp/ui`, 8), the MP3 decoder (`codemp/mp3code` and `code/mp3code`, 21 files each), `shared/qcommon` (4), `codemp/qcommon` (1), netcodec's movement test (`test/pmove`, 2) and rend2's MikkTSpace (1): 179 files of the project in C, about 267,000 lines with the decoder. The vendored libraries (zlib-ng, Wuffs, stb, LLVM libc) stay as they are.
 
@@ -336,7 +336,7 @@ Order of work (10 November 2026): step 14 comes right after step 11, before step
 | 15 | a new platform layer on SDL 3, from zero, in every tree | 14, 21 | L | ⏳ |
 | 16 | points set aside: culling against wallhacks, dead code | none; when decided | M | ⏳ |
 | 17 | C++20; only Windows, Linux and macOS in 64-bit (before step 15) | none | S to M | ✅ |
-| 18 | the C code in C++ | 17 | M | ⏳ |
+| 18 | the C code in C++ | 17 | M | ✅ |
 | 19 | a modern CMake project | 18 | M | ⏳ |
 | 20 | the scripted scenarios widened (after step 18, before step 19) | 18 | M | ⏳ |
 | 21 | the sound on OpenAL Soft, in every tree (after step 19, before step 15) | 19 | L | ⏳ |

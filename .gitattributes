@@ -1,5 +1,6 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+# Auto detect text files and perform LF normalization; checked out with LF on every platform, whatever core.autocrlf
+# says (the files that need another line ending are set below)
+* text=auto eol=lf
 
 # Custom for Visual Studio
 *.cs     diff=csharp
