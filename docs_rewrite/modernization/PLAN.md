@@ -314,6 +314,7 @@ Depends on: step 18. Added on 18 November 2026, to be done after step 18 and bef
   8. 48 repetitions per new case, as the force and weapon cases.
   9. A difference with the old commit is explained from the list of changes (CHANGES.md, the step documents) and the `scenario_trace` lines of both builds; a bisection only when that is not enough.
   10. One part per group: written, ported, its golden recorded at the old commit, compared, its differences explained, committed, then the next; the scripts and the statistics go with the first group, the force powers.
+- Decided on 19 November 2026, after part 2: the weapons' charge is counted to the time of the command that releases the button, not to the last 20 Hz instant (`level.time`), which is up to 50 ms earlier (the bryar's alternate held 400 ms fired 1 unit instead of 2; the same for the old bryar, the bowcaster, the DEMP2, the disruptor's sniper shot, the thermal detonator's throw and the rocket launcher's lock). Done at the start of the next session, before part 3, with the changes of the scenarios' charge cases explained and the fix described in CHANGES.md.
 - Check: the widened set gives the same counts on Windows and Linux, and every difference with the old commit is explained.
 
 ### ⏳ Step 21: the sound on OpenAL Soft, in every tree (L)
