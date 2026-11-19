@@ -1,105 +1,82 @@
-# OpenJK
+# ModernJK: the `scenarios-golden` branch
 
-OpenJK is a community effort to maintain and improve the game and engine powering Jedi Academy and Jedi Outcast, while maintaining _full backwards compatibility_ with the existing games and mods.  
-This project does not intend to add major features, rebalance, or otherwise modify core gameplay.
+This branch is ModernJK as it was at plan step 14, part 4b (13 November 2026: one user command per tick), with the scripted bot scenarios of plan step 20 ported to it. It exists for one thing: to record the reference counts of those scenarios, `scenarios_golden_step14.txt` in the main branch (`docs_rewrite/modernization/tools/gamestats/`). It is never merged, and nothing else changes in it.
 
-Our aims are to:
+## Why
 
-- Improve the stability of the engine by fixing bugs and improving performance.
-- Support more hardware (x86_64, Arm, Apple Silicon) and software platforms (Linux, macOS)
-- Provide a clean base from which new code modifications can be made.
+The scenarios check that the game is unchanged after each change of the code. Their first counts (the 40 fights of step 14) were recorded at this commit. When step 20 widened them to every force power, weapon, saber move, game type, team, item, vehicle and NPC, the new counts had to come from the same game, not from the build of the day, or the golden would only record what the build of the day does. So each new scenario is written on the build of the day first (the C++ types catch the mistakes), then ported here, where the game is still C (`qboolean`, unscoped enumerations), and run on both builds. Every difference between the two is explained by a fix decided since, or it is a bug. The method and the decisions: `docs_rewrite/modernization/PLAN.md` step 20 and `docs_rewrite/modernization/progress/step-20-scenarios.md` in the main branch.
 
-[![discord](https://img.shields.io/badge/discord-join-7289DA.svg?logo=discord&longCache=true&style=flat)](https://discord.gg/dPNCfeQ)
-[![forum](https://img.shields.io/badge/forum-JKHub.org%20OpenJK-brightgreen.svg)](https://jkhub.org/forums/forum/49-openjk/)
+The main branch keeps two goldens: `scenarios_golden_step14.txt`, the counts of this branch, and `scenarios_golden.txt`, the counts of the build of the day once their differences with this branch are explained.
 
-[![build](https://github.com/JACoders/OpenJK/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/JACoders/OpenJK/actions/workflows/build.yml?query=branch%3Amaster)
-[![coverity](https://scan.coverity.com/projects/1153/badge.svg)](https://scan.coverity.com/projects/1153)
+## What the branch changes
 
-## Supported Games
+Three files of the game module, nothing in the engine:
 
-| Game | Single Player | Multi Player |
-| - | - | - |
-| Jedi Academy | ✅ Stable | ✅ Stable |
-| Jedi Outcast | 😧 Works, needs attention | 🙅 Not supported - consider [JK2MV](https://jk2mv.org) |
+| file | change |
+|---|---|
+| `codemp/game/g_scenario.c` | the scenarios: the `scenario` server command, the bots' scripts, the reset at every repetition, the statistics per role |
+| `codemp/game/g_svcmds.c` | the lines `gamestats` prints: the other force powers, the special saber moves started |
+| `codemp/game/g_local.h` | the counter of the special saber moves |
 
-Please direct support queries, discussions and feature requests to the JKHub sub-forum or Discord linked above.
+The same changes are kept in the main branch as `docs_rewrite/modernization/tools/gamestats/scenarios_golden.patch`, so that this build can be made again without the branch (`git apply` in a worktree of the step 14 part 4b commit). After each part, the patch is written again from here:
 
-## License
+```
+git diff "$(git merge-base HEAD master)" -- . ':(exclude)README.md' > <main worktree>/docs_rewrite/modernization/tools/gamestats/scenarios_golden.patch
+```
 
-OpenJK is licensed under GPLv2 as free software. You are free to use, modify and redistribute OpenJK following the terms in [LICENSE.txt](https://github.com/JACoders/OpenJK/blob/master/LICENSE.txt)
+## Using it
 
-## For players
+In a worktree of its own, beside the main one:
 
-To install OpenJK, you will first need Jedi Academy installed. If you don't already own the game you can buy it from online stores such as [Steam](https://store.steampowered.com/app/6020/), [Amazon](https://www.amazon.com/Star-Wars-Jedi-Knight-Academy-Pc/dp/B0000A2MCN) or [GOG](https://www.gog.com/game/star_wars_jedi_knight_jedi_academy).
+```
+git worktree add ../ModernJK_golden scenarios-golden
+```
 
-Download the [latest build](https://github.com/JACoders/OpenJK/releases/tag/latest) ([alt link](https://builds.openjk.org)) for your operating system.
+Built with the same compiler as the main branch (llvm-mingw clang on Windows), Release:
 
-Installing and running OpenJK:
+```
+cmake -G Ninja -S . -B build-clang -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+ninja -C build-clang openjkded.x86_64 jampgamex86_64
+```
 
-1. Extract the contents of the file into the Jedi Academy `GameData/` folder. For Steam users, this will be in `<Steam Folder>/steamapps/common/Jedi Academy/GameData/`.
-1. Run `openjk.x86.exe` (Windows), `openjk.i386` (Linux 32-bit), `openjk.x86_64` (Linux 64-bit) or the `OpenJK` app bundle (macOS), depending on your operating system.
+The dedicated server was named `openjkded` then. The scenarios are run by the main branch's script, given this build, and compared with this branch's golden:
 
-### Linux Instructions
+```
+BUILD=<this worktree>/build-clang DED_EXE=openjkded.x86_64.exe GOLDEN=scenarios_golden_step14.txt \
+	bash <main worktree>/docs_rewrite/modernization/tools/gamestats/scenarios.sh <prefix> <this worktree>/build-clang/jampgamex86_64.dll
+```
 
-If you do not have an existing JKA installation and need to download the base game:
+It ends with `golden: SAME` when this build gives the recorded counts. The output of a run, `scenarios_<prefix>.txt`, is compared with the build of the day's with `diff` (the line endings converted to LF first). A part: written and tested on the build of the day, ported here by exact replacements, built, both builds run, compared, every difference explained, committed here, the patch written again, then the goldens recorded.
 
-1. Download and Install SteamCMD [SteamCMD](https://developer.valvesoftware.com/wiki/SteamCMD#Linux).
-1. Set the download path using steamCMD: `force_install_dir /path/to/install/jka/`
-1. Using SteamCMD Set the platform to windows to download any windows game on steam. @sSteamCmdForcePlatformType "windows"
-1. Using SteamCMD download the game, `app_update 6020`.
+## The scenarios
 
-Extract the contents of the file into the Jedi Academy `GameData/` folder. For Steam users, this will be in `<Steam Folder>/steamapps/common/Jedi Academy/GameData/`.
+The full syntax is at the top of `codemp/game/g_scenario.c`. Two bots, an attacker and a defender, sometimes a third one as the attacker's ally, are placed face to face and reset at every repetition (2 s, or `rep=`), then play a fixed script of commands timed in milliseconds. The first repetition is not counted. The statistics of the counted ones are printed at the end. The script `scenarios.sh` gives each server its map, game type, bots and settings, and plays several scenarios of one group one after the other on the same server: 165 scenarios on 78 servers, about 1 min 40 s with 30 servers at a time.
 
-### macOS Instructions
+| group | scenarios | what they play |
+|---|---|---|
+| saber (step 14) | 10 | the five styles (fast, medium, strong, dual sabers, staff), an attack in each of the eight directions in turn, 96 repetitions, the defender idle or attacking at the same time |
+| force (step 14) | 6 | lightning, grip, drain, rage, protect, absorb at level 3 |
+| weapons (step 14) | 24 | the weapons 4 to 15, primary and alternate fire |
+| force powers (step 20, part 1) | 44 | the six of step 14 at levels 1 and 2; heal, levitation, speed, push, pull, telepathy, sight and saber throw at levels 1 to 3; push and pull against a defender at level 3; team heal and team energize at levels 1 to 3 in a team game, with the ally |
+| weapons (step 20, part 2) | 46 | the stun baton, the melee (and its kicks and grabs with `g_debugMelee`), the old bryar, the emplaced gun and two turrets spawned by the scenario; the charges at several lengths (the bryars, the bowcaster, the DEMP2, the disruptor's sniper shot, the rocket launcher's lock, the thermal detonator) |
+| saber moves (step 20, part 3) | 35 | the katas of the five styles, the back attacks, standing and crouched, the jump attacks, the lunges, the cartwheels, the staff's back flip and its kicks on the ground and in the air, the roll stab, the stab down on a defender knocked down, the throws of the single and dual sabers against an armed defender, the saber locks in a private duel |
 
-If you have the Mac App Store Version of Jedi Academy, follow these steps to get OpenJK runnning under macOS:
+Each scenario prints, after its repetitions:
 
-1. Install [Homebrew](https://brew.sh/) if you don't have it.
-1. Open the Terminal app, and enter the command `brew install sdl2`.
-1. Extract the contents of the OpenJK DMG into the game directory `/Applications/Star Wars Jedi Knight: Jedi Academy.app/Contents/`
-1. Run `OpenJK.app` or `OpenJK SP.app`
-1. Savegames, Config Files and Log Files are stored in `/Users/$USER/Library/Application Support/OpenJK/`
+- the saber statistics: swings, wounds, damage, blocks, parries, locks, idle touches, missiles blocked, force damage, deaths;
+- the force powers: starts, periodic events and time held;
+- the events of the game by type;
+- the health taken and the deaths by cause;
+- the shots by weapon and fire mode;
+- the saber attacks started and bounced by style, and the special saber moves started by move;
+- by role: the health and force gained and lost, the instants off the ground, knocked down, mind tricked and in a saber lock, the distance moved and the end place against the start.
 
-## For Developers
+## Differences with the build of the day
 
-### Building OpenJK
+The two builds give the same counts but where a fix decided since changes them. Each is explained in `docs_rewrite/modernization/progress/step-20-scenarios.md` of the main branch:
 
-- [Compilation guide](https://github.com/JACoders/OpenJK/wiki/Compilation-guide)
-- [Debugging guide](https://github.com/JACoders/OpenJK/wiki/Debugging)
+| since | what | scenarios |
+|---|---|---|
+| 19 November 2026 | the weapons' charge counted to the command that releases the button, no longer to the last 20 Hz instant, which was up to 50 ms earlier | 18 (the bryars', the bowcaster's, the DEMP2's, the sniper shot's, the rocket lock's and the thermal detonator's charges) |
 
-### Contributing to OpenJK
-
-- [Fork](https://github.com/JACoders/OpenJK/fork) the project on GitHub
-- Create a new branch and make your changes
-- Send a [pull request](https://help.github.com/articles/creating-a-pull-request) to upstream (JACoders/OpenJK)
-
-### Using OpenJK as a base for a new mod
-
-- [Fork](https://github.com/JACoders/OpenJK/fork) the project on GitHub
-- Change the JK_VERSION define in codemp/qcommon/game_version.h from "OpenJK" to your project name
-- If you make a nice change, please consider back-porting to upstream via pull request as described above. This is so everyone benefits without having to reinvent the wheel for every project.
-
-## Maintainers (full list: [@JACoders](https://github.com/orgs/JACoders/people))
-
-Leads:
-
-- [Ensiform](https://github.com/ensiform)
-- [razor](https://github.com/Razish)
-- [Xycaleth](https://github.com/xycaleth)
-
-## Significant contributors ([full list](https://github.com/JACoders/OpenJK/graphs/contributors))
-
-- [bibendovsky](https://github.com/bibendovsky) (save games, platform support)
-- [BobaFett](https://github.com/Lrns123)
-- [BSzili](https://github.com/BSzili) (JK2, platform support)
-- [Cat](https://github.com/deepy) (infra)
-- [Didz](https://github.com/dionrhys)
-- [eezstreet](https://github.com/eezstreet)
-- exidl (SDL2, platform support)
-- [ImperatorPrime](https://github.com/ImperatorPrime) (JK2)
-- [mrwonko](https://github.com/mrwonko)
-- [redsaurus](https://github.com/redsaurus)
-- [Scooper](https://github.com/xScooper)
-- [Sil](https://github.com/TheSil)
-- [smcv](https://github.com/smcv) (debian packaging)
-- [Tristamus](https://tristamus.com>) (icon)
+The game types, teams and spectators, the items, the vehicles and the NPCs (parts 4 to 8) are to come.
