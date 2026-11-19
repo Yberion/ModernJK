@@ -554,7 +554,23 @@ void Svcmd_GameStats_f( void ) {
 		}
 		trap->Print( "%s\n", line );
 	}
+	{ // the other powers, which have no periodic events (plan step 20)
+		static const struct { forcePowers_t power; const char *name; } shown[] = {
+			{ FP_HEAL, "heal" }, { FP_LEVITATION, "levitation" }, { FP_SPEED, "speed" },
+			{ FP_PUSH, "push" }, { FP_PULL, "pull" }, { FP_TELEPATHY, "telepathy" },
+			{ FP_TEAM_HEAL, "team heal" }, { FP_TEAM_FORCE, "team energize" }, { FP_SEE, "sight" },
+			{ FP_SABERTHROW, "saber throw" },
+		};
+		char line[MAX_STRING_CHARS] = "force statistics of the other powers: starts and milliseconds held per power:";
+		size_t i;
+		for ( i = 0; i < ARRAY_LEN( shown ); i++ ) {
+			const forcePowers_t f = shown[i].power;
+			Q_strcat( line, sizeof( line ), va( "%s %s %d %d", i ? "," : "", shown[i].name, s->forceStarts[f], s->forceActiveMsec[f] ) );
+		}
+		trap->Print( "%s\n", line );
+	}
 	G_PrintCentralStats();
+	G_ScenarioPrintStats();
 	memset( &g_stats, 0, sizeof( g_stats ) );
 }
 
