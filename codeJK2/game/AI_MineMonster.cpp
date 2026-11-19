@@ -249,7 +249,7 @@ NPC_MineMonster_Pain
 */
 void NPC_MineMonster_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, vec3_t point, int damage, meansOfDeath_t mod,hitLocation_t hitLoc )
 {
-	G_AddEvent( self, entity_event_t::EV_PAIN, floor((float)self->health/self->max_health*100.0f) );
+	G_AddEvent( self, entity_event_t::EV_PAIN, Q_floorf((float)self->health/self->max_health*100.0f) );
 
 	if ( damage >= 10 )
 	{

@@ -2240,7 +2240,7 @@ Ghoul2 Insert End
 		// Now draw the static shader over it.
 		// Alpha in over half the time, out over half.
 
-		//alpha = sin(M_PI*alpha);
+		//alpha = Q_sin(Q_PI*alpha);
 		a = alpha * 255.0;
 
 		a = 255 - a;
@@ -2861,7 +2861,7 @@ static void CG_Mover( centity_t *cent ) {
 					const float	alpha = timeFrac<0.5f?timeFrac/0.5f:1.0f;
 					drawMe = true;
 					VectorMA( cg.refdef.vieworg, 1000.0f+((1.0f-timeFrac)*1000.0f), cg.refdef.viewaxis[0], cent->lerpOrigin );
-					VectorSet( cent->lerpAngles, cg.refdef.viewangles[PITCH], cg.refdef.viewangles[YAW]-90.0f, 0 );//cos( ( cg.time + 1000 ) *  scale ) * 4 );
+					VectorSet( cent->lerpAngles, cg.refdef.viewangles[PITCH], cg.refdef.viewangles[YAW]-90.0f, 0 );//Q_cosf( ( cg.time + 1000 ) *  scale ) * 4 );
 					ent.shaderRGBA[0] = ent.shaderRGBA[1] = ent.shaderRGBA[2] = 255;
 					ent.shaderRGBA[3] = alpha*255;
 				}

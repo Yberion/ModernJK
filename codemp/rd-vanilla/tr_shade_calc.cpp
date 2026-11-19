@@ -226,7 +226,7 @@ void RB_CalcBulgeVertexes( deformStage_t *ds )
 		int		off;
 		float scale;
 
-		off = (float)( FUNCTABLE_SIZE / (M_PI*2) ) * ( st[0] * ds->bulgeWidth + now );
+		off = (float)( FUNCTABLE_SIZE / (Q_PI*2) ) * ( st[0] * ds->bulgeWidth + now );
 
 		scale = tr.sinTable[ off & FUNCTABLE_MASK ] * ds->bulgeHeight;
 
@@ -263,7 +263,7 @@ void RB_CalcBulgeVertexes( deformStage_t *ds )
 
 		for ( i = 0; i < tess.numVertexes; i++, xyz += 4, st += 2 * NUM_TEX_COORDS, normal += 4 )
 		{
-			off = (float)( FUNCTABLE_SIZE / (M_PI*2) ) * ( st[0] * ds->bulgeWidth + now );
+			off = (float)( FUNCTABLE_SIZE / (Q_PI*2) ) * ( st[0] * ds->bulgeWidth + now );
 
 			scale = tr.sinTable[ off & FUNCTABLE_MASK ] * ds->bulgeHeight;
 

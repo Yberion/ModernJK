@@ -677,7 +677,7 @@ static float Q3_CheckStringCounterIncrement( const char *string )
 		if ( string[1] )
 		{
 			numString = (char *)&string[1];
-			val = atof( numString );
+			val = Q_atof( numString );
 		}
 	}
 	else if ( string[0] == '-' )
@@ -685,7 +685,7 @@ static float Q3_CheckStringCounterIncrement( const char *string )
 		if ( string[1] )
 		{
 			numString = (char *)&string[1];
-			val = atof( numString ) * -1;
+			val = Q_atof( numString ) * -1;
 		}
 	}
 
@@ -1776,7 +1776,7 @@ static void Q3_SetOriginOffset( int entID, int axis, float offset )
 	float duration = 0;
 	if ( ent->speed )
 	{
-		duration = fabs(offset)/fabs(ent->speed)*1000.0f;
+		duration = Q_fabsf(offset)/Q_fabsf(ent->speed)*1000.0f;
 	}
 	Q3_Lerp2Origin( -1, entID, origin, duration );
 }
@@ -1918,7 +1918,7 @@ static bool Q3_SetNavGoal( int entID, const char *name )
 			else
 			{
 				ent->NPC->goalEntity = targ;
-				ent->NPC->goalRadius = sqrt(ent->maxs[0]+ent->maxs[0]) + sqrt(targ->maxs[0]+targ->maxs[0]);
+				ent->NPC->goalRadius = Q_sqrtf(ent->maxs[0]+ent->maxs[0]) + Q_sqrtf(targ->maxs[0]+targ->maxs[0]);
 				ent->NPC->aiFlags &= ~npcAiFlags_t::NPCAI_TOUCHED_GOAL;
 			}
 		}
@@ -4109,7 +4109,7 @@ void Q3_SetParm (int entID, int parmNum, const char *parmValue)
 
 	if ( (val = Q3_CheckStringCounterIncrement( parmValue )) )
 	{
-		val += atof( ent->parms->parm[parmNum] );
+		val += Q_atof( ent->parms->parm[parmNum] );
 		Com_sprintf( ent->parms->parm[parmNum], sizeof(ent->parms->parm[parmNum]), "%f", val );
 	}
 	else
@@ -5837,11 +5837,11 @@ static void Q3_SetLockAngle( int entID, const char *lockAngle)
 		{//specified yaw
 			if( ent->NPC ) // I need this to work on NPCs, so their locked value
 			{
-				ent->NPC->lockedDesiredYaw = atof((char *)lockAngle); // could also set s.angles[1] and desiredYaw to this value...
+				ent->NPC->lockedDesiredYaw = Q_atof((char *)lockAngle); // could also set s.angles[1] and desiredYaw to this value...
 			}
 			else
 			{
-				ent->client->renderInfo.lockYaw = atof((char *)lockAngle);
+				ent->client->renderInfo.lockYaw = Q_atof((char *)lockAngle);
 			}
 		}
 	}
@@ -6748,7 +6748,7 @@ Q3_SetVar
 			}
 			else
 			{
-				float_data = atof((char *) data);
+				float_data = Q_atof((char *) data);
 			}
 			Q3_SetFloatVariable( type_name, float_data );
 			break;
@@ -7073,7 +7073,7 @@ void CQuake3GameInterface::SetVar( int taskID, int entID, const char *type_name,
 			}
 			else
 			{
-				float_data = atof((char *) data);
+				float_data = Q_atof((char *) data);
 			}
 			SetFloatVariable( type_name, float_data );
 			break;
@@ -7151,7 +7151,7 @@ int CQuake3GameInterface::GetVectorVariable( const char *name, vec3_t value )
 	{
 		const char *str = ((*vvi).second).c_str();
 
-		sscanf( str, "%f %f %f", &value[0], &value[1], &value[2] );
+		Q_ScanFloats( str, value, 3 );
 		return true;
 	}
 
@@ -8286,7 +8286,7 @@ void	CQuake3GameInterface::Set( int taskID, int entID, const char *type_name, co
 	switch ( toSet )
 	{
 	case setType_t::SET_ORIGIN:
-		sscanf( data, "%f %f %f", &vector_data[0], &vector_data[1], &vector_data[2] );
+		Q_ScanFloats( data, vector_data, 3 );
 		G_SetOrigin( ent, vector_data );
 		if ( Q_strncmp( "NPC_", ent->classname, 4 ) == 0 )
 		{//hack for moving spawners
@@ -8300,7 +8300,7 @@ void	CQuake3GameInterface::Set( int taskID, int entID, const char *type_name, co
 		break;
 
 	case setType_t::SET_TELEPORT_DEST:
-		sscanf( data, "%f %f %f", &vector_data[0], &vector_data[1], &vector_data[2] );
+		Q_ScanFloats( data, vector_data, 3 );
 		if ( !Q3_SetTeleportDest( entID, vector_data ) )
 		{
 			Q3_TaskIDSet( ent, taskID_t::TID_MOVE_NAV, taskID );
@@ -8314,27 +8314,27 @@ void	CQuake3GameInterface::Set( int taskID, int entID, const char *type_name, co
 
 	case setType_t::SET_ANGLES:
 		//Q3_SetAngles( entID, *(vec3_t *) data);
-		sscanf( data, "%f %f %f", &vector_data[0], &vector_data[1], &vector_data[2] );
+		Q_ScanFloats( data, vector_data, 3 );
 		Q3_SetAngles( entID, vector_data);
 		break;
 
 	case setType_t::SET_XVELOCITY:
-		float_data = atof((char *) data);
+		float_data = Q_atof((char *) data);
 		Q3_SetVelocity( entID, 0, float_data);
 		break;
 
 	case setType_t::SET_YVELOCITY:
-		float_data = atof((char *) data);
+		float_data = Q_atof((char *) data);
 		Q3_SetVelocity( entID, 1, float_data);
 		break;
 
 	case setType_t::SET_ZVELOCITY:
-		float_data = atof((char *) data);
+		float_data = Q_atof((char *) data);
 		Q3_SetVelocity( entID, 2, float_data);
 		break;
 
 	case setType_t::SET_Z_OFFSET:
-		float_data = atof((char *) data);
+		float_data = Q_atof((char *) data);
 		Q3_SetOriginOffset( entID, 2, float_data);
 		break;
 
@@ -8473,14 +8473,14 @@ void	CQuake3GameInterface::Set( int taskID, int entID, const char *type_name, co
 		break;
 
 	case setType_t::SET_DPITCH://FIXME: make these set tempBehavior to BS_FACE and await completion?  Or set lockedDesiredPitch/Yaw and aimTime?
-		float_data = atof((char *) data);
+		float_data = Q_atof((char *) data);
 		Q3_SetDPitch( entID, float_data );
 		Q3_TaskIDSet( ent, taskID_t::TID_ANGLE_FACE, taskID );
 		return;
 		break;
 
 	case setType_t::SET_DYAW:
-		float_data = atof((char *) data);
+		float_data = Q_atof((char *) data);
 		Q3_SetDYaw( entID, float_data );
 		Q3_TaskIDSet( ent, taskID_t::TID_ANGLE_FACE, taskID );
 		return;
@@ -8538,7 +8538,7 @@ void	CQuake3GameInterface::Set( int taskID, int entID, const char *type_name, co
 		break;
 
 	case setType_t::SET_YAWSPEED:
-		float_data = atof((char *) data);
+		float_data = Q_atof((char *) data);
 		Q3_SetYawSpeed ( entID, float_data);
 		break;
 
@@ -8558,27 +8558,27 @@ void	CQuake3GameInterface::Set( int taskID, int entID, const char *type_name, co
 		break;
 
 	case setType_t::SET_GRAVITY:
-		float_data = atof((char *) data);
+		float_data = Q_atof((char *) data);
 		Q3_SetGravity ( entID, float_data);
 		break;
 
 	case setType_t::SET_WAIT:
-		float_data = atof((char *) data);
+		float_data = Q_atof((char *) data);
 		Q3_SetWait( entID, float_data);
 		break;
 
 	case setType_t::SET_FOLLOWDIST:
-		float_data = atof((char *) data);
+		float_data = Q_atof((char *) data);
 		Q3_SetFollowDist( entID, float_data);
 		break;
 
 	case setType_t::SET_SCALE:
-		float_data = atof((char *) data);
+		float_data = Q_atof((char *) data);
 		Q3_SetScale( entID, float_data);
 		break;
 
 	case setType_t::SET_RENDER_CULL_RADIUS:
-		float_data = atof((char *) data);
+		float_data = Q_atof((char *) data);
 		Q3_SetRenderCullRadius(entID, float_data);
 		break;
 
@@ -8650,7 +8650,7 @@ void	CQuake3GameInterface::Set( int taskID, int entID, const char *type_name, co
 		break;
 
 	case setType_t::SET_SHOOTDIST:
-		float_data = atof((char *) data);
+		float_data = Q_atof((char *) data);
 		Q3_SetShootDist( entID, float_data );
 		break;
 
@@ -8659,17 +8659,17 @@ void	CQuake3GameInterface::Set( int taskID, int entID, const char *type_name, co
 		break;
 
 	case setType_t::SET_VISRANGE:
-		float_data = atof((char *) data);
+		float_data = Q_atof((char *) data);
 		Q3_SetVisrange( entID, float_data );
 		break;
 
 	case setType_t::SET_EARSHOT:
-		float_data = atof((char *) data);
+		float_data = Q_atof((char *) data);
 		Q3_SetEarshot( entID, float_data );
 		break;
 
 	case setType_t::SET_VIGILANCE:
-		float_data = atof((char *) data);
+		float_data = Q_atof((char *) data);
 		Q3_SetVigilance( entID, float_data );
 		break;
 
@@ -9018,7 +9018,7 @@ void	CQuake3GameInterface::Set( int taskID, int entID, const char *type_name, co
 		Q3_CameraGroup(entID, (char *)data);
 		break;
 	case setType_t::SET_CAMERA_GROUP_Z_OFS:
-		float_data = atof((char *) data);
+		float_data = Q_atof((char *) data);
 		Q3_CameraGroupZOfs( float_data );
 		break;
 	case setType_t::SET_CAMERA_GROUP_TAG:
@@ -9057,7 +9057,7 @@ void	CQuake3GameInterface::Set( int taskID, int entID, const char *type_name, co
 	case setType_t::SET_FACEHAPPY:
 	case setType_t::SET_FACESHOCKED:
 	case setType_t::SET_FACENORMAL:
-		float_data = atof((char *) data);
+		float_data = Q_atof((char *) data);
 		Q3_Face(entID, toSet, float_data);
 		break;
 
@@ -9193,7 +9193,7 @@ void	CQuake3GameInterface::Set( int taskID, int entID, const char *type_name, co
 		break;
 
 	case setType_t::SET_SABER_ORIGIN:
-		sscanf( data, "%f %f %f", &vector_data[0], &vector_data[1], &vector_data[2] );
+		Q_ScanFloats( data, vector_data, 3 );
 		WP_SetSaberOrigin( ent, vector_data );
 		break;
 
@@ -9793,7 +9793,7 @@ void	CQuake3GameInterface::Remove( int entID, const char *name )
 // Get a random (float) number.
 float	CQuake3GameInterface::Random( float min, float max )
 {
-	return ((rand() * (max - min)) / (float)RAND_MAX) + min;
+	return Q_flrand( min, max );
 }
 
 void	CQuake3GameInterface::Play( int taskID, int entID, const char *type, const char *name )
@@ -9948,7 +9948,7 @@ int		CQuake3GameInterface::GetFloat( int entID, const char *name, float *value )
 			DebugPrint( e_DebugPrintLevel::WL_ERROR, "GET_PARM: %s %s did not have any parms set!\n", ent->classname, ent->targetname );
 			return false;	// would prefer false, but I'm fitting in with what's here <sigh>
 		}
-		*value = atof( ent->parms->parm[toGet - setType_t::SET_PARM1] );
+		*value = Q_atof( ent->parms->parm[toGet - setType_t::SET_PARM1] );
 		break;
 
 	case setType_t::SET_COUNT:
@@ -10580,7 +10580,7 @@ int		CQuake3GameInterface::GetVector( int entID, const char *name, vec3_t value 
 	case setType_t::SET_PARM14:
 	case setType_t::SET_PARM15:
 	case setType_t::SET_PARM16:
-		sscanf( ent->parms->parm[toGet - setType_t::SET_PARM1], "%f %f %f", &value[0], &value[1], &value[2] );
+		Q_ScanFloats( ent->parms->parm[toGet - setType_t::SET_PARM1], value, 3 );
 		break;
 
 	case setType_t::SET_ORIGIN:
@@ -10925,8 +10925,8 @@ int		CQuake3GameInterface::Evaluate( icarusToken_t p1Type, const char *p1, icaru
 	switch ( p1Type )
 	{
 	case icarusToken_t::TK_FLOAT:
-		sscanf( p1, "%f", &f1 );
-		sscanf( p2, "%f", &f2 );
+		Q_ScanFloats( p1, &f1, 1 );
+		Q_ScanFloats( p2, &f2, 1 );
 		break;
 
 	case icarusToken_t::TK_INT:
@@ -10935,8 +10935,8 @@ int		CQuake3GameInterface::Evaluate( icarusToken_t p1Type, const char *p1, icaru
 		break;
 
 	case icarusToken_t::TK_VECTOR:
-		sscanf( p1, "%f %f %f", &v1[0], &v1[1], &v1[2] );
-		sscanf( p2, "%f %f %f", &v2[0], &v2[1], &v2[2] );
+		Q_ScanFloats( p1, v1, 3 );
+		Q_ScanFloats( p2, v2, 3 );
 		break;
 
 	case icarusToken_t::TK_STRING:

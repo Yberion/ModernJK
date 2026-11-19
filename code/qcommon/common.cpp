@@ -977,7 +977,7 @@ static void Com_Freeze_f (void) {
 		Com_Printf( "freeze <seconds>\n" );
 		return;
 	}
-	s = atof( Cmd_Argv(1) );
+	s = Q_atof( Cmd_Argv(1) );
 
 	start = Com_Milliseconds();
 
@@ -1082,6 +1082,9 @@ void Com_Init( char *commandLine ) {
 	Com_Printf( "%s %s %s\n", JK_VERSION, PLATFORM_STRING, SOURCE_DATE );
 
 	try {
+		// initialize the weak pseudo-random number generator for use later.
+		Sys_InitRand();
+
 		Com_InitZoneMemory();
 		Cvar_Init ();
 
@@ -1314,7 +1317,7 @@ int Com_ModifyMsec( int msec, float &fraction )
 	{
 		fraction=(float)msec;
 		fraction*=com_timescale->value;
-		msec=(int)floor(fraction);
+		msec=(int)Q_floorf(fraction);
 		fraction-=(float)msec;
 	}
 

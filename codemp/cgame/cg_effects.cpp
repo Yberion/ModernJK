@@ -1152,11 +1152,11 @@ void CG_SurfaceExplosion( vec3_t origin, vec3_t normal, float radius, float shak
 								0.25f,
 								4000.0f,
 								cgs.media.sparkShader,
-								rand() & FXF_BOUNCE);
+								Q_irand( 0, 32767 ) & FXF_BOUNCE);
 		if ( particle == nullptr )
 			return;
 
-		FXE_Spray( normal, 500, 150, 1.0f, 768 + (rand() & 255), (FXPrimitive *) particle );*/
+		FXE_Spray( normal, 500, 150, 1.0f, 768 + (Q_irand( 0, 255 )), (FXPrimitive *) particle );*/
 	}
 
 	//Smoke

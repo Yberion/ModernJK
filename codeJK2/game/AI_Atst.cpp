@@ -89,7 +89,7 @@ void G_ATSTCheckPain( gentity_t *self, gentity_t *other, vec3_t point, int damag
 {
 	int newBolt;
 
-	if ( rand() & 1 )
+	if ( Q_irand( 0, 1 ) )
 	{
 		G_SoundOnEnt( self, soundChannel_t::CHAN_LESS_ATTEN, "sound/chars/atst/atst_damaged1" );
 	}

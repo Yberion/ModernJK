@@ -693,7 +693,7 @@ void InitGame(  const char *mapname, const char *spawntarget, int checkSum, cons
 	gi.Printf ("gamename: %s\n", JK_VERSION);
 	gi.Printf ("gamedate: %s\n", SOURCE_DATE);
 
-	srand( randomSeed );
+	Rand_Init( randomSeed );
 
 	G_InitCvars();
 

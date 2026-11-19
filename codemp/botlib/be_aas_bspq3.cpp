@@ -310,9 +310,11 @@ int AAS_VectorForBSPEpairKey(int ent, const char *key, vec3_t v)
 
 	VectorClear(v);
 	if (!AAS_ValueForBSPEpairKey(ent, key, buf, MAX_EPAIRKEY)) return false;
-	//scanf into doubles, then assign, so it is float size independent
-	v1 = v2 = v3 = 0;
-	sscanf(buf, "%lf %lf %lf", &v1, &v2, &v3);
+	//read into doubles, then assign, so it is float size independent
+	const char *p = buf;
+	v1 = Q_strtod(p, &p);
+	v2 = Q_strtod(p, &p);
+	v3 = Q_strtod(p, &p);
 	v[0] = v1;
 	v[1] = v2;
 	v[2] = v3;

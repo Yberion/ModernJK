@@ -23,6 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <cstdlib>
 #include <cstdarg>
 #include <cstdio>
+#include <ctime>
 #include <sys/stat.h>
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h>
@@ -167,6 +168,21 @@ void Sys_Init( void ) {
 	com_maxfpsMinimized = Cvar_Get( "com_maxfpsMinimized", "50", cvarFlags_t::CVAR_ARCHIVE_ND );
 
 	com_unpackLibraries = Cvar_Get( "com_unpackLibraries", "0", cvarFlags_t::CVAR_INIT|cvarFlags_t::CVAR_PROTECTED );
+}
+
+/*
+=================
+Sys_InitRand
+
+Seed the engine's random number stream (q_rand.h), if possible with an OS supplied random seed.
+=================
+*/
+void Sys_InitRand( void ) {
+	unsigned int seed;
+
+	if ( !Sys_RandomBytes( (byte *)&seed, sizeof( seed ) ) )
+		seed = (unsigned int)time( nullptr );
+	Rand_Init( (int)seed );
 }
 
 static void NORETURN Sys_Exit( int ex ) {

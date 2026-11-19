@@ -334,13 +334,13 @@ static void turret_aim( gentity_t *self )
 	else
 	{
 		// no enemy, so make us slowly sweep back and forth as if searching for a new one
-//		diffYaw = sin( level.time * 0.0001f + self->count ) * 5.0f;	// don't do this for now since it can make it go into walls.
+//		diffYaw = Q_sinf( level.time * 0.0001f + self->count ) * 5.0f;	// don't do this for now since it can make it go into walls.
 	}
 
 	if ( diffYaw )
 	{
 		// cap max speed....
-		if ( fabs(diffYaw) > maxYawSpeed )
+		if ( Q_fabsf(diffYaw) > maxYawSpeed )
 		{
 			diffYaw = ( diffYaw >= 0 ? maxYawSpeed : -maxYawSpeed );
 		}
@@ -356,7 +356,7 @@ static void turret_aim( gentity_t *self )
 
 	if ( diffPitch )
 	{
-		if ( fabs(diffPitch) > maxPitchSpeed )
+		if ( Q_fabsf(diffPitch) > maxPitchSpeed )
 		{
 			// cap max speed
 			self->speed += (diffPitch > 0.0f) ? -maxPitchSpeed : maxPitchSpeed;
@@ -1681,14 +1681,14 @@ void pas_think( gentity_t *ent )
 	else
 	{
 		// no enemy, so make us slowly sweep back and forth as if searching for a new one
-		diffYaw = sin( level.time * 0.0001f + ent->count ) * 2.0f;
+		diffYaw = Q_sinf( level.time * 0.0001f + ent->count ) * 2.0f;
 	}
 
-	if ( fabs(diffYaw) > 0.25f )
+	if ( Q_fabsf(diffYaw) > 0.25f )
 	{
 		moved = true;
 
-		if ( fabs(diffYaw) > 10.0f )
+		if ( Q_fabsf(diffYaw) > 10.0f )
 		{
 			// cap max speed
 			ent->speed += (diffYaw > 0.0f) ? -10.0f : 10.0f;
@@ -1701,11 +1701,11 @@ void pas_think( gentity_t *ent )
 	}
 
 
-	if ( fabs(diffPitch) > 0.25f )
+	if ( Q_fabsf(diffPitch) > 0.25f )
 	{
 		moved = true;
 
-		if ( fabs(diffPitch) > 4.0f )
+		if ( Q_fabsf(diffPitch) > 4.0f )
 		{
 			// cap max speed
 			ent->random += (diffPitch > 0.0f) ? -4.0f : 4.0f;

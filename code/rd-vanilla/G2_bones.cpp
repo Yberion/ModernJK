@@ -558,7 +558,7 @@ bool G2_Set_Bone_Anim_Index(boneInfo_v &blist, const int index, const int startF
 			}
 			else
 			{
-				blendTime=ceil(float(AblendTime)*r_Ghoul2BlendMultiplier->value);
+				blendTime=Q_ceilf(float(AblendTime)*r_Ghoul2BlendMultiplier->value);
 			}
 		}
 	}
@@ -591,8 +591,8 @@ bool G2_Set_Bone_Anim_Index(boneInfo_v &blist, const int index, const int startF
 			{
 				if (animSpeed<0.0f)
 				{
-					blist[index].blendFrame = floor(currentFrame);
-					blist[index].blendLerpFrame = floor(currentFrame);
+					blist[index].blendFrame = Q_floorf(currentFrame);
+					blist[index].blendLerpFrame = Q_floorf(currentFrame);
 				}
 				else
 				{
@@ -1292,7 +1292,7 @@ static int G2_Set_Bone_Angles_Rag(
 		bone.hasOverGoal = false;
 		bone.hasAnimFrameMatrix = -1;
 
-//		bone.weight=pow(radius,1.7f); //cubed was too harsh
+//		bone.weight=Q_powf(radius,1.7f); //cubed was too harsh
 //		bone.weight=radius*radius*radius;
 		if (angleMin&&angleMax)
 		{
@@ -1631,7 +1631,7 @@ void G2_SetRagDoll(CGhoul2Info_v &ghoul2V,CRagDollParams *parms)
 						parms->me->s.pos.trType = trType_t::TR_GRAVITY;
 						parms->me->s.pos.trDelta[0] += bone.lastShotDir[0]*magicFactor14;
 						parms->me->s.pos.trDelta[1] += bone.lastShotDir[1]*magicFactor14;
-						//parms->me->s.pos.trDelta[2] = fabsf(bone.lastShotDir[2])*magicFactor14;
+						//parms->me->s.pos.trDelta[2] = Q_fabsf(bone.lastShotDir[2])*magicFactor14;
 						//rww - The vertical portion of this doesn't seem to work very well
 						//I am just leaving it whatever it is for now, because my velocity scaling
 						//only works on x and y and the gravity stuff for NPCs is a bit unpleasent
@@ -2098,10 +2098,10 @@ void G2_SetRagDollBullet(CGhoul2Info &ghoul2,const vec3_t rayStart,const vec3_t 
 					effect*=magicFactor13*effect; // this is cubed, one of them is absorbed by the next calc
 					bone.velocityEffector[0]=shotDir[0]*(effect+flrand(0.0f,0.05f));
 					bone.velocityEffector[1]=shotDir[1]*(effect+flrand(0.0f,0.05f));
-					bone.velocityEffector[2]=fabs(shotDir[2])*(effect+flrand(0.0f,0.05f));
+					bone.velocityEffector[2]=Q_fabsf(shotDir[2])*(effect+flrand(0.0f,0.05f));
 //					bone.velocityEffector[0]=shotDir[0]*(effect+flrand(0.0f,0.05f))*flrand(-0.1f,3.0f);
 //					bone.velocityEffector[1]=shotDir[1]*(effect+flrand(0.0f,0.05f))*flrand(-0.1f,3.0f);
-//					bone.velocityEffector[2]=fabs(shotDir[2])*(effect+flrand(0.0f,0.05f))*flrand(-0.1f,3.0f);
+//					bone.velocityEffector[2]=Q_fabsf(shotDir[2])*(effect+flrand(0.0f,0.05f))*flrand(-0.1f,3.0f);
 					assert( !Q_isnan(shotDir[2]));
 	//				bone.currentAngles[0]+=flrand(-10.0f*lenr,10.0f*lenr);
 	//				bone.currentAngles[1]+=flrand(-10.0f*lenr,10.0f*lenr);
@@ -2182,7 +2182,7 @@ static float G2_RagSetState(CGhoul2Info &ghoul2, boneInfo_t &bone,int frameNum,c
 			decay=1.0f;
 		}
 		float	magicFactor8=1.0f; // Power for decay
-		decay=pow(decay,magicFactor8);
+		decay=Q_powf(decay,magicFactor8);
 		ragState=ERagState::ERS_SETTLING;
 		if (frameNum>bone.restTime+settleTime)
 		{
@@ -2991,7 +2991,7 @@ static bool G2_RagDollSettlePositionNumeroTrois(CGhoul2Info_v &ghoul2V, const ve
 				vertEffectorTraceFraction=tr.fraction;
 				if (params &&
 					vertEffectorTraceFraction < .95f &&
-					fabsf(tr.plane.normal[2]) < .707f)
+					Q_fabsf(tr.plane.normal[2]) < .707f)
 				{
 					SRagDollEffectorCollision args(e.currentOrigin,tr);
 					args.useTracePlane=true;
@@ -3074,7 +3074,7 @@ static bool G2_RagDollSettlePositionNumeroTrois(CGhoul2Info_v &ghoul2V, const ve
 				{
 
 					// roughly speaking this is a wall
-					if (fabsf(tr.plane.normal[2])<0.7f)
+					if (Q_fabsf(tr.plane.normal[2])<0.7f)
 					{
 						SRagDollEffectorCollision args(e.currentOrigin,tr);
 						args.useTracePlane=true;
@@ -3789,7 +3789,7 @@ static bool G2_RagDollSettlePositionNumeroTrois(CGhoul2Info_v &ghoul2V, const ve
 
 static float AngleNormZero(float theta)
 {
-	float ret=fmodf(theta,360.0f);
+	float ret=Q_fmodf(theta,360.0f);
 	if (ret<-180.0f)
 	{
 		ret+=360.0f;
@@ -4018,7 +4018,7 @@ static void G2_RagDollSolve(CGhoul2Info_v &ghoul2V,int g2Index,float decay,int f
 			float recip=0.0f;
 			if (numRagDep)
 			{
-				recip=sqrt(4.0f/float(numRagDep));
+				recip=Q_sqrtf(4.0f/float(numRagDep));
 			}
 
 			if (allSolidCount > 32)
@@ -4264,7 +4264,7 @@ static void G2_IKSolve(CGhoul2Info_v &ghoul2V,int g2Index,float decay,int frameN
 			magicFactor1 = 0.40f;
 		}
 
-		recip = sqrt(4.0f/1.0f);
+		recip = Q_sqrtf(4.0f/1.0f);
 
 		float fac = (decay*recip*magicFactor1);
 		assert(fac >= 0.0f);

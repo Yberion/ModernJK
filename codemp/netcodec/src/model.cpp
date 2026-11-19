@@ -3,7 +3,6 @@
 #include "contexts.h"
 
 #include <algorithm>
-#include <cmath>
 #include <limits>
 
 namespace netcodec {
@@ -19,7 +18,7 @@ void Quantize(std::span<const uint64_t> counts, std::span<uint16_t> freq) noexce
 	uint32_t sum = 0;
 	for (size_t s = 0; s < k; s++) {
 		const double c = s < counts.size() ? static_cast<double>(counts[s]) : 0.0;
-		freq[s] = static_cast<uint16_t>(std::max(1.0, std::trunc((c + kAlpha) * scale)));
+		freq[s] = static_cast<uint16_t>(std::max(1.0, (c + kAlpha) * scale));
 		sum += freq[s];
 	}
 	const auto top = std::ranges::max_element(freq);   // the first maximum

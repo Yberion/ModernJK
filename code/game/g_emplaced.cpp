@@ -969,7 +969,7 @@ void ExitEmplacedWeapon( gentity_t *ent )
 			vec3_t dir;
 			AngleVectors( ent->owner->s.angles, nullptr, dir, nullptr );
 
-			if ( rand() & 1 )
+			if ( Q_irand( 0, 1 ) )
 			{
 				VectorScale( dir, -1, dir );
 			}

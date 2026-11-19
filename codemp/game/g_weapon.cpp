@@ -704,7 +704,7 @@ void WP_DisruptorAltFire( gentity_t *ent )
 		count = ( level.time - ent->client->ps.weaponChargeTime ) / DISRUPTOR_CHARGE_UNIT;
 		if ( level.gametype == gametype_t::GT_SIEGE )
 		{//maybe a full alt-charge should be a *bit* more dangerous in Siege mode?
-			//maxCount = ceil((200.0f-(float)damage)/2.0f);//cap at 200 damage total
+			//maxCount = Q_ceilf((200.0f-(float)damage)/2.0f);//cap at 200 damage total
 			maxCount = 200;//the previous line ALWAYS evaluated to 135 - was that on purpose?
 		}
 	}

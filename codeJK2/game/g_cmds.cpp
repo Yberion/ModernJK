@@ -381,9 +381,9 @@ extern void SP_fx_runner( gentity_t *ent );
 		{
 			if ( gi.argc() == 5 )
 			{
-				fx_ent->s.origin[0] = atof( gi.argv( 2 ));
-				fx_ent->s.origin[1] = atof( gi.argv( 3 ));
-				fx_ent->s.origin[2] = atof( gi.argv( 4 ));
+				fx_ent->s.origin[0] = Q_atof( gi.argv( 2 ));
+				fx_ent->s.origin[1] = Q_atof( gi.argv( 3 ));
+				fx_ent->s.origin[2] = Q_atof( gi.argv( 4 ));
 
 				G_SetOrigin( fx_ent, fx_ent->s.origin );
 			}
@@ -402,9 +402,9 @@ extern void SP_fx_runner( gentity_t *ent );
 		{
 			if ( gi.argc() == 5 )
 			{
-				fx_ent->s.angles[0] = atof( gi.argv( 2 ));
-				fx_ent->s.angles[1] = atof( gi.argv( 3 ));
-				fx_ent->s.angles[2] = atof( gi.argv( 4 ));
+				fx_ent->s.angles[0] = Q_atof( gi.argv( 2 ));
+				fx_ent->s.angles[1] = Q_atof( gi.argv( 3 ));
+				fx_ent->s.angles[2] = Q_atof( gi.argv( 4 ));
 
 				if ( !VectorNormalize( fx_ent->s.angles ))
 				{
@@ -704,10 +704,10 @@ void Cmd_SetViewpos_f( gentity_t *ent ) {
 
 	VectorClear( angles );
 	for ( i = 0 ; i < 3 ; i++ ) {
-		origin[i] = atof( gi.argv( i+1 ) );
+		origin[i] = Q_atof( gi.argv( i+1 ) );
 	}
 
-	angles[YAW] = atof( gi.argv( 4 ) );
+	angles[YAW] = Q_atof( gi.argv( 4 ) );
 
 	TeleportPlayer( ent, origin, angles );
 }

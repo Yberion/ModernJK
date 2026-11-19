@@ -169,7 +169,7 @@ static void RB_SurfaceSprite( void ) {
 		float	s, c;
 		float	ang;
 
-		ang = M_PI * backEnd.currentEntity->e.rotation / 180;
+		ang = Q_PI * backEnd.currentEntity->e.rotation / 180;
 		s = Q_sin( ang );
 		c = Q_cos( ang );
 
@@ -214,7 +214,7 @@ static void RB_SurfaceOrientedQuad( void )
 		float	s, c;
 		float	ang;
 
-		ang = M_PI * backEnd.currentEntity->e.rotation / 180;
+		ang = Q_PI * backEnd.currentEntity->e.rotation / 180;
 		s = Q_sin( ang );
 		c = Q_cos( ang );
 
@@ -446,7 +446,7 @@ static void DoSprite( vec3_t origin, float radius, float rotation )
 	float	ang;
 	vec3_t	left, up;
 
-	ang = M_PI * rotation / 180.0f;
+	ang = Q_PI * rotation / 180.0f;
 	s = Q_sin( ang );
 	c = Q_cos( ang );
 

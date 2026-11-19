@@ -5250,7 +5250,7 @@ static void Q3_SetLockAngle( int entID, const char *lockAngle)
 		}
 		else
 		{//specified yaw
-			ent->client->renderInfo.lockYaw = atof((char *)lockAngle);
+			ent->client->renderInfo.lockYaw = Q_atof((char *)lockAngle);
 		}
 	}
 	*/

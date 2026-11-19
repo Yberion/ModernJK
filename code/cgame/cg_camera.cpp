@@ -1125,15 +1125,15 @@ void CGCam_Update( void )
 #ifndef FINAL_BUILD
 			if (cg_roffdebug.integer)
 			{
-				if (fabs(cg_roffval1.value) > 0.001f)
+				if (Q_fabsf(cg_roffval1.value) > 0.001f)
 				{
 					initialPosVal = cg_roffval1.value;
 				}
-				if (fabs(cg_roffval2.value) > 0.001f)
+				if (Q_fabsf(cg_roffval2.value) > 0.001f)
 				{
 					velVal = cg_roffval2.value;
 				}
-				if (fabs(cg_roffval3.value) > 0.001f)
+				if (Q_fabsf(cg_roffval3.value) > 0.001f)
 				{
 					accVal = cg_roffval3.value;
 				}
@@ -1474,11 +1474,11 @@ void CGCam_NotetrackProcessFov(const char *addlArg)
 			t[d++] = addlArg[a++];
 		}
 		// now the contents of t represent our desired fov
-		float newFov = atof(t);
+		float newFov = Q_atof(t);
 #ifndef FINAL_BUILD
 		if (cg_roffdebug.integer)
 		{
-			if (fabs(cg_roffval1.value) > 0.001f)
+			if (Q_fabsf(cg_roffval1.value) > 0.001f)
 			{
 				newFov = cg_roffval1.value;
 			}
@@ -1521,7 +1521,7 @@ void CGCam_NotetrackProcessFovZoom(const char *addlArg)
 	else
 	{
 		// now the contents of t represent our beginning fov
-		beginFOV = atof(t);
+		beginFOV = Q_atof(t);
 	}
 
 	// eat leading whitespace
@@ -1538,7 +1538,7 @@ void CGCam_NotetrackProcessFovZoom(const char *addlArg)
 			t[d++] = addlArg[a++];
 		}
 		// now the contents of t represent our end fov
-		endFOV = atof(t);
+		endFOV = Q_atof(t);
 
 		// eat leading whitespace
 		while (addlArg[a] && addlArg[a] == ' ')
@@ -1554,7 +1554,7 @@ void CGCam_NotetrackProcessFovZoom(const char *addlArg)
 				t[d++] = addlArg[a++];
 			}
 			// now the contents of t represent our time
-			fovTime = atof(t);
+			fovTime = Q_atof(t);
 		}
 		else
 		{
@@ -1564,15 +1564,15 @@ void CGCam_NotetrackProcessFovZoom(const char *addlArg)
 #ifndef FINAL_BUILD
 		if (cg_roffdebug.integer)
 		{
-			if (fabs(cg_roffval1.value) > 0.001f)
+			if (Q_fabsf(cg_roffval1.value) > 0.001f)
 			{
 				beginFOV = cg_roffval1.value;
 			}
-			if (fabs(cg_roffval2.value) > 0.001f)
+			if (Q_fabsf(cg_roffval2.value) > 0.001f)
 			{
 				endFOV = cg_roffval2.value;
 			}
-			if (fabs(cg_roffval3.value) > 0.001f)
+			if (Q_fabsf(cg_roffval3.value) > 0.001f)
 			{
 				fovTime = cg_roffval3.value;
 			}
@@ -1621,7 +1621,7 @@ void CGCam_NotetrackProcessFovAccel(const char *addlArg)
 	else
 	{
 		// now the contents of t represent our beginning fov
-		beginFOV = atof(t);
+		beginFOV = Q_atof(t);
 	}
 
 	// eat leading whitespace
@@ -1638,7 +1638,7 @@ void CGCam_NotetrackProcessFovAccel(const char *addlArg)
 			t[d++] = addlArg[a++];
 		}
 		// now the contents of t represent our delta
-		fovDelta = atof(t);
+		fovDelta = Q_atof(t);
 
 		// eat leading whitespace
 		while (addlArg[a] && addlArg[a] == ' ')
@@ -1654,7 +1654,7 @@ void CGCam_NotetrackProcessFovAccel(const char *addlArg)
 				t[d++] = addlArg[a++];
 			}
 			// now the contents of t represent our fovDelta2
-			fovDelta2 = atof(t);
+			fovDelta2 = Q_atof(t);
 
 			// eat leading whitespace
 			while (addlArg[a] && addlArg[a] == ' ')
@@ -1670,7 +1670,7 @@ void CGCam_NotetrackProcessFovAccel(const char *addlArg)
 					t[d++] = addlArg[a++];
 				}
 				// now the contents of t represent our time
-				fovTime = atof(t);
+				fovTime = Q_atof(t);
 			}
 			else
 			{

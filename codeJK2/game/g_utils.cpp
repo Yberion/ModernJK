@@ -545,7 +545,7 @@ gentity_t *G_PickTarget (char *targetname)
 		return nullptr;
 	}
 
-	return choice[rand() % num_choices];
+	return choice[Q_irand( 0, num_choices - 1 )];
 }
 
 void G_UseTargets2 (gentity_t *ent, gentity_t *activator, const char *string)
@@ -681,7 +681,7 @@ float vectoyaw( const vec3_t vec ) {
 		yaw = 0;
 	} else {
 		if (vec[PITCH]) {
-			yaw = ( atan2( vec[YAW], vec[PITCH]) * 180 / M_PI );
+			yaw = ( Q_atan2f( vec[YAW], vec[PITCH]) * 180 / Q_PI );
 		} else if (vec[YAW] > 0) {
 			yaw = 90;
 		} else {

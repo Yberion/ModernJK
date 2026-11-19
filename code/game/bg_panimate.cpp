@@ -4010,7 +4010,7 @@ saberMoveName_t PM_SaberAttackForMovement( int forwardmove, int rightmove, saber
 							return autoMove;
 						}
 					}
-					else if ( fabs(pm->ps->viewangles[0]) > 30 )
+					else if ( Q_fabsf(pm->ps->viewangles[0]) > 30 )
 					{//looking far up or far down uses the top to bottom attack, presuming you want a vertical attack
 						return saberMoveName_t::LS_A_T2B;
 					}
@@ -4336,7 +4336,7 @@ bool PM_FinishedCurrentLegsAnim( gentity_t *self )
 	}
 
 	gi.G2API_GetBoneAnimIndex( &self->ghoul2[self->playerModel], self->rootBone, (cg.time?cg.time:level.time), &currentFrame, &junk, &junk, &junkFlags, &animSpeed, nullptr );
-	curFrame = floor( currentFrame );
+	curFrame = Q_floorf( currentFrame );
 
 	animNumber_t				legsAnim	= self->client->ps.legsAnim;
 	auto		&animations	= level.knownAnimFileSets[self->client->clientInfo.animFileIndex].animations;

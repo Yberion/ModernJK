@@ -779,7 +779,7 @@ void AimAtTarget( gentity_t *self )
 	{
 		gravity = 0;
 	}
-	time = sqrt( height / ( .5 * gravity ) );
+	time = Q_sqrt( height / ( .5 * gravity ) );
 	if ( !time ) {
 		G_FreeEntity( self );
 		return;
@@ -1174,7 +1174,7 @@ void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace )
 	{//Increase dmg over time
 		if ( self->attackDebounceTime < self->delay )
 		{//FIXME: this is for the entire trigger, not per person, so if someone else jumped in after you were in it for 5 seconds, they'd get damaged faster
-			actualDmg = floor( (double)(self->damage * self->attackDebounceTime / self->delay) );
+			actualDmg = Q_floor( (double)(self->damage * self->attackDebounceTime / self->delay) );
 		}
 		self->attackDebounceTime += FRAMETIME;
 

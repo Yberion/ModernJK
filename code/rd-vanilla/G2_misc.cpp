@@ -706,13 +706,13 @@ static void G2_BuildHitPointST( const vec3_t A, const float SA, const float TA,
 	*s = SA * i + SB * j + SC * k;
 	*t = TA * i + TB * j + TC * k;
 
-	*s=fmod(*s, 1);
+	*s=Q_fmod(*s, 1);
 	if (*s< 0)
 	{
 		*s+= 1.0;
 	}
 
-	*t=fmod(*t, 1);
+	*t=Q_fmod(*t, 1);
 	if (*t< 0)
 	{
 		*t+= 1.0;
@@ -865,8 +865,8 @@ static void G2_GorePolys( const mdxmSurface_t *surface, CTraceSurface &TS, const
 	VectorNormalize(basis1);
 	VectorNormalize(basis2);
 
-	float c=cos(TS.theta);
-	float s=sin(TS.theta);
+	float c=Q_cosf(TS.theta);
+	float s=Q_sinf(TS.theta);
 
 	VectorScale(basis1,.5f*c/TS.tsize,taxis);
 	VectorMA(taxis,.5f*s/TS.tsize,basis2,taxis);
@@ -1287,8 +1287,8 @@ static bool G2_RadiusTracePolys(
 	VectorNormalize(basis1);
 	VectorNormalize(basis2);
 
-	const float c=cos(0.0f);//theta
-	const float s=sin(0.0f);//theta
+	const float c=Q_cosf(0.0f);//theta
+	const float s=Q_sinf(0.0f);//theta
 
 	VectorScale(basis1, 0.5f * c / TS.m_fRadius,taxis);
 	VectorMA(taxis,     0.5f * s / TS.m_fRadius,basis2,taxis);
@@ -1429,7 +1429,7 @@ static bool G2_RadiusTracePolys(
 					VectorSubtract(TS.rayEnd, TS.rayStart, distVect);
 					side = normal[0]*TS.rayStart[0] + normal[1]*TS.rayStart[1] + normal[2]*TS.rayStart[2] + third;
                     side2 = normal[0]*distVect[0] + normal[1]*distVect[1] + normal[2]*distVect[2];
-					if (fabsf(side2)<1E-8f)
+					if (Q_fabsf(side2)<1E-8f)
 					{
 						//i don't know the hitPoint, but let's just assume it's the first vert for now...
 						VectorSubtract(A, TS.rayStart, distVect);

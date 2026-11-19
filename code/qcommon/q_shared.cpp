@@ -446,7 +446,7 @@ bool COM_ParseFloat( const char **data, float *f )
 		return true;
 	}
 
-	*f = atof( token );
+	*f = Q_atof( token );
 	return false;
 }
 
@@ -554,7 +554,7 @@ void Parse1DMatrix ( const char **buf_p, int x, float *m) {
 
 	for (i = 0 ; i < x ; i++) {
 		token = COM_Parse(buf_p);
-		m[i] = atof(token);
+		m[i] = Q_atof(token);
 	}
 
 	COM_MatchToken( buf_p, ")" );

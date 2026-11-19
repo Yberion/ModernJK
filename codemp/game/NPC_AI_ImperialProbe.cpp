@@ -139,7 +139,7 @@ void ImperialProbe_MaintainHeight( void )
 				{
 					NPC->client->ps.velocity[2] *= VELOCITY_DECAY;
 
-					if ( fabs( NPC->client->ps.velocity[2] ) < 1 )
+					if ( Q_fabsf( NPC->client->ps.velocity[2] ) < 1 )
 					{
 						NPC->client->ps.velocity[2] = 0;
 					}

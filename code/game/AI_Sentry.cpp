@@ -240,9 +240,9 @@ void Sentry_MaintainHeight( void )
 		dif = (NPC->enemy->currentOrigin[2]+NPC->enemy->maxs[2]) - NPC->currentOrigin[2];
 
 		// cap to prevent dramatic height shifts
-		if ( fabs( dif ) > 8 )
+		if ( Q_fabsf( dif ) > 8 )
 		{
-			if ( fabs( dif ) > SENTRY_HOVER_HEIGHT )
+			if ( Q_fabsf( dif ) > SENTRY_HOVER_HEIGHT )
 			{
 				dif = ( dif < 0 ? -24 : 24 );
 			}
@@ -267,7 +267,7 @@ void Sentry_MaintainHeight( void )
 		{
 			dif = goal->currentOrigin[2] - NPC->currentOrigin[2];
 
-			if ( fabs( dif ) > SENTRY_HOVER_HEIGHT )
+			if ( Q_fabsf( dif ) > SENTRY_HOVER_HEIGHT )
 			{
 				ucmd.upmove = ( ucmd.upmove < 0 ? -4 : 4 );
 			}
@@ -277,7 +277,7 @@ void Sentry_MaintainHeight( void )
 				{
 					NPC->client->ps.velocity[2] *= SENTRY_VELOCITY_DECAY;
 
-					if ( fabs( NPC->client->ps.velocity[2] ) < 2 )
+					if ( Q_fabsf( NPC->client->ps.velocity[2] ) < 2 )
 					{
 						NPC->client->ps.velocity[2] = 0;
 					}
@@ -289,7 +289,7 @@ void Sentry_MaintainHeight( void )
 		{
 			NPC->client->ps.velocity[2] *= SENTRY_VELOCITY_DECAY;
 
-			if ( fabs( NPC->client->ps.velocity[2] ) < 1 )
+			if ( Q_fabsf( NPC->client->ps.velocity[2] ) < 1 )
 			{
 				NPC->client->ps.velocity[2] = 0;
 			}
@@ -301,7 +301,7 @@ void Sentry_MaintainHeight( void )
 	{
 		NPC->client->ps.velocity[0] *= SENTRY_VELOCITY_DECAY;
 
-		if ( fabs( NPC->client->ps.velocity[0] ) < 1 )
+		if ( Q_fabsf( NPC->client->ps.velocity[0] ) < 1 )
 		{
 			NPC->client->ps.velocity[0] = 0;
 		}
@@ -311,7 +311,7 @@ void Sentry_MaintainHeight( void )
 	{
 		NPC->client->ps.velocity[1] *= SENTRY_VELOCITY_DECAY;
 
-		if ( fabs( NPC->client->ps.velocity[1] ) < 1 )
+		if ( Q_fabsf( NPC->client->ps.velocity[1] ) < 1 )
 		{
 			NPC->client->ps.velocity[1] = 0;
 		}
@@ -362,7 +362,7 @@ void Sentry_Strafe( void )
 
 	// Pick a random strafe direction, then check to see if doing a strafe would be
 	//	reasonable valid
-	dir = ( rand() & 1 ) ? -1 : 1;
+	dir = ( Q_irand( 0, 1 ) ) ? -1 : 1;
 	VectorMA( NPC->currentOrigin, SENTRY_STRAFE_DIS * dir, right, end );
 
 	gi.trace( &tr, NPC->currentOrigin, nullptr, nullptr, end, NPC->s.number, MASK_SOLID, EG2_Collision::G2_NOCOLLIDE, 0 );

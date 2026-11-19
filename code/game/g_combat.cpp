@@ -2275,7 +2275,7 @@ static bool G_Dismemberable( gentity_t *self, hitLocation_t hitLoc )
 			}
 
 			//check probability of this happening on this npc
-			if ( floor((Q_flrand( 1, 100 )*g_dismemberProbabilities->value)) > dismemberProb*2.0f )//probabilities seemed really really low, had to crank them up
+			if ( Q_floorf((Q_flrand( 1, 100 )*g_dismemberProbabilities->value)) > dismemberProb*2.0f )//probabilities seemed really really low, had to crank them up
 			{
 				return false;
 			}
@@ -3301,7 +3301,7 @@ static std::optional<animNumber_t> G_PickDeathAnim( gentity_t *self, vec3_t poin
 				}
 				break;
 			case hitLocation_t::HL_BACK:
-				if ( fabs(thrown) < 50 || (fabs(thrown) < 200&&!Q_irand(0,3)) )
+				if ( Q_fabsf(thrown) < 50 || (Q_fabsf(thrown) < 200&&!Q_irand(0,3)) )
 				{
 					if ( Q_irand( 0, 1 ) )
 					{
@@ -3332,7 +3332,7 @@ static std::optional<animNumber_t> G_PickDeathAnim( gentity_t *self, vec3_t poin
 			case hitLocation_t::HL_CHEST_RT:
 			case hitLocation_t::HL_ARM_RT:
 			case hitLocation_t::HL_BACK_LT:
-				if ( (damage <= self->max_health*0.25&&Q_irand(0,1)) || (fabs(thrown)<200&&!Q_irand(0,2)) || !Q_irand( 0, 10 ) )
+				if ( (damage <= self->max_health*0.25&&Q_irand(0,1)) || (Q_fabsf(thrown)<200&&!Q_irand(0,2)) || !Q_irand( 0, 10 ) )
 				{
 					if ( Q_irand( 0, 1 ) )
 					{
@@ -3383,7 +3383,7 @@ static std::optional<animNumber_t> G_PickDeathAnim( gentity_t *self, vec3_t poin
 			case hitLocation_t::HL_ARM_LT:
 			case hitLocation_t::HL_HAND_LT:
 			case hitLocation_t::HL_BACK_RT:
-				if ( (damage <= self->max_health*0.25&&Q_irand(0,1)) || (fabs(thrown)<200&&!Q_irand(0,2)) || !Q_irand(0, 10) )
+				if ( (damage <= self->max_health*0.25&&Q_irand(0,1)) || (Q_fabsf(thrown)<200&&!Q_irand(0,2)) || !Q_irand(0, 10) )
 				{
 					if ( Q_irand( 0, 1 ) )
 					{
@@ -3443,7 +3443,7 @@ static std::optional<animNumber_t> G_PickDeathAnim( gentity_t *self, vec3_t poin
 						deathAnim = animNumber_t::BOTH_DEATH19;//gut: fall left
 					}
 				}
-				else if ( (damage <= self->max_health*0.5&&!Q_irand(0,1)) || (fabs(thrown)<200&&!Q_irand(0,3)) )
+				else if ( (damage <= self->max_health*0.5&&!Q_irand(0,1)) || (Q_fabsf(thrown)<200&&!Q_irand(0,3)) )
 				{
 					if ( Q_irand( 0, 2 ) )
 					{
@@ -3697,7 +3697,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 						if (CurSpeed<(pVeh->m_pVehicleInfo->speedMax*0.9f))
 						{
 							VectorNormalize(parent->pos3);
-							if (fabsf(parent->pos3[2])<0.3f)
+							if (Q_fabsf(parent->pos3[2])<0.3f)
 							{
 								VectorScale(parent->pos3, (pVeh->m_pVehicleInfo->speedMax * 1.25f), parent->pos3);
 							}
@@ -3725,13 +3725,13 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 							}
 							if (throwDir[2]<0.0f)
 							{
-								throwDir[2] = fabsf(throwDir[2]);
+								throwDir[2] = Q_fabsf(throwDir[2]);
 							}
-							if (fabsf(throwDir[0])<0.2f)
+							if (Q_fabsf(throwDir[0])<0.2f)
 							{
 								throwDir[0] = Q_flrand(-0.5f, 0.5f);
 							}
-							if (fabsf(throwDir[1])<0.2f)
+							if (Q_fabsf(throwDir[1])<0.2f)
 							{
 								throwDir[1] = Q_flrand(-0.5f, 0.5f);
 							}
@@ -4978,7 +4978,7 @@ int CheckArmor (gentity_t *ent, int damage, damageFlags_t dflags, meansOfDeath_t
 			}
 			else
 			{
-				save = ceil( (float) damage * ARMOR_PROTECTION );
+				save = Q_ceil( (float) damage * ARMOR_PROTECTION );
 			}
 		}
 
@@ -5627,7 +5627,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, const
 			//NOTE: a more controlled way to do the class-specific saber immunities, if we want
 			else if ( targ->client->NPC_class == class_t::CLASS_ASSASSIN_DROID )
 			{//takes 2 hits to kill on easy, 3 on medium, 4 on hard
-				int maxDamage = ceil((float)targ->max_health/(2.0f+g_spskill->value));
+				int maxDamage = Q_ceilf((float)targ->max_health/(2.0f+g_spskill->value));
 				if ( damage > maxDamage )
 				{
 					damage = maxDamage;
@@ -5635,7 +5635,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, const
 			}
 			else if ( targ->client->NPC_class == class_t::CLASS_HAZARD_TROOPER )
 			{//takes 3 hits to kill on easy, 4 on medium, 5 on hard
-				int maxDamage = ceil((float)targ->max_health/(3.0f+g_spskill->value));
+				int maxDamage = Q_ceilf((float)targ->max_health/(3.0f+g_spskill->value));
 				if ( damage > maxDamage )
 				{
 					damage = maxDamage;
@@ -5655,7 +5655,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, const
 	// no more weakling allies!
 //	if ( attacker->s.number != 0 && damage >= 2 && targ->s.number != 0 && attacker->client && attacker->client->playerTeam == team_t::TEAM_PLAYER )
 //	{//player-helpers do only half damage to enemies
-//		damage = ceil((float)damage/2.0f);
+//		damage = Q_ceilf((float)damage/2.0f);
 //	}
 
 	client = targ->client;
@@ -5775,7 +5775,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, const
 				|| mod == meansOfDeath_t::MOD_ENERGY_SPLASH
 				|| mod == meansOfDeath_t::MOD_SABER )
 			{//galak without shields takes quarter damage from explosives and lightsaber
-				damage = ceil((float)damage/4.0f);
+				damage = Q_ceilf((float)damage/4.0f);
 			}
 		}
 	}
@@ -5813,7 +5813,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, const
 		//rage
 		if ( (targ->client->ps.forcePowersActive & Bit( forcePowers_t::FP_RAGE )))
 		{
-			damage = floor((float)damage/(float)(to_underlying( targ->client->ps.forcePowerLevel[forcePowers_t::FP_RAGE] )*2));
+			damage = Q_floorf((float)damage/(float)(to_underlying( targ->client->ps.forcePowerLevel[forcePowers_t::FP_RAGE] )*2));
 		}
 		//protect
 		if ( (targ->client->ps.forcePowersActive & Bit( forcePowers_t::FP_PROTECT )) )
@@ -5841,7 +5841,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, const
 				case meansOfDeath_t::MOD_EXPLOSIVE_SPLASH:
 				case meansOfDeath_t::MOD_CRUSH:
 					doSound = (Q_irand(0,4)==0);
-					damage = floor((float)damage/(float)(to_underlying( targ->client->ps.forcePowerLevel[forcePowers_t::FP_PROTECT] )-1));
+					damage = Q_floorf((float)damage/(float)(to_underlying( targ->client->ps.forcePowerLevel[forcePowers_t::FP_PROTECT] )-1));
 					break;
 				}
 			case forcePowerLevels_t::FORCE_LEVEL_2:
@@ -5860,7 +5860,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, const
 				case meansOfDeath_t::MOD_ENERGY_SPLASH:
 				case meansOfDeath_t::MOD_ELECTROCUTE:
 					doSound = (Q_irand(0,4)==0);
-					damage = floor((float)damage/(float)(to_underlying( targ->client->ps.forcePowerLevel[forcePowers_t::FP_PROTECT] )));
+					damage = Q_floorf((float)damage/(float)(to_underlying( targ->client->ps.forcePowerLevel[forcePowers_t::FP_PROTECT] )));
 					break;
 				}
 			case forcePowerLevels_t::FORCE_LEVEL_1:
@@ -5877,7 +5877,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, const
 				case meansOfDeath_t::MOD_LAVA:
 				case meansOfDeath_t::MOD_FALLING:
 					doSound = (Q_irand(0,4)==0);
-					damage = floor((float)damage/(float)(to_underlying( targ->client->ps.forcePowerLevel[forcePowers_t::FP_PROTECT] )+1));
+					damage = Q_floorf((float)damage/(float)(to_underlying( targ->client->ps.forcePowerLevel[forcePowers_t::FP_PROTECT] )+1));
 					break;
 				}
 				break;
@@ -5956,7 +5956,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, const
 						}
 						else
 						{
-							damage = ceil((float)damage*0.25f);//was 0.1f);
+							damage = Q_ceilf((float)damage*0.25f);//was 0.1f);
 						}
 						break;
 					case forcePowerLevels_t::FORCE_LEVEL_2:
@@ -5967,7 +5967,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, const
 						}
 						else
 						{
-							damage = ceil((float)damage*0.5f);
+							damage = Q_ceilf((float)damage*0.5f);
 						}
 						break;
 					case forcePowerLevels_t::FORCE_LEVEL_1:
@@ -5978,7 +5978,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, const
 						}
 						else
 						{
-							damage = ceil((float)damage*0.75f);
+							damage = Q_ceilf((float)damage*0.75f);
 						}
 						break;
 					default:
@@ -6285,7 +6285,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, const
 					if (CurSpeed<pVeh->m_pVehicleInfo->speedMax)
 					{
 						VectorNormalize(parent->pos3);
-						if (fabsf(parent->pos3[2])<0.25f)
+						if (Q_fabsf(parent->pos3[2])<0.25f)
 						{
 							VectorScale(parent->pos3, (pVeh->m_pVehicleInfo->speedMax * 1.25f), parent->pos3);
 						}
@@ -6449,7 +6449,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, const
 	{
 		if ( !G_NonLocationSpecificDamage( mod ) )
 		{//certain kinds of damage don't care about hitlocation
-			take = ceil( (float)take*damageModifier[hitLoc] );
+			take = Q_ceilf( (float)take*damageModifier[hitLoc] );
 		}
 	}
 
@@ -6532,7 +6532,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, const
 				add = take;
 			}
 			add += asave;
-			add = ceil(add/10.0f);
+			add = Q_ceilf(add/10.0f);
 			if ( attacker != targ )
 			{
 				G_TrackWeaponUsage( attacker, inflictor, add, mod );

@@ -51,12 +51,12 @@ localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
 	}
 
 	// skew the time a bit so they aren't all in sync
-	offset = rand() & 63;
+	offset = Q_irand( 0, 63 );
 
 	ex = CG_AllocLocalEntity();
 	if ( isSprite ) {
 		ex->leType = LE_SPRITE_EXPLOSION;
-		ex->refEntity.rotation = rand() % 360;
+		ex->refEntity.rotation = Q_irand( 0, 359 );
 		ex->radius = scale;
 		VectorScale( dir, 16, tmpVec );
 		VectorAdd( tmpVec, origin, newOrigin );
@@ -72,7 +72,7 @@ localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
 		else
 		{
 			if ( !Any( flags & leFlags_t::LEF_NO_RANDOM_ROTATE ) )
-				ang = rand() % 360;
+				ang = Q_irand( 0, 359 );
 			VectorCopy( dir, ex->refEntity.axis[0] );
 			RotateAroundDirection( ex->refEntity.axis, ang );
 		}
@@ -218,11 +218,11 @@ void CG_SurfaceExplosion( vec3_t origin, vec3_t normal, float radius, float shak
 								0.25f,
 								4000.0f,
 								cgs.media.sparkShader,
-								rand() & FXF_BOUNCE);
+								Q_irand( 0, 32767 ) & FXF_BOUNCE);
 		if ( particle == nullptr )
 			return;
 
-		FXE_Spray( normal, 500, 150, 1.0f, 768 + (rand() & 255), (FXPrimitive *) particle );
+		FXE_Spray( normal, 500, 150, 1.0f, 768 + (Q_irand( 0, 255 )), (FXPrimitive *) particle );
 	}
 
 	//Smoke
@@ -262,7 +262,7 @@ void CG_SurfaceExplosion( vec3_t origin, vec3_t normal, float radius, float shak
 	for ( i = 0; i < NUM_EXPLOSIONS-1; i ++)
 	{
 		VectorSet( new_org, (origin[0] + (16 + (Q_flrand(-1.0f, 1.0f) * 8))*Q_flrand(-1.0f, 1.0f)), (origin[1] + (16 + (Q_flrand(-1.0f, 1.0f) * 8))*Q_flrand(-1.0f, 1.0f)), (origin[2] + (16 + (Q_flrand(-1.0f, 1.0f) * 8))*Q_flrand(-1.0f, 1.0f)) );
-		le = CG_MakeExplosion( new_org, direction, cgs.media.explosionModel, 6, cgs.media.surfaceExplosionShader, 300 + (rand() & 99), false, radius * 0.05f + (Q_flrand(-1.0f, 1.0f) *0.3f) );
+		le = CG_MakeExplosion( new_org, direction, cgs.media.explosionModel, 6, cgs.media.surfaceExplosionShader, 300 + (Q_irand( 0, 32767 ) & 99), false, radius * 0.05f + (Q_flrand(-1.0f, 1.0f) *0.3f) );
 	}
 
 	//Shake the camera
@@ -379,7 +379,7 @@ void CG_MiscModelExplosion( vec3_t mins, vec3_t maxs, int size, material_t chunk
 		VectorSubtract( org, mid, dir );
 		VectorNormalize( dir );
 
-		if ( effect2 && ( rand() & 1 ))
+		if ( effect2 && ( Q_irand( 0, 1 ) ))
 		{
 			theFxScheduler.PlayEffect( effect2, org, dir );
 		}
@@ -545,7 +545,7 @@ void CG_Chunks( int owner, vec3_t origin, const vec3_t normal, const vec3_t mins
 				chunkModel = cgs.media.chunkModels[chunkType_t::CHUNK_METAL1][Q_irand(0, 3)];
 				break;
 			case material_t::MAT_METAL3:
-				if ( rand() & 1 )
+				if ( Q_irand( 0, 1 ) )
 				{
 					chunkModel = cgs.media.chunkModels[chunkType_t::CHUNK_METAL1][Q_irand(0, 3)];
 				}
@@ -973,11 +973,11 @@ CG_Seeker
 
 	// must match cg_effects ( CG_Seeker ) & g_weapon ( SeekerAcquiresTarget ) & cg_weapons ( CG_FireSeeker )
 	angle = cg.time * 0.004f;
-	c = cos( angle );
+	c = Q_cosf( angle );
 
 	seekerOrg[0] = cent->lerpOrigin[0] + 18 * c;
-	seekerOrg[1] = cent->lerpOrigin[1] + 18 * sin(angle);
-	seekerOrg[2] = cent->lerpOrigin[2] + cg.predicted_player_state.viewheight + 8 + (3 * cos(cg.time * 0.001));
+	seekerOrg[1] = cent->lerpOrigin[1] + 18 * Q_sinf(angle);
+	seekerOrg[2] = cent->lerpOrigin[2] + cg.predicted_player_state.viewheight + 8 + (3 * Q_cos(cg.time * 0.001));
 
 	memset( &re, 0, sizeof( re ) );
 

@@ -49,7 +49,7 @@ bool NAV_HitNavGoal( vec3_t point, vec3_t mins, vec3_t maxs, vec3_t dest, int ra
 		{//Allow for a little z difference
 			vec3_t	diff;
 			VectorSubtract( point, dest, diff );
-			if ( fabs(diff[2]) <= 24 )
+			if ( Q_fabsf(diff[2]) <= 24 )
 			{
 				diff[2] = 0;
 			}
@@ -108,7 +108,7 @@ bool NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t &trace, contentsFlags_
 		return true;
 
 	//See if we're too far above
-	if ( fabs( self->currentOrigin[2] - end[2] ) > 48 )
+	if ( Q_fabsf( self->currentOrigin[2] - end[2] ) > 48 )
 		return false;
 
 	//This is a work around
@@ -165,7 +165,7 @@ bool NPC_ClearPathToGoal( vec3_t dir, gentity_t *goal )
 	if (!FlyingCreature(NPC))
 	{
 		//See if we're too far above
-		if ( fabs( NPC->currentOrigin[2] - goal->currentOrigin[2] ) > 48 )
+		if ( Q_fabsf( NPC->currentOrigin[2] - goal->currentOrigin[2] ) > 48 )
 			return false;
 	}
 

@@ -292,7 +292,7 @@ bool G_ValidateLookEnemy( gentity_t *self, gentity_t *enemy )
 	}
 
 	if ( (!InFront( enemy->currentOrigin, self->currentOrigin, self->client->ps.viewangles, 0.0f) || !G_ClearLOS( self, self->client->renderInfo.eyePoint, enemy ) )
-		&& ( DistanceHorizontalSquared( enemy->currentOrigin, self->currentOrigin ) > 65536 || fabs(enemy->currentOrigin[2]-self->currentOrigin[2]) > 384 )  )
+		&& ( DistanceHorizontalSquared( enemy->currentOrigin, self->currentOrigin ) > 65536 || Q_fabsf(enemy->currentOrigin[2]-self->currentOrigin[2]) > 384 )  )
 	{//(not in front or not clear LOS) & greater than 256 away
 		return false;
 	}
@@ -1319,7 +1319,7 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 				/*
 				if ( g_timescale->value&&client->ps.clientNum==0&&!player_locked&&!MatrixMode&&client->ps.forcePowersActive&Bit( forcePowers_t::FP_SPEED ) )
 				{
-					wait = floor( (float)wait*g_timescale->value );
+					wait = Q_floorf( (float)wait*g_timescale->value );
 				}
 				*/
 				client->ps.saberDamageDebounceTime = level.time + wait;
@@ -1529,8 +1529,8 @@ void BG_AddPushVecToUcmd( gentity_t *self, usercmd_t *ucmd )
 
 	fMove = 127.0 * DotProduct(forward, moveDir);
 	rMove = 127.0 * DotProduct(right, moveDir);
-	ucmd->forwardmove = floor(fMove);//If in the same dir , will be positive
-	ucmd->rightmove = floor(rMove);//If in the same dir , will be positive
+	ucmd->forwardmove = Q_floorf(fMove);//If in the same dir , will be positive
+	ucmd->rightmove = Q_floorf(rMove);//If in the same dir , will be positive
 
 	if ( self->client->pushVecTime < level.time )
 	{
@@ -1750,7 +1750,7 @@ extern void CG_ChangeWeapon( weapon_t num );
 			vec3_t dir;
 			AngleVectors( ent->owner->s.angles, nullptr, dir, nullptr );
 
-			if ( rand() & 1 )
+			if ( Q_irand( 0, 1 ) )
 			{
 				VectorScale( dir, -1, dir );
 			}
@@ -2075,8 +2075,8 @@ extern cvar_t	*g_skippingcin;
 			speed = VectorLength( ent->client->ps.velocity );
 			if ( speed && ent->client->ps.groundEntityNum == ENTITYNUM_NONE )
 			{
-				int diff = AngleNormalize180(SHORT2ANGLE(ucmd->angles[YAW]+ent->client->ps.delta_angles[YAW]) - floor(ent->client->ps.viewangles[YAW]));
-				int slide = floor(((float)(diff))/120.0f*-127.0f);
+				int diff = AngleNormalize180(SHORT2ANGLE(ucmd->angles[YAW]+ent->client->ps.delta_angles[YAW]) - Q_floorf(ent->client->ps.viewangles[YAW]));
+				int slide = Q_floorf(((float)(diff))/120.0f*-127.0f);
 
 				if ( (slide > 0 && ucmd->rightmove >= 0) || ((slide < 0 && ucmd->rightmove <= 0)) )
 				{//note: don't want these to conflict right now because that seems to feel really weird
@@ -2398,7 +2398,7 @@ extern cvar_t	*g_skippingcin;
 								{
 									float slowdownSpeed = ((float)ent->NPC->desiredSpeed) * ent->NPC->distToGoal / SLOWDOWN_DIST;
 
-									ent->NPC->desiredSpeed = ceil(slowdownSpeed);
+									ent->NPC->desiredSpeed = Q_ceilf(slowdownSpeed);
 									if ( ent->NPC->desiredSpeed < MIN_NPC_SPEED )
 									{//don't slow down too much
 										ent->NPC->desiredSpeed = MIN_NPC_SPEED;
@@ -2463,11 +2463,11 @@ extern cvar_t	*g_skippingcin;
 						// if the NPC is locked into a Yaw, we want to check the lockedDesiredYaw...otherwise the NPC can't walk backwards, because it always thinks it trying to turn according to desiredYaw
 						if( client->renderInfo.renderFlags & RF_LOCKEDANGLE ) // yeah I know the RF_ flag is a pretty ugly hack...
 						{
-							turndelta = (180 - fabs( AngleDelta( ent->currentAngles[YAW], ent->NPC->lockedDesiredYaw ) ))/180;
+							turndelta = (180 - Q_fabsf( AngleDelta( ent->currentAngles[YAW], ent->NPC->lockedDesiredYaw ) ))/180;
 						}
 						else
 						{
-							turndelta = (180 - fabs( AngleDelta( ent->currentAngles[YAW], ent->NPC->desiredYaw ) ))/180;
+							turndelta = (180 - Q_fabsf( AngleDelta( ent->currentAngles[YAW], ent->NPC->desiredYaw ) ))/180;
 						}
 
 						if ( turndelta < 0.75f )
@@ -2476,7 +2476,7 @@ extern cvar_t	*g_skippingcin;
 						}
 						else if ( ent->NPC->distToGoal < 100 && turndelta < 1.0 )
 						{//Turn is greater than 45 degrees or closer than 100 to goal
-							client->ps.speed = floor(((float)(client->ps.speed))*turndelta);
+							client->ps.speed = Q_floorf(((float)(client->ps.speed))*turndelta);
 						}
 					}
 				}

@@ -66,7 +66,7 @@ bool	G_SpawnFloat( const char *key, const char *defaultString, float *out ) {
 	bool	present;
 
 	present = G_SpawnString( key, defaultString, &s );
-	*out = atof( s );
+	*out = Q_atof( s );
 	return present;
 }
 
@@ -84,7 +84,7 @@ bool	G_SpawnVector( const char *key, const char *defaultString, float *out ) {
 	bool	present;
 
 	present = G_SpawnString( key, defaultString, &s );
-	sscanf( s, "%f %f %f", &out[0], &out[1], &out[2] );
+	Q_ScanFloats( s, out, 3 );
 	return present;
 }
 
@@ -93,7 +93,7 @@ bool	G_SpawnVector4( const char *key, const char *defaultString, float *out ) {
 	bool	present;
 
 	present = G_SpawnString( key, defaultString, &s );
-	sscanf( s, "%f %f %f %f", &out[0], &out[1], &out[2], &out[3] );
+	Q_ScanFloats( s, out, 4 );
 	return present;
 }
 
@@ -127,7 +127,7 @@ bool G_SpawnAngleHack( const char *key, const char *defaultString, float *out )
 	float		temp = 0;
 
 	present = G_SpawnString( key, defaultString, &s );
-	sscanf( s, "%f", &temp );
+	Q_ScanFloats( s, &temp, 1 );
 
 	out[0] = 0;
 	out[1] = temp;
@@ -804,7 +804,7 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent ) {
 				break;
 			case fieldtype_t::F_VECTOR:
 			{
-				int _iFieldsRead = sscanf (value, "%f %f %f", &vec[0], &vec[1], &vec[2]);
+				int _iFieldsRead = Q_ScanFloats( value, vec, 3 );
 				assert(_iFieldsRead==3);
 				if (_iFieldsRead!=3)
 				{
@@ -819,7 +819,7 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent ) {
 			}
 			case fieldtype_t::F_VECTOR4:
 			{
-				int _iFieldsRead =  sscanf (value, "%f %f %f %f", &vec4[0], &vec4[1], &vec4[2], &vec4[3]);
+				int _iFieldsRead =  Q_ScanFloats( value, vec4, 4 );
 				assert(_iFieldsRead==4);
 				if (_iFieldsRead!=4)
 				{
@@ -840,10 +840,10 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent ) {
 				*(bool *)(b+f->ofs) = atoi(value) != 0;
 				break;
 			case fieldtype_t::F_FLOAT:
-				*(float *)(b+f->ofs) = atof(value);
+				*(float *)(b+f->ofs) = Q_atof(value);
 				break;
 			case fieldtype_t::F_ANGLEHACK:
-				v = atof(value);
+				v = Q_atof(value);
 				((float *)(b+f->ofs))[0] = 0;
 				((float *)(b+f->ofs))[1] = v;
 				((float *)(b+f->ofs))[2] = 0;

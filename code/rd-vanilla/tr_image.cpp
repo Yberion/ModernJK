@@ -1120,7 +1120,7 @@ static void R_CreateDlightImage( void )
 			xs = (DLIGHT_SIZE * 0.5f - x);
 			ys = (DLIGHT_SIZE * 0.5f - y);
 
-            b = 255 - sqrt((double) xs * xs + ys * ys ) * 9.0f; // try and generate numbers in the range of 255-0
+            b = 255 - Q_sqrt((double) xs * xs + ys * ys ) * 9.0f; // try and generate numbers in the range of 255-0
 
 			// should be close, but clamp anyway
 			if ( b > 255 )
@@ -1191,7 +1191,7 @@ void R_InitFogTable( void ) {
 	exp = 0.5;
 
 	for ( i = 0 ; i < FOG_TABLE_SIZE ; i++ ) {
-		d = pow ( (float)i/(FOG_TABLE_SIZE-1), exp );
+		d = Q_powf ( (float)i/(FOG_TABLE_SIZE-1), exp );
 
 		tr.fogTable[i] = d;
 	}
@@ -1446,7 +1446,7 @@ void R_SetColorMappings( void ) {
 		if ( g == 1 ) {
 			inf = i;
 		} else {
-			inf = 255 * pow ( i/255.0f, 1.0f / g ) + 0.5f;
+			inf = 255 * Q_powf ( i/255.0f, 1.0f / g ) + 0.5f;
 		}
 		inf <<= shift;
 		if (inf < 0) {

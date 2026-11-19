@@ -168,7 +168,7 @@ static void G_RoffNotetrackCallback( gentity_t *ent, const char *notetrack)
 				i = 0;
 				goto defaultoffsetposition;
 			}
-			parsedOffset[posoffsetGathered] = atof(t);
+			parsedOffset[posoffsetGathered] = Q_atof(t);
 			posoffsetGathered++;
 		}
 
@@ -242,7 +242,7 @@ defaultoffsetposition:
 						break;
 					}
 
-					parsedAngles[anglesGathered] = atof(t);
+					parsedAngles[anglesGathered] = Q_atof(t);
 					anglesGathered++;
 				}
 

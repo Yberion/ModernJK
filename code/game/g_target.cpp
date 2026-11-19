@@ -870,7 +870,7 @@ void target_gravity_change_use(gentity_t *self, gentity_t *other, gentity_t *act
 	}
 	else if ( activator->client )
 	{
-		int	grav = floor(self->speed);
+		int	grav = Q_floorf(self->speed);
 		/*
 		if ( activator->client->ps.gravity != grav )
 		{

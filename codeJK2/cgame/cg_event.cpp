@@ -295,7 +295,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			if ( cent->gent && cent->gent->s.number == 0 && !cg.renderingThirdPerson )//!cg_thirdPerson.integer )
 			{//Everyone else has keyframed footsteps in animsounds.cfg
 				cgi_S_StartSound (nullptr, es->number, soundChannel_t::CHAN_BODY,
-					cgs.media.footsteps[ footstep_t::FOOTSTEP_NORMAL ][rand()&3] );
+					cgs.media.footsteps[ footstep_t::FOOTSTEP_NORMAL ][Q_irand( 0, 3 )] );
 			}
 		}
 		break;
@@ -305,7 +305,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		{
 			if ( cent->gent && cent->gent->s.number == 0 && !cg.renderingThirdPerson )//!cg_thirdPerson.integer )
 			{//Everyone else has keyframed footsteps in animsounds.cfg
-				cgi_S_StartSound (nullptr, es->number, soundChannel_t::CHAN_BODY, cgs.media.footsteps[ footstep_t::FOOTSTEP_METAL ][rand()&3] );
+				cgi_S_StartSound (nullptr, es->number, soundChannel_t::CHAN_BODY, cgs.media.footsteps[ footstep_t::FOOTSTEP_METAL ][Q_irand( 0, 3 )] );
 			}
 		}
 		break;
@@ -313,21 +313,21 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		DEBUGNAME("EV_FOOTSPLASH");
 		if (cg_footsteps.integer) {
 			cgi_S_StartSound (nullptr, es->number, soundChannel_t::CHAN_BODY,
-				cgs.media.footsteps[ footstep_t::FOOTSTEP_SPLASH ][rand()&3] );
+				cgs.media.footsteps[ footstep_t::FOOTSTEP_SPLASH ][Q_irand( 0, 3 )] );
 		}
 		break;
 	case entity_event_t::EV_FOOTWADE:
 		DEBUGNAME("EV_FOOTWADE");
 		if (cg_footsteps.integer) {
 			cgi_S_StartSound (nullptr, es->number, soundChannel_t::CHAN_BODY,
-				cgs.media.footsteps[ footstep_t::FOOTSTEP_WADE ][rand()&3] );
+				cgs.media.footsteps[ footstep_t::FOOTSTEP_WADE ][Q_irand( 0, 3 )] );
 		}
 		break;
 	case entity_event_t::EV_SWIM:
 		DEBUGNAME("EV_SWIM");
 		if (cg_footsteps.integer) {
 			cgi_S_StartSound (nullptr, es->number, soundChannel_t::CHAN_BODY,
-				cgs.media.footsteps[ footstep_t::FOOTSTEP_SWIM ][rand()&3] );
+				cgs.media.footsteps[ footstep_t::FOOTSTEP_SWIM ][Q_irand( 0, 3 )] );
 		}
 		break;
 

@@ -667,7 +667,6 @@ static void CG_GetLoadScreenInfo(int *weaponBits,int *forceBits)
 {
 	char	s[MAX_STRING_CHARS];
 	int		iDummy;
-	float	fDummy;
 	const char	*var;
 
 	gi.Cvar_VariableStringBuffer( sCVARNAME_PLAYERSAVE, s, sizeof(s) );
@@ -676,7 +675,7 @@ static void CG_GetLoadScreenInfo(int *weaponBits,int *forceBits)
 	if (s[0])
 	{
 	//				|general info				  |-force powers
-		sscanf( s, "%i %i %i %i %i %i %i %f %f %f %i %i",
+		sscanf( s, "%i %i %i %i %i %i %i %*f %*f %*f %i %i",	// the view angles skipped, not stored
 				&iDummy,	//	&client->ps.stats[statIndex_t::STAT_HEALTH],
 				&iDummy,	//	&client->ps.stats[statIndex_t::STAT_ARMOR],
 				&*weaponBits,//	&client->ps.stats[statIndex_t::STAT_WEAPONS],
@@ -684,9 +683,9 @@ static void CG_GetLoadScreenInfo(int *weaponBits,int *forceBits)
 				&iDummy,	//	&client->ps.weapon,
 				&iDummy,	//	&client->ps.weaponstate,
 				&iDummy,	//	&client->ps.batteryCharge,
-				&fDummy,	//	&client->ps.viewangles[0],
-				&fDummy,	//	&client->ps.viewangles[1],
-				&fDummy,	//	&client->ps.viewangles[2],
+							//	&client->ps.viewangles[0],
+							//	&client->ps.viewangles[1],
+							//	&client->ps.viewangles[2],
 							//force power data
 				&*forceBits,	//	&client->ps.forcePowersKnown,
 				&iDummy		//	&client->ps.forcePower,

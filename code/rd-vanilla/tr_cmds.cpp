@@ -319,7 +319,7 @@ void RE_LAGoggles( void )
 	fog->parms.color[2] = 0.07f;
 	fog->parms.depthForOpaque = 10000;
 	fog->colorInt = ColorBytes4(fog->parms.color[0], fog->parms.color[1], fog->parms.color[2], 1.0f);
-	fog->tcScale = 2.0f / ( fog->parms.depthForOpaque * (1.0f + cos( tr.refdef.floatTime) * 0.1f));
+	fog->tcScale = 2.0f / ( fog->parms.depthForOpaque * (1.0f + Q_cosf( tr.refdef.floatTime) * 0.1f));
 }
 
 void RE_RenderWorldEffects(void)

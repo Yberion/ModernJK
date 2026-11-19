@@ -385,7 +385,7 @@ void PM_ScaleUcmd( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 	{//driving a vehicle
 		//clamp the turn rate
 		int maxPitchSpeed = MAX_PITCHSPEED_X_WING;//switch, eventually?  Or read from file?
-		int diff = AngleNormalize180(SHORT2ANGLE((cmd->angles[PITCH]+ps->delta_angles[PITCH]))) - floor(ps->viewangles[PITCH]);
+		int diff = AngleNormalize180(SHORT2ANGLE((cmd->angles[PITCH]+ps->delta_angles[PITCH]))) - Q_floorf(ps->viewangles[PITCH]);
 
 		if ( diff > maxPitchSpeed )
 		{
@@ -398,7 +398,7 @@ void PM_ScaleUcmd( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 
 		//Um, WTF?  When I turn in a certain direction, I start going backwards?  Or strafing?
 		int maxYawSpeed = MAX_YAWSPEED_X_WING;//switch, eventually?  Or read from file?
-		diff = AngleNormalize180(SHORT2ANGLE(cmd->angles[YAW]+ps->delta_angles[YAW]) - floor(ps->viewangles[YAW]));
+		diff = AngleNormalize180(SHORT2ANGLE(cmd->angles[YAW]+ps->delta_angles[YAW]) - Q_floorf(ps->viewangles[YAW]));
 
 		//clamp the turn rate
 		if ( diff > maxYawSpeed )
@@ -1029,7 +1029,7 @@ bool PM_AdjustAngleForWallJump( gentity_t *ent, usercmd_t *ucmd, bool doMove )
 		gi.trace( &trace, ent->currentOrigin, mins, maxs, traceTo, ent->s.number, ent->clipmask, EG2_Collision::G2_NOCOLLIDE, 0 );
 		if ( //ucmd->upmove <= 0 &&
 			ent->client->ps.legsAnimTimer > 100 &&
-			trace.fraction < 1.0f && fabs(trace.plane.normal[2]) <= MAX_WALL_GRAB_SLOPE )
+			trace.fraction < 1.0f && Q_fabsf(trace.plane.normal[2]) <= MAX_WALL_GRAB_SLOPE )
 		{//still a vertical wall there
 			//FIXME: don't pull around 90 turns
 			/*
@@ -1177,7 +1177,7 @@ bool PM_AdjustAnglesForBFKick( gentity_t *self, usercmd_t *ucmd, vec3_t fwdAngs,
 		AngleNormalize180( fwdAngs[YAW] );
 		float angDiff = AngleSubtract( bestYaw, fwdAngs[YAW] );
 		AngleNormalize180( angDiff );
-		if ( fabs(angDiff) <= 3.0f )
+		if ( Q_fabsf(angDiff) <= 3.0f )
 		{
 			self->client->ps.viewangles[YAW] = bestYaw;
 		}
@@ -1741,7 +1741,7 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 							NPC_SetAnim( gent, setAnimParts_t::SETANIM_LEGS, *anim, setAnimFlags_t::SETANIM_FLAG_NORMAL );
 						}
 						ps->weaponTime = ps->torsoAnimTimer;
-						ps->leanStopDebounceTime = ceil((float)ps->torsoAnimTimer/50.0f);//20;
+						ps->leanStopDebounceTime = Q_ceilf((float)ps->torsoAnimTimer/50.0f);//20;
 					}
 				}
 			}
@@ -1803,7 +1803,7 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 				//end up leaning into solid architecture (sigh)
 				gi.trace( &trace, start, tmins, tmaxs, end, gent->s.number, MASK_PLAYERSOLID, EG2_Collision::G2_NOCOLLIDE, 0 );
 
-				ps->leanofs = floor((float)leanofs * trace.fraction);
+				ps->leanofs = Q_floorf((float)leanofs * trace.fraction);
 
 				ps->leanStopDebounceTime = 20;
 			}

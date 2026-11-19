@@ -444,7 +444,7 @@ void RT_Flying_ApplyFriction( float frictionScale )
 	{
 		NPC->client->ps.velocity[0] *= VELOCITY_DECAY;///frictionScale;
 
-		if ( fabs( NPC->client->ps.velocity[0] ) < 1 )
+		if ( Q_fabsf( NPC->client->ps.velocity[0] ) < 1 )
 		{
 			NPC->client->ps.velocity[0] = 0;
 		}
@@ -454,7 +454,7 @@ void RT_Flying_ApplyFriction( float frictionScale )
 	{
 		NPC->client->ps.velocity[1] *= VELOCITY_DECAY;///frictionScale;
 
-		if ( fabs( NPC->client->ps.velocity[1] ) < 1 )
+		if ( Q_fabsf( NPC->client->ps.velocity[1] ) < 1 )
 		{
 			NPC->client->ps.velocity[1] = 0;
 		}
@@ -511,9 +511,9 @@ void RT_Flying_MaintainHeight( void )
 			float	difFactor = 10.0f;
 
 			// cap to prevent dramatic height shifts
-			if ( fabs( dif ) > 2*difFactor )
+			if ( Q_fabsf( dif ) > 2*difFactor )
 			{
-				if ( fabs( dif ) > 20*difFactor )
+				if ( Q_fabsf( dif ) > 20*difFactor )
 				{
 					dif = ( dif < 0 ? -20*difFactor : 20*difFactor );
 				}
@@ -546,7 +546,7 @@ void RT_Flying_MaintainHeight( void )
 					{
 						NPC->client->ps.velocity[2] *= VELOCITY_DECAY;
 
-						if ( fabs( NPC->client->ps.velocity[2] ) < 2 )
+						if ( Q_fabsf( NPC->client->ps.velocity[2] ) < 2 )
 						{
 							NPC->client->ps.velocity[2] = 0;
 						}
@@ -565,7 +565,7 @@ void RT_Flying_MaintainHeight( void )
 					{
 						NPC->client->ps.velocity[2] *= VELOCITY_DECAY;
 
-						if ( fabs( NPC->client->ps.velocity[2] ) > -2 )
+						if ( Q_fabsf( NPC->client->ps.velocity[2] ) > -2 )
 						{
 							NPC->client->ps.velocity[2] = 0;
 						}
@@ -599,7 +599,7 @@ void RT_Flying_MaintainHeight( void )
 			dif = NPC->pos1[2] - NPC->currentOrigin[2];
 		}
 
-		if ( fabs( dif ) > 24 )
+		if ( Q_fabsf( dif ) > 24 )
 		{
 			ucmd.upmove = ( ucmd.upmove < 0 ? -4 : 4 );
 		}
@@ -609,7 +609,7 @@ void RT_Flying_MaintainHeight( void )
 			{
 				NPC->client->ps.velocity[2] *= VELOCITY_DECAY;
 
-				if ( fabs( NPC->client->ps.velocity[2] ) < 2 )
+				if ( Q_fabsf( NPC->client->ps.velocity[2] ) < 2 )
 				{
 					NPC->client->ps.velocity[2] = 0;
 				}
@@ -636,7 +636,7 @@ void RT_Flying_Strafe( void )
 
 		// Pick a random strafe direction, then check to see if doing a strafe would be
 		//	reasonably valid
-		side = ( rand() & 1 ) ? -1 : 1;
+		side = ( Q_irand( 0, 1 ) ) ? -1 : 1;
 		VectorMA( NPC->currentOrigin, RT_FLYING_STRAFE_DIS * side, right, end );
 
 		gi.trace( &tr, NPC->currentOrigin, nullptr, nullptr, end, NPC->s.number, MASK_SOLID, EG2_Collision::G2_NOCOLLIDE, 0 );
@@ -672,7 +672,7 @@ void RT_Flying_Strafe( void )
 		AngleVectors( NPC->enemy->client->renderInfo.eyeAngles, dir, right, nullptr );
 
 		// Pick a random side
-		side = ( rand() & 1 ) ? -1 : 1;
+		side = ( Q_irand( 0, 1 ) ) ? -1 : 1;
 		float	stDis = RT_FLYING_STRAFE_DIS*2.0f;
 		VectorMA( NPC->enemy->currentOrigin, stDis * side, right, end );
 

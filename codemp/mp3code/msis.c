@@ -80,17 +80,17 @@ ARRAY2 *alias_init_addr()
 ARRAY8_2 *msis_init_addr()
 {
 /*-------
-pi = 4.0*atan(1.0);
+pi = 4.0*Q_atan(1.0);
 t = pi/12.0;
 for(i=0;i<7;i++) {
-    s = sin(i*t);
-    c = cos(i*t);
+    s = Q_sin(i*t);
+    c = Q_cos(i*t);
     // ms_mode = 0
     lr[0][i][0] = (float)(s/(s+c));
     lr[0][i][1] = (float)(c/(s+c));
     // ms_mode = 1
-    lr[1][i][0] = (float)(sqrt(2.0)*(s/(s+c)));
-    lr[1][i][1] = (float)(sqrt(2.0)*(c/(s+c)));
+    lr[1][i][0] = (float)(Q_sqrt(2.0)*(s/(s+c)));
+    lr[1][i][1] = (float)(Q_sqrt(2.0)*(c/(s+c)));
 }
 //sf = 7
 //ms_mode = 0

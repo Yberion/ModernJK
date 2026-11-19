@@ -777,7 +777,7 @@ static bool CG_RunLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, animNumber_t new
 		//Do we need to speed up or slow down the anim?
 		/*if(fpsMod != 1.0)
 		{//Note!  despite it's name, a higher fpsMod slows down the anim, a lower one speeds it up
-			animFrameTime = ceil(lf->frameTime * fpsMod);
+			animFrameTime = Q_ceilf(lf->frameTime * fpsMod);
 		}
 		else*/
 		{
@@ -1400,7 +1400,7 @@ static void CGG2_AnimEvents( centity_t *cent )
 		if (cent->gent->rootBone>=0&&gi.G2API_GetBoneAnimIndex( &cent->gent->ghoul2[cent->gent->playerModel], cent->gent->rootBone, cg.time, &currentFrame, &junk, &junk, &junkFlags, &animSpeed, cgs.model_draw ))
 		{
 			// the above may have failed, not sure what to do about it, current frame will be zero in that case
-			curFrame = floor( currentFrame );
+			curFrame = Q_floorf( currentFrame );
 		}
 		if ( curFrame != cent->gent->client->renderInfo.legsFrame )
 		{
@@ -1411,7 +1411,7 @@ static void CGG2_AnimEvents( centity_t *cent )
 
 		if (cent->gent->lowerLumbarBone>=0&& gi.G2API_GetBoneAnimIndex(&cent->gent->ghoul2[cent->gent->playerModel], cent->gent->lowerLumbarBone, cg.time, &currentFrame, &junk, &junk, &junkFlags, &animSpeed, cgs.model_draw ) )
 		{
-			curFrame = floor( currentFrame );
+			curFrame = Q_floorf( currentFrame );
 		}
 		if ( curFrame != cent->gent->client->renderInfo.torsoFrame )
 		{
@@ -1451,7 +1451,7 @@ static void CG_UpdateAngleClamp( float destAngle, float clampMin, float clampMax
 
 	// modify the angleSpeed depending on the delta
 	// so it doesn't seem so linear
-	scale = fabs( swing );
+	scale = Q_fabsf( swing );
 	if (swing > 0)
 	{
 		if ( swing < clampMax * 0.25 )
@@ -1566,7 +1566,7 @@ static void CG_SwingAngles( float destAngle,
 
 	// modify the angleSpeed depending on the delta
 	// so it doesn't seem so linear
-	scale = fabs( swing );
+	scale = Q_fabsf( swing );
 
 	if (swing > 0)
 	{
@@ -1909,7 +1909,7 @@ static bool CG_PlayerLegsYawFromMovement( centity_t *cent, const vec3_t velocity
 	//lerp the legs angle to the new angle
 	angleDiff = AngleDelta( cent->pe.legs.yawAngle, (*yaw+addAngle) );
 	newAddAngle = angleDiff*cg.frameInterpolation*-1;
-	if ( fabs(newAddAngle) > fabs(angleDiff) )
+	if ( Q_fabsf(newAddAngle) > Q_fabsf(angleDiff) )
 	{
 		newAddAngle = angleDiff*-1;
 	}
@@ -1945,7 +1945,7 @@ static void CG_ATSTLegsYaw( centity_t *cent, vec3_t trailingLegsAngles )
 	float legAngleDiff = AngleNormalize180(ATSTLegsYaw) - AngleNormalize180(cent->pe.legs.yawAngle);
 	animNumber_t legsAnim = cent->currentState.legsAnim;
 	bool moving = !VectorCompare(cent->gent->client->ps.velocity, vec3_origin);
-	if ( moving || legsAnim == animNumber_t::BOTH_TURN_LEFT1 || legsAnim == animNumber_t::BOTH_TURN_RIGHT1 || fabs(legAngleDiff) > 45 )
+	if ( moving || legsAnim == animNumber_t::BOTH_TURN_LEFT1 || legsAnim == animNumber_t::BOTH_TURN_RIGHT1 || Q_fabsf(legAngleDiff) > 45 )
 	{//moving or turning or beyond the turn allowance
 		if ( legsAnim == animNumber_t::BOTH_STAND1 && !moving )
 		{//standing
@@ -3336,14 +3336,14 @@ static void CG_PlayerAngles( centity_t *cent, vec3_t legs[3], vec3_t torso[3], v
 
 			//Yaw change
 			swing = AngleSubtract( legsAngles[YAW], headAngles[YAW] );
-			scale = fabs( swing ) / ( torsoYawClampMax + 0.01 );	//NOTENOTE: Some ents have a clamp of 0, which is bad for division
+			scale = Q_fabsf( swing ) / ( torsoYawClampMax + 0.01 );	//NOTENOTE: Some ents have a clamp of 0, which is bad for division
 
 			scale *= LOOK_SWING_SCALE;
 			torsoAngles[YAW] = legsAngles[YAW] - ( swing * scale );
 
 			//Pitch change
 			swing = AngleSubtract( legsAngles[PITCH], headAngles[PITCH] );
-			scale = fabs( swing ) / ( torsoPitchClampMax + 0.01 );	//NOTENOTE: Some ents have a clamp of 0, which is bad for division
+			scale = Q_fabsf( swing ) / ( torsoPitchClampMax + 0.01 );	//NOTENOTE: Some ents have a clamp of 0, which is bad for division
 
 			scale *= LOOK_SWING_SCALE;
 			torsoAngles[PITCH] = legsAngles[PITCH] - ( swing * scale );
@@ -3414,25 +3414,25 @@ static void CG_PlayerPowerups( centity_t *cent )
 
 	// quad gives a dlight
 	if ( cent->currentState.powerups & ( 1 << powerup_t::PW_QUAD ) ) {
-		cgi_R_AddLightToScene( cent->lerpOrigin, 200 + (rand()&31), 0.2, 0.2, 1 );
+		cgi_R_AddLightToScene( cent->lerpOrigin, 200 + (Q_irand( 0, 31 )), 0.2, 0.2, 1 );
 	}
 
 	// redflag
 	if ( cent->currentState.powerups & ( 1 << PW_REDFLAG ) ) {
 		CG_TrailItem( cent, cgs.media.redFlagModel );
-		cgi_R_AddLightToScene( cent->lerpOrigin, 200 + (rand()&31), 1, 0.2, 0.2 );
+		cgi_R_AddLightToScene( cent->lerpOrigin, 200 + (Q_irand( 0, 31 )), 1, 0.2, 0.2 );
 	}
 
 	// blueflag
 	if ( cent->currentState.powerups & ( 1 << PW_BLUEFLAG ) ) {
 		CG_TrailItem( cent, cgs.media.blueFlagModel );
-		cgi_R_AddLightToScene( cent->lerpOrigin, 200 + (rand()&31), 0.2, 0.2, 1 );
+		cgi_R_AddLightToScene( cent->lerpOrigin, 200 + (Q_irand( 0, 31 )), 0.2, 0.2, 1 );
 	}
 */
 	// invul gives a dlight
 //	if ( cent->currentState.powerups & ( 1 << powerup_t::PW_BATTLESUIT ) )
 //	{
-//		cgi_R_AddLightToScene( cent->lerpOrigin, 200 + (rand()&31), 0.8f, 0.8f, 0.2f );
+//		cgi_R_AddLightToScene( cent->lerpOrigin, 200 + (Q_irand( 0, 31 )), 0.8f, 0.8f, 0.2f );
 //	}
 
 	// seeker coolness
@@ -4773,14 +4773,14 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, centity_t *cen
 
 			if ( dif < 500 )
 			{
-				brightness = floor((dif - 500.0f) / 500.0f * 255.0f );
+				brightness = Q_floorf((dif - 500.0f) / 500.0f * 255.0f );
 			}
 
 			ent->renderfx |= renderFxFlags_t::RF_RGB_TINT;
 			ent->shaderRGBA[0] = ent->shaderRGBA[1] = ent->shaderRGBA[2] = brightness;
 			ent->shaderRGBA[3] = 255;
 
-			if ( rand() & 1 )
+			if ( Q_irand( 0, 1 ) )
 			{
 				ent->customShader = cgs.media.electricBodyShader;
 			}
@@ -4933,7 +4933,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, centity_t *cen
 		ent->shaderRGBA[1] = ent->shaderRGBA[2] = 0;
 		ent->shaderRGBA[3] = 255;
 
-		if ( rand() & 1 )
+		if ( Q_irand( 0, 1 ) )
 		{
 			ent->customShader = cgs.media.electricBodyShader;
 		}
@@ -5033,7 +5033,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, centity_t *cen
 		ent->shaderRGBA[1] = ent->shaderRGBA[2] = 0;
 		ent->shaderRGBA[3] = 255;
 
-		if ( rand() & 1 )
+		if ( Q_irand( 0, 1 ) )
 		{
 			ent->customShader = cgs.media.electricBodyShader;
 		}
@@ -5562,7 +5562,7 @@ void CG_SaberDoWeaponHitMarks( gclient_t *client, gentity_t *saberEnt, gentity_t
 
 		if ( markShader )
 		{
-			lifeTime = ceil( (float)lifeTime * sizeTimeScale );
+			lifeTime = Q_ceilf( (float)lifeTime * sizeTimeScale );
 			size = Q_flrand( 2.0f, 3.0f ) * sizeTimeScale;
 			CG_AddGhoul2Mark( markShader, size, hitPos, hitDir, hitEnt->s.number,
 				hitEnt->client->ps.origin, hitEnt->client->renderInfo.legsYaw, hitEnt->ghoul2, hitEnt->s.modelScale,
@@ -5601,7 +5601,7 @@ void CG_SaberDoWeaponHitMarks( gclient_t *client, gentity_t *saberEnt, gentity_t
 			{
 				yawAngle = splatterOnCent->gent->client->renderInfo.legsYaw;
 			}
-			lifeTime = ceil( (float)lifeTime * sizeTimeScale );
+			lifeTime = Q_ceilf( (float)lifeTime * sizeTimeScale );
 			size = Q_flrand( 1.0f, 3.0f ) * sizeTimeScale;
 			if ( splatterOnCent->gent->ghoul2.size() > saberNum+1 )
 			{
@@ -7933,7 +7933,7 @@ extern bool PM_KickingAnim( animNumber_t anim );
 			{//not kicking (unless it's the spinning kick)
 				if ( cg_timescale.value < 1.0f && (cent->gent->client->ps.forcePowersActive&Bit( forcePowers_t::FP_SPEED )) )
 				{
-					int wait = floor( (float)FRAMETIME/2.0f );
+					int wait = Q_floorf( (float)FRAMETIME/2.0f );
 					//sanity check
 					if ( cent->gent->client->ps.saberDamageDebounceTime - cg.time > wait )
 					{//when you unpause the game with force speed on, the time gets *really* wiggy...
@@ -7946,7 +7946,7 @@ extern void WP_SaberUpdateOldBladeData( gentity_t *ent );
 						//FIXME: this causes an ASSLOAD of effects
 						WP_SabersDamageTrace( cent->gent, true );
 						WP_SaberUpdateOldBladeData( cent->gent );
-						cent->gent->client->ps.saberDamageDebounceTime = cg.time + floor((float)wait*cg_timescale.value);
+						cent->gent->client->ps.saberDamageDebounceTime = cg.time + Q_floorf((float)wait*cg_timescale.value);
 					}
 				}
 			}

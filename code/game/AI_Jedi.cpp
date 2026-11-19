@@ -715,7 +715,7 @@ void NPC_Jedi_RateNewEnemy( gentity_t *self, gentity_t *enemy )
 		break;
 	}
 	//Average these with current aggression
-	int newAggression = ceil( (healthAggression + weaponAggression + (float)self->NPC->stats.aggression )/3.0f);
+	int newAggression = Q_ceilf( (healthAggression + weaponAggression + (float)self->NPC->stats.aggression )/3.0f);
 	//Com_Printf( "(%d) new agg %d - new enemy\n", level.time, newAggression );
 	Jedi_Aggression( self, newAggression - self->NPC->stats.aggression );
 
@@ -892,7 +892,7 @@ bool NPC_MoveDirClear( int forwardmove, int rightmove, bool reset )
 		return true;
 	}
 	/*
-	if ( fabs( AngleDelta( NPC->currentAngles[YAW], NPCInfo->desiredYaw ) ) < 5.0 )//!ucmd.angles[YAW] )
+	if ( Q_fabsf( AngleDelta( NPC->currentAngles[YAW], NPCInfo->desiredYaw ) ) < 5.0 )//!ucmd.angles[YAW] )
 	{//Not turning much, don't do this
 		//NOTE: Should this not happen only if you're not turning AT ALL?
 		//	You could be turning slowly but moving fast, so that would
@@ -1334,7 +1334,7 @@ bool Kyle_CanDoGrab( void )
 						if ( (NPC->client->ps.weaponTime <= 200||NPC->client->ps.torsoAnim==animNumber_t::BOTH_KYLE_GRAB)
 							&& !NPC->client->ps.saberInFlight )
 						{
-							if ( fabs(NPC->enemy->currentOrigin[2]-NPC->currentOrigin[2])<=8.0f )
+							if ( Q_fabsf(NPC->enemy->currentOrigin[2]-NPC->currentOrigin[2])<=8.0f )
 							{//close to same level of ground
 								if ( DistanceSquared( NPC->enemy->currentOrigin, NPC->currentOrigin ) <= 10000.0f )
 								{
@@ -2748,13 +2748,13 @@ int Jedi_ReCalcParryTime( gentity_t *self, evasionType_t evasionType )
 					|| self->client->NPC_class == class_t::CLASS_SHADOWTROOPER
 					|| self->client->NPC_class == class_t::CLASS_TAVION )
 				{//Tavion & Alora are faster
-					baseTime = ceil(baseTime/2.0f);
+					baseTime = Q_ceilf(baseTime/2.0f);
 				}
 				else if ( self->NPC->rank >= rank_t::RANK_LT_JG )
 				{//fencers, bosses, shadowtroopers, luke, desann, et al use the norm
 					if ( !Q_irand( 0, 2 ) )
 					{//with the occasional fast parry
-						baseTime = ceil(baseTime/2.0f);
+						baseTime = Q_ceilf(baseTime/2.0f);
 					}
 				}
 				else if ( self->NPC->rank == rank_t::RANK_CIVILIAN )
@@ -3096,7 +3096,7 @@ evasionType_t Jedi_SaberBlockGo( gentity_t *self, usercmd_t *cmd, vec3_t pHitloc
 		{
 			if ( rightdot > 12
 				|| (rightdot > 3 && zdiff < 5)
-				|| (!incoming&&fabs(hitdir[2])<0.25f) )//was normalized, 0.3
+				|| (!incoming&&Q_fabsf(hitdir[2])<0.25f) )//was normalized, 0.3
 			{//coming from right
 				if ( doDodge )
 				{
@@ -3144,7 +3144,7 @@ evasionType_t Jedi_SaberBlockGo( gentity_t *self, usercmd_t *cmd, vec3_t pHitloc
 			}
 			else if ( rightdot < -12
 				|| (rightdot < -3 && zdiff < 5)
-				|| (!incoming&&fabs(hitdir[2])<0.25f) )//was normalized, -0.3
+				|| (!incoming&&Q_fabsf(hitdir[2])<0.25f) )//was normalized, -0.3
 			{//coming from left
 				if ( doDodge )
 				{
@@ -5762,7 +5762,7 @@ void RT_CheckJump( void )
 	}
 	vec3_t vec2Goal;
 	VectorSubtract( jumpPos, NPC->currentOrigin, vec2Goal );
-	if ( fabs( vec2Goal[2] ) < 32 )
+	if ( Q_fabsf( vec2Goal[2] ) < 32 )
 	{//not a big height diff, see how far it is
 		vec2Goal[2] = 0;
 		if ( VectorLengthSquared( vec2Goal ) < (256*256) )
@@ -7002,7 +7002,7 @@ static void Jedi_Attack( void )
 			}
 			else if ( NPC->enemy
 				&& ucmd.forwardmove > 0
-				&& fabs((float)ucmd.rightmove) < 32
+				&& Q_fabsf((float)ucmd.rightmove) < 32
 				&& !Any(ucmd.buttons&buttonFlags_t::BUTTON_WALKING)
 				&& !Any(ucmd.buttons&buttonFlags_t::BUTTON_ATTACK)
 				&& NPC->client->ps.saberMove == saberMoveName_t::LS_READY

@@ -3571,7 +3571,7 @@ void AAS_Reachability_JumpPad(void)
 		//
 		height = ent2origin[2] - origin[2];
 		gravity = aassettings.sv_gravity;
-		time = sqrt( height / ( 0.5 * gravity ) );
+		time = Q_sqrt( height / ( 0.5 * gravity ) );
 		if (!time)
 		{
 			botimport.Print(printType_t::PRT_MESSAGE, "trigger_push without time\n");

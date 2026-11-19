@@ -625,7 +625,7 @@ void CFxScheduler::PlayEffect( const char *file, int clientID )
 
 		if ( Any( prim->mSpawnFlags & fxSpawnFlags_t::FX_EVEN_DISTRIBUTION ) )
 		{
-			factor = abs(prim->mSpawnDelay.GetMax() - prim->mSpawnDelay.GetMin()) / (float)count;
+			factor = Q_fabsf(prim->mSpawnDelay.GetMax() - prim->mSpawnDelay.GetMin()) / (float)count;
 		}
 
 		// Schedule the random number of bits
@@ -903,7 +903,7 @@ void CFxScheduler::PlayEffect( int id, vec3_t origin, vec3_t axis[3], const int 
 
 		if ( Any( prim->mSpawnFlags & fxSpawnFlags_t::FX_EVEN_DISTRIBUTION ) )
 		{
-			factor = abs(prim->mSpawnDelay.GetMax() - prim->mSpawnDelay.GetMin()) / (float)count;
+			factor = Q_fabsf(prim->mSpawnDelay.GetMax() - prim->mSpawnDelay.GetMin()) / (float)count;
 		}
 
 		// Schedule the random number of bits
@@ -1231,7 +1231,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ve
 		height = fx->mHeight.GetVal();
 
 		// calculate point on ellipse
-		VectorSet( temp, sin(x) * width * sin(y), cos(x) * width * sin(y), cos(y) * height ); // sinx * siny, cosx * siny, cosy
+		VectorSet( temp, Q_sinf(x) * width * Q_sinf(y), Q_cosf(x) * width * Q_sinf(y), Q_cosf(y) * height ); // sinx * siny, cosx * siny, cosy
 		VectorAdd( org, temp, org );
 
 		if ( Any( fx->mSpawnFlags & fxSpawnFlags_t::FX_AXIS_FROM_SPHERE ) )

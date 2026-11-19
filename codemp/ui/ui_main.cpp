@@ -408,7 +408,7 @@ int UI_ParseAnimationFile(const char *filename, animSet_t *animset, bool isHuman
 			(*animset)[*animNum].frameLerp = Q_ceil(1000.0f / fps);
 		}
 
-//		(*animset)[*animNum].initialLerp = ceil(1000.0f / fabs(fps));
+//		(*animset)[*animNum].initialLerp = Q_ceilf(1000.0f / Q_fabsf(fps));
 	}
 
 #ifdef _DEBUG

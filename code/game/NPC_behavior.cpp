@@ -834,7 +834,7 @@ void NPC_BSFollowLeader (void)
 
 
 constexpr float APEX_HEIGHT = 200.0f;
-#define	PARA_WIDTH		(sqrt(APEX_HEIGHT)+sqrt(APEX_HEIGHT))
+#define	PARA_WIDTH		(Q_sqrtf(APEX_HEIGHT)+Q_sqrtf(APEX_HEIGHT))
 void NPC_BSJump (void)
 {
 	vec3_t		dir, angles, p1, p2, apex;
@@ -916,7 +916,7 @@ void NPC_BSJump (void)
 		//FIXME: length of xy will change curve of parabola, need to account for this
 		//somewhere... PARA_WIDTH
 
-		z = (sqrt(apexHeight + z) - sqrt(apexHeight));
+		z = (Q_sqrtf(apexHeight + z) - Q_sqrtf(apexHeight));
 
 		assert(z >= 0);
 
@@ -938,7 +938,7 @@ void NPC_BSJump (void)
 
 		//Now we have the apex, aim for it
 		height = apex[2] - NPC->currentOrigin[2];
-		time = sqrt( height / ( .5 * NPC->client->ps.gravity ) );
+		time = Q_sqrt( height / ( .5 * NPC->client->ps.gravity ) );
 		if ( !time )
 		{
 //			gi.Printf("ERROR no time in jump\n");
@@ -1239,9 +1239,9 @@ void NPC_BSNoClip ( void )
 		rDot = DotProduct(right, dir) * 127;
 		uDot = DotProduct(up, dir) * 127;
 
-		ucmd.forwardmove = floor(fDot);
-		ucmd.rightmove = floor(rDot);
-		ucmd.upmove = floor(uDot);
+		ucmd.forwardmove = Q_floorf(fDot);
+		ucmd.rightmove = Q_floorf(rDot);
+		ucmd.upmove = Q_floorf(uDot);
 	}
 	else
 	{

@@ -392,7 +392,7 @@ static float PM_CmdScale( usercmd_t *cmd )
 	if ( !max ) {
 		return 0;
 	}
-	total = sqrt((double)(	( cmd->forwardmove * cmd->forwardmove )
+	total = Q_sqrt((double)(	( cmd->forwardmove * cmd->forwardmove )
 							+ ( cmd->rightmove * cmd->rightmove )
 							+ ( cmd->upmove * cmd->upmove ) ));
 
@@ -704,7 +704,7 @@ static bool PM_CheckJump( void )
 								AngleVectors( facingAngles, facingFwd, facingRight, nullptr );
 								float dotR = DotProduct( facingRight, pm->ps->velocity );
 								float dotF = DotProduct( facingFwd, pm->ps->velocity );
-								if ( fabs(dotR) > fabs(dotF) * 1.5 )
+								if ( Q_fabsf(dotR) > Q_fabsf(dotF) * 1.5 )
 								{
 									if ( dotR > 150 )
 									{
@@ -2245,7 +2245,7 @@ static float PM_CrashLandDelta( vec3_t org, vec3_t prevOrg, vec3_t prev_vel, flo
 	{
 		return 0;
 	}
-	t = (-b - sqrt( den ) ) / ( 2 * a );
+	t = (-b - Q_sqrtf( den ) ) / ( 2 * a );
 
 	delta = vel + t * acc;
 	delta = delta*delta * 0.0001;
@@ -2277,7 +2277,7 @@ static float PM_CrashLandDelta( vec3_t prev_vel, int waterlevel )
 	{
 		return 0;
 	}
-	delta = fabs(prev_vel[2])/10;//VectorLength( prev_vel )
+	delta = Q_fabsf(prev_vel[2])/10;//VectorLength( prev_vel )
 
 	// reduce falling damage if there is standing water
 	if ( pm->waterlevel == 2 )
@@ -2888,7 +2888,7 @@ static void PM_GroundTraceMissed( void ) {
 							if ( !Any(pm->ps->eFlags&entityFlags_t::EF_FORCE_GRIPPED)
 								&& !Any(pm->ps->pm_flags&pmoveFlags_t::PMF_TRIGGER_PUSHED) )
 							{
-								if ( !pm->ps->forceJumpZStart || pm->ps->forceJumpZStart > pm->ps->origin[2] )// && fabs(pm->ps->velocity[0])<10 && fabs(pm->ps->velocity[1])<10 && pm->ps->velocity[2]<0)//either not force-jumping or force-jumped and now fell below original jump start height
+								if ( !pm->ps->forceJumpZStart || pm->ps->forceJumpZStart > pm->ps->origin[2] )// && Q_fabsf(pm->ps->velocity[0])<10 && Q_fabsf(pm->ps->velocity[1])<10 && pm->ps->velocity[2]<0)//either not force-jumping or force-jumped and now fell below original jump start height
 								{
 									/*if ( pm->ps->legsAnim = animNumber_t::BOTH_FALLDEATH1
 									&& pm->ps->legsAnim != animNumber_t::BOTH_DEATH1
@@ -3388,7 +3388,7 @@ void PM_SetWaterHeight( void )
 		{
 			pm->ps->waterHeightLevel = waterHeightLevel_t::WHL_KNEES;
 		}
-		else if ( distFromOrg > fabs(pm->mins[2]) )
+		else if ( distFromOrg > Q_fabsf(pm->mins[2]) )
 		{
 			pm->ps->waterHeightLevel = waterHeightLevel_t::WHL_NONE;
 		}
@@ -4937,7 +4937,7 @@ static void PM_Footsteps( void )
 	// calculate speed and cycle to be used for
 	// all cyclic walking effects
 	//
-	pm->xyspeed = sqrt( pm->ps->velocity[0] * pm->ps->velocity[0]
+	pm->xyspeed = Q_sqrtf( pm->ps->velocity[0] * pm->ps->velocity[0]
 		+  pm->ps->velocity[1] * pm->ps->velocity[1] );
 
 	if ( pm->ps->legsAnim == animNumber_t::BOTH_FLIP_F ||
@@ -4974,8 +4974,8 @@ static void PM_Footsteps( void )
 					{
 						PM_SetAnim( pm, setAnimParts_t::SETANIM_TORSO, anim, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD );
 					}
-					if (fabs(pm->ps->velocity[2]) >5) {
-						bobmove = 0.005 * fabs(pm->ps->velocity[2]);	// climbing bobs slow
+					if (Q_fabsf(pm->ps->velocity[2]) >5) {
+						bobmove = 0.005 * Q_fabsf(pm->ps->velocity[2]);	// climbing bobs slow
 						if (bobmove > 0.3)
 							bobmove = 0.3F;
 						goto DoFootSteps;
@@ -6514,7 +6514,7 @@ bool PM_SaberLocked( void )
 		{//lock just ended
 			int strength = G_SaberLockStrength( gent );
 			int eStrength = G_SaberLockStrength( genemy );
-			if ( strength > 1 && eStrength > 1 && !Q_irand( 0, fabs((double)strength-eStrength)+1 ) )
+			if ( strength > 1 && eStrength > 1 && !Q_irand( 0, Q_fabs((double)strength-eStrength)+1 ) )
 			{//both knock each other down!
 				PM_SaberLockBreak( gent, genemy, saberLockResult_t::LOCK_DRAW, 0 );
 			}
@@ -6560,7 +6560,7 @@ bool PM_SaberLocked( void )
 					if ( pm->ps->torsoAnim == animNumber_t::BOTH_CCWCIRCLELOCK ||
 						pm->ps->torsoAnim == animNumber_t::BOTH_BF2LOCK )
 					{
-						curFrame = floor( currentFrame )-strength;
+						curFrame = Q_floorf( currentFrame )-strength;
 						//drop my frame one
 						if ( curFrame <= anim->firstFrame )
 						{//I won!  Break out
@@ -6579,7 +6579,7 @@ bool PM_SaberLocked( void )
 					}
 					else
 					{
-						curFrame = ceil( currentFrame )+strength;
+						curFrame = Q_ceilf( currentFrame )+strength;
 						//advance my frame one
 						if ( curFrame >= anim->firstFrame+anim->numFrames )
 						{//I won!  Break out
@@ -6659,7 +6659,7 @@ bool PM_SaberLocked( void )
 							switch ( Q_irand( 0, 3 ) )
 							{
 							case 0:
-								G_AddEvent( genemy, entity_event_t::EV_PAIN, floor((float)genemy->health/genemy->max_health*100.0f) );
+								G_AddEvent( genemy, entity_event_t::EV_PAIN, Q_floorf((float)genemy->health/genemy->max_health*100.0f) );
 								break;
 							case 1:
 								G_AddVoiceEvent( genemy, Q_irand( entity_event_t::EV_PUSHED1, entity_event_t::EV_PUSHED3 ), 500 );
@@ -6674,7 +6674,7 @@ bool PM_SaberLocked( void )
 						}
 						PM_SetAnimFrame( genemy, anim->firstFrame+remaining, true, true );
 						/*
-						curFrame = floor( currentFrame );
+						curFrame = Q_floorf( currentFrame );
 
 						//drop his frame one
 						if ( curFrame <= anim->firstFrame )
@@ -6696,7 +6696,7 @@ bool PM_SaberLocked( void )
 					{
 						PM_SetAnimFrame( genemy, anim->firstFrame+anim->numFrames-remaining, true, true );
 						/*
-						curFrame = ceil( currentFrame );
+						curFrame = Q_ceilf( currentFrame );
 						//advance his frame one
 						if ( curFrame >= anim->firstFrame+anim->numFrames )
 						{//He lost!  Break out
@@ -7844,7 +7844,7 @@ static int PM_DoChargingAmmoUsage( int *amount )
 			if ( dif < 0 )
 			{
 				// we are not ok, so hack our chargetime and ammo usage, note that DIF is going to be negative
-				count += floor(dif / (float)*amount);
+				count += Q_floorf(dif / (float)*amount);
 
 				if ( count < 1 )
 				{
@@ -7882,7 +7882,7 @@ static int PM_DoChargingAmmoUsage( int *amount )
 			if ( dif < 0 )
 			{
 				// we are not ok, so hack our chargetime and ammo usage, note that DIF is going to be negative
-				count += floor(dif / (float)*amount);
+				count += Q_floorf(dif / (float)*amount);
 
 				if ( count < 1 )
 				{
@@ -7920,7 +7920,7 @@ static int PM_DoChargingAmmoUsage( int *amount )
 			if ( dif < 0 )
 			{
 				// we are not ok, so hack our chargetime and ammo usage, note that DIF is going to be negative
-				count += floor(dif / (float)*amount);
+				count += Q_floorf(dif / (float)*amount);
 
 				if ( count < 1 )
 				{
@@ -7964,7 +7964,7 @@ static int PM_DoChargingAmmoUsage( int *amount )
 			if ( dif < 0 )
 			{
 				// we are not ok, so hack our chargetime and ammo usage, note that DIF is going to be negative
-				count += floor(dif / (float)*amount);
+				count += Q_floorf(dif / (float)*amount);
 
 				if ( count < 1 )
 				{
@@ -8189,7 +8189,7 @@ static void PM_Weapon( void )
 			{
 				if ( PM_DroidMelee( pm->gent->client->NPC_class ) )
 				{
-					if ( rand() & 1 )
+					if ( Q_irand( 0, 1 ) )
 						PM_SetAnim(pm,setAnimParts_t::SETANIM_BOTH,animNumber_t::BOTH_MELEE1,setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD);
 					else
 						PM_SetAnim(pm,setAnimParts_t::SETANIM_BOTH,animNumber_t::BOTH_MELEE2,setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD);

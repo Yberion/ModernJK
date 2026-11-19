@@ -303,7 +303,7 @@ bool PM_CheckGrabWall( trace_t *trace )
 		{//not enough of a direct impact, just slide off
 			return false;
 		}
-		if ( fabs(trace->plane.normal[2]) > MAX_WALL_GRAB_SLOPE )
+		if ( Q_fabsf(trace->plane.normal[2]) > MAX_WALL_GRAB_SLOPE )
 		{
 			return false;
 		}
@@ -390,7 +390,7 @@ bool PM_CheckGrabWall( trace_t *trace )
 		VectorSet( facingAngles, 0, pm->ps->viewangles[YAW], 0 );
 		AngleVectors( facingAngles, fwdDir, rtDir, nullptr );
 		float fDot = DotProduct( fwdDir, wallDir );
-		if ( fabs( fDot ) >= 0.5f )
+		if ( Q_fabsf( fDot ) >= 0.5f )
 		{//hit a wall in front/behind
 			if ( fDot > 0.0f )
 			{//in front
@@ -773,7 +773,7 @@ static float PM_CmdScale( usercmd_t *cmd )
 	if ( !max ) {
 		return 0;
 	}
-	total = sqrt(	(float)(( cmd->forwardmove * cmd->forwardmove )
+	total = Q_sqrtf(	(float)(( cmd->forwardmove * cmd->forwardmove )
 				  + ( cmd->rightmove * cmd->rightmove )
 				  + ( cmd->upmove * cmd->upmove )) );
 
@@ -1328,7 +1328,7 @@ static bool PM_CheckJump( void )
 								AngleVectors( facingAngles, facingFwd, facingRight, nullptr );
 								float dotR = DotProduct( facingRight, pm->ps->velocity );
 								float dotF = DotProduct( facingFwd, pm->ps->velocity );
-								if ( fabs(dotR) > fabs(dotF) * 1.5 )
+								if ( Q_fabsf(dotR) > Q_fabsf(dotF) * 1.5 )
 								{
 									if ( dotR > 150 )
 									{
@@ -2345,7 +2345,7 @@ static bool PM_CheckJump( void )
 						VectorNormalize( idealNormal );
 						gentity_t *traceEnt = &g_entities[trace.entityNum];
 						if ( trace.fraction < 1.0f
-							&& fabs(trace.plane.normal[2]) <= MAX_WALL_GRAB_SLOPE
+							&& Q_fabsf(trace.plane.normal[2]) <= MAX_WALL_GRAB_SLOPE
 							&&((trace.entityNum<ENTITYNUM_WORLD&&traceEnt&&traceEnt->s.solid!=SOLID_BMODEL)||DotProduct(trace.plane.normal,idealNormal)>0.7) )
 						{//there is a wall there
 							float dot = DotProduct( pm->ps->velocity, trace.plane.normal );
@@ -3173,7 +3173,7 @@ static void PM_WalkMove( void ) {
 		{//going backwards
 			if ( speed < 0 )
 			{//speed is negative, but since our command is reverse, make speed positive
-				speed = fabs( speed );
+				speed = Q_fabsf( speed );
 			}
 			else if ( speed > 0 )
 			{//trying to move back but speed is still positive, so keep moving forward (we'll slow down eventually)
@@ -3548,7 +3548,7 @@ static float PM_CrashLandDelta( vec3_t org, vec3_t prevOrg, vec3_t prev_vel, flo
 	{
 		return 0;
 	}
-	t = (-b - sqrt( den ) ) / ( 2 * a );
+	t = (-b - Q_sqrtf( den ) ) / ( 2 * a );
 
 	delta = vel + t * acc;
 	delta = delta*delta * 0.0001;
@@ -3580,7 +3580,7 @@ static float PM_CrashLandDelta( vec3_t prev_vel, int waterlevel )
 	{
 		return 0;
 	}
-	delta = fabs(prev_vel[2])/10;//VectorLength( prev_vel )
+	delta = Q_fabsf(prev_vel[2])/10;//VectorLength( prev_vel )
 
 	// reduce falling damage if there is standing water
 	if ( pm->waterlevel == 2 )
@@ -3961,7 +3961,7 @@ static void PM_CrashLandEffect( void )
 	{
 		return;
 	}
-	float delta = fabs(pml.previous_velocity[2])/10;//VectorLength( pml.previous_velocity );?
+	float delta = Q_fabsf(pml.previous_velocity[2])/10;//VectorLength( pml.previous_velocity );?
 	if ( delta >= 30 )
 	{
 		vec3_t bottom = {pm->ps->origin[0],pm->ps->origin[1],pm->ps->origin[2]+pm->mins[2]+1};
@@ -3996,7 +3996,7 @@ static void PM_CrashLand( void )
 						G_PlayEffect( pm->gent->m_pVehicle->m_pVehicleInfo->iImpactFX, pm->ps->origin, pml.groundTrace.plane.normal );
 					}
 				}
-				int damage = floor(fabs(dot+100)/10.0f);
+				int damage = Q_floorf(Q_fabsf(dot+100)/10.0f);
 				if ( damage >= 0 )
 				{
 					G_Damage( pm->gent, nullptr, nullptr, nullptr, nullptr, damage, damageFlags_t::DAMAGE_NORMAL, meansOfDeath_t::MOD_FALLING );
@@ -4602,14 +4602,14 @@ static void PM_SetVehicleAngles( vec3_t normal )
 			tempVAngles[ROLL] = 0;
 			AngleVectors( tempVAngles, nullptr, rt, nullptr );
 			dotp = DotProduct( velocity, rt );
-			//if (fabsf(dotp)>0.5f)
+			//if (Q_fabsf(dotp)>0.5f)
 			{
 				speed *= dotp;
 
 
 				// Magic number fun!  Speed is used for banking, so modulate the speed by a sine wave
 				//FIXME: this banks too early
-				//speed *= sin( (150 + pml.frametime) * 0.003 );
+				//speed *= Q_sin( (150 + pml.frametime) * 0.003 );
 				if (level.time < pVeh->m_iTurboTime)
 				{
 					speed /= pVeh->m_pVehicleInfo->turboSpeed;
@@ -4645,7 +4645,7 @@ static void PM_SetVehicleAngles( vec3_t normal )
 
 		 		//gi.Printf("VAngles(%f)", vAngles[2]);
 			}
-			if (fabsf(vAngles[ROLL])<0.001f)
+			if (Q_fabsf(vAngles[ROLL])<0.001f)
 			{
 				vAngles[ROLL] = 0.0f;
 			}
@@ -4690,11 +4690,11 @@ static void PM_SetVehicleAngles( vec3_t normal )
 		/*
 		else if ( i == PITCH )
 		{
-			curVehicleBankingSpeed = vehicleBankingSpeed*fabs(AngleNormalize180(AngleSubtract( vAngles[PITCH], pVeh->m_vOrientation[PITCH] )))/(g_vehicleInfo[pm->ps->vehicleIndex].pitchLimit/2.0f);
+			curVehicleBankingSpeed = vehicleBankingSpeed*Q_fabsf(AngleNormalize180(AngleSubtract( vAngles[PITCH], pVeh->m_vOrientation[PITCH] )))/(g_vehicleInfo[pm->ps->vehicleIndex].pitchLimit/2.0f);
 		}
 		else if ( i == ROLL )
 		{
-			curVehicleBankingSpeed = vehicleBankingSpeed*fabs(AngleNormalize180(AngleSubtract( vAngles[ROLL], pVeh->m_vOrientation[ROLL] )))/(g_vehicleInfo[pm->ps->vehicleIndex].rollLimit/2.0f);
+			curVehicleBankingSpeed = vehicleBankingSpeed*Q_fabsf(AngleNormalize180(AngleSubtract( vAngles[ROLL], pVeh->m_vOrientation[ROLL] )))/(g_vehicleInfo[pm->ps->vehicleIndex].rollLimit/2.0f);
 		}
 
 		if ( curVehicleBankingSpeed )
@@ -4733,7 +4733,7 @@ void BG_ExternThisSoICanRecompileInDebug( Vehicle_t *pVeh, playerState_t *riderP
 
 	pitchDelta = AngleSubtract(riderPS->viewangles[PITCH],pVeh->m_vPrevRiderViewAngles[PITCH]);
 	pitchDelta *= (2.0f*pVeh->m_fTimeModifier);
-	pitchSubtract = pitchDelta * (fabs(pVeh->m_vOrientation[ROLL])/90.0f);
+	pitchSubtract = pitchDelta * (Q_fabsf(pVeh->m_vOrientation[ROLL])/90.0f);
 	pVeh->m_vOrientation[PITCH] += pitchDelta-pitchSubtract;
 	if ( pVeh->m_vOrientation[ROLL] > 0 )
 	{
@@ -4822,7 +4822,7 @@ static void PM_GroundTraceMissed( void ) {
 										&& !Any(pm->ps->eFlags&entityFlags_t::EF_FORCE_DRAINED)
 										&& !Any(pm->ps->pm_flags&pmoveFlags_t::PMF_TRIGGER_PUSHED) )
 									{
-										if ( !pm->ps->forceJumpZStart || pm->ps->forceJumpZStart > pm->ps->origin[2] )// && fabs(pm->ps->velocity[0])<10 && fabs(pm->ps->velocity[1])<10 && pm->ps->velocity[2]<0)//either not force-jumping or force-jumped and now fell below original jump start height
+										if ( !pm->ps->forceJumpZStart || pm->ps->forceJumpZStart > pm->ps->origin[2] )// && Q_fabsf(pm->ps->velocity[0])<10 && Q_fabsf(pm->ps->velocity[1])<10 && pm->ps->velocity[2]<0)//either not force-jumping or force-jumped and now fell below original jump start height
 										{
 											/*if ( pm->ps->legsAnim = animNumber_t::BOTH_FALLDEATH1
 											&& pm->ps->legsAnim != animNumber_t::BOTH_DEATH1
@@ -5369,7 +5369,7 @@ void PM_HoverTrace( void )
 		}
 		if ( pm->ps->waterheight < pm->ps->origin[2]+pm->maxs[2] )
 		{//part of us is sticking out of water
-			if ( fabs(pm->ps->velocity[0]) + fabs(pm->ps->velocity[1]) > 100 )
+			if ( Q_fabsf(pm->ps->velocity[0]) + Q_fabsf(pm->ps->velocity[1]) > 100 )
 			{//moving at a decent speed
 				if ( Q_irand( pml.frametime, 100 ) >= 50 )
 				{//splash
@@ -5421,7 +5421,7 @@ void PM_HoverTrace( void )
 
 				if ( Any( trace->contents&(contentsFlags_t::CONTENTS_WATER|contentsFlags_t::CONTENTS_SLIME|contentsFlags_t::CONTENTS_LAVA) ) )
 				{//hovering on water, make a spash if moving
-					if ( fabs(pm->ps->velocity[0]) + fabs(pm->ps->velocity[1]) > 100 )
+					if ( Q_fabsf(pm->ps->velocity[0]) + Q_fabsf(pm->ps->velocity[1]) > 100 )
 					{//moving at a decent speed
 						if ( Q_irand( pml.frametime, 100 ) >= 50 )
 						{//splash
@@ -5638,7 +5638,7 @@ void PM_SetWaterHeight( void )
 		{
 			pm->ps->waterHeightLevel = waterHeightLevel_t::WHL_KNEES;
 		}
-		else if ( distFromOrg > fabs(pm->mins[2]) )
+		else if ( distFromOrg > Q_fabsf(pm->mins[2]) )
 		{
 			pm->ps->waterHeightLevel = waterHeightLevel_t::WHL_NONE;
 		}
@@ -7893,7 +7893,7 @@ void PM_JetPackAnim( void )
 		AngleVectors( facingAngles, facingFwd, facingRight, nullptr );
 		float dotR = DotProduct( facingRight, pm->ps->velocity );
 		float dotF = DotProduct( facingFwd, pm->ps->velocity );
-		if ( fabs(dotR) > fabs(dotF) * 1.5 )
+		if ( Q_fabsf(dotR) > Q_fabsf(dotF) * 1.5 )
 		{
 			if ( dotR > 150 )
 			{
@@ -8059,7 +8059,7 @@ static void PM_Footsteps( void )
 	// calculate speed and cycle to be used for
 	// all cyclic walking effects
 	//
-	pm->xyspeed = sqrt( pm->ps->velocity[0] * pm->ps->velocity[0]
+	pm->xyspeed = Q_sqrtf( pm->ps->velocity[0] * pm->ps->velocity[0]
 		+  pm->ps->velocity[1] * pm->ps->velocity[1] );
 
 	if ( pm->ps->legsAnim == animNumber_t::BOTH_FLIP_F ||
@@ -8099,8 +8099,8 @@ static void PM_Footsteps( void )
 					{
 						PM_SetAnim( pm, setAnimParts_t::SETANIM_TORSO, anim, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD );
 					}
-					if (fabs(pm->ps->velocity[2]) >5) {
-						bobmove = 0.005 * fabs(pm->ps->velocity[2]);	// climbing bobs slow
+					if (Q_fabsf(pm->ps->velocity[2]) >5) {
+						bobmove = 0.005 * Q_fabsf(pm->ps->velocity[2]);	// climbing bobs slow
 						if (bobmove > 0.3)
 							bobmove = 0.3F;
 						goto DoFootSteps;
@@ -10654,7 +10654,7 @@ bool PM_SaberLocked( void )
 						if ( pm->ps->torsoAnim == animNumber_t::BOTH_CCWCIRCLELOCK ||
 							pm->ps->torsoAnim == animNumber_t::BOTH_BF2LOCK )
 						{
-							curFrame = floor( currentFrame )-strength;
+							curFrame = Q_floorf( currentFrame )-strength;
 							//drop my frame one
 							if ( curFrame <= anim->firstFrame )
 							{//I won!  Break out
@@ -10673,7 +10673,7 @@ bool PM_SaberLocked( void )
 						}
 						else
 						{
-							curFrame = ceil( currentFrame )+strength;
+							curFrame = Q_ceilf( currentFrame )+strength;
 							//advance my frame one
 							if ( curFrame >= anim->firstFrame+anim->numFrames )
 							{//I won!  Break out
@@ -10695,7 +10695,7 @@ bool PM_SaberLocked( void )
 					{//new locks
 						if ( G_CheckIncrementLockAnim( pm->ps->torsoAnim, saberLockType_t::SABERLOCK_WIN ) )
 						{
-							curFrame = ceil( currentFrame )+strength;
+							curFrame = Q_ceilf( currentFrame )+strength;
 							//advance my frame one
 							if ( curFrame >= anim->firstFrame+anim->numFrames )
 							{//I won!  Break out
@@ -10714,7 +10714,7 @@ bool PM_SaberLocked( void )
 						}
 						else
 						{
-							curFrame = floor( currentFrame )-strength;
+							curFrame = Q_floorf( currentFrame )-strength;
 							//drop my frame one
 							if ( curFrame <= anim->firstFrame )
 							{//I won!  Break out
@@ -10793,7 +10793,7 @@ bool PM_SaberLocked( void )
 						switch ( Q_irand( 0, 3 ) )
 						{
 						case 0:
-							G_AddEvent( genemy, entity_event_t::EV_PAIN, floor((float)genemy->health/genemy->max_health*100.0f) );
+							G_AddEvent( genemy, entity_event_t::EV_PAIN, Q_floorf((float)genemy->health/genemy->max_health*100.0f) );
 							break;
 						case 1:
 							G_AddVoiceEvent( genemy, Q_irand( entity_event_t::EV_PUSHED1, entity_event_t::EV_PUSHED3 ), 500 );
@@ -10870,7 +10870,7 @@ bool G_EnemyInKickRange( gentity_t *self, gentity_t *enemy )
 	{
 		return false;
 	}
-	if ( fabs(self->currentOrigin[2]-enemy->currentOrigin[2]) < 32 )
+	if ( Q_fabsf(self->currentOrigin[2]-enemy->currentOrigin[2]) < 32 )
 	{//generally at same height
 		if ( DistanceHorizontal( self->currentOrigin, enemy->currentOrigin ) <= (STAFF_KICK_RANGE+8.0f+(self->maxs[0]*1.5f)+(enemy->maxs[0]*1.5f)) )
 		{//within kicking range!
@@ -10944,7 +10944,7 @@ saberMoveName_t G_PickAutoKick( gentity_t *self, gentity_t *enemy, bool storeMov
 	AngleVectors( fwdAngs, v_fwd, v_rt, nullptr );
 	float fDot = DotProduct( enemyDir, v_fwd );
 	float rDot = DotProduct( enemyDir, v_rt );
-	if ( fabs( rDot ) > 0.5f && fabs( fDot ) < 0.5f )
+	if ( Q_fabsf( rDot ) > 0.5f && Q_fabsf( fDot ) < 0.5f )
 	{//generally to one side
 		if ( rDot > 0 )
 		{//kick right
@@ -10955,7 +10955,7 @@ saberMoveName_t G_PickAutoKick( gentity_t *self, gentity_t *enemy, bool storeMov
 			kickMove = saberMoveName_t::LS_KICK_L;
 		}
 	}
-	else if ( fabs( fDot ) > 0.5f && fabs( rDot ) < 0.5f )
+	else if ( Q_fabsf( fDot ) > 0.5f && Q_fabsf( rDot ) < 0.5f )
 	{//generally in front or behind us
 		if ( fDot > 0 )
 		{//kick fwd
@@ -11978,7 +11978,7 @@ bool PM_NPCCheckAttackRoll( void )
 		//&& Q_irand( -3, to_underlying( pm->gent->NPC->rank ) ) > to_underlying( rank_t::RANK_CREWMAN ))
 		&& ( pm->gent->NPC->rank > rank_t::RANK_CREWMAN && !Q_irand(0,3-g_spskill->integer) )
 		&& pm->gent->enemy
-		&& fabs(pm->gent->enemy->currentOrigin[2]-pm->ps->origin[2])<32
+		&& Q_fabsf(pm->gent->enemy->currentOrigin[2]-pm->ps->origin[2])<32
 		&& DistanceHorizontalSquared(pm->gent->enemy->currentOrigin, pm->ps->origin ) < (128.0f*128.0f)
 		&& InFOV( pm->gent->enemy->currentOrigin, pm->ps->origin, pm->ps->viewangles, 30, 90 ) )
 	{//stab!
@@ -13193,7 +13193,7 @@ static int PM_DoChargingAmmoUsage( int *amount )
 			if ( dif < 0 )
 			{
 				// we are not ok, so hack our chargetime and ammo usage, note that DIF is going to be negative
-				count += floor(dif / (float)*amount);
+				count += Q_floorf(dif / (float)*amount);
 
 				if ( count < 1 )
 				{
@@ -13232,7 +13232,7 @@ static int PM_DoChargingAmmoUsage( int *amount )
 			if ( dif < 0 )
 			{
 				// we are not ok, so hack our chargetime and ammo usage, note that DIF is going to be negative
-				count += floor(dif / (float)*amount);
+				count += Q_floorf(dif / (float)*amount);
 
 				if ( count < 1 )
 				{
@@ -13270,7 +13270,7 @@ static int PM_DoChargingAmmoUsage( int *amount )
 			if ( dif < 0 )
 			{
 				// we are not ok, so hack our chargetime and ammo usage, note that DIF is going to be negative
-				count += floor(dif / (float)*amount);
+				count += Q_floorf(dif / (float)*amount);
 
 				if ( count < 1 )
 				{
@@ -13314,7 +13314,7 @@ static int PM_DoChargingAmmoUsage( int *amount )
 			if ( dif < 0 )
 			{
 				// we are not ok, so hack our chargetime and ammo usage, note that DIF is going to be negative
-				count += floor(dif / (float)*amount);
+				count += Q_floorf(dif / (float)*amount);
 
 				if ( count < 1 )
 				{
@@ -13751,7 +13751,7 @@ static void PM_Weapon( void )
 				{
 					if ( PM_DroidMelee( pm->gent->client->NPC_class ) )
 					{
-						if ( rand() & 1 )
+						if ( Q_irand( 0, 1 ) )
 							PM_SetAnim(pm,setAnimParts_t::SETANIM_BOTH,animNumber_t::BOTH_MELEE1,setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD);
 						else
 							PM_SetAnim(pm,setAnimParts_t::SETANIM_BOTH,animNumber_t::BOTH_MELEE2,setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD);

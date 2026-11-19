@@ -393,7 +393,7 @@ bool NPC_UpdateAngles ( bool doPitch, bool doYaw )
 					decay = 60.0 + yawSpeed * 3;
 					decay *= 50.0 / 1000.0;//msec
 					//Snap to
-					if(fabs(error) > 10)
+					if(Q_fabsf(error) > 10)
 					{
 						if(Q_flrand(0.0f, 1.0f) > 0.6)
 						{
@@ -467,7 +467,7 @@ bool NPC_UpdateAngles ( bool doPitch, bool doYaw )
 					decay = 60.0 + yawSpeed * 3;
 					decay *= 50.0 / 1000.0;//msec
 					//Snap to
-					if(fabs(error) > 10)
+					if(Q_fabsf(error) > 10)
 					{
 						if(Q_flrand(0.0f, 1.0f) > 0.6)
 						{

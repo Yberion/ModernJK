@@ -85,9 +85,9 @@ void Seeker_MaintainHeight( void )
 			dif = (NPC->enemy->currentOrigin[2] +  Q_flrand( NPC->enemy->maxs[2]/2, NPC->enemy->maxs[2]+8 )) - NPC->currentOrigin[2];
 
 			// cap to prevent dramatic height shifts
-			if ( fabs( dif ) > 2 )
+			if ( Q_fabsf( dif ) > 2 )
 			{
-				if ( fabs( dif ) > 24 )
+				if ( Q_fabsf( dif ) > 24 )
 				{
 					dif = ( dif < 0 ? -24 : 24 );
 				}
@@ -112,7 +112,7 @@ void Seeker_MaintainHeight( void )
 		{
 			dif = goal->currentOrigin[2] - NPC->currentOrigin[2];
 
-			if ( fabs( dif ) > 24 )
+			if ( Q_fabsf( dif ) > 24 )
 			{
 				ucmd.upmove = ( ucmd.upmove < 0 ? -4 : 4 );
 			}
@@ -122,7 +122,7 @@ void Seeker_MaintainHeight( void )
 				{
 					NPC->client->ps.velocity[2] *= VELOCITY_DECAY;
 
-					if ( fabs( NPC->client->ps.velocity[2] ) < 2 )
+					if ( Q_fabsf( NPC->client->ps.velocity[2] ) < 2 )
 					{
 						NPC->client->ps.velocity[2] = 0;
 					}
@@ -136,7 +136,7 @@ void Seeker_MaintainHeight( void )
 	{
 		NPC->client->ps.velocity[0] *= VELOCITY_DECAY;
 
-		if ( fabs( NPC->client->ps.velocity[0] ) < 1 )
+		if ( Q_fabsf( NPC->client->ps.velocity[0] ) < 1 )
 		{
 			NPC->client->ps.velocity[0] = 0;
 		}
@@ -146,7 +146,7 @@ void Seeker_MaintainHeight( void )
 	{
 		NPC->client->ps.velocity[1] *= VELOCITY_DECAY;
 
-		if ( fabs( NPC->client->ps.velocity[1] ) < 1 )
+		if ( Q_fabsf( NPC->client->ps.velocity[1] ) < 1 )
 		{
 			NPC->client->ps.velocity[1] = 0;
 		}
@@ -167,7 +167,7 @@ void Seeker_Strafe( void )
 
 		// Pick a random strafe direction, then check to see if doing a strafe would be
 		//	reasonably valid
-		side = ( rand() & 1 ) ? -1 : 1;
+		side = ( Q_irand( 0, 1 ) ) ? -1 : 1;
 		VectorMA( NPC->currentOrigin, SEEKER_STRAFE_DIS * side, right, end );
 
 		gi.trace( &tr, NPC->currentOrigin, nullptr, nullptr, end, NPC->s.number, MASK_SOLID, EG2_Collision::G2_NOCOLLIDE, 0 );
@@ -191,7 +191,7 @@ void Seeker_Strafe( void )
 		AngleVectors( NPC->enemy->client->renderInfo.eyeAngles, dir, right, nullptr );
 
 		// Pick a random side
-		side = ( rand() & 1 ) ? -1 : 1;
+		side = ( Q_irand( 0, 1 ) ) ? -1 : 1;
 		VectorMA( NPC->enemy->currentOrigin, SEEKER_STRAFE_DIS * side, right, end );
 
 		// then add a very small bit of random in front of/behind the player action
@@ -406,8 +406,8 @@ void Seeker_FollowPlayer( void )
 	if ( dis < MIN_DISTANCE_SQR )
 	{
 		// generally circle the player closely till we take an enemy..this is our target point
-		pt[0] = g_entities[0].currentOrigin[0] + cos( level.time * 0.001f + NPC->random ) * 56;
-		pt[1] = g_entities[0].currentOrigin[1] + sin( level.time * 0.001f + NPC->random ) * 56;
+		pt[0] = g_entities[0].currentOrigin[0] + Q_cosf( level.time * 0.001f + NPC->random ) * 56;
+		pt[1] = g_entities[0].currentOrigin[1] + Q_sinf( level.time * 0.001f + NPC->random ) * 56;
 		pt[2] = g_entities[0].currentOrigin[2] + 40;
 
 		VectorSubtract( pt, NPC->currentOrigin, dir );

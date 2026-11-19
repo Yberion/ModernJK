@@ -1068,21 +1068,6 @@ void Com_ExecuteCfg(void)
 
 /*
 =================
-Com_InitRand
-Seed the engine's random number stream (q_rand.h), if possible with an OS supplied random seed.
-=================
-*/
-static void Com_InitRand(void)
-{
-	unsigned int seed;
-
-	if(!Sys_RandomBytes((byte *) &seed, sizeof(seed)))
-		seed = (unsigned int)time(nullptr);
-	Rand_Init((int)seed);
-}
-
-/*
-=================
 Com_ErrorString
 Error string for the given error code (from Com_Error).
 =================
@@ -1159,7 +1144,7 @@ void Com_Init( char *commandLine ) {
 	try
 	{
 		// initialize the weak pseudo-random number generator for use later.
-		Com_InitRand();
+		Sys_InitRand();
 
 		// do this before anything else decides to push events
 		Com_InitPushEvent();

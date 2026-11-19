@@ -153,8 +153,8 @@ void PM_VehicleImpact(bgEntity_t *pEnt, trace_t *trace)
 		/*
 	if ( (Any( pSelfVeh->m_ulFlags & vehFlags_t::VEH_GEARSOPEN ))
 		&& trace->plane.normal[2] > 0.7f
-		&& fabs(pSelfVeh->m_vOrientation[PITCH]) < 0.2f
-		&& fabs(pSelfVeh->m_vOrientation[ROLL]) < 0.2f )*/
+		&& Q_fabsf(pSelfVeh->m_vOrientation[PITCH]) < 0.2f
+		&& Q_fabsf(pSelfVeh->m_vOrientation[ROLL]) < 0.2f )*/
 	{//we're landing, we're cool
 		//FIXME: some sort of landing "thump", not the impactFX
 		/*

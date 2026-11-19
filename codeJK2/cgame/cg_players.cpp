@@ -907,11 +907,11 @@ bool CG_RunLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, animNumber_t newAnimati
 		//Do we need to speed up or slow down the anim?
 		/*if(fpsMod != 1.0)
 		{//Note!  despite it's name, a higher fpsMod slows down the anim, a lower one speeds it up
-			animFrameTime = ceil(lf->frameTime * fpsMod);
+			animFrameTime = Q_ceilf(lf->frameTime * fpsMod);
 		}
 		else*/
 		{
-			animFrameTime = fabs((double)anim->frameLerp);
+			animFrameTime = Q_fabs((double)anim->frameLerp);
 
 			//special hack for player to ensure quick weapon change
 			if ( entNum == 0 )
@@ -1111,7 +1111,7 @@ void CG_PlayerAnimSounds( int animFileIndex, bool torso, int oldFrame, int frame
 	{
 		animSounds = level.knownAnimFileSets[animFileIndex].legsAnimSnds;
 	}
-	if ( fabs((double)oldFrame-frame) > 1 && cg_reliableAnimSounds.integer )
+	if ( Q_fabs((double)oldFrame-frame) > 1 && cg_reliableAnimSounds.integer )
 	{//given a range, see if keyFrame falls in that range
 		std::optional<animNumber_t> oldAnim, anim;
 		if ( torso )
@@ -1177,12 +1177,12 @@ void CG_PlayerAnimSounds( int animFileIndex, bool torso, int oldFrame, int frame
 		{//exact match
 			match = true;
 		}
-		else if ( fabs((double)oldFrame-frame) > 1 && cg_reliableAnimSounds.integer )
+		else if ( Q_fabs((double)oldFrame-frame) > 1 && cg_reliableAnimSounds.integer )
 		{//given a range, see if keyFrame falls in that range
 			if ( inSameAnim )
 			{//if changed anims altogether, sorry, the sound is lost
-				if ( fabs((double)oldFrame-animSounds[i].keyFrame) <= 3
-					 || fabs((double)frame-animSounds[i].keyFrame) <= 3 )
+				if ( Q_fabs((double)oldFrame-animSounds[i].keyFrame) <= 3
+					 || Q_fabs((double)frame-animSounds[i].keyFrame) <= 3 )
 				{//must be at least close to the keyframe
 					if ( animBackward )
 					{//animation plays backwards
@@ -1276,7 +1276,7 @@ void CGG2_AnimSounds( centity_t *cent )
 		if (cent->gent->rootBone>=0&&gi.G2API_GetBoneAnimIndex( &cent->gent->ghoul2[cent->gent->playerModel], cent->gent->rootBone, cg.time, &currentFrame, &junk, &junk, &junkFlags, &animSpeed, cgs.model_draw ))
 		{
 			// the above may have failed, not sure what to do about it, current frame will be zero in that case
-			curFrame = floor( currentFrame );
+			curFrame = Q_floorf( currentFrame );
 		}
 		if ( curFrame != cent->gent->client->renderInfo.legsFrame )
 		{
@@ -1287,7 +1287,7 @@ void CGG2_AnimSounds( centity_t *cent )
 
 		if (cent->gent->lowerLumbarBone>=0&& gi.G2API_GetBoneAnimIndex(&cent->gent->ghoul2[cent->gent->playerModel], cent->gent->lowerLumbarBone, cg.time, &currentFrame, &junk, &junk, &junkFlags, &animSpeed, cgs.model_draw ) )
 		{
-			curFrame = floor( currentFrame );
+			curFrame = Q_floorf( currentFrame );
 		}
 		if ( curFrame != cent->gent->client->renderInfo.torsoFrame )
 		{
@@ -1327,7 +1327,7 @@ void CG_UpdateAngleClamp( float destAngle, float clampMin, float clampMax, float
 
 	// modify the angleSpeed depending on the delta
 	// so it doesn't seem so linear
-	scale = fabs( swing );
+	scale = Q_fabsf( swing );
 	if (swing > 0)
 	{
 		if ( swing < clampMax * 0.25 )
@@ -1442,7 +1442,7 @@ void CG_SwingAngles( float destAngle,
 
 	// modify the angleSpeed depending on the delta
 	// so it doesn't seem so linear
-	scale = fabs( swing );
+	scale = Q_fabsf( swing );
 
 	if (swing > 0)
 	{
@@ -1762,7 +1762,7 @@ bool CG_PlayerLegsYawFromMovement( centity_t *cent, const vec3_t velocity, float
 	//lerp the legs angle to the new angle
 	angleDiff = AngleDelta( cent->pe.legs.yawAngle, (*yaw+addAngle) );
 	newAddAngle = angleDiff*cg.frameInterpolation*-1;
-	if ( fabs(newAddAngle) > fabs(angleDiff) )
+	if ( Q_fabsf(newAddAngle) > Q_fabsf(angleDiff) )
 	{
 		newAddAngle = angleDiff*-1;
 	}
@@ -1798,7 +1798,7 @@ void CG_ATSTLegsYaw( centity_t *cent, vec3_t trailingLegsAngles )
 	float legAngleDiff = AngleNormalize180(ATSTLegsYaw) - AngleNormalize180(cent->pe.legs.yawAngle);
 	animNumber_t legsAnim = cent->currentState.legsAnim;
 	bool moving = (!VectorCompare(cent->gent->client->ps.velocity, vec3_origin));
-	if ( moving || legsAnim == animNumber_t::BOTH_TURN_LEFT1 || legsAnim == animNumber_t::BOTH_TURN_RIGHT1 || fabs(legAngleDiff) > 45 )
+	if ( moving || legsAnim == animNumber_t::BOTH_TURN_LEFT1 || legsAnim == animNumber_t::BOTH_TURN_RIGHT1 || Q_fabsf(legAngleDiff) > 45 )
 	{//moving or turning or beyond the turn allowance
 		if ( legsAnim == animNumber_t::BOTH_STAND1 && !moving )
 		{//standing
@@ -2758,14 +2758,14 @@ void CG_PlayerAngles( centity_t *cent, vec3_t legs[3], vec3_t torso[3], vec3_t h
 
 			//Yaw change
 			swing = AngleSubtract( legsAngles[YAW], headAngles[YAW] );
-			scale = fabs( swing ) / ( torsoYawClampMax + 0.01 );	//NOTENOTE: Some ents have a clamp of 0, which is bad for division
+			scale = Q_fabsf( swing ) / ( torsoYawClampMax + 0.01 );	//NOTENOTE: Some ents have a clamp of 0, which is bad for division
 
 			scale *= LOOK_SWING_SCALE;
 			torsoAngles[YAW] = legsAngles[YAW] - ( swing * scale );
 
 			//Pitch change
 			swing = AngleSubtract( legsAngles[PITCH], headAngles[PITCH] );
-			scale = fabs( swing ) / ( torsoPitchClampMax + 0.01 );	//NOTENOTE: Some ents have a clamp of 0, which is bad for division
+			scale = Q_fabsf( swing ) / ( torsoPitchClampMax + 0.01 );	//NOTENOTE: Some ents have a clamp of 0, which is bad for division
 
 			scale *= LOOK_SWING_SCALE;
 			torsoAngles[PITCH] = legsAngles[PITCH] - ( swing * scale );
@@ -2834,25 +2834,25 @@ void CG_PlayerPowerups( centity_t *cent )
 
 	// quad gives a dlight
 	if ( cent->currentState.powerups & ( 1 << powerup_t::PW_QUAD ) ) {
-		cgi_R_AddLightToScene( cent->lerpOrigin, 200 + (rand()&31), 0.2, 0.2, 1 );
+		cgi_R_AddLightToScene( cent->lerpOrigin, 200 + (Q_irand( 0, 31 )), 0.2, 0.2, 1 );
 	}
 
 	// redflag
 	if ( cent->currentState.powerups & ( 1 << PW_REDFLAG ) ) {
 		CG_TrailItem( cent, cgs.media.redFlagModel );
-		cgi_R_AddLightToScene( cent->lerpOrigin, 200 + (rand()&31), 1, 0.2, 0.2 );
+		cgi_R_AddLightToScene( cent->lerpOrigin, 200 + (Q_irand( 0, 31 )), 1, 0.2, 0.2 );
 	}
 
 	// blueflag
 	if ( cent->currentState.powerups & ( 1 << PW_BLUEFLAG ) ) {
 		CG_TrailItem( cent, cgs.media.blueFlagModel );
-		cgi_R_AddLightToScene( cent->lerpOrigin, 200 + (rand()&31), 0.2, 0.2, 1 );
+		cgi_R_AddLightToScene( cent->lerpOrigin, 200 + (Q_irand( 0, 31 )), 0.2, 0.2, 1 );
 	}
 */
 	// invul gives a dlight
 //	if ( cent->currentState.powerups & ( 1 << powerup_t::PW_BATTLESUIT ) )
 //	{
-//		cgi_R_AddLightToScene( cent->lerpOrigin, 200 + (rand()&31), 0.8f, 0.8f, 0.2f );
+//		cgi_R_AddLightToScene( cent->lerpOrigin, 200 + (Q_irand( 0, 31 )), 0.8f, 0.8f, 0.2f );
 //	}
 
 	// seeker coolness
@@ -3524,14 +3524,14 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, centity_t *cen
 
 			if ( dif < 500 )
 			{
-				brightness = floor((dif - 500.0f) / 500.0f * 255.0f );
+				brightness = Q_floorf((dif - 500.0f) / 500.0f * 255.0f );
 			}
 
 			ent->renderfx |= renderFxFlags_t::RF_RGB_TINT;
 			ent->shaderRGBA[0] = ent->shaderRGBA[1] = ent->shaderRGBA[2] = brightness;
 			ent->shaderRGBA[3] = 255;
 
-			if ( rand() & 1 )
+			if ( Q_irand( 0, 1 ) )
 			{
 				ent->customShader = cgs.media.electricBodyShader;
 			}
@@ -4177,7 +4177,7 @@ void CG_StopWeaponSounds( centity_t *cent )
 		if ( weapon->firingSound )
 		{
 			// Weak phaser sound should stutter
-			if ( weak && (rand() & 1) )
+			if ( weak && (Q_irand( 0, 1 )) )
 				return;
 
 			cgi_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->firingSound );
@@ -4886,7 +4886,7 @@ void CG_Player( centity_t *cent ) {
 			float	side;
 
 			// Magic number fun!  Speed is used for banking, so modulate the speed by a sine wave
-			speed *= sin( (cg.frametime + 200 ) * 0.003 );
+			speed *= Q_sin( (cg.frametime + 200 ) * 0.003 );
 
 			// Clamp to prevent harsh rolling
 			if ( speed > 60 )
@@ -5540,7 +5540,7 @@ extern vmCvar_t	cg_thirdPersonAlpha;
 		{
 			if ( cg_timescale.value < 1.0f && (cent->gent->client->ps.forcePowersActive&Bit( forcePowers_t::FP_SPEED )) )
 			{
-				int wait = floor( (float)FRAMETIME/2.0f );
+				int wait = Q_floorf( (float)FRAMETIME/2.0f );
 				//sanity check
 				if ( cent->gent->client->ps.saberDamageDebounceTime - cg.time > wait )
 				{//when you unpause the game with force speed on, the time gets *really* wiggy...
@@ -5552,7 +5552,7 @@ extern void WP_SaberDamageTrace( gentity_t *ent );
 extern void WP_SaberUpdateOldBladeData( gentity_t *ent );
 					WP_SaberDamageTrace( cent->gent );
 					WP_SaberUpdateOldBladeData( cent->gent );
-					cent->gent->client->ps.saberDamageDebounceTime = cg.time + floor((float)wait*cg_timescale.value);
+					cent->gent->client->ps.saberDamageDebounceTime = cg.time + Q_floorf((float)wait*cg_timescale.value);
 				}
 			}
 		}

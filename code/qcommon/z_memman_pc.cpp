@@ -715,7 +715,7 @@ static void Z_Details_f(void)
 			//
 			float	fSize		= (float)(iThisSize) / 1024.0f / 1024.0f;
 			int		iSize		= fSize;
-			int		iRemainder 	= 100.0f * (fSize - floor(fSize));
+			int		iRemainder 	= 100.0f * (fSize - Q_floorf(fSize));
 			Com_Printf("%20s %9d (%2d.%02dMB) in %6d blocks (%9d Bytes/block)\n",
 				psTagStrings[i],
 				iThisSize,
@@ -841,7 +841,7 @@ static void Z_TagDebug_f(void)
 		{
 			float	fSize		= (float)(pMemory->iSize) / 1024.0f / 1024.0f;
 			int		iSize		= fSize;
-			int		iRemainder 	= 100.0f * (fSize - floor(fSize));
+			int		iRemainder 	= 100.0f * (fSize - Q_floorf(fSize));
 
 			Com_Printf("(%5d) ",iBlocksListed);
 

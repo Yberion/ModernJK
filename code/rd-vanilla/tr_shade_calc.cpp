@@ -238,7 +238,7 @@ void RB_CalcBulgeVertexes( deformStage_t *ds )
 
 		for ( i = 0; i < tess.numVertexes; i++, xyz += 4, st += 2 * NUM_TEX_COORDS, normal += 4 )
 		{
-			off = (float)( FUNCTABLE_SIZE / (M_PI*2) ) * ( st[0] * ds->bulgeWidth + now );
+			off = (float)( FUNCTABLE_SIZE / (Q_PI*2) ) * ( st[0] * ds->bulgeWidth + now );
 
 			scale = tr.sinTable[ off & FUNCTABLE_MASK ] * ds->bulgeHeight;
 
@@ -521,7 +521,7 @@ static void Autosprite2Deform( void ) {
 			v1 = xyz + 4 * edgeVerts[nums[j]][0];
 			v2 = xyz + 4 * edgeVerts[nums[j]][1];
 
-			l = 0.5 * sqrt( lengths[j] );
+			l = 0.5 * Q_sqrtf( lengths[j] );
 
 			// we need to see which direction this edge
 			// is used to determine direction of projection
@@ -978,8 +978,8 @@ void RB_CalcScrollTexCoords( const float scrollSpeed[2], float *st )
 
 	// clamp so coordinates don't continuously get larger, causing problems
 	// with hardware limits
-	adjustedScrollS = adjustedScrollS - floor( adjustedScrollS );
-	adjustedScrollT = adjustedScrollT - floor( adjustedScrollT );
+	adjustedScrollS = adjustedScrollS - Q_floorf( adjustedScrollS );
+	adjustedScrollT = adjustedScrollT - Q_floorf( adjustedScrollT );
 
 	for ( i = 0; i < tess.numVertexes; i++, st += 2 )
 	{

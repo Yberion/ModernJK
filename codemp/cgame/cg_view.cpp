@@ -703,7 +703,7 @@ static void CG_OffsetThirdPersonView( void )
 			/*if ( 0 && cg.predictedPlayerState.m_iVehicleNum //in a vehicle
 				&& BG_UnrestrainedPitchRoll( &cg.predictedPlayerState, cg_entities[cg.predictedPlayerState.m_iVehicleNum].m_pVehicle ) )//can roll/pitch without restriction
 			{
-				float pitchPerc = ((90.0f-fabs(cameraFocusAngles[ROLL]))/90.0f);
+				float pitchPerc = ((90.0f-Q_fabsf(cameraFocusAngles[ROLL]))/90.0f);
 				cameraFocusAngles[PITCH] += pitchOffset*pitchPerc;
 				if ( cameraFocusAngles[ROLL] > 0 )
 				{
@@ -864,8 +864,8 @@ static void CG_OffsetThirdPersonView( void ) {
 
 	AngleVectors( cg.refdef.viewangles, forward, right, up );
 
-	forwardScale = cos( cg_thirdPersonAngle.value / 180 * M_PI );
-	sideScale = sin( cg_thirdPersonAngle.value / 180 * M_PI );
+	forwardScale = Q_cos( cg_thirdPersonAngle.value / 180 * Q_PI );
+	sideScale = Q_sin( cg_thirdPersonAngle.value / 180 * Q_PI );
 	VectorMA( view, -cg_thirdPersonRange.value * forwardScale, forward, view );
 	VectorMA( view, -cg_thirdPersonRange.value * sideScale, right, view );
 
@@ -891,11 +891,11 @@ static void CG_OffsetThirdPersonView( void ) {
 
 	// select pitch to look at focus point from vieword
 	VectorSubtract( focusPoint, cg.refdef.vieworg, focusPoint );
-	focusDist = sqrt( focusPoint[0] * focusPoint[0] + focusPoint[1] * focusPoint[1] );
+	focusDist = Q_sqrtf( focusPoint[0] * focusPoint[0] + focusPoint[1] * focusPoint[1] );
 	if ( focusDist < 1 ) {
 		focusDist = 1;	// should never happen
 	}
-	cg.refdef.viewangles[PITCH] = -180 / M_PI * atan2( focusPoint[2], focusDist );
+	cg.refdef.viewangles[PITCH] = -180 / Q_PI * Q_atan2f( focusPoint[2], focusDist );
 	cg.refdef.viewangles[YAW] -= cg_thirdPersonAngle.value;
 }
 
@@ -1246,12 +1246,12 @@ static int CG_CalcFov( void ) {
 
 	x = cg.refdef.width / Q_tanpif( fov_x / 360.0f );
 	fov_y = Q_atan2( cg.refdef.height, x );
-	fov_y = fov_y * 360 / M_PI;
+	fov_y = fov_y * 360 / Q_PI;
 
 	// warp if underwater
 	cg.refdef.viewContents = CG_PointContents( cg.refdef.vieworg, -1 );
 	if ( Any( cg.refdef.viewContents & ( contentsFlags_t::CONTENTS_WATER | contentsFlags_t::CONTENTS_SLIME | contentsFlags_t::CONTENTS_LAVA ) ) ){
-		phase = cg.time / 1000.0 * WAVE_FREQUENCY * M_PI * 2;
+		phase = cg.time / 1000.0 * WAVE_FREQUENCY * Q_PI * 2;
 		v = WAVE_AMPLITUDE * Q_sin( phase );
 		fov_x += v;
 		fov_y -= v;
@@ -1784,7 +1784,7 @@ void CG_DrawSkyBoxPortal(const char *cstr)
 
 	x = cg.refdef.width / Q_tanpif( fov_x / 360.0f );
 	fov_y = Q_atan2( cg.refdef.height, x );
-	fov_y = fov_y * 360 / M_PI;
+	fov_y = fov_y * 360 / Q_PI;
 
 	cg.refdef.fov_x = fov_x;
 	cg.refdef.fov_y = fov_y;
@@ -2326,7 +2326,7 @@ void CG_SetupFrustum( void ) {
 	float xs, xc;
 	float ang;
 
-	ang = cg.refdef.fov_x / 180 * M_PI * 0.5f;
+	ang = cg.refdef.fov_x / 180 * Q_PI * 0.5f;
 	xs = Q_sin( ang );
 	xc = Q_cos( ang );
 
@@ -2336,7 +2336,7 @@ void CG_SetupFrustum( void ) {
 	VectorScale( cg.refdef.viewaxis[0], xs, frustum[1].normal );
 	VectorMA( frustum[1].normal, -xc, cg.refdef.viewaxis[1], frustum[1].normal );
 
-	ang = cg.refdef.fov_y / 180 * M_PI * 0.5f;
+	ang = cg.refdef.fov_y / 180 * Q_PI * 0.5f;
 	xs = Q_sin( ang );
 	xc = Q_cos( ang );
 

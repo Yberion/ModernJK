@@ -624,11 +624,11 @@ static void PM_SetVehicleAngles( vec3_t normal )
 		/*
 		else if ( i == PITCH )
 		{
-			curVehicleBankingSpeed = vehicleBankingSpeed*fabs(AngleNormalize180(AngleSubtract( vAngles[PITCH], pVeh->m_vOrientation[PITCH] )))/(g_vehicleInfo[pm->ps->vehicleIndex].pitchLimit/2.0f);
+			curVehicleBankingSpeed = vehicleBankingSpeed*Q_fabsf(AngleNormalize180(AngleSubtract( vAngles[PITCH], pVeh->m_vOrientation[PITCH] )))/(g_vehicleInfo[pm->ps->vehicleIndex].pitchLimit/2.0f);
 		}
 		else if ( i == ROLL )
 		{
-			curVehicleBankingSpeed = vehicleBankingSpeed*fabs(AngleNormalize180(AngleSubtract( vAngles[ROLL], pVeh->m_vOrientation[ROLL] )))/(g_vehicleInfo[pm->ps->vehicleIndex].rollLimit/2.0f);
+			curVehicleBankingSpeed = vehicleBankingSpeed*Q_fabsf(AngleNormalize180(AngleSubtract( vAngles[ROLL], pVeh->m_vOrientation[ROLL] )))/(g_vehicleInfo[pm->ps->vehicleIndex].rollLimit/2.0f);
 		}
 
 		if ( curVehicleBankingSpeed )
@@ -3128,7 +3128,7 @@ static void PM_AirMove( void ) {
 					/*
 					if ( pml.groundPlane )
 					{//on a slope, still have some control
-						speed = fabs( speed );
+						speed = Q_fabsf( speed );
 					}
 					else
 					{//can't reverse in air
@@ -3182,7 +3182,7 @@ static void PM_AirMove( void ) {
 							}
 							else
 							{//not stepping on accelerator, only strafe based on magnitude of current forward velocity
-								strafeSpeed = fabs(DotProduct( pm->ps->velocity, vfwd ));
+								strafeSpeed = Q_fabsf(DotProduct( pm->ps->velocity, vfwd ));
 							}
 							*/
 							strafeSpeed = ((float)(smove))/127.0f;

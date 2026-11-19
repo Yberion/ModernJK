@@ -88,9 +88,9 @@ void FX_DEMP2_AltBeam( vec3_t start, vec3_t end, vec3_t normal, //bool spark,
 	VectorMA( start, 0.6666f * len, dir, c2 );
 
 	// get some chaos values that really aren't very chaotic :)
-	s1 = sin( cg.time * 0.005f ) * 2 + Q_flrand(-1.0f, 1.0f) * 0.2f;
-	s2 = sin( cg.time * 0.001f );
-	s3 = sin( cg.time * 0.011f );
+	s1 = Q_sinf( cg.time * 0.005f ) * 2 + Q_flrand(-1.0f, 1.0f) * 0.2f;
+	s2 = Q_sinf( cg.time * 0.001f );
+	s3 = Q_sinf( cg.time * 0.011f );
 
 	VectorSet( chaos, len * 0.01f * s1,
 						len * 0.02f * s2,
@@ -122,10 +122,10 @@ void FX_DEMP2_AltBeam( vec3_t start, vec3_t end, vec3_t normal, //bool spark,
 						chaos, chaos, 0.0f,
 						1.0f, trap->R_RegisterShader( "gfx/misc/electric2" ), fxPrimitiveFlags_t::FX_ALPHA_LINEAR );
 
-	s1 = sin( cg.time * 0.0005f ) + Q_flrand(-1.0f, 1.0f) * 0.1f;
-	s2 = sin( cg.time * 0.0025f );
-	float cc2 = cos( cg.time * 0.0025f );
-	s3 = sin( cg.time * 0.01f ) + Q_flrand(-1.0f, 1.0f) * 0.1f;
+	s1 = Q_sinf( cg.time * 0.0005f ) + Q_flrand(-1.0f, 1.0f) * 0.1f;
+	s2 = Q_sinf( cg.time * 0.0025f );
+	float cc2 = Q_cosf( cg.time * 0.0025f );
+	s3 = Q_sinf( cg.time * 0.01f ) + Q_flrand(-1.0f, 1.0f) * 0.1f;
 
 	VectorSet( chaos, len * 0.08f * s2,
 						len * 0.04f * cc2,//s1 * -s3,
@@ -181,9 +181,9 @@ void FX_DEMP2_AltBeam( vec3_t start, vec3_t end, vec3_t normal, //bool spark,
 	VectorMA( targ1, 0.6666f * len, dir, c2 );
 
 	// get some chaos values that really aren't very chaotic :)
-	s1 = sin( cg.time * 0.005f ) * 2 + Q_flrand(-1.0f, 1.0f) * 0.2f;
-	s2 = sin( cg.time * 0.001f );
-	s3 = sin( cg.time * 0.011f );
+	s1 = Q_sinf( cg.time * 0.005f ) * 2 + Q_flrand(-1.0f, 1.0f) * 0.2f;
+	s2 = Q_sinf( cg.time * 0.001f );
+	s3 = Q_sinf( cg.time * 0.011f );
 
 	VectorSet( chaos, len * 0.01f * s1,
 						len * 0.02f * s2,
@@ -215,10 +215,10 @@ void FX_DEMP2_AltBeam( vec3_t start, vec3_t end, vec3_t normal, //bool spark,
 						chaos, chaos, 0.0f,
 						1.0f, trap->R_RegisterShader( "gfx/misc/electric2" ), fxPrimitiveFlags_t::FX_ALPHA_LINEAR );
 
-	s1 = sin( cg.time * 0.0005f ) + Q_flrand(-1.0f, 1.0f) * 0.1f;
-	s2 = sin( cg.time * 0.0025f );
-	cc2 = cos( cg.time * 0.0025f );
-	s3 = sin( cg.time * 0.01f ) + Q_flrand(-1.0f, 1.0f) * 0.1f;
+	s1 = Q_sinf( cg.time * 0.0005f ) + Q_flrand(-1.0f, 1.0f) * 0.1f;
+	s2 = Q_sinf( cg.time * 0.0025f );
+	cc2 = Q_cosf( cg.time * 0.0025f );
+	s3 = Q_sinf( cg.time * 0.01f ) + Q_flrand(-1.0f, 1.0f) * 0.1f;
 
 	VectorSet( chaos, len * 0.08f * s2,
 						len * 0.04f * cc2,//s1 * -s3,

@@ -137,11 +137,11 @@ bool WP_LobFire( gentity_t *self, vec3_t start, vec3_t target, vec3_t mins, vec3
 			VectorCopy( start, lastPos );
 
 			//This may be kind of wasteful, especially on long throws... use larger steps?  Divide the travelTime into a certain hard number of slices?  Trace just to apex and down?
-			for ( elapsedTime = timeStep; elapsedTime < floor(travelTime)+timeStep; elapsedTime += timeStep )
+			for ( elapsedTime = timeStep; elapsedTime < Q_floorf(travelTime)+timeStep; elapsedTime += timeStep )
 			{
 				if ( (float)elapsedTime > travelTime )
 				{//cap it
-					elapsedTime = floor( travelTime );
+					elapsedTime = Q_floorf( travelTime );
 				}
 				EvaluateTrajectory( &tr, level.time + elapsedTime, testPos );
 				gi.trace( &trace, lastPos, mins, maxs, testPos, ignoreEntNum, clipmask, EG2_Collision::G2_NOCOLLIDE, 0 );
@@ -183,7 +183,7 @@ bool WP_LobFire( gentity_t *self, vec3_t start, vec3_t target, vec3_t mins, vec3
 						break;
 					}
 				}
-				if ( elapsedTime == floor( travelTime ) )
+				if ( elapsedTime == Q_floorf( travelTime ) )
 				{//reached end, all clear
 					break;
 				}

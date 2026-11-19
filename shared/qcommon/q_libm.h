@@ -107,4 +107,9 @@ static QINLINE int Q_isfinite( double x ) { return isfinite( x ) != 0; }
 
 #if defined(__cplusplus)
 } // extern "C"
+
+#include <numbers>
+
+// pi, a double on every platform (glibc's M_PI is a double, the Windows C libraries define M_PI only on request)
+inline constexpr double Q_PI = std::numbers::pi;
 #endif

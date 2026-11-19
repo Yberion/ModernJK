@@ -4,12 +4,17 @@
 #pragma once
 
 #include <bit>
-#include <cmath>
 #include <cstdint>
+
+// LLVM libc (lib/llvm-libc): the library's math functions, independent of the engine's q_libm.h
+#include "shared/libc_common.h"
+#include "src/__support/FPUtil/BasicOperations.h"
 
 namespace netcodec::detail {
 
 inline constexpr double kAngleStep = 360.0 / 65536;   // a 16-bit angle index step (exact in binary)
+
+[[nodiscard]] constexpr double Abs(double x) noexcept { return LIBC_NAMESPACE::fputil::abs(x); }
 
 // zigzag: 0, -1, 1, -2, ... to 0, 1, 2, 3, ...
 [[nodiscard]] constexpr uint64_t Zz(int64_t d) noexcept {
@@ -59,7 +64,7 @@ inline constexpr double kAngleStep = 360.0 / 65536;   // a 16-bit angle index st
 // the float is exactly a 16-bit angle index times kAngleStep, |f| <= 720
 [[nodiscard]] inline bool IsAngleIndex(int64_t pattern) noexcept {
 	const double f = F32(pattern);
-	if (f != f || std::fabs(f) > 720) return false;
+	if (f != f || Abs(f) > 720) return false;
 	// a multiply instead of the division: for an angle index f / kAngleStep is within 2^-7 of the index, so both
 	// round the same; otherwise the exactness test fails either way (checked on all 2^32 patterns)
 	constexpr double kInvAngleStep = 65536 / 360.0;
@@ -69,7 +74,7 @@ inline constexpr double kAngleStep = 360.0 / 65536;   // a 16-bit angle index st
 // angle index of a base value (0 when the base is not an angle)
 [[nodiscard]] inline int64_t OldIndex(int64_t pattern) noexcept {
 	const double f = F32(pattern);
-	return (pattern != 0 && f == f && std::fabs(f) <= 720) ? Rnd(f / kAngleStep) : 0;
+	return (pattern != 0 && f == f && Abs(f) <= 720) ? Rnd(f / kAngleStep) : 0;
 }
 
 } // namespace netcodec::detail

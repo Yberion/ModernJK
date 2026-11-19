@@ -493,7 +493,7 @@ void pitch_roll_for_slope( gentity_t *forwhom, vec3_t pass_slope, vec3_t storeAn
 		forwhom->client->ps.viewangles[PITCH] = dot * pitch;
 		forwhom->client->ps.viewangles[ROLL] = ((1-Q_fabsf(dot)) * pitch * mod);
 		float oldmins2 = forwhom->mins[2];
-		forwhom->mins[2] = -24 + 12 * fabs(forwhom->client->ps.viewangles[PITCH])/180.0f;
+		forwhom->mins[2] = -24 + 12 * Q_fabsf(forwhom->client->ps.viewangles[PITCH])/180.0f;
 		//FIXME: if it gets bigger, move up
 		if ( oldmins2 > forwhom->mins[2] )
 		{//our mins is now lower, need to move up
@@ -1172,7 +1172,7 @@ void NPC_AvoidWallsAndCliffs (void)
 		return;
 	}
 
-	if ( fabs( AngleDelta( NPC->currentAngles[YAW], NPCInfo->desiredYaw ) ) < 5.0 )//!ucmd.angles[YAW] )
+	if ( Q_fabsf( AngleDelta( NPC->currentAngles[YAW], NPCInfo->desiredYaw ) ) < 5.0 )//!ucmd.angles[YAW] )
 	{//Not turning much, don't do this
 		//NOTE: Should this not happen only if you're not turning AT ALL?
 		//	You could be turning slowly but moving fast, so that would

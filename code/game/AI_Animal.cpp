@@ -215,7 +215,7 @@ void NPC_BSAnimal_Default( void )
 
 		float	DirectionSimilarity = MyPos.Dot(LookAim);
 
-		if (fabsf(DirectionSimilarity)<0.8f)
+		if (Q_fabsf(DirectionSimilarity)<0.8f)
 		{
 			EvadeThreat = true;
 			NPCInfo->investigateSoundDebounceTime = level.time + Q_irand(0, 1000);
@@ -289,7 +289,7 @@ void NPC_BSAnimal_Default( void )
 					//----------------------------------------------
 					else
 					{
-						STEER::Seek(NPC, leader->followPos, fabsf(followDist)/2.0f/*slowing distance*/, 1.0f/*wight*/, leader->resultspeed);
+						STEER::Seek(NPC, leader->followPos, Q_fabsf(followDist)/2.0f/*slowing distance*/, 1.0f/*wight*/, leader->resultspeed);
 					}
 				}
 

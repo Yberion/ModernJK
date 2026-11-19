@@ -104,7 +104,7 @@ void CG_TestG2Model_f (void) {
 	cg.testModelEntity.radius = 100.0f;
 
 	if ( cgi_Argc() == 3 ) {
-		cg.testModelEntity.backlerp = atof( CG_Argv( 2 ) );
+		cg.testModelEntity.backlerp = Q_atof( CG_Argv( 2 ) );
 		cg.testModelEntity.frame = 1;
 		cg.testModelEntity.oldframe = 0;
 	}
@@ -165,9 +165,9 @@ void CG_TestModelSetAnglespre_f(void)
 	}
 	CGhoul2Info_v	&ghoul2 = *((CGhoul2Info_v *)cg.testModelEntity.ghoul2);
 
-	angles[0] = atof(CG_Argv(2));
-	angles[1] = atof(CG_Argv(3));
-	angles[2] = atof(CG_Argv(4));
+	angles[0] = Q_atof(CG_Argv(2));
+	angles[1] = Q_atof(CG_Argv(3));
+	angles[2] = Q_atof(CG_Argv(4));
 	gi.G2API_SetBoneAngles(&ghoul2[cg.testModel], CG_Argv(1), angles, boneFlags_t::BONE_ANGLES_PREMULT, Eorientations::POSITIVE_X, Eorientations::POSITIVE_Z, Eorientations::POSITIVE_Y, nullptr, 0, 0);
 }
 
@@ -181,9 +181,9 @@ void CG_TestModelSetAnglespost_f(void)
 	}
 	CGhoul2Info_v	&ghoul2 = *((CGhoul2Info_v *)cg.testModelEntity.ghoul2);
 
-	angles[0] = atof(CG_Argv(2));
-	angles[1] = atof(CG_Argv(3));
-	angles[2] = atof(CG_Argv(4));
+	angles[0] = Q_atof(CG_Argv(2));
+	angles[1] = Q_atof(CG_Argv(3));
+	angles[2] = Q_atof(CG_Argv(4));
 	gi.G2API_SetBoneAngles(&ghoul2[cg.testModel], CG_Argv(1), angles, boneFlags_t::BONE_ANGLES_POSTMULT, Eorientations::POSITIVE_X, Eorientations::POSITIVE_Z, Eorientations::POSITIVE_Y, nullptr, 0, 0);
 }
 
@@ -193,7 +193,7 @@ void CG_TestModelAnimate_f(void)
 	CGhoul2Info_v	&ghoul2 = *((CGhoul2Info_v *)cg.testModelEntity.ghoul2);
 
 	Q_strncpyz(boneName, CG_Argv(1), sizeof(boneName));
-	gi.G2API_SetBoneAnim(&ghoul2[cg.testModel], boneName, atoi(CG_Argv(2)), atoi(CG_Argv(3)), boneFlags_t::BONE_ANIM_OVERRIDE_LOOP, atof(CG_Argv(4)), cg.time, -1, -1);
+	gi.G2API_SetBoneAnim(&ghoul2[cg.testModel], boneName, atoi(CG_Argv(2)), atoi(CG_Argv(3)), boneFlags_t::BONE_ANIM_OVERRIDE_LOOP, Q_atof(CG_Argv(4)), cg.time, -1, -1);
 
 }
 
@@ -222,7 +222,7 @@ void CG_TestModel_f (void) {
 	cg.testModelEntity.hModel = cgi_R_RegisterModel( cg.testModelName );
 
 	if ( cgi_Argc() == 3 ) {
-		cg.testModelEntity.backlerp = atof( CG_Argv( 2 ) );
+		cg.testModelEntity.backlerp = Q_atof( CG_Argv( 2 ) );
 		cg.testModelEntity.frame = 1;
 		cg.testModelEntity.oldframe = 0;
 	}
@@ -555,7 +555,7 @@ static void CG_UpdateThirdPersonTargetDamp(void)
 
 		// Note that since there are a finite number of "practical" delta millisecond values possible,
 		// the ratio should be initialized into a chart ultimately.
-		ratio = pow(dampfactor, dtime);
+		ratio = Q_powf(dampfactor, dtime);
 
 		// This value is how much distance is "left" from the ideal.
 		VectorMA(cameraIdealTarget, -ratio, targetdiff, cameraCurTarget);
@@ -647,7 +647,7 @@ static void CG_UpdateThirdPersonCameraDamp(void)
 
 		// Note that since there are a finite number of "practical" delta millisecond values possible,
 		// the ratio should be initialized into a chart ultimately.
-		ratio = pow(dampfactor, dtime);
+		ratio = Q_powf(dampfactor, dtime);
 
 		// This value is how much distance is "left" from the ideal.
 		VectorMA(cameraIdealLoc, -ratio, locdiff, cameraCurLoc);
@@ -758,7 +758,7 @@ static void CG_OffsetThirdPersonView( void )
 		// FIXME: use something network-friendly
 		vec3_t	org, viewDir;
 		VectorCopy( cg_entities[0].gent->client->renderInfo.eyePoint, org );
-		float blend = 1.0f - fabs(cg.refdefViewAngles[PITCH])/90.0f;
+		float blend = 1.0f - Q_fabsf(cg.refdefViewAngles[PITCH])/90.0f;
 		AngleVectors( cg.refdefViewAngles, viewDir, nullptr, nullptr );
 		VectorMA( org, -8, viewDir, org );
 		VectorScale( org, 1.0f - blend, org );
@@ -786,10 +786,10 @@ static void CG_OffsetThirdPersonView( void )
 
 		AngleVectors(cameraFocusAngles, camerafwd, nullptr, cameraup);
 
-		deltayaw = fabs(cameraFocusAngles[YAW] - cameraLastYaw);
+		deltayaw = Q_fabsf(cameraFocusAngles[YAW] - cameraLastYaw);
 		if (deltayaw > 180.0f)
 		{ // Normalize this angle so that it is between 0 and 180.
-			deltayaw = fabs(deltayaw - 360.0f);
+			deltayaw = Q_fabsf(deltayaw - 360.0f);
 		}
 		cameraStiffFactor = deltayaw / (float)(cg.time-cameraLastFrame);
 		if (cameraStiffFactor < 1.0)
@@ -890,8 +890,8 @@ static void CG_OffsetThirdPersonView( void ) {
 	AngleVectors( cg.refdefViewAngles, forward, right, up );
 
 	float tpAngle = cg.overrides.thirdPersonAngle ? cg.overrides.thirdPersonAngle : cg_thirdPersonAngle.value;
-	forwardScale = cos( tpAngle / 180 * M_PI );
-	sideScale = sin( tpAngle / 180 * M_PI );
+	forwardScale = Q_cos( tpAngle / 180 * Q_PI );
+	sideScale = Q_sin( tpAngle / 180 * Q_PI );
 	VectorMA( view, -tpAngle * forwardScale, forward, view );
 	VectorMA( view, -tpAngle * sideScale, right, view );
 
@@ -915,11 +915,11 @@ static void CG_OffsetThirdPersonView( void ) {
 
 	// select pitch to look at focus point from vieword
 	VectorSubtract( focusPoint, cg.refdef.vieworg, focusPoint );
-	focusDist = sqrt( focusPoint[0] * focusPoint[0] + focusPoint[1] * focusPoint[1] );
+	focusDist = Q_sqrtf( focusPoint[0] * focusPoint[0] + focusPoint[1] * focusPoint[1] );
 	if ( focusDist < 1 ) {
 		focusDist = 1;	// should never happen
 	}
-	cg.refdefViewAngles[PITCH] = -180 / M_PI * atan2( focusPoint[2], focusDist );
+	cg.refdefViewAngles[PITCH] = -180 / Q_PI * Q_atan2f( focusPoint[2], focusDist );
 	cg.refdefViewAngles[YAW] -= tpAngle;
 }
 
@@ -1257,12 +1257,12 @@ bool CG_CalcFOVFromX( float fov_x )
 		const float aspect = (float)cgs.glconfig.vidWidth/(float)cgs.glconfig.vidHeight;
 		const float desiredFov = fov_x;
 
-		fov_x = atan( tan( desiredFov*M_PI / 360.0f ) * baseAspect*aspect )*360.0f / M_PI;
+		fov_x = Q_atan( Q_tan( desiredFov*Q_PI / 360.0f ) * baseAspect*aspect )*360.0f / Q_PI;
 	}
 
-	x = cg.refdef.width / tan( fov_x / 360 * M_PI );
-	fov_y = atan2( cg.refdef.height, x );
-	fov_y = fov_y * 360 / M_PI;
+	x = cg.refdef.width / Q_tan( fov_x / 360 * Q_PI );
+	fov_y = Q_atan2( cg.refdef.height, x );
+	fov_y = fov_y * 360 / Q_PI;
 
 	// there's a problem with this, it only takes the leafbrushes into account, not the entity brushes,
 	//	so if you give slime/water etc properties to a func_door area brush in order to move the whole water
@@ -1276,8 +1276,8 @@ bool CG_CalcFOVFromX( float fov_x )
 	contentsFlags_t	contents;
 	contents = CG_PointContents( cg.refdef.vieworg, -1 );
 	if ( Any( contents & ( contentsFlags_t::CONTENTS_WATER | contentsFlags_t::CONTENTS_SLIME | contentsFlags_t::CONTENTS_LAVA ) ) ){
-		phase = cg.time / 1000.0 * WAVE_FREQUENCY * M_PI * 2;
-		v = WAVE_AMPLITUDE * sin( phase );
+		phase = cg.time / 1000.0 * WAVE_FREQUENCY * Q_PI * 2;
+		v = WAVE_AMPLITUDE * Q_sinf( phase );
 		fov_x += v;
 		fov_y -= v;
 		inwater = true;
@@ -1296,7 +1296,7 @@ bool CG_CalcFOVFromX( float fov_x )
 		float perc = (float)(cg.wonkyTime - cg.time) / 10000.0f; // goes for 10 seconds
 
 		fov_x += ( 25.0f * perc );
-		fov_y -= ( cos( cg.time * 0.0008f ) * 5.0f * perc );
+		fov_y -= ( Q_cosf( cg.time * 0.0008f ) * 5.0f * perc );
 	}
 
 	// set it
@@ -1605,8 +1605,8 @@ static bool CG_CalcViewValues( void ) {
 	}
 
 	cg.bobcycle = ( ps->bobCycle & 128 ) >> 7;
-	cg.bobfracsin = fabs( sin( ( ps->bobCycle & 127 ) / 127.0 * M_PI ) );
-	cg.xyspeed = sqrt( ps->velocity[0] * ps->velocity[0] +
+	cg.bobfracsin = Q_fabs( Q_sin( ( ps->bobCycle & 127 ) / 127.0 * Q_PI ) );
+	cg.xyspeed = Q_sqrtf( ps->velocity[0] * ps->velocity[0] +
 		ps->velocity[1] * ps->velocity[1] );
 
 
@@ -1726,8 +1726,8 @@ static bool CG_CalcViewValues( void ) {
 	{
 		float perc = (float)(cg.wonkyTime - cg.time) / 10000.0f; // goes for 10 seconds
 
-		cg.refdefViewAngles[ROLL] += ( sin( cg.time * 0.0004f )  * 7.0f * perc );
-		cg.refdefViewAngles[PITCH] += ( 26.0f * perc + sin( cg.time * 0.0011f ) * 3.0f * perc );
+		cg.refdefViewAngles[ROLL] += ( Q_sinf( cg.time * 0.0004f )  * 7.0f * perc );
+		cg.refdefViewAngles[PITCH] += ( 26.0f * perc + Q_sinf( cg.time * 0.0011f ) * 3.0f * perc );
 	}
 
 	AnglesToAxis( cg.refdefViewAngles, cg.refdef.viewaxis );

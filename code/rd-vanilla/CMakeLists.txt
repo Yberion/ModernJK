@@ -127,7 +127,7 @@ if(BuildSPRdVanilla OR BuildJK2SPRdVanilla)
 		"${SPDir}/rd-common/tr_font.h"
 		"${SharedDir}/rd-common/tr_image_load.cpp"
 		"${SharedDir}/rd-common/tr_image_codec.cpp"
-		"${SPDir}/rd-common/tr_noise.cpp"
+		"${SharedDir}/rd-common/tr_noise.cpp"
 		"${SPDir}/rd-common/tr_public.h"
 		"${SPDir}/rd-common/tr_types.h")
 	source_group("rd-common" FILES ${SPRDVanillaRdCommonFiles})

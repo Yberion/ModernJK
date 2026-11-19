@@ -162,7 +162,7 @@ void NPC_SetPainEvent( gentity_t *self )
 	{
         if ( !Q3_TaskIDPending( self, taskID_t::TID_CHAN_VOICE ) )
         {
-            G_AddEvent( self, entity_event_t::EV_PAIN, floor((float)self->health/self->max_health*100.0f) );
+            G_AddEvent( self, entity_event_t::EV_PAIN, Q_floorf((float)self->health/self->max_health*100.0f) );
         }
 	}
 }

@@ -1855,10 +1855,10 @@ void Menu_TransitionItemByName(menuDef_t *menu, const char *p, const rectDef_t *
 			item->window.offsetTime = time;
 			memcpy(&item->window.rectClient, rectFrom, sizeof(rectDef_t));
 			memcpy(&item->window.rectEffects, rectTo, sizeof(rectDef_t));
-			item->window.rectEffects2.x = abs(rectTo->x - rectFrom->x) / amt;
-			item->window.rectEffects2.y = abs(rectTo->y - rectFrom->y) / amt;
-			item->window.rectEffects2.w = abs(rectTo->w - rectFrom->w) / amt;
-			item->window.rectEffects2.h = abs(rectTo->h - rectFrom->h) / amt;
+			item->window.rectEffects2.x = Q_fabsf(rectTo->x - rectFrom->x) / amt;
+			item->window.rectEffects2.y = Q_fabsf(rectTo->y - rectFrom->y) / amt;
+			item->window.rectEffects2.w = Q_fabsf(rectTo->w - rectFrom->w) / amt;
+			item->window.rectEffects2.h = Q_fabsf(rectTo->h - rectFrom->h) / amt;
 			Item_UpdatePosition(item);
 		}
 	}
@@ -1905,17 +1905,17 @@ void Menu_Transition3ItemByName(menuDef_t *menu, const char *p, const float minx
 
 //				VectorSet(modelptr->g2maxs2, maxx, maxy, maxz);
 
-				modelptr->g2maxsEffect[0] = abs(modelptr->g2maxs2[0] - modelptr->g2maxs[0]) / amt;
-				modelptr->g2maxsEffect[1] = abs(modelptr->g2maxs2[1] - modelptr->g2maxs[1]) / amt;
-				modelptr->g2maxsEffect[2] = abs(modelptr->g2maxs2[2] - modelptr->g2maxs[2]) / amt;
+				modelptr->g2maxsEffect[0] = Q_fabsf(modelptr->g2maxs2[0] - modelptr->g2maxs[0]) / amt;
+				modelptr->g2maxsEffect[1] = Q_fabsf(modelptr->g2maxs2[1] - modelptr->g2maxs[1]) / amt;
+				modelptr->g2maxsEffect[2] = Q_fabsf(modelptr->g2maxs2[2] - modelptr->g2maxs[2]) / amt;
 
-				modelptr->g2minsEffect[0] = abs(modelptr->g2mins2[0] - modelptr->g2mins[0]) / amt;
-				modelptr->g2minsEffect[1] = abs(modelptr->g2mins2[1] - modelptr->g2mins[1]) / amt;
-				modelptr->g2minsEffect[2] = abs(modelptr->g2mins2[2] - modelptr->g2mins[2]) / amt;
+				modelptr->g2minsEffect[0] = Q_fabsf(modelptr->g2mins2[0] - modelptr->g2mins[0]) / amt;
+				modelptr->g2minsEffect[1] = Q_fabsf(modelptr->g2mins2[1] - modelptr->g2mins[1]) / amt;
+				modelptr->g2minsEffect[2] = Q_fabsf(modelptr->g2mins2[2] - modelptr->g2mins[2]) / amt;
 
 
-				modelptr->fov_Effectx = abs(modelptr->fov_x2 - modelptr->fov_x) / amt;
-				modelptr->fov_Effecty = abs(modelptr->fov_y2 - modelptr->fov_y) / amt;
+				modelptr->fov_Effectx = Q_fabsf(modelptr->fov_x2 - modelptr->fov_x) / amt;
+				modelptr->fov_Effecty = Q_fabsf(modelptr->fov_y2 - modelptr->fov_y) / amt;
 			}
 
 		}
@@ -2608,35 +2608,35 @@ bool Script_Transition3(itemDef_t *item, const char **args)
 	{
 		if (String_Parse( args, &value))
 		{
-			minx = atof(value);
+			minx = Q_atof(value);
 			if (String_Parse( args, &value))
 			{
-				miny = atof(value);
+				miny = Q_atof(value);
 				if (String_Parse( args, &value))
 				{
-					minz = atof(value);
+					minz = Q_atof(value);
 					if (String_Parse( args, &value))
 					{
-						maxx = atof(value);
+						maxx = Q_atof(value);
 						if (String_Parse( args, &value))
 						{
-							maxy = atof(value);
+							maxy = Q_atof(value);
 							if (String_Parse( args, &value))
 							{
-								maxz = atof(value);
+								maxz = Q_atof(value);
 								if (String_Parse( args, &value))
 								{
-									fovtx = atof(value);
+									fovtx = Q_atof(value);
 									if (String_Parse( args, &value))
 									{
-										fovty = atof(value);
+										fovty = Q_atof(value);
 
 										if (String_Parse( args, &value))
 										{
 											time = atoi(value);
 											if (String_Parse( args, &value))
 											{
-												amt = atof(value);
+												amt = Q_atof(value);
 												//set up the variables
 												Menu_Transition3ItemByName((menuDef_t *) item->parent,
 														name,
@@ -6280,7 +6280,7 @@ void Item_TextColor(itemDef_t *item, vec4_t *newColor)
 		lowLight[1] = 0.8 * parent->focusColor[1];
 		lowLight[2] = 0.8 * parent->focusColor[2];
 		lowLight[3] = 0.8 * parent->focusColor[3];
-		LerpColor(parent->focusColor,lowLight,*newColor,0.5+0.5*sin((float)(DC->realTime / PULSE_DIVISOR)));
+		LerpColor(parent->focusColor,lowLight,*newColor,0.5+0.5*Q_sinf((float)(DC->realTime / PULSE_DIVISOR)));
 	}
 /*	else if (item->textStyle == ITEM_TEXTSTYLE_BLINK && !((DC->realTime/BLINK_DIVISOR) & 1))
 	{
@@ -6288,7 +6288,7 @@ void Item_TextColor(itemDef_t *item, vec4_t *newColor)
 		lowLight[1] = 0.8 * item->window.foreColor[1];
 		lowLight[2] = 0.8 * item->window.foreColor[2];
 		lowLight[3] = 0.8 * item->window.foreColor[3];
-		LerpColor(item->window.foreColor,lowLight,*newColor,0.5+0.5*sin(DC->realTime / PULSE_DIVISOR));
+		LerpColor(item->window.foreColor,lowLight,*newColor,0.5+0.5*Q_sin(DC->realTime / PULSE_DIVISOR));
 	}
 */	else
 	{
@@ -6513,7 +6513,7 @@ void Item_TextField_Paint(itemDef_t *item)
 		lowLight[1] = 0.8 * parent->focusColor[1];
 		lowLight[2] = 0.8 * parent->focusColor[2];
 		lowLight[3] = 0.8 * parent->focusColor[3];
-		LerpColor(parent->focusColor,lowLight,newColor,0.5+0.5*sin((float)(DC->realTime / PULSE_DIVISOR)));
+		LerpColor(parent->focusColor,lowLight,newColor,0.5+0.5*Q_sinf((float)(DC->realTime / PULSE_DIVISOR)));
 	}
 	else
 	{
@@ -6960,7 +6960,7 @@ void Item_Bind_Paint(itemDef_t *item)
 			lowLight[2] = 0.8f * parent->focusColor[2];
 			lowLight[3] = 0.8f * parent->focusColor[3];
 		}
-		LerpColor(parent->focusColor,lowLight,newColor,0.5+0.5*sin((float)(DC->realTime / PULSE_DIVISOR)));
+		LerpColor(parent->focusColor,lowLight,newColor,0.5+0.5*Q_sinf((float)(DC->realTime / PULSE_DIVISOR)));
 	}
 	else
 	{
@@ -7160,7 +7160,7 @@ void Item_Model_Paint(itemDef_t *item)
 	{
 		float len = 0.5 * ( maxs[2] - mins[2] );
 		origin[0] = len / 0.268;	// len / tan( fov/2 )
-		//origin[0] = len / tan(w/2);
+		//origin[0] = len / Q_tanf(w/2);
 	}
 	else
 	{
@@ -7174,9 +7174,9 @@ void Item_Model_Paint(itemDef_t *item)
 	refdef.fov_y = 45;
 
 	//refdef.fov_x = (int)((float)refdef.width / 640.0f * 90.0f);
-	//xx = refdef.width / tan( refdef.fov_x / 360 * M_PI );
-	//refdef.fov_y = atan2( refdef.height, xx );
-	//refdef.fov_y *= ( 360 / M_PI );
+	//xx = refdef.width / Q_tan( refdef.fov_x / 360 * Q_PI );
+	//refdef.fov_y = Q_atan2( refdef.height, xx );
+	//refdef.fov_y *= ( 360 / Q_PI );
 
 	DC->clearScene();
 
@@ -7186,7 +7186,7 @@ void Item_Model_Paint(itemDef_t *item)
 
 	memset( &ent, 0, sizeof(ent) );
 
-	//adjust = 5.0 * sin( (float)uis.realtime / 500 );
+	//adjust = 5.0 * Q_sinf( (float)uis.realtime / 500 );
 	//adjust = 360 % (int)((float)uis.realtime / 1000);
 	//VectorSet( angles, 0, 0, 1 );
 
@@ -7314,7 +7314,7 @@ void Item_Model_Paint(itemDef_t *item)
 	origin[1] = 0.5 * ( mins[1] + maxs[1] );
 
 	refdef.fov_x = (modelPtr->fov_x) ? modelPtr->fov_x : (int)((float)refdef.width / 640.0f * 90.0f);
-	refdef.fov_y = (modelPtr->fov_y) ? modelPtr->fov_y : atan2( refdef.height, refdef.width / tan( refdef.fov_x / 360 * M_PI ) ) * ( 360 / M_PI );
+	refdef.fov_y = (modelPtr->fov_y) ? modelPtr->fov_y : Q_atan2( refdef.height, refdef.width / Q_tan( refdef.fov_x / 360 * Q_PI ) ) * ( 360 / Q_PI );
 
 //	refdef.fov_x = (modelPtr->fov_x) ? modelPtr->fov_x : refdef.width;
 //	refdef.fov_y = (modelPtr->fov_y) ? modelPtr->fov_y : refdef.height;
@@ -7428,7 +7428,7 @@ void Item_OwnerDraw_Paint(itemDef_t *item)
 			lowLight[1] = 0.8 * parent->focusColor[1];
 			lowLight[2] = 0.8 * parent->focusColor[2];
 			lowLight[3] = 0.8 * parent->focusColor[3];
-			LerpColor(parent->focusColor,lowLight,color,0.5+0.5*sin((float)(DC->realTime / PULSE_DIVISOR)));
+			LerpColor(parent->focusColor,lowLight,color,0.5+0.5*Q_sinf((float)(DC->realTime / PULSE_DIVISOR)));
 		}
 		else if (item->textStyle == ITEM_TEXTSTYLE_BLINK && !((DC->realTime/BLINK_DIVISOR) & 1))
 		{
@@ -7436,7 +7436,7 @@ void Item_OwnerDraw_Paint(itemDef_t *item)
 			lowLight[1] = 0.8 * item->window.foreColor[1];
 			lowLight[2] = 0.8 * item->window.foreColor[2];
 			lowLight[3] = 0.8 * item->window.foreColor[3];
-			LerpColor(item->window.foreColor,lowLight,color,0.5+0.5*sin((float)(DC->realTime / PULSE_DIVISOR)));
+			LerpColor(item->window.foreColor,lowLight,color,0.5+0.5*Q_sinf((float)(DC->realTime / PULSE_DIVISOR)));
 		}
 
 		if ( item->disabled )
@@ -7746,7 +7746,7 @@ void Item_Slider_Paint(itemDef_t *item)
 		lowLight[1] = 0.8 * parent->focusColor[1];
 		lowLight[2] = 0.8 * parent->focusColor[2];
 		lowLight[3] = 0.8 * parent->focusColor[3];
-		LerpColor(parent->focusColor,lowLight,newColor,0.5+0.5*sin((float)(DC->realTime / PULSE_DIVISOR)));
+		LerpColor(parent->focusColor,lowLight,newColor,0.5+0.5*Q_sinf((float)(DC->realTime / PULSE_DIVISOR)));
 	}
 	else
 	{
@@ -7812,9 +7812,9 @@ static bool Item_Paint(itemDef_t *item, bool bDraw)
 			h = item->window.rectClient.h / 2;
 			rx = item->window.rectClient.x + w - item->window.rectEffects.x;
 			ry = item->window.rectClient.y + h - item->window.rectEffects.y;
-			a = (float) (3 * M_PI / 180);
-  			c = cos(a);
-			s = sin(a);
+			a = (float) (3 * Q_PI / 180);
+  			c = Q_cosf(a);
+			s = Q_sinf(a);
 			item->window.rectClient.x = (rx * c - ry * s) + item->window.rectEffects.x - w;
 			item->window.rectClient.y = (rx * s + ry * c) + item->window.rectEffects.y - h;
 			Item_UpdatePosition(item);

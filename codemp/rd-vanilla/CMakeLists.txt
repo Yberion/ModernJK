@@ -88,7 +88,7 @@ set(MPVanillaRendererRdCommonFiles
 	"${MPDir}/rd-common/tr_font.h"
 	"${SharedDir}/rd-common/tr_image_load.cpp"
 	"${SharedDir}/rd-common/tr_image_codec.cpp"
-	"${MPDir}/rd-common/tr_noise.cpp"
+	"${SharedDir}/rd-common/tr_noise.cpp"
 	"${MPDir}/rd-common/tr_public.h"
 	"${MPDir}/rd-common/tr_types.h")
 source_group("rd-common" FILES ${MPVanillaRendererRdCommonFiles})

@@ -253,8 +253,8 @@ static void R_SurfaceSpriteFrameUpdate(void)
 
 	if (targetspeed>0)
 	{
-//		ang[YAW] += cos(tr.refdef.time*0.01+flrand(-1.0,1.0))*targetspeed*0.5;
-//		ang[PITCH] += sin(tr.refdef.time*0.01+flrand(-1.0,1.0))*targetspeed*0.5;
+//		ang[YAW] += Q_cos(tr.refdef.time*0.01+flrand(-1.0,1.0))*targetspeed*0.5;
+//		ang[PITCH] += Q_sin(tr.refdef.time*0.01+flrand(-1.0,1.0))*targetspeed*0.5;
 	}
 
 	// Get the grass wind vector first

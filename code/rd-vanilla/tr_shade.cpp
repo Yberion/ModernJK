@@ -771,7 +771,7 @@ static void ProjectDlightTexture2( void ) {
 				continue;
 			}
 			modulate = 1.0f-((fac*fac) / (radius*radius));
-			fac = 0.5f/sqrtf(radius*radius - fac*fac);
+			fac = 0.5f/Q_sqrtf(radius*radius - fac*fac);
 
 			// save the verts
 			VectorCopy(posa,vertCoordsArray[numIndexes]);
@@ -1785,7 +1785,7 @@ static EnumArray<vec4_t, EGLFogOverride, EGLFogOverride::GLFOGOVERRIDE_MAX>	GLFo
 	{ 1.0, 1.0, 1.0, 1.0 }	// GLFOGOVERRIDE_WHITE
 } };
 
-static const float logtestExp2 = (sqrt( -log( 1.0 / 255.0 ) ));
+static const float logtestExp2 = (Q_sqrt( -Q_log( 1.0 / 255.0 ) ));
 #endif
 extern bool tr_stencilled; //tr_backend.cpp
 static void RB_IterateStagesGeneric( shaderCommands_t *input )

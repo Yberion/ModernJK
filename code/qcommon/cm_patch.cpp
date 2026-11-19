@@ -1610,7 +1610,7 @@ void CM_TraceThroughPatchCollide( traceWork_t *tw, const struct patchCollide_s *
 			else {
 				// NOTE: this works even though the plane might be flipped because the bbox is centered
 				offset = DotProduct( tw->offsets[ planes->signbits ], plane);
-				plane[3] += fabs(offset);
+				plane[3] += Q_fabsf(offset);
 				VectorCopy( tw->start, startp );
 				VectorCopy( tw->end, endp );
 			}
@@ -1683,7 +1683,7 @@ bool CM_PositionTestInPatchCollide( traceWork_t *tw, const struct patchCollide_s
 	planes = pc->planes;
 	for ( i = 0 ; i < pc->numPlanes ; i++, planes++ ) {
 		d = DotProduct( tw->start, planes->plane ) - planes->plane[3];
-		offset = fabs( DotProduct( tw->offsets[ planes->signbits ], planes->plane ) );
+		offset = Q_fabsf( DotProduct( tw->offsets[ planes->signbits ], planes->plane ) );
 		if ( d < -offset ) {
 			cross[i] = boxSide_t::BOX_FRONT;
 		} else if ( d > offset ) {

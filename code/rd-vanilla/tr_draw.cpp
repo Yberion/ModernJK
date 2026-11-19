@@ -234,7 +234,7 @@ static byte *RE_ReSample(byte *pbLoadedPic,			int iLoadedWidth,	int iLoadedHeigh
 		//
 		float	fXStep = (float)iLoadedWidth / (float)*piWidth;
 		float	fYStep = (float)iLoadedHeight/ (float)*piHeight;
-		int		iTotPixelsPerDownSample = (int)ceil(fXStep) * (int)ceil(fYStep);
+		int		iTotPixelsPerDownSample = (int)Q_ceilf(fXStep) * (int)Q_ceilf(fYStep);
 
 		int 	r,g,b;
 

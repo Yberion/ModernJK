@@ -647,9 +647,9 @@ return;
 			// an axial brush right behind a slanted bsp plane
 			// will poke through when expanded, so adjust
 			// by sqrt(3)
-			offset = fabs(tw->extents[0]*plane->normal[0]) +
-				fabs(tw->extents[1]*plane->normal[1]) +
-				fabs(tw->extents[2]*plane->normal[2]);
+			offset = Q_fabsf(tw->extents[0]*plane->normal[0]) +
+				Q_fabsf(tw->extents[1]*plane->normal[1]) +
+				Q_fabsf(tw->extents[2]*plane->normal[2]);
 
 			offset *= 2;
 #if 0

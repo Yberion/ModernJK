@@ -352,7 +352,7 @@ bool G_ValidateLookEnemy( gentity_t *self, gentity_t *enemy )
 	}
 
 	if ( (!InFront( enemy->currentOrigin, self->currentOrigin, self->client->ps.viewangles, 0.0f) || !G_ClearLOS( self, self->client->renderInfo.eyePoint, enemy ) )
-		&& ( DistanceHorizontalSquared( enemy->currentOrigin, self->currentOrigin ) > 65536 || fabs(enemy->currentOrigin[2]-self->currentOrigin[2]) > 384 )  )
+		&& ( DistanceHorizontalSquared( enemy->currentOrigin, self->currentOrigin ) > 65536 || Q_fabsf(enemy->currentOrigin[2]-self->currentOrigin[2]) > 384 )  )
 	{//(not in front or not clear LOS) & greater than 256 away
 		return false;
 	}
@@ -852,10 +852,10 @@ void DoImpact( gentity_t *self, gentity_t *other, bool damageSelf, trace_t *trac
 			victimRightAccuracy = DotProduct(victimTowardAttacker, victimRight);
 
 			if (
-				fabsf(victimRightAccuracy)>0.25 						// Must Be Exactly Right Or Left
+				Q_fabsf(victimRightAccuracy)>0.25 						// Must Be Exactly Right Or Left
 			//	&& victimTowardAttackerDistance<100.0f 					// Must Be Close Enough
 			//	&& attackerMoveSpeed>minLockingSpeed					// Must be moving fast enough
-			//	&& fabsf(attackerMoveSpeed - victimMoveSpeed)<100	 	// Both must be going about the same speed
+			//	&& Q_fabsf(attackerMoveSpeed - victimMoveSpeed)<100	 	// Both must be going about the same speed
 				)
 			{
 				thrown = true;
@@ -911,7 +911,7 @@ void DoImpact( gentity_t *self, gentity_t *other, bool damageSelf, trace_t *trac
 				VectorCopy(velocity, vehFwd);
 				float	vehSpeed					= VectorNormalize(vehFwd);
 				float	vehToughnessAgainstOther	= pSelfVeh->m_pVehicleInfo->toughness;
-				float	vehHitPercent				= fabsf(DotProduct(vehFwd, trace->plane.normal));
+				float	vehHitPercent				= Q_fabsf(DotProduct(vehFwd, trace->plane.normal));
 				damageFlags_t		vehDFlags					= damageFlags_t::DAMAGE_NO_ARMOR;
 				bool	vehPilotedByPlayer			= (pSelfVeh->m_pPilot && pSelfVeh->m_pPilot->s.number<MAX_CLIENTS);
 				bool	vehInTurbo					= (pSelfVeh->m_iTurboTime>level.time);
@@ -1166,7 +1166,7 @@ void DoImpact( gentity_t *self, gentity_t *other, bool damageSelf, trace_t *trac
 						}
 						else
 						{
-							G_Damage( other, self, self, velocity, self->currentOrigin, floor(force), damageFlags_t::DAMAGE_NO_ARMOR, meansOfDeath_t::MOD_IMPACT );
+							G_Damage( other, self, self, velocity, self->currentOrigin, Q_floorf(force), damageFlags_t::DAMAGE_NO_ARMOR, meansOfDeath_t::MOD_IMPACT );
 						}
 					}
 					else
@@ -1838,7 +1838,7 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 				/*
 				if ( g_timescale->value&&client->ps.clientNum==0&&!player_locked&&!MatrixMode&&client->ps.forcePowersActive&Bit( forcePowers_t::FP_SPEED ) )
 				{
-					wait = floor( (float)wait*g_timescale->value );
+					wait = Q_floorf( (float)wait*g_timescale->value );
 				}
 				*/
 				client->ps.saberDamageDebounceTime = level.time + wait;
@@ -2289,7 +2289,7 @@ bool G_GrabClient( gentity_t *ent, usercmd_t *ucmd )
 			continue;
 		}
 
-		if ( fabs(radiusEnts[i]->currentOrigin[2]-ent->currentOrigin[2])>8.0f )
+		if ( Q_fabsf(radiusEnts[i]->currentOrigin[2]-ent->currentOrigin[2])>8.0f )
 		{//have to be close in Z
 			continue;
 		}
@@ -4087,8 +4087,8 @@ void BG_AddPushVecToUcmd( gentity_t *self, usercmd_t *ucmd )
 
 	fMove = 127.0 * DotProduct(forward, moveDir);
 	rMove = 127.0 * DotProduct(right, moveDir);
-	ucmd->forwardmove = floor(fMove);//If in the same dir , will be positive
-	ucmd->rightmove = floor(rMove);//If in the same dir , will be positive
+	ucmd->forwardmove = Q_floorf(fMove);//If in the same dir , will be positive
+	ucmd->rightmove = Q_floorf(rMove);//If in the same dir , will be positive
 
 	if ( self->client->pushVecTime < level.time )
 	{
@@ -4468,7 +4468,7 @@ void	ClientAlterSpeed(gentity_t *ent, usercmd_t *ucmd, bool	controlledByPlayer, 
 								{
 									float slowdownSpeed = ((float)ent->NPC->desiredSpeed) * ent->NPC->distToGoal / SLOWDOWN_DIST;
 
-									ent->NPC->desiredSpeed = ceil(slowdownSpeed);
+									ent->NPC->desiredSpeed = Q_ceilf(slowdownSpeed);
 									if ( ent->NPC->desiredSpeed < MIN_NPC_SPEED )
 									{//don't slow down too much
 										ent->NPC->desiredSpeed = MIN_NPC_SPEED;
@@ -4533,11 +4533,11 @@ void	ClientAlterSpeed(gentity_t *ent, usercmd_t *ucmd, bool	controlledByPlayer, 
 						// if the NPC is locked into a Yaw, we want to check the lockedDesiredYaw...otherwise the NPC can't walk backwards, because it always thinks it trying to turn according to desiredYaw
 						if( client->renderInfo.renderFlags & RF_LOCKEDANGLE ) // yeah I know the RF_ flag is a pretty ugly hack...
 						{
-							turndelta = (180 - fabs( AngleDelta( ent->currentAngles[YAW], ent->NPC->lockedDesiredYaw ) ))/180;
+							turndelta = (180 - Q_fabsf( AngleDelta( ent->currentAngles[YAW], ent->NPC->lockedDesiredYaw ) ))/180;
 						}
 						else
 						{
-							turndelta = (180 - fabs( AngleDelta( ent->currentAngles[YAW], ent->NPC->desiredYaw ) ))/180;
+							turndelta = (180 - Q_fabsf( AngleDelta( ent->currentAngles[YAW], ent->NPC->desiredYaw ) ))/180;
 						}
 
 						if ( turndelta < 0.75f )
@@ -4546,7 +4546,7 @@ void	ClientAlterSpeed(gentity_t *ent, usercmd_t *ucmd, bool	controlledByPlayer, 
 						}
 						else if ( ent->NPC->distToGoal < 100 && turndelta < 1.0 )
 						{//Turn is greater than 45 degrees or closer than 100 to goal
-							client->ps.speed = floor(((float)(client->ps.speed))*turndelta);
+							client->ps.speed = Q_floorf(((float)(client->ps.speed))*turndelta);
 						}
 					}
 				}

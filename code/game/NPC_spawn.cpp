@@ -1054,7 +1054,7 @@ void NPC_Begin (gentity_t *ent)
 				|| !Q_stricmp("alora_dual", ent->NPC_type )
 				|| !Q_stricmp("alora_boss", ent->NPC_type ) )
 			{//bosses are a bit different
-				ent->NPC->stats.health = ceil((float)ent->NPC->stats.health*0.75f + ((float)ent->NPC->stats.health/4.0f*g_spskill->value)); // 75% on easy, 100% on medium, 125% on hard
+				ent->NPC->stats.health = Q_ceilf((float)ent->NPC->stats.health*0.75f + ((float)ent->NPC->stats.health/4.0f*g_spskill->value)); // 75% on easy, 100% on medium, 125% on hard
 			}
 			else
 			{
@@ -2022,7 +2022,7 @@ void SP_NPC_spawner( gentity_t *self)
 	G_SpawnFloat( "delay", "0", &fDelay );
 	if ( fDelay )
 	{
-        self->delay = ceil(1000.0f*fDelay);//1 = 1 msec, 1000 = 1 sec
+        self->delay = Q_ceilf(1000.0f*fDelay);//1 = 1 msec, 1000 = 1 sec
 	}
 
 	if ( self->delay > 0 )

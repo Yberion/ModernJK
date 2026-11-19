@@ -257,7 +257,7 @@ void CGCam_Pan( vec3_t dest, vec3_t panDirection, float duration )
 		}
 		if ( !panDirection[i] )
 		{//Didn't specify a direction, pick shortest
-			if( fabs(delta1) < fabs(delta2) )
+			if( Q_fabsf(delta1) < Q_fabsf(delta2) )
 			{
 				client_camera.angles2[i] = delta1;
 			}

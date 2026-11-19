@@ -42,7 +42,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define ASSERT_H_INC
 #endif
 
-#include <math.h>
+#include "qcommon/q_libm.h"
 #include <stdio.h>
 #include <float.h>
 #include "CBounds.h"
@@ -289,7 +289,7 @@ bool CBBox::HitTest(CBTrace& Tr) const
 	float tmax,tmin,temp;
 	for (int axis=0; axis<3; axis++)
 	{
-		if (fabs(Tr.mAim[axis])>1E-6f)
+		if (Q_fabsf(Tr.mAim[axis])>1E-6f)
 		{
 			// Find Mins And Maxs From The Start Along The Axis Of Aim
 			//---------------------------------------------------------

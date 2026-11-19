@@ -118,6 +118,7 @@ void	Sys_Sleep( int msec );
 extern "C" void	Sys_SnapVector( float *v );
 
 bool Sys_RandomBytes( byte *string, int len );
+void Sys_InitRand( void );
 
 void	Sys_SetErrorText( const char *text );
 

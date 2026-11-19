@@ -921,7 +921,7 @@ bool WP_SaberApplyDamage( gentity_t *ent, float baseDamage, damageFlags_t baseDF
 								break;
 							}
 						}
-						G_Damage( victim, ent, ent, dmgDir[i], dmgSpot[i], ceil(totalDmg[i]), dFlags, meansOfDeath_t::MOD_SABER, hitDismemberLoc[i] );
+						G_Damage( victim, ent, ent, dmgDir[i], dmgSpot[i], Q_ceilf(totalDmg[i]), dFlags, meansOfDeath_t::MOD_SABER, hitDismemberLoc[i] );
 #ifndef FINAL_BUILD
 						if ( d_saberCombat->integer )
 						{
@@ -1213,7 +1213,7 @@ float WP_SabersDistance( gentity_t *ent1, gentity_t *ent2 )
 		VectorSubtract( saberMidPoint, cg.refdef.vieworg, camLookDir );
 		VectorNormalize( saberDistDir );
 		VectorNormalize( camLookDir );
-		float dot = fabs(DotProduct( camLookDir, saberDistDir ));
+		float dot = Q_fabsf(DotProduct( camLookDir, saberDistDir ));
 		sabersDist -= 8.0f*dot;
 		if ( sabersDist < 0.0f )
 		{
@@ -1419,7 +1419,7 @@ bool WP_SaberDamageEffects( trace_t *tr, const vec3_t start, float length, float
 			}
 			if ( doDmg > 0 )
 			{
-				WP_SaberDamageAdd( 1.0, hitEntNum[i], hitEntDir[i], hitEntPoint[i], ceil(doDmg), hitEntStartFrac[i], trHitLoc, trDismember, trDismemberLoc );
+				WP_SaberDamageAdd( 1.0, hitEntNum[i], hitEntDir[i], hitEntPoint[i], Q_ceilf(doDmg), hitEntStartFrac[i], trHitLoc, trDismember, trDismemberLoc );
 			}
 		}
 	}
@@ -1925,7 +1925,7 @@ bool WP_SabersCheckLock2( gentity_t *attacker, gentity_t *defender, sabersLockMo
 	if( ValidAnimFileIndex( attacker->client->clientInfo.animFileIndex ) )
 	{
 		anim = &level.knownAnimFileSets[attacker->client->clientInfo.animFileIndex].animations[attAnim];
-		advance = floor( anim->numFrames*attStart );
+		advance = Q_floorf( anim->numFrames*attStart );
 		PM_SetAnimFrame( attacker, anim->firstFrame + advance, true, true );
 #ifndef FINAL_BUILD
 		if ( d_saberCombat->integer )
@@ -2035,7 +2035,7 @@ bool WP_SabersCheckLock2( gentity_t *attacker, gentity_t *defender, sabersLockMo
 	//MATCH POSITIONS
 	vec3_t	newOrg;
 	/*
-	idealDist -= fabs(defPitchAdd)/8.0f;
+	idealDist -= Q_fabsf(defPitchAdd)/8.0f;
 	*/
 	float scale = VectorLength( attacker->s.modelScale );
 	if ( scale )
@@ -2091,7 +2091,7 @@ bool WP_SabersCheckLock( gentity_t *ent1, gentity_t *ent2 )
 	{//can't saberlock if you're not ready
 		return false;
 	}
-	if ( fabs( ent1->currentOrigin[2]-ent2->currentOrigin[2]) > 18 )
+	if ( Q_fabsf( ent1->currentOrigin[2]-ent2->currentOrigin[2]) > 18 )
 	{
 		return false;
 	}
@@ -2850,7 +2850,7 @@ void WP_SaberDamageTrace( gentity_t *ent )
 			curDirFrac = 1.0f;
 		}
 		//NOTE: if saber spun at least 180 degrees since last damage trace, this is not reliable...!
-		if ( fabs(curDirFrac) < 1.0f - MAX_SABER_SWING_INC )
+		if ( Q_fabsf(curDirFrac) < 1.0f - MAX_SABER_SWING_INC )
 		{//the saber blade spun more than 33 degrees since the last damage trace
 			curDirFrac = dirInc = 1.0f/((1.0f - curDirFrac)/MAX_SABER_SWING_INC);
 		}
@@ -3827,7 +3827,7 @@ bool WP_SaberValidateEnemy( gentity_t *self, gentity_t *enemy )
 	}
 
 	if ( (!InFront( enemy->currentOrigin, self->currentOrigin, self->client->ps.viewangles, 0.0f) || !G_ClearLOS( self, self->client->renderInfo.eyePoint, enemy ) )
-		&& ( DistanceHorizontalSquared( enemy->currentOrigin, self->currentOrigin ) > 65536 || fabs(enemy->currentOrigin[2]-self->currentOrigin[2]) > 384 )  )
+		&& ( DistanceHorizontalSquared( enemy->currentOrigin, self->currentOrigin ) > 65536 || Q_fabsf(enemy->currentOrigin[2]-self->currentOrigin[2]) > 384 )  )
 	{//(not in front or not clear LOS) & greater than 256 away
 		return false;
 	}
@@ -5446,7 +5446,7 @@ void WP_ResistForcePush( gentity_t *self, gentity_t *pusher, bool noPenalty )
 			self->client->ps.weaponTime = 1000;
 			if ( self->client->ps.forcePowersActive&Bit( forcePowers_t::FP_SPEED ) )
 			{
-				self->client->ps.weaponTime = floor( self->client->ps.weaponTime * g_timescale->value );
+				self->client->ps.weaponTime = Q_floorf( self->client->ps.weaponTime * g_timescale->value );
 			}
 			self->client->ps.pm_time = self->client->ps.weaponTime;
 			self->client->ps.pm_flags |= pmoveFlags_t::PMF_TIME_KNOCKBACK;
@@ -5458,7 +5458,7 @@ void WP_ResistForcePush( gentity_t *self, gentity_t *pusher, bool noPenalty )
 			self->client->ps.weaponTime = 600;
 			if ( self->client->ps.forcePowersActive&Bit( forcePowers_t::FP_SPEED ) )
 			{
-				self->client->ps.weaponTime = floor( self->client->ps.weaponTime * g_timescale->value );
+				self->client->ps.weaponTime = Q_floorf( self->client->ps.weaponTime * g_timescale->value );
 			}
 		}
 	}
@@ -5695,7 +5695,7 @@ void ForceThrow( gentity_t *self, bool pull )
 	self->client->ps.saberBlocked = saberBlockedType_t::BLOCKED_NONE;
 	if ( self->client->ps.forcePowersActive&Bit( forcePowers_t::FP_SPEED ) )
 	{
-		hold = floor( hold*g_timescale->value );
+		hold = Q_floorf( hold*g_timescale->value );
 	}
 	self->client->ps.weaponTime = hold;//was 1000, but want to swing sooner
 	//do effect... FIXME: build-up or delay this until in proper part of anim
@@ -6047,7 +6047,7 @@ void ForceThrow( gentity_t *self, bool pull )
 							self->client->ps.weaponTime = 500;
 							if ( self->client->ps.forcePowersActive&Bit( forcePowers_t::FP_SPEED ) )
 							{
-								self->client->ps.weaponTime = floor( self->client->ps.weaponTime * g_timescale->value );
+								self->client->ps.weaponTime = Q_floorf( self->client->ps.weaponTime * g_timescale->value );
 							}
 						}
 					}
@@ -6495,7 +6495,7 @@ void ForceThrow( gentity_t *self, bool pull )
 			}
 			else if ( self->client->ps.forcePowerLevel[forcePowers_t::FP_PUSH] > forcePowerLevels_t::FORCE_LEVEL_1 )
 			{//at level 3, can push multiple, so costs more
-				actualCost = floor(forcePowerNeeded[forcePowers_t::FP_PUSH]*ent_count/1.5f);
+				actualCost = Q_floorf(forcePowerNeeded[forcePowers_t::FP_PUSH]*ent_count/1.5f);
 				if ( actualCost > 50 )
 				{
 					actualCost = 50;
@@ -6867,7 +6867,7 @@ void ForceTelepathy( gentity_t *self )
 	self->client->ps.weaponTime = 1000;
 	if ( self->client->ps.forcePowersActive&Bit( forcePowers_t::FP_SPEED ) )
 	{
-		self->client->ps.weaponTime = floor( self->client->ps.weaponTime * g_timescale->value );
+		self->client->ps.weaponTime = Q_floorf( self->client->ps.weaponTime * g_timescale->value );
 	}
 }
 
@@ -6898,7 +6898,7 @@ void ForceGrip( gentity_t *self )
 			self->client->ps.weaponTime = 1000;
 			if ( self->client->ps.forcePowersActive&Bit( forcePowers_t::FP_SPEED ) )
 			{
-				self->client->ps.weaponTime = floor( self->client->ps.weaponTime * g_timescale->value );
+				self->client->ps.weaponTime = Q_floorf( self->client->ps.weaponTime * g_timescale->value );
 			}
 		}
 		return;
@@ -6931,7 +6931,7 @@ void ForceGrip( gentity_t *self )
 	self->client->ps.weaponTime = 1000;
 	if ( self->client->ps.forcePowersActive&Bit( forcePowers_t::FP_SPEED ) )
 	{
-		self->client->ps.weaponTime = floor( self->client->ps.weaponTime * g_timescale->value );
+		self->client->ps.weaponTime = Q_floorf( self->client->ps.weaponTime * g_timescale->value );
 	}
 
 	AngleVectors( self->client->ps.viewangles, forward, nullptr, nullptr );
@@ -7658,7 +7658,7 @@ void WP_ForcePowerStart( gentity_t *self, forcePowers_t forcePower, int override
 		break;
 	case forcePowers_t::FP_SPEED:
 		//duration is always 5 seconds, player time
-		duration = ceil(FORCE_SPEED_DURATION*forceSpeedValue[self->client->ps.forcePowerLevel[forcePowers_t::FP_SPEED]]);//FIXME: because the timescale scales down (not instant), this doesn't end up being exactly right...
+		duration = Q_ceilf(FORCE_SPEED_DURATION*forceSpeedValue[self->client->ps.forcePowerLevel[forcePowers_t::FP_SPEED]]);//FIXME: because the timescale scales down (not instant), this doesn't end up being exactly right...
 		self->client->ps.forcePowersActive |= Bit( forcePower );
 		self->s.loopSound = G_SoundIndex( "sound/weapons/force/speedloop.wav" );
 		break;

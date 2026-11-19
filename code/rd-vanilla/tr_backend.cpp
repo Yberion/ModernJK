@@ -1125,8 +1125,8 @@ const void *RB_RotatePic ( const void *data )
 	int numIndexes = tess.numIndexes;
 
 	float angle = DEG2RAD( cmd-> a );
-	float s = sinf( angle );
-	float c = cosf( angle );
+	float s = Q_sinf( angle );
+	float c = Q_cosf( angle );
 
 	matrix3_t m = {
 		{ c, s, 0.0f },
@@ -1216,8 +1216,8 @@ const void *RB_RotatePic2 ( const void *data )
 		int numIndexes = tess.numIndexes;
 
 		float angle = DEG2RAD( cmd-> a );
-		float s = sinf( angle );
-		float c = cosf( angle );
+		float s = Q_sinf( angle );
+		float c = Q_cosf( angle );
 
 		matrix3_t m = {
 			{ c, s, 0.0f },

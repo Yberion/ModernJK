@@ -986,7 +986,7 @@ bool G_ParseAnimationFile(int glaIndex, const char *skeletonName, int fileIndex)
 		{
 			break;
 		}
-		fps = atof( token );
+		fps = Q_atof( token );
 		if ( fps == 0 )
 		{
 			fps = 1;//Don't allow divide by zero error
@@ -997,20 +997,20 @@ bool G_ParseAnimationFile(int glaIndex, const char *skeletonName, int fileIndex)
 		int lerp;
 		if ( fps < 0 )
 		{//backwards
-			lerp = floor(1000.0f / fps);
+			lerp = Q_floorf(1000.0f / fps);
 			assert(lerp > -32767 && lerp < 32767);
 			animations[*animNum].frameLerp = lerp;
 			assert(animations[*animNum].frameLerp <= 1);
 		}
 		else
 		{
-			lerp = ceil(1000.0f / fps);
+			lerp = Q_ceilf(1000.0f / fps);
 			assert(lerp > -32767 && lerp < 32767);
 			animations[*animNum].frameLerp = lerp;
 			assert(animations[*animNum].frameLerp >= 1);
 		}
 
-/*		lerp = ceil(1000.0f / Q_fabsf(fps));
+/*		lerp = Q_ceilf(1000.0f / Q_fabsf(fps));
 		assert(lerp > -32767 && lerp < 32767);
 		animations[*animNum].initialLerp = lerp;
 */

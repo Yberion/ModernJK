@@ -232,7 +232,7 @@ static const char *Cvar_Validate( cvar_t *var, const char *value, bool warn )
 
 	if( Q_isanumber( value ) )
 	{
-		valuef = atof( value );
+		valuef = Q_atof( value );
 
 		if( var->integral )
 		{
@@ -251,7 +251,7 @@ static const char *Cvar_Validate( cvar_t *var, const char *value, bool warn )
 		if( warn )
 			Com_Printf( "WARNING: cvar '%s' must be numeric", var->name );
 
-		valuef = atof( var->resetString );
+		valuef = Q_atof( var->resetString );
 		changed = true;
 	}
 
@@ -448,7 +448,7 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, cvarFlags_t flags
 	var->string = CopyString (var_value);
 	var->modified = true;
 	var->modificationCount = 1;
-	var->value = atof (var->string);
+	var->value = Q_atof (var->string);
 	var->integer = atoi(var->string);
 	var->resetString = CopyString( var_value );
 	var->validate = false;
@@ -685,7 +685,7 @@ cvar_t *Cvar_Set2( const char *var_name, const char *value, bool force ) {
 	Cvar_FreeString (var->string);	// free the old value string
 
 	var->string = CopyString(value);
-	var->value = atof (var->string);
+	var->value = Q_atof (var->string);
 	var->integer = atoi (var->string);
 
 	return var;

@@ -192,7 +192,7 @@ bool ReachedGoal( gentity_t *goal )
 		// is it in our FOV
 		vectoangles ( vec, angles );
 		delta = AngleDelta ( NPC->client->ps.viewangles[YAW], angles[YAW] );
-		if ( fabs ( delta ) > NPCInfo->stats.hfov )
+		if ( Q_fabsf ( delta ) > NPCInfo->stats.hfov )
 		{
 			return false;
 		}

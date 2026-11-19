@@ -290,7 +290,7 @@ bool NPC_UpdateAngles ( bool doPitch, bool doYaw )
 	{
 		// decay yaw error
 		error = AngleDelta ( NPC->client->ps.viewangles[YAW], targetYaw );
-		if( fabs(error) > MIN_ANGLE_ERROR )
+		if( Q_fabsf(error) > MIN_ANGLE_ERROR )
 		{
 			if ( error )
 			{
@@ -326,7 +326,7 @@ bool NPC_UpdateAngles ( bool doPitch, bool doYaw )
 	{
 		// decay pitch error
 		error = AngleDelta ( NPC->client->ps.viewangles[PITCH], targetPitch );
-		if ( fabs(error) > MIN_ANGLE_ERROR )
+		if ( Q_fabsf(error) > MIN_ANGLE_ERROR )
 		{
 			if ( error )
 			{
@@ -404,7 +404,7 @@ bool NPC_UpdateAngles ( bool doPitch, bool doYaw )
 	{
 		// decay yaw error
 		error = AngleDelta ( NPC->client->ps.viewangles[YAW], targetYaw );
-		if( fabs(error) > MIN_ANGLE_ERROR )
+		if( Q_fabsf(error) > MIN_ANGLE_ERROR )
 		{
 			/*
 			if(NPC->client->playerTeam == TEAM_BORG&&
@@ -417,7 +417,7 @@ bool NPC_UpdateAngles ( bool doPitch, bool doYaw )
 					decay = 60.0 + yawSpeed * 3;
 					decay *= 50.0 / 1000.0;//msec
 					//Snap to
-					if(fabs(error) > 10)
+					if(Q_fabsf(error) > 10)
 					{
 						if(Q_flrand(0.0f, 1.0f) > 0.6)
 						{
@@ -478,7 +478,7 @@ bool NPC_UpdateAngles ( bool doPitch, bool doYaw )
 	{
 		// decay pitch error
 		error = AngleDelta ( NPC->client->ps.viewangles[PITCH], targetPitch );
-		if ( fabs(error) > MIN_ANGLE_ERROR )
+		if ( Q_fabsf(error) > MIN_ANGLE_ERROR )
 		{
 			/*
 			if(NPC->client->playerTeam == TEAM_BORG&&
@@ -491,7 +491,7 @@ bool NPC_UpdateAngles ( bool doPitch, bool doYaw )
 					decay = 60.0 + yawSpeed * 3;
 					decay *= 50.0 / 1000.0;//msec
 					//Snap to
-					if(fabs(error) > 10)
+					if(Q_fabsf(error) > 10)
 					{
 						if(Q_flrand(0.0f, 1.0f) > 0.6)
 						{
@@ -885,7 +885,7 @@ void SetTeamNumbers (void)
 
 	for( team_t t = team_t::TEAM_FREE; t < team_t::TEAM_NUM_TEAMS; t++ )
 	{//Get the average health
-		teamStrength[t] = floor( ((float)(teamStrength[t])) / ((float)(teamNumbers[t])) );
+		teamStrength[t] = Q_floorf( ((float)(teamStrength[t])) / ((float)(teamNumbers[t])) );
 	}
 }
 
@@ -1362,7 +1362,7 @@ bool NPC_FacePosition( vec3_t position, bool doPitch )
 	if ( NPC->enemy && NPC->enemy->client && NPC->enemy->client->NPC_class == class_t::CLASS_ATST )
 	{
 		// FIXME: this is kind of dumb, but it was the easiest way to get it to look sort of ok
-		NPCInfo->desiredYaw	+= Q_flrand( -5, 5 ) + sin( level.time * 0.004f ) * 7;
+		NPCInfo->desiredYaw	+= Q_flrand( -5, 5 ) + Q_sinf( level.time * 0.004f ) * 7;
 		NPCInfo->desiredPitch += Q_flrand( -2, 2 );
 	}
 	//Face that yaw
@@ -1372,7 +1372,7 @@ bool NPC_FacePosition( vec3_t position, bool doPitch )
 	float yawDelta = AngleNormalize360( NPCInfo->desiredYaw - ( SHORT2ANGLE( ucmd.angles[YAW] + client->ps.delta_angles[YAW] ) ) );
 
 	//See if we are facing properly
-	if ( fabs( yawDelta ) > VALID_ATTACK_CONE )
+	if ( Q_fabsf( yawDelta ) > VALID_ATTACK_CONE )
 		facing = false;
 
 	if ( doPitch )
@@ -1382,7 +1382,7 @@ bool NPC_FacePosition( vec3_t position, bool doPitch )
 		float pitchDelta = NPCInfo->desiredPitch - currentAngles;
 
 		//See if we are facing properly
-		if ( fabs( pitchDelta ) > VALID_ATTACK_CONE )
+		if ( Q_fabsf( pitchDelta ) > VALID_ATTACK_CONE )
 			facing = false;
 	}
 

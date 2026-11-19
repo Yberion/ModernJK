@@ -88,7 +88,7 @@ hitLocation_t G_GetHitLocation(gentity_t *target, vec3_t ppoint)
 	VectorScale(tcenter, 0.5, tcenter);
 
 	// Get radius width of target.
-//	tradius = (fabs(target->r.maxs[0]) + fabs(target->r.maxs[1]) + fabs(target->r.mins[0]) + fabs(target->r.mins[1]))/4;
+//	tradius = (Q_fabsf(target->r.maxs[0]) + Q_fabsf(target->r.maxs[1]) + Q_fabsf(target->r.mins[0]) + Q_fabsf(target->r.mins[1]))/4;
 
 	// Get impact point.
 	if(ppoint && !VectorCompare(ppoint, vec3_origin))

@@ -1405,7 +1405,7 @@ void R_FogDistance_f(void)
 		return;
 	}
 
-	distance = atof(ri.Cmd_Argv(1));
+	distance = Q_atof(ri.Cmd_Argv(1));
 	if (distance < 1.0)
 	{
 		distance = 1.0;
@@ -1458,12 +1458,12 @@ void R_FogColor_f(void)
 		return;
 	}
 
-	tr.world->fogs[tr.world->globalFog].parms.color[0] = atof(ri.Cmd_Argv(1));
-	tr.world->fogs[tr.world->globalFog].parms.color[1] = atof(ri.Cmd_Argv(2));
-	tr.world->fogs[tr.world->globalFog].parms.color[2] = atof(ri.Cmd_Argv(3));
-	tr.world->fogs[tr.world->globalFog].colorInt = ColorBytes4 ( atof(ri.Cmd_Argv(1)) * tr.identityLight,
-			                          atof(ri.Cmd_Argv(2)) * tr.identityLight,
-			                          atof(ri.Cmd_Argv(3)) * tr.identityLight, 1.0 );
+	tr.world->fogs[tr.world->globalFog].parms.color[0] = Q_atof(ri.Cmd_Argv(1));
+	tr.world->fogs[tr.world->globalFog].parms.color[1] = Q_atof(ri.Cmd_Argv(2));
+	tr.world->fogs[tr.world->globalFog].parms.color[2] = Q_atof(ri.Cmd_Argv(3));
+	tr.world->fogs[tr.world->globalFog].colorInt = ColorBytes4 ( Q_atof(ri.Cmd_Argv(1)) * tr.identityLight,
+			                          Q_atof(ri.Cmd_Argv(2)) * tr.identityLight,
+			                          Q_atof(ri.Cmd_Argv(3)) * tr.identityLight, 1.0 );
 }
 
 typedef struct consoleCommand_s {
@@ -1724,7 +1724,7 @@ void R_Init( void ) {
 	//
 	for ( i = 0; i < FUNCTABLE_SIZE; i++ )
 	{
-		tr.sinTable[i]		= sin( DEG2RAD( i * 360.0f / ( ( float ) ( FUNCTABLE_SIZE - 1 ) ) ) );
+		tr.sinTable[i]		= Q_sinf( DEG2RAD( i * 360.0f / ( ( float ) ( FUNCTABLE_SIZE - 1 ) ) ) );
 		tr.squareTable[i]	= ( i < FUNCTABLE_SIZE/2 ) ? 1.0f : -1.0f;
 		tr.sawToothTable[i] = (float)i / FUNCTABLE_SIZE;
 		tr.inverseSawToothTable[i] = 1.0f - tr.sawToothTable[i];

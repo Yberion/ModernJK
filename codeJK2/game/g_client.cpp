@@ -41,7 +41,7 @@ float DEFAULT_MINS_0 = -16;
 float DEFAULT_MINS_1 = -16;
 float DEFAULT_MAXS_0 = 16;
 float DEFAULT_MAXS_1 = 16;
-float DEFAULT_PLAYER_RADIUS	= sqrt((DEFAULT_MAXS_0*DEFAULT_MAXS_0) + (DEFAULT_MAXS_1*DEFAULT_MAXS_1));
+float DEFAULT_PLAYER_RADIUS	= Q_sqrtf((DEFAULT_MAXS_0*DEFAULT_MAXS_0) + (DEFAULT_MAXS_1*DEFAULT_MAXS_1));
 vec3_t playerMins = {DEFAULT_MINS_0, DEFAULT_MINS_1, DEFAULT_MINS_2};
 vec3_t playerMaxs = {DEFAULT_MAXS_0, DEFAULT_MAXS_1, DEFAULT_MAXS_2};
 
@@ -253,7 +253,7 @@ gentity_t *SelectRandomDeathmatchSpawnPoint( team_t team ) {
 		}
 	}
 
-	selection = rand() % count;
+	selection = Q_irand( 0, count - 1 );
 	return spots[ selection ];
 }
 
@@ -701,7 +701,9 @@ void Player_RestoreFromPrevLevel(gentity_t *ent)
 
 		if (strlen(s))	// actually this would be safe anyway because of the way sscanf() works, but this is clearer
 		{
-			sscanf( s, "%i %i %i %i %i %i %i %f %f %f %i %i %i %i %i %i",
+			// the view angles through Q_strtof, the same floats on every platform
+			int afterInts = 0;
+			sscanf( s, "%i %i %i %i %i %i %i%n",
 								&client->ps.stats[statIndex_t::STAT_HEALTH],
 								&client->ps.stats[statIndex_t::STAT_ARMOR],
 								&client->ps.stats[statIndex_t::STAT_WEAPONS],
@@ -709,9 +711,13 @@ void Player_RestoreFromPrevLevel(gentity_t *ent)
 								&weapon,
 								&weaponstate,
 								&client->ps.batteryCharge,
-								&client->ps.viewangles[0],
-								&client->ps.viewangles[1],
-								&client->ps.viewangles[2],
+								&afterInts );
+			const char *rest = s + afterInts;
+			for ( float &angle : client->ps.viewangles )
+			{
+				angle = Q_strtof( rest, &rest );
+			}
+			sscanf( rest, "%i %i %i %i %i %i",
 								&client->ps.forcePowersKnown,
 								&client->ps.forcePower,
 								&saberActive,
@@ -1248,7 +1254,7 @@ bool G_SetG2PlayerModelInfo( gentity_t *ent, const char *modelName, const char *
 			max = ent->mins[2];
 		}
 
-		max = fabs((double)max);//convert to positive to compare with maxs
+		max = Q_fabs((double)max);//convert to positive to compare with maxs
 		if ( max < ent->maxs[0] )
 		{
 			max = ent->maxs[0];

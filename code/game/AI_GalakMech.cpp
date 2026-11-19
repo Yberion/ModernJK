@@ -134,7 +134,7 @@ void	Pilot_Update(void)
 
 		if (pVeh &&
 			(pVeh->m_pVehicleInfo->soundFlyBy || pVeh->m_pVehicleInfo->soundFlyBy2) &&
-			//fabsf(pVeh->m_pParentEntity->currentAngles[2])<15.0f &&
+			//Q_fabsf(pVeh->m_pParentEntity->currentAngles[2])<15.0f &&
 			VectorLength(pVeh->m_pParentEntity->client->ps.velocity)>500.0f)
 		{
 			vec3_t	projectedPosition;
@@ -285,7 +285,7 @@ bool	Pilot_MasterUpdate()
 					if (CurSpeed<pVeh->m_pVehicleInfo->speedMax)
 					{
 						VectorNormalize(parent->pos3);
-						if (fabsf(parent->pos3[2])<0.25f)
+						if (Q_fabsf(parent->pos3[2])<0.25f)
 						{
 							VectorScale(parent->pos3, (pVeh->m_pVehicleInfo->speedMax * 1.25f), parent->pos3);
 						}

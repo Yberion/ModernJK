@@ -564,7 +564,7 @@ static void turretG2_aim( gentity_t *self )
 	else
 	{
 		// no enemy, so make us slowly sweep back and forth as if searching for a new one
-//		diffYaw = sin( level.time * 0.0001f + self->count ) * 5.0f;	// don't do this for now since it can make it go into walls.
+//		diffYaw = Q_sinf( level.time * 0.0001f + self->count ) * 5.0f;	// don't do this for now since it can make it go into walls.
 	}
 
 	if ( diffYaw )

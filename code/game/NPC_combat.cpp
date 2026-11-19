@@ -167,7 +167,7 @@ bool G_CheckSaberAllyAttackDelay( gentity_t *self, gentity_t *enemy )
 		int delay = 500;
 		if ( distance > 2048 )
 		{//the farther they are, the shorter the delay
-			delay = 5000-floor(distance);//(6-g_spskill->integer));
+			delay = 5000-Q_floorf(distance);//(6-g_spskill->integer));
 			if ( delay < 500 )
 			{
 				delay = 500;
@@ -175,7 +175,7 @@ bool G_CheckSaberAllyAttackDelay( gentity_t *self, gentity_t *enemy )
 		}
 		else
 		{//the close they are, the shorter the delay
-			delay = floor(distance*4);//(6-g_spskill->integer));
+			delay = Q_floorf(distance*4);//(6-g_spskill->integer));
 			if ( delay > 5000 )
 			{
 				delay = 5000;
@@ -205,7 +205,7 @@ void G_AttackDelay( gentity_t *self, gentity_t *enemy )
 		{//invert
 			attDelay = 2000-attDelay;
 		}
-		attDelay += floor( (DotProduct( fwd, dir )+1.0f) * 2000.0f );//add up to 4000ms delay if they're facing away
+		attDelay += Q_floorf( (DotProduct( fwd, dir )+1.0f) * 2000.0f );//add up to 4000ms delay if they're facing away
 
 		//FIXME: should distance matter, too?
 
@@ -1713,7 +1713,7 @@ gentity_t *NPC_PickEnemy( gentity_t *closestTo, team_t enemyTeam, bool checkVis,
 
 	if (num_choices)
 	{
-		return &g_entities[ choice[rand() % num_choices] ];
+		return &g_entities[ choice[Q_irand( 0, num_choices - 1 )] ];
 	}
 
 	/*
@@ -1859,7 +1859,7 @@ gentity_t *NPC_PickEnemy( gentity_t *closestTo, team_t enemyTeam, bool checkVis,
 		return nullptr;
 	}
 
-	return &g_entities[ choice[rand() % num_choices] ];
+	return &g_entities[ choice[Q_irand( 0, num_choices - 1 )] ];
 }
 
 /*

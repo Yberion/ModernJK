@@ -297,7 +297,7 @@ void NPC_Jedi_RateNewEnemy( gentity_t *self, gentity_t *enemy )
 		break;
 	}
 	//Average these with current aggression
-	int newAggression = ceil( (healthAggression + weaponAggression + (float)self->NPC->stats.aggression )/3.0f);
+	int newAggression = Q_ceilf( (healthAggression + weaponAggression + (float)self->NPC->stats.aggression )/3.0f);
 	//Com_Printf( "(%d) new agg %d - new enemy\n", level.time, newAggression );
 	Jedi_Aggression( self, newAggression - self->NPC->stats.aggression );
 
@@ -434,7 +434,7 @@ bool NPC_MoveDirClear( int forwardmove, int rightmove, bool reset )
 		return true;
 	}
 	/*
-	if ( fabs( AngleDelta( NPC->currentAngles[YAW], NPCInfo->desiredYaw ) ) < 5.0 )//!ucmd.angles[YAW] )
+	if ( Q_fabsf( AngleDelta( NPC->currentAngles[YAW], NPCInfo->desiredYaw ) ) < 5.0 )//!ucmd.angles[YAW] )
 	{//Not turning much, don't do this
 		//NOTE: Should this not happen only if you're not turning AT ALL?
 		//	You could be turning slowly but moving fast, so that would
@@ -1668,13 +1668,13 @@ int Jedi_ReCalcParryTime( gentity_t *self, evasionType_t evasionType )
 
 				if ( self->client->NPC_class == class_t::CLASS_TAVION )
 				{//Tavion is faster
-					baseTime = ceil(baseTime/2.0f);
+					baseTime = Q_ceilf(baseTime/2.0f);
 				}
 				else if ( self->NPC->rank >= rank_t::RANK_LT_JG )
 				{//fencers, bosses, shadowtroopers, luke, desann, et al use the norm
 					if ( !Q_irand( 0, 2 ) )
 					{//with the occasional fast parry
-						baseTime = ceil(baseTime/2.0f);
+						baseTime = Q_ceilf(baseTime/2.0f);
 					}
 				}
 				else if ( self->NPC->rank == rank_t::RANK_CIVILIAN )
@@ -1852,7 +1852,7 @@ evasionType_t Jedi_SaberBlockGo( gentity_t *self, usercmd_t *cmd, vec3_t pHitloc
 		{
 			if ( rightdot > 12
 				|| (rightdot > 3 && zdiff < 5)
-				|| (!incoming&&fabs(hitdir[2])<0.25f) )//was normalized, 0.3
+				|| (!incoming&&Q_fabsf(hitdir[2])<0.25f) )//was normalized, 0.3
 			{
 				if ( doDodge )
 				{
@@ -1894,7 +1894,7 @@ evasionType_t Jedi_SaberBlockGo( gentity_t *self, usercmd_t *cmd, vec3_t pHitloc
 			}
 			else if ( rightdot < -12
 				|| (rightdot < -3 && zdiff < 5)
-				|| (!incoming&&fabs(hitdir[2])<0.25f) )//was normalized, -0.3
+				|| (!incoming&&Q_fabsf(hitdir[2])<0.25f) )//was normalized, -0.3
 			{
 				if ( doDodge )
 				{
@@ -3599,7 +3599,7 @@ static bool Jedi_AttackDecide( int enemy_dist )
 }
 
 constexpr float APEX_HEIGHT = 200.0f;
-#define	PARA_WIDTH		(sqrt(APEX_HEIGHT)+sqrt(APEX_HEIGHT))
+#define	PARA_WIDTH		(Q_sqrtf(APEX_HEIGHT)+Q_sqrtf(APEX_HEIGHT))
 
 static bool Jedi_Jump( vec3_t dest, int goalEntNum )
 {//FIXME: if land on enemy, knock him down & jump off again
@@ -3661,11 +3661,11 @@ static bool Jedi_Jump( vec3_t dest, int goalEntNum )
 				VectorCopy( NPC->currentOrigin, lastPos );
 
 				//This may be kind of wasteful, especially on long throws... use larger steps?  Divide the travelTime into a certain hard number of slices?  Trace just to apex and down?
-				for ( elapsedTime = timeStep; elapsedTime < floor(travelTime)+timeStep; elapsedTime += timeStep )
+				for ( elapsedTime = timeStep; elapsedTime < Q_floorf(travelTime)+timeStep; elapsedTime += timeStep )
 				{
 					if ( (float)elapsedTime > travelTime )
 					{//cap it
-						elapsedTime = floor( travelTime );
+						elapsedTime = Q_floorf( travelTime );
 					}
 					EvaluateTrajectory( &tr, level.time + elapsedTime, testPos );
 					if ( testPos[2] < lastPos[2] )
@@ -3713,7 +3713,7 @@ static bool Jedi_Jump( vec3_t dest, int goalEntNum )
 							}
 						}
 					}
-					if ( elapsedTime == floor( travelTime ) )
+					if ( elapsedTime == Q_floorf( travelTime ) )
 					{//reached end, all clear
 						if ( trace.fraction >= 1.0f )
 						{//hmm, make sure we'll land on the ground...
@@ -3807,7 +3807,7 @@ static bool Jedi_Jump( vec3_t dest, int goalEntNum )
 		}
 		*/
 
-		z = (sqrt(apexHeight + z) - sqrt(apexHeight));
+		z = (Q_sqrtf(apexHeight + z) - Q_sqrtf(apexHeight));
 
 		assert(z >= 0);
 
@@ -3825,7 +3825,7 @@ static bool Jedi_Jump( vec3_t dest, int goalEntNum )
 
 		//Now we have the apex, aim for it
 		height = apex[2] - NPC->currentOrigin[2];
-		time = sqrt( height / ( .5 * NPC->client->ps.gravity ) );//was 0.5, but didn't work well for very long jumps
+		time = Q_sqrt( height / ( .5 * NPC->client->ps.gravity ) );//was 0.5, but didn't work well for very long jumps
 		if ( !time )
 		{
 			//gi.Printf( S_COLOR_RED"ERROR: no time in jump\n" );
@@ -4017,8 +4017,8 @@ static bool Jedi_Jumping( gentity_t *goal )
 			float fDot = DotProduct( forward, goal_dir ) * 127;
 			float rDot = DotProduct( right, goal_dir ) * 127;
 
-			ucmd.forwardmove = floor(fDot);
-			ucmd.rightmove = floor(rDot);
+			ucmd.forwardmove = Q_floorf(fDot);
+			ucmd.rightmove = Q_floorf(rDot);
 			ucmd.upmove = 0;//don't duck
 			//Cheat:
 			if ( goal_dist < 128 && goal->currentOrigin[2] > NPC->currentOrigin[2] && NPC->client->ps.velocity[2] <= 0 )
@@ -4900,7 +4900,7 @@ void NPC_BSJedi_FollowLeader( void )
 		}
 		if ( Any( NPCInfo->aiFlags & npcAiFlags_t::NPCAI_BLOCKED ) )
 		{//try to jump to the blockedDest
-			if ( fabs(NPCInfo->blockedDest[2]-NPC->currentOrigin[2]) > 64 )
+			if ( Q_fabsf(NPCInfo->blockedDest[2]-NPC->currentOrigin[2]) > 64 )
 			{
 				gentity_t *tempGoal = G_Spawn();//ugh, this is NOT good...?
 				G_SetOrigin( tempGoal, NPCInfo->blockedDest );

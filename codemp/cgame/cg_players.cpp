@@ -9146,7 +9146,7 @@ void CG_Player( centity_t *cent ) {
 		seeker.renderfx = renderFxFlags_t::RF_NONE; //renderfx;
 							 //don't show in first person?
 
-		angle = ((cg.time / 12) & 255) * (M_PI * 2) / 255;
+		angle = ((cg.time / 12) & 255) * (Q_PI * 2) / 255;
 		dir[0] = Q_cos(angle) * 20;
 		dir[1] = Q_sin(angle) * 20;
 		dir[2] = Q_cos(angle) * 5;
@@ -9169,7 +9169,7 @@ void CG_Player( centity_t *cent ) {
 
 			elevated[2] -= 55-prefig;
 
-			angle = ((cg.time / 12) & 255) * (M_PI * 2) / 255;
+			angle = ((cg.time / 12) & 255) * (Q_PI * 2) / 255;
 			dir[0] = Q_cos(angle) * 20;
 			dir[1] = Q_sin(angle) * 20;
 			dir[2] = Q_cos(angle) * 5;
@@ -9191,7 +9191,7 @@ void CG_Player( centity_t *cent ) {
 		if (!successchange)
 		{
 			angles[0] = Q_sin(angle) * 30;
-			angles[1] = (angle * 180 / M_PI) + 90;
+			angles[1] = (angle * 180 / Q_PI) + 90;
 			if (angles[1] > 360)
 				angles[1] -= 360;
 			angles[2] = 0;
@@ -9570,7 +9570,7 @@ void CG_Player( centity_t *cent ) {
 				char *limbCapName;
 				vec3_t armAng;
 				refEntity_t regrip_arm;
-				float wv = sin( cg.time * 0.003f ) * 0.08f + 0.1f;
+				float wv = Q_sinf( cg.time * 0.003f ) * 0.08f + 0.1f;
 
 				//rotateBone = "lradius";
 				rotateBone = "lradiusX";
@@ -9794,14 +9794,14 @@ void CG_Player( centity_t *cent ) {
 
 				if (renderedHolos == 0)
 				{
-					angle = ((cg.time / 8) & 255) * (M_PI * 2) / 255;
+					angle = ((cg.time / 8) & 255) * (Q_PI * 2) / 255;
 					dir[0] = Q_cos(angle) * 20;
 					dir[1] = Q_sin(angle) * 20;
 					dir[2] = Q_cos(angle) * 20;
 					VectorAdd(elevated, dir, holoRef.origin);
 
 					angles[0] = Q_sin(angle) * 30;
-					angles[1] = (angle * 180 / M_PI) + 90;
+					angles[1] = (angle * 180 / Q_PI) + 90;
 					if (angles[1] > 360)
 						angles[1] -= 360;
 					angles[2] = 0;
@@ -9809,16 +9809,16 @@ void CG_Player( centity_t *cent ) {
 				}
 				else if (renderedHolos == 1)
 				{
-					angle = ((cg.time / 8) & 255) * (M_PI * 2) / 255 + M_PI;
-					if (angle > M_PI * 2)
-						angle -= (float)M_PI * 2;
+					angle = ((cg.time / 8) & 255) * (Q_PI * 2) / 255 + Q_PI;
+					if (angle > Q_PI * 2)
+						angle -= Q_PI * 2;
 					dir[0] = Q_sin(angle) * 20;
 					dir[1] = Q_cos(angle) * 20;
 					dir[2] = Q_cos(angle) * 20;
 					VectorAdd(elevated, dir, holoRef.origin);
 
-					angles[0] = Q_cos(angle - 0.5 * M_PI) * 30;
-					angles[1] = 360 - (angle * 180 / M_PI);
+					angles[0] = Q_cos(angle - 0.5 * Q_PI) * 30;
+					angles[1] = 360 - (angle * 180 / Q_PI);
 					if (angles[1] > 360)
 						angles[1] -= 360;
 					angles[2] = 0;
@@ -9826,9 +9826,9 @@ void CG_Player( centity_t *cent ) {
 				}
 				else
 				{
-					angle = ((cg.time / 6) & 255) * (M_PI * 2) / 255 + 0.5 * M_PI;
-					if (angle > M_PI * 2)
-						angle -= (float)M_PI * 2;
+					angle = ((cg.time / 6) & 255) * (Q_PI * 2) / 255 + 0.5 * Q_PI;
+					if (angle > Q_PI * 2)
+						angle -= Q_PI * 2;
 					dir[0] = Q_sin(angle) * 20;
 					dir[1] = Q_cos(angle) * 20;
 					dir[2] = 0;

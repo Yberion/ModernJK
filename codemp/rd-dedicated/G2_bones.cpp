@@ -1400,7 +1400,7 @@ static int G2_Set_Bone_Angles_Rag(
 		bone.hasOverGoal = false;
 		bone.hasAnimFrameMatrix = -1;
 
-//		bone.weight=pow(radius,1.7f); //cubed was too harsh
+//		bone.weight=Q_powf(radius,1.7f); //cubed was too harsh
 //		bone.weight=radius*radius*radius;
 		if (angleMin&&angleMax)
 		{
@@ -2004,7 +2004,7 @@ void G2_SetRagDollBullet(CGhoul2Info &ghoul2,const vec3_t rayStart,const vec3_t 
 					bone.velocityEffector[2]=Q_fabs(shotDir[2])*(effect+Q_flrand(0.0f,0.05f));
 //					bone.velocityEffector[0]=shotDir[0]*(effect+flrand(0.0f,0.05f))*flrand(-0.1f,3.0f);
 //					bone.velocityEffector[1]=shotDir[1]*(effect+flrand(0.0f,0.05f))*flrand(-0.1f,3.0f);
-//					bone.velocityEffector[2]=fabs(shotDir[2])*(effect+flrand(0.0f,0.05f))*flrand(-0.1f,3.0f);
+//					bone.velocityEffector[2]=Q_fabsf(shotDir[2])*(effect+flrand(0.0f,0.05f))*flrand(-0.1f,3.0f);
 					assert( !Q_isnan(shotDir[2]));
 	//				bone.currentAngles[0]+=flrand(-10.0f*lenr,10.0f*lenr);
 	//				bone.currentAngles[1]+=flrand(-10.0f*lenr,10.0f*lenr);

@@ -1689,7 +1689,7 @@ saberMoveName_t PM_SaberAttackForMovement( int forwardmove, int rightmove, saber
 						return autoMove;
 					}
 				}
-				else if ( fabs(pm->ps->viewangles[0]) > 30 )
+				else if ( Q_fabsf(pm->ps->viewangles[0]) > 30 )
 				{//looking far up or far down uses the top to bottom attack, presuming you want a vertical attack
 					return saberMoveName_t::LS_A_T2B;
 				}
@@ -2002,7 +2002,7 @@ bool PM_FinishedCurrentLegsAnim( gentity_t *self )
 	}
 
 	gi.G2API_GetBoneAnimIndex( &self->ghoul2[self->playerModel], self->rootBone, (cg.time?cg.time:level.time), &currentFrame, &junk, &junk, &junkFlags, &animSpeed, nullptr );
-	curFrame = floor( currentFrame );
+	curFrame = Q_floorf( currentFrame );
 
 	animNumber_t				legsAnim	= self->client->ps.legsAnim;
 	auto		&animations	= level.knownAnimFileSets[self->client->clientInfo.animFileIndex].animations;
@@ -2092,7 +2092,7 @@ int PM_AnimLength( int index, animNumber_t anim ) {
 		return 0;
 	}
 
-	return level.knownAnimFileSets[index].animations[anim].numFrames * fabs((double)(level.knownAnimFileSets[index].animations[anim].frameLerp));
+	return level.knownAnimFileSets[index].animations[anim].numFrames * Q_fabs((double)(level.knownAnimFileSets[index].animations[anim].frameLerp));
 }
 
 /*
@@ -2521,13 +2521,13 @@ void PM_SetAnimFinal(animNumber_t *torsoAnim,animNumber_t *legsAnim,
 		{//FIXME: allow to set a specific time?
 			if ( timeScaleMod != 1.0 )
 			{
-				PM_SetTorsoAnimTimer( gent, torsoAnimTimer, (animations[anim].numFrames - 1) * fabs((double)animations[anim].frameLerp) / timeScaleMod );
+				PM_SetTorsoAnimTimer( gent, torsoAnimTimer, (animations[anim].numFrames - 1) * Q_fabs((double)animations[anim].frameLerp) / timeScaleMod );
 			}
 			else if ( Any( setAnimFlags & setAnimFlags_t::SETANIM_FLAG_HOLDLESS ) )
 			{	// Make sure to only wait in full 1/20 sec server frame intervals.
 				int dur;
 
-				dur = (animations[anim].numFrames -1) * fabs((double)animations[anim].frameLerp);
+				dur = (animations[anim].numFrames -1) * Q_fabs((double)animations[anim].frameLerp);
 				//dur = ((int)(dur/50.0)) * 50;
 				//dur -= blendTime;
 				if (dur > 1)
@@ -2536,12 +2536,12 @@ void PM_SetAnimFinal(animNumber_t *torsoAnim,animNumber_t *legsAnim,
 				}
 				else
 				{
-					PM_SetTorsoAnimTimer( gent, torsoAnimTimer, fabs((double)animations[anim].frameLerp) );
+					PM_SetTorsoAnimTimer( gent, torsoAnimTimer, Q_fabs((double)animations[anim].frameLerp) );
 				}
 			}
 			else
 			{
-				PM_SetTorsoAnimTimer( gent, torsoAnimTimer, (animations[anim].numFrames ) * fabs((double)animations[anim].frameLerp) );
+				PM_SetTorsoAnimTimer( gent, torsoAnimTimer, (animations[anim].numFrames ) * Q_fabs((double)animations[anim].frameLerp) );
 			}
 		}
 	}
@@ -2738,13 +2738,13 @@ setAnimLegs:
 		{//FIXME: allow to set a specific time?
 			if ( timeScaleMod != 1.0 )
 			{
-				PM_SetLegsAnimTimer( gent, legsAnimTimer, (animations[anim].numFrames - 1) * fabs((double)animations[anim].frameLerp) / timeScaleMod );
+				PM_SetLegsAnimTimer( gent, legsAnimTimer, (animations[anim].numFrames - 1) * Q_fabs((double)animations[anim].frameLerp) / timeScaleMod );
 			}
 			else if ( Any( setAnimFlags & setAnimFlags_t::SETANIM_FLAG_HOLDLESS ) )
 			{	// Make sure to only wait in full 1/20 sec server frame intervals.
 				int dur;
 
-				dur = (animations[anim].numFrames -1) * fabs((double)animations[anim].frameLerp);
+				dur = (animations[anim].numFrames -1) * Q_fabs((double)animations[anim].frameLerp);
 				//dur = ((int)(dur/50.0)) * 50;
 				//dur -= blendTime;
 				if (dur > 1)
@@ -2753,12 +2753,12 @@ setAnimLegs:
 				}
 				else
 				{
-					PM_SetLegsAnimTimer( gent, legsAnimTimer, fabs((double)animations[anim].frameLerp) );
+					PM_SetLegsAnimTimer( gent, legsAnimTimer, Q_fabs((double)animations[anim].frameLerp) );
 				}
 			}
 			else
 			{
-				PM_SetLegsAnimTimer( gent, legsAnimTimer, (animations[anim].numFrames ) * fabs((double)animations[anim].frameLerp) );
+				PM_SetLegsAnimTimer( gent, legsAnimTimer, (animations[anim].numFrames ) * Q_fabs((double)animations[anim].frameLerp) );
 			}
 		}
 	}

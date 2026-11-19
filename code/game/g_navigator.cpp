@@ -703,7 +703,7 @@ public:
 	////////////////////////////////////////////////////////////////////////////////////
 	virtual		bool	on_same_floor(const CWayNode& A, const CWayNode& B) const
 	{
-		return (fabsf(A.mPoint[2] - B.mPoint[2])<100.0f);
+		return (Q_fabsf(A.mPoint[2] - B.mPoint[2])<100.0f);
 	}
 
 
@@ -1774,7 +1774,7 @@ bool			NAV::LoadFromEntitiesAndSaveToFile(const char *filename, int checksum)
 
 				// Ignore Ones That Are A Floor Above Or Below
 				//---------------------------------------------
-				if (fabsf(node.mPoint[2] - at->mPoint[2])>NAV::MAX_EDGE_FLOOR_DIST)
+				if (Q_fabsf(node.mPoint[2] - at->mPoint[2])>NAV::MAX_EDGE_FLOOR_DIST)
 				{
 					continue;
 				}
@@ -2473,7 +2473,7 @@ NAV::TNodeHandle		NAV::GetNearestNode(const vec3_t& position, NAV::TNodeHandle p
 				//------------------------------------------------------------------
 				if (!allowZOffset)
 				{
-					float	ZOff = fabsf(node.mPoint[2] - Pos[2]);
+					float	ZOff = Q_fabsf(node.mPoint[2] - Pos[2]);
 					if (ZOff>(VIEW_RANGE / 4))
 					{
 						continue;
@@ -2566,7 +2566,7 @@ NAV::TNodeHandle		NAV::GetNearestNode(const vec3_t& position, NAV::TNodeHandle p
 				//------------------------------------------------------------------
 				if (!allowZOffset)
 				{
-					float	ZOff = fabsf(Point[2] - Pos[2]);
+					float	ZOff = Q_fabsf(Point[2] - Pos[2]);
 					if (ZOff>(VIEW_RANGE / 4))
 					{
 						continue;
@@ -2923,7 +2923,7 @@ bool	NAV::FindPath(gentity_t* actor, NAV::TNodeHandle target, float MaxDangerLev
 	//----------------------------
 	float minRadius = Min(actor->mins[0], actor->mins[1]);
 	float maxRadius = Max(actor->maxs[0], actor->maxs[1]);
-	float radius = Max(fabsf(minRadius), maxRadius);
+	float radius = Max(Q_fabsf(minRadius), maxRadius);
 
 	if (radius>20.0f)
 	{
@@ -3011,7 +3011,7 @@ bool	NAV::FindPath(gentity_t* actor, NAV::TNodeHandle target, float MaxDangerLev
 		SPathPoint&		PPoint	= puser.mPath[i];					// For Debugging And A Tad Speed Improvement, Get A Ref Directly
 
 		AtToNext		= (PPoint.mPoint - At);
-		if (fabsf(AtToNext[2])>Z_CULL_OFFSET)
+		if (Q_fabsf(AtToNext[2])>Z_CULL_OFFSET)
 		{
 			AtToNext[2] = 0.0f;
 		}
@@ -3028,7 +3028,7 @@ bool	NAV::FindPath(gentity_t* actor, NAV::TNodeHandle target, float MaxDangerLev
 			)
 		{
 			NextToBeyond = (puser.mPath[i-1].mPoint - PPoint.mPoint);
-			if (fabsf(NextToBeyond[2])>Z_CULL_OFFSET)
+			if (Q_fabsf(NextToBeyond[2])>Z_CULL_OFFSET)
 			{
 				NextToBeyond[2] = 0.0f;
 			}
@@ -3567,7 +3567,7 @@ bool			NAV::UpdatePath(gentity_t* actor, TNodeHandle target, float MaxDangerLeve
 	{
 		SPathPoint&	PPoint	= path[path.size()-1];
 		CVec3	Dir(PPoint.mPoint - At);
-		if (fabsf(At[2] - PPoint.mPoint[2])<Z_CULL_OFFSET)
+		if (Q_fabsf(At[2] - PPoint.mPoint[2])<Z_CULL_OFFSET)
 		{
 			Dir[2] = 0.0f;
 		}
@@ -3803,7 +3803,7 @@ CWayEdge::EWayEdgeFlags	NAV::ClassifyEntSize(gentity_t* ent)
 	{
 		float minRadius = Min(ent->mins[0], ent->mins[1]);
 		float maxRadius = Max(ent->maxs[0], ent->maxs[1]);
-		float radius = Max(fabsf(minRadius), maxRadius);
+		float radius = Max(Q_fabsf(minRadius), maxRadius);
 		float height = ent->maxs[2];
 
 		if ((radius > SC_MEDIUM_RADIUS) || height > (SC_MEDIUM_HEIGHT))
@@ -4290,8 +4290,8 @@ void			STEER::DeActivate(gentity_t* actor, usercmd_t* ucmd)
 			float fDot = Com_Clamp(-127.0f, 127.0f, DotProduct(forward, MoveDir.v)*127.0f);
 			float rDot = Com_Clamp(-127.0f, 127.0f, DotProduct(right,   MoveDir.v)*127.0f);
 
-			ucmd->forwardmove	= floor(fDot);
-			ucmd->rightmove		= floor(rDot);
+			ucmd->forwardmove	= Q_floorf(fDot);
+			ucmd->rightmove		= Q_floorf(rDot);
 			ucmd->upmove		= 0.0f;
 
 			if (suser.mSpeed<(actor->NPC->stats.walkSpeed + 5.0f))
@@ -4463,7 +4463,7 @@ bool			STEER::SafeToGoTo(gentity_t* actor, const vec3_t& targetPosition, int tar
 
 	// Are They Close Enough To Just Go There
 	//----------------------------------------
-	if (actorToTargetDistance<110.0f && fabsf(targetPosition[2]-actor->currentOrigin[2])<50.0f)
+	if (actorToTargetDistance<110.0f && Q_fabsf(targetPosition[2]-actor->currentOrigin[2])<50.0f)
 	{
 		return true;
 	}
@@ -4720,7 +4720,7 @@ float			STEER::Seek(gentity_t* actor, const CVec3& pos, float slowingDistance, f
 
 	//If The Difference In Height Is Small Enough, Just Kill It
 	//----------------------------------------------------------
-	if (fabsf(suser.mDesiredVelocity[2]) < 10.0f)
+	if (Q_fabsf(suser.mDesiredVelocity[2]) < 10.0f)
 	{
 		suser.mDesiredVelocity[2] = 0.0f;
 	}
@@ -5114,7 +5114,7 @@ float			STEER::FollowLeader(gentity_t* actor, gentity_t* leader, float dist)
 		}
 
 		CVec3	FollowPosition(LeaderDirection);
-		FollowPosition *= (-1.0f * (fabsf(dist)+suser.mRadius));
+		FollowPosition *= (-1.0f * (Q_fabsf(dist)+suser.mRadius));
 		FollowPosition += LeaderPosition;
 
 		MoveTrace(leader, FollowPosition, true);
@@ -5223,7 +5223,7 @@ bool		TestCollision(gentity_t* actor, SSteerUser& suser, const CVec3& ProjectVel
 					ContactDirection.Norm();
 					MyDirection.Norm();
 
-					float	DirectionSimilarity = fabsf(MyDirection.Dot(ContactDirection));
+					float	DirectionSimilarity = Q_fabsf(MyDirection.Dot(ContactDirection));
 					if (DirectionSimilarity>0.5)
 					{
 						// Match Speed
@@ -5508,7 +5508,7 @@ bool	STEER::Reached(gentity_t* actor, const vec3_t& target, float targetRadius, 
 //	if (target->client && target->client->ps.groundEntityNum == ENTITYNUM_NONE)
 //	{
 //		TargetPos -= ActorPos;
-//		if (fabsf(TargetPos[2]<(targetRadius*8)))
+//		if (Q_fabsf(TargetPos[2]<(targetRadius*8)))
 //		{
 //			TargetPos[2] = 0.0f;
 //			if (TargetPos.Len2()<((targetRadius*2.0f)*(targetRadius*2.0f)))

@@ -311,7 +311,7 @@ public:
 //
 float RoundTenth( float fValue )
 {
-	return ( floorf( (fValue*10.0f) + 0.5f) ) / 10.0f;
+	return ( Q_floorf( (fValue*10.0f) + 0.5f) ) / 10.0f;
 }
 
 
@@ -1641,7 +1641,7 @@ int RE_Font_StrLenPixels(const char *psText, const int iFontHandle, const float 
 	}
 
 	// using ceil because we need to make sure that all the text is contained within the integer pixel width we're returning
-	return (int)ceilf(fMaxWidth);
+	return (int)Q_ceilf(fMaxWidth);
 #else
 	float		fMaxWidth = 0.0f;
 	float		fThisWidth = 0.0f;
@@ -1695,7 +1695,7 @@ int RE_Font_StrLenPixels(const char *psText, const int iFontHandle, const float 
 	}
 
 	// using ceil because we need to make sure that all the text is contained within the integer pixel width we're returning
-	return (int)ceilf(fMaxWidth);
+	return (int)Q_ceilf(fMaxWidth);
 #endif
 }
 

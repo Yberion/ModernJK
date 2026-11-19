@@ -11,6 +11,8 @@ FUNCS = ["%s%s" % (f, s) for f in "sin cos tan asin acos atan atan2 log log2 pow
 FUNCS += ["rsqrtf", "sinpif", "cospif", "tanpif"]  # float only in LLVM libc
 # the correctly rounded text to float parser behind LLVM libc's strtof / strtod (not in its shared interface)
 EXTRA = ["src/__support/str_to_float.h"]
+# the absolute value netcodec's library uses (codemp/netcodec/src/numeric.h)
+EXTRA += ["src/__support/FPUtil/BasicOperations.h"]
 
 src = sys.argv[1]
 dst = os.path.dirname(os.path.abspath(__file__))

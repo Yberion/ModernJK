@@ -254,8 +254,8 @@ bool NAVNEW_SidestepBlocker( gentity_t *self, gentity_t *blocker, vec3_t blocked
 	float yaw = vectoyaw( blocked_dir );
 
 	//Get the avoid radius
-	float avoidRadius = sqrt( ( blocker->maxs[0] * blocker->maxs[0] ) + ( blocker->maxs[1] * blocker->maxs[1] ) ) +
-						sqrt( ( self->maxs[0] * self->maxs[0] ) + ( self->maxs[1] * self->maxs[1] ) );
+	float avoidRadius = Q_sqrtf( ( blocker->maxs[0] * blocker->maxs[0] ) + ( blocker->maxs[1] * blocker->maxs[1] ) ) +
+						Q_sqrtf( ( self->maxs[0] * self->maxs[0] ) + ( self->maxs[1] * self->maxs[1] ) );
 
 	//See if we're inside our avoidance radius
 	float arcAngle = ( blocked_dist <= avoidRadius ) ? 135 : ( ( avoidRadius / blocked_dist ) * 90 );

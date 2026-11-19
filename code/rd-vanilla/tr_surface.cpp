@@ -171,9 +171,9 @@ static void RB_SurfaceSprite( void ) {
 		float	s, c;
 		float	ang;
 
-		ang = M_PI * backEnd.currentEntity->e.rotation / 180;
-		s = sin( ang );
-		c = cos( ang );
+		ang = Q_PI * backEnd.currentEntity->e.rotation / 180;
+		s = Q_sinf( ang );
+		c = Q_cosf( ang );
 
 		VectorScale( backEnd.viewParms.ori.axis[1], c * radius, left );
 		VectorMA( left, -s * radius, backEnd.viewParms.ori.axis[2], left );
@@ -213,9 +213,9 @@ static void RB_SurfaceOrientedQuad( void )
 		float	s, c;
 		float	ang;
 
-		ang = M_PI * backEnd.currentEntity->e.rotation / 180;
-		s = sin( ang );
-		c = cos( ang );
+		ang = Q_PI * backEnd.currentEntity->e.rotation / 180;
+		s = Q_sinf( ang );
+		c = Q_cosf( ang );
 
 		// Use a temp so we don't trash the values we'll need later
 		VectorScale( left, c * radius, tempLeft );
@@ -1128,9 +1128,9 @@ static void DoSprite( vec3_t origin, float radius, float rotation )
 	float	ang;
 	vec3_t	left, up;
 
-	ang = M_PI * rotation / 180.0f;
-	s = sin( ang );
-	c = cos( ang );
+	ang = Q_PI * rotation / 180.0f;
+	s = Q_sinf( ang );
+	c = Q_cosf( ang );
 
 	VectorScale( backEnd.viewParms.ori.axis[1], c * radius, left );
 	VectorMA( left, -s * radius, backEnd.viewParms.ori.axis[2], left );
@@ -1649,8 +1649,8 @@ static void RB_SurfaceLathe()
 			VectorSet2( pt, l_oldpt[0], 0 );
 			VectorSet2( pt2, l_oldpt2[0], 0 );
 
-			s = sin( DEG2RAD( t ));
-			c = cos( DEG2RAD( t ));
+			s = Q_sinf( DEG2RAD( t ));
+			c = Q_cosf( DEG2RAD( t ));
 
 			// rotate lathe points
 //c -s 0
@@ -1673,7 +1673,7 @@ static void RB_SurfaceLathe()
 			VectorNormalize( tess.normal[tess.numVertexes] );
 			i = oldpt[0] * 0.1f + oldpt[1] * 0.1f;
 			tess.texCoords[tess.numVertexes][0][0] = (t-latheStep)/360.0f;
-			tess.texCoords[tess.numVertexes][0][1] = mu-bezierStep + cos( i + backEnd.refdef.floatTime ) * pain;
+			tess.texCoords[tess.numVertexes][0][1] = mu-bezierStep + Q_cosf( i + backEnd.refdef.floatTime ) * pain;
 			tess.vertexColors[tess.numVertexes][0] = e->shaderRGBA[0];
 			tess.vertexColors[tess.numVertexes][1] = e->shaderRGBA[1];
 			tess.vertexColors[tess.numVertexes][2] = e->shaderRGBA[2];
@@ -1685,7 +1685,7 @@ static void RB_SurfaceLathe()
 			VectorNormalize( tess.normal[tess.numVertexes] );
 			i = oldpt2[0] * 0.1f + oldpt2[1] * 0.1f;
 			tess.texCoords[tess.numVertexes][0][0] = (t-latheStep) / 360.0f;
-			tess.texCoords[tess.numVertexes][0][1] = mu + cos( i + backEnd.refdef.floatTime ) * pain;
+			tess.texCoords[tess.numVertexes][0][1] = mu + Q_cosf( i + backEnd.refdef.floatTime ) * pain;
 			tess.vertexColors[tess.numVertexes][0] = e->shaderRGBA[0];
 			tess.vertexColors[tess.numVertexes][1] = e->shaderRGBA[1];
 			tess.vertexColors[tess.numVertexes][2] = e->shaderRGBA[2];
@@ -1697,7 +1697,7 @@ static void RB_SurfaceLathe()
 			VectorNormalize( tess.normal[tess.numVertexes] );
 			i = pt[0] * 0.1f + pt[1] * 0.1f;
 			tess.texCoords[tess.numVertexes][0][0] = t/360.0f;
-			tess.texCoords[tess.numVertexes][0][1] = mu-bezierStep + cos( i + backEnd.refdef.floatTime ) * pain;
+			tess.texCoords[tess.numVertexes][0][1] = mu-bezierStep + Q_cosf( i + backEnd.refdef.floatTime ) * pain;
 			tess.vertexColors[tess.numVertexes][0] = e->shaderRGBA[0];
 			tess.vertexColors[tess.numVertexes][1] = e->shaderRGBA[1];
 			tess.vertexColors[tess.numVertexes][2] = e->shaderRGBA[2];
@@ -1709,7 +1709,7 @@ static void RB_SurfaceLathe()
 			VectorNormalize( tess.normal[tess.numVertexes] );
 			i = pt2[0] * 0.1f + pt2[1] * 0.1f;
 			tess.texCoords[tess.numVertexes][0][0] = t/360.0f;
-			tess.texCoords[tess.numVertexes][0][1] = mu + cos( i + backEnd.refdef.floatTime ) * pain;
+			tess.texCoords[tess.numVertexes][0][1] = mu + Q_cosf( i + backEnd.refdef.floatTime ) * pain;
 			tess.vertexColors[tess.numVertexes][0] = e->shaderRGBA[0];
 			tess.vertexColors[tess.numVertexes][1] = e->shaderRGBA[1];
 			tess.vertexColors[tess.numVertexes][2] = e->shaderRGBA[2];
@@ -1825,8 +1825,8 @@ static void RB_SurfaceClouds()
 				VectorCopy( oldpt, pt );
 				VectorCopy( oldpt2, pt2 );
 
-				s = sin( DEG2RAD( latheStep ));
-				c = cos( DEG2RAD( latheStep ));
+				s = Q_sinf( DEG2RAD( latheStep ));
+				c = Q_cosf( DEG2RAD( latheStep ));
 
 				// rotate lathe points
 				temp = c * pt[0] - s * pt[1];	// c -s 0

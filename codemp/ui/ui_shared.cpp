@@ -5374,7 +5374,7 @@ void Item_Model_Paint(itemDef_t *item)
 	{
 		float len = 0.5 * ( maxs[2] - mins[2] );
 		origin[0] = len / 0.268;	// len / tan( fov/2 )
-		//origin[0] = len / tan(w/2);
+		//origin[0] = len / Q_tanf(w/2);
 	}
 	else
 	{
@@ -5384,7 +5384,7 @@ void Item_Model_Paint(itemDef_t *item)
 	refdef.fov_y = (modelPtr->fov_y) ? modelPtr->fov_y : 2.0f * Q_atan2degf( refdef.height, refdef.width / Q_tanpif( refdef.fov_x / 360.0f ) );
 
 	//refdef.fov_x = (int)((float)refdef.width / 640.0f * 90.0f);
-	//refdef.fov_y = atan2( refdef.height, refdef.width / tan( refdef.fov_x / 360 * M_PI ) ) * ( 360 / M_PI );
+	//refdef.fov_y = Q_atan2( refdef.height, refdef.width / Q_tan( refdef.fov_x / 360 * Q_PI ) ) * ( 360 / Q_PI );
 
 	DC->clearScene();
 

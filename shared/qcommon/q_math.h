@@ -39,10 +39,6 @@ typedef vec3_t vec3pair_t[2], matrix3_t[3];
 
 typedef	int	fixed4_t, fixed8_t, fixed16_t;
 
-#ifndef M_PI
-#define M_PI		3.14159265358979323846f	// matches value in gcc v2 math.h
-#endif
-
 inline constexpr int Q3_INFINITE = 16777216;	// the engine's, ICARUS's and the games' "infinite" time or distance
 
 inline constexpr int MAX_QINT = 0x7fffffff;

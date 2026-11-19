@@ -157,7 +157,7 @@ float	G_CanJumpToEnemyVeh(Vehicle_t *pVeh, const usercmd_t *pUcmd )
 	if (rider &&
 		rider->enemy &&
 		pUcmd->rightmove &&
-		fabsf(rider->enemy->currentOrigin[2] - rider->currentOrigin[2])<50.0f)
+		Q_fabsf(rider->enemy->currentOrigin[2] - rider->currentOrigin[2])<50.0f)
 	{
 		if (level.time<pVeh->m_safeJumpMountTime)
 		{
@@ -183,7 +183,7 @@ float	G_CanJumpToEnemyVeh(Vehicle_t *pVeh, const usercmd_t *pUcmd )
 		 	toEnemyDistance = VectorNormalize(toEnemy);
 			if (toEnemyDistance<70.0f &&
 				pVeh->m_pParentEntity->resultspeed>100.0f &&
-				fabsf(pVeh->m_pParentEntity->resultspeed - enemyVeh->m_pParentEntity->resultspeed)<100.0f)
+				Q_fabsf(pVeh->m_pParentEntity->resultspeed - enemyVeh->m_pParentEntity->resultspeed)<100.0f)
 			{
 				// If He Is Either To The Left Or Right Of Me
 				//--------------------------------------------
@@ -907,7 +907,7 @@ bool VEH_TryEject( Vehicle_t *pVeh,
 		fBias += 0.2f;
 	}
 	VectorCopy( ent->currentOrigin, vExitPos );
-	fVehDiag = sqrtf( ( parent->maxs[0] * parent->maxs[0] ) + ( parent->maxs[1] * parent->maxs[1] ) );
+	fVehDiag = Q_sqrtf( ( parent->maxs[0] * parent->maxs[0] ) + ( parent->maxs[1] * parent->maxs[1] ) );
 	VectorCopy( ent->maxs, vEntMaxs );
 #ifdef _JK2MP
 	if ( ent->s.number < MAX_CLIENTS )
@@ -916,7 +916,7 @@ bool VEH_TryEject( Vehicle_t *pVeh,
 		vEntMaxs[1] = 15;
 	}
 #endif
-	fEntDiag = sqrtf( ( vEntMaxs[0] * vEntMaxs[0] ) + ( vEntMaxs[1] * vEntMaxs[1] ) );
+	fEntDiag = Q_sqrtf( ( vEntMaxs[0] * vEntMaxs[0] ) + ( vEntMaxs[1] * vEntMaxs[1] ) );
 	vVehLeaveDir[0] *= ( fVehDiag + fEntDiag ) * fBias;	// x
 	vVehLeaveDir[1] *= ( fVehDiag + fEntDiag ) * fBias;	// y
 	vVehLeaveDir[2] *= ( fVehDiag + fEntDiag ) * fBias;
@@ -2956,13 +2956,13 @@ void G_VehicleSetDamageLocFlags( gentity_t *veh, int impactDir, int deathPoint )
 			{
 				perc = 0.99f;
 			}
-			heavyDamagePoint = ceil( deathPoint*perc*0.25f );
-			lightDamagePoint = ceil( deathPoint*perc );
+			heavyDamagePoint = Q_ceilf( deathPoint*perc*0.25f );
+			lightDamagePoint = Q_ceilf( deathPoint*perc );
 		}
 		else
 		{
-			heavyDamagePoint = ceil( deathPoint*0.66f );
-			lightDamagePoint = ceil( deathPoint*0.14f );
+			heavyDamagePoint = Q_ceilf( deathPoint*0.66f );
+			lightDamagePoint = Q_ceilf( deathPoint*0.14f );
 		}
 
 		if ( veh->locationDamage[impactDir] >= deathPoint)
@@ -3150,7 +3150,7 @@ void G_VehUpdateShields( gentity_t *targ )
 	{//doesn't have shields, so don't have to send it
 		return;
 	}
-	targ->client->ps.activeForcePass = floor(((float)targ->m_pVehicle->m_iShields/(float)targ->m_pVehicle->m_pVehicleInfo->shields)*10.0f);
+	targ->client->ps.activeForcePass = Q_floorf(((float)targ->m_pVehicle->m_iShields/(float)targ->m_pVehicle->m_pVehicleInfo->shields)*10.0f);
 }
 #endif
 

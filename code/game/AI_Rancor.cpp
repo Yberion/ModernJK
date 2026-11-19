@@ -1139,7 +1139,7 @@ void Rancor_Combat( void )
 		{
 			vec3_t	yawOnlyAngles = {0, NPC->currentAngles[YAW], 0};
 			if ( NPC->enemy->health > 0
-				&& fabs(distance-(250.0f*NPC->s.modelScale[0])) <= (80.0f*NPC->s.modelScale[0])
+				&& Q_fabsf(distance-(250.0f*NPC->s.modelScale[0])) <= (80.0f*NPC->s.modelScale[0])
 				&& InFOV( NPC->enemy->currentOrigin, NPC->currentOrigin, yawOnlyAngles, 30, 30 ) )
 			{
 				int chance = 9;

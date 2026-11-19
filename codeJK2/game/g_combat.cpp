@@ -2117,7 +2117,7 @@ static bool G_Dismemberable( gentity_t *self, hitLocation_t hitLoc )
 			}
 
 			//check probability of this happening on this npc
-			if ( floor((Q_flrand( 1, 100 )*g_dismemberProbabilities->value)) > dismemberProb*2.0f )//probabilities seemed really really low, had to crank them up
+			if ( Q_floorf((Q_flrand( 1, 100 )*g_dismemberProbabilities->value)) > dismemberProb*2.0f )//probabilities seemed really really low, had to crank them up
 			{
 				return false;
 			}
@@ -3034,7 +3034,7 @@ static std::optional<animNumber_t> G_PickDeathAnim( gentity_t *self, vec3_t poin
 				}
 				break;
 			case hitLocation_t::HL_BACK:
-				if ( fabs(thrown) < 50 || (fabs(thrown) < 200&&!Q_irand(0,3)) )
+				if ( Q_fabsf(thrown) < 50 || (Q_fabsf(thrown) < 200&&!Q_irand(0,3)) )
 				{
 					if ( Q_irand( 0, 1 ) )
 					{
@@ -3061,7 +3061,7 @@ static std::optional<animNumber_t> G_PickDeathAnim( gentity_t *self, vec3_t poin
 			case hitLocation_t::HL_CHEST_RT:
 			case hitLocation_t::HL_ARM_RT:
 			case hitLocation_t::HL_BACK_LT:
-				if ( (damage <= self->max_health*0.25&&Q_irand(0,1)) || (fabs(thrown)<200&&!Q_irand(0,2)) || !Q_irand( 0, 10 ) )
+				if ( (damage <= self->max_health*0.25&&Q_irand(0,1)) || (Q_fabsf(thrown)<200&&!Q_irand(0,2)) || !Q_irand( 0, 10 ) )
 				{
 					if ( Q_irand( 0, 1 ) )
 					{
@@ -3112,7 +3112,7 @@ static std::optional<animNumber_t> G_PickDeathAnim( gentity_t *self, vec3_t poin
 			case hitLocation_t::HL_ARM_LT:
 			case hitLocation_t::HL_HAND_LT:
 			case hitLocation_t::HL_BACK_RT:
-				if ( (damage <= self->max_health*0.25&&Q_irand(0,1)) || (fabs(thrown)<200&&!Q_irand(0,2)) || !Q_irand(0, 10) )
+				if ( (damage <= self->max_health*0.25&&Q_irand(0,1)) || (Q_fabsf(thrown)<200&&!Q_irand(0,2)) || !Q_irand(0, 10) )
 				{
 					if ( Q_irand( 0, 1 ) )
 					{
@@ -3172,7 +3172,7 @@ static std::optional<animNumber_t> G_PickDeathAnim( gentity_t *self, vec3_t poin
 						deathAnim = animNumber_t::BOTH_DEATH19;//gut: fall left
 					}
 				}
-				else if ( (damage <= self->max_health*0.5&&!Q_irand(0,1)) || (fabs(thrown)<200&&!Q_irand(0,3)) )
+				else if ( (damage <= self->max_health*0.5&&!Q_irand(0,1)) || (Q_fabsf(thrown)<200&&!Q_irand(0,3)) )
 				{
 					if ( Q_irand( 0, 2 ) )
 					{
@@ -4354,7 +4354,7 @@ int CheckArmor (gentity_t *ent, int damage, damageFlags_t dflags)
 			}
 			else
 			{
-				save = ceil( (float) damage * ARMOR_PROTECTION );
+				save = Q_ceil( (float) damage * ARMOR_PROTECTION );
 			}
 		}
 
@@ -4867,7 +4867,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 	// no more weakling allies!
 //	if ( attacker->s.number != 0 && damage >= 2 && targ->s.number != 0 && attacker->client && attacker->client->playerTeam == team_t::TEAM_PLAYER )
 //	{//player-helpers do only half damage to enemies
-//		damage = ceil((float)damage/2.0f);
+//		damage = Q_ceilf((float)damage/2.0f);
 //	}
 
 	client = targ->client;
@@ -4942,7 +4942,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 				|| mod == meansOfDeath_t::MOD_ENERGY_SPLASH
 				|| mod == meansOfDeath_t::MOD_SABER )
 			{//galak without shields takes quarter damage from explosives and lightsaber
-				damage = ceil((float)damage/4.0f);
+				damage = Q_ceilf((float)damage/4.0f);
 			}
 		}
 	}
@@ -5094,7 +5094,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 	{
 		if ( !G_NonLocationSpecificDamage( mod ) )
 		{//certain kinds of damage don't care about hitlocation
-			take = ceil( (float)take*damageModifier[hitLoc] );
+			take = Q_ceilf( (float)take*damageModifier[hitLoc] );
 		}
 	}
 
@@ -5139,7 +5139,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 				add = take;
 			}
 			add += asave;
-			add = ceil(add/10.0f);
+			add = Q_ceilf(add/10.0f);
 			if ( attacker != targ )
 			{
 				G_TrackWeaponUsage( attacker, inflictor, add, mod );

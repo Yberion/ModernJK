@@ -142,7 +142,7 @@ bool InFOV( vec3_t spot, vec3_t from, vec3_t fromAngles, int hFOV, int vFOV )
 	deltaAngles[PITCH]	= AngleDelta ( fromAngles[PITCH], angles[PITCH] );
 	deltaAngles[YAW]	= AngleDelta ( fromAngles[YAW], angles[YAW] );
 
-	if ( fabs ( deltaAngles[PITCH] ) <= vFOV && fabs ( deltaAngles[YAW] ) <= hFOV )
+	if ( Q_fabsf ( deltaAngles[PITCH] ) <= vFOV && Q_fabsf ( deltaAngles[YAW] ) <= hFOV )
 	{
 		return true;
 	}
@@ -205,7 +205,7 @@ bool InFOV ( gentity_t *ent, gentity_t *from, int hFOV, int vFOV )
 	vectoangles ( deltaVector, angles );
 	deltaAngles[PITCH] = AngleDelta ( fromAngles[PITCH], angles[PITCH] );
 	deltaAngles[YAW] = AngleDelta ( fromAngles[YAW], angles[YAW] );
-	if ( fabs ( deltaAngles[PITCH] ) <= vFOV && fabs ( deltaAngles[YAW] ) <= hFOV )
+	if ( Q_fabsf ( deltaAngles[PITCH] ) <= vFOV && Q_fabsf ( deltaAngles[YAW] ) <= hFOV )
 	{
 		return true;
 	}
@@ -215,7 +215,7 @@ bool InFOV ( gentity_t *ent, gentity_t *from, int hFOV, int vFOV )
 	vectoangles ( deltaVector, angles );
 	deltaAngles[PITCH] = AngleDelta ( fromAngles[PITCH], angles[PITCH] );
 	deltaAngles[YAW] = AngleDelta ( fromAngles[YAW], angles[YAW] );
-	if ( fabs ( deltaAngles[PITCH] ) <= vFOV && fabs ( deltaAngles[YAW] ) <= hFOV )
+	if ( Q_fabsf ( deltaAngles[PITCH] ) <= vFOV && Q_fabsf ( deltaAngles[YAW] ) <= hFOV )
 	{
 		return true;
 	}
@@ -225,7 +225,7 @@ bool InFOV ( gentity_t *ent, gentity_t *from, int hFOV, int vFOV )
 	vectoangles ( deltaVector, angles );
 	deltaAngles[PITCH] = AngleDelta ( fromAngles[PITCH], angles[PITCH] );
 	deltaAngles[YAW] = AngleDelta ( fromAngles[YAW], angles[YAW] );
-	if ( fabs ( deltaAngles[PITCH] ) <= vFOV && fabs ( deltaAngles[YAW] ) <= hFOV )
+	if ( Q_fabsf ( deltaAngles[PITCH] ) <= vFOV && Q_fabsf ( deltaAngles[YAW] ) <= hFOV )
 	{
 		return true;
 	}
@@ -854,7 +854,7 @@ float NPC_GetHFOVPercentage( vec3_t spot, vec3_t from, vec3_t facing, float hFOV
 
 	vectoangles ( deltaVector, angles );
 
-	delta = fabs( AngleDelta ( facing[YAW], angles[YAW] ) );
+	delta = Q_fabsf( AngleDelta ( facing[YAW], angles[YAW] ) );
 
 	if ( delta > hFOV )
 		return 0.0f;
@@ -877,7 +877,7 @@ float NPC_GetVFOVPercentage( vec3_t spot, vec3_t from, vec3_t facing, float vFOV
 
 	vectoangles ( deltaVector, angles );
 
-	delta = fabs( AngleDelta ( facing[PITCH], angles[PITCH] ) );
+	delta = Q_fabsf( AngleDelta ( facing[PITCH], angles[PITCH] ) );
 
 	if ( delta > vFOV )
 		return 0.0f;
@@ -905,8 +905,8 @@ int G_FindLocalInterestPoint( gentity_t *self )
 		if ( gi.inPVS( level.interestPoints[i].origin, eyes ) )
 		{
 			VectorSubtract( level.interestPoints[i].origin, eyes, diffVec );
-			if ( (fabs(diffVec[0]) + fabs(diffVec[1])) / 2 < 48 &&
-				fabs(diffVec[2]) > (fabs(diffVec[0]) + fabs(diffVec[1])) / 2 )
+			if ( (Q_fabsf(diffVec[0]) + Q_fabsf(diffVec[1])) / 2 < 48 &&
+				Q_fabsf(diffVec[2]) > (Q_fabsf(diffVec[0]) + Q_fabsf(diffVec[1])) / 2 )
 			{//Too close to look so far up or down
 				continue;
 			}

@@ -346,7 +346,7 @@ void PM_StepSlideMove( float gravMod )
 	VectorSubtract( down_o, start_o, slideMove );
 	VectorSubtract( trace.endpos, pm->ps->origin, stepUpMove );
 
-	if ( fabs(stepUpMove[0]) < 0.1 && fabs(stepUpMove[1]) < 0.1 && VectorLengthSquared( slideMove ) > VectorLengthSquared( stepUpMove ) )
+	if ( Q_fabsf(stepUpMove[0]) < 0.1 && Q_fabsf(stepUpMove[1]) < 0.1 && VectorLengthSquared( slideMove ) > VectorLengthSquared( stepUpMove ) )
 	{
 		//slideMove was better, use it
 		VectorCopy (down_o, pm->ps->origin);

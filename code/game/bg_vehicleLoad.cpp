@@ -222,7 +222,7 @@ static bool BG_ParseVehWeaponParm( vehWeaponInfo_t *vehWeapon, const char *parmN
 		*(int *)(b+vehWeaponField->ofs) = atoi(value);
 		break;
 	case vehFieldType_t::VF_FLOAT:
-		*(float *)(b+vehWeaponField->ofs) = atof(value);
+		*(float *)(b+vehWeaponField->ofs) = Q_atof(value);
 		break;
 	case vehFieldType_t::VF_STRING:	// string on disk, pointer in memory
 		if (!*(char **)(b+vehWeaponField->ofs))
@@ -237,7 +237,7 @@ static bool BG_ParseVehWeaponParm( vehWeaponInfo_t *vehWeapon, const char *parmN
 
 		break;
 	case vehFieldType_t::VF_VECTOR:
-		_iFieldsRead = sscanf (value, "%f %f %f", &vec[0], &vec[1], &vec[2]);
+		_iFieldsRead = Q_ScanFloats( value, vec, 3 );
 		//assert(_iFieldsRead==3 );
 		if (_iFieldsRead!=3)
 		{
@@ -249,7 +249,7 @@ static bool BG_ParseVehWeaponParm( vehWeaponInfo_t *vehWeapon, const char *parmN
 		((float *)(b+vehWeaponField->ofs))[2] = vec[2];
 		break;
 	case vehFieldType_t::VF_BOOL:
-		*(bool *)(b+vehWeaponField->ofs) = (atof(value)!=0);
+		*(bool *)(b+vehWeaponField->ofs) = (Q_atof(value)!=0);
 		break;
 	case vehFieldType_t::VF_VEHTYPE:
 		vehType = (vehicleType_t)GetIDForString( VehicleTable, value );
@@ -904,7 +904,7 @@ static bool BG_ParseVehicleParm( vehicleInfo_t *vehicle, const char *parmName, c
 		*(int *)(b+vehField->ofs) = atoi(value);
 		break;
 	case vehFieldType_t::VF_FLOAT:
-		*(float *)(b+vehField->ofs) = atof(value);
+		*(float *)(b+vehField->ofs) = Q_atof(value);
 		break;
 	case vehFieldType_t::VF_STRING:	// string on disk, pointer in memory
 		if (!*(char **)(b+vehField->ofs))
@@ -919,7 +919,7 @@ static bool BG_ParseVehicleParm( vehicleInfo_t *vehicle, const char *parmName, c
 
 		break;
 	case vehFieldType_t::VF_VECTOR:
-		_iFieldsRead = sscanf (value, "%f %f %f", &vec[0], &vec[1], &vec[2]);
+		_iFieldsRead = Q_ScanFloats( value, vec, 3 );
 		//assert(_iFieldsRead==3 );
 		if (_iFieldsRead!=3)
 		{
@@ -931,7 +931,7 @@ static bool BG_ParseVehicleParm( vehicleInfo_t *vehicle, const char *parmName, c
 		((float *)(b+vehField->ofs))[2] = vec[2];
 		break;
 	case vehFieldType_t::VF_BOOL:
-		*(bool *)(b+vehField->ofs) = (atof(value)!=0);
+		*(bool *)(b+vehField->ofs) = (Q_atof(value)!=0);
 		break;
 	case vehFieldType_t::VF_VEHTYPE:
 		vehType = (vehicleType_t)GetIDForString( VehicleTable, value );

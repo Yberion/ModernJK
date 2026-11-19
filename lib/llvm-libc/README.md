@@ -4,8 +4,10 @@ The headers of LLVM libc's header-only math functions (`libc/shared/math`) and o
 (`src/__support/str_to_float.h`, behind its `strtof` and `strtod`) that `shared/qcommon/q_libm.cpp` uses, and the
 headers they include. They give correctly rounded results for every float function and for most double functions,
 so the game computes the same bits on every platform and compiler (survey and measurements:
-`docs_rewrite/modernization/surveys/deterministic-math.md`). Nothing else includes these headers: the code calls the
-`Q_` functions of `shared/qcommon/q_libm.h`, and only `q_libm.cpp` knows this library.
+`docs_rewrite/modernization/surveys/deterministic-math.md`). The code calls the `Q_` functions of
+`shared/qcommon/q_libm.h`, and only `q_libm.cpp` and netcodec's library (`codemp/netcodec/src/numeric.h`, the
+absolute value of `src/__support/FPUtil/BasicOperations.h`, so that netcodec stays independent of the engine) include
+these headers.
 
 - Source: https://github.com/llvm/llvm-project, folder `libc/`, commit `faba310ff3e76fb8fd9d279d01d7af98943ef044`
   (28 October 2026).

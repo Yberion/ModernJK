@@ -1343,7 +1343,7 @@ constexpr int MAX_Z_DELTA = 18;
 			radius	= node->GetRadius();
 
 			//If we're not within the known clear radius of this node OR out of Z height range...
-			if ( (signed)(*nci).distance >= (radius*radius) || ( fabs( position[2] - ent->currentOrigin[2] ) >= MAX_Z_DELTA ) )
+			if ( (signed)(*nci).distance >= (radius*radius) || ( Q_fabsf( position[2] - ent->currentOrigin[2] ) >= MAX_Z_DELTA ) )
 			{
 				//We're not *within* this node, so check clear path, etc.
 
@@ -1398,7 +1398,7 @@ constexpr int MAX_Z_DELTA = 18;
 
 			node2->GetPosition( position2 );
 			//Okay, first get the entire path cost, including distance to first node from ents' positions
-			cost = floor(Distance( ent->currentOrigin, position ) + Distance( goal->currentOrigin, position2 ));
+			cost = Q_floorf(Distance( ent->currentOrigin, position ) + Distance( goal->currentOrigin, position2 ));
 
 			if ( d_altRoutes->integer )
 			{
@@ -1433,7 +1433,7 @@ constexpr int MAX_Z_DELTA = 18;
 				radius	= node2->GetRadius();
 
 				//If we're not within the known clear radius of this node OR out of Z height range...
-				if ( (signed)(*nci2).distance >= (radius*radius) || ( fabs( position2[2] - goal->currentOrigin[2] ) >= MAX_Z_DELTA ) )
+				if ( (signed)(*nci2).distance >= (radius*radius) || ( Q_fabsf( position2[2] - goal->currentOrigin[2] ) >= MAX_Z_DELTA ) )
 				{
 					//We're not *within* this node, so check clear path, etc.
 
@@ -1531,7 +1531,7 @@ constexpr int MAX_Z_DELTA = 18;
 		if ( (signed)(*nci).distance < (radius*radius) )
 		{
 			//Do a z-difference sanity check
-			if ( fabs( position[2] - ent->currentOrigin[2] ) < MAX_Z_DELTA )
+			if ( Q_fabsf( position[2] - ent->currentOrigin[2] ) < MAX_Z_DELTA )
 			{
 				//Found one
 				return (*nci).nodeID;

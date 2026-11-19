@@ -31,7 +31,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <assert.h>
 
-#include <math.h>
+#include "qcommon/q_libm.h"
 #include <stdio.h>
 #include <float.h>
 #include "CVec.h"
@@ -57,7 +57,7 @@ const CVec4 CVec4::mZero(0.f,	0.f,	0.f,	0.f);
 ////////////////////////////////////////////////////////////////////////////////////////
 float	CVec4::Len() const
 {
-	return sqrtf(v[0]*v[0]+v[1]*v[1]+v[2]*v[2]+v[3]*v[3]);
+	return Q_sqrtf(v[0]*v[0]+v[1]*v[1]+v[2]*v[2]+v[3]*v[3]);
 }
 
 
@@ -66,7 +66,7 @@ float	CVec4::Len() const
 ////////////////////////////////////////////////////////////////////////////////////////
 float	CVec4::Dist(const CVec4& t) const
 {
-	return sqrtf(
+	return Q_sqrtf(
 		(t.v[0]-v[0])*(t.v[0]-v[0]) +
 		(t.v[1]-v[1])*(t.v[1]-v[1]) +
 		(t.v[2]-v[2])*(t.v[2]-v[2]) +
@@ -105,15 +105,15 @@ float	CVec4::SafeNorm()
 ////////////////////////////////////////////////////////////////////////////////////////
 void	CVec4::AngleNorm()
 {
-	v[0]= fmodf(v[0],360.0f);
+	v[0]= Q_fmodf(v[0],360.0f);
 	if (v[0]<-180.f)	v[0]+=360.0f;
 	if (v[0]>180.f)		v[0]-=360.0f;
 
-	v[1]= fmodf(v[1],360.0f);
+	v[1]= Q_fmodf(v[1],360.0f);
 	if (v[1]<-180.f)	v[1]+=360.0f;
 	if (v[1]>180.f)		v[1]-=360.0f;
 
-	v[2]= fmodf(v[2],360.0f);
+	v[2]= Q_fmodf(v[2],360.0f);
 	if (v[2]<-180.f)	v[2]+=360.0f;
 	if (v[2]>180.f)		v[2]-=360.0f;
 }
@@ -155,11 +155,11 @@ void	CVec4::Perp()
 ////////////////////////////////////////////////////////////////////////////////////////
 int		CVec4::MaxElementIndex() const
 {
-	if (fabs(v[0])>fabs(v[1]) && fabs(v[0])>fabs(v[2]))
+	if (Q_fabsf(v[0])>Q_fabsf(v[1]) && Q_fabsf(v[0])>Q_fabsf(v[2]))
 	{
 		return 0;
 	}
-	if (fabs(v[1])>fabs(v[2]))
+	if (Q_fabsf(v[1])>Q_fabsf(v[2]))
 	{
 		return 1;
 	}
@@ -185,7 +185,7 @@ void	CVec4::VecToAng()
 		//---------------
 		if (v[0])
 		{
-			yaw = (RAVL_VEC_RADTODEG(atan2f(v[1], v[0])));
+			yaw = (RAVL_VEC_RADTODEG(Q_atan2f(v[1], v[0])));
 			if (yaw<0)
 			{
 				yaw += 360;
@@ -198,8 +198,8 @@ void	CVec4::VecToAng()
 
 		// Calculate Pitch
 		//-----------------
-		float forward	= (sqrtf(v[0]*v[0] + v[1]*v[1]));
-		pitch			= (RAVL_VEC_RADTODEG(atan2f(v[2], forward)));
+		float forward	= (Q_sqrtf(v[0]*v[0] + v[1]*v[1]));
+		pitch			= (RAVL_VEC_RADTODEG(Q_atan2f(v[2], forward)));
 		if (pitch<0)
 		{
 			pitch += 360;
@@ -223,11 +223,11 @@ void	CVec4::AngToVec()
 	float		sp, sy, cp, cy;
 
 	angle	= yaw() * (RAVL_VEC_DEGTORADCONST);
-	sy		= sinf(angle);
-	cy		= cosf(angle);
+	sy		= Q_sinf(angle);
+	cy		= Q_cosf(angle);
 	angle	= pitch() * (RAVL_VEC_DEGTORADCONST);
-	sp		= sinf(angle);
-	cp		= cosf(angle);
+	sp		= Q_sinf(angle);
+	cp		= Q_cosf(angle);
 
 	v[0] = cp * cy;
 	v[1] = cp * sy;
@@ -244,14 +244,14 @@ void	CVec4::AngToVec(CVec4& Right, CVec4& Up)
 	float		sr, sp, sy, cr, cp, cy;
 
 	angle	= yaw() * (RAVL_VEC_DEGTORADCONST);
-	sy		= sinf(angle);
-	cy		= cosf(angle);
+	sy		= Q_sinf(angle);
+	cy		= Q_cosf(angle);
 	angle	= pitch() * (RAVL_VEC_DEGTORADCONST);
-	sp		= sinf(angle);
-	cp		= cosf(angle);
+	sp		= Q_sinf(angle);
+	cp		= Q_cosf(angle);
 	angle	= roll() * (RAVL_VEC_DEGTORADCONST);
-	sr		= sinf(angle);
-	cr		= cosf(angle);
+	sr		= Q_sinf(angle);
+	cr		= Q_cosf(angle);
 
 	// Forward Vector Is Stored Here
 	v[0] = cp * cy;
@@ -294,7 +294,7 @@ void	CVec4::VecToAngRad()
 		//---------------
 		if (v[0])
 		{
-			yaw = (atan2f(v[1], v[0]));
+			yaw = (Q_atan2f(v[1], v[0]));
 		}
 		else
 		{
@@ -303,8 +303,8 @@ void	CVec4::VecToAngRad()
 
 		// Calculate Pitch
 		//-----------------
-		float forward	= (sqrtf(v[0]*v[0] + v[1]*v[1]));
-		pitch			= (atan2f(v[2], forward));
+		float forward	= (Q_sqrtf(v[0]*v[0] + v[1]*v[1]));
+		pitch			= (Q_atan2f(v[2], forward));
 	}
 
 	// Copy Over Current Vector
@@ -322,10 +322,10 @@ void	CVec4::AngToVecRad()
 {
 	float		sp, sy, cp, cy;
 
-	sy		= sinf(yaw());
-	cy		= cosf(yaw());
-	sp		= sinf(pitch());
-	cp		= cosf(pitch());
+	sy		= Q_sinf(yaw());
+	cy		= Q_cosf(yaw());
+	sp		= Q_sinf(pitch());
+	cp		= Q_cosf(pitch());
 
 	v[0] = cp * cy;
 	v[1] = cp * sy;
@@ -340,12 +340,12 @@ void	CVec4::AngToVecRad(CVec4& Right, CVec4& Up)
 {
 	float		sr, sp, sy, cr, cp, cy;
 
-	sy		= sinf(yaw());
-	cy		= cosf(yaw());
-	sp		= sinf(pitch());
-	cp		= cosf(pitch());
-	sr		= sinf(roll());
-	cr		= cosf(roll());
+	sy		= Q_sinf(yaw());
+	cy		= Q_cosf(yaw());
+	sp		= Q_sinf(pitch());
+	cp		= Q_cosf(pitch());
+	sr		= Q_sinf(roll());
+	cr		= Q_cosf(roll());
 
 	// Forward Vector Is Stored Here
 	v[0] = cp * cy;
@@ -397,7 +397,10 @@ void	CVec4::ToDegrees()
 void	CVec4::FromStr(const char *s)
 {
 //	assert(s && s[0]);
-	sscanf(s, "(%f %f %f %f)", &v[0], &v[1], &v[2], &v[3]);
+	if (s[0] == '(')
+	{
+		Q_ScanFloats(s + 1, v, 4);
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -421,7 +424,7 @@ bool	CVec4::IsFinite()
 #if defined(_MSC_VER)
 	return 	(_finite(v[0]) && _finite(v[1]) && _finite(v[2]) && _finite(v[3]));
 #else
-	return isfinite(v[0]) && isfinite(v[1]) && isfinite(v[2]);
+	return Q_isfinite(v[0]) && Q_isfinite(v[1]) && Q_isfinite(v[2]);
 #endif
 }
 
@@ -587,8 +590,8 @@ void	CVec4::Reposition(const CVec4 &Translation, float RotationDegrees)
 	{
 		CVec4 Old(*this);
 		float Rotation = RAVL_VEC_DEGTORAD(RotationDegrees);
-		v[0] = Old.v[0]*cosf(Rotation) - Old.v[1]*sinf(Rotation);
-		v[1] = Old.v[0]*sinf(Rotation) + Old.v[1]*cosf(Rotation);
+		v[0] = Old.v[0]*Q_cosf(Rotation) - Old.v[1]*Q_sinf(Rotation);
+		v[1] = Old.v[0]*Q_sinf(Rotation) + Old.v[1]*Q_cosf(Rotation);
 	}
 
 	// Now Apply Translation
@@ -624,7 +627,7 @@ const CVec3 CVec3::mZero(0.f,	0.f,	0.f);
 ////////////////////////////////////////////////////////////////////////////////////////
 float	CVec3::Len() const
 {
-	return sqrtf(v[0]*v[0]+v[1]*v[1]+v[2]*v[2]);
+	return Q_sqrtf(v[0]*v[0]+v[1]*v[1]+v[2]*v[2]);
 }
 
 
@@ -633,7 +636,7 @@ float	CVec3::Len() const
 ////////////////////////////////////////////////////////////////////////////////////////
 float	CVec3::Dist(const CVec3& t) const
 {
-	return sqrtf(
+	return Q_sqrtf(
 		(t.v[0]-v[0])*(t.v[0]-v[0]) +
 		(t.v[1]-v[1])*(t.v[1]-v[1]) +
 		(t.v[2]-v[2])*(t.v[2]-v[2]));
@@ -671,15 +674,15 @@ float	CVec3::SafeNorm()
 ////////////////////////////////////////////////////////////////////////////////////////
 void	CVec3::AngleNorm()
 {
-	v[0]= fmodf(v[0],360.0f);
+	v[0]= Q_fmodf(v[0],360.0f);
 	if (v[0]<-180.f)	v[0]+=360.0f;
 	if (v[0]>180.f)		v[0]-=360.0f;
 
-	v[1]= fmodf(v[1],360.0f);
+	v[1]= Q_fmodf(v[1],360.0f);
 	if (v[1]<-180.f)	v[1]+=360.0f;
 	if (v[1]>180.f)		v[1]-=360.0f;
 
-	v[2]= fmodf(v[2],360.0f);
+	v[2]= Q_fmodf(v[2],360.0f);
 	if (v[2]<-180.f)	v[2]+=360.0f;
 	if (v[2]>180.f)		v[2]-=360.0f;
 }
@@ -740,11 +743,11 @@ void	CVec3::Perp()
 ////////////////////////////////////////////////////////////////////////////////////////
 int		CVec3::MaxElementIndex() const
 {
-	if (fabs(v[0])>fabs(v[1]) && fabs(v[0])>fabs(v[2]))
+	if (Q_fabsf(v[0])>Q_fabsf(v[1]) && Q_fabsf(v[0])>Q_fabsf(v[2]))
 	{
 		return 0;
 	}
-	if (fabs(v[1])>fabs(v[2]))
+	if (Q_fabsf(v[1])>Q_fabsf(v[2]))
 	{
 		return 1;
 	}
@@ -770,7 +773,7 @@ void	CVec3::VecToAng()
 		//---------------
 		if (v[0])
 		{
-			yaw = (RAVL_VEC_RADTODEG(atan2f(v[1], v[0])));
+			yaw = (RAVL_VEC_RADTODEG(Q_atan2f(v[1], v[0])));
 			if (yaw<0)
 			{
 				yaw += 360;
@@ -783,8 +786,8 @@ void	CVec3::VecToAng()
 
 		// Calculate Pitch
 		//-----------------
-		float forward	= (sqrtf(v[0]*v[0] + v[1]*v[1]));
-		pitch			= (RAVL_VEC_RADTODEG(atan2f(v[2], forward)));
+		float forward	= (Q_sqrtf(v[0]*v[0] + v[1]*v[1]));
+		pitch			= (RAVL_VEC_RADTODEG(Q_atan2f(v[2], forward)));
 		if (pitch<0)
 		{
 			pitch += 360;
@@ -807,11 +810,11 @@ void	CVec3::AngToVec()
 	float		sp, sy, cp, cy;
 
 	angle	= yaw() * (RAVL_VEC_DEGTORADCONST);
-	sy		= sinf(angle);
-	cy		= cosf(angle);
+	sy		= Q_sinf(angle);
+	cy		= Q_cosf(angle);
 	angle	= pitch() * (RAVL_VEC_DEGTORADCONST);
-	sp		= sinf(angle);
-	cp		= cosf(angle);
+	sp		= Q_sinf(angle);
+	cp		= Q_cosf(angle);
 
 	v[0] = cp * cy;
 	v[1] = cp * sy;
@@ -827,14 +830,14 @@ void	CVec3::AngToVec(CVec3& Right, CVec3& Up)
 	float		sr, sp, sy, cr, cp, cy;
 
 	angle	= yaw() * (RAVL_VEC_DEGTORADCONST);
-	sy		= sinf(angle);
-	cy		= cosf(angle);
+	sy		= Q_sinf(angle);
+	cy		= Q_cosf(angle);
 	angle	= pitch() * (RAVL_VEC_DEGTORADCONST);
-	sp		= sinf(angle);
-	cp		= cosf(angle);
+	sp		= Q_sinf(angle);
+	cp		= Q_cosf(angle);
 	angle	= roll() * (RAVL_VEC_DEGTORADCONST);
-	sr		= sinf(angle);
-	cr		= cosf(angle);
+	sr		= Q_sinf(angle);
+	cr		= Q_cosf(angle);
 
 	// Forward Vector Is Stored Here
 	v[0] = cp * cy;
@@ -874,7 +877,7 @@ void	CVec3::VecToAngRad()
 		//---------------
 		if (v[0])
 		{
-			yaw = (atan2f(v[1], v[0]));
+			yaw = (Q_atan2f(v[1], v[0]));
 		}
 		else
 		{
@@ -883,8 +886,8 @@ void	CVec3::VecToAngRad()
 
 		// Calculate Pitch
 		//-----------------
-		float forward	= (sqrtf(v[0]*v[0] + v[1]*v[1]));
-		pitch			= (atan2f(v[2], forward));
+		float forward	= (Q_sqrtf(v[0]*v[0] + v[1]*v[1]));
+		pitch			= (Q_atan2f(v[2], forward));
 	}
 
 	// Copy Over Current Vector
@@ -901,10 +904,10 @@ void	CVec3::AngToVecRad()
 {
 	float		sp, sy, cp, cy;
 
-	sy		= sinf(yaw());
-	cy		= cosf(yaw());
-	sp		= sinf(pitch());
-	cp		= cosf(pitch());
+	sy		= Q_sinf(yaw());
+	cy		= Q_cosf(yaw());
+	sp		= Q_sinf(pitch());
+	cp		= Q_cosf(pitch());
 
 	v[0] = cp * cy;
 	v[1] = cp * sy;
@@ -918,12 +921,12 @@ void	CVec3::AngToVecRad(CVec3& Right, CVec3& Up)
 {
 	float		sr, sp, sy, cr, cp, cy;
 
-	sy		= sinf(yaw());
-	cy		= cosf(yaw());
-	sp		= sinf(pitch());
-	cp		= cosf(pitch());
-	sr		= sinf(roll());
-	cr		= cosf(roll());
+	sy		= Q_sinf(yaw());
+	cy		= Q_cosf(yaw());
+	sp		= Q_sinf(pitch());
+	cp		= Q_cosf(pitch());
+	sr		= Q_sinf(roll());
+	cr		= Q_cosf(roll());
 
 	// Forward Vector Is Stored Here
 	v[0] = cp * cy;
@@ -972,7 +975,10 @@ void	CVec3::ToDegrees()
 void	CVec3::FromStr(const char *s)
 {
 	assert(s && s[0]);
-	sscanf(s, "(%f %f %f)", &v[0], &v[1], &v[2]);
+	if (s[0] == '(')
+	{
+		Q_ScanFloats(s + 1, v, 3);
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -996,7 +1002,7 @@ bool	CVec3::IsFinite()
 #if defined(_MSC_VER)
 		return 	(_finite(v[0]) && _finite(v[1]) && _finite(v[2]));
 #else
-		return isfinite(v[0]) && isfinite(v[1]) && isfinite(v[2]);
+		return Q_isfinite(v[0]) && Q_isfinite(v[1]) && Q_isfinite(v[2]);
 #endif
 }
 
@@ -1162,8 +1168,8 @@ void	CVec3::Reposition(const CVec3 &Translation, float RotationDegrees)
 	{
 		CVec3 Old(*this);
 		float Rotation = RAVL_VEC_DEGTORAD(RotationDegrees);
-		v[0] = Old.v[0]*cosf(Rotation) - Old.v[1]*sinf(Rotation);
-		v[1] = Old.v[0]*sinf(Rotation) + Old.v[1]*cosf(Rotation);
+		v[0] = Old.v[0]*Q_cosf(Rotation) - Old.v[1]*Q_sinf(Rotation);
+		v[1] = Old.v[0]*Q_sinf(Rotation) + Old.v[1]*Q_cosf(Rotation);
 	}
 
 	// Now Apply Translation

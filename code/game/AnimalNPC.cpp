@@ -899,7 +899,7 @@ static void AnimateRiders( Vehicle_t *pVeh )
 					AngleVectors(pVeh->m_pParentEntity->currentAngles, nullptr, actorRight, nullptr);
 					actorRightDot = DotProduct(toEnemy, actorRight);
 
-	 				if (fabsf(actorRightDot)>0.5f || pilotPS->weapon==weapon_t::WP_SABER)
+	 				if (Q_fabsf(actorRightDot)>0.5f || pilotPS->weapon==weapon_t::WP_SABER)
 					{
 						Left	= (actorRightDot>0.0f);
 						Right	= !Left;

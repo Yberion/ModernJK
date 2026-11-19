@@ -78,21 +78,21 @@ inline void		VectorMA( vec3_t vecAdd, const float scale, const vec3_t vecScale)
 
 inline void VectorFloor(vec3_t in)
 {
-	in[0] = floorf(in[0]);
-	in[1] = floorf(in[1]);
-	in[2] = floorf(in[2]);
+	in[0] = Q_floorf(in[0]);
+	in[1] = Q_floorf(in[1]);
+	in[2] = Q_floorf(in[2]);
 }
 
 inline void VectorCeil(vec3_t in)
 {
-	in[0] = ceilf(in[0]);
-	in[1] = ceilf(in[1]);
-	in[2] = ceilf(in[2]);
+	in[0] = Q_ceilf(in[0]);
+	in[1] = Q_ceilf(in[1]);
+	in[2] = Q_ceilf(in[2]);
 }
 
 inline float	FloatRand(void)
 {
-	return ((float)rand() / (float)RAND_MAX);
+	return Q_flrand( 0.0f, 1.0f );
 }
 
 inline float	fast_flrand(float min, float max)
@@ -1191,13 +1191,13 @@ public:
 				mRotationChangeNext--;
 
 				float	RotationDeltaDifference = (mRotationDeltaTarget - mRotationDelta);
-				if (fabsf(RotationDeltaDifference)>0.01)
+				if (Q_fabsf(RotationDeltaDifference)>0.01)
 				{
 					mRotationDelta += RotationDeltaDifference;		// Blend To New Delta
 				}
                 mRotationCurrent += (mRotationDelta * mSecondsElapsed);
-				float s = sinf(mRotationCurrent);
-				float c = cosf(mRotationCurrent);
+				float s = Q_sinf(mRotationCurrent);
+				float c = Q_cosf(mRotationCurrent);
 
 				CVec3	TempCamLeft(mCameraLeft);
 
@@ -1563,6 +1563,8 @@ ratl::vector_vs<CParticleCloud, MAX_PARTICLE_CLOUDS>	mParticleClouds;
 ////////////////////////////////////////////////////////////////////////////////////////
 void R_InitWorldEffects(void)
 {
+	Rand_Init(ri.Milliseconds());
+
 	for (int i=0; i<mParticleClouds.size(); i++)
 	{
 		mParticleClouds[i].Reset();
@@ -1695,7 +1697,7 @@ bool WE_ParseVector( const char **text, int count, float *v ) {
 			COM_EndParseSession();
 			return false;
 		}
-		v[i] = atof( token );
+		v[i] = Q_atof( token );
 	}
 
 	token = COM_ParseExt( text, false );

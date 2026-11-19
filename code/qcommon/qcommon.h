@@ -675,7 +675,7 @@ void	SCR_TempRawImage_CleanUp();
 
 inline int Round(float value)
 {
-	return((int)floorf(value + 0.5f));
+	return((int)Q_floorf(value + 0.5f));
 }
 
 // Persistent data store API

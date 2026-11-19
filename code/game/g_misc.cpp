@@ -406,7 +406,7 @@ void SP_misc_model_static(gentity_t *ent)
 	vec3_t		scale;
 
 	G_SpawnString("modelscale_vec", "1 1 1", &value);
-	sscanf( value, "%f %f %f", &scale[ 0 ], &scale[ 1 ], &scale[ 2 ] );
+	Q_ScanFloats( value, scale, 3 );
 
 	G_SpawnFloat( "modelscale", "0", &temp);
 	if (temp != 0.0f)
@@ -952,7 +952,7 @@ void InitShooter( gentity_t *ent, weapon_t weapon ) {
 	if ( !ent->random ) {
 		ent->random = 1.0;
 	}
-	ent->random = sin( M_PI * ent->random / 180 );
+	ent->random = Q_sin( Q_PI * ent->random / 180 );
 	// target might be a moving object, so we can't set movedir for it
 	if ( ent->target ) {
 		G_SetEnemy(ent, G_PickTarget( ent->target ));

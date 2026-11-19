@@ -436,21 +436,21 @@ bool G_ParseAnimationFile( const char *af_filename )
 		{
 			break;
 		}
-		fps = atof( token );
+		fps = Q_atof( token );
 		if ( fps == 0 )
 		{
 			fps = 1;//Don't allow divide by zero error
 		}
 		if ( fps < 0 )
 		{//backwards
-			animations[*animNum].frameLerp = floor(1000.0f / fps);
+			animations[*animNum].frameLerp = Q_floorf(1000.0f / fps);
 		}
 		else
 		{
-			animations[*animNum].frameLerp = ceil(1000.0f / fps);
+			animations[*animNum].frameLerp = Q_ceilf(1000.0f / fps);
 		}
 
-		animations[*animNum].initialLerp = ceil(1000.0f / fabs(fps));
+		animations[*animNum].initialLerp = Q_ceilf(1000.0f / Q_fabsf(fps));
 	}
 	COM_EndParseSession();
 

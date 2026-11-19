@@ -348,8 +348,8 @@ static void CG_DrawZoomMask( void )
 
 		for ( int t = 0; t < 5; t++ )
 		{
-			cx = 320 + sin( (t*10+45)/57.296f ) * 192;
-			cy = 240 + cos( (t*10+45)/57.296f ) * 192;
+			cx = 320 + Q_sinf( (t*10+45)/57.296f ) * 192;
+			cy = 240 + Q_cosf( (t*10+45)/57.296f ) * 192;
 
 			CG_DrawRotatePic2( cx, cy, 24, 38, 45 - t * 10, trap->R_RegisterShader( va("gfx/2d/char%d",val[4-t] )));
 		}
@@ -7972,7 +7972,7 @@ static void CG_Draw2DScreenTints( void )
 
 	if ( Any( cg.refdef.viewContents&contentsFlags_t::CONTENTS_LAVA ) )
 	{//tint screen red
-		float phase = cg.time / 1000.0 * WAVE_FREQUENCY * M_PI * 2;
+		float phase = cg.time / 1000.0 * WAVE_FREQUENCY * Q_PI * 2;
 		hcolor[3] = 0.5 + (0.15f*Q_sin( phase ));
 		hcolor[0] = 0.7f;
 		hcolor[1] = 0;
@@ -7982,7 +7982,7 @@ static void CG_Draw2DScreenTints( void )
 	}
 	else if ( Any( cg.refdef.viewContents&contentsFlags_t::CONTENTS_SLIME ) )
 	{//tint screen green
-		float phase = cg.time / 1000.0 * WAVE_FREQUENCY * M_PI * 2;
+		float phase = cg.time / 1000.0 * WAVE_FREQUENCY * Q_PI * 2;
 		hcolor[3] = 0.4 + (0.1f*Q_sin( phase ));
 		hcolor[0] = 0;
 		hcolor[1] = 0.7f;
@@ -7992,7 +7992,7 @@ static void CG_Draw2DScreenTints( void )
 	}
 	else if ( Any( cg.refdef.viewContents&contentsFlags_t::CONTENTS_WATER ) )
 	{//tint screen light blue -- FIXME: don't do this if CONTENTS_FOG? (in case someone *does* make a water shader with fog in it?)
-		float phase = cg.time / 1000.0f * WAVE_FREQUENCY * M_PI * 2;
+		float phase = cg.time / 1000.0f * WAVE_FREQUENCY * Q_PI * 2;
 		hcolor[3] = 0.3f + (0.05f*Q_sinf( phase ));
 		hcolor[0] = 0;
 		hcolor[1] = 0.2f;

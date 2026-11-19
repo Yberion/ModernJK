@@ -784,7 +784,7 @@ void InitShooter( gentity_t *ent, weapon_t weapon ) {
 	if ( !ent->random ) {
 		ent->random = 1.0;
 	}
-	ent->random = sin( M_PI * ent->random / 180 );
+	ent->random = Q_sin( Q_PI * ent->random / 180 );
 	// target might be a moving object, so we can't set movedir for it
 	if ( ent->target ) {
 		G_SetEnemy(ent, G_PickTarget( ent->target ));

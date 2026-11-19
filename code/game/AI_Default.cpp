@@ -604,8 +604,8 @@ void NPC_BSPointShoot (bool shoot)
 				pitchMissAllow = 8.0f;
 			}
 
-			yawMiss = tan(DEG2RAD(AngleDelta ( NPC->client->ps.viewangles[YAW], NPCInfo->desiredYaw ))) * dist;
-			pitchMiss = tan(DEG2RAD(AngleDelta ( NPC->client->ps.viewangles[PITCH], NPCInfo->desiredPitch))) * dist;
+			yawMiss = Q_tanf(DEG2RAD(AngleDelta ( NPC->client->ps.viewangles[YAW], NPCInfo->desiredYaw ))) * dist;
+			pitchMiss = Q_tanf(DEG2RAD(AngleDelta ( NPC->client->ps.viewangles[PITCH], NPCInfo->desiredPitch))) * dist;
 
 			if ( yawMissAllow >= yawMiss && pitchMissAllow > pitchMiss )
 			{

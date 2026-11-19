@@ -166,11 +166,11 @@ public:
 					{
 						blendFrame=ghlInfo->mBlist[i].blendFrame;
 						blendLerpFrame=ghlInfo->mBlist[i].blendLerpFrame;
-						if (floor(blendFrame)<0.0f)
+						if (Q_floorf(blendFrame)<0.0f)
 						{
 							Error("negative blendFrame",1,0,line);
 						}
-						if (ceil(blendFrame)>=float(numFramesInFile))
+						if (Q_ceilf(blendFrame)>=float(numFramesInFile))
 						{
 							Error("blendFrame >= numFramesInFile",1,0,line);
 						}

@@ -312,7 +312,7 @@ public:
 					{
 						dif=100.0f;
 					}
-					float f=1.0f-pow(1.0f-mSmoothFactor,16.0f/dif);
+					float f=1.0f-Q_powf(1.0f-mSmoothFactor,16.0f/dif);
 
 					int i;
 					float *oldM=&mSmoothBones[index].boneMatrix.matrix[0][0];
@@ -1006,13 +1006,13 @@ void G2_TimingModel(boneInfo_t &bone,int currentTime,int numFramesInFile,int &cu
 					{
 						if (newFrame_g <= endFrame+1)
 						{
-							newFrame_g=endFrame+fmod(newFrame_g-endFrame,animSize)-animSize;
+							newFrame_g=endFrame+Q_fmod(newFrame_g-endFrame,animSize)-animSize;
 						}
 						// now figure out what we are lerping between
 						// delta is the fraction between this frame and the next, since the new anim is always at a .0f;
-						lerp = (ceil(newFrame_g)-newFrame_g);
+						lerp = (Q_ceilf(newFrame_g)-newFrame_g);
 						// frames are easy to calculate
-						currentFrame = ceil(newFrame_g);
+						currentFrame = Q_ceilf(newFrame_g);
 						assert(currentFrame>=0&&currentFrame<numFramesInFile);
 						// should we be creating a virtual frame?
 						if (currentFrame <= endFrame+1 )
@@ -1045,7 +1045,7 @@ void G2_TimingModel(boneInfo_t &bone,int currentTime,int numFramesInFile,int &cu
 					{
 						if (newFrame_g >= endFrame)
 						{
-							newFrame_g=endFrame+fmod(newFrame_g-endFrame,animSize)-animSize;
+							newFrame_g=endFrame+Q_fmod(newFrame_g-endFrame,animSize)-animSize;
 						}
 						// now figure out what we are lerping between
 						// delta is the fraction between this frame and the next, since the new anim is always at a .0f;
@@ -1131,9 +1131,9 @@ void G2_TimingModel(boneInfo_t &bone,int currentTime,int numFramesInFile,int &cu
 			}
 			else
 			{
-				lerp = (ceil(newFrame_g)-newFrame_g);
+				lerp = (Q_ceilf(newFrame_g)-newFrame_g);
 				// frames are easy to calculate
-				currentFrame = ceil(newFrame_g);
+				currentFrame = Q_ceilf(newFrame_g);
 				if (currentFrame>bone.startFrame)
 				{
 					currentFrame=bone.startFrame;

@@ -2176,11 +2176,11 @@ static bool ParseShader( const char **text )
 
 			token = COM_ParseExt( text, false );
 			a = Q_atof( token );
-			a = a / 180 * M_PI;
+			a = a / 180 * Q_PI;
 
 			token = COM_ParseExt( text, false );
 			float b = Q_atof( token );
-			b = b / 180 * M_PI;
+			b = b / 180 * Q_PI;
 
 			tr.sunDirection[0] = Q_cos( a ) * Q_cos( b );
 			tr.sunDirection[1] = Q_sin( a ) * Q_cos( b );

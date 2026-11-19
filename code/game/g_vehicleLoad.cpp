@@ -288,13 +288,13 @@ static void G_ParseVehicleParms( vehicleInfo_t *vehicle, const char **holdBuf )
 					*(int *)(b+vehFields[i].ofs) = atoi(value);
 					break;
 				case vehFieldType_t::VF_FLOAT:
-					*(float *)(b+vehFields[i].ofs) = atof(value);
+					*(float *)(b+vehFields[i].ofs) = Q_atof(value);
 					break;
 				case vehFieldType_t::VF_LSTRING:	// string on disk, pointer in memory, TAG_LEVEL
 					*(char **)(b+vehFields[i].ofs) = G_NewString( value );
 					break;
 				case vehFieldType_t::VF_VECTOR:
-					_iFieldsRead = sscanf (value, "%f %f %f", &vec[0], &vec[1], &vec[2]);
+					_iFieldsRead = Q_ScanFloats( value, vec, 3 );
 					assert(_iFieldsRead==3 );
 					if (_iFieldsRead!=3)
 					{
@@ -305,7 +305,7 @@ static void G_ParseVehicleParms( vehicleInfo_t *vehicle, const char **holdBuf )
 					((float *)(b+vehFields[i].ofs))[2] = vec[2];
 					break;
 				case vehFieldType_t::VF_BOOL:
-					*(bool *)(b+vehFields[i].ofs) = (atof(value)!=0);
+					*(bool *)(b+vehFields[i].ofs) = (Q_atof(value)!=0);
 					break;
 				case vehFieldType_t::VF_VEHTYPE:
 					vehType = (vehicleType_t)GetIDForString( VehicleTable, value );

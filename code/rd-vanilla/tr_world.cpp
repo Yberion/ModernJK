@@ -453,7 +453,7 @@ void RE_GetBModelVerts( int bmodelIndex, vec3_t *verts, vec3_t normal )
 	}
 	else
 	{ // Possibly only have one face, so may as well use the first face, which also should be the best one
-		//i = rand() & 1; // ugh, we don't know which to use.  I'd hope this would never happen
+		//i = Q_irand( 0, 1 ); // ugh, we don't know which to use.  I'd hope this would never happen
 		i = maxIndx[0]; // use the first face
 	}
 

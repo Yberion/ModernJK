@@ -862,7 +862,7 @@ void CG_CalculateWeaponPosition( vec3_t origin, vec3_t angles )
 
 	// idle drift
 	scale = /*cg.xyspeed + */40;
-	fracsin = sin( cg.time * 0.001 );
+	fracsin = Q_sin( cg.time * 0.001 );
 	angles[ROLL] += scale * fracsin * 0.01;
 	angles[YAW] += scale * fracsin * 0.01;
 	angles[PITCH] += (scale * 0.5f ) * fracsin * 0.01;
@@ -1134,8 +1134,8 @@ void CG_AddViewWeapon( playerState_t *ps )
 
 	if ( cg_fovViewmodel.integer )
 	{
-		float fracDistFOV = tanf( cg_fov.value  * ( M_PI/180 ) * 0.5f );
-		float fracWeapFOV = (1.0f / fracDistFOV) * tanf( cg_fovViewmodel.value * (M_PI / 180) * 0.5f );
+		float fracDistFOV = Q_tanf( cg_fov.value  * ( Q_PI/180 ) * 0.5f );
+		float fracWeapFOV = (1.0f / fracDistFOV) * Q_tanf( cg_fovViewmodel.value * (Q_PI / 180) * 0.5f );
 		VectorScale( hand.axis[0], fracWeapFOV, hand.axis[0] );
 	}
 
@@ -1159,9 +1159,9 @@ void CG_AddViewWeapon( playerState_t *ps )
 		float animSpeed;
 		if (cent->gent->lowerLumbarBone>=0&& gi.G2API_GetBoneAnimIndex(&cent->gent->ghoul2[cent->gent->playerModel], cent->gent->lowerLumbarBone, cg.time, &currentFrame, &startFrame, &endFrame, &flags, &animSpeed,nullptr) )
 		{
-			hand.oldframe = CG_MapTorsoToWeaponFrame( ci,floor(currentFrame), torsoAnim, cent->currentState.weapon, Any( cent->currentState.eFlags & entityFlags_t::EF_FIRING ) );
-			hand.frame = CG_MapTorsoToWeaponFrame( ci,ceil(currentFrame), torsoAnim, cent->currentState.weapon, Any( cent->currentState.eFlags & entityFlags_t::EF_FIRING ) );
-			hand.backlerp=1.0f-(currentFrame-floor(currentFrame));
+			hand.oldframe = CG_MapTorsoToWeaponFrame( ci,Q_floorf(currentFrame), torsoAnim, cent->currentState.weapon, Any( cent->currentState.eFlags & entityFlags_t::EF_FIRING ) );
+			hand.frame = CG_MapTorsoToWeaponFrame( ci,Q_ceilf(currentFrame), torsoAnim, cent->currentState.weapon, Any( cent->currentState.eFlags & entityFlags_t::EF_FIRING ) );
+			hand.backlerp=1.0f-(currentFrame-Q_floorf(currentFrame));
 			if ( cg_debugAnim.integer == 1 && cent->currentState.clientNum == 0 )
 			{
 				Com_Printf( "Torso frame %d to %d makes Weapon frame %d to %d\n", cent->pe.torso.oldFrame,  cent->pe.torso.frame, hand.oldframe, hand.frame );
@@ -2853,7 +2853,7 @@ void CG_BounceEffect( centity_t *cent, weapon_t weapon, vec3_t origin, vec3_t no
 	switch( weapon )
 	{
 	case weapon_t::WP_THERMAL:
-		if ( rand() & 1 ) {
+		if ( Q_irand( 0, 1 ) ) {
 			cgi_S_StartSound( origin, ENTITYNUM_WORLD, soundChannel_t::CHAN_AUTO, cgs.media.grenadeBounce1 );
 		} else {
 			cgi_S_StartSound( origin, ENTITYNUM_WORLD, soundChannel_t::CHAN_AUTO, cgs.media.grenadeBounce2 );
@@ -2869,7 +2869,7 @@ void CG_BounceEffect( centity_t *cent, weapon_t weapon, vec3_t origin, vec3_t no
 		break;
 
 	default:
-		if ( rand() & 1 ) {
+		if ( Q_irand( 0, 1 ) ) {
 			cgi_S_StartSound( origin, ENTITYNUM_WORLD, soundChannel_t::CHAN_AUTO, cgs.media.grenadeBounce1 );
 		} else {
 			cgi_S_StartSound( origin, ENTITYNUM_WORLD, soundChannel_t::CHAN_AUTO, cgs.media.grenadeBounce2 );

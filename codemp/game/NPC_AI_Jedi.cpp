@@ -1086,7 +1086,7 @@ bool NPC_MoveDirClear( int forwardmove, int rightmove, bool reset )
 		return true;
 	}
 	/*
-	if ( fabs( AngleDelta( NPC->r.currentAngles[YAW], NPCInfo->desiredYaw ) ) < 5.0 )//!ucmd.angles[YAW] )
+	if ( Q_fabsf( AngleDelta( NPC->r.currentAngles[YAW], NPCInfo->desiredYaw ) ) < 5.0 )//!ucmd.angles[YAW] )
 	{//Not turning much, don't do this
 		//NOTE: Should this not happen only if you're not turning AT ALL?
 		//	You could be turning slowly but moving fast, so that would
@@ -4853,8 +4853,8 @@ static bool Jedi_Jumping( gentity_t *goal )
 			float fDot = DotProduct( forward, goal_dir ) * 127;
 			float rDot = DotProduct( right, goal_dir ) * 127;
 
-			ucmd.forwardmove = floor(fDot);
-			ucmd.rightmove = floor(rDot);
+			ucmd.forwardmove = Q_floorf(fDot);
+			ucmd.rightmove = Q_floorf(rDot);
 			ucmd.upmove = 0;//don't duck
 			//Cheat:
 			if ( goal_dist < 128 && goal->r.currentOrigin[2] > NPC->r.currentOrigin[2] && NPC->client->ps.velocity[2] <= 0 )

@@ -2628,7 +2628,7 @@ void BG_TouchJumpPad( playerState_t *ps, entityState_t *jumppad ) {
 		float p;
 
 		vectoangles( jumppad->origin2, angles);
-		p = fabs( AngleNormalize180( angles[PITCH] ) );
+		p = Q_fabsf( AngleNormalize180( angles[PITCH] ) );
 		effectNum =  (p<45) ? 0 : 1;
 	}
 	*/

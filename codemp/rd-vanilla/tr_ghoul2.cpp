@@ -409,7 +409,7 @@ public:
 					{
 						dif=100.0f;
 					}
-					float f=1.0f-pow(1.0f-mSmoothFactor,16.0f/dif);
+					float f=1.0f-Q_powf(1.0f-mSmoothFactor,16.0f/dif);
 
 					int i;
 					float *oldM=&mSmoothBones[index].boneMatrix.matrix[0][0];
@@ -2103,7 +2103,7 @@ void G2_TransformGhoulBones(boneInfo_v &rootBoneList,mdxaBone_t &rootMatrix, CGh
 			}
 #endif
 
-//			ghoul2.mBoneCache->mSmoothFactor=(val + 1.0f-pow(1.0f-val,50.0f/dif))/2.0f;  // meaningless formula
+//			ghoul2.mBoneCache->mSmoothFactor=(val + 1.0f-Q_powf(1.0f-val,50.0f/dif))/2.0f;  // meaningless formula
 			ghoul2.mBoneCache->mSmoothFactor=val;  // meaningless formula
 			ghoul2.mBoneCache->mSmoothingActive=true;
 

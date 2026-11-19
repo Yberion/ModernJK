@@ -2314,7 +2314,7 @@ void SP_func_pendulum(gentity_t *ent) {
 		length = 8;
 	}
 
-	freq = 1 / ( M_PI * 2 ) * Q_sqrt( g_gravity.value / ( 3 * length ) );
+	freq = 1 / ( Q_PI * 2 ) * Q_sqrt( g_gravity.value / ( 3 * length ) );
 
 	ent->s.pos.trDuration = ( 1000 / freq );
 

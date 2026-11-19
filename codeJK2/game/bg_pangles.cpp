@@ -59,7 +59,7 @@ void PM_ScaleUcmd( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 	{//driving a vehicle
 		//clamp the turn rate
 		int maxPitchSpeed = MAX_PITCHSPEED_X_WING;//switch, eventually?  Or read from file?
-		int diff = AngleNormalize180(SHORT2ANGLE((cmd->angles[PITCH]+ps->delta_angles[PITCH]))) - floor(ps->viewangles[PITCH]);
+		int diff = AngleNormalize180(SHORT2ANGLE((cmd->angles[PITCH]+ps->delta_angles[PITCH]))) - Q_floorf(ps->viewangles[PITCH]);
 
 		if ( diff > maxPitchSpeed )
 		{
@@ -72,7 +72,7 @@ void PM_ScaleUcmd( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 
 		//Um, WTF?  When I turn in a certain direction, I start going backwards?  Or strafing?
 		int maxYawSpeed = MAX_YAWSPEED_X_WING;//switch, eventually?  Or read from file?
-		diff = AngleNormalize180(SHORT2ANGLE(cmd->angles[YAW]+ps->delta_angles[YAW]) - floor(ps->viewangles[YAW]));
+		diff = AngleNormalize180(SHORT2ANGLE(cmd->angles[YAW]+ps->delta_angles[YAW]) - Q_floorf(ps->viewangles[YAW]));
 
 		//clamp the turn rate
 		if ( diff > maxYawSpeed )
@@ -558,7 +558,7 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 			//end up leaning into solid architecture (sigh)
 			gi.trace( &trace, start, tmins, tmaxs, end, gent->s.number, MASK_PLAYERSOLID, EG2_Collision::G2_NOCOLLIDE, 0 );
 
-			ps->leanofs = floor((float)leanofs * trace.fraction);
+			ps->leanofs = Q_floorf((float)leanofs * trace.fraction);
 
 			ps->leanStopDebounceTime = 20;
 		}

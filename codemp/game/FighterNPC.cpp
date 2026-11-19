@@ -999,7 +999,7 @@ void FighterRollAdjust(Vehicle_t *pVeh, playerState_t *riderPS, playerState_t *p
 */
 	float angDif = AngleSubtract(pVeh->m_vPrevRiderViewAngles[YAW],riderPS->viewangles[YAW]);///2.0f;//AngleSubtract(pVeh->m_vPrevRiderViewAngles[YAW], riderPS->viewangles[YAW]);
 	/*
-	if ( fabs( angDif ) < FIGHTER_TURNING_DEADZONE )
+	if ( Q_fabsf( angDif ) < FIGHTER_TURNING_DEADZONE )
 	{
 		angDif = 0.0f;
 	}

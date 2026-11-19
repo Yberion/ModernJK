@@ -44,6 +44,8 @@ include(cmake/StaticAnalyzers.cmake)
 # tests must give the same bits on every compiler: no FMA contraction); index checks of std::span and the containers in debug builds (libstdc++, libc++; MSVC checks by default in Debug).
 add_library(netcodec_options INTERFACE)
 target_compile_features(netcodec_options INTERFACE cxx_std_20)
+# LLVM libc's header-only math (lib/llvm-libc, vendored): a system folder, outside netcodec's warnings
+target_include_directories(netcodec_options SYSTEM INTERFACE "${PROJECT_SOURCE_DIR}/../../lib/llvm-libc")
 target_compile_definitions(netcodec_options INTERFACE
 	$<$<CONFIG:Debug>:_GLIBCXX_ASSERTIONS _LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_DEBUG>)
 if(MSVC)

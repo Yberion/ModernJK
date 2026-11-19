@@ -55,7 +55,7 @@ static void HSVtoRGB( float h, float s, float v, float rgb[3] )
 
 	h *= 5;
 
-	i = floor( h );
+	i = Q_floorf( h );
 	f = h - i;
 
 	p = v * ( 1 - s );
@@ -1162,8 +1162,8 @@ void R_LoadLightGrid( lump_t *l, world_t &worldData ) {
 	wMaxs = w->bmodels[0].bounds[1];
 
 	for ( i = 0 ; i < 3 ; i++ ) {
-		w->lightGridOrigin[i] = w->lightGridSize[i] * ceil( wMins[i] / w->lightGridSize[i] );
-		maxs[i] = w->lightGridSize[i] * floor( wMaxs[i] / w->lightGridSize[i] );
+		w->lightGridOrigin[i] = w->lightGridSize[i] * Q_ceilf( wMins[i] / w->lightGridSize[i] );
+		maxs[i] = w->lightGridSize[i] * Q_floorf( wMaxs[i] / w->lightGridSize[i] );
 		w->lightGridBounds[i] = (maxs[i] - w->lightGridOrigin[i])/w->lightGridSize[i] + 1;
 	}
 
@@ -1290,27 +1290,27 @@ void R_LoadEntities( lump_t *l, world_t &worldData ) {
 			continue;
 		}
 */		if (!Q_stricmp(keyname, "distanceCull")) {
-			sscanf(value, "%f", &tr.distanceCull );
+			Q_ScanFloats( value, &tr.distanceCull, 1 );
 			continue;
 		}
 		//check for linear fog -rww
 		if (!Q_stricmp(keyname, "linFogStart")) {
-			sscanf(value, "%f", &tr.rangedFog );
+			Q_ScanFloats( value, &tr.rangedFog, 1 );
 			tr.rangedFog = -tr.rangedFog;
 			continue;
 		}
 		// check for a different grid size
 		if (!Q_stricmp(keyname, "gridsize")) {
-			sscanf(value, "%f %f %f", &w->lightGridSize[0], &w->lightGridSize[1], &w->lightGridSize[2] );
+			Q_ScanFloats( value, w->lightGridSize, 3 );
 			continue;
 		}
 	// find the optional world ambient for arioche
 		if (!Q_stricmp(keyname, "_color")) {
-			sscanf(value, "%f %f %f", &tr.sunAmbient[0], &tr.sunAmbient[1], &tr.sunAmbient[2] );
+			Q_ScanFloats( value, tr.sunAmbient, 3 );
 			continue;
 		}
 		if (!Q_stricmp(keyname, "ambient")) {
-			sscanf(value, "%f", &ambient);
+			Q_ScanFloats( value, &ambient, 1 );
 			continue;
 		}
 	}

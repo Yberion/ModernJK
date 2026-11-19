@@ -45,7 +45,7 @@ extern bool Boba_Flying( gentity_t *self );
 extern bool PM_InRoll( playerState_t *ps );
 
 [[maybe_unused]] constexpr float APEX_HEIGHT = 200.0f;
-#define	PARA_WIDTH		(sqrt(APEX_HEIGHT)+sqrt(APEX_HEIGHT))
+#define	PARA_WIDTH		(Q_sqrtf(APEX_HEIGHT)+Q_sqrtf(APEX_HEIGHT))
 
 
 
@@ -104,18 +104,18 @@ static bool NPC_Jump( vec3_t dest, int goalEntNum )
 			VectorCopy( NPC->currentOrigin, lastPos );
 
 			//This may be kind of wasteful, especially on long throws... use larger steps?  Divide the travelTime into a certain hard number of slices?  Trace just to apex and down?
-			for ( elapsedTime = timeStep; elapsedTime < floor(travelTime)+timeStep; elapsedTime += timeStep )
+			for ( elapsedTime = timeStep; elapsedTime < Q_floorf(travelTime)+timeStep; elapsedTime += timeStep )
 			{
 				if ( (float)elapsedTime > travelTime )
 				{//cap it
-					elapsedTime = floor( travelTime );
+					elapsedTime = Q_floorf( travelTime );
 				}
 				EvaluateTrajectory( &tr, level.time + elapsedTime, testPos );
 				//FUCK IT, always check for do not enter...
 				gi.trace( &trace, lastPos, NPC->mins, NPC->maxs, testPos, NPC->s.number, NPC->clipmask|contentsFlags_t::CONTENTS_BOTCLIP, EG2_Collision::G2_NOCOLLIDE, 0 );
 				/*
 				if ( testPos[2] < lastPos[2]
-					&& elapsedTime < floor( travelTime ) )
+					&& elapsedTime < Q_floorf( travelTime ) )
 				{//going down, haven't reached end, ignore botclip
 					gi.trace( &trace, lastPos, NPC->mins, NPC->maxs, testPos, NPC->s.number, NPC->clipmask );
 				}
@@ -185,7 +185,7 @@ static bool NPC_Jump( vec3_t dest, int goalEntNum )
 						CG_DrawEdge( lastPos, testPos, edgeType_t::EDGE_WHITE_TWOSECOND );	// TryJump
 					}
 				}
-				if ( elapsedTime == floor( travelTime ) )
+				if ( elapsedTime == Q_floorf( travelTime ) )
 				{//reached end, all clear
 					if ( trace.fraction >= 1.0f )
 					{//hmm, make sure we'll land on the ground...
@@ -431,7 +431,7 @@ bool NPC_TryJump()
 //	bool	Wounded					= (NPC->health < 150);
 //	bool	OnLowerLedge			= ((targetDistanceZ<-80.0f) && (targetDistanceZ>-200.0f));
 //	bool	WithinNormalJumpRange	= ((targetDistanceZ<32.0f)  && (targetDistanceXY<200.0f));
-	bool	WithinForceJumpRange	= ((fabsf(targetDistanceZ)>0) || (targetDistanceXY>128));
+	bool	WithinForceJumpRange	= ((Q_fabsf(targetDistanceZ)>0) || (targetDistanceXY>128));
 
 /*	if (Wounded && OnLowerLedge)
 	{
@@ -730,8 +730,8 @@ void G_UcmdMoveForDir( gentity_t *self, usercmd_t *cmd, vec3_t dir )
 	{
 		rDot = -127.0f;
 	}
-	cmd->forwardmove = floor(fDot);
-	cmd->rightmove = floor(rDot);
+	cmd->forwardmove = Q_floorf(fDot);
+	cmd->rightmove = Q_floorf(rDot);
 
 	/*
 	vec3_t	wishvel;

@@ -533,7 +533,7 @@ Files: `shared/qcommon/q_math.c`, `shared/sys/snapvector.cpp`. The findings: [pr
 
 **Before.** OpenJK calls the system's sine, cosine, arc tangent, power and the like. No standard fixes their last bit: it differs between Linux versions, between Windows versions, between 32 and 64-bit programs and between processors. A Windows client and a Linux server therefore do not compute the same movement, and two Linux servers running the same program do not compute the same game.
 
-**Now.** All the multiplayer code calls one set of functions, built on a library whose results are the correctly rounded ones (LLVM libc). Reading a number from text (a cvar, a map entity) goes through it too.
+**Now.** All the code, the single player and Jedi Outcast included, calls one set of functions, built on a library whose results are the correctly rounded ones (LLVM libc). Reading a number from text (a cvar, a map entity) goes through it too, and pi is the same number on every system.
 
 **Why.** Identical results on Linux and Windows, which the prediction, the scripted tests and the comparison of two servers all need.
 
@@ -556,6 +556,8 @@ Files: `shared/qcommon/q_math.c`, `shared/sys/snapvector.cpp`. The findings: [pr
 | Text to numbers: `atof` (318 calls, the cvars included), `strtod`, the `sscanf` of floats in map entities, vehicle, effect, ICARUS and BSP strings (28) | the C library's: Windows rounds a decimal exactly halfway between two floats away from even, Linux to even | `Q_atof`, `Q_strtod`, `Q_strtof`, `Q_ScanFloats` on LLVM libc's correctly rounded parser |
 | `a * b + c` fused into one instruction | allowed (GCC and Clang do it when the target has the instruction) | `-ffp-contract=off`; no effect on today's builds |
 | `cg_smoothCamera` | 0 (default): the third-person camera's damping uses an integer power; 1: the real power | removed: always the damping of 0, computed by the entry point's power function |
+| The single-player games (Jedi Academy and Jedi Outcast: game, cgame, UI, engine, renderer, MP3 decoder), plan step 18 | the C library's (about 1,180 calls) | the same entry point, each call at the precision the compiler chose (`sin` of a float calls the float function); the `sscanf` of floats (43) through the same parser |
+| Pi | `M_PI`: a float on Windows (`q_math.h`), a double on Linux (glibc), so the seeker drone's orbit, a pendulum's period, the fields of view and effects of cgame and the renderer were computed differently on the two systems | `Q_PI`, a double everywhere, as Linux computed; the calls whose arguments use pi take the double function |
 
 Survey, measurements and choice: [surveys/deterministic-math.md](surveys/deterministic-math.md).
 
@@ -565,7 +567,7 @@ Survey, measurements and choice: [surveys/deterministic-math.md](surveys/determi
 
 **Before.** Three generators: Raven's (15 bits, biased ranges), the system's `rand()`, which gives another sequence on Linux and on Windows, and a special one for the saber's choices in the movement code. A Linux server and a Windows server therefore play differently. The connection challenges come from `rand()` and the clock.
 
-**Now.** One generator (xoshiro128++), the same numbers on every platform, without bias. The connection challenges come from the system's secure random bytes.
+**Now.** One generator (xoshiro128++), the same numbers on every platform, without bias, in the multiplayer and the single player alike. The connection challenges come from the system's secure random bytes.
 
 **Why.** Identical results everywhere; and a challenge an attacker cannot guess.
 
@@ -581,6 +583,7 @@ Survey, measurements and choice: [surveys/deterministic-math.md](surveys/determi
 | `g_randFix` | how `RandFloat` scaled `rand()`: 0 as the base game, 1 (default) the correct range; its Linux branch never compiled, so Linux servers got values far outside the range | removed: the default's correct range, from the entry point |
 | Connection challenges, pure checksum feed | `rand()` and the clock | the system's random bytes (`Com_RandomBytes`) |
 | Two draws in one expression | three places (section 24) | none; `tools/rng/unsequenced.py` lists such statements |
+| The single-player games, plan step 18 | `rand()` (62 calls) seeded by the game, the engine's and the renderer's never or by the clock; `Q_irand` never seeded, the same draws at every launch | the entry point, its streams seeded as in multiplayer (the game by its seed, the engine from the system's random bytes, the renderer by the clock): the draws change from one launch to the next; the renderer's noise table from a fixed seed, one file for both games |
 
 Survey and measurements: [surveys/random-numbers.md](surveys/random-numbers.md).
 

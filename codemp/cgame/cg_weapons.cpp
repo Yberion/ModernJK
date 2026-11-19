@@ -374,9 +374,9 @@ static void CG_LightningBolt( centity_t *cent, vec3_t origin ) {
 		VectorMA( trace.endpos, -16, dir, beam.origin );
 
 		// make a random orientation
-		angles[0] = rand() % 360;
-		angles[1] = rand() % 360;
-		angles[2] = rand() % 360;
+		angles[0] = Q_irand( 0, 359 );
+		angles[1] = Q_irand( 0, 359 );
+		angles[2] = Q_irand( 0, 359 );
 		AnglesToAxis( angles, beam.axis );
 		trap->R_AddRefEntityToScene( &beam );
 	}

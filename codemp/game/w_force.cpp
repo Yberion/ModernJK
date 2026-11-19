@@ -2490,7 +2490,7 @@ bool ForceTelepathyCheckDirectNPCTarget( gentity_t *self, trace_t *tr, bool *too
 	/*
 	if ( self->client->ps.fd.forcePowersActive&Bit( forcePowers_t::FP_SPEED ) )
 	{
-		self->client->ps.weaponTime = floor( self->client->ps.weaponTime * g_timescale->value );
+		self->client->ps.weaponTime = Q_floorf( self->client->ps.weaponTime * g_timescale->value );
 	}
 	*/
 	return true;
@@ -4503,7 +4503,7 @@ void SeekerDroneUpdate(gentity_t *self)
 		VectorCopy(self->client->ps.origin, elevated);
 		elevated[2] += 40;
 
-		angle = ((level.time / 12) & 255) * (M_PI * 2) / 255; //magical numbers make magic happen
+		angle = ((level.time / 12) & 255) * (Q_PI * 2) / 255; //magical numbers make magic happen
 		dir[0] = Q_cos(angle) * 20;
 		dir[1] = Q_sin(angle) * 20;
 		dir[2] = Q_cos(angle) * 5;
@@ -4550,7 +4550,7 @@ void SeekerDroneUpdate(gentity_t *self)
 
 		elevated[2] -= 55-prefig;
 
-		angle = ((level.time / 12) & 255) * (M_PI * 2) / 255; //magical numbers make magic happen
+		angle = ((level.time / 12) & 255) * (Q_PI * 2) / 255; //magical numbers make magic happen
 		dir[0] = Q_cos(angle) * 20;
 		dir[1] = Q_sin(angle) * 20;
 		dir[2] = Q_cos(angle) * 5;
@@ -4618,7 +4618,7 @@ void SeekerDroneUpdate(gentity_t *self)
 		VectorCopy(self->client->ps.origin, elevated);
 		elevated[2] += 40;
 
-		angle = ((level.time / 12) & 255) * (M_PI * 2) / 255; //magical numbers make magic happen
+		angle = ((level.time / 12) & 255) * (Q_PI * 2) / 255; //magical numbers make magic happen
 		dir[0] = Q_cos(angle) * 20;
 		dir[1] = Q_sin(angle) * 20;
 		dir[2] = Q_cos(angle) * 5;

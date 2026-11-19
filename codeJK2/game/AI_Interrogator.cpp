@@ -171,9 +171,9 @@ void Interrogator_MaintainHeight( void )
 		dif = (NPC->enemy->currentOrigin[2] + NPC->enemy->maxs[2]) - NPC->currentOrigin[2];
 
 		// cap to prevent dramatic height shifts
-		if ( fabs( dif ) > 2 )
+		if ( Q_fabsf( dif ) > 2 )
 		{
-			if ( fabs( dif ) > 16 )
+			if ( Q_fabsf( dif ) > 16 )
 			{
 				dif = ( dif < 0 ? -16 : 16 );
 			}
@@ -197,7 +197,7 @@ void Interrogator_MaintainHeight( void )
 		{
 			dif = goal->currentOrigin[2] - NPC->currentOrigin[2];
 
-			if ( fabs( dif ) > 24 )
+			if ( Q_fabsf( dif ) > 24 )
 			{
 				ucmd.upmove = ( ucmd.upmove < 0 ? -4 : 4 );
 			}
@@ -207,7 +207,7 @@ void Interrogator_MaintainHeight( void )
 				{
 					NPC->client->ps.velocity[2] *= VELOCITY_DECAY;
 
-					if ( fabs( NPC->client->ps.velocity[2] ) < 2 )
+					if ( Q_fabsf( NPC->client->ps.velocity[2] ) < 2 )
 					{
 						NPC->client->ps.velocity[2] = 0;
 					}
@@ -219,7 +219,7 @@ void Interrogator_MaintainHeight( void )
 		{
 			NPC->client->ps.velocity[2] *= VELOCITY_DECAY;
 
-			if ( fabs( NPC->client->ps.velocity[2] ) < 1 )
+			if ( Q_fabsf( NPC->client->ps.velocity[2] ) < 1 )
 			{
 				NPC->client->ps.velocity[2] = 0;
 			}
@@ -231,7 +231,7 @@ void Interrogator_MaintainHeight( void )
 	{
 		NPC->client->ps.velocity[0] *= VELOCITY_DECAY;
 
-		if ( fabs( NPC->client->ps.velocity[0] ) < 1 )
+		if ( Q_fabsf( NPC->client->ps.velocity[0] ) < 1 )
 		{
 			NPC->client->ps.velocity[0] = 0;
 		}
@@ -241,7 +241,7 @@ void Interrogator_MaintainHeight( void )
 	{
 		NPC->client->ps.velocity[1] *= VELOCITY_DECAY;
 
-		if ( fabs( NPC->client->ps.velocity[1] ) < 1 )
+		if ( Q_fabsf( NPC->client->ps.velocity[1] ) < 1 )
 		{
 			NPC->client->ps.velocity[1] = 0;
 		}
@@ -266,7 +266,7 @@ void Interrogator_Strafe( void )
 
 	// Pick a random strafe direction, then check to see if doing a strafe would be
 	//	reasonable valid
-	dir = ( rand() & 1 ) ? -1 : 1;
+	dir = ( Q_irand( 0, 1 ) ) ? -1 : 1;
 	VectorMA( NPC->currentOrigin, HUNTER_STRAFE_DIS * dir, right, end );
 
 	gi.trace( &tr, NPC->currentOrigin, nullptr, nullptr, end, NPC->s.number, MASK_SOLID, EG2_Collision::G2_NOCOLLIDE, 0 );
@@ -283,7 +283,7 @@ void Interrogator_Strafe( void )
 			dif = (NPC->enemy->currentOrigin[2] + 32) - NPC->currentOrigin[2];
 
 			// cap to prevent dramatic height shifts
-			if ( fabs( dif ) > 8 )
+			if ( Q_fabsf( dif ) > 8 )
 			{
 				dif = ( dif < 0 ? -HUNTER_UPWARD_PUSH : HUNTER_UPWARD_PUSH );
 			}

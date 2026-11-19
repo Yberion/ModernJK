@@ -117,7 +117,7 @@ void funcBBrushDieGo (gentity_t *self)
 
 	// This formula really has no logical basis other than the fact that it seemed to be the closest to yielding the results that I wanted.
 	// Volume is length * width * height...then break that volume down based on how many chunks we have
-	scale = sqrt( sqrt( org[0] * org[1] * org[2] )) * 1.75f;
+	scale = Q_sqrtf( Q_sqrtf( org[0] * org[1] * org[2] )) * 1.75f;
 
 	if ( scale > 48 )
 	{
@@ -191,7 +191,7 @@ void funcBBrushDie (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, 
 	if(self->delay)
 	{
 		self->e_ThinkFunc = thinkFunc_t::thinkF_funcBBrushDieGo;
-		self->nextthink = level.time + floor(self->delay * 1000.0f);
+		self->nextthink = level.time + Q_floorf(self->delay * 1000.0f);
 		return;
 	}
 
@@ -471,7 +471,7 @@ void misc_model_breakable_die( gentity_t *self, gentity_t *inflictor, gentity_t 
 
 	// This formula really has no logical basis other than the fact that it seemed to be the closest to yielding the results that I wanted.
 	// Volume is length * width * height...then break that volume down based on how many chunks we have
-	scale = sqrt( sqrt( dis[0] * dis[1] * dis[2] )) * 1.75f;
+	scale = Q_sqrtf( Q_sqrtf( dis[0] * dis[1] * dis[2] )) * 1.75f;
 
 	if ( scale > 48 )
 	{
@@ -698,7 +698,7 @@ void TieFighterThink ( gentity_t *self )
 			float	side;
 
 			// Magic number fun!  Speed is used for banking, so modulate the speed by a sine wave
-			fighterSpeed *= sin( ( 100 ) * 0.003 );
+			fighterSpeed *= Q_sin( ( 100 ) * 0.003 );
 
 			// Clamp to prevent harsh rolling
 			if ( fighterSpeed > 10 )
