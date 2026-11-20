@@ -50,7 +50,7 @@ It ends with `golden: SAME` when this build gives the recorded counts. The outpu
 
 ## The scenarios
 
-The full syntax is at the top of `codemp/game/g_scenario.c`. Two bots, an attacker and a defender, sometimes a third one as the attacker's ally, are placed face to face and reset at every repetition (2 s, or `rep=`), then play a fixed script of commands timed in milliseconds. The first repetition is not counted. The statistics of the counted ones are printed at the end. The script `scenarios.sh` gives each server its map, game type, bots and settings, and plays several scenarios of one group one after the other on the same server: 198 scenarios on 87 servers, about 2 min with 30 servers at a time. Outside free for all, a scenario's name starts with its game type (`duel_saber_fast_idle`).
+The full syntax is at the top of `codemp/game/g_scenario.c`. Two bots, an attacker and a defender, sometimes a third one as the attacker's ally, are placed face to face and reset at every repetition (2 s, or `rep=`), then play a fixed script of commands timed in milliseconds. The first repetition is not counted. The statistics of the counted ones are printed at the end. The script `scenarios.sh` gives each server its map, game type, bots and settings, and plays several scenarios of one group one after the other on the same server: 215 scenarios on 94 servers, about 2 min with 30 servers at a time. Outside free for all, a scenario's name starts with its game type (`duel_saber_fast_idle`).
 
 | group | scenarios | what they play |
 |---|---|---|
@@ -61,6 +61,7 @@ The full syntax is at the top of `codemp/game/g_scenario.c`. Two bots, an attack
 | weapons (step 20, part 2) | 46 | the stun baton, the melee (and its kicks and grabs with `g_debugMelee`), the old bryar, the emplaced gun and two turrets spawned by the scenario; the charges at several lengths (the bryars, the bowcaster, the DEMP2, the disruptor's sniper shot, the rocket launcher's lock, the thermal detonator) |
 | saber moves (step 20, part 3) | 35 | the katas of the five styles, the back attacks, standing and crouched, the jump attacks, the lunges, the cartwheels, the staff's back flip and its kicks on the ground and in the air, the roll stab, the stab down on a defender knocked down, the throws of the single and dual sabers against an armed defender, the saber locks in a private duel |
 | game types (step 20, part 4a) | 33 | the holocron picked up, then its power used (lightning, push, heal), and a saber attack at the levels of the holocron game; the Jedi Master's saber picked up, then a saber attack or lightning; in the duel game type the saber cases of step 14, the locks and the force jump; in a power duel the five styles against the lone duelist; in a team game the attacker's teammate as the target, the friendly fire off and on, and a kill at every repetition for the team score |
+| game types (step 20, part 4b) | 17 | in CTF and CTY, the flags moved next to the bots at every reset: a capture, lightning used while carrying the flag (refused in CTY), the carrier killed by the defender's rocket and the flag returned; in siege, the siege's rules (the saber's attack, the disruptor's shot and sniper shot, the repeater's alternate, the rocket's lock at 0.9, 1.4 and 1.5 s, the pull of a defender facing the attacker or turned away) and an objective completed at every repetition; in free for all, the pull of a defender turned away |
 
 Each scenario prints, after its repetitions:
 
@@ -79,6 +80,6 @@ The two builds give the same counts but where a fix decided since changes them. 
 
 | since | what | scenarios |
 |---|---|---|
-| 19 November 2026 | the weapons' charge counted to the command that releases the button, no longer to the last 20 Hz instant, which was up to 50 ms earlier | 18 (the bryars', the bowcaster's, the DEMP2's, the sniper shot's, the rocket lock's and the thermal detonator's charges); in three of them the score too, since the charge decides whether every shot kills |
+| 19 November 2026 | the weapons' charge counted to the command that releases the button, no longer to the last 20 Hz instant, which was up to 50 ms earlier | 20 (the bryars', the bowcaster's, the DEMP2's, the sniper shot's, the rocket lock's and the thermal detonator's charges; since part 4b, the siege's sniper shot held 1.7 s and rocket lock held 1.5 s); in four of them the score too, since the charge decides whether every shot kills |
 
-CTF, CTY and siege (part 4b), teams and spectators, the items, the vehicles and the NPCs (parts 5 to 8) are to come.
+Teams and spectators, the items, the vehicles and the NPCs (parts 5 to 8) are to come.
