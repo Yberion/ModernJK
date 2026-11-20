@@ -17,7 +17,7 @@ Five files of the game module, nothing in the engine:
 | `codemp/game/g_scenario.c` | the scenarios: the `scenario` server command, the bots' scripts, the reset at every repetition, the statistics per role and the scores |
 | `codemp/game/g_svcmds.c` | the lines `gamestats` prints: the other force powers, the special saber moves started |
 | `codemp/game/g_local.h` | the counters of the special saber moves, the items picked up and the health taken from what is not a client and from the NPCs and vehicles |
-| `codemp/game/g_items.c`, `codemp/game/g_combat.c` | the items picked up and the health taken from what is not a client and from the NPCs and vehicles counted |
+| `codemp/game/g_items.c`, `codemp/game/g_combat.c` | the items picked up and the health taken from what is not a client and from the NPCs and vehicles counted; the hits by location (`g_combat.c`) |
 
 The same changes are kept in the main branch as `docs_rewrite/modernization/tools/gamestats/scenarios_golden.patch`, so that this build can be made again without the branch (`git apply` in a worktree of the step 14 part 4b commit). After each part, the patch is written again from here:
 
@@ -67,6 +67,7 @@ The full syntax is at the top of `codemp/game/g_scenario.c`. Two bots, an attack
 | items (step 20, part 6) | 47 | the 11 holdable items used (the medpacs, the binoculars, the cloak, the jetpack, the seeker, the sentry and the E-Web shooting at the defender, the shield its owner shoots into, the health and ammunition dispensers on a teammate, the ammunition thrown); every item picked up: the health, the two armours, a holdable item, every weapon and every ammunition; the four powerups before a force power |
 | vehicles (step 20, part 7) | 5 | on `mp/siege_korriban`, the vehicle spawned in front of the attacker at every reset and boarded with the use key: the swoop fires at the defender, drives into it, its rider jumps off; the AT-ST fires its laser and a rocket, walks, its rider gets off; the X-wing takes off, flies and fires; the defender's rocket destroys the swoop and the AT-ST, whose explosions kill the pilot |
 | NPCs (step 20, part 8) | 13 | in free for all, one bot and the NPC spawned at every reset in the defender's place, with its own AI, which finds the bot itself: the rancor (it roars 10.3 s, then smashes, grabs, bites, eats), the wampa, a stormtrooper and a saber reborn attack the bot standing with its saber; the bot's rocket and strong attack hit the rancor, its strong attack and lightning the wampa, its bryar, grip and push the trooper, its medium attack and push the reborn, which fight back |
+| aim (step 20, part 10a) | 13 | the defender's head aimed at from the eyes, as a bot, an NPC or a crosshair at the centre of the screen, then from the weapon's muzzle point, as the dynamic crosshair shows: the bryar, the DEMP2, the rocket launcher, the concussion rifle's missile and beam, the disruptor; the emplaced gun aimed at the chest from between its barrels |
 
 Each scenario prints, after its repetitions:
 
@@ -81,7 +82,8 @@ Each scenario prints, after its repetitions:
 - by role, the spectator's included: the team changes, the instants as a free spectator and the distance moved then, the instants following each role and the distance from the player followed;
 - the items picked up, the health taken from what is not a client by cause, and by role the armour and ammunition gained and lost and the instants cloaked, flying a jetpack and zoomed in;
 - the health taken from the NPCs and vehicles by cause, the vehicle's health and shield lost and its destructions, and by role the boardings, exits, instants aboard and distance moved aboard;
-- by role (an NPC is the defender): the instants held by a monster, as the NPC's enemy and in a pain animation.
+- by role (an NPC is the defender): the instants held by a monster, as the NPC's enemy and in a pain animation;
+- by role, the hits by location (the head, the chest, an arm, a leg, ...), as the game's location-based damage finds them.
 
 ## Differences with the build of the day
 
@@ -89,5 +91,5 @@ The two builds give the same counts but where a fix decided since changes them. 
 
 | since | what | scenarios |
 |---|---|---|
-| 19 November 2026 | the weapons' charge counted to the command that releases the button, no longer to the last 20 Hz instant, which was up to 50 ms earlier | 20 (the bryars', the bowcaster's, the DEMP2's, the sniper shot's, the rocket lock's and the thermal detonator's charges; since part 4b, the siege's sniper shot held 1.7 s and rocket lock held 1.5 s); in four of them the score too, since the charge decides whether every shot kills |
+| 19 November 2026 | the weapons' charge counted to the command that releases the button, no longer to the last 20 Hz instant, which was up to 50 ms earlier | 20 (the bryars', the bowcaster's, the DEMP2's, the sniper shot's, the rocket lock's and the thermal detonator's charges; since part 4b, the siege's sniper shot held 1.7 s and rocket lock held 1.5 s); in four of them the score too, since the charge decides whether every shot kills; since part 10a, in seven of them the hits by location too |
 | 17 November 2026 | the names of the last events, missing from this branch's list (`eventnames`): `(null)` where the build of the day prints `EV_SIEGESPEC` or the NPCs' voice events (`EV_ANGER1` to `3`, the reborn's `EV_COMBAT1` to `3`, `EV_TAUNT1` to `3`, `EV_GLOAT1`), with the same counts | 14 (the AT-ST ridden in siege, part 7; the 13 NPC scenarios, part 8) |

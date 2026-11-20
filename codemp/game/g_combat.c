@@ -4325,6 +4325,7 @@ void G_LocationBasedDamageModifier(gentity_t *ent, vec3_t point, int mod, int df
 	{
 		hitLoc = G_GetHitLocation( ent, point );
 	}
+	G_ScenarioHitLocation( ent, hitLoc );	// the scripted scenarios' statistics (plan step 20)
 
 	switch (hitLoc)
 	{
