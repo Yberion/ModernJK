@@ -10,15 +10,19 @@
 #   the old commit: BUILD=E:/Git/jka/ModernJK_golden/build-clang DED_EXE=openjkded.x86_64.exe
 #   GOLDEN=scenarios_golden_step14.txt scenarios.sh <prefix> E:/Git/jka/ModernJK_golden/build-clang/jampgamex86_64.dll
 # Usage (Linux; gamestats.sh's arguments in the environment):
-#   DED=<modernjkded> BASE=<fs_basepath> scenarios.sh <prefix> <jampgame .so> [servers at a time, 4]
-# 30 servers at a time on the development machine, 4 on the VPS (1 vCPU, 2 GB).
+#   DED=<modernjkded> BASE=<fs_basepath> scenarios.sh <prefix> <jampgame .so> [servers at a time, 18]
+# 30 servers at a time on the development machine, 18 on the VPS (1 vCPU, 2 GB; 12 took 5 min 44 s, its core 35 % busy
+# at most, 24 took 4 min 58 s, the core saturated, on 20 November 2026): in fast mode a server waits at least
+# 1 ms between two frames (Com_Frame), so it plays at most 10 times faster than real time and sleeps most of that time
+# (a scenario's frame takes about 0.06 ms on the VPS). The runs' files: GAMESTATS_DIR, by default the user's
+# Temp/gamestats on Windows, ${XDG_CACHE_HOME:-$HOME/.cache}/gamestats on Linux (not /tmp, often in memory).
 set -u
 PREFIX=$1
 MODULE=$2
 HERE=$(cd "$(dirname "$0")" && pwd)
 case "$(uname -s)" in
 	MINGW*|MSYS*) WINDOWS=1; PAR=${3:-30}; RUNS="${GAMESTATS_DIR:-C:/Users/$USERNAME/AppData/Local/Temp/gamestats}" ;;
-	*) WINDOWS=0; PAR=${3:-4}; RUNS="${GAMESTATS_DIR:-/tmp/gamestats}" ;;
+	*) WINDOWS=0; PAR=${3:-18}; RUNS="${GAMESTATS_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}/gamestats}" ;;
 esac
 PYTHON=$(command -v python3 || command -v python)
 
@@ -162,6 +166,18 @@ cases() {
 		echo "item_pickup$k|$ffa|$wd|${l#;}"
 	done
 	echo "item_powerups|$ffa|$wd;$force|force 48 lightning 1 128 item=item_force_enlighten_dark pickup=64;force 48 heal 1 128 item=item_force_enlighten_light pickup=64;force 48 lightning 3 128 item=item_ysalimari pickup=64;force 48 protect 3 128 item=item_force_boon pickup=64"
+	# step 20, the vehicles (part 7), on mp/siege_korriban in siege (siege_hoth's turrets fire at the vehicles and the
+	# bots past 256 units, mp/ctf2's spawn points are under roofs): the vehicle spawned at every reset in front of the
+	# attacker, which boards it with the use key; the swoop fires 1 s at the defender, drives 1 s into it, its rider
+	# jumps off; the AT-ST fires its laser 1 s and a rocket, walks 1 s, its rider gets off with the use key; the X-wing
+	# takes off, flies forward and fires 1 s; the defender's rocket destroys the swoop (80 health) and the AT-ST (set to
+	# 100 health), their explosions 4.5 and 2.45 s later; one server each, the longest about 6 minutes
+	local korriban="mp/siege_korriban|7|Jedi:red Reborn:blue"
+	echo "vehicle_swoop_ride|$korriban||vehicle 48 swoop_mp ride 256 rep=4000"
+	echo "vehicle_atst_ride|$korriban||vehicle 48 atst_vehicle ride 512 rep=5000"
+	echo "vehicle_xwing_ride|$korriban||vehicle 48 x-wing ride 768 rep=5000"
+	echo "vehicle_swoop_destroy|$korriban||vehicle 48 swoop_mp destroy 384 rep=7000"
+	echo "vehicle_atst_destroy|$korriban||vehicle 48 atst_vehicle destroy 640 rep=6000"
 }
 
 one() {
@@ -179,8 +195,11 @@ one() {
 export -f one
 export PREFIX MODULE HERE WINDOWS DED="${DED:-}" BASE="${BASE:-}"
 
-# the servers with the most scenarios first, so that the last ones to start are short
-cases | awk -F'|' '{ s = $6; print gsub( /;/, "", s ) "\t" $0 }' | sort -s -rn -k1,1 | cut -f2- | xargs -P "$PAR" -I{} bash -c 'one "$@"' _ {}
+# the servers that play longest first (their scenarios' repetitions and the uncounted first one, of rep= ms each, 2000 by
+# default), so that the last ones to start are short
+cases | awk -F'|' '{ n = split( $6, s, ";" ); t = 0
+	for ( i = 1; i <= n; i++ ) { split( s[i], w, " " ); r = 2000; if ( match( s[i], /rep=[0-9]+/ ) ) r = substr( s[i], RSTART + 4, RLENGTH - 4 ); t += ( w[2] + 1 ) * r }
+	print t "\t" $0 }' | sort -s -rn -k1,1 | cut -f2- | xargs -P "$PAR" -I{} bash -c 'one "$@"' _ {}
 tags=()
 for c in $(cases | cut -d'|' -f1); do
 	tags+=("${PREFIX}_${c}")
@@ -194,3 +213,4 @@ if diff <(tr -d '\r' < "$HERE/$GOLDEN") <(tr -d '\r' < "$RUNS/scenarios_${PREFIX
 else
 	echo "golden: DIFF (diff $HERE/$GOLDEN $RUNS/scenarios_${PREFIX}.txt)"
 fi
+echo "time: $(( SECONDS / 60 )) min $(( SECONDS % 60 )) s"	# since the script started (bash's SECONDS)

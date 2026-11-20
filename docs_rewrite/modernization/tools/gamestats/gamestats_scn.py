@@ -16,7 +16,7 @@ D = Path(sys.argv[1])
 IGNORE = re.compile(r" (EV_BODYFADE|EV_ITEM_RESPAWN|EV_GLOBAL_SOUND|EV_PLAYDOORSOUND|EV_DEATH[123]) \d+")
 KEEP = ("saber swings", "force statistics", "event statistics", "damage statistics", "shot statistics",
         "style statistics", "special move statistics", "scenario statistics", "score statistics", "team statistics",
-        "item statistics")
+        "item statistics", "vehicle statistics")
 # the game types' names in the scenarios' names (g_gametype; free for all has none)
 GAMETYPES = {1: "holocron", 2: "jedimaster", 3: "duel", 4: "powerduel", 6: "team", 7: "siege", 8: "ctf", 9: "cty"}
 
@@ -50,7 +50,7 @@ def stats(tag):
     out = []
     for name, k in zip(expected, done):
         block = []
-        for l in lines[k + 1:k + 15]:  # 12 lines used, the next scenario's first line ends it
+        for l in lines[k + 1:k + 16]:  # 13 lines used, the next scenario's first line ends it
             l = re.sub(r"^\S+ \S+ ", "", l)  # time stamp of logfile 2
             if l.startswith("scenario ") and not l.startswith("scenario statistics"):
                 break  # the next scenario

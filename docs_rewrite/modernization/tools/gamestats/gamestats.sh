@@ -22,7 +22,8 @@
 #
 # The commands go in a cfg run by +exec: the engine keeps only 32 "+" commands of its command line
 # (MAX_CONSOLE_LINES), and a long "wait" never fires, so the measured time is chained in waits of 30 seconds.
-# Each run's files are in ${GAMESTATS_DIR:-/tmp/gamestats}/<tag>.
+# Each run's files are in ${GAMESTATS_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}/gamestats}/<tag>, on the disk: /tmp is often
+# in memory, which the runs of every prefix filled (20 November 2026).
 set -u
 . "$(dirname "$0")/gamestats_cfg.sh"
 
@@ -36,7 +37,7 @@ BASEPATH="$2"
 MODULE="$3"
 MINUTES="$4"
 shift 4
-OUT="${GAMESTATS_DIR:-/tmp/gamestats}"
+OUT="${GAMESTATS_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}/gamestats}"
 
 run() {
 	local tag="$1" cvars="$2" idx="$3"
@@ -49,16 +50,21 @@ run() {
 		+exec measure.cfg < /dev/null > "$home/stdout.txt" 2>&1 &
 	local pid=$!
 	# watchdog: once the last statistics are written (measure_stats), give the server 20 seconds to quit, then kill it
-	# (10 seconds cut the last lines of a busy server's statistics, 18 November 2026)
+	# (10 seconds cut the last lines of a busy server's statistics, 18 November 2026); checked every second, so that a
+	# server that quits frees its place at once (a fixed wait of 20 seconds kept every place idle that long, 20 November
+	# 2026)
+	local waited=0
 	while kill -0 "$pid" 2> /dev/null; do
 		local done_count
 		done_count=$(grep -a -c "game statistics" "$home/base/qconsole.log" 2> /dev/null)
 		if [ "${done_count:-0}" -ge "$(measure_stats)" ]; then
-			sleep 20
-			kill -0 "$pid" 2> /dev/null && kill -9 "$pid"
-			break
+			if [ "$waited" -ge 20 ]; then
+				kill -9 "$pid"
+				break
+			fi
+			waited=$(( waited + 1 ))
 		fi
-		sleep 5
+		sleep 1
 	done
 	wait "$pid" 2> /dev/null
 	grep -a "game statistics\|server CPU" "$home/base/qconsole.log" | tail -2 | sed "s/^/[$tag] /"

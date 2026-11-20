@@ -38,16 +38,21 @@ run() {
 		+set fs_basepath "$GAME" +set fs_homepath "$home" +set net_enabled 0 +set logfile 2 +exec measure.cfg ) > "$home/lldb.txt" 2>&1 &
 	local pid=$!
 	# watchdog: once the last statistics are written (measure_stats), give the server 20 seconds to quit, then kill it
-	# (10 seconds cut the last lines of a busy server's statistics, 18 November 2026)
+	# (10 seconds cut the last lines of a busy server's statistics, 18 November 2026); checked every second, so that a
+	# server that quits frees its place at once (a fixed wait of 20 seconds kept every place idle that long, 20 November
+	# 2026)
+	local waited=0
 	while kill -0 "$pid" 2> /dev/null; do
 		local done_count
 		done_count=$(grep -a -c "game statistics" "$home/base/qconsole.log" 2> /dev/null)
 		if [ "${done_count:-0}" -ge "$(measure_stats)" ]; then
-			sleep 20
-			kill -0 "$pid" 2> /dev/null && kill_server "gs_${tag}"
-			break
+			if [ "$waited" -ge 20 ]; then
+				kill_server "gs_${tag}"
+				break
+			fi
+			waited=$(( waited + 1 ))
 		fi
-		sleep 5
+		sleep 1
 	done
 	wait "$pid" 2> /dev/null
 	grep -a "game statistics\|server CPU" "$home/base/qconsole.log" | tail -2 | sed "s/^/[$tag] /"

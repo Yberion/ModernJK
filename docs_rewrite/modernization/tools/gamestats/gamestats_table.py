@@ -1,6 +1,6 @@
 """Tables the last "game statistics" line of each gamestats.sh run (plan step 14).
 
-Usage: python3 gamestats_table.py <directory of the runs, /tmp/gamestats by default> <tag> [<tag> ...]
+Usage: python3 gamestats_table.py <directory of the runs, ~/.cache/gamestats by default> <tag> [<tag> ...]
 Columns: saber swings, wounds, damage, saber against saber contacts (blocks), idle touches and deaths over the
 measured time, then the damage per hit, the share of contacts blocked, and wounds and blocks per minute.
 """
