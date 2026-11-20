@@ -14,7 +14,7 @@ The 40 scripted bot fights of plan step 14 (10 saber, 6 force, 24 weapon cases) 
 | 5 | teams and spectators | ✅ done (20 November 2026): Windows and Linux |
 | 6 | the holdable items and the items picked up | ✅ done (20 November 2026): Windows and Linux |
 | 7 | the vehicles | ✅ done (20 November 2026): Windows and Linux |
-| 8 | the NPCs | ⏳ |
+| 8 | the NPCs | ✅ done (20 November 2026): Windows and Linux |
 | 9 | the offsets between where each shot starts and the view (projectiles, emplaced gun, saber): why, and whether normal | ⏳ (decided 20 November 2026) |
 
 ## 2. The old commit
@@ -58,6 +58,7 @@ The dedicated server executes the archived settings of its configuration file, `
   - the option `away`: the defender turned away from the attacker;
   - in siege, a dead bot, or one waiting for the next wave as a spectator with 1 point of health (`ClientRespawn` with `g_siegeRespawn`), respawns at once (`ClientSpawn`, its corpse kept as `ClientRespawn` does);
   - push and pull: the defender knows the power when its level is above 0 (a siege class may not give it, and a power not known does not resist); the scenarios of before give the same counts.
+- Since part 8 (20 November 2026, section 16): `scenario npc`, the option `npc=`, the NPC in the defender's slot with one bot, removed and spawned again at every reset, the line `npc statistics`, the mind trick read for clients only.
 - Since part 7 (20 November 2026, section 15): `scenario vehicle`, the bots taken off any vehicle at every reset, the line `vehicle statistics`, the health taken from the NPCs and vehicles counted (`g_combat.cpp`); the views of the flag's return and of the vehicle scripts through `G_ScenarioLookAt` and `G_ScenarioAimMuzzle`; in `scenarios.sh`, the servers that play longest start first.
 - Since part 6 (20 November 2026, section 14): `scenario holdable`, `scenario item`, the option `item=`, the holdable items cleared at every reset, the line `item statistics`, the items picked up and the health taken from what is not a client counted (`g_items.cpp`, `g_combat.cpp`).
 - Since part 5 (20 November 2026, section 13): `scenario team`, `scenario spectate`, `flag ... switch`, the options `spectator`, `spectator=follow1` and `spectator=follow2`, a fourth slot for the spectator, the line `team statistics`, a word option no longer read as a number.
@@ -349,3 +350,46 @@ At the old commit, with the port (`scenarios_golden.patch`): the 5 scenarios giv
 On Linux (20 November 2026): the game module built by GCC 15 on the Linux VM and by MSVC, no warning; the 276 scenarios on the VPS: `golden: SAME`.
 
 The scripts, the same day, after the VPS's run (4 servers at a time, its single core 80 to 90 % idle): in fast mode a server waits at least 1 ms between two frames (`Com_Frame`), so it plays at most 10 times faster than real time and sleeps most of that time (a scenario's frame takes about 0.06 ms there); and the watchdog of `gamestats.sh` and `gamestats_windows.sh` waited 20 s after a server's last statistics even when the server had quit, a second later, which kept each place idle that long. The watchdog now checks every second, still killing a server that has not quit 20 s after its statistics; the VPS runs 18 servers at a time by default (`scenarios.sh`; 12 took 5 min 44 s, its core 35 % busy at most, 24 took 4 min 58 s, the core saturated); on Linux the runs' files go to `${XDG_CACHE_HOME:-$HOME/.cache}/gamestats`, on the disk, no longer to `/tmp`, often in memory, which the runs of every prefix filled (`GAMESTATS_DIR` chooses another folder). On the development machine: `golden: SAME` in about 2 min 15 s instead of 2 min 40 s.
+
+## 16. Part 8: the NPCs
+
+Decided on 20 November 2026 ([../PLAN.md](../PLAN.md) step 20, the decisions of part 8), after reading the NPCs' code: 13 scenarios of 48 repetitions on 8 servers (presented as 12 on 20 November 2026; the list had 13).
+
+What the NPCs do, read from the code (the same in 1.01):
+
+- An NPC is spawned by a spawner (`NPC_Spawn_Do`) and begins 100 to 200 ms later (`NPC_Begin`), only once no player touches its box (`NPC_SpotWouldTelefrag`); its AI thinks at the 20 Hz instants (`NPC_Think`). In free for all every player is on the "player" side: the trooper and the reborn, on the "enemy" side, attack the bots, the rancor and the wampa anything not of their kind. A patrolling NPC finds its enemy by sight (range, field of view).
+- The rancor (`rancor.npc`): 2,000 health (`g_npcspskill` 0); a hit on it takes 10, or nothing under 10 (`G_Damage`). At the first sight of an enemy it roars 10.3 s (`BOTH_STAND1TO2`, 222 frames), doing nothing else and taking no pain reaction. Then, within its reach (half its box, 60 units, and 128), it smashes the floor (10 to 25 within 64 units of its fist, a knockdown within 128 or on the ground, `Rancor_Smash`), swings and grabs (a swing hits 25 to 40 and throws 250 units with a knockdown, a grab holds the victim, `EF2_HELD_BY_MONSTER`, `Rancor_Swing`), or charges with two bites (15 to 30); holding a victim it bites it (25 to 40) or eats it (killed); it crushes what it stands on (200, `MOD_CRUSH`). Its pain is its own (`NPC_Rancor_Pain`).
+- The wampa: 800 health; it roars at the first sight of an enemy and again every 5 to 20 s (`Wampa_CheckRoar`); a double slash (20 to 30 each, a knockdown in four), a backhand (10 to 15, thrown, a knockdown in two), a leap; no grab in multiplayer; its pain is its own (`NPC_Wampa_Pain`).
+- The stormtrooper: 30 health, the blaster (a bolt of 10 from an NPC, `WP_FireBlasterMissile`); its aim's error is large at its first sight of an enemy (`G_AimSet`) and shrinks while it has a clear shot; it aims at the head (`SPOT_HEAD`); its squad's AI (`AI_GetGroup`, `ST_Commander`).
+- The reborn: 40 health, a saber in the fast style, saber offence and defence at level 1, the jump and speed at level 1, 50 force points; the Jedi AI: attacks, blocks (`Jedi_SaberBlockGo`), dodges and flips, taunts.
+
+While writing it (the decisions of part 8 changed where the game required it):
+
+- The repetitions are longer than estimated (6 to 8 s for the rancor, 3 to 5 s for the others): the rancor roars 10.3 s at every spawn, so its repetition is 16 s, 180 units away, within its reach (it attacks without walking); the wampa's 8 s (its first hit 3 to 4.5 s in), the trooper's 6 s (its first shot about 2.3 s in), the reborn's 10 s (it attacks from 0.4 s, which the bot blocks, its first hits 6 to 9 s in). Two servers per NPC instead of one, so that the longest, the rancor's, plays about 80 s; a run takes about 2 min 35 s here instead of 2 min 15 s (estimated: 0 to 20 s more).
+- The trooper's bolts never touch the bot standing with its saber: they leave level, at the height of the head and 6 units beside the bot's middle, and in the saber's ready stance the model's head is not there (the missiles hit the ghoul2 model); none hits, so none is blocked (a block needs the bolt to touch the player). Holding the bryar, the bot is hit. To look at with the shots' offsets of part 9.
+- The rancor's `npc=` cases, during its roar, count the damage it takes (repetitions of 3 s); its fight is the `npc` case.
+- An NPC has no health before it begins (`NPC_Begin`): its slot is counted from then on.
+
+The module (`codemp/game/g_scenario.cpp`):
+
+- `scenario npc <reps> <npc> [distance]` (256 by default) and the option `npc=<npc>` on the saber, force and weapon scenarios: the NPC, by its name in `ext_data/npcs`, spawned at every reset in the defender's place and slot, facing the attacker, as a map's `NPC_spawner` with no key but its type (`NPC_Spawn_Do`), with its own AI; the case has one bot, the attacker; in `npc` it stands with its saber, with `npc=` it plays its script; its view follows the middle of the NPC's box, from the muzzle for a weapon. The NPC's slot holds its entity number from its spawn on.
+- A spawn point is taken only where the NPC's box, read from one spawned once, is clear of the attacker's along the axis nearest the view (an NPC touching a player waits to begin) and clear of the world.
+- Every reset removes the NPC with what its fight left (the bot a rancor holds let go, `Rancor_DropVictim`; its timers, `TIMER_Clear2`, and its squad, `AI_DeleteSelfFromGroup`, which its death would clear; its goal entity; the missiles in flight and the items dropped), then spawns a new one once the bot stands in its place.
+- The mind trick's count reads a client's bit only (an NPC's number would shift past its 64 bits).
+- A line `npc statistics` in every scenario, by role: the instants held by a monster, as the NPC's enemy and in a pain animation (`BOTH_PAIN1` to `BOTH_PAIN18`, legs or torso). `gamestats_scn.py` keeps it; a scenario's statistics are 14 lines.
+- The scenarios of before give the same counts.
+
+| server (`mp/ffa3`, free for all, one bot) | scenarios | what the counts show |
+|---|---|---|
+| `npc_rancor` | `npc 48 rancor 180 rep=16000` | after the roar, 1,943 to the bot (`MOD_MELEE`, 2 deaths), 2,207 instants knocked down, 1,050 held; thrown, the bot falls (931, `MOD_FALLING`, 7 deaths) |
+| `npc_rancor_hits` | `weapon 48 11 0 256 npc=rancor rep=3000`, `saber 48 strong idle 112 npc=rancor rep=3000` | during the roar the rockets and the strong attack: 10 a hit (960 from 96 rockets, 432 from 48 swings) |
+| `npc_wampa` | `npc 48 wampa 128 rep=8000` | 2,889 to the bot (9 deaths), 2,427 instants knocked down |
+| `npc_wampa_hits` | `saber 48 strong idle 64 npc=wampa rep=6000`, `force 48 lightning 3 128 npc=wampa rep=6000` | the strong attack 7,472 to the wampa (696 instants in pain), lightning 1,418; the wampa 1,459 and 1,211 back |
+| `npc_trooper` | `npc 48 stormtrooper 128 rep=6000`, `weapon 48 4 0 256 npc=stormtrooper rep=6000` | 225 bolts at the bot holding its saber, none touches it (above); against the bot holding the bryar, 1,656, and the bryar 956 to the trooper (948 instants in pain) |
+| `npc_trooper_force` | `force 48 grip 3 128 npc=stormtrooper rep=4000`, `force 48 push 3 128 npc=stormtrooper rep=4000` | gripped: 96, lifted 960 instants, 564 in pain; pushed: thrown 37,586 units in all |
+| `npc_reborn` | `npc 48 reborn 64 rep=10000` | 893 to the bot, 176 blocks, the reborn moving 22,695 units, its taunts and a gloat |
+| `npc_reborn_hits` | `saber 48 medium idle 64 npc=reborn rep=6000`, `force 48 push 3 128 npc=reborn rep=4000` | the medium attack 158 to the reborn (a death), 54 blocks; pushed, thrown 53,054 units in all, its saber 351 to the bot |
+
+At the old commit, with the port (`scenarios_golden.patch`): the 13 scenarios give the same counts as the build of the day but one line each, where the old commit names the NPCs' voice events `(null)` (`EV_ANGER1` to `3`, the reborn's `EV_COMBAT1` to `3`, `EV_TAUNT1` to `3`, `EV_GLOAT1`: its list of event names lacked the last ones, as `EV_SIEGESPEC` in part 7; [../tools/gamestats/GOLDEN.md](../tools/gamestats/GOLDEN.md) section 3); the two files differ by 68 lines. The differences expected before the part do not show: the gripped trooper's pain (fixed in plan step 18: no pain animation, a delay read from memory before the animations' tables) gives the same counts, the old build's delay changing nothing here; the creatures' pain delay (fixed in plan step 18) is the generic NPC pain's (`NPC_ChoosePainAnimation`), which the rancor and the wampa do not use in multiplayer; the reborn's victory voice (`EV_GLOAT1` 1) the same. Without the new line, the 276 scenarios of before give the same counts as the goldens of before. Two runs of the build of the day give the same file. 289 scenarios on 120 servers, about 2 min 35 s on the development machine (30 servers at a time).
+
+On Linux (20 November 2026): the game module built by GCC 15 on the Linux VM and by MSVC, no warning; the 289 scenarios on the VPS: `golden: SAME`, in 5 min 1 s.

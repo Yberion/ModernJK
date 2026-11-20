@@ -178,6 +178,22 @@ cases() {
 	echo "vehicle_xwing_ride|$korriban||vehicle 48 x-wing ride 768 rep=5000"
 	echo "vehicle_swoop_destroy|$korriban||vehicle 48 swoop_mp destroy 384 rep=7000"
 	echo "vehicle_atst_destroy|$korriban||vehicle 48 atst_vehicle destroy 640 rep=6000"
+	# step 20, the NPCs (part 8), in free for all with one bot: the NPC spawned at every reset in the defender's place,
+	# with its own AI, which finds the bot itself; the bot stands with its saber (npc), or plays its script against the
+	# NPC (npc=), its view following it. The rancor roars 10.3 s at the first sight of the bot (BOTH_STAND1TO2), then
+	# attacks it (smash, grab, bite, meal): repetitions of 16 s, 180 units away, within its reach; during the roar the
+	# bot's rocket and strong attack hit it. The wampa roars too, then slashes; the trooper fires its blaster at the bot
+	# with its saber, then holding the bryar, which it fires back; the bot grips it and pushes it; the reborn attacks
+	# with its saber, the bot attacks it and pushes it
+	local npc="mp/ffa3|0|Jedi"
+	echo "npc_rancor|$npc||npc 48 rancor 180 rep=16000"
+	echo "npc_rancor_hits|$npc|$wd|weapon 48 11 0 256 npc=rancor rep=3000;saber 48 strong idle 112 npc=rancor rep=3000"
+	echo "npc_wampa|$npc||npc 48 wampa 128 rep=8000"
+	echo "npc_wampa_hits|$npc|$force|saber 48 strong idle 64 npc=wampa rep=6000;force 48 lightning 3 128 npc=wampa rep=6000"
+	echo "npc_trooper|$npc|$wd|npc 48 stormtrooper 128 rep=6000;weapon 48 4 0 256 npc=stormtrooper rep=6000"
+	echo "npc_trooper_force|$npc|$force|force 48 grip 3 128 npc=stormtrooper rep=4000;force 48 push 3 128 npc=stormtrooper rep=4000"
+	echo "npc_reborn|$npc||npc 48 reborn 64 rep=10000"
+	echo "npc_reborn_hits|$npc|$force|saber 48 medium idle 64 npc=reborn rep=6000;force 48 push 3 128 npc=reborn rep=4000"
 }
 
 one() {

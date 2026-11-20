@@ -60,6 +60,10 @@
 //   gets off with the use key; a fighter takes off (the jump held 1.5 s), flies forward 0.6 s and fires 1 s, above the
 //   defender; destroy: the
 //   defender fires a rocket at the vehicle, whose health is 100 at most (the swoop's 80 kept)
+// scenario npc <reps> <npc> [distance] (the case has one bot, the attacker)
+//   the NPC (its name in ext_data/npcs: rancor, wampa, stormtrooper, reborn) spawned at every reset in the defender's
+//   place and role, facing the attacker, with its own AI, which finds the attacker itself and attacks it; the attacker
+//   stands, its saber in hand, facing the NPC
 // scenario off
 // Options after the arguments: hold=<ms>, rep=<ms> (a repetition, 2000; the scripts read it to wait for the end);
 // pickup=<units> (plan step 20, the game types: in a holocron game a holocron of the force scenario's power, in a Jedi
@@ -71,7 +75,12 @@
 // spectator bot or else the first bot without a role, made a spectator, follows the attacker, or the first or second
 // player by client number as the game's follow1 and follow2 do; it is reset to that at every repetition);
 // item=<classname> (plan step 20, the items: with pickup=, that item in front of the attacker, as in an item scenario,
-// before the script of any other scenario: a force scenario after a powerup picked up).
+// before the script of any other scenario: a force scenario after a powerup picked up);
+// npc=<npc> (plan step 20, the NPCs: the NPC in the defender's place and role, as in an npc scenario, against the
+// attacker's script of a saber, force or weapon scenario; the attacker's view follows the middle of the NPC's box, from
+// the muzzle for a weapon).
+// Every reset removes the NPC of an npc scenario or of npc=, with what its fight left (the bot a rancor holds let go,
+// its timers and its squad, the missiles in flight, the items dropped), then spawns it again.
 // Every reset clears the holdable items' state and what they spawned (the seeker, the sentry, the shield, the E-Web,
 // the cloak and the jetpack switched off and full), and gives the attacker the holdable item of its scenario only.
 // Every reset gets the bots off any vehicle, and removes the vehicle of a vehicle scenario, then spawns it again.
@@ -101,6 +110,8 @@ extern void BG_VehicleAdjustBBoxForOrientation( Vehicle_t *veh, vec3_t origin, v
 	contentsFlags_t tracemask, void ( *localTrace )( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs,
 	const vec3_t end, int passEntityNum, contentsFlags_t contentMask ) );
 extern EnumArray<const char *, meansOfDeath_t, meansOfDeath_t::MOD_MAX> modNames;
+extern void Rancor_DropVictim( gentity_t *self );
+extern void AI_DeleteSelfFromGroup( gentity_t *self );
 
 constexpr int SCN_REP_MSEC = 2000;	// one repetition
 constexpr int SCN_SETTLE_MSEC = 500;		// still, after the reset, before the script starts
@@ -119,7 +130,8 @@ enum class scenarioType_t {
 	SCN_SPECTATE,
 	SCN_HOLDABLE,
 	SCN_ITEM,
-	SCN_VEHICLE
+	SCN_VEHICLE,
+	SCN_NPC
 };
 
 // what the bots do in a vehicle scenario
@@ -209,6 +221,8 @@ static struct {
 	vehicleMode_t	vehicleMode;
 	gentity_t		*vehicle;		// the vehicle spawned at the last reset
 	float			vehicleDist;	// its distance in front of the attacker
+	char			npcType[MAX_QPATH];	// the NPC of an npc scenario or of npc= (ext_data/npcs), "" without
+	gentity_t		*npc;			// the NPC spawned at the last reset, in the defender's slot (client[1])
 	float			dist;			// between the two origins
 	vec3_t			origin;			// the attacker's place, facing yaw
 	float			yaw;
@@ -245,6 +259,8 @@ static struct {
 	int		vehicleNum[3];		// the previous instant's vehicle, from the reset on
 	int		vehicleHealthLost, vehicleShieldLost, vehicleDestroyed;
 	int		vehicleHealth, vehicleShield;	// the previous instant's values, from the reset on
+	// plan step 20, the NPCs, by role: the instants held by a monster, as the NPC's enemy and in a pain animation
+	int		heldByMonster[3], npcEnemy[3], inPain[3];
 	// the previous instant's values, from the reset on
 	int		health[3], force[3];
 	vec3_t	origin[3], start[3];
@@ -319,6 +335,7 @@ static gentity_t *G_ScenarioNextSpot( gentity_t *spot, size_t *kind ) {
 }
 
 static bool G_ScenarioVehicleFits( void );
+static bool G_ScenarioNPCFits( void );
 
 // a place where the attacker stands on a spawn point and the defender on the floor in front of it
 static bool G_ScenarioFindPlace( void ) {
@@ -385,6 +402,9 @@ static bool G_ScenarioFindPlace( void ) {
 		VectorCopy( start, scn.origin );
 		scn.yaw = spot->s.angles[YAW];
 		if ( scn.type == scenarioType_t::SCN_VEHICLE && !G_ScenarioVehicleFits() ) {
+			continue;
+		}
+		if ( scn.npcType[0] && !G_ScenarioNPCFits() ) {
 			continue;
 		}
 		return true;
@@ -740,20 +760,29 @@ static void G_ScenarioEndRepetition( void ) {
 	}
 }
 
+// a slot's values from which the instants of the repetition are counted: after the reset, or for an NPC once it has
+// begun (NPC_Begin, 100 to 200 ms after its spawn), which gives its health, its force and its place on the floor
+static void G_ScenarioStartSlot( int n ) {
+	const gentity_t *ent = &g_entities[scn.client[n]];
+
+	if ( !ent->inuse || !ent->client ) {
+		return;
+	}
+	scnStats.health[n] = ent->health;
+	scnStats.force[n] = ent->client->ps.fd.forcePower;
+	VectorCopy( ent->client->ps.origin, scnStats.origin[n] );
+	VectorCopy( ent->client->ps.origin, scnStats.start[n] );
+	scnStats.team[n] = ent->client->sess.sessionTeam;
+	VectorCopy( ent->client->ps.origin, scnStats.teamOrigin[n] );
+	scnStats.armor[n] = ent->client->ps.stats[statIndex_t::STAT_ARMOR];
+	scnStats.ammo[n] = G_ScenarioAmmo( &ent->client->ps );
+	scnStats.vehicleNum[n] = ent->client->ps.m_iVehicleNum;
+}
+
 // the bots' values after the reset, from which the instants of the repetition are counted
 static void G_ScenarioStartSampling( void ) {
 	for ( int n = 0; n < scn.numClients; n++ ) {
-		const gentity_t *ent = &g_entities[scn.client[n]];
-
-		scnStats.health[n] = ent->health;
-		scnStats.force[n] = ent->client->ps.fd.forcePower;
-		VectorCopy( ent->client->ps.origin, scnStats.origin[n] );
-		VectorCopy( ent->client->ps.origin, scnStats.start[n] );
-		scnStats.team[n] = ent->client->sess.sessionTeam;
-		VectorCopy( ent->client->ps.origin, scnStats.teamOrigin[n] );
-		scnStats.armor[n] = ent->client->ps.stats[statIndex_t::STAT_ARMOR];
-		scnStats.ammo[n] = G_ScenarioAmmo( &ent->client->ps );
-		scnStats.vehicleNum[n] = ent->client->ps.m_iVehicleNum;
+		G_ScenarioStartSlot( n );
 	}
 	if ( const gentity_t *veh = G_ScenarioVehicle() ) {
 		scnStats.vehicleHealth = veh->health;
@@ -803,10 +832,22 @@ static void G_ScenarioSampleTeam( int n ) {
 
 extern bool G_IsMindTricked( forcedata_t *fd, int client );
 
+static gentity_t *G_ScenarioNPC( void );
+
 // at the end of each 20 Hz instant of a counted repetition
 static void G_ScenarioSample( void ) {
+	const gentity_t *npc = G_ScenarioNPC();
+
 	for ( int n = 0; n < scn.numClients; n++ ) {
 		const gentity_t *ent = &g_entities[scn.client[n]];
+
+		if ( !ent->inuse || !ent->client ) {
+			continue;
+		}
+		if ( n == 1 && scn.npcType[0] && scnStats.health[n] <= 0 && ent->health > 0 ) {
+			G_ScenarioStartSlot( n );	// the NPC has begun (NPC_Begin): a dead one never gets health back
+			continue;
+		}
 		const playerState_t *ps = &ent->client->ps;
 		const int health = ent->health - scnStats.health[n];
 		const int force = ps->fd.forcePower - scnStats.force[n];
@@ -829,7 +870,8 @@ static void G_ScenarioSample( void ) {
 		if ( ps->forceHandExtend == forceHandAnims_t::HANDEXTEND_KNOCKDOWN ) {
 			scnStats.knockedDown[n]++;
 		}
-		if ( n && G_IsMindTricked( &g_entities[scn.client[0]].client->ps.fd, scn.client[n] ) ) {
+		// a client's bit only: an NPC's number would shift past the mind trick's 64 bits
+		if ( n && scn.client[n] < MAX_CLIENTS && G_IsMindTricked( &g_entities[scn.client[0]].client->ps.fd, scn.client[n] ) ) {
 			scnStats.mindTricked[n]++;
 		}
 		if ( ps->saberLockTime > level.time ) {
@@ -882,6 +924,17 @@ static void G_ScenarioSample( void ) {
 			scnStats.aboard[n]++;
 		}
 		scnStats.vehicleNum[n] = ps->m_iVehicleNum;
+		// plan step 20, the NPCs
+		if ( Any( ps->eFlags2 & entityFlags2_t::EF2_HELD_BY_MONSTER ) ) {
+			scnStats.heldByMonster[n]++;
+		}
+		if ( npc && npc->enemy == ent ) {
+			scnStats.npcEnemy[n]++;
+		}
+		if ( ( ps->legsAnim >= animNumber_t::BOTH_PAIN1 && ps->legsAnim <= animNumber_t::BOTH_PAIN18 )
+			|| ( ps->torsoAnim >= animNumber_t::BOTH_PAIN1 && ps->torsoAnim <= animNumber_t::BOTH_PAIN18 ) ) {
+			scnStats.inPain[n]++;
+		}
 	}
 	if ( const gentity_t *veh = G_ScenarioVehicle() ) {
 		const int health = veh->health, shield = veh->client->ps.stats[statIndex_t::STAT_ARMOR];
@@ -908,7 +961,7 @@ void G_ScenarioPrintStats( void ) {
 	if ( scn.type == scenarioType_t::SCN_NONE ) {
 		return;
 	}
-	for ( int n = 0; n < scn.numClients; n++ ) {
+	for ( int n = 0; n < scn.numClients; n++ ) {	// an NPC is the defender
 		Q_strcat( line, sizeof( line ), va( "%s %s %d %d %d %d %d %d %d %d %.0f %d %d %d", n ? "," : "", roles[n],
 			scnStats.healthGained[n], scnStats.healthLost[n], scnStats.forceGained[n], scnStats.forceSpent[n],
 			scnStats.airborne[n], scnStats.knockedDown[n], scnStats.mindTricked[n], scnStats.saberLocked[n], scnStats.path[n],
@@ -918,10 +971,11 @@ void G_ScenarioPrintStats( void ) {
 	// plan step 20, the game types: what the counted repetitions added to the scores
 	Q_strncpyz( line, "score statistics: score and captures gained by role, red and blue team scores gained:", sizeof( line ) );
 	for ( int n = 0; n < scn.numClients; n++ ) {
-		const playerState_t *ps = &g_entities[scn.client[n]].client->ps;
+		const gclient_t *client = g_entities[scn.client[n]].inuse ? g_entities[scn.client[n]].client : nullptr;	// an NPC removed
 
 		Q_strcat( line, sizeof( line ), va( "%s %s %d %d", n ? "," : "", roles[n],
-			ps->persistant[persEnum_t::PERS_SCORE] - scnStats.scoreStart[n], ps->persistant[persEnum_t::PERS_CAPTURES] - scnStats.capturesStart[n] ) );
+			client ? client->ps.persistant[persEnum_t::PERS_SCORE] - scnStats.scoreStart[n] : 0,
+			client ? client->ps.persistant[persEnum_t::PERS_CAPTURES] - scnStats.capturesStart[n] : 0 ) );
 	}
 	Q_strcat( line, sizeof( line ), va( ", teams %d %d", level.teamScores[team_t::TEAM_RED] - scnStats.teamScoreStart[0],
 		level.teamScores[team_t::TEAM_BLUE] - scnStats.teamScoreStart[1] ) );
@@ -972,6 +1026,14 @@ void G_ScenarioPrintStats( void ) {
 	for ( int n = 0; n < scn.numClients; n++ ) {
 		Q_strcat( line, sizeof( line ), va( "%s %s %d %d %d %.0f", n ? "," : "", roles[n], scnStats.boardings[n],
 			scnStats.exits[n], scnStats.aboard[n], scnStats.aboardPath[n] ) );
+	}
+	trap->Print( "%s\n", line );
+	// plan step 20, the NPCs
+	Q_strncpyz( line, "npc statistics: instants held by a monster, as the NPC's enemy and in a pain animation, by role:",
+		sizeof( line ) );
+	for ( int n = 0; n < scn.numClients; n++ ) {
+		Q_strcat( line, sizeof( line ), va( "%s %s %d %d %d", n ? "," : "", roles[n], scnStats.heldByMonster[n],
+			scnStats.npcEnemy[n], scnStats.inPain[n] ) );
 	}
 	trap->Print( "%s\n", line );
 }
@@ -1103,6 +1165,84 @@ static bool G_ScenarioVehicleFits( void ) {
 	return !tr.startsolid && !tr.allsolid;
 }
 
+// the NPC of an npc scenario or of npc= while it exists (a corpse frees itself 10 s after its death, DeadThink)
+static gentity_t *G_ScenarioNPC( void ) {
+	gentity_t *npc = scn.npc;
+
+	return ( npc && npc->inuse && npc->NPC && npc->client && npc->s.eType == entityType_t::ET_NPC ) ? npc : nullptr;
+}
+
+// the NPC in the defender's place, facing the attacker, spawned as a map's NPC_spawner with no key but its type
+// (NPC_Spawn_Do): its own AI; it begins 100 to 200 ms later (NPC_Begin), and only clear of every player's box
+static gentity_t *G_ScenarioSpawnNPC( void ) {
+	const vec3_t fwd = { Q_cospif( scn.yaw / 180.0f ), Q_sinpif( scn.yaw / 180.0f ), 0 };
+	gentity_t *spawner = G_Spawn();
+	gentity_t *npc;
+
+	level.numSpawnVars = 0;
+	level.numSpawnVarChars = 0;
+	spawner->classname = "NPC_spawner";
+	spawner->NPC_type = scn.npcType;
+	spawner->count = 1;
+	VectorMA( scn.origin, scn.dist, fwd, spawner->s.origin );
+	G_SetOrigin( spawner, spawner->s.origin );
+	spawner->s.angles[YAW] = G_ScenarioDefenderYaw();
+	npc = NPC_Spawn_Do( spawner );	// frees the spawner
+	return ( npc && npc->NPC && npc->client ) ? npc : nullptr;
+}
+
+// the NPC removed with what its fight left: the bot a rancor holds let go (Rancor_DropVictim; a rancor removed would
+// leave it held), its timers and its squad, which its death clears (player_die), its goal entity, and the missiles in
+// flight and the items dropped (a trooper's blaster, TossClientItems), which the next repetition would meet
+static void G_ScenarioRemoveNPC( void ) {
+	gentity_t *npc = G_ScenarioNPC();
+
+	scn.npc = nullptr;
+	if ( !npc ) {
+		return;
+	}
+	if ( npc->client->NPC_class == class_t::CLASS_RANCOR ) {
+		Rancor_DropVictim( npc );
+	}
+	TIMER_Clear2( npc );
+	if ( npc->NPC->group ) {
+		AI_DeleteSelfFromGroup( npc );
+	}
+	G_ScenarioFreeNPC( npc );	// its saber too (G_FreeEntity)
+	for ( int i = MAX_CLIENTS; i < level.num_entities; i++ ) {
+		gentity_t *e = &g_entities[i];
+
+		if ( e->inuse && !e->neverFree
+			&& ( e->s.eType == entityType_t::ET_MISSILE || Any( e->flags & gentityFlags_t::FL_DROPPED_ITEM ) ) ) {
+			G_FreeEntity( e );
+		}
+	}
+}
+
+// at the attacker's place (G_ScenarioFindPlace), the NPC's box read from one spawned once (its .npc file's width and
+// height): clear of the attacker's box along the axis nearest the view (the boxes keep to the axes; an NPC touching a
+// player waits to begin, NPC_SpotWouldTelefrag) and clear of the world at the defender's place
+static bool G_ScenarioNPCFits( void ) {
+	const float axis = Q_max( Q_fabsf( Q_cospif( scn.yaw / 180.0f ) ), Q_fabsf( Q_sinpif( scn.yaw / 180.0f ) ) );
+	const vec3_t fwd = { Q_cospif( scn.yaw / 180.0f ), Q_sinpif( scn.yaw / 180.0f ), 0 };
+	vec3_t mins, maxs, front;
+	trace_t tr;
+
+	scn.npc = G_ScenarioSpawnNPC();
+	if ( !scn.npc ) {
+		return false;
+	}
+	VectorCopy( scn.npc->r.mins, mins );
+	VectorCopy( scn.npc->r.maxs, maxs );
+	G_ScenarioRemoveNPC();
+	if ( scn.dist * axis <= maxs[0] + 15 ) {
+		return false;
+	}
+	VectorMA( scn.origin, scn.dist, fwd, front );
+	trap->Trace( &tr, front, mins, maxs, front, ENTITYNUM_NONE, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0 );
+	return !tr.startsolid && !tr.allsolid;
+}
+
 // the emplaced gun's user taken off it as emplaced_gun_update does, and free to mount it again at once
 static void G_ScenarioReleaseGun( void ) {
 	gentity_t *gun = scn.spawned[0];
@@ -1207,6 +1347,7 @@ static void G_ScenarioReturnPickup( void ) {
 static void G_ScenarioFreeSpawned( void ) {
 	G_ScenarioReleaseGun();
 	G_ScenarioRemoveVehicle();
+	G_ScenarioRemoveNPC();
 	for ( gentity_t *&e : scn.spawned ) {
 		if ( e && e->inuse ) {
 			G_FreeEntity( e );
@@ -1242,7 +1383,7 @@ void G_ScenarioFrame( void ) {
 	}
 	for ( i = 0; i < SCN_SPECTATOR + 1; i++ ) {
 		if ( ( i < scn.numClients || ( i == SCN_SPECTATOR && scn.spectatorMode != spectatorMode_t::SPEC_NONE ) )
-			&& !g_entities[scn.client[i]].inuse ) {
+			&& !( i == 1 && scn.npcType[0] ) && !g_entities[scn.client[i]].inuse ) {
 			trap->Print( "scenario stopped: a bot left\n" );
 			scn.type = scenarioType_t::SCN_NONE;
 			return;
@@ -1263,13 +1404,29 @@ void G_ScenarioFrame( void ) {
 		G_SiegeSetObjectiveComplete( scn.objective->side, scn.objective->objective, true );
 	}
 	scn.actionDone = false;
+	G_ScenarioRemoveNPC();	// the bot a rancor holds let go before the bot is placed
 	for ( i = 0; i < scn.numClients; i++ ) {
-		G_ScenarioRestoreTeam( i );
+		if ( !( i == 1 && scn.npcType[0] ) ) {
+			G_ScenarioRestoreTeam( i );
+		}
 	}
 	G_ScenarioPlace( &g_entities[scn.client[0]], scn.origin, G_ScenarioAttackerYaw() );
-	G_ScenarioPlace( &g_entities[scn.client[1]], front, G_ScenarioDefenderYaw() );
+	if ( !scn.npcType[0] ) {
+		G_ScenarioPlace( &g_entities[scn.client[1]], front, G_ScenarioDefenderYaw() );
+	}
 	G_ScenarioEquip( &g_entities[scn.client[0]], true );
-	G_ScenarioEquip( &g_entities[scn.client[1]], false );
+	if ( scn.npcType[0] ) { // a new NPC in the defender's slot, once the bot stands in its place
+		scn.npc = G_ScenarioSpawnNPC();
+		if ( !scn.npc ) {
+			trap->Print( "scenario stopped: the NPC could not be spawned\n" );
+			scn.type = scenarioType_t::SCN_NONE;
+			return;
+		}
+		scn.client[1] = scn.npc->s.number;
+	}
+	else {
+		G_ScenarioEquip( &g_entities[scn.client[1]], false );
+	}
 	if ( scn.type == scenarioType_t::SCN_SABER && scn.saberMode == saberMode_t::SM_LOCK && level.gametype != gametype_t::GT_DUEL ) {
 		// saber locks happen only in a duel (WP_SabersCheckLock): a private one, already started, but in the duel game
 		// type, where every clash may lock
@@ -1335,6 +1492,9 @@ void G_ScenarioFrame( void ) {
 	for ( i = 0; i < scn.numClients; i++ ) {
 		gclient_t *client = g_entities[scn.client[i]].client;
 
+		if ( i == 1 && scn.npcType[0] ) {
+			continue;	// an NPC, new
+		}
 		client->ps.torsoAnim = client->ps.legsAnim = WeaponReadyAnim[client->ps.weapon];
 		client->torsoAnimExecute = client->legsAnimExecute = animNumber_t::ANIM_NONE;
 	}
@@ -1393,6 +1553,10 @@ void G_ScenarioTrace( void ) {
 	}
 	for ( n = 0; n < scn.numClients; n++ ) {
 		const gentity_t *ent = &g_entities[scn.client[n]];
+
+		if ( !ent->inuse || !ent->client ) {
+			continue;	// an NPC removed
+		}
 		const playerState_t *ps = &ent->client->ps;
 		const bladeInfo_t *blade = &ent->client->saber[0].blade[0];
 
@@ -1615,6 +1779,20 @@ bool G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd ) {
 			VectorCopy( veh->r.currentOrigin, target );
 			target[2] += ( veh->r.mins[2] + 3 * veh->r.maxs[2] ) / 4;
 			G_ScenarioAimMuzzle( ent, target, view );
+		}
+	}
+	if ( attacker && scn.npcType[0] ) {
+		if ( const gentity_t *npc = G_ScenarioNPC() ) { // the middle of the NPC's box, from the muzzle for a weapon
+			vec3_t target;
+
+			VectorCopy( npc->r.currentOrigin, target );
+			target[2] += ( npc->r.mins[2] + npc->r.maxs[2] ) / 2;
+			if ( scn.type == scenarioType_t::SCN_WEAPON ) {
+				G_ScenarioAimMuzzle( ent, target, view );
+			}
+			else {
+				G_ScenarioLookAt( ent, target, view );
+			}
 		}
 	}
 	if ( attacker && scn.type == scenarioType_t::SCN_WEAPON && scn.weapon == weapon_t::WP_EMPLACED_GUN && scn.repStart && phase >= 0 ) {
@@ -1942,6 +2120,12 @@ void Svcmd_Scenario_f( void ) {
 	scn.rep = -1;	// the first reset starts the warm-up, repetition 0
 	scn.repMsec = Q_max( 1000, G_ScenarioOpt( "rep", SCN_REP_MSEC ) );
 	scn.hold = G_ScenarioOpt( "hold", 1000 );
+	if ( !Q_stricmp( type, "npc" ) ) { // the NPC in the defender's slot, spawned at every reset
+		trap->Argv( 3, scn.npcType, sizeof( scn.npcType ) );
+	}
+	else {
+		G_ScenarioOptString( "npc", scn.npcType, sizeof( scn.npcType ) );
+	}
 	{ // the attacker, the first bot that is not its teammate as the defender, and a teammate as the ally
 		bool defender = false, ally = false;
 
@@ -1973,6 +2157,15 @@ void Svcmd_Scenario_f( void ) {
 			else if ( spare < 0 ) {
 				spare = i;
 			}
+		}
+		if ( scn.npcType[0] ) { // one bot and the NPC, whose number its spawn gives
+			if ( !n ) {
+				trap->Print( "scenario: needs a bot\n" );
+				return;
+			}
+			scn.client[1] = ENTITYNUM_NONE;
+			defender = true;
+			ally = false;
 		}
 		if ( !defender ) {
 			trap->Print( "scenario: needs two bots\n" );
@@ -2128,8 +2321,12 @@ void Svcmd_Scenario_f( void ) {
 		scn.dist = (float)G_ScenarioArgInt( 5, 512 );
 		scn.type = scenarioType_t::SCN_VEHICLE;
 	}
+	else if ( !Q_stricmp( type, "npc" ) ) {
+		scn.dist = (float)G_ScenarioArgInt( 4, 256 );
+		scn.type = scenarioType_t::SCN_NPC;
+	}
 	else {
-		trap->Print( "scenario: saber, force, weapon, turret, flag, objective, team, spectate, holdable, item, vehicle or off\n" );
+		trap->Print( "scenario: saber, force, weapon, turret, flag, objective, team, spectate, holdable, item, vehicle, npc or off\n" );
 		return;
 	}
 	if ( scn.type != scenarioType_t::SCN_ITEM ) {
@@ -2153,8 +2350,10 @@ void Svcmd_Scenario_f( void ) {
 			SetTeam( &g_entities[bot], "spectator" );
 		}
 	}
-	for ( i = 0; i < scn.numClients; i++ ) { // the teams every reset gives back
-		scn.team[i] = g_entities[scn.client[i]].client->sess.sessionTeam;
+	for ( i = 0; i < scn.numClients; i++ ) { // the teams every reset gives back (not an NPC's)
+		if ( !( i == 1 && scn.npcType[0] ) ) {
+			scn.team[i] = g_entities[scn.client[i]].client->sess.sessionTeam;
+		}
 	}
 	if ( scn.type == scenarioType_t::SCN_VEHICLE && BG_VehicleGetIndex( scn.vehicleType ) == VEHICLE_NONE ) {
 		trap->Print( "scenario: no vehicle %s in ext_data/vehicles\n", scn.vehicleType );
@@ -2163,7 +2362,8 @@ void Svcmd_Scenario_f( void ) {
 	}
 	if ( !G_ScenarioFindPlace() ) {
 		trap->Print( "scenario: no open spawn point for a distance of %.0f%s\n", scn.dist,
-			( scn.type == scenarioType_t::SCN_VEHICLE ) ? ", the vehicle between the bots" : "" );
+			( scn.type == scenarioType_t::SCN_VEHICLE ) ? ", the vehicle between the bots"
+			: scn.npcType[0] ? ", the NPC's box clear of the attacker's and of the world (or no such NPC)" : "" );
 		scn.type = scenarioType_t::SCN_NONE;
 		return;
 	}
