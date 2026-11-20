@@ -51,7 +51,7 @@ It ends with `golden: SAME` when this build gives the recorded counts. The outpu
 
 ## The scenarios
 
-The full syntax is at the top of `codemp/game/g_scenario.c`. Two bots, an attacker and a defender, sometimes a third one as the attacker's ally, are placed face to face and reset at every repetition (2 s, or `rep=`), then play a fixed script of commands timed in milliseconds. The first repetition is not counted. The statistics of the counted ones are printed at the end. The script `scenarios.sh` gives each server its map, game type, bots and settings, and plays several scenarios of one group one after the other on the same server: 276 scenarios on 112 servers, about 2 min 15 s with 30 servers at a time. Outside free for all, a scenario's name starts with its game type (`duel_saber_fast_idle`).
+The full syntax is at the top of `codemp/game/g_scenario.c`. Two bots, an attacker and a defender, sometimes a third one as the attacker's ally, are placed face to face and reset at every repetition (2 s, or `rep=`), then play a fixed script of commands timed in milliseconds. The first repetition is not counted. The statistics of the counted ones are printed at the end. The script `scenarios.sh` gives each server its map, game type, bots and settings, and plays several scenarios of one group one after the other on the same server: 289 scenarios on 120 servers, about 2 min 35 s with 30 servers at a time. Outside free for all, a scenario's name starts with its game type (`duel_saber_fast_idle`).
 
 | group | scenarios | what they play |
 |---|---|---|
@@ -66,6 +66,7 @@ The full syntax is at the top of `codemp/game/g_scenario.c`. Two bots, an attack
 | teams and spectators (step 20, part 5) | 9 | in a team game the defender changes team at every repetition, then the same refused by the balance (`g_teamForceBalance 1`); in CTF the carrier changes team, which sends the flag back; in free for all a third bot made a spectator follows the attacker during a saber attack and a rocket, then the game's `follow1` and `follow2`, cycles with attack and the alternate attack then stops following with a jump, and flies forward as a free spectator |
 | items (step 20, part 6) | 47 | the 11 holdable items used (the medpacs, the binoculars, the cloak, the jetpack, the seeker, the sentry and the E-Web shooting at the defender, the shield its owner shoots into, the health and ammunition dispensers on a teammate, the ammunition thrown); every item picked up: the health, the two armours, a holdable item, every weapon and every ammunition; the four powerups before a force power |
 | vehicles (step 20, part 7) | 5 | on `mp/siege_korriban`, the vehicle spawned in front of the attacker at every reset and boarded with the use key: the swoop fires at the defender, drives into it, its rider jumps off; the AT-ST fires its laser and a rocket, walks, its rider gets off; the X-wing takes off, flies and fires; the defender's rocket destroys the swoop and the AT-ST, whose explosions kill the pilot |
+| NPCs (step 20, part 8) | 13 | in free for all, one bot and the NPC spawned at every reset in the defender's place, with its own AI, which finds the bot itself: the rancor (it roars 10.3 s, then smashes, grabs, bites, eats), the wampa, a stormtrooper and a saber reborn attack the bot standing with its saber; the bot's rocket and strong attack hit the rancor, its strong attack and lightning the wampa, its bryar, grip and push the trooper, its medium attack and push the reborn, which fight back |
 
 Each scenario prints, after its repetitions:
 
@@ -79,7 +80,8 @@ Each scenario prints, after its repetitions:
 - what the counted repetitions added to the scores: each role's score and captures, the red and blue team scores;
 - by role, the spectator's included: the team changes, the instants as a free spectator and the distance moved then, the instants following each role and the distance from the player followed;
 - the items picked up, the health taken from what is not a client by cause, and by role the armour and ammunition gained and lost and the instants cloaked, flying a jetpack and zoomed in;
-- the health taken from the NPCs and vehicles by cause, the vehicle's health and shield lost and its destructions, and by role the boardings, exits, instants aboard and distance moved aboard.
+- the health taken from the NPCs and vehicles by cause, the vehicle's health and shield lost and its destructions, and by role the boardings, exits, instants aboard and distance moved aboard;
+- by role (an NPC is the defender): the instants held by a monster, as the NPC's enemy and in a pain animation.
 
 ## Differences with the build of the day
 
@@ -88,6 +90,4 @@ The two builds give the same counts but where a fix decided since changes them. 
 | since | what | scenarios |
 |---|---|---|
 | 19 November 2026 | the weapons' charge counted to the command that releases the button, no longer to the last 20 Hz instant, which was up to 50 ms earlier | 20 (the bryars', the bowcaster's, the DEMP2's, the sniper shot's, the rocket lock's and the thermal detonator's charges; since part 4b, the siege's sniper shot held 1.7 s and rocket lock held 1.5 s); in four of them the score too, since the charge decides whether every shot kills |
-| 17 November 2026 | the names of the last events, missing from this branch's list (`eventnames`): `(null)` where the build of the day prints `EV_SIEGESPEC`, with the same count | 1 (the AT-ST ridden in siege, part 7) |
-
-The NPCs (part 8) are to come.
+| 17 November 2026 | the names of the last events, missing from this branch's list (`eventnames`): `(null)` where the build of the day prints `EV_SIEGESPEC` or the NPCs' voice events (`EV_ANGER1` to `3`, the reborn's `EV_COMBAT1` to `3`, `EV_TAUNT1` to `3`, `EV_GLOAT1`), with the same counts | 14 (the AT-ST ridden in siege, part 7; the 13 NPC scenarios, part 8) |
