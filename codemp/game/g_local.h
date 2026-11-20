@@ -1533,6 +1533,8 @@ typedef struct gameStats_s {
 	int		styleAttacks[SS_NUM_SABER_STYLES];	// saber attack moves started by clients, by style
 	int		styleBounces[SS_NUM_SABER_STYLES];	// saber moves of clients sent into a bounce or deflection, by style
 	int		specialMoves[LS_MOVE_MAX];	// special saber moves started by clients (back attacks to the hilt bash), by move
+	int		itemPickups[MAX_ITEMS];	// items picked up (Touch_Item), by index in bg_itemlist
+	int		objectDamage[MOD_MAX];	// health taken from what is not a client (a shield, a sentry, an E-Web), by cause
 } gameStats_t;
 extern	gameStats_t		g_stats;
 void G_StatsSaberMove( gentity_t *ent, int oldSaberMove );

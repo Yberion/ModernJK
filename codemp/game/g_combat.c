@@ -5395,6 +5395,9 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 			g_stats.modDamage[mod] += take;
 			G_ScenarioDamageTrace( targ, inflictor, point, take, mod );
 		}
+		else if ( mod >= 0 && mod < MOD_MAX ) {
+			g_stats.objectDamage[mod] += take;
+		}
 		if ( mod == MOD_FORCE_DARK && targ->client ) {
 			g_stats.forceDamage += take;
 		}

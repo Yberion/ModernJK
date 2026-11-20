@@ -42,6 +42,15 @@
 // scenario spectate <reps> <cycle|fly> [distance] (with the spectator; the players stand)
 //   cycle: following the attacker, the spectator presses attack (the next player), the alternate attack (the
 //   previous one), then jumps (it stops following); fly: a free spectator at the attacker's place flies forward 1 s
+// scenario holdable <reps> <seeker|shield|medpac|medpac_big|binoculars|sentry|jetpack|healthdisp|ammodisp|eweb|cloak>
+//   [distance] (the attacker carries the item and uses it at the start of the script with the item key, the item
+//   selected; the jetpack and the dispensers, which cannot be selected, with the use key as the game uses them (TryUse):
+//   the jetpack after a jump, then the jump held 1 s, a dispenser held 1 s on the teammate in front (target=ally; the
+//   health dispenser's at 40 health, the ammunition's holding an empty blaster), or else on nothing, which throws the
+//   ammunition; the shield's owner fires a blaster into it, the E-Web's fires it 1 s; before a medpac the attacker has
+//   40 health; the defender holds no saber, so that the seeker's, the sentry's and the E-Web's shots hit)
+// scenario item <reps> <item classname> [distance] (with pickup=: the item that far in front of the attacker, which
+//   walks onto it; the attacker has 40 health, no armour, the saber only and no ammunition before)
 // scenario off
 // Options after the arguments: hold=<ms>, rep=<ms> (a repetition, 2000; the scripts read it to wait for the end);
 // pickup=<units> (plan step 20, the game types: in a holocron game a holocron of the force scenario's power, in a Jedi
@@ -51,7 +60,11 @@
 // away (the defender turned away from the attacker);
 // spectator, spectator=follow1, spectator=follow2 (plan step 20, teams and spectators: a bot spectator, the first
 // spectator bot or else the first bot without a role, made a spectator, follows the attacker, or the first or second
-// player by client number as the game's follow1 and follow2 do; it is reset to that at every repetition).
+// player by client number as the game's follow1 and follow2 do; it is reset to that at every repetition);
+// item=<classname> (plan step 20, the items: with pickup=, that item in front of the attacker, as in an item scenario,
+// before the script of any other scenario: a force scenario after a powerup picked up).
+// Every reset clears the holdable items' state and what they spawned (the seeker, the sentry, the shield, the E-Web,
+// the cloak and the jetpack switched off and full), and gives the attacker the holdable item of its scenario only.
 // The bots are the first ones that are not spectators; in a power duel the defender is the lone duelist. In siege a
 // dead bot is respawned at once, not at the next wave.
 
@@ -71,6 +84,9 @@ extern void ThrowSaberToAttacker( gentity_t *self, gentity_t *attacker );
 extern gentity_t *Team_ResetFlag( int team );
 extern void Team_ResetFlags( void );
 extern void G_SiegeSetObjectiveComplete( int team, int objective, qboolean failIt );
+extern void Jedi_Decloak( gentity_t *self );
+extern void EWebDisattach( gentity_t *owner, gentity_t *eweb );
+extern char *modNames[];
 
 #define SCN_REP_MSEC		2000	// one repetition
 #define SCN_SETTLE_MSEC		500		// still, after the reset, before the script starts
@@ -86,7 +102,9 @@ typedef enum {
 	SCN_FLAG,
 	SCN_OBJECTIVE,
 	SCN_TEAM,
-	SCN_SPECTATE
+	SCN_SPECTATE,
+	SCN_HOLDABLE,
+	SCN_ITEM
 } scenarioType_t;
 
 // what the bots do in a flag scenario
@@ -163,6 +181,8 @@ static struct {
 	qboolean		away;			// the defender turned away from the attacker
 	spectatorMode_t	spectatorMode;
 	spectateMode_t	spectateMode;
+	holdable_t		holdable;		// the holdable item of a holdable scenario
+	char			itemClass[MAX_QPATH];	// the item of an item scenario or of item=, "" without
 	float			dist;			// between the two origins
 	vec3_t			origin;			// the attacker's place, facing yaw
 	float			yaw;
@@ -188,6 +208,10 @@ static struct {
 	float	freePath[4], followGap[4];
 	team_t	team[4];			// the previous instant's team and place, from the reset on
 	vec3_t	teamOrigin[4];
+	// plan step 20, the items, by role: armour and ammunition gained and lost, the instants cloaked, flying a jetpack
+	// and zoomed in
+	int		armorGained[3], armorLost[3], ammoGained[3], ammoSpent[3], cloaked[3], jetpack[3], zoomed[3];
+	int		armor[3], ammo[3];	// the previous instant's values, from the reset on
 	// the previous instant's values, from the reset on
 	int		health[3], force[3];
 	vec3_t	origin[3], start[3];
@@ -359,6 +383,40 @@ static void G_ScenarioSaberToHand( gentity_t *ent ) {
 	client->saberKnockedTime = 0;
 }
 
+// at every reset, what a holdable item left (a use in the previous repetition, or a bot's in the free play): the seeker,
+// the sentry, the shield and the E-Web removed, the cloak and the jetpack switched off and full
+static void G_ScenarioClearHoldables( gentity_t *ent ) {
+	gclient_t *client = ent->client;
+	int i;
+
+	client->ps.eFlags &= ~EF_SEEKERDRONE;
+	client->ps.droneExistTime = client->ps.droneFireTime = 0;
+	for ( i = MAX_CLIENTS; i < level.num_entities; i++ ) {
+		gentity_t *e = &g_entities[i];
+
+		if ( e->inuse && e->classname
+			&& ( ( e->s.owner == ent->s.number && !strcmp( e->classname, "sentryGun" ) )		// ItemUse_Sentry
+				|| ( e->parent == ent && !e->item && !strcmp( e->classname, "item_shield" ) ) ) ) {	// PlaceShield
+			G_FreeEntity( e );
+		}
+	}
+	client->ps.fd.sentryDeployed = qfalse;
+	if ( client->ewebIndex ) {
+		gentity_t *eweb = &g_entities[client->ewebIndex];
+
+		EWebDisattach( ent, eweb );
+		G_FreeEntity( eweb );
+	}
+	if ( client->ps.powerups[PW_CLOAKED] ) {
+		Jedi_Decloak( ent );
+	}
+	client->ps.cloakFuel = 100;
+	client->cloakToggleTime = 0;
+	Jetpack_Off( ent );
+	client->ps.jetpackFuel = 100;
+	client->jetPackToggleTime = 0;
+}
+
 static void G_ScenarioPlace( gentity_t *ent, const vec3_t origin, float yaw ) {
 	gclient_t *client = ent->client;
 	vec3_t angles = { 0, 0, 0 };
@@ -384,6 +442,7 @@ static void G_ScenarioPlace( gentity_t *ent, const vec3_t origin, float yaw ) {
 		client->pers.teamState.lastfraggedcarrier = client->pers.teamState.flagsince = 0;
 	}
 	G_ScenarioSaberToHand( ent );
+	G_ScenarioClearHoldables( ent );
 	// the blades' last positions, from before the bot is moved here: the first sweep of a repetition would start from them
 	client->lastSaberStorageTime = 0;
 	client->hasCurrentPosition = qfalse;
@@ -507,6 +566,12 @@ static void G_ScenarioPlaceSpectator( void ) {
 static void G_ScenarioEquip( gentity_t *ent, qboolean attacker ) {
 	gclient_t *client = ent->client;
 
+	// the holdable items carried: the attacker's of its holdable scenario only, selected but for the jetpack and the
+	// dispensers, which cannot be (plan step 20, the items)
+	client->ps.stats[STAT_HOLDABLE_ITEMS] = ( attacker && scn.type == SCN_HOLDABLE ) ? ( 1 << scn.holdable ) : 0;
+	client->ps.stats[STAT_HOLDABLE_ITEM] = ( attacker && scn.type == SCN_HOLDABLE
+		&& BG_IsItemSelectable( &client->ps, scn.holdable ) ) ? BG_GetItemIndexByTag( scn.holdable, IT_HOLDABLE ) : 0;
+
 	client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] = FORCE_LEVEL_3;
 	client->ps.fd.forcePowerLevel[FP_SABER_DEFENSE] = FORCE_LEVEL_3;
 	client->ps.fd.forcePowersKnown |= ( 1 << FP_SABER_OFFENSE ) | ( 1 << FP_SABER_DEFENSE );
@@ -534,9 +599,13 @@ static void G_ScenarioEquip( gentity_t *ent, qboolean attacker ) {
 	}
 
 	if ( scn.type == SCN_WEAPON || scn.type == SCN_TURRET || ( scn.type == SCN_FORCE && scn.power == FP_SABERTHROW && !attacker )
-		|| ( scn.type == SCN_FLAG && scn.flagMode == FM_RETURN && !attacker ) ) {
-		// the defender cannot block with a saber; in a flag's return it kills the carrier with a rocket
-		int weapon = ( attacker && scn.type == SCN_WEAPON ) ? scn.weapon : ( scn.type == SCN_FLAG ) ? WP_ROCKET_LAUNCHER : WP_MELEE;
+		|| ( scn.type == SCN_FLAG && scn.flagMode == FM_RETURN && !attacker ) || scn.type == SCN_HOLDABLE ) {
+		// the defender cannot block with a saber; in a flag's return it kills the carrier with a rocket; the shield's
+		// owner fires a blaster into it; the ammunition dispenser's teammate holds an empty blaster (G_CanUseDispOn)
+		const qboolean blaster = ( scn.type == SCN_HOLDABLE
+			&& ( ( attacker && scn.holdable == HI_SHIELD ) || ( !attacker && scn.holdable == HI_AMMODISP ) ) ) ? qtrue : qfalse;
+		int weapon = ( attacker && scn.type == SCN_WEAPON ) ? scn.weapon : ( scn.type == SCN_FLAG ) ? WP_ROCKET_LAUNCHER
+			: blaster ? WP_BLASTER : WP_MELEE;
 
 		if ( weapon == WP_EMPLACED_GUN ) { // the hands free to mount the gun, which takes the place of the weapon
 			client->ps.ammo[weaponData[weapon].ammoIndex] = 999;
@@ -544,11 +613,19 @@ static void G_ScenarioEquip( gentity_t *ent, qboolean attacker ) {
 		}
 
 		client->ps.stats[STAT_WEAPONS] |= ( 1 << weapon );
-		client->ps.ammo[weaponData[weapon].ammoIndex] = 999;
+		client->ps.ammo[weaponData[weapon].ammoIndex] = ( blaster && !attacker ) ? 0 : 999;
 		client->ps.weapon = weapon;
 		return;
 	}
 
+	if ( attacker && scn.type == SCN_ITEM ) {
+		// no weapon and no ammunition, so that a pickup gives the same at every repetition, and a weapon is never refused
+		// for being carried already (BG_CanItemBeGrabbed)
+		client->ps.stats[STAT_WEAPONS] = 0;
+		memset( client->ps.ammo, 0, sizeof( client->ps.ammo ) );
+		client->ps.weapon = WP_NONE;
+		return;
+	}
 	client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_SABER );
 	client->ps.weapon = WP_SABER;
 	if ( attacker && scn.type == SCN_SABER ) {
@@ -569,6 +646,16 @@ static void G_ScenarioEquip( gentity_t *ent, qboolean attacker ) {
 		client->ps.stats[STAT_WEAPONS] = ( 1 << WP_MELEE ) | ( 1 << WP_BRYAR_PISTOL );
 		client->ps.weapon = WP_BRYAR_PISTOL;
 	}
+}
+
+// a player's ammunition of every kind, summed
+static int G_ScenarioAmmo( const playerState_t *ps ) {
+	int sum = 0, a;
+
+	for ( a = 0; a < MAX_AMMO; a++ ) {
+		sum += ps->ammo[a];
+	}
+	return sum;
 }
 
 // the end of a repetition: where each bot stands against its place at the start
@@ -600,6 +687,8 @@ static void G_ScenarioStartSampling( void ) {
 		VectorCopy( ent->client->ps.origin, scnStats.start[n] );
 		scnStats.team[n] = ent->client->sess.sessionTeam;
 		VectorCopy( ent->client->ps.origin, scnStats.teamOrigin[n] );
+		scnStats.armor[n] = ent->client->ps.stats[STAT_ARMOR];
+		scnStats.ammo[n] = G_ScenarioAmmo( &ent->client->ps );
 	}
 	if ( scn.spectatorMode != SPEC_NONE ) {
 		const gclient_t *client = g_entities[scn.client[SCN_SPECTATOR]].client;
@@ -684,6 +773,34 @@ static void G_ScenarioSample( void ) {
 		scnStats.force[n] = ps->fd.forcePower;
 		VectorCopy( ps->origin, scnStats.origin[n] );
 		G_ScenarioSampleTeam( n );
+		{ // plan step 20, the items
+			const int armor = ps->stats[STAT_ARMOR] - scnStats.armor[n];
+			const int ammo = G_ScenarioAmmo( ps ) - scnStats.ammo[n];
+
+			if ( armor > 0 ) {
+				scnStats.armorGained[n] += armor;
+			}
+			else {
+				scnStats.armorLost[n] -= armor;
+			}
+			if ( ammo > 0 ) {
+				scnStats.ammoGained[n] += ammo;
+			}
+			else {
+				scnStats.ammoSpent[n] -= ammo;
+			}
+			scnStats.armor[n] = ps->stats[STAT_ARMOR];
+			scnStats.ammo[n] += ammo;
+			if ( ps->powerups[PW_CLOAKED] ) {
+				scnStats.cloaked[n]++;
+			}
+			if ( ent->client->jetPackOn ) {
+				scnStats.jetpack[n]++;
+			}
+			if ( ps->zoomMode ) {
+				scnStats.zoomed[n]++;
+			}
+		}
 	}
 	if ( scn.spectatorMode != SPEC_NONE ) {
 		G_ScenarioSampleTeam( SCN_SPECTATOR );
@@ -695,7 +812,7 @@ void G_ScenarioPrintStats( void ) {
 	static const char *roles[] = { "attacker", "defender", "ally", "spectator" };
 	char line[MAX_STRING_CHARS] = "scenario statistics: health gained and lost, force gained and spent, instants off the ground, "
 		"knocked down, mind tricked and in a saber lock, distance moved, end place against the start, by role:";
-	int n;
+	int n, i;
 
 	if ( scn.type == SCN_NONE ) {
 		return;
@@ -728,6 +845,27 @@ void G_ScenarioPrintStats( void ) {
 		Q_strcat( line, sizeof( line ), va( "%s %s %d %d %.0f %d %d %d %.0f", n ? "," : "", roles[n], scnStats.teamChanges[n],
 			scnStats.freeSpectator[n], scnStats.freePath[n], scnStats.following[n][0], scnStats.following[n][1],
 			scnStats.following[n][2], scnStats.followGap[n] ) );
+	}
+	trap->Print( "%s\n", line );
+	// plan step 20, the items
+	Q_strncpyz( line, "item statistics: items picked up:", sizeof( line ) );
+	for ( i = 1; i < bg_numItems; i++ ) {
+		if ( g_stats.itemPickups[i] ) {
+			Q_strcat( line, sizeof( line ), va( " %s %d", bg_itemlist[i].classname, g_stats.itemPickups[i] ) );
+		}
+	}
+	Q_strcat( line, sizeof( line ), "; health taken from what is not a client, by cause:" );
+	for ( i = 0; i < MOD_MAX; i++ ) {
+		if ( g_stats.objectDamage[i] ) {
+			Q_strcat( line, sizeof( line ), va( " %s %d", modNames[i], g_stats.objectDamage[i] ) );
+		}
+	}
+	Q_strcat( line, sizeof( line ), "; armour gained and lost, ammunition gained and spent, instants cloaked, flying a jetpack "
+		"and zoomed in, by role:" );
+	for ( n = 0; n < scn.numClients; n++ ) {
+		Q_strcat( line, sizeof( line ), va( "%s %s %d %d %d %d %d %d %d", n ? "," : "", roles[n], scnStats.armorGained[n],
+			scnStats.armorLost[n], scnStats.ammoGained[n], scnStats.ammoSpent[n], scnStats.cloaked[n], scnStats.jetpack[n],
+			scnStats.zoomed[n] ) );
 	}
 	trap->Print( "%s\n", line );
 }
@@ -807,6 +945,15 @@ static void G_ScenarioReturnPickup( void ) {
 	gentity_t *p = scn.pickup;
 	int i;
 
+	if ( p && scn.itemClass[0] ) {
+		// the item of item= or an item scenario back once taken (Touch_Item hides it, or leaves a weapon's or a powerup's
+		// placeholder), as at the end of its respawn time; not before, which would cancel the end of its spawn
+		// (FinishSpawningItem, its think)
+		if ( p->s.eFlags & ( EF_NODRAW | EF_ITEMPLACEHOLDER ) ) {
+			RespawnItem( p );
+		}
+		return;
+	}
 	if ( p && ( level.gametype == GT_CTF || level.gametype == GT_CTY ) ) {
 		gentity_t *flags[2];
 
@@ -938,6 +1085,18 @@ void G_ScenarioFrame( void ) {
 	}
 	if ( scn.type == SCN_TURRET ) { // the turret's target is the defender
 		g_entities[scn.client[0]].flags |= FL_NOTARGET;
+	}
+	if ( scn.type == SCN_ITEM || ( scn.type == SCN_HOLDABLE && ( scn.holdable == HI_MEDPAC || scn.holdable == HI_MEDPAC_BIG ) ) ) {
+		// what a health item or a medpac gives back
+		gentity_t *attacker = &g_entities[scn.client[0]];
+
+		attacker->health = attacker->client->ps.stats[STAT_HEALTH] = 40;
+	}
+	if ( scn.type == SCN_HOLDABLE && scn.holdable == HI_HEALTHDISP ) {
+		// what the health dispenser gives the teammate in front (target=ally)
+		gentity_t *teammate = &g_entities[scn.client[1]];
+
+		teammate->health = teammate->client->ps.stats[STAT_HEALTH] = 40;
 	}
 	if ( scn.type == SCN_FORCE ) { // what the healing and replenishing powers act on
 		gentity_t *attacker = &g_entities[scn.client[0]];
@@ -1369,6 +1528,32 @@ qboolean G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd ) {
 			SetTeam( ent, ( ent->client->sess.sessionTeam == TEAM_RED ) ? "blue" : "red" );
 		}
 		break;
+	case SCN_HOLDABLE:
+		if ( !attacker ) {
+			break;
+		}
+		if ( scn.holdable == HI_JETPACK ) {
+			// a jump, the use key in the air, which switches the jetpack on (TryUse), then the jump held 1 s
+			if ( phase < 50 || ( phase >= 200 && phase < 1200 ) ) {
+				ucmd->upmove = 127;
+			}
+			else if ( phase >= 100 && phase < 150 ) {
+				ucmd->buttons = BUTTON_USE;
+			}
+		}
+		else if ( scn.holdable == HI_HEALTHDISP || scn.holdable == HI_AMMODISP ) {
+			// the use key held 1 s, on the teammate in front, or else on nothing: the ammunition thrown (TryUse)
+			if ( phase < 1000 ) {
+				ucmd->buttons = BUTTON_USE;
+			}
+		}
+		else if ( phase < 50 ) { // the item key, the item selected (PM_Weapon)
+			ucmd->buttons = BUTTON_USE_HOLDABLE;
+		}
+		if ( ( scn.holdable == HI_SHIELD || scn.holdable == HI_EWEB ) && phase >= 500 && phase < 1500 ) {
+			ucmd->buttons = BUTTON_ATTACK;	// the shield up after 500 ms (PlaceShield)
+		}
+		break;
 	default:
 		break;
 	}
@@ -1412,6 +1597,21 @@ static qboolean G_ScenarioOptIs( const char *text ) {
 		}
 	}
 	return qfalse;
+}
+
+// an option name=text among the arguments, its text copied, or "" without it
+static void G_ScenarioOptString( const char *name, char *out, int size ) {
+	char arg[MAX_TOKEN_CHARS];
+	const size_t len = strlen( name );
+	int n;
+
+	out[0] = '\0';
+	for ( n = 2; n < trap->Argc(); n++ ) {
+		trap->Argv( n, arg, sizeof( arg ) );
+		if ( !Q_strncmp( arg, name, len ) && arg[len] == '=' ) {
+			Q_strncpyz( out, arg + len + 1, size );
+		}
+	}
 }
 
 void Svcmd_Scenario_f( void ) {
@@ -1583,8 +1783,41 @@ void Svcmd_Scenario_f( void ) {
 		scn.dist = (float)G_ScenarioArgInt( 4, 128 );
 		scn.type = SCN_SPECTATE;
 	}
+	else if ( !Q_stricmp( type, "holdable" ) ) {
+		static const struct { const char *name; holdable_t item; } holdables[] = {
+			{ "seeker", HI_SEEKER }, { "shield", HI_SHIELD }, { "medpac", HI_MEDPAC },
+			{ "medpac_big", HI_MEDPAC_BIG }, { "binoculars", HI_BINOCULARS },
+			{ "sentry", HI_SENTRY_GUN }, { "jetpack", HI_JETPACK }, { "healthdisp", HI_HEALTHDISP },
+			{ "ammodisp", HI_AMMODISP }, { "eweb", HI_EWEB }, { "cloak", HI_CLOAK } };
+
+		scn.holdable = HI_NONE;
+		for ( i = 0; i < (int)ARRAY_LEN( holdables ); i++ ) {
+			if ( !Q_stricmp( arg, holdables[i].name ) ) {
+				scn.holdable = holdables[i].item;
+			}
+		}
+		if ( scn.holdable == HI_NONE ) {
+			trap->Print( "scenario: holdable seeker, shield, medpac, medpac_big, binoculars, sentry, jetpack, healthdisp, ammodisp, eweb or cloak\n" );
+			return;
+		}
+		scn.dist = (float)G_ScenarioArgInt( 4, 256 );
+		scn.type = SCN_HOLDABLE;
+	}
+	else if ( !Q_stricmp( type, "item" ) ) {
+		Q_strncpyz( scn.itemClass, arg, sizeof( scn.itemClass ) );
+		scn.dist = (float)G_ScenarioArgInt( 4, 128 );
+		scn.type = SCN_ITEM;
+	}
 	else {
-		trap->Print( "scenario: saber, force, weapon, turret, flag, objective, team, spectate or off\n" );
+		trap->Print( "scenario: saber, force, weapon, turret, flag, objective, team, spectate, holdable, item or off\n" );
+		return;
+	}
+	if ( scn.type != SCN_ITEM ) {
+		G_ScenarioOptString( "item", scn.itemClass, sizeof( scn.itemClass ) );
+	}
+	if ( scn.itemClass[0] && ( !scn.pickupDist || !BG_FindItem( scn.itemClass ) ) ) {
+		trap->Print( "scenario: an item needs pickup= and an item's classname\n" );
+		scn.type = SCN_NONE;
 		return;
 	}
 	if ( scn.spectatorMode != SPEC_NONE ) { // a bot spectator, or else a bot without a role made one
@@ -1647,7 +1880,10 @@ void Svcmd_Scenario_f( void ) {
 		vec3_t at;
 
 		VectorMA( scn.origin, scn.pickupDist, fwd, at );
-		if ( level.gametype == GT_HOLOCRON && scn.type == SCN_FORCE ) {
+		if ( scn.itemClass[0] ) { // an item of the map's kind, put back at every reset
+			scn.spawned[0] = scn.pickup = G_ScenarioSpawn( scn.itemClass, at, scn.yaw, 0, 0 );
+		}
+		else if ( level.gametype == GT_HOLOCRON && scn.type == SCN_FORCE ) {
 			scn.spawned[0] = scn.pickup = G_ScenarioSpawn( "misc_holocron", at, scn.yaw, 0, scn.power );
 		}
 		else if ( level.gametype == GT_JEDIMASTER && gJMSaberEnt && gJMSaberEnt->inuse ) {
@@ -1670,7 +1906,7 @@ void Svcmd_Scenario_f( void ) {
 			}
 		}
 		if ( !scn.pickup ) {
-			trap->Print( "scenario: pickup= needs a force scenario in a holocron game, a Jedi Master game, or a CTF or CTY game\n" );
+			trap->Print( "scenario: pickup= needs an item, a force scenario in a holocron game, a Jedi Master game, or a CTF or CTY game\n" );
 			scn.type = SCN_NONE;
 			return;
 		}

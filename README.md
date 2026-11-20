@@ -10,13 +10,14 @@ The main branch keeps two goldens: `scenarios_golden_step14.txt`, the counts of 
 
 ## What the branch changes
 
-Three files of the game module, nothing in the engine:
+Five files of the game module, nothing in the engine:
 
 | file | change |
 |---|---|
 | `codemp/game/g_scenario.c` | the scenarios: the `scenario` server command, the bots' scripts, the reset at every repetition, the statistics per role and the scores |
 | `codemp/game/g_svcmds.c` | the lines `gamestats` prints: the other force powers, the special saber moves started |
-| `codemp/game/g_local.h` | the counter of the special saber moves |
+| `codemp/game/g_local.h` | the counters of the special saber moves, the items picked up and the health taken from what is not a client |
+| `codemp/game/g_items.c`, `codemp/game/g_combat.c` | the items picked up and the health taken from what is not a client counted |
 
 The same changes are kept in the main branch as `docs_rewrite/modernization/tools/gamestats/scenarios_golden.patch`, so that this build can be made again without the branch (`git apply` in a worktree of the step 14 part 4b commit). After each part, the patch is written again from here:
 
@@ -50,7 +51,7 @@ It ends with `golden: SAME` when this build gives the recorded counts. The outpu
 
 ## The scenarios
 
-The full syntax is at the top of `codemp/game/g_scenario.c`. Two bots, an attacker and a defender, sometimes a third one as the attacker's ally, are placed face to face and reset at every repetition (2 s, or `rep=`), then play a fixed script of commands timed in milliseconds. The first repetition is not counted. The statistics of the counted ones are printed at the end. The script `scenarios.sh` gives each server its map, game type, bots and settings, and plays several scenarios of one group one after the other on the same server: 224 scenarios on 99 servers, about 2 min with 30 servers at a time. Outside free for all, a scenario's name starts with its game type (`duel_saber_fast_idle`).
+The full syntax is at the top of `codemp/game/g_scenario.c`. Two bots, an attacker and a defender, sometimes a third one as the attacker's ally, are placed face to face and reset at every repetition (2 s, or `rep=`), then play a fixed script of commands timed in milliseconds. The first repetition is not counted. The statistics of the counted ones are printed at the end. The script `scenarios.sh` gives each server its map, game type, bots and settings, and plays several scenarios of one group one after the other on the same server: 271 scenarios on 107 servers, about 2 min with 30 servers at a time. Outside free for all, a scenario's name starts with its game type (`duel_saber_fast_idle`).
 
 | group | scenarios | what they play |
 |---|---|---|
@@ -63,6 +64,7 @@ The full syntax is at the top of `codemp/game/g_scenario.c`. Two bots, an attack
 | game types (step 20, part 4a) | 33 | the holocron picked up, then its power used (lightning, push, heal), and a saber attack at the levels of the holocron game; the Jedi Master's saber picked up, then a saber attack or lightning; in the duel game type the saber cases of step 14, the locks and the force jump; in a power duel the five styles against the lone duelist; in a team game the attacker's teammate as the target, the friendly fire off and on, and a kill at every repetition for the team score |
 | game types (step 20, part 4b) | 17 | in CTF and CTY, the flags moved next to the bots at every reset: a capture, lightning used while carrying the flag (refused in CTY), the carrier killed by the defender's rocket and the flag returned; in siege, the siege's rules (the saber's attack, the disruptor's shot and sniper shot, the repeater's alternate, the rocket's lock at 0.9, 1.4 and 1.5 s, the pull of a defender facing the attacker or turned away) and an objective completed at every repetition; in free for all, the pull of a defender turned away |
 | teams and spectators (step 20, part 5) | 9 | in a team game the defender changes team at every repetition, then the same refused by the balance (`g_teamForceBalance 1`); in CTF the carrier changes team, which sends the flag back; in free for all a third bot made a spectator follows the attacker during a saber attack and a rocket, then the game's `follow1` and `follow2`, cycles with attack and the alternate attack then stops following with a jump, and flies forward as a free spectator |
+| items (step 20, part 6) | 47 | the 11 holdable items used (the medpacs, the binoculars, the cloak, the jetpack, the seeker, the sentry and the E-Web shooting at the defender, the shield its owner shoots into, the health and ammunition dispensers on a teammate, the ammunition thrown); every item picked up: the health, the two armours, a holdable item, every weapon and every ammunition; the four powerups before a force power |
 
 Each scenario prints, after its repetitions:
 
@@ -74,7 +76,8 @@ Each scenario prints, after its repetitions:
 - the saber attacks started and bounced by style, and the special saber moves started by move;
 - by role: the health and force gained and lost, the instants off the ground, knocked down, mind tricked and in a saber lock, the distance moved and the end place against the start;
 - what the counted repetitions added to the scores: each role's score and captures, the red and blue team scores;
-- by role, the spectator's included: the team changes, the instants as a free spectator and the distance moved then, the instants following each role and the distance from the player followed.
+- by role, the spectator's included: the team changes, the instants as a free spectator and the distance moved then, the instants following each role and the distance from the player followed;
+- the items picked up, the health taken from what is not a client by cause, and by role the armour and ammunition gained and lost and the instants cloaked, flying a jetpack and zoomed in.
 
 ## Differences with the build of the day
 
@@ -84,4 +87,4 @@ The two builds give the same counts but where a fix decided since changes them. 
 |---|---|---|
 | 19 November 2026 | the weapons' charge counted to the command that releases the button, no longer to the last 20 Hz instant, which was up to 50 ms earlier | 20 (the bryars', the bowcaster's, the DEMP2's, the sniper shot's, the rocket lock's and the thermal detonator's charges; since part 4b, the siege's sniper shot held 1.7 s and rocket lock held 1.5 s); in four of them the score too, since the charge decides whether every shot kills |
 
-The items, the vehicles and the NPCs (parts 6 to 8) are to come.
+The vehicles and the NPCs (parts 7 and 8) are to come.

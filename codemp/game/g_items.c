@@ -2579,6 +2579,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	if ( !respawn ) {
 		return;
 	}
+	g_stats.itemPickups[ent->item - bg_itemlist]++;
 
 	// play the normal pickup sound
 	if (predict) {
