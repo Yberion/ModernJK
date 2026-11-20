@@ -94,7 +94,7 @@ The documents of the study are numbered 01 to 08, in reading order, and their se
 
 | folder | content | read it when |
 |---|---|---|
-| `tools/` | The Python and C code used (see 06), the bot benches (`gamestats/`), the clock simulations (`clock/`), the math and random number benches (`mathlib/`, `rng/`), the prediction tool (`predict/`) | |
+| `tools/` | The Python and C code used (see 06), the bot benches (`gamestats/`; the scripted scenarios' goldens and every difference between them: [tools/gamestats/GOLDEN.md](tools/gamestats/GOLDEN.md)), the clock simulations (`clock/`), the math and random number benches (`mathlib/`, `rng/`), the prediction tool (`predict/`) | |
 | `data/` | The three real captures, a copy of `msg.cpp` (2.6 MB, 0.5 MB, 0.1 MB), the C benchmark input files (13 MB and two small crowd scenarios) | you want to re-run anything |
 | `bin/` | `jkabench.exe` and `jkabench_libs.exe`, the Windows x64 builds used for the CPU measurements of the study | you want to re-measure speed without compiling |
 

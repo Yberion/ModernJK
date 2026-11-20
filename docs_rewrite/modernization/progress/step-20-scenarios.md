@@ -11,10 +11,11 @@ The 40 scripted bot fights of plan step 14 (10 saber, 6 force, 24 weapon cases) 
 | 3 | the saber: thrown and blocked, the saber locks, the special moves | ✅ done (19 November 2026): Windows and Linux |
 | 4a | the game types without objectives: holocron, Jedi Master, duel, power duel, team | ✅ done (20 November 2026): Windows and Linux |
 | 4b | the game types with objectives: CTF, CTY, siege | ✅ done (20 November 2026): Windows and Linux |
-| 5 | teams and spectators | ⏳ |
+| 5 | teams and spectators | ✅ done (20 November 2026): Windows and Linux |
 | 6 | the holdable items and the items picked up | ⏳ |
 | 7 | the vehicles | ⏳ |
 | 8 | the NPCs | ⏳ |
+| 9 | the offsets between where each shot starts and the view (projectiles, emplaced gun, saber): why, and whether normal | ⏳ (decided 20 November 2026) |
 
 ## 2. The old commit
 
@@ -57,6 +58,7 @@ The dedicated server executes the archived settings of its configuration file, `
   - the option `away`: the defender turned away from the attacker;
   - in siege, a dead bot, or one waiting for the next wave as a spectator with 1 point of health (`ClientRespawn` with `g_siegeRespawn`), respawns at once (`ClientSpawn`, its corpse kept as `ClientRespawn` does);
   - push and pull: the defender knows the power when its level is above 0 (a siege class may not give it, and a power not known does not resist); the scenarios of before give the same counts.
+- Since part 5 (20 November 2026, section 13): `scenario team`, `scenario spectate`, `flag ... switch`, the options `spectator`, `spectator=follow1` and `spectator=follow2`, a fourth slot for the spectator, the line `team statistics`, a word option no longer read as a number.
 
 ## 6. Part 1: the force powers
 
@@ -77,6 +79,8 @@ What the counts show:
 | speed, telepathy, sight | nothing: their durations outlast the 2 s of a repetition, so the time held is the same at every level; the force spent and the mind-tricked instants are counted |
 
 ## 7. The golden
+
+Since 20 November 2026 the goldens have a document of their own, [../tools/gamestats/GOLDEN.md](../tools/gamestats/GOLDEN.md): the two files, their format and its history, every difference between them with its reason, the names given twice, the commands. The history below is kept.
 
 Recorded on 19 November 2026 at the old commit with `scenarios_golden.patch`: 84 scenarios, 672 lines. The build of the day gives the same 672 lines (no difference to explain for this part), and two runs of it the same file; the 40 cases of step 14 give the same counts as the golden of before this step, without its seventh line.
 
@@ -240,3 +244,33 @@ At the old commit, with the port (`scenarios_golden.patch`): the 17 scenarios gi
 On Linux (20 November 2026): the game module built by GCC 15 on the Linux VM and by MSVC, no warning; the 215 scenarios on the VPS: `golden: SAME`.
 
 Decided on 20 November 2026, after part 4b: the findings of parts 2 to 4b are the base game's (the same code in 1.01, `E:\Git\jka\jediacademy\codemp`) and are kept, nothing changed: the duel game type's saber locks (`w_saber.c`, a lock tried only above a clash's damage of 1), the power duel left in its intermission (`CheckIntermissionExit` the same), a saber lock's pushes read once per server frame (`g_active.c`, `saberLockHitCheckTime`), the single and dual sabers' cartwheel on the legs only (`bg_saber.c`, "force only on legs"), the staff's kicks (`G_KickTrace`), the emplaced gun's barrels 10 units beside the view (`WP_FireEmplaced`), the siege's second pull through a defender facing the puller (`w_force.c`, the arm free 200 ms after a pull and the 60 degrees). Of these, the duel's locks, the power duel's intermission and the staff's kicks were read in the code, not measured in the 1.01 game. The single player's view that does not turn, new in ModernJK, is fixed with plan step 15 (SDL 3).
+
+## 13. Part 5: teams and spectators
+
+Decided on 20 November 2026 ([../PLAN.md](../PLAN.md) step 20, the decisions of part 5), after reading the code of the team changes and the spectators: 9 scenarios of 48 repetitions on 5 servers.
+
+What the game does, read from the code (the same in 1.01):
+
+- A team change (`SetTeam`, the core of the `team` command, whose 5 s wait is not used) kills the player as a suicide (`MOD_SUICIDE`; the team's score is spared, `g_dontPenalizeTeam`), plays `EV_PLAYER_TELEPORT_OUT`, and the player starts again at once on a spawn point of its new team (`ClientBegin`). In CTF the carrier's suicide sends the flag back to its base (`player_die`), it does not drop it. With `g_teamForceBalance 1` (0 by default) a change is refused when the team joined would have two players more than the other, the player changing not counted.
+- A spectator following a player gets a copy of that player's state at the end of every tick (`SpectatorClientEndFrame`, called after the scenario's sample of the instant, so the copy measured is the previous tick's); attack follows the next player by client number, the alternate attack the previous one, a jump stops following (`SpectatorThink`). `follow1` and `follow2` (the commands `team follow1` and `follow2`) follow the first and second playing clients by client number, not by score (`CalculateRanks`). A free spectator flies at 400 units a second through the bodies, not through the walls.
+- `StopFollowing` clears the player's bot flag (`SVF_BOT`), in 1.01 too: a bot that stops following is no longer flagged as a bot; the scenario sets it again at every reset and at the scenario's end.
+
+The module (`codemp/game/g_scenario.cpp`):
+
+- `scenario team <reps> switch [distance]` (a team game, CTF or CTY): the defender changes to the other team at the start of the script; every reset puts it back in its team without a death (`sessionTeam`, `PERS_TEAM` and `ClientUserinfoChanged`, which writes the team in its configstring). The defender, so that the balance can refuse it: with two red bots and one blue, the blue one's change is refused (2 against 0), a red one's would not be (1 against 1).
+- `flag <reps> switch`: the carrier (the attacker, after taking the enemy flag through `pickup=`) changes team.
+- The options `spectator`, `spectator=follow1`, `spectator=follow2`: the first bot spectator, or else the first bot without a role (a third bot in free for all), made a spectator (`SetTeam`), follows the attacker by its number, or follows as `follow1` or `follow2`; it is reset to that at every repetition. `scenario spectate <reps> <cycle|fly> [distance]`: the players stand; cycle, the spectator following the attacker presses attack, then the alternate attack 500 ms later, then jumps 500 ms later; fly, a free spectator at the attacker's place, facing the defender, flies forward 1 s.
+- A word option is no longer read as the number expected at its place (`saber 48 medium idle spectator` took the distance 0: `atoi("spectator")`); the scenarios of before give the same counts.
+- A line `team statistics` in every scenario, by role, the spectator's included: the team changes, the instants as a free spectator and the distance moved then, the instants following the attacker, the defender and the ally, and the distance from the player followed. `gamestats_scn.py` keeps it; a scenario's statistics are now 11 lines (the window read after "scenario done" widened to 14).
+
+| server (map, game type) | scenarios | what the counts show |
+|---|---|---|
+| `team_switch` (`mp/ffa3`, 6; attacker, defender, ally) | the defender changes team (`team 48 switch`) | 48 changes and 48 suicides (`MOD_SUICIDE`, `EV_PLAYER_TELEPORT_OUT` and `IN`), the defender respawned on the other team's spawn points |
+| `team_switch_balance` (`mp/ffa3`, 6, `g_teamForceBalance 1`) | the same | refused: no change, no death (its name is `team_team_switch` too, told apart by its place in the file) |
+| `ctf_switch` (`mp/ctf3`, 8; attacker, defender) | the carrier changes team (`flag 48 switch 128 pickup=64`) | 48 changes, the flag back to its base each time (two CTF messages per repetition: taken, returned), no capture |
+| `spectator_follow` (`mp/ffa3`, 0; three bots) | the spectator follows the attacker during the medium style's attack and a rocket shot (`spectator`), then the rocket shot with `spectator=follow1` and `follow2` | following all 1,920 instants; the distance from the player followed is the tick of delay of the measure (1,732 during the saber's attack, 541 during the rocket); `follow1` the attacker (client 0), the same counts as `spectator`; `follow2` the defender (client 1), thrown by the rocket (8,309) |
+| `spectator_commands` (`mp/ffa3`, 0; three bots) | the follow commands (`spectate 48 cycle`); the free flight (`spectate 48 fly`) | per repetition 20 instants following the attacker (before and after the two commands), 10 the defender, 10 free after the jump; the flight 439 units a repetition (21,058 in 48), through the defender |
+
+At the old commit, with the port (`scenarios_golden.patch`): the 9 scenarios give the same counts as the build of the day; the two files still differ by the 53 lines of the charge (section 9 and 12). Without the new line, the 215 scenarios of before give the same counts as the goldens of before. Two runs of the build of the day give the same file. 224 scenarios on 99 servers, about 2 min on the development machine (30 servers at a time).
+
+On Linux (20 November 2026): the game module built by GCC 15 on the Linux VM and by MSVC, no warning; the 224 scenarios on the VPS: `golden: SAME`.

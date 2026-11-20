@@ -127,6 +127,19 @@ cases() {
 	echo "siege_saber_weapons|$siege||saber 48 medium idle;weapon 48 6 0;weapon 48 6 1 256 hold=1700 rep=3600;weapon 48 8 1"
 	echo "siege_rocket|$siege||weapon 48 11 1 256 hold=900 rep=3000;weapon 48 11 1 256 hold=1400 rep=3000;weapon 48 11 1 256 hold=1500 rep=3000"
 	echo "siege_pull_objective|$siege|$force|force 48 pull 3 128 3;force 48 pull 3 128 3 away;objective 48 2"
+	# step 20, teams and spectators (part 5). In a team game the defender changes team at every repetition (a suicide,
+	# not counted against its team, then a spawn point of its new team; the reset puts it back without a death), then
+	# the same refused by the balance (g_teamForceBalance 1: two red against one blue); in CTF the carrier changes team,
+	# which sends the flag back to its base; in free for all a third bot made a spectator follows the attacker during the
+	# medium style's attack and a rocket, then the game's follow1 and follow2 (the first and second players by client
+	# number), cycles with attack and the alternate attack then stops following with a jump, and flies forward 1 s as a
+	# free spectator, through the defender
+	echo "team_switch|$team||team 48 switch"
+	echo "team_switch_balance|$team|g_teamForceBalance 1|team 48 switch"
+	echo "ctf_switch|mp/ctf3|8|Jedi:red Reborn:blue|capturelimit 0|flag 48 switch 128 pickup=64"
+	local spec="mp/ffa3|0|Jedi Reborn Jedi"
+	echo "spectator_follow|$spec|$wd|saber 48 medium idle spectator;weapon 48 11 0 spectator;weapon 48 11 0 spectator=follow1;weapon 48 11 0 spectator=follow2"
+	echo "spectator_commands|$spec||spectate 48 cycle;spectate 48 fly"
 }
 
 one() {
