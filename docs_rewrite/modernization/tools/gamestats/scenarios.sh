@@ -37,6 +37,8 @@ cases() {
 		l="force 48 $f 1;force 48 $f 2;force 48 $f 3"
 		# push and pull: the defender at level 0 in the power, then at level 3, which resists a push of level 3
 		case $f in push|pull) l="$l;force 48 $f 3 128 3" ;; esac
+		# the pull of a defender turned away, countered in free for all (not in siege: part 4b)
+		case $f in pull) l="$l;force 48 pull 3 128 3 away" ;; esac
 		echo "force_${f}_levels|$ffa|$force|$l"
 	done
 	for f in teamheal teamforce; do echo "force_${f}_levels|$team|$force|force 48 $f 1;force 48 $f 2;force 48 $f 3"; done
@@ -102,6 +104,29 @@ cases() {
 	l="saber 48 medium idle target=ally;weapon 48 12 0 256 target=ally;force 48 lightning 3 128 target=ally"
 	echo "team_friendlyfire0|$team|$wd;$force|$l;saber 48 dual back"
 	echo "team_friendlyfire1|$team|$wd;$force;g_friendlyFire 1;g_friendlySaber 1|$l"
+	# step 20, the game types with objectives (part 4b). CTF and CTY (mp/ctf3, capturelimit 0, which would end the game
+	# after 8 captures): at every reset the flags at their bases, the enemy flag 64 units in front of the attacker
+	# (pickup=), its own as far behind it (an item is touched from 44 to 50 units away, BG_PlayerTouchesItem); a capture,
+	# with the ally beside the attacker for the team bonus; lightning used while carrying the flag (refused in CTY); the
+	# carrier killed by the defender's rocket, then the flag dropped returned, without the ally, whom the rocket's splash
+	# would hurt
+	local g n
+	for g in 8 9; do
+		if [ "$g" = 8 ]; then n=ctf; else n=cty; fi
+		echo "${n}_capture|mp/ctf3|$g|Jedi:red Reborn:blue Jedi:red|capturelimit 0;$force|flag 48 capture 128 pickup=64;force 48 lightning 3 128 pickup=64"
+		echo "${n}_return|mp/ctf3|$g|Jedi:red Reborn:blue|capturelimit 0|flag 48 return 256 pickup=64 rep=3000"
+	done
+	# siege (mp/siege_hoth; the bots take their team's first class, which gives no force power and imposes no saber
+	# style; a dead bot respawned at once): the siege's rules, the saber's attack (the attacker's level tripled, the
+	# damage not doubled), the disruptor's shot (50 instead of 30) and sniper shot (the charge capped at 200 instead of
+	# 60: held 1.7 s as in free for all), the repeater's alternate (a smaller splash), the rocket's lock (homing from
+	# 1.5 s held instead of 0.75 s), the pull of a defender turned away (not countered); the imperials' objective 2
+	# completed at every repetition (it neither counts for the round nor fires a target); each server well under the
+	# round's 20 minutes
+	local siege="mp/siege_hoth|7|Jedi:red Reborn:blue"
+	echo "siege_saber_weapons|$siege||saber 48 medium idle;weapon 48 6 0;weapon 48 6 1 256 hold=1700 rep=3600;weapon 48 8 1"
+	echo "siege_rocket|$siege||weapon 48 11 1 256 hold=900 rep=3000;weapon 48 11 1 256 hold=1400 rep=3000;weapon 48 11 1 256 hold=1500 rep=3000"
+	echo "siege_pull_objective|$siege|$force|force 48 pull 3 128 3;force 48 pull 3 128 3 away;objective 48 2"
 }
 
 one() {

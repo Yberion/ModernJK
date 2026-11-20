@@ -29,12 +29,21 @@
 //   pack thrown first; the emplaced gun (17) is spawned in front of the attacker, which mounts it with the use key
 // scenario turret <reps> <g2|hoth> [distance]
 //   a turret spawned between the bots (misc_turretG2 or misc_turret) fires at the defender, the attacker untargeted
+// scenario flag <reps> <capture|return> [distance] (CTF and CTY, with pickup=)
+//   capture: the attacker takes the enemy flag, then walks back onto its own; return: the defender kills the carrier
+//   with a rocket, then runs onto the flag dropped, which goes back to its base
+// scenario objective <reps> <number> [distance] (siege)
+//   the attacker completes its team's objective of that number at the start of every repetition, which then is not
+//   complete again at the next reset (an objective that neither counts for the round nor fires a target)
 // scenario off
 // Options after the arguments: hold=<ms>, rep=<ms> (a repetition, 2000; the scripts read it to wait for the end);
 // pickup=<units> (plan step 20, the game types: in a holocron game a holocron of the force scenario's power, in a Jedi
-// Master game the Jedi Master's saber, put that far in front of the attacker, which walks onto it before its script);
-// target=ally (in a team game the attacker's teammate takes the defender's place and role, the defender the ally's).
-// The bots are the first ones that are not spectators; in a power duel the defender is the lone duelist.
+// Master game the Jedi Master's saber, in CTF and CTY the enemy flag, put that far in front of the attacker, which
+// walks onto it before its script; in CTF and CTY the attacker's own flag as far behind it);
+// target=ally (in a team game the attacker's teammate takes the defender's place and role, the defender the ally's);
+// away (the defender turned away from the attacker).
+// The bots are the first ones that are not spectators; in a power duel the defender is the lone duelist. In siege a
+// dead bot is respawned at once, not at the next wave.
 
 #include "g_local.h"
 
@@ -49,6 +58,9 @@ extern bool G_CallSpawn( gentity_t *ent );
 extern void G_Knockdown( gentity_t *victim );
 extern void HolocronRespawn( gentity_t *self );
 extern void ThrowSaberToAttacker( gentity_t *self, gentity_t *attacker );
+extern gentity_t *Team_ResetFlag( team_t team );
+extern void Team_ResetFlags( void );
+extern void G_SiegeSetObjectiveComplete( team_t team, int objective, bool failIt );
 
 constexpr int SCN_REP_MSEC = 2000;	// one repetition
 constexpr int SCN_SETTLE_MSEC = 500;		// still, after the reset, before the script starts
@@ -60,7 +72,15 @@ enum class scenarioType_t {
 	SCN_SABER,
 	SCN_FORCE,
 	SCN_WEAPON,
-	SCN_TURRET
+	SCN_TURRET,
+	SCN_FLAG,
+	SCN_OBJECTIVE
+};
+
+// what the bots do in a flag scenario
+enum class flagMode_t {
+	FM_CAPTURE,
+	FM_RETURN
 };
 
 // what the bots do in a saber scenario, in the order of the names the command takes
@@ -103,8 +123,14 @@ static struct {
 	int				repMsec;		// a repetition (option rep=)
 	bool			turretG2;		// misc_turretG2, else misc_turret
 	gentity_t		*spawned[2];	// what the scenario spawned (the emplaced gun, a turret and its top), freed at its end
-	gentity_t		*pickup;		// pickup=: the holocron (spawned) or the Jedi Master's saber (the map's)
+	gentity_t		*pickup;		// pickup=: the holocron (spawned), the Jedi Master's saber or the enemy flag (the map's)
 	float			pickupDist;		// pickup=: its distance in front of the attacker, 0 without
+	gentity_t		*ownFlag;		// pickup= in CTF and CTY: the attacker's flag, as far behind it
+	vec3_t			flagSpot[2];	// the two flags' places, the enemy's then the attacker's
+	flagMode_t		flagMode;
+	gentity_t		*objective;		// the siege objective the attacker completes
+	bool			objectiveUsed;	// in the current repetition
+	bool			away;			// the defender turned away from the attacker
 	float			dist;			// between the two origins
 	vec3_t			origin;			// the attacker's place, facing yaw
 	float			yaw;
@@ -153,6 +179,11 @@ static float G_ScenarioAttackerYaw( void ) {
 	return back ? AngleNormalize360( scn.yaw + 180 ) : scn.yaw;
 }
 
+// the defender's view: towards the attacker, or away from it (option away)
+static float G_ScenarioDefenderYaw( void ) {
+	return scn.away ? scn.yaw : AngleNormalize360( scn.yaw + 180 );
+}
+
 // the ally's place: beside the attacker, on its right
 static void G_ScenarioAllyPlace( const vec3_t origin, float yaw, vec3_t out ) {
 	const vec3_t right = { Q_sinpif( yaw / 180.0f ), -Q_cospif( yaw / 180.0f ), 0 };
@@ -160,13 +191,45 @@ static void G_ScenarioAllyPlace( const vec3_t origin, float yaw, vec3_t out ) {
 	VectorMA( origin, 64, right, out );
 }
 
+// a player's box goes from start to place, where it has a floor at start's height
+static bool G_ScenarioOpenFloor( const vec3_t start, const vec3_t place ) {
+	const vec3_t mins = { -15, -15, DEFAULT_MINS_2 };
+	const vec3_t maxs = { 15, 15, DEFAULT_MAXS_2 };
+	vec3_t below;
+	trace_t tr;
+
+	trap->Trace( &tr, start, mins, maxs, place, ENTITYNUM_NONE, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0 );
+	if ( tr.fraction < 1.0f || tr.startsolid || tr.allsolid ) {
+		return false;
+	}
+	VectorCopy( place, below );
+	below[2] -= 48;
+	trap->Trace( &tr, place, mins, maxs, below, ENTITYNUM_NONE, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0 );
+	return tr.fraction < 1.0f && !tr.startsolid && tr.endpos[2] >= start[2] - 24;
+}
+
+// the spawn points in turn: free for all's, then CTF's, then siege's, for the maps without the first kind (plan step
+// 20, the game types)
+static gentity_t *G_ScenarioNextSpot( gentity_t *spot, size_t *kind ) {
+	static const char *const kinds[] = { "info_player_deathmatch", "team_CTF_redspawn", "team_CTF_bluespawn",
+		"info_player_siegeteam1", "info_player_siegeteam2" };
+
+	for ( ; *kind < ARRAY_LEN( kinds ); ( *kind )++, spot = nullptr ) {
+		if ( ( spot = G_Find( spot, FOFS( classname ), kinds[*kind] ) ) != nullptr ) {
+			return spot;
+		}
+	}
+	return nullptr;
+}
+
 // a place where the attacker stands on a spawn point and the defender on the floor in front of it
 static bool G_ScenarioFindPlace( void ) {
 	const vec3_t mins = { -15, -15, DEFAULT_MINS_2 };
 	const vec3_t maxs = { 15, 15, DEFAULT_MAXS_2 };
 	gentity_t *spot = nullptr;
+	size_t kind = 0;
 
-	while ( ( spot = G_Find( spot, FOFS( classname ), "info_player_deathmatch" ) ) != nullptr ) {
+	while ( ( spot = G_ScenarioNextSpot( spot, &kind ) ) != nullptr ) {
 		vec3_t fwd, start, front, below;
 		trace_t tr;
 
@@ -189,14 +252,16 @@ static bool G_ScenarioFindPlace( void ) {
 			vec3_t ally;
 
 			G_ScenarioAllyPlace( start, spot->s.angles[YAW], ally );
-			trap->Trace( &tr, start, mins, maxs, ally, ENTITYNUM_NONE, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0 );
-			if ( tr.fraction < 1.0f || tr.startsolid || tr.allsolid ) {
+			if ( !G_ScenarioOpenFloor( start, ally ) ) {
 				continue;
 			}
-			VectorCopy( ally, below );
-			below[2] -= 48;
-			trap->Trace( &tr, ally, mins, maxs, below, ENTITYNUM_NONE, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0 );
-			if ( tr.fraction >= 1.0f || tr.startsolid || tr.endpos[2] < start[2] - 24 ) {
+		}
+		if ( scn.pickupDist && ( level.gametype == gametype_t::GT_CTF || level.gametype == gametype_t::GT_CTY ) ) {
+			// the attacker's flag behind it, where it walks back to
+			vec3_t behind;
+
+			VectorMA( start, -scn.pickupDist, fwd, behind );
+			if ( !G_ScenarioOpenFloor( start, behind ) ) {
 				continue;
 			}
 		}
@@ -259,8 +324,24 @@ static void G_ScenarioPlace( gentity_t *ent, const vec3_t origin, float yaw ) {
 	vec3_t angles = { 0, 0, 0 };
 	int i, j;
 
-	if ( ent->health <= 0 || client->ps.stats[statIndex_t::STAT_HEALTH] <= 0 ) {
+	if ( level.gametype == gametype_t::GT_SIEGE
+		&& ( ent->health <= 0 || client->ps.stats[statIndex_t::STAT_HEALTH] <= 0 || client->tempSpectate >= level.time ) ) {
+		// in siege the dead wait for the next wave as spectators with 1 point of health (ClientRespawn, g_siegeRespawn):
+		// respawned at once, as ClientRespawn does in the other game types
+		if ( client->tempSpectate < level.time ) {
+			MaintainBodyQueue( ent );
+		}
+		client->tempSpectate = 0;
+		ClientSpawn( ent );
+	}
+	else if ( ent->health <= 0 || client->ps.stats[statIndex_t::STAT_HEALTH] <= 0 ) {
 		ClientRespawn( ent );
+	}
+	if ( level.gametype == gametype_t::GT_CTF || level.gametype == gametype_t::GT_CTY ) {
+		// the times the flag bonuses look back to (10 s for an assist, 8 s for a carrier's defence), longer than a
+		// repetition: set by the free play or the previous repetition
+		client->pers.teamState.lasthurtcarrier = client->pers.teamState.lastreturnedflag = 0;
+		client->pers.teamState.lastfraggedcarrier = client->pers.teamState.flagsince = 0;
 	}
 	G_ScenarioSaberToHand( ent );
 	// the blades' last positions, from before the bot is moved here: the first sweep of a repetition would start from them
@@ -361,6 +442,10 @@ static void G_ScenarioEquip( gentity_t *ent, bool attacker ) {
 	if ( scn.type == scenarioType_t::SCN_FORCE && !attacker
 		&& ( scn.power == forcePowers_t::FP_PUSH || scn.power == forcePowers_t::FP_PULL ) ) {
 		client->ps.fd.forcePowerLevel[scn.power] = scn.defenderLevel;
+		if ( scn.defenderLevel > forcePowerLevels_t::FORCE_LEVEL_0 ) {
+			// a power not known does not resist (CanCounterThrow), and a siege class may not give it (WP_InitForcePowers)
+			client->ps.fd.forcePowersKnown |= Bit( scn.power );
+		}
 	}
 	if ( scn.type == scenarioType_t::SCN_SABER && attacker && scn.saberMode > saberMode_t::SM_LOCK ) {
 		// the jumps, rolls and the staff's back flip need the jump at level 2 at least
@@ -373,9 +458,11 @@ static void G_ScenarioEquip( gentity_t *ent, bool attacker ) {
 	}
 
 	if ( scn.type == scenarioType_t::SCN_WEAPON || scn.type == scenarioType_t::SCN_TURRET
-		|| ( scn.type == scenarioType_t::SCN_FORCE && scn.power == forcePowers_t::FP_SABERTHROW && !attacker ) ) {
-		// the defender cannot block with a saber
-		weapon_t weapon = ( attacker && scn.type == scenarioType_t::SCN_WEAPON ) ? scn.weapon : weapon_t::WP_MELEE;
+		|| ( scn.type == scenarioType_t::SCN_FORCE && scn.power == forcePowers_t::FP_SABERTHROW && !attacker )
+		|| ( scn.type == scenarioType_t::SCN_FLAG && scn.flagMode == flagMode_t::FM_RETURN && !attacker ) ) {
+		// the defender cannot block with a saber; in a flag's return it kills the carrier with a rocket
+		weapon_t weapon = ( attacker && scn.type == scenarioType_t::SCN_WEAPON ) ? scn.weapon
+			: ( scn.type == scenarioType_t::SCN_FLAG ) ? weapon_t::WP_ROCKET_LAUNCHER : weapon_t::WP_MELEE;
 
 		if ( weapon == weapon_t::WP_EMPLACED_GUN ) { // the hands free to mount the gun, which takes the place of the weapon
 			client->ps.ammo[weaponData[weapon].ammoIndex] = 999;
@@ -548,12 +635,48 @@ static void G_ScenarioReleaseGun( void ) {
 	gun->genericValue1 = 0;
 }
 
+// a flag's place: on the floor below the point
+static void G_ScenarioFlagSpot( const gentity_t *flag, const vec3_t at, vec3_t spot ) {
+	vec3_t below;
+	trace_t tr;
+
+	VectorCopy( at, below );
+	below[2] -= 128;
+	trap->Trace( &tr, at, flag->r.mins, flag->r.maxs, below, flag->s.number, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0 );
+	VectorCopy( tr.endpos, spot );
+}
+
+// the flag the carrier dropped in a flag's return: the defender's, the one the attacker took
+static gentity_t *G_ScenarioDroppedFlag( void ) {
+	gentity_t *flag = nullptr;
+
+	while ( ( flag = G_Find( flag, FOFS( classname ), scn.pickup->classname ) ) != nullptr ) {
+		if ( Any( flag->flags & gentityFlags_t::FL_DROPPED_ITEM ) ) {
+			return flag;
+		}
+	}
+	return nullptr;
+}
+
 // at every reset: nobody the Jedi Master any more (its saber dropped as at its death without a killer, back to its spot,
 // ThrowSaberToAttacker), and the holocron or the Jedi Master's saber of pickup= back in its place; the free play or the
-// previous repetition left them taken (the holocrons carried are cleared by G_ScenarioPlace)
+// previous repetition left them taken (the holocrons carried are cleared by G_ScenarioPlace); in CTF and CTY the flags
+// at their bases, the dropped ones freed (a carried one is cleared by G_ScenarioPlace), and the bases next to the
+// scenario
 static void G_ScenarioReturnPickup( void ) {
 	gentity_t *p = scn.pickup;
 
+	if ( p && ( level.gametype == gametype_t::GT_CTF || level.gametype == gametype_t::GT_CTY ) ) {
+		gentity_t *flags[2] = { p, scn.ownFlag };
+
+		Team_ResetFlags();
+		for ( int i = 0; i < 2; i++ ) {
+			G_SetOrigin( flags[i], scn.flagSpot[i] );
+			VectorCopy( scn.flagSpot[i], flags[i]->s.origin );
+			trap->LinkEntity( (sharedEntity_t *)flags[i] );
+		}
+		return;
+	}
 	if ( level.gametype == gametype_t::GT_JEDIMASTER ) {
 		for ( int i = 0; i < scn.numClients; i++ ) {
 			gentity_t *ent = &g_entities[scn.client[i]];
@@ -632,8 +755,12 @@ void G_ScenarioFrame( void ) {
 	VectorMA( scn.origin, scn.dist, fwd, front );
 	G_ScenarioReleaseGun();
 	G_ScenarioReturnPickup();
+	if ( scn.type == scenarioType_t::SCN_OBJECTIVE ) { // not complete, completed again in the repetition
+		G_SiegeSetObjectiveComplete( scn.objective->side, scn.objective->objective, true );
+		scn.objectiveUsed = false;
+	}
 	G_ScenarioPlace( &g_entities[scn.client[0]], scn.origin, G_ScenarioAttackerYaw() );
-	G_ScenarioPlace( &g_entities[scn.client[1]], front, AngleNormalize360( scn.yaw + 180 ) );
+	G_ScenarioPlace( &g_entities[scn.client[1]], front, G_ScenarioDefenderYaw() );
 	G_ScenarioEquip( &g_entities[scn.client[0]], true );
 	G_ScenarioEquip( &g_entities[scn.client[1]], false );
 	if ( scn.type == scenarioType_t::SCN_SABER && scn.saberMode == saberMode_t::SM_LOCK && level.gametype != gametype_t::GT_DUEL ) {
@@ -892,7 +1019,32 @@ bool G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd ) {
 	memset( ucmd, 0, sizeof( *ucmd ) );
 	ucmd->serverTime = t;
 	UC_SetWeapon( *ucmd, ent->client->ps.weapon );
-	view[YAW] = attacker ? G_ScenarioAttackerYaw() : AngleNormalize360( scn.yaw + 180 );
+	view[YAW] = attacker ? G_ScenarioAttackerYaw() : G_ScenarioDefenderYaw();
+	if ( !attacker && scn.type == scenarioType_t::SCN_FLAG && scn.flagMode == flagMode_t::FM_RETURN ) {
+		const gentity_t *flag = G_ScenarioDroppedFlag();
+		vec3_t to;
+
+		if ( flag ) { // the defender turns to the flag the carrier dropped
+			VectorSubtract( flag->r.currentOrigin, ent->client->ps.origin, to );
+			view[YAW] = vectoyaw( to );
+		}
+		else { // it aims the rocket launcher's muzzle (beside and below the eyes) at the carrier's chest, which a rocket
+			// kills: the legs and the arms take less (G_LocationBasedDamageModifier), and a carrier hurt is thrown back
+			// onto its own flag
+			vec3_t target, fwd, right, up, muzzle;
+
+			VectorCopy( g_entities[scn.client[0]].client->ps.origin, target );
+			target[2] += 16;
+			VectorCopy( ent->client->ps.origin, muzzle );
+			muzzle[2] += ent->client->ps.viewheight;
+			VectorSubtract( target, muzzle, to );
+			vectoangles( to, view );	// from the eyes
+			AngleVectors( view, fwd, right, up );
+			CalcMuzzlePoint( ent, fwd, right, up, muzzle );
+			VectorSubtract( target, muzzle, to );
+			vectoangles( to, view );	// from the muzzle
+		}
+	}
 	if ( attacker && scn.type == scenarioType_t::SCN_WEAPON && scn.weapon == weapon_t::WP_EMPLACED_GUN && scn.repStart && phase >= 0 ) {
 		// the use key's trace leaves the eyes level with the top of the gun's box: looking down at it; then 2 degrees up,
 		// since the two barrels fire 10 units left and right of the view, beside the model of a defender aimed at
@@ -1012,6 +1164,27 @@ bool G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd ) {
 		}
 		break;
 	}
+	case scenarioType_t::SCN_FLAG:
+		if ( scn.flagMode == flagMode_t::FM_CAPTURE ) { // the enemy flag taken, back onto its own
+			if ( attacker && phase < 800 ) {
+				ucmd->forwardmove = -127;
+			}
+		}
+		else if ( !attacker ) { // the carrier shot, then a run onto the flag dropped once it has landed
+			if ( phase < 50 ) {
+				ucmd->buttons = buttonFlags_t::BUTTON_ATTACK;
+			}
+			else if ( phase >= 700 && G_ScenarioDroppedFlag() ) {
+				ucmd->forwardmove = 127;
+			}
+		}
+		break;
+	case scenarioType_t::SCN_OBJECTIVE:
+		if ( attacker && !scn.objectiveUsed ) { // used by the attacker, as when a player completes it
+			scn.objectiveUsed = true;
+			scn.objective->use( scn.objective, ent, ent );
+		}
+		break;
 	default:
 		break;
 	}
@@ -1117,6 +1290,7 @@ void Svcmd_Scenario_f( void ) {
 		}
 	}
 	scn.pickupDist = (float)G_ScenarioOpt( "pickup", 0 );
+	scn.away = G_ScenarioOptIs( "away" );
 	scn.reps = G_ScenarioArgInt( 2, 100 );
 	trap->Argv( 3, arg, sizeof( arg ) );
 	if ( !Q_stricmp( type, "saber" ) ) {
@@ -1180,8 +1354,29 @@ void Svcmd_Scenario_f( void ) {
 		scn.dist = (float)G_ScenarioArgInt( 4, 256 );
 		scn.type = scenarioType_t::SCN_TURRET;
 	}
+	else if ( !Q_stricmp( type, "flag" ) ) {
+		scn.flagMode = Q_stricmp( arg, "return" ) ? flagMode_t::FM_CAPTURE : flagMode_t::FM_RETURN;
+		scn.dist = (float)G_ScenarioArgInt( 4, 128 );
+		scn.type = scenarioType_t::SCN_FLAG;
+	}
+	else if ( !Q_stricmp( type, "objective" ) ) {
+		const team_t team = g_entities[scn.client[0]].client->sess.sessionTeam;
+		const int number = atoi( arg );
+		gentity_t *o = nullptr;
+
+		while ( ( o = G_Find( o, FOFS( classname ), "info_siege_objective" ) ) != nullptr
+			&& ( o->objective != number || o->side != team ) ) {
+		}
+		if ( !o ) {
+			trap->Print( "scenario: no siege objective %d of the attacker's team\n", number );
+			return;
+		}
+		scn.objective = o;
+		scn.dist = (float)G_ScenarioArgInt( 4, 128 );
+		scn.type = scenarioType_t::SCN_OBJECTIVE;
+	}
 	else {
-		trap->Print( "scenario: saber, force, weapon, turret or off\n" );
+		trap->Print( "scenario: saber, force, weapon, turret, flag, objective or off\n" );
 		return;
 	}
 	if ( !G_ScenarioFindPlace() ) {
@@ -1223,7 +1418,7 @@ void Svcmd_Scenario_f( void ) {
 			return;
 		}
 	}
-	if ( scn.pickupDist ) { // the holocron or the Jedi Master's saber in front of the attacker, on the way to the defender
+	if ( scn.pickupDist ) { // the holocron, the Jedi Master's saber or the enemy flag in front of the attacker, on the way to the defender
 		const vec3_t fwd = { Q_cospif( scn.yaw / 180.0f ), Q_sinpif( scn.yaw / 180.0f ), 0 };
 		vec3_t at;
 
@@ -1235,11 +1430,31 @@ void Svcmd_Scenario_f( void ) {
 			scn.pickup = gJMSaberEnt;
 			VectorCopy( at, scn.pickup->s.origin2 );	// its spot from now on (ThrowSaberToAttacker), placed at every reset
 		}
+		else if ( level.gametype == gametype_t::GT_CTF || level.gametype == gametype_t::GT_CTY ) {
+			// the flags' bases from now on, the attacker's own flag behind it; placed at every reset
+			const team_t team = g_entities[scn.client[0]].client->sess.sessionTeam;
+
+			scn.pickup = Team_ResetFlag( OtherTeam( team ) );
+			scn.ownFlag = Team_ResetFlag( team );
+			if ( scn.pickup && scn.ownFlag ) {
+				G_ScenarioFlagSpot( scn.pickup, at, scn.flagSpot[0] );
+				VectorMA( scn.origin, -scn.pickupDist, fwd, at );
+				G_ScenarioFlagSpot( scn.ownFlag, at, scn.flagSpot[1] );
+			}
+			else {
+				scn.pickup = nullptr;
+			}
+		}
 		if ( !scn.pickup ) {
-			trap->Print( "scenario: pickup= needs a force scenario in a holocron game or a Jedi Master game\n" );
+			trap->Print( "scenario: pickup= needs a force scenario in a holocron game, a Jedi Master game, or a CTF or CTY game\n" );
 			scn.type = scenarioType_t::SCN_NONE;
 			return;
 		}
+	}
+	if ( scn.type == scenarioType_t::SCN_FLAG && !scn.ownFlag ) {
+		trap->Print( "scenario: flag needs a CTF or CTY game and pickup=\n" );
+		scn.type = scenarioType_t::SCN_NONE;
+		return;
 	}
 	scn.traceReps = trap->Cvar_VariableIntegerValue( "scenario_trace" );
 	trap->Print( "scenario %s: %d repetitions of %d ms, bots %d and %d, distance %.0f\n", type, scn.reps, scn.repMsec,
