@@ -16,6 +16,7 @@ The 40 scripted bot fights of plan step 14 (10 saber, 6 force, 24 weapon cases) 
 | 7 | the vehicles | ✅ done (20 November 2026): Windows and Linux |
 | 8 | the NPCs | ✅ done (20 November 2026): Windows and Linux |
 | 9 | the offsets between where each shot starts and the view (projectiles, emplaced gun, saber): why, and whether normal | ✅ done (20 November 2026): [../surveys/shot-offsets.md](../surveys/shot-offsets.md) |
+| 10 | the offsets fixed, as Unreal Engine 5 does: 10a, the scenarios that show them; 10b, the fix | ⏳ 10a done (20 November 2026): Windows and Linux |
 
 ## 2. The old commit
 
@@ -406,4 +407,25 @@ While writing it (20 November 2026):
 - The search found no primary source from Riot or Valve on where VALORANT's and Counter-Strike 2's shots start; the survey cites what they published and marks the rest as the players' accounts.
 - The line of [../CHANGES.md](../CHANGES.md) "The pain delay of a creature or a droid" cited the rancor: in multiplayer the rancor, the wampa and the howler have pain functions of their own (`NPC_Rancor_Pain`, `NPC_Wampa_Pain`, `NPC_Howler_Pain`) that never reach `NPC_ChoosePainAnimation`, as in 1.01; 11 animation sets, not 14, have `BOTH_PAIN1` faster than the humanoid's. The line now names the NPCs that reach it.
 
-Two runs of `shot_offsets.sh` gave the same counts on all their 243 lines. With part 9, step 20 is done.
+Two runs of `shot_offsets.sh` gave the same counts on all their 243 lines. With part 9, step 20 was done; part 10 fixes the five defects (section 18).
+
+## 18. Part 10: the shots' offsets fixed
+
+Decided on 20 November 2026 ([../PLAN.md](../PLAN.md) step 20, the decisions after part 9): the five defects of the survey fixed, as Unreal Engine 5's documentation does, for every shooter alike: the point aimed at is the end of a ray from the eyes along the view, the projectiles leave the real muzzle of the weapon's model turned towards it, the beams are traced from the eyes, the NPCs and the bots aim at the chest of the model they see, the crosshair is drawn where the shot lands (`cg_dynamicCrosshair` removed, its default kept), the swoop's crosshair follows its lasers. In two commits: 10a, the scenarios that show the offsets, recorded before the fix; 10b, the fix.
+
+### 10a: the scenarios that show the offsets
+
+The module (`codemp/game/g_scenario.cpp`), with no change to the game:
+
+- the options `aim=eyes` and `aim=muzzle` of the weapon scenarios: the attacker's view on the defender's head (the bolt `*head_eyes` of its model) or, with `at=chest`, its chest (`thoracic`), from the eyes, as a bot, an NPC or a crosshair at the centre of the screen aims, or from the weapon's muzzle point (`CalcMuzzlePoint`), as the dynamic crosshair shows; on the emplaced gun, once mounted, from the point between its barrels, which its crosshair shows;
+- a line `hit location statistics` in every scenario: by role, the hits by location that the location-based damage finds (`G_LocationBasedDamageModifier`, counted in `g_combat.cpp`), the names of `hitLocName` with their spaces as underscores; `gamestats_scn.py` keeps it, a scenario's statistics are 15 lines.
+
+| server (`mp/ffa3`, free for all) | scenarios | what the counts show (8 repetitions in the survey, 48 here) |
+|---|---|---|
+| `weapon_aim1` | the bryar, the DEMP2 and the rocket launcher, the head aimed at from the eyes, then from the muzzle point, 256 units away | the bryar's bolt (no box) hits the head either way, 6 units off its eyes point from the eyes; the DEMP2's and the rocket's (boxes of 4 and 6) hit the right arm from the eyes, the head from the muzzle point |
+| `weapon_aim2` | the concussion rifle's missile and beam, the disruptor, the same | the missile hits the left hand from the eyes, the head from the muzzle point; the beam, the same way from both; the disruptor, from the eyes, hits the head from the eyes and nothing from the muzzle point, which it does not start from |
+| `weapon_17` (one more) | the emplaced gun aimed at the chest from between its barrels | the bolts pass 10 units to each side (the same counts as its 2 degrees up of part 2, which the chest is from there: 2.87 degrees) |
+
+At the old commit, with the port (`scenarios_golden.patch`): the 13 scenarios give the same counts as the build of the day; the two files now differ by 75 lines in 34 scenarios: the 68 of before and the new line of seven of the charge's scenarios, whose hits by location the charge changes ([../tools/gamestats/GOLDEN.md](../tools/gamestats/GOLDEN.md) section 3). Without the new line, the 289 scenarios of before give the same counts as the goldens of before. 302 scenarios on 122 servers, about 2 min 40 s on the development machine (30 servers at a time).
+
+On Linux (20 November 2026): the game module built by GCC 15 on the Linux VM and by MSVC, no warning; the 302 scenarios on the VPS: `golden: SAME`, in 5 min 12 s.

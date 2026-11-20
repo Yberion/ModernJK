@@ -4333,6 +4333,7 @@ void G_LocationBasedDamageModifier(gentity_t *ent, vec3_t point, meansOfDeath_t 
 	{
 		hitLoc = to_underlying( G_GetHitLocation( ent, point ) );
 	}
+	G_ScenarioHitLocation( ent, static_cast<hitLocation_t>( hitLoc ) );	// the scripted scenarios' statistics (plan step 20)
 
 	switch ( static_cast<hitLocation_t>( hitLoc ) )
 	{

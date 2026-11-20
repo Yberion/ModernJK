@@ -70,8 +70,17 @@ cases() {
 	echo "weapon_11_charges|$ffa|$wd|weapon 48 11 1 256 hold=300;weapon 48 11 1 256 hold=700 rep=3000;weapon 48 11 1 256 hold=750 rep=3000;weapon 48 11 1 256 hold=900 rep=3000;weapon 48 11 1 256 hold=1400 rep=3000"
 	l=""; for a in 0 1; do for h in 100 450; do l="$l;weapon 48 12 $a 256 hold=$h"; done; l="$l;weapon 48 12 $a 256 hold=1400 rep=3500"; done
 	echo "weapon_12_charges|$ffa|$wd|${l#;}"
-	echo "weapon_17|$ffa|$wd|weapon 48 17 0;weapon 48 17 1"
+	# step 20 part 10: the emplaced gun aimed at the defender's chest from between its two barrels, as its crosshair shows
+	echo "weapon_17|$ffa|$wd|weapon 48 17 0;weapon 48 17 1;weapon 48 17 0 aim=eyes at=chest"
 	echo "turret|$ffa|$wd|turret 48 g2;turret 48 hoth"
+	# step 20 part 10: the defender's head aimed at from the eyes, as a bot, an NPC or a crosshair at the centre of the
+	# screen, then from the weapon's muzzle point, as the dynamic crosshair shows (surveys/shot-offsets.md): a bolt
+	# without a box (the bryar), missiles with a box (the DEMP2, the rocket, the concussion rifle), the concussion
+	# rifle's beam from the muzzle point, the disruptor's from the eyes
+	l=""; for w in "4 0" "9 0" "11 0"; do for a in eyes muzzle; do l="$l;weapon 48 $w 256 aim=$a"; done; done
+	echo "weapon_aim1|$ffa|$wd|${l#;}"
+	l=""; for w in "15 0" "15 1" "6 0"; do for a in eyes muzzle; do l="$l;weapon 48 $w 256 aim=$a"; done; done
+	echo "weapon_aim2|$ffa|$wd|${l#;}"
 	# step 20, the saber's special moves (g_scenario.cpp's saber modes), a server or two per style; the throws 128 units
 	# away, the room a throw needs in front, with the saber throw allowed (g_forcePowerDisable without its bit); the roll
 	# stab 400 units away, where the roll ends short of the defender, in repetitions of 3 s, long enough for the stab

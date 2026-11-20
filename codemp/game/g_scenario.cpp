@@ -112,6 +112,8 @@ extern void BG_VehicleAdjustBBoxForOrientation( Vehicle_t *veh, vec3_t origin, v
 extern EnumArray<const char *, meansOfDeath_t, meansOfDeath_t::MOD_MAX> modNames;
 extern void Rancor_DropVictim( gentity_t *self );
 extern void AI_DeleteSelfFromGroup( gentity_t *self );
+extern void G_GetBoltPosition( gentity_t *self, int boltIndex, vec3_t pos, int modelIndex );
+extern const char *hitLocName[to_underlying( hitLocation_t::HL_MAX )];
 
 constexpr int SCN_REP_MSEC = 2000;	// one repetition
 constexpr int SCN_SETTLE_MSEC = 500;		// still, after the reset, before the script starts
@@ -160,6 +162,15 @@ enum class spectatorMode_t {
 enum class spectateMode_t {
 	SPM_CYCLE,
 	SPM_FLY
+};
+
+// where the attacker of a weapon scenario aims from (option aim=): its own view, or the defender's head or chest (at=)
+// from its eyes, as a bot, an NPC or a crosshair at the centre of the screen, or from its weapon's muzzle point
+// (CalcMuzzlePoint), as the dynamic crosshair shows (plan step 20 part 10)
+enum class aimFrom_t {
+	AIM_SCENARIO,
+	AIM_EYES,
+	AIM_MUZZLE
 };
 
 constexpr int SCN_SPECTATOR = 3;	// the spectator's slot in scn.client, after the attacker, the defender and the ally
@@ -213,6 +224,8 @@ static struct {
 	gentity_t		*objective;		// the siege objective the attacker completes
 	bool			actionDone;		// the repetition's one action done (the objective completed, the team changed)
 	bool			away;			// the defender turned away from the attacker
+	aimFrom_t		aimFrom;		// aim=: where the attacker of a weapon scenario aims from
+	bool			aimChest;		// at=chest: the defender's chest aimed at, else its head
 	spectatorMode_t	spectatorMode;
 	spectateMode_t	spectateMode;
 	holdable_t		holdable;		// the holdable item of a holdable scenario
@@ -261,6 +274,8 @@ static struct {
 	int		vehicleHealth, vehicleShield;	// the previous instant's values, from the reset on
 	// plan step 20, the NPCs, by role: the instants held by a monster, as the NPC's enemy and in a pain animation
 	int		heldByMonster[3], npcEnemy[3], inPain[3];
+	// plan step 20 part 10, by role: the hits by location (G_LocationBasedDamageModifier)
+	int		hitLocations[3][to_underlying( hitLocation_t::HL_MAX )];
 	// the previous instant's values, from the reset on
 	int		health[3], force[3];
 	vec3_t	origin[3], start[3];
@@ -1036,6 +1051,38 @@ void G_ScenarioPrintStats( void ) {
 			scnStats.npcEnemy[n], scnStats.inPain[n] ) );
 	}
 	trap->Print( "%s\n", line );
+	// plan step 20 part 10: the hits by location, the location's name with its spaces as underscores
+	Q_strncpyz( line, "hit location statistics: hits by location, by role:", sizeof( line ) );
+	for ( int n = 0; n < scn.numClients; n++ ) {
+		Q_strcat( line, sizeof( line ), va( "%s %s", n ? "," : "", roles[n] ) );
+		for ( int k = 1; k < to_underlying( hitLocation_t::HL_MAX ); k++ ) {
+			if ( scnStats.hitLocations[n][k] ) {
+				char name[MAX_QPATH];
+
+				Q_strncpyz( name, hitLocName[k], sizeof( name ) );
+				for ( char *c = name; *c; c++ ) {
+					if ( *c == ' ' ) {
+						*c = '_';
+					}
+				}
+				Q_strcat( line, sizeof( line ), va( " %s %d", name, scnStats.hitLocations[n][k] ) );
+			}
+		}
+	}
+	trap->Print( "%s\n", line );
+}
+
+// a hit's location on a bot or an NPC of the scenario (G_LocationBasedDamageModifier), counted by role
+void G_ScenarioHitLocation( const gentity_t *targ, hitLocation_t hitLoc ) {
+	if ( scn.type == scenarioType_t::SCN_NONE || scn.done || hitLoc <= hitLocation_t::HL_NONE || hitLoc >= hitLocation_t::HL_MAX ) {
+		return;
+	}
+	for ( int n = 0; n < scn.numClients; n++ ) {
+		if ( scn.client[n] == targ->s.number ) {
+			scnStats.hitLocations[n][to_underlying( hitLoc )]++;
+			return;
+		}
+	}
 }
 
 // an entity of a map's kind spawned by the scenario, with no keys but its place, angle, flags and count (the spawn
@@ -1601,6 +1648,39 @@ static void G_ScenarioAimMuzzle( gentity_t *ent, const vec3_t target, vec3_t vie
 	vectoangles( to, view );	// from the muzzle
 }
 
+// aim=: the attacker's view on the defender's head (the bolt *head_eyes of its model) or chest (thoracic, at=chest),
+// from the eyes or from the weapon's muzzle point; on the emplaced gun, once mounted, from the point between its two
+// barrels, which its crosshair shows (CG_CalcMuzzlePoint)
+static void G_ScenarioAimAt( gentity_t *ent, int phase, vec3_t view ) {
+	gentity_t *defender = &g_entities[scn.client[1]];
+	const int bolt = ( defender->inuse && defender->client )
+		? ( scn.aimChest ? defender->client->renderInfo.torsoBolt : defender->client->renderInfo.headBolt ) : -1;
+	vec3_t target;
+
+	if ( !defender->ghoul2 || bolt < 0 ) {
+		return;
+	}
+	G_GetBoltPosition( defender, bolt, target, 0 );
+	if ( scn.weapon == weapon_t::WP_EMPLACED_GUN ) {
+		const gentity_t *gun = ent->client->ps.emplacedIndex ? &g_entities[ent->client->ps.emplacedIndex] : nullptr;
+		vec3_t from, to;
+
+		if ( !gun || phase < 200 ) {
+			return;	// mounting it (G_ScenarioCommand)
+		}
+		VectorCopy( gun->s.origin, from );
+		from[2] += 46;	// WP_FireEmplaced
+		VectorSubtract( target, from, to );
+		vectoangles( to, view );
+	}
+	else if ( scn.aimFrom == aimFrom_t::AIM_EYES ) {
+		G_ScenarioLookAt( ent, target, view );
+	}
+	else {
+		G_ScenarioAimMuzzle( ent, target, view );
+	}
+}
+
 // a saber scenario's buttons and moves, from the start of the repetition's script (phase, in ms)
 static void G_ScenarioSaberCommand( gentity_t *ent, bool attacker, int phase, usercmd_t *ucmd ) {
 	static const signed char kickDirs[4][2] = { { 127, 0 }, { -127, 0 }, { 0, 127 }, { 0, -127 } };
@@ -1800,6 +1880,9 @@ bool G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd ) {
 		// since the two barrels fire 10 units left and right of the view, beside the model of a defender aimed at
 		// (2 up, 15 of 41 bolts hit; 4 up, 10; level, 6 up and 2, 3 or 5 down, none)
 		view[PITCH] = ( phase < 50 ) ? 20.0f : -2.0f;
+	}
+	if ( attacker && scn.type == scenarioType_t::SCN_WEAPON && scn.aimFrom != aimFrom_t::AIM_SCENARIO && scn.repStart ) {
+		G_ScenarioAimAt( ent, phase, view );
 	}
 	for ( i = 0; i < 3; i++ ) {
 		ucmd->angles[i] = ANGLE2SHORT( view[i] ) - ent->client->ps.delta_angles[i];
@@ -2185,6 +2268,11 @@ void Svcmd_Scenario_f( void ) {
 	}
 	scn.pickupDist = (float)G_ScenarioOpt( "pickup", 0 );
 	scn.away = G_ScenarioOptIs( "away" );
+	G_ScenarioOptString( "aim", arg, sizeof( arg ) );
+	scn.aimFrom = !Q_stricmp( arg, "eyes" ) ? aimFrom_t::AIM_EYES : !Q_stricmp( arg, "muzzle" ) ? aimFrom_t::AIM_MUZZLE
+		: aimFrom_t::AIM_SCENARIO;
+	G_ScenarioOptString( "at", arg, sizeof( arg ) );
+	scn.aimChest = !Q_stricmp( arg, "chest" );
 	scn.spectatorMode = G_ScenarioOptIs( "spectator=follow1" ) ? spectatorMode_t::SPEC_FOLLOW1
 		: G_ScenarioOptIs( "spectator=follow2" ) ? spectatorMode_t::SPEC_FOLLOW2
 		: G_ScenarioOptIs( "spectator" ) ? spectatorMode_t::SPEC_ATTACKER : spectatorMode_t::SPEC_NONE;

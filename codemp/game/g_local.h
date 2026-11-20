@@ -1566,6 +1566,7 @@ bool G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd );
 void G_ScenarioFrame( void );
 void G_ScenarioTrace( void );
 void G_ScenarioDamageTrace( gentity_t *targ, gentity_t *inflictor, const vec3_t point, int take, meansOfDeath_t mod );
+void G_ScenarioHitLocation( const gentity_t *targ, hitLocation_t hitLoc );
 void G_ScenarioPrintStats( void );
 void Svcmd_Scenario_f( void );
 

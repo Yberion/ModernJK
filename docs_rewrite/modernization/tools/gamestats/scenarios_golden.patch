@@ -1,8 +1,16 @@
 diff --git a/codemp/game/g_combat.c b/codemp/game/g_combat.c
-index f47bfc78..0d384a79 100644
+index f47bfc78..45fcabd5 100644
 --- a/codemp/game/g_combat.c
 +++ b/codemp/game/g_combat.c
-@@ -5393,8 +5393,14 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
+@@ -4325,6 +4325,7 @@ void G_LocationBasedDamageModifier(gentity_t *ent, vec3_t point, int mod, int df
+ 	{
+ 		hitLoc = G_GetHitLocation( ent, point );
+ 	}
++	G_ScenarioHitLocation( ent, hitLoc );	// the scripted scenarios' statistics (plan step 20)
+ 
+ 	switch (hitLoc)
+ 	{
+@@ -5393,8 +5394,14 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
  		targ->health = targ->health - take;
  		if ( targ->client && mod >= 0 && mod < MOD_MAX ) {
  			g_stats.modDamage[mod] += take;
@@ -30,7 +38,7 @@ index bcc0a510..6f0a8d15 100644
  	// play the normal pickup sound
  	if (predict) {
 diff --git a/codemp/game/g_local.h b/codemp/game/g_local.h
-index dcbef7cb..3646a77c 100644
+index dcbef7cb..ec164a97 100644
 --- a/codemp/game/g_local.h
 +++ b/codemp/game/g_local.h
 @@ -1532,6 +1532,10 @@ typedef struct gameStats_s {
@@ -44,16 +52,17 @@ index dcbef7cb..3646a77c 100644
  } gameStats_t;
  extern	gameStats_t		g_stats;
  void G_StatsSaberMove( gentity_t *ent, int oldSaberMove );
-@@ -1542,6 +1546,7 @@ qboolean G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd );
+@@ -1542,6 +1546,8 @@ qboolean G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd );
  void G_ScenarioFrame( void );
  void G_ScenarioTrace( void );
  void G_ScenarioDamageTrace( gentity_t *targ, gentity_t *inflictor, const vec3_t point, int take, int mod );
++void G_ScenarioHitLocation( const gentity_t *targ, int hitLoc );
 +void G_ScenarioPrintStats( void );
  void Svcmd_Scenario_f( void );
  
  #define	FOFS(x) offsetof(gentity_t, x)
 diff --git a/codemp/game/g_scenario.c b/codemp/game/g_scenario.c
-index 004cab64..047b51de 100644
+index 004cab64..60bfef45 100644
 --- a/codemp/game/g_scenario.c
 +++ b/codemp/game/g_scenario.c
 @@ -6,11 +6,86 @@
@@ -146,7 +155,7 @@ index 004cab64..047b51de 100644
  
  #include "g_local.h"
  
-@@ -21,51 +96,255 @@ extern void saberReactivate( gentity_t *saberent, gentity_t *saberOwner );
+@@ -21,51 +96,270 @@ extern void saberReactivate( gentity_t *saberent, gentity_t *saberOwner );
  extern void SaberGotHit( gentity_t *self, gentity_t *other, trace_t *trace );
  extern void SaberUpdateSelf( gentity_t *ent );
  extern void WP_SaberRemoveG2Model( gentity_t *saberent );
@@ -166,6 +175,8 @@ index 004cab64..047b51de 100644
 +	const vec3_t end, int passEntityNum, int contentMask ) );
 +extern void Rancor_DropVictim( gentity_t *self );
 +extern void AI_DeleteSelfFromGroup( gentity_t *self );
++extern void G_GetBoltPosition( gentity_t *self, int boltIndex, vec3_t pos, int modelIndex );
++extern char *hitLocName[HL_MAX];
  
  #define SCN_REP_MSEC		2000	// one repetition
  #define SCN_SETTLE_MSEC		500		// still, after the reset, before the script starts
@@ -216,6 +227,15 @@ index 004cab64..047b51de 100644
 +	SPM_CYCLE,
 +	SPM_FLY
 +} spectateMode_t;
++
++// where the attacker of a weapon scenario aims from (option aim=): its own view, or the defender's head or chest (at=)
++// from its eyes, as a bot, an NPC or a crosshair at the centre of the screen, or from its weapon's muzzle point
++// (CalcMuzzlePoint), as the dynamic crosshair shows (plan step 20 part 10)
++typedef enum {
++	AIM_SCENARIO,
++	AIM_EYES,
++	AIM_MUZZLE
++} aimFrom_t;
 +
 +#define SCN_SPECTATOR		3		// the spectator's slot in scn.client, after the attacker, the defender and the ally
 +
@@ -270,6 +290,8 @@ index 004cab64..047b51de 100644
 +	gentity_t		*objective;		// the siege objective the attacker completes
 +	qboolean		actionDone;		// the repetition's one action done (the objective completed, the team changed)
 +	qboolean		away;			// the defender turned away from the attacker
++	aimFrom_t		aimFrom;		// aim=: where the attacker of a weapon scenario aims from
++	qboolean		aimChest;		// at=chest: the defender's chest aimed at, else its head
 +	spectatorMode_t	spectatorMode;
 +	spectateMode_t	spectateMode;
 +	holdable_t		holdable;		// the holdable item of a holdable scenario
@@ -318,6 +340,8 @@ index 004cab64..047b51de 100644
 +	int		vehicleHealth, vehicleShield;	// the previous instant's values, from the reset on
 +	// plan step 20, the NPCs, by role: the instants held by a monster, as the NPC's enemy and in a pain animation
 +	int		heldByMonster[3], npcEnemy[3], inPain[3];
++	// plan step 20 part 10, by role: the hits by location (G_LocationBasedDamageModifier)
++	int		hitLocations[3][HL_MAX];
 +	// the previous instant's values, from the reset on
 +	int		health[3], force[3];
 +	vec3_t	origin[3], start[3];
@@ -408,7 +432,7 @@ index 004cab64..047b51de 100644
  		vec3_t fwd, start, front, below;
  		trace_t tr;
  
-@@ -84,6 +363,23 @@ static qboolean G_ScenarioFindPlace( void ) {
+@@ -84,6 +378,23 @@ static qboolean G_ScenarioFindPlace( void ) {
  		if ( tr.fraction >= 1.0f || tr.startsolid || tr.endpos[2] < start[2] - 24 ) {
  			continue;	// no floor at the attacker's height in front
  		}
@@ -432,7 +456,7 @@ index 004cab64..047b51de 100644
  		{ // away from doors and lifts, which crush the bots standing in their way
  			int e;
  			qboolean nearMover = qfalse;
-@@ -105,6 +401,12 @@ static qboolean G_ScenarioFindPlace( void ) {
+@@ -105,6 +416,12 @@ static qboolean G_ScenarioFindPlace( void ) {
  		}
  		VectorCopy( start, scn.origin );
  		scn.yaw = spot->s.angles[YAW];
@@ -445,7 +469,7 @@ index 004cab64..047b51de 100644
  		return qtrue;
  	}
  	return qfalse;
-@@ -138,15 +440,92 @@ static void G_ScenarioSaberToHand( gentity_t *ent ) {
+@@ -138,15 +455,92 @@ static void G_ScenarioSaberToHand( gentity_t *ent ) {
  	client->saberKnockedTime = 0;
  }
  
@@ -539,7 +563,7 @@ index 004cab64..047b51de 100644
  	// the blades' last positions, from before the bot is moved here: the first sweep of a repetition would start from them
  	client->lastSaberStorageTime = 0;
  	client->hasCurrentPosition = qfalse;
-@@ -163,6 +542,10 @@ static void G_ScenarioPlace( gentity_t *ent, const vec3_t origin, float yaw ) {
+@@ -163,6 +557,10 @@ static void G_ScenarioPlace( gentity_t *ent, const vec3_t origin, float yaw ) {
  		client->ps.fd.forcePowerDebounce[i] = 0;
  	}
  	ent->health = client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH] = 100;
@@ -550,7 +574,7 @@ index 004cab64..047b51de 100644
  	client->ps.stats[STAT_ARMOR] = 0;
  	client->ps.fd.forcePower = 100;
  	client->ps.fd.forcePowerRegenDebounceTime = level.time;
-@@ -173,6 +556,12 @@ static void G_ScenarioPlace( gentity_t *ent, const vec3_t origin, float yaw ) {
+@@ -173,6 +571,12 @@ static void G_ScenarioPlace( gentity_t *ent, const vec3_t origin, float yaw ) {
  	client->ps.weaponTime = 0;
  	client->ps.weaponstate = WEAPON_READY;
  	client->ps.saberBlocked = BLOCKED_NONE;
@@ -563,7 +587,7 @@ index 004cab64..047b51de 100644
  	client->ps.saberMove = LS_READY;
  	client->ps.saberHolstered = 0;
  	client->ps.legsTimer = client->ps.torsoTimer = 0;
-@@ -183,12 +572,25 @@ static void G_ScenarioPlace( gentity_t *ent, const vec3_t origin, float yaw ) {
+@@ -183,12 +587,25 @@ static void G_ScenarioPlace( gentity_t *ent, const vec3_t origin, float yaw ) {
  	// the model points the missiles hit
  	client->ps.pm_flags &= ~( PMF_TIME_KNOCKBACK | PMF_TIME_WATERJUMP | PMF_BACKWARDS_RUN );
  	client->ps.movementDir = 0;
@@ -589,7 +613,7 @@ index 004cab64..047b51de 100644
  	client->ps.painTime = 0;
  	ent->pain_debounce_time = 0;
  	// the damage P_DamageFeedback keeps summing until it plays a pain (under 10 points, or within 500 ms of a pain)
-@@ -206,27 +608,111 @@ static void G_ScenarioPlace( gentity_t *ent, const vec3_t origin, float yaw ) {
+@@ -206,27 +623,111 @@ static void G_ScenarioPlace( gentity_t *ent, const vec3_t origin, float yaw ) {
  	trap->LinkEntity( (sharedEntity_t *)ent );
  }
  
@@ -706,7 +730,7 @@ index 004cab64..047b51de 100644
  	client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_SABER );
  	client->ps.weapon = WP_SABER;
  	if ( attacker && scn.type == SCN_SABER ) {
-@@ -241,149 +727,1130 @@ static void G_ScenarioEquip( gentity_t *ent, qboolean attacker ) {
+@@ -241,123 +742,1090 @@ static void G_ScenarioEquip( gentity_t *ent, qboolean attacker ) {
  		client->ps.fd.saberAnimLevel = client->ps.fd.saberAnimLevelBase = client->ps.fd.saberDrawAnimLevel = SS_MEDIUM;
  		client->saberCycleQueue = SS_MEDIUM;
  	}
@@ -946,7 +970,7 @@ index 004cab64..047b51de 100644
 +			}
 +			else {
 +				scnStats.ammoSpent[n] -= ammo;
- 			}
++			}
 +			scnStats.armor[n] = ps->stats[STAT_ARMOR];
 +			scnStats.ammo[n] += ammo;
 +			if ( ps->powerups[PW_CLOAKED] ) {
@@ -954,7 +978,7 @@ index 004cab64..047b51de 100644
 +			}
 +			if ( ent->client->jetPackOn ) {
 +				scnStats.jetpack[n]++;
-+			}
+ 			}
 +			if ( ps->zoomMode ) {
 +				scnStats.zoomed[n]++;
 +			}
@@ -1072,7 +1096,7 @@ index 004cab64..047b51de 100644
 +		Q_strcat( line, sizeof( line ), va( "%s %s %d %d %d %d %d %d %d", n ? "," : "", roles[n], scnStats.armorGained[n],
 +			scnStats.armorLost[n], scnStats.ammoGained[n], scnStats.ammoSpent[n], scnStats.cloaked[n], scnStats.jetpack[n],
 +			scnStats.zoomed[n] ) );
- 	}
++	}
 +	trap->Print( "%s\n", line );
 +	// plan step 20, the vehicles
 +	Q_strncpyz( line, "vehicle statistics: health taken from the NPCs and vehicles, by cause:", sizeof( line ) );
@@ -1097,12 +1121,60 @@ index 004cab64..047b51de 100644
 +			scnStats.npcEnemy[n], scnStats.inPain[n] ) );
 +	}
 +	trap->Print( "%s\n", line );
++	// plan step 20 part 10: the hits by location, the location's name with its spaces as underscores
++	Q_strncpyz( line, "hit location statistics: hits by location, by role:", sizeof( line ) );
++	for ( n = 0; n < scn.numClients; n++ ) {
++		int k;
++
++		Q_strcat( line, sizeof( line ), va( "%s %s", n ? "," : "", roles[n] ) );
++		for ( k = 1; k < HL_MAX; k++ ) {
++			if ( scnStats.hitLocations[n][k] ) {
++				char name[MAX_QPATH], *c;
++
++				Q_strncpyz( name, hitLocName[k], sizeof( name ) );
++				for ( c = name; *c; c++ ) {
++					if ( *c == ' ' ) {
++						*c = '_';
++					}
++				}
++				Q_strcat( line, sizeof( line ), va( " %s %d", name, scnStats.hitLocations[n][k] ) );
++			}
++		}
+ 	}
++	trap->Print( "%s\n", line );
  }
  
 -// every health loss of a client during the traced repetitions: the tick, the inflictor's position and the point hit
 -void G_ScenarioDamageTrace( gentity_t *targ, gentity_t *inflictor, const vec3_t point, int take, int mod ) {
 -	if ( scn.type == SCN_NONE || scn.done || scn.rep < 1 || scn.rep > scn.traceReps ) {
--		return;
++// a hit's location on a bot or an NPC of the scenario (G_LocationBasedDamageModifier), counted by role
++void G_ScenarioHitLocation( const gentity_t *targ, int hitLoc ) {
++	int n;
++
++	if ( scn.type == SCN_NONE || scn.done || hitLoc <= HL_NONE || hitLoc >= HL_MAX ) {
+ 		return;
+ 	}
+-	trap->Print( "SCN %d %4d dmg tick%+d targ%d take%d mod%d surf%d@%+d inf%d p%.1f,%.1f,%.1f io%.1f,%.1f,%.1f\n", scn.rep,
+-		level.time - scn.repStart, level.tickTime - level.time, targ->s.number, take, mod, targ->client->g2LastSurfaceHit,
+-		targ->client->g2LastSurfaceTime - level.time, inflictor ? inflictor->s.number : -1,
+-		point ? point[0] : 0.0f, point ? point[1] : 0.0f, point ? point[2] : 0.0f,
+-		inflictor ? inflictor->r.currentOrigin[0] : 0.0f, inflictor ? inflictor->r.currentOrigin[1] : 0.0f,
+-		inflictor ? inflictor->r.currentOrigin[2] : 0.0f );
++	for ( n = 0; n < scn.numClients; n++ ) {
++		if ( scn.client[n] == targ->s.number ) {
++			scnStats.hitLocations[n][hitLoc]++;
++			return;
++		}
++	}
+ }
+ 
+-// fills a bot's command for the time t; false when the bot is not in the scenario
+-qboolean G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd ) {
+-	gentity_t *ent = &g_entities[clientNum];
+-	const qboolean attacker = ( clientNum == scn.client[0] ) ? qtrue : qfalse;
+-	const int phase = t - scn.repStart - SCN_SETTLE_MSEC;
+-	vec3_t view = { 0, 0, 0 };
+-	int i;
 +// an entity of a map's kind spawned by the scenario, with no keys but its place, angle, flags and count (the spawn
 +// functions would read the keys of the last entity the map loaded)
 +static gentity_t *G_ScenarioSpawn( const char *classname, const vec3_t origin, float yaw, int spawnflags, int count ) {
@@ -1120,32 +1192,17 @@ index 004cab64..047b51de 100644
 +	if ( !G_CallSpawn( ent ) ) {
 +		G_FreeEntity( ent );
 +		return NULL;
- 	}
--	trap->Print( "SCN %d %4d dmg tick%+d targ%d take%d mod%d surf%d@%+d inf%d p%.1f,%.1f,%.1f io%.1f,%.1f,%.1f\n", scn.rep,
--		level.time - scn.repStart, level.tickTime - level.time, targ->s.number, take, mod, targ->client->g2LastSurfaceHit,
--		targ->client->g2LastSurfaceTime - level.time, inflictor ? inflictor->s.number : -1,
--		point ? point[0] : 0.0f, point ? point[1] : 0.0f, point ? point[2] : 0.0f,
--		inflictor ? inflictor->r.currentOrigin[0] : 0.0f, inflictor ? inflictor->r.currentOrigin[1] : 0.0f,
--		inflictor ? inflictor->r.currentOrigin[2] : 0.0f );
++	}
 +	return ent;
- }
- 
--// fills a bot's command for the time t; false when the bot is not in the scenario
--qboolean G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd ) {
--	gentity_t *ent = &g_entities[clientNum];
--	const qboolean attacker = ( clientNum == scn.client[0] ) ? qtrue : qfalse;
--	const int phase = t - scn.repStart - SCN_SETTLE_MSEC;
--	vec3_t view = { 0, 0, 0 };
--	int i;
++}
++
 +// the vehicle of a vehicle scenario in front of the attacker, facing as it does, spawned as a map's NPC_Vehicle without
 +// a targetname (SP_NPC_Vehicle, G_VehicleSpawn): no team, no AI
 +static gentity_t *G_ScenarioSpawnVehicle( void ) {
 +	const vec3_t fwd = { Q_cospif( scn.yaw / 180.0f ), Q_sinpif( scn.yaw / 180.0f ), 0 };
 +	gentity_t *spawner = G_Spawn();
 +	gentity_t *veh;
- 
--	if ( !G_ScenarioControls( clientNum ) || !ent->client ) {
--		return qfalse;
++
 +	level.numSpawnVars = 0;
 +	level.numSpawnVarChars = 0;
 +	spawner->classname = "NPC_Vehicle";
@@ -1157,7 +1214,7 @@ index 004cab64..047b51de 100644
 +	veh = NPC_Spawn_Do( spawner );	// frees the spawner
 +	if ( !veh || !veh->NPC || !veh->m_pVehicle ) {
 +		return NULL;
- 	}
++	}
 +	veh->s.angles[YAW] = scn.yaw;
 +	veh->NPC->behaviorState = BS_CINEMATIC;
 +	// the box its first move gives it, from its .veh file (BG_VehicleAdjustBBoxForOrientation), at once: NPC_Begin waits
@@ -1168,13 +1225,7 @@ index 004cab64..047b51de 100644
 +		// the ground, it cannot move)
 +		vec3_t top, bottom;
 +		trace_t tr;
- 
--	memset( ucmd, 0, sizeof( *ucmd ) );
--	ucmd->serverTime = t;
--	ucmd->weapon = ent->client->ps.weapon;
--	view[YAW] = attacker ? scn.yaw : AngleNormalize360( scn.yaw + 180 );
--	for ( i = 0; i < 3; i++ ) {
--		ucmd->angles[i] = ANGLE2SHORT( view[i] ) - ent->client->ps.delta_angles[i];
++
 +		VectorCopy( veh->r.currentOrigin, top );
 +		VectorCopy( veh->r.currentOrigin, bottom );
 +		top[2] += 128;
@@ -1185,9 +1236,7 @@ index 004cab64..047b51de 100644
 +			VectorCopy( tr.endpos, veh->s.origin );
 +			VectorCopy( tr.endpos, veh->client->ps.origin );
 +		}
- 	}
--	if ( !scn.repStart || phase < 0 || scn.done ) {
--		return qtrue;	// still
++	}
 +	trap->LinkEntity( (sharedEntity_t *)veh );
 +	return veh;
 +}
@@ -1197,14 +1246,10 @@ index 004cab64..047b51de 100644
 +	if ( npc->NPC && npc->NPC->tempGoal ) {
 +		G_FreeEntity( npc->NPC->tempGoal );
 +		npc->NPC->tempGoal = NULL;
- 	}
++	}
 +	G_FreeEntity( npc );
 +}
- 
--	switch ( scn.type ) {
--	case SCN_SABER:
--		if ( phase < 100 && ( attacker || scn.counter ) ) {
--			const signed char *dir = scnDirs[( scn.rep + 7 ) % 8];	// repetition 1 in the first direction
++
 +// the vehicle of a vehicle scenario removed, its riders off first, with the astromech a fighter spawns with (NPC_Begin),
 +// which would stand in the next vehicle's place and keep it from spawning (NPC_SpotWouldTelefrag)
 +static void G_ScenarioRemoveVehicle( void ) {
@@ -1487,7 +1532,7 @@ index 004cab64..047b51de 100644
 +			return;
 +		}
 +	}
- 
++
 +	// the same random numbers at the start of a repetition at any rate, from before the bots are placed: a bot killed in
 +	// the previous repetition respawns at a spawn point drawn at random (ClientRespawn), which the free play's left-overs
 +	// had moved
@@ -1699,6 +1744,39 @@ index 004cab64..047b51de 100644
 +	vectoangles( to, view );	// from the muzzle
 +}
 +
++// aim=: the attacker's view on the defender's head (the bolt *head_eyes of its model) or chest (thoracic, at=chest),
++// from the eyes or from the weapon's muzzle point; on the emplaced gun, once mounted, from the point between its two
++// barrels, which its crosshair shows (CG_CalcMuzzlePoint)
++static void G_ScenarioAimAt( gentity_t *ent, int phase, vec3_t view ) {
++	gentity_t *defender = &g_entities[scn.client[1]];
++	const int bolt = ( defender->inuse && defender->client )
++		? ( scn.aimChest ? defender->client->renderInfo.torsoBolt : defender->client->renderInfo.headBolt ) : -1;
++	vec3_t target;
++
++	if ( !defender->ghoul2 || bolt < 0 ) {
++		return;
++	}
++	G_GetBoltPosition( defender, bolt, target, 0 );
++	if ( scn.weapon == WP_EMPLACED_GUN ) {
++		const gentity_t *gun = ent->client->ps.emplacedIndex ? &g_entities[ent->client->ps.emplacedIndex] : NULL;
++		vec3_t from, to;
++
++		if ( !gun || phase < 200 ) {
++			return;	// mounting it (G_ScenarioCommand)
++		}
++		VectorCopy( gun->s.origin, from );
++		from[2] += 46;	// WP_FireEmplaced
++		VectorSubtract( target, from, to );
++		vectoangles( to, view );
++	}
++	else if ( scn.aimFrom == AIM_EYES ) {
++		G_ScenarioLookAt( ent, target, view );
++	}
++	else {
++		G_ScenarioAimMuzzle( ent, target, view );
++	}
++}
++
 +// a saber scenario's buttons and moves, from the start of the repetition's script (phase, in ms)
 +static void G_ScenarioSaberCommand( gentity_t *ent, qboolean attacker, int phase, usercmd_t *ucmd ) {
 +	static const signed char kickDirs[4][2] = { { 127, 0 }, { -127, 0 }, { 0, 127 }, { 0, -127 } };
@@ -1728,11 +1806,11 @@ index 004cab64..047b51de 100644
 +	case SM_ATTACK:
 +		if ( phase < 100 ) {
 +			dir = scnDirs[turn % 8];
- 			ucmd->buttons = BUTTON_ATTACK;
- 			ucmd->forwardmove = dir[0];
- 			ucmd->rightmove = attacker ? dir[1] : -dir[1];
- 		}
- 		break;
++			ucmd->buttons = BUTTON_ATTACK;
++			ucmd->forwardmove = dir[0];
++			ucmd->rightmove = attacker ? dir[1] : -dir[1];
++		}
++		break;
 +	case SM_LOCK:
 +		// both the same attack, top-down, then each diagonal in turn, the pairs a lock starts from (WP_SabersCheckLock),
 +		// held 600 ms: a clash locks only a player who is pressing something (G_ClientIdleInWorld)
@@ -1824,14 +1902,14 @@ index 004cab64..047b51de 100644
 +	int phase = t - scn.repStart - SCN_SETTLE_MSEC;
 +	vec3_t view = { 0, 0, 0 };
 +	int i;
-+
-+	if ( !G_ScenarioControls( clientNum ) || !ent->client ) {
-+		return qfalse;
-+	}
-+
-+	memset( ucmd, 0, sizeof( *ucmd ) );
-+	ucmd->serverTime = t;
-+	ucmd->weapon = ent->client->ps.weapon;
+ 
+ 	if ( !G_ScenarioControls( clientNum ) || !ent->client ) {
+ 		return qfalse;
+@@ -366,23 +1834,109 @@ qboolean G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd ) {
+ 	memset( ucmd, 0, sizeof( *ucmd ) );
+ 	ucmd->serverTime = t;
+ 	ucmd->weapon = ent->client->ps.weapon;
+-	view[YAW] = attacker ? scn.yaw : AngleNormalize360( scn.yaw + 180 );
 +	// a free spectator looks towards the defender (a following one sees what its player sees)
 +	view[YAW] = attacker ? G_ScenarioAttackerYaw() : spectator ? scn.yaw : G_ScenarioDefenderYaw();
 +	if ( !attacker && !spectator && scn.type == SCN_FLAG && scn.flagMode == FM_RETURN ) {
@@ -1895,12 +1973,15 @@ index 004cab64..047b51de 100644
 +		// (2 up, 15 of 41 bolts hit; 4 up, 10; level, 6 up and 2, 3 or 5 down, none)
 +		view[PITCH] = ( phase < 50 ) ? 20.0f : -2.0f;
 +	}
-+	for ( i = 0; i < 3; i++ ) {
-+		ucmd->angles[i] = ANGLE2SHORT( view[i] ) - ent->client->ps.delta_angles[i];
++	if ( attacker && scn.type == SCN_WEAPON && scn.aimFrom != AIM_SCENARIO && scn.repStart ) {
++		G_ScenarioAimAt( ent, phase, view );
 +	}
-+	if ( !scn.repStart || phase < 0 || scn.done ) {
-+		return qtrue;	// still
-+	}
+ 	for ( i = 0; i < 3; i++ ) {
+ 		ucmd->angles[i] = ANGLE2SHORT( view[i] ) - ent->client->ps.delta_angles[i];
+ 	}
+ 	if ( !scn.repStart || phase < 0 || scn.done ) {
+ 		return qtrue;	// still
+ 	}
 +	if ( spectator ) { // the spectator acts only in a spectate scenario
 +		if ( scn.type == SCN_SPECTATE && scn.spectateMode == SPM_CYCLE ) {
 +			// the next player, the previous one, then a jump, which stops following (SpectatorThink)
@@ -1928,15 +2009,21 @@ index 004cab64..047b51de 100644
 +			return qtrue;
 +		}
 +	}
-+
-+	switch ( scn.type ) {
-+	case SCN_SABER:
+ 
+ 	switch ( scn.type ) {
+ 	case SCN_SABER:
+-		if ( phase < 100 && ( attacker || scn.counter ) ) {
+-			const signed char *dir = scnDirs[( scn.rep + 7 ) % 8];	// repetition 1 in the first direction
+-
+-			ucmd->buttons = BUTTON_ATTACK;
+-			ucmd->forwardmove = dir[0];
+-			ucmd->rightmove = attacker ? dir[1] : -dir[1];
+-		}
 +		G_ScenarioSaberCommand( ent, attacker, phase, ucmd );
-+		break;
+ 		break;
  	case SCN_FORCE:
  		if ( !attacker ) {
- 			break;
-@@ -398,6 +1865,31 @@ qboolean G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd ) {
+@@ -398,6 +1952,31 @@ qboolean G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd ) {
  		case FP_DRAIN:
  			if ( phase < 1000 ) ucmd->buttons = BUTTON_FORCE_DRAIN;
  			break;
@@ -1968,7 +2055,7 @@ index 004cab64..047b51de 100644
  		default:	// powers used on oneself: switched on once, held until the next reset
  			ucmd->forcesel = scn.power;
  			ent->client->ps.fd.forcePowerSelected = scn.power;
-@@ -405,11 +1897,161 @@ qboolean G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd ) {
+@@ -405,11 +1984,161 @@ qboolean G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd ) {
  			break;
  		}
  		break;
@@ -2133,7 +2220,7 @@ index 004cab64..047b51de 100644
  	default:
  		break;
  	}
-@@ -423,15 +2065,61 @@ static int G_ScenarioArgInt( int n, int def ) {
+@@ -423,15 +2152,61 @@ static int G_ScenarioArgInt( int n, int def ) {
  		return def;
  	}
  	trap->Argv( n, arg, sizeof( arg ) );
@@ -2196,7 +2283,7 @@ index 004cab64..047b51de 100644
  		scn.type = SCN_NONE;
  		return;
  	}
-@@ -440,23 +2128,85 @@ void Svcmd_Scenario_f( void ) {
+@@ -440,23 +2215,89 @@ void Svcmd_Scenario_f( void ) {
  		return;
  	}
  
@@ -2218,7 +2305,7 @@ index 004cab64..047b51de 100644
 -		return;
 +	else {
 +		G_ScenarioOptString( "npc", scn.npcType, sizeof( scn.npcType ) );
- 	}
++	}
 +	{ // the attacker, the first bot that is not its teammate as the defender, and a teammate as the ally
 +		qboolean defender = qfalse, ally = qfalse;
 +
@@ -2274,9 +2361,13 @@ index 004cab64..047b51de 100644
 +			scn.client[1] = scn.client[2];
 +			scn.client[2] = enemy;
 +		}
-+	}
+ 	}
 +	scn.pickupDist = (float)G_ScenarioOpt( "pickup", 0 );
 +	scn.away = G_ScenarioOptIs( "away" );
++	G_ScenarioOptString( "aim", arg, sizeof( arg ) );
++	scn.aimFrom = !Q_stricmp( arg, "eyes" ) ? AIM_EYES : !Q_stricmp( arg, "muzzle" ) ? AIM_MUZZLE : AIM_SCENARIO;
++	G_ScenarioOptString( "at", arg, sizeof( arg ) );
++	scn.aimChest = !Q_stricmp( arg, "chest" ) ? qtrue : qfalse;
 +	scn.spectatorMode = G_ScenarioOptIs( "spectator=follow1" ) ? SPEC_FOLLOW1
 +		: G_ScenarioOptIs( "spectator=follow2" ) ? SPEC_FOLLOW2
 +		: G_ScenarioOptIs( "spectator" ) ? SPEC_ATTACKER : SPEC_NONE;
@@ -2290,7 +2381,7 @@ index 004cab64..047b51de 100644
  		char mode[MAX_TOKEN_CHARS];
  
  		scn.style = SS_MEDIUM;
-@@ -466,13 +2216,20 @@ void Svcmd_Scenario_f( void ) {
+@@ -466,13 +2307,20 @@ void Svcmd_Scenario_f( void ) {
  			}
  		}
  		trap->Argv( 4, mode, sizeof( mode ) );
@@ -2314,7 +2405,7 @@ index 004cab64..047b51de 100644
  
  		scn.power = FP_LIGHTNING;
  		for ( i = 0; i < (int)ARRAY_LEN( powers ); i++ ) {
-@@ -480,7 +2237,13 @@ void Svcmd_Scenario_f( void ) {
+@@ -480,7 +2328,13 @@ void Svcmd_Scenario_f( void ) {
  				scn.power = powerValues[i];
  			}
  		}
@@ -2329,7 +2420,7 @@ index 004cab64..047b51de 100644
  		scn.type = SCN_FORCE;
  	}
  	else if ( !Q_stricmp( type, "weapon" ) ) {
-@@ -489,20 +2252,206 @@ void Svcmd_Scenario_f( void ) {
+@@ -489,20 +2343,206 @@ void Svcmd_Scenario_f( void ) {
  			trap->Print( "scenario: bad weapon number\n" );
  			return;
  		}

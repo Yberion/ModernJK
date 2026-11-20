@@ -135,6 +135,8 @@ The two practices: the shot starts at the eyes or the camera and goes to the cen
 
 ## 11. What is normal, what is not
 
+Decided on 20 November 2026: the five fixed, as Unreal Engine 5's documentation does, in plan step 20 part 10 ([../PLAN.md](../PLAN.md) step 20; [../progress/step-20-scenarios.md](../progress/step-20-scenarios.md) section 18).
+
 The base game's (all of it the same in 1.01): the offsets themselves, the crosshair, the NPCs' and the bots' aim, the E-Web's cannon, the vehicles' aim. For a player with the default crosshair, every shot but the emplaced gun's lands where the crosshair is drawn: the offset is visible as a crosshair that moves on the screen and as a shot that cannot pass a corner the eyes see past. The defects, to decide (none changed):
 
 1. **The NPCs and the bots aim from their eyes and fire from the weapon's point.** Before: a stormtrooper 128 units away fires 36 bolts at a player standing with a saber and none touches it, each passing 6 units right and 6 below the eye level it aims at; a bot's rocket aimed at a head passes beside it. After (if the aim is taken from the weapon's point, as `NPC_CheckAttack` already does, or the shot turned towards the point aimed at): the bolts pass through the point aimed at (expected, not measured).
