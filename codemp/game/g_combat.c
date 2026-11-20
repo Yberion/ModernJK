@@ -5393,6 +5393,9 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 		targ->health = targ->health - take;
 		if ( targ->client && mod >= 0 && mod < MOD_MAX ) {
 			g_stats.modDamage[mod] += take;
+			if ( targ->s.number >= MAX_CLIENTS ) {
+				g_stats.npcDamage[mod] += take;
+			}
 			G_ScenarioDamageTrace( targ, inflictor, point, take, mod );
 		}
 		else if ( mod >= 0 && mod < MOD_MAX ) {

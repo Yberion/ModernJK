@@ -1535,6 +1535,7 @@ typedef struct gameStats_s {
 	int		specialMoves[LS_MOVE_MAX];	// special saber moves started by clients (back attacks to the hilt bash), by move
 	int		itemPickups[MAX_ITEMS];	// items picked up (Touch_Item), by index in bg_itemlist
 	int		objectDamage[MOD_MAX];	// health taken from what is not a client (a shield, a sentry, an E-Web), by cause
+	int		npcDamage[MOD_MAX];	// health taken from the NPCs and vehicles, clients counted in modDamage too, by cause
 } gameStats_t;
 extern	gameStats_t		g_stats;
 void G_StatsSaberMove( gentity_t *ent, int oldSaberMove );

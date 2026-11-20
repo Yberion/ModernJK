@@ -51,6 +51,15 @@
 //   40 health; the defender holds no saber, so that the seeker's, the sentry's and the E-Web's shots hit)
 // scenario item <reps> <item classname> [distance] (with pickup=: the item that far in front of the attacker, which
 //   walks onto it; the attacker has 40 health, no armour, the saber only and no ammunition before)
+// scenario vehicle <reps> <vehicle> <ride|destroy> [distance]
+//   the vehicle (its name in ext_data/vehicles: swoop_mp, atst_vehicle, x-wing) spawned at every reset in front of the
+//   attacker, 40 units of floor between their boxes, and dropped onto the floor (a spawn point is taken only where its
+//   box fits); both bots hold the melee (a speeder fires only for a rider holding it or its saber off); the attacker
+//   boards it with the use key (looking at it) at the start of the script; ride: a speeder fires 1 s at the defender,
+//   drives 1 s at it, then its rider jumps off; a walker fires its laser 1 s and a rocket, walks 1 s, then its rider
+//   gets off with the use key; a fighter takes off (the jump held 1.5 s), flies forward 0.6 s and fires 1 s, above the
+//   defender; destroy: the
+//   defender fires a rocket at the vehicle, whose health is 100 at most (the swoop's 80 kept)
 // scenario off
 // Options after the arguments: hold=<ms>, rep=<ms> (a repetition, 2000; the scripts read it to wait for the end);
 // pickup=<units> (plan step 20, the game types: in a holocron game a holocron of the force scenario's power, in a Jedi
@@ -65,6 +74,7 @@
 // before the script of any other scenario: a force scenario after a powerup picked up).
 // Every reset clears the holdable items' state and what they spawned (the seeker, the sentry, the shield, the E-Web,
 // the cloak and the jetpack switched off and full), and gives the attacker the holdable item of its scenario only.
+// Every reset gets the bots off any vehicle, and removes the vehicle of a vehicle scenario, then spawns it again.
 // The bots are the first ones that are not spectators; in a power duel the defender is the lone duelist. In siege a
 // dead bot is respawned at once, not at the next wave.
 
@@ -87,6 +97,10 @@ extern void G_SiegeSetObjectiveComplete( int team, int objective, qboolean failI
 extern void Jedi_Decloak( gentity_t *self );
 extern void EWebDisattach( gentity_t *owner, gentity_t *eweb );
 extern char *modNames[];
+extern gentity_t *NPC_Spawn_Do( gentity_t *ent );
+extern void BG_VehicleAdjustBBoxForOrientation( Vehicle_t *veh, vec3_t origin, vec3_t mins, vec3_t maxs, int clientNum,
+	int tracemask, void ( *localTrace )( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs,
+	const vec3_t end, int passEntityNum, int contentMask ) );
 
 #define SCN_REP_MSEC		2000	// one repetition
 #define SCN_SETTLE_MSEC		500		// still, after the reset, before the script starts
@@ -104,8 +118,15 @@ typedef enum {
 	SCN_TEAM,
 	SCN_SPECTATE,
 	SCN_HOLDABLE,
-	SCN_ITEM
+	SCN_ITEM,
+	SCN_VEHICLE
 } scenarioType_t;
+
+// what the bots do in a vehicle scenario
+typedef enum {
+	VM_RIDE,
+	VM_DESTROY
+} vehicleMode_t;
 
 // what the bots do in a flag scenario
 typedef enum {
@@ -183,6 +204,10 @@ static struct {
 	spectateMode_t	spectateMode;
 	holdable_t		holdable;		// the holdable item of a holdable scenario
 	char			itemClass[MAX_QPATH];	// the item of an item scenario or of item=, "" without
+	char			vehicleType[MAX_QPATH];	// the vehicle of a vehicle scenario (ext_data/vehicles)
+	vehicleMode_t	vehicleMode;
+	gentity_t		*vehicle;		// the vehicle spawned at the last reset
+	float			vehicleDist;	// its distance in front of the attacker
 	float			dist;			// between the two origins
 	vec3_t			origin;			// the attacker's place, facing yaw
 	float			yaw;
@@ -212,6 +237,13 @@ static struct {
 	// and zoomed in
 	int		armorGained[3], armorLost[3], ammoGained[3], ammoSpent[3], cloaked[3], jetpack[3], zoomed[3];
 	int		armor[3], ammo[3];	// the previous instant's values, from the reset on
+	// plan step 20, the vehicles: by role the boardings and exits, the instants aboard and the distance moved then; the
+	// vehicle's health and shield lost, and its destructions
+	int		boardings[3], exits[3], aboard[3];
+	float	aboardPath[3];
+	int		vehicleNum[3];		// the previous instant's vehicle, from the reset on
+	int		vehicleHealthLost, vehicleShieldLost, vehicleDestroyed;
+	int		vehicleHealth, vehicleShield;	// the previous instant's values, from the reset on
 	// the previous instant's values, from the reset on
 	int		health[3], force[3];
 	vec3_t	origin[3], start[3];
@@ -286,6 +318,8 @@ static gentity_t *G_ScenarioNextSpot( gentity_t *spot, size_t *kind ) {
 	return NULL;
 }
 
+static qboolean G_ScenarioVehicleFits( void );
+
 // a place where the attacker stands on a spawn point and the defender on the floor in front of it
 static qboolean G_ScenarioFindPlace( void ) {
 	const vec3_t mins = { -15, -15, DEFAULT_MINS_2 };
@@ -350,6 +384,9 @@ static qboolean G_ScenarioFindPlace( void ) {
 		}
 		VectorCopy( start, scn.origin );
 		scn.yaw = spot->s.angles[YAW];
+		if ( scn.type == SCN_VEHICLE && !G_ScenarioVehicleFits() ) {
+			continue;
+		}
 		return qtrue;
 	}
 	return qfalse;
@@ -417,11 +454,37 @@ static void G_ScenarioClearHoldables( gentity_t *ent ) {
 	client->jetPackToggleTime = 0;
 }
 
+// the vehicle of a vehicle scenario while it exists (an exploded one frees itself, DeathUpdate)
+static gentity_t *G_ScenarioVehicle( void ) {
+	gentity_t *v = scn.vehicle;
+
+	return ( v && v->inuse && v->client && v->m_pVehicle && v->client->NPC_class == CLASS_VEHICLE ) ? v : NULL;
+}
+
+// at every reset, a bot on a vehicle (the scenario's, or one of the map's taken in the free play) gets off where it is,
+// as with the use key but forced (Eject); when no side is free, as a dead rider, whom Eject leaves in place
+static void G_ScenarioLeaveVehicle( gentity_t *ent ) {
+	gentity_t *veh = &g_entities[ent->client->ps.m_iVehicleNum];
+
+	if ( !ent->client->ps.m_iVehicleNum || !veh->inuse || !veh->m_pVehicle ) {
+		return;
+	}
+	if ( !veh->m_pVehicle->m_pVehicleInfo->Eject( veh->m_pVehicle, (bgEntity_t *)ent, qtrue ) ) {
+		const int health = ent->health;
+
+		ent->health = 0;
+		veh->m_pVehicle->m_pVehicleInfo->Eject( veh->m_pVehicle, (bgEntity_t *)ent, qtrue );
+		ent->health = health;
+	}
+	ent->flags &= ~FL_VEH_BOARDING;	// a dismount started (UpdateRider)
+}
+
 static void G_ScenarioPlace( gentity_t *ent, const vec3_t origin, float yaw ) {
 	gclient_t *client = ent->client;
 	vec3_t angles = { 0, 0, 0 };
 	int i, j;
 
+	G_ScenarioLeaveVehicle( ent );
 	if ( level.gametype == GT_SIEGE
 		&& ( ent->health <= 0 || client->ps.stats[STAT_HEALTH] <= 0 || client->tempSpectate >= level.time ) ) {
 		// in siege the dead wait for the next wave as spectators with 1 point of health (ClientRespawn, g_siegeRespawn):
@@ -599,12 +662,16 @@ static void G_ScenarioEquip( gentity_t *ent, qboolean attacker ) {
 	}
 
 	if ( scn.type == SCN_WEAPON || scn.type == SCN_TURRET || ( scn.type == SCN_FORCE && scn.power == FP_SABERTHROW && !attacker )
-		|| ( scn.type == SCN_FLAG && scn.flagMode == FM_RETURN && !attacker ) || scn.type == SCN_HOLDABLE ) {
-		// the defender cannot block with a saber; in a flag's return it kills the carrier with a rocket; the shield's
-		// owner fires a blaster into it; the ammunition dispenser's teammate holds an empty blaster (G_CanUseDispOn)
+		|| ( scn.type == SCN_FLAG && scn.flagMode == FM_RETURN && !attacker ) || scn.type == SCN_HOLDABLE
+		|| scn.type == SCN_VEHICLE ) {
+		// the defender cannot block with a saber; in a flag's return it kills the carrier with a rocket, and the
+		// vehicle in a vehicle's destruction; the shield's owner fires a blaster into it; the ammunition dispenser's
+		// teammate holds an empty blaster (G_CanUseDispOn); a speeder fires only for a rider holding the melee or its
+		// saber off (ClientEvents)
 		const qboolean blaster = ( scn.type == SCN_HOLDABLE
 			&& ( ( attacker && scn.holdable == HI_SHIELD ) || ( !attacker && scn.holdable == HI_AMMODISP ) ) ) ? qtrue : qfalse;
-		int weapon = ( attacker && scn.type == SCN_WEAPON ) ? scn.weapon : ( scn.type == SCN_FLAG ) ? WP_ROCKET_LAUNCHER
+		int weapon = ( attacker && scn.type == SCN_WEAPON ) ? scn.weapon
+			: ( scn.type == SCN_FLAG || ( scn.type == SCN_VEHICLE && scn.vehicleMode == VM_DESTROY && !attacker ) ) ? WP_ROCKET_LAUNCHER
 			: blaster ? WP_BLASTER : WP_MELEE;
 
 		if ( weapon == WP_EMPLACED_GUN ) { // the hands free to mount the gun, which takes the place of the weapon
@@ -689,6 +756,13 @@ static void G_ScenarioStartSampling( void ) {
 		VectorCopy( ent->client->ps.origin, scnStats.teamOrigin[n] );
 		scnStats.armor[n] = ent->client->ps.stats[STAT_ARMOR];
 		scnStats.ammo[n] = G_ScenarioAmmo( &ent->client->ps );
+		scnStats.vehicleNum[n] = ent->client->ps.m_iVehicleNum;
+	}
+	if ( G_ScenarioVehicle() ) {
+		const gentity_t *veh = G_ScenarioVehicle();
+
+		scnStats.vehicleHealth = veh->health;
+		scnStats.vehicleShield = veh->client->ps.stats[STAT_ARMOR];
 	}
 	if ( scn.spectatorMode != SPEC_NONE ) {
 		const gclient_t *client = g_entities[scn.client[SCN_SPECTATOR]].client;
@@ -769,6 +843,9 @@ static void G_ScenarioSample( void ) {
 			scnStats.saberLocked[n]++;
 		}
 		scnStats.path[n] += Distance( ps->origin, scnStats.origin[n] );
+		if ( ps->m_iVehicleNum ) { // the rider goes with its vehicle (G_AttachToVehicle)
+			scnStats.aboardPath[n] += Distance( ps->origin, scnStats.origin[n] );
+		}
 		scnStats.health[n] = ent->health;
 		scnStats.force[n] = ps->fd.forcePower;
 		VectorCopy( ps->origin, scnStats.origin[n] );
@@ -801,6 +878,29 @@ static void G_ScenarioSample( void ) {
 				scnStats.zoomed[n]++;
 			}
 		}
+		// plan step 20, the vehicles
+		if ( ps->m_iVehicleNum && !scnStats.vehicleNum[n] ) {
+			scnStats.boardings[n]++;
+		}
+		else if ( !ps->m_iVehicleNum && scnStats.vehicleNum[n] ) {
+			scnStats.exits[n]++;
+		}
+		if ( ps->m_iVehicleNum ) {
+			scnStats.aboard[n]++;
+		}
+		scnStats.vehicleNum[n] = ps->m_iVehicleNum;
+	}
+	if ( G_ScenarioVehicle() ) {
+		const gentity_t *veh = G_ScenarioVehicle();
+		const int health = veh->health, shield = veh->client->ps.stats[STAT_ARMOR];
+
+		scnStats.vehicleHealthLost += Q_max( 0, scnStats.vehicleHealth - health );
+		scnStats.vehicleShieldLost += Q_max( 0, scnStats.vehicleShield - shield );
+		if ( health <= 0 && scnStats.vehicleHealth > 0 ) {
+			scnStats.vehicleDestroyed++;
+		}
+		scnStats.vehicleHealth = health;
+		scnStats.vehicleShield = shield;
 	}
 	if ( scn.spectatorMode != SPEC_NONE ) {
 		G_ScenarioSampleTeam( SCN_SPECTATOR );
@@ -868,6 +968,21 @@ void G_ScenarioPrintStats( void ) {
 			scnStats.zoomed[n] ) );
 	}
 	trap->Print( "%s\n", line );
+	// plan step 20, the vehicles
+	Q_strncpyz( line, "vehicle statistics: health taken from the NPCs and vehicles, by cause:", sizeof( line ) );
+	for ( i = 0; i < MOD_MAX; i++ ) {
+		if ( g_stats.npcDamage[i] ) {
+			Q_strcat( line, sizeof( line ), va( " %s %d", modNames[i], g_stats.npcDamage[i] ) );
+		}
+	}
+	Q_strcat( line, sizeof( line ), va( "; the vehicle's health and shield lost, destructions: %d %d %d; boardings, exits, "
+		"instants aboard, distance moved aboard, by role:", scnStats.vehicleHealthLost, scnStats.vehicleShieldLost,
+		scnStats.vehicleDestroyed ) );
+	for ( n = 0; n < scn.numClients; n++ ) {
+		Q_strcat( line, sizeof( line ), va( "%s %s %d %d %d %.0f", n ? "," : "", roles[n], scnStats.boardings[n],
+			scnStats.exits[n], scnStats.aboard[n], scnStats.aboardPath[n] ) );
+	}
+	trap->Print( "%s\n", line );
 }
 
 // an entity of a map's kind spawned by the scenario, with no keys but its place, angle, flags and count (the spawn
@@ -889,6 +1004,113 @@ static gentity_t *G_ScenarioSpawn( const char *classname, const vec3_t origin, f
 		return NULL;
 	}
 	return ent;
+}
+
+// the vehicle of a vehicle scenario in front of the attacker, facing as it does, spawned as a map's NPC_Vehicle without
+// a targetname (SP_NPC_Vehicle, G_VehicleSpawn): no team, no AI
+static gentity_t *G_ScenarioSpawnVehicle( void ) {
+	const vec3_t fwd = { Q_cospif( scn.yaw / 180.0f ), Q_sinpif( scn.yaw / 180.0f ), 0 };
+	gentity_t *spawner = G_Spawn();
+	gentity_t *veh;
+
+	level.numSpawnVars = 0;
+	level.numSpawnVarChars = 0;
+	spawner->classname = "NPC_Vehicle";
+	spawner->NPC_type = scn.vehicleType;
+	spawner->count = 1;
+	VectorMA( scn.origin, scn.vehicleDist, fwd, spawner->s.origin );
+	G_SetOrigin( spawner, spawner->s.origin );
+	spawner->s.angles[YAW] = scn.yaw;
+	veh = NPC_Spawn_Do( spawner );	// frees the spawner
+	if ( !veh || !veh->NPC || !veh->m_pVehicle ) {
+		return NULL;
+	}
+	veh->s.angles[YAW] = scn.yaw;
+	veh->NPC->behaviorState = BS_CINEMATIC;
+	// the box its first move gives it, from its .veh file (BG_VehicleAdjustBBoxForOrientation), at once: NPC_Begin waits
+	// while a player touches the .npc file's box (NPC_SpotWouldTelefrag), larger for the AT-ST (80 units against 40)
+	BG_VehicleAdjustBBoxForOrientation( veh->m_pVehicle, veh->r.currentOrigin, veh->r.mins, veh->r.maxs, veh->s.number,
+		MASK_NPCSOLID, NULL );
+	{ // dropped onto the floor from 128 units up with that box: a fighter's is wide, and the ground under it uneven (in
+		// the ground, it cannot move)
+		vec3_t top, bottom;
+		trace_t tr;
+
+		VectorCopy( veh->r.currentOrigin, top );
+		VectorCopy( veh->r.currentOrigin, bottom );
+		top[2] += 128;
+		bottom[2] -= 128;
+		trap->Trace( &tr, top, veh->r.mins, veh->r.maxs, bottom, veh->s.number, MASK_NPCSOLID, qfalse, 0, 0 );
+		if ( !tr.startsolid && !tr.allsolid ) {
+			G_SetOrigin( veh, tr.endpos );
+			VectorCopy( tr.endpos, veh->s.origin );
+			VectorCopy( tr.endpos, veh->client->ps.origin );
+		}
+	}
+	trap->LinkEntity( (sharedEntity_t *)veh );
+	return veh;
+}
+
+// an NPC removed with the goal entity every NPC spawns with (freed at an NPC's death, player_die)
+static void G_ScenarioFreeNPC( gentity_t *npc ) {
+	if ( npc->NPC && npc->NPC->tempGoal ) {
+		G_FreeEntity( npc->NPC->tempGoal );
+		npc->NPC->tempGoal = NULL;
+	}
+	G_FreeEntity( npc );
+}
+
+// the vehicle of a vehicle scenario removed, its riders off first, with the astromech a fighter spawns with (NPC_Begin),
+// which would stand in the next vehicle's place and keep it from spawning (NPC_SpotWouldTelefrag)
+static void G_ScenarioRemoveVehicle( void ) {
+	gentity_t *veh = G_ScenarioVehicle();
+	int i;
+
+	scn.vehicle = NULL;
+	if ( !veh ) {
+		return;
+	}
+	for ( i = 0; i < scn.numClients; i++ ) {
+		if ( g_entities[scn.client[i]].client && g_entities[scn.client[i]].client->ps.m_iVehicleNum == veh->s.number ) {
+			G_ScenarioLeaveVehicle( &g_entities[scn.client[i]] );
+		}
+	}
+	if ( veh->m_pVehicle->m_pDroidUnit ) {
+		G_ScenarioFreeNPC( (gentity_t *)veh->m_pVehicle->m_pDroidUnit );
+	}
+	G_ScenarioFreeNPC( veh );
+}
+
+// at the attacker's place (G_ScenarioFindPlace), the vehicle's distance from its box, read from one spawned once: 40
+// units of floor between the attacker's box and its own along the axis nearest the view (the boxes keep to the axes, so
+// a slanted view needs more; a vehicle touching a player waits to spawn, NPC_SpotWouldTelefrag), the near side within
+// the use key's 64 units from the eyes; then its box clear of the world 128 units up, whence it drops
+// (G_ScenarioSpawnVehicle), and the defender beyond it
+static qboolean G_ScenarioVehicleFits( void ) {
+	const float c = Q_fabsf( Q_cospif( scn.yaw / 180.0f ) ), s = Q_fabsf( Q_sinpif( scn.yaw / 180.0f ) );
+	const float axis = Q_max( c, s );
+	const vec3_t fwd = { Q_cospif( scn.yaw / 180.0f ), Q_sinpif( scn.yaw / 180.0f ), 0 };
+	vec3_t mins, maxs, top;
+	float half;
+	trace_t tr;
+
+	scn.vehicleDist = 64;
+	scn.vehicle = G_ScenarioSpawnVehicle();
+	if ( !scn.vehicle ) {
+		return qfalse;
+	}
+	VectorCopy( scn.vehicle->r.mins, mins );
+	VectorCopy( scn.vehicle->r.maxs, maxs );
+	G_ScenarioRemoveVehicle();
+	half = ( c >= s ) ? maxs[0] : maxs[1];	// a fighter's box turns with it
+	scn.vehicleDist = ( half + 15 + 25 ) / axis;
+	if ( scn.vehicleDist + ( half + 15 ) / axis > scn.dist ) {
+		return qfalse;
+	}
+	VectorMA( scn.origin, scn.vehicleDist, fwd, top );
+	top[2] += 128;
+	trap->Trace( &tr, top, mins, maxs, top, ENTITYNUM_NONE, MASK_SOLID, qfalse, 0, 0 );
+	return ( !tr.startsolid && !tr.allsolid ) ? qtrue : qfalse;
 }
 
 // the emplaced gun's user taken off it as emplaced_gun_update does, and free to mount it again at once
@@ -999,6 +1221,7 @@ static void G_ScenarioFreeSpawned( void ) {
 	int i;
 
 	G_ScenarioReleaseGun();
+	G_ScenarioRemoveVehicle();
 	for ( i = 0; i < 2; i++ ) {
 		if ( scn.spawned[i] && scn.spawned[i]->inuse ) {
 			G_FreeEntity( scn.spawned[i] );
@@ -1085,6 +1308,14 @@ void G_ScenarioFrame( void ) {
 	}
 	if ( scn.type == SCN_TURRET ) { // the turret's target is the defender
 		g_entities[scn.client[0]].flags |= FL_NOTARGET;
+	}
+	if ( scn.type == SCN_VEHICLE ) { // a new vehicle, the bots off the last one (G_ScenarioPlace)
+		G_ScenarioRemoveVehicle();
+		scn.vehicle = G_ScenarioSpawnVehicle();
+		if ( scn.vehicle && scn.vehicleMode == VM_DESTROY && scn.vehicle->health > 100 ) {
+			// what one rocket destroys (the AT-ST's 1,500); NPC_Begin keeps it, as a health set in a map
+			scn.vehicle->health = scn.vehicle->client->ps.stats[STAT_HEALTH] = scn.vehicle->m_pVehicle->m_iArmor = 100;
+		}
 	}
 	if ( scn.type == SCN_ITEM || ( scn.type == SCN_HOLDABLE && ( scn.holdable == HI_MEDPAC || scn.holdable == HI_MEDPAC_BIG ) ) ) {
 		// what a health item or a medpac gives back
@@ -1197,6 +1428,27 @@ void G_ScenarioDamageTrace( gentity_t *targ, gentity_t *inflictor, const vec3_t 
 		point ? point[0] : 0.0f, point ? point[1] : 0.0f, point ? point[2] : 0.0f,
 		inflictor ? inflictor->r.currentOrigin[0] : 0.0f, inflictor ? inflictor->r.currentOrigin[1] : 0.0f,
 		inflictor ? inflictor->r.currentOrigin[2] : 0.0f );
+}
+
+// the view from a bot's eyes towards a point
+static void G_ScenarioLookAt( const gentity_t *ent, const vec3_t target, vec3_t view ) {
+	vec3_t eyes, to;
+
+	VectorCopy( ent->client->ps.origin, eyes );
+	eyes[2] += ent->client->ps.viewheight;
+	VectorSubtract( target, eyes, to );
+	vectoangles( to, view );
+}
+
+// the view that aims a bot's weapon at a point from its muzzle, beside and below the eyes (CalcMuzzlePoint)
+static void G_ScenarioAimMuzzle( gentity_t *ent, const vec3_t target, vec3_t view ) {
+	vec3_t fwd, right, up, muzzle, to;
+
+	G_ScenarioLookAt( ent, target, view );	// from the eyes
+	AngleVectors( view, fwd, right, up );
+	CalcMuzzlePoint( ent, fwd, right, up, muzzle );
+	VectorSubtract( target, muzzle, to );
+	vectoangles( to, view );	// from the muzzle
 }
 
 // a saber scenario's buttons and moves, from the start of the repetition's script (phase, in ms)
@@ -1342,21 +1594,38 @@ qboolean G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd ) {
 			VectorSubtract( flag->r.currentOrigin, ent->client->ps.origin, to );
 			view[YAW] = vectoyaw( to );
 		}
-		else { // it aims the rocket launcher's muzzle (beside and below the eyes) at the carrier's chest, which a rocket
-			// kills: the legs and the arms take less (G_LocationBasedDamageModifier), and a carrier hurt is thrown back
-			// onto its own flag
-			vec3_t target, fwd, right, up, muzzle;
+		else { // it aims the rocket launcher at the carrier's chest, which a rocket kills: the legs and the arms take
+			// less (G_LocationBasedDamageModifier), and a carrier hurt is thrown back onto its own flag
+			vec3_t target;
 
 			VectorCopy( g_entities[scn.client[0]].client->ps.origin, target );
 			target[2] += 16;
-			VectorCopy( ent->client->ps.origin, muzzle );
-			muzzle[2] += ent->client->ps.viewheight;
-			VectorSubtract( target, muzzle, to );
-			vectoangles( to, view );	// from the eyes
-			AngleVectors( view, fwd, right, up );
-			CalcMuzzlePoint( ent, fwd, right, up, muzzle );
-			VectorSubtract( target, muzzle, to );
-			vectoangles( to, view );	// from the muzzle
+			G_ScenarioAimMuzzle( ent, target, view );
+		}
+	}
+	if ( scn.type == SCN_VEHICLE && scn.repStart && phase >= 0 && !spectator ) {
+		const gentity_t *veh = G_ScenarioVehicle();
+		const gentity_t *defender = &g_entities[scn.client[1]];
+
+		if ( attacker && veh && phase < 50 ) { // the use key's trace, from the eyes, onto the vehicle's centre
+			G_ScenarioLookAt( ent, veh->r.currentOrigin, view );
+		}
+		else if ( attacker && veh && scn.vehicleMode == VM_RIDE && veh->m_pVehicle->m_pVehicleInfo->type != VH_FIGHTER ) {
+			// the defender's chest, from the rider's place on the vehicle (a fighter flies level)
+			vec3_t target;
+
+			VectorCopy( defender->client->ps.origin, target );
+			target[2] += 16;
+			G_ScenarioLookAt( ent, target, view );
+		}
+		else if ( !attacker && veh && scn.vehicleMode == VM_DESTROY ) {
+			// the rocket at the vehicle's body, three quarters up its box (the missiles hit the model: halfway up, between
+			// the AT-ST's legs)
+			vec3_t target;
+
+			VectorCopy( veh->r.currentOrigin, target );
+			target[2] += ( veh->r.mins[2] + 3 * veh->r.maxs[2] ) / 4;
+			G_ScenarioAimMuzzle( ent, target, view );
 		}
 	}
 	if ( attacker && scn.type == SCN_WEAPON && scn.weapon == WP_EMPLACED_GUN && scn.repStart && phase >= 0 ) {
@@ -1554,6 +1823,56 @@ qboolean G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd ) {
 			ucmd->buttons = BUTTON_ATTACK;	// the shield up after 500 ms (PlaceShield)
 		}
 		break;
+	case SCN_VEHICLE: {
+		const gentity_t *veh = G_ScenarioVehicle();
+		const int kind = veh ? veh->m_pVehicle->m_pVehicleInfo->type : VH_NONE;
+
+		if ( attacker && phase < 50 ) { // boards (TryUse); held longer, the next use 100 ms later would get it off
+			ucmd->buttons = BUTTON_USE;
+		}
+		else if ( scn.vehicleMode == VM_DESTROY ) { // a rocket once the attacker is aboard
+			if ( !attacker && phase >= 1000 && phase < 1050 ) {
+				ucmd->buttons = BUTTON_ATTACK;
+			}
+		}
+		else if ( attacker && kind == VH_SPEEDER ) { // fires, drives at the defender, jumps off
+			if ( phase >= 1000 && phase < 2000 ) {
+				ucmd->buttons = BUTTON_ATTACK;
+			}
+			else if ( phase >= 2000 && phase < 3000 ) {
+				ucmd->forwardmove = 127;
+			}
+			else if ( phase >= 3000 && phase < 3050 ) {
+				ucmd->upmove = 127;
+			}
+		}
+		else if ( attacker && kind == VH_WALKER ) { // the laser, a rocket, walks, gets off (1.5 s aboard first)
+			if ( phase >= 1600 && phase < 2600 ) {
+				ucmd->buttons = BUTTON_ATTACK;
+			}
+			else if ( phase >= 2600 && phase < 2650 ) {
+				ucmd->buttons = BUTTON_ALT_ATTACK;
+			}
+			else if ( phase >= 2700 && phase < 3700 ) {
+				ucmd->forwardmove = 127;
+			}
+			else if ( phase >= 3800 && phase < 3850 ) {
+				ucmd->buttons = BUTTON_USE;
+			}
+		}
+		else if ( attacker && kind == VH_FIGHTER ) { // takes off, flies forward, fires (1.5 s aboard first)
+			if ( phase >= 1600 && phase < 3100 ) {
+				ucmd->upmove = 127;
+			}
+			else if ( phase >= 3100 && phase < 3700 ) {
+				ucmd->forwardmove = 127;
+			}
+			if ( phase >= 3500 && phase < 4500 ) {
+				ucmd->buttons = BUTTON_ATTACK;
+			}
+		}
+		break;
+	}
 	default:
 		break;
 	}
@@ -1808,8 +2127,17 @@ void Svcmd_Scenario_f( void ) {
 		scn.dist = (float)G_ScenarioArgInt( 4, 128 );
 		scn.type = SCN_ITEM;
 	}
+	else if ( !Q_stricmp( type, "vehicle" ) ) {
+		char mode[MAX_TOKEN_CHARS];
+
+		Q_strncpyz( scn.vehicleType, arg, sizeof( scn.vehicleType ) );
+		trap->Argv( 4, mode, sizeof( mode ) );
+		scn.vehicleMode = Q_stricmp( mode, "destroy" ) ? VM_RIDE : VM_DESTROY;
+		scn.dist = (float)G_ScenarioArgInt( 5, 512 );
+		scn.type = SCN_VEHICLE;
+	}
 	else {
-		trap->Print( "scenario: saber, force, weapon, turret, flag, objective, team, spectate, holdable, item or off\n" );
+		trap->Print( "scenario: saber, force, weapon, turret, flag, objective, team, spectate, holdable, item, vehicle or off\n" );
 		return;
 	}
 	if ( scn.type != SCN_ITEM ) {
@@ -1836,8 +2164,14 @@ void Svcmd_Scenario_f( void ) {
 	for ( i = 0; i < scn.numClients; i++ ) { // the teams every reset gives back
 		scn.team[i] = g_entities[scn.client[i]].client->sess.sessionTeam;
 	}
+	if ( scn.type == SCN_VEHICLE && BG_VehicleGetIndex( scn.vehicleType ) == VEHICLE_NONE ) {
+		trap->Print( "scenario: no vehicle %s in ext_data/vehicles\n", scn.vehicleType );
+		scn.type = SCN_NONE;
+		return;
+	}
 	if ( !G_ScenarioFindPlace() ) {
-		trap->Print( "scenario: no open spawn point for a distance of %.0f\n", scn.dist );
+		trap->Print( "scenario: no open spawn point for a distance of %.0f%s\n", scn.dist,
+			( scn.type == SCN_VEHICLE ) ? ", the vehicle between the bots" : "" );
 		scn.type = SCN_NONE;
 		return;
 	}
