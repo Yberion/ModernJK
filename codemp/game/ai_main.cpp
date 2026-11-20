@@ -6912,9 +6912,12 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 		}
 
 		if (bs->currentEnemy->client)
-		{
-			VectorCopy(bs->currentEnemy->client->ps.origin, headlevel);
-			headlevel[2] += bs->currentEnemy->client->ps.viewheight;
+		{ // a bot shooting aims at the chest of the model it sees, as a player aims; at its eye level otherwise (plan step 20 part 10)
+			if (!G_AimSpot(&g_entities[bs->client], bs->currentEnemy, headlevel))
+			{
+				VectorCopy(bs->currentEnemy->client->ps.origin, headlevel);
+				headlevel[2] += bs->currentEnemy->client->ps.viewheight;
+			}
 		}
 		else
 		{

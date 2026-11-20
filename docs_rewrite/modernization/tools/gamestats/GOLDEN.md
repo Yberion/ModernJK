@@ -2,7 +2,7 @@
 
 The reference counts of the scripted bot scenarios (plan steps 14 and 20; [../../progress/step-20-scenarios.md](../../progress/step-20-scenarios.md)), in one place: what the two files hold, how to run and compare them, and every difference between them with its reason. Any difference not listed here is a bug until it is explained.
 
-State: 20 November 2026, plan step 20 part 10a. 302 scenarios, 15 lines each, 4,530 lines per file.
+State: 20 November 2026, plan step 20 part 10b. 302 scenarios, 15 lines each, 4,530 lines per file.
 
 ## 1. The two files
 
@@ -53,7 +53,11 @@ The lines added over the parts, each time with every scenario of before checked 
 
 ## 3. The differences between the two files
 
-75 lines in 34 scenarios, from two fixes. 61 lines in 20 scenarios come from the first: the weapons' charge and the rocket's lock counted to the time of the command that releases the button, no longer to the last 20 Hz instant, up to 50 ms earlier (19 November 2026; [../../progress/step-20-scenarios.md](../../progress/step-20-scenarios.md) sections 9 and 12, [../../CHANGES.md](../../CHANGES.md) section 24). For a bot the gap is 50 ms in every case below, each held a multiple of 50 ms: the build of the day counts the charge 50 ms longer than the old commit.
+277 lines in 84 scenarios, from three changes: the weapons' charge (section 3.1), the names of the last events (section 3.2), and since part 10b the shots towards the point the eyes aim at (section 3.3), which also changes 27 lines of 18 scenarios of the first two.
+
+### 3.1 The weapons' charge
+
+61 lines in 20 scenarios at part 10a come from the first fix: the weapons' charge and the rocket's lock counted to the time of the command that releases the button, no longer to the last 20 Hz instant, up to 50 ms earlier (19 November 2026; [../../progress/step-20-scenarios.md](../../progress/step-20-scenarios.md) sections 9 and 12, [../../CHANGES.md](../../CHANGES.md) section 24). For a bot the gap is 50 ms in every case below, each held a multiple of 50 ms: the build of the day counts the charge 50 ms longer than the old commit.
 
 | scenario | lines | why |
 |---|---|---|
@@ -74,12 +78,41 @@ The lines added over the parts, each time with every scenario of before checked 
 
 The other charges held give the same counts in both: at their minimum or maximum, or on the same side of a threshold either way.
 
+Since part 10b these scenarios' lines also differ by the shots' fix where it changes them (section 3.3): the scenario line of the bryars' charged shots and of the locked rocket held 750 ms (the push follows the shot's direction), the hits of the bowcaster's bolts (on the head) and of the DEMP2's charged blasts (traced from the eyes), and the corpse the siege's locked rocket then hurts.
+
+### 3.2 The names of the last events
+
 The second fix, the names of the last events (17 November 2026, plan step 18 part 4; [../../CHANGES.md](../../CHANGES.md) section 24, the multiplayer logs): the old commit's list of event names (`eventnames`, `bg_misc.c`) stops before the last events, from `EV_ANGER1` to `EV_SIEGESPEC` ("fixme, added a bunch that aren't here!"), so its `event statistics` line prints `(null)` where the build of the day prints these names, with the same counts: 14 lines in 14 scenarios.
 
 | scenario | lines | why |
 |---|---|---|
 | `siege_vehicle_atst_vehicle_ride_512_rep5000` | 1 | the defender killed by the AT-ST early in each repetition waits for the next wave as a siege spectator (`EV_SIEGESPEC` 48), the only scenario where the event happens |
 | the 13 NPC scenarios (part 8: `npc_rancor_180_rep16000`, `weapon_11_0_256_npcrancor_rep3000`, `saber_strong_idle_112_npcrancor_rep3000`, `npc_wampa_128_rep8000`, `saber_strong_idle_64_npcwampa_rep6000`, `force_lightning_3_128_npcwampa_rep6000`, `npc_stormtrooper_128_rep6000`, `weapon_4_0_256_npcstormtrooper_rep6000`, `force_grip_3_128_npcstormtrooper_rep4000`, `force_push_3_128_npcstormtrooper_rep4000`, `npc_reborn_64_rep10000`, `saber_medium_idle_64_npcreborn_rep6000`, `force_push_3_128_npcreborn_rep4000`) | 1 each | the NPCs' voice events (`EV_ANGER1` to `3` at their first sight of the bot, the reborn's `EV_COMBAT1` to `3`, `EV_TAUNT1` to `3` and `EV_GLOAT1`) |
+
+### 3.3 The shots towards the point aimed at (part 10b)
+
+The fix of plan step 20 part 10 ([../../CHANGES.md](../../CHANGES.md) section 26), not ported to the old commit: the projectiles leave the weapon's fixed muzzle point turned towards the point the eyes aim at, the beams are traced from the eyes, the emplaced gun's barrels fire towards its crosshair's point, the NPCs and the bots that shoot aim at the chest of the model they see. 202 lines in 54 scenarios, 50 of which differed in no line before, and 27 lines of 18 scenarios of sections 3.1 and 3.2 changed further. The scenarios' own views changed with it, and were ported (section 3.4). By what the fix does:
+
+| scenarios | lines | why |
+|---|---|---|
+| `weapon_4_0`, `weapon_4_1`, `weapon_4_1_256_hold100` to `hold1400_rep3000`, `weapon_16_1_256_hold100` to `hold1400_rep3000`, `weapon_11_1`, `weapon_11_1_256_hold750_rep3000`, `hold900_rep3000`, `hold1400_rep3000`, `siege_weapon_11_1_256_hold1500_rep3000`, `weapon_4_0_256_aimeyes`, `weapon_4_0_256_aimmuzzle`, `weapon_11_0_256_aimmuzzle` | 1 each (the scenario line; the siege's rocket also the item line) | the same hits; the defender is thrown elsewhere, since the push follows the shot's direction, now towards the point aimed at (the bryars' charged shots and the locked rockets: the lines of section 3.1 besides; the siege's rocket held 1.5 s: its splash on the corpse in other numbers) |
+| `weapon_5_0`, `weapon_5_1`, `weapon_7_0`, `weapon_7_0_256_hold100` to `hold1400_rep3000`, `weapon_7_1`, `weapon_8_0`, `weapon_10_0`, `weapon_15_0`, `weapon_16_0`, `weapon_9_0_256_aimeyes`, `siege_weapon_8_1` | 3 or 4 each | aimed level at the defender 256 units away (or at its head from the eyes), the shots converge on the point the eyes see, the defender's head: the blaster 96 hits on the head (48 on the right arm and 48 on the head before), the bowcaster's bolts all on the head (its alternate too: 94 on the head, the same 46 deaths), the concussion rifle's missile on the head instead of the right arm (4,944 damage instead of 3,024; its splash, 200 units, then reaches the attacker for 6 a shot, as when it hit the head in part 10a's `aim=muzzle` case), both of the DEMP2's bolts on the head; in siege the repeater's alternate on the chest instead of the left arm |
+| `weapon_8_1`, `weapon_9_0`, `weapon_9_0_256_aimmuzzle`, `weapon_11_0`, `weapon_11_0_256_aimeyes`, `weapon_11_0_spectator`, `spectatorfollow1`, `spectatorfollow2`, `weapon_15_0_256_aimeyes` | 4 to 7 each | two shots a repetition: the first now hits, and the second, aimed at the same point, passes beside the defender it threw back or killed. The rocket: the first kills (130 on the head) where two arm hits (85 and 85) killed, the same 48 deaths, the second misses; the repeater's alternate, a bolt that falls, turned towards the head falls onto the body (60, the back), no death (48 before: an arm, then the head), the second misses |
+| `weapon_11_1_256_hold300`, `hold700_rep3000`, `siege_weapon_11_1_256_hold900_rep3000`, `hold1400_rep3000` | 5 to 7 each | the rocket's alternate unlocked (in siege held under 1.5 s): it hits the head and kills (85 on an arm and no death before) |
+| `weapon_9_1`, `weapon_9_1_256_hold300` to `hold2800_rep4500` | 2 or 3 each | the DEMP2's charged blast traced from the eyes, not from the muzzle point: it bursts elsewhere, its splash on the back and the head in other numbers |
+| `weapon_10_1` | 6 | the flechette's alternate fire thrown towards the point aimed at: its mines bounce elsewhere (2 deaths before, 1 now) |
+| `weapon_17_0`, `weapon_17_1`, `weapon_17_0_aimeyes_atchest` | 3 to 5 each | the emplaced gun's two barrels fire towards the point its crosshair shows: 192 of 432 bolts hit aimed 2 degrees up (144 before), aimed at the chest 240 (216), killing at every repetition (24 before) |
+| `weapon_15_0_256_aimmuzzle`, `weapon_15_1_256_aimmuzzle` | 1 and 4 | the view aimed from the muzzle point of before: the concussion rifle's missile now turns towards the point that view's ray hits (its splash on the attacker in other numbers); its beam, traced from the eyes along that view, misses every time (48 deaths by the fall it knocked the defender into, before) |
+| `npc_stormtrooper_128_rep6000`, `force_grip_3_128_npcstormtrooper_rep4000`, `force_push_3_128_npcstormtrooper_rep4000` | 1 to 9 each | the trooper aims at the bot's chest and its bolts reach it: standing with its saber the bot blocks 218 and sends them back into the trooper (719 damage, 2 deaths), none touched it before; gripped or pushed, the trooper's few shots too (the event lines of section 3.2 besides) |
+| `weapon_4_0_256_npcstormtrooper_rep6000` | 7 | the trooper's bolts on the bot's chest (207) instead of its left arm (209 at the old commit); the bot's bryar, aimed from the eyes at the trooper's middle (section 3.4), turns towards it and hits its waist, as part 10a's aim from the muzzle point did; at the old commit it hits its left leg |
+| `ctf_flag_return_256_pickup64_rep3000`, `cty_flag_return_256_pickup64_rep3000` | 7 each | the defender's rocket aimed at the carrier's head from the eyes (section 3.4): it hits the head and kills (130), the flag returned as at part 10a; at the old commit it passes beside the head and hits the left arm (85), the carrier survives and no flag is returned |
+| `siege_vehicle_swoop_mp_destroy_384_rep7000`, `siege_vehicle_atst_vehicle_destroy_640_rep6000` | 1 to 4 each | the rocket aimed from the eyes at the vehicle (section 3.4) turns towards that point: as at part 10a it hits the swoop and its rider's left hand; at the old commit it hits the rider's left leg (70) and the swoop is destroyed by its splash; the AT-ST's rider's splash in other numbers |
+
+The concussion rifle's beam aimed level (`weapon_15_1`) hits as before: traced from the eyes or from the muzzle point, it crosses the defender's body, and its damage takes no location.
+
+### 3.4 The scenarios' views from the eyes (part 10b, ported)
+
+Three views of the scenarios aimed from the muzzle point, along which the shots flew until part 10: the defender's rocket at the flag's carrier, the rocket at a vehicle to destroy, the bot's weapon at an NPC (`G_ScenarioAimMuzzle`). Since the fix they aim from the eyes, as a player does (`G_ScenarioLookAt`), and the carrier is aimed at its head (aimed at the middle of its body from the eyes, the rocket hit an arm held before it and the carrier survived, found with the first version of the fix). Ported to the old commit, where they change 28 lines of 5 scenarios of `scenarios_golden_step14.txt`: the carrier hit on the left arm (85) and not killed, so no flag returned (the defender's 1,488 points gone); the swoop's rider hit on the left leg by the rocket and the swoop destroyed by its splash; the AT-ST's rider's splash and the bryar against the trooper (its left leg), in other numbers. The option `aim=muzzle` keeps the muzzle point's view: it shows where a shot aimed that way now goes.
 
 ## 4. Names given twice
 

@@ -6136,18 +6136,22 @@ CG_`Entity
 =================
 */
 constexpr float MAX_XHAIR_DIST_ACCURACY = 20000.0f;
+extern bool BG_SabersOff( playerState_t *ps );
 static void CG_ScanForCrosshairEntity( void ) {
 	trace_t		trace;
 	vec3_t		start, end;
 	contentsFlags_t	content;
 	int			ignore;
 	bool	bVehCheckTraceFromCamPos = false;
+	vec3_t		muzzle, aimDir = { 0, 0, 0 };	// set with fromMuzzle (GCC cannot see it: -Wmaybe-uninitialized)
+	bool	fromMuzzle = false;
 
 	ignore = cg.predictedPlayerState.clientNum;
 
 	if ( cg_dynamicCrosshair.integer )
 	{
 		vec3_t d_f, d_rt, d_up;
+		const centity_t *rodeVeh = cg.predictedPlayerState.m_iVehicleNum ? &cg_entities[cg.predictedPlayerState.m_iVehicleNum] : nullptr;
 		/*
 		if ( cg.snap->ps.weapon == weapon_t::WP_NONE ||
 			cg.snap->ps.weapon == weapon_t::WP_SABER ||
@@ -6197,95 +6201,137 @@ static void CG_ScanForCrosshairEntity( void ) {
 		{ //locked into our e-web, calc the muzzle from it
 			CG_CalcEWebMuzzlePoint(&cg_entities[cg.snap->ps.emplacedIndex], start, d_f, d_rt, d_up);
 		}
-		else
+		else if ( rodeVeh && rodeVeh->m_pVehicle && rodeVeh->m_pVehicle->m_pVehicleInfo
+			&& rodeVeh->m_pVehicle->m_pVehicleInfo->type == vehicleType_t::VH_SPEEDER
+			&& ( cg.predictedPlayerState.weapon == weapon_t::WP_MELEE
+				|| ( cg.predictedPlayerState.weapon == weapon_t::WP_SABER && BG_SabersOff( &cg.predictedPlayerState ) ) ) )
+		{ // the rider of a speeder whose lasers fire (ClientEvents): the speeder's crosshair (plan step 20 part 10)
+			ignore = cg.predictedPlayerState.m_iVehicleNum;
+			CG_CalcVehicleMuzzlePoint( cg.predictedPlayerState.m_iVehicleNum, start, d_f, d_rt, d_up );
+		}
+		else if (cg.snap && cg.snap->ps.weapon == weapon_t::WP_EMPLACED_GUN && cg.snap->ps.emplacedIndex)
 		{
-			if (cg.snap && cg.snap->ps.weapon == weapon_t::WP_EMPLACED_GUN && cg.snap->ps.emplacedIndex)
+			vec3_t pitchConstraint;
+
+			ignore = cg.snap->ps.emplacedIndex;
+
+			VectorCopy(cg.refdef.viewangles, pitchConstraint);
+
+			if (cg.renderingThirdPerson)
 			{
-				vec3_t pitchConstraint;
-
-				ignore = cg.snap->ps.emplacedIndex;
-
-				VectorCopy(cg.refdef.viewangles, pitchConstraint);
-
-				if (cg.renderingThirdPerson)
-				{
-					VectorCopy(cg.predictedPlayerState.viewangles, pitchConstraint);
-				}
-				else
-				{
-					VectorCopy(cg.refdef.viewangles, pitchConstraint);
-				}
-
-				if (pitchConstraint[PITCH] > 40)
-				{
-					pitchConstraint[PITCH] = 40;
-				}
-
-				AngleVectors( pitchConstraint, d_f, d_rt, d_up );
+				VectorCopy(cg.predictedPlayerState.viewangles, pitchConstraint);
 			}
 			else
 			{
-				vec3_t pitchConstraint;
-
-				if (cg.renderingThirdPerson)
-				{
-					VectorCopy(cg.predictedPlayerState.viewangles, pitchConstraint);
-				}
-				else
-				{
-					VectorCopy(cg.refdef.viewangles, pitchConstraint);
-				}
-
-				AngleVectors( pitchConstraint, d_f, d_rt, d_up );
+				VectorCopy(cg.refdef.viewangles, pitchConstraint);
 			}
+
+			if (pitchConstraint[PITCH] > 40)
+			{
+				pitchConstraint[PITCH] = 40;
+			}
+
+			AngleVectors( pitchConstraint, d_f, d_rt, d_up );
 			CG_CalcMuzzlePoint(cg.snap->ps.clientNum, start);
 		}
+		else
+		{ // the point the eyes aim at, as the server finds it (WP_AimPoint); a projectile then leaves the weapon's muzzle
+		  // point towards it (BG_FiresFromMuzzle), with what stands between them in its way (plan step 20 part 10)
+			const weapon_t weapon = cg.predictedPlayerState.weapon;
 
+			VectorCopy( cg.predictedPlayerState.origin, start );
+			start[2] += cg.predictedPlayerState.viewheight;
+			AngleVectors( cg.predictedPlayerState.viewangles, d_f, d_rt, d_up );
+			if ( cg.predictedPlayerState.m_iVehicleNum )
+			{ // a rider's weapon fires as before (FireWeapon), its crosshair too
+				CG_CalcMuzzlePoint( cg.snap->ps.clientNum, start );
+			}
+			else if ( BG_FiresFromMuzzle( weapon, false ) )
+			{ // the muzzle point as the server's CalcMuzzlePoint computes it, from the predicted origin and view
+				VectorMA( cg.predictedPlayerState.origin, WP_MuzzlePoint[weapon][0], d_f, muzzle );
+				VectorMA( muzzle, WP_MuzzlePoint[weapon][1], d_rt, muzzle );
+				muzzle[2] += cg.predictedPlayerState.viewheight + WP_MuzzlePoint[weapon][2];
+				fromMuzzle = true;
+			}
+		}
+
+		VectorCopy( d_f, aimDir );
 		VectorMA( start, cg.distanceCull, d_f, end );
 	}
 	else
-	{
+	{ // the crosshair at the centre of the screen
 		VectorCopy( cg.refdef.vieworg, start );
 		VectorMA( start, 131072, cg.refdef.viewaxis[0], end );
 	}
 
-	if ( cg_dynamicCrosshair.integer && cg_dynamicCrosshairPrecision.integer )
+	if ( cg_dynamicCrosshair.integer )
 	{ //then do a trace with ghoul2 models in mind
 		CG_G2Trace( &trace, start, vec3_origin, vec3_origin, end,
 			ignore, contentsFlags_t::CONTENTS_SOLID|contentsFlags_t::CONTENTS_BODY );
-		if ( bVehCheckTraceFromCamPos )
-		{
-			//NOTE: this MUST stay up to date with the method used in WP_VehCheckTraceFromCamPos
-			centity_t *veh = &cg_entities[cg.predictedPlayerState.m_iVehicleNum];
-			trace_t	extraTrace;
-			vec3_t	viewDir2End, extraEnd;
-			float	minAutoAimDist = Distance( veh->lerpOrigin, cg.refdef.vieworg ) + (veh->m_pVehicle->m_pVehicleInfo->length/2.0f) + 200.0f;
-
-			VectorSubtract( end, cg.refdef.vieworg, viewDir2End );
-			VectorNormalize( viewDir2End );
-			VectorMA( cg.refdef.vieworg, MAX_XHAIR_DIST_ACCURACY, viewDir2End, extraEnd );
-			CG_G2Trace( &extraTrace, cg.refdef.vieworg, vec3_origin, vec3_origin, extraEnd,
-				ignore, contentsFlags_t::CONTENTS_SOLID|contentsFlags_t::CONTENTS_BODY );
-			if ( !extraTrace.allsolid
-				&& !extraTrace.startsolid )
-			{
-				if ( extraTrace.fraction < 1.0f )
-				{
-					if ( (extraTrace.fraction*MAX_XHAIR_DIST_ACCURACY) > minAutoAimDist )
-					{
-						if ( ((extraTrace.fraction*MAX_XHAIR_DIST_ACCURACY)-Distance( veh->lerpOrigin, cg.refdef.vieworg )) < (trace.fraction*cg.distanceCull) )
-						{//this trace hit *something* that's closer than the thing the main trace hit, so use this result instead
-							memcpy( &trace, &extraTrace, sizeof( trace_t ) );
-						}
-					}
-				}
-			}
-		}
 	}
 	else
 	{
 		CG_Trace( &trace, start, vec3_origin, vec3_origin, end,
 			ignore, contentsFlags_t::CONTENTS_SOLID|contentsFlags_t::CONTENTS_BODY );
+	}
+	if ( bVehCheckTraceFromCamPos )
+	{
+		//NOTE: this MUST stay up to date with the method used in WP_VehCheckTraceFromCamPos
+		centity_t *veh = &cg_entities[cg.predictedPlayerState.m_iVehicleNum];
+		trace_t	extraTrace;
+		vec3_t	viewDir2End, extraEnd;
+		float	minAutoAimDist = Distance( veh->lerpOrigin, cg.refdef.vieworg ) + (veh->m_pVehicle->m_pVehicleInfo->length/2.0f) + 200.0f;
+
+		VectorSubtract( end, cg.refdef.vieworg, viewDir2End );
+		VectorNormalize( viewDir2End );
+		VectorMA( cg.refdef.vieworg, MAX_XHAIR_DIST_ACCURACY, viewDir2End, extraEnd );
+		CG_G2Trace( &extraTrace, cg.refdef.vieworg, vec3_origin, vec3_origin, extraEnd,
+			ignore, contentsFlags_t::CONTENTS_SOLID|contentsFlags_t::CONTENTS_BODY );
+		if ( !extraTrace.allsolid
+			&& !extraTrace.startsolid )
+		{
+			if ( extraTrace.fraction < 1.0f )
+			{
+				if ( (extraTrace.fraction*MAX_XHAIR_DIST_ACCURACY) > minAutoAimDist )
+				{
+					if ( ((extraTrace.fraction*MAX_XHAIR_DIST_ACCURACY)-Distance( veh->lerpOrigin, cg.refdef.vieworg )) < (trace.fraction*cg.distanceCull) )
+					{//this trace hit *something* that's closer than the thing the main trace hit, so use this result instead
+						memcpy( &trace, &extraTrace, sizeof( trace_t ) );
+					}
+				}
+			}
+		}
+	}
+	if ( fromMuzzle )
+	{ // as WP_AimFromMuzzle: a wall between the eyes and the muzzle point is hit there; otherwise the shot goes towards the
+	  // point, or along the view for a point at or behind the muzzle point; the crosshair where it first meets something
+		trace_t	muzzleTrace;
+		vec3_t	toPoint, shotEnd;
+
+		CG_Trace( &muzzleTrace, start, vec3_origin, vec3_origin, muzzle, cg.predictedPlayerState.clientNum,
+			MASK_SOLID|contentsFlags_t::CONTENTS_SHOTCLIP );
+		if ( muzzleTrace.fraction < 1.0f && !muzzleTrace.startsolid && !muzzleTrace.allsolid )
+		{
+			trace = muzzleTrace;
+		}
+		else
+		{
+			VectorSubtract( trace.endpos, muzzle, toPoint );
+			if ( DotProduct( toPoint, aimDir ) > 0.0f )
+			{
+				VectorCopy( trace.endpos, shotEnd );
+			}
+			else
+			{
+				VectorMA( muzzle, cg.distanceCull, aimDir, shotEnd );
+			}
+			CG_G2Trace( &muzzleTrace, muzzle, vec3_origin, vec3_origin, shotEnd,
+				ignore, contentsFlags_t::CONTENTS_SOLID|contentsFlags_t::CONTENTS_BODY );
+			if ( muzzleTrace.fraction < 1.0f || DotProduct( toPoint, aimDir ) <= 0.0f )
+			{
+				trace = muzzleTrace;
+			}
+		}
 	}
 
 	if (trace.entityNum < MAX_CLIENTS)

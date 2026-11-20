@@ -1839,6 +1839,33 @@ gitem_t	*BG_FindItemForWeapon( weapon_t weapon ) {
 
 /*
 ===============
+BG_FiresFromMuzzle
+
+The shots that leave the weapon's muzzle point towards the point the eyes aim at: the projectiles fired by hand, but
+the thrown items; the game fires them so (FireWeapon), cgame draws the crosshair where they land (plan step 20 part
+10)
+===============
+*/
+bool BG_FiresFromMuzzle( weapon_t weapon, bool altFire ) {
+	switch ( weapon ) {
+	case weapon_t::WP_BRYAR_PISTOL:
+	case weapon_t::WP_BRYAR_OLD:
+	case weapon_t::WP_BLASTER:
+	case weapon_t::WP_BOWCASTER:
+	case weapon_t::WP_REPEATER:
+	case weapon_t::WP_FLECHETTE:
+	case weapon_t::WP_ROCKET_LAUNCHER:
+		return true;
+	case weapon_t::WP_DEMP2:
+	case weapon_t::WP_CONCUSSION:
+		return !altFire;	// the alternate fire is a beam, traced from the eyes
+	default:
+		return false;
+	}
+}
+
+/*
+===============
 BG_FindItemForAmmo
 
 ===============

@@ -62,7 +62,7 @@ index dcbef7cb..ec164a97 100644
  
  #define	FOFS(x) offsetof(gentity_t, x)
 diff --git a/codemp/game/g_scenario.c b/codemp/game/g_scenario.c
-index 004cab64..60bfef45 100644
+index 004cab64..e92d2a47 100644
 --- a/codemp/game/g_scenario.c
 +++ b/codemp/game/g_scenario.c
 @@ -6,11 +6,86 @@
@@ -730,7 +730,7 @@ index 004cab64..60bfef45 100644
  	client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_SABER );
  	client->ps.weapon = WP_SABER;
  	if ( attacker && scn.type == SCN_SABER ) {
-@@ -241,123 +742,1090 @@ static void G_ScenarioEquip( gentity_t *ent, qboolean attacker ) {
+@@ -241,123 +742,1092 @@ static void G_ScenarioEquip( gentity_t *ent, qboolean attacker ) {
  		client->ps.fd.saberAnimLevel = client->ps.fd.saberAnimLevelBase = client->ps.fd.saberDrawAnimLevel = SS_MEDIUM;
  		client->saberCycleQueue = SS_MEDIUM;
  	}
@@ -1733,7 +1733,9 @@ index 004cab64..60bfef45 100644
 +	vectoangles( to, view );
 +}
 +
-+// the view that aims a bot's weapon at a point from its muzzle, beside and below the eyes (CalcMuzzlePoint)
++// the view that aims a bot's weapon at a point from its muzzle point, beside and below the eyes (CalcMuzzlePoint), along
++// which the shots flew until plan step 20 part 10; since then they leave that point towards the point the eyes aim at,
++// so this view aims beside the point (the option aim=muzzle shows it)
 +static void G_ScenarioAimMuzzle( gentity_t *ent, const vec3_t target, vec3_t view ) {
 +	vec3_t fwd, right, up, muzzle, to;
 +
@@ -1905,7 +1907,7 @@ index 004cab64..60bfef45 100644
  
  	if ( !G_ScenarioControls( clientNum ) || !ent->client ) {
  		return qfalse;
-@@ -366,23 +1834,109 @@ qboolean G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd ) {
+@@ -366,23 +1836,107 @@ qboolean G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd ) {
  	memset( ucmd, 0, sizeof( *ucmd ) );
  	ucmd->serverTime = t;
  	ucmd->weapon = ent->client->ps.weapon;
@@ -1920,13 +1922,16 @@ index 004cab64..60bfef45 100644
 +			VectorSubtract( flag->r.currentOrigin, ent->client->ps.origin, to );
 +			view[YAW] = vectoyaw( to );
 +		}
-+		else { // it aims the rocket launcher at the carrier's chest, which a rocket kills: the legs and the arms take
-+			// less (G_LocationBasedDamageModifier), and a carrier hurt is thrown back onto its own flag
++		else { // it aims the rocket launcher at the carrier's head, which a rocket kills: the legs and the arms take
++			// less (G_LocationBasedDamageModifier), and a carrier hurt is thrown back onto its own flag; from the eyes, as a
++			// player aims (plan step 20 part 10: aimed at the middle of the body, the rocket hits an arm held before it)
++			gentity_t *carrier = &g_entities[scn.client[0]];
 +			vec3_t target;
 +
-+			VectorCopy( g_entities[scn.client[0]].client->ps.origin, target );
-+			target[2] += 16;
-+			G_ScenarioAimMuzzle( ent, target, view );
++			if ( carrier->ghoul2 && carrier->client->renderInfo.headBolt >= 0 ) {
++				G_GetBoltPosition( carrier, carrier->client->renderInfo.headBolt, target, 0 );
++				G_ScenarioLookAt( ent, target, view );
++			}
 +		}
 +	}
 +	if ( scn.type == SCN_VEHICLE && scn.repStart && phase >= 0 && !spectator ) {
@@ -1946,26 +1951,21 @@ index 004cab64..60bfef45 100644
 +		}
 +		else if ( !attacker && veh && scn.vehicleMode == VM_DESTROY ) {
 +			// the rocket at the vehicle's body, three quarters up its box (the missiles hit the model: halfway up, between
-+			// the AT-ST's legs)
++			// the AT-ST's legs), from the eyes (plan step 20 part 10)
 +			vec3_t target;
 +
 +			VectorCopy( veh->r.currentOrigin, target );
 +			target[2] += ( veh->r.mins[2] + 3 * veh->r.maxs[2] ) / 4;
-+			G_ScenarioAimMuzzle( ent, target, view );
++			G_ScenarioLookAt( ent, target, view );
 +		}
 +	}
-+	if ( attacker && scn.npcType[0] && G_ScenarioNPC() ) { // the middle of the NPC's box, from the muzzle for a weapon
++	if ( attacker && scn.npcType[0] && G_ScenarioNPC() ) { // the middle of the NPC's box, from the eyes (plan step 20 part 10)
 +		const gentity_t *npc = G_ScenarioNPC();
 +		vec3_t target;
 +
 +		VectorCopy( npc->r.currentOrigin, target );
 +		target[2] += ( npc->r.mins[2] + npc->r.maxs[2] ) / 2;
-+		if ( scn.type == SCN_WEAPON ) {
-+			G_ScenarioAimMuzzle( ent, target, view );
-+		}
-+		else {
-+			G_ScenarioLookAt( ent, target, view );
-+		}
++		G_ScenarioLookAt( ent, target, view );
 +	}
 +	if ( attacker && scn.type == SCN_WEAPON && scn.weapon == WP_EMPLACED_GUN && scn.repStart && phase >= 0 ) {
 +		// the use key's trace leaves the eyes level with the top of the gun's box: looking down at it; then 2 degrees up,
@@ -2105,8 +2105,8 @@ index 004cab64..60bfef45 100644
 +				// with g_debugMelee both buttons grab, and the grab punches moving forward, throws moving back
 +				ucmd->forwardmove = ( scn.rep & 1 ) ? 127 : -127;
 +			}
-+		}
-+		break;
+ 		}
+ 		break;
 +	}
 +	case SCN_FLAG:
 +		if ( scn.flagMode == FM_CAPTURE ) { // the enemy flag taken, back onto its own
@@ -2214,8 +2214,8 @@ index 004cab64..60bfef45 100644
 +			if ( phase >= 3500 && phase < 4500 ) {
 +				ucmd->buttons = BUTTON_ATTACK;
 +			}
- 		}
- 		break;
++		}
++		break;
 +	}
  	default:
  		break;
@@ -2305,7 +2305,7 @@ index 004cab64..60bfef45 100644
 -		return;
 +	else {
 +		G_ScenarioOptString( "npc", scn.npcType, sizeof( scn.npcType ) );
-+	}
+ 	}
 +	{ // the attacker, the first bot that is not its teammate as the defender, and a teammate as the ally
 +		qboolean defender = qfalse, ally = qfalse;
 +
@@ -2361,7 +2361,7 @@ index 004cab64..60bfef45 100644
 +			scn.client[1] = scn.client[2];
 +			scn.client[2] = enemy;
 +		}
- 	}
++	}
 +	scn.pickupDist = (float)G_ScenarioOpt( "pickup", 0 );
 +	scn.away = G_ScenarioOptIs( "away" );
 +	G_ScenarioOptString( "aim", arg, sizeof( arg ) );

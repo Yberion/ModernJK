@@ -1,13 +1,15 @@
 #!/bin/bash
-# Plan step 20 part 9: where each shot starts against the view (surveys/shot-offsets.md). The measuring code is not in
-# the game: apply shot_offsets.patch, build the game module, run this script, then restore the code:
+# Plan step 20 part 9: where each shot starts against the view (surveys/shot-offsets.md); since part 10b the patch applies
+# to the fix (the options aim= and at= and the hit location statistics are the game module's since part 10a), and its
+# flash poses the gun's model as the server poses the player's. The measuring code is not in the game: apply
+# shot_offsets.patch, build the game module, run this script, then restore the code:
 #   git -C /e/Git/jka/ModernJK apply docs_rewrite/modernization/tools/gamestats/shot_offsets.patch
 #   ninja -C /e/Git/jka/ModernJK/build-netcodec/modernjk-clang jampgamex86_64
 #   bash /e/Git/jka/ModernJK/docs_rewrite/modernization/tools/gamestats/shot_offsets.sh
 #   git -C /e/Git/jka/ModernJK checkout -- codemp/game
 # Each case runs on its own server (gamestats_windows.sh, SEED=1, FAST=1); for each it prints the scenario's damage and
-# shot lines, the hits by location (DBG hit locations) and the shots' lines (DBG shot, the most frequent first). The
-# servers' logs are kept as $GAMESTATS_DIR/shot_<batch>_<case>.log.
+# shot lines, the hits by location (its hit location statistics line) and the shots' lines (DBG shot, the most frequent
+# first). The servers' logs are kept as $GAMESTATS_DIR/shot_<batch>_<case>.log.
 set -u
 G=$(cd "$(dirname "$0")" && pwd)
 DLL=${DLL:-/e/Git/jka/ModernJK/build-netcodec/modernjk-clang/jampgamex86_64.dll}
@@ -25,8 +27,9 @@ run() { # <batch> <case>...: a case is <name>|<map>|<g_gametype>|<bots>|<cvars b
 		IFS='|' read -r name _ <<< "$c"
 		cp "$D/gs_${tag}_$name/base/qconsole.log" "$D/shot_${tag}_$name.log"
 		echo "=== $name"
-		grep -a "^.\{20\}\(scenario \|damage statistics\|shot statistics\|DBG hit\|DBG eweb\)" "$D/shot_${tag}_$name.log" | cut -c21- \
-			| sed -E 's/damage statistics [^:]*: /dmg: /; s/shot statistics[^:]*: /shot: /' | uniq
+		grep -a "^.\{20\}\(scenario \|damage statistics\|shot statistics\|hit location statistics\|DBG eweb\)" "$D/shot_${tag}_$name.log" \
+			| cut -c21- | sed -E 's/damage statistics [^:]*: /dmg: /; s/shot statistics[^:]*: /shot: /; s/hit location statistics[^:]*: /hits: /' \
+			| uniq
 		grep -a "DBG shot" "$D/shot_${tag}_$name.log" | cut -c21- | sed -E 's/^DBG shot rep[0-9]+ t[0-9]+ //' | sort | uniq -c \
 			| sort -rn | head -4
 	done

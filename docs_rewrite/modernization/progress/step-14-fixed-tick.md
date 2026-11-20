@@ -257,7 +257,7 @@ Price of identity: a saber contact or a missile impact is found at the 20 Hz ins
 
 ### How it is proven
 
-`scenario` (`game/g_scenario.c`, CHANGES.md section 26): two bots, an attacker and a defender, reset every 2 s, play a script of commands every 10 ms with the random seeds reset at each repetition; `bot_debugClientRate 1` makes every bot command run as a player's, in the order of the commands' times across the bots; a first repetition is not counted. `scenario_trace` prints the two bots' state at every 20 Hz instant and every health loss, which found both causes above by diffing a 20 Hz and a 100 Hz run line by line.
+`scenario` (`game/g_scenario.c`, CHANGES.md section 27): two bots, an attacker and a defender, reset every 2 s, play a script of commands every 10 ms with the random seeds reset at each repetition; `bot_debugClientRate 1` makes every bot command run as a player's, in the order of the commands' times across the bots; a first repetition is not counted. `scenario_trace` prints the two bots' state at every 20 Hz instant and every health loss, which found both causes above by diffing a 20 Hz and a 100 Hz run line by line.
 
 Results, same module at `sv_fps` 20 and 100 (Windows, clang, fast mode), equal counts of wounds, damage, health taken by cause, deaths, blocks, idle touches, attacks started, bounces, shots, hits, misses, force starts, periodic events and time held:
 

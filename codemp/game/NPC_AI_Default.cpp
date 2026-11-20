@@ -514,7 +514,7 @@ void NPC_BSFace (void)
 
 void NPC_BSPointShoot (bool shoot)
 {//FIXME: doesn't check for clear shot...
-	vec3_t	muzzle, dir, angles, org;
+	vec3_t	eyes, dir, angles, org;
 
 	if ( !NPCS.NPC->enemy || !NPCS.NPC->enemy->inuse || (NPCS.NPC->enemy->NPC && NPCS.NPC->enemy->health <= 0) )
 	{//FIXME: should still keep shooting for a second or two after they actually die...
@@ -522,15 +522,20 @@ void NPC_BSPointShoot (bool shoot)
 		goto finished;
 	}
 
-	CalcEntitySpot(NPCS.NPC, spot_t::SPOT_WEAPON, muzzle);
-	CalcEntitySpot(NPCS.NPC->enemy, spot_t::SPOT_HEAD, org);//Was spot_org
-	//Head is a little high, so let's aim for the chest:
-	if ( NPCS.NPC->enemy->client )
+	// from the eyes at the chest of the model it sees: the shot leaves the muzzle towards the point the eyes aim at
+	// (plan step 20 part 10)
+	CalcEntitySpot(NPCS.NPC, spot_t::SPOT_HEAD_LEAN, eyes);
+	if ( !G_AimSpot( NPCS.NPC, NPCS.NPC->enemy, org ) )
 	{
-		org[2] -= 12;//NOTE: is this enough?
+		CalcEntitySpot(NPCS.NPC->enemy, spot_t::SPOT_HEAD, org);//Was spot_org
+		//Head is a little high, so let's aim for the chest:
+		if ( NPCS.NPC->enemy->client )
+		{
+			org[2] -= 12;//NOTE: is this enough?
+		}
 	}
 
-	VectorSubtract(org, muzzle, dir);
+	VectorSubtract(org, eyes, dir);
 	vectoangles(dir, angles);
 
 	switch( NPCS.NPC->client->ps.weapon )

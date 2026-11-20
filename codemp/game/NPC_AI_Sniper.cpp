@@ -468,10 +468,11 @@ static void Sniper_CheckFireState( void )
 		if ( !VectorCompare( vec3_origin, NPCS.NPCInfo->enemyLastSeenLocation ) )
 		{
 			//Fire on the last known position
-			vec3_t	muzzle, dir, angles;
+			vec3_t	eyes, dir, angles;
 
-			CalcEntitySpot( NPCS.NPC, spot_t::SPOT_WEAPON, muzzle );
-			VectorSubtract( NPCS.NPCInfo->enemyLastSeenLocation, muzzle, dir );
+			// from the eyes, where the disruptor fires from and the point the projectiles turn to (plan step 20 part 10)
+			CalcEntitySpot( NPCS.NPC, spot_t::SPOT_HEAD_LEAN, eyes );
+			VectorSubtract( NPCS.NPCInfo->enemyLastSeenLocation, eyes, dir );
 
 			VectorNormalize( dir );
 

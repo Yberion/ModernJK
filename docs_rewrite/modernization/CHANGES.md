@@ -8,7 +8,7 @@ This page lists every change of the branch, with its reason and what it gives. T
 
 - The **summary** is written for players: what changes in plain words, then the delays before and now, in milliseconds.
 - Then **one section per change**, always in the same order: **Before** (OpenJK as it is), **Now** (this branch), **Why**, **Gain** (with its cost when there is one). Each section ends with **Technical details**, folded: the same before and now for readers who know the engine, with the file names. There is no code on this page.
-- A number is **measured** when it comes from a statistics command in game (`netstats`, `svnetstats`, `predictmiss`, section 26) or from a benchmark. It is **computed** when it is derived from the rates and not measured; the page says which. The "test server" is a Linux dedicated server with one virtual core, played over the Internet at a ping of about 20 ms; the "local server" runs on the player's machine.
+- A number is **measured** when it comes from a statistics command in game (`netstats`, `svnetstats`, `predictmiss`, section 27) or from a benchmark. It is **computed** when it is derived from the rates and not measured; the page says which. The "test server" is a Linux dedicated server with one virtual core, played over the Internet at a ping of about 20 ms; the "local server" runs on the player's machine.
 - "Before" is OpenJK. Where OpenJK's default differs from the base game's (the server rate: 40 frames per second in OpenJK, 20 in the base game 1.01), both are given: 20 is the rate the game was tuned on, and the reference of this work.
 
 ## Summary
@@ -20,10 +20,11 @@ This page lists every change of the branch, with its reason and what it gives. T
 3. **The other players are drawn 7 to 11 ms behind the newest news from the server**, where a 20 Hz server gave about 55 ms and OpenJK's default about 30 ms.
 4. **Every player is equal**: the same 10 ms movement step and the same delay from a key to the server at 100, 125 or 333 frames per second. No frame rate jumps higher or acts sooner, and no setting gives an edge.
 5. **Exact positions, nothing guessed**: the positions and velocities of the players and the missiles reach the client exactly as the server holds them, and the other players are never drawn where they might be.
-6. **Windows and Linux compute the same game, bit for bit**: the same math functions, random numbers and roundings on every system and compiler.
-7. **Messages are about 2.5 times smaller**, which pays for most of the higher rate.
-8. **No network setting is left**: `rate`, `snaps`, `cl_maxpackets`, `cl_packetdup` and `cl_timeNudge` are gone; the game computes or fixes their values.
-9. **The price**: a branch client and an OpenJK server (or the reverse) do not understand each other, and demos of one do not play on the other.
+6. **Shots land where you aim**: every projectile turns towards the point the eyes look at, so it lands at the centre of the screen; the NPCs and the bots aim at the chest of the model they see.
+7. **Windows and Linux compute the same game, bit for bit**: the same math functions, random numbers and roundings on every system and compiler.
+8. **Messages are about 2.5 times smaller**, which pays for most of the higher rate.
+9. **No network setting is left**: `rate`, `snaps`, `cl_maxpackets`, `cl_packetdup` and `cl_timeNudge` are gone; the game computes or fixes their values.
+10. **The price**: a branch client and an OpenJK server (or the reverse) do not understand each other, and demos of one do not play on the other.
 
 ### Delays before and now
 
@@ -156,8 +157,9 @@ Each line links to its section.
 | [23. Server](#23-server-fixes) | an idle Linux server used a tenth of a core; a clock change could freeze it; work repeated for nothing at every tick | it sleeps; a clock that only moves forward; about a third less time per tick |
 | [24. Game](#24-game-fixes) | three random choices differed between compilers; a zoomed animation restarted at every step; the rocket launcher's homing lock took cloaked players and refused pulled ones; an idle animation went on through a deflected shot; the selected force power lost after a map change; the single player's absorb gave back the wrong amount; a character typed in a menu's field also moved the focus; logs with "(null)"; a weapon picked up gave the wrong amount of ammo; an unknown weapon name in a script or a map; an NPC's pain delay while gripped, and a creature's twice its animation; the single player's vehicle flashes and datapad weapons; a weapon's charge counted with the ping's gap, then up to 50 ms short | fixed; a charge is exactly the time held |
 | [25. Client](#25-client-fixes-outside-the-netcode) | shots louder at a high frame rate, menu cursor too fast, keypad binds, servers hidden from the browser; images decoded by another library on Windows and on Linux; the pk3 archives read through libraries of 2010 and 2013, the system's on Linux; every texture compressed by the graphics driver as it loads | fixed; one image decoder everywhere, more than twice as fast; one reader of the archives everywhere, 1.8 times as fast; a player's model loaded in 20 ms instead of 71 |
+| [26. Shots](#26-the-shots-towards-the-point-aimed-at) | from a fixed point beside the eyes, parallel to the view; the NPCs and the bots fire beside what they aim at, the emplaced gun beside its crosshair | from the same point towards the point the eyes aim at, for every shooter; the crosshair where the shot lands |
 
-**Reference**: [26. Settings and commands](#26-settings-and-commands), [27. Build, tests and repository](#27-build-tests-and-repository), [28. Name: ModernJK](#28-name-modernjk), [29. Compatibility](#29-compatibility), [30. C++20, 64-bit Windows, Linux and macOS](#30-c20-64-bit-windows-linux-and-macos), [31. Not changed yet](#31-not-changed-yet).
+**Reference**: [27. Settings and commands](#27-settings-and-commands), [28. Build, tests and repository](#28-build-tests-and-repository), [29. Name: ModernJK](#29-name-modernjk), [30. Compatibility](#30-compatibility), [31. C++20, 64-bit Windows, Linux and macOS](#31-c20-64-bit-windows-linux-and-macos), [32. Not changed yet](#32-not-changed-yet).
 
 ## A. Responsiveness and equality
 
@@ -201,7 +203,7 @@ What OpenJK's code does when run unchanged at 100 Hz, and what this branch does:
 | Pain sound and view kick | 10 points within one frame, which a blow spread over 5 frames rarely reaches | 10 points within a 50 ms window |
 | Movers (doors, lifts) | move and crush every frame | on the 20 Hz instants; the client places them accordingly (section 6) |
 
-The scenarios: the server command `scenario` and the script `tools/gamestats/scenarios.sh` (`scenarios40.sh` until plan step 20 widened it), which compares the cases with recorded counts (section 26). Details: [progress/step-14-fixed-tick.md](progress/step-14-fixed-tick.md) sections 9 and 10, [progress/step-14-audit-100hz.md](progress/step-14-audit-100hz.md) sections 9 to 11.
+The scenarios: the server command `scenario` and the script `tools/gamestats/scenarios.sh` (`scenarios40.sh` until plan step 20 widened it), which compares the cases with recorded counts (section 27). Details: [progress/step-14-fixed-tick.md](progress/step-14-fixed-tick.md) sections 9 and 10, [progress/step-14-audit-100hz.md](progress/step-14-audit-100hz.md) sections 9 to 11.
 
 </details>
 
@@ -571,7 +573,7 @@ Survey, measurements and choice: [surveys/deterministic-math.md](surveys/determi
 
 **Why.** Identical results everywhere; and a challenge an attacker cannot guess.
 
-**Gain.** The same game on Windows and Linux for the same seed: a run can be replayed exactly (`g_debugSeed`, section 26).
+**Gain.** The same game on Windows and Linux for the same seed: a run can be replayed exactly (`g_debugSeed`, section 27).
 
 <details>
 <summary>Technical details</summary>
@@ -631,7 +633,7 @@ Survey and measurements: [surveys/random-numbers.md](surveys/random-numbers.md).
 
 - The engine hands its own data to the codec in place: the snapshots, the entity store, the command buffer, the baselines.
 - Not changed: connectionless messages (`getinfo`, `getstatus`, `connect`, the master server); the choice of the base snapshot (the newest one the client acknowledged); the netchan and its fragmentation.
-- OpenJK's writer is kept in the server, only to compare sizes (`sv_netcodecCompare`, section 26).
+- OpenJK's writer is kept in the server, only to compare sizes (`sv_netcodecCompare`, section 27).
 - `cl_shownet 1` still prints the packet sizes and `cl_shownet 3` the snapshot line; `cl_shownet 2` prints one line per decoded operation. The per-entity and per-field output (levels 4, -1, -2) is gone.
 - A message the client cannot decode (only possible if it no longer holds the base the server used) is dropped whole; the client then asks for a full snapshot, as before.
 - Details: [progress/step-06-cpp-codec.md](progress/step-06-cpp-codec.md), [progress/step-07-engine-integration.md](progress/step-07-engine-integration.md).
@@ -921,6 +923,7 @@ The files keep the `.dm_26` extension for now. As in OpenJK, server demos still 
 | Single player: the datapad's weapons | The icons right of the selected weapon test the ammo of a stale weapon number, so a full weapon can show the "no ammo" icon. | Each icon tests its own weapon. |
 | An NPC hit while gripped or drained | No pain animation is chosen then, and the pain delay is read from memory before the animations' table: a random delay, the NPC flinching again at once or not for a long time. | No delay in that case, as in single player. |
 | The pain delay of a creature or a droid | A non-humanoid NPC's pain delay multiplies its own animation's frames by the humanoid's frame time; for the first pain animation of the 8 that reach it in multiplayer (the AT-ST, the probe, the protocol droid, R2-D2, the hazard trooper, the assassin and saber droids, the rocket trooper), whose frame rate is higher than the humanoid's, the delay is two or three times the animation: an AT-ST's 0.7 s pain gives 1.4 s without another pain reaction, a rocket trooper's 0.57 s gives 1.7 s. | The delay is the animation's own length. |
+| A `misc_weapon_shooter` holding the disruptor | Its beam starts at the map's origin (0, 0, 0), not at the shooter: the client the game lends it for the weapon code never gets a position, and the disruptor reads that position, where the other weapons read the entity's (read from the code, not run; the same in 1.01). The beam hits what lies on that line, nothing when the origin is inside a wall, and is drawn from the shooter to where it stops. Only single-player maps of the game have such a shooter. | The beam starts at the shooter and hits what it aims at. Players, bots and NPCs fire from the same point as before. |
 | A stormtrooper sent to scout | When a squad has lost its enemy and sends one trooper ahead, he leaves in silence: his chase line is stored as the number 0, which the code reads as "nothing to say" (multiplayer and Jedi Outcast). | He says his chase line as he leaves, unless his group spoke too recently. |
 | Single player: breaking free of a drain | A Jedi NPC drained by the player can break free and push him back from the first instant: the test of the drain's length always passes. | Not before 0.5, 1 or 1.5 s of drain (drain level 1, 2 or 3), as the code means. |
 | Single player: gripping an object | An object gripped at level 2 or 3 takes two thirds of the grip's damage, as if it absorbed the power. | The full damage; only a character's Absorb reduces it. |
@@ -1022,9 +1025,43 @@ Made on the way while testing, mostly as TaystJK does.
 
 The server browser's change adds an import for the UI module, `trap->ext.LAN_GetServerState`, and makes `serverInfo_t` larger, so an existing `servercache.dat` is discarded once, favourites included.
 
+### 26. The shots: towards the point aimed at
+
+**Before.** Every shot of a hand weapon started at a fixed point beside and below the eyes (12 units forward, 0 to 8 right, 4 to 10 down) and flew parallel to the view, never towards the point the eyes look at. The default crosshair (`cg_dynamicCrosshair 1`) was drawn where such a straight shot lands, so it moved on the screen with the distance of what is aimed at; with `cg_dynamicCrosshair 0` it stayed at the centre while the shots landed 2 to 8 units right of it and 4 to 6 below. The NPCs and the bots aimed from their eyes and fired from that point: a stormtrooper's bolts passed 6 units right of the eye level it aimed at and 6 below, and never touched a player standing with a saber (225 bolts in 48 tries). The emplaced gun's two barrels fired 10 units on each side of the point its crosshair shows, beside a thin model. A swoop's rider saw the rider's own crosshair while the swoop's lasers fired level from 43 units lower. All of it is the base game's (the same code in 1.01).
+
+**Now.** A ray from the eyes along the view finds the point aimed at (against the world and the players' models, as far as the map's view distance), and the projectile leaves the same fixed point as before, turned towards that point: it lands at the centre of the screen at any distance, unless something stands between that point and the point aimed at, which it then hits. The beams (the disruptor, the concussion rifle's alternate fire, the DEMP2's charged blast) are traced from the eyes. The emplaced gun's two barrels fire towards the point its crosshair shows. The NPCs and the bots that shoot aim at the chest of the model they see, from their eyes, as a player aims; holding a saber, the melee or nothing, they aim as before, since their view moves their blade or their blows. The crosshair (`cg_dynamicCrosshair 1`, the default) is drawn where the shot lands: at the centre in first person, and in third person below the centre by the camera's height; `cg_dynamicCrosshair 0` keeps it at the centre of the screen, in both views. A swoop's rider whose swoop fires (holding the melee or the saber off) sees the swoop's crosshair. Unchanged: the thrown items (the thermal detonator, the trip mine, the det pack), the stun baton, the melee, the saber, the E-Web, the vehicles, a rider's blaster, and in third person the bolt's start against the drawn barrel (5 to 24 units behind its flash).
+
+**Why.** What is seen should be what happens, for every shooter alike: a crosshair that moved, NPCs and bots that missed what they aimed at exactly ([surveys/shot-offsets.md](surveys/shot-offsets.md) section 11). The start stays at the fixed point, inside the shooter's box (decided on 20 November 2026, after the game was tried): started at the muzzle of the weapon's model, as Unreal Engine 5's tutorial does, a shot depended on the animation the server last posed (the first shot after an idle animation left the lowered weapon) and, for a player against a wall, started inside the wall and ran along its face.
+
+**Gain.** Measured in the scripted fights, 48 tries each:
+
+| case | before | now |
+|---|---|---|
+| A blaster bolt aimed level at a player 256 units away | the right arm in one shot in two, the head otherwise | the head every time |
+| A rocket aimed from the eyes at a player's head | passes beside the head and hits the right arm: 85, the player survives | hits the head: 130, the player dies |
+| A stormtrooper against a player standing with a saber | no bolt touches the player | the bolts reach the player: 218 blocked by the saber, sent back into the trooper (2 deaths) |
+| A stormtrooper against a player holding the bryar | hits the left arm (1,656 damage) | hits the chest (2,070) |
+| The emplaced gun aimed 2 degrees up at a player 204 units away | 144 of 432 bolts hit | 192 |
+| A blaster bolt against a wall 16 to 48 units away, the view 75 degrees up to 75 down | lands beside the centre of the screen | lands on the point the eyes aim at, to 1 unit (480 shots) |
+
+The bots with guns in free play (siege, 6 servers of 3 minutes before and after, measured with the weapon model's muzzle as the start, since dropped): 17.0 % of their missiles hit a player before, 16.4 % then, within the spread of the servers (13.8 to 19.0 %); their own aim error is larger than the offset was.
+
+The cost: per shot, two traces (the ray from the eyes, the line from the eyes to the muzzle point); per aim of an NPC or a bot that shoots, the bolt of its target's chest (1.2 to 2.5 microseconds), at the 20 Hz instants; no byte on the network; 12 bytes per client, the angles its model was posed with. cgame: two more traces per frame for the crosshair while a projectile weapon is held.
+
+<details>
+<summary>Technical details</summary>
+
+- `game/g_weapon.cpp`: `WP_AimPoint`, the ray against `CONTENTS_SOLID|CONTENTS_BODY` with the ghoul2 models, as the crosshair's, as far as `g_cullDistance` (the map's `distanceCull`). `WP_AimFromMuzzle`, in `FireWeapon` for the weapons of `BG_FiresFromMuzzle` (the bryars, the blaster, the bowcaster, the repeater, the flechette, the rocket launcher, the DEMP2's and the concussion rifle's primary fire; `game/bg_misc.cpp`, shared with cgame): from `CalcMuzzlePoint`'s point, unchanged, the direction towards the point aimed at; a point at or behind the muzzle point keeps the view's direction. That point is inside a player's box (at most 14.4 units from its axis, the box 15 wide on each side), so no wall stands between it and the eyes; for a shooter whose box is smaller, a wall in between is hit there, the shot going on along the line from the eyes to the muzzle point (towards the point aimed at, on the same wall, it would run along the wall's face). The weapons' spread is applied after, unchanged. The eyes are the entity's origin raised by its view height (`WP_EyePoint`), as `CalcMuzzlePoint` takes them.
+- `WP_FireConcussionAlt` and `WP_DEMP2_AltFire` trace from the eyes; the concussion's beam is still drawn from the muzzle point (`EV_CONC_ALT_IMPACT`'s `origin2`). `WP_FireEmplaced`: the point from between the barrels (46 above the gun), each barrel's bolt towards it.
+- The NPCs and the bots: `G_AimSpot` (`game/g_utils.cpp`) gives the target's `thoracic` bolt with the angles the server last posed its model with (`renderInfo.modelAngles`, stored by `WP_SaberPositionUpdate` after `G_G2PlayerAngles`), for a shooter holding a weapon that is not the saber, the melee or nothing; `NPC_FaceEnemy`, `NPC_CheckCanAttack`, `NPC_BSPointShoot`, `NPC_BSAdvanceFight` and `NPC_BSFollowLeader` aim at it from the eyes (`SPOT_HEAD_LEAN`), the sniper at the last place it saw its enemy from the eyes (`Sniper_CheckFireState`); the line-of-fire tests and the grenadier's and the Galak mech's lobs are unchanged. The bots: `headlevel` in `ai_main.cpp`.
+- `cgame/cg_draw.cpp`, `CG_ScanForCrosshairEntity`: the ray from the predicted eyes along the predicted view; for those weapons, the same muzzle point computed from the predicted origin and view (`WP_MuzzlePoint`, as `CalcMuzzlePoint`), the same wall test, then the line to the ray's end, the crosshair where it first meets something. A speeder's rider holding the melee or the saber off: from the speeder (`CG_CalcVehicleMuzzlePoint`); a rider's own weapon: as before. `cg_dynamicCrosshairPrecision` removed, its default kept (the models traced); `cg_dynamicCrosshair` kept (decided on 20 November 2026), 0 drawing the crosshair at the centre as before.
+- The scripted fights and their goldens: [progress/step-20-scenarios.md](progress/step-20-scenarios.md) section 18, [tools/gamestats/GOLDEN.md](tools/gamestats/GOLDEN.md) section 3.
+
+</details>
+
 ## E. Reference
 
-### 26. Settings and commands
+### 27. Settings and commands
 
 Removed cvars. A removed cvar keeps the behaviour of its default, except `cg_smoothClients`.
 
@@ -1041,6 +1078,7 @@ Removed cvars. A removed cvar keeps the behaviour of its default, except `cg_smo
 | `cg_smoothCamera` | the default's camera damping | 11 |
 | `g_randFix` | the default's correct range | 12 |
 | `sv_padPackets` | nothing: it padded only OpenJK's format | 13 |
+| `cg_dynamicCrosshairPrecision` | the crosshair's ray traced against the players' models | 26 |
 
 Changed: `cl_shownet` has levels 1, 2 and 3 (section 13). `g_userinfoValidate` has a new default (section 8). `r_ext_compress_textures` defaults to 0: the graphics driver no longer compresses the textures (section 25); a configuration file holds it only where a player had set 0, so nothing is to reset.
 
@@ -1080,7 +1118,7 @@ Added commands. The statistics commands print their counters since the previous 
 
 `cg_showmiss` prints two more kinds of lines (section 2).
 
-### 27. Build, tests and repository
+### 28. Build, tests and repository
 
 | | OpenJK | this branch |
 |---|---|---|
@@ -1092,19 +1130,19 @@ Added commands. The statistics commands print their counters since the previous 
 | Random numbers | `holdrand` in `q_math.c`, the C library's `rand()` | `shared/qcommon/q_rand.h` and `q_rand.c`; tools `docs_rewrite/modernization/tools/rng/` |
 | Scripted fights | | `docs_rewrite/modernization/tools/gamestats/scenarios.sh` runs the scripted cases on Windows or Linux and compares them with `scenarios_golden.txt`, the same on every platform (`scenarios_golden_step14.txt` holds the counts of step 14 part 4b, the commit the first cases come from; 40 cases until plan step 20, which widens them: [progress/step-20-scenarios.md](progress/step-20-scenarios.md)) |
 | Tests of the library | | round trip on about 36,000 recorded messages, 100,100 synthetic messages, malformed-input test and fuzzer, determinism hashes per compiler, movement determinism (game against cgame, compiler against compiler); client packets: 100,000 synthetic packets, the recorded packets through the library and through the engine interface, 400,000 malformed packets, and a fuzzer |
-| Language and targets | C++11 (`-std=c++11`); Windows in 32 and 64 bits, Linux, macOS, the BSDs, and code for PowerPC, Alpha, Solaris, IRIX and Cygwin | C++20 for every C++ target, MSVC in strict mode; Windows x64, Linux and macOS (x86_64 and arm64) only (section 30) |
+| Language and targets | C++11 (`-std=c++11`); Windows in 32 and 64 bits, Linux, macOS, the BSDs, and code for PowerPC, Alpha, Solaris, IRIX and Cygwin | C++20 for every C++ target, MSVC in strict mode; Windows x64, Linux and macOS (x86_64 and arm64) only (section 31) |
 | Compilers checked | | MSVC x64, GCC 12 and 16, Clang (llvm-mingw on Windows, Clang 14 on Linux); 32-bit builds were checked until 16 November 2026 |
 | `.gitattributes`, `.gitignore` | | line endings of scripts, demo files and local traces ignored |
 | GitHub workflow | installs libjpeg, libpng and zlib on Linux and macOS; builds Windows and Linux in 32 and 64 bits | installs none of them, since no build links them; 64-bit jobs only (not run) |
 | Study, plan, progress | | `docs_rewrite/modernization/` (this folder) |
 
-### 28. Name: ModernJK
+### 29. Name: ModernJK
 
 **Before.** The game carries OpenJK's names: the programs `openjk.x86_64` and `openjkded.x86_64`, the window "OpenJK (MP)", the configuration `openjk.cfg` (`openjk_server.cfg` for the dedicated server), the settings folder `Documents\My Games\OpenJK` on Windows and `~/.local/share/openjk` on Linux, the modules in a folder `OpenJK`, the version "OpenJK-MP".
 
 **Now.** Everything a player sees is named ModernJK: `modernjk.x86_64` and `modernjkded.x86_64`, the window "ModernJK (MP)", `modernjk.cfg` and `modernjk_server.cfg`, `Documents\My Games\ModernJK` and `~/.local/share/modernjk`, the folder `ModernJK`, the version "ModernJK-MP". The single-player game is renamed the same way: `modernjk_sp.x86_64`, the window "ModernJK (SP)", `modernjk_sp.cfg`, the version "ModernJK".
 
-**Why.** The branch is a game of its own (15 November 2026): it does not play with OpenJK or the base game (section 29), so it does not take their names or their files.
+**Why.** The branch is a game of its own (15 November 2026): it does not play with OpenJK or the base game (section 30), so it does not take their names or their files.
 
 **Gain.** An OpenJK and a ModernJK installation no longer share a configuration file or a settings folder. The cost: a configuration of OpenJK is not read any more; copy `openjk.cfg` to `modernjk.cfg` (and `openjk_server.cfg` to `modernjk_server.cfg` on a server) to keep it.
 
@@ -1115,7 +1153,7 @@ Added commands. The statistics commands print their counters since the previous 
 
 </details>
 
-### 29. Compatibility
+### 30. Compatibility
 
 | combination | works |
 |---|---|
@@ -1126,9 +1164,9 @@ Added commands. The statistics commands print their counters since the previous 
 | Game and cgame modules built from OpenJK with the branch engine | not checked since the server ticks at 100 Hz (it worked before plan step 14). OpenJK's game code run at 100 Hz does not play as at 20 Hz (section 1). The server's game and the client's cgame must come from the same source, or the prediction misses |
 | Mods that widened `user*` fields with the overrides files | they get the full values without the files (section 13) |
 | Server browser, master server, `getstatus`, `getinfo` | yes, unchanged |
-| Configuration files from OpenJK | yes, once copied under the new name (section 28); removed cvars are stored and never read |
+| Configuration files from OpenJK | yes, once copied under the new name (section 29); removed cvars are stored and never read |
 
-### 30. C++20, 64-bit Windows, Linux and macOS
+### 31. C++20, 64-bit Windows, Linux and macOS
 
 **Before.** OpenJK's C++ is built as C++11, and its build and code still carry 32-bit Windows and Linux, the BSDs, and branches for PowerPC, Alpha, Solaris, IRIX and Cygwin. A 32-bit Windows build made with MSVC played its sound through OpenAL and EAX (with the 32-bit `OpenAL32.dll` and `EaxMan.dll`, also copied into the 64-bit installations); every other build mixes its sound itself.
 
@@ -1145,7 +1183,7 @@ Top-level `CMakeLists.txt`: `CMAKE_CXX_STANDARD` 20, required, without extension
 
 </details>
 
-### 31. Not changed yet
+### 32. Not changed yet
 
 | subject | where |
 |---|---|

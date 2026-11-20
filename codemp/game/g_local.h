@@ -609,6 +609,7 @@ typedef struct renderInfo_s
 	vec3_t		targetHeadBobAngles;//head bob angles will try to get to targetHeadBobAngles
 	int			lookingDebounceTime;//When we can stop using head looking angle behavior
 	float		legsYaw;//yaw angle your legs are actually rendering at
+	vec3_t		modelAngles;	// the angles the server's model was last posed with (WP_SaberPositionUpdate): the legs', or the vehicle's yaw
 
 	//for tracking legitimate bolt indecies
 	void		*lastG2; //if it doesn't match ent->ghoul2, the bolts are considered invalid.
@@ -1173,6 +1174,7 @@ bool G_ActivateBehavior (gentity_t *self, bSet_t bset );
 void	G_TouchTriggers (gentity_t *ent);
 void	G_TouchSolids (gentity_t *ent);
 void	GetAnglesForDirection( const vec3_t p1, const vec3_t p2, vec3_t out );
+bool	G_AimSpot( const gentity_t *shooter, const gentity_t *target, vec3_t point );
 
 //
 // g_object.cpp

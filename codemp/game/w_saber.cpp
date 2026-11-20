@@ -8568,6 +8568,7 @@ nextStep:
 	{
 		properAngles[1] = vehEnt->m_pVehicle->m_vOrientation[YAW];
 	}
+	VectorCopy( properAngles, self->client->renderInfo.modelAngles );	// the chest the NPCs and the bots aim at (G_AimSpot)
 
 	if (returnAfterUpdate && saberNum)
 	{ //We don't even need to do GetBoltMatrix if we're only in here to keep the g2 server instance in sync

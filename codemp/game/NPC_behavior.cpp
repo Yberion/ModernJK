@@ -71,7 +71,7 @@ void NPC_BSAdvanceFight (void)
 	{//See if we can shoot him
 		vec3_t		delta, forward;
 		vec3_t		angleToEnemy;
-		vec3_t		hitspot, muzzle, diff, enemy_org, enemy_head;
+		vec3_t		hitspot, muzzle, eyes, diff, enemy_org, enemy_head;
 		float		distanceToEnemy;
 		bool	attack_ok = false;
 		bool	dead_on = false;
@@ -80,10 +80,16 @@ void NPC_BSAdvanceFight (void)
 		float		max_aim_off = 64;
 
 		//Yaw to enemy
-		VectorMA(NPCS.NPC->enemy->r.absmin, 0.5, NPCS.NPC->enemy->r.maxs, enemy_org);
+		// the chest of the model it sees, aimed at from the NPC's eyes: the shot leaves the muzzle towards the point the
+		// eyes aim at (plan step 20 part 10)
+		if ( !G_AimSpot( NPCS.NPC, NPCS.NPC->enemy, enemy_org ) )
+		{
+			VectorMA(NPCS.NPC->enemy->r.absmin, 0.5, NPCS.NPC->enemy->r.maxs, enemy_org);
+		}
 		CalcEntitySpot( NPCS.NPC, spot_t::SPOT_WEAPON, muzzle );
+		CalcEntitySpot( NPCS.NPC, spot_t::SPOT_HEAD_LEAN, eyes );
 
-		VectorSubtract (enemy_org, muzzle, delta);
+		VectorSubtract (enemy_org, eyes, delta);
 		vectoangles ( delta, angleToEnemy );
 		distanceToEnemy = VectorNormalize(delta);
 
@@ -145,7 +151,7 @@ void NPC_BSAdvanceFight (void)
 				if( attack_ok )
 				{
 					//ok, now adjust pitch aim
-					VectorSubtract (hitspot, muzzle, delta);
+					VectorSubtract (hitspot, eyes, delta);
 					vectoangles ( delta, angleToEnemy );
 					NPCS.NPCInfo->desiredPitch = angleToEnemy[PITCH];
 					NPC_UpdateShootAngles(angleToEnemy, true, false);
@@ -640,14 +646,19 @@ void NPC_BSFollowLeader (void)
 		NPCS.enemyVisibility = NPC_CheckVisibility ( NPCS.NPC->enemy, visCheckFlags_t::CHECK_FOV|visCheckFlags_t::CHECK_SHOOT );//CHECK_360|CHECK_PVS|
 		if ( NPCS.enemyVisibility > visibility_t::VIS_PVS )
 		{//face
-			vec3_t	enemy_org, muzzle, delta, angleToEnemy;
+			vec3_t	enemy_org, eyes, delta, angleToEnemy;
 
-			CalcEntitySpot( NPCS.NPC->enemy, spot_t::SPOT_HEAD, enemy_org );
+			// the chest of the model it sees, aimed at from the eyes: the shot leaves the muzzle towards the point the eyes
+			// aim at (plan step 20 part 10)
+			if ( !G_AimSpot( NPCS.NPC, NPCS.NPC->enemy, enemy_org ) )
+			{
+				CalcEntitySpot( NPCS.NPC->enemy, spot_t::SPOT_HEAD, enemy_org );
+			}
 			NPC_AimWiggle( enemy_org );
 
-			CalcEntitySpot( NPCS.NPC, spot_t::SPOT_WEAPON, muzzle );
+			CalcEntitySpot( NPCS.NPC, spot_t::SPOT_HEAD_LEAN, eyes );
 
-			VectorSubtract( enemy_org, muzzle, delta);
+			VectorSubtract( enemy_org, eyes, delta);
 			vectoangles( delta, angleToEnemy );
 
 			NPCS.NPCInfo->desiredYaw = angleToEnemy[YAW];

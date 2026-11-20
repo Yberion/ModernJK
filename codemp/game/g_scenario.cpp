@@ -1637,7 +1637,9 @@ static void G_ScenarioLookAt( const gentity_t *ent, const vec3_t target, vec3_t 
 	vectoangles( to, view );
 }
 
-// the view that aims a bot's weapon at a point from its muzzle, beside and below the eyes (CalcMuzzlePoint)
+// the view that aims a bot's weapon at a point from its muzzle point, beside and below the eyes (CalcMuzzlePoint), along
+// which the shots flew until plan step 20 part 10; since then they leave that point towards the point the eyes aim at,
+// so this view aims beside the point (the option aim=muzzle shows it)
 static void G_ScenarioAimMuzzle( gentity_t *ent, const vec3_t target, vec3_t view ) {
 	vec3_t fwd, right, up, muzzle, to;
 
@@ -1826,13 +1828,16 @@ bool G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd ) {
 			VectorSubtract( flag->r.currentOrigin, ent->client->ps.origin, to );
 			view[YAW] = vectoyaw( to );
 		}
-		else { // it aims the rocket launcher at the carrier's chest, which a rocket kills: the legs and the arms take
-			// less (G_LocationBasedDamageModifier), and a carrier hurt is thrown back onto its own flag
+		else { // it aims the rocket launcher at the carrier's head, which a rocket kills: the legs and the arms take
+			// less (G_LocationBasedDamageModifier), and a carrier hurt is thrown back onto its own flag; from the eyes, as a
+			// player aims (plan step 20 part 10: aimed at the middle of the body, the rocket hits an arm held before it)
+			gentity_t *carrier = &g_entities[scn.client[0]];
 			vec3_t target;
 
-			VectorCopy( g_entities[scn.client[0]].client->ps.origin, target );
-			target[2] += 16;
-			G_ScenarioAimMuzzle( ent, target, view );
+			if ( carrier->ghoul2 && carrier->client->renderInfo.headBolt >= 0 ) {
+				G_GetBoltPosition( carrier, carrier->client->renderInfo.headBolt, target, 0 );
+				G_ScenarioLookAt( ent, target, view );
+			}
 		}
 	}
 	if ( scn.type == scenarioType_t::SCN_VEHICLE && scn.repStart && phase >= 0 && !spectator ) {
@@ -1853,32 +1858,28 @@ bool G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd ) {
 		}
 		else if ( !attacker && veh && scn.vehicleMode == vehicleMode_t::VM_DESTROY ) {
 			// the rocket at the vehicle's body, three quarters up its box (the missiles hit the model: halfway up, between
-			// the AT-ST's legs)
+			// the AT-ST's legs), from the eyes (plan step 20 part 10)
 			vec3_t target;
 
 			VectorCopy( veh->r.currentOrigin, target );
 			target[2] += ( veh->r.mins[2] + 3 * veh->r.maxs[2] ) / 4;
-			G_ScenarioAimMuzzle( ent, target, view );
+			G_ScenarioLookAt( ent, target, view );
 		}
 	}
 	if ( attacker && scn.npcType[0] ) {
-		if ( const gentity_t *npc = G_ScenarioNPC() ) { // the middle of the NPC's box, from the muzzle for a weapon
+		if ( const gentity_t *npc = G_ScenarioNPC() ) { // the middle of the NPC's box, from the eyes (plan step 20 part 10)
 			vec3_t target;
 
 			VectorCopy( npc->r.currentOrigin, target );
 			target[2] += ( npc->r.mins[2] + npc->r.maxs[2] ) / 2;
-			if ( scn.type == scenarioType_t::SCN_WEAPON ) {
-				G_ScenarioAimMuzzle( ent, target, view );
-			}
-			else {
-				G_ScenarioLookAt( ent, target, view );
-			}
+			G_ScenarioLookAt( ent, target, view );
 		}
 	}
 	if ( attacker && scn.type == scenarioType_t::SCN_WEAPON && scn.weapon == weapon_t::WP_EMPLACED_GUN && scn.repStart && phase >= 0 ) {
 		// the use key's trace leaves the eyes level with the top of the gun's box: looking down at it; then 2 degrees up,
-		// since the two barrels fire 10 units left and right of the view, beside the model of a defender aimed at
-		// (2 up, 15 of 41 bolts hit; 4 up, 10; level, 6 up and 2, 3 or 5 down, none)
+		// since the two barrels fired 10 units left and right of the view, beside the model of a defender aimed at
+		// (2 up, 15 of 41 bolts hit; 4 up, 10; level, 6 up and 2, 3 or 5 down, none); since plan step 20 part 10 both
+		// fire towards the point the view's ray hits
 		view[PITCH] = ( phase < 50 ) ? 20.0f : -2.0f;
 	}
 	if ( attacker && scn.type == scenarioType_t::SCN_WEAPON && scn.aimFrom != aimFrom_t::AIM_SCENARIO && scn.repStart ) {

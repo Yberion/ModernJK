@@ -72,7 +72,6 @@ XCVAR_DEF( cg_drawTeamOverlay,					"0",					CG_TeamOverlayChange,	cvarFlags_t::C
 XCVAR_DEF( cg_drawTimer,						"0",					nullptr,					cvarFlags_t::CVAR_ARCHIVE )
 XCVAR_DEF( cg_drawVehLeadIndicator,				"1",					nullptr,					cvarFlags_t::CVAR_ARCHIVE )
 XCVAR_DEF( cg_dynamicCrosshair,					"1",					nullptr,					cvarFlags_t::CVAR_ARCHIVE )
-XCVAR_DEF( cg_dynamicCrosshairPrecision,		"1",					nullptr,					cvarFlags_t::CVAR_ARCHIVE )
 XCVAR_DEF( cg_debugAnim,						"0",					nullptr,					cvarFlags_t::CVAR_CHEAT )
 XCVAR_DEF( cg_debugGun,							"0",					nullptr,					cvarFlags_t::CVAR_CHEAT )
 XCVAR_DEF( cg_debugSaber,						"0",					nullptr,					cvarFlags_t::CVAR_CHEAT )

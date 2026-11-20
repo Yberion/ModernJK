@@ -2310,3 +2310,30 @@ float ShortestLineSegBewteen2LineSegs( vec3_t start1, vec3_t end1, vec3_t start2
 
 	return current_dist;
 }
+
+// the point of a body that an NPC or a bot shooting aims at, as a player aims at the model in sight: its chest (the bolt
+// thoracic), the model posed as the server last posed it (WP_SaberPositionUpdate); false for a shooter holding the
+// saber, the melee or no weapon, whose view moves its blade or its blows, and for a body without that bolt (plan step 20
+// part 10)
+bool G_AimSpot( const gentity_t *shooter, const gentity_t *target, vec3_t point )
+{
+	const weapon_t weapon = shooter->client ? shooter->client->ps.weapon : weapon_t::WP_NONE;
+	const renderInfo_t *ri = target->client ? &target->client->renderInfo : nullptr;
+	mdxaBone_t m;
+	vec3_t scale;
+
+	if ( weapon == weapon_t::WP_NONE || weapon == weapon_t::WP_SABER || weapon == weapon_t::WP_MELEE
+		|| weapon == weapon_t::WP_STUN_BATON )
+	{
+		return false;
+	}
+	if ( !ri || !target->ghoul2 || ri->lastG2 != target->ghoul2 || ri->torsoBolt < 0 )
+	{
+		return false;
+	}
+	VectorCopy( target->modelScale, scale );
+	trap->G2API_GetBoltMatrix( target->ghoul2, 0, ri->torsoBolt, &m, ri->modelAngles, target->client->ps.origin,
+		level.time, nullptr, scale );
+	BG_GiveMeVectorFromMatrix( &m, orientations_t::ORIGIN, point );
+	return true;
+}

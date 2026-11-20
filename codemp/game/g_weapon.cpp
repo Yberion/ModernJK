@@ -147,6 +147,7 @@ extern bool G_HeavyMelee( gentity_t *attacker );
 extern void Jedi_Decloak( gentity_t *self );
 
 static void WP_FireEmplaced( gentity_t *ent, bool altFire );
+static void WP_EyePoint( const gentity_t *ent, vec3_t eyes );
 
 void laserTrapStick( gentity_t *ent, vec3_t endpos, vec3_t normal );
 
@@ -538,8 +539,7 @@ static void WP_DisruptorMainFire( gentity_t *ent )
 
 	memset(&tr, 0, sizeof(tr)); //to shut the compiler up
 
-	VectorCopy( ent->client->ps.origin, start );
-	start[2] += ent->client->ps.viewheight;//By eyes
+	WP_EyePoint( ent, start );//By eyes (a misc_weapon_shooter's client has no origin: plan step 20 part 10b)
 
 	VectorMA( start, shotRange, forward, end );
 
@@ -700,8 +700,7 @@ void WP_DisruptorAltFire( gentity_t *ent )
 
 	if (ent->client)
 	{
-		VectorCopy( ent->client->ps.origin, start );
-		start[2] += ent->client->ps.viewheight;//By eyes
+		WP_EyePoint( ent, start );//By eyes (a misc_weapon_shooter's client has no origin: plan step 20 part 10b)
 
 		count = ( ent->client->ps.commandTime - ent->client->ps.weaponChargeTime ) / DISRUPTOR_CHARGE_UNIT; // the command's time, as the bryar's
 		if ( level.gametype == gametype_t::GT_SIEGE )
@@ -1396,7 +1395,8 @@ static void WP_DEMP2_AltFire( gentity_t *ent )
 	trace_t	tr;
 	gentity_t *missile;
 
-	VectorCopy( muzzle, start );
+	// traced from the eyes, as the disruptor (plan step 20 part 10)
+	WP_EyePoint( ent, start );
 
 	VectorMA( start, DEMP2_ALT_RANGE, forward, end );
 
@@ -3053,8 +3053,8 @@ static void WP_FireConcussionAlt( gentity_t *ent )
 
 	//VectorCopy( muzzle, muzzle2 ); // making a backup copy
 
-	VectorCopy( muzzle, start );
-	WP_TraceSetStart( ent, start, vec3_origin, vec3_origin );
+	// traced from the eyes, as the disruptor, and drawn from the muzzle point (plan step 20 part 10)
+	WP_EyePoint( ent, start );
 
 	skip = ent->s.number;
 
@@ -3577,6 +3577,79 @@ void CalcMuzzlePoint ( gentity_t *ent, const vec3_t inForward, const vec3_t inRi
 			muzzlePoint[2] += ent->client->ps.viewheight + muzzleOffPoint[2];
 		}
 	}
+}
+
+/*
+===============
+The shots towards the point aimed at (plan step 20 part 10)
+
+A ray from the eyes along the view finds the point aimed at, and the projectiles leave the weapon's muzzle point
+(CalcMuzzlePoint, inside the shooter's box) towards it, so that they land where the crosshair shows, for every shooter
+alike; the beams are traced from the eyes.
+===============
+*/
+extern float g_cullDistance;
+
+// the eyes, as CalcMuzzlePoint takes them: the entity's origin, which is the player's or the NPC's when it fires
+// (ClientThink_real) and a misc_weapon_shooter's own, raised by the view height
+static void WP_EyePoint( const gentity_t *ent, vec3_t eyes )
+{
+	VectorCopy( ent->s.pos.trBase, eyes );
+	eyes[2] += ent->client->ps.viewheight;
+}
+
+// the point aimed at: the end of a ray from a point along a direction, as far as the map's view distance, against what
+// the crosshair's ray meets (the world and the models of the bodies, CG_ScanForCrosshairEntity)
+static void WP_AimPoint( int passEntityNum, const vec3_t from, const vec3_t dir, vec3_t point )
+{
+	trace_t tr;
+	vec3_t end;
+
+	VectorMA( from, g_cullDistance, dir, end );
+	trap->Trace( &tr, from, nullptr, nullptr, end, passEntityNum, contentsFlags_t::CONTENTS_SOLID|contentsFlags_t::CONTENTS_BODY,
+		false, g2TraceFlags_t::G2TRFLAG_DOGHOULTRACE, g_g2TraceLod.integer );
+	VectorCopy( tr.endpos, point );
+}
+
+// a shot's direction from its start towards the point aimed at; a point at or behind the start (a body against the
+// muzzle) keeps the view's direction
+static void WP_DirToAimPoint( const vec3_t start, const vec3_t point, const vec3_t viewDir, vec3_t dir )
+{
+	vec3_t toPoint;
+
+	VectorSubtract( point, start, toPoint );
+	if ( DotProduct( toPoint, viewDir ) > 0.0f )
+	{
+		VectorNormalize( toPoint );
+		VectorCopy( toPoint, dir );
+	}
+	else
+	{
+		VectorCopy( viewDir, dir );
+	}
+}
+
+// the projectiles' direction (forward) from the muzzle point (muzzle, CalcMuzzlePoint's) towards the point the eyes aim
+// at. The muzzle point is inside a player's box, so no wall stands between it and the eyes; for a shooter whose box is
+// smaller, a wall in between is hit there, the shot going on along the line from the eyes to the muzzle point (towards
+// the point aimed at, on the same wall, it would leave along the wall's face)
+static void WP_AimFromMuzzle( gentity_t *ent )
+{
+	vec3_t eyes, point;
+	trace_t tr;
+
+	WP_EyePoint( ent, eyes );
+	trap->Trace( &tr, eyes, nullptr, nullptr, muzzle, ent->s.number, MASK_SOLID|contentsFlags_t::CONTENTS_SHOTCLIP, false,
+		g2TraceFlags_t::G2TRFLAG_NONE, 0 );
+	if ( tr.fraction < 1.0f && !tr.startsolid && !tr.allsolid )
+	{
+		VectorSubtract( muzzle, eyes, forward );
+		VectorNormalize( forward );
+		VectorCopy( tr.endpos, muzzle );
+		return;
+	}
+	WP_AimPoint( ent->s.number, eyes, forward, point );
+	WP_DirToAimPoint( muzzle, point, forward, forward );
 }
 
 extern void G_MissileImpact( gentity_t *ent, trace_t *trace );
@@ -4494,6 +4567,10 @@ void FireWeapon( gentity_t *ent, bool altFire ) {
 		}
 
 		CalcMuzzlePoint ( ent, forward, vright, up, muzzle );
+		if ( BG_FiresFromMuzzle( ent->s.weapon, altFire ) && !ent->client->ps.m_iVehicleNum )
+		{ // a rider's blaster keeps its own direction (above)
+			WP_AimFromMuzzle( ent );
+		}
 
 		// fire the specific weapon
 		switch( ent->s.weapon ) {
@@ -4583,7 +4660,7 @@ void FireWeapon( gentity_t *ent, bool altFire ) {
 static void WP_FireEmplaced( gentity_t *ent, bool altFire )
 //---------------------------------------------------------
 {
-	vec3_t	dir, angs, gunpoint;
+	vec3_t	dir, gunpoint, aimPoint;
 	vec3_t	right;
 	gentity_t *gun;
 	int side;
@@ -4607,6 +4684,8 @@ static void WP_FireEmplaced( gentity_t *ent, bool altFire )
 
 	VectorCopy(gun->s.origin, gunpoint);
 	gunpoint[2] += 46;
+	// the point its crosshair shows, from between the two barrels (plan step 20 part 10)
+	WP_AimPoint( gun->s.number, gunpoint, forward, aimPoint );
 
 	AngleVectors(ent->client->ps.viewangles, nullptr, right, nullptr);
 
@@ -4624,9 +4703,7 @@ static void WP_FireEmplaced( gentity_t *ent, bool altFire )
 	gun->genericValue10 = side;
 	G_AddEvent(gun, entity_event_t::EV_FIRE_WEAPON, side);
 
-	vectoangles( forward, angs );
-
-	AngleVectors( angs, dir, nullptr, nullptr );
+	WP_DirToAimPoint( gunpoint, aimPoint, forward, dir );	// the barrel's bolt towards the point aimed at
 
 	WP_FireEmplacedMissile( gun, gunpoint, dir, altFire, ent );
 }

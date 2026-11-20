@@ -1276,6 +1276,7 @@ float vectoyaw( const vec3_t vec );
 
 gitem_t	*BG_FindItem( const char *classname );
 gitem_t	*BG_FindItemForWeapon( weapon_t weapon );
+bool	BG_FiresFromMuzzle( weapon_t weapon, bool altFire );
 gitem_t	*BG_FindItemForPowerup( powerup_t pw );
 gitem_t	*BG_FindItemForHoldable( holdable_t pw );
 #define	ITEM_INDEX(x) ((x)-bg_itemlist)

@@ -1581,13 +1581,20 @@ NPC_FaceEnemy
 
 bool NPC_FaceEnemy( bool doPitch )
 {
+	vec3_t		enemyPos;
+
 	if ( NPCS.NPC == nullptr )
 		return false;
 
 	if ( NPCS.NPC->enemy == nullptr )
 		return false;
 
-	return NPC_FaceEntity( NPCS.NPC->enemy, doPitch );
+	// a shooter aims at the chest of the model it sees, as a player aims; its eyes otherwise (plan step 20 part 10)
+	if ( !G_AimSpot( NPCS.NPC, NPCS.NPC->enemy, enemyPos ) )
+	{
+		CalcEntitySpot( NPCS.NPC->enemy, spot_t::SPOT_HEAD_LEAN, enemyPos );
+	}
+	return NPC_FacePosition( enemyPos, doPitch );
 }
 
 /*
