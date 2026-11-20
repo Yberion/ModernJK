@@ -140,6 +140,28 @@ cases() {
 	local spec="mp/ffa3|0|Jedi Reborn Jedi"
 	echo "spectator_follow|$spec|$wd|saber 48 medium idle spectator;weapon 48 11 0 spectator;weapon 48 11 0 spectator=follow1;weapon 48 11 0 spectator=follow2"
 	echo "spectator_commands|$spec||spectate 48 cycle;spectate 48 fly"
+	# step 20, the items (part 6), with the weapons allowed (with the saber only, the game spawns no item). The 11
+	# holdable items used: the medpacs (the attacker at 40 health), the binoculars, the cloak, the jetpack (a jump, the
+	# use key in the air, then the jump held), the ammunition dispenser on nothing (the ammunition thrown); the seeker, the
+	# sentry and the E-Web shooting at the defender, in repetitions of 4 s, and the shield its owner shoots into; the
+	# health and ammunition dispensers on the teammate in front (target=ally, 48 units away). The items picked up, 64
+	# units in front of the attacker (pickup=), which has 40 health, no armour, no weapon and no ammunition before: the
+	# health, the two armours, a holdable item, every weapon and every ammunition; the four powerups before a force power
+	# (the enlightenments raise its level, the ysalamiri refuses it, the boon refills the force faster)
+	echo "holdable_use|$ffa|$wd|holdable 48 medpac;holdable 48 medpac_big;holdable 48 binoculars;holdable 48 cloak;holdable 48 jetpack;holdable 48 ammodisp"
+	echo "holdable_shots|$ffa|$wd|holdable 48 seeker 256 rep=4000;holdable 48 sentry 256 rep=4000;holdable 48 eweb 256 rep=4000;holdable 48 shield"
+	echo "holdable_dispensers|$team|$wd|holdable 48 healthdisp 48 target=ally;holdable 48 ammodisp 48 target=ally"
+	local items1="item_medpak_instant item_shield_sm_instant item_shield_lrg_instant item_seeker weapon_stun_baton weapon_melee weapon_saber weapon_blaster_pistol"
+	local items2="weapon_concussion_rifle weapon_bryar_pistol weapon_blaster weapon_disruptor weapon_bowcaster weapon_repeater weapon_demp2 weapon_flechette"
+	local items3="weapon_rocket_launcher weapon_thermal weapon_trip_mine weapon_det_pack weapon_emplaced weapon_turretwp ammo_thermal ammo_tripmine"
+	local items4="ammo_detpack ammo_force ammo_blaster ammo_powercell ammo_metallic_bolts ammo_rockets ammo_all"
+	local k=0 it
+	for g in "$items1" "$items2" "$items3" "$items4"; do
+		k=$(( k + 1 )); l=""
+		for it in $g; do l="$l;item 48 $it pickup=64"; done
+		echo "item_pickup$k|$ffa|$wd|${l#;}"
+	done
+	echo "item_powerups|$ffa|$wd;$force|force 48 lightning 1 128 item=item_force_enlighten_dark pickup=64;force 48 heal 1 128 item=item_force_enlighten_light pickup=64;force 48 lightning 3 128 item=item_ysalimari pickup=64;force 48 protect 3 128 item=item_force_boon pickup=64"
 }
 
 one() {

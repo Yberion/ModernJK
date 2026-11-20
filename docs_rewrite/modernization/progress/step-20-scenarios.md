@@ -12,7 +12,7 @@ The 40 scripted bot fights of plan step 14 (10 saber, 6 force, 24 weapon cases) 
 | 4a | the game types without objectives: holocron, Jedi Master, duel, power duel, team | ✅ done (20 November 2026): Windows and Linux |
 | 4b | the game types with objectives: CTF, CTY, siege | ✅ done (20 November 2026): Windows and Linux |
 | 5 | teams and spectators | ✅ done (20 November 2026): Windows and Linux |
-| 6 | the holdable items and the items picked up | ⏳ |
+| 6 | the holdable items and the items picked up | ✅ done (20 November 2026): Windows and Linux |
 | 7 | the vehicles | ⏳ |
 | 8 | the NPCs | ⏳ |
 | 9 | the offsets between where each shot starts and the view (projectiles, emplaced gun, saber): why, and whether normal | ⏳ (decided 20 November 2026) |
@@ -58,6 +58,7 @@ The dedicated server executes the archived settings of its configuration file, `
   - the option `away`: the defender turned away from the attacker;
   - in siege, a dead bot, or one waiting for the next wave as a spectator with 1 point of health (`ClientRespawn` with `g_siegeRespawn`), respawns at once (`ClientSpawn`, its corpse kept as `ClientRespawn` does);
   - push and pull: the defender knows the power when its level is above 0 (a siege class may not give it, and a power not known does not resist); the scenarios of before give the same counts.
+- Since part 6 (20 November 2026, section 14): `scenario holdable`, `scenario item`, the option `item=`, the holdable items cleared at every reset, the line `item statistics`, the items picked up and the health taken from what is not a client counted (`g_items.cpp`, `g_combat.cpp`).
 - Since part 5 (20 November 2026, section 13): `scenario team`, `scenario spectate`, `flag ... switch`, the options `spectator`, `spectator=follow1` and `spectator=follow2`, a fourth slot for the spectator, the line `team statistics`, a word option no longer read as a number.
 
 ## 6. Part 1: the force powers
@@ -274,3 +275,32 @@ The module (`codemp/game/g_scenario.cpp`):
 At the old commit, with the port (`scenarios_golden.patch`): the 9 scenarios give the same counts as the build of the day; the two files still differ by the 53 lines of the charge (section 9 and 12). Without the new line, the 215 scenarios of before give the same counts as the goldens of before. Two runs of the build of the day give the same file. 224 scenarios on 99 servers, about 2 min on the development machine (30 servers at a time).
 
 On Linux (20 November 2026): the game module built by GCC 15 on the Linux VM and by MSVC, no warning; the 224 scenarios on the VPS: `golden: SAME`.
+
+## 14. Part 6: the items
+
+Decided on 20 November 2026 ([../PLAN.md](../PLAN.md) step 20, the decisions of part 6), after reading the items' code: 47 scenarios of 48 repetitions on 8 servers.
+
+What the items do, read from the code (the same in 1.01):
+
+- The holdable items are used with the item key (`BUTTON_USE_HOLDABLE`, the item selected, `PM_Weapon`, then `EV_USE_ITEM1` to `11`), or with their own command (`GENCMD_USE_*`); the jetpack and the two dispensers cannot be selected (`BG_IsItemSelectable`), and `PM_ItemUsable` refuses them through either way. They work through the use key (`BUTTON_USE`, `TryUse`): the jetpack switched on or off in the air; a dispenser held on a hurt teammate gives health, on a teammate whose weapon lacks ammunition gives it (`G_CanUseDispOn`, `G_UseDispenserOn`); the ammunition dispenser on nothing throws ammunition in front. The effect of `EV_USE_ITEM8` and `9` (the dispensers by the item key) is commented out. Presented on 20 November 2026 as "the dispensers do nothing" and "used with their own command": wrong, corrected while writing the part.
+- A medpac gives 25 health, the big one 50; the seeker lives 30 s and fires at the nearest enemy from 1.5 s (a blaster of 15, every 400 to 700 ms); the sentry, put 64 units in front, fires at the enemies (`MOD_SENTRY`); the shield, a wall 64 units in front with 250 health, stops its owner's shots too; the E-Web is put down and mounted (20 a shot, `MOD_TURBLAST`); the cloak hides and burns its fuel; the binoculars zoom in.
+- An item picked up: the health, the armours (25 and 100), the ammunition up to its maximum, a weapon with its ammunition (half of it when the ammunition is above half; a weapon carried already is refused, `BG_CanItemBeGrabbed`), the powerups (the enlightenments raise the powers of their side, the boon refills the force faster, the ysalamiri refuses the force), one holdable item of each kind. A weapon or a powerup taken leaves a placeholder (`EF_ITEMPLACEHOLDER`), the other items hide (`EF_NODRAW`). With the saber only (`g_weaponDisable 524279`, the test servers' setting) the game spawns no item (`FinishSpawningItem`): the item servers allow the weapons.
+
+The module (`codemp/game/g_scenario.cpp`):
+
+- `scenario holdable <reps> <item> [distance]`: the attacker carries the item (selected if it can be) and uses it at the start of the script, with the item key, or the use key for the jetpack (after a jump, then the jump held 1 s) and the dispensers (held 1 s); the shield's owner fires a blaster into it from 500 ms, the E-Web's fires it 1 s; before a medpac the attacker has 40 health; the health dispenser's teammate has 40 health, the ammunition dispenser's holds an empty blaster; the defender holds no saber.
+- `scenario item <reps> <classname> [distance]` with `pickup=`: the item spawned that far in front of the attacker, which walks onto it, put back at every reset once taken (`RespawnItem`; not before, which would cancel the end of its spawn); the attacker has 40 health, no armour, no weapon and no ammunition before. The option `item=<classname>` does the same before any other scenario's script.
+- Every reset clears the holdable items' state and what they spawned (the seeker's flag and times, the sentry, the shield, the E-Web, the cloak and the jetpack switched off with their fuel full) and gives the attacker the holdable item of its scenario only; the scenarios of before give the same counts.
+- A line `item statistics` in every scenario: the items picked up by item (`Touch_Item`), the health taken from what is not a client by cause (`G_Damage`: a shield, a sentry, an E-Web, a corpse, a mine), and by role the armour and the ammunition gained and lost and the instants cloaked, flying a jetpack and zoomed in. In the scenarios of before it shows the ammunition the weapons spend, the disruptor's zoom, and the explosions on the corpses and mines.
+
+| server (map, game type) | scenarios | what the counts show |
+|---|---|---|
+| `holdable_use` (`mp/ffa3`, 0, the weapons allowed) | the medpacs, the binoculars, the cloak, the jetpack, the ammunition dispenser on nothing | 1,200 and 2,400 health; 1,440 instants zoomed, 1,440 cloaked; the jetpack 1,344 instants flying (6,096 units up in all), no force spent; the ammunition thrown (`EV_USE_ITEM9`), not picked up |
+| `holdable_shots` (`mp/ffa3`, 0) | the seeker, the sentry and the E-Web against the defender 256 units away (repetitions of 4 s), the shield | the seeker 2,470 (`MOD_BLASTER`), the sentry 3,648 (`MOD_SENTRY`), the E-Web 960 (`MOD_TURBLAST`, most shots miss: plan step 20 part 9, the shots' offsets); the shield stops every blaster bolt (2,880 taken by the shield, none by the defender) |
+| `holdable_dispensers` (`mp/ffa3`, 6) | the health and ammunition dispensers on the teammate 48 units in front (`target=ally`) | 1,344 health and 288 ammunition given |
+| `item_pickup1` to `4` (`mp/ffa3`, 0) | the health, the two armours, a seeker, every weapon (18) and every ammunition (9) | every item picked up 48 times; 1,200 health, 1,200 and 4,800 armour, the ammunition of each (100 a pickup for most weapons and ammunitions, 50 for the concussion rifle, 3 or 4 for the rockets, the mines, the packs and the detonators, 152 for all the ammunition; the emplaced gun's and the turret's items give none) |
+| `item_powerups` (`mp/ffa3`, 0, the force allowed) | lightning at level 1 after the dark enlightenment, heal at level 1 after the light one, lightning at level 3 after the ysalamiri, protect after the boon | lightning 1,430 (level 3; 66 in 6 repetitions at level 1 without), heal 2,400, lightning refused (no damage), protect's force spent 384 (90 in 6 repetitions without) |
+
+At the old commit, with the port (`scenarios_golden.patch`): the 47 scenarios give the same counts as the build of the day; the two files differ by 54 lines: the charge's 53 and the new line of the siege's rocket held 1.5 s, whose kill leaves a corpse its splash hurts (`MOD_ROCKET_HOMING_SPLASH` 2,773). Without the new line, the 224 scenarios of before give the same counts as the goldens of before. Two runs of the build of the day give the same file. 271 scenarios on 107 servers, about 2 min 20 s on the development machine (30 servers at a time).
+
+On Linux (20 November 2026): the game module built by GCC 15 on the Linux VM and by MSVC, no warning; the 271 scenarios on the VPS: `golden: SAME`.

@@ -1553,6 +1553,8 @@ typedef struct gameStats_s {
 	EnumArray<int, saber_styles_t, saber_styles_t::SS_NUM_SABER_STYLES>	styleAttacks;	// saber attack moves started by clients, by style
 	EnumArray<int, saber_styles_t, saber_styles_t::SS_NUM_SABER_STYLES>	styleBounces;	// saber moves of clients sent into a bounce or deflection, by style
 	EnumArray<int, saberMoveName_t, saberMoveName_t::LS_MOVE_MAX>	specialMoves;	// special saber moves started by clients (back attacks to the hilt bash), by move
+	int		itemPickups[MAX_ITEMS];	// items picked up (Touch_Item), by index in bg_itemlist
+	EnumArray<int, meansOfDeath_t, meansOfDeath_t::MOD_MAX>	objectDamage;	// health taken from what is not a client (a shield, a sentry, an E-Web), by cause
 } gameStats_t;
 extern	gameStats_t		g_stats;
 void G_StatsSaberMove( gentity_t *ent, saberMoveName_t oldSaberMove );

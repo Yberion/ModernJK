@@ -2,7 +2,7 @@
 
 The reference counts of the scripted bot scenarios (plan steps 14 and 20; [../../progress/step-20-scenarios.md](../../progress/step-20-scenarios.md)), in one place: what the two files hold, how to run and compare them, and every difference between them with its reason. Any difference not listed here is a bug until it is explained.
 
-State: 20 November 2026, plan step 20 part 5. 224 scenarios, 11 lines each, 2,464 lines per file.
+State: 20 November 2026, plan step 20 part 6. 271 scenarios, 12 lines each, 3,252 lines per file.
 
 ## 1. The two files
 
@@ -17,7 +17,7 @@ State: 20 November 2026, plan step 20 part 5. 224 scenarios, 11 lines each, 2,46
 
 One line per statistics line of a scenario: `<scenario name>: <line>`. The name comes from the scenario's command in the run's `measure.cfg` (`gamestats_scn.py`): outside free for all the game type first, then the type and the arguments after the repetitions, the options' `=` removed (`saber 96 fast idle` is `saber_fast_idle`; `flag 48 capture 128 pickup=64` in CTF is `ctf_flag_capture_128_pickup64`). The scenarios come in the order of the servers in `cases()` of `scenarios.sh`, and in each server in the order of its scenarios.
 
-Each scenario has 11 lines, in this order:
+Each scenario has 12 lines, in this order:
 
 1. the saber line (swings, wounds, damage, blocks, parries, locks, idle touches, missiles blocked, force damage, deaths);
 2. `force statistics` (the six powers of step 14);
@@ -29,7 +29,8 @@ Each scenario has 11 lines, in this order:
 8. `saber special move statistics`;
 9. `scenario statistics` (by role: health and force gained and lost, instants off the ground, knocked down, mind tricked, in a saber lock, distance moved, end place);
 10. `score statistics` (by role: score and captures; the red and blue team scores);
-11. `team statistics` (by role, the spectator's included: team changes, instants as a free spectator and distance moved then, instants following each role, distance from the player followed).
+11. `team statistics` (by role, the spectator's included: team changes, instants as a free spectator and distance moved then, instants following each role, distance from the player followed);
+12. `item statistics` (the items picked up by item; the health taken from what is not a client by cause, as a shield, a sentry, an E-Web, a corpse or a mine; by role: armour and ammunition gained and lost, instants cloaked, flying a jetpack, zoomed in).
 
 The duration and frame count of the saber line's header are removed (they depend on the rate).
 
@@ -42,10 +43,11 @@ The lines added over the parts, each time with every scenario of before checked 
 | part 3 (19 November 2026) | 9 | line 8 added; line 9 gained the instants in a saber lock |
 | part 4a (20 November 2026) | 10 | line 10 added; the scenarios outside free for all named after their game type |
 | part 5 (20 November 2026) | 11 | line 11 added |
+| part 6 (20 November 2026) | 12 | line 12 added |
 
 ## 3. The differences between the two files
 
-53 lines in 20 scenarios, all from one fix: the weapons' charge and the rocket's lock counted to the time of the command that releases the button, no longer to the last 20 Hz instant, up to 50 ms earlier (19 November 2026; [../../progress/step-20-scenarios.md](../../progress/step-20-scenarios.md) sections 9 and 12, [../../CHANGES.md](../../CHANGES.md) section 24). For a bot the gap is 50 ms in every case below, each held a multiple of 50 ms: the build of the day counts the charge 50 ms longer than the old commit.
+54 lines in 20 scenarios, all from one fix: the weapons' charge and the rocket's lock counted to the time of the command that releases the button, no longer to the last 20 Hz instant, up to 50 ms earlier (19 November 2026; [../../progress/step-20-scenarios.md](../../progress/step-20-scenarios.md) sections 9 and 12, [../../CHANGES.md](../../CHANGES.md) section 24). For a bot the gap is 50 ms in every case below, each held a multiple of 50 ms: the build of the day counts the charge 50 ms longer than the old commit.
 
 | scenario | lines | why |
 |---|---|---|
@@ -62,7 +64,7 @@ The lines added over the parts, each time with every scenario of before checked 
 | `weapon_12_1_256_hold450` | 3 | its alternate: it hits directly instead of by its splash |
 | `weapon_11_1_256_hold750_rep3000` | 5 | the rocket's lock held 750 ms: 10 units (the homing threshold) instead of 9; every rocket homes and kills (85 a hit and no kill at the old commit) |
 | `siege_weapon_6_1_256_hold1700_rep3600` | 1 | the siege's sniper shot held 1.7 s: the charge 68 instead of 66 (179 a shot instead of 176; in free for all the cap of 60 hides it) |
-| `siege_weapon_11_1_256_hold1500_rep3000` | 5 | the siege's rocket lock held 1.5 s: 10 units of 150 ms instead of 9, it homes and kills (as `weapon_11_1_256_hold750_rep3000`) |
+| `siege_weapon_11_1_256_hold1500_rep3000` | 6 | the siege's rocket lock held 1.5 s: 10 units of 150 ms instead of 9, it homes and kills (as `weapon_11_1_256_hold750_rep3000`); its splash then hurts the corpse (the item line) |
 
 The other charges held give the same counts in both: at their minimum or maximum, or on the same side of a threshold either way.
 

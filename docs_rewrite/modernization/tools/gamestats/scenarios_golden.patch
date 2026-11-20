@@ -1,16 +1,44 @@
+diff --git a/codemp/game/g_combat.c b/codemp/game/g_combat.c
+index f47bfc78..73a3b810 100644
+--- a/codemp/game/g_combat.c
++++ b/codemp/game/g_combat.c
+@@ -5395,6 +5395,9 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
+ 			g_stats.modDamage[mod] += take;
+ 			G_ScenarioDamageTrace( targ, inflictor, point, take, mod );
+ 		}
++		else if ( mod >= 0 && mod < MOD_MAX ) {
++			g_stats.objectDamage[mod] += take;
++		}
+ 		if ( mod == MOD_FORCE_DARK && targ->client ) {
+ 			g_stats.forceDamage += take;
+ 		}
+diff --git a/codemp/game/g_items.c b/codemp/game/g_items.c
+index bcc0a510..6f0a8d15 100644
+--- a/codemp/game/g_items.c
++++ b/codemp/game/g_items.c
+@@ -2579,6 +2579,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
+ 	if ( !respawn ) {
+ 		return;
+ 	}
++	g_stats.itemPickups[ent->item - bg_itemlist]++;
+ 
+ 	// play the normal pickup sound
+ 	if (predict) {
 diff --git a/codemp/game/g_local.h b/codemp/game/g_local.h
-index dcbef7cb..69701304 100644
+index dcbef7cb..ae33a48d 100644
 --- a/codemp/game/g_local.h
 +++ b/codemp/game/g_local.h
-@@ -1532,6 +1532,7 @@ typedef struct gameStats_s {
+@@ -1532,6 +1532,9 @@ typedef struct gameStats_s {
  	int		shots[WP_NUM_WEAPONS][2];	// FireWeapon by weapon, primary and alternate
  	int		styleAttacks[SS_NUM_SABER_STYLES];	// saber attack moves started by clients, by style
  	int		styleBounces[SS_NUM_SABER_STYLES];	// saber moves of clients sent into a bounce or deflection, by style
 +	int		specialMoves[LS_MOVE_MAX];	// special saber moves started by clients (back attacks to the hilt bash), by move
++	int		itemPickups[MAX_ITEMS];	// items picked up (Touch_Item), by index in bg_itemlist
++	int		objectDamage[MOD_MAX];	// health taken from what is not a client (a shield, a sentry, an E-Web), by cause
  } gameStats_t;
  extern	gameStats_t		g_stats;
  void G_StatsSaberMove( gentity_t *ent, int oldSaberMove );
-@@ -1542,6 +1543,7 @@ qboolean G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd );
+@@ -1542,6 +1545,7 @@ qboolean G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd );
  void G_ScenarioFrame( void );
  void G_ScenarioTrace( void );
  void G_ScenarioDamageTrace( gentity_t *targ, gentity_t *inflictor, const vec3_t point, int take, int mod );
@@ -19,10 +47,10 @@ index dcbef7cb..69701304 100644
  
  #define	FOFS(x) offsetof(gentity_t, x)
 diff --git a/codemp/game/g_scenario.c b/codemp/game/g_scenario.c
-index 004cab64..310ee795 100644
+index 004cab64..ab084048 100644
 --- a/codemp/game/g_scenario.c
 +++ b/codemp/game/g_scenario.c
-@@ -6,11 +6,54 @@
+@@ -6,11 +6,67 @@
  // the bots (powerups, pain timers and damage sums, walking direction), and the corpses, missiles, events and dropped
  // items are removed when the counted repetitions start, so that every run plays the same game; the statistics of the
  // counted repetitions are printed at the end (gamestats), and the bots then stand still until "scenario off".
@@ -65,6 +93,15 @@ index 004cab64..310ee795 100644
 +// scenario spectate <reps> <cycle|fly> [distance] (with the spectator; the players stand)
 +//   cycle: following the attacker, the spectator presses attack (the next player), the alternate attack (the
 +//   previous one), then jumps (it stops following); fly: a free spectator at the attacker's place flies forward 1 s
++// scenario holdable <reps> <seeker|shield|medpac|medpac_big|binoculars|sentry|jetpack|healthdisp|ammodisp|eweb|cloak>
++//   [distance] (the attacker carries the item and uses it at the start of the script with the item key, the item
++//   selected; the jetpack and the dispensers, which cannot be selected, with the use key as the game uses them (TryUse):
++//   the jetpack after a jump, then the jump held 1 s, a dispenser held 1 s on the teammate in front (target=ally; the
++//   health dispenser's at 40 health, the ammunition's holding an empty blaster), or else on nothing, which throws the
++//   ammunition; the shield's owner fires a blaster into it, the E-Web's fires it 1 s; before a medpac the attacker has
++//   40 health; the defender holds no saber, so that the seeker's, the sentry's and the E-Web's shots hit)
++// scenario item <reps> <item classname> [distance] (with pickup=: the item that far in front of the attacker, which
++//   walks onto it; the attacker has 40 health, no armour, the saber only and no ammunition before)
  // scenario off
 +// Options after the arguments: hold=<ms>, rep=<ms> (a repetition, 2000; the scripts read it to wait for the end);
 +// pickup=<units> (plan step 20, the game types: in a holocron game a holocron of the force scenario's power, in a Jedi
@@ -74,13 +111,17 @@ index 004cab64..310ee795 100644
 +// away (the defender turned away from the attacker);
 +// spectator, spectator=follow1, spectator=follow2 (plan step 20, teams and spectators: a bot spectator, the first
 +// spectator bot or else the first bot without a role, made a spectator, follows the attacker, or the first or second
-+// player by client number as the game's follow1 and follow2 do; it is reset to that at every repetition).
++// player by client number as the game's follow1 and follow2 do; it is reset to that at every repetition);
++// item=<classname> (plan step 20, the items: with pickup=, that item in front of the attacker, as in an item scenario,
++// before the script of any other scenario: a force scenario after a powerup picked up).
++// Every reset clears the holdable items' state and what they spawned (the seeker, the sentry, the shield, the E-Web,
++// the cloak and the jetpack switched off and full), and gives the attacker the holdable item of its scenario only.
 +// The bots are the first ones that are not spectators; in a power duel the defender is the lone duelist. In siege a
 +// dead bot is respawned at once, not at the next wave.
  
  #include "g_local.h"
  
-@@ -21,42 +64,202 @@ extern void saberReactivate( gentity_t *saberent, gentity_t *saberOwner );
+@@ -21,42 +77,213 @@ extern void saberReactivate( gentity_t *saberent, gentity_t *saberOwner );
  extern void SaberGotHit( gentity_t *self, gentity_t *other, trace_t *trace );
  extern void SaberUpdateSelf( gentity_t *ent );
  extern void WP_SaberRemoveG2Model( gentity_t *saberent );
@@ -91,6 +132,9 @@ index 004cab64..310ee795 100644
 +extern gentity_t *Team_ResetFlag( int team );
 +extern void Team_ResetFlags( void );
 +extern void G_SiegeSetObjectiveComplete( int team, int objective, qboolean failIt );
++extern void Jedi_Decloak( gentity_t *self );
++extern void EWebDisattach( gentity_t *owner, gentity_t *eweb );
++extern char *modNames[];
  
  #define SCN_REP_MSEC		2000	// one repetition
  #define SCN_SETTLE_MSEC		500		// still, after the reset, before the script starts
@@ -107,7 +151,9 @@ index 004cab64..310ee795 100644
 +	SCN_FLAG,
 +	SCN_OBJECTIVE,
 +	SCN_TEAM,
-+	SCN_SPECTATE
++	SCN_SPECTATE,
++	SCN_HOLDABLE,
++	SCN_ITEM
  } scenarioType_t;
  
 +// what the bots do in a flag scenario
@@ -187,6 +233,8 @@ index 004cab64..310ee795 100644
 +	qboolean		away;			// the defender turned away from the attacker
 +	spectatorMode_t	spectatorMode;
 +	spectateMode_t	spectateMode;
++	holdable_t		holdable;		// the holdable item of a holdable scenario
++	char			itemClass[MAX_QPATH];	// the item of an item scenario or of item=, "" without
  	float			dist;			// between the two origins
  	vec3_t			origin;			// the attacker's place, facing yaw
  	float			yaw;
@@ -212,6 +260,10 @@ index 004cab64..310ee795 100644
 +	float	freePath[4], followGap[4];
 +	team_t	team[4];			// the previous instant's team and place, from the reset on
 +	vec3_t	teamOrigin[4];
++	// plan step 20, the items, by role: armour and ammunition gained and lost, the instants cloaked, flying a jetpack
++	// and zoomed in
++	int		armorGained[3], armorLost[3], ammoGained[3], ammoSpent[3], cloaked[3], jetpack[3], zoomed[3];
++	int		armor[3], ammo[3];	// the previous instant's values, from the reset on
 +	// the previous instant's values, from the reset on
 +	int		health[3], force[3];
 +	vec3_t	origin[3], start[3];
@@ -288,7 +340,7 @@ index 004cab64..310ee795 100644
  }
  
  // a place where the attacker stands on a spawn point and the defender on the floor in front of it
-@@ -64,8 +267,9 @@ static qboolean G_ScenarioFindPlace( void ) {
+@@ -64,8 +291,9 @@ static qboolean G_ScenarioFindPlace( void ) {
  	const vec3_t mins = { -15, -15, DEFAULT_MINS_2 };
  	const vec3_t maxs = { 15, 15, DEFAULT_MAXS_2 };
  	gentity_t *spot = NULL;
@@ -299,7 +351,7 @@ index 004cab64..310ee795 100644
  		vec3_t fwd, start, front, below;
  		trace_t tr;
  
-@@ -84,6 +288,23 @@ static qboolean G_ScenarioFindPlace( void ) {
+@@ -84,6 +312,23 @@ static qboolean G_ScenarioFindPlace( void ) {
  		if ( tr.fraction >= 1.0f || tr.startsolid || tr.endpos[2] < start[2] - 24 ) {
  			continue;	// no floor at the attacker's height in front
  		}
@@ -323,7 +375,46 @@ index 004cab64..310ee795 100644
  		{ // away from doors and lifts, which crush the bots standing in their way
  			int e;
  			qboolean nearMover = qfalse;
-@@ -143,9 +364,25 @@ static void G_ScenarioPlace( gentity_t *ent, const vec3_t origin, float yaw ) {
+@@ -138,15 +383,66 @@ static void G_ScenarioSaberToHand( gentity_t *ent ) {
+ 	client->saberKnockedTime = 0;
+ }
+ 
++// at every reset, what a holdable item left (a use in the previous repetition, or a bot's in the free play): the seeker,
++// the sentry, the shield and the E-Web removed, the cloak and the jetpack switched off and full
++static void G_ScenarioClearHoldables( gentity_t *ent ) {
++	gclient_t *client = ent->client;
++	int i;
++
++	client->ps.eFlags &= ~EF_SEEKERDRONE;
++	client->ps.droneExistTime = client->ps.droneFireTime = 0;
++	for ( i = MAX_CLIENTS; i < level.num_entities; i++ ) {
++		gentity_t *e = &g_entities[i];
++
++		if ( e->inuse && e->classname
++			&& ( ( e->s.owner == ent->s.number && !strcmp( e->classname, "sentryGun" ) )		// ItemUse_Sentry
++				|| ( e->parent == ent && !e->item && !strcmp( e->classname, "item_shield" ) ) ) ) {	// PlaceShield
++			G_FreeEntity( e );
++		}
++	}
++	client->ps.fd.sentryDeployed = qfalse;
++	if ( client->ewebIndex ) {
++		gentity_t *eweb = &g_entities[client->ewebIndex];
++
++		EWebDisattach( ent, eweb );
++		G_FreeEntity( eweb );
++	}
++	if ( client->ps.powerups[PW_CLOAKED] ) {
++		Jedi_Decloak( ent );
++	}
++	client->ps.cloakFuel = 100;
++	client->cloakToggleTime = 0;
++	Jetpack_Off( ent );
++	client->ps.jetpackFuel = 100;
++	client->jetPackToggleTime = 0;
++}
++
+ static void G_ScenarioPlace( gentity_t *ent, const vec3_t origin, float yaw ) {
+ 	gclient_t *client = ent->client;
  	vec3_t angles = { 0, 0, 0 };
  	int i, j;
  
@@ -348,9 +439,11 @@ index 004cab64..310ee795 100644
 +		client->pers.teamState.lastfraggedcarrier = client->pers.teamState.flagsince = 0;
 +	}
  	G_ScenarioSaberToHand( ent );
++	G_ScenarioClearHoldables( ent );
  	// the blades' last positions, from before the bot is moved here: the first sweep of a repetition would start from them
  	client->lastSaberStorageTime = 0;
-@@ -163,6 +400,10 @@ static void G_ScenarioPlace( gentity_t *ent, const vec3_t origin, float yaw ) {
+ 	client->hasCurrentPosition = qfalse;
+@@ -163,6 +459,10 @@ static void G_ScenarioPlace( gentity_t *ent, const vec3_t origin, float yaw ) {
  		client->ps.fd.forcePowerDebounce[i] = 0;
  	}
  	ent->health = client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH] = 100;
@@ -361,7 +454,7 @@ index 004cab64..310ee795 100644
  	client->ps.stats[STAT_ARMOR] = 0;
  	client->ps.fd.forcePower = 100;
  	client->ps.fd.forcePowerRegenDebounceTime = level.time;
-@@ -173,6 +414,12 @@ static void G_ScenarioPlace( gentity_t *ent, const vec3_t origin, float yaw ) {
+@@ -173,6 +473,12 @@ static void G_ScenarioPlace( gentity_t *ent, const vec3_t origin, float yaw ) {
  	client->ps.weaponTime = 0;
  	client->ps.weaponstate = WEAPON_READY;
  	client->ps.saberBlocked = BLOCKED_NONE;
@@ -374,7 +467,7 @@ index 004cab64..310ee795 100644
  	client->ps.saberMove = LS_READY;
  	client->ps.saberHolstered = 0;
  	client->ps.legsTimer = client->ps.torsoTimer = 0;
-@@ -183,12 +430,25 @@ static void G_ScenarioPlace( gentity_t *ent, const vec3_t origin, float yaw ) {
+@@ -183,12 +489,25 @@ static void G_ScenarioPlace( gentity_t *ent, const vec3_t origin, float yaw ) {
  	// the model points the missiles hit
  	client->ps.pm_flags &= ~( PMF_TIME_KNOCKBACK | PMF_TIME_WATERJUMP | PMF_BACKWARDS_RUN );
  	client->ps.movementDir = 0;
@@ -400,7 +493,7 @@ index 004cab64..310ee795 100644
  	client->ps.painTime = 0;
  	ent->pain_debounce_time = 0;
  	// the damage P_DamageFeedback keeps summing until it plays a pain (under 10 points, or within 500 ms of a pain)
-@@ -206,6 +466,44 @@ static void G_ScenarioPlace( gentity_t *ent, const vec3_t origin, float yaw ) {
+@@ -206,27 +525,107 @@ static void G_ScenarioPlace( gentity_t *ent, const vec3_t origin, float yaw ) {
  	trap->LinkEntity( (sharedEntity_t *)ent );
  }
  
@@ -445,7 +538,13 @@ index 004cab64..310ee795 100644
  static void G_ScenarioEquip( gentity_t *ent, qboolean attacker ) {
  	gclient_t *client = ent->client;
  
-@@ -213,13 +511,37 @@ static void G_ScenarioEquip( gentity_t *ent, qboolean attacker ) {
++	// the holdable items carried: the attacker's of its holdable scenario only, selected but for the jetpack and the
++	// dispensers, which cannot be (plan step 20, the items)
++	client->ps.stats[STAT_HOLDABLE_ITEMS] = ( attacker && scn.type == SCN_HOLDABLE ) ? ( 1 << scn.holdable ) : 0;
++	client->ps.stats[STAT_HOLDABLE_ITEM] = ( attacker && scn.type == SCN_HOLDABLE
++		&& BG_IsItemSelectable( &client->ps, scn.holdable ) ) ? BG_GetItemIndexByTag( scn.holdable, IT_HOLDABLE ) : 0;
++
+ 	client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] = FORCE_LEVEL_3;
  	client->ps.fd.forcePowerLevel[FP_SABER_DEFENSE] = FORCE_LEVEL_3;
  	client->ps.fd.forcePowersKnown |= ( 1 << FP_SABER_OFFENSE ) | ( 1 << FP_SABER_DEFENSE );
  	if ( scn.type == SCN_FORCE && attacker ) {
@@ -476,9 +575,13 @@ index 004cab64..310ee795 100644
 -	if ( scn.type == SCN_WEAPON ) {
 -		const int weapon = attacker ? scn.weapon : WP_MELEE;	// the defender cannot block with a saber
 +	if ( scn.type == SCN_WEAPON || scn.type == SCN_TURRET || ( scn.type == SCN_FORCE && scn.power == FP_SABERTHROW && !attacker )
-+		|| ( scn.type == SCN_FLAG && scn.flagMode == FM_RETURN && !attacker ) ) {
-+		// the defender cannot block with a saber; in a flag's return it kills the carrier with a rocket
-+		int weapon = ( attacker && scn.type == SCN_WEAPON ) ? scn.weapon : ( scn.type == SCN_FLAG ) ? WP_ROCKET_LAUNCHER : WP_MELEE;
++		|| ( scn.type == SCN_FLAG && scn.flagMode == FM_RETURN && !attacker ) || scn.type == SCN_HOLDABLE ) {
++		// the defender cannot block with a saber; in a flag's return it kills the carrier with a rocket; the shield's
++		// owner fires a blaster into it; the ammunition dispenser's teammate holds an empty blaster (G_CanUseDispOn)
++		const qboolean blaster = ( scn.type == SCN_HOLDABLE
++			&& ( ( attacker && scn.holdable == HI_SHIELD ) || ( !attacker && scn.holdable == HI_AMMODISP ) ) ) ? qtrue : qfalse;
++		int weapon = ( attacker && scn.type == SCN_WEAPON ) ? scn.weapon : ( scn.type == SCN_FLAG ) ? WP_ROCKET_LAUNCHER
++			: blaster ? WP_BLASTER : WP_MELEE;
 +
 +		if ( weapon == WP_EMPLACED_GUN ) { // the hands free to mount the gun, which takes the place of the weapon
 +			client->ps.ammo[weaponData[weapon].ammoIndex] = 999;
@@ -486,8 +589,24 @@ index 004cab64..310ee795 100644
 +		}
  
  		client->ps.stats[STAT_WEAPONS] |= ( 1 << weapon );
- 		client->ps.ammo[weaponData[weapon].ammoIndex] = 999;
-@@ -241,9 +563,305 @@ static void G_ScenarioEquip( gentity_t *ent, qboolean attacker ) {
+-		client->ps.ammo[weaponData[weapon].ammoIndex] = 999;
++		client->ps.ammo[weaponData[weapon].ammoIndex] = ( blaster && !attacker ) ? 0 : 999;
+ 		client->ps.weapon = weapon;
+ 		return;
+ 	}
+ 
++	if ( attacker && scn.type == SCN_ITEM ) {
++		// no weapon and no ammunition, so that a pickup gives the same at every repetition, and a weapon is never refused
++		// for being carried already (BG_CanItemBeGrabbed)
++		client->ps.stats[STAT_WEAPONS] = 0;
++		memset( client->ps.ammo, 0, sizeof( client->ps.ammo ) );
++		client->ps.weapon = WP_NONE;
++		return;
++	}
+ 	client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_SABER );
+ 	client->ps.weapon = WP_SABER;
+ 	if ( attacker && scn.type == SCN_SABER ) {
+@@ -241,9 +640,375 @@ static void G_ScenarioEquip( gentity_t *ent, qboolean attacker ) {
  		client->ps.fd.saberAnimLevel = client->ps.fd.saberAnimLevelBase = client->ps.fd.saberDrawAnimLevel = SS_MEDIUM;
  		client->saberCycleQueue = SS_MEDIUM;
  	}
@@ -497,6 +616,16 @@ index 004cab64..310ee795 100644
 +		client->ps.stats[STAT_WEAPONS] = ( 1 << WP_MELEE ) | ( 1 << WP_BRYAR_PISTOL );
 +		client->ps.weapon = WP_BRYAR_PISTOL;
 +	}
++}
++
++// a player's ammunition of every kind, summed
++static int G_ScenarioAmmo( const playerState_t *ps ) {
++	int sum = 0, a;
++
++	for ( a = 0; a < MAX_AMMO; a++ ) {
++		sum += ps->ammo[a];
++	}
++	return sum;
 +}
 +
 +// the end of a repetition: where each bot stands against its place at the start
@@ -528,6 +657,8 @@ index 004cab64..310ee795 100644
 +		VectorCopy( ent->client->ps.origin, scnStats.start[n] );
 +		scnStats.team[n] = ent->client->sess.sessionTeam;
 +		VectorCopy( ent->client->ps.origin, scnStats.teamOrigin[n] );
++		scnStats.armor[n] = ent->client->ps.stats[STAT_ARMOR];
++		scnStats.ammo[n] = G_ScenarioAmmo( &ent->client->ps );
 +	}
 +	if ( scn.spectatorMode != SPEC_NONE ) {
 +		const gclient_t *client = g_entities[scn.client[SCN_SPECTATOR]].client;
@@ -535,9 +666,8 @@ index 004cab64..310ee795 100644
 +		scnStats.team[SCN_SPECTATOR] = client->sess.sessionTeam;
 +		VectorCopy( client->ps.origin, scnStats.teamOrigin[SCN_SPECTATOR] );
 +	}
- }
- 
--// called at the start of every server frame: resets the two bots at the start of each repetition
++}
++
 +// at the end of each 20 Hz instant of a counted repetition, a slot's team and, as a spectator, whom it follows
 +static void G_ScenarioSampleTeam( int n ) {
 +	const gclient_t *client = g_entities[scn.client[n]].client;
@@ -570,8 +700,9 @@ index 004cab64..310ee795 100644
 +			scnStats.followGap[n] += Distance( client->ps.origin, level.clients[followed].ps.origin );
 +		}
 +	}
-+}
-+
+ }
+ 
+-// called at the start of every server frame: resets the two bots at the start of each repetition
 +extern qboolean G_IsMindTricked( forcedata_t *fd, int client );
 +
 +// at the end of each 20 Hz instant of a counted repetition
@@ -613,6 +744,34 @@ index 004cab64..310ee795 100644
 +		scnStats.force[n] = ps->fd.forcePower;
 +		VectorCopy( ps->origin, scnStats.origin[n] );
 +		G_ScenarioSampleTeam( n );
++		{ // plan step 20, the items
++			const int armor = ps->stats[STAT_ARMOR] - scnStats.armor[n];
++			const int ammo = G_ScenarioAmmo( ps ) - scnStats.ammo[n];
++
++			if ( armor > 0 ) {
++				scnStats.armorGained[n] += armor;
++			}
++			else {
++				scnStats.armorLost[n] -= armor;
++			}
++			if ( ammo > 0 ) {
++				scnStats.ammoGained[n] += ammo;
++			}
++			else {
++				scnStats.ammoSpent[n] -= ammo;
++			}
++			scnStats.armor[n] = ps->stats[STAT_ARMOR];
++			scnStats.ammo[n] += ammo;
++			if ( ps->powerups[PW_CLOAKED] ) {
++				scnStats.cloaked[n]++;
++			}
++			if ( ent->client->jetPackOn ) {
++				scnStats.jetpack[n]++;
++			}
++			if ( ps->zoomMode ) {
++				scnStats.zoomed[n]++;
++			}
++		}
 +	}
 +	if ( scn.spectatorMode != SPEC_NONE ) {
 +		G_ScenarioSampleTeam( SCN_SPECTATOR );
@@ -624,7 +783,7 @@ index 004cab64..310ee795 100644
 +	static const char *roles[] = { "attacker", "defender", "ally", "spectator" };
 +	char line[MAX_STRING_CHARS] = "scenario statistics: health gained and lost, force gained and spent, instants off the ground, "
 +		"knocked down, mind tricked and in a saber lock, distance moved, end place against the start, by role:";
-+	int n;
++	int n, i;
 +
 +	if ( scn.type == SCN_NONE ) {
 +		return;
@@ -657,6 +816,27 @@ index 004cab64..310ee795 100644
 +		Q_strcat( line, sizeof( line ), va( "%s %s %d %d %.0f %d %d %d %.0f", n ? "," : "", roles[n], scnStats.teamChanges[n],
 +			scnStats.freeSpectator[n], scnStats.freePath[n], scnStats.following[n][0], scnStats.following[n][1],
 +			scnStats.following[n][2], scnStats.followGap[n] ) );
++	}
++	trap->Print( "%s\n", line );
++	// plan step 20, the items
++	Q_strncpyz( line, "item statistics: items picked up:", sizeof( line ) );
++	for ( i = 1; i < bg_numItems; i++ ) {
++		if ( g_stats.itemPickups[i] ) {
++			Q_strcat( line, sizeof( line ), va( " %s %d", bg_itemlist[i].classname, g_stats.itemPickups[i] ) );
++		}
++	}
++	Q_strcat( line, sizeof( line ), "; health taken from what is not a client, by cause:" );
++	for ( i = 0; i < MOD_MAX; i++ ) {
++		if ( g_stats.objectDamage[i] ) {
++			Q_strcat( line, sizeof( line ), va( " %s %d", modNames[i], g_stats.objectDamage[i] ) );
++		}
++	}
++	Q_strcat( line, sizeof( line ), "; armour gained and lost, ammunition gained and spent, instants cloaked, flying a jetpack "
++		"and zoomed in, by role:" );
++	for ( n = 0; n < scn.numClients; n++ ) {
++		Q_strcat( line, sizeof( line ), va( "%s %s %d %d %d %d %d %d %d", n ? "," : "", roles[n], scnStats.armorGained[n],
++			scnStats.armorLost[n], scnStats.ammoGained[n], scnStats.ammoSpent[n], scnStats.cloaked[n], scnStats.jetpack[n],
++			scnStats.zoomed[n] ) );
 +	}
 +	trap->Print( "%s\n", line );
 +}
@@ -736,6 +916,15 @@ index 004cab64..310ee795 100644
 +	gentity_t *p = scn.pickup;
 +	int i;
 +
++	if ( p && scn.itemClass[0] ) {
++		// the item of item= or an item scenario back once taken (Touch_Item hides it, or leaves a weapon's or a powerup's
++		// placeholder), as at the end of its respawn time; not before, which would cancel the end of its spawn
++		// (FinishSpawningItem, its think)
++		if ( p->s.eFlags & ( EF_NODRAW | EF_ITEMPLACEHOLDER ) ) {
++			RespawnItem( p );
++		}
++		return;
++	}
 +	if ( p && ( level.gametype == GT_CTF || level.gametype == GT_CTY ) ) {
 +		gentity_t *flags[2];
 +
@@ -794,7 +983,7 @@ index 004cab64..310ee795 100644
  void G_ScenarioFrame( void ) {
  	vec3_t fwd, front;
  	int seed, i;
-@@ -251,19 +869,29 @@ void G_ScenarioFrame( void ) {
+@@ -251,19 +1016,29 @@ void G_ScenarioFrame( void ) {
  	if ( scn.type == SCN_NONE || scn.done ) {
  		return;
  	}
@@ -829,7 +1018,7 @@ index 004cab64..310ee795 100644
  	}
  
  	// the same random numbers at the start of a repetition at any rate, from before the bots are placed: a bot killed in
-@@ -274,14 +902,61 @@ void G_ScenarioFrame( void ) {
+@@ -274,14 +1049,73 @@ void G_ScenarioFrame( void ) {
  
  	VectorSet( fwd, Q_cospif( scn.yaw / 180.0f ), Q_sinpif( scn.yaw / 180.0f ), 0 );
  	VectorMA( scn.origin, scn.dist, fwd, front );
@@ -872,6 +1061,18 @@ index 004cab64..310ee795 100644
 +	if ( scn.type == SCN_TURRET ) { // the turret's target is the defender
 +		g_entities[scn.client[0]].flags |= FL_NOTARGET;
 +	}
++	if ( scn.type == SCN_ITEM || ( scn.type == SCN_HOLDABLE && ( scn.holdable == HI_MEDPAC || scn.holdable == HI_MEDPAC_BIG ) ) ) {
++		// what a health item or a medpac gives back
++		gentity_t *attacker = &g_entities[scn.client[0]];
++
++		attacker->health = attacker->client->ps.stats[STAT_HEALTH] = 40;
++	}
++	if ( scn.type == SCN_HOLDABLE && scn.holdable == HI_HEALTHDISP ) {
++		// what the health dispenser gives the teammate in front (target=ally)
++		gentity_t *teammate = &g_entities[scn.client[1]];
++
++		teammate->health = teammate->client->ps.stats[STAT_HEALTH] = 40;
++	}
 +	if ( scn.type == SCN_FORCE ) { // what the healing and replenishing powers act on
 +		gentity_t *attacker = &g_entities[scn.client[0]];
 +		gentity_t *ally = &g_entities[scn.client[scn.numClients - 1]];
@@ -894,7 +1095,7 @@ index 004cab64..310ee795 100644
  		gclient_t *client = g_entities[scn.client[i]].client;
  
  		client->ps.torsoAnim = client->ps.legsAnim = WeaponReadyAnim[client->ps.weapon];
-@@ -292,6 +967,15 @@ void G_ScenarioFrame( void ) {
+@@ -292,6 +1126,15 @@ void G_ScenarioFrame( void ) {
  	scn.rep++;
  	if ( scn.rep == 1 ) {
  		memset( &g_stats, 0, sizeof( g_stats ) );	// the counted repetitions start
@@ -910,7 +1111,7 @@ index 004cab64..310ee795 100644
  		// without the corpses left by the free play or the warm-up, the body queue from its first slot (as BodySink
  		// leaves a body at its end)
  		for ( i = 0; i < BODY_QUEUE_SIZE; i++ ) {
-@@ -316,23 +1000,28 @@ void G_ScenarioFrame( void ) {
+@@ -316,23 +1159,28 @@ void G_ScenarioFrame( void ) {
  			}
  		}
  	}
@@ -926,13 +1127,13 @@ index 004cab64..310ee795 100644
  
 -	if ( scn.type == SCN_NONE || scn.done || scn.rep < 1 || scn.rep > scn.traceReps ) {
 +	if ( scn.type == SCN_NONE || scn.done || scn.rep < 1 ) {
-+		return;
-+	}
-+	G_ScenarioSample();
-+	if ( scn.rep > scn.traceReps ) {
  		return;
  	}
 -	for ( n = 0; n < 2; n++ ) {
++	G_ScenarioSample();
++	if ( scn.rep > scn.traceReps ) {
++		return;
++	}
 +	for ( n = 0; n < scn.numClients; n++ ) {
  		const gentity_t *ent = &g_entities[scn.client[n]];
  		const playerState_t *ps = &ent->client->ps;
@@ -945,7 +1146,7 @@ index 004cab64..310ee795 100644
  			ps->saberBlocked, ps->weaponTime, ps->torsoAnim, ps->torsoTimer, ps->legsAnim, ps->legsTimer,
  			ps->origin[0], ps->origin[1], ps->origin[2], blade->muzzlePoint[0], blade->muzzlePoint[1], blade->muzzlePoint[2] );
  	}
-@@ -351,11 +1040,129 @@ void G_ScenarioDamageTrace( gentity_t *targ, gentity_t *inflictor, const vec3_t
+@@ -351,11 +1199,129 @@ void G_ScenarioDamageTrace( gentity_t *targ, gentity_t *inflictor, const vec3_t
  		inflictor ? inflictor->r.currentOrigin[2] : 0.0f );
  }
  
@@ -1076,7 +1277,7 @@ index 004cab64..310ee795 100644
  	vec3_t view = { 0, 0, 0 };
  	int i;
  
-@@ -366,23 +1173,76 @@ qboolean G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd ) {
+@@ -366,23 +1332,76 @@ qboolean G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd ) {
  	memset( ucmd, 0, sizeof( *ucmd ) );
  	ucmd->serverTime = t;
  	ucmd->weapon = ent->client->ps.weapon;
@@ -1161,7 +1362,7 @@ index 004cab64..310ee795 100644
  		break;
  	case SCN_FORCE:
  		if ( !attacker ) {
-@@ -398,6 +1258,31 @@ qboolean G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd ) {
+@@ -398,6 +1417,31 @@ qboolean G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd ) {
  		case FP_DRAIN:
  			if ( phase < 1000 ) ucmd->buttons = BUTTON_FORCE_DRAIN;
  			break;
@@ -1193,7 +1394,7 @@ index 004cab64..310ee795 100644
  		default:	// powers used on oneself: switched on once, held until the next reset
  			ucmd->forcesel = scn.power;
  			ent->client->ps.fd.forcePowerSelected = scn.power;
-@@ -405,9 +1290,83 @@ qboolean G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd ) {
+@@ -405,9 +1449,109 @@ qboolean G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd ) {
  			break;
  		}
  		break;
@@ -1277,10 +1478,36 @@ index 004cab64..310ee795 100644
 +		if ( clientNum == scn.client[1] && !scn.actionDone ) { // the defender to the other team, as its team command does
 +			scn.actionDone = qtrue;
 +			SetTeam( ent, ( ent->client->sess.sessionTeam == TEAM_RED ) ? "blue" : "red" );
++		}
++		break;
++	case SCN_HOLDABLE:
++		if ( !attacker ) {
++			break;
++		}
++		if ( scn.holdable == HI_JETPACK ) {
++			// a jump, the use key in the air, which switches the jetpack on (TryUse), then the jump held 1 s
++			if ( phase < 50 || ( phase >= 200 && phase < 1200 ) ) {
++				ucmd->upmove = 127;
++			}
++			else if ( phase >= 100 && phase < 150 ) {
++				ucmd->buttons = BUTTON_USE;
++			}
++		}
++		else if ( scn.holdable == HI_HEALTHDISP || scn.holdable == HI_AMMODISP ) {
++			// the use key held 1 s, on the teammate in front, or else on nothing: the ammunition thrown (TryUse)
++			if ( phase < 1000 ) {
++				ucmd->buttons = BUTTON_USE;
++			}
++		}
++		else if ( phase < 50 ) { // the item key, the item selected (PM_Weapon)
++			ucmd->buttons = BUTTON_USE_HOLDABLE;
++		}
++		if ( ( scn.holdable == HI_SHIELD || scn.holdable == HI_EWEB ) && phase >= 500 && phase < 1500 ) {
++			ucmd->buttons = BUTTON_ATTACK;	// the shield up after 500 ms (PlaceShield)
  		}
  		break;
  	default:
-@@ -423,15 +1382,46 @@ static int G_ScenarioArgInt( int n, int def ) {
+@@ -423,15 +1567,61 @@ static int G_ScenarioArgInt( int n, int def ) {
  		return def;
  	}
  	trap->Argv( n, arg, sizeof( arg ) );
@@ -1315,6 +1542,21 @@ index 004cab64..310ee795 100644
 +		}
 +	}
 +	return qfalse;
++}
++
++// an option name=text among the arguments, its text copied, or "" without it
++static void G_ScenarioOptString( const char *name, char *out, int size ) {
++	char arg[MAX_TOKEN_CHARS];
++	const size_t len = strlen( name );
++	int n;
++
++	out[0] = '\0';
++	for ( n = 2; n < trap->Argc(); n++ ) {
++		trap->Argv( n, arg, sizeof( arg ) );
++		if ( !Q_strncmp( arg, name, len ) && arg[len] == '=' ) {
++			Q_strncpyz( out, arg + len + 1, size );
++		}
++	}
  }
  
  void Svcmd_Scenario_f( void ) {
@@ -1328,7 +1570,7 @@ index 004cab64..310ee795 100644
  		scn.type = SCN_NONE;
  		return;
  	}
-@@ -440,23 +1430,70 @@ void Svcmd_Scenario_f( void ) {
+@@ -440,23 +1630,70 @@ void Svcmd_Scenario_f( void ) {
  		return;
  	}
  
@@ -1407,7 +1649,7 @@ index 004cab64..310ee795 100644
  		char mode[MAX_TOKEN_CHARS];
  
  		scn.style = SS_MEDIUM;
-@@ -466,13 +1503,20 @@ void Svcmd_Scenario_f( void ) {
+@@ -466,13 +1703,20 @@ void Svcmd_Scenario_f( void ) {
  			}
  		}
  		trap->Argv( 4, mode, sizeof( mode ) );
@@ -1431,7 +1673,7 @@ index 004cab64..310ee795 100644
  
  		scn.power = FP_LIGHTNING;
  		for ( i = 0; i < (int)ARRAY_LEN( powers ); i++ ) {
-@@ -480,7 +1524,13 @@ void Svcmd_Scenario_f( void ) {
+@@ -480,7 +1724,13 @@ void Svcmd_Scenario_f( void ) {
  				scn.power = powerValues[i];
  			}
  		}
@@ -1446,7 +1688,7 @@ index 004cab64..310ee795 100644
  		scn.type = SCN_FORCE;
  	}
  	else if ( !Q_stricmp( type, "weapon" ) ) {
-@@ -489,20 +1539,148 @@ void Svcmd_Scenario_f( void ) {
+@@ -489,20 +1739,184 @@ void Svcmd_Scenario_f( void ) {
  			trap->Print( "scenario: bad weapon number\n" );
  			return;
  		}
@@ -1495,11 +1737,44 @@ index 004cab64..310ee795 100644
 +		scn.dist = (float)G_ScenarioArgInt( 4, 128 );
 +		scn.type = SCN_SPECTATE;
 +	}
++	else if ( !Q_stricmp( type, "holdable" ) ) {
++		static const struct { const char *name; holdable_t item; } holdables[] = {
++			{ "seeker", HI_SEEKER }, { "shield", HI_SHIELD }, { "medpac", HI_MEDPAC },
++			{ "medpac_big", HI_MEDPAC_BIG }, { "binoculars", HI_BINOCULARS },
++			{ "sentry", HI_SENTRY_GUN }, { "jetpack", HI_JETPACK }, { "healthdisp", HI_HEALTHDISP },
++			{ "ammodisp", HI_AMMODISP }, { "eweb", HI_EWEB }, { "cloak", HI_CLOAK } };
++
++		scn.holdable = HI_NONE;
++		for ( i = 0; i < (int)ARRAY_LEN( holdables ); i++ ) {
++			if ( !Q_stricmp( arg, holdables[i].name ) ) {
++				scn.holdable = holdables[i].item;
++			}
++		}
++		if ( scn.holdable == HI_NONE ) {
++			trap->Print( "scenario: holdable seeker, shield, medpac, medpac_big, binoculars, sentry, jetpack, healthdisp, ammodisp, eweb or cloak\n" );
++			return;
++		}
++		scn.dist = (float)G_ScenarioArgInt( 4, 256 );
++		scn.type = SCN_HOLDABLE;
++	}
++	else if ( !Q_stricmp( type, "item" ) ) {
++		Q_strncpyz( scn.itemClass, arg, sizeof( scn.itemClass ) );
++		scn.dist = (float)G_ScenarioArgInt( 4, 128 );
++		scn.type = SCN_ITEM;
++	}
  	else {
 -		trap->Print( "scenario: saber, force, weapon or off\n" );
-+		trap->Print( "scenario: saber, force, weapon, turret, flag, objective, team, spectate or off\n" );
++		trap->Print( "scenario: saber, force, weapon, turret, flag, objective, team, spectate, holdable, item or off\n" );
  		return;
  	}
++	if ( scn.type != SCN_ITEM ) {
++		G_ScenarioOptString( "item", scn.itemClass, sizeof( scn.itemClass ) );
++	}
++	if ( scn.itemClass[0] && ( !scn.pickupDist || !BG_FindItem( scn.itemClass ) ) ) {
++		trap->Print( "scenario: an item needs pickup= and an item's classname\n" );
++		scn.type = SCN_NONE;
++		return;
++	}
 +	if ( scn.spectatorMode != SPEC_NONE ) { // a bot spectator, or else a bot without a role made one
 +		const int bot = ( specBot >= 0 ) ? specBot : spare;
 +
@@ -1560,7 +1835,10 @@ index 004cab64..310ee795 100644
 +		vec3_t at;
 +
 +		VectorMA( scn.origin, scn.pickupDist, fwd, at );
-+		if ( level.gametype == GT_HOLOCRON && scn.type == SCN_FORCE ) {
++		if ( scn.itemClass[0] ) { // an item of the map's kind, put back at every reset
++			scn.spawned[0] = scn.pickup = G_ScenarioSpawn( scn.itemClass, at, scn.yaw, 0, 0 );
++		}
++		else if ( level.gametype == GT_HOLOCRON && scn.type == SCN_FORCE ) {
 +			scn.spawned[0] = scn.pickup = G_ScenarioSpawn( "misc_holocron", at, scn.yaw, 0, scn.power );
 +		}
 +		else if ( level.gametype == GT_JEDIMASTER && gJMSaberEnt && gJMSaberEnt->inuse ) {
@@ -1583,7 +1861,7 @@ index 004cab64..310ee795 100644
 +			}
 +		}
 +		if ( !scn.pickup ) {
-+			trap->Print( "scenario: pickup= needs a force scenario in a holocron game, a Jedi Master game, or a CTF or CTY game\n" );
++			trap->Print( "scenario: pickup= needs an item, a force scenario in a holocron game, a Jedi Master game, or a CTF or CTY game\n" );
 +			scn.type = SCN_NONE;
 +			return;
 +		}
