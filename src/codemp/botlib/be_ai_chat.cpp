@@ -2898,8 +2898,7 @@ void BotSetChatName(int chatstate, char *name, int client)
 	if (!cs) return;
 	cs->client = client;
 	Com_Memset(cs->name, 0, sizeof(cs->name));
-	strncpy(cs->name, name, sizeof(cs->name));
-	cs->name[sizeof(cs->name)-1] = '\0';
+	Q_strncpyz(cs->name, name, sizeof(cs->name));
 } //end of the function BotSetChatName
 //===========================================================================
 //

@@ -1642,7 +1642,7 @@ bool NAV_WaypointsTooFar( gentity_t *wp1, gentity_t *wp2 )
 	if ( Distance( wp1->r.currentOrigin, wp2->r.currentOrigin ) > 1024 )
 	{
 		char	temp[1024];
-		int		len;
+		size_t	len;
 		fatalErrors++;
 		if ( !wp1->targetname && !wp2->targetname )
 		{
@@ -1661,7 +1661,7 @@ bool NAV_WaypointsTooFar( gentity_t *wp1, gentity_t *wp2 )
 			Com_sprintf( temp, sizeof(temp), S_COLOR_RED"Waypoint conn %s->%s > 1024\n", wp1->targetname, wp2->targetname );
 		}
 		len = strlen( temp );
-		if ( (fatalErrorPointer-fatalErrorString)+len >= sizeof( fatalErrorString ) )
+		if ( static_cast<size_t>( fatalErrorPointer - fatalErrorString ) + len >= sizeof( fatalErrorString ) )
 		{
 			Com_Error( errorParm_t::ERR_DROP, "%s%s%dTOO MANY FATAL NAV ERRORS!!!\n", fatalErrorString, temp, fatalErrors );
 			return true;

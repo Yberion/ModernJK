@@ -1,9 +1,10 @@
-# SHA-1 of the netcodec sources (contents, in path order), for validate.bat: compared at the start and the end of a
-# run, it tells whether a file changed during the run (the run then tested a mix and must be redone).
-# Usage: powershell -NoProfile -ExecutionPolicy Bypass -File source_hash.ps1 <src\codemp\netcodec directory>
+# SHA-1 of the sources and of the build's files (contents, in path order), for validate.bat: compared at the start and
+# the end of a run, it tells whether a file changed during the run (the run then tested a mix and must be redone).
+# Usage: powershell -NoProfile -ExecutionPolicy Bypass -File source_hash.ps1 <repository's folder>
 param([string]$Dir)
 $sha = [System.Security.Cryptography.SHA1]::Create()
-$items = 'CMakeLists.txt', 'CMakePresets.json', 'include', 'src', 'test', 'bench', 'tools', 'fuzz' | ForEach-Object { Join-Path $Dir $_ }
+$items = 'CMakeLists.txt', 'CMakePresets.json', 'ProjectOptions.cmake', 'Dependencies.cmake', 'cmake', 'src', 'test', 'assets' |
+	ForEach-Object { Join-Path $Dir $_ }
 foreach ($f in Get-ChildItem -Path $items -Recurse -File | Sort-Object FullName) {
 	$b = [System.IO.File]::ReadAllBytes($f.FullName)
 	[void]$sha.TransformBlock($b, 0, $b.Length, $null, 0)

@@ -2,7 +2,7 @@
 # TMP: export cells from the server, compute the table offline (vistool, tinybvh), measure it with bots
 # usage: vis4run.sh <tag> <map> <vistool mode and arguments...>   (GT=<gametype>, BOTS, SAMPLES)
 tag="$1"; map="$2"; shift 2
-BUILD=E:/Git/jka/ModernJK/build-netcodec/modernjk-clang
+BUILD=E:/Git/jka/ModernJK/build/windows-clang-release/bin
 export PATH="/c/Logiciels/llvm-mingw-20261104-ucrt-x86_64/bin:$PATH"
 GAME="E:/Jeux/Jedi Academy default - ModernJK"
 SCR="${SCR:?set SCR to the work folder: the tools built there, their outputs written there}"

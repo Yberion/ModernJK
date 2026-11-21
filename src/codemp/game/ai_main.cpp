@@ -6920,8 +6920,8 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 			}
 		}
 		else
-		{
-			VectorCopy(bs->currentEnemy->client->ps.origin, headlevel);
+		{ // an enemy without a client (none today: every enemy a bot takes has one): its own place
+			VectorCopy(bs->currentEnemy->r.currentOrigin, headlevel);
 		}
 
 		if (!bs->frame_Enemy_Vis)

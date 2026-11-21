@@ -223,10 +223,8 @@ int ReadString(source_t *source, fielddef_t *fd, void *p)
 	if (!PC_ExpectTokenType(source, tokenType_t::TT_STRING, 0, &token)) return 0;
 	//remove the double quotes
 	StripDoubleQuotes(token.string);
-	//copy the string
-	strncpy((char *) p, token.string, MAX_STRINGFIELD);
-	//make sure the string is closed with a zero
-	((char *)p)[MAX_STRINGFIELD-1] = '\0';
+	//copy the string, closed with a zero
+	Q_strncpyz((char *) p, token.string, MAX_STRINGFIELD);
 	//
 	return 1;
 } //end of the function ReadString

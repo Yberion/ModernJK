@@ -1,61 +1,63 @@
 #!/usr/bin/env bash
-# Validation of netcodec on Linux (GCC and Clang): configure, build and test every Linux preset, then the size
-# benchmark (Release and ASan + UBSan), the codec benchmark (two runs) and the trainers, which must rewrite the
-# committed tables unchanged, then the game in Release when its build directory exists: build-modernjk/gcc-ded (the
-# dedicated server and the game module, the VPS build), build-modernjk/gcc-mp and build-modernjk/clang-mp (every
-# target they are configured with: the client, its renderers and modules, the single-player games). Needs the traces
-# of docs/modernization/data/traces (export_rans_trace.py, export_codec_trace.py, export_demo_traces.py, and
-# the client traces of netcodec_bench_client --trace).
+# Validation on Linux (GCC 15 and Clang 23): configure, build and test every Linux preset (the game, netcodec and
+# their tests; the AddressSanitizer preset with the sanitizers), build the servers' preset (the dedicated server
+# and the game module), then run the size benchmark (Release and AddressSanitizer), the codec benchmark (two runs) and
+# the trainers, which must rewrite the committed tables unchanged. Needs the traces of docs/modernization/data/traces
+# (export_rans_trace.py, export_codec_trace.py, export_demo_traces.py, and the client traces of
+# netcodec_bench_client --trace).
 # Run from anywhere: src/codemp/netcodec/scripts/validate.sh
-# Output: the console and build-netcodec/validate-linux.log; the summary and the benchmark figures come last.
+# Output: the console and build/validate-linux.log; the summary (with each step's time) and the benchmark figures
+# come last.
 set -u
-cd "$(dirname "$0")/.."
-B=../../../build-netcodec
-T=../../../docs/modernization/data/traces
+cd "$(dirname "$0")/../../../.."
+B=build
+T=docs/modernization/data/traces
+G=src/codemp/netcodec/src/generated
 mkdir -p "$B"
 LOG="$B/validate-linux.log"
 exec > >(tee "$LOG") 2>&1
 
 # the sources' contents at the start, compared at the end: a file changed during the run makes it a mix (FAIL)
-srchash() { find CMakeLists.txt CMakePresets.json include src test bench tools fuzz -type f -print0 | sort -z | xargs -0 sha1sum | sha1sum; }
+srchash() {
+	find CMakeLists.txt CMakePresets.json ProjectOptions.cmake Dependencies.cmake cmake src test assets -type f -print0 |
+		sort -z | xargs -0 sha1sum | sha1sum
+}
 START_HASH=$(srchash)
 
 JOBS=$(nproc 2>/dev/null || echo 2)
 summary=()
 failed=0
 step() {
-	local name=$1
+	local name=$1 start=$SECONDS
 	shift
 	echo
 	echo "=== $name"
-	if "$@"; then summary+=("ok    $name"); else summary+=("FAIL  $name"); failed=1; fi
+	if "$@"; then
+		summary+=("ok    $name ($((SECONDS - start)) s)")
+	else
+		summary+=("FAIL  $name ($((SECONDS - start)) s)")
+		failed=1
+	fi
 }
 
-for p in gcc-release gcc-debug gcc-asan clang-release; do
+for p in linux-gcc-release linux-gcc-debug linux-gcc-asan linux-clang-release linux-clang-asan; do
 	step "$p: configure" cmake --preset "$p"
 	step "$p: build" cmake --build --preset "$p" -j "$JOBS"
 	step "$p: tests" ctest --preset "$p"
 done
+step "linux-gcc-server: configure" cmake --preset linux-gcc-server
+step "linux-gcc-server: build" cmake --build --preset linux-gcc-server -j "$JOBS"
 
 OUT=$(mktemp -d)
-step "size benchmark, gcc-release" bash -c "'$B/gcc-release/bench/netcodec_bench_size' '$T/holdout.bin' > '$OUT/size'"
-step "size benchmark, gcc-asan" bash -c "'$B/gcc-asan/bench/netcodec_bench_size' '$T/holdout.bin' > '$OUT/size-asan'"
-step "codec benchmark, gcc-release, run 1" bash -c "'$B/gcc-release/bench/netcodec_bench_codec' '$T/codec_trace.bin' 10 > '$OUT/codec1'"
-step "codec benchmark, gcc-release, run 2" bash -c "'$B/gcc-release/bench/netcodec_bench_codec' '$T/codec_trace.bin' 10 > '$OUT/codec2'"
-step "trainer gcc-release writes the committed tables" bash -c \
-	"'$B/gcc-release/tools/netcodec_train' '$T/train.bin' '$OUT/tables.inc' && cmp '$OUT/tables.inc' src/generated/jka_tables.inc"
-step "client trainer gcc-release writes the committed client tables" bash -c \
-	"'$B/gcc-release/tools/netcodec_train_client' '$OUT/client_tables.inc' '$T/client_train.bin' && cmp '$OUT/client_tables.inc' src/generated/jka_client_tables.inc"
-
-# the engine and its glue to the codec (sv_netcodec.cpp, cl_netcodec.cpp, ...), which the presets above do not build
-for g in gcc-ded gcc-mp clang-mp; do
-	G=../../../build-modernjk/$g
-	if [ -f "$G/CMakeCache.txt" ]; then
-		step "game build, $g" cmake --build "$G" -j "$JOBS"
-	else
-		summary+=("skip  game build: no $G")
-	fi
-done
+R=$B/linux-gcc-release/bin
+step "size benchmark, linux-gcc-release" bash -c "'$R/netcodec_bench_size' '$T/holdout.bin' > '$OUT/size'"
+step "size benchmark, linux-gcc-asan" bash -c "'$B/linux-gcc-asan/bin/netcodec_bench_size' '$T/holdout.bin' > '$OUT/size-asan'"
+step "codec benchmark, linux-gcc-release, run 1" bash -c "'$R/netcodec_bench_codec' '$T/codec_trace.bin' 10 > '$OUT/codec1'"
+step "codec benchmark, linux-gcc-release, run 2" bash -c "'$R/netcodec_bench_codec' '$T/codec_trace.bin' 10 > '$OUT/codec2'"
+step "trainer linux-gcc-release writes the committed tables" bash -c \
+	"'$R/netcodec_train' '$T/train.bin' '$OUT/tables.inc' && cmp '$OUT/tables.inc' '$G/jka_tables.inc'"
+step "client trainer linux-gcc-release writes the committed client tables" bash -c \
+	"'$R/netcodec_train_client' '$OUT/client_tables.inc' '$T/client_train.bin' && cmp '$OUT/client_tables.inc' '$G/jka_client_tables.inc'"
 
 echo
 echo "=== results"
@@ -68,7 +70,7 @@ for f in codec1 codec2; do
 	cat "$OUT/$f" 2>/dev/null
 done
 if [ "$(srchash)" != "$START_HASH" ]; then
-	summary+=("FAIL  sources unchanged during the run (a file of src/codemp/netcodec changed: run again)")
+	summary+=("FAIL  sources unchanged during the run (a source changed: run again)")
 	failed=1
 fi
 echo

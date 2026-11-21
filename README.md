@@ -2,7 +2,7 @@
 
 ModernJK is a fork of [OpenJK](https://github.com/JACoders/OpenJK) that modernizes the multiplayer game of Jedi Academy: a new network codec in both directions, a fixed 100 Hz tick with the game's rules kept at their 20 Hz pace, the same results on Windows and Linux (one math library, one random generator), network settings fixed or computed instead of set by the player, and every library built with the project. It is not compatible with OpenJK or the base game: a ModernJK client does not play on their servers, and their demos do not play on ModernJK. **Backward compatibility is not a goal**: the protocol, the file formats, the settings and the game's own code change wherever that gives a better result, and the bugs found on the way are fixed even when the fix changes how the game plays; every change is listed in [CHANGES.md](docs/modernization/CHANGES.md).
 
-The work is in progress and centred on the multiplayer game. The single-player game of Jedi Academy is built too, from the same sources and with the same build changes (C++20, 64-bit, the bugs that the compilers' warnings showed fixed); its game is otherwise OpenJK's, and it is only started and played briefly, not tested in depth. The single-player game of Jedi Outcast is kept compiling, off by default, and never run.
+The work is in progress and centred on the multiplayer game. The single-player game of Jedi Academy is built too, from the same sources and with the same build changes (C++23, 64-bit, the bugs that the compilers' warnings showed fixed); its game is otherwise OpenJK's, and it is only started and played briefly, not tested in depth. The single-player game of Jedi Outcast is built too, to keep it compiling, and never run.
 
 ## Documentation
 
@@ -11,64 +11,77 @@ The work is in progress and centred on the multiplayer game. The single-player g
 
 ## Running
 
-ModernJK needs the game data of Jedi Academy (the `base` folder of the `GameData` folder). The multiplayer client is `modernjk.x86_64` (`modernjk.x86_64.exe` on Windows) and the dedicated server `modernjkded.x86_64`; their modules go in the `ModernJK` folder next to them or in `base`. The configuration is `modernjk.cfg` (`modernjk_server.cfg` for the dedicated server), in `Documents\My Games\ModernJK` on Windows and `~/.local/share/modernjk` on Linux. A configuration of OpenJK (`openjk.cfg`) is not read: copy it under the new name to keep it.
+ModernJK needs the game data of Jedi Academy (the `base` folder of the `GameData` folder). The multiplayer client is `modernjk.x86_64` (`modernjk.x86_64.exe` on Windows) and the dedicated server `modernjkded.x86_64`; their modules go in the `ModernJK` folder next to them or in `base`. The configuration is `modernjk.cfg` (`modernjk_server.cfg` for the dedicated server), in `~/.local/share/modernjk` on Linux, and on Windows in the game's folder with the builds of the presets (portable) or in `Documents\My Games\ModernJK` otherwise. A configuration of OpenJK (`openjk.cfg`) is not read: copy it under the new name to keep it.
 
 The single-player game is `modernjk_sp.x86_64` (`modernjk_sp.x86_64.exe` on Windows), with its renderer `rdsp-vanilla_x86_64` next to it and its game module `jagamex86_64` in the `ModernJK` folder; its configuration is `modernjk_sp.cfg`, in the same folder as the multiplayer one. A known issue (16 November 2026): in game, the mouse does not turn the view (the menus work); it is left for the new input layer of plan step 15.
 
 ## Building
 
-CMake with MSVC, GCC or Clang, in C++20, for 64-bit Windows and Linux (macOS is kept portable, not built). The libraries are in `libs/`, except on Linux SDL2 and OpenGL, which come from the system.
+CMake presets, one per system, compiler and build type. The libraries are in `libs/` and built with the project; on Linux, SDL2 and OpenGL come from the system. Run the commands from the repository's folder; the programs and modules go to `build/<preset>/bin`.
 
-What is built is chosen with CMake options, all on by default except Jedi Outcast: the multiplayer client, server, renderer and modules (`BuildMPEngine`, `BuildMPDed`, `BuildMPRdVanilla`, `BuildMPGame`, `BuildMPCGame`, `BuildMPUI`), the single-player game of Jedi Academy (`BuildSPEngine`, `BuildSPGame`, `BuildSPRdVanilla`), and that of Jedi Outcast (`BuildJK2SPEngine`, `BuildJK2SPGame`, `BuildJK2SPRdVanilla`, off). The commands below build the single-player game with the multiplayer one, except the Linux dedicated server's build. The full checks (`validate.sh`, `validate.bat`) and the other commands are in "How to resume" of [the progress page](docs/modernization/progress/README.md).
+### Prerequisites
 
-### Linux: Ubuntu 22.04 with GCC 15 and Clang 23
+Common:
 
-Ubuntu 22.04 is the build system because its glibc (2.35) is older than the servers' (Debian 12 has 2.36): a binary runs only on a glibc at least as recent as the one it was built with. GCC 15 comes from the Ubuntu toolchain team's PPA and Clang 23 from LLVM's own repository (`llvm.sh` adds it and installs `clang-23`, `lld-23` and `lldb-23`); the system's `gcc` (11.4) and `clang` (14) are not used.
+| what | version |
+|---|---|
+| CMake | 4.5.0 or later |
+| Ninja | any recent release (1.13.2 tested) |
 
-```
-sudo apt install software-properties-common lsb-release wget gnupg
-sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-sudo apt update
-sudo apt install build-essential cmake gcc-15 g++-15 libsdl2-dev libgl1-mesa-dev
-wget https://apt.llvm.org/llvm.sh
-chmod +x llvm.sh
-sudo ./llvm.sh 23
-```
+Windows:
 
-`libsdl2-dev` and `libgl1-mesa-dev` are only for the client (the dedicated server needs neither). GCC builds the dedicated server and the multiplayer game module (the servers' build), then every target; Clang builds every target too. From the repository's folder (`ModernJK`):
+| what | version |
+|---|---|
+| MSVC (Visual Studio 2026) | 19.52.37029 or later |
+| or clang with MinGW | llvm-mingw 20261104 (clang 23) tested |
 
-```
-cmake -S . -B build-modernjk/gcc-ded -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=gcc-15 -DCMAKE_CXX_COMPILER=g++-15 -DBuildMPEngine=OFF -DBuildMPRdVanilla=OFF -DBuildMPCGame=OFF -DBuildMPUI=OFF -DBuildSPEngine=OFF -DBuildSPGame=OFF -DBuildSPRdVanilla=OFF
-cmake --build build-modernjk/gcc-ded --parallel "$(nproc)"
-cmake -S . -B build-modernjk/gcc-mp -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=gcc-15 -DCMAKE_CXX_COMPILER=g++-15
-cmake --build build-modernjk/gcc-mp --parallel "$(nproc)"
-cmake -S . -B build-modernjk/clang-mp -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang-23 -DCMAKE_CXX_COMPILER=clang++-23
-cmake --build build-modernjk/clang-mp --parallel "$(nproc)"
-```
-
-### Windows: MSVC
-
-Visual Studio 2026 with the workload "Desktop development with C++" (the MSVC compiler, a Windows 10/11 SDK and CMake). SDL2 for Windows is in `libs/SDL2`. From a "Developer PowerShell for VS 2026", or any prompt where its `cmake` is found, in the repository's folder:
+MSVC builds from Visual Studio's x64 environment, for example in a PowerShell:
 
 ```
-cmake -S . -B build-modernjk\msvc-x64 -G "Visual Studio 18 2026" -A x64 -DBuildPortableVersion=ON
-cmake --build build-modernjk\msvc-x64 --config Release
-cmake --install build-modernjk\msvc-x64 --config Release --prefix build-modernjk\install-x64
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+& "C:\Program Files\Microsoft Visual Studio\18\Community\Common7\Tools\Launch-VsDevShell.ps1" -Arch amd64 -HostArch amd64 -SkipAutomaticLocation
 ```
 
-### Windows: clang (llvm-mingw)
+The programs built with llvm-mingw need its `bin` folder in the `PATH` to run (`libc++.dll`, `libunwind.dll`).
 
-Nothing installed: three folders unpacked and put in the `PATH` of the shell that builds (here Git Bash, which the `.sh` scripts also need), opened in the repository's folder.
+Linux:
 
-- [llvm-mingw](https://github.com/mstorsjo/llvm-mingw/releases), the `ucrt-x86_64` archive (the project uses the 20261104 release, clang 23);
-- [CMake](https://cmake.org/download/) (4.4.5 here), the Windows x64 zip;
-- [Ninja](https://github.com/ninja-build/ninja/releases), `ninja-win.zip`.
+| what | version |
+|---|---|
+| GCC or Clang | GCC 15, Clang 23 tested |
+| SDL2, development files (the client only) | 2.0 (2.0.20 tested) |
+| OpenGL, development files (the client only) | the system's |
+
+On Debian or Ubuntu, SDL2 and OpenGL:
 
 ```
-export PATH="/c/path/to/llvm-mingw-ucrt-x86_64/bin:/c/path/to/cmake/bin:/c/path/to/ninja:$PATH"
-cmake -G Ninja -S . -B build-netcodec/modernjk-clang -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
-ninja -C build-netcodec/modernjk-clang
+sudo apt install libsdl2-dev libgl1-mesa-dev
 ```
+
+### Commands
+
+| command | what it does |
+|---|---|
+| `cmake --workflow --preset <preset>` | configures, builds and runs the tests |
+| `cmake --build --preset <preset>` | builds again after a change |
+| `cmake --build --preset <preset> --target clean` | cleans the build |
+| `cmake --workflow --preset <preset> --fresh` | builds from scratch, the configuration included |
+| `cmake --install build/<preset> --strip` | installs into `build/install/<preset>` (`JediAcademy`, `JediOutcast`) |
+
+### Presets
+
+| preset | what it builds |
+|---|---|
+| `windows-msvc-release`, `windows-msvc-debug` | everything, with MSVC |
+| `windows-clang-release`, `windows-clang-debug` | everything, with clang (llvm-mingw) |
+| `linux-gcc-release`, `linux-gcc-debug` | everything, with GCC 15 |
+| `linux-clang-release` | everything, with Clang 23 |
+| `linux-gcc-server` | the dedicated server and the multiplayer game module (the servers' build) |
+| `windows-msvc-asan`, `windows-clang-asan`, `linux-gcc-asan`, `linux-clang-asan` | everything, with AddressSanitizer (and UndefinedBehaviorSanitizer but with MSVC) |
+| `windows-clang-netcodec-fuzz` | the network codec's fuzzers |
+| `windows-clang-tidy`, `windows-clang-cppcheck` | everything, with the report of clang-tidy or cppcheck |
+
+Everything: the multiplayer client and dedicated server with their renderer and modules, the single-player games of Jedi Academy and Jedi Outcast, `modernjk.pk3` (from `assets/`), the tests, the network codec's benchmarks and tools. The full checks (`validate.sh`, `validate.bat`) are in "How to resume" of [the progress page](docs/modernization/progress/README.md).
 
 ## Credits
 

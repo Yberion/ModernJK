@@ -2,9 +2,10 @@
 # legacy, other) from the function-level symbols of samply's .syms.json sidecar, then for one phase the innermost
 # function, the inline chain and the source line of each sample, symbolised with llvm-symbolizer on the exe's PDB.
 # Build the bench with both debug formats (the PDB for samply, DWARF for llvm-symbolizer, which ignores the PDB when the
-# MinGW runtime brings DWARF): cmake -S src/codemp/netcodec -B build-netcodec/prof -G Ninja -DCMAKE_BUILD_TYPE=Release
-#   -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_FLAGS="-g -gdwarf -gcodeview"
-#   -DCMAKE_EXE_LINKER_FLAGS="-Wl,--pdb=", then with xperf (Windows Performance Toolkit) and llvm-symbolizer in the PATH:
+# MinGW runtime brings DWARF): cmake --preset windows-clang-release -B build/prof
+#   -DCMAKE_CXX_FLAGS="-g -gdwarf -gcodeview" -DCMAKE_EXE_LINKER_FLAGS="-Wl,--pdb=", then
+#   cmake --build build/prof --target netcodec_bench_codec (build/prof/bin/netcodec_bench_codec.exe), then with xperf
+#   (Windows Performance Toolkit) and llvm-symbolizer in the PATH:
 #   samply record --save-only --unstable-presymbolicate --main-thread-only -r 8000 -o enc.json.gz -- <exe> <trace> 5
 # (the samples cover the cold and the warm passes; `samply load enc.json.gz` shows the flame graph in a browser).
 # Usage: python -I samply_report.py <profile.json.gz> <profile.json.syms.json> <exe> [encode|decode|legacy|other] [top]

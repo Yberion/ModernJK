@@ -1746,13 +1746,13 @@ public:
 
 	void	ProfileSpew()
 	{
-		ProfilePrint("");
-		ProfilePrint("");
+		ProfilePrint("%s", "");
+		ProfilePrint("%s", "");
 		ProfilePrint("--------------------------------------------------------");
 		ProfilePrint("RAVEN STANDARD LIBRARY  -  COMPUTATIONAL GEOMETRY MODULE");
 		ProfilePrint("               Graph Profile Results                    ");
 		ProfilePrint("--------------------------------------------------------");
-		ProfilePrint("");
+		ProfilePrint("%s", "");
 		ProfilePrint("GRAPH SIZE (Bytes): (%zu)  (KiloBytes): (%5.3f)  MeggaBytes(%3.3f)",
 			(sizeof(*this)),
 			((float)(sizeof(*this))/1024.0f),
@@ -1763,7 +1763,7 @@ public:
 		{
 			ProfilePrint("GRAPH COUNT: (%f) Edges/Node", (float)mEdges.size()/(float)mNodes.size());
 		}
-		ProfilePrint("");
+		ProfilePrint("%s", "");
 		if (mSearchCount)
 		{
 			ProfilePrint("SEARCH: (%d) Searches  (%f) AveSize", mSearchCount,  ((float)mSearchMemorySize/(float)mSearchCount));
@@ -1780,7 +1780,7 @@ public:
 				ProfilePrint("SEARCH: (%d) Failures  (%f) AveVisited", mSearchFail,  ((float)mSearchFailVisited/(float)mSearchFail));
 			}
 		}
-		ProfilePrint("");
+		ProfilePrint("%s", "");
 	};
 #endif
 };

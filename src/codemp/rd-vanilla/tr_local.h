@@ -693,7 +693,7 @@ typedef struct srfSurfaceFace_s {
 	int			numPoints;
 	int			numIndices;
 	int			ofsIndices;
-	float		points[1][VERTEXSIZE];	// variable sized
+	float		points[][VERTEXSIZE];	// variable sized: numPoints of them (a flexible array member)
 										// there is a variable length list of indices here also
 } srfSurfaceFace_t;
 

@@ -16,300 +16,155 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #============================================================================
 
-# Make sure the user is not executing this script directly
-if(NOT InModernJK)
-	message(FATAL_ERROR "Use the top-level cmake script!")
-endif(NOT InModernJK)
-
-set(JK2SPGameDefines ${SharedDefines} "JK2_MODE" "SP_GAME")
-
-set(JK2SPGameIncludeDirectories
-	"${JK2SPDir}"
-	"${JK2SPDir}/game"
-	"${SharedDir}"
-	"${GSLIncludeDirectory}"
-	"${CMAKE_BINARY_DIR}/shared"
-	)
+# Jedi Outcast's single-player game module: the game and its client side (cgame) in one module; a few files come from
+# Jedi Academy's tree
+add_library(jospgame MODULE
+	AI_Atst.cpp
+	AI_Default.cpp
+	AI_Droid.cpp
+	AI_GalakMech.cpp
+	AI_Grenadier.cpp
+	AI_Howler.cpp
+	AI_ImperialProbe.cpp
+	AI_Interrogator.cpp
+	AI_Jedi.cpp
+	AI_Mark1.cpp
+	AI_Mark2.cpp
+	AI_MineMonster.cpp
+	AI_Remote.cpp
+	AI_Seeker.cpp
+	AI_Sentry.cpp
+	AI_Sniper.cpp
+	AI_Stormtrooper.cpp
+	AI_Utils.cpp
+	G_Timer.cpp
+	NPC.cpp
+	NPC_behavior.cpp
+	NPC_combat.cpp
+	NPC_goal.cpp
+	NPC_misc.cpp
+	NPC_move.cpp
+	NPC_reactions.cpp
+	NPC_senses.cpp
+	NPC_sounds.cpp
+	NPC_spawn.cpp
+	NPC_stats.cpp
+	NPC_utils.cpp
+	Q3_Interface.cpp
+	Q3_Registers.cpp
+	bg_misc.cpp
+	bg_pangles.cpp
+	bg_panimate.cpp
+	bg_pmove.cpp
+	bg_slidemove.cpp
+	g_ICARUS.cpp
+	g_active.cpp
+	g_breakable.cpp
+	g_camera.cpp
+	g_client.cpp
+	g_cmds.cpp
+	g_combat.cpp
+	g_functions.cpp
+	g_fx.cpp
+	g_inventory.cpp
+	g_itemLoad.cpp
+	g_items.cpp
+	g_main.cpp
+	g_mem.cpp
+	g_misc.cpp
+	g_misc_model.cpp
+	g_missile.cpp
+	g_mover.cpp
+	g_nav.cpp
+	g_navigator.cpp
+	g_navnew.cpp
+	g_object.cpp
+	g_objectives.cpp
+	g_ref.cpp
+	g_roff.cpp
+	g_savegame.cpp
+	g_session.cpp
+	g_spawn.cpp
+	g_svcmds.cpp
+	g_target.cpp
+	g_trigger.cpp
+	g_turret.cpp
+	g_usable.cpp
+	g_utils.cpp
+	g_weapon.cpp
+	g_weaponLoad.cpp
+	genericparser2.cpp
+	wp_atst.cpp
+	wp_blaster_rifle.cpp
+	wp_bot_laser.cpp
+	wp_bowcaster.cpp
+	wp_bryar_pistol.cpp
+	wp_demp2.cpp
+	wp_det_pack.cpp
+	wp_disruptor.cpp
+	wp_emplaced_gun.cpp
+	wp_flechette.cpp
+	wp_melee.cpp
+	wp_repeater.cpp
+	wp_rocket_launcher.cpp
+	wp_saber.cpp
+	wp_stun_baton.cpp
+	wp_thermal.cpp
+	wp_trip_mine.cpp
+	../cgame/FX_ATSTMain.cpp
+	../cgame/FX_Blaster.cpp
+	../cgame/FX_Bowcaster.cpp
+	../cgame/FX_BryarPistol.cpp
+	../cgame/FX_DEMP2.cpp
+	../cgame/FX_Disruptor.cpp
+	../cgame/FX_Emplaced.cpp
+	../cgame/FX_Flechette.cpp
+	../cgame/FX_HeavyRepeater.cpp
+	../cgame/FX_RocketLauncher.cpp
+	../cgame/FxPrimitives.cpp
+	../cgame/FxScheduler.cpp
+	../cgame/FxSystem.cpp
+	../cgame/FxTemplate.cpp
+	../cgame/FxUtil.cpp
+	../cgame/cg_camera.cpp
+	../cgame/cg_consolecmds.cpp
+	../cgame/cg_credits.cpp
+	../cgame/cg_draw.cpp
+	../cgame/cg_drawtools.cpp
+	../cgame/cg_effects.cpp
+	../cgame/cg_ents.cpp
+	../cgame/cg_event.cpp
+	../cgame/cg_info.cpp
+	../cgame/cg_lights.cpp
+	../cgame/cg_localents.cpp
+	../cgame/cg_main.cpp
+	../cgame/cg_marks.cpp
+	../cgame/cg_players.cpp
+	../cgame/cg_playerstate.cpp
+	../cgame/cg_predict.cpp
+	../cgame/cg_scoreboard.cpp
+	../cgame/cg_servercmds.cpp
+	../cgame/cg_snapshot.cpp
+	../cgame/cg_syscalls.cpp
+	../cgame/cg_text.cpp
+	../cgame/cg_view.cpp
+	../cgame/cg_weapons.cpp
+	../icarus/BlockStream.cpp
+	../icarus/Instance.cpp
+	../icarus/Sequence.cpp
+	../icarus/Sequencer.cpp
+	../icarus/TaskManager.cpp
+	../../code/Rufl/hstring.cpp
+	../../code/qcommon/q_shared.cpp
+	../../code/qcommon/tri_coll_test.cpp
+	../../code/ui/gameinfo.cpp)
 if(WIN32)
-	set(JK2SPGameLibraries "winmm")
-endif(WIN32)
-
-set(JK2SPGameGameFiles
-	"${JK2SPDir}/game/AI_Atst.cpp"
-	"${JK2SPDir}/game/AI_Default.cpp"
-	"${JK2SPDir}/game/AI_Droid.cpp"
-	"${JK2SPDir}/game/AI_GalakMech.cpp"
-	"${JK2SPDir}/game/AI_Grenadier.cpp"
-	"${JK2SPDir}/game/AI_Howler.cpp"
-	"${JK2SPDir}/game/AI_ImperialProbe.cpp"
-	"${JK2SPDir}/game/AI_Interrogator.cpp"
-	"${JK2SPDir}/game/AI_Jedi.cpp"
-	"${JK2SPDir}/game/AI_Mark1.cpp"
-	"${JK2SPDir}/game/AI_Mark2.cpp"
-	"${JK2SPDir}/game/AI_MineMonster.cpp"
-	"${JK2SPDir}/game/AI_Remote.cpp"
-	"${JK2SPDir}/game/AI_Seeker.cpp"
-	"${JK2SPDir}/game/AI_Sentry.cpp"
-	"${JK2SPDir}/game/AI_Sniper.cpp"
-	"${JK2SPDir}/game/AI_Stormtrooper.cpp"
-	"${JK2SPDir}/game/AI_Utils.cpp"
-	"${JK2SPDir}/game/G_Timer.cpp"
-	"${JK2SPDir}/game/NPC.cpp"
-	"${JK2SPDir}/game/NPC_behavior.cpp"
-	"${JK2SPDir}/game/NPC_combat.cpp"
-	"${JK2SPDir}/game/NPC_goal.cpp"
-	"${JK2SPDir}/game/NPC_misc.cpp"
-	"${JK2SPDir}/game/NPC_move.cpp"
-	"${JK2SPDir}/game/NPC_reactions.cpp"
-	"${JK2SPDir}/game/NPC_senses.cpp"
-	"${JK2SPDir}/game/NPC_sounds.cpp"
-	"${JK2SPDir}/game/NPC_spawn.cpp"
-	"${JK2SPDir}/game/NPC_stats.cpp"
-	"${JK2SPDir}/game/NPC_utils.cpp"
-	"${JK2SPDir}/game/Q3_Interface.cpp"
-	"${JK2SPDir}/game/Q3_Registers.cpp"
-	"${JK2SPDir}/game/bg_misc.cpp"
-	"${JK2SPDir}/game/bg_pangles.cpp"
-	"${JK2SPDir}/game/bg_panimate.cpp"
-	"${JK2SPDir}/game/bg_pmove.cpp"
-	"${JK2SPDir}/game/bg_slidemove.cpp"
-	"${JK2SPDir}/game/g_ICARUS.cpp"
-	"${JK2SPDir}/game/g_active.cpp"
-	"${JK2SPDir}/game/g_breakable.cpp"
-	"${JK2SPDir}/game/g_camera.cpp"
-	"${JK2SPDir}/game/g_client.cpp"
-	"${JK2SPDir}/game/g_cmds.cpp"
-	"${JK2SPDir}/game/g_combat.cpp"
-	"${JK2SPDir}/game/g_functions.cpp"
-	"${JK2SPDir}/game/g_fx.cpp"
-	"${JK2SPDir}/game/g_inventory.cpp"
-	"${JK2SPDir}/game/g_itemLoad.cpp"
-	"${JK2SPDir}/game/g_items.cpp"
-	"${JK2SPDir}/game/g_main.cpp"
-	"${JK2SPDir}/game/g_mem.cpp"
-	"${JK2SPDir}/game/g_misc.cpp"
-	"${JK2SPDir}/game/g_misc_model.cpp"
-	"${JK2SPDir}/game/g_missile.cpp"
-	"${JK2SPDir}/game/g_mover.cpp"
-	"${JK2SPDir}/game/g_nav.cpp"
-	"${JK2SPDir}/game/g_navnew.cpp"
-	"${JK2SPDir}/game/g_navigator.cpp"
-	"${JK2SPDir}/game/g_object.cpp"
-	"${JK2SPDir}/game/g_objectives.cpp"
-	"${JK2SPDir}/game/g_ref.cpp"
-	"${JK2SPDir}/game/g_roff.cpp"
-	"${JK2SPDir}/game/g_savegame.cpp"
-	"${JK2SPDir}/game/g_session.cpp"
-	"${JK2SPDir}/game/g_spawn.cpp"
-	"${JK2SPDir}/game/g_svcmds.cpp"
-	"${JK2SPDir}/game/g_target.cpp"
-	"${JK2SPDir}/game/g_trigger.cpp"
-	"${JK2SPDir}/game/g_turret.cpp"
-	"${JK2SPDir}/game/g_usable.cpp"
-	"${JK2SPDir}/game/g_utils.cpp"
-	"${JK2SPDir}/game/g_weapon.cpp"
-	"${JK2SPDir}/game/g_weaponLoad.cpp"
-	"${JK2SPDir}/game/genericparser2.cpp"
-	"${JK2SPDir}/game/wp_atst.cpp"
-	"${JK2SPDir}/game/wp_blaster_rifle.cpp"
-	"${JK2SPDir}/game/wp_bot_laser.cpp"
-	"${JK2SPDir}/game/wp_bowcaster.cpp"
-	"${JK2SPDir}/game/wp_bryar_pistol.cpp"
-	"${JK2SPDir}/game/wp_demp2.cpp"
-	"${JK2SPDir}/game/wp_det_pack.cpp"
-	"${JK2SPDir}/game/wp_disruptor.cpp"
-	"${JK2SPDir}/game/wp_emplaced_gun.cpp"
-	"${JK2SPDir}/game/wp_flechette.cpp"
-	"${JK2SPDir}/game/wp_melee.cpp"
-	"${JK2SPDir}/game/wp_repeater.cpp"
-	"${JK2SPDir}/game/wp_rocket_launcher.cpp"
-	"${JK2SPDir}/game/wp_saber.cpp"
-	"${JK2SPDir}/game/wp_stun_baton.cpp"
-	"${JK2SPDir}/game/wp_thermal.cpp"
-	"${JK2SPDir}/game/wp_trip_mine.cpp"
-	"${JK2SPDir}/game/Q3_Interface.h"
-	"${JK2SPDir}/game/Q3_Registers.h"
-	"${JK2SPDir}/game/ai.h"
-	"${JK2SPDir}/game/anims.h"
-	"${JK2SPDir}/game/b_local.h"
-	"${JK2SPDir}/game/b_public.h"
-	"${JK2SPDir}/game/bg_local.h"
-	"${JK2SPDir}/game/bg_public.h"
-	"${JK2SPDir}/game/bset.h"
-	"${JK2SPDir}/game/bstate.h"
-	"${JK2SPDir}/game/channels.h"
-	"${JK2SPDir}/game/dmstates.h"
-	"${JK2SPDir}/game/events.h"
-	"${JK2SPDir}/game/fields.h"
-	"${JK2SPDir}/game/g_functions.h"
-	"${JK2SPDir}/game/g_headers.h"
-	"${JK2SPDir}/game/g_icarus.h"
-	"${JK2SPDir}/game/g_items.h"
-	"${JK2SPDir}/game/g_local.h"
-	"${JK2SPDir}/game/g_nav.h"
-	"${JK2SPDir}/game/g_navigator.h"
-	"${JK2SPDir}/game/g_public.h"
-	"${JK2SPDir}/game/g_roff.h"
-	"${JK2SPDir}/game/g_shared.h"
-	"${JK2SPDir}/game/genericparser2.h"
-	"${JK2SPDir}/game/ghoul2_shared.h"
-	"${JK2SPDir}/game/npc_headers.h"
-	"${JK2SPDir}/game/objectives.h"
-	"${JK2SPDir}/game/say.h"
-	"${JK2SPDir}/game/statindex.h"
-	"${JK2SPDir}/game/teams.h"
-	"${JK2SPDir}/game/weapons.h"
-	"${JK2SPDir}/game/w_local.h"
-	"${JK2SPDir}/game/wp_saber.h"
-	)
-source_group("game" FILES ${JK2SPGameGameFiles})
-set(JK2SPGameFiles ${JK2SPGameFiles} ${JK2SPGameGameFiles})
-
-set(JK2SPGameCGameFiles
-	"${JK2SPDir}/cgame/FX_ATSTMain.cpp"
-	"${JK2SPDir}/cgame/FX_Blaster.cpp"
-	"${JK2SPDir}/cgame/FX_Bowcaster.cpp"
-	"${JK2SPDir}/cgame/FX_BryarPistol.cpp"
-	"${JK2SPDir}/cgame/FX_DEMP2.cpp"
-	"${JK2SPDir}/cgame/FX_Disruptor.cpp"
-	"${JK2SPDir}/cgame/FX_Emplaced.cpp"
-	"${JK2SPDir}/cgame/FX_Flechette.cpp"
-	"${JK2SPDir}/cgame/FX_HeavyRepeater.cpp"
-	"${JK2SPDir}/cgame/FX_RocketLauncher.cpp"
-	"${JK2SPDir}/cgame/FxPrimitives.cpp"
-	"${JK2SPDir}/cgame/FxPrimitives.h"
-	"${JK2SPDir}/cgame/FxScheduler.cpp"
-	"${JK2SPDir}/cgame/FxScheduler.h"
-	"${JK2SPDir}/cgame/FxSystem.cpp"
-	"${JK2SPDir}/cgame/FxSystem.h"
-	"${JK2SPDir}/cgame/FxTemplate.cpp"
-	"${JK2SPDir}/cgame/FxUtil.cpp"
-	"${JK2SPDir}/cgame/FxUtil.h"
-	"${JK2SPDir}/cgame/animtable.h"
-	"${JK2SPDir}/cgame/cg_camera.cpp"
-	"${JK2SPDir}/cgame/cg_camera.h"
-	"${JK2SPDir}/cgame/cg_consolecmds.cpp"
-	"${JK2SPDir}/cgame/cg_credits.cpp"
-	"${JK2SPDir}/cgame/cg_draw.cpp"
-	"${JK2SPDir}/cgame/cg_drawtools.cpp"
-	"${JK2SPDir}/cgame/cg_effects.cpp"
-	"${JK2SPDir}/cgame/cg_ents.cpp"
-	"${JK2SPDir}/cgame/cg_event.cpp"
-	"${JK2SPDir}/cgame/cg_info.cpp"
-	"${JK2SPDir}/cgame/cg_lights.cpp"
-	"${JK2SPDir}/cgame/cg_local.h"
-	"${JK2SPDir}/cgame/cg_localents.cpp"
-	"${JK2SPDir}/cgame/cg_main.cpp"
-	"${JK2SPDir}/cgame/cg_marks.cpp"
-	"${JK2SPDir}/cgame/cg_media.h"
-	"${JK2SPDir}/cgame/cg_players.cpp"
-	"${JK2SPDir}/cgame/cg_playerstate.cpp"
-	"${JK2SPDir}/cgame/cg_predict.cpp"
-	"${JK2SPDir}/cgame/cg_public.h"
-	"${JK2SPDir}/cgame/cg_scoreboard.cpp"
-	"${JK2SPDir}/cgame/cg_servercmds.cpp"
-	"${JK2SPDir}/cgame/cg_snapshot.cpp"
-	"${JK2SPDir}/cgame/cg_syscalls.cpp"
-	"${JK2SPDir}/cgame/cg_text.cpp"
-	"${JK2SPDir}/cgame/cg_view.cpp"
-	"${JK2SPDir}/cgame/cg_weapons.cpp"
-	"${JK2SPDir}/cgame/strip_objectives.h"
-	)
-source_group("cgame" FILES ${JK2SPGameCGameFiles})
-set(JK2SPGameFiles ${JK2SPGameFiles} ${JK2SPGameCGameFiles})
-
-set(JK2SPGameUIFiles
-	"${SPDir}/ui/gameinfo.cpp"
-	"${SPDir}/ui/gameinfo.h"
-	)
-source_group("ui" FILES ${JK2SPGameUIFiles})
-set(JK2SPGameFiles ${JK2SPGameFiles} ${JK2SPGameUIFiles})
-
-set(JK2SPGameCommonFiles
-	#We only have JKA qcommon files now.
-	"${SPDir}/qcommon/tri_coll_test.cpp"
-	"${SPDir}/qcommon/q_shared.cpp"
-	"${SPDir}/qcommon/q_shared.h"
-	"${SPDir}/qcommon/strippublic.h"
-	"${SPDir}/qcommon/ojk_i_saved_game.h"
-	"${SPDir}/qcommon/ojk_saved_game_class_archivers.h"
-	"${SPDir}/qcommon/ojk_saved_game_helper.h"
-	"${SPDir}/qcommon/ojk_saved_game_helper_fwd.h"
-	"${SPDir}/qcommon/ojk_scope_guard.h"
-	${SharedCommonFiles}
-	)
-source_group("common" FILES ${JK2SPGameCommonFiles})
-set(JK2SPGameFiles ${JK2SPGameFiles} ${JK2SPGameCommonFiles})
-
-set(JK2SPGameCommonSafeFiles
-	${SharedCommonSafeFiles}
-	"${SharedDir}/qcommon/safe/files.h"
-	"${SharedDir}/qcommon/safe/files.cpp"
-	"${JK2SPDir}/qcommon/safe/memory.h"
-	)
-source_group("common/safe" FILES ${JK2SPGameCommonSafeFiles})
-set(JK2SPGameFiles ${JK2SPGameFiles} ${JK2SPGameCommonSafeFiles})
-
-set(JK2SPGameIcarusFiles
-	"${JK2SPDir}/icarus/BlockStream.cpp"
-	"${JK2SPDir}/icarus/Sequence.cpp"
-	"${JK2SPDir}/icarus/Sequencer.cpp"
-	"${JK2SPDir}/icarus/TaskManager.cpp"
-	"${JK2SPDir}/icarus/Instance.cpp"
-	"${JK2SPDir}/icarus/blockstream.h"
-	"${JK2SPDir}/icarus/icarus.h"
-	"${JK2SPDir}/icarus/interface.h"
-	"${JK2SPDir}/icarus/interpreter.h"
-	"${JK2SPDir}/icarus/sequence.h"
-	"${JK2SPDir}/icarus/sequencer.h"
-	"${JK2SPDir}/icarus/taskmanager.h"
-	"${JK2SPDir}/icarus/instance.h"
-	"${JK2SPDir}/icarus/tokenizer.h"
-	"${JK2SPDir}/icarus/tokens.h"
-	)
-source_group("icarus" FILES ${JK2SPGameIcarusFiles})
-set(JK2SPGameFiles ${JK2SPGameFiles} ${JK2SPGameIcarusFiles})
-
-set(JK2SPGameRuflFiles
-	"${SPDir}/Rufl/hstring.cpp"
-	"${SPDir}/Rufl/hstring.h"
-	)
-source_group("rufl" FILES ${JK2SPGameRuflFiles})
-set(JK2SPGameFiles ${JK2SPGameFiles} ${JK2SPGameRuflFiles})
-
-if(WIN32)
-	set(JK2SPGameWin32Files
-		"${JK2SPDir}/win32/game.rc")
-	source_group("win32" FILES ${JK2SPGameWin32Files})
-	set(JK2SPGameFiles ${JK2SPGameFiles} ${JK2SPGameWin32Files})
-endif(WIN32)
-
-add_library(${JK2SPGame} SHARED ${JK2SPGameFiles})
-
-if(NOT MSVC)
-	# remove "lib" prefix for .so/.dylib files
-	set_target_properties(${JK2SPGame} PROPERTIES PREFIX "")
+	target_sources(jospgame PRIVATE ../win32/game.rc)
 endif()
-
-if(WIN32)
-	install(TARGETS ${JK2SPGame} RUNTIME DESTINATION "${JK2InstallDir}/ModernJK")
-else(WIN32)
-	if(MakeApplicationBundles AND BuildJK2SPEngine)
-		install(TARGETS ${JK2SPGame} LIBRARY DESTINATION "${JK2InstallDir}/${JK2SPEngine}.app/Contents/MacOS/ModernJK")
-	else(MakeApplicationBundles AND BuildJK2SPEngine)
-		install(TARGETS ${JK2SPGame} LIBRARY DESTINATION "${JK2InstallDir}/ModernJK")
-	endif(MakeApplicationBundles AND BuildJK2SPEngine)
-endif(WIN32)
-
-set_target_properties(${JK2SPGame} PROPERTIES COMPILE_DEFINITIONS "${JK2SPGameDefines}")
-
-# Hide symbols not explicitly marked public.
-set_property(TARGET ${JK2SPGame} APPEND PROPERTY COMPILE_OPTIONS ${MODERNJK_VISIBILITY_FLAGS})
-
-set_target_properties(${JK2SPGame} PROPERTIES INCLUDE_DIRECTORIES "${JK2SPGameIncludeDirectories}")
-set_target_properties(${JK2SPGame} PROPERTIES PROJECT_LABEL "JK2 SP Game Library")
-# no libraries used
-if(JK2SPGameLibraries)
-	target_link_libraries(${JK2SPGame} ${JK2SPGameLibraries})
-endif(JK2SPGameLibraries)
-target_link_libraries(${JK2SPGame} qlibm)
+set_target_properties(jospgame PROPERTIES OUTPUT_NAME "jospgame${modernjk_ARCH}" PREFIX "")
+target_include_directories(jospgame PRIVATE "${PROJECT_SOURCE_DIR}/src/codeJK2" "${CMAKE_CURRENT_SOURCE_DIR}"
+	"${PROJECT_SOURCE_DIR}/src/shared")
+target_compile_definitions(jospgame PRIVATE JK2_MODE SP_GAME)
+target_link_libraries(jospgame PRIVATE vendored::gsl_lite modernjk_version modernjk_shared_common modernjk_safe_string
+	modernjk_safe_files modernjk_options modernjk_warnings modernjk_defines)
+install(TARGETS jospgame LIBRARY DESTINATION "${modernjk_INSTALL_JK2}/ModernJK")

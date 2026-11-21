@@ -161,7 +161,8 @@ static std::list<sstring_t> strList;
 //
 int GetStringNum(const char *psString)
 {
-	assert( psString != (char *)0xcdcdcdcd );
+	// MSVC's debug heap fills uninitialised memory with 0xcd bytes: a pointer read from it (here and below)
+	assert( psString != (char *)0xcdcdcdcdcdcdcdcdULL );
 
 	// nullptr ptrs I'll write out as a strlen of -1...
 	//
@@ -211,7 +212,7 @@ char *GetStringPtr(int iStrlen, char *psOriginal/*may be nullptr*/)
 //
 intptr_t GetGEntityNum(gentity_t* ent)
 {
-	assert( ent != (gentity_t *) 0xcdcdcdcd);
+	assert( ent != (gentity_t *) 0xcdcdcdcdcdcdcdcdULL);
 
 	if (ent == nullptr)
 	{
@@ -244,7 +245,7 @@ gentity_t *GetGEntityPtr(intptr_t iEntNum)
 
 static intptr_t GetGroupNumber(AIGroupInfo_t *pGroup)
 {
-	assert( pGroup != (AIGroupInfo_t *) 0xcdcdcdcd);
+	assert( pGroup != (AIGroupInfo_t *) 0xcdcdcdcdcdcdcdcdULL);
 
 	if (pGroup == nullptr)
 	{
@@ -277,7 +278,7 @@ static AIGroupInfo_t *GetGroupPtr(intptr_t iGroupNum)
 //
 intptr_t GetGClientNum(gclient_t *c)
 {
-	assert(c != (gclient_t *)0xcdcdcdcd);
+	assert(c != (gclient_t *)0xcdcdcdcdcdcdcdcdULL);
 
 	if (c == nullptr)
 	{
@@ -312,7 +313,7 @@ gclient_t *GetGClientPtr(intptr_t c)
 //
 int GetGItemNum (gitem_t *pItem)
 {
-	assert(pItem != (gitem_t*) 0xcdcdcdcd);
+	assert(pItem != (gitem_t*) 0xcdcdcdcdcdcdcdcdULL);
 
 	if (pItem == nullptr)
 	{

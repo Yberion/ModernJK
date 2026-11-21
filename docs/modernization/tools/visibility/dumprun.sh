@@ -2,7 +2,7 @@
 # TMP: record rays of the option b table (one slice) with the engine's verdicts, then time the engine's tracer on them
 # usage: dumprun.sh <map> <out rays file> [slices] [one ray in n]
 map="$1"; out="$2"; K="${3:-64}"; every="${4:-8}"
-BUILD=E:/Git/jka/ModernJK/build-netcodec/modernjk-clang
+BUILD=E:/Git/jka/ModernJK/build/windows-clang-release/bin
 export PATH="/c/Logiciels/llvm-mingw-20261104-ucrt-x86_64/bin:$PATH"
 GAME="E:/Jeux/Jedi Academy default - ModernJK"
 SCR="${SCR:?set SCR to the work folder: the tools built there, their outputs written there}"

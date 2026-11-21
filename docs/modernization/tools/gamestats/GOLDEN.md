@@ -129,7 +129,7 @@ Two servers play the same commands with other settings; their scenarios are told
 On Windows (Git Bash), the build of the day, then the old commit:
 
 ```
-bash /e/Git/jka/ModernJK/docs/modernization/tools/gamestats/scenarios.sh <prefix> /e/Git/jka/ModernJK/build-netcodec/modernjk-clang/jampgamex86_64.dll
+bash /e/Git/jka/ModernJK/docs/modernization/tools/gamestats/scenarios.sh <prefix> /e/Git/jka/ModernJK/build/windows-clang-release/bin/jampgamex86_64.dll
 BUILD=E:/Git/jka/ModernJK_golden/build-clang DED_EXE=openjkded.x86_64.exe GOLDEN=scenarios_golden_step14.txt bash /e/Git/jka/ModernJK/docs/modernization/tools/gamestats/scenarios.sh <prefix> /e/Git/jka/ModernJK_golden/build-clang/jampgamex86_64.dll
 ```
 

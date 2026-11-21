@@ -4015,13 +4015,13 @@ void			NAV::ShowStats()
 	mRegion.ProfileSpew();
 
 	mGraph.ProfilePrint("Point Islands: (%d)", mIslandCount);
-	mGraph.ProfilePrint("");
-	mGraph.ProfilePrint("");
+	mGraph.ProfilePrint("%s", "");
+	mGraph.ProfilePrint("%s", "");
 	mGraph.ProfilePrint("--------------------------------------------------------");
 	mGraph.ProfilePrint("              Star Wars - Jedi Academy                  ");
 	mGraph.ProfilePrint("               Additional Statistics                    ");
 	mGraph.ProfilePrint("--------------------------------------------------------");
-	mGraph.ProfilePrint("");
+	mGraph.ProfilePrint("%s", "");
 	mGraph.ProfilePrint("MEMORY CONSUMPTION (In Bytes)");
 	mGraph.ProfilePrint("Cells  : (%zu)", (sizeof(mCells)));
 	mGraph.ProfilePrint("Path   : (%zu)", (sizeof(mPathUsers)+sizeof(mPathUserIndex)));
@@ -4041,11 +4041,11 @@ void			NAV::ShowStats()
 			((float)(totalBytes)/1024.0f),
 			((float)(totalBytes)/1048576.0f)
 			);
-	mGraph.ProfilePrint("");
+	mGraph.ProfilePrint("%s", "");
 
 
 	mGraph.ProfilePrint("Connect Stats: Milliseconds(%d) Traces(%d)", mConnectTime, mConnectTraceCount);
-	mGraph.ProfilePrint("");
+	mGraph.ProfilePrint("%s", "");
 	mGraph.ProfilePrint("Move Trace: Count(%d) PerFrame(%f)", mMoveTraceCount, (float)(mMoveTraceCount)/(float)(level.time));
 	mGraph.ProfilePrint("View Trace: Count(%d) PerFrame(%f)", mViewTraceCount, (float)(mViewTraceCount)/(float)(level.time));
 

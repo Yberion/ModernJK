@@ -1,14 +1,14 @@
 #!/bin/sh
 # Builds and runs mathbench with GCC or Clang. Usage: build.sh <tag> <c compiler> <c++ compiler> [extra flags...]
 #   build.sh gcc12-x64 gcc g++            build.sh clang-x64 clang clang++
-# Needs the sources in build-netcodec/mathlibs (core-math, llvm-project/libc). Writes the objects, the program and
-# its output (<tag>.txt) to build-netcodec/mathbench/<tag>/. NOCM=1 leaves CORE-MATH out.
+# Needs the sources in build/mathlibs (core-math, llvm-project/libc). Writes the objects, the program and
+# its output (<tag>.txt) to build/mathbench/<tag>/. NOCM=1 leaves CORE-MATH out.
 set -e
 TAG=$1; CC=$2; CXX=$3; shift 3
 HERE=$(cd "$(dirname "$0")" && pwd)
 ROOT=$(cd "$HERE/../../../.." && pwd)
-M=$ROOT/build-netcodec/mathlibs
-OUT=$ROOT/build-netcodec/mathbench/$TAG
+M=$ROOT/build/mathlibs
+OUT=$ROOT/build/mathbench/$TAG
 mkdir -p "$OUT"
 FLAGS="-O2 -ffp-contract=off $*"
 CM=$M/core-math/src
@@ -17,7 +17,7 @@ $CXX $FLAGS -std=c++20 -fno-exceptions -fno-rtti -I "$M/llvm-project/libc" -c "$
 case "$(uname -s)" in MINGW*|MSYS*) ARCHDEF= ;; *) ARCHDEF='-DARCH_STRING="mathbench"' ;; esac
 $CXX $FLAGS -std=c++20 -fno-exceptions -fno-rtti $ARCHDEF -I "$ROOT/libs/llvm-libc" \
 	-c "$ROOT/src/shared/qcommon/q_libm.cpp" -o "$OUT/q_libm.o"
-$CC $FLAGS $ARCHDEF -c "$ROOT/src/shared/qcommon/q_rand.c" -o "$OUT/q_rand.o"
+$CXX $FLAGS -std=c++20 -fno-exceptions -fno-rtti $ARCHDEF -c "$ROOT/src/shared/qcommon/q_rand.cpp" -o "$OUT/q_rand.o"
 OBJS="$OUT/lm.o $OUT/q_libm.o $OUT/q_rand.o"
 DEFS=
 if [ "$NOCM" != 1 ]; then

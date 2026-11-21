@@ -5,7 +5,7 @@
 # are compared with the Windows ones afterwards (crosscheck.py).
 # usage: bash linux_check.sh        (from anywhere on the Linux VM; a log per step in <decoders>/work/check/)
 R=/media/sf_jka/ModernJK
-D=$R/build-netcodec/audiolibs/decoders
+D=$R/build/audiolibs/decoders
 T=$R/docs/modernization/tools/audiodec
 W=$D/work/check
 mkdir -p "$W"

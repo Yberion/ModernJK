@@ -5,6 +5,7 @@
 #include <cassert>
 #include <cstddef>
 #include <algorithm>
+#include <iterator>
 
 #include "qcommon/q_platform.h"
 

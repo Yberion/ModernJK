@@ -967,8 +967,7 @@ Returns the sequencer of the entity by the given name
 	if ( name == nullptr || name[0] == nullptr )
 		return nullptr;
 
-	strncpy( (char *) temp, name, sizeof(temp) );
-	temp[sizeof(temp)-1] = 0;
+	Q_strncpyz( temp, name, sizeof( temp ) );
 
 	ei = ICARUS_EntList.find( strupr( (char *) temp ) );
 
@@ -11277,8 +11276,7 @@ int		CQuake3GameInterface::GetByName( const char *name )
 	if ( name == nullptr || name[0] == '\0' )
 		return -1;
 
-	strncpy( (char *) temp, name, sizeof(temp) );
-	temp[sizeof(temp)-1] = 0;
+	Q_strncpyz( temp, name, sizeof( temp ) );
 
 	ei = m_EntityList.find( Q_strupr( (char *) temp ) );
 

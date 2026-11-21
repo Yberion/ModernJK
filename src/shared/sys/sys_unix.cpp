@@ -42,8 +42,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 bool stdinIsATTY = false;
 
+#if !defined(BUILD_PORTABLE)
 // Used to determine where to store user-specific files
 static char homePath[ MAX_OSPATH ] = { 0 };
+#endif
 
 // Max open file descriptors. Mostly used by pk3 files with
 // MAX_SEARCH_PATHS limit.

@@ -1,15 +1,15 @@
-# libFuzzer targets on the message decoder and on the client packet decoder (preset mingw-clang-fuzz; clang only). The
-# library and the targets are instrumented for coverage (see the top-level file); libFuzzer provides main().
+# libFuzzer targets on the message decoder and on the client packet decoder (clang only). The library and the targets
+# are instrumented for coverage (netcodec_options); libFuzzer provides main().
 if(MINGW)
-	# the driver refuses -fsanitize=fuzzer for these targets: libFuzzer's archive from the compiler's resource directory
-	execute_process(COMMAND "${CMAKE_CXX_COMPILER}" -print-resource-dir OUTPUT_VARIABLE netcodec_clang_res OUTPUT_STRIP_TRAILING_WHITESPACE)
-	set(netcodec_fuzz_arch x86_64)
+	# llvm-mingw's driver refuses -fsanitize=fuzzer: libFuzzer's archive from the compiler's resource folder
+	execute_process(COMMAND "${CMAKE_CXX_COMPILER}" -print-resource-dir OUTPUT_VARIABLE clang_resources
+		OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif()
 foreach(target decode client)
 	netcodec_add_program(netcodec_fuzz_${target} fuzz_${target}.cpp)
-	target_include_directories(netcodec_fuzz_${target} PRIVATE "${PROJECT_SOURCE_DIR}/src" "${PROJECT_SOURCE_DIR}/test")
+	target_link_libraries(netcodec_fuzz_${target} PRIVATE netcodec_internal netcodec_traces)
 	if(MINGW)
-		target_link_libraries(netcodec_fuzz_${target} PRIVATE "${netcodec_clang_res}/lib/windows/libclang_rt.fuzzer-${netcodec_fuzz_arch}.a")
+		target_link_libraries(netcodec_fuzz_${target} PRIVATE "${clang_resources}/lib/windows/libclang_rt.fuzzer-x86_64.a")
 	else()
 		target_compile_options(netcodec_fuzz_${target} PRIVATE -fsanitize=fuzzer)
 		target_link_options(netcodec_fuzz_${target} PRIVATE -fsanitize=fuzzer)

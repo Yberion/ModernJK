@@ -6,7 +6,7 @@ rem corpora; the lists are compared with the other compilers' afterwards (crossc
 rem usage: Z:\ModernJK\docs\modernization\tools\audiodec\msvc_check.bat   (cmd or PowerShell; logs in <decoders>\work\check\)
 setlocal
 set R=Z:\ModernJK
-set D=%R%\build-netcodec\audiolibs\decoders
+set D=%R%\build\audiolibs\decoders
 set T=%R%\docs\modernization\tools\audiodec
 set W=%D%\work\check
 set M=%D%\msvc

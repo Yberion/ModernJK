@@ -16,172 +16,62 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #============================================================================
 
-# Make sure the user is not executing this script directly
-if(NOT InModernJK)
-	message(FATAL_ERROR "Use the top-level cmake script!")
-endif(NOT InModernJK)
+# The single player's renderers (OpenGL): Jedi Academy's, and Jedi Outcast's from the same sources with JK2_MODE
+add_library(sp_renderer_common INTERFACE)
+target_sources(sp_renderer_common INTERFACE
+	G2_API.cpp
+	G2_bolts.cpp
+	G2_bones.cpp
+	G2_misc.cpp
+	G2_surfaces.cpp
+	tr_WorldEffects.cpp
+	tr_arb.cpp
+	tr_backend.cpp
+	tr_bsp.cpp
+	tr_cmds.cpp
+	tr_curve.cpp
+	tr_draw.cpp
+	tr_ghoul2.cpp
+	tr_image.cpp
+	tr_init.cpp
+	tr_light.cpp
+	tr_main.cpp
+	tr_marks.cpp
+	tr_mesh.cpp
+	tr_model.cpp
+	tr_quicksprite.cpp
+	tr_scene.cpp
+	tr_shade.cpp
+	tr_shade_calc.cpp
+	tr_shader.cpp
+	tr_shadows.cpp
+	tr_skin.cpp
+	tr_sky.cpp
+	tr_stl.cpp
+	tr_subs.cpp
+	tr_surface.cpp
+	tr_surfacesprites.cpp
+	tr_world.cpp
+	../qcommon/matcomp.cpp
+	../qcommon/q_shared.cpp
+	../rd-common/tr_font.cpp)
+target_include_directories(sp_renderer_common INTERFACE "${PROJECT_SOURCE_DIR}/src/shared" "${PROJECT_SOURCE_DIR}/src/code"
+	"${CMAKE_CURRENT_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}/src/code/rd-common")
+target_compile_definitions(sp_renderer_common INTERFACE RENDERER _JK2EXE)
+target_link_libraries(sp_renderer_common INTERFACE vendored::gsl_lite modernjk_shared_common modernjk_safe_string
+	modernjk_rd_common OpenGL::GL)
 
-if(BuildSPRdVanilla OR BuildJK2SPRdVanilla)
+if(modernjk_BUILD_SP)
+	add_library(rdsp-vanilla MODULE)
+	set_target_properties(rdsp-vanilla PROPERTIES OUTPUT_NAME "rdsp-vanilla_${modernjk_ARCH}" PREFIX "")
+	target_link_libraries(rdsp-vanilla PRIVATE sp_renderer_common modernjk_options modernjk_warnings modernjk_defines)
+	install(TARGETS rdsp-vanilla LIBRARY DESTINATION "${modernjk_INSTALL_JKA}")
+endif()
 
-	set(SPRDVanillaRendererIncludeDirectories ${SPDir})
-	set(SPRDVanillaRendererIncludeDirectories
-		${SharedDir}
-		${SPRDVanillaRendererIncludeDirectories}
-		"${SPDir}/rd-vanilla"
-		"${GSLIncludeDirectory}"
-		)
-
-	# Modular Renderer crap (let's hope this works..)
-
-	# Defines
-	set(SPRDVanillaDefines ${SharedDefines} "RENDERER" "_JK2EXE")
-
-	# Files
-
-	# GHOUL 2
-	set(SPRDVanillaG2Files
-		"${SPDir}/ghoul2/G2.h"
-		"${SPDir}/ghoul2/ghoul2_gore.h"
-		"${SPDir}/rd-vanilla/G2_API.cpp"
-		"${SPDir}/rd-vanilla/G2_bolts.cpp"
-		"${SPDir}/rd-vanilla/G2_bones.cpp"
-		"${SPDir}/rd-vanilla/G2_misc.cpp"
-		"${SPDir}/rd-vanilla/G2_surfaces.cpp"
-		)
-	source_group("ghoul2" FILES ${SPRDVanillaG2Files})
-	set(SPRDVanillaFiles ${SPRDVanillaFiles} ${SPRDVanillaG2Files})
-
-    # The image libraries, vendored and compiled inside src/shared/rd-common/tr_image_codec.cpp: Wuffs decodes, stb_image_write writes.
-    list(APPEND SPRDVanillaRendererIncludeDirectories "${CMAKE_SOURCE_DIR}/libs/wuffs" "${CMAKE_SOURCE_DIR}/libs/stb")
-
-    # Transparantly make use of all renderer directories
-    list(APPEND SPRDVanillaRendererIncludeDirectories "${SPDir}/rd-common")
-    list(APPEND SPRDVanillaRendererIncludeDirectories "${SPDir}/rd-vanilla")
-
-	# Misc files
-	set(SPRDVanillaCommonFiles
-		"${SPDir}/qcommon/matcomp.cpp"
-		"${SPDir}/qcommon/q_shared.cpp"
-		"${SPDir}/qcommon/q_shared.h"
-		"${SPDir}/qcommon/ojk_i_saved_game.h"
-		"${SPDir}/qcommon/ojk_saved_game_class_archivers.h"
-		"${SPDir}/qcommon/ojk_saved_game_helper.h"
-		"${SPDir}/qcommon/ojk_saved_game_helper_fwd.h"
-		"${SPDir}/qcommon/ojk_scope_guard.h"
-		${SharedCommonFiles}
-		)
-	source_group("common" FILES ${SPRDVanillaCommonFiles})
-	set(SPRDVanillaFiles ${SPRDVanillaFiles} ${SPRDVanillaCommonFiles})
-
-	# Misc files
-	set(SPRDVanillaCommonSafeFiles
-		${SharedCommonSafeFiles}
-		)
-	source_group("common/safe" FILES ${SPRDVanillaCommonSafeFiles})
-	set(SPRDVanillaFiles ${SPRDVanillaFiles} ${SPRDVanillaCommonSafeFiles})
-
-	# main files
-	set(SPRDVanillaMainFiles
-		"${SPDir}/rd-vanilla/glext.h"
-		"${SPDir}/rd-vanilla/qgl.h"
-		"${SPDir}/rd-vanilla/tr_arb.cpp"
-		"${SPDir}/rd-vanilla/tr_backend.cpp"
-		"${SPDir}/rd-vanilla/tr_bsp.cpp"
-		"${SPDir}/rd-vanilla/tr_cmds.cpp"
-		"${SPDir}/rd-vanilla/tr_curve.cpp"
-		"${SPDir}/rd-vanilla/tr_draw.cpp"
-		"${SPDir}/rd-vanilla/tr_ghoul2.cpp"
-		"${SPDir}/rd-vanilla/tr_image.cpp"
-		"${SPDir}/rd-vanilla/tr_init.cpp"
-		"${SPDir}/rd-vanilla/tr_light.cpp"
-		"${SPDir}/rd-vanilla/tr_local.h"
-		"${SPDir}/rd-vanilla/tr_main.cpp"
-		"${SPDir}/rd-vanilla/tr_marks.cpp"
-		"${SPDir}/rd-vanilla/tr_mesh.cpp"
-		"${SPDir}/rd-vanilla/tr_model.cpp"
-		"${SPDir}/rd-vanilla/tr_quicksprite.cpp"
-		"${SPDir}/rd-vanilla/tr_quicksprite.h"
-		"${SPDir}/rd-vanilla/tr_scene.cpp"
-		"${SPDir}/rd-vanilla/tr_shade.cpp"
-		"${SPDir}/rd-vanilla/tr_shade_calc.cpp"
-		"${SPDir}/rd-vanilla/tr_shader.cpp"
-		"${SPDir}/rd-vanilla/tr_shadows.cpp"
-		"${SPDir}/rd-vanilla/tr_skin.cpp"
-		"${SPDir}/rd-vanilla/tr_sky.cpp"
-		"${SPDir}/rd-vanilla/tr_stl.cpp"
-		"${SPDir}/rd-vanilla/tr_stl.h"
-		"${SPDir}/rd-vanilla/tr_subs.cpp"
-		"${SPDir}/rd-vanilla/tr_surface.cpp"
-		"${SPDir}/rd-vanilla/tr_surfacesprites.cpp"
-		"${SPDir}/rd-vanilla/tr_world.cpp"
-		"${SPDir}/rd-vanilla/tr_WorldEffects.cpp"
-		"${SPDir}/rd-vanilla/tr_WorldEffects.h"
-		)
-	source_group("renderer" FILES ${SPRDVanillaMainFiles})
-	set(SPRDVanillaFiles ${SPRDVanillaFiles} ${SPRDVanillaMainFiles})
-
-	set(SPRDVanillaRdCommonFiles
-		"${SPDir}/rd-common/mdx_format.h"
-		"${SPDir}/rd-common/tr_common.h"
-		"${SPDir}/rd-common/tr_font.cpp"
-		"${SPDir}/rd-common/tr_font.h"
-		"${SharedDir}/rd-common/tr_image_load.cpp"
-		"${SharedDir}/rd-common/tr_image_codec.cpp"
-		"${SharedDir}/rd-common/tr_noise.cpp"
-		"${SPDir}/rd-common/tr_public.h"
-		"${SPDir}/rd-common/tr_types.h")
-	source_group("rd-common" FILES ${SPRDVanillaRdCommonFiles})
-	set(SPRDVanillaFiles ${SPRDVanillaFiles} ${SPRDVanillaRdCommonFiles})
-
-	find_package(OpenGL REQUIRED)
-	set(SPRDVanillaRendererIncludeDirectories ${SPRDVanillaRendererIncludeDirectories} ${OPENGL_INCLUDE_DIR})
-	set(SPRDVanillaRendererLibraries ${SPRDVanillaRendererLibraries} ${OPENGL_LIBRARIES})
-
-	set(SPRDVanillaRendererIncludeDirectories ${SPRDVanillaRendererIncludeDirectories} ${ModernJKLibDir})
-
-	function(add_sp_renderer_project ProjectName Label EngineName InstallDir Component)
-		add_library(${ProjectName} SHARED ${SPRDVanillaFiles})
-		if(NOT MSVC)
-			# remove "lib" prefix for .so/.dylib files
-			set_target_properties(${ProjectName} PROPERTIES PREFIX "")
-		endif()
-
-		if(WIN32)
-			install(TARGETS ${ProjectName}
-				RUNTIME
-				DESTINATION ${InstallDir}
-				COMPONENT ${Component})
-		else(WIN32)
-			if(MakeApplicationBundles AND (BuildSPEngine OR BuildJK2SPEngine))
-				install(TARGETS ${ProjectName}
-					LIBRARY
-					DESTINATION "${InstallDir}/${EngineName}.app/Contents/MacOS/"
-					COMPONENT ${Component})
-			else()
-				install(TARGETS ${ProjectName}
-					LIBRARY
-					DESTINATION ${InstallDir}
-					COMPONENT ${Component})
-			endif()
-		endif()
-
-		set_target_properties(${ProjectName} PROPERTIES COMPILE_DEFINITIONS "${SPRDVanillaDefines}")
-
-		# Hide symbols not explicitly marked public.
-		set_property(TARGET ${ProjectName} APPEND PROPERTY COMPILE_OPTIONS ${MODERNJK_VISIBILITY_FLAGS})
-
-		set_target_properties(${ProjectName} PROPERTIES INCLUDE_DIRECTORIES "${SPRDVanillaRendererIncludeDirectories}")
-		set_target_properties(${ProjectName} PROPERTIES PROJECT_LABEL ${Label})
-
-		target_link_libraries(${ProjectName} ${SPRDVanillaRendererLibraries} qlibm)
-	endfunction(add_sp_renderer_project)
-
-	if(BuildSPRdVanilla)
-		add_sp_renderer_project(${SPRDVanillaRenderer} "SP Vanilla Renderer" ${SPEngine} ${JKAInstallDir} ${JKASPClientComponent})
-	endif(BuildSPRdVanilla)
-	if(BuildJK2SPRdVanilla)
-		set(SPRDVanillaDefines ${SPRDVanillaDefines} "JK2_MODE")
-		add_sp_renderer_project(${JK2SPVanillaRenderer} "JK2 SP Vanilla Renderer" ${JK2SPEngine} ${JK2InstallDir} ${JK2SPClientComponent})
-	endif(BuildJK2SPRdVanilla)
-
-endif(BuildSPRdVanilla OR BuildJK2SPRdVanilla)
+if(modernjk_BUILD_JK2)
+	add_library(rdjosp-vanilla MODULE)
+	set_target_properties(rdjosp-vanilla PROPERTIES OUTPUT_NAME "rdjosp-vanilla_${modernjk_ARCH}" PREFIX "")
+	target_compile_definitions(rdjosp-vanilla PRIVATE JK2_MODE)
+	target_link_libraries(rdjosp-vanilla PRIVATE sp_renderer_common modernjk_options modernjk_warnings modernjk_defines)
+	install(TARGETS rdjosp-vanilla LIBRARY DESTINATION "${modernjk_INSTALL_JK2}")
+endif()

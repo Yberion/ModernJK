@@ -17,7 +17,7 @@ MINUTES="$1"
 shift
 SCRATCH="${GAMESTATS_DIR:-C:/Users/Yberion/AppData/Local/Temp/gamestats}"
 mkdir -p "$SCRATCH"
-BUILD="${BUILD:-E:/Git/jka/ModernJK/build-netcodec/modernjk-clang}"	# the folder of the dedicated server
+BUILD="${BUILD:-E:/Git/jka/ModernJK/build/windows-clang-release/bin}"	# the folder of the dedicated server
 DED_EXE="${DED_EXE:-modernjkded.x86_64.exe}"	# its name (openjkded.x86_64.exe before the project was renamed)
 GAME="E:/Jeux/Jedi Academy default - ModernJK"
 export PATH="/c/Logiciels/llvm-mingw-20261104-ucrt-x86_64/x86_64-w64-mingw32/bin:/c/Logiciels/llvm-mingw-20261104-ucrt-x86_64/bin:$PATH"

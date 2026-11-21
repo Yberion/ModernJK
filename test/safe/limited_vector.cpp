@@ -4,143 +4,147 @@
 #include <string>
 #include <iterator>
 
-#include <boost/test/unit_test.hpp>
+#include "check.h"
 
 using IntVector = Q::LimitedVector< int, 10 >;
 using StringVector = Q::LimitedVector< std::string, 10 >;
 using IntPtrVector = Q::LimitedVector< std::unique_ptr< int >, 10 >;
 using SharedPtrVector = Q::LimitedVector< std::shared_ptr< int >, 10 >;
 
-BOOST_AUTO_TEST_SUITE( safe )
+namespace limited_vector_tests
+{
 
-BOOST_AUTO_TEST_SUITE( limited_vector )
-
-BOOST_AUTO_TEST_CASE( default_construct )
+void default_construct()
 {
 	IntVector intVec;
-	BOOST_CHECK_EQUAL( intVec.size(), 0 );
-	BOOST_CHECK( intVec.begin() == intVec.end() );
-	BOOST_CHECK( intVec.empty() );
+	CHECK_EQUAL( intVec.size(), 0 );
+	CHECK( intVec.begin() == intVec.end() );
+	CHECK( intVec.empty() );
 }
 
-BOOST_AUTO_TEST_CASE( fill_and_copy )
+void fill_and_copy()
 {
 	StringVector stringVec;
-	BOOST_CHECK_EQUAL( stringVec.size(), 0 );
-	BOOST_CHECK( stringVec.begin() == stringVec.end() );
-	BOOST_CHECK( stringVec.empty() );
+	CHECK_EQUAL( stringVec.size(), 0 );
+	CHECK( stringVec.begin() == stringVec.end() );
+	CHECK( stringVec.empty() );
 
-	BOOST_CHECK( stringVec.push_back( "hello world" ) );
-	BOOST_CHECK( stringVec.emplace_back( "emplaced" ) );
+	CHECK( stringVec.push_back( "hello world" ) );
+	CHECK( stringVec.emplace_back( "emplaced" ) );
 
-	BOOST_CHECK_EQUAL( stringVec.size(), 2 );
-	BOOST_CHECK( !stringVec.empty() );
-	BOOST_CHECK_EQUAL( std::distance( stringVec.begin(), stringVec.end() ), 2 );
+	CHECK_EQUAL( stringVec.size(), 2 );
+	CHECK( !stringVec.empty() );
+	CHECK_EQUAL( std::distance( stringVec.begin(), stringVec.end() ), 2 );
 
 	auto it = stringVec.begin();
 	auto cit = stringVec.cbegin();
 
-	BOOST_CHECK( it != stringVec.end() );
-	BOOST_CHECK( cit != stringVec.end() );
-	BOOST_CHECK_EQUAL( *it, "hello world" );
-	BOOST_CHECK_EQUAL( *cit, "hello world" );
-	BOOST_CHECK_EQUAL( stringVec[ 0 ], "hello world" );
+	CHECK( it != stringVec.end() );
+	CHECK( cit != stringVec.end() );
+	CHECK_EQUAL( *it, "hello world" );
+	CHECK_EQUAL( *cit, "hello world" );
+	CHECK_EQUAL( stringVec[ 0 ], "hello world" );
 
 	++it;
 	++cit;
 
-	BOOST_CHECK( it != stringVec.end() );
-	BOOST_CHECK( cit != stringVec.end() );
-	BOOST_CHECK_EQUAL( *it, "emplaced" );
-	BOOST_CHECK_EQUAL( *cit, "emplaced" );
-	BOOST_CHECK_EQUAL( stringVec[ 1 ], "emplaced" );
+	CHECK( it != stringVec.end() );
+	CHECK( cit != stringVec.end() );
+	CHECK_EQUAL( *it, "emplaced" );
+	CHECK_EQUAL( *cit, "emplaced" );
+	CHECK_EQUAL( stringVec[ 1 ], "emplaced" );
 
 	++it;
 	++cit;
 
-	BOOST_CHECK( it == stringVec.end() );
-	BOOST_CHECK( cit == stringVec.end() );
+	CHECK( it == stringVec.end() );
+	CHECK( cit == stringVec.end() );
 
 	StringVector stringVecCopy = stringVec;
 
-	BOOST_CHECK( stringVec == stringVecCopy );
-	BOOST_CHECK( !( stringVec != stringVecCopy ) );
-	BOOST_CHECK_EQUAL( stringVec.size(), 2 );
-	BOOST_CHECK_EQUAL( stringVec.size(), stringVecCopy.size() );
-	BOOST_CHECK_EQUAL( stringVec[ 0 ], stringVecCopy[ 0 ] );
-	BOOST_CHECK_EQUAL( stringVec[ 1 ], stringVecCopy[ 1 ] );
+	CHECK( stringVec == stringVecCopy );
+	CHECK( !( stringVec != stringVecCopy ) );
+	CHECK_EQUAL( stringVec.size(), 2 );
+	CHECK_EQUAL( stringVec.size(), stringVecCopy.size() );
+	CHECK_EQUAL( stringVec[ 0 ], stringVecCopy[ 0 ] );
+	CHECK_EQUAL( stringVec[ 1 ], stringVecCopy[ 1 ] );
 
 	stringVec.clear();
 
-	BOOST_CHECK( stringVec.empty() );
-	BOOST_CHECK_EQUAL( stringVec.size(), 0 );
-	BOOST_CHECK( stringVec != stringVecCopy );
-	BOOST_CHECK( !( stringVec == stringVecCopy ) );
+	CHECK( stringVec.empty() );
+	CHECK_EQUAL( stringVec.size(), 0 );
+	CHECK( stringVec != stringVecCopy );
+	CHECK( !( stringVec == stringVecCopy ) );
 
 	stringVec = stringVecCopy;
 
-	BOOST_CHECK( stringVec == stringVecCopy );
-	BOOST_CHECK( !( stringVec != stringVecCopy ) );
-	BOOST_CHECK_EQUAL( stringVec.size(), 2 );
-	BOOST_CHECK_EQUAL( stringVec.size(), stringVecCopy.size() );
-	BOOST_CHECK_EQUAL( stringVec[ 0 ], stringVecCopy[ 0 ] );
-	BOOST_CHECK_EQUAL( stringVec[ 1 ], stringVecCopy[ 1 ] );
+	CHECK( stringVec == stringVecCopy );
+	CHECK( !( stringVec != stringVecCopy ) );
+	CHECK_EQUAL( stringVec.size(), 2 );
+	CHECK_EQUAL( stringVec.size(), stringVecCopy.size() );
+	CHECK_EQUAL( stringVec[ 0 ], stringVecCopy[ 0 ] );
+	CHECK_EQUAL( stringVec[ 1 ], stringVecCopy[ 1 ] );
 }
 
-BOOST_AUTO_TEST_CASE( fill_and_move )
+void fill_and_move()
 {
 	IntPtrVector vec1, vec2;
-	BOOST_CHECK( vec1.push_back( std::unique_ptr< int >( new int(42) ) ) );
-	BOOST_CHECK( vec1.push_back( std::unique_ptr< int >( new int(1337) ) ) );
-	BOOST_CHECK( vec2.push_back( std::unique_ptr< int >( new int(0) ) ) );
-	BOOST_CHECK( vec2.emplace_back() ); // nullptr3
+	CHECK( vec1.push_back( std::unique_ptr< int >( new int(42) ) ) );
+	CHECK( vec1.push_back( std::unique_ptr< int >( new int(1337) ) ) );
+	CHECK( vec2.push_back( std::unique_ptr< int >( new int(0) ) ) );
+	CHECK( vec2.emplace_back() ); // nullptr3
 
-	BOOST_CHECK_EQUAL( vec1.size(), 2 );
-	BOOST_CHECK_EQUAL( vec2.size(), 2 );
-	BOOST_CHECK_EQUAL( *vec1[ 0 ], 42 );
-	BOOST_CHECK_EQUAL( *vec1[ 1 ], 1337 );
-	BOOST_CHECK_EQUAL( *vec2[ 0 ], 0 );
-	BOOST_CHECK( !vec2[ 1 ] );
+	CHECK_EQUAL( vec1.size(), 2 );
+	CHECK_EQUAL( vec2.size(), 2 );
+	CHECK_EQUAL( *vec1[ 0 ], 42 );
+	CHECK_EQUAL( *vec1[ 1 ], 1337 );
+	CHECK_EQUAL( *vec2[ 0 ], 0 );
+	CHECK( !vec2[ 1 ] );
 
 	vec1.swap( vec2 );
 
-	BOOST_CHECK_EQUAL( vec1.size(), 2 );
-	BOOST_CHECK_EQUAL( vec2.size(), 2 );
-	BOOST_CHECK_EQUAL( *vec2[ 0 ], 42 );
-	BOOST_CHECK_EQUAL( *vec2[ 1 ], 1337 );
-	BOOST_CHECK_EQUAL( *vec1[ 0 ], 0 );
-	BOOST_CHECK( !vec1[ 1 ] );
+	CHECK_EQUAL( vec1.size(), 2 );
+	CHECK_EQUAL( vec2.size(), 2 );
+	CHECK_EQUAL( *vec2[ 0 ], 42 );
+	CHECK_EQUAL( *vec2[ 1 ], 1337 );
+	CHECK_EQUAL( *vec1[ 0 ], 0 );
+	CHECK( !vec1[ 1 ] );
 
 	vec1 = std::move( vec2 );
 
-	BOOST_CHECK_EQUAL( vec1.size(), 2 );
-	BOOST_CHECK_EQUAL( vec2.size(), 0 );
-	BOOST_CHECK_EQUAL( *vec1[ 0 ], 42 );
-	BOOST_CHECK_EQUAL( *vec1[ 1 ], 1337 );
+	CHECK_EQUAL( vec1.size(), 2 );
+	CHECK_EQUAL( vec2.size(), 0 );
+	CHECK_EQUAL( *vec1[ 0 ], 42 );
+	CHECK_EQUAL( *vec1[ 1 ], 1337 );
 }
 
-BOOST_AUTO_TEST_CASE( member_destruction )
+void member_destruction()
 {
 	// check for proper destruction of members
 	std::shared_ptr< int > counter = std::make_shared< int >( 42 );
 	{
-		BOOST_CHECK_EQUAL( counter.use_count(), 1 );
+		CHECK_EQUAL( counter.use_count(), 1 );
 		SharedPtrVector vec;
-		BOOST_CHECK( vec.push_back( counter ) );
-		BOOST_CHECK( vec.push_back( counter ) );
-		BOOST_CHECK( vec.push_back( counter ) );
-		BOOST_CHECK_EQUAL( counter.use_count(), 4 );
+		CHECK( vec.push_back( counter ) );
+		CHECK( vec.push_back( counter ) );
+		CHECK( vec.push_back( counter ) );
+		CHECK_EQUAL( counter.use_count(), 4 );
 		vec.pop_back();
-		BOOST_CHECK_EQUAL( counter.use_count(), 3 );
+		CHECK_EQUAL( counter.use_count(), 3 );
 		SharedPtrVector vec2 = vec;
-		BOOST_CHECK_EQUAL( counter.use_count(), 5 );
+		CHECK_EQUAL( counter.use_count(), 5 );
 		vec = std::move( vec2 );
-		BOOST_CHECK_EQUAL( counter.use_count(), 3 );
+		CHECK_EQUAL( counter.use_count(), 3 );
 	}
-	BOOST_CHECK_EQUAL( counter.use_count(), 1 );
+	CHECK_EQUAL( counter.use_count(), 1 );
 }
 
-BOOST_AUTO_TEST_SUITE_END() // limited_vector
+} // namespace limited_vector_tests
 
-BOOST_AUTO_TEST_SUITE_END() // safe
-
+void RunLimitedVectorTests()
+{
+	limited_vector_tests::default_construct();
+	limited_vector_tests::fill_and_copy();
+	limited_vector_tests::fill_and_move();
+	limited_vector_tests::member_destruction();
+}

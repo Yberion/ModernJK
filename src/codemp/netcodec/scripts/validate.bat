@@ -1,53 +1,64 @@
 @echo off
-rem Validation of netcodec on Windows (Visual Studio): configure, build and test the MSVC presets (x64 Release and
-rem Debug, x64 with AddressSanitizer), then the size benchmark, the codec benchmark (two runs) and the trainers, which
-rem must rewrite the committed tables unchanged, then the game (build-modernjk\msvc-x64, Release) when that build
-rem directory exists. Needs the traces of
+rem Validation on Windows (MSVC): configure, build and test the MSVC presets (x64 Release and Debug: the game,
+rem netcodec and their tests; x64 with AddressSanitizer: the same with it), then the size benchmark, the codec
+rem benchmark (two runs) and the trainers, which must rewrite the committed tables unchanged. Needs the traces of
 rem docs\modernization\data\traces (export_rans_trace.py, export_codec_trace.py, export_demo_traces.py, and the
 rem client traces of netcodec_bench_client --trace).
-rem Run from anywhere (cmd or PowerShell): src\codemp\netcodec\scripts\validate.bat
-rem Output: the console and build-netcodec\validate-windows.log; the summary and the benchmark figures come last.
+rem Run from anywhere (cmd or PowerShell): src\codemp\netcodec\scripts\validate.bat. It loads Visual Studio's x64
+rem environment itself (vcvars64.bat, Visual Studio found by vswhere.exe).
+rem Output: the console and build\validate-windows.log; the summary (with each step's time) and the benchmark figures
+rem come last.
 setlocal EnableDelayedExpansion
-cd /d "%~dp0.."
-set "B=..\..\..\build-netcodec"
-set "T=..\..\..\docs\modernization\data\traces"
+cd /d "%~dp0..\..\..\.."
+set "B=build"
+set "T=docs\modernization\data\traces"
+set "G=src\codemp\netcodec\src\generated"
 if not exist "%B%" mkdir "%B%"
 set "LOG=%B%\validate-windows.log"
-set "OUT=%TEMP%\netcodec-validate"
+set "OUT=%TEMP%\modernjk-validate"
 if exist "%OUT%" rmdir /s /q "%OUT%"
 mkdir "%OUT%"
 set FAILED=0
 set "SUMMARY=%OUT%\summary.txt"
 type nul > "%SUMMARY%"
 type nul > "%LOG%"
+
+rem Visual Studio's x64 environment: the 64-bit compiler (the Developer PowerShell's shortcut loads the 32-bit one)
+set "VSWHERE=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe"
+set "VSDIR="
+if not exist "%VSWHERE%" (
+	echo vswhere.exe not found: Visual Studio is not installed
+	exit /b 1
+)
+for /f "usebackq delims=" %%i in (`"%VSWHERE%" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do set "VSDIR=%%i"
+if not defined VSDIR (
+	echo Visual Studio with the C++ tools not found by vswhere.exe
+	exit /b 1
+)
+call "%VSDIR%\VC\Auxiliary\Build\vcvars64.bat" > nul
+if errorlevel 1 (
+	echo vcvars64.bat failed
+	exit /b 1
+)
+
 rem the sources' contents at the start, compared at the end: a file changed during the run makes it a mix (FAIL)
 for /f %%h in ('powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0source_hash.ps1" "%CD%"') do set "START_HASH=%%h"
 
-call :step "msvc-x64: configure" cmake --preset msvc-x64
-call :buildstep "msvc-x64-release: build" --preset msvc-x64-release
-call :step "msvc-x64-release: tests" ctest --preset msvc-x64-release
-call :buildstep "msvc-x64-debug: build" --preset msvc-x64-debug
-call :step "msvc-x64-debug: tests" ctest --preset msvc-x64-debug
-call :step "msvc-asan: configure" cmake --preset msvc-asan
-call :buildstep "msvc-asan: build" --preset msvc-asan
-call :step "msvc-asan: tests" ctest --preset msvc-asan
-
-call :bench "size benchmark, msvc-x64" size "%B%\msvc-x64\bench\Release\netcodec_bench_size.exe" "%T%\holdout.bin"
-call :bench "size benchmark, msvc-asan" size-asan "%B%\msvc-asan\bench\RelWithDebInfo\netcodec_bench_size.exe" "%T%\holdout.bin"
-call :bench "codec benchmark, msvc-x64, run 1" codec1 "%B%\msvc-x64\bench\Release\netcodec_bench_codec.exe" "%T%\codec_trace.bin" 10
-call :bench "codec benchmark, msvc-x64, run 2" codec2 "%B%\msvc-x64\bench\Release\netcodec_bench_codec.exe" "%T%\codec_trace.bin" 10
-call :step "trainer msvc-x64: train" "%B%\msvc-x64\tools\Release\netcodec_train.exe" "%T%\train.bin" "%OUT%\tables.inc"
-call :step "trainer msvc-x64 writes the committed tables" fc.exe /b "%OUT%\tables.inc" src\generated\jka_tables.inc
-call :step "client trainer msvc-x64: train" "%B%\msvc-x64\tools\Release\netcodec_train_client.exe" "%OUT%\client_tables.inc" "%T%\client_train.bin"
-call :step "client trainer msvc-x64 writes the committed client tables" fc.exe /b "%OUT%\client_tables.inc" src\generated\jka_client_tables.inc
-
-rem the engine and its glue to the codec (sv_netcodec.cpp, cl_netcodec.cpp, ...), which the presets above do not build
-set "G=..\..\..\build-modernjk\msvc-x64"
-if exist "%G%\CMakeCache.txt" (
-	call :buildstep "game build, msvc-x64 Release" "%G%" --config Release
-) else (
-	>> "%SUMMARY%" echo skip  game build: no %G%
+for %%p in (windows-msvc-release windows-msvc-debug windows-msvc-asan) do (
+	call :step "%%p: configure" cmake --preset %%p
+	call :buildstep "%%p: build" --preset %%p
+	call :step "%%p: tests" ctest --preset %%p
 )
+
+set "R=%B%\windows-msvc-release\bin"
+call :bench "size benchmark, windows-msvc-release" size "%R%\netcodec_bench_size.exe" "%T%\holdout.bin"
+call :bench "size benchmark, windows-msvc-asan" size-asan "%B%\windows-msvc-asan\bin\netcodec_bench_size.exe" "%T%\holdout.bin"
+call :bench "codec benchmark, windows-msvc-release, run 1" codec1 "%R%\netcodec_bench_codec.exe" "%T%\codec_trace.bin" 10
+call :bench "codec benchmark, windows-msvc-release, run 2" codec2 "%R%\netcodec_bench_codec.exe" "%T%\codec_trace.bin" 10
+call :step "trainer windows-msvc-release: train" "%R%\netcodec_train.exe" "%T%\train.bin" "%OUT%\tables.inc"
+call :step "trainer windows-msvc-release writes the committed tables" fc.exe /b "%OUT%\tables.inc" "%G%\jka_tables.inc"
+call :step "client trainer windows-msvc-release: train" "%R%\netcodec_train_client.exe" "%OUT%\client_tables.inc" "%T%\client_train.bin"
+call :step "client trainer windows-msvc-release writes the committed client tables" fc.exe /b "%OUT%\client_tables.inc" "%G%\jka_client_tables.inc"
 
 call :out ""
 call :out "=== results"
@@ -59,7 +70,7 @@ for %%f in (size size-asan codec1 codec2) do (
 set "END_HASH="
 for /f %%h in ('powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0source_hash.ps1" "%CD%"') do set "END_HASH=%%h"
 if not "%END_HASH%"=="%START_HASH%" (
-	>> "%SUMMARY%" echo FAIL  sources unchanged during the run: a file of src\codemp\netcodec changed, run again
+	>> "%SUMMARY%" echo FAIL  sources unchanged during the run: a source changed, run again
 	set FAILED=1
 )
 call :out ""
@@ -70,6 +81,11 @@ if %FAILED%==0 (call :out "ALL OK") else (call :out "SOME STEPS FAILED")
 echo log: %LOG%
 rmdir /s /q "%OUT%"
 exit /b %FAILED%
+
+rem ---- the time in seconds, into the variable named by the argument
+:now
+for /f %%t in ('powershell -NoProfile -Command "[DateTimeOffset]::UtcNow.ToUnixTimeSeconds()"') do set "%~1=%%t"
+exit /b 0
 
 rem ---- one step: label, then the command; its output goes to the console and the log
 :step
@@ -84,11 +100,14 @@ goto collect
 :run
 call :out ""
 call :out "=== %NAME%"
+call :now START
 call %CMD% > "%OUT%\step.txt" 2>&1
 set STEPRC=!ERRORLEVEL!
+call :now END
+set /a SECS=END-START
 type "%OUT%\step.txt"
 type "%OUT%\step.txt" >> "%LOG%"
-if !STEPRC!==0 (>> "%SUMMARY%" echo ok    !NAME!) else (>> "%SUMMARY%" echo FAIL  !NAME!& set FAILED=1)
+if !STEPRC!==0 (>> "%SUMMARY%" echo ok    !NAME! ^(!SECS! s^)) else (>> "%SUMMARY%" echo FAIL  !NAME! ^(!SECS! s^)& set FAILED=1)
 exit /b 0
 
 rem ---- one benchmark: label, output name, then the command; its output is kept for the results
@@ -126,18 +145,21 @@ goto collectbuild
 :runbuild
 call :out ""
 call :out "=== %NAME%"
-cmake --build !ARGS! --parallel > "%OUT%\step.txt" 2>&1
+call :now START
+cmake --build !ARGS! > "%OUT%\step.txt" 2>&1
 set STEPRC=!ERRORLEVEL!
 type "%OUT%\step.txt"
 type "%OUT%\step.txt" >> "%LOG%"
 if not !STEPRC!==0 (
 	call :out "=== %NAME%: failed, built again from clean"
-	cmake --build !ARGS! --parallel --clean-first > "%OUT%\step.txt" 2>&1
+	cmake --build !ARGS! --clean-first > "%OUT%\step.txt" 2>&1
 	set STEPRC=!ERRORLEVEL!
 	type "%OUT%\step.txt"
 	type "%OUT%\step.txt" >> "%LOG%"
 )
-if !STEPRC!==0 (>> "%SUMMARY%" echo ok    !NAME!) else (>> "%SUMMARY%" echo FAIL  !NAME!& set FAILED=1)
+call :now END
+set /a SECS=END-START
+if !STEPRC!==0 (>> "%SUMMARY%" echo ok    !NAME! ^(!SECS! s^)) else (>> "%SUMMARY%" echo FAIL  !NAME! ^(!SECS! s^)& set FAILED=1)
 exit /b 0
 
 rem ---- a line to the console and the log

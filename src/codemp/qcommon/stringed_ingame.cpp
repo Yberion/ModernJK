@@ -952,8 +952,7 @@ const char *SE_Load( const char *psFileName, SE_BOOL bLoadDebug = SE_TRUE, SE_BO
 	if ( !psErrorMessage )
 	{
 		char sFileName[ iSE_MAX_FILENAME_LENGTH ];
-		strncpy( sFileName, psFileName, sizeof(sFileName)-1 );
-				 sFileName[ sizeof(sFileName)-1 ] = '\0';
+		Q_strncpyz( sFileName, psFileName, sizeof(sFileName) );
 		char *p = strrchr( sFileName, '.' );
 		if (p && strlen(p) == strlen(sSE_EXPORT_FILE_EXTENSION))
 		{

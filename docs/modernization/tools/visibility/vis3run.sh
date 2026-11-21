@@ -2,7 +2,7 @@
 # TMP option b: the camera rows computed by K server processes, then measured with bots
 # usage: vis3run.sh <tag> <map> <footprint> <air> <spots> <directions> <K> [bots] [samples]
 tag="$1"; map="$2"; fp="$3"; air="$4"; spots="$5"; dirs="$6"; K="$7"; bots="${8:-31}"; samples="${9:-60}"
-BUILD=E:/Git/jka/ModernJK/build-netcodec/modernjk-clang
+BUILD=E:/Git/jka/ModernJK/build/windows-clang-release/bin
 export PATH="/c/Logiciels/llvm-mingw-20261104-ucrt-x86_64/bin:$PATH"
 GAME="E:/Jeux/Jedi Academy default - ModernJK"
 SCR="${SCR:?set SCR to the work folder: the tools built there, their outputs written there}"

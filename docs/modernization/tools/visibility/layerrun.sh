@@ -1,6 +1,6 @@
 #!/bin/bash
 # TMP walkable layer count on each map given
-BUILD=E:/Git/jka/ModernJK/build-netcodec/modernjk-clang
+BUILD=E:/Git/jka/ModernJK/build/windows-clang-release/bin
 export PATH="/c/Logiciels/llvm-mingw-20261104-ucrt-x86_64/bin:$PATH"
 GAME="E:/Jeux/Jedi Academy default - ModernJK"
 SCR="${SCR:?set SCR to the work folder: the tools built there, their outputs written there}"

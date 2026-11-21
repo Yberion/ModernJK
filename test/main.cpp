@@ -1,7 +1,16 @@
-// create default module initialization
-#define BOOST_TEST_MODULE ModernJK
+// The tests of src/shared/qcommon/safe (the checked strings and the vector of fixed capacity the single player uses).
+// Usage: modernjk_test_safe; prints each failed check, exits with their count.
+#include "check.h"
 
-// let the boost unit test framework create a main function
-#define BOOST_TEST_MAIN
+#include <cstdio>
 
-#include <boost/test/unit_test.hpp>
+void RunStringTests();
+void RunLimitedVectorTests();
+
+int main()
+{
+	RunStringTests();
+	RunLimitedVectorTests();
+	std::printf( "%d failed check(s)\n", ::test::failures );
+	return ::test::failures;
+}

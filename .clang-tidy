@@ -1,0 +1,54 @@
+# clang-tidy's checks of the project's files; netcodec has its own (src/codemp/netcodec/.clang-tidy), which apply to its
+# files. The preset windows-clang-tidy reports these findings without stopping the build: they are fixed later, check
+# by check, and each check becomes an error once its findings are fixed.
+#
+# The checks that find defects in this code, chosen with the count of findings of each on the whole project; left
+# out, and why:
+#  - optin.performance.Padding and the enumerations' size: they would change the structures' layout;
+#  - security.FloatLoopCounter: the same as bugprone-float-loop-counter;
+#  - easily-swappable-parameters, assignment-in-if-condition: style, or the code's idiom;
+#  - narrowing-conversions: the compilers' conversion warnings report them;
+#  - reserved-identifier: the animation names with a double underscore are keywords of the game's data;
+#  - signed-bitwise: the flag enumerations;
+#  - branch-clone: GCC's -Wduplicated-branches reports them;
+#  - switch-missing-default-case: -Wswitch reports a switch that misses an enumerator;
+#  - unchecked-string-to-number-conversion: replacing atoi changes the behaviour, a decision of its own;
+#  - the exception checks: the game throws none;
+#  - no-int-to-ptr: the modules' interface passes pointers as integers.
+Checks: >
+  -*,
+  clang-analyzer-*,
+  -clang-analyzer-optin.performance.Padding,
+  -clang-analyzer-security.FloatLoopCounter,
+  bugprone-*,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-narrowing-conversions,
+  -bugprone-reserved-identifier,
+  -bugprone-signed-bitwise,
+  -bugprone-branch-clone,
+  -bugprone-assignment-in-if-condition,
+  -bugprone-switch-missing-default-case,
+  -bugprone-unchecked-string-to-number-conversion,
+  -bugprone-exception-escape,
+  -bugprone-unhandled-exception-at-new,
+  -bugprone-empty-catch,
+  performance-*,
+  -performance-enum-size,
+  -performance-no-int-to-ptr,
+  misc-definitions-in-headers,
+  misc-redundant-expression,
+  misc-header-include-cycle,
+  misc-override-with-different-visibility,
+  modernize-use-nullptr,
+  modernize-use-bool-literals,
+  modernize-deprecated-headers,
+  modernize-use-equals-default,
+  modernize-use-equals-delete,
+  readability-redundant-casting,
+  readability-misleading-indentation,
+  readability-inconsistent-declaration-parameter-name,
+  readability-suspicious-call-argument,
+  cppcoreguidelines-pro-type-member-init
+WarningsAsErrors: ''
+HeaderFilterRegex: '.*'
+ExcludeHeaderFilterRegex: '.*[\\/]libs[\\/].*'

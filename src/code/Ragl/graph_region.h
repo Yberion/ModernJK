@@ -406,13 +406,13 @@ public:
 #if !defined(FINAL_BUILD)
 	void	ProfileSpew()
 	{
-		ProfilePrint("");
-		ProfilePrint("");
+		ProfilePrint("%s", "");
+		ProfilePrint("%s", "");
 		ProfilePrint("--------------------------------------------------------");
 		ProfilePrint("RAVEN STANDARD LIBRARY  -  COMPUTATIONAL GEOMETRY MODULE");
 		ProfilePrint("              Region Profile Results                    ");
 		ProfilePrint("--------------------------------------------------------");
-		ProfilePrint("");
+		ProfilePrint("%s", "");
 		ProfilePrint("REGION SIZE (Bytes): (%zu)  (KiloBytes): (%5.3f)", sizeof(*this), ((float)(sizeof(*this))/1024.0f));
 		ProfilePrint("REGION COUNT: (%d) Regions  (%d) Edges", mRegionCount, mEdges.size());
 		if (mRegionCount)
@@ -424,7 +424,7 @@ public:
 			}
 			ProfilePrint("REGION COUNT: (%f) Ave Edges Size", (float)RegionEdges / (float)mRegionCount);
 		}
-		ProfilePrint("");
+		ProfilePrint("%s", "");
 	};
 #endif
 

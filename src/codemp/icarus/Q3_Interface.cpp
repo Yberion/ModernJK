@@ -245,8 +245,7 @@ static sharedEntity_t *Q3_GetEntityByName( const char *name )
 	if ( name == nullptr || name[0] == '\0' )
 		return nullptr;
 
-	strncpy( (char *) temp, name, sizeof(temp) );
-	temp[sizeof(temp)-1] = 0;
+	Q_strncpyz( temp, name, sizeof( temp ) );
 
 	ei = ICARUS_EntList.find( Q_strupr( (char *) temp ) );
 

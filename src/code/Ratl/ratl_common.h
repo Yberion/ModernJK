@@ -209,9 +209,16 @@ namespace str
 		strcpy(dest,src);
 	}
 
+	// src copied into dest, at most destBufferLen - 1 characters, the rest of dest zeros: always terminated
 	inline void	ncpy(char *dest,const char *src,size_t destBufferLen)
 	{
-		strncpy(dest,src,destBufferLen);
+		if (destBufferLen==0)
+		{
+			return;
+		}
+		const size_t n=strnlen(src,destBufferLen-1);
+		memcpy(dest,src,n);
+		memset(dest+n,0,destBufferLen-n);
 	}
 
 	inline void	cat(char *dest,const char *src)

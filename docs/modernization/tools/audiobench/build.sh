@@ -1,10 +1,10 @@
 #!/bin/sh
 # Builds ealdump and audiobench with llvm-mingw clang on Windows, from the libraries downloaded into
-# build-netcodec/audiolibs (OpenAL Soft 1.25.2 built there as a static library in build-openal, miniaudio 0.11.26,
+# build/audiolibs (OpenAL Soft 1.25.2 built there as a static library in build-openal, miniaudio 0.11.26,
 # EalMan aa69e586). Usage, from the repository root: sh docs/modernization/tools/audiobench/build.sh
 set -e
 ROOT=$(cd "$(dirname "$0")/../../../.." && pwd)
-LIBS=$ROOT/build-netcodec/audiolibs
+LIBS=$ROOT/build/audiolibs
 TOOL=$ROOT/docs/modernization/tools/audiobench
 OUT=$LIBS/bin
 mkdir -p "$OUT/obj"

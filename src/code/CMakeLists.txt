@@ -16,401 +16,118 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #============================================================================
 
-# Make sure the user is not executing this script directly
-if(NOT InModernJK)
-	message(FATAL_ERROR "Use the top-level cmake script!")
-endif(NOT InModernJK)
+# Jedi Academy's single player: its game module and the renderers (each in its folder), and the engine, defined here
+# since its sources span the tree. Jedi Outcast's engine and renderer are the same sources built with JK2_MODE.
 
-#    Add Game Project
-if(BuildSPGame)
-	add_subdirectory("${SPDir}/game")
-endif(BuildSPGame)
+if(modernjk_BUILD_SP)
+	add_subdirectory(game)
+endif()
+add_subdirectory(rd-vanilla)
 
-#    Add Modular Renderer project
-add_subdirectory("${SPDir}/rd-vanilla")
+add_library(sp_engine_common INTERFACE)
+target_sources(sp_engine_common INTERFACE
+	client/cl_cgame.cpp
+	client/cl_cin.cpp
+	client/cl_console.cpp
+	client/cl_input.cpp
+	client/cl_keys.cpp
+	client/cl_main.cpp
+	client/cl_mp3.cpp
+	client/cl_parse.cpp
+	client/cl_scrn.cpp
+	client/cl_ui.cpp
+	client/snd_ambient.cpp
+	client/snd_dma.cpp
+	client/snd_mem.cpp
+	client/snd_mix.cpp
+	client/snd_music.cpp
+	client/vmachine.cpp
+	game/genericparser2.cpp
+	mp3code/cdct.c
+	mp3code/csbt.c
+	mp3code/csbtb.c
+	mp3code/csbtl3.c
+	mp3code/cup.c
+	mp3code/cupini.c
+	mp3code/cupl1.c
+	mp3code/cupl3.c
+	mp3code/cwin.c
+	mp3code/cwinb.c
+	mp3code/cwinm.c
+	mp3code/hwin.c
+	mp3code/l3dq.c
+	mp3code/l3init.c
+	mp3code/mdct.c
+	mp3code/mhead.c
+	mp3code/msis.c
+	mp3code/towave.c
+	mp3code/uph.c
+	mp3code/upsf.c
+	mp3code/wavep.c
+	qcommon/cm_load.cpp
+	qcommon/cm_patch.cpp
+	qcommon/cm_polylib.cpp
+	qcommon/cm_test.cpp
+	qcommon/cm_trace.cpp
+	qcommon/cmd.cpp
+	qcommon/common.cpp
+	qcommon/cvar.cpp
+	qcommon/md4.cpp
+	qcommon/msg.cpp
+	qcommon/net_chan.cpp
+	qcommon/ojk_saved_game.cpp
+	qcommon/persistence.cpp
+	qcommon/q_shared.cpp
+	qcommon/stringed_ingame.cpp
+	qcommon/stringed_interface.cpp
+	qcommon/strip.cpp
+	qcommon/z_memman_pc.cpp
+	server/exe_headers.cpp
+	server/sv_ccmds.cpp
+	server/sv_client.cpp
+	server/sv_game.cpp
+	server/sv_init.cpp
+	server/sv_main.cpp
+	server/sv_savegame.cpp
+	server/sv_snapshot.cpp
+	server/sv_world.cpp
+	ui/ui_atoms.cpp
+	ui/ui_connect.cpp
+	ui/ui_main.cpp
+	ui/ui_saber.cpp
+	ui/ui_shared.cpp
+	ui/ui_syscalls.cpp)
+target_include_directories(sp_engine_common INTERFACE "${PROJECT_SOURCE_DIR}/src/shared" "${CMAKE_CURRENT_SOURCE_DIR}")
+# _JK2EXE: the single player's engine (Jedi Academy's as well as Jedi Outcast's)
+target_compile_definitions(sp_engine_common INTERFACE _JK2EXE)
+target_link_libraries(sp_engine_common INTERFACE modernjk_version vendored::gsl_lite modernjk_shared_common
+	modernjk_filesystem modernjk_safe_string modernjk_safe_files modernjk_sys_client)
 
-#    Add Engine Project
-if(BuildSPEngine OR BuildJK2SPEngine)
-	# Libraries
+if(modernjk_BUILD_SP)
+	add_executable(modernjk_sp WIN32)
+	set_target_properties(modernjk_sp PROPERTIES OUTPUT_NAME "modernjk_sp.${modernjk_ARCH}")
 	if(WIN32)
-		set(SPEngineLibraries "winmm")
-	endif(WIN32)
-	# Defines
-	set(SPEngineDefines ${SharedDefines} "_JK2EXE") # it's called JK2EXE but it really just means Singleplayer Exe
-
-	set(SPEngineIncludeDirectories
-		${SPEngineIncludeDirectories}
-		${SharedDir}
-		${CMAKE_BINARY_DIR}/shared
-		${SPDir}
-		"${GSLIncludeDirectory}")
-
-	#    Dependencies
-
-	if (NOT WIN32)
-		# OpenGL
-		find_package(OpenGL REQUIRED)
-		set(SPEngineIncludeDirectories ${SPEngineIncludeDirectories} ${OPENGL_INCLUDE_DIR})
-		set(SPEngineLibraries ${SPEngineLibraries} ${OPENGL_LIBRARIES})
+		target_sources(modernjk_sp PRIVATE win32/winquake.rc)
 	endif()
-
-	if(UseInternalSDL2)
-		set(SPEngineLibraries
-			${SPEngineLibraries}
-			${ModernJKLibDir}/SDL2/lib/x64/SDL2main.lib
-			${ModernJKLibDir}/SDL2/lib/x64/SDL2.lib
-			)
-
-		set(SPEngineIncludeDirectories
-			${SPEngineIncludeDirectories}
-			${ModernJKLibDir}/SDL2/include
-			)
-	else()
-		find_package(SDL2 REQUIRED CONFIG)
-		if (TARGET SDL2::SDL2)
-			set(SDL2_INCLUDE_DIRS "")
-			set(SDL2_LIBRARIES SDL2::SDL2)
-		endif()
-		string(STRIP ${SDL2_LIBRARIES} SDL2_LIBRARIES)
-		set(SPEngineIncludeDirectories ${SPEngineIncludeDirectories} ${SDL2_INCLUDE_DIRS})
-		set(SPEngineLibraries ${SPEngineLibraries} ${SDL2_LIBRARIES})
-	endif()
-
-	#    Source Files
-
-	# Client files
-	set(SPEngineClientFiles
-		"${SPDir}/client/keys.h"
-		"${SPDir}/client/keycodes.h"
-
-		"${SPDir}/client/cl_cgame.cpp"
-		"${SPDir}/client/cl_cin.cpp"
-		"${SPDir}/client/cl_console.cpp"
-		"${SPDir}/client/cl_input.cpp"
-		"${SPDir}/client/cl_keys.cpp"
-		"${SPDir}/client/cl_main.cpp"
-		"${SPDir}/client/cl_mp3.cpp"
-		"${SPDir}/client/cl_parse.cpp"
-		"${SPDir}/client/cl_scrn.cpp"
-		"${SPDir}/client/cl_ui.cpp"
-		"${SPDir}/client/cl_mp3.h"
-		"${SPDir}/client/client.h"
-		"${SPDir}/client/client_ui.h"
-
-		"${SPDir}/client/snd_ambient.cpp"
-		"${SPDir}/client/snd_dma.cpp"
-		"${SPDir}/client/snd_mem.cpp"
-		"${SPDir}/client/snd_mix.cpp"
-		"${SPDir}/client/snd_music.cpp"
-		"${SPDir}/client/snd_ambient.h"
-		"${SPDir}/client/snd_local.h"
-		"${SPDir}/client/snd_music.h"
-		"${SPDir}/client/snd_public.h"
-
-		"${SPDir}/client/vmachine.cpp"
-		"${SPDir}/client/vmachine.h"
-		)
-	source_group("client" FILES ${SPEngineClientFiles})
-	set(SPEngineFiles ${SPEngineFiles} ${SPEngineClientFiles})
-
-
-	# qcommon files
-	set(SPEngineCommonFiles
-		"${SPDir}/qcommon/cm_load.cpp"
-		"${SPDir}/qcommon/cm_patch.cpp"
-		"${SPDir}/qcommon/cm_polylib.cpp"
-		"${SPDir}/qcommon/cm_test.cpp"
-		"${SPDir}/qcommon/cm_trace.cpp"
-		"${SPDir}/qcommon/cm_local.h"
-		"${SPDir}/qcommon/cm_patch.h"
-		"${SPDir}/qcommon/cm_polylib.h"
-		"${SPDir}/qcommon/cm_public.h"
-
-		"${SPDir}/qcommon/cmd.cpp"
-		"${SPDir}/qcommon/common.cpp"
-		"${SPDir}/qcommon/cvar.cpp"
-
-		"${SPDir}/qcommon/files_engine.h"
-
-		"${SPDir}/qcommon/md4.cpp"
-		"${SPDir}/qcommon/msg.cpp"
-		"${SPDir}/qcommon/net_chan.cpp"
-
-		"${SPDir}/qcommon/q_shared.cpp"
-		"${SPDir}/qcommon/q_shared.h"
-
-		"${SPDir}/qcommon/sstring.h"
-		"${SPDir}/qcommon/stringed_ingame.cpp"
-		"${SPDir}/qcommon/stringed_interface.cpp"
-		"${SPDir}/qcommon/stringed_ingame.h"
-		"${SPDir}/qcommon/stringed_interface.h"
-
-		"${SPDir}/qcommon/strip.cpp"
-		"${SPDir}/qcommon/persistence.cpp"
-		"${SPDir}/qcommon/tags.h"
-		"${SPDir}/qcommon/z_memman_pc.cpp"
-		"${SPDir}/qcommon/qfiles.h"
-		"${SPDir}/qcommon/qcommon.h"
-		"${SPDir}/qcommon/game_version.h"
-		"${SPDir}/qcommon/timing.h"
-		"${SPDir}/qcommon/MiniHeap.h"
-
-		"${SPDir}/qcommon/ojk_i_saved_game.h"
-		"${SPDir}/qcommon/ojk_saved_game.h"
-		"${SPDir}/qcommon/ojk_saved_game.cpp"
-		"${SPDir}/qcommon/ojk_saved_game_helper.h"
-		"${SPDir}/qcommon/ojk_saved_game_helper_fwd.h"
-		"${SPDir}/qcommon/ojk_scope_guard.h"
-		"${SharedDir}/qcommon/files.cpp"
-		"${SharedDir}/qcommon/files.h"
-		"${SharedDir}/qcommon/q_pk3.cpp"
-		"${SharedDir}/qcommon/q_pk3.h"
-
-		${SharedCommonFiles}
-		)
-	source_group("common" FILES ${SPEngineCommonFiles})
-	set(SPEngineFiles ${SPEngineFiles} ${SPEngineCommonFiles})
-
-	set(SPEngineCommonSafeFiles
-		"${SharedDir}/qcommon/safe/files.cpp"
-		"${SharedDir}/qcommon/safe/files.h"
-		${SharedCommonSafeFiles}
-		"${SPDir}/qcommon/safe/memory.h"
-		)
-	source_group("common/safe" FILES ${SPEngineCommonSafeFiles})
-	set(SPEngineFiles ${SPEngineFiles} ${SPEngineCommonSafeFiles})
-
-
-	# Server files
-	set(SPEngineServerFiles
-		"${SPDir}/server/exe_headers.cpp"
-		"${SPDir}/server/sv_ccmds.cpp"
-		"${SPDir}/server/sv_client.cpp"
-		"${SPDir}/server/sv_game.cpp"
-		"${SPDir}/server/sv_init.cpp"
-		"${SPDir}/server/sv_main.cpp"
-		"${SPDir}/server/sv_savegame.cpp"
-		"${SPDir}/server/sv_snapshot.cpp"
-		"${SPDir}/server/sv_world.cpp"
-		"${SPDir}/server/exe_headers.h"
-		"${SPDir}/server/server.h"
-		)
-	source_group("server" FILES ${SPEngineServerFiles})
-	set(SPEngineFiles ${SPEngineFiles} ${SPEngineServerFiles})
-
-
-	# Game files
-	set(SPEngineGameFiles
-		"${SPDir}/game/genericparser2.cpp"
-		"${SPDir}/game/channels.h"
-		"${SPDir}/game/anims.h"
-		"${SPDir}/game/b_public.h"
-		"${SPDir}/game/bg_public.h"
-		"${SPDir}/game/bset.h"
-		"${SPDir}/game/bstate.h"
-		"${SPDir}/game/common_headers.h"
-		"${SPDir}/game/g_functions.h"
-		"${SPDir}/game/g_items.h"
-		"${SPDir}/game/g_local.h"
-		"${SPDir}/game/g_nav.h"
-		"${SPDir}/game/g_public.h"
-		"${SPDir}/game/g_shared.h"
-		"${SPDir}/game/genericparser2.h"
-		"${SPDir}/game/statindex.h"
-		"${SPDir}/game/teams.h"
-		"${SPDir}/game/weapons.h"
-		"${SPDir}/game/surfaceflags.h"
-		"${SPDir}/game/ghoul2_shared.h"
-		)
-	source_group("game" FILES ${SPEngineGameFiles})
-	set(SPEngineFiles ${SPEngineFiles} ${SPEngineGameFiles})
-
-
-	# MP3 files
-	set(SPEngineMP3Files
-		"${SPDir}/mp3code/cdct.c"
-		"${SPDir}/mp3code/csbt.c"
-		"${SPDir}/mp3code/csbtb.c"
-		"${SPDir}/mp3code/csbtl3.c"
-		"${SPDir}/mp3code/cup.c"
-		"${SPDir}/mp3code/cupini.c"
-		"${SPDir}/mp3code/cupl1.c"
-		"${SPDir}/mp3code/cupl3.c"
-		"${SPDir}/mp3code/cwin.c"
-		"${SPDir}/mp3code/cwinb.c"
-		"${SPDir}/mp3code/cwinm.c"
-		"${SPDir}/mp3code/hwin.c"
-		"${SPDir}/mp3code/l3dq.c"
-		"${SPDir}/mp3code/l3init.c"
-		"${SPDir}/mp3code/mdct.c"
-		"${SPDir}/mp3code/mhead.c"
-		"${SPDir}/mp3code/msis.c"
-		"${SPDir}/mp3code/towave.c"
-		"${SPDir}/mp3code/uph.c"
-		"${SPDir}/mp3code/upsf.c"
-		"${SPDir}/mp3code/wavep.c"
-		"${SPDir}/mp3code/config.h"
-		"${SPDir}/mp3code/htable.h"
-		"${SPDir}/mp3code/jdw.h"
-		"${SPDir}/mp3code/l3.h"
-		"${SPDir}/mp3code/mhead.h"
-		"${SPDir}/mp3code/mp3struct.h"
-		"${SPDir}/mp3code/port.h"
-		"${SPDir}/mp3code/small_header.h"
-		"${SPDir}/mp3code/tableawd.h"
-		)
-	source_group("mp3" FILES ${SPEngineMP3Files})
-	set(SPEngineFiles ${SPEngineFiles} ${SPEngineMP3Files})
-
-	set(SPEngineRendererFiles
-		"${SPDir}/rd-common/mdx_format.h"
-		"${SPDir}/rd-common/tr_public.h"
-		"${SPDir}/rd-common/tr_types.h"
-		)
-	source_group("renderer" FILES ${SPEngineRendererFiles})
-	set(SPEngineFiles ${SPEngineFiles} ${SPEngineRendererFiles})
-
-	# UI files
-	set(SPEngineUIFiles
-		"${SPDir}/ui/ui_atoms.cpp"
-		"${SPDir}/ui/ui_connect.cpp"
-		"${SPDir}/ui/ui_main.cpp"
-		"${SPDir}/ui/ui_saber.cpp"
-		"${SPDir}/ui/ui_shared.cpp"
-		"${SPDir}/ui/ui_syscalls.cpp"
-		"${SPDir}/ui/gameinfo.h"
-		"${SPDir}/ui/menudef.h"
-		"${SPDir}/ui/ui_local.h"
-		"${SPDir}/ui/ui_public.h"
-		"${SPDir}/ui/ui_shared.h"
-		)
-	source_group("ui" FILES ${SPEngineUIFiles})
-	set(SPEngineFiles ${SPEngineFiles} ${SPEngineUIFiles})
-
-
-	# Ghoul2 files
-	set(SPEngineGhoul2Files
-		"${SPDir}/ghoul2/G2.h"
-		"${SPDir}/ghoul2/ghoul2_gore.h"
-		)
-	source_group("ghoul2" FILES ${SPEngineGhoul2Files})
-	set(SPEngineFiles ${SPEngineFiles} ${SPEngineGhoul2Files})
-
-
-	# Server files
-	set(SPEngineCGameFiles
-		"${SPDir}/cgame/cg_public.h"
-		"${SPDir}/cgame/animtable.h"
-		)
-	source_group("cgame" FILES ${SPEngineCGameFiles})
-	set(SPEngineFiles ${SPEngineFiles} ${SPEngineCGameFiles})
-
-	set(SPEngineSysFiles
-		"${SharedDir}/sys/sys_main.cpp"
-		"${SharedDir}/sys/sys_event.cpp"
-		"${SharedDir}/sys/sys_local.h"
-		"${SharedDir}/sys/sys_public.h"
-		"${SharedDir}/sys/sys_loadlib.h"
-		"${SharedDir}/sys/con_local.h"
-		"${SharedDir}/sys/con_log.cpp"
-		"${SharedDir}/sdl/sdl_qgl.h"
-		"${SharedDir}/sdl/sdl_sound.cpp"
-		"${SharedDir}/sdl/sdl_input.cpp"
-		"${SharedDir}/sdl/sdl_window.cpp"
-		"${SharedDir}/sdl/sdl_icon.h"
-		)
-
+	target_link_libraries(modernjk_sp PRIVATE sp_engine_common modernjk_options modernjk_warnings modernjk_defines)
+	modernjk_copy_runtime_dlls(modernjk_sp)
+	install(TARGETS modernjk_sp RUNTIME DESTINATION "${modernjk_INSTALL_JKA}")
 	if(WIN32)
-		set(SPEngineSysFiles
-			${SPEngineSysFiles}
-			"${SharedDir}/sys/sys_win32.cpp"
-			"${SharedDir}/sys/con_passive.cpp"
-			)
-	else()
-		set(SPEngineSysFiles
-			${SPEngineSysFiles}
-			"${SharedDir}/sys/sys_unix.cpp"
-			"${SharedDir}/sys/con_tty.cpp"
-			)
+		install(IMPORTED_RUNTIME_ARTIFACTS SDL2::SDL2 RUNTIME DESTINATION "${modernjk_INSTALL_JKA}")
 	endif()
+endif()
 
-	source_group("sys" FILES ${SPEngineSysFiles})
-	set(SPEngineFiles ${SPEngineFiles} ${SPEngineSysFiles})
-
-    # The library that inflates the pk3 files, vendored (libs/zlib-ng) and known to src/shared/qcommon/q_pk3.cpp only.
-    list(APPEND SPEngineLibraries zlib-ng)
-
-	# project macro so we can invoke it twice: for jk2 and for ja
-	function(add_sp_project ProjectName Label SPDirName InstallDir Component)
-		if(WIN32)
-			set(SPEngineWin32Files
-				"${SPDirName}/win32/resource.h"
-				"${SPDirName}/win32/winquake.rc"
-				"${SharedDir}/sys/win_manifest.manifest"
-				)
-			source_group("win32" FILES ${SPEngineWin32Files})
-			set(SPEngineFiles ${SPEngineFiles} ${SPEngineWin32Files})
-			
-			add_executable(${ProjectName} WIN32 ${SPEngineFiles})
-			if(UseInternalSDL2)
-				set(SPEngineExtraInstallFiles
-					${ModernJKLibDir}/SDL2/bin/x64/SDL2.dll
-					)
-			endif()
-		else(WIN32)
-			if(MakeApplicationBundles)
-				set_source_files_properties(${SPDirName}/macosx/ModernJK.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
-				set(SPEngineFiles ${SPEngineFiles} ${SPDirName}/macosx/ModernJK.icns)
-				set_source_files_properties(${SPDirName}/macosx/English.lproj/InfoPlist.strings PROPERTIES MACOSX_PACKAGE_LOCATION Resources/English.lproj)
-				set(SPEngineFiles ${SPEngineFiles} ${SPDirName}/macosx/English.lproj/InfoPlist.strings)
-				
-				add_executable(${ProjectName} MACOSX_BUNDLE ${SPEngineFiles})
-				set_target_properties(${ProjectName} PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${SPDirName}/macosx/ModernJKInfo.plist")
-			else(MakeApplicationBundles)
-				add_executable(${ProjectName} ${SPEngineFiles})
-			endif(MakeApplicationBundles)
-		endif(WIN32)
-
-		if(MakeApplicationBundles)
-			install(CODE "
-				include(BundleUtilities)
-				set(BU_CHMOD_BUNDLE_ITEMS ON)
-				fixup_bundle(\"${CMAKE_BINARY_DIR}/${ProjectName}.app\" \"\" \"\")
-				"
-				COMPONENT Runtime)
-			install(TARGETS ${ProjectName}
-				BUNDLE
-				DESTINATION ${InstallDir}
-				COMPONENT ${Component})
-		else(MakeApplicationBundles)
-			install(TARGETS ${ProjectName}
-				RUNTIME
-				DESTINATION ${InstallDir}
-				COMPONENT ${Component})
-			if(SPEngineExtraInstallFiles)
-				install(FILES ${SPEngineExtraInstallFiles}
-					DESTINATION ${InstallDir}
-					COMPONENT ${Component})
-			endif()
-		endif(MakeApplicationBundles)
-
-		set_target_properties(${ProjectName} PROPERTIES COMPILE_DEFINITIONS "${SPEngineDefines}")
-
-		# Hide symbols not explicitly marked public.
-		set_property(TARGET ${ProjectName} APPEND PROPERTY COMPILE_OPTIONS ${MODERNJK_VISIBILITY_FLAGS})
-
-		set_target_properties(${ProjectName} PROPERTIES INCLUDE_DIRECTORIES "${SPEngineIncludeDirectories}")
-		set_target_properties(${ProjectName} PROPERTIES PROJECT_LABEL ${Label})
-		if(SPEngineLibraries)
-			target_link_libraries(${ProjectName} ${SPEngineLibraries} qlibm)
-		endif(SPEngineLibraries)
-	endfunction(add_sp_project)
-	if(BuildSPEngine)
-		add_sp_project(${SPEngine} "SP Client" ${SPDir} ${JKAInstallDir} ${JKASPClientComponent})
-	endif(BuildSPEngine)
-	if(BuildJK2SPEngine)
-		set(SPEngineDefines ${SPEngineDefines} "JK2_MODE")
-		add_sp_project(${JK2SPEngine} "JK2 SP Client" ${JK2SPDir} ${JK2InstallDir} ${JK2SPClientComponent})
-	endif(BuildJK2SPEngine)
-
-endif(BuildSPEngine OR BuildJK2SPEngine)
+if(modernjk_BUILD_JK2)
+	add_executable(openjo_sp WIN32)
+	set_target_properties(openjo_sp PROPERTIES OUTPUT_NAME "openjo_sp.${modernjk_ARCH}")
+	if(WIN32)
+		target_sources(openjo_sp PRIVATE ../codeJK2/win32/winquake.rc)
+	endif()
+	target_compile_definitions(openjo_sp PRIVATE JK2_MODE)
+	target_link_libraries(openjo_sp PRIVATE sp_engine_common modernjk_options modernjk_warnings modernjk_defines)
+	modernjk_copy_runtime_dlls(openjo_sp)
+	install(TARGETS openjo_sp RUNTIME DESTINATION "${modernjk_INSTALL_JK2}")
+	if(WIN32)
+		install(IMPORTED_RUNTIME_ARTIFACTS SDL2::SDL2 RUNTIME DESTINATION "${modernjk_INSTALL_JK2}")
+	endif()
+endif()

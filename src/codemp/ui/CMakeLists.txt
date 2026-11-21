@@ -16,129 +16,25 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #============================================================================
 
-# Make sure the user is not executing this script directly
-if(NOT InModernJK)
-	message(FATAL_ERROR "Use the top-level cmake script!")
-endif(NOT InModernJK)
-
-set(MPUIIncludeDirectories
-	"${MPDir}"
-	"${SharedDir}"
-	"${GSLIncludeDirectory}"
-	"${CMAKE_BINARY_DIR}/shared"
-	)
-if(WIN32)
-	set(MPUILibraries "odbc32" "odbccp32") # what are these even?
-endif(WIN32)
-set(MPUIDefines ${MPSharedDefines} "UI_BUILD")
-
-set(MPUIGameFiles
-	"${MPDir}/game/bg_misc.cpp"
-	"${MPDir}/game/bg_saberLoad.cpp"
-	"${MPDir}/game/bg_saga.cpp"
-	"${MPDir}/game/bg_vehicleLoad.cpp"
-	"${MPDir}/game/bg_weapons.cpp"
-	"${MPDir}/game/anims.h"
-	"${MPDir}/game/bg_local.h"
-	"${MPDir}/game/bg_public.h"
-	"${MPDir}/game/bg_saga.h"
-	"${MPDir}/game/bg_weapons.h"
-	"${MPDir}/game/surfaceflags.h"
-	)
-source_group("game" FILES ${MPUIGameFiles})
-set(MPUIFiles ${MPUIFiles} ${MPUIGameFiles})
-
-set(MPUICommonFiles
-	"${MPDir}/qcommon/q_shared.cpp"
-	"${MPDir}/qcommon/disablewarnings.h"
-	"${MPDir}/qcommon/game_version.h"
-	"${MPDir}/qcommon/q_shared.h"
-	"${MPDir}/qcommon/qfiles.h"
-	"${MPDir}/qcommon/tags.h"
-
-	${SharedCommonFiles}
-	)
-source_group("common" FILES ${MPUICommonFiles})
-set(MPUIFiles ${MPUIFiles} ${MPUICommonFiles})
-
-set(MPUICommonSafeFiles
-	${SharedCommonSafeFiles}
-	)
-source_group("common/safe" FILES ${MPUICommonSafeFiles})
-set(MPUIFiles ${MPUIFiles} ${MPUICommonSafeFiles})
-
-set(MPUIUIFiles
-	"${MPDir}/ui/ui_atoms.cpp"
-	"${MPDir}/ui/ui_cvar.cpp"
-	"${MPDir}/ui/ui_force.cpp"
-	"${MPDir}/ui/ui_gameinfo.cpp"
-	"${MPDir}/ui/ui_main.cpp"
-	"${MPDir}/ui/ui_saber.cpp"
-	"${MPDir}/ui/ui_shared.cpp"
-	"${MPDir}/ui/keycodes.h"
-	"${MPDir}/ui/menudef.h"
-	"${MPDir}/ui/ui_force.h"
-	"${MPDir}/ui/ui_local.h"
-	"${MPDir}/ui/ui_public.h"
-	"${MPDir}/ui/ui_shared.h"
-	"${MPDir}/ui/ui_xcvar.h"
-	)
-source_group("ui" FILES ${MPUIUIFiles})
-set(MPUIFiles ${MPUIFiles} ${MPUIUIFiles})
-
-set(MPUIRendererFiles
-	"${MPDir}/rd-common/tr_types.h"
-	)
-source_group("rd-common" FILES ${MPUIRendererFiles})
-set(MPUIFiles ${MPUIFiles} ${MPUIRendererFiles})
-
-add_library(${MPUI} SHARED ${MPUIFiles})
-
-if(NOT MSVC)
-	# remove "lib" prefix for .so/.dylib files
-	set_target_properties(${MPUI} PROPERTIES PREFIX "")
-endif()
-
-if(MakeApplicationBundles AND BuildMPEngine)
-	install(TARGETS ${MPUI}
-		LIBRARY
-		DESTINATION "${JKAInstallDir}/${MPEngine}.app/Contents/MacOS/ModernJK"
-		COMPONENT ${JKAMPCoreComponent})
-	install(TARGETS ${MPUI}
-		LIBRARY
-		DESTINATION "${JKAInstallDir}/${MPEngine}.app/Contents/MacOS/base"
-		COMPONENT ${JKAMPCoreComponent})
-elseif(WIN32)
-	install(TARGETS ${MPUI}
-		RUNTIME
-		DESTINATION "${JKAInstallDir}/ModernJK"
-		COMPONENT ${JKAMPCoreComponent})
-
-	# Use ModernJK modules as default
-	install(TARGETS ${MPUI}
-		RUNTIME
-		DESTINATION "${JKAInstallDir}/base"
-		COMPONENT ${JKAMPCoreComponent})
-else()
-	install(TARGETS ${MPUI}
-		LIBRARY
-		DESTINATION "${JKAInstallDir}/ModernJK"
-		COMPONENT ${JKAMPCoreComponent})
-	install(TARGETS ${MPUI}
-		LIBRARY
-		DESTINATION "${JKAInstallDir}/base"
-		COMPONENT ${JKAMPCoreComponent})
-endif()
-
-set_target_properties(${MPUI} PROPERTIES COMPILE_DEFINITIONS "${MPUIDefines}")
-
-# Hide symbols not explicitly marked public.
-set_property(TARGET ${MPUI} APPEND PROPERTY COMPILE_OPTIONS ${MODERNJK_VISIBILITY_FLAGS})
-
-set_target_properties(${MPUI} PROPERTIES INCLUDE_DIRECTORIES "${MPUIIncludeDirectories}")
-set_target_properties(${MPUI} PROPERTIES PROJECT_LABEL "MP UI Library")
-# no libraries used
-if(MPUILibraries)
-	target_link_libraries(${MPUI} ${MPUILibraries})
-endif(MPUILibraries)
-target_link_libraries(${MPUI} qlibm)
+# The multiplayer menus' module
+add_library(ui MODULE
+	ui_atoms.cpp
+	ui_cvar.cpp
+	ui_force.cpp
+	ui_gameinfo.cpp
+	ui_main.cpp
+	ui_saber.cpp
+	ui_shared.cpp
+	../game/bg_misc.cpp
+	../game/bg_saberLoad.cpp
+	../game/bg_saga.cpp
+	../game/bg_vehicleLoad.cpp
+	../game/bg_weapons.cpp
+	../qcommon/q_shared.cpp)
+set_target_properties(ui PROPERTIES OUTPUT_NAME "ui${modernjk_ARCH}" PREFIX "")
+target_include_directories(ui PRIVATE "${PROJECT_SOURCE_DIR}/src/codemp" "${PROJECT_SOURCE_DIR}/src/shared")
+target_compile_definitions(ui PRIVATE UI_BUILD)
+target_link_libraries(ui PRIVATE modernjk_shared_common modernjk_version modernjk_options modernjk_warnings
+	modernjk_defines)
+install(TARGETS ui LIBRARY DESTINATION "${modernjk_INSTALL_JKA}/ModernJK")
+install(TARGETS ui LIBRARY DESTINATION "${modernjk_INSTALL_JKA}/base")

@@ -2,7 +2,7 @@
 # TMP visibility prototype run: one local dedicated server, the table built, checked, then measured with bots
 # usage: visrun.sh <tag> <map> <build args> [bots] [samples] [lead ms]
 tag="$1"; map="$2"; build="$3"; bots="${4:-31}"; samples="${5:-60}"; lead="${6:-110}"
-BUILD=E:/Git/jka/ModernJK/build-netcodec/modernjk-clang
+BUILD=E:/Git/jka/ModernJK/build/windows-clang-release/bin
 export PATH="/c/Logiciels/llvm-mingw-20261104-ucrt-x86_64/bin:$PATH"
 GAME="E:/Jeux/Jedi Academy default - ModernJK"
 SCR="${SCR:?set SCR to the work folder: the tools built there, their outputs written there}"

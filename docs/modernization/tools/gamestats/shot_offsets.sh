@@ -4,7 +4,7 @@
 # flash poses the gun's model as the server poses the player's. The measuring code is not in the game: apply
 # shot_offsets.patch, build the game module, run this script, then restore the code:
 #   git -C /e/Git/jka/ModernJK apply docs/modernization/tools/gamestats/shot_offsets.patch
-#   ninja -C /e/Git/jka/ModernJK/build-netcodec/modernjk-clang jampgamex86_64
+#   cmake --build /e/Git/jka/ModernJK/build/windows-clang-release --target jampgame
 #   bash /e/Git/jka/ModernJK/docs/modernization/tools/gamestats/shot_offsets.sh
 #   git -C /e/Git/jka/ModernJK checkout -- src/codemp/game
 # Each case runs on its own server (gamestats_windows.sh, SEED=1, FAST=1); for each it prints the scenario's damage and
@@ -12,7 +12,7 @@
 # first). The servers' logs are kept as $GAMESTATS_DIR/shot_<batch>_<case>.log.
 set -u
 G=$(cd "$(dirname "$0")" && pwd)
-DLL=${DLL:-/e/Git/jka/ModernJK/build-netcodec/modernjk-clang/jampgamex86_64.dll}
+DLL=${DLL:-/e/Git/jka/ModernJK/build/windows-clang-release/bin/jampgamex86_64.dll}
 D="${GAMESTATS_DIR:-C:/Users/Yberion/AppData/Local/Temp/gamestats}"	# as gamestats_windows.sh
 
 run() { # <batch> <case>...: a case is <name>|<map>|<g_gametype>|<bots>|<cvars before the map>|<scenarios>

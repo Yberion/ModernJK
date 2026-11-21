@@ -16,137 +16,47 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #============================================================================
 
-# Make sure the user is not executing this script directly
-if(NOT InModernJK)
-	message(FATAL_ERROR "Use the top-level cmake script!")
-endif(NOT InModernJK)
-
-# Check for dependencies first
-
-set(MPVanillaRendererIncludeDirectories ${MPDir})
-set(MPVanillaRendererIncludeDirectories
-	${MPVanillaRendererIncludeDirectories}
-	${SharedDir}
-	${MPDir}
-	"${MPDir}/rd-vanilla"
-	"${GSLIncludeDirectory}"
-	)
-
-set(MPVanillaRendererFiles
-	"${MPDir}/rd-vanilla/glext.h"
-	"${MPDir}/rd-vanilla/qgl.h"
-	"${MPDir}/rd-vanilla/G2_API.cpp"
-	"${MPDir}/rd-vanilla/G2_bolts.cpp"
-	"${MPDir}/rd-vanilla/G2_bones.cpp"
-	"${MPDir}/rd-vanilla/G2_misc.cpp"
-	"${MPDir}/rd-vanilla/G2_surfaces.cpp"
-	"${MPDir}/rd-vanilla/tr_arb.cpp"
-	"${MPDir}/rd-vanilla/tr_backend.cpp"
-	"${MPDir}/rd-vanilla/tr_bsp.cpp"
-	"${MPDir}/rd-vanilla/tr_cmds.cpp"
-	"${MPDir}/rd-vanilla/tr_curve.cpp"
-	"${MPDir}/rd-vanilla/tr_decals.cpp"
-	"${MPDir}/rd-vanilla/tr_ghoul2.cpp"
-	"${MPDir}/rd-vanilla/tr_image.cpp"
-	"${MPDir}/rd-vanilla/tr_init.cpp"
-	"${MPDir}/rd-vanilla/tr_light.cpp"
-	"${MPDir}/rd-vanilla/tr_local.h"
-	"${MPDir}/rd-vanilla/tr_main.cpp"
-	"${MPDir}/rd-vanilla/tr_marks.cpp"
-	"${MPDir}/rd-vanilla/tr_mesh.cpp"
-	"${MPDir}/rd-vanilla/tr_model.cpp"
-	"${MPDir}/rd-vanilla/tr_quicksprite.cpp"
-	"${MPDir}/rd-vanilla/tr_quicksprite.h"
-	"${MPDir}/rd-vanilla/tr_scene.cpp"
-	"${MPDir}/rd-vanilla/tr_shade.cpp"
-	"${MPDir}/rd-vanilla/tr_shade_calc.cpp"
-	"${MPDir}/rd-vanilla/tr_shader.cpp"
-	"${MPDir}/rd-vanilla/tr_shadows.cpp"
-	"${MPDir}/rd-vanilla/tr_skin.cpp"
-	"${MPDir}/rd-vanilla/tr_sky.cpp"
-	"${MPDir}/rd-vanilla/tr_subs.cpp"
-	"${MPDir}/rd-vanilla/tr_surface.cpp"
-	"${MPDir}/rd-vanilla/tr_surfacesprites.cpp"
-	"${MPDir}/rd-vanilla/tr_world.cpp"
-	"${MPDir}/rd-vanilla/tr_WorldEffects.cpp"
-	"${MPDir}/rd-vanilla/tr_WorldEffects.h"
-	)
-source_group("renderer" FILES ${MPVanillaRendererFiles})
-
-set(MPVanillaRendererGhoul2Files
-	"${MPDir}/ghoul2/g2_local.h"
-	"${MPDir}/ghoul2/ghoul2_shared.h"
-	"${MPDir}/ghoul2/G2_gore.cpp"
-	"${MPDir}/ghoul2/G2_gore.h")
-source_group("ghoul2" FILES ${MPVanillaRendererGhoul2Files})
-set(MPVanillaRendererFiles ${MPVanillaRendererFiles} ${MPVanillaRendererGhoul2Files})
-
-set(MPVanillaRendererRdCommonFiles
-	"${MPDir}/rd-common/mdx_format.h"
-	"${MPDir}/rd-common/tr_common.h"
-	"${MPDir}/rd-common/tr_font.cpp"
-	"${MPDir}/rd-common/tr_font.h"
-	"${SharedDir}/rd-common/tr_image_load.cpp"
-	"${SharedDir}/rd-common/tr_image_codec.cpp"
-	"${SharedDir}/rd-common/tr_noise.cpp"
-	"${MPDir}/rd-common/tr_public.h"
-	"${MPDir}/rd-common/tr_types.h")
-source_group("rd-common" FILES ${MPVanillaRendererRdCommonFiles})
-set(MPVanillaRendererFiles ${MPVanillaRendererFiles} ${MPVanillaRendererRdCommonFiles})
-
-set(MPVanillaRendererCommonFiles
-	"${MPDir}/qcommon/matcomp.cpp"
-	"${MPDir}/qcommon/q_shared.cpp"
-
-	${SharedCommonFiles})
-source_group("common" FILES ${MPVanillaRendererCommonFiles})
-set(MPVanillaRendererFiles ${MPVanillaRendererFiles} ${MPVanillaRendererCommonFiles})
-
-set(MPVanillaRendererCommonSafeFiles
-	${SharedCommonSafeFiles}
-	)
-source_group("common/safe" FILES ${MPVanillaRendererCommonSafeFiles})
-set(MPVanillaRendererFiles ${MPVanillaRendererFiles} ${MPVanillaRendererCommonSafeFiles})
-
-# The image libraries, vendored and compiled inside src/shared/rd-common/tr_image_codec.cpp: Wuffs decodes, stb_image_write writes.
-list(APPEND MPVanillaRendererIncludeDirectories "${CMAKE_SOURCE_DIR}/libs/wuffs" "${CMAKE_SOURCE_DIR}/libs/stb")
-
-find_package(OpenGL REQUIRED)
-set(MPVanillaRendererIncludeDirectories ${MPVanillaRendererIncludeDirectories} ${OPENGL_INCLUDE_DIR})
-set(MPVanillaRendererLibraries ${MPVanillaRendererLibraries} ${OPENGL_LIBRARIES})
-
-set(MPVanillaRendererIncludeDirectories ${MPVanillaRendererIncludeDirectories} ${ModernJKLibDir})
-add_library(${MPVanillaRenderer} SHARED ${MPVanillaRendererFiles})
-
-if(NOT MSVC)
-	# remove "lib" prefix for .so/.dylib files
-	set_target_properties(${MPVanillaRenderer} PROPERTIES PREFIX "")
-endif()
-
-if(WIN32)
-	install(TARGETS ${MPVanillaRenderer}
-		RUNTIME
-		DESTINATION ${JKAInstallDir}
-		COMPONENT ${JKAMPClientComponent})
-else(WIN32)
-	if(MakeApplicationBundles AND BuildMPEngine)
-		install(TARGETS ${MPVanillaRenderer}
-			LIBRARY
-			DESTINATION "${JKAInstallDir}/${MPEngine}.app/Contents/MacOS/"
-			COMPONENT ${JKAMPClientComponent})
-	else()
-		install(TARGETS ${MPVanillaRenderer}
-			LIBRARY
-			DESTINATION ${JKAInstallDir}
-			COMPONENT ${JKAMPClientComponent})
-	endif()
-endif()
-
-set_target_properties(${MPVanillaRenderer} PROPERTIES COMPILE_DEFINITIONS "${SharedDefines}")
-
-# Hide symbols not explicitly marked public.
-set_property(TARGET ${MPVanillaRenderer} APPEND PROPERTY COMPILE_OPTIONS ${MODERNJK_VISIBILITY_FLAGS})
-
-set_target_properties(${MPVanillaRenderer} PROPERTIES INCLUDE_DIRECTORIES "${MPVanillaRendererIncludeDirectories}")
-set_target_properties(${MPVanillaRenderer} PROPERTIES PROJECT_LABEL "MP Vanilla Renderer")
-target_link_libraries(${MPVanillaRenderer} ${MPVanillaRendererLibraries} qlibm)
+# The multiplayer client's renderer (OpenGL), which the client loads
+add_library(rd-vanilla MODULE
+	G2_API.cpp
+	G2_bolts.cpp
+	G2_bones.cpp
+	G2_misc.cpp
+	G2_surfaces.cpp
+	tr_WorldEffects.cpp
+	tr_arb.cpp
+	tr_backend.cpp
+	tr_bsp.cpp
+	tr_cmds.cpp
+	tr_curve.cpp
+	tr_decals.cpp
+	tr_ghoul2.cpp
+	tr_image.cpp
+	tr_init.cpp
+	tr_light.cpp
+	tr_main.cpp
+	tr_marks.cpp
+	tr_mesh.cpp
+	tr_model.cpp
+	tr_quicksprite.cpp
+	tr_scene.cpp
+	tr_shade.cpp
+	tr_shade_calc.cpp
+	tr_shader.cpp
+	tr_shadows.cpp
+	tr_skin.cpp
+	tr_sky.cpp
+	tr_subs.cpp
+	tr_surface.cpp
+	tr_surfacesprites.cpp
+	tr_world.cpp
+	../ghoul2/G2_gore.cpp
+	../qcommon/matcomp.cpp
+	../qcommon/q_shared.cpp
+	../rd-common/tr_font.cpp)
+set_target_properties(rd-vanilla PROPERTIES OUTPUT_NAME "rd-vanilla_${modernjk_ARCH}" PREFIX "")
+target_include_directories(rd-vanilla PRIVATE "${PROJECT_SOURCE_DIR}/src/codemp" "${PROJECT_SOURCE_DIR}/src/shared"
+	"${CMAKE_CURRENT_SOURCE_DIR}")
+target_link_libraries(rd-vanilla PRIVATE modernjk_shared_common modernjk_rd_common OpenGL::GL modernjk_options
+	modernjk_warnings modernjk_defines)
+install(TARGETS rd-vanilla LIBRARY DESTINATION "${modernjk_INSTALL_JKA}")

@@ -165,7 +165,8 @@ static std::list<sstring_t> strList;
 //
 static int GetStringNum(const char *psString)
 {
-	assert( psString != (char *)0xcdcdcdcd );
+	// MSVC's debug heap fills uninitialised memory with 0xcd bytes: a pointer read from it (here and below)
+	assert( psString != (char *)0xcdcdcdcdcdcdcdcdULL );
 
 	// nullptr ptrs I'll write out as a strlen of -1...
 	//
@@ -222,7 +223,7 @@ static char *GetStringPtr(int iStrlen, char *psOriginal/*may be nullptr*/)
 //
 static intptr_t GetGEntityNum(gentity_t* ent)
 {
-	assert( ent != (gentity_t *) 0xcdcdcdcd);
+	assert( ent != (gentity_t *) 0xcdcdcdcdcdcdcdcdULL);
 
 	if (ent == nullptr)
 	{
@@ -260,7 +261,7 @@ static gentity_t *GetGEntityPtr(intptr_t iEntNum)
 
 static intptr_t GetGroupNumber(AIGroupInfo_t *pGroup)
 {
-	assert( pGroup != (AIGroupInfo_t *) 0xcdcdcdcd);
+	assert( pGroup != (AIGroupInfo_t *) 0xcdcdcdcdcdcdcdcdULL);
 
 	if (pGroup == nullptr)
 	{
@@ -296,7 +297,7 @@ static intptr_t GetGClientNum(gclient_t *c, gentity_t *ent)
 	// unfortunately, I now need to see if this is a INT_ID('r','e','a','l') client (and therefore resolve to an enum), or
 	//	whether it's one of the NPC or SP_misc_weapon_shooter
 	//
-	assert(c != (gclient_t *)0xcdcdcdcd);
+	assert(c != (gclient_t *)0xcdcdcdcdcdcdcdcdULL);
 
 	if (c == nullptr)
 	{
@@ -338,7 +339,7 @@ static gclient_t *GetGClientPtr(intptr_t c)
 //
 static int GetGItemNum (gitem_t *pItem)
 {
-	assert(pItem != (gitem_t*) 0xcdcdcdcd);
+	assert(pItem != (gitem_t*) 0xcdcdcdcdcdcdcdcdULL);
 
 	if (pItem == nullptr)
 	{
@@ -369,7 +370,7 @@ static gitem_t *GetGItemPtr(int iItem)
 //
 static int GetVehicleInfoNum(vehicleInfo_t *pVehicleInfo)
 {
-	assert(pVehicleInfo != (vehicleInfo_t*) 0xcdcdcdcd);
+	assert(pVehicleInfo != (vehicleInfo_t*) 0xcdcdcdcdcdcdcdcdULL);
 
 	if (pVehicleInfo == nullptr)
 	{

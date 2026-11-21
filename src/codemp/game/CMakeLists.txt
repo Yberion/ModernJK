@@ -16,246 +16,99 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #============================================================================
 
-# Make sure the user is not executing this script directly
-if(NOT InModernJK)
-	message(FATAL_ERROR "Use the top-level cmake script!")
-endif(NOT InModernJK)
-
-set(MPGameIncludeDirectories
-	"${MPDir}"
-	"${SharedDir}"
-	"${GSLIncludeDirectory}"
-	"${CMAKE_BINARY_DIR}/shared"
-	)
-if(WIN32)
-	set(MPGameLibraries "winmm")
-endif(WIN32)
-set(MPGameDefines ${MPSharedDefines} "_GAME" )
-set(MPGameGameFiles
-	"${MPDir}/game/ai_main.cpp"
-	"${MPDir}/game/ai_util.cpp"
-	"${MPDir}/game/ai_wpnav.cpp"
-	"${MPDir}/game/AnimalNPC.cpp"
-	"${MPDir}/game/bg_g2_utils.cpp"
-	"${MPDir}/game/bg_misc.cpp"
-	"${MPDir}/game/bg_panimate.cpp"
-	"${MPDir}/game/bg_pmove.cpp"
-	"${MPDir}/game/bg_saber.cpp"
-	"${MPDir}/game/bg_saberLoad.cpp"
-	"${MPDir}/game/bg_saga.cpp"
-	"${MPDir}/game/bg_slidemove.cpp"
-	"${MPDir}/game/bg_vehicleLoad.cpp"
-	"${MPDir}/game/bg_weapons.cpp"
-	"${MPDir}/game/FighterNPC.cpp"
-	"${MPDir}/game/g_active.cpp"
-	"${MPDir}/game/g_bot.cpp"
-	"${MPDir}/game/g_client.cpp"
-	"${MPDir}/game/g_cmds.cpp"
-	"${MPDir}/game/g_combat.cpp"
-	"${MPDir}/game/g_cvar.cpp"
-	"${MPDir}/game/g_exphysics.cpp"
-	"${MPDir}/game/g_ICARUScb.cpp"
-	"${MPDir}/game/g_items.cpp"
-	"${MPDir}/game/g_log.cpp"
-	"${MPDir}/game/g_main.cpp"
-	"${MPDir}/game/g_mem.cpp"
-	"${MPDir}/game/g_misc.cpp"
-	"${MPDir}/game/g_missile.cpp"
-	"${MPDir}/game/g_mover.cpp"
-	"${MPDir}/game/g_nav.cpp"
-	"${MPDir}/game/g_navnew.cpp"
-	"${MPDir}/game/g_object.cpp"
-	"${MPDir}/game/g_saga.cpp"
-	"${MPDir}/game/g_session.cpp"
-	"${MPDir}/game/g_spawn.cpp"
-	"${MPDir}/game/g_scenario.cpp"
-	"${MPDir}/game/g_svcmds.cpp"
-	"${MPDir}/game/g_target.cpp"
-	"${MPDir}/game/g_team.cpp"
-	"${MPDir}/game/g_timer.cpp"
-	"${MPDir}/game/g_trigger.cpp"
-	"${MPDir}/game/g_turret.cpp"
-	"${MPDir}/game/g_turret_G2.cpp"
-	"${MPDir}/game/g_utils.cpp"
-	"${MPDir}/game/g_vehicles.cpp"
-	"${MPDir}/game/g_vehicleTurret.cpp"
-	"${MPDir}/game/g_weapon.cpp"
-	"${MPDir}/game/NPC.cpp"
-	"${MPDir}/game/NPC_AI_Atst.cpp"
-	"${MPDir}/game/NPC_AI_Default.cpp"
-	"${MPDir}/game/NPC_AI_Droid.cpp"
-	"${MPDir}/game/NPC_AI_GalakMech.cpp"
-	"${MPDir}/game/NPC_AI_Grenadier.cpp"
-	"${MPDir}/game/NPC_AI_Howler.cpp"
-	"${MPDir}/game/NPC_AI_ImperialProbe.cpp"
-	"${MPDir}/game/NPC_AI_Interrogator.cpp"
-	"${MPDir}/game/NPC_AI_Jedi.cpp"
-	"${MPDir}/game/NPC_AI_Mark1.cpp"
-	"${MPDir}/game/NPC_AI_Mark2.cpp"
-	"${MPDir}/game/NPC_AI_MineMonster.cpp"
-	"${MPDir}/game/NPC_AI_Rancor.cpp"
-	"${MPDir}/game/NPC_AI_Remote.cpp"
-	"${MPDir}/game/NPC_AI_Seeker.cpp"
-	"${MPDir}/game/NPC_AI_Sentry.cpp"
-	"${MPDir}/game/NPC_AI_Sniper.cpp"
-	"${MPDir}/game/NPC_AI_Stormtrooper.cpp"
-	"${MPDir}/game/NPC_AI_Utils.cpp"
-	"${MPDir}/game/NPC_AI_Wampa.cpp"
-	"${MPDir}/game/NPC_behavior.cpp"
-	"${MPDir}/game/NPC_combat.cpp"
-	"${MPDir}/game/NPC_goal.cpp"
-	"${MPDir}/game/NPC_misc.cpp"
-	"${MPDir}/game/NPC_move.cpp"
-	"${MPDir}/game/NPC_reactions.cpp"
-	"${MPDir}/game/NPC_senses.cpp"
-	"${MPDir}/game/NPC_sounds.cpp"
-	"${MPDir}/game/NPC_spawn.cpp"
-	"${MPDir}/game/NPC_stats.cpp"
-	"${MPDir}/game/NPC_utils.cpp"
-	"${MPDir}/game/SpeederNPC.cpp"
-	"${MPDir}/game/tri_coll_test.cpp"
-	"${MPDir}/game/w_force.cpp"
-	"${MPDir}/game/w_saber.cpp"
-	"${MPDir}/game/WalkerNPC.cpp"
-	"${MPDir}/game/ai.h"
-	"${MPDir}/game/ai_main.h"
-	"${MPDir}/game/anims.h"
-	"${MPDir}/game/b_local.h"
-	"${MPDir}/game/b_public.h"
-	"${MPDir}/game/bg_local.h"
-	"${MPDir}/game/bg_public.h"
-	"${MPDir}/game/bg_saga.h"
-	"${MPDir}/game/bg_vehicles.h"
-	"${MPDir}/game/bg_weapons.h"
-	"${MPDir}/game/chars.h"
-	"${MPDir}/game/g_ICARUScb.h"
-	"${MPDir}/game/g_local.h"
-	"${MPDir}/game/g_nav.h"
-	"${MPDir}/game/g_public.h"
-	"${MPDir}/game/g_team.h"
-	"${MPDir}/game/g_xcvar.h"
-	"${MPDir}/game/inv.h"
-	"${MPDir}/game/match.h"
-	"${MPDir}/game/npc_headers.h"
-	"${MPDir}/game/say.h"
-	"${MPDir}/game/surfaceflags.h"
-	"${MPDir}/game/teams.h"
-	"${MPDir}/game/w_saber.h"
-	)
-source_group("game" FILES ${MPGameGameFiles})
-set(MPGameFiles ${MPGameFiles} ${MPGameGameFiles})
-
-set(MPGameCommonFiles
-	"${MPDir}/qcommon/q_shared.cpp"
-	"${MPDir}/qcommon/disablewarnings.h"
-	"${MPDir}/qcommon/q_shared.h"
-	"${MPDir}/qcommon/tags.h"
-
-	${SharedCommonFiles}
-	)
-source_group("common" FILES ${MPGameCommonFiles})
-set(MPGameFiles ${MPGameFiles} ${MPGameCommonFiles})
-
-set(MPGameCommonSafeFiles
-	${SharedCommonSafeFiles}
-	)
-source_group("common/safe" FILES ${MPGameCommonSafeFiles})
-set(MPGameFiles ${MPGameFiles} ${MPGameCommonSafeFiles})
-
-set(MPGameCgameFiles
-	"${MPDir}/cgame/animtable.h"
-	"${MPDir}/cgame/cg_public.h"
-	)
-source_group("cgame" FILES ${MPGameCgameFiles})
-set(MPGameFiles ${MPGameFiles} ${MPGameCgameFiles})
-
-set(MPGameRendererFiles
-	"${MPDir}/rd-common/tr_types.h"
-	)
-source_group("rd-common" FILES ${MPGameRendererFiles})
-set(MPGameFiles ${MPGameFiles} ${MPGameRendererFiles})
-
-set(MPGameBotlibFiles
-	"${MPDir}/botlib/be_aas.h"
-	"${MPDir}/botlib/be_ai_char.h"
-	"${MPDir}/botlib/be_ai_chat.h"
-	"${MPDir}/botlib/be_ai_gen.h"
-	"${MPDir}/botlib/be_ai_goal.h"
-	"${MPDir}/botlib/be_ai_move.h"
-	"${MPDir}/botlib/be_ai_weap.h"
-	"${MPDir}/botlib/be_ea.h"
-	"${MPDir}/botlib/botlib.h"
-	)
-source_group("botlib" FILES ${MPGameBotlibFiles})
-set(MPGameFiles ${MPGameFiles} ${MPGameBotlibFiles})
-
-set(MPGameG2Files
-	"${MPDir}/ghoul2/G2.h"
-	)
-source_group("ghoul2" FILES ${MPGameG2Files})
-set(MPGameFiles ${MPGameFiles} ${MPGameG2Files})
-
-set(MPGameIcarusFiles
-	"${MPDir}/icarus/interpreter.h"
-	"${MPDir}/icarus/Q3_Interface.h"
-	"${MPDir}/icarus/tokens.h"
-	)
-source_group("icarus" FILES ${MPGameIcarusFiles})
-set(MPGameFiles ${MPGameFiles} ${MPGameIcarusFiles})
-
-set(MPGameUiFiles
-	"${MPDir}/ui/menudef.h"
-	)
-source_group("ui" FILES ${MPGameUiFiles})
-set(MPGameFiles ${MPGameFiles} ${MPGameUiFiles})
-
-add_library(${MPGame} SHARED ${MPGameFiles})
-
-if(NOT MSVC)
-	# remove "lib" prefix for .so/.dylib files
-	set_target_properties(${MPGame} PROPERTIES PREFIX "")
-endif()
-
-if(MakeApplicationBundles AND BuildMPEngine)
-	install(TARGETS ${MPGame}
-		LIBRARY
-		DESTINATION "${JKAInstallDir}/${MPEngine}.app/Contents/MacOS/ModernJK"
-		COMPONENT ${JKAMPCoreComponent})
-	install(TARGETS ${MPGame}
-		LIBRARY
-		DESTINATION "${JKAInstallDir}/${MPEngine}.app/Contents/MacOS/base"
-		COMPONENT ${JKAMPCoreComponent})
-elseif(WIN32)
-	install(TARGETS ${MPGame}
-		RUNTIME
-		DESTINATION "${JKAInstallDir}/ModernJK"
-		COMPONENT ${JKAMPCoreComponent})
-
-	# Use ModernJK modules as default
-	install(TARGETS ${MPGame}
-		RUNTIME
-		DESTINATION "${JKAInstallDir}/base"
-		COMPONENT ${JKAMPCoreComponent})
-else()
-	install(TARGETS ${MPGame}
-		LIBRARY
-		DESTINATION "${JKAInstallDir}/ModernJK"
-		COMPONENT ${JKAMPCoreComponent})
-	install(TARGETS ${MPGame}
-		LIBRARY
-		DESTINATION "${JKAInstallDir}/base"
-		COMPONENT ${JKAMPCoreComponent})
-endif()
-
-set_target_properties(${MPGame} PROPERTIES COMPILE_DEFINITIONS "${MPGameDefines}")
-
-# Hide symbols not explicitly marked public.
-set_property(TARGET ${MPGame} APPEND PROPERTY COMPILE_OPTIONS ${MODERNJK_VISIBILITY_FLAGS})
-
-set_target_properties(${MPGame} PROPERTIES INCLUDE_DIRECTORIES "${MPGameIncludeDirectories}")
-set_target_properties(${MPGame} PROPERTIES PROJECT_LABEL "MP Game Library")
-# no libraries used
-if(MPGameLibraries)
-	target_link_libraries(${MPGame} ${MPGameLibraries})
-endif(MPGameLibraries)
-target_link_libraries(${MPGame} qlibm)
+# The multiplayer game module, which the dedicated server and the client load
+add_library(jampgame MODULE
+	AnimalNPC.cpp
+	FighterNPC.cpp
+	NPC.cpp
+	NPC_AI_Atst.cpp
+	NPC_AI_Default.cpp
+	NPC_AI_Droid.cpp
+	NPC_AI_GalakMech.cpp
+	NPC_AI_Grenadier.cpp
+	NPC_AI_Howler.cpp
+	NPC_AI_ImperialProbe.cpp
+	NPC_AI_Interrogator.cpp
+	NPC_AI_Jedi.cpp
+	NPC_AI_Mark1.cpp
+	NPC_AI_Mark2.cpp
+	NPC_AI_MineMonster.cpp
+	NPC_AI_Rancor.cpp
+	NPC_AI_Remote.cpp
+	NPC_AI_Seeker.cpp
+	NPC_AI_Sentry.cpp
+	NPC_AI_Sniper.cpp
+	NPC_AI_Stormtrooper.cpp
+	NPC_AI_Utils.cpp
+	NPC_AI_Wampa.cpp
+	NPC_behavior.cpp
+	NPC_combat.cpp
+	NPC_goal.cpp
+	NPC_misc.cpp
+	NPC_move.cpp
+	NPC_reactions.cpp
+	NPC_senses.cpp
+	NPC_sounds.cpp
+	NPC_spawn.cpp
+	NPC_stats.cpp
+	NPC_utils.cpp
+	SpeederNPC.cpp
+	WalkerNPC.cpp
+	ai_main.cpp
+	ai_util.cpp
+	ai_wpnav.cpp
+	bg_g2_utils.cpp
+	bg_misc.cpp
+	bg_panimate.cpp
+	bg_pmove.cpp
+	bg_saber.cpp
+	bg_saberLoad.cpp
+	bg_saga.cpp
+	bg_slidemove.cpp
+	bg_vehicleLoad.cpp
+	bg_weapons.cpp
+	g_ICARUScb.cpp
+	g_active.cpp
+	g_bot.cpp
+	g_client.cpp
+	g_cmds.cpp
+	g_combat.cpp
+	g_cvar.cpp
+	g_exphysics.cpp
+	g_items.cpp
+	g_log.cpp
+	g_main.cpp
+	g_mem.cpp
+	g_misc.cpp
+	g_missile.cpp
+	g_mover.cpp
+	g_nav.cpp
+	g_navnew.cpp
+	g_object.cpp
+	g_saga.cpp
+	g_scenario.cpp
+	g_session.cpp
+	g_spawn.cpp
+	g_svcmds.cpp
+	g_target.cpp
+	g_team.cpp
+	g_timer.cpp
+	g_trigger.cpp
+	g_turret.cpp
+	g_turret_G2.cpp
+	g_utils.cpp
+	g_vehicleTurret.cpp
+	g_vehicles.cpp
+	g_weapon.cpp
+	tri_coll_test.cpp
+	w_force.cpp
+	w_saber.cpp
+	../qcommon/q_shared.cpp)
+set_target_properties(jampgame PROPERTIES OUTPUT_NAME "jampgame${modernjk_ARCH}" PREFIX "")
+target_include_directories(jampgame PRIVATE "${PROJECT_SOURCE_DIR}/src/codemp" "${PROJECT_SOURCE_DIR}/src/shared")
+target_compile_definitions(jampgame PRIVATE _GAME)
+target_link_libraries(jampgame PRIVATE modernjk_shared_common modernjk_version modernjk_options modernjk_warnings
+	modernjk_defines)
+# in the ModernJK folder, and in base so that the game uses it without the folder chosen
+install(TARGETS jampgame LIBRARY DESTINATION "${modernjk_INSTALL_JKA}/ModernJK")
+install(TARGETS jampgame LIBRARY DESTINATION "${modernjk_INSTALL_JKA}/base")

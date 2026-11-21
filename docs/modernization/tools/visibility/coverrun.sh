@@ -2,7 +2,7 @@
 # TMP: where the bots stand against the layer, for one layer mode (the same game with the same seed)
 # usage: coverrun.sh <tag> <map> <layer mode>   (GT=<gametype>)
 tag="$1"; map="$2"; mode="$3"
-BUILD=E:/Git/jka/ModernJK/build-netcodec/modernjk-clang
+BUILD=E:/Git/jka/ModernJK/build/windows-clang-release/bin
 export PATH="/c/Logiciels/llvm-mingw-20261104-ucrt-x86_64/bin:$PATH"
 GAME="E:/Jeux/Jedi Academy default - ModernJK"
 SCR="${SCR:?set SCR to the work folder: the tools built there, their outputs written there}"
