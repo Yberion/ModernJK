@@ -1,5 +1,6 @@
 #============================================================================
 # Copyright (C) 2013 - 2018, OpenJK contributors
+# Copyright (C) 2026, ModernJK contributors
 #
 # This file is part of the OpenJK source code.
 #

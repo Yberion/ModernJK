@@ -1,3 +1,23 @@
+/*
+===========================================================================
+Copyright (C) 2026, ModernJK contributors
+
+This file is part of the ModernJK source code.
+
+ModernJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
 // netcodec internals: the symbol layer on top of rANS, as the format uses it. A symbol is coded with the table of its
 // context; raw bits are coded uniformly; a "class" codes a value by its bit length in a context, then the bits
 // below the leading one raw. The writers share the format's classes and strings (SymbolWriter): Out codes, CountOut

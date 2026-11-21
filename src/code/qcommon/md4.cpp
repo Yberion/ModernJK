@@ -5,6 +5,7 @@ An implementation of MD4 designed for use in the samba SMB
 authentication protocol
 
 Copyright (C) 1997-1998  Andrew Tridgell
+Copyright (C) 2026, ModernJK contributors
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

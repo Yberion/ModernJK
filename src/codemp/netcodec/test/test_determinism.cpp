@@ -1,3 +1,23 @@
+/*
+===========================================================================
+Copyright (C) 2026, ModernJK contributors
+
+This file is part of the ModernJK source code.
+
+ModernJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
 // Determinism test of the float steps of the format: the float kind, the angle-index test and the angle index of a
 // value, for every 16-bit angle index from -720 to 720 degrees and its neighbouring patterns (±1, ±2), plus special
 // patterns, and the decode of an angle index over the range of the second-order angle prediction. The results are

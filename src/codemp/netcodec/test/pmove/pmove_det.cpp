@@ -1,3 +1,23 @@
+/*
+===========================================================================
+Copyright (C) 2026, ModernJK contributors
+
+This file is part of the ModernJK source code.
+
+ModernJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
 // Determinism test of the game's player movement (bg_pmove.cpp, bg_slidemove.cpp), outside the engine: the same synthetic
 // commands through Pmove, in a small world of brushes, and a hash of the player state after every command. Built
 // twice, as the server's game module (-D_GAME) and as cgame (-D_CGAME), with each compiler: cgame's prediction is

@@ -1,3 +1,23 @@
+/*
+===========================================================================
+Copyright (C) 2026, ModernJK contributors
+
+This file is part of the ModernJK source code.
+
+ModernJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
 // Engine functions and globals that OpenJK's msg.cpp refers to, reduced to what the benchmark needs:
 // no console output (cl_shownet stays nullptr), no file system (no netf / psf override file: default field widths,
 // as in the recordings), errors abort.

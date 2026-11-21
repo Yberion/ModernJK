@@ -1,3 +1,21 @@
+#============================================================================
+# Copyright (C) 2026, ModernJK contributors
+#
+# This file is part of the ModernJK source code.
+#
+# ModernJK is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, see <http://www.gnu.org/licenses/>.
+#============================================================================
+
 # The determinism of the game's player movement (pmove_det.cpp): bg_pmove.cpp and the files it needs built as the game
 # module (_GAME) and as cgame (_CGAME), with the modules' own settings (not netcodec's: the point is how the shipped
 # game code behaves). Its output is compared between builds and compilers (validate.sh, validate.bat).

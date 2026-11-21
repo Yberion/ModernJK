@@ -182,11 +182,15 @@ Only 933 of the 44,414 sites of the groups recommended (2.1 %) lie in the code s
 |---|---|---|
 | 1 | the sources moved under `src/` and `lib/` renamed `libs/`, the old CMake files changed only for the paths, the scripts and living documents on the new paths | ✅ (section 8) |
 | 2 | the new build written after the template, the old one removed, the compile commands compared file by file | ✅ (section 9) |
-| 3 | the includes after SF.12, no `../` | ⏳ |
-| 4 | today's warning level matched across the compilers, `disablewarnings.h` removed, the warnings as errors | ⏳ |
-| 5 | the mentions of the plan and the links to `docs/` removed from the code | ⏳ |
-| 6 | link-time optimization in Release, measured | ⏳ |
-| 7 | the end: the scenarios on Linux, hardening, project_validator, the documents | ⏳ |
+| 3 | the copyright line in every file the fork changed, the notice added where one is missing | ✅ (section 10) |
+| 4 | the whole code formatted by clang-format 23 | ⏳ |
+| 5 | the includes after SF.12, no `../` | ⏳ |
+| 6 | today's warning level matched across the compilers, `disablewarnings.h` removed, the warnings as errors | ⏳ |
+| 7 | the mentions of the plan and the links to `docs/` removed from the code | ⏳ |
+| 8 | link-time optimization in Release, measured | ⏳ |
+| 9 | the end: the scenarios on Linux, hardening, project_validator, the documents | ⏳ |
+
+Parts 3 and 4 were added on 21 November 2026 ([PLAN.md](../PLAN.md) step 19, "Decided on 21 November 2026, before the includes"); the parts 3 to 7 decided before became 5 to 9, and the sections written before keep their old numbers.
 
 ## 7. How to continue (21 November 2026)
 
@@ -300,3 +304,25 @@ Written and checked on this machine on 21 November 2026; the VM validations are 
 - Windows: CMake warned at each configuration that no git tag is found (no git on the VM; the version reads vUNKNOWN), as the old build did; decided the same day: an information message, not a warning (a machine without git builds too).
 - The Debug builds made again on both VMs after these fixes: no warning.
 - The validations again, with the AddressSanitizer presets building every target and `linux-clang-asan` added: ALL OK on both VMs (`linux-gcc-asan` build 209 s, tests 64 s; `linux-clang-asan` 154 s and 29 s; `windows-msvc-asan` 131 s and 168 s). GCC with the sanitizers, which sees other code once it is instrumented, warned in 10 places that the other builds compile without a warning; decided the same day (fix them all, rather than leave them for plan step 23): seven `-Wstringop-truncation` on `strncpy` copies the size of their buffer, each followed by its terminator (correct code: the three trees' `Q3_Interface.cpp`, the bot library's `be_ai_chat.cpp` and `l_struct.cpp`, both `stringed_ingame.cpp`), now `Q_strncpyz` (the same bytes), and Ratl's `ncpy`, which now terminates its copy itself (`strnlen`, `memcpy`, the rest zeros), so that `ncat` no longer leaves a string unterminated when it truncates; two `-Warray-bounds` on the faces' points, Quake's `float points[1][VERTEXSIZE]` allocated for more points, now a flexible array member `points[][VERTEXSIZE]` (an extension of the three compilers) with the sizes computed without the removed element (the same sizes and offsets, checked); one `-Warray-bounds` in the bots' aim (`src/codemp/game/ai_main.cpp`), a branch that read the enemy's client when the enemy has none (1.01's code; never reached, since every enemy a bot takes has a client and is dropped when it dies or leaves; it would have crashed the server), which now aims at the entity's place. Here: every clang preset without a warning, `ctest` 12 of 12 with the sanitizers, `golden: SAME`. The validations again on the VMs (21 November 2026): ALL OK on both, no warning in any preset (GCC, Clang and MSVC; Release, Debug, the sanitizers, the servers' build), `ctest` 12 of 12 in every preset, the movement test's output identical on the three compilers. Part 2 done.
+
+## 10. Part 3: the copyright line (21 November 2026)
+
+The decisions are in [PLAN.md](../PLAN.md) step 19, "Decided on 21 November 2026, before the includes". The fork point is OpenJK's last commit before the fork (29 September 2026); the fork's first commit is of 5 November 2026.
+
+**What was changed.** Every file of the scope that differs from the fork point (`git diff -M -l0`, a move without a change excepted): the C and C++ sources, the resource scripts and the CMake files of `src/` and `test/`, the root's `CMakeLists.txt`, `ProjectOptions.cmake`, `Dependencies.cmake` and `cmake/`; the generated tables and `libs/` left out. 1,111 files, of which 1,108 changed:
+
+| case | files | what they got |
+|---|---|---|
+| a GPL notice already | 969 | `Copyright (C) 2026, ModernJK contributors` after the last copyright line, with that line's prefix: `# ` in the 12 CMake files, ` * ` in `tri_coll_test.cpp`, `// ` in `chash.h` and `tri_coll_test.h`, `Portions ` in the 16 files of FreeAmp's MP3 decoder (`mp3code`) |
+| written by the fork, no notice | 66 | OpenJK's notice with ModernJK in place of OpenJK (netcodec, `g_scenario.cpp`, `test/check.h` and `main.cpp`, the CMake files of part 2, `#` comments for those) |
+| from Raven's source release, no notice | 26 | the notice of their tree (`src/codemp`: id Software, Raven, Activision, OpenJK; `src/code` and `src/codeJK2`: Raven, Activision, OpenJK), then ours: imported into OpenJK on 4 April 2013 (5 April for Jedi Outcast's `boltons.h`), among them the `.rc` files, both `mp3struct.h` (Raven's, not FreeAmp's: "my struct to gather all loose MP3 global vars") and `g_vehicleLoad.cpp` |
+| q_shared's functions moved by OpenJK in 2016, no notice | 4 | the notice of `src/shared` (id Software, Raven, Activision, OpenJK), then ours: `q_color.cpp`, `q_color.h`, `q_string.cpp`, `q_string.h` |
+| Quake III's header, no notice | 1 | id Software and OpenJK (2013 - 2015), then ours: `unix_local.h` ("Linux-specific Quake3 header file") |
+| written by OpenJK's contributors, no notice | 9 | `Copyright (C) <years of their commits>, OpenJK contributors`, then ours: the saved games' `ojk_saved_game*` (2016 - 2024), both `safe/memory.h` (2015 - 2024), `gsl.h` (2015 - 2023), `limited_vector.h` (2015), OpenJK's tests written again in part 2 (`test/safe/limited_vector.cpp` 2015, `string.cpp` 2015 - 2016) |
+| netcodec's legacy codec, no notice | 2 | the lines of `msg.cpp` and `huffman.cpp`, which it takes (id Software, Raven, Activision, ioquake3, OpenJK), then ours |
+| written by the fork, but noted "Copyright (C) 2026, OpenJK contributors" | 31 | corrected: the 12 files of new code (`cl_netcodec.cpp`, `sv_netcodec.cpp`, `demo_record.*`, `q_enum.h`, `q_libm.*`, `q_pk3.*`, `q_rand.*`, `tr_image_codec.cpp`) ModernJK's notice; the 19 files that gather definitions taken from the trees' headers (plan step 18: `q_*flags.h`, `q_limits.h`, `q_fileformats.h`, `files.h`, both `files_engine.h`...) the notice of the tree they came from, then ours |
+| third-party code under another licence | 3 | nothing: `md5.cpp` (public domain), `sdl_icon.h` (MIT), netcodec's `bench/ryg/rans_byte.h` (public domain) |
+
+The origins come from `git log --follow` (the first commit of each file, its author, the years of OpenJK's commits) and from the files' own comments. The 56 files of OpenJK that git sees as added (changed too much since the fork for its renaming detection, as `bg_saber.cpp` or `cg_syscalls.cpp`) kept their notice, with our line. The files are edited byte for byte (some are not UTF-8): only lines added, apart from the 31 corrected lines.
+
+**Checks.** Here: the Release and Debug presets without a warning, `ctest` 12 of 12 in both; the machine code of the Release build compared with the commit before, object by object: identical in 1,109 objects of 1,111, the other two being the tests of `test/safe`, whose `CHECK` passes `__LINE__`, moved by the notice; the 302 scenarios `golden: SAME`. A second inventory finds every file of the scope with the line, but the three third-party files. The validations on the VMs the same day (`validate.sh`, `validate.bat`): ALL OK on both, no warning in any preset (GCC, Clang and MSVC; Release, Debug, the sanitizers, the servers' build; the resource scripts through MSVC's `rc.exe` too), `ctest` 12 of 12 in every preset. Part 3 done.

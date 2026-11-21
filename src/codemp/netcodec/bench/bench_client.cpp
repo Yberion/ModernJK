@@ -1,3 +1,23 @@
+/*
+===========================================================================
+Copyright (C) 2026, ModernJK contributors
+
+This file is part of the ModernJK source code.
+
+ModernJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
 // netcodec_bench_client: the client packets recorded by the server in the legacy format (plan step 8, part 1: the
 // server's sv_recordClientPackets, removed once the packets were coded by netcodec), decoded as
 // the server does with OpenJK's own msg.cpp and coded again as the client does (the bytes must be identical), with

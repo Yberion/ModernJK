@@ -1,10 +1,10 @@
 /*
 ===========================================================================
-Copyright (C) 2026, OpenJK contributors
+Copyright (C) 2026, ModernJK contributors
 
-This file is part of the OpenJK source code.
+This file is part of the ModernJK source code.
 
-OpenJK is free software; you can redistribute it and/or modify it
+ModernJK is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License version 2 as
 published by the Free Software Foundation.
 

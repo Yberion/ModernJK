@@ -109,4 +109,4 @@ The study of the network codec used client demos recorded and supplied by a play
 
 ## License
 
-GPLv2, as OpenJK: see [LICENSE.txt](LICENSE.txt); the copyright notices of the files are kept. The libraries in `libs/` keep their own licences (Credits).
+GPLv2, as OpenJK: see [LICENSE.txt](LICENSE.txt); the copyright notices of the files are kept, and every file ModernJK changed carries `Copyright (C) 2026, ModernJK contributors` (the GPLv2's section 2(a) asks the modified files to say so). The libraries in `libs/` keep their own licences (Credits).
