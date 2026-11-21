@@ -25,188 +25,183 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifndef NOT_USING_MODULES
 // !!! if you are not using modules, read BELOW !!!
 #include "module.h" // if you are not using modules,
-					// create an empty Module.h in your
-					// project -- use of modules allows
-					// the error handler to be overridden
-					// with a custom CErrHandler
+                    // create an empty Module.h in your
+                    // project -- use of modules allows
+                    // the error handler to be overridden
+                    // with a custom CErrHandler
 #endif
 #include "tokenizer.h"
 
 #ifdef WIN32_FILE_IO
-	#include <stdio.h>
-	#include <stdlib.h>
+#include <stdio.h>
+#include <stdlib.h>
 #endif
 
-enum class directive_t
-{
-	DIR_INCLUDE = to_underlying( icarusToken_t::TK_USERDEF ),
-	DIR_IFDEF,
-	DIR_IFNDEF,
-	DIR_ENDIF,
-	DIR_ELSE,
-	DIR_DEFINE,
-	DIR_UNDEFINE,
+enum class directive_t {
+    DIR_INCLUDE = to_underlying(icarusToken_t::TK_USERDEF),
+    DIR_IFDEF,
+    DIR_IFNDEF,
+    DIR_ENDIF,
+    DIR_ELSE,
+    DIR_DEFINE,
+    DIR_UNDEFINE,
 
-	DIR_UNKNOWN = -1,	// a name that matches none
+    DIR_UNKNOWN = -1, // a name that matches none
 };
 
-keywordArray_t CTokenizer::directiveKeywords[] =
-{
-	"include",		to_underlying( directive_t::DIR_INCLUDE ),
-	"ifdef",		to_underlying( directive_t::DIR_IFDEF ),
-	"ifndef",		to_underlying( directive_t::DIR_IFNDEF ),
-	"endif",		to_underlying( directive_t::DIR_ENDIF ),
-	"else",			to_underlying( directive_t::DIR_ELSE ),
-	"define",		to_underlying( directive_t::DIR_DEFINE ),
-	"undefine",		to_underlying( directive_t::DIR_UNDEFINE ),
-	"",				to_underlying( icarusToken_t::TK_EOF ),
+keywordArray_t CTokenizer::directiveKeywords[] = {
+    "include",  to_underlying(directive_t::DIR_INCLUDE),  "ifdef", to_underlying(directive_t::DIR_IFDEF), "ifndef", to_underlying(directive_t::DIR_IFNDEF),
+    "endif",    to_underlying(directive_t::DIR_ENDIF),    "else",  to_underlying(directive_t::DIR_ELSE),  "define", to_underlying(directive_t::DIR_DEFINE),
+    "undefine", to_underlying(directive_t::DIR_UNDEFINE), "",      to_underlying(icarusToken_t::TK_EOF),
 };
 
-keywordArray_t CTokenizer::errorMessages[] =
-{
-	"No Error",							to_underlying( tokenizerError_t::TKERR_NONE ),
-	"Unknown Error",					to_underlying( tokenizerError_t::TKERR_UNKNOWN ),
-	"Buffer creation failed",			to_underlying( tokenizerError_t::TKERR_BUFFERCREATE ),
-	"Unrecognized symbol",				to_underlying( tokenizerError_t::TKERR_UNRECOGNIZEDSYMBOL ),
-	"Duplicate symbol",					to_underlying( tokenizerError_t::TKERR_DUPLICATESYMBOL ),
-	"String length exceeded",			to_underlying( tokenizerError_t::TKERR_STRINGLENGTHEXCEEDED ),
-	"Identifier length exceeded",		to_underlying( tokenizerError_t::TKERR_IDENTIFIERLENGTHEXCEEDED ),
-	"Expected integer",					to_underlying( tokenizerError_t::TKERR_EXPECTED_INTEGER ),
-	"Expected identifier",				to_underlying( tokenizerError_t::TKERR_EXPECTED_IDENTIFIER ),
-	"Expected string",					to_underlying( tokenizerError_t::TKERR_EXPECTED_STRING ),
-	"Expected char",					to_underlying( tokenizerError_t::TKERR_EXPECTED_CHAR ),
-	"Expected float",					to_underlying( tokenizerError_t::TKERR_EXPECTED_FLOAT ),
-	"Unexpected token",					to_underlying( tokenizerError_t::TKERR_UNEXPECTED_TOKEN ),
-	"Invalid directive",				to_underlying( tokenizerError_t::TKERR_INVALID_DIRECTIVE ),
-	"Include file not found",			to_underlying( tokenizerError_t::TKERR_INCLUDE_FILE_NOTFOUND ),
-	"Unmatched directive",				to_underlying( tokenizerError_t::TKERR_UNMATCHED_DIRECTIVE ),
-	"",									to_underlying( tokenizerError_t::TKERR_USERERROR ),
+keywordArray_t CTokenizer::errorMessages[] = {
+    "No Error",
+    to_underlying(tokenizerError_t::TKERR_NONE),
+    "Unknown Error",
+    to_underlying(tokenizerError_t::TKERR_UNKNOWN),
+    "Buffer creation failed",
+    to_underlying(tokenizerError_t::TKERR_BUFFERCREATE),
+    "Unrecognized symbol",
+    to_underlying(tokenizerError_t::TKERR_UNRECOGNIZEDSYMBOL),
+    "Duplicate symbol",
+    to_underlying(tokenizerError_t::TKERR_DUPLICATESYMBOL),
+    "String length exceeded",
+    to_underlying(tokenizerError_t::TKERR_STRINGLENGTHEXCEEDED),
+    "Identifier length exceeded",
+    to_underlying(tokenizerError_t::TKERR_IDENTIFIERLENGTHEXCEEDED),
+    "Expected integer",
+    to_underlying(tokenizerError_t::TKERR_EXPECTED_INTEGER),
+    "Expected identifier",
+    to_underlying(tokenizerError_t::TKERR_EXPECTED_IDENTIFIER),
+    "Expected string",
+    to_underlying(tokenizerError_t::TKERR_EXPECTED_STRING),
+    "Expected char",
+    to_underlying(tokenizerError_t::TKERR_EXPECTED_CHAR),
+    "Expected float",
+    to_underlying(tokenizerError_t::TKERR_EXPECTED_FLOAT),
+    "Unexpected token",
+    to_underlying(tokenizerError_t::TKERR_UNEXPECTED_TOKEN),
+    "Invalid directive",
+    to_underlying(tokenizerError_t::TKERR_INVALID_DIRECTIVE),
+    "Include file not found",
+    to_underlying(tokenizerError_t::TKERR_INCLUDE_FILE_NOTFOUND),
+    "Unmatched directive",
+    to_underlying(tokenizerError_t::TKERR_UNMATCHED_DIRECTIVE),
+    "",
+    to_underlying(tokenizerError_t::TKERR_USERERROR),
 };
 
 //
 // CSymbol
 //
 
-CSymbol::CSymbol()
-{
-}
+CSymbol::CSymbol() {}
 
-CSymbol::~CSymbol()
-{
-}
+CSymbol::~CSymbol() {}
 
 CSymbol* CSymbol::Create(LPCTSTR symbolName)
 {
-	CSymbol* retval = new CSymbol();
-	retval->Init(symbolName);
-	return retval;
+    CSymbol* retval = new CSymbol();
+    retval->Init(symbolName);
+    return retval;
 }
 
 LPCTSTR CSymbol::GetName()
 {
-	if (m_symbolName == nullptr)
-	{
-		return "";
-	}
-	return m_symbolName;
+    if (m_symbolName == nullptr) {
+        return "";
+    }
+    return m_symbolName;
 }
 
 void CSymbol::InitBaseSymbol(LPCTSTR symbolName)
 {
-	m_symbolName = (char*)malloc(strlen(symbolName) + 1);
-//	ASSERT(m_symbolName);
-	strcpy(m_symbolName, symbolName);
+    m_symbolName = (char*)malloc(strlen(symbolName) + 1);
+    //	ASSERT(m_symbolName);
+    strcpy(m_symbolName, symbolName);
 }
 
 void CSymbol::Delete()
 {
-	if (m_symbolName != nullptr)
-	{
-		free(m_symbolName);
-		m_symbolName = nullptr;
-	}
-	delete this;
+    if (m_symbolName != nullptr) {
+        free(m_symbolName);
+        m_symbolName = nullptr;
+    }
+    delete this;
 }
 
 //
 // CDirectiveSymbol
 //
 
-CDirectiveSymbol::CDirectiveSymbol()
-{
-}
+CDirectiveSymbol::CDirectiveSymbol() {}
 
-CDirectiveSymbol::~CDirectiveSymbol()
-{
-}
+CDirectiveSymbol::~CDirectiveSymbol() {}
 
 CDirectiveSymbol* CDirectiveSymbol::Create(LPCTSTR symbolName)
 {
-	CDirectiveSymbol* retval = new CDirectiveSymbol();
-	retval->Init(symbolName);
-	return retval;
+    CDirectiveSymbol* retval = new CDirectiveSymbol();
+    retval->Init(symbolName);
+    return retval;
 }
 
 void CDirectiveSymbol::Init(LPCTSTR symbolName)
 {
-	CSymbol::InitBaseSymbol(symbolName);
-	m_value = nullptr;
+    CSymbol::InitBaseSymbol(symbolName);
+    m_value = nullptr;
 }
 
 void CDirectiveSymbol::Delete()
 {
-	if (m_value != nullptr)
-	{
-		free(m_value);
-		m_value = nullptr;
-	}
-	CSymbol::Delete();
+    if (m_value != nullptr) {
+        free(m_value);
+        m_value = nullptr;
+    }
+    CSymbol::Delete();
 }
 
 void CDirectiveSymbol::SetValue(LPCTSTR value)
 {
-	if (m_value != nullptr)
-	{
-		free(m_value);
-	}
-	m_value = (char*)malloc(strlen(value) + 1);
-	strcpy(m_value, value);
+    if (m_value != nullptr) {
+        free(m_value);
+    }
+    m_value = (char*)malloc(strlen(value) + 1);
+    strcpy(m_value, value);
 }
 
 LPCTSTR CDirectiveSymbol::GetValue()
 {
-	return m_value;
+    return m_value;
 }
 
 //
 // CIntSymbol
 //
 
-CIntSymbol::CIntSymbol()
-{
-}
+CIntSymbol::CIntSymbol() {}
 
 CIntSymbol* CIntSymbol::Create(LPCTSTR symbolName, int value)
 {
-	CIntSymbol* retval = new CIntSymbol();
-	retval->Init(symbolName, value);
-	return retval;
+    CIntSymbol* retval = new CIntSymbol();
+    retval->Init(symbolName, value);
+    return retval;
 }
 
 void CIntSymbol::Delete()
 {
-	CSymbol::Delete();
+    CSymbol::Delete();
 }
 
 void CIntSymbol::Init(LPCTSTR symbolName, int value)
 {
-	CSymbol::InitBaseSymbol(symbolName);
-	m_value = value;
+    CSymbol::InitBaseSymbol(symbolName);
+    m_value = value;
 }
 
 int CIntSymbol::GetValue()
 {
-	return m_value;
+    return m_value;
 }
 
 //
@@ -215,1176 +210,1059 @@ int CIntSymbol::GetValue()
 
 CSymbolTable::CSymbolTable()
 {
-	Init();
+    Init();
 }
 
-CSymbolTable::~CSymbolTable()
-{
-}
+CSymbolTable::~CSymbolTable() {}
 
 CSymbolTable* CSymbolTable::Create()
 {
-	CSymbolTable* retval = new CSymbolTable();
-	retval->Init();
-	return retval;
+    CSymbolTable* retval = new CSymbolTable();
+    retval->Init();
+    return retval;
 }
 
-void CSymbolTable::Init()
-{
-}
+void CSymbolTable::Init() {}
 
 void CSymbolTable::DiscardSymbols()
 {
-	for (symbolmap_t::iterator isymbol = m_symbols.begin(); isymbol != m_symbols.end(); ++isymbol)
-	{
-		(*isymbol).second->Delete();
-	}
-	m_symbols.erase(m_symbols.begin(), m_symbols.end());
+    for (symbolmap_t::iterator isymbol = m_symbols.begin(); isymbol != m_symbols.end(); ++isymbol) {
+        (*isymbol).second->Delete();
+    }
+    m_symbols.erase(m_symbols.begin(), m_symbols.end());
 }
 
 void CSymbolTable::Delete()
 {
-	DiscardSymbols();
-	delete this;
+    DiscardSymbols();
+    delete this;
 }
 
 bool CSymbolTable::AddSymbol(CSymbol* theSymbol)
 {
-	LPCTSTR name = theSymbol->GetName();
+    LPCTSTR name = theSymbol->GetName();
 
-	symbolmap_t::iterator iter = m_symbols.find(name);
-	if (iter != m_symbols.end())
-	{
-		return false;
-	}
-	m_symbols.insert(symbolmap_t::value_type(name, theSymbol));
-	return true;
+    symbolmap_t::iterator iter = m_symbols.find(name);
+    if (iter != m_symbols.end()) {
+        return false;
+    }
+    m_symbols.insert(symbolmap_t::value_type(name, theSymbol));
+    return true;
 }
 
 CSymbol* CSymbolTable::FindSymbol(LPCTSTR symbolName)
 {
-	symbolmap_t::iterator iter = m_symbols.find(symbolName);
-	if (iter != m_symbols.end())
-	{
-		return (*iter).second;
-	}
-	return nullptr;
+    symbolmap_t::iterator iter = m_symbols.find(symbolName);
+    if (iter != m_symbols.end()) {
+        return (*iter).second;
+    }
+    return nullptr;
 }
 
 CSymbol* CSymbolTable::ExtractSymbol(LPCTSTR symbolName)
 {
-	symbolmap_t::iterator iter = m_symbols.find(symbolName);
-	if (iter != m_symbols.end())
-	{
-		CSymbol* retval = (*iter).second;
-		m_symbols.erase(iter);
-	}
-	return nullptr;
+    symbolmap_t::iterator iter = m_symbols.find(symbolName);
+    if (iter != m_symbols.end()) {
+        CSymbol* retval = (*iter).second;
+        m_symbols.erase(iter);
+    }
+    return nullptr;
 }
 
 void CSymbolTable::RemoveSymbol(LPCTSTR symbolName)
 {
-	m_symbols.erase(symbolName);
+    m_symbols.erase(symbolName);
 }
 
 //
 // CParseStream
 //
 
-CParseStream::CParseStream()
-{
-}
+CParseStream::CParseStream() {}
 
-CParseStream::~CParseStream()
-{
-}
+CParseStream::~CParseStream() {}
 
 CParseStream* CParseStream::Create()
 {
-	return nullptr;
+    return nullptr;
 }
 
 void CParseStream::Delete()
 {
-	delete this;
+    delete this;
 }
 
 bool CParseStream::InitBaseStream()
 {
-	m_next = nullptr;
+    m_next = nullptr;
 
-	return true;
+    return true;
 }
 
 bool CParseStream::NextChar(byte& theByte)
 {
-	return false;
+    return false;
 }
 
 long CParseStream::GetRemainingSize()
 {
-	return 0;
+    return 0;
 }
 
 CParseStream* CParseStream::GetNext()
 {
-	return m_next;
+    return m_next;
 }
 
 void CParseStream::SetNext(CParseStream* next)
 {
-	m_next = next;
+    m_next = next;
 }
 
 int CParseStream::GetCurLine()
 {
-	return 0;
+    return 0;
 }
 
 void CParseStream::GetCurFilename(char** theBuff)
 {
-	*theBuff = nullptr;
+    *theBuff = nullptr;
 }
 
 bool CParseStream::IsThisDefinition(void* theDefinition)
 {
-	return false;
+    return false;
 }
 
 //
 // CParsePutBack
 //
 
-CParsePutBack::CParsePutBack()
-{
-}
+CParsePutBack::CParsePutBack() {}
 
-CParsePutBack::~CParsePutBack()
-{
-}
+CParsePutBack::~CParsePutBack() {}
 
 CParsePutBack* CParsePutBack::Create(byte theByte, int curLine, LPCTSTR filename)
 {
-	CParsePutBack* curParsePutBack = new CParsePutBack();
-	curParsePutBack->Init(theByte, curLine, filename);
-	return curParsePutBack;
+    CParsePutBack* curParsePutBack = new CParsePutBack();
+    curParsePutBack->Init(theByte, curLine, filename);
+    return curParsePutBack;
 }
 
 void CParsePutBack::Delete()
 {
-	if (m_curFile != nullptr)
-	{
-		free(m_curFile);
-		m_curFile = nullptr;
-	}
-	delete this;
+    if (m_curFile != nullptr) {
+        free(m_curFile);
+        m_curFile = nullptr;
+    }
+    delete this;
 }
 
 bool CParsePutBack::NextChar(byte& theByte)
 {
-	if (m_consumed)
-	{
-		return false;
-	}
-	theByte = m_byte;
-	m_consumed = true;
-	return true;
+    if (m_consumed) {
+        return false;
+    }
+    theByte = m_byte;
+    m_consumed = true;
+    return true;
 }
 
 void CParsePutBack::Init(byte theByte, int curLine, LPCTSTR filename)
 {
-	CParseStream::InitBaseStream();
-	m_consumed = false;
-	m_byte = theByte;
-	m_curLine = curLine;
-	if (filename != nullptr)
-	{
-		m_curFile = (char*)malloc(strlen(filename) + 1);
-		strcpy(m_curFile, filename);
-	}
-	else
-	{
-		m_curFile = nullptr;
-	}
+    CParseStream::InitBaseStream();
+    m_consumed = false;
+    m_byte = theByte;
+    m_curLine = curLine;
+    if (filename != nullptr) {
+        m_curFile = (char*)malloc(strlen(filename) + 1);
+        strcpy(m_curFile, filename);
+    }
+    else {
+        m_curFile = nullptr;
+    }
 }
 
 long CParsePutBack::GetRemainingSize()
 {
-	if (m_consumed)
-	{
-		return 0;
-	}
-	else
-	{
-		return 1;
-	}
+    if (m_consumed) {
+        return 0;
+    }
+    else {
+        return 1;
+    }
 }
 
 int CParsePutBack::GetCurLine()
 {
-	return m_curLine;
+    return m_curLine;
 }
 
 void CParsePutBack::GetCurFilename(char** theBuff)
 {
-	if (m_curFile == nullptr)
-	{
-		*theBuff = nullptr;
-		return;
-	}
-	*theBuff = (char*)malloc(strlen(m_curFile) + 1);
-	strcpy(*theBuff, m_curFile);
+    if (m_curFile == nullptr) {
+        *theBuff = nullptr;
+        return;
+    }
+    *theBuff = (char*)malloc(strlen(m_curFile) + 1);
+    strcpy(*theBuff, m_curFile);
 }
 
 //
 // CParseFile
 //
 
-CParseFile::CParseFile()
-{
-}
+CParseFile::CParseFile() {}
 
-CParseFile::~CParseFile()
-{
-}
+CParseFile::~CParseFile() {}
 
 CParseFile* CParseFile::Create()
 {
-	CParseFile* theParseFile = new CParseFile();
+    CParseFile* theParseFile = new CParseFile();
 
-	if ( !theParseFile->Init() )
-	{
-		delete theParseFile;
-		return nullptr;
-	}
+    if (!theParseFile->Init()) {
+        delete theParseFile;
+        return nullptr;
+    }
 
-	return theParseFile;
+    return theParseFile;
 }
 
 CParseFile* CParseFile::Create(LPCTSTR filename, CTokenizer* tokenizer)
 {
-	CParseFile* theParseFile = new CParseFile();
+    CParseFile* theParseFile = new CParseFile();
 
-	if ( theParseFile->Init(filename, tokenizer) )
-		return theParseFile;
+    if (theParseFile->Init(filename, tokenizer))
+        return theParseFile;
 
-	return nullptr;
+    return nullptr;
 }
 
 void CParseFile::Delete()
 {
-	if (m_buff != nullptr)
-	{
-		free(m_buff);
-		m_buff = nullptr;
-	}
-	if (m_ownsFile && (m_fileHandle != nullptr))
-	{
+    if (m_buff != nullptr) {
+        free(m_buff);
+        m_buff = nullptr;
+    }
+    if (m_ownsFile && (m_fileHandle != nullptr)) {
 #ifdef WIN32_FILE_IO
-		CloseHandle(m_fileHandle);
+        CloseHandle(m_fileHandle);
 #else
-		fclose( m_fileHandle );
+        fclose(m_fileHandle);
 #endif
-		m_fileHandle = nullptr;
-	}
-	if (m_fileName != nullptr)
-	{
-		free(m_fileName);
-		m_fileName = nullptr;
-	}
-	delete this;
+        m_fileHandle = nullptr;
+    }
+    if (m_fileName != nullptr) {
+        free(m_fileName);
+        m_fileName = nullptr;
+    }
+    delete this;
 }
 
 bool CParseFile::Init()
 {
-	m_fileHandle = nullptr;
-	m_buff = nullptr;
-	m_ownsFile = false;
-	m_curByte = nullptr;
-	m_curLine = 1;
-	m_fileName = nullptr;
-	return CParseStream::InitBaseStream();
+    m_fileHandle = nullptr;
+    m_buff = nullptr;
+    m_ownsFile = false;
+    m_curByte = nullptr;
+    m_curLine = 1;
+    m_fileName = nullptr;
+    return CParseStream::InitBaseStream();
 }
 
 unsigned int CParseFile::GetFileSize()
 {
 #ifdef WIN32_FILE_IO
-	unsigned int dwCur = SetFilePointer(m_fileHandle, 0L, nullptr, FILE_CURRENT);
-	unsigned int dwLen = SetFilePointer(m_fileHandle, 0, nullptr, FILE_END);
-	SetFilePointer(m_fileHandle, dwCur, nullptr, FILE_BEGIN);
+    unsigned int dwCur = SetFilePointer(m_fileHandle, 0L, nullptr, FILE_CURRENT);
+    unsigned int dwLen = SetFilePointer(m_fileHandle, 0, nullptr, FILE_END);
+    SetFilePointer(m_fileHandle, dwCur, nullptr, FILE_BEGIN);
 #else
-	fseek( m_fileHandle, 0L, SEEK_END );
-	unsigned int dwLen = ftell( m_fileHandle );
-	fseek( m_fileHandle, 0L, SEEK_SET );
+    fseek(m_fileHandle, 0L, SEEK_END);
+    unsigned int dwLen = ftell(m_fileHandle);
+    fseek(m_fileHandle, 0L, SEEK_SET);
 #endif
-	return dwLen;
+    return dwLen;
 }
 
 void CParseFile::Read(void* buff, UINT buffsize)
 {
-	unsigned int bytesRead;
+    unsigned int bytesRead;
 #ifdef WIN32_FILE_IO
-	ReadFile(m_fileHandle, buff, buffsize, &bytesRead, nullptr);
+    ReadFile(m_fileHandle, buff, buffsize, &bytesRead, nullptr);
 #else
-	fread( buff, buffsize, 1, m_fileHandle );
+    fread(buff, buffsize, 1, m_fileHandle);
 #endif
 }
 
 bool CParseFile::Init(LPCTSTR filename, CTokenizer* tokenizer)
 {
-	CParseStream::InitBaseStream();
-	m_fileName = (char*)malloc(strlen(filename) + 1);
-	strcpy(m_fileName, filename);
+    CParseStream::InitBaseStream();
+    m_fileName = (char*)malloc(strlen(filename) + 1);
+    strcpy(m_fileName, filename);
 #ifdef WIN32_FILE_IO
-	DWORD dwAccess = GENERIC_READ;
-	DWORD dwShareMode = FILE_SHARE_WRITE | FILE_SHARE_READ;
-	SECURITY_ATTRIBUTES sa;
-	sa.nLength = sizeof(sa);
-	sa.lpSecurityDescriptor = nullptr;
-	sa.bInheritHandle = 0;
-	DWORD dwCreateFlag = OPEN_EXISTING;
+    DWORD dwAccess = GENERIC_READ;
+    DWORD dwShareMode = FILE_SHARE_WRITE | FILE_SHARE_READ;
+    SECURITY_ATTRIBUTES sa;
+    sa.nLength = sizeof(sa);
+    sa.lpSecurityDescriptor = nullptr;
+    sa.bInheritHandle = 0;
+    DWORD dwCreateFlag = OPEN_EXISTING;
 
-	m_fileHandle = CreateFile(filename, dwAccess, dwShareMode, &sa, dwCreateFlag, FILE_ATTRIBUTE_NORMAL, nullptr);
+    m_fileHandle = CreateFile(filename, dwAccess, dwShareMode, &sa, dwCreateFlag, FILE_ATTRIBUTE_NORMAL, nullptr);
 
-	if (m_fileHandle == (HANDLE)-1)
-	{
-		tokenizer->Error(tokenizerError_t::TKERR_INCLUDE_FILE_NOTFOUND);
-		Init();
-		return false;
-	}
+    if (m_fileHandle == (HANDLE)-1) {
+        tokenizer->Error(tokenizerError_t::TKERR_INCLUDE_FILE_NOTFOUND);
+        Init();
+        return false;
+    }
 #else
-	m_fileHandle = fopen( filename, "r+" );
+    m_fileHandle = fopen(filename, "r+");
 
-	if ( !m_fileHandle ) {
-		tokenizer->Error( tokenizerError_t::TKERR_INCLUDE_FILE_NOTFOUND );
-		Init();
-		return false;
-	}
+    if (!m_fileHandle) {
+        tokenizer->Error(tokenizerError_t::TKERR_INCLUDE_FILE_NOTFOUND);
+        Init();
+        return false;
+    }
 #endif
 
-	m_filesize = GetFileSize();
-	m_buff = (byte*)malloc(m_filesize);
-	if (m_buff == nullptr)
-	{
-		tokenizer->Error(tokenizerError_t::TKERR_BUFFERCREATE);
-		Init();
-		return false;
-	}
-	Read(m_buff, m_filesize);
-	m_curByte = 0;
-	m_curPos = 1;
-	m_ownsFile = true;
-	m_curLine = 1;
+    m_filesize = GetFileSize();
+    m_buff = (byte*)malloc(m_filesize);
+    if (m_buff == nullptr) {
+        tokenizer->Error(tokenizerError_t::TKERR_BUFFERCREATE);
+        Init();
+        return false;
+    }
+    Read(m_buff, m_filesize);
+    m_curByte = 0;
+    m_curPos = 1;
+    m_ownsFile = true;
+    m_curLine = 1;
 
-	return true;
+    return true;
 }
 
 long CParseFile::GetRemainingSize()
 {
-	return m_filesize - m_curByte;
+    return m_filesize - m_curByte;
 }
 
 bool CParseFile::NextChar(byte& theByte)
 {
-	if (m_curByte < m_filesize)
-	{
-		if (m_buff[m_curByte] == '\n')
-		{
-			m_curLine += 1;
-			m_curPos = 1;
-		}
-		else
-		{
-			m_curPos++;
-		}
-		theByte = m_buff[m_curByte++];
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+    if (m_curByte < m_filesize) {
+        if (m_buff[m_curByte] == '\n') {
+            m_curLine += 1;
+            m_curPos = 1;
+        }
+        else {
+            m_curPos++;
+        }
+        theByte = m_buff[m_curByte++];
+        return true;
+    }
+    else {
+        return false;
+    }
 }
 
 int CParseFile::GetCurLine()
 {
-	return m_curLine;
+    return m_curLine;
 }
 
 void CParseFile::GetCurFilename(char** theBuff)
 {
-	*theBuff = nullptr;
-	if (m_fileName != nullptr)
-	{
-		*theBuff = (char*)malloc(strlen(m_fileName) + 1);
-		strcpy(*theBuff, m_fileName);
-	}
+    *theBuff = nullptr;
+    if (m_fileName != nullptr) {
+        *theBuff = (char*)malloc(strlen(m_fileName) + 1);
+        strcpy(*theBuff, m_fileName);
+    }
 }
 
 //
 // CParseMemory
 //
 
-CParseMemory::CParseMemory()
-{
-}
+CParseMemory::CParseMemory() {}
 
-CParseMemory::~CParseMemory()
-{
-}
+CParseMemory::~CParseMemory() {}
 
 CParseMemory* CParseMemory::Create(byte* data, long datasize)
 {
-	CParseMemory* curParse = new CParseMemory();
-	curParse->Init(data, datasize);
-	return curParse;
+    CParseMemory* curParse = new CParseMemory();
+    curParse->Init(data, datasize);
+    return curParse;
 }
 
 void CParseMemory::Delete()
 {
-	delete this;
+    delete this;
 }
 
 bool CParseMemory::NextChar(byte& theByte)
 {
-	if (m_offset < m_datasize)
-	{
-		if (m_data[m_offset] == '\n')
-		{
-			m_curLine += 1;
-			m_curPos = 1;
-		}
-		else
-		{
-			m_curPos++;
-		}
-		theByte = m_data[m_offset++];
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+    if (m_offset < m_datasize) {
+        if (m_data[m_offset] == '\n') {
+            m_curLine += 1;
+            m_curPos = 1;
+        }
+        else {
+            m_curPos++;
+        }
+        theByte = m_data[m_offset++];
+        return true;
+    }
+    else {
+        return false;
+    }
 }
 
 void CParseMemory::Init(byte* data, long datasize)
 {
-	m_data = data;
-	m_curLine = 1;
-	m_curPos = 1;
-	m_offset = 0;
-	m_datasize = datasize;
+    m_data = data;
+    m_curLine = 1;
+    m_curPos = 1;
+    m_offset = 0;
+    m_datasize = datasize;
 }
 
 long CParseMemory::GetRemainingSize()
 {
-	return m_datasize - m_offset;
+    return m_datasize - m_offset;
 }
 
 int CParseMemory::GetCurLine()
 {
-	return m_curLine;
+    return m_curLine;
 }
 
 void CParseMemory::GetCurFilename(char** theBuff)
 {
-	*theBuff = nullptr;
+    *theBuff = nullptr;
 }
 
 //
 // CParseBlock
 //
 
-CParseBlock::CParseBlock()
-{
-}
+CParseBlock::CParseBlock() {}
 
-CParseBlock::~CParseBlock()
-{
-}
+CParseBlock::~CParseBlock() {}
 
 CParseBlock* CParseBlock::Create(byte* data, long datasize)
 {
-	CParseBlock* curParse = new CParseBlock();
-	curParse->Init(data, datasize);
-	return curParse;
+    CParseBlock* curParse = new CParseBlock();
+    curParse->Init(data, datasize);
+    return curParse;
 }
 
 void CParseBlock::Delete()
 {
-	if (m_data != nullptr)
-	{
-		free(m_data);
-		m_data = nullptr;
-	}
-	delete this;
+    if (m_data != nullptr) {
+        free(m_data);
+        m_data = nullptr;
+    }
+    delete this;
 }
 
 void CParseBlock::Init(byte* data, long datasize)
 {
-	m_data = (byte*)malloc(datasize);
-	memcpy(m_data, data, datasize);
-	m_curLine = 1;
-	m_curPos = 1;
-	m_offset = 0;
-	m_datasize = datasize;
+    m_data = (byte*)malloc(datasize);
+    memcpy(m_data, data, datasize);
+    m_curLine = 1;
+    m_curPos = 1;
+    m_offset = 0;
+    m_datasize = datasize;
 }
 
 //
 // CParseToken
 //
 
-CParseToken::CParseToken()
-{
-}
+CParseToken::CParseToken() {}
 
-CParseToken::~CParseToken()
-{
-}
+CParseToken::~CParseToken() {}
 
 CParseToken* CParseToken::Create(CToken* token)
 {
-	CParseToken* curParse = new CParseToken();
-	curParse->Init(token);
-	return curParse;
+    CParseToken* curParse = new CParseToken();
+    curParse->Init(token);
+    return curParse;
 }
 
 void CParseToken::Delete()
 {
-	if (m_data != nullptr)
-	{
-		free(m_data);
-		m_data = nullptr;
-	}
-	delete this;
+    if (m_data != nullptr) {
+        free(m_data);
+        m_data = nullptr;
+    }
+    delete this;
 }
 
 bool CParseToken::NextChar(byte& theByte)
 {
-	if (m_offset < m_datasize)
-	{
-		if (m_data[m_offset] == '\n')
-		{
-			m_curLine += 1;
-			m_curPos = 1;
-		}
-		else
-		{
-			m_curPos++;
-		}
-		theByte = m_data[m_offset++];
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+    if (m_offset < m_datasize) {
+        if (m_data[m_offset] == '\n') {
+            m_curLine += 1;
+            m_curPos = 1;
+        }
+        else {
+            m_curPos++;
+        }
+        theByte = m_data[m_offset++];
+        return true;
+    }
+    else {
+        return false;
+    }
 }
 
 void CParseToken::Init(CToken* token)
 {
-	LPCTSTR tokenString = token->GetStringValue();
-	m_datasize = strlen(tokenString);
-	if (m_datasize > 0)
-	{
-		m_data = (byte*) malloc(m_datasize);
-		memcpy(m_data, tokenString, m_datasize);
-	}
-	else
-	{
-		m_data = nullptr;
-	}
-	m_curLine = 1;
-	m_curPos = 1;
-	m_offset = 0;
-	token->Delete();
+    LPCTSTR tokenString = token->GetStringValue();
+    m_datasize = strlen(tokenString);
+    if (m_datasize > 0) {
+        m_data = (byte*)malloc(m_datasize);
+        memcpy(m_data, tokenString, m_datasize);
+    }
+    else {
+        m_data = nullptr;
+    }
+    m_curLine = 1;
+    m_curPos = 1;
+    m_offset = 0;
+    token->Delete();
 }
 
 long CParseToken::GetRemainingSize()
 {
-	return m_datasize - m_offset;
+    return m_datasize - m_offset;
 }
 
 int CParseToken::GetCurLine()
 {
-	return m_curLine;
+    return m_curLine;
 }
 
 void CParseToken::GetCurFilename(char** theBuff)
 {
-	*theBuff = nullptr;
+    *theBuff = nullptr;
 }
 
 //
 // CParseDefine
 //
 
-CParseDefine::CParseDefine()
-{
-}
+CParseDefine::CParseDefine() {}
 
-CParseDefine::~CParseDefine()
-{
-}
+CParseDefine::~CParseDefine() {}
 
 CParseDefine* CParseDefine::Create(CDirectiveSymbol* definesymbol)
 {
-	CParseDefine* retval = new CParseDefine();
-	retval->Init(definesymbol);
-	return retval;
+    CParseDefine* retval = new CParseDefine();
+    retval->Init(definesymbol);
+    return retval;
 }
 
 void CParseDefine::Delete()
 {
-	CParseMemory::Delete();
+    CParseMemory::Delete();
 }
 
 void CParseDefine::Init(CDirectiveSymbol* definesymbol)
 {
-	CParseMemory::Init((byte*)definesymbol->GetValue(), strlen(definesymbol->GetValue()));
-	m_defineSymbol = definesymbol;
+    CParseMemory::Init((byte*)definesymbol->GetValue(), strlen(definesymbol->GetValue()));
+    m_defineSymbol = definesymbol;
 }
 
 bool CParseDefine::IsThisDefinition(void* theDefinition)
 {
-	return (CDirectiveSymbol*)theDefinition == m_defineSymbol;
+    return (CDirectiveSymbol*)theDefinition == m_defineSymbol;
 }
 
 //
 // CToken
 //
 
-CToken::CToken()
-{
-}
+CToken::CToken() {}
 
-CToken::~CToken()
-{
-}
+CToken::~CToken() {}
 
 CToken* CToken::Create()
 {
-	CToken* theToken = new CToken();
-	theToken->InitBaseToken();
-	return theToken;
+    CToken* theToken = new CToken();
+    theToken->InitBaseToken();
+    return theToken;
 }
 
 void CToken::Delete()
 {
-	if (m_string != nullptr)
-	{
-		free(m_string);
-		m_string = nullptr;
-	}
-	delete this;
+    if (m_string != nullptr) {
+        free(m_string);
+        m_string = nullptr;
+    }
+    delete this;
 }
 
 void CToken::Init()
 {
-	m_next = nullptr;
-	m_string = nullptr;
+    m_next = nullptr;
+    m_string = nullptr;
 }
 
 void CToken::SetNext(CToken* theToken)
 {
-	m_next = theToken;
+    m_next = theToken;
 }
 
 CToken* CToken::GetNext()
 {
-	return m_next;
+    return m_next;
 }
 
 icarusToken_t CToken::GetType()
 {
-	return icarusToken_t::TK_EOF;
+    return icarusToken_t::TK_EOF;
 }
 
 int CToken::GetIntValue()
 {
-	return 0;
+    return 0;
 }
 
 LPCTSTR CToken::GetStringValue()
 {
-	if (m_string == nullptr)
-	{
-		return "";
-	}
-	return m_string;
+    if (m_string == nullptr) {
+        return "";
+    }
+    return m_string;
 }
 
 float CToken::GetFloatValue()
 {
-	return 0.0;
+    return 0.0;
 }
 
 //
 // CCharToken
 //
 
-CCharToken::CCharToken()
-{
-}
+CCharToken::CCharToken() {}
 
-CCharToken::~CCharToken()
-{
-}
+CCharToken::~CCharToken() {}
 
 CCharToken* CCharToken::Create(byte theByte)
 {
-	CCharToken* theToken = new CCharToken();
-	theToken->Init(theByte);
-	return theToken;
+    CCharToken* theToken = new CCharToken();
+    theToken->Init(theByte);
+    return theToken;
 }
 
 void CCharToken::Delete()
 {
-	CToken::Delete();
+    CToken::Delete();
 }
 
 void CCharToken::Init(byte theByte)
 {
-	CToken::InitBaseToken();
-	char charString[10];
-	switch(theByte)
-	{
-		case '\0':
-			strcpy(charString, "\\0");
-			break;
-		case '\n':
-			strcpy(charString, "\\n");
-			break;
-		case '\\':
-			strcpy(charString, "\\\\");
-			break;
-		case '\'':
-			strcpy(charString, "\\'");
-			break;
-		case '\?':
-			strcpy(charString, "\\?");
-			break;
-		case '\a':
-			strcpy(charString, "\\a");
-			break;
-		case '\b':
-			strcpy(charString, "\\b");
-			break;
-		case '\f':
-			strcpy(charString, "\\f");
-			break;
-		case '\r':
-			strcpy(charString, "\\r");
-			break;
-		case '\t':
-			strcpy(charString, "\\t");
-			break;
-		case '\v':
-			strcpy(charString, "\\v");
-			break;
-		default:
-			charString[0] = (char)theByte;
-			charString[1] = '\0';
-			break;
-	}
-	m_string = (char*)malloc(strlen(charString) + 1);
-	strcpy(m_string, charString);
+    CToken::InitBaseToken();
+    char charString[10];
+    switch (theByte) {
+    case '\0':
+        strcpy(charString, "\\0");
+        break;
+    case '\n':
+        strcpy(charString, "\\n");
+        break;
+    case '\\':
+        strcpy(charString, "\\\\");
+        break;
+    case '\'':
+        strcpy(charString, "\\'");
+        break;
+    case '\?':
+        strcpy(charString, "\\?");
+        break;
+    case '\a':
+        strcpy(charString, "\\a");
+        break;
+    case '\b':
+        strcpy(charString, "\\b");
+        break;
+    case '\f':
+        strcpy(charString, "\\f");
+        break;
+    case '\r':
+        strcpy(charString, "\\r");
+        break;
+    case '\t':
+        strcpy(charString, "\\t");
+        break;
+    case '\v':
+        strcpy(charString, "\\v");
+        break;
+    default:
+        charString[0] = (char)theByte;
+        charString[1] = '\0';
+        break;
+    }
+    m_string = (char*)malloc(strlen(charString) + 1);
+    strcpy(m_string, charString);
 }
 
 icarusToken_t CCharToken::GetType()
 {
-	return icarusToken_t::TK_CHAR;
+    return icarusToken_t::TK_CHAR;
 }
 
 //
 // CStringToken
 //
 
-CStringToken::CStringToken()
-{
-}
+CStringToken::CStringToken() {}
 
-CStringToken::~CStringToken()
-{
-}
+CStringToken::~CStringToken() {}
 
 CStringToken* CStringToken::Create(LPCTSTR theString)
 {
-	CStringToken* theToken = new CStringToken();
-	theToken->Init(theString);
-	return theToken;
+    CStringToken* theToken = new CStringToken();
+    theToken->Init(theString);
+    return theToken;
 }
 
 void CStringToken::Delete()
 {
-	CToken::Delete();
+    CToken::Delete();
 }
 
 void CStringToken::Init(LPCTSTR theString)
 {
-	CToken::InitBaseToken();
-	m_string = (char*)malloc(strlen(theString) + 1);
-//	ASSERT(m_string);
-	strcpy(m_string, theString);
+    CToken::InitBaseToken();
+    m_string = (char*)malloc(strlen(theString) + 1);
+    //	ASSERT(m_string);
+    strcpy(m_string, theString);
 }
 
 icarusToken_t CStringToken::GetType()
 {
-	return icarusToken_t::TK_STRING;
+    return icarusToken_t::TK_STRING;
 }
 
 //
 // CIntToken
 //
 
-CIntToken::CIntToken()
-{
-}
+CIntToken::CIntToken() {}
 
-CIntToken::~CIntToken()
-{
-}
+CIntToken::~CIntToken() {}
 
 CIntToken* CIntToken::Create(long value)
 {
-	CIntToken* theToken = new CIntToken();
-	theToken->Init(value);
-	return theToken;
+    CIntToken* theToken = new CIntToken();
+    theToken->Init(value);
+    return theToken;
 }
 
 void CIntToken::Delete()
 {
-	CToken::Delete();
+    CToken::Delete();
 }
 
 void CIntToken::Init(long value)
 {
-	CToken::InitBaseToken();
-	m_value = value;
+    CToken::InitBaseToken();
+    m_value = value;
 }
 
 icarusToken_t CIntToken::GetType()
 {
-	return icarusToken_t::TK_INT;
+    return icarusToken_t::TK_INT;
 }
 
 int CIntToken::GetIntValue()
 {
-	return m_value;
+    return m_value;
 }
 
 float CIntToken::GetFloatValue()
 {
-	return (float)m_value;
+    return (float)m_value;
 }
 
 LPCTSTR CIntToken::GetStringValue()
 {
-	if (m_string != nullptr)
-	{
-		free(m_string);
-		m_string = nullptr;
-	}
-	char temp[128];
-	sprintf(temp, "%d", m_value);
-	m_string = (char*)malloc(strlen(temp) + 1);
-	strcpy(m_string, temp);
-	return m_string;
+    if (m_string != nullptr) {
+        free(m_string);
+        m_string = nullptr;
+    }
+    char temp[128];
+    sprintf(temp, "%d", m_value);
+    m_string = (char*)malloc(strlen(temp) + 1);
+    strcpy(m_string, temp);
+    return m_string;
 }
 
 //
 // CFloatToken
 //
 
-CFloatToken::CFloatToken()
-{
-}
+CFloatToken::CFloatToken() {}
 
-CFloatToken::~CFloatToken()
-{
-}
+CFloatToken::~CFloatToken() {}
 
 CFloatToken* CFloatToken::Create(float value)
 {
-	CFloatToken* theToken = new CFloatToken();
-	theToken->Init(value);
-	return theToken;
+    CFloatToken* theToken = new CFloatToken();
+    theToken->Init(value);
+    return theToken;
 }
 
 void CFloatToken::Delete()
 {
-	CToken::Delete();
+    CToken::Delete();
 }
 
 void CFloatToken::Init(float value)
 {
-	CToken::InitBaseToken();
-	m_value = value;
+    CToken::InitBaseToken();
+    m_value = value;
 }
 
 icarusToken_t CFloatToken::GetType()
 {
-	return icarusToken_t::TK_FLOAT;
+    return icarusToken_t::TK_FLOAT;
 }
 
 float CFloatToken::GetFloatValue()
 {
-	return m_value;
+    return m_value;
 }
 
 LPCTSTR CFloatToken::GetStringValue()
 {
-	if (m_string != nullptr)
-	{
-		free(m_string);
-		m_string = nullptr;
-	}
-	char temp[128];
-	sprintf(temp, "%g", m_value);
-	m_string = (char*)malloc(strlen(temp) + 1);
-	strcpy(m_string, temp);
-	return m_string;
+    if (m_string != nullptr) {
+        free(m_string);
+        m_string = nullptr;
+    }
+    char temp[128];
+    sprintf(temp, "%g", m_value);
+    m_string = (char*)malloc(strlen(temp) + 1);
+    strcpy(m_string, temp);
+    return m_string;
 }
 
 //
 // CIdentifierToken
 //
 
-CIdentifierToken::CIdentifierToken()
-{
-}
+CIdentifierToken::CIdentifierToken() {}
 
-CIdentifierToken::~CIdentifierToken()
-{
-}
+CIdentifierToken::~CIdentifierToken() {}
 
 CIdentifierToken* CIdentifierToken::Create(LPCTSTR name)
 {
-	CIdentifierToken* theToken = new CIdentifierToken();
-	theToken->Init(name);
-	return theToken;
+    CIdentifierToken* theToken = new CIdentifierToken();
+    theToken->Init(name);
+    return theToken;
 }
 
 void CIdentifierToken::Delete()
 {
-	CToken::Delete();
+    CToken::Delete();
 }
 
 void CIdentifierToken::Init(LPCTSTR name)
 {
-	CToken::InitBaseToken();
-	m_string = (char*)malloc(strlen(name) + 1);
-//	ASSERT(m_string);
-	strcpy(m_string, name);
+    CToken::InitBaseToken();
+    m_string = (char*)malloc(strlen(name) + 1);
+    //	ASSERT(m_string);
+    strcpy(m_string, name);
 }
 
 icarusToken_t CIdentifierToken::GetType()
 {
-	return icarusToken_t::TK_IDENTIFIER;
+    return icarusToken_t::TK_IDENTIFIER;
 }
 
 //
 // CCommentToken
 //
 
-CCommentToken::CCommentToken()
-{
-}
+CCommentToken::CCommentToken() {}
 
-CCommentToken::~CCommentToken()
-{
-}
+CCommentToken::~CCommentToken() {}
 
 CCommentToken* CCommentToken::Create(LPCTSTR name)
 {
-	CCommentToken* theToken = new CCommentToken();
-	theToken->Init(name);
-	return theToken;
+    CCommentToken* theToken = new CCommentToken();
+    theToken->Init(name);
+    return theToken;
 }
 
 void CCommentToken::Delete()
 {
-	CToken::Delete();
+    CToken::Delete();
 }
 
 void CCommentToken::Init(LPCTSTR name)
 {
-	CToken::InitBaseToken();
-	m_string = (char*)malloc(strlen(name) + 1);
-//	ASSERT(m_string);
-	strcpy(m_string, name);
+    CToken::InitBaseToken();
+    m_string = (char*)malloc(strlen(name) + 1);
+    //	ASSERT(m_string);
+    strcpy(m_string, name);
 }
 
 icarusToken_t CCommentToken::GetType()
 {
-	return icarusToken_t::TK_COMMENT;
+    return icarusToken_t::TK_COMMENT;
 }
 
 //
 // CUserToken
 //
 
-CUserToken::CUserToken()
-{
-}
+CUserToken::CUserToken() {}
 
-CUserToken::~CUserToken()
-{
-}
+CUserToken::~CUserToken() {}
 
 CUserToken* CUserToken::Create(icarusToken_t value, LPCTSTR string)
 {
-	CUserToken* theToken = new CUserToken();
-	theToken->Init(value, string);
-	return theToken;
+    CUserToken* theToken = new CUserToken();
+    theToken->Init(value, string);
+    return theToken;
 }
 
 void CUserToken::Delete()
 {
-	CToken::Delete();
+    CToken::Delete();
 }
 
 void CUserToken::Init(icarusToken_t value, LPCTSTR string)
 {
-	CToken::InitBaseToken();
-	m_value = value;
-	m_string = (char*)malloc(strlen(string) + 1);
-	strcpy(m_string, string);
+    CToken::InitBaseToken();
+    m_value = value;
+    m_string = (char*)malloc(strlen(string) + 1);
+    strcpy(m_string, string);
 }
 
 icarusToken_t CUserToken::GetType()
 {
-	return m_value;
+    return m_value;
 }
 
 //
 // CUndefinedToken
 //
 
-CUndefinedToken::CUndefinedToken()
-{
-}
+CUndefinedToken::CUndefinedToken() {}
 
-CUndefinedToken::~CUndefinedToken()
-{
-}
+CUndefinedToken::~CUndefinedToken() {}
 
 CUndefinedToken* CUndefinedToken::Create(LPCTSTR string)
 {
-	CUndefinedToken* theToken = new CUndefinedToken();
-	theToken->Init(string);
-	return theToken;
+    CUndefinedToken* theToken = new CUndefinedToken();
+    theToken->Init(string);
+    return theToken;
 }
 
 void CUndefinedToken::Delete()
 {
-	CToken::Delete();
+    CToken::Delete();
 }
 
 void CUndefinedToken::Init(LPCTSTR string)
 {
-	CToken::InitBaseToken();
-	m_string = (char*)malloc(strlen(string) + 1);
-	strcpy(m_string, string);
+    CToken::InitBaseToken();
+    m_string = (char*)malloc(strlen(string) + 1);
+    strcpy(m_string, string);
 }
 
 icarusToken_t CUndefinedToken::GetType()
 {
-	return icarusToken_t::TK_UNDEFINED;
+    return icarusToken_t::TK_UNDEFINED;
 }
 
 //
 // CTokenizerState
 //
 
-CTokenizerState::CTokenizerState()
-{
-}
+CTokenizerState::CTokenizerState() {}
 
-CTokenizerState::~CTokenizerState()
-{
-}
+CTokenizerState::~CTokenizerState() {}
 
 CTokenizerState* CTokenizerState::Create(bool skip)
 {
-	CTokenizerState* retval = new CTokenizerState();
-	retval->Init(skip);
-	return retval;
+    CTokenizerState* retval = new CTokenizerState();
+    retval->Init(skip);
+    return retval;
 }
 
 void CTokenizerState::Init(bool skip)
 {
-	m_next = nullptr;
-	m_skip = skip;
-	m_elseHit = false;
+    m_next = nullptr;
+    m_skip = skip;
+    m_elseHit = false;
 }
 
 void CTokenizerState::Delete()
 {
-	delete this;
+    delete this;
 }
 
 CTokenizerState* CTokenizerState::GetNext()
 {
-	return m_next;
+    return m_next;
 }
 
 bool CTokenizerState::ProcessElse()
 {
-	if (!m_elseHit)
-	{
-		m_elseHit = true;
-		m_skip = !m_skip;
-	}
-	return m_elseHit;
+    if (!m_elseHit) {
+        m_elseHit = true;
+        m_skip = !m_skip;
+    }
+    return m_elseHit;
 }
 
 void CTokenizerState::SetNext(CTokenizerState* next)
 {
-	m_next = next;
+    m_next = next;
 }
 
 bool CTokenizerState::Skipping()
 {
-	return m_skip;
+    return m_skip;
 }
 
 //
 // CTokenizerHolderState
 //
 
-CTokenizerHolderState::CTokenizerHolderState()
-{
-}
+CTokenizerHolderState::CTokenizerHolderState() {}
 
-CTokenizerHolderState::~CTokenizerHolderState()
-{
-}
+CTokenizerHolderState::~CTokenizerHolderState() {}
 
 CTokenizerHolderState* CTokenizerHolderState::Create()
 {
-	CTokenizerHolderState* retval = new CTokenizerHolderState();
-	retval->Init();
-	return retval;
+    CTokenizerHolderState* retval = new CTokenizerHolderState();
+    retval->Init();
+    return retval;
 }
 
 void CTokenizerHolderState::Init()
 {
-	CTokenizerState::Init(true);
+    CTokenizerState::Init(true);
 }
 
 void CTokenizerHolderState::Delete()
 {
-	delete this;
+    delete this;
 }
 
 bool CTokenizerHolderState::ProcessElse()
 {
-	if (!m_elseHit)
-	{
-		m_elseHit = true;
-	}
-	return m_elseHit;
+    if (!m_elseHit) {
+        m_elseHit = true;
+    }
+    return m_elseHit;
 }
 
 //
@@ -1393,1493 +1271,1281 @@ bool CTokenizerHolderState::ProcessElse()
 
 CKeywordTable::CKeywordTable(CTokenizer* tokenizer, keywordArray_t* keywords)
 {
-	m_tokenizer = tokenizer;
-	m_holdKeywords = tokenizer->SetKeywords(keywords);
+    m_tokenizer = tokenizer;
+    m_holdKeywords = tokenizer->SetKeywords(keywords);
 }
 
 CKeywordTable::~CKeywordTable()
 {
-	m_tokenizer->SetKeywords(m_holdKeywords);
+    m_tokenizer->SetKeywords(m_holdKeywords);
 }
 
 //
 // CTokenizer
 //
 
-CTokenizer::CTokenizer()
-{
-}
+CTokenizer::CTokenizer() {}
 
-CTokenizer::~CTokenizer()
-{
-}
+CTokenizer::~CTokenizer() {}
 
 CTokenizer* CTokenizer::Create(tokenizerFlags_t dwFlags)
 {
-	CTokenizer* theTokenizer = new CTokenizer();
-	theTokenizer->Init(dwFlags);
-	return theTokenizer;
+    CTokenizer* theTokenizer = new CTokenizer();
+    theTokenizer->Init(dwFlags);
+    return theTokenizer;
 }
 
 void CTokenizer::Delete()
 {
-	while (m_curParseStream != nullptr)
-	{
-		CParseStream* curStream = m_curParseStream;
-		m_curParseStream = curStream->GetNext();
-		curStream->Delete();
-	}
-	if (m_symbolLookup != nullptr)
-	{
-		m_symbolLookup->Delete();
-		m_symbolLookup = nullptr;
-	}
-	while (m_nextToken != nullptr)
-	{
-		CToken* curToken = m_nextToken;
-		m_nextToken = curToken->GetNext();
-		curToken->Delete();
-	}
-	while (m_state != nullptr)
-	{
-		Error(tokenizerError_t::TKERR_UNMATCHED_DIRECTIVE);
-		CTokenizerState* curState = m_state;
-		m_state = curState->GetNext();
-		curState->Delete();
-	}
+    while (m_curParseStream != nullptr) {
+        CParseStream* curStream = m_curParseStream;
+        m_curParseStream = curStream->GetNext();
+        curStream->Delete();
+    }
+    if (m_symbolLookup != nullptr) {
+        m_symbolLookup->Delete();
+        m_symbolLookup = nullptr;
+    }
+    while (m_nextToken != nullptr) {
+        CToken* curToken = m_nextToken;
+        m_nextToken = curToken->GetNext();
+        curToken->Delete();
+    }
+    while (m_state != nullptr) {
+        Error(tokenizerError_t::TKERR_UNMATCHED_DIRECTIVE);
+        CTokenizerState* curState = m_state;
+        m_state = curState->GetNext();
+        curState->Delete();
+    }
 
-/*	if (m_lastErrMsg != nullptr)
-	{
-		free(m_lastErrMsg);
-		m_lastErrMsg = nullptr;
-	}*/
-	delete this;
+    /*	if (m_lastErrMsg != nullptr)
+        {
+            free(m_lastErrMsg);
+            m_lastErrMsg = nullptr;
+        }*/
+    delete this;
 }
 
 void CTokenizer::Error(tokenizerError_t theError)
 {
-	char errString[128];
-	char lookupstring[128];
-	int i = 0;
-	while ((errorMessages[i].m_tokenvalue != to_underlying( tokenizerError_t::TKERR_USERERROR )) && (errorMessages[i].m_tokenvalue != to_underlying( theError )))
-	{
-		i++;
-	}
-	if ((errorMessages[i].m_tokenvalue == to_underlying( tokenizerError_t::TKERR_USERERROR )) && (m_errors != nullptr))
-	{
-		i = 0;
-		while ((m_errors[i].m_tokenvalue != to_underlying( icarusToken_t::TK_EOF )) && (m_errors[i].m_tokenvalue != to_underlying( theError )))
-		{
-			i++;
-		}
-		strcpy(lookupstring, m_errors[i].m_keyword);
-	}
-	else
-	{
-		strcpy(lookupstring, errorMessages[i].m_keyword);
-	}
-	sprintf(errString, "Error -- %d, %s", to_underlying( theError ), lookupstring);
-	Error(errString, theError);
+    char errString[128];
+    char lookupstring[128];
+    int i = 0;
+    while ((errorMessages[i].m_tokenvalue != to_underlying(tokenizerError_t::TKERR_USERERROR)) && (errorMessages[i].m_tokenvalue != to_underlying(theError))) {
+        i++;
+    }
+    if ((errorMessages[i].m_tokenvalue == to_underlying(tokenizerError_t::TKERR_USERERROR)) && (m_errors != nullptr)) {
+        i = 0;
+        while ((m_errors[i].m_tokenvalue != to_underlying(icarusToken_t::TK_EOF)) && (m_errors[i].m_tokenvalue != to_underlying(theError))) {
+            i++;
+        }
+        strcpy(lookupstring, m_errors[i].m_keyword);
+    }
+    else {
+        strcpy(lookupstring, errorMessages[i].m_keyword);
+    }
+    sprintf(errString, "Error -- %d, %s", to_underlying(theError), lookupstring);
+    Error(errString, theError);
 }
 
 void CTokenizer::Error(tokenizerError_t theError, LPCTSTR errString)
 {
-	char errstring[128];
-	char lookupstring[128];
-	int i = 0;
-	while ((errorMessages[i].m_tokenvalue != to_underlying( tokenizerError_t::TKERR_USERERROR )) && (errorMessages[i].m_tokenvalue != to_underlying( theError )))
-	{
-		i++;
-	}
-	if ((errorMessages[i].m_tokenvalue == to_underlying( tokenizerError_t::TKERR_USERERROR )) && (m_errors != nullptr))
-	{
-		i = 0;
-		while ((m_errors[i].m_tokenvalue != to_underlying( icarusToken_t::TK_EOF )) && (m_errors[i].m_tokenvalue != to_underlying( theError )))
-		{
-			i++;
-		}
-		strcpy(lookupstring, m_errors[i].m_keyword);
-	}
-	else
-	{
-		strcpy(lookupstring, errorMessages[i].m_keyword);
-	}
-	sprintf(errstring, "Error -- %d, %s - %s", to_underlying( theError ), lookupstring, errString);
-	Error(errstring, theError);
+    char errstring[128];
+    char lookupstring[128];
+    int i = 0;
+    while ((errorMessages[i].m_tokenvalue != to_underlying(tokenizerError_t::TKERR_USERERROR)) && (errorMessages[i].m_tokenvalue != to_underlying(theError))) {
+        i++;
+    }
+    if ((errorMessages[i].m_tokenvalue == to_underlying(tokenizerError_t::TKERR_USERERROR)) && (m_errors != nullptr)) {
+        i = 0;
+        while ((m_errors[i].m_tokenvalue != to_underlying(icarusToken_t::TK_EOF)) && (m_errors[i].m_tokenvalue != to_underlying(theError))) {
+            i++;
+        }
+        strcpy(lookupstring, m_errors[i].m_keyword);
+    }
+    else {
+        strcpy(lookupstring, errorMessages[i].m_keyword);
+    }
+    sprintf(errstring, "Error -- %d, %s - %s", to_underlying(theError), lookupstring, errString);
+    Error(errstring, theError);
 }
 
 void CTokenizer::Error(LPCTSTR errString, tokenizerError_t theError)
 {
-	if (m_errorProc != nullptr)
-	{
-		m_errorProc(errString);
-	}
+    if (m_errorProc != nullptr) {
+        m_errorProc(errString);
+    }
 #ifdef USES_MODULES
-	else
-	{
-		ReportError(to_underlying( theError ), errString);
-	}
+    else {
+        ReportError(to_underlying(theError), errString);
+    }
 #endif
 }
 
 bool CTokenizer::AddParseFile(LPCTSTR filename)
 {
-	CParseStream* newStream = CParseFile::Create(filename, this);
+    CParseStream* newStream = CParseFile::Create(filename, this);
 
-	if ( newStream != nullptr )
-	{
-		newStream->SetNext(m_curParseStream);
-		m_curParseStream = newStream;
-		return true;
-	}
+    if (newStream != nullptr) {
+        newStream->SetNext(m_curParseStream);
+        m_curParseStream = newStream;
+        return true;
+    }
 
-	return false;
+    return false;
 }
 
 void CTokenizer::AddParseStream(byte* data, long datasize)
 {
-	CParseStream* newStream = CParseMemory::Create(data, datasize);
-	newStream->SetNext(m_curParseStream);
-	m_curParseStream = newStream;
+    CParseStream* newStream = CParseMemory::Create(data, datasize);
+    newStream->SetNext(m_curParseStream);
+    m_curParseStream = newStream;
 }
 
 long CTokenizer::GetRemainingSize()
 {
-	long retval = 0;
-	CParseStream* curStream = m_curParseStream;
-	while (curStream != nullptr)
-	{
-		retval += curStream->GetRemainingSize();
-		curStream = curStream->GetNext();
-	}
-	return retval;
+    long retval = 0;
+    CParseStream* curStream = m_curParseStream;
+    while (curStream != nullptr) {
+        retval += curStream->GetRemainingSize();
+        curStream = curStream->GetNext();
+    }
+    return retval;
 }
 
 LPCTSTR CTokenizer::LookupToken(icarusToken_t tokenID, keywordArray_t* theTable)
 {
-	if (theTable == nullptr)
-	{
-		theTable = m_keywords;
-	}
-	if (theTable == nullptr)
-	{
-		return nullptr;
-	}
+    if (theTable == nullptr) {
+        theTable = m_keywords;
+    }
+    if (theTable == nullptr) {
+        return nullptr;
+    }
 
-	int i = 0;
-	while (theTable[i].m_tokenvalue != to_underlying( icarusToken_t::TK_EOF ))
-	{
-		if (theTable[i].m_tokenvalue == to_underlying( tokenID ))
-		{
-			return theTable[i].m_keyword;
-		}
-		i++;
-	}
-	return nullptr;
+    int i = 0;
+    while (theTable[i].m_tokenvalue != to_underlying(icarusToken_t::TK_EOF)) {
+        if (theTable[i].m_tokenvalue == to_underlying(tokenID)) {
+            return theTable[i].m_keyword;
+        }
+        i++;
+    }
+    return nullptr;
 }
 
 void CTokenizer::PutBackToken(CToken* theToken, bool commented, LPCTSTR addedChars, bool bIgnoreThisTokenType)
 {
-	if (commented)
-	{
-		CParseToken* newStream = CParseToken::Create(theToken);
-		newStream->SetNext(m_curParseStream);
-		m_curParseStream = newStream;
+    if (commented) {
+        CParseToken* newStream = CParseToken::Create(theToken);
+        newStream->SetNext(m_curParseStream);
+        m_curParseStream = newStream;
 
-		if (addedChars != nullptr)
-		{
-			CParsePutBack* spacer = CParsePutBack::Create(' ', 0, nullptr);
-			spacer->SetNext(m_curParseStream);
-			m_curParseStream = spacer;
+        if (addedChars != nullptr) {
+            CParsePutBack* spacer = CParsePutBack::Create(' ', 0, nullptr);
+            spacer->SetNext(m_curParseStream);
+            m_curParseStream = spacer;
 
-			CParseBlock* newBlock = CParseBlock::Create((byte*)addedChars, strlen(addedChars));
-			newBlock->SetNext(m_curParseStream);
-			m_curParseStream = newBlock;
-		}
+            CParseBlock* newBlock = CParseBlock::Create((byte*)addedChars, strlen(addedChars));
+            newBlock->SetNext(m_curParseStream);
+            m_curParseStream = newBlock;
+        }
 
-		char temp[] = "// * ";
-		CParseBlock* newBlock = CParseBlock::Create((byte*)temp, strlen(temp));
-		newBlock->SetNext(m_curParseStream);
-		m_curParseStream = newBlock;
-		return;
-	}
+        char temp[] = "// * ";
+        CParseBlock* newBlock = CParseBlock::Create((byte*)temp, strlen(temp));
+        newBlock->SetNext(m_curParseStream);
+        m_curParseStream = newBlock;
+        return;
+    }
 
-	switch(theToken->GetType())
-	{
-	case icarusToken_t::TK_INT:
-	case icarusToken_t::TK_EOF:
-	case icarusToken_t::TK_UNDEFINED:
-	case icarusToken_t::TK_FLOAT:
-	case icarusToken_t::TK_CHAR:
-	case icarusToken_t::TK_STRING:
-	case icarusToken_t::TK_EOL:
-	case icarusToken_t::TK_COMMENT:
-		if (!bIgnoreThisTokenType)
-		{
-			theToken->SetNext(m_nextToken);
-			m_nextToken = theToken;
-			break;
-		}
-	default:
-		CParseToken* newStream = CParseToken::Create(theToken);
-		newStream->SetNext(m_curParseStream);
-		m_curParseStream = newStream;
-		break;
-	}
+    switch (theToken->GetType()) {
+    case icarusToken_t::TK_INT:
+    case icarusToken_t::TK_EOF:
+    case icarusToken_t::TK_UNDEFINED:
+    case icarusToken_t::TK_FLOAT:
+    case icarusToken_t::TK_CHAR:
+    case icarusToken_t::TK_STRING:
+    case icarusToken_t::TK_EOL:
+    case icarusToken_t::TK_COMMENT:
+        if (!bIgnoreThisTokenType) {
+            theToken->SetNext(m_nextToken);
+            m_nextToken = theToken;
+            break;
+        }
+    default:
+        CParseToken* newStream = CParseToken::Create(theToken);
+        newStream->SetNext(m_curParseStream);
+        m_curParseStream = newStream;
+        break;
+    }
 
-	if (addedChars != nullptr)
-	{
-		CParseBlock* newBlock = CParseBlock::Create((byte*)addedChars, strlen(addedChars));
-		newBlock->SetNext(m_curParseStream);
-		m_curParseStream = newBlock;
-	}
+    if (addedChars != nullptr) {
+        CParseBlock* newBlock = CParseBlock::Create((byte*)addedChars, strlen(addedChars));
+        newBlock->SetNext(m_curParseStream);
+        m_curParseStream = newBlock;
+    }
 }
 
 CToken* CTokenizer::GetToken(keywordArray_t* keywords, tokenizerFlags_t onFlags, tokenizerFlags_t offFlags)
 {
-	keywordArray_t* holdKeywords = SetKeywords(keywords);
-	CToken* retval = GetToken(onFlags, offFlags);
-	SetKeywords(holdKeywords);
-	return retval;
+    keywordArray_t* holdKeywords = SetKeywords(keywords);
+    CToken* retval = GetToken(onFlags, offFlags);
+    SetKeywords(holdKeywords);
+    return retval;
 }
 
 CToken* CTokenizer::GetToken(tokenizerFlags_t onFlags, tokenizerFlags_t offFlags)
 {
-	tokenizerFlags_t holdFlags = m_flags;
+    tokenizerFlags_t holdFlags = m_flags;
 
-	m_flags |= onFlags;
-	m_flags &= (~offFlags);
-	CToken* theToken = nullptr;
-	while (theToken == nullptr)
-	{
-		theToken = FetchToken();
-		if (theToken == nullptr)
-		{
-			continue;
-		}
-		if (theToken->GetType() == icarusToken_t::TK_EOF)
-		{
-			break;
-		}
-		if (m_state != nullptr)
-		{
-			if (m_state->Skipping())
-			{
-				theToken->Delete();
-				theToken = nullptr;
-			}
-		}
-	}
+    m_flags |= onFlags;
+    m_flags &= (~offFlags);
+    CToken* theToken = nullptr;
+    while (theToken == nullptr) {
+        theToken = FetchToken();
+        if (theToken == nullptr) {
+            continue;
+        }
+        if (theToken->GetType() == icarusToken_t::TK_EOF) {
+            break;
+        }
+        if (m_state != nullptr) {
+            if (m_state->Skipping()) {
+                theToken->Delete();
+                theToken = nullptr;
+            }
+        }
+    }
 
-	m_flags = holdFlags;
-	return theToken;
+    m_flags = holdFlags;
+    return theToken;
 }
 
 CToken* CTokenizer::GetToEndOfLine(icarusToken_t tokenType)
 {
-	// update, if you just want the whole line returned as a string, then allow a much bigger size than
-	//	the default string size of only 128 chars...
-	//
-	if (tokenType == icarusToken_t::TK_STRING)
-	{
-		constexpr int iRETURN_STRING_SIZE = 2048;
-		char theString[iRETURN_STRING_SIZE];
-		theString[0] = ' ';
+    // update, if you just want the whole line returned as a string, then allow a much bigger size than
+    //	the default string size of only 128 chars...
+    //
+    if (tokenType == icarusToken_t::TK_STRING) {
+        constexpr int iRETURN_STRING_SIZE = 2048;
+        char theString[iRETURN_STRING_SIZE];
+        theString[0] = ' ';
 
-		for (int i = 1; i < iRETURN_STRING_SIZE; i++)
-		{
-			if (NextChar((byte&)theString[i]))
-			{
-				if (theString[i] != '\n')
-				{
-					continue;
-				}
-				PutBackChar(theString[i]);
-			}
-			theString[i] = '\0';
+        for (int i = 1; i < iRETURN_STRING_SIZE; i++) {
+            if (NextChar((byte&)theString[i])) {
+                if (theString[i] != '\n') {
+                    continue;
+                }
+                PutBackChar(theString[i]);
+            }
+            theString[i] = '\0';
 
-			return CStringToken::Create(theString);
-		}
+            return CStringToken::Create(theString);
+        }
 
-		// line would maks a string too big to fit in buffer...
-		//
-		Error(tokenizerError_t::TKERR_STRINGLENGTHEXCEEDED);
-	}
-	else
-	{
-		char theString[MAX_IDENTIFIER_LENGTH];
-		theString[0] = ' ';
-		while (theString[0] == ' ')
-		{
-			if (!NextChar((byte&)theString[0]))
-			{
-				return nullptr;
-			}
-		}
-		for (int i = 1; i < MAX_IDENTIFIER_LENGTH; i++)
-		{
-			if (NextChar((byte&)theString[i]))
-			{
-				if (theString[i] != '\n')
-				{
-					continue;
-				}
-				PutBackChar(theString[i]);
-			}
-			theString[i] = '\0';
-			switch(tokenType)
-			{
-			case icarusToken_t::TK_COMMENT:
-				return CCommentToken::Create(theString);
-			case icarusToken_t::TK_IDENTIFIER:
-			default:
-				return CIdentifierToken::Create(theString);
-			}
-		}
-		Error(tokenizerError_t::TKERR_IDENTIFIERLENGTHEXCEEDED);
-	}
-	return nullptr;
+        // line would maks a string too big to fit in buffer...
+        //
+        Error(tokenizerError_t::TKERR_STRINGLENGTHEXCEEDED);
+    }
+    else {
+        char theString[MAX_IDENTIFIER_LENGTH];
+        theString[0] = ' ';
+        while (theString[0] == ' ') {
+            if (!NextChar((byte&)theString[0])) {
+                return nullptr;
+            }
+        }
+        for (int i = 1; i < MAX_IDENTIFIER_LENGTH; i++) {
+            if (NextChar((byte&)theString[i])) {
+                if (theString[i] != '\n') {
+                    continue;
+                }
+                PutBackChar(theString[i]);
+            }
+            theString[i] = '\0';
+            switch (tokenType) {
+            case icarusToken_t::TK_COMMENT:
+                return CCommentToken::Create(theString);
+            case icarusToken_t::TK_IDENTIFIER:
+            default:
+                return CIdentifierToken::Create(theString);
+            }
+        }
+        Error(tokenizerError_t::TKERR_IDENTIFIERLENGTHEXCEEDED);
+    }
+    return nullptr;
 }
 
 void CTokenizer::SkipToLineEnd()
 {
-	byte theByte;
-	while(NextChar(theByte))
-	{
-		if (theByte == '\n')
-		{
-			break;
-		}
-	}
+    byte theByte;
+    while (NextChar(theByte)) {
+        if (theByte == '\n') {
+            break;
+        }
+    }
 }
 
 CToken* CTokenizer::FetchToken()
 {
-	if (m_nextToken != nullptr)
-	{
-		CToken* curToken = m_nextToken;
-		m_nextToken = curToken->GetNext();
-		curToken->SetNext(nullptr);
-		return curToken;
-	}
-	byte theByte;
-	CToken* theToken = nullptr;
+    if (m_nextToken != nullptr) {
+        CToken* curToken = m_nextToken;
+        m_nextToken = curToken->GetNext();
+        curToken->SetNext(nullptr);
+        return curToken;
+    }
+    byte theByte;
+    CToken* theToken = nullptr;
 
-	while (true)
-	{
-		if (!NextChar(theByte))
-		{
-			return CToken::Create();
-		}
-		if (theByte <= ' ')
-		{
-			if ((theByte == '\n') && Any(tokenizerFlags_t::TKF_USES_EOL & m_flags))
-			{
-				return CUserToken::Create(icarusToken_t::TK_EOL, "-EOLN-");
-			}
-			continue;
-		}
-		switch(theByte)
-		{
-		case '#':
-			if (!Any(m_flags & tokenizerFlags_t::TKF_IGNOREDIRECTIVES))
-			{
-				theToken = HandleDirective();
-			}
-			else
-			{
-				if (Any(m_flags & tokenizerFlags_t::TKF_NODIRECTIVES))
-				{
-					return HandleSymbol('#');
-				}
-				SkipToLineEnd();
-			}
-			break;
-		case '/':
-			theToken = HandleSlash();
-			break;
-		case '"':
-			theToken = HandleString();
-			break;
-		case '\'':
-			theToken = HandleQuote();
-			break;
-		default:
-			if (((theByte >= 'a') && (theByte <= 'z'))
-				|| ((theByte >= 'A') && (theByte <= 'Z'))
-				|| ((theByte == '_') && !Any(m_flags & tokenizerFlags_t::TKF_NOUNDERSCOREINIDENTIFIER)))
-			{
-				theToken = HandleIdentifier(theByte);
-			}
-			else if (Any(m_flags & tokenizerFlags_t::TKF_NUMERICIDENTIFIERSTART) && (theByte >= '0') && (theByte <= '9'))
-			{
-				theToken = HandleIdentifier(theByte);
-			}
-			else if (((theByte >= '0') && (theByte <= '9')) || (theByte == '-'))
-			{
-				theToken = HandleNumeric(theByte);
-			}
-			else if (theByte == '.')
-			{
-				theToken = HandleDecimal();
-			}
-			else if (theByte <= ' ')
-			{
-				break;
-			}
-			else
-			{
-				theToken = HandleSymbol(theByte);
-			}
-		}
-		if (theToken != nullptr)
-		{
-			return theToken;
-		}
-	}
+    while (true) {
+        if (!NextChar(theByte)) {
+            return CToken::Create();
+        }
+        if (theByte <= ' ') {
+            if ((theByte == '\n') && Any(tokenizerFlags_t::TKF_USES_EOL & m_flags)) {
+                return CUserToken::Create(icarusToken_t::TK_EOL, "-EOLN-");
+            }
+            continue;
+        }
+        switch (theByte) {
+        case '#':
+            if (!Any(m_flags & tokenizerFlags_t::TKF_IGNOREDIRECTIVES)) {
+                theToken = HandleDirective();
+            }
+            else {
+                if (Any(m_flags & tokenizerFlags_t::TKF_NODIRECTIVES)) {
+                    return HandleSymbol('#');
+                }
+                SkipToLineEnd();
+            }
+            break;
+        case '/':
+            theToken = HandleSlash();
+            break;
+        case '"':
+            theToken = HandleString();
+            break;
+        case '\'':
+            theToken = HandleQuote();
+            break;
+        default:
+            if (((theByte >= 'a') && (theByte <= 'z')) || ((theByte >= 'A') && (theByte <= 'Z')) ||
+                ((theByte == '_') && !Any(m_flags & tokenizerFlags_t::TKF_NOUNDERSCOREINIDENTIFIER))) {
+                theToken = HandleIdentifier(theByte);
+            }
+            else if (Any(m_flags & tokenizerFlags_t::TKF_NUMERICIDENTIFIERSTART) && (theByte >= '0') && (theByte <= '9')) {
+                theToken = HandleIdentifier(theByte);
+            }
+            else if (((theByte >= '0') && (theByte <= '9')) || (theByte == '-')) {
+                theToken = HandleNumeric(theByte);
+            }
+            else if (theByte == '.') {
+                theToken = HandleDecimal();
+            }
+            else if (theByte <= ' ') {
+                break;
+            }
+            else {
+                theToken = HandleSymbol(theByte);
+            }
+        }
+        if (theToken != nullptr) {
+            return theToken;
+        }
+    }
 }
 
 bool CTokenizer::NextChar(byte& theByte)
 {
-	while (m_curParseStream != nullptr)
-	{
-		if (m_curParseStream->NextChar(theByte))
-		{
-			return true;
-		}
-		CParseStream* curParseStream = m_curParseStream;
-		m_curParseStream = curParseStream->GetNext();
-		curParseStream->Delete();
-	}
-	return false;
+    while (m_curParseStream != nullptr) {
+        if (m_curParseStream->NextChar(theByte)) {
+            return true;
+        }
+        CParseStream* curParseStream = m_curParseStream;
+        m_curParseStream = curParseStream->GetNext();
+        curParseStream->Delete();
+    }
+    return false;
 }
 
 bool CTokenizer::RequireToken(icarusToken_t tokenType)
 {
-	CToken* theToken = GetToken();
-	bool retValue = theToken->GetType() == tokenType;
-	theToken->Delete();
-	return retValue;
+    CToken* theToken = GetToken();
+    bool retValue = theToken->GetType() == tokenType;
+    theToken->Delete();
+    return retValue;
 }
 
 void CTokenizer::ScanUntilToken(icarusToken_t tokenType)
 {
-	CToken* curToken;
-	icarusToken_t tokenValue = icarusToken_t::TK_UNDEFINED;
-	while (tokenValue != tokenType)
-	{
-		curToken = GetToken();
-		tokenValue = curToken->GetType();
-		if (tokenValue == icarusToken_t::TK_EOF)
-		{
-			PutBackToken(curToken);
-			break;
-		}
-		if (tokenValue == tokenType)
-		{
-			PutBackToken(curToken);
-		}
-		else
-		{
-			curToken->Delete();
-		}
-	}
+    CToken* curToken;
+    icarusToken_t tokenValue = icarusToken_t::TK_UNDEFINED;
+    while (tokenValue != tokenType) {
+        curToken = GetToken();
+        tokenValue = curToken->GetType();
+        if (tokenValue == icarusToken_t::TK_EOF) {
+            PutBackToken(curToken);
+            break;
+        }
+        if (tokenValue == tokenType) {
+            PutBackToken(curToken);
+        }
+        else {
+            curToken->Delete();
+        }
+    }
 }
 
 void CTokenizer::Init(tokenizerFlags_t dwFlags)
 {
-	m_symbolLookup = nullptr;
-	m_nextToken = nullptr;
-	m_curParseStream = nullptr;
-	m_keywords = nullptr;
-	m_symbols = nullptr;
-	m_errors = nullptr;
-	m_state = nullptr;
-	m_flags = dwFlags;
-	m_errorProc = nullptr;
+    m_symbolLookup = nullptr;
+    m_nextToken = nullptr;
+    m_curParseStream = nullptr;
+    m_keywords = nullptr;
+    m_symbols = nullptr;
+    m_errors = nullptr;
+    m_state = nullptr;
+    m_flags = dwFlags;
+    m_errorProc = nullptr;
 }
 
 void CTokenizer::SetErrorProc(LPTokenizerErrorProc errorProc)
 {
-	m_errorProc = errorProc;
+    m_errorProc = errorProc;
 }
 
 void CTokenizer::SetAdditionalErrors(keywordArray_t* theErrors)
 {
-	m_errors = theErrors;
+    m_errors = theErrors;
 }
 
 keywordArray_t* CTokenizer::SetKeywords(keywordArray_t* theKeywords)
 {
-	keywordArray_t* retval = m_keywords;
-	m_keywords = theKeywords;
-	return retval;
+    keywordArray_t* retval = m_keywords;
+    m_keywords = theKeywords;
+    return retval;
 }
 
 void CTokenizer::SetSymbols(keywordArray_t* theSymbols)
 {
-	m_symbols = theSymbols;
-	if (m_symbolLookup != nullptr)
-	{
-		m_symbolLookup->Delete();
-		m_symbolLookup = nullptr;
-	}
-	int i = 0;
-	if (theSymbols == nullptr)
-	{
-		return;
-	}
-	while(theSymbols[i].m_tokenvalue != to_underlying( icarusToken_t::TK_EOF ))
-	{
-		InsertSymbol(theSymbols[i].m_keyword, theSymbols[i].m_tokenvalue);
-		i++;
-	}
+    m_symbols = theSymbols;
+    if (m_symbolLookup != nullptr) {
+        m_symbolLookup->Delete();
+        m_symbolLookup = nullptr;
+    }
+    int i = 0;
+    if (theSymbols == nullptr) {
+        return;
+    }
+    while (theSymbols[i].m_tokenvalue != to_underlying(icarusToken_t::TK_EOF)) {
+        InsertSymbol(theSymbols[i].m_keyword, theSymbols[i].m_tokenvalue);
+        i++;
+    }
 }
 
 void CTokenizer::InsertSymbol(LPCTSTR theSymbol, int theValue)
 {
-	CSymbolLookup** curHead = &m_symbolLookup;
-	CSymbolLookup* curParent = nullptr;
-	CSymbolLookup* curLookup = nullptr;
+    CSymbolLookup** curHead = &m_symbolLookup;
+    CSymbolLookup* curParent = nullptr;
+    CSymbolLookup* curLookup = nullptr;
 
-	for (UINT i = 0; i < strlen(theSymbol); i++)
-	{
-		bool found = false;
-		curLookup = *curHead;
-		while (curLookup != nullptr)
-		{
-			if (curLookup->GetByte() == theSymbol[i])
-			{
-				found = true;
-				break;
-			}
-			curLookup = curLookup->GetNext();
-		}
-		if (!found)
-		{
-			curLookup = CSymbolLookup::Create(theSymbol[i]);
-			curLookup->SetParent(curParent);
-			curLookup->SetNext(*curHead);
-			*curHead = curLookup;
-		}
-		curHead = curLookup->GetChildAddress();
-		curParent = curLookup;
-	}
-	if (curLookup->GetValue() != -1)
-	{
-		Error(tokenizerError_t::TKERR_DUPLICATESYMBOL);
-	}
-	curLookup->SetValue(theValue);
+    for (UINT i = 0; i < strlen(theSymbol); i++) {
+        bool found = false;
+        curLookup = *curHead;
+        while (curLookup != nullptr) {
+            if (curLookup->GetByte() == theSymbol[i]) {
+                found = true;
+                break;
+            }
+            curLookup = curLookup->GetNext();
+        }
+        if (!found) {
+            curLookup = CSymbolLookup::Create(theSymbol[i]);
+            curLookup->SetParent(curParent);
+            curLookup->SetNext(*curHead);
+            *curHead = curLookup;
+        }
+        curHead = curLookup->GetChildAddress();
+        curParent = curLookup;
+    }
+    if (curLookup->GetValue() != -1) {
+        Error(tokenizerError_t::TKERR_DUPLICATESYMBOL);
+    }
+    curLookup->SetValue(theValue);
 }
 
 CToken* CTokenizer::HandleString()
 {
-	char theString[MAX_STRING_LENGTH];
-	for (int i = 0; i < MAX_STRING_LENGTH; i++)
-	{
-		if (!NextChar((byte&)theString[i]))
-		{
-			return nullptr;
-		}
-		if (theString[i] == '"')
-		{
-			theString[i] = '\0';
-			return CStringToken::Create(theString);
-		}
-		if (theString[i] == '\\')
-		{
-			theString[i] = Escapement();
-		}
-	}
-	Error(tokenizerError_t::TKERR_STRINGLENGTHEXCEEDED);
-	return nullptr;
+    char theString[MAX_STRING_LENGTH];
+    for (int i = 0; i < MAX_STRING_LENGTH; i++) {
+        if (!NextChar((byte&)theString[i])) {
+            return nullptr;
+        }
+        if (theString[i] == '"') {
+            theString[i] = '\0';
+            return CStringToken::Create(theString);
+        }
+        if (theString[i] == '\\') {
+            theString[i] = Escapement();
+        }
+    }
+    Error(tokenizerError_t::TKERR_STRINGLENGTHEXCEEDED);
+    return nullptr;
 }
 
 void CTokenizer::GetCurFilename(char** filename)
 {
-	if (m_curParseStream == nullptr)
-	{
-		*filename = (char*)malloc(1);
-		*filename[0] = '\0';
-		return;
-	}
-	m_curParseStream->GetCurFilename(filename);
+    if (m_curParseStream == nullptr) {
+        *filename = (char*)malloc(1);
+        *filename[0] = '\0';
+        return;
+    }
+    m_curParseStream->GetCurFilename(filename);
 }
 
 int CTokenizer::GetCurLine()
 {
-	if (m_curParseStream == nullptr)
-	{
-		return 0;
-	}
-	return m_curParseStream->GetCurLine();
+    if (m_curParseStream == nullptr) {
+        return 0;
+    }
+    return m_curParseStream->GetCurLine();
 }
 
 void CTokenizer::PutBackChar(byte theByte, int curLine, LPCTSTR filename)
 {
-	CParseStream* newStream;
-	if (filename == nullptr)
-	{
-		curLine = m_curParseStream->GetCurLine();
-		char* theFile = nullptr;
-		m_curParseStream->GetCurFilename(&theFile);
-		newStream = CParsePutBack::Create(theByte, curLine, theFile);
-		if (theFile != nullptr)
-		{
-			free(theFile);
-		}
-	}
-	else
-	{
-		newStream = CParsePutBack::Create(theByte, curLine, filename);
-	}
-	newStream->SetNext(m_curParseStream);
-	m_curParseStream = newStream;
+    CParseStream* newStream;
+    if (filename == nullptr) {
+        curLine = m_curParseStream->GetCurLine();
+        char* theFile = nullptr;
+        m_curParseStream->GetCurFilename(&theFile);
+        newStream = CParsePutBack::Create(theByte, curLine, theFile);
+        if (theFile != nullptr) {
+            free(theFile);
+        }
+    }
+    else {
+        newStream = CParsePutBack::Create(theByte, curLine, filename);
+    }
+    newStream->SetNext(m_curParseStream);
+    m_curParseStream = newStream;
 }
 
 byte CTokenizer::Escapement()
 {
-	byte theByte;
-	if (NextChar(theByte))
-	{
-		switch(theByte)
-		{
-		case 'n':
-			return '\n';
-		case '\\':
-			return '\\';
-		case '\'':
-			return '\'';
-		case '?':
-			return '\?';
-		case 'a':
-			return '\a';
-		case 'b':
-			return '\b';
-		case 'f':
-			return '\f';
-		case 'r':
-			return '\r';
-		case 't':
-			return '\t';
-		case 'v':
-			return '\v';
-		case '0':
-			return '\0';
-		// support for octal or hex sequences?? \000 or \xhhh
-		default:
-			PutBackChar(theByte);
-		}
-	}
-	return '\\';
+    byte theByte;
+    if (NextChar(theByte)) {
+        switch (theByte) {
+        case 'n':
+            return '\n';
+        case '\\':
+            return '\\';
+        case '\'':
+            return '\'';
+        case '?':
+            return '\?';
+        case 'a':
+            return '\a';
+        case 'b':
+            return '\b';
+        case 'f':
+            return '\f';
+        case 'r':
+            return '\r';
+        case 't':
+            return '\t';
+        case 'v':
+            return '\v';
+        case '0':
+            return '\0';
+        // support for octal or hex sequences?? \000 or \xhhh
+        default:
+            PutBackChar(theByte);
+        }
+    }
+    return '\\';
 }
 
 bool CTokenizer::AddDefineSymbol(CDirectiveSymbol* definesymbol)
 {
-	CParseStream* curStream = m_curParseStream;
-	while(curStream != nullptr)
-	{
-		if (curStream->IsThisDefinition(definesymbol))
-		{
-			return false;
-		}
-		curStream = curStream->GetNext();
-	}
-	CParseStream* newStream = CParseDefine::Create(definesymbol);
-	newStream->SetNext(m_curParseStream);
-	m_curParseStream = newStream;
-	return true;
+    CParseStream* curStream = m_curParseStream;
+    while (curStream != nullptr) {
+        if (curStream->IsThisDefinition(definesymbol)) {
+            return false;
+        }
+        curStream = curStream->GetNext();
+    }
+    CParseStream* newStream = CParseDefine::Create(definesymbol);
+    newStream->SetNext(m_curParseStream);
+    m_curParseStream = newStream;
+    return true;
 }
 
 CToken* CTokenizer::TokenFromName(LPCTSTR name)
 {
-	CDirectiveSymbol* defineSymbol = (CDirectiveSymbol*)m_defines.FindSymbol(name);
-	if (defineSymbol != nullptr)
-	{
-		if (AddDefineSymbol(defineSymbol))
-		{
-			return FetchToken();
-		}
-	}
-	if ((m_keywords != nullptr) && !Any(m_flags & tokenizerFlags_t::TKF_IGNOREKEYWORDS))
-	{
-		int i = 0;
-		if (!Any(m_flags & tokenizerFlags_t::TKF_NOCASEKEYWORDS))
-		{
-			while (m_keywords[i].m_tokenvalue != to_underlying( icarusToken_t::TK_EOF ))
-			{
-				if (strcmp(m_keywords[i].m_keyword, name) == 0)
-				{
-					return CUserToken::Create(static_cast<icarusToken_t>( m_keywords[i].m_tokenvalue ), name);
-				}
-				i++;
-			}
-		}
-		else
-		{
-			while (m_keywords[i].m_tokenvalue != to_underlying( icarusToken_t::TK_EOF ))
-			{
-				if (stricmp(m_keywords[i].m_keyword, name) == 0)
-				{
-					return CUserToken::Create(static_cast<icarusToken_t>( m_keywords[i].m_tokenvalue ), name);
-				}
-				i++;
-			}
-		}
-	}
-	return CIdentifierToken::Create(name);
+    CDirectiveSymbol* defineSymbol = (CDirectiveSymbol*)m_defines.FindSymbol(name);
+    if (defineSymbol != nullptr) {
+        if (AddDefineSymbol(defineSymbol)) {
+            return FetchToken();
+        }
+    }
+    if ((m_keywords != nullptr) && !Any(m_flags & tokenizerFlags_t::TKF_IGNOREKEYWORDS)) {
+        int i = 0;
+        if (!Any(m_flags & tokenizerFlags_t::TKF_NOCASEKEYWORDS)) {
+            while (m_keywords[i].m_tokenvalue != to_underlying(icarusToken_t::TK_EOF)) {
+                if (strcmp(m_keywords[i].m_keyword, name) == 0) {
+                    return CUserToken::Create(static_cast<icarusToken_t>(m_keywords[i].m_tokenvalue), name);
+                }
+                i++;
+            }
+        }
+        else {
+            while (m_keywords[i].m_tokenvalue != to_underlying(icarusToken_t::TK_EOF)) {
+                if (stricmp(m_keywords[i].m_keyword, name) == 0) {
+                    return CUserToken::Create(static_cast<icarusToken_t>(m_keywords[i].m_tokenvalue), name);
+                }
+                i++;
+            }
+        }
+    }
+    return CIdentifierToken::Create(name);
 }
 
 directive_t CTokenizer::DirectiveFromName(LPCTSTR name)
 {
-	if (directiveKeywords != nullptr)
-	{
-		int i = 0;
-		while (directiveKeywords[i].m_tokenvalue != to_underlying( icarusToken_t::TK_EOF ))
-		{
-			if (strcmp(directiveKeywords[i].m_keyword, name) == 0)
-			{
-				return static_cast<directive_t>( directiveKeywords[i].m_tokenvalue );
-			}
-			i++;
-		}
-	}
-	return directive_t::DIR_UNKNOWN;
+    if (directiveKeywords != nullptr) {
+        int i = 0;
+        while (directiveKeywords[i].m_tokenvalue != to_underlying(icarusToken_t::TK_EOF)) {
+            if (strcmp(directiveKeywords[i].m_keyword, name) == 0) {
+                return static_cast<directive_t>(directiveKeywords[i].m_tokenvalue);
+            }
+            i++;
+        }
+    }
+    return directive_t::DIR_UNKNOWN;
 }
 
 CToken* CTokenizer::HandleIdentifier(byte theByte)
 {
-	char theString[MAX_IDENTIFIER_LENGTH];
-	theString[0] = theByte;
-	for (int i = 1; i < MAX_IDENTIFIER_LENGTH; i++)
-	{
-		if (NextChar((byte&)theString[i]))
-		{
-			if (((theString[i] != '_') || !Any(m_flags & tokenizerFlags_t::TKF_NOUNDERSCOREINIDENTIFIER)) &&
-				((theString[i] != '-') || !Any(m_flags & tokenizerFlags_t::TKF_NODASHINIDENTIFIER)))
-			{
-				if (((theString[i] >= 'A') && (theString[i] <= 'Z'))
-				 || ((theString[i] >= 'a') && (theString[i] <= 'z'))
-				 || ((theString[i] >= '0') && (theString[i] <= '9'))
-				 || (theString[i] == '_') || (theString[i] == '-'))
-				{
-					continue;
-				}
-			}
-			PutBackChar(theString[i]);
-		}
-		theString[i] = '\0';
-		return TokenFromName(theString);
-	}
-	Error(tokenizerError_t::TKERR_IDENTIFIERLENGTHEXCEEDED);
-	return nullptr;
+    char theString[MAX_IDENTIFIER_LENGTH];
+    theString[0] = theByte;
+    for (int i = 1; i < MAX_IDENTIFIER_LENGTH; i++) {
+        if (NextChar((byte&)theString[i])) {
+            if (((theString[i] != '_') || !Any(m_flags & tokenizerFlags_t::TKF_NOUNDERSCOREINIDENTIFIER)) &&
+                ((theString[i] != '-') || !Any(m_flags & tokenizerFlags_t::TKF_NODASHINIDENTIFIER))) {
+                if (((theString[i] >= 'A') && (theString[i] <= 'Z')) || ((theString[i] >= 'a') && (theString[i] <= 'z')) ||
+                    ((theString[i] >= '0') && (theString[i] <= '9')) || (theString[i] == '_') || (theString[i] == '-')) {
+                    continue;
+                }
+            }
+            PutBackChar(theString[i]);
+        }
+        theString[i] = '\0';
+        return TokenFromName(theString);
+    }
+    Error(tokenizerError_t::TKERR_IDENTIFIERLENGTHEXCEEDED);
+    return nullptr;
 }
 
 CToken* CTokenizer::HandleSlash()
 {
-	byte theByte;
-	if (!NextChar(theByte))
-	{
-		return nullptr;
-	}
-	if (theByte == '/')
-	{
-		if (Any(m_flags & tokenizerFlags_t::TKF_COMMENTTOKENS))
-		{
-			return GetToEndOfLine(icarusToken_t::TK_COMMENT);
-		}
-		SkipToLineEnd();
-		return nullptr;
-	}
-	if (theByte == '*')
-	{
-		if (Any(m_flags & tokenizerFlags_t::TKF_COMMENTTOKENS))
-		{
-			char theString[MAX_IDENTIFIER_LENGTH + 1];
-			theString[0] = ' ';
-			while (theString[0] == ' ')
-			{
-				if (!NextChar((byte&)theString[0]))
-				{
-					return nullptr;
-				}
-			}
-			for (int i = 1; i < MAX_IDENTIFIER_LENGTH; i++)
-			{
-				if (NextChar((byte&)theString[i]))
-				{
-					if (theString[i] != '*')
-					{
-						continue;
-					}
-					i++;
-					if (NextChar((byte&)theString[i]))
-					{
-						if (theString[i] == '/')
-						{
-							i--;
-							theString[i] = '\0';
-							return CCommentToken::Create(theString);
-						}
-					}
-				}
-			}
-			Error(tokenizerError_t::TKERR_IDENTIFIERLENGTHEXCEEDED);
-			return nullptr;
-		}
-		while(NextChar(theByte))
-		{
-			while(theByte == '*')
-			{
-				if (!NextChar(theByte))
-				{
-					break;
-				}
-				if (theByte == '/')
-				{
-					return nullptr;
-				}
-			}
-		}
-		return nullptr;
-	}
-	PutBackChar(theByte);
-	return HandleSymbol('/');
+    byte theByte;
+    if (!NextChar(theByte)) {
+        return nullptr;
+    }
+    if (theByte == '/') {
+        if (Any(m_flags & tokenizerFlags_t::TKF_COMMENTTOKENS)) {
+            return GetToEndOfLine(icarusToken_t::TK_COMMENT);
+        }
+        SkipToLineEnd();
+        return nullptr;
+    }
+    if (theByte == '*') {
+        if (Any(m_flags & tokenizerFlags_t::TKF_COMMENTTOKENS)) {
+            char theString[MAX_IDENTIFIER_LENGTH + 1];
+            theString[0] = ' ';
+            while (theString[0] == ' ') {
+                if (!NextChar((byte&)theString[0])) {
+                    return nullptr;
+                }
+            }
+            for (int i = 1; i < MAX_IDENTIFIER_LENGTH; i++) {
+                if (NextChar((byte&)theString[i])) {
+                    if (theString[i] != '*') {
+                        continue;
+                    }
+                    i++;
+                    if (NextChar((byte&)theString[i])) {
+                        if (theString[i] == '/') {
+                            i--;
+                            theString[i] = '\0';
+                            return CCommentToken::Create(theString);
+                        }
+                    }
+                }
+            }
+            Error(tokenizerError_t::TKERR_IDENTIFIERLENGTHEXCEEDED);
+            return nullptr;
+        }
+        while (NextChar(theByte)) {
+            while (theByte == '*') {
+                if (!NextChar(theByte)) {
+                    break;
+                }
+                if (theByte == '/') {
+                    return nullptr;
+                }
+            }
+        }
+        return nullptr;
+    }
+    PutBackChar(theByte);
+    return HandleSymbol('/');
 }
 
 CToken* CTokenizer::HandleNumeric(byte theByte)
 {
-	bool thesign = theByte == '-';
-	if (thesign)
-	{
-		if (!NextChar(theByte))
-		{
-			return HandleSymbol('-');
-		}
-		if (theByte == '.')
-		{
-			return HandleDecimal(thesign);
-		}
-		if ((theByte < '0') || (theByte > '9'))
-		{
-			PutBackChar(theByte);
-			return HandleSymbol('-');
-		}
-	}
-	if (theByte == '0')
-	{
-		return HandleOctal(thesign);
-	}
-	long value = 0;
-	bool digithit = false;
-	while((theByte >= '0') && (theByte <= '9'))
-	{
-		value = (value * 10) + (theByte - '0');
-		if (!NextChar(theByte))
-		{
-			if (thesign)
-			{
-				value = -value;
-			}
-			return CIntToken::Create(value);
-		}
-		digithit = true;
-	}
-	if (theByte == '.')
-	{
-		if (digithit)
-		{
-			return HandleFloat(thesign, value);
-		}
-		if (thesign)
-		{
-			PutBackChar(theByte);
-			theByte = '-';
-		}
-		return HandleSymbol(theByte);
-	}
-	PutBackChar(theByte);
-	if (thesign)
-	{
-		value = -value;
-	}
-	return CIntToken::Create(value);
+    bool thesign = theByte == '-';
+    if (thesign) {
+        if (!NextChar(theByte)) {
+            return HandleSymbol('-');
+        }
+        if (theByte == '.') {
+            return HandleDecimal(thesign);
+        }
+        if ((theByte < '0') || (theByte > '9')) {
+            PutBackChar(theByte);
+            return HandleSymbol('-');
+        }
+    }
+    if (theByte == '0') {
+        return HandleOctal(thesign);
+    }
+    long value = 0;
+    bool digithit = false;
+    while ((theByte >= '0') && (theByte <= '9')) {
+        value = (value * 10) + (theByte - '0');
+        if (!NextChar(theByte)) {
+            if (thesign) {
+                value = -value;
+            }
+            return CIntToken::Create(value);
+        }
+        digithit = true;
+    }
+    if (theByte == '.') {
+        if (digithit) {
+            return HandleFloat(thesign, value);
+        }
+        if (thesign) {
+            PutBackChar(theByte);
+            theByte = '-';
+        }
+        return HandleSymbol(theByte);
+    }
+    PutBackChar(theByte);
+    if (thesign) {
+        value = -value;
+    }
+    return CIntToken::Create(value);
 }
 
 CToken* CTokenizer::HandleOctal(bool thesign)
 {
-	byte theByte;
-	int value = 0;
+    byte theByte;
+    int value = 0;
 
-	if (!NextChar(theByte))
-	{
-		return CIntToken::Create(value);
-	}
-	if (theByte == '.')
-	{
-		return HandleDecimal(thesign);
-	}
-	if ((theByte == 'x') || (theByte == 'X'))
-	{
-		return HandleHex(thesign);
-	}
-	while(true)
-	{
-		if((theByte >= '0') && (theByte <='7'))
-		{
-			value = (value * 8) + (theByte - '0');
-		}
-		else
-		{
-			PutBackChar(theByte);
-			if (thesign)
-			{
-				value = -value;
-			}
-			return CIntToken::Create(value);
-		}
-		if (!NextChar(theByte))
-		{
-			if (thesign)
-			{
-				value = -value;
-			}
-			return CIntToken::Create(value);
-		}
-	}
+    if (!NextChar(theByte)) {
+        return CIntToken::Create(value);
+    }
+    if (theByte == '.') {
+        return HandleDecimal(thesign);
+    }
+    if ((theByte == 'x') || (theByte == 'X')) {
+        return HandleHex(thesign);
+    }
+    while (true) {
+        if ((theByte >= '0') && (theByte <= '7')) {
+            value = (value * 8) + (theByte - '0');
+        }
+        else {
+            PutBackChar(theByte);
+            if (thesign) {
+                value = -value;
+            }
+            return CIntToken::Create(value);
+        }
+        if (!NextChar(theByte)) {
+            if (thesign) {
+                value = -value;
+            }
+            return CIntToken::Create(value);
+        }
+    }
 }
 
 CToken* CTokenizer::HandleHex(bool thesign)
 {
-	int value = 0;
+    int value = 0;
 
-	while (true)
-	{
-		byte theByte;
-		if (!NextChar(theByte))
-		{
-			if (thesign)
-			{
-				value = -value;
-			}
-			return CIntToken::Create(value);
-		}
-		switch (theByte)
-		{
-		case '0':
-		case '1':
-		case '2':
-		case '3':
-		case '4':
-		case '5':
-		case '6':
-		case '7':
-		case '8':
-		case '9':
-			theByte = theByte - '0';
-			break;
-		case 'A':
-		case 'B':
-		case 'C':
-		case 'D':
-		case 'E':
-		case 'F':
-			theByte = theByte - 'A' + 10;
-			break;
-		case 'a':
-		case 'b':
-		case 'c':
-		case 'd':
-		case 'e':
-		case 'f':
-			theByte = theByte - 'a' + 10;
-			break;
-		default:
-			PutBackChar(theByte);
-			if (thesign)
-			{
-				value = -value;
-			}
-			return CIntToken::Create(value);
-		}
-		value = (value * 16) + theByte;
-	}
+    while (true) {
+        byte theByte;
+        if (!NextChar(theByte)) {
+            if (thesign) {
+                value = -value;
+            }
+            return CIntToken::Create(value);
+        }
+        switch (theByte) {
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+            theByte = theByte - '0';
+            break;
+        case 'A':
+        case 'B':
+        case 'C':
+        case 'D':
+        case 'E':
+        case 'F':
+            theByte = theByte - 'A' + 10;
+            break;
+        case 'a':
+        case 'b':
+        case 'c':
+        case 'd':
+        case 'e':
+        case 'f':
+            theByte = theByte - 'a' + 10;
+            break;
+        default:
+            PutBackChar(theByte);
+            if (thesign) {
+                value = -value;
+            }
+            return CIntToken::Create(value);
+        }
+        value = (value * 16) + theByte;
+    }
 }
 
 CToken* CTokenizer::HandleDecimal(bool thesign)
 {
-	byte theByte;
-	if (!NextChar(theByte))
-	{
-		if (thesign)
-		{
-			PutBackChar('.');
-			return HandleSymbol('-');
-		}
-		HandleSymbol('.');
-	}
-	PutBackChar(theByte);
-	if ((theByte <= '9') && (theByte >= '0'))
-	{
-		return HandleFloat(thesign);
-	}
-	if (thesign)
-	{
-		PutBackChar('.');
-		theByte = '-';
-	}
-	else
-	{
-		theByte = '.';
-	}
-	return HandleSymbol(theByte);
+    byte theByte;
+    if (!NextChar(theByte)) {
+        if (thesign) {
+            PutBackChar('.');
+            return HandleSymbol('-');
+        }
+        HandleSymbol('.');
+    }
+    PutBackChar(theByte);
+    if ((theByte <= '9') && (theByte >= '0')) {
+        return HandleFloat(thesign);
+    }
+    if (thesign) {
+        PutBackChar('.');
+        theByte = '-';
+    }
+    else {
+        theByte = '.';
+    }
+    return HandleSymbol(theByte);
 }
 
 CToken* CTokenizer::HandleFloat(bool thesign, long value)
 {
-	float lower = 1.0;
-	float newValue = (float)value;
-	byte theByte;
-	while(NextChar(theByte))
-	{
-		if ((theByte >= '0') && (theByte <= '9'))
-		{
-			lower = lower / 10;
-			newValue = newValue + ((theByte - '0') * lower);
-			continue;
-		}
-		PutBackChar(theByte);
-		break;
-	}
-	if (thesign)
-	{
-		newValue = -newValue;
-	}
-	return CFloatToken::Create(newValue);
+    float lower = 1.0;
+    float newValue = (float)value;
+    byte theByte;
+    while (NextChar(theByte)) {
+        if ((theByte >= '0') && (theByte <= '9')) {
+            lower = lower / 10;
+            newValue = newValue + ((theByte - '0') * lower);
+            continue;
+        }
+        PutBackChar(theByte);
+        break;
+    }
+    if (thesign) {
+        newValue = -newValue;
+    }
+    return CFloatToken::Create(newValue);
 }
 
 CToken* CTokenizer::HandleQuote()
 {
-	byte theByte;
-	if (!NextChar(theByte))
-	{
-		Error(tokenizerError_t::TKERR_EXPECTED_CHAR);
-		return nullptr;
-	}
-	if (theByte == '\\')
-	{
-		theByte = Escapement();
-	}
-	byte dummy;
-	if (!NextChar(dummy))
-	{
-		Error(tokenizerError_t::TKERR_EXPECTED_CHAR);
-		return nullptr;
-	}
-	if (dummy != '\'')
-	{
-		PutBackChar(dummy);
-		PutBackChar(theByte);
-		Error(tokenizerError_t::TKERR_EXPECTED_CHAR);
-		return nullptr;
-	}
-	return CCharToken::Create(theByte);
+    byte theByte;
+    if (!NextChar(theByte)) {
+        Error(tokenizerError_t::TKERR_EXPECTED_CHAR);
+        return nullptr;
+    }
+    if (theByte == '\\') {
+        theByte = Escapement();
+    }
+    byte dummy;
+    if (!NextChar(dummy)) {
+        Error(tokenizerError_t::TKERR_EXPECTED_CHAR);
+        return nullptr;
+    }
+    if (dummy != '\'') {
+        PutBackChar(dummy);
+        PutBackChar(theByte);
+        Error(tokenizerError_t::TKERR_EXPECTED_CHAR);
+        return nullptr;
+    }
+    return CCharToken::Create(theByte);
 }
 
 void CTokenizer::SetFlags(tokenizerFlags_t flags)
 {
-	m_flags = flags;
+    m_flags = flags;
 }
 
 tokenizerFlags_t CTokenizer::GetFlags()
 {
-	return m_flags;
+    return m_flags;
 }
 
 CToken* CTokenizer::HandleSymbol(byte theByte)
 {
-	char symbolString[128];
-	int curStrLen = 0;
-	symbolString[0] = '\0';
-	bool consumed = false;
+    char symbolString[128];
+    int curStrLen = 0;
+    symbolString[0] = '\0';
+    bool consumed = false;
 
-	CSymbolLookup* curLookup;
-	if (!Any(m_flags & tokenizerFlags_t::TKF_RAWSYMBOLSONLY))
-	{
-		curLookup = m_symbolLookup;
-	}
-	else
-	{
-		curLookup = nullptr;
-	}
-	CSymbolLookup* lastLookup = nullptr;
-	while(curLookup != nullptr)
-	{
-		if (curLookup->GetByte() == theByte)
-		{
-			symbolString[curStrLen++] = theByte;
-			symbolString[curStrLen] = '\0';
-			lastLookup = curLookup;
-			consumed = true;
-			if (curLookup->GetChild() == nullptr)
-			{
-				break;
-			}
-			if (!NextChar(theByte))
-			{
-				PutBackToken(CToken::Create());
-				break;
-			}
-			consumed = false;
-			curLookup = curLookup->GetChild();
-			continue;
-		}
-		curLookup = curLookup->GetNext();
-	}
-	if ((!consumed) && (lastLookup != nullptr))
-	{
-		PutBackChar(theByte);
-	}
-	while ((lastLookup != nullptr) && (lastLookup->GetValue() == -1))
-	{
-		curStrLen--;
-		symbolString[curStrLen] = '\0';
-	//	symbolString = symbolString.Left(symbolString.GetLength() - 1);
-		if (lastLookup->GetParent() == nullptr)
-		{
-			if (!Any(m_flags & tokenizerFlags_t::TKF_WANTUNDEFINED))
-			{
-				Error(tokenizerError_t::TKERR_UNRECOGNIZEDSYMBOL);
-			}
-		}
-		else
-		{
-			PutBackChar(lastLookup->GetByte());
-		}
-		lastLookup = lastLookup->GetParent();
-	}
-	if (lastLookup == nullptr)
-	{
-		if (!Any(m_flags & tokenizerFlags_t::TKF_WANTUNDEFINED))
-		{
-			return nullptr;
-		}
-		curStrLen = 0;
-		symbolString[curStrLen++] = char(theByte);
-		symbolString[curStrLen] = '\0';
-		if (Any(m_flags & tokenizerFlags_t::TKF_WIDEUNDEFINEDSYMBOLS))
-		{
-			while (true)
-			{
-				if (!NextChar(theByte))
-				{
-					PutBackToken(CToken::Create());
-					break;
-				}
-				if (theByte == ' ')
-				{
-					break;
-				}
-				if (((theByte >= 'a') && (theByte <= 'z')) || ((theByte >= 'A') && (theByte <= 'Z')) ||
-				((theByte >= '0') && (theByte <= '9')))
-				{
-					PutBackChar(theByte);
-					break;
-				}
-				if (theByte < ' ')
-				{
-					if ((theByte == '\n') && Any(tokenizerFlags_t::TKF_USES_EOL & m_flags))
-					{
-						PutBackToken(CUserToken::Create(icarusToken_t::TK_EOL, "-EOLN-"));
-						break;
-					}
-					continue;
-				}
-				symbolString[curStrLen++] = theByte;
-				symbolString[curStrLen] = '\0';
-			}
-		}
-		return CUndefinedToken::Create(symbolString);
-	}
-	return CUserToken::Create(static_cast<icarusToken_t>( lastLookup->GetValue() ), symbolString);
+    CSymbolLookup* curLookup;
+    if (!Any(m_flags & tokenizerFlags_t::TKF_RAWSYMBOLSONLY)) {
+        curLookup = m_symbolLookup;
+    }
+    else {
+        curLookup = nullptr;
+    }
+    CSymbolLookup* lastLookup = nullptr;
+    while (curLookup != nullptr) {
+        if (curLookup->GetByte() == theByte) {
+            symbolString[curStrLen++] = theByte;
+            symbolString[curStrLen] = '\0';
+            lastLookup = curLookup;
+            consumed = true;
+            if (curLookup->GetChild() == nullptr) {
+                break;
+            }
+            if (!NextChar(theByte)) {
+                PutBackToken(CToken::Create());
+                break;
+            }
+            consumed = false;
+            curLookup = curLookup->GetChild();
+            continue;
+        }
+        curLookup = curLookup->GetNext();
+    }
+    if ((!consumed) && (lastLookup != nullptr)) {
+        PutBackChar(theByte);
+    }
+    while ((lastLookup != nullptr) && (lastLookup->GetValue() == -1)) {
+        curStrLen--;
+        symbolString[curStrLen] = '\0';
+        //	symbolString = symbolString.Left(symbolString.GetLength() - 1);
+        if (lastLookup->GetParent() == nullptr) {
+            if (!Any(m_flags & tokenizerFlags_t::TKF_WANTUNDEFINED)) {
+                Error(tokenizerError_t::TKERR_UNRECOGNIZEDSYMBOL);
+            }
+        }
+        else {
+            PutBackChar(lastLookup->GetByte());
+        }
+        lastLookup = lastLookup->GetParent();
+    }
+    if (lastLookup == nullptr) {
+        if (!Any(m_flags & tokenizerFlags_t::TKF_WANTUNDEFINED)) {
+            return nullptr;
+        }
+        curStrLen = 0;
+        symbolString[curStrLen++] = char(theByte);
+        symbolString[curStrLen] = '\0';
+        if (Any(m_flags & tokenizerFlags_t::TKF_WIDEUNDEFINEDSYMBOLS)) {
+            while (true) {
+                if (!NextChar(theByte)) {
+                    PutBackToken(CToken::Create());
+                    break;
+                }
+                if (theByte == ' ') {
+                    break;
+                }
+                if (((theByte >= 'a') && (theByte <= 'z')) || ((theByte >= 'A') && (theByte <= 'Z')) || ((theByte >= '0') && (theByte <= '9'))) {
+                    PutBackChar(theByte);
+                    break;
+                }
+                if (theByte < ' ') {
+                    if ((theByte == '\n') && Any(tokenizerFlags_t::TKF_USES_EOL & m_flags)) {
+                        PutBackToken(CUserToken::Create(icarusToken_t::TK_EOL, "-EOLN-"));
+                        break;
+                    }
+                    continue;
+                }
+                symbolString[curStrLen++] = theByte;
+                symbolString[curStrLen] = '\0';
+            }
+        }
+        return CUndefinedToken::Create(symbolString);
+    }
+    return CUserToken::Create(static_cast<icarusToken_t>(lastLookup->GetValue()), symbolString);
 }
 
 CToken* CTokenizer::HandleDirective()
 {
-	int tokenValue = 0;
-	CToken* theToken = FetchToken();
-	if (theToken->GetType() == icarusToken_t::TK_EOF)
-	{
-		return theToken;
-	}
-	if (theToken->GetType() != icarusToken_t::TK_IDENTIFIER)
-	{
-		Error(tokenizerError_t::TKERR_INVALID_DIRECTIVE);
-		theToken->Delete();
-		SkipToLineEnd();
-		return nullptr;
-	}
+    int tokenValue = 0;
+    CToken* theToken = FetchToken();
+    if (theToken->GetType() == icarusToken_t::TK_EOF) {
+        return theToken;
+    }
+    if (theToken->GetType() != icarusToken_t::TK_IDENTIFIER) {
+        Error(tokenizerError_t::TKERR_INVALID_DIRECTIVE);
+        theToken->Delete();
+        SkipToLineEnd();
+        return nullptr;
+    }
 
-	CDirectiveSymbol* curSymbol;
-	CTokenizerState* state;
-	directive_t theDirective = DirectiveFromName(theToken->GetStringValue());
-	theToken->Delete();
-	byte theByte;
-	switch(theDirective)
-	{
-	case directive_t::DIR_INCLUDE:
-		if ((m_state != nullptr) && (m_state->Skipping()))
-		{
-			break;
-		}
-		theToken = GetToken();
-		if (theToken->GetType() != icarusToken_t::TK_STRING)
-		{
-			Error(tokenizerError_t::TKERR_INCLUDE_FILE_NOTFOUND);
-			theToken->Delete();
-			SkipToLineEnd();
-			break;
-		}
-		AddParseFile(theToken->GetStringValue());
-		theToken->Delete();
-		break;
-	case directive_t::DIR_IFDEF:
-		if ((m_state != nullptr) && (m_state->Skipping()))
-		{
-			state = CTokenizerHolderState::Create();
-			state->SetNext(m_state);
-			m_state = state;
-			break;
-		}
-		theToken = GetToken();
-		if (theToken->GetType() != icarusToken_t::TK_IDENTIFIER)
-		{
-			Error(tokenizerError_t::TKERR_EXPECTED_IDENTIFIER);
-			theToken->Delete();
-			SkipToLineEnd();
-			break;
-		}
-		state = CTokenizerState::Create(m_defines.FindSymbol(theToken->GetStringValue()) == nullptr);
-		theToken->Delete();
-		state->SetNext(m_state);
-		m_state = state;
-		break;
-	case directive_t::DIR_IFNDEF:
-		if ((m_state != nullptr) && (m_state->Skipping()))
-		{
-			state = CTokenizerHolderState::Create();
-			state->SetNext(m_state);
-			m_state = state;
-			break;
-		}
-		theToken = GetToken();
-		if (theToken->GetType() != icarusToken_t::TK_IDENTIFIER)
-		{
-			Error(tokenizerError_t::TKERR_EXPECTED_IDENTIFIER);
-			theToken->Delete();
-			SkipToLineEnd();
-			break;
-		}
-		state = CTokenizerState::Create(m_defines.FindSymbol(theToken->GetStringValue()) != nullptr);
-		theToken->Delete();
-		state->SetNext(m_state);
-		m_state = state;
-		break;
-	case directive_t::DIR_ENDIF:
-		if (m_state == nullptr)
-		{
-			Error(tokenizerError_t::TKERR_UNMATCHED_DIRECTIVE);
-			break;
-		}
-		state = m_state;
-		m_state = state->GetNext();
-		state->Delete();
-		break;
-	case directive_t::DIR_ELSE:
-		if (m_state == nullptr)
-		{
-			Error(tokenizerError_t::TKERR_UNMATCHED_DIRECTIVE);
-			break;
-		}
-		if (!m_state->ProcessElse())
-		{
-			Error(tokenizerError_t::TKERR_UNMATCHED_DIRECTIVE);
-			break;
-		}
-		break;
-	case directive_t::DIR_DEFINE:
-		if ((m_state != nullptr) && (m_state->Skipping()))
-		{
-			break;
-		}
-		theToken = GetToken();
-		if (theToken->GetType() != icarusToken_t::TK_IDENTIFIER)
-		{
-			Error(tokenizerError_t::TKERR_EXPECTED_IDENTIFIER);
-			theToken->Delete();
-			SkipToLineEnd();
-			break;
-		}
-		// blind add - should check first for value changes
-		{
-			curSymbol = CDirectiveSymbol::Create(theToken->GetStringValue());
-			char temp[128];
-			int tempsize = 0;
-			while(NextChar(theByte))
-			{
-				if (theByte == '\n')
-				{
-					break;
-				}
-				temp[tempsize++] = char(theByte);
-			}
-			temp[tempsize] = '\0';
-			curSymbol->SetValue(temp);
-			if (!m_defines.AddSymbol(curSymbol))
-			{
-				curSymbol->Delete();
-			}
-		}
-		break;
-	case directive_t::DIR_UNDEFINE:
-		if ((m_state != nullptr) && (m_state->Skipping()))
-		{
-			break;
-		}
-		theToken = GetToken();
-		if (theToken->GetType() != icarusToken_t::TK_IDENTIFIER)
-		{
-			Error(tokenizerError_t::TKERR_EXPECTED_IDENTIFIER);
-			theToken->Delete();
-			SkipToLineEnd();
-			break;
-		}
-		m_defines.RemoveSymbol(theToken->GetStringValue());
-		break;
-	default:
-		Error(tokenizerError_t::TKERR_INVALID_DIRECTIVE);
-		SkipToLineEnd();
-		break;
-	}
-	return nullptr;
+    CDirectiveSymbol* curSymbol;
+    CTokenizerState* state;
+    directive_t theDirective = DirectiveFromName(theToken->GetStringValue());
+    theToken->Delete();
+    byte theByte;
+    switch (theDirective) {
+    case directive_t::DIR_INCLUDE:
+        if ((m_state != nullptr) && (m_state->Skipping())) {
+            break;
+        }
+        theToken = GetToken();
+        if (theToken->GetType() != icarusToken_t::TK_STRING) {
+            Error(tokenizerError_t::TKERR_INCLUDE_FILE_NOTFOUND);
+            theToken->Delete();
+            SkipToLineEnd();
+            break;
+        }
+        AddParseFile(theToken->GetStringValue());
+        theToken->Delete();
+        break;
+    case directive_t::DIR_IFDEF:
+        if ((m_state != nullptr) && (m_state->Skipping())) {
+            state = CTokenizerHolderState::Create();
+            state->SetNext(m_state);
+            m_state = state;
+            break;
+        }
+        theToken = GetToken();
+        if (theToken->GetType() != icarusToken_t::TK_IDENTIFIER) {
+            Error(tokenizerError_t::TKERR_EXPECTED_IDENTIFIER);
+            theToken->Delete();
+            SkipToLineEnd();
+            break;
+        }
+        state = CTokenizerState::Create(m_defines.FindSymbol(theToken->GetStringValue()) == nullptr);
+        theToken->Delete();
+        state->SetNext(m_state);
+        m_state = state;
+        break;
+    case directive_t::DIR_IFNDEF:
+        if ((m_state != nullptr) && (m_state->Skipping())) {
+            state = CTokenizerHolderState::Create();
+            state->SetNext(m_state);
+            m_state = state;
+            break;
+        }
+        theToken = GetToken();
+        if (theToken->GetType() != icarusToken_t::TK_IDENTIFIER) {
+            Error(tokenizerError_t::TKERR_EXPECTED_IDENTIFIER);
+            theToken->Delete();
+            SkipToLineEnd();
+            break;
+        }
+        state = CTokenizerState::Create(m_defines.FindSymbol(theToken->GetStringValue()) != nullptr);
+        theToken->Delete();
+        state->SetNext(m_state);
+        m_state = state;
+        break;
+    case directive_t::DIR_ENDIF:
+        if (m_state == nullptr) {
+            Error(tokenizerError_t::TKERR_UNMATCHED_DIRECTIVE);
+            break;
+        }
+        state = m_state;
+        m_state = state->GetNext();
+        state->Delete();
+        break;
+    case directive_t::DIR_ELSE:
+        if (m_state == nullptr) {
+            Error(tokenizerError_t::TKERR_UNMATCHED_DIRECTIVE);
+            break;
+        }
+        if (!m_state->ProcessElse()) {
+            Error(tokenizerError_t::TKERR_UNMATCHED_DIRECTIVE);
+            break;
+        }
+        break;
+    case directive_t::DIR_DEFINE:
+        if ((m_state != nullptr) && (m_state->Skipping())) {
+            break;
+        }
+        theToken = GetToken();
+        if (theToken->GetType() != icarusToken_t::TK_IDENTIFIER) {
+            Error(tokenizerError_t::TKERR_EXPECTED_IDENTIFIER);
+            theToken->Delete();
+            SkipToLineEnd();
+            break;
+        }
+        // blind add - should check first for value changes
+        {
+            curSymbol = CDirectiveSymbol::Create(theToken->GetStringValue());
+            char temp[128];
+            int tempsize = 0;
+            while (NextChar(theByte)) {
+                if (theByte == '\n') {
+                    break;
+                }
+                temp[tempsize++] = char(theByte);
+            }
+            temp[tempsize] = '\0';
+            curSymbol->SetValue(temp);
+            if (!m_defines.AddSymbol(curSymbol)) {
+                curSymbol->Delete();
+            }
+        }
+        break;
+    case directive_t::DIR_UNDEFINE:
+        if ((m_state != nullptr) && (m_state->Skipping())) {
+            break;
+        }
+        theToken = GetToken();
+        if (theToken->GetType() != icarusToken_t::TK_IDENTIFIER) {
+            Error(tokenizerError_t::TKERR_EXPECTED_IDENTIFIER);
+            theToken->Delete();
+            SkipToLineEnd();
+            break;
+        }
+        m_defines.RemoveSymbol(theToken->GetStringValue());
+        break;
+    default:
+        Error(tokenizerError_t::TKERR_INVALID_DIRECTIVE);
+        SkipToLineEnd();
+        break;
+    }
+    return nullptr;
 }
 
 COLORREF CTokenizer::ParseRGB()
 {
-	CToken* theToken = GetToken();
-	if (theToken->GetType() != icarusToken_t::TK_INT)
-	{
-		Error(tokenizerError_t::TKERR_EXPECTED_INTEGER);
-		theToken->Delete();
-		return RGB(0, 0, 0);
-	}
-	int red = theToken->GetIntValue();
-	theToken->Delete();
-	theToken = GetToken();
-	if (theToken->GetType() != icarusToken_t::TK_INT)
-	{
-		Error(tokenizerError_t::TKERR_EXPECTED_INTEGER);
-		theToken->Delete();
-		return RGB(0, 0, 0);
-	}
-	int green = theToken->GetIntValue();
-	theToken->Delete();
-	theToken = GetToken();
-	if (theToken->GetType() != icarusToken_t::TK_INT)
-	{
-		Error(tokenizerError_t::TKERR_EXPECTED_INTEGER);
-		theToken->Delete();
-		return RGB(0, 0, 0);
-	}
-	int blue = theToken->GetIntValue();
-	theToken->Delete();
-	return RGB(red, green, blue);
+    CToken* theToken = GetToken();
+    if (theToken->GetType() != icarusToken_t::TK_INT) {
+        Error(tokenizerError_t::TKERR_EXPECTED_INTEGER);
+        theToken->Delete();
+        return RGB(0, 0, 0);
+    }
+    int red = theToken->GetIntValue();
+    theToken->Delete();
+    theToken = GetToken();
+    if (theToken->GetType() != icarusToken_t::TK_INT) {
+        Error(tokenizerError_t::TKERR_EXPECTED_INTEGER);
+        theToken->Delete();
+        return RGB(0, 0, 0);
+    }
+    int green = theToken->GetIntValue();
+    theToken->Delete();
+    theToken = GetToken();
+    if (theToken->GetType() != icarusToken_t::TK_INT) {
+        Error(tokenizerError_t::TKERR_EXPECTED_INTEGER);
+        theToken->Delete();
+        return RGB(0, 0, 0);
+    }
+    int blue = theToken->GetIntValue();
+    theToken->Delete();
+    return RGB(red, green, blue);
 }
 
 //
 // CSymbolLookup
 //
 
-CSymbolLookup::CSymbolLookup()
-{
-}
+CSymbolLookup::CSymbolLookup() {}
 
-CSymbolLookup::~CSymbolLookup()
-{
-}
+CSymbolLookup::~CSymbolLookup() {}
 
 CSymbolLookup* CSymbolLookup::Create(byte theByte)
 {
-	CSymbolLookup* curLookup = new CSymbolLookup();
-	curLookup->Init(theByte);
-	return curLookup;
+    CSymbolLookup* curLookup = new CSymbolLookup();
+    curLookup->Init(theByte);
+    return curLookup;
 }
 
 void CSymbolLookup::Delete()
 {
-	if (m_sibling != nullptr)
-	{
-		m_sibling->Delete();
-		m_sibling = nullptr;
-	}
-	if (m_child != nullptr)
-	{
-		m_child->Delete();
-		m_child = nullptr;
-	}
-	delete this;
+    if (m_sibling != nullptr) {
+        m_sibling->Delete();
+        m_sibling = nullptr;
+    }
+    if (m_child != nullptr) {
+        m_child->Delete();
+        m_child = nullptr;
+    }
+    delete this;
 }
 
 void CSymbolLookup::Init(byte theByte)
 {
-	m_parent = nullptr;
-	m_child = nullptr;
-	m_sibling = nullptr;
-	m_value = -1;
-	m_byte = theByte;
+    m_parent = nullptr;
+    m_child = nullptr;
+    m_sibling = nullptr;
+    m_value = -1;
+    m_byte = theByte;
 }
 
 CSymbolLookup* CSymbolLookup::GetNext()
 {
-	return m_sibling;
+    return m_sibling;
 }
 
 void CSymbolLookup::SetNext(CSymbolLookup* next)
 {
-	m_sibling = next;
+    m_sibling = next;
 }
 
 void CSymbolLookup::SetParent(CSymbolLookup* parent)
 {
-	m_parent = parent;
+    m_parent = parent;
 }
 
 void CSymbolLookup::SetValue(int value)
 {
-	m_value = value;
+    m_value = value;
 }
 
 int CSymbolLookup::GetValue()
 {
-	return m_value;
+    return m_value;
 }
 
 byte CSymbolLookup::GetByte()
 {
-	return m_byte;
+    return m_byte;
 }
 
 CSymbolLookup** CSymbolLookup::GetChildAddress()
 {
-	return &m_child;
+    return &m_child;
 }
 
 CSymbolLookup* CSymbolLookup::GetChild()
 {
-	return m_child;
+    return m_child;
 }
 
 CSymbolLookup* CSymbolLookup::GetParent()
 {
-	return m_parent;
+    return m_parent;
 }

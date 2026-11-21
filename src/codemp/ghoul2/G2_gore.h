@@ -29,140 +29,125 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifdef _G2_GORE
 
 #include "qcommon/q_renderer.h"
-struct GoreTextureCoordinates
-{
-	float *tex[MAX_LODS];
+struct GoreTextureCoordinates {
+    float* tex[MAX_LODS];
 
-	GoreTextureCoordinates();
-	~GoreTextureCoordinates();
+    GoreTextureCoordinates();
+    ~GoreTextureCoordinates();
 };
 
 int AllocGoreRecord();
-GoreTextureCoordinates *FindGoreRecord(int tag);
+GoreTextureCoordinates* FindGoreRecord(int tag);
 void DeleteGoreRecord(int tag);
 
-struct SGoreSurface
-{
-	int			shader;
-	int			mGoreTag;
-	int			mDeleteTime;
-	int			mFadeTime;
-	bool		mFadeRGB;
+struct SGoreSurface {
+    int shader;
+    int mGoreTag;
+    int mDeleteTime;
+    int mFadeTime;
+    bool mFadeRGB;
 
-	int			mGoreGrowStartTime;
-	int			mGoreGrowEndTime;    // set this to -1 to disable growing
-	//curscale = (curtime-mGoreGrowStartTime)*mGoreGrowFactor + mGoreGrowOffset;
-	float		mGoreGrowFactor;
-	float		mGoreGrowOffset;
+    int mGoreGrowStartTime;
+    int mGoreGrowEndTime; // set this to -1 to disable growing
+    // curscale = (curtime-mGoreGrowStartTime)*mGoreGrowFactor + mGoreGrowOffset;
+    float mGoreGrowFactor;
+    float mGoreGrowOffset;
 };
 
-class CGoreSet
-{
+class CGoreSet {
 public:
-	int		 mMyGoreSetTag;
-	unsigned char mRefCount;
-	std::multimap<int,SGoreSurface> mGoreRecords; // a map from surface index
-	CGoreSet(int tag) : mMyGoreSetTag(tag), mRefCount(0) {}
-	~CGoreSet();
+    int mMyGoreSetTag;
+    unsigned char mRefCount;
+    std::multimap<int, SGoreSurface> mGoreRecords; // a map from surface index
+    CGoreSet(int tag) : mMyGoreSetTag(tag), mRefCount(0) {}
+    ~CGoreSet();
 };
 
-CGoreSet	*FindGoreSet(int goreSetTag);
-CGoreSet	*NewGoreSet();
-void		DeleteGoreSet(int goreSetTag);
+CGoreSet* FindGoreSet(int goreSetTag);
+CGoreSet* NewGoreSet();
+void DeleteGoreSet(int goreSetTag);
 
 #endif // _G2_GORE
 
-//rww - RAGDOLL_BEGIN
+// rww - RAGDOLL_BEGIN
 
 /// ragdoll stuff
-struct SRagDollEffectorCollision
-{
-	vec3_t			effectorPosition;
-	const trace_t	&tr;
-	bool			useTracePlane;
-	SRagDollEffectorCollision(const vec3_t effectorPos,const trace_t &t) :
-		tr(t),
-		useTracePlane(false)
-	{
-		VectorCopy(effectorPos,effectorPosition);
-	}
+struct SRagDollEffectorCollision {
+    vec3_t effectorPosition;
+    const trace_t& tr;
+    bool useTracePlane;
+    SRagDollEffectorCollision(const vec3_t effectorPos, const trace_t& t) : tr(t), useTracePlane(false) { VectorCopy(effectorPos, effectorPosition); }
 };
 
-class CRagDollUpdateParams
-{
+class CRagDollUpdateParams {
 public:
-	vec3_t angles;
-	vec3_t position;
-	vec3_t scale;
-	vec3_t velocity;
-	//CServerEntity *me;
-	int	me; //index!
-	int settleFrame;
+    vec3_t angles;
+    vec3_t position;
+    vec3_t scale;
+    vec3_t velocity;
+    // CServerEntity *me;
+    int me; // index!
+    int settleFrame;
 
-	//at some point I'll want to make VM callbacks in here. For now I am just doing nothing.
-	virtual void EffectorCollision(const SRagDollEffectorCollision &data)
-	{
-	//	assert(0); // you probably meant to override this
-	}
-	virtual void RagDollBegin()
-	{
-	//	assert(0); // you probably meant to override this
-	}
-	virtual void RagDollSettled()
-	{
-	//	assert(0); // you probably meant to override this
-	}
+    // at some point I'll want to make VM callbacks in here. For now I am just doing nothing.
+    virtual void EffectorCollision(const SRagDollEffectorCollision& data)
+    {
+        //	assert(0); // you probably meant to override this
+    }
+    virtual void RagDollBegin()
+    {
+        //	assert(0); // you probably meant to override this
+    }
+    virtual void RagDollSettled()
+    {
+        //	assert(0); // you probably meant to override this
+    }
 
-	virtual void Collision()
-	{
-	//	assert(0); // you probably meant to override this
-		// we had a collision, uhh I guess call SetRagDoll RP_DEATH_COLLISION
-	}
+    virtual void Collision()
+    {
+        //	assert(0); // you probably meant to override this
+        // we had a collision, uhh I guess call SetRagDoll RP_DEATH_COLLISION
+    }
 
 #ifdef _DEBUG
-	virtual void DebugLine(const vec3_t p1,const vec3_t p2,bool bbox) {assert(0);}
+    virtual void DebugLine(const vec3_t p1, const vec3_t p2, bool bbox) { assert(0); }
 #endif
 };
 
-
-class CRagDollParams
-{
+class CRagDollParams {
 public:
+    enum class ERagPhase {
+        RP_START_DEATH_ANIM,
+        RP_END_DEATH_ANIM,
+        RP_DEATH_COLLISION,
+        RP_CORPSE_SHOT,
+        RP_GET_PELVIS_OFFSET, // this actually does nothing but set the pelvisAnglesOffset, and pelvisPositionOffset
+        RP_SET_PELVIS_OFFSET, // this actually does nothing but set the pelvisAnglesOffset, and pelvisPositionOffset
+        RP_DISABLE_EFFECTORS  // this removes effectors given by the effectorsToTurnOff member
+    };
+    vec3_t angles;
+    vec3_t position;
+    vec3_t scale;
+    vec3_t pelvisAnglesOffset;   // always set on return, an argument for RP_SET_PELVIS_OFFSET
+    vec3_t pelvisPositionOffset; // always set on return, an argument for RP_SET_PELVIS_OFFSET
 
-	enum class ERagPhase
-	{
-		RP_START_DEATH_ANIM,
-		RP_END_DEATH_ANIM,
-		RP_DEATH_COLLISION,
-		RP_CORPSE_SHOT,
-		RP_GET_PELVIS_OFFSET,  // this actually does nothing but set the pelvisAnglesOffset, and pelvisPositionOffset
-		RP_SET_PELVIS_OFFSET,  // this actually does nothing but set the pelvisAnglesOffset, and pelvisPositionOffset
-		RP_DISABLE_EFFECTORS  // this removes effectors given by the effectorsToTurnOff member
-	};
-	vec3_t angles;
-	vec3_t position;
-	vec3_t scale;
-	vec3_t pelvisAnglesOffset;    // always set on return, an argument for RP_SET_PELVIS_OFFSET
-	vec3_t pelvisPositionOffset; // always set on return, an argument for RP_SET_PELVIS_OFFSET
+    float fImpactStrength; // should be applicable when RagPhase is RP_DEATH_COLLISION
+    float fShotStrength;   // should be applicable for setting velocity of corpse on shot (probably only on RP_CORPSE_SHOT)
+    // CServerEntity *me;
+    int me;
 
-	float fImpactStrength; //should be applicable when RagPhase is RP_DEATH_COLLISION
-	float fShotStrength; //should be applicable for setting velocity of corpse on shot (probably only on RP_CORPSE_SHOT)
-	//CServerEntity *me;
-	int me;
+    // rww - we have convenient animation/frame access in the game, so just send this info over from there.
+    int startFrame;
+    int endFrame;
 
-	//rww - we have convenient animation/frame access in the game, so just send this info over from there.
-	int startFrame;
-	int endFrame;
+    int collisionType; // 1 = from a fall, 0 from effectors, this will be going away soon, hence no enum
 
-	int collisionType; // 1 = from a fall, 0 from effectors, this will be going away soon, hence no enum
+    bool CallRagDollBegin; // a return value, means that we are now begininng ragdoll and the NPC stuff needs to happen
 
-	bool CallRagDollBegin; // a return value, means that we are now begininng ragdoll and the NPC stuff needs to happen
+    ERagPhase RagPhase;
 
-	ERagPhase RagPhase;
+    // effector control, used for RP_DISABLE_EFFECTORS call
 
-// effector control, used for RP_DISABLE_EFFECTORS call
-
-	ragEffectorFlags_t effectorsToTurnOff;  // set this to an | of the above flags for a RP_DISABLE_EFFECTORS
-
+    ragEffectorFlags_t effectorsToTurnOff; // set this to an | of the above flags for a RP_DISABLE_EFFECTORS
 };
-//rww - RAGDOLL_END
+// rww - RAGDOLL_END

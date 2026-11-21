@@ -25,7 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_nav.h"
 #include "icarus/Q3_Interface.h"
 
-extern bool NPC_SomeoneLookingAtMe(gentity_t *ent);
+extern bool NPC_SomeoneLookingAtMe(gentity_t* ent);
 
 /*
 void NPC_LostEnemyDecideChase(void)
@@ -35,21 +35,19 @@ void NPC_LostEnemyDecideChase(void)
 
 void NPC_LostEnemyDecideChase(void)
 {
-	switch( NPCS.NPCInfo->behaviorState )
-	{
-	case bState_t::BS_HUNT_AND_KILL:
-		//We were chasing him and lost him, so try to find him
-		if ( NPCS.NPC->enemy == NPCS.NPCInfo->goalEntity && NPCS.NPC->enemy->lastWaypoint != WAYPOINT_NONE )
-		{//Remember his last valid Wp, then check it out
-			//FIXME: Should we only do this if there's no other enemies or we've got LOCKED_ENEMY on?
-			NPC_BSSearchStart( NPCS.NPC->enemy->lastWaypoint, bState_t::BS_SEARCH );
-		}
-		//If he's not our goalEntity, we're running somewhere else, so lose him
-		break;
-	default:
-		break;
-	}
-	G_ClearEnemy( NPCS.NPC );
+    switch (NPCS.NPCInfo->behaviorState) {
+    case bState_t::BS_HUNT_AND_KILL:
+        // We were chasing him and lost him, so try to find him
+        if (NPCS.NPC->enemy == NPCS.NPCInfo->goalEntity && NPCS.NPC->enemy->lastWaypoint != WAYPOINT_NONE) { // Remember his last valid Wp, then check it out
+            // FIXME: Should we only do this if there's no other enemies or we've got LOCKED_ENEMY on?
+            NPC_BSSearchStart(NPCS.NPC->enemy->lastWaypoint, bState_t::BS_SEARCH);
+        }
+        // If he's not our goalEntity, we're running somewhere else, so lose him
+        break;
+    default:
+        break;
+    }
+    G_ClearEnemy(NPCS.NPC);
 }
 /*
 -------------------------
@@ -57,181 +55,161 @@ NPC_StandIdle
 -------------------------
 */
 
-void NPC_StandIdle( void )
+void NPC_StandIdle(void)
 {
-/*
-	//Must be done with any other animations
-	if ( NPC->client->ps.legsAnimTimer != 0 )
-		return;
+    /*
+        //Must be done with any other animations
+        if ( NPC->client->ps.legsAnimTimer != 0 )
+            return;
 
-	//Not ready to do another one
-	if ( TIMER_Done( NPC, "idleAnim" ) == false )
-		return;
+        //Not ready to do another one
+        if ( TIMER_Done( NPC, "idleAnim" ) == false )
+            return;
 
-	animNumber_t anim = NPC->client->ps.legsAnim;
+        animNumber_t anim = NPC->client->ps.legsAnim;
 
-	if ( anim != animNumber_t::BOTH_STAND1 && anim != animNumber_t::BOTH_STAND2 )
-		return;
+        if ( anim != animNumber_t::BOTH_STAND1 && anim != animNumber_t::BOTH_STAND2 )
+            return;
 
-	//FIXME: Account for STAND1 or STAND2 here and set the base anim accordingly
-	animNumber_t	baseSeq = ( anim == animNumber_t::BOTH_STAND1 ) ? BOTH_STAND1_RANDOM1 : BOTH_STAND2_RANDOM1;
+        //FIXME: Account for STAND1 or STAND2 here and set the base anim accordingly
+        animNumber_t	baseSeq = ( anim == animNumber_t::BOTH_STAND1 ) ? BOTH_STAND1_RANDOM1 : BOTH_STAND2_RANDOM1;
 
-	//Must have at least one random idle animation
-	//NOTENOTE: This relies on proper ordering of animations, which SHOULD be okay
-	if ( PM_HasAnimation( NPC, baseSeq ) == false )
-		return;
+        //Must have at least one random idle animation
+        //NOTENOTE: This relies on proper ordering of animations, which SHOULD be okay
+        if ( PM_HasAnimation( NPC, baseSeq ) == false )
+            return;
 
-	int	newIdle = Q_irand( 0, MAX_IDLE_ANIMS-1 );
+        int	newIdle = Q_irand( 0, MAX_IDLE_ANIMS-1 );
 
-	//FIXME: Technically this could never complete.. but that's not really too likely
-	while( 1 )
-	{
-		if ( PM_HasAnimation( NPC, baseSeq + newIdle ) )
-			break;
+        //FIXME: Technically this could never complete.. but that's not really too likely
+        while( 1 )
+        {
+            if ( PM_HasAnimation( NPC, baseSeq + newIdle ) )
+                break;
 
-		newIdle = Q_irand( 0, MAX_IDLE_ANIMS );
-	}
+            newIdle = Q_irand( 0, MAX_IDLE_ANIMS );
+        }
 
-	//Start that animation going
-	NPC_SetAnim( NPC, setAnimParts_t::SETANIM_BOTH, baseSeq + newIdle, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD );
+        //Start that animation going
+        NPC_SetAnim( NPC, setAnimParts_t::SETANIM_BOTH, baseSeq + newIdle, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD );
 
-	int newTime = PM_AnimLength( NPC->client->clientInfo.animFileIndex, baseSeq + newIdle );
+        int newTime = PM_AnimLength( NPC->client->clientInfo.animFileIndex, baseSeq + newIdle );
 
-	//Don't do this again for a random amount of time
-	TIMER_Set( NPC, "idleAnim", newTime + Q_irand( 2000, 10000 ) );
-*/
+        //Don't do this again for a random amount of time
+        TIMER_Set( NPC, "idleAnim", newTime + Q_irand( 2000, 10000 ) );
+    */
 }
 
-bool NPC_StandTrackAndShoot (gentity_t *NPC, bool canDuck)
+bool NPC_StandTrackAndShoot(gentity_t* NPC, bool canDuck)
 {
-	bool	attack_ok = false;
-	bool	duck_ok = false;
-	bool	faced = false;
-	float		attack_scale = 1.0;
+    bool attack_ok = false;
+    bool duck_ok = false;
+    bool faced = false;
+    float attack_scale = 1.0;
 
-	//First see if we're hurt bad- if so, duck
-	//FIXME: if even when ducked, we can shoot someone, we should.
-	//Maybe is can be shot even when ducked, we should run away to the nearest cover?
-	if ( canDuck )
-	{
-		if ( NPC->health < 20 )
-		{
-		//	if( NPC->svFlags&SVF_HEALING || Q_flrand(0.0f, 1.0f) )
-			if( Q_flrand(0.0f, 1.0f) )
-			{
-				duck_ok = true;
-			}
-		}
-		else if ( NPC->health < 40 )
-		{
-//			if ( NPC->svFlags&SVF_HEALING )
-//			{//Medic is on the way, get down!
-//				duck_ok = true;
-//			}
-		}
-	}
+    // First see if we're hurt bad- if so, duck
+    // FIXME: if even when ducked, we can shoot someone, we should.
+    // Maybe is can be shot even when ducked, we should run away to the nearest cover?
+    if (canDuck) {
+        if (NPC->health < 20) {
+            //	if( NPC->svFlags&SVF_HEALING || Q_flrand(0.0f, 1.0f) )
+            if (Q_flrand(0.0f, 1.0f)) {
+                duck_ok = true;
+            }
+        }
+        else if (NPC->health < 40) {
+            //			if ( NPC->svFlags&SVF_HEALING )
+            //			{//Medic is on the way, get down!
+            //				duck_ok = true;
+            //			}
+        }
+    }
 
-	//NPC_CheckEnemy( true, false, true );
+    // NPC_CheckEnemy( true, false, true );
 
-	if ( !duck_ok )
-	{//made this whole part a function call
-		attack_ok = NPC_CheckCanAttack( attack_scale, true );
-		faced = true;
-	}
+    if (!duck_ok) { // made this whole part a function call
+        attack_ok = NPC_CheckCanAttack(attack_scale, true);
+        faced = true;
+    }
 
-	if ( canDuck && (duck_ok || (!attack_ok && NPCS.client->ps.weaponTime <= 0)) && NPCS.ucmd.upmove != -127 )
-	{//if we didn't attack check to duck if we're not already
-		if( !duck_ok )
-		{
-			if ( NPC->enemy->client )
-			{
-				if ( NPC->enemy->enemy == NPC )
-				{
-					if ( Any( NPC->enemy->client->buttons & buttonFlags_t::BUTTON_ATTACK ) )
-					{//FIXME: determine if enemy fire angles would hit me or get close
-						if ( NPC_CheckDefend( 1.0 ) )//FIXME: Check self-preservation?  Health?
-						{
-							duck_ok = true;
-						}
-					}
-				}
-			}
-		}
+    if (canDuck && (duck_ok || (!attack_ok && NPCS.client->ps.weaponTime <= 0)) &&
+        NPCS.ucmd.upmove != -127) { // if we didn't attack check to duck if we're not already
+        if (!duck_ok) {
+            if (NPC->enemy->client) {
+                if (NPC->enemy->enemy == NPC) {
+                    if (Any(NPC->enemy->client->buttons & buttonFlags_t::BUTTON_ATTACK)) { // FIXME: determine if enemy fire angles would hit me or get close
+                        if (NPC_CheckDefend(1.0))                                          // FIXME: Check self-preservation?  Health?
+                        {
+                            duck_ok = true;
+                        }
+                    }
+                }
+            }
+        }
 
-		if ( duck_ok )
-		{//duck and don't shoot
-			NPCS.ucmd.upmove = -127;
-			NPCS.NPCInfo->duckDebounceTime = level.time + 1000;//duck for a full second
-		}
-	}
+        if (duck_ok) { // duck and don't shoot
+            NPCS.ucmd.upmove = -127;
+            NPCS.NPCInfo->duckDebounceTime = level.time + 1000; // duck for a full second
+        }
+    }
 
-	return faced;
+    return faced;
 }
 
-
-void NPC_BSIdle( void )
+void NPC_BSIdle(void)
 {
-	//FIXME if there is no nav data, we need to do something else
-	// if we're stuck, try to move around it
-	if ( UpdateGoal() )
-	{
-		NPC_MoveToGoal( true );
-	}
+    // FIXME if there is no nav data, we need to do something else
+    //  if we're stuck, try to move around it
+    if (UpdateGoal()) {
+        NPC_MoveToGoal(true);
+    }
 
-	if ( ( NPCS.ucmd.forwardmove == 0 ) && ( NPCS.ucmd.rightmove == 0 ) && ( NPCS.ucmd.upmove == 0 ) )
-	{
-//		NPC_StandIdle();
-	}
+    if ((NPCS.ucmd.forwardmove == 0) && (NPCS.ucmd.rightmove == 0) && (NPCS.ucmd.upmove == 0)) {
+        //		NPC_StandIdle();
+    }
 
-	NPC_UpdateAngles( true, true );
-	NPCS.ucmd.buttons |= buttonFlags_t::BUTTON_WALKING;
+    NPC_UpdateAngles(true, true);
+    NPCS.ucmd.buttons |= buttonFlags_t::BUTTON_WALKING;
 }
 
-void NPC_BSRun (void)
+void NPC_BSRun(void)
 {
-	//FIXME if there is no nav data, we need to do something else
-	// if we're stuck, try to move around it
-	if ( UpdateGoal() )
-	{
-		NPC_MoveToGoal( true );
-	}
+    // FIXME if there is no nav data, we need to do something else
+    //  if we're stuck, try to move around it
+    if (UpdateGoal()) {
+        NPC_MoveToGoal(true);
+    }
 
-	NPC_UpdateAngles( true, true );
+    NPC_UpdateAngles(true, true);
 }
 
-void NPC_BSStandGuard (void)
+void NPC_BSStandGuard(void)
 {
-	//FIXME: Use Snapshot info
-	if ( NPCS.NPC->enemy == nullptr )
-	{//Possible to pick one up by being shot
-		if( Q_flrand(0.0f, 1.0f) < 0.5 )
-		{
-			if(NPCS.NPC->client->enemyTeam != npcteam_t::NPCTEAM_FREE)
-			{
-				gentity_t *newenemy = NPC_PickEnemy(NPCS.NPC, NPCS.NPC->client->enemyTeam, (NPCS.NPC->cantHitEnemyCounter < 10), (NPCS.NPC->client->enemyTeam == npcteam_t::NPCTEAM_PLAYER), true);
-				//only checks for vis if couldn't hit last enemy
-				if(newenemy)
-				{
-					G_SetEnemy( NPCS.NPC, newenemy );
-				}
-			}
-		}
-	}
+    // FIXME: Use Snapshot info
+    if (NPCS.NPC->enemy == nullptr) { // Possible to pick one up by being shot
+        if (Q_flrand(0.0f, 1.0f) < 0.5) {
+            if (NPCS.NPC->client->enemyTeam != npcteam_t::NPCTEAM_FREE) {
+                gentity_t* newenemy = NPC_PickEnemy(NPCS.NPC, NPCS.NPC->client->enemyTeam, (NPCS.NPC->cantHitEnemyCounter < 10),
+                                                    (NPCS.NPC->client->enemyTeam == npcteam_t::NPCTEAM_PLAYER), true);
+                // only checks for vis if couldn't hit last enemy
+                if (newenemy) {
+                    G_SetEnemy(NPCS.NPC, newenemy);
+                }
+            }
+        }
+    }
 
-	if ( NPCS.NPC->enemy != nullptr )
-	{
-		if( NPCS.NPCInfo->tempBehavior == bState_t::BS_STAND_GUARD )
-		{
-			NPCS.NPCInfo->tempBehavior = bState_t::BS_DEFAULT;
-		}
+    if (NPCS.NPC->enemy != nullptr) {
+        if (NPCS.NPCInfo->tempBehavior == bState_t::BS_STAND_GUARD) {
+            NPCS.NPCInfo->tempBehavior = bState_t::BS_DEFAULT;
+        }
 
-		if( NPCS.NPCInfo->behaviorState == bState_t::BS_STAND_GUARD )
-		{
-			NPCS.NPCInfo->behaviorState = bState_t::BS_STAND_AND_SHOOT;
-		}
-	}
+        if (NPCS.NPCInfo->behaviorState == bState_t::BS_STAND_GUARD) {
+            NPCS.NPCInfo->behaviorState = bState_t::BS_STAND_AND_SHOOT;
+        }
+    }
 
-	NPC_UpdateAngles( true, true );
+    NPC_UpdateAngles(true, true);
 }
 
 /*
@@ -240,387 +218,353 @@ NPC_BSHuntAndKill
 -------------------------
 */
 
-void NPC_BSHuntAndKill( void )
+void NPC_BSHuntAndKill(void)
 {
-	bool	turned = false;
-	vec3_t		vec;
-	float		enemyDist;
-	visibility_t	oEVis;
-	animNumber_t			curAnim;
+    bool turned = false;
+    vec3_t vec;
+    float enemyDist;
+    visibility_t oEVis;
+    animNumber_t curAnim;
 
-	NPC_CheckEnemy( NPCS.NPCInfo->tempBehavior != bState_t::BS_HUNT_AND_KILL, false, true );//don't find new enemy if this is tempbehav
+    NPC_CheckEnemy(NPCS.NPCInfo->tempBehavior != bState_t::BS_HUNT_AND_KILL, false, true); // don't find new enemy if this is tempbehav
 
-	if ( NPCS.NPC->enemy )
-	{
-		oEVis = NPCS.enemyVisibility = NPC_CheckVisibility ( NPCS.NPC->enemy, visCheckFlags_t::CHECK_FOV|visCheckFlags_t::CHECK_SHOOT );//CHECK_360|//CHECK_PVS|
-		if(NPCS.enemyVisibility > visibility_t::VIS_PVS)
-		{
-			if ( !NPC_EnemyTooFar( NPCS.NPC->enemy, 0, true ) )
-			{//Enemy is close enough to shoot - FIXME: this next func does this also, but need to know here for info on whether ot not to turn later
-				NPC_CheckCanAttack( 1.0, false );
-				turned = true;
-			}
-		}
+    if (NPCS.NPC->enemy) {
+        oEVis = NPCS.enemyVisibility =
+            NPC_CheckVisibility(NPCS.NPC->enemy, visCheckFlags_t::CHECK_FOV | visCheckFlags_t::CHECK_SHOOT); // CHECK_360|//CHECK_PVS|
+        if (NPCS.enemyVisibility > visibility_t::VIS_PVS) {
+            if (!NPC_EnemyTooFar(NPCS.NPC->enemy, 0, true)) { // Enemy is close enough to shoot - FIXME: this next func does this also, but need to know here
+                                                              // for info on whether ot not to turn later
+                NPC_CheckCanAttack(1.0, false);
+                turned = true;
+            }
+        }
 
-		curAnim = NPCS.NPC->client->ps.legsAnim;
-		if(curAnim != animNumber_t::BOTH_ATTACK1 && curAnim != animNumber_t::BOTH_ATTACK2 && curAnim != animNumber_t::BOTH_ATTACK3 && curAnim != animNumber_t::BOTH_MELEE1 && curAnim != animNumber_t::BOTH_MELEE2 )
-		{//Don't move toward enemy if we're in a full-body attack anim
-			//FIXME, use IdealDistance to determin if we need to close distance
-			VectorSubtract(NPCS.NPC->enemy->r.currentOrigin, NPCS.NPC->r.currentOrigin, vec);
-			enemyDist = VectorLength(vec);
-			if( enemyDist > 48 && ((enemyDist*1.5)*(enemyDist*1.5) >= NPC_MaxDistSquaredForWeapon() ||
-				oEVis != visibility_t::VIS_SHOOT ||
-				//!Any(ucmd.buttons & buttonFlags_t::BUTTON_ATTACK) ||
-				enemyDist > IdealDistance(NPCS.NPC)*3 ) )
-			{//We should close in?
-				NPCS.NPCInfo->goalEntity = NPCS.NPC->enemy;
+        curAnim = NPCS.NPC->client->ps.legsAnim;
+        if (curAnim != animNumber_t::BOTH_ATTACK1 && curAnim != animNumber_t::BOTH_ATTACK2 && curAnim != animNumber_t::BOTH_ATTACK3 &&
+            curAnim != animNumber_t::BOTH_MELEE1 && curAnim != animNumber_t::BOTH_MELEE2) { // Don't move toward enemy if we're in a full-body attack anim
+            // FIXME, use IdealDistance to determin if we need to close distance
+            VectorSubtract(NPCS.NPC->enemy->r.currentOrigin, NPCS.NPC->r.currentOrigin, vec);
+            enemyDist = VectorLength(vec);
+            if (enemyDist > 48 && ((enemyDist * 1.5) * (enemyDist * 1.5) >= NPC_MaxDistSquaredForWeapon() || oEVis != visibility_t::VIS_SHOOT ||
+                                   //! Any(ucmd.buttons & buttonFlags_t::BUTTON_ATTACK) ||
+                                   enemyDist > IdealDistance(NPCS.NPC) * 3)) { // We should close in?
+                NPCS.NPCInfo->goalEntity = NPCS.NPC->enemy;
 
-				NPC_MoveToGoal( true );
-			}
-			else if(enemyDist < IdealDistance(NPCS.NPC))
-			{//We should back off?
-				//if(Any( ucmd.buttons & buttonFlags_t::BUTTON_ATTACK ))
-				{
-					NPCS.NPCInfo->goalEntity = NPCS.NPC->enemy;
-					NPCS.NPCInfo->goalRadius = 12;
-					NPC_MoveToGoal( true );
+                NPC_MoveToGoal(true);
+            }
+            else if (enemyDist < IdealDistance(NPCS.NPC)) { // We should back off?
+                // if(Any( ucmd.buttons & buttonFlags_t::BUTTON_ATTACK ))
+                {
+                    NPCS.NPCInfo->goalEntity = NPCS.NPC->enemy;
+                    NPCS.NPCInfo->goalRadius = 12;
+                    NPC_MoveToGoal(true);
 
-					NPCS.ucmd.forwardmove *= -1;
-					NPCS.ucmd.rightmove *= -1;
-					VectorScale( NPCS.NPC->client->ps.moveDir, -1, NPCS.NPC->client->ps.moveDir );
+                    NPCS.ucmd.forwardmove *= -1;
+                    NPCS.ucmd.rightmove *= -1;
+                    VectorScale(NPCS.NPC->client->ps.moveDir, -1, NPCS.NPC->client->ps.moveDir);
 
-					NPCS.ucmd.buttons |= buttonFlags_t::BUTTON_WALKING;
-				}
-			}//otherwise, stay where we are
-		}
-	}
-	else
-	{//ok, stand guard until we find an enemy
-		if( NPCS.NPCInfo->tempBehavior == bState_t::BS_HUNT_AND_KILL )
-		{
-			NPCS.NPCInfo->tempBehavior = bState_t::BS_DEFAULT;
-		}
-		else
-		{
-			NPCS.NPCInfo->tempBehavior = bState_t::BS_STAND_GUARD;
-			NPC_BSStandGuard();
-		}
-		return;
-	}
+                    NPCS.ucmd.buttons |= buttonFlags_t::BUTTON_WALKING;
+                }
+            } // otherwise, stay where we are
+        }
+    }
+    else { // ok, stand guard until we find an enemy
+        if (NPCS.NPCInfo->tempBehavior == bState_t::BS_HUNT_AND_KILL) {
+            NPCS.NPCInfo->tempBehavior = bState_t::BS_DEFAULT;
+        }
+        else {
+            NPCS.NPCInfo->tempBehavior = bState_t::BS_STAND_GUARD;
+            NPC_BSStandGuard();
+        }
+        return;
+    }
 
-	if(!turned)
-	{
-		NPC_UpdateAngles(true, true);
-	}
+    if (!turned) {
+        NPC_UpdateAngles(true, true);
+    }
 }
 
-void NPC_BSStandAndShoot (void)
+void NPC_BSStandAndShoot(void)
 {
-	//FIXME:
-	//When our numbers outnumber enemies 3 to 1, or only one of them,
-	//go into hunt and kill mode
+    // FIXME:
+    // When our numbers outnumber enemies 3 to 1, or only one of them,
+    // go into hunt and kill mode
 
-	//FIXME:
-	//When they're all dead, go to some script or wander off to sickbay?
+    // FIXME:
+    // When they're all dead, go to some script or wander off to sickbay?
 
-	if(NPCS.NPC->client->playerTeam != npcteam_t::NPCTEAM_FREE && NPCS.NPC->client->enemyTeam != npcteam_t::NPCTEAM_FREE)
-	{
-		//FIXME: don't realize this right away- or else enemies show up and we're standing around
-		/*
-		if( teamNumbers[NPC->enemyTeam] == 0 )
-		{//ok, stand guard until we find another enemy
-			//reset our rush counter
-			teamCounter[NPC->playerTeam] = 0;
-			NPCInfo->tempBehavior = bState_t::BS_STAND_GUARD;
-			NPC_BSStandGuard();
-			return;
-		}*/
-		/*
-		//FIXME: whether to do this or not should be settable
-		else if( NPC->playerTeam != TEAM_BORG )//Borg don't rush
-		{
-		//FIXME: In case reinforcements show up, we should wait a few seconds
-		//and keep checking before rushing!
-		//Also: what if not everyone on our team is going after playerTeam?
-		//Also: our team count includes medics!
-			if(NPC->health > 25)
-			{//Can we rush the enemy?
-				if(teamNumbers[NPC->enemyTeam] == 1 ||
-					teamNumbers[NPC->playerTeam] >= teamNumbers[NPC->enemyTeam]*3)
-				{//Only one of them or we outnumber 3 to 1
-					if(teamStrength[NPC->playerTeam] >= 75 ||
-						(teamStrength[NPC->playerTeam] >= 50 && teamStrength[NPC->playerTeam] > teamStrength[NPC->enemyTeam]))
-					{//Our team is strong enough to rush
-						teamCounter[NPC->playerTeam]++;
-						if(teamNumbers[NPC->playerTeam] * 17 <= teamCounter[NPC->playerTeam])
-						{//ok, we waited 1.7 think cycles on average and everyone is go, let's do it!
-							//FIXME: Should we do this to everyone on our team?
-							NPCInfo->behaviorState = bState_t::BS_HUNT_AND_KILL;
-							//FIXME: if the tide changes, we should retreat!
-							//FIXME: when do we reset the counter?
-							NPC_BSHuntAndKill ();
-							return;
-						}
-					}
-					else//Oops!  Something's wrong, reset the counter to rush
-						teamCounter[NPC->playerTeam] = 0;
-				}
-				else//Oops!  Something's wrong, reset the counter to rush
-					teamCounter[NPC->playerTeam] = 0;
-			}
-		}
-		*/
-	}
+    if (NPCS.NPC->client->playerTeam != npcteam_t::NPCTEAM_FREE && NPCS.NPC->client->enemyTeam != npcteam_t::NPCTEAM_FREE) {
+        // FIXME: don't realize this right away- or else enemies show up and we're standing around
+        /*
+        if( teamNumbers[NPC->enemyTeam] == 0 )
+        {//ok, stand guard until we find another enemy
+            //reset our rush counter
+            teamCounter[NPC->playerTeam] = 0;
+            NPCInfo->tempBehavior = bState_t::BS_STAND_GUARD;
+            NPC_BSStandGuard();
+            return;
+        }*/
+        /*
+        //FIXME: whether to do this or not should be settable
+        else if( NPC->playerTeam != TEAM_BORG )//Borg don't rush
+        {
+        //FIXME: In case reinforcements show up, we should wait a few seconds
+        //and keep checking before rushing!
+        //Also: what if not everyone on our team is going after playerTeam?
+        //Also: our team count includes medics!
+            if(NPC->health > 25)
+            {//Can we rush the enemy?
+                if(teamNumbers[NPC->enemyTeam] == 1 ||
+                    teamNumbers[NPC->playerTeam] >= teamNumbers[NPC->enemyTeam]*3)
+                {//Only one of them or we outnumber 3 to 1
+                    if(teamStrength[NPC->playerTeam] >= 75 ||
+                        (teamStrength[NPC->playerTeam] >= 50 && teamStrength[NPC->playerTeam] > teamStrength[NPC->enemyTeam]))
+                    {//Our team is strong enough to rush
+                        teamCounter[NPC->playerTeam]++;
+                        if(teamNumbers[NPC->playerTeam] * 17 <= teamCounter[NPC->playerTeam])
+                        {//ok, we waited 1.7 think cycles on average and everyone is go, let's do it!
+                            //FIXME: Should we do this to everyone on our team?
+                            NPCInfo->behaviorState = bState_t::BS_HUNT_AND_KILL;
+                            //FIXME: if the tide changes, we should retreat!
+                            //FIXME: when do we reset the counter?
+                            NPC_BSHuntAndKill ();
+                            return;
+                        }
+                    }
+                    else//Oops!  Something's wrong, reset the counter to rush
+                        teamCounter[NPC->playerTeam] = 0;
+                }
+                else//Oops!  Something's wrong, reset the counter to rush
+                    teamCounter[NPC->playerTeam] = 0;
+            }
+        }
+        */
+    }
 
-	NPC_CheckEnemy(true, false, true);
+    NPC_CheckEnemy(true, false, true);
 
-	if(NPCS.NPCInfo->duckDebounceTime > level.time && NPCS.NPC->client->ps.weapon != weapon_t::WP_SABER )
-	{
-		NPCS.ucmd.upmove = -127;
-		if(NPCS.NPC->enemy)
-		{
-			NPC_CheckCanAttack(1.0, true);
-		}
-		return;
-	}
+    if (NPCS.NPCInfo->duckDebounceTime > level.time && NPCS.NPC->client->ps.weapon != weapon_t::WP_SABER) {
+        NPCS.ucmd.upmove = -127;
+        if (NPCS.NPC->enemy) {
+            NPC_CheckCanAttack(1.0, true);
+        }
+        return;
+    }
 
-	if(NPCS.NPC->enemy)
-	{
-		if(!NPC_StandTrackAndShoot( NPCS.NPC, true ))
-		{//That func didn't update our angles
-			NPCS.NPCInfo->desiredYaw = NPCS.NPC->client->ps.viewangles[YAW];
-			NPCS.NPCInfo->desiredPitch = NPCS.NPC->client->ps.viewangles[PITCH];
-			NPC_UpdateAngles(true, true);
-		}
-	}
-	else
-	{
-		NPCS.NPCInfo->desiredYaw = NPCS.NPC->client->ps.viewangles[YAW];
-		NPCS.NPCInfo->desiredPitch = NPCS.NPC->client->ps.viewangles[PITCH];
-		NPC_UpdateAngles(true, true);
-//		NPC_BSIdle();//only moves if we have a goal
-	}
+    if (NPCS.NPC->enemy) {
+        if (!NPC_StandTrackAndShoot(NPCS.NPC, true)) { // That func didn't update our angles
+            NPCS.NPCInfo->desiredYaw = NPCS.NPC->client->ps.viewangles[YAW];
+            NPCS.NPCInfo->desiredPitch = NPCS.NPC->client->ps.viewangles[PITCH];
+            NPC_UpdateAngles(true, true);
+        }
+    }
+    else {
+        NPCS.NPCInfo->desiredYaw = NPCS.NPC->client->ps.viewangles[YAW];
+        NPCS.NPCInfo->desiredPitch = NPCS.NPC->client->ps.viewangles[PITCH];
+        NPC_UpdateAngles(true, true);
+        //		NPC_BSIdle();//only moves if we have a goal
+    }
 }
 
-void NPC_BSRunAndShoot (void)
+void NPC_BSRunAndShoot(void)
 {
-	/*if(NPC->playerTeam && NPC->enemyTeam)
-	{
-		//FIXME: don't realize this right away- or else enemies show up and we're standing around
-		if( teamNumbers[NPC->enemyTeam] == 0 )
-		{//ok, stand guard until we find another enemy
-			//reset our rush counter
-			teamCounter[NPC->playerTeam] = 0;
-			NPCInfo->tempBehavior = bState_t::BS_STAND_GUARD;
-			NPC_BSStandGuard();
-			return;
-		}
-	}*/
+    /*if(NPC->playerTeam && NPC->enemyTeam)
+    {
+        //FIXME: don't realize this right away- or else enemies show up and we're standing around
+        if( teamNumbers[NPC->enemyTeam] == 0 )
+        {//ok, stand guard until we find another enemy
+            //reset our rush counter
+            teamCounter[NPC->playerTeam] = 0;
+            NPCInfo->tempBehavior = bState_t::BS_STAND_GUARD;
+            NPC_BSStandGuard();
+            return;
+        }
+    }*/
 
-	//NOTE: are we sure we want ALL run and shoot people to move this way?
-	//Shouldn't it check to see if we have an enemy and our enemy is our goal?!
-	//Moved that check into NPC_MoveToGoal
-	//NPCInfo->combatMove = true;
+    // NOTE: are we sure we want ALL run and shoot people to move this way?
+    // Shouldn't it check to see if we have an enemy and our enemy is our goal?!
+    // Moved that check into NPC_MoveToGoal
+    // NPCInfo->combatMove = true;
 
-	NPC_CheckEnemy( true, false, true );
+    NPC_CheckEnemy(true, false, true);
 
-	if ( NPCS.NPCInfo->duckDebounceTime > level.time ) // && NPCInfo->hidingGoal )
-	{
-		NPCS.ucmd.upmove = -127;
-		if ( NPCS.NPC->enemy )
-		{
-			NPC_CheckCanAttack( 1.0, false );
-		}
-		return;
-	}
+    if (NPCS.NPCInfo->duckDebounceTime > level.time) // && NPCInfo->hidingGoal )
+    {
+        NPCS.ucmd.upmove = -127;
+        if (NPCS.NPC->enemy) {
+            NPC_CheckCanAttack(1.0, false);
+        }
+        return;
+    }
 
-	if ( NPCS.NPC->enemy )
-	{
-		int monitor = NPCS.NPC->cantHitEnemyCounter;
-		NPC_StandTrackAndShoot( NPCS.NPC, false );//(NPCInfo->hidingGoal != nullptr) );
+    if (NPCS.NPC->enemy) {
+        int monitor = NPCS.NPC->cantHitEnemyCounter;
+        NPC_StandTrackAndShoot(NPCS.NPC, false); //(NPCInfo->hidingGoal != nullptr) );
 
-		if ( !Any(NPCS.ucmd.buttons & buttonFlags_t::BUTTON_ATTACK) && NPCS.ucmd.upmove >= 0 && NPCS.NPC->cantHitEnemyCounter > monitor )
-		{//not crouching and not firing
-			vec3_t	vec;
+        if (!Any(NPCS.ucmd.buttons & buttonFlags_t::BUTTON_ATTACK) && NPCS.ucmd.upmove >= 0 &&
+            NPCS.NPC->cantHitEnemyCounter > monitor) { // not crouching and not firing
+            vec3_t vec;
 
-			VectorSubtract( NPCS.NPC->enemy->r.currentOrigin, NPCS.NPC->r.currentOrigin, vec );
-			vec[2] = 0;
-			if ( VectorLength( vec ) > 128 || NPCS.NPC->cantHitEnemyCounter >= 10 )
-			{//run at enemy if too far away
-				//The cantHitEnemyCounter getting high has other repercussions
-				//100 (10 seconds) will make you try to pick a new enemy...
-				//But we're chasing, so we clamp it at 50 here
-				if ( NPCS.NPC->cantHitEnemyCounter > 60 )
-				{
-					NPCS.NPC->cantHitEnemyCounter = 60;
-				}
+            VectorSubtract(NPCS.NPC->enemy->r.currentOrigin, NPCS.NPC->r.currentOrigin, vec);
+            vec[2] = 0;
+            if (VectorLength(vec) > 128 || NPCS.NPC->cantHitEnemyCounter >= 10) { // run at enemy if too far away
+                // The cantHitEnemyCounter getting high has other repercussions
+                // 100 (10 seconds) will make you try to pick a new enemy...
+                // But we're chasing, so we clamp it at 50 here
+                if (NPCS.NPC->cantHitEnemyCounter > 60) {
+                    NPCS.NPC->cantHitEnemyCounter = 60;
+                }
 
-				if ( NPCS.NPC->cantHitEnemyCounter >= (NPCS.NPCInfo->stats.aggression+1) * 10 )
-				{
-					NPC_LostEnemyDecideChase();
-				}
+                if (NPCS.NPC->cantHitEnemyCounter >= (NPCS.NPCInfo->stats.aggression + 1) * 10) {
+                    NPC_LostEnemyDecideChase();
+                }
 
-				//chase and face
-				NPCS.ucmd.angles[YAW] = 0;
-				NPCS.ucmd.angles[PITCH] = 0;
-				NPCS.NPCInfo->goalEntity = NPCS.NPC->enemy;
-				NPCS.NPCInfo->goalRadius = 12;
-				//NAV_ClearLastRoute(NPC);
-				NPC_MoveToGoal( true );
-				NPC_UpdateAngles(true, true);
-			}
-			else
-			{
-				//FIXME: this could happen if they're just on the other side
-				//of a thin wall or something else blocking out shot.  That
-				//would make us just stand there and not go around it...
-				//but maybe it's okay- might look like we're waiting for
-				//him to come out...?
-				//Current solution: runs around if cantHitEnemyCounter gets
-				//to 10 (1 second).
-			}
-		}
-		else
-		{//Clear the can't hit enemy counter here
-			NPCS.NPC->cantHitEnemyCounter = 0;
-		}
-	}
-	else
-	{
-		if ( NPCS.NPCInfo->tempBehavior == bState_t::BS_HUNT_AND_KILL )
-		{//lost him, go back to what we were doing before
-			NPCS.NPCInfo->tempBehavior = bState_t::BS_DEFAULT;
-			return;
-		}
+                // chase and face
+                NPCS.ucmd.angles[YAW] = 0;
+                NPCS.ucmd.angles[PITCH] = 0;
+                NPCS.NPCInfo->goalEntity = NPCS.NPC->enemy;
+                NPCS.NPCInfo->goalRadius = 12;
+                // NAV_ClearLastRoute(NPC);
+                NPC_MoveToGoal(true);
+                NPC_UpdateAngles(true, true);
+            }
+            else {
+                // FIXME: this could happen if they're just on the other side
+                // of a thin wall or something else blocking out shot.  That
+                // would make us just stand there and not go around it...
+                // but maybe it's okay- might look like we're waiting for
+                // him to come out...?
+                // Current solution: runs around if cantHitEnemyCounter gets
+                // to 10 (1 second).
+            }
+        }
+        else { // Clear the can't hit enemy counter here
+            NPCS.NPC->cantHitEnemyCounter = 0;
+        }
+    }
+    else {
+        if (NPCS.NPCInfo->tempBehavior == bState_t::BS_HUNT_AND_KILL) { // lost him, go back to what we were doing before
+            NPCS.NPCInfo->tempBehavior = bState_t::BS_DEFAULT;
+            return;
+        }
 
-//		NPC_BSRun();//only moves if we have a goal
-	}
+        //		NPC_BSRun();//only moves if we have a goal
+    }
 }
 
-//Simply turn until facing desired angles
-void NPC_BSFace (void)
+// Simply turn until facing desired angles
+void NPC_BSFace(void)
 {
-	//FIXME: once you stop sending turning info, they reset to whatever their delta_angles was last????
-	//Once this is over, it snaps back to what it was facing before- WHY???
-	if( NPC_UpdateAngles ( true, true ) )
-	{
-		trap->ICARUS_TaskIDComplete( (sharedEntity_t *)NPCS.NPC, taskID_t::TID_BSTATE );
+    // FIXME: once you stop sending turning info, they reset to whatever their delta_angles was last????
+    // Once this is over, it snaps back to what it was facing before- WHY???
+    if (NPC_UpdateAngles(true, true)) {
+        trap->ICARUS_TaskIDComplete((sharedEntity_t*)NPCS.NPC, taskID_t::TID_BSTATE);
 
-		NPCS.NPCInfo->desiredYaw = NPCS.client->ps.viewangles[YAW];
-		NPCS.NPCInfo->desiredPitch = NPCS.client->ps.viewangles[PITCH];
+        NPCS.NPCInfo->desiredYaw = NPCS.client->ps.viewangles[YAW];
+        NPCS.NPCInfo->desiredPitch = NPCS.client->ps.viewangles[PITCH];
 
-		NPCS.NPCInfo->aimTime = 0;//ok to turn normally now
-	}
+        NPCS.NPCInfo->aimTime = 0; // ok to turn normally now
+    }
 }
 
-void NPC_BSPointShoot (bool shoot)
-{//FIXME: doesn't check for clear shot...
-	vec3_t	eyes, dir, angles, org;
+void NPC_BSPointShoot(bool shoot)
+{ // FIXME: doesn't check for clear shot...
+    vec3_t eyes, dir, angles, org;
 
-	if ( !NPCS.NPC->enemy || !NPCS.NPC->enemy->inuse || (NPCS.NPC->enemy->NPC && NPCS.NPC->enemy->health <= 0) )
-	{//FIXME: should still keep shooting for a second or two after they actually die...
-		trap->ICARUS_TaskIDComplete( (sharedEntity_t *)NPCS.NPC, taskID_t::TID_BSTATE );
-		goto finished;
-	}
+    if (!NPCS.NPC->enemy || !NPCS.NPC->enemy->inuse ||
+        (NPCS.NPC->enemy->NPC && NPCS.NPC->enemy->health <= 0)) { // FIXME: should still keep shooting for a second or two after they actually die...
+        trap->ICARUS_TaskIDComplete((sharedEntity_t*)NPCS.NPC, taskID_t::TID_BSTATE);
+        goto finished;
+    }
 
-	// from the eyes at the chest of the model it sees: the shot leaves the muzzle towards the point the eyes aim at
-	// (plan step 20 part 10)
-	CalcEntitySpot(NPCS.NPC, spot_t::SPOT_HEAD_LEAN, eyes);
-	if ( !G_AimSpot( NPCS.NPC, NPCS.NPC->enemy, org ) )
-	{
-		CalcEntitySpot(NPCS.NPC->enemy, spot_t::SPOT_HEAD, org);//Was spot_org
-		//Head is a little high, so let's aim for the chest:
-		if ( NPCS.NPC->enemy->client )
-		{
-			org[2] -= 12;//NOTE: is this enough?
-		}
-	}
+    // from the eyes at the chest of the model it sees: the shot leaves the muzzle towards the point the eyes aim at
+    // (plan step 20 part 10)
+    CalcEntitySpot(NPCS.NPC, spot_t::SPOT_HEAD_LEAN, eyes);
+    if (!G_AimSpot(NPCS.NPC, NPCS.NPC->enemy, org)) {
+        CalcEntitySpot(NPCS.NPC->enemy, spot_t::SPOT_HEAD, org); // Was spot_org
+        // Head is a little high, so let's aim for the chest:
+        if (NPCS.NPC->enemy->client) {
+            org[2] -= 12; // NOTE: is this enough?
+        }
+    }
 
-	VectorSubtract(org, eyes, dir);
-	vectoangles(dir, angles);
+    VectorSubtract(org, eyes, dir);
+    vectoangles(dir, angles);
 
-	switch( NPCS.NPC->client->ps.weapon )
-	{
-	case weapon_t::WP_NONE:
-	case weapon_t::WP_STUN_BATON:
-	case weapon_t::WP_SABER:
-		//don't do any pitch change if not holding a firing weapon
-		break;
-	default:
-		NPCS.NPCInfo->desiredPitch = NPCS.NPCInfo->lockedDesiredPitch = AngleNormalize360(angles[PITCH]);
-		break;
-	}
+    switch (NPCS.NPC->client->ps.weapon) {
+    case weapon_t::WP_NONE:
+    case weapon_t::WP_STUN_BATON:
+    case weapon_t::WP_SABER:
+        // don't do any pitch change if not holding a firing weapon
+        break;
+    default:
+        NPCS.NPCInfo->desiredPitch = NPCS.NPCInfo->lockedDesiredPitch = AngleNormalize360(angles[PITCH]);
+        break;
+    }
 
-	NPCS.NPCInfo->desiredYaw = NPCS.NPCInfo->lockedDesiredYaw = AngleNormalize360(angles[YAW]);
+    NPCS.NPCInfo->desiredYaw = NPCS.NPCInfo->lockedDesiredYaw = AngleNormalize360(angles[YAW]);
 
-	if ( NPC_UpdateAngles ( true, true ) )
-	{//FIXME: if angles clamped, this may never work!
-		//NPCInfo->shotTime = NPC->attackDebounceTime = 0;
+    if (NPC_UpdateAngles(true, true)) { // FIXME: if angles clamped, this may never work!
+        // NPCInfo->shotTime = NPC->attackDebounceTime = 0;
 
-		if ( shoot )
-		{//FIXME: needs to hold this down if using a weapon that requires it, like phaser...
-			NPCS.ucmd.buttons |= buttonFlags_t::BUTTON_ATTACK;
-		}
+        if (shoot) { // FIXME: needs to hold this down if using a weapon that requires it, like phaser...
+            NPCS.ucmd.buttons |= buttonFlags_t::BUTTON_ATTACK;
+        }
 
-		//if ( !shoot || !Any( NPC->svFlags & SVF_LOCKEDENEMY ) )
-		if (1)
-		{//If locked_enemy is on, dont complete until it is destroyed...
-			trap->ICARUS_TaskIDComplete( (sharedEntity_t *)NPCS.NPC, taskID_t::TID_BSTATE );
-			goto finished;
-		}
-	}
-	//else if ( shoot && Any( NPC->svFlags & SVF_LOCKEDENEMY ) )
-	if (0)
-	{//shooting them till their dead, not aiming right at them yet...
-		/*
-		bool movingTarget = false;
+        // if ( !shoot || !Any( NPC->svFlags & SVF_LOCKEDENEMY ) )
+        if (1) { // If locked_enemy is on, dont complete until it is destroyed...
+            trap->ICARUS_TaskIDComplete((sharedEntity_t*)NPCS.NPC, taskID_t::TID_BSTATE);
+            goto finished;
+        }
+    }
+    // else if ( shoot && Any( NPC->svFlags & SVF_LOCKEDENEMY ) )
+    if (0) { // shooting them till their dead, not aiming right at them yet...
+        /*
+        bool movingTarget = false;
 
-		if ( NPC->enemy->client )
-		{
-			if ( VectorLengthSquared( NPC->enemy->client->ps.velocity ) )
-			{
-				movingTarget = true;
-			}
-		}
-		else if ( VectorLengthSquared( NPC->enemy->s.pos.trDelta ) )
-		{
-			movingTarget = true;
-		}
+        if ( NPC->enemy->client )
+        {
+            if ( VectorLengthSquared( NPC->enemy->client->ps.velocity ) )
+            {
+                movingTarget = true;
+            }
+        }
+        else if ( VectorLengthSquared( NPC->enemy->s.pos.trDelta ) )
+        {
+            movingTarget = true;
+        }
 
-		if (movingTarget )
-		*/
-		{
-			float	dist = VectorLength( dir );
-			float	yawMiss, yawMissAllow = NPCS.NPC->enemy->r.maxs[0];
-			float	pitchMiss, pitchMissAllow = (NPCS.NPC->enemy->r.maxs[2] - NPCS.NPC->enemy->r.mins[2])/2;
+        if (movingTarget )
+        */
+        {
+            float dist = VectorLength(dir);
+            float yawMiss, yawMissAllow = NPCS.NPC->enemy->r.maxs[0];
+            float pitchMiss, pitchMissAllow = (NPCS.NPC->enemy->r.maxs[2] - NPCS.NPC->enemy->r.mins[2]) / 2;
 
-			if ( yawMissAllow < 8.0f )
-			{
-				yawMissAllow = 8.0f;
-			}
+            if (yawMissAllow < 8.0f) {
+                yawMissAllow = 8.0f;
+            }
 
-			if ( pitchMissAllow < 8.0f )
-			{
-				pitchMissAllow = 8.0f;
-			}
+            if (pitchMissAllow < 8.0f) {
+                pitchMissAllow = 8.0f;
+            }
 
-			yawMiss = Q_tanpif( AngleDelta ( NPCS.NPC->client->ps.viewangles[YAW], NPCS.NPCInfo->desiredYaw ) / 180.0f ) * dist;
-			pitchMiss = Q_tanpif( AngleDelta ( NPCS.NPC->client->ps.viewangles[PITCH], NPCS.NPCInfo->desiredPitch) / 180.0f ) * dist;
+            yawMiss = Q_tanpif(AngleDelta(NPCS.NPC->client->ps.viewangles[YAW], NPCS.NPCInfo->desiredYaw) / 180.0f) * dist;
+            pitchMiss = Q_tanpif(AngleDelta(NPCS.NPC->client->ps.viewangles[PITCH], NPCS.NPCInfo->desiredPitch) / 180.0f) * dist;
 
-			if ( yawMissAllow >= yawMiss && pitchMissAllow > pitchMiss )
-			{
-				NPCS.ucmd.buttons |= buttonFlags_t::BUTTON_ATTACK;
-			}
-		}
-	}
+            if (yawMissAllow >= yawMiss && pitchMissAllow > pitchMiss) {
+                NPCS.ucmd.buttons |= buttonFlags_t::BUTTON_ATTACK;
+            }
+        }
+    }
 
-	return;
+    return;
 
 finished:
-	NPCS.NPCInfo->desiredYaw = NPCS.client->ps.viewangles[YAW];
-	NPCS.NPCInfo->desiredPitch = NPCS.client->ps.viewangles[PITCH];
+    NPCS.NPCInfo->desiredYaw = NPCS.client->ps.viewangles[YAW];
+    NPCS.NPCInfo->desiredPitch = NPCS.client->ps.viewangles[PITCH];
 
-	NPCS.NPCInfo->aimTime = 0;//ok to turn normally now
+    NPCS.NPCInfo->aimTime = 0; // ok to turn normally now
 }
 
 /*
@@ -629,25 +573,22 @@ Move in a direction, face another
 */
 void NPC_BSMove(void)
 {
-	gentity_t	*goal = nullptr;
+    gentity_t* goal = nullptr;
 
-	NPC_CheckEnemy(true, false, true);
-	if(NPCS.NPC->enemy)
-	{
-		NPC_CheckCanAttack(1.0, false);
-	}
-	else
-	{
-		NPC_UpdateAngles(true, true);
-	}
+    NPC_CheckEnemy(true, false, true);
+    if (NPCS.NPC->enemy) {
+        NPC_CheckCanAttack(1.0, false);
+    }
+    else {
+        NPC_UpdateAngles(true, true);
+    }
 
-	goal = UpdateGoal();
-	if(goal)
-	{
-//		NPCInfo->moveToGoalMod = 1.0;
+    goal = UpdateGoal();
+    if (goal) {
+        //		NPCInfo->moveToGoalMod = 1.0;
 
-		NPC_SlideMoveToGoal();
-	}
+        NPC_SlideMoveToGoal();
+    }
 }
 
 /*
@@ -657,16 +598,15 @@ Move in a direction, face another
 
 void NPC_BSShoot(void)
 {
-//	NPC_BSMove();
+    //	NPC_BSMove();
 
-	NPCS.enemyVisibility = visibility_t::VIS_SHOOT;
+    NPCS.enemyVisibility = visibility_t::VIS_SHOOT;
 
-	if ( NPCS.client->ps.weaponstate != weaponstate_t::WEAPON_READY && NPCS.client->ps.weaponstate != weaponstate_t::WEAPON_FIRING )
-	{
-		NPCS.client->ps.weaponstate = weaponstate_t::WEAPON_READY;
-	}
+    if (NPCS.client->ps.weaponstate != weaponstate_t::WEAPON_READY && NPCS.client->ps.weaponstate != weaponstate_t::WEAPON_FIRING) {
+        NPCS.client->ps.weaponstate = weaponstate_t::WEAPON_READY;
+    }
 
-	WeaponThink(true);
+    WeaponThink(true);
 }
 
 /*
@@ -675,297 +615,269 @@ void NPC_BSPatrol( void )
   Same as idle, but you look for enemies every "vigilance"
   using your angles, HFOV, VFOV and visrange, and listen for sounds within earshot...
 */
-void NPC_BSPatrol( void )
+void NPC_BSPatrol(void)
 {
-	//int	alertEventNum;
+    // int	alertEventNum;
 
-	if(level.time > NPCS.NPCInfo->enemyCheckDebounceTime)
-	{
-		NPCS.NPCInfo->enemyCheckDebounceTime = level.time + (NPCS.NPCInfo->stats.vigilance * 1000);
-		NPC_CheckEnemy(true, false, true);
-		if(NPCS.NPC->enemy)
-		{//FIXME: do anger script
-			NPCS.NPCInfo->behaviorState = bState_t::BS_HUNT_AND_KILL;
-			//NPC_AngerSound();
-			return;
-		}
-	}
+    if (level.time > NPCS.NPCInfo->enemyCheckDebounceTime) {
+        NPCS.NPCInfo->enemyCheckDebounceTime = level.time + (NPCS.NPCInfo->stats.vigilance * 1000);
+        NPC_CheckEnemy(true, false, true);
+        if (NPCS.NPC->enemy) { // FIXME: do anger script
+            NPCS.NPCInfo->behaviorState = bState_t::BS_HUNT_AND_KILL;
+            // NPC_AngerSound();
+            return;
+        }
+    }
 
-	//FIXME: Implement generic sound alerts
-	/*
-	alertEventNum = NPC_CheckAlertEvents( true, true );
-	if( alertEventNum != -1 )
-	{//If we heard something, see if we should check it out
-		if ( NPC_CheckInvestigate( alertEventNum ) )
-		{
-			return;
-		}
-	}
-	*/
+    // FIXME: Implement generic sound alerts
+    /*
+    alertEventNum = NPC_CheckAlertEvents( true, true );
+    if( alertEventNum != -1 )
+    {//If we heard something, see if we should check it out
+        if ( NPC_CheckInvestigate( alertEventNum ) )
+        {
+            return;
+        }
+    }
+    */
 
-	NPCS.NPCInfo->investigateSoundDebounceTime = 0;
-	//FIXME if there is no nav data, we need to do something else
-	// if we're stuck, try to move around it
-	if ( UpdateGoal() )
-	{
-		NPC_MoveToGoal( true );
-	}
+    NPCS.NPCInfo->investigateSoundDebounceTime = 0;
+    // FIXME if there is no nav data, we need to do something else
+    //  if we're stuck, try to move around it
+    if (UpdateGoal()) {
+        NPC_MoveToGoal(true);
+    }
 
-	NPC_UpdateAngles( true, true );
+    NPC_UpdateAngles(true, true);
 
-	NPCS.ucmd.buttons |= buttonFlags_t::BUTTON_WALKING;
+    NPCS.ucmd.buttons |= buttonFlags_t::BUTTON_WALKING;
 }
 
 /*
 void NPC_BSDefault(void)
-	uses various scriptflags to determine how an npc should behave
+    uses various scriptflags to determine how an npc should behave
 */
-extern void NPC_CheckGetNewWeapon( void );
-extern void NPC_BSST_Attack( void );
+extern void NPC_CheckGetNewWeapon(void);
+extern void NPC_BSST_Attack(void);
 
-void NPC_BSDefault( void )
+void NPC_BSDefault(void)
 {
-//	vec3_t		enemyDir;
-//	float		enemyDist;
-//	float		shootDist;
-//	bool	enemyFOV = false;
-//	bool	enemyShotFOV = false;
-//	bool	enemyPVS = false;
-//	vec3_t		enemyHead;
-//	vec3_t		muzzle;
-//	bool	enemyLOS = false;
-//	bool	enemyCS = false;
-	bool	move = true;
-//	bool	shoot = false;
+    //	vec3_t		enemyDir;
+    //	float		enemyDist;
+    //	float		shootDist;
+    //	bool	enemyFOV = false;
+    //	bool	enemyShotFOV = false;
+    //	bool	enemyPVS = false;
+    //	vec3_t		enemyHead;
+    //	vec3_t		muzzle;
+    //	bool	enemyLOS = false;
+    //	bool	enemyCS = false;
+    bool move = true;
+    //	bool	shoot = false;
 
+    if (Any(NPCS.NPCInfo->scriptFlags & scriptFlags_t::SCF_FIRE_WEAPON)) {
+        WeaponThink(true);
+    }
 
-	if( Any( NPCS.NPCInfo->scriptFlags & scriptFlags_t::SCF_FIRE_WEAPON ) )
-	{
-		WeaponThink( true );
-	}
+    if (Any(NPCS.NPCInfo->scriptFlags & scriptFlags_t::SCF_FORCED_MARCH)) { // being forced to walk
+        if (NPCS.NPC->client->ps.torsoAnim != animNumber_t::TORSO_SURRENDER_START) {
+            NPC_SetAnim(NPCS.NPC, setAnimParts_t::SETANIM_TORSO, animNumber_t::TORSO_SURRENDER_START, setAnimFlags_t::SETANIM_FLAG_HOLD);
+        }
+    }
+    // look for a new enemy if don't have one and are allowed to look, validate current enemy if have one
+    NPC_CheckEnemy(Any(NPCS.NPCInfo->scriptFlags & scriptFlags_t::SCF_LOOK_FOR_ENEMIES), false, true);
+    if (!NPCS.NPC->enemy) {                                                       // still don't have an enemy
+        if (!Any(NPCS.NPCInfo->scriptFlags & scriptFlags_t::SCF_IGNORE_ALERTS)) { // check for alert events
+            // FIXME: Check Alert events, see if we should investigate or just look at it
+            int alertEvent = NPC_CheckAlertEvents(true, true, -1, true, alertEventLevel_e::AEL_DISCOVERED);
 
-	if ( Any( NPCS.NPCInfo->scriptFlags & scriptFlags_t::SCF_FORCED_MARCH ) )
-	{//being forced to walk
-		if( NPCS.NPC->client->ps.torsoAnim != animNumber_t::TORSO_SURRENDER_START )
-		{
-			NPC_SetAnim( NPCS.NPC, setAnimParts_t::SETANIM_TORSO, animNumber_t::TORSO_SURRENDER_START, setAnimFlags_t::SETANIM_FLAG_HOLD );
-		}
-	}
-	//look for a new enemy if don't have one and are allowed to look, validate current enemy if have one
-	NPC_CheckEnemy( Any(NPCS.NPCInfo->scriptFlags&scriptFlags_t::SCF_LOOK_FOR_ENEMIES), false, true );
-	if ( !NPCS.NPC->enemy )
-	{//still don't have an enemy
-		if ( !Any(NPCS.NPCInfo->scriptFlags&scriptFlags_t::SCF_IGNORE_ALERTS) )
-		{//check for alert events
-			//FIXME: Check Alert events, see if we should investigate or just look at it
-			int alertEvent = NPC_CheckAlertEvents( true, true, -1, true, alertEventLevel_e::AEL_DISCOVERED );
+            // There is an event to look at
+            if (alertEvent >= 0 && level.alertEvents[alertEvent].ID != NPCS.NPCInfo->lastAlertID) { // heard/saw something
+                if (level.alertEvents[alertEvent].level >= alertEventLevel_e::AEL_DISCOVERED &&
+                    Any(NPCS.NPCInfo->scriptFlags & scriptFlags_t::SCF_LOOK_FOR_ENEMIES)) { // was a big event
+                    if (level.alertEvents[alertEvent].owner && level.alertEvents[alertEvent].owner->client &&
+                        level.alertEvents[alertEvent].owner->health >= 0 &&
+                        level.alertEvents[alertEvent].owner->client->playerTeam == NPCS.NPC->client->enemyTeam) { // an enemy
+                        G_SetEnemy(NPCS.NPC, level.alertEvents[alertEvent].owner);
+                    }
+                }
+                else { // FIXME: investigate lesser events
+                }
+            }
+            // FIXME: also check our allies' condition?
+        }
+    }
 
-			//There is an event to look at
-			if ( alertEvent >= 0 && level.alertEvents[alertEvent].ID != NPCS.NPCInfo->lastAlertID )
-			{//heard/saw something
-				if ( level.alertEvents[alertEvent].level >= alertEventLevel_e::AEL_DISCOVERED && Any(NPCS.NPCInfo->scriptFlags&scriptFlags_t::SCF_LOOK_FOR_ENEMIES) )
-				{//was a big event
-					if ( level.alertEvents[alertEvent].owner && level.alertEvents[alertEvent].owner->client && level.alertEvents[alertEvent].owner->health >= 0 && level.alertEvents[alertEvent].owner->client->playerTeam == NPCS.NPC->client->enemyTeam )
-					{//an enemy
-						G_SetEnemy( NPCS.NPC, level.alertEvents[alertEvent].owner );
-					}
-				}
-				else
-				{//FIXME: investigate lesser events
-				}
-			}
-			//FIXME: also check our allies' condition?
-		}
-	}
+    if (NPCS.NPC->enemy && !Any(NPCS.NPCInfo->scriptFlags & scriptFlags_t::SCF_FORCED_MARCH)) {
+        // just use the stormtrooper attack AI...
+        NPC_CheckGetNewWeapon();
+        if (NPCS.NPC->client->leader && NPCS.NPCInfo->goalEntity == NPCS.NPC->client->leader &&
+            !trap->ICARUS_TaskIDPending((sharedEntity_t*)NPCS.NPC, taskID_t::TID_MOVE_NAV)) {
+            NPC_ClearGoal();
+        }
+        NPC_BSST_Attack();
+        return;
+        /*
+                //have an enemy
+                //FIXME: if one of these fails, meaning we can't shoot, do we really need to do the rest?
+                VectorSubtract( NPC->enemy->r.currentOrigin, NPC->r.currentOrigin, enemyDir );
+                enemyDist = VectorNormalize( enemyDir );
+                enemyDist *= enemyDist;
+                shootDist = NPC_MaxDistSquaredForWeapon();
 
-	if ( NPCS.NPC->enemy && !Any(NPCS.NPCInfo->scriptFlags&scriptFlags_t::SCF_FORCED_MARCH) )
-	{
-		// just use the stormtrooper attack AI...
-		NPC_CheckGetNewWeapon();
-		if ( NPCS.NPC->client->leader
-			&& NPCS.NPCInfo->goalEntity == NPCS.NPC->client->leader
-			&& !trap->ICARUS_TaskIDPending( (sharedEntity_t *)NPCS.NPC, taskID_t::TID_MOVE_NAV ) )
-		{
-			NPC_ClearGoal();
-		}
-			NPC_BSST_Attack();
-		return;
-/*
-		//have an enemy
-		//FIXME: if one of these fails, meaning we can't shoot, do we really need to do the rest?
-		VectorSubtract( NPC->enemy->r.currentOrigin, NPC->r.currentOrigin, enemyDir );
-		enemyDist = VectorNormalize( enemyDir );
-		enemyDist *= enemyDist;
-		shootDist = NPC_MaxDistSquaredForWeapon();
+                enemyFOV = InFOV( NPC->enemy, NPC, NPCInfo->stats.hfov, NPCInfo->stats.vfov );
+                enemyShotFOV = InFOV( NPC->enemy, NPC, 20, 20 );
+                enemyPVS = trap->inPVS( NPC->enemy->r.currentOrigin, NPC->r.currentOrigin );
 
-		enemyFOV = InFOV( NPC->enemy, NPC, NPCInfo->stats.hfov, NPCInfo->stats.vfov );
-		enemyShotFOV = InFOV( NPC->enemy, NPC, 20, 20 );
-		enemyPVS = trap->inPVS( NPC->enemy->r.currentOrigin, NPC->r.currentOrigin );
+                if ( enemyPVS )
+                {//in the pvs
+                    trace_t	tr;
 
-		if ( enemyPVS )
-		{//in the pvs
-			trace_t	tr;
+                    CalcEntitySpot( NPC->enemy, spot_t::SPOT_HEAD, enemyHead );
+                    enemyHead[2] -= Q_flrand( 0.0f, NPC->enemy->maxs[2]*0.5f );
+                    CalcEntitySpot( NPC, spot_t::SPOT_WEAPON, muzzle );
+                    enemyLOS = NPC_ClearLOS( muzzle, enemyHead );
 
-			CalcEntitySpot( NPC->enemy, spot_t::SPOT_HEAD, enemyHead );
-			enemyHead[2] -= Q_flrand( 0.0f, NPC->enemy->maxs[2]*0.5f );
-			CalcEntitySpot( NPC, spot_t::SPOT_WEAPON, muzzle );
-			enemyLOS = NPC_ClearLOS( muzzle, enemyHead );
+                    trap->trace ( &tr, muzzle, vec3_origin, vec3_origin, enemyHead, NPC->s.number, MASK_SHOT );
+                    enemyCS = NPC_EvaluateShot( tr.entityNum, true );
+                }
+                else
+                {//skip thr 2 traces since they would have to fail
+                    enemyLOS = false;
+                    enemyCS = false;
+                }
 
-			trap->trace ( &tr, muzzle, vec3_origin, vec3_origin, enemyHead, NPC->s.number, MASK_SHOT );
-			enemyCS = NPC_EvaluateShot( tr.entityNum, true );
-		}
-		else
-		{//skip thr 2 traces since they would have to fail
-			enemyLOS = false;
-			enemyCS = false;
-		}
+                if ( enemyCS && enemyShotFOV )
+                {//can hit enemy if we want
+                    NPC->cantHitEnemyCounter = 0;
+                }
+                else
+                {//can't hit
+                    NPC->cantHitEnemyCounter++;
+                }
 
-		if ( enemyCS && enemyShotFOV )
-		{//can hit enemy if we want
-			NPC->cantHitEnemyCounter = 0;
-		}
-		else
-		{//can't hit
-			NPC->cantHitEnemyCounter++;
-		}
+                if ( enemyCS && enemyShotFOV && enemyDist < shootDist )
+                {//can shoot
+                    shoot = true;
+                    if ( NPCInfo->goalEntity == NPC->enemy )
+                    {//my goal is my enemy and I have a clear shot, no need to chase right now
+                        move = false;
+                    }
+                }
+                else
+                {//don't shoot yet, keep chasing
+                    shoot = false;
+                    move = true;
+                }
 
-		if ( enemyCS && enemyShotFOV && enemyDist < shootDist )
-		{//can shoot
-			shoot = true;
-			if ( NPCInfo->goalEntity == NPC->enemy )
-			{//my goal is my enemy and I have a clear shot, no need to chase right now
-				move = false;
-			}
-		}
-		else
-		{//don't shoot yet, keep chasing
-			shoot = false;
-			move = true;
-		}
+                //shoot decision
+                if ( !Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_DONT_FIRE) )
+                {//try to shoot
+                    if ( NPC->enemy )
+                    {
+                        if ( shoot )
+                        {
+                            if( !Any(NPCInfo->scriptFlags & scriptFlags_t::SCF_FIRE_WEAPON) ) // we've already fired, no need to do it again here
+                            {
+                                WeaponThink( true );
+                            }
+                        }
+                    }
+                }
 
-		//shoot decision
-		if ( !Any(NPCInfo->scriptFlags&scriptFlags_t::SCF_DONT_FIRE) )
-		{//try to shoot
-			if ( NPC->enemy )
-			{
-				if ( shoot )
-				{
-					if( !Any(NPCInfo->scriptFlags & scriptFlags_t::SCF_FIRE_WEAPON) ) // we've already fired, no need to do it again here
-					{
-						WeaponThink( true );
-					}
-				}
-			}
-		}
+                //chase decision
+                if ( Any( NPCInfo->scriptFlags & scriptFlags_t::SCF_CHASE_ENEMIES ) )
+                {//go after him
+                    NPCInfo->goalEntity = NPC->enemy;
+                    //FIXME: don't need to chase when have a clear shot and in range?
+                    if ( !enemyCS && NPC->cantHitEnemyCounter > 60 )
+                    {//haven't been able to shoot enemy for about 6 seconds, need to do something
+                        //FIXME: combat points?  Just chase?
+                        if ( enemyPVS )
+                        {//in my PVS, just pick a combat point
+                            //FIXME: implement
+                        }
+                        else
+                        {//just chase him
+                        }
+                    }
+                    //FIXME: in normal behavior, should we use combat Points?  Do we care?  Is anyone actually going to ever use this AI?
+                }
+                else if ( NPC->cantHitEnemyCounter > 60 )
+                {//pick a new one
+                    NPC_CheckEnemy( true, false, true );
+                }
 
-		//chase decision
-		if ( Any( NPCInfo->scriptFlags & scriptFlags_t::SCF_CHASE_ENEMIES ) )
-		{//go after him
-			NPCInfo->goalEntity = NPC->enemy;
-			//FIXME: don't need to chase when have a clear shot and in range?
-			if ( !enemyCS && NPC->cantHitEnemyCounter > 60 )
-			{//haven't been able to shoot enemy for about 6 seconds, need to do something
-				//FIXME: combat points?  Just chase?
-				if ( enemyPVS )
-				{//in my PVS, just pick a combat point
-					//FIXME: implement
-				}
-				else
-				{//just chase him
-				}
-			}
-			//FIXME: in normal behavior, should we use combat Points?  Do we care?  Is anyone actually going to ever use this AI?
-		}
-		else if ( NPC->cantHitEnemyCounter > 60 )
-		{//pick a new one
-			NPC_CheckEnemy( true, false, true );
-		}
+                if ( enemyPVS && enemyLOS )//&& !enemyShotFOV )
+                {//have a clear LOS to him//, but not looking at him
+                    //Find the desired angles
+                    vec3_t	angles;
 
-		if ( enemyPVS && enemyLOS )//&& !enemyShotFOV )
-		{//have a clear LOS to him//, but not looking at him
-			//Find the desired angles
-			vec3_t	angles;
+                    GetAnglesForDirection( muzzle, enemyHead, angles );
 
-			GetAnglesForDirection( muzzle, enemyHead, angles );
+                    NPCInfo->desiredYaw		= AngleNormalize180( angles[YAW] );
+                    NPCInfo->desiredPitch	= AngleNormalize180( angles[PITCH] );
+                }
+                */
+    }
 
-			NPCInfo->desiredYaw		= AngleNormalize180( angles[YAW] );
-			NPCInfo->desiredPitch	= AngleNormalize180( angles[PITCH] );
-		}
-		*/
-	}
+    if (UpdateGoal()) { // have a goal
+        if (!NPCS.NPC->enemy && NPCS.NPC->client->leader && NPCS.NPCInfo->goalEntity == NPCS.NPC->client->leader &&
+            !trap->ICARUS_TaskIDPending((sharedEntity_t*)NPCS.NPC, taskID_t::TID_MOVE_NAV)) {
+            NPC_BSFollowLeader();
+        }
+        else {
+            // set angles
+            if (Any(NPCS.NPCInfo->scriptFlags & scriptFlags_t::SCF_FACE_MOVE_DIR) ||
+                NPCS.NPCInfo->goalEntity != NPCS.NPC->enemy) { // face direction of movement, NOTE: default behavior when not chasing enemy
+                NPCS.NPCInfo->combatMove = false;
+            }
+            else { // face goal.. FIXME: what if have a navgoal but want to face enemy while moving?  Will this do that?
+                vec3_t dir, angles;
 
-	if ( UpdateGoal() )
-	{//have a goal
-		if ( !NPCS.NPC->enemy
-			&& NPCS.NPC->client->leader
-			&& NPCS.NPCInfo->goalEntity == NPCS.NPC->client->leader
-			&& !trap->ICARUS_TaskIDPending( (sharedEntity_t *)NPCS.NPC, taskID_t::TID_MOVE_NAV ) )
-		{
-			NPC_BSFollowLeader();
-		}
-		else
-		{
-			//set angles
-			if ( Any(NPCS.NPCInfo->scriptFlags & scriptFlags_t::SCF_FACE_MOVE_DIR) || NPCS.NPCInfo->goalEntity != NPCS.NPC->enemy )
-			{//face direction of movement, NOTE: default behavior when not chasing enemy
-				NPCS.NPCInfo->combatMove = false;
-			}
-			else
-			{//face goal.. FIXME: what if have a navgoal but want to face enemy while moving?  Will this do that?
-				vec3_t	dir, angles;
+                NPCS.NPCInfo->combatMove = false;
 
-				NPCS.NPCInfo->combatMove = false;
+                VectorSubtract(NPCS.NPCInfo->goalEntity->r.currentOrigin, NPCS.NPC->r.currentOrigin, dir);
+                vectoangles(dir, angles);
+                NPCS.NPCInfo->desiredYaw = angles[YAW];
+                if (NPCS.NPCInfo->goalEntity == NPCS.NPC->enemy) {
+                    NPCS.NPCInfo->desiredPitch = angles[PITCH];
+                }
+            }
 
-				VectorSubtract( NPCS.NPCInfo->goalEntity->r.currentOrigin, NPCS.NPC->r.currentOrigin, dir );
-				vectoangles( dir, angles );
-				NPCS.NPCInfo->desiredYaw = angles[YAW];
-				if ( NPCS.NPCInfo->goalEntity == NPCS.NPC->enemy )
-				{
-					NPCS.NPCInfo->desiredPitch = angles[PITCH];
-				}
-			}
+            // set movement
+            // override default walk/run behavior
+            // NOTE: redundant, done in NPC_ApplyScriptFlags
+            if (Any(NPCS.NPCInfo->scriptFlags & scriptFlags_t::SCF_RUNNING)) {
+                NPCS.ucmd.buttons &= ~buttonFlags_t::BUTTON_WALKING;
+            }
+            else if (Any(NPCS.NPCInfo->scriptFlags & scriptFlags_t::SCF_WALKING)) {
+                NPCS.ucmd.buttons |= buttonFlags_t::BUTTON_WALKING;
+            }
+            else if (NPCS.NPCInfo->goalEntity == NPCS.NPC->enemy) {
+                NPCS.ucmd.buttons &= ~buttonFlags_t::BUTTON_WALKING;
+            }
+            else {
+                NPCS.ucmd.buttons |= buttonFlags_t::BUTTON_WALKING;
+            }
 
-			//set movement
-			//override default walk/run behavior
-			//NOTE: redundant, done in NPC_ApplyScriptFlags
-			if ( Any( NPCS.NPCInfo->scriptFlags & scriptFlags_t::SCF_RUNNING ) )
-			{
-				NPCS.ucmd.buttons &= ~buttonFlags_t::BUTTON_WALKING;
-			}
-			else if ( Any( NPCS.NPCInfo->scriptFlags & scriptFlags_t::SCF_WALKING ) )
-			{
-				NPCS.ucmd.buttons |= buttonFlags_t::BUTTON_WALKING;
-			}
-			else if ( NPCS.NPCInfo->goalEntity == NPCS.NPC->enemy )
-			{
-				NPCS.ucmd.buttons &= ~buttonFlags_t::BUTTON_WALKING;
-			}
-			else
-			{
-				NPCS.ucmd.buttons |= buttonFlags_t::BUTTON_WALKING;
-			}
+            if (Any(NPCS.NPCInfo->scriptFlags & scriptFlags_t::SCF_FORCED_MARCH)) { // being forced to walk
+                // if ( g_crosshairEntNum != NPC->s.number )
+                if (!NPC_SomeoneLookingAtMe(NPCS.NPC)) { // don't walk if player isn't aiming at me
+                    move = false;
+                }
+            }
 
-			if ( Any( NPCS.NPCInfo->scriptFlags & scriptFlags_t::SCF_FORCED_MARCH ) )
-			{//being forced to walk
-				//if ( g_crosshairEntNum != NPC->s.number )
-				if (!NPC_SomeoneLookingAtMe(NPCS.NPC))
-				{//don't walk if player isn't aiming at me
-					move = false;
-				}
-			}
+            if (move) {
+                // move toward goal
+                NPC_MoveToGoal(true);
+            }
+        }
+    }
+    else if (!NPCS.NPC->enemy && NPCS.NPC->client->leader) {
+        NPC_BSFollowLeader();
+    }
 
-			if ( move )
-			{
-				//move toward goal
-				NPC_MoveToGoal( true );
-			}
-		}
-	}
-	else if ( !NPCS.NPC->enemy && NPCS.NPC->client->leader )
-	{
-		NPC_BSFollowLeader();
-	}
-
-	//update angles
-	NPC_UpdateAngles( true, true );
+    // update angles
+    NPC_UpdateAngles(true, true);
 }

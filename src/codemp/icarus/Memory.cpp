@@ -25,16 +25,16 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // leave these two as standard mallocs for the moment, there's something weird happening in ICARUS...
 //
-void *ICARUS_Malloc(int iSize)
+void* ICARUS_Malloc(int iSize)
 {
-	//return gi.Malloc(iSize, memtag::TAG_ICARUS);
-	//return malloc(iSize);
-	return Z_Malloc(iSize, memtag::TAG_ICARUS5, false);
+    // return gi.Malloc(iSize, memtag::TAG_ICARUS);
+    // return malloc(iSize);
+    return Z_Malloc(iSize, memtag::TAG_ICARUS5, false);
 }
 
-void ICARUS_Free(void *pMem)
+void ICARUS_Free(void* pMem)
 {
-	//gi.Free(pMem);
-	//free(pMem);
-	Z_Free(pMem);
+    // gi.Free(pMem);
+    // free(pMem);
+    Z_Free(pMem);
 }

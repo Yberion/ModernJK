@@ -24,39 +24,38 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "qcommon/q_libm.h"
 #if _MSC_VER
-# include <float.h>
-# pragma fenv_access (on)
+#include <float.h>
+#pragma fenv_access(on)
 #else
-# include <fenv.h>
+#include <fenv.h>
 #endif
 
 // To nearest with ties to even, through an integer (so -0.5 gives +0), on every platform and compiler: what 1.01's
 // fld / fistp did. MSVC used to round ties away from zero while the others rounded them to even, so a Windows client
 // and a Linux server could round the same velocity (pmove) differently.
-extern "C"
-void Sys_SnapVector(float *v)
+extern "C" void Sys_SnapVector(float* v)
 {
 #if _MSC_VER
-	unsigned int oldcontrol;
-	unsigned int newcontrol;
+    unsigned int oldcontrol;
+    unsigned int newcontrol;
 
-	_controlfp_s(&oldcontrol, 0, 0);
-	_controlfp_s(&newcontrol, _RC_NEAR, _MCW_RC);
+    _controlfp_s(&oldcontrol, 0, 0);
+    _controlfp_s(&newcontrol, _RC_NEAR, _MCW_RC);
 
-	v[0] = (float)Q_lrintf(v[0]);
-	v[1] = (float)Q_lrintf(v[1]);
-	v[2] = (float)Q_lrintf(v[2]);
+    v[0] = (float)Q_lrintf(v[0]);
+    v[1] = (float)Q_lrintf(v[1]);
+    v[2] = (float)Q_lrintf(v[2]);
 
-	_controlfp_s(&newcontrol, oldcontrol, _MCW_RC);
+    _controlfp_s(&newcontrol, oldcontrol, _MCW_RC);
 #else
-	// pure C99
-	int oldround = fegetround();
-	fesetround(FE_TONEAREST);
+    // pure C99
+    int oldround = fegetround();
+    fesetround(FE_TONEAREST);
 
-	v[0] = (float)Q_lrintf(v[0]);
-	v[1] = (float)Q_lrintf(v[1]);
-	v[2] = (float)Q_lrintf(v[2]);
+    v[0] = (float)Q_lrintf(v[0]);
+    v[1] = (float)Q_lrintf(v[1]);
+    v[2] = (float)Q_lrintf(v[2]);
 
-	fesetround(oldround);
+    fesetround(oldround);
 #endif
 }

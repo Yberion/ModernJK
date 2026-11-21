@@ -45,40 +45,43 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 constexpr int POOLSIZE = 4 * 1024 * 1024; // (256*1024)
 
-static char		memoryPool[POOLSIZE];
-static int		allocPoint;
+static char memoryPool[POOLSIZE];
+static int allocPoint;
 
-void *G_Alloc( int size ) {
-	char	*p;
+void* G_Alloc(int size)
+{
+    char* p;
 
-	if ( size <= 0 ) {
-		trap->Error( errorParm_t::ERR_DROP, "G_Alloc: zero-size allocation\n" );
-		return nullptr;
-	}
+    if (size <= 0) {
+        trap->Error(errorParm_t::ERR_DROP, "G_Alloc: zero-size allocation\n");
+        return nullptr;
+    }
 
-	if ( g_debugAlloc.integer ) {
-		trap->Print( "G_Alloc of %i bytes (%i left)\n", size, POOLSIZE - allocPoint - ( ( size + 31 ) & ~31 ) );
-	}
+    if (g_debugAlloc.integer) {
+        trap->Print("G_Alloc of %i bytes (%i left)\n", size, POOLSIZE - allocPoint - ((size + 31) & ~31));
+    }
 
-	if ( allocPoint + size > POOLSIZE ) {
-		trap->Error( errorParm_t::ERR_DROP, "G_Alloc: failed on allocation of %i bytes\n", size ); // bk010103 - was %u, but is signed
-		return nullptr;
-	}
+    if (allocPoint + size > POOLSIZE) {
+        trap->Error(errorParm_t::ERR_DROP, "G_Alloc: failed on allocation of %i bytes\n", size); // bk010103 - was %u, but is signed
+        return nullptr;
+    }
 
-	p = &memoryPool[allocPoint];
+    p = &memoryPool[allocPoint];
 
-	allocPoint += ( size + 31 ) & ~31;
+    allocPoint += (size + 31) & ~31;
 
-	return p;
+    return p;
 }
 
-void G_InitMemory( void ) {
-	allocPoint = 0;
+void G_InitMemory(void)
+{
+    allocPoint = 0;
 }
 
-void Svcmd_GameMem_f( void ) {
-	float f = allocPoint;
-	f /= POOLSIZE;
-	f *= 100;
-	trap->Print("Game Memory Pool is %.1f%% full, %i bytes out of %i used.\n", f, allocPoint, POOLSIZE);
+void Svcmd_GameMem_f(void)
+{
+    float f = allocPoint;
+    f /= POOLSIZE;
+    f *= 100;
+    trap->Print("Game Memory Pool is %.1f%% full, %i bytes out of %i used.\n", f, allocPoint, POOLSIZE);
 }

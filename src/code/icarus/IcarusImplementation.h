@@ -41,124 +41,119 @@ class CSequencer;
 class CIcarusSequencer;
 class CIcarusSequence;
 
-class CIcarus : public IIcarusInterface
-{
+class CIcarus : public IIcarusInterface {
 public:
-	CIcarus(int flavor);
-	virtual ~CIcarus();
+    CIcarus(int flavor);
+    virtual ~CIcarus();
 
-	inline IGameInterface* GetGame() {return IGameInterface::GetGame(m_flavor);};
+    inline IGameInterface* GetGame() { return IGameInterface::GetGame(m_flavor); };
 
-	static constexpr int MAX_STRING_SIZE		= 256;
-	static constexpr int MAX_FILENAME_LENGTH	= 1024;
+    static constexpr int MAX_STRING_SIZE = 256;
+    static constexpr int MAX_FILENAME_LENGTH = 1024;
 
 protected:
-	int						m_flavor;
-	int						m_nextSequencerID;
+    int m_flavor;
+    int m_nextSequencerID;
 
-	int						m_GUID;
+    int m_GUID;
 
-	typedef std::list< CSequence * >				sequence_l;
-	typedef std::list< CSequencer * >			sequencer_l;
-	typedef std::map < int, CSequencer* >		sequencer_m;
+    typedef std::list<CSequence*> sequence_l;
+    typedef std::list<CSequencer*> sequencer_l;
+    typedef std::map<int, CSequencer*> sequencer_m;
 
-	sequence_l				m_sequences;
-	sequencer_l				m_sequencers;
-	sequencer_m				m_sequencerMap;
+    sequence_l m_sequences;
+    sequencer_l m_sequencers;
+    sequencer_m m_sequencerMap;
 
-	typedef std::map < std::string, unsigned char >	signal_m;
-	signal_m				m_signals;
+    typedef std::map<std::string, unsigned char> signal_m;
+    signal_m m_signals;
 
-	static double ICARUS_VERSION;
+    static double ICARUS_VERSION;
 
 #ifdef _DEBUG
 
-	int	m_DEBUG_NumSequencerAlloc;
-	int	m_DEBUG_NumSequencerFreed;
-	int m_DEBUG_NumSequencerResidual;
+    int m_DEBUG_NumSequencerAlloc;
+    int m_DEBUG_NumSequencerFreed;
+    int m_DEBUG_NumSequencerResidual;
 
-	int	m_DEBUG_NumSequenceAlloc;
-	int	m_DEBUG_NumSequenceFreed;
-	int m_DEBUG_NumSequenceResidual;
+    int m_DEBUG_NumSequenceAlloc;
+    int m_DEBUG_NumSequenceFreed;
+    int m_DEBUG_NumSequenceResidual;
 
 #endif
 
 public:
-	static int				s_flavorsAvailable;
-	static CIcarus**		s_instances;
+    static int s_flavorsAvailable;
+    static CIcarus** s_instances;
 
-	// mandatory overrides
-	// Get the current Game flavor.
-	int GetFlavor();
+    // mandatory overrides
+    // Get the current Game flavor.
+    int GetFlavor();
 
-	int Save();
-	int Load();
-	bool Run(int icarusID, char* buffer, long length);
-	void DeleteIcarusID(int& icarusID);
-	int GetIcarusID(int ownerID);
-	int Update(int icarusID);
+    int Save();
+    int Load();
+    bool Run(int icarusID, char* buffer, long length);
+    void DeleteIcarusID(int& icarusID);
+    int GetIcarusID(int ownerID);
+    int Update(int icarusID);
 
-	int IsRunning(int icarusID);
-	void Completed( int icarusID, int taskID );
-	void Precache(char* buffer, long length);
-
-protected:
-	void Delete();
-	void Free();
-
-public:
-	CSequence* GetSequence(int id);
-	void DeleteSequence( CSequence *sequence );
-	int AllocateSequences( int numSequences, int *idTable );
-	CSequencer* FindSequencer(int sequencerID);
-	CSequence* GetSequence();
+    int IsRunning(int icarusID);
+    void Completed(int icarusID, int taskID);
+    void Precache(char* buffer, long length);
 
 protected:
-	int SaveSequenceIDTable();
-	int SaveSequences();
-	int SaveSequencers();
-	int SaveSignals();
-
-	int LoadSignals();
-	int LoadSequence();
-	int LoadSequences();
-	int LoadSequencers();
+    void Delete();
+    void Free();
 
 public:
-	void Signal( const char *identifier );
-	bool CheckSignal( const char *identifier );
-	void ClearSignal( const char *identifier );
+    CSequence* GetSequence(int id);
+    void DeleteSequence(CSequence* sequence);
+    int AllocateSequences(int numSequences, int* idTable);
+    CSequencer* FindSequencer(int sequencerID);
+    CSequence* GetSequence();
 
-	// Overloaded new operator.
-	inline void *operator new( size_t size )
-	{
-		return IGameInterface::GetGame()->Malloc( size );
-	}
+protected:
+    int SaveSequenceIDTable();
+    int SaveSequences();
+    int SaveSequencers();
+    int SaveSignals();
 
-	// Overloaded delete operator.
-	inline void operator delete( void *pRawData )
-	{
-		// Free the Memory.
-		IGameInterface::GetGame()->Free( pRawData );
-	}
+    int LoadSignals();
+    int LoadSequence();
+    int LoadSequences();
+    int LoadSequencers();
 
 public:
+    void Signal(const char* identifier);
+    bool CheckSignal(const char* identifier);
+    void ClearSignal(const char* identifier);
 
-	// Used by the new Icarus Save code.
-	static constexpr int MAX_BUFFER_SIZE = 100000;
-	unsigned long m_ulBufferCurPos;
-	unsigned long m_ulBytesRead;
-	unsigned char *m_byBuffer;
-	// Destroy the File Buffer.
-	void DestroyBuffer();
-	// Create the File Buffer.
-	void CreateBuffer();
-	// Reset the buffer completely.
-	void ResetBuffer();
-	// Write to a buffer.
-	void BufferWrite( void *pSrcData, unsigned long ulNumBytesToWrite );
-	// Read from a buffer.
-	void BufferRead( void *pDstBuff, unsigned long ulNumBytesToRead );
+    // Overloaded new operator.
+    inline void* operator new(size_t size) { return IGameInterface::GetGame()->Malloc(size); }
+
+    // Overloaded delete operator.
+    inline void operator delete(void* pRawData)
+    {
+        // Free the Memory.
+        IGameInterface::GetGame()->Free(pRawData);
+    }
+
+public:
+    // Used by the new Icarus Save code.
+    static constexpr int MAX_BUFFER_SIZE = 100000;
+    unsigned long m_ulBufferCurPos;
+    unsigned long m_ulBytesRead;
+    unsigned char* m_byBuffer;
+    // Destroy the File Buffer.
+    void DestroyBuffer();
+    // Create the File Buffer.
+    void CreateBuffer();
+    // Reset the buffer completely.
+    void ResetBuffer();
+    // Write to a buffer.
+    void BufferWrite(void* pSrcData, unsigned long ulNumBytesToWrite);
+    // Read from a buffer.
+    void BufferRead(void* pDstBuff, unsigned long ulNumBytesToRead);
 };
 
 #endif

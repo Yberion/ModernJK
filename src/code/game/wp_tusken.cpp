@@ -28,64 +28,58 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "w_local.h"
 
 //---------------------------------------------------------
-void WP_FireTuskenRifle( gentity_t *ent )
+void WP_FireTuskenRifle(gentity_t* ent)
 //---------------------------------------------------------
 {
-	vec3_t	start;
+    vec3_t start;
 
-	VectorCopy( muzzle, start );
-	WP_TraceSetStart( ent, start, vec3_origin, vec3_origin );//make sure our start point isn't on the other side of a wall
+    VectorCopy(muzzle, start);
+    WP_TraceSetStart(ent, start, vec3_origin, vec3_origin); // make sure our start point isn't on the other side of a wall
 
-	if ( !(ent->client->ps.forcePowersActive&Bit( forcePowers_t::FP_SEE ))
-		|| ent->client->ps.forcePowerLevel[forcePowers_t::FP_SEE] < forcePowerLevels_t::FORCE_LEVEL_2 )
-	{//force sight 2+ gives perfect aim
-		//FIXME: maybe force sight level 3 autoaims some?
-		if ( ent->NPC && ent->NPC->currentAim < 5 )
-		{
-			vec3_t	angs;
+    if (!(ent->client->ps.forcePowersActive & Bit(forcePowers_t::FP_SEE)) ||
+        ent->client->ps.forcePowerLevel[forcePowers_t::FP_SEE] < forcePowerLevels_t::FORCE_LEVEL_2) { // force sight 2+ gives perfect aim
+        // FIXME: maybe force sight level 3 autoaims some?
+        if (ent->NPC && ent->NPC->currentAim < 5) {
+            vec3_t angs;
 
-			vectoangles( forwardVec, angs );
+            vectoangles(forwardVec, angs);
 
-			if ( ent->client->NPC_class == class_t::CLASS_IMPWORKER )
-			{//*sigh*, hack to make impworkers less accurate without affecteing imperial officer accuracy
-				angs[PITCH] += ( Q_flrand(-1.0f, 1.0f) * (BLASTER_NPC_SPREAD+(6-ent->NPC->currentAim)*0.25f));//was 0.5f
-				angs[YAW]	+= ( Q_flrand(-1.0f, 1.0f) * (BLASTER_NPC_SPREAD+(6-ent->NPC->currentAim)*0.25f));//was 0.5f
-			}
-			else
-			{
-				angs[PITCH] += ( Q_flrand(-1.0f, 1.0f) * ((5-ent->NPC->currentAim)*0.25f) );
-				angs[YAW]	+= ( Q_flrand(-1.0f, 1.0f) * ((5-ent->NPC->currentAim)*0.25f) );
-			}
+            if (ent->client->NPC_class ==
+                class_t::CLASS_IMPWORKER) { //*sigh*, hack to make impworkers less accurate without affecteing imperial officer accuracy
+                angs[PITCH] += (Q_flrand(-1.0f, 1.0f) * (BLASTER_NPC_SPREAD + (6 - ent->NPC->currentAim) * 0.25f)); // was 0.5f
+                angs[YAW] += (Q_flrand(-1.0f, 1.0f) * (BLASTER_NPC_SPREAD + (6 - ent->NPC->currentAim) * 0.25f));   // was 0.5f
+            }
+            else {
+                angs[PITCH] += (Q_flrand(-1.0f, 1.0f) * ((5 - ent->NPC->currentAim) * 0.25f));
+                angs[YAW] += (Q_flrand(-1.0f, 1.0f) * ((5 - ent->NPC->currentAim) * 0.25f));
+            }
 
-			AngleVectors( angs, forwardVec, nullptr, nullptr );
-		}
-	}
+            AngleVectors(angs, forwardVec, nullptr, nullptr);
+        }
+    }
 
-	WP_MissileTargetHint(ent, start, forwardVec);
+    WP_MissileTargetHint(ent, start, forwardVec);
 
-	gentity_t	*missile = CreateMissile( start, forwardVec, TUSKEN_RIFLE_VEL, 10000, ent, false );
+    gentity_t* missile = CreateMissile(start, forwardVec, TUSKEN_RIFLE_VEL, 10000, ent, false);
 
-	missile->classname = "trifle_proj";
-	missile->s.weapon = weapon_t::WP_TUSKEN_RIFLE;
+    missile->classname = "trifle_proj";
+    missile->s.weapon = weapon_t::WP_TUSKEN_RIFLE;
 
-	if ( ent->s.number < MAX_CLIENTS || g_spskill->integer >= 2 )
-	{
-		missile->damage = TUSKEN_RIFLE_DAMAGE_HARD;
-	}
-	else if ( g_spskill->integer > 0 )
-	{
-		missile->damage = TUSKEN_RIFLE_DAMAGE_MEDIUM;
-	}
-	else
-	{
-		missile->damage = TUSKEN_RIFLE_DAMAGE_EASY;
-	}
-	missile->dflags = damageFlags_t::DAMAGE_DEATH_KNOCKBACK;
+    if (ent->s.number < MAX_CLIENTS || g_spskill->integer >= 2) {
+        missile->damage = TUSKEN_RIFLE_DAMAGE_HARD;
+    }
+    else if (g_spskill->integer > 0) {
+        missile->damage = TUSKEN_RIFLE_DAMAGE_MEDIUM;
+    }
+    else {
+        missile->damage = TUSKEN_RIFLE_DAMAGE_EASY;
+    }
+    missile->dflags = damageFlags_t::DAMAGE_DEATH_KNOCKBACK;
 
-	missile->methodOfDeath = meansOfDeath_t::MOD_BRYAR;//???
+    missile->methodOfDeath = meansOfDeath_t::MOD_BRYAR; //???
 
-	missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
+    missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
 
-	// we don't want it to bounce forever
-	missile->bounceCount = 8;
+    // we don't want it to bounce forever
+    missile->bounceCount = 8;
 }

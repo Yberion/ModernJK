@@ -28,214 +28,217 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 inline constexpr int UI_API_VERSION = 3;
 
-enum class fakeAscii_t;		// keycodes.h
+enum class fakeAscii_t; // keycodes.h
 
 typedef struct uiClientState_s {
-	connstate_t		connState;
-	int				connectPacketCount;
-	int				clientNum;
-	char			servername[MAX_STRING_CHARS];
-	char			updateInfoString[MAX_STRING_CHARS];
-	char			messageString[MAX_STRING_CHARS];
+    connstate_t connState;
+    int connectPacketCount;
+    int clientNum;
+    char servername[MAX_STRING_CHARS];
+    char updateInfoString[MAX_STRING_CHARS];
+    char messageString[MAX_STRING_CHARS];
 } uiClientState_t;
 
 enum class uiMenuCommand_t {
-	UIMENU_NONE,
-	UIMENU_MAIN,
-	UIMENU_INGAME,
-	UIMENU_PLAYERCONFIG,
-	UIMENU_TEAM,
-	UIMENU_POSTGAME,
-	UIMENU_PLAYERFORCE,
-	UIMENU_SIEGEMESSAGE,
-	UIMENU_SIEGEOBJECTIVES,
-	UIMENU_VOICECHAT,
-	UIMENU_CLOSEALL,
-	UIMENU_CLASSSEL
+    UIMENU_NONE,
+    UIMENU_MAIN,
+    UIMENU_INGAME,
+    UIMENU_PLAYERCONFIG,
+    UIMENU_TEAM,
+    UIMENU_POSTGAME,
+    UIMENU_PLAYERFORCE,
+    UIMENU_SIEGEMESSAGE,
+    UIMENU_SIEGEOBJECTIVES,
+    UIMENU_VOICECHAT,
+    UIMENU_CLOSEALL,
+    UIMENU_CLASSSEL
 };
 
 // the column the server browser sorts by
-enum class serverSortKey_t {
-	SORT_HOST,
-	SORT_MAP,
-	SORT_CLIENTS,
-	SORT_GAME,
-	SORT_PING
-};
+enum class serverSortKey_t { SORT_HOST, SORT_MAP, SORT_CLIENTS, SORT_GAME, SORT_PING };
 
 // state of a server in the browser lists, apart from its ping
 enum class lanServerState_t {
-	LANSERVER_NOT_ASKED,	// no info request since the list was reset
-	LANSERVER_WAITING,		// info request sent, no answer yet
-	LANSERVER_ANSWERED,		// answered; its ping is the round trip
-	LANSERVER_NO_ANSWER		// no answer within cl_maxPing
+    LANSERVER_NOT_ASKED, // no info request since the list was reset
+    LANSERVER_WAITING,   // info request sent, no answer yet
+    LANSERVER_ANSWERED,  // answered; its ping is the round trip
+    LANSERVER_NO_ANSWER  // no answer within cl_maxPing
 };
 
 typedef struct uiImport_s {
-	void			(*Print)								( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
-	NORETURN_PTR void (*Error)( errorParm_t level, const char *fmt, ... ) __attribute__ ((format (printf, 2, 3)));
-	int				(*Milliseconds)							( void );
-	int				(*RealTime)								( qtime_t *qtime );
-	int				(*MemoryRemaining)						( void );
+    void (*Print)(const char* msg, ...) __attribute__((format(printf, 1, 2)));
+    NORETURN_PTR void (*Error)(errorParm_t level, const char* fmt, ...) __attribute__((format(printf, 2, 3)));
+    int (*Milliseconds)(void);
+    int (*RealTime)(qtime_t* qtime);
+    int (*MemoryRemaining)(void);
 
-	void			(*Cvar_Create)							( const char *var_name, const char *var_value, cvarFlags_t flags );
-	void			(*Cvar_InfoStringBuffer)				( cvarFlags_t bit, char *buffer, int bufsize );
-	void			(*Cvar_Register)						( vmCvar_t *cvar, const char *var_name, const char *value, cvarFlags_t flags );
-	void			(*Cvar_Reset)							( const char *name );
-	void			(*Cvar_Set)								( const char *var_name, const char *value );
-	void			(*Cvar_SetValue)						( const char *var_name, float value );
-	void			(*Cvar_Update)							( vmCvar_t *cvar );
-	void			(*Cvar_VariableStringBuffer)			( const char *var_name, char *buffer, int bufsize );
-	float			(*Cvar_VariableValue)					( const char *var_name );
+    void (*Cvar_Create)(const char* var_name, const char* var_value, cvarFlags_t flags);
+    void (*Cvar_InfoStringBuffer)(cvarFlags_t bit, char* buffer, int bufsize);
+    void (*Cvar_Register)(vmCvar_t* cvar, const char* var_name, const char* value, cvarFlags_t flags);
+    void (*Cvar_Reset)(const char* name);
+    void (*Cvar_Set)(const char* var_name, const char* value);
+    void (*Cvar_SetValue)(const char* var_name, float value);
+    void (*Cvar_Update)(vmCvar_t* cvar);
+    void (*Cvar_VariableStringBuffer)(const char* var_name, char* buffer, int bufsize);
+    float (*Cvar_VariableValue)(const char* var_name);
 
-	int				(*Cmd_Argc)								( void );
-	void			(*Cmd_Argv)								( int n, char *buffer, int bufferLength );
-	void			(*Cmd_ExecuteText)						( cbufExec_t exec_when, const char *text );
+    int (*Cmd_Argc)(void);
+    void (*Cmd_Argv)(int n, char* buffer, int bufferLength);
+    void (*Cmd_ExecuteText)(cbufExec_t exec_when, const char* text);
 
-	void			(*FS_Close)								( fileHandle_t f );
-	int				(*FS_GetFileList)						( const char *path, const char *extension, char *listbuf, int bufsize );
-	int				(*FS_Open)								( const char *qpath, fileHandle_t *f, fsMode_t mode );
-	int				(*FS_Read)								( void *buffer, int len, fileHandle_t f );
-	int				(*FS_Write)								( const void *buffer, int len, fileHandle_t f );
+    void (*FS_Close)(fileHandle_t f);
+    int (*FS_GetFileList)(const char* path, const char* extension, char* listbuf, int bufsize);
+    int (*FS_Open)(const char* qpath, fileHandle_t* f, fsMode_t mode);
+    int (*FS_Read)(void* buffer, int len, fileHandle_t f);
+    int (*FS_Write)(const void* buffer, int len, fileHandle_t f);
 
-	void			(*GetClientState)						( uiClientState_t *state );
-	void			(*GetClipboardData)						( char *buf, int bufsize );
-	int				(*GetConfigString)						( int index, char *buff, int buffsize );
-	void			(*GetGlconfig)							( glconfig_t *glconfig );
-	void			(*UpdateScreen)							( void );
+    void (*GetClientState)(uiClientState_t* state);
+    void (*GetClipboardData)(char* buf, int bufsize);
+    int (*GetConfigString)(int index, char* buff, int buffsize);
+    void (*GetGlconfig)(glconfig_t* glconfig);
+    void (*UpdateScreen)(void);
 
-	void			(*Key_ClearStates)						( void );
-	void			(*Key_GetBindingBuf)					( fakeAscii_t keynum, char *buf, int buflen );
-	bool		(*Key_IsDown)							( fakeAscii_t keynum );
-	void			(*Key_KeynumToStringBuf)				( fakeAscii_t keynum, char *buf, int buflen );
-	void			(*Key_SetBinding)						( fakeAscii_t keynum, const char *binding );
-	keyCatchFlags_t	(*Key_GetCatcher)						( void );
-	bool		(*Key_GetOverstrikeMode)				( void );
-	void			(*Key_SetCatcher)						( keyCatchFlags_t catcher );
-	void			(*Key_SetOverstrikeMode)				( bool state );
+    void (*Key_ClearStates)(void);
+    void (*Key_GetBindingBuf)(fakeAscii_t keynum, char* buf, int buflen);
+    bool (*Key_IsDown)(fakeAscii_t keynum);
+    void (*Key_KeynumToStringBuf)(fakeAscii_t keynum, char* buf, int buflen);
+    void (*Key_SetBinding)(fakeAscii_t keynum, const char* binding);
+    keyCatchFlags_t (*Key_GetCatcher)(void);
+    bool (*Key_GetOverstrikeMode)(void);
+    void (*Key_SetCatcher)(keyCatchFlags_t catcher);
+    void (*Key_SetOverstrikeMode)(bool state);
 
-	int				(*PC_AddGlobalDefine)					( char *define );
-	int				(*PC_FreeSource)						( int handle );
-	int				(*PC_LoadGlobalDefines)					( const char* filename );
-	int				(*PC_LoadSource)						( const char *filename );
-	int				(*PC_ReadToken)							( int handle, pc_token_t *pc_token );
-	void			(*PC_RemoveAllGlobalDefines)			( void );
-	int				(*PC_SourceFileAndLine)					( int handle, char *filename, int *line );
+    int (*PC_AddGlobalDefine)(char* define);
+    int (*PC_FreeSource)(int handle);
+    int (*PC_LoadGlobalDefines)(const char* filename);
+    int (*PC_LoadSource)(const char* filename);
+    int (*PC_ReadToken)(int handle, pc_token_t* pc_token);
+    void (*PC_RemoveAllGlobalDefines)(void);
+    int (*PC_SourceFileAndLine)(int handle, char* filename, int* line);
 
-	void			(*CIN_DrawCinematic)					( int handle );
-	int				(*CIN_PlayCinematic)					( const char *arg0, int xpos, int ypos, int width, int height, cinematicFlags_t bits );
-	e_status		(*CIN_RunCinematic)						( int handle );
-	void			(*CIN_SetExtents)						( int handle, int x, int y, int w, int h );
-	e_status		(*CIN_StopCinematic)					( int handle );
+    void (*CIN_DrawCinematic)(int handle);
+    int (*CIN_PlayCinematic)(const char* arg0, int xpos, int ypos, int width, int height, cinematicFlags_t bits);
+    e_status (*CIN_RunCinematic)(int handle);
+    void (*CIN_SetExtents)(int handle, int x, int y, int w, int h);
+    e_status (*CIN_StopCinematic)(int handle);
 
-	int				(*LAN_AddServer)						( lanSource_t source, const char *name, const char *addr );
-	void			(*LAN_ClearPing)						( int n );
-	int				(*LAN_CompareServers)					( lanSource_t source, serverSortKey_t sortKey, int sortDir, int s1, int s2 );
-	void			(*LAN_GetPing)							( int n, char *buf, int buflen, int *pingtime );
-	void			(*LAN_GetPingInfo)						( int n, char *buf, int buflen );
-	int				(*LAN_GetPingQueueCount)				( void );
-	void			(*LAN_GetServerAddressString)			( lanSource_t source, int n, char *buf, int buflen );
-	int				(*LAN_GetServerCount)					( lanSource_t source );
-	void			(*LAN_GetServerInfo)					( lanSource_t source, int n, char *buf, int buflen );
-	int				(*LAN_GetServerPing)					( lanSource_t source, int n );
-	void			(*LAN_LoadCachedServers)				( void );
-	void			(*LAN_MarkServerVisible)				( lanSource_t source, int n, bool visible );
-	void			(*LAN_RemoveServer)						( lanSource_t source, const char *addr );
-	void			(*LAN_ResetPings)						( lanSource_t source );
-	void			(*LAN_SaveCachedServers)				( void );
-	int				(*LAN_ServerIsVisible)					( lanSource_t source, int n );
-	int				(*LAN_ServerStatus)						( const char *serverAddress, char *serverStatus, int maxLen );
-	bool		(*LAN_UpdateVisiblePings)				( lanSource_t source );
+    int (*LAN_AddServer)(lanSource_t source, const char* name, const char* addr);
+    void (*LAN_ClearPing)(int n);
+    int (*LAN_CompareServers)(lanSource_t source, serverSortKey_t sortKey, int sortDir, int s1, int s2);
+    void (*LAN_GetPing)(int n, char* buf, int buflen, int* pingtime);
+    void (*LAN_GetPingInfo)(int n, char* buf, int buflen);
+    int (*LAN_GetPingQueueCount)(void);
+    void (*LAN_GetServerAddressString)(lanSource_t source, int n, char* buf, int buflen);
+    int (*LAN_GetServerCount)(lanSource_t source);
+    void (*LAN_GetServerInfo)(lanSource_t source, int n, char* buf, int buflen);
+    int (*LAN_GetServerPing)(lanSource_t source, int n);
+    void (*LAN_LoadCachedServers)(void);
+    void (*LAN_MarkServerVisible)(lanSource_t source, int n, bool visible);
+    void (*LAN_RemoveServer)(lanSource_t source, const char* addr);
+    void (*LAN_ResetPings)(lanSource_t source);
+    void (*LAN_SaveCachedServers)(void);
+    int (*LAN_ServerIsVisible)(lanSource_t source, int n);
+    int (*LAN_ServerStatus)(const char* serverAddress, char* serverStatus, int maxLen);
+    bool (*LAN_UpdateVisiblePings)(lanSource_t source);
 
-	void			(*S_StartBackgroundTrack)				( const char *intro, const char *loop, bool bReturnWithoutStarting );
-	void			(*S_StartLocalSound)					( sfxHandle_t sfx, soundChannel_t channelNum );
-	void			(*S_StopBackgroundTrack)				( void );
-	sfxHandle_t		(*S_RegisterSound)						( const char *sample );
+    void (*S_StartBackgroundTrack)(const char* intro, const char* loop, bool bReturnWithoutStarting);
+    void (*S_StartLocalSound)(sfxHandle_t sfx, soundChannel_t channelNum);
+    void (*S_StopBackgroundTrack)(void);
+    sfxHandle_t (*S_RegisterSound)(const char* sample);
 
-	void			(*SE_GetLanguageName)					( const int languageIndex, char *buffer );
-	int				(*SE_GetNumLanguages)					( void );
-	bool		(*SE_GetStringTextString)				( const char *text, char *buffer, int bufferLength );
+    void (*SE_GetLanguageName)(const int languageIndex, char* buffer);
+    int (*SE_GetNumLanguages)(void);
+    bool (*SE_GetStringTextString)(const char* text, char* buffer, int bufferLength);
 
-	bool		(*R_Language_IsAsian)					( void );
-	bool		(*R_Language_UsesSpaces)				( void );
-	unsigned int	(*R_AnyLanguage_ReadCharFromString)		( const char *psText, int *piAdvanceCount, bool *pbIsTrailingPunctuation );
+    bool (*R_Language_IsAsian)(void);
+    bool (*R_Language_UsesSpaces)(void);
+    unsigned int (*R_AnyLanguage_ReadCharFromString)(const char* psText, int* piAdvanceCount, bool* pbIsTrailingPunctuation);
 
-	void			(*R_AddLightToScene)					( const vec3_t org, float intensity, float r, float g, float b );
-	void			(*R_AddPolysToScene)					( qhandle_t hShader, int numVerts, const polyVert_t *verts, int num );
-	void			(*R_AddRefEntityToScene)				( const refEntity_t *re );
-	void			(*R_ClearScene)							( void );
-	void			(*R_DrawStretchPic)						( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader );
-	int				(*R_Font_StrLenPixels)					( const char *text, const int iFontIndex, const float scale );
-	int				(*R_Font_StrLenChars)					( const char *text );
-	int				(*R_Font_HeightPixels)					( const int iFontIndex, const float scale );
-	void			(*R_Font_DrawString)					( int ox, int oy, const char *text, const float *rgba, const int setIndex, int iCharLimit, const float scale );
-	int				(*R_LerpTag)							( orientation_t *tag, clipHandle_t mod, int startFrame, int endFrame, float frac, const char *tagName );
-	void			(*R_ModelBounds)						( clipHandle_t model, vec3_t mins, vec3_t maxs );
-	qhandle_t		(*R_RegisterModel)						( const char *name );
-	qhandle_t		(*R_RegisterSkin)						( const char *name );
-	qhandle_t		(*R_RegisterShaderNoMip)				( const char *name );
-	qhandle_t		(*R_RegisterFont)						( const char *fontName );
-	void			(*R_RemapShader)						( const char *oldShader, const char *newShader, const char *timeOffset );
-	void			(*R_RenderScene)						( const refdef_t *fd );
-	void			(*R_SetColor)							( const float *rgba );
-	void			(*R_ShaderNameFromIndex)				( char *name, int index );
+    void (*R_AddLightToScene)(const vec3_t org, float intensity, float r, float g, float b);
+    void (*R_AddPolysToScene)(qhandle_t hShader, int numVerts, const polyVert_t* verts, int num);
+    void (*R_AddRefEntityToScene)(const refEntity_t* re);
+    void (*R_ClearScene)(void);
+    void (*R_DrawStretchPic)(float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader);
+    int (*R_Font_StrLenPixels)(const char* text, const int iFontIndex, const float scale);
+    int (*R_Font_StrLenChars)(const char* text);
+    int (*R_Font_HeightPixels)(const int iFontIndex, const float scale);
+    void (*R_Font_DrawString)(int ox, int oy, const char* text, const float* rgba, const int setIndex, int iCharLimit, const float scale);
+    int (*R_LerpTag)(orientation_t* tag, clipHandle_t mod, int startFrame, int endFrame, float frac, const char* tagName);
+    void (*R_ModelBounds)(clipHandle_t model, vec3_t mins, vec3_t maxs);
+    qhandle_t (*R_RegisterModel)(const char* name);
+    qhandle_t (*R_RegisterSkin)(const char* name);
+    qhandle_t (*R_RegisterShaderNoMip)(const char* name);
+    qhandle_t (*R_RegisterFont)(const char* fontName);
+    void (*R_RemapShader)(const char* oldShader, const char* newShader, const char* timeOffset);
+    void (*R_RenderScene)(const refdef_t* fd);
+    void (*R_SetColor)(const float* rgba);
+    void (*R_ShaderNameFromIndex)(char* name, int index);
 
-	void			(*G2_ListModelSurfaces)					( void *ghlInfo );
-	void			(*G2_ListModelBones)					( void *ghlInfo, int frame );
-	void			(*G2_SetGhoul2ModelIndexes)				( void *ghoul2, qhandle_t *modelList, qhandle_t *skinList );
-	bool		(*G2_HaveWeGhoul2Models)				( void *ghoul2 );
-	bool		(*G2API_GetBoltMatrix)					( void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix, const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale );
-	bool		(*G2API_GetBoltMatrix_NoReconstruct)	( void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix, const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale );
-	bool		(*G2API_GetBoltMatrix_NoRecNoRot)		( void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix, const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale );
-	int				(*G2API_InitGhoul2Model)				( void **ghoul2Ptr, const char *fileName, int modelIndex, qhandle_t customSkin, qhandle_t customShader, int modelFlags, int lodBias );
-	void			(*G2API_CollisionDetect)				( CollisionRecord_t *collRecMap, void* ghoul2, const vec3_t angles, const vec3_t position, int frameNumber, int entNum, vec3_t rayStart, vec3_t rayEnd, vec3_t scale, int traceFlags, int useLod, float fRadius );
-	void			(*G2API_CollisionDetectCache)			( CollisionRecord_t *collRecMap, void* ghoul2, const vec3_t angles, const vec3_t position, int frameNumber, int entNum, vec3_t rayStart, vec3_t rayEnd, vec3_t scale, int traceFlags, int useLod, float fRadius );
-	void			(*G2API_CleanGhoul2Models)				( void **ghoul2Ptr );
-	bool		(*G2API_SetBoneAngles)					( void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const boneFlags_t flags, const orientations_t up, const orientations_t right, const orientations_t forward, qhandle_t *modelList, int blendTime , int currentTime );
-	bool		(*G2API_SetBoneAnim)					( void *ghoul2, const int modelIndex, const char *boneName, const int startFrame, const int endFrame, const boneFlags_t flags, const float animSpeed, const int currentTime, const float setFrame, const int blendTime );
-	bool		(*G2API_GetBoneAnim)					( void *ghoul2, const char *boneName, const int currentTime, float *currentFrame, int *startFrame, int *endFrame, boneFlags_t *flags, float *animSpeed, int *modelList, const int modelIndex );
-	bool		(*G2API_GetBoneFrame)					( void *ghoul2, const char *boneName, const int currentTime, float *currentFrame, int *modelList, const int modelIndex );
-	void			(*G2API_GetGLAName)						( void *ghoul2, int modelIndex, char *fillBuf );
-	int				(*G2API_CopyGhoul2Instance)				( void *g2From, void *g2To, int modelIndex );
-	void			(*G2API_CopySpecificGhoul2Model)		( void *g2From, int modelFrom, void *g2To, int modelTo );
-	void			(*G2API_DuplicateGhoul2Instance)		( void *g2From, void **g2To );
-	bool		(*G2API_HasGhoul2ModelOnIndex)			( void *ghlInfo, int modelIndex );
-	bool		(*G2API_RemoveGhoul2Model)				( void *ghlInfo, int modelIndex );
-	int				(*G2API_AddBolt)						( void *ghoul2, int modelIndex, const char *boneName );
-	void			(*G2API_SetBoltInfo)					( void *ghoul2, int modelIndex, int boltInfo );
-	bool		(*G2API_SetRootSurface)					( void *ghoul2, const int modelIndex, const char *surfaceName );
-	bool		(*G2API_SetSurfaceOnOff)				( void *ghoul2, const char *surfaceName, const g2SurfaceFlags_t flags );
-	bool		(*G2API_SetNewOrigin)					( void *ghoul2, const int boltIndex );
-	int				(*G2API_GetTime)						( void );
-	void			(*G2API_SetTime)						( int time, int clock );
-	void			(*G2API_SetRagDoll)						( void *ghoul2, sharedRagDollParams_t *params );
-	void			(*G2API_AnimateG2Models)				( void *ghoul2, int time, sharedRagDollUpdateParams_t *params );
-	bool		(*G2API_SetBoneIKState)					( void *ghoul2, int time, const char *boneName, sharedEIKMoveState ikState, sharedSetBoneIKStateParams_t *params );
-	bool		(*G2API_IKMove)							( void *ghoul2, int time, sharedIKMoveParams_t *params );
-	void			(*G2API_GetSurfaceName)					( void *ghoul2, int surfNumber, int modelIndex, char *fillBuf );
-	bool		(*G2API_SetSkin)						( void *ghoul2, int modelIndex, qhandle_t customSkin, qhandle_t renderSkin );
-	bool		(*G2API_AttachG2Model)					( void *ghoul2From, int modelIndexFrom, void *ghoul2To, int toBoltIndex, int toModel );
+    void (*G2_ListModelSurfaces)(void* ghlInfo);
+    void (*G2_ListModelBones)(void* ghlInfo, int frame);
+    void (*G2_SetGhoul2ModelIndexes)(void* ghoul2, qhandle_t* modelList, qhandle_t* skinList);
+    bool (*G2_HaveWeGhoul2Models)(void* ghoul2);
+    bool (*G2API_GetBoltMatrix)(void* ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t* matrix, const vec3_t angles, const vec3_t position,
+                                const int frameNum, qhandle_t* modelList, vec3_t scale);
+    bool (*G2API_GetBoltMatrix_NoReconstruct)(void* ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t* matrix, const vec3_t angles,
+                                              const vec3_t position, const int frameNum, qhandle_t* modelList, vec3_t scale);
+    bool (*G2API_GetBoltMatrix_NoRecNoRot)(void* ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t* matrix, const vec3_t angles,
+                                           const vec3_t position, const int frameNum, qhandle_t* modelList, vec3_t scale);
+    int (*G2API_InitGhoul2Model)(void** ghoul2Ptr, const char* fileName, int modelIndex, qhandle_t customSkin, qhandle_t customShader, int modelFlags,
+                                 int lodBias);
+    void (*G2API_CollisionDetect)(CollisionRecord_t* collRecMap, void* ghoul2, const vec3_t angles, const vec3_t position, int frameNumber, int entNum,
+                                  vec3_t rayStart, vec3_t rayEnd, vec3_t scale, int traceFlags, int useLod, float fRadius);
+    void (*G2API_CollisionDetectCache)(CollisionRecord_t* collRecMap, void* ghoul2, const vec3_t angles, const vec3_t position, int frameNumber, int entNum,
+                                       vec3_t rayStart, vec3_t rayEnd, vec3_t scale, int traceFlags, int useLod, float fRadius);
+    void (*G2API_CleanGhoul2Models)(void** ghoul2Ptr);
+    bool (*G2API_SetBoneAngles)(void* ghoul2, int modelIndex, const char* boneName, const vec3_t angles, const boneFlags_t flags, const orientations_t up,
+                                const orientations_t right, const orientations_t forward, qhandle_t* modelList, int blendTime, int currentTime);
+    bool (*G2API_SetBoneAnim)(void* ghoul2, const int modelIndex, const char* boneName, const int startFrame, const int endFrame, const boneFlags_t flags,
+                              const float animSpeed, const int currentTime, const float setFrame, const int blendTime);
+    bool (*G2API_GetBoneAnim)(void* ghoul2, const char* boneName, const int currentTime, float* currentFrame, int* startFrame, int* endFrame,
+                              boneFlags_t* flags, float* animSpeed, int* modelList, const int modelIndex);
+    bool (*G2API_GetBoneFrame)(void* ghoul2, const char* boneName, const int currentTime, float* currentFrame, int* modelList, const int modelIndex);
+    void (*G2API_GetGLAName)(void* ghoul2, int modelIndex, char* fillBuf);
+    int (*G2API_CopyGhoul2Instance)(void* g2From, void* g2To, int modelIndex);
+    void (*G2API_CopySpecificGhoul2Model)(void* g2From, int modelFrom, void* g2To, int modelTo);
+    void (*G2API_DuplicateGhoul2Instance)(void* g2From, void** g2To);
+    bool (*G2API_HasGhoul2ModelOnIndex)(void* ghlInfo, int modelIndex);
+    bool (*G2API_RemoveGhoul2Model)(void* ghlInfo, int modelIndex);
+    int (*G2API_AddBolt)(void* ghoul2, int modelIndex, const char* boneName);
+    void (*G2API_SetBoltInfo)(void* ghoul2, int modelIndex, int boltInfo);
+    bool (*G2API_SetRootSurface)(void* ghoul2, const int modelIndex, const char* surfaceName);
+    bool (*G2API_SetSurfaceOnOff)(void* ghoul2, const char* surfaceName, const g2SurfaceFlags_t flags);
+    bool (*G2API_SetNewOrigin)(void* ghoul2, const int boltIndex);
+    int (*G2API_GetTime)(void);
+    void (*G2API_SetTime)(int time, int clock);
+    void (*G2API_SetRagDoll)(void* ghoul2, sharedRagDollParams_t* params);
+    void (*G2API_AnimateG2Models)(void* ghoul2, int time, sharedRagDollUpdateParams_t* params);
+    bool (*G2API_SetBoneIKState)(void* ghoul2, int time, const char* boneName, sharedEIKMoveState ikState, sharedSetBoneIKStateParams_t* params);
+    bool (*G2API_IKMove)(void* ghoul2, int time, sharedIKMoveParams_t* params);
+    void (*G2API_GetSurfaceName)(void* ghoul2, int surfNumber, int modelIndex, char* fillBuf);
+    bool (*G2API_SetSkin)(void* ghoul2, int modelIndex, qhandle_t customSkin, qhandle_t renderSkin);
+    bool (*G2API_AttachG2Model)(void* ghoul2From, int modelIndexFrom, void* ghoul2To, int toBoltIndex, int toModel);
 
-	struct {
-		float			(*R_Font_StrLenPixels)					( const char *text, const int iFontIndex, const float scale );
-		void			(*AddCommand)							( const char *cmd_name );
-		void			(*RemoveCommand)						( const char *cmd_name );
-		lanServerState_t	(*LAN_GetServerState)				( lanSource_t source, int n );
-	} ext;
+    struct {
+        float (*R_Font_StrLenPixels)(const char* text, const int iFontIndex, const float scale);
+        void (*AddCommand)(const char* cmd_name);
+        void (*RemoveCommand)(const char* cmd_name);
+        lanServerState_t (*LAN_GetServerState)(lanSource_t source, int n);
+    } ext;
 } uiImport_t;
 
 typedef struct uiExport_s {
-	void		(*Init)					( bool inGameLoad );
-	void		(*Shutdown)				( void );
-	void		(*KeyEvent)				( int key, bool down );
-	void		(*MouseEvent)			( int dx, int dy );
-	void		(*Refresh)				( int realtime );
-	bool	(*IsFullscreen)			( void );
-	void		(*SetActiveMenu)		( uiMenuCommand_t menu );
-	bool	(*ConsoleCommand)		( int realTime );
-	void		(*DrawConnectScreen)	( bool overlay );
-	void		(*MenuReset)			( void );
+    void (*Init)(bool inGameLoad);
+    void (*Shutdown)(void);
+    void (*KeyEvent)(int key, bool down);
+    void (*MouseEvent)(int dx, int dy);
+    void (*Refresh)(int realtime);
+    bool (*IsFullscreen)(void);
+    void (*SetActiveMenu)(uiMenuCommand_t menu);
+    bool (*ConsoleCommand)(int realTime);
+    void (*DrawConnectScreen)(bool overlay);
+    void (*MenuReset)(void);
 } uiExport_t;
 
-//linking of ui library
-typedef uiExport_t* (QDECL *GetUIAPI_t)( int apiVersion, uiImport_t *import );
+// linking of ui library
+typedef uiExport_t*(QDECL* GetUIAPI_t)(int apiVersion, uiImport_t* import);

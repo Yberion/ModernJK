@@ -34,24 +34,24 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "sys_public.h"
 #include "con_local.h"
 
-static char binaryPath[ MAX_OSPATH ] = { 0 };
-static char installPath[ MAX_OSPATH ] = { 0 };
+static char binaryPath[MAX_OSPATH] = {0};
+static char installPath[MAX_OSPATH] = {0};
 
-cvar_t *com_minimized;
-cvar_t *com_unfocused;
-cvar_t *com_maxfps;
-cvar_t *com_maxfpsMinimized;
-cvar_t *com_maxfpsUnfocused;
-cvar_t *com_unpackLibraries;
+cvar_t* com_minimized;
+cvar_t* com_unfocused;
+cvar_t* com_maxfps;
+cvar_t* com_maxfpsMinimized;
+cvar_t* com_maxfpsUnfocused;
+cvar_t* com_unpackLibraries;
 
 /*
 =================
 Sys_SetBinaryPath
 =================
 */
-void Sys_SetBinaryPath(const char *path)
+void Sys_SetBinaryPath(const char* path)
 {
-	Q_strncpyz(binaryPath, path, sizeof(binaryPath));
+    Q_strncpyz(binaryPath, path, sizeof(binaryPath));
 }
 
 /*
@@ -59,9 +59,9 @@ void Sys_SetBinaryPath(const char *path)
 Sys_BinaryPath
 =================
 */
-char *Sys_BinaryPath(void)
+char* Sys_BinaryPath(void)
 {
-	return binaryPath;
+    return binaryPath;
 }
 
 /*
@@ -69,9 +69,9 @@ char *Sys_BinaryPath(void)
 Sys_SetDefaultInstallPath
 =================
 */
-void Sys_SetDefaultInstallPath(const char *path)
+void Sys_SetDefaultInstallPath(const char* path)
 {
-	Q_strncpyz(installPath, path, sizeof(installPath));
+    Q_strncpyz(installPath, path, sizeof(installPath));
 }
 
 /*
@@ -79,12 +79,12 @@ void Sys_SetDefaultInstallPath(const char *path)
 Sys_DefaultInstallPath
 =================
 */
-char *Sys_DefaultInstallPath(void)
+char* Sys_DefaultInstallPath(void)
 {
-	if (*installPath)
-		return installPath;
-	else
-		return Sys_Cwd();
+    if (*installPath)
+        return installPath;
+    else
+        return Sys_Cwd();
 }
 
 /*
@@ -92,9 +92,9 @@ char *Sys_DefaultInstallPath(void)
 Sys_DefaultAppPath
 =================
 */
-char *Sys_DefaultAppPath(void)
+char* Sys_DefaultAppPath(void)
 {
-	return Sys_BinaryPath();
+    return Sys_BinaryPath();
 }
 
 /*
@@ -102,21 +102,22 @@ char *Sys_DefaultAppPath(void)
 Sys_GetClipboardData
 ==================
 */
-char *Sys_GetClipboardData( void ) {
+char* Sys_GetClipboardData(void)
+{
 #ifdef DEDICATED
-	return nullptr;
+    return nullptr;
 #else
-	if ( !SDL_HasClipboardText() )
-		return nullptr;
+    if (!SDL_HasClipboardText())
+        return nullptr;
 
-	char *cbText = SDL_GetClipboardText();
-	size_t len = strlen( cbText ) + 1;
+    char* cbText = SDL_GetClipboardText();
+    size_t len = strlen(cbText) + 1;
 
-	char *buf = (char *)Z_Malloc( len, memtag::TAG_CLIPBOARD );
-	Q_strncpyz( buf, cbText, len );
+    char* buf = (char*)Z_Malloc(len, memtag::TAG_CLIPBOARD);
+    Q_strncpyz(buf, cbText, len);
 
-	SDL_free( cbText );
-	return buf;
+    SDL_free(cbText);
+    return buf;
 #endif
 }
 
@@ -127,22 +128,23 @@ Sys_ConsoleInput
 Handle new console input
 =================
 */
-char *Sys_ConsoleInput(void)
+char* Sys_ConsoleInput(void)
 {
-	return CON_Input( );
+    return CON_Input();
 }
 
-void Sys_Print( const char *msg ) {
-	// TTimo - prefix for text that shows up in console but not in notify
-	// backported from RTCW
-	if ( !Q_strncmp( msg, "[skipnotify]", 12 ) ) {
-		msg += 12;
-	}
-	if ( msg[0] == '*' ) {
-		msg += 1;
-	}
-	ConsoleLogAppend( msg );
-	CON_Print( msg );
+void Sys_Print(const char* msg)
+{
+    // TTimo - prefix for text that shows up in console but not in notify
+    // backported from RTCW
+    if (!Q_strncmp(msg, "[skipnotify]", 12)) {
+        msg += 12;
+    }
+    if (msg[0] == '*') {
+        msg += 1;
+    }
+    ConsoleLogAppend(msg);
+    CON_Print(msg);
 }
 
 /*
@@ -153,22 +155,23 @@ Called after the common systems (cvars, files, etc)
 are initialized
 ================
 */
-void Sys_Init( void ) {
-	Cmd_AddCommand ("in_restart", IN_Restart);
-	Cvar_Get( "arch", OS_STRING " " ARCH_STRING, cvarFlags_t::CVAR_ROM );
-	Cvar_Get( "username", Sys_GetCurrentUser(), cvarFlags_t::CVAR_ROM );
+void Sys_Init(void)
+{
+    Cmd_AddCommand("in_restart", IN_Restart);
+    Cvar_Get("arch", OS_STRING " " ARCH_STRING, cvarFlags_t::CVAR_ROM);
+    Cvar_Get("username", Sys_GetCurrentUser(), cvarFlags_t::CVAR_ROM);
 
-	com_unfocused = Cvar_Get( "com_unfocused", "0", cvarFlags_t::CVAR_ROM );
-	com_minimized = Cvar_Get( "com_minimized", "0", cvarFlags_t::CVAR_ROM );
+    com_unfocused = Cvar_Get("com_unfocused", "0", cvarFlags_t::CVAR_ROM);
+    com_minimized = Cvar_Get("com_minimized", "0", cvarFlags_t::CVAR_ROM);
 #ifdef _JK2EXE
-	com_maxfps = Cvar_Get ("com_maxfps", "125", cvarFlags_t::CVAR_ARCHIVE );
+    com_maxfps = Cvar_Get("com_maxfps", "125", cvarFlags_t::CVAR_ARCHIVE);
 #else
-	com_maxfps = Cvar_Get( "com_maxfps", "125", cvarFlags_t::CVAR_ARCHIVE, "Maximum frames per second" );
+    com_maxfps = Cvar_Get("com_maxfps", "125", cvarFlags_t::CVAR_ARCHIVE, "Maximum frames per second");
 #endif
-	com_maxfpsUnfocused = Cvar_Get( "com_maxfpsUnfocused", "0", cvarFlags_t::CVAR_ARCHIVE_ND );
-	com_maxfpsMinimized = Cvar_Get( "com_maxfpsMinimized", "50", cvarFlags_t::CVAR_ARCHIVE_ND );
+    com_maxfpsUnfocused = Cvar_Get("com_maxfpsUnfocused", "0", cvarFlags_t::CVAR_ARCHIVE_ND);
+    com_maxfpsMinimized = Cvar_Get("com_maxfpsMinimized", "50", cvarFlags_t::CVAR_ARCHIVE_ND);
 
-	com_unpackLibraries = Cvar_Get( "com_unpackLibraries", "0", cvarFlags_t::CVAR_INIT|cvarFlags_t::CVAR_PROTECTED );
+    com_unpackLibraries = Cvar_Get("com_unpackLibraries", "0", cvarFlags_t::CVAR_INIT | cvarFlags_t::CVAR_PROTECTED);
 }
 
 /*
@@ -178,100 +181,98 @@ Sys_InitRand
 Seed the engine's random number stream (q_rand.h), if possible with an OS supplied random seed.
 =================
 */
-void Sys_InitRand( void ) {
-	unsigned int seed;
+void Sys_InitRand(void)
+{
+    unsigned int seed;
 
-	if ( !Sys_RandomBytes( (byte *)&seed, sizeof( seed ) ) )
-		seed = (unsigned int)time( nullptr );
-	Rand_Init( (int)seed );
+    if (!Sys_RandomBytes((byte*)&seed, sizeof(seed)))
+        seed = (unsigned int)time(nullptr);
+    Rand_Init((int)seed);
 }
 
-static void NORETURN Sys_Exit( int ex ) {
-	IN_Shutdown();
+static void NORETURN Sys_Exit(int ex)
+{
+    IN_Shutdown();
 #ifndef DEDICATED
-	SDL_Quit();
+    SDL_Quit();
 #endif
 
-	NET_Shutdown();
+    NET_Shutdown();
 
-	Sys_PlatformExit();
+    Sys_PlatformExit();
 
-	Com_ShutdownHunkMemory();
-	Com_ShutdownZoneMemory();
+    Com_ShutdownHunkMemory();
+    Com_ShutdownZoneMemory();
 
-	CON_Shutdown();
+    CON_Shutdown();
 
-    exit( ex );
+    exit(ex);
 }
 
 #if !defined(DEDICATED)
-static void Sys_ErrorDialog( const char *error )
+static void Sys_ErrorDialog(const char* error)
 {
-	time_t rawtime;
-	char timeStr[32] = {}; // should really only reach ~19 chars
-	char crashLogPath[MAX_OSPATH];
+    time_t rawtime;
+    char timeStr[32] = {}; // should really only reach ~19 chars
+    char crashLogPath[MAX_OSPATH];
 
-	time( &rawtime );
-	strftime( timeStr, sizeof( timeStr ), "%Y-%m-%d_%H-%M-%S", localtime( &rawtime ) ); // or gmtime
-	const char *homePath = Sys_DefaultHomePath();
-	const char *logPath = ( homePath && homePath[0] ) ? homePath : Sys_DefaultInstallPath();
-	Com_sprintf( crashLogPath, sizeof( crashLogPath ),
-					"%s%ccrashlog-%s.txt",
-					logPath, PATH_SEP, timeStr );
+    time(&rawtime);
+    strftime(timeStr, sizeof(timeStr), "%Y-%m-%d_%H-%M-%S", localtime(&rawtime)); // or gmtime
+    const char* homePath = Sys_DefaultHomePath();
+    const char* logPath = (homePath && homePath[0]) ? homePath : Sys_DefaultInstallPath();
+    Com_sprintf(crashLogPath, sizeof(crashLogPath), "%s%ccrashlog-%s.txt", logPath, PATH_SEP, timeStr);
 
-	Sys_Mkdir( logPath );
+    Sys_Mkdir(logPath);
 
-	FILE *fp = fopen( crashLogPath, "w" );
-	if ( fp )
-	{
-		ConsoleLogWriteOut( fp );
-		fclose( fp );
+    FILE* fp = fopen(crashLogPath, "w");
+    if (fp) {
+        ConsoleLogWriteOut(fp);
+        fclose(fp);
 
-		const char *errorMessage = va( "%s\n\nThe crash log was written to %s", error, crashLogPath );
-		if ( SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "Error", errorMessage, nullptr ) < 0 )
-		{
-			fprintf( stderr, "%s", errorMessage );
-		}
-	}
-	else
-	{
-		// Getting pretty desperate now
-		ConsoleLogWriteOut( stderr );
-		fflush( stderr );
+        const char* errorMessage = va("%s\n\nThe crash log was written to %s", error, crashLogPath);
+        if (SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", errorMessage, nullptr) < 0) {
+            fprintf(stderr, "%s", errorMessage);
+        }
+    }
+    else {
+        // Getting pretty desperate now
+        ConsoleLogWriteOut(stderr);
+        fflush(stderr);
 
-		const char *errorMessage = va( "%s\nCould not write the crash log file, but we printed it to stderr.\n"
-										"Try running the game using a command line interface.", error );
-		if ( SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "Error", errorMessage, nullptr ) < 0 )
-		{
-			// We really have hit rock bottom here :(
-			fprintf( stderr, "%s", errorMessage );
-		}
-	}
+        const char* errorMessage = va("%s\nCould not write the crash log file, but we printed it to stderr.\n"
+                                      "Try running the game using a command line interface.",
+                                      error);
+        if (SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", errorMessage, nullptr) < 0) {
+            // We really have hit rock bottom here :(
+            fprintf(stderr, "%s", errorMessage);
+        }
+    }
 }
 #endif
 
-void NORETURN QDECL Sys_Error( const char *error, ... )
+void NORETURN QDECL Sys_Error(const char* error, ...)
 {
-	va_list argptr;
-	char    string[1024];
+    va_list argptr;
+    char string[1024];
 
-	va_start (argptr,error);
-	Q_vsnprintf (string, sizeof(string), error, argptr);
-	va_end (argptr);
+    va_start(argptr, error);
+    Q_vsnprintf(string, sizeof(string), error, argptr);
+    va_end(argptr);
 
-	Sys_Print( string );
+    Sys_Print(string);
 
-	// Only print Sys_ErrorDialog for client binary. The dedicated
-	// server binary is meant to be a command line program so you would
-	// expect to see the error printed.
+    // Only print Sys_ErrorDialog for client binary. The dedicated
+    // server binary is meant to be a command line program so you would
+    // expect to see the error printed.
 #if !defined(DEDICATED)
-	Sys_ErrorDialog( string );
+    Sys_ErrorDialog(string);
 #endif
 
-	Sys_Exit( 3 );
+    Sys_Exit(3);
 }
 
-void NORETURN Sys_Quit (void) {
+void NORETURN Sys_Quit(void)
+{
     Sys_Exit(0);
 }
 
@@ -282,14 +283,14 @@ Sys_FileTime
 returns -1 if not present
 ============
 */
-time_t Sys_FileTime( const char *path )
+time_t Sys_FileTime(const char* path)
 {
-	struct stat buf;
+    struct stat buf;
 
-	if ( stat( path, &buf ) == -1 )
-		return -1;
+    if (stat(path, &buf) == -1)
+        return -1;
 
-	return buf.st_mtime;
+    return buf.st_mtime;
 }
 
 /*
@@ -297,15 +298,14 @@ time_t Sys_FileTime( const char *path )
 Sys_UnloadDll
 =================
 */
-void Sys_UnloadDll( void *dllHandle )
+void Sys_UnloadDll(void* dllHandle)
 {
-	if( !dllHandle )
-	{
-		Com_Printf("Sys_UnloadDll(NULL)\n");
-		return;
-	}
+    if (!dllHandle) {
+        Com_Printf("Sys_UnloadDll(NULL)\n");
+        return;
+    }
 
-	Sys_UnloadLibrary(dllHandle);
+    Sys_UnloadLibrary(dllHandle);
 }
 
 /*
@@ -316,299 +316,285 @@ First try to load library name from system library path,
 from executable path, then fs_basepath.
 =================
 */
-void *Sys_LoadDll( const char *name, bool useSystemLib )
+void* Sys_LoadDll(const char* name, bool useSystemLib)
 {
-	void *dllhandle = nullptr;
+    void* dllhandle = nullptr;
 
-	// Don't load any DLLs that end with the pk3 extension
-	if ( COM_CompareExtension( name, ".pk3" ) )
-	{
-		Com_Printf( S_COLOR_YELLOW "WARNING: Rejecting DLL named \"%s\"", name );
-		return nullptr;
-	}
+    // Don't load any DLLs that end with the pk3 extension
+    if (COM_CompareExtension(name, ".pk3")) {
+        Com_Printf(S_COLOR_YELLOW "WARNING: Rejecting DLL named \"%s\"", name);
+        return nullptr;
+    }
 
-	if ( useSystemLib )
-	{
-		Com_Printf( "Trying to load \"%s\"...\n", name );
+    if (useSystemLib) {
+        Com_Printf("Trying to load \"%s\"...\n", name);
 
-		dllhandle = Sys_LoadLibrary( name );
-		if ( dllhandle )
-			return dllhandle;
+        dllhandle = Sys_LoadLibrary(name);
+        if (dllhandle)
+            return dllhandle;
 
-		Com_Printf( "%s(%s) failed: \"%s\"\n", __FUNCTION__, name, Sys_LibraryError() );
-	}
+        Com_Printf("%s(%s) failed: \"%s\"\n", __FUNCTION__, name, Sys_LibraryError());
+    }
 
-	const char *binarypath = Sys_BinaryPath();
-	const char *basepath = Cvar_VariableString( "fs_basepath" );
+    const char* binarypath = Sys_BinaryPath();
+    const char* basepath = Cvar_VariableString("fs_basepath");
 
-	if ( !*binarypath )
-		binarypath = ".";
+    if (!*binarypath)
+        binarypath = ".";
 
-	const char *searchPaths[] = {
-		binarypath,
-		basepath,
-	};
-	const size_t numPaths = ARRAY_LEN( searchPaths );
+    const char* searchPaths[] = {
+        binarypath,
+        basepath,
+    };
+    const size_t numPaths = ARRAY_LEN(searchPaths);
 
-	for ( size_t i = 0; i < numPaths; i++ )
-	{
-		const char *libDir = searchPaths[i];
-		if ( !libDir[0] )
-			continue;
+    for (size_t i = 0; i < numPaths; i++) {
+        const char* libDir = searchPaths[i];
+        if (!libDir[0])
+            continue;
 
-		Com_Printf( "Trying to load \"%s\" from \"%s\"...\n", name, libDir );
-		char *fn = va( "%s%c%s", libDir, PATH_SEP, name );
-		dllhandle = Sys_LoadLibrary( fn );
-		if ( dllhandle )
-			return dllhandle;
+        Com_Printf("Trying to load \"%s\" from \"%s\"...\n", name, libDir);
+        char* fn = va("%s%c%s", libDir, PATH_SEP, name);
+        dllhandle = Sys_LoadLibrary(fn);
+        if (dllhandle)
+            return dllhandle;
 
-		Com_Printf( "%s(%s) failed: \"%s\"\n", __FUNCTION__, fn, Sys_LibraryError() );
-	}
-	return nullptr;
+        Com_Printf("%s(%s) failed: \"%s\"\n", __FUNCTION__, fn, Sys_LibraryError());
+    }
+    return nullptr;
 }
 
 #if defined(MACOS_X) && !defined(_JK2EXE)
-void *Sys_LoadMachOBundle( const char *name )
+void* Sys_LoadMachOBundle(const char* name)
 {
-	if ( !FS_LoadMachOBundle(name) )
-		return nullptr;
+    if (!FS_LoadMachOBundle(name))
+        return nullptr;
 
-	char *homepath = Cvar_VariableString( "fs_homepath" );
-	char *gamedir = Cvar_VariableString( "fs_game" );
-	char dllName[MAX_QPATH];
+    char* homepath = Cvar_VariableString("fs_homepath");
+    char* gamedir = Cvar_VariableString("fs_game");
+    char dllName[MAX_QPATH];
 
-	Com_sprintf( dllName, sizeof(dllName), "%s_pk3" DLL_EXT, name );
+    Com_sprintf(dllName, sizeof(dllName), "%s_pk3" DLL_EXT, name);
 
-	//load the unzipped library
-	char *fn = FS_BuildOSPath( homepath, gamedir, dllName );
+    // load the unzipped library
+    char* fn = FS_BuildOSPath(homepath, gamedir, dllName);
 
-	void    *libHandle = Sys_LoadLibrary( fn );
+    void* libHandle = Sys_LoadLibrary(fn);
 
-	if ( libHandle != nullptr ) {
-		Com_Printf( "Loaded pk3 bundle %s.\n", name );
-	}
+    if (libHandle != nullptr) {
+        Com_Printf("Loaded pk3 bundle %s.\n", name);
+    }
 
-	return libHandle;
+    return libHandle;
 }
 #endif
 
-enum class SearchPathFlags
-{
-	SEARCH_PATH_NONE	= 0,
-	SEARCH_PATH_MOD		= 1 << 0,
-	SEARCH_PATH_BASE	= 1 << 1,
-	SEARCH_PATH_MODERNJK	= 1 << 2,
-	SEARCH_PATH_ROOT	= 1 << 3
+enum class SearchPathFlags {
+    SEARCH_PATH_NONE = 0,
+    SEARCH_PATH_MOD = 1 << 0,
+    SEARCH_PATH_BASE = 1 << 1,
+    SEARCH_PATH_MODERNJK = 1 << 2,
+    SEARCH_PATH_ROOT = 1 << 3
 };
 template <> inline constexpr bool enableEnumFlags<SearchPathFlags> = true;
 
-static void *Sys_LoadDllFromPaths( const char *filename, const char *gamedir, const char **searchPaths,
-									size_t numPaths, SearchPathFlags searchFlags, const char *callerName )
+static void* Sys_LoadDllFromPaths(const char* filename, const char* gamedir, const char** searchPaths, size_t numPaths, SearchPathFlags searchFlags,
+                                  const char* callerName)
 {
-	char *fn;
-	void *libHandle;
+    char* fn;
+    void* libHandle;
 
-	if ( Any( searchFlags & SearchPathFlags::SEARCH_PATH_MOD ) )
-	{
-		for ( size_t i = 0; i < numPaths; i++ )
-		{
-			const char *libDir = searchPaths[i];
-			if ( !libDir[0] )
-				continue;
+    if (Any(searchFlags & SearchPathFlags::SEARCH_PATH_MOD)) {
+        for (size_t i = 0; i < numPaths; i++) {
+            const char* libDir = searchPaths[i];
+            if (!libDir[0])
+                continue;
 
-			fn = FS_BuildOSPath( libDir, gamedir, filename );
-			libHandle = Sys_LoadLibrary( fn );
-			if ( libHandle )
-				return libHandle;
+            fn = FS_BuildOSPath(libDir, gamedir, filename);
+            libHandle = Sys_LoadLibrary(fn);
+            if (libHandle)
+                return libHandle;
 
-			Com_Printf( "%s(%s) failed: \"%s\"\n", callerName, fn, Sys_LibraryError() );
-		}
-	}
+            Com_Printf("%s(%s) failed: \"%s\"\n", callerName, fn, Sys_LibraryError());
+        }
+    }
 
-	if ( Any( searchFlags & SearchPathFlags::SEARCH_PATH_BASE ) )
-	{
-		for ( size_t i = 0; i < numPaths; i++ )
-		{
-			const char *libDir = searchPaths[i];
-			if ( !libDir[0] )
-				continue;
+    if (Any(searchFlags & SearchPathFlags::SEARCH_PATH_BASE)) {
+        for (size_t i = 0; i < numPaths; i++) {
+            const char* libDir = searchPaths[i];
+            if (!libDir[0])
+                continue;
 
-			fn = FS_BuildOSPath( libDir, BASEGAME, filename );
-			libHandle = Sys_LoadLibrary( fn );
-			if ( libHandle )
-				return libHandle;
+            fn = FS_BuildOSPath(libDir, BASEGAME, filename);
+            libHandle = Sys_LoadLibrary(fn);
+            if (libHandle)
+                return libHandle;
 
-			Com_Printf( "%s(%s) failed: \"%s\"\n", callerName, fn, Sys_LibraryError() );
-		}
-	}
+            Com_Printf("%s(%s) failed: \"%s\"\n", callerName, fn, Sys_LibraryError());
+        }
+    }
 
-	if ( Any( searchFlags & SearchPathFlags::SEARCH_PATH_MODERNJK ) )
-	{
-		for ( size_t i = 0; i < numPaths; i++ )
-		{
-			const char *libDir = searchPaths[i];
-			if ( !libDir[0] )
-				continue;
+    if (Any(searchFlags & SearchPathFlags::SEARCH_PATH_MODERNJK)) {
+        for (size_t i = 0; i < numPaths; i++) {
+            const char* libDir = searchPaths[i];
+            if (!libDir[0])
+                continue;
 
-			fn = FS_BuildOSPath( libDir, MODERNJKGAME, filename );
-			libHandle = Sys_LoadLibrary( fn );
-			if ( libHandle )
-				return libHandle;
+            fn = FS_BuildOSPath(libDir, MODERNJKGAME, filename);
+            libHandle = Sys_LoadLibrary(fn);
+            if (libHandle)
+                return libHandle;
 
-			Com_Printf( "%s(%s) failed: \"%s\"\n", callerName, fn, Sys_LibraryError() );
-		}
-	}
+            Com_Printf("%s(%s) failed: \"%s\"\n", callerName, fn, Sys_LibraryError());
+        }
+    }
 
-	if ( Any( searchFlags & SearchPathFlags::SEARCH_PATH_ROOT ) )
-	{
-		for ( size_t i = 0; i < numPaths; i++ )
-		{
-			const char *libDir = searchPaths[i];
-			if ( !libDir[0] )
-				continue;
+    if (Any(searchFlags & SearchPathFlags::SEARCH_PATH_ROOT)) {
+        for (size_t i = 0; i < numPaths; i++) {
+            const char* libDir = searchPaths[i];
+            if (!libDir[0])
+                continue;
 
-			fn = va( "%s%c%s", libDir, PATH_SEP, filename );
-			libHandle = Sys_LoadLibrary( fn );
-			if ( libHandle )
-				return libHandle;
+            fn = va("%s%c%s", libDir, PATH_SEP, filename);
+            libHandle = Sys_LoadLibrary(fn);
+            if (libHandle)
+                return libHandle;
 
-			Com_Printf( "%s(%s) failed: \"%s\"\n", callerName, fn, Sys_LibraryError() );
-		}
-	}
+            Com_Printf("%s(%s) failed: \"%s\"\n", callerName, fn, Sys_LibraryError());
+        }
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
-static void FreeUnpackDLLResult(UnpackDLLResult *result)
+static void FreeUnpackDLLResult(UnpackDLLResult* result)
 {
-	if ( result->tempDLLPath )
-		Z_Free((void *)result->tempDLLPath);
+    if (result->tempDLLPath)
+        Z_Free((void*)result->tempDLLPath);
 }
 
-void *Sys_LoadSPGameDll( const char *name, GetGameAPIProc **GetGameAPI )
+void* Sys_LoadSPGameDll(const char* name, GetGameAPIProc** GetGameAPI)
 {
-	void	*libHandle = nullptr;
-	char	filename[MAX_OSPATH];
+    void* libHandle = nullptr;
+    char filename[MAX_OSPATH];
 
-	assert( GetGameAPI );
+    assert(GetGameAPI);
 
-	Com_sprintf (filename, sizeof(filename), "%s" ARCH_STRING DLL_EXT, name);
+    Com_sprintf(filename, sizeof(filename), "%s" ARCH_STRING DLL_EXT, name);
 
 #if defined(MACOS_X) && !defined(_JK2EXE)
-    //First, look for the old-style mac .bundle that's inside a pk3
-    //It's actually zipped, and the zipfile has the same name as 'name'
-    libHandle = Sys_LoadMachOBundle( filename );
+    // First, look for the old-style mac .bundle that's inside a pk3
+    // It's actually zipped, and the zipfile has the same name as 'name'
+    libHandle = Sys_LoadMachOBundle(filename);
 #endif
 
-	if (!libHandle) {
-		const char *basepath = Cvar_VariableString( "fs_basepath" );
-		const char *homepath = Cvar_VariableString( "fs_homepath" );
-		const char *cdpath = Cvar_VariableString( "fs_cdpath" );
-		const char *gamedir = Cvar_VariableString( "fs_game" );
+    if (!libHandle) {
+        const char* basepath = Cvar_VariableString("fs_basepath");
+        const char* homepath = Cvar_VariableString("fs_homepath");
+        const char* cdpath = Cvar_VariableString("fs_cdpath");
+        const char* gamedir = Cvar_VariableString("fs_game");
 #ifdef MACOS_X
-        const char *apppath = Cvar_VariableString( "fs_apppath" );
+        const char* apppath = Cvar_VariableString("fs_apppath");
 #endif
 
-		const char *searchPaths[] = {
-			homepath,
+        const char* searchPaths[] = {
+            homepath,
 #ifdef MACOS_X
-			apppath,
+            apppath,
 #endif
-			basepath,
-			cdpath,
-		};
-		size_t numPaths = ARRAY_LEN( searchPaths );
+            basepath,
+            cdpath,
+        };
+        size_t numPaths = ARRAY_LEN(searchPaths);
 
-		libHandle = Sys_LoadDllFromPaths( filename, gamedir, searchPaths, numPaths,
-											SearchPathFlags::SEARCH_PATH_BASE | SearchPathFlags::SEARCH_PATH_MOD | SearchPathFlags::SEARCH_PATH_MODERNJK | SearchPathFlags::SEARCH_PATH_ROOT,
-											__FUNCTION__ );
-		if ( !libHandle )
-			return nullptr;
-	}
+        libHandle = Sys_LoadDllFromPaths(filename, gamedir, searchPaths, numPaths,
+                                         SearchPathFlags::SEARCH_PATH_BASE | SearchPathFlags::SEARCH_PATH_MOD | SearchPathFlags::SEARCH_PATH_MODERNJK |
+                                             SearchPathFlags::SEARCH_PATH_ROOT,
+                                         __FUNCTION__);
+        if (!libHandle)
+            return nullptr;
+    }
 
-	*GetGameAPI = (GetGameAPIProc *)Sys_LoadFunction( libHandle, "GetGameAPI" );
-	if ( !*GetGameAPI ) {
-		Com_DPrintf ( "%s(%s) failed to find GetGameAPI function:\n...%s!\n", __FUNCTION__, name, Sys_LibraryError() );
-		Sys_UnloadLibrary( libHandle );
-		return nullptr;
-	}
+    *GetGameAPI = (GetGameAPIProc*)Sys_LoadFunction(libHandle, "GetGameAPI");
+    if (!*GetGameAPI) {
+        Com_DPrintf("%s(%s) failed to find GetGameAPI function:\n...%s!\n", __FUNCTION__, name, Sys_LibraryError());
+        Sys_UnloadLibrary(libHandle);
+        return nullptr;
+    }
 
-	return libHandle;
+    return libHandle;
 }
 
-void *Sys_LoadGameDll( const char *name, GetModuleAPIProc **moduleAPI )
+void* Sys_LoadGameDll(const char* name, GetModuleAPIProc** moduleAPI)
 {
-	void	*libHandle = nullptr;
-	char	filename[MAX_OSPATH];
+    void* libHandle = nullptr;
+    char filename[MAX_OSPATH];
 
-	Com_sprintf (filename, sizeof(filename), "%s" ARCH_STRING DLL_EXT, name);
+    Com_sprintf(filename, sizeof(filename), "%s" ARCH_STRING DLL_EXT, name);
 
 #if defined(_DEBUG)
-	libHandle = Sys_LoadLibrary( filename );
-	if ( !libHandle )
+    libHandle = Sys_LoadLibrary(filename);
+    if (!libHandle)
 #endif
-	{
-		if ( com_unpackLibraries->integer ) {
-			UnpackDLLResult unpackResult = Sys_UnpackDLL(filename);
-			if ( !unpackResult.succeeded )
-			{
-				if ( Sys_DLLNeedsUnpacking() )
-				{
-					FreeUnpackDLLResult(&unpackResult);
-					Com_DPrintf( "Sys_LoadGameDll: Failed to unpack %s from PK3.\n", filename );
-					return nullptr;
-				}
-			}
-			else
-			{
-				libHandle = Sys_LoadLibrary(unpackResult.tempDLLPath);
-			}
+    {
+        if (com_unpackLibraries->integer) {
+            UnpackDLLResult unpackResult = Sys_UnpackDLL(filename);
+            if (!unpackResult.succeeded) {
+                if (Sys_DLLNeedsUnpacking()) {
+                    FreeUnpackDLLResult(&unpackResult);
+                    Com_DPrintf("Sys_LoadGameDll: Failed to unpack %s from PK3.\n", filename);
+                    return nullptr;
+                }
+            }
+            else {
+                libHandle = Sys_LoadLibrary(unpackResult.tempDLLPath);
+            }
 
-			FreeUnpackDLLResult(&unpackResult);
-		}
+            FreeUnpackDLLResult(&unpackResult);
+        }
 
-		if ( !libHandle )
-		{
+        if (!libHandle) {
 #if defined(MACOS_X) && !defined(_JK2EXE)
-			//First, look for the old-style mac .bundle that's inside a pk3
-			//It's actually zipped, and the zipfile has the same name as 'name'
-			libHandle = Sys_LoadMachOBundle( name );
+            // First, look for the old-style mac .bundle that's inside a pk3
+            // It's actually zipped, and the zipfile has the same name as 'name'
+            libHandle = Sys_LoadMachOBundle(name);
 #endif
 
-			if (!libHandle) {
-				const char *basepath = Cvar_VariableString( "fs_basepath" );
-				const char *homepath = Cvar_VariableString( "fs_homepath" );
-				const char *cdpath = Cvar_VariableString( "fs_cdpath" );
-				const char *gamedir = Cvar_VariableString( "fs_game" );
+            if (!libHandle) {
+                const char* basepath = Cvar_VariableString("fs_basepath");
+                const char* homepath = Cvar_VariableString("fs_homepath");
+                const char* cdpath = Cvar_VariableString("fs_cdpath");
+                const char* gamedir = Cvar_VariableString("fs_game");
 #ifdef MACOS_X
-				char *apppath = Cvar_VariableString( "fs_apppath" );
+                char* apppath = Cvar_VariableString("fs_apppath");
 #endif
 
-				const char *searchPaths[] = {
-					homepath,
+                const char* searchPaths[] = {
+                    homepath,
 #ifdef MACOS_X
-					apppath,
+                    apppath,
 #endif
-					basepath,
-					cdpath,
-				};
-				size_t numPaths = ARRAY_LEN( searchPaths );
+                    basepath,
+                    cdpath,
+                };
+                size_t numPaths = ARRAY_LEN(searchPaths);
 
-				libHandle = Sys_LoadDllFromPaths( filename, gamedir, searchPaths, numPaths, SearchPathFlags::SEARCH_PATH_BASE | SearchPathFlags::SEARCH_PATH_MOD, __FUNCTION__ );
-				if ( !libHandle )
-					return nullptr;
-			}
-		}
-	}
+                libHandle = Sys_LoadDllFromPaths(filename, gamedir, searchPaths, numPaths, SearchPathFlags::SEARCH_PATH_BASE | SearchPathFlags::SEARCH_PATH_MOD,
+                                                 __FUNCTION__);
+                if (!libHandle)
+                    return nullptr;
+            }
+        }
+    }
 
-	*moduleAPI = (GetModuleAPIProc *)Sys_LoadFunction( libHandle, "GetModuleAPI" );
-	if ( !*moduleAPI ) {
-		Com_DPrintf ( "Sys_LoadGameDll(%s) failed to find GetModuleAPI function:\n...%s!\n", name, Sys_LibraryError() );
-		Sys_UnloadLibrary( libHandle );
-		return nullptr;
-	}
+    *moduleAPI = (GetModuleAPIProc*)Sys_LoadFunction(libHandle, "GetModuleAPI");
+    if (!*moduleAPI) {
+        Com_DPrintf("Sys_LoadGameDll(%s) failed to find GetModuleAPI function:\n...%s!\n", name, Sys_LibraryError());
+        Sys_UnloadLibrary(libHandle);
+        return nullptr;
+    }
 
-	return libHandle;
+    return libHandle;
 }
 
 /*
@@ -616,31 +602,28 @@ void *Sys_LoadGameDll( const char *name, GetModuleAPIProc **moduleAPI )
 Sys_SigHandler
 =================
 */
-void Sys_SigHandler( int signal )
+void Sys_SigHandler(int signal)
 {
-	static bool signalcaught = false;
+    static bool signalcaught = false;
 
-	if( signalcaught )
-	{
-		fprintf( stderr, "DOUBLE SIGNAL FAULT: Received signal %d, exiting...\n",
-			signal );
-	}
-	else
-	{
-		signalcaught = true;
-		//VM_Forced_Unload_Start();
+    if (signalcaught) {
+        fprintf(stderr, "DOUBLE SIGNAL FAULT: Received signal %d, exiting...\n", signal);
+    }
+    else {
+        signalcaught = true;
+        // VM_Forced_Unload_Start();
 #ifndef DEDICATED
-		CL_Shutdown();
-		//CL_Shutdown(va("Received signal %d", signal), true, true);
+        CL_Shutdown();
+        // CL_Shutdown(va("Received signal %d", signal), true, true);
 #endif
-		SV_Shutdown(va("Received signal %d", signal) );
-		//VM_Forced_Unload_Done();
-	}
+        SV_Shutdown(va("Received signal %d", signal));
+        // VM_Forced_Unload_Done();
+    }
 
-	if( signal == SIGTERM || signal == SIGINT )
-		Sys_Exit( 1 );
-	else
-		Sys_Exit( 2 );
+    if (signal == SIGTERM || signal == SIGINT)
+        Sys_Exit(1);
+    else
+        Sys_Exit(2);
 }
 
 #ifdef MACOS_X
@@ -653,109 +636,103 @@ void Sys_SigHandler( int signal )
  the result is returned. If not, dir is returned untouched.
  =================
  */
-char *Sys_StripAppBundle( char *dir )
+char* Sys_StripAppBundle(char* dir)
 {
-	static char cwd[MAX_OSPATH];
+    static char cwd[MAX_OSPATH];
 
-	Q_strncpyz(cwd, dir, sizeof(cwd));
-	if(strcmp(Sys_Basename(cwd), "MacOS"))
-		return dir;
-	Q_strncpyz(cwd, Sys_Dirname(cwd), sizeof(cwd));
-	if(strcmp(Sys_Basename(cwd), "Contents"))
-		return dir;
-	Q_strncpyz(cwd, Sys_Dirname(cwd), sizeof(cwd));
-	if(!strstr(Sys_Basename(cwd), ".app"))
-		return dir;
-	Q_strncpyz(cwd, Sys_Dirname(cwd), sizeof(cwd));
-	return cwd;
+    Q_strncpyz(cwd, dir, sizeof(cwd));
+    if (strcmp(Sys_Basename(cwd), "MacOS"))
+        return dir;
+    Q_strncpyz(cwd, Sys_Dirname(cwd), sizeof(cwd));
+    if (strcmp(Sys_Basename(cwd), "Contents"))
+        return dir;
+    Q_strncpyz(cwd, Sys_Dirname(cwd), sizeof(cwd));
+    if (!strstr(Sys_Basename(cwd), ".app"))
+        return dir;
+    Q_strncpyz(cwd, Sys_Dirname(cwd), sizeof(cwd));
+    return cwd;
 }
 #endif
 
 #ifndef DEFAULT_BASEDIR
-#	ifdef MACOS_X
-#		define DEFAULT_BASEDIR Sys_StripAppBundle(Sys_BinaryPath())
-#	else
-#		define DEFAULT_BASEDIR Sys_BinaryPath()
-#	endif
+#ifdef MACOS_X
+#define DEFAULT_BASEDIR Sys_StripAppBundle(Sys_BinaryPath())
+#else
+#define DEFAULT_BASEDIR Sys_BinaryPath()
+#endif
 #endif
 
-int main ( int argc, char* argv[] )
+int main(int argc, char* argv[])
 {
-	int		i;
-	char	commandLine[ MAX_STRING_CHARS ] = { 0 };
+    int i;
+    char commandLine[MAX_STRING_CHARS] = {0};
 
-	Sys_PlatformInit( argc, argv );
-	CON_Init();
+    Sys_PlatformInit(argc, argv);
+    CON_Init();
 
-	// get the initial time base
-	Sys_Milliseconds();
+    // get the initial time base
+    Sys_Milliseconds();
 
 #ifdef MACOS_X
-	// This is passed if we are launched by double-clicking
-	if ( argc >= 2 && Q_strncmp ( argv[1], "-psn", 4 ) == 0 )
-		argc = 1;
+    // This is passed if we are launched by double-clicking
+    if (argc >= 2 && Q_strncmp(argv[1], "-psn", 4) == 0)
+        argc = 1;
 #endif
 
-	Sys_SetBinaryPath( Sys_Dirname( argv[ 0 ] ) );
-	Sys_SetDefaultInstallPath( DEFAULT_BASEDIR );
+    Sys_SetBinaryPath(Sys_Dirname(argv[0]));
+    Sys_SetDefaultInstallPath(DEFAULT_BASEDIR);
 
-	// Concatenate the command line for passing to Com_Init
-	for( i = 1; i < argc; i++ )
-	{
-		const bool containsSpaces = (strchr(argv[i], ' ') != nullptr);
-		if (containsSpaces)
-			Q_strcat( commandLine, sizeof( commandLine ), "\"" );
+    // Concatenate the command line for passing to Com_Init
+    for (i = 1; i < argc; i++) {
+        const bool containsSpaces = (strchr(argv[i], ' ') != nullptr);
+        if (containsSpaces)
+            Q_strcat(commandLine, sizeof(commandLine), "\"");
 
-		Q_strcat( commandLine, sizeof( commandLine ), argv[ i ] );
+        Q_strcat(commandLine, sizeof(commandLine), argv[i]);
 
-		if (containsSpaces)
-			Q_strcat( commandLine, sizeof( commandLine ), "\"" );
+        if (containsSpaces)
+            Q_strcat(commandLine, sizeof(commandLine), "\"");
 
-		Q_strcat( commandLine, sizeof( commandLine ), " " );
-	}
+        Q_strcat(commandLine, sizeof(commandLine), " ");
+    }
 
-	Com_Init (commandLine);
+    Com_Init(commandLine);
 
 #ifndef DEDICATED
-	SDL_version compiled;
-	SDL_version linked;
+    SDL_version compiled;
+    SDL_version linked;
 
-	SDL_VERSION( &compiled );
-	SDL_GetVersion( &linked );
+    SDL_VERSION(&compiled);
+    SDL_GetVersion(&linked);
 
-	Com_Printf( "SDL Version Compiled: %d.%d.%d\n", compiled.major, compiled.minor, compiled.patch );
-	Com_Printf( "SDL Version Linked: %d.%d.%d\n", linked.major, linked.minor, linked.patch );
+    Com_Printf("SDL Version Compiled: %d.%d.%d\n", compiled.major, compiled.minor, compiled.patch);
+    Com_Printf("SDL Version Linked: %d.%d.%d\n", linked.major, linked.minor, linked.patch);
 #endif
 
-	// main game loop
-	while (1)
-	{
-		if ( com_busyWait->integer )
-		{
-			bool shouldSleep = false;
+    // main game loop
+    while (1) {
+        if (com_busyWait->integer) {
+            bool shouldSleep = false;
 
 #if !defined(_JK2EXE)
-			if ( com_dedicated->integer )
-			{
-				shouldSleep = true;
-			}
+            if (com_dedicated->integer) {
+                shouldSleep = true;
+            }
 #endif
 
-			if ( com_minimized->integer )
-			{
-				shouldSleep = true;
-			}
+            if (com_minimized->integer) {
+                shouldSleep = true;
+            }
 
-			if ( shouldSleep )
-			{
-				Sys_Sleep( 5 );
-			}
-		}
+            if (shouldSleep) {
+                Sys_Sleep(5);
+            }
+        }
 
-		// run the game
-		Com_Frame();
-	}
+        // run the game
+        Com_Frame();
+    }
 
-	// never gets here
-	return 0;
+    // never gets here
+    return 0;
 }

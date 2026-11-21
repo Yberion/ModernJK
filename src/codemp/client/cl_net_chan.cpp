@@ -52,23 +52,25 @@ SV_Netchan_Encode). Whether to restore an equivalent is decided in plan step 12.
 CL_Netchan_TransmitNextFragment
 =================
 */
-void CL_Netchan_TransmitNextFragment( netchan_t *chan ) {
-	Netchan_TransmitNextFragment( chan );
+void CL_Netchan_TransmitNextFragment(netchan_t* chan)
+{
+    Netchan_TransmitNextFragment(chan);
 }
 
-//byte chksum[65536];
+// byte chksum[65536];
 
 /*
 ===============
 CL_Netchan_Transmit
 ================
 */
-void CL_Netchan_Transmit( netchan_t *chan, msg_t* msg ) {
-	// the message codec's bytes, as they are: no clc_EOF and no XOR (see CL_Netchan_Encode above)
-	Netchan_Transmit( chan, msg->cursize, msg->data );
+void CL_Netchan_Transmit(netchan_t* chan, msg_t* msg)
+{
+    // the message codec's bytes, as they are: no clc_EOF and no XOR (see CL_Netchan_Encode above)
+    Netchan_Transmit(chan, msg->cursize, msg->data);
 }
 
-extern 	int oldsize;
+extern int oldsize;
 int newsize = 0;
 
 /*
@@ -76,21 +78,22 @@ int newsize = 0;
 CL_Netchan_Process
 =================
 */
-bool CL_Netchan_Process( netchan_t *chan, msg_t *msg ) {
-	int ret;
-//	int i;
-//	static		int newsize = 0;
+bool CL_Netchan_Process(netchan_t* chan, msg_t* msg)
+{
+    int ret;
+    //	int i;
+    //	static		int newsize = 0;
 
-	ret = Netchan_Process( chan, msg );
-	if (!ret)
-		return false;
-//	Huff_Decompress( msg, CL_DECODE_START );
-//	for(i=CL_DECODE_START+msg->readcount;i<msg->cursize;i++) {
-//		if (msg->data[i] != chksum[i-(CL_DECODE_START+msg->readcount)]) {
-//			Com_Error(errorParm_t::ERR_DROP,"bad %d v %d\n", msg->data[i], chksum[i-(CL_DECODE_START+msg->readcount)]);
-//		}
-//	}
-	newsize += msg->cursize;
-//	Com_Printf("saved %d to %d (%d%%)\n", (oldsize>>3), newsize, 100-(newsize*100/(oldsize>>3)));
-	return true;
+    ret = Netchan_Process(chan, msg);
+    if (!ret)
+        return false;
+    //	Huff_Decompress( msg, CL_DECODE_START );
+    //	for(i=CL_DECODE_START+msg->readcount;i<msg->cursize;i++) {
+    //		if (msg->data[i] != chksum[i-(CL_DECODE_START+msg->readcount)]) {
+    //			Com_Error(errorParm_t::ERR_DROP,"bad %d v %d\n", msg->data[i], chksum[i-(CL_DECODE_START+msg->readcount)]);
+    //		}
+    //	}
+    newsize += msg->cursize;
+    //	Com_Printf("saved %d to %d (%d%%)\n", (oldsize>>3), newsize, 100-(newsize*100/(oldsize>>3)));
+    return true;
 }

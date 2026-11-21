@@ -53,10 +53,10 @@ the start of the packet, which the codec now codes. Whether to restore an equiva
 SV_Netchan_TransmitNextFragment
 =================
 */
-void SV_Netchan_TransmitNextFragment( netchan_t *chan ) {
-	Netchan_TransmitNextFragment( chan );
+void SV_Netchan_TransmitNextFragment(netchan_t* chan)
+{
+    Netchan_TransmitNextFragment(chan);
 }
-
 
 /*
 ===============
@@ -64,10 +64,11 @@ SV_Netchan_Transmit
 ================
 */
 
-void SV_Netchan_Transmit( client_t *client, msg_t *msg) {	//int length, const byte *data ) {
-//	int i;
-	// the message codec's bytes, as they are: no svc_EOF and no XOR (see SV_Netchan_Encode above)
-	Netchan_Transmit( &client->netchan, msg->cursize, msg->data );
+void SV_Netchan_Transmit(client_t* client, msg_t* msg)
+{ // int length, const byte *data ) {
+    //	int i;
+    // the message codec's bytes, as they are: no svc_EOF and no XOR (see SV_Netchan_Encode above)
+    Netchan_Transmit(&client->netchan, msg->cursize, msg->data);
 }
 
 /*
@@ -75,13 +76,13 @@ void SV_Netchan_Transmit( client_t *client, msg_t *msg) {	//int length, const by
 Netchan_SV_Process
 =================
 */
-bool SV_Netchan_Process( client_t *client, msg_t *msg ) {
-	int ret;
-//	int i;
-	ret = Netchan_Process( &client->netchan, msg );
-	if (!ret)
-		return false;
-	// the message codec's bytes, as they are: no XOR (see SV_Netchan_Decode above)
-	return true;
+bool SV_Netchan_Process(client_t* client, msg_t* msg)
+{
+    int ret;
+    //	int i;
+    ret = Netchan_Process(&client->netchan, msg);
+    if (!ret)
+        return false;
+    // the message codec's bytes, as they are: no XOR (see SV_Netchan_Decode above)
+    return true;
 }
-

@@ -34,11 +34,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "taskmanager.h"
 #include "sequencer.h"
 
-#define S_FAILED(a) (a!=sequencerResult_t::SEQ_OK)
+#define S_FAILED(a) (a != sequencerResult_t::SEQ_OK)
 
-#define STL_ITERATE( a, b )		for ( a = b.begin(); a != b.end(); ++a )
-#define STL_INSERT( a, b )		a.insert( a.end(), b );
-
+#define STL_ITERATE(a, b) for (a = b.begin(); a != b.end(); ++a)
+#define STL_INSERT(a, b) a.insert(a.end(), b);
 
 // Save/Load restructuring.
 // Date: 10/29/02
@@ -47,28 +46,25 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // using a chunks for EVERYTHING is vastly inefficient and wasteful. Thus, the saving
 // is now primary focused on saving large chunks with *expected* data read from there.
 
-
 // Sequencer
 
-CSequencer::CSequencer( void )
+CSequencer::CSequencer(void)
 {
-	static int uniqueID = 1;
-	m_id = uniqueID++;
+    static int uniqueID = 1;
+    m_id = uniqueID++;
 
-	m_numCommands	= 0;
+    m_numCommands = 0;
 
-	m_curStream		= nullptr;
-	m_curSequence	= nullptr;
+    m_curStream = nullptr;
+    m_curSequence = nullptr;
 
-	m_elseValid = 0;
-	m_elseOwner = nullptr;
+    m_elseValid = 0;
+    m_elseOwner = nullptr;
 
-	m_curGroup = nullptr;
+    m_curGroup = nullptr;
 }
 
-CSequencer::~CSequencer( void )
-{
-}
+CSequencer::~CSequencer(void) {}
 
 /*
 ========================
@@ -78,11 +74,11 @@ Static creation function
 ========================
 */
 
-CSequencer *CSequencer::Create ( void )
+CSequencer* CSequencer::Create(void)
 {
-	CSequencer *sequencer = new CSequencer;
+    CSequencer* sequencer = new CSequencer;
 
-	return sequencer;
+    return sequencer;
 }
 
 /*
@@ -92,12 +88,12 @@ Init
 Initializes the sequencer
 ========================
 */
-CSequencer::sequencerResult_t CSequencer::Init( int ownerID, CTaskManager *taskManager )
+CSequencer::sequencerResult_t CSequencer::Init(int ownerID, CTaskManager* taskManager)
 {
-	m_ownerID		= ownerID;
-	m_taskManager	= taskManager;
+    m_ownerID = ownerID;
+    m_taskManager = taskManager;
 
-	return sequencerResult_t::SEQ_OK;
+    return sequencerResult_t::SEQ_OK;
 }
 
 /*
@@ -107,38 +103,36 @@ Free
 Releases all resources and re-inits the sequencer
 ========================
 */
-void CSequencer::Free( CIcarus* icarus )
+void CSequencer::Free(CIcarus* icarus)
 {
-	//Flush the sequences
-/*	sequenceID_m::iterator iterSeq = nullptr;
-	for ( iterSeq = m_sequenceMap.begin(); iterSeq != m_sequenceMap.end(); iterSeq++ )
-	{
-		icarus->DeleteSequence( (*iterSeq).second );
-	}
-	m_sequenceMap.clear();*/
+    // Flush the sequences
+    /*	sequenceID_m::iterator iterSeq = nullptr;
+        for ( iterSeq = m_sequenceMap.begin(); iterSeq != m_sequenceMap.end(); iterSeq++ )
+        {
+            icarus->DeleteSequence( (*iterSeq).second );
+        }
+        m_sequenceMap.clear();*/
 
-	// OLD STUFF!
-	sequence_l::iterator	sli;
-	for ( sli = m_sequences.begin(); sli != m_sequences.end(); ++sli )
-	{
-		icarus->DeleteSequence( (*sli) );
-	}
-	m_sequences.clear();
+    // OLD STUFF!
+    sequence_l::iterator sli;
+    for (sli = m_sequences.begin(); sli != m_sequences.end(); ++sli) {
+        icarus->DeleteSequence((*sli));
+    }
+    m_sequences.clear();
 
-	m_taskSequences.clear();
+    m_taskSequences.clear();
 
-	//Clean up any other info
-	m_numCommands = 0;
-	m_curSequence = nullptr;
+    // Clean up any other info
+    m_numCommands = 0;
+    m_curSequence = nullptr;
 
-	bstream_t *streamToDel;
-	while(!m_streamsCreated.empty())
-	{
-		streamToDel = m_streamsCreated.back();
-		DeleteStream(streamToDel);
-	}
+    bstream_t* streamToDel;
+    while (!m_streamsCreated.empty()) {
+        streamToDel = m_streamsCreated.back();
+        DeleteStream(streamToDel);
+    }
 
-	delete this;
+    delete this;
 }
 
 /*
@@ -147,61 +141,59 @@ Flush
 -------------------------
 */
 
-CSequencer::sequencerResult_t CSequencer::Flush( CSequence *owner, CIcarus* icarus )
+CSequencer::sequencerResult_t CSequencer::Flush(CSequence* owner, CIcarus* icarus)
 {
-	if ( owner == nullptr )
-		return sequencerResult_t::SEQ_FAILED;
+    if (owner == nullptr)
+        return sequencerResult_t::SEQ_FAILED;
 
-	Recall(icarus);
+    Recall(icarus);
 
+    // Flush the sequences
+    /*	sequenceID_m::iterator iterSeq = nullptr;
+        for ( iterSeq = m_sequenceMap.begin(); iterSeq != m_sequenceMap.end(); )
+        {
+            if ( ( (*iterSeq).second == owner ) || ( owner->HasChild( (*iterSeq).second ) ) || ( (*iterSeq).second->HasFlag( CSequence::SQ_PENDING ) ) || (
+       (*iterSeq).second->HasFlag( CSequence::SQ_TASK ) ) )
+            {
+                iterSeq++;
+                continue;
+            }
 
-	//Flush the sequences
-/*	sequenceID_m::iterator iterSeq = nullptr;
-	for ( iterSeq = m_sequenceMap.begin(); iterSeq != m_sequenceMap.end(); )
-	{
-		if ( ( (*iterSeq).second == owner ) || ( owner->HasChild( (*iterSeq).second ) ) || ( (*iterSeq).second->HasFlag( CSequence::SQ_PENDING ) ) || ( (*iterSeq).second->HasFlag( CSequence::SQ_TASK ) ) )
-		{
-			iterSeq++;
-			continue;
-		}
+            //Delete it, and remove all references
+            RemoveSequence( (*iterSeq).second, icarus );
+            icarus->DeleteSequence( (*iterSeq).second );
 
-		//Delete it, and remove all references
-		RemoveSequence( (*iterSeq).second, icarus );
-		icarus->DeleteSequence( (*iterSeq).second );
+            //Remove it from the map
+            //Delete from the sequence list and move on
+            iterSeq = m_sequenceMap.erase( iterSeq );
+        }*/
 
-		//Remove it from the map
-		//Delete from the sequence list and move on
-		iterSeq = m_sequenceMap.erase( iterSeq );
-	}*/
+    // OLD STUFF!
+    // Flush the sequences
+    sequence_l::iterator sli;
+    for (sli = m_sequences.begin(); sli != m_sequences.end();) {
+        if (((*sli) == owner) || (owner->HasChild((*sli))) || ((*sli)->HasFlag(CSequence::sequenceFlags_t::SQ_PENDING)) ||
+            ((*sli)->HasFlag(CSequence::sequenceFlags_t::SQ_TASK))) {
+            ++sli;
+            continue;
+        }
 
+        // Remove it from the map
+        // m_sequenceMap.erase( (*sli)->GetID() );
 
-	// OLD STUFF!
-	//Flush the sequences
-	sequence_l::iterator sli;
-	for ( sli = m_sequences.begin(); sli != m_sequences.end(); )
-	{
-		if ( ( (*sli) == owner ) || ( owner->HasChild( (*sli) ) ) || ( (*sli)->HasFlag( CSequence::sequenceFlags_t::SQ_PENDING ) ) || ( (*sli)->HasFlag( CSequence::sequenceFlags_t::SQ_TASK ) ) )
-		{
-			++sli;
-			continue;
-		}
+        // Delete it, and remove all references
+        RemoveSequence((*sli), icarus);
+        icarus->DeleteSequence((*sli));
 
-		//Remove it from the map
-		//m_sequenceMap.erase( (*sli)->GetID() );
+        // Delete from the sequence list and move on
+        sli = m_sequences.erase(sli);
+    }
 
-		//Delete it, and remove all references
-		RemoveSequence( (*sli), icarus );
-		icarus->DeleteSequence( (*sli) );
+    // Make sure this owner knows it's now the root sequence
+    owner->SetParent(nullptr);
+    owner->SetReturn(nullptr);
 
-		//Delete from the sequence list and move on
-		sli = m_sequences.erase( sli );
-	}
-
-	//Make sure this owner knows it's now the root sequence
-	owner->SetParent( nullptr );
-	owner->SetReturn( nullptr );
-
-	return sequencerResult_t::SEQ_OK;
+    return sequencerResult_t::SEQ_OK;
 }
 
 /*
@@ -212,17 +204,17 @@ Creates a stream for parsing
 ========================
 */
 
-bstream_t *CSequencer::AddStream( void )
+bstream_t* CSequencer::AddStream(void)
 {
-	bstream_t	*stream;
+    bstream_t* stream;
 
-	stream = new bstream_t;				//deleted in Route()
-	stream->stream = new CBlockStream;	//deleted in Route()
-	stream->last = m_curStream;
+    stream = new bstream_t;            // deleted in Route()
+    stream->stream = new CBlockStream; // deleted in Route()
+    stream->last = m_curStream;
 
-	m_streamsCreated.push_back(stream);
+    m_streamsCreated.push_back(stream);
 
-	return stream;
+    return stream;
 }
 
 /*
@@ -232,20 +224,19 @@ DeleteStream
 Deletes parsing stream
 ========================
 */
-void CSequencer::DeleteStream( bstream_t *bstream )
+void CSequencer::DeleteStream(bstream_t* bstream)
 {
-	std::vector<bstream_t*>::iterator finder = std::find(m_streamsCreated.begin(), m_streamsCreated.end(), bstream);
-	if(finder != m_streamsCreated.end())
-	{
-		m_streamsCreated.erase(finder);
-	}
+    std::vector<bstream_t*>::iterator finder = std::find(m_streamsCreated.begin(), m_streamsCreated.end(), bstream);
+    if (finder != m_streamsCreated.end()) {
+        m_streamsCreated.erase(finder);
+    }
 
-	bstream->stream->Free();
+    bstream->stream->Free();
 
-	delete bstream->stream;
-	delete bstream;
+    delete bstream->stream;
+    delete bstream;
 
-	bstream = nullptr;
+    bstream = nullptr;
 }
 
 /*
@@ -254,9 +245,9 @@ AddTaskSequence
 -------------------------
 */
 
-void CSequencer::AddTaskSequence( CSequence *sequence, CTaskGroup *group )
+void CSequencer::AddTaskSequence(CSequence* sequence, CTaskGroup* group)
 {
-	m_taskSequences[ group ] = sequence;
+    m_taskSequences[group] = sequence;
 }
 
 /*
@@ -265,16 +256,16 @@ GetTaskSequence
 -------------------------
 */
 
-CSequence *CSequencer::GetTaskSequence( CTaskGroup *group )
+CSequence* CSequencer::GetTaskSequence(CTaskGroup* group)
 {
-	taskSequence_m::iterator	tsi;
+    taskSequence_m::iterator tsi;
 
-	tsi = m_taskSequences.find( group );
+    tsi = m_taskSequences.find(group);
 
-	if ( tsi == m_taskSequences.end() )
-		return nullptr;
+    if (tsi == m_taskSequences.end())
+        return nullptr;
 
-	return (*tsi).second;
+    return (*tsi).second;
 }
 
 /*
@@ -285,47 +276,47 @@ Creates and adds a sequence to the sequencer
 ========================
 */
 
-CSequence *CSequencer::AddSequence( CIcarus* icarus )
+CSequence* CSequencer::AddSequence(CIcarus* icarus)
 {
-	CSequence	*sequence = (CSequence*)icarus->GetSequence();
+    CSequence* sequence = (CSequence*)icarus->GetSequence();
 
-	assert( sequence );
-	if ( sequence == nullptr )
-		return nullptr;
+    assert(sequence);
+    if (sequence == nullptr)
+        return nullptr;
 
-	//The rest is handled internally to the class
-	//m_sequenceMap[ sequence->GetID() ] = sequence;
+    // The rest is handled internally to the class
+    // m_sequenceMap[ sequence->GetID() ] = sequence;
 
-	// OLD STUFF!
-	//Add it to the list
-	m_sequences.insert( m_sequences.end(), sequence );
+    // OLD STUFF!
+    // Add it to the list
+    m_sequences.insert(m_sequences.end(), sequence);
 
-	//FIXME: Temp fix
-	sequence->SetFlag( CSequence::sequenceFlags_t::SQ_PENDING );
+    // FIXME: Temp fix
+    sequence->SetFlag(CSequence::sequenceFlags_t::SQ_PENDING);
 
-	return sequence;
+    return sequence;
 }
 
-CSequence *CSequencer::AddSequence( CSequence *parent, CSequence *returnSeq, CSequence::sequenceFlags_t flags, CIcarus* icarus )
+CSequence* CSequencer::AddSequence(CSequence* parent, CSequence* returnSeq, CSequence::sequenceFlags_t flags, CIcarus* icarus)
 {
-	CSequence	*sequence = (CSequence*)icarus->GetSequence();
+    CSequence* sequence = (CSequence*)icarus->GetSequence();
 
-	assert( sequence );
-	if ( sequence == nullptr )
-		return nullptr;
+    assert(sequence);
+    if (sequence == nullptr)
+        return nullptr;
 
-	//The rest is handled internally to the class
-//	m_sequenceMap[ sequence->GetID() ] = sequence;
+    // The rest is handled internally to the class
+    //	m_sequenceMap[ sequence->GetID() ] = sequence;
 
-	// OLD STUFF!
-	//Add it to the list
-	m_sequences.insert( m_sequences.end(), sequence );
+    // OLD STUFF!
+    // Add it to the list
+    m_sequences.insert(m_sequences.end(), sequence);
 
-	sequence->SetFlags( flags );
-	sequence->SetParent( parent );
-	sequence->SetReturn( returnSeq );
+    sequence->SetFlags(flags);
+    sequence->SetParent(parent);
+    sequence->SetReturn(returnSeq);
 
-	return sequence;
+    return sequence;
 }
 
 /*
@@ -336,25 +327,25 @@ Retrieves a sequence by its ID
 ========================
 */
 
-CSequence *CSequencer::GetSequence( int id )
+CSequence* CSequencer::GetSequence(int id)
 {
-/*	sequenceID_m::iterator mi;
+    /*	sequenceID_m::iterator mi;
 
-	mi = m_sequenceMap.find( id );
+        mi = m_sequenceMap.find( id );
 
-	if ( mi == m_sequenceMap.end() )
-		return nullptr;
+        if ( mi == m_sequenceMap.end() )
+            return nullptr;
 
-	return (*mi).second;*/
+        return (*mi).second;*/
 
-	sequence_l::iterator iterSeq;
-	STL_ITERATE( iterSeq, m_sequences )
-	{
-		if ( (*iterSeq)->GetID() == id )
-			return (*iterSeq);
-	}
+    sequence_l::iterator iterSeq;
+    STL_ITERATE(iterSeq, m_sequences)
+    {
+        if ((*iterSeq)->GetID() == id)
+            return (*iterSeq);
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
 /*
@@ -363,15 +354,15 @@ Interrupt
 -------------------------
 */
 
-void CSequencer::Interrupt( void )
+void CSequencer::Interrupt(void)
 {
-	CBlock	*command = m_taskManager->GetCurrentTask();
+    CBlock* command = m_taskManager->GetCurrentTask();
 
-	if ( command == nullptr )
-		return;
+    if (command == nullptr)
+        return;
 
-	//Save it
-	PushCommand( command, CSequence::pushPop_t::PUSH_BACK );
+    // Save it
+    PushCommand(command, CSequence::pushPop_t::PUSH_BACK);
 }
 
 /*
@@ -381,34 +372,32 @@ Run
 Runs a script
 ========================
 */
-CSequencer::sequencerResult_t CSequencer::Run( char *buffer, long size, CIcarus* icarus )
+CSequencer::sequencerResult_t CSequencer::Run(char* buffer, long size, CIcarus* icarus)
 {
-	bstream_t		*blockStream;
+    bstream_t* blockStream;
 
-	IGameInterface* game = icarus->GetGame();
+    IGameInterface* game = icarus->GetGame();
 
-	Recall(icarus);
+    Recall(icarus);
 
-	//Create a new stream
-	blockStream = AddStream();
+    // Create a new stream
+    blockStream = AddStream();
 
-	//Open the stream as an IBI stream
-	if (!blockStream->stream->Open( buffer, size ))
-	{
-		game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "invalid stream" );
-		return sequencerResult_t::SEQ_FAILED;
-	}
+    // Open the stream as an IBI stream
+    if (!blockStream->stream->Open(buffer, size)) {
+        game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "invalid stream");
+        return sequencerResult_t::SEQ_FAILED;
+    }
 
-	CSequence *sequence = AddSequence( nullptr, m_curSequence, CSequence::sequenceFlags_t::SQ_COMMON, icarus );
+    CSequence* sequence = AddSequence(nullptr, m_curSequence, CSequence::sequenceFlags_t::SQ_COMMON, icarus);
 
-	// Interpret the command blocks and route them properly
-	if ( S_FAILED( Route( sequence, blockStream, icarus )) )
-	{
-		//Error code is set inside of Route()
-		return sequencerResult_t::SEQ_FAILED;
-	}
+    // Interpret the command blocks and route them properly
+    if (S_FAILED(Route(sequence, blockStream, icarus))) {
+        // Error code is set inside of Route()
+        return sequencerResult_t::SEQ_FAILED;
+    }
 
-	return sequencerResult_t::SEQ_OK;
+    return sequencerResult_t::SEQ_OK;
 }
 
 /*
@@ -419,66 +408,63 @@ Parses a user triggered run command
 ========================
 */
 
-CSequencer::sequencerResult_t CSequencer::ParseRun( CBlock *block , CIcarus* icarus)
+CSequencer::sequencerResult_t CSequencer::ParseRun(CBlock* block, CIcarus* icarus)
 {
-	IGameInterface* game = icarus->GetGame();
-	CSequence	*new_sequence;
-	bstream_t	*new_stream;
-	char		*buffer;
-	char		newname[ CIcarus::MAX_STRING_SIZE ];
-	int			buffer_size;
+    IGameInterface* game = icarus->GetGame();
+    CSequence* new_sequence;
+    bstream_t* new_stream;
+    char* buffer;
+    char newname[CIcarus::MAX_STRING_SIZE];
+    int buffer_size;
 
-	//Get the name and format it
-	COM_StripExtension( (char*) block->GetMemberData( 0 ), (char *) newname, sizeof(newname) );
+    // Get the name and format it
+    COM_StripExtension((char*)block->GetMemberData(0), (char*)newname, sizeof(newname));
 
-	//Get the file from the game engine
-  	buffer_size = game->LoadFile( newname, (void **) &buffer );
+    // Get the file from the game engine
+    buffer_size = game->LoadFile(newname, (void**)&buffer);
 
-	if ( buffer_size <= 0 )
-	{
-		game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "'%s' : could not open file\n", (char*) block->GetMemberData( 0 ));
-		block->Free(icarus);
-		delete block;
-		block = nullptr;
-		return sequencerResult_t::SEQ_FAILED;
-	}
+    if (buffer_size <= 0) {
+        game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "'%s' : could not open file\n", (char*)block->GetMemberData(0));
+        block->Free(icarus);
+        delete block;
+        block = nullptr;
+        return sequencerResult_t::SEQ_FAILED;
+    }
 
-	//Create a new stream for this file
-	new_stream = AddStream();
+    // Create a new stream for this file
+    new_stream = AddStream();
 
-	//Begin streaming the file
-	if (!new_stream->stream->Open( buffer, buffer_size ))
-	{
-		game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "invalid stream" );
-		block->Free(icarus);
-		delete block;
-		block = nullptr;
-		return sequencerResult_t::SEQ_FAILED;
-	}
+    // Begin streaming the file
+    if (!new_stream->stream->Open(buffer, buffer_size)) {
+        game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "invalid stream");
+        block->Free(icarus);
+        delete block;
+        block = nullptr;
+        return sequencerResult_t::SEQ_FAILED;
+    }
 
-	//Create a new sequence
-	new_sequence = AddSequence( m_curSequence, m_curSequence, ( CSequence::sequenceFlags_t::SQ_RUN | CSequence::sequenceFlags_t::SQ_PENDING ), icarus );
+    // Create a new sequence
+    new_sequence = AddSequence(m_curSequence, m_curSequence, (CSequence::sequenceFlags_t::SQ_RUN | CSequence::sequenceFlags_t::SQ_PENDING), icarus);
 
-	m_curSequence->AddChild( new_sequence );
+    m_curSequence->AddChild(new_sequence);
 
-	// Interpret the command blocks and route them properly
-	if ( S_FAILED( Route( new_sequence, new_stream, icarus )) )
-	{
-		//Error code is set inside of Route()
-		block->Free(icarus);
-		delete block;
-		block = nullptr;
-		return sequencerResult_t::SEQ_FAILED;
-	}
+    // Interpret the command blocks and route them properly
+    if (S_FAILED(Route(new_sequence, new_stream, icarus))) {
+        // Error code is set inside of Route()
+        block->Free(icarus);
+        delete block;
+        block = nullptr;
+        return sequencerResult_t::SEQ_FAILED;
+    }
 
-	m_curSequence = m_curSequence->GetReturn();
+    m_curSequence = m_curSequence->GetReturn();
 
-	assert( m_curSequence );
+    assert(m_curSequence);
 
-	block->Write( icarusToken_t::TK_FLOAT, (float) new_sequence->GetID() , icarus);
-	PushCommand( block, CSequence::pushPop_t::PUSH_FRONT );
+    block->Write(icarusToken_t::TK_FLOAT, (float)new_sequence->GetID(), icarus);
+    PushCommand(block, CSequence::pushPop_t::PUSH_FRONT);
 
-	return sequencerResult_t::SEQ_OK;
+    return sequencerResult_t::SEQ_OK;
 }
 
 /*
@@ -489,39 +475,38 @@ Parses an if statement
 ========================
 */
 
-CSequencer::sequencerResult_t CSequencer::ParseIf( CBlock *block, bstream_t *bstream , CIcarus* icarus)
+CSequencer::sequencerResult_t CSequencer::ParseIf(CBlock* block, bstream_t* bstream, CIcarus* icarus)
 {
-	IGameInterface* game = icarus->GetGame();
-	CSequence	*sequence;
+    IGameInterface* game = icarus->GetGame();
+    CSequence* sequence;
 
-	//Create the container sequence
-	sequence = AddSequence( m_curSequence, m_curSequence, CSequence::sequenceFlags_t::SQ_CONDITIONAL, icarus);
+    // Create the container sequence
+    sequence = AddSequence(m_curSequence, m_curSequence, CSequence::sequenceFlags_t::SQ_CONDITIONAL, icarus);
 
-	assert( sequence );
-	if ( sequence == nullptr )
-	{
-		game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "ParseIf: failed to allocate container sequence" );
-		block->Free(icarus);
-		delete block;
-		block = nullptr;
-		return sequencerResult_t::SEQ_FAILED;
-	}
+    assert(sequence);
+    if (sequence == nullptr) {
+        game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "ParseIf: failed to allocate container sequence");
+        block->Free(icarus);
+        delete block;
+        block = nullptr;
+        return sequencerResult_t::SEQ_FAILED;
+    }
 
-	m_curSequence->AddChild( sequence );
+    m_curSequence->AddChild(sequence);
 
-	//Add a unique conditional identifier to the block for reference later
-	block->Write( icarusToken_t::TK_FLOAT, (float) sequence->GetID(), icarus );
+    // Add a unique conditional identifier to the block for reference later
+    block->Write(icarusToken_t::TK_FLOAT, (float)sequence->GetID(), icarus);
 
-	//Push this onto the stack to mark the conditional entrance
-	PushCommand( block, CSequence::pushPop_t::PUSH_FRONT );
+    // Push this onto the stack to mark the conditional entrance
+    PushCommand(block, CSequence::pushPop_t::PUSH_FRONT);
 
-	//Recursively obtain the conditional body
-	Route( sequence, bstream, icarus );
+    // Recursively obtain the conditional body
+    Route(sequence, bstream, icarus);
 
-	m_elseValid = 2;
-	m_elseOwner = block;
+    m_elseValid = 2;
+    m_elseOwner = block;
 
-	return sequencerResult_t::SEQ_OK;
+    return sequencerResult_t::SEQ_OK;
 }
 
 /*
@@ -532,47 +517,45 @@ Parses an else statement
 ========================
 */
 
-CSequencer::sequencerResult_t CSequencer::ParseElse( CBlock *block, bstream_t *bstream , CIcarus* icarus)
+CSequencer::sequencerResult_t CSequencer::ParseElse(CBlock* block, bstream_t* bstream, CIcarus* icarus)
 {
-	IGameInterface* game = icarus->GetGame();
-	//The else is not retained
-	block->Free(icarus);
-	delete block;
-	block = nullptr;
+    IGameInterface* game = icarus->GetGame();
+    // The else is not retained
+    block->Free(icarus);
+    delete block;
+    block = nullptr;
 
-	CSequence	*sequence;
+    CSequence* sequence;
 
-	//Create the container sequence
-	sequence = AddSequence( m_curSequence, m_curSequence, CSequence::sequenceFlags_t::SQ_CONDITIONAL, icarus );
+    // Create the container sequence
+    sequence = AddSequence(m_curSequence, m_curSequence, CSequence::sequenceFlags_t::SQ_CONDITIONAL, icarus);
 
-	assert( sequence );
-	if ( sequence == nullptr )
-	{
-		game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "ParseIf: failed to allocate container sequence" );
-		return sequencerResult_t::SEQ_FAILED;
-	}
+    assert(sequence);
+    if (sequence == nullptr) {
+        game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "ParseIf: failed to allocate container sequence");
+        return sequencerResult_t::SEQ_FAILED;
+    }
 
-	m_curSequence->AddChild( sequence );
+    m_curSequence->AddChild(sequence);
 
-	//Add a unique conditional identifier to the block for reference later
-	//TODO: Emit warning
-	if ( m_elseOwner == nullptr )
-	{
-		game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Invalid 'else' found!\n" );
-		return sequencerResult_t::SEQ_FAILED;
-	}
+    // Add a unique conditional identifier to the block for reference later
+    // TODO: Emit warning
+    if (m_elseOwner == nullptr) {
+        game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Invalid 'else' found!\n");
+        return sequencerResult_t::SEQ_FAILED;
+    }
 
-	m_elseOwner->Write( icarusToken_t::TK_FLOAT, (float) sequence->GetID(), icarus );
+    m_elseOwner->Write(icarusToken_t::TK_FLOAT, (float)sequence->GetID(), icarus);
 
-	m_elseOwner->SetFlag( blockFlags_t::BF_ELSE );
+    m_elseOwner->SetFlag(blockFlags_t::BF_ELSE);
 
-	//Recursively obtain the conditional body
-	Route( sequence, bstream, icarus );
+    // Recursively obtain the conditional body
+    Route(sequence, bstream, icarus);
 
-	m_elseValid = 0;
-	m_elseOwner = nullptr;
+    m_elseValid = 0;
+    m_elseOwner = nullptr;
 
-	return sequencerResult_t::SEQ_OK;
+    return sequencerResult_t::SEQ_OK;
 }
 
 /*
@@ -583,58 +566,55 @@ Parses a loop command
 ========================
 */
 
-CSequencer::sequencerResult_t CSequencer::ParseLoop( CBlock *block, bstream_t *bstream , CIcarus* icarus)
+CSequencer::sequencerResult_t CSequencer::ParseLoop(CBlock* block, bstream_t* bstream, CIcarus* icarus)
 {
-	IGameInterface* game = icarus->GetGame();
-	CSequence		*sequence;
-	CBlockMember	*bm;
-	float			min, max;
-	int				rIter;
-	int				memberNum = 0;
+    IGameInterface* game = icarus->GetGame();
+    CSequence* sequence;
+    CBlockMember* bm;
+    float min, max;
+    int rIter;
+    int memberNum = 0;
 
-	//Set the parent
-	sequence = AddSequence( m_curSequence, m_curSequence, ( CSequence::sequenceFlags_t::SQ_LOOP | CSequence::sequenceFlags_t::SQ_RETAIN ), icarus );
+    // Set the parent
+    sequence = AddSequence(m_curSequence, m_curSequence, (CSequence::sequenceFlags_t::SQ_LOOP | CSequence::sequenceFlags_t::SQ_RETAIN), icarus);
 
-	assert( sequence );
-	if ( sequence == nullptr )
-	{
-		game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "ParseLoop : failed to allocate container sequence" );
-		block->Free(icarus);
-		delete block;
-		block = nullptr;
-		return sequencerResult_t::SEQ_FAILED;
-	}
+    assert(sequence);
+    if (sequence == nullptr) {
+        game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "ParseLoop : failed to allocate container sequence");
+        block->Free(icarus);
+        delete block;
+        block = nullptr;
+        return sequencerResult_t::SEQ_FAILED;
+    }
 
-	m_curSequence->AddChild( sequence );
+    m_curSequence->AddChild(sequence);
 
-	//Set the number of iterations of this sequence
+    // Set the number of iterations of this sequence
 
-	bm = block->GetMember( memberNum++ );
+    bm = block->GetMember(memberNum++);
 
-	if ( bm->GetID() == icarusToken_t::ID_RANDOM )
-	{
-		//Parse out the random number
-		min = *(float *) block->GetMemberData( memberNum++ );
-		max = *(float *) block->GetMemberData( memberNum++ );
+    if (bm->GetID() == icarusToken_t::ID_RANDOM) {
+        // Parse out the random number
+        min = *(float*)block->GetMemberData(memberNum++);
+        max = *(float*)block->GetMemberData(memberNum++);
 
-		rIter = (int) game->Random( min, max );
-		sequence->SetIterations( rIter );
-	}
-	else
-	{
-		sequence->SetIterations ( (int) (*(float *) bm->GetData()) );
-	}
+        rIter = (int)game->Random(min, max);
+        sequence->SetIterations(rIter);
+    }
+    else {
+        sequence->SetIterations((int)(*(float*)bm->GetData()));
+    }
 
-	//Add a unique loop identifier to the block for reference later
-	block->Write( icarusToken_t::TK_FLOAT, (float) sequence->GetID(), icarus );
+    // Add a unique loop identifier to the block for reference later
+    block->Write(icarusToken_t::TK_FLOAT, (float)sequence->GetID(), icarus);
 
-	//Push this onto the stack to mark the loop entrance
-	PushCommand( block, CSequence::pushPop_t::PUSH_FRONT );
+    // Push this onto the stack to mark the loop entrance
+    PushCommand(block, CSequence::pushPop_t::PUSH_FRONT);
 
-	//Recursively obtain the loop
-	Route( sequence, bstream , icarus);
+    // Recursively obtain the loop
+    Route(sequence, bstream, icarus);
 
-	return sequencerResult_t::SEQ_OK;
+    return sequencerResult_t::SEQ_OK;
 }
 
 /*
@@ -645,33 +625,32 @@ Adds a sequence that is saved until the affect is called by the parent
 ========================
 */
 
-CSequencer::sequencerResult_t CSequencer::AddAffect( bstream_t *bstream, int retain, int *id, CIcarus* icarus )
+CSequencer::sequencerResult_t CSequencer::AddAffect(bstream_t* bstream, int retain, int* id, CIcarus* icarus)
 {
-	CSequence	*sequence = AddSequence(icarus);
-	bstream_t	new_stream;
+    CSequence* sequence = AddSequence(icarus);
+    bstream_t new_stream;
 
-	sequence->SetFlag( CSequence::sequenceFlags_t::SQ_AFFECT | CSequence::sequenceFlags_t::SQ_PENDING );
+    sequence->SetFlag(CSequence::sequenceFlags_t::SQ_AFFECT | CSequence::sequenceFlags_t::SQ_PENDING);
 
-	if ( retain )
-		sequence->SetFlag( CSequence::sequenceFlags_t::SQ_RETAIN );
+    if (retain)
+        sequence->SetFlag(CSequence::sequenceFlags_t::SQ_RETAIN);
 
-	//This will be replaced once it's actually used, but this will restore the route state properly
-	sequence->SetReturn( m_curSequence );
+    // This will be replaced once it's actually used, but this will restore the route state properly
+    sequence->SetReturn(m_curSequence);
 
-	//We need this as a temp holder
-	new_stream.last = m_curStream;
-	new_stream.stream = bstream->stream;
+    // We need this as a temp holder
+    new_stream.last = m_curStream;
+    new_stream.stream = bstream->stream;
 
-	if S_FAILED( Route( sequence, &new_stream , icarus) )
-	{
-		return sequencerResult_t::SEQ_FAILED;
-	}
+    if S_FAILED (Route(sequence, &new_stream, icarus)) {
+        return sequencerResult_t::SEQ_FAILED;
+    }
 
-	*id = sequence->GetID();
+    *id = sequence->GetID();
 
-	sequence->SetReturn( nullptr );
+    sequence->SetReturn(nullptr);
 
-	return sequencerResult_t::SEQ_OK;
+    return sequencerResult_t::SEQ_OK;
 }
 
 /*
@@ -682,142 +661,134 @@ Parses an affect command
 ========================
 */
 
-CSequencer::sequencerResult_t CSequencer::ParseAffect( CBlock *block, bstream_t *bstream, CIcarus* icarus )
+CSequencer::sequencerResult_t CSequencer::ParseAffect(CBlock* block, bstream_t* bstream, CIcarus* icarus)
 {
-	IGameInterface* game = icarus->GetGame();
-	CSequencer	*stream_sequencer = nullptr;
-	char		*entname = nullptr;
-	int			ret;
-	int			ent = -1;
+    IGameInterface* game = icarus->GetGame();
+    CSequencer* stream_sequencer = nullptr;
+    char* entname = nullptr;
+    int ret;
+    int ent = -1;
 
-	entname	= (char*) block->GetMemberData( 0 );
-	ent		= game->GetByName( entname );
+    entname = (char*)block->GetMemberData(0);
+    ent = game->GetByName(entname);
 
-	if( ent < 0 ) // if there wasn't a valid entname in the affect, we need to check if it's a get command
-	{
-		//try to parse a 'get' command that is embeded in this 'affect'
+    if (ent < 0) // if there wasn't a valid entname in the affect, we need to check if it's a get command
+    {
+        // try to parse a 'get' command that is embeded in this 'affect'
 
-		icarusToken_t	id;
-		const char			*p1 = nullptr;
-		char			*name = nullptr;
-		CBlockMember	*bm = nullptr;
-		//
-		//	Get the first parameter (this should be the get)
-		//
-		bm = block->GetMember( 0 );
-		id = bm->GetID();
+        icarusToken_t id;
+        const char* p1 = nullptr;
+        char* name = nullptr;
+        CBlockMember* bm = nullptr;
+        //
+        //	Get the first parameter (this should be the get)
+        //
+        bm = block->GetMember(0);
+        id = bm->GetID();
 
-		switch ( id )
-		{
-			// these 3 cases probably aren't necessary
-		case icarusToken_t::TK_STRING:
-		case icarusToken_t::TK_IDENTIFIER:
-		case icarusToken_t::TK_CHAR:
-				p1 = (char *) bm->GetData();
-			break;
+        switch (id) {
+            // these 3 cases probably aren't necessary
+        case icarusToken_t::TK_STRING:
+        case icarusToken_t::TK_IDENTIFIER:
+        case icarusToken_t::TK_CHAR:
+            p1 = (char*)bm->GetData();
+            break;
 
-		case icarusToken_t::ID_GET:
-			{
-				icarusToken_t	type;
+        case icarusToken_t::ID_GET: {
+            icarusToken_t type;
 
-				//get( TYPE, NAME )
-				type = block->GetMemberToken( 1 );
-				name = (char *) block->GetMemberData( 2 );
+            // get( TYPE, NAME )
+            type = block->GetMemberToken(1);
+            name = (char*)block->GetMemberData(2);
 
-				switch ( type ) // what type are they attempting to get
-				{
+            switch (type) // what type are they attempting to get
+            {
 
-				case icarusToken_t::TK_STRING:
-						//only string is acceptable for affect, store result in p1
-						if ( game->GetString( m_ownerID, name, &p1 ) == false)
-						{
-							block->Free(icarus);
-							delete block;
-							block = nullptr;
-							return sequencerResult_t::SEQ_OK;
-						}
-						break;
-					default:
-						//FIXME: Make an enum id for the error...
-						game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Invalid parameter type on affect _1" );
-						block->Free(icarus);
-						delete block;
-						block = nullptr;
-						return sequencerResult_t::SEQ_OK;
-						break;
-				}
+            case icarusToken_t::TK_STRING:
+                // only string is acceptable for affect, store result in p1
+                if (game->GetString(m_ownerID, name, &p1) == false) {
+                    block->Free(icarus);
+                    delete block;
+                    block = nullptr;
+                    return sequencerResult_t::SEQ_OK;
+                }
+                break;
+            default:
+                // FIXME: Make an enum id for the error...
+                game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Invalid parameter type on affect _1");
+                block->Free(icarus);
+                delete block;
+                block = nullptr;
+                return sequencerResult_t::SEQ_OK;
+                break;
+            }
 
-				break;
-			}
+            break;
+        }
 
-			default:
-			//FIXME: Make an enum id for the error...
-				game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Invalid parameter type on affect _2" );
-				block->Free(icarus);
-				delete block;
-				block = nullptr;
-				return sequencerResult_t::SEQ_OK;
-				break;
-		}//end id switch
+        default:
+            // FIXME: Make an enum id for the error...
+            game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Invalid parameter type on affect _2");
+            block->Free(icarus);
+            delete block;
+            block = nullptr;
+            return sequencerResult_t::SEQ_OK;
+            break;
+        } // end id switch
 
-		if(p1)
-		{
-			ent = game->GetByName( p1 );
-		}
-		if(ent < 0)
-		{	// a valid entity name was not returned from the get command
-			game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_WARNING, "'%s' : invalid affect() target\n", p1 ? p1 : "");
-		}
+        if (p1) {
+            ent = game->GetByName(p1);
+        }
+        if (ent < 0) { // a valid entity name was not returned from the get command
+            game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_WARNING, "'%s' : invalid affect() target\n", p1 ? p1 : "");
+        }
 
-	} // end if(!ent)
+    } // end if(!ent)
 
-	if( ent >= 0 )
-	{
-		int sequencerID = game->CreateIcarus(ent);
-		stream_sequencer = icarus->FindSequencer(sequencerID);
-	}
+    if (ent >= 0) {
+        int sequencerID = game->CreateIcarus(ent);
+        stream_sequencer = icarus->FindSequencer(sequencerID);
+    }
 
-	if (stream_sequencer == nullptr)
-	{
-		game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_WARNING, "'%s' : invalid affect() target\n", entname );
+    if (stream_sequencer == nullptr) {
+        game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_WARNING, "'%s' : invalid affect() target\n", entname);
 
-		//Fast-forward out of this affect block onto the next valid code
-		CSequence *backSeq = m_curSequence;
+        // Fast-forward out of this affect block onto the next valid code
+        CSequence* backSeq = m_curSequence;
 
-		CSequence *trashSeq = (CSequence*)icarus->GetSequence();
-		Route( trashSeq, bstream , icarus);
-		Recall(icarus);
-		DestroySequence( trashSeq, icarus );
-		m_curSequence = backSeq;
-		block->Free(icarus);
-		delete block;
-		block = nullptr;
-		return sequencerResult_t::SEQ_OK;
-	}
+        CSequence* trashSeq = (CSequence*)icarus->GetSequence();
+        Route(trashSeq, bstream, icarus);
+        Recall(icarus);
+        DestroySequence(trashSeq, icarus);
+        m_curSequence = backSeq;
+        block->Free(icarus);
+        delete block;
+        block = nullptr;
+        return sequencerResult_t::SEQ_OK;
+    }
 
-	if S_FAILED ( stream_sequencer->AddAffect( bstream, (int) m_curSequence->HasFlag( CSequence::sequenceFlags_t::SQ_RETAIN ), &ret, icarus) )
-	{
-		block->Free(icarus);
-		delete block;
-		block = nullptr;
-		return sequencerResult_t::SEQ_FAILED;
-	}
+    if S_FAILED (stream_sequencer->AddAffect(bstream, (int)m_curSequence->HasFlag(CSequence::sequenceFlags_t::SQ_RETAIN), &ret, icarus)) {
+        block->Free(icarus);
+        delete block;
+        block = nullptr;
+        return sequencerResult_t::SEQ_FAILED;
+    }
 
-	//Hold onto the id for later use
-	//FIXME: If the target sequence is freed, what then?		(!suspect!)
+    // Hold onto the id for later use
+    // FIXME: If the target sequence is freed, what then?		(!suspect!)
 
-	block->Write( icarusToken_t::TK_FLOAT, (float) ret, icarus );
+    block->Write(icarusToken_t::TK_FLOAT, (float)ret, icarus);
 
-	PushCommand( block, CSequence::pushPop_t::PUSH_FRONT );
-	/*
-	//Don't actually do these right now, we're just pre-processing (parsing) the affect
-	if( ent )
-	{	// ents need to update upon being affected
-		ent->taskManager->Update();
-	}
-	*/
+    PushCommand(block, CSequence::pushPop_t::PUSH_FRONT);
+    /*
+    //Don't actually do these right now, we're just pre-processing (parsing) the affect
+    if( ent )
+    {	// ents need to update upon being affected
+        ent->taskManager->Update();
+    }
+    */
 
-	return sequencerResult_t::SEQ_OK;
+    return sequencerResult_t::SEQ_OK;
 }
 
 /*
@@ -826,48 +797,47 @@ ParseTask
 -------------------------
 */
 
-CSequencer::sequencerResult_t CSequencer::ParseTask( CBlock *block, bstream_t *bstream , CIcarus* icarus)
+CSequencer::sequencerResult_t CSequencer::ParseTask(CBlock* block, bstream_t* bstream, CIcarus* icarus)
 {
-	IGameInterface* game = icarus->GetGame();
-	CSequence	*sequence;
-	CTaskGroup	*group;
-	const char	*taskName;
+    IGameInterface* game = icarus->GetGame();
+    CSequence* sequence;
+    CTaskGroup* group;
+    const char* taskName;
 
-	//Setup the container sequence
-	sequence = AddSequence( m_curSequence, m_curSequence, CSequence::sequenceFlags_t::SQ_TASK | CSequence::sequenceFlags_t::SQ_RETAIN, icarus);
-	m_curSequence->AddChild( sequence );
+    // Setup the container sequence
+    sequence = AddSequence(m_curSequence, m_curSequence, CSequence::sequenceFlags_t::SQ_TASK | CSequence::sequenceFlags_t::SQ_RETAIN, icarus);
+    m_curSequence->AddChild(sequence);
 
-	//Get the name of this task for reference later
-	taskName = (const char *) block->GetMemberData( 0 );
+    // Get the name of this task for reference later
+    taskName = (const char*)block->GetMemberData(0);
 
-	//Get a new task group from the task manager
-	group = m_taskManager->AddTaskGroup( taskName, icarus );
+    // Get a new task group from the task manager
+    group = m_taskManager->AddTaskGroup(taskName, icarus);
 
-	if ( group == nullptr )
-	{
-		game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "error : unable to allocate a new task group" );
-		block->Free(icarus);
-		delete block;
-		block = nullptr;
-		return sequencerResult_t::SEQ_FAILED;
-	}
+    if (group == nullptr) {
+        game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "error : unable to allocate a new task group");
+        block->Free(icarus);
+        delete block;
+        block = nullptr;
+        return sequencerResult_t::SEQ_FAILED;
+    }
 
-	//The current group is set to this group, all subsequent commands (until a block end) will fall into this task group
-	group->SetParent( m_curGroup );
-	m_curGroup = group;
+    // The current group is set to this group, all subsequent commands (until a block end) will fall into this task group
+    group->SetParent(m_curGroup);
+    m_curGroup = group;
 
-	//Keep an association between this task and the container sequence
-	AddTaskSequence( sequence, group );
+    // Keep an association between this task and the container sequence
+    AddTaskSequence(sequence, group);
 
-	//PushCommand( block, pushPop_t::PUSH_FRONT );
-	block->Free(icarus);
-	delete block;
-	block = nullptr;
+    // PushCommand( block, pushPop_t::PUSH_FRONT );
+    block->Free(icarus);
+    delete block;
+    block = nullptr;
 
-	//Recursively obtain the loop
-	Route( sequence, bstream, icarus );
+    // Recursively obtain the loop
+    Route(sequence, bstream, icarus);
 
-	return sequencerResult_t::SEQ_OK;
+    return sequencerResult_t::SEQ_OK;
 }
 
 /*
@@ -878,173 +848,166 @@ Properly handles and routes commands to the sequencer
 ========================
 */
 
-//FIXME: Re-entering this code will produce unpredictable results if a script has already been routed and is running currently
+// FIXME: Re-entering this code will produce unpredictable results if a script has already been routed and is running currently
 
-//FIXME: A sequencer cannot properly affect itself
+// FIXME: A sequencer cannot properly affect itself
 
-CSequencer::sequencerResult_t CSequencer::Route( CSequence *sequence, bstream_t *bstream , CIcarus* icarus)
+CSequencer::sequencerResult_t CSequencer::Route(CSequence* sequence, bstream_t* bstream, CIcarus* icarus)
 {
-	IGameInterface* game = icarus->GetGame();
-	CBlockStream	*stream;
-	CBlock			*block;
+    IGameInterface* game = icarus->GetGame();
+    CBlockStream* stream;
+    CBlock* block;
 
-	//Take the stream as the current stream
-	m_curStream = bstream;
-	stream = bstream->stream;
+    // Take the stream as the current stream
+    m_curStream = bstream;
+    stream = bstream->stream;
 
-	m_curSequence = sequence;
+    m_curSequence = sequence;
 
-	//Obtain all blocks
-	while ( stream->BlockAvailable() )
-	{
-		block = new CBlock;		//deleted in Free()
-		stream->ReadBlock( block , icarus);
+    // Obtain all blocks
+    while (stream->BlockAvailable()) {
+        block = new CBlock; // deleted in Free()
+        stream->ReadBlock(block, icarus);
 
-		//TEMP: HACK!
-		if ( m_elseValid )
-			m_elseValid--;
+        // TEMP: HACK!
+        if (m_elseValid)
+            m_elseValid--;
 
-		switch( block->GetBlockID() )
-		{
-		//Marks the end of a blocked section
-		case icarusToken_t::ID_BLOCK_END:
+        switch (block->GetBlockID()) {
+        // Marks the end of a blocked section
+        case icarusToken_t::ID_BLOCK_END:
 
-			//Save this as a pre-process marker
-			PushCommand( block, CSequence::pushPop_t::PUSH_FRONT );
+            // Save this as a pre-process marker
+            PushCommand(block, CSequence::pushPop_t::PUSH_FRONT);
 
-			if ( m_curSequence->HasFlag( CSequence::sequenceFlags_t::SQ_RUN ) || m_curSequence->HasFlag( CSequence::sequenceFlags_t::SQ_AFFECT ) )
-			{
-				//Go back to the last stream
-				m_curStream = bstream->last;
-			}
+            if (m_curSequence->HasFlag(CSequence::sequenceFlags_t::SQ_RUN) || m_curSequence->HasFlag(CSequence::sequenceFlags_t::SQ_AFFECT)) {
+                // Go back to the last stream
+                m_curStream = bstream->last;
+            }
 
-			if ( m_curSequence->HasFlag( CSequence::sequenceFlags_t::SQ_TASK ) )
-			{
-				//Go back to the last stream
-				m_curStream = bstream->last;
-				m_curGroup = m_curGroup->GetParent();
-			}
+            if (m_curSequence->HasFlag(CSequence::sequenceFlags_t::SQ_TASK)) {
+                // Go back to the last stream
+                m_curStream = bstream->last;
+                m_curGroup = m_curGroup->GetParent();
+            }
 
-			m_curSequence = m_curSequence->GetReturn();
+            m_curSequence = m_curSequence->GetReturn();
 
-			return sequencerResult_t::SEQ_OK;
-			break;
+            return sequencerResult_t::SEQ_OK;
+            break;
 
-		//Affect pre-processor
-		case icarusToken_t::ID_AFFECT:
+        // Affect pre-processor
+        case icarusToken_t::ID_AFFECT:
 
-			if S_FAILED( ParseAffect( block, bstream, icarus ) )
-				return sequencerResult_t::SEQ_FAILED;
+            if S_FAILED (ParseAffect(block, bstream, icarus))
+                return sequencerResult_t::SEQ_FAILED;
 
-			break;
+            break;
 
-		//Run pre-processor
-		case icarusToken_t::ID_RUN:
+        // Run pre-processor
+        case icarusToken_t::ID_RUN:
 
-			if S_FAILED( ParseRun( block, icarus ) )
-				return sequencerResult_t::SEQ_FAILED;
+            if S_FAILED (ParseRun(block, icarus))
+                return sequencerResult_t::SEQ_FAILED;
 
-			break;
+            break;
 
-		//Loop pre-processor
-		case icarusToken_t::ID_LOOP:
+        // Loop pre-processor
+        case icarusToken_t::ID_LOOP:
 
-			if S_FAILED( ParseLoop( block, bstream, icarus ) )
-				return sequencerResult_t::SEQ_FAILED;
+            if S_FAILED (ParseLoop(block, bstream, icarus))
+                return sequencerResult_t::SEQ_FAILED;
 
-			break;
+            break;
 
-		//Conditional pre-processor
-		case icarusToken_t::ID_IF:
+        // Conditional pre-processor
+        case icarusToken_t::ID_IF:
 
-			if S_FAILED( ParseIf( block, bstream, icarus ) )
-				return sequencerResult_t::SEQ_FAILED;
+            if S_FAILED (ParseIf(block, bstream, icarus))
+                return sequencerResult_t::SEQ_FAILED;
 
-			break;
+            break;
 
-		case icarusToken_t::ID_ELSE:
+        case icarusToken_t::ID_ELSE:
 
-			//TODO: Emit warning
-			if ( m_elseValid == 0 )
-			{
-				game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Invalid 'else' found!\n" );
-				return sequencerResult_t::SEQ_FAILED;
-			}
+            // TODO: Emit warning
+            if (m_elseValid == 0) {
+                game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Invalid 'else' found!\n");
+                return sequencerResult_t::SEQ_FAILED;
+            }
 
-			if S_FAILED( ParseElse( block, bstream, icarus ) )
-				return sequencerResult_t::SEQ_FAILED;
+            if S_FAILED (ParseElse(block, bstream, icarus))
+                return sequencerResult_t::SEQ_FAILED;
 
-			break;
+            break;
 
-		case icarusToken_t::ID_TASK:
+        case icarusToken_t::ID_TASK:
 
-			if S_FAILED( ParseTask( block, bstream, icarus ) )
-				return sequencerResult_t::SEQ_FAILED;
+            if S_FAILED (ParseTask(block, bstream, icarus))
+                return sequencerResult_t::SEQ_FAILED;
 
-			break;
+            break;
 
-		//FIXME: For now this is to catch problems, but can ultimately be removed
-		case icarusToken_t::ID_WAIT:
-		case icarusToken_t::ID_PRINT:
-		case icarusToken_t::ID_SOUND:
-		case icarusToken_t::ID_MOVE:
-		case icarusToken_t::ID_ROTATE:
-		case icarusToken_t::ID_SET:
-		case icarusToken_t::ID_USE:
-		case icarusToken_t::ID_REMOVE:
-		case icarusToken_t::ID_KILL:
-		case icarusToken_t::ID_FLUSH:
-		case icarusToken_t::ID_CAMERA:
-		case icarusToken_t::ID_DO:
-		case icarusToken_t::ID_DECLARE:
-		case icarusToken_t::ID_FREE:
-		case icarusToken_t::ID_SIGNAL:
-		case icarusToken_t::ID_WAITSIGNAL:
-		case icarusToken_t::ID_PLAY:
+        // FIXME: For now this is to catch problems, but can ultimately be removed
+        case icarusToken_t::ID_WAIT:
+        case icarusToken_t::ID_PRINT:
+        case icarusToken_t::ID_SOUND:
+        case icarusToken_t::ID_MOVE:
+        case icarusToken_t::ID_ROTATE:
+        case icarusToken_t::ID_SET:
+        case icarusToken_t::ID_USE:
+        case icarusToken_t::ID_REMOVE:
+        case icarusToken_t::ID_KILL:
+        case icarusToken_t::ID_FLUSH:
+        case icarusToken_t::ID_CAMERA:
+        case icarusToken_t::ID_DO:
+        case icarusToken_t::ID_DECLARE:
+        case icarusToken_t::ID_FREE:
+        case icarusToken_t::ID_SIGNAL:
+        case icarusToken_t::ID_WAITSIGNAL:
+        case icarusToken_t::ID_PLAY:
 
-			//Commands go directly into the sequence without pre-process
-			PushCommand( block, CSequence::pushPop_t::PUSH_FRONT );
-			break;
+            // Commands go directly into the sequence without pre-process
+            PushCommand(block, CSequence::pushPop_t::PUSH_FRONT);
+            break;
 
-		//Error
-		default:
+        // Error
+        default:
 
-			game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "'%d' : invalid block ID", to_underlying( block->GetBlockID() ) );
+            game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "'%d' : invalid block ID", to_underlying(block->GetBlockID()));
 
-			return sequencerResult_t::SEQ_FAILED;
-			break;
-		}
-	}
+            return sequencerResult_t::SEQ_FAILED;
+            break;
+        }
+    }
 
-	//Check for a run sequence, it must be marked
-	if ( m_curSequence->HasFlag( CSequence::sequenceFlags_t::SQ_RUN ) )
-	{
-		block = new CBlock;
-		block->Create( icarusToken_t::ID_BLOCK_END );
-		PushCommand( block, CSequence::pushPop_t::PUSH_FRONT );	//mark the end of the run
+    // Check for a run sequence, it must be marked
+    if (m_curSequence->HasFlag(CSequence::sequenceFlags_t::SQ_RUN)) {
+        block = new CBlock;
+        block->Create(icarusToken_t::ID_BLOCK_END);
+        PushCommand(block, CSequence::pushPop_t::PUSH_FRONT); // mark the end of the run
 
-		/*
-		//Free the stream
-		m_curStream = bstream->last;
-		DeleteStream( bstream );
-		*/
+        /*
+        //Free the stream
+        m_curStream = bstream->last;
+        DeleteStream( bstream );
+        */
 
-		return sequencerResult_t::SEQ_OK;
-	}
+        return sequencerResult_t::SEQ_OK;
+    }
 
-	//Check to start the communication
-	if ( ( bstream->last == nullptr ) && ( m_numCommands > 0 ) )
-	{
-		//Everything is routed, so get it all rolling
-		Prime( m_taskManager, PopCommand( CSequence::pushPop_t::POP_BACK ), icarus );
-	}
+    // Check to start the communication
+    if ((bstream->last == nullptr) && (m_numCommands > 0)) {
+        // Everything is routed, so get it all rolling
+        Prime(m_taskManager, PopCommand(CSequence::pushPop_t::POP_BACK), icarus);
+    }
 
-	m_curStream = bstream->last;
+    m_curStream = bstream->last;
 
-	//Free the stream
-	DeleteStream( bstream );
+    // Free the stream
+    DeleteStream(bstream);
 
-	return sequencerResult_t::SEQ_OK;
+    return sequencerResult_t::SEQ_OK;
 }
 
 /*
@@ -1055,85 +1018,76 @@ Checks for run command pre-processing
 ========================
 */
 
-//Directly changes the parameter to avoid excess push/pop
+// Directly changes the parameter to avoid excess push/pop
 
-void CSequencer::CheckRun( CBlock **command , CIcarus* icarus)
+void CSequencer::CheckRun(CBlock** command, CIcarus* icarus)
 {
-	IGameInterface* game = icarus->GetGame();
-	CBlock	*block = *command;
+    IGameInterface* game = icarus->GetGame();
+    CBlock* block = *command;
 
-	if ( block == nullptr )
-		return;
+    if (block == nullptr)
+        return;
 
-	//Check for a run command
-	if ( block->GetBlockID() == icarusToken_t::ID_RUN )
-	{
-		int id = (int) (*(float *) block->GetMemberData( 1 ));
+    // Check for a run command
+    if (block->GetBlockID() == icarusToken_t::ID_RUN) {
+        int id = (int)(*(float*)block->GetMemberData(1));
 
-		game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_DEBUG, "%4d run( \"%s\" ); [%d]", m_ownerID, (char *) block->GetMemberData(0), game->GetTime() );
+        game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_DEBUG, "%4d run( \"%s\" ); [%d]", m_ownerID, (char*)block->GetMemberData(0), game->GetTime());
 
-		if ( m_curSequence->HasFlag( CSequence::sequenceFlags_t::SQ_RETAIN ) )
-		{
-			PushCommand( block, CSequence::pushPop_t::PUSH_FRONT );
-		}
-		else
-		{
-			block->Free(icarus);
-			delete block;
-			block = nullptr;
+        if (m_curSequence->HasFlag(CSequence::sequenceFlags_t::SQ_RETAIN)) {
+            PushCommand(block, CSequence::pushPop_t::PUSH_FRONT);
+        }
+        else {
+            block->Free(icarus);
+            delete block;
+            block = nullptr;
 
-			*command = nullptr;
-		}
+            *command = nullptr;
+        }
 
-		m_curSequence = GetSequence( id );
+        m_curSequence = GetSequence(id);
 
-		//TODO: Emit warning
-		assert( m_curSequence );
-		if ( m_curSequence == nullptr )
-		{
-			game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Unable to find 'run' sequence!\n" );
-			*command = nullptr;
-			return;
-		}
+        // TODO: Emit warning
+        assert(m_curSequence);
+        if (m_curSequence == nullptr) {
+            game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Unable to find 'run' sequence!\n");
+            *command = nullptr;
+            return;
+        }
 
-		if ( m_curSequence->GetNumCommands() > 0 )
-		{
-			*command = PopCommand( CSequence::pushPop_t::POP_BACK );
+        if (m_curSequence->GetNumCommands() > 0) {
+            *command = PopCommand(CSequence::pushPop_t::POP_BACK);
 
-			Prep( command , icarus);	//Account for any other pre-processes
-			return;
-		}
+            Prep(command, icarus); // Account for any other pre-processes
+            return;
+        }
 
-		return;
-	}
+        return;
+    }
 
-	//Check for the end of a run
-	if ( ( block->GetBlockID() == icarusToken_t::ID_BLOCK_END ) && ( m_curSequence->HasFlag( CSequence::sequenceFlags_t::SQ_RUN ) ) )
-	{
-		if ( m_curSequence->HasFlag( CSequence::sequenceFlags_t::SQ_RETAIN ) )
-		{
-			PushCommand( block, CSequence::pushPop_t::PUSH_FRONT );
-		}
-		else
-		{
-			block->Free(icarus);
-			delete block;
-			block = nullptr;
-			*command = nullptr;
-		}
+    // Check for the end of a run
+    if ((block->GetBlockID() == icarusToken_t::ID_BLOCK_END) && (m_curSequence->HasFlag(CSequence::sequenceFlags_t::SQ_RUN))) {
+        if (m_curSequence->HasFlag(CSequence::sequenceFlags_t::SQ_RETAIN)) {
+            PushCommand(block, CSequence::pushPop_t::PUSH_FRONT);
+        }
+        else {
+            block->Free(icarus);
+            delete block;
+            block = nullptr;
+            *command = nullptr;
+        }
 
-		m_curSequence = ReturnSequence( m_curSequence );
+        m_curSequence = ReturnSequence(m_curSequence);
 
-		if ( m_curSequence && m_curSequence->GetNumCommands() > 0 )
-		{
-			*command = PopCommand( CSequence::pushPop_t::POP_BACK );
+        if (m_curSequence && m_curSequence->GetNumCommands() > 0) {
+            *command = PopCommand(CSequence::pushPop_t::POP_BACK);
 
-			Prep( command, icarus );	//Account for any other pre-processes
-			return;
-		}
+            Prep(command, icarus); // Account for any other pre-processes
+            return;
+        }
 
-		//FIXME: Check this...
-	}
+        // FIXME: Check this...
+    }
 }
 
 /*
@@ -1142,346 +1096,325 @@ EvaluateConditional
 -------------------------
 */
 
-//FIXME: This function will be written better later once the functionality of the ideas here are tested
+// FIXME: This function will be written better later once the functionality of the ideas here are tested
 
-int CSequencer::EvaluateConditional( CBlock *block , CIcarus* icarus)
+int CSequencer::EvaluateConditional(CBlock* block, CIcarus* icarus)
 {
-	IGameInterface* game = icarus->GetGame();
-	CBlockMember	*bm;
-	char			tempString1[128], tempString2[128];
-	vec3_t			vec;
-	icarusToken_t	id, oper;
-	int				i, memberNum = 0;
-	const char			*p1 = nullptr, *p2 = nullptr;
-	icarusToken_t	t1, t2;
+    IGameInterface* game = icarus->GetGame();
+    CBlockMember* bm;
+    char tempString1[128], tempString2[128];
+    vec3_t vec;
+    icarusToken_t id, oper;
+    int i, memberNum = 0;
+    const char *p1 = nullptr, *p2 = nullptr;
+    icarusToken_t t1, t2;
 
-	//
-	//	Get the first parameter
-	//
+    //
+    //	Get the first parameter
+    //
 
-	bm = block->GetMember( memberNum++ );
-	id = bm->GetID();
+    bm = block->GetMember(memberNum++);
+    id = bm->GetID();
 
-	t1 = id;
+    t1 = id;
 
-	switch ( id )
-	{
-	case icarusToken_t::TK_FLOAT:
-		sprintf( (char *) tempString1, "%.3f", *(float *) bm->GetData() );
-		p1 = (char *) tempString1;
-		break;
+    switch (id) {
+    case icarusToken_t::TK_FLOAT:
+        sprintf((char*)tempString1, "%.3f", *(float*)bm->GetData());
+        p1 = (char*)tempString1;
+        break;
 
-	case icarusToken_t::TK_VECTOR:
+    case icarusToken_t::TK_VECTOR:
 
-		tempString1[0] = '\0';
+        tempString1[0] = '\0';
 
-		for ( i = 0; i < 3; i++ )
-		{
-			bm = block->GetMember( memberNum++ );
-			vec[i] = *(float *) bm->GetData();
-		}
+        for (i = 0; i < 3; i++) {
+            bm = block->GetMember(memberNum++);
+            vec[i] = *(float*)bm->GetData();
+        }
 
-		sprintf( (char *) tempString1, "%.3f %.3f %.3f", vec[0], vec[1], vec[2] );
-		p1 = (char *) tempString1;
+        sprintf((char*)tempString1, "%.3f %.3f %.3f", vec[0], vec[1], vec[2]);
+        p1 = (char*)tempString1;
 
-		break;
+        break;
 
-	case icarusToken_t::TK_STRING:
-	case icarusToken_t::TK_IDENTIFIER:
-	case icarusToken_t::TK_CHAR:
+    case icarusToken_t::TK_STRING:
+    case icarusToken_t::TK_IDENTIFIER:
+    case icarusToken_t::TK_CHAR:
 
-		p1 = (char *) bm->GetData();
-		break;
+        p1 = (char*)bm->GetData();
+        break;
 
-	case icarusToken_t::ID_GET:
-	{
-			icarusToken_t	type;
-			char	*name;
+    case icarusToken_t::ID_GET: {
+        icarusToken_t type;
+        char* name;
 
-			//get( TYPE, NAME )
-			type = block->GetMemberToken( memberNum++ );
-			name = (char *) block->GetMemberData( memberNum++ );
+        // get( TYPE, NAME )
+        type = block->GetMemberToken(memberNum++);
+        name = (char*)block->GetMemberData(memberNum++);
 
-			//Get the type returned and hold onto it
-			t1 = type;
+        // Get the type returned and hold onto it
+        t1 = type;
 
-			switch ( type )
-			{
-			case icarusToken_t::TK_FLOAT:
-				{
-					float	fVal;
+        switch (type) {
+        case icarusToken_t::TK_FLOAT: {
+            float fVal;
 
-					if ( game->GetFloat( m_ownerID, name, &fVal ) == false)
-						return false;
+            if (game->GetFloat(m_ownerID, name, &fVal) == false)
+                return false;
 
-					sprintf( (char *) tempString1, "%.3f", fVal );
-					p1 = (char *) tempString1;
-				}
+            sprintf((char*)tempString1, "%.3f", fVal);
+            p1 = (char*)tempString1;
+        }
 
-				break;
+        break;
 
-			case icarusToken_t::TK_INT:
-				{
-					float	fVal;
+        case icarusToken_t::TK_INT: {
+            float fVal;
 
-					if ( game->GetFloat( m_ownerID, name, &fVal ) == false)
-						return false;
+            if (game->GetFloat(m_ownerID, name, &fVal) == false)
+                return false;
 
-					sprintf( (char *) tempString1, "%d", (int) fVal );
-					p1 = (char *) tempString1;
-				}
-				break;
+            sprintf((char*)tempString1, "%d", (int)fVal);
+            p1 = (char*)tempString1;
+        } break;
 
-			case icarusToken_t::TK_STRING:
+        case icarusToken_t::TK_STRING:
 
-				if ( game->GetString( m_ownerID, name, &p1 ) == false)
-					return false;
+            if (game->GetString(m_ownerID, name, &p1) == false)
+                return false;
 
-				break;
+            break;
 
-			case icarusToken_t::TK_VECTOR:
-				{
-					vec3_t	vVal;
+        case icarusToken_t::TK_VECTOR: {
+            vec3_t vVal;
 
-					if ( game->GetVector( m_ownerID, name, vVal ) == false)
-						return false;
+            if (game->GetVector(m_ownerID, name, vVal) == false)
+                return false;
 
-					sprintf( (char *) tempString1, "%.3f %.3f %.3f", vVal[0], vVal[1], vVal[2] );
-					p1 = (char *) tempString1;
-				}
+            sprintf((char*)tempString1, "%.3f %.3f %.3f", vVal[0], vVal[1], vVal[2]);
+            p1 = (char*)tempString1;
+        }
 
-				break;
-
-			default:
-				break;
-		}
-
-		break;
-	}
+        break;
 
-	case icarusToken_t::ID_RANDOM:
-		{
-			float	min, max;
-			//FIXME: This will not account for nested Q_flrand(0.0f, 1.0f) statements
+        default:
+            break;
+        }
 
-			min	= *(float *) block->GetMemberData( memberNum++ );
-			max	= *(float *) block->GetMemberData( memberNum++ );
+        break;
+    }
 
-			//A float value is returned from the function
-			t1 = icarusToken_t::TK_FLOAT;
+    case icarusToken_t::ID_RANDOM: {
+        float min, max;
+        // FIXME: This will not account for nested Q_flrand(0.0f, 1.0f) statements
 
-			sprintf( (char *) tempString1, "%.3f", game->Random( min, max ) );
-			p1 = (char *) tempString1;
-		}
+        min = *(float*)block->GetMemberData(memberNum++);
+        max = *(float*)block->GetMemberData(memberNum++);
 
-		break;
+        // A float value is returned from the function
+        t1 = icarusToken_t::TK_FLOAT;
 
-	case icarusToken_t::ID_TAG:
-		{
-			char	*name;
-			icarusToken_t	type;
+        sprintf((char*)tempString1, "%.3f", game->Random(min, max));
+        p1 = (char*)tempString1;
+    }
 
-			name = (char *) block->GetMemberData( memberNum++ );
-			type = block->GetMemberToken( memberNum++ );
-
-			t1 = icarusToken_t::TK_VECTOR;
+    break;
 
-			//TODO: Emit warning
-			if ( game->GetTag( m_ownerID, name, type, vec ) == false)
-			{
-				game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Unable to find tag \"%s\"!\n", name );
-				return false;
-			}
+    case icarusToken_t::ID_TAG: {
+        char* name;
+        icarusToken_t type;
 
-			sprintf( (char *) tempString1, "%.3f %.3f %.3f", vec[0], vec[1], vec[2] );
-			p1 = (char *) tempString1;
+        name = (char*)block->GetMemberData(memberNum++);
+        type = block->GetMemberToken(memberNum++);
 
-			break;
-		}
+        t1 = icarusToken_t::TK_VECTOR;
 
-	default:
-		//FIXME: Make an enum id for the error...
-		game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Invalid parameter type on conditional" );
-		return false;
-		break;
-	}
+        // TODO: Emit warning
+        if (game->GetTag(m_ownerID, name, type, vec) == false) {
+            game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Unable to find tag \"%s\"!\n", name);
+            return false;
+        }
 
-	//
-	//	Get the comparison operator
-	//
+        sprintf((char*)tempString1, "%.3f %.3f %.3f", vec[0], vec[1], vec[2]);
+        p1 = (char*)tempString1;
 
-	bm = block->GetMember( memberNum++ );
-	id = bm->GetID();
+        break;
+    }
 
-	switch ( id )
-	{
-	case icarusToken_t::TK_EQUALS:
-	case icarusToken_t::TK_GREATER_THAN:
-	case icarusToken_t::TK_LESS_THAN:
-	case icarusToken_t::TK_NOT:
-		oper = id;
-		break;
+    default:
+        // FIXME: Make an enum id for the error...
+        game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Invalid parameter type on conditional");
+        return false;
+        break;
+    }
 
-	default:
-		game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Invalid operator type found on conditional!\n" );
-		return false;	//FIXME: Emit warning
-		break;
-	}
+    //
+    //	Get the comparison operator
+    //
 
-	//
-	//	Get the second parameter
-	//
+    bm = block->GetMember(memberNum++);
+    id = bm->GetID();
 
-	bm = block->GetMember( memberNum++ );
-	id = bm->GetID();
+    switch (id) {
+    case icarusToken_t::TK_EQUALS:
+    case icarusToken_t::TK_GREATER_THAN:
+    case icarusToken_t::TK_LESS_THAN:
+    case icarusToken_t::TK_NOT:
+        oper = id;
+        break;
 
-	t2 = id;
+    default:
+        game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Invalid operator type found on conditional!\n");
+        return false; // FIXME: Emit warning
+        break;
+    }
 
-	switch ( id )
-	{
-	case icarusToken_t::TK_FLOAT:
-		sprintf( (char *) tempString2, "%.3f", *(float *) bm->GetData() );
-		p2 = (char *) tempString2;
-		break;
+    //
+    //	Get the second parameter
+    //
 
-	case icarusToken_t::TK_VECTOR:
+    bm = block->GetMember(memberNum++);
+    id = bm->GetID();
 
-		tempString2[0] = '\0';
+    t2 = id;
 
-		for ( i = 0; i < 3; i++ )
-		{
-			bm = block->GetMember( memberNum++ );
-			vec[i] = *(float *) bm->GetData();
-		}
+    switch (id) {
+    case icarusToken_t::TK_FLOAT:
+        sprintf((char*)tempString2, "%.3f", *(float*)bm->GetData());
+        p2 = (char*)tempString2;
+        break;
 
-		sprintf( (char *) tempString2, "%.3f %.3f %.3f", vec[0], vec[1], vec[2] );
-		p2 = (char *) tempString2;
+    case icarusToken_t::TK_VECTOR:
 
-		break;
+        tempString2[0] = '\0';
 
-	case icarusToken_t::TK_STRING:
-	case icarusToken_t::TK_IDENTIFIER:
-	case icarusToken_t::TK_CHAR:
+        for (i = 0; i < 3; i++) {
+            bm = block->GetMember(memberNum++);
+            vec[i] = *(float*)bm->GetData();
+        }
 
-		p2 = (char *) bm->GetData();
-		break;
+        sprintf((char*)tempString2, "%.3f %.3f %.3f", vec[0], vec[1], vec[2]);
+        p2 = (char*)tempString2;
 
-	case icarusToken_t::ID_GET:
-	{
-			icarusToken_t	type;
-			char	*name;
+        break;
 
-			//get( TYPE, NAME )
-			type = block->GetMemberToken( memberNum++ );
-			name = (char *) block->GetMemberData( memberNum++ );
+    case icarusToken_t::TK_STRING:
+    case icarusToken_t::TK_IDENTIFIER:
+    case icarusToken_t::TK_CHAR:
 
-			//Get the type returned and hold onto it
-			t2 = type;
+        p2 = (char*)bm->GetData();
+        break;
 
-			switch ( type )
-			{
-			case icarusToken_t::TK_FLOAT:
-				{
-					float	fVal;
+    case icarusToken_t::ID_GET: {
+        icarusToken_t type;
+        char* name;
 
-					if ( game->GetFloat( m_ownerID, name, &fVal ) == false)
-						return false;
+        // get( TYPE, NAME )
+        type = block->GetMemberToken(memberNum++);
+        name = (char*)block->GetMemberData(memberNum++);
 
-					sprintf( (char *) tempString2, "%.3f", fVal );
-					p2 = (char *) tempString2;
-				}
+        // Get the type returned and hold onto it
+        t2 = type;
 
-				break;
+        switch (type) {
+        case icarusToken_t::TK_FLOAT: {
+            float fVal;
 
-			case icarusToken_t::TK_INT:
-				{
-					float	fVal;
+            if (game->GetFloat(m_ownerID, name, &fVal) == false)
+                return false;
 
-					if ( game->GetFloat( m_ownerID, name, &fVal ) == false)
-						return false;
+            sprintf((char*)tempString2, "%.3f", fVal);
+            p2 = (char*)tempString2;
+        }
 
-					sprintf( (char *) tempString2, "%d", (int) fVal );
-					p2 = (char *) tempString2;
-				}
-				break;
+        break;
 
-			case icarusToken_t::TK_STRING:
+        case icarusToken_t::TK_INT: {
+            float fVal;
 
-				if ( game->GetString( m_ownerID, name, &p2 ) == false)
-					return false;
+            if (game->GetFloat(m_ownerID, name, &fVal) == false)
+                return false;
 
-				break;
+            sprintf((char*)tempString2, "%d", (int)fVal);
+            p2 = (char*)tempString2;
+        } break;
 
-			case icarusToken_t::TK_VECTOR:
-				{
-					vec3_t	vVal;
+        case icarusToken_t::TK_STRING:
 
-					if ( game->GetVector( m_ownerID, name, vVal ) == false)
-						return false;
+            if (game->GetString(m_ownerID, name, &p2) == false)
+                return false;
 
-					sprintf( (char *) tempString2, "%.3f %.3f %.3f", vVal[0], vVal[1], vVal[2] );
-					p2 = (char *) tempString2;
-				}
+            break;
 
-				break;
+        case icarusToken_t::TK_VECTOR: {
+            vec3_t vVal;
 
-			default:
-				break;
-		}
+            if (game->GetVector(m_ownerID, name, vVal) == false)
+                return false;
 
-		break;
-	}
+            sprintf((char*)tempString2, "%.3f %.3f %.3f", vVal[0], vVal[1], vVal[2]);
+            p2 = (char*)tempString2;
+        }
 
-	case icarusToken_t::ID_RANDOM:
+        break;
 
-		{
-			float	min, max;
-			//FIXME: This will not account for nested Q_flrand(0.0f, 1.0f) statements
+        default:
+            break;
+        }
 
-			min	= *(float *) block->GetMemberData( memberNum++ );
-			max	= *(float *) block->GetMemberData( memberNum++ );
+        break;
+    }
 
-			//A float value is returned from the function
-			t2 = icarusToken_t::TK_FLOAT;
+    case icarusToken_t::ID_RANDOM:
 
-			sprintf( (char *) tempString2, "%.3f", game->Random( min, max ) );
-			p2 = (char *) tempString2;
-		}
+    {
+        float min, max;
+        // FIXME: This will not account for nested Q_flrand(0.0f, 1.0f) statements
 
-		break;
+        min = *(float*)block->GetMemberData(memberNum++);
+        max = *(float*)block->GetMemberData(memberNum++);
 
-	case icarusToken_t::ID_TAG:
+        // A float value is returned from the function
+        t2 = icarusToken_t::TK_FLOAT;
 
-		{
-			char	*name;
-			icarusToken_t	type;
+        sprintf((char*)tempString2, "%.3f", game->Random(min, max));
+        p2 = (char*)tempString2;
+    }
 
-			name = (char *) block->GetMemberData( memberNum++ );
-			type = block->GetMemberToken( memberNum++ );
+    break;
 
-			t2 = icarusToken_t::TK_VECTOR;
+    case icarusToken_t::ID_TAG:
 
-			//TODO: Emit warning
-			if ( game->GetTag( m_ownerID, name, type, vec ) == false)
-			{
-				game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Unable to find tag \"%s\"!\n", name );
-				return false;
-			}
+    {
+        char* name;
+        icarusToken_t type;
 
-			sprintf( (char *) tempString2, "%.3f %.3f %.3f", vec[0], vec[1], vec[2] );
-			p2 = (char *) tempString2;
+        name = (char*)block->GetMemberData(memberNum++);
+        type = block->GetMemberToken(memberNum++);
 
-			break;
-		}
+        t2 = icarusToken_t::TK_VECTOR;
 
-	default:
-		//FIXME: Make an enum id for the error...
-		game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Invalid parameter type on conditional" );
-		return false;
-		break;
-	}
+        // TODO: Emit warning
+        if (game->GetTag(m_ownerID, name, type, vec) == false) {
+            game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Unable to find tag \"%s\"!\n", name);
+            return false;
+        }
 
-	return game->Evaluate( t1, p1, t2, p2, oper );
+        sprintf((char*)tempString2, "%.3f %.3f %.3f", vec[0], vec[1], vec[2]);
+        p2 = (char*)tempString2;
+
+        break;
+    }
+
+    default:
+        // FIXME: Make an enum id for the error...
+        game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Invalid parameter type on conditional");
+        return false;
+        break;
+    }
+
+    return game->Evaluate(t1, p1, t2, p2, oper);
 }
 
 /*
@@ -1492,155 +1425,137 @@ Checks for if statement pre-processing
 ========================
 */
 
-void CSequencer::CheckIf( CBlock **command , CIcarus* icarus)
+void CSequencer::CheckIf(CBlock** command, CIcarus* icarus)
 {
-	IGameInterface* game = icarus->GetGame();
-	CBlock		*block = *command;
-	int			successID, failureID;
-	CSequence	*successSeq, *failureSeq;
+    IGameInterface* game = icarus->GetGame();
+    CBlock* block = *command;
+    int successID, failureID;
+    CSequence *successSeq, *failureSeq;
 
-	if ( block == nullptr )
-		return;
+    if (block == nullptr)
+        return;
 
-	if ( block->GetBlockID() == icarusToken_t::ID_IF )
-	{
-		int ret = EvaluateConditional( block, icarus );
+    if (block->GetBlockID() == icarusToken_t::ID_IF) {
+        int ret = EvaluateConditional(block, icarus);
 
-		if ( ret /*TRUE*/ )
-		{
-			if ( block->HasFlag( blockFlags_t::BF_ELSE ) )
-			{
-				successID = (int) (*(float *) block->GetMemberData( block->GetNumMembers() - 2 ));
-			}
-			else
-			{
-				successID = (int) (*(float *) block->GetMemberData( block->GetNumMembers() - 1 ));
-			}
+        if (ret /*TRUE*/) {
+            if (block->HasFlag(blockFlags_t::BF_ELSE)) {
+                successID = (int)(*(float*)block->GetMemberData(block->GetNumMembers() - 2));
+            }
+            else {
+                successID = (int)(*(float*)block->GetMemberData(block->GetNumMembers() - 1));
+            }
 
-			successSeq = GetSequence( successID );
+            successSeq = GetSequence(successID);
 
-			//TODO: Emit warning
-			assert( successSeq );
-			if ( successSeq == nullptr )
-			{
-				game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Unable to find conditional success sequence!\n" );
-				*command = nullptr;
-				return;
-			}
+            // TODO: Emit warning
+            assert(successSeq);
+            if (successSeq == nullptr) {
+                game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Unable to find conditional success sequence!\n");
+                *command = nullptr;
+                return;
+            }
 
-			//Only save the conditional statement if the calling sequence is retained
-			if ( m_curSequence->HasFlag( CSequence::sequenceFlags_t::SQ_RETAIN ) )
-			{
-				PushCommand( block, CSequence::pushPop_t::PUSH_FRONT );
-			}
-			else
-			{
-				block->Free(icarus);
-				delete block;
-				block = nullptr;
-				*command = nullptr;
-			}
+            // Only save the conditional statement if the calling sequence is retained
+            if (m_curSequence->HasFlag(CSequence::sequenceFlags_t::SQ_RETAIN)) {
+                PushCommand(block, CSequence::pushPop_t::PUSH_FRONT);
+            }
+            else {
+                block->Free(icarus);
+                delete block;
+                block = nullptr;
+                *command = nullptr;
+            }
 
-			m_curSequence = successSeq;
+            m_curSequence = successSeq;
 
-			//Recursively work out any other pre-processors
-			*command = PopCommand( CSequence::pushPop_t::POP_BACK );
-			Prep( command , icarus);
+            // Recursively work out any other pre-processors
+            *command = PopCommand(CSequence::pushPop_t::POP_BACK);
+            Prep(command, icarus);
 
-			return;
-		}
+            return;
+        }
 
-		if ( ( ret == false ) && ( block->HasFlag( blockFlags_t::BF_ELSE ) ) )
-		{
-			failureID = (int) (*(float *) block->GetMemberData( block->GetNumMembers() - 1 ));
-			failureSeq = GetSequence( failureID );
+        if ((ret == false) && (block->HasFlag(blockFlags_t::BF_ELSE))) {
+            failureID = (int)(*(float*)block->GetMemberData(block->GetNumMembers() - 1));
+            failureSeq = GetSequence(failureID);
 
-			//TODO: Emit warning
-			assert( failureSeq );
-			if ( failureSeq == nullptr )
-			{
-				game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Unable to find conditional failure sequence!\n" );
-				*command = nullptr;
-				return;
-			}
+            // TODO: Emit warning
+            assert(failureSeq);
+            if (failureSeq == nullptr) {
+                game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Unable to find conditional failure sequence!\n");
+                *command = nullptr;
+                return;
+            }
 
-			//Only save the conditional statement if the calling sequence is retained
-			if ( m_curSequence->HasFlag( CSequence::sequenceFlags_t::SQ_RETAIN ) )
-			{
-				PushCommand( block, CSequence::pushPop_t::PUSH_FRONT );
-			}
-			else
-			{
-				block->Free(icarus);
-				delete block;
-				block = nullptr;
-				*command = nullptr;
-			}
+            // Only save the conditional statement if the calling sequence is retained
+            if (m_curSequence->HasFlag(CSequence::sequenceFlags_t::SQ_RETAIN)) {
+                PushCommand(block, CSequence::pushPop_t::PUSH_FRONT);
+            }
+            else {
+                block->Free(icarus);
+                delete block;
+                block = nullptr;
+                *command = nullptr;
+            }
 
-			m_curSequence = failureSeq;
+            m_curSequence = failureSeq;
 
-			//Recursively work out any other pre-processors
-			*command = PopCommand( CSequence::pushPop_t::POP_BACK );
-			Prep( command , icarus);
+            // Recursively work out any other pre-processors
+            *command = PopCommand(CSequence::pushPop_t::POP_BACK);
+            Prep(command, icarus);
 
-			return;
-		}
+            return;
+        }
 
-		//Only save the conditional statement if the calling sequence is retained
-		if ( m_curSequence->HasFlag( CSequence::sequenceFlags_t::SQ_RETAIN ) )
-		{
-			PushCommand( block, CSequence::pushPop_t::PUSH_FRONT );
-		}
-		else
-		{
-			block->Free(icarus);
-			delete block;
-			block = nullptr;
-			*command = nullptr;
-		}
+        // Only save the conditional statement if the calling sequence is retained
+        if (m_curSequence->HasFlag(CSequence::sequenceFlags_t::SQ_RETAIN)) {
+            PushCommand(block, CSequence::pushPop_t::PUSH_FRONT);
+        }
+        else {
+            block->Free(icarus);
+            delete block;
+            block = nullptr;
+            *command = nullptr;
+        }
 
-		//Conditional failed, just move on to the next command
-		*command = PopCommand( CSequence::pushPop_t::POP_BACK );
-		Prep( command , icarus);
+        // Conditional failed, just move on to the next command
+        *command = PopCommand(CSequence::pushPop_t::POP_BACK);
+        Prep(command, icarus);
 
-		return;
-	}
+        return;
+    }
 
-	if ( ( block->GetBlockID() == icarusToken_t::ID_BLOCK_END ) && ( m_curSequence->HasFlag( CSequence::sequenceFlags_t::SQ_CONDITIONAL ) ) )
-	{
-		assert( m_curSequence->GetReturn() );
-		if ( m_curSequence->GetReturn() == nullptr )
-		{
-			*command = nullptr;
-			return;
-		}
+    if ((block->GetBlockID() == icarusToken_t::ID_BLOCK_END) && (m_curSequence->HasFlag(CSequence::sequenceFlags_t::SQ_CONDITIONAL))) {
+        assert(m_curSequence->GetReturn());
+        if (m_curSequence->GetReturn() == nullptr) {
+            *command = nullptr;
+            return;
+        }
 
-		//Check to retain it
-		if ( m_curSequence->GetParent()->HasFlag( CSequence::sequenceFlags_t::SQ_RETAIN ) )
-		{
-			PushCommand( block, CSequence::pushPop_t::PUSH_FRONT );
-		}
-		else
-		{
-			block->Free(icarus);
-			delete block;
-			block = nullptr;
-			*command = nullptr;
-		}
+        // Check to retain it
+        if (m_curSequence->GetParent()->HasFlag(CSequence::sequenceFlags_t::SQ_RETAIN)) {
+            PushCommand(block, CSequence::pushPop_t::PUSH_FRONT);
+        }
+        else {
+            block->Free(icarus);
+            delete block;
+            block = nullptr;
+            *command = nullptr;
+        }
 
-		//Back out of the conditional and resume the previous sequence
-		m_curSequence = ReturnSequence( m_curSequence );
+        // Back out of the conditional and resume the previous sequence
+        m_curSequence = ReturnSequence(m_curSequence);
 
-		//This can safely happen
-		if ( m_curSequence == nullptr )
-		{
-			*command = nullptr;
-			return;
-		}
+        // This can safely happen
+        if (m_curSequence == nullptr) {
+            *command = nullptr;
+            return;
+        }
 
-		*command = PopCommand( CSequence::pushPop_t::POP_BACK );
-		Prep( command , icarus);
-	}
+        *command = PopCommand(CSequence::pushPop_t::POP_BACK);
+        Prep(command, icarus);
+    }
 }
 
 /*
@@ -1651,137 +1566,123 @@ Checks for loop command pre-processing
 ========================
 */
 
-void CSequencer::CheckLoop( CBlock **command , CIcarus* icarus)
+void CSequencer::CheckLoop(CBlock** command, CIcarus* icarus)
 {
-	IGameInterface* game = icarus->GetGame();
-	CBlockMember	*bm;
-	CBlock			*block = *command;
-	float			min, max;
-	int				iterations;
-	int				loopID;
-	int				memberNum = 0;
+    IGameInterface* game = icarus->GetGame();
+    CBlockMember* bm;
+    CBlock* block = *command;
+    float min, max;
+    int iterations;
+    int loopID;
+    int memberNum = 0;
 
-	if ( block == nullptr )
-		return;
+    if (block == nullptr)
+        return;
 
-	//Check for a loop
-	if ( block->GetBlockID() == icarusToken_t::ID_LOOP )
-	{
-		//Get the loop ID
-		bm = block->GetMember( memberNum++ );
+    // Check for a loop
+    if (block->GetBlockID() == icarusToken_t::ID_LOOP) {
+        // Get the loop ID
+        bm = block->GetMember(memberNum++);
 
-		if ( bm->GetID() == icarusToken_t::ID_RANDOM )
-		{
-			//Parse out the random number
-			min = *(float *) block->GetMemberData( memberNum++ );
-			max = *(float *) block->GetMemberData( memberNum++ );
+        if (bm->GetID() == icarusToken_t::ID_RANDOM) {
+            // Parse out the random number
+            min = *(float*)block->GetMemberData(memberNum++);
+            max = *(float*)block->GetMemberData(memberNum++);
 
-			iterations = (int) game->Random( min, max );
-		}
-		else
-		{
-			iterations = (int) (*(float *) bm->GetData());
-		}
+            iterations = (int)game->Random(min, max);
+        }
+        else {
+            iterations = (int)(*(float*)bm->GetData());
+        }
 
-		loopID = (int) (*(float *) block->GetMemberData( memberNum++ ));
+        loopID = (int)(*(float*)block->GetMemberData(memberNum++));
 
-		CSequence *loop = GetSequence( loopID );
+        CSequence* loop = GetSequence(loopID);
 
-		//TODO: Emit warning
-		assert( loop );
-		if ( loop == nullptr )
-		{
-			game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Unable to find 'loop' sequence!\n" );
-			*command = nullptr;
-			return;
-		}
+        // TODO: Emit warning
+        assert(loop);
+        if (loop == nullptr) {
+            game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Unable to find 'loop' sequence!\n");
+            *command = nullptr;
+            return;
+        }
 
-		assert( loop->GetParent() );
-		if ( loop->GetParent() == nullptr )
-		{
-			*command = nullptr;
-			return;
-		}
+        assert(loop->GetParent());
+        if (loop->GetParent() == nullptr) {
+            *command = nullptr;
+            return;
+        }
 
-		//Restore the count if it has been lost
-		loop->SetIterations( iterations );
+        // Restore the count if it has been lost
+        loop->SetIterations(iterations);
 
-		//Only save the loop command if the calling sequence is retained
-		if ( m_curSequence->HasFlag( CSequence::sequenceFlags_t::SQ_RETAIN ) )
-		{
-			PushCommand( block, CSequence::pushPop_t::PUSH_FRONT );
-		}
-		else
-		{
-			block->Free(icarus);
-			delete block;
-			block = nullptr;
-			*command = nullptr;
-		}
+        // Only save the loop command if the calling sequence is retained
+        if (m_curSequence->HasFlag(CSequence::sequenceFlags_t::SQ_RETAIN)) {
+            PushCommand(block, CSequence::pushPop_t::PUSH_FRONT);
+        }
+        else {
+            block->Free(icarus);
+            delete block;
+            block = nullptr;
+            *command = nullptr;
+        }
 
-		m_curSequence = loop;
+        m_curSequence = loop;
 
-		//Recursively work out any other pre-processors
-		*command = PopCommand( CSequence::pushPop_t::POP_BACK );
-		Prep( command , icarus);
+        // Recursively work out any other pre-processors
+        *command = PopCommand(CSequence::pushPop_t::POP_BACK);
+        Prep(command, icarus);
 
-		return;
-	}
+        return;
+    }
 
-	//Check for the end of the loop
-	if ( ( block->GetBlockID() == icarusToken_t::ID_BLOCK_END ) && ( m_curSequence->HasFlag( CSequence::sequenceFlags_t::SQ_LOOP ) ) )
-	{
-		//We don't want to decrement -1
-		if ( m_curSequence->GetIterations() > 0 )
-			m_curSequence->SetIterations( m_curSequence->GetIterations()-1 );	//Nice, eh?
+    // Check for the end of the loop
+    if ((block->GetBlockID() == icarusToken_t::ID_BLOCK_END) && (m_curSequence->HasFlag(CSequence::sequenceFlags_t::SQ_LOOP))) {
+        // We don't want to decrement -1
+        if (m_curSequence->GetIterations() > 0)
+            m_curSequence->SetIterations(m_curSequence->GetIterations() - 1); // Nice, eh?
 
-		//Either there's another iteration, or it's infinite
-		if ( m_curSequence->GetIterations() != 0 )
-		{
-			//Another iteration is going to happen, so this will need to be considered again
-			PushCommand( block, CSequence::pushPop_t::PUSH_FRONT );
+        // Either there's another iteration, or it's infinite
+        if (m_curSequence->GetIterations() != 0) {
+            // Another iteration is going to happen, so this will need to be considered again
+            PushCommand(block, CSequence::pushPop_t::PUSH_FRONT);
 
-			*command = PopCommand( CSequence::pushPop_t::POP_BACK );
-			Prep( command, icarus );
+            *command = PopCommand(CSequence::pushPop_t::POP_BACK);
+            Prep(command, icarus);
 
-			return;
-		}
-		else
-		{
-			assert( m_curSequence->GetReturn() );
-			if ( m_curSequence->GetReturn() == nullptr )
-			{
-				*command = nullptr;
-				return;
-			}
+            return;
+        }
+        else {
+            assert(m_curSequence->GetReturn());
+            if (m_curSequence->GetReturn() == nullptr) {
+                *command = nullptr;
+                return;
+            }
 
-			//Check to retain it
-			if ( m_curSequence->GetParent()->HasFlag( CSequence::sequenceFlags_t::SQ_RETAIN ) )
-			{
-				PushCommand( block, CSequence::pushPop_t::PUSH_FRONT );
-			}
-			else
-			{
-				block->Free(icarus);
-				delete block;
-				block = nullptr;
-				*command = nullptr;
-			}
+            // Check to retain it
+            if (m_curSequence->GetParent()->HasFlag(CSequence::sequenceFlags_t::SQ_RETAIN)) {
+                PushCommand(block, CSequence::pushPop_t::PUSH_FRONT);
+            }
+            else {
+                block->Free(icarus);
+                delete block;
+                block = nullptr;
+                *command = nullptr;
+            }
 
-			//Back out of the loop and resume the previous sequence
-			m_curSequence = ReturnSequence( m_curSequence );
+            // Back out of the loop and resume the previous sequence
+            m_curSequence = ReturnSequence(m_curSequence);
 
-			//This can safely happen
-			if ( m_curSequence == nullptr )
-			{
-				*command = nullptr;
-				return;
-			}
+            // This can safely happen
+            if (m_curSequence == nullptr) {
+                *command = nullptr;
+                return;
+            }
 
-			*command = PopCommand( CSequence::pushPop_t::POP_BACK );
-			Prep( command, icarus);
-		}
-	}
+            *command = PopCommand(CSequence::pushPop_t::POP_BACK);
+            Prep(command, icarus);
+        }
+    }
 }
 
 /*
@@ -1792,36 +1693,33 @@ Checks for flush command pre-processing
 ========================
 */
 
-void CSequencer::CheckFlush( CBlock **command, CIcarus* icarus)
+void CSequencer::CheckFlush(CBlock** command, CIcarus* icarus)
 {
-	CBlock *block =			*command;
+    CBlock* block = *command;
 
-	if ( block == nullptr )
-		return;
+    if (block == nullptr)
+        return;
 
-	if ( block->GetBlockID() == icarusToken_t::ID_FLUSH )
-	{
-		//Flush the sequence
-		Flush( m_curSequence, icarus );
+    if (block->GetBlockID() == icarusToken_t::ID_FLUSH) {
+        // Flush the sequence
+        Flush(m_curSequence, icarus);
 
-		//Check to retain it
-		if ( m_curSequence->HasFlag( CSequence::sequenceFlags_t::SQ_RETAIN ) )
-		{
-			PushCommand( block, CSequence::pushPop_t::PUSH_FRONT );
-		}
-		else
-		{
-			block->Free(icarus);
-			delete block;
-			block = nullptr;
-			*command = nullptr;
-		}
+        // Check to retain it
+        if (m_curSequence->HasFlag(CSequence::sequenceFlags_t::SQ_RETAIN)) {
+            PushCommand(block, CSequence::pushPop_t::PUSH_FRONT);
+        }
+        else {
+            block->Free(icarus);
+            delete block;
+            block = nullptr;
+            *command = nullptr;
+        }
 
-		*command = PopCommand( CSequence::pushPop_t::POP_BACK );
-		Prep( command , icarus);
+        *command = PopCommand(CSequence::pushPop_t::POP_BACK);
+        Prep(command, icarus);
 
-		return;
-	}
+        return;
+    }
 }
 
 /*
@@ -1832,180 +1730,159 @@ Checks for affect command pre-processing
 ========================
 */
 
-void CSequencer::CheckAffect( CBlock **command , CIcarus* icarus)
+void CSequencer::CheckAffect(CBlock** command, CIcarus* icarus)
 {
-	IGameInterface* game = icarus->GetGame();
-	CBlock *block = *command;
-	int			ent = -1;
-	char		*entname = nullptr;
-	int			memberNum = 0;
+    IGameInterface* game = icarus->GetGame();
+    CBlock* block = *command;
+    int ent = -1;
+    char* entname = nullptr;
+    int memberNum = 0;
 
-	if ( block == nullptr )
-	{
-		return;
-	}
+    if (block == nullptr) {
+        return;
+    }
 
-	if ( block->GetBlockID() == icarusToken_t::ID_AFFECT )
-	{
-		CSequencer *sequencer	= nullptr;
-		entname = (char*) block->GetMemberData( memberNum++ );
-		ent		= game->GetByName( entname );
+    if (block->GetBlockID() == icarusToken_t::ID_AFFECT) {
+        CSequencer* sequencer = nullptr;
+        entname = (char*)block->GetMemberData(memberNum++);
+        ent = game->GetByName(entname);
 
-		if( ent < 0 ) // if there wasn't a valid entname in the affect, we need to check if it's a get command
-		{
-			//try to parse a 'get' command that is embeded in this 'affect'
+        if (ent < 0) // if there wasn't a valid entname in the affect, we need to check if it's a get command
+        {
+            // try to parse a 'get' command that is embeded in this 'affect'
 
-			icarusToken_t	id;
-			const char			*p1 = nullptr;
-			char			*name = nullptr;
-			CBlockMember	*bm = nullptr;
-			//
-			//	Get the first parameter (this should be the get)
-			//
-			bm = block->GetMember( 0 );
-			id = bm->GetID();
+            icarusToken_t id;
+            const char* p1 = nullptr;
+            char* name = nullptr;
+            CBlockMember* bm = nullptr;
+            //
+            //	Get the first parameter (this should be the get)
+            //
+            bm = block->GetMember(0);
+            id = bm->GetID();
 
-			switch ( id )
-			{
-				// these 3 cases probably aren't necessary
-				case icarusToken_t::TK_STRING:
-				case icarusToken_t::TK_IDENTIFIER:
-				case icarusToken_t::TK_CHAR:
-					p1 = (char *) bm->GetData();
-				break;
+            switch (id) {
+            // these 3 cases probably aren't necessary
+            case icarusToken_t::TK_STRING:
+            case icarusToken_t::TK_IDENTIFIER:
+            case icarusToken_t::TK_CHAR:
+                p1 = (char*)bm->GetData();
+                break;
 
-				case icarusToken_t::ID_GET:
-				{
-					icarusToken_t	type;
+            case icarusToken_t::ID_GET: {
+                icarusToken_t type;
 
-					//get( TYPE, NAME )
-					type = block->GetMemberToken( memberNum++ );
-					name = (char *) block->GetMemberData( memberNum++ );
+                // get( TYPE, NAME )
+                type = block->GetMemberToken(memberNum++);
+                name = (char*)block->GetMemberData(memberNum++);
 
-					switch ( type ) // what type are they attempting to get
-					{
+                switch (type) // what type are they attempting to get
+                {
 
-						case icarusToken_t::TK_STRING:
-							//only string is acceptable for affect, store result in p1
-							if ( game->GetString( m_ownerID, name, &p1 ) == false)
-							{
-								return;
-							}
-							break;
-						default:
-							//FIXME: Make an enum id for the error...
-							game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Invalid parameter type on affect _1" );
-							return;
-							break;
-					}
+                case icarusToken_t::TK_STRING:
+                    // only string is acceptable for affect, store result in p1
+                    if (game->GetString(m_ownerID, name, &p1) == false) {
+                        return;
+                    }
+                    break;
+                default:
+                    // FIXME: Make an enum id for the error...
+                    game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Invalid parameter type on affect _1");
+                    return;
+                    break;
+                }
 
-					break;
-				}
+                break;
+            }
 
-				default:
-				//FIXME: Make an enum id for the error...
-					game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Invalid parameter type on affect _2" );
-					return;
-					break;
-			}//end id switch
+            default:
+                // FIXME: Make an enum id for the error...
+                game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Invalid parameter type on affect _2");
+                return;
+                break;
+            } // end id switch
 
-			if(p1)
-			{
-				ent = game->GetByName( p1 );
-			}
-			if(ent < 0)
-			{	// a valid entity name was not returned from the get command
-				game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_WARNING, "'%s' : invalid affect() target\n", p1 ? p1 : "");
-			}
+            if (p1) {
+                ent = game->GetByName(p1);
+            }
+            if (ent < 0) { // a valid entity name was not returned from the get command
+                game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_WARNING, "'%s' : invalid affect() target\n", p1 ? p1 : "");
+            }
 
-		} // end if(!ent)
+        } // end if(!ent)
 
-		if( ent >= 0)
-		{
-			int sequencerID = game->CreateIcarus(ent);
-			sequencer = icarus->FindSequencer(sequencerID);
-		}
-		if(memberNum == 0)
-		{	//there was no get, increment manually before next step
-			memberNum++;
-		}
-		icarusToken_t	type	= block->GetMemberToken( memberNum );
-		int	id		= (int) (*(float *) block->GetMemberData( memberNum+1 ));
+        if (ent >= 0) {
+            int sequencerID = game->CreateIcarus(ent);
+            sequencer = icarus->FindSequencer(sequencerID);
+        }
+        if (memberNum == 0) { // there was no get, increment manually before next step
+            memberNum++;
+        }
+        icarusToken_t type = block->GetMemberToken(memberNum);
+        int id = (int)(*(float*)block->GetMemberData(memberNum + 1));
 
-		if ( m_curSequence->HasFlag( CSequence::sequenceFlags_t::SQ_RETAIN ) )
-		{
-			PushCommand( block, CSequence::pushPop_t::PUSH_FRONT );
-		}
-		else
-		{
-			block->Free(icarus);
-			delete block;
-			block = nullptr;
-			*command = nullptr;
-		}
+        if (m_curSequence->HasFlag(CSequence::sequenceFlags_t::SQ_RETAIN)) {
+            PushCommand(block, CSequence::pushPop_t::PUSH_FRONT);
+        }
+        else {
+            block->Free(icarus);
+            delete block;
+            block = nullptr;
+            *command = nullptr;
+        }
 
-		//NOTENOTE: If this isn't found, continue on to the next command
-		if ( sequencer == nullptr )
-		{
-			*command = PopCommand( CSequence::pushPop_t::POP_BACK );
-			Prep( command , icarus);
-			return;
-		}
+        // NOTENOTE: If this isn't found, continue on to the next command
+        if (sequencer == nullptr) {
+            *command = PopCommand(CSequence::pushPop_t::POP_BACK);
+            Prep(command, icarus);
+            return;
+        }
 
-		sequencer->Affect( id, type , icarus);
+        sequencer->Affect(id, type, icarus);
 
-		*command = PopCommand( CSequence::pushPop_t::POP_BACK );
-		Prep( command, icarus );
-		if( ent >= 0 )
-		{	// ents need to update upon being affected
-			int sequencerID = game->CreateIcarus(ent);
-			CSequencer* entsequencer = icarus->FindSequencer(sequencerID);
-			CTaskManager* taskmanager = entsequencer->GetTaskManager();
-			if(taskmanager)
-			{
-				taskmanager->Update(icarus);
-			}
-		}
+        *command = PopCommand(CSequence::pushPop_t::POP_BACK);
+        Prep(command, icarus);
+        if (ent >= 0) { // ents need to update upon being affected
+            int sequencerID = game->CreateIcarus(ent);
+            CSequencer* entsequencer = icarus->FindSequencer(sequencerID);
+            CTaskManager* taskmanager = entsequencer->GetTaskManager();
+            if (taskmanager) {
+                taskmanager->Update(icarus);
+            }
+        }
 
-		return;
-	}
+        return;
+    }
 
-	if ( ( block->GetBlockID() == icarusToken_t::ID_BLOCK_END ) && ( m_curSequence->HasFlag( CSequence::sequenceFlags_t::SQ_AFFECT ) ) )
-	{
-		if ( m_curSequence->HasFlag(CSequence::sequenceFlags_t::SQ_RETAIN ) )
-		{
-			PushCommand( block, CSequence::pushPop_t::PUSH_FRONT );
-		}
-		else
-		{
-			block->Free(icarus);
-			delete block;
-			block = nullptr;
-			*command = nullptr;
-		}
+    if ((block->GetBlockID() == icarusToken_t::ID_BLOCK_END) && (m_curSequence->HasFlag(CSequence::sequenceFlags_t::SQ_AFFECT))) {
+        if (m_curSequence->HasFlag(CSequence::sequenceFlags_t::SQ_RETAIN)) {
+            PushCommand(block, CSequence::pushPop_t::PUSH_FRONT);
+        }
+        else {
+            block->Free(icarus);
+            delete block;
+            block = nullptr;
+            *command = nullptr;
+        }
 
-		m_curSequence = ReturnSequence( m_curSequence );
+        m_curSequence = ReturnSequence(m_curSequence);
 
-		if ( m_curSequence == nullptr )
-		{
-			*command = nullptr;
-			return;
-		}
+        if (m_curSequence == nullptr) {
+            *command = nullptr;
+            return;
+        }
 
-		*command = PopCommand( CSequence::pushPop_t::POP_BACK );
-		Prep( command , icarus);
-		if( ent >= 0)
-		{	// ents need to update upon being affected
-			int sequencerID = game->CreateIcarus(ent);
-			CSequencer* entsequencer = icarus->FindSequencer(sequencerID);
-			CTaskManager* taskmanager = entsequencer->GetTaskManager();
-			if(taskmanager)
-			{
-				taskmanager->Update(icarus);
-			}
-		}
-
-	}
+        *command = PopCommand(CSequence::pushPop_t::POP_BACK);
+        Prep(command, icarus);
+        if (ent >= 0) { // ents need to update upon being affected
+            int sequencerID = game->CreateIcarus(ent);
+            CSequencer* entsequencer = icarus->FindSequencer(sequencerID);
+            CTaskManager* taskmanager = entsequencer->GetTaskManager();
+            if (taskmanager) {
+                taskmanager->Update(icarus);
+            }
+        }
+    }
 }
 
 /*
@@ -2014,101 +1891,92 @@ CheckDo
 -------------------------
 */
 
-void CSequencer::CheckDo( CBlock **command , CIcarus* icarus)
+void CSequencer::CheckDo(CBlock** command, CIcarus* icarus)
 {
-	IGameInterface* game = icarus->GetGame();
-	CBlock *block = *command;
+    IGameInterface* game = icarus->GetGame();
+    CBlock* block = *command;
 
-	if ( block == nullptr )
-		return;
+    if (block == nullptr)
+        return;
 
-	if ( block->GetBlockID() == icarusToken_t::ID_DO )
-	{
-		//Get the sequence
-		const char	*groupName = (const char *) block->GetMemberData( 0 );
-		CTaskGroup	*group = m_taskManager->GetTaskGroup( groupName, icarus );
-		CSequence	*sequence = GetTaskSequence( group );
+    if (block->GetBlockID() == icarusToken_t::ID_DO) {
+        // Get the sequence
+        const char* groupName = (const char*)block->GetMemberData(0);
+        CTaskGroup* group = m_taskManager->GetTaskGroup(groupName, icarus);
+        CSequence* sequence = GetTaskSequence(group);
 
-		//TODO: Emit warning
-		assert( group );
-		if ( group == nullptr )
-		{
-			//TODO: Give name/number of entity trying to execute, too
-			game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "ICARUS Unable to find task group \"%s\"!\n", groupName );
-			*command = nullptr;
-			return;
-		}
+        // TODO: Emit warning
+        assert(group);
+        if (group == nullptr) {
+            // TODO: Give name/number of entity trying to execute, too
+            game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "ICARUS Unable to find task group \"%s\"!\n", groupName);
+            *command = nullptr;
+            return;
+        }
 
-		//TODO: Emit warning
-		assert( sequence );
-		if ( sequence == nullptr )
-		{
-			//TODO: Give name/number of entity trying to execute, too
-			game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "ICARUS Unable to find task 'group' sequence!\n" );
-			*command = nullptr;
-			return;
-		}
+        // TODO: Emit warning
+        assert(sequence);
+        if (sequence == nullptr) {
+            // TODO: Give name/number of entity trying to execute, too
+            game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "ICARUS Unable to find task 'group' sequence!\n");
+            *command = nullptr;
+            return;
+        }
 
-		//Only save the loop command if the calling sequence is retained
-		if ( m_curSequence->HasFlag( CSequence::sequenceFlags_t::SQ_RETAIN ) )
-		{
-			PushCommand( block, CSequence::pushPop_t::PUSH_FRONT );
-		}
-		else
-		{
-			block->Free(icarus);
-			delete block;
-			block = nullptr;
-			*command = nullptr;
-		}
+        // Only save the loop command if the calling sequence is retained
+        if (m_curSequence->HasFlag(CSequence::sequenceFlags_t::SQ_RETAIN)) {
+            PushCommand(block, CSequence::pushPop_t::PUSH_FRONT);
+        }
+        else {
+            block->Free(icarus);
+            delete block;
+            block = nullptr;
+            *command = nullptr;
+        }
 
-		//Set this to our current sequence
-		sequence->SetReturn( m_curSequence );
-		m_curSequence = sequence;
+        // Set this to our current sequence
+        sequence->SetReturn(m_curSequence);
+        m_curSequence = sequence;
 
-		group->SetParent( m_curGroup );
-		m_curGroup = group;
+        group->SetParent(m_curGroup);
+        m_curGroup = group;
 
-		//Mark all the following commands as being in the task
-		m_taskManager->MarkTask( group->GetGUID(), taskMark_t::TASK_START, icarus );
+        // Mark all the following commands as being in the task
+        m_taskManager->MarkTask(group->GetGUID(), taskMark_t::TASK_START, icarus);
 
-		//Recursively work out any other pre-processors
-		*command = PopCommand( CSequence::pushPop_t::POP_BACK );
-		Prep( command , icarus);
+        // Recursively work out any other pre-processors
+        *command = PopCommand(CSequence::pushPop_t::POP_BACK);
+        Prep(command, icarus);
 
-		return;
-	}
+        return;
+    }
 
-	if ( ( block->GetBlockID() == icarusToken_t::ID_BLOCK_END ) && ( m_curSequence->HasFlag( CSequence::sequenceFlags_t::SQ_TASK ) ) )
-	{
-		if ( m_curSequence->HasFlag( CSequence::sequenceFlags_t::SQ_RETAIN ) )
-		{
-			PushCommand( block, CSequence::pushPop_t::PUSH_FRONT );
-		}
-		else
-		{
-			block->Free(icarus);
-			delete block;
-			block = nullptr;
-			*command = nullptr;
-		}
+    if ((block->GetBlockID() == icarusToken_t::ID_BLOCK_END) && (m_curSequence->HasFlag(CSequence::sequenceFlags_t::SQ_TASK))) {
+        if (m_curSequence->HasFlag(CSequence::sequenceFlags_t::SQ_RETAIN)) {
+            PushCommand(block, CSequence::pushPop_t::PUSH_FRONT);
+        }
+        else {
+            block->Free(icarus);
+            delete block;
+            block = nullptr;
+            *command = nullptr;
+        }
 
-		m_taskManager->MarkTask( m_curGroup->GetGUID(), taskMark_t::TASK_END, icarus );
-		m_curGroup = m_curGroup->GetParent();
+        m_taskManager->MarkTask(m_curGroup->GetGUID(), taskMark_t::TASK_END, icarus);
+        m_curGroup = m_curGroup->GetParent();
 
-		CSequence *returnSeq = ReturnSequence( m_curSequence );
-		m_curSequence->SetReturn( nullptr );
-		m_curSequence = returnSeq;
+        CSequence* returnSeq = ReturnSequence(m_curSequence);
+        m_curSequence->SetReturn(nullptr);
+        m_curSequence = returnSeq;
 
-		if ( m_curSequence == nullptr )
-		{
-			*command = nullptr;
-			return;
-		}
+        if (m_curSequence == nullptr) {
+            *command = nullptr;
+            return;
+        }
 
-		*command = PopCommand( CSequence::pushPop_t::POP_BACK );
-		Prep( command , icarus);
-	}
+        *command = PopCommand(CSequence::pushPop_t::POP_BACK);
+        Prep(command, icarus);
+    }
 }
 
 /*
@@ -2119,15 +1987,15 @@ Handles internal sequencer maintenance
 ========================
 */
 
-void CSequencer::Prep( CBlock **command , CIcarus* icarus)
+void CSequencer::Prep(CBlock** command, CIcarus* icarus)
 {
-	//Check all pre-processes
-	CheckAffect( command , icarus);
-	CheckFlush( command , icarus);
-	CheckLoop( command , icarus);
-	CheckRun( command , icarus);
-	CheckIf( command , icarus);
-	CheckDo( command , icarus);
+    // Check all pre-processes
+    CheckAffect(command, icarus);
+    CheckFlush(command, icarus);
+    CheckLoop(command, icarus);
+    CheckRun(command, icarus);
+    CheckIf(command, icarus);
+    CheckDo(command, icarus);
 }
 
 /*
@@ -2138,16 +2006,15 @@ Starts communication between the task manager and this sequencer
 ========================
 */
 
-CSequencer::sequencerResult_t CSequencer::Prime( CTaskManager *taskManager, CBlock *command , CIcarus* icarus)
+CSequencer::sequencerResult_t CSequencer::Prime(CTaskManager* taskManager, CBlock* command, CIcarus* icarus)
 {
-	Prep( &command , icarus);
+    Prep(&command, icarus);
 
-	if ( command )
-	{
-		taskManager->SetCommand( command, CSequence::pushPop_t::PUSH_BACK, icarus );
-	}
+    if (command) {
+        taskManager->SetCommand(command, CSequence::pushPop_t::PUSH_BACK, icarus);
+    }
 
-	return sequencerResult_t::SEQ_OK;
+    return sequencerResult_t::SEQ_OK;
 }
 
 /*
@@ -2158,57 +2025,53 @@ Handles a completed task and returns a new task to be completed
 ========================
 */
 
-CSequencer::sequencerResult_t CSequencer::Callback( CTaskManager *taskManager, CBlock *block, taskReturn_t returnCode, CIcarus* icarus )
+CSequencer::sequencerResult_t CSequencer::Callback(CTaskManager* taskManager, CBlock* block, taskReturn_t returnCode, CIcarus* icarus)
 {
-	IGameInterface* game = icarus->GetGame();
-	CBlock	*command;
+    IGameInterface* game = icarus->GetGame();
+    CBlock* command;
 
-	if (returnCode == taskReturn_t::TASK_RETURN_COMPLETE)
-	{
-		//There are no more pending commands
-		if ( m_curSequence == nullptr )
-		{
-			block->Free(icarus);
-			delete block;
-			block = nullptr;
-			return sequencerResult_t::SEQ_OK;
-		}
+    if (returnCode == taskReturn_t::TASK_RETURN_COMPLETE) {
+        // There are no more pending commands
+        if (m_curSequence == nullptr) {
+            block->Free(icarus);
+            delete block;
+            block = nullptr;
+            return sequencerResult_t::SEQ_OK;
+        }
 
-		//Check to retain the command
-		if ( m_curSequence->HasFlag( CSequence::sequenceFlags_t::SQ_RETAIN ) )	//This isn't true for affect sequences...?
-		{
-			PushCommand( block, CSequence::pushPop_t::PUSH_FRONT );
-		}
-		else
-		{
-			block->Free(icarus);
-			delete block;
-			block = nullptr;
-		}
+        // Check to retain the command
+        if (m_curSequence->HasFlag(CSequence::sequenceFlags_t::SQ_RETAIN)) // This isn't true for affect sequences...?
+        {
+            PushCommand(block, CSequence::pushPop_t::PUSH_FRONT);
+        }
+        else {
+            block->Free(icarus);
+            delete block;
+            block = nullptr;
+        }
 
-		//Check for pending commands
-		if ( m_curSequence->GetNumCommands() <= 0 )
-		{
-			if ( m_curSequence->GetReturn() == nullptr)
-				return sequencerResult_t::SEQ_OK;
+        // Check for pending commands
+        if (m_curSequence->GetNumCommands() <= 0) {
+            if (m_curSequence->GetReturn() == nullptr)
+                return sequencerResult_t::SEQ_OK;
 
-			m_curSequence = m_curSequence->GetReturn();
-		}
+            m_curSequence = m_curSequence->GetReturn();
+        }
 
-		command = PopCommand( CSequence::pushPop_t::POP_BACK );
-		Prep( &command , icarus);
+        command = PopCommand(CSequence::pushPop_t::POP_BACK);
+        Prep(&command, icarus);
 
-		if ( command )
-			taskManager->SetCommand( command, CSequence::pushPop_t::PUSH_FRONT, icarus );
+        if (command)
+            taskManager->SetCommand(command, CSequence::pushPop_t::PUSH_FRONT, icarus);
 
-		return sequencerResult_t::SEQ_OK;
-	}
+        return sequencerResult_t::SEQ_OK;
+    }
 
-	//FIXME: This could be more descriptive
-	game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR,  "command could not be called back\n" );
-	assert(0);
+    // FIXME: This could be more descriptive
+    game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "command could not be called back\n");
+    assert(0);
 
-	return sequencerResult_t::SEQ_FAILED;
+    return sequencerResult_t::SEQ_FAILED;
 }
 
 /*
@@ -2217,25 +2080,22 @@ Recall
 -------------------------
 */
 
-int CSequencer::Recall( CIcarus* icarus )
+int CSequencer::Recall(CIcarus* icarus)
 {
-	CBlock	*block	= nullptr;
+    CBlock* block = nullptr;
 
-	while ( ( block = m_taskManager->RecallTask() ) != nullptr )
-	{
-		if (m_curSequence)
-		{
-			PushCommand( block, CSequence::pushPop_t::PUSH_BACK );
-		}
-		else
-		{
-			block->Free(icarus);
-			delete block;
-			block = nullptr;
-		}
-	}
+    while ((block = m_taskManager->RecallTask()) != nullptr) {
+        if (m_curSequence) {
+            PushCommand(block, CSequence::pushPop_t::PUSH_BACK);
+        }
+        else {
+            block->Free(icarus);
+            delete block;
+            block = nullptr;
+        }
+    }
 
-	return true;
+    return true;
 }
 
 /*
@@ -2244,53 +2104,50 @@ Affect
 -------------------------
 */
 
-CSequencer::sequencerResult_t CSequencer::Affect( int id, icarusToken_t type, CIcarus* icarus )
+CSequencer::sequencerResult_t CSequencer::Affect(int id, icarusToken_t type, CIcarus* icarus)
 {
-	IGameInterface* game = icarus->GetGame();
-	CSequence	*sequence = GetSequence( id );
+    IGameInterface* game = icarus->GetGame();
+    CSequence* sequence = GetSequence(id);
 
-	if ( sequence == nullptr )
-	{
-		return sequencerResult_t::SEQ_FAILED;
-	}
+    if (sequence == nullptr) {
+        return sequencerResult_t::SEQ_FAILED;
+    }
 
-	switch ( type )
-	{
+    switch (type) {
 
-	case icarusToken_t::TYPE_FLUSH:
+    case icarusToken_t::TYPE_FLUSH:
 
-		//Get rid of all old code
-		Flush( sequence, icarus );
+        // Get rid of all old code
+        Flush(sequence, icarus);
 
-		sequence->RemoveFlag( CSequence::sequenceFlags_t::SQ_PENDING, true );
+        sequence->RemoveFlag(CSequence::sequenceFlags_t::SQ_PENDING, true);
 
-		m_curSequence = sequence;
+        m_curSequence = sequence;
 
-		Prime( m_taskManager, PopCommand( CSequence::pushPop_t::POP_BACK ), icarus );
+        Prime(m_taskManager, PopCommand(CSequence::pushPop_t::POP_BACK), icarus);
 
-		break;
+        break;
 
-	case icarusToken_t::TYPE_INSERT:
+    case icarusToken_t::TYPE_INSERT:
 
-		Recall(icarus);
+        Recall(icarus);
 
-		sequence->SetReturn( m_curSequence );
+        sequence->SetReturn(m_curSequence);
 
-		sequence->RemoveFlag( CSequence::sequenceFlags_t::SQ_PENDING, true );
+        sequence->RemoveFlag(CSequence::sequenceFlags_t::SQ_PENDING, true);
 
-		m_curSequence = sequence;
+        m_curSequence = sequence;
 
-		Prime( m_taskManager, PopCommand( CSequence::pushPop_t::POP_BACK ), icarus );
+        Prime(m_taskManager, PopCommand(CSequence::pushPop_t::POP_BACK), icarus);
 
-		break;
+        break;
 
+    default:
+        game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "unknown affect type found");
+        break;
+    }
 
-	default:
-		game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "unknown affect type found" );
-		break;
-	}
-
-	return sequencerResult_t::SEQ_OK;
+    return sequencerResult_t::SEQ_OK;
 }
 
 /*
@@ -2301,18 +2158,18 @@ Pushes a commands onto the current sequence
 ========================
 */
 
-CSequencer::sequencerResult_t CSequencer::PushCommand( CBlock *command, CSequence::pushPop_t flag )
+CSequencer::sequencerResult_t CSequencer::PushCommand(CBlock* command, CSequence::pushPop_t flag)
 {
-	//Make sure everything is ok
-	assert( m_curSequence );
-	if ( m_curSequence == nullptr )
-		return sequencerResult_t::SEQ_FAILED;
+    // Make sure everything is ok
+    assert(m_curSequence);
+    if (m_curSequence == nullptr)
+        return sequencerResult_t::SEQ_FAILED;
 
-	m_curSequence->PushCommand( command, flag );
-	m_numCommands++;
+    m_curSequence->PushCommand(command, flag);
+    m_numCommands++;
 
-	//Invalid flag
-	return sequencerResult_t::SEQ_OK;
+    // Invalid flag
+    return sequencerResult_t::SEQ_OK;
 }
 
 /*
@@ -2323,18 +2180,18 @@ Pops a command off the current sequence
 ========================
 */
 
-CBlock *CSequencer::PopCommand( CSequence::pushPop_t flag )
+CBlock* CSequencer::PopCommand(CSequence::pushPop_t flag)
 {
-	//Make sure everything is ok
-	if ( m_curSequence == nullptr )
-		return nullptr;
+    // Make sure everything is ok
+    if (m_curSequence == nullptr)
+        return nullptr;
 
-	CBlock *block = m_curSequence->PopCommand( flag );
+    CBlock* block = m_curSequence->PopCommand(flag);
 
-	if ( block != nullptr )
-		m_numCommands--;
+    if (block != nullptr)
+        m_numCommands--;
 
-	return block;
+    return block;
 }
 
 /*
@@ -2343,81 +2200,72 @@ RemoveSequence
 -------------------------
 */
 
-//NOTENOTE: This only removes references to the sequence, IT DOES NOT FREE THE ALLOCATED MEMORY!  You've be warned! =)
+// NOTENOTE: This only removes references to the sequence, IT DOES NOT FREE THE ALLOCATED MEMORY!  You've be warned! =)
 
-CSequencer::sequencerResult_t CSequencer::RemoveSequence( CSequence *sequence, CIcarus* icarus )
+CSequencer::sequencerResult_t CSequencer::RemoveSequence(CSequence* sequence, CIcarus* icarus)
 {
-	IGameInterface* game = icarus->GetGame();
-	CSequence *temp;
+    IGameInterface* game = icarus->GetGame();
+    CSequence* temp;
 
-	int numChildren = sequence->GetNumChildren();
+    int numChildren = sequence->GetNumChildren();
 
-	//Add all the children
-	for ( int i = 0; i < numChildren; i++ )
-	{
-		temp = sequence->GetChildByIndex( i );
+    // Add all the children
+    for (int i = 0; i < numChildren; i++) {
+        temp = sequence->GetChildByIndex(i);
 
-		//TODO: Emit warning
-		assert( temp );
-		if ( temp == nullptr )
-		{
-			game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_WARNING, "Unable to find child sequence on RemoveSequence call!\n" );
-			continue;
-		}
+        // TODO: Emit warning
+        assert(temp);
+        if (temp == nullptr) {
+            game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_WARNING, "Unable to find child sequence on RemoveSequence call!\n");
+            continue;
+        }
 
-		//Remove the references to this sequence
-		temp->SetParent( nullptr );
-		temp->SetReturn( nullptr );
+        // Remove the references to this sequence
+        temp->SetParent(nullptr);
+        temp->SetReturn(nullptr);
+    }
 
-	}
-
-	return sequencerResult_t::SEQ_OK;
+    return sequencerResult_t::SEQ_OK;
 }
 
-CSequencer::sequencerResult_t CSequencer::DestroySequence( CSequence *sequence, CIcarus* icarus )
+CSequencer::sequencerResult_t CSequencer::DestroySequence(CSequence* sequence, CIcarus* icarus)
 {
-	if ( !sequence || !icarus )
-		return sequencerResult_t::SEQ_FAILED;
+    if (!sequence || !icarus)
+        return sequencerResult_t::SEQ_FAILED;
 
-	//m_sequenceMap.erase( sequence->GetID() );
-	m_sequences.remove( sequence );
+    // m_sequenceMap.erase( sequence->GetID() );
+    m_sequences.remove(sequence);
 
-	taskSequence_m::iterator	tsi;
-	for ( tsi = m_taskSequences.begin(); tsi != m_taskSequences.end(); )
-	{
-		if((*tsi).second == sequence)
-		{
-			m_taskSequences.erase(tsi++);
-		}
-		else
-		{
-			++tsi;
-		}
-	}
+    taskSequence_m::iterator tsi;
+    for (tsi = m_taskSequences.begin(); tsi != m_taskSequences.end();) {
+        if ((*tsi).second == sequence) {
+            m_taskSequences.erase(tsi++);
+        }
+        else {
+            ++tsi;
+        }
+    }
 
-	// Remove this guy from his parents list.
-	CSequence* parent = sequence->GetParent();
-	if ( parent )
-	{
-		parent->RemoveChild( sequence );
-		parent = nullptr;
-	}
+    // Remove this guy from his parents list.
+    CSequence* parent = sequence->GetParent();
+    if (parent) {
+        parent->RemoveChild(sequence);
+        parent = nullptr;
+    }
 
-	int curChild = sequence->GetNumChildren();
-	while( curChild )
-	{
-		// Stop if we're about to go negative (invalid index!).
-		if ( curChild > 0 )
-		{
-			DestroySequence( sequence->GetChildByIndex( --curChild ), icarus);
-		}
-		else
-			break;
-	}
+    int curChild = sequence->GetNumChildren();
+    while (curChild) {
+        // Stop if we're about to go negative (invalid index!).
+        if (curChild > 0) {
+            DestroySequence(sequence->GetChildByIndex(--curChild), icarus);
+        }
+        else
+            break;
+    }
 
-	icarus->DeleteSequence( sequence );
+    icarus->DeleteSequence(sequence);
 
-	return sequencerResult_t::SEQ_OK;
+    return sequencerResult_t::SEQ_OK;
 }
 
 /*
@@ -2426,23 +2274,22 @@ ReturnSequence
 -------------------------
 */
 
-inline CSequence *CSequencer::ReturnSequence( CSequence *sequence )
+inline CSequence* CSequencer::ReturnSequence(CSequence* sequence)
 {
-	while ( sequence->GetReturn() )
-	{
-		assert(sequence != sequence->GetReturn() );
-		if ( sequence == sequence->GetReturn() )
-			return nullptr;
+    while (sequence->GetReturn()) {
+        assert(sequence != sequence->GetReturn());
+        if (sequence == sequence->GetReturn())
+            return nullptr;
 
-		sequence = sequence->GetReturn();
+        sequence = sequence->GetReturn();
 
-		if ( sequence->GetNumCommands() > 0 )
-			return sequence;
-	}
-	return nullptr;
+        if (sequence->GetNumCommands() > 0)
+            return sequence;
+    }
+    return nullptr;
 }
 
-//Save / Load
+// Save / Load
 
 /*
 -------------------------
@@ -2450,74 +2297,74 @@ Save
 -------------------------
 */
 
-int	CSequencer::Save()
+int CSequencer::Save()
 {
-	taskSequence_m::iterator	ti;
-	int							numSequences = 0, id, numTasks;
+    taskSequence_m::iterator ti;
+    int numSequences = 0, id, numTasks;
 
-	// Data saved here.
-	//	Owner Sequence.
-	//	Number of Sequences.
-	//	Sequences (data).
-	//	Taskmanager.
-	//	Number of Task Sequences.
-	//	Task Sequences (data):
-	//				-Task group ID.
-	//				-Sequence ID.
-	//	Group ID.
-	//	Number of Commands.
-	//	ID of current Sequence.
+    // Data saved here.
+    //	Owner Sequence.
+    //	Number of Sequences.
+    //	Sequences (data).
+    //	Taskmanager.
+    //	Number of Task Sequences.
+    //	Task Sequences (data):
+    //				-Task group ID.
+    //				-Sequence ID.
+    //	Group ID.
+    //	Number of Commands.
+    //	ID of current Sequence.
 
-	CIcarus *pIcarus = (CIcarus *)IIcarusInterface::GetIcarus();
+    CIcarus* pIcarus = (CIcarus*)IIcarusInterface::GetIcarus();
 
-	//Get the number of sequences to save out
-	numSequences = /*m_sequenceMap.size();*/ m_sequences.size();
+    // Get the number of sequences to save out
+    numSequences = /*m_sequenceMap.size();*/ m_sequences.size();
 
-	//Save out the owner sequence
-	pIcarus->BufferWrite( &m_ownerID, sizeof( m_ownerID ) );
+    // Save out the owner sequence
+    pIcarus->BufferWrite(&m_ownerID, sizeof(m_ownerID));
 
-	//Write out the number of sequences we need to read
-	pIcarus->BufferWrite( &numSequences, sizeof( numSequences ) );
+    // Write out the number of sequences we need to read
+    pIcarus->BufferWrite(&numSequences, sizeof(numSequences));
 
-	//Second pass, save out all sequences, in order
-	sequence_l::iterator iterSeq = m_sequences.end();
-	STL_ITERATE( iterSeq, m_sequences )
-	{
-		id = (*iterSeq)->GetID();
-		pIcarus->BufferWrite( &id, sizeof( id ) );
-	}
+    // Second pass, save out all sequences, in order
+    sequence_l::iterator iterSeq = m_sequences.end();
+    STL_ITERATE(iterSeq, m_sequences)
+    {
+        id = (*iterSeq)->GetID();
+        pIcarus->BufferWrite(&id, sizeof(id));
+    }
 
-	//Save out the taskManager
-	m_taskManager->Save();
+    // Save out the taskManager
+    m_taskManager->Save();
 
-	//Save out the task sequences mapping the name to the GUIDs
-	numTasks = m_taskSequences.size();
-	pIcarus->BufferWrite( &numTasks, sizeof( numTasks ) );
+    // Save out the task sequences mapping the name to the GUIDs
+    numTasks = m_taskSequences.size();
+    pIcarus->BufferWrite(&numTasks, sizeof(numTasks));
 
-	STL_ITERATE( ti, m_taskSequences )
-	{
-		//Save the task group's ID
-		id = ((*ti).first)->GetGUID();
-		pIcarus->BufferWrite( &id, sizeof( id ) );
+    STL_ITERATE(ti, m_taskSequences)
+    {
+        // Save the task group's ID
+        id = ((*ti).first)->GetGUID();
+        pIcarus->BufferWrite(&id, sizeof(id));
 
-		//Save the sequence's ID
-		id = ((*ti).second)->GetID();
-		pIcarus->BufferWrite( &id, sizeof( id ) );
-	}
+        // Save the sequence's ID
+        id = ((*ti).second)->GetID();
+        pIcarus->BufferWrite(&id, sizeof(id));
+    }
 
-	int	curGroupID = ( m_curGroup == nullptr ) ? -1 : m_curGroup->GetGUID();
+    int curGroupID = (m_curGroup == nullptr) ? -1 : m_curGroup->GetGUID();
 
-	// Right the group ID.
-	pIcarus->BufferWrite( &curGroupID, sizeof( curGroupID ) );
+    // Right the group ID.
+    pIcarus->BufferWrite(&curGroupID, sizeof(curGroupID));
 
-	//Output the number of commands
-	pIcarus->BufferWrite( &m_numCommands, sizeof( m_numCommands ) );
+    // Output the number of commands
+    pIcarus->BufferWrite(&m_numCommands, sizeof(m_numCommands));
 
-	//Output the ID of the current sequence
-	id = ( m_curSequence != nullptr ) ? m_curSequence->GetID() : -1;
-	pIcarus->BufferWrite( &id, sizeof( id ) );
+    // Output the ID of the current sequence
+    id = (m_curSequence != nullptr) ? m_curSequence->GetID() : -1;
+    pIcarus->BufferWrite(&id, sizeof(id));
 
-	return true;
+    return true;
 }
 
 /*
@@ -2526,93 +2373,91 @@ Load
 -------------------------
 */
 
-int	CSequencer::Load( CIcarus* icarus, IGameInterface* game )
+int CSequencer::Load(CIcarus* icarus, IGameInterface* game)
 {
-	// Data expected/loaded here.
-	//	Owner Sequence.
-	//	Number of Sequences.
-	//	Sequences (data).
-	//	Taskmanager.
-	//	Number of Task Sequences.
-	//	Task Sequences (data):
-	//				-Task group ID.
-	//				-Sequence ID.
-	//	Group ID.
-	//	Number of Commands.
-	//	ID of current Sequence.
+    // Data expected/loaded here.
+    //	Owner Sequence.
+    //	Number of Sequences.
+    //	Sequences (data).
+    //	Taskmanager.
+    //	Number of Task Sequences.
+    //	Task Sequences (data):
+    //				-Task group ID.
+    //				-Sequence ID.
+    //	Group ID.
+    //	Number of Commands.
+    //	ID of current Sequence.
 
-	CIcarus *pIcarus = (CIcarus *)IIcarusInterface::GetIcarus();
+    CIcarus* pIcarus = (CIcarus*)IIcarusInterface::GetIcarus();
 
-	//Get the owner of this sequencer
-	pIcarus->BufferRead( &m_ownerID, sizeof( m_ownerID ) );
+    // Get the owner of this sequencer
+    pIcarus->BufferRead(&m_ownerID, sizeof(m_ownerID));
 
-	//Link the entity back to the sequencer
-	game->LinkGame( m_ownerID, m_id );
+    // Link the entity back to the sequencer
+    game->LinkGame(m_ownerID, m_id);
 
-	CTaskGroup	*taskGroup;
-	CSequence	*seq;
-	int			numSequences, seqID, taskID, numTasks;
+    CTaskGroup* taskGroup;
+    CSequence* seq;
+    int numSequences, seqID, taskID, numTasks;
 
-	//Get the number of sequences to read
-	pIcarus->BufferRead( &numSequences, sizeof( numSequences ) );
+    // Get the number of sequences to read
+    pIcarus->BufferRead(&numSequences, sizeof(numSequences));
 
-	//Read in all the sequences
-	for ( int i = 0; i < numSequences; i++ )
-	{
-		pIcarus->BufferRead( &seqID, sizeof( seqID ) );
+    // Read in all the sequences
+    for (int i = 0; i < numSequences; i++) {
+        pIcarus->BufferRead(&seqID, sizeof(seqID));
 
-		seq = (CSequence*)icarus->GetSequence( seqID );
+        seq = (CSequence*)icarus->GetSequence(seqID);
 
-		assert( seq );
+        assert(seq);
 
-		STL_INSERT( m_sequences, seq );
-		//m_sequenceMap[ seqID ] = seq;
-	}
+        STL_INSERT(m_sequences, seq);
+        // m_sequenceMap[ seqID ] = seq;
+    }
 
-	//Setup the task manager
-	m_taskManager->Init( this );
+    // Setup the task manager
+    m_taskManager->Init(this);
 
-	//Load the task manager
-	m_taskManager->Load(icarus);
+    // Load the task manager
+    m_taskManager->Load(icarus);
 
-	//Get the number of tasks in the map
-	pIcarus->BufferRead( &numTasks, sizeof( numTasks ) );
+    // Get the number of tasks in the map
+    pIcarus->BufferRead(&numTasks, sizeof(numTasks));
 
-	//Read in, and reassociate the tasks to the sequences
-	for ( int i = 0; i < numTasks; i++ )
-	{
-		//Read in the task's ID
-		pIcarus->BufferRead( &taskID, sizeof( taskID ) );
+    // Read in, and reassociate the tasks to the sequences
+    for (int i = 0; i < numTasks; i++) {
+        // Read in the task's ID
+        pIcarus->BufferRead(&taskID, sizeof(taskID));
 
-		//Read in the sequence's ID
-		pIcarus->BufferRead( &seqID, sizeof( seqID ) );
+        // Read in the sequence's ID
+        pIcarus->BufferRead(&seqID, sizeof(seqID));
 
-		taskGroup = m_taskManager->GetTaskGroup( taskID , icarus);
+        taskGroup = m_taskManager->GetTaskGroup(taskID, icarus);
 
-		assert( taskGroup );
+        assert(taskGroup);
 
-		seq = icarus->GetSequence( seqID );
+        seq = icarus->GetSequence(seqID);
 
-		assert( seq );
+        assert(seq);
 
-		//Associate the values
-		m_taskSequences[ taskGroup ] = seq;
-	}
+        // Associate the values
+        m_taskSequences[taskGroup] = seq;
+    }
 
-	int	curGroupID;
+    int curGroupID;
 
-	//Get the current task group
-	pIcarus->BufferRead( &curGroupID, sizeof( curGroupID ) );
+    // Get the current task group
+    pIcarus->BufferRead(&curGroupID, sizeof(curGroupID));
 
-	m_curGroup = ( curGroupID == -1 ) ? nullptr : m_taskManager->GetTaskGroup( curGroupID , icarus);
+    m_curGroup = (curGroupID == -1) ? nullptr : m_taskManager->GetTaskGroup(curGroupID, icarus);
 
-	//Get the number of commands
-	pIcarus->BufferRead( &m_numCommands, sizeof( m_numCommands ) );
+    // Get the number of commands
+    pIcarus->BufferRead(&m_numCommands, sizeof(m_numCommands));
 
-	//Get the current sequence
-	pIcarus->BufferRead( &seqID, sizeof( seqID ) );
+    // Get the current sequence
+    pIcarus->BufferRead(&seqID, sizeof(seqID));
 
-	m_curSequence = ( seqID != -1 ) ? (CSequence*)icarus->GetSequence( seqID ) : nullptr;
+    m_curSequence = (seqID != -1) ? (CSequence*)icarus->GetSequence(seqID) : nullptr;
 
-	return true;
+    return true;
 }

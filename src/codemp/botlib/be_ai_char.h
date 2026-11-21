@@ -4,6 +4,7 @@ Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
 Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2026, ModernJK contributors
 
 This file is part of the OpenJK source code.
 
@@ -36,19 +37,19 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-//loads a bot character from a file
-int BotLoadCharacter(char *charfile, float skill);
-//frees a bot character
+// loads a bot character from a file
+int BotLoadCharacter(char* charfile, float skill);
+// frees a bot character
 void BotFreeCharacter(int character);
-//returns a float characteristic
+// returns a float characteristic
 float Characteristic_Float(int character, int index);
-//returns a bounded float characteristic
+// returns a bounded float characteristic
 float Characteristic_BFloat(int character, int index, float min, float max);
-//returns an integer characteristic
+// returns an integer characteristic
 int Characteristic_Integer(int character, int index);
-//returns a bounded integer characteristic
+// returns a bounded integer characteristic
 int Characteristic_BInteger(int character, int index, int min, int max);
-//returns a string characteristic
-void Characteristic_String(int character, int index, char *buf, int size);
-//free cached bot characters
+// returns a string characteristic
+void Characteristic_String(int character, int index, char* buf, int size);
+// free cached bot characters
 void BotShutdownCharacters(void);

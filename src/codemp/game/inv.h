@@ -24,20 +24,20 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-//pickups
-//items
-//weapons
-//ammo
-//powerups
+// pickups
+// items
+// weapons
+// ammo
+// powerups
 
-//enemy stuff
+// enemy stuff
 
 // NOTENOTE Update this so that it is in sync.
-//item numbers (make sure they are in sync with bg_itemlist in bg_misc.cpp)
-//pickups
-//items
-//weapons
-//ammo
-//powerups
+// item numbers (make sure they are in sync with bg_itemlist in bg_misc.cpp)
+// pickups
+// items
+// weapons
+// ammo
+// powerups
 
 //

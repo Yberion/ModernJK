@@ -25,72 +25,80 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // tr_subs.cpp - common function replacements for modular renderer
 #include "tr_local.h"
 
-void QDECL Com_Printf( const char *msg, ... )
+void QDECL Com_Printf(const char* msg, ...)
 {
-	va_list         argptr;
-	char            text[1024];
+    va_list argptr;
+    char text[1024];
 
-	va_start(argptr, msg);
-	Q_vsnprintf(text, sizeof(text), msg, argptr);
-	va_end(argptr);
+    va_start(argptr, msg);
+    Q_vsnprintf(text, sizeof(text), msg, argptr);
+    va_end(argptr);
 
-	ri.Printf(printParm_t::PRINT_ALL, "%s", text);
+    ri.Printf(printParm_t::PRINT_ALL, "%s", text);
 }
 
-void QDECL Com_OPrintf( const char *msg, ... )
+void QDECL Com_OPrintf(const char* msg, ...)
 {
-	va_list         argptr;
-	char            text[1024];
+    va_list argptr;
+    char text[1024];
 
-	va_start(argptr, msg);
-	Q_vsnprintf(text, sizeof(text), msg, argptr);
-	va_end(argptr);
+    va_start(argptr, msg);
+    Q_vsnprintf(text, sizeof(text), msg, argptr);
+    va_end(argptr);
 
-	ri.OPrintf("%s", text);
+    ri.OPrintf("%s", text);
 }
 
-void QDECL Com_Error( errorParm_t level, const char *error, ... )
+void QDECL Com_Error(errorParm_t level, const char* error, ...)
 {
-	va_list         argptr;
-	char            text[1024];
+    va_list argptr;
+    char text[1024];
 
-	va_start(argptr, error);
-	Q_vsnprintf(text, sizeof(text), error, argptr);
-	va_end(argptr);
+    va_start(argptr, error);
+    Q_vsnprintf(text, sizeof(text), error, argptr);
+    va_end(argptr);
 
-	ri.Error(level, "%s", text);
+    ri.Error(level, "%s", text);
 }
 
 // HUNK
-void *Hunk_AllocateTempMemory( int size ) {
-	return ri.Hunk_AllocateTempMemory( size );
+void* Hunk_AllocateTempMemory(int size)
+{
+    return ri.Hunk_AllocateTempMemory(size);
 }
 
-void Hunk_FreeTempMemory( void *buf ) {
-	ri.Hunk_FreeTempMemory( buf );
+void Hunk_FreeTempMemory(void* buf)
+{
+    ri.Hunk_FreeTempMemory(buf);
 }
 
-void *Hunk_Alloc( int size, ha_pref preference ) {
-	return ri.Hunk_Alloc( size, preference );
+void* Hunk_Alloc(int size, ha_pref preference)
+{
+    return ri.Hunk_Alloc(size, preference);
 }
 
-int Hunk_MemoryRemaining( void ) {
-	return ri.Hunk_MemoryRemaining();
+int Hunk_MemoryRemaining(void)
+{
+    return ri.Hunk_MemoryRemaining();
 }
 
 // ZONE
-void *Z_Malloc( int iSize, memtag_t eTag, bool bZeroit, int iAlign ) {
-	return ri.Z_Malloc( iSize, eTag, bZeroit, iAlign );
+void* Z_Malloc(int iSize, memtag_t eTag, bool bZeroit, int iAlign)
+{
+    return ri.Z_Malloc(iSize, eTag, bZeroit, iAlign);
 }
 
-void Z_Free( void *ptr ) {
-	ri.Z_Free( ptr );
+void Z_Free(void* ptr)
+{
+    ri.Z_Free(ptr);
 }
 
-int Z_MemSize( memtag_t eTag ) {
-	return ri.Z_MemSize( eTag );
+int Z_MemSize(memtag_t eTag)
+{
+    return ri.Z_MemSize(eTag);
 }
 
-void Z_MorphMallocTag( void *pvBuffer, memtag_t eDesiredTag ) {
-	ri.Z_MorphMallocTag( pvBuffer, eDesiredTag );
+void Z_MorphMallocTag(void* pvBuffer, memtag_t eDesiredTag)
+{
+    ri.Z_MorphMallocTag(pvBuffer, eDesiredTag);
 }

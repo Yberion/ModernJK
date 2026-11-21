@@ -38,71 +38,69 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // msg.c
 //
 typedef struct msg_s {
-	bool	allowoverflow;	// if false, do a Com_Error
-	bool	overflowed;		// set to true if the buffer size failed (with allowoverflow set)
-	bool	oob;			// set to true if the buffer size failed (with allowoverflow set)
-	byte	*data;
-	int		maxsize;
-	int		cursize;
-	int		readcount;
-	int		bit;				// for bitwise reads and writes
+    bool allowoverflow; // if false, do a Com_Error
+    bool overflowed;    // set to true if the buffer size failed (with allowoverflow set)
+    bool oob;           // set to true if the buffer size failed (with allowoverflow set)
+    byte* data;
+    int maxsize;
+    int cursize;
+    int readcount;
+    int bit; // for bitwise reads and writes
 } msg_t;
 
-void MSG_Init (msg_t *buf, byte *data, int length);
-void MSG_InitOOB( msg_t *buf, byte *data, int length );
-void MSG_Clear (msg_t *buf);
-void MSG_WriteData (msg_t *buf, const void *data, int length);
-void MSG_Bitstream( msg_t *buf );
+void MSG_Init(msg_t* buf, byte* data, int length);
+void MSG_InitOOB(msg_t* buf, byte* data, int length);
+void MSG_Clear(msg_t* buf);
+void MSG_WriteData(msg_t* buf, const void* data, int length);
+void MSG_Bitstream(msg_t* buf);
 
 struct usercmd_s;
 struct entityState_s;
 struct playerState_s;
 
-void MSG_WriteBits( msg_t *msg, int value, int bits );
+void MSG_WriteBits(msg_t* msg, int value, int bits);
 
-void MSG_WriteChar (msg_t *sb, int c);
-void MSG_WriteByte (msg_t *sb, int c);
-void MSG_WriteShort (msg_t *sb, int c);
-void MSG_WriteLong (msg_t *sb, int c);
-void MSG_WriteFloat (msg_t *sb, float f);
-void MSG_WriteString (msg_t *sb, const char *s);
-void MSG_WriteBigString (msg_t *sb, const char *s);
-void MSG_WriteAngle16 (msg_t *sb, float f);
+void MSG_WriteChar(msg_t* sb, int c);
+void MSG_WriteByte(msg_t* sb, int c);
+void MSG_WriteShort(msg_t* sb, int c);
+void MSG_WriteLong(msg_t* sb, int c);
+void MSG_WriteFloat(msg_t* sb, float f);
+void MSG_WriteString(msg_t* sb, const char* s);
+void MSG_WriteBigString(msg_t* sb, const char* s);
+void MSG_WriteAngle16(msg_t* sb, float f);
 
-void	MSG_BeginReading (msg_t *sb);
-void	MSG_BeginReadingOOB(msg_t *sb);
+void MSG_BeginReading(msg_t* sb);
+void MSG_BeginReadingOOB(msg_t* sb);
 
-int		MSG_ReadBits( msg_t *msg, int bits );
+int MSG_ReadBits(msg_t* msg, int bits);
 
-int		MSG_ReadChar (msg_t *sb);
-int		MSG_ReadByte (msg_t *sb);
-int		MSG_ReadShort (msg_t *sb);
-int		MSG_ReadLong (msg_t *sb);
-float	MSG_ReadFloat (msg_t *sb);
-char	*MSG_ReadString (msg_t *sb);
-char	*MSG_ReadBigString (msg_t *sb);
-char	*MSG_ReadStringLine (msg_t *sb);
-float	MSG_ReadAngle16 (msg_t *sb);
-void	MSG_ReadData (msg_t *sb, void *buffer, int size);
+int MSG_ReadChar(msg_t* sb);
+int MSG_ReadByte(msg_t* sb);
+int MSG_ReadShort(msg_t* sb);
+int MSG_ReadLong(msg_t* sb);
+float MSG_ReadFloat(msg_t* sb);
+char* MSG_ReadString(msg_t* sb);
+char* MSG_ReadBigString(msg_t* sb);
+char* MSG_ReadStringLine(msg_t* sb);
+float MSG_ReadAngle16(msg_t* sb);
+void MSG_ReadData(msg_t* sb, void* buffer, int size);
 
+void MSG_WriteDeltaUsercmdKey(msg_t* msg, int key, usercmd_t* from, usercmd_t* to);
+void MSG_ReadDeltaUsercmdKey(msg_t* msg, int key, usercmd_t* from, usercmd_t* to);
 
-void MSG_WriteDeltaUsercmdKey( msg_t *msg, int key, usercmd_t *from, usercmd_t *to );
-void MSG_ReadDeltaUsercmdKey( msg_t *msg, int key, usercmd_t *from, usercmd_t *to );
-
-void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entityState_s *to
-						   , bool force );
-void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
-						 int number );
+void MSG_WriteDeltaEntity(msg_t* msg, struct entityState_s* from, struct entityState_s* to, bool force);
+void MSG_ReadDeltaEntity(msg_t* msg, entityState_t* from, entityState_t* to, int number);
 
 #ifdef _ONEBIT_COMBO
-void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct playerState_s *to, int *bitComboDelta, int *bitNumDelta, bool isVehiclePS = false );
+void MSG_WriteDeltaPlayerstate(msg_t* msg, struct playerState_s* from, struct playerState_s* to, int* bitComboDelta, int* bitNumDelta,
+                               bool isVehiclePS = false);
 #else
-void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct playerState_s *to, bool isVehiclePS = false );
+void MSG_WriteDeltaPlayerstate(msg_t* msg, struct playerState_s* from, struct playerState_s* to, bool isVehiclePS = false);
 #endif
-void MSG_ReadDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct playerState_s *to, bool isVehiclePS = false );
+void MSG_ReadDeltaPlayerstate(msg_t* msg, struct playerState_s* from, struct playerState_s* to, bool isVehiclePS = false);
 
 #ifndef FINAL_BUILD
-void MSG_ReportChangeVectors_f( void );
+void MSG_ReportChangeVectors_f(void);
 #endif
 
 //============================================================================
@@ -121,119 +119,115 @@ inline constexpr int NET_ENABLEV4 = 0x01;
 // the server, in ms (negative: after its tick). It travels as a byte: to the millisecond up to INPUT_MARGIN_FINE
 // either way, in steps of INPUT_MARGIN_STEP beyond (up to 568 ms), so that a client sets its command clock in one
 // round trip after a connection or a hitch.
-inline constexpr int INPUT_MARGIN_NONE = -128;	// on the wire: the server measured no margin since its last snapshot
+inline constexpr int INPUT_MARGIN_NONE = -128; // on the wire: the server measured no margin since its last snapshot
 inline constexpr int INPUT_MARGIN_FINE = 64;
 inline constexpr int INPUT_MARGIN_STEP = 8;
-static inline int Net_MarginToWire( int msec ) {
-	const int a = msec < 0 ? -msec : msec;
-	int w = a <= INPUT_MARGIN_FINE ? a : INPUT_MARGIN_FINE + ( a - INPUT_MARGIN_FINE + INPUT_MARGIN_STEP / 2 ) / INPUT_MARGIN_STEP;
-	if ( w > 127 ) {
-		w = 127;
-	}
-	return msec < 0 ? -w : w;
+static inline int Net_MarginToWire(int msec)
+{
+    const int a = msec < 0 ? -msec : msec;
+    int w = a <= INPUT_MARGIN_FINE ? a : INPUT_MARGIN_FINE + (a - INPUT_MARGIN_FINE + INPUT_MARGIN_STEP / 2) / INPUT_MARGIN_STEP;
+    if (w > 127) {
+        w = 127;
+    }
+    return msec < 0 ? -w : w;
 }
-static inline int Net_MarginFromWire( int w ) {
-	const int a = w < 0 ? -w : w;
-	const int msec = a <= INPUT_MARGIN_FINE ? a : INPUT_MARGIN_FINE + ( a - INPUT_MARGIN_FINE ) * INPUT_MARGIN_STEP;
-	return w < 0 ? -msec : msec;
+static inline int Net_MarginFromWire(int w)
+{
+    const int a = w < 0 ? -w : w;
+    const int msec = a <= INPUT_MARGIN_FINE ? a : INPUT_MARGIN_FINE + (a - INPUT_MARGIN_FINE) * INPUT_MARGIN_STEP;
+    return w < 0 ? -msec : msec;
 }
 
-inline constexpr int PACKET_BACKUP = 128;	// number of old messages that must be kept on client and
-							// server for delta comrpession: a snapshot is coded against one the
-							// client holds up to 125 messages back, 1.25 s of round trip at a
-							// message per tick (32 in OpenJK; plan step 14, part 5)
-inline constexpr int PACKET_MASK = PACKET_BACKUP-1;
+inline constexpr int PACKET_BACKUP = 128; // number of old messages that must be kept on client and
+                                          // server for delta comrpession: a snapshot is coded against one the
+                                          // client holds up to 125 messages back, 1.25 s of round trip at a
+                                          // message per tick (32 in OpenJK; plan step 14, part 5)
+inline constexpr int PACKET_MASK = PACKET_BACKUP - 1;
 
 #include "qcommon/q_limits.h"
 
 // Network settings fixed rather than set by cvars (plan step 11, docs/modernization/surveys/network-settings.md)
-inline constexpr int MAX_PACKET_RATE = 100;		// client packets per second: one per tick (TICK_MSEC); the server decodes no more
-inline constexpr int TIMEOUT_CONNECTING = 60;		// seconds without a packet before either side drops a connection not yet in the game
-inline constexpr int TIMEOUT_ACTIVE = 30;		// seconds without a packet before either side drops a connection in the game
+inline constexpr int MAX_PACKET_RATE = 100;   // client packets per second: one per tick (TICK_MSEC); the server decodes no more
+inline constexpr int TIMEOUT_CONNECTING = 60; // seconds without a packet before either side drops a connection not yet in the game
+inline constexpr int TIMEOUT_ACTIVE = 30;     // seconds without a packet before either side drops a connection in the game
 
 inline constexpr int MAX_SNAPSHOT_ENTITIES = 256;
 
 inline constexpr int PORT_ANY = -1;
 
-inline constexpr int MAX_RELIABLE_COMMANDS = 256;			// max string commands buffered for restransmit; the message codec codes the
-										// server commands against earlier ones and needs both sides to keep 256 (netcodec::engine::kMinCommands)
+inline constexpr int MAX_RELIABLE_COMMANDS = 256; // max string commands buffered for restransmit; the message codec codes the
+                                                  // server commands against earlier ones and needs both sides to keep 256 (netcodec::engine::kMinCommands)
 
-enum class netsrc_t {
-	NS_CLIENT,
-	NS_SERVER
-};
+enum class netsrc_t { NS_CLIENT, NS_SERVER };
 
-void		NET_Init( void );
-void		NET_Shutdown( void );
-void		NET_Restart_f( void );
-void		NET_Config( bool enableNetworking );
+void NET_Init(void);
+void NET_Shutdown(void);
+void NET_Restart_f(void);
+void NET_Config(bool enableNetworking);
 
-void		NET_SendPacket (netsrc_t sock, int length, const void *data, const netadr_t *to);
-void		NET_OutOfBandPrint( netsrc_t net_socket, const netadr_t *adr, const char *format, ...) __attribute__ ((format (printf, 3, 4)));
-void		NET_OutOfBandData( netsrc_t sock, const netadr_t *adr, byte *format, int len );
+void NET_SendPacket(netsrc_t sock, int length, const void* data, const netadr_t* to);
+void NET_OutOfBandPrint(netsrc_t net_socket, const netadr_t* adr, const char* format, ...) __attribute__((format(printf, 3, 4)));
+void NET_OutOfBandData(netsrc_t sock, const netadr_t* adr, byte* format, int len);
 
-bool	NET_CompareAdr (const netadr_t *a, const netadr_t *b);
-bool	NET_CompareBaseAdrMask( const netadr_t *a, const netadr_t *b, unsigned int netmask );
-bool	NET_CompareBaseAdr (const netadr_t *a, const netadr_t *b);
-bool	NET_IsLocalAddress (const netadr_t *adr);
-const char	*NET_AdrToString (const netadr_t *a);
-bool	NET_StringToAdr ( const char *s, netadr_t *a);
-bool	NET_GetLoopPacket (netsrc_t sock, netadr_t *net_from, msg_t *net_message);
-void		NET_Sleep(int usec);
+bool NET_CompareAdr(const netadr_t* a, const netadr_t* b);
+bool NET_CompareBaseAdrMask(const netadr_t* a, const netadr_t* b, unsigned int netmask);
+bool NET_CompareBaseAdr(const netadr_t* a, const netadr_t* b);
+bool NET_IsLocalAddress(const netadr_t* adr);
+const char* NET_AdrToString(const netadr_t* a);
+bool NET_StringToAdr(const char* s, netadr_t* a);
+bool NET_GetLoopPacket(netsrc_t sock, netadr_t* net_from, msg_t* net_message);
+void NET_Sleep(int usec);
 
-void		Sys_SendPacket( int length, const void *data, const netadr_t *to );
-//Does NOT parse port numbers, only base addresses.
-bool	Sys_StringToAdr( const char *s, netadr_t *a );
-bool	Sys_IsLANAddress (const netadr_t *adr);
-void		Sys_ShowIP(void);
+void Sys_SendPacket(int length, const void* data, const netadr_t* to);
+// Does NOT parse port numbers, only base addresses.
+bool Sys_StringToAdr(const char* s, netadr_t* a);
+bool Sys_IsLANAddress(const netadr_t* adr);
+void Sys_ShowIP(void);
 
+inline constexpr int MAX_MSGLEN = 49152; // max length of a message, which may
+                                         // be fragmented into multiple packets
 
-inline constexpr int MAX_MSGLEN = 49152;		// max length of a message, which may
-											// be fragmented into multiple packets
+// rww - 6/28/02 - Changed from 16384 to match sof2's. This does seem rather huge, but I guess it doesn't really hurt anything.
 
-//rww - 6/28/02 - Changed from 16384 to match sof2's. This does seem rather huge, but I guess it doesn't really hurt anything.
-
-inline constexpr int MAX_DOWNLOAD_WINDOW = 8;		// max of eight download frames
-inline constexpr int MAX_DOWNLOAD_BLKSIZE = 2048;	// 2048 byte block chunks
-
+inline constexpr int MAX_DOWNLOAD_WINDOW = 8;     // max of eight download frames
+inline constexpr int MAX_DOWNLOAD_BLKSIZE = 2048; // 2048 byte block chunks
 
 /*
 Netchan handles packet fragmentation and out of order / duplicate suppression
 */
 
 typedef struct netchan_s {
-	netsrc_t	sock;
+    netsrc_t sock;
 
-	int			dropped;			// between last packet and previous
+    int dropped; // between last packet and previous
 
-	netadr_t	remoteAddress;
-	int			qport;				// qport value to write when transmitting
+    netadr_t remoteAddress;
+    int qport; // qport value to write when transmitting
 
-	// sequencing variables
-	int			incomingSequence;
-	int			outgoingSequence;
+    // sequencing variables
+    int incomingSequence;
+    int outgoingSequence;
 
-	// incoming fragment assembly buffer
-	int			fragmentSequence;
-	int			fragmentLength;
-	byte		fragmentBuffer[MAX_MSGLEN];
+    // incoming fragment assembly buffer
+    int fragmentSequence;
+    int fragmentLength;
+    byte fragmentBuffer[MAX_MSGLEN];
 
-	// outgoing fragment buffer
-	// we need to space out the sending of large fragmented messages
-	bool	unsentFragments;
-	int			unsentFragmentStart;
-	int			unsentLength;
-	byte		unsentBuffer[MAX_MSGLEN];
+    // outgoing fragment buffer
+    // we need to space out the sending of large fragmented messages
+    bool unsentFragments;
+    int unsentFragmentStart;
+    int unsentLength;
+    byte unsentBuffer[MAX_MSGLEN];
 } netchan_t;
 
-void Netchan_Init( int qport );
-void Netchan_Setup( netsrc_t sock, netchan_t *chan, const netadr_t *adr, int qport );
+void Netchan_Init(int qport);
+void Netchan_Setup(netsrc_t sock, netchan_t* chan, const netadr_t* adr, int qport);
 
-void Netchan_Transmit( netchan_t *chan, int length, const byte *data );
-void Netchan_TransmitNextFragment( netchan_t *chan );
+void Netchan_Transmit(netchan_t* chan, int length, const byte* data);
+void Netchan_TransmitNextFragment(netchan_t* chan);
 
-bool Netchan_Process( netchan_t *chan, msg_t *msg );
-
+bool Netchan_Process(netchan_t* chan, msg_t* msg);
 
 /*
 ==============================================================
@@ -245,46 +239,45 @@ PROTOCOL
 
 inline constexpr int PROTOCOL_VERSION = 26;
 
-#define	UPDATE_SERVER_NAME			"updatejk3.ravensoft.com"
-#define MASTER_SERVER_NAME			"masterjk3.ravensoft.com"
+#define UPDATE_SERVER_NAME "updatejk3.ravensoft.com"
+#define MASTER_SERVER_NAME "masterjk3.ravensoft.com"
 
-#define JKHUB_MASTER_SERVER_NAME	"master.jkhub.org"
-#define JKHUB_UPDATE_SERVER_NAME	"update.jkhub.org"
+#define JKHUB_MASTER_SERVER_NAME "master.jkhub.org"
+#define JKHUB_UPDATE_SERVER_NAME "update.jkhub.org"
 
 inline constexpr int PORT_MASTER = 29060;
 inline constexpr int PORT_UPDATE = 29061;
-#define	PORT_SERVER			29070	//...+9 more for multiple servers
-inline constexpr int NUM_SERVER_PORTS = 4;		// broadcast scan this many ports after PORT_SERVER so a single machine can run multiple servers
+#define PORT_SERVER 29070                  //...+9 more for multiple servers
+inline constexpr int NUM_SERVER_PORTS = 4; // broadcast scan this many ports after PORT_SERVER so a single machine can run multiple servers
 
 // the svc_strings[] array in cl_parse.c should mirror this
 //
 // server to client
 //
 enum class svc_ops_e {
-	svc_bad,
-	svc_nop,
-	svc_gamestate,
-	svc_configstring,			// [short] [string] only in gamestate messages
-	svc_baseline,				// only in gamestate messages
-	svc_serverCommand,			// [string] to be executed by client game module
-	svc_download,				// [short] size [size bytes]
-	svc_snapshot,
-	svc_setgame,
-	svc_mapchange,
-	svc_EOF
+    svc_bad,
+    svc_nop,
+    svc_gamestate,
+    svc_configstring,  // [short] [string] only in gamestate messages
+    svc_baseline,      // only in gamestate messages
+    svc_serverCommand, // [string] to be executed by client game module
+    svc_download,      // [short] size [size bytes]
+    svc_snapshot,
+    svc_setgame,
+    svc_mapchange,
+    svc_EOF
 };
-
 
 //
 // client to server
 //
 enum class clc_ops_e {
-	clc_bad,
-	clc_nop,
-	clc_move,				// [[usercmd_t]
-	clc_moveNoDelta,		// [[usercmd_t]
-	clc_clientCommand,		// [string] message
-	clc_EOF
+    clc_bad,
+    clc_nop,
+    clc_move,          // [[usercmd_t]
+    clc_moveNoDelta,   // [[usercmd_t]
+    clc_clientCommand, // [string] message
+    clc_EOF
 };
 
 /*
@@ -295,45 +288,45 @@ VIRTUAL MACHINE
 ==============================================================
 */
 
-enum class vmSlots_t {
-	VM_GAME=0,
-	VM_CGAME,
-	VM_UI,
-	MAX_VM
-};
+enum class vmSlots_t { VM_GAME = 0, VM_CGAME, VM_UI, MAX_VM };
 typedef vmSlots_t vmSlots_e;
 
 typedef struct vm_s {
-	vmSlots_t	slot; // VM_GAME, VM_CGAME, VM_UI
-    char		name[MAX_QPATH];
-	void		*dllHandle;
+    vmSlots_t slot; // VM_GAME, VM_CGAME, VM_UI
+    char name[MAX_QPATH];
+    void* dllHandle;
 
-	// fill the import/export tables
-	void *		(*GetModuleAPI)( int apiVersion, ... );
+    // fill the import/export tables
+    void* (*GetModuleAPI)(int apiVersion, ...);
 } vm_t;
 
-extern vm_t *currentVM;
+extern vm_t* currentVM;
 
 class VMSwap {
 private:
-	VMSwap();
-	vm_t *oldVM;
+    VMSwap();
+    vm_t* oldVM;
+
 public:
-	VMSwap( vm_t *newVM ) : oldVM( currentVM ) { currentVM = newVM; };
-	~VMSwap() { if ( oldVM ) currentVM = oldVM; };
+    VMSwap(vm_t* newVM) : oldVM(currentVM) { currentVM = newVM; };
+    ~VMSwap()
+    {
+        if (oldVM)
+            currentVM = oldVM;
+    };
 };
 
-extern const EnumArray<const char *, vmSlots_t, vmSlots_t::MAX_VM> vmStrs;
+extern const EnumArray<const char*, vmSlots_t, vmSlots_t::MAX_VM> vmStrs;
 
-void			VM_Init( void );
-vm_t			*VM_Create( vmSlots_t vmSlot );
-void			 VM_Free( vm_t *vm );
-void			 VM_Clear(void);
-vm_t			*VM_Restart( vm_t *vm );
-void			 VM_Shifted_Alloc( void **ptr, int size );
-void			 VM_Shifted_Free( void **ptr );
-void			*VM_ArgPtr( intptr_t intValue );
-void			*VM_ExplicitArgPtr( vm_t *vm, intptr_t intValue );
+void VM_Init(void);
+vm_t* VM_Create(vmSlots_t vmSlot);
+void VM_Free(vm_t* vm);
+void VM_Clear(void);
+vm_t* VM_Restart(vm_t* vm);
+void VM_Shifted_Alloc(void** ptr, int size);
+void VM_Shifted_Free(void** ptr);
+void* VM_ArgPtr(intptr_t intValue);
+void* VM_ExplicitArgPtr(vm_t* vm, intptr_t intValue);
 
 /*
 ==============================================================
@@ -353,17 +346,17 @@ files can be execed.
 
 */
 
-void Cbuf_Init (void);
+void Cbuf_Init(void);
 // allocates an initial text buffer that will grow as needed
 
-void Cbuf_AddText( const char *text );
+void Cbuf_AddText(const char* text);
 // Adds command text at the end of the buffer, does NOT add a final \n
 
-void Cbuf_ExecuteText( cbufExec_t exec_when, const char *text );
+void Cbuf_ExecuteText(cbufExec_t exec_when, const char* text);
 // this can be used in place of either Cbuf_AddText or Cbuf_InsertText
 
-void Cbuf_Execute (void);
-bool Cbuf_Waiting( void );
+void Cbuf_Execute(void);
+bool Cbuf_Waiting(void);
 // Pulls off \n terminated lines of text from the command buffer and sends
 // them through Cmd_ExecuteString.  Stops when the buffer is empty.
 // Normally called once per frame, but may be explicitly invoked.
@@ -378,62 +371,60 @@ then searches for a command or variable that matches the first token.
 
 */
 
-typedef void (*xcommand_t) (void);
+typedef void (*xcommand_t)(void);
 
-typedef void ( *callbackFunc_t )( const char *s );
+typedef void (*callbackFunc_t)(const char* s);
 
-void	Cmd_Init (void);
+void Cmd_Init(void);
 
-void	Cmd_AddCommand( const char *cmd_name, xcommand_t function, const char *cmd_desc=nullptr );
+void Cmd_AddCommand(const char* cmd_name, xcommand_t function, const char* cmd_desc = nullptr);
 // called by the init functions of other parts of the program to
 // register commands and functions to call for them.
 // The cmd_name is referenced later, so it should not be in temp memory
 // if function is nullptr, the command will be forwarded to the server
 // as a clc_clientCommand instead of executed locally
 
-void	Cmd_RemoveCommand( const char *cmd_name );
-void	Cmd_VM_RemoveCommand( const char *cmd_name, vmSlots_t vmslot );
-typedef void (*completionFunc_t)( char *args, int argNum );
+void Cmd_RemoveCommand(const char* cmd_name);
+void Cmd_VM_RemoveCommand(const char* cmd_name, vmSlots_t vmslot);
+typedef void (*completionFunc_t)(char* args, int argNum);
 
-typedef struct cmdList_s
-{
-	const char *name;
-	const char *description;
-	xcommand_t func;
-	completionFunc_t complete;
+typedef struct cmdList_s {
+    const char* name;
+    const char* description;
+    xcommand_t func;
+    completionFunc_t complete;
 } cmdList_t;
 
-void Cmd_AddCommandList( const cmdList_t *cmdList );
-void Cmd_RemoveCommandList( const cmdList_t *cmdList );
+void Cmd_AddCommandList(const cmdList_t* cmdList);
+void Cmd_RemoveCommandList(const cmdList_t* cmdList);
 
-void	Cmd_CommandCompletion( callbackFunc_t callback );
+void Cmd_CommandCompletion(callbackFunc_t callback);
 // callback with each valid string
-void Cmd_SetCommandCompletionFunc( const char *command, completionFunc_t complete );
-void Cmd_CompleteArgument( const char *command, char *args, int argNum );
-void Cmd_CompleteCfgName( char *args, int argNum );
+void Cmd_SetCommandCompletionFunc(const char* command, completionFunc_t complete);
+void Cmd_CompleteArgument(const char* command, char* args, int argNum);
+void Cmd_CompleteCfgName(char* args, int argNum);
 
-int		Cmd_Argc (void);
-const char	*Cmd_Argv (int arg);
-void	Cmd_ArgvBuffer( int arg, char *buffer, int bufferLength );
-char	*Cmd_Args (void);
-char	*Cmd_ArgsFrom( int arg );
-void	Cmd_ArgsBuffer( char *buffer, int bufferLength );
-void	Cmd_ArgsFromBuffer( int arg, char *buffer, int bufferLength );
-char	*Cmd_Cmd (void);
-void	Cmd_Args_Sanitize( size_t length = MAX_CVAR_VALUE_STRING, const char *strip = "\n\r;", const char *repl = "   " );
+int Cmd_Argc(void);
+const char* Cmd_Argv(int arg);
+void Cmd_ArgvBuffer(int arg, char* buffer, int bufferLength);
+char* Cmd_Args(void);
+char* Cmd_ArgsFrom(int arg);
+void Cmd_ArgsBuffer(char* buffer, int bufferLength);
+void Cmd_ArgsFromBuffer(int arg, char* buffer, int bufferLength);
+char* Cmd_Cmd(void);
+void Cmd_Args_Sanitize(size_t length = MAX_CVAR_VALUE_STRING, const char* strip = "\n\r;", const char* repl = "   ");
 // The functions that execute commands get their parameters with these
 // functions. Cmd_Argv () will return an empty string, not a nullptr
 // if arg > argc, so string operations are allways safe.
 
-void	Cmd_TokenizeString( const char *text );
-void	Cmd_TokenizeStringIgnoreQuotes( const char *text_in );
+void Cmd_TokenizeString(const char* text);
+void Cmd_TokenizeStringIgnoreQuotes(const char* text_in);
 // Takes a null terminated string.  Does not need to be /n terminated.
 // breaks the string up into arg tokens.
 
-void	Cmd_ExecuteString( const char *text );
+void Cmd_ExecuteString(const char* text);
 // Parses a single line of text into arguments and tries to execute it
 // as if it was typed at the console
-
 
 /*
 ==============================================================
@@ -462,83 +453,83 @@ modules of the program.
 
 */
 
-cvar_t *Cvar_Get( const char *var_name, const char *value, cvarFlags_t flags, const char *var_desc=nullptr );
+cvar_t* Cvar_Get(const char* var_name, const char* value, cvarFlags_t flags, const char* var_desc = nullptr);
 // creates the variable if it doesn't exist, or returns the existing one
 // if it exists, the value will not be changed, but flags will be ORed in
 // that allows variables to be unarchived without needing bitflags
 // if value is "", the value will not override a previously set value.
 
-void	Cvar_Register( vmCvar_t *vmCvar, const char *varName, const char *defaultValue, cvarFlags_t flags );
+void Cvar_Register(vmCvar_t* vmCvar, const char* varName, const char* defaultValue, cvarFlags_t flags);
 // basically a slightly modified Cvar_Get for the interpreted modules
 
-void	Cvar_Update( vmCvar_t *vmCvar );
+void Cvar_Update(vmCvar_t* vmCvar);
 // updates an interpreted modules' version of a cvar
 
-cvar_t	*Cvar_Set2(const char *var_name, const char *value, cvarFlags_t defaultFlags, bool force);
+cvar_t* Cvar_Set2(const char* var_name, const char* value, cvarFlags_t defaultFlags, bool force);
 //
 
-cvar_t	*Cvar_Set( const char *var_name, const char *value );
+cvar_t* Cvar_Set(const char* var_name, const char* value);
 // will create the variable with no flags if it doesn't exist
 
-cvar_t	*Cvar_SetSafe( const char *var_name, const char *value );
+cvar_t* Cvar_SetSafe(const char* var_name, const char* value);
 // same as Cvar_Set, but doesn't force setting the value (respects CVAR_ROM, etc)
 
-cvar_t	*Cvar_User_Set( const char *var_name, const char *value );
+cvar_t* Cvar_User_Set(const char* var_name, const char* value);
 // same as Cvar_SetSafe, but defaults to CVAR_USER_CREATED
 
-void	Cvar_Server_Set( const char *var_name, const char *value );
-void	Cvar_VM_Set( const char *var_name, const char *value, vmSlots_t vmslot );
+void Cvar_Server_Set(const char* var_name, const char* value);
+void Cvar_VM_Set(const char* var_name, const char* value, vmSlots_t vmslot);
 // sometimes we set variables from an untrusted source: fail if flags & CVAR_PROTECTED
 
-cvar_t	*Cvar_SetValue( const char *var_name, float value );
-void	Cvar_User_SetValue( const char *var_name, float value );
-void	Cvar_VM_SetValue( const char *var_name, float value, vmSlots_t vmslot );
+cvar_t* Cvar_SetValue(const char* var_name, float value);
+void Cvar_User_SetValue(const char* var_name, float value);
+void Cvar_VM_SetValue(const char* var_name, float value, vmSlots_t vmslot);
 // expands value to a string and calls Cvar_Set/Cvar_User_Set/Cvar_VM_Set
 
-float	Cvar_VariableValue( const char *var_name );
-int		Cvar_VariableIntegerValue( const char *var_name );
+float Cvar_VariableValue(const char* var_name);
+int Cvar_VariableIntegerValue(const char* var_name);
 // returns 0 if not defined or non numeric
 
-const char	*Cvar_VariableString( const char *var_name );
-void	Cvar_VariableStringBuffer( const char *var_name, char *buffer, int bufsize );
+const char* Cvar_VariableString(const char* var_name);
+void Cvar_VariableStringBuffer(const char* var_name, char* buffer, int bufsize);
 // returns an empty string if not defined
 
-std::optional<cvarFlags_t>	Cvar_Flags(const char *var_name);
+std::optional<cvarFlags_t> Cvar_Flags(const char* var_name);
 // returns no value if the cvar doesn't exist, else the flags of that particular CVAR.
 
-void	Cvar_CommandCompletion( callbackFunc_t callback );
+void Cvar_CommandCompletion(callbackFunc_t callback);
 // callback with each valid string
 
-void 	Cvar_Reset( const char *var_name );
-void 	Cvar_ForceReset( const char *var_name );
+void Cvar_Reset(const char* var_name);
+void Cvar_ForceReset(const char* var_name);
 
-void	Cvar_SetCheatState( void );
+void Cvar_SetCheatState(void);
 // reset all testing vars to a safe value
 
-bool Cvar_Command( void );
+bool Cvar_Command(void);
 // called by Cmd_ExecuteString when Cmd_Argv(0) doesn't match a known
 // command.  Returns true if the command was a variable reference that
 // was handled. (print or change)
 
-void 	Cvar_WriteVariables( fileHandle_t f );
+void Cvar_WriteVariables(fileHandle_t f);
 // writes lines containing "set variable value" for all variables
 // with the archive flag set to true.
 
-cvar_t *Cvar_Unset(cvar_t *cv);
+cvar_t* Cvar_Unset(cvar_t* cv);
 
-void	Cvar_Init( void );
+void Cvar_Init(void);
 
-char	*Cvar_InfoString( cvarFlags_t bit );
-char	*Cvar_InfoString_Big( cvarFlags_t bit );
+char* Cvar_InfoString(cvarFlags_t bit);
+char* Cvar_InfoString_Big(cvarFlags_t bit);
 // returns an info string containing all the cvars that have the given bit set
 // in their flags ( CVAR_USERINFO, CVAR_SERVERINFO, CVAR_SYSTEMINFO, etc )
-void	Cvar_InfoStringBuffer( cvarFlags_t bit, char *buff, int buffsize );
-void Cvar_CheckRange( cvar_t *cv, float minVal, float maxVal, bool shouldBeIntegral );
+void Cvar_InfoStringBuffer(cvarFlags_t bit, char* buff, int buffsize);
+void Cvar_CheckRange(cvar_t* cv, float minVal, float maxVal, bool shouldBeIntegral);
 
-void	Cvar_Restart(bool unsetVM);
-void	Cvar_Restart_f( void );
+void Cvar_Restart(bool unsetVM);
+void Cvar_Restart_f(void);
 
-void Cvar_CompleteCvarName( char *args, int argNum );
+void Cvar_CompleteCvarName(char* args, int argNum);
 
 extern cvarFlags_t cvar_modifiedFlags;
 // whenever a cvar is modifed, its flags will be OR'd into this, so
@@ -549,13 +540,12 @@ extern cvarFlags_t cvar_modifiedFlags;
 // the file system: one interface (shared/qcommon/files.h) and one implementation (shared/qcommon/files.cpp) for
 // the multiplayer and the single-player engines; the name of this engine's configuration file first
 #ifdef DEDICATED
-#	define Q3CONFIG_CFG PRODUCT_NAME "_server.cfg"
+#define Q3CONFIG_CFG PRODUCT_NAME "_server.cfg"
 #else
-#	define Q3CONFIG_CFG PRODUCT_NAME ".cfg"
+#define Q3CONFIG_CFG PRODUCT_NAME ".cfg"
 #endif
 
 #include "qcommon/files.h"
-
 
 /*
 ==============================================================
@@ -565,19 +555,18 @@ Edit fields and command line history/completion
 ==============================================================
 */
 
-
 typedef struct field_s {
-	int		cursor;
-	int		scroll;
-	int		widthInChars;
-	char	buffer[MAX_EDIT_LINE];
+    int cursor;
+    int scroll;
+    int widthInChars;
+    char buffer[MAX_EDIT_LINE];
 } field_t;
 
-void Field_Clear( field_t *edit );
-void Field_AutoComplete( field_t *edit );
-void Field_CompleteKeyname( void );
-void Field_CompleteFilename( const char *dir, const char *ext, bool stripExt, bool allowNonPureFilesOnDisk );
-void Field_CompleteCommand( char *cmd, bool doCommands, bool doCvars );
+void Field_Clear(field_t* edit);
+void Field_AutoComplete(field_t* edit);
+void Field_CompleteKeyname(void);
+void Field_CompleteFilename(const char* dir, const char* ext, bool stripExt, bool allowNonPureFilesOnDisk);
+void Field_CompleteCommand(char* cmd, bool doCommands, bool doCvars);
 
 /*
 ==============================================================
@@ -590,83 +579,81 @@ MISC
 #define RoundUp(N, M) ((N) + ((unsigned int)(M)) - (((unsigned int)(N)) % ((unsigned int)(M))))
 #define RoundDown(N, M) ((N) - (((unsigned int)(N)) % ((unsigned int)(M))))
 
-char		*CopyString( const char *in );
-void		Info_Print( const char *s );
+char* CopyString(const char* in);
+void Info_Print(const char* s);
 
-void		Com_BeginRedirect (char *buffer, int buffersize, void (*flush)(char *));
-void		Com_EndRedirect( void );
-void 		QDECL Com_Printf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
-void 		QDECL Com_DPrintf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
-void		QDECL Com_OPrintf( const char *fmt, ...) __attribute__ ((format (printf, 1, 2))); // Outputs to the VC / Windows Debug window (only in debug compile)
-void 		NORETURN QDECL Com_Error( errorParm_t code, const char *fmt, ... ) __attribute__ ((format (printf, 2, 3)));
-void 		NORETURN Com_Quit_f( void );
-int			Com_EventLoop( void );
-int			Com_Milliseconds( void );	// will be journaled properly
-uint32_t	Com_BlockChecksum( const void *buffer, int length );
-char		*Com_MD5File(const char *filename, int length, const char *prefix, int prefix_len);
-int      Com_HashKey(char *string, int maxlen);
-int			Com_Filter(const char *filter, const char *name, int casesensitive);
-int			Com_FilterPath(const char *filter, const char *name, int casesensitive);
-int			Com_RealTime(qtime_t *qtime);
-bool	Com_SafeMode( void );
-void		Com_RunAndTimeServerPacket(const netadr_t *evFrom, msg_t *buf);
+void Com_BeginRedirect(char* buffer, int buffersize, void (*flush)(char*));
+void Com_EndRedirect(void);
+void QDECL Com_Printf(const char* fmt, ...) __attribute__((format(printf, 1, 2)));
+void QDECL Com_DPrintf(const char* fmt, ...) __attribute__((format(printf, 1, 2)));
+void QDECL Com_OPrintf(const char* fmt, ...) __attribute__((format(printf, 1, 2))); // Outputs to the VC / Windows Debug window (only in debug compile)
+void NORETURN QDECL Com_Error(errorParm_t code, const char* fmt, ...) __attribute__((format(printf, 2, 3)));
+void NORETURN Com_Quit_f(void);
+int Com_EventLoop(void);
+int Com_Milliseconds(void); // will be journaled properly
+uint32_t Com_BlockChecksum(const void* buffer, int length);
+char* Com_MD5File(const char* filename, int length, const char* prefix, int prefix_len);
+int Com_HashKey(char* string, int maxlen);
+int Com_Filter(const char* filter, const char* name, int casesensitive);
+int Com_FilterPath(const char* filter, const char* name, int casesensitive);
+int Com_RealTime(qtime_t* qtime);
+bool Com_SafeMode(void);
+void Com_RunAndTimeServerPacket(const netadr_t* evFrom, msg_t* buf);
 
-void		Com_StartupVariable( const char *match );
+void Com_StartupVariable(const char* match);
 // checks for and removes command line "+set var arg" constructs
 // if match is nullptr, all set commands will be executed, otherwise
 // only a set with the exact name.  Only used during startup.
 
-
-extern	cvar_t	*com_developer;
-extern	cvar_t	*com_dedicated;
-extern	cvar_t	*com_speeds;
-extern	cvar_t	*com_timescale;
-extern	cvar_t	*com_sv_running;
-extern	cvar_t	*com_cl_running;
-extern	cvar_t	*com_version;
-extern	cvar_t	*com_buildScript;		// for building release pak files
-extern	cvar_t	*com_journal;
-extern	cvar_t	*com_cameraMode;
-extern	cvar_t	*com_homepath;
+extern cvar_t* com_developer;
+extern cvar_t* com_dedicated;
+extern cvar_t* com_speeds;
+extern cvar_t* com_timescale;
+extern cvar_t* com_sv_running;
+extern cvar_t* com_cl_running;
+extern cvar_t* com_version;
+extern cvar_t* com_buildScript; // for building release pak files
+extern cvar_t* com_journal;
+extern cvar_t* com_cameraMode;
+extern cvar_t* com_homepath;
 #ifndef _WIN32
-extern	cvar_t	*com_ansiColor;
+extern cvar_t* com_ansiColor;
 #endif
 
-extern	cvar_t	*com_optvehtrace;
+extern cvar_t* com_optvehtrace;
 
 #ifdef G2_PERFORMANCE_ANALYSIS
-extern	cvar_t	*com_G2Report;
+extern cvar_t* com_G2Report;
 #endif
 
-extern	cvar_t	*com_affinity;
-extern	cvar_t	*com_busyWait;
+extern cvar_t* com_affinity;
+extern cvar_t* com_busyWait;
 
 // both client and server must agree to pause
-extern	cvar_t	*cl_paused;
-extern	cvar_t	*sv_paused;
+extern cvar_t* cl_paused;
+extern cvar_t* sv_paused;
 
 // com_speeds times
-extern	int		time_game;
-extern	int		time_frontend;
-extern	int		time_backend;		// renderer backend time
+extern int time_game;
+extern int time_frontend;
+extern int time_backend; // renderer backend time
 
-extern	int		com_frameTime;
+extern int com_frameTime;
 
-extern	bool	com_errorEntered;
+extern bool com_errorEntered;
 
-
-extern	fileHandle_t	logfile;
-extern	fileHandle_t	com_journalFile;
-extern	fileHandle_t	com_journalDataFile;
+extern fileHandle_t logfile;
+extern fileHandle_t com_journalFile;
+extern fileHandle_t com_journalDataFile;
 
 /*
 typedef enum {
-	TAG_FREE,
-	TAG_GENERAL,
-	TAG_BOTLIB,
-	TAG_RENDERER,
-	TAG_SMALL,
-	TAG_STATIC
+    TAG_FREE,
+    TAG_GENERAL,
+    TAG_BOTLIB,
+    TAG_RENDERER,
+    TAG_SMALL,
+    TAG_STATIC
 } memtag_t;
 */
 
@@ -690,21 +677,21 @@ temp file loading
 */
 
 #if defined(_DEBUG) && !defined(BSPC)
-	#define DEBUG_ZONE_ALLOCS
+#define DEBUG_ZONE_ALLOCS
 #endif
 
 /*
 #ifdef DEBUG_ZONE_ALLOCS
-	#define Z_TagMalloc(size, tag)			Z_TagMallocDebug(size, tag, #size, __FILE__, __LINE__)
-	#define Z_Malloc(size)					Z_MallocDebug(size, #size, __FILE__, __LINE__)
-	#define S_Malloc(size)					S_MallocDebug(size, #size, __FILE__, __LINE__)
-	void *Z_TagMallocDebug( int size, int tag, char *label, char *file, int line );	// NOT 0 filled memory
-	void *Z_MallocDebug( int size, char *label, char *file, int line );			// returns 0 filled memory
-	void *S_MallocDebug( int size, char *label, char *file, int line );			// returns 0 filled memory
+    #define Z_TagMalloc(size, tag)			Z_TagMallocDebug(size, tag, #size, __FILE__, __LINE__)
+    #define Z_Malloc(size)					Z_MallocDebug(size, #size, __FILE__, __LINE__)
+    #define S_Malloc(size)					S_MallocDebug(size, #size, __FILE__, __LINE__)
+    void *Z_TagMallocDebug( int size, int tag, char *label, char *file, int line );	// NOT 0 filled memory
+    void *Z_MallocDebug( int size, char *label, char *file, int line );			// returns 0 filled memory
+    void *S_MallocDebug( int size, char *label, char *file, int line );			// returns 0 filled memory
 #else
-	void *Z_TagMalloc( int size, int tag );	// NOT 0 filled memory
-	void *Z_Malloc( int size );			// returns 0 filled memory
-	void *S_Malloc( int size );			// NOT 0 filled memory only for small allocations
+    void *Z_TagMalloc( int size, int tag );	// NOT 0 filled memory
+    void *Z_Malloc( int size );			// returns 0 filled memory
+    void *S_Malloc( int size );			// NOT 0 filled memory only for small allocations
 #endif
 void Z_Free( void *ptr );
 void Z_FreeTags( int tag );
@@ -715,42 +702,41 @@ void Z_LogHeap( void );
 // later on I'll re-implement __FILE__, __LINE__ etc, but for now...
 //
 #ifdef DEBUG_ZONE_ALLOCS
-void *Z_Malloc  ( int iSize, memtag_t eTag, bool bZeroit = false, int iAlign = 4);	// return memory NOT zero-filled by default
-void *S_Malloc	( int iSize );					// NOT 0 filled memory only for small allocations
+void* Z_Malloc(int iSize, memtag_t eTag, bool bZeroit = false, int iAlign = 4); // return memory NOT zero-filled by default
+void* S_Malloc(int iSize);                                                      // NOT 0 filled memory only for small allocations
 #else
-void *Z_Malloc  ( int iSize, memtag_t eTag, bool bZeroit = false, int iAlign = 4);	// return memory NOT zero-filled by default
-void *S_Malloc	( int iSize );					// NOT 0 filled memory only for small allocations
+void* Z_Malloc(int iSize, memtag_t eTag, bool bZeroit = false, int iAlign = 4); // return memory NOT zero-filled by default
+void* S_Malloc(int iSize);                                                      // NOT 0 filled memory only for small allocations
 #endif
-void  Z_MorphMallocTag( void *pvBuffer, memtag_t eDesiredTag );
-void  Z_Validate( void );
-int   Z_MemSize	( memtag_t eTag );
-void  Z_TagFree	( memtag_t eTag );
-void  Z_Free	( void *ptr );
-int	  Z_Size	( void *pvAddress);
+void Z_MorphMallocTag(void* pvBuffer, memtag_t eDesiredTag);
+void Z_Validate(void);
+int Z_MemSize(memtag_t eTag);
+void Z_TagFree(memtag_t eTag);
+void Z_Free(void* ptr);
+int Z_Size(void* pvAddress);
 void Com_InitZoneMemory(void);
 void Com_InitZoneMemoryVars(void);
 void Com_InitHunkMemory(void);
 void Com_ShutdownZoneMemory(void);
 void Com_ShutdownHunkMemory(void);
 
-void Hunk_Clear( void );
-void Hunk_ClearToMark( void );
-void Hunk_SetMark( void );
-bool Hunk_CheckMark( void );
-void Hunk_ClearTempMemory( void );
-void *Hunk_AllocateTempMemory( int size );
-void Hunk_FreeTempMemory( void *buf );
-int	Hunk_MemoryRemaining( void );
-void Hunk_Log( void);
-void Hunk_Trash( void );
+void Hunk_Clear(void);
+void Hunk_ClearToMark(void);
+void Hunk_SetMark(void);
+bool Hunk_CheckMark(void);
+void Hunk_ClearTempMemory(void);
+void* Hunk_AllocateTempMemory(int size);
+void Hunk_FreeTempMemory(void* buf);
+int Hunk_MemoryRemaining(void);
+void Hunk_Log(void);
+void Hunk_Trash(void);
 
-void Com_TouchMemory( void );
+void Com_TouchMemory(void);
 
 // commandLine should not include the executable name (argv[0])
-void Com_Init( char *commandLine );
-void Com_Frame( void );
-void Com_Shutdown( void );
-
+void Com_Init(char* commandLine);
+void Com_Frame(void);
+void Com_Shutdown(void);
 
 /*
 ==============================================================
@@ -763,145 +749,142 @@ CLIENT / SERVER SYSTEMS
 //
 // client interface
 //
-void CL_InitKeyCommands( void );
+void CL_InitKeyCommands(void);
 // the keyboard binding interface must be setup before execing
 // config files, but the rest of client startup will happen later
 
-void CL_Init( void );
-void CL_Disconnect( bool showMainMenu );
-void CL_Shutdown( void );
-void CL_Frame( int msec );
+void CL_Init(void);
+void CL_Disconnect(bool showMainMenu);
+void CL_Shutdown(void);
+void CL_Frame(int msec);
 
 // the client's command of a tick, made between two frames (Com_Frame, cl_input.cpp)
-int CL_NextCommandMsec( void );
-bool CL_InputTick( void );
-bool CL_GameCommand( void );
+int CL_NextCommandMsec(void);
+bool CL_InputTick(void);
+bool CL_GameCommand(void);
 enum class fakeAscii_t;
-void CL_KeyEvent (fakeAscii_t key, bool down, unsigned time);
+void CL_KeyEvent(fakeAscii_t key, bool down, unsigned time);
 
-void CL_CharEvent( int key );
+void CL_CharEvent(int key);
 // char events are for field typing, not game control
 
-void CL_MouseEvent( int dx, int dy, int time );
+void CL_MouseEvent(int dx, int dy, int time);
 
-void CL_JoystickEvent( int axis, int value, int time );
+void CL_JoystickEvent(int axis, int value, int time);
 
-void CL_PacketEvent( const netadr_t *from, msg_t *msg );
+void CL_PacketEvent(const netadr_t* from, msg_t* msg);
 
-void CL_ConsolePrint( const char *text );
+void CL_ConsolePrint(const char* text);
 
-void CL_MapLoading( void );
+void CL_MapLoading(void);
 // do a screen update before starting to load a map
 // when the server is going to load a new map, the entire hunk
 // will be cleared, so the client must shutdown cgame, ui, and
 // the renderer
 
-void	CL_ForwardCommandToServer( const char *string );
+void CL_ForwardCommandToServer(const char* string);
 // adds the current command line as a clc_clientCommand to the client message.
 // things like godmode, noclip, etc, are commands directed to the server,
 // so when they are typed in at the console, they will need to be forwarded.
 
-void CL_ShutdownAll( bool shutdownRef );
+void CL_ShutdownAll(bool shutdownRef);
 // shutdown all the client stuff
 
-void CL_FlushMemory( void );
+void CL_FlushMemory(void);
 // dump all memory on an error
 
-void CL_StartHunkUsers( void );
+void CL_StartHunkUsers(void);
 // start all the client stuff using the hunk
 
-bool CL_ConnectedToRemoteServer( void );
+bool CL_ConnectedToRemoteServer(void);
 // returns true if connected to a server
 
-void Key_KeynameCompletion ( void(*callback)( const char *s ) );
+void Key_KeynameCompletion(void (*callback)(const char* s));
 // for keyname autocompletion
 
-void Key_WriteBindings( fileHandle_t f );
+void Key_WriteBindings(fileHandle_t f);
 // for writing the config files
 
-void S_ClearSoundBuffer( void );
+void S_ClearSoundBuffer(void);
 // call before filesystem access
 
-void SCR_DebugGraph (float value, int color);	// FIXME: move logging to common?
+void SCR_DebugGraph(float value, int color); // FIXME: move logging to common?
 
 // AVI files have the start of pixel lines 4 byte-aligned
 inline constexpr int AVI_LINE_PADDING = 4;
 
-
 //
 // server interface
 //
-void SV_Init( void );
-void SV_Shutdown( const char *finalmsg );
-void SV_Frame( int msec );
-void SV_PacketEvent( const netadr_t *from, msg_t *msg );
-int SV_FrameMsec( void );
-bool SV_GameCommand( void );
-
+void SV_Init(void);
+void SV_Shutdown(const char* finalmsg);
+void SV_Frame(int msec);
+void SV_PacketEvent(const netadr_t* from, msg_t* msg);
+int SV_FrameMsec(void);
+bool SV_GameCommand(void);
 
 //
 // UI interface
 //
-bool UI_GameCommand( void );
+bool UI_GameCommand(void);
 
 /* This is based on the Adaptive Huffman algorithm described in Sayood's Data
  * Compression book.  The ranks are not actually stored, but implicitly defined
  * by the location of a node within a doubly-linked list */
 
 inline constexpr int HMAX = 256; /* Maximum symbol */
-inline constexpr int NYT = HMAX;					/* NYT = Not Yet Transmitted */
-inline constexpr int INTERNAL_NODE = HMAX+1;
+inline constexpr int NYT = HMAX; /* NYT = Not Yet Transmitted */
+inline constexpr int INTERNAL_NODE = HMAX + 1;
 
 typedef struct nodetype {
-	struct	nodetype *left, *right, *parent; /* tree structure */
-	struct	nodetype *next, *prev; /* doubly-linked list */
-	struct	nodetype **head; /* highest ranked node in block */
-	int		weight;
-	int		symbol;
+    struct nodetype *left, *right, *parent; /* tree structure */
+    struct nodetype *next, *prev;           /* doubly-linked list */
+    struct nodetype** head;                 /* highest ranked node in block */
+    int weight;
+    int symbol;
 } node_t;
 
-
 typedef struct huff_s {
-	int			blocNode;
-	int			blocPtrs;
+    int blocNode;
+    int blocPtrs;
 
-	node_t*		tree;
-	node_t*		lhead;
-	node_t*		ltail;
-	node_t*		loc[HMAX+1];
-	node_t**	freelist;
+    node_t* tree;
+    node_t* lhead;
+    node_t* ltail;
+    node_t* loc[HMAX + 1];
+    node_t** freelist;
 
-	node_t		nodeList[768];
-	node_t*		nodePtrs[768];
+    node_t nodeList[768];
+    node_t* nodePtrs[768];
 } huff_t;
 
 typedef struct huffman_s {
-	huff_t		compressor;
-	huff_t		decompressor;
+    huff_t compressor;
+    huff_t decompressor;
 } huffman_t;
 
-void	Huff_Compress(msg_t *buf, int offset);
-void	Huff_Decompress(msg_t *buf, int offset);
-void	Huff_Init(huffman_t *huff);
-void	Huff_addRef(huff_t* huff, byte ch);
-int		Huff_Receive (node_t *node, int *ch, byte *fin);
-void	Huff_transmit (huff_t *huff, int ch, byte *fout, int maxoffset);
-void	Huff_offsetReceive (node_t *node, int *ch, byte *fin, int *offset, int maxoffset);
-void	Huff_offsetTransmit (huff_t *huff, int ch, byte *fout, int *offset, int maxoffset);
-void	Huff_putBit( int bit, byte *fout, int *offset);
-int		Huff_getBit( byte *fout, int *offset);
+void Huff_Compress(msg_t* buf, int offset);
+void Huff_Decompress(msg_t* buf, int offset);
+void Huff_Init(huffman_t* huff);
+void Huff_addRef(huff_t* huff, byte ch);
+int Huff_Receive(node_t* node, int* ch, byte* fin);
+void Huff_transmit(huff_t* huff, int ch, byte* fout, int maxoffset);
+void Huff_offsetReceive(node_t* node, int* ch, byte* fin, int* offset, int maxoffset);
+void Huff_offsetTransmit(huff_t* huff, int ch, byte* fout, int* offset, int maxoffset);
+void Huff_putBit(int bit, byte* fout, int* offset);
+int Huff_getBit(byte* fout, int* offset);
 
 extern huffman_t clientHuffTables;
 
 inline int Round(float value)
 {
-	return((int)Q_floorf(value + 0.5f));
+    return ((int)Q_floorf(value + 0.5f));
 }
 
 // Persistent data store API
-bool PD_Store ( const char *name, const void *data, size_t size );
-const void *PD_Load ( const char *name, size_t *size );
+bool PD_Store(const char* name, const void* data, size_t size);
+const void* PD_Load(const char* name, size_t* size);
 
-uint32_t ConvertUTF8ToUTF32( char *utf8CurrentChar, char **utf8NextChar );
+uint32_t ConvertUTF8ToUTF32(char* utf8CurrentChar, char** utf8NextChar);
 
 #include "sys/sys_public.h"

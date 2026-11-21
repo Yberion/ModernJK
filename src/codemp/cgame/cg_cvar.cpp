@@ -28,79 +28,83 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // Cvar callbacks
 //
 
-static void CG_SVRunningChange( void ) {
-	cgs.localServer = sv_running.integer;
+static void CG_SVRunningChange(void)
+{
+    cgs.localServer = sv_running.integer;
 }
 
-static void CG_ForceModelChange( void ) {
-	int i;
+static void CG_ForceModelChange(void)
+{
+    int i;
 
-	for ( i=0; i<MAX_CLIENTS; i++ ) {
-		const char *clientInfo = CG_ConfigString( CS_PLAYERS+i );
+    for (i = 0; i < MAX_CLIENTS; i++) {
+        const char* clientInfo = CG_ConfigString(CS_PLAYERS + i);
 
-		if ( !VALIDSTRING( clientInfo ) )
-			continue;
+        if (!VALIDSTRING(clientInfo))
+            continue;
 
-		CG_NewClientInfo( i, true );
-	}
+        CG_NewClientInfo(i, true);
+    }
 }
 
-static void CG_TeamOverlayChange( void ) {
-	// If team overlay is on, ask for updates from the server.  If its off,
-	// let the server know so we don't receive it
-	if ( cg_drawTeamOverlay.integer > 0 && cgs.gametype >= gametype_t::GT_SINGLE_PLAYER)
-		trap->Cvar_Set( "teamoverlay", "1" );
-	else
-		trap->Cvar_Set( "teamoverlay", "0" );
+static void CG_TeamOverlayChange(void)
+{
+    // If team overlay is on, ask for updates from the server.  If its off,
+    // let the server know so we don't receive it
+    if (cg_drawTeamOverlay.integer > 0 && cgs.gametype >= gametype_t::GT_SINGLE_PLAYER)
+        trap->Cvar_Set("teamoverlay", "1");
+    else
+        trap->Cvar_Set("teamoverlay", "0");
 }
-
 
 //
 // Cvar table
 //
 
 typedef struct cvarTable_s {
-	vmCvar_t	*vmCvar;
-	const char	*cvarName;
-	const char	*defaultString;
-	void		(*update)( void );
-	cvarFlags_t	cvarFlags;
+    vmCvar_t* vmCvar;
+    const char* cvarName;
+    const char* defaultString;
+    void (*update)(void);
+    cvarFlags_t cvarFlags;
 } cvarTable_t;
 
 #define XCVAR_DECL
-	#include "cg_xcvar.h"
+#include "cg_xcvar.h"
 #undef XCVAR_DECL
 
 static const cvarTable_t cvarTable[] = {
-	#define XCVAR_LIST
-		#include "cg_xcvar.h"
-	#undef XCVAR_LIST
+#define XCVAR_LIST
+#include "cg_xcvar.h"
+#undef XCVAR_LIST
 };
-static const size_t cvarTableSize = ARRAY_LEN( cvarTable );
+static const size_t cvarTableSize = ARRAY_LEN(cvarTable);
 
-void CG_RegisterCvars( void ) {
-	size_t i = 0;
-	const cvarTable_t *cv = nullptr;
+void CG_RegisterCvars(void)
+{
+    size_t i = 0;
+    const cvarTable_t* cv = nullptr;
 
-	for ( i=0, cv=cvarTable; i<cvarTableSize; i++, cv++ ) {
-		trap->Cvar_Register( cv->vmCvar, cv->cvarName, cv->defaultString, cv->cvarFlags );
-		if ( cv->update )
-			cv->update();
-	}
+    for (i = 0, cv = cvarTable; i < cvarTableSize; i++, cv++) {
+        trap->Cvar_Register(cv->vmCvar, cv->cvarName, cv->defaultString, cv->cvarFlags);
+        if (cv->update)
+            cv->update();
+    }
 }
 
-void CG_UpdateCvars( void ) {
-	size_t i = 0;
-	const cvarTable_t *cv = nullptr;
+void CG_UpdateCvars(void)
+{
+    size_t i = 0;
+    const cvarTable_t* cv = nullptr;
 
-	for ( i=0, cv=cvarTable; i<cvarTableSize; i++, cv++ ) {
-		if ( cv->vmCvar ) {
-			int modCount = cv->vmCvar->modificationCount;
-			trap->Cvar_Update( cv->vmCvar );
-			if ( cv->vmCvar->modificationCount != modCount ) {
-				if ( cv->update )
-					cv->update();
-			}
-		}
-	}
+    for (i = 0, cv = cvarTable; i < cvarTableSize; i++, cv++) {
+        if (cv->vmCvar) {
+            int modCount = cv->vmCvar->modificationCount;
+            trap->Cvar_Update(cv->vmCvar);
+            if (cv->vmCvar->modificationCount != modCount) {
+                if (cv->update)
+                    cv->update();
+            }
+        }
+    }
 }

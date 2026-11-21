@@ -31,130 +31,85 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <fenv.h>
 #endif
 
-
 ///////////////////////////////////////////////////////////////////////////
 //
 //      DIRECTION ENCODING
 //
 ///////////////////////////////////////////////////////////////////////////
 constexpr int NUMVERTEXNORMALS = 162;
-static const vec3_t bytedirs[NUMVERTEXNORMALS] =
-{
-	{-0.525731f, 0.000000f, 0.850651f}, {-0.442863f, 0.238856f, 0.864188f},
-	{-0.295242f, 0.000000f, 0.955423f}, {-0.309017f, 0.500000f, 0.809017f},
-	{-0.162460f, 0.262866f, 0.951056f}, {0.000000f, 0.000000f, 1.000000f},
-	{0.000000f, 0.850651f, 0.525731f}, {-0.147621f, 0.716567f, 0.681718f},
-	{0.147621f, 0.716567f, 0.681718f}, {0.000000f, 0.525731f, 0.850651f},
-	{0.309017f, 0.500000f, 0.809017f}, {0.525731f, 0.000000f, 0.850651f},
-	{0.295242f, 0.000000f, 0.955423f}, {0.442863f, 0.238856f, 0.864188f},
-	{0.162460f, 0.262866f, 0.951056f}, {-0.681718f, 0.147621f, 0.716567f},
-	{-0.809017f, 0.309017f, 0.500000f},{-0.587785f, 0.425325f, 0.688191f},
-	{-0.850651f, 0.525731f, 0.000000f},{-0.864188f, 0.442863f, 0.238856f},
-	{-0.716567f, 0.681718f, 0.147621f},{-0.688191f, 0.587785f, 0.425325f},
-	{-0.500000f, 0.809017f, 0.309017f}, {-0.238856f, 0.864188f, 0.442863f},
-	{-0.425325f, 0.688191f, 0.587785f}, {-0.716567f, 0.681718f, -0.147621f},
-	{-0.500000f, 0.809017f, -0.309017f}, {-0.525731f, 0.850651f, 0.000000f},
-	{0.000000f, 0.850651f, -0.525731f}, {-0.238856f, 0.864188f, -0.442863f},
-	{0.000000f, 0.955423f, -0.295242f}, {-0.262866f, 0.951056f, -0.162460f},
-	{0.000000f, 1.000000f, 0.000000f}, {0.000000f, 0.955423f, 0.295242f},
-	{-0.262866f, 0.951056f, 0.162460f}, {0.238856f, 0.864188f, 0.442863f},
-	{0.262866f, 0.951056f, 0.162460f}, {0.500000f, 0.809017f, 0.309017f},
-	{0.238856f, 0.864188f, -0.442863f},{0.262866f, 0.951056f, -0.162460f},
-	{0.500000f, 0.809017f, -0.309017f},{0.850651f, 0.525731f, 0.000000f},
-	{0.716567f, 0.681718f, 0.147621f}, {0.716567f, 0.681718f, -0.147621f},
-	{0.525731f, 0.850651f, 0.000000f}, {0.425325f, 0.688191f, 0.587785f},
-	{0.864188f, 0.442863f, 0.238856f}, {0.688191f, 0.587785f, 0.425325f},
-	{0.809017f, 0.309017f, 0.500000f}, {0.681718f, 0.147621f, 0.716567f},
-	{0.587785f, 0.425325f, 0.688191f}, {0.955423f, 0.295242f, 0.000000f},
-	{1.000000f, 0.000000f, 0.000000f}, {0.951056f, 0.162460f, 0.262866f},
-	{0.850651f, -0.525731f, 0.000000f},{0.955423f, -0.295242f, 0.000000f},
-	{0.864188f, -0.442863f, 0.238856f}, {0.951056f, -0.162460f, 0.262866f},
-	{0.809017f, -0.309017f, 0.500000f}, {0.681718f, -0.147621f, 0.716567f},
-	{0.850651f, 0.000000f, 0.525731f}, {0.864188f, 0.442863f, -0.238856f},
-	{0.809017f, 0.309017f, -0.500000f}, {0.951056f, 0.162460f, -0.262866f},
-	{0.525731f, 0.000000f, -0.850651f}, {0.681718f, 0.147621f, -0.716567f},
-	{0.681718f, -0.147621f, -0.716567f},{0.850651f, 0.000000f, -0.525731f},
-	{0.809017f, -0.309017f, -0.500000f}, {0.864188f, -0.442863f, -0.238856f},
-	{0.951056f, -0.162460f, -0.262866f}, {0.147621f, 0.716567f, -0.681718f},
-	{0.309017f, 0.500000f, -0.809017f}, {0.425325f, 0.688191f, -0.587785f},
-	{0.442863f, 0.238856f, -0.864188f}, {0.587785f, 0.425325f, -0.688191f},
-	{0.688191f, 0.587785f, -0.425325f}, {-0.147621f, 0.716567f, -0.681718f},
-	{-0.309017f, 0.500000f, -0.809017f}, {0.000000f, 0.525731f, -0.850651f},
-	{-0.525731f, 0.000000f, -0.850651f}, {-0.442863f, 0.238856f, -0.864188f},
-	{-0.295242f, 0.000000f, -0.955423f}, {-0.162460f, 0.262866f, -0.951056f},
-	{0.000000f, 0.000000f, -1.000000f}, {0.295242f, 0.000000f, -0.955423f},
-	{0.162460f, 0.262866f, -0.951056f}, {-0.442863f, -0.238856f, -0.864188f},
-	{-0.309017f, -0.500000f, -0.809017f}, {-0.162460f, -0.262866f, -0.951056f},
-	{0.000000f, -0.850651f, -0.525731f}, {-0.147621f, -0.716567f, -0.681718f},
-	{0.147621f, -0.716567f, -0.681718f}, {0.000000f, -0.525731f, -0.850651f},
-	{0.309017f, -0.500000f, -0.809017f}, {0.442863f, -0.238856f, -0.864188f},
-	{0.162460f, -0.262866f, -0.951056f}, {0.238856f, -0.864188f, -0.442863f},
-	{0.500000f, -0.809017f, -0.309017f}, {0.425325f, -0.688191f, -0.587785f},
-	{0.716567f, -0.681718f, -0.147621f}, {0.688191f, -0.587785f, -0.425325f},
-	{0.587785f, -0.425325f, -0.688191f}, {0.000000f, -0.955423f, -0.295242f},
-	{0.000000f, -1.000000f, 0.000000f}, {0.262866f, -0.951056f, -0.162460f},
-	{0.000000f, -0.850651f, 0.525731f}, {0.000000f, -0.955423f, 0.295242f},
-	{0.238856f, -0.864188f, 0.442863f}, {0.262866f, -0.951056f, 0.162460f},
-	{0.500000f, -0.809017f, 0.309017f}, {0.716567f, -0.681718f, 0.147621f},
-	{0.525731f, -0.850651f, 0.000000f}, {-0.238856f, -0.864188f, -0.442863f},
-	{-0.500000f, -0.809017f, -0.309017f}, {-0.262866f, -0.951056f, -0.162460f},
-	{-0.850651f, -0.525731f, 0.000000f}, {-0.716567f, -0.681718f, -0.147621f},
-	{-0.716567f, -0.681718f, 0.147621f}, {-0.525731f, -0.850651f, 0.000000f},
-	{-0.500000f, -0.809017f, 0.309017f}, {-0.238856f, -0.864188f, 0.442863f},
-	{-0.262866f, -0.951056f, 0.162460f}, {-0.864188f, -0.442863f, 0.238856f},
-	{-0.809017f, -0.309017f, 0.500000f}, {-0.688191f, -0.587785f, 0.425325f},
-	{-0.681718f, -0.147621f, 0.716567f}, {-0.442863f, -0.238856f, 0.864188f},
-	{-0.587785f, -0.425325f, 0.688191f}, {-0.309017f, -0.500000f, 0.809017f},
-	{-0.147621f, -0.716567f, 0.681718f}, {-0.425325f, -0.688191f, 0.587785f},
-	{-0.162460f, -0.262866f, 0.951056f}, {0.442863f, -0.238856f, 0.864188f},
-	{0.162460f, -0.262866f, 0.951056f}, {0.309017f, -0.500000f, 0.809017f},
-	{0.147621f, -0.716567f, 0.681718f}, {0.000000f, -0.525731f, 0.850651f},
-	{0.425325f, -0.688191f, 0.587785f}, {0.587785f, -0.425325f, 0.688191f},
-	{0.688191f, -0.587785f, 0.425325f}, {-0.955423f, 0.295242f, 0.000000f},
-	{-0.951056f, 0.162460f, 0.262866f}, {-1.000000f, 0.000000f, 0.000000f},
-	{-0.850651f, 0.000000f, 0.525731f}, {-0.955423f, -0.295242f, 0.000000f},
-	{-0.951056f, -0.162460f, 0.262866f}, {-0.864188f, 0.442863f, -0.238856f},
-	{-0.951056f, 0.162460f, -0.262866f}, {-0.809017f, 0.309017f, -0.500000f},
-	{-0.864188f, -0.442863f, -0.238856f}, {-0.951056f, -0.162460f, -0.262866f},
-	{-0.809017f, -0.309017f, -0.500000f}, {-0.681718f, 0.147621f, -0.716567f},
-	{-0.681718f, -0.147621f, -0.716567f}, {-0.850651f, 0.000000f, -0.525731f},
-	{-0.688191f, 0.587785f, -0.425325f}, {-0.587785f, 0.425325f, -0.688191f},
-	{-0.425325f, 0.688191f, -0.587785f}, {-0.425325f, -0.688191f, -0.587785f},
-	{-0.587785f, -0.425325f, -0.688191f}, {-0.688191f, -0.587785f, -0.425325f}
-};
+static const vec3_t bytedirs[NUMVERTEXNORMALS] = {
+    {-0.525731f, 0.000000f, 0.850651f},   {-0.442863f, 0.238856f, 0.864188f},   {-0.295242f, 0.000000f, 0.955423f},   {-0.309017f, 0.500000f, 0.809017f},
+    {-0.162460f, 0.262866f, 0.951056f},   {0.000000f, 0.000000f, 1.000000f},    {0.000000f, 0.850651f, 0.525731f},    {-0.147621f, 0.716567f, 0.681718f},
+    {0.147621f, 0.716567f, 0.681718f},    {0.000000f, 0.525731f, 0.850651f},    {0.309017f, 0.500000f, 0.809017f},    {0.525731f, 0.000000f, 0.850651f},
+    {0.295242f, 0.000000f, 0.955423f},    {0.442863f, 0.238856f, 0.864188f},    {0.162460f, 0.262866f, 0.951056f},    {-0.681718f, 0.147621f, 0.716567f},
+    {-0.809017f, 0.309017f, 0.500000f},   {-0.587785f, 0.425325f, 0.688191f},   {-0.850651f, 0.525731f, 0.000000f},   {-0.864188f, 0.442863f, 0.238856f},
+    {-0.716567f, 0.681718f, 0.147621f},   {-0.688191f, 0.587785f, 0.425325f},   {-0.500000f, 0.809017f, 0.309017f},   {-0.238856f, 0.864188f, 0.442863f},
+    {-0.425325f, 0.688191f, 0.587785f},   {-0.716567f, 0.681718f, -0.147621f},  {-0.500000f, 0.809017f, -0.309017f},  {-0.525731f, 0.850651f, 0.000000f},
+    {0.000000f, 0.850651f, -0.525731f},   {-0.238856f, 0.864188f, -0.442863f},  {0.000000f, 0.955423f, -0.295242f},   {-0.262866f, 0.951056f, -0.162460f},
+    {0.000000f, 1.000000f, 0.000000f},    {0.000000f, 0.955423f, 0.295242f},    {-0.262866f, 0.951056f, 0.162460f},   {0.238856f, 0.864188f, 0.442863f},
+    {0.262866f, 0.951056f, 0.162460f},    {0.500000f, 0.809017f, 0.309017f},    {0.238856f, 0.864188f, -0.442863f},   {0.262866f, 0.951056f, -0.162460f},
+    {0.500000f, 0.809017f, -0.309017f},   {0.850651f, 0.525731f, 0.000000f},    {0.716567f, 0.681718f, 0.147621f},    {0.716567f, 0.681718f, -0.147621f},
+    {0.525731f, 0.850651f, 0.000000f},    {0.425325f, 0.688191f, 0.587785f},    {0.864188f, 0.442863f, 0.238856f},    {0.688191f, 0.587785f, 0.425325f},
+    {0.809017f, 0.309017f, 0.500000f},    {0.681718f, 0.147621f, 0.716567f},    {0.587785f, 0.425325f, 0.688191f},    {0.955423f, 0.295242f, 0.000000f},
+    {1.000000f, 0.000000f, 0.000000f},    {0.951056f, 0.162460f, 0.262866f},    {0.850651f, -0.525731f, 0.000000f},   {0.955423f, -0.295242f, 0.000000f},
+    {0.864188f, -0.442863f, 0.238856f},   {0.951056f, -0.162460f, 0.262866f},   {0.809017f, -0.309017f, 0.500000f},   {0.681718f, -0.147621f, 0.716567f},
+    {0.850651f, 0.000000f, 0.525731f},    {0.864188f, 0.442863f, -0.238856f},   {0.809017f, 0.309017f, -0.500000f},   {0.951056f, 0.162460f, -0.262866f},
+    {0.525731f, 0.000000f, -0.850651f},   {0.681718f, 0.147621f, -0.716567f},   {0.681718f, -0.147621f, -0.716567f},  {0.850651f, 0.000000f, -0.525731f},
+    {0.809017f, -0.309017f, -0.500000f},  {0.864188f, -0.442863f, -0.238856f},  {0.951056f, -0.162460f, -0.262866f},  {0.147621f, 0.716567f, -0.681718f},
+    {0.309017f, 0.500000f, -0.809017f},   {0.425325f, 0.688191f, -0.587785f},   {0.442863f, 0.238856f, -0.864188f},   {0.587785f, 0.425325f, -0.688191f},
+    {0.688191f, 0.587785f, -0.425325f},   {-0.147621f, 0.716567f, -0.681718f},  {-0.309017f, 0.500000f, -0.809017f},  {0.000000f, 0.525731f, -0.850651f},
+    {-0.525731f, 0.000000f, -0.850651f},  {-0.442863f, 0.238856f, -0.864188f},  {-0.295242f, 0.000000f, -0.955423f},  {-0.162460f, 0.262866f, -0.951056f},
+    {0.000000f, 0.000000f, -1.000000f},   {0.295242f, 0.000000f, -0.955423f},   {0.162460f, 0.262866f, -0.951056f},   {-0.442863f, -0.238856f, -0.864188f},
+    {-0.309017f, -0.500000f, -0.809017f}, {-0.162460f, -0.262866f, -0.951056f}, {0.000000f, -0.850651f, -0.525731f},  {-0.147621f, -0.716567f, -0.681718f},
+    {0.147621f, -0.716567f, -0.681718f},  {0.000000f, -0.525731f, -0.850651f},  {0.309017f, -0.500000f, -0.809017f},  {0.442863f, -0.238856f, -0.864188f},
+    {0.162460f, -0.262866f, -0.951056f},  {0.238856f, -0.864188f, -0.442863f},  {0.500000f, -0.809017f, -0.309017f},  {0.425325f, -0.688191f, -0.587785f},
+    {0.716567f, -0.681718f, -0.147621f},  {0.688191f, -0.587785f, -0.425325f},  {0.587785f, -0.425325f, -0.688191f},  {0.000000f, -0.955423f, -0.295242f},
+    {0.000000f, -1.000000f, 0.000000f},   {0.262866f, -0.951056f, -0.162460f},  {0.000000f, -0.850651f, 0.525731f},   {0.000000f, -0.955423f, 0.295242f},
+    {0.238856f, -0.864188f, 0.442863f},   {0.262866f, -0.951056f, 0.162460f},   {0.500000f, -0.809017f, 0.309017f},   {0.716567f, -0.681718f, 0.147621f},
+    {0.525731f, -0.850651f, 0.000000f},   {-0.238856f, -0.864188f, -0.442863f}, {-0.500000f, -0.809017f, -0.309017f}, {-0.262866f, -0.951056f, -0.162460f},
+    {-0.850651f, -0.525731f, 0.000000f},  {-0.716567f, -0.681718f, -0.147621f}, {-0.716567f, -0.681718f, 0.147621f},  {-0.525731f, -0.850651f, 0.000000f},
+    {-0.500000f, -0.809017f, 0.309017f},  {-0.238856f, -0.864188f, 0.442863f},  {-0.262866f, -0.951056f, 0.162460f},  {-0.864188f, -0.442863f, 0.238856f},
+    {-0.809017f, -0.309017f, 0.500000f},  {-0.688191f, -0.587785f, 0.425325f},  {-0.681718f, -0.147621f, 0.716567f},  {-0.442863f, -0.238856f, 0.864188f},
+    {-0.587785f, -0.425325f, 0.688191f},  {-0.309017f, -0.500000f, 0.809017f},  {-0.147621f, -0.716567f, 0.681718f},  {-0.425325f, -0.688191f, 0.587785f},
+    {-0.162460f, -0.262866f, 0.951056f},  {0.442863f, -0.238856f, 0.864188f},   {0.162460f, -0.262866f, 0.951056f},   {0.309017f, -0.500000f, 0.809017f},
+    {0.147621f, -0.716567f, 0.681718f},   {0.000000f, -0.525731f, 0.850651f},   {0.425325f, -0.688191f, 0.587785f},   {0.587785f, -0.425325f, 0.688191f},
+    {0.688191f, -0.587785f, 0.425325f},   {-0.955423f, 0.295242f, 0.000000f},   {-0.951056f, 0.162460f, 0.262866f},   {-1.000000f, 0.000000f, 0.000000f},
+    {-0.850651f, 0.000000f, 0.525731f},   {-0.955423f, -0.295242f, 0.000000f},  {-0.951056f, -0.162460f, 0.262866f},  {-0.864188f, 0.442863f, -0.238856f},
+    {-0.951056f, 0.162460f, -0.262866f},  {-0.809017f, 0.309017f, -0.500000f},  {-0.864188f, -0.442863f, -0.238856f}, {-0.951056f, -0.162460f, -0.262866f},
+    {-0.809017f, -0.309017f, -0.500000f}, {-0.681718f, 0.147621f, -0.716567f},  {-0.681718f, -0.147621f, -0.716567f}, {-0.850651f, 0.000000f, -0.525731f},
+    {-0.688191f, 0.587785f, -0.425325f},  {-0.587785f, 0.425325f, -0.688191f},  {-0.425325f, 0.688191f, -0.587785f},  {-0.425325f, -0.688191f, -0.587785f},
+    {-0.587785f, -0.425325f, -0.688191f}, {-0.688191f, -0.587785f, -0.425325f}};
 
 // this isn't a real cheap function to call!
-int DirToByte( vec3_t dir )
+int DirToByte(vec3_t dir)
 {
-	int		i, best;
-	float	d, bestd;
+    int i, best;
+    float d, bestd;
 
-	if ( !dir ) {
-		return 0;
-	}
+    if (!dir) {
+        return 0;
+    }
 
-	bestd = 0;
-	best = 0;
-	for (i=0 ; i<NUMVERTEXNORMALS ; i++)
-	{
-		d = DotProduct(dir, bytedirs[i]);
-		if (d > bestd)
-		{
-			bestd = d;
-			best = i;
-		}
-	}
+    bestd = 0;
+    best = 0;
+    for (i = 0; i < NUMVERTEXNORMALS; i++) {
+        d = DotProduct(dir, bytedirs[i]);
+        if (d > bestd) {
+            bestd = d;
+            best = i;
+        }
+    }
 
-	return best;
+    return best;
 }
 
-void ByteToDir( int b, vec3_t dir )
+void ByteToDir(int b, vec3_t dir)
 {
-	if ( b < 0 || b >= NUMVERTEXNORMALS ) {
-		VectorCopy( vec3_origin, dir );
-		return;
-	}
-	VectorCopy(bytedirs[b], dir);
+    if (b < 0 || b >= NUMVERTEXNORMALS) {
+        VectorCopy(vec3_origin, dir);
+        return;
+    }
+    VectorCopy(bytedirs[b], dir);
 }
 
 /*
@@ -165,36 +120,32 @@ void ByteToDir( int b, vec3_t dir )
 ** Lng = 0 at (0,0,1) to 180 (0,0,-1), encoded in 8-bit sine table format
 **
 */
-//rwwRMG - added
-void NormalToLatLong( const vec3_t normal, byte bytes[2] )
+// rwwRMG - added
+void NormalToLatLong(const vec3_t normal, byte bytes[2])
 {
-	// check for singularities
-	if (!normal[0] && !normal[1])
-	{
-		if ( normal[2] > 0.0f )
-		{
-			bytes[0] = 0;
-			bytes[1] = 0;		// lat = 0, long = 0
-		}
-		else
-		{
-			bytes[0] = 128;
-			bytes[1] = 0;		// lat = 0, long = 128
-		}
-	}
-	else
-	{
-		int	a, b;
+    // check for singularities
+    if (!normal[0] && !normal[1]) {
+        if (normal[2] > 0.0f) {
+            bytes[0] = 0;
+            bytes[1] = 0; // lat = 0, long = 0
+        }
+        else {
+            bytes[0] = 128;
+            bytes[1] = 0; // lat = 0, long = 128
+        }
+    }
+    else {
+        int a, b;
 
-		a = (int)( Q_atan2degf( normal[1], normal[0] ) * ( 255.0f / 360.0f ) );
-		a &= 0xff;
+        a = (int)(Q_atan2degf(normal[1], normal[0]) * (255.0f / 360.0f));
+        a &= 0xff;
 
-		b = (int)( Q_acosdegf( normal[2] ) * ( 255.0f / 360.0f ) );
-		b &= 0xff;
+        b = (int)(Q_acosdegf(normal[2]) * (255.0f / 360.0f));
+        b &= 0xff;
 
-		bytes[0] = b;	// longitude
-		bytes[1] = a;	// lattitude
-	}
+        bytes[0] = b; // longitude
+        bytes[1] = a; // lattitude
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -204,7 +155,6 @@ void NormalToLatLong( const vec3_t normal, byte bytes[2] )
 ///////////////////////////////////////////////////////////////////////////
 // random numbers: q_rand.cpp (q_rand.h)
 
-
 ///////////////////////////////////////////////////////////////////////////
 //
 //      MATH UTILITIES
@@ -212,100 +162,94 @@ void NormalToLatLong( const vec3_t normal, byte bytes[2] )
 ///////////////////////////////////////////////////////////////////////////
 // the bound of a user command's move (its only use): -127 to 127, symmetric, so that a player moves as fast backward,
 // left or down as forward, right or up (-128 gave 128 / 127 of the speed)
-signed char ClampChar( int i )
+signed char ClampChar(int i)
 {
-	if ( i < -127 ) {
-		return -127;
-	}
-	if ( i > 127 ) {
-		return 127;
-	}
-	return i;
+    if (i < -127) {
+        return -127;
+    }
+    if (i > 127) {
+        return 127;
+    }
+    return i;
 }
 
-signed short ClampShort( int i )
+signed short ClampShort(int i)
 {
-	if ( i < -32768 ) {
-		return -32768;
-	}
-	if ( i > 0x7fff ) {
-		return 0x7fff;
-	}
-	return i;
+    if (i < -32768) {
+        return -32768;
+    }
+    if (i > 0x7fff) {
+        return 0x7fff;
+    }
+    return i;
 }
 
-int Com_Clampi( int min, int max, int value )
+int Com_Clampi(int min, int max, int value)
 {
-	if ( value < min )
-	{
-		return min;
-	}
-	if ( value > max )
-	{
-		return max;
-	}
-	return value;
+    if (value < min) {
+        return min;
+    }
+    if (value > max) {
+        return max;
+    }
+    return value;
 }
 
-float Com_Clamp( float min, float max, float value ) {
-	if ( value < min ) {
-		return min;
-	}
-	if ( value > max ) {
-		return max;
-	}
-	return value;
+float Com_Clamp(float min, float max, float value)
+{
+    if (value < min) {
+        return min;
+    }
+    if (value > max) {
+        return max;
+    }
+    return value;
 }
 
-int Com_AbsClampi( int min, int max, int value )
+int Com_AbsClampi(int min, int max, int value)
 {
-	if( value < 0 )
-	{
-		return Com_Clampi( -max, -min, value );
-	}
-	else
-	{
-		return Com_Clampi( min, max, value );
-	}
+    if (value < 0) {
+        return Com_Clampi(-max, -min, value);
+    }
+    else {
+        return Com_Clampi(min, max, value);
+    }
 }
 
-float Com_AbsClamp( float min, float max, float value )
+float Com_AbsClamp(float min, float max, float value)
 {
-	if( value < 0.0f )
-	{
-		return Com_Clamp( -max, -min, value );
-	}
-	else
-	{
-		return Com_Clamp( min, max, value );
-	}
+    if (value < 0.0f) {
+        return Com_Clamp(-max, -min, value);
+    }
+    else {
+        return Com_Clamp(min, max, value);
+    }
 }
 
-
-int Q_ilog2( int val )
+int Q_ilog2(int val)
 {
-	int answer;
+    int answer;
 
-	answer = 0;
-	while ( ( val>>=1 ) != 0 ) {
-		answer++;
-	}
-	return answer;
+    answer = 0;
+    while ((val >>= 1) != 0) {
+        answer++;
+    }
+    return answer;
 }
 
 float LerpAngle(float from, float to, float frac)
 {
-	float	a;
+    float a;
 
-	if ( to - from > 180 ) {
-		to -= 360;
-	}
-	if ( to - from < -180 ) {
-		to += 360;
-	}
-	a = from + frac * (to - from);
+    if (to - from > 180) {
+        to -= 360;
+    }
+    if (to - from < -180) {
+        to += 360;
+    }
+    a = from + frac * (to - from);
 
-	return a;
+    return a;
 }
 
 /*
@@ -315,29 +259,32 @@ AngleSubtract
 Always returns a value from -180 to 180
 =================
 */
-float AngleSubtract( float a1, float a2 ) {
-	float	a;
+float AngleSubtract(float a1, float a2)
+{
+    float a;
 
-	a = a1 - a2;
-	a=Q_fmodf(a,360);//chop it down quickly, then level it out
-	while ( a > 180 ) {
-		a -= 360;
-	}
-	while ( a < -180 ) {
-		a += 360;
-	}
-	return a;
+    a = a1 - a2;
+    a = Q_fmodf(a, 360); // chop it down quickly, then level it out
+    while (a > 180) {
+        a -= 360;
+    }
+    while (a < -180) {
+        a += 360;
+    }
+    return a;
 }
 
-void AnglesSubtract( vec3_t v1, vec3_t v2, vec3_t v3 ) {
-	v3[0] = AngleSubtract( v1[0], v2[0] );
-	v3[1] = AngleSubtract( v1[1], v2[1] );
-	v3[2] = AngleSubtract( v1[2], v2[2] );
+void AnglesSubtract(vec3_t v1, vec3_t v2, vec3_t v3)
+{
+    v3[0] = AngleSubtract(v1[0], v2[0]);
+    v3[1] = AngleSubtract(v1[1], v2[1]);
+    v3[2] = AngleSubtract(v1[2], v2[2]);
 }
 
-float AngleMod(float a) {
-	a = (360.0f/65536) * ((int)(a*(65536/360.0f)) & 65535);
-	return a;
+float AngleMod(float a)
+{
+    a = (360.0f / 65536) * ((int)(a * (65536 / 360.0f)) & 65535);
+    return a;
 }
 
 /*
@@ -347,8 +294,9 @@ AngleNormalize360
 returns angle normalized to the range [0 <= angle < 360]
 =================
 */
-float AngleNormalize360 ( float angle ) {
-	return (360.0f / 65536) * ((int)(angle * (65536 / 360.0f)) & 65535);
+float AngleNormalize360(float angle)
+{
+    return (360.0f / 65536) * ((int)(angle * (65536 / 360.0f)) & 65535);
 }
 
 /*
@@ -358,12 +306,13 @@ AngleNormalize180
 returns angle normalized to the range [-180 < angle <= 180]
 =================
 */
-float AngleNormalize180 ( float angle ) {
-	angle = AngleNormalize360( angle );
-	if ( angle > 180.0 ) {
-		angle -= 360.0;
-	}
-	return angle;
+float AngleNormalize180(float angle)
+{
+    angle = AngleNormalize360(angle);
+    if (angle > 180.0) {
+        angle -= 360.0;
+    }
+    return angle;
 }
 
 /*
@@ -373,10 +322,10 @@ AngleDelta
 returns the normalized delta from angle1 to angle2
 =================
 */
-float AngleDelta ( float angle1, float angle2 ) {
-	return AngleNormalize180( angle1 - angle2 );
+float AngleDelta(float angle1, float angle2)
+{
+    return AngleNormalize180(angle1 - angle2);
 }
-
 
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -391,18 +340,19 @@ Returns false if the triangle is degenrate.
 The normal will point out of the clock for clockwise ordered points
 =====================
 */
-bool PlaneFromPoints( vec4_t plane, const vec3_t a, const vec3_t b, const vec3_t c ) {
-	vec3_t	d1, d2;
+bool PlaneFromPoints(vec4_t plane, const vec3_t a, const vec3_t b, const vec3_t c)
+{
+    vec3_t d1, d2;
 
-	VectorSubtract( b, a, d1 );
-	VectorSubtract( c, a, d2 );
-	CrossProduct( d2, d1, plane );
-	if ( VectorNormalize( plane ) == 0 ) {
-		return false;
-	}
+    VectorSubtract(b, a, d1);
+    VectorSubtract(c, a, d2);
+    CrossProduct(d2, d1, plane);
+    if (VectorNormalize(plane) == 0) {
+        return false;
+    }
 
-	plane[3] = DotProduct( a, plane );
-	return true;
+    plane[3] = DotProduct(a, plane);
+    return true;
 }
 
 /*
@@ -412,369 +362,355 @@ RotatePointAroundVector
 From q3mme
 ===============
 */
-void RotatePointAroundVector( vec3_t dst, const vec3_t dir, const vec3_t point, float degrees ) {
-	float   m[3][3];
-	float   c, s, t;
-
-	// the sine and cosine of -degrees through half turns: exact at multiples of 90 degrees
-	s = Q_sinpif( -degrees / 180.0f );
-	c = Q_cospif( -degrees / 180.0f );
-	t = 1 - c;
-
-	m[0][0] = t*dir[0]*dir[0] + c;
-	m[0][1] = t*dir[0]*dir[1] + s*dir[2];
-	m[0][2] = t*dir[0]*dir[2] - s*dir[1];
-
-	m[1][0] = t*dir[0]*dir[1] - s*dir[2];
-	m[1][1] = t*dir[1]*dir[1] + c;
-	m[1][2] = t*dir[1]*dir[2] + s*dir[0];
-
-	m[2][0] = t*dir[0]*dir[2] + s*dir[1];
-	m[2][1] = t*dir[1]*dir[2] - s*dir[0];
-	m[2][2] = t*dir[2]*dir[2] + c;
-	VectorRotate( point, m, dst );
-}
-
-void RotateAroundDirection( matrix3_t axis, float yaw ) {
-
-	// create an arbitrary axis[1]
-	PerpendicularVector( axis[1], axis[0] );
-
-	// rotate it around axis[0] by yaw
-	if ( yaw ) {
-		vec3_t	temp;
-
-		VectorCopy( axis[1], temp );
-		RotatePointAroundVector( axis[1], axis[0], temp, yaw );
-	}
-
-	// cross to get axis[2]
-	CrossProduct( axis[0], axis[1], axis[2] );
-}
-
-void vectoangles( const vec3_t value1, vec3_t angles ) {
-	float	forward;
-	float	yaw, pitch;
-
-	if ( value1[1] == 0 && value1[0] == 0 ) {
-		yaw = 0;
-		if ( value1[2] > 0 ) {
-			pitch = 90;
-		}
-		else {
-			pitch = 270;
-		}
-	}
-	else {
-		if ( value1[0] ) {
-			yaw = Q_atan2degf( value1[1], value1[0] );
-		}
-		else if ( value1[1] > 0 ) {
-			yaw = 90;
-		}
-		else {
-			yaw = 270;
-		}
-		if ( yaw < 0 ) {
-			yaw += 360;
-		}
-
-		forward = (float)Q_sqrt( (double)value1[0]*value1[0] + (double)value1[1]*value1[1] );
-		pitch = Q_atan2degf( value1[2], forward );
-		if ( pitch < 0 ) {
-			pitch += 360;
-		}
-	}
-
-	angles[PITCH] = -pitch;
-	angles[YAW] = yaw;
-	angles[ROLL] = 0;
-}
-
-vec_t GetYawForDirection( const vec3_t p1, const vec3_t p2 ) {
-	vec3_t v, angles;
-
-	VectorSubtract( p2, p1, v );
-	vectoangles( v, angles );
-
-	return angles[YAW];
-}
-
-void GetAnglesForDirection( const vec3_t p1, const vec3_t p2, vec3_t out ) {
-	vec3_t v;
-
-	VectorSubtract( p2, p1, v );
-	vectoangles( v, out );
-}
-
-void ProjectPointOnPlane( vec3_t dst, const vec3_t p, const vec3_t normal )
+void RotatePointAroundVector(vec3_t dst, const vec3_t dir, const vec3_t point, float degrees)
 {
-	float d;
-	vec3_t n;
-	float inv_denom;
+    float m[3][3];
+    float c, s, t;
 
-	inv_denom =  DotProduct( normal, normal );
-	assert( Q_fabsf(inv_denom) != 0.0f );
-	inv_denom = 1.0f / inv_denom;
+    // the sine and cosine of -degrees through half turns: exact at multiples of 90 degrees
+    s = Q_sinpif(-degrees / 180.0f);
+    c = Q_cospif(-degrees / 180.0f);
+    t = 1 - c;
 
-	d = DotProduct( normal, p ) * inv_denom;
+    m[0][0] = t * dir[0] * dir[0] + c;
+    m[0][1] = t * dir[0] * dir[1] + s * dir[2];
+    m[0][2] = t * dir[0] * dir[2] - s * dir[1];
 
-	n[0] = normal[0] * inv_denom;
-	n[1] = normal[1] * inv_denom;
-	n[2] = normal[2] * inv_denom;
+    m[1][0] = t * dir[0] * dir[1] - s * dir[2];
+    m[1][1] = t * dir[1] * dir[1] + c;
+    m[1][2] = t * dir[1] * dir[2] + s * dir[0];
 
-	dst[0] = p[0] - d * n[0];
-	dst[1] = p[1] - d * n[1];
-	dst[2] = p[2] - d * n[2];
+    m[2][0] = t * dir[0] * dir[2] + s * dir[1];
+    m[2][1] = t * dir[1] * dir[2] - s * dir[0];
+    m[2][2] = t * dir[2] * dir[2] + c;
+    VectorRotate(point, m, dst);
 }
 
-bool G_FindClosestPointOnLineSegment( const vec3_t start, const vec3_t end, const vec3_t from, vec3_t result )
+void RotateAroundDirection(matrix3_t axis, float yaw)
 {
-	vec3_t	vecStart2From, vecStart2End, vecEnd2Start, vecEnd2From;
-	float	distEnd2From, distEnd2Result, theta, cos_theta, dot;
 
-	//Find the perpendicular vector to vec from start to end
-	VectorSubtract( from, start, vecStart2From);
-	VectorSubtract( end, start, vecStart2End);
+    // create an arbitrary axis[1]
+    PerpendicularVector(axis[1], axis[0]);
 
-	dot = DotProductNormalize( vecStart2From, vecStart2End );
+    // rotate it around axis[0] by yaw
+    if (yaw) {
+        vec3_t temp;
 
-	if ( dot <= 0 )
-	{
-		//The perpendicular would be beyond or through the start point
-		VectorCopy( start, result );
-		return false;
-	}
+        VectorCopy(axis[1], temp);
+        RotatePointAroundVector(axis[1], axis[0], temp, yaw);
+    }
 
-	if ( dot == 1 )
-	{
-		//parallel, closer of 2 points will be the target
-		if( (VectorLengthSquared( vecStart2From )) < (VectorLengthSquared( vecStart2End )) )
-		{
-			VectorCopy( from, result );
-		}
-		else
-		{
-			VectorCopy( end, result );
-		}
-		return false;
-	}
-
-	//Try other end
-	VectorSubtract( from, end, vecEnd2From);
-	VectorSubtract( start, end, vecEnd2Start);
-
-	dot = DotProductNormalize( vecEnd2From, vecEnd2Start );
-
-	if ( dot <= 0 )
-	{//The perpendicular would be beyond or through the start point
-		VectorCopy( end, result );
-		return false;
-	}
-
-	if ( dot == 1 )
-	{//parallel, closer of 2 points will be the target
-		if( (VectorLengthSquared( vecEnd2From )) < (VectorLengthSquared( vecEnd2Start )))
-		{
-			VectorCopy( from, result );
-		}
-		else
-		{
-			VectorCopy( end, result );
-		}
-		return false;
-	}
-
-	//		      /|
-	//		  c  / |
-	//		    /  |a
-	//	theta  /)__|
-	//		      b
-	//cos(theta) = b / c
-	//solve for b
-	//b = cos(theta) * c
-
-	//angle between vecs end2from and end2start, should be between 0 and 90
-	theta = 90 * (1 - dot);//theta
-
-						   //Get length of side from End2Result using sine of theta
-	distEnd2From = VectorLength( vecEnd2From );//c
-	cos_theta = Q_cospif( theta / 180.0f );//cos(theta)
-	distEnd2Result = cos_theta * distEnd2From;//b
-
-											  //Extrapolate to find result
-	VectorNormalize( vecEnd2Start );
-	VectorMA( end, distEnd2Result, vecEnd2Start, result );
-
-	//perpendicular intersection is between the 2 endpoints
-	return true;
+    // cross to get axis[2]
+    CrossProduct(axis[0], axis[1], axis[2]);
 }
 
-float G_PointDistFromLineSegment( const vec3_t start, const vec3_t end, const vec3_t from )
+void vectoangles(const vec3_t value1, vec3_t angles)
 {
-	vec3_t	vecStart2From, vecStart2End, vecEnd2Start, vecEnd2From, intersection;
-	float	distEnd2From, distStart2From, distEnd2Result, theta, cos_theta, dot;
+    float forward;
+    float yaw, pitch;
 
-	//Find the perpendicular vector to vec from start to end
-	VectorSubtract( from, start, vecStart2From);
-	VectorSubtract( end, start, vecStart2End);
-	VectorSubtract( from, end, vecEnd2From);
-	VectorSubtract( start, end, vecEnd2Start);
+    if (value1[1] == 0 && value1[0] == 0) {
+        yaw = 0;
+        if (value1[2] > 0) {
+            pitch = 90;
+        }
+        else {
+            pitch = 270;
+        }
+    }
+    else {
+        if (value1[0]) {
+            yaw = Q_atan2degf(value1[1], value1[0]);
+        }
+        else if (value1[1] > 0) {
+            yaw = 90;
+        }
+        else {
+            yaw = 270;
+        }
+        if (yaw < 0) {
+            yaw += 360;
+        }
 
-	dot = DotProductNormalize( vecStart2From, vecStart2End );
+        forward = (float)Q_sqrt((double)value1[0] * value1[0] + (double)value1[1] * value1[1]);
+        pitch = Q_atan2degf(value1[2], forward);
+        if (pitch < 0) {
+            pitch += 360;
+        }
+    }
 
-	distStart2From = Distance( start, from );
-	distEnd2From = Distance( end, from );
-
-	if ( dot <= 0 )
-	{
-		//The perpendicular would be beyond or through the start point
-		return distStart2From;
-	}
-
-	if ( dot == 1 )
-	{
-		//parallel, closer of 2 points will be the target
-		return ((distStart2From<distEnd2From)?distStart2From:distEnd2From);
-	}
-
-	//Try other end
-
-	dot = DotProductNormalize( vecEnd2From, vecEnd2Start );
-
-	if ( dot <= 0 )
-	{//The perpendicular would be beyond or through the end point
-		return distEnd2From;
-	}
-
-	if ( dot == 1 )
-	{//parallel, closer of 2 points will be the target
-		return ((distStart2From<distEnd2From)?distStart2From:distEnd2From);
-	}
-
-	//		      /|
-	//		  c  / |
-	//		    /  |a
-	//	theta  /)__|
-	//		      b
-	//cos(theta) = b / c
-	//solve for b
-	//b = cos(theta) * c
-
-	//angle between vecs end2from and end2start, should be between 0 and 90
-	theta = 90 * (1 - dot);//theta
-
-						   //Get length of side from End2Result using sine of theta
-	cos_theta = Q_cospif( theta / 180.0f );//cos(theta)
-	distEnd2Result = cos_theta * distEnd2From;//b
-
-											  //Extrapolate to find result
-	VectorNormalize( vecEnd2Start );
-	VectorMA( end, distEnd2Result, vecEnd2Start, intersection );
-
-	//perpendicular intersection is between the 2 endpoints, return dist to it from from
-	return Distance( intersection, from );
+    angles[PITCH] = -pitch;
+    angles[YAW] = yaw;
+    angles[ROLL] = 0;
 }
 
-void MatrixMultiply(float in1[3][3], float in2[3][3], float out[3][3]) {
-	out[0][0] = in1[0][0] * in2[0][0] + in1[0][1] * in2[1][0] +
-		in1[0][2] * in2[2][0];
-	out[0][1] = in1[0][0] * in2[0][1] + in1[0][1] * in2[1][1] +
-		in1[0][2] * in2[2][1];
-	out[0][2] = in1[0][0] * in2[0][2] + in1[0][1] * in2[1][2] +
-		in1[0][2] * in2[2][2];
-	out[1][0] = in1[1][0] * in2[0][0] + in1[1][1] * in2[1][0] +
-		in1[1][2] * in2[2][0];
-	out[1][1] = in1[1][0] * in2[0][1] + in1[1][1] * in2[1][1] +
-		in1[1][2] * in2[2][1];
-	out[1][2] = in1[1][0] * in2[0][2] + in1[1][1] * in2[1][2] +
-		in1[1][2] * in2[2][2];
-	out[2][0] = in1[2][0] * in2[0][0] + in1[2][1] * in2[1][0] +
-		in1[2][2] * in2[2][0];
-	out[2][1] = in1[2][0] * in2[0][1] + in1[2][1] * in2[1][1] +
-		in1[2][2] * in2[2][1];
-	out[2][2] = in1[2][0] * in2[0][2] + in1[2][1] * in2[1][2] +
-		in1[2][2] * in2[2][2];
+vec_t GetYawForDirection(const vec3_t p1, const vec3_t p2)
+{
+    vec3_t v, angles;
+
+    VectorSubtract(p2, p1, v);
+    vectoangles(v, angles);
+
+    return angles[YAW];
 }
 
+void GetAnglesForDirection(const vec3_t p1, const vec3_t p2, vec3_t out)
+{
+    vec3_t v;
+
+    VectorSubtract(p2, p1, v);
+    vectoangles(v, out);
+}
+
+void ProjectPointOnPlane(vec3_t dst, const vec3_t p, const vec3_t normal)
+{
+    float d;
+    vec3_t n;
+    float inv_denom;
+
+    inv_denom = DotProduct(normal, normal);
+    assert(Q_fabsf(inv_denom) != 0.0f);
+    inv_denom = 1.0f / inv_denom;
+
+    d = DotProduct(normal, p) * inv_denom;
+
+    n[0] = normal[0] * inv_denom;
+    n[1] = normal[1] * inv_denom;
+    n[2] = normal[2] * inv_denom;
+
+    dst[0] = p[0] - d * n[0];
+    dst[1] = p[1] - d * n[1];
+    dst[2] = p[2] - d * n[2];
+}
+
+bool G_FindClosestPointOnLineSegment(const vec3_t start, const vec3_t end, const vec3_t from, vec3_t result)
+{
+    vec3_t vecStart2From, vecStart2End, vecEnd2Start, vecEnd2From;
+    float distEnd2From, distEnd2Result, theta, cos_theta, dot;
+
+    // Find the perpendicular vector to vec from start to end
+    VectorSubtract(from, start, vecStart2From);
+    VectorSubtract(end, start, vecStart2End);
+
+    dot = DotProductNormalize(vecStart2From, vecStart2End);
+
+    if (dot <= 0) {
+        // The perpendicular would be beyond or through the start point
+        VectorCopy(start, result);
+        return false;
+    }
+
+    if (dot == 1) {
+        // parallel, closer of 2 points will be the target
+        if ((VectorLengthSquared(vecStart2From)) < (VectorLengthSquared(vecStart2End))) {
+            VectorCopy(from, result);
+        }
+        else {
+            VectorCopy(end, result);
+        }
+        return false;
+    }
+
+    // Try other end
+    VectorSubtract(from, end, vecEnd2From);
+    VectorSubtract(start, end, vecEnd2Start);
+
+    dot = DotProductNormalize(vecEnd2From, vecEnd2Start);
+
+    if (dot <= 0) { // The perpendicular would be beyond or through the start point
+        VectorCopy(end, result);
+        return false;
+    }
+
+    if (dot == 1) { // parallel, closer of 2 points will be the target
+        if ((VectorLengthSquared(vecEnd2From)) < (VectorLengthSquared(vecEnd2Start))) {
+            VectorCopy(from, result);
+        }
+        else {
+            VectorCopy(end, result);
+        }
+        return false;
+    }
+
+    //		      /|
+    //		  c  / |
+    //		    /  |a
+    //	theta  /)__|
+    //		      b
+    // cos(theta) = b / c
+    // solve for b
+    // b = cos(theta) * c
+
+    // angle between vecs end2from and end2start, should be between 0 and 90
+    theta = 90 * (1 - dot); // theta
+
+    // Get length of side from End2Result using sine of theta
+    distEnd2From = VectorLength(vecEnd2From);  // c
+    cos_theta = Q_cospif(theta / 180.0f);      // cos(theta)
+    distEnd2Result = cos_theta * distEnd2From; // b
+
+    // Extrapolate to find result
+    VectorNormalize(vecEnd2Start);
+    VectorMA(end, distEnd2Result, vecEnd2Start, result);
+
+    // perpendicular intersection is between the 2 endpoints
+    return true;
+}
+
+float G_PointDistFromLineSegment(const vec3_t start, const vec3_t end, const vec3_t from)
+{
+    vec3_t vecStart2From, vecStart2End, vecEnd2Start, vecEnd2From, intersection;
+    float distEnd2From, distStart2From, distEnd2Result, theta, cos_theta, dot;
+
+    // Find the perpendicular vector to vec from start to end
+    VectorSubtract(from, start, vecStart2From);
+    VectorSubtract(end, start, vecStart2End);
+    VectorSubtract(from, end, vecEnd2From);
+    VectorSubtract(start, end, vecEnd2Start);
+
+    dot = DotProductNormalize(vecStart2From, vecStart2End);
+
+    distStart2From = Distance(start, from);
+    distEnd2From = Distance(end, from);
+
+    if (dot <= 0) {
+        // The perpendicular would be beyond or through the start point
+        return distStart2From;
+    }
+
+    if (dot == 1) {
+        // parallel, closer of 2 points will be the target
+        return ((distStart2From < distEnd2From) ? distStart2From : distEnd2From);
+    }
+
+    // Try other end
+
+    dot = DotProductNormalize(vecEnd2From, vecEnd2Start);
+
+    if (dot <= 0) { // The perpendicular would be beyond or through the end point
+        return distEnd2From;
+    }
+
+    if (dot == 1) { // parallel, closer of 2 points will be the target
+        return ((distStart2From < distEnd2From) ? distStart2From : distEnd2From);
+    }
+
+    //		      /|
+    //		  c  / |
+    //		    /  |a
+    //	theta  /)__|
+    //		      b
+    // cos(theta) = b / c
+    // solve for b
+    // b = cos(theta) * c
+
+    // angle between vecs end2from and end2start, should be between 0 and 90
+    theta = 90 * (1 - dot); // theta
+
+    // Get length of side from End2Result using sine of theta
+    cos_theta = Q_cospif(theta / 180.0f);      // cos(theta)
+    distEnd2Result = cos_theta * distEnd2From; // b
+
+    // Extrapolate to find result
+    VectorNormalize(vecEnd2Start);
+    VectorMA(end, distEnd2Result, vecEnd2Start, intersection);
+
+    // perpendicular intersection is between the 2 endpoints, return dist to it from from
+    return Distance(intersection, from);
+}
+
+void MatrixMultiply(float in1[3][3], float in2[3][3], float out[3][3])
+{
+    out[0][0] = in1[0][0] * in2[0][0] + in1[0][1] * in2[1][0] + in1[0][2] * in2[2][0];
+    out[0][1] = in1[0][0] * in2[0][1] + in1[0][1] * in2[1][1] + in1[0][2] * in2[2][1];
+    out[0][2] = in1[0][0] * in2[0][2] + in1[0][1] * in2[1][2] + in1[0][2] * in2[2][2];
+    out[1][0] = in1[1][0] * in2[0][0] + in1[1][1] * in2[1][0] + in1[1][2] * in2[2][0];
+    out[1][1] = in1[1][0] * in2[0][1] + in1[1][1] * in2[1][1] + in1[1][2] * in2[2][1];
+    out[1][2] = in1[1][0] * in2[0][2] + in1[1][1] * in2[1][2] + in1[1][2] * in2[2][2];
+    out[2][0] = in1[2][0] * in2[0][0] + in1[2][1] * in2[1][0] + in1[2][2] * in2[2][0];
+    out[2][1] = in1[2][0] * in2[0][1] + in1[2][1] * in2[1][1] + in1[2][2] * in2[2][1];
+    out[2][2] = in1[2][0] * in2[0][2] + in1[2][1] * in2[1][2] + in1[2][2] * in2[2][2];
+}
 
 ///////////////////////////////////////////////////////////////////////////
 //
 //      BOUNDING BOX
 //
 ///////////////////////////////////////////////////////////////////////////
-float RadiusFromBounds( const vec3_t mins, const vec3_t maxs ) {
-	int		i;
-	vec3_t	corner;
-	float	a, b;
+float RadiusFromBounds(const vec3_t mins, const vec3_t maxs)
+{
+    int i;
+    vec3_t corner;
+    float a, b;
 
-	for (i=0 ; i<3 ; i++) {
-		a = Q_fabsf( mins[i] );
-		b = Q_fabsf( maxs[i] );
-		corner[i] = a > b ? a : b;
-	}
+    for (i = 0; i < 3; i++) {
+        a = Q_fabsf(mins[i]);
+        b = Q_fabsf(maxs[i]);
+        corner[i] = a > b ? a : b;
+    }
 
-	return VectorLength (corner);
+    return VectorLength(corner);
 }
 
-void ClearBounds( vec3_t mins, vec3_t maxs ) {
-	mins[0] = mins[1] = mins[2] = 100000;
-	maxs[0] = maxs[1] = maxs[2] = -100000;
+void ClearBounds(vec3_t mins, vec3_t maxs)
+{
+    mins[0] = mins[1] = mins[2] = 100000;
+    maxs[0] = maxs[1] = maxs[2] = -100000;
 }
 
-void AddPointToBounds( const vec3_t v, vec3_t mins, vec3_t maxs ) {
-	if ( v[0] < mins[0] ) {
-		mins[0] = v[0];
-	}
-	if ( v[0] > maxs[0]) {
-		maxs[0] = v[0];
-	}
+void AddPointToBounds(const vec3_t v, vec3_t mins, vec3_t maxs)
+{
+    if (v[0] < mins[0]) {
+        mins[0] = v[0];
+    }
+    if (v[0] > maxs[0]) {
+        maxs[0] = v[0];
+    }
 
-	if ( v[1] < mins[1] ) {
-		mins[1] = v[1];
-	}
-	if ( v[1] > maxs[1]) {
-		maxs[1] = v[1];
-	}
+    if (v[1] < mins[1]) {
+        mins[1] = v[1];
+    }
+    if (v[1] > maxs[1]) {
+        maxs[1] = v[1];
+    }
 
-	if ( v[2] < mins[2] ) {
-		mins[2] = v[2];
-	}
-	if ( v[2] > maxs[2]) {
-		maxs[2] = v[2];
-	}
+    if (v[2] < mins[2]) {
+        mins[2] = v[2];
+    }
+    if (v[2] > maxs[2]) {
+        maxs[2] = v[2];
+    }
 }
-
 
 ///////////////////////////////////////////////////////////////////////////
 //
 //      PLANE
 //
 ///////////////////////////////////////////////////////////////////////////
-void SetPlaneSignbits( cplane_t *out )
+void SetPlaneSignbits(cplane_t* out)
 {
-	int	bits, j;
+    int bits, j;
 
-	// for fast box on planeside test
-	bits = 0;
-	for (j=0 ; j<3 ; j++) {
-		if (out->normal[j] < 0) {
-			bits |= 1<<j;
-		}
-	}
-	out->signbits = bits;
+    // for fast box on planeside test
+    bits = 0;
+    for (j = 0; j < 3; j++) {
+        if (out->normal[j] < 0) {
+            bits |= 1 << j;
+        }
+    }
+    out->signbits = bits;
 }
 
-planeType_t	PlaneTypeForNormal( const vec3_t normal )
+planeType_t PlaneTypeForNormal(const vec3_t normal)
 {
-	if ( normal[0] == 1.0 )
-		return planeType_t::PLANE_X;
-	if ( normal[1] == 1.0 )
-		return planeType_t::PLANE_Y;
-	if ( normal[2] == 1.0 )
-		return planeType_t::PLANE_Z;
+    if (normal[0] == 1.0)
+        return planeType_t::PLANE_X;
+    if (normal[1] == 1.0)
+        return planeType_t::PLANE_Y;
+    if (normal[2] == 1.0)
+        return planeType_t::PLANE_Z;
 
-	return planeType_t::PLANE_NON_AXIAL;
+    return planeType_t::PLANE_NON_AXIAL;
 }
 
 /*
@@ -784,189 +720,186 @@ BoxOnPlaneSide
 Returns 1, 2, or 1 + 2
 ==================
 */
-int BoxOnPlaneSide(vec3_t emins, vec3_t emaxs, cplane_t *p)
+int BoxOnPlaneSide(vec3_t emins, vec3_t emaxs, cplane_t* p)
 {
-	float	dist[2];
-	int		sides, b, i;
+    float dist[2];
+    int sides, b, i;
 
-	// fast axial cases
-	if (p->type < planeType_t::PLANE_NON_AXIAL)
-	{
-		if (p->dist <= emins[PlaneAxis( p->type )])
-			return 1;
-		if (p->dist >= emaxs[PlaneAxis( p->type )])
-			return 2;
-		return 3;
-	}
+    // fast axial cases
+    if (p->type < planeType_t::PLANE_NON_AXIAL) {
+        if (p->dist <= emins[PlaneAxis(p->type)])
+            return 1;
+        if (p->dist >= emaxs[PlaneAxis(p->type)])
+            return 2;
+        return 3;
+    }
 
-	// general case
-	dist[0] = dist[1] = 0;
-	if (p->signbits < 8) // >= 8: default case is original code (dist[0]=dist[1]=0)
-	{
-		for (i=0 ; i<3 ; i++)
-		{
-			b = (p->signbits >> i) & 1;
-			dist[ b] += p->normal[i]*emaxs[i];
-			dist[!b] += p->normal[i]*emins[i];
-		}
-	}
+    // general case
+    dist[0] = dist[1] = 0;
+    if (p->signbits < 8) // >= 8: default case is original code (dist[0]=dist[1]=0)
+    {
+        for (i = 0; i < 3; i++) {
+            b = (p->signbits >> i) & 1;
+            dist[b] += p->normal[i] * emaxs[i];
+            dist[!b] += p->normal[i] * emins[i];
+        }
+    }
 
-	sides = 0;
-	if (dist[0] >= p->dist)
-		sides = 1;
-	if (dist[1] < p->dist)
-		sides |= 2;
+    sides = 0;
+    if (dist[0] >= p->dist)
+        sides = 1;
+    if (dist[1] < p->dist)
+        sides |= 2;
 
-	return sides;
+    return sides;
 }
-
 
 ///////////////////////////////////////////////////////////////////////////
 //
 //      AXIS
 //
 ///////////////////////////////////////////////////////////////////////////
-matrix3_t	axisDefault = { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } };
+matrix3_t axisDefault = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
 
-void AxisClear( matrix3_t axis ) {
-	axis[0][0] = 1;
-	axis[0][1] = 0;
-	axis[0][2] = 0;
-	axis[1][0] = 0;
-	axis[1][1] = 1;
-	axis[1][2] = 0;
-	axis[2][0] = 0;
-	axis[2][1] = 0;
-	axis[2][2] = 1;
+void AxisClear(matrix3_t axis)
+{
+    axis[0][0] = 1;
+    axis[0][1] = 0;
+    axis[0][2] = 0;
+    axis[1][0] = 0;
+    axis[1][1] = 1;
+    axis[1][2] = 0;
+    axis[2][0] = 0;
+    axis[2][1] = 0;
+    axis[2][2] = 1;
 }
 
-void AxisCopy( matrix3_t in, matrix3_t out ) {
-	VectorCopy( in[0], out[0] );
-	VectorCopy( in[1], out[1] );
-	VectorCopy( in[2], out[2] );
+void AxisCopy(matrix3_t in, matrix3_t out)
+{
+    VectorCopy(in[0], out[0]);
+    VectorCopy(in[1], out[1]);
+    VectorCopy(in[2], out[2]);
 }
 
-void AnglesToAxis( const vec3_t angles, matrix3_t axis ) {
-	vec3_t right;
+void AnglesToAxis(const vec3_t angles, matrix3_t axis)
+{
+    vec3_t right;
 
-	// angle vectors returns "right" instead of "y axis"
-	AngleVectors( angles, axis[0], right, axis[2] );
-	VectorSubtract( vec3_origin, right, axis[1] );
+    // angle vectors returns "right" instead of "y axis"
+    AngleVectors(angles, axis[0], right, axis[2]);
+    VectorSubtract(vec3_origin, right, axis[1]);
 }
-
 
 ///////////////////////////////////////////////////////////////////////////
 //
 //      VEC2
 //
 ///////////////////////////////////////////////////////////////////////////
-vec2_t		vec2_zero = {0,0};
+vec2_t vec2_zero = {0, 0};
 
-void VectorAdd2( const vec2_t vec1, const vec2_t vec2, vec2_t vecOut )
+void VectorAdd2(const vec2_t vec1, const vec2_t vec2, vec2_t vecOut)
 {
-	vecOut[0] = vec1[0]+vec2[0];
-	vecOut[1] = vec1[1]+vec2[1];
+    vecOut[0] = vec1[0] + vec2[0];
+    vecOut[1] = vec1[1] + vec2[1];
 }
 
-void VectorSubtract2( const vec2_t vec1, const vec2_t vec2, vec2_t vecOut )
+void VectorSubtract2(const vec2_t vec1, const vec2_t vec2, vec2_t vecOut)
 {
-	vecOut[0] = vec1[0]-vec2[0];
-	vecOut[1] = vec1[1]-vec2[1];
+    vecOut[0] = vec1[0] - vec2[0];
+    vecOut[1] = vec1[1] - vec2[1];
 }
 
-void VectorScale2( const vec2_t vecIn, float scale, vec2_t vecOut )
+void VectorScale2(const vec2_t vecIn, float scale, vec2_t vecOut)
 {
-	vecOut[0] = vecIn[0]*scale;
-	vecOut[1] = vecIn[1]*scale;
+    vecOut[0] = vecIn[0] * scale;
+    vecOut[1] = vecIn[1] * scale;
 }
 
-void VectorMA2( const vec2_t vec1, float scale, const vec2_t vec2, vec2_t vecOut )
+void VectorMA2(const vec2_t vec1, float scale, const vec2_t vec2, vec2_t vecOut)
 {
-	vecOut[0] = vec1[0] + scale*vec2[0];
-	vecOut[1] = vec1[1] + scale*vec2[1];
+    vecOut[0] = vec1[0] + scale * vec2[0];
+    vecOut[1] = vec1[1] + scale * vec2[1];
 }
 
-void VectorSet2( vec2_t vec, float x, float y )
+void VectorSet2(vec2_t vec, float x, float y)
 {
-	vec[0]=x; vec[1]=y;
+    vec[0] = x;
+    vec[1] = y;
 }
 
-void VectorClear2( vec2_t vec )
+void VectorClear2(vec2_t vec)
 {
-	vec[0] = vec[1] = 0.0f;
+    vec[0] = vec[1] = 0.0f;
 }
 
-void VectorCopy2( const vec2_t vecIn, vec2_t vecOut )
+void VectorCopy2(const vec2_t vecIn, vec2_t vecOut)
 {
-	vecOut[0] = vecIn[0];
-	vecOut[1] = vecIn[1];
+    vecOut[0] = vecIn[0];
+    vecOut[1] = vecIn[1];
 }
-
 
 ///////////////////////////////////////////////////////////////////////////
 //
 //      VEC3
 //
 ///////////////////////////////////////////////////////////////////////////
-vec3_t		vec3_origin = {0,0,0};
+vec3_t vec3_origin = {0, 0, 0};
 
 // vector normalize routine that does not check that length != 0, nor returns the length; computed in double as
 // VectorNormalize, each component rounded to float once
-void VectorNormalizeFast( vec3_t vec )
+void VectorNormalizeFast(vec3_t vec)
 {
-	const double length = Q_sqrt( (double)vec[0]*vec[0] + (double)vec[1]*vec[1] + (double)vec[2]*vec[2] );
+    const double length = Q_sqrt((double)vec[0] * vec[0] + (double)vec[1] * vec[1] + (double)vec[2] * vec[2]);
 
-	vec[0] = (float)( vec[0] / length );
-	vec[1] = (float)( vec[1] / length );
-	vec[2] = (float)( vec[2] / length );
+    vec[0] = (float)(vec[0] / length);
+    vec[1] = (float)(vec[1] / length);
+    vec[2] = (float)(vec[2] / length);
 }
 
 // in double: the length nearly exact, each component divided by it and rounded to float once
-float VectorNormalize( vec3_t vec )
+float VectorNormalize(vec3_t vec)
 {
-	const double length = Q_sqrt( (double)vec[0]*vec[0] + (double)vec[1]*vec[1] + (double)vec[2]*vec[2] );
+    const double length = Q_sqrt((double)vec[0] * vec[0] + (double)vec[1] * vec[1] + (double)vec[2] * vec[2]);
 
-	if ( length ) {
-		vec[0] = (float)( vec[0] / length );
-		vec[1] = (float)( vec[1] / length );
-		vec[2] = (float)( vec[2] / length );
-	}
+    if (length) {
+        vec[0] = (float)(vec[0] / length);
+        vec[1] = (float)(vec[1] / length);
+        vec[2] = (float)(vec[2] / length);
+    }
 
-	return (float)length;
+    return (float)length;
 }
 
-float VectorNormalize2( const vec3_t vec, vec3_t vecOut )
+float VectorNormalize2(const vec3_t vec, vec3_t vecOut)
 {
-	const double length = Q_sqrt( (double)vec[0]*vec[0] + (double)vec[1]*vec[1] + (double)vec[2]*vec[2] );
+    const double length = Q_sqrt((double)vec[0] * vec[0] + (double)vec[1] * vec[1] + (double)vec[2] * vec[2]);
 
-	if ( length ) {
-		vecOut[0] = (float)( vec[0] / length );
-		vecOut[1] = (float)( vec[1] / length );
-		vecOut[2] = (float)( vec[2] / length );
-	}
-	else
-		VectorClear( vecOut );
+    if (length) {
+        vecOut[0] = (float)(vec[0] / length);
+        vecOut[1] = (float)(vec[1] / length);
+        vecOut[2] = (float)(vec[2] / length);
+    }
+    else
+        VectorClear(vecOut);
 
-	return (float)length;
+    return (float)length;
 }
 
-void VectorAdvance( const vec3_t veca, const float scale, const vec3_t vecb, vec3_t vecc)
+void VectorAdvance(const vec3_t veca, const float scale, const vec3_t vecb, vec3_t vecc)
 {
-	vecc[0] = veca[0] + (scale * (vecb[0] - veca[0]));
-	vecc[1] = veca[1] + (scale * (vecb[1] - veca[1]));
-	vecc[2] = veca[2] + (scale * (vecb[2] - veca[2]));
+    vecc[0] = veca[0] + (scale * (vecb[0] - veca[0]));
+    vecc[1] = veca[1] + (scale * (vecb[1] - veca[1]));
+    vecc[2] = veca[2] + (scale * (vecb[2] - veca[2]));
 }
 
-bool VectorCompare2( const vec3_t v1, const vec3_t v2 )
+bool VectorCompare2(const vec3_t v1, const vec3_t v2)
 {
-	if ( v1[0] > (v2[0] + 0.0001f) || v1[0] < (v2[0] - 0.0001f) ||
-			v1[1] > (v2[1] + 0.0001f) || v1[1] < (v2[1] + 0.0001f) ||
-			v1[2] > (v2[2] + 0.0001f) || v1[2] < (v2[2] + 0.0001f) )
-	{
-		return false;
-	}
+    if (v1[0] > (v2[0] + 0.0001f) || v1[0] < (v2[0] - 0.0001f) || v1[1] > (v2[1] + 0.0001f) || v1[1] < (v2[1] + 0.0001f) || v1[2] > (v2[2] + 0.0001f) ||
+        v1[2] < (v2[2] + 0.0001f)) {
+        return false;
+    }
 
-	return true;
+    return true;
 }
 
 // To nearest with ties to even, through an integer (so -0.5 gives +0), on every platform and compiler, as Sys_SnapVector:
@@ -974,51 +907,51 @@ bool VectorCompare2( const vec3_t v1, const vec3_t v2 )
 // rounding mode is forced and restored, as in Sys_SnapVector: lrintf follows the current mode, so a caller left in
 // round-toward-zero would truncate.
 #if defined(_MSC_VER)
-#pragma fenv_access (on)
+#pragma fenv_access(on)
 #endif
-void SnapVector( float *v )
+void SnapVector(float* v)
 {
 #if defined(_MSC_VER)
-	unsigned int oldcontrol;
-	unsigned int newcontrol;
+    unsigned int oldcontrol;
+    unsigned int newcontrol;
 
-	_controlfp_s(&oldcontrol, 0, 0);
-	_controlfp_s(&newcontrol, _RC_NEAR, _MCW_RC);
+    _controlfp_s(&oldcontrol, 0, 0);
+    _controlfp_s(&newcontrol, _RC_NEAR, _MCW_RC);
 
-	v[0] = (float)Q_lrintf(v[0]);
-	v[1] = (float)Q_lrintf(v[1]);
-	v[2] = (float)Q_lrintf(v[2]);
+    v[0] = (float)Q_lrintf(v[0]);
+    v[1] = (float)Q_lrintf(v[1]);
+    v[2] = (float)Q_lrintf(v[2]);
 
-	_controlfp_s(&newcontrol, oldcontrol, _MCW_RC);
+    _controlfp_s(&newcontrol, oldcontrol, _MCW_RC);
 #else
-	int oldround = fegetround();
-	fesetround(FE_TONEAREST);
+    int oldround = fegetround();
+    fesetround(FE_TONEAREST);
 
-	v[0] = (float)Q_lrintf(v[0]);
-	v[1] = (float)Q_lrintf(v[1]);
-	v[2] = (float)Q_lrintf(v[2]);
+    v[0] = (float)Q_lrintf(v[0]);
+    v[1] = (float)Q_lrintf(v[1]);
+    v[2] = (float)Q_lrintf(v[2]);
 
-	fesetround(oldround);
+    fesetround(oldround);
 #endif
 }
 #if defined(_MSC_VER)
-#pragma fenv_access (off)
+#pragma fenv_access(off)
 #endif
 
-float DistanceHorizontal( const vec3_t p1, const vec3_t p2 )
+float DistanceHorizontal(const vec3_t p1, const vec3_t p2)
 {
-	vec3_t	v;
+    vec3_t v;
 
-	VectorSubtract( p2, p1, v );
-	return Q_sqrtf( v[0]*v[0] + v[1]*v[1] ); //Leave off the z component
+    VectorSubtract(p2, p1, v);
+    return Q_sqrtf(v[0] * v[0] + v[1] * v[1]); // Leave off the z component
 }
 
-float DistanceHorizontalSquared( const vec3_t p1, const vec3_t p2 )
+float DistanceHorizontalSquared(const vec3_t p1, const vec3_t p2)
 {
-	vec3_t	v;
+    vec3_t v;
 
-	VectorSubtract( p2, p1, v );
-	return v[0]*v[0] + v[1]*v[1];	//Leave off the z component
+    VectorSubtract(p2, p1, v);
+    return v[0] * v[0] + v[1] * v[1]; // Leave off the z component
 }
 
 /*
@@ -1029,139 +962,138 @@ Given a normalized forward vector, create two
 other perpendicular vectors
 ================
 */
-void MakeNormalVectors( const vec3_t forward, vec3_t right, vec3_t up) {
-	float		d;
-
-	// this rotate and negate guarantees a vector
-	// not colinear with the original
-	right[1] = -forward[0];
-	right[2] = forward[1];
-	right[0] = forward[2];
-
-	d = DotProduct(right, forward);
-	VectorMA(right, -d, forward, right);
-	VectorNormalize (right);
-	CrossProduct (right, forward, up);
-}
-
-void VectorRotate( const vec3_t in, matrix3_t matrix, vec3_t out )
+void MakeNormalVectors(const vec3_t forward, vec3_t right, vec3_t up)
 {
-	out[0] = DotProduct( in, matrix[0] );
-	out[1] = DotProduct( in, matrix[1] );
-	out[2] = DotProduct( in, matrix[2] );
+    float d;
+
+    // this rotate and negate guarantees a vector
+    // not colinear with the original
+    right[1] = -forward[0];
+    right[2] = forward[1];
+    right[0] = forward[2];
+
+    d = DotProduct(right, forward);
+    VectorMA(right, -d, forward, right);
+    VectorNormalize(right);
+    CrossProduct(right, forward, up);
 }
 
-void AngleVectors( const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up) {
-	float		angle;
-	static float		sr, sp, sy, cr, cp, cy;
-	// static to help MS compiler fp bugs
+void VectorRotate(const vec3_t in, matrix3_t matrix, vec3_t out)
+{
+    out[0] = DotProduct(in, matrix[0]);
+    out[1] = DotProduct(in, matrix[1]);
+    out[2] = DotProduct(in, matrix[2]);
+}
 
-	// through half turns (degrees / 180): exact at multiples of 90 degrees, one rounding fewer than radians
-	angle = angles[YAW] / 180.0f;
-	sy = Q_sinpif(angle);
-	cy = Q_cospif(angle);
-	angle = angles[PITCH] / 180.0f;
-	sp = Q_sinpif(angle);
-	cp = Q_cospif(angle);
-	angle = angles[ROLL] / 180.0f;
-	sr = Q_sinpif(angle);
-	cr = Q_cospif(angle);
+void AngleVectors(const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up)
+{
+    float angle;
+    static float sr, sp, sy, cr, cp, cy;
+    // static to help MS compiler fp bugs
 
-	if (forward)
-	{
-		forward[0] = cp*cy;
-		forward[1] = cp*sy;
-		forward[2] = -sp;
-	}
-	if (right)
-	{
-		right[0] = (-1*sr*sp*cy+-1*cr*-sy);
-		right[1] = (-1*sr*sp*sy+-1*cr*cy);
-		right[2] = -1*sr*cp;
-	}
-	if (up)
-	{
-		up[0] = (cr*sp*cy+-sr*-sy);
-		up[1] = (cr*sp*sy+-sr*cy);
-		up[2] = cr*cp;
-	}
+    // through half turns (degrees / 180): exact at multiples of 90 degrees, one rounding fewer than radians
+    angle = angles[YAW] / 180.0f;
+    sy = Q_sinpif(angle);
+    cy = Q_cospif(angle);
+    angle = angles[PITCH] / 180.0f;
+    sp = Q_sinpif(angle);
+    cp = Q_cospif(angle);
+    angle = angles[ROLL] / 180.0f;
+    sr = Q_sinpif(angle);
+    cr = Q_cospif(angle);
+
+    if (forward) {
+        forward[0] = cp * cy;
+        forward[1] = cp * sy;
+        forward[2] = -sp;
+    }
+    if (right) {
+        right[0] = (-1 * sr * sp * cy + -1 * cr * -sy);
+        right[1] = (-1 * sr * sp * sy + -1 * cr * cy);
+        right[2] = -1 * sr * cp;
+    }
+    if (up) {
+        up[0] = (cr * sp * cy + -sr * -sy);
+        up[1] = (cr * sp * sy + -sr * cy);
+        up[2] = cr * cp;
+    }
 }
 
 /*
 ** assumes "src" is normalized
 */
-void PerpendicularVector( vec3_t dst, const vec3_t src )
+void PerpendicularVector(vec3_t dst, const vec3_t src)
 {
-	int	pos;
-	int i;
-	float minelem = 1.0F;
-	vec3_t tempvec;
+    int pos;
+    int i;
+    float minelem = 1.0F;
+    vec3_t tempvec;
 
-	/*
-	** find the smallest magnitude axially aligned vector
-	*/
-	for ( pos = 0, i = 0; i < 3; i++ )
-	{
-		if ( Q_fabs( src[i] ) < minelem )
-		{
-			pos = i;
-			minelem = Q_fabsf( src[i] );
-		}
-	}
-	tempvec[0] = tempvec[1] = tempvec[2] = 0.0F;
-	tempvec[pos] = 1.0F;
+    /*
+    ** find the smallest magnitude axially aligned vector
+    */
+    for (pos = 0, i = 0; i < 3; i++) {
+        if (Q_fabs(src[i]) < minelem) {
+            pos = i;
+            minelem = Q_fabsf(src[i]);
+        }
+    }
+    tempvec[0] = tempvec[1] = tempvec[2] = 0.0F;
+    tempvec[pos] = 1.0F;
 
-	/*
-	** project the point onto the plane defined by src
-	*/
-	ProjectPointOnPlane( dst, tempvec, src );
+    /*
+    ** project the point onto the plane defined by src
+    */
+    ProjectPointOnPlane(dst, tempvec, src);
 
-	/*
-	** normalize the result
-	*/
-	VectorNormalize( dst );
+    /*
+    ** normalize the result
+    */
+    VectorNormalize(dst);
 }
 
-float DotProductNormalize( const vec3_t inVec1, const vec3_t inVec2 )
+float DotProductNormalize(const vec3_t inVec1, const vec3_t inVec2)
 {
-	vec3_t	v1, v2;
+    vec3_t v1, v2;
 
-	VectorNormalize2( inVec1, v1 );
-	VectorNormalize2( inVec2, v2 );
+    VectorNormalize2(inVec1, v1);
+    VectorNormalize2(inVec2, v2);
 
-	return DotProduct(v1, v2);
+    return DotProduct(v1, v2);
 }
-
 
 ///////////////////////////////////////////////////////////////////////////
 //
 //      VEC4
 //
 ///////////////////////////////////////////////////////////////////////////
-void VectorScale4( const vec4_t vecIn, float scale, vec4_t vecOut )
+void VectorScale4(const vec4_t vecIn, float scale, vec4_t vecOut)
 {
-	vecOut[0] = vecIn[0]*scale;
-	vecOut[1] = vecIn[1]*scale;
-	vecOut[2] = vecIn[2]*scale;
-	vecOut[3] = vecIn[3]*scale;
+    vecOut[0] = vecIn[0] * scale;
+    vecOut[1] = vecIn[1] * scale;
+    vecOut[2] = vecIn[2] * scale;
+    vecOut[3] = vecIn[3] * scale;
 }
 
-void VectorCopy4( const vec4_t vecIn, vec4_t vecOut )
+void VectorCopy4(const vec4_t vecIn, vec4_t vecOut)
 {
-	vecOut[0] = vecIn[0];
-	vecOut[1] = vecIn[1];
-	vecOut[2] = vecIn[2];
-	vecOut[3] = vecIn[3];
+    vecOut[0] = vecIn[0];
+    vecOut[1] = vecIn[1];
+    vecOut[2] = vecIn[2];
+    vecOut[3] = vecIn[3];
 }
 
-void VectorSet4( vec4_t vec, float x, float y, float z, float w )
+void VectorSet4(vec4_t vec, float x, float y, float z, float w)
 {
-	vec[0]=x; vec[1]=y; vec[2]=z; vec[3]=w;
+    vec[0] = x;
+    vec[1] = y;
+    vec[2] = z;
+    vec[3] = w;
 }
 
-void VectorClear4( vec4_t vec )
+void VectorClear4(vec4_t vec)
 {
-	vec[0] = vec[1] = vec[2] = vec[3] = 0;
+    vec[0] = vec[1] = vec[2] = vec[3] = 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -1169,6 +1101,11 @@ void VectorClear4( vec4_t vec )
 //      VEC5
 //
 ///////////////////////////////////////////////////////////////////////////
-void VectorSet5( vec5_t vec, float x, float y, float z, float w, float u ) {
-	vec[0]=x; vec[1]=y; vec[2]=z; vec[3]=w; vec[4]=u;
+void VectorSet5(vec5_t vec, float x, float y, float z, float w, float u)
+{
+    vec[0] = x;
+    vec[1] = y;
+    vec[2] = z;
+    vec[3] = w;
+    vec[4] = u;
 }

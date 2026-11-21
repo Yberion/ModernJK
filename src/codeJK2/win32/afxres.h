@@ -14,6 +14,6 @@ This file is part of Jedi Academy.
     along with Jedi Academy.  If not, see <http://www.gnu.org/licenses/>.
 */
 // Copyright 2001-2013 Raven Software
+// Copyright (C) 2026, ModernJK contributors
 
 #include <windows.h>
-

@@ -35,16 +35,15 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //===========================================================================
 
 // make sure this is the same character as we use in chats in g_cmd.c
-#define EC	"\x19"
+#define EC "\x19"
 
-//message types
+// message types
 //
 //
 //
 
-
-//word replacement variables
-//team message variables
+// word replacement variables
+// team message variables
 inline constexpr int PLACE = 1;
 inline constexpr int MESSAGE = 2;
 inline constexpr int ITEM = 3;
@@ -53,5 +52,3 @@ inline constexpr int POSITION = 5;
 inline constexpr int NUMBER = 5;
 inline constexpr int TIME = 6;
 inline constexpr int NAME = 6;
-
-

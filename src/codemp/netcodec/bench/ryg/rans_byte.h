@@ -47,7 +47,7 @@
 // Between this and our byte-aligned emission, we use 31 (not 32!) bits.
 // This is done intentionally because exact reciprocals for 31-bit uints
 // fit in 32-bit uints: this permits some optimizations during encoding.
-#define RANS_BYTE_L (1u << 23)  // lower bound of our normalization interval
+#define RANS_BYTE_L (1u << 23) // lower bound of our normalization interval
 
 // State for a rANS encoder. Yep, that's all there is to it.
 typedef uint32_t RansState;
@@ -65,7 +65,7 @@ static inline RansState RansEncRenorm(RansState x, uint8_t** pptr, uint32_t freq
     if (x >= x_max) {
         uint8_t* ptr = *pptr;
         do {
-            *--ptr = (uint8_t) (x & 0xff);
+            *--ptr = (uint8_t)(x & 0xff);
             x >>= 8;
         } while (x >= x_max);
         *pptr = ptr;
@@ -96,10 +96,10 @@ static inline void RansEncFlush(RansState* r, uint8_t** pptr)
     uint8_t* ptr = *pptr;
 
     ptr -= 4;
-    ptr[0] = (uint8_t) (x >> 0);
-    ptr[1] = (uint8_t) (x >> 8);
-    ptr[2] = (uint8_t) (x >> 16);
-    ptr[3] = (uint8_t) (x >> 24);
+    ptr[0] = (uint8_t)(x >> 0);
+    ptr[1] = (uint8_t)(x >> 8);
+    ptr[2] = (uint8_t)(x >> 16);
+    ptr[3] = (uint8_t)(x >> 24);
 
     *pptr = ptr;
 }
@@ -111,7 +111,7 @@ static inline void RansDecInit(RansState* r, uint8_t** pptr)
     uint32_t x;
     uint8_t* ptr = *pptr;
 
-    x  = ptr[0] << 0;
+    x = ptr[0] << 0;
     x |= ptr[1] << 8;
     x |= ptr[2] << 16;
     x |= ptr[3] << 24;
@@ -141,7 +141,9 @@ static inline void RansDecAdvance(RansState* r, uint8_t** pptr, uint32_t start, 
     // renormalize
     if (x < RANS_BYTE_L) {
         uint8_t* ptr = *pptr;
-        do x = (x << 8) | *ptr++; while (x < RANS_BYTE_L);
+        do
+            x = (x << 8) | *ptr++;
+        while (x < RANS_BYTE_L);
         *pptr = ptr;
     }
 
@@ -166,8 +168,8 @@ typedef struct {
 
 // Decoder symbols are straightforward.
 typedef struct {
-    uint16_t start;     // Start of range.
-    uint16_t freq;      // Symbol frequency.
+    uint16_t start; // Start of range.
+    uint16_t freq;  // Symbol frequency.
 } RansDecSymbol;
 
 // Initializes an encoder symbol to start "start" and frequency "freq"
@@ -195,7 +197,7 @@ static inline void RansEncSymbolInit(RansEncSymbol* s, uint32_t start, uint32_t 
     // the fast encoder agree.
 
     s->x_max = ((RANS_BYTE_L >> scale_bits) << 8) * freq;
-    s->cmpl_freq = (uint16_t) ((1 << scale_bits) - freq);
+    s->cmpl_freq = (uint16_t)((1 << scale_bits) - freq);
     if (freq < 2) {
         // freq=0 symbols are never valid to encode, so it doesn't matter what
         // we set our values to.
@@ -226,14 +228,15 @@ static inline void RansEncSymbolInit(RansEncSymbol* s, uint32_t start, uint32_t 
         s->rcp_freq = ~0u;
         s->rcp_shift = 0;
         s->bias = start + (1 << scale_bits) - 1;
-    } else {
+    }
+    else {
         // Alverson, "Integer Division using reciprocals"
         // shift=ceil(log2(freq))
         uint32_t shift = 0;
         while (freq > (1u << shift))
             shift++;
 
-        s->rcp_freq = (uint32_t) (((1ull << (shift + 31)) + freq-1) / freq);
+        s->rcp_freq = (uint32_t)(((1ull << (shift + 31)) + freq - 1) / freq);
         s->rcp_shift = shift - 1;
 
         // With these values, 'q' is the correct quotient, so we
@@ -247,15 +250,15 @@ static inline void RansDecSymbolInit(RansDecSymbol* s, uint32_t start, uint32_t 
 {
     RansAssert(start <= (1 << 16));
     RansAssert(freq <= (1 << 16) - start);
-    s->start = (uint16_t) start;
-    s->freq = (uint16_t) freq;
+    s->start = (uint16_t)start;
+    s->freq = (uint16_t)freq;
 }
 
 // Encodes a given symbol. This is faster than straight RansEnc since we can do
 // multiplications instead of a divide.
 //
 // See RansEncSymbolInit for a description of how this works.
-static inline void RansEncPutSymbol(RansState* r, uint8_t** pptr, RansEncSymbol const* sym)
+static inline void RansEncPutSymbol(RansState* r, uint8_t** pptr, const RansEncSymbol* sym)
 {
     RansAssert(sym->x_max != 0); // can't encode symbol with freq=0
 
@@ -265,7 +268,7 @@ static inline void RansEncPutSymbol(RansState* r, uint8_t** pptr, RansEncSymbol 
     if (x >= x_max) {
         uint8_t* ptr = *pptr;
         do {
-            *--ptr = (uint8_t) (x & 0xff);
+            *--ptr = (uint8_t)(x & 0xff);
             x >>= 8;
         } while (x >= x_max);
         *pptr = ptr;
@@ -275,12 +278,12 @@ static inline void RansEncPutSymbol(RansState* r, uint8_t** pptr, RansEncSymbol 
     // NOTE: written this way so we get a 32-bit "multiply high" when
     // available. If you're on a 64-bit platform with cheap multiplies
     // (e.g. x64), just bake the +32 into rcp_shift.
-    uint32_t q = (uint32_t) (((uint64_t)x * sym->rcp_freq) >> 32) >> sym->rcp_shift;
+    uint32_t q = (uint32_t)(((uint64_t)x * sym->rcp_freq) >> 32) >> sym->rcp_shift;
     *r = x + sym->bias + q * sym->cmpl_freq;
 }
 
 // Equivalent to RansDecAdvance that takes a symbol.
-static inline void RansDecAdvanceSymbol(RansState* r, uint8_t** pptr, RansDecSymbol const* sym, uint32_t scale_bits)
+static inline void RansDecAdvanceSymbol(RansState* r, uint8_t** pptr, const RansDecSymbol* sym, uint32_t scale_bits)
 {
     RansDecAdvance(r, pptr, sym->start, sym->freq, scale_bits);
 }
@@ -298,7 +301,7 @@ static inline void RansDecAdvanceStep(RansState* r, uint32_t start, uint32_t fre
 }
 
 // Equivalent to RansDecAdvanceStep that takes a symbol.
-static inline void RansDecAdvanceSymbolStep(RansState* r, RansDecSymbol const* sym, uint32_t scale_bits)
+static inline void RansDecAdvanceSymbolStep(RansState* r, const RansDecSymbol* sym, uint32_t scale_bits)
 {
     RansDecAdvanceStep(r, sym->start, sym->freq, scale_bits);
 }
@@ -310,7 +313,9 @@ static inline void RansDecRenorm(RansState* r, uint8_t** pptr)
     uint32_t x = *r;
     if (x < RANS_BYTE_L) {
         uint8_t* ptr = *pptr;
-        do x = (x << 8) | *ptr++; while (x < RANS_BYTE_L);
+        do
+            x = (x << 8) | *ptr++;
+        while (x < RANS_BYTE_L);
         *pptr = ptr;
     }
 

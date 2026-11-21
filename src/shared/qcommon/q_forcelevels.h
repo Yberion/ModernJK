@@ -29,16 +29,15 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "qcommon/q_enum.h"
 
-enum class forcePowerLevels_t
-{
-	FORCE_LEVEL_0,
-	FORCE_LEVEL_1,
-	FORCE_LEVEL_2,
-	FORCE_LEVEL_3,
-	NUM_FORCE_POWER_LEVELS,
-	// past the count: the strength of Desann's and Tavion's saber attacks, the single player's mind trick at level 4
-	// (cheats), Jedi Outcast's saberAnimLevel (4 Desann's style, 5 Tavion's), the bound of a siege class's levels
-	FORCE_LEVEL_4 = 4,
-	FORCE_LEVEL_5 = 5
+enum class forcePowerLevels_t {
+    FORCE_LEVEL_0,
+    FORCE_LEVEL_1,
+    FORCE_LEVEL_2,
+    FORCE_LEVEL_3,
+    NUM_FORCE_POWER_LEVELS,
+    // past the count: the strength of Desann's and Tavion's saber attacks, the single player's mind trick at level 4
+    // (cheats), Jedi Outcast's saberAnimLevel (4 Desann's style, 5 Tavion's), the bound of a siege class's levels
+    FORCE_LEVEL_4 = 4,
+    FORCE_LEVEL_5 = 5
 };
 template <> inline constexpr bool enableEnumArithmetic<forcePowerLevels_t> = true;

@@ -3,6 +3,7 @@
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
 Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2026, ModernJK contributors
 
 This file is part of the OpenJK source code.
 
@@ -32,11 +33,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define USE_STL_FOR_SHADER_LOOKUPS
 
 #ifdef USE_STL_FOR_SHADER_LOOKUPS
-	void ShaderEntryPtrs_Clear(void);
-	int ShaderEntryPtrs_Size(void);
-	const char  *ShaderEntryPtrs_Lookup(const char *psShaderName);
-	void ShaderEntryPtrs_Insert(const char  *token, const char  *p);
+void ShaderEntryPtrs_Clear(void);
+int ShaderEntryPtrs_Size(void);
+const char* ShaderEntryPtrs_Lookup(const char* psShaderName);
+void ShaderEntryPtrs_Insert(const char* token, const char* p);
 #else
 
-	#define ShaderEntryPtrs_Clear()
-#endif	// #ifdef USE_STL_FOR_SHADER_LOOKUPS
+#define ShaderEntryPtrs_Clear()
+#endif // #ifdef USE_STL_FOR_SHADER_LOOKUPS

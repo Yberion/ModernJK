@@ -31,27 +31,34 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 using namespace netcodec;
 
-int main(int argc, char **argv) {
-	if (argc < 3) { std::fprintf(stderr, "usage: %s jka_client_tables.inc client_train.bin ...\n", argv[0]); return 2; }
-	SymbolCounts counts = NewSymbolCounts();
-	size_t packets = 0, refused = 0;
-	HeaderRecord header;
-	PlayerState ps{};
-	for (int a = 2; a < argc; a++) {
-		std::vector<trace::ClientTraceStream> streams;
-		if (!trace::ReadClientTrace(argv[a], streams)) return 1;
-		for (const trace::ClientTraceStream &s : streams)
-			for (const trace::ClientTracePacket &t : s.packets) {
-				t.FillBase(header, ps);
-				const ClientBase base = ClientBaseOf(header, ps);
-				packets++;
-				if (!CountClientPacket(t.packet, t.hasBase ? &base : nullptr, counts)) refused++;
-			}
-		std::printf("%s: %zu streams\n", argv[a], streams.size());
-	}
-	std::printf("%zu packets counted, %zu refused\n", packets, refused);
-	if (refused != 0) return 1;
-	const tools::TablesFile file{ .tool = "netcodec_train_client", .what = "Trained tables of the client packets",
-		                          .unit = "packets", .prefix = "kClientTrained" };
-	return tools::WriteTables(argv[1], counts, packets, file, detail::ctx::kClientScalar, detail::ctx::kInputMargin) ? 0 : 1;
+int main(int argc, char** argv)
+{
+    if (argc < 3) {
+        std::fprintf(stderr, "usage: %s jka_client_tables.inc client_train.bin ...\n", argv[0]);
+        return 2;
+    }
+    SymbolCounts counts = NewSymbolCounts();
+    size_t packets = 0, refused = 0;
+    HeaderRecord header;
+    PlayerState ps{};
+    for (int a = 2; a < argc; a++) {
+        std::vector<trace::ClientTraceStream> streams;
+        if (!trace::ReadClientTrace(argv[a], streams))
+            return 1;
+        for (const trace::ClientTraceStream& s : streams)
+            for (const trace::ClientTracePacket& t : s.packets) {
+                t.FillBase(header, ps);
+                const ClientBase base = ClientBaseOf(header, ps);
+                packets++;
+                if (!CountClientPacket(t.packet, t.hasBase ? &base : nullptr, counts))
+                    refused++;
+            }
+        std::printf("%s: %zu streams\n", argv[a], streams.size());
+    }
+    std::printf("%zu packets counted, %zu refused\n", packets, refused);
+    if (refused != 0)
+        return 1;
+    const tools::TablesFile file{
+        .tool = "netcodec_train_client", .what = "Trained tables of the client packets", .unit = "packets", .prefix = "kClientTrained"};
+    return tools::WriteTables(argv[1], counts, packets, file, detail::ctx::kClientScalar, detail::ctx::kInputMargin) ? 0 : 1;
 }

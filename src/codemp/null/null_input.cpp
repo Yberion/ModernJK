@@ -4,6 +4,7 @@ Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
 Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2026, ModernJK contributors
 
 This file is part of the OpenJK source code.
 
@@ -21,14 +22,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-void IN_Init( void ) {
-}
+void IN_Init(void) {}
 
-void IN_Frame (void) {
-}
+void IN_Frame(void) {}
 
-void IN_Shutdown( void ) {
-}
+void IN_Shutdown(void) {}
 
-void IN_Restart( void ) {
-}
+void IN_Restart(void) {}

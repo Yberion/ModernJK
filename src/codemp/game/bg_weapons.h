@@ -31,102 +31,94 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "qcommon/q_enum.h"
 
 enum class weapon_t {
-	WP_NONE,
+    WP_NONE,
 
-	WP_STUN_BATON,
-	WP_MELEE,
-	WP_SABER,
-	WP_BRYAR_PISTOL,
-	WP_BLASTER,
-	WP_DISRUPTOR,
-	WP_BOWCASTER,
-	WP_REPEATER,
-	WP_DEMP2,
-	WP_FLECHETTE,
-	WP_ROCKET_LAUNCHER,
-	WP_THERMAL,
-	WP_TRIP_MINE,
-	WP_DET_PACK,
-	WP_CONCUSSION,
-	WP_BRYAR_OLD,
-	WP_EMPLACED_GUN,
-	WP_TURRET,
+    WP_STUN_BATON,
+    WP_MELEE,
+    WP_SABER,
+    WP_BRYAR_PISTOL,
+    WP_BLASTER,
+    WP_DISRUPTOR,
+    WP_BOWCASTER,
+    WP_REPEATER,
+    WP_DEMP2,
+    WP_FLECHETTE,
+    WP_ROCKET_LAUNCHER,
+    WP_THERMAL,
+    WP_TRIP_MINE,
+    WP_DET_PACK,
+    WP_CONCUSSION,
+    WP_BRYAR_OLD,
+    WP_EMPLACED_GUN,
+    WP_TURRET,
 
-//	WP_GAUNTLET,
-//	WP_MACHINEGUN,			// Bryar
-//	WP_SHOTGUN,				// Blaster
-//	WP_GRENADE_LAUNCHER,	// Thermal
-//	WP_LIGHTNING,			//
-//	WP_RAILGUN,				//
-//	WP_GRAPPLING_HOOK,
+    //	WP_GAUNTLET,
+    //	WP_MACHINEGUN,			// Bryar
+    //	WP_SHOTGUN,				// Blaster
+    //	WP_GRENADE_LAUNCHER,	// Thermal
+    //	WP_LIGHTNING,			//
+    //	WP_RAILGUN,				//
+    //	WP_GRAPPLING_HOOK,
 
-	WP_NUM_WEAPONS,
+    WP_NUM_WEAPONS,
 
-	G2_MODEL_PART = 50	// not a weapon: a severed limb thrown as a missile (its entity's weapon)
+    G2_MODEL_PART = 50 // not a weapon: a severed limb thrown as a missile (its entity's weapon)
 };
 template <> inline constexpr bool enableEnumArithmetic<weapon_t> = true;
 
-//anything > this will be considered not player useable
+// anything > this will be considered not player useable
 inline constexpr weapon_t LAST_USEABLE_WEAPON = weapon_t::WP_BRYAR_OLD;
 
-enum class ammo_t //# ammo_e
+enum class ammo_t // # ammo_e
 {
-	AMMO_NONE,
-	AMMO_FORCE,		// AMMO_PHASER
-	AMMO_BLASTER,	// AMMO_STARFLEET,
-	AMMO_POWERCELL,	// AMMO_ALIEN,
-	AMMO_METAL_BOLTS,
-	AMMO_ROCKETS,
-	AMMO_EMPLACED,
-	AMMO_THERMAL,
-	AMMO_TRIPMINE,
-	AMMO_DETPACK,
-	AMMO_MAX
+    AMMO_NONE,
+    AMMO_FORCE,     // AMMO_PHASER
+    AMMO_BLASTER,   // AMMO_STARFLEET,
+    AMMO_POWERCELL, // AMMO_ALIEN,
+    AMMO_METAL_BOLTS,
+    AMMO_ROCKETS,
+    AMMO_EMPLACED,
+    AMMO_THERMAL,
+    AMMO_TRIPMINE,
+    AMMO_DETPACK,
+    AMMO_MAX
 };
 template <> inline constexpr bool enableEnumArithmetic<ammo_t> = true;
 
+typedef struct weaponData_s {
+    //	char	classname[32];		// Spawning name
 
-typedef struct weaponData_s
-{
-//	char	classname[32];		// Spawning name
+    ammo_t ammoIndex; // Index to proper ammo slot
+    int ammoLow;      // Count when ammo is low
 
-	ammo_t	ammoIndex;			// Index to proper ammo slot
-	int		ammoLow;			// Count when ammo is low
+    int energyPerShot; // Amount of energy used per shot
+    int fireTime;      // Amount of time between firings
+    int range;         // Range of weapon
 
-	int		energyPerShot;		// Amount of energy used per shot
-	int		fireTime;			// Amount of time between firings
-	int		range;				// Range of weapon
+    int altEnergyPerShot; // Amount of energy used for alt-fire
+    int altFireTime;      // Amount of time between alt-firings
+    int altRange;         // Range of alt-fire
 
-	int		altEnergyPerShot;	// Amount of energy used for alt-fire
-	int		altFireTime;		// Amount of time between alt-firings
-	int		altRange;			// Range of alt-fire
+    int chargeSubTime;    // ms interval for subtracting ammo during charge
+    int altChargeSubTime; // above for secondary
 
-	int		chargeSubTime;		// ms interval for subtracting ammo during charge
-	int		altChargeSubTime;	// above for secondary
+    int chargeSub;    // amount to subtract during charge on each interval
+    int altChargeSub; // above for secondary
 
-	int		chargeSub;			// amount to subtract during charge on each interval
-	int		altChargeSub;		// above for secondary
-
-	int		maxCharge;			// stop subtracting once charged for this many ms
-	int		altMaxCharge;		// above for secondary
+    int maxCharge;    // stop subtracting once charged for this many ms
+    int altMaxCharge; // above for secondary
 } weaponData_t;
 
-
-typedef struct  ammoData_s
-{
-//	char	icon[32];	// Name of ammo icon file
-	int		max;		// Max amount player can hold of ammo
+typedef struct ammoData_s {
+    //	char	icon[32];	// Name of ammo icon file
+    int max; // Max amount player can hold of ammo
 } ammoData_t;
-
 
 extern EnumArray<weaponData_t, weapon_t, weapon_t::WP_NUM_WEAPONS> weaponData;
 extern EnumArray<ammoData_t, ammo_t, ammo_t::AMMO_MAX> ammoData;
 
-
 // Specific weapon information
 
-inline constexpr weapon_t FIRST_WEAPON = weapon_t::WP_BRYAR_PISTOL;		// this is the first weapon for next and prev weapon switching
-
-
+inline constexpr weapon_t FIRST_WEAPON = weapon_t::WP_BRYAR_PISTOL; // this is the first weapon for next and prev weapon switching
 
 inline constexpr int LIGHTNING_RANGE = 768;

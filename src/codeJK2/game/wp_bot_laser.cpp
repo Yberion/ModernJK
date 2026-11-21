@@ -31,16 +31,16 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 //	Bot Laser
 //---------------------------------------------------------
-void WP_BotLaser( gentity_t *ent )
+void WP_BotLaser(gentity_t* ent)
 //---------------------------------------------------------
 {
-	gentity_t	*missile = CreateMissile( wpMuzzle, wpFwd, BRYAR_PISTOL_VEL, 10000, ent );
+    gentity_t* missile = CreateMissile(wpMuzzle, wpFwd, BRYAR_PISTOL_VEL, 10000, ent);
 
-	missile->classname = "bryar_proj";
-	missile->s.weapon = weapon_t::WP_BRYAR_PISTOL;
+    missile->classname = "bryar_proj";
+    missile->s.weapon = weapon_t::WP_BRYAR_PISTOL;
 
-	missile->damage = weaponData[weapon_t::WP_BOT_LASER].damage;
-	missile->dflags = damageFlags_t::DAMAGE_DEATH_KNOCKBACK;
-	missile->methodOfDeath = meansOfDeath_t::MOD_ENERGY;
-	missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
+    missile->damage = weaponData[weapon_t::WP_BOT_LASER].damage;
+    missile->dflags = damageFlags_t::DAMAGE_DEATH_KNOCKBACK;
+    missile->methodOfDeath = meansOfDeath_t::MOD_ENERGY;
+    missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
 }

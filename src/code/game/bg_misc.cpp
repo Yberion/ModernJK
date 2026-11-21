@@ -31,10 +31,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_items.h"
 #include "g_vehicles.h"
 
-
 extern EnumArray<weaponData_t, weapon_t, weapon_t::WP_NUM_WEAPONS> weaponData;
 extern EnumArray<ammoData_t, ammo_t, ammo_t::AMMO_MAX> ammoData;
-
 
 #define PICKUPSOUND "sound/weapons/w_pkup.wav"
 
@@ -54,13 +52,13 @@ An item fires all of its targets when it is picked up.  If the toucher can't car
 "random" random number of plus or minus seconds varied from the respawn time
 "count" override quantity or duration on most items.
 "team" only this team can pick it up
-	"player"
-	"neutral"
-	"enemy"
+    "player"
+    "neutral"
+    "enemy"
 */
 
-/*QUAKED weapon_stun_baton (.3 .3 1) (-16 -16 -2) (16 16 16) SUSPEND NOPLAYER ALLOWNPC NOTSOLID VERTICAL INVISIBLE NOGLOW USEPICKUP STATIONARY NOGLOW USEPICKUP STATIONARY
-model="/models/weapons2/stun_baton/baton.md3"
+/*QUAKED weapon_stun_baton (.3 .3 1) (-16 -16 -2) (16 16 16) SUSPEND NOPLAYER ALLOWNPC NOTSOLID VERTICAL INVISIBLE NOGLOW USEPICKUP STATIONARY NOGLOW USEPICKUP
+STATIONARY model="/models/weapons2/stun_baton/baton.md3"
 */
 /*QUAKED weapon_saber (.3 .3 1) (-16 -16 -8) (16 16 16) SUSPEND NOPLAYER ALLOWNPC NOTSOLID LEANING INVISIBLE NOGLOW USEPICKUP STATIONARY
 SUSPENDED - allow items to hang in the air, otherwise they are dropped to the next surface.
@@ -73,17 +71,15 @@ STATIONARY - Cannot be moved around by force push/pull, radius damage, knockback
 
 model="/models/weapons2/saber/saber_w.md3"
 When picked up, will be used as a second saber unless:
-	1) It's a two-handed saber
-	2) The old saber was two-handed
-	3) You set "saberSolo" to "1"
-	4) You have 2 sabers and the saber pickup is on your right when you touch it
+    1) It's a two-handed saber
+    2) The old saber was two-handed
+    3) You set "saberSolo" to "1"
+    4) You have 2 sabers and the saber pickup is on your right when you touch it
 
-saberType - entry name from sabers.cfg - which kind of saber this is - use "player" to make it so that the saber will be whatever saber the player is configured to use
-saberColor - red, orange, yellow, green, blue, and purple
-saberLeftHand - always be added as a left-hand saber
-saberSolo - set to "1" and this will be the only saber the person who picks this up will be holding
-saberPitch - if set "LEANING" flag, you can specify the exact pitch to lean forward/back
-count - how many you can pick up before it's removed (default is 1, -1 is infinite)
+saberType - entry name from sabers.cfg - which kind of saber this is - use "player" to make it so that the saber will be whatever saber the player is configured
+to use saberColor - red, orange, yellow, green, blue, and purple saberLeftHand - always be added as a left-hand saber saberSolo - set to "1" and this will be
+the only saber the person who picks this up will be holding saberPitch - if set "LEANING" flag, you can specify the exact pitch to lean forward/back count - how
+many you can pick up before it's removed (default is 1, -1 is infinite)
 */
 /*QUAKED weapon_bryar_pistol (.3 .3 1) (-16 -16 -2) (16 16 16) SUSPEND NOPLAYER ALLOWNPC NOTSOLID VERTICAL INVISIBLE NOGLOW USEPICKUP STATIONARY
 model="/models/weapons2/briar_pistol/briar_pistol.md3"
@@ -138,9 +134,9 @@ model="/models/items/datapad.md3"
 model="/models/items/binoculars.md3"
 */
 /*QUAKED item_sentry_gun (.3 .3 1) (-8 -8 0) (8 8 16) suspended
-*/
+ */
 /*QUAKED item_la_goggles (.3 .3 1) (-8 -8 0) (8 8 16) suspended
-*/
+ */
 /*QUAKED ammo_force (.3 .5 1) (-8 -8 -0) (8 8 16) SUSPEND NOPLAYER ALLOWNPC NOTSOLID
 Ammo for the force.
 */
@@ -167,15 +163,15 @@ Belt of thermal detonators
 */
 
 /*QUAKED item_medpak_instant (.3 .3 1) (-8 -8 -4) (8 8 16) SUSPEND NOPLAYER ALLOWNPC NOTSOLID VERTICAL INVISIBLE NOGLOW USEPICKUP STATIONARY
-*/
+ */
 
 /*QUAKED item_shield_sm_instant (.3 .3 1) (-8 -8 -4) (8 8 16) SUSPEND NOPLAYER ALLOWNPC NOTSOLID VERTICAL INVISIBLE NOGLOW USEPICKUP STATIONARY
-*/
+ */
 
 /*QUAKED item_shield_lrg_instant (.3 .3 1) (-8 -8 -4) (8 8 16) SUSPEND NOPLAYER ALLOWNPC NOTSOLID VERTICAL INVISIBLE NOGLOW USEPICKUP STATIONARY
-*/
+ */
 /*QUAKED item_goodie_key (.3 .3 1) (-8 -8 0) (8 8 16) suspended
-*/
+ */
 /*QUAKED item_security_key (.3 .3 1) (-8 -8 0) (8 8 16) suspended
 message - used to differentiate one key from another.
 */
@@ -238,12 +234,10 @@ force saberthrow pickup item
 "count"     level of force power this holocron gives activator ( range: 0-3, default 1)
 */
 
-EnumArray<gitem_t, itemNum_t, to_underlying( itemNum_t::ITM_NUM_ITEMS ) + 1>	bg_itemlist;//need a null on the end
+EnumArray<gitem_t, itemNum_t, to_underlying(itemNum_t::ITM_NUM_ITEMS) + 1> bg_itemlist; // need a null on the end
 
-//int		bg_numItems = sizeof(bg_itemlist) / sizeof(bg_itemlist[itemNum_t::ITM_NONE]) ;
-const int		bg_numItems = to_underlying( itemNum_t::ITM_NUM_ITEMS );
-
-
+// int		bg_numItems = sizeof(bg_itemlist) / sizeof(bg_itemlist[itemNum_t::ITM_NONE]) ;
+const int bg_numItems = to_underlying(itemNum_t::ITM_NUM_ITEMS);
 
 /*
 ===============
@@ -251,38 +245,36 @@ FindItemForWeapon
 
 ===============
 */
-gitem_t	*FindItemForWeapon( weapon_t weapon ) {
-	for ( itemNum_t i = itemNum_t::ITM_NONE + 1 ; i < itemNum_t::ITM_NUM_ITEMS ; i++ ) {
-		if ( bg_itemlist[i].giType == itemType_t::IT_WEAPON && GI_Weapon( bg_itemlist[i] ) == weapon ) {
-			return &bg_itemlist[i];
-		}
-	}
+gitem_t* FindItemForWeapon(weapon_t weapon)
+{
+    for (itemNum_t i = itemNum_t::ITM_NONE + 1; i < itemNum_t::ITM_NUM_ITEMS; i++) {
+        if (bg_itemlist[i].giType == itemType_t::IT_WEAPON && GI_Weapon(bg_itemlist[i]) == weapon) {
+            return &bg_itemlist[i];
+        }
+    }
 
-	Com_Error( errorParm_t::ERR_DROP, "Couldn't find item for weapon %i", to_underlying( weapon ));
-	return nullptr;
+    Com_Error(errorParm_t::ERR_DROP, "Couldn't find item for weapon %i", to_underlying(weapon));
+    return nullptr;
 }
 
 //----------------------------------------------
-gitem_t	*FindItemForInventory( inventory_t inv )
+gitem_t* FindItemForInventory(inventory_t inv)
 {
-	gitem_t	*it;
+    gitem_t* it;
 
-	// Now just check for any other kind of item.
-	for ( itemNum_t i = itemNum_t::ITM_NONE + 1 ; i < itemNum_t::ITM_NUM_ITEMS ; i++ )
-	{
-		it = &bg_itemlist[i];
+    // Now just check for any other kind of item.
+    for (itemNum_t i = itemNum_t::ITM_NONE + 1; i < itemNum_t::ITM_NUM_ITEMS; i++) {
+        it = &bg_itemlist[i];
 
-		if ( it->giType == itemType_t::IT_HOLDABLE )
-		{
-			if ( GI_Inventory( *it ) == inv )
-			{
-				return it;
-			}
-		}
-	}
+        if (it->giType == itemType_t::IT_HOLDABLE) {
+            if (GI_Inventory(*it) == inv) {
+                return it;
+            }
+        }
+    }
 
-	Com_Error( errorParm_t::ERR_DROP, "Couldn't find item for inventory %i", to_underlying( inv ) );
-	return nullptr;
+    Com_Error(errorParm_t::ERR_DROP, "Couldn't find item for inventory %i", to_underlying(inv));
+    return nullptr;
 }
 
 /*
@@ -291,18 +283,16 @@ FindItemForWeapon
 
 ===============
 */
-gitem_t	*FindItemForAmmo( ammo_t ammo )
+gitem_t* FindItemForAmmo(ammo_t ammo)
 {
-	for ( itemNum_t i = itemNum_t::ITM_NONE + 1 ; i < itemNum_t::ITM_NUM_ITEMS ; i++ )
-	{
-		if ( bg_itemlist[i].giType == itemType_t::IT_AMMO && GI_Ammo( bg_itemlist[i] ) == ammo )
-		{
-			return &bg_itemlist[i];
-		}
-	}
+    for (itemNum_t i = itemNum_t::ITM_NONE + 1; i < itemNum_t::ITM_NUM_ITEMS; i++) {
+        if (bg_itemlist[i].giType == itemType_t::IT_AMMO && GI_Ammo(bg_itemlist[i]) == ammo) {
+            return &bg_itemlist[i];
+        }
+    }
 
-	Com_Error( errorParm_t::ERR_DROP, "Couldn't find item for ammo %i", to_underlying( ammo ) );
-	return nullptr;
+    Com_Error(errorParm_t::ERR_DROP, "Couldn't find item for ammo %i", to_underlying(ammo));
+    return nullptr;
 }
 
 /*
@@ -311,15 +301,15 @@ FindItem
 
 ===============
 */
-gitem_t	*FindItem( const char *className ) {
-	for ( itemNum_t i = itemNum_t::ITM_NONE + 1 ; i < itemNum_t::ITM_NUM_ITEMS ; i++ ) {
-		if ( !Q_stricmp( bg_itemlist[i].classname, className ) )
-			return &bg_itemlist[i];
-	}
+gitem_t* FindItem(const char* className)
+{
+    for (itemNum_t i = itemNum_t::ITM_NONE + 1; i < itemNum_t::ITM_NUM_ITEMS; i++) {
+        if (!Q_stricmp(bg_itemlist[i].classname, className))
+            return &bg_itemlist[i];
+    }
 
-	return nullptr;
+    return nullptr;
 }
-
 
 /*
 ================
@@ -329,131 +319,116 @@ Returns false if the item should not be picked up.
 This needs to be the same for client side prediction and server use.
 ================
 */
-bool	BG_CanItemBeGrabbed( const entityState_t *ent, const playerState_t *ps ) {
-	gitem_t	*item;
+bool BG_CanItemBeGrabbed(const entityState_t* ent, const playerState_t* ps)
+{
+    gitem_t* item;
 
-	if ( ent->modelindex < 1 || ent->modelindex >= bg_numItems ) {
-		Com_Error( errorParm_t::ERR_DROP, "BG_CanItemBeGrabbed: index out of range" );
-	}
+    if (ent->modelindex < 1 || ent->modelindex >= bg_numItems) {
+        Com_Error(errorParm_t::ERR_DROP, "BG_CanItemBeGrabbed: index out of range");
+    }
 
-	item = &bg_itemlist[ES_ItemNum( *ent )];
+    item = &bg_itemlist[ES_ItemNum(*ent)];
 
-	switch( item->giType ) {
+    switch (item->giType) {
 
-	case itemType_t::IT_WEAPON:
-		// See if we already have this weapon.
-		if ( !(ps->stats[ statIndex_t::STAT_WEAPONS ] & Bit( GI_Weapon( *item ) )))
-		{
-			// Don't have this weapon yet, so pick it up.
-			return true;
-		}
-		else if ( GI_Weapon( *item ) == weapon_t::WP_SABER )
-		{//always pick up a saber, might be a new one?
-			return true;
-		}
+    case itemType_t::IT_WEAPON:
+        // See if we already have this weapon.
+        if (!(ps->stats[statIndex_t::STAT_WEAPONS] & Bit(GI_Weapon(*item)))) {
+            // Don't have this weapon yet, so pick it up.
+            return true;
+        }
+        else if (GI_Weapon(*item) == weapon_t::WP_SABER) { // always pick up a saber, might be a new one?
+            return true;
+        }
 
-		// Make sure that we aren't already full on ammo for this weapon
-		if ( ps->ammo[weaponData[GI_Weapon( *item )].ammoIndex] >= ammoData[weaponData[GI_Weapon( *item )].ammoIndex].max )
-		{
-			// full, so don't grab the item
-			return false;
-		}
+        // Make sure that we aren't already full on ammo for this weapon
+        if (ps->ammo[weaponData[GI_Weapon(*item)].ammoIndex] >= ammoData[weaponData[GI_Weapon(*item)].ammoIndex].max) {
+            // full, so don't grab the item
+            return false;
+        }
 
-		return true; // could use more of this type of ammo, so grab the item
+        return true; // could use more of this type of ammo, so grab the item
 
-	case itemType_t::IT_AMMO:
+    case itemType_t::IT_AMMO:
 
-		if (GI_Ammo( *item ) != ammo_t::AMMO_FORCE)
-		{
-			// since the ammo is the weapon in this case, picking up ammo should actually give you the weapon
-			switch( GI_Ammo( *item ) )
-			{
-			case ammo_t::AMMO_THERMAL:
-				if( !(ps->stats[statIndex_t::STAT_WEAPONS] & Bit( weapon_t::WP_THERMAL ) ) )
-				{
-					return true;
-				}
-				break;
-			case ammo_t::AMMO_DETPACK:
-				if( !(ps->stats[statIndex_t::STAT_WEAPONS] & Bit( weapon_t::WP_DET_PACK ) ) )
-				{
-					return true;
-				}
-				break;
-			case ammo_t::AMMO_TRIPMINE:
-				if( !(ps->stats[statIndex_t::STAT_WEAPONS] & Bit( weapon_t::WP_TRIP_MINE ) ) )
-				{
-					return true;
-				}
-				break;
+        if (GI_Ammo(*item) != ammo_t::AMMO_FORCE) {
+            // since the ammo is the weapon in this case, picking up ammo should actually give you the weapon
+            switch (GI_Ammo(*item)) {
+            case ammo_t::AMMO_THERMAL:
+                if (!(ps->stats[statIndex_t::STAT_WEAPONS] & Bit(weapon_t::WP_THERMAL))) {
+                    return true;
+                }
+                break;
+            case ammo_t::AMMO_DETPACK:
+                if (!(ps->stats[statIndex_t::STAT_WEAPONS] & Bit(weapon_t::WP_DET_PACK))) {
+                    return true;
+                }
+                break;
+            case ammo_t::AMMO_TRIPMINE:
+                if (!(ps->stats[statIndex_t::STAT_WEAPONS] & Bit(weapon_t::WP_TRIP_MINE))) {
+                    return true;
+                }
+                break;
 
-			default:
-				break;
-			}
+            default:
+                break;
+            }
 
-			if ( ps->ammo[ GI_Ammo( *item ) ] >= ammoData[GI_Ammo( *item )].max )	// checkme
-			{
-				return false;		// can't hold any more
-			}
-		}
-		else
-		{
-			if (ps->forcePower >= ammoData[GI_Ammo( *item )].max*2)
-			{
-				return false;		// can't hold any more
-			}
+            if (ps->ammo[GI_Ammo(*item)] >= ammoData[GI_Ammo(*item)].max) // checkme
+            {
+                return false; // can't hold any more
+            }
+        }
+        else {
+            if (ps->forcePower >= ammoData[GI_Ammo(*item)].max * 2) {
+                return false; // can't hold any more
+            }
+        }
 
-		}
+        return true;
 
-		return true;
+    case itemType_t::IT_ARMOR:
+        // we also clamp armor to the maxhealth for handicapping
+        if (ps->stats[statIndex_t::STAT_ARMOR] >= ps->stats[statIndex_t::STAT_MAX_HEALTH]) {
+            return false;
+        }
+        return true;
 
-	case itemType_t::IT_ARMOR:
-		// we also clamp armor to the maxhealth for handicapping
-		if ( ps->stats[statIndex_t::STAT_ARMOR] >= ps->stats[statIndex_t::STAT_MAX_HEALTH] ) {
-			return false;
-		}
-		return true;
+    case itemType_t::IT_HEALTH:
+        if ((ps->forcePowersActive & Bit(forcePowers_t::FP_RAGE))) { // ragers can't use health
+            return false;
+        }
+        // don't pick up if already at max
+        if (ps->stats[statIndex_t::STAT_HEALTH] >= ps->stats[statIndex_t::STAT_MAX_HEALTH]) {
+            return false;
+        }
+        return true;
 
-	case itemType_t::IT_HEALTH:
-		if ((ps->forcePowersActive & Bit( forcePowers_t::FP_RAGE )))
-		{//ragers can't use health
-			return false;
-		}
-		// don't pick up if already at max
-		if ( ps->stats[statIndex_t::STAT_HEALTH] >= ps->stats[statIndex_t::STAT_MAX_HEALTH] ) {
-			return false;
-		}
-		return true;
+    case itemType_t::IT_BATTERY:
+        // don't pick up if already at max
+        if (ps->batteryCharge >= MAX_BATTERIES) {
+            return false;
+        }
+        return true;
 
-	case itemType_t::IT_BATTERY:
-		// don't pick up if already at max
-		if ( ps->batteryCharge >= MAX_BATTERIES )
-		{
-			return false;
-		}
-		return true;
+    case itemType_t::IT_HOLOCRON:
+        // pretty lame but for now you can always pick these up
+        return true;
 
-	case itemType_t::IT_HOLOCRON:
-		// pretty lame but for now you can always pick these up
-		return true;
+    case itemType_t::IT_HOLDABLE:
+        if (GI_Inventory(*item) >= inventory_t::INV_ELECTROBINOCULARS && GI_Inventory(*item) <= inventory_t::INV_SENTRY) {
+            // hardcoded--can only pick up five of any holdable
+            if (ps->inventory[GI_Inventory(*item)] >= 5) {
+                return false;
+            }
+        }
+        return true;
 
+    default:
+        break;
+    }
 
-	case itemType_t::IT_HOLDABLE:
-		if ( GI_Inventory( *item ) >= inventory_t::INV_ELECTROBINOCULARS && GI_Inventory( *item ) <= inventory_t::INV_SENTRY )
-		{
-			// hardcoded--can only pick up five of any holdable
-			if ( ps->inventory[GI_Inventory( *item )] >= 5 )
-			{
-				return false;
-			}
-		}
-		return true;
-
-	default:
-		break;
-	}
-
-	return false;
+    return false;
 }
 
 //======================================================================
@@ -464,62 +439,58 @@ EvaluateTrajectory
 
 ================
 */
-void EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result ) {
-	float		deltaTime;
-	float		phase;
+void EvaluateTrajectory(const trajectory_t* tr, int atTime, vec3_t result)
+{
+    float deltaTime;
+    float phase;
 
-	switch( tr->trType ) {
-	case trType_t::TR_STATIONARY:
-	case trType_t::TR_INTERPOLATE:
-		VectorCopy( tr->trBase, result );
-		break;
-	case trType_t::TR_LINEAR:
-		deltaTime = ( atTime - tr->trTime ) * 0.001F;	// milliseconds to seconds
-		VectorMA( tr->trBase, deltaTime, tr->trDelta, result );
-		break;
-	case trType_t::TR_SINE:
-		deltaTime = ( atTime - tr->trTime ) / (float) tr->trDuration;
-		phase = (float)Q_sin( deltaTime * Q_PI * 2 );
-		VectorMA( tr->trBase, phase, tr->trDelta, result );
-		break;
-	case trType_t::TR_LINEAR_STOP:
-		if ( atTime > tr->trTime + tr->trDuration )
-		{
-			atTime = tr->trTime + tr->trDuration;
-		}
-		//old totally linear
-		deltaTime = ( atTime - tr->trTime ) * 0.001F;	// milliseconds to seconds
-		if ( deltaTime < 0 )
-		{//going past the total duration
-			deltaTime = 0;
-		}
-		VectorMA( tr->trBase, deltaTime, tr->trDelta, result );
-		break;
-	case trType_t::TR_NONLINEAR_STOP:
-		if ( atTime > tr->trTime + tr->trDuration )
-		{
-			atTime = tr->trTime + tr->trDuration;
-		}
-		//new slow-down at end
-		if ( atTime - tr->trTime > tr->trDuration || atTime - tr->trTime <= 0  )
-		{
-			deltaTime = 0;
-		}
-		else
-		{//FIXME: maybe scale this somehow?  So that it starts out faster and stops faster?
-			deltaTime = tr->trDuration*0.001f*((float)Q_cosf( DEG2RAD(90.0f - (90.0f*((float)atTime-tr->trTime)/(float)tr->trDuration)) ));
-		}
-		VectorMA( tr->trBase, deltaTime, tr->trDelta, result );
-		break;
-	case trType_t::TR_GRAVITY:
-		deltaTime = ( atTime - tr->trTime ) * 0.001F;	// milliseconds to seconds
-		VectorMA( tr->trBase, deltaTime, tr->trDelta, result );
-		result[2] -= 0.5F * g_gravity->value * deltaTime * deltaTime;//DEFAULT_GRAVITY
-		break;
-	default:
-		Com_Error( errorParm_t::ERR_DROP, "EvaluateTrajectory: unknown trType: %i", tr->trTime );
-		break;
-	}
+    switch (tr->trType) {
+    case trType_t::TR_STATIONARY:
+    case trType_t::TR_INTERPOLATE:
+        VectorCopy(tr->trBase, result);
+        break;
+    case trType_t::TR_LINEAR:
+        deltaTime = (atTime - tr->trTime) * 0.001F; // milliseconds to seconds
+        VectorMA(tr->trBase, deltaTime, tr->trDelta, result);
+        break;
+    case trType_t::TR_SINE:
+        deltaTime = (atTime - tr->trTime) / (float)tr->trDuration;
+        phase = (float)Q_sin(deltaTime * Q_PI * 2);
+        VectorMA(tr->trBase, phase, tr->trDelta, result);
+        break;
+    case trType_t::TR_LINEAR_STOP:
+        if (atTime > tr->trTime + tr->trDuration) {
+            atTime = tr->trTime + tr->trDuration;
+        }
+        // old totally linear
+        deltaTime = (atTime - tr->trTime) * 0.001F; // milliseconds to seconds
+        if (deltaTime < 0) {                        // going past the total duration
+            deltaTime = 0;
+        }
+        VectorMA(tr->trBase, deltaTime, tr->trDelta, result);
+        break;
+    case trType_t::TR_NONLINEAR_STOP:
+        if (atTime > tr->trTime + tr->trDuration) {
+            atTime = tr->trTime + tr->trDuration;
+        }
+        // new slow-down at end
+        if (atTime - tr->trTime > tr->trDuration || atTime - tr->trTime <= 0) {
+            deltaTime = 0;
+        }
+        else { // FIXME: maybe scale this somehow?  So that it starts out faster and stops faster?
+            deltaTime = tr->trDuration * 0.001f * ((float)Q_cosf(DEG2RAD(90.0f - (90.0f * ((float)atTime - tr->trTime) / (float)tr->trDuration))));
+        }
+        VectorMA(tr->trBase, deltaTime, tr->trDelta, result);
+        break;
+    case trType_t::TR_GRAVITY:
+        deltaTime = (atTime - tr->trTime) * 0.001F; // milliseconds to seconds
+        VectorMA(tr->trBase, deltaTime, tr->trDelta, result);
+        result[2] -= 0.5F * g_gravity->value * deltaTime * deltaTime; // DEFAULT_GRAVITY
+        break;
+    default:
+        Com_Error(errorParm_t::ERR_DROP, "EvaluateTrajectory: unknown trType: %i", tr->trTime);
+        break;
+    }
 }
 
 /*
@@ -529,50 +500,49 @@ EvaluateTrajectoryDelta
 Returns current speed at given time
 ================
 */
-void EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t result ) {
-	float	deltaTime;
-	float	phase;
+void EvaluateTrajectoryDelta(const trajectory_t* tr, int atTime, vec3_t result)
+{
+    float deltaTime;
+    float phase;
 
-	switch( tr->trType ) {
-	case trType_t::TR_STATIONARY:
-	case trType_t::TR_INTERPOLATE:
-		VectorClear( result );
-		break;
-	case trType_t::TR_LINEAR:
-		VectorCopy( tr->trDelta, result );
-		break;
-	case trType_t::TR_SINE:
-		deltaTime = ( atTime - tr->trTime ) / (float) tr->trDuration;
-		phase = (float)Q_cos( deltaTime * Q_PI * 2 );	// derivative of sin = cos
-		phase *= 0.5;
-		VectorScale( tr->trDelta, phase, result );
-		break;
-	case trType_t::TR_LINEAR_STOP:
-		if ( atTime > tr->trTime + tr->trDuration )
-		{
-			VectorClear( result );
-			return;
-		}
-		VectorCopy( tr->trDelta, result );
-		break;
-	case trType_t::TR_NONLINEAR_STOP:
-		if ( atTime - tr->trTime > tr->trDuration || atTime - tr->trTime <= 0  )
-		{
-			VectorClear( result );
-			return;
-		}
-		deltaTime = tr->trDuration*0.001f*((float)Q_cosf( DEG2RAD(90.0f - (90.0f*((float)atTime-tr->trTime)/(float)tr->trDuration)) ));
-		VectorScale( tr->trDelta, deltaTime, result );
-		break;
-	case trType_t::TR_GRAVITY:
-		deltaTime = ( atTime - tr->trTime ) * 0.001F;	// milliseconds to seconds
-		VectorCopy( tr->trDelta, result );
-		result[2] -= g_gravity->value * deltaTime;		// DEFAULT_GRAVITY
-		break;
-	default:
-		Com_Error( errorParm_t::ERR_DROP, "EvaluateTrajectoryDelta: unknown trType: %i", tr->trTime );
-		break;
-	}
+    switch (tr->trType) {
+    case trType_t::TR_STATIONARY:
+    case trType_t::TR_INTERPOLATE:
+        VectorClear(result);
+        break;
+    case trType_t::TR_LINEAR:
+        VectorCopy(tr->trDelta, result);
+        break;
+    case trType_t::TR_SINE:
+        deltaTime = (atTime - tr->trTime) / (float)tr->trDuration;
+        phase = (float)Q_cos(deltaTime * Q_PI * 2); // derivative of sin = cos
+        phase *= 0.5;
+        VectorScale(tr->trDelta, phase, result);
+        break;
+    case trType_t::TR_LINEAR_STOP:
+        if (atTime > tr->trTime + tr->trDuration) {
+            VectorClear(result);
+            return;
+        }
+        VectorCopy(tr->trDelta, result);
+        break;
+    case trType_t::TR_NONLINEAR_STOP:
+        if (atTime - tr->trTime > tr->trDuration || atTime - tr->trTime <= 0) {
+            VectorClear(result);
+            return;
+        }
+        deltaTime = tr->trDuration * 0.001f * ((float)Q_cosf(DEG2RAD(90.0f - (90.0f * ((float)atTime - tr->trTime) / (float)tr->trDuration))));
+        VectorScale(tr->trDelta, deltaTime, result);
+        break;
+    case trType_t::TR_GRAVITY:
+        deltaTime = (atTime - tr->trTime) * 0.001F; // milliseconds to seconds
+        VectorCopy(tr->trDelta, result);
+        result[2] -= g_gravity->value * deltaTime; // DEFAULT_GRAVITY
+        break;
+    default:
+        Com_Error(errorParm_t::ERR_DROP, "EvaluateTrajectoryDelta: unknown trType: %i", tr->trTime);
+        break;
+    }
 }
 
 /*
@@ -582,12 +552,12 @@ AddEventToPlayerstate
 Handles the sequence numbers
 ===============
 */
-void AddEventToPlayerstate( entity_event_t newEvent, int eventParm, playerState_t *ps ) {
-	ps->events[ps->eventSequence & (MAX_PS_EVENTS-1)] = newEvent;
-	ps->eventParms[ps->eventSequence & (MAX_PS_EVENTS-1)] = eventParm;
-	ps->eventSequence++;
+void AddEventToPlayerstate(entity_event_t newEvent, int eventParm, playerState_t* ps)
+{
+    ps->events[ps->eventSequence & (MAX_PS_EVENTS - 1)] = newEvent;
+    ps->eventParms[ps->eventSequence & (MAX_PS_EVENTS - 1)] = eventParm;
+    ps->eventSequence++;
 }
-
 
 /*
 ===============
@@ -595,8 +565,9 @@ CurrentPlayerstateEvent
 
 ===============
 */
-entity_event_t	CurrentPlayerstateEvent( playerState_t *ps ) {
-	return ps->events[ (ps->eventSequence-1) & (MAX_PS_EVENTS-1) ];
+entity_event_t CurrentPlayerstateEvent(playerState_t* ps)
+{
+    return ps->events[(ps->eventSequence - 1) & (MAX_PS_EVENTS - 1)];
 }
 
 /*
@@ -607,62 +578,59 @@ This is done after each set of usercmd_t on the server,
 and after local prediction on the client
 ========================
 */
-void PlayerStateToEntityState( playerState_t *ps, entityState_t *s )
+void PlayerStateToEntityState(playerState_t* ps, entityState_t* s)
 {
 
-	if ( ps->pm_type == pmtype_t::PM_INTERMISSION || ps->pm_type == pmtype_t::PM_SPECTATOR )
-	{
-		s->eType = entityType_t::ET_INVISIBLE;
-	}
-	/*else if ( ps->stats[statIndex_t::STAT_HEALTH] <= GIB_HEALTH )
-	{
-		s->eType = entityType_t::ET_INVISIBLE;
-	} */
-	else
-	{
-		s->eType = entityType_t::ET_PLAYER;
-	}
+    if (ps->pm_type == pmtype_t::PM_INTERMISSION || ps->pm_type == pmtype_t::PM_SPECTATOR) {
+        s->eType = entityType_t::ET_INVISIBLE;
+    }
+    /*else if ( ps->stats[statIndex_t::STAT_HEALTH] <= GIB_HEALTH )
+    {
+        s->eType = entityType_t::ET_INVISIBLE;
+    } */
+    else {
+        s->eType = entityType_t::ET_PLAYER;
+    }
 
-	s->number = ps->clientNum;
+    s->number = ps->clientNum;
 
-	s->pos.trType = trType_t::TR_INTERPOLATE;
-	VectorCopy( ps->origin, s->pos.trBase );
-	//SnapVector( s->pos.trBase );
+    s->pos.trType = trType_t::TR_INTERPOLATE;
+    VectorCopy(ps->origin, s->pos.trBase);
+    // SnapVector( s->pos.trBase );
 
-	s->apos.trType = trType_t::TR_INTERPOLATE;
-	VectorCopy( ps->viewangles, s->apos.trBase );
-	//SnapVector( s->apos.trBase );
+    s->apos.trType = trType_t::TR_INTERPOLATE;
+    VectorCopy(ps->viewangles, s->apos.trBase);
+    // SnapVector( s->apos.trBase );
 
-	s->angles2[YAW] = ps->movementDir;
-	s->legsAnim = ps->legsAnim;
-	s->torsoAnim = ps->torsoAnim;
-	s->clientNum = ps->clientNum;		// ET_PLAYER looks here instead of at number
-										// so corpses can also reference the proper config
-	s->eFlags = ps->eFlags;
+    s->angles2[YAW] = ps->movementDir;
+    s->legsAnim = ps->legsAnim;
+    s->torsoAnim = ps->torsoAnim;
+    s->clientNum = ps->clientNum; // ET_PLAYER looks here instead of at number
+                                  // so corpses can also reference the proper config
+    s->eFlags = ps->eFlags;
 
-	// new sabre stuff
-	s->saberActive = ps->SaberActive();//WHY is this on the entityState_t, too???
-	s->saberInFlight = ps->saberInFlight;
+    // new sabre stuff
+    s->saberActive = ps->SaberActive(); // WHY is this on the entityState_t, too???
+    s->saberInFlight = ps->saberInFlight;
 
-	// NOTE: Although we store this stuff locally on a vehicle, who's to say we
-	// can't bring back these variables and fill them at the appropriate time? -Aurelio
-	// We need to bring these in from the vehicle NPC.
-	if ( g_entities[ps->clientNum].client && g_entities[ps->clientNum].client->NPC_class == class_t::CLASS_VEHICLE && g_entities[ps->clientNum].NPC )
-	{
-		Vehicle_t *pVeh = g_entities[ps->clientNum].m_pVehicle;
-		s->vehicleArmor = pVeh->m_iArmor;
-		VectorCopy( pVeh->m_vOrientation, s->vehicleAngles );
-	}
+    // NOTE: Although we store this stuff locally on a vehicle, who's to say we
+    // can't bring back these variables and fill them at the appropriate time? -Aurelio
+    // We need to bring these in from the vehicle NPC.
+    if (g_entities[ps->clientNum].client && g_entities[ps->clientNum].client->NPC_class == class_t::CLASS_VEHICLE && g_entities[ps->clientNum].NPC) {
+        Vehicle_t* pVeh = g_entities[ps->clientNum].m_pVehicle;
+        s->vehicleArmor = pVeh->m_iArmor;
+        VectorCopy(pVeh->m_vOrientation, s->vehicleAngles);
+    }
 
-	s->weapon = ps->weapon;
-	s->groundEntityNum = ps->groundEntityNum;
+    s->weapon = ps->weapon;
+    s->groundEntityNum = ps->groundEntityNum;
 
-	s->powerups = 0;
-	for ( powerup_t p = powerup_t::PW_NONE ; p < powerup_t::PW_NUM_POWERUPS ; p++ ) {
-		if ( ps->powerups[ p ] ) {
-			s->powerups |= Bit( p );
-		}
-	}
+    s->powerups = 0;
+    for (powerup_t p = powerup_t::PW_NONE; p < powerup_t::PW_NUM_POWERUPS; p++) {
+        if (ps->powerups[p]) {
+            s->powerups |= Bit(p);
+        }
+    }
 #if 0
 	if ( ps->externalEvent ) {
 		s->event = ps->externalEvent;
@@ -700,7 +668,6 @@ void PlayerStateToEntityState( playerState_t *ps, entityState_t *s )
 #endif
 }
 
-
 /*
 ============
 BG_PlayerTouchesItem
@@ -708,24 +675,20 @@ BG_PlayerTouchesItem
 Items can be picked up without actually touching their physical bounds
 ============
 */
-bool	BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTime ) {
-	vec3_t origin = { 0.0f };
+bool BG_PlayerTouchesItem(playerState_t* ps, entityState_t* item, int atTime)
+{
+    vec3_t origin = {0.0f};
 
-	EvaluateTrajectory( &item->pos, atTime, origin );
+    EvaluateTrajectory(&item->pos, atTime, origin);
 
-	// we are ignoring ducked differences here
-	if ( ps->origin[0] - origin[0] > 44
-		|| ps->origin[0] - origin[0] < -50
-		|| ps->origin[1] - origin[1] > 36
-		|| ps->origin[1] - origin[1] < -36
-		|| ps->origin[2] - origin[2] > 36
-		|| ps->origin[2] - origin[2] < -36 ) {
-		return false;
-	}
+    // we are ignoring ducked differences here
+    if (ps->origin[0] - origin[0] > 44 || ps->origin[0] - origin[0] < -50 || ps->origin[1] - origin[1] > 36 || ps->origin[1] - origin[1] < -36 ||
+        ps->origin[2] - origin[2] > 36 || ps->origin[2] - origin[2] < -36) {
+        return false;
+    }
 
-	return true;
+    return true;
 }
-
 
 /*
 =================
@@ -734,41 +697,34 @@ BG_EmplacedView
 Shared code for emplaced angle gun constriction
 =================
 */
-int BG_EmplacedView(vec3_t baseAngles, vec3_t angles, float *newYaw, float constraint)
+int BG_EmplacedView(vec3_t baseAngles, vec3_t angles, float* newYaw, float constraint)
 {
-	float dif = AngleSubtract(baseAngles[YAW], angles[YAW]);
+    float dif = AngleSubtract(baseAngles[YAW], angles[YAW]);
 
-	if (dif > constraint ||
-		dif < -constraint)
-	{
-		float amt;
+    if (dif > constraint || dif < -constraint) {
+        float amt;
 
-		if (dif > constraint)
-		{
-			amt = (dif-constraint);
-			dif = constraint;
-		}
-		else if (dif < -constraint)
-		{
-			amt = (dif+constraint);
-			dif = -constraint;
-		}
-		else
-		{
-			amt = 0.0f;
-		}
+        if (dif > constraint) {
+            amt = (dif - constraint);
+            dif = constraint;
+        }
+        else if (dif < -constraint) {
+            amt = (dif + constraint);
+            dif = -constraint;
+        }
+        else {
+            amt = 0.0f;
+        }
 
-		*newYaw = AngleSubtract(angles[YAW], -dif);
+        *newYaw = AngleSubtract(angles[YAW], -dif);
 
-		if (amt > 1.0f || amt < -1.0f)
-		{ //significant, force the view
-			return 2;
-		}
-		else
-		{ //just a little out of range
-			return 1;
-		}
-	}
+        if (amt > 1.0f || amt < -1.0f) { // significant, force the view
+            return 2;
+        }
+        else { // just a little out of range
+            return 1;
+        }
+    }
 
-	return 0;
+    return 0;
 }

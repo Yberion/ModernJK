@@ -31,20 +31,20 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <assert.h>
 #include "../code/qcommon/ojk_saved_game_helper.h"
 
-CSequence::CSequence( void )
+CSequence::CSequence(void)
 {
-	m_numCommands	= 0;
-	m_numChildren	= 0;
-	m_flags			= sequenceFlags_t::SQ_COMMON;
-	m_iterations	= 1;
+    m_numCommands = 0;
+    m_numChildren = 0;
+    m_flags = sequenceFlags_t::SQ_COMMON;
+    m_iterations = 1;
 
-	m_parent		= nullptr;
-	m_return		= nullptr;
+    m_parent = nullptr;
+    m_return = nullptr;
 }
 
-CSequence::~CSequence( void )
+CSequence::~CSequence(void)
 {
-	Delete();
+    Delete();
 }
 
 /*
@@ -53,18 +53,18 @@ Create
 -------------------------
 */
 
-CSequence *CSequence::Create( void )
+CSequence* CSequence::Create(void)
 {
-	CSequence *seq = new CSequence;
+    CSequence* seq = new CSequence;
 
-	//TODO: Emit warning
-	assert(seq);
-	if ( seq == nullptr )
-		return nullptr;
+    // TODO: Emit warning
+    assert(seq);
+    if (seq == nullptr)
+        return nullptr;
 
-	seq->SetFlag( sequenceFlags_t::SQ_COMMON );
+    seq->SetFlag(sequenceFlags_t::SQ_COMMON);
 
-	return seq;
+    return seq;
 }
 
 /*
@@ -73,36 +73,31 @@ Delete
 -------------------------
 */
 
-void CSequence::Delete( void )
+void CSequence::Delete(void)
 {
-	block_l::iterator	bi;
-	sequence_l::iterator si;
+    block_l::iterator bi;
+    sequence_l::iterator si;
 
-	//Notify the parent of the deletion
-	if ( m_parent )
-	{
-		m_parent->RemoveChild( this );
-	}
+    // Notify the parent of the deletion
+    if (m_parent) {
+        m_parent->RemoveChild(this);
+    }
 
-	//Clear all children
-	if ( m_numChildren > 0 )
-	{
-		for ( si = m_children.begin(); si != m_children.end(); ++si )
-		{
-			(*si)->SetParent( nullptr );
-		}
-	}
+    // Clear all children
+    if (m_numChildren > 0) {
+        for (si = m_children.begin(); si != m_children.end(); ++si) {
+            (*si)->SetParent(nullptr);
+        }
+    }
 
-	//Clear all held commands
-	for ( bi = m_commands.begin(); bi != m_commands.end(); ++bi )
-	{
-		delete (*bi);	//Free() handled internally
-	}
+    // Clear all held commands
+    for (bi = m_commands.begin(); bi != m_commands.end(); ++bi) {
+        delete (*bi); // Free() handled internally
+    }
 
-	m_commands.clear();
-	m_children.clear();
+    m_commands.clear();
+    m_children.clear();
 }
-
 
 /*
 -------------------------
@@ -110,15 +105,15 @@ AddChild
 -------------------------
 */
 
-void CSequence::AddChild( CSequence *child )
+void CSequence::AddChild(CSequence* child)
 {
-	assert( child );
-	if ( child == nullptr )
-		return;
+    assert(child);
+    if (child == nullptr)
+        return;
 
-	m_children.insert( m_children.end(), child );
-	m_childrenMap[ m_numChildren ] = child;
-	m_numChildren++;
+    m_children.insert(m_children.end(), child);
+    m_childrenMap[m_numChildren] = child;
+    m_numChildren++;
 }
 
 /*
@@ -127,15 +122,15 @@ RemoveChild
 -------------------------
 */
 
-void CSequence::RemoveChild( CSequence *child )
+void CSequence::RemoveChild(CSequence* child)
 {
-	assert( child );
-	if ( child == nullptr )
-		return;
+    assert(child);
+    if (child == nullptr)
+        return;
 
-	//Remove the child
-	m_children.remove( child );
-	m_numChildren--;
+    // Remove the child
+    m_children.remove(child);
+    m_numChildren--;
 }
 
 /*
@@ -144,20 +139,19 @@ HasChild
 -------------------------
 */
 
-bool CSequence::HasChild( CSequence *sequence )
+bool CSequence::HasChild(CSequence* sequence)
 {
-	sequence_l::iterator	ci;
+    sequence_l::iterator ci;
 
-	for ( ci = m_children.begin(); ci != m_children.end(); ++ci )
-	{
-		if ( (*ci) == sequence )
-			return true;
+    for (ci = m_children.begin(); ci != m_children.end(); ++ci) {
+        if ((*ci) == sequence)
+            return true;
 
-		if ( (*ci)->HasChild( sequence ) )
-			return true;
-	}
+        if ((*ci)->HasChild(sequence))
+            return true;
+    }
 
-	return false;
+    return false;
 }
 
 /*
@@ -166,19 +160,19 @@ SetParent
 -------------------------
 */
 
-void CSequence::SetParent( CSequence *parent )
+void CSequence::SetParent(CSequence* parent)
 {
-	m_parent = parent;
+    m_parent = parent;
 
-	if ( parent == nullptr )
-		return;
+    if (parent == nullptr)
+        return;
 
-	//Inherit the parent's properties (this avoids messy tree walks later on)
-	if ( Any( parent->m_flags & sequenceFlags_t::SQ_RETAIN ) )
-		m_flags |= sequenceFlags_t::SQ_RETAIN;
+    // Inherit the parent's properties (this avoids messy tree walks later on)
+    if (Any(parent->m_flags & sequenceFlags_t::SQ_RETAIN))
+        m_flags |= sequenceFlags_t::SQ_RETAIN;
 
-	if ( Any( parent->m_flags & sequenceFlags_t::SQ_PENDING ) )
-		m_flags |= sequenceFlags_t::SQ_PENDING;
+    if (Any(parent->m_flags & sequenceFlags_t::SQ_PENDING))
+        m_flags |= sequenceFlags_t::SQ_PENDING;
 }
 
 /*
@@ -187,42 +181,41 @@ PopCommand
 -------------------------
 */
 
-CBlock *CSequence::PopCommand( pushPop_t type )
+CBlock* CSequence::PopCommand(pushPop_t type)
 {
-	CBlock	*command = nullptr;
+    CBlock* command = nullptr;
 
-	//Make sure everything is ok
-	assert( (type == pushPop_t::POP_FRONT) || (type == pushPop_t::POP_BACK) );
+    // Make sure everything is ok
+    assert((type == pushPop_t::POP_FRONT) || (type == pushPop_t::POP_BACK));
 
-	if ( m_commands.empty() )
-		return nullptr;
+    if (m_commands.empty())
+        return nullptr;
 
-	switch ( type )
-	{
-	case pushPop_t::POP_FRONT:
+    switch (type) {
+    case pushPop_t::POP_FRONT:
 
-		command = m_commands.front();
-		m_commands.pop_front();
-		m_numCommands--;
+        command = m_commands.front();
+        m_commands.pop_front();
+        m_numCommands--;
 
-		return command;
-		break;
+        return command;
+        break;
 
-	case pushPop_t::POP_BACK:
+    case pushPop_t::POP_BACK:
 
-		command = m_commands.back();
-		m_commands.pop_back();
-		m_numCommands--;
+        command = m_commands.back();
+        m_commands.pop_back();
+        m_numCommands--;
 
-		return command;
-		break;
+        return command;
+        break;
 
-	default:
-		break;
-	}
+    default:
+        break;
+    }
 
-	//Invalid flag
-	return nullptr;
+    // Invalid flag
+    return nullptr;
 }
 
 /*
@@ -231,36 +224,35 @@ PushCommand
 -------------------------
 */
 
-int CSequence::PushCommand( CBlock *block, pushPop_t type )
+int CSequence::PushCommand(CBlock* block, pushPop_t type)
 {
-	//Make sure everything is ok
-	assert( (type == pushPop_t::PUSH_FRONT) || (type == pushPop_t::PUSH_BACK) );
-	assert( block );
+    // Make sure everything is ok
+    assert((type == pushPop_t::PUSH_FRONT) || (type == pushPop_t::PUSH_BACK));
+    assert(block);
 
-	switch ( type )
-	{
-	case pushPop_t::PUSH_FRONT:
+    switch (type) {
+    case pushPop_t::PUSH_FRONT:
 
-		m_commands.push_front( block );
-		m_numCommands++;
+        m_commands.push_front(block);
+        m_numCommands++;
 
-		return true;
-		break;
+        return true;
+        break;
 
-	case pushPop_t::PUSH_BACK:
+    case pushPop_t::PUSH_BACK:
 
-		m_commands.push_back( block );
-		m_numCommands++;
+        m_commands.push_back(block);
+        m_numCommands++;
 
-		return true;
-		break;
+        return true;
+        break;
 
-	default:
-		break;
-	}
+    default:
+        break;
+    }
 
-	//Invalid flag
-	return false;
+    // Invalid flag
+    return false;
 }
 
 /*
@@ -269,9 +261,9 @@ SetFlag
 -------------------------
 */
 
-void CSequence::SetFlag( sequenceFlags_t flag )
+void CSequence::SetFlag(sequenceFlags_t flag)
 {
-	m_flags |= flag;
+    m_flags |= flag;
 }
 
 /*
@@ -280,19 +272,17 @@ RemoveFlag
 -------------------------
 */
 
-void CSequence::RemoveFlag( sequenceFlags_t flag, bool children )
+void CSequence::RemoveFlag(sequenceFlags_t flag, bool children)
 {
-	m_flags &= ~flag;
+    m_flags &= ~flag;
 
-	if ( children )
-	{
-		sequence_l::iterator	si;
+    if (children) {
+        sequence_l::iterator si;
 
-		for ( si = m_children.begin(); si != m_children.end(); ++si )
-		{
-			(*si)->RemoveFlag( flag, true );
-		}
-	}
+        for (si = m_children.begin(); si != m_children.end(); ++si) {
+            (*si)->RemoveFlag(flag, true);
+        }
+    }
 }
 
 /*
@@ -301,9 +291,9 @@ HasFlag
 -------------------------
 */
 
-bool CSequence::HasFlag( sequenceFlags_t flag )
+bool CSequence::HasFlag(sequenceFlags_t flag)
 {
-	return Any(m_flags & flag);
+    return Any(m_flags & flag);
 }
 
 /*
@@ -312,10 +302,10 @@ SetReturn
 -------------------------
 */
 
-void CSequence::SetReturn ( CSequence *sequence )
+void CSequence::SetReturn(CSequence* sequence)
 {
-	assert( sequence != this );
-	m_return = sequence;
+    assert(sequence != this);
+    m_return = sequence;
 }
 
 /*
@@ -324,18 +314,18 @@ GetChild
 -------------------------
 */
 
-CSequence *CSequence::GetChild( int id )
+CSequence* CSequence::GetChild(int id)
 {
-	if ( id < 0 )
-		return nullptr;
+    if (id < 0)
+        return nullptr;
 
-	//NOTENOTE: Done for safety reasons, I don't know what this template will return on underflow ( sigh... )
-	sequenceID_m::iterator mi = m_childrenMap.find( id );
+    // NOTENOTE: Done for safety reasons, I don't know what this template will return on underflow ( sigh... )
+    sequenceID_m::iterator mi = m_childrenMap.find(id);
 
-	if ( mi == m_childrenMap.end() )
-		return nullptr;
+    if (mi == m_childrenMap.end())
+        return nullptr;
 
-	return (*mi).second;
+    return (*mi).second;
 }
 
 /*
@@ -344,64 +334,49 @@ SaveCommand
 -------------------------
 */
 
-int CSequence::SaveCommand( CBlock *block )
+int CSequence::SaveCommand(CBlock* block)
 {
-	unsigned char	flags;
-	int				numMembers, bID, size;
-	CBlockMember	*bm;
+    unsigned char flags;
+    int numMembers, bID, size;
+    CBlockMember* bm;
 
-	ojk::SavedGameHelper saved_game(
-		m_owner->GetInterface()->saved_game);
+    ojk::SavedGameHelper saved_game(m_owner->GetInterface()->saved_game);
 
-	//Save out the block ID
-	bID = to_underlying( block->GetBlockID() );
+    // Save out the block ID
+    bID = to_underlying(block->GetBlockID());
 
-	saved_game.write_chunk<int32_t>(
-		INT_ID('B', 'L', 'I', 'D'),
-		bID);
+    saved_game.write_chunk<int32_t>(INT_ID('B', 'L', 'I', 'D'), bID);
 
-	//Save out the block's flags
-	flags = to_underlying( block->GetFlags() );
+    // Save out the block's flags
+    flags = to_underlying(block->GetFlags());
 
-	saved_game.write_chunk<uint8_t>(
-		INT_ID('B', 'F', 'L', 'G'),
-		flags);
+    saved_game.write_chunk<uint8_t>(INT_ID('B', 'F', 'L', 'G'), flags);
 
-	//Save out the number of members to read
-	numMembers = block->GetNumMembers();
+    // Save out the number of members to read
+    numMembers = block->GetNumMembers();
 
-	saved_game.write_chunk<int32_t>(
-		INT_ID('B', 'N', 'U', 'M'),
-		numMembers);
+    saved_game.write_chunk<int32_t>(INT_ID('B', 'N', 'U', 'M'), numMembers);
 
-	for ( int i = 0; i < numMembers; i++ )
-	{
-		bm = block->GetMember( i );
+    for (int i = 0; i < numMembers; i++) {
+        bm = block->GetMember(i);
 
-		//Save the block id
-		bID = to_underlying( bm->GetID() );
+        // Save the block id
+        bID = to_underlying(bm->GetID());
 
-		saved_game.write_chunk<int32_t>(
-			INT_ID('B', 'M', 'I', 'D'),
-			bID);
+        saved_game.write_chunk<int32_t>(INT_ID('B', 'M', 'I', 'D'), bID);
 
-		//Save out the data size
-		size = bm->GetSize();
+        // Save out the data size
+        size = bm->GetSize();
 
-		saved_game.write_chunk<int32_t>(
-			INT_ID('B', 'S', 'I', 'Z'),
-			size);
+        saved_game.write_chunk<int32_t>(INT_ID('B', 'S', 'I', 'Z'), size);
 
-		//Save out the raw data
+        // Save out the raw data
         const uint8_t* raw_data = static_cast<const uint8_t*>(bm->GetData());
 
-		saved_game.write_chunk(
-			INT_ID('B', 'M', 'E', 'M'),
-			raw_data,
-			size);
-	}
+        saved_game.write_chunk(INT_ID('B', 'M', 'E', 'M'), raw_data, size);
+    }
 
-	return true;
+    return true;
 }
 
 /*
@@ -410,66 +385,51 @@ Save
 -------------------------
 */
 
-int CSequence::Save( void )
+int CSequence::Save(void)
 {
-	sequence_l::iterator	ci;
-	block_l::iterator		bi;
-	int						id;
+    sequence_l::iterator ci;
+    block_l::iterator bi;
+    int id;
 
-	ojk::SavedGameHelper saved_game(
-		m_owner->GetInterface()->saved_game);
+    ojk::SavedGameHelper saved_game(m_owner->GetInterface()->saved_game);
 
-	//Save the parent (by GUID)
-	id = ( m_parent != nullptr ) ? m_parent->GetID() : -1;
+    // Save the parent (by GUID)
+    id = (m_parent != nullptr) ? m_parent->GetID() : -1;
 
-	saved_game.write_chunk<int32_t>(
-		INT_ID('S', 'P', 'I', 'D'),
-		id);
+    saved_game.write_chunk<int32_t>(INT_ID('S', 'P', 'I', 'D'), id);
 
-	//Save the return (by GUID)
-	id = ( m_return != nullptr ) ? m_return->GetID() : -1;
+    // Save the return (by GUID)
+    id = (m_return != nullptr) ? m_return->GetID() : -1;
 
-	saved_game.write_chunk<int32_t>(
-		INT_ID('S', 'R', 'I', 'D'),
-		id);
+    saved_game.write_chunk<int32_t>(INT_ID('S', 'R', 'I', 'D'), id);
 
-	//Save the number of children
-	saved_game.write_chunk<int32_t>(
-		INT_ID('S', 'N', 'C', 'H'),
-		m_numChildren);
+    // Save the number of children
+    saved_game.write_chunk<int32_t>(INT_ID('S', 'N', 'C', 'H'), m_numChildren);
 
-	//Save out the children (only by GUID)
-	STL_ITERATE( ci, m_children )
-	{
-		id = (*ci)->GetID();
+    // Save out the children (only by GUID)
+    STL_ITERATE(ci, m_children)
+    {
+        id = (*ci)->GetID();
 
-		saved_game.write_chunk<int32_t>(
-			INT_ID('S', 'C', 'H', 'D'),
-			id);
-	}
+        saved_game.write_chunk<int32_t>(INT_ID('S', 'C', 'H', 'D'), id);
+    }
 
-	//Save flags
-	saved_game.write_chunk<int32_t>(
-		INT_ID('S', 'F', 'L', 'G'),
-		m_flags);
+    // Save flags
+    saved_game.write_chunk<int32_t>(INT_ID('S', 'F', 'L', 'G'), m_flags);
 
-	//Save iterations
-	saved_game.write_chunk<int32_t>(
-		INT_ID('S', 'I', 'T', 'R'),
-		m_iterations);
+    // Save iterations
+    saved_game.write_chunk<int32_t>(INT_ID('S', 'I', 'T', 'R'), m_iterations);
 
-	//Save the number of commands
-	saved_game.write_chunk<int32_t>(
-		INT_ID('S', 'N', 'M', 'C'),
-		m_numCommands);
+    // Save the number of commands
+    saved_game.write_chunk<int32_t>(INT_ID('S', 'N', 'M', 'C'), m_numCommands);
 
-	//Save the commands
-	STL_ITERATE( bi, m_commands )
-	{
-		SaveCommand( (*bi) );
-	}
+    // Save the commands
+    STL_ITERATE(bi, m_commands)
+    {
+        SaveCommand((*bi));
+    }
 
-	return true;
+    return true;
 }
 
 /*
@@ -478,188 +438,153 @@ Load
 -------------------------
 */
 
-int CSequence::Load( void )
+int CSequence::Load(void)
 {
-	unsigned char	flags = 0;
-	CSequence		*sequence;
-	CBlock			*block;
-	int				id = 0, numMembers = 0;
-	int				i;
+    unsigned char flags = 0;
+    CSequence* sequence;
+    CBlock* block;
+    int id = 0, numMembers = 0;
+    int i;
 
-	int				bID, bSize;
-	void			*bData;
+    int bID, bSize;
+    void* bData;
 
-	ojk::SavedGameHelper saved_game(
-		m_owner->GetInterface()->saved_game);
+    ojk::SavedGameHelper saved_game(m_owner->GetInterface()->saved_game);
 
-	//Get the parent sequence
-	saved_game.read_chunk<int32_t>(
-		INT_ID('S', 'P', 'I', 'D'),
-		id);
+    // Get the parent sequence
+    saved_game.read_chunk<int32_t>(INT_ID('S', 'P', 'I', 'D'), id);
 
-	m_parent = ( id != -1 ) ? m_owner->GetSequence( id ) : nullptr;
+    m_parent = (id != -1) ? m_owner->GetSequence(id) : nullptr;
 
-	//Get the return sequence
-	saved_game.read_chunk<int32_t>(
-		INT_ID('S', 'R', 'I', 'D'),
-		id);
+    // Get the return sequence
+    saved_game.read_chunk<int32_t>(INT_ID('S', 'R', 'I', 'D'), id);
 
-	m_return = ( id != -1 ) ? m_owner->GetSequence( id ) : nullptr;
+    m_return = (id != -1) ? m_owner->GetSequence(id) : nullptr;
 
-	//Get the number of children
-	saved_game.read_chunk<int32_t>(
-		INT_ID('S', 'N', 'C', 'H'),
-		m_numChildren);
+    // Get the number of children
+    saved_game.read_chunk<int32_t>(INT_ID('S', 'N', 'C', 'H'), m_numChildren);
 
-	//Reload all children
-	for ( i = 0; i < m_numChildren; i++ )
-	{
-		//Get the child sequence ID
-		saved_game.read_chunk<int32_t>(
-			INT_ID('S', 'C', 'H', 'D'),
-			id);
+    // Reload all children
+    for (i = 0; i < m_numChildren; i++) {
+        // Get the child sequence ID
+        saved_game.read_chunk<int32_t>(INT_ID('S', 'C', 'H', 'D'), id);
 
-		//Get the desired sequence
-		if ( ( sequence = m_owner->GetSequence( id ) ) == nullptr )
-			return false;
+        // Get the desired sequence
+        if ((sequence = m_owner->GetSequence(id)) == nullptr)
+            return false;
 
-		//Insert this into the list
-		STL_INSERT( m_children, sequence );
+        // Insert this into the list
+        STL_INSERT(m_children, sequence);
 
-		//Restore the connection in the child / ID map
-		m_childrenMap[ i ] = sequence;
-	}
+        // Restore the connection in the child / ID map
+        m_childrenMap[i] = sequence;
+    }
 
+    // Get the sequence flags
+    saved_game.read_chunk<int32_t>(INT_ID('S', 'F', 'L', 'G'), m_flags);
 
-	//Get the sequence flags
-	saved_game.read_chunk<int32_t>(
-		INT_ID('S', 'F', 'L', 'G'),
-		m_flags);
+    // Get the number of iterations
+    saved_game.read_chunk<int32_t>(INT_ID('S', 'I', 'T', 'R'), m_iterations);
 
-	//Get the number of iterations
-	saved_game.read_chunk<int32_t>(
-		INT_ID('S', 'I', 'T', 'R'),
-		m_iterations);
+    int numCommands = 0;
 
-	int	numCommands = 0;
+    // Get the number of commands
+    saved_game.read_chunk<int32_t>(INT_ID('S', 'N', 'M', 'C'), numCommands);
 
-	//Get the number of commands
-	saved_game.read_chunk<int32_t>(
-		INT_ID('S', 'N', 'M', 'C'),
-		numCommands);
+    // Get all the commands
+    for (i = 0; i < numCommands; i++) {
+        // Get the block ID and create a new container
+        saved_game.read_chunk<int32_t>(INT_ID('B', 'L', 'I', 'D'), id);
 
-	//Get all the commands
-	for ( i = 0; i < numCommands; i++ )
-	{
-		//Get the block ID and create a new container
-		saved_game.read_chunk<int32_t>(
-			INT_ID('B', 'L', 'I', 'D'),
-			id);
+        block = new CBlock;
 
-		block = new CBlock;
+        block->Create(static_cast<icarusToken_t>(id));
 
-		block->Create( static_cast<icarusToken_t>( id ) );
+        // Read the block's flags
+        saved_game.read_chunk<uint8_t>(INT_ID('B', 'F', 'L', 'G'), flags);
 
-		//Read the block's flags
-		saved_game.read_chunk<uint8_t>(
-			INT_ID('B', 'F', 'L', 'G'),
-			flags);
+        block->SetFlags(static_cast<blockFlags_t>(flags));
 
-		block->SetFlags( static_cast<blockFlags_t>( flags ) );
+        numMembers = 0;
 
-		numMembers = 0;
+        // Get the number of block members
+        saved_game.read_chunk<int32_t>(INT_ID('B', 'N', 'U', 'M'), numMembers);
 
-		//Get the number of block members
-		saved_game.read_chunk<int32_t>(
-			INT_ID('B', 'N', 'U', 'M'),
-			numMembers);
+        for (int j = 0; j < numMembers; j++) {
+            bID = 0;
 
-		for ( int j = 0; j < numMembers; j++ )
-		{
-			bID = 0;
+            // Get the member ID
+            saved_game.read_chunk<int32_t>(INT_ID('B', 'M', 'I', 'D'), bID);
 
-			//Get the member ID
-			saved_game.read_chunk<int32_t>(
-				INT_ID('B', 'M', 'I', 'D'),
-				bID);
+            bSize = 0;
 
-			bSize = 0;
+            // Get the member size
+            saved_game.read_chunk<int32_t>(INT_ID('B', 'S', 'I', 'Z'), bSize);
 
-			//Get the member size
-			saved_game.read_chunk<int32_t>(
-				INT_ID('B', 'S', 'I', 'Z'),
-				bSize);
+            // Get the member's data
+            if ((bData = ICARUS_Malloc(bSize)) == nullptr)
+                return false;
 
-			//Get the member's data
-			if ( ( bData = ICARUS_Malloc( bSize ) ) == nullptr )
-				return false;
+            // Get the actual raw data
+            saved_game.read_chunk(INT_ID('B', 'M', 'E', 'M'), static_cast<uint8_t*>(bData), bSize);
 
-			//Get the actual raw data
-			saved_game.read_chunk(
-				INT_ID('B', 'M', 'E', 'M'),
-				static_cast<uint8_t*>(bData),
-				bSize);
+            // Write out the correct type
+            const icarusToken_t memberID = static_cast<icarusToken_t>(bID);
+            switch (memberID) {
+            case icarusToken_t::TK_INT: {
+                assert(0);
+                int data = *(int*)bData;
+                block->Write(icarusToken_t::TK_FLOAT, (float)data);
+            } break;
 
-			//Write out the correct type
-			const icarusToken_t memberID = static_cast<icarusToken_t>( bID );
-			switch ( memberID )
-			{
-			case icarusToken_t::TK_INT:
-				{
-					assert(0);
-					int data = *(int *) bData;
-					block->Write( icarusToken_t::TK_FLOAT, (float) data );
-				}
-				break;
+            case icarusToken_t::TK_FLOAT:
+                block->Write(icarusToken_t::TK_FLOAT, *(float*)bData);
+                break;
 
-			case icarusToken_t::TK_FLOAT:
-				block->Write( icarusToken_t::TK_FLOAT, *(float *) bData );
-				break;
+            case icarusToken_t::TK_STRING:
+            case icarusToken_t::TK_IDENTIFIER:
+            case icarusToken_t::TK_CHAR:
+                block->Write(icarusToken_t::TK_STRING, (char*)bData);
+                break;
 
-			case icarusToken_t::TK_STRING:
-			case icarusToken_t::TK_IDENTIFIER:
-			case icarusToken_t::TK_CHAR:
-				block->Write( icarusToken_t::TK_STRING, (char *) bData );
-				break;
+            case icarusToken_t::TK_VECTOR:
+            case icarusToken_t::TK_VECTOR_START:
+                block->Write(icarusToken_t::TK_VECTOR, *(vec3_t*)bData);
+                break;
 
-			case icarusToken_t::TK_VECTOR:
-			case icarusToken_t::TK_VECTOR_START:
-				block->Write( icarusToken_t::TK_VECTOR, *(vec3_t *) bData );
-				break;
+            case icarusToken_t::ID_TAG:
+                block->Write(icarusToken_t::ID_TAG, (float)to_underlying(icarusToken_t::ID_TAG));
+                break;
 
-			case icarusToken_t::ID_TAG:
-				block->Write( icarusToken_t::ID_TAG, (float) to_underlying( icarusToken_t::ID_TAG ) );
-				break;
+            case icarusToken_t::ID_GET:
+                block->Write(icarusToken_t::ID_GET, (float)to_underlying(icarusToken_t::ID_GET));
+                break;
 
-			case icarusToken_t::ID_GET:
-				block->Write( icarusToken_t::ID_GET, (float) to_underlying( icarusToken_t::ID_GET ) );
-				break;
+            case icarusToken_t::ID_RANDOM:
+                block->Write(icarusToken_t::ID_RANDOM, *(float*)bData); //(float) to_underlying( icarusToken_t::ID_RANDOM ) );
+                break;
 
-			case icarusToken_t::ID_RANDOM:
-				block->Write( icarusToken_t::ID_RANDOM, *(float *) bData );//(float) to_underlying( icarusToken_t::ID_RANDOM ) );
-				break;
+            case icarusToken_t::TK_EQUALS:
+            case icarusToken_t::TK_GREATER_THAN:
+            case icarusToken_t::TK_LESS_THAN:
+            case icarusToken_t::TK_NOT:
+                block->Write(memberID, 0);
+                break;
 
-			case icarusToken_t::TK_EQUALS:
-			case icarusToken_t::TK_GREATER_THAN:
-			case icarusToken_t::TK_LESS_THAN:
-			case icarusToken_t::TK_NOT:
-				block->Write( memberID, 0 );
-				break;
+            default:
+                assert(0);
+                return false;
+                break;
+            }
 
-			default:
-				assert(0);
-				return false;
-				break;
-			}
+            // Get rid of the temp memory
+            ICARUS_Free(bData);
+        }
 
-			//Get rid of the temp memory
-			ICARUS_Free( bData );
-		}
+        // Save the block
+        // STL_INSERT( m_commands, block );
+        PushCommand(block, pushPop_t::PUSH_BACK);
+    }
 
-		//Save the block
-		//STL_INSERT( m_commands, block );
-		PushCommand( block, pushPop_t::PUSH_BACK );
-	}
-
-	return true;
+    return true;
 }

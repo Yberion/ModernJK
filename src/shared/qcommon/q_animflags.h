@@ -29,21 +29,19 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "qcommon/q_enum.h"
 
-enum class setAnimParts_t
-{
-	SETANIM_NONE	= 0,
-	SETANIM_TORSO = 1,
-	SETANIM_LEGS  = 2,
-	SETANIM_BOTH  = SETANIM_TORSO | SETANIM_LEGS, //3
+enum class setAnimParts_t {
+    SETANIM_NONE = 0,
+    SETANIM_TORSO = 1,
+    SETANIM_LEGS = 2,
+    SETANIM_BOTH = SETANIM_TORSO | SETANIM_LEGS, // 3
 };
 template <> inline constexpr bool enableEnumFlags<setAnimParts_t> = true;
 
-enum class setAnimFlags_t
-{
-	SETANIM_FLAG_NORMAL		= 0, //Only set if timer is 0
-	SETANIM_FLAG_OVERRIDE	= 1, //Override previous
-	SETANIM_FLAG_HOLD		= 2, //Set the new timer
-	SETANIM_FLAG_RESTART	= 4, //Allow restarting the anim if playing the same one (weapon fires)
-	SETANIM_FLAG_HOLDLESS	= 8, //Set the new timer
+enum class setAnimFlags_t {
+    SETANIM_FLAG_NORMAL = 0,   // Only set if timer is 0
+    SETANIM_FLAG_OVERRIDE = 1, // Override previous
+    SETANIM_FLAG_HOLD = 2,     // Set the new timer
+    SETANIM_FLAG_RESTART = 4,  // Allow restarting the anim if playing the same one (weapon fires)
+    SETANIM_FLAG_HOLDLESS = 8, // Set the new timer
 };
 template <> inline constexpr bool enableEnumFlags<setAnimFlags_t> = true;

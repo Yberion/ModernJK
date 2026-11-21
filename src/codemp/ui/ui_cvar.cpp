@@ -28,111 +28,110 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // Cvar callbacks
 //
 
-static std::optional<screenshotFormat_t> UI_GetScreenshotFormatForString( const char *str ) {
-	if ( !Q_stricmp(str, "jpg") || !Q_stricmp(str, "jpeg") )
-		return screenshotFormat_t::SSF_JPEG;
-	else if ( !Q_stricmp(str, "tga") )
-		return screenshotFormat_t::SSF_TGA;
-	else if ( !Q_stricmp(str, "png") )
-		return screenshotFormat_t::SSF_PNG;
-	else
-		return std::nullopt;
-}
-
-static const char *UI_GetScreenshotFormatString( screenshotFormat_t format )
+static std::optional<screenshotFormat_t> UI_GetScreenshotFormatForString(const char* str)
 {
-	switch ( format )
-	{
-	default:
-	case screenshotFormat_t::SSF_JPEG:
-		return "jpg";
-	case screenshotFormat_t::SSF_TGA:
-		return "tga";
-	case screenshotFormat_t::SSF_PNG:
-		return "png";
-	}
+    if (!Q_stricmp(str, "jpg") || !Q_stricmp(str, "jpeg"))
+        return screenshotFormat_t::SSF_JPEG;
+    else if (!Q_stricmp(str, "tga"))
+        return screenshotFormat_t::SSF_TGA;
+    else if (!Q_stricmp(str, "png"))
+        return screenshotFormat_t::SSF_PNG;
+    else
+        return std::nullopt;
 }
 
-static void UI_UpdateScreenshot( void )
+static const char* UI_GetScreenshotFormatString(screenshotFormat_t format)
 {
-	bool changed = false;
-	// check some things
-	if ( ui_screenshotType.string[0] && isalpha( ui_screenshotType.string[0] ) )
-	{
-		const std::optional<screenshotFormat_t> ssf = UI_GetScreenshotFormatForString( ui_screenshotType.string );
-		if ( !ssf )
-		{
-			trap->Print( "UI Screenshot Format Type '%s' unrecognised, defaulting to JPEG\n", ui_screenshotType.string );
-			uiInfo.uiDC.screenshotFormat = screenshotFormat_t::SSF_JPEG;
-			changed = true;
-		}
-		else
-			uiInfo.uiDC.screenshotFormat = *ssf;
-	}
-	else if ( ui_screenshotType.integer < to_underlying( screenshotFormat_t::SSF_JPEG ) || ui_screenshotType.integer > to_underlying( screenshotFormat_t::SSF_PNG ) )
-	{
-		trap->Print( "ui_screenshotType %i is out of range, defaulting to 0 (JPEG)\n", ui_screenshotType.integer );
-		uiInfo.uiDC.screenshotFormat = screenshotFormat_t::SSF_JPEG;
-		changed = true;
-	}
-	else {
-		uiInfo.uiDC.screenshotFormat = static_cast<screenshotFormat_t>( atoi( ui_screenshotType.string ) );
-		changed = true;
-	}
-
-	if ( changed ) {
-		trap->Cvar_Set( "ui_screenshotType", UI_GetScreenshotFormatString( uiInfo.uiDC.screenshotFormat ) );
-		trap->Cvar_Update( &ui_screenshotType );
-	}
+    switch (format) {
+    default:
+    case screenshotFormat_t::SSF_JPEG:
+        return "jpg";
+    case screenshotFormat_t::SSF_TGA:
+        return "tga";
+    case screenshotFormat_t::SSF_PNG:
+        return "png";
+    }
 }
 
+static void UI_UpdateScreenshot(void)
+{
+    bool changed = false;
+    // check some things
+    if (ui_screenshotType.string[0] && isalpha(ui_screenshotType.string[0])) {
+        const std::optional<screenshotFormat_t> ssf = UI_GetScreenshotFormatForString(ui_screenshotType.string);
+        if (!ssf) {
+            trap->Print("UI Screenshot Format Type '%s' unrecognised, defaulting to JPEG\n", ui_screenshotType.string);
+            uiInfo.uiDC.screenshotFormat = screenshotFormat_t::SSF_JPEG;
+            changed = true;
+        }
+        else
+            uiInfo.uiDC.screenshotFormat = *ssf;
+    }
+    else if (ui_screenshotType.integer < to_underlying(screenshotFormat_t::SSF_JPEG) ||
+             ui_screenshotType.integer > to_underlying(screenshotFormat_t::SSF_PNG)) {
+        trap->Print("ui_screenshotType %i is out of range, defaulting to 0 (JPEG)\n", ui_screenshotType.integer);
+        uiInfo.uiDC.screenshotFormat = screenshotFormat_t::SSF_JPEG;
+        changed = true;
+    }
+    else {
+        uiInfo.uiDC.screenshotFormat = static_cast<screenshotFormat_t>(atoi(ui_screenshotType.string));
+        changed = true;
+    }
+
+    if (changed) {
+        trap->Cvar_Set("ui_screenshotType", UI_GetScreenshotFormatString(uiInfo.uiDC.screenshotFormat));
+        trap->Cvar_Update(&ui_screenshotType);
+    }
+}
 
 //
 // Cvar table
 //
 
 typedef struct cvarTable_s {
-	vmCvar_t	*vmCvar;
-	const char	*cvarName;
-	const char	*defaultString;
-	void		(*update)( void );
-	cvarFlags_t	cvarFlags;
+    vmCvar_t* vmCvar;
+    const char* cvarName;
+    const char* defaultString;
+    void (*update)(void);
+    cvarFlags_t cvarFlags;
 } cvarTable_t;
 
 #define XCVAR_DECL
-	#include "ui_xcvar.h"
+#include "ui_xcvar.h"
 #undef XCVAR_DECL
 
 static const cvarTable_t uiCvarTable[] = {
-	#define XCVAR_LIST
-		#include "ui_xcvar.h"
-	#undef XCVAR_LIST
+#define XCVAR_LIST
+#include "ui_xcvar.h"
+#undef XCVAR_LIST
 };
-static const size_t uiCvarTableSize = ARRAY_LEN( uiCvarTable );
+static const size_t uiCvarTableSize = ARRAY_LEN(uiCvarTable);
 
-void UI_RegisterCvars( void ) {
-	size_t i = 0;
-	const cvarTable_t *cv = nullptr;
+void UI_RegisterCvars(void)
+{
+    size_t i = 0;
+    const cvarTable_t* cv = nullptr;
 
-	for ( i=0, cv=uiCvarTable; i<uiCvarTableSize; i++, cv++ ) {
-		trap->Cvar_Register( cv->vmCvar, cv->cvarName, cv->defaultString, cv->cvarFlags );
-		if ( cv->update )
-			cv->update();
-	}
+    for (i = 0, cv = uiCvarTable; i < uiCvarTableSize; i++, cv++) {
+        trap->Cvar_Register(cv->vmCvar, cv->cvarName, cv->defaultString, cv->cvarFlags);
+        if (cv->update)
+            cv->update();
+    }
 }
 
-void UI_UpdateCvars( void ) {
-	size_t i = 0;
-	const cvarTable_t *cv = nullptr;
+void UI_UpdateCvars(void)
+{
+    size_t i = 0;
+    const cvarTable_t* cv = nullptr;
 
-	for ( i=0, cv=uiCvarTable; i<uiCvarTableSize; i++, cv++ ) {
-		if ( cv->vmCvar ) {
-			int modCount = cv->vmCvar->modificationCount;
-			trap->Cvar_Update( cv->vmCvar );
-			if ( cv->vmCvar->modificationCount != modCount ) {
-				if ( cv->update )
-					cv->update();
-			}
-		}
-	}
+    for (i = 0, cv = uiCvarTable; i < uiCvarTableSize; i++, cv++) {
+        if (cv->vmCvar) {
+            int modCount = cv->vmCvar->modificationCount;
+            trap->Cvar_Update(cv->vmCvar);
+            if (cv->vmCvar->modificationCount != modCount) {
+                if (cv->update)
+                    cv->update();
+            }
+        }
+    }
 }

@@ -33,7 +33,7 @@ inline constexpr double SURFACE_CLIP_EPSILON = 0.125;
 
 inline constexpr int MAX_FACETS = 1024;
 inline constexpr int MAX_PATCH_PLANES = 4096; // Was 2048 on vanilla jka
-inline constexpr int SUBDIVIDE_DISTANCE = 16;	//4	// never more than this units away from curve
+inline constexpr int SUBDIVIDE_DISTANCE = 16; // 4	// never more than this units away from curve
 inline constexpr double PLANE_TRI_EPSILON = 0.1;
 inline constexpr double WRAP_POINT_EPSILON = 0.1;
 

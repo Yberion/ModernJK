@@ -41,24 +41,23 @@ constexpr int BOWCASTER_SIZE = 2;
 constexpr int BOWCASTER_SPLASH_DAMAGE = 0;
 constexpr int BOWCASTER_SPLASH_RADIUS = 0;
 
-//Local state enums
-enum class mark1LocalState_t
-{
-	LSTATE_NONE = 0,
-	LSTATE_ASLEEP,
-	LSTATE_WAKEUP,
-	LSTATE_FIRED0,
-	LSTATE_FIRED1,
-	LSTATE_FIRED2,
-	LSTATE_FIRED3,
-	LSTATE_FIRED4,
+// Local state enums
+enum class mark1LocalState_t {
+    LSTATE_NONE = 0,
+    LSTATE_ASLEEP,
+    LSTATE_WAKEUP,
+    LSTATE_FIRED0,
+    LSTATE_FIRED1,
+    LSTATE_FIRED2,
+    LSTATE_FIRED3,
+    LSTATE_FIRED4,
 };
 
-bool NPC_CheckPlayerTeamStealth( void );
+bool NPC_CheckPlayerTeamStealth(void);
 void Mark1_BlasterAttack(bool advance);
-void DeathFX( gentity_t *ent );
+void DeathFX(gentity_t* ent);
 
-extern gitem_t *BG_FindItemForAmmo( ammo_t ammo );
+extern gitem_t* BG_FindItemForAmmo(ammo_t ammo);
 
 /*
 -------------------------
@@ -67,28 +66,28 @@ NPC_Mark1_Precache
 */
 void NPC_Mark1_Precache(void)
 {
-	G_SoundIndex( "sound/chars/mark1/misc/mark1_wakeup");
-	G_SoundIndex( "sound/chars/mark1/misc/shutdown");
-	G_SoundIndex( "sound/chars/mark1/misc/walk");
-	G_SoundIndex( "sound/chars/mark1/misc/run");
-	G_SoundIndex( "sound/chars/mark1/misc/death1");
-	G_SoundIndex( "sound/chars/mark1/misc/death2");
-	G_SoundIndex( "sound/chars/mark1/misc/anger");
-	G_SoundIndex( "sound/chars/mark1/misc/mark1_fire");
-	G_SoundIndex( "sound/chars/mark1/misc/mark1_pain");
-	G_SoundIndex( "sound/chars/mark1/misc/mark1_explo");
+    G_SoundIndex("sound/chars/mark1/misc/mark1_wakeup");
+    G_SoundIndex("sound/chars/mark1/misc/shutdown");
+    G_SoundIndex("sound/chars/mark1/misc/walk");
+    G_SoundIndex("sound/chars/mark1/misc/run");
+    G_SoundIndex("sound/chars/mark1/misc/death1");
+    G_SoundIndex("sound/chars/mark1/misc/death2");
+    G_SoundIndex("sound/chars/mark1/misc/anger");
+    G_SoundIndex("sound/chars/mark1/misc/mark1_fire");
+    G_SoundIndex("sound/chars/mark1/misc/mark1_pain");
+    G_SoundIndex("sound/chars/mark1/misc/mark1_explo");
 
-//	G_EffectIndex( "small_chunks");
-	G_EffectIndex( "env/med_explode2");
-	G_EffectIndex( "explosions/probeexplosion1");
-	G_EffectIndex( "blaster/smoke_bolton");
-	G_EffectIndex( "bryar/muzzle_flash");
-	G_EffectIndex( "explosions/droidexplosion1" );
+    //	G_EffectIndex( "small_chunks");
+    G_EffectIndex("env/med_explode2");
+    G_EffectIndex("explosions/probeexplosion1");
+    G_EffectIndex("blaster/smoke_bolton");
+    G_EffectIndex("bryar/muzzle_flash");
+    G_EffectIndex("explosions/droidexplosion1");
 
-	RegisterItem( BG_FindItemForAmmo( 	ammo_t::AMMO_METAL_BOLTS));
-	RegisterItem( BG_FindItemForAmmo( ammo_t::AMMO_BLASTER ));
-	RegisterItem( BG_FindItemForWeapon( weapon_t::WP_BOWCASTER ));
-	RegisterItem( BG_FindItemForWeapon( weapon_t::WP_BRYAR_PISTOL ));
+    RegisterItem(BG_FindItemForAmmo(ammo_t::AMMO_METAL_BOLTS));
+    RegisterItem(BG_FindItemForAmmo(ammo_t::AMMO_BLASTER));
+    RegisterItem(BG_FindItemForWeapon(weapon_t::WP_BOWCASTER));
+    RegisterItem(BG_FindItemForWeapon(weapon_t::WP_BRYAR_PISTOL));
 }
 
 /*
@@ -96,27 +95,23 @@ void NPC_Mark1_Precache(void)
 NPC_Mark1_Part_Explode
 -------------------------
 */
-void NPC_Mark1_Part_Explode( gentity_t *self, int bolt )
+void NPC_Mark1_Part_Explode(gentity_t* self, int bolt)
 {
-	if ( bolt >=0 )
-	{
-		mdxaBone_t	boltMatrix;
-		vec3_t		org, dir;
+    if (bolt >= 0) {
+        mdxaBone_t boltMatrix;
+        vec3_t org, dir;
 
-		trap->G2API_GetBoltMatrix( self->ghoul2, 0,
-					bolt,
-					&boltMatrix, self->r.currentAngles, self->r.currentOrigin, level.time,
-					nullptr, self->modelScale );
+        trap->G2API_GetBoltMatrix(self->ghoul2, 0, bolt, &boltMatrix, self->r.currentAngles, self->r.currentOrigin, level.time, nullptr, self->modelScale);
 
-		BG_GiveMeVectorFromMatrix( &boltMatrix, orientations_t::ORIGIN, org );
-		BG_GiveMeVectorFromMatrix( &boltMatrix, orientations_t::NEGATIVE_Y, dir );
+        BG_GiveMeVectorFromMatrix(&boltMatrix, orientations_t::ORIGIN, org);
+        BG_GiveMeVectorFromMatrix(&boltMatrix, orientations_t::NEGATIVE_Y, dir);
 
-		G_PlayEffectID( G_EffectIndex("env/med_explode2"), org, dir );
+        G_PlayEffectID(G_EffectIndex("env/med_explode2"), org, dir);
 
-		G_PlayEffectID( G_EffectIndex("blaster/smoke_bolton"), org, dir );
-	}
+        G_PlayEffectID(G_EffectIndex("blaster/smoke_bolton"), org, dir);
+    }
 
-	//G_PlayEffectID( G_EffectIndex("blaster/smoke_bolton"), self->playerModel, bolt, self->s.number );
+    // G_PlayEffectID( G_EffectIndex("blaster/smoke_bolton"), self->playerModel, bolt, self->s.number );
 }
 
 /*
@@ -124,11 +119,11 @@ void NPC_Mark1_Part_Explode( gentity_t *self, int bolt )
 Mark1_Idle
 -------------------------
 */
-void Mark1_Idle( void )
+void Mark1_Idle(void)
 {
-	NPC_BSIdle();
+    NPC_BSIdle();
 
-	NPC_SetAnim( NPCS.NPC, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_SLEEP1, setAnimFlags_t::SETANIM_FLAG_NORMAL );
+    NPC_SetAnim(NPCS.NPC, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_SLEEP1, setAnimFlags_t::SETANIM_FLAG_NORMAL);
 }
 
 /*
@@ -137,45 +132,42 @@ Mark1Dead_FireRocket
 - Shoot the left weapon, the multi-blaster
 -------------------------
 */
-void Mark1Dead_FireRocket (void)
+void Mark1Dead_FireRocket(void)
 {
-	mdxaBone_t	boltMatrix;
-	vec3_t	muzzle1,muzzle_dir;
-	gentity_t *missile;
-	int	damage	= 50;
-	int bolt = trap->G2API_AddBolt(NPCS.NPC->ghoul2, 0, "*flash5");
+    mdxaBone_t boltMatrix;
+    vec3_t muzzle1, muzzle_dir;
+    gentity_t* missile;
+    int damage = 50;
+    int bolt = trap->G2API_AddBolt(NPCS.NPC->ghoul2, 0, "*flash5");
 
-	trap->G2API_GetBoltMatrix( NPCS.NPC->ghoul2, 0,
-				bolt,
-				&boltMatrix, NPCS.NPC->r.currentAngles, NPCS.NPC->r.currentOrigin, level.time,
-				nullptr, NPCS.NPC->modelScale );
+    trap->G2API_GetBoltMatrix(NPCS.NPC->ghoul2, 0, bolt, &boltMatrix, NPCS.NPC->r.currentAngles, NPCS.NPC->r.currentOrigin, level.time, nullptr,
+                              NPCS.NPC->modelScale);
 
-	BG_GiveMeVectorFromMatrix( &boltMatrix, orientations_t::ORIGIN, muzzle1 );
-	BG_GiveMeVectorFromMatrix( &boltMatrix, orientations_t::NEGATIVE_Y, muzzle_dir );
+    BG_GiveMeVectorFromMatrix(&boltMatrix, orientations_t::ORIGIN, muzzle1);
+    BG_GiveMeVectorFromMatrix(&boltMatrix, orientations_t::NEGATIVE_Y, muzzle_dir);
 
-	G_PlayEffectID( G_EffectIndex("bryar/muzzle_flash"), muzzle1, muzzle_dir );
+    G_PlayEffectID(G_EffectIndex("bryar/muzzle_flash"), muzzle1, muzzle_dir);
 
-	G_Sound( NPCS.NPC, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/chars/mark1/misc/mark1_fire"));
+    G_Sound(NPCS.NPC, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/chars/mark1/misc/mark1_fire"));
 
-	missile = CreateMissile( muzzle1, muzzle_dir, BOWCASTER_VELOCITY, 10000, NPCS.NPC, false );
+    missile = CreateMissile(muzzle1, muzzle_dir, BOWCASTER_VELOCITY, 10000, NPCS.NPC, false);
 
-	missile->classname = "bowcaster_proj";
-	missile->s.weapon = weapon_t::WP_BOWCASTER;
+    missile->classname = "bowcaster_proj";
+    missile->s.weapon = weapon_t::WP_BOWCASTER;
 
-	VectorSet( missile->r.maxs, BOWCASTER_SIZE, BOWCASTER_SIZE, BOWCASTER_SIZE );
-	VectorScale( missile->r.maxs, -1, missile->r.mins );
+    VectorSet(missile->r.maxs, BOWCASTER_SIZE, BOWCASTER_SIZE, BOWCASTER_SIZE);
+    VectorScale(missile->r.maxs, -1, missile->r.mins);
 
-	missile->damage = damage;
-	missile->dflags = damageFlags_t::DAMAGE_DEATH_KNOCKBACK;
-	//missile->methodOfDeath = MOD_ENERGY;
-	missile->methodOfDeath = meansOfDeath_t::MOD_ROCKET;
-	missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
-	missile->splashDamage = BOWCASTER_SPLASH_DAMAGE;
-	missile->splashRadius = BOWCASTER_SPLASH_RADIUS;
+    missile->damage = damage;
+    missile->dflags = damageFlags_t::DAMAGE_DEATH_KNOCKBACK;
+    // missile->methodOfDeath = MOD_ENERGY;
+    missile->methodOfDeath = meansOfDeath_t::MOD_ROCKET;
+    missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
+    missile->splashDamage = BOWCASTER_SPLASH_DAMAGE;
+    missile->splashRadius = BOWCASTER_SPLASH_RADIUS;
 
-	// we don't want it to bounce
-	missile->bounceCount = 0;
-
+    // we don't want it to bounce
+    missile->bounceCount = 0;
 }
 
 /*
@@ -184,37 +176,34 @@ Mark1Dead_FireBlaster
 - Shoot the left weapon, the multi-blaster
 -------------------------
 */
-void Mark1Dead_FireBlaster (void)
+void Mark1Dead_FireBlaster(void)
 {
-	vec3_t	muzzle1,muzzle_dir;
-	gentity_t	*missile;
-	mdxaBone_t	boltMatrix;
-	int			bolt;
+    vec3_t muzzle1, muzzle_dir;
+    gentity_t* missile;
+    mdxaBone_t boltMatrix;
+    int bolt;
 
-	bolt = trap->G2API_AddBolt(NPCS.NPC->ghoul2, 0, "*flash1");
+    bolt = trap->G2API_AddBolt(NPCS.NPC->ghoul2, 0, "*flash1");
 
-	trap->G2API_GetBoltMatrix( NPCS.NPC->ghoul2, 0,
-				bolt,
-				&boltMatrix, NPCS.NPC->r.currentAngles, NPCS.NPC->r.currentOrigin, level.time,
-				nullptr, NPCS.NPC->modelScale );
+    trap->G2API_GetBoltMatrix(NPCS.NPC->ghoul2, 0, bolt, &boltMatrix, NPCS.NPC->r.currentAngles, NPCS.NPC->r.currentOrigin, level.time, nullptr,
+                              NPCS.NPC->modelScale);
 
-	BG_GiveMeVectorFromMatrix( &boltMatrix, orientations_t::ORIGIN, muzzle1 );
-	BG_GiveMeVectorFromMatrix( &boltMatrix, orientations_t::NEGATIVE_Y, muzzle_dir );
+    BG_GiveMeVectorFromMatrix(&boltMatrix, orientations_t::ORIGIN, muzzle1);
+    BG_GiveMeVectorFromMatrix(&boltMatrix, orientations_t::NEGATIVE_Y, muzzle_dir);
 
-	G_PlayEffectID( G_EffectIndex("bryar/muzzle_flash"), muzzle1, muzzle_dir );
+    G_PlayEffectID(G_EffectIndex("bryar/muzzle_flash"), muzzle1, muzzle_dir);
 
-	missile = CreateMissile( muzzle1, muzzle_dir, 1600, 10000, NPCS.NPC, false );
+    missile = CreateMissile(muzzle1, muzzle_dir, 1600, 10000, NPCS.NPC, false);
 
-	G_Sound( NPCS.NPC, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/chars/mark1/misc/mark1_fire"));
+    G_Sound(NPCS.NPC, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/chars/mark1/misc/mark1_fire"));
 
-	missile->classname = "bryar_proj";
-	missile->s.weapon = weapon_t::WP_BRYAR_PISTOL;
+    missile->classname = "bryar_proj";
+    missile->s.weapon = weapon_t::WP_BRYAR_PISTOL;
 
-	missile->damage = 1;
-	missile->dflags = damageFlags_t::DAMAGE_DEATH_KNOCKBACK;
-	missile->methodOfDeath = meansOfDeath_t::MOD_BRYAR_PISTOL;
-	missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
-
+    missile->damage = 1;
+    missile->dflags = damageFlags_t::DAMAGE_DEATH_KNOCKBACK;
+    missile->methodOfDeath = meansOfDeath_t::MOD_BRYAR_PISTOL;
+    missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
 }
 
 /*
@@ -222,40 +211,38 @@ void Mark1Dead_FireBlaster (void)
 Mark1_die
 -------------------------
 */
-void Mark1_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,damageFlags_t dFlags,hitLocation_t hitLoc )
+void Mark1_die(gentity_t* self, gentity_t* inflictor, gentity_t* attacker, int damage, meansOfDeath_t mod, damageFlags_t dFlags, hitLocation_t hitLoc)
 {
-	/*
-	animNumber_t	anim;
+    /*
+    animNumber_t	anim;
 
-	// Is he dead already?
-	anim = self->client->ps.legsAnim;
-	if (((anim==animNumber_t::BOTH_DEATH1) || (anim==animNumber_t::BOTH_DEATH2)) && (self->client->ps.torsoTimer<=0))
-	{	// This is because self->health keeps getting zeroed out. HL_NONE acts as health in this case.
-		self->locationDamage[to_underlying( hitLocation_t::HL_NONE )] += damage;
-		if (self->locationDamage[to_underlying( hitLocation_t::HL_NONE )] > 50)
-		{
-			DeathFX(self);
-			self->client->ps.eFlags |= entityFlags_t::EF_NODRAW;
-			self->contents = contentsFlags_t::CONTENTS_CORPSE;
-			// G_FreeEntity( self ); // Is this safe?  I can't see why we'd mark it nodraw and then just leave it around??
-			self->e_ThinkFunc = thinkF_G_FreeEntity;
-			self->nextthink = level.time + FRAMETIME;
-		}
-		return;
-	}
-	*/
+    // Is he dead already?
+    anim = self->client->ps.legsAnim;
+    if (((anim==animNumber_t::BOTH_DEATH1) || (anim==animNumber_t::BOTH_DEATH2)) && (self->client->ps.torsoTimer<=0))
+    {	// This is because self->health keeps getting zeroed out. HL_NONE acts as health in this case.
+        self->locationDamage[to_underlying( hitLocation_t::HL_NONE )] += damage;
+        if (self->locationDamage[to_underlying( hitLocation_t::HL_NONE )] > 50)
+        {
+            DeathFX(self);
+            self->client->ps.eFlags |= entityFlags_t::EF_NODRAW;
+            self->contents = contentsFlags_t::CONTENTS_CORPSE;
+            // G_FreeEntity( self ); // Is this safe?  I can't see why we'd mark it nodraw and then just leave it around??
+            self->e_ThinkFunc = thinkF_G_FreeEntity;
+            self->nextthink = level.time + FRAMETIME;
+        }
+        return;
+    }
+    */
 
-	G_Sound( self, soundChannel_t::CHAN_AUTO, G_SoundIndex(va("sound/chars/mark1/misc/death%d.wav",Q_irand( 1, 2))));
+    G_Sound(self, soundChannel_t::CHAN_AUTO, G_SoundIndex(va("sound/chars/mark1/misc/death%d.wav", Q_irand(1, 2))));
 
-	// Choose a death anim
-	if (Q_irand( 1, 10) > 5)
-	{
-		NPC_SetAnim( self, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_DEATH2, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD );
-	}
-	else
-	{
-		NPC_SetAnim( self, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_DEATH1, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD );
-	}
+    // Choose a death anim
+    if (Q_irand(1, 10) > 5) {
+        NPC_SetAnim(self, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_DEATH2, setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD);
+    }
+    else {
+        NPC_SetAnim(self, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_DEATH1, setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD);
+    }
 }
 
 /*
@@ -263,68 +250,60 @@ void Mark1_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 Mark1_dying
 -------------------------
 */
-void Mark1_dying( gentity_t *self )
+void Mark1_dying(gentity_t* self)
 {
-	int	num,newBolt;
+    int num, newBolt;
 
-	if (self->client->ps.torsoTimer>0)
-	{
-		if (TIMER_Done(self,"dyingExplosion"))
-		{
-			num = Q_irand( 1, 3);
+    if (self->client->ps.torsoTimer > 0) {
+        if (TIMER_Done(self, "dyingExplosion")) {
+            num = Q_irand(1, 3);
 
-			// Find place to generate explosion
-			if (num == 1)
-			{
-				num = Q_irand( 8, 10);
-				newBolt = trap->G2API_AddBolt( self->ghoul2, 0, va("*flash%d",num) );
-				NPC_Mark1_Part_Explode(self,newBolt);
-			}
-			else
-			{
-				num = Q_irand( 1, 6);
-				newBolt = trap->G2API_AddBolt( self->ghoul2, 0, va("*torso_tube%d",num) );
-				NPC_Mark1_Part_Explode(self,newBolt);
-				NPC_SetSurfaceOnOff( self, va("torso_tube%d",num), TURN_OFF );
-			}
+            // Find place to generate explosion
+            if (num == 1) {
+                num = Q_irand(8, 10);
+                newBolt = trap->G2API_AddBolt(self->ghoul2, 0, va("*flash%d", num));
+                NPC_Mark1_Part_Explode(self, newBolt);
+            }
+            else {
+                num = Q_irand(1, 6);
+                newBolt = trap->G2API_AddBolt(self->ghoul2, 0, va("*torso_tube%d", num));
+                NPC_Mark1_Part_Explode(self, newBolt);
+                NPC_SetSurfaceOnOff(self, va("torso_tube%d", num), TURN_OFF);
+            }
 
-			TIMER_Set( self, "dyingExplosion", Q_irand( 300, 1000 ) );
-		}
+            TIMER_Set(self, "dyingExplosion", Q_irand(300, 1000));
+        }
 
+        //		int		dir;
+        //		vec3_t	right;
 
-//		int		dir;
-//		vec3_t	right;
+        // Shove to the side
+        //		AngleVectors( self->client->renderInfo.eyeAngles, nullptr, right, nullptr );
+        //		VectorMA( self->client->ps.velocity, -80, right, self->client->ps.velocity );
 
-		// Shove to the side
-//		AngleVectors( self->client->renderInfo.eyeAngles, nullptr, right, nullptr );
-//		VectorMA( self->client->ps.velocity, -80, right, self->client->ps.velocity );
+        // See which weapons are there
+        // Randomly fire blaster
+        if (trap->G2API_GetSurfaceRenderStatus(self->ghoul2, 0, "l_arm") == g2SurfaceFlags_t::G2SURFACEFLAG_NONE) // Is the blaster still on the model?
+        {
+            if (Q_irand(1, 5) == 1) {
+                SaveNPCGlobals();
+                SetNPCGlobals(self);
+                Mark1Dead_FireBlaster();
+                RestoreNPCGlobals();
+            }
+        }
 
-		// See which weapons are there
-		// Randomly fire blaster
-		if (trap->G2API_GetSurfaceRenderStatus( self->ghoul2, 0, "l_arm" ) == g2SurfaceFlags_t::G2SURFACEFLAG_NONE)	// Is the blaster still on the model?
-		{
-			if (Q_irand( 1, 5) == 1)
-			{
-				SaveNPCGlobals();
-				SetNPCGlobals( self );
-				Mark1Dead_FireBlaster();
-				RestoreNPCGlobals();
-			}
-		}
-
-		// Randomly fire rocket
-		if (trap->G2API_GetSurfaceRenderStatus( self->ghoul2, 0, "r_arm" ) == g2SurfaceFlags_t::G2SURFACEFLAG_NONE)	// Is the rocket still on the model?
-		{
-			if (Q_irand( 1, 10) == 1)
-			{
-				SaveNPCGlobals();
-				SetNPCGlobals( self );
-				Mark1Dead_FireRocket();
-				RestoreNPCGlobals();
-			}
-		}
-	}
-
+        // Randomly fire rocket
+        if (trap->G2API_GetSurfaceRenderStatus(self->ghoul2, 0, "r_arm") == g2SurfaceFlags_t::G2SURFACEFLAG_NONE) // Is the rocket still on the model?
+        {
+            if (Q_irand(1, 10) == 1) {
+                SaveNPCGlobals();
+                SetNPCGlobals(self);
+                Mark1Dead_FireRocket();
+                RestoreNPCGlobals();
+            }
+        }
+    }
 }
 
 /*
@@ -333,82 +312,74 @@ NPC_Mark1_Pain
 - look at what was hit and see if it should be removed from the model.
 -------------------------
 */
-void NPC_Mark1_Pain(gentity_t *self, gentity_t *attacker, int damage)
+void NPC_Mark1_Pain(gentity_t* self, gentity_t* attacker, int damage)
 {
-	int newBolt,i,chance;
-	hitLocation_t hitLoc = static_cast<hitLocation_t>( gPainHitLoc );
+    int newBolt, i, chance;
+    hitLocation_t hitLoc = static_cast<hitLocation_t>(gPainHitLoc);
 
-	NPC_Pain( self, attacker, damage );
+    NPC_Pain(self, attacker, damage);
 
-	G_Sound( self, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/chars/mark1/misc/mark1_pain"));
+    G_Sound(self, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/chars/mark1/misc/mark1_pain"));
 
-	// Hit in the CHEST???
-	if (hitLoc==hitLocation_t::HL_CHEST)
-	{
-		chance = Q_irand( 1, 4);
+    // Hit in the CHEST???
+    if (hitLoc == hitLocation_t::HL_CHEST) {
+        chance = Q_irand(1, 4);
 
-		if ((chance == 1) && (damage > 5))
-		{
-			NPC_SetAnim( self, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_PAIN1, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD );
-		}
-	}
-	// Hit in the left arm?
-	else if ((hitLoc==hitLocation_t::HL_ARM_LT) && (self->locationDamage[to_underlying( hitLocation_t::HL_ARM_LT )] > LEFT_ARM_HEALTH))
-	{
-		if (self->locationDamage[to_underlying( hitLoc )] >= LEFT_ARM_HEALTH)	// Blow it up?
-		{
-			newBolt = trap->G2API_AddBolt( self->ghoul2, 0, "*flash3" );
-			if ( newBolt != -1 )
-			{
-				NPC_Mark1_Part_Explode(self,newBolt);
-			}
+        if ((chance == 1) && (damage > 5)) {
+            NPC_SetAnim(self, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_PAIN1,
+                        setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD);
+        }
+    }
+    // Hit in the left arm?
+    else if ((hitLoc == hitLocation_t::HL_ARM_LT) && (self->locationDamage[to_underlying(hitLocation_t::HL_ARM_LT)] > LEFT_ARM_HEALTH)) {
+        if (self->locationDamage[to_underlying(hitLoc)] >= LEFT_ARM_HEALTH) // Blow it up?
+        {
+            newBolt = trap->G2API_AddBolt(self->ghoul2, 0, "*flash3");
+            if (newBolt != -1) {
+                NPC_Mark1_Part_Explode(self, newBolt);
+            }
 
-			NPC_SetSurfaceOnOff( self, "l_arm", TURN_OFF );
-		}
-	}
-	// Hit in the right arm?
-	else if ((hitLoc==hitLocation_t::HL_ARM_RT) && (self->locationDamage[to_underlying( hitLocation_t::HL_ARM_RT )] > RIGHT_ARM_HEALTH))	// Blow it up?
-	{
-		if (self->locationDamage[to_underlying( hitLoc )] >= RIGHT_ARM_HEALTH)
-		{
-			newBolt = trap->G2API_AddBolt( self->ghoul2, 0, "*flash4" );
-			if ( newBolt != -1 )
-			{
-//				G_PlayEffect( "small_chunks", self->playerModel, self->genericBolt2, self->s.number);
-				NPC_Mark1_Part_Explode( self, newBolt );
-			}
+            NPC_SetSurfaceOnOff(self, "l_arm", TURN_OFF);
+        }
+    }
+    // Hit in the right arm?
+    else if ((hitLoc == hitLocation_t::HL_ARM_RT) && (self->locationDamage[to_underlying(hitLocation_t::HL_ARM_RT)] > RIGHT_ARM_HEALTH)) // Blow it up?
+    {
+        if (self->locationDamage[to_underlying(hitLoc)] >= RIGHT_ARM_HEALTH) {
+            newBolt = trap->G2API_AddBolt(self->ghoul2, 0, "*flash4");
+            if (newBolt != -1) {
+                //				G_PlayEffect( "small_chunks", self->playerModel, self->genericBolt2, self->s.number);
+                NPC_Mark1_Part_Explode(self, newBolt);
+            }
 
-			NPC_SetSurfaceOnOff( self, "r_arm", TURN_OFF );
-		}
-	}
-	// Check ammo pods
-	else
-	{
-		for (i=0;i<6;i++)
-		{
-			if ((hitLoc==hitLocation_t::HL_GENERIC1+i) && (self->locationDamage[to_underlying( hitLocation_t::HL_GENERIC1+i )] > AMMO_POD_HEALTH))	// Blow it up?
-			{
-				if (self->locationDamage[to_underlying( hitLoc )] >= AMMO_POD_HEALTH)
-				{
-					newBolt = trap->G2API_AddBolt( self->ghoul2, 0, va("*torso_tube%d",(i+1)) );
-					if ( newBolt != -1 )
-					{
-						NPC_Mark1_Part_Explode(self,newBolt);
-					}
-					NPC_SetSurfaceOnOff( self, va("torso_tube%d",(i+1)), TURN_OFF );
-					NPC_SetAnim( self, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_PAIN1, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD );
-					break;
-				}
-			}
-		}
-	}
+            NPC_SetSurfaceOnOff(self, "r_arm", TURN_OFF);
+        }
+    }
+    // Check ammo pods
+    else {
+        for (i = 0; i < 6; i++) {
+            if ((hitLoc == hitLocation_t::HL_GENERIC1 + i) &&
+                (self->locationDamage[to_underlying(hitLocation_t::HL_GENERIC1 + i)] > AMMO_POD_HEALTH)) // Blow it up?
+            {
+                if (self->locationDamage[to_underlying(hitLoc)] >= AMMO_POD_HEALTH) {
+                    newBolt = trap->G2API_AddBolt(self->ghoul2, 0, va("*torso_tube%d", (i + 1)));
+                    if (newBolt != -1) {
+                        NPC_Mark1_Part_Explode(self, newBolt);
+                    }
+                    NPC_SetSurfaceOnOff(self, va("torso_tube%d", (i + 1)), TURN_OFF);
+                    NPC_SetAnim(self, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_PAIN1,
+                                setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD);
+                    break;
+                }
+            }
+        }
+    }
 
-	// Are both guns shot off?
-	if (Any( trap->G2API_GetSurfaceRenderStatus( self->ghoul2, 0, "l_arm" ).value_or( g2SurfaceFlags_t::G2SURFACEFLAG_NONE ) ) &&
-		Any( trap->G2API_GetSurfaceRenderStatus( self->ghoul2, 0, "r_arm" ).value_or( g2SurfaceFlags_t::G2SURFACEFLAG_NONE ) ))
-	{
-		G_Damage(self,nullptr,nullptr,nullptr,nullptr,self->health,damageFlags_t::DAMAGE_NORMAL,meansOfDeath_t::MOD_UNKNOWN);
-	}
+    // Are both guns shot off?
+    if (Any(trap->G2API_GetSurfaceRenderStatus(self->ghoul2, 0, "l_arm").value_or(g2SurfaceFlags_t::G2SURFACEFLAG_NONE)) &&
+        Any(trap->G2API_GetSurfaceRenderStatus(self->ghoul2, 0, "r_arm").value_or(g2SurfaceFlags_t::G2SURFACEFLAG_NONE))) {
+        G_Damage(self, nullptr, nullptr, nullptr, nullptr, self->health, damageFlags_t::DAMAGE_NORMAL, meansOfDeath_t::MOD_UNKNOWN);
+    }
 }
 
 /*
@@ -420,15 +391,14 @@ Mark1_Hunt
 void Mark1_Hunt(void)
 {
 
-	if ( NPCS.NPCInfo->goalEntity == nullptr )
-	{
-		NPCS.NPCInfo->goalEntity = NPCS.NPC->enemy;
-	}
+    if (NPCS.NPCInfo->goalEntity == nullptr) {
+        NPCS.NPCInfo->goalEntity = NPCS.NPC->enemy;
+    }
 
-	NPC_FaceEnemy( true );
+    NPC_FaceEnemy(true);
 
-	NPCS.NPCInfo->combatMove = true;
-	NPC_MoveToGoal( true );
+    NPCS.NPCInfo->combatMove = true;
+    NPC_MoveToGoal(true);
 }
 
 /*
@@ -439,68 +409,60 @@ Mark1_FireBlaster
 */
 void Mark1_FireBlaster(void)
 {
-	vec3_t	muzzle1,enemy_org1,delta1,angleToEnemy1;
-	static	vec3_t	forward, vright, up;
-//	static	vec3_t	muzzle;
-	gentity_t	*missile;
-	mdxaBone_t	boltMatrix;
-	int			bolt;
+    vec3_t muzzle1, enemy_org1, delta1, angleToEnemy1;
+    static vec3_t forward, vright, up;
+    //	static	vec3_t	muzzle;
+    gentity_t* missile;
+    mdxaBone_t boltMatrix;
+    int bolt;
 
-	// Which muzzle to fire from?
-	if ((NPC_LocalState<mark1LocalState_t>( *NPCS.NPCInfo ) <= mark1LocalState_t::LSTATE_FIRED0) || (NPC_LocalState<mark1LocalState_t>( *NPCS.NPCInfo ) == mark1LocalState_t::LSTATE_FIRED4))
-	{
-		NPC_SetLocalState( *NPCS.NPCInfo, mark1LocalState_t::LSTATE_FIRED1 );
-		bolt = trap->G2API_AddBolt(NPCS.NPC->ghoul2, 0, "*flash1");
-	}
-	else if (NPC_LocalState<mark1LocalState_t>( *NPCS.NPCInfo ) == mark1LocalState_t::LSTATE_FIRED1)
-	{
-		NPC_SetLocalState( *NPCS.NPCInfo, mark1LocalState_t::LSTATE_FIRED2 );
-		bolt = trap->G2API_AddBolt(NPCS.NPC->ghoul2, 0, "*flash2");
-	}
-	else if (NPC_LocalState<mark1LocalState_t>( *NPCS.NPCInfo ) == mark1LocalState_t::LSTATE_FIRED2)
-	{
-		NPC_SetLocalState( *NPCS.NPCInfo, mark1LocalState_t::LSTATE_FIRED3 );
-		bolt = trap->G2API_AddBolt(NPCS.NPC->ghoul2, 0, "*flash3");
-	}
-	else
-	{
-		NPC_SetLocalState( *NPCS.NPCInfo, mark1LocalState_t::LSTATE_FIRED4 );
-		bolt = trap->G2API_AddBolt(NPCS.NPC->ghoul2, 0, "*flash4");
-	}
+    // Which muzzle to fire from?
+    if ((NPC_LocalState<mark1LocalState_t>(*NPCS.NPCInfo) <= mark1LocalState_t::LSTATE_FIRED0) ||
+        (NPC_LocalState<mark1LocalState_t>(*NPCS.NPCInfo) == mark1LocalState_t::LSTATE_FIRED4)) {
+        NPC_SetLocalState(*NPCS.NPCInfo, mark1LocalState_t::LSTATE_FIRED1);
+        bolt = trap->G2API_AddBolt(NPCS.NPC->ghoul2, 0, "*flash1");
+    }
+    else if (NPC_LocalState<mark1LocalState_t>(*NPCS.NPCInfo) == mark1LocalState_t::LSTATE_FIRED1) {
+        NPC_SetLocalState(*NPCS.NPCInfo, mark1LocalState_t::LSTATE_FIRED2);
+        bolt = trap->G2API_AddBolt(NPCS.NPC->ghoul2, 0, "*flash2");
+    }
+    else if (NPC_LocalState<mark1LocalState_t>(*NPCS.NPCInfo) == mark1LocalState_t::LSTATE_FIRED2) {
+        NPC_SetLocalState(*NPCS.NPCInfo, mark1LocalState_t::LSTATE_FIRED3);
+        bolt = trap->G2API_AddBolt(NPCS.NPC->ghoul2, 0, "*flash3");
+    }
+    else {
+        NPC_SetLocalState(*NPCS.NPCInfo, mark1LocalState_t::LSTATE_FIRED4);
+        bolt = trap->G2API_AddBolt(NPCS.NPC->ghoul2, 0, "*flash4");
+    }
 
-	trap->G2API_GetBoltMatrix( NPCS.NPC->ghoul2, 0,
-				bolt,
-				&boltMatrix, NPCS.NPC->r.currentAngles, NPCS.NPC->r.currentOrigin, level.time,
-				nullptr, NPCS.NPC->modelScale );
+    trap->G2API_GetBoltMatrix(NPCS.NPC->ghoul2, 0, bolt, &boltMatrix, NPCS.NPC->r.currentAngles, NPCS.NPC->r.currentOrigin, level.time, nullptr,
+                              NPCS.NPC->modelScale);
 
-	BG_GiveMeVectorFromMatrix( &boltMatrix, orientations_t::ORIGIN, muzzle1 );
+    BG_GiveMeVectorFromMatrix(&boltMatrix, orientations_t::ORIGIN, muzzle1);
 
-	if (NPCS.NPC->health)
-	{
-		CalcEntitySpot( NPCS.NPC->enemy, spot_t::SPOT_HEAD, enemy_org1 );
-		VectorSubtract (enemy_org1, muzzle1, delta1);
-		vectoangles ( delta1, angleToEnemy1 );
-		AngleVectors (angleToEnemy1, forward, vright, up);
-	}
-	else
-	{
-		AngleVectors (NPCS.NPC->r.currentAngles, forward, vright, up);
-	}
+    if (NPCS.NPC->health) {
+        CalcEntitySpot(NPCS.NPC->enemy, spot_t::SPOT_HEAD, enemy_org1);
+        VectorSubtract(enemy_org1, muzzle1, delta1);
+        vectoangles(delta1, angleToEnemy1);
+        AngleVectors(angleToEnemy1, forward, vright, up);
+    }
+    else {
+        AngleVectors(NPCS.NPC->r.currentAngles, forward, vright, up);
+    }
 
-	G_PlayEffectID( G_EffectIndex("bryar/muzzle_flash"), muzzle1, forward );
+    G_PlayEffectID(G_EffectIndex("bryar/muzzle_flash"), muzzle1, forward);
 
-	G_Sound( NPCS.NPC, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/chars/mark1/misc/mark1_fire"));
+    G_Sound(NPCS.NPC, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/chars/mark1/misc/mark1_fire"));
 
-	missile = CreateMissile( muzzle1, forward, 1600, 10000, NPCS.NPC, false );
+    missile = CreateMissile(muzzle1, forward, 1600, 10000, NPCS.NPC, false);
 
-	missile->classname = "bryar_proj";
-	missile->s.weapon = weapon_t::WP_BRYAR_PISTOL;
+    missile->classname = "bryar_proj";
+    missile->s.weapon = weapon_t::WP_BRYAR_PISTOL;
 
-	missile->damage = 1;
-	missile->dflags = damageFlags_t::DAMAGE_DEATH_KNOCKBACK;
-	missile->methodOfDeath = meansOfDeath_t::MOD_BRYAR_PISTOL;
-	missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
-
+    missile->damage = 1;
+    missile->dflags = damageFlags_t::DAMAGE_DEATH_KNOCKBACK;
+    missile->methodOfDeath = meansOfDeath_t::MOD_BRYAR_PISTOL;
+    missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
 }
 
 /*
@@ -508,59 +470,55 @@ void Mark1_FireBlaster(void)
 Mark1_BlasterAttack
 -------------------------
 */
-void Mark1_BlasterAttack(bool advance )
+void Mark1_BlasterAttack(bool advance)
 {
-	int chance;
+    int chance;
 
-	if ( TIMER_Done( NPCS.NPC, "attackDelay" ) )	// Attack?
-	{
-		chance = Q_irand( 1, 5);
+    if (TIMER_Done(NPCS.NPC, "attackDelay")) // Attack?
+    {
+        chance = Q_irand(1, 5);
 
-		NPCS.NPCInfo->burstCount++;
+        NPCS.NPCInfo->burstCount++;
 
-		if (NPCS.NPCInfo->burstCount<3)	// Too few shots this burst?
-		{
-			chance = 2;				// Force it to keep firing.
-		}
-		else if (NPCS.NPCInfo->burstCount>12)	// Too many shots fired this burst?
-		{
-			NPCS.NPCInfo->burstCount = 0;
-			chance = 1;				// Force it to stop firing.
-		}
+        if (NPCS.NPCInfo->burstCount < 3) // Too few shots this burst?
+        {
+            chance = 2; // Force it to keep firing.
+        }
+        else if (NPCS.NPCInfo->burstCount > 12) // Too many shots fired this burst?
+        {
+            NPCS.NPCInfo->burstCount = 0;
+            chance = 1; // Force it to stop firing.
+        }
 
-		// Stop firing.
-		if (chance == 1)
-		{
-			NPCS.NPCInfo->burstCount = 0;
-			TIMER_Set( NPCS.NPC, "attackDelay", Q_irand( 1000, 3000) );
-			NPCS.NPC->client->ps.torsoTimer=0;						// Just in case the firing anim is running.
-		}
-		else
-		{
-			if (TIMER_Done( NPCS.NPC, "attackDelay2" ))	// Can't be shooting every frame.
-			{
-				TIMER_Set( NPCS.NPC, "attackDelay2", Q_irand( 50, 50) );
-				Mark1_FireBlaster();
- 				NPC_SetAnim( NPCS.NPC, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_ATTACK1, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD );
-			}
-			return;
-		}
-	}
-	else if (advance)
-	{
-		if ( NPCS.NPC->client->ps.torsoAnim == animNumber_t::BOTH_ATTACK1 )
-		{
-			NPCS.NPC->client->ps.torsoTimer=0;						// Just in case the firing anim is running.
-		}
-		Mark1_Hunt();
-	}
-	else	// Make sure he's not firing.
-	{
-		if ( NPCS.NPC->client->ps.torsoAnim == animNumber_t::BOTH_ATTACK1 )
-		{
-			NPCS.NPC->client->ps.torsoTimer=0;						// Just in case the firing anim is running.
-		}
-	}
+        // Stop firing.
+        if (chance == 1) {
+            NPCS.NPCInfo->burstCount = 0;
+            TIMER_Set(NPCS.NPC, "attackDelay", Q_irand(1000, 3000));
+            NPCS.NPC->client->ps.torsoTimer = 0; // Just in case the firing anim is running.
+        }
+        else {
+            if (TIMER_Done(NPCS.NPC, "attackDelay2")) // Can't be shooting every frame.
+            {
+                TIMER_Set(NPCS.NPC, "attackDelay2", Q_irand(50, 50));
+                Mark1_FireBlaster();
+                NPC_SetAnim(NPCS.NPC, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_ATTACK1,
+                            setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD);
+            }
+            return;
+        }
+    }
+    else if (advance) {
+        if (NPCS.NPC->client->ps.torsoAnim == animNumber_t::BOTH_ATTACK1) {
+            NPCS.NPC->client->ps.torsoTimer = 0; // Just in case the firing anim is running.
+        }
+        Mark1_Hunt();
+    }
+    else // Make sure he's not firing.
+    {
+        if (NPCS.NPC->client->ps.torsoAnim == animNumber_t::BOTH_ATTACK1) {
+            NPCS.NPC->client->ps.torsoTimer = 0; // Just in case the firing anim is running.
+        }
+    }
 }
 
 /*
@@ -570,48 +528,45 @@ Mark1_FireRocket
 */
 void Mark1_FireRocket(void)
 {
-	mdxaBone_t	boltMatrix;
-	vec3_t	muzzle1,enemy_org1,delta1,angleToEnemy1;
-	static	vec3_t	forward, vright, up;
-	int bolt = trap->G2API_AddBolt(NPCS.NPC->ghoul2, 0, "*flash5");
-	gentity_t *missile;
+    mdxaBone_t boltMatrix;
+    vec3_t muzzle1, enemy_org1, delta1, angleToEnemy1;
+    static vec3_t forward, vright, up;
+    int bolt = trap->G2API_AddBolt(NPCS.NPC->ghoul2, 0, "*flash5");
+    gentity_t* missile;
 
-	int	damage	= 50;
+    int damage = 50;
 
-	trap->G2API_GetBoltMatrix( NPCS.NPC->ghoul2, 0,
-				bolt,
-				&boltMatrix, NPCS.NPC->r.currentAngles, NPCS.NPC->r.currentOrigin, level.time,
-				nullptr, NPCS.NPC->modelScale );
+    trap->G2API_GetBoltMatrix(NPCS.NPC->ghoul2, 0, bolt, &boltMatrix, NPCS.NPC->r.currentAngles, NPCS.NPC->r.currentOrigin, level.time, nullptr,
+                              NPCS.NPC->modelScale);
 
-	BG_GiveMeVectorFromMatrix( &boltMatrix, orientations_t::ORIGIN, muzzle1 );
+    BG_GiveMeVectorFromMatrix(&boltMatrix, orientations_t::ORIGIN, muzzle1);
 
-//	G_PlayEffect( "blaster/muzzle_flash", muzzle1 );
+    //	G_PlayEffect( "blaster/muzzle_flash", muzzle1 );
 
-	CalcEntitySpot( NPCS.NPC->enemy, spot_t::SPOT_HEAD, enemy_org1 );
-	VectorSubtract (enemy_org1, muzzle1, delta1);
-	vectoangles ( delta1, angleToEnemy1 );
-	AngleVectors (angleToEnemy1, forward, vright, up);
+    CalcEntitySpot(NPCS.NPC->enemy, spot_t::SPOT_HEAD, enemy_org1);
+    VectorSubtract(enemy_org1, muzzle1, delta1);
+    vectoangles(delta1, angleToEnemy1);
+    AngleVectors(angleToEnemy1, forward, vright, up);
 
-	G_Sound( NPCS.NPC, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/chars/mark1/misc/mark1_fire" ));
+    G_Sound(NPCS.NPC, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/chars/mark1/misc/mark1_fire"));
 
-	missile = CreateMissile( muzzle1, forward, BOWCASTER_VELOCITY, 10000, NPCS.NPC, false );
+    missile = CreateMissile(muzzle1, forward, BOWCASTER_VELOCITY, 10000, NPCS.NPC, false);
 
-	missile->classname = "bowcaster_proj";
-	missile->s.weapon = weapon_t::WP_BOWCASTER;
+    missile->classname = "bowcaster_proj";
+    missile->s.weapon = weapon_t::WP_BOWCASTER;
 
-	VectorSet( missile->r.maxs, BOWCASTER_SIZE, BOWCASTER_SIZE, BOWCASTER_SIZE );
-	VectorScale( missile->r.maxs, -1, missile->r.mins );
+    VectorSet(missile->r.maxs, BOWCASTER_SIZE, BOWCASTER_SIZE, BOWCASTER_SIZE);
+    VectorScale(missile->r.maxs, -1, missile->r.mins);
 
-	missile->damage = damage;
-	missile->dflags = damageFlags_t::DAMAGE_DEATH_KNOCKBACK;
-	missile->methodOfDeath = meansOfDeath_t::MOD_ROCKET;
-	missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
-	missile->splashDamage = BOWCASTER_SPLASH_DAMAGE;
-	missile->splashRadius = BOWCASTER_SPLASH_RADIUS;
+    missile->damage = damage;
+    missile->dflags = damageFlags_t::DAMAGE_DEATH_KNOCKBACK;
+    missile->methodOfDeath = meansOfDeath_t::MOD_ROCKET;
+    missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
+    missile->splashDamage = BOWCASTER_SPLASH_DAMAGE;
+    missile->splashRadius = BOWCASTER_SPLASH_RADIUS;
 
-	// we don't want it to bounce
-	missile->bounceCount = 0;
-
+    // we don't want it to bounce
+    missile->bounceCount = 0;
 }
 
 /*
@@ -619,18 +574,18 @@ void Mark1_FireRocket(void)
 Mark1_RocketAttack
 -------------------------
 */
-void Mark1_RocketAttack( bool advance )
+void Mark1_RocketAttack(bool advance)
 {
-	if ( TIMER_Done( NPCS.NPC, "attackDelay" ) )	// Attack?
-	{
-		TIMER_Set( NPCS.NPC, "attackDelay", Q_irand( 1000, 3000) );
- 		NPC_SetAnim( NPCS.NPC, setAnimParts_t::SETANIM_TORSO, animNumber_t::BOTH_ATTACK2, setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD );
-		Mark1_FireRocket();
-	}
-	else if (advance)
-	{
-		Mark1_Hunt();
-	}
+    if (TIMER_Done(NPCS.NPC, "attackDelay")) // Attack?
+    {
+        TIMER_Set(NPCS.NPC, "attackDelay", Q_irand(1000, 3000));
+        NPC_SetAnim(NPCS.NPC, setAnimParts_t::SETANIM_TORSO, animNumber_t::BOTH_ATTACK2,
+                    setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD);
+        Mark1_FireRocket();
+    }
+    else if (advance) {
+        Mark1_Hunt();
+    }
 }
 
 /*
@@ -638,85 +593,73 @@ void Mark1_RocketAttack( bool advance )
 Mark1_AttackDecision
 -------------------------
 */
-void Mark1_AttackDecision( void )
+void Mark1_AttackDecision(void)
 {
-	std::optional<g2SurfaceFlags_t> blasterTest, rocketTest;
-	float		distance;
-	distance_e	distRate;
-	bool	visible;
-	bool	advance;
+    std::optional<g2SurfaceFlags_t> blasterTest, rocketTest;
+    float distance;
+    distance_e distRate;
+    bool visible;
+    bool advance;
 
-	//randomly talk
-	if ( TIMER_Done(NPCS.NPC,"patrolNoise") )
-	{
-		if (TIMER_Done(NPCS.NPC,"angerNoise"))
-		{
-//			G_Sound( NPC, G_SoundIndex(va("sound/chars/mark1/misc/talk%d.wav",	Q_irand(1, 4))));
-			TIMER_Set( NPCS.NPC, "patrolNoise", Q_irand( 4000, 10000 ) );
-		}
-	}
+    // randomly talk
+    if (TIMER_Done(NPCS.NPC, "patrolNoise")) {
+        if (TIMER_Done(NPCS.NPC, "angerNoise")) {
+            //			G_Sound( NPC, G_SoundIndex(va("sound/chars/mark1/misc/talk%d.wav",	Q_irand(1, 4))));
+            TIMER_Set(NPCS.NPC, "patrolNoise", Q_irand(4000, 10000));
+        }
+    }
 
-	// Enemy is dead or he has no enemy.
-	if ((NPCS.NPC->enemy->health<1) || ( NPC_CheckEnemyExt(false) == false ))
-	{
-		NPCS.NPC->enemy = nullptr;
-		return;
-	}
+    // Enemy is dead or he has no enemy.
+    if ((NPCS.NPC->enemy->health < 1) || (NPC_CheckEnemyExt(false) == false)) {
+        NPCS.NPC->enemy = nullptr;
+        return;
+    }
 
-	// Rate our distance to the target and visibility
-	distance	= (int) DistanceHorizontalSquared( NPCS.NPC->r.currentOrigin, NPCS.NPC->enemy->r.currentOrigin );
-	distRate	= ( distance > MIN_MELEE_RANGE_SQR ) ? distance_e::DIST_LONG : distance_e::DIST_MELEE;
-	visible		= NPC_ClearLOS4( NPCS.NPC->enemy );
-	advance		= (distance > MIN_DISTANCE_SQR);
+    // Rate our distance to the target and visibility
+    distance = (int)DistanceHorizontalSquared(NPCS.NPC->r.currentOrigin, NPCS.NPC->enemy->r.currentOrigin);
+    distRate = (distance > MIN_MELEE_RANGE_SQR) ? distance_e::DIST_LONG : distance_e::DIST_MELEE;
+    visible = NPC_ClearLOS4(NPCS.NPC->enemy);
+    advance = (distance > MIN_DISTANCE_SQR);
 
-	// If we cannot see our target, move to see it
-	if ((!visible) || (!NPC_FaceEnemy(true)))
-	{
-		Mark1_Hunt();
-		return;
-	}
+    // If we cannot see our target, move to see it
+    if ((!visible) || (!NPC_FaceEnemy(true))) {
+        Mark1_Hunt();
+        return;
+    }
 
-	// See if the side weapons are there
-	blasterTest = trap->G2API_GetSurfaceRenderStatus( NPCS.NPC->ghoul2, 0, "l_arm" );
-	rocketTest = trap->G2API_GetSurfaceRenderStatus( NPCS.NPC->ghoul2, 0, "r_arm" );
+    // See if the side weapons are there
+    blasterTest = trap->G2API_GetSurfaceRenderStatus(NPCS.NPC->ghoul2, 0, "l_arm");
+    rocketTest = trap->G2API_GetSurfaceRenderStatus(NPCS.NPC->ghoul2, 0, "r_arm");
 
-	// It has both side weapons
-	if (blasterTest == g2SurfaceFlags_t::G2SURFACEFLAG_NONE  && rocketTest == g2SurfaceFlags_t::G2SURFACEFLAG_NONE)
-	{
-		;	// So do nothing.
-	}
-	else if (blasterTest
-		&&Any( *blasterTest ))
-	{
-		distRate = distance_e::DIST_LONG;
-	}
-	else if (rocketTest
-		&&Any( *rocketTest ))
-	{
-		distRate = distance_e::DIST_MELEE;
-	}
-	else	// It should never get here, but just in case
-	{
-		NPCS.NPC->health = 0;
-		NPCS.NPC->client->ps.stats[statIndex_t::STAT_HEALTH] = 0;
-		//GEntity_DieFunc(NPC, NPC, NPC, 100, meansOfDeath_t::MOD_UNKNOWN);
-		if (NPCS.NPC->die)
-		{
-			NPCS.NPC->die(NPCS.NPC, NPCS.NPC, NPCS.NPC, 100, meansOfDeath_t::MOD_UNKNOWN);
-		}
-	}
+    // It has both side weapons
+    if (blasterTest == g2SurfaceFlags_t::G2SURFACEFLAG_NONE && rocketTest == g2SurfaceFlags_t::G2SURFACEFLAG_NONE) {
+        ; // So do nothing.
+    }
+    else if (blasterTest && Any(*blasterTest)) {
+        distRate = distance_e::DIST_LONG;
+    }
+    else if (rocketTest && Any(*rocketTest)) {
+        distRate = distance_e::DIST_MELEE;
+    }
+    else // It should never get here, but just in case
+    {
+        NPCS.NPC->health = 0;
+        NPCS.NPC->client->ps.stats[statIndex_t::STAT_HEALTH] = 0;
+        // GEntity_DieFunc(NPC, NPC, NPC, 100, meansOfDeath_t::MOD_UNKNOWN);
+        if (NPCS.NPC->die) {
+            NPCS.NPC->die(NPCS.NPC, NPCS.NPC, NPCS.NPC, 100, meansOfDeath_t::MOD_UNKNOWN);
+        }
+    }
 
-	// We can see enemy so shoot him if timers let you.
-	NPC_FaceEnemy( true );
+    // We can see enemy so shoot him if timers let you.
+    NPC_FaceEnemy(true);
 
-	if (distRate == distance_e::DIST_MELEE)
-	{
-		Mark1_BlasterAttack(advance);
-	}
-	else if (distRate == distance_e::DIST_LONG)
-	{
-		Mark1_RocketAttack(advance);
-	}
+    if (distRate == distance_e::DIST_MELEE) {
+        Mark1_BlasterAttack(advance);
+    }
+    else if (distRate == distance_e::DIST_LONG) {
+        Mark1_RocketAttack(advance);
+    }
 }
 
 /*
@@ -724,57 +667,49 @@ void Mark1_AttackDecision( void )
 Mark1_Patrol
 -------------------------
 */
-void Mark1_Patrol( void )
+void Mark1_Patrol(void)
 {
-	if ( NPC_CheckPlayerTeamStealth() )
-	{
-		G_Sound( NPCS.NPC, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/chars/mark1/misc/mark1_wakeup"));
-		NPC_UpdateAngles( true, true );
-		return;
-	}
+    if (NPC_CheckPlayerTeamStealth()) {
+        G_Sound(NPCS.NPC, soundChannel_t::CHAN_AUTO, G_SoundIndex("sound/chars/mark1/misc/mark1_wakeup"));
+        NPC_UpdateAngles(true, true);
+        return;
+    }
 
-	//If we have somewhere to go, then do that
-	if (!NPCS.NPC->enemy)
-	{
-		if ( UpdateGoal() )
-		{
-			NPCS.ucmd.buttons |= buttonFlags_t::BUTTON_WALKING;
-			NPC_MoveToGoal( true );
-			NPC_UpdateAngles( true, true );
-		}
+    // If we have somewhere to go, then do that
+    if (!NPCS.NPC->enemy) {
+        if (UpdateGoal()) {
+            NPCS.ucmd.buttons |= buttonFlags_t::BUTTON_WALKING;
+            NPC_MoveToGoal(true);
+            NPC_UpdateAngles(true, true);
+        }
 
-		//randomly talk
-//		if (TIMER_Done(NPC,"patrolNoise"))
-//		{
-//			G_Sound( NPC, G_SoundIndex(va("sound/chars/mark1/misc/talk%d.wav",	Q_irand(1, 4))));
-//
-//			TIMER_Set( NPC, "patrolNoise", Q_irand( 2000, 4000 ) );
-//		}
-	}
-
+        // randomly talk
+        //		if (TIMER_Done(NPC,"patrolNoise"))
+        //		{
+        //			G_Sound( NPC, G_SoundIndex(va("sound/chars/mark1/misc/talk%d.wav",	Q_irand(1, 4))));
+        //
+        //			TIMER_Set( NPC, "patrolNoise", Q_irand( 2000, 4000 ) );
+        //		}
+    }
 }
-
 
 /*
 -------------------------
 NPC_BSMark1_Default
 -------------------------
 */
-void NPC_BSMark1_Default( void )
+void NPC_BSMark1_Default(void)
 {
-	//NPC->e_DieFunc = dieF_Mark1_die;
+    // NPC->e_DieFunc = dieF_Mark1_die;
 
-	if ( NPCS.NPC->enemy )
-	{
-		NPCS.NPCInfo->goalEntity = NPCS.NPC->enemy;
-		Mark1_AttackDecision();
-	}
-	else if ( Any( NPCS.NPCInfo->scriptFlags & scriptFlags_t::SCF_LOOK_FOR_ENEMIES ) )
-	{
-		Mark1_Patrol();
-	}
-	else
-	{
-		Mark1_Idle();
-	}
+    if (NPCS.NPC->enemy) {
+        NPCS.NPCInfo->goalEntity = NPCS.NPC->enemy;
+        Mark1_AttackDecision();
+    }
+    else if (Any(NPCS.NPCInfo->scriptFlags & scriptFlags_t::SCF_LOOK_FOR_ENEMIES)) {
+        Mark1_Patrol();
+    }
+    else {
+        Mark1_Idle();
+    }
 }

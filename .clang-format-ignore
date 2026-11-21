@@ -1,0 +1,3 @@
+# Files clang-format leaves as they are: the libraries, which keep their own layout, and the tables the tools write.
+libs/**
+src/codemp/netcodec/src/generated/*

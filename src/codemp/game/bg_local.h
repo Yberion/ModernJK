@@ -26,105 +26,103 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // bg_local.h -- local definitions for the bg (both games) files
 
-inline constexpr float MIN_WALK_NORMAL = 0.7f;		// can't walk on very steep slopes
+inline constexpr float MIN_WALK_NORMAL = 0.7f; // can't walk on very steep slopes
 
 inline constexpr int TIMER_LAND = 130;
-inline constexpr int TIMER_GESTURE = 34*66+50;
+inline constexpr int TIMER_GESTURE = 34 * 66 + 50;
 
 inline constexpr float OVERCLIP = 1.001f;
 
 // all of the locals will be zeroed before each
 // pmove, just to make damn sure we don't have
 // any differences when running on client or server
-typedef struct
-{
-	vec3_t		forward, right, up;
-	float		frametime;
+typedef struct {
+    vec3_t forward, right, up;
+    float frametime;
 
-	int			msec;
+    int msec;
 
-	bool	walking;
-	bool	groundPlane;
-	trace_t		groundTrace;
+    bool walking;
+    bool groundPlane;
+    trace_t groundTrace;
 
-	float		impactSpeed;
+    float impactSpeed;
 
-	vec3_t		previous_origin;
-	vec3_t		previous_velocity;
-	int			previous_waterlevel;
+    vec3_t previous_origin;
+    vec3_t previous_velocity;
+    int previous_waterlevel;
 
-	qrand_t		rand;	// PM_irand_timesync's numbers: seeded with the command's time, the same on the server and in
-						// the client's prediction (plan step 14)
+    qrand_t rand; // PM_irand_timesync's numbers: seeded with the command's time, the same on the server and in
+                  // the client's prediction (plan step 14)
 } pml_t;
 
-
-extern	pml_t		pml;
+extern pml_t pml;
 #ifdef _CGAME
-extern	const playerState_t	*pm_startPs;
-extern	animNumber_t	pm_startLegsAnim, pm_startTorsoAnim;
+extern const playerState_t* pm_startPs;
+extern animNumber_t pm_startLegsAnim, pm_startTorsoAnim;
 #endif
 
 // movement parameters
-extern	float	pm_stopspeed;
-extern	float	pm_duckScale;
-extern	float	pm_swimScale;
-extern	float	pm_wadeScale;
+extern float pm_stopspeed;
+extern float pm_duckScale;
+extern float pm_swimScale;
+extern float pm_wadeScale;
 
-extern	float	pm_accelerate;
-extern	float	pm_airaccelerate;
-extern	float	pm_wateraccelerate;
-extern	float	pm_flyaccelerate;
+extern float pm_accelerate;
+extern float pm_airaccelerate;
+extern float pm_wateraccelerate;
+extern float pm_flyaccelerate;
 
-extern	float	pm_friction;
-extern	float	pm_waterfriction;
-extern	float	pm_flightfriction;
+extern float pm_friction;
+extern float pm_waterfriction;
+extern float pm_flightfriction;
 
-extern	int		c_pmove;
+extern int c_pmove;
 
-extern EnumArray<EnumArray<int, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS>, forcePowerLevels_t, forcePowerLevels_t::NUM_FORCE_POWER_LEVELS> forcePowerNeeded;
+extern EnumArray<EnumArray<int, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS>, forcePowerLevels_t, forcePowerLevels_t::NUM_FORCE_POWER_LEVELS>
+    forcePowerNeeded;
 
-//PM anim utility functions:
-bool PM_SaberInParry( saberMoveName_t move );
-bool PM_SaberInKnockaway( saberMoveName_t move );
-bool PM_SaberInReflect( saberMoveName_t move );
-bool PM_SaberInStart( saberMoveName_t move );
-bool PM_InSaberAnim( animNumber_t anim );
-bool PM_InKnockDown( playerState_t *ps );
-bool PM_PainAnim( animNumber_t anim );
-bool PM_JumpingAnim( animNumber_t anim );
-bool PM_LandingAnim( animNumber_t anim );
-bool PM_SpinningAnim( animNumber_t anim );
-bool PM_InOnGroundAnim ( animNumber_t anim );
-bool PM_InRollComplete( playerState_t *ps, animNumber_t anim );
+// PM anim utility functions:
+bool PM_SaberInParry(saberMoveName_t move);
+bool PM_SaberInKnockaway(saberMoveName_t move);
+bool PM_SaberInReflect(saberMoveName_t move);
+bool PM_SaberInStart(saberMoveName_t move);
+bool PM_InSaberAnim(animNumber_t anim);
+bool PM_InKnockDown(playerState_t* ps);
+bool PM_PainAnim(animNumber_t anim);
+bool PM_JumpingAnim(animNumber_t anim);
+bool PM_LandingAnim(animNumber_t anim);
+bool PM_SpinningAnim(animNumber_t anim);
+bool PM_InOnGroundAnim(animNumber_t anim);
+bool PM_InRollComplete(playerState_t* ps, animNumber_t anim);
 
-int PM_AnimLength( int index, animNumber_t anim );
+int PM_AnimLength(int index, animNumber_t anim);
 
 animNumber_t PM_GetSaberStance(void);
 float PM_GroundDistance(void);
-bool PM_SomeoneInFront(trace_t *tr);
+bool PM_SomeoneInFront(trace_t* tr);
 saberMoveName_t PM_SaberFlipOverAttackMove(void);
-saberMoveName_t PM_SaberJumpAttackMove( void );
+saberMoveName_t PM_SaberJumpAttackMove(void);
 
-void PM_ClipVelocity( vec3_t in, vec3_t normal, vec3_t out, float overbounce );
-void PM_AddTouchEnt( int entityNum );
-void PM_AddEvent( entity_event_t newEvent );
+void PM_ClipVelocity(vec3_t in, vec3_t normal, vec3_t out, float overbounce);
+void PM_AddTouchEnt(int entityNum);
+void PM_AddEvent(entity_event_t newEvent);
 
-bool	PM_SlideMove( bool gravity );
-void		PM_StepSlideMove( bool gravity );
+bool PM_SlideMove(bool gravity);
+void PM_StepSlideMove(bool gravity);
 
-void PM_StartTorsoAnim( animNumber_t anim );
-void PM_ContinueLegsAnim( animNumber_t anim );
-void PM_ForceLegsAnim( animNumber_t anim );
+void PM_StartTorsoAnim(animNumber_t anim);
+void PM_ContinueLegsAnim(animNumber_t anim);
+void PM_ForceLegsAnim(animNumber_t anim);
 
-void PM_BeginWeaponChange( weapon_t weapon );
-void PM_FinishWeaponChange( void );
+void PM_BeginWeaponChange(weapon_t weapon);
+void PM_FinishWeaponChange(void);
 
-void PM_SetAnim(setAnimParts_t setAnimParts,animNumber_t anim,setAnimFlags_t setAnimFlags);
+void PM_SetAnim(setAnimParts_t setAnimParts, animNumber_t anim, setAnimFlags_t setAnimFlags);
 
 void PM_WeaponLightsaber(void);
 void PM_SetSaberMove(saberMoveName_t newMove);
 
 void PM_SetForceJumpZStart(float value);
 
-void BG_CycleInven(playerState_t *ps, int direction);
-
+void BG_CycleInven(playerState_t* ps, int direction);

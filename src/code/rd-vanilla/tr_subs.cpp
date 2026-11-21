@@ -28,28 +28,28 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // tr_subs.cpp - common function replacements for modular renderer
 #include "tr_local.h"
 
-void QDECL Com_Printf( const char *msg, ... )
+void QDECL Com_Printf(const char* msg, ...)
 {
-	va_list         argptr;
-	char            text[1024];
+    va_list argptr;
+    char text[1024];
 
-	va_start(argptr, msg);
-	Q_vsnprintf(text, sizeof(text), msg, argptr);
-	va_end(argptr);
+    va_start(argptr, msg);
+    Q_vsnprintf(text, sizeof(text), msg, argptr);
+    va_end(argptr);
 
-	ri.Printf(printParm_t::PRINT_ALL, "%s", text);
+    ri.Printf(printParm_t::PRINT_ALL, "%s", text);
 }
 
-void QDECL Com_Error( errorParm_t level, const char *error, ... )
+void QDECL Com_Error(errorParm_t level, const char* error, ...)
 {
-	va_list         argptr;
-	char            text[1024];
+    va_list argptr;
+    char text[1024];
 
-	va_start(argptr, error);
-	Q_vsnprintf(text, sizeof(text), error, argptr);
-	va_end(argptr);
+    va_start(argptr, error);
+    Q_vsnprintf(text, sizeof(text), error, argptr);
+    va_end(argptr);
 
-	ri.Error(level, "%s", text);
+    ri.Error(level, "%s", text);
 }
 
 /*
@@ -59,42 +59,47 @@ Com_DPrintf
 DLL glue
 ================
 */
-void Com_DPrintf(const char *format, ...)
+void Com_DPrintf(const char* format, ...)
 {
-	va_list         argptr;
-	char            text[1024];
+    va_list argptr;
+    char text[1024];
 
-	va_start(argptr, format);
-	Q_vsnprintf(text, sizeof(text), format, argptr);
-	va_end(argptr);
+    va_start(argptr, format);
+    Q_vsnprintf(text, sizeof(text), format, argptr);
+    va_end(argptr);
 
-	ri.Printf(printParm_t::PRINT_DEVELOPER, "%s", text);
+    ri.Printf(printParm_t::PRINT_DEVELOPER, "%s", text);
 }
 
 // HUNK
 
-//int Hunk_MemoryRemaining( void ) {
+// int Hunk_MemoryRemaining( void ) {
 //	return ri.Hunk_MemoryRemaining();
-//}
+// }
 
 // ZONE
 
-void *R_Malloc( int iSize, memtag_t eTag, bool bZeroit ) {
-	return ri.Malloc( iSize, eTag, bZeroit, 4 );
+void* R_Malloc(int iSize, memtag_t eTag, bool bZeroit)
+{
+    return ri.Malloc(iSize, eTag, bZeroit, 4);
 }
 
-void R_Free( void *ptr ) {
-	ri.Z_Free( ptr );
+void R_Free(void* ptr)
+{
+    ri.Z_Free(ptr);
 }
 
-int R_MemSize( memtag_t eTag ) {
-	return ri.Z_MemSize( eTag );
+int R_MemSize(memtag_t eTag)
+{
+    return ri.Z_MemSize(eTag);
 }
 
-void R_MorphMallocTag( void *pvBuffer, memtag_t eDesiredTag ) {
-	ri.Z_MorphMallocTag( pvBuffer, eDesiredTag );
+void R_MorphMallocTag(void* pvBuffer, memtag_t eDesiredTag)
+{
+    ri.Z_MorphMallocTag(pvBuffer, eDesiredTag);
 }
 
-void *R_Hunk_Alloc( int iSize, bool bZeroit ) {
-	return ri.Malloc( iSize, memtag::TAG_HUNKALLOC, bZeroit, 4 );
+void* R_Hunk_Alloc(int iSize, bool bZeroit)
+{
+    return ri.Malloc(iSize, memtag::TAG_HUNKALLOC, bZeroit, 4);
 }

@@ -36,99 +36,94 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 inline constexpr int REF_API_VERSION = 18;
 
 typedef struct {
-	void				(QDECL *Printf)						( printParm_t printLevel, const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
-	void				(QDECL *Error)						( errorParm_t errorLevel, const char *fmt, ...) NORETURN_PTR __attribute__ ((format (printf, 2, 3)));
+    void(QDECL* Printf)(printParm_t printLevel, const char* fmt, ...) __attribute__((format(printf, 2, 3)));
+    void(QDECL* Error)(errorParm_t errorLevel, const char* fmt, ...) NORETURN_PTR __attribute__((format(printf, 2, 3)));
 
-	// milliseconds should only be used for profiling, never for anything game related. Get time from the refdef
-	int					(*Milliseconds)						( void );
+    // milliseconds should only be used for profiling, never for anything game related. Get time from the refdef
+    int (*Milliseconds)(void);
 
-	void				(*Hunk_ClearToMark)					( void );
-	void*				(*Malloc)							( int iSize, memtag_t eTag, bool zeroIt, int iAlign );
-	int					(*Z_Free)							( void *memory );
-	int					(*Z_MemSize)						( memtag_t eTag );
-	void				(*Z_MorphMallocTag)					( void *pvBuffer, memtag_t eDesiredTag );
+    void (*Hunk_ClearToMark)(void);
+    void* (*Malloc)(int iSize, memtag_t eTag, bool zeroIt, int iAlign);
+    int (*Z_Free)(void* memory);
+    int (*Z_MemSize)(memtag_t eTag);
+    void (*Z_MorphMallocTag)(void* pvBuffer, memtag_t eDesiredTag);
 
+    void (*Cmd_ExecuteString)(const char* text);
+    int (*Cmd_Argc)(void);
+    const char* (*Cmd_Argv)(int arg);
+    void (*Cmd_ArgsBuffer)(char* buffer, int bufferLength);
+    void (*Cmd_AddCommand)(const char* cmd_name, xcommand_t function);
+    void (*Cmd_RemoveCommand)(const char* cmd_name);
+    void (*Cvar_Set)(const char* var_name, const char* value);
+    cvar_t* (*Cvar_Get)(const char* var_name, const char* value, cvarFlags_t flags);
+    void (*Cvar_SetValue)(const char* name, float value);
+    void (*Cvar_CheckRange)(cvar_t* cv, float minVal, float maxVal, bool shouldBeIntegral);
+    void (*Cvar_VariableStringBuffer)(const char* var_name, char* buffer, int bufsize);
+    const char* (*Cvar_VariableString)(const char* var_name);
+    float (*Cvar_VariableValue)(const char* var_name);
+    int (*Cvar_VariableIntegerValue)(const char* var_name);
 
-	void				(*Cmd_ExecuteString)				( const char *text );
-	int					(*Cmd_Argc)							( void );
-	const char *		(*Cmd_Argv)							( int arg );
-	void				(*Cmd_ArgsBuffer)					( char *buffer, int bufferLength );
-	void				(*Cmd_AddCommand)					( const char *cmd_name, xcommand_t function );
-	void				(*Cmd_RemoveCommand)				( const char *cmd_name );
-	void				(*Cvar_Set)							( const char *var_name, const char *value );
-	cvar_t *			(*Cvar_Get)							( const char *var_name, const char *value, cvarFlags_t flags );
-	void				(*Cvar_SetValue)					( const char *name, float value );
-	void				(*Cvar_CheckRange)					( cvar_t *cv, float minVal, float maxVal, bool shouldBeIntegral );
-	void				(*Cvar_VariableStringBuffer)		( const char *var_name, char *buffer, int bufsize );
-	const char *		(*Cvar_VariableString)				( const char *var_name );
-	float				(*Cvar_VariableValue)				( const char *var_name );
-	int					(*Cvar_VariableIntegerValue)		( const char *var_name );
+    bool (*LowPhysicalMemory)(void);
+    const char* (*SE_GetString)(const char* reference);
 
+    void (*FS_FreeFile)(void* buffer);
+    void (*FS_FreeFileList)(char** fileList);
+    int (*FS_Read)(void* buffer, int len, fileHandle_t f);
+    long (*FS_ReadFile)(const char* qpath, void** buffer);
+    void (*FS_FCloseFile)(fileHandle_t f);
+    long (*FS_FOpenFileRead)(const char* qpath, fileHandle_t* file, bool uniqueFILE);
+    fileHandle_t (*FS_FOpenFileWrite)(const char* qpath, bool safe);
+    int (*FS_FOpenFileByMode)(const char* qpath, fileHandle_t* f, fsMode_t mode);
+    bool (*FS_FileExists)(const char* file);
+    int (*FS_FileIsInPAK)(const char* filename);
+    char** (*FS_ListFiles)(const char* directory, const char* extension, int* numfiles);
+    int (*FS_Write)(const void* buffer, int len, fileHandle_t f);
+    void (*FS_WriteFile)(const char* qpath, const void* buffer, int size);
 
-	bool			(*LowPhysicalMemory)				( void );
-	const char*			(*SE_GetString)						( const char *reference );
+    void (*CM_DrawDebugSurface)(void (*drawPoly)(int color, int numPoints, float* points));
+    bool (*CM_CullWorldBox)(const cplane_t* frustrum, const vec3pair_t bounds);
+    byte* (*CM_ClusterPVS)(int cluster);
+    contentsFlags_t (*CM_PointContents)(const vec3_t p, clipHandle_t model);
+    void (*S_RestartMusic)(void);
+    bool (*SND_RegisterAudio_LevelLoadEnd)(bool bDeleteEverythingNotUsedThisLevel);
 
+    e_status (*CIN_RunCinematic)(int handle);
+    int (*CIN_PlayCinematic)(const char* arg0, int xpos, int ypos, int width, int height, cinematicFlags_t bits, const char* psAudioFile /* = nullptr */);
+    void (*CIN_UploadCinematic)(int handle);
 
-	void				(*FS_FreeFile)						( void *buffer );
-	void				(*FS_FreeFileList)					( char **fileList );
-	int					(*FS_Read)							( void *buffer, int len, fileHandle_t f );
-	long					(*FS_ReadFile)						( const char *qpath, void **buffer );
-	void				(*FS_FCloseFile)					( fileHandle_t f );
-	long					(*FS_FOpenFileRead)					( const char *qpath, fileHandle_t *file, bool uniqueFILE );
-	fileHandle_t		(*FS_FOpenFileWrite)				( const char *qpath, bool safe );
-	int					(*FS_FOpenFileByMode)				( const char *qpath, fileHandle_t *f, fsMode_t mode );
-	bool			(*FS_FileExists)					( const char *file );
-	int					(*FS_FileIsInPAK)					( const char *filename );
-	char **				(*FS_ListFiles)						( const char *directory, const char *extension, int *numfiles );
-	int					(*FS_Write)							( const void *buffer, int len, fileHandle_t f );
-	void				(*FS_WriteFile)						( const char *qpath, const void *buffer, int size );
+    // window handling
+    window_t (*WIN_Init)(const windowDesc_t* desc, glconfig_t* glConfig);
+    void (*WIN_SetGamma)(glconfig_t* glConfig, byte red[256], byte green[256], byte blue[256]);
+    void (*WIN_Present)(window_t* window);
+    void (*WIN_Shutdown)(void);
 
-	void				(*CM_DrawDebugSurface)				( void (*drawPoly)( int color, int numPoints, float *points ) );
-	bool				(*CM_CullWorldBox)					( const cplane_t *frustrum, const vec3pair_t bounds );
-	byte*				(*CM_ClusterPVS)					( int cluster );
-	contentsFlags_t		(*CM_PointContents)					( const vec3_t p, clipHandle_t model );
-	void				(*S_RestartMusic)					( void );
-	bool			(*SND_RegisterAudio_LevelLoadEnd)	( bool bDeleteEverythingNotUsedThisLevel );
+    // OpenGL-specific
+    void* (*GL_GetProcAddress)(const char* name);
+    bool (*GL_ExtensionSupported)(const char* extension);
 
-	e_status			(*CIN_RunCinematic)					( int handle );
-	int					(*CIN_PlayCinematic)				( const char *arg0, int xpos, int ypos, int width, int height,
-															cinematicFlags_t bits, const char *psAudioFile /* = nullptr */ );
-	void				(*CIN_UploadCinematic)				( int handle );
+    CMiniHeap* (*GetG2VertSpaceServer)(void);
 
-	// window handling
-	window_t		(*WIN_Init)                         ( const windowDesc_t *desc, glconfig_t *glConfig );
-	void			(*WIN_SetGamma)						( glconfig_t *glConfig, byte red[256], byte green[256], byte blue[256] );
-	void			(*WIN_Present)						( window_t *window );
-	void            (*WIN_Shutdown)                     ( void );
+    // Persistent data store
+    bool (*PD_Store)(const char* name, const void* data, size_t size);
+    const void* (*PD_Load)(const char* name, size_t* size);
 
-	// OpenGL-specific
-	void *			(*GL_GetProcAddress)				( const char *name );
-	bool		(*GL_ExtensionSupported)			( const char *extension );
+    // ============= NOT IN MP BEYOND THIS POINT
+    void (*SV_Trace)(trace_t* results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, const int passEntityNum,
+                     const contentsFlags_t contentmask, const EG2_Collision eG2TraceType, const int useLod);
 
-	CMiniHeap *			(*GetG2VertSpaceServer)				( void );
+    ojk::ISavedGame* saved_game;
 
-	// Persistent data store
-	bool			(*PD_Store)							( const char *name, const void *data, size_t size );
-	const void *	(*PD_Load)							( const char *name, size_t *size );
+    contentsFlags_t (*SV_PointContents)(const vec3_t p, clipHandle_t model);
 
-	// ============= NOT IN MP BEYOND THIS POINT
-	void				(*SV_Trace)							( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
-															const int passEntityNum, const contentsFlags_t contentmask,
-															const EG2_Collision eG2TraceType, const int useLod );
+    bool (*CM_DeleteCachedMap)(bool bGuaranteedOkToDelete); // NOT IN MP
 
-	ojk::ISavedGame* saved_game;
+    bool (*CL_IsRunningInGameCinematic)(void);
 
-	contentsFlags_t		(*SV_PointContents)					( const vec3_t p, clipHandle_t model );
-
-	bool			(*CM_DeleteCachedMap)				( bool bGuaranteedOkToDelete );	// NOT IN MP
-
-	bool			(*CL_IsRunningInGameCinematic)		( void );
-
-	void*				(*gpvCachedMapDiskImage)			( void );
-	char*				(*gsCachedMapDiskImage)				( void );
-	bool			*(*gbUsingCachedMapDataRightNow)	( void );
-	bool			*(*gbAlreadyDoingLoad)				( void );
-	int					(*com_frameTime)					( void );
+    void* (*gpvCachedMapDiskImage)(void);
+    char* (*gsCachedMapDiskImage)(void);
+    bool* (*gbUsingCachedMapDataRightNow)(void);
+    bool* (*gbAlreadyDoingLoad)(void);
+    int (*com_frameTime)(void);
 
 } refimport_t;
 
@@ -138,250 +133,240 @@ extern refimport_t ri;
 // these are the functions exported by the refresh module
 //
 typedef struct {
-	// called before the library is unloaded
-	// if the system is just reconfiguring, pass destroyWindow = false,
-	// which will keep the screen from flashing to the desktop.
-	void	(*Shutdown)( bool destroyWindow, bool restarting );
+    // called before the library is unloaded
+    // if the system is just reconfiguring, pass destroyWindow = false,
+    // which will keep the screen from flashing to the desktop.
+    void (*Shutdown)(bool destroyWindow, bool restarting);
 
-	// All data that will be used in a level should be
-	// registered before rendering any frames to prevent disk hits,
-	// but they can still be registered at a later time
-	// if necessary.
-	//
-	// BeginRegistration makes any existing media pointers invalid
-	// and returns the current gl configuration, including screen width
-	// and height, which can be used by the client to intelligently
-	// size display elements
-	void	(*BeginRegistration)( glconfig_t *config );
-	qhandle_t (*RegisterModel)( const char *name );
-	qhandle_t (*RegisterSkin)( const char *name );
-	int		  (*GetAnimationCFG)(const char *psCFGFilename, char *psDest, int iDestSize);
-	qhandle_t (*RegisterShader)( const char *name );
-	qhandle_t (*RegisterShaderNoMip)( const char *name );
-	void	(*LoadWorld)( const char *name );
-	void	(*R_LoadImage)( const char *name, byte **pic, int *width, int *height );
+    // All data that will be used in a level should be
+    // registered before rendering any frames to prevent disk hits,
+    // but they can still be registered at a later time
+    // if necessary.
+    //
+    // BeginRegistration makes any existing media pointers invalid
+    // and returns the current gl configuration, including screen width
+    // and height, which can be used by the client to intelligently
+    // size display elements
+    void (*BeginRegistration)(glconfig_t* config);
+    qhandle_t (*RegisterModel)(const char* name);
+    qhandle_t (*RegisterSkin)(const char* name);
+    int (*GetAnimationCFG)(const char* psCFGFilename, char* psDest, int iDestSize);
+    qhandle_t (*RegisterShader)(const char* name);
+    qhandle_t (*RegisterShaderNoMip)(const char* name);
+    void (*LoadWorld)(const char* name);
+    void (*R_LoadImage)(const char* name, byte** pic, int* width, int* height);
 
-	// these two functions added to help with the new model alloc scheme...
-	//
-	void	(*RegisterMedia_LevelLoadBegin)(const char *psMapName, ForceReload_e eForceReload, bool bAllowScreenDissolve);
-	void	(*RegisterMedia_LevelLoadEnd)(void);
-	int		(*RegisterMedia_GetLevel)(void);
-	bool	(*RegisterModels_LevelLoadEnd)(bool bDeleteEverythingNotUsedThisLevel );
-	bool	(*RegisterImages_LevelLoadEnd)(void);
+    // these two functions added to help with the new model alloc scheme...
+    //
+    void (*RegisterMedia_LevelLoadBegin)(const char* psMapName, ForceReload_e eForceReload, bool bAllowScreenDissolve);
+    void (*RegisterMedia_LevelLoadEnd)(void);
+    int (*RegisterMedia_GetLevel)(void);
+    bool (*RegisterModels_LevelLoadEnd)(bool bDeleteEverythingNotUsedThisLevel);
+    bool (*RegisterImages_LevelLoadEnd)(void);
 
-	// the vis data is a large enough block of data that we go to the trouble
-	// of sharing it with the clipmodel subsystem
-	void	(*SetWorldVisData)( const byte *vis );
+    // the vis data is a large enough block of data that we go to the trouble
+    // of sharing it with the clipmodel subsystem
+    void (*SetWorldVisData)(const byte* vis);
 
-	// EndRegistration will draw a tiny polygon with each texture, forcing
-	// them to be loaded into card memory
-	void	(*EndRegistration)( void );
+    // EndRegistration will draw a tiny polygon with each texture, forcing
+    // them to be loaded into card memory
+    void (*EndRegistration)(void);
 
-	// a scene is built up by calls to R_ClearScene and the various R_Add functions.
-	// Nothing is drawn until R_RenderScene is called.
-	void	(*ClearScene)( void );
-	void	(*AddRefEntityToScene)( const refEntity_t *re );
-	void	(*AddPolyToScene)( qhandle_t hShader , int numVerts, const polyVert_t *verts );
-	void	(*AddLightToScene)( const vec3_t org, float intensity, float r, float g, float b );
-	void	(*RenderScene)( const refdef_t *fd );
-	bool(*GetLighting)( const vec3_t org, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir);
+    // a scene is built up by calls to R_ClearScene and the various R_Add functions.
+    // Nothing is drawn until R_RenderScene is called.
+    void (*ClearScene)(void);
+    void (*AddRefEntityToScene)(const refEntity_t* re);
+    void (*AddPolyToScene)(qhandle_t hShader, int numVerts, const polyVert_t* verts);
+    void (*AddLightToScene)(const vec3_t org, float intensity, float r, float g, float b);
+    void (*RenderScene)(const refdef_t* fd);
+    bool (*GetLighting)(const vec3_t org, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir);
 
-	void	(*SetColor)( const float *rgba );	// nullptr = 1,1,1,1
-	void	(*DrawStretchPic) ( float x, float y, float w, float h,
-		float s1, float t1, float s2, float t2, qhandle_t hShader );	// 0 = white
-	void	(*DrawRotatePic) ( float x, float y, float w, float h,
-		float s1, float t1, float s2, float t2, float a1, qhandle_t hShader );	// 0 = white
-	void	(*DrawRotatePic2) ( float x, float y, float w, float h,
-		float s1, float t1, float s2, float t2, float a1, qhandle_t hShader );	// 0 = white
-	void	(*LAGoggles)(void);
-	void	(*Scissor) ( float x, float y, float w, float h);	// 0 = white
+    void (*SetColor)(const float* rgba);                                                                                             // nullptr = 1,1,1,1
+    void (*DrawStretchPic)(float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader);           // 0 = white
+    void (*DrawRotatePic)(float x, float y, float w, float h, float s1, float t1, float s2, float t2, float a1, qhandle_t hShader);  // 0 = white
+    void (*DrawRotatePic2)(float x, float y, float w, float h, float s1, float t1, float s2, float t2, float a1, qhandle_t hShader); // 0 = white
+    void (*LAGoggles)(void);
+    void (*Scissor)(float x, float y, float w, float h); // 0 = white
 
-	// Draw images for cinematic rendering, pass as 32 bit rgba
-	void	(*DrawStretchRaw) (int x, int y, int w, int h, int cols, int rows, const byte *data, int client, bool dirty);
-	void	(*UploadCinematic) (int cols, int rows, const byte *data, int client, bool dirty);
+    // Draw images for cinematic rendering, pass as 32 bit rgba
+    void (*DrawStretchRaw)(int x, int y, int w, int h, int cols, int rows, const byte* data, int client, bool dirty);
+    void (*UploadCinematic)(int cols, int rows, const byte* data, int client, bool dirty);
 
-	void	(*BeginFrame)( stereoFrame_t stereoFrame );
+    void (*BeginFrame)(stereoFrame_t stereoFrame);
 
-	// if the pointers are not nullptr, timing info will be returned
-	void	(*EndFrame)( int *frontEndMsec, int *backEndMsec );
+    // if the pointers are not nullptr, timing info will be returned
+    void (*EndFrame)(int* frontEndMsec, int* backEndMsec);
 
-	bool (*ProcessDissolve)(void);
-	bool (*InitDissolve)(bool bForceCircularExtroWipe);
+    bool (*ProcessDissolve)(void);
+    bool (*InitDissolve)(bool bForceCircularExtroWipe);
 
-
-	// for use with save-games mainly...
-	void	(*GetScreenShot)(byte *data, int w, int h);
+    // for use with save-games mainly...
+    void (*GetScreenShot)(byte* data, int w, int h);
 
 #ifdef JK2_MODE
-	size_t	(*SaveJPGToBuffer)(byte *buffer, size_t bufSize, int quality, int image_width, int image_height, byte *image_buffer, int padding, bool flip_vertical );
-	void	(*LoadJPGFromBuffer)( byte *inputBuffer, size_t len, byte **pic, int *width, int *height );
+    size_t (*SaveJPGToBuffer)(byte* buffer, size_t bufSize, int quality, int image_width, int image_height, byte* image_buffer, int padding,
+                              bool flip_vertical);
+    void (*LoadJPGFromBuffer)(byte* inputBuffer, size_t len, byte** pic, int* width, int* height);
 #endif
 
-	// this is so you can get access to raw pixels from a graphics format (TGA/JPG/BMP etc),
-	//	currently only the save game uses it (to make raw shots for the autosaves)
-	//
-	byte*	(*TempRawImage_ReadFromFile)(const char *psLocalFilename, int *piWidth, int *piHeight, byte *pbReSampleBuffer, bool qbVertFlip);
-	void	(*TempRawImage_CleanUp)();
+    // this is so you can get access to raw pixels from a graphics format (TGA/JPG/BMP etc),
+    //	currently only the save game uses it (to make raw shots for the autosaves)
+    //
+    byte* (*TempRawImage_ReadFromFile)(const char* psLocalFilename, int* piWidth, int* piHeight, byte* pbReSampleBuffer, bool qbVertFlip);
+    void (*TempRawImage_CleanUp)();
 
-	//misc stuff
-	int		(*MarkFragments)( int numPoints, const vec3_t *points, const vec3_t projection,
-				   int maxPoints, vec3_t pointBuffer, int maxFragments, markFragment_t *fragmentBuffer );
+    // misc stuff
+    int (*MarkFragments)(int numPoints, const vec3_t* points, const vec3_t projection, int maxPoints, vec3_t pointBuffer, int maxFragments,
+                         markFragment_t* fragmentBuffer);
 
-	//model stuff
-	void	(*LerpTag)( orientation_t *tag,  qhandle_t model, int startFrame, int endFrame,
-					 float frac, const char *tagName );
-	void	(*ModelBounds)( qhandle_t model, vec3_t mins, vec3_t maxs );
+    // model stuff
+    void (*LerpTag)(orientation_t* tag, qhandle_t model, int startFrame, int endFrame, float frac, const char* tagName);
+    void (*ModelBounds)(qhandle_t model, vec3_t mins, vec3_t maxs);
 
-	void	(*GetLightStyle)(int style, color4ub_t color);
-	void	(*SetLightStyle)(int style, int color);
+    void (*GetLightStyle)(int style, color4ub_t color);
+    void (*SetLightStyle)(int style, int color);
 
-	void	(*GetBModelVerts)( int bmodelIndex, vec3_t *vec, vec3_t normal );
-	void	(*WorldEffectCommand)(const char *command);
-	void	(*GetModelBounds)(refEntity_t *refEnt, vec3_t bounds1, vec3_t bounds2);
+    void (*GetBModelVerts)(int bmodelIndex, vec3_t* vec, vec3_t normal);
+    void (*WorldEffectCommand)(const char* command);
+    void (*GetModelBounds)(refEntity_t* refEnt, vec3_t bounds1, vec3_t bounds2);
 
-	int		(*RegisterFont)(const char *name);
+    int (*RegisterFont)(const char* name);
 
-	int		(*Font_HeightPixels)(const int index, const float scale);
-	int		(*Font_StrLenPixels)(const char *s, const int index, const float scale);
-	void	(*Font_DrawString)(int x, int y, const char *s, const float *rgba, const int iFontHandle, int iMaxPixelWidth, const float scale);
-	int		(*Font_StrLenChars) (const char *s);
-	bool (*Language_IsAsian) (void);
-	bool (*Language_UsesSpaces) (void);
-	unsigned int (*AnyLanguage_ReadCharFromString)( char *psText, int * piAdvanceCount, bool *pbIsTrailingPunctuation /* = nullptr */);
-	unsigned int (*AnyLanguage_ReadCharFromString2)( char **psText, bool *pbIsTrailingPunctuation /* = nullptr */);
+    int (*Font_HeightPixels)(const int index, const float scale);
+    int (*Font_StrLenPixels)(const char* s, const int index, const float scale);
+    void (*Font_DrawString)(int x, int y, const char* s, const float* rgba, const int iFontHandle, int iMaxPixelWidth, const float scale);
+    int (*Font_StrLenChars)(const char* s);
+    bool (*Language_IsAsian)(void);
+    bool (*Language_UsesSpaces)(void);
+    unsigned int (*AnyLanguage_ReadCharFromString)(char* psText, int* piAdvanceCount, bool* pbIsTrailingPunctuation /* = nullptr */);
+    unsigned int (*AnyLanguage_ReadCharFromString2)(char** psText, bool* pbIsTrailingPunctuation /* = nullptr */);
 
-	// Misc
-	void	(*R_InitWorldEffects)(void);
-	void	(*R_ClearStuffToStopGhoul2CrashingThings)(void);
-	bool (*R_inPVS)(vec3_t p1, vec3_t p2);
+    // Misc
+    void (*R_InitWorldEffects)(void);
+    void (*R_ClearStuffToStopGhoul2CrashingThings)(void);
+    bool (*R_inPVS)(vec3_t p1, vec3_t p2);
 
-	void	(*SVModelInit)(void);
+    void (*SVModelInit)(void);
 
-	// Distortion effects
-	float*		(*tr_distortionAlpha)( void );
-	float*		(*tr_distortionStretch)( void );
-	bool*	(*tr_distortionPrePost)( void );
-	bool*	(*tr_distortionNegate)( void );
+    // Distortion effects
+    float* (*tr_distortionAlpha)(void);
+    float* (*tr_distortionStretch)(void);
+    bool* (*tr_distortionPrePost)(void);
+    bool* (*tr_distortionNegate)(void);
 
-	// Weather effects
-	bool	(*GetWindVector)( vec3_t windVector, vec3_t atPoint );
-	bool	(*GetWindGusting)( vec3_t atpoint );
-	bool	(*IsOutside)( vec3_t pos );
-	float	(*IsOutsideCausingPain)( vec3_t pos );
-	float	(*GetChanceOfSaberFizz)( void );
-	bool	(*IsShaking)( vec3_t pos );
-	void	(*AddWeatherZone)( vec3_t mins, vec3_t maxs );
-	bool	(*SetTempGlobalFogColor)( vec3_t color );
+    // Weather effects
+    bool (*GetWindVector)(vec3_t windVector, vec3_t atPoint);
+    bool (*GetWindGusting)(vec3_t atpoint);
+    bool (*IsOutside)(vec3_t pos);
+    float (*IsOutsideCausingPain)(vec3_t pos);
+    float (*GetChanceOfSaberFizz)(void);
+    bool (*IsShaking)(vec3_t pos);
+    void (*AddWeatherZone)(vec3_t mins, vec3_t maxs);
+    bool (*SetTempGlobalFogColor)(vec3_t color);
 
-	void	(*SetRangedFog)(float dist);
+    void (*SetRangedFog)(float dist);
 
-	// GHOUL 2
-	IGhoul2InfoArray &(*TheGhoul2InfoArray)(void);
+    // GHOUL 2
+    IGhoul2InfoArray& (*TheGhoul2InfoArray)(void);
 
-	// GHOUL 2 API
-	int			(*G2API_AddBolt)(CGhoul2Info *ghlInfo, const char *boneName);
-	int			(*G2API_AddBoltSurfNum)(CGhoul2Info *ghlInfo, const int surfIndex);
-	int			(*G2API_AddSurface)(CGhoul2Info *ghlInfo, int surfaceNumber, int polyNumber,
-					float BarycentricI, float BarycentricJ, int lod);
-	void		(*G2API_AnimateG2Models)(CGhoul2Info_v &ghoul2, int AcurrentTime, CRagDollUpdateParams *params);
-	bool	(*G2API_AttachEnt)(int *boltInfo, CGhoul2Info *ghlInfoTo, int toBoltIndex, int entNum, int toModelNum);
-	bool	(*G2API_AttachG2Model)(CGhoul2Info *ghlInfo, CGhoul2Info *ghlInfoTo, int toBoltIndex, int toModel);
-	void		(*G2API_CollisionDetect)(CCollisionRecord *collRecMap, CGhoul2Info_v &ghoul2, const vec3_t angles,
-					const vec3_t position, int AframeNumber, int entNum, vec3_t rayStart, vec3_t rayEnd, vec3_t scale,
-					CMiniHeap *, EG2_Collision eG2TraceType, int useLod, float fRadius);
-	void		(*G2API_CleanGhoul2Models)(CGhoul2Info_v &ghoul2);
-	void		(*G2API_CopyGhoul2Instance)(CGhoul2Info_v &ghoul2From, CGhoul2Info_v &ghoul2To, int modelIndex);
-	void		(*G2API_DetachEnt)(int *boltInfo);
-	bool	(*G2API_DetachG2Model)(CGhoul2Info *ghlInfo);
-	bool	(*G2API_GetAnimFileName)(CGhoul2Info *ghlInfo, char **filename);
-	const char*	(*G2API_GetAnimFileNameIndex)(qhandle_t modelIndex);
-	const char*	(*G2API_GetAnimFileInternalNameIndex)(qhandle_t modelIndex);
-	int			(*G2API_GetAnimIndex)(CGhoul2Info *ghlInfo);
-	bool	(*G2API_GetAnimRange)(CGhoul2Info *ghlInfo, const char *boneName, int *startFrame, int *endFrame);
-	bool	(*G2API_GetAnimRangeIndex)(CGhoul2Info *ghlInfo, const int boneIndex, int *startFrame, int *endFrame);
-	bool	(*G2API_GetBoneAnim)(CGhoul2Info *ghlInfo, const char *boneName, const int AcurrentTime,
-					float *currentFrame, int *startFrame, int *endFrame, boneFlags_t *flags, float *animSpeed, int *);
-	bool	(*G2API_GetBoneAnimIndex)(CGhoul2Info *ghlInfo, const int iBoneIndex, const int AcurrentTime,
-					float *currentFrame, int *startFrame, int *endFrame, boneFlags_t *flags, float *animSpeed, int *);
-	int			(*G2API_GetBoneIndex)(CGhoul2Info *ghlInfo, const char *boneName, bool bAddIfNotFound);
-	bool	(*G2API_GetBoltMatrix)(CGhoul2Info_v &ghoul2, const int modelIndex,  const int boltIndex, mdxaBone_t *matrix,
-					const vec3_t angles, const vec3_t position, const int AframeNum, qhandle_t *modelList, const vec3_t scale);
-	ghoul2Flags_t	(*G2API_GetGhoul2ModelFlags)(CGhoul2Info *ghlInfo);
-	char*		(*G2API_GetGLAName)(CGhoul2Info *ghlInfo);
-	int			(*G2API_GetParentSurface)(CGhoul2Info *ghlInfo, const int index);
-	bool	(*G2API_GetRagBonePos)(CGhoul2Info_v &ghoul2, const char *boneName, vec3_t pos, vec3_t entAngles,
-					vec3_t entPos, vec3_t entScale);
-	int			(*G2API_GetSurfaceIndex)(CGhoul2Info *ghlInfo, const char *surfaceName);
-	char*		(*G2API_GetSurfaceName)(CGhoul2Info *ghlInfo, int surfNumber);
-	std::optional<g2SurfaceFlags_t>	(*G2API_GetSurfaceRenderStatus)(CGhoul2Info *ghlInfo, const char *surfaceName);
-	int			(*G2API_GetTime)(int argTime);
-	void		(*G2API_GiveMeVectorFromMatrix)(mdxaBone_t &boltMatrix, Eorientations flags, vec3_t &vec);
-	bool	(*G2API_HaveWeGhoul2Models)(CGhoul2Info_v &ghoul2);
-	bool	(*G2API_IKMove)(CGhoul2Info_v &ghoul2, int time, sharedIKMoveParams_t *params);
-	int			(*G2API_InitGhoul2Model)(CGhoul2Info_v &ghoul2, const char *fileName, int modelIndex,
-					qhandle_t customSkin, qhandle_t customShader, int modelFlags, int lodBias);
-	bool	(*G2API_IsPaused)(CGhoul2Info *ghlInfo, const char *boneName);
-	void		(*G2API_ListBones)(CGhoul2Info *ghlInfo, int frame);
-	void		(*G2API_ListSurfaces)(CGhoul2Info *ghlInfo);
-	void		(*G2API_LoadGhoul2Models)(CGhoul2Info_v &ghoul2, char *buffer);
-	void		(*G2API_LoadSaveCodeDestructGhoul2Info)(CGhoul2Info_v &ghoul2);
-	bool	(*G2API_PauseBoneAnim)(CGhoul2Info *ghlInfo, const char *boneName, const int AcurrentTime);
-	bool	(*G2API_PauseBoneAnimIndex)(CGhoul2Info *ghlInfo, const int boneIndex, const int AcurrentTime);
-	qhandle_t	(*G2API_PrecacheGhoul2Model)(const char *fileName);
-	bool	(*G2API_RagEffectorGoal)(CGhoul2Info_v &ghoul2, const char *boneName, vec3_t pos);
-	bool	(*G2API_RagEffectorKick)(CGhoul2Info_v &ghoul2, const char *boneName, vec3_t velocity);
-	bool	(*G2API_RagForceSolve)(CGhoul2Info_v &ghoul2, bool force);
-	bool	(*G2API_RagPCJConstraint)(CGhoul2Info_v &ghoul2, const char *boneName, vec3_t min, vec3_t max);
-	bool	(*G2API_RagPCJGradientSpeed)(CGhoul2Info_v &ghoul2, const char *boneName, const float speed);
-	bool	(*G2API_RemoveBolt)(CGhoul2Info *ghlInfo, const int index);
-	bool	(*G2API_RemoveBone)(CGhoul2Info *ghlInfo, const char *boneName);
-	bool	(*G2API_RemoveGhoul2Model)(CGhoul2Info_v &ghlInfo, const int modelIndex);
-	bool	(*G2API_RemoveSurface)(CGhoul2Info *ghlInfo, const int index);
-	void		(*G2API_SaveGhoul2Models)(CGhoul2Info_v &ghoul2);
-	bool	(*G2API_SetAnimIndex)(CGhoul2Info *ghlInfo, const int index);
-	bool	(*G2API_SetBoneAnim)(CGhoul2Info *ghlInfo, const char *boneName, const int startFrame, const int endFrame,
-					const boneFlags_t flags, const float animSpeed, const int AcurrentTime, const float setFrame, const int blendTime);
-	bool	(*G2API_SetBoneAnimIndex)(CGhoul2Info *ghlInfo, const int index, const int startFrame, const int endFrame,
-					const boneFlags_t flags, const float animSpeed, const int AcurrentTime, const float setFrame, const int blendTime);
-	bool	(*G2API_SetBoneAngles)(CGhoul2Info *ghlInfo, const char *boneName, const vec3_t angles, const boneFlags_t flags,
-					const Eorientations up, const Eorientations left, const Eorientations forward, qhandle_t *modelList,
-					int blendTime, int AcurrentTime);
-	bool	(*G2API_SetBoneAnglesIndex)(CGhoul2Info *ghlInfo, const int index, const vec3_t angles, const boneFlags_t flags,
-					const Eorientations yaw, const Eorientations pitch, const Eorientations roll, qhandle_t *modelList,
-					int blendTime, int AcurrentTime);
-	bool	(*G2API_SetBoneAnglesMatrix)(CGhoul2Info *ghlInfo, const char *boneName, const mdxaBone_t &matrix,
-					const boneFlags_t flags, qhandle_t *modelList, int blendTime, int AcurrentTime);
-	bool	(*G2API_SetBoneAnglesMatrixIndex)(CGhoul2Info *ghlInfo, const int index, const mdxaBone_t &matrix,
-					const boneFlags_t flags, qhandle_t *modelList, int blandeTime, int AcurrentTime);
-	bool	(*G2API_SetBoneIKState)(CGhoul2Info_v &ghoul2, int time, const char *boneName, sharedEIKMoveState ikState,
-					sharedSetBoneIKStateParams_t *params);
-	bool	(*G2API_SetGhoul2ModelFlags)(CGhoul2Info *ghlInfo, const ghoul2Flags_t flags);
-	void		(*G2API_SetGhoul2ModelIndexes)(CGhoul2Info_v &ghoul2, qhandle_t *modelList, qhandle_t *skinList);
-	bool	(*G2API_SetLodBias)(CGhoul2Info *ghlInfo, int lodBias);
-	bool	(*G2API_SetNewOrigin)(CGhoul2Info *ghlInfo, const int boltIndex);
-	void		(*G2API_SetRagDoll)(CGhoul2Info_v &ghoul2, CRagDollParams *parms);
-	bool	(*G2API_SetRootSurface)(CGhoul2Info_v &ghlInfo, const int modelIndex, const char *surfaceName);
-	bool	(*G2API_SetShader)(CGhoul2Info *ghlInfo, qhandle_t customShader);
-	bool	(*G2API_SetSkin)(CGhoul2Info *ghlInfo, qhandle_t customSkin, qhandle_t renderSkin);
-	bool	(*G2API_SetSurfaceOnOff)(CGhoul2Info *ghlInfo, const char *surfaceName, const g2SurfaceFlags_t flags);
-	void		(*G2API_SetTime)(int currentTime, int clock);
-	bool	(*G2API_StopBoneAnim)(CGhoul2Info *ghlInfo, const char *boneName);
-	bool	(*G2API_StopBoneAnimIndex)(CGhoul2Info *ghlInfo, const int index);
-	bool	(*G2API_StopBoneAngles)(CGhoul2Info *ghlInfo, const char *boneName);
-	bool	(*G2API_StopBoneAnglesIndex)(CGhoul2Info *ghlInfo, const int index);
+    // GHOUL 2 API
+    int (*G2API_AddBolt)(CGhoul2Info* ghlInfo, const char* boneName);
+    int (*G2API_AddBoltSurfNum)(CGhoul2Info* ghlInfo, const int surfIndex);
+    int (*G2API_AddSurface)(CGhoul2Info* ghlInfo, int surfaceNumber, int polyNumber, float BarycentricI, float BarycentricJ, int lod);
+    void (*G2API_AnimateG2Models)(CGhoul2Info_v& ghoul2, int AcurrentTime, CRagDollUpdateParams* params);
+    bool (*G2API_AttachEnt)(int* boltInfo, CGhoul2Info* ghlInfoTo, int toBoltIndex, int entNum, int toModelNum);
+    bool (*G2API_AttachG2Model)(CGhoul2Info* ghlInfo, CGhoul2Info* ghlInfoTo, int toBoltIndex, int toModel);
+    void (*G2API_CollisionDetect)(CCollisionRecord* collRecMap, CGhoul2Info_v& ghoul2, const vec3_t angles, const vec3_t position, int AframeNumber, int entNum,
+                                  vec3_t rayStart, vec3_t rayEnd, vec3_t scale, CMiniHeap*, EG2_Collision eG2TraceType, int useLod, float fRadius);
+    void (*G2API_CleanGhoul2Models)(CGhoul2Info_v& ghoul2);
+    void (*G2API_CopyGhoul2Instance)(CGhoul2Info_v& ghoul2From, CGhoul2Info_v& ghoul2To, int modelIndex);
+    void (*G2API_DetachEnt)(int* boltInfo);
+    bool (*G2API_DetachG2Model)(CGhoul2Info* ghlInfo);
+    bool (*G2API_GetAnimFileName)(CGhoul2Info* ghlInfo, char** filename);
+    const char* (*G2API_GetAnimFileNameIndex)(qhandle_t modelIndex);
+    const char* (*G2API_GetAnimFileInternalNameIndex)(qhandle_t modelIndex);
+    int (*G2API_GetAnimIndex)(CGhoul2Info* ghlInfo);
+    bool (*G2API_GetAnimRange)(CGhoul2Info* ghlInfo, const char* boneName, int* startFrame, int* endFrame);
+    bool (*G2API_GetAnimRangeIndex)(CGhoul2Info* ghlInfo, const int boneIndex, int* startFrame, int* endFrame);
+    bool (*G2API_GetBoneAnim)(CGhoul2Info* ghlInfo, const char* boneName, const int AcurrentTime, float* currentFrame, int* startFrame, int* endFrame,
+                              boneFlags_t* flags, float* animSpeed, int*);
+    bool (*G2API_GetBoneAnimIndex)(CGhoul2Info* ghlInfo, const int iBoneIndex, const int AcurrentTime, float* currentFrame, int* startFrame, int* endFrame,
+                                   boneFlags_t* flags, float* animSpeed, int*);
+    int (*G2API_GetBoneIndex)(CGhoul2Info* ghlInfo, const char* boneName, bool bAddIfNotFound);
+    bool (*G2API_GetBoltMatrix)(CGhoul2Info_v& ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t* matrix, const vec3_t angles,
+                                const vec3_t position, const int AframeNum, qhandle_t* modelList, const vec3_t scale);
+    ghoul2Flags_t (*G2API_GetGhoul2ModelFlags)(CGhoul2Info* ghlInfo);
+    char* (*G2API_GetGLAName)(CGhoul2Info* ghlInfo);
+    int (*G2API_GetParentSurface)(CGhoul2Info* ghlInfo, const int index);
+    bool (*G2API_GetRagBonePos)(CGhoul2Info_v& ghoul2, const char* boneName, vec3_t pos, vec3_t entAngles, vec3_t entPos, vec3_t entScale);
+    int (*G2API_GetSurfaceIndex)(CGhoul2Info* ghlInfo, const char* surfaceName);
+    char* (*G2API_GetSurfaceName)(CGhoul2Info* ghlInfo, int surfNumber);
+    std::optional<g2SurfaceFlags_t> (*G2API_GetSurfaceRenderStatus)(CGhoul2Info* ghlInfo, const char* surfaceName);
+    int (*G2API_GetTime)(int argTime);
+    void (*G2API_GiveMeVectorFromMatrix)(mdxaBone_t& boltMatrix, Eorientations flags, vec3_t& vec);
+    bool (*G2API_HaveWeGhoul2Models)(CGhoul2Info_v& ghoul2);
+    bool (*G2API_IKMove)(CGhoul2Info_v& ghoul2, int time, sharedIKMoveParams_t* params);
+    int (*G2API_InitGhoul2Model)(CGhoul2Info_v& ghoul2, const char* fileName, int modelIndex, qhandle_t customSkin, qhandle_t customShader, int modelFlags,
+                                 int lodBias);
+    bool (*G2API_IsPaused)(CGhoul2Info* ghlInfo, const char* boneName);
+    void (*G2API_ListBones)(CGhoul2Info* ghlInfo, int frame);
+    void (*G2API_ListSurfaces)(CGhoul2Info* ghlInfo);
+    void (*G2API_LoadGhoul2Models)(CGhoul2Info_v& ghoul2, char* buffer);
+    void (*G2API_LoadSaveCodeDestructGhoul2Info)(CGhoul2Info_v& ghoul2);
+    bool (*G2API_PauseBoneAnim)(CGhoul2Info* ghlInfo, const char* boneName, const int AcurrentTime);
+    bool (*G2API_PauseBoneAnimIndex)(CGhoul2Info* ghlInfo, const int boneIndex, const int AcurrentTime);
+    qhandle_t (*G2API_PrecacheGhoul2Model)(const char* fileName);
+    bool (*G2API_RagEffectorGoal)(CGhoul2Info_v& ghoul2, const char* boneName, vec3_t pos);
+    bool (*G2API_RagEffectorKick)(CGhoul2Info_v& ghoul2, const char* boneName, vec3_t velocity);
+    bool (*G2API_RagForceSolve)(CGhoul2Info_v& ghoul2, bool force);
+    bool (*G2API_RagPCJConstraint)(CGhoul2Info_v& ghoul2, const char* boneName, vec3_t min, vec3_t max);
+    bool (*G2API_RagPCJGradientSpeed)(CGhoul2Info_v& ghoul2, const char* boneName, const float speed);
+    bool (*G2API_RemoveBolt)(CGhoul2Info* ghlInfo, const int index);
+    bool (*G2API_RemoveBone)(CGhoul2Info* ghlInfo, const char* boneName);
+    bool (*G2API_RemoveGhoul2Model)(CGhoul2Info_v& ghlInfo, const int modelIndex);
+    bool (*G2API_RemoveSurface)(CGhoul2Info* ghlInfo, const int index);
+    void (*G2API_SaveGhoul2Models)(CGhoul2Info_v& ghoul2);
+    bool (*G2API_SetAnimIndex)(CGhoul2Info* ghlInfo, const int index);
+    bool (*G2API_SetBoneAnim)(CGhoul2Info* ghlInfo, const char* boneName, const int startFrame, const int endFrame, const boneFlags_t flags,
+                              const float animSpeed, const int AcurrentTime, const float setFrame, const int blendTime);
+    bool (*G2API_SetBoneAnimIndex)(CGhoul2Info* ghlInfo, const int index, const int startFrame, const int endFrame, const boneFlags_t flags,
+                                   const float animSpeed, const int AcurrentTime, const float setFrame, const int blendTime);
+    bool (*G2API_SetBoneAngles)(CGhoul2Info* ghlInfo, const char* boneName, const vec3_t angles, const boneFlags_t flags, const Eorientations up,
+                                const Eorientations left, const Eorientations forward, qhandle_t* modelList, int blendTime, int AcurrentTime);
+    bool (*G2API_SetBoneAnglesIndex)(CGhoul2Info* ghlInfo, const int index, const vec3_t angles, const boneFlags_t flags, const Eorientations yaw,
+                                     const Eorientations pitch, const Eorientations roll, qhandle_t* modelList, int blendTime, int AcurrentTime);
+    bool (*G2API_SetBoneAnglesMatrix)(CGhoul2Info* ghlInfo, const char* boneName, const mdxaBone_t& matrix, const boneFlags_t flags, qhandle_t* modelList,
+                                      int blendTime, int AcurrentTime);
+    bool (*G2API_SetBoneAnglesMatrixIndex)(CGhoul2Info* ghlInfo, const int index, const mdxaBone_t& matrix, const boneFlags_t flags, qhandle_t* modelList,
+                                           int blandeTime, int AcurrentTime);
+    bool (*G2API_SetBoneIKState)(CGhoul2Info_v& ghoul2, int time, const char* boneName, sharedEIKMoveState ikState, sharedSetBoneIKStateParams_t* params);
+    bool (*G2API_SetGhoul2ModelFlags)(CGhoul2Info* ghlInfo, const ghoul2Flags_t flags);
+    void (*G2API_SetGhoul2ModelIndexes)(CGhoul2Info_v& ghoul2, qhandle_t* modelList, qhandle_t* skinList);
+    bool (*G2API_SetLodBias)(CGhoul2Info* ghlInfo, int lodBias);
+    bool (*G2API_SetNewOrigin)(CGhoul2Info* ghlInfo, const int boltIndex);
+    void (*G2API_SetRagDoll)(CGhoul2Info_v& ghoul2, CRagDollParams* parms);
+    bool (*G2API_SetRootSurface)(CGhoul2Info_v& ghlInfo, const int modelIndex, const char* surfaceName);
+    bool (*G2API_SetShader)(CGhoul2Info* ghlInfo, qhandle_t customShader);
+    bool (*G2API_SetSkin)(CGhoul2Info* ghlInfo, qhandle_t customSkin, qhandle_t renderSkin);
+    bool (*G2API_SetSurfaceOnOff)(CGhoul2Info* ghlInfo, const char* surfaceName, const g2SurfaceFlags_t flags);
+    void (*G2API_SetTime)(int currentTime, int clock);
+    bool (*G2API_StopBoneAnim)(CGhoul2Info* ghlInfo, const char* boneName);
+    bool (*G2API_StopBoneAnimIndex)(CGhoul2Info* ghlInfo, const int index);
+    bool (*G2API_StopBoneAngles)(CGhoul2Info* ghlInfo, const char* boneName);
+    bool (*G2API_StopBoneAnglesIndex)(CGhoul2Info* ghlInfo, const int index);
 
 #ifdef _G2_GORE
-	void		(*G2API_AddSkinGore)(CGhoul2Info_v &ghoul2, SSkinGoreData &gore);
-	void		(*G2API_ClearSkinGore)(CGhoul2Info_v &ghoul2);
+    void (*G2API_AddSkinGore)(CGhoul2Info_v& ghoul2, SSkinGoreData& gore);
+    void (*G2API_ClearSkinGore)(CGhoul2Info_v& ghoul2);
 #endif
 
-	// Performance analysis (perform anal)
-	void		(*G2Time_ResetTimers)(void);
-	void		(*G2Time_ReportTimers)(void);
+    // Performance analysis (perform anal)
+    void (*G2Time_ResetTimers)(void);
+    void (*G2Time_ReportTimers)(void);
 } refexport_t;
 
 // this is the only function actually exported at the linker level
 // If the module can't init to a valid rendering state, nullptr will be
 // returned.
 
-typedef	refexport_t* (QDECL *GetRefAPI_t) (int apiVersion, refimport_t *rimp);
+typedef refexport_t*(QDECL* GetRefAPI_t)(int apiVersion, refimport_t* rimp);

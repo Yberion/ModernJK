@@ -24,14 +24,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "tr_local.h"
 
-backEndData_t	*backEndData;
-backEndState_t	backEnd;
+backEndData_t* backEndData;
+backEndState_t backEnd;
 
 bool tr_stencilled = false;
-extern bool tr_distortionPrePost; //tr_shadows.cpp
-extern bool tr_distortionNegate; //tr_shadows.cpp
-extern void RB_CaptureScreenImage(void); //tr_shadows.cpp
-extern void RB_DistortionFill(void); //tr_shadows.cpp
+extern bool tr_distortionPrePost;        // tr_shadows.cpp
+extern bool tr_distortionNegate;         // tr_shadows.cpp
+extern void RB_CaptureScreenImage(void); // tr_shadows.cpp
+extern void RB_DistortionFill(void);     // tr_shadows.cpp
 
 // Whether we are currently rendering only glowing objects or not.
 bool g_bRenderGlowingObjects = false;

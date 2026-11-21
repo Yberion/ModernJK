@@ -21,13 +21,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-//NPC_senses.cpp
+// NPC_senses.cpp
 
 #include "g_headers.h"
 
 #include "b_local.h"
 #ifdef _DEBUG
-	#include <float.h>
+#include <float.h>
 #endif
 
 extern int eventClearTime;
@@ -38,28 +38,25 @@ returns true if can see from point 1 to 2, even through glass (1 pane)- doesn't 
 */
 bool G_ClearLineOfSight(const vec3_t point1, const vec3_t point2, int ignore, contentsFlags_t clipmask)
 {
-	trace_t		tr;
+    trace_t tr;
 
-	gi.trace ( &tr, point1, nullptr, nullptr, point2, ignore, clipmask, EG2_Collision::G2_NOCOLLIDE, 0 );
-	if ( tr.fraction == 1.0 )
-	{
-		return true;
-	}
+    gi.trace(&tr, point1, nullptr, nullptr, point2, ignore, clipmask, EG2_Collision::G2_NOCOLLIDE, 0);
+    if (tr.fraction == 1.0) {
+        return true;
+    }
 
-	gentity_t	*hit = &g_entities[ tr.entityNum ];
-	if(EntIsGlass(hit))
-	{
-		vec3_t	newpoint1;
-		VectorCopy(tr.endpos, newpoint1);
-		gi.trace (&tr, newpoint1, nullptr, nullptr, point2, hit->s.number, clipmask, EG2_Collision::G2_NOCOLLIDE, 0 );
+    gentity_t* hit = &g_entities[tr.entityNum];
+    if (EntIsGlass(hit)) {
+        vec3_t newpoint1;
+        VectorCopy(tr.endpos, newpoint1);
+        gi.trace(&tr, newpoint1, nullptr, nullptr, point2, hit->s.number, clipmask, EG2_Collision::G2_NOCOLLIDE, 0);
 
-		if ( tr.fraction == 1.0 )
-		{
-			return true;
-		}
-	}
+        if (tr.fraction == 1.0) {
+            return true;
+        }
+    }
 
-	return false;
+    return false;
 }
 
 /*
@@ -71,284 +68,256 @@ or take any AI related factors (for example, the NPC's reaction time) into accou
 
 FIXME do we need fat and thin version of this?
 */
-bool CanSee ( gentity_t *ent )
+bool CanSee(gentity_t* ent)
 {
-	trace_t		tr;
-	vec3_t		eyes;
-	vec3_t		spot;
+    trace_t tr;
+    vec3_t eyes;
+    vec3_t spot;
 
-	CalcEntitySpot( NPC, spot_t::SPOT_HEAD_LEAN, eyes );
+    CalcEntitySpot(NPC, spot_t::SPOT_HEAD_LEAN, eyes);
 
-	CalcEntitySpot( ent, spot_t::SPOT_ORIGIN, spot );
-	gi.trace ( &tr, eyes, nullptr, nullptr, spot, NPC->s.number, MASK_OPAQUE, EG2_Collision::G2_NOCOLLIDE, 0 );
-	ShotThroughGlass (&tr, ent, spot, MASK_OPAQUE);
-	if ( tr.fraction == 1.0 )
-	{
-		return true;
-	}
+    CalcEntitySpot(ent, spot_t::SPOT_ORIGIN, spot);
+    gi.trace(&tr, eyes, nullptr, nullptr, spot, NPC->s.number, MASK_OPAQUE, EG2_Collision::G2_NOCOLLIDE, 0);
+    ShotThroughGlass(&tr, ent, spot, MASK_OPAQUE);
+    if (tr.fraction == 1.0) {
+        return true;
+    }
 
-	CalcEntitySpot( ent, spot_t::SPOT_HEAD, spot );
-	gi.trace ( &tr, eyes, nullptr, nullptr, spot, NPC->s.number, MASK_OPAQUE, EG2_Collision::G2_NOCOLLIDE, 0 );
-	ShotThroughGlass (&tr, ent, spot, MASK_OPAQUE);
-	if ( tr.fraction == 1.0 )
-	{
-		return true;
-	}
+    CalcEntitySpot(ent, spot_t::SPOT_HEAD, spot);
+    gi.trace(&tr, eyes, nullptr, nullptr, spot, NPC->s.number, MASK_OPAQUE, EG2_Collision::G2_NOCOLLIDE, 0);
+    ShotThroughGlass(&tr, ent, spot, MASK_OPAQUE);
+    if (tr.fraction == 1.0) {
+        return true;
+    }
 
-	CalcEntitySpot( ent, spot_t::SPOT_LEGS, spot );
-	gi.trace ( &tr, eyes, nullptr, nullptr, spot, NPC->s.number, MASK_OPAQUE, EG2_Collision::G2_NOCOLLIDE, 0 );
-	ShotThroughGlass (&tr, ent, spot, MASK_OPAQUE);
-	if ( tr.fraction == 1.0 )
-	{
-		return true;
-	}
+    CalcEntitySpot(ent, spot_t::SPOT_LEGS, spot);
+    gi.trace(&tr, eyes, nullptr, nullptr, spot, NPC->s.number, MASK_OPAQUE, EG2_Collision::G2_NOCOLLIDE, 0);
+    ShotThroughGlass(&tr, ent, spot, MASK_OPAQUE);
+    if (tr.fraction == 1.0) {
+        return true;
+    }
 
-	return false;
+    return false;
 }
 
-bool InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold = 0.0f )
+bool InFront(vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold = 0.0f)
 {
-	vec3_t	dir, forward, angles;
-	float	dot;
+    vec3_t dir, forward, angles;
+    float dot;
 
-	VectorSubtract( spot, from, dir );
-	dir[2] = 0;
-	VectorNormalize( dir );
+    VectorSubtract(spot, from, dir);
+    dir[2] = 0;
+    VectorNormalize(dir);
 
-	VectorCopy( fromAngles, angles );
-	angles[0] = 0;
-	AngleVectors( angles, forward, nullptr, nullptr );
+    VectorCopy(fromAngles, angles);
+    angles[0] = 0;
+    AngleVectors(angles, forward, nullptr, nullptr);
 
-	dot = DotProduct( dir, forward );
+    dot = DotProduct(dir, forward);
 
-	return (dot > threshHold);
+    return (dot > threshHold);
 }
 
 /*
 InFOV
 
 IDEA: further off to side of FOV range, higher chance of failing even if technically in FOV,
-	keep core of 50% to sides as always succeeding
+    keep core of 50% to sides as always succeeding
 */
 
-//Position compares
+// Position compares
 
-bool InFOV( vec3_t spot, vec3_t from, vec3_t fromAngles, int hFOV, int vFOV )
+bool InFOV(vec3_t spot, vec3_t from, vec3_t fromAngles, int hFOV, int vFOV)
 {
-	vec3_t	deltaVector, angles, deltaAngles;
+    vec3_t deltaVector, angles, deltaAngles;
 
-	VectorSubtract ( spot, from, deltaVector );
-	vectoangles ( deltaVector, angles );
+    VectorSubtract(spot, from, deltaVector);
+    vectoangles(deltaVector, angles);
 
-	deltaAngles[PITCH]	= AngleDelta ( fromAngles[PITCH], angles[PITCH] );
-	deltaAngles[YAW]	= AngleDelta ( fromAngles[YAW], angles[YAW] );
+    deltaAngles[PITCH] = AngleDelta(fromAngles[PITCH], angles[PITCH]);
+    deltaAngles[YAW] = AngleDelta(fromAngles[YAW], angles[YAW]);
 
-	if ( Q_fabsf ( deltaAngles[PITCH] ) <= vFOV && Q_fabsf ( deltaAngles[YAW] ) <= hFOV )
-	{
-		return true;
-	}
+    if (Q_fabsf(deltaAngles[PITCH]) <= vFOV && Q_fabsf(deltaAngles[YAW]) <= hFOV) {
+        return true;
+    }
 
-	return false;
+    return false;
 }
 
-//NPC to position
+// NPC to position
 
-bool InFOV( vec3_t origin, gentity_t *from, int hFOV, int vFOV )
+bool InFOV(vec3_t origin, gentity_t* from, int hFOV, int vFOV)
 {
-	vec3_t	fromAngles, eyes;
+    vec3_t fromAngles, eyes;
 
-	if( from->client )
-	{
-		VectorCopy(from->client->ps.viewangles, fromAngles);
-	}
-	else
-	{
-		VectorCopy(from->s.angles, fromAngles);
-	}
+    if (from->client) {
+        VectorCopy(from->client->ps.viewangles, fromAngles);
+    }
+    else {
+        VectorCopy(from->s.angles, fromAngles);
+    }
 
-	CalcEntitySpot( from, spot_t::SPOT_HEAD, eyes );
+    CalcEntitySpot(from, spot_t::SPOT_HEAD, eyes);
 
-	return InFOV( origin, eyes, fromAngles, hFOV, vFOV );
+    return InFOV(origin, eyes, fromAngles, hFOV, vFOV);
 }
 
-//Entity to entity
+// Entity to entity
 
-bool InFOV ( gentity_t *ent, gentity_t *from, int hFOV, int vFOV )
+bool InFOV(gentity_t* ent, gentity_t* from, int hFOV, int vFOV)
 {
-	vec3_t	eyes;
-	vec3_t	spot;
-	vec3_t	deltaVector;
-	vec3_t	angles, fromAngles;
-	vec3_t	deltaAngles;
+    vec3_t eyes;
+    vec3_t spot;
+    vec3_t deltaVector;
+    vec3_t angles, fromAngles;
+    vec3_t deltaAngles;
 
-	if( from->client )
-	{
-		if( !VectorCompare( from->client->renderInfo.eyeAngles, vec3_origin ) )
-		{//Actual facing of tag_head!
-			//NOTE: Stasis aliens may have a problem with this?
-			VectorCopy( from->client->renderInfo.eyeAngles, fromAngles );
-		}
-		else
-		{
-			VectorCopy( from->client->ps.viewangles, fromAngles );
-		}
-	}
-	else
-	{
-		VectorCopy(from->s.angles, fromAngles);
-	}
+    if (from->client) {
+        if (!VectorCompare(from->client->renderInfo.eyeAngles, vec3_origin)) { // Actual facing of tag_head!
+            // NOTE: Stasis aliens may have a problem with this?
+            VectorCopy(from->client->renderInfo.eyeAngles, fromAngles);
+        }
+        else {
+            VectorCopy(from->client->ps.viewangles, fromAngles);
+        }
+    }
+    else {
+        VectorCopy(from->s.angles, fromAngles);
+    }
 
-	CalcEntitySpot( from, spot_t::SPOT_HEAD_LEAN, eyes );
+    CalcEntitySpot(from, spot_t::SPOT_HEAD_LEAN, eyes);
 
-	CalcEntitySpot( ent, spot_t::SPOT_ORIGIN, spot );
-	VectorSubtract ( spot, eyes, deltaVector);
+    CalcEntitySpot(ent, spot_t::SPOT_ORIGIN, spot);
+    VectorSubtract(spot, eyes, deltaVector);
 
-	vectoangles ( deltaVector, angles );
-	deltaAngles[PITCH] = AngleDelta ( fromAngles[PITCH], angles[PITCH] );
-	deltaAngles[YAW] = AngleDelta ( fromAngles[YAW], angles[YAW] );
-	if ( Q_fabsf ( deltaAngles[PITCH] ) <= vFOV && Q_fabsf ( deltaAngles[YAW] ) <= hFOV )
-	{
-		return true;
-	}
+    vectoangles(deltaVector, angles);
+    deltaAngles[PITCH] = AngleDelta(fromAngles[PITCH], angles[PITCH]);
+    deltaAngles[YAW] = AngleDelta(fromAngles[YAW], angles[YAW]);
+    if (Q_fabsf(deltaAngles[PITCH]) <= vFOV && Q_fabsf(deltaAngles[YAW]) <= hFOV) {
+        return true;
+    }
 
-	CalcEntitySpot( ent, spot_t::SPOT_HEAD, spot );
-	VectorSubtract ( spot, eyes, deltaVector);
-	vectoangles ( deltaVector, angles );
-	deltaAngles[PITCH] = AngleDelta ( fromAngles[PITCH], angles[PITCH] );
-	deltaAngles[YAW] = AngleDelta ( fromAngles[YAW], angles[YAW] );
-	if ( Q_fabsf ( deltaAngles[PITCH] ) <= vFOV && Q_fabsf ( deltaAngles[YAW] ) <= hFOV )
-	{
-		return true;
-	}
+    CalcEntitySpot(ent, spot_t::SPOT_HEAD, spot);
+    VectorSubtract(spot, eyes, deltaVector);
+    vectoangles(deltaVector, angles);
+    deltaAngles[PITCH] = AngleDelta(fromAngles[PITCH], angles[PITCH]);
+    deltaAngles[YAW] = AngleDelta(fromAngles[YAW], angles[YAW]);
+    if (Q_fabsf(deltaAngles[PITCH]) <= vFOV && Q_fabsf(deltaAngles[YAW]) <= hFOV) {
+        return true;
+    }
 
-	CalcEntitySpot( ent, spot_t::SPOT_LEGS, spot );
-	VectorSubtract ( spot, eyes, deltaVector);
-	vectoangles ( deltaVector, angles );
-	deltaAngles[PITCH] = AngleDelta ( fromAngles[PITCH], angles[PITCH] );
-	deltaAngles[YAW] = AngleDelta ( fromAngles[YAW], angles[YAW] );
-	if ( Q_fabsf ( deltaAngles[PITCH] ) <= vFOV && Q_fabsf ( deltaAngles[YAW] ) <= hFOV )
-	{
-		return true;
-	}
+    CalcEntitySpot(ent, spot_t::SPOT_LEGS, spot);
+    VectorSubtract(spot, eyes, deltaVector);
+    vectoangles(deltaVector, angles);
+    deltaAngles[PITCH] = AngleDelta(fromAngles[PITCH], angles[PITCH]);
+    deltaAngles[YAW] = AngleDelta(fromAngles[YAW], angles[YAW]);
+    if (Q_fabsf(deltaAngles[PITCH]) <= vFOV && Q_fabsf(deltaAngles[YAW]) <= hFOV) {
+        return true;
+    }
 
-	return false;
+    return false;
 }
 
-bool InVisrange ( gentity_t *ent )
-{//FIXME: make a calculate visibility for ents that takes into account
-	//lighting, movement, turning, crouch/stand up, other anims, hide brushes, etc.
-	vec3_t	eyes;
-	vec3_t	spot;
-	vec3_t	deltaVector;
-	float	visrange = (NPCInfo->stats.visrange*NPCInfo->stats.visrange);
+bool InVisrange(gentity_t* ent)
+{ // FIXME: make a calculate visibility for ents that takes into account
+    // lighting, movement, turning, crouch/stand up, other anims, hide brushes, etc.
+    vec3_t eyes;
+    vec3_t spot;
+    vec3_t deltaVector;
+    float visrange = (NPCInfo->stats.visrange * NPCInfo->stats.visrange);
 
-	CalcEntitySpot( NPC, spot_t::SPOT_HEAD_LEAN, eyes );
+    CalcEntitySpot(NPC, spot_t::SPOT_HEAD_LEAN, eyes);
 
-	CalcEntitySpot( ent, spot_t::SPOT_ORIGIN, spot );
-	VectorSubtract ( spot, eyes, deltaVector);
+    CalcEntitySpot(ent, spot_t::SPOT_ORIGIN, spot);
+    VectorSubtract(spot, eyes, deltaVector);
 
-	/*if(ent->client)
-	{
-		float	vel, avel;
-		if(ent->client->ps.velocity[0] || ent->client->ps.velocity[1] || ent->client->ps.velocity[2])
-		{
-			vel = VectorLength(ent->client->ps.velocity);
-			if(vel > 128)
-			{
-				visrange += visrange * (vel/256);
-			}
-		}
+    /*if(ent->client)
+    {
+        float	vel, avel;
+        if(ent->client->ps.velocity[0] || ent->client->ps.velocity[1] || ent->client->ps.velocity[2])
+        {
+            vel = VectorLength(ent->client->ps.velocity);
+            if(vel > 128)
+            {
+                visrange += visrange * (vel/256);
+            }
+        }
 
-		if(ent->avelocity[0] || ent->avelocity[1] || ent->avelocity[2])
-		{//FIXME: shouldn't they need to have line of sight to you to detect this?
-			avel = VectorLength(ent->avelocity);
-			if(avel > 15)
-			{
-				visrange += visrange * (avel/60);
-			}
-		}
-	}*/
+        if(ent->avelocity[0] || ent->avelocity[1] || ent->avelocity[2])
+        {//FIXME: shouldn't they need to have line of sight to you to detect this?
+            avel = VectorLength(ent->avelocity);
+            if(avel > 15)
+            {
+                visrange += visrange * (avel/60);
+            }
+        }
+    }*/
 
-	if(VectorLengthSquared(deltaVector) > visrange)
-	{
-		return false;
-	}
+    if (VectorLengthSquared(deltaVector) > visrange) {
+        return false;
+    }
 
-	return true;
+    return true;
 }
 
 /*
 NPC_CheckVisibility
 */
 
-visibility_t NPC_CheckVisibility ( gentity_t *ent, visCheckFlags_t flags )
+visibility_t NPC_CheckVisibility(gentity_t* ent, visCheckFlags_t flags)
 {
-	// flags should never be 0
-	if ( !Any(flags) )
-	{
-		return visibility_t::VIS_NOT;
-	}
+    // flags should never be 0
+    if (!Any(flags)) {
+        return visibility_t::VIS_NOT;
+    }
 
-	// check PVS
-	if ( Any( flags & visCheckFlags_t::CHECK_PVS ) )
-	{
-		if ( !gi.inPVS ( ent->currentOrigin, NPC->currentOrigin ) )
-		{
-			return visibility_t::VIS_NOT;
-		}
-	}
-	if ( !Any(flags & (visCheckFlags_t::CHECK_360|visCheckFlags_t::CHECK_FOV|visCheckFlags_t::CHECK_SHOOT)) )
-	{
-		return visibility_t::VIS_PVS;
-	}
+    // check PVS
+    if (Any(flags & visCheckFlags_t::CHECK_PVS)) {
+        if (!gi.inPVS(ent->currentOrigin, NPC->currentOrigin)) {
+            return visibility_t::VIS_NOT;
+        }
+    }
+    if (!Any(flags & (visCheckFlags_t::CHECK_360 | visCheckFlags_t::CHECK_FOV | visCheckFlags_t::CHECK_SHOOT))) {
+        return visibility_t::VIS_PVS;
+    }
 
-	// check within visrange
-	if (Any(flags & visCheckFlags_t::CHECK_VISRANGE))
-	{
-		if( !InVisrange ( ent ) )
-		{
-			return visibility_t::VIS_PVS;
-		}
-	}
+    // check within visrange
+    if (Any(flags & visCheckFlags_t::CHECK_VISRANGE)) {
+        if (!InVisrange(ent)) {
+            return visibility_t::VIS_PVS;
+        }
+    }
 
-	// check 360 degree visibility
-	//Meaning has to be a direct line of site
-	if ( Any( flags & visCheckFlags_t::CHECK_360 ) )
-	{
-		if ( !CanSee ( ent ) )
-		{
-			return visibility_t::VIS_PVS;
-		}
-	}
-	if ( !Any(flags & (visCheckFlags_t::CHECK_FOV|visCheckFlags_t::CHECK_SHOOT)) )
-	{
-		return visibility_t::VIS_360;
-	}
+    // check 360 degree visibility
+    // Meaning has to be a direct line of site
+    if (Any(flags & visCheckFlags_t::CHECK_360)) {
+        if (!CanSee(ent)) {
+            return visibility_t::VIS_PVS;
+        }
+    }
+    if (!Any(flags & (visCheckFlags_t::CHECK_FOV | visCheckFlags_t::CHECK_SHOOT))) {
+        return visibility_t::VIS_360;
+    }
 
-	// check FOV
-	if ( Any( flags & visCheckFlags_t::CHECK_FOV ) )
-	{
-		if ( !InFOV ( ent, NPC, NPCInfo->stats.hfov, NPCInfo->stats.vfov) )
-		{
-			return visibility_t::VIS_360;
-		}
-	}
+    // check FOV
+    if (Any(flags & visCheckFlags_t::CHECK_FOV)) {
+        if (!InFOV(ent, NPC, NPCInfo->stats.hfov, NPCInfo->stats.vfov)) {
+            return visibility_t::VIS_360;
+        }
+    }
 
-	if ( !Any(flags & visCheckFlags_t::CHECK_SHOOT) )
-	{
-		return visibility_t::VIS_FOV;
-	}
+    if (!Any(flags & visCheckFlags_t::CHECK_SHOOT)) {
+        return visibility_t::VIS_FOV;
+    }
 
-	// check shootability
-	if ( Any( flags & visCheckFlags_t::CHECK_SHOOT ) )
-	{
-		if ( !CanShoot ( ent, NPC ) )
-		{
-			return visibility_t::VIS_FOV;
-		}
-	}
+    // check shootability
+    if (Any(flags & visCheckFlags_t::CHECK_SHOOT)) {
+        if (!CanShoot(ent, NPC)) {
+            return visibility_t::VIS_FOV;
+        }
+    }
 
-	return visibility_t::VIS_SHOOT;
+    return visibility_t::VIS_SHOOT;
 }
 
 /*
@@ -356,136 +325,132 @@ visibility_t NPC_CheckVisibility ( gentity_t *ent, visCheckFlags_t flags )
 NPC_CheckSoundEvents
 -------------------------
 */
-static int G_CheckSoundEvents( gentity_t *self, float maxHearDist, int ignoreAlert, bool mustHaveOwner, alertEventLevel_e minAlertLevel )
+static int G_CheckSoundEvents(gentity_t* self, float maxHearDist, int ignoreAlert, bool mustHaveOwner, alertEventLevel_e minAlertLevel)
 {
-	int	bestEvent = -1;
-	alertEventLevel_e bestAlert = alertEventLevel_e::AEL_NONE;
-	int	bestTime = -1;
-	float dist, radius;
+    int bestEvent = -1;
+    alertEventLevel_e bestAlert = alertEventLevel_e::AEL_NONE;
+    int bestTime = -1;
+    float dist, radius;
 
-	maxHearDist *= maxHearDist;
+    maxHearDist *= maxHearDist;
 
-	for ( int i = 0; i < level.numAlertEvents; i++ )
-	{
-		//are we purposely ignoring this alert?
-		if ( i == ignoreAlert )
-			continue;
-		//We're only concerned about sounds
-		if ( level.alertEvents[i].type != alertEventType_e::AET_SOUND )
-			continue;
-		//must be at least this noticable
-		if ( level.alertEvents[i].level < minAlertLevel )
-			continue;
-		//must have an owner?
-		if ( mustHaveOwner && !level.alertEvents[i].owner )
-			continue;
-		//Must be within range
-		dist = DistanceSquared( level.alertEvents[i].position, self->currentOrigin );
+    for (int i = 0; i < level.numAlertEvents; i++) {
+        // are we purposely ignoring this alert?
+        if (i == ignoreAlert)
+            continue;
+        // We're only concerned about sounds
+        if (level.alertEvents[i].type != alertEventType_e::AET_SOUND)
+            continue;
+        // must be at least this noticable
+        if (level.alertEvents[i].level < minAlertLevel)
+            continue;
+        // must have an owner?
+        if (mustHaveOwner && !level.alertEvents[i].owner)
+            continue;
+        // Must be within range
+        dist = DistanceSquared(level.alertEvents[i].position, self->currentOrigin);
 
-		//can't hear it
-		if ( dist > maxHearDist )
-			continue;
+        // can't hear it
+        if (dist > maxHearDist)
+            continue;
 
-		radius = level.alertEvents[i].radius * level.alertEvents[i].radius;
-		if ( dist > radius )
-			continue;
+        radius = level.alertEvents[i].radius * level.alertEvents[i].radius;
+        if (dist > radius)
+            continue;
 
-		if ( level.alertEvents[i].addLight )
-		{//a quiet sound, must have LOS to hear it
-			if ( G_ClearLOS( self, level.alertEvents[i].position ) == false )
-			{//no LOS, didn't hear it
-				continue;
-			}
-		}
+        if (level.alertEvents[i].addLight) {                                // a quiet sound, must have LOS to hear it
+            if (G_ClearLOS(self, level.alertEvents[i].position) == false) { // no LOS, didn't hear it
+                continue;
+            }
+        }
 
-		//See if this one takes precedence over the previous one
-		if ( level.alertEvents[i].level >= bestAlert //higher alert level
-			|| (level.alertEvents[i].level==bestAlert&&level.alertEvents[i].timestamp >= bestTime) )//same alert level, but this one is newer
-		{//NOTE: equal is better because it's later in the array
-			bestEvent = i;
-			bestAlert = level.alertEvents[i].level;
-			bestTime = level.alertEvents[i].timestamp;
-		}
-	}
+        // See if this one takes precedence over the previous one
+        if (level.alertEvents[i].level >= bestAlert                                                     // higher alert level
+            || (level.alertEvents[i].level == bestAlert && level.alertEvents[i].timestamp >= bestTime)) // same alert level, but this one is newer
+        {                                                                                               // NOTE: equal is better because it's later in the array
+            bestEvent = i;
+            bestAlert = level.alertEvents[i].level;
+            bestTime = level.alertEvents[i].timestamp;
+        }
+    }
 
-	return bestEvent;
+    return bestEvent;
 }
 
-float G_GetLightLevel( vec3_t pos, vec3_t fromDir )
+float G_GetLightLevel(vec3_t pos, vec3_t fromDir)
 {
-	vec3_t	ambient={0}, directed, lightDir;
-	float	lightLevel;
+    vec3_t ambient = {0}, directed, lightDir;
+    float lightLevel;
 
-	cgi_R_GetLighting( pos, ambient, directed, lightDir );
+    cgi_R_GetLighting(pos, ambient, directed, lightDir);
 
-	lightLevel = VectorLength( ambient ) + (VectorLength( directed )*DotProduct( lightDir, fromDir ));
+    lightLevel = VectorLength(ambient) + (VectorLength(directed) * DotProduct(lightDir, fromDir));
 
-	return lightLevel;
+    return lightLevel;
 }
 /*
 -------------------------
 NPC_CheckSightEvents
 -------------------------
 */
-static int G_CheckSightEvents( gentity_t *self, int hFOV, int vFOV, float maxSeeDist, int ignoreAlert, bool mustHaveOwner, alertEventLevel_e minAlertLevel )
+static int G_CheckSightEvents(gentity_t* self, int hFOV, int vFOV, float maxSeeDist, int ignoreAlert, bool mustHaveOwner, alertEventLevel_e minAlertLevel)
 {
-	int	bestEvent = -1;
-	alertEventLevel_e bestAlert = alertEventLevel_e::AEL_NONE;
-	int	bestTime = -1;
-	float	dist, radius;
+    int bestEvent = -1;
+    alertEventLevel_e bestAlert = alertEventLevel_e::AEL_NONE;
+    int bestTime = -1;
+    float dist, radius;
 
-	maxSeeDist *= maxSeeDist;
-	for ( int i = 0; i < level.numAlertEvents; i++ )
-	{
-		//are we purposely ignoring this alert?
-		if ( i == ignoreAlert )
-			continue;
-		//We're only concerned about sounds
-		if ( level.alertEvents[i].type != alertEventType_e::AET_SIGHT )
-			continue;
-		//must be at least this noticable
-		if ( level.alertEvents[i].level < minAlertLevel )
-			continue;
-		//must have an owner?
-		if ( mustHaveOwner && !level.alertEvents[i].owner )
-			continue;
+    maxSeeDist *= maxSeeDist;
+    for (int i = 0; i < level.numAlertEvents; i++) {
+        // are we purposely ignoring this alert?
+        if (i == ignoreAlert)
+            continue;
+        // We're only concerned about sounds
+        if (level.alertEvents[i].type != alertEventType_e::AET_SIGHT)
+            continue;
+        // must be at least this noticable
+        if (level.alertEvents[i].level < minAlertLevel)
+            continue;
+        // must have an owner?
+        if (mustHaveOwner && !level.alertEvents[i].owner)
+            continue;
 
-		//Must be within range
-		dist = DistanceSquared( level.alertEvents[i].position, self->currentOrigin );
+        // Must be within range
+        dist = DistanceSquared(level.alertEvents[i].position, self->currentOrigin);
 
-		//can't see it
-		if ( dist > maxSeeDist )
-			continue;
+        // can't see it
+        if (dist > maxSeeDist)
+            continue;
 
-		radius = level.alertEvents[i].radius * level.alertEvents[i].radius;
-		if ( dist > radius )
-			continue;
+        radius = level.alertEvents[i].radius * level.alertEvents[i].radius;
+        if (dist > radius)
+            continue;
 
-		//Must be visible
-		if ( InFOV( level.alertEvents[i].position, self, hFOV, vFOV ) == false )
-			continue;
+        // Must be visible
+        if (InFOV(level.alertEvents[i].position, self, hFOV, vFOV) == false)
+            continue;
 
-		if ( G_ClearLOS( self, level.alertEvents[i].position ) == false )
-			continue;
+        if (G_ClearLOS(self, level.alertEvents[i].position) == false)
+            continue;
 
-		//FIXME: possibly have the light level at this point affect the
-		//			visibility/alert level of this event?  Would also
-		//			need to take into account how bright the event
-		//			itself is.  A lightsaber would stand out more
-		//			in the dark... maybe pass in a light level that
-		//			is added to the actual light level at this position?
+        // FIXME: possibly have the light level at this point affect the
+        //			visibility/alert level of this event?  Would also
+        //			need to take into account how bright the event
+        //			itself is.  A lightsaber would stand out more
+        //			in the dark... maybe pass in a light level that
+        //			is added to the actual light level at this position?
 
-		//See if this one takes precedence over the previous one
-		if ( level.alertEvents[i].level >= bestAlert //higher alert level
-			|| (level.alertEvents[i].level==bestAlert&&level.alertEvents[i].timestamp >= bestTime) )//same alert level, but this one is newer
-		{//NOTE: equal is better because it's later in the array
-			bestEvent = i;
-			bestAlert = level.alertEvents[i].level;
-			bestTime = level.alertEvents[i].timestamp;
-		}
-	}
+        // See if this one takes precedence over the previous one
+        if (level.alertEvents[i].level >= bestAlert                                                     // higher alert level
+            || (level.alertEvents[i].level == bestAlert && level.alertEvents[i].timestamp >= bestTime)) // same alert level, but this one is newer
+        {                                                                                               // NOTE: equal is better because it's later in the array
+            bestEvent = i;
+            bestAlert = level.alertEvents[i].level;
+            bestTime = level.alertEvents[i].timestamp;
+        }
+    }
 
-	return bestEvent;
+    return bestEvent;
 }
 
 /*
@@ -496,99 +461,90 @@ NPC_CheckAlertEvents
 -------------------------
 */
 
-int G_CheckAlertEvents( gentity_t *self, bool checkSight, bool checkSound, float maxSeeDist, float maxHearDist, int ignoreAlert, bool mustHaveOwner, alertEventLevel_e minAlertLevel )
+int G_CheckAlertEvents(gentity_t* self, bool checkSight, bool checkSound, float maxSeeDist, float maxHearDist, int ignoreAlert, bool mustHaveOwner,
+                       alertEventLevel_e minAlertLevel)
 {
-	if ( g_entities[0].health <= 0 )
-	{
-		//player is dead
-		return -1;
-	}
+    if (g_entities[0].health <= 0) {
+        // player is dead
+        return -1;
+    }
 
-	int bestSoundEvent = -1;
-	int bestSightEvent = -1;
-	alertEventLevel_e bestSoundAlert = alertEventLevel_e::AEL_NONE;
-	alertEventLevel_e bestSightAlert = alertEventLevel_e::AEL_NONE;
+    int bestSoundEvent = -1;
+    int bestSightEvent = -1;
+    alertEventLevel_e bestSoundAlert = alertEventLevel_e::AEL_NONE;
+    alertEventLevel_e bestSightAlert = alertEventLevel_e::AEL_NONE;
 
-	//get sound event
-	bestSoundEvent = G_CheckSoundEvents( self, maxHearDist, ignoreAlert, mustHaveOwner, minAlertLevel );
-	//get sound event alert level
-	if ( bestSoundEvent >= 0 )
-	{
-		bestSoundAlert = level.alertEvents[bestSoundEvent].level;
-	}
+    // get sound event
+    bestSoundEvent = G_CheckSoundEvents(self, maxHearDist, ignoreAlert, mustHaveOwner, minAlertLevel);
+    // get sound event alert level
+    if (bestSoundEvent >= 0) {
+        bestSoundAlert = level.alertEvents[bestSoundEvent].level;
+    }
 
-	//get sight event
-	if ( self->NPC )
-	{
-		bestSightEvent = G_CheckSightEvents( self, self->NPC->stats.hfov, self->NPC->stats.vfov, maxSeeDist, ignoreAlert, mustHaveOwner, minAlertLevel );
-	}
-	else
-	{
-		bestSightEvent = G_CheckSightEvents( self, 80, 80, maxSeeDist, ignoreAlert, mustHaveOwner, minAlertLevel );//FIXME: look at cg_view to get more accurate numbers?
-	}
-	//get sight event alert level
-	if ( bestSightEvent >= 0 )
-	{
-		bestSightAlert = level.alertEvents[bestSightEvent].level;
-	}
+    // get sight event
+    if (self->NPC) {
+        bestSightEvent = G_CheckSightEvents(self, self->NPC->stats.hfov, self->NPC->stats.vfov, maxSeeDist, ignoreAlert, mustHaveOwner, minAlertLevel);
+    }
+    else {
+        bestSightEvent =
+            G_CheckSightEvents(self, 80, 80, maxSeeDist, ignoreAlert, mustHaveOwner, minAlertLevel); // FIXME: look at cg_view to get more accurate numbers?
+    }
+    // get sight event alert level
+    if (bestSightEvent >= 0) {
+        bestSightAlert = level.alertEvents[bestSightEvent].level;
+    }
 
-	//return the one that has a higher alert (or sound if equal)
-	//FIXME:	This doesn't take the distance of the event into account
+    // return the one that has a higher alert (or sound if equal)
+    // FIXME:	This doesn't take the distance of the event into account
 
-	if ( bestSightEvent >= 0 && bestSightAlert > bestSoundAlert )
-	{//valid best sight event, more important than the sound event
-		//get the light level of the alert event for this checker
-		vec3_t	eyePoint, sightDir;
-		//get eye point
-		CalcEntitySpot( self, spot_t::SPOT_HEAD_LEAN, eyePoint );
-		VectorSubtract( level.alertEvents[bestSightEvent].position, eyePoint, sightDir );
-		level.alertEvents[bestSightEvent].light = level.alertEvents[bestSightEvent].addLight + G_GetLightLevel( level.alertEvents[bestSightEvent].position, sightDir );
-		//return the sight event
-		return bestSightEvent;
-	}
-	//return the sound event
-	return bestSoundEvent;
+    if (bestSightEvent >= 0 && bestSightAlert > bestSoundAlert) { // valid best sight event, more important than the sound event
+        // get the light level of the alert event for this checker
+        vec3_t eyePoint, sightDir;
+        // get eye point
+        CalcEntitySpot(self, spot_t::SPOT_HEAD_LEAN, eyePoint);
+        VectorSubtract(level.alertEvents[bestSightEvent].position, eyePoint, sightDir);
+        level.alertEvents[bestSightEvent].light =
+            level.alertEvents[bestSightEvent].addLight + G_GetLightLevel(level.alertEvents[bestSightEvent].position, sightDir);
+        // return the sight event
+        return bestSightEvent;
+    }
+    // return the sound event
+    return bestSoundEvent;
 }
 
-int NPC_CheckAlertEvents( bool checkSight, bool checkSound, int ignoreAlert, bool mustHaveOwner, alertEventLevel_e minAlertLevel )
+int NPC_CheckAlertEvents(bool checkSight, bool checkSound, int ignoreAlert, bool mustHaveOwner, alertEventLevel_e minAlertLevel)
 {
-	return G_CheckAlertEvents( NPC, checkSight, checkSound, NPCInfo->stats.visrange, NPCInfo->stats.earshot, ignoreAlert, mustHaveOwner, minAlertLevel );
+    return G_CheckAlertEvents(NPC, checkSight, checkSound, NPCInfo->stats.visrange, NPCInfo->stats.earshot, ignoreAlert, mustHaveOwner, minAlertLevel);
 }
 
-bool G_CheckForDanger( gentity_t *self, int alertEvent )
-{//FIXME: more bStates need to call this?
-	if ( alertEvent == -1 )
-	{
-		return false;
-	}
+bool G_CheckForDanger(gentity_t* self, int alertEvent)
+{ // FIXME: more bStates need to call this?
+    if (alertEvent == -1) {
+        return false;
+    }
 
-	if ( level.alertEvents[alertEvent].level >= alertEventLevel_e::AEL_DANGER )
-	{//run away!
-		if ( !level.alertEvents[alertEvent].owner || !level.alertEvents[alertEvent].owner->client || (level.alertEvents[alertEvent].owner!=self&&level.alertEvents[alertEvent].owner->client->playerTeam!=self->client->playerTeam) )
-		{
-			if ( self->NPC )
-			{
-				if ( Any( self->NPC->scriptFlags & scriptFlags_t::SCF_DONT_FLEE ) )
-				{//can't flee
-					return false;
-				}
-				else
-				{
-					NPC_StartFlee( level.alertEvents[alertEvent].owner, level.alertEvents[alertEvent].position, level.alertEvents[alertEvent].level, 3000, 6000 );
-					return true;
-				}
-			}
-			else
-			{
-				return true;
-			}
-		}
-	}
-	return false;
+    if (level.alertEvents[alertEvent].level >= alertEventLevel_e::AEL_DANGER) { // run away!
+        if (!level.alertEvents[alertEvent].owner || !level.alertEvents[alertEvent].owner->client ||
+            (level.alertEvents[alertEvent].owner != self && level.alertEvents[alertEvent].owner->client->playerTeam != self->client->playerTeam)) {
+            if (self->NPC) {
+                if (Any(self->NPC->scriptFlags & scriptFlags_t::SCF_DONT_FLEE)) { // can't flee
+                    return false;
+                }
+                else {
+                    NPC_StartFlee(level.alertEvents[alertEvent].owner, level.alertEvents[alertEvent].position, level.alertEvents[alertEvent].level, 3000, 6000);
+                    return true;
+                }
+            }
+            else {
+                return true;
+            }
+        }
+    }
+    return false;
 }
-bool NPC_CheckForDanger( int alertEvent )
-{//FIXME: more bStates need to call this?
-	return G_CheckForDanger( NPC, alertEvent );
+bool NPC_CheckForDanger(int alertEvent)
+{ // FIXME: more bStates need to call this?
+    return G_CheckForDanger(NPC, alertEvent);
 }
 
 /*
@@ -596,46 +552,42 @@ bool NPC_CheckForDanger( int alertEvent )
 AddSoundEvent
 -------------------------
 */
-bool RemoveOldestAlert( void );
-void AddSoundEvent( gentity_t *owner, vec3_t position, float radius, alertEventLevel_e alertLevel, bool needLOS )
+bool RemoveOldestAlert(void);
+void AddSoundEvent(gentity_t* owner, vec3_t position, float radius, alertEventLevel_e alertLevel, bool needLOS)
 {
-	//FIXME: Handle this in another manner?
-	if ( level.numAlertEvents >= MAX_ALERT_EVENTS )
-	{
-		if ( !RemoveOldestAlert() )
-		{//how could that fail?
-			return;
-		}
-	}
+    // FIXME: Handle this in another manner?
+    if (level.numAlertEvents >= MAX_ALERT_EVENTS) {
+        if (!RemoveOldestAlert()) { // how could that fail?
+            return;
+        }
+    }
 
-	if ( owner == nullptr && alertLevel < alertEventLevel_e::AEL_DANGER )	//allows un-owned danger alerts
-		return;
+    if (owner == nullptr && alertLevel < alertEventLevel_e::AEL_DANGER) // allows un-owned danger alerts
+        return;
 
-	//FIXME: if owner is not a player or player ally, and there are no player allies present,
-	//			perhaps we don't need to store the alert... unless we want the player to
-	//			react to enemy alert events in some way?
+    // FIXME: if owner is not a player or player ally, and there are no player allies present,
+    //			perhaps we don't need to store the alert... unless we want the player to
+    //			react to enemy alert events in some way?
 
 #ifdef _DEBUG
-	assert( !Q_isnan(position[0]) && !Q_isnan(position[1]) && !Q_isnan(position[2]) );
+    assert(!Q_isnan(position[0]) && !Q_isnan(position[1]) && !Q_isnan(position[2]));
 #endif
-	VectorCopy( position, level.alertEvents[ level.numAlertEvents ].position );
+    VectorCopy(position, level.alertEvents[level.numAlertEvents].position);
 
-	level.alertEvents[ level.numAlertEvents ].radius	= radius;
-	level.alertEvents[ level.numAlertEvents ].level		= alertLevel;
-	level.alertEvents[ level.numAlertEvents ].type		= alertEventType_e::AET_SOUND;
-	level.alertEvents[ level.numAlertEvents ].owner		= owner;
-	if ( needLOS )
-	{//a very low-level sound, when check this sound event, check for LOS
-		level.alertEvents[ level.numAlertEvents ].addLight	= 1;	//will force an LOS trace on this sound
-	}
-	else
-	{
-		level.alertEvents[ level.numAlertEvents ].addLight	= 0;	//will force an LOS trace on this sound
-	}
-	level.alertEvents[ level.numAlertEvents ].ID		= level.curAlertID++;
-	level.alertEvents[ level.numAlertEvents ].timestamp	= level.time;
+    level.alertEvents[level.numAlertEvents].radius = radius;
+    level.alertEvents[level.numAlertEvents].level = alertLevel;
+    level.alertEvents[level.numAlertEvents].type = alertEventType_e::AET_SOUND;
+    level.alertEvents[level.numAlertEvents].owner = owner;
+    if (needLOS) {                                            // a very low-level sound, when check this sound event, check for LOS
+        level.alertEvents[level.numAlertEvents].addLight = 1; // will force an LOS trace on this sound
+    }
+    else {
+        level.alertEvents[level.numAlertEvents].addLight = 0; // will force an LOS trace on this sound
+    }
+    level.alertEvents[level.numAlertEvents].ID = level.curAlertID++;
+    level.alertEvents[level.numAlertEvents].timestamp = level.time;
 
-	level.numAlertEvents++;
+    level.numAlertEvents++;
 }
 
 /*
@@ -644,38 +596,36 @@ AddSightEvent
 -------------------------
 */
 
-void AddSightEvent( gentity_t *owner, vec3_t position, float radius, alertEventLevel_e alertLevel, float addLight )
+void AddSightEvent(gentity_t* owner, vec3_t position, float radius, alertEventLevel_e alertLevel, float addLight)
 {
-	//FIXME: Handle this in another manner?
-	if ( level.numAlertEvents >= MAX_ALERT_EVENTS )
-	{
-		if ( !RemoveOldestAlert() )
-		{//how could that fail?
-			return;
-		}
-	}
+    // FIXME: Handle this in another manner?
+    if (level.numAlertEvents >= MAX_ALERT_EVENTS) {
+        if (!RemoveOldestAlert()) { // how could that fail?
+            return;
+        }
+    }
 
-	if ( owner == nullptr && alertLevel < alertEventLevel_e::AEL_DANGER )	//allows un-owned danger alerts
-		return;
+    if (owner == nullptr && alertLevel < alertEventLevel_e::AEL_DANGER) // allows un-owned danger alerts
+        return;
 
-	//FIXME: if owner is not a player or player ally, and there are no player allies present,
-	//			perhaps we don't need to store the alert... unless we want the player to
-	//			react to enemy alert events in some way?
+    // FIXME: if owner is not a player or player ally, and there are no player allies present,
+    //			perhaps we don't need to store the alert... unless we want the player to
+    //			react to enemy alert events in some way?
 
 #ifdef _DEBUG
-	assert( !Q_isnan(position[0]) && !Q_isnan(position[1]) && !Q_isnan(position[2]) );
+    assert(!Q_isnan(position[0]) && !Q_isnan(position[1]) && !Q_isnan(position[2]));
 #endif
-	VectorCopy( position, level.alertEvents[ level.numAlertEvents ].position );
+    VectorCopy(position, level.alertEvents[level.numAlertEvents].position);
 
-	level.alertEvents[ level.numAlertEvents ].radius	= radius;
-	level.alertEvents[ level.numAlertEvents ].level		= alertLevel;
-	level.alertEvents[ level.numAlertEvents ].type		= alertEventType_e::AET_SIGHT;
-	level.alertEvents[ level.numAlertEvents ].owner		= owner;
-	level.alertEvents[ level.numAlertEvents ].addLight	= addLight;	//will get added to actual light at that point when it's checked
-	level.alertEvents[ level.numAlertEvents ].ID		= level.curAlertID++;
-	level.alertEvents[ level.numAlertEvents ].timestamp	= level.time;
+    level.alertEvents[level.numAlertEvents].radius = radius;
+    level.alertEvents[level.numAlertEvents].level = alertLevel;
+    level.alertEvents[level.numAlertEvents].type = alertEventType_e::AET_SIGHT;
+    level.alertEvents[level.numAlertEvents].owner = owner;
+    level.alertEvents[level.numAlertEvents].addLight = addLight; // will get added to actual light at that point when it's checked
+    level.alertEvents[level.numAlertEvents].ID = level.curAlertID++;
+    level.alertEvents[level.numAlertEvents].timestamp = level.time;
 
-	level.numAlertEvents++;
+    level.numAlertEvents++;
 }
 
 /*
@@ -684,74 +634,63 @@ ClearPlayerAlertEvents
 -------------------------
 */
 
-void ClearPlayerAlertEvents( void )
+void ClearPlayerAlertEvents(void)
 {
-	int curNumAlerts = level.numAlertEvents;
-	//loop through them all (max 32)
-	for ( int i = 0; i < curNumAlerts; i++ )
-	{
-		//see if the event is old enough to delete
-		if ( level.alertEvents[i].timestamp && level.alertEvents[i].timestamp + ALERT_CLEAR_TIME < level.time )
-		{//this event has timed out
-			//drop the count
-			level.numAlertEvents--;
-			//shift the rest down
-			if ( level.numAlertEvents > 0 )
-			{//still have more in the array
-				if ( (i+1) < MAX_ALERT_EVENTS )
-				{
-					memmove( &level.alertEvents[i], &level.alertEvents[i+1], sizeof(alertEvent_t)*(MAX_ALERT_EVENTS-(i+1) ) );
-				}
-			}
-			else
-			{//just clear this one... or should we clear the whole array?
-				memset( &level.alertEvents[i], 0, sizeof( alertEvent_t ) );
-			}
-		}
-	}
-	//make sure this never drops below zero... if it does, something very very bad happened
-	assert( level.numAlertEvents >= 0 );
+    int curNumAlerts = level.numAlertEvents;
+    // loop through them all (max 32)
+    for (int i = 0; i < curNumAlerts; i++) {
+        // see if the event is old enough to delete
+        if (level.alertEvents[i].timestamp && level.alertEvents[i].timestamp + ALERT_CLEAR_TIME < level.time) { // this event has timed out
+            // drop the count
+            level.numAlertEvents--;
+            // shift the rest down
+            if (level.numAlertEvents > 0) { // still have more in the array
+                if ((i + 1) < MAX_ALERT_EVENTS) {
+                    memmove(&level.alertEvents[i], &level.alertEvents[i + 1], sizeof(alertEvent_t) * (MAX_ALERT_EVENTS - (i + 1)));
+                }
+            }
+            else { // just clear this one... or should we clear the whole array?
+                memset(&level.alertEvents[i], 0, sizeof(alertEvent_t));
+            }
+        }
+    }
+    // make sure this never drops below zero... if it does, something very very bad happened
+    assert(level.numAlertEvents >= 0);
 
-	if ( eventClearTime < level.time )
-	{//this is just a 200ms debouncer so things that generate constant alerts (like corpses and missiles) add an alert every 200 ms
-		eventClearTime = level.time + ALERT_CLEAR_TIME;
-	}
+    if (eventClearTime <
+        level.time) { // this is just a 200ms debouncer so things that generate constant alerts (like corpses and missiles) add an alert every 200 ms
+        eventClearTime = level.time + ALERT_CLEAR_TIME;
+    }
 }
 
-bool RemoveOldestAlert( void )
+bool RemoveOldestAlert(void)
 {
-	int	oldestEvent = -1, oldestTime = Q3_INFINITE;
-	//loop through them all (max 32)
-	for ( int i = 0; i < level.numAlertEvents; i++ )
-	{
-		//see if the event is old enough to delete
-		if ( level.alertEvents[i].timestamp < oldestTime )
-		{
-			oldestEvent = i;
-			oldestTime = level.alertEvents[i].timestamp;
-		}
-	}
-	if ( oldestEvent != -1 )
-	{
-		//drop the count
-		level.numAlertEvents--;
-		//shift the rest down
-		if ( level.numAlertEvents > 0 )
-		{//still have more in the array
-			if ( (oldestEvent+1) < MAX_ALERT_EVENTS )
-			{
-				memmove( &level.alertEvents[oldestEvent], &level.alertEvents[oldestEvent+1], sizeof(alertEvent_t)*(MAX_ALERT_EVENTS-(oldestEvent+1) ) );
-			}
-		}
-		else
-		{//just clear this one... or should we clear the whole array?
-			memset( &level.alertEvents[oldestEvent], 0, sizeof( alertEvent_t ) );
-		}
-	}
-	//make sure this never drops below zero... if it does, something very very bad happened
-	assert( level.numAlertEvents >= 0 );
-	//return true is have room for one now
-	return (level.numAlertEvents < MAX_ALERT_EVENTS);
+    int oldestEvent = -1, oldestTime = Q3_INFINITE;
+    // loop through them all (max 32)
+    for (int i = 0; i < level.numAlertEvents; i++) {
+        // see if the event is old enough to delete
+        if (level.alertEvents[i].timestamp < oldestTime) {
+            oldestEvent = i;
+            oldestTime = level.alertEvents[i].timestamp;
+        }
+    }
+    if (oldestEvent != -1) {
+        // drop the count
+        level.numAlertEvents--;
+        // shift the rest down
+        if (level.numAlertEvents > 0) { // still have more in the array
+            if ((oldestEvent + 1) < MAX_ALERT_EVENTS) {
+                memmove(&level.alertEvents[oldestEvent], &level.alertEvents[oldestEvent + 1], sizeof(alertEvent_t) * (MAX_ALERT_EVENTS - (oldestEvent + 1)));
+            }
+        }
+        else { // just clear this one... or should we clear the whole array?
+            memset(&level.alertEvents[oldestEvent], 0, sizeof(alertEvent_t));
+        }
+    }
+    // make sure this never drops below zero... if it does, something very very bad happened
+    assert(level.numAlertEvents >= 0);
+    // return true is have room for one now
+    return (level.numAlertEvents < MAX_ALERT_EVENTS);
 }
 
 /*
@@ -761,83 +700,82 @@ G_ClearLOS
 */
 
 // Position to position
-bool G_ClearLOS( gentity_t *self, const vec3_t start, const vec3_t end )
+bool G_ClearLOS(gentity_t* self, const vec3_t start, const vec3_t end)
 {
-	trace_t		tr;
-	int			traceCount = 0;
+    trace_t tr;
+    int traceCount = 0;
 
-	//FIXME: ENTITYNUM_NONE ok?
-	gi.trace ( &tr, start, nullptr, nullptr, end, ENTITYNUM_NONE, contentsFlags_t::CONTENTS_OPAQUE/*contentsFlags_t::CONTENTS_SOLID*//*(contentsFlags_t::CONTENTS_SOLID|contentsFlags_t::CONTENTS_MONSTERCLIP)*/, EG2_Collision::G2_NOCOLLIDE, 0 );
-	while ( tr.fraction < 1.0 && traceCount < 3 )
-	{//can see through 3 panes of glass
-		if ( tr.entityNum < ENTITYNUM_WORLD )
-		{
-			if ( Any( g_entities[tr.entityNum].svFlags & svFlags_t::SVF_GLASS_BRUSH ) )
-			{//can see through glass, trace again, ignoring me
-				gi.trace ( &tr, tr.endpos, nullptr, nullptr, end, tr.entityNum, MASK_OPAQUE, EG2_Collision::G2_NOCOLLIDE, 0 );
-				traceCount++;
-				continue;
-			}
-		}
-		return false;
-	}
+    // FIXME: ENTITYNUM_NONE ok?
+    gi.trace(&tr, start, nullptr, nullptr, end, ENTITYNUM_NONE,
+             contentsFlags_t::CONTENTS_OPAQUE /*contentsFlags_t::CONTENTS_SOLID*/ /*(contentsFlags_t::CONTENTS_SOLID|contentsFlags_t::CONTENTS_MONSTERCLIP)*/,
+             EG2_Collision::G2_NOCOLLIDE, 0);
+    while (tr.fraction < 1.0 && traceCount < 3) { // can see through 3 panes of glass
+        if (tr.entityNum < ENTITYNUM_WORLD) {
+            if (Any(g_entities[tr.entityNum].svFlags & svFlags_t::SVF_GLASS_BRUSH)) { // can see through glass, trace again, ignoring me
+                gi.trace(&tr, tr.endpos, nullptr, nullptr, end, tr.entityNum, MASK_OPAQUE, EG2_Collision::G2_NOCOLLIDE, 0);
+                traceCount++;
+                continue;
+            }
+        }
+        return false;
+    }
 
-	if ( tr.fraction == 1.0 )
-		return true;
+    if (tr.fraction == 1.0)
+        return true;
 
-	return false;
+    return false;
 }
 
-//Entity to position
-bool G_ClearLOS( gentity_t *self, gentity_t *ent, const vec3_t end )
+// Entity to position
+bool G_ClearLOS(gentity_t* self, gentity_t* ent, const vec3_t end)
 {
-	vec3_t	eyes;
+    vec3_t eyes;
 
-	CalcEntitySpot( ent, spot_t::SPOT_HEAD_LEAN, eyes );
+    CalcEntitySpot(ent, spot_t::SPOT_HEAD_LEAN, eyes);
 
-	return G_ClearLOS( self, eyes, end );
+    return G_ClearLOS(self, eyes, end);
 }
 
-//Position to entity
-bool G_ClearLOS( gentity_t *self, const vec3_t start, gentity_t *ent )
+// Position to entity
+bool G_ClearLOS(gentity_t* self, const vec3_t start, gentity_t* ent)
 {
-	vec3_t		spot;
+    vec3_t spot;
 
-	//Look for the chest first
-	CalcEntitySpot( ent, spot_t::SPOT_ORIGIN, spot );
+    // Look for the chest first
+    CalcEntitySpot(ent, spot_t::SPOT_ORIGIN, spot);
 
-	if ( G_ClearLOS( self, start, spot ) )
-		return true;
+    if (G_ClearLOS(self, start, spot))
+        return true;
 
-	//Look for the head next
-	CalcEntitySpot( ent, spot_t::SPOT_HEAD_LEAN, spot );
+    // Look for the head next
+    CalcEntitySpot(ent, spot_t::SPOT_HEAD_LEAN, spot);
 
-	if ( G_ClearLOS( self, start, spot ) )
-		return true;
+    if (G_ClearLOS(self, start, spot))
+        return true;
 
-	return false;
+    return false;
 }
 
-//NPC's eyes to entity
-bool G_ClearLOS( gentity_t *self, gentity_t *ent )
+// NPC's eyes to entity
+bool G_ClearLOS(gentity_t* self, gentity_t* ent)
 {
-	vec3_t	eyes;
+    vec3_t eyes;
 
-	//Calculate my position
-	CalcEntitySpot( self, spot_t::SPOT_HEAD_LEAN, eyes );
+    // Calculate my position
+    CalcEntitySpot(self, spot_t::SPOT_HEAD_LEAN, eyes);
 
-	return G_ClearLOS( self, eyes, ent );
+    return G_ClearLOS(self, eyes, ent);
 }
 
-//NPC's eyes to position
-bool G_ClearLOS( gentity_t *self, const vec3_t end )
+// NPC's eyes to position
+bool G_ClearLOS(gentity_t* self, const vec3_t end)
 {
-	vec3_t	eyes;
+    vec3_t eyes;
 
-	//Calculate the my position
-	CalcEntitySpot( self, spot_t::SPOT_HEAD_LEAN, eyes );
+    // Calculate the my position
+    CalcEntitySpot(self, spot_t::SPOT_HEAD_LEAN, eyes);
 
-	return G_ClearLOS( self, eyes, end );
+    return G_ClearLOS(self, eyes, end);
 }
 
 /*
@@ -846,21 +784,21 @@ NPC_GetFOVPercentage
 -------------------------
 */
 
-float NPC_GetHFOVPercentage( vec3_t spot, vec3_t from, vec3_t facing, float hFOV )
+float NPC_GetHFOVPercentage(vec3_t spot, vec3_t from, vec3_t facing, float hFOV)
 {
-	vec3_t	deltaVector, angles;
-	float	delta;
+    vec3_t deltaVector, angles;
+    float delta;
 
-	VectorSubtract ( spot, from, deltaVector );
+    VectorSubtract(spot, from, deltaVector);
 
-	vectoangles ( deltaVector, angles );
+    vectoangles(deltaVector, angles);
 
-	delta = Q_fabsf( AngleDelta ( facing[YAW], angles[YAW] ) );
+    delta = Q_fabsf(AngleDelta(facing[YAW], angles[YAW]));
 
-	if ( delta > hFOV )
-		return 0.0f;
+    if (delta > hFOV)
+        return 0.0f;
 
-	return ( ( hFOV - delta ) / hFOV );
+    return ((hFOV - delta) / hFOV);
 }
 
 /*
@@ -869,21 +807,21 @@ NPC_GetVFOVPercentage
 -------------------------
 */
 
-float NPC_GetVFOVPercentage( vec3_t spot, vec3_t from, vec3_t facing, float vFOV )
+float NPC_GetVFOVPercentage(vec3_t spot, vec3_t from, vec3_t facing, float vFOV)
 {
-	vec3_t	deltaVector, angles;
-	float	delta;
+    vec3_t deltaVector, angles;
+    float delta;
 
-	VectorSubtract ( spot, from, deltaVector );
+    VectorSubtract(spot, from, deltaVector);
 
-	vectoangles ( deltaVector, angles );
+    vectoangles(deltaVector, angles);
 
-	delta = Q_fabsf( AngleDelta ( facing[PITCH], angles[PITCH] ) );
+    delta = Q_fabsf(AngleDelta(facing[PITCH], angles[PITCH]));
 
-	if ( delta > vFOV )
-		return 0.0f;
+    if (delta > vFOV)
+        return 0.0f;
 
-	return ( ( vFOV - delta ) / vFOV );
+    return ((vFOV - delta) / vFOV);
 }
 
 constexpr int MAX_INTEREST_DIST = 256 * 256;
@@ -893,42 +831,36 @@ NPC_FindLocalInterestPoint
 -------------------------
 */
 
-int G_FindLocalInterestPoint( gentity_t *self )
+int G_FindLocalInterestPoint(gentity_t* self)
 {
-	int		i, bestPoint = ENTITYNUM_NONE;
-	float	dist, bestDist = Q3_INFINITE;
-	vec3_t	diffVec, eyes;
+    int i, bestPoint = ENTITYNUM_NONE;
+    float dist, bestDist = Q3_INFINITE;
+    vec3_t diffVec, eyes;
 
-	CalcEntitySpot( self, spot_t::SPOT_HEAD_LEAN, eyes );
-	for ( i = 0; i < level.numInterestPoints; i++ )
-	{
-		//Don't ignore portals?  If through a portal, need to look at portal!
-		if ( gi.inPVS( level.interestPoints[i].origin, eyes ) )
-		{
-			VectorSubtract( level.interestPoints[i].origin, eyes, diffVec );
-			if ( (Q_fabsf(diffVec[0]) + Q_fabsf(diffVec[1])) / 2 < 48 &&
-				Q_fabsf(diffVec[2]) > (Q_fabsf(diffVec[0]) + Q_fabsf(diffVec[1])) / 2 )
-			{//Too close to look so far up or down
-				continue;
-			}
-			dist = VectorLengthSquared( diffVec );
-			//Some priority to more interesting points
-			//dist -= ((int)level.interestPoints[i].lookMode * 5) * ((int)level.interestPoints[i].lookMode * 5);
-			if ( dist < MAX_INTEREST_DIST && dist < bestDist )
-			{
-				if ( G_ClearLineOfSight( eyes, level.interestPoints[i].origin, self->s.number, MASK_OPAQUE ) )
-				{
-					bestDist = dist;
-					bestPoint = i;
-				}
-			}
-		}
-	}
-	if ( bestPoint != ENTITYNUM_NONE && level.interestPoints[bestPoint].target )
-	{
-		G_UseTargets2( self, self, level.interestPoints[bestPoint].target );
-	}
-	return bestPoint;
+    CalcEntitySpot(self, spot_t::SPOT_HEAD_LEAN, eyes);
+    for (i = 0; i < level.numInterestPoints; i++) {
+        // Don't ignore portals?  If through a portal, need to look at portal!
+        if (gi.inPVS(level.interestPoints[i].origin, eyes)) {
+            VectorSubtract(level.interestPoints[i].origin, eyes, diffVec);
+            if ((Q_fabsf(diffVec[0]) + Q_fabsf(diffVec[1])) / 2 < 48 &&
+                Q_fabsf(diffVec[2]) > (Q_fabsf(diffVec[0]) + Q_fabsf(diffVec[1])) / 2) { // Too close to look so far up or down
+                continue;
+            }
+            dist = VectorLengthSquared(diffVec);
+            // Some priority to more interesting points
+            // dist -= ((int)level.interestPoints[i].lookMode * 5) * ((int)level.interestPoints[i].lookMode * 5);
+            if (dist < MAX_INTEREST_DIST && dist < bestDist) {
+                if (G_ClearLineOfSight(eyes, level.interestPoints[i].origin, self->s.number, MASK_OPAQUE)) {
+                    bestDist = dist;
+                    bestPoint = i;
+                }
+            }
+        }
+    }
+    if (bestPoint != ENTITYNUM_NONE && level.interestPoints[bestPoint].target) {
+        G_UseTargets2(self, self, level.interestPoints[bestPoint].target);
+    }
+    return bestPoint;
 }
 
 /*QUAKED target_interest (1 0.8 0.5) (-4 -4 -4) (4 4 4)
@@ -937,23 +869,21 @@ A point that a squadmate will look at if standing still
 target - thing to fire when someone looks at this thing
 */
 
-void SP_target_interest( gentity_t *self )
-{//FIXME: rename point_interest
-	if(level.numInterestPoints >= MAX_INTEREST_POINTS)
-	{
-		gi.Printf("ERROR:  Too many interest points, limit is %d\n", MAX_INTEREST_POINTS);
-		G_FreeEntity(self);
-		return;
-	}
+void SP_target_interest(gentity_t* self)
+{ // FIXME: rename point_interest
+    if (level.numInterestPoints >= MAX_INTEREST_POINTS) {
+        gi.Printf("ERROR:  Too many interest points, limit is %d\n", MAX_INTEREST_POINTS);
+        G_FreeEntity(self);
+        return;
+    }
 
-	VectorCopy(self->currentOrigin, level.interestPoints[level.numInterestPoints].origin);
+    VectorCopy(self->currentOrigin, level.interestPoints[level.numInterestPoints].origin);
 
-	if(self->target && self->target[0])
-	{
-		level.interestPoints[level.numInterestPoints].target = G_NewString( self->target );
-	}
+    if (self->target && self->target[0]) {
+        level.interestPoints[level.numInterestPoints].target = G_NewString(self->target);
+    }
 
-	level.numInterestPoints++;
+    level.numInterestPoints++;
 
-	G_FreeEntity(self);
+    G_FreeEntity(self);
 }

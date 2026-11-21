@@ -29,60 +29,58 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define SND_MUSIC_H
 
 // if you change this enum, you MUST update the #defines below
-enum class MusicState_e
-{
-//( eBGRNDTRACK_DATABEGIN )			// begin-label for FOR loops
-	//
-	eBGRNDTRACK_EXPLORE = 0,		// for normal walking around
-	eBGRNDTRACK_ACTION,				// for excitement
-	eBGRNDTRACK_BOSS,				// (optional) for final encounter
-	eBGRNDTRACK_DEATH,				// (optional) death "flourish"
-	eBGRNDTRACK_ACTIONTRANS0,		// transition from action to explore
-	eBGRNDTRACK_ACTIONTRANS1,		// "
-	eBGRNDTRACK_ACTIONTRANS2,		// "
-	eBGRNDTRACK_ACTIONTRANS3,		// "
-	eBGRNDTRACK_EXPLORETRANS0,		// transition from explore to silence
-	eBGRNDTRACK_EXPLORETRANS1,		// "
-	eBGRNDTRACK_EXPLORETRANS2,		// "
-	eBGRNDTRACK_EXPLORETRANS3,		// "
-	//
-//(	eBGRNDTRACK_DATAEND ),			// tracks from this point on are for logic or copies, do NOT free them.
-	//
-	eBGRNDTRACK_NONDYNAMIC,			// used for when music is just streaming, not part of dynamic stuff (used to be defined as same as explore entry, but this allows playing music in between 2 invokations of the same dynamic music without midleve reload, and also faster level transitioning if two consecutive dynamic sections use same DMS.DAT entries. Are you still reading this far?
-	eBGRNDTRACK_SILENCE,			// silence (more of a logic thing than an actual track at the moment)
-	eBGRNDTRACK_FADE,				// the xfade channel
-	//
-	eBGRNDTRACK_NUMBEROF
+enum class MusicState_e {
+    //( eBGRNDTRACK_DATABEGIN )			// begin-label for FOR loops
+    //
+    eBGRNDTRACK_EXPLORE = 0,   // for normal walking around
+    eBGRNDTRACK_ACTION,        // for excitement
+    eBGRNDTRACK_BOSS,          // (optional) for final encounter
+    eBGRNDTRACK_DEATH,         // (optional) death "flourish"
+    eBGRNDTRACK_ACTIONTRANS0,  // transition from action to explore
+    eBGRNDTRACK_ACTIONTRANS1,  // "
+    eBGRNDTRACK_ACTIONTRANS2,  // "
+    eBGRNDTRACK_ACTIONTRANS3,  // "
+    eBGRNDTRACK_EXPLORETRANS0, // transition from explore to silence
+    eBGRNDTRACK_EXPLORETRANS1, // "
+    eBGRNDTRACK_EXPLORETRANS2, // "
+    eBGRNDTRACK_EXPLORETRANS3, // "
+                               //
+    //(	eBGRNDTRACK_DATAEND ),			// tracks from this point on are for logic or copies, do NOT free them.
+    //
+    eBGRNDTRACK_NONDYNAMIC, // used for when music is just streaming, not part of dynamic stuff (used to be defined as same as explore entry, but this allows
+                            // playing music in between 2 invokations of the same dynamic music without midleve reload, and also faster level transitioning if
+                            // two consecutive dynamic sections use same DMS.DAT entries. Are you still reading this far?
+    eBGRNDTRACK_SILENCE,    // silence (more of a logic thing than an actual track at the moment)
+    eBGRNDTRACK_FADE,       // the xfade channel
+                            //
+    eBGRNDTRACK_NUMBEROF
 
 };
 template <> inline constexpr bool enableEnumArithmetic<MusicState_e> = true;
 
 #include "qcommon/q_sound.h"
 
-inline constexpr MusicState_e eBGRNDTRACK_DATABEGIN = MusicState_e::eBGRNDTRACK_EXPLORE;	// label for FOR() loops (not in enum, else debugger shows in instead of the explore one unless I declare them backwards, which is gay)
-inline constexpr MusicState_e eBGRNDTRACK_DATAEND = MusicState_e::eBGRNDTRACK_NONDYNAMIC; // tracks from this point on are for logic or copies, do NOT free them.
+inline constexpr MusicState_e eBGRNDTRACK_DATABEGIN = MusicState_e::eBGRNDTRACK_EXPLORE; // label for FOR() loops (not in enum, else debugger shows in instead
+                                                                                         // of the explore one unless I declare them backwards, which is gay)
+inline constexpr MusicState_e eBGRNDTRACK_DATAEND =
+    MusicState_e::eBGRNDTRACK_NONDYNAMIC; // tracks from this point on are for logic or copies, do NOT free them.
 
-inline constexpr MusicState_e eBGRNDTRACK_FIRSTTRANSITION = MusicState_e::eBGRNDTRACK_ACTIONTRANS0;	// used for "are we in transition mode" check
-inline constexpr MusicState_e eBGRNDTRACK_LASTTRANSITION = MusicState_e::eBGRNDTRACK_EXPLORETRANS3;	//
+inline constexpr MusicState_e eBGRNDTRACK_FIRSTTRANSITION = MusicState_e::eBGRNDTRACK_ACTIONTRANS0; // used for "are we in transition mode" check
+inline constexpr MusicState_e eBGRNDTRACK_LASTTRANSITION = MusicState_e::eBGRNDTRACK_EXPLORETRANS3; //
 
+void Music_SetLevelName(const char* psLevelName);
+bool Music_DynamicDataAvailable(const char* psDynamicMusicLabel);
+const char* Music_GetFileNameForState(MusicState_e eMusicState);
+bool Music_StateIsTransition(MusicState_e eMusicState);
+bool Music_StateCanBeInterrupted(MusicState_e eMusicState, MusicState_e eProposedMusicState);
+float Music_GetRandomEntryTime(MusicState_e eMusicState);
 
-void		Music_SetLevelName			( const char *psLevelName );
-bool	Music_DynamicDataAvailable	( const char *psDynamicMusicLabel );
-const char *Music_GetFileNameForState	( MusicState_e eMusicState );
-bool	Music_StateIsTransition		( MusicState_e eMusicState );
-bool	Music_StateCanBeInterrupted	( MusicState_e eMusicState, MusicState_e eProposedMusicState );
-float		Music_GetRandomEntryTime	( MusicState_e eMusicState );
-
-#ifdef		MP3STUFF_KNOWN
-bool	Music_AllowedToTransition	( float fPlayingTimeElapsed, MusicState_e eMusicState, MusicState_e	*peTransition = nullptr, float *pfNewTrackEntryTime = nullptr);
+#ifdef MP3STUFF_KNOWN
+bool Music_AllowedToTransition(float fPlayingTimeElapsed, MusicState_e eMusicState, MusicState_e* peTransition = nullptr, float* pfNewTrackEntryTime = nullptr);
 #endif
 
-const char *Music_BaseStateToString		( MusicState_e eMusicState, bool bDebugPrintQuery = false);
+const char* Music_BaseStateToString(MusicState_e eMusicState, bool bDebugPrintQuery = false);
 
-
-#endif	// #ifndef SND_MUSIC_H
-
+#endif // #ifndef SND_MUSIC_H
 
 //////////////// eof /////////////////
-
-

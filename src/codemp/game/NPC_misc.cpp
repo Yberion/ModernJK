@@ -30,63 +30,61 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 /*
 Debug_Printf
 */
-void Debug_Printf (vmCvar_t *cv, aiDebugLevel_t debugLevel, const char *fmt, ...)
+void Debug_Printf(vmCvar_t* cv, aiDebugLevel_t debugLevel, const char* fmt, ...)
 {
-	const char		*color;
-	va_list		argptr;
-	char		msg[1024];
+    const char* color;
+    va_list argptr;
+    char msg[1024];
 
-	if (cv->value < to_underlying( debugLevel ))
-		return;
+    if (cv->value < to_underlying(debugLevel))
+        return;
 
-	if (debugLevel == aiDebugLevel_t::DEBUG_LEVEL_DETAIL)
-		color = S_COLOR_WHITE;
-	else if (debugLevel == aiDebugLevel_t::DEBUG_LEVEL_INFO)
-		color = S_COLOR_GREEN;
-	else if (debugLevel == aiDebugLevel_t::DEBUG_LEVEL_WARNING)
-		color = S_COLOR_YELLOW;
-	else // if (debugLevel == aiDebugLevel_t::DEBUG_LEVEL_ERROR)
-		color = S_COLOR_RED;
+    if (debugLevel == aiDebugLevel_t::DEBUG_LEVEL_DETAIL)
+        color = S_COLOR_WHITE;
+    else if (debugLevel == aiDebugLevel_t::DEBUG_LEVEL_INFO)
+        color = S_COLOR_GREEN;
+    else if (debugLevel == aiDebugLevel_t::DEBUG_LEVEL_WARNING)
+        color = S_COLOR_YELLOW;
+    else // if (debugLevel == aiDebugLevel_t::DEBUG_LEVEL_ERROR)
+        color = S_COLOR_RED;
 
-	va_start (argptr,fmt);
-	Q_vsnprintf(msg, sizeof(msg), fmt, argptr);
-	va_end (argptr);
+    va_start(argptr, fmt);
+    Q_vsnprintf(msg, sizeof(msg), fmt, argptr);
+    va_end(argptr);
 
-	Com_Printf("%s%5i:%s", color, level.time, msg);
+    Com_Printf("%s%5i:%s", color, level.time, msg);
 }
-
 
 /*
 Debug_NPCPrintf
 */
-void Debug_NPCPrintf (gentity_t *printNPC, vmCvar_t *cv, aiDebugLevel_t debugLevel, char *fmt, ...)
+void Debug_NPCPrintf(gentity_t* printNPC, vmCvar_t* cv, aiDebugLevel_t debugLevel, char* fmt, ...)
 {
-	int			color;
-	va_list		argptr;
-	char		msg[1024];
+    int color;
+    va_list argptr;
+    char msg[1024];
 
-	if (cv->value < to_underlying( debugLevel ))
-	{
-		return;
-	}
+    if (cv->value < to_underlying(debugLevel)) {
+        return;
+    }
 
-//	if ( debugNPCName.string[0] && Q_stricmp( debugNPCName.string, printNPC->targetname) != 0 )
-//	{
-//		return;
-//	}
+    //	if ( debugNPCName.string[0] && Q_stricmp( debugNPCName.string, printNPC->targetname) != 0 )
+    //	{
+    //		return;
+    //	}
 
-	if (debugLevel == aiDebugLevel_t::DEBUG_LEVEL_DETAIL)
-		color = COLOR_WHITE;
-	else if (debugLevel == aiDebugLevel_t::DEBUG_LEVEL_INFO)
-		color = COLOR_GREEN;
-	else if (debugLevel == aiDebugLevel_t::DEBUG_LEVEL_WARNING)
-		color = COLOR_YELLOW;
-	else // if (debugLevel == aiDebugLevel_t::DEBUG_LEVEL_ERROR)
-		color = COLOR_RED;
+    if (debugLevel == aiDebugLevel_t::DEBUG_LEVEL_DETAIL)
+        color = COLOR_WHITE;
+    else if (debugLevel == aiDebugLevel_t::DEBUG_LEVEL_INFO)
+        color = COLOR_GREEN;
+    else if (debugLevel == aiDebugLevel_t::DEBUG_LEVEL_WARNING)
+        color = COLOR_YELLOW;
+    else // if (debugLevel == aiDebugLevel_t::DEBUG_LEVEL_ERROR)
+        color = COLOR_RED;
 
-	va_start (argptr,fmt);
-	Q_vsnprintf(msg, sizeof(msg), fmt, argptr);
-	va_end (argptr);
+    va_start(argptr, fmt);
+    Q_vsnprintf(msg, sizeof(msg), fmt, argptr);
+    va_end(argptr);
 
-	Com_Printf ("%c%c%5i (%s) %s", Q_COLOR_ESCAPE, color, level.time, printNPC->targetname, msg);
+    Com_Printf("%c%c%5i (%s) %s", Q_COLOR_ESCAPE, color, level.time, printNPC->targetname, msg);
 }

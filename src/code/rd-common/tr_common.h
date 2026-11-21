@@ -39,13 +39,13 @@ Noise Generation
 ================================================================================
 */
 // Initialize the noise generator.
-void R_NoiseInit( void );
+void R_NoiseInit(void);
 
 // Get random 4-component vector.
-float R_NoiseGet4f( float x, float y, float z, float t );
+float R_NoiseGet4f(float x, float y, float z, float t);
 
 // Get the noise time.
-float GetNoiseTime( int t );
+float GetNoiseTime(int t);
 
 /*
 ================================================================================
@@ -55,22 +55,22 @@ float GetNoiseTime( int t );
 // Initialize the image loader.
 void R_ImageLoader_Init();
 
-typedef void (*ImageLoaderFn)( const char *filename, byte **pic, int *width, int *height );
+typedef void (*ImageLoaderFn)(const char* filename, byte** pic, int* width, int* height);
 
 // Adds a new image loader to handle a new image type. The extension should not
 // begin with a period (a full stop).
-bool R_ImageLoader_Add( const char *extension, ImageLoaderFn imageLoader );
+bool R_ImageLoader_Add(const char* extension, ImageLoaderFn imageLoader);
 
 // Load an image from file.
-void R_LoadImage( const char *shortname, byte **pic, int *width, int *height );
+void R_LoadImage(const char* shortname, byte** pic, int* width, int* height);
 
 // Decode an image file held in memory (JPEG, PNG or TGA, told from its content) to RGBA from R_ImageMalloc; nullptr after
 // a warning when it cannot. shared/rd-common/tr_image_codec.cpp, the only file that knows the image libraries.
-byte *R_DecodeImage( const char *name, const byte *file, int length, int *width, int *height );
+byte* R_DecodeImage(const char* name, const byte* file, int length, int* width, int* height);
 
 #ifdef JK2_MODE
-//Load raw image data from JPEG input.
-void LoadJPGFromBuffer( byte *inputBuffer, size_t len, byte **pic, int *width, int *height );
+// Load raw image data from JPEG input.
+void LoadJPGFromBuffer(byte* inputBuffer, size_t len, byte** pic, int* width, int* height);
 #endif
 
 /*
@@ -79,20 +79,26 @@ void LoadJPGFromBuffer( byte *inputBuffer, size_t len, byte **pic, int *width, i
 ================================================================================
 */
 // Convert raw image data to JPEG format and store in buffer. The rows' padding is removed in place: image_buffer is changed.
-size_t RE_SaveJPGToBuffer( byte *buffer, size_t bufSize, int quality, int image_width, int image_height, byte *image_buffer, int padding, bool flip_vertical );
+size_t RE_SaveJPGToBuffer(byte* buffer, size_t bufSize, int quality, int image_width, int image_height, byte* image_buffer, int padding, bool flip_vertical);
 
 // Save raw image data as JPEG image file.
-void RE_SaveJPG( const char * filename, int quality, int image_width, int image_height, byte *image_buffer, int padding );
+void RE_SaveJPG(const char* filename, int quality, int image_width, int image_height, byte* image_buffer, int padding);
 
 // Save raw image data as PNG image file.
-int RE_SavePNG( const char *filename, byte *buf, size_t width, size_t height, int byteDepth );
+int RE_SavePNG(const char* filename, byte* buf, size_t width, size_t height, int byteDepth);
 
-void *R_Malloc( int iSize, memtag_t eTag, bool bZeroit=false );
-void R_Free( void *ptr );
+void* R_Malloc(int iSize, memtag_t eTag, bool bZeroit = false);
+void R_Free(void* ptr);
 
 // The memory of the images the shared image files allocate (shared/rd-common), in this renderer's allocator.
-inline byte *R_ImageMalloc( int size, bool zero ) { return (byte *)R_Malloc( size, memtag::TAG_TEMP_WORKSPACE, zero ); }
-inline void R_ImageFree( void *ptr ) { R_Free( ptr ); }
-int R_MemSize( memtag_t eTag );
-void R_MorphMallocTag( void *pvBuffer, memtag_t eDesiredTag );
-void *R_Hunk_Alloc( int iSize, bool bZeroit=true );
+inline byte* R_ImageMalloc(int size, bool zero)
+{
+    return (byte*)R_Malloc(size, memtag::TAG_TEMP_WORKSPACE, zero);
+}
+inline void R_ImageFree(void* ptr)
+{
+    R_Free(ptr);
+}
+int R_MemSize(memtag_t eTag);
+void R_MorphMallocTag(void* pvBuffer, memtag_t eDesiredTag);
+void* R_Hunk_Alloc(int iSize, bool bZeroit = true);

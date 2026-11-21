@@ -24,37 +24,46 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <cstdio>
 
-namespace test
-{
+namespace test {
 
 inline int failures = 0;
 
-inline void Fail( const char *file, int line, const char *expression )
+inline void Fail(const char* file, int line, const char* expression)
 {
-	std::printf( "%s:%d: check failed: %s\n", file, line, expression );
-	++failures;
+    std::printf("%s:%d: check failed: %s\n", file, line, expression);
+    ++failures;
 }
 
 // |a - b| at most fraction times |a| and times |b| (Boost.Test's CHECK_CLOSE_FRACTION)
-template< typename T >
-bool CloseFraction( T a, T b, T fraction )
+template <typename T> bool CloseFraction(T a, T b, T fraction)
 {
-	const T difference = a > b ? a - b : b - a;
-	const T absA = a < 0 ? -a : a;
-	const T absB = b < 0 ? -b : b;
-	return difference <= fraction * absA && difference <= fraction * absB;
+    const T difference = a > b ? a - b : b - a;
+    const T absA = a < 0 ? -a : a;
+    const T absB = b < 0 ? -b : b;
+    return difference <= fraction * absA && difference <= fraction * absB;
 }
 
 } // namespace test
 
-#define CHECK( condition ) \
-	do { if ( !( condition ) ) ::test::Fail( __FILE__, __LINE__, #condition ); } while ( false )
-#define CHECK_EQUAL( a, b ) CHECK( ( a ) == ( b ) )
-#define CHECK_NE( a, b ) CHECK( ( a ) != ( b ) )
-#define CHECK_CLOSE_FRACTION( a, b, fraction ) CHECK( ::test::CloseFraction( a, b, fraction ) )
-#define CHECK_THROW( expression, exception ) \
-	do { \
-		bool thrown = false; \
-		try { ( void )( expression ); } catch ( const exception & ) { thrown = true; } catch ( ... ) {} \
-		if ( !thrown ) ::test::Fail( __FILE__, __LINE__, #expression " throws " #exception ); \
-	} while ( false )
+#define CHECK(condition)                                                                                                                                       \
+    do {                                                                                                                                                       \
+        if (!(condition))                                                                                                                                      \
+            ::test::Fail(__FILE__, __LINE__, #condition);                                                                                                      \
+    } while (false)
+#define CHECK_EQUAL(a, b) CHECK((a) == (b))
+#define CHECK_NE(a, b) CHECK((a) != (b))
+#define CHECK_CLOSE_FRACTION(a, b, fraction) CHECK(::test::CloseFraction(a, b, fraction))
+#define CHECK_THROW(expression, exception)                                                                                                                     \
+    do {                                                                                                                                                       \
+        bool thrown = false;                                                                                                                                   \
+        try {                                                                                                                                                  \
+            (void)(expression);                                                                                                                                \
+        }                                                                                                                                                      \
+        catch (const exception&) {                                                                                                                             \
+            thrown = true;                                                                                                                                     \
+        }                                                                                                                                                      \
+        catch (...) {                                                                                                                                          \
+        }                                                                                                                                                      \
+        if (!thrown)                                                                                                                                           \
+            ::test::Fail(__FILE__, __LINE__, #expression " throws " #exception);                                                                               \
+    } while (false)

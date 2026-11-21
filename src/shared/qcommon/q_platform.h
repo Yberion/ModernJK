@@ -32,83 +32,83 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // Windows: x86_64 only (docs/modernization/PLAN.md, step 17)
 #if defined(_WIN32)
 
-	#if !defined(_M_X64) && !defined(__x86_64__)
-		#error ModernJK builds only for x86_64 on Windows
-	#endif
+#if !defined(_M_X64) && !defined(__x86_64__)
+#error ModernJK builds only for x86_64 on Windows
+#endif
 
-	#undef QDECL
-	#define QDECL __cdecl
+#undef QDECL
+#define QDECL __cdecl
 
-	#undef QCALL
-	#define QCALL __stdcall
+#undef QCALL
+#define QCALL __stdcall
 
-	#if defined(_MSC_VER)
-		#define OS_STRING "win_msvc"
-	#elif defined(__MINGW64__)
-		#define OS_STRING "win_mingw"
-	#endif
+#if defined(_MSC_VER)
+#define OS_STRING "win_msvc"
+#elif defined(__MINGW64__)
+#define OS_STRING "win_mingw"
+#endif
 
-	#define QINLINE __inline
-	#define PATH_SEP '\\'
+#define QINLINE __inline
+#define PATH_SEP '\\'
 
-	#define ARCH_STRING "x86_64"
+#define ARCH_STRING "x86_64"
 
-	#define Q3_LITTLE_ENDIAN
+#define Q3_LITTLE_ENDIAN
 
-	#define DLL_EXT ".dll"
+#define DLL_EXT ".dll"
 
 // MAC OS X
 #elif defined(MACOS_X) || defined(__APPLE_CC__)
 
-	// make sure this is defined, just for sanity's sake...
-	#ifndef MACOS_X
-		#define MACOS_X
-	#endif
+// make sure this is defined, just for sanity's sake...
+#ifndef MACOS_X
+#define MACOS_X
+#endif
 
-	#define OS_STRING "macosx"
-	#define QINLINE inline
-	#define	PATH_SEP '/'
+#define OS_STRING "macosx"
+#define QINLINE inline
+#define PATH_SEP '/'
 
-	#if defined(__x86_64__)
-		#define ARCH_STRING "x86_64"
-		#define Q3_LITTLE_ENDIAN
-	#elif defined(__arm64__)
-		#define ARCH_STRING "arm64"
-		#define Q3_LITTLE_ENDIAN
-	#else
-		#error ModernJK builds only for x86_64 and arm64 on macOS
-	#endif
+#if defined(__x86_64__)
+#define ARCH_STRING "x86_64"
+#define Q3_LITTLE_ENDIAN
+#elif defined(__arm64__)
+#define ARCH_STRING "arm64"
+#define Q3_LITTLE_ENDIAN
+#else
+#error ModernJK builds only for x86_64 and arm64 on macOS
+#endif
 
-    #define DLL_EXT ".dylib"
+#define DLL_EXT ".dylib"
 
 // Linux
 #elif defined(__linux__)
 
-	#include <endian.h>
+#include <endian.h>
 
-	#define OS_STRING "linux"
+#define OS_STRING "linux"
 
-	#define QINLINE inline
+#define QINLINE inline
 
-	#define PATH_SEP '/'
+#define PATH_SEP '/'
 
-	#if !defined(ARCH_STRING)
-		#error ARCH_STRING should be defined by the build system
-	#endif
-
-	#if __FLOAT_WORD_ORDER == __BIG_ENDIAN
-		#define Q3_BIG_ENDIAN
-	#else
-		#define Q3_LITTLE_ENDIAN
-	#endif
-
-	#define DLL_EXT ".so"
-
-#else
-	#error ModernJK builds only for Windows, Linux and macOS
+#if !defined(ARCH_STRING)
+#error ARCH_STRING should be defined by the build system
 #endif
 
-#if (defined( _MSC_VER ) && (_MSC_VER < 1900)) || (defined(__GNUC__))
+#if __FLOAT_WORD_ORDER == __BIG_ENDIAN
+#define Q3_BIG_ENDIAN
+#else
+#define Q3_LITTLE_ENDIAN
+#endif
+
+#define DLL_EXT ".so"
+
+#else
+#error ModernJK builds only for Windows, Linux and macOS
+#endif
+
+#if (defined(_MSC_VER) && (_MSC_VER < 1900)) || (defined(__GNUC__))
 // VS2013, which for some reason we still support, does not support noexcept
 // GCC GNU has the same problem: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52869
 #define NOEXCEPT
@@ -128,66 +128,65 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // __declspec doesn't work on function pointers
 #define NORETURN_PTR /* nothing */
 #else
-#define NORETURN /* nothing */
+#define NORETURN     /* nothing */
 #define NORETURN_PTR /* nothing */
 #endif
 
 #define OVERRIDE override
 
 #if defined(__cplusplus)
-	#include <cstddef>
+#include <cstddef>
 
-	// gcc versions < 4.9 did not add max_align_t to the std:: namespace, but instead
-	// put it in the global namespace. Need this to provide uniform access to max_align_t
-	#if defined(__GNUC__) && ((__GNUC__ < 4) || (__GNUC__ == 4 && __GNUC_MINOR__ < 9))
-		typedef max_align_t qmax_align_t;
-	#else
-		typedef std::max_align_t qmax_align_t;
-	#endif
+// gcc versions < 4.9 did not add max_align_t to the std:: namespace, but instead
+// put it in the global namespace. Need this to provide uniform access to max_align_t
+#if defined(__GNUC__) && ((__GNUC__ < 4) || (__GNUC__ == 4 && __GNUC_MINOR__ < 9))
+typedef max_align_t qmax_align_t;
+#else
+typedef std::max_align_t qmax_align_t;
+#endif
 #endif
 
-#if defined (_MSC_VER)
-	#if _MSC_VER >= 1600
-		#include <stdint.h>
-	#else
-		typedef signed __int64 int64_t;
-		typedef signed __int32 int32_t;
-		typedef signed __int16 int16_t;
-		typedef signed __int8  int8_t;
-		typedef unsigned __int64 uint64_t;
-		typedef unsigned __int32 uint32_t;
-		typedef unsigned __int16 uint16_t;
-		typedef unsigned __int8  uint8_t;
-	#endif
+#if defined(_MSC_VER)
+#if _MSC_VER >= 1600
+#include <stdint.h>
+#else
+typedef signed __int64 int64_t;
+typedef signed __int32 int32_t;
+typedef signed __int16 int16_t;
+typedef signed __int8 int8_t;
+typedef unsigned __int64 uint64_t;
+typedef unsigned __int32 uint32_t;
+typedef unsigned __int16 uint16_t;
+typedef unsigned __int8 uint8_t;
+#endif
 #else // not using MSVC
-	#if !defined(__STDC_LIMIT_MACROS)
-		#define __STDC_LIMIT_MACROS
-	#endif
-	#include <stdint.h>
+#if !defined(__STDC_LIMIT_MACROS)
+#define __STDC_LIMIT_MACROS
+#endif
+#include <stdint.h>
 #endif
 
 // catch missing defines in above blocks
 #if !defined(OS_STRING)
-	#error "Operating system not supported"
+#error "Operating system not supported"
 #endif
 #if !defined(ARCH_STRING)
-	#error "Architecture not supported"
+#error "Architecture not supported"
 #endif
 #if !defined(DLL_EXT)
-	#error "DLL_EXT not defined"
+#error "DLL_EXT not defined"
 #endif
 #if !defined(QINLINE)
-	#error "QINLINE not defined"
+#error "QINLINE not defined"
 #endif
 #if !defined(PATH_SEP)
-	#error "PATH_SEP not defined"
+#error "PATH_SEP not defined"
 #endif
 
 // endianness
 // Use compiler builtins where possible for maximum performance
 #include <stdint.h>
-#if !defined(__clang__) && (defined(__GNUC__) || defined(__GNUG__)) \
-            && ((__GNUC__ * 100 + __GNUC_MINOR__) >= 403)
+#if !defined(__clang__) && (defined(__GNUC__) || defined(__GNUG__)) && ((__GNUC__ * 100 + __GNUC_MINOR__) >= 403)
 // gcc >= 4.3
 
 static inline uint16_t ShortSwap(uint16_t v)
@@ -229,19 +228,16 @@ static inline uint16_t ShortSwap(uint16_t v)
 
 static inline uint32_t LongSwap(uint32_t v)
 {
-    return ((v & 0x000000FF) << 24) |
-           ((v & 0x0000FF00) << 8)  |
-           ((v & 0x00FF0000) >> 8)  |
-           ((v & 0xFF000000) >> 24);
+    return ((v & 0x000000FF) << 24) | ((v & 0x0000FF00) << 8) | ((v & 0x00FF0000) >> 8) | ((v & 0xFF000000) >> 24);
 }
 #endif
 
-static QINLINE void CopyShortSwap( void *dest, const void *src )
+static QINLINE void CopyShortSwap(void* dest, const void* src)
 {
     *(uint16_t*)dest = ShortSwap(*(uint16_t*)src);
 }
 
-static QINLINE void CopyLongSwap( void *dest, const void *src )
+static QINLINE void CopyLongSwap(void* dest, const void* src)
 {
     *(uint32_t*)dest = LongSwap(*(uint32_t*)src);
 }
@@ -254,27 +250,27 @@ static QINLINE float FloatSwap(float f)
 }
 
 #if defined(Q3_BIG_ENDIAN) && defined(Q3_LITTLE_ENDIAN)
-	#error "Endianness defined as both big and little"
+#error "Endianness defined as both big and little"
 #elif defined(Q3_BIG_ENDIAN)
-	#define CopyLittleShort( dest, src )	CopyShortSwap( dest, src )
-	#define CopyLittleLong( dest, src )		CopyLongSwap( dest, src )
-	#define LittleShort( x )				ShortSwap( x )
-	#define LittleLong( x )					LongSwap( x )
-	#define LittleFloat( x )				FloatSwap( x )
-	#define BigShort
-	#define BigLong
-	#define BigFloat
-#elif defined( Q3_LITTLE_ENDIAN )
-	#define CopyLittleShort( dest, src )	Com_Memcpy(dest, src, 2)
-	#define CopyLittleLong( dest, src )		Com_Memcpy(dest, src, 4)
-	#define LittleShort
-	#define LittleLong
-	#define LittleFloat
-	#define BigShort( x )					ShortSwap( x )
-	#define BigLong( x )					LongSwap( x )
-	#define BigFloat( x )					FloatSwap( x )
+#define CopyLittleShort(dest, src) CopyShortSwap(dest, src)
+#define CopyLittleLong(dest, src) CopyLongSwap(dest, src)
+#define LittleShort(x) ShortSwap(x)
+#define LittleLong(x) LongSwap(x)
+#define LittleFloat(x) FloatSwap(x)
+#define BigShort
+#define BigLong
+#define BigFloat
+#elif defined(Q3_LITTLE_ENDIAN)
+#define CopyLittleShort(dest, src) Com_Memcpy(dest, src, 2)
+#define CopyLittleLong(dest, src) Com_Memcpy(dest, src, 4)
+#define LittleShort
+#define LittleLong
+#define LittleFloat
+#define BigShort(x) ShortSwap(x)
+#define BigLong(x) LongSwap(x)
+#define BigFloat(x) FloatSwap(x)
 #else
-	#error "Endianness not defined"
+#error "Endianness not defined"
 #endif
 
 typedef unsigned char byte;
@@ -283,16 +279,16 @@ typedef unsigned long ulong;
 
 // 32 bit field aliasing
 typedef union byteAlias_u {
-	float f;
-	int32_t i;
-	uint32_t ui;
-	byte b[4];
-	char c[4];
+    float f;
+    int32_t i;
+    uint32_t ui;
+    byte b[4];
+    char c[4];
 } byteAlias_t;
 
 // platform string
 #if defined(NDEBUG)
-	#define PLATFORM_STRING OS_STRING "-" ARCH_STRING
+#define PLATFORM_STRING OS_STRING "-" ARCH_STRING
 #else
-	#define PLATFORM_STRING OS_STRING "-" ARCH_STRING "-debug"
+#define PLATFORM_STRING OS_STRING "-" ARCH_STRING "-debug"
 #endif

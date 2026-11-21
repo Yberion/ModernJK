@@ -24,27 +24,22 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // unix_local.h: Linux-specific Quake3 header file
 
-void Sys_QueEvent( int time, sysEventType_t type, int value, int value2, int ptrLength, void *ptr );
-bool Sys_GetPacket ( netadr_t *net_from, msg_t *net_message );
+void Sys_QueEvent(int time, sysEventType_t type, int value, int value2, int ptrLength, void* ptr);
+bool Sys_GetPacket(netadr_t* net_from, msg_t* net_message);
 
 // Input subsystem
 
-void IN_Init (void);
-void IN_Frame (void);
-void IN_Shutdown (void);
+void IN_Init(void);
+void IN_Frame(void);
+void IN_Shutdown(void);
 
-
-void IN_JoyMove( void );
-void IN_StartupJoystick( void );
+void IN_JoyMove(void);
+void IN_StartupJoystick(void);
 
 // GL subsystem
-bool QGL_Init( const char *dllname );
-void QGL_EnableLogging( bool enable );
-void QGL_Shutdown( void );
-
-
-
-
+bool QGL_Init(const char* dllname);
+void QGL_EnableLogging(bool enable);
+void QGL_Shutdown(void);
 
 // bk001130 - win32
 // void IN_JoystickCommands (void);

@@ -45,51 +45,49 @@ bool stdinIsATTY = false;
 
 #if !defined(BUILD_PORTABLE)
 // Used to determine where to store user-specific files
-static char homePath[ MAX_OSPATH ] = { 0 };
+static char homePath[MAX_OSPATH] = {0};
 #endif
 
 // Max open file descriptors. Mostly used by pk3 files with
 // MAX_SEARCH_PATHS limit.
 constexpr int MAX_OPEN_FILES = 4096;
 
-void Sys_PlatformInit( int argc, char *argv[] )
+void Sys_PlatformInit(int argc, char* argv[])
 {
-	const char* term = getenv( "TERM" );
+    const char* term = getenv("TERM");
 
-	signal( SIGHUP, Sys_SigHandler );
-	signal( SIGQUIT, Sys_SigHandler );
-	signal( SIGTRAP, Sys_SigHandler );
-	signal( SIGABRT, Sys_SigHandler );
-	signal( SIGBUS, Sys_SigHandler );
+    signal(SIGHUP, Sys_SigHandler);
+    signal(SIGQUIT, Sys_SigHandler);
+    signal(SIGTRAP, Sys_SigHandler);
+    signal(SIGABRT, Sys_SigHandler);
+    signal(SIGBUS, Sys_SigHandler);
 
-	if (isatty( STDIN_FILENO ) && !( term && ( !strcmp( term, "raw" ) || !strcmp( term, "dumb" ) ) ))
-		stdinIsATTY = true;
-	else
-		stdinIsATTY = false;
+    if (isatty(STDIN_FILENO) && !(term && (!strcmp(term, "raw") || !strcmp(term, "dumb"))))
+        stdinIsATTY = true;
+    else
+        stdinIsATTY = false;
 
-	// raise open file limit to allow more pk3 files
-	int retval;
-	struct rlimit rlim;
-	rlim_t maxfds = MAX_OPEN_FILES;
+    // raise open file limit to allow more pk3 files
+    int retval;
+    struct rlimit rlim;
+    rlim_t maxfds = MAX_OPEN_FILES;
 
-	for (int i = 1; i + 1 < argc; i++) {
-		if (!Q_stricmp(argv[i], "-maxfds")) {
-			maxfds = atoi(argv[i + 1]);
-		}
-	}
+    for (int i = 1; i + 1 < argc; i++) {
+        if (!Q_stricmp(argv[i], "-maxfds")) {
+            maxfds = atoi(argv[i + 1]);
+        }
+    }
 
-	getrlimit(RLIMIT_NOFILE, &rlim);
-	rlim.rlim_cur = Q_min(maxfds, rlim.rlim_max);
-	retval = setrlimit(RLIMIT_NOFILE, &rlim);
+    getrlimit(RLIMIT_NOFILE, &rlim);
+    rlim.rlim_cur = Q_min(maxfds, rlim.rlim_max);
+    retval = setrlimit(RLIMIT_NOFILE, &rlim);
 
-	if (retval == -1) {
-		Com_Printf("Warning: Failed to raise open file limit. %s\n", strerror(errno));
-	}
+    if (retval == -1) {
+        Com_Printf("Warning: Failed to raise open file limit. %s\n", strerror(errno));
+    }
 }
 
-void Sys_PlatformExit( void )
-{
-}
+void Sys_PlatformExit(void) {}
 
 /*
 ================
@@ -100,22 +98,22 @@ every step of the system time (NTP, a date set by hand), which froze the server 
 ran up to 5 s of frames at once when it went forward.
 ================
 */
-static int64_t Sys_MonotonicMilliseconds( void )
+static int64_t Sys_MonotonicMilliseconds(void)
 {
-	struct timespec now;
+    struct timespec now;
 
-	clock_gettime( CLOCK_MONOTONIC, &now );
-	return (int64_t)now.tv_sec * 1000 + now.tv_nsec / 1000000;
+    clock_gettime(CLOCK_MONOTONIC, &now);
+    return (int64_t)now.tv_sec * 1000 + now.tv_nsec / 1'000'000;
 }
 
-int Sys_Milliseconds( void )
+int Sys_Milliseconds(void)
 {
-	static const int64_t base = Sys_MonotonicMilliseconds();
+    static const int64_t base = Sys_MonotonicMilliseconds();
 
-	return (int)( Sys_MonotonicMilliseconds() - base );
+    return (int)(Sys_MonotonicMilliseconds() - base);
 }
 
-int Sys_Milliseconds2( void )
+int Sys_Milliseconds2(void)
 {
     return Sys_Milliseconds();
 }
@@ -125,24 +123,23 @@ int Sys_Milliseconds2( void )
 Sys_RandomBytes
 ==================
 */
-bool Sys_RandomBytes( byte *string, int len )
+bool Sys_RandomBytes(byte* string, int len)
 {
-	FILE *fp;
+    FILE* fp;
 
-	fp = fopen( "/dev/urandom", "r" );
-	if( !fp )
-		return false;
+    fp = fopen("/dev/urandom", "r");
+    if (!fp)
+        return false;
 
-	setvbuf( fp, nullptr, _IONBF, 0 ); // don't buffer reads from /dev/urandom
+    setvbuf(fp, nullptr, _IONBF, 0); // don't buffer reads from /dev/urandom
 
-	if( !fread( string, sizeof( byte ), len, fp ) )
-	{
-		fclose( fp );
-		return false;
-	}
+    if (!fread(string, sizeof(byte), len, fp)) {
+        fclose(fp);
+        return false;
+    }
 
-	fclose( fp );
-	return true;
+    fclose(fp);
+    return true;
 }
 
 /*
@@ -150,14 +147,14 @@ bool Sys_RandomBytes( byte *string, int len )
  Sys_GetCurrentUser
  ==================
  */
-const char *Sys_GetCurrentUser( void )
+const char* Sys_GetCurrentUser(void)
 {
-	struct passwd *p;
+    struct passwd* p;
 
-	if ( (p = getpwuid( getuid() )) == nullptr ) {
-		return "player";
-	}
-	return p->pw_name;
+    if ((p = getpwuid(getuid())) == nullptr) {
+        return "player";
+    }
+    return p->pw_name;
 }
 
 /*
@@ -167,9 +164,9 @@ Sys_LowPhysicalMemory
 TODO
 ==================
 */
-bool Sys_LowPhysicalMemory( void )
+bool Sys_LowPhysicalMemory(void)
 {
-	return false;
+    return false;
 }
 
 /*
@@ -177,11 +174,11 @@ bool Sys_LowPhysicalMemory( void )
 Sys_Basename
 ==================
 */
-const char *Sys_Basename( const char *path )
+const char* Sys_Basename(const char* path)
 {
-	static char buf[ MAX_OSPATH ];
-	Q_strncpyz( buf, path, sizeof(buf) );
-	return basename( buf );
+    static char buf[MAX_OSPATH];
+    Q_strncpyz(buf, path, sizeof(buf));
+    return basename(buf);
 }
 
 /*
@@ -189,11 +186,11 @@ const char *Sys_Basename( const char *path )
 Sys_Dirname
 ==================
 */
-const char *Sys_Dirname( const char *path )
+const char* Sys_Dirname(const char* path)
 {
-	static char buf[ MAX_OSPATH ];
-	Q_strncpyz( buf, path, sizeof(buf) );
-	return dirname( buf );
+    static char buf[MAX_OSPATH];
+    Q_strncpyz(buf, path, sizeof(buf));
+    return dirname(buf);
 }
 
 /*
@@ -211,162 +208,160 @@ constexpr int MAX_FOUND_FILES = 0x1000;
 Sys_ListFiles
 ==================
 */
-void Sys_ListFilteredFiles( const char *basedir, const char *subdirs, const char *filter, char **list, int *numfiles ) {
-	char		search[MAX_OSPATH], newsubdirs[MAX_OSPATH];
-	char		filename[MAX_OSPATH];
-	DIR			*fdir;
-	struct dirent *d;
-	struct stat st;
-
-	if ( *numfiles >= MAX_FOUND_FILES - 1 ) {
-		return;
-	}
-
-	if (strlen(subdirs)) {
-		Com_sprintf( search, sizeof(search), "%s/%s", basedir, subdirs );
-	}
-	else {
-		Com_sprintf( search, sizeof(search), "%s", basedir );
-	}
-
-	if ((fdir = opendir(search)) == nullptr) {
-		return;
-	}
-
-	while ((d = readdir(fdir)) != nullptr) {
-		Com_sprintf(filename, sizeof(filename), "%s/%s", search, d->d_name);
-		if (stat(filename, &st) == -1)
-			continue;
-
-		if (st.st_mode & S_IFDIR) {
-			if (Q_stricmp(d->d_name, ".") && Q_stricmp(d->d_name, "..")) {
-				if (strlen(subdirs)) {
-					Com_sprintf( newsubdirs, sizeof(newsubdirs), "%s/%s", subdirs, d->d_name);
-				}
-				else {
-					Com_sprintf( newsubdirs, sizeof(newsubdirs), "%s", d->d_name);
-				}
-				Sys_ListFilteredFiles( basedir, newsubdirs, filter, list, numfiles );
-			}
-		}
-		if ( *numfiles >= MAX_FOUND_FILES - 1 ) {
-			break;
-		}
-		Com_sprintf( filename, sizeof(filename), "%s/%s", subdirs, d->d_name );
-		if (!Com_FilterPath( filter, filename, false ))
-			continue;
-		list[ *numfiles ] = CopyString( filename );
-		(*numfiles)++;
-	}
-
-	closedir(fdir);
-}
-
-char **Sys_ListFiles( const char *directory, const char *extension, const char *filter, int *numfiles, bool wantsubs )
+void Sys_ListFilteredFiles(const char* basedir, const char* subdirs, const char* filter, char** list, int* numfiles)
 {
-	struct dirent *d;
-	DIR		*fdir;
-	bool dironly = wantsubs;
-	char		search[MAX_OSPATH];
-	int			nfiles;
-	char		**listCopy;
-	char		*list[MAX_FOUND_FILES];
-	int			i;
-	struct stat st;
+    char search[MAX_OSPATH], newsubdirs[MAX_OSPATH];
+    char filename[MAX_OSPATH];
+    DIR* fdir;
+    struct dirent* d;
+    struct stat st;
 
-	if (filter) {
+    if (*numfiles >= MAX_FOUND_FILES - 1) {
+        return;
+    }
 
-		nfiles = 0;
-		Sys_ListFilteredFiles( directory, "", filter, list, &nfiles );
+    if (strlen(subdirs)) {
+        Com_sprintf(search, sizeof(search), "%s/%s", basedir, subdirs);
+    }
+    else {
+        Com_sprintf(search, sizeof(search), "%s", basedir);
+    }
 
-		list[ nfiles ] = 0;
-		*numfiles = nfiles;
+    if ((fdir = opendir(search)) == nullptr) {
+        return;
+    }
 
-		if (!nfiles)
-			return nullptr;
+    while ((d = readdir(fdir)) != nullptr) {
+        Com_sprintf(filename, sizeof(filename), "%s/%s", search, d->d_name);
+        if (stat(filename, &st) == -1)
+            continue;
 
-		listCopy = (char **)Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ), memtag::TAG_LISTFILES, false );
-		for ( i = 0 ; i < nfiles ; i++ ) {
-			listCopy[i] = list[i];
-		}
-		listCopy[i] = nullptr;
+        if (st.st_mode & S_IFDIR) {
+            if (Q_stricmp(d->d_name, ".") && Q_stricmp(d->d_name, "..")) {
+                if (strlen(subdirs)) {
+                    Com_sprintf(newsubdirs, sizeof(newsubdirs), "%s/%s", subdirs, d->d_name);
+                }
+                else {
+                    Com_sprintf(newsubdirs, sizeof(newsubdirs), "%s", d->d_name);
+                }
+                Sys_ListFilteredFiles(basedir, newsubdirs, filter, list, numfiles);
+            }
+        }
+        if (*numfiles >= MAX_FOUND_FILES - 1) {
+            break;
+        }
+        Com_sprintf(filename, sizeof(filename), "%s/%s", subdirs, d->d_name);
+        if (!Com_FilterPath(filter, filename, false))
+            continue;
+        list[*numfiles] = CopyString(filename);
+        (*numfiles)++;
+    }
 
-		return listCopy;
-	}
-
-	if ( !extension)
-		extension = "";
-
-	if ( extension[0] == '/' && extension[1] == 0 ) {
-		extension = "";
-		dironly = true;
-	}
-
-	size_t extLen = strlen( extension );
-
-	// search
-	nfiles = 0;
-
-	if ((fdir = opendir(directory)) == nullptr) {
-		*numfiles = 0;
-		return nullptr;
-	}
-
-	while ((d = readdir(fdir)) != nullptr) {
-		Com_sprintf(search, sizeof(search), "%s/%s", directory, d->d_name);
-		if (stat(search, &st) == -1)
-			continue;
-		if ((dironly && !(st.st_mode & S_IFDIR)) ||
-			(!dironly && (st.st_mode & S_IFDIR)))
-			continue;
-
-		if (*extension) {
-			if ( strlen( d->d_name ) < extLen ||
-				Q_stricmp(
-					d->d_name + strlen( d->d_name ) - extLen,
-					extension ) ) {
-				continue; // didn't match
-			}
-		}
-
-		if ( nfiles == MAX_FOUND_FILES - 1 )
-			break;
-		list[ nfiles ] = CopyString( d->d_name );
-		nfiles++;
-	}
-
-	list[ nfiles ] = 0;
-
-	closedir(fdir);
-
-	// return a copy of the list
-	*numfiles = nfiles;
-
-	if ( !nfiles ) {
-		return nullptr;
-	}
-
-	listCopy = (char **)Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ), memtag::TAG_LISTFILES, false );
-	for ( i = 0 ; i < nfiles ; i++ ) {
-		listCopy[i] = list[i];
-	}
-	listCopy[i] = nullptr;
-
-	return listCopy;
+    closedir(fdir);
 }
 
-void	Sys_FreeFileList( char **fileList ) {
-	int		i;
+char** Sys_ListFiles(const char* directory, const char* extension, const char* filter, int* numfiles, bool wantsubs)
+{
+    struct dirent* d;
+    DIR* fdir;
+    bool dironly = wantsubs;
+    char search[MAX_OSPATH];
+    int nfiles;
+    char** listCopy;
+    char* list[MAX_FOUND_FILES];
+    int i;
+    struct stat st;
 
-	if ( !fileList ) {
-		return;
-	}
+    if (filter) {
 
-	for ( i = 0 ; fileList[i] ; i++ ) {
-		Z_Free( fileList[i] );
-	}
+        nfiles = 0;
+        Sys_ListFilteredFiles(directory, "", filter, list, &nfiles);
 
-	Z_Free( fileList );
+        list[nfiles] = 0;
+        *numfiles = nfiles;
+
+        if (!nfiles)
+            return nullptr;
+
+        listCopy = (char**)Z_Malloc((nfiles + 1) * sizeof(*listCopy), memtag::TAG_LISTFILES, false);
+        for (i = 0; i < nfiles; i++) {
+            listCopy[i] = list[i];
+        }
+        listCopy[i] = nullptr;
+
+        return listCopy;
+    }
+
+    if (!extension)
+        extension = "";
+
+    if (extension[0] == '/' && extension[1] == 0) {
+        extension = "";
+        dironly = true;
+    }
+
+    size_t extLen = strlen(extension);
+
+    // search
+    nfiles = 0;
+
+    if ((fdir = opendir(directory)) == nullptr) {
+        *numfiles = 0;
+        return nullptr;
+    }
+
+    while ((d = readdir(fdir)) != nullptr) {
+        Com_sprintf(search, sizeof(search), "%s/%s", directory, d->d_name);
+        if (stat(search, &st) == -1)
+            continue;
+        if ((dironly && !(st.st_mode & S_IFDIR)) || (!dironly && (st.st_mode & S_IFDIR)))
+            continue;
+
+        if (*extension) {
+            if (strlen(d->d_name) < extLen || Q_stricmp(d->d_name + strlen(d->d_name) - extLen, extension)) {
+                continue; // didn't match
+            }
+        }
+
+        if (nfiles == MAX_FOUND_FILES - 1)
+            break;
+        list[nfiles] = CopyString(d->d_name);
+        nfiles++;
+    }
+
+    list[nfiles] = 0;
+
+    closedir(fdir);
+
+    // return a copy of the list
+    *numfiles = nfiles;
+
+    if (!nfiles) {
+        return nullptr;
+    }
+
+    listCopy = (char**)Z_Malloc((nfiles + 1) * sizeof(*listCopy), memtag::TAG_LISTFILES, false);
+    for (i = 0; i < nfiles; i++) {
+        listCopy[i] = list[i];
+    }
+    listCopy[i] = nullptr;
+
+    return listCopy;
+}
+
+void Sys_FreeFileList(char** fileList)
+{
+    int i;
+
+    if (!fileList) {
+        return;
+    }
+
+    for (i = 0; fileList[i]; i++) {
+        Z_Free(fileList[i]);
+    }
+
+    Z_Free(fileList);
 }
 
 /*
@@ -376,38 +371,34 @@ Sys_Sleep
 Block execution for msec or until input is recieved.
 ==================
 */
-void Sys_Sleep( int msec )
+void Sys_Sleep(int msec)
 {
-	if( msec == 0 )
-		return;
+    if (msec == 0)
+        return;
 
-	if( stdinIsATTY )
-	{
-		fd_set fdset;
+    if (stdinIsATTY) {
+        fd_set fdset;
 
-		FD_ZERO(&fdset);
-		FD_SET(STDIN_FILENO, &fdset);
-		if( msec < 0 )
-		{
-			select(STDIN_FILENO + 1, &fdset, nullptr, nullptr, nullptr);
-		}
-		else
-		{
-			struct timeval timeout;
+        FD_ZERO(&fdset);
+        FD_SET(STDIN_FILENO, &fdset);
+        if (msec < 0) {
+            select(STDIN_FILENO + 1, &fdset, nullptr, nullptr, nullptr);
+        }
+        else {
+            struct timeval timeout;
 
-			timeout.tv_sec = msec/1000;
-			timeout.tv_usec = (msec%1000)*1000;
-			select(STDIN_FILENO + 1, &fdset, nullptr, nullptr, &timeout);
-		}
-	}
-	else
-	{
-		// With nothing to select() on, we can't wait indefinitely
-		if( msec < 0 )
-			msec = 10;
+            timeout.tv_sec = msec / 1000;
+            timeout.tv_usec = (msec % 1000) * 1000;
+            select(STDIN_FILENO + 1, &fdset, nullptr, nullptr, &timeout);
+        }
+    }
+    else {
+        // With nothing to select() on, we can't wait indefinitely
+        if (msec < 0)
+            msec = 10;
 
-		usleep( msec * 1000 );
-	}
+        usleep(msec * 1000);
+    }
 }
 
 /*
@@ -415,48 +406,47 @@ void Sys_Sleep( int msec )
 Sys_Mkdir
 ==================
 */
-bool Sys_Mkdir( const char *path )
+bool Sys_Mkdir(const char* path)
 {
-	int result = mkdir( path, 0750 );
+    int result = mkdir(path, 0750);
 
-	if( result != 0 )
-		return (errno == EEXIST);
+    if (result != 0)
+        return (errno == EEXIST);
 
-	return true;
+    return true;
 }
 
-char *Sys_Cwd( void )
+char* Sys_Cwd(void)
 {
-	static char cwd[MAX_OSPATH];
+    static char cwd[MAX_OSPATH];
 
-	if ( getcwd( cwd, sizeof( cwd ) - 1 ) == nullptr )
-		cwd[0] = '\0';
-	else
-		cwd[MAX_OSPATH-1] = '\0';
+    if (getcwd(cwd, sizeof(cwd) - 1) == nullptr)
+        cwd[0] = '\0';
+    else
+        cwd[MAX_OSPATH - 1] = '\0';
 
-	return cwd;
+    return cwd;
 }
 
 /* Resolves path names and determines if they are the same */
 /* For use with full OS paths not quake paths */
 /* Returns true if resulting paths are valid and the same, otherwise false */
-bool Sys_PathCmp( const char *path1, const char *path2 )
+bool Sys_PathCmp(const char* path1, const char* path2)
 {
-	char *r1, *r2;
+    char *r1, *r2;
 
-	r1 = realpath(path1, nullptr);
-	r2 = realpath(path2, nullptr);
+    r1 = realpath(path1, nullptr);
+    r2 = realpath(path2, nullptr);
 
-	if(r1 && r2 && !Q_stricmp(r1, r2))
-	{
-		free(r1);
-		free(r2);
-		return true;
-	}
+    if (r1 && r2 && !Q_stricmp(r1, r2)) {
+        free(r1);
+        free(r2);
+        return true;
+    }
 
-	free(r1);
-	free(r2);
-	return false;
+    free(r1);
+    free(r2);
+    return false;
 }
 
 /*
@@ -465,100 +455,95 @@ Sys_DefaultHomePath
 ==================
 */
 #if defined(BUILD_PORTABLE)
-char *Sys_DefaultHomePath(void)
+char* Sys_DefaultHomePath(void)
 {
-	return nullptr;
+    return nullptr;
 }
 #elif defined(MACOS_X)
-char *Sys_DefaultHomePath(void)
+char* Sys_DefaultHomePath(void)
 {
-	char *p;
+    char* p;
 
-	if ( !homePath[0] )
-	{
-		if ( (p = getenv( "HOME" )) != nullptr )
-		{
-			Com_sprintf( homePath, sizeof( homePath ), "%s%c", p, PATH_SEP );
-			Q_strcat( homePath, sizeof( homePath ), "Library/Application Support/" );
+    if (!homePath[0]) {
+        if ((p = getenv("HOME")) != nullptr) {
+            Com_sprintf(homePath, sizeof(homePath), "%s%c", p, PATH_SEP);
+            Q_strcat(homePath, sizeof(homePath), "Library/Application Support/");
 
-			if ( com_homepath && com_homepath->string[0] )
-				Q_strcat( homePath, sizeof( homePath ), com_homepath->string );
-			else
-				Q_strcat( homePath, sizeof( homePath ), HOMEPATH_NAME_MACOSX );
-		}
-	}
+            if (com_homepath && com_homepath->string[0])
+                Q_strcat(homePath, sizeof(homePath), com_homepath->string);
+            else
+                Q_strcat(homePath, sizeof(homePath), HOMEPATH_NAME_MACOSX);
+        }
+    }
 
-	return homePath;
+    return homePath;
 }
 #else
-char *Sys_DefaultHomePath(void)
+char* Sys_DefaultHomePath(void)
 {
-	char *p;
+    char* p;
 
-	if ( !homePath[0] )
-	{
-		if ( (p = getenv( "XDG_DATA_HOME" )) != nullptr )
-		{
-			Com_sprintf( homePath, sizeof( homePath ), "%s%c", p, PATH_SEP );
-			if ( com_homepath && com_homepath->string[0] )
-				Q_strcat( homePath, sizeof( homePath ), com_homepath->string );
-			else
-				Q_strcat( homePath, sizeof( homePath ), HOMEPATH_NAME_UNIX );
+    if (!homePath[0]) {
+        if ((p = getenv("XDG_DATA_HOME")) != nullptr) {
+            Com_sprintf(homePath, sizeof(homePath), "%s%c", p, PATH_SEP);
+            if (com_homepath && com_homepath->string[0])
+                Q_strcat(homePath, sizeof(homePath), com_homepath->string);
+            else
+                Q_strcat(homePath, sizeof(homePath), HOMEPATH_NAME_UNIX);
 
-			return homePath;
-		}
+            return homePath;
+        }
 
-		if ( (p = getenv( "HOME" )) != nullptr )
-		{
-			Com_sprintf( homePath, sizeof( homePath ), "%s%c.local%cshare%c", p, PATH_SEP, PATH_SEP, PATH_SEP );
-			if ( com_homepath && com_homepath->string[0] )
-				Q_strcat( homePath, sizeof( homePath ), com_homepath->string );
-			else
-				Q_strcat( homePath, sizeof( homePath ), HOMEPATH_NAME_UNIX );
+        if ((p = getenv("HOME")) != nullptr) {
+            Com_sprintf(homePath, sizeof(homePath), "%s%c.local%cshare%c", p, PATH_SEP, PATH_SEP, PATH_SEP);
+            if (com_homepath && com_homepath->string[0])
+                Q_strcat(homePath, sizeof(homePath), com_homepath->string);
+            else
+                Q_strcat(homePath, sizeof(homePath), HOMEPATH_NAME_UNIX);
 
-			return homePath;
-		}
-	}
+            return homePath;
+        }
+    }
 
-	return homePath;
+    return homePath;
 }
 #endif
 
-void Sys_SetProcessorAffinity( void ) {
+void Sys_SetProcessorAffinity(void)
+{
 #if defined(__linux__)
-	uint32_t cores;
+    uint32_t cores;
 
-	if ( sscanf( com_affinity->string, "%X", &cores ) != 1 )
-		cores = 1; // set to first core only
+    if (sscanf(com_affinity->string, "%X", &cores) != 1)
+        cores = 1; // set to first core only
 
-	const long numCores = sysconf( _SC_NPROCESSORS_ONLN );
-	if ( !cores )
-		cores = (1 << numCores) - 1; // use all cores
+    const long numCores = sysconf(_SC_NPROCESSORS_ONLN);
+    if (!cores)
+        cores = (1 << numCores) - 1; // use all cores
 
-	cpu_set_t set;
-	CPU_ZERO( &set );
-	for ( int i = 0; i < numCores; i++ ) {
-		if ( cores & (1<<i) ) {
-			CPU_SET( i, &set );
-		}
-	}
+    cpu_set_t set;
+    CPU_ZERO(&set);
+    for (int i = 0; i < numCores; i++) {
+        if (cores & (1 << i)) {
+            CPU_SET(i, &set);
+        }
+    }
 
-	sched_setaffinity( 0, sizeof( set ), &set );
+    sched_setaffinity(0, sizeof(set), &set);
 #elif defined(MACOS_X)
-	//TODO: Apple's APIs for this are weird but exist on a per-thread level. Good enough for us.
+    // TODO: Apple's APIs for this are weird but exist on a per-thread level. Good enough for us.
 #endif
 }
 
-UnpackDLLResult Sys_UnpackDLL(const char *name)
+UnpackDLLResult Sys_UnpackDLL(const char* name)
 {
-	return UnpackDLLResult();
+    return UnpackDLLResult();
 }
 
 bool Sys_DLLNeedsUnpacking()
 {
-	return false;
+    return false;
 }
-
 
 /*
 =================
@@ -567,66 +552,57 @@ Sys_AnsiColorPrint
 Transform Q3 colour codes to ANSI escape sequences
 =================
 */
-void Sys_AnsiColorPrint( const char *msg )
+void Sys_AnsiColorPrint(const char* msg)
 {
-	static char buffer[MAXPRINTMSG];
-	int         length = 0;
-	static int  q3ToAnsi[Q_COLOR_BITS+1] =
-	{
-		30, // COLOR_BLACK
-		31, // COLOR_RED
-		32, // COLOR_GREEN
-		33, // COLOR_YELLOW
-		34, // COLOR_BLUE
-		36, // COLOR_CYAN
-		35, // COLOR_MAGENTA
-		0,  // COLOR_WHITE
-		33, // COLOR_ORANGE // FIXME
-		30, // COLOR_GREY
-	};
+    static char buffer[MAXPRINTMSG];
+    int length = 0;
+    static int q3ToAnsi[Q_COLOR_BITS + 1] = {
+        30, // COLOR_BLACK
+        31, // COLOR_RED
+        32, // COLOR_GREEN
+        33, // COLOR_YELLOW
+        34, // COLOR_BLUE
+        36, // COLOR_CYAN
+        35, // COLOR_MAGENTA
+        0,  // COLOR_WHITE
+        33, // COLOR_ORANGE // FIXME
+        30, // COLOR_GREY
+    };
 
-	while ( *msg )
-	{
-		if ( Q_IsColorStringExt( msg ) || *msg == '\n' )
-		{
-			// First empty the buffer
-			if ( length > 0 )
-			{
-				buffer[length] = '\0';
-				fputs( buffer, stderr );
-				length = 0;
-			}
+    while (*msg) {
+        if (Q_IsColorStringExt(msg) || *msg == '\n') {
+            // First empty the buffer
+            if (length > 0) {
+                buffer[length] = '\0';
+                fputs(buffer, stderr);
+                length = 0;
+            }
 
-			if ( *msg == '\n' )
-			{
-				// Issue a reset and then the newline
-				fputs( "\033[0m\n", stderr );
-				msg++;
-			}
-			else
-			{
-				// Print the color code
-				Com_sprintf( buffer, sizeof( buffer ), "\033[%dm",
-					q3ToAnsi[ColorIndex( *(msg + 1) )] );
-				fputs( buffer, stderr );
-				msg += 2;
-			}
-		}
-		else
-		{
-			if ( length >= MAXPRINTMSG - 1 )
-				break;
+            if (*msg == '\n') {
+                // Issue a reset and then the newline
+                fputs("\033[0m\n", stderr);
+                msg++;
+            }
+            else {
+                // Print the color code
+                Com_sprintf(buffer, sizeof(buffer), "\033[%dm", q3ToAnsi[ColorIndex(*(msg + 1))]);
+                fputs(buffer, stderr);
+                msg += 2;
+            }
+        }
+        else {
+            if (length >= MAXPRINTMSG - 1)
+                break;
 
-			buffer[length] = *msg;
-			length++;
-			msg++;
-		}
-	}
+            buffer[length] = *msg;
+            length++;
+            msg++;
+        }
+    }
 
-	// Empty anything still left in the buffer
-	if ( length > 0 )
-	{
-		buffer[length] = '\0';
-		fputs( buffer, stderr );
-	}
+    // Empty anything still left in the buffer
+    if (length > 0) {
+        buffer[length] = '\0';
+        fputs(buffer, stderr);
+    }
 }

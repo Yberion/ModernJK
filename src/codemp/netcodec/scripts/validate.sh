@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-# Validation on Linux (GCC 15 and Clang 23): configure, build and test every Linux preset (the game, netcodec and
+# Validation on Linux (GCC 15 and Clang 23): check that the C and C++ code is laid out as clang-format 23 lays it out
+# (.clang-format; the machines share the sources, so this check runs here only), configure, build and test every Linux
+# preset (the game, netcodec and
 # their tests; the AddressSanitizer preset with the sanitizers), build the servers' preset (the dedicated server
 # and the game module), then run the size benchmark (Release and AddressSanitizer), the codec benchmark (two runs) and
 # the trainers, which must rewrite the committed tables unchanged. Needs the traces of docs/modernization/data/traces
@@ -40,6 +42,8 @@ step() {
 	fi
 }
 
+step "formatting, clang-format 23" bash -c "find src test -type f \\( -name '*.c' -o -name '*.cpp' -o -name '*.h' -o -name '*.hpp' \
+	-o -name '*.inl' -o -name '*.inc' \\) -print0 | xargs -0 -P '$JOBS' -n 50 clang-format-23 --dry-run --Werror"
 for p in linux-gcc-release linux-gcc-debug linux-gcc-asan linux-clang-release linux-clang-asan; do
 	step "$p: configure" cmake --preset "$p"
 	step "$p: build" cmake --build --preset "$p" -j "$JOBS"

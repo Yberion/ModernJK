@@ -29,8 +29,8 @@ void RunLimitedVectorTests();
 
 int main()
 {
-	RunStringTests();
-	RunLimitedVectorTests();
-	std::printf( "%d failed check(s)\n", ::test::failures );
-	return ::test::failures;
+    RunStringTests();
+    RunLimitedVectorTests();
+    std::printf("%d failed check(s)\n", ::test::failures);
+    return ::test::failures;
 }

@@ -23,9 +23,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 /**********************************************************************
-	UI_ATOMS.C
+    UI_ATOMS.C
 
-	User interface building blocks and support functions.
+    User interface building blocks and support functions.
 **********************************************************************/
 
 #include "../server/exe_headers.h"
@@ -33,116 +33,108 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "ui_local.h"
 #include "gameinfo.h"
 
-uiimport_t	ui;
-uiStatic_t	uis;
+uiimport_t ui;
+uiStatic_t uis;
 
-//externs
-static void UI_LoadMenu_f( void );
-static void UI_SaveMenu_f( void );
+// externs
+static void UI_LoadMenu_f(void);
+static void UI_SaveMenu_f(void);
 
-//locals
-
+// locals
 
 /*
 =================
 UI_ForceMenuOff
 =================
 */
-void UI_ForceMenuOff (void)
+void UI_ForceMenuOff(void)
 {
-	ui.Key_SetCatcher( ui.Key_GetCatcher() & ~keyCatchFlags_t::KEYCATCH_UI );
-	ui.Key_ClearStates();
-	ui.Cvar_Set( "cl_paused", "0" );
+    ui.Key_SetCatcher(ui.Key_GetCatcher() & ~keyCatchFlags_t::KEYCATCH_UI);
+    ui.Key_ClearStates();
+    ui.Cvar_Set("cl_paused", "0");
 }
-
 
 /*
 =================
 UI_SetActiveMenu -
-	this should be the ONLY way the menu system is brought up
+    this should be the ONLY way the menu system is brought up
 
 =================
 */
-void UI_SetActiveMenu( const char* menuname,const char *menuID )
+void UI_SetActiveMenu(const char* menuname, const char* menuID)
 {
-	// this should be the ONLY way the menu system is brought up (besides the UI_ConsoleCommand below)
+    // this should be the ONLY way the menu system is brought up (besides the UI_ConsoleCommand below)
 
-	if (cls.state != connstate_t::CA_DISCONNECTED && !ui.SG_GameAllowedToSaveHere(true))	//don't check full sytem, only if incamera
-	{
-		return;
-	}
+    if (cls.state != connstate_t::CA_DISCONNECTED && !ui.SG_GameAllowedToSaveHere(true)) // don't check full sytem, only if incamera
+    {
+        return;
+    }
 
-	if ( !menuname ) {
-		UI_ForceMenuOff();
-		return;
-	}
+    if (!menuname) {
+        UI_ForceMenuOff();
+        return;
+    }
 
-	//make sure force-speed and slowmodeath doesn't slow down menus - NOTE: they should reset the timescale when the game un-pauses
-	Cvar_SetValue( "timescale", 1.0f );
+    // make sure force-speed and slowmodeath doesn't slow down menus - NOTE: they should reset the timescale when the game un-pauses
+    Cvar_SetValue("timescale", 1.0f);
 
-	UI_Cursor_Show(true);
+    UI_Cursor_Show(true);
 
-	// enusure minumum menu data is cached
-	Menu_Cache();
+    // enusure minumum menu data is cached
+    Menu_Cache();
 
-	if ( Q_stricmp (menuname, "mainMenu") == 0 )
-	{
-		UI_MainMenu();
-		return;
-	}
+    if (Q_stricmp(menuname, "mainMenu") == 0) {
+        UI_MainMenu();
+        return;
+    }
 
-	if ( Q_stricmp (menuname, "ingame") == 0 )
-	{
-		ui.Cvar_Set( "cl_paused", "1" );
-		UI_InGameMenu(menuID);
-		return;
-	}
+    if (Q_stricmp(menuname, "ingame") == 0) {
+        ui.Cvar_Set("cl_paused", "1");
+        UI_InGameMenu(menuID);
+        return;
+    }
 
-	if ( Q_stricmp (menuname, "datapad") == 0 )
-	{
-		ui.Cvar_Set( "cl_paused", "1" );
-		UI_DataPadMenu();
-		return;
-	}
+    if (Q_stricmp(menuname, "datapad") == 0) {
+        ui.Cvar_Set("cl_paused", "1");
+        UI_DataPadMenu();
+        return;
+    }
 #ifndef JK2_MODE
-	if ( Q_stricmp (menuname, "missionfailed_menu") == 0 )
-	{
-		Menus_CloseAll();
-		Menus_ActivateByName("missionfailed_menu");
-		ui.Key_SetCatcher( keyCatchFlags_t::KEYCATCH_UI );
-		return;
-	}
+    if (Q_stricmp(menuname, "missionfailed_menu") == 0) {
+        Menus_CloseAll();
+        Menus_ActivateByName("missionfailed_menu");
+        ui.Key_SetCatcher(keyCatchFlags_t::KEYCATCH_UI);
+        return;
+    }
 #endif
 }
-
 
 /*
 =================
 UI_Argv
 =================
 */
-static char *UI_Argv( int arg )
+static char* UI_Argv(int arg)
 {
-	static char	buffer[MAX_STRING_CHARS];
+    static char buffer[MAX_STRING_CHARS];
 
-	ui.Argv( arg, buffer, sizeof( buffer ) );
+    ui.Argv(arg, buffer, sizeof(buffer));
 
-	return buffer;
+    return buffer;
 }
-
 
 /*
 =================
 UI_Cvar_VariableString
 =================
 */
-char *UI_Cvar_VariableString( const char *var_name )
+char* UI_Cvar_VariableString(const char* var_name)
 {
-	static char	buffer[MAX_STRING_CHARS];
+    static char buffer[MAX_STRING_CHARS];
 
-	ui.Cvar_VariableStringBuffer( var_name, buffer, sizeof( buffer ) );
+    ui.Cvar_VariableStringBuffer(var_name, buffer, sizeof(buffer));
 
-	return buffer;
+    return buffer;
 }
 
 /*
@@ -150,45 +142,41 @@ char *UI_Cvar_VariableString( const char *var_name )
 UI_Cache
 =================
 */
-static void UI_Cache_f( void )
+static void UI_Cache_f(void)
 {
-	Menu_Cache();
+    Menu_Cache();
 #ifndef JK2_MODE
-extern EnumArray<const char *, forceWarning_t, forceWarning_t::NUM_FORCE_WARNINGS> lukeForceStatusSounds;
-extern EnumArray<const char *, forceWarning_t, forceWarning_t::NUM_FORCE_WARNINGS> kyleForceStatusSounds;
-	for (forceWarning_t index = forceWarning_t::FW_VERY_LIGHT; index < forceWarning_t::NUM_FORCE_WARNINGS; index++)
-	{
-		DC->registerSound(lukeForceStatusSounds[index], false);
-		DC->registerSound(kyleForceStatusSounds[index], false);
-	}
-	for (int index = 1; index <= 18; index++)
-	{
-		DC->registerSound(va("sound/chars/storyinfo/%d",index), false);
-	}
-	trap_S_RegisterSound("sound/chars/kyle/04kyk001.mp3", false);
-	trap_S_RegisterSound("sound/chars/kyle/05kyk001.mp3", false);
-	trap_S_RegisterSound("sound/chars/kyle/07kyk001.mp3", false);
-	trap_S_RegisterSound("sound/chars/kyle/14kyk001.mp3", false);
-	trap_S_RegisterSound("sound/chars/kyle/21kyk001.mp3", false);
-	trap_S_RegisterSound("sound/chars/kyle/24kyk001.mp3", false);
-	trap_S_RegisterSound("sound/chars/kyle/25kyk001.mp3", false);
+    extern EnumArray<const char*, forceWarning_t, forceWarning_t::NUM_FORCE_WARNINGS> lukeForceStatusSounds;
+    extern EnumArray<const char*, forceWarning_t, forceWarning_t::NUM_FORCE_WARNINGS> kyleForceStatusSounds;
+    for (forceWarning_t index = forceWarning_t::FW_VERY_LIGHT; index < forceWarning_t::NUM_FORCE_WARNINGS; index++) {
+        DC->registerSound(lukeForceStatusSounds[index], false);
+        DC->registerSound(kyleForceStatusSounds[index], false);
+    }
+    for (int index = 1; index <= 18; index++) {
+        DC->registerSound(va("sound/chars/storyinfo/%d", index), false);
+    }
+    trap_S_RegisterSound("sound/chars/kyle/04kyk001.mp3", false);
+    trap_S_RegisterSound("sound/chars/kyle/05kyk001.mp3", false);
+    trap_S_RegisterSound("sound/chars/kyle/07kyk001.mp3", false);
+    trap_S_RegisterSound("sound/chars/kyle/14kyk001.mp3", false);
+    trap_S_RegisterSound("sound/chars/kyle/21kyk001.mp3", false);
+    trap_S_RegisterSound("sound/chars/kyle/24kyk001.mp3", false);
+    trap_S_RegisterSound("sound/chars/kyle/25kyk001.mp3", false);
 
-	trap_S_RegisterSound("sound/chars/luke/06luk001.mp3", false);
-	trap_S_RegisterSound("sound/chars/luke/08luk001.mp3", false);
-	trap_S_RegisterSound("sound/chars/luke/22luk001.mp3", false);
-	trap_S_RegisterSound("sound/chars/luke/23luk001.mp3", false);
-	trap_S_RegisterSound("sound/chars/protocol/12pro001.mp3", false);
-	trap_S_RegisterSound("sound/chars/protocol/15pro001.mp3", false);
-	trap_S_RegisterSound("sound/chars/protocol/16pro001.mp3", false);
-	trap_S_RegisterSound("sound/chars/wedge/13wea001.mp3", false);
+    trap_S_RegisterSound("sound/chars/luke/06luk001.mp3", false);
+    trap_S_RegisterSound("sound/chars/luke/08luk001.mp3", false);
+    trap_S_RegisterSound("sound/chars/luke/22luk001.mp3", false);
+    trap_S_RegisterSound("sound/chars/luke/23luk001.mp3", false);
+    trap_S_RegisterSound("sound/chars/protocol/12pro001.mp3", false);
+    trap_S_RegisterSound("sound/chars/protocol/15pro001.mp3", false);
+    trap_S_RegisterSound("sound/chars/protocol/16pro001.mp3", false);
+    trap_S_RegisterSound("sound/chars/wedge/13wea001.mp3", false);
 
-
-	Menus_ActivateByName("ingameMissionSelect1");
-	Menus_ActivateByName("ingameMissionSelect2");
-	Menus_ActivateByName("ingameMissionSelect3");
+    Menus_ActivateByName("ingameMissionSelect1");
+    Menus_ActivateByName("ingameMissionSelect2");
+    Menus_ActivateByName("ingameMissionSelect3");
 #endif
 }
-
 
 /*
 =================
@@ -196,123 +184,115 @@ UI_ConsoleCommand
 =================
 */
 #ifndef JK2_MODE
-void UI_Load(void);	//in UI_main.cpp
+void UI_Load(void); // in UI_main.cpp
 #endif
 
-bool UI_ConsoleCommand( void )
+bool UI_ConsoleCommand(void)
 {
-	char	*cmd;
+    char* cmd;
 
-	if (!ui.SG_GameAllowedToSaveHere(true))	//only check if incamera
-	{
-		return false;
-	}
+    if (!ui.SG_GameAllowedToSaveHere(true)) // only check if incamera
+    {
+        return false;
+    }
 
-	cmd = UI_Argv( 0 );
+    cmd = UI_Argv(0);
 
-	// ensure minimum menu data is available
-	Menu_Cache();
+    // ensure minimum menu data is available
+    Menu_Cache();
 
-	if ( Q_stricmp (cmd, "ui_cache") == 0 )
-	{
-		UI_Cache_f();
-		return true;
-	}
+    if (Q_stricmp(cmd, "ui_cache") == 0) {
+        UI_Cache_f();
+        return true;
+    }
 
-	if ( Q_stricmp (cmd, "levelselect") == 0 )
-	{
-		UI_LoadMenu_f();
-		return true;
-	}
+    if (Q_stricmp(cmd, "levelselect") == 0) {
+        UI_LoadMenu_f();
+        return true;
+    }
 
-	if ( Q_stricmp (cmd, "ui_teamOrders") == 0 )
-	{
-		UI_SaveMenu_f();
-		return true;
-	}
+    if (Q_stricmp(cmd, "ui_teamOrders") == 0) {
+        UI_SaveMenu_f();
+        return true;
+    }
 
-	if ( Q_stricmp (cmd, "ui_report") == 0 )
-	{
-		UI_Report();
-		return true;
-	}
+    if (Q_stricmp(cmd, "ui_report") == 0) {
+        UI_Report();
+        return true;
+    }
 
 #ifndef JK2_MODE
-	if ( Q_stricmp (cmd, "ui_load") == 0 )
-	{
-		UI_Load();
-		return true;
-	}
+    if (Q_stricmp(cmd, "ui_load") == 0) {
+        UI_Load();
+        return true;
+    }
 #endif
 
-	return false;
+    return false;
 }
-
 
 /*
 =================
 UI_Init
 =================
 */
-void UI_Init( int apiVersion, uiimport_t *uiimport, bool inGameLoad )
+void UI_Init(int apiVersion, uiimport_t* uiimport, bool inGameLoad)
 {
-	ui = *uiimport;
+    ui = *uiimport;
 
-	if ( apiVersion != UI_API_VERSION ) {
-		ui.Error( errorParm_t::ERR_FATAL, "Bad UI_API_VERSION: expected %i, got %i\n", UI_API_VERSION, apiVersion );
-	}
+    if (apiVersion != UI_API_VERSION) {
+        ui.Error(errorParm_t::ERR_FATAL, "Bad UI_API_VERSION: expected %i, got %i\n", UI_API_VERSION, apiVersion);
+    }
 
-	// get static data (glconfig, media)
-	ui.GetGlconfig( &uis.glconfig );
+    // get static data (glconfig, media)
+    ui.GetGlconfig(&uis.glconfig);
 
-	uis.scaley = uis.glconfig.vidHeight * (1.0/480.0);
-	uis.scalex = uis.glconfig.vidWidth * (1.0/640.0);
+    uis.scaley = uis.glconfig.vidHeight * (1.0 / 480.0);
+    uis.scalex = uis.glconfig.vidWidth * (1.0 / 640.0);
 
-	Menu_Cache( );
+    Menu_Cache();
 
-	ui.Cvar_Create( "cg_drawCrosshair", "1", cvarFlags_t::CVAR_ARCHIVE );
-	ui.Cvar_Create( "cg_marks", "1", cvarFlags_t::CVAR_ARCHIVE );
-	ui.Cvar_Create ("s_language",			"english",	cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_NORESTART);
+    ui.Cvar_Create("cg_drawCrosshair", "1", cvarFlags_t::CVAR_ARCHIVE);
+    ui.Cvar_Create("cg_marks", "1", cvarFlags_t::CVAR_ARCHIVE);
+    ui.Cvar_Create("s_language", "english", cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_NORESTART);
 #ifndef JK2_MODE
-	ui.Cvar_Create( "g_char_model",			"jedi_tf",	cvarFlags_t::CVAR_ARCHIVE|cvarFlags_t::CVAR_SAVEGAME|cvarFlags_t::CVAR_NORESTART );
-	ui.Cvar_Create( "g_char_skin_head",		"head_a1",	cvarFlags_t::CVAR_ARCHIVE|cvarFlags_t::CVAR_SAVEGAME|cvarFlags_t::CVAR_NORESTART );
-	ui.Cvar_Create( "g_char_skin_torso",	"torso_a1",	cvarFlags_t::CVAR_ARCHIVE|cvarFlags_t::CVAR_SAVEGAME|cvarFlags_t::CVAR_NORESTART );
-	ui.Cvar_Create( "g_char_skin_legs",		"lower_a1",	cvarFlags_t::CVAR_ARCHIVE|cvarFlags_t::CVAR_SAVEGAME|cvarFlags_t::CVAR_NORESTART );
-	ui.Cvar_Create( "g_char_color_red",		"255",		cvarFlags_t::CVAR_ARCHIVE|cvarFlags_t::CVAR_SAVEGAME|cvarFlags_t::CVAR_NORESTART );
-	ui.Cvar_Create( "g_char_color_green",	"255",		cvarFlags_t::CVAR_ARCHIVE|cvarFlags_t::CVAR_SAVEGAME|cvarFlags_t::CVAR_NORESTART );
-	ui.Cvar_Create( "g_char_color_blue",	"255",		cvarFlags_t::CVAR_ARCHIVE|cvarFlags_t::CVAR_SAVEGAME|cvarFlags_t::CVAR_NORESTART );
-	ui.Cvar_Create( "g_saber_type",			"single",	cvarFlags_t::CVAR_ARCHIVE|cvarFlags_t::CVAR_SAVEGAME|cvarFlags_t::CVAR_NORESTART );
-	ui.Cvar_Create( "g_saber",				"single_1",	cvarFlags_t::CVAR_ARCHIVE|cvarFlags_t::CVAR_SAVEGAME|cvarFlags_t::CVAR_NORESTART );
-	ui.Cvar_Create( "g_saber2",				"",			cvarFlags_t::CVAR_ARCHIVE|cvarFlags_t::CVAR_SAVEGAME|cvarFlags_t::CVAR_NORESTART );
-	ui.Cvar_Create( "g_saber_color",		"yellow",	cvarFlags_t::CVAR_ARCHIVE|cvarFlags_t::CVAR_SAVEGAME|cvarFlags_t::CVAR_NORESTART );
-	ui.Cvar_Create( "g_saber2_color",		"yellow",	cvarFlags_t::CVAR_ARCHIVE|cvarFlags_t::CVAR_SAVEGAME|cvarFlags_t::CVAR_NORESTART );
+    ui.Cvar_Create("g_char_model", "jedi_tf", cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_SAVEGAME | cvarFlags_t::CVAR_NORESTART);
+    ui.Cvar_Create("g_char_skin_head", "head_a1", cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_SAVEGAME | cvarFlags_t::CVAR_NORESTART);
+    ui.Cvar_Create("g_char_skin_torso", "torso_a1", cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_SAVEGAME | cvarFlags_t::CVAR_NORESTART);
+    ui.Cvar_Create("g_char_skin_legs", "lower_a1", cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_SAVEGAME | cvarFlags_t::CVAR_NORESTART);
+    ui.Cvar_Create("g_char_color_red", "255", cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_SAVEGAME | cvarFlags_t::CVAR_NORESTART);
+    ui.Cvar_Create("g_char_color_green", "255", cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_SAVEGAME | cvarFlags_t::CVAR_NORESTART);
+    ui.Cvar_Create("g_char_color_blue", "255", cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_SAVEGAME | cvarFlags_t::CVAR_NORESTART);
+    ui.Cvar_Create("g_saber_type", "single", cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_SAVEGAME | cvarFlags_t::CVAR_NORESTART);
+    ui.Cvar_Create("g_saber", "single_1", cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_SAVEGAME | cvarFlags_t::CVAR_NORESTART);
+    ui.Cvar_Create("g_saber2", "", cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_SAVEGAME | cvarFlags_t::CVAR_NORESTART);
+    ui.Cvar_Create("g_saber_color", "yellow", cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_SAVEGAME | cvarFlags_t::CVAR_NORESTART);
+    ui.Cvar_Create("g_saber2_color", "yellow", cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_SAVEGAME | cvarFlags_t::CVAR_NORESTART);
 
-	ui.Cvar_Create( "ui_forcepower_inc",	"0",		cvarFlags_t::CVAR_ROM|cvarFlags_t::CVAR_SAVEGAME|cvarFlags_t::CVAR_NORESTART);
-	ui.Cvar_Create( "tier_storyinfo",		"0",		cvarFlags_t::CVAR_ROM|cvarFlags_t::CVAR_SAVEGAME|cvarFlags_t::CVAR_NORESTART);
-	ui.Cvar_Create( "tiers_complete",		"",			cvarFlags_t::CVAR_ROM|cvarFlags_t::CVAR_SAVEGAME|cvarFlags_t::CVAR_NORESTART);
-	ui.Cvar_Create( "ui_prisonerobj_currtotal", "0",	cvarFlags_t::CVAR_ROM|cvarFlags_t::CVAR_SAVEGAME|cvarFlags_t::CVAR_NORESTART);
-	ui.Cvar_Create( "ui_prisonerobj_mintotal",  "0",	cvarFlags_t::CVAR_ROM|cvarFlags_t::CVAR_SAVEGAME|cvarFlags_t::CVAR_NORESTART);
+    ui.Cvar_Create("ui_forcepower_inc", "0", cvarFlags_t::CVAR_ROM | cvarFlags_t::CVAR_SAVEGAME | cvarFlags_t::CVAR_NORESTART);
+    ui.Cvar_Create("tier_storyinfo", "0", cvarFlags_t::CVAR_ROM | cvarFlags_t::CVAR_SAVEGAME | cvarFlags_t::CVAR_NORESTART);
+    ui.Cvar_Create("tiers_complete", "", cvarFlags_t::CVAR_ROM | cvarFlags_t::CVAR_SAVEGAME | cvarFlags_t::CVAR_NORESTART);
+    ui.Cvar_Create("ui_prisonerobj_currtotal", "0", cvarFlags_t::CVAR_ROM | cvarFlags_t::CVAR_SAVEGAME | cvarFlags_t::CVAR_NORESTART);
+    ui.Cvar_Create("ui_prisonerobj_mintotal", "0", cvarFlags_t::CVAR_ROM | cvarFlags_t::CVAR_SAVEGAME | cvarFlags_t::CVAR_NORESTART);
 
-	ui.Cvar_Create( "g_dismemberment", "3", cvarFlags_t::CVAR_ARCHIVE );//0 = none, 1 = arms and hands, 2 = legs, 3 = waist and head
-	ui.Cvar_Create( "cg_gunAutoFirst", "1", cvarFlags_t::CVAR_ARCHIVE );
-	ui.Cvar_Create( "cg_crosshairIdentifyTarget", "1", cvarFlags_t::CVAR_ARCHIVE );
-	ui.Cvar_Create( "g_subtitles", "0", cvarFlags_t::CVAR_ARCHIVE );
-	ui.Cvar_Create( "cg_marks", "1", cvarFlags_t::CVAR_ARCHIVE );
-	ui.Cvar_Create( "d_slowmodeath", "3", cvarFlags_t::CVAR_ARCHIVE );
-	ui.Cvar_Create( "cg_shadows", "1", cvarFlags_t::CVAR_ARCHIVE );
+    ui.Cvar_Create("g_dismemberment", "3", cvarFlags_t::CVAR_ARCHIVE); // 0 = none, 1 = arms and hands, 2 = legs, 3 = waist and head
+    ui.Cvar_Create("cg_gunAutoFirst", "1", cvarFlags_t::CVAR_ARCHIVE);
+    ui.Cvar_Create("cg_crosshairIdentifyTarget", "1", cvarFlags_t::CVAR_ARCHIVE);
+    ui.Cvar_Create("g_subtitles", "0", cvarFlags_t::CVAR_ARCHIVE);
+    ui.Cvar_Create("cg_marks", "1", cvarFlags_t::CVAR_ARCHIVE);
+    ui.Cvar_Create("d_slowmodeath", "3", cvarFlags_t::CVAR_ARCHIVE);
+    ui.Cvar_Create("cg_shadows", "1", cvarFlags_t::CVAR_ARCHIVE);
 
-	ui.Cvar_Create( "cg_runpitch", "0.002", cvarFlags_t::CVAR_ARCHIVE );
-	ui.Cvar_Create( "cg_runroll", "0.005", cvarFlags_t::CVAR_ARCHIVE );
-	ui.Cvar_Create( "cg_bobup", "0.005", cvarFlags_t::CVAR_ARCHIVE );
-	ui.Cvar_Create( "cg_bobpitch", "0.002", cvarFlags_t::CVAR_ARCHIVE );
-	ui.Cvar_Create( "cg_bobroll", "0.002", cvarFlags_t::CVAR_ARCHIVE );
+    ui.Cvar_Create("cg_runpitch", "0.002", cvarFlags_t::CVAR_ARCHIVE);
+    ui.Cvar_Create("cg_runroll", "0.005", cvarFlags_t::CVAR_ARCHIVE);
+    ui.Cvar_Create("cg_bobup", "0.005", cvarFlags_t::CVAR_ARCHIVE);
+    ui.Cvar_Create("cg_bobpitch", "0.002", cvarFlags_t::CVAR_ARCHIVE);
+    ui.Cvar_Create("cg_bobroll", "0.002", cvarFlags_t::CVAR_ARCHIVE);
 
-	ui.Cvar_Create( "ui_disableWeaponSway", "0", cvarFlags_t::CVAR_ARCHIVE );
+    ui.Cvar_Create("ui_disableWeaponSway", "0", cvarFlags_t::CVAR_ARCHIVE);
 #endif
 
-
-
-	_UI_Init(inGameLoad);
+    _UI_Init(inGameLoad);
 }
 
 /*
@@ -320,48 +300,47 @@ void UI_Init( int apiVersion, uiimport_t *uiimport, bool inGameLoad )
 UI_DrawNamedPic
 =================
 */
-void UI_DrawNamedPic( float x, float y, float width, float height, const char *picname )
+void UI_DrawNamedPic(float x, float y, float width, float height, const char* picname)
 {
-	qhandle_t	hShader;
+    qhandle_t hShader;
 
-	hShader = ui.R_RegisterShaderNoMip( picname );
-	ui.R_DrawStretchPic( x, y, width, height, 0, 0, 1, 1, hShader );
+    hShader = ui.R_RegisterShaderNoMip(picname);
+    ui.R_DrawStretchPic(x, y, width, height, 0, 0, 1, 1, hShader);
 }
-
 
 /*
 ================
 UI_DrawHandlePic
 =================
 */
-void UI_DrawHandlePic( float x, float y, float w, float h, qhandle_t hShader )
+void UI_DrawHandlePic(float x, float y, float w, float h, qhandle_t hShader)
 {
-	float	s0;
-	float	s1;
-	float	t0;
-	float	t1;
+    float s0;
+    float s1;
+    float t0;
+    float t1;
 
-	if( w < 0 ) {	// flip about horizontal
-		w  = -w;
-		s0 = 1;
-		s1 = 0;
-	}
-	else {
-		s0 = 0;
-		s1 = 1;
-	}
+    if (w < 0) { // flip about horizontal
+        w = -w;
+        s0 = 1;
+        s1 = 0;
+    }
+    else {
+        s0 = 0;
+        s1 = 1;
+    }
 
-	if( h < 0 ) {	// flip about vertical
-		h  = -h;
-		t0 = 1;
-		t1 = 0;
-	}
-	else {
-		t0 = 0;
-		t1 = 1;
-	}
+    if (h < 0) { // flip about vertical
+        h = -h;
+        t0 = 1;
+        t1 = 0;
+    }
+    else {
+        t0 = 0;
+        t1 = 1;
+    }
 
-	ui.R_DrawStretchPic( x, y, w, h, s0, t0, s1, t1, hShader );
+    ui.R_DrawStretchPic(x, y, w, h, s0, t0, s1, t1, hShader);
 }
 
 /*
@@ -371,13 +350,13 @@ UI_FillRect
 Coordinates are 640*480 virtual values
 =================
 */
-void UI_FillRect( float x, float y, float width, float height, const float *color )
+void UI_FillRect(float x, float y, float width, float height, const float* color)
 {
-	ui.R_SetColor( color );
+    ui.R_SetColor(color);
 
-	ui.R_DrawStretchPic( x, y, width, height, 0, 0, 0, 0, uis.whiteShader );
+    ui.R_DrawStretchPic(x, y, width, height, 0, 0, 0, 0, uis.whiteShader);
 
-	ui.R_SetColor( nullptr );
+    ui.R_SetColor(nullptr);
 }
 
 /*
@@ -385,21 +364,20 @@ void UI_FillRect( float x, float y, float width, float height, const float *colo
 UI_UpdateScreen
 =================
 */
-void UI_UpdateScreen( void )
+void UI_UpdateScreen(void)
 {
-	ui.UpdateScreen();
+    ui.UpdateScreen();
 }
-
 
 /*
 ===============
 UI_LoadMenu_f
 ===============
 */
-static void UI_LoadMenu_f( void )
+static void UI_LoadMenu_f(void)
 {
-	trap_Key_SetCatcher( keyCatchFlags_t::KEYCATCH_UI );
-	Menus_ActivateByName("ingameloadMenu");
+    trap_Key_SetCatcher(keyCatchFlags_t::KEYCATCH_UI);
+    Menus_ActivateByName("ingameloadMenu");
 }
 
 /*
@@ -407,16 +385,15 @@ static void UI_LoadMenu_f( void )
 UI_SaveMenu_f
 ===============
 */
-static void UI_SaveMenu_f( void )
+static void UI_SaveMenu_f(void)
 {
 #ifdef JK2_MODE
-	ui.PrecacheScreenshot();
+    ui.PrecacheScreenshot();
 #endif
 
-	trap_Key_SetCatcher( keyCatchFlags_t::KEYCATCH_UI );
-	Menus_ActivateByName("ingamesaveMenu");
+    trap_Key_SetCatcher(keyCatchFlags_t::KEYCATCH_UI);
+    Menus_ActivateByName("ingamesaveMenu");
 }
-
 
 //--------------------------------------------
 
@@ -425,9 +402,9 @@ static void UI_SaveMenu_f( void )
 UI_SetColor
 =================
 */
-void UI_SetColor( const float *rgba )
+void UI_SetColor(const float* rgba)
 {
-	trap_R_SetColor( rgba );
+    trap_R_SetColor(rgba);
 }
 
 /*int registeredFontCount = 0;
@@ -444,30 +421,28 @@ UI_RegisterFont
 int registeredFontsCount = 0;
 int registeredFonts[MAX_FONTS];
 
-int UI_RegisterFont(const char *fontName)
+int UI_RegisterFont(const char* fontName)
 {
-	int iFontIndex = ui.R_RegisterFont(fontName);
-	if (iFontIndex == 0)
-	{
-		iFontIndex = ui.R_RegisterFont("ergoec");	// fall back
-	}
+    int iFontIndex = ui.R_RegisterFont(fontName);
+    if (iFontIndex == 0) {
+        iFontIndex = ui.R_RegisterFont("ergoec"); // fall back
+    }
 
-	// Store font
-	if ( iFontIndex )
-	{
-		int i;
-		for ( i = 0; i < registeredFontsCount; i++ )
-		{
-			if ( registeredFonts[i] == iFontIndex ) break;
-		}
+    // Store font
+    if (iFontIndex) {
+        int i;
+        for (i = 0; i < registeredFontsCount; i++) {
+            if (registeredFonts[i] == iFontIndex)
+                break;
+        }
 
-		if ( i == registeredFontsCount )
-		{ // It's not in the list: add it
-			if ( registeredFontsCount >= MAX_FONTS ) Com_Printf( "^3UI_RegisterFont: MAX_FONTS (%i) exceeded\n", MAX_FONTS );
-			else registeredFonts[registeredFontsCount++] = iFontIndex;
-		}
-	}
+        if (i == registeredFontsCount) { // It's not in the list: add it
+            if (registeredFontsCount >= MAX_FONTS)
+                Com_Printf("^3UI_RegisterFont: MAX_FONTS (%i) exceeded\n", MAX_FONTS);
+            else
+                registeredFonts[registeredFontsCount++] = iFontIndex;
+        }
+    }
 
-	return iFontIndex;
+    return iFontIndex;
 }
-

@@ -40,9 +40,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "../qcommon/q_shared.h"
 
-inline constexpr int MDXM_IDENT = ('M'<<24)+('G'<<16)+('L'<<8)+'2';
-inline constexpr int MDXA_IDENT = ('A'<<24)+('G'<<16)+('L'<<8)+'2';
-
+inline constexpr int MDXM_IDENT = ('M' << 24) + ('G' << 16) + ('L' << 8) + '2';
+inline constexpr int MDXA_IDENT = ('A' << 24) + ('G' << 16) + ('L' << 8) + '2';
 
 //
 // normal version numbers...
@@ -58,19 +57,14 @@ inline constexpr int G2BONEFLAG_ALWAYSXFORM = 0x00000001;
 
 #include "qcommon/q_ghoul2flags.h"
 
-
-
-
 // triangle side-ordering stuff for tags...
 //
 
-inline constexpr float fG2_BONEWEIGHT_RECIPROCAL_MULT = 1.0f/1023.0f;
+inline constexpr float fG2_BONEWEIGHT_RECIPROCAL_MULT = 1.0f / 1023.0f;
 
-inline constexpr int iG2_BONEWEIGHT_TOPBITS_AND = 0x300;	// 2 bits, giving 10 total, or 10 bits, for 1023/1024 above
+inline constexpr int iG2_BONEWEIGHT_TOPBITS_AND = 0x300; // 2 bits, giving 10 total, or 10 bits, for 1023/1024 above
 
-
-#define sDEFAULT_GLA_NAME "*default"	// used when making special simple ghoul2 models, usually from MD3 files
-
+#define sDEFAULT_GLA_NAME "*default" // used when making special simple ghoul2 models, usually from MD3 files
 
 ////////////////////////////////////
 //
@@ -83,15 +77,15 @@ struct mdxmWeight_t
 typedef struct
 #endif
 {
-	int			boneIndex;		// these are indexes into the surface boneReferences, not the global bone index
-	float		boneWeight;		// not the global per-frame bone list
+    int			boneIndex;		// these are indexes into the surface boneReferences, not the global bone index
+    float		boneWeight;		// not the global per-frame bone list
 
-	// I'm defining this '<' operator so this struct can be used with an STL <set>...
-	// (note that I've defined it using '>' internally, so it sorts with higher weights being "less", for distance weight-culling
-	//
-	#ifdef __cplusplus
-	bool operator < (const mdxmWeight_t& _X) const {return (boneWeight>_X.boneWeight);}
-	#endif
+    // I'm defining this '<' operator so this struct can be used with an STL <set>...
+    // (note that I've defined it using '>' internally, so it sorts with higher weights being "less", for distance weight-culling
+    //
+    #ifdef __cplusplus
+    bool operator < (const mdxmWeight_t& _X) const {return (boneWeight>_X.boneWeight);}
+    #endif
 }
 #ifndef __cplusplus
 mdxmWeight_t
@@ -105,13 +99,13 @@ struct mdxaCompBone_t
 typedef struct
 #endif
 {
-	unsigned char Comp[24];		// MC_COMP_BYTES is in MatComp.h, but don't want to couple
+    unsigned char Comp[24];		// MC_COMP_BYTES is in MatComp.h, but don't want to couple
 
-	// I'm defining this '<' operator so this struct can be used as an STL <map> key...
-	//
-	#ifdef __cplusplus
-	bool operator < (const mdxaCompBone_t& _X) const {return (memcmp(Comp,_X.Comp,sizeof(Comp))<0);}
-	#endif
+    // I'm defining this '<' operator so this struct can be used as an STL <map> key...
+    //
+    #ifdef __cplusplus
+    bool operator < (const mdxaCompBone_t& _X) const {return (memcmp(Comp,_X.Comp,sizeof(Comp))<0);}
+    #endif
 }
 #ifndef __cplusplus
 mdxaCompBone_t
@@ -124,304 +118,281 @@ struct mdxaCompQuatBone_t
 typedef struct
 #endif
 {
-	unsigned char Comp[14];
+    unsigned char Comp[14];
 
-	// I'm defining this '<' operator so this struct can be used as an STL <map> key...
-	//
-	#ifdef __cplusplus
-	bool operator < (const mdxaCompQuatBone_t& X) const {return (memcmp(Comp,X.Comp,sizeof(Comp))<0);}
-	#endif
+// I'm defining this '<' operator so this struct can be used as an STL <map> key...
+//
+#ifdef __cplusplus
+    bool operator<(const mdxaCompQuatBone_t& X) const { return (memcmp(Comp, X.Comp, sizeof(Comp)) < 0); }
+#endif
 }
 #ifndef __cplusplus
 mdxaCompQuatBone_t
 #endif
-;
-
+    ;
 
 #ifndef MDXABONEDEF
 typedef struct mdxaBone_s {
-	float matrix[3][4];
+    float matrix[3][4];
 } mdxaBone_t;
 #endif
 
 ////////////////////////////////////
 
-
-
-
-
-
 // mdxHeader_t  - this contains the header for the file, with sanity checking and version checking, plus number of lod's to be expected
 //
 typedef struct mdxmHeader_s {
-	//
-	// ( first 3 fields are same format as MD3/MDR so we can apply easy model-format-type checks )
-	//
-	int			ident;				// "IDP3" = MD3, "RDM5" = MDR, "2LGM"(GL2 Mesh) = MDX   (cruddy char order I know, but I'm following what was there in other versions)
-	int			version;			// 1,2,3 etc as per format revision
-	char		name[MAX_QPATH];	// model name (eg "models/players/marine.glm")	// note: extension supplied
-	char		animName[MAX_QPATH];// name of animation file this mesh requires	// note: extension missing
-	int			animIndex;			// filled in by game (carcass defaults it to 0)
+    //
+    // ( first 3 fields are same format as MD3/MDR so we can apply easy model-format-type checks )
+    //
+    int ident;            // "IDP3" = MD3, "RDM5" = MDR, "2LGM"(GL2 Mesh) = MDX   (cruddy char order I know, but I'm following what was there in other versions)
+    int version;          // 1,2,3 etc as per format revision
+    char name[MAX_QPATH]; // model name (eg "models/players/marine.glm")	// note: extension supplied
+    char animName[MAX_QPATH]; // name of animation file this mesh requires	// note: extension missing
+    int animIndex;            // filled in by game (carcass defaults it to 0)
 
-	int			numBones;			// (for ingame version-checks only, ensure we don't ref more bones than skel file has)
+    int numBones; // (for ingame version-checks only, ensure we don't ref more bones than skel file has)
 
-	int			numLODs;
-	int			ofsLODs;
+    int numLODs;
+    int ofsLODs;
 
-	int			numSurfaces;		// now that surfaces are drawn hierarchically, we have same # per LOD
-	int			ofsSurfHierarchy;
+    int numSurfaces; // now that surfaces are drawn hierarchically, we have same # per LOD
+    int ofsSurfHierarchy;
 
-	int			ofsEnd;				// EOF, which of course gives overall file size
+    int ofsEnd; // EOF, which of course gives overall file size
 } mdxmHeader_t;
-
 
 // for each surface (doesn't actually need a struct for this, just makes source clearer)
 // {
-		typedef struct
-		{
-			int offsets[1];		// variable sized (mdxmHeader_t->numSurfaces), each offset points to a mdxmSurfHierarchy_t below
-		} mdxmHierarchyOffsets_t;
+typedef struct {
+    int offsets[1]; // variable sized (mdxmHeader_t->numSurfaces), each offset points to a mdxmSurfHierarchy_t below
+} mdxmHierarchyOffsets_t;
 // }
 
 // for each surface...	(mdxmHeader_t->numSurfaces)
 // {
-		// mdxmSurfHierarchy_t - contains hierarchical info for surfaces...
+// mdxmSurfHierarchy_t - contains hierarchical info for surfaces...
 
-		typedef struct mdxmSurfHierarchy_s {
-			char		name[MAX_QPATH];
-			unsigned int flags;
-			char		shader[MAX_QPATH];
-			int			shaderIndex;		// for in-game use (carcass defaults to 0)
-			int			parentIndex;		// this points to the index in the file of the parent surface. -1 if null/root
-			int			numChildren;		// number of surfaces which are children of this one
-			int			childIndexes[1];	// [mdxmSurfHierarch_t->numChildren] (variable sized)
-		} mdxmSurfHierarchy_t;	// struct size = (int)( &((mdxmSurfHierarch_t *)0)->childIndexes[ mdxmSurfHierarch_t->numChildren ] );
+typedef struct mdxmSurfHierarchy_s {
+    char name[MAX_QPATH];
+    unsigned int flags;
+    char shader[MAX_QPATH];
+    int shaderIndex;     // for in-game use (carcass defaults to 0)
+    int parentIndex;     // this points to the index in the file of the parent surface. -1 if null/root
+    int numChildren;     // number of surfaces which are children of this one
+    int childIndexes[1]; // [mdxmSurfHierarch_t->numChildren] (variable sized)
+} mdxmSurfHierarchy_t;   // struct size = (int)( &((mdxmSurfHierarch_t *)0)->childIndexes[ mdxmSurfHierarch_t->numChildren ] );
 
 // a surface's flags as the model file stores them
-inline g2SurfaceFlags_t G2_SurfaceFlags( const mdxmSurfHierarchy_t *surf ) {
-	return static_cast<g2SurfaceFlags_t>( surf->flags );
+inline g2SurfaceFlags_t G2_SurfaceFlags(const mdxmSurfHierarchy_t* surf)
+{
+    return static_cast<g2SurfaceFlags_t>(surf->flags);
 }
 // }
 
-
 // for each LOD...  (mdxmHeader_t->numLODs)
 // {
-		// mdxLOD_t - this contains the header for this LOD. Contains num of surfaces, offset to surfaces and offset to next LOD. Surfaces are shader sorted, so each surface = 1 shader
+// mdxLOD_t - this contains the header for this LOD. Contains num of surfaces, offset to surfaces and offset to next LOD. Surfaces are shader sorted, so each
+// surface = 1 shader
 
-		typedef struct mdxmLOD_s {
-			// (used to contain numSurface/ofsSurfaces fields, but these are same per LOD level now)
-			//
-			int			ofsEnd;				// offset to next LOD
-		} mdxmLOD_t;
+typedef struct mdxmLOD_s {
+    // (used to contain numSurface/ofsSurfaces fields, but these are same per LOD level now)
+    //
+    int ofsEnd; // offset to next LOD
+} mdxmLOD_t;
 
+typedef struct mdxmLODSurfOffset_s { // added in GLM version 3 for ingame use at Jake's request
+    int offsets[1];                  // variable sized (mdxmHeader_t->numSurfaces), each offset points to surfaces below
+} mdxmLODSurfOffset_t;
 
-		typedef struct mdxmLODSurfOffset_s {	// added in GLM version 3 for ingame use at Jake's request
-			int offsets[1];		// variable sized (mdxmHeader_t->numSurfaces), each offset points to surfaces below
-		} mdxmLODSurfOffset_t;
+// for each surface... (mdxmHeader_t->numSurfaces)
+// {
+// mdxSurface_t - reuse of header format containing surface name, number of bones, offset to poly data and number of polys, offset to vertex information, and
+// number of verts. NOTE offsets are relative to this header.
 
+typedef struct mdxmSurface_s {
+    int ident; // this one field at least should be kept, since the game-engine may switch-case (but currently=0 in carcass)
 
-		// for each surface... (mdxmHeader_t->numSurfaces)
-		// {
-				// mdxSurface_t - reuse of header format containing surface name, number of bones, offset to poly data and number of polys, offset to vertex information, and number of verts. NOTE offsets are relative to this header.
+    int thisSurfaceIndex; // 0...mdxmHeader_t->numSurfaces-1 (because of how ingame renderer works)
 
-				typedef struct mdxmSurface_s {
-					int			ident;				// this one field at least should be kept, since the game-engine may switch-case (but currently=0 in carcass)
+    int ofsHeader; // this will be a negative number, pointing back to main header
 
-					int			thisSurfaceIndex;	// 0...mdxmHeader_t->numSurfaces-1 (because of how ingame renderer works)
+    int numVerts;
+    int ofsVerts;
 
-					int			ofsHeader;			// this will be a negative number, pointing back to main header
+    int numTriangles;
+    int ofsTriangles;
 
-					int			numVerts;
-					int			ofsVerts;
+    // Bone references are a set of ints representing all the bones
+    // present in any vertex weights for this surface.  This is
+    // needed because a model may have surfaces that need to be
+    // drawn at different sort times, and we don't want to have
+    // to re-interpolate all the bones for each surface.
+    //
+    int numBoneReferences;
+    int ofsBoneReferences;
 
-					int			numTriangles;
-					int			ofsTriangles;
+    int ofsEnd; // next surface follows
 
-					// Bone references are a set of ints representing all the bones
-					// present in any vertex weights for this surface.  This is
-					// needed because a model may have surfaces that need to be
-					// drawn at different sort times, and we don't want to have
-					// to re-interpolate all the bones for each surface.
-					//
-					int			numBoneReferences;
-					int			ofsBoneReferences;
+} mdxmSurface_t;
 
-					int			ofsEnd;				// next surface follows
+// for each triangle...	(mdxmSurface_t->numTriangles)
+// {
+// mdxTriangle_t - contains indexes into verts. One struct entry per poly.
 
-				} mdxmSurface_t;
+typedef struct mdxmTriangle_s {
+    int indexes[3];
+} mdxmTriangle_t;
+// }
 
+// for each vert... (mdxmSurface_t->numVerts)
+// {
+// mdxVertex_t - this is an array with number of verts from the surface definition as its bounds. It contains normal info, texture coors and number of
+// weightings for this bone (this is now kept at 32 bytes for cache-aligning)
+typedef struct mdxmVertex_s {
+    vec3_t normal;
+    vec3_t vertCoords;
 
-				// for each triangle...	(mdxmSurface_t->numTriangles)
-				// {
-						// mdxTriangle_t - contains indexes into verts. One struct entry per poly.
+    // packed int...
+    unsigned int uiNmWeightsAndBoneIndexes; // 32 bits.  format:
+                                            // 31 & 30:  0..3 (= 1..4) weight count
+                                            // 29 & 28 (spare)
+                                            //	2 bit pairs at 20,22,24,26 are 2-bit overflows from 4 BonWeights below (20=[0], 22=[1]) etc)
+                                            //  5-bits each (iG2_BITS_PER_BONEREF) for boneweights
+    // effectively a packed int, each bone weight converted from 0..1 float to 0..255 int...
+    //  promote each entry to float and multiply by fG2_BONEWEIGHT_RECIPROCAL_MULT to convert.
+    byte BoneWeightings[iMAX_G2_BONEWEIGHTS_PER_VERT]; // 4
 
-						typedef struct mdxmTriangle_s {
-							int			indexes[3];
-						} mdxmTriangle_t;
-				// }
+} mdxmVertex_t;
 
-
-				// for each vert... (mdxmSurface_t->numVerts)
-				// {
-						// mdxVertex_t - this is an array with number of verts from the surface definition as its bounds. It contains normal info, texture coors and number of weightings for this bone
-						// (this is now kept at 32 bytes for cache-aligning)
-						typedef struct mdxmVertex_s {
-							vec3_t			normal;
-							vec3_t			vertCoords;
-
-							// packed int...
-							unsigned int	uiNmWeightsAndBoneIndexes;	// 32 bits.  format:
-																		// 31 & 30:  0..3 (= 1..4) weight count
-																		// 29 & 28 (spare)
-																		//	2 bit pairs at 20,22,24,26 are 2-bit overflows from 4 BonWeights below (20=[0], 22=[1]) etc)
-																		//  5-bits each (iG2_BITS_PER_BONEREF) for boneweights
-							// effectively a packed int, each bone weight converted from 0..1 float to 0..255 int...
-							//  promote each entry to float and multiply by fG2_BONEWEIGHT_RECIPROCAL_MULT to convert.
-							byte			BoneWeightings[iMAX_G2_BONEWEIGHTS_PER_VERT];	// 4
-
-						} mdxmVertex_t;
-
-				// } vert
+// } vert
 
 #ifdef __cplusplus
 
 // these are convenience functions that I can invoked in code. Do NOT change them (because this is a shared file),
 //	but if you want to copy the logic out and use your own versions then fine...
 //
-static inline int G2_GetVertWeights( const mdxmVertex_t *pVert )
+static inline int G2_GetVertWeights(const mdxmVertex_t* pVert)
 {
-	int iNumWeights = (pVert->uiNmWeightsAndBoneIndexes >> 30)+1;	// 1..4 count
+    int iNumWeights = (pVert->uiNmWeightsAndBoneIndexes >> 30) + 1; // 1..4 count
 
-	return iNumWeights;
+    return iNumWeights;
 }
 
-static inline int G2_GetVertBoneIndex( const mdxmVertex_t *pVert, const int iWeightNum)
+static inline int G2_GetVertBoneIndex(const mdxmVertex_t* pVert, const int iWeightNum)
 {
-	int iBoneIndex = (pVert->uiNmWeightsAndBoneIndexes>>(iG2_BITS_PER_BONEREF*iWeightNum))&((1<<iG2_BITS_PER_BONEREF)-1);
+    int iBoneIndex = (pVert->uiNmWeightsAndBoneIndexes >> (iG2_BITS_PER_BONEREF * iWeightNum)) & ((1 << iG2_BITS_PER_BONEREF) - 1);
 
-	return iBoneIndex;
+    return iBoneIndex;
 }
 
-static inline float G2_GetVertBoneWeight( const mdxmVertex_t *pVert, const int iWeightNum, float &fTotalWeight, int iNumWeights )
+static inline float G2_GetVertBoneWeight(const mdxmVertex_t* pVert, const int iWeightNum, float& fTotalWeight, int iNumWeights)
 {
-	float fBoneWeight;
+    float fBoneWeight;
 
-	if (iWeightNum == iNumWeights-1)
-	{
-		fBoneWeight = 1.0f-fTotalWeight;
-	}
-	else
-	{
-		int iTemp = pVert->BoneWeightings[iWeightNum];
-			iTemp|= (pVert->uiNmWeightsAndBoneIndexes >> (iG2_BONEWEIGHT_TOPBITS_SHIFT+(iWeightNum*2)) ) & iG2_BONEWEIGHT_TOPBITS_AND;
+    if (iWeightNum == iNumWeights - 1) {
+        fBoneWeight = 1.0f - fTotalWeight;
+    }
+    else {
+        int iTemp = pVert->BoneWeightings[iWeightNum];
+        iTemp |= (pVert->uiNmWeightsAndBoneIndexes >> (iG2_BONEWEIGHT_TOPBITS_SHIFT + (iWeightNum * 2))) & iG2_BONEWEIGHT_TOPBITS_AND;
 
-		fBoneWeight = fG2_BONEWEIGHT_RECIPROCAL_MULT * iTemp;
-		fTotalWeight += fBoneWeight;
-	}
+        fBoneWeight = fG2_BONEWEIGHT_RECIPROCAL_MULT * iTemp;
+        fTotalWeight += fBoneWeight;
+    }
 
-	return fBoneWeight;
+    return fBoneWeight;
 }
 #endif
-				// for each vert... (mdxmSurface_t->numVerts)  (seperated from mdxmVertex_t struct for cache reasons)
-				// {
-						// mdxVertex_t - this is an array with number of verts from the surface definition as its bounds. It contains normal info, texture coors and number of weightings for this bone
+// for each vert... (mdxmSurface_t->numVerts)  (seperated from mdxmVertex_t struct for cache reasons)
+// {
+// mdxVertex_t - this is an array with number of verts from the surface definition as its bounds. It contains normal info, texture coors and number of
+// weightings for this bone
 
-						typedef struct mdxmVertexTexCoord_s {
-							vec2_t			texCoords;
-						} mdxmVertexTexCoord_t;
+typedef struct mdxmVertexTexCoord_s {
+    vec2_t texCoords;
+} mdxmVertexTexCoord_t;
 
-				// } vert
+// } vert
 
-
-		// } surface
+// } surface
 // } LOD
-
-
 
 //----------------------------------------------------------------------------
 // seperate file here for animation data...
 //
 
-
 // mdxaHeader_t  - this contains the header for the file, with sanity checking and version checking, plus number of lod's to be expected
 //
 typedef struct mdxaHeader_s {
-	//
-	// ( first 3 fields are same format as MD3/MDR so we can apply easy model-format-type checks )
-	//
-	int			ident;				// 	"IDP3" = MD3, "RDM5" = MDR, "2LGA"(GL2 Anim) = MDXA
-	int			version;			// 1,2,3 etc as per format revision
-	//
-	char		name[MAX_QPATH];	// GLA name (eg "skeletons/marine")	// note: extension missing
-	float		fScale;				// will be zero if build before this field was defined, else scale it was built with
+    //
+    // ( first 3 fields are same format as MD3/MDR so we can apply easy model-format-type checks )
+    //
+    int ident;   // 	"IDP3" = MD3, "RDM5" = MDR, "2LGA"(GL2 Anim) = MDXA
+    int version; // 1,2,3 etc as per format revision
+    //
+    char name[MAX_QPATH]; // GLA name (eg "skeletons/marine")	// note: extension missing
+    float fScale;         // will be zero if build before this field was defined, else scale it was built with
 
-	// frames and bones are shared by all levels of detail
-	//
-	int			numFrames;
-	int			ofsFrames;			// points at mdxaFrame_t array
-	int			numBones;			// (no offset to these since they're inside the frames array)
-	int			ofsCompBonePool;	// offset to global compressed-bone pool that all frames use
-	int			ofsSkel;			// offset to mdxaSkel_t info
+    // frames and bones are shared by all levels of detail
+    //
+    int numFrames;
+    int ofsFrames;       // points at mdxaFrame_t array
+    int numBones;        // (no offset to these since they're inside the frames array)
+    int ofsCompBonePool; // offset to global compressed-bone pool that all frames use
+    int ofsSkel;         // offset to mdxaSkel_t info
 
-	int			ofsEnd;				// EOF, which of course gives overall file size
+    int ofsEnd; // EOF, which of course gives overall file size
 
 } mdxaHeader_t;
 
-
 // for each bone... (doesn't actually need a struct for this, just makes source clearer)
 // {
-		typedef struct
-		{
-			int offsets[1];		// variable sized (mdxaHeader_t->numBones), each offset points to an mdxaSkel_t below
-		} mdxaSkelOffsets_t;
+typedef struct {
+    int offsets[1]; // variable sized (mdxaHeader_t->numBones), each offset points to an mdxaSkel_t below
+} mdxaSkelOffsets_t;
 // }
-
-
 
 // for each bone...	 (mdxaHeader_t->numBones)
 // {
-		// mdxaSkel_t - contains hierarchical info only...
+// mdxaSkel_t - contains hierarchical info only...
 
-		typedef struct mdxaSkel_s {
-			char		name[MAX_QPATH];	// name of bone
-			unsigned int flags;
-			int			parent;				// index of bone that is parent to this one, -1 = nullptr/root
-			mdxaBone_t	BasePoseMat;		// base pose
-			mdxaBone_t	BasePoseMatInv;		// inverse, to save run-time calc
-			int			numChildren;		// number of children bones
-			int			children[1];		// [mdxaSkel_t->numChildren] (variable sized)
-		} mdxaSkel_t;	// struct size = (int)( &((mdxaSkel_t *)0)->children[ mdxaSkel_t->numChildren ] );
-// }
+typedef struct mdxaSkel_s {
+    char name[MAX_QPATH]; // name of bone
+    unsigned int flags;
+    int parent;                // index of bone that is parent to this one, -1 = nullptr/root
+    mdxaBone_t BasePoseMat;    // base pose
+    mdxaBone_t BasePoseMatInv; // inverse, to save run-time calc
+    int numChildren;           // number of children bones
+    int children[1];           // [mdxaSkel_t->numChildren] (variable sized)
+} mdxaSkel_t;                  // struct size = (int)( &((mdxaSkel_t *)0)->children[ mdxaSkel_t->numChildren ] );
+                               // }
 
-
-	// (offset @ mdxaHeader_t->ofsFrames)
-	//
-	//  array of 3 byte indices here (hey, 25% saving over 4-byte really adds up)...
-	//
-	//
-	// access as follows to get the index for a given <iFrameNum, iBoneNum>
-	//
-	// (iFrameNum * mdxaHeader_t->numBones * 3) + (iBoneNum * 3)
-	//
-	// Then convert the three byte int at that location.
-	// This struct is used for easy searches.
-	typedef struct
-	{
-		byte    iIndex[3];
-	} mdxaIndex_t;
-	//
-	// (note that there's then an alignement-pad here to get the next struct back onto 32-bit alignement)
-	//
-	// this index then points into the following...
-
+// (offset @ mdxaHeader_t->ofsFrames)
+//
+//  array of 3 byte indices here (hey, 25% saving over 4-byte really adds up)...
+//
+//
+// access as follows to get the index for a given <iFrameNum, iBoneNum>
+//
+// (iFrameNum * mdxaHeader_t->numBones * 3) + (iBoneNum * 3)
+//
+// Then convert the three byte int at that location.
+// This struct is used for easy searches.
+typedef struct {
+    byte iIndex[3];
+} mdxaIndex_t;
+//
+// (note that there's then an alignement-pad here to get the next struct back onto 32-bit alignement)
+//
+// this index then points into the following...
 
 // Compressed-bone pool that all frames use  (mdxaHeader_t->ofsCompBonePool)  (defined at end because size unknown until end)
 // for each bone in pool (unknown number, no actual total stored at the moment)...
 // {
-		// mdxaCompBone_t  (defined at file top because of struct dependancy)
+// mdxaCompBone_t  (defined at file top because of struct dependancy)
 // }
 
 //---------------------------------------------------------------------------
-
 
 //////////////////////// eof ///////////////////////

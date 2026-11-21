@@ -26,16 +26,16 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 //	Bot Laser
 //---------------------------------------------------------
-void WP_BotLaser( gentity_t *ent )
+void WP_BotLaser(gentity_t* ent)
 //---------------------------------------------------------
 {
-	gentity_t	*missile = CreateMissile( muzzle, forwardVec, BRYAR_PISTOL_VEL, 10000, ent );
+    gentity_t* missile = CreateMissile(muzzle, forwardVec, BRYAR_PISTOL_VEL, 10000, ent);
 
-	missile->classname = "bryar_proj";
-	missile->s.weapon = weapon_t::WP_BRYAR_PISTOL;
+    missile->classname = "bryar_proj";
+    missile->s.weapon = weapon_t::WP_BRYAR_PISTOL;
 
-	missile->damage = BRYAR_PISTOL_DAMAGE;
-	missile->dflags = damageFlags_t::DAMAGE_DEATH_KNOCKBACK;
-	missile->methodOfDeath = meansOfDeath_t::MOD_ENERGY;
-	missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
+    missile->damage = BRYAR_PISTOL_DAMAGE;
+    missile->dflags = damageFlags_t::DAMAGE_DEATH_KNOCKBACK;
+    missile->methodOfDeath = meansOfDeath_t::MOD_ENERGY;
+    missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
 }

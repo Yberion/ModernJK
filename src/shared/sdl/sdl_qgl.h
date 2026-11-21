@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 2005 - 2015, ioquake3 contributors
 Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2026, ModernJK contributors
 
 This file is part of the OpenJK source code.
 
@@ -402,6 +403,6 @@ extern PFNGLUNLOCKARRAYSEXTPROC qglUnlockArraysEXT;
 
 #define GL_TEXTURE_RECTANGLE_EXT GL_TEXTURE_RECTANGLE_ARB
 
-#define GL_ACTIVE_TEXTURE_ARB               0x84E0
-#define GL_CLIENT_ACTIVE_TEXTURE_ARB        0x84E1
-#define GL_MAX_ACTIVE_TEXTURES_ARB          0x84E2
+#define GL_ACTIVE_TEXTURE_ARB 0x84E0
+#define GL_CLIENT_ACTIVE_TEXTURE_ARB 0x84E1
+#define GL_MAX_ACTIVE_TEXTURES_ARB 0x84E2

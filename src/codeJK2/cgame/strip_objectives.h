@@ -24,16 +24,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifndef __strip_objectives_h
 #define __strip_objectives_h
 
-
 /********************************************************************************
 
 the objectives... duh...
 
 ********************************************************************************/
 
-
 inline constexpr int PACKAGE_OBJECTIVES = 0x08;
 
-
 #endif // __strip_objectives_h
-

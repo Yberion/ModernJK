@@ -24,165 +24,143 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_local.h"
 #include "g_functions.h"
 
-extern void	InitMover( gentity_t *ent );
+extern void InitMover(gentity_t* ent);
 
-extern gentity_t	*G_TestEntityPosition( gentity_t *ent );
-void func_wait_return_solid( gentity_t *self )
+extern gentity_t* G_TestEntityPosition(gentity_t* ent);
+void func_wait_return_solid(gentity_t* self)
 {
-	//once a frame, see if it's clear.
-	self->clipmask = contentsFlags_t::CONTENTS_BODY;//|contentsFlags_t::CONTENTS_MONSTERCLIP|contentsFlags_t::CONTENTS_BOTCLIP;
-	if ( !(self->spawnflags&16) || G_TestEntityPosition( self ) == nullptr )
-	{
-		gi.SetBrushModel( self, self->model );
-		VectorCopy( self->currentOrigin, self->pos1 );
-		InitMover( self );
-		/*
-		VectorCopy( self->s.origin, self->s.pos.trBase );
-		VectorCopy( self->s.origin, self->currentOrigin );
-		*/
-		//if we moved, we want the *current* origin, not our start origin!
-		VectorCopy( self->currentOrigin, self->s.pos.trBase );
-		gi.linkentity( self );
-		self->svFlags &= ~svFlags_t::SVF_NOCLIENT;
-		self->s.eFlags &= ~entityFlags_t::EF_NODRAW;
-		self->e_UseFunc = useFunc_t::useF_func_usable_use;
-		self->clipmask = contentsFlags_t::CONTENTS_NONE;
-		if ( self->target2 && self->target2[0] )
-		{
-			G_UseTargets2( self, self->activator, self->target2 );
-		}
-		if ( Any( self->s.eFlags & entityFlags_t::EF_ANIM_ONCE ) )
-		{//Start our anim
-			self->s.frame = 0;
-		}
-		//NOTE: be sure to reset the brushmodel before doing this or else CONTENTS_OPAQUE may not be on when you call this
-		if ( !(self->spawnflags&1) )
-		{//START_OFF doesn't effect area portals
-			gi.AdjustAreaPortalState( self, false );
-		}
-	}
-	else
-	{
-		self->clipmask = contentsFlags_t::CONTENTS_NONE;
-		self->e_ThinkFunc = thinkFunc_t::thinkF_func_wait_return_solid;
-		self->nextthink = level.time + FRAMETIME;
-	}
+    // once a frame, see if it's clear.
+    self->clipmask = contentsFlags_t::CONTENTS_BODY; //|contentsFlags_t::CONTENTS_MONSTERCLIP|contentsFlags_t::CONTENTS_BOTCLIP;
+    if (!(self->spawnflags & 16) || G_TestEntityPosition(self) == nullptr) {
+        gi.SetBrushModel(self, self->model);
+        VectorCopy(self->currentOrigin, self->pos1);
+        InitMover(self);
+        /*
+        VectorCopy( self->s.origin, self->s.pos.trBase );
+        VectorCopy( self->s.origin, self->currentOrigin );
+        */
+        // if we moved, we want the *current* origin, not our start origin!
+        VectorCopy(self->currentOrigin, self->s.pos.trBase);
+        gi.linkentity(self);
+        self->svFlags &= ~svFlags_t::SVF_NOCLIENT;
+        self->s.eFlags &= ~entityFlags_t::EF_NODRAW;
+        self->e_UseFunc = useFunc_t::useF_func_usable_use;
+        self->clipmask = contentsFlags_t::CONTENTS_NONE;
+        if (self->target2 && self->target2[0]) {
+            G_UseTargets2(self, self->activator, self->target2);
+        }
+        if (Any(self->s.eFlags & entityFlags_t::EF_ANIM_ONCE)) { // Start our anim
+            self->s.frame = 0;
+        }
+        // NOTE: be sure to reset the brushmodel before doing this or else CONTENTS_OPAQUE may not be on when you call this
+        if (!(self->spawnflags & 1)) { // START_OFF doesn't effect area portals
+            gi.AdjustAreaPortalState(self, false);
+        }
+    }
+    else {
+        self->clipmask = contentsFlags_t::CONTENTS_NONE;
+        self->e_ThinkFunc = thinkFunc_t::thinkF_func_wait_return_solid;
+        self->nextthink = level.time + FRAMETIME;
+    }
 }
 
-void func_usable_think( gentity_t *self )
+void func_usable_think(gentity_t* self)
 {
-	if ( self->spawnflags & 8 )
-	{
-		self->svFlags |= svFlags_t::SVF_PLAYER_USABLE;	//Replace the usable flag
-		self->e_UseFunc = useFunc_t::useF_func_usable_use;
-		self->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
-	}
+    if (self->spawnflags & 8) {
+        self->svFlags |= svFlags_t::SVF_PLAYER_USABLE; // Replace the usable flag
+        self->e_UseFunc = useFunc_t::useF_func_usable_use;
+        self->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
+    }
 }
 
-bool G_EntIsRemovableUsable( int entNum )
+bool G_EntIsRemovableUsable(int entNum)
 {
-	gentity_t *ent = &g_entities[entNum];
-	if ( ent->classname && !Q_stricmp( "func_usable", ent->classname ) )
-	{
-		if ( !Any(ent->s.eFlags&entityFlags_t::EF_SHADER_ANIM) && !(ent->spawnflags&8) && ent->targetname )
-		{//not just a shader-animator and not ALWAYS_ON, so it must be removable somehow
-			return true;
-		}
-	}
-	return false;
+    gentity_t* ent = &g_entities[entNum];
+    if (ent->classname && !Q_stricmp("func_usable", ent->classname)) {
+        if (!Any(ent->s.eFlags & entityFlags_t::EF_SHADER_ANIM) && !(ent->spawnflags & 8) &&
+            ent->targetname) { // not just a shader-animator and not ALWAYS_ON, so it must be removable somehow
+            return true;
+        }
+    }
+    return false;
 }
 
-void func_usable_use( gentity_t *self, gentity_t *other, gentity_t *activator )
-{//Toggle on and off
-	if ( other == activator )
-	{//directly used by use button trace
-		if ( (self->spawnflags&32) )
-		{//only usable by NPCs
-			if ( activator->NPC == nullptr )
-			{//Not an NPC
-				return;
-			}
-		}
-	}
+void func_usable_use(gentity_t* self, gentity_t* other, gentity_t* activator)
+{                                            // Toggle on and off
+    if (other == activator) {                // directly used by use button trace
+        if ((self->spawnflags & 32)) {       // only usable by NPCs
+            if (activator->NPC == nullptr) { // Not an NPC
+                return;
+            }
+        }
+    }
 
-	G_ActivateBehavior( self, bSet_t::BSET_USE );
-	if ( Any( self->s.eFlags & entityFlags_t::EF_SHADER_ANIM ) )
-	{//animate shader when used
-		self->s.frame++;//inc frame
-		if ( self->s.frame > self->endFrame )
-		{//wrap around
-			self->s.frame = 0;
-		}
-		if ( self->target && self->target[0] )
-		{
-			G_UseTargets( self, activator );
-		}
-	}
-	else if ( self->spawnflags & 8 )
-	{//ALWAYS_ON
-		//Remove the ability to use the entity directly
-		self->svFlags &= ~svFlags_t::SVF_PLAYER_USABLE;
-		//also remove ability to call any use func at all!
-		self->e_UseFunc = useFunc_t::useF_NULL;
+    G_ActivateBehavior(self, bSet_t::BSET_USE);
+    if (Any(self->s.eFlags & entityFlags_t::EF_SHADER_ANIM)) { // animate shader when used
+        self->s.frame++;                                       // inc frame
+        if (self->s.frame > self->endFrame) {                  // wrap around
+            self->s.frame = 0;
+        }
+        if (self->target && self->target[0]) {
+            G_UseTargets(self, activator);
+        }
+    }
+    else if (self->spawnflags & 8) { // ALWAYS_ON
+        // Remove the ability to use the entity directly
+        self->svFlags &= ~svFlags_t::SVF_PLAYER_USABLE;
+        // also remove ability to call any use func at all!
+        self->e_UseFunc = useFunc_t::useF_NULL;
 
-		if(self->target && self->target[0])
-		{
-			G_UseTargets(self, activator);
-		}
+        if (self->target && self->target[0]) {
+            G_UseTargets(self, activator);
+        }
 
-		if ( self->wait )
-		{
-			self->e_ThinkFunc = thinkFunc_t::thinkF_func_usable_think;
-			self->nextthink = level.time + ( self->wait * 1000 );
-		}
+        if (self->wait) {
+            self->e_ThinkFunc = thinkFunc_t::thinkF_func_usable_think;
+            self->nextthink = level.time + (self->wait * 1000);
+        }
 
-		return;
-	}
-	else if ( !self->count )
-	{//become solid again
-		self->count = 1;
-		self->activator = activator;
-		func_wait_return_solid( self );
-	}
-	else
-	{
-		//NOTE: MUST do this BEFORE clearing contents, or you may not open the area portal!!!
-		if ( !(self->spawnflags&1) )
-		{//START_OFF doesn't effect area portals
-			gi.AdjustAreaPortalState( self, true );
-		}
-		self->s.solid = 0;
-		self->contents = contentsFlags_t::CONTENTS_NONE;
-		self->clipmask = contentsFlags_t::CONTENTS_NONE;
-		self->svFlags |= svFlags_t::SVF_NOCLIENT;
-		self->s.eFlags |= entityFlags_t::EF_NODRAW;
-		self->count = 0;
+        return;
+    }
+    else if (!self->count) { // become solid again
+        self->count = 1;
+        self->activator = activator;
+        func_wait_return_solid(self);
+    }
+    else {
+        // NOTE: MUST do this BEFORE clearing contents, or you may not open the area portal!!!
+        if (!(self->spawnflags & 1)) { // START_OFF doesn't effect area portals
+            gi.AdjustAreaPortalState(self, true);
+        }
+        self->s.solid = 0;
+        self->contents = contentsFlags_t::CONTENTS_NONE;
+        self->clipmask = contentsFlags_t::CONTENTS_NONE;
+        self->svFlags |= svFlags_t::SVF_NOCLIENT;
+        self->s.eFlags |= entityFlags_t::EF_NODRAW;
+        self->count = 0;
 
-		if(self->target && self->target[0])
-		{
-			G_UseTargets(self, activator);
-		}
-		self->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
-		self->nextthink = -1;
-	}
+        if (self->target && self->target[0]) {
+            G_UseTargets(self, activator);
+        }
+        self->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
+        self->nextthink = -1;
+    }
 }
 
-void func_usable_pain(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, const vec3_t point, int damage, meansOfDeath_t mod,hitLocation_t hitLoc)
+void func_usable_pain(gentity_t* self, gentity_t* inflictor, gentity_t* attacker, const vec3_t point, int damage, meansOfDeath_t mod, hitLocation_t hitLoc)
 {
-	if ( self->paintarget )
-	{
-		G_UseTargets2 (self, self->activator, self->paintarget);
-	}
-	else
-	{
-		GEntity_UseFunc( self, attacker, attacker );
-	}
+    if (self->paintarget) {
+        G_UseTargets2(self, self->activator, self->paintarget);
+    }
+    else {
+        GEntity_UseFunc(self, attacker, attacker);
+    }
 }
 
-void func_usable_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,damageFlags_t dFlags,hitLocation_t hitLoc)
+void func_usable_die(gentity_t* self, gentity_t* inflictor, gentity_t* attacker, int damage, meansOfDeath_t mod, damageFlags_t dFlags, hitLocation_t hitLoc)
 {
-	self->takedamage = false;
-	GEntity_UseFunc( self, inflictor, attacker );
+    self->takedamage = false;
+    GEntity_UseFunc(self, inflictor, attacker);
 }
 
 /*QUAKED func_usable (0 .5 .8) ? STARTOFF AUTOANIMATE ANIM_ONCE ALWAYS_ON BLOCKCHECK NPC_USE PLAYER_USE INACTIVE
@@ -210,61 +188,54 @@ A bmodel that just sits there, doing nothing.  Can be used for conditional walls
 "forcevisible" - When you turn on force sight (any level), you can see these draw through the entire level...
 */
 
-void SP_func_usable( gentity_t *self )
+void SP_func_usable(gentity_t* self)
 {
-	gi.SetBrushModel( self, self->model );
-	InitMover( self );
-	VectorCopy( self->s.origin, self->s.pos.trBase );
-	VectorCopy( self->s.origin, self->currentOrigin );
-	VectorCopy( self->s.origin, self->pos1 );
+    gi.SetBrushModel(self, self->model);
+    InitMover(self);
+    VectorCopy(self->s.origin, self->s.pos.trBase);
+    VectorCopy(self->s.origin, self->currentOrigin);
+    VectorCopy(self->s.origin, self->pos1);
 
-	self->count = 1;
-	if (self->spawnflags & 1)
-	{
-		self->spawnContents = self->contents;	// It Navs can temporarly turn it "on"
-		self->s.solid = 0;
-		self->contents = contentsFlags_t::CONTENTS_NONE;
-		self->clipmask = contentsFlags_t::CONTENTS_NONE;
-		self->svFlags |= svFlags_t::SVF_NOCLIENT;
-		self->s.eFlags |= entityFlags_t::EF_NODRAW;
-		self->count = 0;
-	}
+    self->count = 1;
+    if (self->spawnflags & 1) {
+        self->spawnContents = self->contents; // It Navs can temporarly turn it "on"
+        self->s.solid = 0;
+        self->contents = contentsFlags_t::CONTENTS_NONE;
+        self->clipmask = contentsFlags_t::CONTENTS_NONE;
+        self->svFlags |= svFlags_t::SVF_NOCLIENT;
+        self->s.eFlags |= entityFlags_t::EF_NODRAW;
+        self->count = 0;
+    }
 
-	if (self->spawnflags & 2)
-	{
-		self->s.eFlags |= entityFlags_t::EF_ANIM_ALLFAST;
-	}
+    if (self->spawnflags & 2) {
+        self->s.eFlags |= entityFlags_t::EF_ANIM_ALLFAST;
+    }
 
-	if (self->spawnflags & 4)
-	{//FIXME: need to be able to do change to something when it's done?  Or not be usable until it's done?
-		self->s.eFlags |= entityFlags_t::EF_ANIM_ONCE;
-	}
+    if (self->spawnflags & 4) { // FIXME: need to be able to do change to something when it's done?  Or not be usable until it's done?
+        self->s.eFlags |= entityFlags_t::EF_ANIM_ONCE;
+    }
 
-	self->e_UseFunc = useFunc_t::useF_func_usable_use;
+    self->e_UseFunc = useFunc_t::useF_func_usable_use;
 
-	if ( self->health )
-	{
-		self->takedamage = true;
-		self->e_DieFunc = dieFunc_t::dieF_func_usable_die;
-		self->e_PainFunc = painFunc_t::painF_func_usable_pain;
-	}
+    if (self->health) {
+        self->takedamage = true;
+        self->e_DieFunc = dieFunc_t::dieF_func_usable_die;
+        self->e_PainFunc = painFunc_t::painF_func_usable_pain;
+    }
 
-	if ( self->endFrame > 0 )
-	{
-		self->s.frame = self->startFrame = 0;
-		self->s.eFlags |= entityFlags_t::EF_SHADER_ANIM;
-	}
+    if (self->endFrame > 0) {
+        self->s.frame = self->startFrame = 0;
+        self->s.eFlags |= entityFlags_t::EF_SHADER_ANIM;
+    }
 
-	gi.linkentity (self);
+    gi.linkentity(self);
 
-	int forceVisible = 0;
-	G_SpawnInt( "forcevisible", "0", &forceVisible );
-	if ( forceVisible )
-	{//can see these through walls with force sight, so must be broadcast
-		if ( VectorCompare( self->s.origin, vec3_origin ) )
-		{//no origin brush
-			self->svFlags |= svFlags_t::SVF_BROADCAST;
-		}
-		self->s.eFlags |= entityFlags_t::EF_FORCE_VISIBLE;
-	}
+    int forceVisible = 0;
+    G_SpawnInt("forcevisible", "0", &forceVisible);
+    if (forceVisible) {                                   // can see these through walls with force sight, so must be broadcast
+        if (VectorCompare(self->s.origin, vec3_origin)) { // no origin brush
+            self->svFlags |= svFlags_t::SVF_BROADCAST;
+        }
+        self->s.eFlags |= entityFlags_t::EF_FORCE_VISIBLE;
+    }
 }

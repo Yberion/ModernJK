@@ -23,11 +23,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "g_headers.h"
 
-//g_camera.cpp
+// g_camera.cpp
 #include "g_local.h"
-//#include "Q3_Interface.h"
-//#include "anims.h"
-//#include "b_local.h"
+// #include "Q3_Interface.h"
+// #include "anims.h"
+// #include "b_local.h"
 #include "../cgame/cg_camera.h"
 #include "g_functions.h"
 
@@ -35,28 +35,28 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define MAX_CAMERA_GROUP_SUBJECTS	16
 void misc_camera_focus_think (gentity_t *self)
 {
-	//Check to see if I should stop?
-	gi.linkentity(self);
-	self->nextthink = level.time + FRAMETIME;
+    //Check to see if I should stop?
+    gi.linkentity(self);
+    self->nextthink = level.time + FRAMETIME;
 }
 
 void misc_camera_focus_use (gentity_t *self, gentity_t *other, gentity_t *activator)
 {
-	G_ActivateBehavior(self,bSet_t::BSET_USE);
+    G_ActivateBehavior(self,bSet_t::BSET_USE);
 
-	//First, find everyone in my cameraGroup, if I have one
+    //First, find everyone in my cameraGroup, if I have one
 
-	//Now find my first path_corner, if I have one
+    //Now find my first path_corner, if I have one
 
-	//Start thinking
+    //Start thinking
 
-	self->e_ThinkFunc = thinkF_misc_camera_focus_think;
-	misc_camera_focus_think(self);
+    self->e_ThinkFunc = thinkF_misc_camera_focus_think;
+    misc_camera_focus_think(self);
 
-	self->e_clThinkFunc = clThinkF_CG_MiscCameraFocusThink;	// blurgh!...
-	self->s.eType = entityType_t::ET_THINKER;
+    self->e_clThinkFunc = clThinkF_CG_MiscCameraFocusThink;	// blurgh!...
+    self->s.eType = entityType_t::ET_THINKER;
 
-	self->aimDebounceTime = level.time;
+    self->aimDebounceTime = level.time;
 }
 */
 /*QUAK-ED misc_camera_focus (0 0 1) (-4 -4 -4) (4 4 4) lerptostart
@@ -71,107 +71,106 @@ The focal point for a camera in a scene
 
 "speed" angular speed modifier - 100 is normal
 */
-void SP_misc_camera_focus (gentity_t *self)
+void SP_misc_camera_focus(gentity_t* self)
 {
-	if(!self->targetname)
-	{
-		gi.Printf(S_COLOR_RED"ERROR: misc_camera_focus with no targetname\n");
-		G_FreeEntity(self);
-		return;
-	}
+    if (!self->targetname) {
+        gi.Printf(S_COLOR_RED "ERROR: misc_camera_focus with no targetname\n");
+        G_FreeEntity(self);
+        return;
+    }
 
-	/*
-	if(self->speed > 0)
-	{
-		self->moveInfo.aspeed = self->speed;
-	}
-	else
-	{
-		self->moveInfo.aspeed = 100.f;
-	}
-	*/
-	self->speed = 0;
-	self->script_targetname = self->targetname;
-//	self->e_UseFunc = useF_misc_camera_focus_use;
+    /*
+    if(self->speed > 0)
+    {
+        self->moveInfo.aspeed = self->speed;
+    }
+    else
+    {
+        self->moveInfo.aspeed = 100.f;
+    }
+    */
+    self->speed = 0;
+    self->script_targetname = self->targetname;
+    //	self->e_UseFunc = useF_misc_camera_focus_use;
 }
 
 /*
 void misc_camera_track_think (gentity_t *self)
 {
-	vec3_t		vec;
-	float		dist;
-	//Check to see if I should stop?
+    vec3_t		vec;
+    float		dist;
+    //Check to see if I should stop?
 
-	gi.linkentity(self);
+    gi.linkentity(self);
 
-	if(self->enemy)
-	{//We're already heading to a path_corner
-		VectorSubtract(self->currentOrigin, self->s.origin2, vec);
-		dist = VectorLengthSquared(vec);
-		if(dist < 256)//16 squared
-		{
-			G_UseTargets(self, self);
-			self->target = self->enemy->target;
-			self->enemy = nullptr;
-		}
-	}
+    if(self->enemy)
+    {//We're already heading to a path_corner
+        VectorSubtract(self->currentOrigin, self->s.origin2, vec);
+        dist = VectorLengthSquared(vec);
+        if(dist < 256)//16 squared
+        {
+            G_UseTargets(self, self);
+            self->target = self->enemy->target;
+            self->enemy = nullptr;
+        }
+    }
 
-	if( !self->enemy)
-	{
-		if( self->target && self->target[0] )
-		{//Find out next path_corner
-			self->enemy = G_Find(nullptr, FOFS(targetname), self->target);
-			if(self->enemy)
-			{
-				if(self->enemy->radius < 0)
-				{//Don't bother trying to maintain a radius
-					self->radius = 0;
-					self->moveInfo.speed = self->speed/10.0f;
-				}
-				else if(self->enemy->radius > 0)
-				{
-					self->radius = self->enemy->radius;
-				}
+    if( !self->enemy)
+    {
+        if( self->target && self->target[0] )
+        {//Find out next path_corner
+            self->enemy = G_Find(nullptr, FOFS(targetname), self->target);
+            if(self->enemy)
+            {
+                if(self->enemy->radius < 0)
+                {//Don't bother trying to maintain a radius
+                    self->radius = 0;
+                    self->moveInfo.speed = self->speed/10.0f;
+                }
+                else if(self->enemy->radius > 0)
+                {
+                    self->radius = self->enemy->radius;
+                }
 
-				if(self->enemy->speed < 0)
-				{//go back to our default speed
-					self->moveInfo.speed = self->speed/10.0f;
-				}
-				else if(self->enemy->speed > 0)
-				{
-					self->moveInfo.speed = self->enemy->speed/10.0f;
-				}
-			}
-		}
-		else
-		{//stop thinking if this is the last one
-			self->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
-			self->e_clThinkFunc = clThinkFunc_t::clThinkF_NULL;
-			self->s.eType = entityType_t::ET_GENERAL;
-			self->nextthink = -1;
-		}
-	}
+                if(self->enemy->speed < 0)
+                {//go back to our default speed
+                    self->moveInfo.speed = self->speed/10.0f;
+                }
+                else if(self->enemy->speed > 0)
+                {
+                    self->moveInfo.speed = self->enemy->speed/10.0f;
+                }
+            }
+        }
+        else
+        {//stop thinking if this is the last one
+            self->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
+            self->e_clThinkFunc = clThinkFunc_t::clThinkF_NULL;
+            self->s.eType = entityType_t::ET_GENERAL;
+            self->nextthink = -1;
+        }
+    }
 
-	if(self->enemy)
-	{//clThink will lerp this
-		VectorCopy(self->enemy->currentOrigin, self->s.origin2);
-	}
+    if(self->enemy)
+    {//clThink will lerp this
+        VectorCopy(self->enemy->currentOrigin, self->s.origin2);
+    }
 
-	self->nextthink = level.time + FRAMETIME;
+    self->nextthink = level.time + FRAMETIME;
 }
 
 void misc_camera_track_use (gentity_t *self, gentity_t *other, gentity_t *activator)
 {
 
-	G_ActivateBehavior(self,bSet_t::BSET_USE);
+    G_ActivateBehavior(self,bSet_t::BSET_USE);
 
-	//Start thinking
+    //Start thinking
 
-	self->e_ThinkFunc = thinkF_misc_camera_track_think;
-	misc_camera_track_think(self);
+    self->e_ThinkFunc = thinkF_misc_camera_track_think;
+    misc_camera_track_think(self);
 
-	self->e_clThinkFunc = clThinkF_CG_MiscCameraTrackThink;
-	self->s.eType = entityType_t::ET_THINKER;
+    self->e_clThinkFunc = clThinkF_CG_MiscCameraTrackThink;
+    self->s.eType = entityType_t::ET_THINKER;
 }
 */
 /*QUAK-ED misc_camera_track (0 0 1) (-4 -4 -4) (4 4 4)
@@ -187,66 +186,61 @@ use "path_corner"s - path it should stay on- if that path_corner has a speed val
 
 "radius" - How far camera should try to stay from it's subject, default is 0 (dist doesn't matter), can pick this up from a path_corner too
 */
-void SP_misc_camera_track (gentity_t *self)
+void SP_misc_camera_track(gentity_t* self)
 {
-	if(!self->targetname || !self->targetname[0])
-	{
-		gi.Printf(S_COLOR_RED"ERROR: misc_camera_track with no targetname\n");
-		G_FreeEntity(self);
-		return;
-	}
+    if (!self->targetname || !self->targetname[0]) {
+        gi.Printf(S_COLOR_RED "ERROR: misc_camera_track with no targetname\n");
+        G_FreeEntity(self);
+        return;
+    }
 
-	self->script_targetname = self->targetname;
-	//self->moveInfo.speed = self->speed/10;
+    self->script_targetname = self->targetname;
+    // self->moveInfo.speed = self->speed/10;
 
-//	self->e_UseFunc = useF_misc_camera_track_use;
+    //	self->e_UseFunc = useF_misc_camera_track_use;
 }
-
 
 //-------------------------------------------------
 //	Bezier camera stuff
 //-------------------------------------------------
 
-void cam_point_link( gentity_t *ent )
+void cam_point_link(gentity_t* ent) {}
+
+void cam_ctrl_point_link(gentity_t* ent)
 {
+    /*	gentity_t	*target2 = nullptr;
 
-}
+        target2 = G_Find( nullptr, FOFS(targetname), ent->target2 );
 
-void cam_ctrl_point_link( gentity_t *ent )
-{
-/*	gentity_t	*target2 = nullptr;
+        if ( !target2 )
+        {
+            // Bah, you fool!  Target2 not found
+            Com_Printf( "cam_point_link: target2 specified but not found: %s\n", ent->target2 );
+            G_FreeEntity( ent );
+            return;
+        }
 
-	target2 = G_Find( nullptr, FOFS(targetname), ent->target2 );
+        // Store the control point here
+        VectorCopy( target2->s.origin, ent->pos1 );
 
-	if ( !target2 )
-	{
-		// Bah, you fool!  Target2 not found
-		Com_Printf( "cam_point_link: target2 specified but not found: %s\n", ent->target2 );
-		G_FreeEntity( ent );
-		return;
-	}
+        //---------------------
+        if ( ent->target )
+        {
+            gentity_t	*target = nullptr;
 
-	// Store the control point here
-	VectorCopy( target2->s.origin, ent->pos1 );
+            target = G_Find( nullptr, FOFS(targetname), ent->target );
 
-	//---------------------
-	if ( ent->target )
-	{
-		gentity_t	*target = nullptr;
+            if ( !target )
+            {
+                // Bah, you fool!  Target not found
+                Com_Printf( "cam_point_link: target specified but not found: %s\n", ent->target );
+                G_FreeEntity( ent );
+                return;
+            }
 
-		target = G_Find( nullptr, FOFS(targetname), ent->target );
-
-		if ( !target )
-		{
-			// Bah, you fool!  Target not found
-			Com_Printf( "cam_point_link: target specified but not found: %s\n", ent->target );
-			G_FreeEntity( ent );
-			return;
-		}
-
-		ent->nextTrain = target;
-	}
-*/
+            ent->nextTrain = target;
+        }
+    */
 }
 
 /*QUAK-ED cam_point (0.25 0 0.5) (-2 -2 -2) (2 2 2)
@@ -255,23 +249,23 @@ A camera point used to construct a camera bezier path
 
 Every cam_point MUST be targeted (target2) at one and only one control point
 */
-void SP_cam_point( gentity_t *ent )
+void SP_cam_point(gentity_t* ent)
 {
-/*	if ( !ent->target2 )
-	{
-		// Bah, you fool!  Target2 not found so we have no idea how to make the curve
-		Com_Printf( "cam_point_link: target2 was required but not found\n" );
-		G_FreeEntity( ent );
-		return;
+    /*	if ( !ent->target2 )
+        {
+            // Bah, you fool!  Target2 not found so we have no idea how to make the curve
+            Com_Printf( "cam_point_link: target2 was required but not found\n" );
+            G_FreeEntity( ent );
+            return;
 
-	}
+        }
 
-	// The thing we are targeting may not be spawned in yet so, wait a bit to try and link to it
-	ent->e_ThinkFunc = thinkF_cam_ctrl_point_link;
-	ent->nextthink = level.time + 200;
+        // The thing we are targeting may not be spawned in yet so, wait a bit to try and link to it
+        ent->e_ThinkFunc = thinkF_cam_ctrl_point_link;
+        ent->nextthink = level.time + 200;
 
-	// Save our position and link us up!
-	G_SetOrigin( ent, ent->s.origin );
-	gi.linkentity( ent );
-*/
+        // Save our position and link us up!
+        G_SetOrigin( ent, ent->s.origin );
+        gi.linkentity( ent );
+    */
 }

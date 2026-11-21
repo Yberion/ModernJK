@@ -31,7 +31,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "ui_local.h"
 
-//rww - added for ui ghoul2 models
+// rww - added for ui ghoul2 models
 #define UI_SHARED_CPP
 
 #include "../game/anims.h"
@@ -42,57 +42,57 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "qcommon/stringed_ingame.h"
 
-void		UI_LoadMenus(const char *menuFile, bool reset);
+void UI_LoadMenus(const char* menuFile, bool reset);
 
-extern vmCvar_t	ui_char_color_red;
-extern vmCvar_t	ui_char_color_green;
-extern vmCvar_t	ui_char_color_blue;
+extern vmCvar_t ui_char_color_red;
+extern vmCvar_t ui_char_color_green;
+extern vmCvar_t ui_char_color_blue;
 
-void *UI_Alloc( int size );
+void* UI_Alloc(int size);
 
-void		Controls_GetConfig( void );
-void		Fade(windowFlags_t *flags, float *f, float clamp, int *nextTime, int offsetTime, bool bFlags, float fadeAmount);
-void		Item_Init(itemDef_t *item);
-void		Item_InitControls(itemDef_t *item);
-bool	Item_Parse(itemDef_t *item);
-void		Item_RunScript(itemDef_t *item, const char *s);
-void		Item_SetupKeywordHash(void);
-void		Item_Text_AutoWrapped_Paint(itemDef_t *item);
-void		Item_UpdatePosition(itemDef_t *item);
-void		Item_ValidateTypeData(itemDef_t *item);
-void		LerpColor(vec4_t a, vec4_t b, vec4_t c, float t);
-itemDef_t	*Menu_FindItemByName(menuDef_t *menu, const char *p);
-itemDef_t	*Menu_GetMatchingItemByNumber(menuDef_t *menu, int index, const char *name);
-void		Menu_Paint(menuDef_t *menu, bool forcePaint);
-void		Menu_SetupKeywordHash(void);
-void		Menus_ShowItems(const char *menuName);
-bool	ParseRect(const char **p, rectDef_t *r);
-const char	*String_Alloc(const char *p);
-void		ToWindowCoords(float *x, float *y, windowDef_t *window);
-void		Window_Paint(Window *w, float fadeAmount, float fadeClamp, float fadeCycle);
-int			Item_ListBox_ThumbDrawPosition(itemDef_t *item);
-int			Item_ListBox_ThumbPosition(itemDef_t *item);
-int			Item_ListBox_MaxScroll(itemDef_t *item);
-static bool Rect_ContainsPoint(rectDef_t *rect, float x, float y) ;
-static bool	Item_Paint(itemDef_t *item, bool bDraw);
-int Item_TextScroll_ThumbDrawPosition ( itemDef_t *item );
-static void Item_TextScroll_BuildLines ( itemDef_t* item );
+void Controls_GetConfig(void);
+void Fade(windowFlags_t* flags, float* f, float clamp, int* nextTime, int offsetTime, bool bFlags, float fadeAmount);
+void Item_Init(itemDef_t* item);
+void Item_InitControls(itemDef_t* item);
+bool Item_Parse(itemDef_t* item);
+void Item_RunScript(itemDef_t* item, const char* s);
+void Item_SetupKeywordHash(void);
+void Item_Text_AutoWrapped_Paint(itemDef_t* item);
+void Item_UpdatePosition(itemDef_t* item);
+void Item_ValidateTypeData(itemDef_t* item);
+void LerpColor(vec4_t a, vec4_t b, vec4_t c, float t);
+itemDef_t* Menu_FindItemByName(menuDef_t* menu, const char* p);
+itemDef_t* Menu_GetMatchingItemByNumber(menuDef_t* menu, int index, const char* name);
+void Menu_Paint(menuDef_t* menu, bool forcePaint);
+void Menu_SetupKeywordHash(void);
+void Menus_ShowItems(const char* menuName);
+bool ParseRect(const char** p, rectDef_t* r);
+const char* String_Alloc(const char* p);
+void ToWindowCoords(float* x, float* y, windowDef_t* window);
+void Window_Paint(Window* w, float fadeAmount, float fadeClamp, float fadeCycle);
+int Item_ListBox_ThumbDrawPosition(itemDef_t* item);
+int Item_ListBox_ThumbPosition(itemDef_t* item);
+int Item_ListBox_MaxScroll(itemDef_t* item);
+static bool Rect_ContainsPoint(rectDef_t* rect, float x, float y);
+static bool Item_Paint(itemDef_t* item, bool bDraw);
+int Item_TextScroll_ThumbDrawPosition(itemDef_t* item);
+static void Item_TextScroll_BuildLines(itemDef_t* item);
 
-//static bool debugMode = false;
+// static bool debugMode = false;
 static bool g_waitingForKey = false;
 static bool g_editingField = false;
 
-static itemDef_t *g_bindItem = nullptr;
-static itemDef_t *g_editItem = nullptr;
-static itemDef_t *itemCapture = nullptr;   // item that has the mouse captured ( if any )
+static itemDef_t* g_bindItem = nullptr;
+static itemDef_t* g_editItem = nullptr;
+static itemDef_t* itemCapture = nullptr; // item that has the mouse captured ( if any )
 
 constexpr int DOUBLE_CLICK_DELAY = 300;
 static int lastListBoxClickTime = 0;
 
-static void (*captureFunc) (void *p) = nullptr;
-static void *captureData = nullptr;
+static void (*captureFunc)(void* p) = nullptr;
+static void* captureData = nullptr;
 
-//const char defaultString[10] = {"default"};
+// const char defaultString[10] = {"default"};
 #ifdef CGAME
 constexpr int MEM_POOL_SIZE = 128 * 1024;
 #else
@@ -105,86 +105,57 @@ constexpr int SCROLL_TIME_ADJUSTOFFSET = 40;
 constexpr int SCROLL_TIME_FLOOR = 20;
 
 typedef struct scrollInfo_s {
-	int nextScrollTime;
-	int nextAdjustTime;
-	int adjustValue;
-	fakeAscii_t scrollKey;
-	float xStart;
-	float yStart;
-	itemDef_t *item;
-	bool scrollDir;
+    int nextScrollTime;
+    int nextAdjustTime;
+    int adjustValue;
+    fakeAscii_t scrollKey;
+    float xStart;
+    float yStart;
+    itemDef_t* item;
+    bool scrollDir;
 } scrollInfo_t;
 
 static scrollInfo_t scrollInfo;
 
-static char		memoryPool[MEM_POOL_SIZE];
-static int		allocPoint;
+static char memoryPool[MEM_POOL_SIZE];
+static int allocPoint;
 
-displayContextDef_t *DC = nullptr;
+displayContextDef_t* DC = nullptr;
 
-menuDef_t Menus[MAX_MENUS];		// defined menus
-int menuCount = 0;				// how many
+menuDef_t Menus[MAX_MENUS]; // defined menus
+int menuCount = 0;          // how many
 
-menuDef_t *menuStack[MAX_OPEN_MENUS];
+menuDef_t* menuStack[MAX_OPEN_MENUS];
 int openMenuCount = 0;
 
 static int strPoolIndex = 0;
 static char strPool[STRING_POOL_SIZE];
 
 typedef struct stringDef_s {
-	struct stringDef_s *next;
-	const char *str;
+    struct stringDef_s* next;
+    const char* str;
 } stringDef_t;
 
 constexpr int HASH_TABLE_SIZE = 2048;
 
-static stringDef_t *strHandle[HASH_TABLE_SIZE];
+static stringDef_t* strHandle[HASH_TABLE_SIZE];
 
-typedef struct  itemFlagsDef_s {
-	const char *string;
-	windowFlags_t value;
-}	itemFlagsDef_t;
+typedef struct itemFlagsDef_s {
+    const char* string;
+    windowFlags_t value;
+} itemFlagsDef_t;
 
-itemFlagsDef_t itemFlags [] = {
-	{ "WINDOW_INACTIVE",	windowFlags_t::WINDOW_INACTIVE },
-	{ nullptr,					windowFlags_t::WINDOW_NONE }
-};
+itemFlagsDef_t itemFlags[] = {{"WINDOW_INACTIVE", windowFlags_t::WINDOW_INACTIVE}, {nullptr, windowFlags_t::WINDOW_NONE}};
 
-const char *styles [] = {
-"WINDOW_STYLE_EMPTY",
-"WINDOW_STYLE_FILLED",
-"WINDOW_STYLE_GRADIENT",
-"WINDOW_STYLE_SHADER",
-"WINDOW_STYLE_TEAMCOLOR",
-"WINDOW_STYLE_CINEMATIC",
-nullptr
-};
+const char* styles[] = {
+    "WINDOW_STYLE_EMPTY", "WINDOW_STYLE_FILLED", "WINDOW_STYLE_GRADIENT", "WINDOW_STYLE_SHADER", "WINDOW_STYLE_TEAMCOLOR", "WINDOW_STYLE_CINEMATIC", nullptr};
 
-const char *types [] = {
-"ITEM_TYPE_TEXT",
-"ITEM_TYPE_BUTTON",
-"ITEM_TYPE_RADIOBUTTON",
-"ITEM_TYPE_CHECKBOX",
-"ITEM_TYPE_EDITFIELD",
-"ITEM_TYPE_COMBO",
-"ITEM_TYPE_LISTBOX",
-"ITEM_TYPE_MODEL",
-"ITEM_TYPE_OWNERDRAW",
-"ITEM_TYPE_NUMERICFIELD",
-"ITEM_TYPE_SLIDER",
-"ITEM_TYPE_YESNO",
-"ITEM_TYPE_MULTI",
-"ITEM_TYPE_BIND",
-"ITEM_TYPE_TEXTSCROLL",
-nullptr
-};
+const char* types[] = {"ITEM_TYPE_TEXT",      "ITEM_TYPE_BUTTON",       "ITEM_TYPE_RADIOBUTTON", "ITEM_TYPE_CHECKBOX",
+                       "ITEM_TYPE_EDITFIELD", "ITEM_TYPE_COMBO",        "ITEM_TYPE_LISTBOX",     "ITEM_TYPE_MODEL",
+                       "ITEM_TYPE_OWNERDRAW", "ITEM_TYPE_NUMERICFIELD", "ITEM_TYPE_SLIDER",      "ITEM_TYPE_YESNO",
+                       "ITEM_TYPE_MULTI",     "ITEM_TYPE_BIND",         "ITEM_TYPE_TEXTSCROLL",  nullptr};
 
-const char *alignment [] = {
-"ITEM_ALIGN_LEFT",
-"ITEM_ALIGN_CENTER",
-"ITEM_ALIGN_RIGHT",
-nullptr
-};
+const char* alignment[] = {"ITEM_ALIGN_LEFT", "ITEM_ALIGN_CENTER", "ITEM_ALIGN_RIGHT", nullptr};
 
 /*
 ==================
@@ -193,9 +164,9 @@ Init_Display
 Initializes the display with a structure to all the drawing routines
  ==================
 */
-void Init_Display(displayContextDef_t *dc)
+void Init_Display(displayContextDef_t* dc)
 {
-	DC = dc;
+    DC = dc;
 }
 
 /*
@@ -206,12 +177,12 @@ Initializes a window structure ( windowDef_t ) with defaults
 
 ==================
 */
-void Window_Init(Window *w)
+void Window_Init(Window* w)
 {
-	memset(w, 0, sizeof(windowDef_t));
-	w->borderSize = 1;
-	w->foreColor[0] = w->foreColor[1] = w->foreColor[2] = w->foreColor[3] = 1.0;
-	w->cinematic = -1;
+    memset(w, 0, sizeof(windowDef_t));
+    w->borderSize = 1;
+    w->foreColor[0] = w->foreColor[1] = w->foreColor[2] = w->foreColor[3] = 1.0;
+    w->cinematic = -1;
 }
 
 /*
@@ -219,39 +190,37 @@ void Window_Init(Window *w)
 PC_SourceError
 =================
 */
-void PC_SourceError(int handle, char *format, ...)
+void PC_SourceError(int handle, char* format, ...)
 {
-	int line;
-	char filename[128];
-	va_list argptr;
-	static char string[4096];
+    int line;
+    char filename[128];
+    va_list argptr;
+    static char string[4096];
 
-	va_start (argptr, format);
-	Q_vsnprintf (string, sizeof(string), format, argptr);
-	va_end (argptr);
+    va_start(argptr, format);
+    Q_vsnprintf(string, sizeof(string), format, argptr);
+    va_end(argptr);
 
-	filename[0] = '\0';
-	line = 0;
+    filename[0] = '\0';
+    line = 0;
 
-	Com_Printf(S_COLOR_RED "ERROR: %s, line %d: %s\n", filename, line, string);
+    Com_Printf(S_COLOR_RED "ERROR: %s, line %d: %s\n", filename, line, string);
 }
-
 
 /*
 =================
 PC_ParseStringMem
 =================
 */
-bool PC_ParseStringMem(const char **out)
+bool PC_ParseStringMem(const char** out)
 {
-	const char *temp;
+    const char* temp;
 
-	if (PC_ParseString(&temp))
-	{
-		return false;
-	}
+    if (PC_ParseString(&temp)) {
+        return false;
+    }
 
-	*(out) = String_Alloc(temp);
+    *(out) = String_Alloc(temp);
 
     return true;
 }
@@ -261,75 +230,64 @@ bool PC_ParseStringMem(const char **out)
 PC_ParseRect
 =================
 */
-bool PC_ParseRect(rectDef_t *r)
+bool PC_ParseRect(rectDef_t* r)
 {
-	if (!PC_ParseFloat(&r->x))
-	{
-		if (!PC_ParseFloat(&r->y))
-		{
-			if (!PC_ParseFloat(&r->w))
-			{
-				if (!PC_ParseFloat(&r->h))
-				{
-					return true;
-				}
-			}
-		}
-	}
-	return false;
+    if (!PC_ParseFloat(&r->x)) {
+        if (!PC_ParseFloat(&r->y)) {
+            if (!PC_ParseFloat(&r->w)) {
+                if (!PC_ParseFloat(&r->h)) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
 }
-
 
 /*
 =================
 PC_Script_Parse
 =================
 */
-bool PC_Script_Parse(const char **out)
+bool PC_Script_Parse(const char** out)
 {
-	char script[4096];
-//	pc_token_t token;
-	char *token2;
+    char script[4096];
+    //	pc_token_t token;
+    char* token2;
 
-	script[0]=0;
-	// scripts start with { and have ; separated command lists.. commands are command, arg..
-	// basically we want everything between the { } as it will be interpreted at run time
+    script[0] = 0;
+    // scripts start with { and have ; separated command lists.. commands are command, arg..
+    // basically we want everything between the { } as it will be interpreted at run time
 
-	token2 = PC_ParseExt();
-	if (!token2)
-	{
-		return false;
-	}
+    token2 = PC_ParseExt();
+    if (!token2) {
+        return false;
+    }
 
-	if (*token2 !='{')
-	{
-	    return false;
-	}
+    if (*token2 != '{') {
+        return false;
+    }
 
-	while ( 1 )
-	{
-		token2 = PC_ParseExt();
-		if (!token2)
-		{
-			return false;
-		}
+    while (1) {
+        token2 = PC_ParseExt();
+        if (!token2) {
+            return false;
+        }
 
-		if (*token2 =='}')	// End of the script?
-		{
-			*out = String_Alloc(script);
-			return true;
-		}
+        if (*token2 == '}') // End of the script?
+        {
+            *out = String_Alloc(script);
+            return true;
+        }
 
-		if (*(token2 +1) != '\0')
-		{
-			Q_strcat(script, sizeof(script), va("\"%s\"", token2));
-		}
-		else
-		{
-			Q_strcat(script, sizeof(script), token2);
-		}
-		Q_strcat(script, sizeof(script), " ");
-	}
+        if (*(token2 + 1) != '\0') {
+            Q_strcat(script, sizeof(script), va("\"%s\"", token2));
+        }
+        else {
+            Q_strcat(script, sizeof(script), token2);
+        }
+        Q_strcat(script, sizeof(script), " ");
+    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -341,44 +299,40 @@ bool PC_Script_Parse(const char **out)
 MenuParse_font
 =================
 */
-bool MenuParse_font( itemDef_t *item)
+bool MenuParse_font(itemDef_t* item)
 {
-	menuDef_t *menu = (menuDef_t*)item;
+    menuDef_t* menu = (menuDef_t*)item;
 
-	if (!PC_ParseStringMem(&menu->font))
-	{
-		return false;
-	}
+    if (!PC_ParseStringMem(&menu->font)) {
+        return false;
+    }
 
-	if (!DC->Assets.fontRegistered)
-	{
-		DC->Assets.qhMediumFont = UI_RegisterFont(menu->font);
-		DC->Assets.fontRegistered = true;
-	}
-	return true;
+    if (!DC->Assets.fontRegistered) {
+        DC->Assets.qhMediumFont = UI_RegisterFont(menu->font);
+        DC->Assets.fontRegistered = true;
+    }
+    return true;
 }
-
 
 /*
 =================
 MenuParse_name
 =================
 */
-bool MenuParse_name(itemDef_t *item)
+bool MenuParse_name(itemDef_t* item)
 {
-	menuDef_t *menu = (menuDef_t*)item;
+    menuDef_t* menu = (menuDef_t*)item;
 
-	if (!PC_ParseStringMem((const char **) &menu->window.name))
-	{
-		return false;
-	}
+    if (!PC_ParseStringMem((const char**)&menu->window.name)) {
+        return false;
+    }
 
-//	if (Q_stricmp(menu->window.name, "main") == 0)
-//	{
-		// default main as having focus
-//		menu->window.flags |= windowFlags_t::WINDOW_HASFOCUS;
-//	}
-	return true;
+    //	if (Q_stricmp(menu->window.name, "main") == 0)
+    //	{
+    // default main as having focus
+    //		menu->window.flags |= windowFlags_t::WINDOW_HASFOCUS;
+    //	}
+    return true;
 }
 
 /*
@@ -387,17 +341,16 @@ MenuParse_fullscreen
 =================
 */
 
-bool MenuParse_fullscreen( itemDef_t *item )
+bool MenuParse_fullscreen(itemDef_t* item)
 {
-	menuDef_t *menu = (menuDef_t*)item;
-	int fullScreen;
+    menuDef_t* menu = (menuDef_t*)item;
+    int fullScreen;
 
-	if (PC_ParseInt(&fullScreen))
-	{
-		return false;
-	}
-	menu->fullScreen = fullScreen != 0;
-	return true;
+    if (PC_ParseInt(&fullScreen)) {
+        return false;
+    }
+    menu->fullScreen = fullScreen != 0;
+    return true;
 }
 
 /*
@@ -406,15 +359,14 @@ MenuParse_rect
 =================
 */
 
-bool MenuParse_rect( itemDef_t *item)
+bool MenuParse_rect(itemDef_t* item)
 {
-	menuDef_t *menu = (menuDef_t*)item;
+    menuDef_t* menu = (menuDef_t*)item;
 
-	if (!PC_ParseRect(&menu->window.rect))
-	{
-		return false;
-	}
-	return true;
+    if (!PC_ParseRect(&menu->window.rect)) {
+        return false;
+    }
+    return true;
 }
 
 /*
@@ -422,56 +374,49 @@ bool MenuParse_rect( itemDef_t *item)
 MenuParse_style
 =================
 */
-bool MenuParse_style( itemDef_t *item)
+bool MenuParse_style(itemDef_t* item)
 {
-	int		i;
-	const char	*tempStr;
-	menuDef_t *menu = (menuDef_t*)item;
+    int i;
+    const char* tempStr;
+    menuDef_t* menu = (menuDef_t*)item;
 
-	if (PC_ParseString(&tempStr))
-	{
-		return false;
-	}
+    if (PC_ParseString(&tempStr)) {
+        return false;
+    }
 
-	i=0;
-	while (styles[i])
-	{
-		if (Q_stricmp(tempStr,styles[i])==0)
-		{
-			menu->window.style = i;
-			break;
-		}
-		i++;
-	}
+    i = 0;
+    while (styles[i]) {
+        if (Q_stricmp(tempStr, styles[i]) == 0) {
+            menu->window.style = i;
+            break;
+        }
+        i++;
+    }
 
-	if (styles[i] == nullptr)
-	{
-		PC_ParseWarning(va("Unknown menu style value '%s'",tempStr));
-	}
-	return true;
+    if (styles[i] == nullptr) {
+        PC_ParseWarning(va("Unknown menu style value '%s'", tempStr));
+    }
+    return true;
 }
-
 
 /*
 =================
 MenuParse_visible
 =================
 */
-bool MenuParse_visible( itemDef_t *item )
+bool MenuParse_visible(itemDef_t* item)
 {
-	int i;
-	menuDef_t *menu = (menuDef_t*)item;
+    int i;
+    menuDef_t* menu = (menuDef_t*)item;
 
-	if (PC_ParseInt(&i))
-	{
-		return false;
-	}
+    if (PC_ParseInt(&i)) {
+        return false;
+    }
 
-	if (i)
-	{
-		menu->window.flags |= windowFlags_t::WINDOW_VISIBLE;
-	}
-	return true;
+    if (i) {
+        menu->window.flags |= windowFlags_t::WINDOW_VISIBLE;
+    }
+    return true;
 }
 
 /*
@@ -479,21 +424,19 @@ bool MenuParse_visible( itemDef_t *item )
 MenuParse_ignoreescape
 =================
 */
-bool MenuParse_ignoreescape( itemDef_t *item )
+bool MenuParse_ignoreescape(itemDef_t* item)
 {
-	int i;
-	menuDef_t *menu = (menuDef_t*)item;
+    int i;
+    menuDef_t* menu = (menuDef_t*)item;
 
-	if (PC_ParseInt(&i))
-	{
-		return false;
-	}
+    if (PC_ParseInt(&i)) {
+        return false;
+    }
 
-	if (i)
-	{
-		menu->window.flags |= windowFlags_t::WINDOW_IGNORE_ESCAPE;
-	}
-	return true;
+    if (i) {
+        menu->window.flags |= windowFlags_t::WINDOW_IGNORE_ESCAPE;
+    }
+    return true;
 }
 
 /*
@@ -501,15 +444,14 @@ bool MenuParse_ignoreescape( itemDef_t *item )
 MenuParse_onOpen
 =================
 */
-bool MenuParse_onOpen( itemDef_t *item)
+bool MenuParse_onOpen(itemDef_t* item)
 {
-	menuDef_t *menu = (menuDef_t*)item;
+    menuDef_t* menu = (menuDef_t*)item;
 
-	if (!PC_Script_Parse(&menu->onOpen))
-	{
-		return false;
-	}
-	return true;
+    if (!PC_Script_Parse(&menu->onOpen)) {
+        return false;
+    }
+    return true;
 }
 
 /*
@@ -517,66 +459,60 @@ bool MenuParse_onOpen( itemDef_t *item)
 MenuParse_onClose
 =================
 */
-bool MenuParse_onClose( itemDef_t *item )
+bool MenuParse_onClose(itemDef_t* item)
 {
-	menuDef_t *menu = (menuDef_t*)item;
+    menuDef_t* menu = (menuDef_t*)item;
 
-	if (!PC_Script_Parse(&menu->onClose))
-	{
-		return false;
-	}
-	return true;
+    if (!PC_Script_Parse(&menu->onClose)) {
+        return false;
+    }
+    return true;
 }
 
-//JLFACCEPT MPMOVED
+// JLFACCEPT MPMOVED
 /*
 =================
 MenuParse_onAccept
 =================
 */
-bool MenuParse_onAccept( itemDef_t *item )
+bool MenuParse_onAccept(itemDef_t* item)
 {
-	menuDef_t *menu = (menuDef_t*)item;
+    menuDef_t* menu = (menuDef_t*)item;
 
-	if (!PC_Script_Parse(&menu->onAccept))
-	{
-		return false;
-	}
-	return true;
+    if (!PC_Script_Parse(&menu->onAccept)) {
+        return false;
+    }
+    return true;
 }
-
 
 /*
 =================
 MenuParse_onESC
 =================
 */
-bool MenuParse_onESC( itemDef_t *item )
+bool MenuParse_onESC(itemDef_t* item)
 {
-	menuDef_t *menu = (menuDef_t*)item;
+    menuDef_t* menu = (menuDef_t*)item;
 
-	if (!PC_Script_Parse(&menu->onESC))
-	{
-		return false;
-	}
-	return true;
+    if (!PC_Script_Parse(&menu->onESC)) {
+        return false;
+    }
+    return true;
 }
-
 
 /*
 =================
 MenuParse_border
 =================
 */
-bool MenuParse_border( itemDef_t *item)
+bool MenuParse_border(itemDef_t* item)
 {
-	menuDef_t *menu = (menuDef_t*)item;
+    menuDef_t* menu = (menuDef_t*)item;
 
-	if (PC_ParseInt(&menu->window.border))
-	{
-		return false;
-	}
-	return true;
+    if (PC_ParseInt(&menu->window.border)) {
+        return false;
+    }
+    return true;
 }
 
 /*
@@ -584,15 +520,14 @@ bool MenuParse_border( itemDef_t *item)
 MenuParse_borderSize
 =================
 */
-bool MenuParse_borderSize( itemDef_t *item)
+bool MenuParse_borderSize(itemDef_t* item)
 {
-	menuDef_t *menu = (menuDef_t*)item;
+    menuDef_t* menu = (menuDef_t*)item;
 
-	if (PC_ParseFloat(&menu->window.borderSize))
-	{
-		return false;
-	}
-	return true;
+    if (PC_ParseFloat(&menu->window.borderSize)) {
+        return false;
+    }
+    return true;
 }
 
 /*
@@ -600,21 +535,19 @@ bool MenuParse_borderSize( itemDef_t *item)
 MenuParse_backcolor
 =================
 */
-bool MenuParse_backcolor( itemDef_t *item )
+bool MenuParse_backcolor(itemDef_t* item)
 {
-	int i;
-	float f;
-	menuDef_t *menu = (menuDef_t*)item;
+    int i;
+    float f;
+    menuDef_t* menu = (menuDef_t*)item;
 
-	for (i = 0; i < 4; i++)
-	{
-		if (PC_ParseFloat(&f))
-		{
-			return false;
-		}
-		menu->window.backColor[i]  = f;
-	}
-	return true;
+    for (i = 0; i < 4; i++) {
+        if (PC_ParseFloat(&f)) {
+            return false;
+        }
+        menu->window.backColor[i] = f;
+    }
+    return true;
 }
 
 /*
@@ -622,27 +555,24 @@ bool MenuParse_backcolor( itemDef_t *item )
 MenuParse_forecolor
 =================
 */
-bool MenuParse_forecolor( itemDef_t *item)
+bool MenuParse_forecolor(itemDef_t* item)
 {
-	int i;
-	float f;
-	menuDef_t *menu = (menuDef_t*)item;
+    int i;
+    float f;
+    menuDef_t* menu = (menuDef_t*)item;
 
-	for (i = 0; i < 4; i++)
-	{
-		if (PC_ParseFloat(&f))
-		{
-			return false;
-		}
-		if (f < 0)
-		{	//special case for player color
-			menu->window.flags |= windowFlags_t::WINDOW_PLAYERCOLOR;
-			return true;
-		}
-		menu->window.foreColor[i]  = f;
-		menu->window.flags |= windowFlags_t::WINDOW_FORECOLORSET;
-	}
-	return true;
+    for (i = 0; i < 4; i++) {
+        if (PC_ParseFloat(&f)) {
+            return false;
+        }
+        if (f < 0) { // special case for player color
+            menu->window.flags |= windowFlags_t::WINDOW_PLAYERCOLOR;
+            return true;
+        }
+        menu->window.foreColor[i] = f;
+        menu->window.flags |= windowFlags_t::WINDOW_FORECOLORSET;
+    }
+    return true;
 }
 
 /*
@@ -650,21 +580,19 @@ bool MenuParse_forecolor( itemDef_t *item)
 MenuParse_bordercolor
 =================
 */
-bool MenuParse_bordercolor( itemDef_t *item )
+bool MenuParse_bordercolor(itemDef_t* item)
 {
-	int i;
-	float f;
-	menuDef_t *menu = (menuDef_t*)item;
+    int i;
+    float f;
+    menuDef_t* menu = (menuDef_t*)item;
 
-	for (i = 0; i < 4; i++)
-	{
-		if (PC_ParseFloat(&f))
-		{
-			return false;
-		}
-		menu->window.borderColor[i]  = f;
-	}
-	return true;
+    for (i = 0; i < 4; i++) {
+        if (PC_ParseFloat(&f)) {
+            return false;
+        }
+        menu->window.borderColor[i] = f;
+    }
+    return true;
 }
 
 /*
@@ -672,75 +600,65 @@ bool MenuParse_bordercolor( itemDef_t *item )
 MenuParse_focuscolor
 =================
 */
-bool MenuParse_focuscolor( itemDef_t *item)
+bool MenuParse_focuscolor(itemDef_t* item)
 {
-	int i;
-	float f;
-	menuDef_t *menu = (menuDef_t*)item;
+    int i;
+    float f;
+    menuDef_t* menu = (menuDef_t*)item;
 
-	for (i = 0; i < 4; i++)
-	{
-		if (PC_ParseFloat(&f))
-		{
-			return false;
-		}
-		menu->focusColor[i]  = f;
-	}
-	return true;
+    for (i = 0; i < 4; i++) {
+        if (PC_ParseFloat(&f)) {
+            return false;
+        }
+        menu->focusColor[i] = f;
+    }
+    return true;
 }
-
 
 /*
 =================
 MenuParse_focuscolor
 =================
 */
-bool MenuParse_appearanceIncrement( itemDef_t *item)
+bool MenuParse_appearanceIncrement(itemDef_t* item)
 {
-	menuDef_t *menu = (menuDef_t*)item;
+    menuDef_t* menu = (menuDef_t*)item;
 
-	if (PC_ParseFloat(&menu->appearanceIncrement))
-	{
-		return false;
-	}
-	return true;
+    if (PC_ParseFloat(&menu->appearanceIncrement)) {
+        return false;
+    }
+    return true;
 }
-
-
 
 /*
 =================
 MenuParse_descAlignment
 =================
 */
-bool MenuParse_descAlignment( itemDef_t *item)
+bool MenuParse_descAlignment(itemDef_t* item)
 {
-	menuDef_t *menu = (menuDef_t*)item;
-	const char *tempStr;
-	int	i;
+    menuDef_t* menu = (menuDef_t*)item;
+    const char* tempStr;
+    int i;
 
-	if (PC_ParseString(&tempStr))
-	{
-		return false;
-	}
+    if (PC_ParseString(&tempStr)) {
+        return false;
+    }
 
-	i=0;
-	while (alignment[i])
-	{
-		if (Q_stricmp(tempStr,alignment[i])==0)
-		{
-			menu->descAlignment = i;
-			break;
-		}
-		i++;
-	}
+    i = 0;
+    while (alignment[i]) {
+        if (Q_stricmp(tempStr, alignment[i]) == 0) {
+            menu->descAlignment = i;
+            break;
+        }
+        i++;
+    }
 
-	if (alignment[i] == nullptr)
-	{
-		PC_ParseWarning(va("Unknown desc alignment value '%s'",tempStr));
-	}
+    if (alignment[i] == nullptr) {
+        PC_ParseWarning(va("Unknown desc alignment value '%s'", tempStr));
+    }
 
-	return true;
+    return true;
 }
 
 /*
@@ -748,30 +666,28 @@ bool MenuParse_descAlignment( itemDef_t *item)
 MenuParse_descTextStyle
 =================
 */
-bool MenuParse_descTextStyle( itemDef_t *item)
+bool MenuParse_descTextStyle(itemDef_t* item)
 {
-	menuDef_t *menu = (menuDef_t*)item;
+    menuDef_t* menu = (menuDef_t*)item;
 
-	if (PC_ParseInt(&menu->descTextStyle))
-	{
-		return false;
-	}
-	return true;
+    if (PC_ParseInt(&menu->descTextStyle)) {
+        return false;
+    }
+    return true;
 }
 /*
 =================
 MenuParse_descX
 =================
 */
-bool MenuParse_descX( itemDef_t *item)
+bool MenuParse_descX(itemDef_t* item)
 {
-	menuDef_t *menu = (menuDef_t*)item;
+    menuDef_t* menu = (menuDef_t*)item;
 
-	if (PC_ParseInt(&menu->descX))
-	{
-		return false;
-	}
-	return true;
+    if (PC_ParseInt(&menu->descX)) {
+        return false;
+    }
+    return true;
 }
 
 /*
@@ -779,32 +695,29 @@ bool MenuParse_descX( itemDef_t *item)
 MenuParse_descY
 =================
 */
-bool MenuParse_descY( itemDef_t *item)
+bool MenuParse_descY(itemDef_t* item)
 {
-	menuDef_t *menu = (menuDef_t*)item;
+    menuDef_t* menu = (menuDef_t*)item;
 
-	if (PC_ParseInt(&menu->descY))
-	{
-		return false;
-	}
-	return true;
+    if (PC_ParseInt(&menu->descY)) {
+        return false;
+    }
+    return true;
 }
-
 
 /*
 =================
 MenuParse_descScale
 =================
 */
-bool MenuParse_descScale( itemDef_t *item)
+bool MenuParse_descScale(itemDef_t* item)
 {
-	menuDef_t *menu = (menuDef_t*)item;
+    menuDef_t* menu = (menuDef_t*)item;
 
-	if (PC_ParseFloat(&menu->descScale))
-	{
-		return false;
-	}
-	return true;
+    if (PC_ParseFloat(&menu->descScale)) {
+        return false;
+    }
+    return true;
 }
 
 /*
@@ -812,21 +725,19 @@ bool MenuParse_descScale( itemDef_t *item)
 MenuParse_descColor
 =================
 */
-bool MenuParse_descColor( itemDef_t *item)
+bool MenuParse_descColor(itemDef_t* item)
 {
-	int i;
-	float f;
-	menuDef_t *menu = (menuDef_t*)item;
+    int i;
+    float f;
+    menuDef_t* menu = (menuDef_t*)item;
 
-	for (i = 0; i < 4; i++)
-	{
-		if (PC_ParseFloat(&f))
-		{
-			return false;
-		}
-		menu->descColor[i]  = f;
-	}
-	return true;
+    for (i = 0; i < 4; i++) {
+        if (PC_ParseFloat(&f)) {
+            return false;
+        }
+        menu->descColor[i] = f;
+    }
+    return true;
 }
 
 /*
@@ -834,38 +745,34 @@ bool MenuParse_descColor( itemDef_t *item)
 MenuParse_disablecolor
 =================
 */
-bool MenuParse_disablecolor( itemDef_t *item)
+bool MenuParse_disablecolor(itemDef_t* item)
 {
-	int i;
-	float f;
-	menuDef_t *menu = (menuDef_t*)item;
+    int i;
+    float f;
+    menuDef_t* menu = (menuDef_t*)item;
 
-	for (i = 0; i < 4; i++)
-	{
-		if (PC_ParseFloat(&f))
-		{
-			return false;
-		}
-		menu->disableColor[i]  = f;
-	}
-	return true;
+    for (i = 0; i < 4; i++) {
+        if (PC_ParseFloat(&f)) {
+            return false;
+        }
+        menu->disableColor[i] = f;
+    }
+    return true;
 }
-
 
 /*
 =================
 MenuParse_outlinecolor
 =================
 */
-bool MenuParse_outlinecolor( itemDef_t *item)
+bool MenuParse_outlinecolor(itemDef_t* item)
 {
-	menuDef_t *menu = (menuDef_t*)item;
+    menuDef_t* menu = (menuDef_t*)item;
 
-	if (PC_ParseColor(&menu->window.outlineColor))
-	{
-		return false;
-	}
-	return true;
+    if (PC_ParseColor(&menu->window.outlineColor)) {
+        return false;
+    }
+    return true;
 }
 
 /*
@@ -873,18 +780,17 @@ bool MenuParse_outlinecolor( itemDef_t *item)
 MenuParse_background
 =================
 */
-bool MenuParse_background( itemDef_t *item)
+bool MenuParse_background(itemDef_t* item)
 {
-	const char *buff;
-	menuDef_t *menu = (menuDef_t*)item;
+    const char* buff;
+    menuDef_t* menu = (menuDef_t*)item;
 
-	if (PC_ParseString(&buff))
-	{
-		return false;
-	}
+    if (PC_ParseString(&buff)) {
+        return false;
+    }
 
-	menu->window.background = ui.R_RegisterShaderNoMip(buff);
-	return true;
+    menu->window.background = ui.R_RegisterShaderNoMip(buff);
+    return true;
 }
 
 /*
@@ -892,15 +798,14 @@ bool MenuParse_background( itemDef_t *item)
 MenuParse_cinematic
 =================
 */
-bool MenuParse_cinematic( itemDef_t *item)
+bool MenuParse_cinematic(itemDef_t* item)
 {
-	menuDef_t *menu = (menuDef_t*)item;
+    menuDef_t* menu = (menuDef_t*)item;
 
-	if (!PC_ParseStringMem((const char **) &menu->window.cinematicName))
-	{
-		return false;
-	}
-	return true;
+    if (!PC_ParseStringMem((const char**)&menu->window.cinematicName)) {
+        return false;
+    }
+    return true;
 }
 
 /*
@@ -908,17 +813,16 @@ bool MenuParse_cinematic( itemDef_t *item)
 MenuParse_ownerdrawFlag
 =================
 */
-bool MenuParse_ownerdrawFlag( itemDef_t *item)
+bool MenuParse_ownerdrawFlag(itemDef_t* item)
 {
-	int i;
-	menuDef_t *menu = (menuDef_t*)item;
+    int i;
+    menuDef_t* menu = (menuDef_t*)item;
 
-	if (PC_ParseInt(&i))
-	{
-		return false;
-	}
-	menu->window.ownerDrawFlags |= i;
-	return true;
+    if (PC_ParseInt(&i)) {
+        return false;
+    }
+    menu->window.ownerDrawFlags |= i;
+    return true;
 }
 
 /*
@@ -926,42 +830,39 @@ bool MenuParse_ownerdrawFlag( itemDef_t *item)
 MenuParse_ownerdraw
 =================
 */
-bool MenuParse_ownerdraw( itemDef_t *item)
+bool MenuParse_ownerdraw(itemDef_t* item)
 {
-	menuDef_t *menu = (menuDef_t*)item;
+    menuDef_t* menu = (menuDef_t*)item;
 
-	if (PC_ParseInt(&menu->window.ownerDraw))
-	{
-		return false;
-	}
-	return true;
+    if (PC_ParseInt(&menu->window.ownerDraw)) {
+        return false;
+    }
+    return true;
 }
-
 
 /*
 =================
 MenuParse_popup
 =================
 */
-bool MenuParse_popup( itemDef_t *item)
+bool MenuParse_popup(itemDef_t* item)
 {
-	menuDef_t *menu = (menuDef_t*)item;
-	menu->window.flags |= windowFlags_t::WINDOW_POPUP;
-	return true;
+    menuDef_t* menu = (menuDef_t*)item;
+    menu->window.flags |= windowFlags_t::WINDOW_POPUP;
+    return true;
 }
-
 
 /*
 =================
 MenuParse_outOfBounds
 =================
 */
-bool MenuParse_outOfBounds( itemDef_t *item)
+bool MenuParse_outOfBounds(itemDef_t* item)
 {
-	menuDef_t *menu = (menuDef_t*)item;
+    menuDef_t* menu = (menuDef_t*)item;
 
-	menu->window.flags |= windowFlags_t::WINDOW_OOB_CLICK;
-	return true;
+    menu->window.flags |= windowFlags_t::WINDOW_OOB_CLICK;
+    return true;
 }
 
 /*
@@ -969,15 +870,14 @@ bool MenuParse_outOfBounds( itemDef_t *item)
 MenuParse_soundLoop
 =================
 */
-bool MenuParse_soundLoop( itemDef_t *item)
+bool MenuParse_soundLoop(itemDef_t* item)
 {
-	menuDef_t *menu = (menuDef_t*)item;
+    menuDef_t* menu = (menuDef_t*)item;
 
-	if (!PC_ParseStringMem((const char **) &menu->soundName))
-	{
-		return false;
-	}
-	return true;
+    if (!PC_ParseStringMem((const char**)&menu->soundName)) {
+        return false;
+    }
+    return true;
 }
 
 /*
@@ -985,15 +885,14 @@ bool MenuParse_soundLoop( itemDef_t *item)
 MenuParse_fadeClamp
 ================
 */
-bool MenuParse_fadeClamp( itemDef_t *item)
+bool MenuParse_fadeClamp(itemDef_t* item)
 {
-	menuDef_t *menu = (menuDef_t*)item;
+    menuDef_t* menu = (menuDef_t*)item;
 
-	if (PC_ParseFloat(&menu->fadeClamp))
-	{
-		return false;
-	}
-	return true;
+    if (PC_ParseFloat(&menu->fadeClamp)) {
+        return false;
+    }
+    return true;
 }
 
 /*
@@ -1001,32 +900,29 @@ bool MenuParse_fadeClamp( itemDef_t *item)
 MenuParse_fadeAmount
 ================
 */
-bool MenuParse_fadeAmount( itemDef_t *item)
+bool MenuParse_fadeAmount(itemDef_t* item)
 {
-	menuDef_t *menu = (menuDef_t*)item;
+    menuDef_t* menu = (menuDef_t*)item;
 
-	if (PC_ParseFloat(&menu->fadeAmount))
-	{
-		return false;
-	}
-	return true;
+    if (PC_ParseFloat(&menu->fadeAmount)) {
+        return false;
+    }
+    return true;
 }
-
 
 /*
 ================
 MenuParse_fadeCycle
 ================
 */
-bool MenuParse_fadeCycle( itemDef_t *item)
+bool MenuParse_fadeCycle(itemDef_t* item)
 {
-	menuDef_t *menu = (menuDef_t*)item;
+    menuDef_t* menu = (menuDef_t*)item;
 
-	if (PC_ParseInt(&menu->fadeCycle))
-	{
-		return false;
-	}
-	return true;
+    if (PC_ParseInt(&menu->fadeCycle)) {
+        return false;
+    }
+    return true;
 }
 
 /*
@@ -1035,100 +931,95 @@ Item_ApplyHacks
 Hacks to fix issues with Team Arena menu scripts
 ===============
 */
-static void Item_ApplyHacks( itemDef_t *item ) {
-	// Fix length of favorite address in createfavorite.menu
-	if ( item->type == ITEM_TYPE_MULTI && item->cvar && !Q_stricmp( item->cvar, "s_UseOpenAL" ) ) {
-		if( item->parent )
-		{
-			menuDef_t *parent = (menuDef_t *)item->parent;
-			VectorSet4( parent->disableColor, 0.5f, 0.5f, 0.5f, 1.0f );
-			item->disabled = true;
-			// Just in case it had focus
-			item->window.flags &= ~windowFlags_t::WINDOW_MOUSEOVER;
-			Com_Printf( "Disabling eax field because current platform does not support EAX.\n");
-		}
-	}
+static void Item_ApplyHacks(itemDef_t* item)
+{
+    // Fix length of favorite address in createfavorite.menu
+    if (item->type == ITEM_TYPE_MULTI && item->cvar && !Q_stricmp(item->cvar, "s_UseOpenAL")) {
+        if (item->parent) {
+            menuDef_t* parent = (menuDef_t*)item->parent;
+            VectorSet4(parent->disableColor, 0.5f, 0.5f, 0.5f, 1.0f);
+            item->disabled = true;
+            // Just in case it had focus
+            item->window.flags &= ~windowFlags_t::WINDOW_MOUSEOVER;
+            Com_Printf("Disabling eax field because current platform does not support EAX.\n");
+        }
+    }
 
-	if ( item->type == ITEM_TYPE_TEXT && item->window.name && !Q_stricmp( item->window.name, "eax_icon") && item->cvarTest && !Q_stricmp( item->cvarTest, "s_UseOpenAL" ) && item->enableCvar && Any( item->cvarFlags & itemCvarFlags_t::CVAR_HIDE ) ) {
-		if( item->parent )
-		{
-			menuDef_t *parent = (menuDef_t *)item->parent;
-			VectorSet4( parent->disableColor, 0.5f, 0.5f, 0.5f, 1.0f );
-			item->disabled = item->disabledHidden = true;
-			// Just in case it had focus
-			item->window.flags &= ~windowFlags_t::WINDOW_MOUSEOVER;
-			Com_Printf( "Hiding eax_icon object because current platform does not support EAX.\n");
-		}
-	}
+    if (item->type == ITEM_TYPE_TEXT && item->window.name && !Q_stricmp(item->window.name, "eax_icon") && item->cvarTest &&
+        !Q_stricmp(item->cvarTest, "s_UseOpenAL") && item->enableCvar && Any(item->cvarFlags & itemCvarFlags_t::CVAR_HIDE)) {
+        if (item->parent) {
+            menuDef_t* parent = (menuDef_t*)item->parent;
+            VectorSet4(parent->disableColor, 0.5f, 0.5f, 0.5f, 1.0f);
+            item->disabled = item->disabledHidden = true;
+            // Just in case it had focus
+            item->window.flags &= ~windowFlags_t::WINDOW_MOUSEOVER;
+            Com_Printf("Hiding eax_icon object because current platform does not support EAX.\n");
+        }
+    }
 
-	if ( item->type == ITEM_TYPE_MULTI && item->window.name && !Q_stricmp( item->window.name, "sound_quality") ) {
-		multiDef_t *multiPtr = (multiDef_t *)item->typeData;
-		int i;
-		bool found = false;
-		for( i = 0; i < multiPtr->count; i++ )
-		{
-			if ( multiPtr->cvarValue[i] == 44 )
-			{
-				found = true;
-				break;
-			}
-		}
-		if ( !found && multiPtr->count < MAX_MULTI_CVARS )
-		{
+    if (item->type == ITEM_TYPE_MULTI && item->window.name && !Q_stricmp(item->window.name, "sound_quality")) {
+        multiDef_t* multiPtr = (multiDef_t*)item->typeData;
+        int i;
+        bool found = false;
+        for (i = 0; i < multiPtr->count; i++) {
+            if (multiPtr->cvarValue[i] == 44) {
+                found = true;
+                break;
+            }
+        }
+        if (!found && multiPtr->count < MAX_MULTI_CVARS) {
 #ifdef JK2_MODE
-			multiPtr->cvarList[multiPtr->count] = String_Alloc("@MENUS0_VERY_HIGH");
+            multiPtr->cvarList[multiPtr->count] = String_Alloc("@MENUS0_VERY_HIGH");
 #else
-			multiPtr->cvarList[multiPtr->count] = String_Alloc("@MENUS_VERY_HIGH");
+            multiPtr->cvarList[multiPtr->count] = String_Alloc("@MENUS_VERY_HIGH");
 #endif
-			multiPtr->cvarValue[multiPtr->count] = 44;
-			multiPtr->count++;
-			Com_Printf( "Extended sound quality field to contain very high option.\n");
-		}
-	}
+            multiPtr->cvarValue[multiPtr->count] = 44;
+            multiPtr->count++;
+            Com_Printf("Extended sound quality field to contain very high option.\n");
+        }
+    }
 
-	if ( item->type == ITEM_TYPE_MULTI && item->window.name && !Q_stricmp( item->window.name, "voice") && item->cvar && !Q_stricmp( item->cvar, "g_subtitles" ) ) {
-		multiDef_t *multiPtr = (multiDef_t *)item->typeData;
-		int i;
-		bool found = false;
-		for( i = 0; i < multiPtr->count; i++ )
-		{
-			if ( multiPtr->cvarValue[i] == 1 )
-			{
-				found = true;
-				break;
-			}
-		}
-		if ( !found && multiPtr->count < MAX_MULTI_CVARS )
-		{
+    if (item->type == ITEM_TYPE_MULTI && item->window.name && !Q_stricmp(item->window.name, "voice") && item->cvar && !Q_stricmp(item->cvar, "g_subtitles")) {
+        multiDef_t* multiPtr = (multiDef_t*)item->typeData;
+        int i;
+        bool found = false;
+        for (i = 0; i < multiPtr->count; i++) {
+            if (multiPtr->cvarValue[i] == 1) {
+                found = true;
+                break;
+            }
+        }
+        if (!found && multiPtr->count < MAX_MULTI_CVARS) {
 #ifdef JK2_MODE
-			multiPtr->cvarList[multiPtr->count] = String_Alloc("@MENUS3_ALL_VOICEOVERS");
+            multiPtr->cvarList[multiPtr->count] = String_Alloc("@MENUS3_ALL_VOICEOVERS");
 #else
-			multiPtr->cvarList[multiPtr->count] = String_Alloc("@MENUS_ALL_VOICEOVERS");
+            multiPtr->cvarList[multiPtr->count] = String_Alloc("@MENUS_ALL_VOICEOVERS");
 #endif
-			multiPtr->cvarValue[multiPtr->count] = 1;
-			multiPtr->count++;
-			Com_Printf( "Extended subtitles field to contain all voiceovers option.\n");
-		}
-	}
+            multiPtr->cvarValue[multiPtr->count] = 1;
+            multiPtr->count++;
+            Com_Printf("Extended subtitles field to contain all voiceovers option.\n");
+        }
+    }
 
 #ifdef JK2_MODE
-	if ( item->type == ITEM_TYPE_MULTI && item->window.name && !Q_stricmp( item->window.name, "video_mode") && item->cvar && !Q_stricmp( item->cvar, "r_ext_texture_filter_anisotropic" ) ) {
-		{
-			memset(item->typeData, 0, sizeof(multiDef_t));
-		}
-		editFieldDef_t *editPtr = nullptr;
+    if (item->type == ITEM_TYPE_MULTI && item->window.name && !Q_stricmp(item->window.name, "video_mode") && item->cvar &&
+        !Q_stricmp(item->cvar, "r_ext_texture_filter_anisotropic")) {
+        {
+            memset(item->typeData, 0, sizeof(multiDef_t));
+        }
+        editFieldDef_t* editPtr = nullptr;
 
-		item->cvarFlags = itemCvarFlags_t::CVAR_DISABLE;
-		item->type = ITEM_TYPE_SLIDER;
+        item->cvarFlags = itemCvarFlags_t::CVAR_DISABLE;
+        item->type = ITEM_TYPE_SLIDER;
 
-		Item_ValidateTypeData(item);
+        Item_ValidateTypeData(item);
 
-		editPtr = (editFieldDef_t *)item->typeData;
-		editPtr->minVal = 0.5f;
-		editPtr->maxVal = cls.glconfig.maxTextureFilterAnisotropy;
-		editPtr->defVal = 1.0f;
-		Com_Printf( "Converted anisotropic filter field to slider.\n");
-	}
+        editPtr = (editFieldDef_t*)item->typeData;
+        editPtr->minVal = 0.5f;
+        editPtr->maxVal = cls.glconfig.maxTextureFilterAnisotropy;
+        editPtr->defVal = 1.0f;
+        Com_Printf("Converted anisotropic filter field to slider.\n");
+    }
 #endif
 }
 
@@ -1137,100 +1028,187 @@ static void Item_ApplyHacks( itemDef_t *item ) {
 MenuParse_itemDef
 ================
 */
-bool MenuParse_itemDef( itemDef_t *item )
+bool MenuParse_itemDef(itemDef_t* item)
 {
-	menuDef_t *menu = (menuDef_t*)item;
-	if (menu->itemCount < MAX_MENUITEMS)
-	{
-		itemDef_t *newItem = menu->items[menu->itemCount] = (struct itemDef_s *) UI_Alloc(sizeof(itemDef_t));
-		Item_Init(newItem);
-		if (!Item_Parse(newItem))
-		{
-			return false;
-		}
-		Item_InitControls( newItem );
-		newItem->parent = menu->items[menu->itemCount]->parent = menu;
-		menu->itemCount++;
-		Item_ApplyHacks( newItem );
-	}
-	else
-	{
-		PC_ParseWarning(va("Exceeded item/menu max of %d", MAX_MENUITEMS));
-	}
-	return true;
+    menuDef_t* menu = (menuDef_t*)item;
+    if (menu->itemCount < MAX_MENUITEMS) {
+        itemDef_t* newItem = menu->items[menu->itemCount] = (struct itemDef_s*)UI_Alloc(sizeof(itemDef_t));
+        Item_Init(newItem);
+        if (!Item_Parse(newItem)) {
+            return false;
+        }
+        Item_InitControls(newItem);
+        newItem->parent = menu->items[menu->itemCount]->parent = menu;
+        menu->itemCount++;
+        Item_ApplyHacks(newItem);
+    }
+    else {
+        PC_ParseWarning(va("Exceeded item/menu max of %d", MAX_MENUITEMS));
+    }
+    return true;
 }
 
 constexpr int KEYWORDHASH_SIZE = 512;
 
-typedef struct keywordHash_s
-{
-	const char	*keyword;
-	bool	(*func)(itemDef_t *item);
-	struct		keywordHash_s *next;
+typedef struct keywordHash_s {
+    const char* keyword;
+    bool (*func)(itemDef_t* item);
+    struct keywordHash_s* next;
 } keywordHash_t;
 
-keywordHash_t menuParseKeywords[] = {
-	{"appearanceIncrement",	MenuParse_appearanceIncrement},
-	{"backcolor",			MenuParse_backcolor,	},
-	{"background",			MenuParse_background,	},
-	{"border",				MenuParse_border,		},
-	{"bordercolor",			MenuParse_bordercolor,	},
-	{"borderSize",			MenuParse_borderSize,	},
-	{"cinematic",			MenuParse_cinematic,	},
-	{"descAlignment",		MenuParse_descAlignment	},
-	{"descTextStyle",		MenuParse_descTextStyle	},
-	{"desccolor",			MenuParse_descColor		},
-	{"descX",				MenuParse_descX			},
-	{"descY",				MenuParse_descY			},
-	{"descScale",			MenuParse_descScale		},
-	{"disablecolor",		MenuParse_disablecolor,	},
-	{"fadeClamp",			MenuParse_fadeClamp,	},
-	{"fadeCycle",			MenuParse_fadeCycle,	},
-	{"fadeAmount",			MenuParse_fadeAmount,	},
-	{"focuscolor",			MenuParse_focuscolor,	},
-	{"font",				MenuParse_font,			},
-	{"forecolor",			MenuParse_forecolor,	},
-	{"fullscreen",			MenuParse_fullscreen,	},
-	{"itemDef",				MenuParse_itemDef,		},
-	{"name",				MenuParse_name,			},
-	{"onClose",				MenuParse_onClose,		},
-//JLFACCEPT MPMOVED
-	{"onAccept",			MenuParse_onAccept,		},
-	{"onESC",				MenuParse_onESC,		},
-	{"onOpen",				MenuParse_onOpen,		},
-	{"outlinecolor",		MenuParse_outlinecolor,	},
-	{"outOfBoundsClick",	MenuParse_outOfBounds,	},
-	{"ownerdraw",			MenuParse_ownerdraw,	},
-	{"ownerdrawFlag",		MenuParse_ownerdrawFlag,},
-	{"popup",				MenuParse_popup,		},
-	{"rect",				MenuParse_rect,			},
-	{"soundLoop",			MenuParse_soundLoop,	},
-	{"style",				MenuParse_style,		},
-	{"visible",				MenuParse_visible,		},
-	{"ignoreescape",		MenuParse_ignoreescape,	},
-	{nullptr,					nullptr,					}
-};
+keywordHash_t menuParseKeywords[] = {{"appearanceIncrement", MenuParse_appearanceIncrement},
+                                     {
+                                         "backcolor",
+                                         MenuParse_backcolor,
+                                     },
+                                     {
+                                         "background",
+                                         MenuParse_background,
+                                     },
+                                     {
+                                         "border",
+                                         MenuParse_border,
+                                     },
+                                     {
+                                         "bordercolor",
+                                         MenuParse_bordercolor,
+                                     },
+                                     {
+                                         "borderSize",
+                                         MenuParse_borderSize,
+                                     },
+                                     {
+                                         "cinematic",
+                                         MenuParse_cinematic,
+                                     },
+                                     {"descAlignment", MenuParse_descAlignment},
+                                     {"descTextStyle", MenuParse_descTextStyle},
+                                     {"desccolor", MenuParse_descColor},
+                                     {"descX", MenuParse_descX},
+                                     {"descY", MenuParse_descY},
+                                     {"descScale", MenuParse_descScale},
+                                     {
+                                         "disablecolor",
+                                         MenuParse_disablecolor,
+                                     },
+                                     {
+                                         "fadeClamp",
+                                         MenuParse_fadeClamp,
+                                     },
+                                     {
+                                         "fadeCycle",
+                                         MenuParse_fadeCycle,
+                                     },
+                                     {
+                                         "fadeAmount",
+                                         MenuParse_fadeAmount,
+                                     },
+                                     {
+                                         "focuscolor",
+                                         MenuParse_focuscolor,
+                                     },
+                                     {
+                                         "font",
+                                         MenuParse_font,
+                                     },
+                                     {
+                                         "forecolor",
+                                         MenuParse_forecolor,
+                                     },
+                                     {
+                                         "fullscreen",
+                                         MenuParse_fullscreen,
+                                     },
+                                     {
+                                         "itemDef",
+                                         MenuParse_itemDef,
+                                     },
+                                     {
+                                         "name",
+                                         MenuParse_name,
+                                     },
+                                     {
+                                         "onClose",
+                                         MenuParse_onClose,
+                                     },
+                                     // JLFACCEPT MPMOVED
+                                     {
+                                         "onAccept",
+                                         MenuParse_onAccept,
+                                     },
+                                     {
+                                         "onESC",
+                                         MenuParse_onESC,
+                                     },
+                                     {
+                                         "onOpen",
+                                         MenuParse_onOpen,
+                                     },
+                                     {
+                                         "outlinecolor",
+                                         MenuParse_outlinecolor,
+                                     },
+                                     {
+                                         "outOfBoundsClick",
+                                         MenuParse_outOfBounds,
+                                     },
+                                     {
+                                         "ownerdraw",
+                                         MenuParse_ownerdraw,
+                                     },
+                                     {
+                                         "ownerdrawFlag",
+                                         MenuParse_ownerdrawFlag,
+                                     },
+                                     {
+                                         "popup",
+                                         MenuParse_popup,
+                                     },
+                                     {
+                                         "rect",
+                                         MenuParse_rect,
+                                     },
+                                     {
+                                         "soundLoop",
+                                         MenuParse_soundLoop,
+                                     },
+                                     {
+                                         "style",
+                                         MenuParse_style,
+                                     },
+                                     {
+                                         "visible",
+                                         MenuParse_visible,
+                                     },
+                                     {
+                                         "ignoreescape",
+                                         MenuParse_ignoreescape,
+                                     },
+                                     {
+                                         nullptr,
+                                         nullptr,
+                                     }};
 
-keywordHash_t *menuParseKeywordHash[KEYWORDHASH_SIZE];
+keywordHash_t* menuParseKeywordHash[KEYWORDHASH_SIZE];
 
 /*
 ================
 KeywordHash_Key
 ================
 */
-int KeywordHash_Key(const char *keyword)
+int KeywordHash_Key(const char* keyword)
 {
-	int hash, i;
+    int hash, i;
 
-	hash = 0;
-	for (i = 0; keyword[i] != '\0'; i++) {
-		if (keyword[i] >= 'A' && keyword[i] <= 'Z')
-			hash += (keyword[i] + ('a' - 'A')) * (119 + i);
-		else
-			hash += keyword[i] * (119 + i);
-	}
-	hash = (hash ^ (hash >> 10) ^ (hash >> 20)) & (KEYWORDHASH_SIZE-1);
-	return hash;
+    hash = 0;
+    for (i = 0; keyword[i] != '\0'; i++) {
+        if (keyword[i] >= 'A' && keyword[i] <= 'Z')
+            hash += (keyword[i] + ('a' - 'A')) * (119 + i);
+        else
+            hash += keyword[i] * (119 + i);
+    }
+    hash = (hash ^ (hash >> 10) ^ (hash >> 20)) & (KEYWORDHASH_SIZE - 1);
+    return hash;
 }
 
 /*
@@ -1238,13 +1216,13 @@ int KeywordHash_Key(const char *keyword)
 KeywordHash_Add
 ================
 */
-void KeywordHash_Add(keywordHash_t *table[], keywordHash_t *key)
+void KeywordHash_Add(keywordHash_t* table[], keywordHash_t* key)
 {
-	int hash;
+    int hash;
 
-	hash = KeywordHash_Key(key->keyword);
-	key->next = table[hash];
-	table[hash] = key;
+    hash = KeywordHash_Key(key->keyword);
+    key->next = table[hash];
+    table[hash] = key;
 }
 
 /*
@@ -1252,18 +1230,17 @@ void KeywordHash_Add(keywordHash_t *table[], keywordHash_t *key)
 KeywordHash_Find
 ===============
 */
-keywordHash_t *KeywordHash_Find(keywordHash_t *table[], const char *keyword)
+keywordHash_t* KeywordHash_Find(keywordHash_t* table[], const char* keyword)
 {
-	keywordHash_t *key;
-	int hash;
+    keywordHash_t* key;
+    int hash;
 
-	hash = KeywordHash_Key(keyword);
-	for (key = table[hash]; key; key = key->next)
-	{
-		if (!Q_stricmp(key->keyword, keyword))
-			return key;
-	}
-	return nullptr;
+    hash = KeywordHash_Key(keyword);
+    for (key = table[hash]; key; key = key->next) {
+        if (!Q_stricmp(key->keyword, keyword))
+            return key;
+    }
+    return nullptr;
 }
 
 /*
@@ -1273,22 +1250,21 @@ hashForString
 return a hash value for the string
 ================
 */
-static unsigned hashForString(const char *str)
+static unsigned hashForString(const char* str)
 {
-	int		i;
-	unsigned	hash;
-	char	letter;
+    int i;
+    unsigned hash;
+    char letter;
 
-	hash = 0;
-	i = 0;
-	while (str[i] != '\0')
-	{
-		letter = tolower((unsigned char)str[i]);
-		hash += (unsigned)(letter)*(i + 119);
-		i++;
-	}
-	hash &= (HASH_TABLE_SIZE-1);
-	return hash;
+    hash = 0;
+    i = 0;
+    while (str[i] != '\0') {
+        letter = tolower((unsigned char)str[i]);
+        hash += (unsigned)(letter) * (i + 119);
+        i++;
+    }
+    hash &= (HASH_TABLE_SIZE - 1);
+    return hash;
 }
 
 /*
@@ -1296,69 +1272,60 @@ static unsigned hashForString(const char *str)
 String_Alloc
 =================
 */
-const char *String_Alloc(const char *p)
+const char* String_Alloc(const char* p)
 {
-	int len;
-	unsigned hash;
-	stringDef_t *str, *last;
-	static const char *staticNULL = "";
+    int len;
+    unsigned hash;
+    stringDef_t *str, *last;
+    static const char* staticNULL = "";
 
-	if (p == nullptr)
-	{
-		return nullptr;
-	}
+    if (p == nullptr) {
+        return nullptr;
+    }
 
-	if (*p == 0)
-	{
-		return staticNULL;
-	}
+    if (*p == 0) {
+        return staticNULL;
+    }
 
-	hash = hashForString(p);
+    hash = hashForString(p);
 
-	str = strHandle[hash];
-	while (str)
-	{
-		if (strcmp(p, str->str) == 0)
-		{
-			return str->str;
-		}
-		str = str->next;
-	}
+    str = strHandle[hash];
+    while (str) {
+        if (strcmp(p, str->str) == 0) {
+            return str->str;
+        }
+        str = str->next;
+    }
 
-	len = strlen(p);
-	if (len + strPoolIndex + 1 < STRING_POOL_SIZE)
-	{
-		int ph = strPoolIndex;
-		strcpy(&strPool[strPoolIndex], p);
-		strPoolIndex += len + 1;
+    len = strlen(p);
+    if (len + strPoolIndex + 1 < STRING_POOL_SIZE) {
+        int ph = strPoolIndex;
+        strcpy(&strPool[strPoolIndex], p);
+        strPoolIndex += len + 1;
 
-		str = strHandle[hash];
-		last = str;
-		while (last && last->next)
-		{
-			last = last->next;
-		}
+        str = strHandle[hash];
+        last = str;
+        while (last && last->next) {
+            last = last->next;
+        }
 
-		str  = (stringDef_s *) UI_Alloc( sizeof(stringDef_t));
-		str->next = nullptr;
-		str->str = &strPool[ph];
-		if (last)
-		{
-			last->next = str;
-		}
-		else
-		{
-			strHandle[hash] = str;
-		}
+        str = (stringDef_s*)UI_Alloc(sizeof(stringDef_t));
+        str->next = nullptr;
+        str->str = &strPool[ph];
+        if (last) {
+            last->next = str;
+        }
+        else {
+            strHandle[hash] = str;
+        }
 
-		return &strPool[ph];
-	}
-	else
-	{
-		Com_Printf("WARNING: Ran out of strPool space\n");
-	}
+        return &strPool[ph];
+    }
+    else {
+        Com_Printf("WARNING: Ran out of strPool space\n");
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
 /*
@@ -1368,17 +1335,17 @@ String_Report
 */
 void String_Report(void)
 {
-	float f;
-	Com_Printf("Memory/String Pool Info\n");
-	Com_Printf("----------------\n");
-	f = strPoolIndex;
-	f /= STRING_POOL_SIZE;
-	f *= 100;
-	Com_Printf("String Pool is %.1f%% full, %i bytes out of %i used.\n", f, strPoolIndex, STRING_POOL_SIZE);
-	f = allocPoint;
-	f /= MEM_POOL_SIZE;
-	f *= 100;
-	Com_Printf("Memory Pool is %.1f%% full, %i bytes out of %i used.\n", f, allocPoint, MEM_POOL_SIZE);
+    float f;
+    Com_Printf("Memory/String Pool Info\n");
+    Com_Printf("----------------\n");
+    f = strPoolIndex;
+    f /= STRING_POOL_SIZE;
+    f *= 100;
+    Com_Printf("String Pool is %.1f%% full, %i bytes out of %i used.\n", f, strPoolIndex, STRING_POOL_SIZE);
+    f = allocPoint;
+    f /= MEM_POOL_SIZE;
+    f *= 100;
+    Com_Printf("Memory Pool is %.1f%% full, %i bytes out of %i used.\n", f, allocPoint, MEM_POOL_SIZE);
 }
 
 /*
@@ -1388,25 +1355,21 @@ String_Init
 */
 void String_Init(void)
 {
-	int i;
+    int i;
 
-	for (i = 0; i < HASH_TABLE_SIZE; i++)
-	{
-		strHandle[i] = nullptr;
-	}
+    for (i = 0; i < HASH_TABLE_SIZE; i++) {
+        strHandle[i] = nullptr;
+    }
 
-	strPoolIndex = 0;
-	UI_InitMemory();
-	Item_SetupKeywordHash();
-	Menu_SetupKeywordHash();
+    strPoolIndex = 0;
+    UI_InitMemory();
+    Item_SetupKeywordHash();
+    Menu_SetupKeywordHash();
 
-	if (DC && DC->getBindingBuf)
-	{
-		Controls_GetConfig();
-	}
+    if (DC && DC->getBindingBuf) {
+        Controls_GetConfig();
+    }
 }
-
-
 
 //---------------------------------------------------------------------------------------------------------
 //		Memory
@@ -1417,24 +1380,22 @@ void String_Init(void)
 UI_Alloc
 ===============
 */
-void *UI_Alloc( int size )
+void* UI_Alloc(int size)
 {
-	char	*p;
+    char* p;
 
-	if ( allocPoint + size > MEM_POOL_SIZE )
-	{
-		if (DC->Print)
-		{
-			DC->Print("UI_Alloc: Failure. Out of memory!\n");
-		}
-		return nullptr;
-	}
+    if (allocPoint + size > MEM_POOL_SIZE) {
+        if (DC->Print) {
+            DC->Print("UI_Alloc: Failure. Out of memory!\n");
+        }
+        return nullptr;
+    }
 
-	p = &memoryPool[allocPoint];
+    p = &memoryPool[allocPoint];
 
-	allocPoint += ( size + 15 ) & ~15;
+    allocPoint += (size + 15) & ~15;
 
-	return p;
+    return p;
 }
 
 /*
@@ -1442,37 +1403,33 @@ void *UI_Alloc( int size )
 UI_InitMemory
 ===============
 */
-void UI_InitMemory( void )
+void UI_InitMemory(void)
 {
-	allocPoint = 0;
+    allocPoint = 0;
 }
-
 
 /*
 ===============
 Menu_ItemsMatchingGroup
 ===============
 */
-int Menu_ItemsMatchingGroup(menuDef_t *menu, const char *name)
+int Menu_ItemsMatchingGroup(menuDef_t* menu, const char* name)
 {
-	int i;
-	int count = 0;
+    int i;
+    int count = 0;
 
-	for (i = 0; i < menu->itemCount; i++)
-	{
-		if ((!menu->items[i]->window.name) && (!menu->items[i]->window.group))
-		{
-			Com_Printf(S_COLOR_YELLOW"WARNING: item has neither name or group\n");
-			continue;
-		}
+    for (i = 0; i < menu->itemCount; i++) {
+        if ((!menu->items[i]->window.name) && (!menu->items[i]->window.group)) {
+            Com_Printf(S_COLOR_YELLOW "WARNING: item has neither name or group\n");
+            continue;
+        }
 
-		if (Q_stricmp(menu->items[i]->window.name, name) == 0 || (menu->items[i]->window.group && Q_stricmp(menu->items[i]->window.group, name) == 0))
-		{
-			count++;
-		}
-	}
+        if (Q_stricmp(menu->items[i]->window.name, name) == 0 || (menu->items[i]->window.group && Q_stricmp(menu->items[i]->window.group, name) == 0)) {
+            count++;
+        }
+    }
 
-	return count;
+    return count;
 }
 
 /*
@@ -1480,22 +1437,19 @@ int Menu_ItemsMatchingGroup(menuDef_t *menu, const char *name)
 Menu_GetMatchingItemByNumber
 ===============
 */
-itemDef_t *Menu_GetMatchingItemByNumber(menuDef_t *menu, int index, const char *name)
+itemDef_t* Menu_GetMatchingItemByNumber(menuDef_t* menu, int index, const char* name)
 {
-	int i;
-	int count = 0;
-	for (i = 0; i < menu->itemCount; i++)
-	{
-		if (Q_stricmp(menu->items[i]->window.name, name) == 0 || (menu->items[i]->window.group && Q_stricmp(menu->items[i]->window.group, name) == 0))
-		{
-			if (count == index)
-			{
-				return menu->items[i];
-			}
-			count++;
-		}
-	}
-	return nullptr;
+    int i;
+    int count = 0;
+    for (i = 0; i < menu->itemCount; i++) {
+        if (Q_stricmp(menu->items[i]->window.name, name) == 0 || (menu->items[i]->window.group && Q_stricmp(menu->items[i]->window.group, name) == 0)) {
+            if (count == index) {
+                return menu->items[i];
+            }
+            count++;
+        }
+    }
+    return nullptr;
 }
 
 /*
@@ -1503,28 +1457,24 @@ itemDef_t *Menu_GetMatchingItemByNumber(menuDef_t *menu, int index, const char *
 Menu_FadeItemByName
 ===============
 */
-void Menu_FadeItemByName(menuDef_t *menu, const char *p, bool fadeOut)
+void Menu_FadeItemByName(menuDef_t* menu, const char* p, bool fadeOut)
 {
-	itemDef_t *item;
-	int i;
-	int count = Menu_ItemsMatchingGroup(menu, p);
-	for (i = 0; i < count; i++)
-	{
-		item = Menu_GetMatchingItemByNumber(menu, i, p);
-		if (item != nullptr)
-		{
-			if (fadeOut)
-			{
-				item->window.flags |= (windowFlags_t::WINDOW_FADINGOUT | windowFlags_t::WINDOW_VISIBLE);
-				item->window.flags &= ~windowFlags_t::WINDOW_FADINGIN;
-			}
-			else
-			{
-				item->window.flags |= (windowFlags_t::WINDOW_VISIBLE | windowFlags_t::WINDOW_FADINGIN);
-				item->window.flags &= ~windowFlags_t::WINDOW_FADINGOUT;
-			}
-		}
-	}
+    itemDef_t* item;
+    int i;
+    int count = Menu_ItemsMatchingGroup(menu, p);
+    for (i = 0; i < count; i++) {
+        item = Menu_GetMatchingItemByNumber(menu, i, p);
+        if (item != nullptr) {
+            if (fadeOut) {
+                item->window.flags |= (windowFlags_t::WINDOW_FADINGOUT | windowFlags_t::WINDOW_VISIBLE);
+                item->window.flags &= ~windowFlags_t::WINDOW_FADINGIN;
+            }
+            else {
+                item->window.flags |= (windowFlags_t::WINDOW_VISIBLE | windowFlags_t::WINDOW_FADINGIN);
+                item->window.flags &= ~windowFlags_t::WINDOW_FADINGOUT;
+            }
+        }
+    }
 }
 
 /*
@@ -1532,40 +1482,34 @@ void Menu_FadeItemByName(menuDef_t *menu, const char *p, bool fadeOut)
 Menu_ShowItemByName
 ===============
 */
-void Menu_ShowItemByName(menuDef_t *menu, const char *p, bool bShow)
+void Menu_ShowItemByName(menuDef_t* menu, const char* p, bool bShow)
 {
-	itemDef_t *item;
-	int i;
-	int count;
+    itemDef_t* item;
+    int i;
+    int count;
 
-	count = Menu_ItemsMatchingGroup(menu, p);
+    count = Menu_ItemsMatchingGroup(menu, p);
 
-	if (!count)
-	{
-		Com_Printf(S_COLOR_YELLOW"WARNING: Menu_ShowItemByName - unable to locate any items named: \"%s\"\n",p);
-	}
+    if (!count) {
+        Com_Printf(S_COLOR_YELLOW "WARNING: Menu_ShowItemByName - unable to locate any items named: \"%s\"\n", p);
+    }
 
-	for (i = 0; i < count; i++)
-	{
-		item = Menu_GetMatchingItemByNumber(menu, i, p);
-		if (item != nullptr)
-		{
-			if (bShow)
-			{
-				item->window.flags |= windowFlags_t::WINDOW_VISIBLE;
-			}
-			else
-			{
-				item->window.flags &= ~(windowFlags_t::WINDOW_VISIBLE | windowFlags_t::WINDOW_HASFOCUS);
-				// stop cinematics playing in the window
-				if (item->window.cinematic >= 0)
-				{
-					DC->stopCinematic(item->window.cinematic);
-					item->window.cinematic = -1;
-				}
-			}
-		}
-	}
+    for (i = 0; i < count; i++) {
+        item = Menu_GetMatchingItemByNumber(menu, i, p);
+        if (item != nullptr) {
+            if (bShow) {
+                item->window.flags |= windowFlags_t::WINDOW_VISIBLE;
+            }
+            else {
+                item->window.flags &= ~(windowFlags_t::WINDOW_VISIBLE | windowFlags_t::WINDOW_HASFOCUS);
+                // stop cinematics playing in the window
+                if (item->window.cinematic >= 0) {
+                    DC->stopCinematic(item->window.cinematic);
+                    item->window.cinematic = -1;
+                }
+            }
+        }
+    }
 }
 
 /*
@@ -1573,19 +1517,17 @@ void Menu_ShowItemByName(menuDef_t *menu, const char *p, bool bShow)
 Menu_GetFocused
 ===============
 */
-menuDef_t *Menu_GetFocused(void)
+menuDef_t* Menu_GetFocused(void)
 {
-	int i;
+    int i;
 
-	for (i = 0; i < menuCount; i++)
-	{
-		if (Any( Menus[i].window.flags & windowFlags_t::WINDOW_HASFOCUS ) && Any( Menus[i].window.flags & windowFlags_t::WINDOW_VISIBLE ))
-		{
-	      return &Menus[i];
-		}
-	}
+    for (i = 0; i < menuCount; i++) {
+        if (Any(Menus[i].window.flags & windowFlags_t::WINDOW_HASFOCUS) && Any(Menus[i].window.flags & windowFlags_t::WINDOW_VISIBLE)) {
+            return &Menus[i];
+        }
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
 /*
@@ -1593,9 +1535,9 @@ menuDef_t *Menu_GetFocused(void)
 Menus_OpenByName
 ===============
 */
-void Menus_OpenByName(const char *p)
+void Menus_OpenByName(const char* p)
 {
-	Menus_ActivateByName(p);
+    Menus_ActivateByName(p);
 }
 
 /*
@@ -1603,17 +1545,15 @@ void Menus_OpenByName(const char *p)
 Menus_FindByName
 ===============
 */
-menuDef_t *Menus_FindByName(const char *p)
+menuDef_t* Menus_FindByName(const char* p)
 {
-	int i;
-	for (i = 0; i < menuCount; i++)
-	{
-		if (Q_stricmp(Menus[i].window.name, p) == 0)
-		{
-			return &Menus[i];
-		}
-	}
-	return nullptr;
+    int i;
+    for (i = 0; i < menuCount; i++) {
+        if (Q_stricmp(Menus[i].window.name, p) == 0) {
+            return &Menus[i];
+        }
+    }
+    return nullptr;
 }
 
 /*
@@ -1621,14 +1561,13 @@ menuDef_t *Menus_FindByName(const char *p)
 Menu_RunCloseScript
 ===============
 */
-static void Menu_RunCloseScript(menuDef_t *menu)
+static void Menu_RunCloseScript(menuDef_t* menu)
 {
-	if (menu && Any( menu->window.flags & windowFlags_t::WINDOW_VISIBLE ) && menu->onClose)
-	{
-		itemDef_t item;
-		item.parent = menu;
-		Item_RunScript(&item, menu->onClose);
-	}
+    if (menu && Any(menu->window.flags & windowFlags_t::WINDOW_VISIBLE) && menu->onClose) {
+        itemDef_t item;
+        item.parent = menu;
+        Item_RunScript(&item, menu->onClose);
+    }
 }
 
 /*
@@ -1636,19 +1575,18 @@ static void Menu_RunCloseScript(menuDef_t *menu)
 Item_ActivateByName
 ===============
 */
-void Item_ActivateByName(const char *menuName,const char *itemName)
+void Item_ActivateByName(const char* menuName, const char* itemName)
 {
-	itemDef_t *item;
-	menuDef_t *menu;
+    itemDef_t* item;
+    menuDef_t* menu;
 
-	menu = Menus_FindByName(menuName);
+    menu = Menus_FindByName(menuName);
 
-	item = (itemDef_s *) Menu_FindItemByName((menuDef_t *) menu, itemName);
+    item = (itemDef_s*)Menu_FindItemByName((menuDef_t*)menu, itemName);
 
-	if (item != nullptr)
-	{
-		item->window.flags &= ~windowFlags_t::WINDOW_INACTIVE;
-	}
+    if (item != nullptr) {
+        item->window.flags &= ~windowFlags_t::WINDOW_INACTIVE;
+    }
 }
 
 /*
@@ -1656,40 +1594,37 @@ void Item_ActivateByName(const char *menuName,const char *itemName)
 Menus_CloseByName
 ===============
 */
-void Menus_CloseByName(const char *p)
+void Menus_CloseByName(const char* p)
 {
-	menuDef_t *menu = Menus_FindByName(p);
+    menuDef_t* menu = Menus_FindByName(p);
 
-	// If the menu wasnt found just exit
-	if (menu == nullptr)
-	{
-		return;
-	}
+    // If the menu wasnt found just exit
+    if (menu == nullptr) {
+        return;
+    }
 
-	// Run the close script for the menu
-	Menu_RunCloseScript(menu);
+    // Run the close script for the menu
+    Menu_RunCloseScript(menu);
 
-	// If this window had the focus then take it away
-	if ( Any( menu->window.flags & windowFlags_t::WINDOW_HASFOCUS ) )
-	{
-		// If there is something still in the open menu list then
-		// set it to have focus now
-		if ( openMenuCount )
-		{
-			// Subtract one from the open menu count to prepare to
-			// remove the top menu from the list
-			openMenuCount -= 1;
+    // If this window had the focus then take it away
+    if (Any(menu->window.flags & windowFlags_t::WINDOW_HASFOCUS)) {
+        // If there is something still in the open menu list then
+        // set it to have focus now
+        if (openMenuCount) {
+            // Subtract one from the open menu count to prepare to
+            // remove the top menu from the list
+            openMenuCount -= 1;
 
-			// Set the top menu to have focus now
-			menuStack[openMenuCount]->window.flags |= windowFlags_t::WINDOW_HASFOCUS;
+            // Set the top menu to have focus now
+            menuStack[openMenuCount]->window.flags |= windowFlags_t::WINDOW_HASFOCUS;
 
-			// Remove the top menu from the list
-			menuStack[openMenuCount] = nullptr;
-		}
-	}
+            // Remove the top menu from the list
+            menuStack[openMenuCount] = nullptr;
+        }
+    }
 
-	// Window is now invisible and doenst have focus
-	menu->window.flags &= ~(windowFlags_t::WINDOW_VISIBLE | windowFlags_t::WINDOW_HASFOCUS);
+    // Window is now invisible and doenst have focus
+    menu->window.flags &= ~(windowFlags_t::WINDOW_VISIBLE | windowFlags_t::WINDOW_HASFOCUS);
 }
 
 /*
@@ -1697,23 +1632,20 @@ void Menus_CloseByName(const char *p)
 Menu_FindItemByName
 ===============
 */
-itemDef_t *Menu_FindItemByName(menuDef_t *menu, const char *p)
+itemDef_t* Menu_FindItemByName(menuDef_t* menu, const char* p)
 {
-	int i;
-	if (menu == nullptr || p == nullptr)
-	{
-		return nullptr;
-	}
+    int i;
+    if (menu == nullptr || p == nullptr) {
+        return nullptr;
+    }
 
-	for (i = 0; i < menu->itemCount; i++)
-	{
-		if (Q_stricmp(p, menu->items[i]->window.name) == 0)
-		{
-			return menu->items[i];
-		}
-	}
+    for (i = 0; i < menu->itemCount; i++) {
+        if (Q_stricmp(p, menu->items[i]->window.name) == 0) {
+            return menu->items[i];
+        }
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
 /*
@@ -1721,116 +1653,100 @@ itemDef_t *Menu_FindItemByName(menuDef_t *menu, const char *p)
 Menu_ClearFocus
 =================
 */
-itemDef_t *Menu_ClearFocus(menuDef_t *menu)
+itemDef_t* Menu_ClearFocus(menuDef_t* menu)
 {
-	int i;
-	itemDef_t *ret = nullptr;
+    int i;
+    itemDef_t* ret = nullptr;
 
-	if (menu == nullptr)
-	{
-		return nullptr;
-	}
-	for (i = 0; i < menu->itemCount; i++)
-	{
-		if (Any( menu->items[i]->window.flags & windowFlags_t::WINDOW_HASFOCUS ))
-		{
-			ret = menu->items[i];
-			menu->items[i]->window.flags &= ~windowFlags_t::WINDOW_HASFOCUS;
-			if (menu->items[i]->leaveFocus)
-			{
-				Item_RunScript(menu->items[i], menu->items[i]->leaveFocus);
-			}
-		}
-	}
-	return ret;
+    if (menu == nullptr) {
+        return nullptr;
+    }
+    for (i = 0; i < menu->itemCount; i++) {
+        if (Any(menu->items[i]->window.flags & windowFlags_t::WINDOW_HASFOCUS)) {
+            ret = menu->items[i];
+            menu->items[i]->window.flags &= ~windowFlags_t::WINDOW_HASFOCUS;
+            if (menu->items[i]->leaveFocus) {
+                Item_RunScript(menu->items[i], menu->items[i]->leaveFocus);
+            }
+        }
+    }
+    return ret;
 }
 
 // Set all the items within a given menu, with the given itemName, to the given shader
-void Menu_SetItemBackground(const menuDef_t *menu,const char *itemName, const char *background)
+void Menu_SetItemBackground(const menuDef_t* menu, const char* itemName, const char* background)
 {
-	itemDef_t	*item;
-	int			j, count;
+    itemDef_t* item;
+    int j, count;
 
-	if (!menu)	// No menu???
-	{
-		return;
-	}
+    if (!menu) // No menu???
+    {
+        return;
+    }
 
-	count = Menu_ItemsMatchingGroup( (menuDef_t *) menu, itemName);
+    count = Menu_ItemsMatchingGroup((menuDef_t*)menu, itemName);
 
-	for (j = 0; j < count; j++)
-	{
-		item = Menu_GetMatchingItemByNumber( (menuDef_t *) menu, j, itemName);
-		if (item != nullptr)
-		{
-//			item->window.background = DC->registerShaderNoMip(background);
-			item->window.background = ui.R_RegisterShaderNoMip(background);
-		}
-	}
+    for (j = 0; j < count; j++) {
+        item = Menu_GetMatchingItemByNumber((menuDef_t*)menu, j, itemName);
+        if (item != nullptr) {
+            //			item->window.background = DC->registerShaderNoMip(background);
+            item->window.background = ui.R_RegisterShaderNoMip(background);
+        }
+    }
 }
 
 // Set all the items within a given menu, with the given itemName, to the given text
-void Menu_SetItemText(const menuDef_t *menu,const char *itemName, const char *text)
+void Menu_SetItemText(const menuDef_t* menu, const char* itemName, const char* text)
 {
-	itemDef_t	*item;
-	int			j, count;
+    itemDef_t* item;
+    int j, count;
 
-	if (!menu)	// No menu???
-	{
-		return;
-	}
+    if (!menu) // No menu???
+    {
+        return;
+    }
 
-	count = Menu_ItemsMatchingGroup( (menuDef_t *) menu, itemName);
+    count = Menu_ItemsMatchingGroup((menuDef_t*)menu, itemName);
 
-	for (j = 0; j < count; j++)
-	{
-		item = Menu_GetMatchingItemByNumber( (menuDef_t *) menu, j, itemName);
-		if (item != nullptr)
-		{
-			if (text[0] == '*')
-			{
-				item->cvar = text+1;
-				// Just copying what was in ItemParse_cvar()
-				if ( item->typeData)
-				{
-					editFieldDef_t *editPtr;
-					editPtr = (editFieldDef_t*)item->typeData;
-					editPtr->minVal = -1;
-					editPtr->maxVal = -1;
-					editPtr->defVal = -1;
-				}
-			}
-			else
-			{
-				if (item->type == ITEM_TYPE_TEXTSCROLL )
-				{
-					char cvartext[1024];
-					textScrollDef_t *scrollPtr = (textScrollDef_t*)item->typeData;
-					if ( scrollPtr )
-					{
-						scrollPtr->startPos = 0;
-						scrollPtr->endPos = 0;
-					}
+    for (j = 0; j < count; j++) {
+        item = Menu_GetMatchingItemByNumber((menuDef_t*)menu, j, itemName);
+        if (item != nullptr) {
+            if (text[0] == '*') {
+                item->cvar = text + 1;
+                // Just copying what was in ItemParse_cvar()
+                if (item->typeData) {
+                    editFieldDef_t* editPtr;
+                    editPtr = (editFieldDef_t*)item->typeData;
+                    editPtr->minVal = -1;
+                    editPtr->maxVal = -1;
+                    editPtr->defVal = -1;
+                }
+            }
+            else {
+                if (item->type == ITEM_TYPE_TEXTSCROLL) {
+                    char cvartext[1024];
+                    textScrollDef_t* scrollPtr = (textScrollDef_t*)item->typeData;
+                    if (scrollPtr) {
+                        scrollPtr->startPos = 0;
+                        scrollPtr->endPos = 0;
+                    }
 
-					if (item->cvar)
-					{
-						DC->getCVarString(item->cvar, cvartext, sizeof(cvartext));
-						item->text = cvartext;
-					}
-					else
-					{
-						item->text = (char *) text;
-					}
+                    if (item->cvar) {
+                        DC->getCVarString(item->cvar, cvartext, sizeof(cvartext));
+                        item->text = cvartext;
+                    }
+                    else {
+                        item->text = (char*)text;
+                    }
 
-					Item_TextScroll_BuildLines ( item );
-				}
-				else
-				{
-					item->text = (char *) text;
-				}
-			}
-		}
-	}
+                    Item_TextScroll_BuildLines(item);
+                }
+                else {
+                    item->text = (char*)text;
+                }
+            }
+        }
+    }
 }
 
 /*
@@ -1838,31 +1754,28 @@ void Menu_SetItemText(const menuDef_t *menu,const char *itemName, const char *te
 Menu_TransitionItemByName
 =================
 */
-void Menu_TransitionItemByName(menuDef_t *menu, const char *p, const rectDef_t *rectFrom, const rectDef_t *rectTo, int time, float amt)
+void Menu_TransitionItemByName(menuDef_t* menu, const char* p, const rectDef_t* rectFrom, const rectDef_t* rectTo, int time, float amt)
 {
-	itemDef_t *item;
-	int i;
-	int count = Menu_ItemsMatchingGroup(menu, p);
-	for (i = 0; i < count; i++)
-	{
-		item = Menu_GetMatchingItemByNumber(menu, i, p);
-		if (item != nullptr)
-		{
-			if (!rectFrom)
-			{
-				rectFrom = &item->window.rect;	//if there are more than one of these with the same name, they'll all use the FIRST one's FROM.
-			}
-			item->window.flags |= (windowFlags_t::WINDOW_INTRANSITION | windowFlags_t::WINDOW_VISIBLE);
-			item->window.offsetTime = time;
-			memcpy(&item->window.rectClient, rectFrom, sizeof(rectDef_t));
-			memcpy(&item->window.rectEffects, rectTo, sizeof(rectDef_t));
-			item->window.rectEffects2.x = Q_fabsf(rectTo->x - rectFrom->x) / amt;
-			item->window.rectEffects2.y = Q_fabsf(rectTo->y - rectFrom->y) / amt;
-			item->window.rectEffects2.w = Q_fabsf(rectTo->w - rectFrom->w) / amt;
-			item->window.rectEffects2.h = Q_fabsf(rectTo->h - rectFrom->h) / amt;
-			Item_UpdatePosition(item);
-		}
-	}
+    itemDef_t* item;
+    int i;
+    int count = Menu_ItemsMatchingGroup(menu, p);
+    for (i = 0; i < count; i++) {
+        item = Menu_GetMatchingItemByNumber(menu, i, p);
+        if (item != nullptr) {
+            if (!rectFrom) {
+                rectFrom = &item->window.rect; // if there are more than one of these with the same name, they'll all use the FIRST one's FROM.
+            }
+            item->window.flags |= (windowFlags_t::WINDOW_INTRANSITION | windowFlags_t::WINDOW_VISIBLE);
+            item->window.offsetTime = time;
+            memcpy(&item->window.rectClient, rectFrom, sizeof(rectDef_t));
+            memcpy(&item->window.rectEffects, rectTo, sizeof(rectDef_t));
+            item->window.rectEffects2.x = Q_fabsf(rectTo->x - rectFrom->x) / amt;
+            item->window.rectEffects2.y = Q_fabsf(rectTo->y - rectFrom->y) / amt;
+            item->window.rectEffects2.w = Q_fabsf(rectTo->w - rectFrom->w) / amt;
+            item->window.rectEffects2.h = Q_fabsf(rectTo->h - rectFrom->h) / amt;
+            Item_UpdatePosition(item);
+        }
+    }
 }
 
 /*
@@ -1870,107 +1783,94 @@ void Menu_TransitionItemByName(menuDef_t *menu, const char *p, const rectDef_t *
 Menu_TransitionItemByName
 =================
 */
-//JLF MOVED
+// JLF MOVED
 #define _TRANS3
 #ifdef _TRANS3
-void Menu_Transition3ItemByName(menuDef_t *menu, const char *p, const float minx, const float miny, const float minz,
-								const float maxx, const float maxy, const float maxz, const float fovtx, const float fovty,
-								const int time, const float amt)
+void Menu_Transition3ItemByName(menuDef_t* menu, const char* p, const float minx, const float miny, const float minz, const float maxx, const float maxy,
+                                const float maxz, const float fovtx, const float fovty, const int time, const float amt)
 {
-	itemDef_t *item;
-	int i;
-	int count = Menu_ItemsMatchingGroup(menu, p);
-	modelDef_t  * modelptr;
-	for (i = 0; i < count; i++)
-	{
-		item = Menu_GetMatchingItemByNumber(menu, i, p);
-		if (item != nullptr)
-		{
-			if ( item->type == ITEM_TYPE_MODEL)
-			{
-				modelptr = (modelDef_t*)item->typeData;
+    itemDef_t* item;
+    int i;
+    int count = Menu_ItemsMatchingGroup(menu, p);
+    modelDef_t* modelptr;
+    for (i = 0; i < count; i++) {
+        item = Menu_GetMatchingItemByNumber(menu, i, p);
+        if (item != nullptr) {
+            if (item->type == ITEM_TYPE_MODEL) {
+                modelptr = (modelDef_t*)item->typeData;
 
-				item->window.flags |= (windowFlags_t::WINDOW_INTRANSITIONMODEL | windowFlags_t::WINDOW_VISIBLE);
-				item->window.offsetTime = time;
-				modelptr->fov_x2 = fovtx;
-				modelptr->fov_y2 = fovty;
-				VectorSet(modelptr->g2maxs2, maxx, maxy, maxz);
-				VectorSet(modelptr->g2mins2, minx, miny, minz);
+                item->window.flags |= (windowFlags_t::WINDOW_INTRANSITIONMODEL | windowFlags_t::WINDOW_VISIBLE);
+                item->window.offsetTime = time;
+                modelptr->fov_x2 = fovtx;
+                modelptr->fov_y2 = fovty;
+                VectorSet(modelptr->g2maxs2, maxx, maxy, maxz);
+                VectorSet(modelptr->g2mins2, minx, miny, minz);
 
-//				//modelptr->g2maxs2.x= maxx;
-//				modelptr->g2maxs2.y= maxy;
-//				modelptr->g2maxs2.z= maxz;
-//				modelptr->g2mins2.x= minx;
-//				modelptr->g2mins2.y= miny;
-//				modelptr->g2mins2.z= minz;
+                //				//modelptr->g2maxs2.x= maxx;
+                //				modelptr->g2maxs2.y= maxy;
+                //				modelptr->g2maxs2.z= maxz;
+                //				modelptr->g2mins2.x= minx;
+                //				modelptr->g2mins2.y= miny;
+                //				modelptr->g2mins2.z= minz;
 
-//				VectorSet(modelptr->g2maxs2, maxx, maxy, maxz);
+                //				VectorSet(modelptr->g2maxs2, maxx, maxy, maxz);
 
-				modelptr->g2maxsEffect[0] = Q_fabsf(modelptr->g2maxs2[0] - modelptr->g2maxs[0]) / amt;
-				modelptr->g2maxsEffect[1] = Q_fabsf(modelptr->g2maxs2[1] - modelptr->g2maxs[1]) / amt;
-				modelptr->g2maxsEffect[2] = Q_fabsf(modelptr->g2maxs2[2] - modelptr->g2maxs[2]) / amt;
+                modelptr->g2maxsEffect[0] = Q_fabsf(modelptr->g2maxs2[0] - modelptr->g2maxs[0]) / amt;
+                modelptr->g2maxsEffect[1] = Q_fabsf(modelptr->g2maxs2[1] - modelptr->g2maxs[1]) / amt;
+                modelptr->g2maxsEffect[2] = Q_fabsf(modelptr->g2maxs2[2] - modelptr->g2maxs[2]) / amt;
 
-				modelptr->g2minsEffect[0] = Q_fabsf(modelptr->g2mins2[0] - modelptr->g2mins[0]) / amt;
-				modelptr->g2minsEffect[1] = Q_fabsf(modelptr->g2mins2[1] - modelptr->g2mins[1]) / amt;
-				modelptr->g2minsEffect[2] = Q_fabsf(modelptr->g2mins2[2] - modelptr->g2mins[2]) / amt;
+                modelptr->g2minsEffect[0] = Q_fabsf(modelptr->g2mins2[0] - modelptr->g2mins[0]) / amt;
+                modelptr->g2minsEffect[1] = Q_fabsf(modelptr->g2mins2[1] - modelptr->g2mins[1]) / amt;
+                modelptr->g2minsEffect[2] = Q_fabsf(modelptr->g2mins2[2] - modelptr->g2mins[2]) / amt;
 
-
-				modelptr->fov_Effectx = Q_fabsf(modelptr->fov_x2 - modelptr->fov_x) / amt;
-				modelptr->fov_Effecty = Q_fabsf(modelptr->fov_y2 - modelptr->fov_y) / amt;
-			}
-
-		}
-	}
+                modelptr->fov_Effectx = Q_fabsf(modelptr->fov_x2 - modelptr->fov_x) / amt;
+                modelptr->fov_Effecty = Q_fabsf(modelptr->fov_y2 - modelptr->fov_y) / amt;
+            }
+        }
+    }
 }
 
 #endif
-
-
-
 
 /*
 =================
 Menu_OrbitItemByName
 =================
 */
-void Menu_OrbitItemByName(menuDef_t *menu, const char *p, float x, float y, float cx, float cy, int time)
+void Menu_OrbitItemByName(menuDef_t* menu, const char* p, float x, float y, float cx, float cy, int time)
 {
-	itemDef_t *item;
-	int i;
-	int count = Menu_ItemsMatchingGroup(menu, p);
-	for (i = 0; i < count; i++)
-	{
-		item = Menu_GetMatchingItemByNumber(menu, i, p);
-		if (item != nullptr)
-		{
-			item->window.flags |= (windowFlags_t::WINDOW_ORBITING | windowFlags_t::WINDOW_VISIBLE);
-			item->window.offsetTime = time;
-			item->window.rectEffects.x = cx;
-			item->window.rectEffects.y = cy;
-			item->window.rectClient.x = x;
-			item->window.rectClient.y = y;
-			Item_UpdatePosition(item);
-		}
-	}
+    itemDef_t* item;
+    int i;
+    int count = Menu_ItemsMatchingGroup(menu, p);
+    for (i = 0; i < count; i++) {
+        item = Menu_GetMatchingItemByNumber(menu, i, p);
+        if (item != nullptr) {
+            item->window.flags |= (windowFlags_t::WINDOW_ORBITING | windowFlags_t::WINDOW_VISIBLE);
+            item->window.offsetTime = time;
+            item->window.rectEffects.x = cx;
+            item->window.rectEffects.y = cy;
+            item->window.rectClient.x = x;
+            item->window.rectClient.y = y;
+            Item_UpdatePosition(item);
+        }
+    }
 }
 
-void Menu_ItemDisable(menuDef_t *menu, const char *name, bool disableFlag)
+void Menu_ItemDisable(menuDef_t* menu, const char* name, bool disableFlag)
 {
-	int	j,count;
-	itemDef_t *itemFound;
+    int j, count;
+    itemDef_t* itemFound;
 
-	count = Menu_ItemsMatchingGroup(menu, name);
-	// Loop through all items that have this name
-	for (j = 0; j < count; j++)
-	{
-		itemFound = Menu_GetMatchingItemByNumber( menu, j, name);
-		if (itemFound != nullptr)
-		{
-			itemFound->disabled = disableFlag;
-			// Just in case it had focus
-			itemFound->window.flags &= ~windowFlags_t::WINDOW_MOUSEOVER;
-		}
-	}
+    count = Menu_ItemsMatchingGroup(menu, name);
+    // Loop through all items that have this name
+    for (j = 0; j < count; j++) {
+        itemFound = Menu_GetMatchingItemByNumber(menu, j, name);
+        if (itemFound != nullptr) {
+            itemFound->disabled = disableFlag;
+            // Just in case it had focus
+            itemFound->window.flags &= ~windowFlags_t::WINDOW_MOUSEOVER;
+        }
+    }
 }
 
 /*
@@ -1978,60 +1878,51 @@ void Menu_ItemDisable(menuDef_t *menu, const char *name, bool disableFlag)
 Rect_Parse
 =================
 */
-bool Rect_Parse(const char **p, rectDef_t *r)
+bool Rect_Parse(const char** p, rectDef_t* r)
 {
-	if (!COM_ParseFloat(p, &r->x))
-	{
-		if (!COM_ParseFloat(p, &r->y))
-		{
-			if (!COM_ParseFloat(p, &r->w))
-			{
-				if (!COM_ParseFloat(p, &r->h))
-				{
-					return true;
-				}
-			}
-		}
-	}
-	return false;
+    if (!COM_ParseFloat(p, &r->x)) {
+        if (!COM_ParseFloat(p, &r->y)) {
+            if (!COM_ParseFloat(p, &r->w)) {
+                if (!COM_ParseFloat(p, &r->h)) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
 }
 
-bool Script_SetItemRect(itemDef_t *item, const char **args)
+bool Script_SetItemRect(itemDef_t* item, const char** args)
 {
-	const char *itemname;
-	rectDef_t *out;
-	rectDef_t rect;
+    const char* itemname;
+    rectDef_t* out;
+    rectDef_t rect;
 
-	// expecting type of color to set and 4 args for the color
-	if (String_Parse(args, &itemname))
-	{
-		itemDef_t *item2;
-		int j;
-		int count = Menu_ItemsMatchingGroup((menuDef_t *) item->parent, itemname);
+    // expecting type of color to set and 4 args for the color
+    if (String_Parse(args, &itemname)) {
+        itemDef_t* item2;
+        int j;
+        int count = Menu_ItemsMatchingGroup((menuDef_t*)item->parent, itemname);
 
-		if (!Rect_Parse(args, &rect))
-		{
-			return true;
-		}
+        if (!Rect_Parse(args, &rect)) {
+            return true;
+        }
 
-		for (j = 0; j < count; j++)
-		{
-			item2 = Menu_GetMatchingItemByNumber((menuDef_t *) item->parent, j, itemname);
-			if (item2 != nullptr)
-			{
-				out = &item2->window.rect;
+        for (j = 0; j < count; j++) {
+            item2 = Menu_GetMatchingItemByNumber((menuDef_t*)item->parent, j, itemname);
+            if (item2 != nullptr) {
+                out = &item2->window.rect;
 
-				if (out)
-				{
-					item2->window.rect.x = rect.x;
-					item2->window.rect.y = rect.y;
-					item2->window.rect.w = rect.w;
-					item2->window.rect.h = rect.h;
-				}
-			}
-		}
-	}
-	return true;
+                if (out) {
+                    item2->window.rect.x = rect.x;
+                    item2->window.rect.y = rect.y;
+                    item2->window.rect.w = rect.w;
+                    item2->window.rect.h = rect.h;
+                }
+            }
+        }
+    }
+    return true;
 }
 
 /*
@@ -2039,17 +1930,16 @@ bool Script_SetItemRect(itemDef_t *item, const char **args)
 Script_SetItemBackground
 =================
 */
-bool Script_SetItemBackground(itemDef_t *item, const char **args)
+bool Script_SetItemBackground(itemDef_t* item, const char** args)
 {
-	const char *itemName;
-	const char *name;
+    const char* itemName;
+    const char* name;
 
-	// expecting name of shader
-	if (String_Parse(args, &itemName) && String_Parse(args, &name))
-	{
-		Menu_SetItemBackground((menuDef_t *) item->parent, itemName, name);
-	}
-	return true;
+    // expecting name of shader
+    if (String_Parse(args, &itemName) && String_Parse(args, &name)) {
+        Menu_SetItemBackground((menuDef_t*)item->parent, itemName, name);
+    }
+    return true;
 }
 
 /*
@@ -2057,17 +1947,16 @@ bool Script_SetItemBackground(itemDef_t *item, const char **args)
 Script_SetItemText
 =================
 */
-bool Script_SetItemText(itemDef_t *item, const char **args)
+bool Script_SetItemText(itemDef_t* item, const char** args)
 {
-	const char *itemName;
-	const char *text;
+    const char* itemName;
+    const char* text;
 
-	// expecting text
-	if (String_Parse(args, &itemName) && String_Parse(args, &text))
-	{
-		Menu_SetItemText((menuDef_t *) item->parent, itemName, text);
-	}
-	return true;
+    // expecting text
+    if (String_Parse(args, &itemName) && String_Parse(args, &text)) {
+        Menu_SetItemText((menuDef_t*)item->parent, itemName, text);
+    }
+    return true;
 }
 
 /*
@@ -2075,15 +1964,14 @@ bool Script_SetItemText(itemDef_t *item, const char **args)
 Script_FadeIn
 =================
 */
-bool Script_FadeIn(itemDef_t *item, const char **args)
+bool Script_FadeIn(itemDef_t* item, const char** args)
 {
-	const char *name;
-	if (String_Parse(args, &name))
-	{
-		Menu_FadeItemByName((menuDef_t *) item->parent, name, false);
-	}
+    const char* name;
+    if (String_Parse(args, &name)) {
+        Menu_FadeItemByName((menuDef_t*)item->parent, name, false);
+    }
 
-	return true;
+    return true;
 }
 
 /*
@@ -2091,15 +1979,14 @@ bool Script_FadeIn(itemDef_t *item, const char **args)
 Script_FadeOut
 =================
 */
-bool Script_FadeOut(itemDef_t *item, const char **args)
+bool Script_FadeOut(itemDef_t* item, const char** args)
 {
-	const char *name;
-	if (String_Parse(args, &name))
-	{
-		Menu_FadeItemByName((menuDef_t *) item->parent, name, true);
-	}
+    const char* name;
+    if (String_Parse(args, &name)) {
+        Menu_FadeItemByName((menuDef_t*)item->parent, name, true);
+    }
 
-	return true;
+    return true;
 }
 
 /*
@@ -2107,50 +1994,44 @@ bool Script_FadeOut(itemDef_t *item, const char **args)
 Script_Show
 =================
 */
-bool Script_Show(itemDef_t *item, const char **args)
+bool Script_Show(itemDef_t* item, const char** args)
 {
-	const char *name;
-	if (String_Parse(args, &name))
-	{
-		Menu_ShowItemByName((menuDef_t *) item->parent, name, true);
-	}
+    const char* name;
+    if (String_Parse(args, &name)) {
+        Menu_ShowItemByName((menuDef_t*)item->parent, name, true);
+    }
 
-	return true;
+    return true;
 }
-
-
 
 /*
 =================
 Script_ShowMenu
 =================
 */
-bool Script_ShowMenu(itemDef_t *item, const char **args)
+bool Script_ShowMenu(itemDef_t* item, const char** args)
 {
-	const char *name;
-	if (String_Parse(args, &name))
-	{
-		Menus_ShowItems(name);
-	}
+    const char* name;
+    if (String_Parse(args, &name)) {
+        Menus_ShowItems(name);
+    }
 
-	return true;
+    return true;
 }
-
 
 /*
 =================
 Script_Hide
 =================
 */
-bool Script_Hide(itemDef_t *item, const char **args)
+bool Script_Hide(itemDef_t* item, const char** args)
 {
-	const char *name;
-	if (String_Parse(args, &name))
-	{
-		Menu_ShowItemByName((menuDef_t *) item->parent, name, false);
-	}
+    const char* name;
+    if (String_Parse(args, &name)) {
+        Menu_ShowItemByName((menuDef_t*)item->parent, name, false);
+    }
 
-	return true;
+    return true;
 }
 
 /*
@@ -2158,47 +2039,40 @@ bool Script_Hide(itemDef_t *item, const char **args)
 Script_SetColor
 =================
 */
-bool Script_SetColor(itemDef_t *item, const char **args)
+bool Script_SetColor(itemDef_t* item, const char** args)
 {
-	const char *name;
-	int i;
-	float f;
-	vec4_t *out;
+    const char* name;
+    int i;
+    float f;
+    vec4_t* out;
 
-	// expecting type of color to set and 4 args for the color
-	if (String_Parse(args, &name))
-	{
-		out = nullptr;
-		if (Q_stricmp(name, "backcolor") == 0)
-		{
-			out = &item->window.backColor;
-			item->window.flags |= windowFlags_t::WINDOW_BACKCOLORSET;
-		}
-		else if (Q_stricmp(name, "forecolor") == 0)
-		{
-			out = &item->window.foreColor;
-			item->window.flags |= windowFlags_t::WINDOW_FORECOLORSET;
-		}
-		else if (Q_stricmp(name, "bordercolor") == 0)
-		{
-			out = &item->window.borderColor;
-		}
+    // expecting type of color to set and 4 args for the color
+    if (String_Parse(args, &name)) {
+        out = nullptr;
+        if (Q_stricmp(name, "backcolor") == 0) {
+            out = &item->window.backColor;
+            item->window.flags |= windowFlags_t::WINDOW_BACKCOLORSET;
+        }
+        else if (Q_stricmp(name, "forecolor") == 0) {
+            out = &item->window.foreColor;
+            item->window.flags |= windowFlags_t::WINDOW_FORECOLORSET;
+        }
+        else if (Q_stricmp(name, "bordercolor") == 0) {
+            out = &item->window.borderColor;
+        }
 
-		if (out)
-		{
-			for (i = 0; i < 4; i++)
-			{
-//				if (!Float_Parse(args, &f))
-				if (COM_ParseFloat( args, &f))
-				{
-					return true;
-				}
-				(*out)[i] = f;
-			}
-		}
-	}
+        if (out) {
+            for (i = 0; i < 4; i++) {
+                //				if (!Float_Parse(args, &f))
+                if (COM_ParseFloat(args, &f)) {
+                    return true;
+                }
+                (*out)[i] = f;
+            }
+        }
+    }
 
-	return true;
+    return true;
 }
 
 /*
@@ -2206,45 +2080,40 @@ bool Script_SetColor(itemDef_t *item, const char **args)
 Script_Open
 =================
 */
-bool Script_Open(itemDef_t *item, const char **args)
+bool Script_Open(itemDef_t* item, const char** args)
 {
-	const char *name;
-	if (String_Parse(args, &name))
-	{
-		Menus_OpenByName(name);
-	}
+    const char* name;
+    if (String_Parse(args, &name)) {
+        Menus_OpenByName(name);
+    }
 
-	return true;
+    return true;
 }
 
-bool Script_OpenGoToMenu(itemDef_t *item, const char **args)
+bool Script_OpenGoToMenu(itemDef_t* item, const char** args)
 {
-	Menus_OpenByName(GoToMenu);				// Give warning
-	return true;
+    Menus_OpenByName(GoToMenu); // Give warning
+    return true;
 }
-
 
 /*
 =================
 Script_Close
 =================
 */
-bool Script_Close(itemDef_t *item, const char **args)
+bool Script_Close(itemDef_t* item, const char** args)
 {
-	const char *name;
-	if (String_Parse(args, &name))
-	{
-		if (Q_stricmp(name, "all") == 0)
-		{
-			Menus_CloseAll();
-		}
-		else
-		{
-			Menus_CloseByName(name);
-		}
-	}
+    const char* name;
+    if (String_Parse(args, &name)) {
+        if (Q_stricmp(name, "all") == 0) {
+            Menus_CloseAll();
+        }
+        else {
+            Menus_CloseByName(name);
+        }
+    }
 
-	return true;
+    return true;
 }
 
 /*
@@ -2252,19 +2121,17 @@ bool Script_Close(itemDef_t *item, const char **args)
 Script_Activate
 =================
 */
-bool Script_Activate(itemDef_t *item, const char **args)
+bool Script_Activate(itemDef_t* item, const char** args)
 {
-	const char *name, *menu;
+    const char *name, *menu;
 
-	if (String_Parse(args, &menu))
-	{
-		if (String_Parse(args, &name))
-		{
-			Item_ActivateByName(menu,name);
-		}
-	}
+    if (String_Parse(args, &menu)) {
+        if (String_Parse(args, &name)) {
+            Item_ActivateByName(menu, name);
+        }
+    }
 
-	return true;
+    return true;
 }
 
 /*
@@ -2272,16 +2139,15 @@ bool Script_Activate(itemDef_t *item, const char **args)
 Script_SetBackground
 =================
 */
-bool Script_SetBackground(itemDef_t *item, const char **args)
+bool Script_SetBackground(itemDef_t* item, const char** args)
 {
-	const char *name;
-	// expecting name to set asset to
-	if (String_Parse(args, &name))
-	{
-		item->window.background = DC->registerShaderNoMip(name);
-	}
+    const char* name;
+    // expecting name to set asset to
+    if (String_Parse(args, &name)) {
+        item->window.background = DC->registerShaderNoMip(name);
+    }
 
-	return true;
+    return true;
 }
 
 /*
@@ -2289,19 +2155,17 @@ bool Script_SetBackground(itemDef_t *item, const char **args)
 Script_SetAsset
 =================
 */
-bool Script_SetAsset(itemDef_t *item, const char **args)
+bool Script_SetAsset(itemDef_t* item, const char** args)
 {
-	const char *name;
-	// expecting name to set asset to
-	if (String_Parse(args, &name))
-	{
-		// check for a model
-		if (item->type == ITEM_TYPE_MODEL)
-		{
-		}
-	}
+    const char* name;
+    // expecting name to set asset to
+    if (String_Parse(args, &name)) {
+        // check for a model
+        if (item->type == ITEM_TYPE_MODEL) {
+        }
+    }
 
-	return true;
+    return true;
 }
 
 /*
@@ -2309,118 +2173,100 @@ bool Script_SetAsset(itemDef_t *item, const char **args)
 Script_SetFocus
 =================
 */
-bool Script_SetFocus(itemDef_t *item, const char **args)
+bool Script_SetFocus(itemDef_t* item, const char** args)
 {
-	const char *name;
-	itemDef_t *focusItem;
+    const char* name;
+    itemDef_t* focusItem;
 
-	if (String_Parse(args, &name))
-	{
-		focusItem = (itemDef_s *) Menu_FindItemByName((menuDef_t *) item->parent, name);
-		if (focusItem && !Any( focusItem->window.flags & windowFlags_t::WINDOW_DECORATION ) && !Any( focusItem->window.flags & windowFlags_t::WINDOW_HASFOCUS ))
-		{
-			Menu_ClearFocus((menuDef_t *) item->parent);
-//JLF
-			focusItem->window.flags |= windowFlags_t::WINDOW_HASFOCUS;
-//END JLF
+    if (String_Parse(args, &name)) {
+        focusItem = (itemDef_s*)Menu_FindItemByName((menuDef_t*)item->parent, name);
+        if (focusItem && !Any(focusItem->window.flags & windowFlags_t::WINDOW_DECORATION) && !Any(focusItem->window.flags & windowFlags_t::WINDOW_HASFOCUS)) {
+            Menu_ClearFocus((menuDef_t*)item->parent);
+            // JLF
+            focusItem->window.flags |= windowFlags_t::WINDOW_HASFOCUS;
+            // END JLF
 
-			if (focusItem->onFocus)
-			{
-				Item_RunScript(focusItem, focusItem->onFocus);
-			}
-			if (DC->Assets.itemFocusSound)
-			{
-				DC->startLocalSound( DC->Assets.itemFocusSound, soundChannel_t::CHAN_LOCAL_SOUND );
-			}
-		}
-	}
+            if (focusItem->onFocus) {
+                Item_RunScript(focusItem, focusItem->onFocus);
+            }
+            if (DC->Assets.itemFocusSound) {
+                DC->startLocalSound(DC->Assets.itemFocusSound, soundChannel_t::CHAN_LOCAL_SOUND);
+            }
+        }
+    }
 
-	return true;
+    return true;
 }
-
 
 /*
 =================
 Script_SetItemFlag
 =================
 */
-bool Script_SetItemFlag(itemDef_t *item, const char **args)
+bool Script_SetItemFlag(itemDef_t* item, const char** args)
 {
-	const char		*itemName,*number;
+    const char *itemName, *number;
 
-	if (String_Parse(args, &itemName))
-	{
-		item = (itemDef_s *) Menu_FindItemByName((menuDef_t *) item->parent, itemName);
+    if (String_Parse(args, &itemName)) {
+        item = (itemDef_s*)Menu_FindItemByName((menuDef_t*)item->parent, itemName);
 
-		if (String_Parse(args, &number))
-		{
-			windowFlags_t amount = static_cast<windowFlags_t>( atoi(number) );	// a menu script's number
-			item->window.flags |= amount;
-		}
-	}
+        if (String_Parse(args, &number)) {
+            windowFlags_t amount = static_cast<windowFlags_t>(atoi(number)); // a menu script's number
+            item->window.flags |= amount;
+        }
+    }
 
-	return true;
+    return true;
 }
 
-void UI_SetItemVisible(menuDef_t *menu,const char *itemname,bool visible)
+void UI_SetItemVisible(menuDef_t* menu, const char* itemname, bool visible)
 {
-	itemDef_t *item;
-	int j;
-	int count = Menu_ItemsMatchingGroup(menu, itemname);
+    itemDef_t* item;
+    int j;
+    int count = Menu_ItemsMatchingGroup(menu, itemname);
 
-	for (j = 0; j < count; j++)
-	{
-		item = Menu_GetMatchingItemByNumber(menu, j, itemname);
-		if (item != nullptr)
-		{
-			if (visible==true)
-			{
-				item->window.flags |= windowFlags_t::WINDOW_VISIBLE;
-			}
-			else
-			{
-				item->window.flags &= ~windowFlags_t::WINDOW_VISIBLE;
-			}
-		}
-	}
+    for (j = 0; j < count; j++) {
+        item = Menu_GetMatchingItemByNumber(menu, j, itemname);
+        if (item != nullptr) {
+            if (visible == true) {
+                item->window.flags |= windowFlags_t::WINDOW_VISIBLE;
+            }
+            else {
+                item->window.flags &= ~windowFlags_t::WINDOW_VISIBLE;
+            }
+        }
+    }
 }
 
-void UI_SetItemColor(itemDef_t *item,const char *itemname,const char *name,vec4_t color)
+void UI_SetItemColor(itemDef_t* item, const char* itemname, const char* name, vec4_t color)
 {
-	itemDef_t *item2;
-	int i,j;
-	vec4_t *out;
-	int count = Menu_ItemsMatchingGroup((menuDef_t *) item->parent, itemname);
+    itemDef_t* item2;
+    int i, j;
+    vec4_t* out;
+    int count = Menu_ItemsMatchingGroup((menuDef_t*)item->parent, itemname);
 
-	for (j = 0; j < count; j++)
-	{
-		item2 = Menu_GetMatchingItemByNumber((menuDef_t *) item->parent, j, itemname);
-		if (item2 != nullptr)
-		{
-			out = nullptr;
-			if (Q_stricmp(name, "backcolor") == 0)
-			{
-				out = &item2->window.backColor;
-			}
-			else if (Q_stricmp(name, "forecolor") == 0)
-			{
-				out = &item2->window.foreColor;
-				item2->window.flags |= windowFlags_t::WINDOW_FORECOLORSET;
-			}
-			else if (Q_stricmp(name, "bordercolor") == 0)
-			{
-				out = &item2->window.borderColor;
-			}
+    for (j = 0; j < count; j++) {
+        item2 = Menu_GetMatchingItemByNumber((menuDef_t*)item->parent, j, itemname);
+        if (item2 != nullptr) {
+            out = nullptr;
+            if (Q_stricmp(name, "backcolor") == 0) {
+                out = &item2->window.backColor;
+            }
+            else if (Q_stricmp(name, "forecolor") == 0) {
+                out = &item2->window.foreColor;
+                item2->window.flags |= windowFlags_t::WINDOW_FORECOLORSET;
+            }
+            else if (Q_stricmp(name, "bordercolor") == 0) {
+                out = &item2->window.borderColor;
+            }
 
-			if (out)
-			{
-				for (i = 0; i < 4; i++)
-				{
-					(*out)[i] = color[i];
-				}
-			}
-		}
-	}
+            if (out) {
+                for (i = 0; i < 4; i++) {
+                    (*out)[i] = color[i];
+                }
+            }
+        }
+    }
 }
 
 /*
@@ -2428,25 +2274,22 @@ void UI_SetItemColor(itemDef_t *item,const char *itemname,const char *name,vec4_
 Script_SetItemColor
 =================
 */
-bool Script_SetItemColor(itemDef_t *item, const char **args)
+bool Script_SetItemColor(itemDef_t* item, const char** args)
 {
-	const char *itemname;
-	const char *name;
-	vec4_t color;
+    const char* itemname;
+    const char* name;
+    vec4_t color;
 
-	// expecting type of color to set and 4 args for the color
-	if (String_Parse(args, &itemname) && String_Parse(args, &name))
-	{
-		if (COM_ParseVec4(args, &color))
-		{
-			return true;
-		}
+    // expecting type of color to set and 4 args for the color
+    if (String_Parse(args, &itemname) && String_Parse(args, &name)) {
+        if (COM_ParseVec4(args, &color)) {
+            return true;
+        }
 
-		UI_SetItemColor(item,itemname,name,color);
+        UI_SetItemColor(item, itemname, name, color);
+    }
 
-	}
-
-	return true;
+    return true;
 }
 
 /*
@@ -2457,23 +2300,22 @@ Defers the rest of the script based on the defer condition.  The deferred
 portion of the script can later be run with the "rundeferred"
 =================
 */
-bool Script_Defer ( itemDef_t* item, const char **args )
+bool Script_Defer(itemDef_t* item, const char** args)
 {
-	// Should the script be deferred?
-	if ( DC->deferScript ( args ) )
-	{
-		// Need the item the script was being run on
-		uiInfo.deferredScriptItem = item;
+    // Should the script be deferred?
+    if (DC->deferScript(args)) {
+        // Need the item the script was being run on
+        uiInfo.deferredScriptItem = item;
 
-		// Save the rest of the script
-		Q_strncpyz ( uiInfo.deferredScript, *args, MAX_DEFERRED_SCRIPT );
+        // Save the rest of the script
+        Q_strncpyz(uiInfo.deferredScript, *args, MAX_DEFERRED_SCRIPT);
 
-		// No more running
-		return false;
-	}
+        // No more running
+        return false;
+    }
 
-	// Keep running the script, its ok
-	return true;
+    // Keep running the script, its ok
+    return true;
 }
 
 /*
@@ -2484,18 +2326,17 @@ Runs the last deferred script, there can only be one script deferred at a
 time so be careful of recursion
 =================
 */
-bool Script_RunDeferred ( itemDef_t* item, const char **args )
+bool Script_RunDeferred(itemDef_t* item, const char** args)
 {
-	// Make sure there is something to run.
-	if ( !uiInfo.deferredScript[0] || !uiInfo.deferredScriptItem )
-	{
-		return true;
-	}
+    // Make sure there is something to run.
+    if (!uiInfo.deferredScript[0] || !uiInfo.deferredScriptItem) {
+        return true;
+    }
 
-	// Run the deferred script now
-	Item_RunScript ( uiInfo.deferredScriptItem, uiInfo.deferredScript );
+    // Run the deferred script now
+    Item_RunScript(uiInfo.deferredScriptItem, uiInfo.deferredScript);
 
-	return true;
+    return true;
 }
 
 /*
@@ -2505,23 +2346,21 @@ Script_Delay
 Delays the rest of the script for the specified amount of time
 =================
 */
-bool Script_Delay ( itemDef_t* item, const char **args )
+bool Script_Delay(itemDef_t* item, const char** args)
 {
-	int time;
+    int time;
 
-	if (Int_Parse(args, &time))
-	{
-		item->window.flags |= windowFlags_t::WINDOW_SCRIPTWAITING;
-		item->window.delayTime = DC->realTime + time;	// Flag to set delay time on next paint
-		item->window.delayedScript = (char *)*args;	// Copy current location, we'll resume executing here later
-	}
-	else
-	{
-		Com_Printf(S_COLOR_YELLOW"WARNING: Script_Delay: error parsing\n" );
-	}
+    if (Int_Parse(args, &time)) {
+        item->window.flags |= windowFlags_t::WINDOW_SCRIPTWAITING;
+        item->window.delayTime = DC->realTime + time; // Flag to set delay time on next paint
+        item->window.delayedScript = (char*)*args;    // Copy current location, we'll resume executing here later
+    }
+    else {
+        Com_Printf(S_COLOR_YELLOW "WARNING: Script_Delay: error parsing\n");
+    }
 
-	// Stop running
-	return false;
+    // Stop running
+    return false;
 }
 
 /*
@@ -2531,28 +2370,24 @@ Script_Transition
 transition		rtvscr		321 0 202 264  415 0 202 264  20 25
 =================
 */
-bool Script_Transition(itemDef_t *item, const char **args)
+bool Script_Transition(itemDef_t* item, const char** args)
 {
-	const char *name;
-	rectDef_t rectFrom, rectTo;
-	int time;
-	float amt;
+    const char* name;
+    rectDef_t rectFrom, rectTo;
+    int time;
+    float amt;
 
-	if (String_Parse(args, &name))
-	{
-		if ( ParseRect(args, &rectFrom) && ParseRect(args, &rectTo) && Int_Parse(args, &time) && !COM_ParseFloat(args, &amt))
-		{
-			Menu_TransitionItemByName((menuDef_t *) item->parent, name, &rectFrom, &rectTo, time, amt);
-		}
-		else
-		{
-			Com_Printf(S_COLOR_YELLOW"WARNING: Script_Transition: error parsing '%s'\n", name );
-		}
-	}
+    if (String_Parse(args, &name)) {
+        if (ParseRect(args, &rectFrom) && ParseRect(args, &rectTo) && Int_Parse(args, &time) && !COM_ParseFloat(args, &amt)) {
+            Menu_TransitionItemByName((menuDef_t*)item->parent, name, &rectFrom, &rectTo, time, amt);
+        }
+        else {
+            Com_Printf(S_COLOR_YELLOW "WARNING: Script_Transition: error parsing '%s'\n", name);
+        }
+    }
 
-	return true;
+    return true;
 }
-
 
 /*
 =================
@@ -2562,26 +2397,23 @@ uses current origin instead of specifing a starting origin
 transition2		lfvscr		25 0 202 264  20 25
 =================
 */
-bool Script_Transition2(itemDef_t *item, const char **args)
+bool Script_Transition2(itemDef_t* item, const char** args)
 {
-	const char *name;
-	rectDef_t rectTo;
-	int time;
-	float amt;
+    const char* name;
+    rectDef_t rectTo;
+    int time;
+    float amt;
 
-	if (String_Parse(args, &name))
-	{
-		if ( ParseRect(args, &rectTo) && Int_Parse(args, &time) && !COM_ParseFloat(args, &amt))
-		{
-			Menu_TransitionItemByName((menuDef_t *) item->parent, name, nullptr, &rectTo, time, amt);
-		}
-		else
-		{
-			Com_Printf(S_COLOR_YELLOW"WARNING: Script_Transition2: error parsing '%s'\n", name );
-		}
-	}
+    if (String_Parse(args, &name)) {
+        if (ParseRect(args, &rectTo) && Int_Parse(args, &time) && !COM_ParseFloat(args, &amt)) {
+            Menu_TransitionItemByName((menuDef_t*)item->parent, name, nullptr, &rectTo, time, amt);
+        }
+        else {
+            Com_Printf(S_COLOR_YELLOW "WARNING: Script_Transition2: error parsing '%s'\n", name);
+        }
+    }
 
-	return true;
+    return true;
 }
 
 #ifdef _TRANS3
@@ -2597,238 +2429,193 @@ uses current origin instead of specifing a starting origin
 transition3		lfvscr		(min extent) (max extent) (fovx,y)  20 25
 =================
 */
-bool Script_Transition3(itemDef_t *item, const char **args)
+bool Script_Transition3(itemDef_t* item, const char** args)
 {
-	const char *name = nullptr;
-	const char *value = nullptr;
-	float minx, miny, minz, maxx, maxy, maxz, fovtx, fovty;
-	int time;
-	float amt;
+    const char* name = nullptr;
+    const char* value = nullptr;
+    float minx, miny, minz, maxx, maxy, maxz, fovtx, fovty;
+    int time;
+    float amt;
 
-	if (String_Parse(args, &name))
-	{
-		if (String_Parse( args, &value))
-		{
-			minx = Q_atof(value);
-			if (String_Parse( args, &value))
-			{
-				miny = Q_atof(value);
-				if (String_Parse( args, &value))
-				{
-					minz = Q_atof(value);
-					if (String_Parse( args, &value))
-					{
-						maxx = Q_atof(value);
-						if (String_Parse( args, &value))
-						{
-							maxy = Q_atof(value);
-							if (String_Parse( args, &value))
-							{
-								maxz = Q_atof(value);
-								if (String_Parse( args, &value))
-								{
-									fovtx = Q_atof(value);
-									if (String_Parse( args, &value))
-									{
-										fovty = Q_atof(value);
+    if (String_Parse(args, &name)) {
+        if (String_Parse(args, &value)) {
+            minx = Q_atof(value);
+            if (String_Parse(args, &value)) {
+                miny = Q_atof(value);
+                if (String_Parse(args, &value)) {
+                    minz = Q_atof(value);
+                    if (String_Parse(args, &value)) {
+                        maxx = Q_atof(value);
+                        if (String_Parse(args, &value)) {
+                            maxy = Q_atof(value);
+                            if (String_Parse(args, &value)) {
+                                maxz = Q_atof(value);
+                                if (String_Parse(args, &value)) {
+                                    fovtx = Q_atof(value);
+                                    if (String_Parse(args, &value)) {
+                                        fovty = Q_atof(value);
 
-										if (String_Parse( args, &value))
-										{
-											time = atoi(value);
-											if (String_Parse( args, &value))
-											{
-												amt = Q_atof(value);
-												//set up the variables
-												Menu_Transition3ItemByName((menuDef_t *) item->parent,
-														name,
-														minx, miny, minz,
-														maxx, maxy, maxz,
-														fovtx, fovty,
-														time, amt);
+                                        if (String_Parse(args, &value)) {
+                                            time = atoi(value);
+                                            if (String_Parse(args, &value)) {
+                                                amt = Q_atof(value);
+                                                // set up the variables
+                                                Menu_Transition3ItemByName((menuDef_t*)item->parent, name, minx, miny, minz, maxx, maxy, maxz, fovtx, fovty,
+                                                                           time, amt);
 
-												return true;
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	if ( name ) {
-		Com_Printf( S_COLOR_YELLOW "WARNING: Script_Transition2: error parsing '%s'\n", name );
-	}
-	return true;
+                                                return true;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if (name) {
+        Com_Printf(S_COLOR_YELLOW "WARNING: Script_Transition2: error parsing '%s'\n", name);
+    }
+    return true;
 }
 #endif
 
-
-//only works on some feeders
-int GetCurrentFeederIndex(itemDef_t * item)
+// only works on some feeders
+int GetCurrentFeederIndex(itemDef_t* item)
 {
-	float feederID = item->special;
-	const char * name;
-	int i, max;
+    float feederID = item->special;
+    const char* name;
+    int i, max;
 
-	if (feederID == FEEDER_PLAYER_SPECIES)
-	{
-		return uiInfo.playerSpeciesIndex;
-	}
-	if (feederID == FEEDER_PLAYER_SKIN_HEAD)
-	{
-		name = Cvar_VariableString("ui_char_skin_head");
-		max = uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinHeadCount;
-		for ( i = 0; i < max ; i++)
-		{
-			if (!Q_stricmp(name, uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinHead[i].name))
-			{
-				return i;
-			}
+    if (feederID == FEEDER_PLAYER_SPECIES) {
+        return uiInfo.playerSpeciesIndex;
+    }
+    if (feederID == FEEDER_PLAYER_SKIN_HEAD) {
+        name = Cvar_VariableString("ui_char_skin_head");
+        max = uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinHeadCount;
+        for (i = 0; i < max; i++) {
+            if (!Q_stricmp(name, uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinHead[i].name)) {
+                return i;
+            }
 
-		//	Cvar_Set("ui_char_skin_head", uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinHeadNames[index]);
-		}
-		return -1;
-	}
-	else if (feederID == FEEDER_PLAYER_SKIN_TORSO)
-	{
-		name = Cvar_VariableString("ui_char_skin_torso");
-		max = uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinTorsoCount;
-		for ( i = 0; i < max ; i++)
-		{
-			if (!Q_stricmp(name, uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinTorso[i].name))
-			{
-				return i;
-			}
-		//	Cvar_Set("ui_char_skin_head", uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinHeadNames[index]);
-		}
-		return -1;
+            //	Cvar_Set("ui_char_skin_head", uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinHeadNames[index]);
+        }
+        return -1;
+    }
+    else if (feederID == FEEDER_PLAYER_SKIN_TORSO) {
+        name = Cvar_VariableString("ui_char_skin_torso");
+        max = uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinTorsoCount;
+        for (i = 0; i < max; i++) {
+            if (!Q_stricmp(name, uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinTorso[i].name)) {
+                return i;
+            }
+            //	Cvar_Set("ui_char_skin_head", uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinHeadNames[index]);
+        }
+        return -1;
+    }
+    else if (feederID == FEEDER_PLAYER_SKIN_LEGS) {
+        name = Cvar_VariableString("ui_char_skin_legs");
+        max = uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinLegCount;
+        for (i = 0; i < max; i++) {
+            if (!Q_stricmp(name, uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinLeg[i].name)) {
+                return i;
+            }
+            //	Cvar_Set("ui_char_skin_head", uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinHeadNames[index]);
+        }
+        return -1;
 
-	}
-	else if (feederID == FEEDER_PLAYER_SKIN_LEGS)
-	{
-		name = Cvar_VariableString("ui_char_skin_legs");
-		max = uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinLegCount;
-		for ( i = 0; i < max ; i++)
-		{
-			if (!Q_stricmp(name, uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinLeg[i].name))
-			{
-				return i;
-			}
-		//	Cvar_Set("ui_char_skin_head", uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinHeadNames[index]);
-		}
-		return -1;
+        //	if (index >= 0 && index < uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinLegCount)
+        //	{
+        //		Cvar_Set("ui_char_skin_legs", uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinLegNames[index]);
+        //	}
+    }
 
+    else if (feederID == FEEDER_COLORCHOICES) {
+        extern void Item_RunScript(itemDef_t * item, const char* s); // from ui_shared;
+        int currR, currG, currB, newR, newG, newB;
+        currR = Cvar_VariableIntegerValue("ui_char_color_red");
+        currG = Cvar_VariableIntegerValue("ui_char_color_green");
+        currB = Cvar_VariableIntegerValue("ui_char_color_blue");
 
-	//	if (index >= 0 && index < uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinLegCount)
-	//	{
-	//		Cvar_Set("ui_char_skin_legs", uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinLegNames[index]);
-	//	}
-	}
+        max = uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].ColorCount;
+        for (i = 0; i < max; i++) {
+            Item_RunScript(item, uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].Color[i].actionText);
+            newR = Cvar_VariableIntegerValue("ui_char_color_red");
+            newG = Cvar_VariableIntegerValue("ui_char_color_green");
+            newB = Cvar_VariableIntegerValue("ui_char_color_blue");
+            if (currR == newR && currG == newG && currB == newB)
+                return i;
+        }
+        return -1;
 
-
-	else if (feederID == FEEDER_COLORCHOICES)
-	{
-		extern void	Item_RunScript(itemDef_t *item, const char *s);		//from ui_shared;
-		int currR, currG, currB, newR, newG, newB;
-		currR = Cvar_VariableIntegerValue( "ui_char_color_red");
-		currG = Cvar_VariableIntegerValue( "ui_char_color_green");
-		currB = Cvar_VariableIntegerValue( "ui_char_color_blue");
-
-		max = uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].ColorCount;
-		for ( i = 0; i < max ; i++)
-		{
-			Item_RunScript(item, uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].Color[i].actionText);
-			newR = Cvar_VariableIntegerValue( "ui_char_color_red");
-			newG = Cvar_VariableIntegerValue( "ui_char_color_green");
-			newB = Cvar_VariableIntegerValue( "ui_char_color_blue");
-			if ( currR == newR && currG == newG && currB == newB)
-				return i;
-		}
-		return -1;
-
-
-
-//JLF junk copied code
-		/*
+        // JLF junk copied code
+        /*
 extern void	Item_RunScript(itemDef_t *item, const char *s);		//from ui_shared;
-		name = Cvar_VariableString("ui_char_skin_legs");
-		max = uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].ColorCount;
-		for ( i = 0; i < max ; i++)
-		if (!qstrcmp(name, uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinLegNames[i]))
-		{
-			return i;
-		//	Cvar_Set("ui_char_skin_head", uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinHeadNames[index]);
-		}
-		return -1;
+        name = Cvar_VariableString("ui_char_skin_legs");
+        max = uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].ColorCount;
+        for ( i = 0; i < max ; i++)
+        if (!qstrcmp(name, uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinLegNames[i]))
+        {
+            return i;
+        //	Cvar_Set("ui_char_skin_head", uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinHeadNames[index]);
+        }
+        return -1;
 
 
 
-		if (index >= 0 && index < uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].ColorCount)
-		{
-			Item_RunScript(item, uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].ColorActionText[index]);
-		}
-	*/
-	}
-	return -1;
-
+        if (index >= 0 && index < uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].ColorCount)
+        {
+            Item_RunScript(item, uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].ColorActionText[index]);
+        }
+    */
+    }
+    return -1;
 }
 
-
-
-
-
-
-
-
-
-bool Script_IncrementFeeder(itemDef_t * item, const char ** args)
+bool Script_IncrementFeeder(itemDef_t* item, const char** args)
 {
 
-	int feedercount = uiInfo.uiDC.feederCount(item->special);
-	int value = GetCurrentFeederIndex(item);
-	value++;
-	if ( value >= feedercount)
-		value = 0;
-	DC->feederSelection(item->special, value, item);
-	return true;
+    int feedercount = uiInfo.uiDC.feederCount(item->special);
+    int value = GetCurrentFeederIndex(item);
+    value++;
+    if (value >= feedercount)
+        value = 0;
+    DC->feederSelection(item->special, value, item);
+    return true;
 }
 
-bool Script_DecrementFeeder(itemDef_t * item, const char ** args)
+bool Script_DecrementFeeder(itemDef_t* item, const char** args)
 {
 
-	int feedercount = uiInfo.uiDC.feederCount(item->special);
-	int value = GetCurrentFeederIndex(item);
-	value--;
-	if ( value < 0)
-		value = feedercount-1;
-	DC->feederSelection(item->special, value, item);
-	return true;
+    int feedercount = uiInfo.uiDC.feederCount(item->special);
+    int value = GetCurrentFeederIndex(item);
+    value--;
+    if (value < 0)
+        value = feedercount - 1;
+    DC->feederSelection(item->special, value, item);
+    return true;
 }
-
 
 /*
 =================
 Script_SetCvar
 =================
 */
-bool Script_SetCvar(itemDef_t *item, const char **args)
+bool Script_SetCvar(itemDef_t* item, const char** args)
 {
-	const char *cvar, *val;
-	if (String_Parse(args, &cvar) && String_Parse(args, &val))
-	{
-		if(!Q_stricmp(val,"(NULL)"))
-		{
-			DC->setCVar(cvar, "");
-		}
-		else {
-			DC->setCVar(cvar, val);
-		}
-	}
+    const char *cvar, *val;
+    if (String_Parse(args, &cvar) && String_Parse(args, &val)) {
+        if (!Q_stricmp(val, "(NULL)")) {
+            DC->setCVar(cvar, "");
+        }
+        else {
+            DC->setCVar(cvar, val);
+        }
+    }
 
-	return true;
+    return true;
 }
 
 /*
@@ -2836,15 +2623,14 @@ bool Script_SetCvar(itemDef_t *item, const char **args)
 Script_Exec
 =================
 */
-bool Script_Exec ( itemDef_t *item, const char **args)
+bool Script_Exec(itemDef_t* item, const char** args)
 {
-	const char *val;
-	if (String_Parse(args, &val))
-	{
-		DC->executeText(cbufExec_t::EXEC_APPEND, va("%s ; ", val));
-	}
+    const char* val;
+    if (String_Parse(args, &val)) {
+        DC->executeText(cbufExec_t::EXEC_APPEND, va("%s ; ", val));
+    }
 
-	return true;
+    return true;
 }
 
 /*
@@ -2852,15 +2638,14 @@ bool Script_Exec ( itemDef_t *item, const char **args)
 Script_Play
 =================
 */
-static bool Script_Play(itemDef_t *item, const char **args)
+static bool Script_Play(itemDef_t* item, const char** args)
 {
-	const char *val;
-	if (String_Parse(args, &val))
-	{
-		DC->startLocalSound(DC->registerSound(val, false), soundChannel_t::CHAN_AUTO );
-	}
+    const char* val;
+    if (String_Parse(args, &val)) {
+        DC->startLocalSound(DC->registerSound(val, false), soundChannel_t::CHAN_AUTO);
+    }
 
-	return true;
+    return true;
 }
 
 /*
@@ -2868,15 +2653,14 @@ static bool Script_Play(itemDef_t *item, const char **args)
 Script_PlayVoice
 =================
 */
-static bool Script_PlayVoice(itemDef_t *item, const char **args)
+static bool Script_PlayVoice(itemDef_t* item, const char** args)
 {
-	const char *val;
-	if (String_Parse(args, &val))
-	{
-		DC->startLocalSound(DC->registerSound(val, false), soundChannel_t::CHAN_VOICE );
-	}
+    const char* val;
+    if (String_Parse(args, &val)) {
+        DC->startLocalSound(DC->registerSound(val, false), soundChannel_t::CHAN_VOICE);
+    }
 
-	return true;
+    return true;
 }
 
 /*
@@ -2884,11 +2668,11 @@ static bool Script_PlayVoice(itemDef_t *item, const char **args)
 Script_StopVoice
 =================
 */
-static bool Script_StopVoice(itemDef_t *item, const char **args)
+static bool Script_StopVoice(itemDef_t* item, const char** args)
 {
-	DC->startLocalSound(uiInfo.uiDC.Assets.nullSound, soundChannel_t::CHAN_VOICE );
+    DC->startLocalSound(uiInfo.uiDC.Assets.nullSound, soundChannel_t::CHAN_VOICE);
 
-	return true;
+    return true;
 }
 
 /*
@@ -2899,15 +2683,15 @@ Script_playLooped
 /*
 bool Script_playLooped(itemDef_t *item, const char **args)
 {
-	const char *val;
-	if (String_Parse(args, &val))
-	{
-		// FIXME BOB - is this needed?
-		DC->stopBackgroundTrack();
-		DC->startBackgroundTrack(val, val);
-	}
+    const char *val;
+    if (String_Parse(args, &val))
+    {
+        // FIXME BOB - is this needed?
+        DC->stopBackgroundTrack();
+        DC->startBackgroundTrack(val, val);
+    }
 
-	return true;
+    return true;
 }
 */
 
@@ -2916,76 +2700,69 @@ bool Script_playLooped(itemDef_t *item, const char **args)
 Script_Orbit
 =================
 */
-bool Script_Orbit(itemDef_t *item, const char **args)
+bool Script_Orbit(itemDef_t* item, const char** args)
 {
-	const char *name;
-	float cx, cy, x, y;
-	int time;
+    const char* name;
+    float cx, cy, x, y;
+    int time;
 
-	if (String_Parse(args, &name))
-	{
-//		if ( Float_Parse(args, &x) && Float_Parse(args, &y) && Float_Parse(args, &cx) && Float_Parse(args, &cy) && Int_Parse(args, &time) )
-		if ( !COM_ParseFloat(args, &x) && !COM_ParseFloat(args, &y) && !COM_ParseFloat(args, &cx) && !COM_ParseFloat(args, &cy) && Int_Parse(args, &time) )
-		{
-			Menu_OrbitItemByName((menuDef_t *) item->parent, name, x, y, cx, cy, time);
-		}
-	}
+    if (String_Parse(args, &name)) {
+        //		if ( Float_Parse(args, &x) && Float_Parse(args, &y) && Float_Parse(args, &cx) && Float_Parse(args, &cy) && Int_Parse(args, &time) )
+        if (!COM_ParseFloat(args, &x) && !COM_ParseFloat(args, &y) && !COM_ParseFloat(args, &cx) && !COM_ParseFloat(args, &cy) && Int_Parse(args, &time)) {
+            Menu_OrbitItemByName((menuDef_t*)item->parent, name, x, y, cx, cy, time);
+        }
+    }
 
-	return true;
+    return true;
 }
 
-
-commandDef_t commandList[] =
-{
-  {"activate",		&Script_Activate},				// menu
-  {"close",			&Script_Close},					// menu
-  {"exec",			&Script_Exec},					// group/name
-  {"fadein",		&Script_FadeIn},				// group/name
-  {"fadeout",		&Script_FadeOut},				// group/name
-  {"hide",			&Script_Hide},					// group/name
-  {"open",			&Script_Open},					// menu
-  {"openGoToMenu",	&Script_OpenGoToMenu},			//
-  {"orbit",			&Script_Orbit},					// group/name
-  {"play",			&Script_Play},					// group/name
-  {"playVoice",		&Script_PlayVoice},					// group/name
-  {"stopVoice",		&Script_StopVoice},					// group/name
-//  {"playlooped",	&Script_playLooped},			// group/name
-  {"setasset",		&Script_SetAsset},				// works on this
-  {"setbackground", &Script_SetBackground},			// works on this
-  {"setcolor",		&Script_SetColor},				// works on this
-  {"setcvar",		&Script_SetCvar},				// group/name
-  {"setfocus",		&Script_SetFocus},				// sets this background color to team color
-  {"setitemcolor",	&Script_SetItemColor},			// group/name
-  {"setitemflag",	&Script_SetItemFlag},			// name
-  {"show",			&Script_Show},					// group/name
-  {"showMenu",		&Script_ShowMenu},				// menu
-  {"transition",	&Script_Transition},			// group/name
-  {"transition2",	&Script_Transition2},			// group/name
-  {"setitembackground", &Script_SetItemBackground},	// group/name
-  {"setitemtext",	&Script_SetItemText},			// group/name
-  {"setitemrect",	&Script_SetItemRect},			// group/name
-  {"defer",			&Script_Defer},					//
-  {"rundeferred",	&Script_RunDeferred},			//
-  {"delay",			&Script_Delay},					// works on this (script)
-  {"transition3",   &Script_Transition3},			// model exclusive transition
-  {"incrementfeeder", &Script_IncrementFeeder},
-  {"decrementfeeder", &Script_DecrementFeeder}
-};
+commandDef_t commandList[] = {{"activate", &Script_Activate},                   // menu
+                              {"close", &Script_Close},                         // menu
+                              {"exec", &Script_Exec},                           // group/name
+                              {"fadein", &Script_FadeIn},                       // group/name
+                              {"fadeout", &Script_FadeOut},                     // group/name
+                              {"hide", &Script_Hide},                           // group/name
+                              {"open", &Script_Open},                           // menu
+                              {"openGoToMenu", &Script_OpenGoToMenu},           //
+                              {"orbit", &Script_Orbit},                         // group/name
+                              {"play", &Script_Play},                           // group/name
+                              {"playVoice", &Script_PlayVoice},                 // group/name
+                              {"stopVoice", &Script_StopVoice},                 // group/name
+                                                                                //  {"playlooped",	&Script_playLooped},			// group/name
+                              {"setasset", &Script_SetAsset},                   // works on this
+                              {"setbackground", &Script_SetBackground},         // works on this
+                              {"setcolor", &Script_SetColor},                   // works on this
+                              {"setcvar", &Script_SetCvar},                     // group/name
+                              {"setfocus", &Script_SetFocus},                   // sets this background color to team color
+                              {"setitemcolor", &Script_SetItemColor},           // group/name
+                              {"setitemflag", &Script_SetItemFlag},             // name
+                              {"show", &Script_Show},                           // group/name
+                              {"showMenu", &Script_ShowMenu},                   // menu
+                              {"transition", &Script_Transition},               // group/name
+                              {"transition2", &Script_Transition2},             // group/name
+                              {"setitembackground", &Script_SetItemBackground}, // group/name
+                              {"setitemtext", &Script_SetItemText},             // group/name
+                              {"setitemrect", &Script_SetItemRect},             // group/name
+                              {"defer", &Script_Defer},                         //
+                              {"rundeferred", &Script_RunDeferred},             //
+                              {"delay", &Script_Delay},                         // works on this (script)
+                              {"transition3", &Script_Transition3},             // model exclusive transition
+                              {"incrementfeeder", &Script_IncrementFeeder},
+                              {"decrementfeeder", &Script_DecrementFeeder}};
 
 int scriptCommandCount = sizeof(commandList) / sizeof(commandDef_t);
-
 
 /*
 ===============
 Item_Init
 ===============
 */
-void Item_Init(itemDef_t *item)
+void Item_Init(itemDef_t* item)
 {
-	// all zero is every member's empty state: ghoul2, the only non-trivial member, is a handle (0: none)
-	memset((void *)item, 0, sizeof(itemDef_t));
-	item->textscale = 0.55f;
-	Window_Init(&item->window);
+    // all zero is every member's empty state: ghoul2, the only non-trivial member, is a handle (0: none)
+    memset((void*)item, 0, sizeof(itemDef_t));
+    item->textscale = 0.55f;
+    Window_Init(&item->window);
 }
 
 /*
@@ -2993,60 +2770,48 @@ void Item_Init(itemDef_t *item)
 Item_Multi_Setting
 ===============
 */
-const char *Item_Multi_Setting(itemDef_t *item)
+const char* Item_Multi_Setting(itemDef_t* item)
 {
-	char buff[1024];
-	float value = 0;
-	int i;
-	multiDef_t *multiPtr = (multiDef_t*)item->typeData;
-	if (multiPtr)
-	{
-		if (multiPtr->strDef)
-		{
-			if (item->cvar)
-			{
-			    DC->getCVarString(item->cvar, buff, sizeof(buff));
-			}
-			else
-			{
+    char buff[1024];
+    float value = 0;
+    int i;
+    multiDef_t* multiPtr = (multiDef_t*)item->typeData;
+    if (multiPtr) {
+        if (multiPtr->strDef) {
+            if (item->cvar) {
+                DC->getCVarString(item->cvar, buff, sizeof(buff));
+            }
+            else {
+            }
+        }
+        else {
+            if (item->cvar) // Was a cvar given?
+            {
+                value = DC->getCVarValue(item->cvar);
+            }
+            else {
+                value = item->value;
+            }
+        }
 
-			}
-		}
-		else
-		{
-			if (item->cvar)	// Was a cvar given?
-			{
-				value = DC->getCVarValue(item->cvar);
-			}
-			else
-			{
-				value = item->value;
-			}
-		}
-
-		for (i = 0; i < multiPtr->count; i++)
-		{
-			if (multiPtr->strDef)
-			{
-				if (Q_stricmp(buff, multiPtr->cvarStr[i]) == 0)
-				{
-					return multiPtr->cvarList[i];
-				}
-			}
-			else
-			{
- 				if (multiPtr->cvarValue[i] == value)
-				{
-					return multiPtr->cvarList[i];
- 				}
- 			}
- 		}
-	}
+        for (i = 0; i < multiPtr->count; i++) {
+            if (multiPtr->strDef) {
+                if (Q_stricmp(buff, multiPtr->cvarStr[i]) == 0) {
+                    return multiPtr->cvarList[i];
+                }
+            }
+            else {
+                if (multiPtr->cvarValue[i] == value) {
+                    return multiPtr->cvarList[i];
+                }
+            }
+        }
+    }
 
 #ifdef JK2_MODE
-	return "@MENUS1_CUSTOM";
+    return "@MENUS1_CUSTOM";
 #else
-	return "@MENUS_CUSTOM";
+    return "@MENUS_CUSTOM";
 #endif
 }
 
@@ -3057,768 +2822,708 @@ const char *Item_Multi_Setting(itemDef_t *item)
 /*
 ===============
 ItemParse_name
-	name <string>
+    name <string>
 ===============
 */
-bool ItemParse_name( itemDef_t *item)
+bool ItemParse_name(itemDef_t* item)
 {
-	if (!PC_ParseStringMem((const char **)&item->window.name))
-	{
-		return false;
-	}
+    if (!PC_ParseStringMem((const char**)&item->window.name)) {
+        return false;
+    }
 
-	return true;
+    return true;
 }
 
-int UI_MenuFontToReal( int menuFontIndex )
+int UI_MenuFontToReal(int menuFontIndex)
 {
-	// The font array starts at 0, but the valid font indexes start at 1. As the
-	// original menu files have direct font indexes we need to subtract 1 from
-	// the given index to get the correct index for our mapping array.
-	menuFontIndex--;
+    // The font array starts at 0, but the valid font indexes start at 1. As the
+    // original menu files have direct font indexes we need to subtract 1 from
+    // the given index to get the correct index for our mapping array.
+    menuFontIndex--;
 
-	// Make sure we don't go out of bound, fallback to medium font
-	if ( menuFontIndex < 0 || menuFontIndex >= registeredFontsCount )
-		return DC->Assets.qhMediumFont;
+    // Make sure we don't go out of bound, fallback to medium font
+    if (menuFontIndex < 0 || menuFontIndex >= registeredFontsCount)
+        return DC->Assets.qhMediumFont;
 
-	// Use the mapped index
-	return registeredFonts[menuFontIndex];
+    // Use the mapped index
+    return registeredFonts[menuFontIndex];
 }
 
-bool ItemParse_font( itemDef_t *item )
+bool ItemParse_font(itemDef_t* item)
 {
-	if (PC_ParseInt(&item->font))
-	{
-		return false;
-	}
+    if (PC_ParseInt(&item->font)) {
+        return false;
+    }
 
-	// Translate to real font
-	item->font = UI_MenuFontToReal( item->font );
+    // Translate to real font
+    item->font = UI_MenuFontToReal(item->font);
 
-	return true;
+    return true;
 }
-
 
 /*
 ===============
 ItemParse_focusSound
-	name <string>
+    name <string>
 ===============
 */
-bool ItemParse_focusSound( itemDef_t *item)
+bool ItemParse_focusSound(itemDef_t* item)
 {
-	const char *temp;
+    const char* temp;
 
-	if (PC_ParseString(&temp))
-	{
-		return false;
-	}
-	item->focusSound = DC->registerSound(temp, false);
-	return true;
+    if (PC_ParseString(&temp)) {
+        return false;
+    }
+    item->focusSound = DC->registerSound(temp, false);
+    return true;
 }
 
 /*
 ===============
 ItemParse_text
-	text <string>
+    text <string>
 ===============
 */
-bool ItemParse_text( itemDef_t *item)
+bool ItemParse_text(itemDef_t* item)
 {
-	if (!PC_ParseStringMem((const char **) &item->text))
-	{
-		return false;
-	}
+    if (!PC_ParseStringMem((const char**)&item->text)) {
+        return false;
+    }
 
-//#ifdef _DEBUG
-//	UI_Debug_EnterReference("TEXT", item->text);
-//#endif
+    // #ifdef _DEBUG
+    //	UI_Debug_EnterReference("TEXT", item->text);
+    // #endif
 
-	return true;
+    return true;
 }
 
 /*
 ===============
 ItemParse_descText
-	text <string>
+    text <string>
 ===============
 */
-bool ItemParse_descText( itemDef_t *item)
+bool ItemParse_descText(itemDef_t* item)
 {
-	if (!PC_ParseStringMem((const char **) &item->descText))
-	{
-		return false;
-	}
+    if (!PC_ParseStringMem((const char**)&item->descText)) {
+        return false;
+    }
 
-//#ifdef _DEBUG
-//	UI_Debug_EnterReference("DESC", item->descText);
-//#endif
+    // #ifdef _DEBUG
+    //	UI_Debug_EnterReference("DESC", item->descText);
+    // #endif
 
-	return true;
+    return true;
 }
 
 /*
 ===============
 ItemParse_text
-	text <string>
+    text <string>
 ===============
 */
-bool ItemParse_text2( itemDef_t *item)
+bool ItemParse_text2(itemDef_t* item)
 {
-	if (!PC_ParseStringMem((const char **) &item->text2))
-	{
-		return false;
-	}
+    if (!PC_ParseStringMem((const char**)&item->text2)) {
+        return false;
+    }
 
-//#ifdef _DEBUG
-//	UI_Debug_EnterReference("TXT2", item->text2);
-//#endif
+    // #ifdef _DEBUG
+    //	UI_Debug_EnterReference("TXT2", item->text2);
+    // #endif
 
-	return true;
+    return true;
 }
 
 /*
 ===============
 ItemParse_group
-	group <string>
+    group <string>
 ===============
 */
-bool ItemParse_group( itemDef_t *item)
+bool ItemParse_group(itemDef_t* item)
 {
-	if (!PC_ParseStringMem((const char **)&item->window.group))
-	{
-		return false;
-	}
+    if (!PC_ParseStringMem((const char**)&item->window.group)) {
+        return false;
+    }
 
-	return true;
+    return true;
 }
 
 /*
 ===============
 ItemParse_asset_model
-	asset_model <string>
+    asset_model <string>
 ===============
 */
-bool ItemParse_asset_model_go( itemDef_t *item, const char *name )
+bool ItemParse_asset_model_go(itemDef_t* item, const char* name)
 {
-	modelDef_t *modelPtr;
-	Item_ValidateTypeData(item);
-	modelPtr = (modelDef_t*)item->typeData;
+    modelDef_t* modelPtr;
+    Item_ValidateTypeData(item);
+    modelPtr = (modelDef_t*)item->typeData;
 
-	if (!Q_stricmp(&name[strlen(name) - 4], ".glm"))
-	{ //it's a ghoul2 model then
-		if ( item->ghoul2.size() && item->ghoul2[0].mModelindex >= 0)
-		{
-			DC->g2_RemoveGhoul2Model( item->ghoul2, 0 );
-			item->flags &= ~itemModelFlags_t::ITF_G2VALID;
-		}
-		int g2Model = DC->g2_InitGhoul2Model(item->ghoul2, name, 0, 0, 0, 0, 0);
-		if (g2Model >= 0)
-		{
-			item->flags |= itemModelFlags_t::ITF_G2VALID;
+    if (!Q_stricmp(&name[strlen(name) - 4], ".glm")) { // it's a ghoul2 model then
+        if (item->ghoul2.size() && item->ghoul2[0].mModelindex >= 0) {
+            DC->g2_RemoveGhoul2Model(item->ghoul2, 0);
+            item->flags &= ~itemModelFlags_t::ITF_G2VALID;
+        }
+        int g2Model = DC->g2_InitGhoul2Model(item->ghoul2, name, 0, 0, 0, 0, 0);
+        if (g2Model >= 0) {
+            item->flags |= itemModelFlags_t::ITF_G2VALID;
 
-			if (modelPtr->g2anim != animNumber_t::ANIM_NONE)
-			{ //does the menu request this model be playing an animation?
-				DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, false);
-			}
-			if ( modelPtr->g2skin )
-			{
-				DC->g2_SetSkin( &item->ghoul2[0], 0, modelPtr->g2skin );//this is going to set the surfs on/off matching the skin file
-			}
-		}
-	}
-	else if(!(item->asset))
-	{ //guess it's just an md3
-		item->asset = DC->registerModel(name);
-		item->flags &= ~itemModelFlags_t::ITF_G2VALID;
-	}
-	return true;
+            if (modelPtr->g2anim != animNumber_t::ANIM_NONE) { // does the menu request this model be playing an animation?
+                DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, false);
+            }
+            if (modelPtr->g2skin) {
+                DC->g2_SetSkin(&item->ghoul2[0], 0, modelPtr->g2skin); // this is going to set the surfs on/off matching the skin file
+            }
+        }
+    }
+    else if (!(item->asset)) { // guess it's just an md3
+        item->asset = DC->registerModel(name);
+        item->flags &= ~itemModelFlags_t::ITF_G2VALID;
+    }
+    return true;
 }
 
-bool ItemParse_asset_model( itemDef_t *item )
+bool ItemParse_asset_model(itemDef_t* item)
 {
-	const char *temp;
-	Item_ValidateTypeData(item);
+    const char* temp;
+    Item_ValidateTypeData(item);
 
-	if (PC_ParseString(&temp))
-	{
-		return false;
-	}
-	char modelPath[MAX_QPATH];
+    if (PC_ParseString(&temp)) {
+        return false;
+    }
+    char modelPath[MAX_QPATH];
 
-	if (!Q_stricmp(temp,"ui_char_model") )
-	{
-		Com_sprintf( modelPath, sizeof( modelPath ), "models/players/%s/model.glm", Cvar_VariableString ( "g_char_model" ) );
-	}
-	else
-	{
-		Com_sprintf( modelPath, sizeof( modelPath ), "%s", temp);
-	}
-	return (ItemParse_asset_model_go( item, modelPath ));
+    if (!Q_stricmp(temp, "ui_char_model")) {
+        Com_sprintf(modelPath, sizeof(modelPath), "models/players/%s/model.glm", Cvar_VariableString("g_char_model"));
+    }
+    else {
+        Com_sprintf(modelPath, sizeof(modelPath), "%s", temp);
+    }
+    return (ItemParse_asset_model_go(item, modelPath));
 }
 
 /*
 ===============
 ItemParse_asset_model
-	asset_shader <string>
+    asset_shader <string>
 ===============
 */
-bool ItemParse_asset_shader( itemDef_t *item)
+bool ItemParse_asset_shader(itemDef_t* item)
 {
-	const char *temp;
+    const char* temp;
 
-	if (PC_ParseString(&temp))
-	{
-		return false;
-	}
-	item->asset = DC->registerShaderNoMip(temp);
-	return true;
+    if (PC_ParseString(&temp)) {
+        return false;
+    }
+    item->asset = DC->registerShaderNoMip(temp);
+    return true;
 }
 
 /*
 ===============
 ItemParse_asset_model
-	model_origin <number> <number> <number>
+    model_origin <number> <number> <number>
 ===============
 */
-bool ItemParse_model_origin( itemDef_t *item)
+bool ItemParse_model_origin(itemDef_t* item)
 {
-	modelDef_t *modelPtr;
-	Item_ValidateTypeData(item);
-	modelPtr = (modelDef_t*)item->typeData;
+    modelDef_t* modelPtr;
+    Item_ValidateTypeData(item);
+    modelPtr = (modelDef_t*)item->typeData;
 
-	if (PC_ParseFloat(&modelPtr->origin[0]))
-	{
-		if (PC_ParseFloat(&modelPtr->origin[1]))
-		{
-			if (PC_ParseFloat(&modelPtr->origin[2]))
-			{
-				return true;
-			}
-		}
-	}
-	return false;
+    if (PC_ParseFloat(&modelPtr->origin[0])) {
+        if (PC_ParseFloat(&modelPtr->origin[1])) {
+            if (PC_ParseFloat(&modelPtr->origin[2])) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 /*
 ===============
 ItemParse_model_fovx
-	model_fovx <number>
+    model_fovx <number>
 ===============
 */
-bool ItemParse_model_fovx( itemDef_t *item)
+bool ItemParse_model_fovx(itemDef_t* item)
 {
-	modelDef_t *modelPtr;
-	Item_ValidateTypeData(item);
-	modelPtr = (modelDef_t*)item->typeData;
+    modelDef_t* modelPtr;
+    Item_ValidateTypeData(item);
+    modelPtr = (modelDef_t*)item->typeData;
 
-	if (PC_ParseFloat(&modelPtr->fov_x))
-	{
-		return false;
-	}
-	return true;
+    if (PC_ParseFloat(&modelPtr->fov_x)) {
+        return false;
+    }
+    return true;
 }
 
 /*
 ===============
 ItemParse_model_fovy
-	model_fovy <number>
+    model_fovy <number>
 ===============
 */
-bool ItemParse_model_fovy( itemDef_t *item)
+bool ItemParse_model_fovy(itemDef_t* item)
 {
-	modelDef_t *modelPtr;
-	Item_ValidateTypeData(item);
-	modelPtr = (modelDef_t*)item->typeData;
+    modelDef_t* modelPtr;
+    Item_ValidateTypeData(item);
+    modelPtr = (modelDef_t*)item->typeData;
 
-	if (PC_ParseFloat(&modelPtr->fov_y))
-	{
-		return false;
-	}
-	return true;
+    if (PC_ParseFloat(&modelPtr->fov_y)) {
+        return false;
+    }
+    return true;
 }
 
 /*
 ===============
 ItemParse_model_rotation
-	model_rotation <integer>
+    model_rotation <integer>
 ===============
 */
-bool ItemParse_model_rotation( itemDef_t *item)
+bool ItemParse_model_rotation(itemDef_t* item)
 {
-	modelDef_t *modelPtr;
-	Item_ValidateTypeData(item);
-	modelPtr = (modelDef_t*)item->typeData;
+    modelDef_t* modelPtr;
+    Item_ValidateTypeData(item);
+    modelPtr = (modelDef_t*)item->typeData;
 
-	if (PC_ParseInt(&modelPtr->rotationSpeed))
-	{
-		return false;
-	}
-	return true;
+    if (PC_ParseInt(&modelPtr->rotationSpeed)) {
+        return false;
+    }
+    return true;
 }
 
 /*
 ===============
 ItemParse_model_angle
-	model_angle <integer>
+    model_angle <integer>
 ===============
 */
-bool ItemParse_model_angle( itemDef_t *item)
+bool ItemParse_model_angle(itemDef_t* item)
 {
-	modelDef_t *modelPtr;
-	Item_ValidateTypeData(item);
-	modelPtr = (modelDef_t*)item->typeData;
+    modelDef_t* modelPtr;
+    Item_ValidateTypeData(item);
+    modelPtr = (modelDef_t*)item->typeData;
 
-	if (PC_ParseInt(&modelPtr->angle))
-	{
-		return false;
-	}
-	return true;
+    if (PC_ParseInt(&modelPtr->angle)) {
+        return false;
+    }
+    return true;
 }
 
 // model_g2mins <number> <number> <number>
-bool ItemParse_model_g2mins( itemDef_t *item ) {
-	modelDef_t *modelPtr;
-	Item_ValidateTypeData(item);
-	modelPtr = (modelDef_t*)item->typeData;
+bool ItemParse_model_g2mins(itemDef_t* item)
+{
+    modelDef_t* modelPtr;
+    Item_ValidateTypeData(item);
+    modelPtr = (modelDef_t*)item->typeData;
 
-	if (!PC_ParseFloat(&modelPtr->g2mins[0])) {
-		if (!PC_ParseFloat(&modelPtr->g2mins[1])) {
-			if (!PC_ParseFloat(&modelPtr->g2mins[2])) {
-				return true;
-			}
-		}
-	}
-	return false;
+    if (!PC_ParseFloat(&modelPtr->g2mins[0])) {
+        if (!PC_ParseFloat(&modelPtr->g2mins[1])) {
+            if (!PC_ParseFloat(&modelPtr->g2mins[2])) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 // model_g2maxs <number> <number> <number>
-bool ItemParse_model_g2maxs( itemDef_t *item ) {
-	modelDef_t *modelPtr;
-	Item_ValidateTypeData(item);
-	modelPtr = (modelDef_t*)item->typeData;
+bool ItemParse_model_g2maxs(itemDef_t* item)
+{
+    modelDef_t* modelPtr;
+    Item_ValidateTypeData(item);
+    modelPtr = (modelDef_t*)item->typeData;
 
-	if (!PC_ParseFloat(&modelPtr->g2maxs[0])) {
-		if (!PC_ParseFloat(&modelPtr->g2maxs[1])) {
-			if (!PC_ParseFloat(&modelPtr->g2maxs[2])) {
-				return true;
-			}
-		}
-	}
-	return false;
+    if (!PC_ParseFloat(&modelPtr->g2maxs[0])) {
+        if (!PC_ParseFloat(&modelPtr->g2maxs[1])) {
+            if (!PC_ParseFloat(&modelPtr->g2maxs[2])) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 // model_g2skin <string>
-bool ItemParse_model_g2skin_go( itemDef_t *item, const char *skinName )
+bool ItemParse_model_g2skin_go(itemDef_t* item, const char* skinName)
 {
-	modelDef_t *modelPtr;
+    modelDef_t* modelPtr;
 
-	Item_ValidateTypeData(item);
-	modelPtr = (modelDef_t*)item->typeData;
+    Item_ValidateTypeData(item);
+    modelPtr = (modelDef_t*)item->typeData;
 
-	if (!skinName || !skinName[0])
-	{ //it was parsed cor~rectly so still return true.
-		modelPtr->g2skin = 0;
-		DC->g2_SetSkin( &item->ghoul2[0], -1, 0 );//turn off custom skin
-		return true;
-	}
+    if (!skinName || !skinName[0]) { // it was parsed cor~rectly so still return true.
+        modelPtr->g2skin = 0;
+        DC->g2_SetSkin(&item->ghoul2[0], -1, 0); // turn off custom skin
+        return true;
+    }
 
-	modelPtr->g2skin = DC->registerSkin(skinName);
-	if ( item->ghoul2.IsValid() )
-	{
-		DC->g2_SetSkin( &item->ghoul2[0], 0, modelPtr->g2skin );//this is going to set the surfs on/off matching the skin file
-	}
+    modelPtr->g2skin = DC->registerSkin(skinName);
+    if (item->ghoul2.IsValid()) {
+        DC->g2_SetSkin(&item->ghoul2[0], 0, modelPtr->g2skin); // this is going to set the surfs on/off matching the skin file
+    }
 
-	return true;
+    return true;
 }
 
-bool ItemParse_model_g2skin( itemDef_t *item )
+bool ItemParse_model_g2skin(itemDef_t* item)
 {
-	const char *skinName;
+    const char* skinName;
 
-	if (PC_ParseString(&skinName)) {
-		return false;
-	}
+    if (PC_ParseString(&skinName)) {
+        return false;
+    }
 
-	return (ItemParse_model_g2skin_go( item, skinName ));
+    return (ItemParse_model_g2skin_go(item, skinName));
 }
 
 // model_g2anim <number>
-bool ItemParse_model_g2anim_go( itemDef_t *item, const char *animName )
+bool ItemParse_model_g2anim_go(itemDef_t* item, const char* animName)
 {
-	modelDef_t *modelPtr;
+    modelDef_t* modelPtr;
 
-	Item_ValidateTypeData(item);
-	modelPtr = (modelDef_t*)item->typeData;
+    Item_ValidateTypeData(item);
+    modelPtr = (modelDef_t*)item->typeData;
 
-	if (!animName || !animName[0])
-	{ //it was parsed correctly so still return true.
-		return true;
-	}
+    if (!animName || !animName[0]) { // it was parsed correctly so still return true.
+        return true;
+    }
 
-	if (const std::optional<animNumber_t> anim = BG_AnimFromName(animName))
-	{ //found it
-		modelPtr->g2anim = *anim;
-		return true;
-	}
+    if (const std::optional<animNumber_t> anim = BG_AnimFromName(animName)) { // found it
+        modelPtr->g2anim = *anim;
+        return true;
+    }
 
-	Com_Printf("Could not find '%s' in the anim table\n", animName);
-	return true;
+    Com_Printf("Could not find '%s' in the anim table\n", animName);
+    return true;
 }
 
-bool ItemParse_model_g2anim( itemDef_t *item ) {
-	const char *animName;
+bool ItemParse_model_g2anim(itemDef_t* item)
+{
+    const char* animName;
 
-	if (PC_ParseString(&animName)) {
-		return false;
-	}
+    if (PC_ParseString(&animName)) {
+        return false;
+    }
 
-	return ItemParse_model_g2anim_go( item, animName );
+    return ItemParse_model_g2anim_go(item, animName);
 }
 
 /*
 ===============
 ItemParse_rect
-	rect <rectangle>
+    rect <rectangle>
 ===============
 */
-bool ItemParse_rect( itemDef_t *item)
+bool ItemParse_rect(itemDef_t* item)
 {
-	if (!PC_ParseRect(&item->window.rectClient))
-	{
-		return false;
-	}
+    if (!PC_ParseRect(&item->window.rectClient)) {
+        return false;
+    }
 
-	return true;
+    return true;
 }
 
 /*
 ===============
 ItemParse_flag
-	flag <integer>
+    flag <integer>
 ===============
 */
-bool ItemParse_flag( itemDef_t *item)
+bool ItemParse_flag(itemDef_t* item)
 {
-	int		i;
-	const char	*tempStr;
+    int i;
+    const char* tempStr;
 
-	if (PC_ParseString(&tempStr))
-	{
-		return false;
-	}
+    if (PC_ParseString(&tempStr)) {
+        return false;
+    }
 
-	i=0;
-	while (itemFlags[i].string)
-	{
-		if (Q_stricmp(tempStr,itemFlags[i].string)==0)
-		{
-			item->window.flags |= itemFlags[i].value;
-			break;
-		}
-		i++;
-	}
+    i = 0;
+    while (itemFlags[i].string) {
+        if (Q_stricmp(tempStr, itemFlags[i].string) == 0) {
+            item->window.flags |= itemFlags[i].value;
+            break;
+        }
+        i++;
+    }
 
-	if (itemFlags[i].string == nullptr)
-	{
-		PC_ParseWarning(va("Unknown item flag value '%s'",tempStr));
-	}
+    if (itemFlags[i].string == nullptr) {
+        PC_ParseWarning(va("Unknown item flag value '%s'", tempStr));
+    }
 
-	return true;
+    return true;
 }
-
 
 /*
 ===============
 ItemParse_style
-	style <integer>
+    style <integer>
 ===============
 */
-bool ItemParse_style( itemDef_t *item)
+bool ItemParse_style(itemDef_t* item)
 {
-	int		i;
-	const char	*tempStr;
+    int i;
+    const char* tempStr;
 
-	if (PC_ParseString(&tempStr))
-	{
-		return false;
-	}
+    if (PC_ParseString(&tempStr)) {
+        return false;
+    }
 
-	i=0;
-	while (styles[i])
-	{
-		if (Q_stricmp(tempStr,styles[i])==0)
-		{
-			item->window.style = i;
-			break;
-		}
-		i++;
-	}
+    i = 0;
+    while (styles[i]) {
+        if (Q_stricmp(tempStr, styles[i]) == 0) {
+            item->window.style = i;
+            break;
+        }
+        i++;
+    }
 
-	if (styles[i] == nullptr)
-	{
-		PC_ParseWarning(va("Unknown item style value '%s'",tempStr));
-	}
+    if (styles[i] == nullptr) {
+        PC_ParseWarning(va("Unknown item style value '%s'", tempStr));
+    }
 
-	return true;
+    return true;
 }
 
 /*
 ===============
 ItemParse_decoration
-	decoration
+    decoration
 ===============
 */
-bool ItemParse_decoration( itemDef_t *item )
+bool ItemParse_decoration(itemDef_t* item)
 {
-	item->window.flags |= windowFlags_t::WINDOW_DECORATION;
-	return true;
+    item->window.flags |= windowFlags_t::WINDOW_DECORATION;
+    return true;
 }
 
 /*
 ===============
 ItemParse_notselectable
-	notselectable
+    notselectable
 ===============
 */
-bool ItemParse_notselectable( itemDef_t *item )
+bool ItemParse_notselectable(itemDef_t* item)
 {
-	listBoxDef_t *listPtr;
-	Item_ValidateTypeData(item);
-	listPtr = (listBoxDef_t*)item->typeData;
+    listBoxDef_t* listPtr;
+    Item_ValidateTypeData(item);
+    listPtr = (listBoxDef_t*)item->typeData;
 
-	if (item->type == ITEM_TYPE_LISTBOX && listPtr)
-	{
-		listPtr->notselectable = true;
-	}
-	return true;
+    if (item->type == ITEM_TYPE_LISTBOX && listPtr) {
+        listPtr->notselectable = true;
+    }
+    return true;
 }
 
 /*
 ===============
 ItemParse_scrollhidden
-	scrollhidden
+    scrollhidden
 ===============
 */
-bool ItemParse_scrollhidden( itemDef_t *item )
+bool ItemParse_scrollhidden(itemDef_t* item)
 {
-	listBoxDef_t *listPtr;
-	Item_ValidateTypeData(item);
-	listPtr = (listBoxDef_t*)item->typeData;
+    listBoxDef_t* listPtr;
+    Item_ValidateTypeData(item);
+    listPtr = (listBoxDef_t*)item->typeData;
 
-	if (item->type == ITEM_TYPE_LISTBOX && listPtr)
-	{
-		listPtr->scrollhidden = true;
-	}
-	return true;
+    if (item->type == ITEM_TYPE_LISTBOX && listPtr) {
+        listPtr->scrollhidden = true;
+    }
+    return true;
 }
-
 
 /*
 ===============
 ItemParse_wrapped
-	manually wrapped
+    manually wrapped
 ===============
 */
-bool ItemParse_wrapped( itemDef_t *item )
+bool ItemParse_wrapped(itemDef_t* item)
 {
-	item->window.flags |= windowFlags_t::WINDOW_WRAPPED;
-	return true;
+    item->window.flags |= windowFlags_t::WINDOW_WRAPPED;
+    return true;
 }
-
 
 /*
 ===============
 ItemParse_autowrapped
-	auto wrapped
+    auto wrapped
 ===============
 */
-bool ItemParse_autowrapped( itemDef_t *item)
+bool ItemParse_autowrapped(itemDef_t* item)
 {
-	item->window.flags |= windowFlags_t::WINDOW_AUTOWRAPPED;
-	return true;
+    item->window.flags |= windowFlags_t::WINDOW_AUTOWRAPPED;
+    return true;
 }
-
 
 /*
 ===============
 ItemParse_horizontalscroll
-	horizontalscroll
+    horizontalscroll
 ===============
 */
-bool ItemParse_horizontalscroll( itemDef_t *item )
+bool ItemParse_horizontalscroll(itemDef_t* item)
 {
-	item->window.flags |= windowFlags_t::WINDOW_HORIZONTAL;
-	return true;
+    item->window.flags |= windowFlags_t::WINDOW_HORIZONTAL;
+    return true;
 }
-
 
 /*
 ===============
 ItemParse_type
-	type <integer>
+    type <integer>
 ===============
 */
-bool ItemParse_type( itemDef_t *item )
+bool ItemParse_type(itemDef_t* item)
 {
-	int		i;
-	const char	*tempStr;
+    int i;
+    const char* tempStr;
 
-	if (PC_ParseString(&tempStr))
-	{
-		return false;
-	}
+    if (PC_ParseString(&tempStr)) {
+        return false;
+    }
 
-	i=0;
-	while (types[i])
-	{
-		if (Q_stricmp(tempStr,types[i])==0)
-		{
-			item->type = i;
-			break;
-		}
-		i++;
-	}
+    i = 0;
+    while (types[i]) {
+        if (Q_stricmp(tempStr, types[i]) == 0) {
+            item->type = i;
+            break;
+        }
+        i++;
+    }
 
-	if (types[i] == nullptr)
-	{
-		PC_ParseWarning(va("Unknown item type value '%s'",tempStr));
-	}
-	else
-	{
-		Item_ValidateTypeData(item);
-	}
-	return true;
+    if (types[i] == nullptr) {
+        PC_ParseWarning(va("Unknown item type value '%s'", tempStr));
+    }
+    else {
+        Item_ValidateTypeData(item);
+    }
+    return true;
 }
 
 /*
 ===============
 ItemParse_elementwidth
-	 elementwidth, used for listbox image elements
-	 uses textalignx for storage
+     elementwidth, used for listbox image elements
+     uses textalignx for storage
 ===============
 */
-bool ItemParse_elementwidth( itemDef_t *item )
+bool ItemParse_elementwidth(itemDef_t* item)
 {
-	listBoxDef_t *listPtr;
+    listBoxDef_t* listPtr;
 
-	Item_ValidateTypeData(item);
-	listPtr = (listBoxDef_t*)item->typeData;
-	if (PC_ParseFloat(&listPtr->elementWidth))
-	{
-		return false;
-	}
-	return true;
-
+    Item_ValidateTypeData(item);
+    listPtr = (listBoxDef_t*)item->typeData;
+    if (PC_ParseFloat(&listPtr->elementWidth)) {
+        return false;
+    }
+    return true;
 }
 
 /*
 ===============
 ItemParse_elementheight
-	elementheight, used for listbox image elements
-	uses textaligny for storage
+    elementheight, used for listbox image elements
+    uses textaligny for storage
 ===============
 */
-bool ItemParse_elementheight( itemDef_t *item )
+bool ItemParse_elementheight(itemDef_t* item)
 {
-	listBoxDef_t *listPtr;
+    listBoxDef_t* listPtr;
 
-	Item_ValidateTypeData(item);
-	listPtr = (listBoxDef_t*)item->typeData;
-	if (PC_ParseFloat(&listPtr->elementHeight))
-	{
-		return false;
-	}
-	return true;
+    Item_ValidateTypeData(item);
+    listPtr = (listBoxDef_t*)item->typeData;
+    if (PC_ParseFloat(&listPtr->elementHeight)) {
+        return false;
+    }
+    return true;
 }
 
 /*
 ===============
 ItemParse_feeder
-	feeder <float>
+    feeder <float>
 ===============
 */
-bool ItemParse_feeder( itemDef_t *item )
+bool ItemParse_feeder(itemDef_t* item)
 {
-	if (PC_ParseFloat( &item->special))
-	{
-		return false;
-	}
-	return true;
+    if (PC_ParseFloat(&item->special)) {
+        return false;
+    }
+    return true;
 }
 
 /*
 ===============
 ItemParse_elementtype
-	elementtype, used to specify what type of elements a listbox contains
-	uses textstyle for storage
+    elementtype, used to specify what type of elements a listbox contains
+    uses textstyle for storage
 ===============
 */
-bool ItemParse_elementtype( itemDef_t *item )
+bool ItemParse_elementtype(itemDef_t* item)
 {
-	listBoxDef_t *listPtr;
+    listBoxDef_t* listPtr;
 
-	Item_ValidateTypeData(item);
-	if (!item->typeData)
-	{
-		return false;
-	}
+    Item_ValidateTypeData(item);
+    if (!item->typeData) {
+        return false;
+    }
 
-	listPtr = (listBoxDef_t*)item->typeData;
-	if (PC_ParseInt(&listPtr->elementStyle))
-	{
-		return false;
-	}
-	return true;
+    listPtr = (listBoxDef_t*)item->typeData;
+    if (PC_ParseInt(&listPtr->elementStyle)) {
+        return false;
+    }
+    return true;
 }
 
 /*
 ===============
 ItemParse_columns
-	columns sets a number of columns and an x pos and width per..
+    columns sets a number of columns and an x pos and width per..
 ===============
 */
-bool ItemParse_columns( itemDef_t *item)
+bool ItemParse_columns(itemDef_t* item)
 {
-	int num, i;
-	listBoxDef_t *listPtr;
+    int num, i;
+    listBoxDef_t* listPtr;
 
-	Item_ValidateTypeData(item);
-	if (!item->typeData)
-	{
-		return false;
-	}
+    Item_ValidateTypeData(item);
+    if (!item->typeData) {
+        return false;
+    }
 
-	listPtr = (listBoxDef_t*)item->typeData;
-	if (!PC_ParseInt(&num))
-	{
-		if (num > MAX_LB_COLUMNS)
-		{
-			num = MAX_LB_COLUMNS;
-		}
-		listPtr->numColumns = num;
-		for (i = 0; i < num; i++)
-		{
-			int pos, width, maxChars;
+    listPtr = (listBoxDef_t*)item->typeData;
+    if (!PC_ParseInt(&num)) {
+        if (num > MAX_LB_COLUMNS) {
+            num = MAX_LB_COLUMNS;
+        }
+        listPtr->numColumns = num;
+        for (i = 0; i < num; i++) {
+            int pos, width, maxChars;
 
-			if (!PC_ParseInt(&pos) && !PC_ParseInt(&width) && !PC_ParseInt(&maxChars))
-			{
-				listPtr->columnInfo[i].pos = pos;
-				listPtr->columnInfo[i].width = width;
-				listPtr->columnInfo[i].maxChars = maxChars;
-			}
-			else
-			{
-				return false;
-			}
-		}
-	}
-	else
-	{
-		return false;
-	}
+            if (!PC_ParseInt(&pos) && !PC_ParseInt(&width) && !PC_ParseInt(&maxChars)) {
+                listPtr->columnInfo[i].pos = pos;
+                listPtr->columnInfo[i].width = width;
+                listPtr->columnInfo[i].maxChars = maxChars;
+            }
+            else {
+                return false;
+            }
+        }
+    }
+    else {
+        return false;
+    }
 
-	return true;
+    return true;
 }
 
 /*
@@ -3826,14 +3531,13 @@ bool ItemParse_columns( itemDef_t *item)
 ItemParse_border
 ===============
 */
-bool ItemParse_border( itemDef_t *item)
+bool ItemParse_border(itemDef_t* item)
 {
-	if (PC_ParseInt(&item->window.border))
-	{
-		return false;
-	}
+    if (PC_ParseInt(&item->window.border)) {
+        return false;
+    }
 
-	return true;
+    return true;
 }
 
 /*
@@ -3841,13 +3545,12 @@ bool ItemParse_border( itemDef_t *item)
 ItemParse_bordersize
 ===============
 */
-bool ItemParse_bordersize( itemDef_t *item )
+bool ItemParse_bordersize(itemDef_t* item)
 {
-	if (PC_ParseFloat(&item->window.borderSize))
-	{
-		return false;
-	}
-	return true;
+    if (PC_ParseFloat(&item->window.borderSize)) {
+        return false;
+    }
+    return true;
 }
 
 /*
@@ -3855,19 +3558,17 @@ bool ItemParse_bordersize( itemDef_t *item )
 ItemParse_visible
 ===============
 */
-bool ItemParse_visible( itemDef_t *item)
+bool ItemParse_visible(itemDef_t* item)
 {
-	int i;
+    int i;
 
-	if (PC_ParseInt(&i))
-	{
-		return false;
-	}
-	if (i)
-	{
-		item->window.flags |= windowFlags_t::WINDOW_VISIBLE;
-	}
-	return true;
+    if (PC_ParseInt(&i)) {
+        return false;
+    }
+    if (i) {
+        item->window.flags |= windowFlags_t::WINDOW_VISIBLE;
+    }
+    return true;
 }
 
 /*
@@ -3875,14 +3576,13 @@ bool ItemParse_visible( itemDef_t *item)
 ItemParse_ownerdraw
 ===============
 */
-bool ItemParse_ownerdraw( itemDef_t *item)
+bool ItemParse_ownerdraw(itemDef_t* item)
 {
-	if (PC_ParseInt(&item->window.ownerDraw))
-	{
-		return false;
-	}
-	item->type = ITEM_TYPE_OWNERDRAW;
-	return true;
+    if (PC_ParseInt(&item->window.ownerDraw)) {
+        return false;
+    }
+    item->type = ITEM_TYPE_OWNERDRAW;
+    return true;
 }
 
 /*
@@ -3890,13 +3590,12 @@ bool ItemParse_ownerdraw( itemDef_t *item)
 ItemParse_align
 ===============
 */
-bool ItemParse_align( itemDef_t *item)
+bool ItemParse_align(itemDef_t* item)
 {
-	if (PC_ParseInt(&item->alignment))
-	{
-		return false;
-	}
-	return true;
+    if (PC_ParseInt(&item->alignment)) {
+        return false;
+    }
+    return true;
 }
 
 /*
@@ -3904,49 +3603,42 @@ bool ItemParse_align( itemDef_t *item)
 ItemParse_align
 ===============
 */
-bool ItemParse_Appearance_slot( itemDef_t *item)
+bool ItemParse_Appearance_slot(itemDef_t* item)
 {
-	if (PC_ParseInt(&item->appearanceSlot))
-	{
-		return false;
-	}
-	return true;
+    if (PC_ParseInt(&item->appearanceSlot)) {
+        return false;
+    }
+    return true;
 }
-
 
 /*
 ===============
 ItemParse_textalign
 ===============
 */
-bool ItemParse_textalign( itemDef_t *item )
+bool ItemParse_textalign(itemDef_t* item)
 {
-	const char *tempStr;
-	int	i;
+    const char* tempStr;
+    int i;
 
-	if (PC_ParseString(&tempStr))
-	{
-		return false;
-	}
+    if (PC_ParseString(&tempStr)) {
+        return false;
+    }
 
-	i=0;
-	while (alignment[i])
-	{
-		if (Q_stricmp(tempStr,alignment[i])==0)
-		{
-			item->textalignment = i;
-			break;
-		}
-		i++;
-	}
+    i = 0;
+    while (alignment[i]) {
+        if (Q_stricmp(tempStr, alignment[i]) == 0) {
+            item->textalignment = i;
+            break;
+        }
+        i++;
+    }
 
-	if (alignment[i] == nullptr)
-	{
-		PC_ParseWarning(va("Unknown text alignment value '%s'",tempStr));
-	}
+    if (alignment[i] == nullptr) {
+        PC_ParseWarning(va("Unknown text alignment value '%s'", tempStr));
+    }
 
-	return true;
-
+    return true;
 }
 
 /*
@@ -3954,13 +3646,12 @@ bool ItemParse_textalign( itemDef_t *item )
 ItemParse_text2alignx
 ===============
 */
-bool ItemParse_text2alignx( itemDef_t *item)
+bool ItemParse_text2alignx(itemDef_t* item)
 {
-	if (PC_ParseFloat(&item->text2alignx))
-	{
-		return false;
-	}
-	return true;
+    if (PC_ParseFloat(&item->text2alignx)) {
+        return false;
+    }
+    return true;
 }
 
 /*
@@ -3968,13 +3659,12 @@ bool ItemParse_text2alignx( itemDef_t *item)
 ItemParse_text2aligny
 ===============
 */
-bool ItemParse_text2aligny( itemDef_t *item)
+bool ItemParse_text2aligny(itemDef_t* item)
 {
-	if (PC_ParseFloat(&item->text2aligny))
-	{
-		return false;
-	}
-	return true;
+    if (PC_ParseFloat(&item->text2aligny)) {
+        return false;
+    }
+    return true;
 }
 
 /*
@@ -3982,13 +3672,12 @@ bool ItemParse_text2aligny( itemDef_t *item)
 ItemParse_textalignx
 ===============
 */
-bool ItemParse_textalignx( itemDef_t *item)
+bool ItemParse_textalignx(itemDef_t* item)
 {
-	if (PC_ParseFloat(&item->textalignx))
-	{
-		return false;
-	}
-	return true;
+    if (PC_ParseFloat(&item->textalignx)) {
+        return false;
+    }
+    return true;
 }
 
 /*
@@ -3996,13 +3685,12 @@ bool ItemParse_textalignx( itemDef_t *item)
 ItemParse_textaligny
 ===============
 */
-bool ItemParse_textaligny( itemDef_t *item)
+bool ItemParse_textaligny(itemDef_t* item)
 {
-	if (PC_ParseFloat(&item->textaligny))
-	{
-		return false;
-	}
-	return true;
+    if (PC_ParseFloat(&item->textaligny)) {
+        return false;
+    }
+    return true;
 }
 
 /*
@@ -4010,13 +3698,12 @@ bool ItemParse_textaligny( itemDef_t *item)
 ItemParse_textscale
 ===============
 */
-bool ItemParse_textscale( itemDef_t *item )
+bool ItemParse_textscale(itemDef_t* item)
 {
-	if (PC_ParseFloat(&item->textscale))
-	{
-		return false;
-	}
-	return true;
+    if (PC_ParseFloat(&item->textscale)) {
+        return false;
+    }
+    return true;
 }
 
 /*
@@ -4024,28 +3711,25 @@ bool ItemParse_textscale( itemDef_t *item )
 ItemParse_textstyle
 ===============
 */
-bool ItemParse_textstyle( itemDef_t *item)
+bool ItemParse_textstyle(itemDef_t* item)
 {
-	if (PC_ParseInt(&item->textStyle))
-	{
-		return false;
-	}
-	return true;
+    if (PC_ParseInt(&item->textStyle)) {
+        return false;
+    }
+    return true;
 }
-
 
 /*
 ===============
 ItemParse_invertyesno
 ===============
 */
-bool ItemParse_invertyesno( itemDef_t *item)
+bool ItemParse_invertyesno(itemDef_t* item)
 {
-	if (PC_ParseInt(&item->invertYesNo))
-	{
-		return false;
-	}
-	return true;
+    if (PC_ParseInt(&item->invertYesNo)) {
+        return false;
+    }
+    return true;
 }
 
 /*
@@ -4053,35 +3737,31 @@ bool ItemParse_invertyesno( itemDef_t *item)
 ItemParse_xoffset (used for yes/no and multi)
 ===============
 */
-bool ItemParse_xoffset( itemDef_t *item)
+bool ItemParse_xoffset(itemDef_t* item)
 {
-	if (PC_ParseInt(&item->xoffset))
-	{
-		return false;
-	}
-	return true;
+    if (PC_ParseInt(&item->xoffset)) {
+        return false;
+    }
+    return true;
 }
-
 
 /*
 ===============
 ItemParse_backcolor
 ===============
 */
-bool ItemParse_backcolor( itemDef_t *item)
+bool ItemParse_backcolor(itemDef_t* item)
 {
-	int i;
-	float f;
+    int i;
+    float f;
 
-	for (i = 0; i < 4; i++)
-	{
-		if (PC_ParseFloat(&f))
-		{
-			return false;
-		}
-		item->window.backColor[i]  = f;
-	}
-	return true;
+    for (i = 0; i < 4; i++) {
+        if (PC_ParseFloat(&f)) {
+            return false;
+        }
+        item->window.backColor[i] = f;
+    }
+    return true;
 }
 
 /*
@@ -4089,26 +3769,23 @@ bool ItemParse_backcolor( itemDef_t *item)
 ItemParse_forecolor
 ===============
 */
-bool ItemParse_forecolor( itemDef_t *item)
+bool ItemParse_forecolor(itemDef_t* item)
 {
-	int i;
-	float f;
+    int i;
+    float f;
 
-	for (i = 0; i < 4; i++)
-	{
-		if (PC_ParseFloat(&f))
-		{
-			return false;
-		}
-		if (f < 0)
-		{	//special case for player color
-			item->window.flags |= windowFlags_t::WINDOW_PLAYERCOLOR;
-			return true;
-		}
-		item->window.foreColor[i]  = f;
-		item->window.flags |= windowFlags_t::WINDOW_FORECOLORSET;
-	}
-	return true;
+    for (i = 0; i < 4; i++) {
+        if (PC_ParseFloat(&f)) {
+            return false;
+        }
+        if (f < 0) { // special case for player color
+            item->window.flags |= windowFlags_t::WINDOW_PLAYERCOLOR;
+            return true;
+        }
+        item->window.foreColor[i] = f;
+        item->window.flags |= windowFlags_t::WINDOW_FORECOLORSET;
+    }
+    return true;
 }
 
 /*
@@ -4116,20 +3793,18 @@ bool ItemParse_forecolor( itemDef_t *item)
 ItemParse_bordercolor
 ===============
 */
-bool ItemParse_bordercolor( itemDef_t *item)
+bool ItemParse_bordercolor(itemDef_t* item)
 {
-	int i;
-	float f;
+    int i;
+    float f;
 
-	for (i = 0; i < 4; i++)
-	{
-		if (PC_ParseFloat(&f))
-		{
-			return false;
-		}
-		item->window.borderColor[i]  = f;
-	}
-	return true;
+    for (i = 0; i < 4; i++) {
+        if (PC_ParseFloat(&f)) {
+            return false;
+        }
+        item->window.borderColor[i] = f;
+    }
+    return true;
 }
 
 /*
@@ -4137,13 +3812,12 @@ bool ItemParse_bordercolor( itemDef_t *item)
 ItemParse_outlinecolor
 ===============
 */
-bool ItemParse_outlinecolor( itemDef_t *item)
+bool ItemParse_outlinecolor(itemDef_t* item)
 {
-	if (PC_ParseColor(&item->window.outlineColor))
-	{
-		return false;
-	}
-	return true;
+    if (PC_ParseColor(&item->window.outlineColor)) {
+        return false;
+    }
+    return true;
 }
 
 /*
@@ -4151,16 +3825,15 @@ bool ItemParse_outlinecolor( itemDef_t *item)
 ItemParse_background
 ===============
 */
-bool ItemParse_background( itemDef_t *item)
+bool ItemParse_background(itemDef_t* item)
 {
-	const char *temp;
+    const char* temp;
 
-	if (PC_ParseString(&temp))
-	{
-		return false;
-	}
-	item->window.background = ui.R_RegisterShaderNoMip(temp);
-	return true;
+    if (PC_ParseString(&temp)) {
+        return false;
+    }
+    item->window.background = ui.R_RegisterShaderNoMip(temp);
+    return true;
 }
 
 /*
@@ -4168,13 +3841,12 @@ bool ItemParse_background( itemDef_t *item)
 ItemParse_cinematic
 ===============
 */
-bool ItemParse_cinematic( itemDef_t *item)
+bool ItemParse_cinematic(itemDef_t* item)
 {
-	if (!PC_ParseStringMem((const char **) &item->window.cinematicName))
-	{
-		return false;
-	}
-	return true;
+    if (!PC_ParseStringMem((const char**)&item->window.cinematicName)) {
+        return false;
+    }
+    return true;
 }
 
 /*
@@ -4182,23 +3854,21 @@ bool ItemParse_cinematic( itemDef_t *item)
 ItemParse_doubleClick
 ===============
 */
-bool ItemParse_doubleClick( itemDef_t *item)
+bool ItemParse_doubleClick(itemDef_t* item)
 {
-	listBoxDef_t *listPtr;
+    listBoxDef_t* listPtr;
 
-	Item_ValidateTypeData(item);
-	if (!item->typeData)
-	{
-		return false;
-	}
+    Item_ValidateTypeData(item);
+    if (!item->typeData) {
+        return false;
+    }
 
-	listPtr = (listBoxDef_t*)item->typeData;
+    listPtr = (listBoxDef_t*)item->typeData;
 
-	if (!PC_Script_Parse(&listPtr->doubleClick))
-	{
-		return false;
-	}
-	return true;
+    if (!PC_Script_Parse(&listPtr->doubleClick)) {
+        return false;
+    }
+    return true;
 }
 
 /*
@@ -4206,13 +3876,12 @@ bool ItemParse_doubleClick( itemDef_t *item)
 ItemParse_onFocus
 ===============
 */
-bool ItemParse_onFocus( itemDef_t *item)
+bool ItemParse_onFocus(itemDef_t* item)
 {
-	if (!PC_Script_Parse(&item->onFocus))
-	{
-		return false;
-	}
-	return true;
+    if (!PC_Script_Parse(&item->onFocus)) {
+        return false;
+    }
+    return true;
 }
 
 /*
@@ -4220,13 +3889,12 @@ bool ItemParse_onFocus( itemDef_t *item)
 ItemParse_leaveFocus
 ===============
 */
-bool ItemParse_leaveFocus( itemDef_t *item )
+bool ItemParse_leaveFocus(itemDef_t* item)
 {
-	if (!PC_Script_Parse(&item->leaveFocus))
-	{
-		return false;
-	}
-	return true;
+    if (!PC_Script_Parse(&item->leaveFocus)) {
+        return false;
+    }
+    return true;
 }
 
 /*
@@ -4234,13 +3902,12 @@ bool ItemParse_leaveFocus( itemDef_t *item )
 ItemParse_mouseEnter
 ===============
 */
-bool ItemParse_mouseEnter( itemDef_t *item)
+bool ItemParse_mouseEnter(itemDef_t* item)
 {
-	if (!PC_Script_Parse(&item->mouseEnter))
-	{
-		return false;
-	}
-	return true;
+    if (!PC_Script_Parse(&item->mouseEnter)) {
+        return false;
+    }
+    return true;
 }
 
 /*
@@ -4248,13 +3915,12 @@ bool ItemParse_mouseEnter( itemDef_t *item)
 ItemParse_mouseExit
 ===============
 */
-bool ItemParse_mouseExit( itemDef_t *item)
+bool ItemParse_mouseExit(itemDef_t* item)
 {
-	if (!PC_Script_Parse(&item->mouseExit))
-	{
-		return false;
-	}
-	return true;
+    if (!PC_Script_Parse(&item->mouseExit)) {
+        return false;
+    }
+    return true;
 }
 
 /*
@@ -4262,13 +3928,12 @@ bool ItemParse_mouseExit( itemDef_t *item)
 ItemParse_mouseEnterText
 ===============
 */
-bool ItemParse_mouseEnterText( itemDef_t *item)
+bool ItemParse_mouseEnterText(itemDef_t* item)
 {
-	if (!PC_Script_Parse(&item->mouseEnterText))
-	{
-		return false;
-	}
-	return true;
+    if (!PC_Script_Parse(&item->mouseEnterText)) {
+        return false;
+    }
+    return true;
 }
 
 /*
@@ -4276,44 +3941,39 @@ bool ItemParse_mouseEnterText( itemDef_t *item)
 ItemParse_mouseExitText
 ===============
 */
-bool ItemParse_mouseExitText( itemDef_t *item)
+bool ItemParse_mouseExitText(itemDef_t* item)
 {
-	if (!PC_Script_Parse(&item->mouseExitText))
-	{
-		return false;
-	}
-	return true;
+    if (!PC_Script_Parse(&item->mouseExitText)) {
+        return false;
+    }
+    return true;
 }
-
 
 /*
 ===============
 ItemParse_accept
 ===============
 */
-bool ItemParse_accept( itemDef_t *item)
+bool ItemParse_accept(itemDef_t* item)
 {
-	if (!PC_Script_Parse(&item->accept))
-	{
-		return false;
-	}
-	return true;
+    if (!PC_Script_Parse(&item->accept)) {
+        return false;
+    }
+    return true;
 }
 
-
-//JLFDPADSCRIPT
+// JLFDPADSCRIPT
 /*
 ===============
 ItemParse_selectionNext
 ===============
 */
-bool ItemParse_selectionNext( itemDef_t *item)
+bool ItemParse_selectionNext(itemDef_t* item)
 {
-	if (!PC_Script_Parse(&item->selectionNext))
-	{
-		return false;
-	}
-	return true;
+    if (!PC_Script_Parse(&item->selectionNext)) {
+        return false;
+    }
+    return true;
 }
 
 /*
@@ -4321,48 +3981,39 @@ bool ItemParse_selectionNext( itemDef_t *item)
 ItemParse_selectionPrev
 ===============
 */
-bool ItemParse_selectionPrev( itemDef_t *item)
+bool ItemParse_selectionPrev(itemDef_t* item)
 {
-	if (!PC_Script_Parse(&item->selectionPrev))
-	{
-		return false;
-	}
-	return true;
+    if (!PC_Script_Parse(&item->selectionPrev)) {
+        return false;
+    }
+    return true;
 }
 // END JLFDPADSCRIPT
-
-
-
-
-
 
 /*
 ===============
 ItemParse_action
 ===============
 */
-bool ItemParse_action( itemDef_t *item)
+bool ItemParse_action(itemDef_t* item)
 {
-	if (!PC_Script_Parse(&item->action))
-	{
-		return false;
-	}
-	return true;
+    if (!PC_Script_Parse(&item->action)) {
+        return false;
+    }
+    return true;
 }
-
 
 /*
 ===============
 ItemParse_special
 ===============
 */
-bool ItemParse_special( itemDef_t *item)
+bool ItemParse_special(itemDef_t* item)
 {
-	if (PC_ParseFloat(&item->special))
-	{
-		return false;
-	}
-	return true;
+    if (PC_ParseFloat(&item->special)) {
+        return false;
+    }
+    return true;
 }
 
 /*
@@ -4370,13 +4021,12 @@ bool ItemParse_special( itemDef_t *item)
 ItemParse_cvarTest
 ===============
 */
-bool ItemParse_cvarTest( itemDef_t *item)
+bool ItemParse_cvarTest(itemDef_t* item)
 {
-	if (!PC_ParseStringMem((const char **) &item->cvarTest))
-	{
-		return false;
-	}
-	return true;
+    if (!PC_ParseStringMem((const char**)&item->cvarTest)) {
+        return false;
+    }
+    return true;
 }
 
 /*
@@ -4384,35 +4034,32 @@ bool ItemParse_cvarTest( itemDef_t *item)
 ItemParse_cvar
 ===============
 */
-bool ItemParse_cvar( itemDef_t *item)
+bool ItemParse_cvar(itemDef_t* item)
 {
-	editFieldDef_t *editPtr;
+    editFieldDef_t* editPtr;
 
-	Item_ValidateTypeData(item);
-	if (!PC_ParseStringMem(&item->cvar))
-	{
-		return false;
-	}
+    Item_ValidateTypeData(item);
+    if (!PC_ParseStringMem(&item->cvar)) {
+        return false;
+    }
 
-	if ( item->typeData)
-	{
-		switch ( item->type )
-		{
-			case ITEM_TYPE_EDITFIELD:
-			case ITEM_TYPE_NUMERICFIELD:
-			case ITEM_TYPE_YESNO:
-			case ITEM_TYPE_BIND:
-			case ITEM_TYPE_SLIDER:
-			case ITEM_TYPE_TEXT:
-			case ITEM_TYPE_TEXTSCROLL:
-				editPtr = (editFieldDef_t*)item->typeData;
-				editPtr->minVal = -1;
-				editPtr->maxVal = -1;
-				editPtr->defVal = -1;
-				break;
-		}
-	}
-	return true;
+    if (item->typeData) {
+        switch (item->type) {
+        case ITEM_TYPE_EDITFIELD:
+        case ITEM_TYPE_NUMERICFIELD:
+        case ITEM_TYPE_YESNO:
+        case ITEM_TYPE_BIND:
+        case ITEM_TYPE_SLIDER:
+        case ITEM_TYPE_TEXT:
+        case ITEM_TYPE_TEXTSCROLL:
+            editPtr = (editFieldDef_t*)item->typeData;
+            editPtr->minVal = -1;
+            editPtr->maxVal = -1;
+            editPtr->defVal = -1;
+            break;
+        }
+    }
+    return true;
 }
 
 /*
@@ -4420,24 +4067,22 @@ bool ItemParse_cvar( itemDef_t *item)
 ItemParse_maxChars
 ===============
 */
-bool ItemParse_maxChars( itemDef_t *item)
+bool ItemParse_maxChars(itemDef_t* item)
 {
-	editFieldDef_t *editPtr;
-	int maxChars;
+    editFieldDef_t* editPtr;
+    int maxChars;
 
-	Item_ValidateTypeData(item);
-	if (!item->typeData)
-	{
-		return false;
-	}
+    Item_ValidateTypeData(item);
+    if (!item->typeData) {
+        return false;
+    }
 
-	if (PC_ParseInt(&maxChars))
-	{
-		return false;
-	}
-	editPtr = (editFieldDef_t*)item->typeData;
-	editPtr->maxChars = maxChars;
-	return true;
+    if (PC_ParseInt(&maxChars)) {
+        return false;
+    }
+    editPtr = (editFieldDef_t*)item->typeData;
+    editPtr->maxChars = maxChars;
+    return true;
 }
 
 /*
@@ -4445,47 +4090,42 @@ bool ItemParse_maxChars( itemDef_t *item)
 ItemParse_maxPaintChars
 ===============
 */
-bool ItemParse_maxPaintChars( itemDef_t *item)
+bool ItemParse_maxPaintChars(itemDef_t* item)
 {
-	editFieldDef_t *editPtr;
-	int maxChars;
+    editFieldDef_t* editPtr;
+    int maxChars;
 
-	Item_ValidateTypeData(item);
-	if (!item->typeData)
-	{
-		return false;
-	}
+    Item_ValidateTypeData(item);
+    if (!item->typeData) {
+        return false;
+    }
 
-	if (PC_ParseInt(&maxChars))
-	{
-		return false;
-	}
-	editPtr = (editFieldDef_t*)item->typeData;
-	editPtr->maxPaintChars = maxChars;
-	return true;
+    if (PC_ParseInt(&maxChars)) {
+        return false;
+    }
+    editPtr = (editFieldDef_t*)item->typeData;
+    editPtr->maxPaintChars = maxChars;
+    return true;
 }
 
-
-bool ItemParse_lineHeight( itemDef_t *item)
+bool ItemParse_lineHeight(itemDef_t* item)
 {
-	textScrollDef_t *scrollPtr;
-	int				height;
+    textScrollDef_t* scrollPtr;
+    int height;
 
-	Item_ValidateTypeData(item);
-	if (!item->typeData)
-	{
-		return false;
-	}
+    Item_ValidateTypeData(item);
+    if (!item->typeData) {
+        return false;
+    }
 
-	if (PC_ParseInt(&height))
-	{
-		return false;
-	}
+    if (PC_ParseInt(&height)) {
+        return false;
+    }
 
-	scrollPtr = (textScrollDef_t*)item->typeData;
-	scrollPtr->lineHeight = height;
+    scrollPtr = (textScrollDef_t*)item->typeData;
+    scrollPtr->lineHeight = height;
 
-	return true;
+    return true;
 }
 
 /*
@@ -4493,29 +4133,24 @@ bool ItemParse_lineHeight( itemDef_t *item)
 ItemParse_cvarFloat
 ===============
 */
-bool ItemParse_cvarFloat( itemDef_t *item)
+bool ItemParse_cvarFloat(itemDef_t* item)
 {
-	editFieldDef_t *editPtr;
+    editFieldDef_t* editPtr;
 
-	Item_ValidateTypeData(item);
-	if (!item->typeData)
-	{
-		return false;
-	}
-	editPtr = (editFieldDef_t*)item->typeData;
-	if (PC_ParseStringMem((const char **) &item->cvar) &&
-		!PC_ParseFloat(&editPtr->defVal) &&
-		!PC_ParseFloat(&editPtr->minVal) &&
-		!PC_ParseFloat(&editPtr->maxVal))
-	{
-		if (!Q_stricmp(item->cvar,"r_ext_texture_filter_anisotropic"))
-		{//hehe, hook up the correct max value here.
-			editPtr->maxVal=cls.glconfig.maxTextureFilterAnisotropy;
-		}
-		return true;
-	}
+    Item_ValidateTypeData(item);
+    if (!item->typeData) {
+        return false;
+    }
+    editPtr = (editFieldDef_t*)item->typeData;
+    if (PC_ParseStringMem((const char**)&item->cvar) && !PC_ParseFloat(&editPtr->defVal) && !PC_ParseFloat(&editPtr->minVal) &&
+        !PC_ParseFloat(&editPtr->maxVal)) {
+        if (!Q_stricmp(item->cvar, "r_ext_texture_filter_anisotropic")) { // hehe, hook up the correct max value here.
+            editPtr->maxVal = cls.glconfig.maxTextureFilterAnisotropy;
+        }
+        return true;
+    }
 
-	return false;
+    return false;
 }
 
 /*
@@ -4523,91 +4158,77 @@ bool ItemParse_cvarFloat( itemDef_t *item)
 ItemParse_cvarStrList
 ===============
 */
-bool ItemParse_cvarStrList( itemDef_t *item)
+bool ItemParse_cvarStrList(itemDef_t* item)
 {
-	const char	*token;
-	multiDef_t *multiPtr;
-	int pass;
+    const char* token;
+    multiDef_t* multiPtr;
+    int pass;
 
-	Item_ValidateTypeData(item);
-	if (!item->typeData)
-	{
-		return false;
-	}
-	multiPtr = (multiDef_t*)item->typeData;
-	multiPtr->count = 0;
-	multiPtr->strDef = true;
+    Item_ValidateTypeData(item);
+    if (!item->typeData) {
+        return false;
+    }
+    multiPtr = (multiDef_t*)item->typeData;
+    multiPtr->count = 0;
+    multiPtr->strDef = true;
 
-	if (PC_ParseString(&token))
-	{
-		return false;
-	}
+    if (PC_ParseString(&token)) {
+        return false;
+    }
 
-	if (!Q_stricmp(token,"feeder") && item->special == FEEDER_PLAYER_SPECIES)
-	{
-		for (; multiPtr->count < uiInfo.playerSpeciesCount; multiPtr->count++)
-		{
-			multiPtr->cvarList[multiPtr->count] = String_Alloc(Q_strupr(va("@MENUS_%s",uiInfo.playerSpecies[multiPtr->count].Name )));	//look up translation
-			multiPtr->cvarStr[multiPtr->count] = uiInfo.playerSpecies[multiPtr->count].Name;	//value
-		}
-		return true;
-	}
-	// languages
-	if (!Q_stricmp(token,"feeder") && item->special == FEEDER_LANGUAGES)
-	{
-		for (; multiPtr->count < uiInfo.languageCount; multiPtr->count++)
-		{
-			// The displayed text
-			multiPtr->cvarList[multiPtr->count] = "@MENUS_MYLANGUAGE";
-			// The cvar value that goes into se_language
+    if (!Q_stricmp(token, "feeder") && item->special == FEEDER_PLAYER_SPECIES) {
+        for (; multiPtr->count < uiInfo.playerSpeciesCount; multiPtr->count++) {
+            multiPtr->cvarList[multiPtr->count] = String_Alloc(Q_strupr(va("@MENUS_%s", uiInfo.playerSpecies[multiPtr->count].Name))); // look up translation
+            multiPtr->cvarStr[multiPtr->count] = uiInfo.playerSpecies[multiPtr->count].Name;                                           // value
+        }
+        return true;
+    }
+    // languages
+    if (!Q_stricmp(token, "feeder") && item->special == FEEDER_LANGUAGES) {
+        for (; multiPtr->count < uiInfo.languageCount; multiPtr->count++) {
+            // The displayed text
+            multiPtr->cvarList[multiPtr->count] = "@MENUS_MYLANGUAGE";
+            // The cvar value that goes into se_language
 
 #ifndef JK2_MODE // FIXME
-				multiPtr->cvarStr[multiPtr->count] = SE_GetLanguageName(multiPtr->count);
+            multiPtr->cvarStr[multiPtr->count] = SE_GetLanguageName(multiPtr->count);
 #endif
-		}
-		return true;
-	}
-	if (*token != '{')
-	{
-		return false;
-	}
+        }
+        return true;
+    }
+    if (*token != '{') {
+        return false;
+    }
 
-	pass = 0;
-	while ( 1 )
-	{
-		if (!PC_ParseStringMem(&token))
-		{
-			PC_ParseWarning("end of file inside menu item\n");
-			return false;
-		}
-		if (*token == '}')
-		{
-			return true;
-		}
+    pass = 0;
+    while (1) {
+        if (!PC_ParseStringMem(&token)) {
+            PC_ParseWarning("end of file inside menu item\n");
+            return false;
+        }
+        if (*token == '}') {
+            return true;
+        }
 
-		if (*token == ',' || *token == ';')
-		{
-			continue;
-		}
+        if (*token == ',' || *token == ';') {
+            continue;
+        }
 
-		if (pass == 0)
-		{
-			multiPtr->cvarList[multiPtr->count] = token;
-			pass = 1;
-		}
-		else
-		{
-			multiPtr->cvarStr[multiPtr->count] = token;
-			pass = 0;
-			multiPtr->count++;
-			if (multiPtr->count >= MAX_MULTI_CVARS)
-			{
-				return false;
-			}
-		}
-	}
+        if (pass == 0) {
+            multiPtr->cvarList[multiPtr->count] = token;
+            pass = 1;
+        }
+        else {
+            multiPtr->cvarStr[multiPtr->count] = token;
+            pass = 0;
+            multiPtr->count++;
+            if (multiPtr->count >= MAX_MULTI_CVARS) {
+                return false;
+            }
+        }
+    }
 
-	return false;
+    return false;
 }
 
 /*
@@ -4615,87 +4236,72 @@ bool ItemParse_cvarStrList( itemDef_t *item)
 ItemParse_cvarFloatList
 ===============
 */
-bool ItemParse_cvarFloatList( itemDef_t *item)
+bool ItemParse_cvarFloatList(itemDef_t* item)
 {
-	const char		*token;
-	multiDef_t	*multiPtr;
+    const char* token;
+    multiDef_t* multiPtr;
 
-	Item_ValidateTypeData(item);
-	if (!item->typeData)
-	{
-		return false;
-	}
-	multiPtr = (multiDef_t*)item->typeData;
-	multiPtr->count = 0;
-	multiPtr->strDef = false;
+    Item_ValidateTypeData(item);
+    if (!item->typeData) {
+        return false;
+    }
+    multiPtr = (multiDef_t*)item->typeData;
+    multiPtr->count = 0;
+    multiPtr->strDef = false;
 
-	if (PC_ParseString(&token))
-	{
-		return false;
-	}
+    if (PC_ParseString(&token)) {
+        return false;
+    }
 
-	if (*token != '{')
-	{
-		return false;
-	}
+    if (*token != '{') {
+        return false;
+    }
 
-	while ( 1 )
-	{
-		if (!PC_ParseStringMem(&token))
-		{
-			PC_ParseWarning("end of file inside menu item\n");
-			return false;
-		}
-		if (*token == '}')
-		{
-			return true;
-		}
+    while (1) {
+        if (!PC_ParseStringMem(&token)) {
+            PC_ParseWarning("end of file inside menu item\n");
+            return false;
+        }
+        if (*token == '}') {
+            return true;
+        }
 
-		if (*token == ',' || *token == ';')
-		{
-			continue;
-		}
+        if (*token == ',' || *token == ';') {
+            continue;
+        }
 
-		multiPtr->cvarList[multiPtr->count] = token;	//a StringAlloc ptr
-		if (PC_ParseFloat(&multiPtr->cvarValue[multiPtr->count]))
-		{
-			return false;
-		}
+        multiPtr->cvarList[multiPtr->count] = token; // a StringAlloc ptr
+        if (PC_ParseFloat(&multiPtr->cvarValue[multiPtr->count])) {
+            return false;
+        }
 
-		multiPtr->count++;
-		if (multiPtr->count >= MAX_MULTI_CVARS)
-		{
-			return false;
-		}
+        multiPtr->count++;
+        if (multiPtr->count >= MAX_MULTI_CVARS) {
+            return false;
+        }
+    }
 
-	}
-
-	return false;
+    return false;
 }
-
 
 /*
 ===============
 ItemParse_addColorRange
 ===============
 */
-bool ItemParse_addColorRange( itemDef_t *item)
+bool ItemParse_addColorRange(itemDef_t* item)
 {
-	colorRangeDef_t color;
+    colorRangeDef_t color;
 
-	if (PC_ParseFloat(&color.low) &&
-		PC_ParseFloat(&color.high) &&
-		PC_ParseColor(&color.color) )
-	{
+    if (PC_ParseFloat(&color.low) && PC_ParseFloat(&color.high) && PC_ParseColor(&color.color)) {
 
-		if (item->numColors < MAX_COLOR_RANGES)
-		{
-			memcpy(&item->colorRanges[item->numColors], &color, sizeof(color));
-			item->numColors++;
-		}
-		return true;
-	}
-	return false;
+        if (item->numColors < MAX_COLOR_RANGES) {
+            memcpy(&item->colorRanges[item->numColors], &color, sizeof(color));
+            item->numColors++;
+        }
+        return true;
+    }
+    return false;
 }
 
 /*
@@ -4703,15 +4309,14 @@ bool ItemParse_addColorRange( itemDef_t *item)
 ItemParse_ownerdrawFlag
 ===============
 */
-bool ItemParse_ownerdrawFlag( itemDef_t *item )
+bool ItemParse_ownerdrawFlag(itemDef_t* item)
 {
-	int i;
-	if (PC_ParseInt(&i))
-	{
-		return false;
-	}
-	item->window.ownerDrawFlags |= i;
-	return true;
+    int i;
+    if (PC_ParseInt(&i)) {
+        return false;
+    }
+    item->window.ownerDrawFlags |= i;
+    return true;
 }
 
 /*
@@ -4719,14 +4324,13 @@ bool ItemParse_ownerdrawFlag( itemDef_t *item )
 ItemParse_enableCvar
 ===============
 */
-bool ItemParse_enableCvar( itemDef_t *item)
+bool ItemParse_enableCvar(itemDef_t* item)
 {
-	if (PC_Script_Parse(&item->enableCvar))
-	{
-		item->cvarFlags = itemCvarFlags_t::CVAR_ENABLE;
-		return true;
-	}
-	return false;
+    if (PC_Script_Parse(&item->enableCvar)) {
+        item->cvarFlags = itemCvarFlags_t::CVAR_ENABLE;
+        return true;
+    }
+    return false;
 }
 
 /*
@@ -4734,14 +4338,13 @@ bool ItemParse_enableCvar( itemDef_t *item)
 ItemParse_disableCvar
 ===============
 */
-bool ItemParse_disableCvar( itemDef_t *item )
+bool ItemParse_disableCvar(itemDef_t* item)
 {
-	if (PC_Script_Parse(&item->enableCvar))
-	{
-		item->cvarFlags = itemCvarFlags_t::CVAR_DISABLE;
-		return true;
-	}
-	return false;
+    if (PC_Script_Parse(&item->enableCvar)) {
+        item->cvarFlags = itemCvarFlags_t::CVAR_DISABLE;
+        return true;
+    }
+    return false;
 }
 
 /*
@@ -4749,14 +4352,13 @@ bool ItemParse_disableCvar( itemDef_t *item )
 ItemParse_showCvar
 ===============
 */
-bool ItemParse_showCvar( itemDef_t *item )
+bool ItemParse_showCvar(itemDef_t* item)
 {
-	if (PC_Script_Parse(&item->enableCvar))
-	{
-		item->cvarFlags = itemCvarFlags_t::CVAR_SHOW;
-		return true;
-	}
-	return false;
+    if (PC_Script_Parse(&item->enableCvar)) {
+        item->cvarFlags = itemCvarFlags_t::CVAR_SHOW;
+        return true;
+    }
+    return false;
 }
 
 /*
@@ -4764,14 +4366,13 @@ bool ItemParse_showCvar( itemDef_t *item )
 ItemParse_hideCvar
 ===============
 */
-bool ItemParse_hideCvar( itemDef_t *item )
+bool ItemParse_hideCvar(itemDef_t* item)
 {
-	if (PC_Script_Parse(&item->enableCvar))
-	{
-		item->cvarFlags = itemCvarFlags_t::CVAR_HIDE;
-		return true;
-	}
-	return false;
+    if (PC_Script_Parse(&item->enableCvar)) {
+        item->cvarFlags = itemCvarFlags_t::CVAR_HIDE;
+        return true;
+    }
+    return false;
 }
 
 /*
@@ -4779,11 +4380,11 @@ bool ItemParse_hideCvar( itemDef_t *item )
 ItemParse_cvarsubstring
 ===============
 */
-bool ItemParse_cvarsubstring( itemDef_t *item )
+bool ItemParse_cvarsubstring(itemDef_t* item)
 {
-	assert(Any( item->cvarFlags ));	//need something set first, then we or in our flag.
-	item->cvarFlags |= itemCvarFlags_t::CVAR_SUBSTRING;
-	return true;
+    assert(Any(item->cvarFlags)); // need something set first, then we or in our flag.
+    item->cvarFlags |= itemCvarFlags_t::CVAR_SUBSTRING;
+    return true;
 }
 
 /*
@@ -4791,214 +4392,423 @@ bool ItemParse_cvarsubstring( itemDef_t *item )
 Item_ValidateTypeData
 ===============
 */
-void Item_ValidateTypeData(itemDef_t *item)
+void Item_ValidateTypeData(itemDef_t* item)
 {
-	if (item->typeData)
-	{
-		return;
-	}
+    if (item->typeData) {
+        return;
+    }
 
-	if (item->type == ITEM_TYPE_LISTBOX)
-	{
-		item->typeData = UI_Alloc(sizeof(listBoxDef_t));
-		memset(item->typeData, 0, sizeof(listBoxDef_t));
-	}
-	else if (item->type == ITEM_TYPE_EDITFIELD || item->type == ITEM_TYPE_NUMERICFIELD || item->type == ITEM_TYPE_YESNO || item->type == ITEM_TYPE_BIND || item->type == ITEM_TYPE_SLIDER || item->type == ITEM_TYPE_TEXT)
-	{
-		item->typeData = UI_Alloc(sizeof(editFieldDef_t));
-		memset(item->typeData, 0, sizeof(editFieldDef_t));
-		if (item->type == ITEM_TYPE_EDITFIELD)
-		{
-			if (!((editFieldDef_t *) item->typeData)->maxPaintChars)
-			{
-				((editFieldDef_t *) item->typeData)->maxPaintChars = MAX_EDITFIELD;
-			}
-		}
-	}
-	else if (item->type == ITEM_TYPE_MULTI)
-	{
-		item->typeData = UI_Alloc(sizeof(multiDef_t));
-	}
-	else if (item->type == ITEM_TYPE_MODEL)
-	{
-		item->typeData = UI_Alloc(sizeof(modelDef_t));
-		memset(item->typeData, 0, sizeof(modelDef_t));
-		((modelDef_t *) item->typeData)->g2anim = animNumber_t::ANIM_NONE;	// until a model_g2anim names one
-	}
-	else if (item->type == ITEM_TYPE_TEXTSCROLL )
-	{
-		item->typeData = UI_Alloc(sizeof(textScrollDef_t));
-	}
+    if (item->type == ITEM_TYPE_LISTBOX) {
+        item->typeData = UI_Alloc(sizeof(listBoxDef_t));
+        memset(item->typeData, 0, sizeof(listBoxDef_t));
+    }
+    else if (item->type == ITEM_TYPE_EDITFIELD || item->type == ITEM_TYPE_NUMERICFIELD || item->type == ITEM_TYPE_YESNO || item->type == ITEM_TYPE_BIND ||
+             item->type == ITEM_TYPE_SLIDER || item->type == ITEM_TYPE_TEXT) {
+        item->typeData = UI_Alloc(sizeof(editFieldDef_t));
+        memset(item->typeData, 0, sizeof(editFieldDef_t));
+        if (item->type == ITEM_TYPE_EDITFIELD) {
+            if (!((editFieldDef_t*)item->typeData)->maxPaintChars) {
+                ((editFieldDef_t*)item->typeData)->maxPaintChars = MAX_EDITFIELD;
+            }
+        }
+    }
+    else if (item->type == ITEM_TYPE_MULTI) {
+        item->typeData = UI_Alloc(sizeof(multiDef_t));
+    }
+    else if (item->type == ITEM_TYPE_MODEL) {
+        item->typeData = UI_Alloc(sizeof(modelDef_t));
+        memset(item->typeData, 0, sizeof(modelDef_t));
+        ((modelDef_t*)item->typeData)->g2anim = animNumber_t::ANIM_NONE; // until a model_g2anim names one
+    }
+    else if (item->type == ITEM_TYPE_TEXTSCROLL) {
+        item->typeData = UI_Alloc(sizeof(textScrollDef_t));
+    }
 }
 
-bool ItemParse_isCharacter( itemDef_t *item )
+bool ItemParse_isCharacter(itemDef_t* item)
 {
-	int i;
-	if ( !PC_ParseInt(&i) )
-	{
-		if ( i )
-		{
-			item->flags |= itemModelFlags_t::ITF_ISCHARACTER;
-		}
-		else
-		{
-			item->flags &= ~itemModelFlags_t::ITF_ISCHARACTER;
-		}
-		return true;
-	}
-	return false;
+    int i;
+    if (!PC_ParseInt(&i)) {
+        if (i) {
+            item->flags |= itemModelFlags_t::ITF_ISCHARACTER;
+        }
+        else {
+            item->flags &= ~itemModelFlags_t::ITF_ISCHARACTER;
+        }
+        return true;
+    }
+    return false;
 }
 
-bool ItemParse_isSaber( itemDef_t *item )
+bool ItemParse_isSaber(itemDef_t* item)
 {
-extern void UI_SaberLoadParms( void );
-extern bool ui_saber_parms_parsed;
-extern void UI_CacheSaberGlowGraphics( void );
-	int	i;
-	if ( !PC_ParseInt(&i) )
-	{
-		if ( i )
-		{
-			item->flags |= itemModelFlags_t::ITF_ISSABER;
-			UI_CacheSaberGlowGraphics();
-			if ( !ui_saber_parms_parsed )
-			{
-				UI_SaberLoadParms();
-			}
-		}
-		else
-		{
-			item->flags &= ~itemModelFlags_t::ITF_ISSABER;
-		}
-		return true;
-	}
-	return false;
+    extern void UI_SaberLoadParms(void);
+    extern bool ui_saber_parms_parsed;
+    extern void UI_CacheSaberGlowGraphics(void);
+    int i;
+    if (!PC_ParseInt(&i)) {
+        if (i) {
+            item->flags |= itemModelFlags_t::ITF_ISSABER;
+            UI_CacheSaberGlowGraphics();
+            if (!ui_saber_parms_parsed) {
+                UI_SaberLoadParms();
+            }
+        }
+        else {
+            item->flags &= ~itemModelFlags_t::ITF_ISSABER;
+        }
+        return true;
+    }
+    return false;
 }
 
-bool ItemParse_isSaber2( itemDef_t *item )
+bool ItemParse_isSaber2(itemDef_t* item)
 {
-extern void UI_SaberLoadParms( void );
-extern bool ui_saber_parms_parsed;
-extern void UI_CacheSaberGlowGraphics( void );
-	int	i;
-	if ( !PC_ParseInt(&i) )
-	{
-		if ( i )
-		{
-			item->flags |= itemModelFlags_t::ITF_ISSABER2;
-			UI_CacheSaberGlowGraphics();
-			if ( !ui_saber_parms_parsed )
-			{
-				UI_SaberLoadParms();
-			}
-		}
-		else
-		{
-			item->flags &= ~itemModelFlags_t::ITF_ISSABER2;
-		}
-		return true;
-	}
-	return false;
+    extern void UI_SaberLoadParms(void);
+    extern bool ui_saber_parms_parsed;
+    extern void UI_CacheSaberGlowGraphics(void);
+    int i;
+    if (!PC_ParseInt(&i)) {
+        if (i) {
+            item->flags |= itemModelFlags_t::ITF_ISSABER2;
+            UI_CacheSaberGlowGraphics();
+            if (!ui_saber_parms_parsed) {
+                UI_SaberLoadParms();
+            }
+        }
+        else {
+            item->flags &= ~itemModelFlags_t::ITF_ISSABER2;
+        }
+        return true;
+    }
+    return false;
 }
 
-keywordHash_t itemParseKeywords[] = {
-	{"accept",			ItemParse_accept,			},
-	{"selectNext",		ItemParse_selectionNext,	},
-	{"selectPrev",		ItemParse_selectionPrev,	},
-	{"action",			ItemParse_action,			},
-	{"addColorRange",	ItemParse_addColorRange,	},
-	{"align",			ItemParse_align,			},
-	{"appearance_slot",	ItemParse_Appearance_slot,	},
-	{"asset_model",		ItemParse_asset_model,		},
-	{"asset_shader",	ItemParse_asset_shader,		},
-	{"isCharacter",		ItemParse_isCharacter,		},
-	{"isSaber",			ItemParse_isSaber,			},
-	{"isSaber2",		ItemParse_isSaber2,			},
-	{"autowrapped",		ItemParse_autowrapped,		},
-	{"backcolor",		ItemParse_backcolor,		},
-	{"background",		ItemParse_background,		},
-	{"border",			ItemParse_border,			},
-	{"bordercolor",		ItemParse_bordercolor,		},
-	{"bordersize",		ItemParse_bordersize,		},
-	{"cinematic",		ItemParse_cinematic,		},
-	{"columns",			ItemParse_columns,			},
-	{"cvar",			ItemParse_cvar,				},
-	{"cvarFloat",		ItemParse_cvarFloat,		},
-	{"cvarFloatList",	ItemParse_cvarFloatList,	},
-	{"cvarSubString",	ItemParse_cvarsubstring		},
-	{"cvarStrList",		ItemParse_cvarStrList,		},
-	{"cvarTest",		ItemParse_cvarTest,			},
-	{"decoration",		ItemParse_decoration,		},
-	{"desctext",		ItemParse_descText			},
-	{"disableCvar",		ItemParse_disableCvar,		},
-	{"doubleclick",		ItemParse_doubleClick,		},
-	{"elementheight",	ItemParse_elementheight,	},
-	{"elementtype",		ItemParse_elementtype,		},
-	{"elementwidth",	ItemParse_elementwidth,		},
-	{"enableCvar",		ItemParse_enableCvar,		},
-	{"feeder",			ItemParse_feeder,			},
-	{"flag",			ItemParse_flag,				},
-	{"focusSound",		ItemParse_focusSound,		},
-	{"font",			ItemParse_font,				},
-	{"forecolor",		ItemParse_forecolor,		},
-	{"group",			ItemParse_group,			},
-	{"hideCvar",		ItemParse_hideCvar,			},
-	{"horizontalscroll",ItemParse_horizontalscroll, },
-	{"leaveFocus",		ItemParse_leaveFocus,		},
-	{"maxChars",		ItemParse_maxChars,			},
-	{"maxPaintChars",	ItemParse_maxPaintChars,	},
-	{"model_angle",		ItemParse_model_angle,		},
-	{"model_fovx",		ItemParse_model_fovx,		},
-	{"model_fovy",		ItemParse_model_fovy,		},
-	{"model_origin",	ItemParse_model_origin,		},
-	{"model_rotation",	ItemParse_model_rotation,	},
-	//rww - g2 begin
-	{"model_g2mins",	ItemParse_model_g2mins,		},
-	{"model_g2maxs",	ItemParse_model_g2maxs,		},
-	{"model_g2skin",	ItemParse_model_g2skin,		},
-	{"model_g2anim",	ItemParse_model_g2anim,		},
-	//rww - g2 end
-	{"mouseEnter",		ItemParse_mouseEnter,		},
-	{"mouseEnterText",	ItemParse_mouseEnterText,	},
-	{"mouseExit",		ItemParse_mouseExit,		},
-	{"mouseExitText",	ItemParse_mouseExitText,	},
-	{"name",			ItemParse_name				},
-	{"notselectable",	ItemParse_notselectable,	},
-//JLF
-	{"scrollhidden",	ItemParse_scrollhidden, 	},
-//JLF END
-	{"onFocus",			ItemParse_onFocus,			},
-	{"outlinecolor",	ItemParse_outlinecolor,		},
-	{"ownerdraw",		ItemParse_ownerdraw,		},
-	{"ownerdrawFlag",	ItemParse_ownerdrawFlag,	},
-	{"rect",			ItemParse_rect,				},
-	{"showCvar",		ItemParse_showCvar,			},
-	{"special",			ItemParse_special,			},
-	{"style",			ItemParse_style,			},
-	{"text",			ItemParse_text				},
-	{"text2",			ItemParse_text2				},
-	{"text2alignx",		ItemParse_text2alignx,		},
-	{"text2aligny",		ItemParse_text2aligny,		},
-	{"textalign",		ItemParse_textalign,		},
-	{"textalignx",		ItemParse_textalignx,		},
-	{"textaligny",		ItemParse_textaligny,		},
-	{"textscale",		ItemParse_textscale,		},
-	{"textstyle",		ItemParse_textstyle,		},
-	{"type",			ItemParse_type,				},
-	{"visible",			ItemParse_visible,			},
-	{"wrapped",			ItemParse_wrapped,			},
-	{"invertyesno",		ItemParse_invertyesno		},
-	{"xoffset",			ItemParse_xoffset			},//for yes/no and multi
+keywordHash_t itemParseKeywords[] = {{
+                                         "accept",
+                                         ItemParse_accept,
+                                     },
+                                     {
+                                         "selectNext",
+                                         ItemParse_selectionNext,
+                                     },
+                                     {
+                                         "selectPrev",
+                                         ItemParse_selectionPrev,
+                                     },
+                                     {
+                                         "action",
+                                         ItemParse_action,
+                                     },
+                                     {
+                                         "addColorRange",
+                                         ItemParse_addColorRange,
+                                     },
+                                     {
+                                         "align",
+                                         ItemParse_align,
+                                     },
+                                     {
+                                         "appearance_slot",
+                                         ItemParse_Appearance_slot,
+                                     },
+                                     {
+                                         "asset_model",
+                                         ItemParse_asset_model,
+                                     },
+                                     {
+                                         "asset_shader",
+                                         ItemParse_asset_shader,
+                                     },
+                                     {
+                                         "isCharacter",
+                                         ItemParse_isCharacter,
+                                     },
+                                     {
+                                         "isSaber",
+                                         ItemParse_isSaber,
+                                     },
+                                     {
+                                         "isSaber2",
+                                         ItemParse_isSaber2,
+                                     },
+                                     {
+                                         "autowrapped",
+                                         ItemParse_autowrapped,
+                                     },
+                                     {
+                                         "backcolor",
+                                         ItemParse_backcolor,
+                                     },
+                                     {
+                                         "background",
+                                         ItemParse_background,
+                                     },
+                                     {
+                                         "border",
+                                         ItemParse_border,
+                                     },
+                                     {
+                                         "bordercolor",
+                                         ItemParse_bordercolor,
+                                     },
+                                     {
+                                         "bordersize",
+                                         ItemParse_bordersize,
+                                     },
+                                     {
+                                         "cinematic",
+                                         ItemParse_cinematic,
+                                     },
+                                     {
+                                         "columns",
+                                         ItemParse_columns,
+                                     },
+                                     {
+                                         "cvar",
+                                         ItemParse_cvar,
+                                     },
+                                     {
+                                         "cvarFloat",
+                                         ItemParse_cvarFloat,
+                                     },
+                                     {
+                                         "cvarFloatList",
+                                         ItemParse_cvarFloatList,
+                                     },
+                                     {"cvarSubString", ItemParse_cvarsubstring},
+                                     {
+                                         "cvarStrList",
+                                         ItemParse_cvarStrList,
+                                     },
+                                     {
+                                         "cvarTest",
+                                         ItemParse_cvarTest,
+                                     },
+                                     {
+                                         "decoration",
+                                         ItemParse_decoration,
+                                     },
+                                     {"desctext", ItemParse_descText},
+                                     {
+                                         "disableCvar",
+                                         ItemParse_disableCvar,
+                                     },
+                                     {
+                                         "doubleclick",
+                                         ItemParse_doubleClick,
+                                     },
+                                     {
+                                         "elementheight",
+                                         ItemParse_elementheight,
+                                     },
+                                     {
+                                         "elementtype",
+                                         ItemParse_elementtype,
+                                     },
+                                     {
+                                         "elementwidth",
+                                         ItemParse_elementwidth,
+                                     },
+                                     {
+                                         "enableCvar",
+                                         ItemParse_enableCvar,
+                                     },
+                                     {
+                                         "feeder",
+                                         ItemParse_feeder,
+                                     },
+                                     {
+                                         "flag",
+                                         ItemParse_flag,
+                                     },
+                                     {
+                                         "focusSound",
+                                         ItemParse_focusSound,
+                                     },
+                                     {
+                                         "font",
+                                         ItemParse_font,
+                                     },
+                                     {
+                                         "forecolor",
+                                         ItemParse_forecolor,
+                                     },
+                                     {
+                                         "group",
+                                         ItemParse_group,
+                                     },
+                                     {
+                                         "hideCvar",
+                                         ItemParse_hideCvar,
+                                     },
+                                     {
+                                         "horizontalscroll",
+                                         ItemParse_horizontalscroll,
+                                     },
+                                     {
+                                         "leaveFocus",
+                                         ItemParse_leaveFocus,
+                                     },
+                                     {
+                                         "maxChars",
+                                         ItemParse_maxChars,
+                                     },
+                                     {
+                                         "maxPaintChars",
+                                         ItemParse_maxPaintChars,
+                                     },
+                                     {
+                                         "model_angle",
+                                         ItemParse_model_angle,
+                                     },
+                                     {
+                                         "model_fovx",
+                                         ItemParse_model_fovx,
+                                     },
+                                     {
+                                         "model_fovy",
+                                         ItemParse_model_fovy,
+                                     },
+                                     {
+                                         "model_origin",
+                                         ItemParse_model_origin,
+                                     },
+                                     {
+                                         "model_rotation",
+                                         ItemParse_model_rotation,
+                                     },
+                                     // rww - g2 begin
+                                     {
+                                         "model_g2mins",
+                                         ItemParse_model_g2mins,
+                                     },
+                                     {
+                                         "model_g2maxs",
+                                         ItemParse_model_g2maxs,
+                                     },
+                                     {
+                                         "model_g2skin",
+                                         ItemParse_model_g2skin,
+                                     },
+                                     {
+                                         "model_g2anim",
+                                         ItemParse_model_g2anim,
+                                     },
+                                     // rww - g2 end
+                                     {
+                                         "mouseEnter",
+                                         ItemParse_mouseEnter,
+                                     },
+                                     {
+                                         "mouseEnterText",
+                                         ItemParse_mouseEnterText,
+                                     },
+                                     {
+                                         "mouseExit",
+                                         ItemParse_mouseExit,
+                                     },
+                                     {
+                                         "mouseExitText",
+                                         ItemParse_mouseExitText,
+                                     },
+                                     {"name", ItemParse_name},
+                                     {
+                                         "notselectable",
+                                         ItemParse_notselectable,
+                                     },
+                                     // JLF
+                                     {
+                                         "scrollhidden",
+                                         ItemParse_scrollhidden,
+                                     },
+                                     // JLF END
+                                     {
+                                         "onFocus",
+                                         ItemParse_onFocus,
+                                     },
+                                     {
+                                         "outlinecolor",
+                                         ItemParse_outlinecolor,
+                                     },
+                                     {
+                                         "ownerdraw",
+                                         ItemParse_ownerdraw,
+                                     },
+                                     {
+                                         "ownerdrawFlag",
+                                         ItemParse_ownerdrawFlag,
+                                     },
+                                     {
+                                         "rect",
+                                         ItemParse_rect,
+                                     },
+                                     {
+                                         "showCvar",
+                                         ItemParse_showCvar,
+                                     },
+                                     {
+                                         "special",
+                                         ItemParse_special,
+                                     },
+                                     {
+                                         "style",
+                                         ItemParse_style,
+                                     },
+                                     {"text", ItemParse_text},
+                                     {"text2", ItemParse_text2},
+                                     {
+                                         "text2alignx",
+                                         ItemParse_text2alignx,
+                                     },
+                                     {
+                                         "text2aligny",
+                                         ItemParse_text2aligny,
+                                     },
+                                     {
+                                         "textalign",
+                                         ItemParse_textalign,
+                                     },
+                                     {
+                                         "textalignx",
+                                         ItemParse_textalignx,
+                                     },
+                                     {
+                                         "textaligny",
+                                         ItemParse_textaligny,
+                                     },
+                                     {
+                                         "textscale",
+                                         ItemParse_textscale,
+                                     },
+                                     {
+                                         "textstyle",
+                                         ItemParse_textstyle,
+                                     },
+                                     {
+                                         "type",
+                                         ItemParse_type,
+                                     },
+                                     {
+                                         "visible",
+                                         ItemParse_visible,
+                                     },
+                                     {
+                                         "wrapped",
+                                         ItemParse_wrapped,
+                                     },
+                                     {"invertyesno", ItemParse_invertyesno},
+                                     {"xoffset", ItemParse_xoffset}, // for yes/no and multi
 
+                                     // Text scroll specific
+                                     {"lineHeight", ItemParse_lineHeight, nullptr},
 
+                                     {
+                                         nullptr,
+                                         nullptr,
+                                     }};
 
-	// Text scroll specific
-	{"lineHeight",		ItemParse_lineHeight,		nullptr	},
-
-	{nullptr,				nullptr,						}
-};
-
-keywordHash_t *itemParseKeywordHash[KEYWORDHASH_SIZE];
+keywordHash_t* itemParseKeywordHash[KEYWORDHASH_SIZE];
 
 /*
 ===============
@@ -5007,241 +4817,214 @@ Item_SetupKeywordHash
 */
 void Item_SetupKeywordHash(void)
 {
-	int i;
+    int i;
 
-	memset(itemParseKeywordHash, 0, sizeof(itemParseKeywordHash));
-	for (i = 0; itemParseKeywords[i].keyword; i++)
-	{
-		KeywordHash_Add(itemParseKeywordHash, &itemParseKeywords[i]);
-	}
+    memset(itemParseKeywordHash, 0, sizeof(itemParseKeywordHash));
+    for (i = 0; itemParseKeywords[i].keyword; i++) {
+        KeywordHash_Add(itemParseKeywordHash, &itemParseKeywords[i]);
+    }
 }
-
 
 /*
 ===============
 Item_Parse
 ===============
 */
-bool Item_Parse(itemDef_t *item)
+bool Item_Parse(itemDef_t* item)
 {
-	keywordHash_t *key;
-	const char *token;
+    keywordHash_t* key;
+    const char* token;
 
+    if (PC_ParseString(&token)) {
+        return false;
+    }
 
-	if (PC_ParseString(&token))
-	{
-		return false;
-	}
+    if (*token != '{') {
+        return false;
+    }
 
-	if (*token != '{')
-	{
-		return false;
-	}
+    while (1) {
+        if (PC_ParseString(&token)) {
+            PC_ParseWarning("End of file inside menu item");
+            return false;
+        }
 
-	while ( 1 )
-	{
-		if (PC_ParseString(&token))
-		{
-			PC_ParseWarning("End of file inside menu item");
-			return false;
-		}
+        if (*token == '}') {
+            /*			if (!item->window.name)
+                        {
+                            item->window.name = defaultString;
+                            Com_Printf(S_COLOR_YELLOW"WARNING: Menu item has no name\n");
+                        }
 
-		if (*token == '}')
-		{
-/*			if (!item->window.name)
-			{
-				item->window.name = defaultString;
-				Com_Printf(S_COLOR_YELLOW"WARNING: Menu item has no name\n");
-			}
+                        if (!item->window.group)
+                        {
+                            item->window.group = defaultString;
+                            Com_Printf(S_COLOR_YELLOW"WARNING: Menu item has no group\n");
+                        }
+            */
+            return true;
+        }
 
-			if (!item->window.group)
-			{
-				item->window.group = defaultString;
-				Com_Printf(S_COLOR_YELLOW"WARNING: Menu item has no group\n");
-			}
-*/
-			return true;
-		}
+        key = (keywordHash_s*)KeywordHash_Find(itemParseKeywordHash, token);
+        if (!key) {
+            PC_ParseWarning(va("Unknown item keyword '%s'", token));
+            continue;
+        }
 
-		key = (keywordHash_s *) KeywordHash_Find(itemParseKeywordHash, token);
-		if (!key)
-		{
-			PC_ParseWarning(va("Unknown item keyword '%s'", token));
-			continue;
-		}
-
-		if ( !key->func(item) )
-		{
-			PC_ParseWarning(va("Couldn't parse item keyword '%s'", token));
-			return false;
-		}
-	}
+        if (!key->func(item)) {
+            PC_ParseWarning(va("Couldn't parse item keyword '%s'", token));
+            return false;
+        }
+    }
 }
 
-static void Item_TextScroll_BuildLines ( itemDef_t* item )
+static void Item_TextScroll_BuildLines(itemDef_t* item)
 {
-	// new asian-aware line breaker...  (pasted from elsewhere late @ night, hence aliasing-vars ;-)
-	//
-	textScrollDef_t* scrollPtr = (textScrollDef_t*) item->typeData;
-	const char *psText = item->text;	// for copy/paste ease
-	int iBoxWidth = item->window.rect.w - SCROLLBAR_SIZE - 10;
+    // new asian-aware line breaker...  (pasted from elsewhere late @ night, hence aliasing-vars ;-)
+    //
+    textScrollDef_t* scrollPtr = (textScrollDef_t*)item->typeData;
+    const char* psText = item->text; // for copy/paste ease
+    int iBoxWidth = item->window.rect.w - SCROLLBAR_SIZE - 10;
 
-	// this could probably be simplified now, but it was converted from something else I didn't originally write,
-	//	and it works anyway so wtf...
-	//
-	const char *psCurrentTextReadPos;
-	const char *psReadPosAtLineStart;
-	const char *psBestLineBreakSrcPos;
-	const char *psLastGood_s;	// needed if we get a full screen of chars with no punctuation or space (see usage notes)
-	bool bIsTrailingPunctuation;
-	unsigned int uiLetter;
+    // this could probably be simplified now, but it was converted from something else I didn't originally write,
+    //	and it works anyway so wtf...
+    //
+    const char* psCurrentTextReadPos;
+    const char* psReadPosAtLineStart;
+    const char* psBestLineBreakSrcPos;
+    const char* psLastGood_s; // needed if we get a full screen of chars with no punctuation or space (see usage notes)
+    bool bIsTrailingPunctuation;
+    unsigned int uiLetter;
 
-	if (!psText)
-	{
-		return;
-	}
+    if (!psText) {
+        return;
+    }
 
-	if (*psText == '@')	// string reference
-	{
-//		trap_SP_GetStringTextString( &psText[1], text, sizeof(text));
-		psText = SE_GetString( &psText[1] );
-	}
+    if (*psText == '@') // string reference
+    {
+        //		trap_SP_GetStringTextString( &psText[1], text, sizeof(text));
+        psText = SE_GetString(&psText[1]);
+    }
 
-	psCurrentTextReadPos = psText;
-	psReadPosAtLineStart = psCurrentTextReadPos;
-	psBestLineBreakSrcPos = psCurrentTextReadPos;
+    psCurrentTextReadPos = psText;
+    psReadPosAtLineStart = psCurrentTextReadPos;
+    psBestLineBreakSrcPos = psCurrentTextReadPos;
 
-	scrollPtr->iLineCount = 0;
-	memset((char*)scrollPtr->pLines,0,sizeof(scrollPtr->pLines));
+    scrollPtr->iLineCount = 0;
+    memset((char*)scrollPtr->pLines, 0, sizeof(scrollPtr->pLines));
 
-	while (*psCurrentTextReadPos && (scrollPtr->iLineCount < MAX_TEXTSCROLL_LINES) )
-	{
-		char sLineForDisplay[2048];	// ott
+    while (*psCurrentTextReadPos && (scrollPtr->iLineCount < MAX_TEXTSCROLL_LINES)) {
+        char sLineForDisplay[2048]; // ott
 
-		// construct a line...
-		//
-		psCurrentTextReadPos = psReadPosAtLineStart;
-		sLineForDisplay[0] = '\0';
-		while ( *psCurrentTextReadPos )
-		{
-			int iAdvanceCount;
-			psLastGood_s = psCurrentTextReadPos;
+        // construct a line...
+        //
+        psCurrentTextReadPos = psReadPosAtLineStart;
+        sLineForDisplay[0] = '\0';
+        while (*psCurrentTextReadPos) {
+            int iAdvanceCount;
+            psLastGood_s = psCurrentTextReadPos;
 
-			// read letter...
-			//
-			uiLetter = ui.AnyLanguage_ReadCharFromString((char *)psCurrentTextReadPos, &iAdvanceCount, &bIsTrailingPunctuation);
-			psCurrentTextReadPos += iAdvanceCount;
+            // read letter...
+            //
+            uiLetter = ui.AnyLanguage_ReadCharFromString((char*)psCurrentTextReadPos, &iAdvanceCount, &bIsTrailingPunctuation);
+            psCurrentTextReadPos += iAdvanceCount;
 
-			// concat onto string so far...
-			//
-			if (uiLetter == 32 && sLineForDisplay[0] == '\0')
-			{
-				psReadPosAtLineStart++;
-				continue;	// unless it's a space at the start of a line, in which case ignore it.
-			}
+            // concat onto string so far...
+            //
+            if (uiLetter == 32 && sLineForDisplay[0] == '\0') {
+                psReadPosAtLineStart++;
+                continue; // unless it's a space at the start of a line, in which case ignore it.
+            }
 
-			if (uiLetter > 255)
-			{
-				Q_strcat(sLineForDisplay, sizeof(sLineForDisplay),va("%c%c",uiLetter >> 8, uiLetter & 0xFF));
-			}
-			else
-			{
-				Q_strcat(sLineForDisplay, sizeof(sLineForDisplay),va("%c",uiLetter & 0xFF));
-			}
+            if (uiLetter > 255) {
+                Q_strcat(sLineForDisplay, sizeof(sLineForDisplay), va("%c%c", uiLetter >> 8, uiLetter & 0xFF));
+            }
+            else {
+                Q_strcat(sLineForDisplay, sizeof(sLineForDisplay), va("%c", uiLetter & 0xFF));
+            }
 
-			if (uiLetter == '\n')
-			{
-				// explicit new line...
-				//
-				sLineForDisplay[ strlen(sLineForDisplay)-1 ] = '\0';	// kill the CR
-				psReadPosAtLineStart = psCurrentTextReadPos;
-				psBestLineBreakSrcPos = psCurrentTextReadPos;
+            if (uiLetter == '\n') {
+                // explicit new line...
+                //
+                sLineForDisplay[strlen(sLineForDisplay) - 1] = '\0'; // kill the CR
+                psReadPosAtLineStart = psCurrentTextReadPos;
+                psBestLineBreakSrcPos = psCurrentTextReadPos;
 
-				// hack it to fit in with this code...
-				//
-				scrollPtr->pLines[ scrollPtr->iLineCount ] = String_Alloc ( sLineForDisplay );
-				break;	// print this line
-			}
-			else
-			if ( DC->textWidth( sLineForDisplay, item->textscale, item->font ) >= iBoxWidth )
-			{
-				// reached screen edge, so cap off string at bytepos after last good position...
-				//
-				if (uiLetter > 255 && bIsTrailingPunctuation && !ui.Language_UsesSpaces())
-				{
-					// Special case, don't consider line breaking if you're on an asian punctuation char of
-					//	a language that doesn't use spaces...
-					//
-				}
-				else
-				{
-					if (psBestLineBreakSrcPos == psReadPosAtLineStart)
-					{
-						//  aarrrggh!!!!!   we'll only get here is someone has fed in a (probably) garbage string,
-						//		since it doesn't have a single space or punctuation mark right the way across one line
-						//		of the screen.  So far, this has only happened in testing when I hardwired a taiwanese
-						//		string into this function while the game was running in english (which should NEVER happen
-						//		normally).  On the other hand I suppose it's entirely possible that some taiwanese string
-						//		might have no punctuation at all, so...
-						//
-						psBestLineBreakSrcPos = psLastGood_s;	// force a break after last good letter
-					}
+                // hack it to fit in with this code...
+                //
+                scrollPtr->pLines[scrollPtr->iLineCount] = String_Alloc(sLineForDisplay);
+                break; // print this line
+            }
+            else if (DC->textWidth(sLineForDisplay, item->textscale, item->font) >= iBoxWidth) {
+                // reached screen edge, so cap off string at bytepos after last good position...
+                //
+                if (uiLetter > 255 && bIsTrailingPunctuation && !ui.Language_UsesSpaces()) {
+                    // Special case, don't consider line breaking if you're on an asian punctuation char of
+                    //	a language that doesn't use spaces...
+                    //
+                }
+                else {
+                    if (psBestLineBreakSrcPos == psReadPosAtLineStart) {
+                        //  aarrrggh!!!!!   we'll only get here is someone has fed in a (probably) garbage string,
+                        //		since it doesn't have a single space or punctuation mark right the way across one line
+                        //		of the screen.  So far, this has only happened in testing when I hardwired a taiwanese
+                        //		string into this function while the game was running in english (which should NEVER happen
+                        //		normally).  On the other hand I suppose it's entirely possible that some taiwanese string
+                        //		might have no punctuation at all, so...
+                        //
+                        psBestLineBreakSrcPos = psLastGood_s; // force a break after last good letter
+                    }
 
-					sLineForDisplay[ psBestLineBreakSrcPos - psReadPosAtLineStart ] = '\0';
-					psReadPosAtLineStart = psCurrentTextReadPos = psBestLineBreakSrcPos;
+                    sLineForDisplay[psBestLineBreakSrcPos - psReadPosAtLineStart] = '\0';
+                    psReadPosAtLineStart = psCurrentTextReadPos = psBestLineBreakSrcPos;
 
-					// hack it to fit in with this code...
-					//
-					scrollPtr->pLines[ scrollPtr->iLineCount ] = String_Alloc( sLineForDisplay );
-					break;	// print this line
-				}
-			}
+                    // hack it to fit in with this code...
+                    //
+                    scrollPtr->pLines[scrollPtr->iLineCount] = String_Alloc(sLineForDisplay);
+                    break; // print this line
+                }
+            }
 
-			// record last-good linebreak pos...  (ie if we've just concat'd a punctuation point (western or asian) or space)
-			//
-			if (bIsTrailingPunctuation || uiLetter == ' ' || (uiLetter > 255 && !ui.Language_UsesSpaces()))
-			{
-				psBestLineBreakSrcPos = psCurrentTextReadPos;
-			}
-		}
+            // record last-good linebreak pos...  (ie if we've just concat'd a punctuation point (western or asian) or space)
+            //
+            if (bIsTrailingPunctuation || uiLetter == ' ' || (uiLetter > 255 && !ui.Language_UsesSpaces())) {
+                psBestLineBreakSrcPos = psCurrentTextReadPos;
+            }
+        }
 
-		/// arrgghh, this is gettng horrible now...
-		//
-		if (scrollPtr->pLines[ scrollPtr->iLineCount ] == nullptr && strlen(sLineForDisplay))
-		{
-			// then this is the last line and we've just run out of text, no CR, no overflow etc...
-			//
-			scrollPtr->pLines[ scrollPtr->iLineCount ] = String_Alloc( sLineForDisplay );
-		}
+        /// arrgghh, this is gettng horrible now...
+        //
+        if (scrollPtr->pLines[scrollPtr->iLineCount] == nullptr && strlen(sLineForDisplay)) {
+            // then this is the last line and we've just run out of text, no CR, no overflow etc...
+            //
+            scrollPtr->pLines[scrollPtr->iLineCount] = String_Alloc(sLineForDisplay);
+        }
 
-		scrollPtr->iLineCount++;
-	}
+        scrollPtr->iLineCount++;
+    }
 }
 
 /*
 ===============
 Item_InitControls
-	init's special control types
+    init's special control types
 ===============
 */
-void Item_InitControls(itemDef_t *item)
+void Item_InitControls(itemDef_t* item)
 {
-	if (item == nullptr)
-	{
-		return;
-	}
-	if (item->type == ITEM_TYPE_LISTBOX)
-	{
-		listBoxDef_t *listPtr = (listBoxDef_t*)item->typeData;
-		item->cursorPos = 0;
-		if (listPtr)
-		{
-			listPtr->cursorPos = 0;
-			listPtr->startPos = 0;
-			listPtr->endPos = 0;
-			listPtr->cursorPos = 0;
-		}
-	}
+    if (item == nullptr) {
+        return;
+    }
+    if (item->type == ITEM_TYPE_LISTBOX) {
+        listBoxDef_t* listPtr = (listBoxDef_t*)item->typeData;
+        item->cursorPos = 0;
+        if (listPtr) {
+            listPtr->cursorPos = 0;
+            listPtr->startPos = 0;
+            listPtr->endPos = 0;
+            listPtr->cursorPos = 0;
+        }
+    }
 }
 
 /*
@@ -5249,20 +5032,18 @@ void Item_InitControls(itemDef_t *item)
 Int_Parse
 =================
 */
-bool Int_Parse(const char **p, int *i)
+bool Int_Parse(const char** p, int* i)
 {
-	char	*token;
-	token = COM_ParseExt(p, false);
+    char* token;
+    token = COM_ParseExt(p, false);
 
-	if (token && token[0] != 0)
-	{
-		*i = atoi(token);
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+    if (token && token[0] != 0) {
+        *i = atoi(token);
+        return true;
+    }
+    else {
+        return false;
+    }
 }
 
 /*
@@ -5270,17 +5051,16 @@ bool Int_Parse(const char **p, int *i)
 String_Parse
 =================
 */
-bool String_Parse(const char **p, const char **out)
+bool String_Parse(const char** p, const char** out)
 {
-	char *token;
+    char* token;
 
-	token = COM_ParseExt(p, false);
-	if (token && token[0] != 0)
-	{
-		*out = String_Alloc(token);
-		return (*out != nullptr);
-	}
-	return false;
+    token = COM_ParseExt(p, false);
+    if (token && token[0] != 0) {
+        *out = String_Alloc(token);
+        return (*out != nullptr);
+    }
+    return false;
 }
 
 /*
@@ -5288,61 +5068,51 @@ bool String_Parse(const char **p, const char **out)
 Item_RunScript
 ===============
 */
-void Item_RunScript(itemDef_t *item, const char *s)
+void Item_RunScript(itemDef_t* item, const char* s)
 {
-	const char *p;
-	int i;
-	bool bRan;
+    const char* p;
+    int i;
+    bool bRan;
 
-	uiInfo.runScriptItem = item;
+    uiInfo.runScriptItem = item;
 
-	if (item && s && s[0])
-	{
-		p = s;
-		COM_BeginParseSession();
-		while (1)
-		{
-			const char *command;
-			// expect command then arguments, ; ends command, nullptr ends script
-			if (!String_Parse(&p, &command))
-			{
-				break;
-			}
+    if (item && s && s[0]) {
+        p = s;
+        COM_BeginParseSession();
+        while (1) {
+            const char* command;
+            // expect command then arguments, ; ends command, nullptr ends script
+            if (!String_Parse(&p, &command)) {
+                break;
+            }
 
-			if (command[0] == ';' && command[1] == '\0')
-			{
-				continue;
-			}
+            if (command[0] == ';' && command[1] == '\0') {
+                continue;
+            }
 
-			bRan = false;
-			for (i = 0; i < scriptCommandCount; i++)
-			{
-				if (Q_stricmp(command, commandList[i].name) == 0)
-				{
-					if ( !(commandList[i].handler(item, &p)) )
-					{
-						COM_EndParseSession();
-						return;
-					}
+            bRan = false;
+            for (i = 0; i < scriptCommandCount; i++) {
+                if (Q_stricmp(command, commandList[i].name) == 0) {
+                    if (!(commandList[i].handler(item, &p))) {
+                        COM_EndParseSession();
+                        return;
+                    }
 
-					bRan = true;
-					break;
-				}
-			}
-			// not in our auto list, pass to handler
-			if (!bRan)
-			{
-				// Allow any script command to fail
-				if ( !DC->runScript(&p) )
-				{
-					break;
-				}
-			}
-		}
-		COM_EndParseSession();
-	}
+                    bRan = true;
+                    break;
+                }
+            }
+            // not in our auto list, pass to handler
+            if (!bRan) {
+                // Allow any script command to fail
+                if (!DC->runScript(&p)) {
+                    break;
+                }
+            }
+        }
+        COM_EndParseSession();
+    }
 }
-
 
 /*
 ===============
@@ -5351,98 +5121,83 @@ Menu_SetupKeywordHash
 */
 void Menu_SetupKeywordHash(void)
 {
-	int i;
+    int i;
 
-	memset(menuParseKeywordHash, 0, sizeof(menuParseKeywordHash));
-	for (i = 0; menuParseKeywords[i].keyword; i++)
-	{
-		KeywordHash_Add(menuParseKeywordHash, &menuParseKeywords[i]);
-	}
+    memset(menuParseKeywordHash, 0, sizeof(menuParseKeywordHash));
+    for (i = 0; menuParseKeywords[i].keyword; i++) {
+        KeywordHash_Add(menuParseKeywordHash, &menuParseKeywords[i]);
+    }
 }
-
 
 /*
 ===============
 Menus_ActivateByName
 ===============
 */
-void Menu_HandleMouseMove(menuDef_t *menu, float x, float y);
-menuDef_t *Menus_ActivateByName(const char *p)
+void Menu_HandleMouseMove(menuDef_t* menu, float x, float y);
+menuDef_t* Menus_ActivateByName(const char* p)
 {
-	int i;
-	menuDef_t *m = nullptr;
-	menuDef_t *focus = Menu_GetFocused();
+    int i;
+    menuDef_t* m = nullptr;
+    menuDef_t* focus = Menu_GetFocused();
 
-	for (i = 0; i < menuCount; i++)
-	{
-		// Look for the name in the current list of windows
-		if (Q_stricmp(Menus[i].window.name, p) == 0)
-		{
-			m = &Menus[i];
-			Menus_Activate(m);
-			if (openMenuCount < MAX_OPEN_MENUS && focus != nullptr)
-			{
-				menuStack[openMenuCount++] = focus;
-			}
-		}
-		else
-		{
-			Menus[i].window.flags &= ~windowFlags_t::WINDOW_HASFOCUS;
-		}
-	}
+    for (i = 0; i < menuCount; i++) {
+        // Look for the name in the current list of windows
+        if (Q_stricmp(Menus[i].window.name, p) == 0) {
+            m = &Menus[i];
+            Menus_Activate(m);
+            if (openMenuCount < MAX_OPEN_MENUS && focus != nullptr) {
+                menuStack[openMenuCount++] = focus;
+            }
+        }
+        else {
+            Menus[i].window.flags &= ~windowFlags_t::WINDOW_HASFOCUS;
+        }
+    }
 
-	if (!m)
-	{	// A hack so we don't have to load all three mission menus before we know what tier we're on
-		if (!Q_stricmp( p, "ingameMissionSelect1" ) )
-		{
-			UI_LoadMenus("ui/tier1.txt",false);
-			Menus_CloseAll();
-			Menus_OpenByName("ingameMissionSelect1");
-		}
-		else if (!Q_stricmp( p, "ingameMissionSelect2" ) )
-		{
-			UI_LoadMenus("ui/tier2.txt",false);
-			Menus_CloseAll();
-			Menus_OpenByName("ingameMissionSelect2");
-		}
-		else if (!Q_stricmp( p, "ingameMissionSelect3" ) )
-		{
-			UI_LoadMenus("ui/tier3.txt",false);
-			Menus_CloseAll();
-			Menus_OpenByName("ingameMissionSelect3");
-		}
-		else
-		{
-			Com_Printf(S_COLOR_YELLOW"WARNING: Menus_ActivateByName: Unable to find menu \"%s\"\n",p);
-		}
-	}
+    if (!m) { // A hack so we don't have to load all three mission menus before we know what tier we're on
+        if (!Q_stricmp(p, "ingameMissionSelect1")) {
+            UI_LoadMenus("ui/tier1.txt", false);
+            Menus_CloseAll();
+            Menus_OpenByName("ingameMissionSelect1");
+        }
+        else if (!Q_stricmp(p, "ingameMissionSelect2")) {
+            UI_LoadMenus("ui/tier2.txt", false);
+            Menus_CloseAll();
+            Menus_OpenByName("ingameMissionSelect2");
+        }
+        else if (!Q_stricmp(p, "ingameMissionSelect3")) {
+            UI_LoadMenus("ui/tier3.txt", false);
+            Menus_CloseAll();
+            Menus_OpenByName("ingameMissionSelect3");
+        }
+        else {
+            Com_Printf(S_COLOR_YELLOW "WARNING: Menus_ActivateByName: Unable to find menu \"%s\"\n", p);
+        }
+    }
 
-	// First time, show force select instructions
-	if (!Q_stricmp( p, "ingameForceSelect" ) )
-	{
-		int	tier_storyinfo = Cvar_VariableIntegerValue( "tier_storyinfo" );
+    // First time, show force select instructions
+    if (!Q_stricmp(p, "ingameForceSelect")) {
+        int tier_storyinfo = Cvar_VariableIntegerValue("tier_storyinfo");
 
-		if (tier_storyinfo==1)
-		{
-			Menus_OpenByName("ingameForceHelp");
-		}
-	}
+        if (tier_storyinfo == 1) {
+            Menus_OpenByName("ingameForceHelp");
+        }
+    }
 
-	// First time, show weapons select instructions
-	if (!Q_stricmp( p, "ingameWpnSelect" ) )
-	{
-		int	tier_storyinfo = Cvar_VariableIntegerValue( "tier_storyinfo" );
+    // First time, show weapons select instructions
+    if (!Q_stricmp(p, "ingameWpnSelect")) {
+        int tier_storyinfo = Cvar_VariableIntegerValue("tier_storyinfo");
 
-		if (tier_storyinfo==1)
-		{
-			Menus_OpenByName("ingameWpnSelectHelp");
-		}
-	}
+        if (tier_storyinfo == 1) {
+            Menus_OpenByName("ingameWpnSelectHelp");
+        }
+    }
 
-	// Want to handle a mouse move on the new menu in case your already over an item
-	Menu_HandleMouseMove ( m, DC->cursorx, DC->cursory );
+    // Want to handle a mouse move on the new menu in case your already over an item
+    Menu_HandleMouseMove(m, DC->cursorx, DC->cursory);
 
-	return m;
+    return m;
 }
 
 /*
@@ -5450,116 +5205,112 @@ menuDef_t *Menus_ActivateByName(const char *p)
 Menus_Activate
 ===============
 */
-void  Menus_Activate(menuDef_t *menu)
+void Menus_Activate(menuDef_t* menu)
 {
-	menu->window.flags |= (windowFlags_t::WINDOW_HASFOCUS | windowFlags_t::WINDOW_VISIBLE);
+    menu->window.flags |= (windowFlags_t::WINDOW_HASFOCUS | windowFlags_t::WINDOW_VISIBLE);
 
-	if (menu->onOpen)
-	{
-		itemDef_t item;
-		item.parent = menu;
-		item.window.flags = windowFlags_t::WINDOW_NONE;	//err, item is fake here, but we want a valid flag before calling runscript
-		Item_RunScript(&item, menu->onOpen);
+    if (menu->onOpen) {
+        itemDef_t item;
+        item.parent = menu;
+        item.window.flags = windowFlags_t::WINDOW_NONE; // err, item is fake here, but we want a valid flag before calling runscript
+        Item_RunScript(&item, menu->onOpen);
 
-		if (Any( item.window.flags & windowFlags_t::WINDOW_SCRIPTWAITING ))	//in case runscript set waiting, copy it up to the menu
-		{
-			menu->window.flags |= windowFlags_t::WINDOW_SCRIPTWAITING;
-			menu->window.delayedScript = item.window.delayedScript;
-			menu->window.delayTime = item.window.delayTime;
-		}
-	}
+        if (Any(item.window.flags & windowFlags_t::WINDOW_SCRIPTWAITING)) // in case runscript set waiting, copy it up to the menu
+        {
+            menu->window.flags |= windowFlags_t::WINDOW_SCRIPTWAITING;
+            menu->window.delayedScript = item.window.delayedScript;
+            menu->window.delayTime = item.window.delayTime;
+        }
+    }
 
-//	menu->appearanceTime = DC->realTime + 1000;
-	menu->appearanceTime = 0;
-	menu->appearanceCnt = 0;
-
+    //	menu->appearanceTime = DC->realTime + 1000;
+    menu->appearanceTime = 0;
+    menu->appearanceCnt = 0;
 }
 
-static const char *g_bindCommands[] = {
-	"+altattack",
-	"+attack",
-	"+back",
+static const char* g_bindCommands[] = {"+altattack",
+                                       "+attack",
+                                       "+back",
 #ifndef JK2_MODE
-	"+force_drain",
+                                       "+force_drain",
 #endif
-	"+force_grip",
-	"+force_lightning",
-	"+forward",
-	"+left",
-	"+lookdown",
-	"+lookup",
-	"+mlook",
-	"+movedown",
-	"+moveleft",
-	"+moveright",
-	"+moveup",
-	"+right",
-	"+speed",
-	"+strafe",
-	"+use",
-	"+useforce",
-	"centerview",
-	"cg_thirdperson !",
-	"datapad",
-	"exitview",
+                                       "+force_grip",
+                                       "+force_lightning",
+                                       "+forward",
+                                       "+left",
+                                       "+lookdown",
+                                       "+lookup",
+                                       "+mlook",
+                                       "+movedown",
+                                       "+moveleft",
+                                       "+moveright",
+                                       "+moveup",
+                                       "+right",
+                                       "+speed",
+                                       "+strafe",
+                                       "+use",
+                                       "+useforce",
+                                       "centerview",
+                                       "cg_thirdperson !",
+                                       "datapad",
+                                       "exitview",
 #ifndef JK2_MODE
-	"force_absorb",
+                                       "force_absorb",
 #endif
-	"force_distract",
-	"force_heal",
+                                       "force_distract",
+                                       "force_heal",
 #ifndef JK2_MODE
-	"force_protect",
+                                       "force_protect",
 #endif
-	"force_pull",
+                                       "force_pull",
 #ifndef JK2_MODE
-	"force_rage",
-	"force_sight",
+                                       "force_rage",
+                                       "force_sight",
 #endif
-	"force_speed",
-	"force_throw",
-	"forcenext",
-	"forceprev",
-	"invnext",
-	"invprev",
-	"invuse",
-	"load auto",
+                                       "force_speed",
+                                       "force_throw",
+                                       "forcenext",
+                                       "forceprev",
+                                       "invnext",
+                                       "invprev",
+                                       "invuse",
+                                       "load auto",
 #ifdef JK2_MODE
-	"load quik",
+                                       "load quik",
 #else
-	"load quick",
+                                       "load quick",
 #endif
-	"saberAttackCycle",
+                                       "saberAttackCycle",
 #ifdef JK2_MODE
-	"save quik*",
+                                       "save quik*",
 #else
-	"save quick",
+                                       "save quick",
 #endif
-	"taunt",
-	"uimenu ingameloadmenu",
-	"uimenu ingamesavemenu",
-	"use_bacta",
-	"use_electrobinoculars",
-	"use_lightamp_goggles",
-	"use_seeker",
-	"use_sentry",
-	"weapnext",
-	"weapon 0",
-	"weapon 1",
-	"weapon 10",
-	"weapon 11",
-	"weapon 12",
-	"weapon 13",
-	"weapon 2",
-	"weapon 3",
-	"weapon 4",
-	"weapon 5",
-	"weapon 6",
-	"weapon 7",
-	"weapon 8",
-	"weapon 9",
-	"weapprev",
-	"zoom"
-};
+                                       "taunt",
+                                       "uimenu ingameloadmenu",
+                                       "uimenu ingamesavemenu",
+                                       "use_bacta",
+                                       "use_electrobinoculars",
+                                       "use_lightamp_goggles",
+                                       "use_seeker",
+                                       "use_sentry",
+                                       "weapnext",
+                                       "weapon 0",
+                                       "weapon 1",
+                                       "weapon 10",
+                                       "weapon 11",
+                                       "weapon 12",
+                                       "weapon 13",
+                                       "weapon 2",
+                                       "weapon 3",
+                                       "weapon 4",
+                                       "weapon 5",
+                                       "weapon 6",
+                                       "weapon 7",
+                                       "weapon 8",
+                                       "weapon 9",
+                                       "weapprev",
+                                       "zoom"};
 
 #define g_bindCount ARRAY_LEN(g_bindCommands)
 
@@ -5570,24 +5321,24 @@ static std::optional<fakeAscii_t> g_bindKeys[g_bindCount][2];
 Controls_GetKeyAssignment
 =================
 */
-static void Controls_GetKeyAssignment( const char *command, std::optional<fakeAscii_t> *twokeys )
+static void Controls_GetKeyAssignment(const char* command, std::optional<fakeAscii_t>* twokeys)
 {
-	int		count;
-	fakeAscii_t	j;
-	char	b[256];
+    int count;
+    fakeAscii_t j;
+    char b[256];
 
-	twokeys[0] = twokeys[1] = std::nullopt;
-	count = 0;
+    twokeys[0] = twokeys[1] = std::nullopt;
+    count = 0;
 
-	for ( j=fakeAscii_t::A_NULL; j<fakeAscii_t::MAX_KEYS; j++ ) {
-		DC->getBindingBuf( j, b, sizeof( b ) );
-		if ( *b && !Q_stricmp( b, command ) ) {
-			twokeys[count] = j;
-			count++;
-			if ( count == 2 )
-				break;
-		}
-	}
+    for (j = fakeAscii_t::A_NULL; j < fakeAscii_t::MAX_KEYS; j++) {
+        DC->getBindingBuf(j, b, sizeof(b));
+        if (*b && !Q_stricmp(b, command)) {
+            twokeys[count] = j;
+            count++;
+            if (count == 2)
+                break;
+        }
+    }
 }
 
 /*
@@ -5595,77 +5346,67 @@ static void Controls_GetKeyAssignment( const char *command, std::optional<fakeAs
 Controls_GetConfig
 =================
 */
-void Controls_GetConfig( void )
+void Controls_GetConfig(void)
 {
-	size_t	i;
+    size_t i;
 
-	// iterate each command, get its numeric binding
-	for ( i = 0; i < g_bindCount; i++ )
-		Controls_GetKeyAssignment( g_bindCommands[i], g_bindKeys[i] );
+    // iterate each command, get its numeric binding
+    for (i = 0; i < g_bindCount; i++)
+        Controls_GetKeyAssignment(g_bindCommands[i], g_bindKeys[i]);
 }
-
 
 /*
 ===============
 Item_SetScreenCoords
 ===============
 */
-void Item_SetScreenCoords(itemDef_t *item, float x, float y)
+void Item_SetScreenCoords(itemDef_t* item, float x, float y)
 {
 
-	if (item == nullptr)
-	{
-		return;
-	}
+    if (item == nullptr) {
+        return;
+    }
 
-	if (item->window.border != 0)
-	{
-		x += item->window.borderSize;
-		y += item->window.borderSize;
-	}
+    if (item->window.border != 0) {
+        x += item->window.borderSize;
+        y += item->window.borderSize;
+    }
 
-	item->window.rect.x = x + item->window.rectClient.x;
-	item->window.rect.y = y + item->window.rectClient.y;
-	item->window.rect.w = item->window.rectClient.w;
-	item->window.rect.h = item->window.rectClient.h;
+    item->window.rect.x = x + item->window.rectClient.x;
+    item->window.rect.y = y + item->window.rectClient.y;
+    item->window.rect.w = item->window.rectClient.w;
+    item->window.rect.h = item->window.rectClient.h;
 
-	// force the text rects to recompute
-	item->textRect.w = 0;
-	item->textRect.h = 0;
+    // force the text rects to recompute
+    item->textRect.w = 0;
+    item->textRect.h = 0;
 
-	switch ( item->type)
-	{
-		case ITEM_TYPE_TEXTSCROLL:
-		{
-			textScrollDef_t *scrollPtr = (textScrollDef_t*)item->typeData;
-			if ( scrollPtr )
-			{
-				scrollPtr->startPos = 0;
-				scrollPtr->endPos = 0;
-			}
+    switch (item->type) {
+    case ITEM_TYPE_TEXTSCROLL: {
+        textScrollDef_t* scrollPtr = (textScrollDef_t*)item->typeData;
+        if (scrollPtr) {
+            scrollPtr->startPos = 0;
+            scrollPtr->endPos = 0;
+        }
 
-			Item_TextScroll_BuildLines ( item );
+        Item_TextScroll_BuildLines(item);
 
-			break;
-		}
-	}
+        break;
+    }
+    }
 }
 
-
-static void Menu_FreeGhoulItems(menuDef_t *menu)
+static void Menu_FreeGhoulItems(menuDef_t* menu)
 {
-	int i,j;
-	for (i = 0; i < menu->itemCount; i++)
-	{
-		for (j=0; j < menu->items[i]->ghoul2.size(); j++)
-		{
-			if ( menu->items[i]->ghoul2[j].mModelindex >= 0)
-			{
-				DC->g2_RemoveGhoul2Model( menu->items[i]->ghoul2, j );
-			}
-		}
-		(menu->items[i]->ghoul2).clear();	//clear is the public Free so i can actually remove this slot
-	}
+    int i, j;
+    for (i = 0; i < menu->itemCount; i++) {
+        for (j = 0; j < menu->items[i]->ghoul2.size(); j++) {
+            if (menu->items[i]->ghoul2[j].mModelindex >= 0) {
+                DC->g2_RemoveGhoul2Model(menu->items[i]->ghoul2, j);
+            }
+        }
+        (menu->items[i]->ghoul2).clear(); // clear is the public Free so i can actually remove this slot
+    }
 }
 /*
 ===============
@@ -5674,15 +5415,14 @@ Menu_Reset
 */
 void Menu_Reset(void)
 {
-	//FIXME iterate menus to destoy G2 assets.
-	int i;
+    // FIXME iterate menus to destoy G2 assets.
+    int i;
 
-	for (i = 0; i < menuCount; i++)
-	{
-		Menu_FreeGhoulItems( &Menus[i] );
-	}
+    for (i = 0; i < menuCount; i++) {
+        Menu_FreeGhoulItems(&Menus[i]);
+    }
 
-	menuCount = 0;
+    menuCount = 0;
 }
 
 /*
@@ -5690,28 +5430,25 @@ void Menu_Reset(void)
 Menu_UpdatePosition
 ===============
 */
-void Menu_UpdatePosition(menuDef_t *menu)
+void Menu_UpdatePosition(menuDef_t* menu)
 {
-  int i;
-  float x, y;
+    int i;
+    float x, y;
 
-  if (menu == nullptr)
-  {
-    return;
-  }
+    if (menu == nullptr) {
+        return;
+    }
 
-  x = menu->window.rect.x;
-  y = menu->window.rect.y;
-  if (menu->window.border != 0)
-  {
-    x += menu->window.borderSize;
-    y += menu->window.borderSize;
-  }
+    x = menu->window.rect.x;
+    y = menu->window.rect.y;
+    if (menu->window.border != 0) {
+        x += menu->window.borderSize;
+        y += menu->window.borderSize;
+    }
 
-  for (i = 0; i < menu->itemCount; i++)
-  {
-    Item_SetScreenCoords(menu->items[i], x, y);
-  }
+    for (i = 0; i < menu->itemCount; i++) {
+        Item_SetScreenCoords(menu->items[i], x, y);
+    }
 }
 
 /*
@@ -5719,21 +5456,19 @@ void Menu_UpdatePosition(menuDef_t *menu)
 Menu_PostParse
 ===============
 */
-void Menu_PostParse(menuDef_t *menu)
+void Menu_PostParse(menuDef_t* menu)
 {
-	if (menu == nullptr)
-	{
-		return;
-	}
+    if (menu == nullptr) {
+        return;
+    }
 
-	if (menu->fullScreen)
-	{
-		menu->window.rect.x = 0;
-		menu->window.rect.y = 0;
-		menu->window.rect.w = 640;
-		menu->window.rect.h = 480;
-	}
-	Menu_UpdatePosition(menu);
+    if (menu->fullScreen) {
+        menu->window.rect.x = 0;
+        menu->window.rect.y = 0;
+        menu->window.rect.w = 640;
+        menu->window.rect.h = 480;
+    }
+    Menu_UpdatePosition(menu);
 }
 
 /*
@@ -5741,21 +5476,20 @@ void Menu_PostParse(menuDef_t *menu)
 Menu_Init
 ===============
 */
-void Menu_Init(menuDef_t *menu)
+void Menu_Init(menuDef_t* menu)
 {
-	memset(menu, 0, sizeof(menuDef_t));
-	menu->cursorItem = -1;
+    memset(menu, 0, sizeof(menuDef_t));
+    menu->cursorItem = -1;
 
-	UI_Cursor_Show(true);
+    UI_Cursor_Show(true);
 
-	if (DC)
-	{
-		menu->fadeAmount = DC->Assets.fadeAmount;
-		menu->fadeClamp = DC->Assets.fadeClamp;
-		menu->fadeCycle = DC->Assets.fadeCycle;
-	}
+    if (DC) {
+        menu->fadeAmount = DC->Assets.fadeAmount;
+        menu->fadeClamp = DC->Assets.fadeClamp;
+        menu->fadeCycle = DC->Assets.fadeCycle;
+    }
 
-	Window_Init(&menu->window);
+    Window_Init(&menu->window);
 }
 
 /*
@@ -5763,63 +5497,55 @@ void Menu_Init(menuDef_t *menu)
 Menu_Parse
 ===============
 */
-bool Menu_Parse(char *inbuffer, menuDef_t *menu)
+bool Menu_Parse(char* inbuffer, menuDef_t* menu)
 {
-//	pc_token_t token;
-	keywordHash_t *key;
-	char	*token2;
-	char * buffer;
-	bool nest= false;
-	buffer = inbuffer;
+    //	pc_token_t token;
+    keywordHash_t* key;
+    char* token2;
+    char* buffer;
+    bool nest = false;
+    buffer = inbuffer;
 
-	token2 = PC_ParseExt();
+    token2 = PC_ParseExt();
 
-	if (!token2)
-	{
-		return false;
-	}
+    if (!token2) {
+        return false;
+    }
 
-	if (*token2 != '{')
-	{
-		PC_ParseWarning("Misplaced {");
-		return false;
-	}
-	while ( 1 )
-	{
+    if (*token2 != '{') {
+        PC_ParseWarning("Misplaced {");
+        return false;
+    }
+    while (1) {
 
-		token2 = PC_ParseExt();
-		if (!token2)
-		{
-			PC_ParseWarning("End of file inside menu.");
-			return false;
-		}
+        token2 = PC_ParseExt();
+        if (!token2) {
+            PC_ParseWarning("End of file inside menu.");
+            return false;
+        }
 
-		if (*token2 == '}')
-		{
-			return true;
-		}
+        if (*token2 == '}') {
+            return true;
+        }
 
-		if (nest && (*token2 == 0))
-		{
-			PC_EndParseSession(buffer);
+        if (nest && (*token2 == 0)) {
+            PC_EndParseSession(buffer);
 
-			nest = false;
-			continue;
-		}
-		key = KeywordHash_Find(menuParseKeywordHash, token2);
+            nest = false;
+            continue;
+        }
+        key = KeywordHash_Find(menuParseKeywordHash, token2);
 
-		if (!key)
-		{
-			PC_ParseWarning(va("Unknown menu keyword %s",token2));
-			continue;
-		}
+        if (!key) {
+            PC_ParseWarning(va("Unknown menu keyword %s", token2));
+            continue;
+        }
 
-		if ( !key->func((itemDef_t*)menu) )
-		{
-			PC_ParseWarning(va("Couldn't parse menu keyword %s as %s",token2, key->keyword));
-			return false;
-		}
-	}
+        if (!key->func((itemDef_t*)menu)) {
+            PC_ParseWarning(va("Couldn't parse menu keyword %s as %s", token2, key->keyword));
+            return false;
+        }
+    }
 }
 
 /*
@@ -5827,19 +5553,17 @@ bool Menu_Parse(char *inbuffer, menuDef_t *menu)
 Menu_New
 ===============
 */
-void Menu_New(char *buffer)
+void Menu_New(char* buffer)
 {
-	menuDef_t *menu = &Menus[menuCount];
+    menuDef_t* menu = &Menus[menuCount];
 
-	if (menuCount < MAX_MENUS)
-	{
-		Menu_Init(menu);
-		if (Menu_Parse(buffer, menu))
-		{
-			Menu_PostParse(menu);
-			menuCount++;
-		}
-	}
+    if (menuCount < MAX_MENUS) {
+        Menu_Init(menu);
+        if (Menu_Parse(buffer, menu)) {
+            Menu_PostParse(menu);
+            menuCount++;
+        }
+    }
 }
 
 /*
@@ -5847,18 +5571,17 @@ void Menu_New(char *buffer)
 Menus_CloseAll
 ===============
 */
-void  Menus_CloseAll(void)
+void Menus_CloseAll(void)
 {
-	int i;
+    int i;
 
-	for (i = 0; i < menuCount; i++)
-	{
-		Menu_RunCloseScript ( &Menus[i] );
-		Menus[i].window.flags &= ~(windowFlags_t::WINDOW_HASFOCUS | windowFlags_t::WINDOW_VISIBLE);
-	}
+    for (i = 0; i < menuCount; i++) {
+        Menu_RunCloseScript(&Menus[i]);
+        Menus[i].window.flags &= ~(windowFlags_t::WINDOW_HASFOCUS | windowFlags_t::WINDOW_VISIBLE);
+    }
 
-	// Clear the menu stack
-	openMenuCount = 0;
+    // Clear the menu stack
+    openMenuCount = 0;
 }
 
 /*
@@ -5867,24 +5590,23 @@ PC_StartParseSession
 ===============
 */
 
-int PC_StartParseSession(const char *fileName,char **buffer)
+int PC_StartParseSession(const char* fileName, char** buffer)
 {
-	int	len;
+    int len;
 
-	// Try to open file and read it in.
-	len = ui.FS_ReadFile( fileName,(void **) buffer  );
+    // Try to open file and read it in.
+    len = ui.FS_ReadFile(fileName, (void**)buffer);
 
-	// Not there?
-	if ( len>0 )
-	{
-		COM_BeginParseSession();
+    // Not there?
+    if (len > 0) {
+        COM_BeginParseSession();
 
-		Q_strncpyz(parseData[parseDataCount].fileName, fileName, sizeof (parseData[0].fileName));
-		parseData[parseDataCount].bufferStart = *buffer;
-		parseData[parseDataCount].bufferCurrent = *buffer;
-	}
+        Q_strncpyz(parseData[parseDataCount].fileName, fileName, sizeof(parseData[0].fileName));
+        parseData[parseDataCount].bufferStart = *buffer;
+        parseData[parseDataCount].bufferCurrent = *buffer;
+    }
 
-	return len;
+    return len;
 }
 
 /*
@@ -5892,10 +5614,10 @@ int PC_StartParseSession(const char *fileName,char **buffer)
 PC_EndParseSession
 ===============
 */
-void PC_EndParseSession(char *buffer)
+void PC_EndParseSession(char* buffer)
 {
-	COM_EndParseSession();
-	ui.FS_FreeFile( buffer );	//let go of the buffer
+    COM_EndParseSession();
+    ui.FS_FreeFile(buffer); // let go of the buffer
 }
 
 /*
@@ -5903,59 +5625,57 @@ void PC_EndParseSession(char *buffer)
 PC_ParseWarning
 ===============
 */
-void PC_ParseWarning(const char *message)
+void PC_ParseWarning(const char* message)
 {
-	ui.Printf(S_COLOR_YELLOW "WARNING: %s Line #%d of File '%s'\n", message,parseData[parseDataCount].com_lines,parseData[parseDataCount].fileName);
+    ui.Printf(S_COLOR_YELLOW "WARNING: %s Line #%d of File '%s'\n", message, parseData[parseDataCount].com_lines, parseData[parseDataCount].fileName);
 }
 
-char *PC_ParseExt(void)
+char* PC_ParseExt(void)
 {
-	if(parseDataCount < 0)
-		Com_Error(errorParm_t::ERR_FATAL, "PC_ParseExt: parseDataCount < 0 (be sure to call PC_StartParseSession!)");
-	return (COM_ParseExt(&parseData[parseDataCount].bufferCurrent, true));
+    if (parseDataCount < 0)
+        Com_Error(errorParm_t::ERR_FATAL, "PC_ParseExt: parseDataCount < 0 (be sure to call PC_StartParseSession!)");
+    return (COM_ParseExt(&parseData[parseDataCount].bufferCurrent, true));
 }
 
-bool PC_ParseString(const char **string)
+bool PC_ParseString(const char** string)
 {
-	int	hold;
+    int hold;
 
-	if(parseDataCount < 0)
-		Com_Error(errorParm_t::ERR_FATAL, "PC_ParseString: parseDataCount < 0 (be sure to call PC_StartParseSession!)");
+    if (parseDataCount < 0)
+        Com_Error(errorParm_t::ERR_FATAL, "PC_ParseString: parseDataCount < 0 (be sure to call PC_StartParseSession!)");
 
-	hold = COM_ParseString(&parseData[parseDataCount].bufferCurrent,string);
+    hold = COM_ParseString(&parseData[parseDataCount].bufferCurrent, string);
 
-	while (hold==0 && **string == 0)
-	{
-		hold = COM_ParseString(&parseData[parseDataCount].bufferCurrent,string);
-	}
+    while (hold == 0 && **string == 0) {
+        hold = COM_ParseString(&parseData[parseDataCount].bufferCurrent, string);
+    }
 
-	return (hold != 0);
+    return (hold != 0);
 }
 
-bool PC_ParseInt(int *number)
+bool PC_ParseInt(int* number)
 {
-	if(parseDataCount < 0)
-		Com_Error(errorParm_t::ERR_FATAL, "PC_ParseInt: parseDataCount < 0 (be sure to call PC_StartParseSession!)");
+    if (parseDataCount < 0)
+        Com_Error(errorParm_t::ERR_FATAL, "PC_ParseInt: parseDataCount < 0 (be sure to call PC_StartParseSession!)");
 
-	return(COM_ParseInt(&parseData[parseDataCount].bufferCurrent,number));
+    return (COM_ParseInt(&parseData[parseDataCount].bufferCurrent, number));
 }
 
-bool PC_ParseFloat(float *number)
+bool PC_ParseFloat(float* number)
 {
-	if(parseDataCount < 0)
-		Com_Error(errorParm_t::ERR_FATAL, "PC_ParseFloat: parseDataCount < 0 (be sure to call PC_StartParseSession!)");
+    if (parseDataCount < 0)
+        Com_Error(errorParm_t::ERR_FATAL, "PC_ParseFloat: parseDataCount < 0 (be sure to call PC_StartParseSession!)");
 
-	return(COM_ParseFloat(&parseData[parseDataCount].bufferCurrent,number));
+    return (COM_ParseFloat(&parseData[parseDataCount].bufferCurrent, number));
 }
 
-bool PC_ParseColor(vec4_t *color)
+bool PC_ParseColor(vec4_t* color)
 {
-	if(parseDataCount < 0)
-		Com_Error(errorParm_t::ERR_FATAL, "PC_ParseColor: parseDataCount < 0 (be sure to call PC_StartParseSession!)");
+    if (parseDataCount < 0)
+        Com_Error(errorParm_t::ERR_FATAL, "PC_ParseColor: parseDataCount < 0 (be sure to call PC_StartParseSession!)");
 
-	return(COM_ParseVec4(&parseData[parseDataCount].bufferCurrent, color));
+    return (COM_ParseVec4(&parseData[parseDataCount].bufferCurrent, color));
 }
-
 
 /*
 =================
@@ -5964,7 +5684,7 @@ Menu_Count
 */
 int Menu_Count(void)
 {
-	return menuCount;
+    return menuCount;
 }
 
 /*
@@ -5974,23 +5694,20 @@ Menu_PaintAll
 */
 void Menu_PaintAll(void)
 {
-	int i;
-	if (captureFunc)
-	{
-		captureFunc(captureData);
-	}
+    int i;
+    if (captureFunc) {
+        captureFunc(captureData);
+    }
 
-	for (i = 0; i < menuCount; i++)
-	{
-		Menu_Paint(&Menus[i], false);
-	}
+    for (i = 0; i < menuCount; i++) {
+        Menu_Paint(&Menus[i], false);
+    }
 
-	if (uis.debugMode)
-	{
-		vec4_t v = {1, 1, 1, 1};
-		DC->drawText(5, 25, .75, v, va("(%d,%d)",DC->cursorx,DC->cursory), 0, 0, DC->Assets.qhMediumFont);
-		DC->drawText(5, 10, .75, v, va("fps: %f", DC->FPS), 0, 0, DC->Assets.qhMediumFont);
-	}
+    if (uis.debugMode) {
+        vec4_t v = {1, 1, 1, 1};
+        DC->drawText(5, 25, .75, v, va("(%d,%d)", DC->cursorx, DC->cursory), 0, 0, DC->Assets.qhMediumFont);
+        DC->drawText(5, 10, .75, v, va("fps: %f", DC->FPS), 0, 0, DC->Assets.qhMediumFont);
+    }
 }
 
 /*
@@ -5998,112 +5715,98 @@ void Menu_PaintAll(void)
 Menu_Paint
 =================
 */
-void Menu_Paint(menuDef_t *menu, bool forcePaint)
+void Menu_Paint(menuDef_t* menu, bool forcePaint)
 {
-	int i;
+    int i;
 
-	if (menu == nullptr)
-	{
-		return;
-	}
+    if (menu == nullptr) {
+        return;
+    }
 
-	if (Any( menu->window.flags & windowFlags_t::WINDOW_SCRIPTWAITING ))
-	{
-		if (DC->realTime > menu->window.delayTime)
-		{ // Time has elapsed, resume running whatever script we saved
-			itemDef_t item;
-			item.parent = menu;
-			item.window.flags = windowFlags_t::WINDOW_NONE;	//clear before calling RunScript
-			menu->window.flags &= ~windowFlags_t::WINDOW_SCRIPTWAITING;
-			Item_RunScript(&item, menu->window.delayedScript);
+    if (Any(menu->window.flags & windowFlags_t::WINDOW_SCRIPTWAITING)) {
+        if (DC->realTime > menu->window.delayTime) { // Time has elapsed, resume running whatever script we saved
+            itemDef_t item;
+            item.parent = menu;
+            item.window.flags = windowFlags_t::WINDOW_NONE; // clear before calling RunScript
+            menu->window.flags &= ~windowFlags_t::WINDOW_SCRIPTWAITING;
+            Item_RunScript(&item, menu->window.delayedScript);
 
-			// Could have hit another delay. Need to hoist from fake item
-			if (Any( item.window.flags & windowFlags_t::WINDOW_SCRIPTWAITING ))
-			{
-				menu->window.flags |= windowFlags_t::WINDOW_SCRIPTWAITING;
-				menu->window.delayedScript = item.window.delayedScript;
-				menu->window.delayTime = item.window.delayTime;
-			}
-		}
-	}
+            // Could have hit another delay. Need to hoist from fake item
+            if (Any(item.window.flags & windowFlags_t::WINDOW_SCRIPTWAITING)) {
+                menu->window.flags |= windowFlags_t::WINDOW_SCRIPTWAITING;
+                menu->window.delayedScript = item.window.delayedScript;
+                menu->window.delayTime = item.window.delayTime;
+            }
+        }
+    }
 
-	if (!Any( menu->window.flags & windowFlags_t::WINDOW_VISIBLE ) &&  !forcePaint)
-	{
-		return;
-	}
+    if (!Any(menu->window.flags & windowFlags_t::WINDOW_VISIBLE) && !forcePaint) {
+        return;
+    }
 
-//	if (menu->window.ownerDrawFlags && DC->ownerDrawVisible && !DC->ownerDrawVisible(menu->window.ownerDrawFlags))
-//	{
-//		return;
-//	}
+    //	if (menu->window.ownerDrawFlags && DC->ownerDrawVisible && !DC->ownerDrawVisible(menu->window.ownerDrawFlags))
+    //	{
+    //		return;
+    //	}
 
-	if (forcePaint)
-	{
-		menu->window.flags |= windowFlags_t::WINDOW_FORCED;
-	}
+    if (forcePaint) {
+        menu->window.flags |= windowFlags_t::WINDOW_FORCED;
+    }
 
-	// draw the background if necessary
-	if (menu->fullScreen)
-	{
+    // draw the background if necessary
+    if (menu->fullScreen) {
 
-		vec4_t	color;
-		color[0] = menu->window.backColor[0];
-		color[1] = menu->window.backColor[1];
-		color[2] = menu->window.backColor[2];
-		color[3] = menu->window.backColor[3];
+        vec4_t color;
+        color[0] = menu->window.backColor[0];
+        color[1] = menu->window.backColor[1];
+        color[2] = menu->window.backColor[2];
+        color[3] = menu->window.backColor[3];
 
-		ui.R_SetColor( color);
+        ui.R_SetColor(color);
 
-		if (menu->window.background==0)	// No background shader given? Make it blank
-		{
-			menu->window.background = uis.whiteShader;
-		}
+        if (menu->window.background == 0) // No background shader given? Make it blank
+        {
+            menu->window.background = uis.whiteShader;
+        }
 
-		DC->drawHandlePic( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, menu->window.background );
-	}
-	else if (menu->window.background)
-	{
-		// this allows a background shader without being full screen
-		//UI_DrawHandlePic(menu->window.rect.x, menu->window.rect.y, menu->window.rect.w, menu->window.rect.h, menu->backgroundShader);
-	}
+        DC->drawHandlePic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, menu->window.background);
+    }
+    else if (menu->window.background) {
+        // this allows a background shader without being full screen
+        // UI_DrawHandlePic(menu->window.rect.x, menu->window.rect.y, menu->window.rect.w, menu->window.rect.h, menu->backgroundShader);
+    }
 
-	// paint the background and or border
-	Window_Paint(&menu->window, menu->fadeAmount, menu->fadeClamp, menu->fadeCycle );
+    // paint the background and or border
+    Window_Paint(&menu->window, menu->fadeAmount, menu->fadeClamp, menu->fadeCycle);
 
-	// Loop through all items for the menu and paint them
-	int iSlotsVisible = 0;
-	for (i = 0; i < menu->itemCount; i++)
-	{
-		if (!menu->items[i]->appearanceSlot)
-		{
-			Item_Paint(menu->items[i], true);
-		}
-		else // Timed order of appearance
-		{
-			if (Item_Paint(menu->items[i], false) )
-			{
-				iSlotsVisible++;	//It would paint
-			}
-			if (menu->items[i]->appearanceSlot<=menu->appearanceCnt)
-			{
-				Item_Paint(menu->items[i], true);
-			}
-		}
-	}
-	if (iSlotsVisible && menu->appearanceTime < DC->realTime && menu->appearanceCnt < menu->itemCount)	// Time to show another item
-	{
-		menu->appearanceTime = DC->realTime + menu->appearanceIncrement;
-		menu->appearanceCnt++;
-	}
+    // Loop through all items for the menu and paint them
+    int iSlotsVisible = 0;
+    for (i = 0; i < menu->itemCount; i++) {
+        if (!menu->items[i]->appearanceSlot) {
+            Item_Paint(menu->items[i], true);
+        }
+        else // Timed order of appearance
+        {
+            if (Item_Paint(menu->items[i], false)) {
+                iSlotsVisible++; // It would paint
+            }
+            if (menu->items[i]->appearanceSlot <= menu->appearanceCnt) {
+                Item_Paint(menu->items[i], true);
+            }
+        }
+    }
+    if (iSlotsVisible && menu->appearanceTime < DC->realTime && menu->appearanceCnt < menu->itemCount) // Time to show another item
+    {
+        menu->appearanceTime = DC->realTime + menu->appearanceIncrement;
+        menu->appearanceCnt++;
+    }
 
-
-	if (uis.debugMode)
-	{
-		vec4_t color;
-		color[0] = color[2] = color[3] = 1;
-		color[1] = 0;
-		DC->drawRect(menu->window.rect.x, menu->window.rect.y, menu->window.rect.w, menu->window.rect.h, 1, color);
-	}
+    if (uis.debugMode) {
+        vec4_t color;
+        color[0] = color[2] = color[3] = 1;
+        color[1] = 0;
+        DC->drawRect(menu->window.rect.x, menu->window.rect.y, menu->window.rect.w, menu->window.rect.h, 1, color);
+    }
 }
 
 /*
@@ -6111,91 +5814,79 @@ void Menu_Paint(menuDef_t *menu, bool forcePaint)
 Item_EnableShowViaCvar
 =================
 */
-bool Item_EnableShowViaCvar(itemDef_t *item, itemCvarFlags_t flag)
+bool Item_EnableShowViaCvar(itemDef_t* item, itemCvarFlags_t flag)
 {
-	if (item && item->enableCvar && *item->enableCvar && item->cvarTest && *item->cvarTest)
-	{
-		char script[1024];
-		const char *p;
-		char buff[1024];
-		if (Any( item->cvarFlags & itemCvarFlags_t::CVAR_SUBSTRING ))
-		{
-			const char *val;
-			p = item->enableCvar;
-			COM_BeginParseSession();
-			if (!String_Parse(&p, &val))
-			{//strip the quotes off
-				COM_EndParseSession();
-				return Any( item->cvarFlags & flag ) ? false : true;
-			}
+    if (item && item->enableCvar && *item->enableCvar && item->cvarTest && *item->cvarTest) {
+        char script[1024];
+        const char* p;
+        char buff[1024];
+        if (Any(item->cvarFlags & itemCvarFlags_t::CVAR_SUBSTRING)) {
+            const char* val;
+            p = item->enableCvar;
+            COM_BeginParseSession();
+            if (!String_Parse(&p, &val)) { // strip the quotes off
+                COM_EndParseSession();
+                return Any(item->cvarFlags & flag) ? false : true;
+            }
 
-			COM_EndParseSession();
-			Q_strncpyz(buff, val, sizeof(buff));
-			DC->getCVarString(item->cvarTest, script, sizeof(script));
-			p = script;
-		}
-		else
-		{
-			DC->getCVarString(item->cvarTest, buff, sizeof(buff));
-			Q_strncpyz(script, item->enableCvar, sizeof(script));
-			p = script;
-		}
-		COM_BeginParseSession();
-		while (1)
-		{
-			const char *val;
-			// expect value then ; or nullptr, nullptr ends list
-			if (!String_Parse(&p, &val))
-			{
-				COM_EndParseSession();
-				return Any( item->cvarFlags & flag ) ? false : true;
-			}
+            COM_EndParseSession();
+            Q_strncpyz(buff, val, sizeof(buff));
+            DC->getCVarString(item->cvarTest, script, sizeof(script));
+            p = script;
+        }
+        else {
+            DC->getCVarString(item->cvarTest, buff, sizeof(buff));
+            Q_strncpyz(script, item->enableCvar, sizeof(script));
+            p = script;
+        }
+        COM_BeginParseSession();
+        while (1) {
+            const char* val;
+            // expect value then ; or nullptr, nullptr ends list
+            if (!String_Parse(&p, &val)) {
+                COM_EndParseSession();
+                return Any(item->cvarFlags & flag) ? false : true;
+            }
 
-			if (val[0] == ';' && val[1] == '\0')
-			{
-				continue;
-			}
+            if (val[0] == ';' && val[1] == '\0') {
+                continue;
+            }
 
-			// enable it if any of the values are true
-			if (Any( item->cvarFlags & flag ))
-			{
-				if (Q_stricmp(buff, val) == 0)
-				{
-					COM_EndParseSession();
-					return true;
-				}
-			}
-			else
-			{
-				// disable it if any of the values are true
-				if (Q_stricmp(buff, val) == 0)
-				{
-					COM_EndParseSession();
-					return false;
-				}
-			}
-		}
-		COM_EndParseSession();
-		return Any( item->cvarFlags & flag ) ? false : true;
-	}
-	return true;
+            // enable it if any of the values are true
+            if (Any(item->cvarFlags & flag)) {
+                if (Q_stricmp(buff, val) == 0) {
+                    COM_EndParseSession();
+                    return true;
+                }
+            }
+            else {
+                // disable it if any of the values are true
+                if (Q_stricmp(buff, val) == 0) {
+                    COM_EndParseSession();
+                    return false;
+                }
+            }
+        }
+        COM_EndParseSession();
+        return Any(item->cvarFlags & flag) ? false : true;
+    }
+    return true;
 }
 
-bool HasStringLanguageChanged ( const itemDef_t *item )
+bool HasStringLanguageChanged(const itemDef_t* item)
 {
-	if ( !item->text || item->text[0] == '\0' )
-	{
-		return false;
-	}
+    if (!item->text || item->text[0] == '\0') {
+        return false;
+    }
 
-	int modificationCount;
+    int modificationCount;
 #ifdef JK2_MODE
-	modificationCount = sp_language->modificationCount;
+    modificationCount = sp_language->modificationCount;
 #else
-	modificationCount = se_language->modificationCount;
+    modificationCount = se_language->modificationCount;
 #endif
 
-	return item->asset != modificationCount;
+    return item->asset != modificationCount;
 }
 
 /*
@@ -6203,63 +5894,55 @@ bool HasStringLanguageChanged ( const itemDef_t *item )
 Item_SetTextExtents
 =================
 */
-void Item_SetTextExtents(itemDef_t *item, int *width, int *height, const char *text)
+void Item_SetTextExtents(itemDef_t* item, int* width, int* height, const char* text)
 {
-	const char *textPtr = (text) ? text : item->text;
+    const char* textPtr = (text) ? text : item->text;
 
-	if (textPtr == nullptr )
-	{
-		return;
-	}
+    if (textPtr == nullptr) {
+        return;
+    }
 
-	*width = item->textRect.w;
-	*height = item->textRect.h;
+    *width = item->textRect.w;
+    *height = item->textRect.h;
 
-	// keeps us from computing the widths and heights more than once
-	if (*width == 0 ||
-		(item->type == ITEM_TYPE_OWNERDRAW && item->textalignment == ITEM_ALIGN_CENTER) ||
-		HasStringLanguageChanged (item))
-	{
-		int originalWidth;
+    // keeps us from computing the widths and heights more than once
+    if (*width == 0 || (item->type == ITEM_TYPE_OWNERDRAW && item->textalignment == ITEM_ALIGN_CENTER) || HasStringLanguageChanged(item)) {
+        int originalWidth;
 
-		originalWidth = DC->textWidth(textPtr, item->textscale, item->font);
+        originalWidth = DC->textWidth(textPtr, item->textscale, item->font);
 
-		if (item->type == ITEM_TYPE_OWNERDRAW && (item->textalignment == ITEM_ALIGN_CENTER || item->textalignment == ITEM_ALIGN_RIGHT))
-		{
-			originalWidth += DC->ownerDrawWidth(item->window.ownerDraw, item->textscale);
-		}
-		else if (item->type == ITEM_TYPE_EDITFIELD && item->textalignment == ITEM_ALIGN_CENTER && item->cvar)
-		{
-			char buff[256];
-			DC->getCVarString(item->cvar, buff, 256);
-			originalWidth += DC->textWidth(buff, item->textscale, item->font);
-		}
+        if (item->type == ITEM_TYPE_OWNERDRAW && (item->textalignment == ITEM_ALIGN_CENTER || item->textalignment == ITEM_ALIGN_RIGHT)) {
+            originalWidth += DC->ownerDrawWidth(item->window.ownerDraw, item->textscale);
+        }
+        else if (item->type == ITEM_TYPE_EDITFIELD && item->textalignment == ITEM_ALIGN_CENTER && item->cvar) {
+            char buff[256];
+            DC->getCVarString(item->cvar, buff, 256);
+            originalWidth += DC->textWidth(buff, item->textscale, item->font);
+        }
 
-		*width = DC->textWidth(textPtr, item->textscale, item->font);
-		*height = DC->textHeight(textPtr, item->textscale, item->font);
+        *width = DC->textWidth(textPtr, item->textscale, item->font);
+        *height = DC->textHeight(textPtr, item->textscale, item->font);
 
-		item->textRect.w = *width;
-		item->textRect.h = *height;
-		item->textRect.x = item->textalignx;
-		item->textRect.y = item->textaligny;
-		if (item->textalignment == ITEM_ALIGN_RIGHT)
-		{
-			item->textRect.x = item->textalignx - originalWidth;
-		}
-		else if (item->textalignment == ITEM_ALIGN_CENTER)
-		{
-			item->textRect.x = item->textalignx - originalWidth / 2;
-		}
+        item->textRect.w = *width;
+        item->textRect.h = *height;
+        item->textRect.x = item->textalignx;
+        item->textRect.y = item->textaligny;
+        if (item->textalignment == ITEM_ALIGN_RIGHT) {
+            item->textRect.x = item->textalignx - originalWidth;
+        }
+        else if (item->textalignment == ITEM_ALIGN_CENTER) {
+            item->textRect.x = item->textalignx - originalWidth / 2;
+        }
 
-		ToWindowCoords(&item->textRect.x, &item->textRect.y, &item->window);
+        ToWindowCoords(&item->textRect.x, &item->textRect.y, &item->window);
 #ifdef JK2_MODE
-		if(item->text && item->text[0]=='@')
-			item->asset = sp_language->modificationCount;
+        if (item->text && item->text[0] == '@')
+            item->asset = sp_language->modificationCount;
 #else
-		if (item->text && item->text[0]=='@' )//string package
-			item->asset = se_language->modificationCount; //mark language
+        if (item->text && item->text[0] == '@')           // string package
+            item->asset = se_language->modificationCount; // mark language
 #endif
-	}
+    }
 }
 
 /*
@@ -6267,53 +5950,50 @@ void Item_SetTextExtents(itemDef_t *item, int *width, int *height, const char *t
 Item_TextColor
 =================
 */
-void Item_TextColor(itemDef_t *item, vec4_t *newColor)
+void Item_TextColor(itemDef_t* item, vec4_t* newColor)
 {
-	vec4_t lowLight;
-	const vec4_t greyColor = { .5, .5, .5, 1};
-	menuDef_t *parent = (menuDef_t*)item->parent;
+    vec4_t lowLight;
+    const vec4_t greyColor = {.5, .5, .5, 1};
+    menuDef_t* parent = (menuDef_t*)item->parent;
 
-	Fade(&item->window.flags, &item->window.foreColor[3], parent->fadeClamp, &item->window.nextTime, parent->fadeCycle, true, parent->fadeAmount);
+    Fade(&item->window.flags, &item->window.foreColor[3], parent->fadeClamp, &item->window.nextTime, parent->fadeCycle, true, parent->fadeAmount);
 
-	if ( !(item->type == ITEM_TYPE_TEXT && Any( item->window.flags & windowFlags_t::WINDOW_AUTOWRAPPED )) && Any( item->window.flags & windowFlags_t::WINDOW_HASFOCUS ))
-	{
-		lowLight[0] = 0.8 * parent->focusColor[0];
-		lowLight[1] = 0.8 * parent->focusColor[1];
-		lowLight[2] = 0.8 * parent->focusColor[2];
-		lowLight[3] = 0.8 * parent->focusColor[3];
-		LerpColor(parent->focusColor,lowLight,*newColor,0.5+0.5*Q_sinf((float)(DC->realTime / PULSE_DIVISOR)));
-	}
-/*	else if (item->textStyle == ITEM_TEXTSTYLE_BLINK && !((DC->realTime/BLINK_DIVISOR) & 1))
-	{
-		lowLight[0] = 0.8 * item->window.foreColor[0];
-		lowLight[1] = 0.8 * item->window.foreColor[1];
-		lowLight[2] = 0.8 * item->window.foreColor[2];
-		lowLight[3] = 0.8 * item->window.foreColor[3];
-		LerpColor(item->window.foreColor,lowLight,*newColor,0.5+0.5*Q_sin(DC->realTime / PULSE_DIVISOR));
-	}
-*/	else
-	{
-		memcpy(newColor, &item->window.foreColor, sizeof(vec4_t));
-	}
+    if (!(item->type == ITEM_TYPE_TEXT && Any(item->window.flags & windowFlags_t::WINDOW_AUTOWRAPPED)) &&
+        Any(item->window.flags & windowFlags_t::WINDOW_HASFOCUS)) {
+        lowLight[0] = 0.8 * parent->focusColor[0];
+        lowLight[1] = 0.8 * parent->focusColor[1];
+        lowLight[2] = 0.8 * parent->focusColor[2];
+        lowLight[3] = 0.8 * parent->focusColor[3];
+        LerpColor(parent->focusColor, lowLight, *newColor, 0.5 + 0.5 * Q_sinf((float)(DC->realTime / PULSE_DIVISOR)));
+    }
+    /*	else if (item->textStyle == ITEM_TEXTSTYLE_BLINK && !((DC->realTime/BLINK_DIVISOR) & 1))
+        {
+            lowLight[0] = 0.8 * item->window.foreColor[0];
+            lowLight[1] = 0.8 * item->window.foreColor[1];
+            lowLight[2] = 0.8 * item->window.foreColor[2];
+            lowLight[3] = 0.8 * item->window.foreColor[3];
+            LerpColor(item->window.foreColor,lowLight,*newColor,0.5+0.5*Q_sin(DC->realTime / PULSE_DIVISOR));
+        }
+    */
+    else {
+        memcpy(newColor, &item->window.foreColor, sizeof(vec4_t));
+    }
 
-	if (item->disabled)
-	{
-		memcpy(newColor, &parent->disableColor, sizeof(vec4_t));
-	}
+    if (item->disabled) {
+        memcpy(newColor, &parent->disableColor, sizeof(vec4_t));
+    }
 
-	// items can be enabled and disabled based on cvars
-	if (item->enableCvar && *item->enableCvar && item->cvarTest && *item->cvarTest)
-	{
-		if (Any( item->cvarFlags & (itemCvarFlags_t::CVAR_ENABLE | itemCvarFlags_t::CVAR_DISABLE) ) && !Item_EnableShowViaCvar(item, itemCvarFlags_t::CVAR_ENABLE))
-		{
-			memcpy(newColor, &parent->disableColor, sizeof(vec4_t));
-		}
-	}
+    // items can be enabled and disabled based on cvars
+    if (item->enableCvar && *item->enableCvar && item->cvarTest && *item->cvarTest) {
+        if (Any(item->cvarFlags & (itemCvarFlags_t::CVAR_ENABLE | itemCvarFlags_t::CVAR_DISABLE)) &&
+            !Item_EnableShowViaCvar(item, itemCvarFlags_t::CVAR_ENABLE)) {
+            memcpy(newColor, &parent->disableColor, sizeof(vec4_t));
+        }
+    }
 
-	if (Any( item->window.flags & windowFlags_t::WINDOW_INACTIVE ))
-	{
-		memcpy(newColor, &greyColor, sizeof(vec4_t));
-	}
+    if (Any(item->window.flags & windowFlags_t::WINDOW_INACTIVE)) {
+        memcpy(newColor, &greyColor, sizeof(vec4_t));
+    }
 }
 
 /*
@@ -6321,138 +6001,124 @@ void Item_TextColor(itemDef_t *item, vec4_t *newColor)
 Item_Text_Wrapped_Paint
 =================
 */
-void Item_Text_Wrapped_Paint(itemDef_t *item)
+void Item_Text_Wrapped_Paint(itemDef_t* item)
 {
-	char text[1024];
-	const char *p, *start, *textPtr;
-	char buff[1024];
-	int width, height;
-	float x, y;
-	vec4_t color;
+    char text[1024];
+    const char *p, *start, *textPtr;
+    char buff[1024];
+    int width, height;
+    float x, y;
+    vec4_t color;
 
-	// now paint the text and/or any optional images
-	// default to left
+    // now paint the text and/or any optional images
+    // default to left
 
-	if (item->text == nullptr)
-	{
-		if (item->cvar == nullptr)
-		{
-			return;
-		}
-		else
-		{
-			DC->getCVarString(item->cvar, text, sizeof(text));
-			textPtr = text;
-		}
-	}
-	else
-	{
-		textPtr = item->text;
-	}
-	if (*textPtr == '@')	// string reference
-	{
-		textPtr = SE_GetString( &textPtr[1] );
-	}
+    if (item->text == nullptr) {
+        if (item->cvar == nullptr) {
+            return;
+        }
+        else {
+            DC->getCVarString(item->cvar, text, sizeof(text));
+            textPtr = text;
+        }
+    }
+    else {
+        textPtr = item->text;
+    }
+    if (*textPtr == '@') // string reference
+    {
+        textPtr = SE_GetString(&textPtr[1]);
+    }
 
-	if (*textPtr == '\0')
-	{
-		return;
-	}
+    if (*textPtr == '\0') {
+        return;
+    }
 
-	Item_TextColor(item, &color);
-	Item_SetTextExtents(item, &width, &height, textPtr);
+    Item_TextColor(item, &color);
+    Item_SetTextExtents(item, &width, &height, textPtr);
 
-	x = item->textRect.x;
-	y = item->textRect.y;
-	start = textPtr;
-	p = strchr(textPtr, '\r');
-	while (p && *p)
-	{
-		strncpy(buff, start, p-start+1);
-		buff[p-start] = '\0';
-		DC->drawText(x, y, item->textscale, color, buff, 0, item->textStyle, item->font);
-		y += height + 5;
-		start += p - start + 1;
-		p = strchr(p+1, '\r');
-	}
-	DC->drawText(x, y, item->textscale, color, start, 0, item->textStyle, item->font);
+    x = item->textRect.x;
+    y = item->textRect.y;
+    start = textPtr;
+    p = strchr(textPtr, '\r');
+    while (p && *p) {
+        strncpy(buff, start, p - start + 1);
+        buff[p - start] = '\0';
+        DC->drawText(x, y, item->textscale, color, buff, 0, item->textStyle, item->font);
+        y += height + 5;
+        start += p - start + 1;
+        p = strchr(p + 1, '\r');
+    }
+    DC->drawText(x, y, item->textscale, color, start, 0, item->textStyle, item->font);
 }
-
 
 /*
 =================
 Menu_Paint
 =================
 */
-void Item_Text_Paint(itemDef_t *item)
+void Item_Text_Paint(itemDef_t* item)
 {
-	char text[1024];
-	const char *textPtr;
-	int height, width;
-	vec4_t color;
+    char text[1024];
+    const char* textPtr;
+    int height, width;
+    vec4_t color;
 
-	if (Any( item->window.flags & windowFlags_t::WINDOW_WRAPPED ))
-	{
-		Item_Text_Wrapped_Paint(item);
-		return;
-	}
+    if (Any(item->window.flags & windowFlags_t::WINDOW_WRAPPED)) {
+        Item_Text_Wrapped_Paint(item);
+        return;
+    }
 
-	if (Any( item->window.flags & windowFlags_t::WINDOW_AUTOWRAPPED ))
-	{
-		Item_Text_AutoWrapped_Paint(item);
-		return;
-	}
+    if (Any(item->window.flags & windowFlags_t::WINDOW_AUTOWRAPPED)) {
+        Item_Text_AutoWrapped_Paint(item);
+        return;
+    }
 
-	if (item->text == nullptr)
-	{
-		if (item->cvar == nullptr)
-		{
-			return;
-		}
-		else
-		{
-			DC->getCVarString(item->cvar, text, sizeof(text));
-			textPtr = text;
-		}
-	}
-	else
-	{
-		textPtr = item->text;
-	}
+    if (item->text == nullptr) {
+        if (item->cvar == nullptr) {
+            return;
+        }
+        else {
+            DC->getCVarString(item->cvar, text, sizeof(text));
+            textPtr = text;
+        }
+    }
+    else {
+        textPtr = item->text;
+    }
 #ifdef JK2_MODE
-	if (*textPtr == '@')
-	{
-		textPtr = JK2SP_GetStringTextString(&textPtr[1]);
-	}
+    if (*textPtr == '@') {
+        textPtr = JK2SP_GetStringTextString(&textPtr[1]);
+    }
 #else
-	if (*textPtr == '@')	// string reference
-	{
-		textPtr = SE_GetString( &textPtr[1] );
-	}
+    if (*textPtr == '@') // string reference
+    {
+        textPtr = SE_GetString(&textPtr[1]);
+    }
 #endif
 
-	// this needs to go here as it sets extents for cvar types as well
-	Item_SetTextExtents(item, &width, &height, textPtr);
+    // this needs to go here as it sets extents for cvar types as well
+    Item_SetTextExtents(item, &width, &height, textPtr);
 
-	if (*textPtr == '\0')
-	{
-		return;
-	}
+    if (*textPtr == '\0') {
+        return;
+    }
 
-	Item_TextColor(item, &color);
-	DC->drawText(item->textRect.x, item->textRect.y, item->textscale, color, textPtr, 0, item->textStyle, item->font);
+    Item_TextColor(item, &color);
+    DC->drawText(item->textRect.x, item->textRect.y, item->textscale, color, textPtr, 0, item->textStyle, item->font);
 
-	if (item->text2)	// Is there a second line of text?
-	{
-		textPtr = item->text2;
-		if (*textPtr == '@')	// string reference
-		{
-			textPtr = SE_GetString( &textPtr[1] );
-		}
+    if (item->text2) // Is there a second line of text?
+    {
+        textPtr = item->text2;
+        if (*textPtr == '@') // string reference
+        {
+            textPtr = SE_GetString(&textPtr[1]);
+        }
 
-		Item_TextColor(item, &color);
-		DC->drawText(item->textRect.x + item->text2alignx, item->textRect.y + item->text2aligny, item->textscale, color, textPtr, 0, item->textStyle, item->font);
-	}
+        Item_TextColor(item, &color);
+        DC->drawText(item->textRect.x + item->text2alignx, item->textRect.y + item->text2aligny, item->textscale, color, textPtr, 0, item->textStyle,
+                     item->font);
+    }
 }
 
 /*
@@ -6461,29 +6127,26 @@ Item_UpdatePosition
 =================
 */
 // FIXME: consolidate this with nearby stuff
-void Item_UpdatePosition(itemDef_t *item)
+void Item_UpdatePosition(itemDef_t* item)
 {
-	float x, y;
-	menuDef_t *menu;
+    float x, y;
+    menuDef_t* menu;
 
-	if (item == nullptr || item->parent == nullptr)
-	{
-		return;
-	}
+    if (item == nullptr || item->parent == nullptr) {
+        return;
+    }
 
-	menu = (menuDef_t *) item->parent;
+    menu = (menuDef_t*)item->parent;
 
-	x = menu->window.rect.x;
-	y = menu->window.rect.y;
+    x = menu->window.rect.x;
+    y = menu->window.rect.y;
 
-	if (menu->window.border != 0)
-	{
-		x += menu->window.borderSize;
-		y += menu->window.borderSize;
-	}
+    if (menu->window.border != 0) {
+        x += menu->window.borderSize;
+        y += menu->window.borderSize;
+    }
 
-	Item_SetScreenCoords(item, x, y);
-
+    Item_SetScreenCoords(item, x, y);
 }
 
 /*
@@ -6491,120 +6154,110 @@ void Item_UpdatePosition(itemDef_t *item)
 Item_TextField_Paint
 =================
 */
-void Item_TextField_Paint(itemDef_t *item)
+void Item_TextField_Paint(itemDef_t* item)
 {
-	char buff[1024];
-	vec4_t newColor, lowLight;
-	int offset;
-	menuDef_t *parent = (menuDef_t*)item->parent;
-	editFieldDef_t *editPtr = (editFieldDef_t*)item->typeData;
+    char buff[1024];
+    vec4_t newColor, lowLight;
+    int offset;
+    menuDef_t* parent = (menuDef_t*)item->parent;
+    editFieldDef_t* editPtr = (editFieldDef_t*)item->typeData;
 
-	Item_Text_Paint(item);
+    Item_Text_Paint(item);
 
-	buff[0] = '\0';
+    buff[0] = '\0';
 
-	if (item->cvar)
-	{
-		DC->getCVarString(item->cvar, buff, sizeof(buff));
-	}
+    if (item->cvar) {
+        DC->getCVarString(item->cvar, buff, sizeof(buff));
+    }
 
-	if (Any( item->window.flags & windowFlags_t::WINDOW_HASFOCUS ))
-	{
-		lowLight[0] = 0.8 * parent->focusColor[0];
-		lowLight[1] = 0.8 * parent->focusColor[1];
-		lowLight[2] = 0.8 * parent->focusColor[2];
-		lowLight[3] = 0.8 * parent->focusColor[3];
-		LerpColor(parent->focusColor,lowLight,newColor,0.5+0.5*Q_sinf((float)(DC->realTime / PULSE_DIVISOR)));
-	}
-	else
-	{
-		memcpy(&newColor, &item->window.foreColor, sizeof(vec4_t));
-	}
+    if (Any(item->window.flags & windowFlags_t::WINDOW_HASFOCUS)) {
+        lowLight[0] = 0.8 * parent->focusColor[0];
+        lowLight[1] = 0.8 * parent->focusColor[1];
+        lowLight[2] = 0.8 * parent->focusColor[2];
+        lowLight[3] = 0.8 * parent->focusColor[3];
+        LerpColor(parent->focusColor, lowLight, newColor, 0.5 + 0.5 * Q_sinf((float)(DC->realTime / PULSE_DIVISOR)));
+    }
+    else {
+        memcpy(&newColor, &item->window.foreColor, sizeof(vec4_t));
+    }
 
-	offset = 8;//(item->text && *item->text) ? 8 : 0;
-	if (Any( item->window.flags & windowFlags_t::WINDOW_HASFOCUS ) && g_editingField)
-	{
-		char cursor = DC->getOverstrikeMode() ? '_' : '|';
-		DC->drawTextWithCursor(item->textRect.x + item->textRect.w + offset, item->textRect.y, item->textscale, newColor, buff + editPtr->paintOffset, item->cursorPos - editPtr->paintOffset , cursor, /*editPtr->maxPaintChars*/ item->window.rect.w, item->textStyle, item->font);
-	}
-	else
-	{
-		DC->drawText(item->textRect.x + item->textRect.w + offset, item->textRect.y, item->textscale, newColor, buff + editPtr->paintOffset, /*editPtr->maxPaintChars*/ item->window.rect.w, item->textStyle, item->font);
-	}
+    offset = 8; //(item->text && *item->text) ? 8 : 0;
+    if (Any(item->window.flags & windowFlags_t::WINDOW_HASFOCUS) && g_editingField) {
+        char cursor = DC->getOverstrikeMode() ? '_' : '|';
+        DC->drawTextWithCursor(item->textRect.x + item->textRect.w + offset, item->textRect.y, item->textscale, newColor, buff + editPtr->paintOffset,
+                               item->cursorPos - editPtr->paintOffset, cursor, /*editPtr->maxPaintChars*/ item->window.rect.w, item->textStyle, item->font);
+    }
+    else {
+        DC->drawText(item->textRect.x + item->textRect.w + offset, item->textRect.y, item->textscale, newColor, buff + editPtr->paintOffset,
+                     /*editPtr->maxPaintChars*/ item->window.rect.w, item->textStyle, item->font);
+    }
 }
 
-void Item_TextScroll_Paint(itemDef_t *item)
+void Item_TextScroll_Paint(itemDef_t* item)
 {
-	char cvartext[1024];
-	float x, y, size, count, thumb;
-	int	  i;
-	textScrollDef_t *scrollPtr = (textScrollDef_t*)item->typeData;
+    char cvartext[1024];
+    float x, y, size, count, thumb;
+    int i;
+    textScrollDef_t* scrollPtr = (textScrollDef_t*)item->typeData;
 
-	size = item->window.rect.h - 2;
+    size = item->window.rect.h - 2;
 
-	// Re-arranged this function. Previous version had a plethora of bugs.
-	// Still a little iffy - BTO (VV)
-	if (item->cvar)
-	{
-		DC->getCVarString(item->cvar, cvartext, sizeof(cvartext));
-		item->text = cvartext;
-	}
+    // Re-arranged this function. Previous version had a plethora of bugs.
+    // Still a little iffy - BTO (VV)
+    if (item->cvar) {
+        DC->getCVarString(item->cvar, cvartext, sizeof(cvartext));
+        item->text = cvartext;
+    }
 
-	Item_TextScroll_BuildLines ( item );
-	count = scrollPtr->iLineCount;
+    Item_TextScroll_BuildLines(item);
+    count = scrollPtr->iLineCount;
 
-	// Draw scroll bar if text goes beyond bottom
-	if (( scrollPtr->iLineCount * scrollPtr->lineHeight ) > size)
-	{
-		// draw scrollbar to right side of the window
-		x = item->window.rect.x + item->window.rect.w - SCROLLBAR_SIZE - 1;
-		y = item->window.rect.y + 1;
-		DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowUp);
-		y += SCROLLBAR_SIZE - 1;
+    // Draw scroll bar if text goes beyond bottom
+    if ((scrollPtr->iLineCount * scrollPtr->lineHeight) > size) {
+        // draw scrollbar to right side of the window
+        x = item->window.rect.x + item->window.rect.w - SCROLLBAR_SIZE - 1;
+        y = item->window.rect.y + 1;
+        DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowUp);
+        y += SCROLLBAR_SIZE - 1;
 
-		scrollPtr->endPos = scrollPtr->startPos;
-		size = item->window.rect.h - (SCROLLBAR_SIZE * 2);
-		DC->drawHandlePic(x, y, SCROLLBAR_SIZE, size+1, DC->Assets.scrollBar);
-		y += size - 1;
-		DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowDown);
+        scrollPtr->endPos = scrollPtr->startPos;
+        size = item->window.rect.h - (SCROLLBAR_SIZE * 2);
+        DC->drawHandlePic(x, y, SCROLLBAR_SIZE, size + 1, DC->Assets.scrollBar);
+        y += size - 1;
+        DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowDown);
 
-		// thumb
-		thumb = Item_TextScroll_ThumbDrawPosition(item);
-		if (thumb > y - SCROLLBAR_SIZE - 1)
-		{
-			thumb = y - SCROLLBAR_SIZE - 1;
-		}
-		DC->drawHandlePic(x, thumb, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarThumb);
-	}
+        // thumb
+        thumb = Item_TextScroll_ThumbDrawPosition(item);
+        if (thumb > y - SCROLLBAR_SIZE - 1) {
+            thumb = y - SCROLLBAR_SIZE - 1;
+        }
+        DC->drawHandlePic(x, thumb, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarThumb);
+    }
 
-	// adjust size for item painting
-	size = item->window.rect.h - 2;
-	x	 = item->window.rect.x + item->textalignx + 1;
-	y	 = item->window.rect.y + item->textaligny + 1;
+    // adjust size for item painting
+    size = item->window.rect.h - 2;
+    x = item->window.rect.x + item->textalignx + 1;
+    y = item->window.rect.y + item->textaligny + 1;
 
+    for (i = scrollPtr->startPos; i < count; i++) {
+        const char* text;
 
-	for (i = scrollPtr->startPos; i < count; i++)
-	{
-		const char *text;
+        text = scrollPtr->pLines[i];
+        if (!text) {
+            continue;
+        }
 
-		text = scrollPtr->pLines[i];
-		if (!text)
-		{
-			continue;
-		}
+        DC->drawText(x + 4, y, item->textscale, item->window.foreColor, text, 0, item->textStyle, item->font);
 
-		DC->drawText(x + 4, y, item->textscale, item->window.foreColor, text, 0, item->textStyle, item->font);
+        size -= scrollPtr->lineHeight;
+        if (size < scrollPtr->lineHeight) {
+            scrollPtr->drawPadding = scrollPtr->lineHeight - size;
+            break;
+        }
 
-		size -= scrollPtr->lineHeight;
-		if (size < scrollPtr->lineHeight)
-		{
-			scrollPtr->drawPadding = scrollPtr->lineHeight - size;
-			break;
-		}
-
-		scrollPtr->endPos++;
-		y += scrollPtr->lineHeight;
-	}
+        scrollPtr->endPos++;
+        y += scrollPtr->lineHeight;
+    }
 }
 
 /*
@@ -6613,253 +6266,218 @@ Item_ListBox_Paint
 =================
 */
 
-void Item_ListBox_Paint(itemDef_t *item)
+void Item_ListBox_Paint(itemDef_t* item)
 {
-	float x, y, size;
-	int count, i, thumb;
-	qhandle_t image;
-	qhandle_t optionalImage;
-	listBoxDef_t *listPtr = (listBoxDef_t*)item->typeData;
+    float x, y, size;
+    int count, i, thumb;
+    qhandle_t image;
+    qhandle_t optionalImage;
+    listBoxDef_t* listPtr = (listBoxDef_t*)item->typeData;
 
-	// the listbox is horizontal or vertical and has a fixed size scroll bar going either direction
-	// elements are enumerated from the DC and either text or image handles are acquired from the DC as well
-	// textscale is used to size the text, textalignx and textaligny are used to size image elements
-	// there is no clipping available so only the last completely visible item is painted
-	count = DC->feederCount(item->special);
+    // the listbox is horizontal or vertical and has a fixed size scroll bar going either direction
+    // elements are enumerated from the DC and either text or image handles are acquired from the DC as well
+    // textscale is used to size the text, textalignx and textaligny are used to size image elements
+    // there is no clipping available so only the last completely visible item is painted
+    count = DC->feederCount(item->special);
 
-	if (listPtr->startPos > (count?count-1:count))
-	{//probably changed feeders, so reset
-		listPtr->startPos = 0;
-	}
+    if (listPtr->startPos > (count ? count - 1 : count)) { // probably changed feeders, so reset
+        listPtr->startPos = 0;
+    }
 
-	if (item->cursorPos > (count?count-1:count))
-	{//probably changed feeders, so reset
-		item->cursorPos = 0;
-	}
-	// default is vertical if horizontal flag is not here
-	if (Any( item->window.flags & windowFlags_t::WINDOW_HORIZONTAL ))
-	{
-//JLF new variable (code just indented)
-		if (!listPtr->scrollhidden)
-		{
-			// draw scrollbar in bottom of the window
-			// bar
-			if (Item_ListBox_MaxScroll(item) > 0)
-			{
-				x = item->window.rect.x + 1;
-				y = item->window.rect.y + item->window.rect.h - SCROLLBAR_SIZE - 1;
-				DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowLeft);
-				x += SCROLLBAR_SIZE - 1;
-				size = item->window.rect.w - (SCROLLBAR_SIZE * 2);
-				DC->drawHandlePic(x, y, size+1, SCROLLBAR_SIZE, DC->Assets.scrollBar);
-				x += size - 1;
-				DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowRight);
-				// thumb
-				thumb = Item_ListBox_ThumbDrawPosition(item);//Item_ListBox_ThumbPosition(item);
-				if (thumb > x - SCROLLBAR_SIZE - 1)
-				{
-					thumb = x - SCROLLBAR_SIZE - 1;
-				}
-				DC->drawHandlePic(thumb, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarThumb);
-			}
-			else if (listPtr->startPos > 0)
-			{
-				listPtr->startPos = 0;
-			}
-		}
-//JLF end
-		//
-		listPtr->endPos = listPtr->startPos;
-		size = item->window.rect.w - 2;
-		// items
-		// size contains max available space
-		if (listPtr->elementStyle == LISTBOX_IMAGE)
-		{
-			// fit = 0;
-			x = item->window.rect.x + 1;
-			y = item->window.rect.y + 1;
-			for (i = listPtr->startPos; i < count; i++)
-			{
-				// always draw at least one
-				// which may overdraw the box if it is too small for the element
-				image = DC->feederItemImage(item->special, i);
-				if (image)
-				{
-					if (Any( item->window.flags & windowFlags_t::WINDOW_PLAYERCOLOR ))
-					{
-						vec4_t	color;
-						color[0] = ui_char_color_red.integer/255.0f;
-						color[1] = ui_char_color_green.integer/255.0f;
-						color[2] = ui_char_color_blue.integer/255.0f;
-						color[3] = 1;
-						ui.R_SetColor(color);
-					}
-					DC->drawHandlePic(x+1, y+1, listPtr->elementWidth - 2, listPtr->elementHeight - 2, image);
-				}
+    if (item->cursorPos > (count ? count - 1 : count)) { // probably changed feeders, so reset
+        item->cursorPos = 0;
+    }
+    // default is vertical if horizontal flag is not here
+    if (Any(item->window.flags & windowFlags_t::WINDOW_HORIZONTAL)) {
+        // JLF new variable (code just indented)
+        if (!listPtr->scrollhidden) {
+            // draw scrollbar in bottom of the window
+            // bar
+            if (Item_ListBox_MaxScroll(item) > 0) {
+                x = item->window.rect.x + 1;
+                y = item->window.rect.y + item->window.rect.h - SCROLLBAR_SIZE - 1;
+                DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowLeft);
+                x += SCROLLBAR_SIZE - 1;
+                size = item->window.rect.w - (SCROLLBAR_SIZE * 2);
+                DC->drawHandlePic(x, y, size + 1, SCROLLBAR_SIZE, DC->Assets.scrollBar);
+                x += size - 1;
+                DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowRight);
+                // thumb
+                thumb = Item_ListBox_ThumbDrawPosition(item); // Item_ListBox_ThumbPosition(item);
+                if (thumb > x - SCROLLBAR_SIZE - 1) {
+                    thumb = x - SCROLLBAR_SIZE - 1;
+                }
+                DC->drawHandlePic(thumb, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarThumb);
+            }
+            else if (listPtr->startPos > 0) {
+                listPtr->startPos = 0;
+            }
+        }
+        // JLF end
+        //
+        listPtr->endPos = listPtr->startPos;
+        size = item->window.rect.w - 2;
+        // items
+        // size contains max available space
+        if (listPtr->elementStyle == LISTBOX_IMAGE) {
+            // fit = 0;
+            x = item->window.rect.x + 1;
+            y = item->window.rect.y + 1;
+            for (i = listPtr->startPos; i < count; i++) {
+                // always draw at least one
+                // which may overdraw the box if it is too small for the element
+                image = DC->feederItemImage(item->special, i);
+                if (image) {
+                    if (Any(item->window.flags & windowFlags_t::WINDOW_PLAYERCOLOR)) {
+                        vec4_t color;
+                        color[0] = ui_char_color_red.integer / 255.0f;
+                        color[1] = ui_char_color_green.integer / 255.0f;
+                        color[2] = ui_char_color_blue.integer / 255.0f;
+                        color[3] = 1;
+                        ui.R_SetColor(color);
+                    }
+                    DC->drawHandlePic(x + 1, y + 1, listPtr->elementWidth - 2, listPtr->elementHeight - 2, image);
+                }
 
-				if (i == item->cursorPos)
-				{
-					DC->drawRect(x, y, listPtr->elementWidth-1, listPtr->elementHeight-1, item->window.borderSize, item->window.borderColor);
-				}
+                if (i == item->cursorPos) {
+                    DC->drawRect(x, y, listPtr->elementWidth - 1, listPtr->elementHeight - 1, item->window.borderSize, item->window.borderColor);
+                }
 
-				size -= listPtr->elementWidth;
-				if (size < listPtr->elementWidth)
-				{
-					listPtr->drawPadding = size; //listPtr->elementWidth - size;
-					break;
-				}
-				x += listPtr->elementWidth;
-				listPtr->endPos++;
-				// fit++;
-			}
-		}
-		else
-		{
-			//
-		}
-	}
-	else
-	{
-//JLF new variable (code idented with if)
-		if (!listPtr->scrollhidden)
-		{
-			// draw scrollbar to right side of the window
-			x = item->window.rect.x + item->window.rect.w - SCROLLBAR_SIZE - 1;
-			y = item->window.rect.y + 1;
-			DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowUp);
-			y += SCROLLBAR_SIZE - 1;
+                size -= listPtr->elementWidth;
+                if (size < listPtr->elementWidth) {
+                    listPtr->drawPadding = size; // listPtr->elementWidth - size;
+                    break;
+                }
+                x += listPtr->elementWidth;
+                listPtr->endPos++;
+                // fit++;
+            }
+        }
+        else {
+            //
+        }
+    }
+    else {
+        // JLF new variable (code idented with if)
+        if (!listPtr->scrollhidden) {
+            // draw scrollbar to right side of the window
+            x = item->window.rect.x + item->window.rect.w - SCROLLBAR_SIZE - 1;
+            y = item->window.rect.y + 1;
+            DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowUp);
+            y += SCROLLBAR_SIZE - 1;
 
-			listPtr->endPos = listPtr->startPos;
-			size = item->window.rect.h - (SCROLLBAR_SIZE * 2);
-			DC->drawHandlePic(x, y, SCROLLBAR_SIZE, size+1, DC->Assets.scrollBar);
-			y += size - 1;
-			DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowDown);
-			// thumb
-			thumb = Item_ListBox_ThumbDrawPosition(item);//Item_ListBox_ThumbPosition(item);
-			if (thumb > y - SCROLLBAR_SIZE - 1)
-			{
-				thumb = y - SCROLLBAR_SIZE - 1;
-			}
-			DC->drawHandlePic(x, thumb, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarThumb);
-		}
-//JLF end
-		// adjust size for item painting
-		size = item->window.rect.h - 2;
-		if (listPtr->elementStyle == LISTBOX_IMAGE)
-		{
-			// fit = 0;
-			x = item->window.rect.x + 1;
-			y = item->window.rect.y + 1;
+            listPtr->endPos = listPtr->startPos;
+            size = item->window.rect.h - (SCROLLBAR_SIZE * 2);
+            DC->drawHandlePic(x, y, SCROLLBAR_SIZE, size + 1, DC->Assets.scrollBar);
+            y += size - 1;
+            DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowDown);
+            // thumb
+            thumb = Item_ListBox_ThumbDrawPosition(item); // Item_ListBox_ThumbPosition(item);
+            if (thumb > y - SCROLLBAR_SIZE - 1) {
+                thumb = y - SCROLLBAR_SIZE - 1;
+            }
+            DC->drawHandlePic(x, thumb, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarThumb);
+        }
+        // JLF end
+        //  adjust size for item painting
+        size = item->window.rect.h - 2;
+        if (listPtr->elementStyle == LISTBOX_IMAGE) {
+            // fit = 0;
+            x = item->window.rect.x + 1;
+            y = item->window.rect.y + 1;
 
-			for (i = listPtr->startPos; i < count; i++)
-			{
-				// always draw at least one
-				// which may overdraw the box if it is too small for the element
-				image = DC->feederItemImage(item->special, i);
-				if (image)
-				{
-					DC->drawHandlePic(x+1, y+1, listPtr->elementWidth - 2, listPtr->elementHeight - 2, image);
-				}
+            for (i = listPtr->startPos; i < count; i++) {
+                // always draw at least one
+                // which may overdraw the box if it is too small for the element
+                image = DC->feederItemImage(item->special, i);
+                if (image) {
+                    DC->drawHandlePic(x + 1, y + 1, listPtr->elementWidth - 2, listPtr->elementHeight - 2, image);
+                }
 
-				if (i == item->cursorPos)
-				{
-					DC->drawRect(x, y, listPtr->elementWidth - 1, listPtr->elementHeight - 1, item->window.borderSize, item->window.borderColor);
-				}
+                if (i == item->cursorPos) {
+                    DC->drawRect(x, y, listPtr->elementWidth - 1, listPtr->elementHeight - 1, item->window.borderSize, item->window.borderColor);
+                }
 
-				listPtr->endPos++;
-				size -= listPtr->elementHeight;
-				if (size < listPtr->elementHeight)
-				{
-					listPtr->drawPadding = listPtr->elementHeight - size;
-					break;
-				}
-				y += listPtr->elementHeight;
-				// fit++;
-			}
-		}
-		else
-		{
-			x = item->window.rect.x + 1;
-			y = item->window.rect.y + 1 - listPtr->elementHeight;
-			i = listPtr->startPos;
+                listPtr->endPos++;
+                size -= listPtr->elementHeight;
+                if (size < listPtr->elementHeight) {
+                    listPtr->drawPadding = listPtr->elementHeight - size;
+                    break;
+                }
+                y += listPtr->elementHeight;
+                // fit++;
+            }
+        }
+        else {
+            x = item->window.rect.x + 1;
+            y = item->window.rect.y + 1 - listPtr->elementHeight;
+            i = listPtr->startPos;
 
-			for (; i < count; i++)
-			{
-				const char *text;
-				// always draw at least one
-				// which may overdraw the box if it is too small for the element
+            for (; i < count; i++) {
+                const char* text;
+                // always draw at least one
+                // which may overdraw the box if it is too small for the element
 
-				if (listPtr->numColumns > 0)
-				{
-					int j;
-					for (j = 0; j < listPtr->numColumns; j++)
-					{
-						text = DC->feederItemText(item->special, i, j, &optionalImage);
-						if (text[0]=='@')
-						{
-							text = SE_GetString( &text[1] );
-						}
+                if (listPtr->numColumns > 0) {
+                    int j;
+                    for (j = 0; j < listPtr->numColumns; j++) {
+                        text = DC->feederItemText(item->special, i, j, &optionalImage);
+                        if (text[0] == '@') {
+                            text = SE_GetString(&text[1]);
+                        }
 
-						if (optionalImage >= 0)
-						{
-							DC->drawHandlePic(x + 4 + listPtr->columnInfo[j].pos, y - 1 + listPtr->elementHeight / 2, listPtr->columnInfo[j].width, listPtr->columnInfo[j].width, optionalImage);
-						}
-						else if (text)
-						{
-							vec4_t	*color;
-							menuDef_t *parent = (menuDef_t*)item->parent;
+                        if (optionalImage >= 0) {
+                            DC->drawHandlePic(x + 4 + listPtr->columnInfo[j].pos, y - 1 + listPtr->elementHeight / 2, listPtr->columnInfo[j].width,
+                                              listPtr->columnInfo[j].width, optionalImage);
+                        }
+                        else if (text) {
+                            vec4_t* color;
+                            menuDef_t* parent = (menuDef_t*)item->parent;
 
-							// Use focus color is it has focus.
-							if (i == item->cursorPos)
-							{
-								color = &parent->focusColor;
-							}
-							else
-							{
-								color = &item->window.foreColor;
-							}
+                            // Use focus color is it has focus.
+                            if (i == item->cursorPos) {
+                                color = &parent->focusColor;
+                            }
+                            else {
+                                color = &item->window.foreColor;
+                            }
 
+                            int textyOffset;
+                            textyOffset = 0;
 
-							int textyOffset;
-							textyOffset = 0;
+                            DC->drawText(x + 4 + listPtr->columnInfo[j].pos, y + listPtr->elementHeight + textyOffset, item->textscale, *color, text,
+                                         listPtr->columnInfo[j].maxChars, item->textStyle, item->font);
+                        }
+                    }
+                }
+                else {
 
-							DC->drawText(x + 4 + listPtr->columnInfo[j].pos, y + listPtr->elementHeight+ textyOffset, item->textscale, *color, text, listPtr->columnInfo[j].maxChars, item->textStyle, item->font);
-						}
-					}
-				}
-				else
-				{
+                    text = DC->feederItemText(item->special, i, 0, &optionalImage);
+                    if (optionalImage >= 0) {
+                        // DC->drawHandlePic(x + 4 + listPtr->elementHeight, y, listPtr->columnInfo[j].width, listPtr->columnInfo[j].width, optionalImage);
+                    }
+                    else if (text) {
+                        DC->drawText(x + 4, y + listPtr->elementHeight, item->textscale, item->window.foreColor, text, 0, item->textStyle, item->font);
+                    }
+                }
 
-					text = DC->feederItemText(item->special, i, 0, &optionalImage);
-					if (optionalImage >= 0)
-					{
-						//DC->drawHandlePic(x + 4 + listPtr->elementHeight, y, listPtr->columnInfo[j].width, listPtr->columnInfo[j].width, optionalImage);
-					}
-					else if (text)
-					{
-						DC->drawText(x + 4, y + listPtr->elementHeight, item->textscale, item->window.foreColor, text, 0, item->textStyle, item->font);
-					}
+                // The chosen text
+                if (i == item->cursorPos) {
+                    DC->fillRect(x + 2, y + listPtr->elementHeight + 2, item->window.rect.w - SCROLLBAR_SIZE - 4, listPtr->elementHeight + 2,
+                                 item->window.outlineColor);
+                }
 
-				}
-
-				// The chosen text
-				if (i == item->cursorPos)
-				{
-					DC->fillRect(x + 2, y + listPtr->elementHeight + 2, item->window.rect.w - SCROLLBAR_SIZE - 4, listPtr->elementHeight+2, item->window.outlineColor);
-				}
-
-				size -= listPtr->elementHeight;
-				if (size < listPtr->elementHeight)
-				{
-					listPtr->drawPadding = listPtr->elementHeight - size;
-					break;
-				}
-				listPtr->endPos++;
-				y += listPtr->elementHeight;
-				// fit++;
-			}
-		}
-	}
+                size -= listPtr->elementHeight;
+                if (size < listPtr->elementHeight) {
+                    listPtr->drawPadding = listPtr->elementHeight - size;
+                    break;
+                }
+                listPtr->endPos++;
+                y += listPtr->elementHeight;
+                // fit++;
+            }
+        }
+    }
 }
 
 /*
@@ -6867,15 +6485,16 @@ void Item_ListBox_Paint(itemDef_t *item)
 BindingIDFromName
 =================
 */
-int BindingIDFromName( const char *name ) {
-	size_t i;
+int BindingIDFromName(const char* name)
+{
+    size_t i;
 
-	// iterate each command, set its default binding
-	for ( i = 0; i < g_bindCount; i++ ) {
-		if ( !Q_stricmp( name, g_bindCommands[i] ) )
-			return i;
-	}
-	return -1;
+    // iterate each command, set its default binding
+    for (i = 0; i < g_bindCount; i++) {
+        if (!Q_stricmp(name, g_bindCommands[i]))
+            return i;
+    }
+    return -1;
 }
 
 char g_nameBind[96];
@@ -6885,43 +6504,44 @@ char g_nameBind[96];
 BindingFromName
 =================
 */
-void BindingFromName( const char *cvar ) {
-	size_t	i;
-	std::optional<fakeAscii_t>	b1, b2;
-	char	sOR[32];
+void BindingFromName(const char* cvar)
+{
+    size_t i;
+    std::optional<fakeAscii_t> b1, b2;
+    char sOR[32];
 
-	// iterate each command, set its default binding
-	for ( i=0; i < g_bindCount; i++ ) {
-		if ( !Q_stricmp(cvar, g_bindCommands[i] ) ) {
-			b2 = g_bindKeys[i][1];
-			b1 = g_bindKeys[i][0];
-			if ( !b1 )
-				break;
+    // iterate each command, set its default binding
+    for (i = 0; i < g_bindCount; i++) {
+        if (!Q_stricmp(cvar, g_bindCommands[i])) {
+            b2 = g_bindKeys[i][1];
+            b1 = g_bindKeys[i][0];
+            if (!b1)
+                break;
 
-			if ( b2 ) {
-				char keyname[2][32];
+            if (b2) {
+                char keyname[2][32];
 
-				DC->keynumToStringBuf( *b1, keyname[0], sizeof( keyname[0] ) );
-// do NOT do this or it corrupts asian text!!!					Q_strupr(keyname[0]);
-				DC->keynumToStringBuf( *b2, keyname[1], sizeof( keyname[1] ) );
-// do NOT do this or it corrupts asian text!!!					Q_strupr(keyname[1]);
+                DC->keynumToStringBuf(*b1, keyname[0], sizeof(keyname[0]));
+                // do NOT do this or it corrupts asian text!!!					Q_strupr(keyname[0]);
+                DC->keynumToStringBuf(*b2, keyname[1], sizeof(keyname[1]));
+                // do NOT do this or it corrupts asian text!!!					Q_strupr(keyname[1]);
 
 #ifdef JK2_MODE
-				Q_strncpyz( sOR, ui.SP_GetStringTextString( "MENUS3_KEYBIND_OR" ), sizeof(sOR) );
+                Q_strncpyz(sOR, ui.SP_GetStringTextString("MENUS3_KEYBIND_OR"), sizeof(sOR));
 #else
-				Q_strncpyz( sOR, SE_GetString( "MENUS_KEYBIND_OR" ), sizeof(sOR) );
+                Q_strncpyz(sOR, SE_GetString("MENUS_KEYBIND_OR"), sizeof(sOR));
 #endif
 
-				Com_sprintf( g_nameBind, sizeof( g_nameBind ), "%s %s %s", keyname[0], sOR, keyname[1] );
-			}
-			else {
-				DC->keynumToStringBuf( *b1, g_nameBind, sizeof( g_nameBind ) );
-// do NOT do this or it corrupts asian text!!!					Q_strupr(g_nameBind);
-			}
-			return;
-		}
-	}
-	Q_strncpyz( g_nameBind, "???", sizeof( g_nameBind ) );
+                Com_sprintf(g_nameBind, sizeof(g_nameBind), "%s %s %s", keyname[0], sOR, keyname[1]);
+            }
+            else {
+                DC->keynumToStringBuf(*b1, g_nameBind, sizeof(g_nameBind));
+                // do NOT do this or it corrupts asian text!!!					Q_strupr(g_nameBind);
+            }
+            return;
+        }
+    }
+    Q_strncpyz(g_nameBind, "???", sizeof(g_nameBind));
 }
 
 /*
@@ -6929,96 +6549,85 @@ void BindingFromName( const char *cvar ) {
 Item_Bind_Paint
 =================
 */
-void Item_Bind_Paint(itemDef_t *item)
+void Item_Bind_Paint(itemDef_t* item)
 {
-	vec4_t	newColor, lowLight;
-	float	value,textScale,textWidth;
-	int		maxChars = 0, textHeight,yAdj,startingXPos;
+    vec4_t newColor, lowLight;
+    float value, textScale, textWidth;
+    int maxChars = 0, textHeight, yAdj, startingXPos;
 
-	menuDef_t *parent = (menuDef_t*)item->parent;
-	editFieldDef_t *editPtr = (editFieldDef_t*)item->typeData;
+    menuDef_t* parent = (menuDef_t*)item->parent;
+    editFieldDef_t* editPtr = (editFieldDef_t*)item->typeData;
 
-	if (editPtr)
-	{
-		maxChars = editPtr->maxPaintChars;
-	}
+    if (editPtr) {
+        maxChars = editPtr->maxPaintChars;
+    }
 
-	value = (item->cvar) ? DC->getCVarValue(item->cvar) : 0;
+    value = (item->cvar) ? DC->getCVarValue(item->cvar) : 0;
 
-	if (Any( item->window.flags & windowFlags_t::WINDOW_HASFOCUS ))
-	{
-		if (g_bindItem == item)
-		{
-			lowLight[0] = 0.8f * 1.0f;
-			lowLight[1] = 0.8f * 0.0f;
-			lowLight[2] = 0.8f * 0.0f;
-			lowLight[3] = 0.8f * 1.0f;
-		}
-		else
-		{
-			lowLight[0] = 0.8f * parent->focusColor[0];
-			lowLight[1] = 0.8f * parent->focusColor[1];
-			lowLight[2] = 0.8f * parent->focusColor[2];
-			lowLight[3] = 0.8f * parent->focusColor[3];
-		}
-		LerpColor(parent->focusColor,lowLight,newColor,0.5+0.5*Q_sinf((float)(DC->realTime / PULSE_DIVISOR)));
-	}
-	else
-	{
-		Item_TextColor(	item,&newColor);
-	}
+    if (Any(item->window.flags & windowFlags_t::WINDOW_HASFOCUS)) {
+        if (g_bindItem == item) {
+            lowLight[0] = 0.8f * 1.0f;
+            lowLight[1] = 0.8f * 0.0f;
+            lowLight[2] = 0.8f * 0.0f;
+            lowLight[3] = 0.8f * 1.0f;
+        }
+        else {
+            lowLight[0] = 0.8f * parent->focusColor[0];
+            lowLight[1] = 0.8f * parent->focusColor[1];
+            lowLight[2] = 0.8f * parent->focusColor[2];
+            lowLight[3] = 0.8f * parent->focusColor[3];
+        }
+        LerpColor(parent->focusColor, lowLight, newColor, 0.5 + 0.5 * Q_sinf((float)(DC->realTime / PULSE_DIVISOR)));
+    }
+    else {
+        Item_TextColor(item, &newColor);
+    }
 
-	if (item->text)
-	{
-		Item_Text_Paint(item);
-		BindingFromName(item->cvar);
+    if (item->text) {
+        Item_Text_Paint(item);
+        BindingFromName(item->cvar);
 
-		// If the text runs past the limit bring the scale down until it fits.
-		textScale = item->textscale;
-		textWidth = DC->textWidth(g_nameBind,(float) textScale, uiInfo.uiDC.Assets.qhMediumFont);
+        // If the text runs past the limit bring the scale down until it fits.
+        textScale = item->textscale;
+        textWidth = DC->textWidth(g_nameBind, (float)textScale, uiInfo.uiDC.Assets.qhMediumFont);
 
-		startingXPos = (item->textRect.x + item->textRect.w + 8);
+        startingXPos = (item->textRect.x + item->textRect.w + 8);
 
-		while ((startingXPos + textWidth) >= SCREEN_WIDTH)
-		{
-			textScale -= .05f;
-			textWidth = DC->textWidth(g_nameBind,(float) textScale, uiInfo.uiDC.Assets.qhMediumFont);
-		}
+        while ((startingXPos + textWidth) >= SCREEN_WIDTH) {
+            textScale -= .05f;
+            textWidth = DC->textWidth(g_nameBind, (float)textScale, uiInfo.uiDC.Assets.qhMediumFont);
+        }
 
-		// Try to adjust it's y placement if the scale has changed.
-		yAdj = 0;
-		if (textScale != item->textscale)
-		{
-			textHeight = DC->textHeight(g_nameBind, item->textscale, uiInfo.uiDC.Assets.qhMediumFont);
-			yAdj = textHeight - DC->textHeight(g_nameBind, textScale, uiInfo.uiDC.Assets.qhMediumFont);
-		}
+        // Try to adjust it's y placement if the scale has changed.
+        yAdj = 0;
+        if (textScale != item->textscale) {
+            textHeight = DC->textHeight(g_nameBind, item->textscale, uiInfo.uiDC.Assets.qhMediumFont);
+            yAdj = textHeight - DC->textHeight(g_nameBind, textScale, uiInfo.uiDC.Assets.qhMediumFont);
+        }
 
-		DC->drawText(startingXPos, item->textRect.y + yAdj, textScale, newColor, g_nameBind, maxChars/*item->textRect.w*/, item->textStyle, item->font);
-	}
-	else
-	{
-		DC->drawText(item->textRect.x, item->textRect.y, item->textscale, newColor, (value != 0) ? "FIXME 1" : "FIXME 0", maxChars/*item->textRect.w*/, item->textStyle, item->font);
-	}
+        DC->drawText(startingXPos, item->textRect.y + yAdj, textScale, newColor, g_nameBind, maxChars /*item->textRect.w*/, item->textStyle, item->font);
+    }
+    else {
+        DC->drawText(item->textRect.x, item->textRect.y, item->textscale, newColor, (value != 0) ? "FIXME 1" : "FIXME 0", maxChars /*item->textRect.w*/,
+                     item->textStyle, item->font);
+    }
 }
 
-void UI_ScaleModelAxis(refEntity_t	*ent)
+void UI_ScaleModelAxis(refEntity_t* ent)
 
-{		// scale the model should we need to
-		if (ent->modelScale[0] && ent->modelScale[0] != 1.0f)
-		{
-			VectorScale( ent->axis[0], ent->modelScale[0] , ent->axis[0] );
-			ent->nonNormalizedAxes = true;
-		}
-		if (ent->modelScale[1] && ent->modelScale[1] != 1.0f)
-		{
-			VectorScale( ent->axis[1], ent->modelScale[1] , ent->axis[1] );
-			ent->nonNormalizedAxes = true;
-		}
-		if (ent->modelScale[2] && ent->modelScale[2] != 1.0f)
-		{
-			VectorScale( ent->axis[2], ent->modelScale[2] , ent->axis[2] );
-			ent->nonNormalizedAxes = true;
-		}
+{ // scale the model should we need to
+    if (ent->modelScale[0] && ent->modelScale[0] != 1.0f) {
+        VectorScale(ent->axis[0], ent->modelScale[0], ent->axis[0]);
+        ent->nonNormalizedAxes = true;
+    }
+    if (ent->modelScale[1] && ent->modelScale[1] != 1.0f) {
+        VectorScale(ent->axis[1], ent->modelScale[1], ent->axis[1]);
+        ent->nonNormalizedAxes = true;
+    }
+    if (ent->modelScale[2] && ent->modelScale[2] != 1.0f) {
+        VectorScale(ent->axis[2], ent->modelScale[2], ent->axis[2]);
+        ent->nonNormalizedAxes = true;
+    }
 }
 
 /*
@@ -7027,91 +6636,87 @@ Item_Model_Paint
 =================
 */
 
-extern int	s_entityWavVol[MAX_GENTITIES];	//from snd_dma.cpp
-void UI_TalkingHead(itemDef_t *item)
+extern int s_entityWavVol[MAX_GENTITIES]; // from snd_dma.cpp
+void UI_TalkingHead(itemDef_t* item)
 {
-//	static int facial_blink = DC->realTime + Q_flrand(4000.0, 8000.0);
-	static int facial_timer = DC->realTime + Q_flrand(10000.0, 30000.0);
-//	static animNumber_t facial_anim = animNumber_t::FACE_ALERT;
-	std::optional<animNumber_t> anim;
+    //	static int facial_blink = DC->realTime + Q_flrand(4000.0, 8000.0);
+    static int facial_timer = DC->realTime + Q_flrand(10000.0, 30000.0);
+    //	static animNumber_t facial_anim = animNumber_t::FACE_ALERT;
+    std::optional<animNumber_t> anim;
 
-	//are we blinking?
-/*	if (facial_blink < 0)
-	{	// yes, check if we are we done blinking ?
-		if (-(facial_blink) < DC->realTime)
-		{	// yes, so reset blink timer
-			facial_blink = DC->realTime + Q_flrand(4000.0, 8000.0);
-			CG_G2SetHeadBlink( cent, false );	//stop the blink
-		}
-	}
-	else // no we aren't blinking
-	{
-		if (facial_blink < DC->realTime)// but should we start ?
-		{
-			CG_G2SetHeadBlink( cent, true );
-			if (facial_blink == 1)
-			{//requested to stay shut by SET_FACEEYESCLOSED
-				facial_blink = -(DC->realTime + 99999999.0f);// set blink timer
-			}
-			else
-			{
-				facial_blink = -(DC->realTime + 300.0f);// set blink timer
-			}
-		}
-	}
-*/
+    // are we blinking?
+    /*	if (facial_blink < 0)
+        {	// yes, check if we are we done blinking ?
+            if (-(facial_blink) < DC->realTime)
+            {	// yes, so reset blink timer
+                facial_blink = DC->realTime + Q_flrand(4000.0, 8000.0);
+                CG_G2SetHeadBlink( cent, false );	//stop the blink
+            }
+        }
+        else // no we aren't blinking
+        {
+            if (facial_blink < DC->realTime)// but should we start ?
+            {
+                CG_G2SetHeadBlink( cent, true );
+                if (facial_blink == 1)
+                {//requested to stay shut by SET_FACEEYESCLOSED
+                    facial_blink = -(DC->realTime + 99999999.0f);// set blink timer
+                }
+                else
+                {
+                    facial_blink = -(DC->realTime + 300.0f);// set blink timer
+                }
+            }
+        }
+    */
 
-	if (s_entityWavVol[0] > 0)	// if we aren't talking, then it will be 0, -1 for talking but paused
-	{
-		anim = animNumber_t::FACE_TALK1 + s_entityWavVol[0]-1;
-		if( anim > animNumber_t::FACE_TALK4 )
-		{
-			anim = animNumber_t::FACE_TALK4;
-		}
-		// reset timers so we don't start right away after talking
-		facial_timer = DC->realTime + Q_flrand(2000.0, 7000.0);
-	}
-	else if (s_entityWavVol[0] == -1)
-	{// talking, but silent
-		anim = animNumber_t::FACE_TALK0;
-		// reset timers so we don't start right away after talking
-		facial_timer = DC->realTime + Q_flrand(2000.0, 7000.0);
-	}
-/*	else if (s_entityWavVol[0] == 0)	//don't anim if in a slient part of speech
-	{//not talking
-		if (facial_timer < 0)	// are animating ?
-		{	//yes
-			if (-(facial_timer) < DC->realTime)// are we done animating ?
-			{	// yes, reset timer
-				facial_timer = DC->realTime + Q_flrand(10000.0, 30000.0);
-			}
-			else
-			{	// not yet, so choose anim
-				anim = facial_anim;
-			}
-		}
-		else // no we aren't animating
-		{	// but should we start ?
-			if (facial_timer < DC->realTime)
-			{//yes
-				facial_anim = animNumber_t::FACE_ALERT + Q_irand(0,2);	//alert, smile, frown
-				// set aux timer
-				facial_timer = -(DC->realTime + 2000.0);
-				anim = facial_anim;
-			}
-		}
-	}//talking
-*/
-	if (facial_timer < DC->realTime)
-	{//restart the base anim
-//		modelDef_t *modelPtr = (modelDef_t*)item->typeData;
-		//ItemParse_model_g2anim_go( item, "BOTH_STAND5IDLE1" );
-//		facial_timer = DC->realTime + Q_flrand(2000.0, 7000.0) + DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, true);
-	}
-	if (anim)
-	{
-		DC->g2hilev_SetAnim(&item->ghoul2[0], "face", *anim, false);
-	}
+    if (s_entityWavVol[0] > 0) // if we aren't talking, then it will be 0, -1 for talking but paused
+    {
+        anim = animNumber_t::FACE_TALK1 + s_entityWavVol[0] - 1;
+        if (anim > animNumber_t::FACE_TALK4) {
+            anim = animNumber_t::FACE_TALK4;
+        }
+        // reset timers so we don't start right away after talking
+        facial_timer = DC->realTime + Q_flrand(2000.0, 7000.0);
+    }
+    else if (s_entityWavVol[0] == -1) { // talking, but silent
+        anim = animNumber_t::FACE_TALK0;
+        // reset timers so we don't start right away after talking
+        facial_timer = DC->realTime + Q_flrand(2000.0, 7000.0);
+    }
+    /*	else if (s_entityWavVol[0] == 0)	//don't anim if in a slient part of speech
+        {//not talking
+            if (facial_timer < 0)	// are animating ?
+            {	//yes
+                if (-(facial_timer) < DC->realTime)// are we done animating ?
+                {	// yes, reset timer
+                    facial_timer = DC->realTime + Q_flrand(10000.0, 30000.0);
+                }
+                else
+                {	// not yet, so choose anim
+                    anim = facial_anim;
+                }
+            }
+            else // no we aren't animating
+            {	// but should we start ?
+                if (facial_timer < DC->realTime)
+                {//yes
+                    facial_anim = animNumber_t::FACE_ALERT + Q_irand(0,2);	//alert, smile, frown
+                    // set aux timer
+                    facial_timer = -(DC->realTime + 2000.0);
+                    anim = facial_anim;
+                }
+            }
+        }//talking
+    */
+    if (facial_timer < DC->realTime) { // restart the base anim
+        //		modelDef_t *modelPtr = (modelDef_t*)item->typeData;
+        // ItemParse_model_g2anim_go( item, "BOTH_STAND5IDLE1" );
+        //		facial_timer = DC->realTime + Q_flrand(2000.0, 7000.0) + DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, true);
+    }
+    if (anim) {
+        DC->g2hilev_SetAnim(&item->ghoul2[0], "face", *anim, false);
+    }
 }
 
 /*
@@ -7119,271 +6724,252 @@ void UI_TalkingHead(itemDef_t *item)
 Item_Model_Paint
 =================
 */
-extern void UI_SaberDrawBlades( itemDef_t *item, vec3_t origin, float curYaw );
+extern void UI_SaberDrawBlades(itemDef_t* item, vec3_t origin, float curYaw);
 
-void Item_Model_Paint(itemDef_t *item)
+void Item_Model_Paint(itemDef_t* item)
 {
-	float x, y, w, h;
-	refdef_t refdef;
-	refEntity_t		ent;
-	vec3_t			mins, maxs, origin;
-	vec3_t			angles;
-	const modelDef_t *modelPtr = (modelDef_t*)item->typeData;
+    float x, y, w, h;
+    refdef_t refdef;
+    refEntity_t ent;
+    vec3_t mins, maxs, origin;
+    vec3_t angles;
+    const modelDef_t* modelPtr = (modelDef_t*)item->typeData;
 
-	if (modelPtr == nullptr)
-	{
-		return;
-	}
+    if (modelPtr == nullptr) {
+        return;
+    }
 
-	// Fuck all the logic --eez
+    // Fuck all the logic --eez
 #ifdef JK2_MODE
-	// setup the refdef
-	memset( &refdef, 0, sizeof( refdef ) );
-	refdef.rdflags = refdefFlags_t::RDF_NOWORLDMODEL;
-	AxisClear( refdef.viewaxis );
-	x = item->window.rect.x+1;
-	y = item->window.rect.y+1;
-	w = item->window.rect.w-2;
-	h = item->window.rect.h-2;
+    // setup the refdef
+    memset(&refdef, 0, sizeof(refdef));
+    refdef.rdflags = refdefFlags_t::RDF_NOWORLDMODEL;
+    AxisClear(refdef.viewaxis);
+    x = item->window.rect.x + 1;
+    y = item->window.rect.y + 1;
+    w = item->window.rect.w - 2;
+    h = item->window.rect.h - 2;
 
-	refdef.x = x * DC->xscale;
-	refdef.y = y * DC->yscale;
-	refdef.width = w * DC->xscale;
-	refdef.height = h * DC->yscale;
+    refdef.x = x * DC->xscale;
+    refdef.y = y * DC->yscale;
+    refdef.width = w * DC->xscale;
+    refdef.height = h * DC->yscale;
 
-	DC->modelBounds( item->asset, mins, maxs );
+    DC->modelBounds(item->asset, mins, maxs);
 
-	origin[2] = -0.5 * ( mins[2] + maxs[2] );
-	origin[1] = 0.5 * ( mins[1] + maxs[1] );
+    origin[2] = -0.5 * (mins[2] + maxs[2]);
+    origin[1] = 0.5 * (mins[1] + maxs[1]);
 
-	// calculate distance so the model nearly fills the box
-	if (true)
-	{
-		float len = 0.5 * ( maxs[2] - mins[2] );
-		origin[0] = len / 0.268;	// len / tan( fov/2 )
-		//origin[0] = len / Q_tanf(w/2);
-	}
-	else
-	{
-		origin[0] = item->textscale;
-	}
-	// WTF..? --eez
-	//refdef.fov_x = (modelPtr->fov_x) ? modelPtr->fov_x : w;
-	//refdef.fov_y = (modelPtr->fov_y) ? modelPtr->fov_y : h;
+    // calculate distance so the model nearly fills the box
+    if (true) {
+        float len = 0.5 * (maxs[2] - mins[2]);
+        origin[0] = len / 0.268; // len / tan( fov/2 )
+                                 // origin[0] = len / Q_tanf(w/2);
+    }
+    else {
+        origin[0] = item->textscale;
+    }
+    // WTF..? --eez
+    // refdef.fov_x = (modelPtr->fov_x) ? modelPtr->fov_x : w;
+    // refdef.fov_y = (modelPtr->fov_y) ? modelPtr->fov_y : h;
 
-	refdef.fov_x = 45;
-	refdef.fov_y = 45;
+    refdef.fov_x = 45;
+    refdef.fov_y = 45;
 
-	//refdef.fov_x = (int)((float)refdef.width / 640.0f * 90.0f);
-	//xx = refdef.width / Q_tan( refdef.fov_x / 360 * Q_PI );
-	//refdef.fov_y = Q_atan2( refdef.height, xx );
-	//refdef.fov_y *= ( 360 / Q_PI );
+    // refdef.fov_x = (int)((float)refdef.width / 640.0f * 90.0f);
+    // xx = refdef.width / Q_tan( refdef.fov_x / 360 * Q_PI );
+    // refdef.fov_y = Q_atan2( refdef.height, xx );
+    // refdef.fov_y *= ( 360 / Q_PI );
 
-	DC->clearScene();
+    DC->clearScene();
 
-	refdef.time = DC->realTime;
+    refdef.time = DC->realTime;
 
-	// add the model
+    // add the model
 
-	memset( &ent, 0, sizeof(ent) );
+    memset(&ent, 0, sizeof(ent));
 
-	//adjust = 5.0 * Q_sinf( (float)uis.realtime / 500 );
-	//adjust = 360 % (int)((float)uis.realtime / 1000);
-	//VectorSet( angles, 0, 0, 1 );
+    // adjust = 5.0 * Q_sinf( (float)uis.realtime / 500 );
+    // adjust = 360 % (int)((float)uis.realtime / 1000);
+    // VectorSet( angles, 0, 0, 1 );
 
-	// use item storage to track
-/*
-	if (modelPtr->rotationSpeed)
-	{
-		if (DC->realTime > item->window.nextTime)
-		{
-			item->window.nextTime = DC->realTime + modelPtr->rotationSpeed;
-			modelPtr->angle = (int)(modelPtr->angle + 1) % 360;
-		}
-	}
-	VectorSet( angles, 0, modelPtr->angle, 0 );
-*/
-	VectorSet( angles, 0, (float)(refdef.time/20.0f), 0);
+    // use item storage to track
+    /*
+        if (modelPtr->rotationSpeed)
+        {
+            if (DC->realTime > item->window.nextTime)
+            {
+                item->window.nextTime = DC->realTime + modelPtr->rotationSpeed;
+                modelPtr->angle = (int)(modelPtr->angle + 1) % 360;
+            }
+        }
+        VectorSet( angles, 0, modelPtr->angle, 0 );
+    */
+    VectorSet(angles, 0, (float)(refdef.time / 20.0f), 0);
 
-	AnglesToAxis( angles, ent.axis );
+    AnglesToAxis(angles, ent.axis);
 
-	ent.hModel = item->asset;
-	VectorCopy( origin, ent.origin );
-	VectorCopy( ent.origin, ent.oldorigin );
+    ent.hModel = item->asset;
+    VectorCopy(origin, ent.origin);
+    VectorCopy(ent.origin, ent.oldorigin);
 
-	// Set up lighting
-	VectorCopy( refdef.vieworg, ent.lightingOrigin );
-	ent.renderfx = renderFxFlags_t::RF_LIGHTING_ORIGIN | renderFxFlags_t::RF_NOSHADOW;
+    // Set up lighting
+    VectorCopy(refdef.vieworg, ent.lightingOrigin);
+    ent.renderfx = renderFxFlags_t::RF_LIGHTING_ORIGIN | renderFxFlags_t::RF_NOSHADOW;
 
-	DC->addRefEntityToScene( &ent );
-	DC->renderScene( &refdef );
+    DC->addRefEntityToScene(&ent);
+    DC->renderScene(&refdef);
 #else
-	// a moves datapad anim is playing
-	if (uiInfo.moveAnimTime && (uiInfo.moveAnimTime < uiInfo.uiDC.realTime))
-	{
-		modelDef_t *modelPtr;
-		modelPtr = (modelDef_t*)item->typeData;
-		if (modelPtr)
-		{
-			//HACKHACKHACK: check for any multi-part anim sequences, and play the next anim, if needbe
-			switch( modelPtr->g2anim )
-			{
-			case animNumber_t::BOTH_FORCEWALLREBOUND_FORWARD:
-			case animNumber_t::BOTH_FORCEJUMP1:
-				ItemParse_model_g2anim_go( item, BG_AnimName( animNumber_t::BOTH_FORCEINAIR1 ) );
-				uiInfo.moveAnimTime = DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, true);
-				if ( !uiInfo.moveAnimTime )
-				{
-					uiInfo.moveAnimTime = 500;
-				}
-				uiInfo.moveAnimTime += uiInfo.uiDC.realTime;
-				break;
-			case animNumber_t::BOTH_FORCEINAIR1:
-				ItemParse_model_g2anim_go( item, BG_AnimName( animNumber_t::BOTH_FORCELAND1 ) );
-				uiInfo.moveAnimTime = DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, true);
-				uiInfo.moveAnimTime += uiInfo.uiDC.realTime;
-				break;
-			case animNumber_t::BOTH_FORCEWALLRUNFLIP_START:
-				ItemParse_model_g2anim_go( item, BG_AnimName( animNumber_t::BOTH_FORCEWALLRUNFLIP_END ) );
-				uiInfo.moveAnimTime = DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, true);
-				uiInfo.moveAnimTime += uiInfo.uiDC.realTime;
-				break;
-			case animNumber_t::BOTH_FORCELONGLEAP_START:
-				ItemParse_model_g2anim_go( item, BG_AnimName( animNumber_t::BOTH_FORCELONGLEAP_LAND ) );
-				uiInfo.moveAnimTime = DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, true);
-				uiInfo.moveAnimTime += uiInfo.uiDC.realTime;
-				break;
-			case animNumber_t::BOTH_KNOCKDOWN3://on front - into force getup
-				DC->startLocalSound(uiInfo.uiDC.Assets.datapadmoveJumpSound, soundChannel_t::CHAN_LOCAL );
-				ItemParse_model_g2anim_go( item, BG_AnimName( animNumber_t::BOTH_FORCE_GETUP_F1 ) );
-				uiInfo.moveAnimTime = DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, true);
-				uiInfo.moveAnimTime += uiInfo.uiDC.realTime;
-				break;
-			case animNumber_t::BOTH_KNOCKDOWN2://on back - kick forward getup
-				DC->startLocalSound(uiInfo.uiDC.Assets.datapadmoveJumpSound, soundChannel_t::CHAN_LOCAL );
-				ItemParse_model_g2anim_go( item, BG_AnimName( animNumber_t::BOTH_GETUP_BROLL_F ) );
-				uiInfo.moveAnimTime = DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, true);
-				uiInfo.moveAnimTime += uiInfo.uiDC.realTime;
-				break;
-			case animNumber_t::BOTH_KNOCKDOWN1://on back - roll-away
-				DC->startLocalSound(uiInfo.uiDC.Assets.datapadmoveRollSound, soundChannel_t::CHAN_LOCAL );
-				ItemParse_model_g2anim_go( item, BG_AnimName( animNumber_t::BOTH_GETUP_BROLL_R ) );
-				uiInfo.moveAnimTime = DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, true);
-				uiInfo.moveAnimTime += uiInfo.uiDC.realTime;
-				break;
-			default:
-				ItemParse_model_g2anim_go( item, uiInfo.movesBaseAnim );
-				DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, true);
-				uiInfo.moveAnimTime = 0;
-				break;
-			}
-		}
-	}
+    // a moves datapad anim is playing
+    if (uiInfo.moveAnimTime && (uiInfo.moveAnimTime < uiInfo.uiDC.realTime)) {
+        modelDef_t* modelPtr;
+        modelPtr = (modelDef_t*)item->typeData;
+        if (modelPtr) {
+            // HACKHACKHACK: check for any multi-part anim sequences, and play the next anim, if needbe
+            switch (modelPtr->g2anim) {
+            case animNumber_t::BOTH_FORCEWALLREBOUND_FORWARD:
+            case animNumber_t::BOTH_FORCEJUMP1:
+                ItemParse_model_g2anim_go(item, BG_AnimName(animNumber_t::BOTH_FORCEINAIR1));
+                uiInfo.moveAnimTime = DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, true);
+                if (!uiInfo.moveAnimTime) {
+                    uiInfo.moveAnimTime = 500;
+                }
+                uiInfo.moveAnimTime += uiInfo.uiDC.realTime;
+                break;
+            case animNumber_t::BOTH_FORCEINAIR1:
+                ItemParse_model_g2anim_go(item, BG_AnimName(animNumber_t::BOTH_FORCELAND1));
+                uiInfo.moveAnimTime = DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, true);
+                uiInfo.moveAnimTime += uiInfo.uiDC.realTime;
+                break;
+            case animNumber_t::BOTH_FORCEWALLRUNFLIP_START:
+                ItemParse_model_g2anim_go(item, BG_AnimName(animNumber_t::BOTH_FORCEWALLRUNFLIP_END));
+                uiInfo.moveAnimTime = DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, true);
+                uiInfo.moveAnimTime += uiInfo.uiDC.realTime;
+                break;
+            case animNumber_t::BOTH_FORCELONGLEAP_START:
+                ItemParse_model_g2anim_go(item, BG_AnimName(animNumber_t::BOTH_FORCELONGLEAP_LAND));
+                uiInfo.moveAnimTime = DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, true);
+                uiInfo.moveAnimTime += uiInfo.uiDC.realTime;
+                break;
+            case animNumber_t::BOTH_KNOCKDOWN3: // on front - into force getup
+                DC->startLocalSound(uiInfo.uiDC.Assets.datapadmoveJumpSound, soundChannel_t::CHAN_LOCAL);
+                ItemParse_model_g2anim_go(item, BG_AnimName(animNumber_t::BOTH_FORCE_GETUP_F1));
+                uiInfo.moveAnimTime = DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, true);
+                uiInfo.moveAnimTime += uiInfo.uiDC.realTime;
+                break;
+            case animNumber_t::BOTH_KNOCKDOWN2: // on back - kick forward getup
+                DC->startLocalSound(uiInfo.uiDC.Assets.datapadmoveJumpSound, soundChannel_t::CHAN_LOCAL);
+                ItemParse_model_g2anim_go(item, BG_AnimName(animNumber_t::BOTH_GETUP_BROLL_F));
+                uiInfo.moveAnimTime = DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, true);
+                uiInfo.moveAnimTime += uiInfo.uiDC.realTime;
+                break;
+            case animNumber_t::BOTH_KNOCKDOWN1: // on back - roll-away
+                DC->startLocalSound(uiInfo.uiDC.Assets.datapadmoveRollSound, soundChannel_t::CHAN_LOCAL);
+                ItemParse_model_g2anim_go(item, BG_AnimName(animNumber_t::BOTH_GETUP_BROLL_R));
+                uiInfo.moveAnimTime = DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, true);
+                uiInfo.moveAnimTime += uiInfo.uiDC.realTime;
+                break;
+            default:
+                ItemParse_model_g2anim_go(item, uiInfo.movesBaseAnim);
+                DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, true);
+                uiInfo.moveAnimTime = 0;
+                break;
+            }
+        }
+    }
 
-	// setup the refdef
-	memset( &refdef, 0, sizeof( refdef ) );
-	refdef.rdflags = refdefFlags_t::RDF_NOWORLDMODEL;
-	AxisClear( refdef.viewaxis );
-	x = item->window.rect.x+1;
-	y = item->window.rect.y+1;
-	w = item->window.rect.w-2;
-	h = item->window.rect.h-2;
+    // setup the refdef
+    memset(&refdef, 0, sizeof(refdef));
+    refdef.rdflags = refdefFlags_t::RDF_NOWORLDMODEL;
+    AxisClear(refdef.viewaxis);
+    x = item->window.rect.x + 1;
+    y = item->window.rect.y + 1;
+    w = item->window.rect.w - 2;
+    h = item->window.rect.h - 2;
 
-	refdef.x = x * DC->xscale;
-	refdef.y = y * DC->yscale;
-	refdef.width = w * DC->xscale;
-	refdef.height = h * DC->yscale;
+    refdef.x = x * DC->xscale;
+    refdef.y = y * DC->yscale;
+    refdef.width = w * DC->xscale;
+    refdef.height = h * DC->yscale;
 
-	if (Any( item->flags&itemModelFlags_t::ITF_G2VALID ))
-	{ //ghoul2 models don't have bounds, so we have to parse them.
-		VectorCopy(modelPtr->g2mins, mins);
-		VectorCopy(modelPtr->g2maxs, maxs);
+    if (Any(item->flags & itemModelFlags_t::ITF_G2VALID)) { // ghoul2 models don't have bounds, so we have to parse them.
+        VectorCopy(modelPtr->g2mins, mins);
+        VectorCopy(modelPtr->g2maxs, maxs);
 
-		if (!mins[0] && !mins[1] && !mins[2] &&
-			!maxs[0] && !maxs[1] && !maxs[2])
-		{ //we'll use defaults then I suppose.
-			VectorSet(mins, -16, -16, -24);
-			VectorSet(maxs, 16, 16, 32);
-		}
-	}
-	else
-	{
-		DC->modelBounds( item->asset, mins, maxs );
-	}
+        if (!mins[0] && !mins[1] && !mins[2] && !maxs[0] && !maxs[1] && !maxs[2]) { // we'll use defaults then I suppose.
+            VectorSet(mins, -16, -16, -24);
+            VectorSet(maxs, 16, 16, 32);
+        }
+    }
+    else {
+        DC->modelBounds(item->asset, mins, maxs);
+    }
 
-	origin[2] = -0.5 * ( mins[2] + maxs[2] );
-	origin[1] = 0.5 * ( mins[1] + maxs[1] );
+    origin[2] = -0.5 * (mins[2] + maxs[2]);
+    origin[1] = 0.5 * (mins[1] + maxs[1]);
 
-	refdef.fov_x = (modelPtr->fov_x) ? modelPtr->fov_x : (int)((float)refdef.width / 640.0f * 90.0f);
-	refdef.fov_y = (modelPtr->fov_y) ? modelPtr->fov_y : Q_atan2( refdef.height, refdef.width / Q_tan( refdef.fov_x / 360 * Q_PI ) ) * ( 360 / Q_PI );
+    refdef.fov_x = (modelPtr->fov_x) ? modelPtr->fov_x : (int)((float)refdef.width / 640.0f * 90.0f);
+    refdef.fov_y = (modelPtr->fov_y) ? modelPtr->fov_y : Q_atan2(refdef.height, refdef.width / Q_tan(refdef.fov_x / 360 * Q_PI)) * (360 / Q_PI);
 
-//	refdef.fov_x = (modelPtr->fov_x) ? modelPtr->fov_x : refdef.width;
-//	refdef.fov_y = (modelPtr->fov_y) ? modelPtr->fov_y : refdef.height;
+    //	refdef.fov_x = (modelPtr->fov_x) ? modelPtr->fov_x : refdef.width;
+    //	refdef.fov_y = (modelPtr->fov_y) ? modelPtr->fov_y : refdef.height;
 
-	// calculate distance so the model nearly fills the box
-	float len = 0.5 * ( maxs[2] - mins[2] );
-	origin[0] = len / 0.268;
+    // calculate distance so the model nearly fills the box
+    float len = 0.5 * (maxs[2] - mins[2]);
+    origin[0] = len / 0.268;
 
-	DC->clearScene();
+    DC->clearScene();
 
-	refdef.time = DC->realTime;
+    refdef.time = DC->realTime;
 
-	// add the model
+    // add the model
 
-	memset( &ent, 0, sizeof(ent) );
+    memset(&ent, 0, sizeof(ent));
 
-	// use item storage to track
-	float curYaw = modelPtr->angle;
-	if (modelPtr->rotationSpeed)
-	{
-		curYaw += (float)refdef.time/modelPtr->rotationSpeed;
-	}
-	if ( Any( item->flags&itemModelFlags_t::ITF_ISANYSABER ) && !Any( item->flags&itemModelFlags_t::ITF_ISCHARACTER ) )
-	{//hack to put saber on it's side
-		VectorSet( angles, curYaw, 0, 90 );
-	}
-	else
-	{
-		VectorSet( angles, 0, curYaw, 0 );
-	}
+    // use item storage to track
+    float curYaw = modelPtr->angle;
+    if (modelPtr->rotationSpeed) {
+        curYaw += (float)refdef.time / modelPtr->rotationSpeed;
+    }
+    if (Any(item->flags & itemModelFlags_t::ITF_ISANYSABER) && !Any(item->flags & itemModelFlags_t::ITF_ISCHARACTER)) { // hack to put saber on it's side
+        VectorSet(angles, curYaw, 0, 90);
+    }
+    else {
+        VectorSet(angles, 0, curYaw, 0);
+    }
 
+    AnglesToAxis(angles, ent.axis);
 
-	AnglesToAxis( angles, ent.axis );
+    if (Any(item->flags & itemModelFlags_t::ITF_G2VALID)) {
+        ent.ghoul2 = &item->ghoul2;
+        ent.radius = 1000;
+        ent.customSkin = modelPtr->g2skin;
 
-	if (Any( item->flags&itemModelFlags_t::ITF_G2VALID ))
-	{
-		ent.ghoul2 = &item->ghoul2;
-		ent.radius = 1000;
-		ent.customSkin = modelPtr->g2skin;
+        if (Any(item->flags & itemModelFlags_t::ITF_ISCHARACTER)) {
+            ent.shaderRGBA[0] = ui_char_color_red.integer;
+            ent.shaderRGBA[1] = ui_char_color_green.integer;
+            ent.shaderRGBA[2] = ui_char_color_blue.integer;
+            ent.shaderRGBA[3] = 255;
+            UI_TalkingHead(item);
+        }
+        if (Any(item->flags & itemModelFlags_t::ITF_ISANYSABER)) { // UGH, draw the saber blade!
+            UI_SaberDrawBlades(item, origin, curYaw);
+        }
+    }
+    else {
+        ent.hModel = item->asset;
+    }
+    VectorCopy(origin, ent.origin);
+    VectorCopy(ent.origin, ent.oldorigin);
 
-		if ( Any( item->flags&itemModelFlags_t::ITF_ISCHARACTER ) )
-		{
-			ent.shaderRGBA[0] = ui_char_color_red.integer;
-			ent.shaderRGBA[1] = ui_char_color_green.integer;
-			ent.shaderRGBA[2] = ui_char_color_blue.integer;
-			ent.shaderRGBA[3] = 255;
-			UI_TalkingHead(item);
-		}
-		if ( Any( item->flags&itemModelFlags_t::ITF_ISANYSABER ) )
-		{//UGH, draw the saber blade!
-			UI_SaberDrawBlades( item, origin, curYaw );
-		}
-	}
-	else
-	{
-		ent.hModel = item->asset;
-	}
-	VectorCopy( origin, ent.origin );
-	VectorCopy( ent.origin, ent.oldorigin );
+    // Set up lighting
+    // VectorCopy( refdef.vieworg, ent.lightingOrigin );
+    ent.renderfx = renderFxFlags_t::RF_NOSHADOW;
 
-	// Set up lighting
-	//VectorCopy( refdef.vieworg, ent.lightingOrigin );
-	ent.renderfx = renderFxFlags_t::RF_NOSHADOW;
+    ui.R_AddLightToScene(refdef.vieworg, 500, 1, 1, 1); // fixme: specify in menu file!
 
-	ui.R_AddLightToScene(refdef.vieworg, 500, 1, 1, 1);	//fixme: specify in menu file!
-
-	DC->addRefEntityToScene( &ent );
-	DC->renderScene( &refdef );
+    DC->addRefEntityToScene(&ent);
+    DC->renderScene(&refdef);
 #endif
 }
 
@@ -7392,108 +6978,100 @@ void Item_Model_Paint(itemDef_t *item)
 Item_OwnerDraw_Paint
 =================
 */
-void Item_OwnerDraw_Paint(itemDef_t *item)
+void Item_OwnerDraw_Paint(itemDef_t* item)
 {
-	menuDef_t *parent;
+    menuDef_t* parent;
 
-	if (item == nullptr)
-	{
-		return;
-	}
+    if (item == nullptr) {
+        return;
+    }
 
-	parent = (menuDef_t*)item->parent;
+    parent = (menuDef_t*)item->parent;
 
-	if (DC->ownerDrawItem)
-	{
-		vec4_t color, lowLight;
-		Fade(&item->window.flags, &item->window.foreColor[3], parent->fadeClamp, &item->window.nextTime, parent->fadeCycle, true, parent->fadeAmount);
-		memcpy(&color, &item->window.foreColor, sizeof(color));
-		if (item->numColors > 0 && DC->getValue)
-		{
-			// if the value is within one of the ranges then set color to that, otherwise leave at default
-			int i;
-			float f = DC->getValue(item->window.ownerDraw);
-			for (i = 0; i < item->numColors; i++)
-			{
-				if (f >= item->colorRanges[i].low && f <= item->colorRanges[i].high)
-				{
-					memcpy(&color, &item->colorRanges[i].color, sizeof(color));
-					break;
-				}
-			}
-		}
+    if (DC->ownerDrawItem) {
+        vec4_t color, lowLight;
+        Fade(&item->window.flags, &item->window.foreColor[3], parent->fadeClamp, &item->window.nextTime, parent->fadeCycle, true, parent->fadeAmount);
+        memcpy(&color, &item->window.foreColor, sizeof(color));
+        if (item->numColors > 0 && DC->getValue) {
+            // if the value is within one of the ranges then set color to that, otherwise leave at default
+            int i;
+            float f = DC->getValue(item->window.ownerDraw);
+            for (i = 0; i < item->numColors; i++) {
+                if (f >= item->colorRanges[i].low && f <= item->colorRanges[i].high) {
+                    memcpy(&color, &item->colorRanges[i].color, sizeof(color));
+                    break;
+                }
+            }
+        }
 
-		if (Any( item->window.flags & windowFlags_t::WINDOW_HASFOCUS ))
-		{
-			lowLight[0] = 0.8 * parent->focusColor[0];
-			lowLight[1] = 0.8 * parent->focusColor[1];
-			lowLight[2] = 0.8 * parent->focusColor[2];
-			lowLight[3] = 0.8 * parent->focusColor[3];
-			LerpColor(parent->focusColor,lowLight,color,0.5+0.5*Q_sinf((float)(DC->realTime / PULSE_DIVISOR)));
-		}
-		else if (item->textStyle == ITEM_TEXTSTYLE_BLINK && !((DC->realTime/BLINK_DIVISOR) & 1))
-		{
-			lowLight[0] = 0.8 * item->window.foreColor[0];
-			lowLight[1] = 0.8 * item->window.foreColor[1];
-			lowLight[2] = 0.8 * item->window.foreColor[2];
-			lowLight[3] = 0.8 * item->window.foreColor[3];
-			LerpColor(item->window.foreColor,lowLight,color,0.5+0.5*Q_sinf((float)(DC->realTime / PULSE_DIVISOR)));
-		}
+        if (Any(item->window.flags & windowFlags_t::WINDOW_HASFOCUS)) {
+            lowLight[0] = 0.8 * parent->focusColor[0];
+            lowLight[1] = 0.8 * parent->focusColor[1];
+            lowLight[2] = 0.8 * parent->focusColor[2];
+            lowLight[3] = 0.8 * parent->focusColor[3];
+            LerpColor(parent->focusColor, lowLight, color, 0.5 + 0.5 * Q_sinf((float)(DC->realTime / PULSE_DIVISOR)));
+        }
+        else if (item->textStyle == ITEM_TEXTSTYLE_BLINK && !((DC->realTime / BLINK_DIVISOR) & 1)) {
+            lowLight[0] = 0.8 * item->window.foreColor[0];
+            lowLight[1] = 0.8 * item->window.foreColor[1];
+            lowLight[2] = 0.8 * item->window.foreColor[2];
+            lowLight[3] = 0.8 * item->window.foreColor[3];
+            LerpColor(item->window.foreColor, lowLight, color, 0.5 + 0.5 * Q_sinf((float)(DC->realTime / PULSE_DIVISOR)));
+        }
 
-		if ( item->disabled )
-			memcpy( color, parent->disableColor, sizeof( vec4_t ) );
+        if (item->disabled)
+            memcpy(color, parent->disableColor, sizeof(vec4_t));
 
-		if (Any( item->cvarFlags & (itemCvarFlags_t::CVAR_ENABLE | itemCvarFlags_t::CVAR_DISABLE) ) && !Item_EnableShowViaCvar(item, itemCvarFlags_t::CVAR_ENABLE))
-		{
-			memcpy(color, parent->disableColor, sizeof(vec4_t));
-		}
+        if (Any(item->cvarFlags & (itemCvarFlags_t::CVAR_ENABLE | itemCvarFlags_t::CVAR_DISABLE)) &&
+            !Item_EnableShowViaCvar(item, itemCvarFlags_t::CVAR_ENABLE)) {
+            memcpy(color, parent->disableColor, sizeof(vec4_t));
+        }
 
-		if (item->text)
-		{
-			Item_Text_Paint(item);
+        if (item->text) {
+            Item_Text_Paint(item);
 
-			// +8 is an offset kludge to properly align owner draw items that have text combined with them
-			DC->ownerDrawItem(item->textRect.x + item->textRect.w + 8, item->window.rect.y, item->window.rect.w, item->window.rect.h, 0, item->textaligny, item->window.ownerDraw, item->window.ownerDrawFlags, item->alignment, item->special, item->textscale, color, item->window.background, item->textStyle, item->font );
-		}
-		else
-		{
-			DC->ownerDrawItem(item->window.rect.x, item->window.rect.y, item->window.rect.w, item->window.rect.h, item->textalignx, item->textaligny, item->window.ownerDraw, item->window.ownerDrawFlags, item->alignment, item->special, item->textscale, color, item->window.background, item->textStyle, item->font );
-		}
-	}
+            // +8 is an offset kludge to properly align owner draw items that have text combined with them
+            DC->ownerDrawItem(item->textRect.x + item->textRect.w + 8, item->window.rect.y, item->window.rect.w, item->window.rect.h, 0, item->textaligny,
+                              item->window.ownerDraw, item->window.ownerDrawFlags, item->alignment, item->special, item->textscale, color,
+                              item->window.background, item->textStyle, item->font);
+        }
+        else {
+            DC->ownerDrawItem(item->window.rect.x, item->window.rect.y, item->window.rect.w, item->window.rect.h, item->textalignx, item->textaligny,
+                              item->window.ownerDraw, item->window.ownerDrawFlags, item->alignment, item->special, item->textscale, color,
+                              item->window.background, item->textStyle, item->font);
+        }
+    }
 }
 
-void Item_YesNo_Paint(itemDef_t *item)
+void Item_YesNo_Paint(itemDef_t* item)
 {
-	vec4_t color;
-	float value;
+    vec4_t color;
+    float value;
 
-	value = (item->cvar) ? DC->getCVarValue(item->cvar) : 0;
+    value = (item->cvar) ? DC->getCVarValue(item->cvar) : 0;
 
 #ifdef JK2_MODE
-	const char *psYes = ui.SP_GetStringTextString( "MENUS0_YES" );
-	const char *psNo = ui.SP_GetStringTextString( "MENUS0_NO" );
+    const char* psYes = ui.SP_GetStringTextString("MENUS0_YES");
+    const char* psNo = ui.SP_GetStringTextString("MENUS0_NO");
 #else
-	const char *psYes = SE_GetString( "MENUS_YES" );
-	const char *psNo  = SE_GetString( "MENUS_NO" );
+    const char* psYes = SE_GetString("MENUS_YES");
+    const char* psNo = SE_GetString("MENUS_NO");
 #endif
-	const char *yesnovalue;
+    const char* yesnovalue;
 
-	if (item->invertYesNo)
-		yesnovalue = (value == 0) ? psYes : psNo;
-	else
-		yesnovalue = (value != 0) ? psYes : psNo;
+    if (item->invertYesNo)
+        yesnovalue = (value == 0) ? psYes : psNo;
+    else
+        yesnovalue = (value != 0) ? psYes : psNo;
 
-	Item_TextColor(item, &color);
-	if (item->text)
-	{
-		Item_Text_Paint(item);
-		DC->drawText(item->textRect.x + item->textRect.w + 8, item->textRect.y, item->textscale, color, yesnovalue, 0, item->textStyle, item->font);
-	}
-	else
-	{
-		DC->drawText(item->textRect.x, item->textRect.y, item->textscale, color, yesnovalue , 0, item->textStyle, item->font);
-	}
-
+    Item_TextColor(item, &color);
+    if (item->text) {
+        Item_Text_Paint(item);
+        DC->drawText(item->textRect.x + item->textRect.w + 8, item->textRect.y, item->textscale, color, yesnovalue, 0, item->textStyle, item->font);
+    }
+    else {
+        DC->drawText(item->textRect.x, item->textRect.y, item->textscale, color, yesnovalue, 0, item->textStyle, item->font);
+    }
 }
 
 /*
@@ -7501,143 +7079,131 @@ void Item_YesNo_Paint(itemDef_t *item)
 Item_Multi_Paint
 =================
 */
-void Item_Multi_Paint(itemDef_t *item)
+void Item_Multi_Paint(itemDef_t* item)
 {
-	vec4_t color;
-	const char *text = "";
+    vec4_t color;
+    const char* text = "";
 
-	text = Item_Multi_Setting(item);
-	if (*text == '@')	// string reference
-	{
-		text = SE_GetString( &text[1] );
-	}
+    text = Item_Multi_Setting(item);
+    if (*text == '@') // string reference
+    {
+        text = SE_GetString(&text[1]);
+    }
 
-	Item_TextColor(item, &color);
-	if (item->text)
-	{
-		Item_Text_Paint(item);
-		DC->drawText(item->textRect.x + item->textRect.w + 8, item->textRect.y, item->textscale, color, text, 0, item->textStyle, item->font);
-	}
-	else
-	{
-//JLF added xoffset
-		DC->drawText(item->textRect.x +item->xoffset, item->textRect.y, item->textscale, color, text, 0, item->textStyle, item->font);
-	}
+    Item_TextColor(item, &color);
+    if (item->text) {
+        Item_Text_Paint(item);
+        DC->drawText(item->textRect.x + item->textRect.w + 8, item->textRect.y, item->textscale, color, text, 0, item->textStyle, item->font);
+    }
+    else {
+        // JLF added xoffset
+        DC->drawText(item->textRect.x + item->xoffset, item->textRect.y, item->textscale, color, text, 0, item->textStyle, item->font);
+    }
 }
 
-int Item_TextScroll_MaxScroll ( itemDef_t *item )
+int Item_TextScroll_MaxScroll(itemDef_t* item)
 {
-	textScrollDef_t *scrollPtr = (textScrollDef_t*)item->typeData;
+    textScrollDef_t* scrollPtr = (textScrollDef_t*)item->typeData;
 
-	int count = scrollPtr->iLineCount;
-	int max   = count - (int)(item->window.rect.h / scrollPtr->lineHeight) + 1;
+    int count = scrollPtr->iLineCount;
+    int max = count - (int)(item->window.rect.h / scrollPtr->lineHeight) + 1;
 
-	if (max < 0)
-	{
-		return 0;
-	}
+    if (max < 0) {
+        return 0;
+    }
 
-	return max;
+    return max;
 }
 
-int Item_TextScroll_ThumbPosition ( itemDef_t *item )
+int Item_TextScroll_ThumbPosition(itemDef_t* item)
 {
-	float max, pos, size;
-	textScrollDef_t *scrollPtr = (textScrollDef_t*)item->typeData;
+    float max, pos, size;
+    textScrollDef_t* scrollPtr = (textScrollDef_t*)item->typeData;
 
-	max  = Item_TextScroll_MaxScroll ( item );
-	size = item->window.rect.h - (SCROLLBAR_SIZE * 2) - 2;
+    max = Item_TextScroll_MaxScroll(item);
+    size = item->window.rect.h - (SCROLLBAR_SIZE * 2) - 2;
 
-	if (max > 0)
-	{
-		pos = (size-SCROLLBAR_SIZE) / (float) max;
-	}
-	else
-	{
-		pos = 0;
-	}
+    if (max > 0) {
+        pos = (size - SCROLLBAR_SIZE) / (float)max;
+    }
+    else {
+        pos = 0;
+    }
 
-	pos *= scrollPtr->startPos;
+    pos *= scrollPtr->startPos;
 
-	return item->window.rect.y + 1 + SCROLLBAR_SIZE + pos;
+    return item->window.rect.y + 1 + SCROLLBAR_SIZE + pos;
 }
 
-int Item_TextScroll_ThumbDrawPosition ( itemDef_t *item )
+int Item_TextScroll_ThumbDrawPosition(itemDef_t* item)
 {
-	int min, max;
+    int min, max;
 
-	if (itemCapture == item)
-	{
-		min = item->window.rect.y + SCROLLBAR_SIZE + 1;
-		max = item->window.rect.y + item->window.rect.h - 2*SCROLLBAR_SIZE - 1;
+    if (itemCapture == item) {
+        min = item->window.rect.y + SCROLLBAR_SIZE + 1;
+        max = item->window.rect.y + item->window.rect.h - 2 * SCROLLBAR_SIZE - 1;
 
-		if (DC->cursory >= min + SCROLLBAR_SIZE/2 && DC->cursory <= max + SCROLLBAR_SIZE/2)
-		{
-			return DC->cursory - SCROLLBAR_SIZE/2;
-		}
+        if (DC->cursory >= min + SCROLLBAR_SIZE / 2 && DC->cursory <= max + SCROLLBAR_SIZE / 2) {
+            return DC->cursory - SCROLLBAR_SIZE / 2;
+        }
 
-		return Item_TextScroll_ThumbPosition(item);
-	}
+        return Item_TextScroll_ThumbPosition(item);
+    }
 
-	return Item_TextScroll_ThumbPosition(item);
+    return Item_TextScroll_ThumbPosition(item);
 }
 
-windowFlags_t Item_TextScroll_OverLB ( itemDef_t *item, float x, float y )
+windowFlags_t Item_TextScroll_OverLB(itemDef_t* item, float x, float y)
 {
-	rectDef_t		r;
-	textScrollDef_t *scrollPtr;
-	int				thumbstart;
+    rectDef_t r;
+    textScrollDef_t* scrollPtr;
+    int thumbstart;
 
-	scrollPtr = (textScrollDef_t*)item->typeData;
+    scrollPtr = (textScrollDef_t*)item->typeData;
 
-	// Scroll bar isn't drawing so ignore this input
-	if ((( scrollPtr->iLineCount * scrollPtr->lineHeight ) <= (item->window.rect.h - 2)) && (item->type == ITEM_TYPE_TEXTSCROLL))
-	{
-		return windowFlags_t::WINDOW_NONE;
-	}
+    // Scroll bar isn't drawing so ignore this input
+    if (((scrollPtr->iLineCount * scrollPtr->lineHeight) <= (item->window.rect.h - 2)) && (item->type == ITEM_TYPE_TEXTSCROLL)) {
+        return windowFlags_t::WINDOW_NONE;
+    }
 
-	r.x = item->window.rect.x + item->window.rect.w - SCROLLBAR_SIZE;
-	r.y = item->window.rect.y;
-	r.h = r.w = SCROLLBAR_SIZE;
-	if (Rect_ContainsPoint(&r, x, y))
-	{
-		return windowFlags_t::WINDOW_LB_LEFTARROW;
-	}
+    r.x = item->window.rect.x + item->window.rect.w - SCROLLBAR_SIZE;
+    r.y = item->window.rect.y;
+    r.h = r.w = SCROLLBAR_SIZE;
+    if (Rect_ContainsPoint(&r, x, y)) {
+        return windowFlags_t::WINDOW_LB_LEFTARROW;
+    }
 
-	r.y = item->window.rect.y + item->window.rect.h - SCROLLBAR_SIZE;
-	if (Rect_ContainsPoint(&r, x, y))
-	{
-		return windowFlags_t::WINDOW_LB_RIGHTARROW;
-	}
+    r.y = item->window.rect.y + item->window.rect.h - SCROLLBAR_SIZE;
+    if (Rect_ContainsPoint(&r, x, y)) {
+        return windowFlags_t::WINDOW_LB_RIGHTARROW;
+    }
 
-	thumbstart = Item_TextScroll_ThumbPosition(item);
-	r.y = thumbstart;
-	if (Rect_ContainsPoint(&r, x, y))
-	{
-		return windowFlags_t::WINDOW_LB_THUMB;
-	}
+    thumbstart = Item_TextScroll_ThumbPosition(item);
+    r.y = thumbstart;
+    if (Rect_ContainsPoint(&r, x, y)) {
+        return windowFlags_t::WINDOW_LB_THUMB;
+    }
 
-	r.y = item->window.rect.y + SCROLLBAR_SIZE;
-	r.h = thumbstart - r.y;
-	if (Rect_ContainsPoint(&r, x, y))
-	{
-		return windowFlags_t::WINDOW_LB_PGUP;
-	}
+    r.y = item->window.rect.y + SCROLLBAR_SIZE;
+    r.h = thumbstart - r.y;
+    if (Rect_ContainsPoint(&r, x, y)) {
+        return windowFlags_t::WINDOW_LB_PGUP;
+    }
 
-	r.y = thumbstart + SCROLLBAR_SIZE;
-	r.h = item->window.rect.y + item->window.rect.h - SCROLLBAR_SIZE;
-	if (Rect_ContainsPoint(&r, x, y))
-	{
-		return windowFlags_t::WINDOW_LB_PGDN;
-	}
+    r.y = thumbstart + SCROLLBAR_SIZE;
+    r.h = item->window.rect.y + item->window.rect.h - SCROLLBAR_SIZE;
+    if (Rect_ContainsPoint(&r, x, y)) {
+        return windowFlags_t::WINDOW_LB_PGDN;
+    }
 
-	return windowFlags_t::WINDOW_NONE;
+    return windowFlags_t::WINDOW_NONE;
 }
 
-void Item_TextScroll_MouseEnter (itemDef_t *item, float x, float y)
+void Item_TextScroll_MouseEnter(itemDef_t* item, float x, float y)
 {
-	item->window.flags &= ~(windowFlags_t::WINDOW_LB_LEFTARROW | windowFlags_t::WINDOW_LB_RIGHTARROW | windowFlags_t::WINDOW_LB_THUMB | windowFlags_t::WINDOW_LB_PGUP | windowFlags_t::WINDOW_LB_PGDN);
-	item->window.flags |= Item_TextScroll_OverLB(item, x, y);
+    item->window.flags &= ~(windowFlags_t::WINDOW_LB_LEFTARROW | windowFlags_t::WINDOW_LB_RIGHTARROW | windowFlags_t::WINDOW_LB_THUMB |
+                            windowFlags_t::WINDOW_LB_PGUP | windowFlags_t::WINDOW_LB_PGDN);
+    item->window.flags |= Item_TextScroll_OverLB(item, x, y);
 }
 
 /*
@@ -7645,43 +7211,35 @@ void Item_TextScroll_MouseEnter (itemDef_t *item, float x, float y)
 Item_Slider_ThumbPosition
 =================
 */
-int Item_ListBox_ThumbDrawPosition(itemDef_t *item)
+int Item_ListBox_ThumbDrawPosition(itemDef_t* item)
 {
-	int min, max;
+    int min, max;
 
-	if (itemCapture == item)
-	{
-		if (Any( item->window.flags & windowFlags_t::WINDOW_HORIZONTAL ))
-		{
-			min = item->window.rect.x + SCROLLBAR_SIZE + 1;
-			max = item->window.rect.x + item->window.rect.w - 2*SCROLLBAR_SIZE - 1;
-			if (DC->cursorx >= min + SCROLLBAR_SIZE/2 && DC->cursorx <= max + SCROLLBAR_SIZE/2)
-			{
-				return DC->cursorx - SCROLLBAR_SIZE/2;
-			}
-			else
-			{
-				return Item_ListBox_ThumbPosition(item);
-			}
-		}
-		else
-		{
-			min = item->window.rect.y + SCROLLBAR_SIZE + 1;
-			max = item->window.rect.y + item->window.rect.h - 2*SCROLLBAR_SIZE - 1;
-			if (DC->cursory >= min + SCROLLBAR_SIZE/2 && DC->cursory <= max + SCROLLBAR_SIZE/2)
-			{
-				return DC->cursory - SCROLLBAR_SIZE/2;
-			}
-			else
-			{
-				return Item_ListBox_ThumbPosition(item);
-			}
-		}
-	}
-	else
-	{
-		return Item_ListBox_ThumbPosition(item);
-	}
+    if (itemCapture == item) {
+        if (Any(item->window.flags & windowFlags_t::WINDOW_HORIZONTAL)) {
+            min = item->window.rect.x + SCROLLBAR_SIZE + 1;
+            max = item->window.rect.x + item->window.rect.w - 2 * SCROLLBAR_SIZE - 1;
+            if (DC->cursorx >= min + SCROLLBAR_SIZE / 2 && DC->cursorx <= max + SCROLLBAR_SIZE / 2) {
+                return DC->cursorx - SCROLLBAR_SIZE / 2;
+            }
+            else {
+                return Item_ListBox_ThumbPosition(item);
+            }
+        }
+        else {
+            min = item->window.rect.y + SCROLLBAR_SIZE + 1;
+            max = item->window.rect.y + item->window.rect.h - 2 * SCROLLBAR_SIZE - 1;
+            if (DC->cursory >= min + SCROLLBAR_SIZE / 2 && DC->cursory <= max + SCROLLBAR_SIZE / 2) {
+                return DC->cursory - SCROLLBAR_SIZE / 2;
+            }
+            else {
+                return Item_ListBox_ThumbPosition(item);
+            }
+        }
+    }
+    else {
+        return Item_ListBox_ThumbPosition(item);
+    }
 }
 
 /*
@@ -7689,45 +7247,40 @@ int Item_ListBox_ThumbDrawPosition(itemDef_t *item)
 Item_Slider_ThumbPosition
 =================
 */
-float Item_Slider_ThumbPosition(itemDef_t *item)
+float Item_Slider_ThumbPosition(itemDef_t* item)
 {
-	float value, range, x;
-	editFieldDef_t *editDef = (editFieldDef_t *) item->typeData;
+    float value, range, x;
+    editFieldDef_t* editDef = (editFieldDef_t*)item->typeData;
 
-	if (item->text)
-	{
-		x = item->textRect.x + item->textRect.w + 8;
-	}
-	else
-	{
-		x = item->window.rect.x;
-	}
+    if (item->text) {
+        x = item->textRect.x + item->textRect.w + 8;
+    }
+    else {
+        x = item->window.rect.x;
+    }
 
-	if (!editDef || !item->cvar)
-	{
-		return x;
-	}
+    if (!editDef || !item->cvar) {
+        return x;
+    }
 
-	value = DC->getCVarValue(item->cvar);
+    value = DC->getCVarValue(item->cvar);
 
-	if (value < editDef->minVal)
-	{
-		value = editDef->minVal;
-	}
-	else if (value > editDef->maxVal)
-	{
-		value = editDef->maxVal;
-	}
+    if (value < editDef->minVal) {
+        value = editDef->minVal;
+    }
+    else if (value > editDef->maxVal) {
+        value = editDef->maxVal;
+    }
 
-	range = editDef->maxVal - editDef->minVal;
-	value -= editDef->minVal;
-	value /= range;
-	//value /= (editDef->maxVal - editDef->minVal);
-	value *= SLIDER_WIDTH;
-	x += value;
-	// vm fuckage
-	//x = x + (((float)value / editDef->maxVal) * SLIDER_WIDTH);
-	return x;
+    range = editDef->maxVal - editDef->minVal;
+    value -= editDef->minVal;
+    value /= range;
+    // value /= (editDef->maxVal - editDef->minVal);
+    value *= SLIDER_WIDTH;
+    x += value;
+    // vm fuckage
+    // x = x + (((float)value / editDef->maxVal) * SLIDER_WIDTH);
+    return x;
 }
 
 /*
@@ -7735,42 +7288,37 @@ float Item_Slider_ThumbPosition(itemDef_t *item)
 Item_Slider_Paint
 =================
 */
-void Item_Slider_Paint(itemDef_t *item)
+void Item_Slider_Paint(itemDef_t* item)
 {
-	vec4_t newColor, lowLight;
-	float x, y;
-	menuDef_t *parent = (menuDef_t*)item->parent;
+    vec4_t newColor, lowLight;
+    float x, y;
+    menuDef_t* parent = (menuDef_t*)item->parent;
 
-	if (Any( item->window.flags & windowFlags_t::WINDOW_HASFOCUS ))
-	{
-		lowLight[0] = 0.8 * parent->focusColor[0];
-		lowLight[1] = 0.8 * parent->focusColor[1];
-		lowLight[2] = 0.8 * parent->focusColor[2];
-		lowLight[3] = 0.8 * parent->focusColor[3];
-		LerpColor(parent->focusColor,lowLight,newColor,0.5+0.5*Q_sinf((float)(DC->realTime / PULSE_DIVISOR)));
-	}
-	else
-	{
-		memcpy(&newColor, &item->window.foreColor, sizeof(vec4_t));
-	}
+    if (Any(item->window.flags & windowFlags_t::WINDOW_HASFOCUS)) {
+        lowLight[0] = 0.8 * parent->focusColor[0];
+        lowLight[1] = 0.8 * parent->focusColor[1];
+        lowLight[2] = 0.8 * parent->focusColor[2];
+        lowLight[3] = 0.8 * parent->focusColor[3];
+        LerpColor(parent->focusColor, lowLight, newColor, 0.5 + 0.5 * Q_sinf((float)(DC->realTime / PULSE_DIVISOR)));
+    }
+    else {
+        memcpy(&newColor, &item->window.foreColor, sizeof(vec4_t));
+    }
 
-	y = item->window.rect.y;
-	if (item->text)
-	{
-		Item_Text_Paint(item);
-		x = item->textRect.x + item->textRect.w + 8;
-	}
-	else
-	{
-		x = item->window.rect.x;
-	}
-	DC->setColor(newColor);
-	DC->drawHandlePic( x, y+2, SLIDER_WIDTH, SLIDER_HEIGHT, DC->Assets.sliderBar );
+    y = item->window.rect.y;
+    if (item->text) {
+        Item_Text_Paint(item);
+        x = item->textRect.x + item->textRect.w + 8;
+    }
+    else {
+        x = item->window.rect.x;
+    }
+    DC->setColor(newColor);
+    DC->drawHandlePic(x, y + 2, SLIDER_WIDTH, SLIDER_HEIGHT, DC->Assets.sliderBar);
 
-	x = Item_Slider_ThumbPosition(item);
-//	DC->drawHandlePic( x - (SLIDER_THUMB_WIDTH / 2), y - 2, SLIDER_THUMB_WIDTH, SLIDER_THUMB_HEIGHT, DC->Assets.sliderThumb );
-	DC->drawHandlePic( x - (SLIDER_THUMB_WIDTH / 2), y+2, SLIDER_THUMB_WIDTH, SLIDER_THUMB_HEIGHT, DC->Assets.sliderThumb );
-
+    x = Item_Slider_ThumbPosition(item);
+    //	DC->drawHandlePic( x - (SLIDER_THUMB_WIDTH / 2), y - 2, SLIDER_THUMB_WIDTH, SLIDER_THUMB_HEIGHT, DC->Assets.sliderThumb );
+    DC->drawHandlePic(x - (SLIDER_THUMB_WIDTH / 2), y + 2, SLIDER_THUMB_WIDTH, SLIDER_THUMB_HEIGHT, DC->Assets.sliderThumb);
 }
 
 /*
@@ -7778,608 +7326,489 @@ void Item_Slider_Paint(itemDef_t *item)
 Item_Paint
 =================
 */
-static bool Item_Paint(itemDef_t *item, bool bDraw)
+static bool Item_Paint(itemDef_t* item, bool bDraw)
 {
-	int		xPos,textWidth;
-	vec4_t red;
-	menuDef_t *parent;
-	red[0] = red[3] = 1;
-	red[1] = red[2] = 0;
+    int xPos, textWidth;
+    vec4_t red;
+    menuDef_t* parent;
+    red[0] = red[3] = 1;
+    red[1] = red[2] = 0;
 
-	if (item == nullptr)
-	{
-		return false;
-	}
+    if (item == nullptr) {
+        return false;
+    }
 
-	parent = (menuDef_t*)item->parent;
+    parent = (menuDef_t*)item->parent;
 
-	if (Any( item->window.flags & windowFlags_t::WINDOW_SCRIPTWAITING ))
-	{
-		if (DC->realTime > item->window.delayTime)
-		{ // Time has elapsed, resume running whatever script we saved
-			item->window.flags &= ~windowFlags_t::WINDOW_SCRIPTWAITING;
-			Item_RunScript(item, item->window.delayedScript);
-		}
-	}
+    if (Any(item->window.flags & windowFlags_t::WINDOW_SCRIPTWAITING)) {
+        if (DC->realTime > item->window.delayTime) { // Time has elapsed, resume running whatever script we saved
+            item->window.flags &= ~windowFlags_t::WINDOW_SCRIPTWAITING;
+            Item_RunScript(item, item->window.delayedScript);
+        }
+    }
 
-	if (Any( item->window.flags & windowFlags_t::WINDOW_ORBITING ))
-	{
-		if (DC->realTime > item->window.nextTime)
-		{
-			float rx, ry, a, c, s, w, h;
-			item->window.nextTime = DC->realTime + item->window.offsetTime;
-			// translate
-			w = item->window.rectClient.w / 2;
-			h = item->window.rectClient.h / 2;
-			rx = item->window.rectClient.x + w - item->window.rectEffects.x;
-			ry = item->window.rectClient.y + h - item->window.rectEffects.y;
-			a = (float) (3 * Q_PI / 180);
-  			c = Q_cosf(a);
-			s = Q_sinf(a);
-			item->window.rectClient.x = (rx * c - ry * s) + item->window.rectEffects.x - w;
-			item->window.rectClient.y = (rx * s + ry * c) + item->window.rectEffects.y - h;
-			Item_UpdatePosition(item);
+    if (Any(item->window.flags & windowFlags_t::WINDOW_ORBITING)) {
+        if (DC->realTime > item->window.nextTime) {
+            float rx, ry, a, c, s, w, h;
+            item->window.nextTime = DC->realTime + item->window.offsetTime;
+            // translate
+            w = item->window.rectClient.w / 2;
+            h = item->window.rectClient.h / 2;
+            rx = item->window.rectClient.x + w - item->window.rectEffects.x;
+            ry = item->window.rectClient.y + h - item->window.rectEffects.y;
+            a = (float)(3 * Q_PI / 180);
+            c = Q_cosf(a);
+            s = Q_sinf(a);
+            item->window.rectClient.x = (rx * c - ry * s) + item->window.rectEffects.x - w;
+            item->window.rectClient.y = (rx * s + ry * c) + item->window.rectEffects.y - h;
+            Item_UpdatePosition(item);
+        }
+    }
 
-		}
-	}
+    if (Any(item->window.flags & windowFlags_t::WINDOW_INTRANSITION)) {
+        if (DC->realTime > item->window.nextTime) {
+            int done = 0;
+            item->window.nextTime = DC->realTime + item->window.offsetTime;
 
+            // transition the x,y
+            if (item->window.rectClient.x == item->window.rectEffects.x) {
+                done++;
+            }
+            else {
+                if (item->window.rectClient.x < item->window.rectEffects.x) {
+                    item->window.rectClient.x += item->window.rectEffects2.x;
+                    if (item->window.rectClient.x > item->window.rectEffects.x) {
+                        item->window.rectClient.x = item->window.rectEffects.x;
+                        done++;
+                    }
+                }
+                else {
+                    item->window.rectClient.x -= item->window.rectEffects2.x;
+                    if (item->window.rectClient.x < item->window.rectEffects.x) {
+                        item->window.rectClient.x = item->window.rectEffects.x;
+                        done++;
+                    }
+                }
+            }
 
-	if (Any( item->window.flags & windowFlags_t::WINDOW_INTRANSITION ))
-	{
-		if (DC->realTime > item->window.nextTime)
-		{
-			int done = 0;
-			item->window.nextTime = DC->realTime + item->window.offsetTime;
+            if (item->window.rectClient.y == item->window.rectEffects.y) {
+                done++;
+            }
+            else {
+                if (item->window.rectClient.y < item->window.rectEffects.y) {
+                    item->window.rectClient.y += item->window.rectEffects2.y;
+                    if (item->window.rectClient.y > item->window.rectEffects.y) {
+                        item->window.rectClient.y = item->window.rectEffects.y;
+                        done++;
+                    }
+                }
+                else {
+                    item->window.rectClient.y -= item->window.rectEffects2.y;
+                    if (item->window.rectClient.y < item->window.rectEffects.y) {
+                        item->window.rectClient.y = item->window.rectEffects.y;
+                        done++;
+                    }
+                }
+            }
 
-			// transition the x,y
-			if (item->window.rectClient.x == item->window.rectEffects.x)
-			{
-				done++;
-			}
-			else
-			{
-				if (item->window.rectClient.x < item->window.rectEffects.x)
-				{
-					item->window.rectClient.x += item->window.rectEffects2.x;
-					if (item->window.rectClient.x > item->window.rectEffects.x)
-					{
-						item->window.rectClient.x = item->window.rectEffects.x;
-						done++;
-					}
-				}
-				else
-				{
-					item->window.rectClient.x -= item->window.rectEffects2.x;
-					if (item->window.rectClient.x < item->window.rectEffects.x)
-					{
-						item->window.rectClient.x = item->window.rectEffects.x;
-						done++;
-					}
-				}
-			}
+            if (item->window.rectClient.w == item->window.rectEffects.w) {
+                done++;
+            }
+            else {
+                if (item->window.rectClient.w < item->window.rectEffects.w) {
+                    item->window.rectClient.w += item->window.rectEffects2.w;
+                    if (item->window.rectClient.w > item->window.rectEffects.w) {
+                        item->window.rectClient.w = item->window.rectEffects.w;
+                        done++;
+                    }
+                }
+                else {
+                    item->window.rectClient.w -= item->window.rectEffects2.w;
+                    if (item->window.rectClient.w < item->window.rectEffects.w) {
+                        item->window.rectClient.w = item->window.rectEffects.w;
+                        done++;
+                    }
+                }
+            }
 
-			if (item->window.rectClient.y == item->window.rectEffects.y)
-			{
-				done++;
-			}
-			else
-			{
-				if (item->window.rectClient.y < item->window.rectEffects.y)
-				{
-					item->window.rectClient.y += item->window.rectEffects2.y;
-					if (item->window.rectClient.y > item->window.rectEffects.y)
-					{
-						item->window.rectClient.y = item->window.rectEffects.y;
-						done++;
-					}
-				}
-				else
-				{
-					item->window.rectClient.y -= item->window.rectEffects2.y;
-					if (item->window.rectClient.y < item->window.rectEffects.y)
-					{
-						item->window.rectClient.y = item->window.rectEffects.y;
-						done++;
-					}
-				}
-			}
+            if (item->window.rectClient.h == item->window.rectEffects.h) {
+                done++;
+            }
+            else {
+                if (item->window.rectClient.h < item->window.rectEffects.h) {
+                    item->window.rectClient.h += item->window.rectEffects2.h;
+                    if (item->window.rectClient.h > item->window.rectEffects.h) {
+                        item->window.rectClient.h = item->window.rectEffects.h;
+                        done++;
+                    }
+                }
+                else {
+                    item->window.rectClient.h -= item->window.rectEffects2.h;
+                    if (item->window.rectClient.h < item->window.rectEffects.h) {
+                        item->window.rectClient.h = item->window.rectEffects.h;
+                        done++;
+                    }
+                }
+            }
 
-			if (item->window.rectClient.w == item->window.rectEffects.w)
-			{
-				done++;
-			}
-			else
-			{
-				if (item->window.rectClient.w < item->window.rectEffects.w)
-				{
-					item->window.rectClient.w += item->window.rectEffects2.w;
-					if (item->window.rectClient.w > item->window.rectEffects.w)
-					{
-						item->window.rectClient.w = item->window.rectEffects.w;
-						done++;
-					}
-				}
-				else
-				{
-					item->window.rectClient.w -= item->window.rectEffects2.w;
-					if (item->window.rectClient.w < item->window.rectEffects.w)
-					{
-						item->window.rectClient.w = item->window.rectEffects.w;
-						done++;
-					}
-				}
-			}
+            Item_UpdatePosition(item);
 
-			if (item->window.rectClient.h == item->window.rectEffects.h)
-			{
-				done++;
-			}
-			else
-			{
-				if (item->window.rectClient.h < item->window.rectEffects.h)
-				{
-					item->window.rectClient.h += item->window.rectEffects2.h;
-					if (item->window.rectClient.h > item->window.rectEffects.h)
-					{
-						item->window.rectClient.h = item->window.rectEffects.h;
-						done++;
-					}
-				}
-				else
-				{
-					item->window.rectClient.h -= item->window.rectEffects2.h;
-					if (item->window.rectClient.h < item->window.rectEffects.h)
-					{
-						item->window.rectClient.h = item->window.rectEffects.h;
-						done++;
-					}
-				}
-			}
-
-			Item_UpdatePosition(item);
-
-			if (done == 4)
-			{
-				item->window.flags &= ~windowFlags_t::WINDOW_INTRANSITION;
-			}
-
-		}
-	}
+            if (done == 4) {
+                item->window.flags &= ~windowFlags_t::WINDOW_INTRANSITION;
+            }
+        }
+    }
 
 #ifdef _TRANS3
 
-//JLF begin model transition stuff
-	if (Any( item->window.flags & windowFlags_t::WINDOW_INTRANSITIONMODEL ))
-	{
-		if ( item->type == ITEM_TYPE_MODEL)
-		{
-//fields ing modelptr
-//				vec3_t g2mins2, g2maxs2, g2minsEffect, g2maxsEffect;
-//	float fov_x2, fov_y2, fov_Effectx, fov_Effecty;
+    // JLF begin model transition stuff
+    if (Any(item->window.flags & windowFlags_t::WINDOW_INTRANSITIONMODEL)) {
+        if (item->type == ITEM_TYPE_MODEL) {
+            // fields ing modelptr
+            //				vec3_t g2mins2, g2maxs2, g2minsEffect, g2maxsEffect;
+            //	float fov_x2, fov_y2, fov_Effectx, fov_Effecty;
 
-			modelDef_t  * modelptr = (modelDef_t *)item->typeData;
+            modelDef_t* modelptr = (modelDef_t*)item->typeData;
 
-			if (DC->realTime > item->window.nextTime)
-			{
-				int done = 0;
-				item->window.nextTime = DC->realTime + item->window.offsetTime;
+            if (DC->realTime > item->window.nextTime) {
+                int done = 0;
+                item->window.nextTime = DC->realTime + item->window.offsetTime;
 
+                // transition the x,y,z max
+                if (modelptr->g2maxs[0] == modelptr->g2maxs2[0]) {
+                    done++;
+                }
+                else {
+                    if (modelptr->g2maxs[0] < modelptr->g2maxs2[0]) {
+                        modelptr->g2maxs[0] += modelptr->g2maxsEffect[0];
+                        if (modelptr->g2maxs[0] > modelptr->g2maxs2[0]) {
+                            modelptr->g2maxs[0] = modelptr->g2maxs2[0];
+                            done++;
+                        }
+                    }
+                    else {
+                        modelptr->g2maxs[0] -= modelptr->g2maxsEffect[0];
+                        if (modelptr->g2maxs[0] < modelptr->g2maxs2[0]) {
+                            modelptr->g2maxs[0] = modelptr->g2maxs2[0];
+                            done++;
+                        }
+                    }
+                }
+                // y
+                if (modelptr->g2maxs[1] == modelptr->g2maxs2[1]) {
+                    done++;
+                }
+                else {
+                    if (modelptr->g2maxs[1] < modelptr->g2maxs2[1]) {
+                        modelptr->g2maxs[1] += modelptr->g2maxsEffect[1];
+                        if (modelptr->g2maxs[1] > modelptr->g2maxs2[1]) {
+                            modelptr->g2maxs[1] = modelptr->g2maxs2[1];
+                            done++;
+                        }
+                    }
+                    else {
+                        modelptr->g2maxs[1] -= modelptr->g2maxsEffect[1];
+                        if (modelptr->g2maxs[1] < modelptr->g2maxs2[1]) {
+                            modelptr->g2maxs[1] = modelptr->g2maxs2[1];
+                            done++;
+                        }
+                    }
+                }
 
-// transition the x,y,z max
-				if (modelptr->g2maxs[0] == modelptr->g2maxs2[0])
-				{
-					done++;
-				}
-				else
-				{
-					if (modelptr->g2maxs[0] < modelptr->g2maxs2[0])
-					{
-						modelptr->g2maxs[0] += modelptr->g2maxsEffect[0];
-						if (modelptr->g2maxs[0] > modelptr->g2maxs2[0])
-						{
-							modelptr->g2maxs[0] = modelptr->g2maxs2[0];
-							done++;
-						}
-					}
-					else
-					{
-						modelptr->g2maxs[0] -= modelptr->g2maxsEffect[0];
-						if (modelptr->g2maxs[0] < modelptr->g2maxs2[0])
-						{
-							modelptr->g2maxs[0] = modelptr->g2maxs2[0];
-							done++;
-						}
-					}
-				}
-//y
-				if (modelptr->g2maxs[1] == modelptr->g2maxs2[1])
-				{
-					done++;
-				}
-				else
-				{
-					if (modelptr->g2maxs[1] < modelptr->g2maxs2[1])
-					{
-						modelptr->g2maxs[1] += modelptr->g2maxsEffect[1];
-						if (modelptr->g2maxs[1] > modelptr->g2maxs2[1])
-						{
-							modelptr->g2maxs[1] = modelptr->g2maxs2[1];
-							done++;
-						}
-					}
-					else
-					{
-						modelptr->g2maxs[1] -= modelptr->g2maxsEffect[1];
-						if (modelptr->g2maxs[1] < modelptr->g2maxs2[1])
-						{
-							modelptr->g2maxs[1] = modelptr->g2maxs2[1];
-							done++;
-						}
-					}
-				}
+                // z
 
+                if (modelptr->g2maxs[2] == modelptr->g2maxs2[2]) {
+                    done++;
+                }
+                else {
+                    if (modelptr->g2maxs[2] < modelptr->g2maxs2[2]) {
+                        modelptr->g2maxs[2] += modelptr->g2maxsEffect[2];
+                        if (modelptr->g2maxs[2] > modelptr->g2maxs2[2]) {
+                            modelptr->g2maxs[2] = modelptr->g2maxs2[2];
+                            done++;
+                        }
+                    }
+                    else {
+                        modelptr->g2maxs[2] -= modelptr->g2maxsEffect[2];
+                        if (modelptr->g2maxs[2] < modelptr->g2maxs2[2]) {
+                            modelptr->g2maxs[2] = modelptr->g2maxs2[2];
+                            done++;
+                        }
+                    }
+                }
 
-//z
+                // transition the x,y,z min
+                if (modelptr->g2mins[0] == modelptr->g2mins2[0]) {
+                    done++;
+                }
+                else {
+                    if (modelptr->g2mins[0] < modelptr->g2mins2[0]) {
+                        modelptr->g2mins[0] += modelptr->g2minsEffect[0];
+                        if (modelptr->g2mins[0] > modelptr->g2mins2[0]) {
+                            modelptr->g2mins[0] = modelptr->g2mins2[0];
+                            done++;
+                        }
+                    }
+                    else {
+                        modelptr->g2mins[0] -= modelptr->g2minsEffect[0];
+                        if (modelptr->g2mins[0] < modelptr->g2mins2[0]) {
+                            modelptr->g2mins[0] = modelptr->g2mins2[0];
+                            done++;
+                        }
+                    }
+                }
+                // y
+                if (modelptr->g2mins[1] == modelptr->g2mins2[1]) {
+                    done++;
+                }
+                else {
+                    if (modelptr->g2mins[1] < modelptr->g2mins2[1]) {
+                        modelptr->g2mins[1] += modelptr->g2minsEffect[1];
+                        if (modelptr->g2mins[1] > modelptr->g2mins2[1]) {
+                            modelptr->g2mins[1] = modelptr->g2mins2[1];
+                            done++;
+                        }
+                    }
+                    else {
+                        modelptr->g2mins[1] -= modelptr->g2minsEffect[1];
+                        if (modelptr->g2mins[1] < modelptr->g2mins2[1]) {
+                            modelptr->g2mins[1] = modelptr->g2mins2[1];
+                            done++;
+                        }
+                    }
+                }
 
-				if (modelptr->g2maxs[2] == modelptr->g2maxs2[2])
-				{
-					done++;
-				}
-				else
-				{
-					if (modelptr->g2maxs[2] < modelptr->g2maxs2[2])
-					{
-						modelptr->g2maxs[2] += modelptr->g2maxsEffect[2];
-						if (modelptr->g2maxs[2] > modelptr->g2maxs2[2])
-						{
-							modelptr->g2maxs[2] = modelptr->g2maxs2[2];
-							done++;
-						}
-					}
-					else
-					{
-						modelptr->g2maxs[2] -= modelptr->g2maxsEffect[2];
-						if (modelptr->g2maxs[2] < modelptr->g2maxs2[2])
-						{
-							modelptr->g2maxs[2] = modelptr->g2maxs2[2];
-							done++;
-						}
-					}
-				}
+                // z
 
-// transition the x,y,z min
-				if (modelptr->g2mins[0] == modelptr->g2mins2[0])
-				{
-					done++;
-				}
-				else
-				{
-					if (modelptr->g2mins[0] < modelptr->g2mins2[0])
-					{
-						modelptr->g2mins[0] += modelptr->g2minsEffect[0];
-						if (modelptr->g2mins[0] > modelptr->g2mins2[0])
-						{
-							modelptr->g2mins[0] = modelptr->g2mins2[0];
-							done++;
-						}
-					}
-					else
-					{
-						modelptr->g2mins[0] -= modelptr->g2minsEffect[0];
-						if (modelptr->g2mins[0] < modelptr->g2mins2[0])
-						{
-							modelptr->g2mins[0] = modelptr->g2mins2[0];
-							done++;
-						}
-					}
-				}
-//y
-				if (modelptr->g2mins[1] == modelptr->g2mins2[1])
-				{
-					done++;
-				}
-				else
-				{
-					if (modelptr->g2mins[1] < modelptr->g2mins2[1])
-					{
-						modelptr->g2mins[1] += modelptr->g2minsEffect[1];
-						if (modelptr->g2mins[1] > modelptr->g2mins2[1])
-						{
-							modelptr->g2mins[1] = modelptr->g2mins2[1];
-							done++;
-						}
-					}
-					else
-					{
-						modelptr->g2mins[1] -= modelptr->g2minsEffect[1];
-						if (modelptr->g2mins[1] < modelptr->g2mins2[1])
-						{
-							modelptr->g2mins[1] = modelptr->g2mins2[1];
-							done++;
-						}
-					}
-				}
+                if (modelptr->g2mins[2] == modelptr->g2mins2[2]) {
+                    done++;
+                }
+                else {
+                    if (modelptr->g2mins[2] < modelptr->g2mins2[2]) {
+                        modelptr->g2mins[2] += modelptr->g2minsEffect[2];
+                        if (modelptr->g2mins[2] > modelptr->g2mins2[2]) {
+                            modelptr->g2mins[2] = modelptr->g2mins2[2];
+                            done++;
+                        }
+                    }
+                    else {
+                        modelptr->g2mins[2] -= modelptr->g2minsEffect[2];
+                        if (modelptr->g2mins[2] < modelptr->g2mins2[2]) {
+                            modelptr->g2mins[2] = modelptr->g2mins2[2];
+                            done++;
+                        }
+                    }
+                }
 
+                // fovx
+                if (modelptr->fov_x == modelptr->fov_x2) {
+                    done++;
+                }
+                else {
+                    if (modelptr->fov_x < modelptr->fov_x2) {
+                        modelptr->fov_x += modelptr->fov_Effectx;
+                        if (modelptr->fov_x > modelptr->fov_x2) {
+                            modelptr->fov_x = modelptr->fov_x2;
+                            done++;
+                        }
+                    }
+                    else {
+                        modelptr->fov_x -= modelptr->fov_Effectx;
+                        if (modelptr->fov_x < modelptr->fov_x2) {
+                            modelptr->fov_x = modelptr->fov_x2;
+                            done++;
+                        }
+                    }
+                }
 
-//z
+                // fovy
+                if (modelptr->fov_y == modelptr->fov_y2) {
+                    done++;
+                }
+                else {
+                    if (modelptr->fov_y < modelptr->fov_y2) {
+                        modelptr->fov_y += modelptr->fov_Effecty;
+                        if (modelptr->fov_y > modelptr->fov_y2) {
+                            modelptr->fov_y = modelptr->fov_y2;
+                            done++;
+                        }
+                    }
+                    else {
+                        modelptr->fov_y -= modelptr->fov_Effecty;
+                        if (modelptr->fov_y < modelptr->fov_y2) {
+                            modelptr->fov_y = modelptr->fov_y2;
+                            done++;
+                        }
+                    }
+                }
 
-				if (modelptr->g2mins[2] == modelptr->g2mins2[2])
-				{
-					done++;
-				}
-				else
-				{
-					if (modelptr->g2mins[2] < modelptr->g2mins2[2])
-					{
-						modelptr->g2mins[2] += modelptr->g2minsEffect[2];
-						if (modelptr->g2mins[2] > modelptr->g2mins2[2])
-						{
-							modelptr->g2mins[2] = modelptr->g2mins2[2];
-							done++;
-						}
-					}
-					else
-					{
-						modelptr->g2mins[2] -= modelptr->g2minsEffect[2];
-						if (modelptr->g2mins[2] < modelptr->g2mins2[2])
-						{
-							modelptr->g2mins[2] = modelptr->g2mins2[2];
-							done++;
-						}
-					}
-				}
-
-
-
-//fovx
-				if (modelptr->fov_x == modelptr->fov_x2)
-				{
-					done++;
-				}
-				else
-				{
-					if (modelptr->fov_x < modelptr->fov_x2)
-					{
-						modelptr->fov_x += modelptr->fov_Effectx;
-						if (modelptr->fov_x > modelptr->fov_x2)
-						{
-							modelptr->fov_x = modelptr->fov_x2;
-							done++;
-						}
-					}
-					else
-					{
-						modelptr->fov_x -= modelptr->fov_Effectx;
-						if (modelptr->fov_x < modelptr->fov_x2)
-						{
-							modelptr->fov_x = modelptr->fov_x2;
-							done++;
-						}
-					}
-				}
-
-//fovy
-				if (modelptr->fov_y == modelptr->fov_y2)
-				{
-					done++;
-				}
-				else
-				{
-					if (modelptr->fov_y < modelptr->fov_y2)
-					{
-						modelptr->fov_y += modelptr->fov_Effecty;
-						if (modelptr->fov_y > modelptr->fov_y2)
-						{
-							modelptr->fov_y = modelptr->fov_y2;
-							done++;
-						}
-					}
-					else
-					{
-						modelptr->fov_y -= modelptr->fov_Effecty;
-						if (modelptr->fov_y < modelptr->fov_y2)
-						{
-							modelptr->fov_y = modelptr->fov_y2;
-							done++;
-						}
-					}
-				}
-
-				if (done == 5)
-				{
-					item->window.flags &= ~windowFlags_t::WINDOW_INTRANSITIONMODEL;
-				}
-
-			}
-		}
-	}
+                if (done == 5) {
+                    item->window.flags &= ~windowFlags_t::WINDOW_INTRANSITIONMODEL;
+                }
+            }
+        }
+    }
 #endif
-//JLF end transition stuff for models
+    // JLF end transition stuff for models
 
-	if (item->window.ownerDrawFlags && DC->ownerDrawVisible)
-	{
-		if (!DC->ownerDrawVisible(item->window.ownerDrawFlags))
-		{
-			item->window.flags &= ~windowFlags_t::WINDOW_VISIBLE;
-		}
-		else
-		{
-			item->window.flags |= windowFlags_t::WINDOW_VISIBLE;
-		}
-	}
+    if (item->window.ownerDrawFlags && DC->ownerDrawVisible) {
+        if (!DC->ownerDrawVisible(item->window.ownerDrawFlags)) {
+            item->window.flags &= ~windowFlags_t::WINDOW_VISIBLE;
+        }
+        else {
+            item->window.flags |= windowFlags_t::WINDOW_VISIBLE;
+        }
+    }
 
-	if (item->disabled && item->disabledHidden)
-	{
-		return false;
-	}
+    if (item->disabled && item->disabledHidden) {
+        return false;
+    }
 
-	if (Any( item->cvarFlags & (itemCvarFlags_t::CVAR_SHOW | itemCvarFlags_t::CVAR_HIDE) ))
-	{
-		if (!Item_EnableShowViaCvar(item, itemCvarFlags_t::CVAR_SHOW))
-		{
-			return false;
-		}
-	}
+    if (Any(item->cvarFlags & (itemCvarFlags_t::CVAR_SHOW | itemCvarFlags_t::CVAR_HIDE))) {
+        if (!Item_EnableShowViaCvar(item, itemCvarFlags_t::CVAR_SHOW)) {
+            return false;
+        }
+    }
 
+    if (Any(item->window.flags & windowFlags_t::WINDOW_TIMEDVISIBLE)) {
+    }
 
-	if (Any( item->window.flags & windowFlags_t::WINDOW_TIMEDVISIBLE ))
-	{
+    if (!Any(item->window.flags & windowFlags_t::WINDOW_VISIBLE)) {
+        return false;
+    }
 
-	}
+    if (!bDraw) {
+        return true;
+    }
+    // okay to paint
+    // JLFMOUSE
 
-	if (!Any( item->window.flags & windowFlags_t::WINDOW_VISIBLE ))
-	{
-		return false;
-	}
+    if (Any(item->window.flags & windowFlags_t::WINDOW_MOUSEOVER)) {
+        if (item->descText && !Display_KeyBindPending()) {
+            // Make DOUBLY sure that this item should have desctext.
+            // NOTE : we can't just check the mouse position on this, what if we TABBED
+            // to the current menu item -- in that case our mouse isn't over the item.
+            // Removing the WINDOW_MOUSEOVER flag just prevents the item's OnExit script from running
+            //	if (!Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory))
+            //	{	// It isn't something that should, because it isn't live anymore.
+            //		item->window.flags &= ~windowFlags_t::WINDOW_MOUSEOVER;
+            //	}
+            //	else
 
-	if (!bDraw)
-	{
-		return true;
-	}
-	//okay to paint
-	//JLFMOUSE
+            // END JLFMOUSE
 
-	if (Any( item->window.flags & windowFlags_t::WINDOW_MOUSEOVER ))
-	{
-		if (item->descText && !Display_KeyBindPending())
-		{
-			// Make DOUBLY sure that this item should have desctext.
-			// NOTE : we can't just check the mouse position on this, what if we TABBED
-			// to the current menu item -- in that case our mouse isn't over the item.
-			// Removing the WINDOW_MOUSEOVER flag just prevents the item's OnExit script from running
-		//	if (!Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory))
-		//	{	// It isn't something that should, because it isn't live anymore.
-		//		item->window.flags &= ~windowFlags_t::WINDOW_MOUSEOVER;
-		//	}
-		//	else
+            // items can be enabled and disabled based on cvars
+            if (!(Any(item->cvarFlags & (itemCvarFlags_t::CVAR_ENABLE | itemCvarFlags_t::CVAR_DISABLE)) &&
+                  !Item_EnableShowViaCvar(item, itemCvarFlags_t::CVAR_ENABLE))) { // Draw the desctext
+                const char* textPtr = item->descText;
+                if (*textPtr == '@') // string reference
+                {
+                    textPtr = SE_GetString(&textPtr[1]);
+                }
 
-	//END JLFMOUSE
+                vec4_t color = {1, 1, 1, 1};
+                Item_TextColor(item, &color);
 
-			// items can be enabled and disabled based on cvars
-			if( !(Any( item->cvarFlags & (itemCvarFlags_t::CVAR_ENABLE | itemCvarFlags_t::CVAR_DISABLE) ) && !Item_EnableShowViaCvar(item, itemCvarFlags_t::CVAR_ENABLE)) )
-			{	// Draw the desctext
-				const char *textPtr = item->descText;
-				if (*textPtr == '@')	// string reference
-				{
-					textPtr = SE_GetString( &textPtr[1] );
-				}
+                float fDescScale = parent->descScale ? parent->descScale : 1;
+                float fDescScaleCopy = fDescScale;
+                while (1) {
+                    // FIXME - add some type of parameter in the menu file like descfont to specify the font for the descriptions for this menu.
+                    textWidth = DC->textWidth(textPtr, fDescScale, UI_MenuFontToReal(4)); //  item->font);
 
-				vec4_t color = {1, 1, 1, 1};
-				Item_TextColor(item, &color);
+                    if (parent->descAlignment == ITEM_ALIGN_RIGHT) {
+                        xPos = parent->descX - textWidth; // Right justify
+                    }
+                    else if (parent->descAlignment == ITEM_ALIGN_CENTER) {
+                        xPos = parent->descX - (textWidth / 2); // Center justify
+                    }
+                    else // Left justify
+                    {
+                        xPos = parent->descX;
+                    }
 
-				float fDescScale = parent->descScale ? parent->descScale : 1;
-				float fDescScaleCopy = fDescScale;
-				while (1)
-				{
-					// FIXME - add some type of parameter in the menu file like descfont to specify the font for the descriptions for this menu.
-					textWidth = DC->textWidth(textPtr, fDescScale, UI_MenuFontToReal(4));	//  item->font);
+                    if (parent->descAlignment == ITEM_ALIGN_CENTER) {
+                        // only this one will auto-shrink the scale until we eventually fit...
+                        //
+                        if (xPos + textWidth > (SCREEN_WIDTH - 4)) {
+                            fDescScale -= 0.001f;
+                            continue;
+                        }
+                    }
 
-					if (parent->descAlignment == ITEM_ALIGN_RIGHT)
-					{
-						xPos = parent->descX - textWidth;	// Right justify
-					}
-					else if (parent->descAlignment == ITEM_ALIGN_CENTER)
-					{
-						xPos = parent->descX - (textWidth/2);	// Center justify
-					}
-					else										// Left justify
-					{
-						xPos = parent->descX;
-					}
+                    // Try to adjust it's y placement if the scale has changed...
+                    //
+                    int iYadj = 0;
+                    if (fDescScale != fDescScaleCopy) {
+                        int iOriginalTextHeight = DC->textHeight(textPtr, fDescScaleCopy, uiInfo.uiDC.Assets.qhMediumFont);
+                        iYadj = iOriginalTextHeight - DC->textHeight(textPtr, fDescScale, uiInfo.uiDC.Assets.qhMediumFont);
+                    }
 
-					if (parent->descAlignment == ITEM_ALIGN_CENTER)
-					{
-						// only this one will auto-shrink the scale until we eventually fit...
-						//
-						if (xPos + textWidth > (SCREEN_WIDTH-4)) {
-							fDescScale -= 0.001f;
-							continue;
-						}
-					}
+                    // FIXME - add some type of parameter in the menu file like descfont to specify the font for the descriptions for this menu.
+                    DC->drawText(xPos, parent->descY + iYadj, fDescScale, parent->descColor, textPtr, 0, parent->descTextStyle,
+                                 UI_MenuFontToReal(4)); // item->font);
+                    break;
+                }
+            }
+        }
+    }
 
+    // paint the rect first..
+    Window_Paint(&item->window, parent->fadeAmount, parent->fadeClamp, parent->fadeCycle);
 
-					// Try to adjust it's y placement if the scale has changed...
-					//
-					int iYadj = 0;
-					if (fDescScale != fDescScaleCopy)
-					{
-						int iOriginalTextHeight = DC->textHeight(textPtr, fDescScaleCopy, uiInfo.uiDC.Assets.qhMediumFont);
-						iYadj = iOriginalTextHeight - DC->textHeight(textPtr, fDescScale, uiInfo.uiDC.Assets.qhMediumFont);
-					}
+    // Print a box showing the extents of the rectangle, when in debug mode
+    if (uis.debugMode) {
+        vec4_t color;
+        color[1] = color[3] = 1;
+        color[0] = color[2] = 0;
+        DC->drawRect(item->window.rect.x, item->window.rect.y, item->window.rect.w, item->window.rect.h, 1, color);
+    }
 
-					// FIXME - add some type of parameter in the menu file like descfont to specify the font for the descriptions for this menu.
-					DC->drawText(xPos, parent->descY + iYadj, fDescScale, parent->descColor, textPtr, 0, parent->descTextStyle, UI_MenuFontToReal(4));	//item->font);
-					break;
-				}
-			}
-		}
-	}
+    // DC->drawRect(item->window.rect.x, item->window.rect.y, item->window.rect.w, item->window.rect.h, 1, red);
 
-	// paint the rect first..
-	Window_Paint(&item->window, parent->fadeAmount , parent->fadeClamp, parent->fadeCycle);
+    switch (item->type) {
+    case ITEM_TYPE_OWNERDRAW:
+        Item_OwnerDraw_Paint(item);
+        break;
 
-	// Print a box showing the extents of the rectangle, when in debug mode
-	if (uis.debugMode)
-	{
-		vec4_t color;
-		color[1] = color[3] = 1;
-		color[0] = color[2] = 0;
-		DC->drawRect(
-			item->window.rect.x,
-			item->window.rect.y,
-			item->window.rect.w,
-			item->window.rect.h,
-			1,
-			color);
-	}
-
-  //DC->drawRect(item->window.rect.x, item->window.rect.y, item->window.rect.w, item->window.rect.h, 1, red);
-
-	switch (item->type)
-	{
-		case ITEM_TYPE_OWNERDRAW:
-			Item_OwnerDraw_Paint(item);
-			break;
-
-		case ITEM_TYPE_TEXT:
-		case ITEM_TYPE_BUTTON:
-			Item_Text_Paint(item);
-			break;
-		case ITEM_TYPE_RADIOBUTTON:
-			break;
-		case ITEM_TYPE_CHECKBOX:
-			break;
-		case ITEM_TYPE_EDITFIELD:
-		case ITEM_TYPE_NUMERICFIELD:
-			Item_TextField_Paint(item);
-			break;
-		case ITEM_TYPE_COMBO:
-			break;
-		case ITEM_TYPE_LISTBOX:
-			Item_ListBox_Paint(item);
-			break;
-		case ITEM_TYPE_TEXTSCROLL:
-			Item_TextScroll_Paint ( item );
-			break;
-		case ITEM_TYPE_MODEL:
-			Item_Model_Paint(item);
-			break;
-		case ITEM_TYPE_YESNO:
-			Item_YesNo_Paint(item);
-			break;
-		case ITEM_TYPE_MULTI:
-			Item_Multi_Paint(item);
-			break;
-		case ITEM_TYPE_BIND:
-			Item_Bind_Paint(item);
-			break;
-		case ITEM_TYPE_SLIDER:
-			Item_Slider_Paint(item);
-			break;
-		default:
-			break;
-	}
-	return true;
+    case ITEM_TYPE_TEXT:
+    case ITEM_TYPE_BUTTON:
+        Item_Text_Paint(item);
+        break;
+    case ITEM_TYPE_RADIOBUTTON:
+        break;
+    case ITEM_TYPE_CHECKBOX:
+        break;
+    case ITEM_TYPE_EDITFIELD:
+    case ITEM_TYPE_NUMERICFIELD:
+        Item_TextField_Paint(item);
+        break;
+    case ITEM_TYPE_COMBO:
+        break;
+    case ITEM_TYPE_LISTBOX:
+        Item_ListBox_Paint(item);
+        break;
+    case ITEM_TYPE_TEXTSCROLL:
+        Item_TextScroll_Paint(item);
+        break;
+    case ITEM_TYPE_MODEL:
+        Item_Model_Paint(item);
+        break;
+    case ITEM_TYPE_YESNO:
+        Item_YesNo_Paint(item);
+        break;
+    case ITEM_TYPE_MULTI:
+        Item_Multi_Paint(item);
+        break;
+    case ITEM_TYPE_BIND:
+        Item_Bind_Paint(item);
+        break;
+    case ITEM_TYPE_SLIDER:
+        Item_Slider_Paint(item);
+        break;
+    default:
+        break;
+    }
+    return true;
 }
 
 /*
@@ -8389,21 +7818,18 @@ LerpColor
 */
 void LerpColor(vec4_t a, vec4_t b, vec4_t c, float t)
 {
-	int i;
+    int i;
 
-	// lerp and clamp each component
-	for (i=0; i<4; i++)
-	{
-		c[i] = a[i] + t*(b[i]-a[i]);
-		if (c[i] < 0)
-		{
-			c[i] = 0;
-		}
-		else if (c[i] > 1.0)
-		{
-			c[i] = 1.0;
-		}
-	}
+    // lerp and clamp each component
+    for (i = 0; i < 4; i++) {
+        c[i] = a[i] + t * (b[i] - a[i]);
+        if (c[i] < 0) {
+            c[i] = 0;
+        }
+        else if (c[i] > 1.0) {
+            c[i] = 1.0;
+        }
+    }
 }
 
 /*
@@ -8411,35 +7837,28 @@ void LerpColor(vec4_t a, vec4_t b, vec4_t c, float t)
 Fade
 =================
 */
-void Fade(windowFlags_t *flags, float *f, float clamp, int *nextTime, int offsetTime, bool bFlags, float fadeAmount)
+void Fade(windowFlags_t* flags, float* f, float clamp, int* nextTime, int offsetTime, bool bFlags, float fadeAmount)
 {
-	if (Any( *flags & (windowFlags_t::WINDOW_FADINGOUT | windowFlags_t::WINDOW_FADINGIN) ))
-	{
-		if (DC->realTime > *nextTime)
-		{
-			*nextTime = DC->realTime + offsetTime;
-			if (Any( *flags & windowFlags_t::WINDOW_FADINGOUT ))
-			{
-				*f -= fadeAmount;
-				if (bFlags && *f <= 0.0)
-				{
-					*flags &= ~(windowFlags_t::WINDOW_FADINGOUT | windowFlags_t::WINDOW_VISIBLE);
-				}
-			}
-			else
-			{
-				*f += fadeAmount;
-				if (*f >= clamp)
-				{
-				  *f = clamp;
-					if (bFlags)
-					{
-						*flags &= ~windowFlags_t::WINDOW_FADINGIN;
-					}
-				}
-			}
-		}
-	}
+    if (Any(*flags & (windowFlags_t::WINDOW_FADINGOUT | windowFlags_t::WINDOW_FADINGIN))) {
+        if (DC->realTime > *nextTime) {
+            *nextTime = DC->realTime + offsetTime;
+            if (Any(*flags & windowFlags_t::WINDOW_FADINGOUT)) {
+                *f -= fadeAmount;
+                if (bFlags && *f <= 0.0) {
+                    *flags &= ~(windowFlags_t::WINDOW_FADINGOUT | windowFlags_t::WINDOW_VISIBLE);
+                }
+            }
+            else {
+                *f += fadeAmount;
+                if (*f >= clamp) {
+                    *f = clamp;
+                    if (bFlags) {
+                        *flags &= ~windowFlags_t::WINDOW_FADINGIN;
+                    }
+                }
+            }
+        }
+    }
 }
 
 /*
@@ -8447,12 +7866,12 @@ void Fade(windowFlags_t *flags, float *f, float clamp, int *nextTime, int offset
 GradientBar_Paint
 =================
 */
-void GradientBar_Paint(rectDef_t *rect, vec4_t color)
+void GradientBar_Paint(rectDef_t* rect, vec4_t color)
 {
-	// gradient bar takes two paints
-	DC->setColor( color );
-	DC->drawHandlePic(rect->x, rect->y, rect->w, rect->h, DC->Assets.gradientBar);
-	DC->setColor( nullptr );
+    // gradient bar takes two paints
+    DC->setColor(color);
+    DC->drawHandlePic(rect->x, rect->y, rect->w, rect->h, DC->Assets.gradientBar);
+    DC->setColor(nullptr);
 }
 
 /*
@@ -8460,118 +7879,100 @@ void GradientBar_Paint(rectDef_t *rect, vec4_t color)
 Window_Paint
 =================
 */
-void Window_Paint(Window *w, float fadeAmount, float fadeClamp, float fadeCycle)
+void Window_Paint(Window* w, float fadeAmount, float fadeClamp, float fadeCycle)
 {
-	//float bordersize = 0;
-	vec4_t color;
-	rectDef_t fillRect = w->rect;
+    // float bordersize = 0;
+    vec4_t color;
+    rectDef_t fillRect = w->rect;
 
-	if (uis.debugMode)
-	{
-		color[0] = color[1] = color[2] = color[3] = 1;
-		DC->drawRect(w->rect.x, w->rect.y, w->rect.w, w->rect.h, 1, color);
-	}
+    if (uis.debugMode) {
+        color[0] = color[1] = color[2] = color[3] = 1;
+        DC->drawRect(w->rect.x, w->rect.y, w->rect.w, w->rect.h, 1, color);
+    }
 
-	if (w == nullptr || (w->style == 0 && w->border == 0))
-	{
-		return;
-	}
+    if (w == nullptr || (w->style == 0 && w->border == 0)) {
+        return;
+    }
 
-	if (w->border != 0)
-	{
-		fillRect.x += w->borderSize;
-		fillRect.y += w->borderSize;
-		fillRect.w -= w->borderSize + 1;
-		fillRect.h -= w->borderSize + 1;
-	}
+    if (w->border != 0) {
+        fillRect.x += w->borderSize;
+        fillRect.y += w->borderSize;
+        fillRect.w -= w->borderSize + 1;
+        fillRect.h -= w->borderSize + 1;
+    }
 
-	if (w->style == WINDOW_STYLE_FILLED)
-	{
-		// box, but possible a shader that needs filled
-		if (w->background)
-		{
-			Fade(&w->flags, &w->backColor[3], fadeClamp, &w->nextTime, fadeCycle, true, fadeAmount);
-			DC->setColor(w->backColor);
-			DC->drawHandlePic(fillRect.x, fillRect.y, fillRect.w, fillRect.h, w->background);
-			DC->setColor(nullptr);
-		}
-		else
-		{
-			DC->fillRect(fillRect.x, fillRect.y, fillRect.w, fillRect.h, w->backColor);
-		}
-	}
-	else if (w->style == WINDOW_STYLE_GRADIENT)
-	{
-		GradientBar_Paint(&fillRect, w->backColor);
-		// gradient bar
-	}
-	else if (w->style == WINDOW_STYLE_SHADER)
-	{
-		if (Any( w->flags & windowFlags_t::WINDOW_PLAYERCOLOR ))
-		{
-			vec4_t	color;
-			color[0] = ui_char_color_red.integer/255.0f;
-			color[1] = ui_char_color_green.integer/255.0f;
-			color[2] = ui_char_color_blue.integer/255.0f;
-			color[3] = 1;
-			ui.R_SetColor(color);
-		}
-		else if (Any( w->flags & windowFlags_t::WINDOW_FORECOLORSET ))
-		{
-			DC->setColor(w->foreColor);
-		}
-		DC->drawHandlePic(fillRect.x, fillRect.y, fillRect.w, fillRect.h, w->background);
-		DC->setColor(nullptr);
-	}
+    if (w->style == WINDOW_STYLE_FILLED) {
+        // box, but possible a shader that needs filled
+        if (w->background) {
+            Fade(&w->flags, &w->backColor[3], fadeClamp, &w->nextTime, fadeCycle, true, fadeAmount);
+            DC->setColor(w->backColor);
+            DC->drawHandlePic(fillRect.x, fillRect.y, fillRect.w, fillRect.h, w->background);
+            DC->setColor(nullptr);
+        }
+        else {
+            DC->fillRect(fillRect.x, fillRect.y, fillRect.w, fillRect.h, w->backColor);
+        }
+    }
+    else if (w->style == WINDOW_STYLE_GRADIENT) {
+        GradientBar_Paint(&fillRect, w->backColor);
+        // gradient bar
+    }
+    else if (w->style == WINDOW_STYLE_SHADER) {
+        if (Any(w->flags & windowFlags_t::WINDOW_PLAYERCOLOR)) {
+            vec4_t color;
+            color[0] = ui_char_color_red.integer / 255.0f;
+            color[1] = ui_char_color_green.integer / 255.0f;
+            color[2] = ui_char_color_blue.integer / 255.0f;
+            color[3] = 1;
+            ui.R_SetColor(color);
+        }
+        else if (Any(w->flags & windowFlags_t::WINDOW_FORECOLORSET)) {
+            DC->setColor(w->foreColor);
+        }
+        DC->drawHandlePic(fillRect.x, fillRect.y, fillRect.w, fillRect.h, w->background);
+        DC->setColor(nullptr);
+    }
 
-	if (w->border == WINDOW_BORDER_FULL)
-	{
-		// full
-		// HACK HACK HACK
-		if (w->style == WINDOW_STYLE_TEAMCOLOR)
-		{
-			if (color[0] > 0)
-			{
-				// red
-				color[0] = 1;
-				color[1] = color[2] = .5;
-			}
-			else
-			{
-				color[2] = 1;
-				color[0] = color[1] = .5;
-			}
-			color[3] = 1;
-			DC->drawRect(w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize, color);
-		}
-		else
-		{
-			DC->drawRect(w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize, w->borderColor);
-		}
-	}
-	else if (w->border == WINDOW_BORDER_HORZ)
-	{
-		// top/bottom
-		DC->setColor(w->borderColor);
-		DC->drawTopBottom(w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize);
-		DC->setColor( nullptr );
-	}
-	else if (w->border == WINDOW_BORDER_VERT)
-	{
-		// left right
-		DC->setColor(w->borderColor);
-		DC->drawSides(w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize);
-		DC->setColor( nullptr );
-	}
-	else if (w->border == WINDOW_BORDER_KCGRADIENT)
-	{
-		// this is just two gradient bars along each horz edge
-		rectDef_t r = w->rect;
-		r.h = w->borderSize;
-		GradientBar_Paint(&r, w->borderColor);
-		r.y = w->rect.y + w->rect.h - 1;
-		GradientBar_Paint(&r, w->borderColor);
-	}
+    if (w->border == WINDOW_BORDER_FULL) {
+        // full
+        // HACK HACK HACK
+        if (w->style == WINDOW_STYLE_TEAMCOLOR) {
+            if (color[0] > 0) {
+                // red
+                color[0] = 1;
+                color[1] = color[2] = .5;
+            }
+            else {
+                color[2] = 1;
+                color[0] = color[1] = .5;
+            }
+            color[3] = 1;
+            DC->drawRect(w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize, color);
+        }
+        else {
+            DC->drawRect(w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize, w->borderColor);
+        }
+    }
+    else if (w->border == WINDOW_BORDER_HORZ) {
+        // top/bottom
+        DC->setColor(w->borderColor);
+        DC->drawTopBottom(w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize);
+        DC->setColor(nullptr);
+    }
+    else if (w->border == WINDOW_BORDER_VERT) {
+        // left right
+        DC->setColor(w->borderColor);
+        DC->drawSides(w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize);
+        DC->setColor(nullptr);
+    }
+    else if (w->border == WINDOW_BORDER_KCGRADIENT) {
+        // this is just two gradient bars along each horz edge
+        rectDef_t r = w->rect;
+        r.h = w->borderSize;
+        GradientBar_Paint(&r, w->borderColor);
+        r.y = w->rect.y + w->rect.h - 1;
+        GradientBar_Paint(&r, w->borderColor);
+    }
 }
 
 /*
@@ -8581,7 +7982,7 @@ Display_KeyBindPending
 */
 bool Display_KeyBindPending(void)
 {
-	return g_waitingForKey;
+    return g_waitingForKey;
 }
 
 /*
@@ -8589,15 +7990,14 @@ bool Display_KeyBindPending(void)
 ToWindowCoords
 =================
 */
-void ToWindowCoords(float *x, float *y, windowDef_t *window)
+void ToWindowCoords(float* x, float* y, windowDef_t* window)
 {
-	if (window->border != 0)
-	{
-		*x += window->borderSize;
-		*y += window->borderSize;
-	}
-	*x += window->rect.x;
-	*y += window->rect.y;
+    if (window->border != 0) {
+        *x += window->borderSize;
+        *y += window->borderSize;
+    }
+    *x += window->rect.x;
+    *y += window->rect.y;
 }
 
 /*
@@ -8605,123 +8005,107 @@ void ToWindowCoords(float *x, float *y, windowDef_t *window)
 Item_Text_AutoWrapped_Paint
 =================
 */
-void Item_Text_AutoWrapped_Paint(itemDef_t *item)
+void Item_Text_AutoWrapped_Paint(itemDef_t* item)
 {
-	char text[1024];
-	const char *p, *textPtr, *newLinePtr;
-	char buff[1024];
-	int height, len, textWidth, newLine, newLineWidth;
-	float y;
-	vec4_t color;
+    char text[1024];
+    const char *p, *textPtr, *newLinePtr;
+    char buff[1024];
+    int height, len, textWidth, newLine, newLineWidth;
+    float y;
+    vec4_t color;
 
-	textWidth = 0;
-	newLinePtr = nullptr;
+    textWidth = 0;
+    newLinePtr = nullptr;
 
-	if (item->text == nullptr)
-	{
-		if (item->cvar == nullptr)
-		{
-			return;
-		}
-		else
-		{
-			DC->getCVarString(item->cvar, text, sizeof(text));
-			textPtr = text;
-		}
-	}
-	else
-	{
-		textPtr = item->text;
-	}
-	if (*textPtr == '@')	// string reference
-	{
-		textPtr = SE_GetString( &textPtr[1] );
-	}
+    if (item->text == nullptr) {
+        if (item->cvar == nullptr) {
+            return;
+        }
+        else {
+            DC->getCVarString(item->cvar, text, sizeof(text));
+            textPtr = text;
+        }
+    }
+    else {
+        textPtr = item->text;
+    }
+    if (*textPtr == '@') // string reference
+    {
+        textPtr = SE_GetString(&textPtr[1]);
+    }
 
-	if (*textPtr == '\0')
-	{
-		return;
-	}
-	Item_TextColor(item, &color);
-	//Item_SetTextExtents(item, &width, &height, textPtr);
-	if (item->value == 0)
-	{
-		item->value = (int)(0.5 + (float)DC->textWidth(textPtr, item->textscale, item->font) / item->window.rect.w);
-	}
-	height = DC->textHeight(textPtr, item->textscale, item->font);
-	item->special = 0;
+    if (*textPtr == '\0') {
+        return;
+    }
+    Item_TextColor(item, &color);
+    // Item_SetTextExtents(item, &width, &height, textPtr);
+    if (item->value == 0) {
+        item->value = (int)(0.5 + (float)DC->textWidth(textPtr, item->textscale, item->font) / item->window.rect.w);
+    }
+    height = DC->textHeight(textPtr, item->textscale, item->font);
+    item->special = 0;
 
-	y = item->textaligny;
-	len = 0;
-	buff[0] = '\0';
-	newLine = 0;
-	newLineWidth = 0;
-	p = textPtr;
-	int line = 1;
-	while (1) //findmeste (this will break widechar languages)!
-	{
-		if (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\0')
-		{
-			newLine = len;
-			newLinePtr = p+1;
-			newLineWidth = textWidth;
-		}
-		textWidth = DC->textWidth(buff, item->textscale, 0);
-		if ( (newLine && textWidth >= item->window.rect.w - item->textalignx) || *p == '\n' || *p == '\0')
-		{
-			if (line > item->cursorPos)	//scroll
-		{
-			if (len)
-			{
-				if (item->textalignment == ITEM_ALIGN_LEFT)
-				{
-					item->textRect.x = item->textalignx;
-				}
-				else if (item->textalignment == ITEM_ALIGN_RIGHT)
-				{
-					item->textRect.x = item->textalignx - newLineWidth;
-				}
-				else if (item->textalignment == ITEM_ALIGN_CENTER)
-				{
-					item->textRect.x = item->textalignx - newLineWidth / 2;
-				}
-				item->textRect.y = y;
-				ToWindowCoords(&item->textRect.x, &item->textRect.y, &item->window);
-				//
-				buff[newLine] = '\0';
+    y = item->textaligny;
+    len = 0;
+    buff[0] = '\0';
+    newLine = 0;
+    newLineWidth = 0;
+    p = textPtr;
+    int line = 1;
+    while (1) // findmeste (this will break widechar languages)!
+    {
+        if (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\0') {
+            newLine = len;
+            newLinePtr = p + 1;
+            newLineWidth = textWidth;
+        }
+        textWidth = DC->textWidth(buff, item->textscale, 0);
+        if ((newLine && textWidth >= item->window.rect.w - item->textalignx) || *p == '\n' || *p == '\0') {
+            if (line > item->cursorPos) // scroll
+            {
+                if (len) {
+                    if (item->textalignment == ITEM_ALIGN_LEFT) {
+                        item->textRect.x = item->textalignx;
+                    }
+                    else if (item->textalignment == ITEM_ALIGN_RIGHT) {
+                        item->textRect.x = item->textalignx - newLineWidth;
+                    }
+                    else if (item->textalignment == ITEM_ALIGN_CENTER) {
+                        item->textRect.x = item->textalignx - newLineWidth / 2;
+                    }
+                    item->textRect.y = y;
+                    ToWindowCoords(&item->textRect.x, &item->textRect.y, &item->window);
+                    //
+                    buff[newLine] = '\0';
 
-					if ( *p && y + height + 4 > item->window.rect.h - height)
-					{
-						item->special = 1;
-						strcat(buff,"...");//uhh, let's render some ellipses
-					}
-				DC->drawText(item->textRect.x, item->textRect.y, item->textscale, color, buff, 0, item->textStyle, item->font);
-			}
-				y += height + 4;
-				if ( y > item->window.rect.h - height)
-				{//reached the bottom of the box, so stop
-					break;
-				}
-				len = 0;
-			}
-			else
-			{
-				strcpy(buff,"...");
-				len = 3;
-			}
-			if (*p == '\0')
-			{	//end of string
-				break;
-			}
-			p = newLinePtr;
-			newLine = 0;
-			newLineWidth = 0;
-			line++;
-		}
-		buff[len++] = *p++;
-		buff[len] = '\0';
-	}
-	item->textRect = item->window.rect;
+                    if (*p && y + height + 4 > item->window.rect.h - height) {
+                        item->special = 1;
+                        strcat(buff, "..."); // uhh, let's render some ellipses
+                    }
+                    DC->drawText(item->textRect.x, item->textRect.y, item->textscale, color, buff, 0, item->textStyle, item->font);
+                }
+                y += height + 4;
+                if (y > item->window.rect.h - height) { // reached the bottom of the box, so stop
+                    break;
+                }
+                len = 0;
+            }
+            else {
+                strcpy(buff, "...");
+                len = 3;
+            }
+            if (*p == '\0') { // end of string
+                break;
+            }
+            p = newLinePtr;
+            newLine = 0;
+            newLineWidth = 0;
+            line++;
+        }
+        buff[len++] = *p++;
+        buff[len] = '\0';
+    }
+    item->textRect = item->window.rect;
 }
 
 /*
@@ -8729,163 +8113,135 @@ void Item_Text_AutoWrapped_Paint(itemDef_t *item)
 Rect_ContainsPoint
 =================
 */
-static bool Rect_ContainsPoint(rectDef_t *rect, float x, float y)
+static bool Rect_ContainsPoint(rectDef_t* rect, float x, float y)
 {
-	//JLF  ignore mouse pointer location
-//	return true;
-	// END JLF
-	if (rect)
-	{
-//		if ((x > rect->x) && (x < (rect->x + rect->w)) && (y > rect->y) && (y < (rect->y + rect->h)))
-		if ((x > rect->x) && (x < (rect->x + rect->w)))
-		{
-			if ((y > rect->y) && (y < (rect->y + rect->h)))
-			{
-				return true;
-			}
-		}
-	}
-	return false;
+    // JLF  ignore mouse pointer location
+    //	return true;
+    // END JLF
+    if (rect) {
+        //		if ((x > rect->x) && (x < (rect->x + rect->w)) && (y > rect->y) && (y < (rect->y + rect->h)))
+        if ((x > rect->x) && (x < (rect->x + rect->w))) {
+            if ((y > rect->y) && (y < (rect->y + rect->h))) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
-bool Item_TextScroll_HandleKey ( itemDef_t *item, fakeAscii_t key, bool down, bool force)
+bool Item_TextScroll_HandleKey(itemDef_t* item, fakeAscii_t key, bool down, bool force)
 {
-	textScrollDef_t *scrollPtr = (textScrollDef_t*)item->typeData;
-	int				max;
-	int				viewmax;
+    textScrollDef_t* scrollPtr = (textScrollDef_t*)item->typeData;
+    int max;
+    int viewmax;
 
-	if (force || (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && Any( item->window.flags & windowFlags_t::WINDOW_HASFOCUS )))
-	{
-		max = Item_TextScroll_MaxScroll(item);
+    if (force || (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && Any(item->window.flags & windowFlags_t::WINDOW_HASFOCUS))) {
+        max = Item_TextScroll_MaxScroll(item);
 
-		viewmax = (item->window.rect.h / scrollPtr->lineHeight);
-		if ( key == fakeAscii_t::A_CURSOR_UP || key == fakeAscii_t::A_KP_8 )
-		{
-			scrollPtr->startPos--;
-			if (scrollPtr->startPos < 0)
-			{
-				scrollPtr->startPos = 0;
-			}
-			return true;
-		}
+        viewmax = (item->window.rect.h / scrollPtr->lineHeight);
+        if (key == fakeAscii_t::A_CURSOR_UP || key == fakeAscii_t::A_KP_8) {
+            scrollPtr->startPos--;
+            if (scrollPtr->startPos < 0) {
+                scrollPtr->startPos = 0;
+            }
+            return true;
+        }
 
-		if ( key == fakeAscii_t::A_CURSOR_DOWN || key == fakeAscii_t::A_KP_2 )
-		{
-			scrollPtr->startPos++;
-			if (scrollPtr->startPos > max)
-			{
-				scrollPtr->startPos = max;
-			}
+        if (key == fakeAscii_t::A_CURSOR_DOWN || key == fakeAscii_t::A_KP_2) {
+            scrollPtr->startPos++;
+            if (scrollPtr->startPos > max) {
+                scrollPtr->startPos = max;
+            }
 
-			return true;
-		}
+            return true;
+        }
 
-		//Raz: Added
-		if ( key == fakeAscii_t::A_MWHEELUP )
-		{
-			scrollPtr->startPos--;
-			if (scrollPtr->startPos < 0)
-			{
-				scrollPtr->startPos = 0;
-				Display_MouseMove(nullptr, DC->cursorx, DC->cursory);
-				return false;
-			}
-			Display_MouseMove(nullptr, DC->cursorx, DC->cursory);
-			return true;
-		}
-		if ( key == fakeAscii_t::A_MWHEELDOWN )
-		{
-			scrollPtr->startPos++;
-			if (scrollPtr->startPos > max)
-			{
-				scrollPtr->startPos = max;
-				Display_MouseMove(nullptr, DC->cursorx, DC->cursory);
-				return false;
-			}
-			Display_MouseMove(nullptr, DC->cursorx, DC->cursory);
-			return true;
-		}
+        // Raz: Added
+        if (key == fakeAscii_t::A_MWHEELUP) {
+            scrollPtr->startPos--;
+            if (scrollPtr->startPos < 0) {
+                scrollPtr->startPos = 0;
+                Display_MouseMove(nullptr, DC->cursorx, DC->cursory);
+                return false;
+            }
+            Display_MouseMove(nullptr, DC->cursorx, DC->cursory);
+            return true;
+        }
+        if (key == fakeAscii_t::A_MWHEELDOWN) {
+            scrollPtr->startPos++;
+            if (scrollPtr->startPos > max) {
+                scrollPtr->startPos = max;
+                Display_MouseMove(nullptr, DC->cursorx, DC->cursory);
+                return false;
+            }
+            Display_MouseMove(nullptr, DC->cursorx, DC->cursory);
+            return true;
+        }
 
-		// mouse hit
-		if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_MOUSE2)
-		{
-			if (Any( item->window.flags & windowFlags_t::WINDOW_LB_LEFTARROW ))
-			{
-				scrollPtr->startPos--;
-				if (scrollPtr->startPos < 0)
-				{
-					scrollPtr->startPos = 0;
-				}
-			}
-			else if (Any( item->window.flags & windowFlags_t::WINDOW_LB_RIGHTARROW ))
-			{
-				// one down
-				scrollPtr->startPos++;
-				if (scrollPtr->startPos > max)
-				{
-					scrollPtr->startPos = max;
-				}
-			}
-			else if (Any( item->window.flags & windowFlags_t::WINDOW_LB_PGUP ))
-			{
-				// page up
-				scrollPtr->startPos -= viewmax;
-				if (scrollPtr->startPos < 0)
-				{
-					scrollPtr->startPos = 0;
-				}
-			}
-			else if (Any( item->window.flags & windowFlags_t::WINDOW_LB_PGDN ))
-			{
-				// page down
-				scrollPtr->startPos += viewmax;
-				if (scrollPtr->startPos > max)
-				{
-					scrollPtr->startPos = max;
-				}
-			}
-			else if (Any( item->window.flags & windowFlags_t::WINDOW_LB_THUMB ))
-			{
-				// Display_SetCaptureItem(item);
-			}
+        // mouse hit
+        if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_MOUSE2) {
+            if (Any(item->window.flags & windowFlags_t::WINDOW_LB_LEFTARROW)) {
+                scrollPtr->startPos--;
+                if (scrollPtr->startPos < 0) {
+                    scrollPtr->startPos = 0;
+                }
+            }
+            else if (Any(item->window.flags & windowFlags_t::WINDOW_LB_RIGHTARROW)) {
+                // one down
+                scrollPtr->startPos++;
+                if (scrollPtr->startPos > max) {
+                    scrollPtr->startPos = max;
+                }
+            }
+            else if (Any(item->window.flags & windowFlags_t::WINDOW_LB_PGUP)) {
+                // page up
+                scrollPtr->startPos -= viewmax;
+                if (scrollPtr->startPos < 0) {
+                    scrollPtr->startPos = 0;
+                }
+            }
+            else if (Any(item->window.flags & windowFlags_t::WINDOW_LB_PGDN)) {
+                // page down
+                scrollPtr->startPos += viewmax;
+                if (scrollPtr->startPos > max) {
+                    scrollPtr->startPos = max;
+                }
+            }
+            else if (Any(item->window.flags & windowFlags_t::WINDOW_LB_THUMB)) {
+                // Display_SetCaptureItem(item);
+            }
 
-			return true;
-		}
+            return true;
+        }
 
-		if ( key == fakeAscii_t::A_HOME || key == fakeAscii_t::A_KP_7)
-		{
-			// home
-			scrollPtr->startPos = 0;
-			return true;
-		}
-		if ( key == fakeAscii_t::A_END || key == fakeAscii_t::A_KP_1)
-		{
-			// end
-			scrollPtr->startPos = max;
-			return true;
-		}
-		if (key == fakeAscii_t::A_PAGE_UP || key == fakeAscii_t::A_KP_9 )
-		{
-			scrollPtr->startPos -= viewmax;
-			if (scrollPtr->startPos < 0)
-			{
-					scrollPtr->startPos = 0;
-			}
+        if (key == fakeAscii_t::A_HOME || key == fakeAscii_t::A_KP_7) {
+            // home
+            scrollPtr->startPos = 0;
+            return true;
+        }
+        if (key == fakeAscii_t::A_END || key == fakeAscii_t::A_KP_1) {
+            // end
+            scrollPtr->startPos = max;
+            return true;
+        }
+        if (key == fakeAscii_t::A_PAGE_UP || key == fakeAscii_t::A_KP_9) {
+            scrollPtr->startPos -= viewmax;
+            if (scrollPtr->startPos < 0) {
+                scrollPtr->startPos = 0;
+            }
 
-			return true;
-		}
-		if ( key == fakeAscii_t::A_PAGE_DOWN || key == fakeAscii_t::A_KP_3 )
-		{
-			scrollPtr->startPos += viewmax;
-			if (scrollPtr->startPos > max)
-			{
-				scrollPtr->startPos = max;
-			}
-			return true;
-		}
-	}
+            return true;
+        }
+        if (key == fakeAscii_t::A_PAGE_DOWN || key == fakeAscii_t::A_KP_3) {
+            scrollPtr->startPos += viewmax;
+            if (scrollPtr->startPos > max) {
+                scrollPtr->startPos = max;
+            }
+            return true;
+        }
+    }
 
-	return false;
+    return false;
 }
 
 /*
@@ -8893,26 +8249,23 @@ bool Item_TextScroll_HandleKey ( itemDef_t *item, fakeAscii_t key, bool down, bo
 Item_ListBox_MaxScroll
 =================
 */
-int Item_ListBox_MaxScroll(itemDef_t *item)
+int Item_ListBox_MaxScroll(itemDef_t* item)
 {
-	listBoxDef_t *listPtr = (listBoxDef_t*)item->typeData;
-	int count = DC->feederCount(item->special);
-	int max;
+    listBoxDef_t* listPtr = (listBoxDef_t*)item->typeData;
+    int count = DC->feederCount(item->special);
+    int max;
 
-	if (Any( item->window.flags & windowFlags_t::WINDOW_HORIZONTAL ))
-	{
-		max = count - (item->window.rect.w / listPtr->elementWidth) + 1;
-	}
-	else
-	{
-		max = count - (item->window.rect.h / listPtr->elementHeight) + 1;
-	}
+    if (Any(item->window.flags & windowFlags_t::WINDOW_HORIZONTAL)) {
+        max = count - (item->window.rect.w / listPtr->elementWidth) + 1;
+    }
+    else {
+        max = count - (item->window.rect.h / listPtr->elementHeight) + 1;
+    }
 
-	if (max < 0)
-	{
-		return 0;
-	}
-	return max;
+    if (max < 0) {
+        return 0;
+    }
+    return max;
 }
 
 /*
@@ -8920,40 +8273,35 @@ int Item_ListBox_MaxScroll(itemDef_t *item)
 Item_ListBox_ThumbPosition
 =================
 */
-int Item_ListBox_ThumbPosition(itemDef_t *item)
+int Item_ListBox_ThumbPosition(itemDef_t* item)
 {
-	float max, pos, size;
-	listBoxDef_t *listPtr = (listBoxDef_t*)item->typeData;
+    float max, pos, size;
+    listBoxDef_t* listPtr = (listBoxDef_t*)item->typeData;
 
-	max = Item_ListBox_MaxScroll(item);
-	if (Any( item->window.flags & windowFlags_t::WINDOW_HORIZONTAL )) {
+    max = Item_ListBox_MaxScroll(item);
+    if (Any(item->window.flags & windowFlags_t::WINDOW_HORIZONTAL)) {
 
-		size = item->window.rect.w - (SCROLLBAR_SIZE * 2) - 2;
-		if (max > 0)
-		{
-			pos = (size-SCROLLBAR_SIZE) / (float) max;
-		}
-		else
-		{
-			pos = 0;
-		}
-		pos *= listPtr->startPos;
-		return item->window.rect.x + 1 + SCROLLBAR_SIZE + pos;
-	}
-	else
-	{
-		size = item->window.rect.h - (SCROLLBAR_SIZE * 2) - 2;
-		if (max > 0)
-		{
-			pos = (size-SCROLLBAR_SIZE) / (float) max;
-		}
-		else
-		{
-			pos = 0;
-		}
-		pos *= listPtr->startPos;
-		return item->window.rect.y + 1 + SCROLLBAR_SIZE + pos;
-	}
+        size = item->window.rect.w - (SCROLLBAR_SIZE * 2) - 2;
+        if (max > 0) {
+            pos = (size - SCROLLBAR_SIZE) / (float)max;
+        }
+        else {
+            pos = 0;
+        }
+        pos *= listPtr->startPos;
+        return item->window.rect.x + 1 + SCROLLBAR_SIZE + pos;
+    }
+    else {
+        size = item->window.rect.h - (SCROLLBAR_SIZE * 2) - 2;
+        if (max > 0) {
+            pos = (size - SCROLLBAR_SIZE) / (float)max;
+        }
+        else {
+            pos = 0;
+        }
+        pos *= listPtr->startPos;
+        return item->window.rect.y + 1 + SCROLLBAR_SIZE + pos;
+    }
 }
 
 /*
@@ -8961,81 +8309,69 @@ int Item_ListBox_ThumbPosition(itemDef_t *item)
 Item_ListBox_OverLB
 =================
 */
-windowFlags_t Item_ListBox_OverLB(itemDef_t *item, float x, float y)
+windowFlags_t Item_ListBox_OverLB(itemDef_t* item, float x, float y)
 {
-	rectDef_t r;
-	int thumbstart;
+    rectDef_t r;
+    int thumbstart;
 
-	if (Any( item->window.flags & windowFlags_t::WINDOW_HORIZONTAL ))
-	{
-		// check if on left arrow
-		r.x = item->window.rect.x;
-		r.y = item->window.rect.y + item->window.rect.h - SCROLLBAR_SIZE;
-		r.h = r.w = SCROLLBAR_SIZE;
-		if (Rect_ContainsPoint(&r, x, y))
-		{
-			return windowFlags_t::WINDOW_LB_LEFTARROW;
-		}
-		// check if on right arrow
-		r.x = item->window.rect.x + item->window.rect.w - SCROLLBAR_SIZE;
-		if (Rect_ContainsPoint(&r, x, y))
-		{
-			return windowFlags_t::WINDOW_LB_RIGHTARROW;
-		}
-		// check if on thumb
-		thumbstart = Item_ListBox_ThumbPosition(item);
-		r.x = thumbstart;
-		if (Rect_ContainsPoint(&r, x, y))
-		{
-			return windowFlags_t::WINDOW_LB_THUMB;
-		}
-		r.x = item->window.rect.x + SCROLLBAR_SIZE;
-		r.w = thumbstart - r.x;
-		if (Rect_ContainsPoint(&r, x, y))
-		{
-			return windowFlags_t::WINDOW_LB_PGUP;
-		}
-		r.x = thumbstart + SCROLLBAR_SIZE;
-		r.w = item->window.rect.x + item->window.rect.w - SCROLLBAR_SIZE;
-		if (Rect_ContainsPoint(&r, x, y))
-		{
-			return windowFlags_t::WINDOW_LB_PGDN;
-		}
-	}
-	else
-	{
-		r.x = item->window.rect.x + item->window.rect.w - SCROLLBAR_SIZE;
-		r.y = item->window.rect.y;
-		r.h = r.w = SCROLLBAR_SIZE;
-		if (Rect_ContainsPoint(&r, x, y))
-		{
-			return windowFlags_t::WINDOW_LB_LEFTARROW;
-		}
-		r.y = item->window.rect.y + item->window.rect.h - SCROLLBAR_SIZE;
-		if (Rect_ContainsPoint(&r, x, y))
-		{
-			return windowFlags_t::WINDOW_LB_RIGHTARROW;
-		}
-		thumbstart = Item_ListBox_ThumbPosition(item);
-		r.y = thumbstart;
-		if (Rect_ContainsPoint(&r, x, y))
-		{
-			return windowFlags_t::WINDOW_LB_THUMB;
-		}
-		r.y = item->window.rect.y + SCROLLBAR_SIZE;
-		r.h = thumbstart - r.y;
-		if (Rect_ContainsPoint(&r, x, y))
-		{
-			return windowFlags_t::WINDOW_LB_PGUP;
-		}
-		r.y = thumbstart + SCROLLBAR_SIZE;
-		r.h = item->window.rect.y + item->window.rect.h - SCROLLBAR_SIZE;
-		if (Rect_ContainsPoint(&r, x, y))
-		{
-			return windowFlags_t::WINDOW_LB_PGDN;
-		}
-	}
-	return windowFlags_t::WINDOW_NONE;
+    if (Any(item->window.flags & windowFlags_t::WINDOW_HORIZONTAL)) {
+        // check if on left arrow
+        r.x = item->window.rect.x;
+        r.y = item->window.rect.y + item->window.rect.h - SCROLLBAR_SIZE;
+        r.h = r.w = SCROLLBAR_SIZE;
+        if (Rect_ContainsPoint(&r, x, y)) {
+            return windowFlags_t::WINDOW_LB_LEFTARROW;
+        }
+        // check if on right arrow
+        r.x = item->window.rect.x + item->window.rect.w - SCROLLBAR_SIZE;
+        if (Rect_ContainsPoint(&r, x, y)) {
+            return windowFlags_t::WINDOW_LB_RIGHTARROW;
+        }
+        // check if on thumb
+        thumbstart = Item_ListBox_ThumbPosition(item);
+        r.x = thumbstart;
+        if (Rect_ContainsPoint(&r, x, y)) {
+            return windowFlags_t::WINDOW_LB_THUMB;
+        }
+        r.x = item->window.rect.x + SCROLLBAR_SIZE;
+        r.w = thumbstart - r.x;
+        if (Rect_ContainsPoint(&r, x, y)) {
+            return windowFlags_t::WINDOW_LB_PGUP;
+        }
+        r.x = thumbstart + SCROLLBAR_SIZE;
+        r.w = item->window.rect.x + item->window.rect.w - SCROLLBAR_SIZE;
+        if (Rect_ContainsPoint(&r, x, y)) {
+            return windowFlags_t::WINDOW_LB_PGDN;
+        }
+    }
+    else {
+        r.x = item->window.rect.x + item->window.rect.w - SCROLLBAR_SIZE;
+        r.y = item->window.rect.y;
+        r.h = r.w = SCROLLBAR_SIZE;
+        if (Rect_ContainsPoint(&r, x, y)) {
+            return windowFlags_t::WINDOW_LB_LEFTARROW;
+        }
+        r.y = item->window.rect.y + item->window.rect.h - SCROLLBAR_SIZE;
+        if (Rect_ContainsPoint(&r, x, y)) {
+            return windowFlags_t::WINDOW_LB_RIGHTARROW;
+        }
+        thumbstart = Item_ListBox_ThumbPosition(item);
+        r.y = thumbstart;
+        if (Rect_ContainsPoint(&r, x, y)) {
+            return windowFlags_t::WINDOW_LB_THUMB;
+        }
+        r.y = item->window.rect.y + SCROLLBAR_SIZE;
+        r.h = thumbstart - r.y;
+        if (Rect_ContainsPoint(&r, x, y)) {
+            return windowFlags_t::WINDOW_LB_PGUP;
+        }
+        r.y = thumbstart + SCROLLBAR_SIZE;
+        r.h = item->window.rect.y + item->window.rect.h - SCROLLBAR_SIZE;
+        if (Rect_ContainsPoint(&r, x, y)) {
+            return windowFlags_t::WINDOW_LB_PGDN;
+        }
+    }
+    return windowFlags_t::WINDOW_NONE;
 }
 
 /*
@@ -9043,55 +8379,49 @@ windowFlags_t Item_ListBox_OverLB(itemDef_t *item, float x, float y)
 Item_ListBox_MouseEnter
 =================
 */
-void Item_ListBox_MouseEnter(itemDef_t *item, float x, float y)
+void Item_ListBox_MouseEnter(itemDef_t* item, float x, float y)
 {
-	rectDef_t r;
-	listBoxDef_t *listPtr = (listBoxDef_t*)item->typeData;
+    rectDef_t r;
+    listBoxDef_t* listPtr = (listBoxDef_t*)item->typeData;
 
-	item->window.flags &= ~(windowFlags_t::WINDOW_LB_LEFTARROW | windowFlags_t::WINDOW_LB_RIGHTARROW | windowFlags_t::WINDOW_LB_THUMB | windowFlags_t::WINDOW_LB_PGUP | windowFlags_t::WINDOW_LB_PGDN);
-	item->window.flags |= Item_ListBox_OverLB(item, x, y);
+    item->window.flags &= ~(windowFlags_t::WINDOW_LB_LEFTARROW | windowFlags_t::WINDOW_LB_RIGHTARROW | windowFlags_t::WINDOW_LB_THUMB |
+                            windowFlags_t::WINDOW_LB_PGUP | windowFlags_t::WINDOW_LB_PGDN);
+    item->window.flags |= Item_ListBox_OverLB(item, x, y);
 
-	if (Any( item->window.flags & windowFlags_t::WINDOW_HORIZONTAL ))
-	{
-		if (!Any( item->window.flags & (windowFlags_t::WINDOW_LB_LEFTARROW | windowFlags_t::WINDOW_LB_RIGHTARROW | windowFlags_t::WINDOW_LB_THUMB | windowFlags_t::WINDOW_LB_PGUP | windowFlags_t::WINDOW_LB_PGDN) ))
-		{
-			// check for selection hit as we have exausted buttons and thumb
-			if (listPtr->elementStyle == LISTBOX_IMAGE)
-			{
-				r.x = item->window.rect.x;
-				r.y = item->window.rect.y;
-				r.h = item->window.rect.h - SCROLLBAR_SIZE;
-				r.w = item->window.rect.w - listPtr->drawPadding;
-				if (Rect_ContainsPoint(&r, x, y))
-				{
-					listPtr->cursorPos =  (int)((x - r.x) / listPtr->elementWidth)  + listPtr->startPos;
-					if (listPtr->cursorPos > listPtr->endPos)
-					{
-						listPtr->cursorPos = listPtr->endPos;
-					}
-				}
-			}
-			else
-			{
-				// text hit..
-			}
-		}
-	}
-	else if (!Any( item->window.flags & (windowFlags_t::WINDOW_LB_LEFTARROW | windowFlags_t::WINDOW_LB_RIGHTARROW | windowFlags_t::WINDOW_LB_THUMB | windowFlags_t::WINDOW_LB_PGUP | windowFlags_t::WINDOW_LB_PGDN) ))
-	{
-		r.x = item->window.rect.x;
-		r.y = item->window.rect.y;
-		r.w = item->window.rect.w - SCROLLBAR_SIZE;
-		r.h = item->window.rect.h - listPtr->drawPadding;
-		if (Rect_ContainsPoint(&r, x, y))
-		{
-			listPtr->cursorPos =  (int)((y - 2 - r.y) / listPtr->elementHeight)  + listPtr->startPos;
-			if (listPtr->cursorPos > listPtr->endPos)
-			{
-				listPtr->cursorPos = listPtr->endPos;
-			}
-		}
-	}
+    if (Any(item->window.flags & windowFlags_t::WINDOW_HORIZONTAL)) {
+        if (!Any(item->window.flags & (windowFlags_t::WINDOW_LB_LEFTARROW | windowFlags_t::WINDOW_LB_RIGHTARROW | windowFlags_t::WINDOW_LB_THUMB |
+                                       windowFlags_t::WINDOW_LB_PGUP | windowFlags_t::WINDOW_LB_PGDN))) {
+            // check for selection hit as we have exausted buttons and thumb
+            if (listPtr->elementStyle == LISTBOX_IMAGE) {
+                r.x = item->window.rect.x;
+                r.y = item->window.rect.y;
+                r.h = item->window.rect.h - SCROLLBAR_SIZE;
+                r.w = item->window.rect.w - listPtr->drawPadding;
+                if (Rect_ContainsPoint(&r, x, y)) {
+                    listPtr->cursorPos = (int)((x - r.x) / listPtr->elementWidth) + listPtr->startPos;
+                    if (listPtr->cursorPos > listPtr->endPos) {
+                        listPtr->cursorPos = listPtr->endPos;
+                    }
+                }
+            }
+            else {
+                // text hit..
+            }
+        }
+    }
+    else if (!Any(item->window.flags & (windowFlags_t::WINDOW_LB_LEFTARROW | windowFlags_t::WINDOW_LB_RIGHTARROW | windowFlags_t::WINDOW_LB_THUMB |
+                                        windowFlags_t::WINDOW_LB_PGUP | windowFlags_t::WINDOW_LB_PGDN))) {
+        r.x = item->window.rect.x;
+        r.y = item->window.rect.y;
+        r.w = item->window.rect.w - SCROLLBAR_SIZE;
+        r.h = item->window.rect.h - listPtr->drawPadding;
+        if (Rect_ContainsPoint(&r, x, y)) {
+            listPtr->cursorPos = (int)((y - 2 - r.y) / listPtr->elementHeight) + listPtr->startPos;
+            if (listPtr->cursorPos > listPtr->endPos) {
+                listPtr->cursorPos = listPtr->endPos;
+            }
+        }
+    }
 }
 
 /*
@@ -9099,78 +8429,64 @@ void Item_ListBox_MouseEnter(itemDef_t *item, float x, float y)
 Item_MouseEnter
 =================
 */
-void Item_MouseEnter(itemDef_t *item, float x, float y)
+void Item_MouseEnter(itemDef_t* item, float x, float y)
 {
-	rectDef_t r;
-	//JLFMOUSE
-	if (item)
-	{
-		r = item->textRect;
-//		r.y -= r.h;			// NOt sure why this is here, but I commented it out.
-		// in the text rect?
+    rectDef_t r;
+    // JLFMOUSE
+    if (item) {
+        r = item->textRect;
+        //		r.y -= r.h;			// NOt sure why this is here, but I commented it out.
+        // in the text rect?
 
-		// items can be enabled and disabled
-		if (item->disabled)
-		{
-			return;
-		}
+        // items can be enabled and disabled
+        if (item->disabled) {
+            return;
+        }
 
-		// items can be enabled and disabled based on cvars
-		if (Any( item->cvarFlags & (itemCvarFlags_t::CVAR_ENABLE | itemCvarFlags_t::CVAR_DISABLE) ) && !Item_EnableShowViaCvar(item, itemCvarFlags_t::CVAR_ENABLE))
-		{
-			return;
-		}
+        // items can be enabled and disabled based on cvars
+        if (Any(item->cvarFlags & (itemCvarFlags_t::CVAR_ENABLE | itemCvarFlags_t::CVAR_DISABLE)) &&
+            !Item_EnableShowViaCvar(item, itemCvarFlags_t::CVAR_ENABLE)) {
+            return;
+        }
 
-		if (Any( item->cvarFlags & (itemCvarFlags_t::CVAR_SHOW | itemCvarFlags_t::CVAR_HIDE) ) && !Item_EnableShowViaCvar(item, itemCvarFlags_t::CVAR_SHOW))
-		{
-			return;
-		}
+        if (Any(item->cvarFlags & (itemCvarFlags_t::CVAR_SHOW | itemCvarFlags_t::CVAR_HIDE)) && !Item_EnableShowViaCvar(item, itemCvarFlags_t::CVAR_SHOW)) {
+            return;
+        }
 
-//JLFMOUSE
-		if (Rect_ContainsPoint(&r, x, y))
-		{
-			if (!Any( item->window.flags & windowFlags_t::WINDOW_MOUSEOVERTEXT ))
-			{
-				Item_RunScript(item, item->mouseEnterText);
-				item->window.flags |= windowFlags_t::WINDOW_MOUSEOVERTEXT;
-			}
+        // JLFMOUSE
+        if (Rect_ContainsPoint(&r, x, y)) {
+            if (!Any(item->window.flags & windowFlags_t::WINDOW_MOUSEOVERTEXT)) {
+                Item_RunScript(item, item->mouseEnterText);
+                item->window.flags |= windowFlags_t::WINDOW_MOUSEOVERTEXT;
+            }
 
-			if (!Any( item->window.flags & windowFlags_t::WINDOW_MOUSEOVER ))
-			{
-				Item_RunScript(item, item->mouseEnter);
-				item->window.flags |= windowFlags_t::WINDOW_MOUSEOVER;
-			}
+            if (!Any(item->window.flags & windowFlags_t::WINDOW_MOUSEOVER)) {
+                Item_RunScript(item, item->mouseEnter);
+                item->window.flags |= windowFlags_t::WINDOW_MOUSEOVER;
+            }
+        }
+        else {
+            // not in the text rect
+            if (Any(item->window.flags & windowFlags_t::WINDOW_MOUSEOVERTEXT)) {
+                // if we were
+                Item_RunScript(item, item->mouseExitText);
+                item->window.flags &= ~windowFlags_t::WINDOW_MOUSEOVERTEXT;
+            }
 
-		}
-		else
-		{
-			// not in the text rect
-			if (Any( item->window.flags & windowFlags_t::WINDOW_MOUSEOVERTEXT ))
-			{
-				// if we were
-				Item_RunScript(item, item->mouseExitText);
-				item->window.flags &= ~windowFlags_t::WINDOW_MOUSEOVERTEXT;
-			}
+            if (!Any(item->window.flags & windowFlags_t::WINDOW_MOUSEOVER)) {
+                Item_RunScript(item, item->mouseEnter);
+                item->window.flags |= windowFlags_t::WINDOW_MOUSEOVER;
+            }
 
-			if (!Any( item->window.flags & windowFlags_t::WINDOW_MOUSEOVER ))
-			{
-				Item_RunScript(item, item->mouseEnter);
-				item->window.flags |= windowFlags_t::WINDOW_MOUSEOVER;
-			}
-
-			if (item->type == ITEM_TYPE_LISTBOX)
-			{
-				Item_ListBox_MouseEnter(item, x, y);
-			}
-			else if ( item->type == ITEM_TYPE_TEXTSCROLL )
-			{
-				Item_TextScroll_MouseEnter ( item, x, y );
-			}
-		}
-	}
+            if (item->type == ITEM_TYPE_LISTBOX) {
+                Item_ListBox_MouseEnter(item, x, y);
+            }
+            else if (item->type == ITEM_TYPE_TEXTSCROLL) {
+                Item_TextScroll_MouseEnter(item, x, y);
+            }
+        }
+    }
 }
-
-
 
 /*
 =================
@@ -9178,97 +8494,82 @@ Item_SetFocus
 =================
 */
 // will optionaly set focus to this item
-bool Item_SetFocus(itemDef_t *item, float x, float y)
+bool Item_SetFocus(itemDef_t* item, float x, float y)
 {
-	int i;
-	itemDef_t *oldFocus;
-	sfxHandle_t *sfx = &DC->Assets.itemFocusSound;
-	bool playSound = false;
-	// sanity check, non-null, not a decoration and does not already have the focus
-	if (item == nullptr || Any( item->window.flags & windowFlags_t::WINDOW_DECORATION ) || Any( item->window.flags & windowFlags_t::WINDOW_HASFOCUS ) || !Any( item->window.flags & windowFlags_t::WINDOW_VISIBLE ) || Any( item->window.flags & windowFlags_t::WINDOW_INACTIVE ))
-	{
-		return false;
-	}
-	menuDef_t *parent = (menuDef_t*)item->parent;
+    int i;
+    itemDef_t* oldFocus;
+    sfxHandle_t* sfx = &DC->Assets.itemFocusSound;
+    bool playSound = false;
+    // sanity check, non-null, not a decoration and does not already have the focus
+    if (item == nullptr || Any(item->window.flags & windowFlags_t::WINDOW_DECORATION) || Any(item->window.flags & windowFlags_t::WINDOW_HASFOCUS) ||
+        !Any(item->window.flags & windowFlags_t::WINDOW_VISIBLE) || Any(item->window.flags & windowFlags_t::WINDOW_INACTIVE)) {
+        return false;
+    }
+    menuDef_t* parent = (menuDef_t*)item->parent;
 
-	// items can be enabled and disabled
-	if (item->disabled)
-	{
-		return false;
-	}
+    // items can be enabled and disabled
+    if (item->disabled) {
+        return false;
+    }
 
-	// items can be enabled and disabled based on cvars
-	if (Any( item->cvarFlags & (itemCvarFlags_t::CVAR_ENABLE | itemCvarFlags_t::CVAR_DISABLE) ) && !Item_EnableShowViaCvar(item, itemCvarFlags_t::CVAR_ENABLE))
-	{
-		return false;
-	}
+    // items can be enabled and disabled based on cvars
+    if (Any(item->cvarFlags & (itemCvarFlags_t::CVAR_ENABLE | itemCvarFlags_t::CVAR_DISABLE)) && !Item_EnableShowViaCvar(item, itemCvarFlags_t::CVAR_ENABLE)) {
+        return false;
+    }
 
-	if (Any( item->cvarFlags & (itemCvarFlags_t::CVAR_SHOW | itemCvarFlags_t::CVAR_HIDE) ) && !Item_EnableShowViaCvar(item, itemCvarFlags_t::CVAR_SHOW))
-	{
-		return false;
-	}
+    if (Any(item->cvarFlags & (itemCvarFlags_t::CVAR_SHOW | itemCvarFlags_t::CVAR_HIDE)) && !Item_EnableShowViaCvar(item, itemCvarFlags_t::CVAR_SHOW)) {
+        return false;
+    }
 
-	oldFocus = Menu_ClearFocus((menuDef_t *) item->parent);
+    oldFocus = Menu_ClearFocus((menuDef_t*)item->parent);
 
-	if (item->type == ITEM_TYPE_TEXT)
-	{
-		rectDef_t r;
-		r = item->textRect;
-		//r.y -= r.h;
-//JLFMOUSE
-		if (Rect_ContainsPoint(&r, x, y))
-		{
-			item->window.flags |= windowFlags_t::WINDOW_HASFOCUS;
-			if (item->focusSound)
-			{
-				sfx = &item->focusSound;
-			}
-			playSound = true;
-		}
-		else
+    if (item->type == ITEM_TYPE_TEXT) {
+        rectDef_t r;
+        r = item->textRect;
+        // r.y -= r.h;
+        // JLFMOUSE
+        if (Rect_ContainsPoint(&r, x, y)) {
+            item->window.flags |= windowFlags_t::WINDOW_HASFOCUS;
+            if (item->focusSound) {
+                sfx = &item->focusSound;
+            }
+            playSound = true;
+        }
+        else
 
-		{
-			if (oldFocus)
-			{
-				oldFocus->window.flags |= windowFlags_t::WINDOW_HASFOCUS;
-				if (oldFocus->onFocus)
-				{
-					Item_RunScript(oldFocus, oldFocus->onFocus);
-				}
-			}
-		}
-	}
-	else
-	{
-	    item->window.flags |= windowFlags_t::WINDOW_HASFOCUS;
-		if (item->onFocus)
-		{
-			Item_RunScript(item, item->onFocus);
-		}
-		if (item->focusSound)
-		{
-			sfx = &item->focusSound;
-		}
-		playSound = true;
-	}
+        {
+            if (oldFocus) {
+                oldFocus->window.flags |= windowFlags_t::WINDOW_HASFOCUS;
+                if (oldFocus->onFocus) {
+                    Item_RunScript(oldFocus, oldFocus->onFocus);
+                }
+            }
+        }
+    }
+    else {
+        item->window.flags |= windowFlags_t::WINDOW_HASFOCUS;
+        if (item->onFocus) {
+            Item_RunScript(item, item->onFocus);
+        }
+        if (item->focusSound) {
+            sfx = &item->focusSound;
+        }
+        playSound = true;
+    }
 
-	if (playSound && sfx)
-	{
-		DC->startLocalSound( *sfx, soundChannel_t::CHAN_LOCAL_SOUND );
-	}
+    if (playSound && sfx) {
+        DC->startLocalSound(*sfx, soundChannel_t::CHAN_LOCAL_SOUND);
+    }
 
-	for (i = 0; i < parent->itemCount; i++)
-	{
-		if (parent->items[i] == item)
-		{
-			parent->cursorItem = i;
-			break;
-		}
-	}
+    for (i = 0; i < parent->itemCount; i++) {
+        if (parent->items[i] == item) {
+            parent->cursorItem = i;
+            break;
+        }
+    }
 
-	return true;
+    return true;
 }
-
 
 /*
 =================
@@ -9277,7 +8578,7 @@ IsVisible
 */
 bool IsVisible(windowFlags_t flags)
 {
-  return ((Any( flags & windowFlags_t::WINDOW_VISIBLE ) && !Any( flags & windowFlags_t::WINDOW_FADINGOUT )) != 0);
+    return ((Any(flags & windowFlags_t::WINDOW_VISIBLE) && !Any(flags & windowFlags_t::WINDOW_FADINGOUT)) != 0);
 }
 
 /*
@@ -9285,18 +8586,16 @@ bool IsVisible(windowFlags_t flags)
 Item_MouseLeave
 =================
 */
-void Item_MouseLeave(itemDef_t *item)
+void Item_MouseLeave(itemDef_t* item)
 {
-	if (item)
-	{
-		if (Any( item->window.flags & windowFlags_t::WINDOW_MOUSEOVERTEXT ))
-		{
-			Item_RunScript(item, item->mouseExitText);
-			item->window.flags &= ~windowFlags_t::WINDOW_MOUSEOVERTEXT;
-		}
-		Item_RunScript(item, item->mouseExit);
-		item->window.flags &= ~(windowFlags_t::WINDOW_LB_RIGHTARROW | windowFlags_t::WINDOW_LB_LEFTARROW);
-	}
+    if (item) {
+        if (Any(item->window.flags & windowFlags_t::WINDOW_MOUSEOVERTEXT)) {
+            Item_RunScript(item, item->mouseExitText);
+            item->window.flags &= ~windowFlags_t::WINDOW_MOUSEOVERTEXT;
+        }
+        Item_RunScript(item, item->mouseExit);
+        item->window.flags &= ~(windowFlags_t::WINDOW_LB_RIGHTARROW | windowFlags_t::WINDOW_LB_LEFTARROW);
+    }
 }
 
 /*
@@ -9304,19 +8603,16 @@ void Item_MouseLeave(itemDef_t *item)
 Item_SetMouseOver
 =================
 */
-void Item_SetMouseOver(itemDef_t *item, bool focus)
+void Item_SetMouseOver(itemDef_t* item, bool focus)
 {
-	if (item)
-	{
-		if (focus)
-		{
-			item->window.flags |= windowFlags_t::WINDOW_MOUSEOVER;
-		}
-		else
-		{
-			item->window.flags &= ~windowFlags_t::WINDOW_MOUSEOVER;
-		}
-	}
+    if (item) {
+        if (focus) {
+            item->window.flags |= windowFlags_t::WINDOW_MOUSEOVER;
+        }
+        else {
+            item->window.flags &= ~windowFlags_t::WINDOW_MOUSEOVER;
+        }
+    }
 }
 
 /*
@@ -9324,103 +8620,87 @@ void Item_SetMouseOver(itemDef_t *item, bool focus)
 Menu_HandleMouseMove
 =================
 */
-void Menu_HandleMouseMove(menuDef_t *menu, float x, float y)
+void Menu_HandleMouseMove(menuDef_t* menu, float x, float y)
 {
-	int i, pass;
-	bool focusSet = false;
+    int i, pass;
+    bool focusSet = false;
 
-	itemDef_t *overItem;
-	if (menu == nullptr)
-	{
-		return;
-	}
+    itemDef_t* overItem;
+    if (menu == nullptr) {
+        return;
+    }
 
-	if (!Any( menu->window.flags & (windowFlags_t::WINDOW_VISIBLE | windowFlags_t::WINDOW_FORCED) ))
-	{
-		return;
-	}
+    if (!Any(menu->window.flags & (windowFlags_t::WINDOW_VISIBLE | windowFlags_t::WINDOW_FORCED))) {
+        return;
+    }
 
-	if (itemCapture)
-	{
-		//Item_MouseMove(itemCapture, x, y);
-		return;
-	}
+    if (itemCapture) {
+        // Item_MouseMove(itemCapture, x, y);
+        return;
+    }
 
-	if (g_waitingForKey || g_editingField)
-	{
-		return;
-	}
+    if (g_waitingForKey || g_editingField) {
+        return;
+    }
 
-	// FIXME: this is the whole issue of focus vs. mouse over..
-	// need a better overall solution as i don't like going through everything twice
-	for (pass = 0; pass < 2; pass++)
-	{
-		for (i = 0; i < menu->itemCount; i++)
-		{
-			// turn off focus each item
-			// menu->items[i].window.flags &= ~windowFlags_t::WINDOW_HASFOCUS;
+    // FIXME: this is the whole issue of focus vs. mouse over..
+    // need a better overall solution as i don't like going through everything twice
+    for (pass = 0; pass < 2; pass++) {
+        for (i = 0; i < menu->itemCount; i++) {
+            // turn off focus each item
+            // menu->items[i].window.flags &= ~windowFlags_t::WINDOW_HASFOCUS;
 
-			if (!Any( menu->items[i]->window.flags & (windowFlags_t::WINDOW_VISIBLE | windowFlags_t::WINDOW_FORCED) ))
-			{
-				continue;
-			}
+            if (!Any(menu->items[i]->window.flags & (windowFlags_t::WINDOW_VISIBLE | windowFlags_t::WINDOW_FORCED))) {
+                continue;
+            }
 
-			if (Any( menu->items[i]->window.flags & windowFlags_t::WINDOW_INACTIVE ))
-			{
-				continue;
-			}
+            if (Any(menu->items[i]->window.flags & windowFlags_t::WINDOW_INACTIVE)) {
+                continue;
+            }
 
-			if (menu->items[i]->disabled)
-			{
-				continue;
-			}
+            if (menu->items[i]->disabled) {
+                continue;
+            }
 
-			// items can be enabled and disabled based on cvars
-			if (Any( menu->items[i]->cvarFlags & (itemCvarFlags_t::CVAR_ENABLE | itemCvarFlags_t::CVAR_DISABLE) ) && !Item_EnableShowViaCvar(menu->items[i], itemCvarFlags_t::CVAR_ENABLE))
-			{
-				continue;
-			}
+            // items can be enabled and disabled based on cvars
+            if (Any(menu->items[i]->cvarFlags & (itemCvarFlags_t::CVAR_ENABLE | itemCvarFlags_t::CVAR_DISABLE)) &&
+                !Item_EnableShowViaCvar(menu->items[i], itemCvarFlags_t::CVAR_ENABLE)) {
+                continue;
+            }
 
-			if (Any( menu->items[i]->cvarFlags & (itemCvarFlags_t::CVAR_SHOW | itemCvarFlags_t::CVAR_HIDE) ) && !Item_EnableShowViaCvar(menu->items[i], itemCvarFlags_t::CVAR_SHOW))
-			{
-				continue;
-			}
+            if (Any(menu->items[i]->cvarFlags & (itemCvarFlags_t::CVAR_SHOW | itemCvarFlags_t::CVAR_HIDE)) &&
+                !Item_EnableShowViaCvar(menu->items[i], itemCvarFlags_t::CVAR_SHOW)) {
+                continue;
+            }
 
-			if (Rect_ContainsPoint(&menu->items[i]->window.rect, x, y))
-			{
-				if (pass == 1)
-				{
-					overItem = menu->items[i];
-					if (overItem->type == ITEM_TYPE_TEXT && overItem->text)
-					{
-						if (!Rect_ContainsPoint(&overItem->window.rect, x, y))
-						{
-							continue;
-						}
-					}
+            if (Rect_ContainsPoint(&menu->items[i]->window.rect, x, y)) {
+                if (pass == 1) {
+                    overItem = menu->items[i];
+                    if (overItem->type == ITEM_TYPE_TEXT && overItem->text) {
+                        if (!Rect_ContainsPoint(&overItem->window.rect, x, y)) {
+                            continue;
+                        }
+                    }
 
-					// if we are over an item
-					if (IsVisible(overItem->window.flags))
-					{
-						// different one
-						Item_MouseEnter(overItem, x, y);
-						// Item_SetMouseOver(overItem, true);
+                    // if we are over an item
+                    if (IsVisible(overItem->window.flags)) {
+                        // different one
+                        Item_MouseEnter(overItem, x, y);
+                        // Item_SetMouseOver(overItem, true);
 
-						// if item is not a decoration see if it can take focus
-						if (!focusSet)
-						{
-							focusSet = Item_SetFocus(overItem, x, y);
-						}
-					}
-				}
-
-			} else if (Any( menu->items[i]->window.flags & windowFlags_t::WINDOW_MOUSEOVER ))
-			{
-				Item_MouseLeave(menu->items[i]);
-				Item_SetMouseOver(menu->items[i], false);
-			}
-		}
-	}
+                        // if item is not a decoration see if it can take focus
+                        if (!focusSet) {
+                            focusSet = Item_SetFocus(overItem, x, y);
+                        }
+                    }
+                }
+            }
+            else if (Any(menu->items[i]->window.flags & windowFlags_t::WINDOW_MOUSEOVER)) {
+                Item_MouseLeave(menu->items[i]);
+                Item_SetMouseOver(menu->items[i], false);
+            }
+        }
+    }
 }
 
 /*
@@ -9428,35 +8708,30 @@ void Menu_HandleMouseMove(menuDef_t *menu, float x, float y)
 Display_MouseMove
 =================
 */
-bool Display_MouseMove(void *p, int x, int y)
+bool Display_MouseMove(void* p, int x, int y)
 {
-	int i;
-	menuDef_t *menu = (menuDef_t *) p;
+    int i;
+    menuDef_t* menu = (menuDef_t*)p;
 
-	if (menu == nullptr)
-	{
-	    menu = Menu_GetFocused();
-		if (menu)
-		{
-			if (Any( menu->window.flags & windowFlags_t::WINDOW_POPUP ))
-			{
-				Menu_HandleMouseMove(menu, x, y);
-				return true;
-			}
-		}
+    if (menu == nullptr) {
+        menu = Menu_GetFocused();
+        if (menu) {
+            if (Any(menu->window.flags & windowFlags_t::WINDOW_POPUP)) {
+                Menu_HandleMouseMove(menu, x, y);
+                return true;
+            }
+        }
 
-		for (i = 0; i < menuCount; i++)
-		{
-			Menu_HandleMouseMove(&Menus[i], x, y);
-		}
-	}
-	else
-	{
-		menu->window.rect.x += x;
-		menu->window.rect.y += y;
-		Menu_UpdatePosition(menu);
-	}
- 	return true;
+        for (i = 0; i < menuCount; i++) {
+            Menu_HandleMouseMove(&Menus[i], x, y);
+        }
+    }
+    else {
+        menu->window.rect.x += x;
+        menu->window.rect.y += y;
+        Menu_UpdatePosition(menu);
+    }
+    return true;
 }
 
 /*
@@ -9466,17 +8741,14 @@ Menus_AnyFullScreenVisible
 */
 bool Menus_AnyFullScreenVisible(void)
 {
-	int i;
+    int i;
 
-	for (i = 0; i < menuCount; i++)
-	{
-		if (Any( Menus[i].window.flags & windowFlags_t::WINDOW_VISIBLE ) && Menus[i].fullScreen)
-		{
-			return true;
-		}
-
-	}
-	return false;
+    for (i = 0; i < menuCount; i++) {
+        if (Any(Menus[i].window.flags & windowFlags_t::WINDOW_VISIBLE) && Menus[i].fullScreen) {
+            return true;
+        }
+    }
+    return false;
 }
 
 /*
@@ -9484,46 +8756,44 @@ bool Menus_AnyFullScreenVisible(void)
 Controls_SetConfig
 =================
 */
-void Controls_SetConfig( void )
+void Controls_SetConfig(void)
 {
-	size_t	i;
+    size_t i;
 
-	// iterate each command, get its numeric binding
-	for ( i=0; i<g_bindCount; i++ ) {
-		if ( g_bindKeys[i][0] ) {
-			DC->setBinding( *g_bindKeys[i][0], g_bindCommands[i] );
+    // iterate each command, get its numeric binding
+    for (i = 0; i < g_bindCount; i++) {
+        if (g_bindKeys[i][0]) {
+            DC->setBinding(*g_bindKeys[i][0], g_bindCommands[i]);
 
-			if ( g_bindKeys[i][1] )
-				DC->setBinding( *g_bindKeys[i][1], g_bindCommands[i] );
-		}
-	}
+            if (g_bindKeys[i][1])
+                DC->setBinding(*g_bindKeys[i][1], g_bindCommands[i]);
+        }
+    }
 }
 
-void Controls_SetDefaults( void )
+void Controls_SetDefaults(void)
 {
-	size_t	i;
+    size_t i;
 
-	for ( i=0; i<g_bindCount; i++ ) {
-		g_bindKeys[i][0] = std::nullopt;
-		g_bindKeys[i][1] = std::nullopt;
-	}
+    for (i = 0; i < g_bindCount; i++) {
+        g_bindKeys[i][0] = std::nullopt;
+        g_bindKeys[i][1] = std::nullopt;
+    }
 }
 
-void Item_Bind_Ungrey(itemDef_t *item)
+void Item_Bind_Ungrey(itemDef_t* item)
 {
-	menuDef_t *menu;
-	int i;
+    menuDef_t* menu;
+    int i;
 
-	menu = (menuDef_t *) item->parent;
-	for (i=0;i<menu->itemCount;++i)
-	{
-		if (menu->items[i] == item)
-		{
-			continue;
-		}
+    menu = (menuDef_t*)item->parent;
+    for (i = 0; i < menu->itemCount; ++i) {
+        if (menu->items[i] == item) {
+            continue;
+        }
 
-		menu->items[i]->window.flags &= ~windowFlags_t::WINDOW_INACTIVE;
-	}
+        menu->items[i]->window.flags &= ~windowFlags_t::WINDOW_INACTIVE;
+    }
 }
 
 /*
@@ -9531,145 +8801,129 @@ void Item_Bind_Ungrey(itemDef_t *item)
 Item_Bind_HandleKey
 =================
 */
-bool Item_Bind_HandleKey(itemDef_t *item, std::optional<fakeAscii_t> key, bool down)
+bool Item_Bind_HandleKey(itemDef_t* item, std::optional<fakeAscii_t> key, bool down)
 {
-	int			id;
-	int			i;
-	menuDef_t *menu;
+    int id;
+    int i;
+    menuDef_t* menu;
 
-	if (key == fakeAscii_t::A_MOUSE1 && Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && !g_waitingForKey)
-	{
-		if (down)
-		{
-			g_waitingForKey = true;
-			g_bindItem = item;
+    if (key == fakeAscii_t::A_MOUSE1 && Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && !g_waitingForKey) {
+        if (down) {
+            g_waitingForKey = true;
+            g_bindItem = item;
 
-			// Set all others in the menu to grey
-			menu = (menuDef_t *) item->parent;
-			for (i=0;i<menu->itemCount;++i)
-			{
-				if (menu->items[i] == item)
-				{
-					continue;
-				}
-				menu->items[i]->window.flags |= windowFlags_t::WINDOW_INACTIVE;
-			}
+            // Set all others in the menu to grey
+            menu = (menuDef_t*)item->parent;
+            for (i = 0; i < menu->itemCount; ++i) {
+                if (menu->items[i] == item) {
+                    continue;
+                }
+                menu->items[i]->window.flags |= windowFlags_t::WINDOW_INACTIVE;
+            }
+        }
+        return true;
+    }
+    else if (key == fakeAscii_t::A_ENTER && !g_waitingForKey) {
+        if (down) {
+            g_waitingForKey = true;
+            g_bindItem = item;
 
-		}
-		return true;
-	}
-	else if (key == fakeAscii_t::A_ENTER && !g_waitingForKey)
-	{
-		if (down)
-		{
-			g_waitingForKey = true;
-			g_bindItem = item;
+            // Set all others in the menu to grey
+            menu = (menuDef_t*)item->parent;
+            for (i = 0; i < menu->itemCount; ++i) {
+                if (menu->items[i] == item) {
+                    continue;
+                }
+                menu->items[i]->window.flags |= windowFlags_t::WINDOW_INACTIVE;
+            }
+        }
+        return true;
+    }
+    else {
+        if (!g_waitingForKey || g_bindItem == nullptr) {
+            return false;
+        }
 
-			// Set all others in the menu to grey
-			menu = (menuDef_t *) item->parent;
-			for (i=0;i<menu->itemCount;++i)
-			{
-				if (menu->items[i] == item)
-				{
-					continue;
-				}
-				menu->items[i]->window.flags |= windowFlags_t::WINDOW_INACTIVE;
-			}
+        if (!key) {
+            return true;
+        }
 
-		}
-		return true;
-	}
-	else
-	{
-		if (!g_waitingForKey || g_bindItem == nullptr)
-		{
-			return false;
-		}
+        switch (*key) {
+        case fakeAscii_t::A_ESCAPE:
+            g_waitingForKey = false;
+            Item_Bind_Ungrey(item);
+            return true;
 
-		if (!key)
-		{
-			return true;
-		}
+        case fakeAscii_t::A_BACKSPACE:
+            id = BindingIDFromName(item->cvar);
+            if (id != -1) {
+                if (g_bindKeys[id][0])
+                    DC->setBinding(*g_bindKeys[id][0], "");
 
-		switch (*key)
-		{
-			case fakeAscii_t::A_ESCAPE:
-				g_waitingForKey = false;
-				Item_Bind_Ungrey(item);
-				return true;
+                if (g_bindKeys[id][1])
+                    DC->setBinding(*g_bindKeys[id][1], "");
 
-			case fakeAscii_t::A_BACKSPACE:
-				id = BindingIDFromName(item->cvar);
-				if ( id != -1 )
-				{
-					if ( g_bindKeys[id][0] )
-						DC->setBinding( *g_bindKeys[id][0], "" );
+                g_bindKeys[id][0] = std::nullopt;
+                g_bindKeys[id][1] = std::nullopt;
+            }
+            Controls_SetConfig();
+            g_waitingForKey = false;
+            g_bindItem = nullptr;
+            Item_Bind_Ungrey(item);
+            return true;
+            break;
+        case fakeAscii_t::A_LEFT_SINGLE_QUOTE:
+            return true;
+        default:
+            break;
+        }
+    }
 
-					if ( g_bindKeys[id][1] )
-						DC->setBinding( *g_bindKeys[id][1], "" );
+    // Is the same key being bound to something else?
+    if (key) {
+        size_t b;
 
-					g_bindKeys[id][0] = std::nullopt;
-					g_bindKeys[id][1] = std::nullopt;
-				}
-				Controls_SetConfig();
-				g_waitingForKey = false;
-				g_bindItem = nullptr;
-				Item_Bind_Ungrey(item);
-				return true;
-				break;
-			case fakeAscii_t::A_LEFT_SINGLE_QUOTE:
-				return true;
-			default:
-				break;
-		}
-	}
+        for (b = 0; b < g_bindCount; b++) {
+            if (g_bindKeys[b][1] == key)
+                g_bindKeys[b][1] = std::nullopt;
 
-	// Is the same key being bound to something else?
-	if ( key ) {
-		size_t	b;
+            if (g_bindKeys[b][0] == key) {
+                g_bindKeys[b][0] = g_bindKeys[b][1];
+                g_bindKeys[b][1] = std::nullopt;
+            }
+        }
+    }
 
-		for ( b=0; b<g_bindCount; b++ )
-		{
-			if ( g_bindKeys[b][1] == key )
-				g_bindKeys[b][1] = std::nullopt;
+    id = BindingIDFromName(item->cvar);
 
-			if ( g_bindKeys[b][0] == key ) {
-				g_bindKeys[b][0] = g_bindKeys[b][1];
-				g_bindKeys[b][1] = std::nullopt;
-			}
-		}
-	}
+    if (id != -1) {
+        if (!key) {
+            if (g_bindKeys[id][0]) {
+                DC->setBinding(*g_bindKeys[id][0], "");
+                g_bindKeys[id][0] = std::nullopt;
+            }
+            if (g_bindKeys[id][1]) {
+                DC->setBinding(*g_bindKeys[id][1], "");
+                g_bindKeys[id][1] = std::nullopt;
+            }
+        }
+        else if (!g_bindKeys[id][0])
+            g_bindKeys[id][0] = key;
+        else if (g_bindKeys[id][0] != key && !g_bindKeys[id][1])
+            g_bindKeys[id][1] = key;
+        else {
+            DC->setBinding(*g_bindKeys[id][0], "");
+            DC->setBinding(*g_bindKeys[id][1], "");
+            g_bindKeys[id][0] = key;
+            g_bindKeys[id][1] = std::nullopt;
+        }
+    }
 
-	id = BindingIDFromName( item->cvar );
+    Controls_SetConfig();
+    g_waitingForKey = false;
+    Item_Bind_Ungrey(item);
 
-	if ( id != -1 ) {
-		if ( !key ) {
-			if ( g_bindKeys[id][0] ) {
-				DC->setBinding( *g_bindKeys[id][0], "" );
-				g_bindKeys[id][0] = std::nullopt;
-			}
-			if ( g_bindKeys[id][1] ) {
-				DC->setBinding( *g_bindKeys[id][1], "" );
-				g_bindKeys[id][1] = std::nullopt;
-			}
-		}
-		else if ( !g_bindKeys[id][0] )
-			g_bindKeys[id][0] = key;
-		else if ( g_bindKeys[id][0] != key && !g_bindKeys[id][1] )
-			g_bindKeys[id][1] = key;
-		else {
-			DC->setBinding( *g_bindKeys[id][0], "" );
-			DC->setBinding( *g_bindKeys[id][1], "" );
-			g_bindKeys[id][0] = key;
-			g_bindKeys[id][1] = std::nullopt;
-		}
-	}
-
-	Controls_SetConfig();
-	g_waitingForKey = false;
-	Item_Bind_Ungrey(item);
-
-	return true;
+    return true;
 }
 
 /*
@@ -9677,38 +8931,33 @@ bool Item_Bind_HandleKey(itemDef_t *item, std::optional<fakeAscii_t> key, bool d
 Menu_SetNextCursorItem
 =================
 */
-itemDef_t *Menu_SetNextCursorItem(menuDef_t *menu)
+itemDef_t* Menu_SetNextCursorItem(menuDef_t* menu)
 {
 
-	bool wrapped = false;
-	int oldCursor = menu->cursorItem;
+    bool wrapped = false;
+    int oldCursor = menu->cursorItem;
 
+    if (menu->cursorItem == -1) {
+        menu->cursorItem = 0;
+        wrapped = true;
+    }
 
-	if (menu->cursorItem == -1)
-	{
-		menu->cursorItem = 0;
-		wrapped = true;
-	}
+    while (menu->cursorItem < menu->itemCount) {
 
-	while (menu->cursorItem < menu->itemCount)
-	{
+        menu->cursorItem++;
+        if (menu->cursorItem >= menu->itemCount && !wrapped) {
+            wrapped = true;
+            menu->cursorItem = 0;
+        }
 
-		menu->cursorItem++;
-		if (menu->cursorItem >= menu->itemCount && !wrapped)
-		{
-		  wrapped = true;
-		  menu->cursorItem = 0;
-		}
+        if (Item_SetFocus(menu->items[menu->cursorItem], DC->cursorx, DC->cursory)) {
+            Menu_HandleMouseMove(menu, menu->items[menu->cursorItem]->window.rect.x + 1, menu->items[menu->cursorItem]->window.rect.y + 1);
+            return menu->items[menu->cursorItem];
+        }
+    }
 
-		if (Item_SetFocus(menu->items[menu->cursorItem], DC->cursorx, DC->cursory))
-		{
-			Menu_HandleMouseMove(menu, menu->items[menu->cursorItem]->window.rect.x + 1, menu->items[menu->cursorItem]->window.rect.y + 1);
-			return menu->items[menu->cursorItem];
-		}
-	}
-
-	menu->cursorItem = oldCursor;
-	return nullptr;
+    menu->cursorItem = oldCursor;
+    return nullptr;
 }
 
 /*
@@ -9716,296 +8965,245 @@ itemDef_t *Menu_SetNextCursorItem(menuDef_t *menu)
 Menu_SetPrevCursorItem
 =================
 */
-itemDef_t *Menu_SetPrevCursorItem(menuDef_t *menu)
+itemDef_t* Menu_SetPrevCursorItem(menuDef_t* menu)
 {
-	bool wrapped = false;
-	int oldCursor = menu->cursorItem;
+    bool wrapped = false;
+    int oldCursor = menu->cursorItem;
 
-	if (menu->cursorItem < 0)
-	{
-		menu->cursorItem = menu->itemCount-1;
-		wrapped = true;
-	}
+    if (menu->cursorItem < 0) {
+        menu->cursorItem = menu->itemCount - 1;
+        wrapped = true;
+    }
 
-	while (menu->cursorItem > -1)
-	{
-		menu->cursorItem--;
-		if (menu->cursorItem < 0 )
-		{
-			if (wrapped)
-		{
-				break;
-			}
-			wrapped = true;
-			menu->cursorItem = menu->itemCount -1;
-		}
+    while (menu->cursorItem > -1) {
+        menu->cursorItem--;
+        if (menu->cursorItem < 0) {
+            if (wrapped) {
+                break;
+            }
+            wrapped = true;
+            menu->cursorItem = menu->itemCount - 1;
+        }
 
-		if (Item_SetFocus(menu->items[menu->cursorItem], DC->cursorx, DC->cursory))
-		{
-			Menu_HandleMouseMove(menu, menu->items[menu->cursorItem]->window.rect.x + 1, menu->items[menu->cursorItem]->window.rect.y + 1);
-			return menu->items[menu->cursorItem];
-		}
-	}
-	menu->cursorItem = oldCursor;
-	return nullptr;
-
+        if (Item_SetFocus(menu->items[menu->cursorItem], DC->cursorx, DC->cursory)) {
+            Menu_HandleMouseMove(menu, menu->items[menu->cursorItem]->window.rect.x + 1, menu->items[menu->cursorItem]->window.rect.y + 1);
+            return menu->items[menu->cursorItem];
+        }
+    }
+    menu->cursorItem = oldCursor;
+    return nullptr;
 }
 /*
 =================
 Item_TextField_HandleKey
 =================
 */
-bool Item_TextField_HandleKey(itemDef_t *item, int event)
+bool Item_TextField_HandleKey(itemDef_t* item, int event)
 {
-	char buff[1024];
-	int len;
-	itemDef_t *newItem = nullptr;
-	editFieldDef_t *editPtr = (editFieldDef_t*)item->typeData;
-	const std::optional<fakeAscii_t> key = KeyEvent_Key( event );	// none for a character
+    char buff[1024];
+    int len;
+    itemDef_t* newItem = nullptr;
+    editFieldDef_t* editPtr = (editFieldDef_t*)item->typeData;
+    const std::optional<fakeAscii_t> key = KeyEvent_Key(event); // none for a character
 
-	if (item->cvar)
-	{
+    if (item->cvar) {
 
-		memset(buff, 0, sizeof(buff));
-		DC->getCVarString(item->cvar, buff, sizeof(buff));
-		len = strlen(buff);
-		if (editPtr->maxChars && len > editPtr->maxChars)
-		{
-			len = editPtr->maxChars;
-		}
+        memset(buff, 0, sizeof(buff));
+        DC->getCVarString(item->cvar, buff, sizeof(buff));
+        len = strlen(buff);
+        if (editPtr->maxChars && len > editPtr->maxChars) {
+            len = editPtr->maxChars;
+        }
 
-		if ( event & K_CHAR_FLAG )
-		{
-			const int ch = event & ~K_CHAR_FLAG;
+        if (event & K_CHAR_FLAG) {
+            const int ch = event & ~K_CHAR_FLAG;
 
+            if (ch == 'h' - 'a' + 1) { // ctrl-h is backspace
+                if (item->cursorPos > 0) {
+                    memmove(&buff[item->cursorPos - 1], &buff[item->cursorPos], len + 1 - item->cursorPos);
+                    item->cursorPos--;
+                    if (item->cursorPos < editPtr->paintOffset) {
+                        editPtr->paintOffset--;
+                    }
+                }
+                DC->setCVar(item->cvar, buff);
+                return true;
+            }
 
-			if (ch == 'h' - 'a' + 1 )
-			{	// ctrl-h is backspace
-				if ( item->cursorPos > 0 )
-				{
-					memmove( &buff[item->cursorPos - 1], &buff[item->cursorPos], len + 1 - item->cursorPos);
-					item->cursorPos--;
-					if (item->cursorPos < editPtr->paintOffset)
-					{
-						editPtr->paintOffset--;
-					}
-				}
-				DC->setCVar(item->cvar, buff);
-	    		return true;
-			}
+            //
+            // ignore any non printable chars
+            //
+            if (ch < 32 || !item->cvar) {
+                return true;
+            }
 
-			//
-			// ignore any non printable chars
-			//
-			if ( ch < 32 || !item->cvar)
-			{
-			    return true;
-		    }
+            if (item->type == ITEM_TYPE_NUMERICFIELD) {
+                if (ch < '0' || ch > '9') {
+                    return false;
+                }
+            }
 
-			if (item->type == ITEM_TYPE_NUMERICFIELD)
-			{
-				if (ch < '0' || ch > '9')
-				{
-					return false;
-				}
-			}
+            if (!DC->getOverstrikeMode()) {
+                if ((len == MAX_EDITFIELD - 1) || (editPtr->maxChars && len >= editPtr->maxChars)) {
+                    return true;
+                }
+                memmove(&buff[item->cursorPos + 1], &buff[item->cursorPos], len + 1 - item->cursorPos);
+            }
+            else {
+                if (editPtr->maxChars && item->cursorPos >= editPtr->maxChars) {
+                    return true;
+                }
+            }
 
-			if (!DC->getOverstrikeMode())
-			{
-				if (( len == MAX_EDITFIELD - 1 ) || (editPtr->maxChars && len >= editPtr->maxChars))
-				{
-					return true;
-				}
-				memmove( &buff[item->cursorPos + 1], &buff[item->cursorPos], len + 1 - item->cursorPos );
-			}
-			else
-			{
-				if (editPtr->maxChars && item->cursorPos >= editPtr->maxChars)
-				{
-					return true;
-				}
-			}
+            buff[item->cursorPos] = ch;
 
-			buff[item->cursorPos] = ch;
+            DC->setCVar(item->cvar, buff);
 
-			DC->setCVar(item->cvar, buff);
+            if (item->cursorPos < len + 1) {
+                item->cursorPos++;
+                if (editPtr->maxPaintChars && item->cursorPos > editPtr->maxPaintChars) {
+                    editPtr->paintOffset++;
+                }
+            }
+        }
+        else {
 
-			if (item->cursorPos < len + 1)
-			{
-				item->cursorPos++;
-				if (editPtr->maxPaintChars && item->cursorPos > editPtr->maxPaintChars)
-				{
-					editPtr->paintOffset++;
-				}
-			}
+            if (key == fakeAscii_t::A_DELETE || key == fakeAscii_t::A_KP_PERIOD) {
+                if (item->cursorPos < len) {
+                    memmove(buff + item->cursorPos, buff + item->cursorPos + 1, len - item->cursorPos);
+                    DC->setCVar(item->cvar, buff);
+                }
+                return true;
+            }
 
-		}
-		else
-		{
+            if (key == fakeAscii_t::A_CURSOR_RIGHT || key == fakeAscii_t::A_KP_6) {
+                if (editPtr->maxPaintChars && item->cursorPos >= editPtr->maxPaintChars && item->cursorPos < len) {
+                    item->cursorPos++;
+                    editPtr->paintOffset++;
+                    return true;
+                }
 
-			if ( key == fakeAscii_t::A_DELETE || key == fakeAscii_t::A_KP_PERIOD )
-			{
-				if ( item->cursorPos < len )
-				{
-					memmove( buff + item->cursorPos, buff + item->cursorPos + 1, len - item->cursorPos);
-					DC->setCVar(item->cvar, buff);
-				}
-				return true;
-			}
+                if (item->cursorPos < len) {
+                    item->cursorPos++;
+                }
+                return true;
+            }
 
-			if ( key == fakeAscii_t::A_CURSOR_RIGHT || key == fakeAscii_t::A_KP_6 )
-			{
-				if (editPtr->maxPaintChars && item->cursorPos >= editPtr->maxPaintChars && item->cursorPos < len)
-				{
-					item->cursorPos++;
-					editPtr->paintOffset++;
-					return true;
-				}
+            if (key == fakeAscii_t::A_CURSOR_LEFT || key == fakeAscii_t::A_KP_4) {
+                if (item->cursorPos > 0) {
+                    item->cursorPos--;
+                }
+                if (item->cursorPos < editPtr->paintOffset) {
+                    editPtr->paintOffset--;
+                }
+                return true;
+            }
 
-				if (item->cursorPos < len)
-				{
-					item->cursorPos++;
-				}
-				return true;
-			}
+            if (key == fakeAscii_t::A_HOME || key == fakeAscii_t::A_KP_7) {
+                item->cursorPos = 0;
+                editPtr->paintOffset = 0;
+                return true;
+            }
 
-			if ( key == fakeAscii_t::A_CURSOR_LEFT|| key == fakeAscii_t::A_KP_4 )
-			{
-				if ( item->cursorPos > 0 )
-				{
-					item->cursorPos--;
-				}
-				if (item->cursorPos < editPtr->paintOffset)
-				{
-					editPtr->paintOffset--;
-				}
-				return true;
-			}
+            if (key == fakeAscii_t::A_END || key == fakeAscii_t::A_KP_1) {
+                item->cursorPos = len;
+                if (item->cursorPos > editPtr->maxPaintChars) {
+                    editPtr->paintOffset = len - editPtr->maxPaintChars;
+                }
+                return true;
+            }
 
-			if ( key == fakeAscii_t::A_HOME || key == fakeAscii_t::A_KP_7)
-			{
-				item->cursorPos = 0;
-				editPtr->paintOffset = 0;
-				return true;
-			}
+            if (key == fakeAscii_t::A_INSERT || key == fakeAscii_t::A_KP_0) {
+                DC->setOverstrikeMode((!DC->getOverstrikeMode()));
+                return true;
+            }
+        }
 
-			if ( key == fakeAscii_t::A_END || key == fakeAscii_t::A_KP_1)
-			{
-				item->cursorPos = len;
-				if(item->cursorPos > editPtr->maxPaintChars)
-				{
-					editPtr->paintOffset = len - editPtr->maxPaintChars;
-				}
-				return true;
-			}
+        if (key == fakeAscii_t::A_TAB || key == fakeAscii_t::A_CURSOR_DOWN || key == fakeAscii_t::A_KP_2) {
+            newItem = Menu_SetNextCursorItem((menuDef_t*)item->parent);
+            if (newItem && (newItem->type == ITEM_TYPE_EDITFIELD || newItem->type == ITEM_TYPE_NUMERICFIELD)) {
+                g_editItem = newItem;
+            }
+        }
 
-			if ( key == fakeAscii_t::A_INSERT || key == fakeAscii_t::A_KP_0 )
-			{
-				DC->setOverstrikeMode((!DC->getOverstrikeMode()));
-				return true;
-			}
-		}
+        if (key == fakeAscii_t::A_CURSOR_UP || key == fakeAscii_t::A_KP_8) {
+            newItem = Menu_SetPrevCursorItem((menuDef_t*)item->parent);
+            if (newItem && (newItem->type == ITEM_TYPE_EDITFIELD || newItem->type == ITEM_TYPE_NUMERICFIELD)) {
+                g_editItem = newItem;
+            }
+        }
 
-		if (key == fakeAscii_t::A_TAB || key == fakeAscii_t::A_CURSOR_DOWN || key == fakeAscii_t::A_KP_2)
-		{
-			newItem = Menu_SetNextCursorItem((menuDef_t *) item->parent);
-			if (newItem && (newItem->type == ITEM_TYPE_EDITFIELD || newItem->type == ITEM_TYPE_NUMERICFIELD))
-			{
-				g_editItem = newItem;
-			}
-		}
+        if (key == fakeAscii_t::A_ENTER || key == fakeAscii_t::A_KP_ENTER || key == fakeAscii_t::A_ESCAPE) {
+            return false;
+        }
 
-		if (key == fakeAscii_t::A_CURSOR_UP || key == fakeAscii_t::A_KP_8)
-		{
-			newItem = Menu_SetPrevCursorItem((menuDef_t *) item->parent);
-			if (newItem && (newItem->type == ITEM_TYPE_EDITFIELD || newItem->type == ITEM_TYPE_NUMERICFIELD))
-			{
-				g_editItem = newItem;
-			}
-		}
-
-		if ( key == fakeAscii_t::A_ENTER || key == fakeAscii_t::A_KP_ENTER || key == fakeAscii_t::A_ESCAPE)
-		{
-			return false;
-		}
-
-		return true;
-	}
-	return false;
-
+        return true;
+    }
+    return false;
 }
 
-static void Scroll_TextScroll_AutoFunc (void *p)
+static void Scroll_TextScroll_AutoFunc(void* p)
 {
-	scrollInfo_t *si = (scrollInfo_t*)p;
+    scrollInfo_t* si = (scrollInfo_t*)p;
 
-	if (DC->realTime > si->nextScrollTime)
-	{
-		// need to scroll which is done by simulating a click to the item
-		// this is done a bit sideways as the autoscroll "knows" that the item is a listbox
-		// so it calls it directly
-		Item_TextScroll_HandleKey(si->item, si->scrollKey, true, false);
-		si->nextScrollTime = DC->realTime + si->adjustValue;
-	}
+    if (DC->realTime > si->nextScrollTime) {
+        // need to scroll which is done by simulating a click to the item
+        // this is done a bit sideways as the autoscroll "knows" that the item is a listbox
+        // so it calls it directly
+        Item_TextScroll_HandleKey(si->item, si->scrollKey, true, false);
+        si->nextScrollTime = DC->realTime + si->adjustValue;
+    }
 
-	if (DC->realTime > si->nextAdjustTime)
-	{
-		si->nextAdjustTime = DC->realTime + SCROLL_TIME_ADJUST;
-		if (si->adjustValue > SCROLL_TIME_FLOOR)
-		{
-			si->adjustValue -= SCROLL_TIME_ADJUSTOFFSET;
-		}
-	}
+    if (DC->realTime > si->nextAdjustTime) {
+        si->nextAdjustTime = DC->realTime + SCROLL_TIME_ADJUST;
+        if (si->adjustValue > SCROLL_TIME_FLOOR) {
+            si->adjustValue -= SCROLL_TIME_ADJUSTOFFSET;
+        }
+    }
 }
 
-static void Scroll_TextScroll_ThumbFunc(void *p)
+static void Scroll_TextScroll_ThumbFunc(void* p)
 {
-	scrollInfo_t *si = (scrollInfo_t*)p;
-	rectDef_t	 r;
-	int			 pos;
-	int			 max;
+    scrollInfo_t* si = (scrollInfo_t*)p;
+    rectDef_t r;
+    int pos;
+    int max;
 
-	textScrollDef_t *scrollPtr = (textScrollDef_t*)si->item->typeData;
+    textScrollDef_t* scrollPtr = (textScrollDef_t*)si->item->typeData;
 
-	if (DC->cursory != si->yStart)
-	{
-		r.x = si->item->window.rect.x + si->item->window.rect.w - SCROLLBAR_SIZE - 1;
-		r.y = si->item->window.rect.y + SCROLLBAR_SIZE + 1;
-		r.h = si->item->window.rect.h - (SCROLLBAR_SIZE*2) - 2;
-		r.w = SCROLLBAR_SIZE;
-		max = Item_TextScroll_MaxScroll(si->item);
-		//
-		pos = (DC->cursory - r.y - SCROLLBAR_SIZE/2) * max / (r.h - SCROLLBAR_SIZE);
-		if (pos < 0)
-		{
-			pos = 0;
-		}
-		else if (pos > max)
-		{
-			pos = max;
-		}
+    if (DC->cursory != si->yStart) {
+        r.x = si->item->window.rect.x + si->item->window.rect.w - SCROLLBAR_SIZE - 1;
+        r.y = si->item->window.rect.y + SCROLLBAR_SIZE + 1;
+        r.h = si->item->window.rect.h - (SCROLLBAR_SIZE * 2) - 2;
+        r.w = SCROLLBAR_SIZE;
+        max = Item_TextScroll_MaxScroll(si->item);
+        //
+        pos = (DC->cursory - r.y - SCROLLBAR_SIZE / 2) * max / (r.h - SCROLLBAR_SIZE);
+        if (pos < 0) {
+            pos = 0;
+        }
+        else if (pos > max) {
+            pos = max;
+        }
 
-		scrollPtr->startPos = pos;
-		si->yStart = DC->cursory;
-	}
+        scrollPtr->startPos = pos;
+        si->yStart = DC->cursory;
+    }
 
-	if (DC->realTime > si->nextScrollTime)
-	{
-		// need to scroll which is done by simulating a click to the item
-		// this is done a bit sideways as the autoscroll "knows" that the item is a listbox
-		// so it calls it directly
-		Item_TextScroll_HandleKey(si->item, si->scrollKey, true, false);
-		si->nextScrollTime = DC->realTime + si->adjustValue;
-	}
+    if (DC->realTime > si->nextScrollTime) {
+        // need to scroll which is done by simulating a click to the item
+        // this is done a bit sideways as the autoscroll "knows" that the item is a listbox
+        // so it calls it directly
+        Item_TextScroll_HandleKey(si->item, si->scrollKey, true, false);
+        si->nextScrollTime = DC->realTime + si->adjustValue;
+    }
 
-	if (DC->realTime > si->nextAdjustTime)
-	{
-		si->nextAdjustTime = DC->realTime + SCROLL_TIME_ADJUST;
-		if (si->adjustValue > SCROLL_TIME_FLOOR)
-		{
-			si->adjustValue -= SCROLL_TIME_ADJUSTOFFSET;
-		}
-	}
+    if (DC->realTime > si->nextAdjustTime) {
+        si->nextAdjustTime = DC->realTime + SCROLL_TIME_ADJUST;
+        if (si->adjustValue > SCROLL_TIME_FLOOR) {
+            si->adjustValue -= SCROLL_TIME_ADJUSTOFFSET;
+        }
+    }
 }
 
 /*
@@ -10013,51 +9211,41 @@ static void Scroll_TextScroll_ThumbFunc(void *p)
 Menu_OverActiveItem
 =================
 */
-static bool Menu_OverActiveItem(menuDef_t *menu, float x, float y)
+static bool Menu_OverActiveItem(menuDef_t* menu, float x, float y)
 {
-	if (menu && Any( menu->window.flags & (windowFlags_t::WINDOW_VISIBLE | windowFlags_t::WINDOW_FORCED) ))
-	{
-		if (Rect_ContainsPoint(&menu->window.rect, x, y))
-		{
-			int i;
-			for (i = 0; i < menu->itemCount; i++)
-			{
-			// turn off focus each item
-			// menu->items[i].window.flags &= ~windowFlags_t::WINDOW_HASFOCUS;
+    if (menu && Any(menu->window.flags & (windowFlags_t::WINDOW_VISIBLE | windowFlags_t::WINDOW_FORCED))) {
+        if (Rect_ContainsPoint(&menu->window.rect, x, y)) {
+            int i;
+            for (i = 0; i < menu->itemCount; i++) {
+                // turn off focus each item
+                // menu->items[i].window.flags &= ~windowFlags_t::WINDOW_HASFOCUS;
 
-				if (!Any( menu->items[i]->window.flags & (windowFlags_t::WINDOW_VISIBLE | windowFlags_t::WINDOW_FORCED) ))
-				{
-					continue;
-				}
+                if (!Any(menu->items[i]->window.flags & (windowFlags_t::WINDOW_VISIBLE | windowFlags_t::WINDOW_FORCED))) {
+                    continue;
+                }
 
-				if (Any( menu->items[i]->window.flags & windowFlags_t::WINDOW_DECORATION ))
-				{
-					continue;
-				}
+                if (Any(menu->items[i]->window.flags & windowFlags_t::WINDOW_DECORATION)) {
+                    continue;
+                }
 
-				if (Rect_ContainsPoint(&menu->items[i]->window.rect, x, y))
-				{
-					itemDef_t *overItem = menu->items[i];
-					if (overItem->type == ITEM_TYPE_TEXT && overItem->text)
-					{
-						if (Rect_ContainsPoint(&overItem->window.rect, x, y))
-						{
-							return true;
-						}
-						else
-						{
-							continue;
-						}
-					}
-					else
-					{
-						return true;
-					}
-				}
-			}
-		}
-	}
-	return false;
+                if (Rect_ContainsPoint(&menu->items[i]->window.rect, x, y)) {
+                    itemDef_t* overItem = menu->items[i];
+                    if (overItem->type == ITEM_TYPE_TEXT && overItem->text) {
+                        if (Rect_ContainsPoint(&overItem->window.rect, x, y)) {
+                            return true;
+                        }
+                        else {
+                            continue;
+                        }
+                    }
+                    else {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+    return false;
 }
 
 /*
@@ -10067,16 +9255,14 @@ Display_VisibleMenuCount
 */
 int Display_VisibleMenuCount(void)
 {
-	int i, count;
-	count = 0;
-	for (i = 0; i < menuCount; i++)
-	{
-		if (Any( Menus[i].window.flags & (windowFlags_t::WINDOW_FORCED | windowFlags_t::WINDOW_VISIBLE) ))
-		{
-			count++;
-		}
-	}
-	return count;
+    int i, count;
+    count = 0;
+    for (i = 0; i < menuCount; i++) {
+        if (Any(Menus[i].window.flags & (windowFlags_t::WINDOW_FORCED | windowFlags_t::WINDOW_VISIBLE))) {
+            count++;
+        }
+    }
+    return count;
 }
 
 /*
@@ -10084,34 +9270,30 @@ int Display_VisibleMenuCount(void)
 Window_CloseCinematic
 =================
 */
-static void Window_CloseCinematic(windowDef_t *window)
+static void Window_CloseCinematic(windowDef_t* window)
 {
-	if (window->style == WINDOW_STYLE_CINEMATIC && window->cinematic >= 0)
-	{
-		DC->stopCinematic(window->cinematic);
-		window->cinematic = -1;
-	}
+    if (window->style == WINDOW_STYLE_CINEMATIC && window->cinematic >= 0) {
+        DC->stopCinematic(window->cinematic);
+        window->cinematic = -1;
+    }
 }
 /*
 =================
 Menu_CloseCinematics
 =================
 */
-static void Menu_CloseCinematics(menuDef_t *menu)
+static void Menu_CloseCinematics(menuDef_t* menu)
 {
-	if (menu)
-	{
-		int i;
-		Window_CloseCinematic(&menu->window);
-		for (i = 0; i < menu->itemCount; i++)
-		{
-			Window_CloseCinematic(&menu->items[i]->window);
-			if (menu->items[i]->type == ITEM_TYPE_OWNERDRAW)
-			{
-				DC->stopCinematic(0-menu->items[i]->window.ownerDraw);
-			}
-		}
-	}
+    if (menu) {
+        int i;
+        Window_CloseCinematic(&menu->window);
+        for (i = 0; i < menu->itemCount; i++) {
+            Window_CloseCinematic(&menu->items[i]->window);
+            if (menu->items[i]->type == ITEM_TYPE_OWNERDRAW) {
+                DC->stopCinematic(0 - menu->items[i]->window.ownerDraw);
+            }
+        }
+    }
 }
 
 /*
@@ -10121,11 +9303,10 @@ Display_CloseCinematics
 */
 static void Display_CloseCinematics()
 {
-	int i;
-	for (i = 0; i < menuCount; i++)
-	{
-		Menu_CloseCinematics(&Menus[i]);
-	}
+    int i;
+    for (i = 0; i < menuCount; i++) {
+        Menu_CloseCinematics(&Menus[i]);
+    }
 }
 
 /*
@@ -10133,41 +9314,35 @@ static void Display_CloseCinematics()
 Menus_HandleOOBClick
 =================
 */
-void Menus_HandleOOBClick(menuDef_t *menu, int key, bool down)
+void Menus_HandleOOBClick(menuDef_t* menu, int key, bool down)
 {
-	if (menu)
-	{
-		int i;
-		// basically the behaviour we are looking for is if there are windows in the stack.. see if
-		// the cursor is within any of them.. if not close them otherwise activate them and pass the
-		// key on.. force a mouse move to activate focus and script stuff
-		if (down && Any( menu->window.flags & windowFlags_t::WINDOW_OOB_CLICK ))
-		{
-			Menu_RunCloseScript(menu);
-			menu->window.flags &= ~(windowFlags_t::WINDOW_HASFOCUS | windowFlags_t::WINDOW_VISIBLE);
-		}
+    if (menu) {
+        int i;
+        // basically the behaviour we are looking for is if there are windows in the stack.. see if
+        // the cursor is within any of them.. if not close them otherwise activate them and pass the
+        // key on.. force a mouse move to activate focus and script stuff
+        if (down && Any(menu->window.flags & windowFlags_t::WINDOW_OOB_CLICK)) {
+            Menu_RunCloseScript(menu);
+            menu->window.flags &= ~(windowFlags_t::WINDOW_HASFOCUS | windowFlags_t::WINDOW_VISIBLE);
+        }
 
-		for (i = 0; i < menuCount; i++)
-		{
-			if (Menu_OverActiveItem(&Menus[i], DC->cursorx, DC->cursory))
-			{
-				Menu_RunCloseScript(menu);
-				menu->window.flags &= ~(windowFlags_t::WINDOW_HASFOCUS | windowFlags_t::WINDOW_VISIBLE);
-			//	Menus_Activate(&Menus[i]);
-				Menu_HandleMouseMove(&Menus[i], DC->cursorx, DC->cursory);
-				Menu_HandleKey(&Menus[i], key, down);
-			}
-		}
+        for (i = 0; i < menuCount; i++) {
+            if (Menu_OverActiveItem(&Menus[i], DC->cursorx, DC->cursory)) {
+                Menu_RunCloseScript(menu);
+                menu->window.flags &= ~(windowFlags_t::WINDOW_HASFOCUS | windowFlags_t::WINDOW_VISIBLE);
+                //	Menus_Activate(&Menus[i]);
+                Menu_HandleMouseMove(&Menus[i], DC->cursorx, DC->cursory);
+                Menu_HandleKey(&Menus[i], key, down);
+            }
+        }
 
-		if (Display_VisibleMenuCount() == 0)
-		{
-			if (DC->Pause)
-			{
-				DC->Pause(false);
-			}
-		}
-		Display_CloseCinematics();
-	}
+        if (Display_VisibleMenuCount() == 0) {
+            if (DC->Pause) {
+                DC->Pause(false);
+            }
+        }
+        Display_CloseCinematics();
+    }
 }
 
 /*
@@ -10175,320 +9350,252 @@ void Menus_HandleOOBClick(menuDef_t *menu, int key, bool down)
 Item_StopCapture
 =================
 */
-void Item_StopCapture(itemDef_t *item)
-{
-
-}
+void Item_StopCapture(itemDef_t* item) {}
 
 /*
 =================
 Item_ListBox_HandleKey
 =================
 */
-bool Item_ListBox_HandleKey(itemDef_t *item, fakeAscii_t key, bool down, bool force)
+bool Item_ListBox_HandleKey(itemDef_t* item, fakeAscii_t key, bool down, bool force)
 {
-	listBoxDef_t *listPtr = (listBoxDef_t*)item->typeData;
-	int count = DC->feederCount(item->special);
-	int max, viewmax;
-	if (force || (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && Any( item->window.flags & windowFlags_t::WINDOW_HASFOCUS )))
-	{
-		max = Item_ListBox_MaxScroll(item);
-		if (Any( item->window.flags & windowFlags_t::WINDOW_HORIZONTAL ))
-		{
-			viewmax = (item->window.rect.w / listPtr->elementWidth);
-			if ( key == fakeAscii_t::A_CURSOR_LEFT || key == fakeAscii_t::A_KP_4 )
-			{
-				if (!listPtr->notselectable)
-				{
-					listPtr->cursorPos--;
-					if (listPtr->cursorPos < 0)
-					{
-						listPtr->cursorPos = 0;
-					}
-					if (listPtr->cursorPos < listPtr->startPos)
-					{
-						listPtr->startPos = listPtr->cursorPos;
-					}
-					if (listPtr->cursorPos >= listPtr->startPos + viewmax)
-					{
-						listPtr->startPos = listPtr->cursorPos - viewmax + 1;
-					}
-					item->cursorPos = listPtr->cursorPos;
+    listBoxDef_t* listPtr = (listBoxDef_t*)item->typeData;
+    int count = DC->feederCount(item->special);
+    int max, viewmax;
+    if (force || (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && Any(item->window.flags & windowFlags_t::WINDOW_HASFOCUS))) {
+        max = Item_ListBox_MaxScroll(item);
+        if (Any(item->window.flags & windowFlags_t::WINDOW_HORIZONTAL)) {
+            viewmax = (item->window.rect.w / listPtr->elementWidth);
+            if (key == fakeAscii_t::A_CURSOR_LEFT || key == fakeAscii_t::A_KP_4) {
+                if (!listPtr->notselectable) {
+                    listPtr->cursorPos--;
+                    if (listPtr->cursorPos < 0) {
+                        listPtr->cursorPos = 0;
+                    }
+                    if (listPtr->cursorPos < listPtr->startPos) {
+                        listPtr->startPos = listPtr->cursorPos;
+                    }
+                    if (listPtr->cursorPos >= listPtr->startPos + viewmax) {
+                        listPtr->startPos = listPtr->cursorPos - viewmax + 1;
+                    }
+                    item->cursorPos = listPtr->cursorPos;
 
-					DC->feederSelection(item->special, item->cursorPos, item);
+                    DC->feederSelection(item->special, item->cursorPos, item);
+                }
+                else {
+                    listPtr->startPos--;
+                    if (listPtr->startPos < 0) {
+                        listPtr->startPos = 0;
+                    }
+                }
+                return true;
+            }
+            if (key == fakeAscii_t::A_CURSOR_RIGHT || key == fakeAscii_t::A_KP_6) {
+                if (!listPtr->notselectable) {
+                    listPtr->cursorPos++;
 
-				}
-				else
-				{
-					listPtr->startPos--;
-					if (listPtr->startPos < 0)
-					{
-						listPtr->startPos = 0;
-					}
-				}
-				return true;
-			}
-			if ( key == fakeAscii_t::A_CURSOR_RIGHT || key == fakeAscii_t::A_KP_6 )
-			{
-				if (!listPtr->notselectable)
-				{
-					listPtr->cursorPos++;
+                    if (listPtr->cursorPos < listPtr->startPos) {
+                        listPtr->startPos = listPtr->cursorPos;
+                    }
+                    if (listPtr->cursorPos >= count) {
+                        listPtr->cursorPos = count - 1;
+                    }
+                    if (listPtr->cursorPos >= listPtr->startPos + viewmax) {
+                        listPtr->startPos = listPtr->cursorPos - viewmax + 1;
+                    }
+                    item->cursorPos = listPtr->cursorPos;
 
-					if (listPtr->cursorPos < listPtr->startPos)
-					{
-						listPtr->startPos = listPtr->cursorPos;
-					}
-					if (listPtr->cursorPos >= count)
-					{
-						listPtr->cursorPos = count-1;
-					}
-					if (listPtr->cursorPos >= listPtr->startPos + viewmax)
-					{
-						listPtr->startPos = listPtr->cursorPos - viewmax + 1;
-					}
-					item->cursorPos = listPtr->cursorPos;
+                    DC->feederSelection(item->special, item->cursorPos, item);
+                }
+                else {
+                    listPtr->startPos++;
 
-					DC->feederSelection(item->special, item->cursorPos, item);
-				}
-				else
-				{
-					listPtr->startPos++;
+                    if (listPtr->startPos >= count) {
+                        listPtr->startPos = count - 1;
+                    }
+                }
+                return true;
+            }
+        }
+        else {
+            viewmax = (item->window.rect.h / listPtr->elementHeight);
+            if (key == fakeAscii_t::A_CURSOR_UP || key == fakeAscii_t::A_KP_8) {
+                if (!listPtr->notselectable) {
+                    listPtr->cursorPos--;
 
-					if (listPtr->startPos >= count)
-					{
-						listPtr->startPos = count-1;
-					}
-				}
-				return true;
-			}
-		}
-		else
-		{
-			viewmax = (item->window.rect.h / listPtr->elementHeight);
-			if ( key == fakeAscii_t::A_CURSOR_UP || key == fakeAscii_t::A_KP_8 )
-			{
-				if (!listPtr->notselectable)
-				{
-					listPtr->cursorPos--;
+                    if (listPtr->cursorPos < 0) {
+                        listPtr->cursorPos = 0;
+                    }
+                    if (listPtr->cursorPos < listPtr->startPos) {
+                        listPtr->startPos = listPtr->cursorPos;
+                    }
+                    if (listPtr->cursorPos >= listPtr->startPos + viewmax) {
+                        listPtr->startPos = listPtr->cursorPos - viewmax + 1;
+                    }
+                    item->cursorPos = listPtr->cursorPos;
 
-					if (listPtr->cursorPos < 0)
-					{
-						listPtr->cursorPos = 0;
-					}
-					if (listPtr->cursorPos < listPtr->startPos)
-					{
-						listPtr->startPos = listPtr->cursorPos;
-					}
-					if (listPtr->cursorPos >= listPtr->startPos + viewmax)
-					{
-						listPtr->startPos = listPtr->cursorPos - viewmax + 1;
-					}
-					item->cursorPos = listPtr->cursorPos;
+                    DC->feederSelection(item->special, item->cursorPos, item);
+                }
+                else {
+                    listPtr->startPos--;
 
-					DC->feederSelection(item->special, item->cursorPos, item);
-				}
-				else
-				{
-					listPtr->startPos--;
+                    if (listPtr->startPos < 0) {
+                        listPtr->startPos = 0;
+                    }
+                }
+                return true;
+            }
+            if (key == fakeAscii_t::A_CURSOR_DOWN || key == fakeAscii_t::A_KP_2) {
+                if (!listPtr->notselectable) {
+                    listPtr->cursorPos++;
+                    if (listPtr->cursorPos < listPtr->startPos) {
+                        listPtr->startPos = listPtr->cursorPos;
+                    }
+                    if (listPtr->cursorPos >= count) {
+                        listPtr->cursorPos = count - 1;
+                    }
+                    if (listPtr->cursorPos >= listPtr->startPos + viewmax) {
+                        listPtr->startPos = listPtr->cursorPos - viewmax + 1;
+                    }
+                    item->cursorPos = listPtr->cursorPos;
 
-					if (listPtr->startPos < 0)
-					{
-						listPtr->startPos = 0;
-					}
-				}
-				return true;
-			}
-			if ( key == fakeAscii_t::A_CURSOR_DOWN || key == fakeAscii_t::A_KP_2 )
-			{
-				if (!listPtr->notselectable)
-				{
-					listPtr->cursorPos++;
-					if (listPtr->cursorPos < listPtr->startPos)
-					{
-						listPtr->startPos = listPtr->cursorPos;
-					}
-					if (listPtr->cursorPos >= count)
-					{
-						listPtr->cursorPos = count-1;
-					}
-					if (listPtr->cursorPos >= listPtr->startPos + viewmax)
-					{
-						listPtr->startPos = listPtr->cursorPos - viewmax + 1;
-					}
-					item->cursorPos = listPtr->cursorPos;
+                    DC->feederSelection(item->special, item->cursorPos, item);
+                }
+                else {
+                    listPtr->startPos++;
 
-					DC->feederSelection(item->special, item->cursorPos, item);
+                    if (listPtr->startPos > max) {
+                        listPtr->startPos = max;
+                    }
+                }
+                return true;
+            }
 
-				}
-				else
-				{
-					listPtr->startPos++;
-
-					if (listPtr->startPos > max)
-					{
-						listPtr->startPos = max;
-					}
-				}
-				return true;
-			}
-
-			//Raz: Added
-			if ( key == fakeAscii_t::A_MWHEELUP )
-			{
-				listPtr->startPos -= ((int)item->special == FEEDER_Q3HEADS) ? viewmax : 1;
-				if (listPtr->startPos < 0)
-				{
-					listPtr->startPos = 0;
-					Display_MouseMove(nullptr, DC->cursorx, DC->cursory);
-					return false;
-				}
-				Display_MouseMove(nullptr, DC->cursorx, DC->cursory);
-				return true;
-			}
-			if ( key == fakeAscii_t::A_MWHEELDOWN )
-			{
-				listPtr->startPos += ((int)item->special == FEEDER_Q3HEADS) ? viewmax : 1;
-				if (listPtr->startPos > max)
-				{
-					listPtr->startPos = max;
-					Display_MouseMove(nullptr, DC->cursorx, DC->cursory);
-					return false;
-				}
-				Display_MouseMove(nullptr, DC->cursorx, DC->cursory);
-				return true;
-			}
-		}
-		// mouse hit
-		if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_MOUSE2)
-		{
-			if (Any( item->window.flags & windowFlags_t::WINDOW_LB_LEFTARROW ))
-			{
-	 			listPtr->startPos--;
-				if (listPtr->startPos < 0)
-				{
-					listPtr->startPos = 0;
-				}
-			}
-			else if (Any( item->window.flags & windowFlags_t::WINDOW_LB_RIGHTARROW ))
-			{
-				// one down
-				listPtr->startPos++;
-				if (listPtr->startPos > max)
-				{
-					listPtr->startPos = max;
-				}
-			}
-			else if (Any( item->window.flags & windowFlags_t::WINDOW_LB_PGUP ))
-			{
-				// page up
-				listPtr->startPos -= viewmax;
-				if (listPtr->startPos < 0)
-				{
-					listPtr->startPos = 0;
-				}
-			}
-			else if (Any( item->window.flags & windowFlags_t::WINDOW_LB_PGDN ))
-			{
-				// page down
-				listPtr->startPos += viewmax;
-				if (listPtr->startPos > max)
-				{
-					listPtr->startPos = max;
-				}
-			}
-			else if (Any( item->window.flags & windowFlags_t::WINDOW_LB_THUMB ))
-			{
-				// Display_SetCaptureItem(item);
-			}
-			else
-			{
-				// select an item
-				if (DC->realTime < lastListBoxClickTime && listPtr->doubleClick)
-				{
-					Item_RunScript(item, listPtr->doubleClick);
-				}
-				lastListBoxClickTime = DC->realTime + DOUBLE_CLICK_DELAY;
-				item->cursorPos = listPtr->cursorPos;
-				DC->feederSelection(item->special, item->cursorPos, item);
-			}
-			return true;
-		}
-		if ( key == fakeAscii_t::A_HOME || key == fakeAscii_t::A_KP_7)
-		{
-			// home
-			listPtr->startPos = 0;
-			return true;
-		}
-		if ( key == fakeAscii_t::A_END || key == fakeAscii_t::A_KP_1)
-		{
-			// end
-			listPtr->startPos = max;
-			return true;
-		}
-		if (key == fakeAscii_t::A_PAGE_UP || key == fakeAscii_t::A_KP_9 )
-		{
-			// page up
-			if (!listPtr->notselectable)
-			{
-				listPtr->cursorPos -= viewmax;
-				if (listPtr->cursorPos < 0)
-				{
-					listPtr->cursorPos = 0;
-				}
-				if (listPtr->cursorPos < listPtr->startPos)
-				{
-					listPtr->startPos = listPtr->cursorPos;
-				}
-				if (listPtr->cursorPos >= listPtr->startPos + viewmax)
-				{
-					listPtr->startPos = listPtr->cursorPos - viewmax + 1;
-				}
-				item->cursorPos = listPtr->cursorPos;
-				DC->feederSelection(item->special, item->cursorPos, item);
-			}
-			else
-			{
-				listPtr->startPos -= viewmax;
-				if (listPtr->startPos < 0)
-				{
-					listPtr->startPos = 0;
-				}
-			}
-			return true;
-		}
-		if ( key == fakeAscii_t::A_PAGE_DOWN || key == fakeAscii_t::A_KP_3 )
-		{
-			// page down
-			if (!listPtr->notselectable)
-			{
-				listPtr->cursorPos += viewmax;
-				if (listPtr->cursorPos < listPtr->startPos)
-				{
-					listPtr->startPos = listPtr->cursorPos;
-				}
-				if (listPtr->cursorPos >= count)
-				{
-					listPtr->cursorPos = count-1;
-				}
-				if (listPtr->cursorPos >= listPtr->startPos + viewmax)
-				{
-					listPtr->startPos = listPtr->cursorPos - viewmax + 1;
-				}
-				item->cursorPos = listPtr->cursorPos;
-				DC->feederSelection(item->special, item->cursorPos, item);
-			}
-			else
-			{
-				listPtr->startPos += viewmax;
-				if (listPtr->startPos > max)
-				{
-					listPtr->startPos = max;
-				}
-			}
-			return true;
-		}
-	}
-	return false;
+            // Raz: Added
+            if (key == fakeAscii_t::A_MWHEELUP) {
+                listPtr->startPos -= ((int)item->special == FEEDER_Q3HEADS) ? viewmax : 1;
+                if (listPtr->startPos < 0) {
+                    listPtr->startPos = 0;
+                    Display_MouseMove(nullptr, DC->cursorx, DC->cursory);
+                    return false;
+                }
+                Display_MouseMove(nullptr, DC->cursorx, DC->cursory);
+                return true;
+            }
+            if (key == fakeAscii_t::A_MWHEELDOWN) {
+                listPtr->startPos += ((int)item->special == FEEDER_Q3HEADS) ? viewmax : 1;
+                if (listPtr->startPos > max) {
+                    listPtr->startPos = max;
+                    Display_MouseMove(nullptr, DC->cursorx, DC->cursory);
+                    return false;
+                }
+                Display_MouseMove(nullptr, DC->cursorx, DC->cursory);
+                return true;
+            }
+        }
+        // mouse hit
+        if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_MOUSE2) {
+            if (Any(item->window.flags & windowFlags_t::WINDOW_LB_LEFTARROW)) {
+                listPtr->startPos--;
+                if (listPtr->startPos < 0) {
+                    listPtr->startPos = 0;
+                }
+            }
+            else if (Any(item->window.flags & windowFlags_t::WINDOW_LB_RIGHTARROW)) {
+                // one down
+                listPtr->startPos++;
+                if (listPtr->startPos > max) {
+                    listPtr->startPos = max;
+                }
+            }
+            else if (Any(item->window.flags & windowFlags_t::WINDOW_LB_PGUP)) {
+                // page up
+                listPtr->startPos -= viewmax;
+                if (listPtr->startPos < 0) {
+                    listPtr->startPos = 0;
+                }
+            }
+            else if (Any(item->window.flags & windowFlags_t::WINDOW_LB_PGDN)) {
+                // page down
+                listPtr->startPos += viewmax;
+                if (listPtr->startPos > max) {
+                    listPtr->startPos = max;
+                }
+            }
+            else if (Any(item->window.flags & windowFlags_t::WINDOW_LB_THUMB)) {
+                // Display_SetCaptureItem(item);
+            }
+            else {
+                // select an item
+                if (DC->realTime < lastListBoxClickTime && listPtr->doubleClick) {
+                    Item_RunScript(item, listPtr->doubleClick);
+                }
+                lastListBoxClickTime = DC->realTime + DOUBLE_CLICK_DELAY;
+                item->cursorPos = listPtr->cursorPos;
+                DC->feederSelection(item->special, item->cursorPos, item);
+            }
+            return true;
+        }
+        if (key == fakeAscii_t::A_HOME || key == fakeAscii_t::A_KP_7) {
+            // home
+            listPtr->startPos = 0;
+            return true;
+        }
+        if (key == fakeAscii_t::A_END || key == fakeAscii_t::A_KP_1) {
+            // end
+            listPtr->startPos = max;
+            return true;
+        }
+        if (key == fakeAscii_t::A_PAGE_UP || key == fakeAscii_t::A_KP_9) {
+            // page up
+            if (!listPtr->notselectable) {
+                listPtr->cursorPos -= viewmax;
+                if (listPtr->cursorPos < 0) {
+                    listPtr->cursorPos = 0;
+                }
+                if (listPtr->cursorPos < listPtr->startPos) {
+                    listPtr->startPos = listPtr->cursorPos;
+                }
+                if (listPtr->cursorPos >= listPtr->startPos + viewmax) {
+                    listPtr->startPos = listPtr->cursorPos - viewmax + 1;
+                }
+                item->cursorPos = listPtr->cursorPos;
+                DC->feederSelection(item->special, item->cursorPos, item);
+            }
+            else {
+                listPtr->startPos -= viewmax;
+                if (listPtr->startPos < 0) {
+                    listPtr->startPos = 0;
+                }
+            }
+            return true;
+        }
+        if (key == fakeAscii_t::A_PAGE_DOWN || key == fakeAscii_t::A_KP_3) {
+            // page down
+            if (!listPtr->notselectable) {
+                listPtr->cursorPos += viewmax;
+                if (listPtr->cursorPos < listPtr->startPos) {
+                    listPtr->startPos = listPtr->cursorPos;
+                }
+                if (listPtr->cursorPos >= count) {
+                    listPtr->cursorPos = count - 1;
+                }
+                if (listPtr->cursorPos >= listPtr->startPos + viewmax) {
+                    listPtr->startPos = listPtr->cursorPos - viewmax + 1;
+                }
+                item->cursorPos = listPtr->cursorPos;
+                DC->feederSelection(item->special, item->cursorPos, item);
+            }
+            else {
+                listPtr->startPos += viewmax;
+                if (listPtr->startPos > max) {
+                    listPtr->startPos = max;
+                }
+            }
+            return true;
+        }
+    }
+    return false;
 }
 
 /*
@@ -10496,26 +9603,23 @@ bool Item_ListBox_HandleKey(itemDef_t *item, fakeAscii_t key, bool down, bool fo
 Scroll_ListBox_AutoFunc
 =================
 */
-static void Scroll_ListBox_AutoFunc(void *p)
+static void Scroll_ListBox_AutoFunc(void* p)
 {
-	scrollInfo_t *si = (scrollInfo_t*)p;
-	if (DC->realTime > si->nextScrollTime)
-	{
-		// need to scroll which is done by simulating a click to the item
-		// this is done a bit sideways as the autoscroll "knows" that the item is a listbox
-		// so it calls it directly
-		Item_ListBox_HandleKey(si->item, si->scrollKey, true, false);
-		si->nextScrollTime = DC->realTime + si->adjustValue;
-	}
+    scrollInfo_t* si = (scrollInfo_t*)p;
+    if (DC->realTime > si->nextScrollTime) {
+        // need to scroll which is done by simulating a click to the item
+        // this is done a bit sideways as the autoscroll "knows" that the item is a listbox
+        // so it calls it directly
+        Item_ListBox_HandleKey(si->item, si->scrollKey, true, false);
+        si->nextScrollTime = DC->realTime + si->adjustValue;
+    }
 
-	if (DC->realTime > si->nextAdjustTime)
-	{
-		si->nextAdjustTime = DC->realTime + SCROLL_TIME_ADJUST;
-		if (si->adjustValue > SCROLL_TIME_FLOOR)
-		{
-			si->adjustValue -= SCROLL_TIME_ADJUSTOFFSET;
-		}
-	}
+    if (DC->realTime > si->nextAdjustTime) {
+        si->nextAdjustTime = DC->realTime + SCROLL_TIME_ADJUST;
+        if (si->adjustValue > SCROLL_TIME_FLOOR) {
+            si->adjustValue -= SCROLL_TIME_ADJUSTOFFSET;
+        }
+    }
 }
 
 /*
@@ -10523,76 +9627,66 @@ static void Scroll_ListBox_AutoFunc(void *p)
 Scroll_ListBox_ThumbFunc
 =================
 */
-static void Scroll_ListBox_ThumbFunc(void *p)
+static void Scroll_ListBox_ThumbFunc(void* p)
 {
-	scrollInfo_t *si = (scrollInfo_t*)p;
-	rectDef_t r;
-	int pos, max;
+    scrollInfo_t* si = (scrollInfo_t*)p;
+    rectDef_t r;
+    int pos, max;
 
-	listBoxDef_t *listPtr = (listBoxDef_t*)si->item->typeData;
-	if (Any( si->item->window.flags & windowFlags_t::WINDOW_HORIZONTAL ))
-	{
-		if (DC->cursorx == si->xStart)
-		{
-			return;
-		}
-		r.x = si->item->window.rect.x + SCROLLBAR_SIZE + 1;
-		r.y = si->item->window.rect.y + si->item->window.rect.h - SCROLLBAR_SIZE - 1;
-		r.h = SCROLLBAR_SIZE;
-		r.w = si->item->window.rect.w - (SCROLLBAR_SIZE*2) - 2;
-		max = Item_ListBox_MaxScroll(si->item);
-		//
-		pos = (DC->cursorx - r.x - SCROLLBAR_SIZE/2) * max / (r.w - SCROLLBAR_SIZE);
-		if (pos < 0)
-		{
-			pos = 0;
-		}
-		else if (pos > max)
-		{
-			pos = max;
-		}
-		listPtr->startPos = pos;
-		si->xStart = DC->cursorx;
-	}
-	else if (DC->cursory != si->yStart)
-	{
+    listBoxDef_t* listPtr = (listBoxDef_t*)si->item->typeData;
+    if (Any(si->item->window.flags & windowFlags_t::WINDOW_HORIZONTAL)) {
+        if (DC->cursorx == si->xStart) {
+            return;
+        }
+        r.x = si->item->window.rect.x + SCROLLBAR_SIZE + 1;
+        r.y = si->item->window.rect.y + si->item->window.rect.h - SCROLLBAR_SIZE - 1;
+        r.h = SCROLLBAR_SIZE;
+        r.w = si->item->window.rect.w - (SCROLLBAR_SIZE * 2) - 2;
+        max = Item_ListBox_MaxScroll(si->item);
+        //
+        pos = (DC->cursorx - r.x - SCROLLBAR_SIZE / 2) * max / (r.w - SCROLLBAR_SIZE);
+        if (pos < 0) {
+            pos = 0;
+        }
+        else if (pos > max) {
+            pos = max;
+        }
+        listPtr->startPos = pos;
+        si->xStart = DC->cursorx;
+    }
+    else if (DC->cursory != si->yStart) {
 
-		r.x = si->item->window.rect.x + si->item->window.rect.w - SCROLLBAR_SIZE - 1;
-		r.y = si->item->window.rect.y + SCROLLBAR_SIZE + 1;
-		r.h = si->item->window.rect.h - (SCROLLBAR_SIZE*2) - 2;
-		r.w = SCROLLBAR_SIZE;
-		max = Item_ListBox_MaxScroll(si->item);
-		//
-		pos = (DC->cursory - r.y - SCROLLBAR_SIZE/2) * max / (r.h - SCROLLBAR_SIZE);
-		if (pos < 0)
-		{
-			pos = 0;
-		}
-		else if (pos > max)
-		{
-			pos = max;
-		}
-		listPtr->startPos = pos;
-		si->yStart = DC->cursory;
-	}
+        r.x = si->item->window.rect.x + si->item->window.rect.w - SCROLLBAR_SIZE - 1;
+        r.y = si->item->window.rect.y + SCROLLBAR_SIZE + 1;
+        r.h = si->item->window.rect.h - (SCROLLBAR_SIZE * 2) - 2;
+        r.w = SCROLLBAR_SIZE;
+        max = Item_ListBox_MaxScroll(si->item);
+        //
+        pos = (DC->cursory - r.y - SCROLLBAR_SIZE / 2) * max / (r.h - SCROLLBAR_SIZE);
+        if (pos < 0) {
+            pos = 0;
+        }
+        else if (pos > max) {
+            pos = max;
+        }
+        listPtr->startPos = pos;
+        si->yStart = DC->cursory;
+    }
 
-	if (DC->realTime > si->nextScrollTime)
-	{
-		// need to scroll which is done by simulating a click to the item
-		// this is done a bit sideways as the autoscroll "knows" that the item is a listbox
-		// so it calls it directly
-		Item_ListBox_HandleKey(si->item, si->scrollKey, true, false);
-		si->nextScrollTime = DC->realTime + si->adjustValue;
-	}
+    if (DC->realTime > si->nextScrollTime) {
+        // need to scroll which is done by simulating a click to the item
+        // this is done a bit sideways as the autoscroll "knows" that the item is a listbox
+        // so it calls it directly
+        Item_ListBox_HandleKey(si->item, si->scrollKey, true, false);
+        si->nextScrollTime = DC->realTime + si->adjustValue;
+    }
 
-	if (DC->realTime > si->nextAdjustTime)
-	{
-		si->nextAdjustTime = DC->realTime + SCROLL_TIME_ADJUST;
-		if (si->adjustValue > SCROLL_TIME_FLOOR)
-		{
-			si->adjustValue -= SCROLL_TIME_ADJUSTOFFSET;
-		}
-	}
+    if (DC->realTime > si->nextAdjustTime) {
+        si->nextAdjustTime = DC->realTime + SCROLL_TIME_ADJUST;
+        if (si->adjustValue > SCROLL_TIME_FLOOR) {
+            si->adjustValue -= SCROLL_TIME_ADJUSTOFFSET;
+        }
+    }
 }
 
 /*
@@ -10600,20 +9694,19 @@ static void Scroll_ListBox_ThumbFunc(void *p)
 Item_Slider_OverSlider
 =================
 */
-windowFlags_t Item_Slider_OverSlider(itemDef_t *item, float x, float y)
+windowFlags_t Item_Slider_OverSlider(itemDef_t* item, float x, float y)
 {
-	rectDef_t r;
+    rectDef_t r;
 
-	r.x = Item_Slider_ThumbPosition(item) - (SLIDER_THUMB_WIDTH / 2);
-	r.y = item->window.rect.y - 2;
-	r.w = SLIDER_THUMB_WIDTH;
-	r.h = SLIDER_THUMB_HEIGHT;
+    r.x = Item_Slider_ThumbPosition(item) - (SLIDER_THUMB_WIDTH / 2);
+    r.y = item->window.rect.y - 2;
+    r.w = SLIDER_THUMB_WIDTH;
+    r.h = SLIDER_THUMB_HEIGHT;
 
-	if (Rect_ContainsPoint(&r, x, y))
-	{
-		return windowFlags_t::WINDOW_LB_THUMB;
-	}
-	return windowFlags_t::WINDOW_NONE;
+    if (Rect_ContainsPoint(&r, x, y)) {
+        return windowFlags_t::WINDOW_LB_THUMB;
+    }
+    return windowFlags_t::WINDOW_NONE;
 }
 
 /*
@@ -10621,120 +9714,108 @@ windowFlags_t Item_Slider_OverSlider(itemDef_t *item, float x, float y)
 Scroll_Slider_ThumbFunc
 =================
 */
-static void Scroll_Slider_ThumbFunc(void *p)
+static void Scroll_Slider_ThumbFunc(void* p)
 {
-	float x, value, cursorx;
-	scrollInfo_t *si = (scrollInfo_t*)p;
-	editFieldDef_t *editDef = (struct editFieldDef_s *) si->item->typeData;
+    float x, value, cursorx;
+    scrollInfo_t* si = (scrollInfo_t*)p;
+    editFieldDef_t* editDef = (struct editFieldDef_s*)si->item->typeData;
 
-	if (si->item->text)
-	{
-		x = si->item->textRect.x + si->item->textRect.w + 8;
-	}
-	else
-	{
-		x = si->item->window.rect.x;
-	}
+    if (si->item->text) {
+        x = si->item->textRect.x + si->item->textRect.w + 8;
+    }
+    else {
+        x = si->item->window.rect.x;
+    }
 
-	cursorx = DC->cursorx;
+    cursorx = DC->cursorx;
 
-	if (cursorx < x)
-	{
-		cursorx = x;
-	}
-	else if (cursorx > x + SLIDER_WIDTH)
-	{
-		cursorx = x + SLIDER_WIDTH;
-	}
-	value = cursorx - x;
-	value /= SLIDER_WIDTH;
-	value *= (editDef->maxVal - editDef->minVal);
-	value += editDef->minVal;
-	DC->setCVar(si->item->cvar, va("%f", value));
+    if (cursorx < x) {
+        cursorx = x;
+    }
+    else if (cursorx > x + SLIDER_WIDTH) {
+        cursorx = x + SLIDER_WIDTH;
+    }
+    value = cursorx - x;
+    value /= SLIDER_WIDTH;
+    value *= (editDef->maxVal - editDef->minVal);
+    value += editDef->minVal;
+    DC->setCVar(si->item->cvar, va("%f", value));
 }
 /*
 =================
 Item_StartCapture
 =================
 */
-void Item_StartCapture(itemDef_t *item, fakeAscii_t key)
+void Item_StartCapture(itemDef_t* item, fakeAscii_t key)
 {
-	windowFlags_t flags;
-	switch (item->type)
-	{
-		case ITEM_TYPE_EDITFIELD:
-		case ITEM_TYPE_NUMERICFIELD:
+    windowFlags_t flags;
+    switch (item->type) {
+    case ITEM_TYPE_EDITFIELD:
+    case ITEM_TYPE_NUMERICFIELD:
 
-		case ITEM_TYPE_LISTBOX:
-		{
-			flags = Item_ListBox_OverLB(item, DC->cursorx, DC->cursory);
-			if (Any( flags & (windowFlags_t::WINDOW_LB_LEFTARROW | windowFlags_t::WINDOW_LB_RIGHTARROW) ))
-			{
-				scrollInfo.nextScrollTime = DC->realTime + SCROLL_TIME_START;
-				scrollInfo.nextAdjustTime = DC->realTime + SCROLL_TIME_ADJUST;
-				scrollInfo.adjustValue = SCROLL_TIME_START;
-				scrollInfo.scrollKey = key;
-				scrollInfo.scrollDir = Any( flags & windowFlags_t::WINDOW_LB_LEFTARROW ) ? true : false;
-				scrollInfo.item = item;
-				captureData = &scrollInfo;
-				captureFunc = &Scroll_ListBox_AutoFunc;
-				itemCapture = item;
-			}
-			else if (Any( flags & windowFlags_t::WINDOW_LB_THUMB ))
-			{
-				scrollInfo.scrollKey = key;
-				scrollInfo.item = item;
-				scrollInfo.xStart = DC->cursorx;
-				scrollInfo.yStart = DC->cursory;
-				captureData = &scrollInfo;
-				captureFunc = &Scroll_ListBox_ThumbFunc;
-				itemCapture = item;
-			}
-			break;
-		}
+    case ITEM_TYPE_LISTBOX: {
+        flags = Item_ListBox_OverLB(item, DC->cursorx, DC->cursory);
+        if (Any(flags & (windowFlags_t::WINDOW_LB_LEFTARROW | windowFlags_t::WINDOW_LB_RIGHTARROW))) {
+            scrollInfo.nextScrollTime = DC->realTime + SCROLL_TIME_START;
+            scrollInfo.nextAdjustTime = DC->realTime + SCROLL_TIME_ADJUST;
+            scrollInfo.adjustValue = SCROLL_TIME_START;
+            scrollInfo.scrollKey = key;
+            scrollInfo.scrollDir = Any(flags & windowFlags_t::WINDOW_LB_LEFTARROW) ? true : false;
+            scrollInfo.item = item;
+            captureData = &scrollInfo;
+            captureFunc = &Scroll_ListBox_AutoFunc;
+            itemCapture = item;
+        }
+        else if (Any(flags & windowFlags_t::WINDOW_LB_THUMB)) {
+            scrollInfo.scrollKey = key;
+            scrollInfo.item = item;
+            scrollInfo.xStart = DC->cursorx;
+            scrollInfo.yStart = DC->cursory;
+            captureData = &scrollInfo;
+            captureFunc = &Scroll_ListBox_ThumbFunc;
+            itemCapture = item;
+        }
+        break;
+    }
 
-		case ITEM_TYPE_TEXTSCROLL:
-			flags = Item_TextScroll_OverLB (item, DC->cursorx, DC->cursory);
-			if (Any( flags & (windowFlags_t::WINDOW_LB_LEFTARROW | windowFlags_t::WINDOW_LB_RIGHTARROW) ))
-			{
-				scrollInfo.nextScrollTime = DC->realTime + SCROLL_TIME_START;
-				scrollInfo.nextAdjustTime = DC->realTime + SCROLL_TIME_ADJUST;
-				scrollInfo.adjustValue = SCROLL_TIME_START;
-				scrollInfo.scrollKey = key;
-				scrollInfo.scrollDir = Any( flags & windowFlags_t::WINDOW_LB_LEFTARROW ) ? true : false;
-				scrollInfo.item = item;
-				captureData = &scrollInfo;
-				captureFunc = &Scroll_TextScroll_AutoFunc;
-				itemCapture = item;
-			}
-			else if (Any( flags & windowFlags_t::WINDOW_LB_THUMB ))
-			{
-				scrollInfo.scrollKey = key;
-				scrollInfo.item = item;
-				scrollInfo.xStart = DC->cursorx;
-				scrollInfo.yStart = DC->cursory;
-				captureData = &scrollInfo;
-				captureFunc = &Scroll_TextScroll_ThumbFunc;
-				itemCapture = item;
-			}
-			break;
+    case ITEM_TYPE_TEXTSCROLL:
+        flags = Item_TextScroll_OverLB(item, DC->cursorx, DC->cursory);
+        if (Any(flags & (windowFlags_t::WINDOW_LB_LEFTARROW | windowFlags_t::WINDOW_LB_RIGHTARROW))) {
+            scrollInfo.nextScrollTime = DC->realTime + SCROLL_TIME_START;
+            scrollInfo.nextAdjustTime = DC->realTime + SCROLL_TIME_ADJUST;
+            scrollInfo.adjustValue = SCROLL_TIME_START;
+            scrollInfo.scrollKey = key;
+            scrollInfo.scrollDir = Any(flags & windowFlags_t::WINDOW_LB_LEFTARROW) ? true : false;
+            scrollInfo.item = item;
+            captureData = &scrollInfo;
+            captureFunc = &Scroll_TextScroll_AutoFunc;
+            itemCapture = item;
+        }
+        else if (Any(flags & windowFlags_t::WINDOW_LB_THUMB)) {
+            scrollInfo.scrollKey = key;
+            scrollInfo.item = item;
+            scrollInfo.xStart = DC->cursorx;
+            scrollInfo.yStart = DC->cursory;
+            captureData = &scrollInfo;
+            captureFunc = &Scroll_TextScroll_ThumbFunc;
+            itemCapture = item;
+        }
+        break;
 
-		case ITEM_TYPE_SLIDER:
-		{
-			flags = Item_Slider_OverSlider(item, DC->cursorx, DC->cursory);
-			if (Any( flags & windowFlags_t::WINDOW_LB_THUMB ))
-			{
-				scrollInfo.scrollKey = key;
-				scrollInfo.item = item;
-				scrollInfo.xStart = DC->cursorx;
-				scrollInfo.yStart = DC->cursory;
-				captureData = &scrollInfo;
-				captureFunc = &Scroll_Slider_ThumbFunc;
-				itemCapture = item;
-			}
-			break;
-		}
-	}
+    case ITEM_TYPE_SLIDER: {
+        flags = Item_Slider_OverSlider(item, DC->cursorx, DC->cursory);
+        if (Any(flags & windowFlags_t::WINDOW_LB_THUMB)) {
+            scrollInfo.scrollKey = key;
+            scrollInfo.item = item;
+            scrollInfo.xStart = DC->cursorx;
+            scrollInfo.yStart = DC->cursory;
+            captureData = &scrollInfo;
+            captureFunc = &Scroll_Slider_ThumbFunc;
+            itemCapture = item;
+        }
+        break;
+    }
+    }
 }
 
 /*
@@ -10742,19 +9823,16 @@ void Item_StartCapture(itemDef_t *item, fakeAscii_t key)
 Item_YesNo_HandleKey
 =================
 */
-bool Item_YesNo_HandleKey(itemDef_t *item, fakeAscii_t key)
+bool Item_YesNo_HandleKey(itemDef_t* item, fakeAscii_t key)
 {
-  if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && Any( item->window.flags & windowFlags_t::WINDOW_HASFOCUS ) && item->cvar)
-	{
-		if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_ENTER || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_MOUSE3)
-		{
-			DC->setCVar(item->cvar, va("%i", !DC->getCVarValue(item->cvar)));
-			return true;
-		}
-	}
+    if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && Any(item->window.flags & windowFlags_t::WINDOW_HASFOCUS) && item->cvar) {
+        if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_ENTER || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_MOUSE3) {
+            DC->setCVar(item->cvar, va("%i", !DC->getCVarValue(item->cvar)));
+            return true;
+        }
+    }
 
-	return false;
-
+    return false;
 }
 
 /*
@@ -10762,41 +9840,33 @@ bool Item_YesNo_HandleKey(itemDef_t *item, fakeAscii_t key)
 Item_Multi_FindCvarByValue
 =================
 */
-int Item_Multi_FindCvarByValue(itemDef_t *item)
+int Item_Multi_FindCvarByValue(itemDef_t* item)
 {
-	char buff[1024];
-	float value = 0;
-	int i;
-	multiDef_t *multiPtr = (multiDef_t*)item->typeData;
-	if (multiPtr)
-	{
-		if (multiPtr->strDef)
-		{
-			DC->getCVarString(item->cvar, buff, sizeof(buff));
-		}
-		else
-		{
-			value = DC->getCVarValue(item->cvar);
-		}
-		for (i = 0; i < multiPtr->count; i++)
-		{
-			if (multiPtr->strDef)
-			{
-				if (Q_stricmp(buff, multiPtr->cvarStr[i]) == 0)
-				{
-					return i;
-				}
-			}
-			else
-			{
- 				if (multiPtr->cvarValue[i] == value)
-				{
- 					return i;
- 				}
- 			}
- 		}
-	}
-	return 0;
+    char buff[1024];
+    float value = 0;
+    int i;
+    multiDef_t* multiPtr = (multiDef_t*)item->typeData;
+    if (multiPtr) {
+        if (multiPtr->strDef) {
+            DC->getCVarString(item->cvar, buff, sizeof(buff));
+        }
+        else {
+            value = DC->getCVarValue(item->cvar);
+        }
+        for (i = 0; i < multiPtr->count; i++) {
+            if (multiPtr->strDef) {
+                if (Q_stricmp(buff, multiPtr->cvarStr[i]) == 0) {
+                    return i;
+                }
+            }
+            else {
+                if (multiPtr->cvarValue[i] == value) {
+                    return i;
+                }
+            }
+        }
+    }
+    return 0;
 }
 
 /*
@@ -10804,30 +9874,26 @@ int Item_Multi_FindCvarByValue(itemDef_t *item)
 Item_Multi_CountSettings
 =================
 */
-int Item_Multi_CountSettings(itemDef_t *item)
+int Item_Multi_CountSettings(itemDef_t* item)
 {
-	multiDef_t *multiPtr = (multiDef_t*)item->typeData;
-	if (multiPtr == nullptr)
-	{
-		return 0;
-	}
-	return multiPtr->count;
+    multiDef_t* multiPtr = (multiDef_t*)item->typeData;
+    if (multiPtr == nullptr) {
+        return 0;
+    }
+    return multiPtr->count;
 }
-
-
 
 /*
 =================
 Item_OwnerDraw_HandleKey
 =================
 */
-bool Item_OwnerDraw_HandleKey(itemDef_t *item, fakeAscii_t key)
+bool Item_OwnerDraw_HandleKey(itemDef_t* item, fakeAscii_t key)
 {
-  if (item && DC->ownerDrawHandleKey)
-  {
-		return DC->ownerDrawHandleKey(item->window.ownerDraw, item->window.ownerDrawFlags, &item->special, key);
-  }
-  return false;
+    if (item && DC->ownerDrawHandleKey) {
+        return DC->ownerDrawHandleKey(item->window.ownerDraw, item->window.ownerDrawFlags, &item->special, key);
+    }
+    return false;
 }
 
 /*
@@ -10835,128 +9901,104 @@ bool Item_OwnerDraw_HandleKey(itemDef_t *item, fakeAscii_t key)
 Item_Text_HandleKey
 =================
 */
-bool Item_Text_HandleKey(itemDef_t *item, fakeAscii_t key)
+bool Item_Text_HandleKey(itemDef_t* item, fakeAscii_t key)
 {
-	if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && Any( item->window.flags & windowFlags_t::WINDOW_AUTOWRAPPED ))
+    if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && Any(item->window.flags & windowFlags_t::WINDOW_AUTOWRAPPED))
 
+    {
+        if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_ENTER || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_MOUSE3) {
+            if (key == fakeAscii_t::A_MOUSE2) {
+                item->cursorPos--;
+                if (item->cursorPos < 0) {
+                    item->cursorPos = 0;
+                }
+            }
+            else if (item->special) {
+                item->cursorPos++;
+                if (item->cursorPos >= item->value) {
+                    item->cursorPos = 0;
+                }
+            }
+            return true;
+        }
+    }
 
-	{
-		if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_ENTER || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_MOUSE3)
-		{
-			if (key == fakeAscii_t::A_MOUSE2)
-			{
-				item->cursorPos--;
-				if ( item->cursorPos < 0 )
-				{
-					item->cursorPos = 0;
-				}
-			}
-			else if (item->special)
-			{
-				item->cursorPos++;
-				if ( item->cursorPos >= item->value )
-				{
-					item->cursorPos = 0;
-				}
-			}
-			return true;
-		}
-	}
-
-	return false;
+    return false;
 }
-
 
 /*
 =================
 Item_Multi_HandleKey
 =================
 */
-bool Item_Multi_HandleKey(itemDef_t *item, fakeAscii_t key)
+bool Item_Multi_HandleKey(itemDef_t* item, fakeAscii_t key)
 {
-	multiDef_t *multiPtr = (multiDef_t*)item->typeData;
-	if (multiPtr)
-	{
-		if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && Any( item->window.flags & windowFlags_t::WINDOW_HASFOCUS ))
-		{
-			//Raz: Scroll on multi buttons!
-			if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_ENTER || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_MOUSE3 || key == fakeAscii_t::A_MWHEELDOWN || key == fakeAscii_t::A_MWHEELUP)
-			//if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_ENTER || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_MOUSE3)
-			{
-				if (item->cvar)
-				{
-					int current = Item_Multi_FindCvarByValue(item);
-					int max = Item_Multi_CountSettings(item);
+    multiDef_t* multiPtr = (multiDef_t*)item->typeData;
+    if (multiPtr) {
+        if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && Any(item->window.flags & windowFlags_t::WINDOW_HASFOCUS)) {
+            // Raz: Scroll on multi buttons!
+            if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_ENTER || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_MOUSE3 ||
+                key == fakeAscii_t::A_MWHEELDOWN || key == fakeAscii_t::A_MWHEELUP)
+            // if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_ENTER || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_MOUSE3)
+            {
+                if (item->cvar) {
+                    int current = Item_Multi_FindCvarByValue(item);
+                    int max = Item_Multi_CountSettings(item);
 
-					if (key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_MWHEELDOWN)
-					{
-						current--;
-						if ( current < 0 )
-						{
-							current = max-1;
-						}
-					}
-					else
-					{
-						current++;
-						if ( current >= max )
-						{
-							current = 0;
-						}
-					}
+                    if (key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_MWHEELDOWN) {
+                        current--;
+                        if (current < 0) {
+                            current = max - 1;
+                        }
+                    }
+                    else {
+                        current++;
+                        if (current >= max) {
+                            current = 0;
+                        }
+                    }
 
-					if (multiPtr->strDef)
-					{
-						DC->setCVar(item->cvar, multiPtr->cvarStr[current]);
-					}
-					else
-					{
-						float value = multiPtr->cvarValue[current];
-						if (((float)((int) value)) == value)
-						{
-							DC->setCVar(item->cvar, va("%i", (int) value ));
-						}
-						else
-						{
-							DC->setCVar(item->cvar, va("%f", value ));
-						}
-					}
-					if (item->special)
-					{//its a feeder?
-						DC->feederSelection(item->special, current, item);
-					}
-				}
-				else
-				{
-					int max = Item_Multi_CountSettings(item);
+                    if (multiPtr->strDef) {
+                        DC->setCVar(item->cvar, multiPtr->cvarStr[current]);
+                    }
+                    else {
+                        float value = multiPtr->cvarValue[current];
+                        if (((float)((int)value)) == value) {
+                            DC->setCVar(item->cvar, va("%i", (int)value));
+                        }
+                        else {
+                            DC->setCVar(item->cvar, va("%f", value));
+                        }
+                    }
+                    if (item->special) { // its a feeder?
+                        DC->feederSelection(item->special, current, item);
+                    }
+                }
+                else {
+                    int max = Item_Multi_CountSettings(item);
 
-					if (key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_MWHEELDOWN)
-					{
-						item->value--;
-						if ( item->value < 0 )
-						{
-							item->value = max;
-						}
-					}
-					else
-					{
-						item->value++;
-						if ( item->value >= max )
-						{
-							item->value = 0;
-						}
-					}
-					if (item->special)
-					{//its a feeder?
-						DC->feederSelection(item->special, item->value, item);
-					}
-				}
+                    if (key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_MWHEELDOWN) {
+                        item->value--;
+                        if (item->value < 0) {
+                            item->value = max;
+                        }
+                    }
+                    else {
+                        item->value++;
+                        if (item->value >= max) {
+                            item->value = 0;
+                        }
+                    }
+                    if (item->special) { // its a feeder?
+                        DC->feederSelection(item->special, item->value, item);
+                    }
+                }
 
-				return true;
-			}
-		}
-	}
-	return false;
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 /*
@@ -10964,56 +10006,50 @@ bool Item_Multi_HandleKey(itemDef_t *item, fakeAscii_t key)
 Item_Slider_HandleKey
 =================
 */
-bool Item_Slider_HandleKey(itemDef_t *item, fakeAscii_t key, bool down)
+bool Item_Slider_HandleKey(itemDef_t* item, fakeAscii_t key, bool down)
 {
-	//DC->Print("slider handle key\n");
-//JLF MPMOVED
+    // DC->Print("slider handle key\n");
+    // JLF MPMOVED
 
-	float x, value, width, work;
+    float x, value, width, work;
 
-	if (Any( item->window.flags & windowFlags_t::WINDOW_HASFOCUS ) && item->cvar && Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory))
-	{
+    if (Any(item->window.flags & windowFlags_t::WINDOW_HASFOCUS) && item->cvar && Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory)) {
 
-		if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_ENTER || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_MOUSE3)
-		{
-			editFieldDef_t *editDef = (editFieldDef_s *) item->typeData;
-			if (editDef)
-			{
-				rectDef_t testRect;
-				width = SLIDER_WIDTH;
-				if (item->text)
-				{
-					x = item->textRect.x + item->textRect.w + 8;
-				}
-				else
-				{
-					x = item->window.rect.x;
-				}
+        if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_ENTER || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_MOUSE3) {
+            editFieldDef_t* editDef = (editFieldDef_s*)item->typeData;
+            if (editDef) {
+                rectDef_t testRect;
+                width = SLIDER_WIDTH;
+                if (item->text) {
+                    x = item->textRect.x + item->textRect.w + 8;
+                }
+                else {
+                    x = item->window.rect.x;
+                }
 
-				testRect = item->window.rect;
-				testRect.x = x;
-				value = (float)SLIDER_THUMB_WIDTH / 2;
-				testRect.x -= value;
-				//DC->Print("slider x: %f\n", testRect.x);
-				testRect.w = (SLIDER_WIDTH + (float)SLIDER_THUMB_WIDTH / 2);
-				//DC->Print("slider w: %f\n", testRect.w);
-				if (Rect_ContainsPoint(&testRect, DC->cursorx, DC->cursory))
-				{
-					work = DC->cursorx - x;
-					value = work / width;
-					value *= (editDef->maxVal - editDef->minVal);
-					// vm fuckage
-					// value = (((float)(DC->cursorx - x)/ SLIDER_WIDTH) * (editDef->maxVal - editDef->minVal));
-					value += editDef->minVal;
-					DC->setCVar(item->cvar, va("%f", value));
-					return true;
-				}
-			}
-		}
-	}
+                testRect = item->window.rect;
+                testRect.x = x;
+                value = (float)SLIDER_THUMB_WIDTH / 2;
+                testRect.x -= value;
+                // DC->Print("slider x: %f\n", testRect.x);
+                testRect.w = (SLIDER_WIDTH + (float)SLIDER_THUMB_WIDTH / 2);
+                // DC->Print("slider w: %f\n", testRect.w);
+                if (Rect_ContainsPoint(&testRect, DC->cursorx, DC->cursory)) {
+                    work = DC->cursorx - x;
+                    value = work / width;
+                    value *= (editDef->maxVal - editDef->minVal);
+                    // vm fuckage
+                    // value = (((float)(DC->cursorx - x)/ SLIDER_WIDTH) * (editDef->maxVal - editDef->minVal));
+                    value += editDef->minVal;
+                    DC->setCVar(item->cvar, va("%f", value));
+                    return true;
+                }
+            }
+        }
+    }
 
-	//DC->Print("slider handle key exit\n");
-	return false;
+    // DC->Print("slider handle key exit\n");
+    return false;
 }
 
 /*
@@ -11021,148 +10057,135 @@ bool Item_Slider_HandleKey(itemDef_t *item, fakeAscii_t key, bool down)
 Item_HandleKey
 =================
 */
-bool Item_HandleKey(itemDef_t *item, std::optional<fakeAscii_t> key, bool down)
+bool Item_HandleKey(itemDef_t* item, std::optional<fakeAscii_t> key, bool down)
 {
 
-	if (itemCapture)
-	{
-		Item_StopCapture(itemCapture);
-		itemCapture = nullptr;
-		captureFunc = nullptr;
-		captureData = nullptr;
-	}
-	else
-	{
-		if (down && (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_MOUSE3))
-		{
-			Item_StartCapture(item, *key);
-		}
-	}
+    if (itemCapture) {
+        Item_StopCapture(itemCapture);
+        itemCapture = nullptr;
+        captureFunc = nullptr;
+        captureData = nullptr;
+    }
+    else {
+        if (down && (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_MOUSE3)) {
+            Item_StartCapture(item, *key);
+        }
+    }
 
-	// no item type here reads a character
-	if (!down || !key)
-	{
-		return false;
-	}
+    // no item type here reads a character
+    if (!down || !key) {
+        return false;
+    }
 
-	switch (item->type)
-	{
-		case ITEM_TYPE_BUTTON:
-			return false;
-			break;
-		case ITEM_TYPE_RADIOBUTTON:
-			return false;
-			break;
-		case ITEM_TYPE_CHECKBOX:
-			return false;
-			break;
-		case ITEM_TYPE_EDITFIELD:
-		case ITEM_TYPE_NUMERICFIELD:
-			//return Item_TextField_HandleKey(item, to_underlying( *key ));
-			return false;
-			break;
-		case ITEM_TYPE_COMBO:
-			return false;
-			break;
-		case ITEM_TYPE_LISTBOX:
-			return Item_ListBox_HandleKey(item, *key, down, false);
-			break;
-		case ITEM_TYPE_TEXTSCROLL:
-			return Item_TextScroll_HandleKey(item, *key, down, false);
-			break;
-		case ITEM_TYPE_YESNO:
-			return Item_YesNo_HandleKey(item, *key);
-			break;
-		case ITEM_TYPE_MULTI:
-			return Item_Multi_HandleKey(item, *key);
-			break;
-		case ITEM_TYPE_OWNERDRAW:
-			return Item_OwnerDraw_HandleKey(item, *key);
-			break;
-		case ITEM_TYPE_BIND:
-			return Item_Bind_HandleKey(item, key, down);
-			break;
-		case ITEM_TYPE_SLIDER:
-			return Item_Slider_HandleKey(item, *key, down);
-			break;
-//JLF MPMOVED
-		case ITEM_TYPE_TEXT:
-			return Item_Text_HandleKey(item, *key);
-			break;
-		default:
-			return false;
-		break;
-	}
+    switch (item->type) {
+    case ITEM_TYPE_BUTTON:
+        return false;
+        break;
+    case ITEM_TYPE_RADIOBUTTON:
+        return false;
+        break;
+    case ITEM_TYPE_CHECKBOX:
+        return false;
+        break;
+    case ITEM_TYPE_EDITFIELD:
+    case ITEM_TYPE_NUMERICFIELD:
+        // return Item_TextField_HandleKey(item, to_underlying( *key ));
+        return false;
+        break;
+    case ITEM_TYPE_COMBO:
+        return false;
+        break;
+    case ITEM_TYPE_LISTBOX:
+        return Item_ListBox_HandleKey(item, *key, down, false);
+        break;
+    case ITEM_TYPE_TEXTSCROLL:
+        return Item_TextScroll_HandleKey(item, *key, down, false);
+        break;
+    case ITEM_TYPE_YESNO:
+        return Item_YesNo_HandleKey(item, *key);
+        break;
+    case ITEM_TYPE_MULTI:
+        return Item_Multi_HandleKey(item, *key);
+        break;
+    case ITEM_TYPE_OWNERDRAW:
+        return Item_OwnerDraw_HandleKey(item, *key);
+        break;
+    case ITEM_TYPE_BIND:
+        return Item_Bind_HandleKey(item, key, down);
+        break;
+    case ITEM_TYPE_SLIDER:
+        return Item_Slider_HandleKey(item, *key, down);
+        break;
+        // JLF MPMOVED
+    case ITEM_TYPE_TEXT:
+        return Item_Text_HandleKey(item, *key);
+        break;
+    default:
+        return false;
+        break;
+    }
 
-  //return false;
+    // return false;
 }
 
-
-
-//JLFACCEPT MPMOVED
+// JLFACCEPT MPMOVED
 /*
 -----------------------------------------
 Item_HandleAccept
-	If Item has an accept script, run it.
+    If Item has an accept script, run it.
 -------------------------------------------
 */
-bool Item_HandleAccept(itemDef_t * item)
+bool Item_HandleAccept(itemDef_t* item)
 {
-	if (item->accept)
-	{
-		Item_RunScript(item, item->accept);
-		return true;
-	}
-	return false;
+    if (item->accept) {
+        Item_RunScript(item, item->accept);
+        return true;
+    }
+    return false;
 }
 
-
-//JLFDPADSCRIPT MPMOVED
+// JLFDPADSCRIPT MPMOVED
 /*
 -----------------------------------------
 Item_HandleSelectionNext
-	If Item has an selectionNext script, run it.
+    If Item has an selectionNext script, run it.
 -------------------------------------------
 */
-bool Item_HandleSelectionNext(itemDef_t * item)
+bool Item_HandleSelectionNext(itemDef_t* item)
 {
-	if (item->selectionNext)
-	{
-		Item_RunScript(item, item->selectionNext);
-		return true;
-	}
-	return false;
+    if (item->selectionNext) {
+        Item_RunScript(item, item->selectionNext);
+        return true;
+    }
+    return false;
 }
 
-//JLFDPADSCRIPT MPMOVED
+// JLFDPADSCRIPT MPMOVED
 /*
 -----------------------------------------
 Item_HandleSelectionPrev
-	If Item has an selectionPrev script, run it.
+    If Item has an selectionPrev script, run it.
 -------------------------------------------
 */
-bool Item_HandleSelectionPrev(itemDef_t * item)
+bool Item_HandleSelectionPrev(itemDef_t* item)
 {
-	if (item->selectionPrev)
-	{
-		Item_RunScript(item, item->selectionPrev);
-		return true;
-	}
-	return false;
+    if (item->selectionPrev) {
+        Item_RunScript(item, item->selectionPrev);
+        return true;
+    }
+    return false;
 }
-
 
 /*
 =================
 Item_Action
 =================
 */
-void Item_Action(itemDef_t *item)
+void Item_Action(itemDef_t* item)
 {
-	if (item)
-	{
-		Item_RunScript(item, item->action);
-	}
+    if (item) {
+        Item_RunScript(item, item->action);
+    }
 }
 
 /*
@@ -11170,293 +10193,250 @@ void Item_Action(itemDef_t *item)
 Menu_HandleKey
 =================
 */
-void Menu_HandleKey(menuDef_t *menu, int event, bool down)
+void Menu_HandleKey(menuDef_t* menu, int event, bool down)
 {
-	int i;
-	itemDef_t *item = nullptr;
-	bool inHandler = false;
-	std::optional<fakeAscii_t> key = KeyEvent_Key( event );
+    int i;
+    itemDef_t* item = nullptr;
+    bool inHandler = false;
+    std::optional<fakeAscii_t> key = KeyEvent_Key(event);
 
-	if (inHandler)
-	{
-		return;
-	}
+    if (inHandler) {
+        return;
+    }
 
-	inHandler = true;
-	if (g_waitingForKey && down)
-	{
-		Item_Bind_HandleKey(g_bindItem, key, down);
-		inHandler = false;
-		return;
-	}
+    inHandler = true;
+    if (g_waitingForKey && down) {
+        Item_Bind_HandleKey(g_bindItem, key, down);
+        inHandler = false;
+        return;
+    }
 
-	if (g_editingField && down)
-	{
-		if (!Item_TextField_HandleKey(g_editItem, event))
-		{
-			g_editingField = false;
-			g_editItem = nullptr;
-			inHandler = false;
-			return;
-		}
-		else if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_MOUSE3)
-		{
-			g_editingField = false;
-			g_editItem = nullptr;
-			Display_MouseMove(nullptr, DC->cursorx, DC->cursory);
-		}
-		else if (key == fakeAscii_t::A_TAB || key == fakeAscii_t::A_CURSOR_UP || key == fakeAscii_t::A_CURSOR_DOWN)
-		{
-			return;
-		}
-	}
+    if (g_editingField && down) {
+        if (!Item_TextField_HandleKey(g_editItem, event)) {
+            g_editingField = false;
+            g_editItem = nullptr;
+            inHandler = false;
+            return;
+        }
+        else if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_MOUSE3) {
+            g_editingField = false;
+            g_editItem = nullptr;
+            Display_MouseMove(nullptr, DC->cursorx, DC->cursory);
+        }
+        else if (key == fakeAscii_t::A_TAB || key == fakeAscii_t::A_CURSOR_UP || key == fakeAscii_t::A_CURSOR_DOWN) {
+            return;
+        }
+    }
 
-	if (menu == nullptr)
-	{
-		inHandler = false;
-		return;
-	}
+    if (menu == nullptr) {
+        inHandler = false;
+        return;
+    }
 
-	//JLFMOUSE  MPMOVED
-		// see if the mouse is within the window bounds and if so is this a mouse click
-	if (down && !Any( menu->window.flags & windowFlags_t::WINDOW_POPUP ) && !Rect_ContainsPoint(&menu->window.rect, DC->cursorx, DC->cursory))
-	{
-		static bool inHandleKey = false;
-		if (!inHandleKey && (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_MOUSE3))
-		{
-			inHandleKey = true;
-			Menus_HandleOOBClick(menu, event, down);
-			inHandleKey = false;
-			inHandler = false;
-			return;
-		}
-	}
+    // JLFMOUSE  MPMOVED
+    //  see if the mouse is within the window bounds and if so is this a mouse click
+    if (down && !Any(menu->window.flags & windowFlags_t::WINDOW_POPUP) && !Rect_ContainsPoint(&menu->window.rect, DC->cursorx, DC->cursory)) {
+        static bool inHandleKey = false;
+        if (!inHandleKey && (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_MOUSE3)) {
+            inHandleKey = true;
+            Menus_HandleOOBClick(menu, event, down);
+            inHandleKey = false;
+            inHandler = false;
+            return;
+        }
+    }
 
-	// get the item with focus
-	for (i = 0; i < menu->itemCount; i++)
-	{
-		if (Any( menu->items[i]->window.flags & windowFlags_t::WINDOW_HASFOCUS ))
-		{
-			item = menu->items[i];
-			break;
-		}
-	}
+    // get the item with focus
+    for (i = 0; i < menu->itemCount; i++) {
+        if (Any(menu->items[i]->window.flags & windowFlags_t::WINDOW_HASFOCUS)) {
+            item = menu->items[i];
+            break;
+        }
+    }
 
-	// Ignore if disabled
-	if (item && item->disabled)
-	{
-		return;
-	}
+    // Ignore if disabled
+    if (item && item->disabled) {
+        return;
+    }
 
-	if (item != nullptr)
-	{
-		if (Item_HandleKey(item, key, down))
-//JLFLISTBOX
-		{
-			// It is possible for an item to be disable after Item_HandleKey is run (like in Voice Chat)
-			if (!item->disabled)
-			{
-				Item_Action(item);
-			}
-			inHandler = false;
-			return;
-		}
+    if (item != nullptr) {
+        if (Item_HandleKey(item, key, down))
+        // JLFLISTBOX
+        {
+            // It is possible for an item to be disable after Item_HandleKey is run (like in Voice Chat)
+            if (!item->disabled) {
+                Item_Action(item);
+            }
+            inHandler = false;
+            return;
+        }
+    }
 
-	}
+    if (!down || !key) // a character has no default handling
+    {
+        inHandler = false;
+        return;
+    }
 
-	if (!down || !key)	// a character has no default handling
-	{
-		inHandler = false;
-		return;
-	}
+    // Special Data Pad key handling (gotta love the datapad)
+    {
+        char b[256];
+        DC->getBindingBuf(*key, b, 256);
+        if (Q_stricmp(b, "datapad") == 0) // They hit the datapad key again.
+        {
+            if ((Q_stricmp(menu->window.name, "datapadMissionMenu") == 0) || (Q_stricmp(menu->window.name, "datapadWeaponsMenu") == 0) ||
+                (Q_stricmp(menu->window.name, "datapadForcePowersMenu") == 0) || (Q_stricmp(menu->window.name, "datapadInventoryMenu") == 0)) {
+                key = fakeAscii_t::A_ESCAPE; // pop on outta here
+            }
+        }
+    }
+    // default handling
+    switch (*key) {
+    case fakeAscii_t::A_F11:
+        if (DC->getCVarValue("developer")) {
+            uis.debugMode = !uis.debugMode;
+        }
+        break;
 
-	// Special Data Pad key handling (gotta love the datapad)
-	{
-		char	b[256];
-		DC->getBindingBuf( *key, b, 256 );
-		if (Q_stricmp(b,"datapad") == 0)	// They hit the datapad key again.
-		{
-			if (( Q_stricmp(menu->window.name,"datapadMissionMenu") == 0) ||
-			 (Q_stricmp(menu->window.name,"datapadWeaponsMenu") == 0) ||
-			 (Q_stricmp(menu->window.name,"datapadForcePowersMenu") == 0) ||
-			 (Q_stricmp(menu->window.name,"datapadInventoryMenu") == 0))
-			{
-				key = fakeAscii_t::A_ESCAPE;	//pop on outta here
-			}
-		}
-	}
-	// default handling
-	switch ( *key )
-	{
-		case fakeAscii_t::A_F11:
-			if (DC->getCVarValue("developer"))
-			{
-				uis.debugMode = !uis.debugMode;
-			}
-			break;
+    case fakeAscii_t::A_F12:
+        if (DC->getCVarValue("developer")) {
+            switch (DC->screenshotFormat) {
+            case screenshotFormat_t::SSF_JPEG:
+                DC->executeText(cbufExec_t::EXEC_APPEND, "screenshot\n");
+                break;
+            case screenshotFormat_t::SSF_TGA:
+                DC->executeText(cbufExec_t::EXEC_APPEND, "screenshot_tga\n");
+                break;
+            case screenshotFormat_t::SSF_PNG:
+                DC->executeText(cbufExec_t::EXEC_APPEND, "screenshot_png\n");
+                break;
+            default:
+                if (DC->Print) {
+                    DC->Print(S_COLOR_YELLOW "Menu_HandleKey[F12]: Unknown screenshot format assigned! This should not happen.\n");
+                }
+                break;
+            }
+        }
+        break;
+    case fakeAscii_t::A_KP_8:
+    case fakeAscii_t::A_CURSOR_UP:
+        Menu_SetPrevCursorItem(menu);
+        break;
 
-		case fakeAscii_t::A_F12:
-			if (DC->getCVarValue("developer"))
-			{
-				switch ( DC->screenshotFormat )
-				{
-					case screenshotFormat_t::SSF_JPEG:
-						DC->executeText(cbufExec_t::EXEC_APPEND, "screenshot\n");
-						break;
-					case screenshotFormat_t::SSF_TGA:
-						DC->executeText(cbufExec_t::EXEC_APPEND, "screenshot_tga\n");
-						break;
-					case screenshotFormat_t::SSF_PNG:
-						DC->executeText(cbufExec_t::EXEC_APPEND, "screenshot_png\n");
-						break;
-					default:
-						if (DC->Print) {
-							DC->Print(S_COLOR_YELLOW "Menu_HandleKey[F12]: Unknown screenshot format assigned! This should not happen.\n");
-						}
-						break;
-				}
-			}
-			break;
-		case fakeAscii_t::A_KP_8:
-		case fakeAscii_t::A_CURSOR_UP:
-			Menu_SetPrevCursorItem(menu);
-			break;
+    case fakeAscii_t::A_ESCAPE:
+        if (!g_waitingForKey && menu->onESC) {
+            itemDef_t it;
+            it.parent = menu;
+            Item_RunScript(&it, menu->onESC);
+        }
+        break;
+    case fakeAscii_t::A_TAB:
+    case fakeAscii_t::A_KP_2:
+    case fakeAscii_t::A_CURSOR_DOWN:
+        Menu_SetNextCursorItem(menu);
+        break;
 
+    case fakeAscii_t::A_MOUSE1:
+    case fakeAscii_t::A_MOUSE2:
+        if (item) {
+            if (item->type == ITEM_TYPE_TEXT) {
+                if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory)) {
+                    if (item->action)
+                        Item_Action(item);
+                    else {
+                        if (menu->onAccept) {
+                            itemDef_t it;
+                            it.parent = menu;
+                            Item_RunScript(&it, menu->onAccept);
+                        }
+                    }
+                }
+            }
+            else if (item->type == ITEM_TYPE_EDITFIELD || item->type == ITEM_TYPE_NUMERICFIELD) {
+                if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory)) {
+                    item->cursorPos = 0;
+                    g_editingField = true;
+                    g_editItem = item;
+                    // DC->setOverstrikeMode(true);
+                }
+            }
+            // JLFACCEPT
+            //  add new types here as needed
+            /* Notes:
+                Most controls will use the dpad to move through the selection possibilies.  Buttons are the only exception.
+                Buttons will be assumed to all be on one menu together.  If the start or A button is pressed on a control focus, that
+                means that the menu is accepted and move onto the next menu.  If the start or A button is pressed on a button focus it
+                should just process the action and not support the accept functionality.
+            */
+            // JLFACCEPT
+            else if (item->type == ITEM_TYPE_MULTI || item->type == ITEM_TYPE_YESNO || item->type == ITEM_TYPE_SLIDER) {
 
-		case fakeAscii_t::A_ESCAPE:
-			if (!g_waitingForKey && menu->onESC)
-			{
-				itemDef_t it;
-				it.parent = menu;
-				Item_RunScript(&it, menu->onESC);
-			}
-			break;
-		case fakeAscii_t::A_TAB:
-		case fakeAscii_t::A_KP_2:
-		case fakeAscii_t::A_CURSOR_DOWN:
-			Menu_SetNextCursorItem(menu);
-			break;
+                if (Item_HandleAccept(item)) {
+                    // Item processed it overriding the menu processing
+                    return;
+                }
+                else if (menu->onAccept) {
+                    itemDef_t it;
+                    it.parent = menu;
+                    Item_RunScript(&it, menu->onAccept);
+                }
+            }
 
-		case fakeAscii_t::A_MOUSE1:
-		case fakeAscii_t::A_MOUSE2:
-			if (item)
-			{
-				if (item->type == ITEM_TYPE_TEXT)
-				{
-					if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory))
-					{
-						if ( item->action )
-							Item_Action(item);
-						else
-						{
-							if (menu->onAccept)
-							{
-								itemDef_t it;
-								it.parent = menu;
-								Item_RunScript(&it, menu->onAccept);
-							}
-						}
+            // END JLFACCEPT
+            else {
+                if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory)) {
+                    Item_Action(item);
+                }
+            }
+        }
+        else if (menu->onAccept) {
+            itemDef_t it;
+            it.parent = menu;
+            Item_RunScript(&it, menu->onAccept);
+        }
+        break;
 
-					}
-				}
-				else if (item->type == ITEM_TYPE_EDITFIELD || item->type == ITEM_TYPE_NUMERICFIELD)
-				{
-					if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory))
-					{
-						item->cursorPos = 0;
-						g_editingField = true;
-						g_editItem = item;
-						//DC->setOverstrikeMode(true);
-					}
-				}
-//JLFACCEPT
-// add new types here as needed
-/* Notes:
-	Most controls will use the dpad to move through the selection possibilies.  Buttons are the only exception.
-	Buttons will be assumed to all be on one menu together.  If the start or A button is pressed on a control focus, that
-	means that the menu is accepted and move onto the next menu.  If the start or A button is pressed on a button focus it
-	should just process the action and not support the accept functionality.
-*/
-//JLFACCEPT
-				else if ( item->type == ITEM_TYPE_MULTI || item->type == ITEM_TYPE_YESNO || item->type == ITEM_TYPE_SLIDER)
-				{
-
-					if (Item_HandleAccept(item))
-					{
-						//Item processed it overriding the menu processing
-						return;
-					}
-					else if (menu->onAccept)
-					{
-						itemDef_t it;
-						it.parent = menu;
-						Item_RunScript(&it, menu->onAccept);
-					}
-
-
-				}
-
-//END JLFACCEPT
-				else
-				{
-					if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory))
-					{
-						Item_Action(item);
-					}
-				}
-			}
-			else if (menu->onAccept)
-			{
-				itemDef_t it;
-				it.parent = menu;
-				Item_RunScript(&it, menu->onAccept);
-			}
-			break;
-
-		case fakeAscii_t::A_JOY0:
-		case fakeAscii_t::A_JOY1:
-		case fakeAscii_t::A_JOY2:
-		case fakeAscii_t::A_JOY3:
-		case fakeAscii_t::A_JOY4:
-		case fakeAscii_t::A_AUX0:
-		case fakeAscii_t::A_AUX1:
-		case fakeAscii_t::A_AUX2:
-		case fakeAscii_t::A_AUX3:
-		case fakeAscii_t::A_AUX4:
-		case fakeAscii_t::A_AUX5:
-		case fakeAscii_t::A_AUX6:
-		case fakeAscii_t::A_AUX7:
-		case fakeAscii_t::A_AUX8:
-		case fakeAscii_t::A_AUX9:
-		case fakeAscii_t::A_AUX10:
-		case fakeAscii_t::A_AUX11:
-		case fakeAscii_t::A_AUX12:
-		case fakeAscii_t::A_AUX13:
-		case fakeAscii_t::A_AUX14:
-		case fakeAscii_t::A_AUX15:
-		case fakeAscii_t::A_AUX16:
-			break;
-		case fakeAscii_t::A_KP_ENTER:
-		case fakeAscii_t::A_ENTER:
-			if (item)
-			{
-				if (item->type == ITEM_TYPE_EDITFIELD || item->type == ITEM_TYPE_NUMERICFIELD)
-				{
-					item->cursorPos = 0;
-					g_editingField = true;
-					g_editItem = item;
-					//DC->setOverstrikeMode(true);
-				}
-				else
-				{
-						Item_Action(item);
-				}
-			}
-			break;
-		default:
-			break;
-	}
-	inHandler = false;
+    case fakeAscii_t::A_JOY0:
+    case fakeAscii_t::A_JOY1:
+    case fakeAscii_t::A_JOY2:
+    case fakeAscii_t::A_JOY3:
+    case fakeAscii_t::A_JOY4:
+    case fakeAscii_t::A_AUX0:
+    case fakeAscii_t::A_AUX1:
+    case fakeAscii_t::A_AUX2:
+    case fakeAscii_t::A_AUX3:
+    case fakeAscii_t::A_AUX4:
+    case fakeAscii_t::A_AUX5:
+    case fakeAscii_t::A_AUX6:
+    case fakeAscii_t::A_AUX7:
+    case fakeAscii_t::A_AUX8:
+    case fakeAscii_t::A_AUX9:
+    case fakeAscii_t::A_AUX10:
+    case fakeAscii_t::A_AUX11:
+    case fakeAscii_t::A_AUX12:
+    case fakeAscii_t::A_AUX13:
+    case fakeAscii_t::A_AUX14:
+    case fakeAscii_t::A_AUX15:
+    case fakeAscii_t::A_AUX16:
+        break;
+    case fakeAscii_t::A_KP_ENTER:
+    case fakeAscii_t::A_ENTER:
+        if (item) {
+            if (item->type == ITEM_TYPE_EDITFIELD || item->type == ITEM_TYPE_NUMERICFIELD) {
+                item->cursorPos = 0;
+                g_editingField = true;
+                g_editItem = item;
+                // DC->setOverstrikeMode(true);
+            }
+            else {
+                Item_Action(item);
+            }
+        }
+        break;
+    default:
+        break;
+    }
+    inHandler = false;
 }
 
 /*
@@ -11464,49 +10444,42 @@ void Menu_HandleKey(menuDef_t *menu, int event, bool down)
 ParseRect
 =================
 */
-bool ParseRect(const char **p, rectDef_t *r)
+bool ParseRect(const char** p, rectDef_t* r)
 {
-	if (!COM_ParseFloat(p, &r->x))
-	{
-		if (!COM_ParseFloat(p, &r->y))
-		{
-			if (!COM_ParseFloat(p, &r->w))
-			{
-				if (!COM_ParseFloat(p, &r->h))
-				{
-					return true;
-				}
-			}
-		}
-	}
-	return false;
+    if (!COM_ParseFloat(p, &r->x)) {
+        if (!COM_ParseFloat(p, &r->y)) {
+            if (!COM_ParseFloat(p, &r->w)) {
+                if (!COM_ParseFloat(p, &r->h)) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
 }
-
 
 /*
 =================
 Menus_HideItems
 =================
 */
-void Menus_HideItems(const char *menuName)
+void Menus_HideItems(const char* menuName)
 {
-	menuDef_t	*menu;
-	int			i;
+    menuDef_t* menu;
+    int i;
 
-	menu =Menus_FindByName(menuName);	// Get menu
+    menu = Menus_FindByName(menuName); // Get menu
 
-	if (!menu)
-	{
-		Com_Printf(S_COLOR_YELLOW"WARNING: No menu was found. Could not hide items.\n");
-		return;
-	}
+    if (!menu) {
+        Com_Printf(S_COLOR_YELLOW "WARNING: No menu was found. Could not hide items.\n");
+        return;
+    }
 
-	menu->window.flags &= ~(windowFlags_t::WINDOW_HASFOCUS | windowFlags_t::WINDOW_VISIBLE);
+    menu->window.flags &= ~(windowFlags_t::WINDOW_HASFOCUS | windowFlags_t::WINDOW_VISIBLE);
 
-	for (i = 0; i < menu->itemCount; i++)
-	{
-		menu->items[i]->cvarFlags = itemCvarFlags_t::CVAR_HIDE;
-	}
+    for (i = 0; i < menu->itemCount; i++) {
+        menu->items[i]->cvarFlags = itemCvarFlags_t::CVAR_HIDE;
+    }
 }
 
 /*
@@ -11514,25 +10487,23 @@ void Menus_HideItems(const char *menuName)
 Menus_ShowItems
 =================
 */
-void Menus_ShowItems(const char *menuName)
+void Menus_ShowItems(const char* menuName)
 {
-	menuDef_t	*menu;
-	int			i;
+    menuDef_t* menu;
+    int i;
 
-	menu =Menus_FindByName(menuName);	// Get menu
+    menu = Menus_FindByName(menuName); // Get menu
 
-	if (!menu)
-	{
-		Com_Printf(S_COLOR_YELLOW"WARNING: No menu was found. Could not show items.\n");
-		return;
-	}
+    if (!menu) {
+        Com_Printf(S_COLOR_YELLOW "WARNING: No menu was found. Could not show items.\n");
+        return;
+    }
 
-	menu->window.flags |= (windowFlags_t::WINDOW_HASFOCUS | windowFlags_t::WINDOW_VISIBLE);
+    menu->window.flags |= (windowFlags_t::WINDOW_HASFOCUS | windowFlags_t::WINDOW_VISIBLE);
 
-	for (i = 0; i < menu->itemCount; i++)
-	{
-		menu->items[i]->cvarFlags = itemCvarFlags_t::CVAR_SHOW;
-	}
+    for (i = 0; i < menu->itemCount; i++) {
+        menu->items[i]->cvarFlags = itemCvarFlags_t::CVAR_SHOW;
+    }
 }
 
 /*
@@ -11542,5 +10513,5 @@ UI_Cursor_Show
 */
 void UI_Cursor_Show(bool flag)
 {
-	DC->cursorShow = flag;
+    DC->cursorShow = flag;
 }

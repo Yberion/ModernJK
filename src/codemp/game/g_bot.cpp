@@ -31,17 +31,18 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 constexpr int BOT_SPAWN_QUEUE_DEPTH = 16;
 
 static struct botSpawnQueue_s {
-	int		clientNum;
-	int		spawnTime;
+    int clientNum;
+    int spawnTime;
 } botSpawnQueue[BOT_SPAWN_QUEUE_DEPTH];
 
 vmCvar_t bot_minplayers;
 
-float trap_Cvar_VariableValue( const char *var_name ) {
-	char buf[MAX_CVAR_VALUE_STRING];
+float trap_Cvar_VariableValue(const char* var_name)
+{
+    char buf[MAX_CVAR_VALUE_STRING];
 
-	trap->Cvar_VariableStringBuffer(var_name, buf, sizeof(buf));
-	return Q_atof(buf);
+    trap->Cvar_VariableStringBuffer(var_name, buf, sizeof(buf));
+    return Q_atof(buf);
 }
 
 /*
@@ -49,56 +50,57 @@ float trap_Cvar_VariableValue( const char *var_name ) {
 G_ParseInfos
 ===============
 */
-int G_ParseInfos( char *buf, int max, char *infos[] ) {
-	char	*token;
-	int		count;
-	char	key[MAX_TOKEN_CHARS];
-	char	info[MAX_INFO_STRING];
+int G_ParseInfos(char* buf, int max, char* infos[])
+{
+    char* token;
+    int count;
+    char key[MAX_TOKEN_CHARS];
+    char info[MAX_INFO_STRING];
 
-	count = 0;
+    count = 0;
 
-	COM_BeginParseSession ("G_ParseInfos");
-	while ( 1 ) {
-		token = COM_Parse( (const char **)(&buf) );
-		if ( !token[0] ) {
-			break;
-		}
-		if ( strcmp( token, "{" ) ) {
-			Com_Printf( "Missing { in info file\n" );
-			break;
-		}
+    COM_BeginParseSession("G_ParseInfos");
+    while (1) {
+        token = COM_Parse((const char**)(&buf));
+        if (!token[0]) {
+            break;
+        }
+        if (strcmp(token, "{")) {
+            Com_Printf("Missing { in info file\n");
+            break;
+        }
 
-		if ( count == max ) {
-			Com_Printf( "Max infos exceeded\n" );
-			break;
-		}
+        if (count == max) {
+            Com_Printf("Max infos exceeded\n");
+            break;
+        }
 
-		info[0] = '\0';
-		while ( 1 ) {
-			token = COM_ParseExt( (const char **)(&buf), true );
-			if ( !token[0] ) {
-				Com_Printf( "Unexpected end of info file\n" );
-				break;
-			}
-			if ( !strcmp( token, "}" ) ) {
-				break;
-			}
-			Q_strncpyz( key, token, sizeof( key ) );
+        info[0] = '\0';
+        while (1) {
+            token = COM_ParseExt((const char**)(&buf), true);
+            if (!token[0]) {
+                Com_Printf("Unexpected end of info file\n");
+                break;
+            }
+            if (!strcmp(token, "}")) {
+                break;
+            }
+            Q_strncpyz(key, token, sizeof(key));
 
-			token = COM_ParseExt( (const char **)(&buf), false );
-			if ( !token[0] ) {
-				strcpy( token, "<NULL>" );
-			}
-			Info_SetValueForKey( info, key, token );
-		}
-		//NOTE: extra space for arena number
-		infos[count] = (char *) G_Alloc(strlen(info) + strlen("\\num\\") + strlen(va("%d", MAX_ARENAS)) + 1);
-		if (infos[count]) {
-			strcpy(infos[count], info);
-			count++;
-		}
-	}
-	return count;
+            token = COM_ParseExt((const char**)(&buf), false);
+            if (!token[0]) {
+                strcpy(token, "<NULL>");
+            }
+            Info_SetValueForKey(info, key, token);
+        }
+        // NOTE: extra space for arena number
+        infos[count] = (char*)G_Alloc(strlen(info) + strlen("\\num\\") + strlen(va("%d", MAX_ARENAS)) + 1);
+        if (infos[count]) {
+            strcpy(infos[count], info);
+            count++;
+        }
+    }
+    return count;
 }
 
 /*
@@ -106,191 +108,177 @@ int G_ParseInfos( char *buf, int max, char *infos[] ) {
 G_LoadArenasFromFile
 ===============
 */
-void G_LoadArenasFromFile( char *filename ) {
-	int				len;
-	fileHandle_t	f;
-	char			buf[MAX_ARENAS_TEXT];
+void G_LoadArenasFromFile(char* filename)
+{
+    int len;
+    fileHandle_t f;
+    char buf[MAX_ARENAS_TEXT];
 
-	len = trap->FS_Open( filename, &f, fsMode_t::FS_READ );
-	if ( !f ) {
-		trap->Print( S_COLOR_RED "file not found: %s\n", filename );
-		return;
-	}
-	if ( len >= MAX_ARENAS_TEXT ) {
-		trap->Print( S_COLOR_RED "file too large: %s is %i, max allowed is %i\n", filename, len, MAX_ARENAS_TEXT );
-		trap->FS_Close( f );
-		return;
-	}
+    len = trap->FS_Open(filename, &f, fsMode_t::FS_READ);
+    if (!f) {
+        trap->Print(S_COLOR_RED "file not found: %s\n", filename);
+        return;
+    }
+    if (len >= MAX_ARENAS_TEXT) {
+        trap->Print(S_COLOR_RED "file too large: %s is %i, max allowed is %i\n", filename, len, MAX_ARENAS_TEXT);
+        trap->FS_Close(f);
+        return;
+    }
 
-	trap->FS_Read( buf, len, f );
-	buf[len] = 0;
-	trap->FS_Close( f );
+    trap->FS_Read(buf, len, f);
+    buf[len] = 0;
+    trap->FS_Close(f);
 
-	level.arenas.num += G_ParseInfos( buf, MAX_ARENAS - level.arenas.num, &level.arenas.infos[level.arenas.num] );
+    level.arenas.num += G_ParseInfos(buf, MAX_ARENAS - level.arenas.num, &level.arenas.infos[level.arenas.num]);
 }
 
-int G_GetMapTypeBits(const char *type)
+int G_GetMapTypeBits(const char* type)
 {
-	int typeBits = 0;
+    int typeBits = 0;
 
-	if( *type ) {
-		if( strstr( type, "ffa" ) ) {
-			typeBits |= Bit( gametype_t::GT_FFA );
-			typeBits |= Bit( gametype_t::GT_TEAM );
-			typeBits |= Bit( gametype_t::GT_JEDIMASTER );
-		}
-		if( strstr( type, "team" ) ) {
-			typeBits |= Bit( gametype_t::GT_TEAM );
-		}
-		if( strstr( type, "holocron" ) ) {
-			typeBits |= Bit( gametype_t::GT_HOLOCRON );
-		}
-		if( strstr( type, "jedimaster" ) ) {
-			typeBits |= Bit( gametype_t::GT_JEDIMASTER );
-		}
-		if( strstr( type, "duel" ) ) {
-			typeBits |= Bit( gametype_t::GT_DUEL );
-			typeBits |= Bit( gametype_t::GT_POWERDUEL );
-		}
-		if( strstr( type, "powerduel" ) ) {
-			typeBits |= Bit( gametype_t::GT_DUEL );
-			typeBits |= Bit( gametype_t::GT_POWERDUEL );
-		}
-		if( strstr( type, "siege" ) ) {
-			typeBits |= Bit( gametype_t::GT_SIEGE );
-		}
-		if( strstr( type, "ctf" ) ) {
-			typeBits |= Bit( gametype_t::GT_CTF );
-			typeBits |= Bit( gametype_t::GT_CTY );
-		}
-		if( strstr( type, "cty" ) ) {
-			typeBits |= Bit( gametype_t::GT_CTY );
-		}
-	} else {
-		typeBits |= Bit( gametype_t::GT_FFA );
-		typeBits |= Bit( gametype_t::GT_JEDIMASTER );
-	}
+    if (*type) {
+        if (strstr(type, "ffa")) {
+            typeBits |= Bit(gametype_t::GT_FFA);
+            typeBits |= Bit(gametype_t::GT_TEAM);
+            typeBits |= Bit(gametype_t::GT_JEDIMASTER);
+        }
+        if (strstr(type, "team")) {
+            typeBits |= Bit(gametype_t::GT_TEAM);
+        }
+        if (strstr(type, "holocron")) {
+            typeBits |= Bit(gametype_t::GT_HOLOCRON);
+        }
+        if (strstr(type, "jedimaster")) {
+            typeBits |= Bit(gametype_t::GT_JEDIMASTER);
+        }
+        if (strstr(type, "duel")) {
+            typeBits |= Bit(gametype_t::GT_DUEL);
+            typeBits |= Bit(gametype_t::GT_POWERDUEL);
+        }
+        if (strstr(type, "powerduel")) {
+            typeBits |= Bit(gametype_t::GT_DUEL);
+            typeBits |= Bit(gametype_t::GT_POWERDUEL);
+        }
+        if (strstr(type, "siege")) {
+            typeBits |= Bit(gametype_t::GT_SIEGE);
+        }
+        if (strstr(type, "ctf")) {
+            typeBits |= Bit(gametype_t::GT_CTF);
+            typeBits |= Bit(gametype_t::GT_CTY);
+        }
+        if (strstr(type, "cty")) {
+            typeBits |= Bit(gametype_t::GT_CTY);
+        }
+    }
+    else {
+        typeBits |= Bit(gametype_t::GT_FFA);
+        typeBits |= Bit(gametype_t::GT_JEDIMASTER);
+    }
 
-	return typeBits;
+    return typeBits;
 }
 
-bool G_DoesMapSupportGametype(const char *mapname, gametype_t gametype)
+bool G_DoesMapSupportGametype(const char* mapname, gametype_t gametype)
 {
-	int			typeBits = 0;
-	int			thisLevel = -1;
-	int			n = 0;
-	const char		*type = nullptr;
+    int typeBits = 0;
+    int thisLevel = -1;
+    int n = 0;
+    const char* type = nullptr;
 
-	if (!level.arenas.infos[0])
-	{
-		return false;
-	}
+    if (!level.arenas.infos[0]) {
+        return false;
+    }
 
-	if (!mapname || !mapname[0])
-	{
-		return false;
-	}
+    if (!mapname || !mapname[0]) {
+        return false;
+    }
 
-	for( n = 0; n < level.arenas.num; n++ )
-	{
-		type = Info_ValueForKey( level.arenas.infos[n], "map" );
+    for (n = 0; n < level.arenas.num; n++) {
+        type = Info_ValueForKey(level.arenas.infos[n], "map");
 
-		if (Q_stricmp(mapname, type) == 0)
-		{
-			thisLevel = n;
-			break;
-		}
-	}
+        if (Q_stricmp(mapname, type) == 0) {
+            thisLevel = n;
+            break;
+        }
+    }
 
-	if (thisLevel == -1)
-	{
-		return false;
-	}
+    if (thisLevel == -1) {
+        return false;
+    }
 
-	type = Info_ValueForKey(level.arenas.infos[thisLevel], "type");
+    type = Info_ValueForKey(level.arenas.infos[thisLevel], "type");
 
-	typeBits = G_GetMapTypeBits(type);
-	if (typeBits & Bit( gametype ))
-	{ //the map in question supports the gametype in question, so..
-		return true;
-	}
+    typeBits = G_GetMapTypeBits(type);
+    if (typeBits & Bit(gametype)) { // the map in question supports the gametype in question, so..
+        return true;
+    }
 
-	return false;
+    return false;
 }
 
-//rww - auto-obtain nextmap. I could've sworn Q3 had something like this, but I guess not.
-const char *G_RefreshNextMap(gametype_t gametype, bool forced)
+// rww - auto-obtain nextmap. I could've sworn Q3 had something like this, but I guess not.
+const char* G_RefreshNextMap(gametype_t gametype, bool forced)
 {
-	int			typeBits = 0;
-	int			thisLevel = 0;
-	int			desiredMap = 0;
-	int			n = 0;
-	const char		*type = nullptr;
-	bool	loopingUp = false;
-	vmCvar_t	mapname;
+    int typeBits = 0;
+    int thisLevel = 0;
+    int desiredMap = 0;
+    int n = 0;
+    const char* type = nullptr;
+    bool loopingUp = false;
+    vmCvar_t mapname;
 
-	if (!g_autoMapCycle.integer && !forced)
-	{
-		return nullptr;
-	}
+    if (!g_autoMapCycle.integer && !forced) {
+        return nullptr;
+    }
 
-	if (!level.arenas.infos[0])
-	{
-		return nullptr;
-	}
+    if (!level.arenas.infos[0]) {
+        return nullptr;
+    }
 
-	trap->Cvar_Register( &mapname, "mapname", "", cvarFlags_t::CVAR_SERVERINFO | cvarFlags_t::CVAR_ROM );
-	for( n = 0; n < level.arenas.num; n++ )
-	{
-		type = Info_ValueForKey( level.arenas.infos[n], "map" );
+    trap->Cvar_Register(&mapname, "mapname", "", cvarFlags_t::CVAR_SERVERINFO | cvarFlags_t::CVAR_ROM);
+    for (n = 0; n < level.arenas.num; n++) {
+        type = Info_ValueForKey(level.arenas.infos[n], "map");
 
-		if (Q_stricmp(mapname.string, type) == 0)
-		{
-			thisLevel = n;
-			break;
-		}
-	}
+        if (Q_stricmp(mapname.string, type) == 0) {
+            thisLevel = n;
+            break;
+        }
+    }
 
-	desiredMap = thisLevel;
+    desiredMap = thisLevel;
 
-	n = thisLevel+1;
-	while (n != thisLevel)
-	{ //now cycle through the arena list and find the next map that matches the gametype we're in
-		if (!level.arenas.infos[n] || n >= level.arenas.num)
-		{
-			if (loopingUp)
-			{ //this shouldn't happen, but if it does we have a null entry break in the arena file
-			  //if this is the case just break out of the loop instead of sticking in an infinite loop
-				break;
-			}
-			n = 0;
-			loopingUp = true;
-		}
+    n = thisLevel + 1;
+    while (n != thisLevel) { // now cycle through the arena list and find the next map that matches the gametype we're in
+        if (!level.arenas.infos[n] || n >= level.arenas.num) {
+            if (loopingUp) { // this shouldn't happen, but if it does we have a null entry break in the arena file
+                             // if this is the case just break out of the loop instead of sticking in an infinite loop
+                break;
+            }
+            n = 0;
+            loopingUp = true;
+        }
 
-		type = Info_ValueForKey(level.arenas.infos[n], "type");
+        type = Info_ValueForKey(level.arenas.infos[n], "type");
 
-		typeBits = G_GetMapTypeBits(type);
-		if (typeBits & Bit( gametype ))
-		{
-			desiredMap = n;
-			break;
-		}
+        typeBits = G_GetMapTypeBits(type);
+        if (typeBits & Bit(gametype)) {
+            desiredMap = n;
+            break;
+        }
 
-		n++;
-	}
+        n++;
+    }
 
-	if (desiredMap == thisLevel)
-	{ //If this is the only level for this game mode or we just can't find a map for this game mode, then nextmap
-	  //will always restart.
-		trap->Cvar_Set( "nextmap", "map_restart 0");
-	}
-	else
-	{ //otherwise we have a valid nextmap to cycle to, so use it.
-		type = Info_ValueForKey( level.arenas.infos[desiredMap], "map" );
-		trap->Cvar_Set( "nextmap", va("map %s", type));
-	}
+    if (desiredMap == thisLevel) { // If this is the only level for this game mode or we just can't find a map for this game mode, then nextmap
+                                   // will always restart.
+        trap->Cvar_Set("nextmap", "map_restart 0");
+    }
+    else { // otherwise we have a valid nextmap to cycle to, so use it.
+        type = Info_ValueForKey(level.arenas.infos[desiredMap], "map");
+        trap->Cvar_Set("nextmap", va("map %s", type));
+    }
 
-	return Info_ValueForKey( level.arenas.infos[desiredMap], "map" );
+    return Info_ValueForKey(level.arenas.infos[desiredMap], "map");
 }
 
 /*
@@ -302,7 +290,8 @@ G_LoadArenas
 constexpr int MAX_MAPS = 256;
 constexpr int MAPSBUFSIZE = MAX_MAPS * 64;
 
-void G_LoadArenas( void ) {
+void G_LoadArenas(void)
+{
 #if 0
 	int			numdirs;
 	char		filename[MAX_QPATH];
@@ -332,39 +321,38 @@ void G_LoadArenas( void ) {
 
 #else
 
-	int			numFiles;
-	char		filelist[MAPSBUFSIZE];
-	char		filename[MAX_QPATH];
-	char*		fileptr;
-	int			i, n;
-	int			len;
+    int numFiles;
+    char filelist[MAPSBUFSIZE];
+    char filename[MAX_QPATH];
+    char* fileptr;
+    int i, n;
+    int len;
 
-	level.arenas.num = 0;
+    level.arenas.num = 0;
 
-	// get all arenas from .arena files
-	numFiles = trap->FS_GetFileList("scripts", ".arena", filelist, ARRAY_LEN(filelist) );
+    // get all arenas from .arena files
+    numFiles = trap->FS_GetFileList("scripts", ".arena", filelist, ARRAY_LEN(filelist));
 
-	fileptr  = filelist;
-	i = 0;
+    fileptr = filelist;
+    i = 0;
 
-	if (numFiles > MAX_MAPS)
-		numFiles = MAX_MAPS;
+    if (numFiles > MAX_MAPS)
+        numFiles = MAX_MAPS;
 
-	for(; i < numFiles; i++) {
-		len = strlen(fileptr);
-		Com_sprintf(filename, sizeof(filename), "scripts/%s", fileptr);
-		G_LoadArenasFromFile(filename);
-		fileptr += len + 1;
-	}
-//	trap->Print( "%i arenas parsed\n", level.arenas.num );
+    for (; i < numFiles; i++) {
+        len = strlen(fileptr);
+        Com_sprintf(filename, sizeof(filename), "scripts/%s", fileptr);
+        G_LoadArenasFromFile(filename);
+        fileptr += len + 1;
+    }
+    //	trap->Print( "%i arenas parsed\n", level.arenas.num );
 
-	for( n = 0; n < level.arenas.num; n++ ) {
-		Info_SetValueForKey( level.arenas.infos[n], "num", va( "%i", n ) );
-	}
+    for (n = 0; n < level.arenas.num; n++) {
+        Info_SetValueForKey(level.arenas.infos[n], "num", va("%i", n));
+    }
 
-	G_RefreshNextMap(level.gametype, false);
+    G_RefreshNextMap(level.gametype, false);
 #endif
-
 }
 
 /*
@@ -372,16 +360,17 @@ void G_LoadArenas( void ) {
 G_GetArenaInfoByNumber
 ===============
 */
-const char *G_GetArenaInfoByMap( const char *map ) {
-	int			n;
+const char* G_GetArenaInfoByMap(const char* map)
+{
+    int n;
 
-	for( n = 0; n < level.arenas.num; n++ ) {
-		if( Q_stricmp( Info_ValueForKey( level.arenas.infos[n], "map" ), map ) == 0 ) {
-			return level.arenas.infos[n];
-		}
-	}
+    for (n = 0; n < level.arenas.num; n++) {
+        if (Q_stricmp(Info_ValueForKey(level.arenas.infos[n], "map"), map) == 0) {
+            return level.arenas.infos[n];
+        }
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
 #if 0
@@ -416,87 +405,87 @@ static void PlayerIntroSound( const char *modelAndSkin ) {
 G_AddRandomBot
 ===============
 */
-void G_AddRandomBot( std::optional<team_t> team ) {
-	int		i, n, num;
-	float	skill;
-	const char	*value, *teamstr;
-	char	netname[36];
-	gclient_t	*cl;
+void G_AddRandomBot(std::optional<team_t> team)
+{
+    int i, n, num;
+    float skill;
+    const char *value, *teamstr;
+    char netname[36];
+    gclient_t* cl;
 
-	num = 0;
-	for ( n = 0; n < level.bots.num ; n++ ) {
-		value = Info_ValueForKey( level.bots.infos[n], "name" );
-		//
-		for ( i=0 ; i< sv_maxclients.integer ; i++ ) {
-			cl = level.clients + i;
-			if ( cl->pers.connected != clientConnected_t::CON_CONNECTED ) {
-				continue;
-			}
-			if ( !Any( g_entities[i].r.svFlags & svFlags_t::SVF_BOT ) ) {
-				continue;
-			}
-			if (level.gametype == gametype_t::GT_SIEGE)
-			{
-				if ( team && cl->sess.siegeDesiredTeam != *team ) {
-					continue;
-				}
-			}
-			else
-			{
-				if ( team && cl->sess.sessionTeam != *team ) {
-					continue;
-				}
-			}
-			if ( !Q_stricmp( value, cl->pers.netname ) ) {
-				break;
-			}
-		}
-		if (i >= sv_maxclients.integer) {
-			num++;
-		}
-	}
-	num = Q_flrand(0.0f, 1.0f) * num;
-	for ( n = 0; n < level.bots.num ; n++ ) {
-		value = Info_ValueForKey( level.bots.infos[n], "name" );
-		//
-		for ( i=0 ; i< sv_maxclients.integer ; i++ ) {
-			cl = level.clients + i;
-			if ( cl->pers.connected != clientConnected_t::CON_CONNECTED ) {
-				continue;
-			}
-			if ( !Any( g_entities[i].r.svFlags & svFlags_t::SVF_BOT ) ) {
-				continue;
-			}
-			if (level.gametype == gametype_t::GT_SIEGE)
-			{
-				if ( team && cl->sess.siegeDesiredTeam != *team ) {
-					continue;
-				}
-			}
-			else
-			{
-				if ( team && cl->sess.sessionTeam != *team ) {
-					continue;
-				}
-			}
-			if ( !Q_stricmp( value, cl->pers.netname ) ) {
-				break;
-			}
-		}
-		if (i >= sv_maxclients.integer) {
-			num--;
-			if (num <= 0) {
-				skill = trap->Cvar_VariableIntegerValue( "g_npcspskill" );
-				if (team == team_t::TEAM_RED) teamstr = "red";
-				else if (team == team_t::TEAM_BLUE) teamstr = "blue";
-				else teamstr = "";
-				Q_strncpyz(netname, value, sizeof(netname));
-				Q_CleanStr(netname);
-				trap->SendConsoleCommand( cbufExec_t::EXEC_INSERT, va("addbot \"%s\" %.2f %s %i\n", netname, skill, teamstr, 0) );
-				return;
-			}
-		}
-	}
+    num = 0;
+    for (n = 0; n < level.bots.num; n++) {
+        value = Info_ValueForKey(level.bots.infos[n], "name");
+        //
+        for (i = 0; i < sv_maxclients.integer; i++) {
+            cl = level.clients + i;
+            if (cl->pers.connected != clientConnected_t::CON_CONNECTED) {
+                continue;
+            }
+            if (!Any(g_entities[i].r.svFlags & svFlags_t::SVF_BOT)) {
+                continue;
+            }
+            if (level.gametype == gametype_t::GT_SIEGE) {
+                if (team && cl->sess.siegeDesiredTeam != *team) {
+                    continue;
+                }
+            }
+            else {
+                if (team && cl->sess.sessionTeam != *team) {
+                    continue;
+                }
+            }
+            if (!Q_stricmp(value, cl->pers.netname)) {
+                break;
+            }
+        }
+        if (i >= sv_maxclients.integer) {
+            num++;
+        }
+    }
+    num = Q_flrand(0.0f, 1.0f) * num;
+    for (n = 0; n < level.bots.num; n++) {
+        value = Info_ValueForKey(level.bots.infos[n], "name");
+        //
+        for (i = 0; i < sv_maxclients.integer; i++) {
+            cl = level.clients + i;
+            if (cl->pers.connected != clientConnected_t::CON_CONNECTED) {
+                continue;
+            }
+            if (!Any(g_entities[i].r.svFlags & svFlags_t::SVF_BOT)) {
+                continue;
+            }
+            if (level.gametype == gametype_t::GT_SIEGE) {
+                if (team && cl->sess.siegeDesiredTeam != *team) {
+                    continue;
+                }
+            }
+            else {
+                if (team && cl->sess.sessionTeam != *team) {
+                    continue;
+                }
+            }
+            if (!Q_stricmp(value, cl->pers.netname)) {
+                break;
+            }
+        }
+        if (i >= sv_maxclients.integer) {
+            num--;
+            if (num <= 0) {
+                skill = trap->Cvar_VariableIntegerValue("g_npcspskill");
+                if (team == team_t::TEAM_RED)
+                    teamstr = "red";
+                else if (team == team_t::TEAM_BLUE)
+                    teamstr = "blue";
+                else
+                    teamstr = "";
+                Q_strncpyz(netname, value, sizeof(netname));
+                Q_CleanStr(netname);
+                trap->SendConsoleCommand(cbufExec_t::EXEC_INSERT, va("addbot \"%s\" %.2f %s %i\n", netname, skill, teamstr, 0));
+                return;
+            }
+        }
+    }
 }
 
 /*
@@ -504,30 +493,31 @@ void G_AddRandomBot( std::optional<team_t> team ) {
 G_RemoveRandomBot
 ===============
 */
-int G_RemoveRandomBot( std::optional<team_t> team ) {
-	int i;
-	gclient_t	*cl;
+int G_RemoveRandomBot(std::optional<team_t> team)
+{
+    int i;
+    gclient_t* cl;
 
-	for ( i=0 ; i< sv_maxclients.integer ; i++ ) {
-		cl = level.clients + i;
-		if ( cl->pers.connected != clientConnected_t::CON_CONNECTED ) {
-			continue;
-		}
-		if ( !Any( g_entities[i].r.svFlags & svFlags_t::SVF_BOT ) )
-			continue;
+    for (i = 0; i < sv_maxclients.integer; i++) {
+        cl = level.clients + i;
+        if (cl->pers.connected != clientConnected_t::CON_CONNECTED) {
+            continue;
+        }
+        if (!Any(g_entities[i].r.svFlags & svFlags_t::SVF_BOT))
+            continue;
 
-		if ( cl->sess.sessionTeam == team_t::TEAM_SPECTATOR && cl->sess.spectatorState == spectatorState_t::SPECTATOR_FOLLOW )
-			continue;
+        if (cl->sess.sessionTeam == team_t::TEAM_SPECTATOR && cl->sess.spectatorState == spectatorState_t::SPECTATOR_FOLLOW)
+            continue;
 
-		if ( level.gametype == gametype_t::GT_SIEGE && team && cl->sess.siegeDesiredTeam != *team )
-			continue;
-		else if ( team && cl->sess.sessionTeam != *team )
-			continue;
+        if (level.gametype == gametype_t::GT_SIEGE && team && cl->sess.siegeDesiredTeam != *team)
+            continue;
+        else if (team && cl->sess.sessionTeam != *team)
+            continue;
 
-		trap->SendConsoleCommand( cbufExec_t::EXEC_INSERT, va("clientkick %d\n", i) );
-		return true;
-	}
-	return false;
+        trap->SendConsoleCommand(cbufExec_t::EXEC_INSERT, va("clientkick %d\n", i));
+        return true;
+    }
+    return false;
 }
 
 /*
@@ -535,25 +525,26 @@ int G_RemoveRandomBot( std::optional<team_t> team ) {
 G_CountHumanPlayers
 ===============
 */
-int G_CountHumanPlayers( std::optional<team_t> team ) {
-	int i, num;
-	gclient_t	*cl;
+int G_CountHumanPlayers(std::optional<team_t> team)
+{
+    int i, num;
+    gclient_t* cl;
 
-	num = 0;
-	for ( i=0 ; i< sv_maxclients.integer ; i++ ) {
-		cl = level.clients + i;
-		if ( cl->pers.connected != clientConnected_t::CON_CONNECTED ) {
-			continue;
-		}
-		if ( Any( g_entities[i].r.svFlags & svFlags_t::SVF_BOT ) ) {
-			continue;
-		}
-		if ( team && cl->sess.sessionTeam != *team ) {
-			continue;
-		}
-		num++;
-	}
-	return num;
+    num = 0;
+    for (i = 0; i < sv_maxclients.integer; i++) {
+        cl = level.clients + i;
+        if (cl->pers.connected != clientConnected_t::CON_CONNECTED) {
+            continue;
+        }
+        if (Any(g_entities[i].r.svFlags & svFlags_t::SVF_BOT)) {
+            continue;
+        }
+        if (team && cl->sess.sessionTeam != *team) {
+            continue;
+        }
+        num++;
+    }
+    return num;
 }
 
 /*
@@ -561,43 +552,42 @@ int G_CountHumanPlayers( std::optional<team_t> team ) {
 G_CountBotPlayers
 ===============
 */
-int G_CountBotPlayers( std::optional<team_t> team ) {
-	int i, n, num;
-	gclient_t	*cl;
+int G_CountBotPlayers(std::optional<team_t> team)
+{
+    int i, n, num;
+    gclient_t* cl;
 
-	num = 0;
-	for ( i=0 ; i< sv_maxclients.integer ; i++ ) {
-		cl = level.clients + i;
-		if ( cl->pers.connected != clientConnected_t::CON_CONNECTED ) {
-			continue;
-		}
-		if ( !Any( g_entities[i].r.svFlags & svFlags_t::SVF_BOT ) ) {
-			continue;
-		}
-		if (level.gametype == gametype_t::GT_SIEGE)
-		{
-			if ( team && cl->sess.siegeDesiredTeam != *team ) {
-				continue;
-			}
-		}
-		else
-		{
-			if ( team && cl->sess.sessionTeam != *team ) {
-				continue;
-			}
-		}
-		num++;
-	}
-	for( n = 0; n < BOT_SPAWN_QUEUE_DEPTH; n++ ) {
-		if( !botSpawnQueue[n].spawnTime ) {
-			continue;
-		}
-		if ( botSpawnQueue[n].spawnTime > level.time ) {
-			continue;
-		}
-		num++;
-	}
-	return num;
+    num = 0;
+    for (i = 0; i < sv_maxclients.integer; i++) {
+        cl = level.clients + i;
+        if (cl->pers.connected != clientConnected_t::CON_CONNECTED) {
+            continue;
+        }
+        if (!Any(g_entities[i].r.svFlags & svFlags_t::SVF_BOT)) {
+            continue;
+        }
+        if (level.gametype == gametype_t::GT_SIEGE) {
+            if (team && cl->sess.siegeDesiredTeam != *team) {
+                continue;
+            }
+        }
+        else {
+            if (team && cl->sess.sessionTeam != *team) {
+                continue;
+            }
+        }
+        num++;
+    }
+    for (n = 0; n < BOT_SPAWN_QUEUE_DEPTH; n++) {
+        if (!botSpawnQueue[n].spawnTime) {
+            continue;
+        }
+        if (botSpawnQueue[n].spawnTime > level.time) {
+            continue;
+        }
+        num++;
+    }
+    return num;
 }
 
 /*
@@ -605,127 +595,125 @@ int G_CountBotPlayers( std::optional<team_t> team ) {
 G_CheckMinimumPlayers
 ===============
 */
-void G_CheckMinimumPlayers( void ) {
-	int minplayers;
-	int humanplayers, botplayers;
-	static int checkminimumplayers_time;
+void G_CheckMinimumPlayers(void)
+{
+    int minplayers;
+    int humanplayers, botplayers;
+    static int checkminimumplayers_time;
 
-	if (level.gametype == gametype_t::GT_SIEGE)
-	{
-		return;
-	}
+    if (level.gametype == gametype_t::GT_SIEGE) {
+        return;
+    }
 
-	if (level.intermissiontime) return;
-	//only check once each 10 seconds
-	if (checkminimumplayers_time > level.time - 10000) {
-		return;
-	}
-	checkminimumplayers_time = level.time;
-	trap->Cvar_Update(&bot_minplayers);
-	minplayers = bot_minplayers.integer;
-	if (minplayers <= 0) return;
+    if (level.intermissiontime)
+        return;
+    // only check once each 10 seconds
+    if (checkminimumplayers_time > level.time - 10000) {
+        return;
+    }
+    checkminimumplayers_time = level.time;
+    trap->Cvar_Update(&bot_minplayers);
+    minplayers = bot_minplayers.integer;
+    if (minplayers <= 0)
+        return;
 
-	if (minplayers > sv_maxclients.integer)
-	{
-		minplayers = sv_maxclients.integer;
-	}
+    if (minplayers > sv_maxclients.integer) {
+        minplayers = sv_maxclients.integer;
+    }
 
-	humanplayers = G_CountHumanPlayers( std::nullopt );
-	botplayers = G_CountBotPlayers(	std::nullopt );
+    humanplayers = G_CountHumanPlayers(std::nullopt);
+    botplayers = G_CountBotPlayers(std::nullopt);
 
-	if ((humanplayers+botplayers) < minplayers)
-	{
-		G_AddRandomBot( std::nullopt );
-	}
-	else if ((humanplayers+botplayers) > minplayers && botplayers)
-	{
-		// try to remove spectators first
-		if (!G_RemoveRandomBot(team_t::TEAM_SPECTATOR))
-		{
-			// just remove the bot that is playing
-			G_RemoveRandomBot( std::nullopt );
-		}
-	}
+    if ((humanplayers + botplayers) < minplayers) {
+        G_AddRandomBot(std::nullopt);
+    }
+    else if ((humanplayers + botplayers) > minplayers && botplayers) {
+        // try to remove spectators first
+        if (!G_RemoveRandomBot(team_t::TEAM_SPECTATOR)) {
+            // just remove the bot that is playing
+            G_RemoveRandomBot(std::nullopt);
+        }
+    }
 
-	/*
-	if (level.gametype >= gametype_t::GT_TEAM) {
-		int humanplayers2, botplayers2;
-		if (minplayers >= sv_maxclients.integer / 2) {
-			minplayers = (sv_maxclients.integer / 2) -1;
-		}
+    /*
+    if (level.gametype >= gametype_t::GT_TEAM) {
+        int humanplayers2, botplayers2;
+        if (minplayers >= sv_maxclients.integer / 2) {
+            minplayers = (sv_maxclients.integer / 2) -1;
+        }
 
-		humanplayers = G_CountHumanPlayers( team_t::TEAM_RED );
-		botplayers = G_CountBotPlayers(	team_t::TEAM_RED );
-		humanplayers2 = G_CountHumanPlayers( team_t::TEAM_BLUE );
-		botplayers2 = G_CountBotPlayers( team_t::TEAM_BLUE );
-		//
-		if ((humanplayers+botplayers+humanplayers2+botplayers) < minplayers)
-		{
-			if ((humanplayers+botplayers) < (humanplayers2+botplayers2))
-			{
-				G_AddRandomBot( team_t::TEAM_RED );
-			}
-			else
-			{
-				G_AddRandomBot( team_t::TEAM_BLUE );
-			}
-		}
-		else if ((humanplayers+botplayers+humanplayers2+botplayers) > minplayers && botplayers)
-		{
-			if ((humanplayers+botplayers) < (humanplayers2+botplayers2))
-			{
-				G_RemoveRandomBot( team_t::TEAM_BLUE );
-			}
-			else
-			{
-				G_RemoveRandomBot( team_t::TEAM_RED );
-			}
-		}
-	}
-	else if (level.gametype == gametype_t::GT_DUEL || level.gametype == gametype_t::GT_POWERDUEL) {
-		if (minplayers >= sv_maxclients.integer) {
-			minplayers = sv_maxclients.integer-1;
-		}
-		humanplayers = G_CountHumanPlayers( -1 );
-		botplayers = G_CountBotPlayers( -1 );
-		//
-		if (humanplayers + botplayers < minplayers) {
-			G_AddRandomBot( team_t::TEAM_FREE );
-		} else if (humanplayers + botplayers > minplayers && botplayers) {
-			// try to remove spectators first
-			if (!G_RemoveRandomBot( team_t::TEAM_SPECTATOR )) {
-				// just remove the bot that is playing
-				G_RemoveRandomBot( -1 );
-			}
-		}
-	}
-	else if (level.gametype == gametype_t::GT_FFA) {
-		if (minplayers >= sv_maxclients.integer) {
-			minplayers = sv_maxclients.integer-1;
-		}
-		humanplayers = G_CountHumanPlayers( team_t::TEAM_FREE );
-		botplayers = G_CountBotPlayers( team_t::TEAM_FREE );
-		//
-		if (humanplayers + botplayers < minplayers) {
-			G_AddRandomBot( team_t::TEAM_FREE );
-		} else if (humanplayers + botplayers > minplayers && botplayers) {
-			G_RemoveRandomBot( team_t::TEAM_FREE );
-		}
-	}
-	else if (level.gametype == gametype_t::GT_HOLOCRON || level.gametype == gametype_t::GT_JEDIMASTER) {
-		if (minplayers >= sv_maxclients.integer) {
-			minplayers = sv_maxclients.integer-1;
-		}
-		humanplayers = G_CountHumanPlayers( team_t::TEAM_FREE );
-		botplayers = G_CountBotPlayers( team_t::TEAM_FREE );
-		//
-		if (humanplayers + botplayers < minplayers) {
-			G_AddRandomBot( team_t::TEAM_FREE );
-		} else if (humanplayers + botplayers > minplayers && botplayers) {
-			G_RemoveRandomBot( team_t::TEAM_FREE );
-		}
-	}
-	*/
+        humanplayers = G_CountHumanPlayers( team_t::TEAM_RED );
+        botplayers = G_CountBotPlayers(	team_t::TEAM_RED );
+        humanplayers2 = G_CountHumanPlayers( team_t::TEAM_BLUE );
+        botplayers2 = G_CountBotPlayers( team_t::TEAM_BLUE );
+        //
+        if ((humanplayers+botplayers+humanplayers2+botplayers) < minplayers)
+        {
+            if ((humanplayers+botplayers) < (humanplayers2+botplayers2))
+            {
+                G_AddRandomBot( team_t::TEAM_RED );
+            }
+            else
+            {
+                G_AddRandomBot( team_t::TEAM_BLUE );
+            }
+        }
+        else if ((humanplayers+botplayers+humanplayers2+botplayers) > minplayers && botplayers)
+        {
+            if ((humanplayers+botplayers) < (humanplayers2+botplayers2))
+            {
+                G_RemoveRandomBot( team_t::TEAM_BLUE );
+            }
+            else
+            {
+                G_RemoveRandomBot( team_t::TEAM_RED );
+            }
+        }
+    }
+    else if (level.gametype == gametype_t::GT_DUEL || level.gametype == gametype_t::GT_POWERDUEL) {
+        if (minplayers >= sv_maxclients.integer) {
+            minplayers = sv_maxclients.integer-1;
+        }
+        humanplayers = G_CountHumanPlayers( -1 );
+        botplayers = G_CountBotPlayers( -1 );
+        //
+        if (humanplayers + botplayers < minplayers) {
+            G_AddRandomBot( team_t::TEAM_FREE );
+        } else if (humanplayers + botplayers > minplayers && botplayers) {
+            // try to remove spectators first
+            if (!G_RemoveRandomBot( team_t::TEAM_SPECTATOR )) {
+                // just remove the bot that is playing
+                G_RemoveRandomBot( -1 );
+            }
+        }
+    }
+    else if (level.gametype == gametype_t::GT_FFA) {
+        if (minplayers >= sv_maxclients.integer) {
+            minplayers = sv_maxclients.integer-1;
+        }
+        humanplayers = G_CountHumanPlayers( team_t::TEAM_FREE );
+        botplayers = G_CountBotPlayers( team_t::TEAM_FREE );
+        //
+        if (humanplayers + botplayers < minplayers) {
+            G_AddRandomBot( team_t::TEAM_FREE );
+        } else if (humanplayers + botplayers > minplayers && botplayers) {
+            G_RemoveRandomBot( team_t::TEAM_FREE );
+        }
+    }
+    else if (level.gametype == gametype_t::GT_HOLOCRON || level.gametype == gametype_t::GT_JEDIMASTER) {
+        if (minplayers >= sv_maxclients.integer) {
+            minplayers = sv_maxclients.integer-1;
+        }
+        humanplayers = G_CountHumanPlayers( team_t::TEAM_FREE );
+        botplayers = G_CountBotPlayers( team_t::TEAM_FREE );
+        //
+        if (humanplayers + botplayers < minplayers) {
+            G_AddRandomBot( team_t::TEAM_FREE );
+        } else if (humanplayers + botplayers > minplayers && botplayers) {
+            G_RemoveRandomBot( team_t::TEAM_FREE );
+        }
+    }
+    */
 }
 
 /*
@@ -733,28 +721,29 @@ void G_CheckMinimumPlayers( void ) {
 G_CheckBotSpawn
 ===============
 */
-void G_CheckBotSpawn( void ) {
-	int		n;
+void G_CheckBotSpawn(void)
+{
+    int n;
 
-	G_CheckMinimumPlayers();
+    G_CheckMinimumPlayers();
 
-	for( n = 0; n < BOT_SPAWN_QUEUE_DEPTH; n++ ) {
-		if( !botSpawnQueue[n].spawnTime ) {
-			continue;
-		}
-		if ( botSpawnQueue[n].spawnTime > level.time ) {
-			continue;
-		}
-		ClientBegin( botSpawnQueue[n].clientNum, false );
-		botSpawnQueue[n].spawnTime = 0;
+    for (n = 0; n < BOT_SPAWN_QUEUE_DEPTH; n++) {
+        if (!botSpawnQueue[n].spawnTime) {
+            continue;
+        }
+        if (botSpawnQueue[n].spawnTime > level.time) {
+            continue;
+        }
+        ClientBegin(botSpawnQueue[n].clientNum, false);
+        botSpawnQueue[n].spawnTime = 0;
 
-		/*
-		if( level.gametype == gametype_t::GT_SINGLE_PLAYER ) {
-			trap->GetUserinfo( botSpawnQueue[n].clientNum, userinfo, sizeof(userinfo) );
-			PlayerIntroSound( Info_ValueForKey (userinfo, "model") );
-		}
-		*/
-	}
+        /*
+        if( level.gametype == gametype_t::GT_SINGLE_PLAYER ) {
+            trap->GetUserinfo( botSpawnQueue[n].clientNum, userinfo, sizeof(userinfo) );
+            PlayerIntroSound( Info_ValueForKey (userinfo, "model") );
+        }
+        */
+    }
 }
 
 /*
@@ -762,19 +751,20 @@ void G_CheckBotSpawn( void ) {
 AddBotToSpawnQueue
 ===============
 */
-static void AddBotToSpawnQueue( int clientNum, int delay ) {
-	int		n;
+static void AddBotToSpawnQueue(int clientNum, int delay)
+{
+    int n;
 
-	for( n = 0; n < BOT_SPAWN_QUEUE_DEPTH; n++ ) {
-		if( !botSpawnQueue[n].spawnTime ) {
-			botSpawnQueue[n].spawnTime = level.time + delay;
-			botSpawnQueue[n].clientNum = clientNum;
-			return;
-		}
-	}
+    for (n = 0; n < BOT_SPAWN_QUEUE_DEPTH; n++) {
+        if (!botSpawnQueue[n].spawnTime) {
+            botSpawnQueue[n].spawnTime = level.time + delay;
+            botSpawnQueue[n].clientNum = clientNum;
+            return;
+        }
+    }
 
-	trap->Print( S_COLOR_YELLOW "Unable to delay spawn\n" );
-	ClientBegin( clientNum, false );
+    trap->Print(S_COLOR_YELLOW "Unable to delay spawn\n");
+    ClientBegin(clientNum, false);
 }
 
 /*
@@ -785,15 +775,16 @@ Called on client disconnect to make sure the delayed spawn
 doesn't happen on a freed index
 ===============
 */
-void G_RemoveQueuedBotBegin( int clientNum ) {
-	int		n;
+void G_RemoveQueuedBotBegin(int clientNum)
+{
+    int n;
 
-	for( n = 0; n < BOT_SPAWN_QUEUE_DEPTH; n++ ) {
-		if( botSpawnQueue[n].clientNum == clientNum ) {
-			botSpawnQueue[n].spawnTime = 0;
-			return;
-		}
-	}
+    for (n = 0; n < BOT_SPAWN_QUEUE_DEPTH; n++) {
+        if (botSpawnQueue[n].clientNum == clientNum) {
+            botSpawnQueue[n].spawnTime = 0;
+            return;
+        }
+    }
 }
 
 /*
@@ -801,22 +792,23 @@ void G_RemoveQueuedBotBegin( int clientNum ) {
 G_BotConnect
 ===============
 */
-bool G_BotConnect( int clientNum, bool restart ) {
-	bot_settings_t	settings;
-	char			userinfo[MAX_INFO_STRING];
+bool G_BotConnect(int clientNum, bool restart)
+{
+    bot_settings_t settings;
+    char userinfo[MAX_INFO_STRING];
 
-	trap->GetUserinfo( clientNum, userinfo, sizeof(userinfo) );
+    trap->GetUserinfo(clientNum, userinfo, sizeof(userinfo));
 
-	Q_strncpyz( settings.personalityfile, Info_ValueForKey( userinfo, "personality" ), sizeof(settings.personalityfile) );
-	settings.skill = Q_atof( Info_ValueForKey( userinfo, "skill" ) );
-	Q_strncpyz( settings.team, Info_ValueForKey( userinfo, "team" ), sizeof(settings.team) );
+    Q_strncpyz(settings.personalityfile, Info_ValueForKey(userinfo, "personality"), sizeof(settings.personalityfile));
+    settings.skill = Q_atof(Info_ValueForKey(userinfo, "skill"));
+    Q_strncpyz(settings.team, Info_ValueForKey(userinfo, "team"), sizeof(settings.team));
 
-	if (!BotAISetupClient( clientNum, &settings, restart )) {
-		trap->DropClient( clientNum, "BotAISetupClient failed" );
-		return false;
-	}
+    if (!BotAISetupClient(clientNum, &settings, restart)) {
+        trap->DropClient(clientNum, "BotAISetupClient failed");
+        return false;
+    }
 
-	return true;
+    return true;
 }
 
 /*
@@ -824,216 +816,226 @@ bool G_BotConnect( int clientNum, bool restart ) {
 G_AddBot
 ===============
 */
-static void G_AddBot( const char *name, float skill, const char *team, int delay, char *altname) {
-	gentity_t		*bot = nullptr;
-	int				clientNum;
-	team_t			preTeam = team_t::TEAM_FREE;
-	char			userinfo[MAX_INFO_STRING] = {0}, *botinfo = nullptr;
-	const char	*key = nullptr;
-	const char		*s = nullptr, *botname = nullptr, *model = nullptr;
+static void G_AddBot(const char* name, float skill, const char* team, int delay, char* altname)
+{
+    gentity_t* bot = nullptr;
+    int clientNum;
+    team_t preTeam = team_t::TEAM_FREE;
+    char userinfo[MAX_INFO_STRING] = {0}, *botinfo = nullptr;
+    const char* key = nullptr;
+    const char *s = nullptr, *botname = nullptr, *model = nullptr;
 
-	// have the server allocate a client slot
-	clientNum = trap->BotAllocateClient();
-	if ( clientNum == -1 ) {
-//		trap->Print( S_COLOR_RED "Unable to add bot.  All player slots are in use.\n" );
-//		trap->Print( S_COLOR_RED "Start server with more 'open' slots.\n" );
-		trap->SendServerCommand( -1, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "UNABLE_TO_ADD_BOT")));
-		return;
-	}
+    // have the server allocate a client slot
+    clientNum = trap->BotAllocateClient();
+    if (clientNum == -1) {
+        //		trap->Print( S_COLOR_RED "Unable to add bot.  All player slots are in use.\n" );
+        //		trap->Print( S_COLOR_RED "Start server with more 'open' slots.\n" );
+        trap->SendServerCommand(-1, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "UNABLE_TO_ADD_BOT")));
+        return;
+    }
 
-	// get the botinfo from bots.txt
-	botinfo = G_GetBotInfoByName( name );
-	if ( !botinfo ) {
-		trap->Print( S_COLOR_RED "Error: Bot '%s' not defined\n", name );
-		trap->BotFreeClient( clientNum );
-		return;
-	}
+    // get the botinfo from bots.txt
+    botinfo = G_GetBotInfoByName(name);
+    if (!botinfo) {
+        trap->Print(S_COLOR_RED "Error: Bot '%s' not defined\n", name);
+        trap->BotFreeClient(clientNum);
+        return;
+    }
 
-	// create the bot's userinfo
-	userinfo[0] = '\0';
+    // create the bot's userinfo
+    userinfo[0] = '\0';
 
-	botname = Info_ValueForKey( botinfo, "funname" );
-	if( !botname[0] )
-		botname = Info_ValueForKey( botinfo, "name" );
-	// check for an alternative name
-	if ( altname && altname[0] )
-		botname = altname;
+    botname = Info_ValueForKey(botinfo, "funname");
+    if (!botname[0])
+        botname = Info_ValueForKey(botinfo, "name");
+    // check for an alternative name
+    if (altname && altname[0])
+        botname = altname;
 
-	Info_SetValueForKey( userinfo, "name", botname );
-	Info_SetValueForKey( userinfo, "ip", "localhost" );
-	Info_SetValueForKey( userinfo, "skill", va("%.2f", skill) );
+    Info_SetValueForKey(userinfo, "name", botname);
+    Info_SetValueForKey(userinfo, "ip", "localhost");
+    Info_SetValueForKey(userinfo, "skill", va("%.2f", skill));
 
-		 if ( skill >= 1 && skill < 2 )		Info_SetValueForKey( userinfo, "handicap", "50" );
-	else if ( skill >= 2 && skill < 3 )		Info_SetValueForKey( userinfo, "handicap", "70" );
-	else if ( skill >= 3 && skill < 4 )		Info_SetValueForKey( userinfo, "handicap", "90" );
-	else									Info_SetValueForKey( userinfo, "handicap", "100" );
+    if (skill >= 1 && skill < 2)
+        Info_SetValueForKey(userinfo, "handicap", "50");
+    else if (skill >= 2 && skill < 3)
+        Info_SetValueForKey(userinfo, "handicap", "70");
+    else if (skill >= 3 && skill < 4)
+        Info_SetValueForKey(userinfo, "handicap", "90");
+    else
+        Info_SetValueForKey(userinfo, "handicap", "100");
 
-	key = "model";
-	model = Info_ValueForKey( botinfo, key );
-	if ( !*model )	model = DEFAULT_MODEL"/default";
-	Info_SetValueForKey( userinfo, key, model );
+    key = "model";
+    model = Info_ValueForKey(botinfo, key);
+    if (!*model)
+        model = DEFAULT_MODEL "/default";
+    Info_SetValueForKey(userinfo, key, model);
 
-	key = "sex";
-	s = Info_ValueForKey( botinfo, key );
-	if ( !*s )	s = Info_ValueForKey( botinfo, "gender" );
-	if ( !*s )	s = "male";
-	Info_SetValueForKey( userinfo, key, s );
+    key = "sex";
+    s = Info_ValueForKey(botinfo, key);
+    if (!*s)
+        s = Info_ValueForKey(botinfo, "gender");
+    if (!*s)
+        s = "male";
+    Info_SetValueForKey(userinfo, key, s);
 
-	key = "color1";
-	s = Info_ValueForKey( botinfo, key );
-	if ( !*s )	s = "4";
-	Info_SetValueForKey( userinfo, key, s );
+    key = "color1";
+    s = Info_ValueForKey(botinfo, key);
+    if (!*s)
+        s = "4";
+    Info_SetValueForKey(userinfo, key, s);
 
-	key = "color2";
-	s = Info_ValueForKey( botinfo, key );
-	if ( !*s )	s = "4";
-	Info_SetValueForKey( userinfo, key, s );
+    key = "color2";
+    s = Info_ValueForKey(botinfo, key);
+    if (!*s)
+        s = "4";
+    Info_SetValueForKey(userinfo, key, s);
 
-	key = "saber1";
-	s = Info_ValueForKey( botinfo, key );
-	if ( !*s )	s = DEFAULT_SABER;
-	Info_SetValueForKey( userinfo, key, s );
+    key = "saber1";
+    s = Info_ValueForKey(botinfo, key);
+    if (!*s)
+        s = DEFAULT_SABER;
+    Info_SetValueForKey(userinfo, key, s);
 
-	key = "saber2";
-	s = Info_ValueForKey( botinfo, key );
-	if ( !*s )	s = "none";
-	Info_SetValueForKey( userinfo, key, s );
+    key = "saber2";
+    s = Info_ValueForKey(botinfo, key);
+    if (!*s)
+        s = "none";
+    Info_SetValueForKey(userinfo, key, s);
 
-	key = "forcepowers";
-	s = Info_ValueForKey( botinfo, key );
-	if ( !*s )	s = DEFAULT_FORCEPOWERS;
-	Info_SetValueForKey( userinfo, key, s );
+    key = "forcepowers";
+    s = Info_ValueForKey(botinfo, key);
+    if (!*s)
+        s = DEFAULT_FORCEPOWERS;
+    Info_SetValueForKey(userinfo, key, s);
 
-	key = "cg_predictItems";
-	s = Info_ValueForKey( botinfo, key );
-	if ( !*s )	s = "1";
-	Info_SetValueForKey( userinfo, key, s );
+    key = "cg_predictItems";
+    s = Info_ValueForKey(botinfo, key);
+    if (!*s)
+        s = "1";
+    Info_SetValueForKey(userinfo, key, s);
 
-	key = "char_color_red";
-	s = Info_ValueForKey( botinfo, key );
-	if ( !*s )	s = "255";
-	Info_SetValueForKey( userinfo, key, s );
+    key = "char_color_red";
+    s = Info_ValueForKey(botinfo, key);
+    if (!*s)
+        s = "255";
+    Info_SetValueForKey(userinfo, key, s);
 
-	key = "char_color_green";
-	s = Info_ValueForKey( botinfo, key );
-	if ( !*s )	s = "255";
-	Info_SetValueForKey( userinfo, key, s );
+    key = "char_color_green";
+    s = Info_ValueForKey(botinfo, key);
+    if (!*s)
+        s = "255";
+    Info_SetValueForKey(userinfo, key, s);
 
-	key = "char_color_blue";
-	s = Info_ValueForKey( botinfo, key );
-	if ( !*s )	s = "255";
-	Info_SetValueForKey( userinfo, key, s );
+    key = "char_color_blue";
+    s = Info_ValueForKey(botinfo, key);
+    if (!*s)
+        s = "255";
+    Info_SetValueForKey(userinfo, key, s);
 
-	key = "teamtask";
-	s = Info_ValueForKey( botinfo, key );
-	if ( !*s )	s = "0";
-	Info_SetValueForKey( userinfo, key, s );
+    key = "teamtask";
+    s = Info_ValueForKey(botinfo, key);
+    if (!*s)
+        s = "0";
+    Info_SetValueForKey(userinfo, key, s);
 
-	key = "personality";
-	s = Info_ValueForKey( botinfo, key );
-	if ( !*s )	s = "botfiles/default.jkb";
-	Info_SetValueForKey( userinfo, key, s );
+    key = "personality";
+    s = Info_ValueForKey(botinfo, key);
+    if (!*s)
+        s = "botfiles/default.jkb";
+    Info_SetValueForKey(userinfo, key, s);
 
-	// initialize the bot settings
-	if ( !team || !*team ) {
-		if ( level.gametype >= gametype_t::GT_TEAM ) {
-			if ( PickTeam( clientNum ) == team_t::TEAM_RED )
-				team = "red";
-			else
-				team = "blue";
-		}
-		else
-			team = "red";
-	}
-	Info_SetValueForKey( userinfo, "team", team );
+    // initialize the bot settings
+    if (!team || !*team) {
+        if (level.gametype >= gametype_t::GT_TEAM) {
+            if (PickTeam(clientNum) == team_t::TEAM_RED)
+                team = "red";
+            else
+                team = "blue";
+        }
+        else
+            team = "red";
+    }
+    Info_SetValueForKey(userinfo, "team", team);
 
-	bot = &g_entities[ clientNum ];
-//	bot->r.svFlags |= svFlags_t::SVF_BOT;
-//	bot->inuse = true;
+    bot = &g_entities[clientNum];
+    //	bot->r.svFlags |= svFlags_t::SVF_BOT;
+    //	bot->inuse = true;
 
-	// register the userinfo
-	trap->SetUserinfo( clientNum, userinfo );
+    // register the userinfo
+    trap->SetUserinfo(clientNum, userinfo);
 
-	if ( level.gametype >= gametype_t::GT_TEAM )
-	{
-		if ( team && !Q_stricmp( team, "red" ) )
-			bot->client->sess.sessionTeam = team_t::TEAM_RED;
-		else if ( team && !Q_stricmp( team, "blue" ) )
-			bot->client->sess.sessionTeam = team_t::TEAM_BLUE;
-		else
-			bot->client->sess.sessionTeam = PickTeam( -1 );
-	}
+    if (level.gametype >= gametype_t::GT_TEAM) {
+        if (team && !Q_stricmp(team, "red"))
+            bot->client->sess.sessionTeam = team_t::TEAM_RED;
+        else if (team && !Q_stricmp(team, "blue"))
+            bot->client->sess.sessionTeam = team_t::TEAM_BLUE;
+        else
+            bot->client->sess.sessionTeam = PickTeam(-1);
+    }
 
-	if ( level.gametype == gametype_t::GT_SIEGE )
-	{
-		bot->client->sess.siegeDesiredTeam = bot->client->sess.sessionTeam;
-		bot->client->sess.sessionTeam = team_t::TEAM_SPECTATOR;
-	}
+    if (level.gametype == gametype_t::GT_SIEGE) {
+        bot->client->sess.siegeDesiredTeam = bot->client->sess.sessionTeam;
+        bot->client->sess.sessionTeam = team_t::TEAM_SPECTATOR;
+    }
 
-	preTeam = bot->client->sess.sessionTeam;
+    preTeam = bot->client->sess.sessionTeam;
 
-	// have it connect to the game as a normal client
-	if ( ClientConnect( clientNum, true, true ) )
-		return;
+    // have it connect to the game as a normal client
+    if (ClientConnect(clientNum, true, true))
+        return;
 
-	if ( bot->client->sess.sessionTeam != preTeam )
-	{
-		trap->GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
+    if (bot->client->sess.sessionTeam != preTeam) {
+        trap->GetUserinfo(clientNum, userinfo, sizeof(userinfo));
 
-		if ( bot->client->sess.sessionTeam == team_t::TEAM_SPECTATOR )
-			bot->client->sess.sessionTeam = preTeam;
+        if (bot->client->sess.sessionTeam == team_t::TEAM_SPECTATOR)
+            bot->client->sess.sessionTeam = preTeam;
 
-		if ( bot->client->sess.sessionTeam == team_t::TEAM_RED )
-			team = "Red";
-		else
-		{
-			if ( level.gametype == gametype_t::GT_SIEGE )
-				team = (bot->client->sess.sessionTeam == team_t::TEAM_BLUE) ? "Blue" : "s";
-			else
-				team = "Blue";
-		}
+        if (bot->client->sess.sessionTeam == team_t::TEAM_RED)
+            team = "Red";
+        else {
+            if (level.gametype == gametype_t::GT_SIEGE)
+                team = (bot->client->sess.sessionTeam == team_t::TEAM_BLUE) ? "Blue" : "s";
+            else
+                team = "Blue";
+        }
 
-		Info_SetValueForKey( userinfo, "team", team );
+        Info_SetValueForKey(userinfo, "team", team);
 
-		trap->SetUserinfo( clientNum, userinfo );
+        trap->SetUserinfo(clientNum, userinfo);
 
-		PS_SetTeam( bot->client->ps, bot->client->sess.sessionTeam );
+        PS_SetTeam(bot->client->ps, bot->client->sess.sessionTeam);
 
-		G_ReadSessionData( bot->client );
-		if ( !ClientUserinfoChanged( clientNum ) )
-			return;
-	}
+        G_ReadSessionData(bot->client);
+        if (!ClientUserinfoChanged(clientNum))
+            return;
+    }
 
-	if (level.gametype == gametype_t::GT_DUEL ||
-		level.gametype == gametype_t::GT_POWERDUEL)
-	{
-		int loners = 0;
-		int doubles = 0;
+    if (level.gametype == gametype_t::GT_DUEL || level.gametype == gametype_t::GT_POWERDUEL) {
+        int loners = 0;
+        int doubles = 0;
 
-		bot->client->sess.duelTeam = duelTeam_t::DUELTEAM_FREE;
-		G_PowerDuelCount(&loners, &doubles, true);
+        bot->client->sess.duelTeam = duelTeam_t::DUELTEAM_FREE;
+        G_PowerDuelCount(&loners, &doubles, true);
 
-		if (!doubles || loners > (doubles/2))
-		{
+        if (!doubles || loners > (doubles / 2)) {
             bot->client->sess.duelTeam = duelTeam_t::DUELTEAM_DOUBLE;
-		}
-		else
-		{
+        }
+        else {
             bot->client->sess.duelTeam = duelTeam_t::DUELTEAM_LONE;
-		}
+        }
 
-		bot->client->sess.sessionTeam = team_t::TEAM_SPECTATOR;
-		SetTeam(bot, "s");
-	}
-	else
-	{
-		if( delay == 0 ) {
-			ClientBegin( clientNum, false );
-			return;
-		}
+        bot->client->sess.sessionTeam = team_t::TEAM_SPECTATOR;
+        SetTeam(bot, "s");
+    }
+    else {
+        if (delay == 0) {
+            ClientBegin(clientNum, false);
+            return;
+        }
 
-		AddBotToSpawnQueue( clientNum, delay );
-	}
+        AddBotToSpawnQueue(clientNum, delay);
+    }
 }
 
 /*
@@ -1041,58 +1043,58 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 Svcmd_AddBot_f
 ===============
 */
-void Svcmd_AddBot_f( void ) {
-	float			skill;
-	int				delay;
-	char			name[MAX_TOKEN_CHARS];
-	char			altname[MAX_TOKEN_CHARS];
-	char			string[MAX_TOKEN_CHARS];
-	char			team[MAX_TOKEN_CHARS];
+void Svcmd_AddBot_f(void)
+{
+    float skill;
+    int delay;
+    char name[MAX_TOKEN_CHARS];
+    char altname[MAX_TOKEN_CHARS];
+    char string[MAX_TOKEN_CHARS];
+    char team[MAX_TOKEN_CHARS];
 
-	// are bots enabled?
-	if ( !trap->Cvar_VariableIntegerValue( "bot_enable" ) ) {
-		return;
-	}
+    // are bots enabled?
+    if (!trap->Cvar_VariableIntegerValue("bot_enable")) {
+        return;
+    }
 
-	// name
-	trap->Argv( 1, name, sizeof( name ) );
-	if ( !name[0] ) {
-		trap->Print( "Usage: Addbot <botname> [skill 1-5] [team] [msec delay] [altname]\n" );
-		return;
-	}
+    // name
+    trap->Argv(1, name, sizeof(name));
+    if (!name[0]) {
+        trap->Print("Usage: Addbot <botname> [skill 1-5] [team] [msec delay] [altname]\n");
+        return;
+    }
 
-	// skill
-	trap->Argv( 2, string, sizeof( string ) );
-	if ( !string[0] ) {
-		skill = 4;
-	}
-	else {
-		skill = Q_atof( string );
-	}
+    // skill
+    trap->Argv(2, string, sizeof(string));
+    if (!string[0]) {
+        skill = 4;
+    }
+    else {
+        skill = Q_atof(string);
+    }
 
-	// team
-	trap->Argv( 3, team, sizeof( team ) );
+    // team
+    trap->Argv(3, team, sizeof(team));
 
-	// delay
-	trap->Argv( 4, string, sizeof( string ) );
-	if ( !string[0] ) {
-		delay = 0;
-	}
-	else {
-		delay = atoi( string );
-	}
+    // delay
+    trap->Argv(4, string, sizeof(string));
+    if (!string[0]) {
+        delay = 0;
+    }
+    else {
+        delay = atoi(string);
+    }
 
-	// alternative name
-	trap->Argv( 5, altname, sizeof( altname ) );
+    // alternative name
+    trap->Argv(5, altname, sizeof(altname));
 
-	G_AddBot( name, skill, team, delay, altname );
+    G_AddBot(name, skill, team, delay, altname);
 
-	// if this was issued during gameplay and we are playing locally,
-	// go ahead and load the bot's media immediately
-	if ( level.time - level.startTime > 1000 &&
-		trap->Cvar_VariableIntegerValue( "cl_running" ) ) {
-		trap->SendServerCommand( -1, "loaddefered\n" );	// FIXME: spelled wrong, but not changing for demo
-	}
+    // if this was issued during gameplay and we are playing locally,
+    // go ahead and load the bot's media immediately
+    if (level.time - level.startTime > 1000 && trap->Cvar_VariableIntegerValue("cl_running")) {
+        trap->SendServerCommand(-1, "loaddefered\n"); // FIXME: spelled wrong, but not changing for demo
+    }
 }
 
 /*
@@ -1100,33 +1102,34 @@ void Svcmd_AddBot_f( void ) {
 Svcmd_BotList_f
 ===============
 */
-void Svcmd_BotList_f( void ) {
-	int i;
-	char name[MAX_NETNAME];
-	char funname[MAX_NETNAME];
-	char model[MAX_QPATH];
-	char personality[MAX_QPATH];
+void Svcmd_BotList_f(void)
+{
+    int i;
+    char name[MAX_NETNAME];
+    char funname[MAX_NETNAME];
+    char model[MAX_QPATH];
+    char personality[MAX_QPATH];
 
-	trap->Print("name             model            personality              funname\n");
-	for (i = 0; i < level.bots.num; i++) {
-		Q_strncpyz(name, Info_ValueForKey( level.bots.infos[i], "name" ), sizeof( name ));
-		if ( !*name ) {
-			Q_strncpyz(name, "Padawan", sizeof( name ));
-		}
-		Q_strncpyz(funname, Info_ValueForKey( level.bots.infos[i], "funname"), sizeof( funname ));
-		if ( !*funname ) {
-			funname[0] = '\0';
-		}
-		Q_strncpyz(model, Info_ValueForKey( level.bots.infos[i], "model" ), sizeof( model ));
-		if ( !*model ) {
-			Q_strncpyz(model, DEFAULT_MODEL"/default", sizeof( model ));
-		}
-		Q_strncpyz(personality, Info_ValueForKey( level.bots.infos[i], "personality"), sizeof( personality ));
-		if (!*personality ) {
-			Q_strncpyz(personality, "botfiles/kyle.jkb", sizeof( personality ));
-		}
-		trap->Print("%-16s %-16s %-20s %-20s\n", name, model, COM_SkipPath(personality), funname);
-	}
+    trap->Print("name             model            personality              funname\n");
+    for (i = 0; i < level.bots.num; i++) {
+        Q_strncpyz(name, Info_ValueForKey(level.bots.infos[i], "name"), sizeof(name));
+        if (!*name) {
+            Q_strncpyz(name, "Padawan", sizeof(name));
+        }
+        Q_strncpyz(funname, Info_ValueForKey(level.bots.infos[i], "funname"), sizeof(funname));
+        if (!*funname) {
+            funname[0] = '\0';
+        }
+        Q_strncpyz(model, Info_ValueForKey(level.bots.infos[i], "model"), sizeof(model));
+        if (!*model) {
+            Q_strncpyz(model, DEFAULT_MODEL "/default", sizeof(model));
+        }
+        Q_strncpyz(personality, Info_ValueForKey(level.bots.infos[i], "personality"), sizeof(personality));
+        if (!*personality) {
+            Q_strncpyz(personality, "botfiles/kyle.jkb", sizeof(personality));
+        }
+        trap->Print("%-16s %-16s %-20s %-20s\n", name, model, COM_SkipPath(personality), funname);
+    }
 }
 
 #if 0
@@ -1189,27 +1192,28 @@ static void G_SpawnBots( char *botList, int baseDelay ) {
 G_LoadBotsFromFile
 ===============
 */
-static void G_LoadBotsFromFile( const char *filename ) {
-	int				len;
-	fileHandle_t	f;
-	char			buf[MAX_BOTS_TEXT];
+static void G_LoadBotsFromFile(const char* filename)
+{
+    int len;
+    fileHandle_t f;
+    char buf[MAX_BOTS_TEXT];
 
-	len = trap->FS_Open( filename, &f, fsMode_t::FS_READ );
-	if ( !f ) {
-		trap->Print( S_COLOR_RED "file not found: %s\n", filename );
-		return;
-	}
-	if ( len >= MAX_BOTS_TEXT ) {
-		trap->Print( S_COLOR_RED "file too large: %s is %i, max allowed is %i\n", filename, len, MAX_BOTS_TEXT );
-		trap->FS_Close( f );
-		return;
-	}
+    len = trap->FS_Open(filename, &f, fsMode_t::FS_READ);
+    if (!f) {
+        trap->Print(S_COLOR_RED "file not found: %s\n", filename);
+        return;
+    }
+    if (len >= MAX_BOTS_TEXT) {
+        trap->Print(S_COLOR_RED "file too large: %s is %i, max allowed is %i\n", filename, len, MAX_BOTS_TEXT);
+        trap->FS_Close(f);
+        return;
+    }
 
-	trap->FS_Read( buf, len, f );
-	buf[len] = 0;
-	trap->FS_Close( f );
+    trap->FS_Read(buf, len, f);
+    buf[len] = 0;
+    trap->FS_Close(f);
 
-	level.bots.num += G_ParseInfos( buf, MAX_BOTS - level.bots.num, &level.bots.infos[level.bots.num] );
+    level.bots.num += G_ParseInfos(buf, MAX_BOTS - level.bots.num, &level.bots.infos[level.bots.num]);
 }
 
 /*
@@ -1217,40 +1221,41 @@ static void G_LoadBotsFromFile( const char *filename ) {
 G_LoadBots
 ===============
 */
-static void G_LoadBots( void ) {
-	vmCvar_t	botsFile;
-	int			numdirs;
-	char		filename[128];
-	char		dirlist[1024];
-	char*		dirptr;
-	int			i;
-	int			dirlen;
+static void G_LoadBots(void)
+{
+    vmCvar_t botsFile;
+    int numdirs;
+    char filename[128];
+    char dirlist[1024];
+    char* dirptr;
+    int i;
+    int dirlen;
 
-	if ( !trap->Cvar_VariableIntegerValue( "bot_enable" ) ) {
-		return;
-	}
+    if (!trap->Cvar_VariableIntegerValue("bot_enable")) {
+        return;
+    }
 
-	level.bots.num = 0;
+    level.bots.num = 0;
 
-	trap->Cvar_Register( &botsFile, "g_botsFile", "", cvarFlags_t::CVAR_INIT|cvarFlags_t::CVAR_ROM );
-	if( *botsFile.string ) {
-		G_LoadBotsFromFile(botsFile.string);
-	}
-	else {
-		//G_LoadBotsFromFile("scripts/bots.txt");
-		G_LoadBotsFromFile("botfiles/bots.txt");
-	}
+    trap->Cvar_Register(&botsFile, "g_botsFile", "", cvarFlags_t::CVAR_INIT | cvarFlags_t::CVAR_ROM);
+    if (*botsFile.string) {
+        G_LoadBotsFromFile(botsFile.string);
+    }
+    else {
+        // G_LoadBotsFromFile("scripts/bots.txt");
+        G_LoadBotsFromFile("botfiles/bots.txt");
+    }
 
-	// get all bots from .bot files
-	numdirs = trap->FS_GetFileList("scripts", ".bot", dirlist, 1024 );
-	dirptr  = dirlist;
-	for (i = 0; i < numdirs; i++, dirptr += dirlen+1) {
-		dirlen = strlen(dirptr);
-		strcpy(filename, "scripts/");
-		strcat(filename, dirptr);
-		G_LoadBotsFromFile(filename);
-	}
-//	trap->Print( "%i bots parsed\n", level.bots.num );
+    // get all bots from .bot files
+    numdirs = trap->FS_GetFileList("scripts", ".bot", dirlist, 1024);
+    dirptr = dirlist;
+    for (i = 0; i < numdirs; i++, dirptr += dirlen + 1) {
+        dirlen = strlen(dirptr);
+        strcpy(filename, "scripts/");
+        strcat(filename, dirptr);
+        G_LoadBotsFromFile(filename);
+    }
+    //	trap->Print( "%i bots parsed\n", level.bots.num );
 }
 
 /*
@@ -1258,12 +1263,13 @@ static void G_LoadBots( void ) {
 G_GetBotInfoByNumber
 ===============
 */
-char *G_GetBotInfoByNumber( int num ) {
-	if( num < 0 || num >= level.bots.num ) {
-		trap->Print( S_COLOR_RED "Invalid bot number: %i\n", num );
-		return nullptr;
-	}
-	return level.bots.infos[num];
+char* G_GetBotInfoByNumber(int num)
+{
+    if (num < 0 || num >= level.bots.num) {
+        trap->Print(S_COLOR_RED "Invalid bot number: %i\n", num);
+        return nullptr;
+    }
+    return level.bots.infos[num];
 }
 
 /*
@@ -1271,36 +1277,38 @@ char *G_GetBotInfoByNumber( int num ) {
 G_GetBotInfoByName
 ===============
 */
-char *G_GetBotInfoByName( const char *name ) {
-	int		n;
-	const char	*value;
+char* G_GetBotInfoByName(const char* name)
+{
+    int n;
+    const char* value;
 
-	for ( n = 0; n < level.bots.num ; n++ ) {
-		value = Info_ValueForKey( level.bots.infos[n], "name" );
-		if ( !Q_stricmp( value, name ) ) {
-			return level.bots.infos[n];
-		}
-	}
+    for (n = 0; n < level.bots.num; n++) {
+        value = Info_ValueForKey(level.bots.infos[n], "name");
+        if (!Q_stricmp(value, name)) {
+            return level.bots.infos[n];
+        }
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
-//rww - pd
+// rww - pd
 void LoadPath_ThisLevel(void);
-//end rww
+// end rww
 
 /*
 ===============
 G_InitBots
 ===============
 */
-void G_InitBots( void ) {
-	G_LoadBots();
-	G_LoadArenas();
+void G_InitBots(void)
+{
+    G_LoadBots();
+    G_LoadArenas();
 
-	trap->Cvar_Register( &bot_minplayers, "bot_minplayers", "0", cvarFlags_t::CVAR_SERVERINFO );
+    trap->Cvar_Register(&bot_minplayers, "bot_minplayers", "0", cvarFlags_t::CVAR_SERVERINFO);
 
-	//rww - new bot route stuff
-	LoadPath_ThisLevel();
-	//end rww
+    // rww - new bot route stuff
+    LoadPath_ThisLevel();
+    // end rww
 }

@@ -27,57 +27,50 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "wp_saber.h"
 #include "w_local.h"
 
-void WP_Melee( gentity_t *ent )
+void WP_Melee(gentity_t* ent)
 //---------------------------------------------------------
 {
-	gentity_t	*tr_ent;
-	trace_t		tr;
-	vec3_t		mins, maxs, end;
-	int			damage = ent->s.number ? (g_spskill->integer*2)+1 : 3;
-	float		range = ent->s.number ? 64 : 32;
+    gentity_t* tr_ent;
+    trace_t tr;
+    vec3_t mins, maxs, end;
+    int damage = ent->s.number ? (g_spskill->integer * 2) + 1 : 3;
+    float range = ent->s.number ? 64 : 32;
 
-	VectorMA( muzzle, range, forwardVec, end );
+    VectorMA(muzzle, range, forwardVec, end);
 
-	VectorSet( maxs, 6, 6, 6 );
-	VectorScale( maxs, -1, mins );
+    VectorSet(maxs, 6, 6, 6);
+    VectorScale(maxs, -1, mins);
 
-	gi.trace ( &tr, muzzle, mins, maxs, end, ent->s.number, MASK_SHOT, EG2_Collision::G2_NOCOLLIDE, 0 );
+    gi.trace(&tr, muzzle, mins, maxs, end, ent->s.number, MASK_SHOT, EG2_Collision::G2_NOCOLLIDE, 0);
 
-	if ( tr.entityNum >= ENTITYNUM_WORLD )
-	{
-		if ( tr.entityNum == ENTITYNUM_WORLD )
-		{
-			G_PlayEffect( G_EffectIndex( "melee/punch_impact" ), tr.endpos, forwardVec );
-		}
-		return;
-	}
+    if (tr.entityNum >= ENTITYNUM_WORLD) {
+        if (tr.entityNum == ENTITYNUM_WORLD) {
+            G_PlayEffect(G_EffectIndex("melee/punch_impact"), tr.endpos, forwardVec);
+        }
+        return;
+    }
 
-	tr_ent = &g_entities[tr.entityNum];
+    tr_ent = &g_entities[tr.entityNum];
 
-	if ( ent->client && !PM_DroidMelee( ent->client->NPC_class ) )
-	{
-		if ( ent->s.number || ent->alt_fire )
-		{
-			damage *= Q_irand( 2, 3 );
-		}
-		else
-		{
-			damage *= Q_irand( 1, 2 );
-		}
-	}
+    if (ent->client && !PM_DroidMelee(ent->client->NPC_class)) {
+        if (ent->s.number || ent->alt_fire) {
+            damage *= Q_irand(2, 3);
+        }
+        else {
+            damage *= Q_irand(1, 2);
+        }
+    }
 
-	if ( tr_ent && tr_ent->takedamage )
-	{
-		damageFlags_t dflags = damageFlags_t::DAMAGE_NO_KNOCKBACK;
-		G_PlayEffect( G_EffectIndex( "melee/punch_impact" ), tr.endpos, forwardVec );
-		//G_Sound( tr_ent, G_SoundIndex( va("sound/weapons/melee/punch%d", Q_irand(1, 4)) ) );
-		if ( ent->NPC && Any(ent->NPC->aiFlags&npcAiFlags_t::NPCAI_HEAVY_MELEE) )
-		{ //4x damage for heavy melee class
-			damage *= 4;
-			dflags &= ~damageFlags_t::DAMAGE_NO_KNOCKBACK;
-			dflags |= damageFlags_t::DAMAGE_DISMEMBER;
-		}
+    if (tr_ent && tr_ent->takedamage) {
+        damageFlags_t dflags = damageFlags_t::DAMAGE_NO_KNOCKBACK;
+        G_PlayEffect(G_EffectIndex("melee/punch_impact"), tr.endpos, forwardVec);
+        // G_Sound( tr_ent, G_SoundIndex( va("sound/weapons/melee/punch%d", Q_irand(1, 4)) ) );
+        if (ent->NPC && Any(ent->NPC->aiFlags & npcAiFlags_t::NPCAI_HEAVY_MELEE)) { // 4x damage for heavy melee class
+            damage *= 4;
+            dflags &= ~damageFlags_t::DAMAGE_NO_KNOCKBACK;
+            dflags |= damageFlags_t::DAMAGE_DISMEMBER;
+        }
 
-		G_Damage( tr_ent, ent, ent, forwardVec, tr.endpos, damage, dflags, meansOfDeath_t::MOD_MELEE );
-	}
+        G_Damage(tr_ent, ent, ent, forwardVec, tr.endpos, damage, dflags, meansOfDeath_t::MOD_MELEE);
+    }
 }

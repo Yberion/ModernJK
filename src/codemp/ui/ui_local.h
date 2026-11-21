@@ -33,114 +33,114 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // ui_cvar.cpp
 #define XCVAR_PROTO
-	#include "ui_xcvar.h"
+#include "ui_xcvar.h"
 #undef XCVAR_PROTO
-void UI_RegisterCvars( void );
-void UI_UpdateCvars( void );
+void UI_RegisterCvars(void);
+void UI_UpdateCvars(void);
 
 inline constexpr int MAX_FORCE_CONFIGS = 128;
-inline constexpr int MAX_SABER_HILTS = 256; //64
+inline constexpr int MAX_SABER_HILTS = 256; // 64
 
 //
 // ui_main.cpp
 //
-bool UI_FeederSelection( float feederID, int index, itemDef_t *item );
-void UI_Report( void );
-void UI_Load( void );
-void UI_LoadMenus( const char *menuFile, bool reset );
-void UI_LoadArenas( void );
-void UI_LoadForceConfig_List( void );
+bool UI_FeederSelection(float feederID, int index, itemDef_t* item);
+void UI_Report(void);
+void UI_Load(void);
+void UI_LoadMenus(const char* menuFile, bool reset);
+void UI_LoadArenas(void);
+void UI_LoadForceConfig_List(void);
 
 //
 // ui_players.c
 //
 
-//FIXME ripped from cg_local.h
+// FIXME ripped from cg_local.h
 typedef struct lerpFrame_s {
-	int			oldFrame;
-	int			oldFrameTime;		// time when ->oldFrame was exactly on
+    int oldFrame;
+    int oldFrameTime; // time when ->oldFrame was exactly on
 
-	int			frame;
-	int			frameTime;			// time when ->frame will be exactly on
+    int frame;
+    int frameTime; // time when ->frame will be exactly on
 
-	float		backlerp;
+    float backlerp;
 
-	float		yawAngle;
-	bool	yawing;
-	float		pitchAngle;
-	bool	pitching;
+    float yawAngle;
+    bool yawing;
+    float pitchAngle;
+    bool pitching;
 
-	animNumber_t	animationNumber;
-	animation_t	*animation;
-	int			animationTime;		// time when the first frame of the animation will be exact
+    animNumber_t animationNumber;
+    animation_t* animation;
+    int animationTime; // time when the first frame of the animation will be exact
 } lerpFrame_t;
 
 typedef struct playerInfo_s {
-	// model info
-	qhandle_t		legsModel;
-	qhandle_t		legsSkin;
-	lerpFrame_t		legs;
+    // model info
+    qhandle_t legsModel;
+    qhandle_t legsSkin;
+    lerpFrame_t legs;
 
-	qhandle_t		torsoModel;
-	qhandle_t		torsoSkin;
-	lerpFrame_t		torso;
+    qhandle_t torsoModel;
+    qhandle_t torsoSkin;
+    lerpFrame_t torso;
 
-//	qhandle_t		headModel;
-//	qhandle_t		headSkin;
+    //	qhandle_t		headModel;
+    //	qhandle_t		headSkin;
 
-	animSet_t		animations;
+    animSet_t animations;
 
-	qhandle_t		weaponModel;
-	qhandle_t		barrelModel;
-	qhandle_t		flashModel;
-	vec3_t			flashDlightColor;
-	int				muzzleFlashTime;
+    qhandle_t weaponModel;
+    qhandle_t barrelModel;
+    qhandle_t flashModel;
+    vec3_t flashDlightColor;
+    int muzzleFlashTime;
 
-	// currently in use drawing parms
-	vec3_t			viewAngles;
-	vec3_t			moveAngles;
-	weapon_t		currentWeapon;
-	animNumber_t	legsAnim;
-	animNumber_t	torsoAnim;
+    // currently in use drawing parms
+    vec3_t viewAngles;
+    vec3_t moveAngles;
+    weapon_t currentWeapon;
+    animNumber_t legsAnim;
+    animNumber_t torsoAnim;
 
-	// animation vars
-	weapon_t		weapon;
-	weapon_t		lastWeapon;
-	weapon_t		pendingWeapon;
-	int				weaponTimer;
-	animNumber_t	pendingLegsAnim;
-	int				torsoAnimationTimer;
+    // animation vars
+    weapon_t weapon;
+    weapon_t lastWeapon;
+    weapon_t pendingWeapon;
+    int weaponTimer;
+    animNumber_t pendingLegsAnim;
+    int torsoAnimationTimer;
 
-	animNumber_t	pendingTorsoAnim;
-	int				legsAnimationTimer;
+    animNumber_t pendingTorsoAnim;
+    int legsAnimationTimer;
 
-	bool		chat;
-	bool		newModel;
+    bool chat;
+    bool newModel;
 
-	bool		barrelSpinning;
-	float			barrelAngle;
-	int				barrelTime;
+    bool barrelSpinning;
+    float barrelAngle;
+    int barrelTime;
 
-	weapon_t		realWeapon;
+    weapon_t realWeapon;
 } playerInfo_t;
 
 // new ui stuff
 inline constexpr int MAX_ALIASES = 64;
 inline constexpr int MAX_TEAMS = 64;
 inline constexpr int MAX_GAMETYPES = 16;
-inline constexpr int MAX_MAPS = 512; // 128
-inline constexpr int PLAYERS_PER_TEAM = 8; //5
+inline constexpr int MAX_MAPS = 512;       // 128
+inline constexpr int PLAYERS_PER_TEAM = 8; // 5
 inline constexpr int MAX_DISPLAY_SERVERS = 2048;
 inline constexpr int MAX_SERVERSTATUS_LINES = 128;
-inline constexpr int MAX_SERVERSTATUS_TEXT = 4096; //1024
+inline constexpr int MAX_SERVERSTATUS_TEXT = 4096; // 1024
 inline constexpr int MAX_FOUNDPLAYER_SERVERS = 16;
-inline constexpr int TEAM_MEMBERS = 8; //5
+inline constexpr int TEAM_MEMBERS = 8; // 5
 inline constexpr int MAPS_PER_TIER = 3;
 inline constexpr int MAX_TIERS = 16;
 inline constexpr int MAX_MODS = 64;
-inline constexpr int MAX_DEMOS = 2048; // 256
-inline constexpr int MAX_MOVIES = 2048; // 256
-inline constexpr int MAX_Q3PLAYERMODELS = 1024; //256
+inline constexpr int MAX_DEMOS = 2048;          // 256
+inline constexpr int MAX_MOVIES = 2048;         // 256
+inline constexpr int MAX_Q3PLAYERMODELS = 1024; // 256
 
 #define DEMO_DIRECTORY "demos"
 #define DEMO_EXTENSION "dm_"
@@ -150,289 +150,275 @@ inline constexpr int MAX_SCROLLTEXT_SIZE = 4096;
 inline constexpr int MAX_SCROLLTEXT_LINES = 64;
 
 typedef struct aliasInfo_s {
-	const char *name;
-	const char *ai;
-	const char *action;
+    const char* name;
+    const char* ai;
+    const char* action;
 } aliasInfo_t;
 
 typedef struct teamInfo_s {
-	const char *teamName;
-	const char *imageName;
-	const char *teamMembers[TEAM_MEMBERS];
-	qhandle_t teamIcon;
-	qhandle_t teamIcon_Metal;
-	qhandle_t teamIcon_Name;
-	int cinematic;
+    const char* teamName;
+    const char* imageName;
+    const char* teamMembers[TEAM_MEMBERS];
+    qhandle_t teamIcon;
+    qhandle_t teamIcon_Metal;
+    qhandle_t teamIcon_Name;
+    int cinematic;
 } teamInfo_t;
 
 typedef struct gameTypeInfo_s {
-	const char *gameType;
-	gametype_t gtEnum;
+    const char* gameType;
+    gametype_t gtEnum;
 } gameTypeInfo_t;
 
 typedef struct mapInfo_s {
-	const char *mapName;
-	const char *mapLoadName;
-	const char *imageName;
-	const char *opponentName;
-	int teamMembers;
-	int typeBits;
-	int cinematic;
-	int timeToBeat[MAX_GAMETYPES];
-	qhandle_t levelShot;
-	bool active;
+    const char* mapName;
+    const char* mapLoadName;
+    const char* imageName;
+    const char* opponentName;
+    int teamMembers;
+    int typeBits;
+    int cinematic;
+    int timeToBeat[MAX_GAMETYPES];
+    qhandle_t levelShot;
+    bool active;
 } mapInfo_t;
 
 typedef struct tierInfo_s {
-	const char *tierName;
-	const char *maps[MAPS_PER_TIER];
-	int gameTypes[MAPS_PER_TIER];
-	qhandle_t mapHandles[MAPS_PER_TIER];
+    const char* tierName;
+    const char* maps[MAPS_PER_TIER];
+    int gameTypes[MAPS_PER_TIER];
+    qhandle_t mapHandles[MAPS_PER_TIER];
 } tierInfo_t;
 
 typedef struct serverFilter_s {
-	const char *description;
-	const char *basedir;
+    const char* description;
+    const char* basedir;
 } serverFilter_t;
 
 typedef struct pinglist_s {
-	char	adrstr[MAX_ADDRESSLENGTH];
-	int		start;
+    char adrstr[MAX_ADDRESSLENGTH];
+    int start;
 } pinglist_t;
 
 typedef struct serverStatus_s {
-	pinglist_t pingList[MAX_PINGREQUESTS];
-	int		numqueriedservers;
-	int		currentping;
-	int		nextpingtime;
-	int		maxservers;
-	int		refreshtime;
-	int		numServers;
-	serverSortKey_t	sortKey;
-	int		sortDir;
-	int		lastCount;
-	bool refreshActive;
-	int		currentServer;
-	int		displayServers[MAX_DISPLAY_SERVERS];
-	int		numDisplayServers;
-	int		numPlayersOnServers;
-	int		nextDisplayRefresh;
-	int		nextSortTime;
-	qhandle_t currentServerPreview;
-	int		currentServerCinematic;
-	int		motdLen;
-	int		motdWidth;
-	int		motdPaintX;
-	int		motdPaintX2;
-	int		motdOffset;
-	int		motdTime;
-	char	motd[MAX_STRING_CHARS];
+    pinglist_t pingList[MAX_PINGREQUESTS];
+    int numqueriedservers;
+    int currentping;
+    int nextpingtime;
+    int maxservers;
+    int refreshtime;
+    int numServers;
+    serverSortKey_t sortKey;
+    int sortDir;
+    int lastCount;
+    bool refreshActive;
+    int currentServer;
+    int displayServers[MAX_DISPLAY_SERVERS];
+    int numDisplayServers;
+    int numPlayersOnServers;
+    int nextDisplayRefresh;
+    int nextSortTime;
+    qhandle_t currentServerPreview;
+    int currentServerCinematic;
+    int motdLen;
+    int motdWidth;
+    int motdPaintX;
+    int motdPaintX2;
+    int motdOffset;
+    int motdTime;
+    char motd[MAX_STRING_CHARS];
 } serverStatus_t;
 
 typedef struct pendingServer_s {
-	char		adrstr[MAX_ADDRESSLENGTH];
-	char		name[MAX_ADDRESSLENGTH];
-	int			startTime;
-	int			serverNum;
-	bool	valid;
+    char adrstr[MAX_ADDRESSLENGTH];
+    char name[MAX_ADDRESSLENGTH];
+    int startTime;
+    int serverNum;
+    bool valid;
 } pendingServer_t;
 
 typedef struct pendingServerStatus_s {
-	int num;
-	pendingServer_t server[MAX_SERVERSTATUSREQUESTS];
+    int num;
+    pendingServer_t server[MAX_SERVERSTATUSREQUESTS];
 } pendingServerStatus_t;
 
 typedef struct serverStatusInfo_s {
-	char address[MAX_ADDRESSLENGTH];
-	const char *lines[MAX_SERVERSTATUS_LINES][4];
-	char text[MAX_SERVERSTATUS_TEXT];
-	char pings[MAX_CLIENTS * 3];
-	int numLines;
+    char address[MAX_ADDRESSLENGTH];
+    const char* lines[MAX_SERVERSTATUS_LINES][4];
+    char text[MAX_SERVERSTATUS_TEXT];
+    char pings[MAX_CLIENTS * 3];
+    int numLines;
 } serverStatusInfo_t;
 
 typedef struct modInfo_s {
-	const char *modName;
-	const char *modDescr;
+    const char* modName;
+    const char* modDescr;
 } modInfo_t;
 
 inline constexpr int SKIN_LENGTH = 16;
 inline constexpr int ACTION_BUFFER_SIZE = 128;
 
 typedef struct {
-	char name[SKIN_LENGTH];
+    char name[SKIN_LENGTH];
 } skinName_t;
 
 typedef struct {
-	char shader[MAX_QPATH];
-	char actionText[ACTION_BUFFER_SIZE];
+    char shader[MAX_QPATH];
+    char actionText[ACTION_BUFFER_SIZE];
 } playerColor_t;
 
 typedef struct playerSpeciesInfo_s {
-	char		Name[MAX_QPATH];
-	int			SkinHeadCount;
-	int			SkinHeadMax;
-	skinName_t	*SkinHead;
-	int			SkinTorsoCount;
-	int			SkinTorsoMax;
-	skinName_t	*SkinTorso;
-	int			SkinLegCount;
-	int			SkinLegMax;
-	skinName_t	*SkinLeg;
-	int			ColorMax;
-	int			ColorCount;
-	playerColor_t	*Color;
+    char Name[MAX_QPATH];
+    int SkinHeadCount;
+    int SkinHeadMax;
+    skinName_t* SkinHead;
+    int SkinTorsoCount;
+    int SkinTorsoMax;
+    skinName_t* SkinTorso;
+    int SkinLegCount;
+    int SkinLegMax;
+    skinName_t* SkinLeg;
+    int ColorMax;
+    int ColorCount;
+    playerColor_t* Color;
 } playerSpeciesInfo_t;
 
 // the titles of the datapad's moves database
-enum class datapadMoveTitle_t
-{
-	MD_ACROBATICS = 0,
-	MD_SINGLE_FAST,
-	MD_SINGLE_MEDIUM,
-	MD_SINGLE_STRONG,
-	MD_DUAL_SABERS,
-	MD_SABER_STAFF,
-	MD_MOVE_TITLE_MAX
-};
+enum class datapadMoveTitle_t { MD_ACROBATICS = 0, MD_SINGLE_FAST, MD_SINGLE_MEDIUM, MD_SINGLE_STRONG, MD_DUAL_SABERS, MD_SABER_STAFF, MD_MOVE_TITLE_MAX };
 
 typedef struct uiInfo_s {
-	displayContextDef_t		uiDC;
+    displayContextDef_t uiDC;
 
-	int						characterCount;
-	int						botIndex;
+    int characterCount;
+    int botIndex;
 
-	int						aliasCount;
-	aliasInfo_t				aliasList[MAX_ALIASES];
+    int aliasCount;
+    aliasInfo_t aliasList[MAX_ALIASES];
 
-	int						teamCount;
-	teamInfo_t				teamList[MAX_TEAMS];
+    int teamCount;
+    teamInfo_t teamList[MAX_TEAMS];
 
-	int						numGameTypes;
-	gameTypeInfo_t			gameTypes[MAX_GAMETYPES];
+    int numGameTypes;
+    gameTypeInfo_t gameTypes[MAX_GAMETYPES];
 
-	int						numJoinGameTypes;
-	gameTypeInfo_t			joinGameTypes[MAX_GAMETYPES];
+    int numJoinGameTypes;
+    gameTypeInfo_t joinGameTypes[MAX_GAMETYPES];
 
-	int						redBlue;
-	int						playerCount;
-	int						myTeamCount;
-	int						teamIndex;
-	int						playerRefresh;
-	int						playerIndex;
-	int						playerNumber;
-	bool				teamLeader;
-	char					playerNames[MAX_CLIENTS][MAX_NETNAME];
-	char					teamNames[MAX_CLIENTS][MAX_TEAMNAME];
-	int						teamClientNums[MAX_CLIENTS];
+    int redBlue;
+    int playerCount;
+    int myTeamCount;
+    int teamIndex;
+    int playerRefresh;
+    int playerIndex;
+    int playerNumber;
+    bool teamLeader;
+    char playerNames[MAX_CLIENTS][MAX_NETNAME];
+    char teamNames[MAX_CLIENTS][MAX_TEAMNAME];
+    int teamClientNums[MAX_CLIENTS];
 
-	int						playerIndexes[MAX_CLIENTS]; //so we can vote-kick by index
+    int playerIndexes[MAX_CLIENTS]; // so we can vote-kick by index
 
-	int						mapCount;
-	mapInfo_t				mapList[MAX_MAPS];
+    int mapCount;
+    mapInfo_t mapList[MAX_MAPS];
 
+    int tierCount;
+    tierInfo_t tierList[MAX_TIERS];
 
-	int						tierCount;
-	tierInfo_t				tierList[MAX_TIERS];
+    int skillIndex;
 
-	int						skillIndex;
+    modInfo_t modList[MAX_MODS];
+    int modCount;
+    int modIndex;
 
-	modInfo_t				modList[MAX_MODS];
-	int						modCount;
-	int						modIndex;
+    char demoList[MAX_DEMOS][MAX_QPATH];
+    int demoCount;
+    int demoIndex;
+    int loadedDemos;
 
-	char					demoList[MAX_DEMOS][MAX_QPATH];
-	int						demoCount;
-	int						demoIndex;
-	int						loadedDemos;
+    const char* movieList[MAX_MOVIES];
+    int movieCount;
+    int movieIndex;
+    int previewMovie;
 
-	const char				*movieList[MAX_MOVIES];
-	int						movieCount;
-	int						movieIndex;
-	int						previewMovie;
+    char scrolltext[MAX_SCROLLTEXT_SIZE];
+    const char* scrolltextLine[MAX_SCROLLTEXT_LINES];
+    int scrolltextLineCount;
 
-	char					scrolltext[MAX_SCROLLTEXT_SIZE];
-	const char				*scrolltextLine[MAX_SCROLLTEXT_LINES];
-	int						scrolltextLineCount;
+    serverStatus_t serverStatus;
 
-	serverStatus_t			serverStatus;
+    // for the showing the status of a server
+    char serverStatusAddress[MAX_ADDRESSLENGTH];
+    serverStatusInfo_t serverStatusInfo;
+    int nextServerStatusRefresh;
 
-	// for the showing the status of a server
-	char					serverStatusAddress[MAX_ADDRESSLENGTH];
-	serverStatusInfo_t		serverStatusInfo;
-	int						nextServerStatusRefresh;
+    // to retrieve the status of server to find a player
+    pendingServerStatus_t pendingServerStatus;
+    char findPlayerName[MAX_STRING_CHARS];
+    char foundPlayerServerAddresses[MAX_FOUNDPLAYER_SERVERS][MAX_ADDRESSLENGTH];
+    char foundPlayerServerNames[MAX_FOUNDPLAYER_SERVERS][MAX_ADDRESSLENGTH];
+    int currentFoundPlayerServer;
+    int numFoundPlayerServers;
+    int nextFindPlayerRefresh;
 
-	// to retrieve the status of server to find a player
-	pendingServerStatus_t	pendingServerStatus;
-	char					findPlayerName[MAX_STRING_CHARS];
-	char					foundPlayerServerAddresses[MAX_FOUNDPLAYER_SERVERS][MAX_ADDRESSLENGTH];
-	char					foundPlayerServerNames[MAX_FOUNDPLAYER_SERVERS][MAX_ADDRESSLENGTH];
-	int						currentFoundPlayerServer;
-	int						numFoundPlayerServers;
-	int						nextFindPlayerRefresh;
+    int currentCrosshair;
 
-	int						currentCrosshair;
+    int q3HeadCount;
+    char q3HeadNames[MAX_Q3PLAYERMODELS][64];
+    qhandle_t q3HeadIcons[MAX_Q3PLAYERMODELS];
+    int q3SelectedHead;
 
-	int						q3HeadCount;
-	char					q3HeadNames[MAX_Q3PLAYERMODELS][64];
-	qhandle_t				q3HeadIcons[MAX_Q3PLAYERMODELS];
-	int						q3SelectedHead;
+    int forceConfigCount;
+    int forceConfigSelected;
+    char forceConfigNames[MAX_FORCE_CONFIGS][128];
+    bool forceConfigSide[MAX_FORCE_CONFIGS]; // true if it's a light side config, false if dark side
+    int forceConfigDarkIndexBegin;           // mark the index number dark configs start at
+    int forceConfigLightIndexBegin;          // mark the index number light configs start at
 
-	int						forceConfigCount;
-	int						forceConfigSelected;
-	char					forceConfigNames[MAX_FORCE_CONFIGS][128];
-	bool				forceConfigSide[MAX_FORCE_CONFIGS]; //true if it's a light side config, false if dark side
-	int						forceConfigDarkIndexBegin; //mark the index number dark configs start at
-	int						forceConfigLightIndexBegin; //mark the index number light configs start at
+    bool inGameLoad;
 
-	bool				inGameLoad;
+    int playerSpeciesMax;
+    int playerSpeciesCount;
+    playerSpeciesInfo_t* playerSpecies;
+    int playerSpeciesIndex;
 
-	int						playerSpeciesMax;
-	int						playerSpeciesCount;
-	playerSpeciesInfo_t		*playerSpecies;
-	int						playerSpeciesIndex;
+    datapadMoveTitle_t movesTitleIndex;
+    const char* movesBaseAnim;
+    int moveAnimTime;
 
-	datapadMoveTitle_t		movesTitleIndex;
-	const char				*movesBaseAnim;
-	int						moveAnimTime;
-
-	int						languageCount;
-	int						languageCountIndex;
+    int languageCount;
+    int languageCountIndex;
 } uiInfo_t;
 extern uiInfo_t uiInfo;
 
-bool	UI_ConsoleCommand( int realTime );
-void		UI_DrawHandlePic( float x, float y, float w, float h, qhandle_t hShader );
-void		UI_FillRect( float x, float y, float width, float height, const float *color );
-char		*UI_Cvar_VariableString( const char *var_name );
-
+bool UI_ConsoleCommand(int realTime);
+void UI_DrawHandlePic(float x, float y, float w, float h, qhandle_t hShader);
+void UI_FillRect(float x, float y, float width, float height, const float* color);
+char* UI_Cvar_VariableString(const char* var_name);
 
 //
 // ui_gameinfo.cpp
 //
 
-int UI_GetNumBots( void );
-void UI_LoadBots( void );
-const char *UI_GetBotNameByNumber( int num );
-
+int UI_GetNumBots(void);
+void UI_LoadBots(void);
+const char* UI_GetBotNameByNumber(int num);
 
 //
 // ui_saber.cpp
 //
 
-bool UI_SaberModelForSaber( const char *saberName, char *saberModel );
-bool UI_SaberTypeForSaber( const char *saberName, char *saberType );
-
+bool UI_SaberModelForSaber(const char* saberName, char* saberModel);
+bool UI_SaberTypeForSaber(const char* saberName, char* saberType);
 
 //
 // ui_main.cpp: the cvars that hold an enumeration, read as it
 //
 
-enum class siegePlayerClassFlags_t;	// game/bg_saga.h
-team_t UI_CvarTeam( const char *name );
-siegePlayerClassFlags_t UI_CvarSiegeClass( void );
-gametype_t UI_CvarGametype( void );
-
+enum class siegePlayerClassFlags_t; // game/bg_saga.h
+team_t UI_CvarTeam(const char* name);
+siegePlayerClassFlags_t UI_CvarSiegeClass(void);
+gametype_t UI_CvarGametype(void);
 
 // new ui
 
-extern uiImport_t *trap;
+extern uiImport_t* trap;

@@ -22,7 +22,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-//#define	CULL_BBOX
+// #define	CULL_BBOX
 
 /*
 
@@ -61,40 +61,37 @@ degenerate a few triangles.  Completely degenerate rows and columns are handled
 properly.
 */
 
-
 #include "qcommon/q_collision.h"
 
 typedef struct {
-	float	plane[4];
-	int		signbits;		// signx + (signy<<1) + (signz<<2), used as lookup during collision
+    float plane[4];
+    int signbits; // signx + (signy<<1) + (signz<<2), used as lookup during collision
 } patchPlane_t;
 
 typedef struct {
-	int			surfacePlane;
-	int			numBorders;		// 3 or four + 6 axial bevels + 4 or 3 * 4 edge bevels
-	int			borderPlanes[4+6+16];
-	int			borderInward[4+6+16];
-	bool	borderNoAdjust[4+6+16];
+    int surfacePlane;
+    int numBorders; // 3 or four + 6 axial bevels + 4 or 3 * 4 edge bevels
+    int borderPlanes[4 + 6 + 16];
+    int borderInward[4 + 6 + 16];
+    bool borderNoAdjust[4 + 6 + 16];
 } facet_t;
 
 typedef struct patchCollide_s {
-	vec3_t	bounds[2];
-	int		numPlanes;			// surface planes plus edge planes
-	patchPlane_t	*planes;
-	int		numFacets;
-	facet_t	*facets;
+    vec3_t bounds[2];
+    int numPlanes; // surface planes plus edge planes
+    patchPlane_t* planes;
+    int numFacets;
+    facet_t* facets;
 } patchCollide_t;
-
 
 inline constexpr int CM_MAX_GRID_SIZE = 129;
 
 typedef struct {
-	int			width;
-	int			height;
-	bool	wrapWidth;
-	bool	wrapHeight;
-	vec3_t	points[CM_MAX_GRID_SIZE][CM_MAX_GRID_SIZE];	// [width][height]
+    int width;
+    int height;
+    bool wrapWidth;
+    bool wrapHeight;
+    vec3_t points[CM_MAX_GRID_SIZE][CM_MAX_GRID_SIZE]; // [width][height]
 } cGrid_t;
 
-
-struct patchCollide_s	*CM_GeneratePatchCollide( int width, int height, vec3_t *points );
+struct patchCollide_s* CM_GeneratePatchCollide(int width, int height, vec3_t* points);

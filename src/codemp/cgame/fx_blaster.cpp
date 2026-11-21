@@ -31,16 +31,15 @@ FX_BlasterProjectileThink
 -------------------------
 */
 
-void FX_BlasterProjectileThink( centity_t *cent, const struct weaponInfo_s *weapon )
+void FX_BlasterProjectileThink(centity_t* cent, const struct weaponInfo_s* weapon)
 {
-	vec3_t forward;
+    vec3_t forward;
 
-	if ( VectorNormalize2( cent->currentState.pos.trDelta, forward ) == 0.0f )
-	{
-		forward[2] = 1.0f;
-	}
+    if (VectorNormalize2(cent->currentState.pos.trDelta, forward) == 0.0f) {
+        forward[2] = 1.0f;
+    }
 
-	trap->FX_PlayEffectID( cgs.effects.blasterShotEffect, cent->lerpOrigin, forward, -1, -1, false );
+    trap->FX_PlayEffectID(cgs.effects.blasterShotEffect, cent->lerpOrigin, forward, -1, -1, false);
 }
 
 /*
@@ -48,16 +47,15 @@ void FX_BlasterProjectileThink( centity_t *cent, const struct weaponInfo_s *weap
 FX_BlasterAltFireThink
 -------------------------
 */
-void FX_BlasterAltFireThink( centity_t *cent, const struct weaponInfo_s *weapon )
+void FX_BlasterAltFireThink(centity_t* cent, const struct weaponInfo_s* weapon)
 {
-	vec3_t forward;
+    vec3_t forward;
 
-	if ( VectorNormalize2( cent->currentState.pos.trDelta, forward ) == 0.0f )
-	{
-		forward[2] = 1.0f;
-	}
+    if (VectorNormalize2(cent->currentState.pos.trDelta, forward) == 0.0f) {
+        forward[2] = 1.0f;
+    }
 
-	trap->FX_PlayEffectID( cgs.effects.blasterShotEffect, cent->lerpOrigin, forward, -1, -1, false );
+    trap->FX_PlayEffectID(cgs.effects.blasterShotEffect, cent->lerpOrigin, forward, -1, -1, false);
 }
 
 /*
@@ -65,9 +63,9 @@ void FX_BlasterAltFireThink( centity_t *cent, const struct weaponInfo_s *weapon 
 FX_BlasterWeaponHitWall
 -------------------------
 */
-void FX_BlasterWeaponHitWall( vec3_t origin, vec3_t normal )
+void FX_BlasterWeaponHitWall(vec3_t origin, vec3_t normal)
 {
-	trap->FX_PlayEffectID( cgs.effects.blasterWallImpactEffect, origin, normal, -1, -1, false );
+    trap->FX_PlayEffectID(cgs.effects.blasterWallImpactEffect, origin, normal, -1, -1, false);
 }
 
 /*
@@ -75,14 +73,12 @@ void FX_BlasterWeaponHitWall( vec3_t origin, vec3_t normal )
 FX_BlasterWeaponHitPlayer
 -------------------------
 */
-void FX_BlasterWeaponHitPlayer( vec3_t origin, vec3_t normal, bool humanoid )
+void FX_BlasterWeaponHitPlayer(vec3_t origin, vec3_t normal, bool humanoid)
 {
-	if ( humanoid )
-	{
-		trap->FX_PlayEffectID( cgs.effects.blasterFleshImpactEffect, origin, normal, -1, -1, false );
-	}
-	else
-	{
-		trap->FX_PlayEffectID( cgs.effects.blasterDroidImpactEffect, origin, normal, -1, -1, false );
-	}
+    if (humanoid) {
+        trap->FX_PlayEffectID(cgs.effects.blasterFleshImpactEffect, origin, normal, -1, -1, false);
+    }
+    else {
+        trap->FX_PlayEffectID(cgs.effects.blasterDroidImpactEffect, origin, normal, -1, -1, false);
+    }
 }

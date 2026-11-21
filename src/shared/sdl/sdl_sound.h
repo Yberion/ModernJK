@@ -26,11 +26,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 bool SNDDMA_Init(int sampleFrequencyInKHz);
 
 // gets the current DMA position
-int		SNDDMA_GetDMAPos(void);
+int SNDDMA_GetDMAPos(void);
 
 // shutdown the DMA xfer.
-void	SNDDMA_Shutdown(void);
+void SNDDMA_Shutdown(void);
 
-void	SNDDMA_BeginPainting (void);
+void SNDDMA_BeginPainting(void);
 
-void	SNDDMA_Submit(void);
+void SNDDMA_Submit(void);

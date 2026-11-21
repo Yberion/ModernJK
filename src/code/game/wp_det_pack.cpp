@@ -32,116 +32,111 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //-----------------------
 
 //---------------------------------------------------------
-void charge_stick( gentity_t *self, gentity_t *other, trace_t *trace )
+void charge_stick(gentity_t* self, gentity_t* other, trace_t* trace)
 //---------------------------------------------------------
 {
-	self->s.eType = entityType_t::ET_GENERAL;
+    self->s.eType = entityType_t::ET_GENERAL;
 
-	// make us so we can take damage
-	self->clipmask = MASK_SHOT;
-	self->contents = contentsFlags_t::CONTENTS_SHOTCLIP;
-	self->takedamage = true;
-	self->health = 25;
+    // make us so we can take damage
+    self->clipmask = MASK_SHOT;
+    self->contents = contentsFlags_t::CONTENTS_SHOTCLIP;
+    self->takedamage = true;
+    self->health = 25;
 
-	self->e_DieFunc = dieFunc_t::dieF_WP_ExplosiveDie;
+    self->e_DieFunc = dieFunc_t::dieF_WP_ExplosiveDie;
 
-	VectorSet( self->maxs, 10, 10, 10 );
-	VectorScale( self->maxs, -1, self->mins );
+    VectorSet(self->maxs, 10, 10, 10);
+    VectorScale(self->maxs, -1, self->mins);
 
-	self->activator = self->owner;
-	self->owner = nullptr;
+    self->activator = self->owner;
+    self->owner = nullptr;
 
-	self->e_TouchFunc = touchFunc_t::touchF_NULL;
-	self->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
-	self->nextthink = -1;
+    self->e_TouchFunc = touchFunc_t::touchF_NULL;
+    self->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
+    self->nextthink = -1;
 
-	WP_Stick( self, trace, 1.0f );
+    WP_Stick(self, trace, 1.0f);
 }
 
 //---------------------------------------------------------
-static void WP_DropDetPack( gentity_t *self, vec3_t start, vec3_t dir )
+static void WP_DropDetPack(gentity_t* self, vec3_t start, vec3_t dir)
 //---------------------------------------------------------
 {
-	// Chucking a new one
-	AngleVectors( self->client->ps.viewangles, forwardVec, vrightVec, up );
-	CalcMuzzlePoint( self, forwardVec, vrightVec, up, muzzle, 0 );
-	VectorNormalize( forwardVec );
-	VectorMA( muzzle, -4, forwardVec, muzzle );
+    // Chucking a new one
+    AngleVectors(self->client->ps.viewangles, forwardVec, vrightVec, up);
+    CalcMuzzlePoint(self, forwardVec, vrightVec, up, muzzle, 0);
+    VectorNormalize(forwardVec);
+    VectorMA(muzzle, -4, forwardVec, muzzle);
 
-	VectorCopy( muzzle, start );
-	WP_TraceSetStart( self, start, vec3_origin, vec3_origin );//make sure our start point isn't on the other side of a wall
+    VectorCopy(muzzle, start);
+    WP_TraceSetStart(self, start, vec3_origin, vec3_origin); // make sure our start point isn't on the other side of a wall
 
-	gentity_t	*missile = CreateMissile( start, forwardVec, 300, 10000, self, false );
+    gentity_t* missile = CreateMissile(start, forwardVec, 300, 10000, self, false);
 
-	missile->fxID = G_EffectIndex( "detpack/explosion" ); // if we set an explosion effect, explode death can use that instead
+    missile->fxID = G_EffectIndex("detpack/explosion"); // if we set an explosion effect, explode death can use that instead
 
-	missile->classname = "detpack";
-	missile->s.weapon = weapon_t::WP_DET_PACK;
+    missile->classname = "detpack";
+    missile->s.weapon = weapon_t::WP_DET_PACK;
 
-	missile->s.pos.trType = trType_t::TR_GRAVITY;
+    missile->s.pos.trType = trType_t::TR_GRAVITY;
 
-	missile->s.eFlags |= entityFlags_t::EF_MISSILE_STICK;
-	missile->e_TouchFunc = touchFunc_t::touchF_charge_stick;
+    missile->s.eFlags |= entityFlags_t::EF_MISSILE_STICK;
+    missile->e_TouchFunc = touchFunc_t::touchF_charge_stick;
 
-	missile->damage = weaponData[weapon_t::WP_DET_PACK].damage;
-	missile->methodOfDeath = meansOfDeath_t::MOD_DETPACK;
+    missile->damage = weaponData[weapon_t::WP_DET_PACK].damage;
+    missile->methodOfDeath = meansOfDeath_t::MOD_DETPACK;
 
-	missile->splashDamage = weaponData[weapon_t::WP_DET_PACK].splashDamage;
-	missile->splashRadius = weaponData[weapon_t::WP_DET_PACK].splashRadius;
-	missile->splashMethodOfDeath = meansOfDeath_t::MOD_DETPACK;// ?SPLASH;
+    missile->splashDamage = weaponData[weapon_t::WP_DET_PACK].splashDamage;
+    missile->splashRadius = weaponData[weapon_t::WP_DET_PACK].splashRadius;
+    missile->splashMethodOfDeath = meansOfDeath_t::MOD_DETPACK; // ?SPLASH;
 
-	missile->clipmask = (contentsFlags_t::CONTENTS_SOLID|contentsFlags_t::CONTENTS_BODY|contentsFlags_t::CONTENTS_SHOTCLIP);//MASK_SHOT;
+    missile->clipmask = (contentsFlags_t::CONTENTS_SOLID | contentsFlags_t::CONTENTS_BODY | contentsFlags_t::CONTENTS_SHOTCLIP); // MASK_SHOT;
 
-	// we don't want it to ever bounce
-	missile->bounceCount = 0;
+    // we don't want it to ever bounce
+    missile->bounceCount = 0;
 
-	missile->s.radius = 30;
-	VectorSet( missile->s.modelScale, 1.0f, 1.0f, 1.0f );
-	gi.G2API_InitGhoul2Model( missile->ghoul2, weaponData[weapon_t::WP_DET_PACK].missileMdl, G_ModelIndex( weaponData[weapon_t::WP_DET_PACK].missileMdl ),
-		NULL_HANDLE, NULL_HANDLE, 0, 0);
+    missile->s.radius = 30;
+    VectorSet(missile->s.modelScale, 1.0f, 1.0f, 1.0f);
+    gi.G2API_InitGhoul2Model(missile->ghoul2, weaponData[weapon_t::WP_DET_PACK].missileMdl, G_ModelIndex(weaponData[weapon_t::WP_DET_PACK].missileMdl),
+                             NULL_HANDLE, NULL_HANDLE, 0, 0);
 
-	AddSoundEvent( nullptr, missile->currentOrigin, 128, alertEventLevel_e::AEL_MINOR, true );
-	AddSightEvent( nullptr, missile->currentOrigin, 128, alertEventLevel_e::AEL_SUSPICIOUS, 10 );
+    AddSoundEvent(nullptr, missile->currentOrigin, 128, alertEventLevel_e::AEL_MINOR, true);
+    AddSightEvent(nullptr, missile->currentOrigin, 128, alertEventLevel_e::AEL_SUSPICIOUS, 10);
 }
 
 //---------------------------------------------------------
-void WP_FireDetPack( gentity_t *ent, bool alt_fire )
+void WP_FireDetPack(gentity_t* ent, bool alt_fire)
 //---------------------------------------------------------
 {
-	if ( !ent || !ent->client )
-	{
-		return;
-	}
+    if (!ent || !ent->client) {
+        return;
+    }
 
-	if ( alt_fire  )
-	{
-		if ( Any( ent->client->ps.eFlags & entityFlags_t::EF_PLANTED_CHARGE ) )
-		{
-			gentity_t *found = nullptr;
+    if (alt_fire) {
+        if (Any(ent->client->ps.eFlags & entityFlags_t::EF_PLANTED_CHARGE)) {
+            gentity_t* found = nullptr;
 
-			// loop through all ents and blow the crap out of them!
-			while (( found = G_Find( found, FOFS( classname ), "detpack" )) != nullptr )
-			{
-				if ( found->activator == ent )
-				{
-					VectorCopy( found->currentOrigin, found->s.origin );
-					found->e_ThinkFunc = thinkFunc_t::thinkF_WP_Explode;
-					found->nextthink = level.time + 100 + Q_flrand(0.0f, 1.0f) * 100;
-					G_Sound( found, G_SoundIndex( "sound/weapons/detpack/warning.wav" ));
+            // loop through all ents and blow the crap out of them!
+            while ((found = G_Find(found, FOFS(classname), "detpack")) != nullptr) {
+                if (found->activator == ent) {
+                    VectorCopy(found->currentOrigin, found->s.origin);
+                    found->e_ThinkFunc = thinkFunc_t::thinkF_WP_Explode;
+                    found->nextthink = level.time + 100 + Q_flrand(0.0f, 1.0f) * 100;
+                    G_Sound(found, G_SoundIndex("sound/weapons/detpack/warning.wav"));
 
-					// would be nice if this actually worked?
-					AddSoundEvent( nullptr, found->currentOrigin, found->splashRadius*2, alertEventLevel_e::AEL_DANGER, false, true );//FIXME: are we on ground or not?
-					AddSightEvent( nullptr, found->currentOrigin, found->splashRadius*2, alertEventLevel_e::AEL_DISCOVERED, 100 );
-				}
-			}
+                    // would be nice if this actually worked?
+                    AddSoundEvent(nullptr, found->currentOrigin, found->splashRadius * 2, alertEventLevel_e::AEL_DANGER, false,
+                                  true); // FIXME: are we on ground or not?
+                    AddSightEvent(nullptr, found->currentOrigin, found->splashRadius * 2, alertEventLevel_e::AEL_DISCOVERED, 100);
+                }
+            }
 
-			ent->client->ps.eFlags &= ~entityFlags_t::EF_PLANTED_CHARGE;
-		}
-	}
-	else
-	{
-		WP_DropDetPack( ent, muzzle, forwardVec );
+            ent->client->ps.eFlags &= ~entityFlags_t::EF_PLANTED_CHARGE;
+        }
+    }
+    else {
+        WP_DropDetPack(ent, muzzle, forwardVec);
 
-		ent->client->ps.eFlags |= entityFlags_t::EF_PLANTED_CHARGE;
-	}
+        ent->client->ps.eFlags |= entityFlags_t::EF_PLANTED_CHARGE;
+    }
 }

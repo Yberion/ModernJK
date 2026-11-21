@@ -31,42 +31,35 @@ bool gbInsideLoadSound = false; // important to default to this!!!
 
 bool SNDDMA_Init(void)
 {
-	return false;
+    return false;
 }
 
-int	SNDDMA_GetDMAPos(void)
+int SNDDMA_GetDMAPos(void)
 {
-	return 0;
+    return 0;
 }
 
-void SNDDMA_Shutdown(void)
+void SNDDMA_Shutdown(void) {}
+
+void SNDDMA_BeginPainting(void) {}
+
+void SNDDMA_Submit(void) {}
+
+sfxHandle_t S_RegisterSound(const char* name)
 {
+    return 0;
 }
 
-void SNDDMA_BeginPainting (void)
-{
-}
+void S_StartLocalSound(sfxHandle_t sfxHandle, soundChannel_t channelNum) {}
 
-void SNDDMA_Submit(void)
-{
-}
-
-sfxHandle_t S_RegisterSound( const char *name ) {
-	return 0;
-}
-
-void S_StartLocalSound( sfxHandle_t sfxHandle, soundChannel_t channelNum ) {
-}
-
-void S_ClearSoundBuffer( void ) {
-}
+void S_ClearSoundBuffer(void) {}
 
 bool SND_RegisterAudio_LevelLoadEnd(bool bDeleteEverythingNotUsedThisLevel)
 {
-	return false;
+    return false;
 }
 
 int SND_FreeOldestSound(void)
 {
-	return 0;
+    return 0;
 }

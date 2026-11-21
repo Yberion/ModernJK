@@ -34,249 +34,240 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 inline constexpr int MAX_MINI_ENTITIES = 1024;
 
 // renderfx flags
-enum class renderFxFlags_t
-{
-	RF_NONE = 0,
-	RF_MINLIGHT			= 0x00001,	// allways have some light (viewmodel, some items)
-	RF_THIRD_PERSON		= 0x00002,	// don't draw through eyes, only mirrors (player bodies, chat sprites)
-	RF_FIRST_PERSON		= 0x00004,	// only draw through eyes (view weapon, damage blood blob)
-	RF_DEPTHHACK		= 0x00008,	// for view weapon Z crunching
-	RF_NODEPTH			= 0x00010,	// No depth at all (seeing through walls)
+enum class renderFxFlags_t {
+    RF_NONE = 0,
+    RF_MINLIGHT = 0x00001,     // allways have some light (viewmodel, some items)
+    RF_THIRD_PERSON = 0x00002, // don't draw through eyes, only mirrors (player bodies, chat sprites)
+    RF_FIRST_PERSON = 0x00004, // only draw through eyes (view weapon, damage blood blob)
+    RF_DEPTHHACK = 0x00008,    // for view weapon Z crunching
+    RF_NODEPTH = 0x00010,      // No depth at all (seeing through walls)
 
-	RF_VOLUMETRIC		= 0x00020,	// fake volumetric shading
+    RF_VOLUMETRIC = 0x00020, // fake volumetric shading
 
-	RF_NOSHADOW			= 0x00040,	// don't add stencil shadows
+    RF_NOSHADOW = 0x00040, // don't add stencil shadows
 
-	RF_LIGHTING_ORIGIN	= 0x00080,	// use refEntity->lightingOrigin instead of refEntity->origin
-									// for lighting.  This allows entities to sink into the floor
-									// with their origin going solid, and allows all parts of a
-									// player to get the same lighting
-	RF_SHADOW_PLANE		= 0x00100,	// use refEntity->shadowPlane
-	RF_WRAP_FRAMES		= 0x00200,	// mod the model frames by the maxframes to allow continuous
-										// animation without needing to know the frame count
+    RF_LIGHTING_ORIGIN = 0x00080, // use refEntity->lightingOrigin instead of refEntity->origin
+                                  // for lighting.  This allows entities to sink into the floor
+                                  // with their origin going solid, and allows all parts of a
+                                  // player to get the same lighting
+    RF_SHADOW_PLANE = 0x00100,    // use refEntity->shadowPlane
+    RF_WRAP_FRAMES = 0x00200,     // mod the model frames by the maxframes to allow continuous
+                                  // animation without needing to know the frame count
 
-	RF_FORCE_ENT_ALPHA	= 0x00400, // override shader alpha settings
-	RF_RGB_TINT			= 0x00800, // override shader rgb settings
+    RF_FORCE_ENT_ALPHA = 0x00400, // override shader alpha settings
+    RF_RGB_TINT = 0x00800,        // override shader rgb settings
 
-	RF_SHADOW_ONLY		= 0x01000,	//add surfs for shadowing but don't draw them -rww
+    RF_SHADOW_ONLY = 0x01000, // add surfs for shadowing but don't draw them -rww
 
-	RF_DISTORTION		= 0x02000,	//area distortion effect -rww
+    RF_DISTORTION = 0x02000, // area distortion effect -rww
 
-	RF_FORKED			= 0x04000,	// override lightning to have forks
-	RF_TAPERED			= 0x08000,	// lightning tapers
-	RF_GROW				= 0x10000,	// lightning grows from start to end during its life
+    RF_FORKED = 0x04000,  // override lightning to have forks
+    RF_TAPERED = 0x08000, // lightning tapers
+    RF_GROW = 0x10000,    // lightning grows from start to end during its life
 
-	RF_DISINTEGRATE1	= 0x20000,	// does a procedural hole-ripping thing.
-	RF_DISINTEGRATE2	= 0x40000,	// does a procedural hole-ripping thing with scaling at the ripping point
+    RF_DISINTEGRATE1 = 0x20000, // does a procedural hole-ripping thing.
+    RF_DISINTEGRATE2 = 0x40000, // does a procedural hole-ripping thing with scaling at the ripping point
 
-	RF_SETANIMINDEX		= 0x80000,	//use backEnd.currentEntity->e.skinNum for R_BindAnimatedImage
+    RF_SETANIMINDEX = 0x80000, // use backEnd.currentEntity->e.skinNum for R_BindAnimatedImage
 
-	RF_ALPHA_DEPTH		= 0x100000, //depth write on alpha model
+    RF_ALPHA_DEPTH = 0x100000, // depth write on alpha model
 
-	RF_FORCEPOST		= 0x200000 //force it to post-render -rww
+    RF_FORCEPOST = 0x200000 // force it to post-render -rww
 };
 template <> inline constexpr bool enableEnumFlags<renderFxFlags_t> = true;
 
 // refdef flags
-enum class refdefFlags_t
-{
-	RDF_NONE = 0,
-	RDF_NOWORLDMODEL	= 1,		// used for player configuration screen
-	RDF_HYPERSPACE		= 4,		// teleportation effect
+enum class refdefFlags_t {
+    RDF_NONE = 0,
+    RDF_NOWORLDMODEL = 1, // used for player configuration screen
+    RDF_HYPERSPACE = 4,   // teleportation effect
 
-	RDF_SKYBOXPORTAL	= 8,
-	RDF_DRAWSKYBOX		= 16,		// the above marks a scene as being a 'portal sky'.  this flag says to draw it or not
+    RDF_SKYBOXPORTAL = 8,
+    RDF_DRAWSKYBOX = 16, // the above marks a scene as being a 'portal sky'.  this flag says to draw it or not
 
-	RDF_AUTOMAP			= 32,		//means this scene is to draw the automap -rww
-	RDF_NOFOG			= 64,		//no global fog in this scene (but still brush fog) -rww
-	RDF_ForceSightOn	= 128		//using force sight
+    RDF_AUTOMAP = 32,      // means this scene is to draw the automap -rww
+    RDF_NOFOG = 64,        // no global fog in this scene (but still brush fog) -rww
+    RDF_ForceSightOn = 128 // using force sight
 };
 template <> inline constexpr bool enableEnumFlags<refdefFlags_t> = true;
 
-extern int	skyboxportal;
-extern int	drawskyboxportal;
+extern int skyboxportal;
+extern int drawskyboxportal;
 
 typedef byte color4ub_t[4];
 
 typedef struct polyVert_s {
-	vec3_t		xyz;
-	float		st[2];
-	byte		modulate[4];
+    vec3_t xyz;
+    float st[2];
+    byte modulate[4];
 } polyVert_t;
 
 typedef struct poly_s {
-	qhandle_t			hShader;
-	int					numVerts;
-	polyVert_t			*verts;
+    qhandle_t hShader;
+    int numVerts;
+    polyVert_t* verts;
 } poly_t;
 
 enum class refEntityType_t {
-	RT_MODEL,
-	RT_POLY,
-	RT_SPRITE,
-	RT_ORIENTED_QUAD,
-	RT_BEAM,
-	RT_SABER_GLOW,
-	RT_ELECTRICITY,
-	RT_PORTALSURFACE,		// doesn't draw anything, just info for portals
-	RT_LINE,
-	RT_ORIENTEDLINE,
-	RT_CYLINDER,
-	RT_ENT_CHAIN,
+    RT_MODEL,
+    RT_POLY,
+    RT_SPRITE,
+    RT_ORIENTED_QUAD,
+    RT_BEAM,
+    RT_SABER_GLOW,
+    RT_ELECTRICITY,
+    RT_PORTALSURFACE, // doesn't draw anything, just info for portals
+    RT_LINE,
+    RT_ORIENTEDLINE,
+    RT_CYLINDER,
+    RT_ENT_CHAIN,
 
-	RT_MAX_REF_ENTITY_TYPE
+    RT_MAX_REF_ENTITY_TYPE
 };
 
-typedef struct miniRefEntity_s
-{
-	refEntityType_t		reType;
-	renderFxFlags_t		renderfx;
+typedef struct miniRefEntity_s {
+    refEntityType_t reType;
+    renderFxFlags_t renderfx;
 
-	qhandle_t			hModel;				// opaque type outside refresh
+    qhandle_t hModel; // opaque type outside refresh
 
-	// most recent data
-	matrix3_t			axis;			// rotation vectors
-	bool			nonNormalizedAxes;	// axis are not normalized, i.e. they have scale
-	vec3_t				origin;				// also used as MODEL_BEAM's "from"
+    // most recent data
+    matrix3_t axis;         // rotation vectors
+    bool nonNormalizedAxes; // axis are not normalized, i.e. they have scale
+    vec3_t origin;          // also used as MODEL_BEAM's "from"
 
-	// previous data for frame interpolation
-	vec3_t				oldorigin;			// also used as MODEL_BEAM's "to"
+    // previous data for frame interpolation
+    vec3_t oldorigin; // also used as MODEL_BEAM's "to"
 
-	// texturing
-	qhandle_t			customShader;		// use one image for the entire thing
+    // texturing
+    qhandle_t customShader; // use one image for the entire thing
 
-	// misc
-	byte				shaderRGBA[4];		// colors used by rgbgen entity shaders
-	vec2_t				shaderTexCoord;		// texture coordinates used by tcMod entity modifiers
+    // misc
+    byte shaderRGBA[4];    // colors used by rgbgen entity shaders
+    vec2_t shaderTexCoord; // texture coordinates used by tcMod entity modifiers
 
-	// extra sprite information
-	float				radius;
-	float				rotation;			// size 2 for RT_CYLINDER or number of verts in RT_ELECTRICITY
+    // extra sprite information
+    float radius;
+    float rotation; // size 2 for RT_CYLINDER or number of verts in RT_ELECTRICITY
 
-	// misc
-	float		shaderTime;			// subtracted from refdef time to control effect start times
-	int			frame;				// also used as MODEL_BEAM's diameter
+    // misc
+    float shaderTime; // subtracted from refdef time to control effect start times
+    int frame;        // also used as MODEL_BEAM's diameter
 
 } miniRefEntity_t;
 
 typedef struct refEntity_s {
-	// this stucture must remain identical as the miniRefEntity_t
-	//
-	//
-	refEntityType_t		reType;
-	renderFxFlags_t		renderfx;
+    // this stucture must remain identical as the miniRefEntity_t
+    //
+    //
+    refEntityType_t reType;
+    renderFxFlags_t renderfx;
 
-	qhandle_t			hModel;				// opaque type outside refresh
+    qhandle_t hModel; // opaque type outside refresh
 
-	// most recent data
-	matrix3_t			axis;			// rotation vectors
-	bool			nonNormalizedAxes;	// axis are not normalized, i.e. they have scale
-	vec3_t				origin;				// also used as MODEL_BEAM's "from"
+    // most recent data
+    matrix3_t axis;         // rotation vectors
+    bool nonNormalizedAxes; // axis are not normalized, i.e. they have scale
+    vec3_t origin;          // also used as MODEL_BEAM's "from"
 
-	// previous data for frame interpolation
-	vec3_t				oldorigin;			// also used as MODEL_BEAM's "to"
+    // previous data for frame interpolation
+    vec3_t oldorigin; // also used as MODEL_BEAM's "to"
 
-	// texturing
-	qhandle_t			customShader;		// use one image for the entire thing
+    // texturing
+    qhandle_t customShader; // use one image for the entire thing
 
-	// misc
-	byte				shaderRGBA[4];		// colors used by rgbgen entity shaders
-	vec2_t				shaderTexCoord;		// texture coordinates used by tcMod entity modifiers
+    // misc
+    byte shaderRGBA[4];    // colors used by rgbgen entity shaders
+    vec2_t shaderTexCoord; // texture coordinates used by tcMod entity modifiers
 
-	// extra sprite information
-	float				radius;
-	float				rotation;
+    // extra sprite information
+    float radius;
+    float rotation;
 
-	// misc
-	float		shaderTime;			// subtracted from refdef time to control effect start times
-	int			frame;				// also used as MODEL_BEAM's diameter
-	//
-	//
-	// end miniRefEntity_t
+    // misc
+    float shaderTime; // subtracted from refdef time to control effect start times
+    int frame;        // also used as MODEL_BEAM's diameter
+    //
+    //
+    // end miniRefEntity_t
 
-	//
-	//
-	// specific full refEntity_t data
-	//
-	//
+    //
+    //
+    // specific full refEntity_t data
+    //
+    //
 
-	// most recent data
-	vec3_t		lightingOrigin;		// so multi-part models can be lit identically (RF_LIGHTING_ORIGIN)
-	float		shadowPlane;		// projection shadows go here, stencils go slightly lower
+    // most recent data
+    vec3_t lightingOrigin; // so multi-part models can be lit identically (RF_LIGHTING_ORIGIN)
+    float shadowPlane;     // projection shadows go here, stencils go slightly lower
 
-	// previous data for frame interpolation
-	int			oldframe;
-	float		backlerp;			// 0.0 = current, 1.0 = old
+    // previous data for frame interpolation
+    int oldframe;
+    float backlerp; // 0.0 = current, 1.0 = old
 
-	// texturing
-	int			skinNum;			// inline skin index
-	qhandle_t	customSkin;			// nullptr for default skin
+    // texturing
+    int skinNum;          // inline skin index
+    qhandle_t customSkin; // nullptr for default skin
 
-	// texturing
-	union
-	{
-//		int			skinNum;		// inline skin index
-//		ivec3_t		terxelCoords;	// coords of patch for RT_TERXELS
-		struct
-		{
-			int		miniStart;
-			int		miniCount;
-		} uMini;
-	} uRefEnt;
+    // texturing
+    union {
+        //		int			skinNum;		// inline skin index
+        //		ivec3_t		terxelCoords;	// coords of patch for RT_TERXELS
+        struct {
+            int miniStart;
+            int miniCount;
+        } uMini;
+    } uRefEnt;
 
-	// extra sprite information
-	union {
-		struct
-		{
-			float rotation;
-			float radius;
-			byte  vertRGBA[4][4];
-		} sprite;
-		struct
-		{
-			float width;
-			float width2;
-			float stscale;
-		} line;
-		struct	// that whole put-the-opening-brace-on-the-same-line-as-the-beginning-of-the-definition coding style is fecal
-		{
-			float	width;
-			vec3_t	control1;
-			vec3_t	control2;
-		} bezier;
-		struct
-		{
-			float width;
-			float width2;
-			float stscale;
-			float height;
-			float bias;
-			bool wrap;
-		} cylinder;
-		struct
-		{
-			float width;
-			float deviation;
-			float stscale;
-			bool wrap;
-			bool taper;
-		} electricity;
-	} data;
+    // extra sprite information
+    union {
+        struct {
+            float rotation;
+            float radius;
+            byte vertRGBA[4][4];
+        } sprite;
+        struct {
+            float width;
+            float width2;
+            float stscale;
+        } line;
+        struct // that whole put-the-opening-brace-on-the-same-line-as-the-beginning-of-the-definition coding style is fecal
+        {
+            float width;
+            vec3_t control1;
+            vec3_t control2;
+        } bezier;
+        struct {
+            float width;
+            float width2;
+            float stscale;
+            float height;
+            float bias;
+            bool wrap;
+        } cylinder;
+        struct {
+            float width;
+            float deviation;
+            float stscale;
+            bool wrap;
+            bool taper;
+        } electricity;
+    } data;
 
-	float		endTime;
-	float		saberLength;
+    float endTime;
+    float saberLength;
 
-/*
-Ghoul2 Insert Start
-*/
-	vec3_t		angles;				// rotation angles - used for Ghoul2
+    /*
+    Ghoul2 Insert Start
+    */
+    vec3_t angles; // rotation angles - used for Ghoul2
 
-	vec3_t		modelScale;			// axis scale for models
-//	CGhoul2Info_v	*ghoul2;  		// has to be at the end of the ref-ent in order for it to be created properly
-	void		*ghoul2;  		// has to be at the end of the ref-ent in order for it to be created properly
-/*
-Ghoul2 Insert End
-*/
+    vec3_t modelScale; // axis scale for models
+                       //	CGhoul2Info_v	*ghoul2;  		// has to be at the end of the ref-ent in order for it to be created properly
+    void* ghoul2;      // has to be at the end of the ref-ent in order for it to be created properly
+    /*
+    Ghoul2 Insert End
+    */
 } refEntity_t;
 
 /*
@@ -287,51 +278,44 @@ Ghoul2 Insert Start
 #include "qcommon/qfiles.h"
 
 // skins allow models to be retextured without modifying the model file
-//this is a mock copy, renderers may have their own implementation.
+// this is a mock copy, renderers may have their own implementation.
 // try not to break the ghoul2 code which is very implicit :/
 typedef struct _skinSurface_s {
-	char		name[MAX_QPATH];
-	void	*shader;
+    char name[MAX_QPATH];
+    void* shader;
 } _skinSurface_t;
 
 typedef struct skin_s {
-	char		name[MAX_QPATH];		// game path, including extension
-	int			numSurfaces;
-	_skinSurface_t	*surfaces[128];
+    char name[MAX_QPATH]; // game path, including extension
+    int numSurfaces;
+    _skinSurface_t* surfaces[128];
 } skin_t;
 
 /*
 Ghoul2 Insert End
 */
 
-
 typedef struct refdef_s {
-	int			x, y, width, height;
-	float		fov_x, fov_y;
-	vec3_t		vieworg;
-	vec3_t		viewangles;
-	matrix3_t	viewaxis;		// transformation matrix
-	contentsFlags_t	viewContents;		// world contents at vieworg
+    int x, y, width, height;
+    float fov_x, fov_y;
+    vec3_t vieworg;
+    vec3_t viewangles;
+    matrix3_t viewaxis;           // transformation matrix
+    contentsFlags_t viewContents; // world contents at vieworg
 
-	// time in milliseconds for shader effects and other time dependent rendering issues
-	int			time;
+    // time in milliseconds for shader effects and other time dependent rendering issues
+    int time;
 
-	refdefFlags_t	rdflags;			// RDF_NOWORLDMODEL, etc
+    refdefFlags_t rdflags; // RDF_NOWORLDMODEL, etc
 
-	// 1 bits will prevent the associated area from rendering at all
-	byte		areamask[MAX_MAP_AREA_BYTES];
+    // 1 bits will prevent the associated area from rendering at all
+    byte areamask[MAX_MAP_AREA_BYTES];
 
-	// text messages for deform text shaders
-	char		text[MAX_RENDER_STRINGS][MAX_RENDER_STRING_LENGTH];
+    // text messages for deform text shaders
+    char text[MAX_RENDER_STRINGS][MAX_RENDER_STRING_LENGTH];
 } refdef_t;
 
-
-enum class stereoFrame_t {
-	STEREO_CENTER,
-	STEREO_LEFT,
-	STEREO_RIGHT
-};
-
+enum class stereoFrame_t { STEREO_CENTER, STEREO_LEFT, STEREO_RIGHT };
 
 /*
 ** glconfig_t
@@ -341,36 +325,36 @@ enum class stereoFrame_t {
 ** subsystem is initialized.
 */
 enum class textureCompression_t { // r_ext_preferred_tc_method
-	TC_NONE,
-	TC_S3TC,
-	TC_S3TC_DXT,
-	TC_S3TC_ARB
+    TC_NONE,
+    TC_S3TC,
+    TC_S3TC_DXT,
+    TC_S3TC_ARB
 };
 
 typedef struct glconfig_s {
-	const char				*renderer_string;
-	const char				*vendor_string;
-	const char				*version_string;
-	const char				*extensions_string;
+    const char* renderer_string;
+    const char* vendor_string;
+    const char* version_string;
+    const char* extensions_string;
 
-	int						maxTextureSize;			// queried from GL
-	int						maxActiveTextures;		// multitexture ability
-	float					maxTextureFilterAnisotropy;
+    int maxTextureSize;    // queried from GL
+    int maxActiveTextures; // multitexture ability
+    float maxTextureFilterAnisotropy;
 
-	int						colorBits, depthBits, stencilBits;
+    int colorBits, depthBits, stencilBits;
 
-	bool				deviceSupportsGamma;
-	textureCompression_t	textureCompression;
-	bool				textureEnvAddAvailable;
-	bool				clampToEdgeAvailable;
+    bool deviceSupportsGamma;
+    textureCompression_t textureCompression;
+    bool textureEnvAddAvailable;
+    bool clampToEdgeAvailable;
 
-	int						vidWidth, vidHeight;
+    int vidWidth, vidHeight;
 
-	int						displayFrequency;
+    int displayFrequency;
 
-	// synonymous with "does rendering consume the entire screen?", therefore
-	// a Voodoo or Voodoo2 will have this set to TRUE, as will a Win32 ICD that
-	// used CDS.
-	bool				isFullscreen;
-	bool				stereoEnabled;
+    // synonymous with "does rendering consume the entire screen?", therefore
+    // a Voodoo or Voodoo2 will have this set to TRUE, as will a Win32 ICD that
+    // used CDS.
+    bool isFullscreen;
+    bool stereoEnabled;
 } glconfig_t;

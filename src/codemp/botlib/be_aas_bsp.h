@@ -37,59 +37,45 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 #ifdef AASINTERN
-//loads the given BSP file
+// loads the given BSP file
 botlibError_t AAS_LoadBSPFile(void);
-//dump the loaded BSP data
+// dump the loaded BSP data
 void AAS_DumpBSPData(void);
-//unlink the given entity from the bsp tree leaves
-void AAS_UnlinkFromBSPLeaves(bsp_link_t *leaves);
-//link the given entity to the bsp tree leaves of the given model
-bsp_link_t *AAS_BSPLinkEntity(vec3_t absmins,
-										vec3_t absmaxs,
-										int entnum,
-										int modelnum);
+// unlink the given entity from the bsp tree leaves
+void AAS_UnlinkFromBSPLeaves(bsp_link_t* leaves);
+// link the given entity to the bsp tree leaves of the given model
+bsp_link_t* AAS_BSPLinkEntity(vec3_t absmins, vec3_t absmaxs, int entnum, int modelnum);
 
-//calculates collision with given entity
-bool AAS_EntityCollision(int entnum,
-										vec3_t start,
-										vec3_t boxmins,
-										vec3_t boxmaxs,
-										vec3_t end,
-										contentsFlags_t contentmask,
-										bsp_trace_t *trace);
-//for debugging
-void AAS_PrintFreeBSPLinks(char *str);
+// calculates collision with given entity
+bool AAS_EntityCollision(int entnum, vec3_t start, vec3_t boxmins, vec3_t boxmaxs, vec3_t end, contentsFlags_t contentmask, bsp_trace_t* trace);
+// for debugging
+void AAS_PrintFreeBSPLinks(char* str);
 //
-#endif //AASINTERN
+#endif // AASINTERN
 
 inline constexpr int MAX_EPAIRKEY = 128;
 
-//trace through the world
-bsp_trace_t AAS_Trace(	vec3_t start,
-								vec3_t mins,
-								vec3_t maxs,
-								vec3_t end,
-								int passent,
-								contentsFlags_t contentmask);
-//returns the contents at the given point
+// trace through the world
+bsp_trace_t AAS_Trace(vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int passent, contentsFlags_t contentmask);
+// returns the contents at the given point
 contentsFlags_t AAS_PointContents(vec3_t point);
-//returns true when p2 is in the PVS of p1
+// returns true when p2 is in the PVS of p1
 bool AAS_inPVS(vec3_t p1, vec3_t p2);
-//returns true when p2 is in the PHS of p1
+// returns true when p2 is in the PHS of p1
 bool AAS_inPHS(vec3_t p1, vec3_t p2);
-//returns true if the given areas are connected
+// returns true if the given areas are connected
 bool AAS_AreasConnected(int area1, int area2);
-//creates a list with entities totally or partly within the given box
-int AAS_BoxEntities(vec3_t absmins, vec3_t absmaxs, int *list, int maxcount);
-//gets the mins, maxs and origin of a BSP model
+// creates a list with entities totally or partly within the given box
+int AAS_BoxEntities(vec3_t absmins, vec3_t absmaxs, int* list, int maxcount);
+// gets the mins, maxs and origin of a BSP model
 void AAS_BSPModelMinsMaxsOrigin(int modelnum, vec3_t angles, vec3_t mins, vec3_t maxs, vec3_t origin);
-//handle to the next bsp entity
+// handle to the next bsp entity
 int AAS_NextBSPEntity(int ent);
-//return the value of the BSP epair key
-int AAS_ValueForBSPEpairKey(int ent, const char *key, char *value, int size);
-//get a vector for the BSP epair key
-int AAS_VectorForBSPEpairKey(int ent, const char *key, vec3_t v);
-//get a float for the BSP epair key
-int AAS_FloatForBSPEpairKey(int ent, const char *key, float *value);
-//get an integer for the BSP epair key
-int AAS_IntForBSPEpairKey(int ent, const char *key, int *value);
+// return the value of the BSP epair key
+int AAS_ValueForBSPEpairKey(int ent, const char* key, char* value, int size);
+// get a vector for the BSP epair key
+int AAS_VectorForBSPEpairKey(int ent, const char* key, vec3_t v);
+// get a float for the BSP epair key
+int AAS_FloatForBSPEpairKey(int ent, const char* key, float* value);
+// get an integer for the BSP epair key
+int AAS_IntForBSPEpairKey(int ent, const char* key, int* value);

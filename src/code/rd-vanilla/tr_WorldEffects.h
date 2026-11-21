@@ -3,6 +3,7 @@
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
 Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2026, ModernJK contributors
 
 This file is part of the OpenJK source code.
 
@@ -31,8 +32,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #if !defined __TR_WORLDEFFECTS_H
 #define __TR_WORLDEFFECTS_H
 
-#include "../qcommon/q_shared.h"		// For Vec3_t
-
+#include "../qcommon/q_shared.h" // For Vec3_t
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // Supported Commands
@@ -43,14 +43,14 @@ void R_InitWorldEffects(void);
 void R_ShutdownWorldEffects(void);
 void RB_RenderWorldEffects(void);
 
-void R_WorldEffectCommand(const char *command);
+void R_WorldEffectCommand(const char* command);
 void R_WorldEffect_f(void);
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // Exported Functionality
 ////////////////////////////////////////////////////////////////////////////////////////
 bool R_GetWindVector(vec3_t windVector, vec3_t atpoint);
-bool R_GetWindSpeed(float &windSpeed, vec3_t atpoint);
+bool R_GetWindSpeed(float& windSpeed, vec3_t atpoint);
 bool R_GetWindGusting(vec3_t atpoint);
 bool R_IsOutside(vec3_t pos);
 float R_IsOutsideCausingPain(vec3_t pos);
@@ -60,6 +60,5 @@ bool R_SetTempGlobalFogColor(vec3_t color);
 
 bool R_IsRaining();
 bool R_IsPuffing();
-
 
 #endif // __TR_WORLDEFFECTS_H

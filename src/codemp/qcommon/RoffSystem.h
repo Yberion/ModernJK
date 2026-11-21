@@ -23,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include "qcommon/q_shared.h"	//needs to be in here for entityState_t
+#include "qcommon/q_shared.h" //needs to be in here for entityState_t
 #include "server/server.h"
 
 #include <vector>
@@ -33,11 +33,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //-------------------
 inline constexpr int ROFF_VERSION = 1;
 inline constexpr int ROFF_NEW_VERSION = 2;
-#define ROFF_STRING					"ROFF"
-inline constexpr int ROFF_SAMPLE_RATE = 10;	// 10hz
-#define ROFF_AUTO_FIX_BAD_ANGLES	// exporter can mess up angles,
-									//	defining this attempts to detect and fix these problems
-
+#define ROFF_STRING "ROFF"
+inline constexpr int ROFF_SAMPLE_RATE = 10; // 10hz
+#define ROFF_AUTO_FIX_BAD_ANGLES            // exporter can mess up angles,
+                                            //	defining this attempts to detect and fix these problems
 
 // The CROFFSystem object provides all of the functionality of ROFF
 //	caching, playback, and clean-up, plus some useful debug features.
@@ -46,148 +45,143 @@ class CROFFSystem
 //--------------------------------------
 {
 private:
-//------
+    //------
 
-	// forward declarations
-	class			CROFF;
-	struct			SROFFEntity;
+    // forward declarations
+    class CROFF;
+    struct SROFFEntity;
 
-	typedef	std::map	<int, CROFF *> TROFFList;
-	typedef std::vector	<SROFFEntity *> TROFFEntList;
+    typedef std::map<int, CROFF*> TROFFList;
+    typedef std::vector<SROFFEntity*> TROFFEntList;
 
-	TROFFList		mROFFList;				// List of cached roffs
-	int				mID;					// unique ID generator for new roff objects
+    TROFFList mROFFList; // List of cached roffs
+    int mID;             // unique ID generator for new roff objects
 
-	TROFFEntList	mROFFEntList;			// List of roffing entities
+    TROFFEntList mROFFEntList; // List of roffing entities
 
-	// ROFF Header file definition, nothing else needs to see this
-	typedef struct tROFFHeader
-	//-------------------------------
-	{
-		char	mHeader[4];				// should match roff_string defined above
-		int		mVersion;				// version num, supported version defined above
-		float	mCount;					// I think this is a float because of a limitation of the roff exporter
+    // ROFF Header file definition, nothing else needs to see this
+    typedef struct tROFFHeader
+    //-------------------------------
+    {
+        char mHeader[4]; // should match roff_string defined above
+        int mVersion;    // version num, supported version defined above
+        float mCount;    // I think this is a float because of a limitation of the roff exporter
 
-	} TROFFHeader;
+    } TROFFHeader;
 
-	// ROFF Entry, nothing else needs to see this
-	typedef struct tROFFEntry
-	//-------------------------------
-	{
-		float		mOriginOffset[3];
-		float		mRotateOffset[3];
-	} TROFFEntry;
+    // ROFF Entry, nothing else needs to see this
+    typedef struct tROFFEntry
+    //-------------------------------
+    {
+        float mOriginOffset[3];
+        float mRotateOffset[3];
+    } TROFFEntry;
 
-	typedef struct tROFF2Header
-	//-------------------------------
-	{
-		char	mHeader[4];				// should match roff_string defined above
-		int		mVersion;				// version num, supported version defined above
-		int		mCount;					// I think this is a float because of a limitation of the roff exporter
-		int		mFrameRate;				// Frame rate the roff should be played at
-		int		mNumNotes;				// number of notes (null terminated strings) after the roff data
+    typedef struct tROFF2Header
+    //-------------------------------
+    {
+        char mHeader[4]; // should match roff_string defined above
+        int mVersion;    // version num, supported version defined above
+        int mCount;      // I think this is a float because of a limitation of the roff exporter
+        int mFrameRate;  // Frame rate the roff should be played at
+        int mNumNotes;   // number of notes (null terminated strings) after the roff data
 
-	} TROFF2Header;
+    } TROFF2Header;
 
-	// ROFF Entry, nothing else needs to see this
-	typedef struct tROFF2Entry
-	//-------------------------------
-	{
-		float		mOriginOffset[3];
-		float		mRotateOffset[3];
-		int			mStartNote, mNumNotes;		// note track info
-	} TROFF2Entry;
+    // ROFF Entry, nothing else needs to see this
+    typedef struct tROFF2Entry
+    //-------------------------------
+    {
+        float mOriginOffset[3];
+        float mRotateOffset[3];
+        int mStartNote, mNumNotes; // note track info
+    } TROFF2Entry;
 
-	// An individual ROFF object,
-	//	contains actual rotation/offset information
-	//--------------------------------------
-	class CROFF
-	//--------------------------------------
-	{
-	public:
-	//------
+    // An individual ROFF object,
+    //	contains actual rotation/offset information
+    //--------------------------------------
+    class CROFF
+    //--------------------------------------
+    {
+    public:
+        //------
 
-		int			mID;						// id for this roff file
-		char		mROFFFilePath[MAX_QPATH];	// roff file path
-		int			mROFFEntries;				// count of move/rotate commands
-		int			mFrameTime;					// frame rate
-		int			mLerp;						// Lerp rate (FPS)
-		TROFF2Entry	*mMoveRotateList;			// move rotate/command list
-		int			mNumNoteTracks;
-		char		**mNoteTrackIndexes;
-		bool	mUsedByClient;
-		bool	mUsedByServer;
+        int mID;                       // id for this roff file
+        char mROFFFilePath[MAX_QPATH]; // roff file path
+        int mROFFEntries;              // count of move/rotate commands
+        int mFrameTime;                // frame rate
+        int mLerp;                     // Lerp rate (FPS)
+        TROFF2Entry* mMoveRotateList;  // move rotate/command list
+        int mNumNoteTracks;
+        char** mNoteTrackIndexes;
+        bool mUsedByClient;
+        bool mUsedByServer;
 
-		CROFF()
-		{
-			mUsedByClient = mUsedByServer = false;
-		}
-		CROFF( const char *file, int id );
-		~CROFF();
+        CROFF() { mUsedByClient = mUsedByServer = false; }
+        CROFF(const char* file, int id);
+        ~CROFF();
 
-	}; // class CROFF
+    }; // class CROFF
 
+    // The roff system tracks entities that are
+    //	roffing, so this is the internal structure
+    //	that represents these objects.
+    //--------------------------------------
+    struct SROFFEntity
+    //--------------------------------------
+    {
+        int mEntID; // the entity that is currently roffing
 
-	// The roff system tracks entities that are
-	//	roffing, so this is the internal structure
-	//	that represents these objects.
-	//--------------------------------------
-	struct SROFFEntity
-	//--------------------------------------
-	{
-		int			mEntID;			// the entity that is currently roffing
+        int mROFFID;       // the roff to be applied to that entity
+        int mNextROFFTime; // next time we should roff
+        int mROFFFrame;    // current roff frame we are applying
 
-		int			mROFFID;		// the roff to be applied to that entity
-		int			mNextROFFTime;	// next time we should roff
-		int			mROFFFrame;		// current roff frame we are applying
+        bool mKill;       // flag to kill a roffing ent
+        bool mSignal;     // TODO:  Need to implement some sort of signal to Icarus when roff is done.
+        bool mTranslated; // should this roff be "rotated" to fit the entity's initial position?
+        bool mIsClient;
+        vec3_t mStartAngles; // initial angle of the entity
+    }; // struct SROFFEntity
 
-		bool		mKill;			// flag to kill a roffing ent
-		bool		mSignal;		// TODO:  Need to implement some sort of signal to Icarus when roff is done.
-		bool	mTranslated;	// should this roff be "rotated" to fit the entity's initial position?
-		bool	mIsClient;
-		vec3_t		mStartAngles;	// initial angle of the entity
-	}; // struct SROFFEntity
+    bool IsROFF(byte* file);                // Makes sure the file is a valid roff file
+    bool InitROFF(byte* file, CROFF* obj);  // Handles stashing raw roff data into the roff object
+    bool InitROFF2(byte* file, CROFF* obj); // Handles stashing raw roff data into the roff object
+    void FixBadAngles(CROFF* obj);
+    int NewID() { return ++mID; } // Increment before return so we can use zero as failed return val
+    bool ApplyROFF(SROFFEntity* roff_ent,
+                   CROFFSystem::CROFF* roff); // True = success; False = roff complete
 
+    void ProcessNote(SROFFEntity* roff_ent, char* note);
 
-	bool	IsROFF( byte *file );				// Makes sure the file is a valid roff file
-	bool	InitROFF( byte *file, CROFF *obj );	// Handles stashing raw roff data into the roff object
-	bool	InitROFF2( byte *file, CROFF *obj );	// Handles stashing raw roff data into the roff object
-	void	FixBadAngles(CROFF *obj);
-	int		NewID() { return ++mID; }			// Increment before return so we can use zero as failed return val
-	bool	ApplyROFF( SROFFEntity *roff_ent,
-					CROFFSystem::CROFF *roff );	// True = success; False = roff complete
+    void SetLerp(trajectory_t* tr, trType_t, vec3_t origin, vec3_t delta, int time, int rate);
 
-	void	ProcessNote(SROFFEntity *roff_ent, char *note);
-
-	void	SetLerp( trajectory_t *tr,
-					trType_t, vec3_t origin,
-					vec3_t delta, int time, int rate );
-
-	bool	ClearLerp( SROFFEntity *roff_ent );				// Clears out the angular and position lerp fields
+    bool ClearLerp(SROFFEntity* roff_ent); // Clears out the angular and position lerp fields
 
 public:
-//------
+    //------
 
-	CROFFSystem()	{	mID = 0; mROFFEntList.clear();	}
-	~CROFFSystem()	{	Restart();	}
+    CROFFSystem()
+    {
+        mID = 0;
+        mROFFEntList.clear();
+    }
+    ~CROFFSystem() { Restart(); }
 
+    bool Restart(); // Free up all system resources and reset the ID counter
 
-	bool		Restart();						// Free up all system resources and reset the ID counter
+    int Cache(const char* file, bool isClient); // roffs should be precached at the start of each level
+    int GetID(const char* file);                // find the roff id by filename
+    bool Unload(int id);                        // when a roff is done, it can be removed to free up resources
+    bool Clean(bool isClient);                  // should be called when level is done, frees all roff resources
+    void List(void);                            // dumps a list of all cached roff files to the console
+    bool List(int id);                          // dumps the contents of the specified roff to the console
 
-	int			Cache( const char *file, bool isClient );			// roffs should be precached at the start of each level
-	int			GetID( const char *file );			// find the roff id by filename
-	bool		Unload( int id );				// when a roff is done, it can be removed to free up resources
-	bool	Clean(bool isClient);					// should be called when level is done, frees all roff resources
-	void		List(void);						// dumps a list of all cached roff files to the console
-	bool		List( int id );					// dumps the contents of the specified roff to the console
-
-	bool	Play( int entID, int roffID, bool doTranslation, bool isClient);	// TODO: implement signal on playback completion.
-	void		ListEnts();						// List the entities that are currently roffing
-	bool	PurgeEnt( int entID, bool isClient );			// Purge the specified entity from the entity list by id
-	bool		PurgeEnt( char *file );			// Purge the specified entity from the entity list by name
-	void		UpdateEntities(bool isClient);			// applys roff data to roffing entities.
+    bool Play(int entID, int roffID, bool doTranslation, bool isClient); // TODO: implement signal on playback completion.
+    void ListEnts();                                                     // List the entities that are currently roffing
+    bool PurgeEnt(int entID, bool isClient);                             // Purge the specified entity from the entity list by id
+    bool PurgeEnt(char* file);                                           // Purge the specified entity from the entity list by name
+    void UpdateEntities(bool isClient);                                  // applys roff data to roffing entities.
 
 }; // class CROFFSystem
-
 
 extern CROFFSystem theROFFSystem;

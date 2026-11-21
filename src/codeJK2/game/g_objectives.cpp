@@ -23,36 +23,32 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "g_headers.h"
 
-//g_objectives.cpp
-//reads in ext_data\objectives.dat to objectives[]
+// g_objectives.cpp
+// reads in ext_data\objectives.dat to objectives[]
 
 #include "g_local.h"
 #include "g_items.h"
 
-#define	G_OBJECTIVES_CPP
+#define G_OBJECTIVES_CPP
 
 #include "objectives.h"
 #include "../code/qcommon/ojk_saved_game_helper.h"
 
-bool	missionInfo_Updated;
-
+bool missionInfo_Updated;
 
 /*
 ============
 OBJ_SetPendingObjectives
 ============
 */
-void OBJ_SetPendingObjectives(gentity_t *ent)
+void OBJ_SetPendingObjectives(gentity_t* ent)
 {
-	for (objectiveNumber_t o = objectiveNumber_t::KEJIM_POST_OBJ1; o < objectiveNumber_t::MAX_OBJECTIVES; o++)
-	{
-		objectives_t &objective = ent->client->sess.mission_objectives[o];
-		if ((objective.status == OBJECTIVE_STAT_PENDING) &&
-			(objective.display))
-		{
-			objective.status = OBJECTIVE_STAT_FAILED;
-		}
-	}
+    for (objectiveNumber_t o = objectiveNumber_t::KEJIM_POST_OBJ1; o < objectiveNumber_t::MAX_OBJECTIVES; o++) {
+        objectives_t& objective = ent->client->sess.mission_objectives[o];
+        if ((objective.status == OBJECTIVE_STAT_PENDING) && (objective.display)) {
+            objective.status = OBJECTIVE_STAT_FAILED;
+        }
+    }
 }
 
 /*
@@ -60,16 +56,12 @@ void OBJ_SetPendingObjectives(gentity_t *ent)
 OBJ_SaveMissionObjectives
 ============
 */
-void OBJ_SaveMissionObjectives( gclient_t *client )
+void OBJ_SaveMissionObjectives(gclient_t* client)
 {
-	ojk::SavedGameHelper saved_game(
-		::gi.saved_game);
+    ojk::SavedGameHelper saved_game(::gi.saved_game);
 
-	saved_game.write_chunk(
-		INT_ID('O', 'B', 'J', 'T'),
-		client->sess.mission_objectives.elems);
+    saved_game.write_chunk(INT_ID('O', 'B', 'J', 'T'), client->sess.mission_objectives.elems);
 }
-
 
 /*
 ============
@@ -78,11 +70,11 @@ OBJ_SaveObjectiveData
 */
 void OBJ_SaveObjectiveData(void)
 {
-	gclient_t *client;
+    gclient_t* client;
 
-	client = &level.clients[0];
+    client = &level.clients[0];
 
-	OBJ_SaveMissionObjectives( client );
+    OBJ_SaveMissionObjectives(client);
 }
 
 /*
@@ -90,16 +82,12 @@ void OBJ_SaveObjectiveData(void)
 OBJ_LoadMissionObjectives
 ============
 */
-void OBJ_LoadMissionObjectives( gclient_t *client )
+void OBJ_LoadMissionObjectives(gclient_t* client)
 {
-	ojk::SavedGameHelper saved_game(
-		::gi.saved_game);
+    ojk::SavedGameHelper saved_game(::gi.saved_game);
 
-	saved_game.read_chunk(
-		INT_ID('O', 'B', 'J', 'T'),
-		client->sess.mission_objectives.elems);
+    saved_game.read_chunk(INT_ID('O', 'B', 'J', 'T'), client->sess.mission_objectives.elems);
 }
-
 
 /*
 ============
@@ -108,9 +96,9 @@ OBJ_LoadObjectiveData
 */
 void OBJ_LoadObjectiveData(void)
 {
-	gclient_t *client;
+    gclient_t* client;
 
-	client = &level.clients[0];
+    client = &level.clients[0];
 
-	OBJ_LoadMissionObjectives( client );
+    OBJ_LoadMissionObjectives(client);
 }

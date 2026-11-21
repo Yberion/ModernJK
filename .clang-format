@@ -1,0 +1,25 @@
+# The layout of the project's C and C++ code, applied by clang-format 23 (its output changes between major versions).
+# The LLVM style, then the layout rules of the C++ Core Guidelines' NL section that clang-format can apply.
+---
+BasedOnStyle: LLVM
+Standard: c++23
+UseTab: Never
+TabWidth: 4
+IndentWidth: 4
+ColumnLimit: 160
+# Some includes depend on their order (a header included inside a table, between two #define).
+SortIncludes: Never
+# NL.17: K&R-derived layout, "Stroustrup": a function's brace on its own line, a class's and a statement's not;
+# the statements of a function on their own lines, a short member function excepted.
+BreakBeforeBraces: Stroustrup
+AllowShortFunctionsOnASingleLine: Inline
+# NL.17's examples: the access specifiers at the class's column.
+AccessModifierOffset: -4
+# NL.18 and NL.15: C++-style declarators, T& r and T* p.
+PointerAlignment: Left
+# NL.26: const before the type.
+QualifierAlignment: Left
+# NL.11: digit separators in long decimal literals (the guideline's "maybe 7" digits).
+IntegerLiteralSeparator:
+  Decimal: 3
+  DecimalMinDigits: 7

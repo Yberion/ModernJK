@@ -28,79 +28,76 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "w_local.h"
 
 //---------------------------------------------------------
-void WP_FireTurboLaserMissile( gentity_t *ent, vec3_t start, vec3_t dir )
+void WP_FireTurboLaserMissile(gentity_t* ent, vec3_t start, vec3_t dir)
 //---------------------------------------------------------
 {
-	int velocity	= ent->mass; //FIXME: externalize
-	gentity_t *missile;
+    int velocity = ent->mass; // FIXME: externalize
+    gentity_t* missile;
 
-	missile = CreateMissile( start, dir, velocity, 10000, ent, false );
+    missile = CreateMissile(start, dir, velocity, 10000, ent, false);
 
-	//use a custom shot effect
-	//missile->s.otherEntityNum2 = G_EffectIndex( "turret/turb_shot" );
-	//use a custom impact effect
-	//missile->s.emplacedOwner = G_EffectIndex( "turret/turb_impact" );
+    // use a custom shot effect
+    // missile->s.otherEntityNum2 = G_EffectIndex( "turret/turb_shot" );
+    // use a custom impact effect
+    // missile->s.emplacedOwner = G_EffectIndex( "turret/turb_impact" );
 
-	missile->classname = "turbo_proj";
-	missile->s.weapon = weapon_t::WP_TIE_FIGHTER;
+    missile->classname = "turbo_proj";
+    missile->s.weapon = weapon_t::WP_TIE_FIGHTER;
 
-	missile->damage = ent->damage;		//FIXME: externalize
-	missile->splashDamage = ent->splashDamage;	//FIXME: externalize
-	missile->splashRadius = ent->splashRadius;	//FIXME: externalize
-	missile->dflags = damageFlags_t::DAMAGE_DEATH_KNOCKBACK;
-	missile->methodOfDeath = meansOfDeath_t::MOD_EMPLACED; //MOD_TURBLAST; //count as a heavy weap
-	missile->splashMethodOfDeath = meansOfDeath_t::MOD_EMPLACED; //MOD_TURBLAST;// ?SPLASH;
-	missile->clipmask = MASK_SHOT;
+    missile->damage = ent->damage;             // FIXME: externalize
+    missile->splashDamage = ent->splashDamage; // FIXME: externalize
+    missile->splashRadius = ent->splashRadius; // FIXME: externalize
+    missile->dflags = damageFlags_t::DAMAGE_DEATH_KNOCKBACK;
+    missile->methodOfDeath = meansOfDeath_t::MOD_EMPLACED;       // MOD_TURBLAST; //count as a heavy weap
+    missile->splashMethodOfDeath = meansOfDeath_t::MOD_EMPLACED; // MOD_TURBLAST;// ?SPLASH;
+    missile->clipmask = MASK_SHOT;
 
-	// we don't want it to bounce forever
-	missile->bounceCount = 8;
+    // we don't want it to bounce forever
+    missile->bounceCount = 8;
 
-	//set veh as cgame side owner for purpose of fx overrides
-	//missile->s.owner = ent->s.number;
+    // set veh as cgame side owner for purpose of fx overrides
+    // missile->s.owner = ent->s.number;
 
-	//don't let them last forever
-	missile->e_ThinkFunc = thinkFunc_t::thinkF_G_FreeEntity;
-	missile->nextthink = level.time + 10000;//at 20000 speed, that should be more than enough
+    // don't let them last forever
+    missile->e_ThinkFunc = thinkFunc_t::thinkF_G_FreeEntity;
+    missile->nextthink = level.time + 10000; // at 20000 speed, that should be more than enough
 }
 
 // Emplaced Gun
 //---------------------------------------------------------
-void WP_EmplacedFire( gentity_t *ent )
+void WP_EmplacedFire(gentity_t* ent)
 //---------------------------------------------------------
 {
-	float damage = weaponData[weapon_t::WP_EMPLACED_GUN].damage * ( ent->NPC ? 0.1f : 1.0f );
-	float vel = EMPLACED_VEL * ( ent->NPC ? 0.4f : 1.0f );
+    float damage = weaponData[weapon_t::WP_EMPLACED_GUN].damage * (ent->NPC ? 0.1f : 1.0f);
+    float vel = EMPLACED_VEL * (ent->NPC ? 0.4f : 1.0f);
 
-	WP_MissileTargetHint(ent, muzzle, forwardVec);
+    WP_MissileTargetHint(ent, muzzle, forwardVec);
 
-	gentity_t	*missile = CreateMissile( muzzle, forwardVec, vel, 10000, ent );
+    gentity_t* missile = CreateMissile(muzzle, forwardVec, vel, 10000, ent);
 
-	missile->classname = "emplaced_proj";
-	missile->s.weapon = weapon_t::WP_EMPLACED_GUN;
+    missile->classname = "emplaced_proj";
+    missile->s.weapon = weapon_t::WP_EMPLACED_GUN;
 
-	missile->damage = damage;
-	missile->dflags = damageFlags_t::DAMAGE_DEATH_KNOCKBACK | damageFlags_t::DAMAGE_HEAVY_WEAP_CLASS;
-	missile->methodOfDeath = meansOfDeath_t::MOD_EMPLACED;
-	missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
+    missile->damage = damage;
+    missile->dflags = damageFlags_t::DAMAGE_DEATH_KNOCKBACK | damageFlags_t::DAMAGE_HEAVY_WEAP_CLASS;
+    missile->methodOfDeath = meansOfDeath_t::MOD_EMPLACED;
+    missile->clipmask = MASK_SHOT | contentsFlags_t::CONTENTS_LIGHTSABER;
 
-	// do some weird switchery on who the real owner is, we do this so the projectiles don't hit the gun object
-	if ( ent && ent->client && !Any(ent->client->ps.eFlags&entityFlags_t::EF_LOCKED_TO_WEAPON) )
-	{
-		missile->owner = ent;
-	}
-	else
-	{
-		missile->owner = ent->owner;
-	}
+    // do some weird switchery on who the real owner is, we do this so the projectiles don't hit the gun object
+    if (ent && ent->client && !Any(ent->client->ps.eFlags & entityFlags_t::EF_LOCKED_TO_WEAPON)) {
+        missile->owner = ent;
+    }
+    else {
+        missile->owner = ent->owner;
+    }
 
-	if ( missile->owner->e_UseFunc == useFunc_t::useF_eweb_use )
-	{
-		missile->alt_fire = true;
-	}
+    if (missile->owner->e_UseFunc == useFunc_t::useF_eweb_use) {
+        missile->alt_fire = true;
+    }
 
-	VectorSet( missile->maxs, EMPLACED_SIZE, EMPLACED_SIZE, EMPLACED_SIZE );
-	VectorScale( missile->maxs, -1, missile->mins );
+    VectorSet(missile->maxs, EMPLACED_SIZE, EMPLACED_SIZE, EMPLACED_SIZE);
+    VectorScale(missile->maxs, -1, missile->mins);
 
-	// alternate muzzles
-	ent->fxID = !ent->fxID;
+    // alternate muzzles
+    ent->fxID = !ent->fxID;
 }

@@ -1,344 +1,351 @@
 diff --git a/src/codemp/game/g_items.cpp b/src/codemp/game/g_items.cpp
-index f82502c9..ff000b58 100644
+index 45b904c..1eebda0 100644
 --- a/src/codemp/game/g_items.cpp
 +++ b/src/codemp/game/g_items.cpp
-@@ -1663,6 +1663,21 @@ void EWebFire(gentity_t *owner, gentity_t *eweb)
- 	BG_GiveMeVectorFromMatrix(&boltMatrix, orientations_t::ORIGIN, p);
- 	BG_GiveMeVectorFromMatrix(&boltMatrix, orientations_t::NEGATIVE_Y, d);
+@@ -1486,6 +1486,22 @@ void EWebFire(gentity_t* owner, gentity_t* eweb)
+     BG_GiveMeVectorFromMatrix(&boltMatrix, orientations_t::ORIGIN, p);
+     BG_GiveMeVectorFromMatrix(&boltMatrix, orientations_t::NEGATIVE_Y, d);
  
-+	{ // plan step 20 part 9 (temporary): the axis cgame's crosshair takes (CG_CalcEWebMuzzlePoint) against the shot's
-+		mdxaBone_t m2;
-+		vec3_t p2, d2, a, a2;
++    { // plan step 20 part 9 (temporary): the axis cgame's crosshair takes (CG_CalcEWebMuzzlePoint) against the shot's
++        mdxaBone_t m2;
++        vec3_t p2, d2, a, a2;
 +
-+		trap->G2API_GetBoltMatrix_NoRecNoRot(eweb->ghoul2, 0, eweb->genericValue10, &m2, eweb->s.apos.trBase, eweb->r.currentOrigin, level.time, nullptr, eweb->modelScale);
-+		BG_GiveMeVectorFromMatrix(&m2, orientations_t::ORIGIN, p2);
-+		BG_GiveMeVectorFromMatrix(&m2, orientations_t::NEGATIVE_X, d2);
-+		vectoangles(d, a);
-+		vectoangles(d2, a2);
-+		trap->Print("DBG eweb t%d view %.2f %.2f shot %.2f %.2f xhair %.2f %.2f bone yaw %.2f pitchview %.2f origin diff %.1f %.1f %.1f base %.2f %.2f %.2f\n",
-+			level.time, owner->client->ps.viewangles[PITCH], owner->client->ps.viewangles[YAW], a[PITCH], a[YAW], a2[PITCH], a2[YAW],
-+			eweb->angle, AngleSubtract(owner->client->ps.viewangles[PITCH], eweb->s.angles[PITCH]), p2[0]-p[0], p2[1]-p[1], p2[2]-p[2],
-+			eweb->s.apos.trBase[0], eweb->s.apos.trBase[1], eweb->s.apos.trBase[2]);
-+	}
++        trap->G2API_GetBoltMatrix_NoRecNoRot(eweb->ghoul2, 0, eweb->genericValue10, &m2, eweb->s.apos.trBase, eweb->r.currentOrigin, level.time, nullptr,
++                                             eweb->modelScale);
++        BG_GiveMeVectorFromMatrix(&m2, orientations_t::ORIGIN, p2);
++        BG_GiveMeVectorFromMatrix(&m2, orientations_t::NEGATIVE_X, d2);
++        vectoangles(d, a);
++        vectoangles(d2, a2);
++        trap->Print("DBG eweb t%d view %.2f %.2f shot %.2f %.2f xhair %.2f %.2f bone yaw %.2f pitchview %.2f origin diff %.1f %.1f %.1f base %.2f %.2f %.2f\n",
++                    level.time, owner->client->ps.viewangles[PITCH], owner->client->ps.viewangles[YAW], a[PITCH], a[YAW], a2[PITCH], a2[YAW], eweb->angle,
++                    AngleSubtract(owner->client->ps.viewangles[PITCH], eweb->s.angles[PITCH]), p2[0] - p[0], p2[1] - p[1], p2[2] - p[2], eweb->s.apos.trBase[0],
++                    eweb->s.apos.trBase[1], eweb->s.apos.trBase[2]);
++    }
 +
- 	//Start the thing backwards into the bounding box so it can't start inside other solid things
- 	VectorMA(p, -16.0f, d, bPoint);
+     // Start the thing backwards into the bounding box so it can't start inside other solid things
+     VectorMA(p, -16.0f, d, bPoint);
  
 diff --git a/src/codemp/game/g_missile.cpp b/src/codemp/game/g_missile.cpp
-index 2e2a692e..270ab1a2 100644
+index 3313d73..cc796d1 100644
 --- a/src/codemp/game/g_missile.cpp
 +++ b/src/codemp/game/g_missile.cpp
-@@ -320,6 +320,9 @@ gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life,
- 	VectorScale( dir, vel, missile->s.pos.trDelta );
- 	VectorCopy( org, missile->r.currentOrigin);
+@@ -294,6 +294,9 @@ gentity_t* CreateMissile(vec3_t org, vec3_t dir, float vel, int life, gentity_t*
+     VectorScale(dir, vel, missile->s.pos.trDelta);
+     VectorCopy(org, missile->r.currentOrigin);
  
-+	extern void G_ScenarioShotTrace( gentity_t *owner, const vec3_t start, const vec3_t dir );	// plan step 20 part 9 (temporary)
-+	G_ScenarioShotTrace( owner, org, dir );
++    extern void G_ScenarioShotTrace(gentity_t * owner, const vec3_t start, const vec3_t dir); // plan step 20 part 9 (temporary)
++    G_ScenarioShotTrace(owner, org, dir);
 +
- 	return missile;
+     return missile;
  }
  
 diff --git a/src/codemp/game/g_scenario.cpp b/src/codemp/game/g_scenario.cpp
-index dd724fc9..551cde54 100644
+index 52108dc..68b6103 100644
 --- a/src/codemp/game/g_scenario.cpp
 +++ b/src/codemp/game/g_scenario.cpp
 @@ -281,6 +281,15 @@ static struct {
- 	vec3_t	origin[3], start[3];
+     vec3_t origin[3], start[3];
  } scnStats;
  
 +// plan step 20 part 9 (temporary, kept as tools/gamestats/shot_offsets.patch): where each shot starts against the view
-+bool g_scnNoSpread = false;	// the option nospread: the weapons' random spread left out (g_weapon.cpp)
++bool g_scnNoSpread = false; // the option nospread: the weapons' random spread left out (g_weapon.cpp)
 +static struct {
-+	bool		flash;		// the option flash: the gun's world model on the attacker's right hand, its *flash bolt traced
-+	void		*gun;		// that model, the weapon it is and its bolt on the attacker's model 4
-+	weapon_t	gunWeapon;
-+	int			flashBolt;
++    bool flash; // the option flash: the gun's world model on the attacker's right hand, its *flash bolt traced
++    void* gun;  // that model, the weapon it is and its bolt on the attacker's model 4
++    weapon_t gunWeapon;
++    int flashBolt;
 +} shotScn;
 +
  // the eight attack directions, as forward and right moves
- static const signed char scnDirs[8][2] = {
- 	{ 127, 0 }, { -127, 0 }, { 0, -127 }, { 0, 127 }, { 127, -127 }, { 127, 127 }, { -127, -127 }, { -127, 127 }
-@@ -1650,6 +1659,138 @@ static void G_ScenarioAimMuzzle( gentity_t *ent, const vec3_t target, vec3_t vie
- 	vectoangles( to, view );	// from the muzzle
+ static const signed char scnDirs[8][2] = {{127, 0}, {-127, 0}, {0, -127}, {0, 127}, {127, -127}, {127, 127}, {-127, -127}, {-127, 127}};
+ 
+@@ -1689,6 +1698,140 @@ static void G_ScenarioAimMuzzle(gentity_t* ent, const vec3_t target, vec3_t view
+     vectoangles(to, view); // from the muzzle
  }
  
 +// plan step 20 part 9 (temporary): a scenario slot's number, or -1
-+static int G_ShotSlot( const gentity_t *ent ) {
-+	for ( int n = 0; n < scn.numClients && n < 3; n++ ) {
-+		if ( ent && scn.client[n] == ent->s.number ) {
-+			return n;
-+		}
-+	}
-+	return -1;
++static int G_ShotSlot(const gentity_t* ent)
++{
++    for (int n = 0; n < scn.numClients && n < 3; n++) {
++        if (ent && scn.client[n] == ent->s.number) {
++            return n;
++        }
++    }
++    return -1;
 +}
 +
-+static bool G_ShotCounting( void ) {
-+	return scn.type != scenarioType_t::SCN_NONE && !scn.done && scn.repStart && scn.rep >= 1;
++static bool G_ShotCounting(void)
++{
++    return scn.type != scenarioType_t::SCN_NONE && !scn.done && scn.repStart && scn.rep >= 1;
 +}
 +
 +// a point of a slot's model: its head (the bolt *head_eyes) or its chest (thoracic), false without them
-+static bool G_ShotPoint( int slot, int at, vec3_t point ) {
-+	extern void G_GetBoltPosition( gentity_t *self, int boltIndex, vec3_t pos, int modelIndex );
-+	gentity_t *ent = &g_entities[scn.client[slot]];
-+	const int bolt = ( ent->inuse && ent->client ) ? ( at ? ent->client->renderInfo.torsoBolt : ent->client->renderInfo.headBolt ) : -1;
++static bool G_ShotPoint(int slot, int at, vec3_t point)
++{
++    extern void G_GetBoltPosition(gentity_t * self, int boltIndex, vec3_t pos, int modelIndex);
++    gentity_t* ent = &g_entities[scn.client[slot]];
++    const int bolt = (ent->inuse && ent->client) ? (at ? ent->client->renderInfo.torsoBolt : ent->client->renderInfo.headBolt) : -1;
 +
-+	if ( !ent->ghoul2 || bolt < 0 ) {
-+		return false;
-+	}
-+	G_GetBoltPosition( ent, bolt, point, 0 );
-+	return true;
++    if (!ent->ghoul2 || bolt < 0) {
++        return false;
++    }
++    G_GetBoltPosition(ent, bolt, point, 0);
++    return true;
 +}
 +
 +// the attacker's gun's *flash bolt: the weapon's world model put on the player's bolt 0, the right hand
 +// (SetupGameGhoul2Model), as cgame does for the model it draws (CG_InitG2Weapons), as the player's model 4
-+static bool G_ShotFlash( gentity_t *ent, vec3_t flash ) {
-+	mdxaBone_t m;
++static bool G_ShotFlash(gentity_t* ent, vec3_t flash)
++{
++    mdxaBone_t m;
 +
-+	if ( !shotScn.gun || shotScn.gunWeapon != ent->client->ps.weapon ) {
-+		const gitem_t *item = BG_FindItemForWeapon( ent->client->ps.weapon );
++    if (!shotScn.gun || shotScn.gunWeapon != ent->client->ps.weapon) {
++        const gitem_t* item = BG_FindItemForWeapon(ent->client->ps.weapon);
 +
-+		shotScn.gun = nullptr;
-+		shotScn.flashBolt = -1;
-+		shotScn.gunWeapon = ent->client->ps.weapon;
-+		if ( !item || !item->world_model[0] ) {
-+			return false;
-+		}
-+		trap->G2API_InitGhoul2Model( &shotScn.gun, item->world_model[0], 0, 0, 0, 0, 0 );
-+		if ( !shotScn.gun ) {
-+			return false;
-+		}
-+		trap->G2API_SetBoltInfo( shotScn.gun, 0, 0 );
-+		trap->G2API_CopySpecificGhoul2Model( shotScn.gun, 0, ent->ghoul2, 4 );
-+		shotScn.flashBolt = trap->G2API_AddBolt( ent->ghoul2, 4, "*flash" );
-+	}
-+	if ( shotScn.flashBolt < 0 ) {
-+		return false;
-+	}
-+	// posed as the server posed the model (WP_SaberPositionUpdate)
-+	trap->G2API_GetBoltMatrix( ent->ghoul2, 4, shotScn.flashBolt, &m, ent->client->renderInfo.modelAngles,
-+		ent->client->ps.origin, level.time, nullptr, ent->modelScale );
-+	BG_GiveMeVectorFromMatrix( &m, orientations_t::ORIGIN, flash );
-+	return true;
++        shotScn.gun = nullptr;
++        shotScn.flashBolt = -1;
++        shotScn.gunWeapon = ent->client->ps.weapon;
++        if (!item || !item->world_model[0]) {
++            return false;
++        }
++        trap->G2API_InitGhoul2Model(&shotScn.gun, item->world_model[0], 0, 0, 0, 0, 0);
++        if (!shotScn.gun) {
++            return false;
++        }
++        trap->G2API_SetBoltInfo(shotScn.gun, 0, 0);
++        trap->G2API_CopySpecificGhoul2Model(shotScn.gun, 0, ent->ghoul2, 4);
++        shotScn.flashBolt = trap->G2API_AddBolt(ent->ghoul2, 4, "*flash");
++    }
++    if (shotScn.flashBolt < 0) {
++        return false;
++    }
++    // posed as the server posed the model (WP_SaberPositionUpdate)
++    trap->G2API_GetBoltMatrix(ent->ghoul2, 4, shotScn.flashBolt, &m, ent->client->renderInfo.modelAngles, ent->client->ps.origin, level.time, nullptr,
++                              ent->modelScale);
++    BG_GiveMeVectorFromMatrix(&m, orientations_t::ORIGIN, flash);
++    return true;
 +}
 +
 +// a shot's start and direction against the view of who fires it (forward, right, up from the eyes; the direction's
 +// yaw and pitch against the view's), and how far its line passes from the target's head, chest and eye level (the
 +// point the NPCs and the bots aim at), in the shot's right and up, with the distance along it
-+void G_ScenarioShotTrace( gentity_t *owner, const vec3_t start, const vec3_t dir ) {
-+	gentity_t *viewer = owner;
-+	const gentity_t *targ;
-+	vec3_t eyes, fwd, right, up, d, ang, shotRight, shotUp, pts[3];
-+	bool have[3];
-+	char line[1024];
-+	int slot;
++void G_ScenarioShotTrace(gentity_t* owner, const vec3_t start, const vec3_t dir)
++{
++    gentity_t* viewer = owner;
++    const gentity_t* targ;
++    vec3_t eyes, fwd, right, up, d, ang, shotRight, shotUp, pts[3];
++    bool have[3];
++    char line[1024];
++    int slot;
 +
-+	if ( !G_ShotCounting() || !owner ) {
-+		return;
-+	}
-+	if ( !owner->client && owner->activator && owner->activator->client ) {
-+		viewer = owner->activator;	// the emplaced gun's user
-+	}
-+	else if ( owner->client && owner->client->NPC_class == class_t::CLASS_VEHICLE && owner->m_pVehicle && owner->m_pVehicle->m_pPilot ) {
-+		viewer = (gentity_t *)owner->m_pVehicle->m_pPilot;
-+	}
-+	slot = G_ShotSlot( viewer );
-+	vectoangles( dir, ang );
-+	AngleVectors( ang, nullptr, shotRight, shotUp );
-+	if ( viewer->client ) {
-+		VectorCopy( viewer->client->ps.origin, eyes );
-+		eyes[2] += viewer->client->ps.viewheight;
-+		AngleVectors( viewer->client->ps.viewangles, fwd, right, up );
-+		VectorSubtract( start, eyes, d );
-+		Com_sprintf( line, sizeof( line ), "DBG shot rep%d t%d s%d slot%d w%d start f%.1f r%.1f u%.1f dir yaw%+.2f pitch%+.2f",
-+			scn.rep, level.time - scn.repStart, viewer->s.number, slot, to_underlying( viewer->client->ps.weapon ),
-+			DotProduct( d, fwd ), DotProduct( d, right ), DotProduct( d, up ),
-+			AngleSubtract( ang[YAW], viewer->client->ps.viewangles[YAW] ), AngleSubtract( ang[PITCH], viewer->client->ps.viewangles[PITCH] ) );
-+	}
-+	else {
-+		Com_sprintf( line, sizeof( line ), "DBG shot rep%d t%d s%d slot%d noview start %.1f %.1f %.1f", scn.rep,
-+			level.time - scn.repStart, viewer->s.number, slot, start[0], start[1], start[2] );
-+	}
-+	targ = &g_entities[scn.client[( slot == 1 ) ? 0 : 1]];
-+	if ( targ->inuse && targ->client ) {
-+		static const char *names[3] = { "head", "chest", "eyelevel" };
++    if (!G_ShotCounting() || !owner) {
++        return;
++    }
++    if (!owner->client && owner->activator && owner->activator->client) {
++        viewer = owner->activator; // the emplaced gun's user
++    }
++    else if (owner->client && owner->client->NPC_class == class_t::CLASS_VEHICLE && owner->m_pVehicle && owner->m_pVehicle->m_pPilot) {
++        viewer = (gentity_t*)owner->m_pVehicle->m_pPilot;
++    }
++    slot = G_ShotSlot(viewer);
++    vectoangles(dir, ang);
++    AngleVectors(ang, nullptr, shotRight, shotUp);
++    if (viewer->client) {
++        VectorCopy(viewer->client->ps.origin, eyes);
++        eyes[2] += viewer->client->ps.viewheight;
++        AngleVectors(viewer->client->ps.viewangles, fwd, right, up);
++        VectorSubtract(start, eyes, d);
++        Com_sprintf(line, sizeof(line), "DBG shot rep%d t%d s%d slot%d w%d start f%.1f r%.1f u%.1f dir yaw%+.2f pitch%+.2f", scn.rep, level.time - scn.repStart,
++                    viewer->s.number, slot, to_underlying(viewer->client->ps.weapon), DotProduct(d, fwd), DotProduct(d, right), DotProduct(d, up),
++                    AngleSubtract(ang[YAW], viewer->client->ps.viewangles[YAW]), AngleSubtract(ang[PITCH], viewer->client->ps.viewangles[PITCH]));
++    }
++    else {
++        Com_sprintf(line, sizeof(line), "DBG shot rep%d t%d s%d slot%d noview start %.1f %.1f %.1f", scn.rep, level.time - scn.repStart, viewer->s.number, slot,
++                    start[0], start[1], start[2]);
++    }
++    targ = &g_entities[scn.client[(slot == 1) ? 0 : 1]];
++    if (targ->inuse && targ->client) {
++        static const char* names[3] = {"head", "chest", "eyelevel"};
 +
-+		have[0] = G_ShotPoint( ( slot == 1 ) ? 0 : 1, 0, pts[0] );
-+		have[1] = G_ShotPoint( ( slot == 1 ) ? 0 : 1, 1, pts[1] );
-+		VectorCopy( targ->client->ps.origin, pts[2] );
-+		pts[2][2] += targ->client->ps.viewheight;
-+		have[2] = true;
-+		for ( int k = 0; k < 3; k++ ) {
-+			vec3_t w, miss;
-+			float t;
++        have[0] = G_ShotPoint((slot == 1) ? 0 : 1, 0, pts[0]);
++        have[1] = G_ShotPoint((slot == 1) ? 0 : 1, 1, pts[1]);
++        VectorCopy(targ->client->ps.origin, pts[2]);
++        pts[2][2] += targ->client->ps.viewheight;
++        have[2] = true;
++        for (int k = 0; k < 3; k++) {
++            vec3_t w, miss;
++            float t;
 +
-+			if ( !have[k] ) {
-+				continue;
-+			}
-+			VectorSubtract( pts[k], start, w );
-+			t = DotProduct( w, dir );
-+			VectorMA( start, t, dir, miss );
-+			VectorSubtract( miss, pts[k], miss );
-+			Q_strcat( line, sizeof( line ), va( " | %s r%+.1f u%+.1f at%.0f", names[k], DotProduct( miss, shotRight ),
-+				DotProduct( miss, shotUp ), t ) );
-+		}
-+	}
-+	if ( shotScn.flash && slot == 0 && viewer == owner && viewer->client ) {
-+		vec3_t flash;
++            if (!have[k]) {
++                continue;
++            }
++            VectorSubtract(pts[k], start, w);
++            t = DotProduct(w, dir);
++            VectorMA(start, t, dir, miss);
++            VectorSubtract(miss, pts[k], miss);
++            Q_strcat(line, sizeof(line), va(" | %s r%+.1f u%+.1f at%.0f", names[k], DotProduct(miss, shotRight), DotProduct(miss, shotUp), t));
++        }
++    }
++    if (shotScn.flash && slot == 0 && viewer == owner && viewer->client) {
++        vec3_t flash;
 +
-+		if ( G_ShotFlash( viewer, flash ) ) {
-+			VectorSubtract( flash, eyes, d );
-+			Q_strcat( line, sizeof( line ), va( " | flash f%.1f r%.1f u%.1f", DotProduct( d, fwd ), DotProduct( d, right ),
-+				DotProduct( d, up ) ) );
-+		}
-+	}
-+	trap->Print( "%s\n", line );
++        if (G_ShotFlash(viewer, flash)) {
++            VectorSubtract(flash, eyes, d);
++            Q_strcat(line, sizeof(line), va(" | flash f%.1f r%.1f u%.1f", DotProduct(d, fwd), DotProduct(d, right), DotProduct(d, up)));
++        }
++    }
++    trap->Print("%s\n", line);
 +}
 +
  // aim=: the attacker's view on the defender's head (the bolt *head_eyes of its model) or chest (thoracic, at=chest),
  // from the eyes or from the weapon's muzzle point; on the emplaced gun, once mounted, from the point between its two
  // barrels, which its crosshair shows (CG_CalcMuzzlePoint)
-@@ -1882,7 +2023,7 @@ bool G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd ) {
- 		// fire towards the point the view's ray hits
- 		view[PITCH] = ( phase < 50 ) ? 20.0f : -2.0f;
- 	}
--	if ( attacker && scn.type == scenarioType_t::SCN_WEAPON && scn.aimFrom != aimFrom_t::AIM_SCENARIO && scn.repStart ) {
-+	if ( attacker && ( scn.type == scenarioType_t::SCN_WEAPON || scn.type == scenarioType_t::SCN_HOLDABLE ) && scn.aimFrom != aimFrom_t::AIM_SCENARIO && scn.repStart ) {
- 		G_ScenarioAimAt( ent, phase, view );
- 	}
- 	for ( i = 0; i < 3; i++ ) {
-@@ -2274,6 +2415,8 @@ void Svcmd_Scenario_f( void ) {
- 		: aimFrom_t::AIM_SCENARIO;
- 	G_ScenarioOptString( "at", arg, sizeof( arg ) );
- 	scn.aimChest = !Q_stricmp( arg, "chest" );
-+	shotScn.flash = G_ScenarioOptIs( "flash" );	// plan step 20 part 9 (temporary)
-+	g_scnNoSpread = G_ScenarioOptIs( "nospread" );
- 	scn.spectatorMode = G_ScenarioOptIs( "spectator=follow1" ) ? spectatorMode_t::SPEC_FOLLOW1
- 		: G_ScenarioOptIs( "spectator=follow2" ) ? spectatorMode_t::SPEC_FOLLOW2
- 		: G_ScenarioOptIs( "spectator" ) ? spectatorMode_t::SPEC_ATTACKER : spectatorMode_t::SPEC_NONE;
+@@ -1932,7 +2075,8 @@ bool G_ScenarioCommand(int clientNum, int t, usercmd_t* ucmd)
+         // fire towards the point the view's ray hits
+         view[PITCH] = (phase < 50) ? 20.0f : -2.0f;
+     }
+-    if (attacker && scn.type == scenarioType_t::SCN_WEAPON && scn.aimFrom != aimFrom_t::AIM_SCENARIO && scn.repStart) {
++    if (attacker && (scn.type == scenarioType_t::SCN_WEAPON || scn.type == scenarioType_t::SCN_HOLDABLE) && scn.aimFrom != aimFrom_t::AIM_SCENARIO &&
++        scn.repStart) {
+         G_ScenarioAimAt(ent, phase, view);
+     }
+     for (i = 0; i < 3; i++) {
+@@ -2336,6 +2480,8 @@ void Svcmd_Scenario_f(void)
+     scn.aimFrom = !Q_stricmp(arg, "eyes") ? aimFrom_t::AIM_EYES : !Q_stricmp(arg, "muzzle") ? aimFrom_t::AIM_MUZZLE : aimFrom_t::AIM_SCENARIO;
+     G_ScenarioOptString("at", arg, sizeof(arg));
+     scn.aimChest = !Q_stricmp(arg, "chest");
++    shotScn.flash = G_ScenarioOptIs("flash"); // plan step 20 part 9 (temporary)
++    g_scnNoSpread = G_ScenarioOptIs("nospread");
+     scn.spectatorMode = G_ScenarioOptIs("spectator=follow1")   ? spectatorMode_t::SPEC_FOLLOW1
+                         : G_ScenarioOptIs("spectator=follow2") ? spectatorMode_t::SPEC_FOLLOW2
+                         : G_ScenarioOptIs("spectator")         ? spectatorMode_t::SPEC_ATTACKER
 diff --git a/src/codemp/game/g_weapon.cpp b/src/codemp/game/g_weapon.cpp
-index 907d1943..45fad380 100644
+index b834817..9ad0d07 100644
 --- a/src/codemp/game/g_weapon.cpp
 +++ b/src/codemp/game/g_weapon.cpp
-@@ -32,6 +32,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
+@@ -33,6 +33,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
  
  static vec3_t forward, vright, up;
  static vec3_t muzzle;
 +// plan step 20 part 9 (temporary)
 +extern bool g_scnNoSpread;
-+extern void G_ScenarioShotTrace( gentity_t *owner, const vec3_t start, const vec3_t dir );
-+static float ShotSpread( void ) { return g_scnNoSpread ? 0.0f : 1.0f; }
++extern void G_ScenarioShotTrace(gentity_t* owner, const vec3_t start, const vec3_t dir);
++static float ShotSpread(void)
++{
++    return g_scnNoSpread ? 0.0f : 1.0f;
++}
  
  // Bryar Pistol
  //--------
-@@ -500,8 +504,8 @@ static void WP_FireBlaster( gentity_t *ent, bool altFire )
- 	if ( altFire )
- 	{
- 		// add some slop to the alt-fire direction
--		angs[PITCH] += Q_flrand(-1.0f, 1.0f) * BLASTER_SPREAD;
--		angs[YAW]       += Q_flrand(-1.0f, 1.0f) * BLASTER_SPREAD;
-+		angs[PITCH] += Q_flrand(-1.0f, 1.0f) * ShotSpread() * BLASTER_SPREAD;
-+		angs[YAW]       += Q_flrand(-1.0f, 1.0f) * ShotSpread() * BLASTER_SPREAD;
- 	}
+@@ -476,8 +483,8 @@ static void WP_FireBlaster(gentity_t* ent, bool altFire)
  
- 	AngleVectors( angs, dir, nullptr, nullptr );
-@@ -542,6 +546,7 @@ static void WP_DisruptorMainFire( gentity_t *ent )
- 	WP_EyePoint( ent, start );//By eyes (a misc_weapon_shooter's client has no origin: plan step 20 part 10b)
+     if (altFire) {
+         // add some slop to the alt-fire direction
+-        angs[PITCH] += Q_flrand(-1.0f, 1.0f) * BLASTER_SPREAD;
+-        angs[YAW] += Q_flrand(-1.0f, 1.0f) * BLASTER_SPREAD;
++        angs[PITCH] += Q_flrand(-1.0f, 1.0f) * ShotSpread() * BLASTER_SPREAD;
++        angs[YAW] += Q_flrand(-1.0f, 1.0f) * ShotSpread() * BLASTER_SPREAD;
+     }
  
- 	VectorMA( start, shotRange, forward, end );
-+	G_ScenarioShotTrace( ent, start, forward );	// plan step 20 part 9 (temporary)
+     AngleVectors(angs, dir, nullptr, nullptr);
+@@ -516,6 +523,7 @@ static void WP_DisruptorMainFire(gentity_t* ent)
+     WP_EyePoint(ent, start); // By eyes (a misc_weapon_shooter's client has no origin: plan step 20 part 10b)
  
- 	ignore = ent->s.number;
- 	traces = 0;
-@@ -716,6 +721,7 @@ void WP_DisruptorAltFire( gentity_t *ent )
+     VectorMA(start, shotRange, forward, end);
++    G_ScenarioShotTrace(ent, start, forward); // plan step 20 part 9 (temporary)
  
- 		count = ( 100 ) / DISRUPTOR_CHARGE_UNIT;
- 	}
-+	G_ScenarioShotTrace( ent, start, forward );	// plan step 20 part 9 (temporary)
+     ignore = ent->s.number;
+     traces = 0;
+@@ -671,6 +679,7 @@ void WP_DisruptorAltFire(gentity_t* ent)
  
- 	count *= 2;
+         count = (100) / DISRUPTOR_CHARGE_UNIT;
+     }
++    G_ScenarioShotTrace(ent, start, forward); // plan step 20 part 9 (temporary)
  
-@@ -1052,12 +1058,12 @@ static void WP_BowcasterMainFire( gentity_t *ent )
- 	for (i = 0; i < count; i++ )
- 	{
- 		// create a range of different velocities
--		vel = BOWCASTER_VELOCITY * ( Q_flrand(-1.0f, 1.0f) * BOWCASTER_VEL_RANGE + 1.0f );
-+		vel = BOWCASTER_VELOCITY * ( Q_flrand(-1.0f, 1.0f) * ShotSpread() * BOWCASTER_VEL_RANGE + 1.0f );
+     count *= 2;
  
- 		vectoangles( forward, angs );
+@@ -962,12 +971,12 @@ static void WP_BowcasterMainFire(gentity_t* ent)
  
- 		// add some slop to the alt-fire direction
--		angs[PITCH] += Q_flrand(-1.0f, 1.0f) * BOWCASTER_ALT_SPREAD * 0.2f;
-+		angs[PITCH] += Q_flrand(-1.0f, 1.0f) * ShotSpread() * BOWCASTER_ALT_SPREAD * 0.2f;
- 		angs[YAW]	+= ((i+0.5f) * BOWCASTER_ALT_SPREAD - count * 0.5f * BOWCASTER_ALT_SPREAD );
+     for (i = 0; i < count; i++) {
+         // create a range of different velocities
+-        vel = BOWCASTER_VELOCITY * (Q_flrand(-1.0f, 1.0f) * BOWCASTER_VEL_RANGE + 1.0f);
++        vel = BOWCASTER_VELOCITY * (Q_flrand(-1.0f, 1.0f) * ShotSpread() * BOWCASTER_VEL_RANGE + 1.0f);
  
- 		AngleVectors( angs, dir, nullptr, nullptr );
-@@ -1173,8 +1179,8 @@ static void WP_FireRepeater( gentity_t *ent, bool altFire )
- 	else
- 	{
- 		// add some slop to the alt-fire direction
--		angs[PITCH] += Q_flrand(-1.0f, 1.0f) * REPEATER_SPREAD;
--		angs[YAW]	+= Q_flrand(-1.0f, 1.0f) * REPEATER_SPREAD;
-+		angs[PITCH] += Q_flrand(-1.0f, 1.0f) * ShotSpread() * REPEATER_SPREAD;
-+		angs[YAW]	+= Q_flrand(-1.0f, 1.0f) * ShotSpread() * REPEATER_SPREAD;
+         vectoangles(forward, angs);
  
- 		AngleVectors( angs, dir, nullptr, nullptr );
+         // add some slop to the alt-fire direction
+-        angs[PITCH] += Q_flrand(-1.0f, 1.0f) * BOWCASTER_ALT_SPREAD * 0.2f;
++        angs[PITCH] += Q_flrand(-1.0f, 1.0f) * ShotSpread() * BOWCASTER_ALT_SPREAD * 0.2f;
+         angs[YAW] += ((i + 0.5f) * BOWCASTER_ALT_SPREAD - count * 0.5f * BOWCASTER_ALT_SPREAD);
  
-@@ -1493,8 +1499,8 @@ static void WP_FlechetteMainFire( gentity_t *ent )
+         AngleVectors(angs, dir, nullptr, nullptr);
+@@ -1076,8 +1085,8 @@ static void WP_FireRepeater(gentity_t* ent, bool altFire)
+     }
+     else {
+         // add some slop to the alt-fire direction
+-        angs[PITCH] += Q_flrand(-1.0f, 1.0f) * REPEATER_SPREAD;
+-        angs[YAW] += Q_flrand(-1.0f, 1.0f) * REPEATER_SPREAD;
++        angs[PITCH] += Q_flrand(-1.0f, 1.0f) * ShotSpread() * REPEATER_SPREAD;
++        angs[YAW] += Q_flrand(-1.0f, 1.0f) * ShotSpread() * REPEATER_SPREAD;
  
- 		if (i != 0)
- 		{ //do nothing on the first shot, it will hit the crosshairs
--			angs[PITCH] += Q_flrand(-1.0f, 1.0f) * FLECHETTE_SPREAD;
--			angs[YAW]	+= Q_flrand(-1.0f, 1.0f) * FLECHETTE_SPREAD;
-+			angs[PITCH] += Q_flrand(-1.0f, 1.0f) * ShotSpread() * FLECHETTE_SPREAD;
-+			angs[YAW]	+= Q_flrand(-1.0f, 1.0f) * ShotSpread() * FLECHETTE_SPREAD;
- 		}
+         AngleVectors(angs, dir, nullptr, nullptr);
  
- 		AngleVectors( angs, fwd, nullptr, nullptr );
-@@ -1671,8 +1677,8 @@ static void WP_FlechetteAltFire( gentity_t *self )
- 	{
- 		VectorCopy( angs, dir );
+@@ -1362,8 +1371,8 @@ static void WP_FlechetteMainFire(gentity_t* ent)
+         vectoangles(forward, angs);
  
--		dir[PITCH] -= Q_flrand(0.0f, 1.0f) * 4 + 8; // make it fly upwards
--		dir[YAW] += Q_flrand(-1.0f, 1.0f) * 2;
-+		dir[PITCH] -= Q_flrand(0.0f, 1.0f) * ShotSpread() * 4 + 8; // make it fly upwards
-+		dir[YAW] += Q_flrand(-1.0f, 1.0f) * ShotSpread() * 2;
- 		AngleVectors( dir, fwd, nullptr, nullptr );
+         if (i != 0) { // do nothing on the first shot, it will hit the crosshairs
+-            angs[PITCH] += Q_flrand(-1.0f, 1.0f) * FLECHETTE_SPREAD;
+-            angs[YAW] += Q_flrand(-1.0f, 1.0f) * FLECHETTE_SPREAD;
++            angs[PITCH] += Q_flrand(-1.0f, 1.0f) * ShotSpread() * FLECHETTE_SPREAD;
++            angs[YAW] += Q_flrand(-1.0f, 1.0f) * ShotSpread() * FLECHETTE_SPREAD;
+         }
  
- 		WP_CreateFlechetteBouncyThing( start, fwd, self );
-@@ -3055,6 +3061,7 @@ static void WP_FireConcussionAlt( gentity_t *ent )
+         AngleVectors(angs, fwd, nullptr, nullptr);
+@@ -1530,8 +1539,8 @@ static void WP_FlechetteAltFire(gentity_t* self)
+     for (i = 0; i < 2; i++) {
+         VectorCopy(angs, dir);
  
- 	// traced from the eyes, as the disruptor, and drawn from the muzzle point (plan step 20 part 10)
- 	WP_EyePoint( ent, start );
-+	G_ScenarioShotTrace( ent, start, forward );	// plan step 20 part 9 (temporary)
+-        dir[PITCH] -= Q_flrand(0.0f, 1.0f) * 4 + 8; // make it fly upwards
+-        dir[YAW] += Q_flrand(-1.0f, 1.0f) * 2;
++        dir[PITCH] -= Q_flrand(0.0f, 1.0f) * ShotSpread() * 4 + 8; // make it fly upwards
++        dir[YAW] += Q_flrand(-1.0f, 1.0f) * ShotSpread() * 2;
+         AngleVectors(dir, fwd, nullptr, nullptr);
  
- 	skip = ent->s.number;
+         WP_CreateFlechetteBouncyThing(start, fwd, self);
+@@ -2787,6 +2796,7 @@ static void WP_FireConcussionAlt(gentity_t* ent)
  
-@@ -3356,6 +3363,7 @@ void WP_FireStunBaton( gentity_t *ent, bool alt_fire )
- 	VectorMA(muzzleStun, 4.0f, vright, muzzleStun);
+     // traced from the eyes, as the disruptor, and drawn from the muzzle point (plan step 20 part 10)
+     WP_EyePoint(ent, start);
++    G_ScenarioShotTrace(ent, start, forward); // plan step 20 part 9 (temporary)
  
- 	VectorMA( muzzleStun, STUN_BATON_RANGE, forward, end );
-+	G_ScenarioShotTrace( ent, muzzleStun, forward );	// plan step 20 part 9 (temporary)
+     skip = ent->s.number;
  
- 	VectorSet( maxs, 6, 6, 6 );
- 	VectorScale( maxs, -1, mins );
-@@ -3452,6 +3460,7 @@ void WP_FireMelee( gentity_t *ent, bool alt_fire )
- 	VectorMA(muzzlePunch, 4.0f, vright, muzzlePunch);
+@@ -3069,6 +3079,7 @@ void WP_FireStunBaton(gentity_t* ent, bool alt_fire)
+     VectorMA(muzzleStun, 4.0f, vright, muzzleStun);
  
- 	VectorMA( muzzlePunch, MELEE_RANGE, forward, end );
-+	G_ScenarioShotTrace( ent, muzzlePunch, forward );	// plan step 20 part 9 (temporary)
+     VectorMA(muzzleStun, STUN_BATON_RANGE, forward, end);
++    G_ScenarioShotTrace(ent, muzzleStun, forward); // plan step 20 part 9 (temporary)
  
- 	VectorSet( maxs, 6, 6, 6 );
- 	VectorScale( maxs, -1, mins );
+     VectorSet(maxs, 6, 6, 6);
+     VectorScale(maxs, -1, mins);
+@@ -3146,6 +3157,7 @@ void WP_FireMelee(gentity_t* ent, bool alt_fire)
+     VectorMA(muzzlePunch, 4.0f, vright, muzzlePunch);
+ 
+     VectorMA(muzzlePunch, MELEE_RANGE, forward, end);
++    G_ScenarioShotTrace(ent, muzzlePunch, forward); // plan step 20 part 9 (temporary)
+ 
+     VectorSet(maxs, 6, 6, 6);
+     VectorScale(maxs, -1, mins);
 diff --git a/src/codemp/game/w_saber.cpp b/src/codemp/game/w_saber.cpp
-index b4a38104..ee5390d4 100644
+index a89b15b..aa08164 100644
 --- a/src/codemp/game/w_saber.cpp
 +++ b/src/codemp/game/w_saber.cpp
-@@ -8680,6 +8680,8 @@ nextStep:
+@@ -7435,6 +7435,8 @@ nextStep:
  
- 				//Projectile stuff:
- 				AngleVectors(self->client->ps.viewangles, dir, nullptr, nullptr);
-+				extern void G_ScenarioShotTrace( gentity_t *owner, const vec3_t start, const vec3_t dir );	// plan step 20 part 9 (temporary)
-+				G_ScenarioShotTrace( self, startorg, dir );
+                 // Projectile stuff:
+                 AngleVectors(self->client->ps.viewangles, dir, nullptr, nullptr);
++                extern void G_ScenarioShotTrace(gentity_t * owner, const vec3_t start, const vec3_t dir); // plan step 20 part 9 (temporary)
++                G_ScenarioShotTrace(self, startorg, dir);
  
- 				saberent->nextthink = level.time + FRAMETIME;
- 				saberent->think = saberFirstThrown;
+                 saberent->nextthink = level.time + FRAMETIME;
+                 saberent->think = saberFirstThrown;

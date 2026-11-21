@@ -24,46 +24,44 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-inline constexpr int CTF_CAPTURE_BONUS = 100;		// what you get for capture
-inline constexpr int CTF_TEAM_BONUS = 25;		// what your team gets for capture
-inline constexpr int CTF_RECOVERY_BONUS = 10;		// what you get for recovery
-inline constexpr int CTF_FLAG_BONUS = 10;		// what you get for picking up enemy flag
-inline constexpr int CTF_FRAG_CARRIER_BONUS = 20;		// what you get for fragging enemy flag carrier
+inline constexpr int CTF_CAPTURE_BONUS = 100;     // what you get for capture
+inline constexpr int CTF_TEAM_BONUS = 25;         // what your team gets for capture
+inline constexpr int CTF_RECOVERY_BONUS = 10;     // what you get for recovery
+inline constexpr int CTF_FLAG_BONUS = 10;         // what you get for picking up enemy flag
+inline constexpr int CTF_FRAG_CARRIER_BONUS = 20; // what you get for fragging enemy flag carrier
 
-inline constexpr int CTF_CARRIER_DANGER_PROTECT_BONUS = 5;	// bonus for fraggin someone who has recently hurt your flag carrier
-inline constexpr int CTF_CARRIER_PROTECT_BONUS = 2;	// bonus for fraggin someone while either you or your target are near your flag carrier
-inline constexpr int CTF_FLAG_DEFENSE_BONUS = 10;	// bonus for fraggin someone while either you or your target are near your flag
-inline constexpr int CTF_RETURN_FLAG_ASSIST_BONUS = 10;	// awarded for returning a flag that causes a capture to happen almost immediately
-inline constexpr int CTF_FRAG_CARRIER_ASSIST_BONUS = 10;	// award for fragging a flag carrier if a capture happens almost immediately
+inline constexpr int CTF_CARRIER_DANGER_PROTECT_BONUS = 5; // bonus for fraggin someone who has recently hurt your flag carrier
+inline constexpr int CTF_CARRIER_PROTECT_BONUS = 2;        // bonus for fraggin someone while either you or your target are near your flag carrier
+inline constexpr int CTF_FLAG_DEFENSE_BONUS = 10;          // bonus for fraggin someone while either you or your target are near your flag
+inline constexpr int CTF_RETURN_FLAG_ASSIST_BONUS = 10;    // awarded for returning a flag that causes a capture to happen almost immediately
+inline constexpr int CTF_FRAG_CARRIER_ASSIST_BONUS = 10;   // award for fragging a flag carrier if a capture happens almost immediately
 
-inline constexpr int CTF_TARGET_PROTECT_RADIUS = 1000;	// the radius around an object being defended where a target will be worth extra frags
-inline constexpr int CTF_ATTACKER_PROTECT_RADIUS = 1000;	// the radius around an object being defended where an attacker will get extra frags when making kills
+inline constexpr int CTF_TARGET_PROTECT_RADIUS = 1000;   // the radius around an object being defended where a target will be worth extra frags
+inline constexpr int CTF_ATTACKER_PROTECT_RADIUS = 1000; // the radius around an object being defended where an attacker will get extra frags when making kills
 
 inline constexpr int CTF_CARRIER_DANGER_PROTECT_TIMEOUT = 8000;
 inline constexpr int CTF_FRAG_CARRIER_ASSIST_TIMEOUT = 10000;
 inline constexpr int CTF_RETURN_FLAG_ASSIST_TIMEOUT = 10000;
 
-
-
 // Prototypes
 
 team_t OtherTeam(team_t team);
-const char *TeamName(team_t team);
-const char *OtherTeamName(team_t team);
-const char *TeamColorString(team_t team);
+const char* TeamName(team_t team);
+const char* OtherTeamName(team_t team);
+const char* TeamColorString(team_t team);
 void AddTeamScore(vec3_t origin, team_t team, int score);
 
-void Team_DroppedFlagThink(gentity_t *ent);
-void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker);
-void Team_CheckHurtCarrier(gentity_t *targ, gentity_t *attacker);
+void Team_DroppedFlagThink(gentity_t* ent);
+void Team_FragBonuses(gentity_t* targ, gentity_t* inflictor, gentity_t* attacker);
+void Team_CheckHurtCarrier(gentity_t* targ, gentity_t* attacker);
 void Team_InitGame(void);
 void Team_ReturnFlag(team_t team);
-void Team_FreeEntity(gentity_t *ent);
-gentity_t *SelectCTFSpawnPoint ( team_t team, playerTeamStateState_t teamstate, vec3_t origin, vec3_t angles, bool isbot );
-gentity_t *SelectSiegeSpawnPoint ( int siegeClass, team_t team, playerTeamStateState_t teamstate, vec3_t origin, vec3_t angles, bool isbot );
-locationData_t *Team_GetLocation(gentity_t *ent);
-bool Team_GetLocationMsg(gentity_t *ent, char *loc, int loclen);
-void TeamplayInfoMessage( gentity_t *ent );
+void Team_FreeEntity(gentity_t* ent);
+gentity_t* SelectCTFSpawnPoint(team_t team, playerTeamStateState_t teamstate, vec3_t origin, vec3_t angles, bool isbot);
+gentity_t* SelectSiegeSpawnPoint(int siegeClass, team_t team, playerTeamStateState_t teamstate, vec3_t origin, vec3_t angles, bool isbot);
+locationData_t* Team_GetLocation(gentity_t* ent);
+bool Team_GetLocationMsg(gentity_t* ent, char* loc, int loclen);
+void TeamplayInfoMessage(gentity_t* ent);
 void CheckTeamStatus(void);
 
-int Pickup_Team( gentity_t *ent, gentity_t *other );
+int Pickup_Team(gentity_t* ent, gentity_t* other);

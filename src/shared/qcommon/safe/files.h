@@ -1,3 +1,24 @@
+/*
+===========================================================================
+Copyright (C) 2015 - 2024, OpenJK contributors
+Copyright (C) 2026, ModernJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
 #pragma once
 
 #include <cstddef>
@@ -10,100 +31,75 @@
 @file RAII C++ bindings for filesystem operations
 */
 
-namespace FS
-{
-	class FileBuffer
-	{
-		friend FileBuffer ReadFile( gsl::czstring );
-		// called by ReadFile()
-		FileBuffer( void* buffer, const long size ) NOEXCEPT;
-	public:
-		FileBuffer() NOEXCEPT = default;
-		~FileBuffer() NOEXCEPT;
-		// noncopyable
-		FileBuffer( const FileBuffer& ) = delete;
-		FileBuffer& operator=( const FileBuffer& ) = delete;
-		// movable
-		FileBuffer( FileBuffer&& rhs ) NOEXCEPT;
-		FileBuffer& operator=( FileBuffer&& rhs ) NOEXCEPT;
+namespace FS {
+class FileBuffer {
+    friend FileBuffer ReadFile(gsl::czstring);
+    // called by ReadFile()
+    FileBuffer(void* buffer, const long size) NOEXCEPT;
 
-		/// nullptr if no such file
-		const char* begin() const NOEXCEPT
-		{
-			return static_cast< const char* >( _buffer );
-		}
-		const char* end() const NOEXCEPT
-		{
-			return static_cast< const char* >( _buffer ) + _size;
-		}
-		long size() const NOEXCEPT
-		{
-			return _size;
-		}
-		bool valid() const NOEXCEPT
-		{
-			return _buffer != nullptr;
-		}
-		gsl::cstring_span view() const NOEXCEPT
-		{
-			return{ begin(), end() };
-		}
+public:
+    FileBuffer() NOEXCEPT = default;
+    ~FileBuffer() NOEXCEPT;
+    // noncopyable
+    FileBuffer(const FileBuffer&) = delete;
+    FileBuffer& operator=(const FileBuffer&) = delete;
+    // movable
+    FileBuffer(FileBuffer&& rhs) NOEXCEPT;
+    FileBuffer& operator=(FileBuffer&& rhs) NOEXCEPT;
 
-	private:
-		// TODO: ought to be const; would have to fix FS_ReadFile though.
-		void* _buffer = nullptr;
-		long _size = 0;
-	};
+    /// nullptr if no such file
+    const char* begin() const NOEXCEPT { return static_cast<const char*>(_buffer); }
+    const char* end() const NOEXCEPT { return static_cast<const char*>(_buffer) + _size; }
+    long size() const NOEXCEPT { return _size; }
+    bool valid() const NOEXCEPT { return _buffer != nullptr; }
+    gsl::cstring_span view() const NOEXCEPT { return {begin(), end()}; }
 
-	FileBuffer ReadFile( gsl::czstring path );
+private:
+    // TODO: ought to be const; would have to fix FS_ReadFile though.
+    void* _buffer = nullptr;
+    long _size = 0;
+};
 
-	// FileList only available in Client; Library exclusively uses FS_GetFileList(), which by supplying a buffer avoids dynamic allocations.
-	// TODO: investigate making FS_ListFiles available in Library Code?
-#if !defined( SP_GAME )
-	class FileList
-	{
-		friend FileList ListFiles( const char*, const char* );
-		// called by ListFiles()
-		FileList( char** files, int numFiles ) NOEXCEPT;
-	public:
-		FileList() NOEXCEPT = default;
-		~FileList() NOEXCEPT;
-		// noncopyable
-		FileList( const FileList& ) = delete;
-		FileList& operator=( const FileList& ) = delete;
-		// movable
-		FileList( FileList&& rhs ) NOEXCEPT;
-		FileList& operator=( FileList&& rhs ) NOEXCEPT;
+FileBuffer ReadFile(gsl::czstring path);
 
-		const char *const *begin() const NOEXCEPT
-		{
-			return _begin;
-		}
-		const char *const *end() const NOEXCEPT
-		{
-			return _end;
-		}
-		std::size_t size() const NOEXCEPT
-		{
-			return static_cast< std::size_t >( _end - begin() );
-		}
+// FileList only available in Client; Library exclusively uses FS_GetFileList(), which by supplying a buffer avoids dynamic allocations.
+// TODO: investigate making FS_ListFiles available in Library Code?
+#if !defined(SP_GAME)
+class FileList {
+    friend FileList ListFiles(const char*, const char*);
+    // called by ListFiles()
+    FileList(char** files, int numFiles) NOEXCEPT;
 
-	private:
-		// TODO: this should really be const; it's a matter of making FS_ListFiles' result const.
-		char** _begin = nullptr;
-		const char* const* _end = nullptr;
-	};
+public:
+    FileList() NOEXCEPT = default;
+    ~FileList() NOEXCEPT;
+    // noncopyable
+    FileList(const FileList&) = delete;
+    FileList& operator=(const FileList&) = delete;
+    // movable
+    FileList(FileList&& rhs) NOEXCEPT;
+    FileList& operator=(FileList&& rhs) NOEXCEPT;
 
-	/**
-	@brief Returns a list of the files in a directory.
+    const char* const* begin() const NOEXCEPT { return _begin; }
+    const char* const* end() const NOEXCEPT { return _end; }
+    std::size_t size() const NOEXCEPT { return static_cast<std::size_t>(_end - begin()); }
 
-	The returned files will not include any directories or `/`.
+private:
+    // TODO: this should really be const; it's a matter of making FS_ListFiles' result const.
+    char** _begin = nullptr;
+    const char* const* _end = nullptr;
+};
 
-	@note ERR_FATAL if called before file system initialization
-	@todo Which is it? Returns no directories at all, or returns them when looking for extension "/"?
-	@param directory should not have either a leading or trailing /
-	@param extension if "/", only subdirectories will be returned
-	*/
-	FileList ListFiles( const char* directory, const char* extension );
+/**
+@brief Returns a list of the files in a directory.
+
+The returned files will not include any directories or `/`.
+
+@note ERR_FATAL if called before file system initialization
+@todo Which is it? Returns no directories at all, or returns them when looking for extension "/"?
+@param directory should not have either a leading or trailing /
+@param extension if "/", only subdirectories will be returned
+*/
+FileList ListFiles(const char* directory, const char* extension);
 #endif
-}
+} // namespace FS

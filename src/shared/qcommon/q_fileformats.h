@@ -29,39 +29,39 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "qcommon/q_enum.h"
 
-enum class bspLump_t {	// the indices of the file's lumps
-	LUMP_ENTITIES			= 0,
-	LUMP_SHADERS			= 1,
-	LUMP_PLANES				= 2,
-	LUMP_NODES				= 3,
-	LUMP_LEAFS				= 4,
-	LUMP_LEAFSURFACES		= 5,
-	LUMP_LEAFBRUSHES		= 6,
-	LUMP_MODELS				= 7,
-	LUMP_BRUSHES			= 8,
-	LUMP_BRUSHSIDES			= 9,
-	LUMP_DRAWVERTS			= 10,
-	LUMP_DRAWINDEXES		= 11,
-	LUMP_FOGS				= 12,
-	LUMP_SURFACES			= 13,
-	LUMP_LIGHTMAPS			= 14,
-	LUMP_LIGHTGRID			= 15,
-	LUMP_VISIBILITY			= 16,
-	LUMP_LIGHTARRAY			= 17,
-	HEADER_LUMPS			= 18
+enum class bspLump_t { // the indices of the file's lumps
+    LUMP_ENTITIES = 0,
+    LUMP_SHADERS = 1,
+    LUMP_PLANES = 2,
+    LUMP_NODES = 3,
+    LUMP_LEAFS = 4,
+    LUMP_LEAFSURFACES = 5,
+    LUMP_LEAFBRUSHES = 6,
+    LUMP_MODELS = 7,
+    LUMP_BRUSHES = 8,
+    LUMP_BRUSHSIDES = 9,
+    LUMP_DRAWVERTS = 10,
+    LUMP_DRAWINDEXES = 11,
+    LUMP_FOGS = 12,
+    LUMP_SURFACES = 13,
+    LUMP_LIGHTMAPS = 14,
+    LUMP_LIGHTGRID = 15,
+    LUMP_VISIBILITY = 16,
+    LUMP_LIGHTARRAY = 17,
+    HEADER_LUMPS = 18
 };
 
 inline constexpr int MC_BITS_X = 16;
 inline constexpr int MC_BITS_Y = 16;
 inline constexpr int MC_BITS_Z = 16;
 inline constexpr int MC_BITS_VECT = 16;
-inline constexpr int MC_COMP_BYTES = ((MC_BITS_X+MC_BITS_Y+MC_BITS_Z+MC_BITS_VECT*9)+7)/8;
+inline constexpr int MC_COMP_BYTES = ((MC_BITS_X + MC_BITS_Y + MC_BITS_Z + MC_BITS_VECT * 9) + 7) / 8;
 
 inline constexpr int SHADER_MAX_VERTEXES = 1000;
-inline constexpr int SHADER_MAX_INDEXES = 6*SHADER_MAX_VERTEXES;
+inline constexpr int SHADER_MAX_INDEXES = 6 * SHADER_MAX_VERTEXES;
 inline constexpr int MD3_VERSION = 15;
 inline constexpr int MD3_MAX_LODS = 3;
-inline constexpr double MD3_XYZ_SCALE = 1.0/64;
+inline constexpr double MD3_XYZ_SCALE = 1.0 / 64;
 inline constexpr int BSP_VERSION = 1;
 inline constexpr int MAXLIGHTMAPS = 4;
 inline constexpr int GLYPH_COUNT = 256;
@@ -71,5 +71,6 @@ inline constexpr int MDXA_VERSION = 6;
 inline constexpr int iG2_TRISIDE_LONGEST = 0;
 inline constexpr int iG2_TRISIDE_SHORTEST = 2;
 inline constexpr int iG2_BITS_PER_BONEREF = 5;
-inline constexpr int iMAX_G2_BONEWEIGHTS_PER_VERT = 4;	// can't just be blindly increased, affects cache size etc
-inline constexpr int iG2_BONEWEIGHT_TOPBITS_SHIFT = (iG2_BITS_PER_BONEREF * iMAX_G2_BONEWEIGHTS_PER_VERT) - 8;	// 8 bits because of 8 in the BoneWeight[] array entry
+inline constexpr int iMAX_G2_BONEWEIGHTS_PER_VERT = 4; // can't just be blindly increased, affects cache size etc
+inline constexpr int iG2_BONEWEIGHT_TOPBITS_SHIFT =
+    (iG2_BITS_PER_BONEREF * iMAX_G2_BONEWEIGHTS_PER_VERT) - 8; // 8 bits because of 8 in the BoneWeight[] array entry

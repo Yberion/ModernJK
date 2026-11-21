@@ -3,6 +3,7 @@
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
 Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2026, ModernJK contributors
 
 This file is part of the OpenJK source code.
 
@@ -29,8 +30,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <string>
 
-unsigned char *	SE_LoadFileData			( const char *psFileName, int *piLoadedLength = 0);
-void			SE_FreeFileDataAfterLoad( unsigned char *psLoadedFile );
-int				SE_BuildFileList		( const char *psStartDir, std::string &strResults );
+unsigned char* SE_LoadFileData(const char* psFileName, int* piLoadedLength = 0);
+void SE_FreeFileDataAfterLoad(unsigned char* psLoadedFile);
+int SE_BuildFileList(const char* psStartDir, std::string& strResults);
 
 ////////////////// eof ///////////////////

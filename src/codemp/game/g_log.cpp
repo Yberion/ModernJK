@@ -37,7 +37,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // Additionally,
 //		--how many times each powerup or item is picked up
 
-
 #ifdef LOGGING_WEAPONS
 EnumArray<int, weapon_t, weapon_t::WP_NUM_WEAPONS> G_WeaponLogPickups[MAX_CLIENTS];
 EnumArray<int, weapon_t, weapon_t::WP_NUM_WEAPONS> G_WeaponLogFired[MAX_CLIENTS];
@@ -52,189 +51,169 @@ EnumArray<int, powerup_t, powerup_t::PW_NUM_POWERUPS> G_WeaponLogPowerups[MAX_CL
 EnumArray<int, holdable_t, holdable_t::HI_NUM_HOLDABLE> G_WeaponLogItems[MAX_CLIENTS];
 
 // MOD-weapon mapping array.
-EnumArray<weapon_t, meansOfDeath_t, meansOfDeath_t::MOD_MAX> weaponFromMOD =
-{
-	weapon_t::WP_NONE,				//MOD_UNKNOWN,
-	weapon_t::WP_STUN_BATON,			//MOD_STUN_BATON,
-	weapon_t::WP_MELEE,				//MOD_MELEE,
-	weapon_t::WP_SABER,				//MOD_SABER,
-	weapon_t::WP_BRYAR_PISTOL,		//MOD_BRYAR_PISTOL,
-	weapon_t::WP_BRYAR_PISTOL,		//MOD_BRYAR_PISTOL_ALT,
-	weapon_t::WP_BLASTER,				//MOD_BLASTER,
-	weapon_t::WP_TURRET,				//MOD_TURBLAST
-	weapon_t::WP_DISRUPTOR,			//MOD_DISRUPTOR,
-	weapon_t::WP_DISRUPTOR,			//MOD_DISRUPTOR_SPLASH,
-	weapon_t::WP_DISRUPTOR,			//MOD_DISRUPTOR_SNIPER,
-	weapon_t::WP_BOWCASTER,			//MOD_BOWCASTER,
-	weapon_t::WP_REPEATER,			//MOD_REPEATER,
-	weapon_t::WP_REPEATER,			//MOD_REPEATER_ALT,
-	weapon_t::WP_REPEATER,			//MOD_REPEATER_ALT_SPLASH,
-	weapon_t::WP_DEMP2,				//MOD_DEMP2,
-	weapon_t::WP_DEMP2,				//MOD_DEMP2_ALT,
-	weapon_t::WP_FLECHETTE,			//MOD_FLECHETTE,
-	weapon_t::WP_FLECHETTE,			//MOD_FLECHETTE_ALT_SPLASH,
-	weapon_t::WP_ROCKET_LAUNCHER,		//MOD_ROCKET,
-	weapon_t::WP_ROCKET_LAUNCHER,		//MOD_ROCKET_SPLASH,
-	weapon_t::WP_ROCKET_LAUNCHER,		//MOD_ROCKET_HOMING,
-	weapon_t::WP_ROCKET_LAUNCHER,		//MOD_ROCKET_HOMING_SPLASH,
-	weapon_t::WP_THERMAL,				//MOD_THERMAL,
-	weapon_t::WP_THERMAL,				//MOD_THERMAL_SPLASH,
-	weapon_t::WP_TRIP_MINE,			//MOD_TRIP_MINE_SPLASH,
-	weapon_t::WP_TRIP_MINE,			//MOD_TIMED_MINE_SPLASH,
-	weapon_t::WP_DET_PACK,			//MOD_DET_PACK_SPLASH,
-	weapon_t::WP_NONE,				//MOD_VEHICLE,
-	weapon_t::WP_CONCUSSION,			//MOD_CONC,
-	weapon_t::WP_CONCUSSION,			//MOD_CONC_ALT,
-	weapon_t::WP_NONE,				//MOD_FORCE_DARK,
-	weapon_t::WP_NONE,				//MOD_SENTRY,
-	weapon_t::WP_NONE,				//MOD_WATER,
-	weapon_t::WP_NONE,				//MOD_SLIME,
-	weapon_t::WP_NONE,				//MOD_LAVA,
-	weapon_t::WP_NONE,				//MOD_CRUSH,
-	weapon_t::WP_NONE,				//MOD_TELEFRAG,
-	weapon_t::WP_NONE,				//MOD_FALLING,
-	weapon_t::WP_NONE,				//MOD_SUICIDE,
-	weapon_t::WP_NONE,				//MOD_TARGET_LASER,
-	weapon_t::WP_NONE,				//MOD_TRIGGER_HURT,
+EnumArray<weapon_t, meansOfDeath_t, meansOfDeath_t::MOD_MAX> weaponFromMOD = {
+    weapon_t::WP_NONE,            // MOD_UNKNOWN,
+    weapon_t::WP_STUN_BATON,      // MOD_STUN_BATON,
+    weapon_t::WP_MELEE,           // MOD_MELEE,
+    weapon_t::WP_SABER,           // MOD_SABER,
+    weapon_t::WP_BRYAR_PISTOL,    // MOD_BRYAR_PISTOL,
+    weapon_t::WP_BRYAR_PISTOL,    // MOD_BRYAR_PISTOL_ALT,
+    weapon_t::WP_BLASTER,         // MOD_BLASTER,
+    weapon_t::WP_TURRET,          // MOD_TURBLAST
+    weapon_t::WP_DISRUPTOR,       // MOD_DISRUPTOR,
+    weapon_t::WP_DISRUPTOR,       // MOD_DISRUPTOR_SPLASH,
+    weapon_t::WP_DISRUPTOR,       // MOD_DISRUPTOR_SNIPER,
+    weapon_t::WP_BOWCASTER,       // MOD_BOWCASTER,
+    weapon_t::WP_REPEATER,        // MOD_REPEATER,
+    weapon_t::WP_REPEATER,        // MOD_REPEATER_ALT,
+    weapon_t::WP_REPEATER,        // MOD_REPEATER_ALT_SPLASH,
+    weapon_t::WP_DEMP2,           // MOD_DEMP2,
+    weapon_t::WP_DEMP2,           // MOD_DEMP2_ALT,
+    weapon_t::WP_FLECHETTE,       // MOD_FLECHETTE,
+    weapon_t::WP_FLECHETTE,       // MOD_FLECHETTE_ALT_SPLASH,
+    weapon_t::WP_ROCKET_LAUNCHER, // MOD_ROCKET,
+    weapon_t::WP_ROCKET_LAUNCHER, // MOD_ROCKET_SPLASH,
+    weapon_t::WP_ROCKET_LAUNCHER, // MOD_ROCKET_HOMING,
+    weapon_t::WP_ROCKET_LAUNCHER, // MOD_ROCKET_HOMING_SPLASH,
+    weapon_t::WP_THERMAL,         // MOD_THERMAL,
+    weapon_t::WP_THERMAL,         // MOD_THERMAL_SPLASH,
+    weapon_t::WP_TRIP_MINE,       // MOD_TRIP_MINE_SPLASH,
+    weapon_t::WP_TRIP_MINE,       // MOD_TIMED_MINE_SPLASH,
+    weapon_t::WP_DET_PACK,        // MOD_DET_PACK_SPLASH,
+    weapon_t::WP_NONE,            // MOD_VEHICLE,
+    weapon_t::WP_CONCUSSION,      // MOD_CONC,
+    weapon_t::WP_CONCUSSION,      // MOD_CONC_ALT,
+    weapon_t::WP_NONE,            // MOD_FORCE_DARK,
+    weapon_t::WP_NONE,            // MOD_SENTRY,
+    weapon_t::WP_NONE,            // MOD_WATER,
+    weapon_t::WP_NONE,            // MOD_SLIME,
+    weapon_t::WP_NONE,            // MOD_LAVA,
+    weapon_t::WP_NONE,            // MOD_CRUSH,
+    weapon_t::WP_NONE,            // MOD_TELEFRAG,
+    weapon_t::WP_NONE,            // MOD_FALLING,
+    weapon_t::WP_NONE,            // MOD_SUICIDE,
+    weapon_t::WP_NONE,            // MOD_TARGET_LASER,
+    weapon_t::WP_NONE,            // MOD_TRIGGER_HURT,
 };
 
-EnumArray<const char *, weapon_t, weapon_t::WP_NUM_WEAPONS> weaponNameFromIndex =
-{
-	"No Weapon",
-	"Stun Baton",
-	"Melee",
-	"Saber",
-	"Bryar Pistol",
-	"Blaster",
-	"Disruptor",
-	"Bowcaster",
-	"Repeater",
-	"Demp2",
-	"Flechette",
-	"Rocket Launcher",
-	"Thermal",
-	"Tripmine",
-	"Detpack",
-	"Concussion Rifle",
-	"Old Bryar Pistol",
-	"Emplaced gun",
-	"Turret"
-};
+EnumArray<const char*, weapon_t, weapon_t::WP_NUM_WEAPONS> weaponNameFromIndex = {
+    "No Weapon", "Stun Baton",      "Melee",   "Saber",    "Bryar Pistol", "Blaster",          "Disruptor",        "Bowcaster",    "Repeater", "Demp2",
+    "Flechette", "Rocket Launcher", "Thermal", "Tripmine", "Detpack",      "Concussion Rifle", "Old Bryar Pistol", "Emplaced gun", "Turret"};
 
-extern EnumArray<const char *, meansOfDeath_t, meansOfDeath_t::MOD_MAX> modNames;
+extern EnumArray<const char*, meansOfDeath_t, meansOfDeath_t::MOD_MAX> modNames;
 
-#endif //LOGGING_WEAPONS
+#endif // LOGGING_WEAPONS
 
 /*
 =================
 G_LogWeaponInit
 =================
 */
-void G_LogWeaponInit(void) {
+void G_LogWeaponInit(void)
+{
 #ifdef LOGGING_WEAPONS
-	memset(G_WeaponLogPickups, 0, sizeof(G_WeaponLogPickups));
-	memset(G_WeaponLogFired, 0, sizeof(G_WeaponLogFired));
-	memset(G_WeaponLogDamage, 0, sizeof(G_WeaponLogDamage));
-	memset(G_WeaponLogKills, 0, sizeof(G_WeaponLogKills));
-	memset(G_WeaponLogDeaths, 0, sizeof(G_WeaponLogDeaths));
-	memset(G_WeaponLogFrags, 0, sizeof(G_WeaponLogFrags));
-	memset(G_WeaponLogTime, 0, sizeof(G_WeaponLogTime));
-	memset(G_WeaponLogLastTime, 0, sizeof(G_WeaponLogLastTime));
-	memset(G_WeaponLogPowerups, 0, sizeof(G_WeaponLogPowerups));
-	memset(G_WeaponLogItems, 0, sizeof(G_WeaponLogItems));
-#endif //LOGGING_WEAPONS
+    memset(G_WeaponLogPickups, 0, sizeof(G_WeaponLogPickups));
+    memset(G_WeaponLogFired, 0, sizeof(G_WeaponLogFired));
+    memset(G_WeaponLogDamage, 0, sizeof(G_WeaponLogDamage));
+    memset(G_WeaponLogKills, 0, sizeof(G_WeaponLogKills));
+    memset(G_WeaponLogDeaths, 0, sizeof(G_WeaponLogDeaths));
+    memset(G_WeaponLogFrags, 0, sizeof(G_WeaponLogFrags));
+    memset(G_WeaponLogTime, 0, sizeof(G_WeaponLogTime));
+    memset(G_WeaponLogLastTime, 0, sizeof(G_WeaponLogLastTime));
+    memset(G_WeaponLogPowerups, 0, sizeof(G_WeaponLogPowerups));
+    memset(G_WeaponLogItems, 0, sizeof(G_WeaponLogItems));
+#endif // LOGGING_WEAPONS
 }
 
 void QDECL G_LogWeaponPickup(int client, weapon_t weaponid)
 {
 #ifdef LOGGING_WEAPONS
-	if (client>=MAX_CLIENTS)
-		return;
+    if (client >= MAX_CLIENTS)
+        return;
 
-	G_WeaponLogPickups[client][weaponid]++;
-	G_WeaponLogClientTouch[client] = true;
+    G_WeaponLogPickups[client][weaponid]++;
+    G_WeaponLogClientTouch[client] = true;
 #endif //_LOGGING_WEAPONS
 }
 
 void QDECL G_LogWeaponFire(int client, weapon_t weaponid)
 {
 #ifdef LOGGING_WEAPONS
-	int dur;
+    int dur;
 
-	if (client>=MAX_CLIENTS)
-		return;
+    if (client >= MAX_CLIENTS)
+        return;
 
-	G_WeaponLogFired[client][weaponid]++;
-	dur = level.time - G_WeaponLogLastTime[client];
-	if (dur > 5000)		// 5 second max.
-		G_WeaponLogTime[client][weaponid] += 5000;
-	else
-		G_WeaponLogTime[client][weaponid] += dur;
-	G_WeaponLogLastTime[client] = level.time;
-	G_WeaponLogClientTouch[client] = true;
+    G_WeaponLogFired[client][weaponid]++;
+    dur = level.time - G_WeaponLogLastTime[client];
+    if (dur > 5000) // 5 second max.
+        G_WeaponLogTime[client][weaponid] += 5000;
+    else
+        G_WeaponLogTime[client][weaponid] += dur;
+    G_WeaponLogLastTime[client] = level.time;
+    G_WeaponLogClientTouch[client] = true;
 #endif //_LOGGING_WEAPONS
 }
 
 void QDECL G_LogWeaponDamage(int client, meansOfDeath_t mod, int amount)
 {
 #ifdef LOGGING_WEAPONS
-	if (client>=MAX_CLIENTS)
-		return;
-	G_WeaponLogDamage[client][mod] += amount;
-	G_WeaponLogClientTouch[client] = true;
+    if (client >= MAX_CLIENTS)
+        return;
+    G_WeaponLogDamage[client][mod] += amount;
+    G_WeaponLogClientTouch[client] = true;
 #endif //_LOGGING_WEAPONS
 }
 
 void QDECL G_LogWeaponKill(int client, meansOfDeath_t mod)
 {
 #ifdef LOGGING_WEAPONS
-	if (client>=MAX_CLIENTS)
-		return;
-	G_WeaponLogKills[client][mod]++;
-	G_WeaponLogClientTouch[client] = true;
+    if (client >= MAX_CLIENTS)
+        return;
+    G_WeaponLogKills[client][mod]++;
+    G_WeaponLogClientTouch[client] = true;
 #endif //_LOGGING_WEAPONS
 }
 
 void QDECL G_LogWeaponFrag(int attacker, int deadguy)
 {
 #ifdef LOGGING_WEAPONS
-	if ( (attacker>=MAX_CLIENTS) || (deadguy>=MAX_CLIENTS) )
-		return;
-	G_WeaponLogFrags[attacker][deadguy]++;
-	G_WeaponLogClientTouch[attacker] = true;
+    if ((attacker >= MAX_CLIENTS) || (deadguy >= MAX_CLIENTS))
+        return;
+    G_WeaponLogFrags[attacker][deadguy]++;
+    G_WeaponLogClientTouch[attacker] = true;
 #endif //_LOGGING_WEAPONS
 }
 
 void QDECL G_LogWeaponDeath(int client, weapon_t weaponid)
 {
 #ifdef LOGGING_WEAPONS
-	if (client>=MAX_CLIENTS)
-		return;
-	G_WeaponLogDeaths[client][weaponid]++;
-	G_WeaponLogClientTouch[client] = true;
+    if (client >= MAX_CLIENTS)
+        return;
+    G_WeaponLogDeaths[client][weaponid]++;
+    G_WeaponLogClientTouch[client] = true;
 #endif //_LOGGING_WEAPONS
 }
 
 void QDECL G_LogWeaponPowerup(int client, powerup_t powerupid)
 {
 #ifdef LOGGING_WEAPONS
-	if (client>=MAX_CLIENTS)
-		return;
-	G_WeaponLogPowerups[client][powerupid]++;
-	G_WeaponLogClientTouch[client] = true;
+    if (client >= MAX_CLIENTS)
+        return;
+    G_WeaponLogPowerups[client][powerupid]++;
+    G_WeaponLogClientTouch[client] = true;
 #endif //_LOGGING_WEAPONS
 }
 
 void QDECL G_LogWeaponItem(int client, holdable_t itemid)
 {
 #ifdef LOGGING_WEAPONS
-	if (client>=MAX_CLIENTS)
-		return;
-	G_WeaponLogItems[client][itemid]++;
-	G_WeaponLogClientTouch[client] = true;
+    if (client >= MAX_CLIENTS)
+        return;
+    G_WeaponLogItems[client][itemid]++;
+    G_WeaponLogClientTouch[client] = true;
 #endif //_LOGGING_WEAPONS
 }
-
 
 // Run through each player.  Print out:
 //	-- Most commonly picked up weapon.
@@ -258,915 +237,773 @@ void QDECL G_LogWeaponItem(int client, holdable_t itemid)
 void G_LogWeaponOutput(void)
 {
 #ifdef LOGGING_WEAPONS
-	int i;
-	weapon_t j,curwp;
-	float pershot;
-	fileHandle_t weaponfile;
-	char string[1024];
-
-	EnumArray<int, weapon_t, weapon_t::WP_NUM_WEAPONS> totalpickups;
-	EnumArray<int, weapon_t, weapon_t::WP_NUM_WEAPONS> totaltime;
-	EnumArray<int, weapon_t, weapon_t::WP_NUM_WEAPONS> totaldeaths;
-	EnumArray<int, meansOfDeath_t, meansOfDeath_t::MOD_MAX> totaldamageMOD;
-	EnumArray<int, meansOfDeath_t, meansOfDeath_t::MOD_MAX> totalkillsMOD;
-	EnumArray<int, weapon_t, weapon_t::WP_NUM_WEAPONS> totaldamage;
-	EnumArray<int, weapon_t, weapon_t::WP_NUM_WEAPONS> totalkills;
-	EnumArray<int, weapon_t, weapon_t::WP_NUM_WEAPONS> totalshots;
-	EnumArray<int, weapon_t, weapon_t::WP_NUM_WEAPONS> percharacter;
-	char info[1024];
-	char mapname[128];
-	const char *nameptr, *unknownname="<Unknown>";
-
-	if (!g_statLog.integer)
-	{
-		return;
-	}
-
-	G_LogPrintf("*****************************Weapon Log:\n" );
-
-	totalpickups = {};
-	totaltime = {};
-	totaldeaths = {};
-	totaldamageMOD = {};
-	totalkillsMOD = {};
-	totaldamage = {};
-	totalkills = {};
-	totalshots = {};
-
-	for (i=0; i<MAX_CLIENTS; i++)
-	{
-		if (G_WeaponLogClientTouch[i])
-		{	// Ignore any entity/clients we don't care about!
-			for (j=weapon_t::WP_NONE;j<weapon_t::WP_NUM_WEAPONS;j++)
-			{
-				totalpickups[j] += G_WeaponLogPickups[i][j];
-				totaltime[j] += G_WeaponLogTime[i][j];
-				totaldeaths[j] += G_WeaponLogDeaths[i][j];
-				totalshots[j] += G_WeaponLogFired[i][j];
-			}
-
-			for (meansOfDeath_t mod=meansOfDeath_t::MOD_UNKNOWN; mod<meansOfDeath_t::MOD_MAX; mod++)
-			{
-				totaldamageMOD[mod] += G_WeaponLogDamage[i][mod];
-				totalkillsMOD[mod] += G_WeaponLogKills[i][mod];
-			}
-		}
-	}
-
-	// Now total the weapon data from the MOD data.
-	for (meansOfDeath_t mod=meansOfDeath_t::MOD_UNKNOWN; mod<meansOfDeath_t::MOD_MAX; mod++)
-	{
-		if (mod <= meansOfDeath_t::MOD_SENTRY)
-		{
-			curwp = weaponFromMOD[mod];
-			totaldamage[curwp] += totaldamageMOD[mod];
-			totalkills[curwp] += totalkillsMOD[mod];
-		}
-	}
-
-	G_LogPrintf(  "\n****Data by Weapon:\n" );
-	for (j=weapon_t::WP_NONE; j<weapon_t::WP_NUM_WEAPONS; j++)
-	{
-		G_LogPrintf("%15s:  Pickups: %4d,  Time:  %5d,  Deaths: %5d\n",
-				weaponNameFromIndex[j], totalpickups[j], (int)(totaltime[j]/1000), totaldeaths[j]);
-	}
-
-	G_LogPrintf(  "\n****Combat Data by Weapon:\n" );
-	for (j=weapon_t::WP_NONE; j<weapon_t::WP_NUM_WEAPONS; j++)
-	{
-		if (totalshots[j] > 0)
-		{
-			pershot = (float)(totaldamage[j])/(float)(totalshots[j]);
-		}
-		else
-		{
-			pershot = 0;
-		}
-		G_LogPrintf("%15s:  Damage: %6d,  Kills: %5d,  Dmg per Shot: %f\n",
-				weaponNameFromIndex[j], totaldamage[j], totalkills[j], pershot);
-	}
-
-	G_LogPrintf(  "\n****Combat Data By Damage Type:\n" );
-	for (meansOfDeath_t mod=meansOfDeath_t::MOD_UNKNOWN; mod<meansOfDeath_t::MOD_MAX; mod++)
-	{
-		G_LogPrintf("%25s:  Damage: %6d,  Kills: %5d\n",
-				modNames[mod], totaldamageMOD[mod], totalkillsMOD[mod]);
-	}
-
-	G_LogPrintf("\n");
-
-	// Write the whole weapon statistic log out to a file.
-	trap->FS_Open( g_statLogFile.string, &weaponfile, fsMode_t::FS_APPEND );
-	if (!weaponfile) {	//failed to open file, let's not crash, shall we?
-		return;
-	}
-
-	// Write out the level name
-	trap->GetServerinfo(info, sizeof(info));
-	Q_strncpyz(mapname, Info_ValueForKey( info, "mapname" ), sizeof(mapname));
-
-	Com_sprintf(string, sizeof(string), "\n\n\nLevel:\t%s\n\n\n", mapname);
-	trap->FS_Write( string, strlen( string ), weaponfile);
-
-
-	// Combat data per character
-
-	// Start with Pickups per character
-	Com_sprintf(string, sizeof(string), "Weapon Pickups per Player:\n\n");
-	trap->FS_Write( string, strlen( string ), weaponfile);
-
-	Com_sprintf(string, sizeof(string), "Player");
-	trap->FS_Write(string, strlen(string), weaponfile);
-
-	for (j=weapon_t::WP_NONE; j<weapon_t::WP_NUM_WEAPONS; j++)
-	{
-		Com_sprintf(string, sizeof(string), "\t%s", weaponNameFromIndex[j]);
-		trap->FS_Write(string, strlen(string), weaponfile);
-	}
-	Com_sprintf(string, sizeof(string), "\n");
-	trap->FS_Write(string, strlen(string), weaponfile);
-
-	// Cycle through each player, give their name and the number of times they picked up each weapon.
-	for (i=0; i<MAX_CLIENTS; i++)
-	{
-		if (G_WeaponLogClientTouch[i])
-		{	// Ignore any entity/clients we don't care about!
-			if ( g_entities[i].client )
-			{
-				nameptr = g_entities[i].client->pers.netname;
-			}
-			else
-			{
-				nameptr = unknownname;
-			}
-			trap->FS_Write(nameptr, strlen(nameptr), weaponfile);
-
-			for (j=weapon_t::WP_NONE;j<weapon_t::WP_NUM_WEAPONS;j++)
-			{
-				Com_sprintf(string, sizeof(string), "\t%d", G_WeaponLogPickups[i][j]);
-				trap->FS_Write(string, strlen(string), weaponfile);
-			}
-
-			Com_sprintf(string, sizeof(string), "\n");
-			trap->FS_Write(string, strlen(string), weaponfile);
-		}
-	}
-
-	// Sum up the totals.
-	Com_sprintf(string, sizeof(string), "\n***TOTAL:");
-	trap->FS_Write(string, strlen(string), weaponfile);
-
-	for (j=weapon_t::WP_NONE;j<weapon_t::WP_NUM_WEAPONS;j++)
-	{
-		Com_sprintf(string, sizeof(string), "\t%d", totalpickups[j]);
-		trap->FS_Write(string, strlen(string), weaponfile);
-	}
-
-	Com_sprintf(string, sizeof(string), "\n\n\n");
-	trap->FS_Write(string, strlen(string), weaponfile);
-
-
-	// Weapon fires per character
-	Com_sprintf(string, sizeof(string), "Weapon Shots per Player:\n\n");
-	trap->FS_Write( string, strlen( string ), weaponfile);
-
-	Com_sprintf(string, sizeof(string), "Player");
-	trap->FS_Write(string, strlen(string), weaponfile);
-
-	for (j=weapon_t::WP_NONE; j<weapon_t::WP_NUM_WEAPONS; j++)
-	{
-		Com_sprintf(string, sizeof(string), "\t%s", weaponNameFromIndex[j]);
-		trap->FS_Write(string, strlen(string), weaponfile);
-	}
-	Com_sprintf(string, sizeof(string), "\n");
-	trap->FS_Write(string, strlen(string), weaponfile);
-
-	// Cycle through each player, give their name and the number of times they picked up each weapon.
-	for (i=0; i<MAX_CLIENTS; i++)
-	{
-		if (G_WeaponLogClientTouch[i])
-		{	// Ignore any entity/clients we don't care about!
-			if ( g_entities[i].client )
-			{
-				nameptr = g_entities[i].client->pers.netname;
-			}
-			else
-			{
-				nameptr = unknownname;
-			}
-			trap->FS_Write(nameptr, strlen(nameptr), weaponfile);
-
-			for (j=weapon_t::WP_NONE;j<weapon_t::WP_NUM_WEAPONS;j++)
-			{
-				Com_sprintf(string, sizeof(string), "\t%d", G_WeaponLogFired[i][j]);
-				trap->FS_Write(string, strlen(string), weaponfile);
-			}
-
-			Com_sprintf(string, sizeof(string), "\n");
-			trap->FS_Write(string, strlen(string), weaponfile);
-		}
-	}
-
-	// Sum up the totals.
-	Com_sprintf(string, sizeof(string), "\n***TOTAL:");
-	trap->FS_Write(string, strlen(string), weaponfile);
-
-	for (j=weapon_t::WP_NONE;j<weapon_t::WP_NUM_WEAPONS;j++)
-	{
-		Com_sprintf(string, sizeof(string), "\t%d", totalshots[j]);
-		trap->FS_Write(string, strlen(string), weaponfile);
-	}
-
-	Com_sprintf(string, sizeof(string), "\n\n\n");
-	trap->FS_Write(string, strlen(string), weaponfile);
-
-
-	// Weapon time per character
-	Com_sprintf(string, sizeof(string), "Weapon Use Time per Player:\n\n");
-	trap->FS_Write( string, strlen( string ), weaponfile);
-
-	Com_sprintf(string, sizeof(string), "Player");
-	trap->FS_Write(string, strlen(string), weaponfile);
-
-	for (j=weapon_t::WP_NONE; j<weapon_t::WP_NUM_WEAPONS; j++)
-	{
-		Com_sprintf(string, sizeof(string), "\t%s", weaponNameFromIndex[j]);
-		trap->FS_Write(string, strlen(string), weaponfile);
-	}
-	Com_sprintf(string, sizeof(string), "\n");
-	trap->FS_Write(string, strlen(string), weaponfile);
-
-	// Cycle through each player, give their name and the number of times they picked up each weapon.
-	for (i=0; i<MAX_CLIENTS; i++)
-	{
-		if (G_WeaponLogClientTouch[i])
-		{	// Ignore any entity/clients we don't care about!
-			if ( g_entities[i].client )
-			{
-				nameptr = g_entities[i].client->pers.netname;
-			}
-			else
-			{
-				nameptr = unknownname;
-			}
-			trap->FS_Write(nameptr, strlen(nameptr), weaponfile);
-
-			for (j=weapon_t::WP_NONE;j<weapon_t::WP_NUM_WEAPONS;j++)
-			{
-				Com_sprintf(string, sizeof(string), "\t%d", G_WeaponLogTime[i][j]);
-				trap->FS_Write(string, strlen(string), weaponfile);
-			}
-
-			Com_sprintf(string, sizeof(string), "\n");
-			trap->FS_Write(string, strlen(string), weaponfile);
-		}
-	}
-
-	// Sum up the totals.
-	Com_sprintf(string, sizeof(string), "\n***TOTAL:");
-	trap->FS_Write(string, strlen(string), weaponfile);
-
-	for (j=weapon_t::WP_NONE;j<weapon_t::WP_NUM_WEAPONS;j++)
-	{
-		Com_sprintf(string, sizeof(string), "\t%d", totaltime[j]);
-		trap->FS_Write(string, strlen(string), weaponfile);
-	}
-
-	Com_sprintf(string, sizeof(string), "\n\n\n");
-	trap->FS_Write(string, strlen(string), weaponfile);
-
-
-
-	// Weapon deaths per character
-	Com_sprintf(string, sizeof(string), "Weapon Deaths per Player:\n\n");
-	trap->FS_Write( string, strlen( string ), weaponfile);
-
-	Com_sprintf(string, sizeof(string), "Player");
-	trap->FS_Write(string, strlen(string), weaponfile);
-
-	for (j=weapon_t::WP_NONE; j<weapon_t::WP_NUM_WEAPONS; j++)
-	{
-		Com_sprintf(string, sizeof(string), "\t%s", weaponNameFromIndex[j]);
-		trap->FS_Write(string, strlen(string), weaponfile);
-	}
-	Com_sprintf(string, sizeof(string), "\n");
-	trap->FS_Write(string, strlen(string), weaponfile);
-
-	// Cycle through each player, give their name and the number of times they picked up each weapon.
-	for (i=0; i<MAX_CLIENTS; i++)
-	{
-		if (G_WeaponLogClientTouch[i])
-		{	// Ignore any entity/clients we don't care about!
-			if ( g_entities[i].client )
-			{
-				nameptr = g_entities[i].client->pers.netname;
-			}
-			else
-			{
-				nameptr = unknownname;
-			}
-			trap->FS_Write(nameptr, strlen(nameptr), weaponfile);
-
-			for (j=weapon_t::WP_NONE;j<weapon_t::WP_NUM_WEAPONS;j++)
-			{
-				Com_sprintf(string, sizeof(string), "\t%d", G_WeaponLogDeaths[i][j]);
-				trap->FS_Write(string, strlen(string), weaponfile);
-			}
-
-			Com_sprintf(string, sizeof(string), "\n");
-			trap->FS_Write(string, strlen(string), weaponfile);
-		}
-	}
-
-	// Sum up the totals.
-	Com_sprintf(string, sizeof(string), "\n***TOTAL:");
-	trap->FS_Write(string, strlen(string), weaponfile);
-
-	for (j=weapon_t::WP_NONE;j<weapon_t::WP_NUM_WEAPONS;j++)
-	{
-		Com_sprintf(string, sizeof(string), "\t%d", totaldeaths[j]);
-		trap->FS_Write(string, strlen(string), weaponfile);
-	}
-
-	Com_sprintf(string, sizeof(string), "\n\n\n");
-	trap->FS_Write(string, strlen(string), weaponfile);
-
-
-
-
-	// Weapon damage per character
-
-	Com_sprintf(string, sizeof(string), "Weapon Damage per Player:\n\n");
-	trap->FS_Write( string, strlen( string ), weaponfile);
-
-	Com_sprintf(string, sizeof(string), "Player");
-	trap->FS_Write(string, strlen(string), weaponfile);
-
-	for (j=weapon_t::WP_NONE; j<weapon_t::WP_NUM_WEAPONS; j++)
-	{
-		Com_sprintf(string, sizeof(string), "\t%s", weaponNameFromIndex[j]);
-		trap->FS_Write(string, strlen(string), weaponfile);
-	}
-	Com_sprintf(string, sizeof(string), "\n");
-	trap->FS_Write(string, strlen(string), weaponfile);
-
-	// Cycle through each player, give their name and the number of times they picked up each weapon.
-	for (i=0; i<MAX_CLIENTS; i++)
-	{
-		if (G_WeaponLogClientTouch[i])
-		{	// Ignore any entity/clients we don't care about!
-
-			// We must grab the totals from the damage types for the player and map them to the weapons.
-			percharacter = {};
-			for (meansOfDeath_t mod=meansOfDeath_t::MOD_UNKNOWN; mod<meansOfDeath_t::MOD_MAX; mod++)
-			{
-				if (mod <= meansOfDeath_t::MOD_SENTRY)
-				{
-					curwp = weaponFromMOD[mod];
-					percharacter[curwp] += G_WeaponLogDamage[i][mod];
-				}
-			}
-
-			if ( g_entities[i].client )
-			{
-				nameptr = g_entities[i].client->pers.netname;
-			}
-			else
-			{
-				nameptr = unknownname;
-			}
-			trap->FS_Write(nameptr, strlen(nameptr), weaponfile);
-
-			for (j=weapon_t::WP_NONE;j<weapon_t::WP_NUM_WEAPONS;j++)
-			{
-				Com_sprintf(string, sizeof(string), "\t%d", percharacter[j]);
-				trap->FS_Write(string, strlen(string), weaponfile);
-			}
-
-			Com_sprintf(string, sizeof(string), "\n");
-			trap->FS_Write(string, strlen(string), weaponfile);
-		}
-	}
-
-	// Sum up the totals.
-	Com_sprintf(string, sizeof(string), "\n***TOTAL:");
-	trap->FS_Write(string, strlen(string), weaponfile);
-
-	for (j=weapon_t::WP_NONE;j<weapon_t::WP_NUM_WEAPONS;j++)
-	{
-		Com_sprintf(string, sizeof(string), "\t%d", totaldamage[j]);
-		trap->FS_Write(string, strlen(string), weaponfile);
-	}
-
-	Com_sprintf(string, sizeof(string), "\n\n\n");
-	trap->FS_Write(string, strlen(string), weaponfile);
-
-
-
-	// Weapon kills per character
-
-	Com_sprintf(string, sizeof(string), "Weapon Kills per Player:\n\n");
-	trap->FS_Write( string, strlen( string ), weaponfile);
-
-	Com_sprintf(string, sizeof(string), "Player");
-	trap->FS_Write(string, strlen(string), weaponfile);
-
-	for (j=weapon_t::WP_NONE; j<weapon_t::WP_NUM_WEAPONS; j++)
-	{
-		Com_sprintf(string, sizeof(string), "\t%s", weaponNameFromIndex[j]);
-		trap->FS_Write(string, strlen(string), weaponfile);
-	}
-	Com_sprintf(string, sizeof(string), "\n");
-	trap->FS_Write(string, strlen(string), weaponfile);
-
-	// Cycle through each player, give their name and the number of times they picked up each weapon.
-	for (i=0; i<MAX_CLIENTS; i++)
-	{
-		if (G_WeaponLogClientTouch[i])
-		{	// Ignore any entity/clients we don't care about!
-
-			// We must grab the totals from the damage types for the player and map them to the weapons.
-			percharacter = {};
-			for (meansOfDeath_t mod=meansOfDeath_t::MOD_UNKNOWN; mod<meansOfDeath_t::MOD_MAX; mod++)
-			{
-				if (mod <= meansOfDeath_t::MOD_SENTRY)
-				{
-					curwp = weaponFromMOD[mod];
-					percharacter[curwp] += G_WeaponLogKills[i][mod];
-				}
-			}
-
-			if ( g_entities[i].client )
-			{
-				nameptr = g_entities[i].client->pers.netname;
-			}
-			else
-			{
-				nameptr = unknownname;
-			}
-			trap->FS_Write(nameptr, strlen(nameptr), weaponfile);
-
-			for (j=weapon_t::WP_NONE;j<weapon_t::WP_NUM_WEAPONS;j++)
-			{
-				Com_sprintf(string, sizeof(string), "\t%d", percharacter[j]);
-				trap->FS_Write(string, strlen(string), weaponfile);
-			}
-
-			Com_sprintf(string, sizeof(string), "\n");
-			trap->FS_Write(string, strlen(string), weaponfile);
-		}
-	}
-
-	// Sum up the totals.
-	Com_sprintf(string, sizeof(string), "\n***TOTAL:");
-	trap->FS_Write(string, strlen(string), weaponfile);
-
-	for (j=weapon_t::WP_NONE;j<weapon_t::WP_NUM_WEAPONS;j++)
-	{
-		Com_sprintf(string, sizeof(string), "\t%d", totalkills[j]);
-		trap->FS_Write(string, strlen(string), weaponfile);
-	}
-
-	Com_sprintf(string, sizeof(string), "\n\n\n");
-	trap->FS_Write(string, strlen(string), weaponfile);
-
-
-
-	// Damage type damage per character
-	Com_sprintf(string, sizeof(string), "Typed Damage per Player:\n\n");
-	trap->FS_Write( string, strlen( string ), weaponfile);
-
-	Com_sprintf(string, sizeof(string), "Player");
-	trap->FS_Write(string, strlen(string), weaponfile);
-
-	for (meansOfDeath_t mod=meansOfDeath_t::MOD_UNKNOWN; mod<meansOfDeath_t::MOD_MAX; mod++)
-	{
-		Com_sprintf(string, sizeof(string), "\t%s", modNames[mod]);
-		trap->FS_Write(string, strlen(string), weaponfile);
-	}
-	Com_sprintf(string, sizeof(string), "\n");
-	trap->FS_Write(string, strlen(string), weaponfile);
-
-	// Cycle through each player, give their name and the number of times they picked up each weapon.
-	for (i=0; i<MAX_CLIENTS; i++)
-	{
-		if (G_WeaponLogClientTouch[i])
-		{	// Ignore any entity/clients we don't care about!
-			if ( g_entities[i].client )
-			{
-				nameptr = g_entities[i].client->pers.netname;
-			}
-			else
-			{
-				nameptr = unknownname;
-			}
-			trap->FS_Write(nameptr, strlen(nameptr), weaponfile);
-
-			for (meansOfDeath_t mod=meansOfDeath_t::MOD_UNKNOWN; mod<meansOfDeath_t::MOD_MAX; mod++)
-			{
-				Com_sprintf(string, sizeof(string), "\t%d", G_WeaponLogDamage[i][mod]);
-				trap->FS_Write(string, strlen(string), weaponfile);
-			}
-
-			Com_sprintf(string, sizeof(string), "\n");
-			trap->FS_Write(string, strlen(string), weaponfile);
-		}
-	}
-
-	// Sum up the totals.
-	Com_sprintf(string, sizeof(string), "\n***TOTAL:");
-	trap->FS_Write(string, strlen(string), weaponfile);
-
-	for (meansOfDeath_t mod=meansOfDeath_t::MOD_UNKNOWN; mod<meansOfDeath_t::MOD_MAX; mod++)
-	{
-		Com_sprintf(string, sizeof(string), "\t%d", totaldamageMOD[mod]);
-		trap->FS_Write(string, strlen(string), weaponfile);
-	}
-
-	Com_sprintf(string, sizeof(string), "\n\n\n");
-	trap->FS_Write(string, strlen(string), weaponfile);
-
-
-
-	// Damage type kills per character
-	Com_sprintf(string, sizeof(string), "Damage-Typed Kills per Player:\n\n");
-	trap->FS_Write( string, strlen( string ), weaponfile);
-
-	Com_sprintf(string, sizeof(string), "Player");
-	trap->FS_Write(string, strlen(string), weaponfile);
-
-	for (meansOfDeath_t mod=meansOfDeath_t::MOD_UNKNOWN; mod<meansOfDeath_t::MOD_MAX; mod++)
-	{
-		Com_sprintf(string, sizeof(string), "\t%s", modNames[mod]);
-		trap->FS_Write(string, strlen(string), weaponfile);
-	}
-	Com_sprintf(string, sizeof(string), "\n");
-	trap->FS_Write(string, strlen(string), weaponfile);
-
-	// Cycle through each player, give their name and the number of times they picked up each weapon.
-	for (i=0; i<MAX_CLIENTS; i++)
-	{
-		if (G_WeaponLogClientTouch[i])
-		{	// Ignore any entity/clients we don't care about!
-			if ( g_entities[i].client )
-			{
-				nameptr = g_entities[i].client->pers.netname;
-			}
-			else
-			{
-				nameptr = unknownname;
-			}
-			trap->FS_Write(nameptr, strlen(nameptr), weaponfile);
-
-			for (meansOfDeath_t mod=meansOfDeath_t::MOD_UNKNOWN; mod<meansOfDeath_t::MOD_MAX; mod++)
-			{
-				Com_sprintf(string, sizeof(string), "\t%d", G_WeaponLogKills[i][mod]);
-				trap->FS_Write(string, strlen(string), weaponfile);
-			}
-
-			Com_sprintf(string, sizeof(string), "\n");
-			trap->FS_Write(string, strlen(string), weaponfile);
-		}
-	}
-
-	// Sum up the totals.
-	Com_sprintf(string, sizeof(string), "\n***TOTAL:");
-	trap->FS_Write(string, strlen(string), weaponfile);
-
-	for (meansOfDeath_t mod=meansOfDeath_t::MOD_UNKNOWN; mod<meansOfDeath_t::MOD_MAX; mod++)
-	{
-		Com_sprintf(string, sizeof(string), "\t%d", totalkillsMOD[mod]);
-		trap->FS_Write(string, strlen(string), weaponfile);
-	}
-
-	Com_sprintf(string, sizeof(string), "\n\n\n");
-	trap->FS_Write(string, strlen(string), weaponfile);
-
-
-	trap->FS_Close(weaponfile);
-
-
-#endif //LOGGING_WEAPONS
+    int i;
+    weapon_t j, curwp;
+    float pershot;
+    fileHandle_t weaponfile;
+    char string[1024];
+
+    EnumArray<int, weapon_t, weapon_t::WP_NUM_WEAPONS> totalpickups;
+    EnumArray<int, weapon_t, weapon_t::WP_NUM_WEAPONS> totaltime;
+    EnumArray<int, weapon_t, weapon_t::WP_NUM_WEAPONS> totaldeaths;
+    EnumArray<int, meansOfDeath_t, meansOfDeath_t::MOD_MAX> totaldamageMOD;
+    EnumArray<int, meansOfDeath_t, meansOfDeath_t::MOD_MAX> totalkillsMOD;
+    EnumArray<int, weapon_t, weapon_t::WP_NUM_WEAPONS> totaldamage;
+    EnumArray<int, weapon_t, weapon_t::WP_NUM_WEAPONS> totalkills;
+    EnumArray<int, weapon_t, weapon_t::WP_NUM_WEAPONS> totalshots;
+    EnumArray<int, weapon_t, weapon_t::WP_NUM_WEAPONS> percharacter;
+    char info[1024];
+    char mapname[128];
+    const char *nameptr, *unknownname = "<Unknown>";
+
+    if (!g_statLog.integer) {
+        return;
+    }
+
+    G_LogPrintf("*****************************Weapon Log:\n");
+
+    totalpickups = {};
+    totaltime = {};
+    totaldeaths = {};
+    totaldamageMOD = {};
+    totalkillsMOD = {};
+    totaldamage = {};
+    totalkills = {};
+    totalshots = {};
+
+    for (i = 0; i < MAX_CLIENTS; i++) {
+        if (G_WeaponLogClientTouch[i]) { // Ignore any entity/clients we don't care about!
+            for (j = weapon_t::WP_NONE; j < weapon_t::WP_NUM_WEAPONS; j++) {
+                totalpickups[j] += G_WeaponLogPickups[i][j];
+                totaltime[j] += G_WeaponLogTime[i][j];
+                totaldeaths[j] += G_WeaponLogDeaths[i][j];
+                totalshots[j] += G_WeaponLogFired[i][j];
+            }
+
+            for (meansOfDeath_t mod = meansOfDeath_t::MOD_UNKNOWN; mod < meansOfDeath_t::MOD_MAX; mod++) {
+                totaldamageMOD[mod] += G_WeaponLogDamage[i][mod];
+                totalkillsMOD[mod] += G_WeaponLogKills[i][mod];
+            }
+        }
+    }
+
+    // Now total the weapon data from the MOD data.
+    for (meansOfDeath_t mod = meansOfDeath_t::MOD_UNKNOWN; mod < meansOfDeath_t::MOD_MAX; mod++) {
+        if (mod <= meansOfDeath_t::MOD_SENTRY) {
+            curwp = weaponFromMOD[mod];
+            totaldamage[curwp] += totaldamageMOD[mod];
+            totalkills[curwp] += totalkillsMOD[mod];
+        }
+    }
+
+    G_LogPrintf("\n****Data by Weapon:\n");
+    for (j = weapon_t::WP_NONE; j < weapon_t::WP_NUM_WEAPONS; j++) {
+        G_LogPrintf("%15s:  Pickups: %4d,  Time:  %5d,  Deaths: %5d\n", weaponNameFromIndex[j], totalpickups[j], (int)(totaltime[j] / 1000), totaldeaths[j]);
+    }
+
+    G_LogPrintf("\n****Combat Data by Weapon:\n");
+    for (j = weapon_t::WP_NONE; j < weapon_t::WP_NUM_WEAPONS; j++) {
+        if (totalshots[j] > 0) {
+            pershot = (float)(totaldamage[j]) / (float)(totalshots[j]);
+        }
+        else {
+            pershot = 0;
+        }
+        G_LogPrintf("%15s:  Damage: %6d,  Kills: %5d,  Dmg per Shot: %f\n", weaponNameFromIndex[j], totaldamage[j], totalkills[j], pershot);
+    }
+
+    G_LogPrintf("\n****Combat Data By Damage Type:\n");
+    for (meansOfDeath_t mod = meansOfDeath_t::MOD_UNKNOWN; mod < meansOfDeath_t::MOD_MAX; mod++) {
+        G_LogPrintf("%25s:  Damage: %6d,  Kills: %5d\n", modNames[mod], totaldamageMOD[mod], totalkillsMOD[mod]);
+    }
+
+    G_LogPrintf("\n");
+
+    // Write the whole weapon statistic log out to a file.
+    trap->FS_Open(g_statLogFile.string, &weaponfile, fsMode_t::FS_APPEND);
+    if (!weaponfile) { // failed to open file, let's not crash, shall we?
+        return;
+    }
+
+    // Write out the level name
+    trap->GetServerinfo(info, sizeof(info));
+    Q_strncpyz(mapname, Info_ValueForKey(info, "mapname"), sizeof(mapname));
+
+    Com_sprintf(string, sizeof(string), "\n\n\nLevel:\t%s\n\n\n", mapname);
+    trap->FS_Write(string, strlen(string), weaponfile);
+
+    // Combat data per character
+
+    // Start with Pickups per character
+    Com_sprintf(string, sizeof(string), "Weapon Pickups per Player:\n\n");
+    trap->FS_Write(string, strlen(string), weaponfile);
+
+    Com_sprintf(string, sizeof(string), "Player");
+    trap->FS_Write(string, strlen(string), weaponfile);
+
+    for (j = weapon_t::WP_NONE; j < weapon_t::WP_NUM_WEAPONS; j++) {
+        Com_sprintf(string, sizeof(string), "\t%s", weaponNameFromIndex[j]);
+        trap->FS_Write(string, strlen(string), weaponfile);
+    }
+    Com_sprintf(string, sizeof(string), "\n");
+    trap->FS_Write(string, strlen(string), weaponfile);
+
+    // Cycle through each player, give their name and the number of times they picked up each weapon.
+    for (i = 0; i < MAX_CLIENTS; i++) {
+        if (G_WeaponLogClientTouch[i]) { // Ignore any entity/clients we don't care about!
+            if (g_entities[i].client) {
+                nameptr = g_entities[i].client->pers.netname;
+            }
+            else {
+                nameptr = unknownname;
+            }
+            trap->FS_Write(nameptr, strlen(nameptr), weaponfile);
+
+            for (j = weapon_t::WP_NONE; j < weapon_t::WP_NUM_WEAPONS; j++) {
+                Com_sprintf(string, sizeof(string), "\t%d", G_WeaponLogPickups[i][j]);
+                trap->FS_Write(string, strlen(string), weaponfile);
+            }
+
+            Com_sprintf(string, sizeof(string), "\n");
+            trap->FS_Write(string, strlen(string), weaponfile);
+        }
+    }
+
+    // Sum up the totals.
+    Com_sprintf(string, sizeof(string), "\n***TOTAL:");
+    trap->FS_Write(string, strlen(string), weaponfile);
+
+    for (j = weapon_t::WP_NONE; j < weapon_t::WP_NUM_WEAPONS; j++) {
+        Com_sprintf(string, sizeof(string), "\t%d", totalpickups[j]);
+        trap->FS_Write(string, strlen(string), weaponfile);
+    }
+
+    Com_sprintf(string, sizeof(string), "\n\n\n");
+    trap->FS_Write(string, strlen(string), weaponfile);
+
+    // Weapon fires per character
+    Com_sprintf(string, sizeof(string), "Weapon Shots per Player:\n\n");
+    trap->FS_Write(string, strlen(string), weaponfile);
+
+    Com_sprintf(string, sizeof(string), "Player");
+    trap->FS_Write(string, strlen(string), weaponfile);
+
+    for (j = weapon_t::WP_NONE; j < weapon_t::WP_NUM_WEAPONS; j++) {
+        Com_sprintf(string, sizeof(string), "\t%s", weaponNameFromIndex[j]);
+        trap->FS_Write(string, strlen(string), weaponfile);
+    }
+    Com_sprintf(string, sizeof(string), "\n");
+    trap->FS_Write(string, strlen(string), weaponfile);
+
+    // Cycle through each player, give their name and the number of times they picked up each weapon.
+    for (i = 0; i < MAX_CLIENTS; i++) {
+        if (G_WeaponLogClientTouch[i]) { // Ignore any entity/clients we don't care about!
+            if (g_entities[i].client) {
+                nameptr = g_entities[i].client->pers.netname;
+            }
+            else {
+                nameptr = unknownname;
+            }
+            trap->FS_Write(nameptr, strlen(nameptr), weaponfile);
+
+            for (j = weapon_t::WP_NONE; j < weapon_t::WP_NUM_WEAPONS; j++) {
+                Com_sprintf(string, sizeof(string), "\t%d", G_WeaponLogFired[i][j]);
+                trap->FS_Write(string, strlen(string), weaponfile);
+            }
+
+            Com_sprintf(string, sizeof(string), "\n");
+            trap->FS_Write(string, strlen(string), weaponfile);
+        }
+    }
+
+    // Sum up the totals.
+    Com_sprintf(string, sizeof(string), "\n***TOTAL:");
+    trap->FS_Write(string, strlen(string), weaponfile);
+
+    for (j = weapon_t::WP_NONE; j < weapon_t::WP_NUM_WEAPONS; j++) {
+        Com_sprintf(string, sizeof(string), "\t%d", totalshots[j]);
+        trap->FS_Write(string, strlen(string), weaponfile);
+    }
+
+    Com_sprintf(string, sizeof(string), "\n\n\n");
+    trap->FS_Write(string, strlen(string), weaponfile);
+
+    // Weapon time per character
+    Com_sprintf(string, sizeof(string), "Weapon Use Time per Player:\n\n");
+    trap->FS_Write(string, strlen(string), weaponfile);
+
+    Com_sprintf(string, sizeof(string), "Player");
+    trap->FS_Write(string, strlen(string), weaponfile);
+
+    for (j = weapon_t::WP_NONE; j < weapon_t::WP_NUM_WEAPONS; j++) {
+        Com_sprintf(string, sizeof(string), "\t%s", weaponNameFromIndex[j]);
+        trap->FS_Write(string, strlen(string), weaponfile);
+    }
+    Com_sprintf(string, sizeof(string), "\n");
+    trap->FS_Write(string, strlen(string), weaponfile);
+
+    // Cycle through each player, give their name and the number of times they picked up each weapon.
+    for (i = 0; i < MAX_CLIENTS; i++) {
+        if (G_WeaponLogClientTouch[i]) { // Ignore any entity/clients we don't care about!
+            if (g_entities[i].client) {
+                nameptr = g_entities[i].client->pers.netname;
+            }
+            else {
+                nameptr = unknownname;
+            }
+            trap->FS_Write(nameptr, strlen(nameptr), weaponfile);
+
+            for (j = weapon_t::WP_NONE; j < weapon_t::WP_NUM_WEAPONS; j++) {
+                Com_sprintf(string, sizeof(string), "\t%d", G_WeaponLogTime[i][j]);
+                trap->FS_Write(string, strlen(string), weaponfile);
+            }
+
+            Com_sprintf(string, sizeof(string), "\n");
+            trap->FS_Write(string, strlen(string), weaponfile);
+        }
+    }
+
+    // Sum up the totals.
+    Com_sprintf(string, sizeof(string), "\n***TOTAL:");
+    trap->FS_Write(string, strlen(string), weaponfile);
+
+    for (j = weapon_t::WP_NONE; j < weapon_t::WP_NUM_WEAPONS; j++) {
+        Com_sprintf(string, sizeof(string), "\t%d", totaltime[j]);
+        trap->FS_Write(string, strlen(string), weaponfile);
+    }
+
+    Com_sprintf(string, sizeof(string), "\n\n\n");
+    trap->FS_Write(string, strlen(string), weaponfile);
+
+    // Weapon deaths per character
+    Com_sprintf(string, sizeof(string), "Weapon Deaths per Player:\n\n");
+    trap->FS_Write(string, strlen(string), weaponfile);
+
+    Com_sprintf(string, sizeof(string), "Player");
+    trap->FS_Write(string, strlen(string), weaponfile);
+
+    for (j = weapon_t::WP_NONE; j < weapon_t::WP_NUM_WEAPONS; j++) {
+        Com_sprintf(string, sizeof(string), "\t%s", weaponNameFromIndex[j]);
+        trap->FS_Write(string, strlen(string), weaponfile);
+    }
+    Com_sprintf(string, sizeof(string), "\n");
+    trap->FS_Write(string, strlen(string), weaponfile);
+
+    // Cycle through each player, give their name and the number of times they picked up each weapon.
+    for (i = 0; i < MAX_CLIENTS; i++) {
+        if (G_WeaponLogClientTouch[i]) { // Ignore any entity/clients we don't care about!
+            if (g_entities[i].client) {
+                nameptr = g_entities[i].client->pers.netname;
+            }
+            else {
+                nameptr = unknownname;
+            }
+            trap->FS_Write(nameptr, strlen(nameptr), weaponfile);
+
+            for (j = weapon_t::WP_NONE; j < weapon_t::WP_NUM_WEAPONS; j++) {
+                Com_sprintf(string, sizeof(string), "\t%d", G_WeaponLogDeaths[i][j]);
+                trap->FS_Write(string, strlen(string), weaponfile);
+            }
+
+            Com_sprintf(string, sizeof(string), "\n");
+            trap->FS_Write(string, strlen(string), weaponfile);
+        }
+    }
+
+    // Sum up the totals.
+    Com_sprintf(string, sizeof(string), "\n***TOTAL:");
+    trap->FS_Write(string, strlen(string), weaponfile);
+
+    for (j = weapon_t::WP_NONE; j < weapon_t::WP_NUM_WEAPONS; j++) {
+        Com_sprintf(string, sizeof(string), "\t%d", totaldeaths[j]);
+        trap->FS_Write(string, strlen(string), weaponfile);
+    }
+
+    Com_sprintf(string, sizeof(string), "\n\n\n");
+    trap->FS_Write(string, strlen(string), weaponfile);
+
+    // Weapon damage per character
+
+    Com_sprintf(string, sizeof(string), "Weapon Damage per Player:\n\n");
+    trap->FS_Write(string, strlen(string), weaponfile);
+
+    Com_sprintf(string, sizeof(string), "Player");
+    trap->FS_Write(string, strlen(string), weaponfile);
+
+    for (j = weapon_t::WP_NONE; j < weapon_t::WP_NUM_WEAPONS; j++) {
+        Com_sprintf(string, sizeof(string), "\t%s", weaponNameFromIndex[j]);
+        trap->FS_Write(string, strlen(string), weaponfile);
+    }
+    Com_sprintf(string, sizeof(string), "\n");
+    trap->FS_Write(string, strlen(string), weaponfile);
+
+    // Cycle through each player, give their name and the number of times they picked up each weapon.
+    for (i = 0; i < MAX_CLIENTS; i++) {
+        if (G_WeaponLogClientTouch[i]) { // Ignore any entity/clients we don't care about!
+
+            // We must grab the totals from the damage types for the player and map them to the weapons.
+            percharacter = {};
+            for (meansOfDeath_t mod = meansOfDeath_t::MOD_UNKNOWN; mod < meansOfDeath_t::MOD_MAX; mod++) {
+                if (mod <= meansOfDeath_t::MOD_SENTRY) {
+                    curwp = weaponFromMOD[mod];
+                    percharacter[curwp] += G_WeaponLogDamage[i][mod];
+                }
+            }
+
+            if (g_entities[i].client) {
+                nameptr = g_entities[i].client->pers.netname;
+            }
+            else {
+                nameptr = unknownname;
+            }
+            trap->FS_Write(nameptr, strlen(nameptr), weaponfile);
+
+            for (j = weapon_t::WP_NONE; j < weapon_t::WP_NUM_WEAPONS; j++) {
+                Com_sprintf(string, sizeof(string), "\t%d", percharacter[j]);
+                trap->FS_Write(string, strlen(string), weaponfile);
+            }
+
+            Com_sprintf(string, sizeof(string), "\n");
+            trap->FS_Write(string, strlen(string), weaponfile);
+        }
+    }
+
+    // Sum up the totals.
+    Com_sprintf(string, sizeof(string), "\n***TOTAL:");
+    trap->FS_Write(string, strlen(string), weaponfile);
+
+    for (j = weapon_t::WP_NONE; j < weapon_t::WP_NUM_WEAPONS; j++) {
+        Com_sprintf(string, sizeof(string), "\t%d", totaldamage[j]);
+        trap->FS_Write(string, strlen(string), weaponfile);
+    }
+
+    Com_sprintf(string, sizeof(string), "\n\n\n");
+    trap->FS_Write(string, strlen(string), weaponfile);
+
+    // Weapon kills per character
+
+    Com_sprintf(string, sizeof(string), "Weapon Kills per Player:\n\n");
+    trap->FS_Write(string, strlen(string), weaponfile);
+
+    Com_sprintf(string, sizeof(string), "Player");
+    trap->FS_Write(string, strlen(string), weaponfile);
+
+    for (j = weapon_t::WP_NONE; j < weapon_t::WP_NUM_WEAPONS; j++) {
+        Com_sprintf(string, sizeof(string), "\t%s", weaponNameFromIndex[j]);
+        trap->FS_Write(string, strlen(string), weaponfile);
+    }
+    Com_sprintf(string, sizeof(string), "\n");
+    trap->FS_Write(string, strlen(string), weaponfile);
+
+    // Cycle through each player, give their name and the number of times they picked up each weapon.
+    for (i = 0; i < MAX_CLIENTS; i++) {
+        if (G_WeaponLogClientTouch[i]) { // Ignore any entity/clients we don't care about!
+
+            // We must grab the totals from the damage types for the player and map them to the weapons.
+            percharacter = {};
+            for (meansOfDeath_t mod = meansOfDeath_t::MOD_UNKNOWN; mod < meansOfDeath_t::MOD_MAX; mod++) {
+                if (mod <= meansOfDeath_t::MOD_SENTRY) {
+                    curwp = weaponFromMOD[mod];
+                    percharacter[curwp] += G_WeaponLogKills[i][mod];
+                }
+            }
+
+            if (g_entities[i].client) {
+                nameptr = g_entities[i].client->pers.netname;
+            }
+            else {
+                nameptr = unknownname;
+            }
+            trap->FS_Write(nameptr, strlen(nameptr), weaponfile);
+
+            for (j = weapon_t::WP_NONE; j < weapon_t::WP_NUM_WEAPONS; j++) {
+                Com_sprintf(string, sizeof(string), "\t%d", percharacter[j]);
+                trap->FS_Write(string, strlen(string), weaponfile);
+            }
+
+            Com_sprintf(string, sizeof(string), "\n");
+            trap->FS_Write(string, strlen(string), weaponfile);
+        }
+    }
+
+    // Sum up the totals.
+    Com_sprintf(string, sizeof(string), "\n***TOTAL:");
+    trap->FS_Write(string, strlen(string), weaponfile);
+
+    for (j = weapon_t::WP_NONE; j < weapon_t::WP_NUM_WEAPONS; j++) {
+        Com_sprintf(string, sizeof(string), "\t%d", totalkills[j]);
+        trap->FS_Write(string, strlen(string), weaponfile);
+    }
+
+    Com_sprintf(string, sizeof(string), "\n\n\n");
+    trap->FS_Write(string, strlen(string), weaponfile);
+
+    // Damage type damage per character
+    Com_sprintf(string, sizeof(string), "Typed Damage per Player:\n\n");
+    trap->FS_Write(string, strlen(string), weaponfile);
+
+    Com_sprintf(string, sizeof(string), "Player");
+    trap->FS_Write(string, strlen(string), weaponfile);
+
+    for (meansOfDeath_t mod = meansOfDeath_t::MOD_UNKNOWN; mod < meansOfDeath_t::MOD_MAX; mod++) {
+        Com_sprintf(string, sizeof(string), "\t%s", modNames[mod]);
+        trap->FS_Write(string, strlen(string), weaponfile);
+    }
+    Com_sprintf(string, sizeof(string), "\n");
+    trap->FS_Write(string, strlen(string), weaponfile);
+
+    // Cycle through each player, give their name and the number of times they picked up each weapon.
+    for (i = 0; i < MAX_CLIENTS; i++) {
+        if (G_WeaponLogClientTouch[i]) { // Ignore any entity/clients we don't care about!
+            if (g_entities[i].client) {
+                nameptr = g_entities[i].client->pers.netname;
+            }
+            else {
+                nameptr = unknownname;
+            }
+            trap->FS_Write(nameptr, strlen(nameptr), weaponfile);
+
+            for (meansOfDeath_t mod = meansOfDeath_t::MOD_UNKNOWN; mod < meansOfDeath_t::MOD_MAX; mod++) {
+                Com_sprintf(string, sizeof(string), "\t%d", G_WeaponLogDamage[i][mod]);
+                trap->FS_Write(string, strlen(string), weaponfile);
+            }
+
+            Com_sprintf(string, sizeof(string), "\n");
+            trap->FS_Write(string, strlen(string), weaponfile);
+        }
+    }
+
+    // Sum up the totals.
+    Com_sprintf(string, sizeof(string), "\n***TOTAL:");
+    trap->FS_Write(string, strlen(string), weaponfile);
+
+    for (meansOfDeath_t mod = meansOfDeath_t::MOD_UNKNOWN; mod < meansOfDeath_t::MOD_MAX; mod++) {
+        Com_sprintf(string, sizeof(string), "\t%d", totaldamageMOD[mod]);
+        trap->FS_Write(string, strlen(string), weaponfile);
+    }
+
+    Com_sprintf(string, sizeof(string), "\n\n\n");
+    trap->FS_Write(string, strlen(string), weaponfile);
+
+    // Damage type kills per character
+    Com_sprintf(string, sizeof(string), "Damage-Typed Kills per Player:\n\n");
+    trap->FS_Write(string, strlen(string), weaponfile);
+
+    Com_sprintf(string, sizeof(string), "Player");
+    trap->FS_Write(string, strlen(string), weaponfile);
+
+    for (meansOfDeath_t mod = meansOfDeath_t::MOD_UNKNOWN; mod < meansOfDeath_t::MOD_MAX; mod++) {
+        Com_sprintf(string, sizeof(string), "\t%s", modNames[mod]);
+        trap->FS_Write(string, strlen(string), weaponfile);
+    }
+    Com_sprintf(string, sizeof(string), "\n");
+    trap->FS_Write(string, strlen(string), weaponfile);
+
+    // Cycle through each player, give their name and the number of times they picked up each weapon.
+    for (i = 0; i < MAX_CLIENTS; i++) {
+        if (G_WeaponLogClientTouch[i]) { // Ignore any entity/clients we don't care about!
+            if (g_entities[i].client) {
+                nameptr = g_entities[i].client->pers.netname;
+            }
+            else {
+                nameptr = unknownname;
+            }
+            trap->FS_Write(nameptr, strlen(nameptr), weaponfile);
+
+            for (meansOfDeath_t mod = meansOfDeath_t::MOD_UNKNOWN; mod < meansOfDeath_t::MOD_MAX; mod++) {
+                Com_sprintf(string, sizeof(string), "\t%d", G_WeaponLogKills[i][mod]);
+                trap->FS_Write(string, strlen(string), weaponfile);
+            }
+
+            Com_sprintf(string, sizeof(string), "\n");
+            trap->FS_Write(string, strlen(string), weaponfile);
+        }
+    }
+
+    // Sum up the totals.
+    Com_sprintf(string, sizeof(string), "\n***TOTAL:");
+    trap->FS_Write(string, strlen(string), weaponfile);
+
+    for (meansOfDeath_t mod = meansOfDeath_t::MOD_UNKNOWN; mod < meansOfDeath_t::MOD_MAX; mod++) {
+        Com_sprintf(string, sizeof(string), "\t%d", totalkillsMOD[mod]);
+        trap->FS_Write(string, strlen(string), weaponfile);
+    }
+
+    Com_sprintf(string, sizeof(string), "\n\n\n");
+    trap->FS_Write(string, strlen(string), weaponfile);
+
+    trap->FS_Close(weaponfile);
+
+#endif // LOGGING_WEAPONS
 }
 
 // did this player earn the efficiency award?
-bool CalculateEfficiency(gentity_t *ent, int *efficiency)
+bool CalculateEfficiency(gentity_t* ent, int* efficiency)
 {
 #ifdef LOGGING_WEAPONS
-	float		fAccuracyRatio = 0, fBestRatio = 0;
-	int			i = 0, nShotsFired = 0, nShotsHit = 0, nBestPlayer = -1, tempEff = 0;
-	gentity_t	*player = nullptr;
+    float fAccuracyRatio = 0, fBestRatio = 0;
+    int i = 0, nShotsFired = 0, nShotsHit = 0, nBestPlayer = -1, tempEff = 0;
+    gentity_t* player = nullptr;
 
-
-	for (i = 0; i < sv_maxclients.integer; i++)
-	{
-		player = g_entities + i;
-		if (!player->inuse)
-			continue;
-		nShotsFired = player->client->accuracy_shots; //player->client->ps.persistant[PERS_ACCURACY_SHOTS];
-		nShotsHit = player->client->accuracy_hits; //player->client->ps.persistant[PERS_ACCURACY_HITS];
-		fAccuracyRatio = ( ((float)nShotsHit)/((float)nShotsFired) );
-		if (fAccuracyRatio > fBestRatio)
-		{
-			fBestRatio = fAccuracyRatio;
-			nBestPlayer = i;
-		}
-	}
-	if (-1 == nBestPlayer)
-	{
-		// huh?
-		return false;
-	}
-	if (nBestPlayer == ent->s.number)
-	{
-		tempEff = (int)(100*fBestRatio);
-		if (tempEff > 50)
-		{
-			*efficiency = tempEff;
-			return true;
-		}
-		return false;
-	}
+    for (i = 0; i < sv_maxclients.integer; i++) {
+        player = g_entities + i;
+        if (!player->inuse)
+            continue;
+        nShotsFired = player->client->accuracy_shots; // player->client->ps.persistant[PERS_ACCURACY_SHOTS];
+        nShotsHit = player->client->accuracy_hits;    // player->client->ps.persistant[PERS_ACCURACY_HITS];
+        fAccuracyRatio = (((float)nShotsHit) / ((float)nShotsFired));
+        if (fAccuracyRatio > fBestRatio) {
+            fBestRatio = fAccuracyRatio;
+            nBestPlayer = i;
+        }
+    }
+    if (-1 == nBestPlayer) {
+        // huh?
+        return false;
+    }
+    if (nBestPlayer == ent->s.number) {
+        tempEff = (int)(100 * fBestRatio);
+        if (tempEff > 50) {
+            *efficiency = tempEff;
+            return true;
+        }
+        return false;
+    }
 #endif // LOGGING_WEAPONS
-	return false;
+    return false;
 }
 
 // did this player earn the sharpshooter award?
-bool CalculateSharpshooter(gentity_t *ent, int *frags)
+bool CalculateSharpshooter(gentity_t* ent, int* frags)
 {
 #ifdef LOGGING_WEAPONS
-	int			i = 0, nBestPlayer = -1, nKills = 0, nMostKills = 0,
-				playTime = (level.time - ent->client->pers.enterTime)/60000;
-	gentity_t	*player = nullptr;
+    int i = 0, nBestPlayer = -1, nKills = 0, nMostKills = 0, playTime = (level.time - ent->client->pers.enterTime) / 60000;
+    gentity_t* player = nullptr;
 
-	// if this guy didn't get one kill per minute, reject him right now
-	if ( ((float)(G_WeaponLogKills[ent-g_entities][meansOfDeath_t::MOD_DISRUPTOR_SNIPER]))/((float)(playTime)) < 1.0 )
-	{
-		return false;
-	}
+    // if this guy didn't get one kill per minute, reject him right now
+    if (((float)(G_WeaponLogKills[ent - g_entities][meansOfDeath_t::MOD_DISRUPTOR_SNIPER])) / ((float)(playTime)) < 1.0) {
+        return false;
+    }
 
-	for (i = 0; i < sv_maxclients.integer; i++)
-	{
-		nKills = 0;
-		player = g_entities + i;
-		if (!player->inuse)
-			continue;
-		nKills = G_WeaponLogKills[i][meansOfDeath_t::MOD_DISRUPTOR_SNIPER];
-		if (nKills > nMostKills)
-		{
-			nMostKills = nKills;
-			nBestPlayer = i;
-		}
-	}
-	if (-1 == nBestPlayer)
-	{
-		return false;
-	}
-	if (nBestPlayer == ent->s.number)
-	{
-		*frags = nMostKills;
-		return true;
-	}
+    for (i = 0; i < sv_maxclients.integer; i++) {
+        nKills = 0;
+        player = g_entities + i;
+        if (!player->inuse)
+            continue;
+        nKills = G_WeaponLogKills[i][meansOfDeath_t::MOD_DISRUPTOR_SNIPER];
+        if (nKills > nMostKills) {
+            nMostKills = nKills;
+            nBestPlayer = i;
+        }
+    }
+    if (-1 == nBestPlayer) {
+        return false;
+    }
+    if (nBestPlayer == ent->s.number) {
+        *frags = nMostKills;
+        return true;
+    }
 #endif // LOGGING_WEAPONS
-	return false;
+    return false;
 }
 
 // did this player earn the untouchable award?
-bool CalculateUntouchable(gentity_t *ent)
+bool CalculateUntouchable(gentity_t* ent)
 {
 #ifdef LOGGING_WEAPONS
-	int			playTime;
-	playTime = (level.time - ent->client->pers.enterTime)/60000;
+    int playTime;
+    playTime = (level.time - ent->client->pers.enterTime) / 60000;
 
-	if ( level.gametype == gametype_t::GT_JEDIMASTER && ent->client->ps.isJediMaster )
-	{//Jedi Master can only be killed once anyway
-		return false;
-	}
-	//------------------------------------------------------ MUST HAVE ACHIEVED 2 KILLS PER MINUTE
-	if ( ((float)ent->client->ps.persistant[persEnum_t::PERS_SCORE])/((float)(playTime)) < 2.0  || playTime==0)
-		return false;
-	//------------------------------------------------------ MUST HAVE ACHIEVED 2 KILLS PER MINUTE
+    if (level.gametype == gametype_t::GT_JEDIMASTER && ent->client->ps.isJediMaster) { // Jedi Master can only be killed once anyway
+        return false;
+    }
+    //------------------------------------------------------ MUST HAVE ACHIEVED 2 KILLS PER MINUTE
+    if (((float)ent->client->ps.persistant[persEnum_t::PERS_SCORE]) / ((float)(playTime)) < 2.0 || playTime == 0)
+        return false;
+    //------------------------------------------------------ MUST HAVE ACHIEVED 2 KILLS PER MINUTE
 
-
-	// if this guy was never killed...  Award Away!!!
-	if (ent->client->ps.persistant[persEnum_t::PERS_KILLED]==0)
-		return true;
+    // if this guy was never killed...  Award Away!!!
+    if (ent->client->ps.persistant[persEnum_t::PERS_KILLED] == 0)
+        return true;
 
 #endif // LOGGING_WEAPONS
-	return false;
+    return false;
 }
 
 // did this player earn the logistics award?
-bool CalculateLogistics(gentity_t *ent, int *stuffUsed)
+bool CalculateLogistics(gentity_t* ent, int* stuffUsed)
 {
 #ifdef LOGGING_WEAPONS
-	int			i = 0, nBestPlayer = -1, nStuffUsed = 0, nMostStuffUsed = 0,
-				nDifferent = 0, nMostDifferent = 0;
-	gentity_t	*player = nullptr;
+    int i = 0, nBestPlayer = -1, nStuffUsed = 0, nMostStuffUsed = 0, nDifferent = 0, nMostDifferent = 0;
+    gentity_t* player = nullptr;
 
-	for (i = 0; i < sv_maxclients.integer; i++)
-	{
-		nStuffUsed = 0;
-		nDifferent = 0;
-		player = g_entities + i;
-		if (!player->inuse)
-			continue;
-		for (powerup_t p = powerup_t::PW_NONE + 1; p < powerup_t::PW_NUM_POWERUPS; p++)
-		{
-			if (G_WeaponLogPowerups[i][p])
-			{
-				nDifferent++;
-			}
-			nStuffUsed += G_WeaponLogPowerups[i][p];
-		}
-		for (holdable_t h = holdable_t::HI_NONE + 1; h < holdable_t::HI_NUM_HOLDABLE; h++)
-		{
-			if (G_WeaponLogItems[i][h])
-			{
-				nDifferent++;
-			}
-			nStuffUsed += G_WeaponLogItems[i][h];
-		}
-		if ( (nDifferent >= 4) && (nDifferent >= nMostDifferent) )
-		{
-			if (nStuffUsed > nMostStuffUsed)
-			{
-				nMostDifferent = nDifferent;
-				nMostStuffUsed = nStuffUsed;
-				nBestPlayer = i;
-			}
-		}
-	}
-	if (-1 == nBestPlayer)
-	{
-		return false;
-	}
-	if (nBestPlayer == ent->s.number)
-	{
-		*stuffUsed = nMostDifferent;
-		return true;
-	}
+    for (i = 0; i < sv_maxclients.integer; i++) {
+        nStuffUsed = 0;
+        nDifferent = 0;
+        player = g_entities + i;
+        if (!player->inuse)
+            continue;
+        for (powerup_t p = powerup_t::PW_NONE + 1; p < powerup_t::PW_NUM_POWERUPS; p++) {
+            if (G_WeaponLogPowerups[i][p]) {
+                nDifferent++;
+            }
+            nStuffUsed += G_WeaponLogPowerups[i][p];
+        }
+        for (holdable_t h = holdable_t::HI_NONE + 1; h < holdable_t::HI_NUM_HOLDABLE; h++) {
+            if (G_WeaponLogItems[i][h]) {
+                nDifferent++;
+            }
+            nStuffUsed += G_WeaponLogItems[i][h];
+        }
+        if ((nDifferent >= 4) && (nDifferent >= nMostDifferent)) {
+            if (nStuffUsed > nMostStuffUsed) {
+                nMostDifferent = nDifferent;
+                nMostStuffUsed = nStuffUsed;
+                nBestPlayer = i;
+            }
+        }
+    }
+    if (-1 == nBestPlayer) {
+        return false;
+    }
+    if (nBestPlayer == ent->s.number) {
+        *stuffUsed = nMostDifferent;
+        return true;
+    }
 #endif // LOGGING_WEAPONS
-	return false;
+    return false;
 }
-
-
-
 
 // did this player earn the tactician award?
-bool CalculateTactician(gentity_t *ent, int *kills)
+bool CalculateTactician(gentity_t* ent, int* kills)
 {
 #ifdef LOGGING_WEAPONS
-	int			nBestPlayer = -1, nKills = 0, nMostKills = 0;
-	int			person = 0;
-	weapon_t	weapon = weapon_t::WP_NONE;
-	gentity_t	*player = nullptr;
-	EnumArray<int, weapon_t, weapon_t::WP_NUM_WEAPONS>	wasPickedUpBySomeone;
-	EnumArray<int, weapon_t, weapon_t::WP_NUM_WEAPONS>	killsWithWeapon;
-	int			playTime = (level.time - ent->client->pers.enterTime)/60000;
+    int nBestPlayer = -1, nKills = 0, nMostKills = 0;
+    int person = 0;
+    weapon_t weapon = weapon_t::WP_NONE;
+    gentity_t* player = nullptr;
+    EnumArray<int, weapon_t, weapon_t::WP_NUM_WEAPONS> wasPickedUpBySomeone;
+    EnumArray<int, weapon_t, weapon_t::WP_NUM_WEAPONS> killsWithWeapon;
+    int playTime = (level.time - ent->client->pers.enterTime) / 60000;
 
-	if ( HasSetSaberOnly() )
-	{//duh, only 1 weapon
-		return false;
-	}
-	if ( level.gametype == gametype_t::GT_JEDIMASTER && ent->client->ps.isJediMaster )
-	{//Jedi Master has only 1 weapon
-		return false;
-	}
-	//------------------------------------------------------ MUST HAVE ACHIEVED 2 KILLS PER MINUTE
-	if (playTime<0.3)
-		return false;
+    if (HasSetSaberOnly()) { // duh, only 1 weapon
+        return false;
+    }
+    if (level.gametype == gametype_t::GT_JEDIMASTER && ent->client->ps.isJediMaster) { // Jedi Master has only 1 weapon
+        return false;
+    }
+    //------------------------------------------------------ MUST HAVE ACHIEVED 2 KILLS PER MINUTE
+    if (playTime < 0.3)
+        return false;
 
-	if ( ((float)ent->client->ps.persistant[persEnum_t::PERS_SCORE])/((float)(playTime)) < 2.0 )
-		return false;
-	//------------------------------------------------------ MUST HAVE ACHIEVED 2 KILLS PER MINUTE
+    if (((float)ent->client->ps.persistant[persEnum_t::PERS_SCORE]) / ((float)(playTime)) < 2.0)
+        return false;
+    //------------------------------------------------------ MUST HAVE ACHIEVED 2 KILLS PER MINUTE
 
+    //------------------------------------------------------ FOR EVERY WEAPON, ADD UP TOTAL PICKUPS
+    for (weapon = weapon_t::WP_NONE; weapon < weapon_t::WP_NUM_WEAPONS; weapon++)
+        wasPickedUpBySomeone[weapon] = 0; // CLEAR
 
+    for (person = 0; person < sv_maxclients.integer; person++) {
+        for (weapon = weapon_t::WP_NONE; weapon < weapon_t::WP_NUM_WEAPONS; weapon++) {
+            if (G_WeaponLogPickups[person][weapon] > 0)
+                wasPickedUpBySomeone[weapon]++;
+        }
+    }
+    //------------------------------------------------------ FOR EVERY WEAPON, ADD UP TOTAL PICKUPS
 
+    //------------------------------------------------------ FOR EVERY PERSON, CHECK FOR CANDIDATE
+    for (person = 0; person < sv_maxclients.integer; person++) {
+        player = g_entities + person;
+        if (!player->inuse)
+            continue;
 
-	//------------------------------------------------------ FOR EVERY WEAPON, ADD UP TOTAL PICKUPS
-	for (weapon = weapon_t::WP_NONE; weapon<weapon_t::WP_NUM_WEAPONS; weapon++)
-			wasPickedUpBySomeone[weapon] = 0;				// CLEAR
+        nKills = 0; // This Persons's Kills
+        for (weapon = weapon_t::WP_NONE; weapon < weapon_t::WP_NUM_WEAPONS; weapon++)
+            killsWithWeapon[weapon] = 0; // CLEAR
 
-	for (person=0; person<sv_maxclients.integer; person++)
-	{
-		for (weapon = weapon_t::WP_NONE; weapon<weapon_t::WP_NUM_WEAPONS; weapon++)
-		{
-			if (G_WeaponLogPickups[person][weapon]>0)
-				wasPickedUpBySomeone[weapon]++;
-		}
-	}
-	//------------------------------------------------------ FOR EVERY WEAPON, ADD UP TOTAL PICKUPS
+        for (meansOfDeath_t mod = meansOfDeath_t::MOD_UNKNOWN; mod < meansOfDeath_t::MOD_MAX; mod++) {
+            weapon = weaponFromMOD[mod];                              // Select Weapon
+            killsWithWeapon[weapon] += G_WeaponLogKills[person][mod]; // Store Num Kills With Weapon
+        }
 
+        weapon = weapon_t::WP_STUN_BATON; // Start At Stun Baton
+        //   keep looking through weapons if weapon is not on map, or if it is and we used it
+        while (weapon < weapon_t::WP_NUM_WEAPONS && (!wasPickedUpBySomeone[weapon] || killsWithWeapon[weapon] > 0)) {
+            weapon++;
+            if (weapon < weapon_t::WP_NUM_WEAPONS) {
+                nKills += killsWithWeapon[weapon]; //  Update the number of kills
+            }
+        }
+        //
+        // At this point we have either successfully gone through every weapon on the map and saw it had
+        // been used, or we found one that WAS on the map and was NOT used
+        //
+        // so we look to see if the weapon==Max (i.e. we used every one) and then we check to see
+        // if we got the most kills out of anyone else who did this.
+        //
+        if (weapon >= weapon_t::WP_NUM_WEAPONS && nKills > nMostKills) {
+            // WE ARE A TACTICION CANDIDATE
+            nMostKills = nKills;
+            nBestPlayer = person;
+        }
+    }
+    //------------------------------------------------------ FOR EVERY PERSON, CHECK FOR CANDIDATE
 
-
-
-	//------------------------------------------------------ FOR EVERY PERSON, CHECK FOR CANDIDATE
-	for (person=0; person<sv_maxclients.integer; person++)
-	{
-		player = g_entities + person;
-		if (!player->inuse)			continue;
-
-		nKills = 0;											// This Persons's Kills
-		for (weapon = weapon_t::WP_NONE; weapon<weapon_t::WP_NUM_WEAPONS; weapon++)
-			killsWithWeapon[weapon] = 0;					// CLEAR
-
-		for (meansOfDeath_t mod=meansOfDeath_t::MOD_UNKNOWN; mod<meansOfDeath_t::MOD_MAX; mod++)
-		{
-			weapon = weaponFromMOD[mod];									// Select Weapon
-			killsWithWeapon[weapon] += G_WeaponLogKills[person][mod];		// Store Num Kills With Weapon
-		}
-
-		weapon=weapon_t::WP_STUN_BATON;		// Start At Stun Baton
-		//   keep looking through weapons if weapon is not on map, or if it is and we used it
-		while( weapon<weapon_t::WP_NUM_WEAPONS && (!wasPickedUpBySomeone[weapon] || killsWithWeapon[weapon]>0) )
-		{
-			weapon++;
-			if ( weapon < weapon_t::WP_NUM_WEAPONS )
-			{
-				nKills+=killsWithWeapon[weapon];						//  Update the number of kills
-			}
-		}
-		//
-		// At this point we have either successfully gone through every weapon on the map and saw it had
-		// been used, or we found one that WAS on the map and was NOT used
-		//
-		// so we look to see if the weapon==Max (i.e. we used every one) and then we check to see
-		// if we got the most kills out of anyone else who did this.
-		//
-		if (weapon>=weapon_t::WP_NUM_WEAPONS && nKills>nMostKills)
-		{
-			// WE ARE A TACTICION CANDIDATE
-			nMostKills  = nKills;
-			nBestPlayer = person;
-		}
-	}
-	//------------------------------------------------------ FOR EVERY PERSON, CHECK FOR CANDIDATE
-
-	//Now, if we are the best player, return true and the number of kills we got
-	if (nBestPlayer == ent->s.number)
-	{
-		*kills = nMostKills;
-		return true;
-	}
+    // Now, if we are the best player, return true and the number of kills we got
+    if (nBestPlayer == ent->s.number) {
+        *kills = nMostKills;
+        return true;
+    }
 #endif // LOGGING_WEAPONS
-	return false;
+    return false;
 }
-
-
-
 
 // did this player earn the demolitionist award?
-bool CalculateDemolitionist(gentity_t *ent, int *kills)
+bool CalculateDemolitionist(gentity_t* ent, int* kills)
 {
 #ifdef LOGGING_WEAPONS
-	int			i = 0, nBestPlayer = -1, nKills = 0, nMostKills = 0,
-				playTime = (level.time - ent->client->pers.enterTime)/60000;
-	gentity_t	*player = nullptr;
+    int i = 0, nBestPlayer = -1, nKills = 0, nMostKills = 0, playTime = (level.time - ent->client->pers.enterTime) / 60000;
+    gentity_t* player = nullptr;
 
-	for (i = 0; i < sv_maxclients.integer; i++)
-	{
-		nKills = 0;
-		player = g_entities + i;
-		if (!player->inuse)
-			continue;
+    for (i = 0; i < sv_maxclients.integer; i++) {
+        nKills = 0;
+        player = g_entities + i;
+        if (!player->inuse)
+            continue;
 
-		nKills = G_WeaponLogKills[i][meansOfDeath_t::MOD_THERMAL];
-		nKills += G_WeaponLogKills[i][meansOfDeath_t::MOD_THERMAL_SPLASH];
-		nKills += G_WeaponLogKills[i][meansOfDeath_t::MOD_ROCKET];
-		nKills += G_WeaponLogKills[i][meansOfDeath_t::MOD_ROCKET_SPLASH];
-		nKills += G_WeaponLogKills[i][meansOfDeath_t::MOD_ROCKET_HOMING];
-		nKills += G_WeaponLogKills[i][meansOfDeath_t::MOD_ROCKET_HOMING_SPLASH];
-		nKills += G_WeaponLogKills[i][meansOfDeath_t::MOD_TRIP_MINE_SPLASH];
-		nKills += G_WeaponLogKills[i][meansOfDeath_t::MOD_TIMED_MINE_SPLASH];
-		nKills += G_WeaponLogKills[i][meansOfDeath_t::MOD_DET_PACK_SPLASH];
+        nKills = G_WeaponLogKills[i][meansOfDeath_t::MOD_THERMAL];
+        nKills += G_WeaponLogKills[i][meansOfDeath_t::MOD_THERMAL_SPLASH];
+        nKills += G_WeaponLogKills[i][meansOfDeath_t::MOD_ROCKET];
+        nKills += G_WeaponLogKills[i][meansOfDeath_t::MOD_ROCKET_SPLASH];
+        nKills += G_WeaponLogKills[i][meansOfDeath_t::MOD_ROCKET_HOMING];
+        nKills += G_WeaponLogKills[i][meansOfDeath_t::MOD_ROCKET_HOMING_SPLASH];
+        nKills += G_WeaponLogKills[i][meansOfDeath_t::MOD_TRIP_MINE_SPLASH];
+        nKills += G_WeaponLogKills[i][meansOfDeath_t::MOD_TIMED_MINE_SPLASH];
+        nKills += G_WeaponLogKills[i][meansOfDeath_t::MOD_DET_PACK_SPLASH];
 
-		// if this guy didn't get two explosive kills per minute, reject him right now
-		if ( ((float)nKills)/((float)(playTime)) < 2.0 )
-		{
-			continue;
-		}
+        // if this guy didn't get two explosive kills per minute, reject him right now
+        if (((float)nKills) / ((float)(playTime)) < 2.0) {
+            continue;
+        }
 
-		if (nKills > nMostKills)
-		{
-			nMostKills = nKills;
-			nBestPlayer = i;
-		}
-	}
-	if (-1 == nBestPlayer)
-	{
-		return false;
-	}
-	if (nBestPlayer == ent->s.number)
-	{
-		*kills = nMostKills;
-		return true;
-	}
+        if (nKills > nMostKills) {
+            nMostKills = nKills;
+            nBestPlayer = i;
+        }
+    }
+    if (-1 == nBestPlayer) {
+        return false;
+    }
+    if (nBestPlayer == ent->s.number) {
+        *kills = nMostKills;
+        return true;
+    }
 #endif // LOGGING_WEAPONS
-	return false;
+    return false;
 }
 
-int CalculateStreak(gentity_t *ent)
+int CalculateStreak(gentity_t* ent)
 {
 #if 0
 	if (ent->client->ps.persistant[PERS_STREAK_COUNT] >= STREAK_CHAMPION)
@@ -1186,312 +1023,276 @@ int CalculateStreak(gentity_t *ent)
 		return STREAK_ACE;
 	}
 #endif
-	//No streak calculation, at least for now.
-	return 0;
+    // No streak calculation, at least for now.
+    return 0;
 }
 
-bool CalculateTeamMVP(gentity_t *ent)
+bool CalculateTeamMVP(gentity_t* ent)
 {
-	int			i = 0, nBestPlayer = -1, nScore = 0, nHighestScore = 0;
-	team_t		team = PS_Team( ent->client->ps );
-	gentity_t	*player = nullptr;
+    int i = 0, nBestPlayer = -1, nScore = 0, nHighestScore = 0;
+    team_t team = PS_Team(ent->client->ps);
+    gentity_t* player = nullptr;
 
-	for (i = 0; i < sv_maxclients.integer; i++)
-	{
-		nScore = 0;
-		player = g_entities + i;
-		if (!player->inuse || (PS_Team( player->client->ps ) != team))
-			continue;
-		nScore = player->client->ps.persistant[persEnum_t::PERS_SCORE];
-		if (nScore > nHighestScore)
-		{
-			nHighestScore = nScore;
-			nBestPlayer = i;
-		}
-	}
-	if (-1 == nBestPlayer)
-	{
-		return false;
-	}
-	if (nBestPlayer == ent->s.number)
-	{
-		return true;
-	}
-	return false;
+    for (i = 0; i < sv_maxclients.integer; i++) {
+        nScore = 0;
+        player = g_entities + i;
+        if (!player->inuse || (PS_Team(player->client->ps) != team))
+            continue;
+        nScore = player->client->ps.persistant[persEnum_t::PERS_SCORE];
+        if (nScore > nHighestScore) {
+            nHighestScore = nScore;
+            nBestPlayer = i;
+        }
+    }
+    if (-1 == nBestPlayer) {
+        return false;
+    }
+    if (nBestPlayer == ent->s.number) {
+        return true;
+    }
+    return false;
 }
 
-bool CalculateTeamDefender(gentity_t *ent)
+bool CalculateTeamDefender(gentity_t* ent)
 {
-	int			i = 0, nBestPlayer = -1, nScore = 0, nHighestScore = 0;
-	team_t		team = PS_Team( ent->client->ps );
-	gentity_t	*player = nullptr;
+    int i = 0, nBestPlayer = -1, nScore = 0, nHighestScore = 0;
+    team_t team = PS_Team(ent->client->ps);
+    gentity_t* player = nullptr;
 
-	/*
-	if (CalculateTeamMVP(ent))
-	{
-		return false;
-	}
-	*/
-	for (i = 0; i < sv_maxclients.integer; i++)
-	{
-		nScore = 0;
-		player = g_entities + i;
-		if (!player->inuse || (PS_Team( player->client->ps ) != team))
-			continue;
-		nScore = player->client->pers.teamState.basedefense;
-		if (nScore > nHighestScore)
-		{
-			nHighestScore = nScore;
-			nBestPlayer = i;
-		}
-	}
-	if (-1 == nBestPlayer)
-	{
-		return false;
-	}
-	if (nBestPlayer == ent->s.number)
-	{
-		return true;
-	}
-	return false;
+    /*
+    if (CalculateTeamMVP(ent))
+    {
+        return false;
+    }
+    */
+    for (i = 0; i < sv_maxclients.integer; i++) {
+        nScore = 0;
+        player = g_entities + i;
+        if (!player->inuse || (PS_Team(player->client->ps) != team))
+            continue;
+        nScore = player->client->pers.teamState.basedefense;
+        if (nScore > nHighestScore) {
+            nHighestScore = nScore;
+            nBestPlayer = i;
+        }
+    }
+    if (-1 == nBestPlayer) {
+        return false;
+    }
+    if (nBestPlayer == ent->s.number) {
+        return true;
+    }
+    return false;
 }
 
-bool CalculateTeamWarrior(gentity_t *ent)
+bool CalculateTeamWarrior(gentity_t* ent)
 {
-	int			i = 0, nBestPlayer = -1, nScore = 0, nHighestScore = 0;
-	team_t		team = PS_Team( ent->client->ps );
-	gentity_t	*player = nullptr;
+    int i = 0, nBestPlayer = -1, nScore = 0, nHighestScore = 0;
+    team_t team = PS_Team(ent->client->ps);
+    gentity_t* player = nullptr;
 
-	/*
-	if (CalculateTeamMVP(ent) || CalculateTeamDefender(ent))
-	{
-		return false;
-	}
-	*/
-	for (i = 0; i < sv_maxclients.integer; i++)
-	{
-		nScore = 0;
-		player = g_entities + i;
-		if (!player->inuse || (PS_Team( player->client->ps ) != team))
-			continue;
-		nScore = player->client->ps.persistant[persEnum_t::PERS_SCORE];
-		if (nScore > nHighestScore)
-		{
-			nHighestScore = nScore;
-			nBestPlayer = i;
-		}
-	}
-	if (-1 == nBestPlayer)
-	{
-		return false;
-	}
-	if (nBestPlayer == ent->s.number)
-	{
-		return true;
-	}
-	return false;
+    /*
+    if (CalculateTeamMVP(ent) || CalculateTeamDefender(ent))
+    {
+        return false;
+    }
+    */
+    for (i = 0; i < sv_maxclients.integer; i++) {
+        nScore = 0;
+        player = g_entities + i;
+        if (!player->inuse || (PS_Team(player->client->ps) != team))
+            continue;
+        nScore = player->client->ps.persistant[persEnum_t::PERS_SCORE];
+        if (nScore > nHighestScore) {
+            nHighestScore = nScore;
+            nBestPlayer = i;
+        }
+    }
+    if (-1 == nBestPlayer) {
+        return false;
+    }
+    if (nBestPlayer == ent->s.number) {
+        return true;
+    }
+    return false;
 }
 
-bool CalculateTeamCarrier(gentity_t *ent)
+bool CalculateTeamCarrier(gentity_t* ent)
 {
-	int			i = 0, nBestPlayer = -1, nScore = 0, nHighestScore = 0;
-	team_t		team = PS_Team( ent->client->ps );
-	gentity_t	*player = nullptr;
+    int i = 0, nBestPlayer = -1, nScore = 0, nHighestScore = 0;
+    team_t team = PS_Team(ent->client->ps);
+    gentity_t* player = nullptr;
 
-	/*
-	if (CalculateTeamMVP(ent) || CalculateTeamDefender(ent) || CalculateTeamWarrior(ent))
-	{
-		return false;
-	}
-	*/
-	for (i = 0; i < sv_maxclients.integer; i++)
-	{
-		nScore = 0;
-		player = g_entities + i;
-		if (!player->inuse || (PS_Team( player->client->ps ) != team))
-			continue;
-		nScore = player->client->pers.teamState.captures;
-		if (nScore > nHighestScore)
-		{
-			nHighestScore = nScore;
-			nBestPlayer = i;
-		}
-	}
-	if (-1 == nBestPlayer)
-	{
-		return false;
-	}
-	if (nBestPlayer == ent->s.number)
-	{
-		return true;
-	}
-	return false;
+    /*
+    if (CalculateTeamMVP(ent) || CalculateTeamDefender(ent) || CalculateTeamWarrior(ent))
+    {
+        return false;
+    }
+    */
+    for (i = 0; i < sv_maxclients.integer; i++) {
+        nScore = 0;
+        player = g_entities + i;
+        if (!player->inuse || (PS_Team(player->client->ps) != team))
+            continue;
+        nScore = player->client->pers.teamState.captures;
+        if (nScore > nHighestScore) {
+            nHighestScore = nScore;
+            nBestPlayer = i;
+        }
+    }
+    if (-1 == nBestPlayer) {
+        return false;
+    }
+    if (nBestPlayer == ent->s.number) {
+        return true;
+    }
+    return false;
 }
 
-bool CalculateTeamInterceptor(gentity_t *ent)
+bool CalculateTeamInterceptor(gentity_t* ent)
 {
-	int			i = 0, nBestPlayer = -1, nScore = 0, nHighestScore = 0;
-	team_t		team = PS_Team( ent->client->ps );
-	gentity_t	*player = nullptr;
+    int i = 0, nBestPlayer = -1, nScore = 0, nHighestScore = 0;
+    team_t team = PS_Team(ent->client->ps);
+    gentity_t* player = nullptr;
 
-	/*
-	if (CalculateTeamMVP(ent) || CalculateTeamDefender(ent) || CalculateTeamWarrior(ent) ||
-		CalculateTeamCarrier(ent))
-	{
-		return false;
-	}
-	*/
-	for (i = 0; i < sv_maxclients.integer; i++)
-	{
-		nScore = 0;
-		player = g_entities + i;
-		if (!player->inuse || (PS_Team( player->client->ps ) != team))
-			continue;
-		nScore = player->client->pers.teamState.flagrecovery;
-		nScore += player->client->pers.teamState.fragcarrier;
-		if (nScore > nHighestScore)
-		{
-			nHighestScore = nScore;
-			nBestPlayer = i;
-		}
-	}
-	if (-1 == nBestPlayer)
-	{
-		return false;
-	}
-	if (nBestPlayer == ent->s.number)
-	{
-		return true;
-	}
-	return false;
+    /*
+    if (CalculateTeamMVP(ent) || CalculateTeamDefender(ent) || CalculateTeamWarrior(ent) ||
+        CalculateTeamCarrier(ent))
+    {
+        return false;
+    }
+    */
+    for (i = 0; i < sv_maxclients.integer; i++) {
+        nScore = 0;
+        player = g_entities + i;
+        if (!player->inuse || (PS_Team(player->client->ps) != team))
+            continue;
+        nScore = player->client->pers.teamState.flagrecovery;
+        nScore += player->client->pers.teamState.fragcarrier;
+        if (nScore > nHighestScore) {
+            nHighestScore = nScore;
+            nBestPlayer = i;
+        }
+    }
+    if (-1 == nBestPlayer) {
+        return false;
+    }
+    if (nBestPlayer == ent->s.number) {
+        return true;
+    }
+    return false;
 }
 
-bool CalculateTeamRedShirt(gentity_t *ent)
+bool CalculateTeamRedShirt(gentity_t* ent)
 {
-	int			i = 0, nBestPlayer = -1, nScore = 0, nHighestScore = 0;
-	team_t		team = PS_Team( ent->client->ps );
-	gentity_t	*player = nullptr;
+    int i = 0, nBestPlayer = -1, nScore = 0, nHighestScore = 0;
+    team_t team = PS_Team(ent->client->ps);
+    gentity_t* player = nullptr;
 
-	/*
-	if (CalculateTeamMVP(ent) || CalculateTeamDefender(ent) || CalculateTeamWarrior(ent) ||
-		CalculateTeamCarrier(ent) || CalculateTeamInterceptor(ent))
-	{
-		return false;
-	}
-	*/
-	for (i = 0; i < sv_maxclients.integer; i++)
-	{
-		nScore = 0;
-		player = g_entities + i;
-		if (!player->inuse || (PS_Team( player->client->ps ) != team))
-			continue;
-		nScore = player->client->ps.persistant[persEnum_t::PERS_KILLED];
-		nScore -= player->client->ps.fd.suicides; // suicides don't count, you big cheater.
-		if (nScore > nHighestScore)
-		{
-			nHighestScore = nScore;
-			nBestPlayer = i;
-		}
-	}
-	if (-1 == nBestPlayer)
-	{
-		return false;
-	}
-	if (nBestPlayer == ent->s.number)
-	{
-		return true;
-	}
-	return false;
+    /*
+    if (CalculateTeamMVP(ent) || CalculateTeamDefender(ent) || CalculateTeamWarrior(ent) ||
+        CalculateTeamCarrier(ent) || CalculateTeamInterceptor(ent))
+    {
+        return false;
+    }
+    */
+    for (i = 0; i < sv_maxclients.integer; i++) {
+        nScore = 0;
+        player = g_entities + i;
+        if (!player->inuse || (PS_Team(player->client->ps) != team))
+            continue;
+        nScore = player->client->ps.persistant[persEnum_t::PERS_KILLED];
+        nScore -= player->client->ps.fd.suicides; // suicides don't count, you big cheater.
+        if (nScore > nHighestScore) {
+            nHighestScore = nScore;
+            nBestPlayer = i;
+        }
+    }
+    if (-1 == nBestPlayer) {
+        return false;
+    }
+    if (nBestPlayer == ent->s.number) {
+        return true;
+    }
+    return false;
 }
 
 enum class awardType_t {
-	AWARD_EFFICIENCY,		// Accuracy
-	AWARD_SHARPSHOOTER,		// Most compression rifle frags
-	AWARD_UNTOUCHABLE,		// Perfect (no deaths)
-	AWARD_LOGISTICS,		// Most pickups
-	AWARD_TACTICIAN,		// Kills with all weapons
-	AWARD_DEMOLITIONIST,	// Most explosive damage kills
-	AWARD_STREAK,			// Ace/Expert/Master/Champion
-	AWARD_TEAM,				// MVP/Defender/Warrior/Carrier/Interceptor/Bravery
-	AWARD_SECTION31,		// All-around god
-	AWARD_MAX
+    AWARD_EFFICIENCY,    // Accuracy
+    AWARD_SHARPSHOOTER,  // Most compression rifle frags
+    AWARD_UNTOUCHABLE,   // Perfect (no deaths)
+    AWARD_LOGISTICS,     // Most pickups
+    AWARD_TACTICIAN,     // Kills with all weapons
+    AWARD_DEMOLITIONIST, // Most explosive damage kills
+    AWARD_STREAK,        // Ace/Expert/Master/Champion
+    AWARD_TEAM,          // MVP/Defender/Warrior/Carrier/Interceptor/Bravery
+    AWARD_SECTION31,     // All-around god
+    AWARD_MAX
 };
 
-enum class teamAward_e
-{
-	TEAM_NONE = 0,			// ha ha! you suck!
-	TEAM_MVP,				// most overall points
-	TEAM_DEFENDER,			// killed the most baddies near your flag
-	TEAM_WARRIOR,			// most frags
-	TEAM_CARRIER,			// infected the most people with plague
-	TEAM_INTERCEPTOR,		// returned your own flag the most
-	TEAM_BRAVERY,			// Red Shirt Award (tm). you died more than anybody.
-	TEAM_MAX
+enum class teamAward_e {
+    TEAM_NONE = 0,    // ha ha! you suck!
+    TEAM_MVP,         // most overall points
+    TEAM_DEFENDER,    // killed the most baddies near your flag
+    TEAM_WARRIOR,     // most frags
+    TEAM_CARRIER,     // infected the most people with plague
+    TEAM_INTERCEPTOR, // returned your own flag the most
+    TEAM_BRAVERY,     // Red Shirt Award (tm). you died more than anybody.
+    TEAM_MAX
 };
 
-int CalculateTeamAward(gentity_t *ent)
+int CalculateTeamAward(gentity_t* ent)
 {
-	int teamAwards = 0;
+    int teamAwards = 0;
 
-	if (CalculateTeamMVP(ent))
-	{
-		teamAwards |= Bit( teamAward_e::TEAM_MVP );
-	}
-	if (gametype_t::GT_CTF == level.gametype ||
-		gametype_t::GT_CTY == level.gametype)
-	{
-		if (CalculateTeamDefender(ent))
-		{
-			teamAwards |= Bit( teamAward_e::TEAM_DEFENDER );
-		}
-		if (CalculateTeamWarrior(ent))
-		{
-			teamAwards |= Bit( teamAward_e::TEAM_WARRIOR );
-		}
-		if (CalculateTeamCarrier(ent))
-		{
-			teamAwards |= Bit( teamAward_e::TEAM_CARRIER );
-		}
-		if (CalculateTeamInterceptor(ent))
-		{
-			teamAwards |= Bit( teamAward_e::TEAM_INTERCEPTOR );
-		}
-	}
-	if ( !teamAwards && CalculateTeamRedShirt(ent) )
-	{//if you got nothing else and died a lot, at least get bravery
-		teamAwards |= Bit( teamAward_e::TEAM_BRAVERY );
-	}
-	return teamAwards;
+    if (CalculateTeamMVP(ent)) {
+        teamAwards |= Bit(teamAward_e::TEAM_MVP);
+    }
+    if (gametype_t::GT_CTF == level.gametype || gametype_t::GT_CTY == level.gametype) {
+        if (CalculateTeamDefender(ent)) {
+            teamAwards |= Bit(teamAward_e::TEAM_DEFENDER);
+        }
+        if (CalculateTeamWarrior(ent)) {
+            teamAwards |= Bit(teamAward_e::TEAM_WARRIOR);
+        }
+        if (CalculateTeamCarrier(ent)) {
+            teamAwards |= Bit(teamAward_e::TEAM_CARRIER);
+        }
+        if (CalculateTeamInterceptor(ent)) {
+            teamAwards |= Bit(teamAward_e::TEAM_INTERCEPTOR);
+        }
+    }
+    if (!teamAwards && CalculateTeamRedShirt(ent)) { // if you got nothing else and died a lot, at least get bravery
+        teamAwards |= Bit(teamAward_e::TEAM_BRAVERY);
+    }
+    return teamAwards;
 }
 
-bool CalculateSection31Award(gentity_t *ent)
+bool CalculateSection31Award(gentity_t* ent)
 {
-	int			i = 0, frags = 0, efficiency = 0;
-	gentity_t	*player = nullptr;
+    int i = 0, frags = 0, efficiency = 0;
+    gentity_t* player = nullptr;
 
-	for (i = 0; i < sv_maxclients.integer; i++)
-	{
-		player = g_entities + i;
-		if (!player->inuse)
-			continue;
-//
-//	kef -- heh.
-//
-//		if (strcmp("JaxxonPhred", ent->client->pers.netname))
-//		{
-//			continue;
-//		}
-		CalculateEfficiency(ent, &efficiency);
-		if (!CalculateSharpshooter(ent, &frags) ||
-			!CalculateUntouchable(ent) ||
-			/*(CalculateStreak(ent) < STREAK_CHAMPION) ||*/
-			(efficiency < 75))
-		{
-			continue;
-		}
-		return true;
-	}
-	return false;
+    for (i = 0; i < sv_maxclients.integer; i++) {
+        player = g_entities + i;
+        if (!player->inuse)
+            continue;
+        //
+        //	kef -- heh.
+        //
+        //		if (strcmp("JaxxonPhred", ent->client->pers.netname))
+        //		{
+        //			continue;
+        //		}
+        CalculateEfficiency(ent, &efficiency);
+        if (!CalculateSharpshooter(ent, &frags) || !CalculateUntouchable(ent) ||
+            /*(CalculateStreak(ent) < STREAK_CHAMPION) ||*/
+            (efficiency < 75)) {
+            continue;
+        }
+        return true;
+    }
+    return false;
 }
 
 #if 0
@@ -1689,25 +1490,22 @@ weapon_t GetFavoriteWeaponForClient(int nClient)
 // kef -- if a client leaves the game, clear out all counters he may have set
 void QDECL G_ClearClientLog(int client)
 {
-	int i = 0;
+    int i = 0;
 
-	G_WeaponLogPickups[client] = {};
-	G_WeaponLogFired[client] = {};
-	G_WeaponLogDamage[client] = {};
-	G_WeaponLogKills[client] = {};
-	G_WeaponLogDeaths[client] = {};
-	for (i = 0; i < MAX_CLIENTS; i++)
-	{
-		G_WeaponLogFrags[client][i] = 0;
-	}
-	for (i = 0; i < MAX_CLIENTS; i++)
-	{
-		G_WeaponLogFrags[i][client] = 0;
-	}
-	G_WeaponLogTime[client] = {};
-	G_WeaponLogLastTime[client] = 0;
-	G_WeaponLogClientTouch[client] = false;
-	G_WeaponLogPowerups[client] = {};
-	G_WeaponLogItems[client] = {};
+    G_WeaponLogPickups[client] = {};
+    G_WeaponLogFired[client] = {};
+    G_WeaponLogDamage[client] = {};
+    G_WeaponLogKills[client] = {};
+    G_WeaponLogDeaths[client] = {};
+    for (i = 0; i < MAX_CLIENTS; i++) {
+        G_WeaponLogFrags[client][i] = 0;
+    }
+    for (i = 0; i < MAX_CLIENTS; i++) {
+        G_WeaponLogFrags[i][client] = 0;
+    }
+    G_WeaponLogTime[client] = {};
+    G_WeaponLogLastTime[client] = 0;
+    G_WeaponLogClientTouch[client] = false;
+    G_WeaponLogPowerups[client] = {};
+    G_WeaponLogItems[client] = {};
 }
-

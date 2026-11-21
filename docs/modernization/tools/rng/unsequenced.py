@@ -6,7 +6,7 @@ import os
 import re
 import sys
 
-DRAW = re.compile(r"(?<![\w.>:])(Q_irand|Q_flrand|Q_RandInt|Q_RandFloat|Q_RandU32|Q_random|Q_crandom|erandom|"
+DRAW = re.compile(r"(?<![\w.>])(?<!::)(Q_irand|Q_flrand|Q_RandInt|Q_RandFloat|Q_RandU32|Q_random|Q_crandom|erandom|"
                   r"PM_irand_timesync)\s*\(")
 
 
@@ -53,7 +53,8 @@ for d in sys.argv[1:]:
                     stmt = s[start:i]
                     draws = list(DRAW.finditer(stmt))
                     if len(draws) >= 2:
-                        # sequenced if a sequence point (&&, ||, ?, top-level comma) separates every pair of draws
+                        # sequenced if a sequence point (&&, ||, ?, top-level comma) separates every pair of draws, or
+                        # the : of a conditional (its two branches, one of which runs)
                         # VectorSet( v, x, y, z ) expands to comma operators: its top-level commas are sequence points
                         is_set = re.match(r"\s*VectorSet4?\s*\(", stmt) is not None
                         level, depths = 0, []
@@ -66,7 +67,7 @@ for d in sys.argv[1:]:
 
                         def sequenced(a, b):
                             x = stmt[a.end():b.start()]
-                            if re.search(r"&&|\|\||\?", x):
+                            if re.search(r"&&|\|\||\?|(?<!:):(?!:)", x):
                                 return True
                             return is_set and any(stmt[k] == "," and depths[k] == 1 for k in range(a.end(), b.start()))
 

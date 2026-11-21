@@ -3,6 +3,7 @@
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
 Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2026, ModernJK contributors
 
 This file is part of the OpenJK source code.
 
@@ -29,7 +30,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <map>
 #include <algorithm>
 
-#define STL_ITERATE( a, b )		for ( a = b.begin(); a != b.end(); ++a )
-#define STL_INSERT( a, b )		a.insert( a.end(), b );
+#define STL_ITERATE(a, b) for (a = b.begin(); a != b.end(); ++a)
+#define STL_INSERT(a, b) a.insert(a.end(), b);
 
 #endif

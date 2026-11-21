@@ -38,7 +38,7 @@ def parse_msg(src):
     entry = re.compile(r"\{\s*(?:(?:NETF|PSF)\((.+?)\)|PSF_FP\(\s*([\w.]+)\s*,\s*(\w+)\s*\)),\s*([-\w]+)\s*\}")
     for key, name, _ in TABLES:
         idx = re.search(r"netField_t\s+" + name + r"\[\]\s*=", src).start()
-        body = src[idx:src.index("\n};", idx)]
+        body = src[idx:src.index("};", idx)]  # the table's end, wherever the formatting puts it
         body = re.sub(r"/\*.*?\*/", "", re.sub(r"//[^\n]*", "", body), flags=re.S)
         out[key] = [(m[0], m[3], None) if m[0] else ("%s[%s]" % (m[1], m[2]), m[3], (m[1], m[2]))
                     for m in entry.findall(body)]

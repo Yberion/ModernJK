@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-//g_inventory.cpp
+// g_inventory.cpp
 #include "g_local.h"
 
 /*
@@ -29,49 +29,43 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 Goodie Keys
 ================
 */
-bool INV_GoodieKeyGive( gentity_t *target )
+bool INV_GoodieKeyGive(gentity_t* target)
 {
-	if ( !target || !target->client )
-	{
-		return (false);
-	}
+    if (!target || !target->client) {
+        return (false);
+    }
 
-	target->client->ps.inventory[inventory_t::INV_GOODIE_KEY]++;
-	return (true);
-
+    target->client->ps.inventory[inventory_t::INV_GOODIE_KEY]++;
+    return (true);
 }
 
-bool INV_GoodieKeyTake( gentity_t *target )
+bool INV_GoodieKeyTake(gentity_t* target)
 {
-	if ( !target || !target->client )
-	{
-		return (false);
-	}
+    if (!target || !target->client) {
+        return (false);
+    }
 
-	if (target->client->ps.inventory[inventory_t::INV_GOODIE_KEY])
-	{
-		target->client->ps.inventory[inventory_t::INV_GOODIE_KEY]--;
-		return (true);
-	}
+    if (target->client->ps.inventory[inventory_t::INV_GOODIE_KEY]) {
+        target->client->ps.inventory[inventory_t::INV_GOODIE_KEY]--;
+        return (true);
+    }
 
-	//had no keys
-	return (false);
+    // had no keys
+    return (false);
 }
 
-std::optional<inventory_t> INV_GoodieKeyCheck( gentity_t *target )
+std::optional<inventory_t> INV_GoodieKeyCheck(gentity_t* target)
 {
-	if ( !target || !target->client )
-	{
-		return (std::nullopt);
-	}
+    if (!target || !target->client) {
+        return (std::nullopt);
+    }
 
-	if ( target->client->ps.inventory[inventory_t::INV_GOODIE_KEY] )
-	{//found a key
-		return (inventory_t::INV_GOODIE_KEY);
-	}
+    if (target->client->ps.inventory[inventory_t::INV_GOODIE_KEY]) { // found a key
+        return (inventory_t::INV_GOODIE_KEY);
+    }
 
-	//no keys
-	return (std::nullopt);
+    // no keys
+    return (std::nullopt);
 }
 
 /*
@@ -79,78 +73,67 @@ std::optional<inventory_t> INV_GoodieKeyCheck( gentity_t *target )
 Security Keys
 ================
 */
-bool INV_SecurityKeyGive( gentity_t *target, const char *keyname )
+bool INV_SecurityKeyGive(gentity_t* target, const char* keyname)
 {
-	if ( target == nullptr || keyname == nullptr || target->client == nullptr )
-	{
-		return false;
-	}
+    if (target == nullptr || keyname == nullptr || target->client == nullptr) {
+        return false;
+    }
 
-	for ( int i = 0; i < MAX_SECURITY_KEYS; i++ )
-	{
-		if ( target->client->ps.security_key_message[i][0] == '\0' )
-		{//fill in the first empty slot we find with this key
-			target->client->ps.inventory[inventory_t::INV_SECURITY_KEY]++;	// He got the key
-			Q_strncpyz( target->client->ps.security_key_message[i], keyname, MAX_SECURITY_KEY_MESSSAGE );
-			return true;
-		}
-	}
-	//couldn't find an empty slot
-	return false;
+    for (int i = 0; i < MAX_SECURITY_KEYS; i++) {
+        if (target->client->ps.security_key_message[i][0] == '\0') {       // fill in the first empty slot we find with this key
+            target->client->ps.inventory[inventory_t::INV_SECURITY_KEY]++; // He got the key
+            Q_strncpyz(target->client->ps.security_key_message[i], keyname, MAX_SECURITY_KEY_MESSSAGE);
+            return true;
+        }
+    }
+    // couldn't find an empty slot
+    return false;
 }
 
-void INV_SecurityKeyTake( gentity_t *target, const char *keyname )
+void INV_SecurityKeyTake(gentity_t* target, const char* keyname)
 {
-	if ( !target || !keyname || !target->client )
-	{
-		return;
-	}
+    if (!target || !keyname || !target->client) {
+        return;
+    }
 
-	for ( int i = 0; i < MAX_SECURITY_KEYS; i++ )
-	{
-		if ( target->client->ps.security_key_message[i][0] != '\0' )
-		{
-			if ( !Q_stricmp( keyname, target->client->ps.security_key_message[i] ) )
-			{
-				target->client->ps.inventory[inventory_t::INV_SECURITY_KEY]--;	// Take the key
-				target->client->ps.security_key_message[i][0] = '\0';
-				return;
-			}
-		}
-		/*
-		//don't do this because we could have removed one that's between 2 valid ones
-		else
-		{
-			break;
-		}
-		*/
-	}
+    for (int i = 0; i < MAX_SECURITY_KEYS; i++) {
+        if (target->client->ps.security_key_message[i][0] != '\0') {
+            if (!Q_stricmp(keyname, target->client->ps.security_key_message[i])) {
+                target->client->ps.inventory[inventory_t::INV_SECURITY_KEY]--; // Take the key
+                target->client->ps.security_key_message[i][0] = '\0';
+                return;
+            }
+        }
+        /*
+        //don't do this because we could have removed one that's between 2 valid ones
+        else
+        {
+            break;
+        }
+        */
+    }
 }
 
-bool INV_SecurityKeyCheck( gentity_t *target, const char *keyname )
+bool INV_SecurityKeyCheck(gentity_t* target, const char* keyname)
 {
-	if ( !target || !keyname || !target->client )
-	{
-		return (false);
-	}
+    if (!target || !keyname || !target->client) {
+        return (false);
+    }
 
-	for ( int i = 0; i < MAX_SECURITY_KEYS; i++ )
-	{
-		if ( target->client->ps.inventory[inventory_t::INV_SECURITY_KEY] && target->client->ps.security_key_message[i][0] != '\0' )
-		{
-			if ( !Q_stricmp( keyname, target->client->ps.security_key_message[i] ) )
-			{
-				return (true);
-			}
-		}
-		/*
-		//don't do this because we could have removed one that's between 2 valid ones
-		else
-		{
-			break;
-		}
-		*/
-	}
+    for (int i = 0; i < MAX_SECURITY_KEYS; i++) {
+        if (target->client->ps.inventory[inventory_t::INV_SECURITY_KEY] && target->client->ps.security_key_message[i][0] != '\0') {
+            if (!Q_stricmp(keyname, target->client->ps.security_key_message[i])) {
+                return (true);
+            }
+        }
+        /*
+        //don't do this because we could have removed one that's between 2 valid ones
+        else
+        {
+            break;
+        }
+        */
+    }
 
-	return (false);
+    return (false);
 }

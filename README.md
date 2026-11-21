@@ -83,6 +83,10 @@ sudo apt install libsdl2-dev libgl1-mesa-dev
 
 Everything: the multiplayer client and dedicated server with their renderer and modules, the single-player games of Jedi Academy and Jedi Outcast, `modernjk.pk3` (from `assets/`), the tests, the network codec's benchmarks and tools. The full checks (`validate.sh`, `validate.bat`) are in "How to resume" of [the progress page](docs/modernization/progress/README.md).
 
+### Formatting
+
+The C and C++ code of `src/` and `test/` is laid out by clang-format 23 (`.clang-format`; another major version lays it out differently): `clang-format -i <files>` before a change is handed over, run again until nothing changes. The Linux validation (`validate.sh`) checks it.
+
 ## Credits
 
 - Star Wars Jedi Knight: Jedi Academy and Star Wars Jedi Knight II: Jedi Outcast, by Raven Software, published by LucasArts and Activision; Raven Software and Activision released their source code under the GPLv2 in 2013 ([Jedi Academy](https://github.com/jedis/jediacademy), [Jedi Outcast](https://github.com/jedis/jedioutcast)). The game data is theirs and is not part of this repository.

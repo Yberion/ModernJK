@@ -21,36 +21,36 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-void			CGVM_Init					( int serverMessageNum, int serverCommandSequence, int clientNum );
-void			CGVM_Shutdown				( void );
-bool		CGVM_ConsoleCommand			( void );
-void			CGVM_DrawActiveFrame		( int serverTime, stereoFrame_t stereoView, bool demoPlayback );
-int				CGVM_CrosshairPlayer		( void );
-int				CGVM_LastAttacker			( void );
-void			CGVM_KeyEvent				( int key, bool down );
-enum class fakeAscii_t;		// ui/keycodes.h
-void			CGVM_KeyEvent				( fakeAscii_t key, bool down );
-void			CGVM_MouseEvent				( int x, int y );
-enum class cgameEvent_t;		// cg_public.h
-void			CGVM_EventHandling			( cgameEvent_t type );
-contentsFlags_t	CGVM_PointContents			( void );
-void			CGVM_GetLerpOrigin			( void );
-void			CGVM_GetLerpData			( void );
-void			CGVM_Trace					( void );
-void			CGVM_G2Trace				( void );
-void			CGVM_G2Mark					( void );
-int				CGVM_RagCallback			( ragCallbackType_t callType );
-bool		CGVM_IncomingConsoleCommand	( void );
-bool		CGVM_NoUseableForce			( void );
-void			CGVM_GetOrigin				( int entID, vec3_t out );
-void			CGVM_GetAngles				( int entID, vec3_t out );
-trajectory_t *	CGVM_GetOriginTrajectory	( int entID );
-trajectory_t *	CGVM_GetAngleTrajectory		( int entID );
-void			CGVM_ROFF_NotetrackCallback	( int entID, const char *notetrack );
-void			CGVM_MapChange				( void );
-void			CGVM_AutomapInput			( void );
-void			CGVM_MiscEnt				( void );
-void			CGVM_CameraShake			( void );
+void CGVM_Init(int serverMessageNum, int serverCommandSequence, int clientNum);
+void CGVM_Shutdown(void);
+bool CGVM_ConsoleCommand(void);
+void CGVM_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, bool demoPlayback);
+int CGVM_CrosshairPlayer(void);
+int CGVM_LastAttacker(void);
+void CGVM_KeyEvent(int key, bool down);
+enum class fakeAscii_t; // ui/keycodes.h
+void CGVM_KeyEvent(fakeAscii_t key, bool down);
+void CGVM_MouseEvent(int x, int y);
+enum class cgameEvent_t; // cg_public.h
+void CGVM_EventHandling(cgameEvent_t type);
+contentsFlags_t CGVM_PointContents(void);
+void CGVM_GetLerpOrigin(void);
+void CGVM_GetLerpData(void);
+void CGVM_Trace(void);
+void CGVM_G2Trace(void);
+void CGVM_G2Mark(void);
+int CGVM_RagCallback(ragCallbackType_t callType);
+bool CGVM_IncomingConsoleCommand(void);
+bool CGVM_NoUseableForce(void);
+void CGVM_GetOrigin(int entID, vec3_t out);
+void CGVM_GetAngles(int entID, vec3_t out);
+trajectory_t* CGVM_GetOriginTrajectory(int entID);
+trajectory_t* CGVM_GetAngleTrajectory(int entID);
+void CGVM_ROFF_NotetrackCallback(int entID, const char* notetrack);
+void CGVM_MapChange(void);
+void CGVM_AutomapInput(void);
+void CGVM_MiscEnt(void);
+void CGVM_CameraShake(void);
 
-void CL_BindCGame( void );
-void CL_UnbindCGame( void );
+void CL_BindCGame(void);
+void CL_UnbindCGame(void);

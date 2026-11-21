@@ -44,15 +44,16 @@ extern EnumArray<int, saber_colors_t, saber_colors_t::NUM_SABER_COLORS> uiSaberC
 
 void UI_InitForceShaders(void);
 void UI_ReadLegalForce(void);
-void UI_DrawTotalForceStars(rectDef_t *rect, float scale, vec4_t color, int textStyle);
-void UI_DrawForceStars(rectDef_t *rect, float scale, vec4_t color, int textStyle, forcePowers_t findex, forcePowerLevels_t val, forcePowerLevels_t min, forcePowerLevels_t max) ;
-void UI_UpdateClientForcePowers(const char *teamArg);
+void UI_DrawTotalForceStars(rectDef_t* rect, float scale, vec4_t color, int textStyle);
+void UI_DrawForceStars(rectDef_t* rect, float scale, vec4_t color, int textStyle, forcePowers_t findex, forcePowerLevels_t val, forcePowerLevels_t min,
+                       forcePowerLevels_t max);
+void UI_UpdateClientForcePowers(const char* teamArg);
 void UI_SaveForceTemplate();
 void UI_UpdateForcePowers();
-bool UI_SkinColor_HandleKey(int flags, float *special, fakeAscii_t key, team_t num, team_t min, team_t max, int type);
-bool UI_ForceSide_HandleKey(int flags, float *special, fakeAscii_t key, int num, int min, int max, int type);
-bool UI_JediNonJedi_HandleKey(int flags, float *special, fakeAscii_t key, int num, int min, int max, int type);
-bool UI_ForceMaxRank_HandleKey(int flags, float *special, fakeAscii_t key, forceMasteries_t num, forceMasteries_t min, forceMasteries_t max, int type);
-bool UI_ForcePowerRank_HandleKey(int flags, float *special, fakeAscii_t key, forcePowerLevels_t num, forcePowerLevels_t min, forcePowerLevels_t max, int type);
-forcePowers_t UI_ForceRankPower( int ownerDraw );
-extern void UI_ForceConfigHandle( int oldindex, int newindex );
+bool UI_SkinColor_HandleKey(int flags, float* special, fakeAscii_t key, team_t num, team_t min, team_t max, int type);
+bool UI_ForceSide_HandleKey(int flags, float* special, fakeAscii_t key, int num, int min, int max, int type);
+bool UI_JediNonJedi_HandleKey(int flags, float* special, fakeAscii_t key, int num, int min, int max, int type);
+bool UI_ForceMaxRank_HandleKey(int flags, float* special, fakeAscii_t key, forceMasteries_t num, forceMasteries_t min, forceMasteries_t max, int type);
+bool UI_ForcePowerRank_HandleKey(int flags, float* special, fakeAscii_t key, forcePowerLevels_t num, forcePowerLevels_t min, forcePowerLevels_t max, int type);
+forcePowers_t UI_ForceRankPower(int ownerDraw);
+extern void UI_ForceConfigHandle(int oldindex, int newindex);

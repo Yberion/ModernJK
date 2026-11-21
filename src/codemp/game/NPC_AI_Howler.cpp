@@ -29,65 +29,54 @@ constexpr int MIN_DISTANCE_SQR = MIN_DISTANCE * MIN_DISTANCE;
 
 constexpr int MAX_DISTANCE = 128;
 
-
 /*
 -------------------------
 NPC_Howler_Precache
 -------------------------
 */
-void NPC_Howler_Precache( void )
-{
-}
-
+void NPC_Howler_Precache(void) {}
 
 /*
 -------------------------
 Howler_Idle
 -------------------------
 */
-void Howler_Idle( void ) {
-}
-
+void Howler_Idle(void) {}
 
 /*
 -------------------------
 Howler_Patrol
 -------------------------
 */
-void Howler_Patrol( void )
+void Howler_Patrol(void)
 {
-	vec3_t dif;
+    vec3_t dif;
 
-	NPC_SetLocalState( *NPCS.NPCInfo, monsterLocalState_t::LSTATE_CLEAR );
+    NPC_SetLocalState(*NPCS.NPCInfo, monsterLocalState_t::LSTATE_CLEAR);
 
-	//If we have somewhere to go, then do that
-	if ( UpdateGoal() )
-	{
-		NPCS.ucmd.buttons &= ~buttonFlags_t::BUTTON_WALKING;
-		NPC_MoveToGoal( true );
-	}
-	else
-	{
-		if ( TIMER_Done( NPCS.NPC, "patrolTime" ))
-		{
-			TIMER_Set( NPCS.NPC, "patrolTime", Q_flrand(-1.0f, 1.0f) * 5000 + 5000 );
-		}
-	}
+    // If we have somewhere to go, then do that
+    if (UpdateGoal()) {
+        NPCS.ucmd.buttons &= ~buttonFlags_t::BUTTON_WALKING;
+        NPC_MoveToGoal(true);
+    }
+    else {
+        if (TIMER_Done(NPCS.NPC, "patrolTime")) {
+            TIMER_Set(NPCS.NPC, "patrolTime", Q_flrand(-1.0f, 1.0f) * 5000 + 5000);
+        }
+    }
 
-	//rwwFIXMEFIXME: Care about all clients, not just client 0
-	//OJK: clientnum 0
-	VectorSubtract( g_entities[0].r.currentOrigin, NPCS.NPC->r.currentOrigin, dif );
+    // rwwFIXMEFIXME: Care about all clients, not just client 0
+    // OJK: clientnum 0
+    VectorSubtract(g_entities[0].r.currentOrigin, NPCS.NPC->r.currentOrigin, dif);
 
-	if ( VectorLengthSquared( dif ) < 256 * 256 )
-	{
-		G_SetEnemy( NPCS.NPC, &g_entities[0] );
-	}
+    if (VectorLengthSquared(dif) < 256 * 256) {
+        G_SetEnemy(NPCS.NPC, &g_entities[0]);
+    }
 
-	if ( NPC_CheckEnemyExt( true ) == false )
-	{
-		Howler_Idle();
-		return;
-	}
+    if (NPC_CheckEnemyExt(true) == false) {
+        Howler_Idle();
+        return;
+    }
 }
 
 /*
@@ -95,99 +84,92 @@ void Howler_Patrol( void )
 Howler_Move
 -------------------------
 */
-void Howler_Move( bool visible )
+void Howler_Move(bool visible)
 {
-	if ( NPC_LocalState<monsterLocalState_t>( *NPCS.NPCInfo ) != monsterLocalState_t::LSTATE_WAITING )
-	{
-		NPCS.NPCInfo->goalEntity = NPCS.NPC->enemy;
-		NPC_MoveToGoal( true );
-		NPCS.NPCInfo->goalRadius = MAX_DISTANCE;	// just get us within combat range
-	}
+    if (NPC_LocalState<monsterLocalState_t>(*NPCS.NPCInfo) != monsterLocalState_t::LSTATE_WAITING) {
+        NPCS.NPCInfo->goalEntity = NPCS.NPC->enemy;
+        NPC_MoveToGoal(true);
+        NPCS.NPCInfo->goalRadius = MAX_DISTANCE; // just get us within combat range
+    }
 }
 
 //---------------------------------------------------------
-void Howler_TryDamage( gentity_t *enemy, int damage )
+void Howler_TryDamage(gentity_t* enemy, int damage)
 {
-	vec3_t	end, dir;
-	trace_t	tr;
+    vec3_t end, dir;
+    trace_t tr;
 
-	if ( !enemy )
-	{
-		return;
-	}
+    if (!enemy) {
+        return;
+    }
 
-	AngleVectors( NPCS.NPC->client->ps.viewangles, dir, nullptr, nullptr );
-	VectorMA( NPCS.NPC->r.currentOrigin, MIN_DISTANCE, dir, end );
+    AngleVectors(NPCS.NPC->client->ps.viewangles, dir, nullptr, nullptr);
+    VectorMA(NPCS.NPC->r.currentOrigin, MIN_DISTANCE, dir, end);
 
-	// Should probably trace from the mouth, but, ah well.
-	trap->Trace( &tr, NPCS.NPC->r.currentOrigin, vec3_origin, vec3_origin, end, NPCS.NPC->s.number, MASK_SHOT, false, g2TraceFlags_t::G2TRFLAG_NONE, 0 );
+    // Should probably trace from the mouth, but, ah well.
+    trap->Trace(&tr, NPCS.NPC->r.currentOrigin, vec3_origin, vec3_origin, end, NPCS.NPC->s.number, MASK_SHOT, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
-	if ( tr.entityNum != ENTITYNUM_WORLD )
-	{
-		G_Damage( &g_entities[tr.entityNum], NPCS.NPC, NPCS.NPC, dir, tr.endpos, damage, damageFlags_t::DAMAGE_NO_KNOCKBACK, meansOfDeath_t::MOD_MELEE );
-	}
+    if (tr.entityNum != ENTITYNUM_WORLD) {
+        G_Damage(&g_entities[tr.entityNum], NPCS.NPC, NPCS.NPC, dir, tr.endpos, damage, damageFlags_t::DAMAGE_NO_KNOCKBACK, meansOfDeath_t::MOD_MELEE);
+    }
 }
 
 //------------------------------
-void Howler_Attack( void )
+void Howler_Attack(void)
 {
-	if ( !TIMER_Exists( NPCS.NPC, "attacking" ))
-	{
-		// Going to do ATTACK1
-		TIMER_Set( NPCS.NPC, "attacking", 1700 + Q_flrand(0.0f, 1.0f) * 200 );
-		NPC_SetAnim( NPCS.NPC, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_ATTACK1, setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD );
+    if (!TIMER_Exists(NPCS.NPC, "attacking")) {
+        // Going to do ATTACK1
+        TIMER_Set(NPCS.NPC, "attacking", 1700 + Q_flrand(0.0f, 1.0f) * 200);
+        NPC_SetAnim(NPCS.NPC, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_ATTACK1,
+                    setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD);
 
-		TIMER_Set( NPCS.NPC, "attack_dmg", 200 ); // level two damage
-	}
+        TIMER_Set(NPCS.NPC, "attack_dmg", 200); // level two damage
+    }
 
-	// Need to do delayed damage since the attack animations encapsulate multiple mini-attacks
-	if ( TIMER_Done2( NPCS.NPC, "attack_dmg", true ))
-	{
-		Howler_TryDamage( NPCS.NPC->enemy, 5 );
-	}
+    // Need to do delayed damage since the attack animations encapsulate multiple mini-attacks
+    if (TIMER_Done2(NPCS.NPC, "attack_dmg", true)) {
+        Howler_TryDamage(NPCS.NPC->enemy, 5);
+    }
 
-	// Just using this to remove the attacking flag at the right time
-	TIMER_Done2( NPCS.NPC, "attacking", true );
+    // Just using this to remove the attacking flag at the right time
+    TIMER_Done2(NPCS.NPC, "attacking", true);
 }
 
 //----------------------------------
-void Howler_Combat( void )
+void Howler_Combat(void)
 {
-	float distance;
-	bool advance;
+    float distance;
+    bool advance;
 
-	// If we cannot see our target or we have somewhere to go, then do that
-	if ( !NPC_ClearLOS4( NPCS.NPC->enemy ) || UpdateGoal( ))
-	{
-		NPCS.NPCInfo->combatMove = true;
-		NPCS.NPCInfo->goalEntity = NPCS.NPC->enemy;
-		NPCS.NPCInfo->goalRadius = MAX_DISTANCE;	// just get us within combat range
+    // If we cannot see our target or we have somewhere to go, then do that
+    if (!NPC_ClearLOS4(NPCS.NPC->enemy) || UpdateGoal()) {
+        NPCS.NPCInfo->combatMove = true;
+        NPCS.NPCInfo->goalEntity = NPCS.NPC->enemy;
+        NPCS.NPCInfo->goalRadius = MAX_DISTANCE; // just get us within combat range
 
-		NPC_MoveToGoal( true );
-		return;
-	}
+        NPC_MoveToGoal(true);
+        return;
+    }
 
-	// Sometimes I have problems with facing the enemy I'm attacking, so force the issue so I don't look dumb
-	NPC_FaceEnemy( true );
+    // Sometimes I have problems with facing the enemy I'm attacking, so force the issue so I don't look dumb
+    NPC_FaceEnemy(true);
 
-	distance	= DistanceHorizontalSquared( NPCS.NPC->r.currentOrigin, NPCS.NPC->enemy->r.currentOrigin );
-	advance = ( distance > MIN_DISTANCE_SQR ? true : false  );
+    distance = DistanceHorizontalSquared(NPCS.NPC->r.currentOrigin, NPCS.NPC->enemy->r.currentOrigin);
+    advance = (distance > MIN_DISTANCE_SQR ? true : false);
 
-	if (( advance || NPC_LocalState<monsterLocalState_t>( *NPCS.NPCInfo ) == monsterLocalState_t::LSTATE_WAITING ) && TIMER_Done( NPCS.NPC, "attacking" )) // waiting monsters can't attack
-	{
-		if ( TIMER_Done2( NPCS.NPC, "takingPain", true ))
-		{
-			NPC_SetLocalState( *NPCS.NPCInfo, monsterLocalState_t::LSTATE_CLEAR );
-		}
-		else
-		{
-			Howler_Move( true );
-		}
-	}
-	else
-	{
-		Howler_Attack();
-	}
+    if ((advance || NPC_LocalState<monsterLocalState_t>(*NPCS.NPCInfo) == monsterLocalState_t::LSTATE_WAITING) &&
+        TIMER_Done(NPCS.NPC, "attacking")) // waiting monsters can't attack
+    {
+        if (TIMER_Done2(NPCS.NPC, "takingPain", true)) {
+            NPC_SetLocalState(*NPCS.NPCInfo, monsterLocalState_t::LSTATE_CLEAR);
+        }
+        else {
+            Howler_Move(true);
+        }
+    }
+    else {
+        Howler_Attack();
+    }
 }
 
 /*
@@ -195,38 +177,35 @@ void Howler_Combat( void )
 NPC_Howler_Pain
 -------------------------
 */
-void NPC_Howler_Pain( gentity_t *self, gentity_t *attacker, int damage )
+void NPC_Howler_Pain(gentity_t* self, gentity_t* attacker, int damage)
 {
-	if ( damage >= 10 )
-	{
-		TIMER_Remove( self, "attacking" );
-		TIMER_Set( self, "takingPain", 2900 );
+    if (damage >= 10) {
+        TIMER_Remove(self, "attacking");
+        TIMER_Set(self, "takingPain", 2900);
 
-		VectorCopy( self->NPC->lastPathAngles, self->s.angles );
+        VectorCopy(self->NPC->lastPathAngles, self->s.angles);
 
-		NPC_SetAnim( self, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_PAIN1, setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD );
+        NPC_SetAnim(self, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_PAIN1, setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD);
 
-		if ( self->NPC )
-		{
-			NPC_SetLocalState( *self->NPC, monsterLocalState_t::LSTATE_WAITING );
-		}
-	}
+        if (self->NPC) {
+            NPC_SetLocalState(*self->NPC, monsterLocalState_t::LSTATE_WAITING);
+        }
+    }
 }
-
 
 /*
 -------------------------
 NPC_BSHowler_Default
 -------------------------
 */
-void NPC_BSHowler_Default( void )
+void NPC_BSHowler_Default(void)
 {
-	if ( NPCS.NPC->enemy )
-		Howler_Combat();
-	else if ( Any( NPCS.NPCInfo->scriptFlags & scriptFlags_t::SCF_LOOK_FOR_ENEMIES ) )
-		Howler_Patrol();
-	else
-		Howler_Idle();
+    if (NPCS.NPC->enemy)
+        Howler_Combat();
+    else if (Any(NPCS.NPCInfo->scriptFlags & scriptFlags_t::SCF_LOOK_FOR_ENEMIES))
+        Howler_Patrol();
+    else
+        Howler_Idle();
 
-	NPC_UpdateAngles( true, true );
+    NPC_UpdateAngles(true, true);
 }

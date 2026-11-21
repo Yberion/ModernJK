@@ -41,123 +41,166 @@ using namespace netcodec;
 namespace {
 
 // counts the symbols of every message of a trace; false if the file is malformed or a message is refused
-bool Count(const char *path, SymbolCounts &counts, size_t &messages) {
-	trace::DemoTraceFile in(path);
-	if (!in.Ok()) return false;
-	trace::DemoStream s;
-	size_t refused = 0, streams = 0;
-	while (in.Next(s)) {
-		refused += trace::ServerLoop(s, [&](const trace::DemoMessage &m, const Base &base, const BaselineTable &baselines,
-		                                    const CommandHistory &history, HeaderRecord &rec) {
-			messages++;
-			return CountMessage(m.msg, base, baselines, history, rec, counts);
-		});
-		streams++;
-	}
-	std::printf("%s: %zu streams, %zu messages coded, %zu refused\n", path, streams, messages, refused);
-	return in.Ok() && streams == in.Streams() && refused == 0;
+bool Count(const char* path, SymbolCounts& counts, size_t& messages)
+{
+    trace::DemoTraceFile in(path);
+    if (!in.Ok())
+        return false;
+    trace::DemoStream s;
+    size_t refused = 0, streams = 0;
+    while (in.Next(s)) {
+        refused += trace::ServerLoop(
+            s, [&](const trace::DemoMessage& m, const Base& base, const BaselineTable& baselines, const CommandHistory& history, HeaderRecord& rec) {
+                messages++;
+                return CountMessage(m.msg, base, baselines, history, rec, counts);
+            });
+        streams++;
+    }
+    std::printf("%s: %zu streams, %zu messages coded, %zu refused\n", path, streams, messages, refused);
+    return in.Ok() && streams == in.Streams() && refused == 0;
 }
 
 enum class Family : uint8_t {
-	kEntityValue, kPlayerValue, kEntityIndex, kPlayerIndex, kEntityList, kEntityType, kOperation, kCommand, kConfigString,
-	kHeader, kCount
+    kEntityValue,
+    kPlayerValue,
+    kEntityIndex,
+    kPlayerIndex,
+    kEntityList,
+    kEntityType,
+    kOperation,
+    kCommand,
+    kConfigString,
+    kHeader,
+    kCount
 };
 constexpr size_t kFamilyCount = static_cast<size_t>(Family::kCount);
-constexpr std::array<const char *, kFamilyCount> kFamilyName{ "entity field values", "player-state field values",
-	"entity field indices", "player-state field indices", "entity numbers and operations", "entity type", "message operations",
-	"server commands", "config strings, setgame", "header and other scalars" };
-constexpr std::array<const char *, detail::fctx::kCount> kKindName{ "integer absolute", "integer delta", "float kind",
-	"integral float absolute", "integral float delta", "angle index delta", "other float delta", "time prediction",
-	"position prediction", "angle prediction", "boolean flip" };
+constexpr std::array<const char*, kFamilyCount> kFamilyName{
+    "entity field values", "player-state field values", "entity field indices", "player-state field indices", "entity numbers and operations",
+    "entity type",         "message operations",        "server commands",      "config strings, setgame",    "header and other scalars"};
+constexpr std::array<const char*, detail::fctx::kCount> kKindName{"integer absolute",     "integer delta",     "float kind",        "integral float absolute",
+                                                                  "integral float delta", "angle index delta", "other float delta", "time prediction",
+                                                                  "position prediction",  "angle prediction",  "boolean flip"};
 
-Family FamilyOf(uint32_t c) noexcept {
-	namespace ctx = detail::ctx;
-	if (c < ctx::kPlayerField) return Family::kEntityValue;
-	if (c < ctx::kPlayerGap) return Family::kPlayerValue;
-	if (c < ctx::kEntityGap) return Family::kPlayerIndex;
-	if (c < ctx::kEntityOp) return Family::kEntityIndex;
-	if (c < ctx::kTypeChanged) return Family::kEntityList;
-	if (c < ctx::kOp) return Family::kEntityType;
-	if (c < ctx::kScalar) return Family::kOperation;
-	if (c >= ctx::Of(ctx::Scalar::kCmdRef)) return Family::kCommand;
-	if (c == ctx::Of(ctx::Scalar::kStrSetgame) || c == ctx::Of(ctx::Scalar::kStrCs)) return Family::kConfigString;
-	if (c == ctx::Of(ctx::Scalar::kEntGap)) return Family::kEntityList;
-	return Family::kHeader;
+Family FamilyOf(uint32_t c) noexcept
+{
+    namespace ctx = detail::ctx;
+    if (c < ctx::kPlayerField)
+        return Family::kEntityValue;
+    if (c < ctx::kPlayerGap)
+        return Family::kPlayerValue;
+    if (c < ctx::kEntityGap)
+        return Family::kPlayerIndex;
+    if (c < ctx::kEntityOp)
+        return Family::kEntityIndex;
+    if (c < ctx::kTypeChanged)
+        return Family::kEntityList;
+    if (c < ctx::kOp)
+        return Family::kEntityType;
+    if (c < ctx::kScalar)
+        return Family::kOperation;
+    if (c >= ctx::Of(ctx::Scalar::kCmdRef))
+        return Family::kCommand;
+    if (c == ctx::Of(ctx::Scalar::kStrSetgame) || c == ctx::Of(ctx::Scalar::kStrCs))
+        return Family::kConfigString;
+    if (c == ctx::Of(ctx::Scalar::kEntGap))
+        return Family::kEntityList;
+    return Family::kHeader;
 }
 
 // cost of the report trace with the tables trained on train: symbols (entropy with the quantised tables) and raw bits,
 // by family of contexts, and for field values by kind
-void Report(const SymbolCounts &train, const SymbolCounts &report, size_t messages) {
-	struct Cost {
-		double symbols = 0, raw = 0;
-		size_t freqs = 0;
-	};
-	std::array<Cost, kFamilyCount> fam{};
-	std::array<Cost, detail::fctx::kCount> kind{};
-	std::vector<std::pair<uint32_t, double>> command;   // context, bits
-	std::vector<uint16_t> freq;
-	for (uint32_t c = 0; c < train.symbols.size(); c++) {
-		const std::vector<uint64_t> &tc = train.symbols[c];
-		if (tc.empty()) continue;
-		freq.assign(tc.size(), 0);
-		Quantize(tc, freq);
-		uint64_t n = 0;
-		for (const uint64_t x : tc) n += x;
-		double bits = 0;
-		for (size_t sym = 0; sym < freq.size(); sym++)
-			bits += static_cast<double>(report.symbols[c][sym]) * (15.0 - std::log2(static_cast<double>(freq[sym])));
-		const auto raw = static_cast<double>(report.rawBits[c]);
-		Cost &f = fam[static_cast<size_t>(FamilyOf(c))];
-		f.symbols += bits;
-		f.raw += raw;
-		if (n != 0) f.freqs += freq.size();
-		if (c < detail::ctx::kPlayerGap) {
-			Cost &k = kind[(c - detail::ctx::kEntityField) % detail::ctx::kKinds];
-			k.symbols += bits;
-			k.raw += raw;
-		}
-		if (FamilyOf(c) == Family::kCommand) command.emplace_back(c, bits + raw);
-	}
-	const double perMessage = 8.0 * static_cast<double>(messages);
-	double total = 0;
-	for (const Cost &f : fam) total += f.symbols + f.raw;
-	std::printf("\n  cost of the report trace with the trained tables, bytes per message (without the 4-byte final state)\n");
-	std::printf("    %-32s %8s %8s %8s %7s %12s\n", "", "symbols", "raw", "total", "share", "frequencies");
-	for (size_t f = 0; f < kFamilyCount; f++)
-		std::printf("    %-32s %8.2f %8.2f %8.2f %6.1f%% %12zu\n", kFamilyName[f], fam[f].symbols / perMessage,
-		            fam[f].raw / perMessage, (fam[f].symbols + fam[f].raw) / perMessage,
-		            100.0 * (fam[f].symbols + fam[f].raw) / total, fam[f].freqs);
-	std::printf("    %-32s %26.2f\n", "total", total / perMessage);
-	std::printf("\n  field values (entities and player states) by kind, bytes per message\n");
-	for (size_t k = 0; k < kind.size(); k++)
-		std::printf("    %-32s %8.2f %8.2f %8.2f\n", kKindName[k], kind[k].symbols / perMessage, kind[k].raw / perMessage,
-		            (kind[k].symbols + kind[k].raw) / perMessage);
-	static constexpr std::array<const char *, 11> kCommandName{ "reference distance", "token count",
-		"same, after same, number", "same, after new, number", "same, after same, text", "same, after new, text",
-		"kind, reference number", "kind, reference text", "number difference", "number", "text bytes" };
-	std::array<double, kCommandName.size()> commandBits{};
-	for (const auto &[c, b] : command)
-		commandBits[std::min<size_t>(c - detail::ctx::Of(detail::ctx::Scalar::kCmdRef), kCommandName.size() - 1)] += b;
-	std::printf("\n  server commands by context, bytes per message\n");
-	for (size_t i = 0; i < kCommandName.size(); i++) std::printf("    %-32s %8.2f\n", kCommandName[i], commandBits[i] / perMessage);
+void Report(const SymbolCounts& train, const SymbolCounts& report, size_t messages)
+{
+    struct Cost {
+        double symbols = 0, raw = 0;
+        size_t freqs = 0;
+    };
+    std::array<Cost, kFamilyCount> fam{};
+    std::array<Cost, detail::fctx::kCount> kind{};
+    std::vector<std::pair<uint32_t, double>> command; // context, bits
+    std::vector<uint16_t> freq;
+    for (uint32_t c = 0; c < train.symbols.size(); c++) {
+        const std::vector<uint64_t>& tc = train.symbols[c];
+        if (tc.empty())
+            continue;
+        freq.assign(tc.size(), 0);
+        Quantize(tc, freq);
+        uint64_t n = 0;
+        for (const uint64_t x : tc)
+            n += x;
+        double bits = 0;
+        for (size_t sym = 0; sym < freq.size(); sym++)
+            bits += static_cast<double>(report.symbols[c][sym]) * (15.0 - std::log2(static_cast<double>(freq[sym])));
+        const auto raw = static_cast<double>(report.rawBits[c]);
+        Cost& f = fam[static_cast<size_t>(FamilyOf(c))];
+        f.symbols += bits;
+        f.raw += raw;
+        if (n != 0)
+            f.freqs += freq.size();
+        if (c < detail::ctx::kPlayerGap) {
+            Cost& k = kind[(c - detail::ctx::kEntityField) % detail::ctx::kKinds];
+            k.symbols += bits;
+            k.raw += raw;
+        }
+        if (FamilyOf(c) == Family::kCommand)
+            command.emplace_back(c, bits + raw);
+    }
+    const double perMessage = 8.0 * static_cast<double>(messages);
+    double total = 0;
+    for (const Cost& f : fam)
+        total += f.symbols + f.raw;
+    std::printf("\n  cost of the report trace with the trained tables, bytes per message (without the 4-byte final state)\n");
+    std::printf("    %-32s %8s %8s %8s %7s %12s\n", "", "symbols", "raw", "total", "share", "frequencies");
+    for (size_t f = 0; f < kFamilyCount; f++)
+        std::printf("    %-32s %8.2f %8.2f %8.2f %6.1f%% %12zu\n", kFamilyName[f], fam[f].symbols / perMessage, fam[f].raw / perMessage,
+                    (fam[f].symbols + fam[f].raw) / perMessage, 100.0 * (fam[f].symbols + fam[f].raw) / total, fam[f].freqs);
+    std::printf("    %-32s %26.2f\n", "total", total / perMessage);
+    std::printf("\n  field values (entities and player states) by kind, bytes per message\n");
+    for (size_t k = 0; k < kind.size(); k++)
+        std::printf("    %-32s %8.2f %8.2f %8.2f\n", kKindName[k], kind[k].symbols / perMessage, kind[k].raw / perMessage,
+                    (kind[k].symbols + kind[k].raw) / perMessage);
+    static constexpr std::array<const char*, 11> kCommandName{"reference distance",
+                                                              "token count",
+                                                              "same, after same, number",
+                                                              "same, after new, number",
+                                                              "same, after same, text",
+                                                              "same, after new, text",
+                                                              "kind, reference number",
+                                                              "kind, reference text",
+                                                              "number difference",
+                                                              "number",
+                                                              "text bytes"};
+    std::array<double, kCommandName.size()> commandBits{};
+    for (const auto& [c, b] : command)
+        commandBits[std::min<size_t>(c - detail::ctx::Of(detail::ctx::Scalar::kCmdRef), kCommandName.size() - 1)] += b;
+    std::printf("\n  server commands by context, bytes per message\n");
+    for (size_t i = 0; i < kCommandName.size(); i++)
+        std::printf("    %-32s %8.2f\n", kCommandName[i], commandBits[i] / perMessage);
 }
 
 } // namespace
 
-int main(int argc, char **argv) {
-	if (argc < 3) { std::fprintf(stderr, "usage: %s train.bin jka_tables.inc [report.bin]\n", argv[0]); return 2; }
-	SymbolCounts counts = NewSymbolCounts();
-	size_t messages = 0;
-	if (!Count(argv[1], counts, messages)) return 1;
-	const tools::TablesFile file{ .tool = "netcodec_train", .what = "Trained tables of the JKA codec", .unit = "messages",
-		                          .prefix = "kTrained" };
-	// the server messages' contexts; the input margin (ctx::kInputMargin) keeps its uniform table until recordings
-	// carry real margins (plan step 13): the demos have none
-	if (!tools::WriteTables(argv[2], counts, messages, file, 0, detail::ctx::kClientScalar)) return 1;
-	if (argc < 4) return 0;
-	SymbolCounts report = NewSymbolCounts();
-	size_t reportMessages = 0;
-	if (!Count(argv[3], report, reportMessages)) return 1;
-	Report(counts, report, reportMessages);
-	return 0;
+int main(int argc, char** argv)
+{
+    if (argc < 3) {
+        std::fprintf(stderr, "usage: %s train.bin jka_tables.inc [report.bin]\n", argv[0]);
+        return 2;
+    }
+    SymbolCounts counts = NewSymbolCounts();
+    size_t messages = 0;
+    if (!Count(argv[1], counts, messages))
+        return 1;
+    const tools::TablesFile file{.tool = "netcodec_train", .what = "Trained tables of the JKA codec", .unit = "messages", .prefix = "kTrained"};
+    // the server messages' contexts; the input margin (ctx::kInputMargin) keeps its uniform table until recordings
+    // carry real margins (plan step 13): the demos have none
+    if (!tools::WriteTables(argv[2], counts, messages, file, 0, detail::ctx::kClientScalar))
+        return 1;
+    if (argc < 4)
+        return 0;
+    SymbolCounts report = NewSymbolCounts();
+    size_t reportMessages = 0;
+    if (!Count(argv[3], report, reportMessages))
+        return 1;
+    Report(counts, report, reportMessages);
+    return 0;
 }

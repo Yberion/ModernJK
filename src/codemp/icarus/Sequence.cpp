@@ -30,19 +30,19 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <assert.h>
 
-CSequence::CSequence( void )
+CSequence::CSequence(void)
 {
-	m_numCommands	= 0;
-	m_flags			= sequenceFlags_t::SQ_COMMON;
-	m_iterations	= 1;
+    m_numCommands = 0;
+    m_flags = sequenceFlags_t::SQ_COMMON;
+    m_iterations = 1;
 
-	m_parent		= nullptr;
-	m_return		= nullptr;
+    m_parent = nullptr;
+    m_return = nullptr;
 }
 
-CSequence::~CSequence( void )
+CSequence::~CSequence(void)
 {
-	Delete();
+    Delete();
 }
 
 /*
@@ -51,18 +51,18 @@ Create
 -------------------------
 */
 
-CSequence *CSequence::Create( void )
+CSequence* CSequence::Create(void)
 {
-	CSequence *seq = new CSequence;
+    CSequence* seq = new CSequence;
 
-	//TODO: Emit warning
-	assert(seq);
-	if ( seq == nullptr )
-		return nullptr;
+    // TODO: Emit warning
+    assert(seq);
+    if (seq == nullptr)
+        return nullptr;
 
-	seq->SetFlag( sequenceFlags_t::SQ_COMMON );
+    seq->SetFlag(sequenceFlags_t::SQ_COMMON);
 
-	return seq;
+    return seq;
 }
 
 /*
@@ -71,41 +71,36 @@ Delete
 -------------------------
 */
 
-void CSequence::Delete( void )
+void CSequence::Delete(void)
 {
-	block_l::iterator	bi;
-	sequence_l::iterator si;
+    block_l::iterator bi;
+    sequence_l::iterator si;
 
-	//Notify the parent of the deletion
-	if ( m_parent )
-	{
-		m_parent->RemoveChild( this );
-	}
+    // Notify the parent of the deletion
+    if (m_parent) {
+        m_parent->RemoveChild(this);
+    }
 
-	//Clear all children
-	if ( m_children.size() > 0 )
-	{
-		/*for ( iterSeq = m_childrenMap.begin(); iterSeq != m_childrenMap.end(); iterSeq++ )
-		{
-			(*iterSeq).second->SetParent( nullptr );
-		}*/
+    // Clear all children
+    if (m_children.size() > 0) {
+        /*for ( iterSeq = m_childrenMap.begin(); iterSeq != m_childrenMap.end(); iterSeq++ )
+        {
+            (*iterSeq).second->SetParent( nullptr );
+        }*/
 
-		for ( si = m_children.begin(); si != m_children.end(); ++si )
-		{
-			(*si)->SetParent( nullptr );
-		}
-	}
-	m_children.clear();
+        for (si = m_children.begin(); si != m_children.end(); ++si) {
+            (*si)->SetParent(nullptr);
+        }
+    }
+    m_children.clear();
 
-	//Clear all held commands
-	for ( bi = m_commands.begin(); bi != m_commands.end(); ++bi )
-	{
-		delete (*bi);	//Free() handled internally
-	}
+    // Clear all held commands
+    for (bi = m_commands.begin(); bi != m_commands.end(); ++bi) {
+        delete (*bi); // Free() handled internally
+    }
 
-	m_commands.clear();
+    m_commands.clear();
 }
-
 
 /*
 -------------------------
@@ -113,13 +108,13 @@ AddChild
 -------------------------
 */
 
-void CSequence::AddChild( CSequence *child )
+void CSequence::AddChild(CSequence* child)
 {
-	assert( child );
-	if ( child == nullptr )
-		return;
+    assert(child);
+    if (child == nullptr)
+        return;
 
-	m_children.insert( m_children.end(), child );
+    m_children.insert(m_children.end(), child);
 }
 
 /*
@@ -128,14 +123,14 @@ RemoveChild
 -------------------------
 */
 
-void CSequence::RemoveChild( CSequence *child )
+void CSequence::RemoveChild(CSequence* child)
 {
-	assert( child );
-	if ( child == nullptr )
-		return;
+    assert(child);
+    if (child == nullptr)
+        return;
 
-	//Remove the child
-	m_children.remove( child );
+    // Remove the child
+    m_children.remove(child);
 }
 
 /*
@@ -144,20 +139,19 @@ HasChild
 -------------------------
 */
 
-bool CSequence::HasChild( CSequence *sequence )
+bool CSequence::HasChild(CSequence* sequence)
 {
-	sequence_l::iterator	ci;
+    sequence_l::iterator ci;
 
-	for ( ci = m_children.begin(); ci != m_children.end(); ++ci )
-	{
-		if ( (*ci) == sequence )
-			return true;
+    for (ci = m_children.begin(); ci != m_children.end(); ++ci) {
+        if ((*ci) == sequence)
+            return true;
 
-		if ( (*ci)->HasChild( sequence ) )
-			return true;
-	}
+        if ((*ci)->HasChild(sequence))
+            return true;
+    }
 
-	return false;
+    return false;
 }
 
 /*
@@ -166,19 +160,19 @@ SetParent
 -------------------------
 */
 
-void CSequence::SetParent( CSequence *parent )
+void CSequence::SetParent(CSequence* parent)
 {
-	m_parent = parent;
+    m_parent = parent;
 
-	if ( parent == nullptr )
-		return;
+    if (parent == nullptr)
+        return;
 
-	//Inherit the parent's properties (this avoids messy tree walks later on)
-	if ( Any( parent->m_flags & sequenceFlags_t::SQ_RETAIN ) )
-		m_flags |= sequenceFlags_t::SQ_RETAIN;
+    // Inherit the parent's properties (this avoids messy tree walks later on)
+    if (Any(parent->m_flags & sequenceFlags_t::SQ_RETAIN))
+        m_flags |= sequenceFlags_t::SQ_RETAIN;
 
-	if ( Any( parent->m_flags & sequenceFlags_t::SQ_PENDING ) )
-		m_flags |= sequenceFlags_t::SQ_PENDING;
+    if (Any(parent->m_flags & sequenceFlags_t::SQ_PENDING))
+        m_flags |= sequenceFlags_t::SQ_PENDING;
 }
 
 /*
@@ -187,42 +181,41 @@ PopCommand
 -------------------------
 */
 
-CBlock *CSequence::PopCommand( pushPop_t type )
+CBlock* CSequence::PopCommand(pushPop_t type)
 {
-	CBlock	*command = nullptr;
+    CBlock* command = nullptr;
 
-	//Make sure everything is ok
-	assert( (type == pushPop_t::POP_FRONT) || (type == pushPop_t::POP_BACK) );
+    // Make sure everything is ok
+    assert((type == pushPop_t::POP_FRONT) || (type == pushPop_t::POP_BACK));
 
-	if ( m_commands.empty() )
-		return nullptr;
+    if (m_commands.empty())
+        return nullptr;
 
-	switch ( type )
-	{
-	case pushPop_t::POP_FRONT:
+    switch (type) {
+    case pushPop_t::POP_FRONT:
 
-		command = m_commands.front();
-		m_commands.pop_front();
-		m_numCommands--;
+        command = m_commands.front();
+        m_commands.pop_front();
+        m_numCommands--;
 
-		return command;
-		break;
+        return command;
+        break;
 
-	case pushPop_t::POP_BACK:
+    case pushPop_t::POP_BACK:
 
-		command = m_commands.back();
-		m_commands.pop_back();
-		m_numCommands--;
+        command = m_commands.back();
+        m_commands.pop_back();
+        m_numCommands--;
 
-		return command;
-		break;
+        return command;
+        break;
 
-	default:
-		break;
-	}
+    default:
+        break;
+    }
 
-	//Invalid flag
-	return nullptr;
+    // Invalid flag
+    return nullptr;
 }
 
 /*
@@ -231,36 +224,35 @@ PushCommand
 -------------------------
 */
 
-int CSequence::PushCommand( CBlock *block, pushPop_t type )
+int CSequence::PushCommand(CBlock* block, pushPop_t type)
 {
-	//Make sure everything is ok
-	assert( (type == pushPop_t::PUSH_FRONT) || (type == pushPop_t::PUSH_BACK) );
-	assert( block );
+    // Make sure everything is ok
+    assert((type == pushPop_t::PUSH_FRONT) || (type == pushPop_t::PUSH_BACK));
+    assert(block);
 
-	switch ( type )
-	{
-	case pushPop_t::PUSH_FRONT:
+    switch (type) {
+    case pushPop_t::PUSH_FRONT:
 
-		m_commands.push_front( block );
-		m_numCommands++;
+        m_commands.push_front(block);
+        m_numCommands++;
 
-		return true;
-		break;
+        return true;
+        break;
 
-	case pushPop_t::PUSH_BACK:
+    case pushPop_t::PUSH_BACK:
 
-		m_commands.push_back( block );
-		m_numCommands++;
+        m_commands.push_back(block);
+        m_numCommands++;
 
-		return true;
-		break;
+        return true;
+        break;
 
-	default:
-		break;
-	}
+    default:
+        break;
+    }
 
-	//Invalid flag
-	return false;
+    // Invalid flag
+    return false;
 }
 
 /*
@@ -269,9 +261,9 @@ SetFlag
 -------------------------
 */
 
-void CSequence::SetFlag( sequenceFlags_t flag )
+void CSequence::SetFlag(sequenceFlags_t flag)
 {
-	m_flags |= flag;
+    m_flags |= flag;
 }
 
 /*
@@ -280,19 +272,17 @@ RemoveFlag
 -------------------------
 */
 
-void CSequence::RemoveFlag( sequenceFlags_t flag, bool children )
+void CSequence::RemoveFlag(sequenceFlags_t flag, bool children)
 {
-	m_flags &= ~flag;
+    m_flags &= ~flag;
 
-	if ( children )
-	{
-		sequence_l::iterator	si;
+    if (children) {
+        sequence_l::iterator si;
 
-		for ( si = m_children.begin(); si != m_children.end(); ++si )
-		{
-			(*si)->RemoveFlag( flag, true );
-		}
-	}
+        for (si = m_children.begin(); si != m_children.end(); ++si) {
+            (*si)->RemoveFlag(flag, true);
+        }
+    }
 }
 
 /*
@@ -301,9 +291,9 @@ HasFlag
 -------------------------
 */
 
-bool CSequence::HasFlag( sequenceFlags_t flag )
+bool CSequence::HasFlag(sequenceFlags_t flag)
 {
-	return Any(m_flags & flag);
+    return Any(m_flags & flag);
 }
 
 /*
@@ -312,10 +302,10 @@ SetReturn
 -------------------------
 */
 
-void CSequence::SetReturn ( CSequence *sequence )
+void CSequence::SetReturn(CSequence* sequence)
 {
-	assert( sequence != this );
-	m_return = sequence;
+    assert(sequence != this);
+    m_return = sequence;
 }
 
 /*
@@ -324,17 +314,16 @@ GetChild
 -------------------------
 */
 
-CSequence *CSequence::GetChildByIndex( int iIndex )
+CSequence* CSequence::GetChildByIndex(int iIndex)
 {
-	if ( iIndex < 0 || iIndex >= (int)m_children.size() )
-		return nullptr;
+    if (iIndex < 0 || iIndex >= (int)m_children.size())
+        return nullptr;
 
-	sequence_l::iterator iterSeq = m_children.begin();
-	for ( int i = 0; i < iIndex; i++  )
-	{
-		++iterSeq;
-	}
-	return (*iterSeq);
+    sequence_l::iterator iterSeq = m_children.begin();
+    for (int i = 0; i < iIndex; i++) {
+        ++iterSeq;
+    }
+    return (*iterSeq);
 }
 
 /*
@@ -343,41 +332,40 @@ SaveCommand
 -------------------------
 */
 
-int CSequence::SaveCommand( CBlock *block )
+int CSequence::SaveCommand(CBlock* block)
 {
-	unsigned char	flags;
-	int				numMembers, bID, size;
-	CBlockMember	*bm;
+    unsigned char flags;
+    int numMembers, bID, size;
+    CBlockMember* bm;
 
-	//Save out the block ID
-	bID = to_underlying( block->GetBlockID() );
-	(m_owner->GetInterface())->I_WriteSaveData( INT_ID('B','L','I','D'), &bID, sizeof ( bID ) );
+    // Save out the block ID
+    bID = to_underlying(block->GetBlockID());
+    (m_owner->GetInterface())->I_WriteSaveData(INT_ID('B', 'L', 'I', 'D'), &bID, sizeof(bID));
 
-	//Save out the block's flags
-	flags = to_underlying( block->GetFlags() );
-	(m_owner->GetInterface())->I_WriteSaveData( INT_ID('B','F','L','G'), &flags, sizeof ( flags ) );
+    // Save out the block's flags
+    flags = to_underlying(block->GetFlags());
+    (m_owner->GetInterface())->I_WriteSaveData(INT_ID('B', 'F', 'L', 'G'), &flags, sizeof(flags));
 
-	//Save out the number of members to read
-	numMembers = block->GetNumMembers();
-	(m_owner->GetInterface())->I_WriteSaveData( INT_ID('B','N','U','M'), &numMembers, sizeof ( numMembers ) );
+    // Save out the number of members to read
+    numMembers = block->GetNumMembers();
+    (m_owner->GetInterface())->I_WriteSaveData(INT_ID('B', 'N', 'U', 'M'), &numMembers, sizeof(numMembers));
 
-	for ( int i = 0; i < numMembers; i++ )
-	{
-		bm = block->GetMember( i );
+    for (int i = 0; i < numMembers; i++) {
+        bm = block->GetMember(i);
 
-		//Save the block id
-		bID = to_underlying( bm->GetID() );
-		(m_owner->GetInterface())->I_WriteSaveData( INT_ID('B','M','I','D'), &bID, sizeof ( bID ) );
+        // Save the block id
+        bID = to_underlying(bm->GetID());
+        (m_owner->GetInterface())->I_WriteSaveData(INT_ID('B', 'M', 'I', 'D'), &bID, sizeof(bID));
 
-		//Save out the data size
-		size = bm->GetSize();
-		(m_owner->GetInterface())->I_WriteSaveData( INT_ID('B','S','I','Z'), &size, sizeof( size ) );
+        // Save out the data size
+        size = bm->GetSize();
+        (m_owner->GetInterface())->I_WriteSaveData(INT_ID('B', 'S', 'I', 'Z'), &size, sizeof(size));
 
-		//Save out the raw data
-		(m_owner->GetInterface())->I_WriteSaveData( INT_ID('B','M','E','M'), bm->GetData(), size );
-	}
+        // Save out the raw data
+        (m_owner->GetInterface())->I_WriteSaveData(INT_ID('B', 'M', 'E', 'M'), bm->GetData(), size);
+    }
 
-	return true;
+    return true;
 }
 
 /*
@@ -386,9 +374,9 @@ Save
 -------------------------
 */
 
-int CSequence::Save( void )
+int CSequence::Save(void)
 {
-#if 0 //piss off, stupid function
+#if 0 // piss off, stupid function
 	sequence_l::iterator	ci;
 	block_l::iterator		bi;
 	int						id;
@@ -428,7 +416,7 @@ int CSequence::Save( void )
 
 	return true;
 #endif
-	return false;
+    return false;
 }
 
 /*
@@ -437,9 +425,9 @@ Load
 -------------------------
 */
 
-int CSequence::Load( void )
+int CSequence::Load(void)
 {
-#if 0 //piss off, stupid function
+#if 0 // piss off, stupid function
 	unsigned char	flags;
 	CSequence		*sequence;
 	CBlock			*block;
@@ -582,5 +570,5 @@ int CSequence::Load( void )
 
 	return true;
 #endif
-	return false;
+    return false;
 }

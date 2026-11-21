@@ -21,7 +21,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-
 // FIXME Not used.
 #if 0
 
@@ -32,12 +31,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 /*
 Ghoul2 Insert Start
 */
-#pragma warning (push, 3)	//go back down to 3 for the stl include
-#pragma warning (disable:4503)	// decorated name length xceeded, name was truncated
+#pragma warning(push, 3)        // go back down to 3 for the stl include
+#pragma warning(disable : 4503) // decorated name length xceeded, name was truncated
 #include <vector>
 #include <map>
-#pragma warning (pop)
-#pragma warning (disable:4503)	// decorated name length xceeded, name was truncated
+#pragma warning(pop)
+#pragma warning(disable : 4503) // decorated name length xceeded, name was truncated
 /*
 Ghoul2 Insert End
 */
@@ -184,7 +183,7 @@ public:
 	boltInfo_v		mBltlist;
 	boneInfo_v		mBlist;
 // save from here
-#define BSAVE_START_FIELD mModelindex	// this is the start point for loadsave, keep it up to date it you change anything
+#define BSAVE_START_FIELD mModelindex // this is the start point for loadsave, keep it up to date it you change anything
 	int				mModelindex;
 #ifndef __NO_JKA
 	int				animModelIndexOffset;
@@ -205,7 +204,7 @@ public:
 	int				mMeshFrameNum;
 	ghoul2Flags_t	mFlags;	// used for determining whether to do full collision detection against this object
 // to here
-#define BSAVE_END_FIELD mTransformedVertsArray	// this is the end point for loadsave, keep it up to date it you change anything
+#define BSAVE_END_FIELD mTransformedVertsArray // this is the end point for loadsave, keep it up to date it you change anything
 	int				*mTransformedVertsArray;	// used to create an array of pointers to transformed verts per surface for collision detection
 	CBoneCache		*mBoneCache;
 	int				mSkin;

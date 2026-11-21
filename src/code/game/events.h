@@ -24,10 +24,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifndef __EVENTS__
 #define __EVENTS__
 
-enum class eventType_t //# eventType_e
+enum class eventType_t // # eventType_e
 {
-	EV_BAD = 0,
+    EV_BAD = 0,
 
 };
 
-#endif	//__EVENTS__
+#endif //__EVENTS__

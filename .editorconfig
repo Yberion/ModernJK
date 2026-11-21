@@ -9,6 +9,11 @@ trim_trailing_whitespace = true
 indent_style = tab
 indent_size = 4
 
+# The C and C++ code, laid out by clang-format (.clang-format)
+[*.{c,cpp,h,hpp,inl,inc}]
+indent_style = space
+indent_size = 4
+
 [*.yml]
 indent_style = space
 indent_size = 2

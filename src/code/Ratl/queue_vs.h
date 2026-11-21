@@ -3,6 +3,7 @@
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
 Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2026, ModernJK contributors
 
 This file is part of the OpenJK source code.
 
@@ -46,195 +47,161 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #if !defined(RATL_QUEUE_VS_INC)
 #define RATL_QUEUE_VS_INC
 
-
 ////////////////////////////////////////////////////////////////////////////////////////
 // Includes
 ////////////////////////////////////////////////////////////////////////////////////////
 #if !defined(RATL_COMMON_INC)
-	#include "ratl_common.h"
+#include "ratl_common.h"
 #endif
-namespace ratl
-{
+namespace ratl {
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // The Queue Class
 ////////////////////////////////////////////////////////////////////////////////////////
-template <class T>
-class queue_base : public ratl_base
-{
+template <class T> class queue_base : public ratl_base {
 public:
     typedef T TStorageTraits;
-	typedef typename T::TValue TTValue;
+    typedef typename T::TValue TTValue;
     ////////////////////////////////////////////////////////////////////////////////////
-	// Capacity Enum
+    // Capacity Enum
     ////////////////////////////////////////////////////////////////////////////////////
-	static const int CAPACITY		= T::CAPACITY;
+    static const int CAPACITY = T::CAPACITY;
+
 private:
     ////////////////////////////////////////////////////////////////////////////////////
-	// Data
-	////////////////////////////////////////////////////////////////////////////////////
-	array_base<TStorageTraits>	mData;			// The Memory
-	int							mPush;			// Address Of Next Add Location
-	int							mPop;			// Address Of Next Remove Location
-	int							mSize;
+    // Data
+    ////////////////////////////////////////////////////////////////////////////////////
+    array_base<TStorageTraits> mData; // The Memory
+    int mPush;                        // Address Of Next Add Location
+    int mPop;                         // Address Of Next Remove Location
+    int mSize;
 
+    int push_low()
+    {
+        assert(size() < CAPACITY);
 
-	int push_low()
-	{
-		assert(size()<CAPACITY);
+        // Add It
+        //--------
+        mPush++;
+        mSize++;
 
-		// Add It
-		//--------
-		mPush++;
-		mSize++;
-
-		// Update Push Location
-		//----------------------
-		if (mPush>=CAPACITY)
-		{
-			mPush=0;
-			return CAPACITY-1;
-		}
-		return mPush-1;
-	}
-
+        // Update Push Location
+        //----------------------
+        if (mPush >= CAPACITY) {
+            mPush = 0;
+            return CAPACITY - 1;
+        }
+        return mPush - 1;
+    }
 
 public:
+    ////////////////////////////////////////////////////////////////////////////////////
+    // Constructor
+    ////////////////////////////////////////////////////////////////////////////////////
+    queue_base() : mPush(0), mPop(0), mSize(0) {}
 
     ////////////////////////////////////////////////////////////////////////////////////
-	// Constructor
+    // Get The Size (The Difference Between The Push And Pop "Pointers")
     ////////////////////////////////////////////////////////////////////////////////////
-	queue_base() : mPush(0), mPop(0), mSize(0)
-	{
-	}
+    int size() const { return mSize; }
 
     ////////////////////////////////////////////////////////////////////////////////////
-	// Get The Size (The Difference Between The Push And Pop "Pointers")
+    // Check To See If The Size Is Zero
     ////////////////////////////////////////////////////////////////////////////////////
-	int				size() const
-	{
-		return mSize;
-	}
+    bool empty() const { return !mSize; }
 
     ////////////////////////////////////////////////////////////////////////////////////
-	// Check To See If The Size Is Zero
+    // Check To See If The Size Is Full
     ////////////////////////////////////////////////////////////////////////////////////
-	bool			empty() const
-	{
-		return !mSize;
-	}
+    bool full() const { return mSize >= CAPACITY; }
 
     ////////////////////////////////////////////////////////////////////////////////////
-	// Check To See If The Size Is Full
+    // Empty Out The Entire Queue
     ////////////////////////////////////////////////////////////////////////////////////
-	bool			full() const
-	{
-		return mSize>=CAPACITY;
-	}
+    void clear()
+    {
+        mPush = 0;
+        mPop = 0;
+        mSize = 0;
+        mData.clear();
+    }
 
     ////////////////////////////////////////////////////////////////////////////////////
-	// Empty Out The Entire Queue
-	////////////////////////////////////////////////////////////////////////////////////
-	void			clear()
-	{
-		mPush = 0;
-		mPop = 0;
-		mSize = 0;
-		mData.clear();
-	}
+    // Add A Value, returns a reference to the value in place
+    ////////////////////////////////////////////////////////////////////////////////////
+    TTValue& push()
+    {
+        int idx = push_low();
+        mData.construct(idx);
+        return mData[idx];
+    }
 
     ////////////////////////////////////////////////////////////////////////////////////
-	// Add A Value, returns a reference to the value in place
+    // Add A Value to the Queue
     ////////////////////////////////////////////////////////////////////////////////////
-	TTValue &		push()
-	{
-		int idx=push_low();
-		mData.construct(idx);
-		return mData[idx];
-	}
+    void push(const TTValue& v) { mData.construct(push_low(), v); }
 
     ////////////////////////////////////////////////////////////////////////////////////
-	// Add A Value to the Queue
+    // Add A Value to the Queue, returning a void * to the memory
     ////////////////////////////////////////////////////////////////////////////////////
-	void push(const TTValue& v)
-	{
-		mData.construct(push_low(),v);
-	}
-
+    TRatlNew* push_raw() { return mData.alloc_raw(push_low()); }
     ////////////////////////////////////////////////////////////////////////////////////
-	// Add A Value to the Queue, returning a void * to the memory
+    // Remove A Value From The Queue
     ////////////////////////////////////////////////////////////////////////////////////
-	TRatlNew *push_raw()
-	{
-		return mData.alloc_raw(push_low());
-	}
-    ////////////////////////////////////////////////////////////////////////////////////
-	// Remove A Value From The Queue
-    ////////////////////////////////////////////////////////////////////////////////////
-	void			pop()
-	{
-		assert(size()>0);
+    void pop()
+    {
+        assert(size() > 0);
 
-		mData.destruct(mPop);
-		// Update Pop Location
-		//---------------------
-		mPop++;
-		if (mPop>=CAPACITY)
-		{
-			mPop=0;
-		}
+        mData.destruct(mPop);
+        // Update Pop Location
+        //---------------------
+        mPop++;
+        if (mPop >= CAPACITY) {
+            mPop = 0;
+        }
 
-		mSize--;
-	}
+        mSize--;
+    }
 
-	TTValue & top()
-	{
-		assert(size()>0);
-		return mData[mPop];
-	}
+    TTValue& top()
+    {
+        assert(size() > 0);
+        return mData[mPop];
+    }
 
-	const TTValue & top() const
-	{
-		assert(size()>0);
-		return mData[mPop];
-	}
-	template<class CAST_TO>
-	CAST_TO *verify_alloc(CAST_TO *p) const
-	{
-		return mData.verify_alloc(p);
-	}
+    const TTValue& top() const
+    {
+        assert(size() > 0);
+        return mData[mPop];
+    }
+    template <class CAST_TO> CAST_TO* verify_alloc(CAST_TO* p) const { return mData.verify_alloc(p); }
 };
 
-template<class T, int ARG_CAPACITY>
-class queue_vs : public queue_base<storage::value_semantics<T,ARG_CAPACITY> >
-{
+template <class T, int ARG_CAPACITY> class queue_vs : public queue_base<storage::value_semantics<T, ARG_CAPACITY>> {
 public:
-	typedef typename storage::value_semantics<T,ARG_CAPACITY> TStorageTraits;
-	typedef typename TStorageTraits::TValue TTValue;
-	static const int CAPACITY		= ARG_CAPACITY;
-	queue_vs() {}
+    typedef typename storage::value_semantics<T, ARG_CAPACITY> TStorageTraits;
+    typedef typename TStorageTraits::TValue TTValue;
+    static const int CAPACITY = ARG_CAPACITY;
+    queue_vs() {}
 };
 
-template<class T, int ARG_CAPACITY>
-class queue_os : public queue_base<storage::object_semantics<T,ARG_CAPACITY> >
-{
+template <class T, int ARG_CAPACITY> class queue_os : public queue_base<storage::object_semantics<T, ARG_CAPACITY>> {
 public:
-	typedef typename storage::object_semantics<T,ARG_CAPACITY> TStorageTraits;
-	typedef typename TStorageTraits::TValue TTValue;
-	static const int CAPACITY		= ARG_CAPACITY;
-	queue_os() {}
+    typedef typename storage::object_semantics<T, ARG_CAPACITY> TStorageTraits;
+    typedef typename TStorageTraits::TValue TTValue;
+    static const int CAPACITY = ARG_CAPACITY;
+    queue_os() {}
 };
 
-template<class T, int ARG_CAPACITY, int ARG_MAX_CLASS_SIZE>
-class queue_is : public queue_base<storage::virtual_semantics<T,ARG_CAPACITY,ARG_MAX_CLASS_SIZE> >
-{
+template <class T, int ARG_CAPACITY, int ARG_MAX_CLASS_SIZE>
+class queue_is : public queue_base<storage::virtual_semantics<T, ARG_CAPACITY, ARG_MAX_CLASS_SIZE>> {
 public:
-	typedef typename storage::virtual_semantics<T,ARG_CAPACITY,ARG_MAX_CLASS_SIZE> TStorageTraits;
-	typedef typename TStorageTraits::TValue TTValue;
-	static const int CAPACITY		= ARG_CAPACITY;
-	static const int MAX_CLASS_SIZE	= ARG_MAX_CLASS_SIZE;
-	queue_is() {}
+    typedef typename storage::virtual_semantics<T, ARG_CAPACITY, ARG_MAX_CLASS_SIZE> TStorageTraits;
+    typedef typename TStorageTraits::TValue TTValue;
+    static const int CAPACITY = ARG_CAPACITY;
+    static const int MAX_CLASS_SIZE = ARG_MAX_CLASS_SIZE;
+    queue_is() {}
 };
 
-}
+} // namespace ratl
 #endif

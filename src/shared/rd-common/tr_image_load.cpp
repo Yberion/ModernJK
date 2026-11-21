@@ -26,10 +26,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "rd-common/tr_common.h"
 
 const int MAX_IMAGE_LOADERS = 10;
-struct ImageLoaderMap
-{
-	const char *extension;
-	ImageLoaderFn loader;
+struct ImageLoaderMap {
+    const char* extension;
+    ImageLoaderFn loader;
 } imageLoaders[MAX_IMAGE_LOADERS];
 int numImageLoaders;
 
@@ -38,17 +37,15 @@ int numImageLoaders;
 Finds the image loader associated with the given extension.
 =================
 */
-const ImageLoaderMap *FindImageLoader ( const char *extension )
+const ImageLoaderMap* FindImageLoader(const char* extension)
 {
-	for ( int i = 0; i < numImageLoaders; i++ )
-	{
-		if ( Q_stricmp (extension, imageLoaders[i].extension) == 0 )
-		{
-			return &imageLoaders[i];
-		}
-	}
+    for (int i = 0; i < numImageLoaders; i++) {
+        if (Q_stricmp(extension, imageLoaders[i].extension) == 0) {
+            return &imageLoaders[i];
+        }
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
 /*
@@ -57,27 +54,25 @@ Adds a new image loader to load the specified image file extension.
 The 'extension' string should not begin with a period (full stop).
 =================
 */
-bool R_ImageLoader_Add ( const char *extension, ImageLoaderFn imageLoader )
+bool R_ImageLoader_Add(const char* extension, ImageLoaderFn imageLoader)
 {
-	if ( numImageLoaders >= MAX_IMAGE_LOADERS )
-	{
-		ri.Printf (printParm_t::PRINT_DEVELOPER, "R_AddImageLoader: Cannot add any more image loaders (maximum %d).\n", MAX_IMAGE_LOADERS);
-		return false;
-	}
+    if (numImageLoaders >= MAX_IMAGE_LOADERS) {
+        ri.Printf(printParm_t::PRINT_DEVELOPER, "R_AddImageLoader: Cannot add any more image loaders (maximum %d).\n", MAX_IMAGE_LOADERS);
+        return false;
+    }
 
-	if ( FindImageLoader (extension) != nullptr )
-	{
-		ri.Printf (printParm_t::PRINT_DEVELOPER, "R_AddImageLoader: Image loader already exists for extension \"%s\".\n", extension);
-		return false;
-	}
+    if (FindImageLoader(extension) != nullptr) {
+        ri.Printf(printParm_t::PRINT_DEVELOPER, "R_AddImageLoader: Image loader already exists for extension \"%s\".\n", extension);
+        return false;
+    }
 
-	ImageLoaderMap *newImageLoader = &imageLoaders[numImageLoaders];
-	newImageLoader->extension = extension;
-	newImageLoader->loader = imageLoader;
+    ImageLoaderMap* newImageLoader = &imageLoaders[numImageLoaders];
+    newImageLoader->extension = extension;
+    newImageLoader->loader = imageLoader;
 
-	numImageLoaders++;
+    numImageLoaders++;
 
-	return true;
+    return true;
 }
 
 /*
@@ -86,17 +81,16 @@ Loads an image file of any supported type: the codec tells the type from the
 file's content, so the three extensions share this loader.
 =================
 */
-static void R_LoadImageFile( const char *name, byte **pic, int *width, int *height )
+static void R_LoadImageFile(const char* name, byte** pic, int* width, int* height)
 {
-	byte *file = nullptr;
-	const int length = ri.FS_ReadFile( name, (void **)&file );
-	if ( length < 0 || !file )
-	{
-		return;
-	}
+    byte* file = nullptr;
+    const int length = ri.FS_ReadFile(name, (void**)&file);
+    if (length < 0 || !file) {
+        return;
+    }
 
-	*pic = R_DecodeImage( name, file, length, width, height );
-	ri.FS_FreeFile( file );
+    *pic = R_DecodeImage(name, file, length, width, height);
+    ri.FS_FreeFile(file);
 }
 
 /*
@@ -107,12 +101,12 @@ image loaders
 */
 void R_ImageLoader_Init()
 {
-	Com_Memset (imageLoaders, 0, sizeof (imageLoaders));
-	numImageLoaders = 0;
+    Com_Memset(imageLoaders, 0, sizeof(imageLoaders));
+    numImageLoaders = 0;
 
-	R_ImageLoader_Add ("jpg", R_LoadImageFile);
-	R_ImageLoader_Add ("png", R_LoadImageFile);
-	R_ImageLoader_Add ("tga", R_LoadImageFile);
+    R_ImageLoader_Add("jpg", R_LoadImageFile);
+    R_ImageLoader_Add("png", R_LoadImageFile);
+    R_ImageLoader_Add("tga", R_LoadImageFile);
 }
 
 /*
@@ -121,40 +115,36 @@ Loads any of the supported image types into a cannonical
 32 bit format.
 =================
 */
-void R_LoadImage( const char *shortname, byte **pic, int *width, int *height ) {
-	*pic = nullptr;
-	*width = 0;
-	*height = 0;
+void R_LoadImage(const char* shortname, byte** pic, int* width, int* height)
+{
+    *pic = nullptr;
+    *width = 0;
+    *height = 0;
 
-	// Try loading the image with the original extension (if possible).
-	const char *extension = COM_GetExtension (shortname);
-	const ImageLoaderMap *imageLoader = FindImageLoader (extension);
-	if ( imageLoader != nullptr )
-	{
-		imageLoader->loader (shortname, pic, width, height);
-		if ( *pic )
-		{
-			return;
-		}
-	}
+    // Try loading the image with the original extension (if possible).
+    const char* extension = COM_GetExtension(shortname);
+    const ImageLoaderMap* imageLoader = FindImageLoader(extension);
+    if (imageLoader != nullptr) {
+        imageLoader->loader(shortname, pic, width, height);
+        if (*pic) {
+            return;
+        }
+    }
 
-	// Loop through all the image loaders trying to load this image.
-	char extensionlessName[MAX_QPATH];
-	COM_StripExtension(shortname, extensionlessName, sizeof( extensionlessName ));
-	for ( int i = 0; i < numImageLoaders; i++ )
-	{
-		const ImageLoaderMap *tryLoader = &imageLoaders[i];
-		if ( tryLoader == imageLoader )
-		{
-			// Already tried this one.
-			continue;
-		}
+    // Loop through all the image loaders trying to load this image.
+    char extensionlessName[MAX_QPATH];
+    COM_StripExtension(shortname, extensionlessName, sizeof(extensionlessName));
+    for (int i = 0; i < numImageLoaders; i++) {
+        const ImageLoaderMap* tryLoader = &imageLoaders[i];
+        if (tryLoader == imageLoader) {
+            // Already tried this one.
+            continue;
+        }
 
-		const char *name = va ("%s.%s", extensionlessName, tryLoader->extension);
-		tryLoader->loader (name, pic, width, height);
-		if ( *pic )
-		{
-			return;
-		}
-	}
+        const char* name = va("%s.%s", extensionlessName, tryLoader->extension);
+        tryLoader->loader(name, pic, width, height);
+        if (*pic) {
+            return;
+        }
+    }
 }

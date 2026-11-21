@@ -21,17 +21,17 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-void		UIVM_Init				( bool inGameLoad );
-void		UIVM_Shutdown			( void );
-void		UIVM_KeyEvent			( int key, bool down );
-enum class fakeAscii_t;		// ui/keycodes.h
-void		UIVM_KeyEvent			( fakeAscii_t key, bool down );
-void		UIVM_MouseEvent			( int dx, int dy );
-void		UIVM_Refresh			( int realtime );
-bool	UIVM_IsFullscreen		( void );
-void		UIVM_SetActiveMenu		( uiMenuCommand_t menu );
-bool	UIVM_ConsoleCommand		( int realTime );
-void		UIVM_DrawConnectScreen	( bool overlay );
+void UIVM_Init(bool inGameLoad);
+void UIVM_Shutdown(void);
+void UIVM_KeyEvent(int key, bool down);
+enum class fakeAscii_t; // ui/keycodes.h
+void UIVM_KeyEvent(fakeAscii_t key, bool down);
+void UIVM_MouseEvent(int dx, int dy);
+void UIVM_Refresh(int realtime);
+bool UIVM_IsFullscreen(void);
+void UIVM_SetActiveMenu(uiMenuCommand_t menu);
+bool UIVM_ConsoleCommand(int realTime);
+void UIVM_DrawConnectScreen(bool overlay);
 
-void CL_BindUI( void );
-void CL_UnbindUI( void );
+void CL_BindUI(void);
+void CL_UnbindUI(void);

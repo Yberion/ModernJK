@@ -4,6 +4,7 @@ Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
 Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2026, ModernJK contributors
 
 This file is part of the OpenJK source code.
 
@@ -36,10 +37,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#define Vector2Angles(v,a)		vectoangles(v,a)
+#define Vector2Angles(v, a) vectoangles(v, a)
 #ifdef MAX_PATH
-	#undef MAX_PATH
+#undef MAX_PATH
 #endif
-#define MAX_PATH				MAX_QPATH
-#define Maximum(x,y)			(x > y ? x : y)
-#define Minimum(x,y)			(x < y ? x : y)
+#define MAX_PATH MAX_QPATH
+#define Maximum(x, y) (x > y ? x : y)
+#define Minimum(x, y) (x < y ? x : y)

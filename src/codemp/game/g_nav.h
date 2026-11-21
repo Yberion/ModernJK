@@ -23,14 +23,15 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-//This file is shared by the exe nav code.
-//If you modify it without recompiling the exe with new code, there could be issues.
+// This file is shared by the exe nav code.
+// If you modify it without recompiling the exe with new code, there could be issues.
 
 inline constexpr int WAYPOINT_NONE = -1;
 
 inline constexpr int MAX_STORED_WAYPOINTS = 512; //???
 inline constexpr int MAX_COLL_AVOID_DIST = 128;
-inline constexpr int NAVGOAL_USE_RADIUS = 16384;	//Used to force the waypoint_navgoals with a manually set radius to actually do a DistanceSquared check, not just bounds overlap
+inline constexpr int NAVGOAL_USE_RADIUS =
+    16384; // Used to force the waypoint_navgoals with a manually set radius to actually do a DistanceSquared check, not just bounds overlap
 
 inline constexpr int MIN_STOP_DIST = 64;
 inline constexpr int MIN_BLOCKED_SPEECH_TIME = 4000;
@@ -41,45 +42,44 @@ inline constexpr int SHOVE_LIFT = 10;
 inline constexpr int MAX_RADIUS_CHECK = 1024;
 inline constexpr int YAW_ITERATIONS = 16;
 
-
 // Engine has its own copy of these (navigator.h)
 
 #ifdef _GAME
-	//rww - Rest of defines here are also shared in exe, do not modify.
-	#define	__NEWCOLLECT	1
+// rww - Rest of defines here are also shared in exe, do not modify.
+#define __NEWCOLLECT 1
 
-	#define _HARD_CONNECT	1
+#define _HARD_CONNECT 1
 
-	//Node flags: navNodeFlags_t, in g_public.h
+// Node flags: navNodeFlags_t, in g_public.h
 
-	//Miscellaneous defines
-	inline constexpr int NODE_NONE = -1;
+// Miscellaneous defines
+inline constexpr int NODE_NONE = -1;
 
-	//this stuff is local and can be modified, don't even show it to the engine.
-	extern	bool navCalculatePaths;
+// this stuff is local and can be modified, don't even show it to the engine.
+extern bool navCalculatePaths;
 
-	extern	bool NAVDEBUG_showNodes;
-	extern	bool NAVDEBUG_showRadius;
-	extern	bool NAVDEBUG_showEdges;
-	extern	bool NAVDEBUG_showTestPath;
-	extern	bool NAVDEBUG_showEnemyPath;
-	extern	bool NAVDEBUG_showCombatPoints;
-	extern	bool NAVDEBUG_showNavGoals;
-	extern	bool NAVDEBUG_showCollision;
+extern bool NAVDEBUG_showNodes;
+extern bool NAVDEBUG_showRadius;
+extern bool NAVDEBUG_showEdges;
+extern bool NAVDEBUG_showTestPath;
+extern bool NAVDEBUG_showEnemyPath;
+extern bool NAVDEBUG_showCombatPoints;
+extern bool NAVDEBUG_showNavGoals;
+extern bool NAVDEBUG_showCollision;
 
-	extern	int	 NAVDEBUG_curGoal;
+extern int NAVDEBUG_curGoal;
 
-	void NAV_Shutdown( void );
-	void NAV_CalculatePaths( const char *filename, int checksum );
-	void NAV_CalculateSquadPaths( const char *filename, int checksum );
+void NAV_Shutdown(void);
+void NAV_CalculatePaths(const char* filename, int checksum);
+void NAV_CalculateSquadPaths(const char* filename, int checksum);
 
-	void NAV_ShowDebugInfo( void );
+void NAV_ShowDebugInfo(void);
 
-	int NAV_GetNearestNode( gentity_t *self, int lastNode );
-	extern int NAV_TestBestNode( gentity_t *self, int startID, int endID, bool failEdge );
+int NAV_GetNearestNode(gentity_t* self, int lastNode);
+extern int NAV_TestBestNode(gentity_t* self, int startID, int endID, bool failEdge);
 
-	bool NPC_GetMoveDirection( vec3_t out, float *distance );
-	void NPC_MoveToGoalExt( vec3_t point );
-	void NAV_FindPlayerWaypoint( int clNum );
-	bool NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t *trace, contentsFlags_t clipmask );
+bool NPC_GetMoveDirection(vec3_t out, float* distance);
+void NPC_MoveToGoalExt(vec3_t point);
+void NAV_FindPlayerWaypoint(int clNum);
+bool NAV_CheckAhead(gentity_t* self, vec3_t end, trace_t* trace, contentsFlags_t clipmask);
 #endif

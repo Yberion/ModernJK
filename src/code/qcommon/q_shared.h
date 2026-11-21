@@ -36,39 +36,40 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #ifdef _MSC_VER
 
-#pragma warning(disable : 4018)     // signed/unsigned mismatch
-//#pragma warning(disable : 4032)		//formal parameter 'number' has different type when promoted
-//#pragma warning(disable : 4051)		//type conversion; possible loss of data
-//#pragma warning(disable : 4057)		// slightly different base types
-#pragma warning(disable : 4100)		// unreferenced formal parameter
-//#pragma warning(disable : 4115)		//'type' : named type definition in parentheses
-#pragma warning(disable : 4125)		// decimal digit terminates octal escape sequence
-#pragma warning(disable : 4127)		// conditional expression is constant
-//#pragma warning(disable : 4136)		//conversion between different floating-point types
-//#pragma warning(disable : 4201)		//nonstandard extension used : nameless struct/union
-//#pragma warning(disable : 4214)		//nonstandard extension used : bit field types other than int
-//#pragma warning(disable : 4220)		// varargs matches remaining parameters
-#pragma warning(disable : 4244)		//'conversion' conversion from 'type1' to 'type2', possible loss of data
-#pragma warning(disable : 4284)		// return type not UDT
-//#pragma warning(disable : 4305)		// truncation from const double to float
-#pragma warning(disable : 4310)		// cast truncates constant value
-#pragma warning(disable : 4514)		//unreferenced inline/local function has been removed
-#pragma warning(disable : 4710)		// not inlined
-#pragma warning(disable : 4711)		// selected for automatic inline expansion
-#pragma warning(disable : 4786)		// identifier was truncated
-#pragma warning(disable : 5208)		// unnamed class used in typedef name cannot declare members other than non-static data members, member enumerations, or member classes
+#pragma warning(disable : 4018) // signed/unsigned mismatch
+// #pragma warning(disable : 4032)		//formal parameter 'number' has different type when promoted
+// #pragma warning(disable : 4051)		//type conversion; possible loss of data
+// #pragma warning(disable : 4057)		// slightly different base types
+#pragma warning(disable : 4100) // unreferenced formal parameter
+// #pragma warning(disable : 4115)		//'type' : named type definition in parentheses
+#pragma warning(disable : 4125) // decimal digit terminates octal escape sequence
+#pragma warning(disable : 4127) // conditional expression is constant
+// #pragma warning(disable : 4136)		//conversion between different floating-point types
+// #pragma warning(disable : 4201)		//nonstandard extension used : nameless struct/union
+// #pragma warning(disable : 4214)		//nonstandard extension used : bit field types other than int
+// #pragma warning(disable : 4220)		// varargs matches remaining parameters
+#pragma warning(disable : 4244) //'conversion' conversion from 'type1' to 'type2', possible loss of data
+#pragma warning(disable : 4284) // return type not UDT
+// #pragma warning(disable : 4305)		// truncation from const double to float
+#pragma warning(disable : 4310) // cast truncates constant value
+#pragma warning(disable : 4514) // unreferenced inline/local function has been removed
+#pragma warning(disable : 4710) // not inlined
+#pragma warning(disable : 4711) // selected for automatic inline expansion
+#pragma warning(disable : 4786) // identifier was truncated
+#pragma warning(                                                                                                                                               \
+    disable : 5208) // unnamed class used in typedef name cannot declare members other than non-static data members, member enumerations, or member classes
 
-#pragma warning(disable : 4996)		// This function or variable may be unsafe.
+#pragma warning(disable : 4996) // This function or variable may be unsafe.
 
 #endif
 
-//rww - conveniently toggle "gore" code, for model decals and stuff.
+// rww - conveniently toggle "gore" code, for model decals and stuff.
 #ifndef JK2_MODE
 #define _G2_GORE
 #endif // !JK2_MODE
 
 #if JK2_MODE
-#define PRODUCT_NAME			"openjo_sp"
+#define PRODUCT_NAME "openjo_sp"
 
 #define CLIENT_WINDOW_TITLE "OpenJO (SP)"
 #define CLIENT_CONSOLE_TITLE "OpenJO Console (SP)"
@@ -76,7 +77,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define HOMEPATH_NAME_WIN "OpenJO"
 #define HOMEPATH_NAME_MACOSX HOMEPATH_NAME_WIN
 #else
-#define PRODUCT_NAME			"modernjk_sp"
+#define PRODUCT_NAME "modernjk_sp"
 
 #define CLIENT_WINDOW_TITLE "ModernJK (SP)"
 #define CLIENT_CONSOLE_TITLE "ModernJK Console (SP)"
@@ -85,19 +86,19 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define HOMEPATH_NAME_MACOSX HOMEPATH_NAME_WIN
 #endif
 
-#define	BASEGAME "base"
+#define BASEGAME "base"
 #define MODERNJKGAME "ModernJK"
 
 #define Q3CONFIG_NAME PRODUCT_NAME ".cfg"
 
 #define BASE_SAVE_COMPAT // this is defined to disable/fix some changes that break save compatibility
 
-#define VALIDSTRING( a )	( ( a != nullptr ) && ( a[0] != '\0' ) )
+#define VALIDSTRING(a) ((a != nullptr) && (a[0] != '\0'))
 
-//JAC: Added
-#define ARRAY_LEN( x ) ( sizeof( x ) / sizeof( *(x) ) )
-#define STRING( a ) #a
-#define XSTRING( a ) STRING( a )
+// JAC: Added
+#define ARRAY_LEN(x) (sizeof(x) / sizeof(*(x)))
+#define STRING(a) #a
+#define XSTRING(a) STRING(a)
 
 #ifndef FINAL_BUILD
 #ifdef _WIN32
@@ -122,29 +123,27 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 #endif
 
-
-//Ignore __attribute__ on non-gcc platforms
+// Ignore __attribute__ on non-gcc platforms
 #if !defined(__GNUC__) && !defined(__attribute__)
-	#define __attribute__(x)
+#define __attribute__(x)
 #endif
 
 #if defined(__GNUC__)
-	#define UNUSED_VAR __attribute__((unused))
+#define UNUSED_VAR __attribute__((unused))
 #else
-	#define UNUSED_VAR
+#define UNUSED_VAR
 #endif
 
 #if (defined _MSC_VER)
-	#define Q_EXPORT __declspec(dllexport)
+#define Q_EXPORT __declspec(dllexport)
 #elif (__GNUC__ >= 3)
-	#define Q_EXPORT __attribute__((visibility("default")))
+#define Q_EXPORT __attribute__((visibility("default")))
 #else
-	#define Q_EXPORT
+#define Q_EXPORT
 #endif
 
 #include "qcommon/q_platform.h"
 #include "ojk_saved_game_helper_fwd.h"
-
 
 // ================================================================
 // TYPE DEFINITIONS
@@ -159,10 +158,10 @@ inline constexpr qhandle_t NULL_HANDLE = 0;
 #define NULL_FILE ((fileHandle_t)0)
 #define NULL_CLIP ((clipHandle_t)0)
 
-#define PAD(base, alignment)	(((base)+(alignment)-1) & ~((alignment)-1))
-#define PADLEN(base, alignment)	(PAD((base), (alignment)) - (base))
+#define PAD(base, alignment) (((base) + (alignment) - 1) & ~((alignment) - 1))
+#define PADLEN(base, alignment) (PAD((base), (alignment)) - (base))
 
-#define PADP(base, alignment)	((void *) PAD((intptr_t) (base), (alignment)))
+#define PADP(base, alignment) ((void*)PAD((intptr_t)(base), (alignment)))
 
 #ifdef __GNUC__
 #define QALIGN(x) __attribute__((aligned(x)))
@@ -170,31 +169,28 @@ inline constexpr qhandle_t NULL_HANDLE = 0;
 #define QALIGN(x)
 #endif
 
-#define INT_ID( a, b, c, d ) (uint32_t)((((a) & 0xff) << 24) | (((b) & 0xff) << 16) | (((c) & 0xff) << 8) | ((d) & 0xff))
+#define INT_ID(a, b, c, d) (uint32_t)((((a) & 0xff) << 24) | (((b) & 0xff) << 16) | (((c) & 0xff) << 8) | ((d) & 0xff))
 
 // the game guarantees that no string from the network will ever
 // exceed MAX_STRING_CHARS
 #include "qcommon/q_limits.h"
 
-
-
-inline constexpr int MAX_QPATH = 64;		// max length of a quake game pathname
+inline constexpr int MAX_QPATH = 64; // max length of a quake game pathname
 #ifdef PATH_MAX
-#define MAX_OSPATH			PATH_MAX
+#define MAX_OSPATH PATH_MAX
 #else
-inline constexpr int MAX_OSPATH = 256;		// max length of a filesystem pathname
+inline constexpr int MAX_OSPATH = 256; // max length of a filesystem pathname
 #endif
 
-#define	MAX_NAME_LENGTH		32		// max length of a client name
+#define MAX_NAME_LENGTH 32 // max length of a client name
 
 // paramters for command buffer stuffing
 enum class cbufExec_t {
-	EXEC_NOW,			// don't return until completed, a VM should NEVER use this,
-						// because some commands might cause the VM to be unloaded...
-	EXEC_INSERT,		// insert at current position, but don't run yet
-	EXEC_APPEND			// add to end of the command buffer (normal case)
+    EXEC_NOW,    // don't return until completed, a VM should NEVER use this,
+                 // because some commands might cause the VM to be unloaded...
+    EXEC_INSERT, // insert at current position, but don't run yet
+    EXEC_APPEND  // add to end of the command buffer (normal case)
 };
-
 
 //
 // these aren't needed by any of the VMs.  put in another header?
@@ -206,149 +202,126 @@ inline constexpr int MAX_LIGHT_STYLES = 64;
 
 // print levels from renderer (FIXME: set up for game / cgame?)
 enum class printParm_t {
-	PRINT_ALL,
-	PRINT_DEVELOPER,		// only print when "developer 1"
-	PRINT_WARNING,
-	PRINT_ERROR
+    PRINT_ALL,
+    PRINT_DEVELOPER, // only print when "developer 1"
+    PRINT_WARNING,
+    PRINT_ERROR
 };
 
 // parameters to the main Error routine
 enum class errorParm_t {
-	ERR_FATAL,					// exit the entire game with a popup window
-	ERR_DROP,					// print to console and disconnect from game
-	ERR_DISCONNECT,				// don't kill server
+    ERR_FATAL,      // exit the entire game with a popup window
+    ERR_DROP,       // print to console and disconnect from game
+    ERR_DISCONNECT, // don't kill server
 };
 
 // font rendering values used by ui and cgame
 
-
-
-
-
 inline constexpr int BLINK_DIVISOR = 600;
-
 
 #define Com_Memset memset
 #define Com_Memcpy memcpy
 
 #include "qcommon/q_clientflags.h"
 
-
 // all drawing is done to a 640*480 virtual screen size
 // and will be automatically scaled to the real resolution
 
-
-
-
-
-
 // Player weapons effects
-enum class saber_colors_t
-{
-	SABER_RED,
-	SABER_ORANGE,
-	SABER_YELLOW,
-	SABER_GREEN,
-	SABER_BLUE,
-	SABER_PURPLE
+enum class saber_colors_t {
+    SABER_RED,
+    SABER_ORANGE,
+    SABER_YELLOW,
+    SABER_GREEN,
+    SABER_BLUE,
+    SABER_PURPLE
 
 };
 
 enum class saberBlockType_t {
-	BLK_NO,
-	BLK_TIGHT,		// Block only attacks and shots around the saber itself, a bbox of around 12x12x12
-	BLK_WIDE		// Block all attacks in an area around the player in a rough arc of 180 degrees
+    BLK_NO,
+    BLK_TIGHT, // Block only attacks and shots around the saber itself, a bbox of around 12x12x12
+    BLK_WIDE   // Block all attacks in an area around the player in a rough arc of 180 degrees
 };
 
 inline constexpr int MAX_BATTERIES = 2500;
 
-#define ENUM2STRING(type, arg)   { #arg, to_underlying( type::arg ) }
+#define ENUM2STRING(type, arg) {#arg, to_underlying(type::arg)}
 
 //=============================================
 
-char	*COM_SkipPath( char *pathname );
-const char	*COM_GetExtension( const char *name );
-void	COM_StripExtension( const char *in, char *out, int destsize );
-bool COM_CompareExtension(const char *in, const char *ext);
-void	COM_DefaultExtension( char *path, int maxSize, const char *extension );
+char* COM_SkipPath(char* pathname);
+const char* COM_GetExtension(const char* name);
+void COM_StripExtension(const char* in, char* out, int destsize);
+bool COM_CompareExtension(const char* in, const char* ext);
+void COM_DefaultExtension(char* path, int maxSize, const char* extension);
 
-//JLFCALLOUT include MPNOTUSED
-void	 COM_BeginParseSession( void );
-void	 COM_EndParseSession( void );
+// JLFCALLOUT include MPNOTUSED
+void COM_BeginParseSession(void);
+void COM_EndParseSession(void);
 
 // For compatibility with shared code
-QINLINE void COM_BeginParseSession( const char *sessionName )
+QINLINE void COM_BeginParseSession(const char* sessionName)
 {
-	COM_BeginParseSession();
+    COM_BeginParseSession();
 }
 
 class COM_ParseSession {
 public:
-	COM_ParseSession() { COM_BeginParseSession(); };
-	~COM_ParseSession() { COM_EndParseSession(); };
+    COM_ParseSession() { COM_BeginParseSession(); };
+    ~COM_ParseSession() { COM_EndParseSession(); };
 };
 
-int		 COM_GetCurrentParseLine( void );
-char	*COM_Parse( const char **data_p );
-char	*COM_ParseExt( const char **data_p, bool allowLineBreak );
-int		 COM_Compress( char *data_p );
-bool COM_ParseString( const char **data, const char **s );
-bool COM_ParseInt( const char **data, int *i );
-bool COM_ParseFloat( const char **data, float *f );
-bool COM_ParseVec4( const char **buffer, vec4_t *c);
+int COM_GetCurrentParseLine(void);
+char* COM_Parse(const char** data_p);
+char* COM_ParseExt(const char** data_p, bool allowLineBreak);
+int COM_Compress(char* data_p);
+bool COM_ParseString(const char** data, const char** s);
+bool COM_ParseInt(const char** data, int* i);
+bool COM_ParseFloat(const char** data, float* f);
+bool COM_ParseVec4(const char** buffer, vec4_t* c);
 
 // data is an in/out parm, returns a parsed out token
 
-void	COM_MatchToken( char**buf_p, char *match );
+void COM_MatchToken(char** buf_p, char* match);
 
-void SkipBracedSection (const char **program);
-void SkipRestOfLine ( const char **data );
+void SkipBracedSection(const char** program);
+void SkipRestOfLine(const char** data);
 
-void Parse1DMatrix (const char **buf_p, int x, float *m);
-void Parse2DMatrix (const char **buf_p, int y, int x, float *m);
-void Parse3DMatrix (const char **buf_p, int z, int y, int x, float *m);
-int Com_HexStrToInt( const char *str );
+void Parse1DMatrix(const char** buf_p, int x, float* m);
+void Parse2DMatrix(const char** buf_p, int y, int x, float* m);
+void Parse3DMatrix(const char** buf_p, int z, int y, int x, float* m);
+int Com_HexStrToInt(const char* str);
 
-int	QDECL Com_sprintf (char *dest, int size, const char *fmt, ...) __attribute__ ((format (printf, 3, 4)));
+int QDECL Com_sprintf(char* dest, int size, const char* fmt, ...) __attribute__((format(printf, 3, 4)));
 
-char *Com_SkipTokens( char *s, int numTokens, const char *sep );
-char *Com_SkipCharset( char *s, const char *sep );
-
+char* Com_SkipTokens(char* s, int numTokens, const char* sep);
+char* Com_SkipCharset(char* s, const char* sep);
 
 // mode parm for FS_FOpenFile
-enum class fsMode_t {
-	FS_READ,
-	FS_WRITE,
-	FS_APPEND,
-	FS_APPEND_SYNC
-};
+enum class fsMode_t { FS_READ, FS_WRITE, FS_APPEND, FS_APPEND_SYNC };
 
-enum class fsOrigin_t {
-	FS_SEEK_CUR,
-	FS_SEEK_END,
-	FS_SEEK_SET
-};
+enum class fsOrigin_t { FS_SEEK_CUR, FS_SEEK_END, FS_SEEK_SET };
 
 //=============================================
-char	* QDECL va(const char *format, ...) __attribute__ ((format (printf, 1, 2)));
+char* QDECL va(const char* format, ...) __attribute__((format(printf, 1, 2)));
 
-void Com_TruncateLongString( char *buffer, const char *s );
+void Com_TruncateLongString(char* buffer, const char* s);
 
 //=============================================
 
 //
 // key / value info strings
 //
-const char *Info_ValueForKey( const char *s, const char *key );
-void Info_RemoveKey( char *s, const char *key );
-void Info_SetValueForKey( char *s, const char *key, const char *value );
-bool Info_Validate( const char *s );
-void Info_NextPair( const char **s, char key[MAX_INFO_KEY], char value[MAX_INFO_VALUE] );
+const char* Info_ValueForKey(const char* s, const char* key);
+void Info_RemoveKey(char* s, const char* key);
+void Info_SetValueForKey(char* s, const char* key, const char* value);
+bool Info_Validate(const char* s);
+void Info_NextPair(const char** s, char key[MAX_INFO_KEY], char value[MAX_INFO_VALUE]);
 
 // this is only here so the functions in q_shared.cpp and bg_*.c can link
-void	NORETURN QDECL Com_Error( errorParm_t level, const char *error, ... ) __attribute__ ((format (printf, 2, 3)));
-void	QDECL Com_Printf( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
-
+void NORETURN QDECL Com_Error(errorParm_t level, const char* error, ...) __attribute__((format(printf, 2, 3)));
+void QDECL Com_Printf(const char* msg, ...) __attribute__((format(printf, 1, 2)));
 
 /*
 ==========================================================
@@ -361,73 +334,71 @@ default values.
 ==========================================================
 */
 
-enum class cvarFlags_t
-{
-	CVAR_NONE			= 0,	// no flag, the name the multiplayer engine gives it (for the code both engines share)
-	CVAR_TEMP			= 0,	// can be set even when cheats are disabled, but is not archived
-	CVAR_ARCHIVE		= 1,	// set to cause it to be saved to vars.rc
-								// used for system variables, not for player
-								// specific configurations
-	CVAR_USERINFO		= 2,	// sent to server on connect or change
-	CVAR_SERVERINFO		= 4,	// sent in response to front end requests
-	CVAR_SYSTEMINFO		= 8,	// these cvars will be duplicated on all clients
-	CVAR_INIT			= 16,	// don't allow change from console at all,
-								// but can be set from the command line
-	CVAR_LATCH			= 32,	// will only change when C code next does
-								// a Cvar_Get(), so it can't be changed
-								// without proper initialization.  modified
-								// will be set, even though the value hasn't
-								// changed yet
-	CVAR_ROM			= 64,	// display only, cannot be set by user at all
-	CVAR_USER_CREATED	= 128,	// created by a set command
-	CVAR_SAVEGAME		= 256,	// store this in the savegame
-	CVAR_CHEAT			= 512,	// can not be changed if cheats are disabled
-	CVAR_NORESTART		= 1024,	// do not clear when a cvar_restart is issued
+enum class cvarFlags_t {
+    CVAR_NONE = 0,           // no flag, the name the multiplayer engine gives it (for the code both engines share)
+    CVAR_TEMP = 0,           // can be set even when cheats are disabled, but is not archived
+    CVAR_ARCHIVE = 1,        // set to cause it to be saved to vars.rc
+                             // used for system variables, not for player
+                             // specific configurations
+    CVAR_USERINFO = 2,       // sent to server on connect or change
+    CVAR_SERVERINFO = 4,     // sent in response to front end requests
+    CVAR_SYSTEMINFO = 8,     // these cvars will be duplicated on all clients
+    CVAR_INIT = 16,          // don't allow change from console at all,
+                             // but can be set from the command line
+    CVAR_LATCH = 32,         // will only change when C code next does
+                             // a Cvar_Get(), so it can't be changed
+                             // without proper initialization.  modified
+                             // will be set, even though the value hasn't
+                             // changed yet
+    CVAR_ROM = 64,           // display only, cannot be set by user at all
+    CVAR_USER_CREATED = 128, // created by a set command
+    CVAR_SAVEGAME = 256,     // store this in the savegame
+    CVAR_CHEAT = 512,        // can not be changed if cheats are disabled
+    CVAR_NORESTART = 1024,   // do not clear when a cvar_restart is issued
 
-	CVAR_SERVER_CREATED	= 2048,	// cvar was created by a server the client connected to.
-	CVAR_VM_CREATED		= 4096,	// cvar was created exclusively in one of the VMs.
-	CVAR_PROTECTED		= 8192,	// prevent modifying this var from VMs or the server
-	CVAR_NODEFAULT		= 16384,	// do not write to config if matching with default value
+    CVAR_SERVER_CREATED = 2048, // cvar was created by a server the client connected to.
+    CVAR_VM_CREATED = 4096,     // cvar was created exclusively in one of the VMs.
+    CVAR_PROTECTED = 8192,      // prevent modifying this var from VMs or the server
+    CVAR_NODEFAULT = 16384,     // do not write to config if matching with default value
 
-	CVAR_ARCHIVE_ND		= CVAR_ARCHIVE | CVAR_NODEFAULT,
-	// These flags are only returned by the Cvar_Flags() function
-	CVAR_MODIFIED		= 0x40000000,		// Cvar was modified
+    CVAR_ARCHIVE_ND = CVAR_ARCHIVE | CVAR_NODEFAULT,
+    // These flags are only returned by the Cvar_Flags() function
+    CVAR_MODIFIED = 0x40000000, // Cvar was modified
 };
 template <> inline constexpr bool enableEnumFlags<cvarFlags_t> = true;
 
 // nothing outside the Cvar_*() functions should modify these fields!
 typedef struct cvar_s {
-	char		*name;
-	char		*string;
-	char		*resetString;		// cvar_restart will reset to this value
-	char		*latchedString;		// for CVAR_LATCH vars
-	cvarFlags_t	flags;
-	bool	modified;			// set each time the cvar is changed
-	int			modificationCount;	// incremented each time the cvar is changed
-	float		value;				// atof( string )
-	int			integer;			// atoi( string )
-	bool	validate;
-	bool	integral;
-	float		min;
-	float		max;
-	struct cvar_s *next;
-	struct cvar_s *prev;
-	struct cvar_s *hashNext;
-	struct cvar_s *hashPrev;
-	int			hashIndex;
+    char* name;
+    char* string;
+    char* resetString;   // cvar_restart will reset to this value
+    char* latchedString; // for CVAR_LATCH vars
+    cvarFlags_t flags;
+    bool modified;         // set each time the cvar is changed
+    int modificationCount; // incremented each time the cvar is changed
+    float value;           // atof( string )
+    int integer;           // atoi( string )
+    bool validate;
+    bool integral;
+    float min;
+    float max;
+    struct cvar_s* next;
+    struct cvar_s* prev;
+    struct cvar_s* hashNext;
+    struct cvar_s* hashPrev;
+    int hashIndex;
 } cvar_t;
 
-
-typedef int	cvarHandle_t;
+typedef int cvarHandle_t;
 
 // the modules that run in the virtual machine can't access the cvar_t directly,
 // so they must ask for structured updates
 typedef struct {
-	cvarHandle_t	handle;
-	int			modificationCount;
-	float		value;
-	int			integer;
-	char		string[MAX_CVAR_VALUE_STRING];
+    cvarHandle_t handle;
+    int modificationCount;
+    float value;
+    int integer;
+    char string[MAX_CVAR_VALUE_STRING];
 } vmCvar_t;
 
 /*
@@ -438,14 +409,14 @@ COLLISION DETECTION
 ==============================================================
 */
 
-#include "../game/surfaceflags.h"			// shared with the q3map utility
+#include "../game/surfaceflags.h" // shared with the q3map utility
 
 /*
 Ghoul2 Insert Start
 */
 
 #if !defined(GHOUL2_SHARED_H_INC)
-	#include "../game/ghoul2_shared.h"	//for CGhoul2Info_v
+#include "../game/ghoul2_shared.h" //for CGhoul2Info_v
 #endif
 
 /*
@@ -454,82 +425,73 @@ Ghoul2 Insert End
 
 // a trace is returned when a box is swept through the world
 typedef struct trace_s {
-	bool	allsolid;	// if true, plane is not valid
-	bool	startsolid;	// if true, the initial point was in a solid area
-	float		fraction;	// time completed, 1.0 = didn't hit anything
-	vec3_t		endpos;		// final position
-	cplane_t	plane;		// surface normal at impact, transformed to world space
-	surfaceFlags_t	surfaceFlags;	// surface hit
-	contentsFlags_t	contents;	// contents on other side of surface hit
-	int			entityNum;	// entity the contacted sirface is a part of
-/*
-Ghoul2 Insert Start
-*/
-	CCollisionRecord G2CollisionMap[MAX_G2_COLLISIONS];	// map that describes all of the parts of ghoul2 models that got hit
-/*
-Ghoul2 Insert End
-*/
+    bool allsolid;                                      // if true, plane is not valid
+    bool startsolid;                                    // if true, the initial point was in a solid area
+    float fraction;                                     // time completed, 1.0 = didn't hit anything
+    vec3_t endpos;                                      // final position
+    cplane_t plane;                                     // surface normal at impact, transformed to world space
+    surfaceFlags_t surfaceFlags;                        // surface hit
+    contentsFlags_t contents;                           // contents on other side of surface hit
+    int entityNum;                                      // entity the contacted sirface is a part of
+                                                        /*
+                                                        Ghoul2 Insert Start
+                                                        */
+    CCollisionRecord G2CollisionMap[MAX_G2_COLLISIONS]; // map that describes all of the parts of ghoul2 models that got hit
+                                                        /*
+                                                        Ghoul2 Insert End
+                                                        */
 
+    void sg_export(ojk::SavedGameHelper& saved_game) const
+    {
+        saved_game.write<int8_t>(allsolid);
+        saved_game.write<int8_t>(startsolid);
+        saved_game.write<float>(fraction);
+        saved_game.write<float>(endpos);
+        saved_game.write<>(plane);
+        saved_game.write<int8_t>(surfaceFlags);
+        saved_game.write<int8_t>(contents);
+        saved_game.write<int8_t>(entityNum);
+        saved_game.write<>(G2CollisionMap);
+    }
 
-	void sg_export(
-		ojk::SavedGameHelper& saved_game) const
-	{
-		saved_game.write<int8_t>(allsolid);
-		saved_game.write<int8_t>(startsolid);
-		saved_game.write<float>(fraction);
-		saved_game.write<float>(endpos);
-		saved_game.write<>(plane);
-		saved_game.write<int8_t>(surfaceFlags);
-		saved_game.write<int8_t>(contents);
-		saved_game.write<int8_t>(entityNum);
-		saved_game.write<>(G2CollisionMap);
-	}
-
-	void sg_import(
-		ojk::SavedGameHelper& saved_game)
-	{
-		saved_game.read<int8_t>(allsolid);
-		saved_game.read<int8_t>(startsolid);
-		saved_game.read<float>(fraction);
-		saved_game.read<float>(endpos);
-		saved_game.read<>(plane);
-		saved_game.read<int8_t>(surfaceFlags);
-		saved_game.read<int8_t>(contents);
-		saved_game.read<int8_t>(entityNum);
-		saved_game.read<>(G2CollisionMap);
-	}
+    void sg_import(ojk::SavedGameHelper& saved_game)
+    {
+        saved_game.read<int8_t>(allsolid);
+        saved_game.read<int8_t>(startsolid);
+        saved_game.read<float>(fraction);
+        saved_game.read<float>(endpos);
+        saved_game.read<>(plane);
+        saved_game.read<int8_t>(surfaceFlags);
+        saved_game.read<int8_t>(contents);
+        saved_game.read<int8_t>(entityNum);
+        saved_game.read<>(G2CollisionMap);
+    }
 } trace_t;
 
 // trace->entityNum can also be 0 to (MAX_GENTITIES-1)
 // or ENTITYNUM_NONE, ENTITYNUM_WORLD
 
-
 // markfragments are returned by CM_MarkFragments()
 typedef struct {
-	int		firstPoint;
-	int		numPoints;
+    int firstPoint;
+    int numPoints;
 } markFragment_t;
 
-
-
 typedef struct {
-	vec3_t		origin;
-	vec3_t		axis[3];
+    vec3_t origin;
+    vec3_t axis[3];
 } orientation_t;
 
 //=====================================================================
 
-
 // in order from highest priority to lowest
 // if none of the catchers are active, bound key strings will be executed
-enum class keyCatchFlags_t
-{
-	KEYCATCH_NONE		= 0,
-	KEYCATCH_CONSOLE	= 1,
-	KEYCATCH_UI			= 2,
+enum class keyCatchFlags_t {
+    KEYCATCH_NONE = 0,
+    KEYCATCH_CONSOLE = 1,
+    KEYCATCH_UI = 2,
 };
 template <> inline constexpr bool enableEnumFlags<keyCatchFlags_t> = true;
-
 
 // sound channels
 // channel 0 never willingly overrides
@@ -544,17 +506,16 @@ template <> inline constexpr bool enableEnumFlags<keyCatchFlags_t> = true;
 ========================================================================
 */
 
-#define	ANGLE2SHORT(x)	((int)((x)*65536/360) & 65535)
-#define	SHORT2ANGLE(x)	((x)*(360.0/65536))
+#define ANGLE2SHORT(x) ((int)((x) * 65536 / 360) & 65535)
+#define SHORT2ANGLE(x) ((x) * (360.0 / 65536))
 
 // one definition for the server, the client and the cgames of both games (it was also in each cg_public.h, where the
 // second bit is the dropped commands the server writes, not the multiplayer's SNAPFLAG_NOT_ACTIVE this header had)
-enum class snapFlags_t
-{
-	SNAPFLAG_NONE				= 0,
-	SNAPFLAG_RATE_DELAYED		= 1,	// the server withheld a packet to save bandwidth
-	SNAPFLAG_DROPPED_COMMANDS	= 2,	// the server lost some cmds coming from the client
-	SNAPFLAG_SERVERCOUNT		= 4,	// toggled every map_restart so transitions can be detected
+enum class snapFlags_t {
+    SNAPFLAG_NONE = 0,
+    SNAPFLAG_RATE_DELAYED = 1,     // the server withheld a packet to save bandwidth
+    SNAPFLAG_DROPPED_COMMANDS = 2, // the server lost some cmds coming from the client
+    SNAPFLAG_SERVERCOUNT = 4,      // toggled every map_restart so transitions can be detected
 };
 template <> inline constexpr bool enableEnumFlags<snapFlags_t> = true;
 
@@ -563,11 +524,9 @@ template <> inline constexpr bool enableEnumFlags<snapFlags_t> = true;
 //
 inline constexpr int MAX_CLIENTS = 1; // 128		// absolute limit
 
-
 // entitynums are communicated with GENTITY_BITS, so any reserved
 // values thatare going to be communcated over the net need to
 // also be in this range
-
 
 inline constexpr int MAX_MODELS = 256;
 
@@ -577,21 +536,20 @@ inline constexpr int MAX_SOUNDS = 256;
 inline constexpr int MAX_SOUNDS = 380;
 #endif // JK2_MODE
 
-
-inline constexpr int MAX_SUBMODELS = 512;		// nine bits
+inline constexpr int MAX_SUBMODELS = 512; // nine bits
 
 inline constexpr int MAX_FX = 128;
 
 #ifdef JK2_MODE
 inline constexpr int MAX_WORLD_FX = 4;
 #else
-inline constexpr int MAX_WORLD_FX = 66;		// was 16 // was 4
+inline constexpr int MAX_WORLD_FX = 66; // was 16 // was 4
 #endif // JK2_MODE
 
 /*
 Ghoul2 Insert Start
 */
-inline constexpr int MAX_CHARSKINS = 64;		// character skins
+inline constexpr int MAX_CHARSKINS = 64; // character skins
 /*
 Ghoul2 Insert End
 */
@@ -599,7 +557,7 @@ Ghoul2 Insert End
 #ifdef JK2_MODE
 inline constexpr int MAX_CONFIGSTRINGS = 1024;
 #else
-inline constexpr int MAX_CONFIGSTRINGS = 1300; //1024 //rww - I had to up this for terrains
+inline constexpr int MAX_CONFIGSTRINGS = 1300; // 1024 //rww - I had to up this for terrains
 #endif // JK2_MODE
 
 // these are the only configstrings that the system reserves, all the
@@ -612,33 +570,33 @@ inline constexpr int MAX_CONFIGSTRINGS = 1300; //1024 //rww - I had to up this f
 
 // CS_SERVERINFO and CS_SYSTEMINFO are defined in q_shared.h
 inline constexpr int CS_MUSIC = 2;
-inline constexpr int CS_MESSAGE = 3;		// from the map worldspawn's message field
-inline constexpr int CS_ITEMS = 4;		// string of 0's and 1's that tell which items are present
-inline constexpr int CS_AMBIENT_SET = 5;		// ambient set information for the player
+inline constexpr int CS_MESSAGE = 3;     // from the map worldspawn's message field
+inline constexpr int CS_ITEMS = 4;       // string of 0's and 1's that tell which items are present
+inline constexpr int CS_AMBIENT_SET = 5; // ambient set information for the player
 
 inline constexpr int CS_MODELS = 10;
 
 #ifndef JK2_MODE
-inline constexpr int CS_SKYBOXORG = CS_MODELS+MAX_MODELS;		//rww - skybox info
-#endif // !JK2_MODE
+inline constexpr int CS_SKYBOXORG = CS_MODELS + MAX_MODELS; // rww - skybox info
+#endif                                                      // !JK2_MODE
 
 #ifdef JK2_MODE
 inline constexpr int CS_SOUNDS = CS_MODELS + MAX_MODELS;
 #else
-inline constexpr int CS_SOUNDS = CS_SKYBOXORG+1;
+inline constexpr int CS_SOUNDS = CS_SKYBOXORG + 1;
 #endif // JK2_MODE
 
 #ifdef BASE_SAVE_COMPAT
-inline constexpr int CS_RESERVED1 = CS_SOUNDS+MAX_SOUNDS; // reserved field for base compat from immersion removal
+inline constexpr int CS_RESERVED1 = CS_SOUNDS + MAX_SOUNDS; // reserved field for base compat from immersion removal
 inline constexpr int CS_PLAYERS = CS_RESERVED1 + 96;
 #else
-inline constexpr int CS_PLAYERS = CS_SOUNDS+MAX_SOUNDS;
+inline constexpr int CS_PLAYERS = CS_SOUNDS + MAX_SOUNDS;
 #endif
 
-inline constexpr int CS_LIGHT_STYLES = CS_PLAYERS+MAX_CLIENTS;
+inline constexpr int CS_LIGHT_STYLES = CS_PLAYERS + MAX_CLIENTS;
 
 #ifndef JK2_MODE
-inline constexpr int CS_TERRAINS = CS_LIGHT_STYLES + (MAX_LIGHT_STYLES*3);
+inline constexpr int CS_TERRAINS = CS_LIGHT_STYLES + (MAX_LIGHT_STYLES * 3);
 inline constexpr int CS_BSP_MODELS = CS_TERRAINS + MAX_TERRAINS;
 #endif // !JK2_MODE
 
@@ -659,61 +617,60 @@ inline constexpr int CS_DYNAMIC_MUSIC_STATE = CS_CHARSKINS + MAX_CHARSKINS;
 inline constexpr int CS_WORLD_FX = CS_DYNAMIC_MUSIC_STATE + 1;
 inline constexpr int CS_MAX = CS_WORLD_FX + MAX_WORLD_FX;
 
-static_assert( CS_MAX <= MAX_CONFIGSTRINGS, "overflow: (CS_MAX) > MAX_CONFIGSTRINGS" );
+static_assert(CS_MAX <= MAX_CONFIGSTRINGS, "overflow: (CS_MAX) > MAX_CONFIGSTRINGS");
 
 typedef struct {
-	int			stringOffsets[MAX_CONFIGSTRINGS];
-	char		stringData[MAX_GAMESTATE_CHARS];
-	int			dataCount;
+    int stringOffsets[MAX_CONFIGSTRINGS];
+    char stringData[MAX_GAMESTATE_CHARS];
+    int dataCount;
 } gameState_t;
 
-enum class forcePowers_t
-{
-	FP_FIRST = 0,//marker
-	FP_HEAL = 0,//instant
-	FP_LEVITATION,//hold/duration
-	FP_SPEED,//duration
-	FP_PUSH,//hold/duration
-	FP_PULL,//hold/duration
-	FP_TELEPATHY,//instant
-	FP_GRIP,//hold/duration
-	FP_LIGHTNING,//hold/duration
-	FP_SABERTHROW,
-	FP_SABER_DEFENSE,
-	FP_SABER_OFFENSE,
+enum class forcePowers_t {
+    FP_FIRST = 0,  // marker
+    FP_HEAL = 0,   // instant
+    FP_LEVITATION, // hold/duration
+    FP_SPEED,      // duration
+    FP_PUSH,       // hold/duration
+    FP_PULL,       // hold/duration
+    FP_TELEPATHY,  // instant
+    FP_GRIP,       // hold/duration
+    FP_LIGHTNING,  // hold/duration
+    FP_SABERTHROW,
+    FP_SABER_DEFENSE,
+    FP_SABER_OFFENSE,
 
 #ifndef JK2_MODE
-	//new Jedi Academy powers
-	FP_RAGE,//duration - speed, invincibility and extra damage for short period, drains your health and leaves you weak and slow afterwards.
-	FP_PROTECT,//duration - protect against physical/energy (level 1 stops blaster/energy bolts, level 2 stops projectiles, level 3 protects against explosions)
-	FP_ABSORB,//duration - protect against dark force powers (grip, lightning, drain - maybe push/pull, too?)
-	FP_DRAIN,//hold/duration - drain force power for health
-	FP_SEE,//duration - detect/see hidden enemies
-#endif // !JK2_MODE
+    // new Jedi Academy powers
+    FP_RAGE,    // duration - speed, invincibility and extra damage for short period, drains your health and leaves you weak and slow afterwards.
+    FP_PROTECT, // duration - protect against physical/energy (level 1 stops blaster/energy bolts, level 2 stops projectiles, level 3 protects against
+                // explosions)
+    FP_ABSORB,  // duration - protect against dark force powers (grip, lightning, drain - maybe push/pull, too?)
+    FP_DRAIN,   // hold/duration - drain force power for health
+    FP_SEE,     // duration - detect/see hidden enemies
+#endif          // !JK2_MODE
 
-	NUM_FORCE_POWERS
+    NUM_FORCE_POWERS
 };
 template <> inline constexpr bool enableEnumArithmetic<forcePowers_t> = true;
 
 // the same set in both single-player games, so the engine (the UI, force sight) names the levels too
 #include "qcommon/q_forcelevels.h"
 
-enum class saberType_t
-{
-	SABER_NONE = 0,
-	SABER_SINGLE,
-	SABER_STAFF,
-	SABER_DAGGER,
-	SABER_BROAD,
-	SABER_PRONG,
-	SABER_ARC,
-	SABER_SAI,
-	SABER_CLAW,
-	SABER_LANCE,
-	SABER_STAR,
-	SABER_TRIDENT,
-	SABER_SITH_SWORD,
-	NUM_SABERS
+enum class saberType_t {
+    SABER_NONE = 0,
+    SABER_SINGLE,
+    SABER_STAFF,
+    SABER_DAGGER,
+    SABER_BROAD,
+    SABER_PRONG,
+    SABER_ARC,
+    SABER_SAI,
+    SABER_CLAW,
+    SABER_LANCE,
+    SABER_STAR,
+    SABER_TRIDENT,
+    SABER_SITH_SWORD,
+    NUM_SABERS
 };
 
 //=========================================================
@@ -726,737 +683,675 @@ enum class saberType_t
 
 inline constexpr int MAX_WEAPONS = 32;
 inline constexpr int MAX_AMMO = 10;
-inline constexpr int MAX_INVENTORY = 15;		// See INV_MAX
+inline constexpr int MAX_INVENTORY = 15; // See INV_MAX
 inline constexpr int MAX_SECURITY_KEYS = 5;
 inline constexpr int MAX_SECURITY_KEY_MESSSAGE = 24;
 
-
-
-inline constexpr int MAX_WORLD_COORD = 64*1024;
-inline constexpr int MIN_WORLD_COORD = -64*1024;
+inline constexpr int MAX_WORLD_COORD = 64 * 1024;
+inline constexpr int MIN_WORLD_COORD = -64 * 1024;
 inline constexpr int WORLD_SIZE = MAX_WORLD_COORD - MIN_WORLD_COORD;
 
-enum class waterHeightLevel_t
-{
-	WHL_NONE,
-	WHL_ANKLES,
-	WHL_KNEES,
-	WHL_WAIST,
-	WHL_TORSO,
-	WHL_SHOULDERS,
-	WHL_HEAD,
-	WHL_UNDER
-};
+enum class waterHeightLevel_t { WHL_NONE, WHL_ANKLES, WHL_KNEES, WHL_WAIST, WHL_TORSO, WHL_SHOULDERS, WHL_HEAD, WHL_UNDER };
 
 // !!!!!!! loadsave affecting struct !!!!!!!
-typedef struct saberTrail_s
-{
-	// Actual trail stuff
-	int		inAction;	// controls whether should we even consider starting one
-	int		duration;	// how long each trail seg stays in existence
-	int		lastTime;	// time a saber segement was last stored
-	vec3_t	base;
-	vec3_t	tip;
+typedef struct saberTrail_s {
+    // Actual trail stuff
+    int inAction; // controls whether should we even consider starting one
+    int duration; // how long each trail seg stays in existence
+    int lastTime; // time a saber segement was last stored
+    vec3_t base;
+    vec3_t tip;
 
-	// Marks stuff
-	bool	haveOldPos[2];
-	vec3_t		oldPos[2];
-	vec3_t		oldNormal[2];	// store this in case we don't have a connect-the-dots situation
-							//	..then we'll need the normal to project a mark blob onto the impact point
+    // Marks stuff
+    bool haveOldPos[2];
+    vec3_t oldPos[2];
+    vec3_t oldNormal[2]; // store this in case we don't have a connect-the-dots situation
+                         //	..then we'll need the normal to project a mark blob onto the impact point
 
+    void sg_export(ojk::SavedGameHelper& saved_game) const
+    {
+        saved_game.write<int32_t>(inAction);
+        saved_game.write<int32_t>(duration);
+        saved_game.write<int32_t>(lastTime);
+        saved_game.write<float>(base);
+        saved_game.write<float>(tip);
+        saved_game.write<int32_t>(haveOldPos);
+        saved_game.write<float>(oldPos);
+        saved_game.write<float>(oldNormal);
+    }
 
-	void sg_export(
-		ojk::SavedGameHelper& saved_game) const
-	{
-		saved_game.write<int32_t>(inAction);
-		saved_game.write<int32_t>(duration);
-		saved_game.write<int32_t>(lastTime);
-		saved_game.write<float>(base);
-		saved_game.write<float>(tip);
-		saved_game.write<int32_t>(haveOldPos);
-		saved_game.write<float>(oldPos);
-		saved_game.write<float>(oldNormal);
-	}
-
-	void sg_import(
-		ojk::SavedGameHelper& saved_game)
-	{
-		saved_game.read<int32_t>(inAction);
-		saved_game.read<int32_t>(duration);
-		saved_game.read<int32_t>(lastTime);
-		saved_game.read<float>(base);
-		saved_game.read<float>(tip);
-		saved_game.read<int32_t>(haveOldPos);
-		saved_game.read<float>(oldPos);
-		saved_game.read<float>(oldNormal);
-	}
+    void sg_import(ojk::SavedGameHelper& saved_game)
+    {
+        saved_game.read<int32_t>(inAction);
+        saved_game.read<int32_t>(duration);
+        saved_game.read<int32_t>(lastTime);
+        saved_game.read<float>(base);
+        saved_game.read<float>(tip);
+        saved_game.read<int32_t>(haveOldPos);
+        saved_game.read<float>(oldPos);
+        saved_game.read<float>(oldNormal);
+    }
 } saberTrail_t;
 
-
 // !!!!!!!!!!!!! loadsave affecting struct !!!!!!!!!!!!!!!
-typedef struct bladeInfo_s
-{
-	bool	active;
-	saber_colors_t	color;
-	float		radius;
-	float		length;
-	float		lengthMax;
-	float		lengthOld;
-	vec3_t		muzzlePoint;
-	vec3_t		muzzlePointOld;
-	vec3_t		muzzleDir;
-	vec3_t		muzzleDirOld;
-	saberTrail_t	trail;
-	void		ActivateTrail ( float duration )
-				{
-					trail.inAction = true;
-					trail.duration = duration;
-				};
-	void		DeactivateTrail ( float duration )
-				{
-					trail.inAction = false;
-					trail.duration = duration;
-				};
+typedef struct bladeInfo_s {
+    bool active;
+    saber_colors_t color;
+    float radius;
+    float length;
+    float lengthMax;
+    float lengthOld;
+    vec3_t muzzlePoint;
+    vec3_t muzzlePointOld;
+    vec3_t muzzleDir;
+    vec3_t muzzleDirOld;
+    saberTrail_t trail;
+    void ActivateTrail(float duration)
+    {
+        trail.inAction = true;
+        trail.duration = duration;
+    };
+    void DeactivateTrail(float duration)
+    {
+        trail.inAction = false;
+        trail.duration = duration;
+    };
 
+    void sg_export(ojk::SavedGameHelper& saved_game) const
+    {
+        saved_game.write<int32_t>(active);
+        saved_game.write<int32_t>(color);
+        saved_game.write<float>(radius);
+        saved_game.write<float>(length);
+        saved_game.write<float>(lengthMax);
+        saved_game.write<float>(lengthOld);
+        saved_game.write<float>(muzzlePoint);
+        saved_game.write<float>(muzzlePointOld);
+        saved_game.write<float>(muzzleDir);
+        saved_game.write<float>(muzzleDirOld);
+        saved_game.write<>(trail);
+    }
 
-	void sg_export(
-		ojk::SavedGameHelper& saved_game) const
-	{
-		saved_game.write<int32_t>(active);
-		saved_game.write<int32_t>(color);
-		saved_game.write<float>(radius);
-		saved_game.write<float>(length);
-		saved_game.write<float>(lengthMax);
-		saved_game.write<float>(lengthOld);
-		saved_game.write<float>(muzzlePoint);
-		saved_game.write<float>(muzzlePointOld);
-		saved_game.write<float>(muzzleDir);
-		saved_game.write<float>(muzzleDirOld);
-		saved_game.write<>(trail);
-	}
-
-	void sg_import(
-		ojk::SavedGameHelper& saved_game)
-	{
-		saved_game.read<int32_t>(active);
-		saved_game.read<int32_t>(color);
-		saved_game.read<float>(radius);
-		saved_game.read<float>(length);
-		saved_game.read<float>(lengthMax);
-		saved_game.read<float>(lengthOld);
-		saved_game.read<float>(muzzlePoint);
-		saved_game.read<float>(muzzlePointOld);
-		saved_game.read<float>(muzzleDir);
-		saved_game.read<float>(muzzleDirOld);
-		saved_game.read<>(trail);
-	}
+    void sg_import(ojk::SavedGameHelper& saved_game)
+    {
+        saved_game.read<int32_t>(active);
+        saved_game.read<int32_t>(color);
+        saved_game.read<float>(radius);
+        saved_game.read<float>(length);
+        saved_game.read<float>(lengthMax);
+        saved_game.read<float>(lengthOld);
+        saved_game.read<float>(muzzlePoint);
+        saved_game.read<float>(muzzlePointOld);
+        saved_game.read<float>(muzzleDir);
+        saved_game.read<float>(muzzleDirOld);
+        saved_game.read<>(trail);
+    }
 } bladeInfo_t;
 
 inline constexpr int MAX_BLADES = 8;
 
-enum class saber_styles_t
-{
-	SS_NONE = 0,
-	SS_FAST,
-	SS_MEDIUM,
-	SS_STRONG,
-	SS_DESANN,
-	SS_TAVION,
-	SS_DUAL,
-	SS_STAFF,
-	SS_NUM_SABER_STYLES
-};
+enum class saber_styles_t { SS_NONE = 0, SS_FAST, SS_MEDIUM, SS_STRONG, SS_DESANN, SS_TAVION, SS_DUAL, SS_STAFF, SS_NUM_SABER_STYLES };
 template <> inline constexpr bool enableEnumArithmetic<saber_styles_t> = true;
 
 #include "qcommon/q_saberflags.h"
 
 // !!!!!!!!!!!! loadsave affecting struct !!!!!!!!!!!!!!!!!!!!!!!!!!
-enum class saberMoveName_t;	// wp_saber.h
-enum class animNumber_t;	// anims.h of each single-player game (code/game, codeJK2/game), each its own
-typedef struct saberInfo_s
-{
-	char		*name;						//entry in sabers.cfg, if any
-	char		*fullName;					//the "Proper Name" of the saber, shown in the UI
-	saberType_t	type;						//none, single or staff
-	const char	*model;						//hilt model
-	char		*skin;						//hilt custom skin
-	int			soundOn;					//game soundindex for turning on sound
-	int			soundLoop;					//game soundindex for hum/loop sound
-	int			soundOff;					//game soundindex for turning off sound
-	int			numBlades;
-	bladeInfo_t	blade[MAX_BLADES];			//blade info - like length, trail, origin, dir, etc.
-	int			stylesLearned;				//styles you get when you get this saber, if any
-	int			stylesForbidden;			//styles you cannot use with this saber, if any
-	int			maxChain;					//how many moves can be chained in a row with this weapon (-1 is infinite, 0 is use default behavior)
-	int			forceRestrictions;			//force powers that cannot be used while this saber is on (bitfield) - FIXME: maybe make this a limit on the max level, per force power, that can be used with this type?
-	int			lockBonus;					//in saberlocks, this type of saber pushes harder or weaker
-	int			parryBonus;					//added to strength of parry with this saber
-	int			breakParryBonus;			//added to strength when hit a parry
-	int			breakParryBonus2;			//for bladeStyle2 (see bladeStyle2Start below)
-	int			disarmBonus;				//added to disarm chance when win saberlock or have a good parry (knockaway)
-	int			disarmBonus2;				//for bladeStyle2 (see bladeStyle2Start below)
-	saber_styles_t	singleBladeStyle;		//makes it so that you use a different style if you only have the first blade active
-	char		*brokenSaber1;				//if saber is actually hit by another saber, it can be cut in half/broken and will be replaced with this saber in your right hand
-	char		*brokenSaber2;				//if saber is actually hit by another saber, it can be cut in half/broken and will be replaced with this saber in your left hand
-//===NEW========================================================================================
-	//these values are global to the saber, like all of the ones above
-	saberFlags_t			saberFlags;					//from SFL_ list above
-	saberFlags2_t			saberFlags2;				//from SFL2_ list above
+enum class saberMoveName_t; // wp_saber.h
+enum class animNumber_t;    // anims.h of each single-player game (code/game, codeJK2/game), each its own
+typedef struct saberInfo_s {
+    char* name;        // entry in sabers.cfg, if any
+    char* fullName;    // the "Proper Name" of the saber, shown in the UI
+    saberType_t type;  // none, single or staff
+    const char* model; // hilt model
+    char* skin;        // hilt custom skin
+    int soundOn;       // game soundindex for turning on sound
+    int soundLoop;     // game soundindex for hum/loop sound
+    int soundOff;      // game soundindex for turning off sound
+    int numBlades;
+    bladeInfo_t blade[MAX_BLADES]; // blade info - like length, trail, origin, dir, etc.
+    int stylesLearned;             // styles you get when you get this saber, if any
+    int stylesForbidden;           // styles you cannot use with this saber, if any
+    int maxChain;                  // how many moves can be chained in a row with this weapon (-1 is infinite, 0 is use default behavior)
+    int forceRestrictions; // force powers that cannot be used while this saber is on (bitfield) - FIXME: maybe make this a limit on the max level, per force
+                           // power, that can be used with this type?
+    int lockBonus;         // in saberlocks, this type of saber pushes harder or weaker
+    int parryBonus;        // added to strength of parry with this saber
+    int breakParryBonus;   // added to strength when hit a parry
+    int breakParryBonus2;  // for bladeStyle2 (see bladeStyle2Start below)
+    int disarmBonus;       // added to disarm chance when win saberlock or have a good parry (knockaway)
+    int disarmBonus2;      // for bladeStyle2 (see bladeStyle2Start below)
+    saber_styles_t singleBladeStyle; // makes it so that you use a different style if you only have the first blade active
+    char* brokenSaber1; // if saber is actually hit by another saber, it can be cut in half/broken and will be replaced with this saber in your right hand
+    char* brokenSaber2; // if saber is actually hit by another saber, it can be cut in half/broken and will be replaced with this saber in your left hand
+    //===NEW========================================================================================
+    // these values are global to the saber, like all of the ones above
+    saberFlags_t saberFlags;   // from SFL_ list above
+    saberFlags2_t saberFlags2; // from SFL2_ list above
 
-	//done in cgame (client-side code)
-	qhandle_t	spinSound;					//none - if set, plays this sound as it spins when thrown
-	qhandle_t	swingSound[3];				//none - if set, plays one of these 3 sounds when swung during an attack - NOTE: must provide all 3!!!
-	qhandle_t	fallSound[3];				//none - if set, plays one of these 3 sounds when weapon drops to the ground - NOTE: must provide all 3!!!
+    // done in cgame (client-side code)
+    qhandle_t spinSound;     // none - if set, plays this sound as it spins when thrown
+    qhandle_t swingSound[3]; // none - if set, plays one of these 3 sounds when swung during an attack - NOTE: must provide all 3!!!
+    qhandle_t fallSound[3];  // none - if set, plays one of these 3 sounds when weapon drops to the ground - NOTE: must provide all 3!!!
 
-	//done in game (server-side code)
-	float		moveSpeedScale;				//1.0 - you move faster/slower when using this saber
-	float		animSpeedScale;				//1.0 - plays normal attack animations faster/slower
+    // done in game (server-side code)
+    float moveSpeedScale; // 1.0 - you move faster/slower when using this saber
+    float animSpeedScale; // 1.0 - plays normal attack animations faster/slower
 
-	//done in both cgame and game (BG code)
-	saberMoveName_t	kataMove;				//LS_INVALID - if set, player will execute this move when they press both attack buttons at the same time
-	saberMoveName_t	lungeAtkMove;			//LS_INVALID - if set, player will execute this move when they crouch+fwd+attack
-	saberMoveName_t	jumpAtkUpMove;			//LS_INVALID - if set, player will execute this move when they jump+attack
-	saberMoveName_t	jumpAtkFwdMove;			//LS_INVALID - if set, player will execute this move when they jump+fwd+attack
-	saberMoveName_t	jumpAtkBackMove;		//LS_INVALID - if set, player will execute this move when they jump+back+attack
-	saberMoveName_t	jumpAtkRightMove;		//LS_INVALID - if set, player will execute this move when they jump+rightattack
-	saberMoveName_t	jumpAtkLeftMove;		//LS_INVALID - if set, player will execute this move when they jump+left+attack
-#if defined( JK2_MODE ) && defined( SP_GAME )
-	int	readyAnim;				//-1 - anim to use when standing idle
-	int	drawAnim;				//-1 - anim to use when drawing weapon
-	int	putawayAnim;			//-1 - anim to use when putting weapon away
-	int	tauntAnim;				//-1 - anim to use when hit "taunt"
-	int	bowAnim;				//-1 - anim to use when hit "bow"
-	int	meditateAnim;			//-1 - anim to use when hit "meditate"
-	int	flourishAnim;			//-1 - anim to use when hit "flourish"
-	int	gloatAnim;				//-1 - anim to use when hit "gloat"
+    // done in both cgame and game (BG code)
+    saberMoveName_t kataMove;         // LS_INVALID - if set, player will execute this move when they press both attack buttons at the same time
+    saberMoveName_t lungeAtkMove;     // LS_INVALID - if set, player will execute this move when they crouch+fwd+attack
+    saberMoveName_t jumpAtkUpMove;    // LS_INVALID - if set, player will execute this move when they jump+attack
+    saberMoveName_t jumpAtkFwdMove;   // LS_INVALID - if set, player will execute this move when they jump+fwd+attack
+    saberMoveName_t jumpAtkBackMove;  // LS_INVALID - if set, player will execute this move when they jump+back+attack
+    saberMoveName_t jumpAtkRightMove; // LS_INVALID - if set, player will execute this move when they jump+rightattack
+    saberMoveName_t jumpAtkLeftMove;  // LS_INVALID - if set, player will execute this move when they jump+left+attack
+#if defined(JK2_MODE) && defined(SP_GAME)
+    int readyAnim;    //-1 - anim to use when standing idle
+    int drawAnim;     //-1 - anim to use when drawing weapon
+    int putawayAnim;  //-1 - anim to use when putting weapon away
+    int tauntAnim;    //-1 - anim to use when hit "taunt"
+    int bowAnim;      //-1 - anim to use when hit "bow"
+    int meditateAnim; //-1 - anim to use when hit "meditate"
+    int flourishAnim; //-1 - anim to use when hit "flourish"
+    int gloatAnim;    //-1 - anim to use when hit "gloat"
 #else
-	animNumber_t	readyAnim;				//-1 - anim to use when standing idle
-	animNumber_t	drawAnim;				//-1 - anim to use when drawing weapon
-	animNumber_t	putawayAnim;			//-1 - anim to use when putting weapon away
-	animNumber_t	tauntAnim;				//-1 - anim to use when hit "taunt"
-	animNumber_t	bowAnim;				//-1 - anim to use when hit "bow"
-	animNumber_t	meditateAnim;			//-1 - anim to use when hit "meditate"
-	animNumber_t	flourishAnim;			//-1 - anim to use when hit "flourish"
-	animNumber_t	gloatAnim;				//-1 - anim to use when hit "gloat"
+    animNumber_t readyAnim;    //-1 - anim to use when standing idle
+    animNumber_t drawAnim;     //-1 - anim to use when drawing weapon
+    animNumber_t putawayAnim;  //-1 - anim to use when putting weapon away
+    animNumber_t tauntAnim;    //-1 - anim to use when hit "taunt"
+    animNumber_t bowAnim;      //-1 - anim to use when hit "bow"
+    animNumber_t meditateAnim; //-1 - anim to use when hit "meditate"
+    animNumber_t flourishAnim; //-1 - anim to use when hit "flourish"
+    animNumber_t gloatAnim;    //-1 - anim to use when hit "gloat"
 #endif
 
-	//***NOTE: you can only have a maximum of 2 "styles" of blades, so this next value, "bladeStyle2Start" is the number of the first blade to use these value on... all blades before this use the normal values above, all blades at and after this number use the secondary values below***
-	int			bladeStyle2Start;			//0 - if set, blades from this number and higher use the following values (otherwise, they use the normal values already set)
+    //***NOTE: you can only have a maximum of 2 "styles" of blades, so this next value, "bladeStyle2Start" is the number of the first blade to use these value
+    // on... all blades before this use the normal values above, all blades at and after this number use the secondary values below***
+    int bladeStyle2Start; // 0 - if set, blades from this number and higher use the following values (otherwise, they use the normal values already set)
 
-	//***The following can be different for the extra blades - not setting them individually defaults them to the value for the whole saber (and first blade)***
+    //***The following can be different for the extra blades - not setting them individually defaults them to the value for the whole saber (and first blade)***
 
-	//===PRIMARY BLADES=====================
-	//done in cgame (client-side code)
-	int			trailStyle;					//0 - default (0) is normal, 1 is a motion blur and 2 is no trail at all (good for real-sword type mods)
-	char		g2MarksShader[MAX_QPATH];	//none - if set, the game will use this shader for marks on enemies instead of the default "gfx/damage/saberglowmark"
-	char		g2WeaponMarkShader[MAX_QPATH];	//none - if set, the game will ry to project this shader onto the weapon when it damages a person (good for a blood splatter on the weapon)
-	//int		bladeShader;				//none - if set, overrides the shader used for the saber blade?
-	//int		trailShader;				//none - if set, overrides the shader used for the saber trail?
-	qhandle_t	hitSound[3];				//none - if set, plays one of these 3 sounds when saber hits a person - NOTE: must provide all 3!!!
-	qhandle_t	blockSound[3];				//none - if set, plays one of these 3 sounds when saber/sword hits another saber/sword - NOTE: must provide all 3!!!
-	qhandle_t	bounceSound[3];				//none - if set, plays one of these 3 sounds when saber/sword hits a wall and bounces off (must set bounceOnWall to 1 to use these sounds) - NOTE: must provide all 3!!!
-	int			blockEffect;				//none - if set, plays this effect when the saber/sword hits another saber/sword (instead of "saber/saber_block.efx")
-	int			hitPersonEffect;			//none - if set, plays this effect when the saber/sword hits a person (instead of "saber/blood_sparks_mp.efx")
-	int			hitOtherEffect;				//none - if set, plays this effect when the saber/sword hits something else damagable (instead of "saber/saber_cut.efx")
-	int			bladeEffect;				//none - if set, plays this effect at the blade tag
+    //===PRIMARY BLADES=====================
+    // done in cgame (client-side code)
+    int trailStyle;                     // 0 - default (0) is normal, 1 is a motion blur and 2 is no trail at all (good for real-sword type mods)
+    char g2MarksShader[MAX_QPATH];      // none - if set, the game will use this shader for marks on enemies instead of the default "gfx/damage/saberglowmark"
+    char g2WeaponMarkShader[MAX_QPATH]; // none - if set, the game will ry to project this shader onto the weapon when it damages a person (good for a blood
+                                        // splatter on the weapon)
+    // int		bladeShader;				//none - if set, overrides the shader used for the saber blade?
+    // int		trailShader;				//none - if set, overrides the shader used for the saber trail?
+    qhandle_t hitSound[3];    // none - if set, plays one of these 3 sounds when saber hits a person - NOTE: must provide all 3!!!
+    qhandle_t blockSound[3];  // none - if set, plays one of these 3 sounds when saber/sword hits another saber/sword - NOTE: must provide all 3!!!
+    qhandle_t bounceSound[3]; // none - if set, plays one of these 3 sounds when saber/sword hits a wall and bounces off (must set bounceOnWall to 1 to use
+                              // these sounds) - NOTE: must provide all 3!!!
+    int blockEffect;          // none - if set, plays this effect when the saber/sword hits another saber/sword (instead of "saber/saber_block.efx")
+    int hitPersonEffect;      // none - if set, plays this effect when the saber/sword hits a person (instead of "saber/blood_sparks_mp.efx")
+    int hitOtherEffect;       // none - if set, plays this effect when the saber/sword hits something else damagable (instead of "saber/saber_cut.efx")
+    int bladeEffect;          // none - if set, plays this effect at the blade tag
 
-	//done in game (server-side code)
-	float		knockbackScale;				//0 - if non-zero, uses damage done to calculate an appropriate amount of knockback
-	float		damageScale;				//1 - scale up or down the damage done by the saber
-	float		splashRadius;				//0 - radius of splashDamage
-	int			splashDamage;				//0 - amount of splashDamage, 100% at a distance of 0, 0% at a distance = splashRadius
-	float		splashKnockback;			//0 - amount of splashKnockback, 100% at a distance of 0, 0% at a distance = splashRadius
+    // done in game (server-side code)
+    float knockbackScale;  // 0 - if non-zero, uses damage done to calculate an appropriate amount of knockback
+    float damageScale;     // 1 - scale up or down the damage done by the saber
+    float splashRadius;    // 0 - radius of splashDamage
+    int splashDamage;      // 0 - amount of splashDamage, 100% at a distance of 0, 0% at a distance = splashRadius
+    float splashKnockback; // 0 - amount of splashKnockback, 100% at a distance of 0, 0% at a distance = splashRadius
 
-	//===SECONDARY BLADES===================
-	//done in cgame (client-side code)
-	int			trailStyle2;				//0 - default (0) is normal, 1 is a motion blur and 2 is no trail at all (good for real-sword type mods)
-	char		g2MarksShader2[MAX_QPATH];	//none - if set, the game will use this shader for marks on enemies instead of the default "gfx/damage/saberglowmark"
-	char		g2WeaponMarkShader2[MAX_QPATH];	//none - if set, the game will ry to project this shader onto the weapon when it damages a person (good for a blood splatter on the weapon)
-	//int		bladeShader2;				//none - if set, overrides the shader used for the saber blade?
-	//int		trailShader2;				//none - if set, overrides the shader used for the saber trail?
-	qhandle_t	hit2Sound[3];				//none - if set, plays one of these 3 sounds when saber hits a person - NOTE: must provide all 3!!!
-	qhandle_t	block2Sound[3];				//none - if set, plays one of these 3 sounds when saber/sword hits another saber/sword - NOTE: must provide all 3!!!
-	qhandle_t	bounce2Sound[3];			//none - if set, plays one of these 3 sounds when saber/sword hits a wall and bounces off (must set bounceOnWall to 1 to use these sounds) - NOTE: must provide all 3!!!
-	int			blockEffect2;				//none - if set, plays this effect when the saber/sword hits another saber/sword (instead of "saber/saber_block.efx")
-	int			hitPersonEffect2;			//none - if set, plays this effect when the saber/sword hits a person (instead of "saber/blood_sparks_mp.efx")
-	int			hitOtherEffect2;			//none - if set, plays this effect when the saber/sword hits something else damagable (instead of "saber/saber_cut.efx")
-	int			bladeEffect2;				//none - if set, plays this effect at the blade tag
+    //===SECONDARY BLADES===================
+    // done in cgame (client-side code)
+    int trailStyle2;                     // 0 - default (0) is normal, 1 is a motion blur and 2 is no trail at all (good for real-sword type mods)
+    char g2MarksShader2[MAX_QPATH];      // none - if set, the game will use this shader for marks on enemies instead of the default "gfx/damage/saberglowmark"
+    char g2WeaponMarkShader2[MAX_QPATH]; // none - if set, the game will ry to project this shader onto the weapon when it damages a person (good for a blood
+                                         // splatter on the weapon)
+    // int		bladeShader2;				//none - if set, overrides the shader used for the saber blade?
+    // int		trailShader2;				//none - if set, overrides the shader used for the saber trail?
+    qhandle_t hit2Sound[3];    // none - if set, plays one of these 3 sounds when saber hits a person - NOTE: must provide all 3!!!
+    qhandle_t block2Sound[3];  // none - if set, plays one of these 3 sounds when saber/sword hits another saber/sword - NOTE: must provide all 3!!!
+    qhandle_t bounce2Sound[3]; // none - if set, plays one of these 3 sounds when saber/sword hits a wall and bounces off (must set bounceOnWall to 1 to use
+                               // these sounds) - NOTE: must provide all 3!!!
+    int blockEffect2;          // none - if set, plays this effect when the saber/sword hits another saber/sword (instead of "saber/saber_block.efx")
+    int hitPersonEffect2;      // none - if set, plays this effect when the saber/sword hits a person (instead of "saber/blood_sparks_mp.efx")
+    int hitOtherEffect2;       // none - if set, plays this effect when the saber/sword hits something else damagable (instead of "saber/saber_cut.efx")
+    int bladeEffect2;          // none - if set, plays this effect at the blade tag
 
-	//done in game (server-side code)
-	float		knockbackScale2;			//0 - if non-zero, uses damage done to calculate an appropriate amount of knockback
-	float		damageScale2;				//1 - scale up or down the damage done by the saber
-	float		splashRadius2;				//0 - radius of splashDamage
-	int			splashDamage2;				//0 - amount of splashDamage, 100% at a distance of 0, 0% at a distance = splashRadius
-	float		splashKnockback2;			//0 - amount of splashKnockback, 100% at a distance of 0, 0% at a distance = splashRadius
-//=========================================================================================================================================
-	void		Activate( void )
-				{
-					for ( int i = 0; i < numBlades; i++ )
-					{
-						blade[i].active = true;
-					}
-				};
+    // done in game (server-side code)
+    float knockbackScale2;  // 0 - if non-zero, uses damage done to calculate an appropriate amount of knockback
+    float damageScale2;     // 1 - scale up or down the damage done by the saber
+    float splashRadius2;    // 0 - radius of splashDamage
+    int splashDamage2;      // 0 - amount of splashDamage, 100% at a distance of 0, 0% at a distance = splashRadius
+    float splashKnockback2; // 0 - amount of splashKnockback, 100% at a distance of 0, 0% at a distance = splashRadius
+    //=========================================================================================================================================
+    void Activate(void)
+    {
+        for (int i = 0; i < numBlades; i++) {
+            blade[i].active = true;
+        }
+    };
 
-	void		Deactivate( void )
-				{
-					for ( int i = 0; i < numBlades; i++ )
-					{
-						blade[i].active = false;
-					}
-				};
+    void Deactivate(void)
+    {
+        for (int i = 0; i < numBlades; i++) {
+            blade[i].active = false;
+        }
+    };
 
-	// Description: Activate a specific Blade of this Saber.
-	// Created: 10/03/02 by Aurelio Reis, Modified: 10/03/02 by Aurelio Reis.
-	//	[in]		int iBlade		Which Blade to activate.
-	//	[in]		bool bActive	Whether to activate it (default true), or deactivate it (false).
-	//	[return]	void
-	void		BladeActivate( int iBlade, bool bActive = true )
-				{
-					// Validate blade ID/Index.
-					if ( iBlade < 0 || iBlade >= numBlades )
-						return;
+    // Description: Activate a specific Blade of this Saber.
+    // Created: 10/03/02 by Aurelio Reis, Modified: 10/03/02 by Aurelio Reis.
+    //	[in]		int iBlade		Which Blade to activate.
+    //	[in]		bool bActive	Whether to activate it (default true), or deactivate it (false).
+    //	[return]	void
+    void BladeActivate(int iBlade, bool bActive = true)
+    {
+        // Validate blade ID/Index.
+        if (iBlade < 0 || iBlade >= numBlades)
+            return;
 
-					blade[iBlade].active = bActive;
-				}
+        blade[iBlade].active = bActive;
+    }
 
-	bool	Active()
-				{
-					for ( int i = 0; i < numBlades; i++ )
-					{
-						if ( blade[i].active )
-						{
-							return true;
-						}
-					}
-					return false;
-				}
-	bool	ActiveManualOnly()
-				{
-					for ( int i = 0; i < numBlades; i++ )
-					{
-						if ( bladeStyle2Start > 0 )
-						{
-							if ( i >= bladeStyle2Start )
-							{
-								if ( Any( saberFlags2 & saberFlags2_t::SFL2_NO_MANUAL_DEACTIVATE2 ) )
-								{//don't count this blade
-									continue;
-								}
-							}
-							else if ( Any( saberFlags2 & saberFlags2_t::SFL2_NO_MANUAL_DEACTIVATE ) )
-							{//don't count this blade
-								continue;
-							}
-						}
-						else if ( Any( saberFlags2 & saberFlags2_t::SFL2_NO_MANUAL_DEACTIVATE ) )
-						{//don't count any of these blades!
-							continue;
-						}
-						else if ( blade[i].active )
-						{
-							return true;
-						}
-					}
-					return false;
-				}
-	void		SetLength( float length )
-				{
-					for ( int i = 0; i < numBlades; i++ )
-					{
-						blade[i].length = length;
-					}
-				}
-	float		Length()
-				{//return largest length
-					float len1 = 0;
-					for ( int i = 0; i < numBlades; i++ )
-					{
-						if ( blade[i].length > len1 )
-						{
-							len1 = blade[i].length;
-						}
-					}
-					return len1;
-				};
-	float		LengthMax()
-				{
-					float len1 = 0;
-					for ( int i = 0; i < numBlades; i++ )
-					{
-						if ( blade[i].lengthMax > len1 )
-						{
-							len1 = blade[i].lengthMax;
-						}
-					}
-					return len1;
-				};
-	void		ActivateTrail ( float duration )
-				{
-					for ( int i = 0; i < numBlades; i++ )
-					{
-						blade[i].ActivateTrail( duration );
-					}
-				};
-	void		DeactivateTrail ( float duration )
-				{
-					for ( int i = 0; i < numBlades; i++ )
-					{
-						blade[i].DeactivateTrail( duration );
-					}
-				};
+    bool Active()
+    {
+        for (int i = 0; i < numBlades; i++) {
+            if (blade[i].active) {
+                return true;
+            }
+        }
+        return false;
+    }
+    bool ActiveManualOnly()
+    {
+        for (int i = 0; i < numBlades; i++) {
+            if (bladeStyle2Start > 0) {
+                if (i >= bladeStyle2Start) {
+                    if (Any(saberFlags2 & saberFlags2_t::SFL2_NO_MANUAL_DEACTIVATE2)) { // don't count this blade
+                        continue;
+                    }
+                }
+                else if (Any(saberFlags2 & saberFlags2_t::SFL2_NO_MANUAL_DEACTIVATE)) { // don't count this blade
+                    continue;
+                }
+            }
+            else if (Any(saberFlags2 & saberFlags2_t::SFL2_NO_MANUAL_DEACTIVATE)) { // don't count any of these blades!
+                continue;
+            }
+            else if (blade[i].active) {
+                return true;
+            }
+        }
+        return false;
+    }
+    void SetLength(float length)
+    {
+        for (int i = 0; i < numBlades; i++) {
+            blade[i].length = length;
+        }
+    }
+    float Length()
+    { // return largest length
+        float len1 = 0;
+        for (int i = 0; i < numBlades; i++) {
+            if (blade[i].length > len1) {
+                len1 = blade[i].length;
+            }
+        }
+        return len1;
+    };
+    float LengthMax()
+    {
+        float len1 = 0;
+        for (int i = 0; i < numBlades; i++) {
+            if (blade[i].lengthMax > len1) {
+                len1 = blade[i].lengthMax;
+            }
+        }
+        return len1;
+    };
+    void ActivateTrail(float duration)
+    {
+        for (int i = 0; i < numBlades; i++) {
+            blade[i].ActivateTrail(duration);
+        }
+    };
+    void DeactivateTrail(float duration)
+    {
+        for (int i = 0; i < numBlades; i++) {
+            blade[i].DeactivateTrail(duration);
+        }
+    };
 
+    void sg_export(ojk::SavedGameHelper& saved_game) const
+    {
+        saved_game.write<int32_t>(name);
+        saved_game.write<int32_t>(fullName);
+        saved_game.write<int32_t>(type);
+        saved_game.write<int32_t>(model);
+        saved_game.write<int32_t>(skin);
+        saved_game.write<int32_t>(soundOn);
+        saved_game.write<int32_t>(soundLoop);
+        saved_game.write<int32_t>(soundOff);
+        saved_game.write<int32_t>(numBlades);
+        saved_game.write<>(blade);
+        saved_game.write<int32_t>(stylesLearned);
+        saved_game.write<int32_t>(stylesForbidden);
+        saved_game.write<int32_t>(maxChain);
+        saved_game.write<int32_t>(forceRestrictions);
+        saved_game.write<int32_t>(lockBonus);
+        saved_game.write<int32_t>(parryBonus);
+        saved_game.write<int32_t>(breakParryBonus);
+        saved_game.write<int32_t>(breakParryBonus2);
+        saved_game.write<int32_t>(disarmBonus);
+        saved_game.write<int32_t>(disarmBonus2);
+        saved_game.write<int32_t>(singleBladeStyle);
+        saved_game.write<int32_t>(brokenSaber1);
+        saved_game.write<int32_t>(brokenSaber2);
+        saved_game.write<int32_t>(saberFlags);
+        saved_game.write<int32_t>(saberFlags2);
+        saved_game.write<int32_t>(spinSound);
+        saved_game.write<int32_t>(swingSound);
+        saved_game.write<int32_t>(fallSound);
+        saved_game.write<float>(moveSpeedScale);
+        saved_game.write<float>(animSpeedScale);
+        saved_game.write<int32_t>(kataMove);
+        saved_game.write<int32_t>(lungeAtkMove);
+        saved_game.write<int32_t>(jumpAtkUpMove);
+        saved_game.write<int32_t>(jumpAtkFwdMove);
+        saved_game.write<int32_t>(jumpAtkBackMove);
+        saved_game.write<int32_t>(jumpAtkRightMove);
+        saved_game.write<int32_t>(jumpAtkLeftMove);
+        saved_game.write<int32_t>(readyAnim);
+        saved_game.write<int32_t>(drawAnim);
+        saved_game.write<int32_t>(putawayAnim);
+        saved_game.write<int32_t>(tauntAnim);
+        saved_game.write<int32_t>(bowAnim);
+        saved_game.write<int32_t>(meditateAnim);
+        saved_game.write<int32_t>(flourishAnim);
+        saved_game.write<int32_t>(gloatAnim);
+        saved_game.write<int32_t>(bladeStyle2Start);
+        saved_game.write<int32_t>(trailStyle);
+        saved_game.write<int8_t>(g2MarksShader);
+        saved_game.write<int8_t>(g2WeaponMarkShader);
+        saved_game.write<int32_t>(hitSound);
+        saved_game.write<int32_t>(blockSound);
+        saved_game.write<int32_t>(bounceSound);
+        saved_game.write<int32_t>(blockEffect);
+        saved_game.write<int32_t>(hitPersonEffect);
+        saved_game.write<int32_t>(hitOtherEffect);
+        saved_game.write<int32_t>(bladeEffect);
+        saved_game.write<float>(knockbackScale);
+        saved_game.write<float>(damageScale);
+        saved_game.write<float>(splashRadius);
+        saved_game.write<int32_t>(splashDamage);
+        saved_game.write<float>(splashKnockback);
+        saved_game.write<int32_t>(trailStyle2);
+        saved_game.write<int8_t>(g2MarksShader2);
+        saved_game.write<int8_t>(g2WeaponMarkShader2);
+        saved_game.write<int32_t>(hit2Sound);
+        saved_game.write<int32_t>(block2Sound);
+        saved_game.write<int32_t>(bounce2Sound);
+        saved_game.write<int32_t>(blockEffect2);
+        saved_game.write<int32_t>(hitPersonEffect2);
+        saved_game.write<int32_t>(hitOtherEffect2);
+        saved_game.write<int32_t>(bladeEffect2);
+        saved_game.write<float>(knockbackScale2);
+        saved_game.write<float>(damageScale2);
+        saved_game.write<float>(splashRadius2);
+        saved_game.write<int32_t>(splashDamage2);
+        saved_game.write<float>(splashKnockback2);
+    }
 
-	void sg_export(
-		ojk::SavedGameHelper& saved_game) const
-	{
-		saved_game.write<int32_t>(name);
-		saved_game.write<int32_t>(fullName);
-		saved_game.write<int32_t>(type);
-		saved_game.write<int32_t>(model);
-		saved_game.write<int32_t>(skin);
-		saved_game.write<int32_t>(soundOn);
-		saved_game.write<int32_t>(soundLoop);
-		saved_game.write<int32_t>(soundOff);
-		saved_game.write<int32_t>(numBlades);
-		saved_game.write<>(blade);
-		saved_game.write<int32_t>(stylesLearned);
-		saved_game.write<int32_t>(stylesForbidden);
-		saved_game.write<int32_t>(maxChain);
-		saved_game.write<int32_t>(forceRestrictions);
-		saved_game.write<int32_t>(lockBonus);
-		saved_game.write<int32_t>(parryBonus);
-		saved_game.write<int32_t>(breakParryBonus);
-		saved_game.write<int32_t>(breakParryBonus2);
-		saved_game.write<int32_t>(disarmBonus);
-		saved_game.write<int32_t>(disarmBonus2);
-		saved_game.write<int32_t>(singleBladeStyle);
-		saved_game.write<int32_t>(brokenSaber1);
-		saved_game.write<int32_t>(brokenSaber2);
-		saved_game.write<int32_t>(saberFlags);
-		saved_game.write<int32_t>(saberFlags2);
-		saved_game.write<int32_t>(spinSound);
-		saved_game.write<int32_t>(swingSound);
-		saved_game.write<int32_t>(fallSound);
-		saved_game.write<float>(moveSpeedScale);
-		saved_game.write<float>(animSpeedScale);
-		saved_game.write<int32_t>(kataMove);
-		saved_game.write<int32_t>(lungeAtkMove);
-		saved_game.write<int32_t>(jumpAtkUpMove);
-		saved_game.write<int32_t>(jumpAtkFwdMove);
-		saved_game.write<int32_t>(jumpAtkBackMove);
-		saved_game.write<int32_t>(jumpAtkRightMove);
-		saved_game.write<int32_t>(jumpAtkLeftMove);
-		saved_game.write<int32_t>(readyAnim);
-		saved_game.write<int32_t>(drawAnim);
-		saved_game.write<int32_t>(putawayAnim);
-		saved_game.write<int32_t>(tauntAnim);
-		saved_game.write<int32_t>(bowAnim);
-		saved_game.write<int32_t>(meditateAnim);
-		saved_game.write<int32_t>(flourishAnim);
-		saved_game.write<int32_t>(gloatAnim);
-		saved_game.write<int32_t>(bladeStyle2Start);
-		saved_game.write<int32_t>(trailStyle);
-		saved_game.write<int8_t>(g2MarksShader);
-		saved_game.write<int8_t>(g2WeaponMarkShader);
-		saved_game.write<int32_t>(hitSound);
-		saved_game.write<int32_t>(blockSound);
-		saved_game.write<int32_t>(bounceSound);
-		saved_game.write<int32_t>(blockEffect);
-		saved_game.write<int32_t>(hitPersonEffect);
-		saved_game.write<int32_t>(hitOtherEffect);
-		saved_game.write<int32_t>(bladeEffect);
-		saved_game.write<float>(knockbackScale);
-		saved_game.write<float>(damageScale);
-		saved_game.write<float>(splashRadius);
-		saved_game.write<int32_t>(splashDamage);
-		saved_game.write<float>(splashKnockback);
-		saved_game.write<int32_t>(trailStyle2);
-		saved_game.write<int8_t>(g2MarksShader2);
-		saved_game.write<int8_t>(g2WeaponMarkShader2);
-		saved_game.write<int32_t>(hit2Sound);
-		saved_game.write<int32_t>(block2Sound);
-		saved_game.write<int32_t>(bounce2Sound);
-		saved_game.write<int32_t>(blockEffect2);
-		saved_game.write<int32_t>(hitPersonEffect2);
-		saved_game.write<int32_t>(hitOtherEffect2);
-		saved_game.write<int32_t>(bladeEffect2);
-		saved_game.write<float>(knockbackScale2);
-		saved_game.write<float>(damageScale2);
-		saved_game.write<float>(splashRadius2);
-		saved_game.write<int32_t>(splashDamage2);
-		saved_game.write<float>(splashKnockback2);
-	}
-
-	void sg_import(
-		ojk::SavedGameHelper& saved_game)
-	{
-		saved_game.read<int32_t>(name);
-		saved_game.read<int32_t>(fullName);
-		saved_game.read<int32_t>(type);
-		saved_game.read<int32_t>(model);
-		saved_game.read<int32_t>(skin);
-		saved_game.read<int32_t>(soundOn);
-		saved_game.read<int32_t>(soundLoop);
-		saved_game.read<int32_t>(soundOff);
-		saved_game.read<int32_t>(numBlades);
-		saved_game.read<>(blade);
-		saved_game.read<int32_t>(stylesLearned);
-		saved_game.read<int32_t>(stylesForbidden);
-		saved_game.read<int32_t>(maxChain);
-		saved_game.read<int32_t>(forceRestrictions);
-		saved_game.read<int32_t>(lockBonus);
-		saved_game.read<int32_t>(parryBonus);
-		saved_game.read<int32_t>(breakParryBonus);
-		saved_game.read<int32_t>(breakParryBonus2);
-		saved_game.read<int32_t>(disarmBonus);
-		saved_game.read<int32_t>(disarmBonus2);
-		saved_game.read<int32_t>(singleBladeStyle);
-		saved_game.read<int32_t>(brokenSaber1);
-		saved_game.read<int32_t>(brokenSaber2);
-		saved_game.read<int32_t>(saberFlags);
-		saved_game.read<int32_t>(saberFlags2);
-		saved_game.read<int32_t>(spinSound);
-		saved_game.read<int32_t>(swingSound);
-		saved_game.read<int32_t>(fallSound);
-		saved_game.read<float>(moveSpeedScale);
-		saved_game.read<float>(animSpeedScale);
-		saved_game.read<int32_t>(kataMove);
-		saved_game.read<int32_t>(lungeAtkMove);
-		saved_game.read<int32_t>(jumpAtkUpMove);
-		saved_game.read<int32_t>(jumpAtkFwdMove);
-		saved_game.read<int32_t>(jumpAtkBackMove);
-		saved_game.read<int32_t>(jumpAtkRightMove);
-		saved_game.read<int32_t>(jumpAtkLeftMove);
-		saved_game.read<int32_t>(readyAnim);
-		saved_game.read<int32_t>(drawAnim);
-		saved_game.read<int32_t>(putawayAnim);
-		saved_game.read<int32_t>(tauntAnim);
-		saved_game.read<int32_t>(bowAnim);
-		saved_game.read<int32_t>(meditateAnim);
-		saved_game.read<int32_t>(flourishAnim);
-		saved_game.read<int32_t>(gloatAnim);
-		saved_game.read<int32_t>(bladeStyle2Start);
-		saved_game.read<int32_t>(trailStyle);
-		saved_game.read<int8_t>(g2MarksShader);
-		saved_game.read<int8_t>(g2WeaponMarkShader);
-		saved_game.read<int32_t>(hitSound);
-		saved_game.read<int32_t>(blockSound);
-		saved_game.read<int32_t>(bounceSound);
-		saved_game.read<int32_t>(blockEffect);
-		saved_game.read<int32_t>(hitPersonEffect);
-		saved_game.read<int32_t>(hitOtherEffect);
-		saved_game.read<int32_t>(bladeEffect);
-		saved_game.read<float>(knockbackScale);
-		saved_game.read<float>(damageScale);
-		saved_game.read<float>(splashRadius);
-		saved_game.read<int32_t>(splashDamage);
-		saved_game.read<float>(splashKnockback);
-		saved_game.read<int32_t>(trailStyle2);
-		saved_game.read<int8_t>(g2MarksShader2);
-		saved_game.read<int8_t>(g2WeaponMarkShader2);
-		saved_game.read<int32_t>(hit2Sound);
-		saved_game.read<int32_t>(block2Sound);
-		saved_game.read<int32_t>(bounce2Sound);
-		saved_game.read<int32_t>(blockEffect2);
-		saved_game.read<int32_t>(hitPersonEffect2);
-		saved_game.read<int32_t>(hitOtherEffect2);
-		saved_game.read<int32_t>(bladeEffect2);
-		saved_game.read<float>(knockbackScale2);
-		saved_game.read<float>(damageScale2);
-		saved_game.read<float>(splashRadius2);
-		saved_game.read<int32_t>(splashDamage2);
-		saved_game.read<float>(splashKnockback2);
-	}
+    void sg_import(ojk::SavedGameHelper& saved_game)
+    {
+        saved_game.read<int32_t>(name);
+        saved_game.read<int32_t>(fullName);
+        saved_game.read<int32_t>(type);
+        saved_game.read<int32_t>(model);
+        saved_game.read<int32_t>(skin);
+        saved_game.read<int32_t>(soundOn);
+        saved_game.read<int32_t>(soundLoop);
+        saved_game.read<int32_t>(soundOff);
+        saved_game.read<int32_t>(numBlades);
+        saved_game.read<>(blade);
+        saved_game.read<int32_t>(stylesLearned);
+        saved_game.read<int32_t>(stylesForbidden);
+        saved_game.read<int32_t>(maxChain);
+        saved_game.read<int32_t>(forceRestrictions);
+        saved_game.read<int32_t>(lockBonus);
+        saved_game.read<int32_t>(parryBonus);
+        saved_game.read<int32_t>(breakParryBonus);
+        saved_game.read<int32_t>(breakParryBonus2);
+        saved_game.read<int32_t>(disarmBonus);
+        saved_game.read<int32_t>(disarmBonus2);
+        saved_game.read<int32_t>(singleBladeStyle);
+        saved_game.read<int32_t>(brokenSaber1);
+        saved_game.read<int32_t>(brokenSaber2);
+        saved_game.read<int32_t>(saberFlags);
+        saved_game.read<int32_t>(saberFlags2);
+        saved_game.read<int32_t>(spinSound);
+        saved_game.read<int32_t>(swingSound);
+        saved_game.read<int32_t>(fallSound);
+        saved_game.read<float>(moveSpeedScale);
+        saved_game.read<float>(animSpeedScale);
+        saved_game.read<int32_t>(kataMove);
+        saved_game.read<int32_t>(lungeAtkMove);
+        saved_game.read<int32_t>(jumpAtkUpMove);
+        saved_game.read<int32_t>(jumpAtkFwdMove);
+        saved_game.read<int32_t>(jumpAtkBackMove);
+        saved_game.read<int32_t>(jumpAtkRightMove);
+        saved_game.read<int32_t>(jumpAtkLeftMove);
+        saved_game.read<int32_t>(readyAnim);
+        saved_game.read<int32_t>(drawAnim);
+        saved_game.read<int32_t>(putawayAnim);
+        saved_game.read<int32_t>(tauntAnim);
+        saved_game.read<int32_t>(bowAnim);
+        saved_game.read<int32_t>(meditateAnim);
+        saved_game.read<int32_t>(flourishAnim);
+        saved_game.read<int32_t>(gloatAnim);
+        saved_game.read<int32_t>(bladeStyle2Start);
+        saved_game.read<int32_t>(trailStyle);
+        saved_game.read<int8_t>(g2MarksShader);
+        saved_game.read<int8_t>(g2WeaponMarkShader);
+        saved_game.read<int32_t>(hitSound);
+        saved_game.read<int32_t>(blockSound);
+        saved_game.read<int32_t>(bounceSound);
+        saved_game.read<int32_t>(blockEffect);
+        saved_game.read<int32_t>(hitPersonEffect);
+        saved_game.read<int32_t>(hitOtherEffect);
+        saved_game.read<int32_t>(bladeEffect);
+        saved_game.read<float>(knockbackScale);
+        saved_game.read<float>(damageScale);
+        saved_game.read<float>(splashRadius);
+        saved_game.read<int32_t>(splashDamage);
+        saved_game.read<float>(splashKnockback);
+        saved_game.read<int32_t>(trailStyle2);
+        saved_game.read<int8_t>(g2MarksShader2);
+        saved_game.read<int8_t>(g2WeaponMarkShader2);
+        saved_game.read<int32_t>(hit2Sound);
+        saved_game.read<int32_t>(block2Sound);
+        saved_game.read<int32_t>(bounce2Sound);
+        saved_game.read<int32_t>(blockEffect2);
+        saved_game.read<int32_t>(hitPersonEffect2);
+        saved_game.read<int32_t>(hitOtherEffect2);
+        saved_game.read<int32_t>(bladeEffect2);
+        saved_game.read<float>(knockbackScale2);
+        saved_game.read<float>(damageScale2);
+        saved_game.read<float>(splashRadius2);
+        saved_game.read<int32_t>(splashDamage2);
+        saved_game.read<float>(splashKnockback2);
+    }
 } saberInfo_t;
 
-//NOTE: Below is the *retail* version of the saberInfo_t structure - it is ONLY used for loading retail-version savegames (we load the savegame into this smaller structure, then copy each field into the appropriate field in the new structure - see SG_ConvertRetailSaberinfoToNewSaberinfo()
-class saberInfoRetail_t
-{
+// NOTE: Below is the *retail* version of the saberInfo_t structure - it is ONLY used for loading retail-version savegames (we load the savegame into this
+// smaller structure, then copy each field into the appropriate field in the new structure - see SG_ConvertRetailSaberinfoToNewSaberinfo()
+class saberInfoRetail_t {
 public:
-	char		*name;						//entry in sabers.cfg, if any
-	char		*fullName;					//the "Proper Name" of the saber, shown in the UI
-	saberType_t	type;						//none, single or staff
-	const char	*model;						//hilt model
-	char		*skin;						//hilt custom skin
-	int			soundOn;					//game soundindex for turning on sound
-	int			soundLoop;					//game soundindex for hum/loop sound
-	int			soundOff;					//game soundindex for turning off sound
-	int			numBlades;
-	bladeInfo_t	blade[MAX_BLADES];			//blade info - like length, trail, origin, dir, etc.
-	saber_styles_t	style;					//locked style to use, if any
-	int			maxChain;					//how many moves can be chained in a row with this weapon (-1 is infinite, 0 is use default behavior)
-	bool	lockable;					//can get into a saberlock
-	bool	throwable;					//whether or not this saber can be thrown - FIXME: maybe make this a max level of force saber throw that can be used with this saber?
-	bool	disarmable;					//whether or not this saber can be dropped
-	bool	activeBlocking;				//whether or not to try to block incoming shots with this saber
-	bool	twoHanded;					//uses both hands
-	int			forceRestrictions;			//force powers that cannot be used while this saber is on (bitfield) - FIXME: maybe make this a limit on the max level, per force power, that can be used with this type?
-	int			lockBonus;					//in saberlocks, this type of saber pushes harder or weaker
-	int			parryBonus;					//added to strength of parry with this saber
-	int			breakParryBonus;			//added to strength when hit a parry
-	int			disarmBonus;				//added to disarm chance when win saberlock or have a good parry (knockaway)
-	saber_styles_t	singleBladeStyle;		//makes it so that you use a different style if you only have the first blade active
-	bool	singleBladeThrowable;		//makes it so that you can throw this saber if only the first blade is on
-	char		*brokenSaber1;				//if saber is actually hit by another saber, it can be cut in half/broken and will be replaced with this saber in your right hand
-	char		*brokenSaber2;				//if saber is actually hit by another saber, it can be cut in half/broken and will be replaced with this saber in your left hand
-	bool	returnDamage;				//when returning from a saber throw, it keeps spinning and doing damage
-	void		Activate( void )
-				{
-					for ( int i = 0; i < numBlades; i++ )
-					{
-						blade[i].active = true;
-					}
-				};
+    char* name;        // entry in sabers.cfg, if any
+    char* fullName;    // the "Proper Name" of the saber, shown in the UI
+    saberType_t type;  // none, single or staff
+    const char* model; // hilt model
+    char* skin;        // hilt custom skin
+    int soundOn;       // game soundindex for turning on sound
+    int soundLoop;     // game soundindex for hum/loop sound
+    int soundOff;      // game soundindex for turning off sound
+    int numBlades;
+    bladeInfo_t blade[MAX_BLADES]; // blade info - like length, trail, origin, dir, etc.
+    saber_styles_t style;          // locked style to use, if any
+    int maxChain;                  // how many moves can be chained in a row with this weapon (-1 is infinite, 0 is use default behavior)
+    bool lockable;                 // can get into a saberlock
+    bool throwable;      // whether or not this saber can be thrown - FIXME: maybe make this a max level of force saber throw that can be used with this saber?
+    bool disarmable;     // whether or not this saber can be dropped
+    bool activeBlocking; // whether or not to try to block incoming shots with this saber
+    bool twoHanded;      // uses both hands
+    int forceRestrictions; // force powers that cannot be used while this saber is on (bitfield) - FIXME: maybe make this a limit on the max level, per force
+                           // power, that can be used with this type?
+    int lockBonus;         // in saberlocks, this type of saber pushes harder or weaker
+    int parryBonus;        // added to strength of parry with this saber
+    int breakParryBonus;   // added to strength when hit a parry
+    int disarmBonus;       // added to disarm chance when win saberlock or have a good parry (knockaway)
+    saber_styles_t singleBladeStyle; // makes it so that you use a different style if you only have the first blade active
+    bool singleBladeThrowable;       // makes it so that you can throw this saber if only the first blade is on
+    char* brokenSaber1; // if saber is actually hit by another saber, it can be cut in half/broken and will be replaced with this saber in your right hand
+    char* brokenSaber2; // if saber is actually hit by another saber, it can be cut in half/broken and will be replaced with this saber in your left hand
+    bool returnDamage;  // when returning from a saber throw, it keeps spinning and doing damage
+    void Activate(void)
+    {
+        for (int i = 0; i < numBlades; i++) {
+            blade[i].active = true;
+        }
+    };
 
-	void		Deactivate( void )
-				{
-					for ( int i = 0; i < numBlades; i++ )
-					{
-						blade[i].active = false;
-					}
-				};
+    void Deactivate(void)
+    {
+        for (int i = 0; i < numBlades; i++) {
+            blade[i].active = false;
+        }
+    };
 
-	// Description: Activate a specific Blade of this Saber.
-	// Created: 10/03/02 by Aurelio Reis, Modified: 10/03/02 by Aurelio Reis.
-	//	[in]		int iBlade		Which Blade to activate.
-	//	[in]		bool bActive	Whether to activate it (default true), or deactivate it (false).
-	//	[return]	void
-	void		BladeActivate( int iBlade, bool bActive = true )
-				{
-					// Validate blade ID/Index.
-					if ( iBlade < 0 || iBlade >= numBlades )
-						return;
+    // Description: Activate a specific Blade of this Saber.
+    // Created: 10/03/02 by Aurelio Reis, Modified: 10/03/02 by Aurelio Reis.
+    //	[in]		int iBlade		Which Blade to activate.
+    //	[in]		bool bActive	Whether to activate it (default true), or deactivate it (false).
+    //	[return]	void
+    void BladeActivate(int iBlade, bool bActive = true)
+    {
+        // Validate blade ID/Index.
+        if (iBlade < 0 || iBlade >= numBlades)
+            return;
 
-					blade[iBlade].active = bActive;
-				}
+        blade[iBlade].active = bActive;
+    }
 
-	bool	Active()
-				{
-					for ( int i = 0; i < numBlades; i++ )
-					{
-						if ( blade[i].active )
-						{
-							return true;
-						}
-					}
-					return false;
-				}
-	void		SetLength( float length )
-				{
-					for ( int i = 0; i < numBlades; i++ )
-					{
-						blade[i].length = length;
-					}
-				}
-	float		Length()
-				{//return largest length
-					float len1 = 0;
-					for ( int i = 0; i < numBlades; i++ )
-					{
-						if ( blade[i].length > len1 )
-						{
-							len1 = blade[i].length;
-						}
-					}
-					return len1;
-				};
-	float		LengthMax()
-				{
-					float len1 = 0;
-					for ( int i = 0; i < numBlades; i++ )
-					{
-						if ( blade[i].lengthMax > len1 )
-						{
-							len1 = blade[i].lengthMax;
-						}
-					}
-					return len1;
-				};
-	void		ActivateTrail ( float duration )
-				{
-					for ( int i = 0; i < numBlades; i++ )
-					{
-						blade[i].ActivateTrail( duration );
-					}
-				};
-	void		DeactivateTrail ( float duration )
-				{
-					for ( int i = 0; i < numBlades; i++ )
-					{
-						blade[i].DeactivateTrail( duration );
-					}
-				};
+    bool Active()
+    {
+        for (int i = 0; i < numBlades; i++) {
+            if (blade[i].active) {
+                return true;
+            }
+        }
+        return false;
+    }
+    void SetLength(float length)
+    {
+        for (int i = 0; i < numBlades; i++) {
+            blade[i].length = length;
+        }
+    }
+    float Length()
+    { // return largest length
+        float len1 = 0;
+        for (int i = 0; i < numBlades; i++) {
+            if (blade[i].length > len1) {
+                len1 = blade[i].length;
+            }
+        }
+        return len1;
+    };
+    float LengthMax()
+    {
+        float len1 = 0;
+        for (int i = 0; i < numBlades; i++) {
+            if (blade[i].lengthMax > len1) {
+                len1 = blade[i].lengthMax;
+            }
+        }
+        return len1;
+    };
+    void ActivateTrail(float duration)
+    {
+        for (int i = 0; i < numBlades; i++) {
+            blade[i].ActivateTrail(duration);
+        }
+    };
+    void DeactivateTrail(float duration)
+    {
+        for (int i = 0; i < numBlades; i++) {
+            blade[i].DeactivateTrail(duration);
+        }
+    };
 
+    void sg_export(ojk::SavedGameHelper& saved_game) const
+    {
+        saved_game.write<int32_t>(name);
+        saved_game.write<int32_t>(fullName);
+        saved_game.write<int32_t>(type);
+        saved_game.write<int32_t>(model);
+        saved_game.write<int32_t>(skin);
+        saved_game.write<int32_t>(soundOn);
+        saved_game.write<int32_t>(soundLoop);
+        saved_game.write<int32_t>(soundOff);
+        saved_game.write<int32_t>(numBlades);
+        saved_game.write<>(blade);
+        saved_game.write<int32_t>(style);
+        saved_game.write<int32_t>(maxChain);
+        saved_game.write<int32_t>(lockable);
+        saved_game.write<int32_t>(throwable);
+        saved_game.write<int32_t>(disarmable);
+        saved_game.write<int32_t>(activeBlocking);
+        saved_game.write<int32_t>(twoHanded);
+        saved_game.write<int32_t>(forceRestrictions);
+        saved_game.write<int32_t>(lockBonus);
+        saved_game.write<int32_t>(parryBonus);
+        saved_game.write<int32_t>(breakParryBonus);
+        saved_game.write<int32_t>(disarmBonus);
+        saved_game.write<int32_t>(singleBladeStyle);
+        saved_game.write<int32_t>(singleBladeThrowable);
+        saved_game.write<int32_t>(brokenSaber1);
+        saved_game.write<int32_t>(brokenSaber2);
+        saved_game.write<int32_t>(returnDamage);
+    }
 
-	void sg_export(
-		ojk::SavedGameHelper& saved_game) const
-	{
-		saved_game.write<int32_t>(name);
-		saved_game.write<int32_t>(fullName);
-		saved_game.write<int32_t>(type);
-		saved_game.write<int32_t>(model);
-		saved_game.write<int32_t>(skin);
-		saved_game.write<int32_t>(soundOn);
-		saved_game.write<int32_t>(soundLoop);
-		saved_game.write<int32_t>(soundOff);
-		saved_game.write<int32_t>(numBlades);
-		saved_game.write<>(blade);
-		saved_game.write<int32_t>(style);
-		saved_game.write<int32_t>(maxChain);
-		saved_game.write<int32_t>(lockable);
-		saved_game.write<int32_t>(throwable);
-		saved_game.write<int32_t>(disarmable);
-		saved_game.write<int32_t>(activeBlocking);
-		saved_game.write<int32_t>(twoHanded);
-		saved_game.write<int32_t>(forceRestrictions);
-		saved_game.write<int32_t>(lockBonus);
-		saved_game.write<int32_t>(parryBonus);
-		saved_game.write<int32_t>(breakParryBonus);
-		saved_game.write<int32_t>(disarmBonus);
-		saved_game.write<int32_t>(singleBladeStyle);
-		saved_game.write<int32_t>(singleBladeThrowable);
-		saved_game.write<int32_t>(brokenSaber1);
-		saved_game.write<int32_t>(brokenSaber2);
-		saved_game.write<int32_t>(returnDamage);
-	}
+    void sg_import(ojk::SavedGameHelper& saved_game)
+    {
+        saved_game.read<int32_t>(name);
+        saved_game.read<int32_t>(fullName);
+        saved_game.read<int32_t>(type);
+        saved_game.read<int32_t>(model);
+        saved_game.read<int32_t>(skin);
+        saved_game.read<int32_t>(soundOn);
+        saved_game.read<int32_t>(soundLoop);
+        saved_game.read<int32_t>(soundOff);
+        saved_game.read<int32_t>(numBlades);
+        saved_game.read<>(blade);
+        saved_game.read<int32_t>(style);
+        saved_game.read<int32_t>(maxChain);
+        saved_game.read<int32_t>(lockable);
+        saved_game.read<int32_t>(throwable);
+        saved_game.read<int32_t>(disarmable);
+        saved_game.read<int32_t>(activeBlocking);
+        saved_game.read<int32_t>(twoHanded);
+        saved_game.read<int32_t>(forceRestrictions);
+        saved_game.read<int32_t>(lockBonus);
+        saved_game.read<int32_t>(parryBonus);
+        saved_game.read<int32_t>(breakParryBonus);
+        saved_game.read<int32_t>(disarmBonus);
+        saved_game.read<int32_t>(singleBladeStyle);
+        saved_game.read<int32_t>(singleBladeThrowable);
+        saved_game.read<int32_t>(brokenSaber1);
+        saved_game.read<int32_t>(brokenSaber2);
+        saved_game.read<int32_t>(returnDamage);
+    }
 
-	void sg_import(
-		ojk::SavedGameHelper& saved_game)
-	{
-		saved_game.read<int32_t>(name);
-		saved_game.read<int32_t>(fullName);
-		saved_game.read<int32_t>(type);
-		saved_game.read<int32_t>(model);
-		saved_game.read<int32_t>(skin);
-		saved_game.read<int32_t>(soundOn);
-		saved_game.read<int32_t>(soundLoop);
-		saved_game.read<int32_t>(soundOff);
-		saved_game.read<int32_t>(numBlades);
-		saved_game.read<>(blade);
-		saved_game.read<int32_t>(style);
-		saved_game.read<int32_t>(maxChain);
-		saved_game.read<int32_t>(lockable);
-		saved_game.read<int32_t>(throwable);
-		saved_game.read<int32_t>(disarmable);
-		saved_game.read<int32_t>(activeBlocking);
-		saved_game.read<int32_t>(twoHanded);
-		saved_game.read<int32_t>(forceRestrictions);
-		saved_game.read<int32_t>(lockBonus);
-		saved_game.read<int32_t>(parryBonus);
-		saved_game.read<int32_t>(breakParryBonus);
-		saved_game.read<int32_t>(disarmBonus);
-		saved_game.read<int32_t>(singleBladeStyle);
-		saved_game.read<int32_t>(singleBladeThrowable);
-		saved_game.read<int32_t>(brokenSaber1);
-		saved_game.read<int32_t>(brokenSaber2);
-		saved_game.read<int32_t>(returnDamage);
-	}
-
-	void sg_export(
-		saberInfo_t& dst) const;
+    void sg_export(saberInfo_t& dst) const;
 }; // saberInfoRetail_t
 
-inline constexpr int MAX_SABERS = 2;	// if this ever changes then update the table "static const save_field_t savefields_gClient[]"!!!!!!!!!!!!
+inline constexpr int MAX_SABERS = 2; // if this ever changes then update the table "static const save_field_t savefields_gClient[]"!!!!!!!!!!!!
 
 // playerState_t is the information needed by both the client and server
 // to predict player motion and actions
@@ -1469,781 +1364,750 @@ inline constexpr int MAX_SABERS = 2;	// if this ever changes then update the tab
 // so if a playerState_t is transmitted, the entityState_t can be fully derived
 // from it.
 // !!!!!!!!!! LOADSAVE-affecting structure !!!!!!!!!!
-enum class persEnum_t;	// bg_public.h
-enum class statIndex_t;	// statindex.h
-enum class powerup_t;	// bg_public.h
-enum class ammo_t;	// weapons.h
-enum class inventory_t;	// g_items.h of each single-player game (code/game, codeJK2/game), each its own
-enum class weapon_t;	// weapons.h
-enum class weaponstate_t;	// bg_public.h
-enum class saberBlockedType_t;	// g_shared.h
-enum class saberEventFlags_t;	// wp_saber.h of each single-player game (code/game, codeJK2/game), each its own
-enum class pmtype_t;	// bg_public.h
-enum class entity_event_t;	// bg_public.h
-enum class entityType_t;	// bg_public.h
-enum class pmoveFlags_t;	// bg_public.h of each single-player game (code/game, codeJK2/game), each its own
-enum class entityFlags_t : uint32_t;	// bg_public.h of each single-player game (code/game, codeJK2/game), each its own
-enum class saberEntityState_t;	// wp_saber.h of each single-player game (code/game, codeJK2/game), each its own
+enum class persEnum_t;               // bg_public.h
+enum class statIndex_t;              // statindex.h
+enum class powerup_t;                // bg_public.h
+enum class ammo_t;                   // weapons.h
+enum class inventory_t;              // g_items.h of each single-player game (code/game, codeJK2/game), each its own
+enum class weapon_t;                 // weapons.h
+enum class weaponstate_t;            // bg_public.h
+enum class saberBlockedType_t;       // g_shared.h
+enum class saberEventFlags_t;        // wp_saber.h of each single-player game (code/game, codeJK2/game), each its own
+enum class pmtype_t;                 // bg_public.h
+enum class entity_event_t;           // bg_public.h
+enum class entityType_t;             // bg_public.h
+enum class pmoveFlags_t;             // bg_public.h of each single-player game (code/game, codeJK2/game), each its own
+enum class entityFlags_t : uint32_t; // bg_public.h of each single-player game (code/game, codeJK2/game), each its own
+enum class saberEntityState_t;       // wp_saber.h of each single-player game (code/game, codeJK2/game), each its own
 
-template<typename TSaberInfo>
-class PlayerStateBase
-{
+template <typename TSaberInfo> class PlayerStateBase {
 public:
-	int			commandTime;		// cmd->serverTime of last executed command
-	pmtype_t	pm_type;
-	int			bobCycle;			// for view bobbing and footstep generation
-	pmoveFlags_t			pm_flags;			// ducked, jump_held, etc
-	int			pm_time;
+    int commandTime; // cmd->serverTime of last executed command
+    pmtype_t pm_type;
+    int bobCycle;          // for view bobbing and footstep generation
+    pmoveFlags_t pm_flags; // ducked, jump_held, etc
+    int pm_time;
 
-	vec3_t		origin;
-	vec3_t		velocity;
-	int			weaponTime;
-	int			weaponChargeTime;
-	int			rechargeTime;		// for the phaser
-	int			gravity;
-	int			leanofs;
-	int			friction;
-	int			speed;
-	int			delta_angles[3];	// add to command angles to get view direction
-									// changed by spawns, rotating objects, and teleporters
+    vec3_t origin;
+    vec3_t velocity;
+    int weaponTime;
+    int weaponChargeTime;
+    int rechargeTime; // for the phaser
+    int gravity;
+    int leanofs;
+    int friction;
+    int speed;
+    int delta_angles[3]; // add to command angles to get view direction
+                         // changed by spawns, rotating objects, and teleporters
 
-	int			groundEntityNum;// ENTITYNUM_NONE = in air
-	animNumber_t	legsAnim;		//
-	int			legsAnimTimer;	// don't change low priority animations on legs until this runs out
-	animNumber_t	torsoAnim;		//
-	int			torsoAnimTimer;	// don't change low priority animations on torso until this runs out
-	int			movementDir;	// a number 0 to 7 that represents the relative angle
-								// of movement to the view angle (axial and diagonals)
-								// when at rest, the value will remain unchanged
-								// used to twist the legs during strafing
+    int groundEntityNum;    // ENTITYNUM_NONE = in air
+    animNumber_t legsAnim;  //
+    int legsAnimTimer;      // don't change low priority animations on legs until this runs out
+    animNumber_t torsoAnim; //
+    int torsoAnimTimer;     // don't change low priority animations on torso until this runs out
+    int movementDir;        // a number 0 to 7 that represents the relative angle
+                            // of movement to the view angle (axial and diagonals)
+                            // when at rest, the value will remain unchanged
+                            // used to twist the legs during strafing
 
-	entityFlags_t			eFlags;			// copied to entityState_t->eFlags
+    entityFlags_t eFlags; // copied to entityState_t->eFlags
 
-	int			eventSequence;	// pmove generated events
-	entity_event_t	events[MAX_PS_EVENTS];
-	int			eventParms[MAX_PS_EVENTS];
+    int eventSequence; // pmove generated events
+    entity_event_t events[MAX_PS_EVENTS];
+    int eventParms[MAX_PS_EVENTS];
 
-	int			externalEvent;	// events set on player from another source
-	int			externalEventParm;
-	int			externalEventTime;
+    int externalEvent; // events set on player from another source
+    int externalEventParm;
+    int externalEventTime;
 
-	int			clientNum;		// ranges from 0 to MAX_CLIENTS-1
-	weapon_t	weapon;			// copied to entityState_t->weapon
-	weaponstate_t	weaponstate;
+    int clientNum;   // ranges from 0 to MAX_CLIENTS-1
+    weapon_t weapon; // copied to entityState_t->weapon
+    weaponstate_t weaponstate;
 
-	int			batteryCharge;
+    int batteryCharge;
 
-	vec3_t		viewangles;		// for fixed views
-	float		legsYaw;		// actual legs forward facing
-	int			viewheight;
+    vec3_t viewangles; // for fixed views
+    float legsYaw;     // actual legs forward facing
+    int viewheight;
 
-	// damage feedback
-	int			damageEvent;							// when it changes, latch the other parms
-	int			damageYaw;
-	int			damagePitch;
-	int			damageCount;
+    // damage feedback
+    int damageEvent; // when it changes, latch the other parms
+    int damageYaw;
+    int damagePitch;
+    int damageCount;
 
-	EnumArray<int, statIndex_t, MAX_STATS>	stats;
-	EnumArray<int, persEnum_t, MAX_PERSISTANT>	persistant;				// stats that aren't cleared on death
-	EnumArray<int, powerup_t, MAX_POWERUPS>	powerups;					// level.time that the powerup runs out
-	EnumArray<int, ammo_t, MAX_AMMO>	ammo;
-	EnumArray<int, inventory_t, MAX_INVENTORY>	inventory;				// Count of each inventory item.
-	char  		security_key_message[MAX_SECURITY_KEYS][MAX_SECURITY_KEY_MESSSAGE];	// Security key types
+    EnumArray<int, statIndex_t, MAX_STATS> stats;
+    EnumArray<int, persEnum_t, MAX_PERSISTANT> persistant; // stats that aren't cleared on death
+    EnumArray<int, powerup_t, MAX_POWERUPS> powerups;      // level.time that the powerup runs out
+    EnumArray<int, ammo_t, MAX_AMMO> ammo;
+    EnumArray<int, inventory_t, MAX_INVENTORY> inventory;                    // Count of each inventory item.
+    char security_key_message[MAX_SECURITY_KEYS][MAX_SECURITY_KEY_MESSSAGE]; // Security key types
 
-	vec3_t		serverViewOrg;
+    vec3_t serverViewOrg;
 
-	bool	saberInFlight;
+    bool saberInFlight;
 #ifdef JK2_MODE
-	bool	saberActive;	// -- JK2 --
+    bool saberActive; // -- JK2 --
 
-	int			vehicleModel;	// -- JK2 --
-	int			viewEntity;		// For overriding player movement controls and vieworg
-	saber_colors_t	saberColor; // -- JK2 --
-	float		saberLength;	// -- JK2 --
-	float		saberLengthMax;	// -- JK2 --
-	int			forcePowersActive;	//prediction needs to know this
+    int vehicleModel;          // -- JK2 --
+    int viewEntity;            // For overriding player movement controls and vieworg
+    saber_colors_t saberColor; // -- JK2 --
+    float saberLength;         // -- JK2 --
+    float saberLengthMax;      // -- JK2 --
+    int forcePowersActive;     // prediction needs to know this
 #else
-	int			viewEntity;		// For overriding player movement controls and vieworg
-	int			forcePowersActive;	//prediction needs to know this
+    int viewEntity;        // For overriding player movement controls and vieworg
+    int forcePowersActive; // prediction needs to know this
 
 #endif
 
-	//NEW vehicle stuff
-	// This has been localized to the vehicle stuff (NOTE: We can still use it later, I'm just commenting it to
-	// root out all the calls. We can store the data in vehicles and update by copying it here).
-	//int			vehicleIndex;	// Index into vehicleData table
-	//vec3_t		vehicleAngles;	// current angles of your vehicle
-	//int			vehicleArmor;	// current armor of your vehicle (explodes if drops to 0)
+    // NEW vehicle stuff
+    //  This has been localized to the vehicle stuff (NOTE: We can still use it later, I'm just commenting it to
+    //  root out all the calls. We can store the data in vehicles and update by copying it here).
+    // int			vehicleIndex;	// Index into vehicleData table
+    // vec3_t		vehicleAngles;	// current angles of your vehicle
+    // int			vehicleArmor;	// current armor of your vehicle (explodes if drops to 0)
 
-	// !!
-	// not communicated over the net at all
-	// !!
-	//int			vehicleLastFXTime;				//timer for all cgame-FX...?
-	//int			vehicleExplodeTime;				//when it will go BOOM!
+    // !!
+    // not communicated over the net at all
+    // !!
+    // int			vehicleLastFXTime;				//timer for all cgame-FX...?
+    // int			vehicleExplodeTime;				//when it will go BOOM!
 
-	int			useTime;	//not sent
-	int			lastShotTime;//last time you shot your weapon
-	int			ping;			// server to game info for scoreboard
-	int			lastOnGround;	//last time you were on the ground
-	int			lastStationary;	//last time you were on the ground
-	int			weaponShotCount;
-
-#ifndef JK2_MODE
-	//FIXME: maybe allocate all these structures (saber, force powers, vehicles)
-	//			or descend them as classes - so not every client has all this info
-	TSaberInfo	saber[MAX_SABERS];
-	bool	dualSabers;
-	bool	SaberStaff( void ) { return ( saber[0].type == saberType_t::SABER_STAFF || (dualSabers && saber[1].type == saberType_t::SABER_STAFF) ); };
-	bool	SaberActive() { return ( saber[0].Active() || (dualSabers&&saber[1].Active()) ); };
-	void		SetSaberLength( float length )
-				{
-					saber[0].SetLength( length );
-					if ( dualSabers )
-					{
-						saber[1].SetLength( length );
-					}
-				}
-	float		SaberLength()
-				{//return largest length
-					float len1 = saber[0].Length();
-					if ( dualSabers && saber[1].Length() > len1 )
-					{
-						return saber[1].Length();
-					}
-					return len1;
-				};
-	float		SaberLengthMax()
-				{
-					if ( saber[0].LengthMax() > saber[1].LengthMax() )
-					{
-						return saber[0].LengthMax();
-					}
-					else if ( dualSabers )
-					{
-						return saber[1].LengthMax();
-					}
-					return 0.0f;
-				};
-
-	// Activate or deactivate a specific Blade of a Saber.
-	// Created: 10/03/02 by Aurelio Reis, Modified: 10/03/02 by Aurelio Reis.
-	//	[in]	int iSaber		Which Saber to modify.
-	//	[in]	int iBlade		Which blade to modify (0 - (NUM_BLADES - 1)).
-	//	[in]	bool bActive	Whether to make it active (default true) or inactive (false).
-	//	[return]	void
-	void		SaberBladeActivate( int iSaber, int iBlade, bool bActive = true )
-	{
-		// Validate saber (if it's greater than or equal to zero, OR it above the first saber but we
-		// are not doing duel Sabers, leave, something is not right.
-		if ( iSaber < 0 || ( iSaber > 0  && !dualSabers ) )
-			return;
-
-		saber[iSaber].BladeActivate( iBlade, bActive );
-	}
-
-	void		SaberActivate( void )
-				{
-					saber[0].Activate();
-					if ( dualSabers )
-					{
-						saber[1].Activate();
-					}
-				}
-	void		SaberDeactivate( void )
-				{
-					saber[0].Deactivate();
-					saber[1].Deactivate();
-				};
-	void		SaberActivateTrail ( float duration )
-				{
-					saber[0].ActivateTrail( duration );
-					if ( dualSabers )
-					{
-						saber[1].ActivateTrail( duration );
-					}
-				};
-	void		SaberDeactivateTrail ( float duration )
-				{
-					saber[0].DeactivateTrail( duration );
-					if ( dualSabers )
-					{
-						saber[1].DeactivateTrail( duration );
-					}
-				};
-	int			SaberDisarmBonus( int bladeNum )
-				{
-					int disarmBonus = 0;
-					if ( saber[0].Active() )
-					{
-						if ( saber[0].bladeStyle2Start > 0
-							&& bladeNum >= saber[0].bladeStyle2Start )
-						{
-							disarmBonus += saber[0].disarmBonus2;
-						}
-						else
-						{
-							disarmBonus += saber[0].disarmBonus;
-						}
-					}
-					if ( dualSabers && saber[1].Active() )
-					{//bonus for having 2 sabers
-						if ( saber[1].bladeStyle2Start > 0
-							&& bladeNum >= saber[1].bladeStyle2Start )
-						{
-                            disarmBonus += 1 + saber[1].disarmBonus2;
-						}
-						else
-						{
-                            disarmBonus += 1 + saber[1].disarmBonus;
-						}
-					}
-					return disarmBonus;
-				};
-	int			SaberParryBonus( void )
-				{
-					int parryBonus = 0;
-					if ( saber[0].Active() )
-					{
-						parryBonus += saber[0].parryBonus;
-					}
-					if ( dualSabers && saber[1].Active() )
-					{//bonus for having 2 sabers
-						parryBonus += 1 + saber[1].parryBonus;
-					}
-					return parryBonus;
-				};
-#endif // !JK2_MODE
-
-	saberMoveName_t	saberMove;
+    int useTime;        // not sent
+    int lastShotTime;   // last time you shot your weapon
+    int ping;           // server to game info for scoreboard
+    int lastOnGround;   // last time you were on the ground
+    int lastStationary; // last time you were on the ground
+    int weaponShotCount;
 
 #ifndef JK2_MODE
-	saberMoveName_t	saberMoveNext;
+    // FIXME: maybe allocate all these structures (saber, force powers, vehicles)
+    //			or descend them as classes - so not every client has all this info
+    TSaberInfo saber[MAX_SABERS];
+    bool dualSabers;
+    bool SaberStaff(void) { return (saber[0].type == saberType_t::SABER_STAFF || (dualSabers && saber[1].type == saberType_t::SABER_STAFF)); };
+    bool SaberActive() { return (saber[0].Active() || (dualSabers && saber[1].Active())); };
+    void SetSaberLength(float length)
+    {
+        saber[0].SetLength(length);
+        if (dualSabers) {
+            saber[1].SetLength(length);
+        }
+    }
+    float SaberLength()
+    { // return largest length
+        float len1 = saber[0].Length();
+        if (dualSabers && saber[1].Length() > len1) {
+            return saber[1].Length();
+        }
+        return len1;
+    };
+    float SaberLengthMax()
+    {
+        if (saber[0].LengthMax() > saber[1].LengthMax()) {
+            return saber[0].LengthMax();
+        }
+        else if (dualSabers) {
+            return saber[1].LengthMax();
+        }
+        return 0.0f;
+    };
+
+    // Activate or deactivate a specific Blade of a Saber.
+    // Created: 10/03/02 by Aurelio Reis, Modified: 10/03/02 by Aurelio Reis.
+    //	[in]	int iSaber		Which Saber to modify.
+    //	[in]	int iBlade		Which blade to modify (0 - (NUM_BLADES - 1)).
+    //	[in]	bool bActive	Whether to make it active (default true) or inactive (false).
+    //	[return]	void
+    void SaberBladeActivate(int iSaber, int iBlade, bool bActive = true)
+    {
+        // Validate saber (if it's greater than or equal to zero, OR it above the first saber but we
+        // are not doing duel Sabers, leave, something is not right.
+        if (iSaber < 0 || (iSaber > 0 && !dualSabers))
+            return;
+
+        saber[iSaber].BladeActivate(iBlade, bActive);
+    }
+
+    void SaberActivate(void)
+    {
+        saber[0].Activate();
+        if (dualSabers) {
+            saber[1].Activate();
+        }
+    }
+    void SaberDeactivate(void)
+    {
+        saber[0].Deactivate();
+        saber[1].Deactivate();
+    };
+    void SaberActivateTrail(float duration)
+    {
+        saber[0].ActivateTrail(duration);
+        if (dualSabers) {
+            saber[1].ActivateTrail(duration);
+        }
+    };
+    void SaberDeactivateTrail(float duration)
+    {
+        saber[0].DeactivateTrail(duration);
+        if (dualSabers) {
+            saber[1].DeactivateTrail(duration);
+        }
+    };
+    int SaberDisarmBonus(int bladeNum)
+    {
+        int disarmBonus = 0;
+        if (saber[0].Active()) {
+            if (saber[0].bladeStyle2Start > 0 && bladeNum >= saber[0].bladeStyle2Start) {
+                disarmBonus += saber[0].disarmBonus2;
+            }
+            else {
+                disarmBonus += saber[0].disarmBonus;
+            }
+        }
+        if (dualSabers && saber[1].Active()) { // bonus for having 2 sabers
+            if (saber[1].bladeStyle2Start > 0 && bladeNum >= saber[1].bladeStyle2Start) {
+                disarmBonus += 1 + saber[1].disarmBonus2;
+            }
+            else {
+                disarmBonus += 1 + saber[1].disarmBonus;
+            }
+        }
+        return disarmBonus;
+    };
+    int SaberParryBonus(void)
+    {
+        int parryBonus = 0;
+        if (saber[0].Active()) {
+            parryBonus += saber[0].parryBonus;
+        }
+        if (dualSabers && saber[1].Active()) { // bonus for having 2 sabers
+            parryBonus += 1 + saber[1].parryBonus;
+        }
+        return parryBonus;
+    };
 #endif // !JK2_MODE
 
-	saberMoveName_t	saberBounceMove;
-	saberBlockType_t	saberBlocking;
-	saberBlockedType_t	saberBlocked;
-	short		leanStopDebounceTime;
+    saberMoveName_t saberMove;
+
+#ifndef JK2_MODE
+    saberMoveName_t saberMoveNext;
+#endif // !JK2_MODE
+
+    saberMoveName_t saberBounceMove;
+    saberBlockType_t saberBlocking;
+    saberBlockedType_t saberBlocked;
+    short leanStopDebounceTime;
 
 #ifdef JK2_MODE
-	float		saberLengthOld;
+    float saberLengthOld;
 #endif
-	int			saberEntityNum;
-	float		saberEntityDist;
-	int			saberThrowTime;
-	saberEntityState_t	saberEntityState;
-	int			saberDamageDebounceTime;
-	int			saberHitWallSoundDebounceTime;
-	saberEventFlags_t			saberEventFlags;
-	int			saberBlockingTime;
+    int saberEntityNum;
+    float saberEntityDist;
+    int saberThrowTime;
+    saberEntityState_t saberEntityState;
+    int saberDamageDebounceTime;
+    int saberHitWallSoundDebounceTime;
+    saberEventFlags_t saberEventFlags;
+    int saberBlockingTime;
 #ifdef JK2_MODE
-	forcePowerLevels_t	saberAnimLevel;		// a force level in Jedi Outcast
+    forcePowerLevels_t saberAnimLevel; // a force level in Jedi Outcast
 #else
-	saber_styles_t	saberAnimLevel;
+    saber_styles_t saberAnimLevel;
 #endif
-	int			saberAttackChainCount;
-	int			saberLockTime;
-	int			saberLockEnemy;
+    int saberAttackChainCount;
+    int saberLockTime;
+    int saberLockEnemy;
 
 #ifndef JK2_MODE
-	int			saberStylesKnown;
+    int saberStylesKnown;
 #endif // !JK2_MODE
 
 #ifdef JK2_MODE
-	const char	*saberModel;
+    const char* saberModel;
 #endif
 
-	int			forcePowersKnown;
-	EnumArray<int, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS>	forcePowerDuration;	//for effects that have a duration
-	EnumArray<int, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS>	forcePowerDebounce;	//for effects that must have an interval
-	int			forcePower;
-	int			forcePowerMax;
-	int			forcePowerRegenDebounceTime;
+    int forcePowersKnown;
+    EnumArray<int, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS> forcePowerDuration; // for effects that have a duration
+    EnumArray<int, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS> forcePowerDebounce; // for effects that must have an interval
+    int forcePower;
+    int forcePowerMax;
+    int forcePowerRegenDebounceTime;
 
 #ifndef JK2_MODE
-	int			forcePowerRegenRate;				//default is 100ms
-	int			forcePowerRegenAmount;				//default is 1
-#endif // !JK2_MODE
+    int forcePowerRegenRate;   // default is 100ms
+    int forcePowerRegenAmount; // default is 1
+#endif                         // !JK2_MODE
 
-	EnumArray<forcePowerLevels_t, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS>	forcePowerLevel;		//so we know the max forceJump power you have
-	float		forceJumpZStart;					//So when you land, you don't get hurt as much
-	float		forceJumpCharge;					//you're current forceJump charge-up level, increases the longer you hold the force jump button down
-	int			forceGripEntityNum;					//what entity I'm gripping
-	vec3_t		forceGripOrg;						//where the gripped ent should be lifted to
-
-#ifndef JK2_MODE
-	int			forceDrainEntityNum;				//what entity I'm draining
-	vec3_t		forceDrainOrg;						//where the drained ent should be lifted to
-#endif // !JK2_MODE
-
-	int			forceHealCount;						//how many points of force heal have been applied so far
+    EnumArray<forcePowerLevels_t, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS> forcePowerLevel; // so we know the max forceJump power you have
+    float forceJumpZStart;                                                                         // So when you land, you don't get hurt as much
+    float forceJumpCharge;  // you're current forceJump charge-up level, increases the longer you hold the force jump button down
+    int forceGripEntityNum; // what entity I'm gripping
+    vec3_t forceGripOrg;    // where the gripped ent should be lifted to
 
 #ifndef JK2_MODE
-	//new Jedi Academy force powers
-	int			forceAllowDeactivateTime;
-	int			forceRageDrainTime;
-	int			forceRageRecoveryTime;
-	int			forceDrainEntNum;
-	float		forceDrainTime;
-	int			forcePowersForced;					//client is being forced to use these powers (FIXME: and only these?)
-	int			pullAttackEntNum;
-	int			pullAttackTime;
-	int			lastKickedEntNum;
-#endif // !JK2_MODE
+    int forceDrainEntityNum; // what entity I'm draining
+    vec3_t forceDrainOrg;    // where the drained ent should be lifted to
+#endif                       // !JK2_MODE
 
-	int			taunting;							//replaced BUTTON_GESTURE
-
-	float		jumpZStart;							//So when you land, you don't get hurt as much
-	vec3_t		moveDir;
-
-	float		waterheight;						//exactly what the z org of the water is (will be +4 above if under water, -4 below if not in water)
-	waterHeightLevel_t	waterHeightLevel;					//how high it really is
+    int forceHealCount; // how many points of force heal have been applied so far
 
 #ifndef JK2_MODE
-	//testing IK grabbing
-	bool	ikStatus;		//for IK
-	int			heldClient;		//for IK, who I'm grabbing, if anyone
-	int			heldByClient;	//for IK, someone is grabbing me
-	int			heldByBolt;		//for IK, what bolt I'm attached to on the holdersomeone is grabbing me by
-	int			heldByBone;		//for IK, what bone I'm being held by
-
-	//vehicle turn-around stuff... FIXME: only vehicles need this in SP...
-	int			vehTurnaroundIndex;
-	int			vehTurnaroundTime;
-
-	//NOTE: not really used in SP, just for Fighter Vehicle damage stuff
-	int			brokenLimbs;
-	int			electrifyTime;
+    // new Jedi Academy force powers
+    int forceAllowDeactivateTime;
+    int forceRageDrainTime;
+    int forceRageRecoveryTime;
+    int forceDrainEntNum;
+    float forceDrainTime;
+    int forcePowersForced; // client is being forced to use these powers (FIXME: and only these?)
+    int pullAttackEntNum;
+    int pullAttackTime;
+    int lastKickedEntNum;
 #endif // !JK2_MODE
 
+    int taunting; // replaced BUTTON_GESTURE
 
-	void sg_export(
-		ojk::SavedGameHelper& saved_game) const
-	{
-		saved_game.write<int32_t>(commandTime);
-		saved_game.write<int32_t>(pm_type);
-		saved_game.write<int32_t>(bobCycle);
-		saved_game.write<int32_t>(pm_flags);
-		saved_game.write<int32_t>(pm_time);
-		saved_game.write<float>(origin);
-		saved_game.write<float>(velocity);
-		saved_game.write<int32_t>(weaponTime);
-		saved_game.write<int32_t>(weaponChargeTime);
-		saved_game.write<int32_t>(rechargeTime);
-		saved_game.write<int32_t>(gravity);
-		saved_game.write<int32_t>(leanofs);
-		saved_game.write<int32_t>(friction);
-		saved_game.write<int32_t>(speed);
-		saved_game.write<int32_t>(delta_angles);
-		saved_game.write<int32_t>(groundEntityNum);
-		saved_game.write<int32_t>(legsAnim);
-		saved_game.write<int32_t>(legsAnimTimer);
-		saved_game.write<int32_t>(torsoAnim);
-		saved_game.write<int32_t>(torsoAnimTimer);
-		saved_game.write<int32_t>(movementDir);
-		saved_game.write<int32_t>(eFlags);
-		saved_game.write<int32_t>(eventSequence);
-		saved_game.write<int32_t>(events);
-		saved_game.write<int32_t>(eventParms);
-		saved_game.write<int32_t>(externalEvent);
-		saved_game.write<int32_t>(externalEventParm);
-		saved_game.write<int32_t>(externalEventTime);
-		saved_game.write<int32_t>(clientNum);
-		saved_game.write<int32_t>(weapon);
-		saved_game.write<int32_t>(weaponstate);
-		saved_game.write<int32_t>(batteryCharge);
-		saved_game.write<float>(viewangles);
-		saved_game.write<float>(legsYaw);
-		saved_game.write<int32_t>(viewheight);
-		saved_game.write<int32_t>(damageEvent);
-		saved_game.write<int32_t>(damageYaw);
-		saved_game.write<int32_t>(damagePitch);
-		saved_game.write<int32_t>(damageCount);
-		saved_game.write<int32_t>(stats.elems);
-		saved_game.write<int32_t>(persistant.elems);
-		saved_game.write<int32_t>(powerups.elems);
-		saved_game.write<int32_t>(ammo.elems);
-		saved_game.write<int32_t>(inventory.elems);
-		saved_game.write<int8_t>(security_key_message);
-		saved_game.write<float>(serverViewOrg);
-		saved_game.write<int32_t>(saberInFlight);
+    float jumpZStart; // So when you land, you don't get hurt as much
+    vec3_t moveDir;
+
+    float waterheight;                   // exactly what the z org of the water is (will be +4 above if under water, -4 below if not in water)
+    waterHeightLevel_t waterHeightLevel; // how high it really is
+
+#ifndef JK2_MODE
+    // testing IK grabbing
+    bool ikStatus;    // for IK
+    int heldClient;   // for IK, who I'm grabbing, if anyone
+    int heldByClient; // for IK, someone is grabbing me
+    int heldByBolt;   // for IK, what bolt I'm attached to on the holdersomeone is grabbing me by
+    int heldByBone;   // for IK, what bone I'm being held by
+
+    // vehicle turn-around stuff... FIXME: only vehicles need this in SP...
+    int vehTurnaroundIndex;
+    int vehTurnaroundTime;
+
+    // NOTE: not really used in SP, just for Fighter Vehicle damage stuff
+    int brokenLimbs;
+    int electrifyTime;
+#endif // !JK2_MODE
+
+    void sg_export(ojk::SavedGameHelper& saved_game) const
+    {
+        saved_game.write<int32_t>(commandTime);
+        saved_game.write<int32_t>(pm_type);
+        saved_game.write<int32_t>(bobCycle);
+        saved_game.write<int32_t>(pm_flags);
+        saved_game.write<int32_t>(pm_time);
+        saved_game.write<float>(origin);
+        saved_game.write<float>(velocity);
+        saved_game.write<int32_t>(weaponTime);
+        saved_game.write<int32_t>(weaponChargeTime);
+        saved_game.write<int32_t>(rechargeTime);
+        saved_game.write<int32_t>(gravity);
+        saved_game.write<int32_t>(leanofs);
+        saved_game.write<int32_t>(friction);
+        saved_game.write<int32_t>(speed);
+        saved_game.write<int32_t>(delta_angles);
+        saved_game.write<int32_t>(groundEntityNum);
+        saved_game.write<int32_t>(legsAnim);
+        saved_game.write<int32_t>(legsAnimTimer);
+        saved_game.write<int32_t>(torsoAnim);
+        saved_game.write<int32_t>(torsoAnimTimer);
+        saved_game.write<int32_t>(movementDir);
+        saved_game.write<int32_t>(eFlags);
+        saved_game.write<int32_t>(eventSequence);
+        saved_game.write<int32_t>(events);
+        saved_game.write<int32_t>(eventParms);
+        saved_game.write<int32_t>(externalEvent);
+        saved_game.write<int32_t>(externalEventParm);
+        saved_game.write<int32_t>(externalEventTime);
+        saved_game.write<int32_t>(clientNum);
+        saved_game.write<int32_t>(weapon);
+        saved_game.write<int32_t>(weaponstate);
+        saved_game.write<int32_t>(batteryCharge);
+        saved_game.write<float>(viewangles);
+        saved_game.write<float>(legsYaw);
+        saved_game.write<int32_t>(viewheight);
+        saved_game.write<int32_t>(damageEvent);
+        saved_game.write<int32_t>(damageYaw);
+        saved_game.write<int32_t>(damagePitch);
+        saved_game.write<int32_t>(damageCount);
+        saved_game.write<int32_t>(stats.elems);
+        saved_game.write<int32_t>(persistant.elems);
+        saved_game.write<int32_t>(powerups.elems);
+        saved_game.write<int32_t>(ammo.elems);
+        saved_game.write<int32_t>(inventory.elems);
+        saved_game.write<int8_t>(security_key_message);
+        saved_game.write<float>(serverViewOrg);
+        saved_game.write<int32_t>(saberInFlight);
 
 #ifdef JK2_MODE
-		saved_game.write<int32_t>(saberActive);
-		saved_game.write<int32_t>(vehicleModel);
-		saved_game.write<int32_t>(viewEntity);
-		saved_game.write<int32_t>(saberColor);
-		saved_game.write<float>(saberLength);
-		saved_game.write<float>(saberLengthMax);
-		saved_game.write<int32_t>(forcePowersActive);
+        saved_game.write<int32_t>(saberActive);
+        saved_game.write<int32_t>(vehicleModel);
+        saved_game.write<int32_t>(viewEntity);
+        saved_game.write<int32_t>(saberColor);
+        saved_game.write<float>(saberLength);
+        saved_game.write<float>(saberLengthMax);
+        saved_game.write<int32_t>(forcePowersActive);
 #else
-		saved_game.write<int32_t>(viewEntity);
-		saved_game.write<int32_t>(forcePowersActive);
+        saved_game.write<int32_t>(viewEntity);
+        saved_game.write<int32_t>(forcePowersActive);
 #endif // JK2_MODE
 
-		saved_game.write<int32_t>(useTime);
-		saved_game.write<int32_t>(lastShotTime);
-		saved_game.write<int32_t>(ping);
-		saved_game.write<int32_t>(lastOnGround);
-		saved_game.write<int32_t>(lastStationary);
-		saved_game.write<int32_t>(weaponShotCount);
+        saved_game.write<int32_t>(useTime);
+        saved_game.write<int32_t>(lastShotTime);
+        saved_game.write<int32_t>(ping);
+        saved_game.write<int32_t>(lastOnGround);
+        saved_game.write<int32_t>(lastStationary);
+        saved_game.write<int32_t>(weaponShotCount);
 
 #ifndef JK2_MODE
-		saved_game.write<>(saber);
-		saved_game.write<int32_t>(dualSabers);
+        saved_game.write<>(saber);
+        saved_game.write<int32_t>(dualSabers);
 #endif // !JK2_MODE
 
-		saved_game.write<int16_t>(saberMove);
+        saved_game.write<int16_t>(saberMove);
 
 #ifndef JK2_MODE
-		saved_game.write<int16_t>(saberMoveNext);
+        saved_game.write<int16_t>(saberMoveNext);
 #endif // !JK2_MODE
 
-		saved_game.write<int16_t>(saberBounceMove);
-		saved_game.write<int16_t>(saberBlocking);
-		saved_game.write<int16_t>(saberBlocked);
-		saved_game.write<int16_t>(leanStopDebounceTime);
+        saved_game.write<int16_t>(saberBounceMove);
+        saved_game.write<int16_t>(saberBlocking);
+        saved_game.write<int16_t>(saberBlocked);
+        saved_game.write<int16_t>(leanStopDebounceTime);
 
 #ifdef JK2_MODE
-		saved_game.skip(2);
-		saved_game.write<float>(saberLengthOld);
+        saved_game.skip(2);
+        saved_game.write<float>(saberLengthOld);
 #endif // JK2_MODE
 
-		saved_game.write<int32_t>(saberEntityNum);
-		saved_game.write<float>(saberEntityDist);
-		saved_game.write<int32_t>(saberThrowTime);
-		saved_game.write<int32_t>(saberEntityState);
-		saved_game.write<int32_t>(saberDamageDebounceTime);
-		saved_game.write<int32_t>(saberHitWallSoundDebounceTime);
-		saved_game.write<int32_t>(saberEventFlags);
-		saved_game.write<int32_t>(saberBlockingTime);
-		saved_game.write<int32_t>(saberAnimLevel);
-		saved_game.write<int32_t>(saberAttackChainCount);
-		saved_game.write<int32_t>(saberLockTime);
-		saved_game.write<int32_t>(saberLockEnemy);
+        saved_game.write<int32_t>(saberEntityNum);
+        saved_game.write<float>(saberEntityDist);
+        saved_game.write<int32_t>(saberThrowTime);
+        saved_game.write<int32_t>(saberEntityState);
+        saved_game.write<int32_t>(saberDamageDebounceTime);
+        saved_game.write<int32_t>(saberHitWallSoundDebounceTime);
+        saved_game.write<int32_t>(saberEventFlags);
+        saved_game.write<int32_t>(saberBlockingTime);
+        saved_game.write<int32_t>(saberAnimLevel);
+        saved_game.write<int32_t>(saberAttackChainCount);
+        saved_game.write<int32_t>(saberLockTime);
+        saved_game.write<int32_t>(saberLockEnemy);
 
 #ifndef JK2_MODE
-		saved_game.write<int32_t>(saberStylesKnown);
+        saved_game.write<int32_t>(saberStylesKnown);
 #endif // !JK2_MODE
 
 #ifdef JK2_MODE
-		saved_game.write<int32_t>(saberModel);
+        saved_game.write<int32_t>(saberModel);
 #endif // JK2_MODE
 
-		saved_game.write<int32_t>(forcePowersKnown);
-		saved_game.write<int32_t>(forcePowerDuration.elems);
-		saved_game.write<int32_t>(forcePowerDebounce.elems);
-		saved_game.write<int32_t>(forcePower);
-		saved_game.write<int32_t>(forcePowerMax);
-		saved_game.write<int32_t>(forcePowerRegenDebounceTime);
+        saved_game.write<int32_t>(forcePowersKnown);
+        saved_game.write<int32_t>(forcePowerDuration.elems);
+        saved_game.write<int32_t>(forcePowerDebounce.elems);
+        saved_game.write<int32_t>(forcePower);
+        saved_game.write<int32_t>(forcePowerMax);
+        saved_game.write<int32_t>(forcePowerRegenDebounceTime);
 
 #ifndef JK2_MODE
-		saved_game.write<int32_t>(forcePowerRegenRate);
-		saved_game.write<int32_t>(forcePowerRegenAmount);
+        saved_game.write<int32_t>(forcePowerRegenRate);
+        saved_game.write<int32_t>(forcePowerRegenAmount);
 #endif // !JK2_MODE
 
-		saved_game.write<int32_t>(forcePowerLevel.elems);
-		saved_game.write<float>(forceJumpZStart);
-		saved_game.write<float>(forceJumpCharge);
-		saved_game.write<int32_t>(forceGripEntityNum);
-		saved_game.write<float>(forceGripOrg);
+        saved_game.write<int32_t>(forcePowerLevel.elems);
+        saved_game.write<float>(forceJumpZStart);
+        saved_game.write<float>(forceJumpCharge);
+        saved_game.write<int32_t>(forceGripEntityNum);
+        saved_game.write<float>(forceGripOrg);
 
 #ifndef JK2_MODE
-		saved_game.write<int32_t>(forceDrainEntityNum);
-		saved_game.write<float>(forceDrainOrg);
+        saved_game.write<int32_t>(forceDrainEntityNum);
+        saved_game.write<float>(forceDrainOrg);
 #endif // !JK2_MODE
 
-		saved_game.write<int32_t>(forceHealCount);
+        saved_game.write<int32_t>(forceHealCount);
 
 #ifndef JK2_MODE
-		saved_game.write<int32_t>(forceAllowDeactivateTime);
-		saved_game.write<int32_t>(forceRageDrainTime);
-		saved_game.write<int32_t>(forceRageRecoveryTime);
-		saved_game.write<int32_t>(forceDrainEntNum);
-		saved_game.write<float>(forceDrainTime);
-		saved_game.write<int32_t>(forcePowersForced);
-		saved_game.write<int32_t>(pullAttackEntNum);
-		saved_game.write<int32_t>(pullAttackTime);
-		saved_game.write<int32_t>(lastKickedEntNum);
+        saved_game.write<int32_t>(forceAllowDeactivateTime);
+        saved_game.write<int32_t>(forceRageDrainTime);
+        saved_game.write<int32_t>(forceRageRecoveryTime);
+        saved_game.write<int32_t>(forceDrainEntNum);
+        saved_game.write<float>(forceDrainTime);
+        saved_game.write<int32_t>(forcePowersForced);
+        saved_game.write<int32_t>(pullAttackEntNum);
+        saved_game.write<int32_t>(pullAttackTime);
+        saved_game.write<int32_t>(lastKickedEntNum);
 #endif // !JK2_MODE
 
-		saved_game.write<int32_t>(taunting);
-		saved_game.write<float>(jumpZStart);
-		saved_game.write<float>(moveDir);
-		saved_game.write<float>(waterheight);
-		saved_game.write<int32_t>(waterHeightLevel);
+        saved_game.write<int32_t>(taunting);
+        saved_game.write<float>(jumpZStart);
+        saved_game.write<float>(moveDir);
+        saved_game.write<float>(waterheight);
+        saved_game.write<int32_t>(waterHeightLevel);
 
 #ifndef JK2_MODE
-		saved_game.write<int32_t>(ikStatus);
-		saved_game.write<int32_t>(heldClient);
-		saved_game.write<int32_t>(heldByClient);
-		saved_game.write<int32_t>(heldByBolt);
-		saved_game.write<int32_t>(heldByBone);
-		saved_game.write<int32_t>(vehTurnaroundIndex);
-		saved_game.write<int32_t>(vehTurnaroundTime);
-		saved_game.write<int32_t>(brokenLimbs);
-		saved_game.write<int32_t>(electrifyTime);
+        saved_game.write<int32_t>(ikStatus);
+        saved_game.write<int32_t>(heldClient);
+        saved_game.write<int32_t>(heldByClient);
+        saved_game.write<int32_t>(heldByBolt);
+        saved_game.write<int32_t>(heldByBone);
+        saved_game.write<int32_t>(vehTurnaroundIndex);
+        saved_game.write<int32_t>(vehTurnaroundTime);
+        saved_game.write<int32_t>(brokenLimbs);
+        saved_game.write<int32_t>(electrifyTime);
 #endif // !JK2_MODE
-	}
+    }
 
-	void sg_import(
-		ojk::SavedGameHelper& saved_game)
-	{
-		saved_game.read<int32_t>(commandTime);
-		saved_game.read<int32_t>(pm_type);
-		saved_game.read<int32_t>(bobCycle);
-		saved_game.read<int32_t>(pm_flags);
-		saved_game.read<int32_t>(pm_time);
-		saved_game.read<float>(origin);
-		saved_game.read<float>(velocity);
-		saved_game.read<int32_t>(weaponTime);
-		saved_game.read<int32_t>(weaponChargeTime);
-		saved_game.read<int32_t>(rechargeTime);
-		saved_game.read<int32_t>(gravity);
-		saved_game.read<int32_t>(leanofs);
-		saved_game.read<int32_t>(friction);
-		saved_game.read<int32_t>(speed);
-		saved_game.read<int32_t>(delta_angles);
-		saved_game.read<int32_t>(groundEntityNum);
-		saved_game.read<int32_t>(legsAnim);
-		saved_game.read<int32_t>(legsAnimTimer);
-		saved_game.read<int32_t>(torsoAnim);
-		saved_game.read<int32_t>(torsoAnimTimer);
-		saved_game.read<int32_t>(movementDir);
-		saved_game.read<int32_t>(eFlags);
-		saved_game.read<int32_t>(eventSequence);
-		saved_game.read<int32_t>(events);
-		saved_game.read<int32_t>(eventParms);
-		saved_game.read<int32_t>(externalEvent);
-		saved_game.read<int32_t>(externalEventParm);
-		saved_game.read<int32_t>(externalEventTime);
-		saved_game.read<int32_t>(clientNum);
-		saved_game.read<int32_t>(weapon);
-		saved_game.read<int32_t>(weaponstate);
-		saved_game.read<int32_t>(batteryCharge);
-		saved_game.read<float>(viewangles);
-		saved_game.read<float>(legsYaw);
-		saved_game.read<int32_t>(viewheight);
-		saved_game.read<int32_t>(damageEvent);
-		saved_game.read<int32_t>(damageYaw);
-		saved_game.read<int32_t>(damagePitch);
-		saved_game.read<int32_t>(damageCount);
-		saved_game.read<int32_t>(stats.elems);
-		saved_game.read<int32_t>(persistant.elems);
-		saved_game.read<int32_t>(powerups.elems);
-		saved_game.read<int32_t>(ammo.elems);
-		saved_game.read<int32_t>(inventory.elems);
-		saved_game.read<int8_t>(security_key_message);
-		saved_game.read<float>(serverViewOrg);
-		saved_game.read<int32_t>(saberInFlight);
+    void sg_import(ojk::SavedGameHelper& saved_game)
+    {
+        saved_game.read<int32_t>(commandTime);
+        saved_game.read<int32_t>(pm_type);
+        saved_game.read<int32_t>(bobCycle);
+        saved_game.read<int32_t>(pm_flags);
+        saved_game.read<int32_t>(pm_time);
+        saved_game.read<float>(origin);
+        saved_game.read<float>(velocity);
+        saved_game.read<int32_t>(weaponTime);
+        saved_game.read<int32_t>(weaponChargeTime);
+        saved_game.read<int32_t>(rechargeTime);
+        saved_game.read<int32_t>(gravity);
+        saved_game.read<int32_t>(leanofs);
+        saved_game.read<int32_t>(friction);
+        saved_game.read<int32_t>(speed);
+        saved_game.read<int32_t>(delta_angles);
+        saved_game.read<int32_t>(groundEntityNum);
+        saved_game.read<int32_t>(legsAnim);
+        saved_game.read<int32_t>(legsAnimTimer);
+        saved_game.read<int32_t>(torsoAnim);
+        saved_game.read<int32_t>(torsoAnimTimer);
+        saved_game.read<int32_t>(movementDir);
+        saved_game.read<int32_t>(eFlags);
+        saved_game.read<int32_t>(eventSequence);
+        saved_game.read<int32_t>(events);
+        saved_game.read<int32_t>(eventParms);
+        saved_game.read<int32_t>(externalEvent);
+        saved_game.read<int32_t>(externalEventParm);
+        saved_game.read<int32_t>(externalEventTime);
+        saved_game.read<int32_t>(clientNum);
+        saved_game.read<int32_t>(weapon);
+        saved_game.read<int32_t>(weaponstate);
+        saved_game.read<int32_t>(batteryCharge);
+        saved_game.read<float>(viewangles);
+        saved_game.read<float>(legsYaw);
+        saved_game.read<int32_t>(viewheight);
+        saved_game.read<int32_t>(damageEvent);
+        saved_game.read<int32_t>(damageYaw);
+        saved_game.read<int32_t>(damagePitch);
+        saved_game.read<int32_t>(damageCount);
+        saved_game.read<int32_t>(stats.elems);
+        saved_game.read<int32_t>(persistant.elems);
+        saved_game.read<int32_t>(powerups.elems);
+        saved_game.read<int32_t>(ammo.elems);
+        saved_game.read<int32_t>(inventory.elems);
+        saved_game.read<int8_t>(security_key_message);
+        saved_game.read<float>(serverViewOrg);
+        saved_game.read<int32_t>(saberInFlight);
 
 #ifdef JK2_MODE
-		saved_game.read<int32_t>(saberActive);
-		saved_game.read<int32_t>(vehicleModel);
-		saved_game.read<int32_t>(viewEntity);
-		saved_game.read<int32_t>(saberColor);
-		saved_game.read<float>(saberLength);
-		saved_game.read<float>(saberLengthMax);
-		saved_game.read<int32_t>(forcePowersActive);
+        saved_game.read<int32_t>(saberActive);
+        saved_game.read<int32_t>(vehicleModel);
+        saved_game.read<int32_t>(viewEntity);
+        saved_game.read<int32_t>(saberColor);
+        saved_game.read<float>(saberLength);
+        saved_game.read<float>(saberLengthMax);
+        saved_game.read<int32_t>(forcePowersActive);
 #else
-		saved_game.read<int32_t>(viewEntity);
-		saved_game.read<int32_t>(forcePowersActive);
+        saved_game.read<int32_t>(viewEntity);
+        saved_game.read<int32_t>(forcePowersActive);
 #endif // JK2_MODE
 
-		saved_game.read<int32_t>(useTime);
-		saved_game.read<int32_t>(lastShotTime);
-		saved_game.read<int32_t>(ping);
-		saved_game.read<int32_t>(lastOnGround);
-		saved_game.read<int32_t>(lastStationary);
-		saved_game.read<int32_t>(weaponShotCount);
+        saved_game.read<int32_t>(useTime);
+        saved_game.read<int32_t>(lastShotTime);
+        saved_game.read<int32_t>(ping);
+        saved_game.read<int32_t>(lastOnGround);
+        saved_game.read<int32_t>(lastStationary);
+        saved_game.read<int32_t>(weaponShotCount);
 
 #ifndef JK2_MODE
-		saved_game.read<>(saber);
-		saved_game.read<int32_t>(dualSabers);
+        saved_game.read<>(saber);
+        saved_game.read<int32_t>(dualSabers);
 #endif // !JK2_MODE
 
-		saved_game.read<int16_t>(saberMove);
+        saved_game.read<int16_t>(saberMove);
 
 #ifndef JK2_MODE
-		saved_game.read<int16_t>(saberMoveNext);
+        saved_game.read<int16_t>(saberMoveNext);
 #endif // !JK2_MODE
 
-		saved_game.read<int16_t>(saberBounceMove);
-		saved_game.read<int16_t>(saberBlocking);
-		saved_game.read<int16_t>(saberBlocked);
-		saved_game.read<int16_t>(leanStopDebounceTime);
+        saved_game.read<int16_t>(saberBounceMove);
+        saved_game.read<int16_t>(saberBlocking);
+        saved_game.read<int16_t>(saberBlocked);
+        saved_game.read<int16_t>(leanStopDebounceTime);
 
 #ifdef JK2_MODE
-		saved_game.skip(2);
-		saved_game.read<float>(saberLengthOld);
+        saved_game.skip(2);
+        saved_game.read<float>(saberLengthOld);
 #endif // JK2_MODE
 
-		saved_game.read<int32_t>(saberEntityNum);
-		saved_game.read<float>(saberEntityDist);
-		saved_game.read<int32_t>(saberThrowTime);
-		saved_game.read<int32_t>(saberEntityState);
-		saved_game.read<int32_t>(saberDamageDebounceTime);
-		saved_game.read<int32_t>(saberHitWallSoundDebounceTime);
-		saved_game.read<int32_t>(saberEventFlags);
-		saved_game.read<int32_t>(saberBlockingTime);
-		saved_game.read<int32_t>(saberAnimLevel);
-		saved_game.read<int32_t>(saberAttackChainCount);
-		saved_game.read<int32_t>(saberLockTime);
-		saved_game.read<int32_t>(saberLockEnemy);
+        saved_game.read<int32_t>(saberEntityNum);
+        saved_game.read<float>(saberEntityDist);
+        saved_game.read<int32_t>(saberThrowTime);
+        saved_game.read<int32_t>(saberEntityState);
+        saved_game.read<int32_t>(saberDamageDebounceTime);
+        saved_game.read<int32_t>(saberHitWallSoundDebounceTime);
+        saved_game.read<int32_t>(saberEventFlags);
+        saved_game.read<int32_t>(saberBlockingTime);
+        saved_game.read<int32_t>(saberAnimLevel);
+        saved_game.read<int32_t>(saberAttackChainCount);
+        saved_game.read<int32_t>(saberLockTime);
+        saved_game.read<int32_t>(saberLockEnemy);
 
 #ifndef JK2_MODE
-		saved_game.read<int32_t>(saberStylesKnown);
+        saved_game.read<int32_t>(saberStylesKnown);
 #endif // !JK2_MODE
 
 #ifdef JK2_MODE
-		saved_game.read<int32_t>(saberModel);
+        saved_game.read<int32_t>(saberModel);
 #endif // JK2_MODE
 
-		saved_game.read<int32_t>(forcePowersKnown);
-		saved_game.read<int32_t>(forcePowerDuration.elems);
-		saved_game.read<int32_t>(forcePowerDebounce.elems);
-		saved_game.read<int32_t>(forcePower);
-		saved_game.read<int32_t>(forcePowerMax);
-		saved_game.read<int32_t>(forcePowerRegenDebounceTime);
+        saved_game.read<int32_t>(forcePowersKnown);
+        saved_game.read<int32_t>(forcePowerDuration.elems);
+        saved_game.read<int32_t>(forcePowerDebounce.elems);
+        saved_game.read<int32_t>(forcePower);
+        saved_game.read<int32_t>(forcePowerMax);
+        saved_game.read<int32_t>(forcePowerRegenDebounceTime);
 
 #ifndef JK2_MODE
-		saved_game.read<int32_t>(forcePowerRegenRate);
-		saved_game.read<int32_t>(forcePowerRegenAmount);
+        saved_game.read<int32_t>(forcePowerRegenRate);
+        saved_game.read<int32_t>(forcePowerRegenAmount);
 #endif // !JK2_MODE
 
-		saved_game.read<int32_t>(forcePowerLevel.elems);
-		saved_game.read<float>(forceJumpZStart);
-		saved_game.read<float>(forceJumpCharge);
-		saved_game.read<int32_t>(forceGripEntityNum);
-		saved_game.read<float>(forceGripOrg);
+        saved_game.read<int32_t>(forcePowerLevel.elems);
+        saved_game.read<float>(forceJumpZStart);
+        saved_game.read<float>(forceJumpCharge);
+        saved_game.read<int32_t>(forceGripEntityNum);
+        saved_game.read<float>(forceGripOrg);
 
 #ifndef JK2_MODE
-		saved_game.read<int32_t>(forceDrainEntityNum);
-		saved_game.read<float>(forceDrainOrg);
+        saved_game.read<int32_t>(forceDrainEntityNum);
+        saved_game.read<float>(forceDrainOrg);
 #endif // !JK2_MODE
 
-		saved_game.read<int32_t>(forceHealCount);
+        saved_game.read<int32_t>(forceHealCount);
 
 #ifndef JK2_MODE
-		saved_game.read<int32_t>(forceAllowDeactivateTime);
-		saved_game.read<int32_t>(forceRageDrainTime);
-		saved_game.read<int32_t>(forceRageRecoveryTime);
-		saved_game.read<int32_t>(forceDrainEntNum);
-		saved_game.read<float>(forceDrainTime);
-		saved_game.read<int32_t>(forcePowersForced);
-		saved_game.read<int32_t>(pullAttackEntNum);
-		saved_game.read<int32_t>(pullAttackTime);
-		saved_game.read<int32_t>(lastKickedEntNum);
+        saved_game.read<int32_t>(forceAllowDeactivateTime);
+        saved_game.read<int32_t>(forceRageDrainTime);
+        saved_game.read<int32_t>(forceRageRecoveryTime);
+        saved_game.read<int32_t>(forceDrainEntNum);
+        saved_game.read<float>(forceDrainTime);
+        saved_game.read<int32_t>(forcePowersForced);
+        saved_game.read<int32_t>(pullAttackEntNum);
+        saved_game.read<int32_t>(pullAttackTime);
+        saved_game.read<int32_t>(lastKickedEntNum);
 #endif // !JK2_MODE
 
-		saved_game.read<int32_t>(taunting);
-		saved_game.read<float>(jumpZStart);
-		saved_game.read<float>(moveDir);
-		saved_game.read<float>(waterheight);
-		saved_game.read<int32_t>(waterHeightLevel);
+        saved_game.read<int32_t>(taunting);
+        saved_game.read<float>(jumpZStart);
+        saved_game.read<float>(moveDir);
+        saved_game.read<float>(waterheight);
+        saved_game.read<int32_t>(waterHeightLevel);
 
 #ifndef JK2_MODE
-		saved_game.read<int32_t>(ikStatus);
-		saved_game.read<int32_t>(heldClient);
-		saved_game.read<int32_t>(heldByClient);
-		saved_game.read<int32_t>(heldByBolt);
-		saved_game.read<int32_t>(heldByBone);
-		saved_game.read<int32_t>(vehTurnaroundIndex);
-		saved_game.read<int32_t>(vehTurnaroundTime);
-		saved_game.read<int32_t>(brokenLimbs);
-		saved_game.read<int32_t>(electrifyTime);
+        saved_game.read<int32_t>(ikStatus);
+        saved_game.read<int32_t>(heldClient);
+        saved_game.read<int32_t>(heldByClient);
+        saved_game.read<int32_t>(heldByBolt);
+        saved_game.read<int32_t>(heldByBone);
+        saved_game.read<int32_t>(vehTurnaroundIndex);
+        saved_game.read<int32_t>(vehTurnaroundTime);
+        saved_game.read<int32_t>(brokenLimbs);
+        saved_game.read<int32_t>(electrifyTime);
 #endif // !JK2_MODE
-	}
+    }
 }; // PlayerStateBase
-
 
 using playerState_t = PlayerStateBase<saberInfo_t>;
 //====================================================================
-
 
 //
 // usercmd_t->button bits, many of which are generated by the client system,
 // so they aren't game/cgame only definitions
 //
-enum class buttonFlags_t
-{
-	BUTTON_NONE = 0,
-	BUTTON_ATTACK		= 1,
-	BUTTON_FORCE_LIGHTNING	= 2,			// displays talk balloon and disables actions
-	BUTTON_USE_FORCE	= 4,
-	BUTTON_FORCE_DRAIN	= 8,			// draining
-	BUTTON_BLOCKING		= 8,
-	BUTTON_VEH_SPEED	= 8,			// used for some horrible vehicle hack... :)
-	BUTTON_WALKING		= 16,			// walking can't just be infered from MOVE_RUN because a key pressed late in the frame will
-										// only generate a small move value for that frame walking will use different animations and
-										// won't generate footsteps
-	BUTTON_USE			= 32,			// the ol' use key returns!
-	BUTTON_FORCEGRIP	= 64,			//
-	BUTTON_ALT_ATTACK	= 128,
+enum class buttonFlags_t {
+    BUTTON_NONE = 0,
+    BUTTON_ATTACK = 1,
+    BUTTON_FORCE_LIGHTNING = 2, // displays talk balloon and disables actions
+    BUTTON_USE_FORCE = 4,
+    BUTTON_FORCE_DRAIN = 8, // draining
+    BUTTON_BLOCKING = 8,
+    BUTTON_VEH_SPEED = 8,  // used for some horrible vehicle hack... :)
+    BUTTON_WALKING = 16,   // walking can't just be infered from MOVE_RUN because a key pressed late in the frame will
+                           // only generate a small move value for that frame walking will use different animations and
+                           // won't generate footsteps
+    BUTTON_USE = 32,       // the ol' use key returns!
+    BUTTON_FORCEGRIP = 64, //
+    BUTTON_ALT_ATTACK = 128,
 
-	BUTTON_FORCE_FOCUS	= 256,			// any key whatsoever
+    BUTTON_FORCE_FOCUS = 256, // any key whatsoever
 };
 template <> inline constexpr bool enableEnumFlags<buttonFlags_t> = true;
 
-										// then BUTTON_WALKING should be set
+// then BUTTON_WALKING should be set
 
-
-enum class genCmds_t
-{
-	GENCMD_NONE = 0,	// no command
-	GENCMD_FORCE_HEAL = 1,
-	GENCMD_FORCE_SPEED,
-	GENCMD_FORCE_THROW,
-	GENCMD_FORCE_PULL,
-	GENCMD_FORCE_DISTRACT,
-	GENCMD_FORCE_GRIP,
-	GENCMD_FORCE_LIGHTNING,
-	GENCMD_FORCE_RAGE,
-	GENCMD_FORCE_PROTECT,
-	GENCMD_FORCE_ABSORB,
-	GENCMD_FORCE_DRAIN,
-	GENCMD_FORCE_SEEING,
+enum class genCmds_t {
+    GENCMD_NONE = 0, // no command
+    GENCMD_FORCE_HEAL = 1,
+    GENCMD_FORCE_SPEED,
+    GENCMD_FORCE_THROW,
+    GENCMD_FORCE_PULL,
+    GENCMD_FORCE_DISTRACT,
+    GENCMD_FORCE_GRIP,
+    GENCMD_FORCE_LIGHTNING,
+    GENCMD_FORCE_RAGE,
+    GENCMD_FORCE_PROTECT,
+    GENCMD_FORCE_ABSORB,
+    GENCMD_FORCE_DRAIN,
+    GENCMD_FORCE_SEEING,
 };
-
 
 // usercmd_t is sent to the server each client frame
 // !!!!!!!!!! LOADSAVE-affecting structure !!!!!!!!!!
 typedef struct usercmd_s {
-	int		serverTime;
-	buttonFlags_t		buttons;
-	byte	weapon;
-	int		angles[3];
-	byte	generic_cmd;
-	signed char	forwardmove, rightmove, upmove;
+    int serverTime;
+    buttonFlags_t buttons;
+    byte weapon;
+    int angles[3];
+    byte generic_cmd;
+    signed char forwardmove, rightmove, upmove;
 
+    void sg_export(ojk::SavedGameHelper& saved_game) const
+    {
+        saved_game.write<int32_t>(serverTime);
+        saved_game.write<int32_t>(buttons);
+        saved_game.write<uint8_t>(weapon);
+        saved_game.skip(3);
+        saved_game.write<int32_t>(angles);
+        saved_game.write<uint8_t>(generic_cmd);
+        saved_game.write<int8_t>(forwardmove);
+        saved_game.write<int8_t>(rightmove);
+        saved_game.write<int8_t>(upmove);
+    }
 
-	void sg_export(
-		ojk::SavedGameHelper& saved_game) const
-	{
-		saved_game.write<int32_t>(serverTime);
-		saved_game.write<int32_t>(buttons);
-		saved_game.write<uint8_t>(weapon);
-		saved_game.skip(3);
-		saved_game.write<int32_t>(angles);
-		saved_game.write<uint8_t>(generic_cmd);
-		saved_game.write<int8_t>(forwardmove);
-		saved_game.write<int8_t>(rightmove);
-		saved_game.write<int8_t>(upmove);
-	}
-
-	void sg_import(
-		ojk::SavedGameHelper& saved_game)
-	{
-		saved_game.read<int32_t>(serverTime);
-		saved_game.read<int32_t>(buttons);
-		saved_game.read<uint8_t>(weapon);
-		saved_game.skip(3);
-		saved_game.read<int32_t>(angles);
-		saved_game.read<uint8_t>(generic_cmd);
-		saved_game.read<int8_t>(forwardmove);
-		saved_game.read<int8_t>(rightmove);
-		saved_game.read<int8_t>(upmove);
-	}
+    void sg_import(ojk::SavedGameHelper& saved_game)
+    {
+        saved_game.read<int32_t>(serverTime);
+        saved_game.read<int32_t>(buttons);
+        saved_game.read<uint8_t>(weapon);
+        saved_game.skip(3);
+        saved_game.read<int32_t>(angles);
+        saved_game.read<uint8_t>(generic_cmd);
+        saved_game.read<int8_t>(forwardmove);
+        saved_game.read<int8_t>(rightmove);
+        saved_game.read<int8_t>(upmove);
+    }
 } usercmd_t;
 
 //===================================================================
@@ -2251,45 +2115,41 @@ typedef struct usercmd_s {
 // if entityState->solid == SOLID_BMODEL, modelindex is an inline model number
 inline constexpr int SOLID_BMODEL = 0xffffff;
 
-enum class trType_t {// !!!!!!!!!!! LOADSAVE-affecting struct !!!!!!!!!!
-	TR_STATIONARY,
-	TR_INTERPOLATE,				// non-parametric, but interpolate between snapshots
-	TR_LINEAR,
-	TR_LINEAR_STOP,
-	TR_NONLINEAR_STOP,
-	TR_SINE,					// value = base + sin( time / duration ) * delta
-	TR_GRAVITY
+enum class trType_t { // !!!!!!!!!!! LOADSAVE-affecting struct !!!!!!!!!!
+    TR_STATIONARY,
+    TR_INTERPOLATE, // non-parametric, but interpolate between snapshots
+    TR_LINEAR,
+    TR_LINEAR_STOP,
+    TR_NONLINEAR_STOP,
+    TR_SINE, // value = base + sin( time / duration ) * delta
+    TR_GRAVITY
 };
 
-typedef struct trajectory_s {// !!!!!!!!!!! LOADSAVE-affecting struct !!!!!!!!!!
-	trType_t	trType;
-	int		trTime;
-	int		trDuration;			// if non 0, trTime + trDuration = stop time
-	vec3_t	trBase;
-	vec3_t	trDelta;			// velocity, etc
+typedef struct trajectory_s { // !!!!!!!!!!! LOADSAVE-affecting struct !!!!!!!!!!
+    trType_t trType;
+    int trTime;
+    int trDuration; // if non 0, trTime + trDuration = stop time
+    vec3_t trBase;
+    vec3_t trDelta; // velocity, etc
 
+    void sg_export(ojk::SavedGameHelper& saved_game) const
+    {
+        saved_game.write<int32_t>(trType);
+        saved_game.write<int32_t>(trTime);
+        saved_game.write<int32_t>(trDuration);
+        saved_game.write<float>(trBase);
+        saved_game.write<float>(trDelta);
+    }
 
-	void sg_export(
-		ojk::SavedGameHelper& saved_game) const
-	{
-		saved_game.write<int32_t>(trType);
-		saved_game.write<int32_t>(trTime);
-		saved_game.write<int32_t>(trDuration);
-		saved_game.write<float>(trBase);
-		saved_game.write<float>(trDelta);
-	}
-
-	void sg_import(
-		ojk::SavedGameHelper& saved_game)
-	{
-		saved_game.read<int32_t>(trType);
-		saved_game.read<int32_t>(trTime);
-		saved_game.read<int32_t>(trDuration);
-		saved_game.read<float>(trBase);
-		saved_game.read<float>(trDelta);
-	}
+    void sg_import(ojk::SavedGameHelper& saved_game)
+    {
+        saved_game.read<int32_t>(trType);
+        saved_game.read<int32_t>(trTime);
+        saved_game.read<int32_t>(trDuration);
+        saved_game.read<float>(trBase);
+        saved_game.read<float>(trDelta);
+    }
 } trajectory_t;
-
 
 // entityState_t is the information conveyed from the server
 // in an update message about entities that the client will
@@ -2298,288 +2158,278 @@ typedef struct trajectory_s {// !!!!!!!!!!! LOADSAVE-affecting struct !!!!!!!!!!
 // The messages are delta compressed, so it doesn't really matter if
 // the structure size is fairly large
 
-typedef struct entityState_s {// !!!!!!!!!!! LOADSAVE-affecting struct !!!!!!!!!!!!!
-	int		number;			// entity index
-	entityType_t	eType;
-	entityFlags_t		eFlags;
+typedef struct entityState_s { // !!!!!!!!!!! LOADSAVE-affecting struct !!!!!!!!!!!!!
+    int number;                // entity index
+    entityType_t eType;
+    entityFlags_t eFlags;
 
-	trajectory_t	pos;	// for calculating position
-	trajectory_t	apos;	// for calculating angles
+    trajectory_t pos;  // for calculating position
+    trajectory_t apos; // for calculating angles
 
-	int		time;
-	int		time2;
+    int time;
+    int time2;
 
-	vec3_t	origin;
-	vec3_t	origin2;
+    vec3_t origin;
+    vec3_t origin2;
 
-	vec3_t	angles;
-	vec3_t	angles2;
+    vec3_t angles;
+    vec3_t angles2;
 
-	int		otherEntityNum;	// shotgun sources, etc
-	int		otherEntityNum2;
+    int otherEntityNum; // shotgun sources, etc
+    int otherEntityNum2;
 
-	int		groundEntityNum;	// -1 = in air
+    int groundEntityNum; // -1 = in air
 
-	int		constantLight;	// r + (g<<8) + (b<<16) + (intensity<<24)
-	int		loopSound;		// constantly loop this sound
+    int constantLight; // r + (g<<8) + (b<<16) + (intensity<<24)
+    int loopSound;     // constantly loop this sound
 
-	int		modelindex;
-	int		modelindex2;
-	int		modelindex3;
-	int		clientNum;		// 0 to (MAX_CLIENTS - 1), for players and corpses
-	int		frame;
+    int modelindex;
+    int modelindex2;
+    int modelindex3;
+    int clientNum; // 0 to (MAX_CLIENTS - 1), for players and corpses
+    int frame;
 
-	int		solid;			// for client side prediction, gi.linkentity sets this properly
+    int solid; // for client side prediction, gi.linkentity sets this properly
 
-	int		event;			// impulse events -- muzzle flashes, footsteps, etc
-	int		eventParm;
+    int event; // impulse events -- muzzle flashes, footsteps, etc
+    int eventParm;
 
-	// for players
-	int		powerups;		// bit flags
-	weapon_t	weapon;			// determines weapon and flash model, etc
-	animNumber_t		legsAnim;		//
-	int		legsAnimTimer;	// don't change low priority animations on legs until this runs out
-	animNumber_t	torsoAnim;		//
-	int		torsoAnimTimer;	// don't change low priority animations on torso until this runs out
+    // for players
+    int powerups;           // bit flags
+    weapon_t weapon;        // determines weapon and flash model, etc
+    animNumber_t legsAnim;  //
+    int legsAnimTimer;      // don't change low priority animations on legs until this runs out
+    animNumber_t torsoAnim; //
+    int torsoAnimTimer;     // don't change low priority animations on torso until this runs out
 
-	int		scale;			//Scale players
+    int scale; // Scale players
 
-	//FIXME: why did IMMERSION dupe these 2 fields here?  There's no reason for this!!!
-	bool	saberInFlight;
-	bool	saberActive;
+    // FIXME: why did IMMERSION dupe these 2 fields here?  There's no reason for this!!!
+    bool saberInFlight;
+    bool saberActive;
 
 #ifdef JK2_MODE
-	int		vehicleModel;	// For overriding your playermodel with a drivable vehicle
+    int vehicleModel; // For overriding your playermodel with a drivable vehicle
 #endif
 
 #ifndef JK2_MODE
-	//int		vehicleIndex;		// What kind of vehicle you're driving
-	vec3_t	vehicleAngles;		//
-	int		vehicleArmor;		// current armor of your vehicle (explodes if drops to 0)
-	// 0 if not in a vehicle, otherwise the client number.
-	int m_iVehicleNum;
+    // int		vehicleIndex;		// What kind of vehicle you're driving
+    vec3_t vehicleAngles; //
+    int vehicleArmor;     // current armor of your vehicle (explodes if drops to 0)
+    // 0 if not in a vehicle, otherwise the client number.
+    int m_iVehicleNum;
 #endif // !JK2_MODE
 
-/*
-Ghoul2 Insert Start
-*/
-	vec3_t	modelScale;		// used to scale models in any axis
-	int		radius;			// used for culling all the ghoul models attached to this ent NOTE - this is automatically scaled by Ghoul2 if/when you scale the model. This is a 100% size value
-	int		boltInfo;		// info used for bolting entities to Ghoul2 models - NOT used for bolting ghoul2 models to themselves, more for stuff like bolting effects to ghoul2 models
-/*
-Ghoul2 Insert End
-*/
+    /*
+    Ghoul2 Insert Start
+    */
+    vec3_t modelScale; // used to scale models in any axis
+    int radius; // used for culling all the ghoul models attached to this ent NOTE - this is automatically scaled by Ghoul2 if/when you scale the model. This is
+                // a 100% size value
+    int boltInfo; // info used for bolting entities to Ghoul2 models - NOT used for bolting ghoul2 models to themselves, more for stuff like bolting effects to
+                  // ghoul2 models
+    /*
+    Ghoul2 Insert End
+    */
 
 #ifndef JK2_MODE
-	bool	isPortalEnt;
+    bool isPortalEnt;
 #endif // !JK2_MODE
 
-
-	void sg_export(
-		ojk::SavedGameHelper& saved_game) const
-	{
-		saved_game.write<int32_t>(number);
-		saved_game.write<int32_t>(eType);
-		saved_game.write<int32_t>(eFlags);
-		saved_game.write<>(pos);
-		saved_game.write<>(apos);
-		saved_game.write<int32_t>(time);
-		saved_game.write<int32_t>(time2);
-		saved_game.write<float>(origin);
-		saved_game.write<float>(origin2);
-		saved_game.write<float>(angles);
-		saved_game.write<float>(angles2);
-		saved_game.write<int32_t>(otherEntityNum);
-		saved_game.write<int32_t>(otherEntityNum2);
-		saved_game.write<int32_t>(groundEntityNum);
-		saved_game.write<int32_t>(constantLight);
-		saved_game.write<int32_t>(loopSound);
-		saved_game.write<int32_t>(modelindex);
-		saved_game.write<int32_t>(modelindex2);
-		saved_game.write<int32_t>(modelindex3);
-		saved_game.write<int32_t>(clientNum);
-		saved_game.write<int32_t>(frame);
-		saved_game.write<int32_t>(solid);
-		saved_game.write<int32_t>(event);
-		saved_game.write<int32_t>(eventParm);
-		saved_game.write<int32_t>(powerups);
-		saved_game.write<int32_t>(weapon);
-		saved_game.write<int32_t>(legsAnim);
-		saved_game.write<int32_t>(legsAnimTimer);
-		saved_game.write<int32_t>(torsoAnim);
-		saved_game.write<int32_t>(torsoAnimTimer);
-		saved_game.write<int32_t>(scale);
-		saved_game.write<int32_t>(saberInFlight);
-		saved_game.write<int32_t>(saberActive);
+    void sg_export(ojk::SavedGameHelper& saved_game) const
+    {
+        saved_game.write<int32_t>(number);
+        saved_game.write<int32_t>(eType);
+        saved_game.write<int32_t>(eFlags);
+        saved_game.write<>(pos);
+        saved_game.write<>(apos);
+        saved_game.write<int32_t>(time);
+        saved_game.write<int32_t>(time2);
+        saved_game.write<float>(origin);
+        saved_game.write<float>(origin2);
+        saved_game.write<float>(angles);
+        saved_game.write<float>(angles2);
+        saved_game.write<int32_t>(otherEntityNum);
+        saved_game.write<int32_t>(otherEntityNum2);
+        saved_game.write<int32_t>(groundEntityNum);
+        saved_game.write<int32_t>(constantLight);
+        saved_game.write<int32_t>(loopSound);
+        saved_game.write<int32_t>(modelindex);
+        saved_game.write<int32_t>(modelindex2);
+        saved_game.write<int32_t>(modelindex3);
+        saved_game.write<int32_t>(clientNum);
+        saved_game.write<int32_t>(frame);
+        saved_game.write<int32_t>(solid);
+        saved_game.write<int32_t>(event);
+        saved_game.write<int32_t>(eventParm);
+        saved_game.write<int32_t>(powerups);
+        saved_game.write<int32_t>(weapon);
+        saved_game.write<int32_t>(legsAnim);
+        saved_game.write<int32_t>(legsAnimTimer);
+        saved_game.write<int32_t>(torsoAnim);
+        saved_game.write<int32_t>(torsoAnimTimer);
+        saved_game.write<int32_t>(scale);
+        saved_game.write<int32_t>(saberInFlight);
+        saved_game.write<int32_t>(saberActive);
 
 #ifdef JK2_MODE
-		saved_game.write<int32_t>(vehicleModel);
+        saved_game.write<int32_t>(vehicleModel);
 #endif // JK2_MODE
 
 #ifndef JK2_MODE
-		saved_game.write<float>(vehicleAngles);
-		saved_game.write<int32_t>(vehicleArmor);
-		saved_game.write<int32_t>(m_iVehicleNum);
+        saved_game.write<float>(vehicleAngles);
+        saved_game.write<int32_t>(vehicleArmor);
+        saved_game.write<int32_t>(m_iVehicleNum);
 #endif // !JK2_MODE
 
-		saved_game.write<float>(modelScale);
-		saved_game.write<int32_t>(radius);
-		saved_game.write<int32_t>(boltInfo);
+        saved_game.write<float>(modelScale);
+        saved_game.write<int32_t>(radius);
+        saved_game.write<int32_t>(boltInfo);
 
 #ifndef JK2_MODE
-		saved_game.write<int32_t>(isPortalEnt);
+        saved_game.write<int32_t>(isPortalEnt);
 #endif // !JK2_MODE
-	}
+    }
 
-	void sg_import(
-		ojk::SavedGameHelper& saved_game)
-	{
-		saved_game.read<int32_t>(number);
-		saved_game.read<int32_t>(eType);
-		saved_game.read<int32_t>(eFlags);
-		saved_game.read<>(pos);
-		saved_game.read<>(apos);
-		saved_game.read<int32_t>(time);
-		saved_game.read<int32_t>(time2);
-		saved_game.read<float>(origin);
-		saved_game.read<float>(origin2);
-		saved_game.read<float>(angles);
-		saved_game.read<float>(angles2);
-		saved_game.read<int32_t>(otherEntityNum);
-		saved_game.read<int32_t>(otherEntityNum2);
-		saved_game.read<int32_t>(groundEntityNum);
-		saved_game.read<int32_t>(constantLight);
-		saved_game.read<int32_t>(loopSound);
-		saved_game.read<int32_t>(modelindex);
-		saved_game.read<int32_t>(modelindex2);
-		saved_game.read<int32_t>(modelindex3);
-		saved_game.read<int32_t>(clientNum);
-		saved_game.read<int32_t>(frame);
-		saved_game.read<int32_t>(solid);
-		saved_game.read<int32_t>(event);
-		saved_game.read<int32_t>(eventParm);
-		saved_game.read<int32_t>(powerups);
-		saved_game.read<int32_t>(weapon);
-		saved_game.read<int32_t>(legsAnim);
-		saved_game.read<int32_t>(legsAnimTimer);
-		saved_game.read<int32_t>(torsoAnim);
-		saved_game.read<int32_t>(torsoAnimTimer);
-		saved_game.read<int32_t>(scale);
-		saved_game.read<int32_t>(saberInFlight);
-		saved_game.read<int32_t>(saberActive);
+    void sg_import(ojk::SavedGameHelper& saved_game)
+    {
+        saved_game.read<int32_t>(number);
+        saved_game.read<int32_t>(eType);
+        saved_game.read<int32_t>(eFlags);
+        saved_game.read<>(pos);
+        saved_game.read<>(apos);
+        saved_game.read<int32_t>(time);
+        saved_game.read<int32_t>(time2);
+        saved_game.read<float>(origin);
+        saved_game.read<float>(origin2);
+        saved_game.read<float>(angles);
+        saved_game.read<float>(angles2);
+        saved_game.read<int32_t>(otherEntityNum);
+        saved_game.read<int32_t>(otherEntityNum2);
+        saved_game.read<int32_t>(groundEntityNum);
+        saved_game.read<int32_t>(constantLight);
+        saved_game.read<int32_t>(loopSound);
+        saved_game.read<int32_t>(modelindex);
+        saved_game.read<int32_t>(modelindex2);
+        saved_game.read<int32_t>(modelindex3);
+        saved_game.read<int32_t>(clientNum);
+        saved_game.read<int32_t>(frame);
+        saved_game.read<int32_t>(solid);
+        saved_game.read<int32_t>(event);
+        saved_game.read<int32_t>(eventParm);
+        saved_game.read<int32_t>(powerups);
+        saved_game.read<int32_t>(weapon);
+        saved_game.read<int32_t>(legsAnim);
+        saved_game.read<int32_t>(legsAnimTimer);
+        saved_game.read<int32_t>(torsoAnim);
+        saved_game.read<int32_t>(torsoAnimTimer);
+        saved_game.read<int32_t>(scale);
+        saved_game.read<int32_t>(saberInFlight);
+        saved_game.read<int32_t>(saberActive);
 
 #ifdef JK2_MODE
-		saved_game.read<int32_t>(vehicleModel);
+        saved_game.read<int32_t>(vehicleModel);
 #endif // JK2_MODE
 
 #ifndef JK2_MODE
-		saved_game.read<float>(vehicleAngles);
-		saved_game.read<int32_t>(vehicleArmor);
-		saved_game.read<int32_t>(m_iVehicleNum);
+        saved_game.read<float>(vehicleAngles);
+        saved_game.read<int32_t>(vehicleArmor);
+        saved_game.read<int32_t>(m_iVehicleNum);
 #endif // !JK2_MODE
 
-		saved_game.read<float>(modelScale);
-		saved_game.read<int32_t>(radius);
-		saved_game.read<int32_t>(boltInfo);
+        saved_game.read<float>(modelScale);
+        saved_game.read<int32_t>(radius);
+        saved_game.read<int32_t>(boltInfo);
 
 #ifndef JK2_MODE
-		saved_game.read<int32_t>(isPortalEnt);
+        saved_game.read<int32_t>(isPortalEnt);
 #endif // !JK2_MODE
-	}
+    }
 } entityState_t;
 
-
 enum class connstate_t {
-	CA_UNINITIALIZED,
-	CA_DISCONNECTED, 	// not talking to a server
-	CA_CONNECTING,		// sending request packets to the server
-	CA_CHALLENGING,		// sending challenge packets to the server
-	CA_CONNECTED,		// netchan_t established, getting gamestate
-	CA_LOADING,			// only during cgame initialization, never during main loop
-	CA_PRIMED,			// got gamestate, waiting for first frame
-	CA_ACTIVE,			// game views should be displayed
-	CA_CINEMATIC		// playing a cinematic or a static pic, not connected to a server
+    CA_UNINITIALIZED,
+    CA_DISCONNECTED, // not talking to a server
+    CA_CONNECTING,   // sending request packets to the server
+    CA_CHALLENGING,  // sending challenge packets to the server
+    CA_CONNECTED,    // netchan_t established, getting gamestate
+    CA_LOADING,      // only during cgame initialization, never during main loop
+    CA_PRIMED,       // got gamestate, waiting for first frame
+    CA_ACTIVE,       // game views should be displayed
+    CA_CINEMATIC     // playing a cinematic or a static pic, not connected to a server
 };
 
-typedef struct SSkinGoreData_s
-{
-	vec3_t			angles;
-	vec3_t			position;
-	int				currentTime;
-	int				entNum;
-	vec3_t			rayDirection;	// in world space
-	vec3_t			hitLocation;	// in world space
-	vec3_t			scale;
-	float			SSize;			// size of splotch in the S texture direction in world units
-	float			TSize;			// size of splotch in the T texture direction in world units
-	float			theta;			// angle to rotate the splotch
-	vec3_t			uaxis;			//mark direction
-	float			depthStart;		// limit marks begin depth
-	float			depthEnd;		// depth to stop making marks
+typedef struct SSkinGoreData_s {
+    vec3_t angles;
+    vec3_t position;
+    int currentTime;
+    int entNum;
+    vec3_t rayDirection; // in world space
+    vec3_t hitLocation;  // in world space
+    vec3_t scale;
+    float SSize;      // size of splotch in the S texture direction in world units
+    float TSize;      // size of splotch in the T texture direction in world units
+    float theta;      // angle to rotate the splotch
+    vec3_t uaxis;     // mark direction
+    float depthStart; // limit marks begin depth
+    float depthEnd;   // depth to stop making marks
 
-	bool			useTheta;
-	bool			frontFaces;
-	bool			backFaces;
-	bool			fadeRGB; //specify fade method to modify RGB (by default, the alpha is set instead)
+    bool useTheta;
+    bool frontFaces;
+    bool backFaces;
+    bool fadeRGB; // specify fade method to modify RGB (by default, the alpha is set instead)
 
-	// growing stuff
-	int				growDuration;			// time over which we want this to scale up, set to -1 for no scaling
-	float			goreScaleStartFraction; // fraction of the final size at which we want the gore to initially appear
+    // growing stuff
+    int growDuration;             // time over which we want this to scale up, set to -1 for no scaling
+    float goreScaleStartFraction; // fraction of the final size at which we want the gore to initially appear
 
-	//bool		baseModelOnly;
-	int				lifeTime;				// effect expires after this amount of time
-	int				firstModel;				// which model to start the gore on (can skip the first)
-	int				fadeOutTime;			//specify the duration of fading, from the lifeTime (e.g. 3000 will start fading 3 seconds before removal and be faded entirely by removal)
-	//int				shrinkOutTime;			// unimplemented
-	//float			alphaModulate;			// unimplemented
-	//vec3_t			tint;					// unimplemented
-	//float			impactStrength;			// unimplemented
+    // bool		baseModelOnly;
+    int lifeTime;    // effect expires after this amount of time
+    int firstModel;  // which model to start the gore on (can skip the first)
+    int fadeOutTime; // specify the duration of fading, from the lifeTime (e.g. 3000 will start fading 3 seconds before removal and be faded entirely by
+                     // removal)
+    // int				shrinkOutTime;			// unimplemented
+    // float			alphaModulate;			// unimplemented
+    // vec3_t			tint;					// unimplemented
+    // float			impactStrength;			// unimplemented
 
-	int				shader; // shader handle
+    int shader; // shader handle
 
-	int				myIndex; // used internally
+    int myIndex; // used internally
 
 } SSkinGoreData;
 
-//rww - used for my ik stuff (ported directly from mp)
-typedef struct
-{
-	vec3_t angles;
-	vec3_t position;
-	vec3_t scale;
-	vec3_t velocity;
-	int	me;
+// rww - used for my ik stuff (ported directly from mp)
+typedef struct {
+    vec3_t angles;
+    vec3_t position;
+    vec3_t scale;
+    vec3_t velocity;
+    int me;
 } sharedRagDollUpdateParams_t;
 
-//rww - update parms for ik bone stuff
-typedef struct
-{
-	char boneName[512]; //name of bone
-	vec3_t desiredOrigin; //world coordinate that this bone should be attempting to reach
-	vec3_t origin; //world coordinate of the entity who owns the g2 instance that owns the bone
-	float movementSpeed; //how fast the bone should move toward the destination
+// rww - update parms for ik bone stuff
+typedef struct {
+    char boneName[512];   // name of bone
+    vec3_t desiredOrigin; // world coordinate that this bone should be attempting to reach
+    vec3_t origin;        // world coordinate of the entity who owns the g2 instance that owns the bone
+    float movementSpeed;  // how fast the bone should move toward the destination
 } sharedIKMoveParams_t;
 
-
-typedef struct
-{
-	vec3_t pcjMins; //ik joint limit
-	vec3_t pcjMaxs; //ik joint limit
-	vec3_t origin; //origin of caller
-	vec3_t angles; //angles of caller
-	vec3_t scale; //scale of caller
-	float radius; //bone rad
-	int blendTime; //bone blend time
-	ragBoneFlags_t pcjOverrides; //override ik bone flags
-	int startFrame; //base pose start
-	int endFrame; //base pose end
+typedef struct {
+    vec3_t pcjMins;              // ik joint limit
+    vec3_t pcjMaxs;              // ik joint limit
+    vec3_t origin;               // origin of caller
+    vec3_t angles;               // angles of caller
+    vec3_t scale;                // scale of caller
+    float radius;                // bone rad
+    int blendTime;               // bone blend time
+    ragBoneFlags_t pcjOverrides; // override ik bone flags
+    int startFrame;              // base pose start
+    int endFrame;                // base pose end
 } sharedSetBoneIKStateParams_t;
 
-enum class sharedEIKMoveState
-{
-	IKS_NONE = 0,
-	IKS_DYNAMIC
-};
+enum class sharedEIKMoveState { IKS_NONE = 0, IKS_DYNAMIC };
 
 /*
 ========================================================================
@@ -2588,23 +2438,21 @@ String ID Tables
 
 ========================================================================
 */
-typedef struct stringID_table_s
-{
-	const char	*name;
-	int		id;
+typedef struct stringID_table_s {
+    const char* name;
+    int id;
 } stringID_table_t;
 
-int GetIDForString ( const stringID_table_t *table, const char *string );
-const char *GetStringForID( const stringID_table_t *table, int id );
+int GetIDForString(const stringID_table_t* table, const char* string);
+const char* GetStringForID(const stringID_table_t* table, int id);
 
 // savegame screenshot size stuff...
 //
-inline constexpr int SG_SCR_WIDTH = 512;	//256
-inline constexpr int SG_SCR_HEIGHT = 512;	//256
+inline constexpr int SG_SCR_WIDTH = 512;  // 256
+inline constexpr int SG_SCR_HEIGHT = 512; // 256
 inline constexpr int iSG_COMMENT_SIZE = 64;
 
-#define sCVARNAME_PLAYERSAVE	"playersave"	// used for level-transition, accessed by game and server modules
-
+#define sCVARNAME_PLAYERSAVE "playersave" // used for level-transition, accessed by game and server modules
 
 /*
 Ghoul2 Insert Start
@@ -2612,75 +2460,61 @@ Ghoul2 Insert Start
 
 // For ghoul2 axis use
 
-enum class Eorientations
-{
-	ORIGIN = 0,
-	POSITIVE_X,
-	POSITIVE_Z,
-	POSITIVE_Y,
-	NEGATIVE_X,
-	NEGATIVE_Z,
-	NEGATIVE_Y
-};
+enum class Eorientations { ORIGIN = 0, POSITIVE_X, POSITIVE_Z, POSITIVE_Y, NEGATIVE_X, NEGATIVE_Z, NEGATIVE_Y };
 template <> inline constexpr bool enableEnumArithmetic<Eorientations> = true;
 /*
 Ghoul2 Insert End
 */
 
-typedef struct parseData_s
-{
-	char	fileName[MAX_QPATH];			// Name of current file being read in
-	int		com_lines;						// Number of lines read in
-	int		com_tokenline;
-	const char	*bufferStart;					// Start address of buffer holding data that was read in
-	const char	*bufferCurrent;					// Where data is currently being parsed from buffer
+typedef struct parseData_s {
+    char fileName[MAX_QPATH]; // Name of current file being read in
+    int com_lines;            // Number of lines read in
+    int com_tokenline;
+    const char* bufferStart;   // Start address of buffer holding data that was read in
+    const char* bufferCurrent; // Where data is currently being parsed from buffer
 } parseData_t;
 
-//JFLCALLOUT include
-//changed to array
-extern parseData_t  parseData[];
+// JFLCALLOUT include
+// changed to array
+extern parseData_t parseData[];
 extern int parseDataCount;
-
 
 // cinematic states
 enum class e_status {
-	FMV_IDLE,
-	FMV_PLAY,		// play
-	FMV_EOF,		// all other conditions, i.e. stop/EOF/abort
-	FMV_ID_BLT,
-	FMV_ID_IDLE,
-	FMV_LOOPED,
-	FMV_ID_WAIT
+    FMV_IDLE,
+    FMV_PLAY, // play
+    FMV_EOF,  // all other conditions, i.e. stop/EOF/abort
+    FMV_ID_BLT,
+    FMV_ID_IDLE,
+    FMV_LOOPED,
+    FMV_ID_WAIT
 };
-
 
 // define the new memory tags for the zone, used by all modules now
 //
-#define TAGDEF(blah) TAG_ ## blah
+#define TAGDEF(blah) TAG_##blah
 enum class memtag {
-	#include "../qcommon/tags.h"
+#include "../qcommon/tags.h"
 };
 template <> inline constexpr bool enableEnumArithmetic<memtag> = true;
 typedef memtag memtag_t;
 
 // stuff to help out during development process, force reloading/uncacheing of certain filetypes...
 //
-enum class ForceReload_e
-{
-	eForceReload_NOTHING,
-	eForceReload_BSP,
-	eForceReload_MODELS,
-	eForceReload_ALL
+enum class ForceReload_e {
+    eForceReload_NOTHING,
+    eForceReload_BSP,
+    eForceReload_MODELS,
+    eForceReload_ALL
 
 };
 
-bool Q_InBitflags( const uint32_t *bits, int index, uint32_t bitsPerByte );
-void Q_AddToBitflags( uint32_t *bits, int index, uint32_t bitsPerByte );
-void Q_RemoveFromBitflags( uint32_t *bits, int index, uint32_t bitsPerByte );
+bool Q_InBitflags(const uint32_t* bits, int index, uint32_t bitsPerByte);
+void Q_AddToBitflags(uint32_t* bits, int index, uint32_t bitsPerByte);
+void Q_RemoveFromBitflags(uint32_t* bits, int index, uint32_t bitsPerByte);
 
-typedef int( *cmpFunc_t )(const void *a, const void *b);
+typedef int (*cmpFunc_t)(const void* a, const void* b);
 
-void *Q_LinearSearch( const void *key, const void *ptr, size_t count,
-	size_t size, cmpFunc_t cmp );
+void* Q_LinearSearch(const void* key, const void* ptr, size_t count, size_t size, cmpFunc_t cmp);
 
-#endif	// __Q_SHARED_H
+#endif // __Q_SHARED_H

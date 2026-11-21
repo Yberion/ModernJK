@@ -30,42 +30,56 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <cstdlib>
 #include <cstring>
 
-cvar_t *cl_shownet = nullptr;
+cvar_t* cl_shownet = nullptr;
 server_t sv;
 
-void QDECL Com_Printf(const char *fmt, ...) {
-	(void)fmt;
+void QDECL Com_Printf(const char* fmt, ...)
+{
+    (void)fmt;
 }
 
-void NORETURN QDECL Com_Error(errorParm_t code, const char *fmt, ...) {
-	va_list ap;
-	va_start(ap, fmt);
-	fprintf(stderr, "legacy Com_Error %d: ", to_underlying(code));
-	vfprintf(stderr, fmt, ap);
-	fprintf(stderr, "\n");
-	va_end(ap);
-	abort();
+void NORETURN QDECL Com_Error(errorParm_t code, const char* fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    fprintf(stderr, "legacy Com_Error %d: ", to_underlying(code));
+    vfprintf(stderr, fmt, ap);
+    fprintf(stderr, "\n");
+    va_end(ap);
+    abort();
 }
 
-char *QDECL va(const char *format, ...) {
-	static char buf[1024];
-	va_list ap;
-	va_start(ap, format);
-	vsnprintf(buf, sizeof(buf), format, ap);
-	va_end(ap);
-	return buf;
+char* QDECL va(const char* format, ...)
+{
+    static char buf[1024];
+    va_list ap;
+    va_start(ap, format);
+    vsnprintf(buf, sizeof(buf), format, ap);
+    va_end(ap);
+    return buf;
 }
 
-void Q_strncpyz(char *dest, const char *src, int destsize) {
-	strncpy(dest, src, destsize - 1);
-	dest[destsize - 1] = 0;
+void Q_strncpyz(char* dest, const char* src, int destsize)
+{
+    strncpy(dest, src, destsize - 1);
+    dest[destsize - 1] = 0;
 }
 
-long FS_FOpenFileRead(const char *, fileHandle_t *file, bool) {
-	*file = 0;
-	return -1;
+long FS_FOpenFileRead(const char*, fileHandle_t* file, bool)
+{
+    *file = 0;
+    return -1;
 }
-int FS_Read(void *, int, fileHandle_t) { return 0; }
+int FS_Read(void*, int, fileHandle_t)
+{
+    return 0;
+}
 void FS_FCloseFile(fileHandle_t) {}
-void *Z_Malloc(int iSize, memtag_t, bool, int) { return calloc(1, iSize); }
-sharedEntity_t *SV_GentityNum(int) { return nullptr; }
+void* Z_Malloc(int iSize, memtag_t, bool, int)
+{
+    return calloc(1, iSize);
+}
+sharedEntity_t* SV_GentityNum(int)
+{
+    return nullptr;
+}
