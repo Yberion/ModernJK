@@ -18,7 +18,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// Client packet traces (plan step 8): the client packets the server recorded in the legacy format (part 1), decoded with
+// Client packet traces: the client packets the server recorded in the legacy format (sv_recordClientPackets), decoded with
 // OpenJK's msg.cpp by netcodec_bench_client --trace, with what the codec codes them against. Not committed (they hold
 // player names and chat): docs/modernization/data/traces/client_train.bin and client_holdout.bin.
 //

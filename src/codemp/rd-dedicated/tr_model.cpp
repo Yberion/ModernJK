@@ -546,7 +546,7 @@ static long generateHashValue(const char* fname, const int size)
     while (fname[i] != '\0') {
         letter = fname[i];
         if (letter >= 'A' && letter <= 'Z') { // tolower's result in the C locale, without a call per character:
-            letter += 'a' - 'A';              // this hash runs at every ghoul2 call (plan step 14, part 7)
+            letter += 'a' - 'A';              // this hash runs at every ghoul2 call
         }
         if (letter == '.')
             break; // don't include extension

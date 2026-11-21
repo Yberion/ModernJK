@@ -18,7 +18,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// Robustness of the client packet decoder on malformed input (plan step 8 part 4; run on every preset, so under
+// Robustness of the client packet decoder on malformed input (run on every preset, so under
 // ASan + UBSan too): the server decodes packets from anyone. Random packets (client_synthetic.h) are coded, then
 // mutated copies of their bytes (mutate.h) are decoded with a random `latest` (near the acknowledge, or anywhere) and
 // one of three lookups: the packet's own base, another base for any message, or none. The decoder must return without

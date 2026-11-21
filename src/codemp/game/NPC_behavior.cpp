@@ -80,7 +80,7 @@ void NPC_BSAdvanceFight(void)
 
         // Yaw to enemy
         //  the chest of the model it sees, aimed at from the NPC's eyes: the shot leaves the muzzle towards the point the
-        //  eyes aim at (plan step 20 part 10)
+        //  eyes aim at
         if (!G_AimSpot(NPCS.NPC, NPCS.NPC->enemy, enemy_org)) {
             VectorMA(NPCS.NPC->enemy->r.absmin, 0.5, NPCS.NPC->enemy->r.maxs, enemy_org);
         }
@@ -594,7 +594,7 @@ void NPC_BSFollowLeader(void)
             vec3_t enemy_org, eyes, delta, angleToEnemy;
 
             // the chest of the model it sees, aimed at from the eyes: the shot leaves the muzzle towards the point the eyes
-            // aim at (plan step 20 part 10)
+            // aim at
             if (!G_AimSpot(NPCS.NPC, NPCS.NPC->enemy, enemy_org)) {
                 CalcEntitySpot(NPCS.NPC->enemy, spot_t::SPOT_HEAD, enemy_org);
             }

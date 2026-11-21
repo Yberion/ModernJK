@@ -478,7 +478,6 @@ void NPC_BSPointShoot(bool shoot)
     }
 
     // from the eyes at the chest of the model it sees: the shot leaves the muzzle towards the point the eyes aim at
-    // (plan step 20 part 10)
     CalcEntitySpot(NPCS.NPC, spot_t::SPOT_HEAD_LEAN, eyes);
     if (!G_AimSpot(NPCS.NPC, NPCS.NPC->enemy, org)) {
         CalcEntitySpot(NPCS.NPC->enemy, spot_t::SPOT_HEAD, org); // Was spot_org

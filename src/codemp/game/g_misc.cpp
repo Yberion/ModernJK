@@ -3309,7 +3309,7 @@ void G_FreeClientForShooter(gclient_t* cl)
 void misc_weapon_shooter_fire(gentity_t* self)
 {
     // the shooter sends no command: its shot is a command at the level's time, so a charge (counted to the command's time
-    // from a start of 0) stays full, as it was against level.time (plan step 20)
+    // from a start of 0) stays full
     self->client->ps.commandTime = level.time;
     FireWeapon(self, (self->spawnflags & 1));
     if ((self->spawnflags & 2)) { // repeat

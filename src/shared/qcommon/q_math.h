@@ -209,7 +209,7 @@ void VectorCopy2(const vec2_t vecIn, vec2_t vecOut);
 extern vec3_t vec3_origin;
 
 // The small helpers are inline (they were functions of q_math.cpp, called through the linker from every loop of the
-// collision and model code: DotProduct alone was 11.5 % of a server tick's samples; plan step 14, part 7). The
+// collision and model code: DotProduct alone was 11.5 % of a server tick's samples). The
 // bodies and their semantics are unchanged, an output that aliases an input included.
 
 #define VectorScaleM(v, factor, dst) (dst)[0] = (v[0]) * (factor), (dst)[1] = (v[1]) * (factor), (dst)[2] = (v[2]) * (factor)

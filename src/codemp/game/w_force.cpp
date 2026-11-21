@@ -4244,7 +4244,7 @@ void WP_ForcePowersUpdate(gentity_t* self, usercmd_t* ucmd)
     }
 
     for (i = forcePowers_t::FP_FIRST; i < forcePowers_t::NUM_FORCE_POWERS;
-         i++) { // gamestats: the time each power is held; this runs on the 20 Hz instants of the tick, once per 50 ms (plan step 14)
+         i++) { // gamestats: the time each power is held; this runs on the 20 Hz instants of the tick, once per 50 ms
         if (self->client->ps.fd.forcePowersActive & Bit(i)) {
             g_stats.forceActiveMsec[i] += 50;
         }

@@ -763,8 +763,8 @@ void SV_SendClientSnapshot(client_t* client)
     }
 
     // A bot's snapshot is built only to be recorded in a demo. Nothing else reads it: the base game's bot code never
-    // calls BotGetSnapshotEntity, which finds no entity then. Built at every tick, the bots' snapshots were 6 % of a
-    // tick with 16 bots (plan step 14, part 7).
+    // calls BotGetSnapshotEntity, which finds no entity then. Built at every tick, the bots' snapshots would be 6 % of a
+    // tick with 16 bots.
     if (client->netchan.remoteAddress.type == netadrtype_t::NA_BOT && !client->demo.demorecording && !(sv_autoDemo->integer && sv_autoDemoBots->integer)) {
         client->frames[client->netchan.outgoingSequence & PACKET_MASK].num_entities = 0;
         return;

@@ -2161,8 +2161,7 @@ float ShortestLineSegBewteen2LineSegs(vec3_t start1, vec3_t end1, vec3_t start2,
 
 // the point of a body that an NPC or a bot shooting aims at, as a player aims at the model in sight: its chest (the bolt
 // thoracic), the model posed as the server last posed it (WP_SaberPositionUpdate); false for a shooter holding the
-// saber, the melee or no weapon, whose view moves its blade or its blows, and for a body without that bolt (plan step 20
-// part 10)
+// saber, the melee or no weapon, whose view moves its blade or its blows, and for a body without that bolt
 bool G_AimSpot(const gentity_t* shooter, const gentity_t* target, vec3_t point)
 {
     const weapon_t weapon = shooter->client ? shooter->client->ps.weapon : weapon_t::WP_NONE;

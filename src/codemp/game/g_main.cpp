@@ -172,7 +172,7 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
     char serverinfo[MAX_INFO_STRING] = {0};
 
     // g_debugSeed: a fixed seed instead of the clock's, so that a run replays the same game when fixedtime is also set
-    // before the map loads (the bench scripts' SEED, plan step 14); read here, before the cvars are registered
+    // before the map loads (the bench scripts' SEED); read here, before the cvars are registered
     if (trap->Cvar_VariableIntegerValue("g_debugSeed")) {
         randomSeed = trap->Cvar_VariableIntegerValue("g_debugSeed");
     }
@@ -2644,7 +2644,7 @@ void G_RunThink(gentity_t* ent)
         goto runicarus;
     }
     if (!G_GRID20_STEP) {
-        goto runicarus; // thinks run on the 20 Hz instants of the tick, with the level.time of sv_fps 20 (plan step 14)
+        goto runicarus; // thinks run on the 20 Hz instants of the tick, with the level.time of sv_fps 20
     }
     if (thinktime > level.time) {
         goto runicarus;
@@ -2957,7 +2957,7 @@ void G_RunFrame(int levelTime)
         if (i < MAX_CLIENTS) {
             G_CheckClientTimeouts(ent);
 
-            if (G_GRID20_STEP) { // the game logic tuned on 50 ms frames runs on the 20 Hz instants of the tick, as at sv_fps 20 (plan step 14)
+            if (G_GRID20_STEP) { // the game logic tuned on 50 ms frames runs on the 20 Hz instants of the tick, as at sv_fps 20
                 if (ent->client->inSpaceIndex && ent->client->inSpaceIndex != ENTITYNUM_NONE) { // we're in space, check for suffocating and for exiting
                     gentity_t* spacetrigger = &g_entities[ent->client->inSpaceIndex];
 
@@ -3083,7 +3083,7 @@ void G_RunFrame(int levelTime)
                 }
             }
 
-            if (g_allowNPC.integer && G_GRID20_STEP) { // on the 20 Hz instants, as at sv_fps 20: the waypoint serves the NPCs, which think there (plan step 14)
+            if (g_allowNPC.integer && G_GRID20_STEP) { // on the 20 Hz instants, as at sv_fps 20: the waypoint serves the NPCs, which think there
                 // This was originally intended to only be done for client 0.
                 // Make sure it doesn't slow things down too much with lots of clients in game.
                 NAV_FindPlayerWaypoint(i);
@@ -3148,7 +3148,7 @@ void G_RunFrame(int levelTime)
 #ifdef _G_FRAME_PERFANAL
     trap->PrecisionTimer_Start(&timer_GameChecks);
 #endif
-    if (G_GRID20_STEP) { // the level's rules on the 20 Hz instants, as at sv_fps 20 (plan step 14)
+    if (G_GRID20_STEP) { // the level's rules on the 20 Hz instants, as at sv_fps 20
         // see if it is time to do a tournament restart
         CheckTournament();
 

@@ -498,7 +498,7 @@ G_RunMover
 void G_RunMover(gentity_t* ent)
 {
     if (!G_GRID20_STEP) {
-        return; // movers move, push, crush and think on the 20 Hz instants, as at sv_fps 20 (plan step 14, g_local.h)
+        return; // movers move, push, crush and think on the 20 Hz instants, as at sv_fps 20 (g_local.h)
     }
 
     // if not a team captain, don't do anything, because

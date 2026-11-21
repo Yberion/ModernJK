@@ -712,9 +712,9 @@ void G_RunMissile(gentity_t* ent)
     int passent;
     bool isKnockedSaber = false;
 
-    if (!G_GRID20_STEP) { // missiles move on the 20 Hz instants, with the logic clock, as at sv_fps 20 (plan step 14, g_local.h): their hits
+    if (!G_GRID20_STEP) { // missiles move on the 20 Hz instants, with the logic clock, as at sv_fps 20 (g_local.h): their hits
                           // depend on the step (a trace that starts in a player's box hits it without testing the model, and one that leaves
-                          // it reports no model surface), so per-tick steps changed the hits, their locations and the damage
+                          // it reports no model surface), so per-tick steps would change the hits, their locations and the damage
         return;
     }
 

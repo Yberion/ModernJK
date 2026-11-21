@@ -36,7 +36,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <ui/ui_public.h>
 
 inline constexpr int RETRANSMIT_TIMEOUT = 3000; // time between connection packet retransmits
-inline constexpr int CL_PACKET_DUP = 2;         // each packet repeats the usercmds of the 2 previous packets (plan step 11)
+inline constexpr int CL_PACKET_DUP = 2;         // each packet repeats the usercmds of the 2 previous packets
 
 // file full of random crap that gets used to create ja_guid
 #define QKEY_FILE "jakey"
@@ -91,11 +91,11 @@ typedef struct outPacket_s {
 // it can be un-deltad from the original
 inline constexpr int MAX_PARSE_ENTITIES = PACKET_BACKUP * MAX_SNAPSHOT_ENTITIES;
 
-// the packets sent the client's ping is measured over (2.56 s of round trip at a packet per tick; plan step 14)
+// the packets sent the client's ping is measured over (2.56 s of round trip at a packet per tick)
 inline constexpr int OUT_PACKET_BACKUP = 256;
 inline constexpr int OUT_PACKET_MASK = OUT_PACKET_BACKUP - 1;
 
-// The client's clocks (CL_AdjustTimeDelta, plan step 14, part 4e): a window keeps the smallest sample of each of
+// The client's clocks (CL_AdjustTimeDelta): a window keeps the smallest sample of each of
 // its last CLOCK_SLOTS slots of CLOCK_SLOT_MSEC of real time
 inline constexpr int CLOCK_SLOTS = 64;
 inline constexpr int CLOCK_SLOT_MSEC = 32;
@@ -139,7 +139,7 @@ typedef struct clientActive_s {
     int interpCredit;       // real time not yet turned into a step of serverTimeDelta
     bool interpJumpPending; // the newest snapshot showed a jump of the server's clock: measured on the next one
 
-    // The command clock (plan step 14, part 4c): cl.cmdTime = cls.realtime + cl.cmdTimeDelta, ahead of the server's
+    // The command clock: cl.cmdTime = cls.realtime + cl.cmdTimeDelta, ahead of the server's
     // clock by the trip of a packet and the input margin, so that the command of a tick reaches the server just before
     // that tick runs. The user commands are made on it (CL_CreateNewCommands) and cgame draws the local player at it.
     int cmdTime;
@@ -570,7 +570,7 @@ void CL_ParseSnapshot(clSnapshot_t* newSnap);
 void CL_ParseDownload(int block, int fileSize, const byte* data, int size);
 
 //
-// cl_netcodec.cpp: the server's messages are decoded by netcodec (plan step 7)
+// cl_netcodec.cpp: the server's messages are decoded by netcodec
 //
 void CL_NetcodecReset(void);
 void CL_NetcodecParseServerMessage(msg_t* msg);

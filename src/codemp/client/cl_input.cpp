@@ -32,7 +32,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #endif
 unsigned frame_msec; // the frame's length: the view turns every frame
 int old_com_frameTime;
-// One user command per tick (plan step 14): the key states are measured over the time since the last command, and the
+// One user command per tick: the key states are measured over the time since the last command, and the
 // movement the mouse gives while strafing or without mouse look is gathered over the frames until the next command.
 static unsigned s_cmdMsec; // the input's time since the last command was made
 static int s_lastCmdFrameTime;
@@ -1452,7 +1452,7 @@ usercmd_t CL_CreateCmd(void)
 =================
 CL_UpdateViewAngles
 
-The view angles, every frame (plan step 14: the commands are made per tick, the view turns at the frame rate)
+The view angles, every frame (the commands are made per tick, the view turns at the frame rate)
 =================
 */
 static void CL_UpdateViewAngles(void)
@@ -1494,9 +1494,9 @@ static void CL_UpdateViewAngles(void)
 CL_CreateNewCommands
 
 Turns the view, then creates a usercmd_t for each tick of cl.serverTime this frame
-entered (plan step 14): every command moves TICK_MSEC, whatever the frame rate. A
+entered: every command moves TICK_MSEC, whatever the frame rate. A
 command is made as the clock enters its tick, with the input gathered over the tick
-before, and carries the time the tick ends (option C, owner, 13 November 2026), so that
+before, and carries the time the tick ends, so that
 cgame predicts the tick in progress and draws the local player between two ticks
 =================
 */
@@ -1532,7 +1532,7 @@ void CL_CreateNewCommands(void)
         return;
     }
 
-    // the end of the tick in progress on the command clock (plan step 14, part 4c: ahead of the server's clock, so that
+    // the end of the tick in progress on the command clock (ahead of the server's clock, so that
     // the command reaches the server just before that tick runs); after the first command, a jump of the clock (by more
     // than 200 ms either way: a map_restart, a hitch) gives one command at the new time, as one frame's command did
     const int tick = cl.cmdTime - cl.cmdTime % TICK_MSEC + TICK_MSEC;
@@ -1561,7 +1561,7 @@ void CL_CreateNewCommands(void)
 CL_PendingCmd
 
 The view angles and the command clock of now, for cgame's drawing of the local player
-(plan step 14: the commands are made per tick, the view turns every frame): the last
+(the commands are made per tick, the view turns every frame): the last
 command with the view angles of the frame and the command clock as its time, never
 sent. false before the first command.
 =================
@@ -1583,7 +1583,7 @@ bool CL_PendingCmd(usercmd_t* cmd)
 =================
 CL_ReadyToSendPacket
 
-Returns true when this frame made a new command (a packet per tick, plan step 14), or,
+Returns true when this frame made a new command (a packet per tick), or,
 before the client is in the game (awaiting the gamestate or its first snapshot), once
 per interval of MAX_PACKET_RATE
 =================
@@ -1602,7 +1602,7 @@ static bool CL_ReadyToSendPacket(bool newCommand)
         return false;
     }
 
-    // While awaiting the gamestate the client sends at the normal rate (plan step 10; it sent one packet a second): the
+    // While awaiting the gamestate the client sends at the normal rate (OpenJK sent one packet a second): the
     // server resends a gamestate as soon as the client acknowledges a later message (SV_ExecuteClientMessage), so a
     // lost gamestate fragment now costs about one round trip instead of a second or more.
 
@@ -1616,7 +1616,7 @@ static bool CL_ReadyToSendPacket(bool newCommand)
         return true;
     }
 
-    // a packet every frame, up to MAX_PACKET_RATE per second (plan step 11; the server decodes no more). The unused part
+    // a packet every frame, up to MAX_PACKET_RATE per second (the server decodes no more). The unused part
     // of the interval carries over to the next frame (at most one interval), so that the client sends min(frame rate,
     // MAX_PACKET_RATE) packets per second on average: a minimum gap checked once per frame let a packet leave only every
     // second frame when the frames were slightly shorter than the gap (62.5 packets per second at 125 fps with a cap of
@@ -1639,7 +1639,7 @@ Including both the reliable commands and the usercmds
 
 After the netchan header (sequence number, qport), a client packet holds the serverId, the last server message and
 server command received, the client commands not yet acknowledged and the usercmds of the last few packets, all coded
-by netcodec (CL_NetcodecWritePacket, plan step 8).
+by netcodec (CL_NetcodecWritePacket).
 ===================
 */
 void CL_WritePacket(void)

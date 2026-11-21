@@ -863,8 +863,8 @@ char* CopyString(const char* in)
 ===============
 Com_TouchMemory
 
-Checks the zone. It also read the used memory to page it in, but discarded what it read, so the optimized
-builds never ran that loop; removed on 16 November 2026.
+Checks the zone. It does not read the used memory to page it in: such a loop discarded what it read, so the
+optimized builds never ran it.
 ===============
 */
 void Com_TouchMemory(void)

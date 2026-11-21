@@ -30,10 +30,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ==============
 SV_Netchan_Encode
 
-Removed with the message codec (plan step 7, owner 8 November 2026): the server-to-client payload was XORed with a
+Removed with the message codec: the server-to-client payload was XORed with a
 key made of the challenge, the sequence and the last command texts, chosen on the client from the reliable
-acknowledge read in clear at the start of the message, which the codec now codes. Whether to restore an equivalent
-is decided in plan step 12.
+acknowledge read in clear at the start of the message, which the codec now codes.
 ==============
 */
 
@@ -41,9 +40,9 @@ is decided in plan step 12.
 ==============
 SV_Netchan_Decode
 
-Removed with the client packets coded by netcodec (plan step 8, owner 9 November 2026): the client-to-server payload was
+Removed with the client packets coded by netcodec: the client-to-server payload was
 XORed with a key made of the challenge, the serverId, the acknowledge and the last command texts, read in clear at
-the start of the packet, which the codec now codes. Whether to restore an equivalent is decided in plan step 12.
+the start of the packet, which the codec now codes.
 ==============
 */
 #endif

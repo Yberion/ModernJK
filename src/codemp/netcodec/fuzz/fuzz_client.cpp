@@ -18,7 +18,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// libFuzzer target on the client packet decoder (plan step 8 part 4; preset mingw-clang-fuzz: clang, ASan + UBSan,
+// libFuzzer target on the client packet decoder (preset windows-clang-netcodec-fuzz: clang, ASan + UBSan,
 // every netcodec target instrumented for coverage): the server decodes packets from anyone. Inputs are decoded with a
 // fixed server state: the last message sent is kLatest, and the server holds one base (that of a synthetic packet,
 // test/client_synthetic.h, seed 1) for whichever message a packet acknowledges. Each input must decode without fault;

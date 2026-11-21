@@ -33,7 +33,7 @@ inline constexpr int CGAME_API_VERSION = 2;
 enum class uiMenuCommand_t; // ui_public.h
 enum class fakeAscii_t;     // ui/keycodes.h
 
-inline constexpr int CMD_BACKUP = 256; // 2.56 s of commands at one per tick (plan step 14)
+inline constexpr int CMD_BACKUP = 256; // 2.56 s of commands at one per tick
 inline constexpr int CMD_MASK = CMD_BACKUP - 1;
 // allow a lot of command backups for very fast systems
 // multiple commands may be combined into a single packet, so this

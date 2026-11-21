@@ -1553,9 +1553,9 @@ void Com_Frame(void)
         timeVal = Com_TimeVal(minMsec);
         {
             // The client's command of a tick is made and sent when its command clock enters the tick, not at the next
-            // drawn frame (plan step 14, part 10): made at the frames, the commands reached the server spread over a
-            // frame's length (8 ms at 125 frames per second), and the command clock had to run that much earlier for the
-            // latest of them, so a key waited longer the lower the frame rate. The wait for the next frame ends at that
+            // drawn frame: made at the frames, the commands would reach the server spread over a
+            // frame's length (8 ms at 125 frames per second), and the command clock would have to run that much earlier for the
+            // latest of them, so a key would wait longer the lower the frame rate. The wait for the next frame ends at that
             // instant too, and the input alone runs (CL_InputTick). Not with a scaled or fixed time: the client's clock
             // is then not the real time's.
             bool inputTick = (com_timescale->value == 1 && !com_fixedtime->integer) ? true : false;
@@ -1577,8 +1577,8 @@ void Com_Frame(void)
                 if (com_busyWait->integer || wait < 1)
                     NET_Sleep(0);
 #ifndef _WIN32
-                // a dedicated server sleeps its last millisecond in steps of 100 us rather than in a busy loop, which took
-                // up to a tenth of a core at 100 Hz (plan step 14, X1); select() keeps such timeouts here, not on Windows
+                // a dedicated server sleeps its last millisecond in steps of 100 us rather than in a busy loop, which takes
+                // up to a tenth of a core at 100 Hz; select() keeps such timeouts here, not on Windows
                 else if (wait == 1 && com_dedicated->integer)
                     NET_Sleep(100);
 #endif

@@ -302,7 +302,7 @@ void SaberUpdateSelf(gentity_t* ent)
             VectorAdd(ent->r.currentOrigin, ent->r.mins, dbgMins);
             VectorAdd(ent->r.currentOrigin, ent->r.maxs, dbgMaxs);
 
-            G_DebugBoxLines(dbgMins, dbgMaxs, 50); // redrawn on every 20 Hz instant (plan step 14)
+            G_DebugBoxLines(dbgMins, dbgMaxs, 50); // redrawn on every 20 Hz instant
         }
 #endif
         if (ent->r.contents != contentsFlags_t::CONTENTS_LIGHTSABER) {
@@ -7289,7 +7289,7 @@ nextStep:
     }
 
     // fVSpeed *= 0.08;
-    fVSpeed *= 1.6f / 20.0f; // the 20 Hz frame: the saber runs on the 20 Hz instants of the tick (plan step 14), not every tick
+    fVSpeed *= 1.6f / 20.0f; // the 20 Hz frame: the saber runs on the 20 Hz instants of the tick, not every tick
 
     // Cap it off at reasonable values so the saber box doesn't go flying ahead of us or
     // something if we get a big speed boost from something.

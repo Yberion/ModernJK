@@ -18,7 +18,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// Client packets for the tests and the fuzzer (plan step 8): a random packet with a random base on every path of the
+// Client packets for the tests and the fuzzer: a random packet with a random base on every path of the
 // format (SyntheticPacket), a lookup that holds one base, and the comparison of two packets.
 #pragma once
 

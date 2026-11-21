@@ -29,7 +29,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define QDECL
 #define QCALL
 
-// Windows: x86_64 only (docs/modernization/PLAN.md, step 17)
+// Windows: x86_64 only, the one Windows architecture the project builds and tests
 #if defined(_WIN32)
 
 #if !defined(_M_X64) && !defined(__x86_64__)

@@ -2011,7 +2011,7 @@ bool NPC_CheckCanAttack(float attack_scale, bool stationary)
     }
     // Yaw to enemy
     //  the chest of the model it sees, its eyes without it, aimed at from the NPC's eyes: the shot leaves the muzzle
-    //  towards the point the eyes aim at (plan step 20 part 10)
+    //  towards the point the eyes aim at
     if (!G_AimSpot(NPCS.NPC, NPCS.NPC->enemy, enemy_org)) {
         CalcEntitySpot(NPCS.NPC->enemy, spot_t::SPOT_HEAD, enemy_org);
     }

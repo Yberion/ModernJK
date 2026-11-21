@@ -133,8 +133,8 @@ void G2_DEBUG_RemovePtrFromTracker(CGhoul2Info_v* g2)
 }
 #endif
 
-// The cvar "dedicated", found once: G2_SetupModelPointers, which every ghoul2 call goes through, looked it up by
-// its name each time (plan step 14, part 7).
+// The cvar "dedicated", found once rather than by its name at every call of G2_SetupModelPointers, which every
+// ghoul2 call goes through.
 static int G2_Dedicated(void)
 {
     static cvar_t* dedicated;

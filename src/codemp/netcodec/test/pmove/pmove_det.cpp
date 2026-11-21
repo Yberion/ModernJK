@@ -21,11 +21,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // Determinism test of the game's player movement (bg_pmove.cpp, bg_slidemove.cpp), outside the engine: the same synthetic
 // commands through Pmove, in a small world of brushes, and a hash of the player state after every command. Built
 // twice, as the server's game module (-D_GAME) and as cgame (-D_CGAME), with each compiler: cgame's prediction is
-// right only if a client build gives the same states as the server build. Pmove no longer rounds the velocity (decided on
-// 9 November 2026), so this game code runs one mode, 1: no rounding (modes 0, the engine's Sys_SnapVector, and 2, ties
-// to even, were measured before that decision). The comparison with the original 1.01 game code, built in 32-bit with
-// x87 math as 1.01 was (removed with the 32-bit targets on 16 November 2026), is in
-// docs/modernization/progress/step-06-cpp-codec.md.
+// right only if a client build gives the same states as the server build. Pmove does not round the velocity, so
+// this game code runs one mode, 1: no rounding (modes 0, the engine's Sys_SnapVector, and 2, ties to even, are not
+// built). The original 1.01 game code, built in 32-bit with x87 math, gave states up to 2.7 units apart between a GCC
+// server and an MSVC client: the x87's 80-bit registers are spilled to memory where each compiler chooses.
 // Output: one line per scenario and mode: the hash of the movement fields (origin, velocity, view angles, ground
 // entity, pm_flags, pm_time, commandTime) and of the whole player state after every command, and the final origin and
 // velocity as float bit patterns. --dump=<file>: the movement fields after every command (float bits), to compare two

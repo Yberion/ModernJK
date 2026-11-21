@@ -480,7 +480,7 @@ void Svcmd_Say_f(void)
 }
 
 // gamestats: the combat statistics since the last call (g_stats), then reset; the ratios per saber swing are what must not
-// change with the server frame rate (plan step 14)
+// change with the server frame rate
 extern EnumArray<const char*, meansOfDeath_t, meansOfDeath_t::MOD_MAX> modNames;
 extern EnumArray<const char*, entity_event_t, entity_event_t::EV_NUM_ENTITY_EVENTS> eventnames;
 extern bool PM_SaberInBounce(saberMoveName_t move);
@@ -543,7 +543,7 @@ static void G_PrintCentralStats(void)
         }
     }
     trap->Print("%s\n", line);
-    // plan step 20: the moves by the name of saberMoveData, its spaces as underscores
+    // the moves by the name of saberMoveData, its spaces as underscores
     Q_strncpyz(line, "saber special move statistics (moves started):", sizeof(line));
     for (saberMoveName_t move = saberMoveName_t::LS_A_BACKSTAB; move <= saberMoveName_t::LS_HILT_BASH; move++) {
         if (s->specialMoves[move]) {
@@ -589,7 +589,7 @@ void Svcmd_GameStats_f(void)
         }
         trap->Print("%s\n", line);
     }
-    { // the other powers, which have no periodic events (plan step 20)
+    { // the other powers, which have no periodic events
         static const struct {
             forcePowers_t power;
             const char* name;

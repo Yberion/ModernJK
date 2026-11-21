@@ -53,7 +53,7 @@ typedef struct {
     int previous_waterlevel;
 
     qrand_t rand; // PM_irand_timesync's numbers: seeded with the command's time, the same on the server and in
-                  // the client's prediction (plan step 14)
+                  // the client's prediction
 } pml_t;
 
 extern pml_t pml;

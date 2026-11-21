@@ -18,7 +18,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// netcodec: coding of the client packets (client to server, plan step 8; interface in codec.h). In order:
+// netcodec: coding of the client packets (client to server; interface in codec.h). In order:
 //  - the acknowledged message, its low 8 bits raw; whether the user commands are coded against it (base);
 //  - with a base: serverId unchanged from the acknowledged message (else raw), the server command acknowledge against
 //    the commands that message gave the client (its record's cmdSeq); without a base: both raw;

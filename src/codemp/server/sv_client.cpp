@@ -128,7 +128,7 @@ void SV_DirectConnect(const netadr_t* from)
     char userinfo[MAX_INFO_STRING];
     int i;
     client_t *cl, *newcl;
-    static client_t temp; // not on the stack: 896 KB with the 128 snapshots of plan step 14 part 5, over Windows' 1 MB
+    static client_t temp; // not on the stack: 896 KB with its window of 128 snapshots, over Windows' 1 MB
     sharedEntity_t* ent;
     int clientNum;
     int version;
@@ -1219,15 +1219,15 @@ void SV_ClientThink(client_t* cl, usercmd_t* cmd)
 ==================
 SV_RunClientCommands
 
-Runs, for every player in the game, one command at the coming tick, whose time is `time` (plan step 14, part 4c): every
+Runs, for every player in the game, one command at the coming tick, whose time is `time`: every
 player's state at a tick is the result of its command of that tick, after the bots' commands and before the game frame.
 
 - The command of the tick is the one whose time is in the tick (above time - frameMsec, up to time). How early it
   arrived is the player's input margin, sent in the next snapshot: the client keeps its command clock just far enough
   ahead for its commands to arrive before their tick.
 - A command that comes after its tick gets no movement time, and what it newly pressed (buttons, a jump, the generic
-  command) goes into the next command run: a short press acts a tick late instead of being lost (as Counter-Strike 2;
-  docs/modernization/surveys/tick-and-lag-compensation.md, section 11). Its margin is negative.
+  command) goes into the next command run: a short press acts a tick late instead of being lost (as Counter-Strike 2,
+  which runs a late command with no movement time and keeps its button presses). Its margin is negative.
 - A tick without a command runs the last one again, for SV_INPUT_REPEAT_MSEC, then an empty one (no movement, no
   button): a lost packet does not stop the player, a lost connection does.
 

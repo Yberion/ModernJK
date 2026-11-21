@@ -6021,8 +6021,7 @@ void StandardBotAI(bot_state_t* bs, float thinktime)
                 level.time + 100; // assures that we will continue staying within a general area of where we want to be in a combat situation
         }
 
-        if (bs->currentEnemy
-                ->client) { // a bot shooting aims at the chest of the model it sees, as a player aims; at its eye level otherwise (plan step 20 part 10)
+        if (bs->currentEnemy->client) { // a bot shooting aims at the chest of the model it sees, as a player aims; at its eye level otherwise
             if (!G_AimSpot(&g_entities[bs->client], bs->currentEnemy, headlevel)) {
                 VectorCopy(bs->currentEnemy->client->ps.origin, headlevel);
                 headlevel[2] += bs->currentEnemy->client->ps.viewheight;
@@ -6544,7 +6543,7 @@ int BotAIStartFrame(int time)
     elapsed_time = time - local_time;
     local_time = time;
 
-    // the bots think on the 20 Hz instants of the tick, every 50 ms as at sv_fps 20, where the AI was tuned (plan step 14)
+    // the bots think on the 20 Hz instants of the tick, every 50 ms as at sv_fps 20, where the AI was tuned
     thinktime = 50;
 
     // execute scheduled bot AI
@@ -6568,7 +6567,7 @@ int BotAIStartFrame(int time)
         }
     }
 
-    { // the bot user commands: one every 10 ms, the tick, each run as a player's is when it arrives (plan step 14); the engine
+    { // the bot user commands: one every 10 ms, the tick, each run as a player's is when it arrives; the engine
       // calls this before every tick, and the commands of all the bots run in the order of their times
         static int botCmdTime[MAX_CLIENTS];
         const int until = time + TICK_MSEC; // up to the coming tick's time, as a player's commands arrive before it

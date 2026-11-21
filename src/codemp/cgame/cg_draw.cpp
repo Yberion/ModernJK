@@ -3632,7 +3632,7 @@ LAGOMETER
 ===============================================================================
 */
 
-// The lagometer in time (plan step 14, part 9): a column is a slice of LAG_SLICE_MSEC of real time, not a frame or a
+// The lagometer in time: a column is a slice of LAG_SLICE_MSEC of real time, not a frame or a
 // snapshot, so that the graph covers the same span at any frame rate (LAG_COLUMNS slices: 2.4 s). A slice keeps the
 // worst case of what happened in it.
 constexpr int LAG_SLICE_MSEC = 50;
@@ -5431,8 +5431,7 @@ static void CG_ScanForCrosshairEntity(void)
                  rodeVeh->m_pVehicle->m_pVehicleInfo->type == vehicleType_t::VH_SPEEDER &&
                  (cg.predictedPlayerState.weapon == weapon_t::WP_MELEE ||
                   (cg.predictedPlayerState.weapon == weapon_t::WP_SABER &&
-                   BG_SabersOff(
-                       &cg.predictedPlayerState)))) { // the rider of a speeder whose lasers fire (ClientEvents): the speeder's crosshair (plan step 20 part 10)
+                   BG_SabersOff(&cg.predictedPlayerState)))) { // the rider of a speeder whose lasers fire (ClientEvents): the speeder's crosshair
             ignore = cg.predictedPlayerState.m_iVehicleNum;
             CG_CalcVehicleMuzzlePoint(cg.predictedPlayerState.m_iVehicleNum, start, d_f, d_rt, d_up);
         }
@@ -5458,7 +5457,7 @@ static void CG_ScanForCrosshairEntity(void)
             CG_CalcMuzzlePoint(cg.snap->ps.clientNum, start);
         }
         else { // the point the eyes aim at, as the server finds it (WP_AimPoint); a projectile then leaves the weapon's muzzle
-               // point towards it (BG_FiresFromMuzzle), with what stands between them in its way (plan step 20 part 10)
+               // point towards it (BG_FiresFromMuzzle), with what stands between them in its way
             const weapon_t weapon = cg.predictedPlayerState.weapon;
 
             VectorCopy(cg.predictedPlayerState.origin, start);

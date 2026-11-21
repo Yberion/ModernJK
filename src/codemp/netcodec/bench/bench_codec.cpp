@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // memory latency, and it varies by 5 to 10 % between runs. Warm: each message coded 5 times in a row and the fastest
 // kept (time-stamp counter, converted to ns with the pass's own duration), summed over the messages; the states are in
 // cache as in the engine, which has just written them, and two runs agree within a fraction of a percent. Compare
-// two versions with the warm timing, alternately (step-06-cpp-codec.md, part C).
+// two versions with the warm timing, run alternately on one fixed core (scripts/ab_clang.sh, ab_gcc.sh, ab_msvc.bat).
 //
 // Memory: the stores point into the loaded trace instead of copying snapshots. Every message is first coded and
 // decoded once by both codecs and checked (decoded fields equal to the recording), so the recorded snapshots are
@@ -118,7 +118,7 @@ public:
 };
 
 // The server's view of a recorded snapshot: the engine's server keeps one copy of an entity's state while it does not
-// change and a snapshot is a list of positions (plan step 14, part 5), so the encoder is timed reading its entities
+// change and a snapshot is a list of positions, so the encoder is timed reading its entities
 // through an index over a stream's pool of states, where a state is stored again only when it differs from the
 // entity's last copy: an unchanged entity is at the same position as in the base. The decoder's snapshots stay runs.
 struct ServerSnapshot {
@@ -221,7 +221,7 @@ int main(int argc, char** argv)
     trace::BaselineData gsScratch; // netcodec's decoded gamestate baselines
 
     // NETCODEC_BENCH_RUNS set: the encoder gets every snapshot's states as a run of its own copies, without the index
-    // and with nothing shared, as the server stored them before plan step 14 (a control, not the server's path)
+    // and with nothing shared, as OpenJK's server stores them (a control, not the server's path)
     const bool serverRuns = std::getenv("NETCODEC_BENCH_RUNS") != nullptr;
     if (serverRuns)
         fprintf(stderr, "NETCODEC_BENCH_RUNS: the encoder's snapshots as runs, without the index\n");

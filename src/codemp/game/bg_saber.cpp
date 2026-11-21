@@ -40,7 +40,7 @@ saberInfo_t* BG_MySaber(int clientNum, int saberNum);
 
 // A number from val1 to val2 - 1 (val2 itself never came out of 1.01's formula, val1 + random * (val2 - val1)
 // truncated, and the saber's chances were tuned with it), or val1 when val2 <= val1. Drawn from the command's own
-// state, seeded with its time, so that the server and the client's prediction draw the same numbers (plan step 14).
+// state, seeded with its time, so that the server and the client's prediction draw the same numbers.
 int PM_irand_timesync(int val1, int val2)
 {
     if (val2 <= val1) {

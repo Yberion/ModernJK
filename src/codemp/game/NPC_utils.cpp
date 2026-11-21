@@ -1454,7 +1454,7 @@ bool NPC_FaceEnemy(bool doPitch)
     if (NPCS.NPC->enemy == nullptr)
         return false;
 
-    // a shooter aims at the chest of the model it sees, as a player aims; its eyes otherwise (plan step 20 part 10)
+    // a shooter aims at the chest of the model it sees, as a player aims; its eyes otherwise
     if (!G_AimSpot(NPCS.NPC, NPCS.NPC->enemy, enemyPos)) {
         CalcEntitySpot(NPCS.NPC->enemy, spot_t::SPOT_HEAD_LEAN, enemyPos);
     }

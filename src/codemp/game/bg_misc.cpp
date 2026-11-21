@@ -1678,8 +1678,7 @@ gitem_t* BG_FindItemForWeapon(weapon_t weapon)
 BG_FiresFromMuzzle
 
 The shots that leave the weapon's muzzle point towards the point the eyes aim at: the projectiles fired by hand, but
-the thrown items; the game fires them so (FireWeapon), cgame draws the crosshair where they land (plan step 20 part
-10)
+the thrown items; the game fires them so (FireWeapon), cgame draws the crosshair where they land
 ===============
 */
 bool BG_FiresFromMuzzle(weapon_t weapon, bool altFire)

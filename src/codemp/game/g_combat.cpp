@@ -3787,7 +3787,7 @@ void G_LocationBasedDamageModifier(gentity_t* ent, vec3_t point, meansOfDeath_t 
     if (hitLoc == -1) {
         hitLoc = to_underlying(G_GetHitLocation(ent, point));
     }
-    G_ScenarioHitLocation(ent, static_cast<hitLocation_t>(hitLoc)); // the scripted scenarios' statistics (plan step 20)
+    G_ScenarioHitLocation(ent, static_cast<hitLocation_t>(hitLoc)); // the scripted scenarios' statistics
 
     switch (static_cast<hitLocation_t>(hitLoc)) {
     case hitLocation_t::HL_FOOT_RT:

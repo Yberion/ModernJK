@@ -2923,7 +2923,7 @@ void G_RunItem(gentity_t* ent)
     contentsFlags_t mask;
 
     if (!G_GRID20_STEP) {
-        return; // items move and think on the 20 Hz instants, as at sv_fps 20 (plan step 14, g_local.h)
+        return; // items move and think on the 20 Hz instants, as at sv_fps 20 (g_local.h)
     }
 
     // if groundentity has been set to ENTITYNUM_NONE, it may have been pushed off an edge

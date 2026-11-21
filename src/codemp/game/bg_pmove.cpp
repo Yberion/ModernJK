@@ -6441,8 +6441,8 @@ static void PM_Weapon(void)
         (pm->ps->torsoAnim) != WeaponReadyAnim[pm->ps->weapon] && pm->ps->torsoAnim != animNumber_t::TORSO_WEAPONIDLE3 &&
         pm->ps->weapon != weapon_t::WP_EMPLACED_GUN &&
         // not while zoomed with the disruptor: the test below puts TORSO_WEAPONREADY4 back at once, and leaving it and
-        // taking it again restarted the animation at every movement step (torsoFlip changed at every tick, in the
-        // player's state and in every snapshot that shows the player; plan step 14, part 10)
+        // taking it again would restart the animation at every movement step (torsoFlip would change at every tick, in the
+        // player's state and in every snapshot that shows the player)
         !(pm->ps->weapon == weapon_t::WP_DISRUPTOR && pm->ps->zoomMode == 1)) {
         PM_StartTorsoAnim(WeaponReadyAnim[pm->ps->weapon]);
     }
@@ -8170,7 +8170,7 @@ void BG_G2PlayerAngles(void* ghoul2, int motionBolt, entityState_t* cent, int ti
 
     // below 1 unit per second on the ground the movement code itself takes the player as stopped (PM_Friction), and the
     // velocity left by a push against a wall or a player (a few hundredths of a unit per second, sideways) is not a
-    // direction to turn the legs to; the velocity was rounded to whole units before plan step 7, which hid it
+    // direction to turn the legs to (OpenJK rounded the velocity to whole units, which hid it)
     if (cent->groundEntityNum == ENTITYNUM_NONE || cent->forceFrame || (cent->weapon == weapon_t::WP_EMPLACED_GUN && emplaced) ||
         cent->pos.trDelta[0] * cent->pos.trDelta[0] + cent->pos.trDelta[1] * cent->pos.trDelta[1] <
             1.0f) { // off the ground, no direction-based leg angles (same if in saberlock)
@@ -9288,7 +9288,7 @@ void PmoveSingle(pmove_t* pmove)
     memset(&pml, 0, sizeof(pml));
     // the random numbers come from the command's tick (its time rounded up to TICK_MSEC; a command's time is a tick, except
     // the commands a client makes every frame before it is in the game): a step that ends inside a tick takes that
-    // tick's draws (plan step 14)
+    // tick's draws
     Q_RandSeed(&pml.rand, (uint32_t)((pmove->cmd.serverTime + TICK_MSEC - 1) / TICK_MSEC * TICK_MSEC));
 
     // determine the time
@@ -9801,7 +9801,7 @@ void PmoveSingle(pmove_t* pmove)
     // entering / leaving water splashes
     PM_WaterEvents();
 
-    // the velocity is not rounded (decided on 9 November 2026): the client gets it exactly, the jumps no longer depend on
+    // the velocity is not rounded: the client gets it exactly, the jumps no longer depend on
     // the frame time, and an MSVC client and a GCC server cannot flip a rounding apart
 
     if (pm->ps->pm_type == pmtype_t::PM_JETPACK || gPMDoSlowFall) {

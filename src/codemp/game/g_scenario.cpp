@@ -18,7 +18,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// Scripted bot scenarios for plan step 14: two bots, an attacker and a defender, placed face to face and reset at every
+// Scripted bot scenarios: two bots, an attacker and a defender, placed face to face and reset at every
 // repetition, play a fixed sequence of commands timed in milliseconds (one every 10 ms, the tick, as every bot sends
 // them), so that a scenario compares the game per swing, per shot or per power use rather than through the chaos of a
 // free-for-all. A first repetition, not counted, replaces the bots'
@@ -31,7 +31,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //
 // scenario saber <reps> <fast|medium|strong|dual|staff> <mode> [distance]
 //   mode: idle (an attack in one of the eight directions in turn), attack (the same, the defender attacking at the same
-//   time), and the special moves of plan step 20, the defender idle unless said: throw (the saber thrown, the alternate
+//   time), and the special moves, the defender idle unless said: throw (the saber thrown, the alternate
 //   attack held 1 s), lock (both the same attack, held, in a private duel; during a lock the attacker presses attack
 //   every 100 ms),
 //   kata (attack and alternate attack together), back and backcrouch (facing away from the defender, backward and
@@ -86,17 +86,17 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //   stands, its saber in hand, facing the NPC
 // scenario off
 // Options after the arguments: hold=<ms>, rep=<ms> (a repetition, 2000; the scripts read it to wait for the end);
-// pickup=<units> (plan step 20, the game types: in a holocron game a holocron of the force scenario's power, in a Jedi
+// pickup=<units> (the game types: in a holocron game a holocron of the force scenario's power, in a Jedi
 // Master game the Jedi Master's saber, in CTF and CTY the enemy flag, put that far in front of the attacker, which
 // walks onto it before its script; in CTF and CTY the attacker's own flag as far behind it);
 // target=ally (in a team game the attacker's teammate takes the defender's place and role, the defender the ally's);
 // away (the defender turned away from the attacker);
-// spectator, spectator=follow1, spectator=follow2 (plan step 20, teams and spectators: a bot spectator, the first
+// spectator, spectator=follow1, spectator=follow2 (teams and spectators: a bot spectator, the first
 // spectator bot or else the first bot without a role, made a spectator, follows the attacker, or the first or second
 // player by client number as the game's follow1 and follow2 do; it is reset to that at every repetition);
-// item=<classname> (plan step 20, the items: with pickup=, that item in front of the attacker, as in an item scenario,
+// item=<classname> (the items: with pickup=, that item in front of the attacker, as in an item scenario,
 // before the script of any other scenario: a force scenario after a powerup picked up);
-// npc=<npc> (plan step 20, the NPCs: the NPC in the defender's place and role, as in an npc scenario, against the
+// npc=<npc> (the NPCs: the NPC in the defender's place and role, as in an npc scenario, against the
 // attacker's script of a saber, force or weapon scenario; the attacker's view follows the middle of the NPC's box, from
 // the muzzle for a weapon).
 // Every reset removes the NPC of an npc scenario or of npc=, with what its fight left (the bot a rancor holds let go,
@@ -170,7 +170,7 @@ enum class spectateMode_t { SPM_CYCLE, SPM_FLY };
 
 // where the attacker of a weapon scenario aims from (option aim=): its own view, or the defender's head or chest (at=)
 // from its eyes, as a bot, an NPC or a crosshair at the centre of the screen, or from its weapon's muzzle point
-// (CalcMuzzlePoint), as the dynamic crosshair shows (plan step 20 part 10)
+// (CalcMuzzlePoint), as the dynamic crosshair shows
 enum class aimFrom_t { AIM_SCENARIO, AIM_EYES, AIM_MUZZLE };
 
 constexpr int SCN_SPECTATOR = 3; // the spectator's slot in scn.client, after the attacker, the defender and the ally
@@ -252,29 +252,29 @@ static struct {
     int saberLocked[3]; // instants in a saber lock
     float path[3];      // distance moved
     int end[3][3];      // the place at the end of each repetition against the place at its start, rounded to the unit
-    // the scores at the start of the counted repetitions (plan step 20, the game types)
+    // the game types: the scores at the start of the counted repetitions
     int scoreStart[3], capturesStart[3], teamScoreStart[2];
-    // plan step 20, teams and spectators, by slot (the spectator's last): the team changes, the instants as a free
+    // teams and spectators, by slot (the spectator's last): the team changes, the instants as a free
     // spectator and the distance moved then, the instants following the attacker, the defender or the ally, the
     // distance from the player followed
     int teamChanges[4], freeSpectator[4], following[4][3];
     float freePath[4], followGap[4];
     team_t team[4]; // the previous instant's team and place, from the reset on
     vec3_t teamOrigin[4];
-    // plan step 20, the items, by role: armour and ammunition gained and lost, the instants cloaked, flying a jetpack
+    // the items, by role: armour and ammunition gained and lost, the instants cloaked, flying a jetpack
     // and zoomed in
     int armorGained[3], armorLost[3], ammoGained[3], ammoSpent[3], cloaked[3], jetpack[3], zoomed[3];
     int armor[3], ammo[3]; // the previous instant's values, from the reset on
-    // plan step 20, the vehicles: by role the boardings and exits, the instants aboard and the distance moved then; the
+    // the vehicles: by role the boardings and exits, the instants aboard and the distance moved then; the
     // vehicle's health and shield lost, and its destructions
     int boardings[3], exits[3], aboard[3];
     float aboardPath[3];
     int vehicleNum[3]; // the previous instant's vehicle, from the reset on
     int vehicleHealthLost, vehicleShieldLost, vehicleDestroyed;
     int vehicleHealth, vehicleShield; // the previous instant's values, from the reset on
-    // plan step 20, the NPCs, by role: the instants held by a monster, as the NPC's enemy and in a pain animation
+    // the NPCs, by role: the instants held by a monster, as the NPC's enemy and in a pain animation
     int heldByMonster[3], npcEnemy[3], inPain[3];
-    // plan step 20 part 10, by role: the hits by location (G_LocationBasedDamageModifier)
+    // the shots, by role: the hits by location (G_LocationBasedDamageModifier)
     int hitLocations[3][to_underlying(hitLocation_t::HL_MAX)];
     // the previous instant's values, from the reset on
     int health[3], force[3];
@@ -337,8 +337,7 @@ static bool G_ScenarioOpenFloor(const vec3_t start, const vec3_t place)
     return tr.fraction < 1.0f && !tr.startsolid && tr.endpos[2] >= start[2] - 24;
 }
 
-// the spawn points in turn: free for all's, then CTF's, then siege's, for the maps without the first kind (plan step
-// 20, the game types)
+// the spawn points in turn: free for all's, then CTF's, then siege's, for the maps without the first kind
 static gentity_t* G_ScenarioNextSpot(gentity_t* spot, size_t* kind)
 {
     static const char* const kinds[] = {"info_player_deathmatch", "team_CTF_redspawn", "team_CTF_bluespawn", "info_player_siegeteam1",
@@ -675,7 +674,7 @@ static void G_ScenarioEquip(gentity_t* ent, bool attacker)
     gclient_t* client = ent->client;
 
     // the holdable items carried: the attacker's of its holdable scenario only, selected but for the jetpack and the
-    // dispensers, which cannot be (plan step 20, the items)
+    // dispensers, which cannot be
     client->ps.stats[statIndex_t::STAT_HOLDABLE_ITEMS] = (attacker && scn.type == scenarioType_t::SCN_HOLDABLE) ? Bit(scn.holdable) : 0;
     client->ps.stats[statIndex_t::STAT_HOLDABLE_ITEM] =
         (attacker && scn.type == scenarioType_t::SCN_HOLDABLE && BG_IsItemSelectable(&client->ps, scn.holdable)) ? BG_GetItemIndexByTag(scn.holdable) : 0;
@@ -919,7 +918,7 @@ static void G_ScenarioSample(void)
         scnStats.force[n] = ps->fd.forcePower;
         VectorCopy(ps->origin, scnStats.origin[n]);
         G_ScenarioSampleTeam(n);
-        { // plan step 20, the items
+        { // the items
             const int armor = ps->stats[statIndex_t::STAT_ARMOR] - scnStats.armor[n];
             const int ammo = G_ScenarioAmmo(ps) - scnStats.ammo[n];
 
@@ -947,7 +946,7 @@ static void G_ScenarioSample(void)
                 scnStats.zoomed[n]++;
             }
         }
-        // plan step 20, the vehicles
+        // the vehicles
         if (ps->m_iVehicleNum && !scnStats.vehicleNum[n]) {
             scnStats.boardings[n]++;
         }
@@ -958,7 +957,7 @@ static void G_ScenarioSample(void)
             scnStats.aboard[n]++;
         }
         scnStats.vehicleNum[n] = ps->m_iVehicleNum;
-        // plan step 20, the NPCs
+        // the NPCs
         if (Any(ps->eFlags2 & entityFlags2_t::EF2_HELD_BY_MONSTER)) {
             scnStats.heldByMonster[n]++;
         }
@@ -1003,7 +1002,7 @@ void G_ScenarioPrintStats(void)
                     scnStats.saberLocked[n], scnStats.path[n], scnStats.end[n][0], scnStats.end[n][1], scnStats.end[n][2]));
     }
     trap->Print("%s\n", line);
-    // plan step 20, the game types: what the counted repetitions added to the scores
+    // the game types: what the counted repetitions added to the scores
     Q_strncpyz(line, "score statistics: score and captures gained by role, red and blue team scores gained:", sizeof(line));
     for (int n = 0; n < scn.numClients; n++) {
         const gclient_t* client = g_entities[scn.client[n]].inuse ? g_entities[scn.client[n]].client : nullptr; // an NPC removed
@@ -1016,7 +1015,7 @@ void G_ScenarioPrintStats(void)
         line, sizeof(line),
         va(", teams %d %d", level.teamScores[team_t::TEAM_RED] - scnStats.teamScoreStart[0], level.teamScores[team_t::TEAM_BLUE] - scnStats.teamScoreStart[1]));
     trap->Print("%s\n", line);
-    // plan step 20, teams and spectators
+    // teams and spectators
     Q_strncpyz(line,
                "team statistics: team changes, instants as a free spectator and distance moved, instants following "
                "the attacker, the defender and the ally, distance from the player followed, by role:",
@@ -1030,7 +1029,7 @@ void G_ScenarioPrintStats(void)
                     scnStats.following[n][0], scnStats.following[n][1], scnStats.following[n][2], scnStats.followGap[n]));
     }
     trap->Print("%s\n", line);
-    // plan step 20, the items
+    // the items
     Q_strncpyz(line, "item statistics: items picked up:", sizeof(line));
     for (int i = 1; i < bg_numItems; i++) {
         if (g_stats.itemPickups[i]) {
@@ -1052,7 +1051,7 @@ void G_ScenarioPrintStats(void)
                     scnStats.ammoSpent[n], scnStats.cloaked[n], scnStats.jetpack[n], scnStats.zoomed[n]));
     }
     trap->Print("%s\n", line);
-    // plan step 20, the vehicles
+    // the vehicles
     Q_strncpyz(line, "vehicle statistics: health taken from the NPCs and vehicles, by cause:", sizeof(line));
     for (meansOfDeath_t mod = meansOfDeath_t::MOD_UNKNOWN; mod < meansOfDeath_t::MOD_MAX; mod++) {
         if (g_stats.npcDamage[mod]) {
@@ -1068,13 +1067,13 @@ void G_ScenarioPrintStats(void)
                  va("%s %s %d %d %d %.0f", n ? "," : "", roles[n], scnStats.boardings[n], scnStats.exits[n], scnStats.aboard[n], scnStats.aboardPath[n]));
     }
     trap->Print("%s\n", line);
-    // plan step 20, the NPCs
+    // the NPCs
     Q_strncpyz(line, "npc statistics: instants held by a monster, as the NPC's enemy and in a pain animation, by role:", sizeof(line));
     for (int n = 0; n < scn.numClients; n++) {
         Q_strcat(line, sizeof(line), va("%s %s %d %d %d", n ? "," : "", roles[n], scnStats.heldByMonster[n], scnStats.npcEnemy[n], scnStats.inPain[n]));
     }
     trap->Print("%s\n", line);
-    // plan step 20 part 10: the hits by location, the location's name with its spaces as underscores
+    // the shots: the hits by location, the location's name with its spaces as underscores
     Q_strncpyz(line, "hit location statistics: hits by location, by role:", sizeof(line));
     for (int n = 0; n < scn.numClients; n++) {
         Q_strcat(line, sizeof(line), va("%s %s", n ? "," : "", roles[n]));
@@ -1676,7 +1675,7 @@ static void G_ScenarioLookAt(const gentity_t* ent, const vec3_t target, vec3_t v
 }
 
 // the view that aims a bot's weapon at a point from its muzzle point, beside and below the eyes (CalcMuzzlePoint), along
-// which the shots flew until plan step 20 part 10; since then they leave that point towards the point the eyes aim at,
+// which the shots flew in OpenJK; they now leave that point towards the point the eyes aim at,
 // so this view aims beside the point (the option aim=muzzle shows it)
 static void G_ScenarioAimMuzzle(gentity_t* ent, const vec3_t target, vec3_t view)
 {
@@ -1881,7 +1880,7 @@ bool G_ScenarioCommand(int clientNum, int t, usercmd_t* ucmd)
         }
         else { // it aims the rocket launcher at the carrier's head, which a rocket kills: the legs and the arms take
             // less (G_LocationBasedDamageModifier), and a carrier hurt is thrown back onto its own flag; from the eyes, as a
-            // player aims (plan step 20 part 10: aimed at the middle of the body, the rocket hits an arm held before it)
+            // player aims (aimed at the middle of the body, the rocket hits an arm held before it)
             gentity_t* carrier = &g_entities[scn.client[0]];
             vec3_t target;
 
@@ -1908,7 +1907,7 @@ bool G_ScenarioCommand(int clientNum, int t, usercmd_t* ucmd)
         }
         else if (!attacker && veh && scn.vehicleMode == vehicleMode_t::VM_DESTROY) {
             // the rocket at the vehicle's body, three quarters up its box (the missiles hit the model: halfway up, between
-            // the AT-ST's legs), from the eyes (plan step 20 part 10)
+            // the AT-ST's legs), from the eyes
             vec3_t target;
 
             VectorCopy(veh->r.currentOrigin, target);
@@ -1917,7 +1916,7 @@ bool G_ScenarioCommand(int clientNum, int t, usercmd_t* ucmd)
         }
     }
     if (attacker && scn.npcType[0]) {
-        if (const gentity_t* npc = G_ScenarioNPC()) { // the middle of the NPC's box, from the eyes (plan step 20 part 10)
+        if (const gentity_t* npc = G_ScenarioNPC()) { // the middle of the NPC's box, from the eyes
             vec3_t target;
 
             VectorCopy(npc->r.currentOrigin, target);
@@ -1927,9 +1926,9 @@ bool G_ScenarioCommand(int clientNum, int t, usercmd_t* ucmd)
     }
     if (attacker && scn.type == scenarioType_t::SCN_WEAPON && scn.weapon == weapon_t::WP_EMPLACED_GUN && scn.repStart && phase >= 0) {
         // the use key's trace leaves the eyes level with the top of the gun's box: looking down at it; then 2 degrees up,
-        // since the two barrels fired 10 units left and right of the view, beside the model of a defender aimed at
-        // (2 up, 15 of 41 bolts hit; 4 up, 10; level, 6 up and 2, 3 or 5 down, none); since plan step 20 part 10 both
-        // fire towards the point the view's ray hits
+        // chosen when the two barrels fired 10 units left and right of the view, as in OpenJK, beside the model of a
+        // defender aimed at (2 up, 15 of 41 bolts hit; 4 up, 10; level, 6 up and 2, 3 or 5 down, none); both now fire
+        // towards the point the view's ray hits
         view[PITCH] = (phase < 50) ? 20.0f : -2.0f;
     }
     if (attacker && scn.type == scenarioType_t::SCN_WEAPON && scn.aimFrom != aimFrom_t::AIM_SCENARIO && scn.repStart) {

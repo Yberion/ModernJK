@@ -29,7 +29,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //  - message operation given the previous one; the scalar contexts of the message (enum Scalar);
 //  - bytes of server command text given the previous byte (0 at the start of a text), also used by client commands;
 //  - the message's serverId unchanged from the base;
-//  - client packets (client to server, plan step 8): their scalars (enum ClientScalar), the user-command time step
+//  - client packets (client to server): their scalars (enum ClientScalar), the user-command time step
 //    given the previous step, the view angle differences per axis and context, the byte fields given the previous
 //    value (separately for the packet's first command, which has no previous command);
 //  - the snapshot's input margin (-128 to 127 ms as 0 to 255).
@@ -119,7 +119,7 @@ inline constexpr uint32_t kClientScalar = kServerIdSame + 1;
 inline constexpr uint32_t kClientStep = kClientScalar + static_cast<uint32_t>(ClientScalar::kCount);
 inline constexpr uint32_t kClientAngle = kClientStep + kStepContexts;
 inline constexpr uint32_t kClientField = kClientAngle + (3 * kAngleContexts);
-// server messages again: the snapshot's input margin (plan step 14), after the client packets' contexts so that
+// server messages again: the snapshot's input margin, after the client packets' contexts so that
 // the trained tables keep their context numbers
 inline constexpr uint32_t kInputMargin = kClientField + (kUserCmdFields * 2 * 256);
 inline constexpr uint32_t kCount = kInputMargin + 1;

@@ -2155,7 +2155,7 @@ void CL_Frame(int msec)
     CL_SetCGameTime();
 
     // send intentions now, once the time to render is decided: the command of the tick in progress then exists when cgame
-    // predicts the local player and draws it between the last two ticks (plan step 14)
+    // predicts the local player and draws it between the last two ticks
     CL_SendCmd();
 
     // update the screen

@@ -19,11 +19,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // q_pk3.cpp -- reading the pk3 files, and the only file that knows the library that inflates them: zlib-ng
-// (lib/zlib-ng). A pk3 is a ZIP archive: this file reads its directory, which is a list of fixed records at the end
+// (libs/zlib-ng). A pk3 is a ZIP archive: this file reads its directory, which is a list of fixed records at the end
 // of the archive, and the files it names, stored or deflated. One file for the multiplayer and the single-player
 // engines, each compiling it with its own qcommon/qcommon.h; the file system (files.cpp, shared too) calls the
 // functions of q_pk3.h: replacing the library changes this file only
-// (docs/modernization/surveys/compression-libraries.md).
+// (zlib-ng: the fastest released decoder measured on the game's archives that inflates a file in pieces, without an assembler).
 //
 // The archives come from anyone (a server sends them): no offset, size or count read in one is trusted before it is
 // checked against the archive's length. ZIP64 archives (4 GB or more, or 65,535 files or more) are read. Not read:

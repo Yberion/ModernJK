@@ -789,7 +789,7 @@ void SV_ConnectionlessPacket(const netadr_t* from, msg_t* msg)
 
 //============================================================================
 
-// The server's CPU time since the last svnetstats, in microseconds (plan step 14: what a higher tick rate costs). A
+// The server's CPU time since the last svnetstats, in microseconds (what a higher tick rate costs). A
 // server frame is the work of SV_Frame from the pings to the snapshots sent; the game frames, the bots and the
 // snapshots are parts of it, and so are the players' commands (with their movement), which run in the ticks. Client
 // packets are decoded when they arrive, outside the frames.
@@ -1186,7 +1186,7 @@ void SV_Frame(int msec)
 
     // run the game simulation in chunks
     while (sv.timeResidual >= frameMsec) {
-        // the bots' AI and their commands up to the coming tick, then the players' commands up to it (plan step 14)
+        // the bots' AI and their commands up to the coming tick, then the players' commands up to it
         const long long botStart = SV_Microseconds();
         SV_BotFrame(sv.time);
         SV_CostAdd(svCost_t::SV_COST_BOTS, botStart);
@@ -1207,8 +1207,8 @@ void SV_Frame(int msec)
     // rww - RAGDOLL_BEGIN
     //  The game starts its ghoul2 animations at its logic clock, the last 20 Hz instant (game/g_local.h), and its bolts and
     //  model traces are evaluated at the time set here: the logic instant of the frame just run, so a 20 Hz instant
-    //  evaluates the animations at the previous instant, 50 ms earlier, as every frame did at sv_fps 20 (plan step 14).
-    //  With sv.time it was one tick earlier, and at 100 Hz the blades ran 40 ms ahead of their sv_fps 20 path.
+    //  evaluates the animations at the previous instant, 50 ms earlier, as every frame did at sv_fps 20.
+    //  With sv.time it would be one tick earlier, and at 100 Hz the blades would run 40 ms ahead of their sv_fps 20 path.
     re->G2API_SetTime(sv.time / 50 * 50, 0);
     // rww - RAGDOLL_END
 

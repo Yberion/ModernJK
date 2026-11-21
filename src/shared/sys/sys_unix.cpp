@@ -93,7 +93,7 @@ void Sys_PlatformExit(void) {}
 ================
 Sys_Milliseconds
 
-Milliseconds since the first call, on the monotonic clock (plan step 14): the wall clock (gettimeofday) moved with
+Milliseconds since the first call, on the monotonic clock: the wall clock (gettimeofday), which OpenJK read, moved with
 every step of the system time (NTP, a date set by hand), which froze the server for as long as the clock went back or
 ran up to 5 s of frames at once when it went forward.
 ================

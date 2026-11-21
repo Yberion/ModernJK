@@ -18,7 +18,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// netcodec_train_client: trains the tables of the client packets (plan step 8) on client traces (test/client_trace.h,
+// netcodec_train_client: trains the tables of the client packets on client traces (test/client_trace.h,
 // written by netcodec_bench_client --trace) and writes src/generated/jka_client_tables.inc. Only the client contexts
 // are written: the client command texts are coded with the server command text tables of jka_tables.inc.
 // Usage: netcodec_train_client <jka_client_tables.inc> <client_train.bin> ...

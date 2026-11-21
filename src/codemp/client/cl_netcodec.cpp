@@ -18,8 +18,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// cl_netcodec.cpp -- the server's messages are decoded by the message codec (codemp/netcodec, plan step 7), and the
-// client's packets coded by it (plan step 8). The codec writes the snapshot's entities into cl.parseEntities in place,
+// cl_netcodec.cpp -- the server's messages are decoded by the message codec (codemp/netcodec), and the
+// client's packets coded by it. The codec writes the snapshot's entities into cl.parseEntities in place,
 // and its player states and the gamestate's baselines where it is told; the CL_Parse* functions of cl_parse.cpp then
 // apply what it decoded, as they applied what the legacy reader parsed. Next to cl.snapshots, one netcodec Frame per
 // message slot describes the snapshot a message held, so that later messages can be decoded against it, and the
@@ -361,7 +361,7 @@ void CL_NetcodecParseServerMessage(msg_t* msg)
     }
 }
 
-// Client packets (plan step 8). A packet's user commands are coded against the message it acknowledges (the last one
+// Client packets. A packet's user commands are coded against the message it acknowledges (the last one
 // received, clc.serverMessageSequence) when the client holds that message's snapshot and the server surely still holds
 // its PacketBase and reads the acknowledge right: the server keeps the PacketBases of its last kAckWindow messages, and
 // the acknowledge travels as its low 8 bits. So the messages the server has sent since must be fewer than kAckWindow

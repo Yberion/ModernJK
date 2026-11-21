@@ -58,7 +58,7 @@ bool CL_GetUserCmd(int cmdNumber, usercmd_t* ucmd)
 {
     // cmds[cmdNumber] is the last properly generated command
 
-    // the view angles of now, for cgame's drawing of the local player (plan step 14: commands are made per tick)
+    // the view angles of now, for cgame's drawing of the local player (the commands are made per tick)
     if (cmdNumber == cl.cmdNumber + 1) {
         return CL_PendingCmd(ucmd);
     }
@@ -595,19 +595,19 @@ CL_AdjustTimeDelta
 
 Adjust the clients view of server time.
 
-The client shows the world as late as the arrivals of the snapshots require and no later (plan step 11,
-docs/modernization/surveys/network-settings.md, point 5; redone in plan step 14, part 4e). At every frame its
-time must not pass the newest snapshot's, else that frame extrapolates: serverTimeDelta must stay at or below the
-newest snapshot's serverTime minus the frame's real time. Each interval between two snapshot arrivals gives one
-sample, that value at the last frame drawn before the next snapshot came. The window keeps the smallest sample of
-each of its last CLOCK_SLOTS slots of CLOCK_SLOT_MSEC (about 2 s), and the target is the second smallest of them
-minus CLOCK_SAFETY_MSEC: one isolated late snapshot does not raise the delay, two do, and so do lost snapshots that
-come more than once in the window (the frames before the snapshot after a lost one give a sample one interval
-lower). An interval longer than CLOCK_MAX_GAP_MSEC is an interruption, not jitter: no delay bridges it, and it gives
-no sample.
+The client shows the world as late as the arrivals of the snapshots require and no later (an adaptive delay, as
+Unity's Netcode for Entities computes it, rather than Source's fixed one or the buffering levels players choose in CS2
+and Valorant). At every frame its time must not pass the newest snapshot's, else that frame extrapolates:
+serverTimeDelta must stay at or below the newest snapshot's serverTime minus the frame's real time. Each interval
+between two snapshot arrivals gives one sample, that value at the last frame drawn before the next snapshot came.
+The window keeps the smallest sample of each of its last CLOCK_SLOTS slots of CLOCK_SLOT_MSEC (about 2 s), and the
+target is the second smallest of them minus CLOCK_SAFETY_MSEC: one isolated late snapshot does not raise the delay,
+two do, and so do lost snapshots that come more than once in the window (the frames before the snapshot after a lost
+one give a sample one interval lower). An interval longer than CLOCK_MAX_GAP_MSEC is an interruption, not jitter: no
+delay bridges it, and it gives no sample.
 
 The time moves towards the target every frame, by at most 1 ms per CLOCK_SPEEDUP_MSEC or CLOCK_SLOWDOWN_MSEC of
-real time (about 6 and 7 %, the limits of Counter-Strike 2's clock: surveys/tick-and-lag-compensation.md, section 11).
+real time (about 6 and 7 %, the limits of Counter-Strike 2's clock, which speeds up to 106 % and slows to 93 %).
 =================
 */
 
@@ -707,7 +707,7 @@ static void CL_ClockSlew(int* delta, int target, int* credit, int msec)
 =================
 CL_AdjustCmdDelta
 
-The command clock (plan step 14, part 4c). The server reports in each snapshot the input margin: how early the command
+The command clock. The server reports in each snapshot the input margin: how early the command
 of the snapshot's tick reached it, in ms (negative: after its tick; SV_RunClientCommands). A command made with a larger
 cmdTimeDelta is made earlier, so its margin is larger by as much: each snapshot gives one sample, its margin minus the
 cmdTimeDelta its command was made with, the margin a cmdTimeDelta of 0 would have had. The window keeps the smallest
@@ -1013,7 +1013,7 @@ void CL_SetCGameTime(void)
         // cl_freezeDemo is used to lock a demo in place for single frame advances
     }
     else {
-        // the delay behind the newest snapshot is computed in CL_AdjustTimeDelta (cl_timeNudge removed, plan step 11)
+        // the delay behind the newest snapshot is computed in CL_AdjustTimeDelta (cl_timeNudge removed)
         cl.serverTime = cls.realtime + cl.serverTimeDelta;
 
         // guarantee that time will never flow backwards, even if

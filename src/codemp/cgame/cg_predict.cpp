@@ -886,7 +886,7 @@ extern void CG_Cube(vec3_t mins, vec3_t maxs, vec3_t color, float alpha);
 extern vmCvar_t cg_showVehBounds;
 
 // cg_showmiss: a legs or torso animation, or the crouch, shown A, then B, then A again in three successive frames, with the
-// command time each frame shows: the mark of a display that takes a decision its tick does not (plan step 14)
+// command time each frame shows: the mark of a display that takes a decision its tick does not
 typedef struct {
     int legs, torso, ducked;
     int time;
@@ -916,7 +916,7 @@ static void CG_CheckShownFlicker(const playerState_t* ps)
 }
 
 // The predicted states of the last PREDICTED_STATES command times, the server's in place of the client's once a snapshot
-// holds them (plan step 14): the local player is drawn between the last two of them (CG_InterpolateTicks), and cg_showmiss
+// holds them: the local player is drawn between the last two of them (CG_InterpolateTicks), and cg_showmiss
 // compares a snapshot's animations with those the client predicted for the same command time.
 constexpr int PREDICTED_STATES = 64;
 constexpr int PREDICTED_TOUCH = 4;
@@ -1048,20 +1048,20 @@ static snapshot_t* CG_SnapshotAhead(const snapshot_t* next)
 }
 
 // Where the server has its movers at a snapshot: it moves them on the 20 Hz instants of its tick only (the game's logic
-// clock, level.time, G_RunFrame; plan step 14), so between two instants a mover is where its trajectory was at the last
-// one. Placed at the snapshot's own time, as before, a lift going down was up to 25 units under the player standing on
-// it, and the prediction let the player fall at every tick.
+// clock, level.time, G_RunFrame), so between two instants a mover is where its trajectory was at the last
+// one. Placed at the snapshot's own time, a lift going down would be up to 25 units under the player standing on
+// it, and the prediction would let the player fall at every tick.
 int CG_MoverTime(int serverTime)
 {
     return serverTime / 50 * 50;
 }
 
-// predictmiss (console command; plan step 14, part 10): for every snapshot whose command time the client had predicted,
+// predictmiss (console command): for every snapshot whose command time the client had predicted,
 // compares the last prediction of that tick with the server's state, 32-bit word by word. A word that differs is a field
 // the server sets outside the shared movement code, or computes otherwise, or does not send (the snapshot then holds 0):
 // every cause of a prediction error is in that list, with the fields the client is not meant to predict. Counts nothing
 // until its first call; each call writes predictmiss.txt (in the game folder of the home path) and starts again:
-//  - per word (by offset in playerState_t; tools/predict/ps_fields.sh puts the names), the ticks it differed in and its
+//  - per word (by offset in playerState_t; docs/modernization/tools/predict/ps_fields.sh puts the names), the ticks it differed in and its
 //    last values; a word the server's state never held a value in is marked (a field that is not sent) and does not
 //    make a tick count as differing, nor do the two words cgame writes into the snapshot's state itself;
 //  - the ticks whose position differs, sorted: a teleport or a respawn; within 200 ms of a hit (a knockback, a damage
@@ -1353,13 +1353,13 @@ void CG_PredictMiss_f(void)
     cg_predictMiss.on = true;
 }
 
-// Option C of plan step 14 (chosen on 13 November 2026): the commands are made one tick ahead (CL_CreateNewCommands), so the
+// The commands are made one tick ahead (CL_CreateNewCommands), so the
 // tick in progress is already predicted. The local player is drawn between the last two ticks at the command clock's
-// time (the engine's clock the commands are made on, ahead of the server's since part 4c; cg.cmdTime), its
+// time (the engine's clock the commands are made on, ahead of the server's; cg.cmdTime), its
 // position and velocity interpolated and its discrete state (animations, flags, events) the newest tick's, with the view
 // angles of now (the engine's command of the frame). Nothing is guessed: every state is a full tick of 10 ms, as the server
-// computes it (a partial step of the movement between two ticks, tried first, gave other collisions, landings and random
-// decisions than the tick that followed: the player shook against walls, animations flickered). Not interpolated across a
+// computes it (a partial step of the movement between two ticks gives other collisions, landings and random decisions
+// than the tick that follows: the player shakes against walls, animations flicker). Not interpolated across a
 // teleport or a respawn; a pilot is drawn at the newest tick.
 static void CG_InterpolateTicks(playerState_t* out, int current)
 {
@@ -1612,9 +1612,9 @@ void CG_PredictPlayerState(void)
     }
 
     // run cmds; one more turn after the newest command only checks the prediction error. The check compares the state
-    // this frame computes for the last frame's newest tick with the last frame's, and it sat before each command: since
-    // the commands are made per tick (plan step 14), a frame that brings a snapshot without a new command had no turn
-    // for it, and its correction was neither printed by cg_showmiss nor smoothed (cg_errorDecay)
+    // this frame computes for the last frame's newest tick with the last frame's; run before each command instead, it
+    // would miss a frame that brings a snapshot without a new command (the commands are made per tick): its correction
+    // would be neither printed by cg_showmiss nor smoothed (cg_errorDecay)
     moved = false;
     for (cmdNum = current - CMD_BACKUP + 1; cmdNum <= current + 1; cmdNum++) {
         if (cmdNum <= current) {
@@ -1867,7 +1867,7 @@ void CG_PredictPlayerState(void)
     }
 
     // the newest tick is the full state (the next frame measures the prediction error against it); the local player is
-    // drawn between the last two ticks (plan step 14, option C)
+    // drawn between the last two ticks
     cg.predictedFullState = cg.predictedPlayerState;
     CG_InterpolateTicks(&cg.predictedPlayerState, current);
 

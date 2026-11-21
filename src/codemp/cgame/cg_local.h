@@ -751,7 +751,7 @@ typedef struct cg_s {
 
     int physicsTime; // the time the movers are placed at for the prediction: the server's last 20 Hz instant at
                      // cg.snap's or cg.nextSnap's time (CG_MoverTime)
-    int cmdTime;     // the time the local player's state is drawn at (plan step 14, part 4c): the engine's
+    int cmdTime;     // the time the local player's state is drawn at: the engine's
                      // command clock, ahead of cg.time by the round trip and the interpolation delay, when the
                      // player is predicted; cg.time otherwise. The times the movement code puts in the player
                      // state (the weapon charge, the zoom, the rocket lock) are compared with it

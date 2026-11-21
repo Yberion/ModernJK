@@ -26,8 +26,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // Field values follow the legacy widths of the schema (an unsigned field keeps its low bits, a signed one is
 // sign-extended), except booleans and user* fields, coded by their C type.
 //
-// This header is the codec's internal C++ interface (tests, benchmarks, tools); the engine will use a smaller header
-// over the same views (step 6 part E).
+// This header is the codec's internal C++ interface (tests, benchmarks, tools); the engine uses a smaller header
+// over the same views (engine.h).
 #pragma once
 
 #include <array>
@@ -70,7 +70,7 @@ inline void SetEntityNumber(std::span<uint8_t> state, uint32_t n) noexcept
 // cl.parseEntities), sorted by number: entity i is state (first + i) mod (ring.size() / kEntityBytes). A plain array
 // is the ring of its own count of states, first 0. With an index, entity i is state index[i] of the ring instead: a
 // snapshot whose states are shared with other snapshots (the server keeps one copy of an entity's state while it does
-// not change, plan step 14); the numbers still increase with i. An entity that a snapshot and its base take from the
+// not change); the numbers still increase with i. An entity that a snapshot and its base take from the
 // same state is unchanged, which the encoder reads from the index alone. Only the encoder takes an index: the
 // decoder's bases are runs.
 struct EntityRing {
@@ -246,7 +246,7 @@ struct SnapshotOut {
                                  const BaselineTableOut& gamestate, const SnapshotOut& snapshot, Message& msg, uint32_t& delta, HeaderRecord& record);
 
 // ---------------------------------------------------------------------------------------------------------------
-// Client packets (client to server, plan step 8): the acknowledges, the client commands not yet acknowledged and the
+// Client packets (client to server): the acknowledges, the client commands not yet acknowledged and the
 // user commands. Each packet decodes alone (the server does not acknowledge them). The first user command is coded
 // against the acknowledged message as both sides hold it (its record and player state), when the client says so;
 // the acknowledged message number is sent as its low 8 bits.

@@ -56,7 +56,7 @@ inline constexpr int BODY_QUEUE_SIZE = 8;
 
 inline constexpr int FRAMETIME = 100; // msec
 
-// Two clocks (plan step 14). The game module was tuned on the 50 ms frames of sv_fps 20; the server ticks at 100 Hz,
+// Two clocks. The game module was tuned on the 50 ms frames of sv_fps 20; the server ticks at 100 Hz,
 // and every 20 Hz instant (a multiple of 50 ms) is a tick. level.time is the logic clock: the last 20 Hz instant, which
 // all game code reads (timers, thinks, damage, user commands), so it keeps the timing of sv_fps 20. level.tickTime is the
 // tick's time, read only for the bots' command times and the sanity clamp of a command's time. The logic tuned on 50 ms
@@ -138,7 +138,8 @@ template <> inline constexpr bool enableEnumFlags<damageFlags_t> = true;
 #define DEBUG_SABER_BOX
 #endif
 
-// make sure this matches game/match.h for botlibs
+// the chat's escape character around the sender's name: cgame removes it before showing the line
+// (CG_RemoveChatEscapeChar), and the server's say and tell write it too (sv_ccmds.cpp)
 #define EC "\x19"
 
 inline constexpr int MAX_G_SHARED_BUFFER_SIZE = 8192;
@@ -912,7 +913,7 @@ typedef struct level_locals_s {
     int maxclients;
 
     int framenum;
-    int time;         // in msec: the logic clock, the last 20 Hz instant (plan step 14)
+    int time;         // in msec: the logic clock, the last 20 Hz instant
     int previousTime; // so movers can back up when blocked: the logic clock's previous instant
     int tickTime;     // the tick's time: the bots' command times, the clamp of a command's time
     bool logicFrame;  // this frame is a 20 Hz instant: the logic clock moved (G_GRID20_STEP)
@@ -1495,7 +1496,7 @@ int BotAIStartFrame(int time);
 extern level_locals_t level;
 extern gentity_t g_entities[MAX_GENTITIES];
 
-// Combat statistics since the last "gamestats" server command (plan step 14): the game must play the same at any server
+// Combat statistics since the last "gamestats" server command: the game must play the same at any server
 // frame rate, so the hits, blocks and damage per saber swing are compared at 20 Hz and at the tick's rate.
 typedef struct gameStats_s {
     int frames;
@@ -1530,7 +1531,7 @@ typedef struct gameStats_s {
 extern gameStats_t g_stats;
 void G_StatsSaberMove(gentity_t* ent, saberMoveName_t oldSaberMove);
 
-// g_scenario.cpp: scripted bot scenarios for the measurements of plan step 14
+// g_scenario.cpp: scripted bot scenarios, which measure the game per swing, per shot or per power use
 bool G_ScenarioControls(int clientNum);
 bool G_ScenarioCommand(int clientNum, int t, usercmd_t* ucmd);
 void G_ScenarioFrame(void);

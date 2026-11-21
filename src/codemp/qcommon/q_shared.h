@@ -779,8 +779,8 @@ enum class snapFlags_t {
 };
 template <> inline constexpr bool enableEnumFlags<snapFlags_t> = true;
 
-// The fixed simulation tick in milliseconds, shared by the server, the client and the game module (plan step 14; it
-// replaces the sv_fps cvar): the server runs a game frame and sends a snapshot every tick, and every 20 Hz instant, where
+// The fixed simulation tick in milliseconds, shared by the server, the client and the game module (it
+// replaces OpenJK's sv_fps cvar): the server runs a game frame and sends a snapshot every tick, and every 20 Hz instant, where
 // the game's logic runs (game/g_local.h), is a tick.
 inline constexpr int TICK_MSEC = 10;
 

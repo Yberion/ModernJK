@@ -18,7 +18,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// libFuzzer target on the message decoder (preset mingw-clang-fuzz: clang, ASan + UBSan, every netcodec target
+// libFuzzer target on the message decoder (preset windows-clang-netcodec-fuzz: clang, ASan + UBSan, every netcodec target
 // instrumented for coverage). Inputs are decoded with a fixed client state: a synthetic stream (test/synthetic.h,
 // seed 1) after 600 messages (the client then holds 2 x 255 decoded snapshots, commands and baselines). Each input
 // must decode without fault; when it decodes, it is coded again with the client's state in the server's place and

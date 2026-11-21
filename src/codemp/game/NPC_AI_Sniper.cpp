@@ -434,7 +434,7 @@ static void Sniper_CheckFireState(void)
             // Fire on the last known position
             vec3_t eyes, dir, angles;
 
-            // from the eyes, where the disruptor fires from and the point the projectiles turn to (plan step 20 part 10)
+            // from the eyes, where the disruptor fires from and the point the projectiles turn to
             CalcEntitySpot(NPCS.NPC, spot_t::SPOT_HEAD_LEAN, eyes);
             VectorSubtract(NPCS.NPCInfo->enemyLastSeenLocation, eyes, dir);
 

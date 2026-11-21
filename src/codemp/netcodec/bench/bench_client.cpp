@@ -18,13 +18,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// netcodec_bench_client: the client packets recorded by the server in the legacy format (plan step 8, part 1: the
-// server's sv_recordClientPackets, removed once the packets were coded by netcodec), decoded as
+// netcodec_bench_client: the client packets recorded by the server in the legacy format (by the
+// server's sv_recordClientPackets, an option that no longer exists), decoded as
 // the server does with OpenJK's own msg.cpp and coded again as the client does (the bytes must be identical), with
 // where the bytes go; then each packet coded by netcodec and decoded again (the packet must come back unchanged), with
 // the sizes and the coding times of both (cold: the fastest of 3 passes over every packet; warm: the fastest of 5
 // codings of each packet, summed, as netcodec_bench_codec).
-// --dump writes the decoded packets as text (tools/python/client_fields.py); --trace writes them as a client trace
+// --dump writes the decoded packets as text (docs/modernization/tools/python/client_fields.py); --trace writes them as a client trace
 // (test/client_trace.h) for the trainer and the tests.
 // Usage: netcodec_bench_client [--dump out.txt] [--trace out.bin] <file.jkcp> ...
 #include <client_trace.h>

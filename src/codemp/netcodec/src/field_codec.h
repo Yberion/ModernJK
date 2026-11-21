@@ -58,7 +58,7 @@ struct PredCtx {
     bool escaped = false;                // the message sends its entity and player-state fields raw (RawFields)
 };
 
-// The raw layout of an escaped message (worst case, PLAN step 6 escape): for every field of the table, a raw bit
+// The raw layout of an escaped message (the worst case): for every field of the table, a raw bit
 // "changed", then the value at its codec width (32 bits for a float). A message is escaped only when that is
 // smaller than its coded form (MessageEncoder::Encode).
 [[nodiscard]] constexpr uint32_t RawWidth(const FieldDesc& f) noexcept

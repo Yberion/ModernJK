@@ -227,7 +227,7 @@ static void WP_FireBryarPistol(gentity_t* ent, bool altFire)
         float boxSize = 0;
 
         // a charge ends at the time of the command that fires, as it starts at the time of the command that presses the
-        // button: exactly the time held (level.time, the last 20 Hz instant, is up to 50 ms earlier; plan step 20)
+        // button: exactly the time held (level.time, the last 20 Hz instant, is up to 50 ms earlier)
         count = (ent->client->ps.commandTime - ent->client->ps.weaponChargeTime) / BRYAR_CHARGE_UNIT;
 
         if (count < 1) {
@@ -513,7 +513,7 @@ static void WP_DisruptorMainFire(gentity_t* ent)
 
     memset(&tr, 0, sizeof(tr)); // to shut the compiler up
 
-    WP_EyePoint(ent, start); // By eyes (a misc_weapon_shooter's client has no origin: plan step 20 part 10b)
+    WP_EyePoint(ent, start); // By eyes (a misc_weapon_shooter's client has no origin)
 
     VectorMA(start, shotRange, forward, end);
 
@@ -657,7 +657,7 @@ void WP_DisruptorAltFire(gentity_t* ent)
     // VectorCopy( muzzle, muzzle2 ); // making a backup copy
 
     if (ent->client) {
-        WP_EyePoint(ent, start); // By eyes (a misc_weapon_shooter's client has no origin: plan step 20 part 10b)
+        WP_EyePoint(ent, start); // By eyes (a misc_weapon_shooter's client has no origin)
 
         count = (ent->client->ps.commandTime - ent->client->ps.weaponChargeTime) / DISRUPTOR_CHARGE_UNIT; // the command's time, as the bryar's
         if (level.gametype == gametype_t::GT_SIEGE) { // maybe a full alt-charge should be a *bit* more dangerous in Siege mode?
@@ -1274,7 +1274,7 @@ static void WP_DEMP2_AltFire(gentity_t* ent)
     trace_t tr;
     gentity_t* missile;
 
-    // traced from the eyes, as the disruptor (plan step 20 part 10)
+    // traced from the eyes, as the disruptor
     WP_EyePoint(ent, start);
 
     VectorMA(start, DEMP2_ALT_RANGE, forward, end);
@@ -2785,7 +2785,7 @@ static void WP_FireConcussionAlt(gentity_t* ent)
 
     // VectorCopy( muzzle, muzzle2 ); // making a backup copy
 
-    // traced from the eyes, as the disruptor, and drawn from the muzzle point (plan step 20 part 10)
+    // traced from the eyes, as the disruptor, and drawn from the muzzle point
     WP_EyePoint(ent, start);
 
     skip = ent->s.number;
@@ -3261,7 +3261,7 @@ void CalcMuzzlePoint(gentity_t* ent, const vec3_t inForward, const vec3_t inRigh
 
 /*
 ===============
-The shots towards the point aimed at (plan step 20 part 10)
+The shots towards the point aimed at
 
 A ray from the eyes along the view finds the point aimed at, and the projectiles leave the weapon's muzzle point
 (CalcMuzzlePoint, inside the shooter's box) towards it, so that they land where the crosshair shows, for every shooter
@@ -4226,7 +4226,7 @@ static void WP_FireEmplaced(gentity_t* ent, bool altFire)
 
     VectorCopy(gun->s.origin, gunpoint);
     gunpoint[2] += 46;
-    // the point its crosshair shows, from between the two barrels (plan step 20 part 10)
+    // the point its crosshair shows, from between the two barrels
     WP_AimPoint(gun->s.number, gunpoint, forward, aimPoint);
 
     AngleVectors(ent->client->ps.viewangles, nullptr, right, nullptr);

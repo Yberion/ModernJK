@@ -108,7 +108,7 @@ struct Baselines {
 struct ServerMessage {
     int32_t seq;          // netchan sequence of this message
     int32_t ack;          // the last client command the server received
-    int32_t serverId;     // sv.serverId (the client's own serverId is coded against it, step 8)
+    int32_t serverId;     // sv.serverId (the client's own serverId is coded against it)
     int32_t firstCommand; // the commands firstCommand to commands.last are sent (none if above it)
 
     bool gameState;                   // gamestate: config strings, the baselines of the encoder call, client number, checksum

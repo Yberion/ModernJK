@@ -155,7 +155,7 @@ uint32_t ClassOf(ImageView st) noexcept
 // SnapshotReader, the encoder's, reads through an index: the server's snapshots share the states of a tick
 // (EntityRing::index). A snapshot given to the encoder as a run (the tests, the tools, a client recording a demo)
 // gets the index of its run when its reader is made, so that each reader steps one way, without a test at every
-// entity (a reader of both forms cost the encoder 1 to 6 % on the three compilers, plan step 14, part 5).
+// entity (a reader of both forms cost the encoder 1 to 6 % on the three compilers).
 // The server keeps one copy of a state while it does not change: an entity that a snapshot and its base read from
 // the same place is unchanged, and PutEntities skips it without comparing the two states.
 class RingReader {
@@ -435,8 +435,7 @@ template <class O, class R> void PutEntities(O& io, PredCtx& c, R& nw, SnapshotR
 }
 
 // out: a RingSink or a TableSink
-// forced inline: once GetMessage grew (plan step 14, part 4c), GCC 12 left the snapshot's entity decoder out of line
-// and decoded about 3 % slower
+// forced inline: otherwise GCC 12 leaves the snapshot's entity decoder out of line and decodes about 3 % slower
 template <class Sink> NETCODEC_ALWAYS_INLINE bool GetEntities(In& io, PredCtx& c, RingReader old, const BaselineTable& baselines, Sink& out, const Model& m)
 {
     const auto keep = [&](ImageView src) { // an unchanged entity of the base

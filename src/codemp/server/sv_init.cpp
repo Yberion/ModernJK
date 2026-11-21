@@ -542,7 +542,7 @@ void SV_SpawnServer(char* server, bool killBots, ForceReload_e eForceReload)
     //	svs.snapshotEntities = (struct entityState_s *)Hunk_Alloc( sizeof(entityState_t)*svs.numSnapshotEntities, ha_pref::h_high );
 
     // allocate the snapshot entities, zeroed by the system: a place nothing was stored in yet is not memory in use
-    // (cleared by hand, the whole array was: 69.7 MB at a window of 128 messages; plan step 14, part 5)
+    // (cleared by hand, the whole array would be: 69.7 MB at a window of 128 messages)
     svs.snapshotEntities = (entityState_t*)calloc(svs.numSnapshotEntities, sizeof(entityState_t));
     if (!svs.snapshotEntities) {
         Com_Error(errorParm_t::ERR_FATAL, "SV_SpawnServer: no memory for the snapshot entities");

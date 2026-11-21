@@ -18,8 +18,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// sv_netcodec.cpp -- every server-to-client message is coded by the message codec (codemp/netcodec, plan step 7),
-// and every client packet is decoded by it (plan step 8). The codec reads the engine's own data in place: the client's
+// sv_netcodec.cpp -- every server-to-client message is coded by the message codec (codemp/netcodec),
+// and every client packet is decoded by it. The codec reads the engine's own data in place: the client's
 // snapshots (client_t::frames), the shared entity ring (svs.snapshotEntities), the reliable commands
 // (client_t::reliableCommands) and the baselines (sv.svEntities[].baseline). Next to the engine's frames, each client
 // has one netcodec Frame per message slot, which describes the snapshot a message held, so that later messages can be
@@ -79,22 +79,22 @@ void SV_NetcodecResetClient(const client_t* client)
     }
 }
 
-// Server commands are not repeated while the message that carries them may still arrive (plan step 10). A message
+// Server commands are not repeated while the message that carries them may still arrive. A message
 // sends the commands not yet acknowledged when there is a new one, or when the last message that sent them is known
 // lost (the client acknowledged it or a later message without acknowledging the commands) or still unacknowledged
 // after twice the ping and a client packet interval (the client sends a packet per tick, so its acknowledge can come up
-// to one interval after the round trip while the ping holds part of it: twice the ping alone repeated commands on a LAN,
-// plan step 14); otherwise it sends none. A message that sends commands sends them all from the client's
-// acknowledge on, as before, so the client receives them in order and the codec's record of the commands the client
-// holds stays true. Bots (their demos) and clients not yet in the game send every command until acknowledged, as
-// before (no ping measured yet).
+// to one interval after the round trip while the ping holds part of it: twice the ping alone would repeat commands on a
+// LAN); otherwise it sends none. A message that sends commands sends them all from the client's
+// acknowledge on, as in OpenJK, so the client receives them in order and the codec's record of the commands the client
+// holds stays true. Bots (their demos) and clients not yet in the game send every command until acknowledged, as in
+// OpenJK (no ping measured yet).
 static struct {
     int carrier; // the last message that sent commands, up to sent
     int sent;    // the last command sent
     int time;    // when the carrier was sent (Sys_Milliseconds)
 } s_commands[MAX_CLIENTS];
 
-// The time a snapshot leaves against the game clock it carries (sv.time), for svnetstats (plan step 11): the client
+// The time a snapshot leaves against the game clock it carries (sv.time), for svnetstats: the client
 // takes any change of it for network jitter. Measured with the steady clock in microseconds, since Sys_Milliseconds
 // moves by whole milliseconds.
 static struct {
@@ -120,8 +120,8 @@ static void SV_NetcodecMeasureSend(client_t* client, bool baseAsked)
     last.valid = true;
 }
 
-// At most SV_PACKET_RATE client packets per second are decoded, on average, with bursts of SV_PACKET_BURST (plan
-// step 11): the client sends at most MAX_PACKET_RATE, 10 % fewer, so only a modified client goes above, and its extra
+// At most SV_PACKET_RATE client packets per second are decoded, on average, with bursts of SV_PACKET_BURST:
+// the client sends at most MAX_PACKET_RATE, 10 % fewer, so only a modified client goes above, and its extra
 // packets are dropped before decoding. The budget is counted in thousandths of a packet: each millisecond adds
 // SV_PACKET_RATE.
 static struct {

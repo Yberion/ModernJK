@@ -2840,7 +2840,7 @@ void CG_CalcEntityLerpPositions(centity_t* cent)
     bool goAway = false;
 
     // The other players and the NPCs are drawn between the positions of two snapshots, never carried forward by the
-    // velocity the server sends with them (cg_smoothClients 0 of OpenJK, the cvar removed; plan step 14, part 6):
+    // velocity the server sends with them (cg_smoothClients 0 of OpenJK, the cvar removed):
     // while the next snapshot is missing they stay at their last position
     if ((cent->currentState.number != cg.clientNum && cent->currentState.number < MAX_CLIENTS) || cent->currentState.eType == entityType_t::ET_NPC) {
         cent->currentState.pos.trType = trType_t::TR_INTERPOLATE;

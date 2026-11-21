@@ -29,7 +29,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // - text to numbers (strtof, strtod, atof, the sscanf %f of the game's files): correctly rounded (LLVM libc), since
 //   the UCRT reads some decimals differently from glibc.
 // Changing an implementation only changes this header or q_libm.cpp.
-// Survey and measurements: docs/modernization/surveys/deterministic-math.md.
+// LLVM libc rather than the C library: glibc and the UCRT differ on every transcendental function measured, and the
+// UCRT can change with the Windows version.
 #pragma once
 
 #include <math.h>

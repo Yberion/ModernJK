@@ -19,7 +19,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // demo_record.h -- the demos of the client (record) and of the server (svrecord, sv_autoDemo), coded for themselves by
-// the message codec (plan step 7) with one snapshot in two (plan step 14, part 11).
+// the message codec with one snapshot in two.
 //
 // A demo is a stream of its own: each message refers only to messages of the demo, and the first one is a gamestate
 // holding the server commands later ones may be coded against. Of the snapshots, the demo keeps one every

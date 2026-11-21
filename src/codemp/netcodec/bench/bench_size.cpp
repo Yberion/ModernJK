@@ -19,7 +19,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // netcodec_bench_size: coded size of the corpus against the bytes the server sent (the engine's own coding, as
-// recorded in the demos), with the encoding time. Same selection and groups as the measurements of plan step 5: the
+// recorded in the demos), with the encoding time. Same selection and groups as the Python codec's measurements: the
 // first message of a demo (the gamestate the client rebuilt) is left out; "snapshot-only" messages have one snapshot
 // operation and nothing else.
 // Usage: netcodec_bench_size <trace.bin> ...   (train.bin, holdout.bin, captures.bin)

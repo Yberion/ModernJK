@@ -115,7 +115,7 @@ NET
 
 inline constexpr int NET_ENABLEV4 = 0x01;
 
-// The input margin of a snapshot (plan step 14, part 4c): how early the client's command of the snapshot's tick reached
+// The input margin of a snapshot: how early the client's command of the snapshot's tick reached
 // the server, in ms (negative: after its tick). It travels as a byte: to the millisecond up to INPUT_MARGIN_FINE
 // either way, in steps of INPUT_MARGIN_STEP beyond (up to 568 ms), so that a client sets its command clock in one
 // round trip after a connection or a hitch.
@@ -141,12 +141,12 @@ static inline int Net_MarginFromWire(int w)
 inline constexpr int PACKET_BACKUP = 128; // number of old messages that must be kept on client and
                                           // server for delta comrpession: a snapshot is coded against one the
                                           // client holds up to 125 messages back, 1.25 s of round trip at a
-                                          // message per tick (32 in OpenJK; plan step 14, part 5)
+                                          // message per tick (32 in OpenJK)
 inline constexpr int PACKET_MASK = PACKET_BACKUP - 1;
 
 #include <shared/qcommon/q_limits.h>
 
-// Network settings fixed rather than set by cvars (plan step 11, docs/modernization/surveys/network-settings.md)
+// Network settings fixed rather than set by cvars, as competitive games do: fixed rates, no setting for the player
 inline constexpr int MAX_PACKET_RATE = 100;   // client packets per second: one per tick (TICK_MSEC); the server decodes no more
 inline constexpr int TIMEOUT_CONNECTING = 60; // seconds without a packet before either side drops a connection not yet in the game
 inline constexpr int TIMEOUT_ACTIVE = 30;     // seconds without a packet before either side drops a connection in the game

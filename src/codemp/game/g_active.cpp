@@ -2936,7 +2936,7 @@ void ClientThink_real(gentity_t* ent)
         ent->eventTime = level.time;
     }
     // the player's entity state carries its velocity and the time of its command (g_smoothClients 1 of OpenJK, the cvar
-    // removed: the form the message codec's position prediction and tables were made for; plan step 14, part 6)
+    // removed: the form the message codec's position prediction and tables were made for)
     BG_PlayerStateToEntityStateExtraPolate(&ent->client->ps, &ent->s, ent->client->ps.commandTime, false);
     // rww - 12-03-02 - Don't snap the origin of players! It screws prediction all up.
 
@@ -3175,8 +3175,8 @@ void ClientThink(int clientNum, usercmd_t* ucmd)
             }
         }
     */
-    // every command runs when the engine gives it: a player's at its tick (the last one again when none came, plan
-    // step 14, part 4c), a bot's as it is made
+    // every command runs when the engine gives it: a player's at its tick (the last one again when none came), a bot's
+    // as it is made
     ClientThink_real(ent);
 
     /*	This was moved to clientthink_real, but since its sort of a risky change i left it here for
@@ -3277,7 +3277,7 @@ void ClientEndFrame(gentity_t* ent)
         return;
     }
 
-    // turn off any expired powerups (on the 20 Hz instants of the tick, as at sv_fps 20: plan step 14)
+    // turn off any expired powerups (on the 20 Hz instants of the tick, as at sv_fps 20)
     if (G_GRID20_STEP) {
         for (int& until : ent->client->ps.powerups) {
             if (until < level.time) {
@@ -3304,7 +3304,7 @@ void ClientEndFrame(gentity_t* ent)
         }
     }
 
-    if (G_GRID20_STEP) { // on the 20 Hz instants of the tick: the damage of the ticks between adds up, as in one frame of sv_fps 20 (plan step 14)
+    if (G_GRID20_STEP) { // on the 20 Hz instants of the tick: the damage of the ticks between adds up, as in one frame of sv_fps 20
         // burn from lava, etc
         P_WorldEffects(ent);
 
@@ -3324,7 +3324,7 @@ void ClientEndFrame(gentity_t* ent)
 
     // set the latest infor
     // the player's entity state carries its velocity and the time of its command (g_smoothClients 1 of OpenJK, the cvar
-    // removed: the form the message codec's position prediction and tables were made for; plan step 14, part 6)
+    // removed: the form the message codec's position prediction and tables were made for)
     BG_PlayerStateToEntityStateExtraPolate(&ent->client->ps, &ent->s, ent->client->ps.commandTime, false);
     // rww - 12-03-02 - Don't snap the origin of players! It screws prediction all up.
 
