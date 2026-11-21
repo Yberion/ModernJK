@@ -1,8 +1,8 @@
-"""Step 6: generate the C++ schema of codemp/netcodec.
+"""Step 6: generate the C++ schema of src/codemp/netcodec.
 
 Inputs: data/fields.json (field list, widths, C types, offsets), the codec field order of codec.py / codec2.py (with
 the prediction order), and the per-field modes and prediction modes of train_tables.py (data/traces/tables.pkl).
-Output: codemp/netcodec/src/generated/jka_schema.inc (committed; regenerate after a change of the fields or the modes).
+Output: src/codemp/netcodec/src/generated/jka_schema.inc (committed; regenerate after a change of the fields or the modes).
 The contexts are defined by the C++ code (src/contexts.h) and the tables are trained by the C++ tool netcodec_train
 (src/generated/jka_tables.inc).
 Run: python gen_netcodec.py"""
@@ -12,7 +12,7 @@ import codec as C, codec2 as K2
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 TABLES = os.path.normpath(os.path.join(HERE, "..", "..", "data", "traces", "tables.pkl"))
-GEN = os.path.normpath(os.path.join(HERE, "..", "..", "..", "..", "codemp", "netcodec", "src", "generated"))
+GEN = os.path.normpath(os.path.join(HERE, "..", "..", "..", "..", "src", "codemp", "netcodec", "src", "generated"))
 OUT_SCHEMA = os.path.join(GEN, "jka_schema.inc")
 
 PMODE = {None: "PredMode::kNone", "t": "PredMode::kTime", "pi": "PredMode::kPos", "a2": "PredMode::kAngle"}

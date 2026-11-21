@@ -54,11 +54,11 @@ set(FLAC_LIBS "${FLAC_LIB}" "${OGG_LIB}")
 set(VORBIS_LIBS "${VORBISFILE_LIB}" "${VORBIS_LIB}" "${OGG_LIB}")
 
 # The engine's MP3 decoder, as the engine compiles it (C, with the project's math library).
-add_library(qlibm STATIC "${REPO}/shared/qcommon/q_libm.cpp")
-target_include_directories(qlibm PRIVATE "${REPO}/lib/llvm-libc" "${REPO}/shared")
-file(GLOB MP3CODE_SRC "${REPO}/codemp/mp3code/*.c")
+add_library(qlibm STATIC "${REPO}/src/shared/qcommon/q_libm.cpp")
+target_include_directories(qlibm PRIVATE "${REPO}/libs/llvm-libc" "${REPO}/src/shared")
+file(GLOB MP3CODE_SRC "${REPO}/src/codemp/mp3code/*.c")
 add_library(mp3code STATIC ${MP3CODE_SRC})
-target_include_directories(mp3code PRIVATE "${REPO}/shared" "${REPO}/codemp")
+target_include_directories(mp3code PRIVATE "${REPO}/src/shared" "${REPO}/src/codemp")
 target_link_libraries(mp3code PUBLIC qlibm)
 
 set(HEADERS "${S}/dr_libs" "${S}/minimp3" "${S}/stb" "${P}/include")

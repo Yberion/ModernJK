@@ -6,7 +6,7 @@
 #include <cstring>
 
 #if defined( DEC_MP3CODE )
-// The engine's decoder (codemp/mp3code), called as the engine calls it (snd_mp3.cpp): the size pass, then the
+// The engine's decoder (src/codemp/mp3code), called as the engine calls it (snd_mp3.cpp): the size pass, then the
 // decoding; mono unless the file is stereo (the engine asks stereo for the music only).
 extern "C" {
 char *C_MP3_GetHeaderData( void *pvData, int iDataLen, int *piRate, int *piWidth, int *piChannels, int bStereoDesired );

@@ -4,7 +4,7 @@ in every file that includes it, and MSBuild repeats every warning in its summary
 Usage: python -I count_warnings.py <out.json> <log>... (a log may be gzipped, UTF-8 or UTF-16 as PowerShell's
 Tee-Object writes it). Reads clang and GCC lines ('file:line:col: warning: text [-Wflag]'), clang-tidy and cppcheck
 lines ('file:line:col: warning: text [check-name]') and MSVC lines ('file(line,col): warning C4242: text').
-Prints one line per flag, most frequent first: the locations outside lib/, the count per tree, then one example.
+Prints one line per flag, most frequent first: the locations outside libs/, the count per tree, then one example.
 Writes every location to <out.json>.
 """
 import gzip
@@ -18,12 +18,12 @@ GNU = re.compile(r'^(?P<file>.*?):(?P<line>\d+):(?P<col>\d+): (?:warning|style|p
 	r'(?P<msg>.*) \[(?P<flag>-W[^\],=]+|[A-Za-z][\w.\-]*)[^\]]*\]\s*$')
 MSVC = re.compile(r'^(?:\s*\d+>)?(?P<file>.*?)\((?P<line>\d+)(?:,(?P<col>\d+))?\): warning (?P<flag>C\d{4}): '
 	r'(?P<msg>.*?)(?: \[[^\]]*\])?\s*$')
-TREES = ('lib/', 'codemp/netcodec/', 'codemp/', 'code/', 'codejk2/', 'shared/', 'tests/', 'tools/')
+TREES = ('libs/', 'src/codemp/netcodec/', 'src/codemp/', 'src/code/', 'src/codejk2/', 'src/shared/', 'test/', 'tools/')
 
 
 def tree_of(path):
 	"""The tree of a file and its path from the repository's root (or from a copy of it), lower case."""
-	# one header reached through several relative paths (code/client/../qcommon/q_shared.h) is one file
+	# one header reached through several relative paths (src/code/client/../qcommon/q_shared.h) is one file
 	p = posixpath.normpath(path.replace('\\', '/').lower())
 	for root in ('/modernjk_s19measure/', '/modernjk/'):
 		i = p.find(root)
@@ -74,15 +74,15 @@ def main():
 	example = {}
 	for (rel, line, col, flag), (tree, msg) in sorted(seen.items()):
 		per[flag][tree] += 1
-		if tree != 'lib' and flag not in example:
+		if tree != 'libs' and flag not in example:
 			example[flag] = f'{rel}:{line}: {msg}'
-	rows = sorted(((sum(n for t, n in trees.items() if t != 'lib'), flag, trees) for flag, trees in per.items()),
+	rows = sorted(((sum(n for t, n in trees.items() if t != 'libs'), flag, trees) for flag, trees in per.items()),
 		key=lambda r: (-r[0], r[1]))
 	sys.stdout.reconfigure(encoding='utf-8')
 	print(f'{len(seen)} locations; {unread} warning lines not read')
 	for ours, flag, trees in rows:
 		detail = ' '.join(f'{t}={n}' for t, n in sorted(trees.items()))
-		print(f'{ours:7d} {flag:45s} {detail}\n        {example.get(flag, "(lib/ only)")[:220]}')
+		print(f'{ours:7d} {flag:45s} {detail}\n        {example.get(flag, "(libs/ only)")[:220]}')
 	with open(out, 'w', encoding='utf-8') as f:
 		json.dump([{'file': k[0], 'line': k[1], 'col': k[2], 'flag': k[3], 'tree': v[0], 'msg': v[1]}
 			for k, v in sorted(seen.items())], f)

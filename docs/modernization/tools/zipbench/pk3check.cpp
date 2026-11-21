@@ -1,4 +1,4 @@
-// Checks and times the engine's pk3 reader (shared/qcommon/q_pk3.cpp), built alone with the stand-ins of shim/, on
+// Checks and times the engine's pk3 reader (src/shared/qcommon/q_pk3.cpp), built alone with the stand-ins of shim/, on
 // the game's own archives:
 //   - its directory against minizip's, entry by entry (name, CRC-32, size): what FS_LoadZipFile hashes and lists;
 //   - every file read whole in one call, then in pieces of 8 KB: the CRC-32 of what it delivers;

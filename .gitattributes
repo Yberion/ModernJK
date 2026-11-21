@@ -31,5 +31,5 @@
 *.sh  text eol=lf
 
 # libFuzzer corpora of netcodec: raw bytes, never normalised
-codemp/netcodec/fuzz/corpus/** binary
-codemp/netcodec/fuzz/corpus_client/** binary
+src/codemp/netcodec/fuzz/corpus/** binary
+src/codemp/netcodec/fuzz/corpus_client/** binary

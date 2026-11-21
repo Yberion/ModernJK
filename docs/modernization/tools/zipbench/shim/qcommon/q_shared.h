@@ -1,4 +1,4 @@
-// Stand-ins for what shared/qcommon/q_pk3.cpp takes from the engine, so that pk3check.cpp and fuzz_pk3.cpp build it
+// Stand-ins for what src/shared/qcommon/q_pk3.cpp takes from the engine, so that pk3check.cpp and fuzz_pk3.cpp build it
 // alone: this folder comes before the engine's in their include path.
 #pragma once
 #include <cstdarg>

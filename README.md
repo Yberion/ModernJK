@@ -17,7 +17,7 @@ The single-player game is `modernjk_sp.x86_64` (`modernjk_sp.x86_64.exe` on Wind
 
 ## Building
 
-CMake with MSVC, GCC or Clang, in C++20, for 64-bit Windows and Linux (macOS is kept portable, not built). The libraries are in `lib/`, except on Linux SDL2 and OpenGL, which come from the system.
+CMake with MSVC, GCC or Clang, in C++20, for 64-bit Windows and Linux (macOS is kept portable, not built). The libraries are in `libs/`, except on Linux SDL2 and OpenGL, which come from the system.
 
 What is built is chosen with CMake options, all on by default except Jedi Outcast: the multiplayer client, server, renderer and modules (`BuildMPEngine`, `BuildMPDed`, `BuildMPRdVanilla`, `BuildMPGame`, `BuildMPCGame`, `BuildMPUI`), the single-player game of Jedi Academy (`BuildSPEngine`, `BuildSPGame`, `BuildSPRdVanilla`), and that of Jedi Outcast (`BuildJK2SPEngine`, `BuildJK2SPGame`, `BuildJK2SPRdVanilla`, off). The commands below build the single-player game with the multiplayer one, except the Linux dedicated server's build. The full checks (`validate.sh`, `validate.bat`) and the other commands are in "How to resume" of [the progress page](docs/modernization/progress/README.md).
 
@@ -48,7 +48,7 @@ cmake --build build-modernjk/clang-mp --parallel "$(nproc)"
 
 ### Windows: MSVC
 
-Visual Studio 2026 with the workload "Desktop development with C++" (the MSVC compiler, a Windows 10/11 SDK and CMake). SDL2 for Windows is in `lib/SDL2`. From a "Developer PowerShell for VS 2026", or any prompt where its `cmake` is found, in the repository's folder:
+Visual Studio 2026 with the workload "Desktop development with C++" (the MSVC compiler, a Windows 10/11 SDK and CMake). SDL2 for Windows is in `libs/SDL2`. From a "Developer PowerShell for VS 2026", or any prompt where its `cmake` is found, in the repository's folder:
 
 ```
 cmake -S . -B build-modernjk\msvc-x64 -G "Visual Studio 18 2026" -A x64 -DBuildPortableVersion=ON
@@ -76,7 +76,7 @@ ninja -C build-netcodec/modernjk-clang
 - The engine of [Quake III Arena](https://github.com/id-Software/Quake-III-Arena), by id Software, released under the GPLv2 in 2005, on which both games are built, and [ioquake3](https://github.com/ioquake/ioq3)'s work on it.
 - [OpenJK](https://github.com/JACoders/OpenJK), of which ModernJK is a fork.
 
-The libraries in `lib/`, each under its own licence:
+The libraries in `libs/`, each under its own licence:
 
 | library | by | used for | licence |
 |---|---|---|---|
@@ -85,15 +85,15 @@ The libraries in `lib/`, each under its own licence:
 | [stb_image_write](https://github.com/nothings/stb) | Sean Barrett | writing the screenshots (JPEG, PNG) | public domain |
 | [LLVM libc](https://github.com/llvm/llvm-project/tree/main/libc) (its math functions and text-to-float parser) | the LLVM contributors | the same floating-point results on every platform and compiler | Apache 2.0 with LLVM Exceptions |
 | [gsl-lite](https://github.com/gsl-lite/gsl-lite) | Martin Moene | spans in the single-player code | MIT |
-| [SDL](https://github.com/libsdl-org/SDL) | Sam Lantinga and the SDL contributors | the window, the input and the sound output (the copy in `lib/` for Windows; Linux uses the system's) | zlib |
+| [SDL](https://github.com/libsdl-org/SDL) | Sam Lantinga and the SDL contributors | the window, the input and the sound output (the copy in `libs/` for Windows; Linux uses the system's) | zlib |
 
 The methods the code implements:
 
-- the random numbers (`shared/qcommon/q_rand.cpp`): [xoshiro128++](https://prng.di.unimi.it/), by David Blackman and Sebastiano Vigna; [SplitMix64](https://doi.org/10.1145/2660193.2660195), by Guy Steele, Doug Lea and Christine Flood, for the seeds; integers in a range by [Daniel Lemire's unbiased method](https://arxiv.org/abs/1805.10941);
-- the network codec's entropy coder (`codemp/netcodec`): [rANS](https://arxiv.org/abs/1311.2540), the asymmetric numeral systems of Jarek Duda, after the design of Fabian Giesen's [ryg_rans](https://github.com/rygorous/ryg_rans), whose `rans_byte.h`, public domain, is in netcodec's benchmark for comparison.
+- the random numbers (`src/shared/qcommon/q_rand.cpp`): [xoshiro128++](https://prng.di.unimi.it/), by David Blackman and Sebastiano Vigna; [SplitMix64](https://doi.org/10.1145/2660193.2660195), by Guy Steele, Doug Lea and Christine Flood, for the seeds; integers in a range by [Daniel Lemire's unbiased method](https://arxiv.org/abs/1805.10941);
+- the network codec's entropy coder (`src/codemp/netcodec`): [rANS](https://arxiv.org/abs/1311.2540), the asymmetric numeral systems of Jarek Duda, after the design of Fabian Giesen's [ryg_rans](https://github.com/rygorous/ryg_rans), whose `rans_byte.h`, public domain, is in netcodec's benchmark for comparison.
 
 The study of the network codec used client demos recorded and supplied by a player. The prototype of the anti-wallhack culling (`docs/modernization/tools/visibility`, not part of the game) uses [tinybvh](https://github.com/jbikker/tinybvh), by Jacco Bikker, and [bvh](https://github.com/madmann91/bvh), by madmann91, both MIT, which are not in this repository.
 
 ## License
 
-GPLv2, as OpenJK: see [LICENSE.txt](LICENSE.txt); the copyright notices of the files are kept. The libraries in `lib/` keep their own licences (Credits).
+GPLv2, as OpenJK: see [LICENSE.txt](LICENSE.txt); the copyright notices of the files are kept. The libraries in `libs/` keep their own licences (Credits).

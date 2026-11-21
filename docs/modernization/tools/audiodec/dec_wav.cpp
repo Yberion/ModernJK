@@ -4,7 +4,7 @@
 #include <cstring>
 
 #if defined( DEC_ENGINEWAV )
-// What the engine does (GetWavinfo, codemp/client/snd_mem.cpp): the RIFF chunks, PCM only; 8-bit samples become
+// What the engine does (GetWavinfo, src/codemp/client/snd_mem.cpp): the RIFF chunks, PCM only; 8-bit samples become
 // 16-bit as its ResampleSfx makes them ((x - 128) << 8).
 static uint32_t U32( const uint8_t *p ) { return uint32_t( p[0] ) | uint32_t( p[1] ) << 8 | uint32_t( p[2] ) << 16 | uint32_t( p[3] ) << 24; }
 static uint16_t U16( const uint8_t *p ) { return uint16_t( p[0] | p[1] << 8 ); }

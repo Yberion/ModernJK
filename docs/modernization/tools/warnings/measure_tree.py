@@ -12,8 +12,8 @@ import subprocess
 import sys
 
 # README.md and LICENSE.txt: CPack's resource files (cmake/Modules/InstallConfig.cmake), which it requires
-FOLDERS = ['CMakeLists.txt', 'README.md', 'LICENSE.txt', 'cmake', 'code', 'codeJK2', 'codemp', 'shared', 'lib',
-	'tests', 'tools', 'docs/modernization/tools/warnings']
+FOLDERS = ['CMakeLists.txt', 'README.md', 'LICENSE.txt', 'cmake', 'src', 'libs', 'test', 'tools',
+	'docs/modernization/tools/warnings']
 PRAGMA = re.compile(rb'^([ \t]*)(#[ \t]*pragma[ \t]+warning[ \t]*\([ \t]*disable\b)', re.MULTILINE)
 
 
@@ -29,7 +29,7 @@ def main():
 			continue
 		src = pathlib.Path(name)
 		data = src.read_bytes()
-		if src.suffix.lower() in ('.h', '.hpp', '.c', '.cpp', '.inl') and not name.startswith('lib/'):
+		if src.suffix.lower() in ('.h', '.hpp', '.c', '.cpp', '.inl') and not name.startswith('libs/'):
 			data, n = PRAGMA.subn(rb'\1// step 19 measurement: \2', data)
 			if n:
 				changed += 1

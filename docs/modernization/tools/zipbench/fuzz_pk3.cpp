@@ -1,4 +1,4 @@
-// libFuzzer target of the engine's pk3 reader (shared/qcommon/q_pk3.cpp), built alone with the stand-ins of shim/:
+// libFuzzer target of the engine's pk3 reader (src/shared/qcommon/q_pk3.cpp), built alone with the stand-ins of shim/:
 // the input is the bytes of an archive, written to a file, opened, and every file of it read and sought in. A pk3
 // comes from anyone (a server sends it): nothing in it may make the reader read or write outside its buffers, loop
 // or give back more than the size it announced. Built with AddressSanitizer and UBSan by zipbench.sh.

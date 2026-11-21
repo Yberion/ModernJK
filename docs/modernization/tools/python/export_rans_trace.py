@@ -1,4 +1,4 @@
-"""Step 6: rANS golden trace for the C++ tests and benchmark (codemp/netcodec).
+"""Step 6: rANS golden trace for the C++ tests and benchmark (src/codemp/netcodec).
 Encodes the real messages of the three captures with the whole-message codec (tables trained as run_full.py, initial
 state X0 = 1) and writes, per message, the rANS units (context table, symbol or raw bits) and the expected bytes.
 Output (local, not committed): ../../data/traces/rans_trace.bin. Run: python export_rans_trace.py

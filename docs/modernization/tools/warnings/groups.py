@@ -1,4 +1,4 @@
-"""The warnings of the three compilers grouped by what they find (plan step 19), each group's locations outside lib/
+"""The warnings of the three compilers grouped by what they find (plan step 19), each group's locations outside libs/
 counted per compiler from count_warnings.py's JSON files. clang's count is the union of its runs (Windows and
 Linux). A flag no group names is listed at the end, so that none is forgotten.
 
@@ -80,7 +80,7 @@ def load(names):
 	locs = set()
 	for name in names:
 		for e in json.load(open(name, encoding='utf-8')):
-			if e['tree'] != 'lib':
+			if e['tree'] != 'libs':
 				locs.add((norm(e['file']), e['line'], e['col'], e['flag']))
 	per = defaultdict(int)
 	for loc in locs:

@@ -23,7 +23,7 @@ Each source is labelled as in the other surveys:
 
 ## 3. What a JKA client can see
 
-Read in cgame (`codemp/cgame`):
+Read in cgame (`src/codemp/cgame`):
 
 - **The camera.** Third person is forced with the saber, the melee fists, the emplaced guns and the E-Web, a grapple, a knockdown, a fall to death, a vehicle, and when dead; first person is forced while zoomed (`cg_view.c`, the choice of `cg.renderingThirdPerson`). The camera's target is the head raised by `cg_thirdPersonVertOffset` (16), traced from the head; the camera is `cg_thirdPersonRange` (80) behind the target along the view direction, turned by `cg_thirdPersonAngle` and `cg_thirdPersonPitchOffset`, traced from the target with a box of 8 units (`MASK_CAMERACLIP`), and it follows with a lag (`cg_thirdPersonCameraDamp`, `cg_thirdPersonTargetDamp`). So the camera always sees the head, within the range plus the height of it, but those four settings are the player's own (`CVAR_ARCHIVE`, no bound): a range of 500 looks round any corner. The server cannot know a camera it does not bound.
 - **Force Sense.** From level 2, an active Force Sense draws the other players through walls (`RF_NODEPTH`, `cg_players.c`), with no range of its own: the PVS bounds it today. Level 1 only lights them.

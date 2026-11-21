@@ -16,7 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../../../../shared/qcommon/q_rand.h"
+#include "../../../../src/shared/qcommon/q_rand.h"
 #ifdef _WIN32
 #include <windows.h>
 #else
@@ -35,7 +35,7 @@ typedef double ( *f2d_t )( double, double );
 	double p##_acos( double ); double p##_atan( double ); double p##_atan2( double, double ); \
 	double p##_pow( double, double ); float p##_sinpif( float ); float p##_cospif( float ); 	float p##_tanpif( float ); float p##_rsqrtf( float );
 DECL( lm )
-/* the game's entry point (shared/qcommon/q_libm.cpp) */
+/* the game's entry point (src/shared/qcommon/q_libm.cpp) */
 float Q_strtof( const char *str, const char **end );
 int Q_ScanFloats( const char *str, float *out, int count );
 #ifdef HAVE_CM
@@ -307,7 +307,7 @@ static void textConversions( void ) {
 		hash[F_QUARTER1F] = fnv( hash[F_QUARTER1F], buf, (size_t)len );
 	}
 	for ( k = 0; k < NTEXT; k++ ) printf( "text %-20s %016llx\n", name[k], (unsigned long long)hash[k] );
-	/* the game's parser (shared/qcommon/q_libm.cpp, correctly rounded) over the same strings: glibc's strtof hash */
+	/* the game's parser (src/shared/qcommon/q_libm.cpp, correctly rounded) over the same strings: glibc's strtof hash */
 	{
 		uint64_t h = 14695981039346656037ull;
 		seed = 1;

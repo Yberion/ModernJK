@@ -1,4 +1,4 @@
-"""Step 6: golden trace of the whole-message codec for the C++ tests (codemp/netcodec/tests/test_codec.cpp).
+"""Step 6: golden trace of the whole-message codec for the C++ tests (src/codemp/netcodec/tests/test_codec.cpp).
 Codec as the product: prediction field order, prediction modes, per-field modes and tables of train_tables.py,
 initial state X0 = 1. For every message the server-side loop of run_full.encode_stream codes, writes the message
 (as decoded by jkadec) and the bytes of the Python codec.

@@ -8,7 +8,7 @@ Note of 19 November 2026: the sound is now plan step 21, after step 19 and befor
 
 ## 1. Summary
 
-- The client's sound today is about 11,400 lines of its own (`codemp/client/snd_*.cpp`) plus a 1995 MP3 decoder (`codemp/mp3code`, 8,325 lines): a software mixer of 32 channels that paints 150 ms of sound ahead at every frame, so that it mixes 15 to 50 times what is played (100 to 333 frames per second) and a sound is heard about 70 ms after it starts (estimated from the code). The reverb exists only in a path compiled for 32-bit MSVC, off by default, which needs Creative's EAX drivers and Creative's `EAXMan.dll`: in practice no player of this build hears it.
+- The client's sound today is about 11,400 lines of its own (`src/codemp/client/snd_*.cpp`) plus a 1995 MP3 decoder (`src/codemp/mp3code`, 8,325 lines): a software mixer of 32 channels that paints 150 ms of sound ahead at every frame, so that it mixes 15 to 50 times what is played (100 to 333 frames per second) and a sound is heard about 70 ms after it starts (estimated from the code). The reverb exists only in a path compiled for 32-bit MSVC, off by default, which needs Creative's EAX drivers and Creative's `EAXMan.dll`: in practice no player of this build hears it.
 - The reverb's data is in the game: 58 files of zones, `eagle/*.eal`, 23 of them for the multiplayer maps. Their format is Creative's, but it has been documented and re-implemented by a third party (EalMan, LGPL-2.1, extended for Jedi Academy's files).
 - Two libraries cover what the game needs on Windows, Linux and macOS: **OpenAL Soft** (LGPL, C++20; 3D, HRTF, an EFX reverb whose parameters are EAX's, so the game's environments map onto it as they are; no file decoding) and **miniaudio** (public domain or MIT-0, one C file; device, mixer, 3D with Doppler, pitch, groups, filters, WAV, MP3 and FLAC decoding, rendering without a device; its reverb is an extra node of its own, not EAX's parameters). FAudio (XAudio2 on SDL 3), SDL3_mixer and SoLoud each lack a part (section 4).
 - Recommended at first: prototype OpenAL Soft and miniaudio on the game's sounds before choosing; the reverb's zones converted once from the `.eal` files into a file of this game, shipped in its pk3, as recent engines describe reverb by zones (Unity's reverb zones, idTech 4's per-area EFX files in dhewm3).
@@ -16,11 +16,11 @@ Note of 19 November 2026: the sound is now plan step 21, after step 19 and befor
 
 ## 2. What the client's sound does today
 
-Read in `codemp/client/` (references are to that folder unless stated).
+Read in `src/codemp/client/` (references are to that folder unless stated).
 
 | feature | where | notes |
 |---|---|---|
-| 32 mixing channels, each sound on an entity's channel (`CHAN_AUTO`, `CHAN_VOICE`, `CHAN_WEAPON`, `CHAN_ANNOUNCER`, ...) with the rules for which sound replaces which | `snd_local.h:185`; `S_PickChannel` `snd_dma.cpp:1088`; the channels `codemp/qcommon/q_shared.h:855-868` | voices are global or attenuated by channel |
+| 32 mixing channels, each sound on an entity's channel (`CHAN_AUTO`, `CHAN_VOICE`, `CHAN_WEAPON`, `CHAN_ANNOUNCER`, ...) with the rules for which sound replaces which | `snd_local.h:185`; `S_PickChannel` `snd_dma.cpp:1088`; the channels `src/codemp/qcommon/q_shared.h:855-868` | voices are global or attenuated by channel |
 | 3D: stereo panning with `s_separation`, distance attenuation | `S_SpatializeOrigin` `snd_dma.cpp:1345` | the listener set at every frame by cgame (`S_Respatialize` `:2503`) |
 | looping sounds per entity, rebuilt at every frame; ambient looping sounds | `S_AddLoopingSound` `:1924`, `S_AddAmbientLoopingSound` `:1982`, `S_AddLoopSounds` `:2036` | |
 | Doppler on looping sounds (`s_doppler`) | `:1956-1969` | a pitch change from the entity's velocity |
@@ -28,11 +28,11 @@ Read in `codemp/client/` (references are to that folder unless stated).
 | music: an intro and a loop streamed from MP3; dynamic music (explore, action, boss, death, with transitions), `s_allowDynamicMusic` | `S_StartBackgroundTrack` `snd_dma.cpp:4521`, `:4331-4920`, `snd_music.cpp` (1,133 lines) | the music reaches the mixer as raw samples (`:4787`) |
 | raw sample streams: the cinematics' sound (22,050 Hz) and the music | `S_RawSamples` `:2141`; `cl_cin.cpp:1179`, `:1189` | |
 | lip sync: the loudness of each entity's voice drives its mouth | `S_DoLipSynchs` `:2701`, `S_CheckAmplitude` `:2377`, `s_entityWavVol` `:221` | |
-| decoding: 12,902 MP3 and 302 WAV files in the game's `assets0` to `assets3` (counted on 15 November 2026); the Xing decoder of 1995 to 1997 | `codemp/mp3code`; `S_LoadSound_Actual` `snd_mem.cpp:732` | MP3s are unpacked to PCM when registered, except under `sound/chars/`, kept compressed and decoded while mixing (`snd_mem.cpp:715`) |
+| decoding: 12,902 MP3 and 302 WAV files in the game's `assets0` to `assets3` (counted on 15 November 2026); the Xing decoder of 1995 to 1997 | `src/codemp/mp3code`; `S_LoadSound_Actual` `snd_mem.cpp:732` | MP3s are unpacked to PCM when registered, except under `sound/chars/`, kept compressed and decoded while mixing (`snd_mem.cpp:715`) |
 | a memory pool for the sounds, the oldest freed (`s_soundpoolmegs` 25) | `SND_FreeOldestSound` `snd_dma.cpp:5189` | |
 | the video recorder takes the mixed sound | `snd_mix.cpp:182` (`CL_WriteAVIAudioFrame`); `S_GetSoundtime` follows the video's frame rate while recording (`snd_dma.cpp:2797`) | needs a mixer that can render without a device |
-| settings | `s_volume`, `s_volumeVoice`, `s_musicvolume`, `s_khz` (44), `s_language` (the voices' language), `s_doppler`, `s_separation`, `s_allowDynamicMusic`, `s_mixahead`, `s_mixPreStep`, `s_threshold1` to `4`, the four `s_sdl*`, `s_soundpoolmegs`, debug ones | `snd_dma.cpp:445` onwards, `shared/sdl/sdl_sound.cpp` |
-| the device: SDL 2's callback reading a ring the mixer paints, paused when the window loses the focus | `shared/sdl/sdl_sound.cpp`; `shared/sdl/sdl_input.cpp` | |
+| settings | `s_volume`, `s_volumeVoice`, `s_musicvolume`, `s_khz` (44), `s_language` (the voices' language), `s_doppler`, `s_separation`, `s_allowDynamicMusic`, `s_mixahead`, `s_mixPreStep`, `s_threshold1` to `4`, the four `s_sdl*`, `s_soundpoolmegs`, debug ones | `snd_dma.cpp:445` onwards, `src/shared/sdl/sdl_sound.cpp` |
+| the device: SDL 2's callback reading a ring the mixer paints, paused when the window loses the focus | `src/shared/sdl/sdl_sound.cpp`; `src/shared/sdl/sdl_input.cpp` | |
 
 How it mixes (the platform survey, section 7, "Facts checked"): at every frame `S_Update` repaints from 50 ms to 200 ms ahead of the position the device plays (`snd_dma.cpp:2834`, `:3100`), 150 ms per frame: 15 times the sound played at 100 frames per second, 19 at 125, 22 at 144, 50 at 333; a sound started now is heard after the 50 ms ahead plus the device's block of 1,024 samples (23 ms), about 70 ms (estimated from the code, not measured).
 
@@ -79,7 +79,7 @@ What the table means for this game:
 
 ## 5. The interface
 
-The interface is to be simple. The engine's sound API (`snd_public.h`: about 25 `S_*` functions called by the client, cgame and the UI) stays as the game's door; below it, the library is reached through a few functions of a module of its own (C++20, as `codemp/netcodec` and the planned `codemp/platform`), which the rest of the engine does not see:
+The interface is to be simple. The engine's sound API (`snd_public.h`: about 25 `S_*` functions called by the client, cgame and the UI) stays as the game's door; below it, the library is reached through a few functions of a module of its own (C++20, as `src/codemp/netcodec` and the planned `src/codemp/platform`), which the rest of the engine does not see:
 
 - open and close (the default device, followed when it changes; muted when the window loses the focus, by default);
 - load a sound (decoded once to PCM; the `sound/chars/` MP3s kept compressed only if the measures show the memory matters);
@@ -150,7 +150,7 @@ Decided (15 November 2026): **A1** after the prototypes, then, after listening t
 - Whether some `.eal` files hold more than one geometry set (EalMan reads set 0, the only one the engine asked for, and every file loads and passes the centre check).
 - miniaudio's PipeWire support (PipeWire serves PulseAudio's clients); OpenAL Soft's SDL backend, and whether it follows a change of the system's default device by itself; FAudio's reverb; SDL3_mixer's positional audio and effects; SoLoud's activity.
 - The builds on Linux (GCC) and with MSVC, and every measure on Linux; today's mixer's CPU; shorter device periods; the latency from a call to the sound leaving the speakers (the figures are the libraries' own reports).
-- The single-player sound (`code/client`), which keeps its own code.
+- The single-player sound (`src/code/client`), which keeps its own code.
 - The dynamic music's details (`snd_music.cpp`) and the ambient sets' files beyond their parser.
 
 ## 10. Sources
@@ -163,7 +163,7 @@ Primary:
 - EalMan: https://github.com/senneschall/EalMan; EAXManagerEAL: https://github.com/senneschall/EAXManagerEAL
 - dhewm3: https://dhewm3.org/, https://github.com/dhewm/dhewm3
 - Unity, Audio Reverb Zone: https://docs.unity.com/en-us/engine/current/manual/audio/reference/class-audio-reverb-zone
-- This repository: `codemp/client/snd_*.cpp`, `codemp/mp3code`, `shared/sdl/sdl_sound.cpp`; the game's `assets0.pk3` to `assets3.pk3`
+- This repository: `src/codemp/client/snd_*.cpp`, `src/codemp/mp3code`, `src/shared/sdl/sdl_sound.cpp`; the game's `assets0.pk3` to `assets3.pk3`
 
 Secondary:
 - OpenAL Soft issue 62 (EFX transitions between zones, Doom 3): https://github.com/kcat/openal-soft/issues/62

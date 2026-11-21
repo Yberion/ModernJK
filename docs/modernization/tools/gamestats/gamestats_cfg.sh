@@ -57,7 +57,7 @@ measure_cfg() {
 	# time at 125 Hz with 16 bots; it takes a whole core per server, so not next to a server people play on)
 	if [ "$fast" = "1" ]; then echo "set fixedtime 10"; echo "set timedemo 1"; fi
 	if [ -n "${SCENARIO:-}" ]; then
-		# scripted scenarios (codemp/game/g_scenario.cpp): each prints its own gamestats at its end, which the watchdog
+		# scripted scenarios (src/codemp/game/g_scenario.cpp): each prints its own gamestats at its end, which the watchdog
 		# counts (measure_stats)
 		local b name team s reps rep ticks scns
 		for b in ${BOTS:-Jedi Reborn}; do

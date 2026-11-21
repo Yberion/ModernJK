@@ -157,11 +157,11 @@ set(SharedLib "shared")
 # Paths
 #
 #=============================================================================
-set(SPDir "${CMAKE_SOURCE_DIR}/code")
-set(MPDir "${CMAKE_SOURCE_DIR}/codemp")
-set(JK2SPDir "${CMAKE_SOURCE_DIR}/codeJK2")
-set(SharedDir ${CMAKE_SOURCE_DIR}/shared)
-set(ModernJKLibDir "${CMAKE_SOURCE_DIR}/lib")
+set(SPDir "${CMAKE_SOURCE_DIR}/src/code")
+set(MPDir "${CMAKE_SOURCE_DIR}/src/codemp")
+set(JK2SPDir "${CMAKE_SOURCE_DIR}/src/codeJK2")
+set(SharedDir ${CMAKE_SOURCE_DIR}/src/shared)
+set(ModernJKLibDir "${CMAKE_SOURCE_DIR}/libs")
 set(GSLIncludeDirectory "${ModernJKLibDir}/gsl-lite/include")
 
 include(InstallConfig)
@@ -305,7 +305,7 @@ if(GIT_TAG_ERROR AND NOT GIT_TAG_ERROR EQUAL 0)
 endif()
 message(STATUS "Git tag is ${GIT_TAG}")
 
-configure_file(shared/qcommon/q_version.h.in shared/qcommon/q_version.h @ONLY)
+configure_file(src/shared/qcommon/q_version.h.in shared/qcommon/q_version.h @ONLY)
 
 #=============================================================================
 
@@ -324,11 +324,11 @@ set(SharedCommonFiles
 	"${SharedDir}/qcommon/q_platform.h"
 	"${CMAKE_BINARY_DIR}/shared/qcommon/q_version.h"
 	)
-# The math functions whose results IEEE 754 does not fix (shared/qcommon/q_libm.h, included by q_math.h), the same
-# bits on every platform: LLVM libc's correctly rounded functions (lib/llvm-libc, C++17 inside). Every binary built
+# The math functions whose results IEEE 754 does not fix (src/shared/qcommon/q_libm.h, included by q_math.h), the same
+# bits on every platform: LLVM libc's correctly rounded functions (libs/llvm-libc, C++17 inside). Every binary built
 # with SharedCommonFiles links it.
 add_library(qlibm STATIC "${SharedDir}/qcommon/q_libm.h" "${SharedDir}/qcommon/q_libm.cpp")
-target_include_directories(qlibm PRIVATE "${CMAKE_SOURCE_DIR}/lib/llvm-libc")
+target_include_directories(qlibm PRIVATE "${CMAKE_SOURCE_DIR}/libs/llvm-libc")
 target_compile_definitions(qlibm PRIVATE ${SharedDefines})   # ARCH_STRING and the others, for q_platform.h
 set_target_properties(qlibm PROPERTIES POSITION_INDEPENDENT_CODE ON CXX_VISIBILITY_PRESET hidden
 	VISIBILITY_INLINES_HIDDEN ON)
@@ -346,7 +346,7 @@ set(SharedCommonSafeFiles
 # Adding all of the projects
 #
 #=============================================================================
-# zlib-ng, vendored (lib/zlib-ng/README.md): it inflates the pk3 files, for shared/qcommon/q_pk3.cpp only, under
+# zlib-ng, vendored (libs/zlib-ng/README.md): it inflates the pk3 files, for src/shared/qcommon/q_pk3.cpp only, under
 # its own names (zng_...). Built by its own CMake file on every platform; in a function, so that the settings of
 # its build stay out of this project's.
 function(modernjk_add_zlib_ng)
@@ -357,9 +357,9 @@ function(modernjk_add_zlib_ng)
 	# its CMake file includes CPack as this project did already: its package description goes to its own folder,
 	# not over this project's
 	unset(CPack_CMake_INCLUDED)
-	set(CPACK_OUTPUT_CONFIG_FILE "${CMAKE_BINARY_DIR}/lib/zlib-ng/CPackConfig.cmake")
-	set(CPACK_SOURCE_OUTPUT_CONFIG_FILE "${CMAKE_BINARY_DIR}/lib/zlib-ng/CPackSourceConfig.cmake")
-	add_subdirectory(lib/zlib-ng EXCLUDE_FROM_ALL)
+	set(CPACK_OUTPUT_CONFIG_FILE "${CMAKE_BINARY_DIR}/libs/zlib-ng/CPackConfig.cmake")
+	set(CPACK_SOURCE_OUTPUT_CONFIG_FILE "${CMAKE_BINARY_DIR}/libs/zlib-ng/CPackSourceConfig.cmake")
+	add_subdirectory(libs/zlib-ng EXCLUDE_FROM_ALL)
 	set_target_properties(zlib-ng PROPERTIES POSITION_INDEPENDENT_CODE ON)
 endfunction()
 modernjk_add_zlib_ng()
@@ -378,5 +378,5 @@ endif()
 
 if(BuildTests)
 	enable_testing()
-	add_subdirectory("tests")
+	add_subdirectory("test")
 endif()

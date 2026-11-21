@@ -4,15 +4,15 @@ Written on 14 November 2026 for plan step 15. Nothing is implemented. This docum
 
 ## 1. Summary
 
-- The client's platform code is SDL 2.0.12 (2020, `lib/SDL2/include/SDL_version.h:60-62`, prebuilt for Windows; Linux and macOS take the system's SDL2, `codemp/CMakeLists.txt:389-416`). It is `shared/sdl/sdl_window.cpp` (900 lines), `sdl_input.cpp` (1,224), `sdl_sound.cpp` (329), and a few calls in `shared/sys/sys_main.cpp` and `sys_loadlib.h`: 339 SDL calls in all. The dedicated server does not use SDL (its calls are under `#ifndef DEDICATED`, and it does not link the library).
-- The engine already reaches that code through a small interface (`WIN_Init`, `WIN_Present`, `WIN_SetGamma`, `WIN_Shutdown`, `shared/sys/sys_public.h:201-204`; `IN_Init`, `IN_Frame`, `IN_Shutdown`, `IN_Restart`; `SNDDMA_*`, `shared/sdl/sdl_sound.h`), so "the engine no longer calls SDL" is true today. What is old is behind the interface, and partly in the interface itself (a gamma ramp, a table of video modes, a sound buffer shared with a callback).
+- The client's platform code is SDL 2.0.12 (2020, `libs/SDL2/include/SDL_version.h:60-62`, prebuilt for Windows; Linux and macOS take the system's SDL2, `src/codemp/CMakeLists.txt:389-416`). It is `src/shared/sdl/sdl_window.cpp` (900 lines), `sdl_input.cpp` (1,224), `sdl_sound.cpp` (329), and a few calls in `src/shared/sys/sys_main.cpp` and `sys_loadlib.h`: 339 SDL calls in all. The dedicated server does not use SDL (its calls are under `#ifndef DEDICATED`, and it does not link the library).
+- The engine already reaches that code through a small interface (`WIN_Init`, `WIN_Present`, `WIN_SetGamma`, `WIN_Shutdown`, `src/shared/sys/sys_public.h:201-204`; `IN_Init`, `IN_Frame`, `IN_Shutdown`, `IN_Restart`; `SNDDMA_*`, `src/shared/sdl/sdl_sound.h`), so "the engine no longer calls SDL" is true today. What is old is behind the interface, and partly in the interface itself (a gamma ramp, a table of video modes, a sound buffer shared with a callback).
 - The aim (14 November 2026): not a port, a new platform layer from zero on SDL 3, modern and well written, with the same features, no workaround, the present best practices, as fast as it can be.
 - What a new layer gives this project, in the order of its worth: the input read off the main thread by SDL 3 on Windows and handed over with its time (the last delay left between a key and a command); the display handled as today's systems do (borderless fullscreen, several screens, pixel density, a fullscreen switch without a video restart); the audio device followed when the system's default changes; the gamepad through SDL's mappings; and the end of the code written for the hardware of 1999 to 2005.
-- What it costs: the feel of the mouse and of the keys must be proven unchanged (it was tested by hand in step 14 part 10); SDL 3 is in neither Debian 12 nor Ubuntu 24.04, so it is built from source and shipped; hardware gamma is gone from SDL 3, so the gamma moves into the renderer for every player; `shared/` is also compiled by the single-player and Jedi Outcast trees.
+- What it costs: the feel of the mouse and of the keys must be proven unchanged (it was tested by hand in step 14 part 10); SDL 3 is in neither Debian 12 nor Ubuntu 24.04, so it is built from source and shipped; hardware gamma is gone from SDL 3, so the gamma moves into the renderer for every player; `src/shared/` is also compiled by the single-player and Jedi Outcast trees.
 
 ## 2. What exists
 
-### The window and the OpenGL context (`shared/sdl/sdl_window.cpp`)
+### The window and the OpenGL context (`src/shared/sdl/sdl_window.cpp`)
 
 | what | where | notes |
 |---|---|---|
@@ -28,7 +28,7 @@ Written on 14 November 2026 for plan step 15. Nothing is implemented. This docum
 | the window's native handle given to the renderer, on Windows | `:785-798` | for a Direct3D renderer that does not exist |
 | the icon | `sdl_icon.h` | |
 
-### The input (`shared/sdl/sdl_input.cpp`)
+### The input (`src/shared/sdl/sdl_input.cpp`)
 
 | what | where | notes |
 |---|---|---|
@@ -42,13 +42,13 @@ Written on 14 November 2026 for plan step 15. Nothing is implemented. This docum
 | the focus lost: `com_unfocused`, the sound paused | `:936-947` | |
 | the joystick: one device chosen by number at start (`in_joystick`, latched; `in_joystickNo`), read by polling: axes, hats, buttons and trackballs turned into keys and mouse moves | `IN_InitJoystick` `:545`, `IN_JoyMove` `:956` | no hot plug, no mapping |
 
-Note (15 November 2026): the console key is already found by its place by default: `cl_consoleUseScanCode` is 1 (`codemp/client/cl_main.cpp:2728`) and selects the key `SDL_SCANCODE_GRAVE`, the key under Escape (`shared/sdl/sdl_input.cpp:395-403`); the list of `cl_consoleKeys` serves only when it is 0. Item 5 of section 3 is to be read with that.
+Note (15 November 2026): the console key is already found by its place by default: `cl_consoleUseScanCode` is 1 (`src/codemp/client/cl_main.cpp:2728`) and selects the key `SDL_SCANCODE_GRAVE`, the key under Escape (`src/shared/sdl/sdl_input.cpp:395-403`); the list of `cl_consoleKeys` serves only when it is 0. Item 5 of section 3 is to be read with that.
 
-### The sound device (`shared/sdl/sdl_sound.cpp`)
+### The sound device (`src/shared/sdl/sdl_sound.cpp`)
 
-The mixer (`codemp/client/snd_dma.cpp`) paints into a ring buffer it shares with the device (the "DMA" model of the sound cards of the 1990s); SDL's callback copies from that ring into the device's buffer (`SNDDMA_AudioCallback` `:51`); the mixer learns the time from how far the callback has read (`SNDDMA_GetDMAPos` `:264`) and locks the device while it paints (`SNDDMA_BeginPainting` `:304`, `SNDDMA_Submit` `:294`). The format is asked by four cvars (`s_sdlBits`, `s_sdlChannels`, `s_sdlDevSamps`, `s_sdlMixSamps`, `:161-164`). The device is the default one at the start; it does not follow a change of the system's default. An OpenAL path exists beside it (`USE_OPENAL`, `:309`).
+The mixer (`src/codemp/client/snd_dma.cpp`) paints into a ring buffer it shares with the device (the "DMA" model of the sound cards of the 1990s); SDL's callback copies from that ring into the device's buffer (`SNDDMA_AudioCallback` `:51`); the mixer learns the time from how far the callback has read (`SNDDMA_GetDMAPos` `:264`) and locks the device while it paints (`SNDDMA_BeginPainting` `:304`, `SNDDMA_Submit` `:294`). The format is asked by four cvars (`s_sdlBits`, `s_sdlChannels`, `s_sdlDevSamps`, `s_sdlMixSamps`, `:161-164`). The device is the default one at the start; it does not follow a change of the system's default. An OpenAL path exists beside it (`USE_OPENAL`, `:309`).
 
-### The rest (`shared/sys/`)
+### The rest (`src/shared/sys/`)
 
 The clipboard's text (`sys_main.cpp:107-116`), the error message box (`:214`, `:227`), SDL's version printed (`:783-790`), `SDL_Quit` (`:175`), and the loading of the modules' libraries through `SDL_LoadObject` except where `dlopen` is used (`sys_loadlib.h:33-43`). The system events go through a queue of 256 entries (`sys_event.cpp:37`).
 
@@ -95,8 +95,8 @@ So the ports that exist are mechanical ones, and gamma is where they all stop. N
 ### Principles
 
 1. One module, the client's only door to the system: window and context, input, sound device, gamepad, clipboard, message box. It does not know the game; the engine does not know SDL.
-2. Written new, in C++20 as `codemp/netcodec` is, by the C++ Core Guidelines, with a public header the engine's C++11 can include. No code copied from the present files except the tables that hold knowledge (the key translation, the character set).
-3. A place of its own (`codemp/platform/`), for the multiplayer client only. `shared/sdl/` stays as it is for the single-player and Jedi Outcast trees, which this work does not touch. (Note of 19 November 2026: revised, the layer serves every tree from `shared/platform/`, and the sound device is no longer its part: the sound is plan step 21, done before step 15 on OpenAL Soft, which opens the device itself.)
+2. Written new, in C++20 as `src/codemp/netcodec` is, by the C++ Core Guidelines, with a public header the engine's C++11 can include. No code copied from the present files except the tables that hold knowledge (the key translation, the character set).
+3. A place of its own (`src/codemp/platform/`), for the multiplayer client only. `src/shared/sdl/` stays as it is for the single-player and Jedi Outcast trees, which this work does not touch. (Note of 19 November 2026: revised, the layer serves every tree from `src/shared/platform/`, and the sound device is no longer its part: the sound is plan step 21, done before step 15 on OpenAL Soft, which opens the device itself.)
 4. No fallback for hardware that no longer exists, no setting for what can be asked from the system. A setting is kept when a player has a reason to choose (the rule for the network settings, applied here).
 5. Everything the layer reports carries the time it happened at, on one clock.
 6. The same features for the player. What is dropped is listed and decided (section 7), not dropped silently.
@@ -105,7 +105,7 @@ So the ports that exist are mechanical ones, and gamma is where they all stop. N
 
 **Window and context.** Three states, as today's games offer: a window, borderless fullscreen on a chosen screen, exclusive fullscreen with a mode of that screen (resolution and refresh rate, from the screen's own list). The switch between them without restarting the renderer. The size always in pixels; the pixel density asked from the system. One request for the context (24-bit colour, 24-bit depth, 8-bit stencil, the samples asked) and one retry without multisampling, then an error that says what failed. The swap interval with the adaptive mode where the system has it. The screens followed when one is added or removed.
 
-**Gamma.** Not in the platform layer any more: the renderer applies it. rd-vanilla already has a shader path (`r_gammaShaders`, `codemp/rd-vanilla/tr_init.cpp:706-718`, off by default, needing fragment programs and rectangle and 3D textures); without it the gamma is applied to the textures when they are loaded. The clean form is one pass at the end of the frame for the whole picture. This is renderer work, and the only part of this step that changes the picture.
+**Gamma.** Not in the platform layer any more: the renderer applies it. rd-vanilla already has a shader path (`r_gammaShaders`, `src/codemp/rd-vanilla/tr_init.cpp:706-718`, off by default, needing fragment programs and rectangle and 3D textures); without it the gamma is applied to the textures when they are loaded. The clean form is one pass at the end of the frame for the whole picture. This is renderer work, and the only part of this step that changes the picture.
 
 **Input.** One function that hands over everything that happened since the last call, each event with its time: keys by their place on the keyboard (scancode) with the symbol the layout gives for display, text only while a text field is open (console, chat, a menu's field), the mouse's relative motion as the device counts it, buttons, the wheel, the window's focus and state. Read at the frames and at the ticks, as step 14 part 10 does. No motion thrown away, no cursor warp, no call beside SDL for the num lock. The keyboard read raw on Windows if the measure shows a gain (section 8).
 
@@ -143,11 +143,11 @@ Read in SDL 3's documentation and source (branch `main`) and in this repository 
 
 - SDL's keyboard practice (wiki page "BestKeyboardPractices", primary): scancodes where the place of a key matters (its example: the French ZQSD at the place of WASD), keycodes where its symbol matters ("I" for an inventory, Escape, Enter), `SDL_GetKeyName` to show a key's name, text from the text input events only. `SDL_HINT_KEYCODE_OPTIONS` defaults to `"french_numbers,latin_letters"` (since 3.2.0): the AZERTY number row gives the digits and the letter keys of a non-Latin layout give Latin letters.
 - The time SDL gives a key event, by system: Windows through its message loop (the default), the message's `msg.time`, at the resolution of `GetTickCount` (10 to 16 ms in Microsoft's documentation, not re-read), so of no use to date a press; Windows with `SDL_HINT_WINDOWS_RAW_KEYBOARD` ("Low latency raw keyboard events", since 3.2.0), read on one thread SDL creates once and that sleeps until input arrives (`MsgWaitForMultipleObjects` on `QS_RAWINPUT`), stamped in nanoseconds when read; while a text field is open the message loop delivers the keys again, so text input keeps the system's dead keys and input methods; Wayland, the compositor's time in milliseconds, or in nanoseconds when it offers `zwp_input_timestamps_v1`; X11, SDL ignores the server's time (a `FIXME` in its code) and stamps the event when it processes it; macOS, the system event's own time brought onto SDL's clock (its use for the keyboard not read).
-- The engine uses the time of a key: `CL_KeyState` (`codemp/client/cl_input.cpp:489`) counts the share of the tick a movement key (forward, back, sideways, up) was held; that time is today the time the event is read (`Sys_QueEvent` with a time of 0), so the error depends on how often the input is read, that is on the frame rate. A press reaches the same tick either way (the input is read just before the tick's command is made); only that share changes.
-- `SDL_DelayPrecise` (since 3.2.0; `src/timer/SDL_timer.c`): sleeps of 1 ms while it measures how late the system wakes, one longer sleep within that margin, then a spin only over what is left; on Windows its sleep is a high-resolution waitable timer (`CREATE_WAITABLE_TIMER_HIGH_RESOLUTION`). The engine today sleeps until about a millisecond before and spins the whole last millisecond, at every wait (`codemp/qcommon/common.cpp:1571`).
-- The mixer repaints, at every `S_Update` (once per frame), from `s_soundtime + s_mixPreStep` (0.05 s) to `s_soundtime + s_mixahead` (0.2 s) (`codemp/client/snd_dma.cpp:2834`, `:3100`): 150 ms of sound mixed per frame, 15 times what is played at 100 frames per second, 19 at 125, 22 at 144, 50 at 333; a sound started is heard about 70 ms later (the 50 ms ahead plus the device's block of 1,024 samples, 23 ms; estimated from the code, not measured).
-- The OpenAL path is compiled only with MSVC in 32-bit (`codemp/client/snd_local.h:31`), is off by default (`s_UseOpenAL` 0) and carries Creative's EAX (environmental reverb).
-- The gamma: overbright is applied only in exclusive fullscreen and only with the hardware ramp or the shader path (`codemp/rd-vanilla/tr_image.cpp:1413-1419`); the shader path (`r_gammaShaders`, off) copies the screen and looks it up in a 3D table of 64 entries per channel, interpolated (`tr_image.cpp:1360`, `tr_backend.cpp:1886`), so it does not give the ramp's exact values in the dark tones.
+- The engine uses the time of a key: `CL_KeyState` (`src/codemp/client/cl_input.cpp:489`) counts the share of the tick a movement key (forward, back, sideways, up) was held; that time is today the time the event is read (`Sys_QueEvent` with a time of 0), so the error depends on how often the input is read, that is on the frame rate. A press reaches the same tick either way (the input is read just before the tick's command is made); only that share changes.
+- `SDL_DelayPrecise` (since 3.2.0; `src/timer/SDL_timer.c`): sleeps of 1 ms while it measures how late the system wakes, one longer sleep within that margin, then a spin only over what is left; on Windows its sleep is a high-resolution waitable timer (`CREATE_WAITABLE_TIMER_HIGH_RESOLUTION`). The engine today sleeps until about a millisecond before and spins the whole last millisecond, at every wait (`src/codemp/qcommon/common.cpp:1571`).
+- The mixer repaints, at every `S_Update` (once per frame), from `s_soundtime + s_mixPreStep` (0.05 s) to `s_soundtime + s_mixahead` (0.2 s) (`src/codemp/client/snd_dma.cpp:2834`, `:3100`): 150 ms of sound mixed per frame, 15 times what is played at 100 frames per second, 19 at 125, 22 at 144, 50 at 333; a sound started is heard about 70 ms later (the 50 ms ahead plus the device's block of 1,024 samples, 23 ms; estimated from the code, not measured).
+- The OpenAL path is compiled only with MSVC in 32-bit (`src/codemp/client/snd_local.h:31`), is off by default (`s_UseOpenAL` 0) and carries Creative's EAX (environmental reverb).
+- The gamma: overbright is applied only in exclusive fullscreen and only with the hardware ramp or the shader path (`src/codemp/rd-vanilla/tr_image.cpp:1413-1419`); the shader path (`r_gammaShaders`, off) copies the screen and looks it up in a 3D table of 64 entries per channel, interpolated (`tr_image.cpp:1360`, `tr_backend.cpp:1886`), so it does not give the ramp's exact values in the dark tones.
 - A playback device opened as `SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK` follows the system's default device when it changes (`SDL_audio.h`).
 
 ### Decisions taken (15 November 2026)
@@ -161,7 +161,7 @@ Read in SDL 3's documentation and source (branch `main`) and in this repository 
 - **P8**: (b), the main loop waits with `SDL_DelayPrecise` instead of its busy last millisecond, in the last part; the process's CPU use and `netstats`' input margin at 100, 125, 144 with vertical sync and 333 frames per second check it.
 - **P9**: (b), macOS not built nor tested (no Mac), the code kept portable as SDL 3 is; an ARM64 build could be tested on a Raspberry Pi 4B (Linux) if ARM64 becomes a target.
 - **The version**: SDL 3.4.20, the latest stable release, published on 3 November 2026; downloaded and vendored in part 1, once approved.
-- **The menus** (the same evening): a menu that shows a removed or changed setting is changed in the game's own pk3, with the part that changes the setting, and the UI's code that drives it (`codemp/ui/ui_main.c`, `UI_Update`) with it. Read in the game's menus (`ui/jamp/` in `assets0` to `assets3`): `setup.menu` and `ingame_setup.menu` hold the display's mode list, fullscreen and colour depth (through `ui_r_mode`, `ui_r_fullscreen`, `ui_r_colorbits`), the brightness (`r_gamma`, which then drives the pass of P2), the vertical sync, and the sound's quality and EAX (`s_khz`, `s_UseOpenAL`, removed with the audio library); `controls.menu` and `ingame_controls.menu` the joystick (`in_joystick`, with part 5). The menu files are the retail game's (Raven's and Activision's), not GPL code: a changed copy in the game's pk3 is what mods do.
+- **The menus** (the same evening): a menu that shows a removed or changed setting is changed in the game's own pk3, with the part that changes the setting, and the UI's code that drives it (`src/codemp/ui/ui_main.c`, `UI_Update`) with it. Read in the game's menus (`ui/jamp/` in `assets0` to `assets3`): `setup.menu` and `ingame_setup.menu` hold the display's mode list, fullscreen and colour depth (through `ui_r_mode`, `ui_r_fullscreen`, `ui_r_colorbits`), the brightness (`r_gamma`, which then drives the pass of P2), the vertical sync, and the sound's quality and EAX (`s_khz`, `s_UseOpenAL`, removed with the audio library); `controls.menu` and `ingame_controls.menu` the joystick (`in_joystick`, with part 5). The menu files are the retail game's (Raven's and Activision's), not GPL code: a changed copy in the game's pk3 is what mods do.
 
 ## 8. The checks
 
@@ -177,12 +177,12 @@ The layer is accepted when, on Windows 11 and on Linux (X11 and Wayland):
 
 ## 9. What was not read or verified
 
-- `codemp/client/snd_dma.cpp` and the OpenAL path: the sound part's design is from the device layer only.
+- `src/codemp/client/snd_dma.cpp` and the OpenAL path: the sound part's design is from the device layer only.
 - rend2 and its use of the context's version and profile; the Direct3D handle's users, if any. (16 November 2026: rend2 removed in plan step 17, a more recent one to be taken later.)
 - SDL 3's gamepad, audio stream and display APIs were not checked call by call against the headers; the migration guide's text was read through a search's summary, not in full.
 - How SDL 3 stamps keyboard events on Windows, and what the raw keyboard really gains: secondary sources only, nothing measured.
 - Whether OpenJK has work on SDL 3: searched on the web only.
-- The single-player and Jedi Outcast trees' use of `shared/sdl/`: assumed unchanged since they are left on it.
+- The single-player and Jedi Outcast trees' use of `src/shared/sdl/`: assumed unchanged since they are left on it.
 - The time: one to two weeks was said for a port; a layer from zero with the gamma pass and the sound's clock is more, and is not estimated here.
 
 ## 10. Sources

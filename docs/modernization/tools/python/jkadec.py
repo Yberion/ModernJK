@@ -8,8 +8,8 @@ _here = os.path.dirname(os.path.abspath(__file__))
 # the copy of msg.cpp kept in data/ is the version the study used; the repository copy is only a fallback
 SRC = os.path.normpath(os.path.join(_here, "..", "..", "data", "msg.cpp"))
 if not os.path.exists(SRC):
-    SRC = os.path.normpath(os.path.join(_here, "..", "..", "..", "..", "codemp", "qcommon", "msg.cpp"))
-# field descriptors generated from codemp/qcommon/msg.cpp by gen_fields.py (PLAN.md step 2)
+    SRC = os.path.normpath(os.path.join(_here, "..", "..", "..", "..", "src", "codemp", "qcommon", "msg.cpp"))
+# field descriptors generated from src/codemp/qcommon/msg.cpp by gen_fields.py (PLAN.md step 2)
 FIELDS = json.load(open(os.path.normpath(os.path.join(_here, "..", "..", "data", "fields.json"))))
 GENTITYNUM_BITS = 10
 MAX_GENTITIES = 1 << GENTITYNUM_BITS

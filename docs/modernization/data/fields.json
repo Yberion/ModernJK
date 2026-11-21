@@ -1,7 +1,7 @@
 {
  "schema_version": 2,
  "schema_hash": "c1c564ea5a70ac60790fb00d9e1be298f37def3d98b9bad2da0073c305f3e209",
- "source": "codemp/qcommon/msg.cpp",
+ "source": "src/codemp/qcommon/msg.cpp",
  "sizeof": {
   "entityState_t": 524,
   "playerState_t": 1536

@@ -9,7 +9,7 @@
 #   <cvars>        cheat cvars set after devmap, separated by "; set "; pass each configuration as one
 #                  argument (quoted): split at its spaces it would lose its cvars. For example
 #                  'd_saberSPStyleDamage 0'
-#   SCENARIO       scripted scenarios (codemp/game/g_scenario.cpp) instead of the free-for-all, one or several
+#   SCENARIO       scripted scenarios (src/codemp/game/g_scenario.cpp) instead of the free-for-all, one or several
 #                  separated by ";", played one after the other, each with its own gamestats; <minutes> is then
 #                  not used (the waits come from the repetitions); MAP, GAMETYPE and BOTS: gamestats_cfg.sh
 #   SEED           a first game seed: server n of the command line (from 0) gets SEED+n and, with FAST=1, the fixed frame

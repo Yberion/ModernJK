@@ -1,7 +1,7 @@
-diff --git a/codemp/game/g_items.cpp b/codemp/game/g_items.cpp
+diff --git a/src/codemp/game/g_items.cpp b/src/codemp/game/g_items.cpp
 index f82502c9..ff000b58 100644
---- a/codemp/game/g_items.cpp
-+++ b/codemp/game/g_items.cpp
+--- a/src/codemp/game/g_items.cpp
++++ b/src/codemp/game/g_items.cpp
 @@ -1663,6 +1663,21 @@ void EWebFire(gentity_t *owner, gentity_t *eweb)
  	BG_GiveMeVectorFromMatrix(&boltMatrix, orientations_t::ORIGIN, p);
  	BG_GiveMeVectorFromMatrix(&boltMatrix, orientations_t::NEGATIVE_Y, d);
@@ -24,10 +24,10 @@ index f82502c9..ff000b58 100644
  	//Start the thing backwards into the bounding box so it can't start inside other solid things
  	VectorMA(p, -16.0f, d, bPoint);
  
-diff --git a/codemp/game/g_missile.cpp b/codemp/game/g_missile.cpp
+diff --git a/src/codemp/game/g_missile.cpp b/src/codemp/game/g_missile.cpp
 index 2e2a692e..270ab1a2 100644
---- a/codemp/game/g_missile.cpp
-+++ b/codemp/game/g_missile.cpp
+--- a/src/codemp/game/g_missile.cpp
++++ b/src/codemp/game/g_missile.cpp
 @@ -320,6 +320,9 @@ gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life,
  	VectorScale( dir, vel, missile->s.pos.trDelta );
  	VectorCopy( org, missile->r.currentOrigin);
@@ -38,10 +38,10 @@ index 2e2a692e..270ab1a2 100644
  	return missile;
  }
  
-diff --git a/codemp/game/g_scenario.cpp b/codemp/game/g_scenario.cpp
+diff --git a/src/codemp/game/g_scenario.cpp b/src/codemp/game/g_scenario.cpp
 index dd724fc9..551cde54 100644
---- a/codemp/game/g_scenario.cpp
-+++ b/codemp/game/g_scenario.cpp
+--- a/src/codemp/game/g_scenario.cpp
++++ b/src/codemp/game/g_scenario.cpp
 @@ -281,6 +281,15 @@ static struct {
  	vec3_t	origin[3], start[3];
  } scnStats;
@@ -215,10 +215,10 @@ index dd724fc9..551cde54 100644
  	scn.spectatorMode = G_ScenarioOptIs( "spectator=follow1" ) ? spectatorMode_t::SPEC_FOLLOW1
  		: G_ScenarioOptIs( "spectator=follow2" ) ? spectatorMode_t::SPEC_FOLLOW2
  		: G_ScenarioOptIs( "spectator" ) ? spectatorMode_t::SPEC_ATTACKER : spectatorMode_t::SPEC_NONE;
-diff --git a/codemp/game/g_weapon.cpp b/codemp/game/g_weapon.cpp
+diff --git a/src/codemp/game/g_weapon.cpp b/src/codemp/game/g_weapon.cpp
 index 907d1943..45fad380 100644
---- a/codemp/game/g_weapon.cpp
-+++ b/codemp/game/g_weapon.cpp
+--- a/src/codemp/game/g_weapon.cpp
++++ b/src/codemp/game/g_weapon.cpp
 @@ -32,6 +32,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
  
  static vec3_t forward, vright, up;
@@ -329,10 +329,10 @@ index 907d1943..45fad380 100644
  
  	VectorSet( maxs, 6, 6, 6 );
  	VectorScale( maxs, -1, mins );
-diff --git a/codemp/game/w_saber.cpp b/codemp/game/w_saber.cpp
+diff --git a/src/codemp/game/w_saber.cpp b/src/codemp/game/w_saber.cpp
 index b4a38104..ee5390d4 100644
---- a/codemp/game/w_saber.cpp
-+++ b/codemp/game/w_saber.cpp
+--- a/src/codemp/game/w_saber.cpp
++++ b/src/codemp/game/w_saber.cpp
 @@ -8680,6 +8680,8 @@ nextStep:
  
  				//Projectile stuff:

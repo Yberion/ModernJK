@@ -15,9 +15,9 @@ CM=$M/core-math/src
 $CXX $FLAGS -std=c++20 -fno-exceptions -fno-rtti -I "$M/llvm-project/libc" -c "$HERE/lm.cpp" -o "$OUT/lm.o"
 # the game's entry point, with the vendored LLVM libc (q_platform.h wants an ARCH_STRING outside Windows)
 case "$(uname -s)" in MINGW*|MSYS*) ARCHDEF= ;; *) ARCHDEF='-DARCH_STRING="mathbench"' ;; esac
-$CXX $FLAGS -std=c++20 -fno-exceptions -fno-rtti $ARCHDEF -I "$ROOT/lib/llvm-libc" \
-	-c "$ROOT/shared/qcommon/q_libm.cpp" -o "$OUT/q_libm.o"
-$CC $FLAGS $ARCHDEF -c "$ROOT/shared/qcommon/q_rand.c" -o "$OUT/q_rand.o"
+$CXX $FLAGS -std=c++20 -fno-exceptions -fno-rtti $ARCHDEF -I "$ROOT/libs/llvm-libc" \
+	-c "$ROOT/src/shared/qcommon/q_libm.cpp" -o "$OUT/q_libm.o"
+$CC $FLAGS $ARCHDEF -c "$ROOT/src/shared/qcommon/q_rand.c" -o "$OUT/q_rand.o"
 OBJS="$OUT/lm.o $OUT/q_libm.o $OUT/q_rand.o"
 DEFS=
 if [ "$NOCM" != 1 ]; then

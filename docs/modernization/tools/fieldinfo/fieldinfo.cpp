@@ -1,4 +1,4 @@
-// Prints the network field descriptors of codemp/qcommon/msg.cpp with the offsets, sizes and C types the compiler computes.
+// Prints the network field descriptors of src/codemp/qcommon/msg.cpp with the offsets, sizes and C types the compiler computes.
 // fields.inc is written by ../python/gen_fields.py; rebuild this program after regenerating it.
 // Output: one tab-separated record per line, read by gen_fields.py --exe.
 #include "qcommon/q_shared.h"

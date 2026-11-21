@@ -1,4 +1,4 @@
-"""Reference value of the C++ determinism test (codemp/netcodec/test/test_determinism.cpp): an FNV-1a 64 hash of the
+"""Reference value of the C++ determinism test (src/codemp/netcodec/test/test_determinism.cpp): an FNV-1a 64 hash of the
 float steps of the format, computed with the Python reference functions of codec.py. Same sweep, same order, same
 byte encoding as the C++ test; the C++ constant must equal what this prints."""
 import os, sys

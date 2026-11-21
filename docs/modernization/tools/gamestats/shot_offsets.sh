@@ -6,7 +6,7 @@
 #   git -C /e/Git/jka/ModernJK apply docs/modernization/tools/gamestats/shot_offsets.patch
 #   ninja -C /e/Git/jka/ModernJK/build-netcodec/modernjk-clang jampgamex86_64
 #   bash /e/Git/jka/ModernJK/docs/modernization/tools/gamestats/shot_offsets.sh
-#   git -C /e/Git/jka/ModernJK checkout -- codemp/game
+#   git -C /e/Git/jka/ModernJK checkout -- src/codemp/game
 # Each case runs on its own server (gamestats_windows.sh, SEED=1, FAST=1); for each it prints the scenario's damage and
 # shot lines, the hits by location (its hit location statistics line) and the shots' lines (DBG shot, the most frequent
 # first). The servers' logs are kept as $GAMESTATS_DIR/shot_<batch>_<case>.log.
