@@ -23,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // of the archive, and the files it names, stored or deflated. One file for the multiplayer and the single-player
 // engines, each compiling it with its own qcommon/qcommon.h; the file system (files.cpp, shared too) calls the
 // functions of q_pk3.h: replacing the library changes this file only
-// (docs_rewrite/modernization/surveys/compression-libraries.md).
+// (docs/modernization/surveys/compression-libraries.md).
 //
 // The archives come from anyone (a server sends them): no offset, size or count read in one is trusted before it is
 // checked against the archive's length. ZIP64 archives (4 GB or more, or 65,535 files or more) are read. Not read:

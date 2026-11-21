@@ -4,7 +4,7 @@ The headers of LLVM libc's header-only math functions (`libc/shared/math`) and o
 (`src/__support/str_to_float.h`, behind its `strtof` and `strtod`) that `shared/qcommon/q_libm.cpp` uses, and the
 headers they include. They give correctly rounded results for every float function and for most double functions,
 so the game computes the same bits on every platform and compiler (survey and measurements:
-`docs_rewrite/modernization/surveys/deterministic-math.md`). The code calls the `Q_` functions of
+`docs/modernization/surveys/deterministic-math.md`). The code calls the `Q_` functions of
 `shared/qcommon/q_libm.h`, and only `q_libm.cpp` and netcodec's library (`codemp/netcodec/src/numeric.h`, the
 absolute value of `src/__support/FPUtil/BasicOperations.h`, so that netcodec stays independent of the engine) include
 these headers.
@@ -17,4 +17,4 @@ these headers.
   its `#if`, so that every compiler and target finds what its branches include; the files are unchanged.
 - Update: check out llvm-project at a commit at least two weeks old, run `python -I update.py <llvm-project>/libc`
   (it replaces `hdr`, `include`, `shared` and `src`), record the commit above, then compare the results with the
-  previous ones (`docs_rewrite/modernization/tools/mathlib`).
+  previous ones (`docs/modernization/tools/mathlib`).

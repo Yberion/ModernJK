@@ -145,7 +145,7 @@ inline constexpr int PACKET_MASK = PACKET_BACKUP-1;
 
 #include "qcommon/q_limits.h"
 
-// Network settings fixed rather than set by cvars (plan step 11, docs_rewrite/modernization/surveys/network-settings.md)
+// Network settings fixed rather than set by cvars (plan step 11, docs/modernization/surveys/network-settings.md)
 inline constexpr int MAX_PACKET_RATE = 100;		// client packets per second: one per tick (TICK_MSEC); the server decodes no more
 inline constexpr int TIMEOUT_CONNECTING = 60;		// seconds without a packet before either side drops a connection not yet in the game
 inline constexpr int TIMEOUT_ACTIVE = 30;		// seconds without a packet before either side drops a connection in the game

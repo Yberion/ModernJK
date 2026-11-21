@@ -612,7 +612,7 @@ CL_AdjustTimeDelta
 Adjust the clients view of server time.
 
 The client shows the world as late as the arrivals of the snapshots require and no later (plan step 11,
-docs_rewrite/modernization/surveys/network-settings.md, point 5; redone in plan step 14, part 4e). At every frame its
+docs/modernization/surveys/network-settings.md, point 5; redone in plan step 14, part 4e). At every frame its
 time must not pass the newest snapshot's, else that frame extrapolates: serverTimeDelta must stay at or below the
 newest snapshot's serverTime minus the frame's real time. Each interval between two snapshot arrivals gives one
 sample, that value at the last frame drawn before the next snapshot came. The window keeps the smallest sample of

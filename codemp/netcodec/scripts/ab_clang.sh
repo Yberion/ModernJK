@@ -6,7 +6,7 @@
 # ab_summary.awk. Only meaningful on a quiet machine (no game, the VMs off), to check before a run.
 # Usage, from anywhere: [REF=<commit> | REF_DIR=<dir>] [CUR_DIR=<dir>] [NOALIGN=1] [CXXFLAGS=...] [PRESET=<preset>]
 #   [BENCH=client] bash codemp/netcodec/scripts/ab_clang.sh [rounds] [--no-build]
-# BENCH=client: netcodec_bench_client on the recorded client packets (docs_rewrite/modernization/data/clientpackets/*.jkcp)
+# BENCH=client: netcodec_bench_client on the recorded client packets (docs/modernization/data/clientpackets/*.jkcp)
 # instead of bench_codec; the times are then per client packet.
 # CUR_DIR: a copy holding codemp/netcodec timed instead of the working tree. Functions and loops are aligned to 64 bytes
 # in both builds, as ab_gcc.sh does: without it, where the code falls moves the timings by up to 5 % (an older reference
@@ -29,7 +29,7 @@ ALIGN="-falign-functions=64 -falign-loops=64"
 # those of its commit, or REF_DIR's when it holds codemp/qcommon/msg.cpp, else the working tree's.
 build() {   # $1 = name (ref, cur), $2 = its ModernJK sources
 	(cd "$S/$1/codemp/netcodec" &&
-	 cmake --preset "$PRESET" -DCMAKE_CXX_FLAGS="$ALIGN ${CXXFLAGS:-}" -Dnetcodec_MODERNJK_DIR="$2" -Dnetcodec_TRACE_DIR="$R/docs_rewrite/modernization/data/traces" > "$S/build-$1.log" 2>&1 &&
+	 cmake --preset "$PRESET" -DCMAKE_CXX_FLAGS="$ALIGN ${CXXFLAGS:-}" -Dnetcodec_MODERNJK_DIR="$2" -Dnetcodec_TRACE_DIR="$R/docs/modernization/data/traces" > "$S/build-$1.log" 2>&1 &&
 	 cmake --build --preset "$PRESET" --target "netcodec_bench_$BENCH" >> "$S/build-$1.log" 2>&1) ||
 	{ echo "build of $1 failed:"; tail -30 "$S/build-$1.log"; exit 1; }
 }
@@ -52,9 +52,9 @@ if [[ " $* " != *" --no-build "* ]]; then
 	build cur "$R"
 fi
 echo "$(cat "$S/ref.txt"); $(cat "$S/cur.txt")$([[ " $* " == *" --no-build "* ]] && echo ' (as last built)')"
-TR=$(cygpath -w "$R/docs_rewrite/modernization/data/traces/codec_trace.bin")
+TR=$(cygpath -w "$R/docs/modernization/data/traces/codec_trace.bin")
 PACKETS=()
-for p in "$R"/docs_rewrite/modernization/data/clientpackets/*.jkcp; do PACKETS+=("$(cygpath -w "$p")"); done
+for p in "$R"/docs/modernization/data/clientpackets/*.jkcp; do PACKETS+=("$(cygpath -w "$p")"); done
 for i in $(seq 1 "$ROUNDS"); do
 	for v in ref cur; do
 		exe=$(cygpath -w "$S/$v/build-netcodec/$PRESET/bench/netcodec_bench_$BENCH.exe")

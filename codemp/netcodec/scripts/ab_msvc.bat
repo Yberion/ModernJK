@@ -8,7 +8,7 @@ rem build-netcodec\ab-msvc, used only if its commit is HEAD (read from .git, no 
 rem (ABM_ANY_REF=1 compares it anyway).
 rem The reference is built with its own ModernJK sources (the legacy coder, msg.cpp, and the states' layout, q_shared.h):
 rem those of its commit, or ABM_REF_DIR's when it holds codemp\qcommon\msg.cpp, else the working tree's.
-rem ABM_BENCH=client: netcodec_bench_client on the recorded client packets (docs_rewrite\modernization\data\clientpackets\*.jkcp)
+rem ABM_BENCH=client: netcodec_bench_client on the recorded client packets (docs\modernization\data\clientpackets\*.jkcp)
 rem instead of bench_codec; the times are then per client packet.
 rem Usage (cmd or PowerShell, from anywhere): codemp\netcodec\scripts\ab_msvc.bat [rounds]
 setlocal EnableDelayedExpansion
@@ -17,10 +17,10 @@ for %%i in ("%R%") do set "R=%%~fi"
 set "ROUNDS=%~1"
 if "%ROUNDS%"=="" set "ROUNDS=6"
 if not defined ABM_BENCH set "ABM_BENCH=codec"
-set "ARGS="%R%\docs_rewrite\modernization\data\traces\codec_trace.bin" 10"
+set "ARGS="%R%\docs\modernization\data\traces\codec_trace.bin" 10"
 if "%ABM_BENCH%"=="client" (
 	set "ARGS="
-	for %%p in ("%R%\docs_rewrite\modernization\data\clientpackets\*.jkcp") do set ARGS=!ARGS! "%%~fp"
+	for %%p in ("%R%\docs\modernization\data\clientpackets\*.jkcp") do set ARGS=!ARGS! "%%~fp"
 )
 set "W=%TEMP%\netcodec-abm"
 if exist "%W%" rmdir /s /q "%W%"
@@ -105,7 +105,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0ab_summary.ps1" "%W%"
 exit /b 0
 
 :build
-cmake -S "%~1" -B "%~2" -G "Visual Studio 18 2026" -A x64 -Dnetcodec_MODERNJK_DIR="%~3" -Dnetcodec_TRACE_DIR="%R%\docs_rewrite\modernization\data\traces" > "%W%\cfg.txt" 2>&1
+cmake -S "%~1" -B "%~2" -G "Visual Studio 18 2026" -A x64 -Dnetcodec_MODERNJK_DIR="%~3" -Dnetcodec_TRACE_DIR="%R%\docs\modernization\data\traces" > "%W%\cfg.txt" 2>&1
 if errorlevel 1 (type "%W%\cfg.txt" & exit /b 1)
 cmake --build "%~2" --config Release --target netcodec_bench_%ABM_BENCH% --parallel > "%W%\bld.txt" 2>&1
 if errorlevel 1 (type "%W%\bld.txt" & exit /b 1)

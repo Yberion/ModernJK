@@ -37,7 +37,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # target collided, warning MSB8074)
 set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 
-# Only Windows, Linux and macOS, in 64-bit (docs_rewrite/modernization/PLAN.md, step 17)
+# Only Windows, Linux and macOS, in 64-bit (docs/modernization/PLAN.md, step 17)
 if(NOT CMAKE_SIZEOF_VOID_P EQUAL 8)
 	message(FATAL_ERROR "ModernJK builds only for 64-bit targets")
 endif()
@@ -227,7 +227,7 @@ elseif (("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_C_COMPILER_ID}" M
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 
 	# the same floating-point results on every compiler and target: no fused multiply-add contracted from a separate
-	# multiply and add (MSVC's /fp:precise does not contract); docs_rewrite/modernization/surveys/deterministic-math.md
+	# multiply and add (MSVC's /fp:precise does not contract); docs/modernization/surveys/deterministic-math.md
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffp-contract=off")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffp-contract=off")
 

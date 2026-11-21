@@ -4,14 +4,14 @@
 # committed tables unchanged, then the game in Release when its build directory exists: build-modernjk/gcc-ded (the
 # dedicated server and the game module, the VPS build), build-modernjk/gcc-mp and build-modernjk/clang-mp (every
 # target they are configured with: the client, its renderers and modules, the single-player games). Needs the traces
-# of docs_rewrite/modernization/data/traces (export_rans_trace.py, export_codec_trace.py, export_demo_traces.py, and
+# of docs/modernization/data/traces (export_rans_trace.py, export_codec_trace.py, export_demo_traces.py, and
 # the client traces of netcodec_bench_client --trace).
 # Run from anywhere: codemp/netcodec/scripts/validate.sh
 # Output: the console and build-netcodec/validate-linux.log; the summary and the benchmark figures come last.
 set -u
 cd "$(dirname "$0")/.."
 B=../../build-netcodec
-T=../../docs_rewrite/modernization/data/traces
+T=../../docs/modernization/data/traces
 mkdir -p "$B"
 LOG="$B/validate-linux.log"
 exec > >(tee "$LOG") 2>&1

@@ -23,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // writes the screenshots and the video capture (JPEG, PNG). One file for the multiplayer and the single-player
 // renderers, each compiling it with its own rd-common/tr_common.h. The rest of a renderer calls R_DecodeImage and
 // the RE_Save functions of that header: replacing a library changes this file only
-// (docs_rewrite/modernization/surveys/image-libraries.md).
+// (docs/modernization/surveys/image-libraries.md).
 
 // the libraries first: they include the standard headers they need before the engine's own
 #define WUFFS_IMPLEMENTATION

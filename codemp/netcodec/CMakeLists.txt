@@ -1,4 +1,4 @@
-# netcodec: snapshot and message codec of the new netcode (docs_rewrite/modernization/PLAN.md, step 6).
+# netcodec: snapshot and message codec of the new netcode (docs/modernization/PLAN.md, step 6).
 #
 # Layout after cpp-best-practices/cmake_template: include/ (public headers), src/, test/, bench/, tools/, cmake/.
 # Two uses:
@@ -10,7 +10,7 @@ cmake_minimum_required(VERSION 3.21)
 
 project(netcodec VERSION 0.1.0 DESCRIPTION "JKA netcode snapshot and message codec" LANGUAGES CXX)
 
-if(NOT CMAKE_SIZEOF_VOID_P EQUAL 8)   # 64-bit targets only, as ModernJK (docs_rewrite/modernization/PLAN.md, step 17)
+if(NOT CMAKE_SIZEOF_VOID_P EQUAL 8)   # 64-bit targets only, as ModernJK (docs/modernization/PLAN.md, step 17)
 	message(FATAL_ERROR "netcodec builds only for 64-bit targets")
 endif()
 

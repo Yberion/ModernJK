@@ -5,7 +5,7 @@
 // 9 November 2026), so this game code runs one mode, 1: no rounding (modes 0, the engine's Sys_SnapVector, and 2, ties
 // to even, were measured before that decision). The comparison with the original 1.01 game code, built in 32-bit with
 // x87 math as 1.01 was (removed with the 32-bit targets on 16 November 2026), is in
-// docs_rewrite/modernization/progress/step-06-cpp-codec.md.
+// docs/modernization/progress/step-06-cpp-codec.md.
 // Output: one line per scenario and mode: the hash of the movement fields (origin, velocity, view angles, ground
 // entity, pm_flags, pm_time, commandTime) and of the whole player state after every command, and the final origin and
 // velocity as float bit patterns. --dump=<file>: the movement fields after every command (float bits), to compare two

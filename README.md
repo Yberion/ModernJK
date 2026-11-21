@@ -1,13 +1,13 @@
 # ModernJK
 
-ModernJK is a fork of [OpenJK](https://github.com/JACoders/OpenJK) that modernizes the multiplayer game of Jedi Academy: a new network codec in both directions, a fixed 100 Hz tick with the game's rules kept at their 20 Hz pace, the same results on Windows and Linux (one math library, one random generator), network settings fixed or computed instead of set by the player, and every library built with the project. It is not compatible with OpenJK or the base game: a ModernJK client does not play on their servers, and their demos do not play on ModernJK. **Backward compatibility is not a goal**: the protocol, the file formats, the settings and the game's own code change wherever that gives a better result, and the bugs found on the way are fixed even when the fix changes how the game plays; every change is listed in [CHANGES.md](docs_rewrite/modernization/CHANGES.md).
+ModernJK is a fork of [OpenJK](https://github.com/JACoders/OpenJK) that modernizes the multiplayer game of Jedi Academy: a new network codec in both directions, a fixed 100 Hz tick with the game's rules kept at their 20 Hz pace, the same results on Windows and Linux (one math library, one random generator), network settings fixed or computed instead of set by the player, and every library built with the project. It is not compatible with OpenJK or the base game: a ModernJK client does not play on their servers, and their demos do not play on ModernJK. **Backward compatibility is not a goal**: the protocol, the file formats, the settings and the game's own code change wherever that gives a better result, and the bugs found on the way are fixed even when the fix changes how the game plays; every change is listed in [CHANGES.md](docs/modernization/CHANGES.md).
 
 The work is in progress and centred on the multiplayer game. The single-player game of Jedi Academy is built too, from the same sources and with the same build changes (C++20, 64-bit, the bugs that the compilers' warnings showed fixed); its game is otherwise OpenJK's, and it is only started and played briefly, not tested in depth. The single-player game of Jedi Outcast is kept compiling, off by default, and never run.
 
 ## Documentation
 
-- [What ModernJK changes compared with OpenJK](docs_rewrite/modernization/CHANGES.md), with the delays before and now.
-- [The documentation of the work](docs_rewrite/modernization/README.md): the study, the plan, the progress and the design surveys.
+- [What ModernJK changes compared with OpenJK](docs/modernization/CHANGES.md), with the delays before and now.
+- [The documentation of the work](docs/modernization/README.md): the study, the plan, the progress and the design surveys.
 
 ## Running
 
@@ -19,7 +19,7 @@ The single-player game is `modernjk_sp.x86_64` (`modernjk_sp.x86_64.exe` on Wind
 
 CMake with MSVC, GCC or Clang, in C++20, for 64-bit Windows and Linux (macOS is kept portable, not built). The libraries are in `lib/`, except on Linux SDL2 and OpenGL, which come from the system.
 
-What is built is chosen with CMake options, all on by default except Jedi Outcast: the multiplayer client, server, renderer and modules (`BuildMPEngine`, `BuildMPDed`, `BuildMPRdVanilla`, `BuildMPGame`, `BuildMPCGame`, `BuildMPUI`), the single-player game of Jedi Academy (`BuildSPEngine`, `BuildSPGame`, `BuildSPRdVanilla`), and that of Jedi Outcast (`BuildJK2SPEngine`, `BuildJK2SPGame`, `BuildJK2SPRdVanilla`, off). The commands below build the single-player game with the multiplayer one, except the Linux dedicated server's build. The full checks (`validate.sh`, `validate.bat`) and the other commands are in "How to resume" of [the progress page](docs_rewrite/modernization/progress/README.md).
+What is built is chosen with CMake options, all on by default except Jedi Outcast: the multiplayer client, server, renderer and modules (`BuildMPEngine`, `BuildMPDed`, `BuildMPRdVanilla`, `BuildMPGame`, `BuildMPCGame`, `BuildMPUI`), the single-player game of Jedi Academy (`BuildSPEngine`, `BuildSPGame`, `BuildSPRdVanilla`), and that of Jedi Outcast (`BuildJK2SPEngine`, `BuildJK2SPGame`, `BuildJK2SPRdVanilla`, off). The commands below build the single-player game with the multiplayer one, except the Linux dedicated server's build. The full checks (`validate.sh`, `validate.bat`) and the other commands are in "How to resume" of [the progress page](docs/modernization/progress/README.md).
 
 ### Linux: Ubuntu 22.04 with GCC 15 and Clang 23
 
@@ -92,7 +92,7 @@ The methods the code implements:
 - the random numbers (`shared/qcommon/q_rand.cpp`): [xoshiro128++](https://prng.di.unimi.it/), by David Blackman and Sebastiano Vigna; [SplitMix64](https://doi.org/10.1145/2660193.2660195), by Guy Steele, Doug Lea and Christine Flood, for the seeds; integers in a range by [Daniel Lemire's unbiased method](https://arxiv.org/abs/1805.10941);
 - the network codec's entropy coder (`codemp/netcodec`): [rANS](https://arxiv.org/abs/1311.2540), the asymmetric numeral systems of Jarek Duda, after the design of Fabian Giesen's [ryg_rans](https://github.com/rygorous/ryg_rans), whose `rans_byte.h`, public domain, is in netcodec's benchmark for comparison.
 
-The study of the network codec used client demos recorded and supplied by a player. The prototype of the anti-wallhack culling (`docs_rewrite/modernization/tools/visibility`, not part of the game) uses [tinybvh](https://github.com/jbikker/tinybvh), by Jacco Bikker, and [bvh](https://github.com/madmann91/bvh), by madmann91, both MIT, which are not in this repository.
+The study of the network codec used client demos recorded and supplied by a player. The prototype of the anti-wallhack culling (`docs/modernization/tools/visibility`, not part of the game) uses [tinybvh](https://github.com/jbikker/tinybvh), by Jacco Bikker, and [bvh](https://github.com/madmann91/bvh), by madmann91, both MIT, which are not in this repository.
 
 ## License
 

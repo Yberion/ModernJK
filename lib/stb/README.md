@@ -3,7 +3,7 @@
 The single header that writes the images the games save: JPEG and PNG screenshots, the JPEG frames of the video
 capture, the screenshot of a saved game. It is compiled inside `shared/rd-common/tr_image_codec.cpp` and nothing else
 includes it (survey:
-`docs_rewrite/modernization/surveys/image-libraries.md`). The images the game loads are decoded by Wuffs
+`docs/modernization/surveys/image-libraries.md`). The images the game loads are decoded by Wuffs
 (`lib/wuffs`), which writes none.
 
 - Source: https://github.com/nothings/stb, file `stb_image_write.h`, version 1.18, at the commit
