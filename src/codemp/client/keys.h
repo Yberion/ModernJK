@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include "ui/keycodes.h"
+#include <ui/keycodes.h>
 
 typedef struct qkey_s {
     bool down;

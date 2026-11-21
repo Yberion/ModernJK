@@ -28,7 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //
 //	-- jweier
 
-#include "game/g_public.h"
+#include <game/g_public.h>
 
 #include "interface.h"
 /*

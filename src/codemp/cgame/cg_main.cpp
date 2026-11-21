@@ -28,7 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <memory>
 
-#include "ui/ui_shared.h"
+#include <ui/ui_shared.h>
 
 NORETURN_PTR void (*Com_Error)(errorParm_t level, const char* error, ...);
 void (*Com_Printf)(const char* msg, ...);

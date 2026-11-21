@@ -33,9 +33,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "taskmanager.h"
 #include "sequencer.h"
 
-#include "../qcommon/q_shared.h"
-#include "../qcommon/qcommon.h"
-#include "qcommon/ojk_saved_game_helper.h"
+#include <qcommon/q_shared.h>
+#include <qcommon/qcommon.h>
+#include <qcommon/ojk_saved_game_helper.h>
 
 #define STL_ITERATE(a, b) for (a = b.begin(); a != b.end(); ++a)
 #define STL_INSERT(a, b) a.insert(a.end(), b);

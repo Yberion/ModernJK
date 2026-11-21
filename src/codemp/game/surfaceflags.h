@@ -69,7 +69,7 @@ enum class contentsFlags_t : uint32_t {
 };
 template <> inline constexpr bool enableEnumFlags<contentsFlags_t> = true;
 
-#include "qcommon/q_surfaceflags.h"
+#include <shared/qcommon/q_surfaceflags.h>
 
 inline constexpr int MATERIAL_BITS = 5;
 inline constexpr int MATERIAL_MASK = 0x1f; // mask to get the material type

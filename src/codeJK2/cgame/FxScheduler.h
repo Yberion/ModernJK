@@ -25,11 +25,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "FxUtil.h"
 #endif
 
-#include "../../code/qcommon/sstring.h"
+#include <code/qcommon/sstring.h>
 typedef sstring_t fxString_t;
 
-#include "../game/genericparser2.h"
-#include "qcommon/safe/string.h"
+#include <game/genericparser2.h>
+#include <shared/qcommon/safe/string.h>
 
 #include <algorithm>
 

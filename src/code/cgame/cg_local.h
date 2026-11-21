@@ -25,13 +25,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifndef __CG_LOCAL_H__
 #define __CG_LOCAL_H__
 
-#include "../qcommon/q_shared.h"
+#include <qcommon/q_shared.h>
 
 // define GAME_INCLUDE so that g_public.h does not define the
 // short, server-visible gclient_t and gentity_t structures,
 // because we define the full size ones in this file
 #define GAME_INCLUDE
-#include "../game/g_shared.h"
+#include <game/g_shared.h>
 #include "cg_camera.h"
 
 // The entire cgame module is unloaded and reloaded on each level change,
@@ -69,8 +69,8 @@ inline constexpr int ICON_SIZE = 48;
 inline constexpr int MAX_PRINTTEXT = 128;
 inline constexpr int MAX_CAPTIONTEXT = 32; // we don't need 64 now since we don't use this for scroll text, and I needed to change a hardwired 128 to 256, so...
 
-#include "qcommon/q_gamesets.h"
-#include "qcommon/q_spsets.h"
+#include <shared/qcommon/q_gamesets.h>
+#include <shared/qcommon/q_spsets.h>
 
 inline constexpr int WAVE_AMPLITUDE = 1;
 inline constexpr double WAVE_FREQUENCY = 0.4;
@@ -193,7 +193,7 @@ enum class leType_t {
     LE_SPRITE,
 };
 
-#include "qcommon/q_clientflags.h"
+#include <shared/qcommon/q_clientflags.h>
 
 enum class leBounceSound_t { LEBS_NONE, LEBS_METAL, LEBS_ROCK }; // fragment local entities can make sounds on impacts
 

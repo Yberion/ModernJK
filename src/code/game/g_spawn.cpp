@@ -22,7 +22,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "../cgame/cg_local.h"
+#include <cgame/cg_local.h>
 #include "Q3_Interface.h"
 #include "g_local.h"
 #include "g_functions.h"
@@ -41,7 +41,7 @@ char spawnVarChars[MAX_SPAWN_VARS_CHARS];
 
 int delayedShutDown = 0;
 
-#include "../qcommon/sstring.h"
+#include <qcommon/sstring.h>
 
 // NOTENOTE: Be sure to change the mirrored code in cgmain.cpp
 typedef std::map<sstring_t, unsigned char> namePrecache_m;

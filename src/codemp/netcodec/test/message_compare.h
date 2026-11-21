@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // Field-by-field comparison of messages for the tests: decoded against original (whole state images).
 #pragma once
 
-#include "netcodec/codec.h"
+#include <netcodec/codec.h>
 
 #include <algorithm>
 

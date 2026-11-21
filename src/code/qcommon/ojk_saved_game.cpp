@@ -27,8 +27,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <algorithm>
 #include <memory>
 #include "ojk_saved_game_helper.h"
-#include "qcommon/qcommon.h"
-#include "server/server.h"
+#include "qcommon.h"
+#include <server/server.h>
 
 namespace ojk {
 

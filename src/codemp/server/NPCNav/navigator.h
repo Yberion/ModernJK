@@ -31,12 +31,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <list>
 
-#include "server/server.h"
-#include "qcommon/q_shared.h"
+#include <server/server.h>
+#include <qcommon/q_shared.h>
 
 // Node and edge flags: navNodeFlags_t and navEdgeFlags_t, in qcommon/q_npcflags.h, which the game shares
 
-#include "qcommon/q_npcflags.h"
+#include <shared/qcommon/q_npcflags.h>
 
 // Miscellaneous defines
 inline constexpr int NODE_NONE = -1;

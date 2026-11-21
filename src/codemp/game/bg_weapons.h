@@ -28,7 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //
 // This crosses both client and server.  It could all be crammed into bg_public, but isolation of this type of data is best.
 
-#include "qcommon/q_enum.h"
+#include <shared/qcommon/q_enum.h>
 
 enum class weapon_t {
     WP_NONE,

@@ -25,11 +25,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include "../qcommon/q_shared.h"
-#include "../qcommon/qfiles.h"
-#include "tr_common.h"
-#include "tr_public.h"
-#include "mdx_format.h"
+#include <qcommon/q_shared.h>
+#include <qcommon/qfiles.h>
+#include <rd-common/tr_common.h>
+#include <rd-common/tr_public.h>
+#include <rd-common/mdx_format.h>
 #include "qgl.h"
 
 #define LL(x) x = LittleLong(x)
@@ -166,7 +166,7 @@ enum class shaderSort_t {
     SS_NEAREST // blood blobs
 };
 
-#include "qcommon/q_renderer.h"
+#include <shared/qcommon/q_renderer.h>
 
 enum class genFunc_t {
     GF_NONE,
@@ -335,7 +335,7 @@ typedef struct {
     int videoMapHandle;
 } textureBundle_t;
 
-#include "qcommon/q_glstate.h"
+#include <shared/qcommon/q_glstate.h>
 
 typedef struct {
     bool active;
@@ -641,7 +641,7 @@ BRUSH MODELS
 // in memory representation
 //
 
-#include "qcommon/q_math.h"
+#include <shared/qcommon/q_math.h>
 
 typedef struct msurface_s {
     int viewCount; // if == tr.viewCount, already added

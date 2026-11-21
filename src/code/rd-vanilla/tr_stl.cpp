@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "../server/exe_headers.h"
+#include <server/exe_headers.h>
 
 // Filename:-	tr_stl.cpp
 //
@@ -33,7 +33,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "tr_stl.h"
 
 #include <map>
-#include "../qcommon/sstring.h" // #include <string>
+#include <qcommon/sstring.h> // #include <string>
 
 typedef std::map<sstring_t, const char*> ShaderEntryPtrs_t;
 typedef ShaderEntryPtrs_t::size_type ShaderEntryPtr_size;

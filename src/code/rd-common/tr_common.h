@@ -26,10 +26,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // the engine's headers, which the renderer's need: every single-player file includes them first, and the image files
 // of shared/rd-common include this header only
-#include "../server/exe_headers.h"
+#include <server/exe_headers.h>
 
-#include "../rd-common/tr_public.h"
-#include "../rd-common/tr_font.h"
+#include "tr_public.h"
+#include "tr_font.h"
 
 extern refimport_t ri;
 

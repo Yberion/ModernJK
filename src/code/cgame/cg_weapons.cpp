@@ -26,10 +26,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "cg_media.h"
 #include "FxScheduler.h"
-#include "../game/wp_saber.h"
-#include "../game/g_vehicles.h"
+#include <game/wp_saber.h>
+#include <game/g_vehicles.h>
 
-#include "../game/anims.h"
+#include <game/anims.h>
 
 extern void CG_LightningBolt(centity_t* cent, vec3_t origin);
 

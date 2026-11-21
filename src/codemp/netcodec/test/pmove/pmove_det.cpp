@@ -32,9 +32,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // builds command by command (scripts/pmove_compare.py).
 // Usage: netcodec_pmove_game [--dump=file] [commands]   (same for netcodec_pmove_cgame)
 #if defined(_GAME)
-#include "game/g_local.h"
+#include <game/g_local.h>
 #elif defined(_CGAME)
-#include "cgame/cg_local.h"
+#include <cgame/cg_local.h>
 #else
 #error "build with _GAME or _CGAME"
 #endif

@@ -25,11 +25,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include "qcommon/q_shared.h"
-#include "rd-common/tr_types.h"
+#include <qcommon/q_shared.h>
+#include <rd-common/tr_types.h>
 #include "keycodes.h"
 
-#include "ui/menudef.h"
+#include "menudef.h"
 
 inline constexpr int MAX_MENUDEFFILE = 8192; // 4096
 inline constexpr int MAX_MENUFILE = 65536;   // 32768
@@ -249,7 +249,7 @@ enum class itemCvarFlags_t {
 };
 template <> inline constexpr bool enableEnumFlags<itemCvarFlags_t> = true;
 
-#include "qcommon/q_clientflags.h"
+#include <shared/qcommon/q_clientflags.h>
 
 typedef struct itemDef_s {
     windowDef_t window;         // common positional, border, style, layout info

@@ -24,8 +24,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <cstddef>
 #include <cassert>
 
-#include "qcommon/q_platform.h"
-#include "qcommon/safe/gsl.h"
+#include <shared/qcommon/q_platform.h>
+#include "gsl.h"
 
 /**
 @file RAII C++ bindings for filesystem operations

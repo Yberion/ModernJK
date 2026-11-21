@@ -29,7 +29,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "fnv.h"
 #include "message_compare.h"
 #include "negate_zeros.h"
-#include "netcodec/engine.h"
+#include <netcodec/engine.h>
 
 #include <cinttypes>
 #include <cstdio>

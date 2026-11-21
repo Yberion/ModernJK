@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h>
 
-#include "qcommon/qcommon.h"
+#include "qcommon.h"
 
 vm_t* currentVM = nullptr;
 

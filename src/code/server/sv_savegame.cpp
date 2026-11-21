@@ -23,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // Filename:-	sv_savegame.cpp
 #include <memory>
-#include "../server/exe_headers.h"
+#include "exe_headers.h"
 
 [[maybe_unused]] constexpr int JPEG_IMAGE_QUALITY = 95;
 
@@ -32,15 +32,15 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //	(EF1 behaviour). I should maybe time/date check them though?
 
 #include "server.h"
-#include "../qcommon/stringed_ingame.h"
-#include "../game/statindex.h"
-#include "../game/weapons.h"
-#include "../game/g_items.h"
+#include <qcommon/stringed_ingame.h>
+#include <game/statindex.h>
+#include <game/weapons.h>
+#include <game/g_items.h>
 
 #include <map>
 
-#include "qcommon/ojk_saved_game.h"
-#include "qcommon/ojk_saved_game_helper.h"
+#include <qcommon/ojk_saved_game.h>
+#include <qcommon/ojk_saved_game_helper.h>
 
 static char saveGameComment[iSG_COMMENT_SIZE];
 

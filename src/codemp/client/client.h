@@ -26,14 +26,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // client.h -- primary header for client
 
-#include "qcommon/q_shared.h"
-#include "qcommon/qcommon.h"
-#include "rd-common/tr_public.h"
+#include <qcommon/q_shared.h>
+#include <qcommon/qcommon.h>
+#include <rd-common/tr_public.h>
 #include "keys.h"
 #include "snd_public.h"
-#include "game/bg_public.h"
-#include "cgame/cg_public.h"
-#include "ui/ui_public.h"
+#include <game/bg_public.h>
+#include <cgame/cg_public.h>
+#include <ui/ui_public.h>
 
 inline constexpr int RETRANSMIT_TIMEOUT = 3000; // time between connection packet retransmits
 inline constexpr int CL_PACKET_DUP = 2;         // each packet repeats the usercmds of the 2 previous packets (plan step 11)
@@ -387,7 +387,7 @@ typedef struct clientStatic_s {
 } clientStatic_t;
 
 inline constexpr int CON_TEXTSIZE = 0x30000; // was 32768
-#include "qcommon/q_limits.h"
+#include <shared/qcommon/q_limits.h>
 
 typedef union {
     struct {

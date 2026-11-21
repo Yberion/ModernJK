@@ -23,8 +23,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "g_local.h"
-#include "qcommon/q_shared.h"
-#include "botlib/botlib.h"
+#include <qcommon/q_shared.h>
+#include <botlib/botlib.h>
 #include "ai_main.h"
 
 #ifdef BOT_ZMALLOC

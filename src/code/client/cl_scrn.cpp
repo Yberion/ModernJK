@@ -25,7 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // cl_scrn.c -- master for refresh, status bar, console, chat, notify, etc
 
-#include "../server/exe_headers.h"
+#include <server/exe_headers.h>
 
 #include "client.h"
 #include "client_ui.h"

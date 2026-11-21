@@ -28,16 +28,16 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "client.h"
 
 #include <limits.h>
-#include "ghoul2/G2.h"
-#include "qcommon/cm_public.h"
-#include "qcommon/MiniHeap.h"
-#include "qcommon/stringed_ingame.h"
-#include "qcommon/game_version.h"
+#include <ghoul2/G2.h>
+#include <qcommon/cm_public.h>
+#include <qcommon/MiniHeap.h>
+#include <qcommon/stringed_ingame.h>
+#include <qcommon/game_version.h>
 #include "cl_cgameapi.h"
 #include "cl_uiapi.h"
 #include "cl_lan.h"
 #include "snd_local.h"
-#include "sys/sys_loadlib.h"
+#include <shared/sys/sys_loadlib.h>
 
 cvar_t* cl_renderer;
 

@@ -20,7 +20,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "qcommon/game_version.h"
+#include <qcommon/game_version.h>
 #include "sys_local.h"
 #include <direct.h>
 #include <io.h>

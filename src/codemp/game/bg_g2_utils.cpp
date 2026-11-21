@@ -25,13 +25,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // bg_g2_utils.cpp -- both games misc functions, all completely stateless
 // only in game and cgame, NOT ui
 
-#include "qcommon/q_shared.h"
+#include <qcommon/q_shared.h>
 #include "bg_public.h"
 
 #if defined(_GAME)
 #include "g_local.h"
 #elif defined(_CGAME)
-#include "cgame/cg_local.h"
+#include <cgame/cg_local.h>
 #endif
 
 void BG_AttachToRancor(void* ghoul2, float rancYaw, vec3_t rancOrigin, int time, qhandle_t* modelList, vec3_t modelScale, bool inMouth, vec3_t out_origin,

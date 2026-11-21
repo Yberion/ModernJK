@@ -25,12 +25,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // tr_models.c -- model loading and caching
 
-#include "../server/exe_headers.h"
+#include <server/exe_headers.h>
 
-#include "tr_common.h"
+#include <rd-common/tr_common.h>
 #include "tr_local.h"
-#include "qcommon/matcomp.h"
-#include "../qcommon/sstring.h"
+#include <qcommon/matcomp.h>
+#include <qcommon/sstring.h>
 
 #define LL(x) x = LittleLong(x)
 #define LS(x) x = LittleShort(x)

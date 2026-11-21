@@ -342,7 +342,7 @@ typedef struct modelDef_s {
     float fov_x2, fov_y2, fov_Effectx, fov_Effecty;
 } modelDef_t;
 
-#include "qcommon/q_clientflags.h"
+#include <shared/qcommon/q_clientflags.h>
 
 typedef struct itemDef_s {
     Window window;              // common positional, border, style, layout info

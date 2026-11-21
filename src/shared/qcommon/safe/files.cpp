@@ -23,9 +23,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #if defined(SP_GAME)
 #define GAME_INCLUDE       // so centity_t is defined in g_shared.h (alternatively include g_public.h?)
-#include "game/g_shared.h" // gi
+#include <game/g_shared.h> // gi
 #else
-#include "qcommon/qcommon.h"
+#include <qcommon/qcommon.h>
 #endif
 
 namespace FS {

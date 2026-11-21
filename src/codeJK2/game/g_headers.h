@@ -26,26 +26,18 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define G_HEADERS_H_INC
 
 #if !defined(G_LOCAL_H_INC)
-#include "../game/g_local.h"
+#include "g_local.h"
 #endif
-
-// #if !defined(G_WRAITH_H_INC)
-//	#include "../game/g_Wraith.h"
-// #endif
 
 #if !defined(TEAMS_H_INC)
-#include "../game/teams.h"
+#include "teams.h"
 #endif
 
-// #if !defined(IGINTERFACE_H_INC)
-//	#include "../game/IGInterface.h"
-// #endif
-
-#include "../game/b_local.h"
-#include "../game/g_functions.h"
-#include "../game/g_nav.h"
-#include "../game/g_navigator.h"
-#include "../cgame/cg_camera.h" // Just for AI_Rancor
-#include "../cgame/cg_local.h"  // Evil? Maybe. Necessary? Absolutely.
+#include "b_local.h"
+#include "g_functions.h"
+#include "g_nav.h"
+#include "g_navigator.h"
+#include <cgame/cg_camera.h> // Just for AI_Rancor
+#include <cgame/cg_local.h>  // Evil? Maybe. Necessary? Absolutely.
 
 #endif // G_HEADERS_H_INC

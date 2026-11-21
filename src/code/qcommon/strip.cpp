@@ -23,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #ifdef JK2_MODE
 // this include must remain at the top of every CPP file
-#include "../server/server.h"
+#include <server/server.h>
 #include "q_shared.h"
 #include "qcommon.h"
 #include "stringed_ingame.h"

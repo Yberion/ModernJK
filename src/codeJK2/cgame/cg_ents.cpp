@@ -23,13 +23,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // cg_ents.cpp -- present snapshot entities, happens every single frame
-#include "../game/g_local.h"
+#include <game/g_local.h>
 #include "cg_local.h"
 #include "cg_media.h"
-#include "../game/g_functions.h"
-#include "../../code/ghoul2/G2.h"
+#include <game/g_functions.h>
+#include <code/ghoul2/G2.h>
 #include "FxScheduler.h"
-#include "../game/wp_saber.h"
+#include <game/wp_saber.h>
 
 extern void CG_AddSaberBlade(centity_t* cent, centity_t* scent, refEntity_t* saber, renderFxFlags_t renderfx, int modelIndex, vec3_t origin, vec3_t angles);
 extern void CG_CheckSaberInWater(centity_t* cent, centity_t* scent, int modelIndex, vec3_t origin, vec3_t angles);

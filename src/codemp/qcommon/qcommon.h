@@ -29,8 +29,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <optional>
 
-#include "qcommon/q_shared.h"
-#include "sys/sys_public.h"
+#include "q_shared.h"
+#include <shared/sys/sys_public.h>
 
 //============================================================================
 
@@ -144,7 +144,7 @@ inline constexpr int PACKET_BACKUP = 128; // number of old messages that must be
                                           // message per tick (32 in OpenJK; plan step 14, part 5)
 inline constexpr int PACKET_MASK = PACKET_BACKUP - 1;
 
-#include "qcommon/q_limits.h"
+#include <shared/qcommon/q_limits.h>
 
 // Network settings fixed rather than set by cvars (plan step 11, docs/modernization/surveys/network-settings.md)
 inline constexpr int MAX_PACKET_RATE = 100;   // client packets per second: one per tick (TICK_MSEC); the server decodes no more
@@ -545,7 +545,7 @@ extern cvarFlags_t cvar_modifiedFlags;
 #define Q3CONFIG_CFG PRODUCT_NAME ".cfg"
 #endif
 
-#include "qcommon/files.h"
+#include <shared/qcommon/files.h>
 
 /*
 ==============================================================
@@ -887,4 +887,4 @@ const void* PD_Load(const char* name, size_t* size);
 
 uint32_t ConvertUTF8ToUTF32(char* utf8CurrentChar, char** utf8NextChar);
 
-#include "sys/sys_public.h"
+#include <shared/sys/sys_public.h>

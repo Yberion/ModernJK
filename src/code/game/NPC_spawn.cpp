@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // b_spawn.cpp
 // added by MCG
 
-#include "../cgame/cg_local.h"
+#include <cgame/cg_local.h>
 #include "Q3_Interface.h"
 #include "b_local.h"
 #include "anims.h"

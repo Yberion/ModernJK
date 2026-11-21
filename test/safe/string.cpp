@@ -19,9 +19,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "qcommon/safe/string.h"
+#include <shared/qcommon/safe/string.h>
 
-#include "check.h"
+#include <check.h>
 
 namespace string_tests {
 

@@ -162,7 +162,7 @@ typedef struct {
 void PM_UpdateViewAngles(playerState_t* ps, usercmd_t* cmd, gentity_t* gent);
 void Pmove(pmove_t* pmove);
 
-#include "qcommon/q_animflags.h"
+#include <shared/qcommon/q_animflags.h>
 
 void PM_SetAnim(pmove_t* pm, setAnimParts_t setAnimParts, animNumber_t anim, setAnimFlags_t setAnimFlags, int blendTime = 100);
 void PM_SetAnimFinal(animNumber_t* torsoAnim, animNumber_t* legsAnim, setAnimParts_t type, animNumber_t anim, setAnimFlags_t priority, int* torsoAnimTimer,

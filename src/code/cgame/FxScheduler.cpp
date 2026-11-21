@@ -28,20 +28,20 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #endif
 
 #if !defined(GHOUL2_SHARED_H_INC)
-#include "../game/ghoul2_shared.h" //for CGhoul2Info_v
+#include <game/ghoul2_shared.h> //for CGhoul2Info_v
 #endif
 
 #if !defined(G2_H_INC)
-#include "../ghoul2/G2.h"
+#include <ghoul2/G2.h>
 #endif
 
 #if !defined(__Q_SHARED_H)
-#include "../qcommon/q_shared.h"
+#include <qcommon/q_shared.h>
 #endif
 
-#include "qcommon/safe/string.h"
+#include <shared/qcommon/safe/string.h>
 #include <cmath>
-#include "qcommon/ojk_saved_game_helper.h"
+#include <qcommon/ojk_saved_game_helper.h>
 
 CFxScheduler theFxScheduler;
 

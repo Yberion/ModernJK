@@ -25,15 +25,15 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // cl_main.c  -- client main loop
 
-#include "../server/exe_headers.h"
+#include <server/exe_headers.h>
 
 #include "client.h"
 #include "client_ui.h"
 #include <limits.h>
-#include "../ghoul2/G2.h"
-#include "qcommon/stringed_ingame.h"
-#include "sys/sys_loadlib.h"
-#include "qcommon/ojk_saved_game.h"
+#include <ghoul2/G2.h>
+#include <qcommon/stringed_ingame.h>
+#include <shared/sys/sys_loadlib.h>
+#include <qcommon/ojk_saved_game.h>
 
 constexpr int RETRANSMIT_TIMEOUT = 3000; // time between connection packet retransmits
 

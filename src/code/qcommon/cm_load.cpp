@@ -25,8 +25,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // cmodel.c -- model loading
 
 #include "cm_local.h"
-#include "qcommon/ojk_saved_game.h"
-#include "qcommon/ojk_saved_game_helper.h"
+#include "ojk_saved_game.h"
+#include "ojk_saved_game_helper.h"
 
 #ifdef BSPC
 void SetPlaneSignbits(cplane_t* out)

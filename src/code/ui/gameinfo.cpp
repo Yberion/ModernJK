@@ -28,7 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // *** This file is used by both the game and the user interface ***
 
 #include "gameinfo.h"
-#include "../game/weapons.h"
+#include <code/game/weapons.h>
 
 #if !defined(JK2_MODE) || !defined(SP_GAME) // Jedi Outcast's game defines its own (codeJK2/game/g_weaponLoad.cpp)
 EnumArray<weaponData_t, weapon_t, weapon_t::WP_NUM_WEAPONS> weaponData;

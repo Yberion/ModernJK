@@ -19,9 +19,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // The engine's interface (engine.h) over the codec's views (codec.h).
-#include "netcodec/engine.h"
+#include <netcodec/engine.h>
 
-#include "netcodec/codec.h"
+#include <netcodec/codec.h>
 
 #include <algorithm>
 #include <cstring>

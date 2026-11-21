@@ -21,16 +21,16 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "../server/exe_headers.h"
+#include <server/exe_headers.h>
 
 #include <list>
 #include <string>
 
-#include "../qcommon/q_shared.h"
+#include <qcommon/q_shared.h>
 #include "tr_local.h"
-#include "tr_common.h"
-#include "../ghoul2/G2.h"
-#include "../qcommon/MiniHeap.h"
+#include <rd-common/tr_common.h>
+#include <ghoul2/G2.h>
+#include <qcommon/MiniHeap.h>
 
 #ifdef FINAL_BUILD
 #define G2API_DEBUG (0) // please don't change this
@@ -43,7 +43,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #endif
 
 // rww - RAGDOLL_BEGIN
-#include "../ghoul2/ghoul2_gore.h"
+#include <ghoul2/ghoul2_gore.h>
 // rww - RAGDOLL_END
 
 extern mdxaBone_t worldMatrix;
@@ -233,7 +233,7 @@ public:
     }
 };
 
-#include "assert.h"
+#include <assert.h>
 ErrorReporter& G2APIError()
 {
     static ErrorReporter singleton("G2API");

@@ -31,7 +31,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "client_trace.h"
 #include "fnv.h"
 
-#include "netcodec/engine.h"
+#include <netcodec/engine.h>
 
 #include <array>
 #include <cinttypes>

@@ -23,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // NPC_sounds.cpp
 #include "b_local.h"
-#include "icarus/Q3_Interface.h"
+#include <icarus/Q3_Interface.h>
 
 /*
 void NPC_AngerSound (void)

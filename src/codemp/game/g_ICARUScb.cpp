@@ -27,17 +27,17 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //
 //====================================================================================
 
-#include "qcommon/q_shared.h"
+#include <qcommon/q_shared.h>
 #include "bg_public.h"
 #include "b_local.h"
-#include "icarus/Q3_Interface.h"
-#include "icarus/Q3_Registers.h"
+#include <icarus/Q3_Interface.h>
+#include <icarus/Q3_Registers.h>
 #include "g_nav.h"
 
 bool BG_SabersOff(playerState_t* ps);
 extern stringID_table_t BSTable[];
 
-#include "icarus/interpreter.h"
+#include <icarus/interpreter.h>
 
 stringID_table_t setTable[] = {
     ENUM2STRING(setType_t, SET_SPAWNSCRIPT), // 0

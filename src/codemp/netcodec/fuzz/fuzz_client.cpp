@@ -29,7 +29,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // fuzz from them, then -merge=1 into an emptied fuzz/corpus_client).
 // Run: netcodec_fuzz_client -max_len=4096 -timeout=10 -rss_limit_mb=2048 -max_total_time=<s> <work dir> fuzz/corpus_client
 // (new inputs go to the first directory, so keep the committed corpus second)
-#include "client_synthetic.h"
+#include <client_synthetic.h>
 
 #include <cstdio>
 #include <cstdlib>

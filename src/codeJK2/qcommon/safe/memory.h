@@ -21,11 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#ifdef _JK2EXE
-#include "qcommon/qcommon.h"
-#else
-#include "game/g_shared.h"
-#endif
+#include <game/g_shared.h>
 
 #include <type_traits>
 #include <memory>

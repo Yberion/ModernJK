@@ -23,13 +23,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // Anything above this #include will be ignored by the compiler
 
 #include "server.h"
-#include "botlib/botlib.h"
-#include "qcommon/stringed_ingame.h"
-#include "qcommon/RoffSystem.h"
-#include "ghoul2/ghoul2_shared.h"
-#include "qcommon/cm_public.h"
-#include "icarus/GameInterface.h"
-#include "qcommon/timing.h"
+#include <botlib/botlib.h>
+#include <qcommon/stringed_ingame.h>
+#include <qcommon/RoffSystem.h>
+#include <ghoul2/ghoul2_shared.h>
+#include <qcommon/cm_public.h>
+#include <icarus/GameInterface.h>
+#include <qcommon/timing.h>
 #include "NPCNav/navigator.h"
 
 botlib_export_t* botlib_export;

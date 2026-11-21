@@ -27,10 +27,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "tr_local.h"
 
 #include <algorithm>
-#include "../rd-common/tr_common.h"
+#include <rd-common/tr_common.h>
 #include "tr_WorldEffects.h"
-#include "qcommon/MiniHeap.h"
-#include "ghoul2/g2_local.h"
+#include <qcommon/MiniHeap.h>
+#include <ghoul2/g2_local.h>
 
 glconfig_t glConfig;
 glconfigExt_t glConfigExt;

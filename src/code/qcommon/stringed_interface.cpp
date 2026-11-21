@@ -33,7 +33,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////
 //
 // stuff common to all qcommon files...
-#include "../server/server.h"
+#include <server/server.h>
 #include "q_shared.h"
 #include "qcommon.h"
 //
@@ -43,12 +43,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "stringed_ingame.h"
 
 #include <string>
-
-#ifdef _STRINGED
-#include <stdlib.h>
-#include <memory.h>
-#include "generic.h"
-#endif
 
 // this just gets the binary of the file into memory, so I can parse it. Called by main SGE loader
 //

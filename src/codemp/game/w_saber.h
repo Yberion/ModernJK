@@ -25,7 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 inline constexpr int ARMOR_EFFECT_TIME = 500;
 
-#include "qcommon/q_saberflags.h"
+#include <shared/qcommon/q_saberflags.h>
 // saberEntityState
 inline constexpr int SES_LEAVING = 1;
 inline constexpr int SES_RETURNING = 1; // 3

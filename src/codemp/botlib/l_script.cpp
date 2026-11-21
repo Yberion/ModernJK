@@ -53,7 +53,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #ifdef BOTLIB
 // include files for usage in the bot library
-#include "qcommon/q_shared.h"
+#include <qcommon/q_shared.h>
 #include "botlib.h"
 #include "be_interface.h"
 #include "l_script.h"
@@ -61,23 +61,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "l_log.h"
 #include "l_libvar.h"
 #endif // BOTLIB
-
-#ifdef MEQCC
-// include files for usage in MrElusive's QuakeC Compiler
-#include "qcc.h"
-#include "l_script.h"
-#include "l_memory.h"
-#include "l_log.h"
-
-#endif // MEQCC
-
-#ifdef BSPC
-// include files for usage in the BSP Converter
-#include "../bspc/qbsp.h"
-#include "../bspc/l_log.h"
-#include "../bspc/l_mem.h"
-
-#endif // BSPC
 
 #define PUNCTABLE
 

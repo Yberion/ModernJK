@@ -6,10 +6,10 @@
 export PATH="/c/Logiciels/llvm-mingw-20261104-ucrt-x86_64/bin:$PATH"
 R="$(cd "$(dirname "$0")/../../../.." && pwd -W 2>/dev/null || pwd)"
 T=$(mktemp -d)
-printf '#include "qcommon/q_shared.h"\nint size = sizeof( playerState_t );\n' > "$T/ps.c"
+printf '#include <qcommon/q_shared.h>\nint size = sizeof(playerState_t);\n' > "$T/ps.cpp"
 # the dump: "<offset> | <two spaces per depth><type> <name>", a nested struct followed by its members; a field's words are
 # those up to the next line's offset
-clang -x c -fsyntax-only -Xclang -fdump-record-layouts -I "$R/src/codemp" -I "$R/src/shared" "$T/ps.c" 2> "$T/err.txt" |
+clang++ -x c++ -std=c++23 -fsyntax-only -Xclang -fdump-record-layouts -I "$R/src/codemp" -I "$R/src" "$T/ps.cpp" 2> "$T/err.txt" |
 	awk '/^ *0 \| struct playerState_s$/ { on = 1; next }
 	     on && /\[sizeof=/ { sub(/.*sizeof=/, ""); sub(/,.*/, ""); off[++n] = $0; exit }
 	     on && / \| / {

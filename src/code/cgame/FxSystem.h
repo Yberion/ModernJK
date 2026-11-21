@@ -28,7 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifndef FX_SYSTEM_H_INC
 #define FX_SYSTEM_H_INC
 
-#include "qcommon/safe/gsl.h"
+#include <shared/qcommon/safe/gsl.h>
 
 #define irand Q_irand
 #define flrand Q_flrand

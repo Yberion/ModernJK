@@ -23,8 +23,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include "qcommon/q_shared.h" //needs to be in here for entityState_t
-#include "server/server.h"
+#include "q_shared.h" //needs to be in here for entityState_t
+#include <server/server.h>
 
 #include <vector>
 #include <map>

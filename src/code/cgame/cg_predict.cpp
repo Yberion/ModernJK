@@ -31,7 +31,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "cg_media.h"
 
-#include "../game/g_vehicles.h"
+#include <game/g_vehicles.h>
 
 static pmove_t cg_pmove;
 

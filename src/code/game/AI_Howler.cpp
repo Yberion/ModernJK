@@ -22,7 +22,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "b_local.h"
-#include "../cgame/cg_camera.h"
+#include <cgame/cg_camera.h>
 
 // These define the working combat range for these suckers
 constexpr int MIN_DISTANCE = 54;

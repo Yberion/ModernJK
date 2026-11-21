@@ -29,7 +29,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_functions.h"
 #include "anims.h"
 #include "objectives.h"
-#include "../cgame/cg_local.h"
+#include <cgame/cg_local.h>
 #include "wp_saber.h"
 #include "g_vehicles.h"
 #include "Q3_Interface.h"

@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // snd_mix.c -- portable code to mix sounds for snd_dma.c
 
-#include "../server/exe_headers.h"
+#include <server/exe_headers.h>
 
 #include "snd_local.h"
 

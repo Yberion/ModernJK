@@ -22,8 +22,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "b_local.h"
-#include "../cgame/cg_camera.h"
-#include "../cgame/cg_local.h"
+#include <cgame/cg_camera.h>
+#include <cgame/cg_local.h>
 #include "g_functions.h"
 
 extern void G_Knockdown(gentity_t* self, gentity_t* attacker, const vec3_t pushDir, float strength, bool breakSaberLock);

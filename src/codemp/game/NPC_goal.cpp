@@ -23,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // b_goal.cpp
 #include "b_local.h"
-#include "icarus/Q3_Interface.h"
+#include <icarus/Q3_Interface.h>
 
 extern bool FlyingCreature(gentity_t* ent);
 /*

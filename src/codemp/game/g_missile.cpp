@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "g_local.h"
 #include "w_saber.h"
-#include "qcommon/q_shared.h"
+#include <qcommon/q_shared.h>
 
 [[maybe_unused]] constexpr int MISSILE_PRESTEP_TIME = 50;
 

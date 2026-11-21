@@ -22,7 +22,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "../server/exe_headers.h"
+#include <server/exe_headers.h>
 
 #include "ui_local.h"
 

@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifndef OJK_SAVED_GAME_CLASS_ARCHIVERS_INCLUDED
 #define OJK_SAVED_GAME_CLASS_ARCHIVERS_INCLUDED
 
-#include "qcommon/q_math.h"
+#include <shared/qcommon/q_math.h>
 #include "ojk_saved_game_helper_fwd.h"
 
 namespace ojk {

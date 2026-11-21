@@ -27,8 +27,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // coded against.
 
 #include "server.h"
-#include "netcodec/engine.h"
-#include "qcommon/demo_record.h"
+#include <netcodec/engine.h>
+#include <qcommon/demo_record.h>
 
 #include <algorithm>
 #include <cstddef>

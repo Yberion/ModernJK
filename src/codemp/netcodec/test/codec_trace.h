@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // Reader of the message-codec golden trace written by docs/modernization/tools/python/export_codec_trace.py.
 #pragma once
 
-#include "netcodec/codec.h"
+#include <netcodec/codec.h>
 #include "storage.h"
 
 #include <cstdio>

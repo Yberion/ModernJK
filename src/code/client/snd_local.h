@@ -27,16 +27,16 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifndef SND_LOCAL_H
 #define SND_LOCAL_H
 
-#include "../qcommon/q_shared.h"
-#include "../qcommon/qcommon.h"
+#include <qcommon/q_shared.h>
+#include <qcommon/qcommon.h>
 #include "snd_public.h"
-#include "../mp3code/mp3struct.h"
+#include <mp3code/mp3struct.h>
 
 // from SND_AMBIENT
 extern void AS_Init(void);
 extern void AS_Free(void);
 
-#include "qcommon/q_sound.h"
+#include <shared/qcommon/q_sound.h>
 
 // !!! if this is changed, the asm code must change !!!
 typedef struct {

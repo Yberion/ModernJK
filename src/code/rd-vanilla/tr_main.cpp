@@ -25,12 +25,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // tr_main.c -- main control flow for each frame
 
-#include "../server/exe_headers.h"
+#include <server/exe_headers.h>
 
 #include "tr_local.h"
 
 #if !defined(G2_H_INC)
-#include "../ghoul2/G2.h"
+#include <ghoul2/G2.h>
 #endif
 
 trGlobals_t tr;

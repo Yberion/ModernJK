@@ -25,7 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "g_headers.h"
 
-#include "../icarus/instance.h"
+#include <icarus/instance.h>
 #include "g_local.h"
 #include "Q3_Interface.h"
 #include "g_roff.h"

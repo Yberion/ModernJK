@@ -28,8 +28,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // take non-const pointers but do not modify their sources, hence the const_casts.
 #include "legacy_codec.h"
 
-#include "qcommon/q_shared.h"
-#include "qcommon/qcommon.h"
+#include <qcommon/q_shared.h>
+#include <qcommon/qcommon.h>
 
 #include <cstring>
 

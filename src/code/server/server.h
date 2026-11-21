@@ -24,10 +24,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // server.h
 
-#include "../qcommon/q_shared.h"
-#include "../qcommon/qcommon.h"
-#include "../game/g_public.h"
-#include "../game/bg_public.h"
+#include <qcommon/q_shared.h>
+#include <qcommon/qcommon.h>
+#include <game/g_public.h>
+#include <game/bg_public.h>
 
 #ifndef SERVER_H
 #define SERVER_H
@@ -40,7 +40,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // I'm including it here instead so we can have our PERS_SCORE value. And have
 // it be the proper enum value.
 
-#include "qcommon/q_limits.h"
+#include <shared/qcommon/q_limits.h>
 
 typedef struct svEntity_s {
     struct worldSector_s* worldSector;

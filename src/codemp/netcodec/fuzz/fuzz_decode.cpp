@@ -28,7 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // against the state, then exits; fuzz from them, then -merge=1 into an emptied fuzz/corpus).
 // Run: netcodec_fuzz_decode -max_len=65536 -timeout=10 -rss_limit_mb=2048 -max_total_time=<s> <work dir> fuzz/corpus
 // (new inputs go to the first directory, so keep the committed corpus second)
-#include "synthetic.h"
+#include <synthetic.h>
 
 #include <cstdio>
 #include <cstdlib>

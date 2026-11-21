@@ -29,10 +29,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // q_shared.h -- included first by ALL program modules.
 // A user mod should never modify this file
 
-#include "qcommon/q_enum.h"
-#include "qcommon/q_math.h"
-#include "qcommon/q_color.h"
-#include "qcommon/q_string.h"
+#include <shared/qcommon/q_enum.h>
+#include <shared/qcommon/q_math.h>
+#include <shared/qcommon/q_color.h>
+#include <shared/qcommon/q_string.h>
 
 #ifdef _MSC_VER
 
@@ -142,7 +142,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define Q_EXPORT
 #endif
 
-#include "qcommon/q_platform.h"
+#include <shared/qcommon/q_platform.h>
 #include "ojk_saved_game_helper_fwd.h"
 
 // ================================================================
@@ -173,7 +173,7 @@ inline constexpr qhandle_t NULL_HANDLE = 0;
 
 // the game guarantees that no string from the network will ever
 // exceed MAX_STRING_CHARS
-#include "qcommon/q_limits.h"
+#include <shared/qcommon/q_limits.h>
 
 inline constexpr int MAX_QPATH = 64; // max length of a quake game pathname
 #ifdef PATH_MAX
@@ -222,7 +222,7 @@ inline constexpr int BLINK_DIVISOR = 600;
 #define Com_Memset memset
 #define Com_Memcpy memcpy
 
-#include "qcommon/q_clientflags.h"
+#include <shared/qcommon/q_clientflags.h>
 
 // all drawing is done to a 640*480 virtual screen size
 // and will be automatically scaled to the real resolution
@@ -409,14 +409,14 @@ COLLISION DETECTION
 ==============================================================
 */
 
-#include "../game/surfaceflags.h" // shared with the q3map utility
+#include <code/game/surfaceflags.h> // shared with the q3map utility
 
 /*
 Ghoul2 Insert Start
 */
 
 #if !defined(GHOUL2_SHARED_H_INC)
-#include "../game/ghoul2_shared.h" //for CGhoul2Info_v
+#include <code/game/ghoul2_shared.h> //for CGhoul2Info_v
 #endif
 
 /*
@@ -496,7 +496,7 @@ template <> inline constexpr bool enableEnumFlags<keyCatchFlags_t> = true;
 // sound channels
 // channel 0 never willingly overrides
 // other channels will allways override a playing sound on that channel
-#include "../game/channels.h"
+#include <code/game/channels.h>
 
 /*
 ========================================================================
@@ -654,7 +654,7 @@ enum class forcePowers_t {
 template <> inline constexpr bool enableEnumArithmetic<forcePowers_t> = true;
 
 // the same set in both single-player games, so the engine (the UI, force sight) names the levels too
-#include "qcommon/q_forcelevels.h"
+#include <shared/qcommon/q_forcelevels.h>
 
 enum class saberType_t {
     SABER_NONE = 0,
@@ -793,7 +793,7 @@ inline constexpr int MAX_BLADES = 8;
 enum class saber_styles_t { SS_NONE = 0, SS_FAST, SS_MEDIUM, SS_STRONG, SS_DESANN, SS_TAVION, SS_DUAL, SS_STAFF, SS_NUM_SABER_STYLES };
 template <> inline constexpr bool enableEnumArithmetic<saber_styles_t> = true;
 
-#include "qcommon/q_saberflags.h"
+#include <shared/qcommon/q_saberflags.h>
 
 // !!!!!!!!!!!! loadsave affecting struct !!!!!!!!!!!!!!!!!!!!!!!!!!
 enum class saberMoveName_t; // wp_saber.h
@@ -2494,7 +2494,7 @@ enum class e_status {
 //
 #define TAGDEF(blah) TAG_##blah
 enum class memtag {
-#include "../qcommon/tags.h"
+#include "tags.h"
 };
 template <> inline constexpr bool enableEnumArithmetic<memtag> = true;
 typedef memtag memtag_t;

@@ -29,7 +29,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  *
  *****************************************************************************/
-#include "sdl/sdl_sound.h"
+#include <shared/sdl/sdl_sound.h>
 #include "snd_local.h"
 #include "snd_mp3.h"
 #include "snd_music.h"

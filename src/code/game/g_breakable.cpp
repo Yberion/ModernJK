@@ -23,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "g_local.h"
 #include "g_functions.h"
-#include "../cgame/cg_media.h"
+#include <cgame/cg_media.h>
 #include "g_navigator.h"
 
 // client side shortcut hacks from cg_local.h
@@ -672,7 +672,7 @@ void misc_model_use(gentity_t* self, gentity_t* other, gentity_t* activator)
     misc_model_breakable_die(self, other, activator, self->health, meansOfDeath_t::MOD_UNKNOWN);
 }
 
-#include "qcommon/q_spsets.h"
+#include <shared/qcommon/q_spsets.h>
 
 void misc_model_breakable_init(gentity_t* ent)
 {

@@ -29,36 +29,20 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #endif
 #endif
 
-#ifdef _JK2MP
-#include "../qcommon/q_shared.h"
-#include "bg_public.h"
-#include "bg_vehicles.h"
-#include "bg_weapons.h"
-
-// Could use strap stuff but I don't particularly care at the moment anyway.
-#include "../namespace_begin.h"
-extern int trap_FS_FOpenFile(const char* qpath, fileHandle_t* f, fsMode_t mode);
-extern void trap_FS_Read(void* buffer, int len, fileHandle_t f);
-extern void trap_FS_Write(const void* buffer, int len, fileHandle_t f);
-extern void trap_FS_FCloseFile(fileHandle_t f);
-extern int trap_FS_GetFileList(const char* path, const char* extension, char* listbuf, int bufsize);
-#include "../namespace_end.h"
-#else
 #include "g_local.h"
 #define QAGAME
-#endif
 
 #ifdef _JK2MP
 #ifndef QAGAME
 #ifndef CGAME
 #define WE_ARE_IN_THE_UI
-#include "../ui/ui_local.h"
+#include <ui/ui_local.h>
 #endif
 #endif
 #endif
 
 #ifndef _JK2MP
-#include "../Ratl/string_vs.h"
+#include <Ratl/string_vs.h>
 #endif
 
 #ifdef QAGAME
@@ -68,23 +52,6 @@ extern int G_SoundIndex(const char* name);
 #ifdef _JK2MP
 extern int G_EffectIndex(const char* name);
 #endif
-#elif defined CGAME
-#include "../namespace_begin.h"
-extern qhandle_t trap_R_RegisterModel(const char* name); // returns rgb axis if not found
-extern qhandle_t trap_R_RegisterSkin(const char* name);  // returns all white if not found
-extern qhandle_t trap_R_RegisterShader(const char* name);
-extern qhandle_t trap_R_RegisterShaderNoMip(const char* name);
-extern int trap_FX_RegisterEffect(const char* file);
-extern sfxHandle_t trap_S_RegisterSound(const char* sample); // returns buzz if not found
-#include "../namespace_end.h"
-#else // UI
-#include "../namespace_begin.h"
-extern qhandle_t trap_R_RegisterModel(const char* name);       // returns rgb axis if not found
-extern qhandle_t trap_R_RegisterSkin(const char* name);        // returns all white if not found
-extern qhandle_t trap_R_RegisterShader(const char* name);      // returns all white if not found
-extern qhandle_t trap_R_RegisterShaderNoMip(const char* name); // returns all white if not found
-extern sfxHandle_t trap_S_RegisterSound(const char* sample);   // returns buzz if not found
-#include "../namespace_end.h"
 #endif
 
 // These buffers are filled in with the same contents and then just read from in
@@ -106,10 +73,6 @@ void BG_ClearVehicleParseParms(void)
 #else
 extern char VehWeaponParms[MAX_VEH_WEAPON_DATA_SIZE];
 extern char VehicleParms[MAX_VEHICLE_DATA_SIZE];
-#endif
-
-#ifdef _JK2MP
-#include "../namespace_begin.h"
 #endif
 
 #ifndef WE_ARE_IN_THE_UI
@@ -1573,37 +1536,3 @@ void BG_GetVehicleSkinName(char* skinname)
         strcpy(skinname, g_vehicleInfo[vIndex].skin);
     }
 }
-
-#ifdef _JK2MP
-#ifndef WE_ARE_IN_THE_UI
-// so cgame can assign the function pointer for the vehicle attachment without having to
-// bother with all the other funcs that don't really exist cgame-side.
-extern int BG_GetTime(void);
-extern int trap_G2API_AddBolt(void* ghoul2, int modelIndex, const char* boneName);
-extern bool trap_G2API_GetBoltMatrix(void* ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t* matrix, const vec3_t angles, const vec3_t position,
-                                     const int frameNum, qhandle_t* modelList, vec3_t scale);
-void AttachRidersGeneric(Vehicle_t* pVeh)
-{
-    // If we have a pilot, attach him to the driver tag.
-    if (pVeh->m_pPilot) {
-        mdxaBone_t boltMatrix;
-        vec3_t yawOnlyAngles;
-        bgEntity_t* parent = pVeh->m_pParentEntity;
-        bgEntity_t* pilot = pVeh->m_pPilot;
-        int crotchBolt = trap_G2API_AddBolt(parent->ghoul2, 0, "*driver");
-
-        assert(parent->playerState);
-
-        VectorSet(yawOnlyAngles, 0, parent->playerState->viewangles[YAW], 0);
-
-        // Get the driver tag.
-        trap_G2API_GetBoltMatrix(parent->ghoul2, 0, crotchBolt, &boltMatrix, yawOnlyAngles, parent->playerState->origin, BG_GetTime(), nullptr,
-                                 parent->modelScale);
-        BG_GiveMeVectorFromMatrix(&boltMatrix, Eorientations::ORIGIN, pilot->playerState->origin);
-    }
-}
-#endif
-
-#include "../namespace_end.h"
-
-#endif // _JK2MP

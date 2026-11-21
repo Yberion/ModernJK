@@ -34,8 +34,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "demo_trace.h"
 #include "message_compare.h"
-#include "numeric.h"
-#include "schema.h"
+#include <numeric.h>
+#include <schema.h>
 #include "storage.h"
 
 #include <algorithm>

@@ -31,31 +31,31 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wvolatile"
 #endif
-#include "shared/math/acos.h"
-#include "shared/math/acosf.h"
-#include "shared/math/asin.h"
-#include "shared/math/asinf.h"
-#include "shared/math/atan.h"
-#include "shared/math/atan2.h"
-#include "shared/math/atan2f.h"
-#include "shared/math/atanf.h"
-#include "shared/math/cos.h"
-#include "shared/math/cosf.h"
-#include "shared/math/cospif.h"
-#include "shared/math/log.h"
-#include "shared/math/log2.h"
-#include "shared/math/log2f.h"
-#include "shared/math/logf.h"
-#include "shared/math/pow.h"
-#include "shared/math/powf.h"
-#include "shared/math/rsqrtf.h"
-#include "shared/math/sin.h"
-#include "shared/math/sinf.h"
-#include "shared/math/sinpif.h"
-#include "shared/math/tan.h"
-#include "shared/math/tanf.h"
-#include "shared/math/tanpif.h"
-#include "src/__support/str_to_float.h"
+#include <shared/math/acos.h>
+#include <shared/math/acosf.h>
+#include <shared/math/asin.h>
+#include <shared/math/asinf.h>
+#include <shared/math/atan.h>
+#include <shared/math/atan2.h>
+#include <shared/math/atan2f.h>
+#include <shared/math/atanf.h>
+#include <shared/math/cos.h>
+#include <shared/math/cosf.h>
+#include <shared/math/cospif.h>
+#include <shared/math/log.h>
+#include <shared/math/log2.h>
+#include <shared/math/log2f.h>
+#include <shared/math/logf.h>
+#include <shared/math/pow.h>
+#include <shared/math/powf.h>
+#include <shared/math/rsqrtf.h>
+#include <shared/math/sin.h>
+#include <shared/math/sinf.h>
+#include <shared/math/sinpif.h>
+#include <shared/math/tan.h>
+#include <shared/math/tanf.h>
+#include <shared/math/tanpif.h>
+#include <src/__support/str_to_float.h>
 #if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic pop
 #endif

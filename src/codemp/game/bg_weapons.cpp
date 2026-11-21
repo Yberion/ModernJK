@@ -23,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // bg_weapons.cpp -- part of bg_pmove functionality
 
-#include "qcommon/q_shared.h"
+#include <qcommon/q_shared.h>
 #include "bg_public.h"
 #include "bg_local.h"
 

@@ -23,9 +23,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "qcommon/q_shared.h"
-#include "qcommon/qcommon.h"
-#include "server/server.h"
+#include "q_shared.h"
+#include "qcommon.h"
+#include <server/server.h>
 
 // #define _NEWHUFFTABLE_		// Build "c:\\netchan.bin"
 // #define _USINGNEWHUFFTABLE_		// Build a new frequency table to cut and paste.

@@ -22,7 +22,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "qcommon/qcommon.h"
+#include <qcommon/qcommon.h>
 
 cvar_t* cl_shownet;
 

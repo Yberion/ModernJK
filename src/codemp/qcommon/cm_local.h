@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "cm_polylib.h"
 #include "cm_public.h"
-#include "qcommon/qcommon.h"
+#include "qcommon.h"
 
 inline constexpr int MAX_SUBMODELS = 512;
 inline constexpr int BOX_MODEL_HANDLE = MAX_SUBMODELS - 1;
@@ -148,7 +148,7 @@ typedef struct clipMap_s {
 
 // keep 1/8 unit away to keep the position valid before network snapping
 // and to avoid various numeric issues
-#include "qcommon/q_collision.h"
+#include <shared/qcommon/q_collision.h>
 
 extern clipMap_t cmg; // rwwRMG - changed from cm
 extern int c_pointcontents;

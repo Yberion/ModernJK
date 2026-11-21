@@ -21,10 +21,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "qcommon/matcomp.h"
+#include <qcommon/matcomp.h>
 
-#include "ghoul2/G2.h"
-#include "ghoul2/g2_local.h"
+#include <ghoul2/G2.h>
+#include <ghoul2/g2_local.h>
 
 // rww - RAGDOLL_BEGIN
 #ifndef __linux__
@@ -32,12 +32,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #else
 #include <math.h>
 #endif
-#include "ghoul2/G2_gore.h"
+#include <ghoul2/G2_gore.h>
 #include "tr_local.h"
 
 // #define RAG_TRACE_DEBUG_LINES
 
-#include "client/client.h" //while this is all "shared" code, there are some places where we want to make cgame callbacks (for ragdoll) only if the cgvm exists
+#include <client/client.h> //while this is all "shared" code, there are some places where we want to make cgame callbacks (for ragdoll) only if the cgvm exists
 // rww - RAGDOLL_END
 
 //=====================================================================================================================

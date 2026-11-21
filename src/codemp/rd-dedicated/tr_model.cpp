@@ -25,8 +25,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // tr_models.c -- model loading and caching
 
 #include "tr_local.h"
-#include "qcommon/disablewarnings.h"
-#include "qcommon/sstring.h" // #include <string>
+#include <qcommon/disablewarnings.h>
+#include <qcommon/sstring.h> // #include <string>
 
 #include <vector>
 #include <map>

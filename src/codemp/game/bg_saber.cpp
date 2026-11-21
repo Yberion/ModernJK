@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <iterator>
 
-#include "qcommon/q_shared.h"
+#include <qcommon/q_shared.h>
 #include "bg_public.h"
 #include "bg_local.h"
 #include "w_saber.h"
@@ -32,7 +32,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #if defined(_GAME)
 #include "g_local.h" // for cvars
 #elif defined(_CGAME)
-#include "cgame/cg_local.h" // for configstrings
+#include <cgame/cg_local.h> // for configstrings
 #endif
 
 extern bool BG_SabersOff(playerState_t* ps);
@@ -1030,7 +1030,7 @@ std::optional<animNumber_t> PM_SaberLockWinAnim(bool victory, bool superBreak)
 extern void NPC_SetAnim(gentity_t* ent, setAnimParts_t setAnimParts, animNumber_t anim, setAnimFlags_t setAnimFlags);
 extern gentity_t g_entities[];
 #elif defined(_CGAME)
-#include "cgame/cg_local.h" //ahahahahhahahaha@$!$!
+#include <cgame/cg_local.h> //ahahahahhahahaha@$!$!
 #endif
 
 std::optional<animNumber_t> PM_SaberLockLoseAnim(playerState_t* genemy, bool victory, bool superBreak)

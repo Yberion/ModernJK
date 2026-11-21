@@ -36,9 +36,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "tr_local.h"
 #include "tr_WorldEffects.h"
 
-#include "Ravl/CVec.h"
-#include "Ratl/vector_vs.h"
-#include "Ratl/bits_vs.h"
+#include <Ravl/CVec.h>
+#include <Ratl/vector_vs.h>
+#include <Ratl/bits_vs.h>
 
 #include "glext.h"
 

@@ -25,8 +25,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // With a third trace (for example holdout.bin), also reports the cost of that trace's symbols with the trained
 // tables (symbols and raw bits) by family of contexts and by kind of field value, and the size of the trained tables.
 // Usage: netcodec_train <train.bin> <jka_tables.inc> [report.bin]
-#include "contexts.h"
-#include "demo_trace.h"
+#include <contexts.h>
+#include <demo_trace.h>
 #include "write_tables.h"
 
 #include <algorithm>

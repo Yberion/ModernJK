@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // cl_parse.c  -- parse a message received from the server
 
-#include "../server/exe_headers.h"
+#include <server/exe_headers.h>
 
 #include "client.h"
 #include "client_ui.h"

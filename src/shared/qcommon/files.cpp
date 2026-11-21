@@ -33,15 +33,15 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // One file system for the multiplayer and the single-player engines. What differs between them is in each engine's
 // qcommon/files_engine.h; the single-player engine has no pure server and no download, whose code here is idle in it.
-#include "qcommon/qcommon.h"
-#include "qcommon/files_engine.h"
+#include <qcommon/qcommon.h>
+#include <qcommon/files_engine.h>
 
 #ifndef DEDICATED
 #ifndef FINAL_BUILD
-#include "client/client.h"
+#include <client/client.h>
 #endif
 #endif
-#include "qcommon/q_pk3.h"
+#include "q_pk3.h"
 
 #if defined(_WIN32)
 #include <windows.h>

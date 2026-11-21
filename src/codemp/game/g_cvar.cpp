@@ -26,8 +26,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "bg_public.h"
 #include "g_local.h"
-#include "game/bg_public.h"
-#include "qcommon/game_version.h"
+#include "bg_public.h"
+#include <qcommon/game_version.h>
 
 //
 // Cvar callbacks

@@ -28,7 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <map>
 
-#include "../rd-common/mdx_format.h"
+#include <code/rd-common/mdx_format.h>
 
 inline constexpr int G2T_SV_TIME = 0;
 inline constexpr int G2T_CG_TIME = 1;
@@ -102,7 +102,7 @@ typedef struct {
 } mdxaBone_t;
 */
 
-#include "qcommon/q_ghoul2flags.h"
+#include <shared/qcommon/q_ghoul2flags.h>
 
 // we save the whole structure here.
 struct boneInfo_t {

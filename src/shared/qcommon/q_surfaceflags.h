@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // q_surfaceflags.h -- the flags of a surface (a map's shaders, the BSP files): the same in the three games: one
 // definition for the trees that share them (multiplayer, and Jedi Academy's and Jedi Outcast's single player).
 
-#include "qcommon/q_enum.h"
+#include "q_enum.h"
 
 enum class surfaceFlags_t : uint32_t {
     SURF_NONE = 0x00000000u,

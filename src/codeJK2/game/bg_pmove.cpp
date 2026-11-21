@@ -29,14 +29,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // short, server-visible gclient_t and gentity_t structures,
 // because we define the full size ones in this file
 #define GAME_INCLUDE
-#include "../../code/qcommon/q_shared.h"
+#include <code/qcommon/q_shared.h>
 #include "b_local.h"
 #include "g_shared.h"
 #include "bg_local.h"
 #include "g_local.h"
 #include "g_functions.h"
 #include "anims.h"
-#include "../cgame/cg_local.h" // yeah I know this is naughty, but we're shipping soon...
+#include <cgame/cg_local.h> // yeah I know this is naughty, but we're shipping soon...
 #include "wp_saber.h"
 #include <float.h>
 
@@ -96,7 +96,7 @@ extern cvar_t* g_timescale;
 
 static void PM_SetWaterLevelAtPoint(vec3_t org, int* waterlevel, contentsFlags_t* watertype);
 
-#include "qcommon/q_gamesets.h"
+#include <shared/qcommon/q_gamesets.h>
 flyMode_t Flying = flyMode_t::FLY_NONE;
 
 pmove_t* pm;

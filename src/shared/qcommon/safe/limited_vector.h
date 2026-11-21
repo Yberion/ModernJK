@@ -28,7 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <algorithm>
 #include <iterator>
 
-#include "qcommon/q_platform.h"
+#include <shared/qcommon/q_platform.h>
 
 namespace Q {
 /**

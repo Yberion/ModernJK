@@ -28,7 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // #include "Q3_Interface.h"
 // #include "anims.h"
 // #include "b_local.h"
-#include "../cgame/cg_camera.h"
+#include <cgame/cg_camera.h>
 #include "g_functions.h"
 
 /*

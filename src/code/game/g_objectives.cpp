@@ -30,7 +30,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define G_OBJECTIVES_CPP
 
 #include "objectives.h"
-#include "qcommon/ojk_saved_game_helper.h"
+#include <qcommon/ojk_saved_game_helper.h>
 
 bool missionInfo_Updated;
 

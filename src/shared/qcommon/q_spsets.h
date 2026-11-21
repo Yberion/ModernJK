@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // q_spsets.h -- the sets of values Jedi Academy's and Jedi Outcast's single player share (the thrown saber, a script's
 // lean, breakables, a character's custom sounds, the datapad): one definition for the two single-player trees.
 
-#include "qcommon/q_enum.h"
+#include "q_enum.h"
 
 // saberEntityState
 enum class saberEntityState_t {

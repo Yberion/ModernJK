@@ -26,13 +26,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // leave this as first line for PCH reasons...
 //
-#include "../server/exe_headers.h"
-#include "../ui/ui_shared.h"
+#include <server/exe_headers.h>
+#include <ui/ui_shared.h>
 
 #include "client.h"
 #include "vmachine.h"
-#include "qcommon/stringed_ingame.h"
-#include "sys/sys_loadlib.h"
+#include <qcommon/stringed_ingame.h>
+#include <shared/sys/sys_loadlib.h>
 
 #include <optional>
 
@@ -42,7 +42,7 @@ Ghoul2 Insert Start
 */
 
 #if !defined(G2_H_INC)
-#include "../ghoul2/G2.h"
+#include <ghoul2/G2.h>
 #endif
 
 /*

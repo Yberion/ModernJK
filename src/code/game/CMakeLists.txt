@@ -191,8 +191,7 @@ if(WIN32)
 	target_sources(jagame PRIVATE ../win32/game.rc)
 endif()
 set_target_properties(jagame PROPERTIES OUTPUT_NAME "jagame${modernjk_ARCH}" PREFIX "")
-target_include_directories(jagame PRIVATE "${PROJECT_SOURCE_DIR}/src/shared" "${PROJECT_SOURCE_DIR}/src/code"
-	"${CMAKE_CURRENT_SOURCE_DIR}")
+target_include_directories(jagame PRIVATE "${PROJECT_SOURCE_DIR}/src/code" "${PROJECT_SOURCE_DIR}/src")
 target_compile_definitions(jagame PRIVATE SP_GAME)
 target_link_libraries(jagame PRIVATE vendored::gsl_lite modernjk_version modernjk_shared_common modernjk_safe_string
 	modernjk_safe_files modernjk_options modernjk_warnings modernjk_defines)

@@ -25,11 +25,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //	but without exposing too many extra protos, so for now (while I experiment)...
 //
 
-#include "../qcommon/q_shared.h"
-#include "../qcommon/qcommon.h"
+#include <qcommon/q_shared.h>
+#include <qcommon/qcommon.h>
 
-#include "../client/client.h"
-#include "../server/server.h"
+#include <client/client.h>
+#include "server.h"
 
 #ifdef _MSC_VER
 #pragma hdrstop

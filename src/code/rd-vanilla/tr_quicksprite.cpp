@@ -25,7 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // tr_QuickSprite.cpp: implementation of the CQuickSpriteSystem class.
 //
 //////////////////////////////////////////////////////////////////////
-#include "../server/exe_headers.h"
+#include <server/exe_headers.h>
 #include "tr_quicksprite.h"
 
 extern void R_BindAnimatedImage(const textureBundle_t* bundle);

@@ -25,8 +25,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifndef TR_COMMON_H
 #define TR_COMMON_H
 
-#include "../rd-common/tr_public.h"
-#include "../rd-common/tr_font.h"
+#include "tr_public.h"
+#include "tr_font.h"
 
 extern refimport_t ri;
 

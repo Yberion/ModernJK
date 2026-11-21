@@ -26,13 +26,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "cg_local.h"
 #include "fx_local.h"
-#include "ui/ui_shared.h"
-#include "ui/ui_public.h"
+#include <ui/ui_shared.h>
+#include <ui/ui_public.h>
 
 // for the voice chats
-#include "ui/menudef.h"
+#include <ui/menudef.h>
 
-#include "ghoul2/G2.h"
+#include <ghoul2/G2.h>
 //==========================================================================
 
 extern bool WP_SaberBladeUseSecondBladeStyle(saberInfo_t* saber, int bladeNum);

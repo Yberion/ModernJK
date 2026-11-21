@@ -32,9 +32,9 @@ typedef struct {
     vec3_t p[4]; // variable sized
 } winding_t;
 
-#include "qcommon/q_collision.h"
+#include <shared/qcommon/q_collision.h>
 
-#include "qcommon/q_math.h"
+#include <shared/qcommon/q_math.h>
 
 // you can define on_epsilon in the makefile as tighter
 #ifndef ON_EPSILON

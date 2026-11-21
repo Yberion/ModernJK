@@ -19,13 +19,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "qcommon/safe/limited_vector.h"
+#include <shared/qcommon/safe/limited_vector.h>
 
 #include <memory>
 #include <string>
 #include <iterator>
 
-#include "check.h"
+#include <check.h>
 
 using IntVector = Q::LimitedVector<int, 10>;
 using StringVector = Q::LimitedVector<std::string, 10>;

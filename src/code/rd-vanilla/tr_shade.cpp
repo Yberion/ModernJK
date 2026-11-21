@@ -25,7 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // tr_shade.c
 
-#include "../server/exe_headers.h"
+#include <server/exe_headers.h>
 
 #include "tr_local.h"
 

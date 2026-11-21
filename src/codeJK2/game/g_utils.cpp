@@ -32,7 +32,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_icarus.h"
 #include "b_local.h"
 #include "anims.h"
-#include "../../code/rd-common/mdx_format.h"
+#include <code/rd-common/mdx_format.h>
 
 constexpr bool ACT_ACTIVE = true;
 constexpr bool ACT_INACTIVE = false;
@@ -234,7 +234,7 @@ void G_PlayEffect(const char* name, const int modelIndex, const int boltIndex, c
 //===Bypass network for sounds on specific channels====================
 
 extern void cgi_S_StartSound(vec3_t origin, int entityNum, soundChannel_t entchannel, sfxHandle_t sfx);
-#include "../cgame/cg_media.h" //access to cgs
+#include <cgame/cg_media.h> //access to cgs
 extern void CG_TryPlayCustomSound(vec3_t origin, int entityNum, soundChannel_t channel, const char* soundName, customSoundSet_t customSoundSet);
 // NOTE: Do NOT Try to use this before the cgame DLL is valid, it will NOT work!
 void G_SoundOnEnt(gentity_t* ent, soundChannel_t channel, const char* soundPath)

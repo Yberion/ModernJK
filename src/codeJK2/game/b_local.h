@@ -36,7 +36,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // Navigation susbsystem
 //
 
-#include "qcommon/q_gamesets.h"
+#include <shared/qcommon/q_gamesets.h>
 
 inline constexpr float MIN_ANGLE_ERROR = 0.01f;
 
@@ -164,7 +164,7 @@ extern bool NPC_MoveToGoal(bool tryStraight);
 
 // NPC_senses
 inline constexpr int ALERT_CLEAR_TIME = 200;
-#include "qcommon/q_npcflags.h"
+#include <shared/qcommon/q_npcflags.h>
 extern bool CanSee(gentity_t* ent);
 extern bool InFOV(gentity_t* ent, gentity_t* from, int hFOV, int vFOV);
 extern bool InFOV(vec3_t origin, gentity_t* from, int hFOV, int vFOV);

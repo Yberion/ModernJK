@@ -24,8 +24,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // NPC_utils.cpp
 
 #include "b_local.h"
-#include "icarus/Q3_Interface.h"
-#include "ghoul2/G2.h"
+#include <icarus/Q3_Interface.h>
+#include <ghoul2/G2.h>
 
 EnumArray<int, npcteam_t, npcteam_t::NPCTEAM_NUM_TEAMS> teamNumbers;
 EnumArray<int, npcteam_t, npcteam_t::NPCTEAM_NUM_TEAMS> teamStrength;

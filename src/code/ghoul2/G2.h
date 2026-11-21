@@ -30,7 +30,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 class CMiniHeap;
 
 // defines to setup the
-#include "qcommon/q_renderer.h"
+#include <shared/qcommon/q_renderer.h>
 
 // rww - RAGDOLL_BEGIN
 class CRagDollUpdateParams;

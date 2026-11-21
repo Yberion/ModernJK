@@ -25,9 +25,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include "../qcommon/q_shared.h"
+#include <qcommon/q_shared.h>
 
-#include "qcommon/q_renderer.h"
+#include <shared/qcommon/q_renderer.h>
 // the last N-bit number (2^REFENTITYNUM_BITS - 1) is reserved for the special world refentity,
 //  and this is reflected by the value of MAX_REFENTITIES (which therefore is not a power-of-2)
 
@@ -274,8 +274,8 @@ typedef struct refEntity_s {
 Ghoul2 Insert Start
 */
 #define MDXABONEDEF
-#include "rd-common/mdx_format.h"
-#include "qcommon/qfiles.h"
+#include "mdx_format.h"
+#include <qcommon/qfiles.h>
 
 // skins allow models to be retextured without modifying the model file
 // this is a mock copy, renderers may have their own implementation.

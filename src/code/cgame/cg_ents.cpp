@@ -27,11 +27,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "cg_headers.h"
 
 #include "cg_media.h"
-#include "../game/g_functions.h"
-#include "../ghoul2/G2.h"
+#include <game/g_functions.h>
+#include <ghoul2/G2.h>
 #include "FxScheduler.h"
-#include "../game/wp_saber.h"
-#include "../game/g_vehicles.h"
+#include <game/wp_saber.h>
+#include <game/g_vehicles.h>
 
 extern void CG_AddSaberBlade(centity_t* cent, centity_t* scent, refEntity_t* saber, renderFxFlags_t renderfx, int modelIndex, vec3_t origin, vec3_t angles);
 extern void CG_CheckSaberInWater(centity_t* cent, centity_t* scent, int saberNum, int modelIndex, vec3_t origin, vec3_t angles);

@@ -25,11 +25,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // console.c
 
-#include "server/exe_headers.h"
+#include <server/exe_headers.h>
 
 #include "client.h"
-#include "qcommon/stringed_ingame.h"
-#include "qcommon/game_version.h"
+#include <qcommon/stringed_ingame.h>
+#include <qcommon/game_version.h>
 
 int g_console_field_width = 78;
 

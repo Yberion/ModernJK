@@ -33,9 +33,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // decoded once by both codecs and checked (decoded fields equal to the recording), so the recorded snapshots are
 // what each side holds as bases. The trace's own coded bytes (an earlier format) are not used.
 // Usage: netcodec_bench_codec <codec_trace.bin> [passes]
-#include "demo_trace.h"
+#include <demo_trace.h>
 #include "legacy/legacy_codec.h"
-#include "message_compare.h"
+#include <message_compare.h>
 
 #include <algorithm>
 #include <chrono>

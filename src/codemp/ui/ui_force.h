@@ -23,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include "qcommon/qfiles.h"
+#include <qcommon/qfiles.h>
 
 inline constexpr int NUM_FORCE_STAR_IMAGES = 9;
 inline constexpr int FORCE_NONJEDI = 0;

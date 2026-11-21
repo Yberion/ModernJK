@@ -540,7 +540,7 @@ typedef struct pmove_s {
 
 extern pmove_t* pm;
 
-#include "qcommon/q_animflags.h"
+#include <shared/qcommon/q_animflags.h>
 
 // if a full pmove isn't done on the client, you can just update the angles
 void PM_UpdateViewAngles(playerState_t* ps, const usercmd_t* cmd);
@@ -1663,7 +1663,7 @@ template <> inline constexpr bool enableEnumArithmetic<saber_styles_t> = true;
     return static_cast<saber_styles_t>(to_underlying(offenceLevel));
 }
 
-#include "qcommon/q_saberflags.h"
+#include <shared/qcommon/q_saberflags.h>
 
 inline constexpr int SABER_NAME_LENGTH = 64;
 typedef struct saberInfo_s {

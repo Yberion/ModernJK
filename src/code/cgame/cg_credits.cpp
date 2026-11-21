@@ -28,7 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "cg_headers.h"
 
 #include "cg_media.h"
-#include "../game/objectives.h"
+#include <game/objectives.h>
 
 constexpr float fCARD_FADESECONDS = 1.0f;       // fade up time, also fade down time
 constexpr float fCARD_SUSTAINSECONDS = 2.0f;    // hold time before fade down

@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "synthetic.h"
 
-#include "netcodec/codec.h"
+#include <netcodec/codec.h>
 
 #include <cstdint>
 #include <cstring>

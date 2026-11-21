@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include "qcommon/q_shared.h"
+#include "q_shared.h"
 
 // this is only used for visualization tools in cm_ debug functions
 
@@ -33,9 +33,9 @@ typedef struct winding_s {
     vec3_t p[4]; // variable sized
 } winding_t;
 
-#include "qcommon/q_collision.h"
+#include <shared/qcommon/q_collision.h>
 
-#include "qcommon/q_math.h"
+#include <shared/qcommon/q_math.h>
 
 // you can define on_epsilon in the makefile as tighter
 #ifndef ON_EPSILON

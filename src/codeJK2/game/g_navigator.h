@@ -28,7 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define _HARD_CONNECT 1
 
-#include "qcommon/q_npcflags.h"
+#include <shared/qcommon/q_npcflags.h>
 
 // Miscellaneous defines
 inline constexpr int NODE_NONE = -1;

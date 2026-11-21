@@ -22,7 +22,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "qcommon/q_libm.h"
+#include <shared/qcommon/q_libm.h>
 #if _MSC_VER
 #include <float.h>
 #pragma fenv_access(on)

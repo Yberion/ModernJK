@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // q_fileformats.h -- the constants and sets of the game's file formats (BSP, MD3, ghoul2's models): one definition for
 // the trees that share them (multiplayer, and Jedi Academy's and Jedi Outcast's single player).
 
-#include "qcommon/q_enum.h"
+#include "q_enum.h"
 
 enum class bspLump_t { // the indices of the file's lumps
     LUMP_ENTITIES = 0,

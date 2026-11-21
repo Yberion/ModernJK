@@ -28,7 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "tokens.h"
 
-#include "qcommon/q_icarusflags.h"
+#include <shared/qcommon/q_icarusflags.h>
 
 typedef float vector_t[3];
 

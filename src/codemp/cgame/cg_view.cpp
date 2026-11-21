@@ -25,7 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // cg_view.cpp -- setup all the parameters (position, angle, etc)
 // for a 3D rendering
 #include "cg_local.h"
-#include "game/bg_saga.h"
+#include <game/bg_saga.h>
 
 constexpr contentsFlags_t MASK_CAMERACLIP = MASK_SOLID | contentsFlags_t::CONTENTS_PLAYERCLIP;
 constexpr int CAMERA_SIZE = 4;

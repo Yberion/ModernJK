@@ -36,9 +36,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <signal.h>
 #include <sys/resource.h>
 
-#include "qcommon/q_version.h"
-#include "qcommon/qcommon.h"
-#include "qcommon/q_shared.h"
+#include <qcommon/q_version.h>
+#include <qcommon/qcommon.h>
+#include <qcommon/q_shared.h>
 #include "sys_local.h"
 
 bool stdinIsATTY = false;

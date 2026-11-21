@@ -71,7 +71,7 @@ add_library(cgame MODULE
 	../qcommon/q_shared.cpp
 	../ui/ui_shared.cpp)
 set_target_properties(cgame PROPERTIES OUTPUT_NAME "cgame${modernjk_ARCH}" PREFIX "")
-target_include_directories(cgame PRIVATE "${PROJECT_SOURCE_DIR}/src/codemp" "${PROJECT_SOURCE_DIR}/src/shared")
+target_include_directories(cgame PRIVATE "${PROJECT_SOURCE_DIR}/src/codemp" "${PROJECT_SOURCE_DIR}/src")
 target_compile_definitions(cgame PRIVATE _CGAME)
 target_link_libraries(cgame PRIVATE modernjk_shared_common modernjk_version modernjk_options modernjk_warnings
 	modernjk_defines)

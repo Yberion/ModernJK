@@ -21,8 +21,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "../qcommon/q_shared.h"
-#include "../cgame/cg_local.h"
+#include <qcommon/q_shared.h>
+#include <cgame/cg_local.h>
 #include "b_local.h"
 
 extern bool G_EntIsUnlockedDoor(int entityNum);

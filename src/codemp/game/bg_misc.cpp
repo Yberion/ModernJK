@@ -27,15 +27,15 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <algorithm>
 #include <iterator>
 
-#include "qcommon/q_shared.h"
+#include <qcommon/q_shared.h>
 #include "bg_public.h"
 
 #if defined(_GAME)
 #include "g_local.h"
 #elif defined(_CGAME)
-#include "cgame/cg_local.h"
+#include <cgame/cg_local.h>
 #elif defined(UI_BUILD)
-#include "ui/ui_local.h"
+#include <ui/ui_local.h>
 #endif
 
 const char* bgToggleableSurfaces[BG_NUM_TOGGLEABLE_SURFACES] = {

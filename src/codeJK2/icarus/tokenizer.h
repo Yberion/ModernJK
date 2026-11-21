@@ -31,16 +31,16 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <map>
 
-#include "qcommon/q_enum.h"
+#include <shared/qcommon/q_enum.h>
 #include "tokens.h"
 
 typedef unsigned char byte;
 typedef unsigned short word;
 
 #define MAX_STRING_LENGTH 256
-#include "qcommon/q_icarusflags.h"
+#include <shared/qcommon/q_icarusflags.h>
 
-#include "qcommon/q_icarusflags.h"
+#include <shared/qcommon/q_icarusflags.h>
 
 enum class tokenizerError_t {
     TKERR_NONE,

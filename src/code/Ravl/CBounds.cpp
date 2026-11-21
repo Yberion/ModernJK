@@ -43,7 +43,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define ASSERT_H_INC
 #endif
 
-#include "qcommon/q_libm.h"
+#include <shared/qcommon/q_libm.h>
 #include <stdio.h>
 #include <float.h>
 #include "CBounds.h"

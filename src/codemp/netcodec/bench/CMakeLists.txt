@@ -34,7 +34,7 @@ add_library(netcodec_legacy OBJECT
 	"${legacy_engine}/codemp/qcommon/huffman.cpp"
 	legacy/legacy_codec.cpp
 	legacy/legacy_stubs.cpp)
-target_include_directories(netcodec_legacy PRIVATE "${legacy_engine}/codemp" "${legacy_engine}/shared")
+target_include_directories(netcodec_legacy PRIVATE "${legacy_engine}/codemp" "${legacy_engine}")
 target_link_libraries(netcodec_legacy PRIVATE modernjk_warnings modernjk_defines)
 target_compile_features(netcodec_legacy PRIVATE cxx_std_23)
 if(MSVC)

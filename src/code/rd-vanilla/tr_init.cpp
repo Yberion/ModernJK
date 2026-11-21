@@ -25,12 +25,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // tr_init.c -- functions that are not called every frame
 
-#include "../server/exe_headers.h"
+#include <server/exe_headers.h>
 
 #include "tr_local.h"
-#include "../rd-common/tr_common.h"
+#include <rd-common/tr_common.h>
 #include "tr_stl.h"
-#include "../rd-common/tr_font.h"
+#include <rd-common/tr_font.h>
 #include "tr_WorldEffects.h"
 
 glconfig_t glConfig;

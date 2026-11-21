@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "client.h"
 #include "cl_cgameapi.h"
 #include "FxScheduler.h"
-#include "qcommon/q_shared.h"
+#include <qcommon/q_shared.h>
 
 #include <algorithm>
 #include <cmath>

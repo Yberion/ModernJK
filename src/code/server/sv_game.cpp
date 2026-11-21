@@ -24,21 +24,19 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // sv_game.c -- interface to the game dll
 
-#include "../server/exe_headers.h"
+#include "exe_headers.h"
 
-#include "../qcommon/cm_local.h"
+#include <qcommon/cm_local.h>
 
 #include "server.h"
-#include "../client/vmachine.h"
-#include "../client/client.h"
-#include "qcommon/ojk_saved_game.h"
-/*#include "..\renderer\tr_local.h"
-#include "..\renderer\tr_WorldEffects.h"*/
+#include <client/vmachine.h>
+#include <client/client.h>
+#include <qcommon/ojk_saved_game.h>
 /*
 Ghoul2 Insert Start
 */
 #if !defined(G2_H_INC)
-#include "../ghoul2/G2.h"
+#include <ghoul2/G2.h>
 #endif
 
 /*

@@ -25,7 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "bg_local.h"
 #include "w_saber.h"
 #include "ai_main.h"
-#include "ghoul2/G2.h"
+#include <ghoul2/G2.h>
 
 constexpr float SABER_BOX_SIZE = 16.0f;
 extern bot_state_t* botstates[MAX_CLIENTS];

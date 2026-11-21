@@ -63,7 +63,7 @@ degenerate a few triangles.  Completely degenerate rows and columns are handled
 properly.
 */
 
-#include "qcommon/q_collision.h"
+#include <shared/qcommon/q_collision.h>
 
 typedef struct patchPlane_s {
     float plane[4];

@@ -30,8 +30,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include "qcommon/qcommon.h"
-#include "netcodec/engine.h"
+#include "qcommon.h"
+#include <netcodec/engine.h>
 
 // What a demo's messages are coded against, owned by the engine: the entity ring and the next index the engine will
 // write in it, the server command ring (its last command is given with each message) and the baselines.

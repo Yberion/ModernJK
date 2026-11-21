@@ -31,10 +31,10 @@ USER INTERFACE SABER LOADING & DISPLAY CODE
 
 // leave this at the top of all UI_xxxx files for PCH reasons...
 //
-#include "../server/exe_headers.h"
+#include <server/exe_headers.h>
 #include "ui_local.h"
 #include "ui_shared.h"
-#include "../ghoul2/G2.h"
+#include <ghoul2/G2.h>
 
 constexpr int MAX_SABER_DATA_SIZE = 0x80000;
 char SaberParms[MAX_SABER_DATA_SIZE];

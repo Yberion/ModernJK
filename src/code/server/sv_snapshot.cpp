@@ -22,9 +22,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "../server/exe_headers.h"
+#include "exe_headers.h"
 
-#include "../client/vmachine.h"
+#include <client/vmachine.h>
 #include "server.h"
 
 /*

@@ -26,8 +26,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <iterator>
 
 #include "cg_local.h"
-#include "ghoul2/G2.h"
-#include "game/bg_saga.h"
+#include <ghoul2/G2.h>
+#include <game/bg_saga.h>
 
 extern vmCvar_t cg_thirdPersonAlpha;
 

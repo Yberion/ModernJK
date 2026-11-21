@@ -26,9 +26,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifndef __TR_TYPES_H
 #define __TR_TYPES_H
 
-#include "../game/ghoul2_shared.h"
+#include <code/game/ghoul2_shared.h>
 
-#include "qcommon/q_renderer.h"
+#include <shared/qcommon/q_renderer.h>
 // the last N-bit number (2^REFENTITYNUM_BITS - 1) is reserved for the special world refentity,
 //  and this is reflected by the value of MAX_REFENTITIES (which therefore is not a power-of-2)
 

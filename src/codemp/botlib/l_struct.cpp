@@ -36,7 +36,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
  *****************************************************************************/
 
 #ifdef BOTLIB
-#include "qcommon/q_shared.h"
+#include <qcommon/q_shared.h>
 #include "botlib.h" //for the include of be_interface.h
 #include "l_script.h"
 #include "l_precomp.h"
@@ -44,16 +44,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "l_utils.h"
 #include "be_interface.h"
 #endif // BOTLIB
-
-#ifdef BSPC
-// include files for usage in the BSP Converter
-#include "../bspc/qbsp.h"
-#include "../bspc/l_log.h"
-#include "../bspc/l_mem.h"
-#include "l_precomp.h"
-#include "l_struct.h"
-
-#endif // BSPC
 
 //===========================================================================
 //

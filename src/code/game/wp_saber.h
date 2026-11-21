@@ -30,8 +30,8 @@ inline constexpr int ARMOR_EFFECT_TIME = 500;
 
 inline constexpr int JSF_AMBUSH = 16; // ambusher Jedi
 
-#include "qcommon/q_saberflags.h"
-#include "qcommon/q_spsets.h"
+#include <shared/qcommon/q_saberflags.h>
+#include <shared/qcommon/q_spsets.h>
 
 inline constexpr float SABER_EXTRAPOLATE_DIST = 16.0f;
 

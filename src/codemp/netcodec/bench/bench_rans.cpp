@@ -22,7 +22,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // symbols. Encoding: record + reverse coding. Decoding: three symbol lookups (binary search, linear search, full
 // slot-to-symbol table). Times are the best of several runs over all messages of the trace.
 // Usage: netcodec_bench_rans <rans_trace.bin> [runs]
-#include "rans_trace.h"
+#include <rans_trace.h>
 #ifdef _MSC_VER
 #pragma warning(push, 0) // the original rans_byte.h, kept unchanged (system include for the other compilers)
 #endif

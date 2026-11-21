@@ -25,12 +25,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // client.h -- primary header for client
 #pragma once
 
-#include "../qcommon/q_shared.h"
-#include "../qcommon/qcommon.h"
-#include "../rd-common/tr_public.h"
+#include <qcommon/q_shared.h>
+#include <qcommon/qcommon.h>
+#include <rd-common/tr_public.h>
 #include "keys.h"
 #include "snd_public.h"
-#include "../cgame/cg_public.h"
+#include <cgame/cg_public.h>
 
 // snapshots are a view of the server at a given time
 typedef struct {
@@ -218,7 +218,7 @@ typedef struct {
 } clientStatic_t;
 
 inline constexpr int CON_TEXTSIZE = 0x30000; // was 32768
-#include "qcommon/q_limits.h"
+#include <shared/qcommon/q_limits.h>
 
 typedef union {
     struct {

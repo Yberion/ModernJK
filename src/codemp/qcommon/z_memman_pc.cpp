@@ -23,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // Created 3/13/03 by Brian Osman (VV) - Split Zone/Hunk from common
 
-#include "client/client.h" // hi i'm bad
+#include <client/client.h> // hi i'm bad
 
 ////////////////////////////////////////////////
 //
@@ -34,7 +34,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 const static EnumArray<const char*, memtag, to_underlying(memtag::TAG_COUNT) + 1>
     psTagStrings = // +1 because TAG_COUNT will itself become a string here. Oh well.
     {
-#include "qcommon/tags.h"
+#include "tags.h"
 };
 //
 ////////////////////////////////////////////////

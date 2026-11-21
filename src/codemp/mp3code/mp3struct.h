@@ -30,8 +30,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifndef MP3STRUCT_H
 #define MP3STRUCT_H
 
-#include "small_header.h"   // for SAMPLE and IN_OUT
-#include "qcommon/q_libm.h" // Q_cos, Q_atan, Q_pow: the same floats on every platform
+#include "small_header.h"          // for SAMPLE and IN_OUT
+#include <shared/qcommon/q_libm.h> // Q_cos, Q_atan, Q_pow: the same floats on every platform
 
 typedef void (*SBT_FUNCTION)(float* sample, short* pcm, int n);
 typedef void (*XFORM_FUNCTION)(void* pcm, int igr);

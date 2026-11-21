@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifndef __G_VEHICLES_H
 #define __G_VEHICLES_H
 
-#include "../qcommon/q_shared.h"
+#include <qcommon/q_shared.h>
 #include "g_public.h"
 
 enum class vehicleType_t {

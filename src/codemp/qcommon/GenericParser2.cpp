@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "GenericParser2.h"
 
 #include <cstring>
-#include "qcommon/qcommon.h"
+#include "qcommon.h"
 
 constexpr int MAX_TOKEN_SIZE = 1024;
 static char token[MAX_TOKEN_SIZE];

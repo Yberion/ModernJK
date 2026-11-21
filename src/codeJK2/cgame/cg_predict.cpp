@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // ahead the client's movement
 
 #include "cg_local.h"
-#include "../game/g_local.h"
+#include <game/g_local.h>
 #include "cg_media.h"
 
 static pmove_t cg_pmove;

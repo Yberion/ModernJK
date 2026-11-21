@@ -23,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include "qcommon/q_shared.h"
+#include "q_shared.h"
 
 // Filename:-	stringed_ingame.h
 //
@@ -42,7 +42,7 @@ extern cvar_t* se_language;
 
 // some needed text-equates, do not alter these under any circumstances !!!! (unless you're me. Which you're not)
 //
-#include "qcommon/q_limits.h"
+#include <shared/qcommon/q_limits.h>
 #define sSE_KEYWORD_VERSION "VERSION"
 #define sSE_KEYWORD_CONFIG "CONFIG"
 #define sSE_KEYWORD_FILENOTES "FILENOTES"

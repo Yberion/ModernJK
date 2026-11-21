@@ -60,12 +60,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "bg_public.h"
 #endif
 
-#ifndef _JK2MP
 #include "g_functions.h"
 #include "g_vehicles.h"
-#else
-#include "bg_vehicles.h"
-#endif
 
 #ifdef _JK2MP
 // this is really horrible, but it works! just be sure not to use any locals or anything
@@ -102,14 +98,6 @@ extern void G_VehicleTrace(trace_t* results, const vec3_t start, const vec3_t tM
 #endif
 
 extern bool BG_UnrestrainedPitchRoll(playerState_t* ps, Vehicle_t* pVeh);
-
-#ifdef _JK2MP
-
-#include "../namespace_begin.h"
-
-extern void BG_SetAnim(playerState_t* ps, animation_t* animations, setAnimParts_t setAnimParts, int anim, setAnimFlags_t setAnimFlags, int blendTime);
-extern int BG_GetTime(void);
-#endif
 
 #include "b_local.h"
 extern void BG_ExternThisSoICanRecompileInDebug(Vehicle_t* pVeh, playerState_t* riderPS);
@@ -1486,16 +1474,9 @@ void G_SetFighterVehicleFunctions(vehicleInfo_t* pVehInfo)
 }
 
 // Following is only in game, not in namespace
-#ifdef _JK2MP
-#include "../namespace_end.h"
-#endif
 
 #ifdef QAGAME
 extern void G_AllocateVehicleObject(Vehicle_t** pVeh);
-#endif
-
-#ifdef _JK2MP
-#include "../namespace_begin.h"
 #endif
 
 // Create/Allocate a new Animal Vehicle (initializing it as well).
@@ -1519,24 +1500,3 @@ void G_CreateFighterNPC(Vehicle_t** pVeh, const char* strType)
 #endif
     (*pVeh)->m_pVehicleInfo = &g_vehicleInfo[BG_VehicleGetIndex(strType)];
 }
-
-#ifdef _JK2MP
-
-#include "../namespace_end.h"
-
-// get rid of all the crazy defs we added for this file
-#undef currentAngles
-#undef currentOrigin
-#undef mins
-#undef maxs
-#undef legsAnimTimer
-#undef torsoAnimTimer
-#undef bool
-#undef false
-#undef true
-
-#undef sqrtf
-#undef Q_flrand
-
-#undef MOD_EXPLOSIVE
-#endif

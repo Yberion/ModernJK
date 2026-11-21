@@ -30,11 +30,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // short, server-visible gclient_t and gentity_t structures,
 // because we define the full size ones in this file
 #define GAME_INCLUDE
-#include "../../code/ui/gameinfo.h"
+#include <code/ui/gameinfo.h>
 #include "g_shared.h"
 #include "anims.h"
 #include "dmstates.h"
-#include "time.h"
+#include <time.h>
 
 //==================================================================
 

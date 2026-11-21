@@ -23,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include "icarus/tokens.h"
+#include <icarus/tokens.h>
 
 int Q3_PlaySound(int taskID, int entID, const char* name, const char* channel);
 bool Q3_Set(int taskID, int entID, const char* type_name, const char* data);

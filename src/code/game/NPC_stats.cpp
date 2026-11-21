@@ -29,13 +29,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "anims.h"
 #include "wp_saber.h"
 #include "g_vehicles.h"
-#include "../cgame/cg_local.h"
+#include <cgame/cg_local.h>
 #if !defined(RUFL_HSTRING_INC)
-#include "../Rufl/hstring.h"
+#include <Rufl/hstring.h>
 #endif
-#include "../Ratl/string_vs.h"
-#include "../Rufl/hstring.h"
-#include "../Ratl/vector_vs.h"
+#include <Ratl/string_vs.h>
+#include <Rufl/hstring.h>
+#include <Ratl/vector_vs.h>
 
 extern void WP_RemoveSaber(gentity_t* ent, int saberNum);
 extern bool NPCsPrecached;

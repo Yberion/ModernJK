@@ -22,7 +22,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // the decoder's output. A view stays valid while its storage lives and keeps its size.
 #pragma once
 
-#include "netcodec/codec.h"
+#include <netcodec/codec.h>
 
 #include <algorithm>
 #include <span>

@@ -29,9 +29,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <limits.h>
 #include <optional>
 
-#include "../qcommon/q_shared.h"
-#include "../rd-common/tr_types.h"
-#include "../qcommon/qcommon.h"
+#include <qcommon/q_shared.h>
+#include <rd-common/tr_types.h>
+#include <qcommon/qcommon.h>
 #include "ui_public.h"
 #include "ui_shared.h"
 

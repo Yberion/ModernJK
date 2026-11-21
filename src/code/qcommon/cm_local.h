@@ -147,7 +147,7 @@ typedef struct {
 
 // keep 1/8 unit away to keep the position valid before network snapping
 // and to avoid various numeric issues
-#include "qcommon/q_collision.h"
+#include <shared/qcommon/q_collision.h>
 
 extern clipMap_t cmg;
 extern int c_pointcontents;

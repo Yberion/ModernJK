@@ -28,7 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
     User interface building blocks and support functions.
 **********************************************************************/
 
-#include "../server/exe_headers.h"
+#include <server/exe_headers.h>
 
 #include "ui_local.h"
 #include "gameinfo.h"

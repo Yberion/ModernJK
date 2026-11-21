@@ -25,8 +25,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "FxScheduler.h"
 #endif
 
-#include "../game/genericparser2.h"
-#include "qcommon/safe/string.h"
+#include <game/genericparser2.h>
+#include <shared/qcommon/safe/string.h>
 
 #include <array>
 

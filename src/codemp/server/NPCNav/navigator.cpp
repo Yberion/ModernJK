@@ -21,18 +21,18 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "qcommon/q_shared.h"
+#include <qcommon/q_shared.h>
 
 #include <algorithm>
 
 #include "navigator.h"
-#include "game/g_nav.h"
+#include <game/g_nav.h>
 #include <time.h>
 #ifdef __linux__
 unsigned int timeGetTime(void);
 #endif
 
-#include "../sv_gameapi.h"
+#include <server/sv_gameapi.h>
 
 // Global navigator
 CNavigator navigator;

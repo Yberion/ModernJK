@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <optional>
 
-#include "qcommon/q_enum.h"
+#include <shared/qcommon/q_enum.h>
 
 // these are the key numbers that should be passed to KeyEvent
 
@@ -369,7 +369,7 @@ template <> inline constexpr bool enableEnumArithmetic<fakeAscii_t> = true;
 // The menu code needs to get both key and char events, but
 // to avoid duplicating the paths, the char events are just
 // distinguished by or'ing in K_CHAR_FLAG (ugly)
-#include "qcommon/q_limits.h"
+#include <shared/qcommon/q_limits.h>
 
 // the key of such an event, none for a character
 [[nodiscard]] inline std::optional<fakeAscii_t> KeyEvent_Key(int event)

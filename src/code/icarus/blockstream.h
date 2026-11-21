@@ -107,7 +107,7 @@ protected:
 
 // CBlock
 
-#include "qcommon/q_icarusflags.h"
+#include <shared/qcommon/q_icarusflags.h>
 
 class CBlock {
     typedef std::vector<CBlockMember*> blockMember_v;

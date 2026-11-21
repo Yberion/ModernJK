@@ -25,10 +25,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // tr_mesh.c: triangle model functions
 
-#include "../server/exe_headers.h"
+#include <server/exe_headers.h>
 
 #include "tr_local.h"
-#include "qcommon/matcomp.h"
+#include <qcommon/matcomp.h>
 
 float ProjectRadius(float r, vec3_t location)
 {

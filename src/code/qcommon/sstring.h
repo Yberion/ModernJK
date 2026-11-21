@@ -29,8 +29,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifndef SSTRING_H
 #define SSTRING_H
 
-#include "../qcommon/q_shared.h"
-#include "qcommon/safe/gsl.h"
+#include "q_shared.h"
+#include <shared/qcommon/safe/gsl.h>
 #include <algorithm>
 
 template <int MaxSize> class sstring {

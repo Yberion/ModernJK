@@ -23,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // context the table of zero counts (uniform), shared by alphabet size.
 #pragma once
 
-#include "netcodec/rans.h"
+#include <netcodec/rans.h>
 
 #include <array>
 #include <vector>

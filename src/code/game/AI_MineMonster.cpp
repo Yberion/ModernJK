@@ -22,7 +22,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "b_local.h"
-#include "../cgame/cg_local.h"
+#include <cgame/cg_local.h>
 #include "g_functions.h"
 
 // These define the working combat range for these suckers

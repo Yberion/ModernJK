@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifndef __CLIENTUI_H__
 #define __CLIENTUI_H__
 
-#include "../ui/ui_public.h"
+#include <ui/ui_public.h>
 
 void _UI_KeyEvent(int key, bool down);
 void _UI_KeyEvent(fakeAscii_t key, bool down);

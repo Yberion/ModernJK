@@ -25,7 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // snddma_null.c
 // all other sound mixing is portable
 
-#include "qcommon/qcommon.h"
+#include <qcommon/qcommon.h>
 
 bool gbInsideLoadSound = false; // important to default to this!!!
 

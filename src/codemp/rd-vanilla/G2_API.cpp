@@ -21,11 +21,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "ghoul2/G2.h"
-#include "ghoul2/g2_local.h"
-#include "ghoul2/G2_gore.h"
+#include <ghoul2/G2.h>
+#include <ghoul2/g2_local.h>
+#include <ghoul2/G2_gore.h>
 
-#include "qcommon/MiniHeap.h"
+#include <qcommon/MiniHeap.h>
 #include "tr_local.h"
 
 #include <set>
@@ -2586,7 +2586,7 @@ bool G2_TestModelPointers(CGhoul2Info* ghlInfo) // returns true if the model is 
 }
 
 #ifdef G2_PERFORMANCE_ANALYSIS
-#include "qcommon/timing.h"
+#include <qcommon/timing.h>
 extern timing_c G2PerformanceTimer_G2_SetupModelPointers;
 extern int G2Time_G2_SetupModelPointers;
 #endif

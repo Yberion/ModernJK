@@ -19,7 +19,7 @@
 
 # The tests of src/shared/qcommon/safe, without a framework (check.h)
 add_executable(modernjk_test_safe main.cpp safe/string.cpp safe/limited_vector.cpp)
-target_include_directories(modernjk_test_safe PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}/src/shared")
+target_include_directories(modernjk_test_safe PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}/src")
 target_link_libraries(modernjk_test_safe PRIVATE modernjk_safe_string modernjk_options modernjk_warnings
 	modernjk_defines)
 if(MINGW)

@@ -23,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "g_local.h"
-#include "qcommon/q_shared.h"
+#include <qcommon/q_shared.h>
 
 void G_SetEnemy(gentity_t* self, gentity_t* enemy);
 bool turret_base_spawn_top(gentity_t* base);

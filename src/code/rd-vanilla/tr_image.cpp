@@ -25,10 +25,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // tr_image.c
 
-#include "../server/exe_headers.h"
+#include <server/exe_headers.h>
 
 #include "tr_local.h"
-#include "../rd-common/tr_common.h"
+#include <rd-common/tr_common.h>
 #include <map>
 
 static byte s_intensitytable[256];

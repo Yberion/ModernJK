@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // q_forcelevels.h -- the levels of the force powers, the same set in the three games (multiplayer, and Jedi Academy's
 // and Jedi Outcast's single player): one definition, included by both q_shared.h.
 
-#include "qcommon/q_enum.h"
+#include "q_enum.h"
 
 enum class forcePowerLevels_t {
     FORCE_LEVEL_0,

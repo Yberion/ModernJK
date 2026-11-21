@@ -25,7 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "server.h"
 
-#include "ghoul2/ghoul2_shared.h"
+#include <ghoul2/ghoul2_shared.h>
 #include "sv_gameapi.h"
 
 #include <chrono>

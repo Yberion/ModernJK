@@ -33,7 +33,7 @@ add_library(ui MODULE
 	../game/bg_weapons.cpp
 	../qcommon/q_shared.cpp)
 set_target_properties(ui PROPERTIES OUTPUT_NAME "ui${modernjk_ARCH}" PREFIX "")
-target_include_directories(ui PRIVATE "${PROJECT_SOURCE_DIR}/src/codemp" "${PROJECT_SOURCE_DIR}/src/shared")
+target_include_directories(ui PRIVATE "${PROJECT_SOURCE_DIR}/src/codemp" "${PROJECT_SOURCE_DIR}/src")
 target_compile_definitions(ui PRIVATE UI_BUILD)
 target_link_libraries(ui PRIVATE modernjk_shared_common modernjk_version modernjk_options modernjk_warnings
 	modernjk_defines)

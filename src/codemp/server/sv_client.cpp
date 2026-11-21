@@ -26,10 +26,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // sv_client.c -- server code for dealing with clients
 
 #include "server.h"
-#include "qcommon/stringed_ingame.h"
+#include <qcommon/stringed_ingame.h>
 
-#include "server/sv_gameapi.h"
-#include "netcodec/engine.h"
+#include "sv_gameapi.h"
+#include <netcodec/engine.h>
 
 namespace eng = netcodec::engine;
 

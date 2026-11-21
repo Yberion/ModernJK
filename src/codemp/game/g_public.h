@@ -28,10 +28,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <optional>
 
-#include "qcommon/q_shared.h"
-#include "ghoul2/G2.h"
+#include <qcommon/q_shared.h>
+#include <ghoul2/G2.h>
 #define MDXABONEDEF
-#include "rd-common/mdx_format.h"
+#include <rd-common/mdx_format.h>
 
 inline constexpr int GAME_API_VERSION = 1;
 
@@ -103,7 +103,7 @@ typedef struct failedEdge_e {
     int entID;
 } failedEdge_t;
 
-#include "qcommon/q_npcflags.h"
+#include <shared/qcommon/q_npcflags.h>
 
 typedef struct entityShared_s {
     bool linked; // false if not in any good cluster
@@ -283,9 +283,9 @@ class CTaskManager;
 extern CSequencer* gSequencers[MAX_GENTITIES];
 extern CTaskManager* gTaskManagers[MAX_GENTITIES];
 
-#include "icarus/icarus.h"
-#include "icarus/sequencer.h"
-#include "icarus/taskmanager.h"
+#include <icarus/icarus.h>
+#include <icarus/sequencer.h>
+#include <icarus/taskmanager.h>
 #endif
 
 typedef struct T_G_ICARUS_PLAYSOUND_s {

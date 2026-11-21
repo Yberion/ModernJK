@@ -21,27 +21,27 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "../server/exe_headers.h"
+#include <server/exe_headers.h>
 
-#include "../client/client.h" //FIXME!! EVIL - just include the definitions needed
-#include "../client/vmachine.h"
+#include <client/client.h> //FIXME!! EVIL - just include the definitions needed
+#include <client/vmachine.h>
 
 #if !defined(TR_LOCAL_H)
 #include "tr_local.h"
 #endif
 
-#include "tr_common.h"
+#include <rd-common/tr_common.h>
 
-#include "qcommon/matcomp.h"
+#include <qcommon/matcomp.h>
 #if !defined(_QCOMMON_H_)
-#include "../qcommon/qcommon.h"
+#include <qcommon/qcommon.h>
 #endif
 #if !defined(G2_H_INC)
-#include "../ghoul2/G2.h"
+#include <ghoul2/G2.h>
 #endif
 
 #ifdef _G2_GORE
-#include "../ghoul2/ghoul2_gore.h"
+#include <ghoul2/ghoul2_gore.h>
 #endif
 
 #define LL(x) x = LittleLong(x)
@@ -49,7 +49,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define LF(x) x = LittleFloat(x)
 
 #ifdef G2_PERFORMANCE_ANALYSIS
-#include "../qcommon/timing.h"
+#include <qcommon/timing.h>
 timing_c G2PerformanceTimer_RB_SurfaceGhoul;
 
 int G2PerformanceCounter_G2_TransformGhoulBones = 0;

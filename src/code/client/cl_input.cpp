@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // cl.input.c  -- builds an intended movement command to send to the server
 
-#include "../server/exe_headers.h"
+#include <server/exe_headers.h>
 
 #include "client.h"
 #include "client_ui.h"

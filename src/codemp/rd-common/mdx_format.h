@@ -38,7 +38,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //	- All offset fields are relative to the address of the structure they occur in
 //	- So far, the only external symbol needed is MAX_QPATH, plus the typedefs for vec3_t, vec2_t etc
 
-#include "../qcommon/q_shared.h"
+#include <qcommon/q_shared.h>
 
 inline constexpr int MDXM_IDENT = ('M' << 24) + ('G' << 16) + ('L' << 8) + '2';
 inline constexpr int MDXA_IDENT = ('A' << 24) + ('G' << 16) + ('L' << 8) + '2';
@@ -46,7 +46,7 @@ inline constexpr int MDXA_IDENT = ('A' << 24) + ('G' << 16) + ('L' << 8) + '2';
 //
 // normal version numbers...
 //
-#include "qcommon/q_fileformats.h"
+#include <shared/qcommon/q_fileformats.h>
 
 // (Note that since there is now a "<modelname>_info.txt" file written out by carcass any changes made in here that
 //		introduce new data should also be reflected in the info-output)
@@ -55,7 +55,7 @@ inline constexpr int MDXA_IDENT = ('A' << 24) + ('G' << 16) + ('L' << 8) + '2';
 //
 inline constexpr int G2BONEFLAG_ALWAYSXFORM = 0x00000001;
 
-#include "qcommon/q_ghoul2flags.h"
+#include <shared/qcommon/q_ghoul2flags.h>
 
 // triangle side-ordering stuff for tags...
 //

@@ -29,8 +29,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 /*
 Ghoul2 Insert Start
 */
-#include "qcommon/q_shared.h"
-#include "ghoul2/G2.h"
+#include <qcommon/q_shared.h>
+#include <ghoul2/G2.h>
 /*
 Ghoul2 Insert end
 */

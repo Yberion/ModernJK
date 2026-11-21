@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_functions.h"
 #include "g_items.h"
 #include "wp_saber.h"
-#include "../cgame/cg_local.h"
+#include <cgame/cg_local.h>
 #include "b_local.h"
 
 extern bool missionInfo_Updated;

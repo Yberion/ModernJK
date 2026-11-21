@@ -163,8 +163,7 @@ if(WIN32)
 	target_sources(jospgame PRIVATE ../win32/game.rc)
 endif()
 set_target_properties(jospgame PROPERTIES OUTPUT_NAME "jospgame${modernjk_ARCH}" PREFIX "")
-target_include_directories(jospgame PRIVATE "${PROJECT_SOURCE_DIR}/src/codeJK2" "${CMAKE_CURRENT_SOURCE_DIR}"
-	"${PROJECT_SOURCE_DIR}/src/shared")
+target_include_directories(jospgame PRIVATE "${PROJECT_SOURCE_DIR}/src/codeJK2" "${PROJECT_SOURCE_DIR}/src")
 target_compile_definitions(jospgame PRIVATE JK2_MODE SP_GAME)
 target_link_libraries(jospgame PRIVATE vendored::gsl_lite modernjk_version modernjk_shared_common modernjk_safe_string
 	modernjk_safe_files modernjk_options modernjk_warnings modernjk_defines)

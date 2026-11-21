@@ -25,10 +25,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifndef __CG_MEDIA_H_
 #define __CG_MEDIA_H_
 
-#include "../qcommon/q_shared.h"
-#include "../rd-common/tr_types.h"
-#include "../cgame/cg_local.h"
-#include "g_shared.h"
+#include <qcommon/q_shared.h>
+#include <rd-common/tr_types.h>
+#include "cg_local.h"
+#include <game/g_shared.h>
 
 inline constexpr int NUM_CROSSHAIRS = 9;
 
@@ -62,7 +62,7 @@ enum class footstep_t {
     FOOTSTEP_TOTAL
 };
 
-#include "qcommon/q_spsets.h"
+#include <shared/qcommon/q_spsets.h>
 
 inline constexpr int MAX_HUD_TICS = 4;
 

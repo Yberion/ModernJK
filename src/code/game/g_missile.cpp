@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_functions.h"
 #include "wp_saber.h"
 #include "bg_local.h"
-#include "../cgame/cg_local.h"
+#include <cgame/cg_local.h>
 #include "b_local.h"
 
 #ifdef _DEBUG

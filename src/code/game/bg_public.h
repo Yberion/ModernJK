@@ -162,7 +162,7 @@ typedef struct {
 void PM_UpdateViewAngles(playerState_t* ps, usercmd_t* cmd, gentity_t* gent);
 void Pmove(pmove_t* pmove);
 
-#include "qcommon/q_animflags.h"
+#include <shared/qcommon/q_animflags.h>
 
 inline constexpr int SETANIM_BLEND_DEFAULT = 100;
 

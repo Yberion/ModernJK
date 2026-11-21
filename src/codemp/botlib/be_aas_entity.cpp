@@ -35,8 +35,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  *****************************************************************************/
 
-#include "qcommon/q_shared.h"
-#include "game/bg_public.h"
+#include <qcommon/q_shared.h>
+#include <game/bg_public.h>
 #include "l_memory.h"
 #include "l_script.h"
 #include "l_precomp.h"

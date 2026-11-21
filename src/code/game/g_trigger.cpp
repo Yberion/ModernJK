@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_functions.h"
 #include "b_local.h"
 #include "anims.h"
-#include "../cgame/cg_local.h"
+#include <cgame/cg_local.h>
 
 constexpr int ENTDIST_PLAYER = 1;
 constexpr int ENTDIST_NPC = 2;

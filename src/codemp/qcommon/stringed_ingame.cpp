@@ -32,8 +32,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////
 //
 // stuff common to all qcommon files...
-#include "server/server.h"
-#include "qcommon/q_shared.h"
+#include <server/server.h>
+#include "q_shared.h"
 #include "qcommon.h"
 //
 //////////////////////////////////////////////////

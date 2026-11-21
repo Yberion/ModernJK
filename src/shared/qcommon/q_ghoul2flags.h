@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // q_ghoul2flags.h -- the flags of ghoul2's surfaces and of the ragdoll's bones and effectors: one definition for the
 // trees that share them (multiplayer, and Jedi Academy's and Jedi Outcast's single player).
 
-#include "qcommon/q_enum.h"
+#include "q_enum.h"
 
 // same thing but for surfaces...  (Carcass will only generate 1st 2 flags, others are ingame
 //

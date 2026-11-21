@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifndef __VMACHINE_H__
 #define __VMACHINE_H__
 
-#include "../qcommon/q_shared.h"
+#include <code/qcommon/q_shared.h>
 
 /*
 ==================================================================

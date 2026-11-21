@@ -20,7 +20,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // demo_record.cpp -- the demos of the client and of the server, coded for themselves (see demo_record.h)
 
-#include "qcommon/demo_record.h"
+#include "demo_record.h"
 
 namespace eng = netcodec::engine;
 

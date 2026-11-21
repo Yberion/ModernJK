@@ -28,10 +28,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <optional>
 
 #include "tr_types.h"
-#include "../qcommon/qcommon.h"
+#include <qcommon/qcommon.h>
 
-#include "../ghoul2/G2.h"
-#include "../ghoul2/ghoul2_gore.h"
+#include <ghoul2/G2.h>
+#include <ghoul2/ghoul2_gore.h>
 
 inline constexpr int REF_API_VERSION = 18;
 

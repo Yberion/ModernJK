@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifndef __G_ROFF_H__
 #define __G_ROFF_H__
 
-#include "../../code/qcommon/q_shared.h"
+#include <code/qcommon/q_shared.h>
 
 // ROFF Defines
 //-------------------

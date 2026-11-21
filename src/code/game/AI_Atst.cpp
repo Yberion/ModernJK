@@ -23,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "b_local.h"
 #include "g_functions.h"
-#include "../cgame/cg_local.h"
+#include <cgame/cg_local.h>
 
 constexpr int MIN_MELEE_RANGE = 640;
 constexpr int MIN_MELEE_RANGE_SQR = MIN_MELEE_RANGE * MIN_MELEE_RANGE;

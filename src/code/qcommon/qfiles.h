@@ -31,7 +31,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //
 
 // surface geometry should not exceed these limits
-#include "qcommon/q_fileformats.h"
+#include <shared/qcommon/q_fileformats.h>
 
 // the maximum size of game reletive pathnames
 

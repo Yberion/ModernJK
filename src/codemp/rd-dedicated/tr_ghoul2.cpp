@@ -21,22 +21,22 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "client/client.h" //FIXME!! EVIL - just include the definitions needed
+#include <client/client.h> //FIXME!! EVIL - just include the definitions needed
 #include "tr_local.h"
-#include "qcommon/matcomp.h"
-#include "qcommon/qcommon.h"
-#include "ghoul2/G2.h"
-#include "ghoul2/g2_local.h"
+#include <qcommon/matcomp.h>
+#include <qcommon/qcommon.h>
+#include <ghoul2/G2.h>
+#include <ghoul2/g2_local.h>
 #ifdef _G2_GORE
-#include "ghoul2/G2_gore.h"
+#include <ghoul2/G2_gore.h>
 #endif
 
-#include "qcommon/disablewarnings.h"
+#include <qcommon/disablewarnings.h>
 
 #define LL(x) x = LittleLong(x)
 
 #ifdef G2_PERFORMANCE_ANALYSIS
-#include "qcommon/timing.h"
+#include <qcommon/timing.h>
 
 timing_c G2PerformanceTimer_RenderSurfaces;
 timing_c G2PerformanceTimer_R_AddGHOULSurfaces;

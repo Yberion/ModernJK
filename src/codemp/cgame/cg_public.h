@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <optional>
 
-#include "ghoul2/G2.h"
+#include <ghoul2/G2.h>
 
 inline constexpr int CGAME_API_VERSION = 2;
 

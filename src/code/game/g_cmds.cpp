@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "wp_saber.h"
 #include "g_vehicles.h"
 #include "g_functions.h"
-#include "../cgame/cg_local.h"
+#include <cgame/cg_local.h>
 #include "b_local.h"
 
 extern bool in_camera;

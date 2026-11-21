@@ -22,8 +22,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "cg_local.h"
-#include "qcommon/q_shared.h"
-#include "ghoul2/G2.h"
+#include <qcommon/q_shared.h>
+#include <ghoul2/G2.h>
 
 // rww - The turret is heavily dependant on bone angles. We can't happily set that on the server, so it is done client-only.
 

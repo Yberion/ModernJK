@@ -45,13 +45,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 inline constexpr int MAX_TEAMNAME = 32;
 inline constexpr int MAX_MASTER_SERVERS = 5; // number of supported master servers
 
-#include "qcommon/q_enum.h"
-#include "qcommon/q_math.h"
-#include "qcommon/q_color.h"
-#include "qcommon/q_string.h"
-#include "qcommon/disablewarnings.h"
+#include <shared/qcommon/q_enum.h>
+#include <shared/qcommon/q_math.h>
+#include <shared/qcommon/q_color.h>
+#include <shared/qcommon/q_string.h>
+#include "disablewarnings.h"
 
-#include "game/teams.h" //npc team stuff
+#include <game/teams.h> //npc team stuff
 
 inline constexpr int MAX_WORLD_COORD = 64 * 1024;
 inline constexpr int MIN_WORLD_COORD = -64 * 1024;
@@ -138,7 +138,7 @@ inline constexpr int WORLD_SIZE = MAX_WORLD_COORD - MIN_WORLD_COORD;
 #define Q_EXPORT
 #endif
 
-#include "qcommon/q_platform.h"
+#include <shared/qcommon/q_platform.h>
 
 typedef union fileBuffer_u {
     void* v;
@@ -170,7 +170,7 @@ inline constexpr qhandle_t NULL_HANDLE = 0;
 
 // the game guarantees that no string from the network will ever
 // exceed MAX_STRING_CHARS
-#include "qcommon/q_limits.h"
+#include <shared/qcommon/q_limits.h>
 
 inline constexpr int BIG_INFO_KEY = 8192;
 inline constexpr int BIG_INFO_VALUE = 8192;
@@ -276,7 +276,7 @@ void* Hunk_Alloc(int size, ha_pref preference);
 #define Com_Memset memset
 #define Com_Memcpy memcpy
 
-#include "qcommon/q_clientflags.h"
+#include <shared/qcommon/q_clientflags.h>
 
 enum class saberBlockType_t {
     BLK_NO,
@@ -328,7 +328,7 @@ enum class forcePowers_t {
 };
 template <> inline constexpr bool enableEnumArithmetic<forcePowers_t> = true;
 
-#include "qcommon/q_forcelevels.h"
+#include <shared/qcommon/q_forcelevels.h>
 
 // rww - a C-ified structure version of the class which fires off callbacks and gives arguments to update ragdoll status.
 enum class sharedERagPhase {
@@ -341,7 +341,7 @@ enum class sharedERagPhase {
     RP_DISABLE_EFFECTORS  // this removes effectors given by the effectorsToTurnOff member
 };
 
-#include "qcommon/q_ghoul2flags.h"
+#include <shared/qcommon/q_ghoul2flags.h>
 
 typedef struct sharedRagDollParams_s {
     vec3_t angles;
@@ -658,7 +658,7 @@ COLLISION DETECTION
 ==============================================================
 */
 
-#include "game/surfaceflags.h" // shared with the q3map utility
+#include <game/surfaceflags.h> // shared with the q3map utility
 
 /*
 Ghoul2 Insert Start
@@ -1790,7 +1790,7 @@ Ghoul2 Insert End
 //
 #define TAGDEF(blah) TAG_##blah
 enum class memtag {
-#include "qcommon/tags.h"
+#include "tags.h"
 };
 template <> inline constexpr bool enableEnumArithmetic<memtag> = true;
 typedef memtag memtag_t;

@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // Reader of the rANS golden trace written by docs/modernization/tools/python/export_rans_trace.py.
 #pragma once
 
-#include "netcodec/rans.h"
+#include <netcodec/rans.h>
 
 #include <cstdio>
 #include <cstring>

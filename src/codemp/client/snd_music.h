@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //
 //
 
-#include "qcommon/qcommon.h"
+#include <qcommon/qcommon.h>
 
 // if you change this enum, you MUST update the #defines below
 enum class MusicState_e {
@@ -59,7 +59,7 @@ enum class MusicState_e {
 };
 template <> inline constexpr bool enableEnumArithmetic<MusicState_e> = true;
 
-#include "qcommon/q_sound.h"
+#include <shared/qcommon/q_sound.h>
 
 inline constexpr MusicState_e eBGRNDTRACK_DATABEGIN = MusicState_e::eBGRNDTRACK_EXPLORE; // label for FOR() loops (not in enum, else debugger shows in instead
                                                                                          // of the explore one unless I declare them backwards, which is gay)

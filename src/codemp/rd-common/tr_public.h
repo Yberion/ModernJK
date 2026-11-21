@@ -28,10 +28,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <optional>
 
-#include "../rd-common/tr_types.h"
-#include "../qcommon/MiniHeap.h"
-#include "../qcommon/qcommon.h"
-#include "../ghoul2/ghoul2_shared.h"
+#include "tr_types.h"
+#include <qcommon/MiniHeap.h>
+#include <qcommon/qcommon.h>
+#include <ghoul2/ghoul2_shared.h>
 
 enum class ragCallbackType_t; // cgame/cg_public.h
 

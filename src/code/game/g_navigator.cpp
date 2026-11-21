@@ -31,7 +31,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include "../cgame/cg_local.h"
+#include <cgame/cg_local.h>
 #include "g_shared.h"
 #include "g_nav.h"
 
@@ -82,22 +82,22 @@ extern vec3_t playerMaxs;
 #include "b_local.h"
 #include "g_navigator.h"
 #if !defined(RAGL_GRAPH_VS_INC)
-#include "../Ragl/graph_vs.h"
+#include <Ragl/graph_vs.h>
 #endif
 #if !defined(RATL_GRAPH_REGION_INC)
-#include "../Ragl/graph_region.h"
+#include <Ragl/graph_region.h>
 #endif
 #if !defined(RATL_VECTOR_VS_INC)
-#include "../Ratl/vector_vs.h"
+#include <Ratl/vector_vs.h>
 #endif
 #if !defined(RUFL_HSTRING_INC)
-#include "../Rufl/hstring.h"
+#include <Rufl/hstring.h>
 #endif
 #if !defined(RUFL_HFILE_INC)
-#include "../Rufl/hfile.h"
+#include <Rufl/hfile.h>
 #endif
 #if !defined(RAVL_BOUNDS_INC)
-#include "../Ravl/CBounds.h"
+#include <Ravl/CBounds.h>
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////

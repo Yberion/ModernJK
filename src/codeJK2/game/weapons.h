@@ -30,7 +30,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifndef __WEAPONS_H__
 #define __WEAPONS_H__
 
-#include "../../code/qcommon/q_shared.h"
+#include <code/qcommon/q_shared.h>
 
 enum class weapon_t // # weapon_e
 {

@@ -25,8 +25,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // world.c -- world query functions
 
 #include "server.h"
-#include "ghoul2/ghoul2_shared.h"
-#include "qcommon/cm_public.h"
+#include <ghoul2/ghoul2_shared.h>
+#include <qcommon/cm_public.h>
 
 /*
 ================

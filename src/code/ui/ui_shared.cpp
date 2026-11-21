@@ -27,20 +27,20 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // leave this at the top of all UI_xxxx files for PCH reasons...
 //
-#include "../server/exe_headers.h"
+#include <server/exe_headers.h>
 
 #include "ui_local.h"
 
 // rww - added for ui ghoul2 models
 #define UI_SHARED_CPP
 
-#include "../game/anims.h"
-#include "../cgame/animtable.h"
+#include <game/anims.h>
+#include <cgame/animtable.h>
 
 #include "ui_shared.h"
 #include "menudef.h"
 
-#include "qcommon/stringed_ingame.h"
+#include <qcommon/stringed_ingame.h>
 
 void UI_LoadMenus(const char* menuFile, bool reset);
 

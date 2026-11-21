@@ -26,10 +26,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // common.c -- misc functions used in client and server
 
 #include "stringed_ingame.h"
-#include "qcommon/cm_public.h"
-#include "qcommon/game_version.h"
-#include "../server/NPCNav/navigator.h"
-#include "../shared/sys/sys_local.h"
+#include "cm_public.h"
+#include "game_version.h"
+#include <server/NPCNav/navigator.h>
+#include <shared/sys/sys_local.h>
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -1463,7 +1463,7 @@ int Com_ModifyMsec(int msec)
 }
 
 #ifdef G2_PERFORMANCE_ANALYSIS
-#include "qcommon/timing.h"
+#include "timing.h"
 void G2Time_ResetTimers(void);
 void G2Time_ReportTimers(void);
 extern timing_c G2PerformanceTimer_PreciseFrame;

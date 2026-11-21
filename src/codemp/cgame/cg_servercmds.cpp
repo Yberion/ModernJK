@@ -30,10 +30,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <iterator>
 
 #include "cg_local.h"
-#include "game/bg_public.h"
-#include "ui/menudef.h"
-#include "ghoul2/G2.h"
-#include "ui/ui_public.h"
+#include <game/bg_public.h>
+#include <ui/menudef.h>
+#include <ghoul2/G2.h>
+#include <ui/ui_public.h>
 
 /*
 =================

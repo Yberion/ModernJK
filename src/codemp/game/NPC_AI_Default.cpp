@@ -23,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "b_local.h"
 #include "g_nav.h"
-#include "icarus/Q3_Interface.h"
+#include <icarus/Q3_Interface.h>
 
 extern bool NPC_SomeoneLookingAtMe(gentity_t* ent);
 

@@ -37,7 +37,7 @@ foreach(side game cgame)
 		"${engine}/codemp/qcommon/q_shared.cpp")
 	string(TOUPPER "_${side}" side_definition)
 	target_compile_definitions(${t} PRIVATE ${side_definition})
-	target_include_directories(${t} PRIVATE "${engine}/codemp" "${engine}/shared")
+	target_include_directories(${t} PRIVATE "${engine}/codemp" "${engine}")
 	target_link_libraries(${t} PRIVATE modernjk_shared_common modernjk_version modernjk_options modernjk_warnings
 		modernjk_defines)
 	if(MINGW)

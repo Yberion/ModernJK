@@ -30,7 +30,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
  * $Revision: 1.9 $
  *
  *****************************************************************************/
-#include "qcommon/q_shared.h"
+#include <qcommon/q_shared.h>
 #include "bg_public.h"
 #include "bg_saga.h"
 #include "bg_weapons.h"
@@ -38,9 +38,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifdef _GAME
 #include "g_local.h"
 #elif _CGAME
-#include "cgame/cg_local.h"
+#include <cgame/cg_local.h>
 #elif UI_BUILD
-#include "ui/ui_local.h"
+#include <ui/ui_local.h>
 #endif
 
 constexpr int SIEGECHAR_TAB = 9; // perhaps a bit hacky, but I don't think there's any define existing for "tab"

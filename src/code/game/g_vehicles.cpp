@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "../qcommon/q_shared.h"
+#include <qcommon/q_shared.h>
 #include "g_local.h"
 
 #ifdef _JK2 // SP does not have this preprocessor for game like MP does
@@ -30,13 +30,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #endif
 #endif
 
-#ifndef _JK2MP
 #include "g_functions.h"
 #include "g_vehicles.h"
-#include "../cgame/cg_local.h"
-#else
-#include "bg_vehicles.h"
-#endif
+#include <cgame/cg_local.h>
 
 #ifdef _JK2MP
 // this is really horrible, but it works! just be sure not to use any locals or anything
@@ -87,20 +83,8 @@ extern void NPC_SetAnim(gentity_t* ent, setAnimParts_t setAnimParts, animNumber_
 extern void G_Knockdown(gentity_t* self, gentity_t* attacker, const vec3_t pushDir, float strength, bool breakSaberLock);
 #endif
 
-#ifdef _JK2MP
-#include "../namespace_begin.h"
-extern void BG_SetAnim(playerState_t* ps, animation_t* animations, setAnimParts_t setAnimParts, int anim, setAnimFlags_t setAnimFlags, int blendTime);
-extern void BG_SetLegsAnimTimer(playerState_t* ps, int time);
-extern void BG_SetTorsoAnimTimer(playerState_t* ps, int time);
-#include "../namespace_end.h"
-void G_VehUpdateShields(gentity_t* targ);
-#ifdef QAGAME
-extern void VEH_TurretThink(Vehicle_t* pVeh, gentity_t* parent, int turretNum);
-#endif
-#else
 extern void PM_SetTorsoAnimTimer(gentity_t* ent, int* torsoAnimTimer, int time);
 extern void PM_SetLegsAnimTimer(gentity_t* ent, int* legsAnimTimer, int time);
-#endif
 
 extern bool BG_UnrestrainedPitchRoll(playerState_t* ps, Vehicle_t* pVeh);
 
@@ -2218,13 +2202,6 @@ static bool UpdateRider(Vehicle_t* pVeh, bgEntity_t* pRider, usercmd_t* pUmcd)
 
     return true;
 }
-
-#ifdef _JK2MP // we want access to this one clientside, but it's the only
-// generic vehicle function we care about over there
-#include "../namespace_begin.h"
-extern void AttachRidersGeneric(Vehicle_t* pVeh);
-#include "../namespace_end.h"
-#endif
 
 // Attachs all the riders of this vehicle to their appropriate tag (*driver, *pass1, *pass2, whatever...).
 static void AttachRiders(Vehicle_t* pVeh)

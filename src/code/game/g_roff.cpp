@@ -24,10 +24,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_local.h"
 #include "g_roff.h"
 #include "Q3_Interface.h"
-#include "../cgame/cg_local.h"
-#include "../cgame/cg_media.h"
+#include <cgame/cg_local.h>
+#include <cgame/cg_media.h>
 #include "g_functions.h"
-#include "qcommon/ojk_saved_game_helper.h"
+#include <qcommon/ojk_saved_game_helper.h>
 
 // The list of precached ROFFs
 roff_list_t roffs[MAX_ROFFS];

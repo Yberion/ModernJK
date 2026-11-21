@@ -26,9 +26,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //  Stuff to parse in special x-fade music format and handle blending etc
 
 // Anything above this #include will be ignored by the compiler
-#include "../server/exe_headers.h"
+#include <server/exe_headers.h>
 
-#include "../qcommon/sstring.h"
+#include <qcommon/sstring.h>
 #include <algorithm>
 #include <string>
 #include <sstream>
@@ -39,7 +39,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //
 #include "snd_music.h"
 
-#include "../game/genericparser2.h"
+#include <game/genericparser2.h>
 
 extern bool S_FileExists(const char* psFilename);
 

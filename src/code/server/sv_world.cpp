@@ -24,21 +24,21 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // world.c -- world query functions
 
-#include "../server/exe_headers.h"
-#include "../qcommon/cm_local.h"
+#include "exe_headers.h"
+#include <qcommon/cm_local.h>
 
 /*
 Ghoul2 Insert Start
 */
 
 #if !defined(GHOUL2_SHARED_H_INC)
-#include "../game/ghoul2_shared.h" //for CGhoul2Info_v
+#include <game/ghoul2_shared.h> //for CGhoul2Info_v
 #endif
 #if !defined(G2_H_INC)
-#include "../ghoul2/G2.h"
+#include <ghoul2/G2.h>
 #endif
 #if !defined(MINIHEAP_H_INC)
-#include "../qcommon/MiniHeap.h"
+#include <qcommon/MiniHeap.h>
 #endif
 
 #ifdef _DEBUG

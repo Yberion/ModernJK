@@ -22,7 +22,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // sv_challenge.cpp -- stateless challenge creation and verification functions
 
 #include "server.h"
-#include "qcommon/md5.h"
+#include <qcommon/md5.h>
 
 // #define DEBUG_SV_CHALLENGE // Enable for Com_DPrintf debugging output
 

@@ -27,15 +27,15 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // string allocation/managment
 
 #ifdef _CGAME
-#include "cgame/cg_local.h"
+#include <cgame/cg_local.h>
 #elif UI_BUILD
-#include "ui/ui_local.h"
+#include "ui_local.h"
 #endif
 
 #include "ui_shared.h"
-#include "game/bg_public.h"
-#include "game/anims.h"
-#include "ghoul2/G2.h"
+#include <game/bg_public.h>
+#include <game/anims.h>
+#include <ghoul2/G2.h>
 extern void UI_UpdateCharacterSkin(void);
 
 EnumArray<const char*, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS> HolocronIcons = {

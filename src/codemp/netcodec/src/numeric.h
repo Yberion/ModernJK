@@ -27,8 +27,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <cstdint>
 
 // LLVM libc (lib/llvm-libc): the library's math functions, independent of the engine's q_libm.h
-#include "shared/libc_common.h"
-#include "src/__support/FPUtil/BasicOperations.h"
+#include <shared/libc_common.h>
+#include <src/__support/FPUtil/BasicOperations.h>
 
 namespace netcodec::detail {
 

@@ -64,7 +64,6 @@ target_sources(sp_engine_common INTERFACE
 	mp3code/towave.c
 	mp3code/uph.c
 	mp3code/upsf.c
-	mp3code/wavep.c
 	qcommon/cm_load.cpp
 	qcommon/cm_patch.cpp
 	qcommon/cm_polylib.cpp
@@ -98,7 +97,7 @@ target_sources(sp_engine_common INTERFACE
 	ui/ui_saber.cpp
 	ui/ui_shared.cpp
 	ui/ui_syscalls.cpp)
-target_include_directories(sp_engine_common INTERFACE "${PROJECT_SOURCE_DIR}/src/shared" "${CMAKE_CURRENT_SOURCE_DIR}")
+target_include_directories(sp_engine_common INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}/src")
 # _JK2EXE: the single player's engine (Jedi Academy's as well as Jedi Outcast's)
 target_compile_definitions(sp_engine_common INTERFACE _JK2EXE)
 target_link_libraries(sp_engine_common INTERFACE modernjk_version vendored::gsl_lite modernjk_shared_common

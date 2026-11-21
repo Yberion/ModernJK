@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // q_sound.h -- the constants and sets of the client's sound: one definition for the trees that share them (multiplayer,
 // and Jedi Academy's and Jedi Outcast's single player).
 
-#include "qcommon/q_enum.h"
+#include "q_enum.h"
 
 enum class wavFormat_t { // a WAV header's format tag
     WAV_FORMAT_NONE = 0, // no format read yet (GetWavinfo clears the info), or a file without one

@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <optional>
 
-#include "qcommon/q_enum.h"
+#include <shared/qcommon/q_enum.h>
 
 // these are the key numbers that should be passed to KeyEvent
 

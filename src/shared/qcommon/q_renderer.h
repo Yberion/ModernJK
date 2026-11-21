@@ -27,8 +27,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // q_renderer.h -- the renderers' and ghoul2's constants and sets: one definition for the trees that share them
 // (multiplayer, and Jedi Academy's and Jedi Outcast's single player).
 
-#include "qcommon/q_enum.h"
-#include "qcommon/q_fileformats.h"
+#include "q_enum.h"
+#include "q_fileformats.h"
 
 enum class cullResult_t {
     CULL_IN,   // completely unclipped

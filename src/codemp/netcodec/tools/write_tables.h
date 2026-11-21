@@ -22,7 +22,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // context of [first, last) with at least one symbol counted, the quantised table of its counts.
 #pragma once
 
-#include "netcodec/codec.h"
+#include <netcodec/codec.h>
 
 #include <cstdio>
 #include <memory>

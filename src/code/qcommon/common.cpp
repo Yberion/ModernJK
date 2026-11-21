@@ -30,14 +30,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "sstring.h" // to get Gil's string class, because MS's doesn't compile properly in here
 #include "stringed_ingame.h"
 #include "game_version.h"
-#include "../shared/sys/sys_local.h"
+#include <shared/sys/sys_local.h>
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
 
 // Because renderer.
-#include "../rd-common/tr_public.h"
+#include <rd-common/tr_public.h>
 extern refexport_t re;
 
 static fileHandle_t logfile;

@@ -28,8 +28,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "cg_headers.h"
 
 #include "cg_media.h"
-#include "../game/objectives.h"
-#include "../game/g_vehicles.h"
+#include <game/objectives.h>
+#include <game/g_vehicles.h>
 
 extern vmCvar_t cg_debugHealthBars;
 

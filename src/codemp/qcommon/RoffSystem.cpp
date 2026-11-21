@@ -25,9 +25,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "RoffSystem.h"
 
 #ifndef DEDICATED
-#include "client/cl_cgameapi.h"
+#include <client/cl_cgameapi.h>
 #endif
-#include "server/sv_gameapi.h"
+#include <server/sv_gameapi.h>
 
 // The one and only instance...
 CROFFSystem theROFFSystem;

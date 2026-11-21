@@ -22,7 +22,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "../cgame/cg_local.h"
+#include <cgame/cg_local.h>
 #include "Q3_Interface.h"
 #include "g_local.h"
 #include "g_functions.h"
@@ -942,7 +942,7 @@ void set_mission_stats_cvars(void)
     gi.cvar_set("ui_stats_rage", va("%d", client->sess.missionStats.forceUsed[forcePowers_t::FP_RAGE]));
 }
 
-#include "../cgame/cg_media.h"                                                   //access to cgs
+#include <cgame/cg_media.h>                                                      //access to cgs
 extern void G_ChangeMap(const char* mapname, const char* spawntarget, bool hub); // g_utils
 void target_level_change_use(gentity_t* self, gentity_t* other, gentity_t* activator)
 {

@@ -29,9 +29,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  *
  *****************************************************************************/
-#include "../server/exe_headers.h"
+#include <server/exe_headers.h>
 
-#include "sdl/sdl_sound.h"
+#include <shared/sdl/sdl_sound.h>
 #include "snd_local.h"
 #include "cl_mp3.h"
 #include "snd_music.h"

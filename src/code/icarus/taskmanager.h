@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifndef __TASK_MANAGER__
 #define __TASK_MANAGER__
 
-#include "../qcommon/q_shared.h"
+#include <qcommon/q_shared.h>
 
 const int RUNAWAY_LIMIT = 256;
 

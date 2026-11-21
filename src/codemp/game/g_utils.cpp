@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "g_local.h"
 #include "bg_saga.h"
-#include "qcommon/q_shared.h"
+#include <qcommon/q_shared.h>
 
 typedef struct shaderRemap_s {
     char oldShader[MAX_QPATH];

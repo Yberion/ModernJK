@@ -37,7 +37,7 @@ enum class footstep_t {
     FOOTSTEP_TOTAL
 };
 
-#include "qcommon/q_spsets.h"
+#include <shared/qcommon/q_spsets.h>
 
 inline constexpr int MAX_TICS = 14;
 

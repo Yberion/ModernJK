@@ -39,13 +39,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define WUFFS_CONFIG__MODULE__PNG
 #define WUFFS_CONFIG__MODULE__TARGA
 #define WUFFS_CONFIG__MODULE__ZLIB
-#include "wuffs-v0.4.c"
+#include <wuffs-v0.4.c>
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #define STBI_WRITE_NO_STDIO
-#include "stb_image_write.h"
+#include <stb_image_write.h>
 
-#include "rd-common/tr_common.h"
+#include <rd-common/tr_common.h>
 
 /*
 ================================================================================

@@ -23,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include "qcommon/sstring.h" // #include <string>
+#include <qcommon/sstring.h> // #include <string>
 #include <vector>
 #include <map>
 

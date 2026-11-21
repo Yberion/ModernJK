@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // --dump writes the decoded packets as text (tools/python/client_fields.py); --trace writes them as a client trace
 // (test/client_trace.h) for the trainer and the tests.
 // Usage: netcodec_bench_client [--dump out.txt] [--trace out.bin] <file.jkcp> ...
-#include "client_trace.h"
+#include <client_trace.h>
 #include "legacy/legacy_codec.h"
 
 #include <algorithm>

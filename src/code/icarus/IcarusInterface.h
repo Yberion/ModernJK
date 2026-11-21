@@ -25,7 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifndef ICARUSINTERFACE_DEFINED
 #define ICARUSINTERFACE_DEFINED
 
-#include "../qcommon/q_shared.h"
+#include <qcommon/q_shared.h>
 #include "tokens.h"
 
 // IcarusInterface.h: ICARUS Interface header file.

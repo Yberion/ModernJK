@@ -22,7 +22,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "qcommon/q_version.h"
+#include <qcommon/q_version.h>
 
 #if defined(XCVAR_PROTO)
 #define XCVAR_DEF(name, defVal, update, flags, announce) extern vmCvar_t name;

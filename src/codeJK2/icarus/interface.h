@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifndef __INTERFACE__
 #define __INTERFACE__
 
-#include "g_shared.h"
+#include <game/g_shared.h>
 
 #include "tokens.h"
 

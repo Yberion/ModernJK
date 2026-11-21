@@ -25,10 +25,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // cg_draw.cpp -- draw all of the graphical elements during
 // active (after loading) gameplay
 
-#include "../game/g_local.h"
+#include <game/g_local.h>
 #include "cg_local.h"
 #include "cg_media.h"
-#include "../game/objectives.h"
+#include <game/objectives.h>
 
 void CG_DrawIconBackground(void);
 void CG_DrawMissionInformation(void);

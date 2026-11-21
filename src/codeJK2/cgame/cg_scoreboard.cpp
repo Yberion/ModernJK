@@ -24,8 +24,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "cg_local.h"
 #include "cg_media.h"
-#include "../game/objectives.h"
-#include "../game/b_local.h"
+#include <game/objectives.h>
+#include <game/b_local.h>
 
 /*
 static void Scoreboard_Draw( void )

@@ -28,7 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <sys/stat.h>
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h>
-#include "qcommon/qcommon.h"
+#include <qcommon/qcommon.h>
 #include "sys_local.h"
 #include "sys_loadlib.h"
 #include "sys_public.h"

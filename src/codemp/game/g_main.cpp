@@ -30,8 +30,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_nav.h"
 #include "bg_saga.h"
 #include "b_local.h"
-#include "game/bg_public.h"
-#include "qcommon/game_version.h"
+#include "bg_public.h"
+#include <qcommon/game_version.h>
 
 NORETURN_PTR void (*Com_Error)(errorParm_t level, const char* error, ...);
 void (*Com_Printf)(const char* msg, ...);

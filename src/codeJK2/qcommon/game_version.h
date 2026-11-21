@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "qcommon/q_version.h"
+#include <qcommon/q_version.h>
 
 #if !defined(STRING) && !defined(XSTRING)
 // rather than including q_shared.h from win32 resource scripts (win32/*.rc)

@@ -57,7 +57,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #endif // SCREWUP
 
 #ifdef BOTLIB
-#include "qcommon/q_shared.h"
+#include <qcommon/q_shared.h>
 #include "botlib.h"
 #include "be_interface.h"
 #include "l_memory.h"
@@ -65,28 +65,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "l_precomp.h"
 #include "l_log.h"
 #endif // BOTLIB
-
-#ifdef MEQCC
-#include "qcc.h"
-#include "time.h" //time & ctime
-#include "math.h" //fabs
-#include "l_memory.h"
-#include "l_script.h"
-#include "l_precomp.h"
-#include "l_log.h"
-
-#endif // MEQCC
-
-#ifdef BSPC
-// include files for usage in the BSP Converter
-#include "../bspc/qbsp.h"
-#include "../bspc/l_log.h"
-#include "../bspc/l_mem.h"
-#include "l_precomp.h"
-
-#define Q_stricmp stricmp
-
-#endif // BSPC
 
 #if defined(QUAKE) && !defined(BSPC)
 #include "l_utils.h"

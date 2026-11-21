@@ -25,7 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_functions.h"
 #include "anims.h"
 #include "wp_saber.h"
-#include "../cgame/cg_local.h"
+#include <cgame/cg_local.h>
 #include "b_local.h"
 #include "g_navigator.h"
 

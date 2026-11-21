@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // q_saberflags.h -- the flags of a saber (its .sab file) and of the saber's events in a frame: one definition for the
 // trees that share them (multiplayer, and Jedi Academy's and Jedi Outcast's single player).
 
-#include "qcommon/q_enum.h"
+#include "q_enum.h"
 
 // SABER FLAGS
 enum class saberFlags_t {

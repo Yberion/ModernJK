@@ -21,28 +21,28 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "../server/exe_headers.h"
+#include <server/exe_headers.h>
 
 #ifndef __Q_SHARED_H
-#include "../qcommon/q_shared.h"
+#include <qcommon/q_shared.h>
 #endif
 
 #if !defined(TR_LOCAL_H)
 #include "tr_local.h"
 #endif
 #if !defined(_QCOMMON_H_)
-#include "../qcommon/qcommon.h"
+#include <qcommon/qcommon.h>
 #endif
 
-#include "qcommon/matcomp.h"
+#include <qcommon/matcomp.h>
 
 #if !defined(G2_H_INC)
-#include "../ghoul2/G2.h"
+#include <ghoul2/G2.h>
 #endif
 
 // rww - RAGDOLL_BEGIN
 #include <float.h>
-#include "../ghoul2/ghoul2_gore.h"
+#include <ghoul2/ghoul2_gore.h>
 // rww - RAGDOLL_END
 
 extern cvar_t* r_Ghoul2BlendMultiplier;

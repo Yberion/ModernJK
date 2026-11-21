@@ -155,7 +155,7 @@ fi
 # the engine's own reader, with the repository's zlib-ng, built alone with the stand-ins of shim/
 if [ "$WHAT" = all ] || [ "$WHAT" = check ] || [ "$WHAT" = fuzz ]; then
 	cm vendored "$REPO/libs/zlib-ng" -DBUILD_TESTING=OFF -DWITH_GZFILEOP=OFF
-	ENGINE="-I $HERE/shim -I $REPO/src/shared -I vendored/build"
+	ENGINE="-I $HERE/shim -I $REPO/src -I vendored/build"
 fi
 if [ "$WHAT" = all ] || [ "$WHAT" = check ]; then
 	clang++ $FLAGS $ENGINE -I old/lib/minizip/include/minizip -I old/lib/zlib/include "$HERE/pk3check.cpp" "$REPO/src/shared/qcommon/q_pk3.cpp" 		old/build/lib/minizip/libbundled_minizip.a old/build/lib/zlib/libbundled_zlib.a vendored/build/libz-ng.a -static -o pk3check.exe

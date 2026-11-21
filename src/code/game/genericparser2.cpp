@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "genericparser2.h"
 
 #ifdef _JK2EXE
-#include "../qcommon/qcommon.h"
+#include <qcommon/qcommon.h>
 #endif
 
 #include <algorithm>

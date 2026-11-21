@@ -23,10 +23,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // wp_saberLoad.cpp
 
-#include "../qcommon/q_shared.h"
+#include <qcommon/q_shared.h>
 #include "g_local.h"
 #include "wp_saber.h"
-#include "../cgame/cg_local.h"
+#include <cgame/cg_local.h>
 
 extern bool G_ParseLiteral(const char** data, const char* string);
 extern saber_colors_t TranslateSaberColor(const char* name);

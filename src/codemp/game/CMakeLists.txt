@@ -106,7 +106,7 @@ add_library(jampgame MODULE
 	w_saber.cpp
 	../qcommon/q_shared.cpp)
 set_target_properties(jampgame PROPERTIES OUTPUT_NAME "jampgame${modernjk_ARCH}" PREFIX "")
-target_include_directories(jampgame PRIVATE "${PROJECT_SOURCE_DIR}/src/codemp" "${PROJECT_SOURCE_DIR}/src/shared")
+target_include_directories(jampgame PRIVATE "${PROJECT_SOURCE_DIR}/src/codemp" "${PROJECT_SOURCE_DIR}/src")
 target_compile_definitions(jampgame PRIVATE _GAME)
 target_link_libraries(jampgame PRIVATE modernjk_shared_common modernjk_version modernjk_options modernjk_warnings
 	modernjk_defines)

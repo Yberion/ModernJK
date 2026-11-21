@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // tr_noise.c
-#include "rd-common/tr_common.h"
+#include <rd-common/tr_common.h>
 
 constexpr int NOISE_SIZE = 256;
 constexpr int NOISE_MASK = NOISE_SIZE - 1;

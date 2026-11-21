@@ -46,7 +46,7 @@ to the new value before sending out any replies.
 
 */
 
-#include "qcommon/qcommon.h"
+#include "qcommon.h"
 
 constexpr int MAX_PACKETLEN = 1400; // max size of a network packet
 constexpr int FRAGMENT_SIZE = MAX_PACKETLEN - 100;

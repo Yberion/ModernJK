@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // q_npcflags.h -- the flags of the NPCs' sight checks, combat points and navigation: one definition for the trees that
 // share them (multiplayer, and Jedi Academy's and Jedi Outcast's single player).
 
-#include "qcommon/q_enum.h"
+#include "q_enum.h"
 
 #include <cstdint>
 

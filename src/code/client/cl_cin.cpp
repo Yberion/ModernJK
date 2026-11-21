@@ -23,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "../server/exe_headers.h"
+#include <server/exe_headers.h>
 
 /*****************************************************************************
  * name:		cl_cin.c
@@ -43,7 +43,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "client.h"
 #include "client_ui.h" // CHC
 #include "snd_local.h"
-#include "qcommon/stringed_ingame.h"
+#include <qcommon/stringed_ingame.h>
 
 constexpr int MAXSIZE = 8;
 constexpr int MINSIZE = 4;

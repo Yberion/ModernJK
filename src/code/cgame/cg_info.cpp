@@ -25,7 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "cg_headers.h"
 
 #include "cg_media.h"
-#include "../game/objectives.h"
+#include <game/objectives.h>
 
 // For printing objectives
 static const short objectiveStartingYpos = 75; // Y starting position for objective text

@@ -23,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 #include "demo_trace.h"
-#include "schema.h"
+#include <schema.h>
 
 #include <span>
 

@@ -23,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "sscanf.h"
 #include "gsl.h"
-#include "qcommon/q_platform.h"
+#include <shared/qcommon/q_platform.h>
 
 #include <cassert>
 #include <iostream>

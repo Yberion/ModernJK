@@ -30,7 +30,7 @@ inline constexpr int MAX_VARIABLES = 32;
 #include <map>
 #include <array>
 
-#include "../icarus/tokens.h"
+#include <icarus/tokens.h>
 
 typedef std::map<std::string, std::string> varString_m;
 typedef std::map<std::string, float> varFloat_m;

@@ -27,9 +27,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <optional>
 
-#include "qcommon/q_shared.h"
-#include "rd-common/tr_types.h"
-#include "game/bg_public.h"
+#include <qcommon/q_shared.h>
+#include <rd-common/tr_types.h>
+#include <game/bg_public.h>
 #include "cg_public.h"
 
 // The entire cgame module is unloaded and reloaded on each level change,
@@ -72,7 +72,7 @@ inline constexpr int ICON_SIZE = 48;
 
 // very large characters
 
-#include "qcommon/q_gamesets.h"
+#include <shared/qcommon/q_gamesets.h>
 
 inline constexpr int TEAM_OVERLAY_MAXNAME_WIDTH = 32;
 inline constexpr int TEAM_OVERLAY_MAXLOCATION_WIDTH = 64;
@@ -486,7 +486,7 @@ enum class leType_t {
     LE_LINE
 };
 
-#include "qcommon/q_clientflags.h"
+#include <shared/qcommon/q_clientflags.h>
 
 enum class leMarkType_t { LEMT_NONE, LEMT_BURN, LEMT_BLOOD }; // fragment local entities can leave marks on walls
 

@@ -28,13 +28,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //
 //	-- jweier
 
-#include "game/g_public.h"
-#include "server/server.h"
+#include <game/g_public.h>
+#include <server/server.h>
 #include "interface.h"
 #include "GameInterface.h"
 #include "Q3_Interface.h"
 #include "Q3_Registers.h"
-#include "server/sv_gameapi.h"
+#include <server/sv_gameapi.h>
 
 #define stringIDExpand(str, type, strEnum) str, type::strEnum, ENUM2STRING(type, strEnum)
 // #define stringIDExpand(str, type, strEnum)	str,type::strEnum

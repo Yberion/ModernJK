@@ -23,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include "qcommon/q_enum.h"
+#include <shared/qcommon/q_enum.h>
 
 enum class boneFlags_t {
     BONE_NONE = 0,
@@ -50,4 +50,4 @@ enum class boneFlags_t {
 template <> inline constexpr bool enableEnumFlags<boneFlags_t> = true;
 
 // defines to setup the
-#include "qcommon/q_renderer.h"
+#include <shared/qcommon/q_renderer.h>

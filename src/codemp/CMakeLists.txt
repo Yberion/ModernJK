@@ -89,7 +89,7 @@ target_sources(mp_engine_common INTERFACE
 	server/sv_snapshot.cpp
 	server/sv_world.cpp
 	../shared/sys/snapvector.cpp)
-target_include_directories(mp_engine_common INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}/src/shared")
+target_include_directories(mp_engine_common INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}/src")
 target_link_libraries(mp_engine_common INTERFACE botlib netcodec::netcodec modernjk_shared_common modernjk_filesystem
 	modernjk_version)
 if(WIN32)
@@ -146,8 +146,7 @@ if(modernjk_BUILD_MP_CLIENT)
 		mp3code/msis.c
 		mp3code/towave.c
 		mp3code/uph.c
-		mp3code/upsf.c
-		mp3code/wavep.c)
+		mp3code/upsf.c)
 	if(WIN32)
 		target_sources(modernjk PRIVATE win32/modernjk.rc)
 	endif()

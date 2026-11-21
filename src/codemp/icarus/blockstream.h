@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 // BlockStream.h
-#include "qcommon/qcommon.h"
+#include <qcommon/qcommon.h>
 #include <stdio.h>
 
 #include <list>
@@ -34,7 +34,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define IBI_EXT ".IBI" //(I)nterpreted (B)lock (I)nstructions
 #define IBI_HEADER_ID "IBI"
-#include "qcommon/q_icarusflags.h"
+#include <shared/qcommon/q_icarusflags.h>
 
 const float IBI_VERSION = 1.57f;
 const int MAX_FILENAME_LENGTH = 1024;
@@ -113,7 +113,7 @@ protected:
 
 // CBlock
 
-#include "qcommon/q_icarusflags.h"
+#include <shared/qcommon/q_icarusflags.h>
 
 class CBlock {
     typedef std::vector<CBlockMember*> blockMember_v;

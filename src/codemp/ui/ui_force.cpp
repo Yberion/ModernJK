@@ -31,7 +31,7 @@ FORCE INTERFACE
 
 // use this to get a demo build without an explicit demo build, i.e. to get the demo ui files to build
 #include "ui_local.h"
-#include "qcommon/qfiles.h"
+#include <qcommon/qfiles.h>
 #include "ui_force.h"
 
 int uiForceSide = FORCE_LIGHTSIDE;

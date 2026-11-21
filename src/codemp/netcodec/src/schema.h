@@ -25,7 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // field, a sign-extended signed field, the raw pattern of a float or of a 32-bit field.
 #pragma once
 
-#include "netcodec/codec.h"
+#include <netcodec/codec.h>
 
 #include <algorithm>
 #include <array>

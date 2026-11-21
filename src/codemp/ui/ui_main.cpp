@@ -37,13 +37,13 @@ USER INTERFACE MAIN
 #include <stdlib.h>
 #include <iterator>
 
-#include "ghoul2/G2.h"
+#include <ghoul2/G2.h>
 #include "ui_local.h"
-#include "qcommon/qfiles.h"
-#include "qcommon/game_version.h"
+#include <qcommon/qfiles.h>
+#include <qcommon/game_version.h>
 #include "ui_force.h"
-#include "cgame/animtable.h" //we want this to be compiled into the module because we access it in the shared module.
-#include "game/bg_saga.h"
+#include <cgame/animtable.h> //we want this to be compiled into the module because we access it in the shared module.
+#include <game/bg_saga.h>
 #include "ui_shared.h"
 
 NORETURN_PTR void (*Com_Error)(errorParm_t level, const char* error, ...);

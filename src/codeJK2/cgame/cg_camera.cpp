@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "cg_media.h"
 
-#include "../game/g_roff.h"
+#include <game/g_roff.h>
 
 bool in_camera = false;
 camera_t client_camera = {};

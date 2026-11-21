@@ -28,10 +28,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <array>
 #include <cassert>
 
-#include "qcommon/safe/gsl.h"
-#include "qcommon/safe/memory.h"
-#include "qcommon/safe/files.h"
-#include "qcommon/safe/string.h"
+#include <shared/qcommon/safe/gsl.h>
+#include <qcommon/safe/memory.h>
+#include <shared/qcommon/safe/files.h>
+#include <shared/qcommon/safe/string.h>
 
 #ifndef GENERICPARSER2_H
 #define GENERICPARSER2_H

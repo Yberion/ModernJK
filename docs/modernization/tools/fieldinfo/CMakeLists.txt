@@ -11,7 +11,7 @@ get_filename_component(REPO ${CMAKE_CURRENT_SOURCE_DIR}/../../../.. ABSOLUTE)
 
 add_executable(fieldinfo fieldinfo.cpp)
 # same include directories as the engine for q_shared.h
-target_include_directories(fieldinfo PRIVATE ${REPO}/src/codemp ${REPO}/src/shared)
+target_include_directories(fieldinfo PRIVATE ${REPO}/src/codemp ${REPO}/src)
 if(MSVC)
   target_compile_definitions(fieldinfo PRIVATE NOMINMAX _CRT_SECURE_NO_WARNINGS)
 endif()

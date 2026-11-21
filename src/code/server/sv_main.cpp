@@ -22,14 +22,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "../server/exe_headers.h"
+#include "exe_headers.h"
 
 #include "server.h"
 /*
 Ghoul2 Insert Start
 */
 #if !defined(MINIHEAP_H_INC)
-#include "../qcommon/MiniHeap.h"
+#include <qcommon/MiniHeap.h>
 #endif
 /*
 Ghoul2 Insert End

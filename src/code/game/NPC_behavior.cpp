@@ -29,8 +29,8 @@ things in a snapshot or just go through the snapshot every frame and save the in
 we need it...
 */
 
-#include "../qcommon/q_shared.h"
-#include "../cgame/cg_local.h"
+#include <qcommon/q_shared.h>
+#include <cgame/cg_local.h>
 #include "g_navigator.h"
 #include "Q3_Interface.h"
 #include "b_local.h"

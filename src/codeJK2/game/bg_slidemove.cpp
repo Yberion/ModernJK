@@ -22,8 +22,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "../../code/qcommon/q_shared.h"
-#include "../cgame/cg_local.h"
+#include <code/qcommon/q_shared.h>
+#include <cgame/cg_local.h>
 #include "bg_public.h"
 #include "bg_local.h"
 

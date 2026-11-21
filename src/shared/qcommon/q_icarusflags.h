@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // q_icarusflags.h -- the flags of ICARUS's blocks and tokenizer, and its limits: one definition for the trees that
 // share them (multiplayer, and Jedi Academy's and Jedi Outcast's single player).
 
-#include "qcommon/q_enum.h"
+#include "q_enum.h"
 
 // The flags of a block, set by the sequencer
 enum class blockFlags_t {

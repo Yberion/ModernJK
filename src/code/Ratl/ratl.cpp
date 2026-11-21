@@ -21,26 +21,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "../qcommon/q_shared.h"
+#include <qcommon/q_shared.h>
 
 #if !defined(RATL_COMMON_INC)
 #include "ratl_common.h"
-#endif
-
-#if 0
-#include "array_vs.h"
-#include "bits_vs.h"
-#include "heap_vs.h"
-#include "pool_vs.h"
-#include "list_vs.h"
-#include "queue_vs.h"
-#include "stack_vs.h"
-#include "string_vs.h"
-#include "vector_vs.h"
-#include "handle_pool_vs.h"
-#include "hash_pool_vs.h"
-#include "map_vs.h"
-#include "scheduler_vs.h"
 #endif
 
 #if !defined(CTYPE_H_INC)
@@ -59,7 +43,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #endif
 
 #if !defined(RUFL_HFILE_INC)
-#include "../Rufl/hfile.h"
+#include <Rufl/hfile.h>
 #endif
 
 void (*ratl::ratl_base::OutputPrint)(const char*) = nullptr;

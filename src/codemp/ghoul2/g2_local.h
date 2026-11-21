@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <optional>
 
-#include "ghoul2/ghoul2_shared.h"
+#include "ghoul2_shared.h"
 
 // rww - RAGDOLL_BEGIN
 class CRagDollUpdateParams;

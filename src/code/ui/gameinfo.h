@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifndef __GAMEINFO_H__
 #define __GAMEINFO_H__
 
-#include "../qcommon/q_shared.h"
+#include <code/qcommon/q_shared.h>
 #include <stdio.h>
 
 typedef struct {

@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // compared with std::floor directly.
 // Usage: netcodec_test_determinism
 #include "fnv.h"
-#include "numeric.h"
+#include <numeric.h>
 
 #include <cinttypes>
 #include <cmath>

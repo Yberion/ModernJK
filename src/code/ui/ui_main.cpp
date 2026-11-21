@@ -33,7 +33,7 @@ USER INTERFACE MAIN
 #include <algorithm>
 #include <vector>
 
-#include "../server/exe_headers.h"
+#include <server/exe_headers.h>
 
 #include "ui_local.h"
 
@@ -41,14 +41,14 @@ USER INTERFACE MAIN
 
 #include "ui_shared.h"
 
-#include "../ghoul2/G2.h"
+#include <ghoul2/G2.h>
 
-#include "../game/bg_public.h"
-#include "../game/anims.h"
+#include <game/bg_public.h>
+#include <game/anims.h>
 
-#include "../qcommon/stringed_ingame.h"
-#include "../qcommon/q_shared.h"
-#include "../qcommon/game_version.h"
+#include <qcommon/stringed_ingame.h>
+#include <qcommon/q_shared.h>
+#include <qcommon/game_version.h>
 
 extern bool ItemParse_model_g2anim_go(itemDef_t* item, const char* animName);
 extern bool ItemParse_asset_model_go(itemDef_t* item, const char* name);

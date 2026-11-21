@@ -32,7 +32,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "wp_saber.h"
 #include "g_vehicles.h"
 #include "w_local.h"
-#include "../cgame/cg_local.h"
+#include <cgame/cg_local.h>
 
 vec3_t forwardVec, vrightVec, up;
 vec3_t muzzle;

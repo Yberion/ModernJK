@@ -37,9 +37,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <cstdio>
 #include <cstring>
 
-#include "qcommon/q_shared.h"
-#include "qcommon/qcommon.h"
-#include "qcommon/q_pk3.h"
+#include <qcommon/q_shared.h>
+#include <qcommon/qcommon.h>
+#include "q_pk3.h"
 
 constexpr unsigned int ZIP_END_SIGNATURE = 0x06054b50u; // the record that ends the archive and locates the directory
 constexpr int ZIP_END_SIZE = 22;

@@ -27,10 +27,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "cg_local.h"
 
-#include "game/bg_saga.h"
+#include <game/bg_saga.h>
 
-#include "ui/ui_shared.h"
-#include "ui/ui_public.h"
+#include <ui/ui_shared.h>
+#include <ui/ui_public.h>
 
 extern float CG_RadiusForCent(centity_t* cent);
 bool CG_WorldCoordToScreenCoordFloat(vec3_t worldCoord, float* x, float* y);
@@ -146,7 +146,7 @@ int CG_Text_Height(const char* text, float scale, menuFont_t iMenuFont)
     return trap->R_Font_HeightPixels(iFontIndex, scale);
 }
 
-#include "qcommon/qfiles.h" // for STYLE_BLINK etc
+#include <qcommon/qfiles.h> // for STYLE_BLINK etc
 void CG_Text_Paint(float x, float y, float scale, vec4_t color, const char* text, float adjust, int limit, int style, menuFont_t iMenuFont)
 {
     int iStyleOR = 0;

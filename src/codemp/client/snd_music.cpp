@@ -28,9 +28,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <algorithm>
 #include <string>
 
-#include "qcommon/q_shared.h"
-#include "qcommon/sstring.h"
-#include "qcommon/GenericParser2.h"
+#include <qcommon/q_shared.h>
+#include <qcommon/sstring.h>
+#include <qcommon/GenericParser2.h>
 
 #include "snd_local.h"
 #include "snd_music.h"

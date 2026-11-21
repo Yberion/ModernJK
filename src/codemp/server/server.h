@@ -24,15 +24,15 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include "qcommon/q_shared.h"
-#include "qcommon/qcommon.h"
-#include "game/g_public.h"
-#include "game/bg_public.h"
-#include "rd-common/tr_public.h"
+#include <qcommon/q_shared.h>
+#include <qcommon/qcommon.h>
+#include <game/g_public.h>
+#include <game/bg_public.h>
+#include <rd-common/tr_public.h>
 
 //=============================================================================
 
-#include "qcommon/q_limits.h"
+#include <shared/qcommon/q_limits.h>
 
 typedef struct svEntity_s {
     struct worldSector_s* worldSector;

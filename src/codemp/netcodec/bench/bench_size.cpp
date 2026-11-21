@@ -23,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // first message of a demo (the gamestate the client rebuilt) is left out; "snapshot-only" messages have one snapshot
 // operation and nothing else.
 // Usage: netcodec_bench_size <trace.bin> ...   (train.bin, holdout.bin, captures.bin)
-#include "demo_trace.h"
+#include <demo_trace.h>
 
 #include <algorithm>
 #include <chrono>

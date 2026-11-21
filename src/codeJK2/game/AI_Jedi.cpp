@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_nav.h"
 #include "anims.h"
 #include "wp_saber.h"
-#include "../../code/qcommon/tri_coll_test.h"
+#include <code/qcommon/tri_coll_test.h>
 
 extern void CG_DrawAlert(vec3_t origin, float rating);
 extern void G_AddVoiceEvent(gentity_t* self, entity_event_t event, int speakDebounceTime);

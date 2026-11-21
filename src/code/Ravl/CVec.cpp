@@ -32,7 +32,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <assert.h>
 
-#include "qcommon/q_libm.h"
+#include <shared/qcommon/q_libm.h>
 #include <stdio.h>
 #include <float.h>
 #include "CVec.h"

@@ -23,8 +23,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <memory>
 #include "g_local.h"
-#include "../Rufl/hstring.h"
-#include "qcommon/ojk_saved_game_helper.h"
+#include <Rufl/hstring.h>
+#include <qcommon/ojk_saved_game_helper.h>
 
 constexpr int MAX_GTIMERS = 16384;
 

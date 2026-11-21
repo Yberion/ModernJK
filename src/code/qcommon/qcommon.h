@@ -33,7 +33,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "stringed_ingame.h"
 #include "strippublic.h"
 #include "cm_public.h"
-#include "sys/sys_public.h"
+#include <shared/sys/sys_public.h>
 
 // some zone mem debugging stuff
 #ifndef FINAL_BUILD
@@ -114,7 +114,7 @@ inline constexpr int PACKET_BACKUP = 16; // number of old messages that must be 
                                          // server for delta comrpession and ping estimation
 inline constexpr int PACKET_MASK = PACKET_BACKUP - 1;
 
-#include "qcommon/q_limits.h"
+#include <shared/qcommon/q_limits.h>
 
 inline constexpr int MAX_RELIABLE_COMMANDS = 64; // max string commands buffered for restransmit
 
@@ -410,7 +410,7 @@ extern cvarFlags_t cvar_modifiedFlags;
 
 // the file system: one interface (shared/qcommon/files.h) and one implementation (shared/qcommon/files.cpp) for
 // the multiplayer and the single-player engines
-#include "qcommon/files.h"
+#include <shared/qcommon/files.h>
 
 /*
 ==============================================================
@@ -656,6 +656,6 @@ const void* PD_Load(const char* name, size_t* size);
 
 uint32_t ConvertUTF8ToUTF32(char* utf8CurrentChar, char** utf8NextChar);
 
-#include "sys/sys_public.h"
+#include <shared/sys/sys_public.h>
 
 #endif //__QCOMMON_H__

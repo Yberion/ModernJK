@@ -38,10 +38,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "b_local.h"
 #include "events.h"
 #include "g_nav.h"
-#include "../cgame/cg_camera.h"
-#include "../game/objectives.h"
+#include <cgame/cg_camera.h>
+#include "objectives.h"
 #include "g_roff.h"
-#include "../cgame/cg_local.h"
+#include <cgame/cg_local.h>
 #include "g_icarus.h"
 #include "wp_saber.h"
 
@@ -5053,7 +5053,7 @@ Q3_SetLean
 ?
 ============
 */
-#include "qcommon/q_spsets.h"
+#include <shared/qcommon/q_spsets.h>
 static void Q3_SetLean(int entID, lean_t lean)
 {
     gentity_t* ent = &g_entities[entID];

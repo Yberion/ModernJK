@@ -28,7 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "icarus.h"
 
 #include <assert.h>
-#include "server/server.h"
+#include <server/server.h>
 
 #define ICARUS_VALIDATE(a)                                                                                                                                     \
     if (a == false)                                                                                                                                            \

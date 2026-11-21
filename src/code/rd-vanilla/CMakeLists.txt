@@ -56,8 +56,7 @@ target_sources(sp_renderer_common INTERFACE
 	../qcommon/matcomp.cpp
 	../qcommon/q_shared.cpp
 	../rd-common/tr_font.cpp)
-target_include_directories(sp_renderer_common INTERFACE "${PROJECT_SOURCE_DIR}/src/shared" "${PROJECT_SOURCE_DIR}/src/code"
-	"${CMAKE_CURRENT_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}/src/code/rd-common")
+target_include_directories(sp_renderer_common INTERFACE "${PROJECT_SOURCE_DIR}/src/code" "${PROJECT_SOURCE_DIR}/src")
 target_compile_definitions(sp_renderer_common INTERFACE RENDERER _JK2EXE)
 target_link_libraries(sp_renderer_common INTERFACE vendored::gsl_lite modernjk_shared_common modernjk_safe_string
 	modernjk_rd_common OpenGL::GL)

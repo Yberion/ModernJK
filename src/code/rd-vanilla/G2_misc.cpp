@@ -21,38 +21,38 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "../server/exe_headers.h"
+#include <server/exe_headers.h>
 
 #ifndef __Q_SHARED_H
-#include "../qcommon/q_shared.h"
+#include <qcommon/q_shared.h>
 #endif
 
-#include "tr_common.h"
+#include <rd-common/tr_common.h>
 
 #if !defined(TR_LOCAL_H)
 #include "tr_local.h"
 #endif
 
-#include "qcommon/matcomp.h"
+#include <qcommon/matcomp.h>
 
 #if !defined(G2_H_INC)
-#include "../ghoul2/G2.h"
+#include <ghoul2/G2.h>
 #endif
 
 #if !defined(MINIHEAP_H_INC)
-#include "../qcommon/MiniHeap.h"
+#include <qcommon/MiniHeap.h>
 #endif
 
 #define G2_MODEL_OK(g) ((g) && (g)->mValid && (g)->aHeader && (g)->currentModel && (g)->animModel)
 
-#include "../server/server.h"
+#include <server/server.h>
 
 #include <float.h>
 
-#include "qcommon/ojk_saved_game_helper.h"
+#include <qcommon/ojk_saved_game_helper.h>
 
 #ifdef _G2_GORE
-#include "../ghoul2/ghoul2_gore.h"
+#include <ghoul2/ghoul2_gore.h>
 
 constexpr int GORE_TAG_UPPER = 256;
 constexpr int GORE_TAG_MASK = ~255;

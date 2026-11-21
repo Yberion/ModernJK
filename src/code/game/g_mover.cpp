@@ -23,12 +23,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "bg_public.h"
-#include "../cgame/cg_local.h"
+#include <cgame/cg_local.h>
 #include "g_functions.h"
 #include "objectives.h"
 #include "g_local.h"
 
-#include "../icarus/IcarusInterface.h"
+#include <icarus/IcarusInterface.h>
 
 int BMS_START = 0;
 int BMS_MID = 1;

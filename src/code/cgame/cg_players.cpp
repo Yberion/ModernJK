@@ -27,11 +27,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define CG_PLAYERS_CPP
 #include "cg_media.h"
 #include "FxScheduler.h"
-#include "../game/ghoul2_shared.h"
-#include "../game/anims.h"
-#include "../game/wp_saber.h"
-#include "../game/g_vehicles.h"
-#include "../Rufl/hstring.h"
+#include <game/ghoul2_shared.h>
+#include <game/anims.h>
+#include <game/wp_saber.h>
+#include <game/g_vehicles.h>
+#include <Rufl/hstring.h>
 
 constexpr float LOOK_SWING_SCALE = 0.5f;
 constexpr float CG_SWINGSPEED = 0.3f;

@@ -34,7 +34,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "tokens.h"
 
-#include "qcommon/q_icarusflags.h"
+#include <shared/qcommon/q_icarusflags.h>
 #define IBI_EXT ".IBI" //(I)nterpreted (B)lock (I)nstructions
 #define IBI_HEADER_ID "IBI"
 
@@ -105,7 +105,7 @@ protected:
 
 // CBlock
 
-#include "qcommon/q_icarusflags.h"
+#include <shared/qcommon/q_icarusflags.h>
 
 class CBlock {
     typedef std::vector<CBlockMember*> blockMember_v;

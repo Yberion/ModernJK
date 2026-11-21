@@ -7,6 +7,7 @@ The work is in progress and centred on the multiplayer game. The single-player g
 ## Documentation
 
 - [What ModernJK changes compared with OpenJK](docs/modernization/CHANGES.md), with the delays before and now.
+- [The project's guidelines](GUIDELINES.md): the rules for the code, the documents and the changes.
 - [The documentation of the work](docs/modernization/README.md): the study, the plan, the progress and the design surveys.
 
 ## Running

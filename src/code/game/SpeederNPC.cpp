@@ -60,14 +60,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "bg_public.h"
 #endif
 
-#ifndef _JK2MP
 #include "g_functions.h"
 #include "g_vehicles.h"
-#include "../game/wp_saber.h"
-#include "../cgame/cg_local.h"
-#else
-#include "bg_vehicles.h"
-#endif
+#include "wp_saber.h"
+#include <cgame/cg_local.h>
 
 #ifdef _JK2MP
 // this is really horrible, but it works! just be sure not to use any locals or anything
@@ -100,14 +96,6 @@ extern cvar_t* g_speederControlScheme;
 extern void ChangeWeapon(gentity_t* ent, weapon_t newWeapon);
 extern void PM_SetAnim(pmove_t* pm, setAnimParts_t setAnimParts, animNumber_t anim, setAnimFlags_t setAnimFlags, int blendTime);
 extern int PM_AnimLength(int index, animNumber_t anim);
-#endif
-
-#ifdef _JK2MP
-
-#include "../namespace_begin.h"
-
-extern void BG_SetAnim(playerState_t* ps, animation_t* animations, setAnimParts_t setAnimParts, int anim, setAnimFlags_t setAnimFlags, int blendTime);
-extern int BG_GetTime(void);
 #endif
 
 // Alright, actually, most of this file is shared between game and cgame for MP.
@@ -1081,16 +1069,9 @@ void G_SetSpeederVehicleFunctions(vehicleInfo_t* pVehInfo)
 }
 
 // Following is only in game, not in namespace
-#ifdef _JK2MP
-#include "../namespace_end.h"
-#endif
 
 #ifdef QAGAME
 extern void G_AllocateVehicleObject(Vehicle_t** pVeh);
-#endif
-
-#ifdef _JK2MP
-#include "../namespace_begin.h"
 #endif
 
 // Create/Allocate a new Animal Vehicle (initializing it as well).
@@ -1115,24 +1096,3 @@ void G_CreateSpeederNPC(Vehicle_t** pVeh, const char* strType)
     (*pVeh)->m_pVehicleInfo = &g_vehicleInfo[BG_VehicleGetIndex(strType)];
 #endif
 }
-
-#ifdef _JK2MP
-
-#include "../namespace_end.h"
-
-// get rid of all the crazy defs we added for this file
-#undef currentAngles
-#undef currentOrigin
-#undef mins
-#undef maxs
-#undef legsAnimTimer
-#undef torsoAnimTimer
-#undef bool
-#undef false
-#undef true
-
-#undef sqrtf
-#undef Q_flrand
-
-#undef MOD_EXPLOSIVE
-#endif

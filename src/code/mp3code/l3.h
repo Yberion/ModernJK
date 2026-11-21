@@ -38,8 +38,8 @@ ____________________________________________________________________________*/
 
 #include "config.h"
 
-#include "qcommon/q_platform.h"
-#include "qcommon/q_libm.h"
+#include <shared/qcommon/q_platform.h>
+#include <shared/qcommon/q_libm.h>
 
 #define GLOBAL_GAIN_SCALE (4 * 15)
 /* #define GLOBAL_GAIN_SCALE 0 */

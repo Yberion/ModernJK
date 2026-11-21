@@ -24,8 +24,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // tr_draw.c
-#include "../server/exe_headers.h"
-#include "tr_common.h"
+#include <server/exe_headers.h>
+#include <rd-common/tr_common.h>
 #include "tr_local.h"
 
 /*
