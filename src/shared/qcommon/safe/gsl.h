@@ -22,14 +22,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 // central point of include to simplify possible future swap for Microsoft's implementation
-#if defined(_MSC_VER) // gsl-lite 0.41 writes [[gsl::suppress(f.6)]] without a string, deprecated by MSVC 18 (C4875)
-#pragma warning(push)
-#pragma warning(disable : 4875)
-#endif
 #include <gsl/gsl-lite.h>
-#if defined(_MSC_VER)
-#pragma warning(pop)
-#endif
 
 // the default cstring_view constructor from string literals includes the terminating null; this one does not.
 #if defined(_MSC_VER) && _MSC_VER < 1900

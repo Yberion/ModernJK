@@ -31,8 +31,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <ghoul2/G2_gore.h>
 #endif
 
-#include <qcommon/disablewarnings.h>
-
 #define LL(x) x = LittleLong(x)
 
 #ifdef G2_PERFORMANCE_ANALYSIS

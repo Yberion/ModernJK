@@ -160,7 +160,7 @@ bool G_FilterPacket(const char* from)
 {
     int i;
     uint32_t in;
-    byteAlias_t m;
+    byteAlias_t m{};
     const char* p;
 
     i = 0;

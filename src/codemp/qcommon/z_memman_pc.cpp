@@ -439,12 +439,8 @@ void Z_TagFree(memtag_t eTag)
         pMemory = pNext;
     }
 
-    // these stupid pragmas don't work here???!?!?!
-    //
     // #ifdef _DEBUG
-    // #pragma warning( disable : 4189)
     //	int iBlocksFreed = iZoneBlocks - TheZone.Stats.iCount;
-    // #pragma warning( default : 4189)
     // #endif
 }
 

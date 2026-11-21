@@ -382,7 +382,7 @@ char** Sys_ListFiles(const char* directory, const char* extension, const char* f
     intptr_t findhandle;
     int flag;
     int i;
-    int extLen;
+    size_t extLen;
 
     if (filter) {
 

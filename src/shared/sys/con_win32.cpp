@@ -312,7 +312,7 @@ char* CON_Input(void)
     INPUT_RECORD buff[MAX_EDIT_LINE];
     DWORD count = 0, events = 0;
     WORD key = 0;
-    int i;
+    DWORD i;
     int newlinepos = -1;
 
     if (!GetNumberOfConsoleInputEvents(qconsole_hin, &events))
@@ -398,7 +398,7 @@ char* CON_Input(void)
             break;
         }
 
-        if (qconsole_linelen < sizeof(qconsole_line) - 1) {
+        if (qconsole_linelen < static_cast<int>(sizeof(qconsole_line)) - 1) {
             char c = buff[i].Event.KeyEvent.uChar.AsciiChar;
 
             if (key == VK_BACK) {

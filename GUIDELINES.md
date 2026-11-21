@@ -63,9 +63,9 @@ After SF.12 of the C++ Core Guidelines:
 
 ## 8. Warnings
 
-- No warning in any build of the three compilers. Each group of warnings fixed becomes an error so that it cannot come back; at the end of plan step 23 every warning is an error.
-- Each warning gets the right fix, never a silencing in bulk; `#pragma` and flags that switch a warning off need a reason.
-- The sets are in `cmake/CompilerWarnings.cmake`: `modernjk_warnings` for the game, `netcodec_warnings` (strict, as errors) for netcodec.
+- No warning in any build of the three compilers, and every warning of the sets is an error, so that it cannot come back: `modernjk_WARNINGS_AS_ERRORS` is on by default (21 November 2026), turned off only by hand, for a compiler the project was not tested with. A group of warnings added in plan step 23 enters the set once it is fixed.
+- Each warning gets the right fix, never a silencing in bulk; a `#pragma` or a flag that switches a warning off needs its reason written next to it. A library's headers come through a system include folder, outside the warnings, without a pragma.
+- The sets are in `cmake/CompilerWarnings.cmake`: `modernjk_warnings` for the game, the same checks on the three compilers (`-Wall` and `-Wsign-compare` for GCC and clang, MSVC's `/W1` with the numbers that match them raised to level 1), and `netcodec_warnings` (strict) for netcodec.
 - Some warnings exist on one compiler only (GCC's `-Wuseless-cast` on 32- and 64-bit size types: use `ToU32`; MSVC is stricter on old engine code): build on the three.
 
 ## 9. Libraries

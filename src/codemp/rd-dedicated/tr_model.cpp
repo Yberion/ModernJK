@@ -25,7 +25,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // tr_models.c -- model loading and caching
 
 #include "tr_local.h"
-#include <qcommon/disablewarnings.h>
 #include <qcommon/sstring.h> // #include <string>
 
 #include <vector>
@@ -977,7 +976,7 @@ static qhandle_t RE_RegisterModel_Actual(const char* name)
     model_t* mod;
     unsigned* buf;
     int lod;
-    int ident;
+    int ident = 0;
     bool loaded;
     //	qhandle_t	hModel;
     int numLoaded;

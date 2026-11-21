@@ -1258,7 +1258,7 @@ void SV_RunClientCommands(int time, int frameMsec)
         }
 
         netcodecStats_t& st = cl->netcodecStats;
-        usercmd_t cmd;
+        usercmd_t cmd{};
         bool own = false, measured = false;
         int margin = 0;
 

@@ -218,7 +218,7 @@ static void CG_ClipMoveToEntities(const vec3_t start, const vec3_t mins, const v
                                   bool g2Check)
 {
     int i, x, zd, zu;
-    trace_t trace, oldTrace;
+    trace_t trace, oldTrace{};
     entityState_t* ent;
     clipHandle_t cmodel;
     vec3_t bmins, bmaxs;

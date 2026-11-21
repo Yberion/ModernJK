@@ -1079,7 +1079,7 @@ static CFontInfo* RE_Font_GetVariant(CFontInfo* font, float* scale)
     int variants = font->GetNumVariants();
 
     if (variants > 0) {
-        CFontInfo* variant;
+        CFontInfo* variant = nullptr;
         int requestedSize = font->GetPointSize() * *scale * r_fontSharpness->value * (glConfig.vidHeight / SCREEN_HEIGHT);
 
         if (requestedSize <= font->GetPointSize())

@@ -3422,9 +3422,7 @@ void CG_DrawDataPadForceSelect(void)
 // actually, these are pretty pointless so far in CHC, since in TA codebase they were used only so init some HUD
 //	function ptrs to allow cinematics in onscreen displays. So far, we don't use those, but here they are anyway...
 //
-/*	These stupid pragmas don't work, they still give the warning. Forget it, REM the lot.
-
-#pragma warning ( disable : 4505)		// unreferenced local function has been removed
+/*
 static int CG_PlayCinematic(const char *name, float x, float y, float w, float h) {
   return trap_CIN_PlayCinematic(name, x, y, w, h, cinematicFlags_t::CIN_loop);
 }
@@ -3441,5 +3439,4 @@ static void CG_DrawCinematic(int handle, float x, float y, float w, float h) {
 static void CG_RunCinematicFrame(int handle) {
   trap_CIN_RunCinematic(handle);
 }
-#pragma warning ( default : 4505)
 */

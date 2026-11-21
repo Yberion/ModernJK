@@ -20,20 +20,32 @@
 # whose list is not taken as it is: each set below is chosen for this code.
 #
 # Two sets, each given to its targets through an interface target:
-#  - modernjk_set_project_warnings: the game's and the engines' present level, -Wall for GCC and clang, MSVC at its
-#    default level;
+#  - modernjk_set_project_warnings: the game's and the engines' level, the same checks on the three compilers: -Wall
+#    and -Wsign-compare for GCC and clang, MSVC's default level with the numbers that match them;
 #  - modernjk_set_netcodec_warnings: netcodec's strict set, always as errors (netcodec is clean under it).
 # They become one set once the game's code is clean under netcodec's.
 
 function(modernjk_set_project_warnings target warnings_as_errors)
 	if(MSVC)
-		set(warnings "")
+		# MSVC's default level, and what GCC's and clang's -Wall and -Wsign-compare check that it does not report at
+		# that level, raised to level 1 (Microsoft's table gives them level 3, 4 or off by default); a bool mixed with
+		# an integer (C4805) is level 1 already
+		set(warnings
+			/W1
+			/w14018 /w14389 # signed and unsigned mismatch, in a comparison and in == or !=
+			/w14701 /w14703 # local variable or pointer perhaps used uninitialised
+			/w14189 /w14101 # local variable initialised but not used, local variable not used
+			/w14505 # unused function with internal linkage
+			# an enumerator a switch without default does not handle
+			/w14062)
 		if(warnings_as_errors)
 			list(APPEND warnings /WX)
 		endif()
 	else()
 		set(warnings
 			-Wall
+			# a signed and unsigned comparison: GCC's -Wall has it in C++ only, clang's not at all
+			-Wsign-compare
 			# a /* inside a comment: OpenJK's code has many, harmless
 			-Wno-comment
 			# offsetof on classes that are not standard-layout: the field tables (msg.cpp, the save games) use it

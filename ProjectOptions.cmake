@@ -38,7 +38,9 @@ macro(modernjk_setup_options)
 	option(modernjk_PORTABLE "The engines read and write no file in the user's folders, only in the game's" OFF)
 
 	# How it is built
-	option(modernjk_WARNINGS_AS_ERRORS "The project's warnings as errors (netcodec's always are)" OFF)
+	# on by default, as the template's for a project built on its own: a warning cannot come back; off by hand for a
+	# compiler the project was not tested with
+	option(modernjk_WARNINGS_AS_ERRORS "The project's warnings as errors (netcodec's always are)" ON)
 	option(modernjk_ENABLE_SANITIZER_ADDRESS "AddressSanitizer" OFF)
 	option(modernjk_ENABLE_SANITIZER_UNDEFINED "UndefinedBehaviorSanitizer (not with MSVC)" OFF)
 	option(modernjk_ENABLE_CLANG_TIDY "clang-tidy on every C++ file while it compiles (reporting)" OFF)

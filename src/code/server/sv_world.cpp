@@ -472,10 +472,8 @@ void SV_SectorList_f(void)
 
 #else
 
-#pragma warning(push, 3) // go back down to 3 for the stl include
 #include <list>
 #include <map>
-#pragma warning(pop)
 
 class CBBox {
 public:

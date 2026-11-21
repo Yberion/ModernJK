@@ -49,7 +49,6 @@ inline constexpr int MAX_MASTER_SERVERS = 5; // number of supported master serve
 #include <shared/qcommon/q_math.h>
 #include <shared/qcommon/q_color.h>
 #include <shared/qcommon/q_string.h>
-#include "disablewarnings.h"
 
 #include <game/teams.h> //npc team stuff
 
