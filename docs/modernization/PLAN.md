@@ -444,8 +444,12 @@ Depends on: step 19. Decided on 19 November 2026, taken out of step 15 (its part
 
 ### ⏳ Step 22: the printing functions on {fmt} (M)
 
-Depends on: step 19 (C++23). Added on 20 November 2026: every printf-like function of every tree (`Com_Printf`, `Com_sprintf`, `va`, the modules' printing functions and the others) written on {fmt} (https://github.com/fmtlib/fmt), vendored in `libs/` at a pinned release like the other libraries; chosen over the standard library's `std::format` and `std::print` (C++20 and C++23, which come from {fmt}): one implementation on every compiler rather than three standard libraries' (decided 20 November 2026). Nothing else is decided: a survey first (the calls and their number, {fmt}'s release, its checking of the format strings at compile time, the size and the speed against today's functions, what becomes of the format attributes of step 18), its decisions, then the parts. Done right after step 19, before step 21 (decided 21 November 2026).
+Depends on: step 19 (C++23). Added on 20 November 2026: every printf-like function of every tree (`Com_Printf`, `Com_sprintf`, `va`, the modules' printing functions and the others) written on {fmt} (https://github.com/fmtlib/fmt), vendored in `libs/` at a pinned release like the other libraries; chosen over the standard library's `std::format` and `std::print` (C++20 and C++23, which come from {fmt}): one implementation on every compiler rather than three standard libraries' (decided 20 November 2026). Nothing else is decided: a survey first (the calls and their number, {fmt}'s release, its checking of the format strings at compile time, the size and the speed against today's functions, what becomes of the format attributes of step 18), its decisions, then the parts. Done right after step 19, before step 21 (decided 21 November 2026). Started on 22 November 2026.
 
+- Decided on 22 November 2026, before the survey's decisions:
+  - every printing and formatting call goes through the project's own functions, declared once in a header of `src/shared/qcommon` that every tree includes, which use {fmt} inside; the code never calls {fmt} itself. A conversion tool (clang-tidy's `modernize-use-std-print` and `modernize-use-std-format`, whose replacement function can be any function with the interface of `std::print` or `std::format`) writes the calls of those functions, not of {fmt}'s;
+  - the printing made the same wherever it is called from, where possible: today the engine calls `Com_Printf`, the multiplayer's modules `trap->Print`, the single player's game `gi.Printf`, the renderers `ri.Printf` with a level, the bot library `botimport.Print` with a type, ICARUS `I_DPrintf`, the modules their own `G_Printf` and `CG_Printf`; the header gives the same functions to every binary, the crossing into the engine done inside it;
+  - the logs are a step of their own, step 27.
 - Check: to be set with its decisions.
 
 ### ⏳ Step 23: the warnings (L)
@@ -479,9 +483,16 @@ Depends on: step 25 (the renderer draws the text: `rd-common/tr_font.cpp`, `RE_F
 - First a survey with sources: what recent games and libraries do (the rasteriser, the shaping, the fallback fonts), the licences; what Unicode implies for the strings the engine keeps and sends (the players' names, the chat, the configstrings: the filters of the bytes above 127, `Q_CleanStr`, the colour codes `^`), the console, the menus and the language files.
 - Check: to decide with the step.
 
+### ⏳ Step 27: the logs (M)
+
+Depends on: step 22 (the printing functions on {fmt}). Added on 22 November 2026, during step 22's survey: the engine's and the modules' logs (the console log `qconsole.log`, the game's `games.log`, the server's `security.log`, the `developer` level and the levels the printing functions carry today: the renderers' print levels, the bot library's message types, ICARUS's debug levels) on one system, with levels, files and their rotation. {fmt} formats and writes but has no logging; spdlog (https://github.com/gabime/spdlog) is the logging library built on {fmt}.
+
+- First a survey with sources: what recent games and engines do for their logs, spdlog and the other libraries, or the project's own on step 22's header; then its decisions and its place in the order.
+- Check: to decide with the step.
+
 ## 3. Order at a glance
 
-Order of work (10 November 2026): step 14 comes right after step 11, before steps 12 (encryption, not wanted for now) and 13 (retraining on recordings of this build). Then (15 November 2026): steps 17, 18 and 19, in that order, before step 15. Step 20 (18 November 2026) comes between steps 18 and 19. Step 21 (19 November 2026), the sound taken out of step 15, comes between steps 19 and 15. Step 22 (20 November 2026), the printing functions on {fmt}, comes right after step 19, before step 21 (21 November 2026). Step 23 (21 November 2026), the warnings, taken out of step 19, comes last, after steps 22, 21 and 15. Steps 24 (the map's BSP and the traces), 25 (a Vulkan renderer) and 26 (the fonts and Unicode), added on 21 November 2026, come after step 15, in that order, and step 23 stays last, after them (decided the same day).
+Order of work (10 November 2026): step 14 comes right after step 11, before steps 12 (encryption, not wanted for now) and 13 (retraining on recordings of this build). Then (15 November 2026): steps 17, 18 and 19, in that order, before step 15. Step 20 (18 November 2026) comes between steps 18 and 19. Step 21 (19 November 2026), the sound taken out of step 15, comes between steps 19 and 15. Step 22 (20 November 2026), the printing functions on {fmt}, comes right after step 19, before step 21 (21 November 2026). Step 23 (21 November 2026), the warnings, taken out of step 19, comes last, after steps 22, 21 and 15. Steps 24 (the map's BSP and the traces), 25 (a Vulkan renderer) and 26 (the fonts and Unicode), added on 21 November 2026, come after step 15, in that order, and step 23 stays last, after them (decided the same day). Step 27 (the logs, 22 November 2026) comes after step 22; its place is decided with its survey.
 
 | step | what | depends on | effort | state |
 |---|---|---|---|---|
@@ -511,6 +522,7 @@ Order of work (10 November 2026): step 14 comes right after step 11, before step
 | 24 | the map's BSP and the traces (after step 15) | 19 | L | ⏳ |
 | 25 | a Vulkan renderer for the single player and the multiplayer (after step 24) | 15 | L | ⏳ |
 | 26 | the fonts and Unicode (after step 25) | 15, 25 | M to L | ⏳ |
+| 27 | the logs (after step 22, its place decided with its survey) | 22 | M | ⏳ |
 
 ## 4. Test matrix
 
