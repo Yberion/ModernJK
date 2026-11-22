@@ -399,7 +399,7 @@ void SP_trigger_multiple(gentity_t* ent)
 
     if ((ent->wait > 0) && (ent->random >= ent->wait)) {
         ent->random = ent->wait - FRAMETIME;
-        gi.Printf(S_COLOR_YELLOW "trigger_multiple has random >= wait\n");
+        Com_Printf(S_COLOR_YELLOW "trigger_multiple has random >= wait\n");
     }
 
     ent->delay *= 1000; // 1 = 1 msec, 1000 = 1 sec
@@ -530,7 +530,7 @@ const char* G_GetLocationForEnt(gentity_t* ent)
 void SP_trigger_location(gentity_t* ent)
 {
     if (!ent->message || !ent->message[0]) {
-        gi.Printf("WARNING: trigger_location with no message!\n");
+        Com_Warning("trigger_location with no message!\n");
         G_FreeEntity(ent);
         return;
     }
@@ -882,7 +882,7 @@ void trigger_teleporter_touch(gentity_t* self, gentity_t* other, trace_t* trace)
 
     dest = G_PickTarget(self->target);
     if (!dest) {
-        gi.Printf("Couldn't find teleporter destination\n");
+        Com_Printf("Couldn't find teleporter destination\n");
         return;
     }
 
@@ -942,7 +942,7 @@ void trigger_teleporter_find_closest_portal(gentity_t* self)
     }
 
     if (self->lastEnemy) {
-        gi.Printf("trigger_teleporter found misc_portal_surface\n");
+        Com_Printf("trigger_teleporter found misc_portal_surface\n");
     }
     self->e_ThinkFunc = thinkFunc_t::thinkF_NULL;
 }
@@ -1241,7 +1241,7 @@ void shipboundary_touch(gentity_t* self, gentity_t* other, trace_t* trace)
 
     ent = G_Find(nullptr, FOFS(targetname), self->target);
     if (!ent || !ent->inuse) { // this is bad
-        G_Error("trigger_shipboundary has invalid target '%s'\n", self->target);
+        Com_Error(errorParm_t::ERR_DROP, "trigger_shipboundary has invalid target '%s'\n", self->target);
         return;
     }
 
@@ -1268,12 +1268,12 @@ void SP_trigger_shipboundary(gentity_t* self)
     self->contents = contentsFlags_t::CONTENTS_TRIGGER;
 
     if (!self->target || !self->target[0]) {
-        G_Error("trigger_shipboundary without a target.");
+        Com_Error(errorParm_t::ERR_DROP, "trigger_shipboundary without a target.");
     }
     G_SpawnInt("traveltime", "0", &self->count);
 
     if (!self->count) {
-        G_Error("trigger_shipboundary without traveltime.");
+        Com_Error(errorParm_t::ERR_DROP, "trigger_shipboundary without traveltime.");
     }
 
     // FIXME: implement!
@@ -1333,7 +1333,7 @@ void SP_func_timer(gentity_t* self)
 
     if (self->random >= self->wait) {
         self->random = self->wait - 1; // NOTE: was - FRAMETIME, but FRAMETIME is in msec (100) and these numbers are in *seconds*!
-        gi.Printf("func_timer at %s has random >= wait\n", vtos(self->s.origin));
+        Com_Printf("func_timer at %s has random >= wait\n", vtos(self->s.origin));
     }
 
     if (self->spawnflags & 1) {

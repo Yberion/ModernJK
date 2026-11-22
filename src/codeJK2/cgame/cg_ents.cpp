@@ -780,7 +780,7 @@ static void CG_Item(centity_t* cent)
 
     es = &cent->currentState;
     if (es->modelindex >= bg_numItems) {
-        CG_Error("Bad item index %i on entity", es->modelindex);
+        Com_Error(errorParm_t::ERR_DROP, "Bad item index %i on entity", es->modelindex);
     }
     /*
     Ghoul2 Insert Start
@@ -1389,7 +1389,7 @@ void CG_CalcEntityLerpPositions(centity_t* cent)
         // it would be an internal error to find an entity that interpolates without
         // a snapshot ahead of the current one
         if (cg.nextSnap == nullptr) {
-            CG_Error("CG_AddCEntity: cg.nextSnap == NULL");
+            Com_Error(errorParm_t::ERR_DROP, "CG_AddCEntity: cg.nextSnap == NULL");
         }
 
         f = cg.frameInterpolation;
@@ -1533,7 +1533,7 @@ void CG_CalcEntityLerpPositions(centity_t* cent)
         // it would be an internal error to find an entity that interpolates without
         // a snapshot ahead of the current one
         if (cg.nextSnap == nullptr) {
-            CG_Error("CG_AddCEntity: cg.nextSnap == NULL");
+            Com_Error(errorParm_t::ERR_DROP, "CG_AddCEntity: cg.nextSnap == NULL");
         }
 
         f = cg.frameInterpolation;
@@ -1916,7 +1916,7 @@ static void CG_AddCEntity(centity_t* cent)
 
     switch (cent->currentState.eType) {
     default:
-        CG_Error("Bad entity type: %i\n", to_underlying(cent->currentState.eType));
+        Com_Error(errorParm_t::ERR_DROP, "Bad entity type: %i\n", to_underlying(cent->currentState.eType));
         break;
     case entityType_t::ET_INVISIBLE:
     case entityType_t::ET_PUSH_TRIGGER:
@@ -2181,10 +2181,10 @@ void CG_ROFF_NotetrackCallback(centity_t* cent, const char* notetrack)
     // else if ...
     else {
         if (type[0]) {
-            Com_Printf("^3Warning: \"%s\" is an invalid ROFF notetrack function\n", type);
+            Com_Warning("\"%s\" is an invalid ROFF notetrack function\n", type);
         }
         else {
-            Com_Printf("^3Warning: Notetrack is missing function and/or arguments\n");
+            Com_Warning("Notetrack is missing function and/or arguments\n");
         }
     }
 

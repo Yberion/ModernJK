@@ -121,11 +121,11 @@ static void UI_LoadArenasFromFile(char* filename)
 
     len = trap->FS_Open(filename, &f, fsMode_t::FS_READ);
     if (!f) {
-        trap->Print(S_COLOR_RED "file not found: %s\n", filename);
+        Com_Printf(S_COLOR_RED "file not found: %s\n", filename);
         return;
     }
     if (len >= MAX_ARENAS_TEXT) {
-        trap->Print(S_COLOR_RED "file too large: %s is %i, max allowed is %i", filename, len, MAX_ARENAS_TEXT);
+        Com_Printf(S_COLOR_RED "file too large: %s is %i, max allowed is %i", filename, len, MAX_ARENAS_TEXT);
         trap->FS_Close(f);
         return;
     }
@@ -166,9 +166,9 @@ void UI_LoadArenas(void)
         strcat(filename, dirptr);
         UI_LoadArenasFromFile(filename);
     }
-    //	trap->Print( "%i arenas parsed\n", ui_numArenas );
+    //	Com_Printf( "%i arenas parsed\n", ui_numArenas );
     if (UI_OutOfMemory()) {
-        trap->Print(S_COLOR_YELLOW "WARNING: not anough memory in pool to load all arenas\n");
+        Com_Warning("not anough memory in pool to load all arenas\n");
     }
 
     for (n = 0; n < ui_numArenas; n++) {
@@ -240,11 +240,11 @@ static void UI_LoadBotsFromFile(const char* filename)
 
     len = trap->FS_Open(filename, &f, fsMode_t::FS_READ);
     if (!f) {
-        trap->Print(S_COLOR_RED "file not found: %s\n", filename);
+        Com_Printf(S_COLOR_RED "file not found: %s\n", filename);
         return;
     }
     if (len >= MAX_BOTS_TEXT) {
-        trap->Print(S_COLOR_RED "file too large: %s is %i, max allowed is %i", filename, len, MAX_BOTS_TEXT);
+        Com_Printf(S_COLOR_RED "file too large: %s is %i, max allowed is %i", filename, len, MAX_BOTS_TEXT);
         trap->FS_Close(f);
         return;
     }
@@ -309,7 +309,7 @@ void UI_LoadBots(void)
         strcat(filename, dirptr);
         UI_LoadBotsFromFile(filename);
     }
-    //	trap->Print( "%i bots parsed\n", ui_numBots );
+    //	Com_Printf( "%i bots parsed\n", ui_numBots );
 }
 
 /*
@@ -320,7 +320,7 @@ UI_GetBotInfoByNumber
 char* UI_GetBotInfoByNumber(int num)
 {
     if (num < 0 || num >= ui_numBots) {
-        trap->Print(S_COLOR_RED "Invalid bot number: %i\n", num);
+        Com_Printf(S_COLOR_RED "Invalid bot number: %i\n", num);
         return nullptr;
     }
     return ui_botInfos[num];

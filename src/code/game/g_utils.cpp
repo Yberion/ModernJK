@@ -75,7 +75,7 @@ int G_FindConfigstringIndex(const char* name, int start, int max, bool create)
     }
 
     if (i == max) {
-        G_Error("G_FindConfigstringIndex: overflow adding %s to set %d-%d", name, start, max);
+        Com_Error(errorParm_t::ERR_DROP, "G_FindConfigstringIndex: overflow adding %s to set %d-%d", name, start, max);
     }
 
     gi.SetConfigstring(start + i, name);
@@ -580,7 +580,7 @@ gentity_t* G_PickTarget(char* targetname)
     gentity_t* choice[MAXCHOICES];
 
     if (!targetname) {
-        gi.Printf("G_PickTarget called with NULL targetname\n");
+        Com_Printf("G_PickTarget called with NULL targetname\n");
         return nullptr;
     }
 
@@ -594,7 +594,7 @@ gentity_t* G_PickTarget(char* targetname)
     }
 
     if (!num_choices) {
-        gi.Printf("G_PickTarget: target %s not found\n", targetname);
+        Com_Printf("G_PickTarget: target %s not found\n", targetname);
         return nullptr;
     }
 
@@ -617,7 +617,7 @@ void G_UseTargets2(gentity_t* ent, gentity_t* activator, const char* string)
             }
 
             if (!ent->inuse) {
-                gi.Printf("entity was removed while using targets\n");
+                Com_Printf("entity was removed while using targets\n");
                 return;
             }
         }
@@ -625,7 +625,7 @@ void G_UseTargets2(gentity_t* ent, gentity_t* activator, const char* string)
             t = nullptr;
             while ((t = G_Find(t, FOFS(targetname), (char*)string)) != nullptr) {
                 if (t == ent) {
-                    //				gi.Printf ("WARNING: Entity used itself.\n");
+                    //				Com_Warning("Entity used itself.\n");
                 }
                 if (t->e_UseFunc != useFunc_t::useF_NULL) // check can be omitted
                 {
@@ -633,7 +633,7 @@ void G_UseTargets2(gentity_t* ent, gentity_t* activator, const char* string)
                 }
 
                 if (!ent->inuse) {
-                    gi.Printf("entity was removed while using targets\n");
+                    Com_Printf("entity was removed while using targets\n");
                     return;
                 }
             }
@@ -837,7 +837,7 @@ gentity_t* G_Spawn(void)
                 }
         */
         // FINAL_BUILD
-        G_Error("G_Spawn: no free entities");
+        Com_Error(errorParm_t::ERR_DROP, "G_Spawn: no free entities");
     }
 
     // open up a new slot
@@ -1081,7 +1081,7 @@ void G_AddEvent(gentity_t* ent, entity_event_t event, int eventParm)
     int bits;
 
     if (event == entity_event_t::EV_NONE) {
-        gi.Printf("G_AddEvent: zero event added for entity %i\n", ent->s.number);
+        Com_Printf("G_AddEvent: zero event added for entity %i\n", ent->s.number);
         return;
     }
 
@@ -1092,7 +1092,7 @@ void G_AddEvent(gentity_t* ent, entity_event_t event, int eventParm)
 		gentity_t	*temp;
 
 		// generate a temp entity that references the original entity
-		gi.Printf( "eventPush\n" );
+		Com_Printf( "eventPush\n" );
 
 		temp = G_Spawn();
 		temp->s.eType = ET_EVENT_ONLY;
@@ -1297,13 +1297,13 @@ void Svcmd_Use_f(void)
 
     if (!cmd1 || !cmd1[0]) {
         // FIXME: warning message
-        gi.Printf("'use' takes targetname of ent or 'list' (lists all usable ents)\n");
+        Com_Printf("'use' takes targetname of ent or 'list' (lists all usable ents)\n");
         return;
     }
     else if (!Q_stricmp("list", cmd1)) {
         gentity_t* ent;
 
-        gi.Printf("Listing all usable entities:\n");
+        Com_Printf("Listing all usable entities:\n");
 
         for (int i = 1; i < ENTITYNUM_WORLD; i++) {
             ent = &g_entities[i];
@@ -1311,17 +1311,17 @@ void Svcmd_Use_f(void)
                 if (ent->targetname && ent->targetname[0]) {
                     if (ent->e_UseFunc != useFunc_t::useF_NULL) {
                         if (ent->NPC) {
-                            gi.Printf("%s (NPC)\n", ent->targetname);
+                            Com_Printf("%s (NPC)\n", ent->targetname);
                         }
                         else {
-                            gi.Printf("%s\n", ent->targetname);
+                            Com_Printf("%s\n", ent->targetname);
                         }
                     }
                 }
             }
         }
 
-        gi.Printf("End of list.\n");
+        Com_Printf("End of list.\n");
     }
     else {
         G_UseTargets2(&g_entities[0], &g_entities[0], cmd1);
@@ -1752,7 +1752,7 @@ void TryUse(gentity_t* ent)
 extern int killPlayerTimer;
 void G_ChangeMap(const char* mapname, const char* spawntarget, bool hub)
 {
-    //	gi.Printf("Loading...");
+    //	Com_Printf("Loading...");
     // ignore if player is dead
     if (g_entities[0].client->ps.pm_type == pmtype_t::PM_DEAD)
         return;

@@ -74,12 +74,12 @@ bool UI_ParseLiteral(const char** data, const char* string)
 
     token = COM_ParseExt(data, true);
     if (token[0] == 0) {
-        ui.Printf("unexpected EOF\n");
+        Com_Printf("unexpected EOF\n");
         return true;
     }
 
     if (Q_stricmp(token, string)) {
-        ui.Printf("required string '%s' missing\n", string);
+        Com_Printf("required string '%s' missing\n", string);
         return true;
     }
 
@@ -128,7 +128,7 @@ bool UI_SaberParseParm(const char* saberName, const char* parmname, char* saberD
     while (1) {
         token = COM_ParseExt(&p, true);
         if (!token[0]) {
-            ui.Printf(S_COLOR_RED "ERROR: unexpected EOF while parsing '%s'\n", saberName);
+            Com_PrintError("unexpected EOF while parsing '%s'\n", saberName);
             COM_EndParseSession();
             return false;
         }
@@ -264,7 +264,7 @@ void UI_SaberLoadParms(void)
     char *buffer, *holdChar, *marker;
     char saberExtensionListBuf[2048]; //	The list of file names read in
 
-    // ui.Printf( "UI Parsing *.sab saber definitions\n" );
+    // Com_Printf( "UI Parsing *.sab saber definitions\n" );
 
     ui_saber_parms_parsed = true;
     UI_CacheSaberGlowGraphics();
@@ -284,7 +284,7 @@ void UI_SaberLoadParms(void)
         len = ui.FS_ReadFile(va("ext_data/sabers/%s", holdChar), (void**)&buffer);
 
         if (len == -1) {
-            ui.Printf("UI_SaberLoadParms: error reading %s\n", holdChar);
+            Com_Printf("UI_SaberLoadParms: error reading %s\n", holdChar);
         }
         else {
             if (totallen && *(marker - 1) == '}') { // don't let it end on a } because that should be a stand-alone token

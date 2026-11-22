@@ -268,7 +268,7 @@ static sfxHandle_t CG_CustomSound(int entityNum, const char* soundName, customSo
         break;
     }
 
-    CG_Error("Unknown custom sound: %s", soundName);
+    Com_Error(errorParm_t::ERR_DROP, "Unknown custom sound: %s", soundName);
     return 0;
 }
 
@@ -468,7 +468,7 @@ void ParseAnimationSndBlock(const char* asb_filename, animsounds_t* animSounds,
     // read information for each frame
     while (1) {
         if (*i >= MAX_ANIM_SOUNDS) {
-            CG_Error("ParseAnimationSndBlock:  animation number >= MAX_ANIM_SOUNDS(%i)", MAX_ANIM_SOUNDS);
+            Com_Error(errorParm_t::ERR_DROP, "ParseAnimationSndBlock:  animation number >= MAX_ANIM_SOUNDS(%i)", MAX_ANIM_SOUNDS);
         }
         // Get base frame of sequence
         token = COM_Parse(text_p);
@@ -488,12 +488,12 @@ void ParseAnimationSndBlock(const char* asb_filename, animsounds_t* animSounds,
         //	at least not much.
         animNum = BG_AnimFromName(token);
         if (!animNum) { // Unrecognized ANIM ENUM name, or we're skipping this line, keep going till you get a good one
-            Com_Printf(S_COLOR_YELLOW "WARNING: Unknown token %s in animSound file %s\n", token, asb_filename);
+            Com_Warning("Unknown token %s in animSound file %s\n", token, asb_filename);
             continue;
         }
 
         if (animations[*animNum].numFrames == 0) { // we don't use this anim
-            // Com_Printf(S_COLOR_YELLOW"WARNING: %s animsounds.cfg: anim %s not used by this model\n", filename, token);
+            // Com_Warning("%s animsounds.cfg: anim %s not used by this model\n", filename, token);
 
             // Get offset to frame within sequence
             token = COM_Parse(text_p);
@@ -639,7 +639,7 @@ void CG_ParseAnimationSndFile(const char* as_filename, int animFileIndex)
     }
     if (len >= (int)sizeof(text) - 1) {
         cgi_FS_FCloseFile(f);
-        CG_Printf("File %s too long\n", sfilename);
+        Com_Printf("File %s too long\n", sfilename);
         return;
     }
 
@@ -686,7 +686,7 @@ void CG_SetLerpFrameAnimation(clientInfo_t* ci, lerpFrame_t* lf, animNumber_t ne
 #ifdef FINAL_BUILD
         newAnimation = animNumber_t::BOTH_1CRUFTFORGIL;
 #else
-        CG_Error("Bad animation number: %i", to_underlying(newAnimation));
+        Com_Error(errorParm_t::ERR_DROP, "Bad animation number: %i", to_underlying(newAnimation));
 #endif
     }
 
@@ -696,7 +696,7 @@ void CG_SetLerpFrameAnimation(clientInfo_t* ci, lerpFrame_t* lf, animNumber_t ne
 #ifdef FINAL_BUILD
         ci->animFileIndex = 0;
 #else
-        CG_Error("Bad animFileIndex: %i", ci->animFileIndex);
+        Com_Error(errorParm_t::ERR_DROP, "Bad animFileIndex: %i", ci->animFileIndex);
 #endif
     }
 
@@ -5323,6 +5323,6 @@ void CG_ResetPlayerEntity(centity_t* cent)
     cent->pe.torso.pitching = false;
 
     if (cg_debugPosition.integer) {
-        CG_Printf("%i ResetPlayerEntity yaw=%f\n", cent->currentState.number, cent->pe.torso.yawAngle);
+        Com_Printf("%i ResetPlayerEntity yaw=%f\n", cent->currentState.number, cent->pe.torso.yawAngle);
     }
 }

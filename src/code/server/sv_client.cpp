@@ -225,7 +225,7 @@ void SV_SendClientGameState(client_t* client)
 
     // check for overflow
     if (msg.overflowed) {
-        Com_Printf("WARNING: GameState overflowed for %s\n", client->name);
+        Com_Warning("GameState overflowed for %s\n", client->name);
     }
 
     // deliver this to the client

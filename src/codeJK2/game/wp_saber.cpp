@@ -582,8 +582,8 @@ bool WP_GetSaberDeflectionAngle(gentity_t* attacker, gentity_t* defender)
         }
 #ifndef FINAL_BUILD
         if (d_saberCombat->integer) {
-            gi.Printf(S_COLOR_BLUE "%s deflected from %s to %s\n", attacker->targetname, saberMoveData[attacker->client->ps.saberMove].name,
-                      saberMoveData[attacker->client->ps.saberBounceMove].name);
+            Com_Printf(S_COLOR_BLUE "%s deflected from %s to %s\n", attacker->targetname, saberMoveData[attacker->client->ps.saberMove].name,
+                       saberMoveData[attacker->client->ps.saberBounceMove].name);
         }
 #endif
         return true;
@@ -766,7 +766,7 @@ bool WP_SaberApplyDamage(gentity_t* ent, float baseDamage, damageFlags_t baseDFl
                         G_Damage(victim, ent, ent, dmgDir[i], dmgSpot[i], Q_ceilf(totalDmg[i]), dFlags, meansOfDeath_t::MOD_SABER, hitDismemberLoc[i]);
 #ifndef FINAL_BUILD
                         if (d_saberCombat->integer) {
-                            gi.Printf(S_COLOR_RED "damage: %4.2f, hitLoc %d\n", totalDmg[i], to_underlying(hitLoc[i]));
+                            Com_Printf(S_COLOR_RED "damage: %4.2f, hitLoc %d\n", totalDmg[i], to_underlying(hitLoc[i]));
                         }
 #endif
                         // do the effect
@@ -869,7 +869,7 @@ bool WP_SabersIntersect(gentity_t* ent1, gentity_t* ent2, bool checkDir)
 #ifndef FINAL_BUILD
     if ( d_saberCombat->integer )
     {
-        gi.Printf( S_COLOR_GREEN"Doing precise saber intersection check\n" );
+        Com_Printf( S_COLOR_GREEN"Doing precise saber intersection check\n" );
     }
 #endif
     */
@@ -976,7 +976,7 @@ float WP_SabersDistance(gentity_t* ent1, gentity_t* ent2)
 #ifndef FINAL_BUILD
     if ( d_saberCombat->integer )
     {
-        gi.Printf( S_COLOR_GREEN"Doing precise saber intersection check\n" );
+        Com_Printf( S_COLOR_GREEN"Doing precise saber intersection check\n" );
     }
 #endif
     */
@@ -1113,7 +1113,7 @@ bool WP_SaberDamageEffects(trace_t* tr, const vec3_t start, float length, float 
 #ifndef FINAL_BUILD
             if ( d_saberCombat->integer )
             {
-                gi.Printf( S_COLOR_MAGENTA"rejecting G2 collision- %4.2f farther than saberHitFraction %4.2f\n", (distFromStart/length), saberHitFraction  );
+                Com_Printf( S_COLOR_MAGENTA"rejecting G2 collision- %4.2f farther than saberHitFraction %4.2f\n", (distFromStart/length), saberHitFraction  );
             }
 #endif
             continue;
@@ -1229,7 +1229,7 @@ void WP_SaberKnockaway(gentity_t* attacker, trace_t* tr)
     saberHitFraction = tr->fraction;
 #ifndef FINAL_BUILD
     if (d_saberCombat->integer) {
-        gi.Printf(S_COLOR_MAGENTA "WP_SaberKnockaway: saberHitFraction %4.2f\n", saberHitFraction);
+        Com_Printf(S_COLOR_MAGENTA "WP_SaberKnockaway: saberHitFraction %4.2f\n", saberHitFraction);
     }
 #endif
     VectorCopy(tr->endpos, saberHitLocation);
@@ -1344,7 +1344,7 @@ bool WP_SaberDamageForTrace(int ignore, vec3_t start, vec3_t end, float dmg, vec
                 }
 #ifndef FINAL_BUILD
                 if (d_saberCombat->integer > 1) {
-                    gi.Printf("sabersDist: %4.2f\n", sabersDist);
+                    Com_Printf("sabersDist: %4.2f\n", sabersDist);
                 }
 #endif // FINAL_BUILD
             }
@@ -1398,7 +1398,7 @@ bool WP_SaberDamageForTrace(int ignore, vec3_t start, vec3_t end, float dmg, vec
 #ifndef FINAL_BUILD
                 if (d_saberCombat->integer > 1) {
                     if (!attacker->s.number) {
-                        gi.Printf(S_COLOR_MAGENTA "%d saber hit owner through saber %4.2f, dist = %4.2f\n", level.time, saberHitFraction, sabersDist);
+                        Com_Printf(S_COLOR_MAGENTA "%d saber hit owner through saber %4.2f, dist = %4.2f\n", level.time, saberHitFraction, sabersDist);
                     }
                 }
 #endif // FINAL_BUILD
@@ -1426,7 +1426,7 @@ bool WP_SaberDamageForTrace(int ignore, vec3_t start, vec3_t end, float dmg, vec
 #ifndef FINAL_BUILD
                         if (d_saberCombat->integer > 1) {
                             if (!attacker->s.number) {
-                                gi.Printf(S_COLOR_GREEN "%d saber hit saber dist %4.2f allsolid %4.2f\n", level.time, sabersDist, saberHitFraction);
+                                Com_Printf(S_COLOR_GREEN "%d saber hit saber dist %4.2f allsolid %4.2f\n", level.time, sabersDist, saberHitFraction);
                             }
                         }
 #endif // FINAL_BUILD
@@ -1435,7 +1435,7 @@ bool WP_SaberDamageForTrace(int ignore, vec3_t start, vec3_t end, float dmg, vec
 #ifndef FINAL_BUILD
                         if (d_saberCombat->integer > 1) {
                             if (!attacker->s.number) {
-                                gi.Printf(S_COLOR_BLUE "%d saber hit saber dist %4.2f, frac %4.2f\n", level.time, sabersDist, saberHitFraction);
+                                Com_Printf(S_COLOR_BLUE "%d saber hit saber dist %4.2f, frac %4.2f\n", level.time, sabersDist, saberHitFraction);
                             }
                             saberHitFraction = tr.fraction;
                         }
@@ -1443,8 +1443,8 @@ bool WP_SaberDamageForTrace(int ignore, vec3_t start, vec3_t end, float dmg, vec
                     }
 #ifndef FINAL_BUILD
                     if (d_saberCombat->integer) {
-                        gi.Printf(S_COLOR_MAGENTA "hit saber: saberHitFraction %4.2f, allsolid %d, startsolid %d\n", saberHitFraction, tr.allsolid,
-                                  tr.startsolid);
+                        Com_Printf(S_COLOR_MAGENTA "hit saber: saberHitFraction %4.2f, allsolid %d, startsolid %d\n", saberHitFraction, tr.allsolid,
+                                   tr.startsolid);
                     }
 #endif // FINAL_BUILD
                     VectorCopy(tr.endpos, saberHitLocation);
@@ -1484,7 +1484,7 @@ bool WP_SaberDamageForTrace(int ignore, vec3_t start, vec3_t end, float dmg, vec
 #ifndef FINAL_BUILD
             if (d_saberCombat->integer > 1) {
                 if (!attacker->s.number) {
-                    gi.Printf(S_COLOR_RED "%d saber hit owner directly %4.2f\n", level.time, saberHitFraction);
+                    Com_Printf(S_COLOR_RED "%d saber hit owner directly %4.2f\n", level.time, saberHitFraction);
                 }
             }
 #endif // FINAL_BUILD
@@ -1528,7 +1528,7 @@ bool WP_SaberDamageForTrace(int ignore, vec3_t start, vec3_t end, float dmg, vec
 #ifndef FINAL_BUILD
                     if (d_saberCombat->integer > 1) {
                         if (!Any(hitEnt->contents & contentsFlags_t::CONTENTS_LIGHTSABER)) {
-                            gi.Printf(S_COLOR_GREEN "Hit ent, but no ghoul collisions\n");
+                            Com_Printf(S_COLOR_GREEN "Hit ent, but no ghoul collisions\n");
                         }
                     }
 #endif
@@ -2389,7 +2389,7 @@ void WP_SaberDamageTrace(gentity_t* ent)
                         traceEnt->client->ps.pm_flags |= pmoveFlags_t::PMF_TIME_NOFRICTION;
 #ifndef FINAL_BUILD
                         if (d_saberCombat->integer) {
-                            gi.Printf("%s pushing away %s at %s\n", ent->NPC_type, traceEnt->NPC_type, vtos(traceEnt->client->ps.velocity));
+                            Com_Printf("%s pushing away %s at %s\n", ent->NPC_type, traceEnt->NPC_type, vtos(traceEnt->client->ps.velocity));
                         }
 #endif
                     }
@@ -2701,9 +2701,9 @@ void WP_SaberDamageTrace(gentity_t* ent)
                             ent->client->ps.saberEventFlags |= saberEventFlags_t::SEF_BLOCKED;
 #ifndef FINAL_BUILD
                             if (d_saberCombat->integer) {
-                                gi.Printf(S_COLOR_RED "%s knockaway %s's attack, new move = %s, anim = %s\n", hitOwner->NPC_type, ent->NPC_type,
-                                          saberMoveData[ent->client->ps.saberBounceMove].name,
-                                          BG_AnimName(saberMoveData[ent->client->ps.saberBounceMove].animToUse));
+                                Com_Printf(S_COLOR_RED "%s knockaway %s's attack, new move = %s, anim = %s\n", hitOwner->NPC_type, ent->NPC_type,
+                                           saberMoveData[ent->client->ps.saberBounceMove].name,
+                                           BG_AnimName(saberMoveData[ent->client->ps.saberBounceMove].animToUse));
                             }
 #endif
                         }
@@ -2750,10 +2750,10 @@ void WP_SaberDamageTrace(gentity_t* ent)
 #ifndef FINAL_BUILD
                             if (d_saberCombat->integer) {
                                 if (Any(ent->client->ps.saberEventFlags & saberEventFlags_t::SEF_BLOCKED)) {
-                                    gi.Printf(S_COLOR_RED "%s parry broken (bounce/deflect)!\n", hitOwner->targetname);
+                                    Com_Printf(S_COLOR_RED "%s parry broken (bounce/deflect)!\n", hitOwner->targetname);
                                 }
                                 else {
-                                    gi.Printf(S_COLOR_RED "%s parry broken (follow-through)!\n", hitOwner->targetname);
+                                    Com_Printf(S_COLOR_RED "%s parry broken (follow-through)!\n", hitOwner->targetname);
                                 }
                             }
 #endif
@@ -2809,11 +2809,11 @@ hitOwner->client->ps.forcePowerLevel[forcePowers_t::FP_SABER_OFFENSE] - ent->cli
                         {
                             if ( Any( hitOwner->client->ps.saberEventFlags & saberEventFlags_t::SEF_BLOCKED ) )
                             {
-                                gi.Printf( S_COLOR_RED"%s parry broken (bounce/deflect)!\n", ent->targetname );
+                                Com_Printf( S_COLOR_RED"%s parry broken (bounce/deflect)!\n", ent->targetname );
                             }
                             else
                             {
-                                gi.Printf( S_COLOR_RED"%s parry broken (follow-through)!\n", ent->targetname );
+                                Com_Printf( S_COLOR_RED"%s parry broken (follow-through)!\n", ent->targetname );
                             }
                         }
 #endif
@@ -2998,7 +2998,7 @@ hitOwner->client->ps.forcePowerLevel[forcePowers_t::FP_SABER_OFFENSE] - ent->cli
     if (WP_SaberApplyDamage(ent, baseDamage, baseDFlags, brokenParry)) { // actually did damage to something
 #ifndef FINAL_BUILD
         if (d_saberCombat->integer) {
-            gi.Printf("base damage was %4.2f\n", baseDamage);
+            Com_Printf("base damage was %4.2f\n", baseDamage);
         }
 #endif
         G_Sound(ent, G_SoundIndex(va("sound/weapons/saber/saberhit%d.wav", Q_irand(1, 3))));
@@ -4054,22 +4054,22 @@ void WP_SaberBlockNonRandom(gentity_t* self, vec3_t hitloc, bool missileBlock)
 #ifndef FINAL_BUILD
     if (d_saberCombat->integer) {
         if (!self->s.number) {
-            gi.Printf("EyeZ: %4.2f  HitZ: %4.2f  zdiff: %4.2f  rdot: %4.2f\n", self->client->renderInfo.eyePoint[2], hitloc[2], zdiff, rightdot);
+            Com_Printf("EyeZ: %4.2f  HitZ: %4.2f  zdiff: %4.2f  rdot: %4.2f\n", self->client->renderInfo.eyePoint[2], hitloc[2], zdiff, rightdot);
             switch (self->client->ps.saberBlocked) {
             case saberBlockedType_t::BLOCKED_TOP:
-                gi.Printf("BLOCKED_TOP\n");
+                Com_Printf("BLOCKED_TOP\n");
                 break;
             case saberBlockedType_t::BLOCKED_UPPER_RIGHT:
-                gi.Printf("BLOCKED_UPPER_RIGHT\n");
+                Com_Printf("BLOCKED_UPPER_RIGHT\n");
                 break;
             case saberBlockedType_t::BLOCKED_UPPER_LEFT:
-                gi.Printf("BLOCKED_UPPER_LEFT\n");
+                Com_Printf("BLOCKED_UPPER_LEFT\n");
                 break;
             case saberBlockedType_t::BLOCKED_LOWER_RIGHT:
-                gi.Printf("BLOCKED_LOWER_RIGHT\n");
+                Com_Printf("BLOCKED_LOWER_RIGHT\n");
                 break;
             case saberBlockedType_t::BLOCKED_LOWER_LEFT:
-                gi.Printf("BLOCKED_LOWER_LEFT\n");
+                Com_Printf("BLOCKED_LOWER_LEFT\n");
                 break;
             default:
                 break;

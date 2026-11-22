@@ -2085,7 +2085,7 @@ bool WP_SaberParseParms(const char* SaberName, saberInfo_t* saber, bool setColor
     while (1) {
         token = COM_ParseExt(&p, true);
         if (!token[0]) {
-            gi.Printf(S_COLOR_RED "ERROR: unexpected EOF while parsing '%s' (WP_SaberParseParms)\n", SaberName);
+            Com_PrintError("unexpected EOF while parsing '%s' (WP_SaberParseParms)\n", SaberName);
             return false;
         }
 
@@ -2098,7 +2098,7 @@ bool WP_SaberParseParms(const char* SaberName, saberInfo_t* saber, bool setColor
             continue;
         }
 
-        gi.Printf("WARNING: unknown keyword '%s' while parsing '%s'\n", token, SaberName);
+        Com_Warning("unknown keyword '%s' while parsing '%s'\n", token, SaberName);
         SkipRestOfLine(&p);
     }
 
@@ -2305,7 +2305,7 @@ void WP_SaberLoadParms(void)
     char *buffer, *holdChar, *marker;
     char saberExtensionListBuf[2048]; //	The list of file names read in
 
-    // gi.Printf( "Parsing *.sab saber definitions\n" );
+    // Com_Printf( "Parsing *.sab saber definitions\n" );
 
     // set where to store the first one
     totallen = 0;
@@ -2322,7 +2322,7 @@ void WP_SaberLoadParms(void)
         len = gi.FS_ReadFile(va("ext_data/sabers/%s", holdChar), (void**)&buffer);
 
         if (len == -1) {
-            gi.Printf("WP_SaberLoadParms: error reading %s\n", holdChar);
+            Com_Printf("WP_SaberLoadParms: error reading %s\n", holdChar);
         }
         else {
             if (totallen && *(marker - 1) == '}') { // don't let it end on a } because that should be a stand-alone token
@@ -2333,7 +2333,7 @@ void WP_SaberLoadParms(void)
             len = COM_Compress(buffer);
 
             if (totallen + len >= MAX_SABER_DATA_SIZE) {
-                G_Error("WP_SaberLoadParms: ran out of space before reading %s\n(you must make the .sab files smaller)", holdChar);
+                Com_Error(errorParm_t::ERR_DROP, "WP_SaberLoadParms: ran out of space before reading %s\n(you must make the .sab files smaller)", holdChar);
             }
             strcat(marker, buffer);
             gi.FS_FreeFile(buffer);

@@ -268,6 +268,7 @@ void Q3_TaskIDClear(int* taskID)
     *taskID = -1;
 }
 
+void G_DebugPrint(WL_e printLevel, const char* format, ...) __attribute__((format(printf, 2, 3)));
 void G_DebugPrint(WL_e printLevel, const char* format, ...)
 {
     va_list argptr;
@@ -285,11 +286,11 @@ void G_DebugPrint(WL_e printLevel, const char* format, ...)
     // Add the color formatting
     switch (printLevel) {
     case WL_e::WL_ERROR:
-        Com_Printf(S_COLOR_RED "ERROR: %s", text);
+        Com_PrintError("%s", text);
         break;
 
     case WL_e::WL_WARNING:
-        Com_Printf(S_COLOR_YELLOW "WARNING: %s", text);
+        Com_Warning("%s", text);
         break;
 
     case WL_e::WL_DEBUG: {
@@ -5814,7 +5815,7 @@ bool Q3_Set(int taskID, int entID, const char* type_name, const char* data)
         break;
 
     case setType_t::SET_DEFEND_TARGET:
-        G_DebugPrint(WL_e::WL_WARNING, "Q3_SetDefendTarget unimplemented\n", entID);
+        G_DebugPrint(WL_e::WL_WARNING, "Q3_SetDefendTarget unimplemented\n");
         // Q3_SetEnemy( entID, (char *) data);
         break;
 

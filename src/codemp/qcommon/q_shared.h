@@ -118,11 +118,6 @@ inline constexpr int WORLD_SIZE = MAX_WORLD_COORD - MIN_WORLD_COORD;
 #include <errno.h>
 #include <stddef.h>
 
-// Ignore __attribute__ on non-gcc platforms
-#if !defined(__GNUC__) && !defined(__attribute__)
-#define __attribute__(x)
-#endif
-
 #if defined(__GNUC__)
 #define UNUSED_VAR __attribute__((unused))
 #else
@@ -138,6 +133,7 @@ inline constexpr int WORLD_SIZE = MAX_WORLD_COORD - MIN_WORLD_COORD;
 #endif
 
 #include <shared/qcommon/q_platform.h>
+#include <shared/qcommon/q_fmt.h>
 
 typedef union fileBuffer_u {
     void* v;
@@ -212,14 +208,6 @@ enum class cbufExec_t {
 enum class WL_e { WL_ERROR = 1, WL_WARNING, WL_VERBOSE, WL_DEBUG };
 
 extern float forceSpeedLevels[4];
-
-// print levels from renderer (FIXME: set up for game / cgame?)
-enum class printParm_t {
-    PRINT_ALL,
-    PRINT_DEVELOPER, // only print when "developer 1"
-    PRINT_WARNING,
-    PRINT_ERROR
-};
 
 #ifdef ERR_FATAL
 #undef ERR_FATAL // this is be defined in malloc.h
@@ -482,7 +470,7 @@ const char* SkipWhitespace(const char* data, bool* hasNewLines);
 char* COM_Parse(const char** data_p);
 char* COM_ParseExt(const char** data_p, bool allowLineBreak);
 int COM_Compress(char* data_p);
-void COM_ParseError(char* format, ...);
+void COM_ParseError(char* format, ...) __attribute__((format(printf, 1, 2)));
 void COM_ParseWarning(const char* format, ...) __attribute__((format(printf, 1, 2)));
 bool COM_ParseString(const char** data, const char** s);
 bool COM_ParseInt(const char** data, int* i);
@@ -521,8 +509,6 @@ void Parse2DMatrix(const char** buf_p, int y, int x, float* m);
 void Parse3DMatrix(const char** buf_p, int z, int y, int x, float* m);
 int Com_HexStrToInt(const char* str);
 
-int QDECL Com_sprintf(char* dest, int size, const char* fmt, ...) __attribute__((format(printf, 3, 4)));
-
 char* Com_SkipTokens(char* s, int numTokens, const char* sep);
 char* Com_SkipCharset(char* s, const char* sep);
 
@@ -550,8 +536,6 @@ typedef struct qint64_s {
 
 int FloatAsInt(float f);
 
-char* QDECL va(const char* format, ...) __attribute__((format(printf, 1, 2)));
-
 void Com_TruncateLongString(char* buffer, const char* s);
 
 //=============================================
@@ -566,15 +550,6 @@ void Info_SetValueForKey(char* s, const char* key, const char* value);
 void Info_SetValueForKey_Big(char* s, const char* key, const char* value);
 bool Info_Validate(const char* s);
 bool Info_NextPair(const char** s, char* key, char* value);
-
-// this is only here so the functions in q_shared.cpp and bg_*.c can link
-#if defined(_GAME) || defined(_CGAME) || defined(UI_BUILD)
-extern NORETURN_PTR void (*Com_Error)(errorParm_t level, const char* error, ...) __attribute__((format(printf, 2, 3)));
-extern void (*Com_Printf)(const char* msg, ...) __attribute__((format(printf, 1, 2)));
-#else
-void NORETURN QDECL Com_Error(errorParm_t level, const char* error, ...) __attribute__((format(printf, 2, 3)));
-void QDECL Com_Printf(const char* msg, ...) __attribute__((format(printf, 1, 2)));
-#endif
 
 /*
 ==========================================================

@@ -116,7 +116,7 @@ void QDECL SourceError(source_t* source, const char* str, ...)
     Q_vsnprintf(text, sizeof(text), str, ap);
     va_end(ap);
 #ifdef BOTLIB
-    botimport.Print(printType_t::PRT_ERROR, "file %s, line %d: %s\n", source->scriptstack->filename, source->scriptstack->line, text);
+    Com_PrintError("file %s, line %d: %s\n", source->scriptstack->filename, source->scriptstack->line, text);
 #endif // BOTLIB
 #ifdef MEQCC
     printf("error: file %s, line %d: %s\n", source->scriptstack->filename, source->scriptstack->line, text);
@@ -140,7 +140,7 @@ void QDECL SourceWarning(source_t* source, const char* str, ...)
     Q_vsnprintf(text, sizeof(text), str, ap);
     va_end(ap);
 #ifdef BOTLIB
-    botimport.Print(printType_t::PRT_WARNING, "file %s, line %d: %s\n", source->scriptstack->filename, source->scriptstack->line, text);
+    Com_Warning("file %s, line %d: %s\n", source->scriptstack->filename, source->scriptstack->line, text);
 #endif // BOTLIB
 #ifdef MEQCC
     printf("warning: file %s, line %d: %s\n", source->scriptstack->filename, source->scriptstack->line, text);
@@ -3236,7 +3236,7 @@ void PC_CheckOpenSourceHandles(void)
     for (i = 1; i < MAX_SOURCEFILES; i++) {
         if (sourceFiles[i]) {
 #ifdef BOTLIB
-            botimport.Print(printType_t::PRT_ERROR, "file %s still open in precompiler\n", sourceFiles[i]->scriptstack->filename);
+            Com_PrintError("file %s still open in precompiler\n", sourceFiles[i]->scriptstack->filename);
 #endif // BOTLIB
         } // end if
     } // end for

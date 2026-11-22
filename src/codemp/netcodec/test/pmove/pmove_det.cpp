@@ -192,19 +192,20 @@ static contentsFlags_t World_Contents(const vec3_t point, int passEntityNum)
 
 static int harnessTime;
 
-static NORETURN void QDECL HarnessError(errorParm_t code, const char* fmt, ...)
+// where the bg code's messages and errors go (q_fmt.h): the messages dropped, an error ends the test
+void Com_VPrintf(printLevel_t level, const char* fmt, va_list args)
+{
+    (void)level;
+    (void)fmt;
+    (void)args;
+}
+void Com_VError(errorParm_t code, const char* fmt, va_list args)
 {
     (void)code;
+    (void)args;
     fprintf(stderr, "Com_Error: %s\n", fmt);
     exit(2);
 }
-static void QDECL HarnessPrintf(const char* fmt, ...)
-{
-    (void)fmt;
-}
-// function pointers in the modules (q_shared.h)
-NORETURN_PTR void (*Com_Error)(errorParm_t level, const char* error, ...) = HarnessError;
-void (*Com_Printf)(const char* msg, ...) = HarnessPrintf;
 
 // debug builds register a cvar from BG_AddPredictableEventToPlayerstate (bg_misc.cpp)
 static void CvarRegisterTrap(vmCvar_t* vmCvar, const char* varName, const char* defaultValue, cvarFlags_t flags)

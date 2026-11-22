@@ -1,0 +1,18 @@
+# clang-tidy query-based checks (clang-tidy 23, --experimental-custom-checks), run by run_tidy.py: every call of a
+# function or function pointer that carries a format attribute, and every such declaration.
+Checks: '-*,custom-fmtcall,custom-fmtdecl'
+CustomChecks:
+  - Name: fmtcall
+    Query: |
+      match callExpr(callee(decl(hasAttr("attr::Format")))).bind("call")
+    Diagnostic:
+      - BindName: call
+        Message: fmtcall
+        Level: Warning
+  - Name: fmtdecl
+    Query: |
+      match decl(hasAttr("attr::Format")).bind("d")
+    Diagnostic:
+      - BindName: d
+        Message: fmtdecl
+        Level: Warning

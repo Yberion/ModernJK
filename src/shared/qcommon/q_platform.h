@@ -132,6 +132,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define NORETURN_PTR /* nothing */
 #endif
 
+// Ignore __attribute__ on non-gcc platforms
+#if !defined(__GNUC__) && !defined(__attribute__)
+#define __attribute__(x)
+#endif
+
 #define OVERRIDE override
 
 #if defined(__cplusplus)

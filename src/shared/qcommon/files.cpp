@@ -572,7 +572,7 @@ bool FS_CreatePath(char* OSPath)
     // make absolutely sure that it can't back up the path
     // FIXME: is c: allowed???
     if (strstr(OSPath, "..") || strstr(OSPath, "::")) {
-        Com_Printf("WARNING: refusing to create relative path \"%s\"\n", OSPath);
+        Com_Warning("refusing to create relative path \"%s\"\n", OSPath);
         return true;
     }
 
@@ -1507,7 +1507,7 @@ long FS_FOpenFileRead(const char* filename, fileHandle_t* file, bool uniqueFILE)
 #ifndef FINAL_BUILD
                         // Check for unprecached files when in game but not in the menus
                         if ((cls.state == connstate_t::CA_ACTIVE) && !Any(Key_GetCatcher() & keyCatchFlags_t::KEYCATCH_UI)) {
-                            Com_Printf(S_COLOR_YELLOW "WARNING: File %s not precached\n", filename);
+                            Com_Warning("File %s not precached\n", filename);
                         }
 #endif
 #endif // DEDICATED
@@ -1622,7 +1622,7 @@ long FS_FOpenFileRead(const char* filename, fileHandle_t* file, bool uniqueFILE)
 #ifndef FINAL_BUILD
                 // Check for unprecached files when in game but not in the menus
                 if ((cls.state == connstate_t::CA_ACTIVE) && !Any(Key_GetCatcher() & keyCatchFlags_t::KEYCATCH_UI)) {
-                    Com_Printf(S_COLOR_YELLOW "WARNING: File %s not precached\n", filename);
+                    Com_Warning("File %s not precached\n", filename);
                 }
 #endif
 #endif // dedicated
@@ -2977,7 +2977,7 @@ static bool FS_CanRestartInPlace(void)
 static void FS_Restart_f(void)
 {
     if (!FS_CanRestartInPlace()) {
-        Com_Printf("^3WARNING: Cannot restart file system due to active file handles for pk3 files inside of modules.\n");
+        Com_Warning("Cannot restart file system due to active file handles for pk3 files inside of modules.\n");
         return;
     }
     FS_Restart(fs_checksumFeed, true);
@@ -3210,7 +3210,7 @@ bool FS_ComparePaks(char* neededpaks, int len, bool dlstring)
 
         // Make sure the server cannot make us write to non-quake3 directories.
         if (FS_CheckDirTraversal(fs_serverReferencedPakNames[i])) {
-            Com_Printf("WARNING: Invalid download name %s\n", fs_serverReferencedPakNames[i]);
+            Com_Warning("Invalid download name %s\n", fs_serverReferencedPakNames[i]);
             continue;
         }
 
@@ -3226,7 +3226,7 @@ bool FS_ComparePaks(char* neededpaks, int len, bool dlstring)
             read = sscanf(fs_serverReferencedPakNames[i], "%255[^'/']/%255s", moddir, filename);
 
             if (read != 2) {
-                Com_Printf("WARNING: Unable to parse pak name: %s\n", fs_serverReferencedPakNames[i]);
+                Com_Warning("Unable to parse pak name: %s\n", fs_serverReferencedPakNames[i]);
                 badname = true;
                 continue;
             }

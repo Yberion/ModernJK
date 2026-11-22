@@ -394,12 +394,12 @@ void SP_func_breakable(gentity_t* self)
     if (self->team && self->team[0]) {
         self->noDamageTeam = (team_t)GetIDForString(TeamTable, self->team);
         if (self->noDamageTeam == team_t::TEAM_FREE) {
-            G_Error("team name %s not recognized\n", self->team);
+            Com_Error(errorParm_t::ERR_DROP, "team name %s not recognized\n", self->team);
         }
     }
     self->team = nullptr;
     if (!self->model) {
-        G_Error("func_breakable with NULL model\n");
+        Com_Error(errorParm_t::ERR_DROP, "func_breakable with NULL model\n");
     }
     InitBBrush(self);
 
@@ -451,7 +451,7 @@ void misc_model_breakable_die(gentity_t* self, gentity_t* inflictor, gentity_t* 
     if (self->e_DieFunc == dieFunc_t::dieF_NULL) // i was probably already killed since my die func was removed
     {
 #ifndef FINAL_BUILD
-        gi.Printf(S_COLOR_YELLOW "Recursive misc_model_breakable_die.  Use targets probably pointing back at self.\n");
+        Com_Printf(S_COLOR_YELLOW "Recursive misc_model_breakable_die.  Use targets probably pointing back at self.\n");
 #endif
         return; // this happens when you have a cyclic target chain!
     }
@@ -681,7 +681,7 @@ void misc_model_breakable_init(gentity_t* ent)
     type = breakableModelType_t::MDL_OTHER;
 
     if (!ent->model) {
-        G_Error("no model set on %s at (%.1f %.1f %.1f)\n", ent->classname, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2]);
+        Com_Error(errorParm_t::ERR_DROP, "no model set on %s at (%.1f %.1f %.1f)\n", ent->classname, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2]);
     }
     // Main model
     ent->s.modelindex = ent->sound2to1 = G_ModelIndex(ent->model);
@@ -1146,7 +1146,7 @@ void SP_misc_model_breakable(gentity_t* ent)
     if (ent->team && ent->team[0]) {
         ent->noDamageTeam = (team_t)GetIDForString(TeamTable, ent->team);
         if (ent->noDamageTeam == team_t::TEAM_FREE) {
-            G_Error("team name %s not recognized\n", ent->team);
+            Com_Error(errorParm_t::ERR_DROP, "team name %s not recognized\n", ent->team);
         }
     }
 

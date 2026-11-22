@@ -59,10 +59,10 @@ add_library(qlibm STATIC qcommon/q_libm.cpp)
 target_link_libraries(qlibm PRIVATE modernjk_options modernjk_warnings modernjk_defines vendored::llvm_libc)
 set_target_properties(qlibm PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-# Colours, vectors, random numbers and strings: in every engine and module
+# Colours, printing and formatting, vectors, random numbers and strings: in every engine and module
 add_library(modernjk_shared_common INTERFACE)
-target_sources(modernjk_shared_common INTERFACE qcommon/q_color.cpp qcommon/q_math.cpp qcommon/q_rand.cpp
-	qcommon/q_string.cpp)
+target_sources(modernjk_shared_common INTERFACE qcommon/q_color.cpp qcommon/q_fmt.cpp qcommon/q_math.cpp
+	qcommon/q_rand.cpp qcommon/q_string.cpp)
 target_link_libraries(modernjk_shared_common INTERFACE qlibm)
 
 # The file system and its pk3 reader: in every engine

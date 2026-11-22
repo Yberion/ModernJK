@@ -2440,7 +2440,7 @@ static void PM_FlyVehicleMove(void)
         // If The UCmds Were Set, But Never Converted Into A MoveDir, Then Make The WishDir From UCmds
         //--------------------------------------------------------------------------------------------
         if ((fmove != 0.0f || smove != 0.0f) && VectorCompare(pm->ps->moveDir, vec3_origin)) {
-            // gi.Printf("Generating MoveDir\n");
+            // Com_Printf("Generating MoveDir\n");
             for (i = 0; i < 3; i++) {
                 wishvel[i] = pml.forward[i] * fmove + pml.right[i] * smove;
             }
@@ -2865,7 +2865,7 @@ static void PM_WalkMove(void)
         // If The UCmds Were Set, But Never Converted Into A MoveDir, Then Make The WishDir From UCmds
         //--------------------------------------------------------------------------------------------
         if ((fmove != 0.0f || smove != 0.0f) && VectorCompare(pm->ps->moveDir, vec3_origin)) {
-            // gi.Printf("Generating MoveDir\n");
+            // Com_Printf("Generating MoveDir\n");
             for (i = 0; i < 3; i++) {
                 wishvel[i] = pml.forward[i] * fmove + pml.right[i] * smove;
             }
@@ -4122,7 +4122,7 @@ static void PM_SetVehicleAngles(vec3_t normal)
                     vAngles[ROLL] -= side;
                 }
 
-                // gi.Printf("VAngles(%f)", vAngles[2]);
+                // Com_Printf("VAngles(%f)", vAngles[2]);
             }
             if (Q_fabsf(vAngles[ROLL]) < 0.001f) {
                 vAngles[ROLL] = 0.0f;
@@ -4186,7 +4186,7 @@ static void PM_SetVehicleAngles(vec3_t normal)
             }
         }
     }
-    // gi.Printf("Orientation(%f)", pVeh->m_vOrientation[2]);
+    // Com_Printf("Orientation(%f)", pVeh->m_vOrientation[2]);
 }
 
 void BG_ExternThisSoICanRecompileInDebug(Vehicle_t* pVeh, playerState_t* riderPS)

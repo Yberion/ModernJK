@@ -293,11 +293,6 @@ int PassLovedOneCheck(bot_state_t* bs, gentity_t* ent);
 
 void ExitLevel(void);
 
-void QDECL BotAI_Print(printType_t type, const char* fmt, ...)
-{
-    return;
-}
-
 bool WP_ForcePowerUsable(gentity_t* self, forcePowers_t forcePower);
 
 int IsTeamplay(void)
@@ -568,7 +563,7 @@ void BotInputToUserCommand(bot_input_t* bi, usercmd_t* ucmd, int delta_angles[3]
     weapon_t weapon = static_cast<weapon_t>(bi->weapon); // the botlib keeps the weapon as a number
     if (weapon == weapon_t::WP_NONE) {
 #ifdef _DEBUG
-//		Com_Printf("WARNING: Bot tried to use WP_NONE!\n");
+//		Com_Warning("Bot tried to use WP_NONE!\n");
 #endif
         weapon = weapon_t::WP_BRYAR_PISTOL;
     }
@@ -722,7 +717,6 @@ int BotAI(int client, float thinktime)
     //
     bs = botstates[client];
     if (!bs || !bs->inuse) {
-        BotAI_Print(printType_t::PRT_FATAL, "BotAI: client %d is not setup\n", client);
         return false;
     }
 
@@ -844,7 +838,6 @@ int BotAISetupClient(int client, struct bot_settings_s* settings, bool restart)
     bs = botstates[client];
 
     if (bs && bs->inuse) {
-        BotAI_Print(printType_t::PRT_FATAL, "BotAISetupClient: client %d already setup\n", client);
         return false;
     }
 
@@ -909,7 +902,6 @@ int BotAIShutdownClient(int client, bool restart)
 
     bs = botstates[client];
     if (!bs || !bs->inuse) {
-        // BotAI_Print(printType_t::PRT_ERROR, "BotAIShutdownClient: client %d already shutdown\n", client);
         return false;
     }
 
@@ -2268,7 +2260,7 @@ gentity_t* GetNearestBadThing(bot_state_t* bs)
 
                 if (ent->s.weapon != weapon_t::WP_NONE && glen <= 256 && bs->settings.skill > 2) { // it's a projectile so push it away
                     bs->doForcePush = level.time + 700;
-                    // trap->Print("PUSH PROJECTILE\n");
+                    // Com_Printf("PUSH PROJECTILE\n");
                 }
             }
             else {
@@ -2618,7 +2610,7 @@ int CTFTakesPriority(bot_state_t* bs)
 #ifdef BOT_CTF_DEBUG
     vec3_t t;
 
-    trap->Print("CTFSTATE: %s\n", ctfStateNames[bs->ctfState]);
+    Com_Printf("CTFSTATE: %s\n", ctfStateNames[bs->ctfState]);
 #endif
 
     if (level.gametype != gametype_t::GT_CTF && level.gametype != gametype_t::GT_CTY) {
@@ -2877,7 +2869,7 @@ hasPoint:
     }
 
     if (bs->touchGoal) {
-        // trap->Print("Please, master, let me touch it!\n");
+        // Com_Printf("Please, master, let me touch it!\n");
         VectorCopy(dif, bs->goalPosition);
     }
 
@@ -3388,10 +3380,10 @@ void GetIdealDestination(bot_state_t* bs)
 
                 bs->escapeDirTime = level.time + Q_irand(500, 1000); // Q_irand(1000, 1400);
 
-                // trap->Print("Escaping from scary bad thing [%s]\n", badthing->classname);
+                // Com_Printf("Escaping from scary bad thing [%s]\n", badthing->classname);
             }
         }
-        // trap->Print("Run away run away run away!\n");
+        // Com_Printf("Run away run away run away!\n");
         return;
     }
 
@@ -3500,7 +3492,7 @@ void GetIdealDestination(bot_state_t* bs)
     }
 
     if (!bs->wpDestination && bs->wpDestSwitchTime < level.time) {
-        // trap->Print("I need something to do\n");
+        // Com_Printf("I need something to do\n");
         idleWP = GetBestIdleGoal(bs);
 
         if (idleWP != -1 && gWPArray[idleWP] && gWPArray[idleWP]->inuse) {
@@ -4132,7 +4124,7 @@ void BotAimLeading(bot_state_t* bs, vec3_t headlevel, float leadAmount)
         vtotal += bs->currentEnemy->client->ps.velocity[2];
     }
 
-    // trap->Print("Leadin target with a velocity total of %f\n", vtotal);
+    // Com_Printf("Leadin target with a velocity total of %f\n", vtotal);
 
     VectorCopy(bs->currentEnemy->client->ps.velocity, movementVector);
 

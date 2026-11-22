@@ -410,7 +410,7 @@ void NPC_PrecacheAnimationCFG(const char* NPC_type)
 		token = COM_ParseExt( &p, true );
 		if ( !token[0] )
 		{
-			Com_Printf( S_COLOR_RED"ERROR: unexpected EOF while parsing '%s'\n", NPC_type );
+			Com_PrintError( "unexpected EOF while parsing '%s'\n", NPC_type );
 			return;
 		}
 
@@ -567,7 +567,7 @@ void NPC_Precache(gentity_t* spawner)
     while (1) {
         token = COM_ParseExt(&p, true);
         if (!token[0]) {
-            Com_Printf(S_COLOR_RED "ERROR: unexpected EOF while parsing '%s'\n", spawner->NPC_type);
+            Com_PrintError("unexpected EOF while parsing '%s'\n", spawner->NPC_type);
             return;
         }
 
@@ -1018,7 +1018,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
         while (1) {
             token = COM_ParseExt(&p, true);
             if (!token[0]) {
-                Com_Printf(S_COLOR_RED "ERROR: unexpected EOF while parsing '%s'\n", NPCName);
+                Com_PrintError("unexpected EOF while parsing '%s'\n", NPCName);
                 return false;
             }
 
@@ -1465,7 +1465,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Printf(S_COLOR_YELLOW "WARNING: bad %s in NPC '%s'\n", token, NPCName);
+                    Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
                     continue;
                 }
                 ri->headYawRangeLeft = n;
@@ -1479,7 +1479,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Printf(S_COLOR_YELLOW "WARNING: bad %s in NPC '%s'\n", token, NPCName);
+                    Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
                     continue;
                 }
                 ri->headYawRangeRight = n;
@@ -1493,7 +1493,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Printf(S_COLOR_YELLOW "WARNING: bad %s in NPC '%s'\n", token, NPCName);
+                    Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
                     continue;
                 }
                 ri->headPitchRangeUp = n;
@@ -1507,7 +1507,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Printf(S_COLOR_YELLOW "WARNING: bad %s in NPC '%s'\n", token, NPCName);
+                    Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
                     continue;
                 }
                 ri->headPitchRangeDown = n;
@@ -1521,7 +1521,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Printf(S_COLOR_YELLOW "WARNING: bad %s in NPC '%s'\n", token, NPCName);
+                    Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
                     continue;
                 }
                 ri->torsoYawRangeLeft = n;
@@ -1535,7 +1535,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Printf(S_COLOR_YELLOW "WARNING: bad %s in NPC '%s'\n", token, NPCName);
+                    Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
                     continue;
                 }
                 ri->torsoYawRangeRight = n;
@@ -1549,7 +1549,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Printf(S_COLOR_YELLOW "WARNING: bad %s in NPC '%s'\n", token, NPCName);
+                    Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
                     continue;
                 }
                 ri->torsoPitchRangeUp = n;
@@ -1563,7 +1563,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Printf(S_COLOR_YELLOW "WARNING: bad %s in NPC '%s'\n", token, NPCName);
+                    Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
                     continue;
                 }
                 ri->torsoPitchRangeDown = n;
@@ -1583,7 +1583,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                 if (n != 100) {
                     NPC->client->ps.iModelScale = n; // so the client knows
                     if (n >= 1024) {
-                        Com_Printf("WARNING: MP does not support scaling up to or over 1024%%\n");
+                        Com_Warning("MP does not support scaling up to or over 1024%%\n");
                         n = 1023;
                     }
 
@@ -1700,7 +1700,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                         continue;
                     }
                     if (n < 1 || n > 5) {
-                        Com_Printf(S_COLOR_YELLOW "WARNING: bad %s in NPC '%s'\n", token, NPCName);
+                        Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
                         continue;
                     }
                     if (NPC->NPC) {
@@ -1867,7 +1867,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    Com_Printf(S_COLOR_YELLOW "WARNING: bad %s in NPC '%s'\n", token, NPCName);
+                    Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
                     continue;
                 }
                 if (NPC->NPC) {
@@ -1924,9 +1924,9 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                 // No md3's for vehicles.
                 if (NPC->client->NPC_class == class_t::CLASS_VEHICLE) {
                     if (!NPC->m_pVehicle) { // you didn't spawn this guy right!
-                        Com_Printf(S_COLOR_RED "ERROR: Tried to spawn a vehicle NPC (%s) without using NPC_Vehicle or 'NPC spawn vehicle <vehiclename>'!!!  "
-                                               "Bad, bad, bad!  Shame on you!\n",
-                                   NPCName);
+                        Com_PrintError("Tried to spawn a vehicle NPC (%s) without using NPC_Vehicle or 'NPC spawn vehicle <vehiclename>'!!!  "
+                                       "Bad, bad, bad!  Shame on you!\n",
+                                       NPCName);
                         return false;
                     }
                     md3Model = false;
@@ -2110,7 +2110,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                         continue;
                     }
                     if (n < 0) {
-                        Com_Printf(S_COLOR_YELLOW "WARNING: bad %s in NPC '%s'\n", token, NPCName);
+                        Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
                         continue;
                     }
                     if (NPC->NPC) {
@@ -2126,7 +2126,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                         continue;
                     }
                     if (n < 0) {
-                        Com_Printf(S_COLOR_YELLOW "WARNING: bad %s in NPC '%s'\n", token, NPCName);
+                        Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
                         continue;
                     }
                     if (NPC->NPC) {
@@ -2142,7 +2142,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                         continue;
                     }
                     if (n < 0) {
-                        Com_Printf(S_COLOR_YELLOW "WARNING: bad %s in NPC '%s'\n", token, NPCName);
+                        Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
                         continue;
                     }
                     if (NPC->NPC) {
@@ -2163,7 +2163,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                         continue;
                     }
                     if (n < to_underlying(bState_t::BS_DEFAULT) || n >= to_underlying(bState_t::NUM_BSTATES)) {
-                        Com_Printf(S_COLOR_YELLOW "WARNING: bad %s in NPC '%s'\n", token, NPCName);
+                        Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
                         continue;
                     }
                     if (NPC->NPC) {
@@ -3007,7 +3007,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
             }
 
             if (!parsingPlayer) {
-                Com_Printf("WARNING: unknown keyword '%s' while parsing '%s'\n", token, NPCName);
+                Com_Warning("unknown keyword '%s' while parsing '%s'\n", token, NPCName);
             }
             SkipRestOfLine(&p);
         }
@@ -3101,7 +3101,7 @@ void NPC_LoadParms(void)
         else {
             if (totallen + len >= MAX_NPC_DATA_SIZE) {
                 trap->FS_Close(f);
-                trap->Error(errorParm_t::ERR_DROP, "NPC extensions (*.npc) are too large");
+                Com_Error(errorParm_t::ERR_DROP, "NPC extensions (*.npc) are too large");
             }
             trap->FS_Read(npcParseBuffer, len, f);
             npcParseBuffer[len] = 0;

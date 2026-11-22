@@ -155,9 +155,7 @@ void* UI_Alloc(int size)
 
     if (allocPoint + size > MEM_POOL_SIZE) {
         outOfMemory = true;
-        if (DC->Print) {
-            DC->Print("UI_Alloc: Failure. Out of memory!\n");
-        }
+        Com_Printf("UI_Alloc: Failure. Out of memory!\n");
         return nullptr;
     }
 
@@ -328,7 +326,7 @@ void PC_SourceWarning(int handle, char *format, ...) {
 	line = 0;
 	trap->PC_SourceFileAndLine(handle, filename, &line);
 
-	Com_Printf(S_COLOR_YELLOW "WARNING: %s, line %d: %s\n", filename, line, string);
+	Com_Warning("%s, line %d: %s\n", filename, line, string);
 }
 #endif
 
@@ -337,6 +335,7 @@ void PC_SourceWarning(int handle, char *format, ...) {
 PC_SourceError
 =================
 */
+void PC_SourceError(int handle, const char* format, ...) __attribute__((format(printf, 2, 3)));
 void PC_SourceError(int handle, const char* format, ...)
 {
     int line;
@@ -352,7 +351,7 @@ void PC_SourceError(int handle, const char* format, ...)
     line = 0;
     trap->PC_SourceFileAndLine(handle, filename, &line);
 
-    Com_Printf(S_COLOR_RED "ERROR: %s, line %d: %s\n", filename, line, string);
+    Com_PrintError("%s, line %d: %s\n", filename, line, string);
 }
 
 /*
@@ -932,7 +931,7 @@ int Menu_ItemsMatchingGroup(menuDef_t* menu, const char* name)
 
     for (i = 0; i < menu->itemCount; i++) {
         if (!VALIDSTRING(menu->items[i]->window.name) && !VALIDSTRING(menu->items[i]->window.group)) {
-            Com_Printf(S_COLOR_YELLOW "WARNING: item has neither name or group\n");
+            Com_Warning("item has neither name or group\n");
             continue;
         }
 
@@ -1066,7 +1065,7 @@ bool Script_SetItemRectCvar(itemDef_t* item, char** args)
         item2->window.rectClient.h = 0;
     }
 
-    //	Com_Printf(S_COLOR_YELLOW"WARNING: SetItemRectCvar: problems. Set cvar to 0's\n" );
+    //	Com_Warning("SetItemRectCvar: problems. Set cvar to 0's\n" );
 
     return true;
 }
@@ -1832,7 +1831,7 @@ bool Script_Transition2(itemDef_t* item, char** args)
             Menu_TransitionItemByName((menuDef_t*)item->parent, name, nullptr, &rectTo, time, amt);
         }
         else {
-            Com_Printf(S_COLOR_YELLOW "WARNING: Script_Transition2: error parsing '%s'\n", name);
+            Com_Warning("Script_Transition2: error parsing '%s'\n", name);
         }
     }
 
@@ -1898,7 +1897,7 @@ bool Script_Transition3(itemDef_t* item, char** args)
         }
     }
     if (name) {
-        Com_Printf(S_COLOR_YELLOW "WARNING: Script_Transition2: error parsing '%s'\n", name);
+        Com_Warning("Script_Transition2: error parsing '%s'\n", name);
     }
     return true;
 }
@@ -3706,7 +3705,7 @@ bool Item_Slider_HandleKey(itemDef_t* item, fakeAscii_t key, bool down)
 {
     float x, value, width, work;
 
-    // DC->Print("slider handle key\n");
+    // Com_Printf("slider handle key\n");
     if (Any(item->window.flags & windowFlags_t::WINDOW_HASFOCUS) && item->cvar && Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory)) {
         if (key == fakeAscii_t::A_MOUSE1 || key == fakeAscii_t::A_ENTER || key == fakeAscii_t::A_MOUSE2 || key == fakeAscii_t::A_MOUSE3) {
             editFieldDef_t* editDef = item->typeData.edit;
@@ -3724,9 +3723,9 @@ bool Item_Slider_HandleKey(itemDef_t* item, fakeAscii_t key, bool down)
                 testRect.x = x;
                 value = (float)SLIDER_THUMB_WIDTH / 2;
                 testRect.x -= value;
-                // DC->Print("slider x: %f\n", testRect.x);
+                // Com_Printf("slider x: %f\n", testRect.x);
                 testRect.w = (SLIDER_WIDTH + (float)SLIDER_THUMB_WIDTH / 2);
-                // DC->Print("slider w: %f\n", testRect.w);
+                // Com_Printf("slider w: %f\n", testRect.w);
                 if (Rect_ContainsPoint(&testRect, DC->cursorx, DC->cursory)) {
                     work = DC->cursorx - x;
                     value = work / width;
@@ -3740,7 +3739,7 @@ bool Item_Slider_HandleKey(itemDef_t* item, fakeAscii_t key, bool down)
             }
         }
     }
-    // DC->Print("slider handle key exit\n");
+    // Com_Printf("slider handle key exit\n");
     return false;
 }
 
@@ -4082,9 +4081,7 @@ void Menu_HandleKey(menuDef_t* menu, int event, bool down)
                 DC->executeText(cbufExec_t::EXEC_APPEND, "screenshot_png\n");
                 break;
             default:
-                if (DC->Print) {
-                    DC->Print(S_COLOR_YELLOW "Menu_HandleKey[F12]: Unknown screenshot format assigned! This should not happen.\n");
-                }
+                Com_Printf(S_COLOR_YELLOW "Menu_HandleKey[F12]: Unknown screenshot format assigned! This should not happen.\n");
                 break;
             }
         }

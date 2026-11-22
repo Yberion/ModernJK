@@ -2178,7 +2178,7 @@ void PM_SetAnimFinal(animNumber_t* torsoAnim, animNumber_t* legsAnim, setAnimPar
     if (anim < animNumber_t::BOTH_1CRUFTFORGIL || anim >= animNumber_t::MAX_ANIMATIONS) {
         assert(0 && "anim out of range!!!");
 #ifndef FINAL_BUILD
-        G_Error("%s tried to play invalid anim %d", gent->NPC_type, to_underlying(anim));
+        Com_Error(errorParm_t::ERR_DROP, "%s tried to play invalid anim %d", gent->NPC_type, to_underlying(anim));
 #endif
         return;
     }
@@ -2201,7 +2201,7 @@ void PM_SetAnimFinal(animNumber_t* torsoAnim, animNumber_t* legsAnim, setAnimPar
 
         if (!PM_HasAnimation(gent, anim)) {
             if (Q3_DebugLevelShown(WL_e::WL_VERBOSE)) {
-                // gi.Printf(S_COLOR_RED"SET_ANIM_UPPER ERROR: anim %s does not exist in this model (%s)!\n", BG_AnimName( anim ),
+                // Com_Printf(S_COLOR_RED"SET_ANIM_UPPER ERROR: anim %s does not exist in this model (%s)!\n", BG_AnimName( anim ),
                 // ((gent!=nullptr&&gent->client!=nullptr) ? gent->client->renderInfo.torsoModelName : "unknown") );
             }
             goto setAnimLegs;
@@ -2357,7 +2357,7 @@ void PM_SetAnimFinal(animNumber_t* torsoAnim, animNumber_t* legsAnim, setAnimPar
         }
         /*
         #ifdef _DEBUG
-                gi.Printf(S_COLOR_GREEN"SET_ANIM_UPPER: %s (%s)\n", BG_AnimName( anim ), gent->targetname );
+                Com_Printf(S_COLOR_GREEN"SET_ANIM_UPPER: %s (%s)\n", BG_AnimName( anim ), gent->targetname );
         #endif
         */
         if ((gent->client) && Any(setAnimFlags & setAnimFlags_t::SETANIM_FLAG_HOLD)) { // FIXME: allow to set a specific time?
@@ -2393,7 +2393,7 @@ setAnimLegs:
 
         if (!PM_HasAnimation(gent, anim)) {
             if (Q3_DebugLevelShown(WL_e::WL_VERBOSE)) {
-                // gi.Printf(S_COLOR_RED"SET_ANIM_LOWER ERROR: anim %s does not exist in this model (%s)!\n", BG_AnimName( anim ),
+                // Com_Printf(S_COLOR_RED"SET_ANIM_LOWER ERROR: anim %s does not exist in this model (%s)!\n", BG_AnimName( anim ),
                 // ((gent!=nullptr&&gent->client!=nullptr) ? gent->client->renderInfo.legsModelName : "unknown") );
             }
             goto setAnimDone;
@@ -2524,7 +2524,7 @@ setAnimLegs:
 
         /*
         #ifdef _DEBUG
-                gi.Printf(S_COLOR_GREEN"SET_ANIM_LOWER: %s (%s)\n", BG_AnimName( anim ), gent->targetname );
+                Com_Printf(S_COLOR_GREEN"SET_ANIM_LOWER: %s (%s)\n", BG_AnimName( anim ), gent->targetname );
         #endif
         */
         if ((gent->client) && Any(setAnimFlags & setAnimFlags_t::SETANIM_FLAG_HOLD)) { // FIXME: allow to set a specific time?

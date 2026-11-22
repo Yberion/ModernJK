@@ -287,7 +287,7 @@ void CL_Record_f(void)
     Com_Printf("recording to %s.\n", name);
     clc.demofile = FS_FOpenFileWrite(name);
     if (!clc.demofile) {
-        Com_Printf("ERROR: couldn't open.\n");
+        Com_PrintError("couldn't open.\n");
         return;
     }
     clc.demorecording = true;
@@ -304,7 +304,7 @@ void CL_Record_f(void)
     // demo's own last snapshot (cl_netcodec.cpp, qcommon/demo_record.cpp), so no full snapshot needs to be asked of
     // the server
     if (!CL_NetcodecRecordGameState()) {
-        Com_Printf("ERROR: the gamestate could not be coded.\n");
+        Com_PrintError("the gamestate could not be coded.\n");
         FS_FCloseFile(clc.demofile);
         clc.demofile = 0;
         clc.demorecording = false;
@@ -2128,7 +2128,7 @@ void CL_Frame(int msec)
         char mess[256];
         if (!(frameCount & 0x1f)) {
             Com_sprintf(mess, sizeof(mess), "Frame rate=%f\n\n", 1000.0f * (1.0 / (avgFrametime / 32.0f)));
-            //		Com_OPrintf("%s", mess);
+            //		Com_DPrintf("%s", mess);
             Com_Printf("%s", mess);
             avgFrametime = 0.0f;
         }
@@ -2183,36 +2183,6 @@ void CL_Frame(int msec)
 }
 
 //============================================================================
-
-/*
-================
-CL_RefPrintf
-
-DLL glue
-================
-*/
-void QDECL CL_RefPrintf(printParm_t print_level, const char* fmt, ...)
-{
-    va_list argptr;
-    char msg[MAXPRINTMSG];
-
-    va_start(argptr, fmt);
-    Q_vsnprintf(msg, sizeof(msg), fmt, argptr);
-    va_end(argptr);
-
-    if (print_level == printParm_t::PRINT_ALL) {
-        Com_Printf("%s", msg);
-    }
-    else if (print_level == printParm_t::PRINT_WARNING) {
-        Com_Printf(S_COLOR_YELLOW "%s", msg); // yellow
-    }
-    else if (print_level == printParm_t::PRINT_DEVELOPER) {
-        Com_DPrintf(S_COLOR_RED "%s", msg); // red
-    }
-    else if (print_level == printParm_t::PRINT_ERROR) {
-        Com_Printf(S_COLOR_RED "%s", msg); // red
-    }
-}
 
 /*
 ============
@@ -2376,9 +2346,8 @@ void CL_InitRef(void)
         Com_Error(errorParm_t::ERR_FATAL, "Can't load symbol GetRefAPI: '%s'", Sys_LibraryError());
 
     // set up the import table
-    ri.Printf = CL_RefPrintf;
-    ri.Error = Com_Error;
-    ri.OPrintf = Com_OPrintf;
+    ri.Print = Com_VPrintf;
+    ri.Error = Com_VError;
     ri.Milliseconds = Sys_Milliseconds2; // FIXME: unix+mac need this
     ri.Hunk_AllocateTempMemory = Hunk_AllocateTempMemory;
     ri.Hunk_FreeTempMemory = Hunk_FreeTempMemory;
@@ -2845,7 +2814,7 @@ void CL_Shutdown(void)
     // Com_Printf( "----- CL_Shutdown -----\n" );
 
     if (recursive) {
-        Com_Printf("WARNING: Recursive CL_Shutdown called!\n");
+        Com_Warning("Recursive CL_Shutdown called!\n");
         return;
     }
     recursive = true;

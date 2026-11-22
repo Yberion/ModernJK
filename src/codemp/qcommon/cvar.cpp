@@ -254,7 +254,7 @@ static const char* Cvar_Validate(cvar_t* var, const char* value, bool warn)
         if (var->integral) {
             if (!Q_isintegral(valuef)) {
                 if (warn)
-                    Com_Printf("WARNING: cvar '%s' must be integral", var->name);
+                    Com_Warning("cvar '%s' must be integral", var->name);
 
                 valuef = (int)valuef;
                 changed = true;
@@ -263,7 +263,7 @@ static const char* Cvar_Validate(cvar_t* var, const char* value, bool warn)
     }
     else {
         if (warn)
-            Com_Printf("WARNING: cvar '%s' must be numeric", var->name);
+            Com_Warning("cvar '%s' must be numeric", var->name);
 
         valuef = Q_atof(var->resetString);
         changed = true;
@@ -274,7 +274,7 @@ static const char* Cvar_Validate(cvar_t* var, const char* value, bool warn)
             if (changed)
                 Com_Printf(" and is");
             else
-                Com_Printf("WARNING: cvar '%s'", var->name);
+                Com_Warning("cvar '%s'", var->name);
 
             if (Q_isintegral(var->min))
                 Com_Printf(" out of range (min %d)", (int)var->min);
@@ -290,7 +290,7 @@ static const char* Cvar_Validate(cvar_t* var, const char* value, bool warn)
             if (changed)
                 Com_Printf(" and is");
             else
-                Com_Printf("WARNING: cvar '%s'", var->name);
+                Com_Warning("cvar '%s'", var->name);
 
             if (Q_isintegral(var->max))
                 Com_Printf(" out of range (max %d)", (int)var->max);
@@ -763,7 +763,7 @@ void Cvar_Server_Set(const char* var_name, const char* value)
         // But check for ones where the legacy gamecode might still need to be allowed
         if (!Any(*flags & (cvarFlags_t::CVAR_SYSTEMINFO | cvarFlags_t::CVAR_SERVER_CREATED | cvarFlags_t::CVAR_USER_CREATED))) {
             if (!FindLegacyCvar(var_name)) {
-                Com_Printf(S_COLOR_YELLOW "WARNING: server is not allowed to set %s=%s\n", var_name, value);
+                Com_Warning("server is not allowed to set %s=%s\n", var_name, value);
                 return;
             }
         }
@@ -1143,9 +1143,9 @@ void Cvar_WriteVariables(fileHandle_t f)
             // write the latched value, even if it hasn't taken effect yet
             if (var->latchedString) {
                 if (strlen(var->name) + strlen(var->latchedString) + 10 > sizeof(buffer)) {
-                    Com_Printf(S_COLOR_YELLOW "WARNING: value of variable "
-                                              "\"%s\" too long to write to file\n",
-                               var->name);
+                    Com_Warning("value of variable "
+                                "\"%s\" too long to write to file\n",
+                                var->name);
                     continue;
                 }
                 if (Any(var->flags & cvarFlags_t::CVAR_NODEFAULT) && !strcmp(var->latchedString, var->resetString)) {
@@ -1155,9 +1155,9 @@ void Cvar_WriteVariables(fileHandle_t f)
             }
             else {
                 if (strlen(var->name) + strlen(var->string) + 10 > sizeof(buffer)) {
-                    Com_Printf(S_COLOR_YELLOW "WARNING: value of variable "
-                                              "\"%s\" too long to write to file\n",
-                               var->name);
+                    Com_Warning("value of variable "
+                                "\"%s\" too long to write to file\n",
+                                var->name);
                     continue;
                 }
                 if (Any(var->flags & cvarFlags_t::CVAR_NODEFAULT) && !strcmp(var->string, var->resetString)) {
@@ -1343,7 +1343,7 @@ void Cvar_Unset_f(void)
     if (Any(cv->flags & cvarFlags_t::CVAR_USER_CREATED))
         Cvar_Unset(cv);
     else
-        Com_Printf("Error: %s: Variable %s is not user created.\n", Cmd_Argv(0), cv->name);
+        Com_PrintError("%s: Variable %s is not user created.\n", Cmd_Argv(0), cv->name);
 }
 
 void Cvar_UnsetUserCreated_f(void)

@@ -267,48 +267,6 @@ void BotDrawDebugPolygons(void (*drawPoly)(int color, int numPoints, float* poin
 
 /*
 ==================
-BotImport_Print
-==================
-*/
-void QDECL BotImport_Print(printType_t type, const char* fmt, ...)
-{
-    char str[2048];
-    va_list ap;
-
-    va_start(ap, fmt);
-    Q_vsnprintf(str, sizeof(str), fmt, ap);
-    va_end(ap);
-
-    switch (type) {
-    case printType_t::PRT_MESSAGE: {
-        Com_Printf("%s", str);
-        break;
-    }
-    case printType_t::PRT_WARNING: {
-        Com_Printf(S_COLOR_YELLOW "Warning: %s", str);
-        break;
-    }
-    case printType_t::PRT_ERROR: {
-        Com_Printf(S_COLOR_RED "Error: %s", str);
-        break;
-    }
-    case printType_t::PRT_FATAL: {
-        Com_Printf(S_COLOR_RED "Fatal: %s", str);
-        break;
-    }
-    case printType_t::PRT_EXIT: {
-        Com_Error(errorParm_t::ERR_DROP, S_COLOR_RED "Exit: %s", str);
-        break;
-    }
-    default: {
-        Com_Printf("unknown print type\n");
-        break;
-    }
-    }
-}
-
-/*
-==================
 BotImport_Trace
 ==================
 */
@@ -686,7 +644,6 @@ void SV_BotInitBotLib(void)
     bot_maxdebugpolys = Cvar_VariableIntegerValue("bot_maxdebugpolys");
     debugpolygons = (struct bot_debugpoly_s*)Z_Malloc(sizeof(bot_debugpoly_t) * bot_maxdebugpolys, memtag::TAG_BOTLIB, true);
 
-    botlib_import.Print = BotImport_Print;
     botlib_import.Trace = BotImport_Trace;
     botlib_import.EntityTrace = BotImport_EntityTrace;
     botlib_import.PointContents = BotImport_PointContents;

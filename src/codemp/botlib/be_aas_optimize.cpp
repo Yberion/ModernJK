@@ -325,5 +325,5 @@ void AAS_Optimize(void)
     // store the optimized AAS data into aasworld
     AAS_OptimizeStore(&optimized);
     // print some nice stuff :)
-    botimport.Print(printType_t::PRT_MESSAGE, "AAS data optimized.\n");
+    Com_Printf("AAS data optimized.\n");
 } // end of the function AAS_Optimize

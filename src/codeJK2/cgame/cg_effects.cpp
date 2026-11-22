@@ -49,7 +49,7 @@ localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
     vec3_t			tmpVec, newOrigin;
 
     if ( msec <= 0 ) {
-        CG_Error( "CG_MakeExplosion: msec = %i", msec );
+        Com_Error(errorParm_t::ERR_DROP, "CG_MakeExplosion: msec = %i", msec );
     }
 
     // skew the time a bit so they aren't all in sync
@@ -125,7 +125,7 @@ localEntity_t* CG_AddTempLight(vec3_t origin, float scale, vec3_t color, int mse
     localEntity_t* ex;
 
     if (msec <= 0) {
-        CG_Error("CG_AddTempLight: msec = %i", msec);
+        Com_Error(errorParm_t::ERR_DROP, "CG_AddTempLight: msec = %i", msec);
     }
 
     ex = CG_AllocLocalEntity();

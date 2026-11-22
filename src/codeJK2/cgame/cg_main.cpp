@@ -504,30 +504,6 @@ int CG_GetCameraPos(vec3_t camerapos)
     return 0;
 }
 
-void CG_Printf(const char* msg, ...)
-{
-    va_list argptr;
-    char text[1024];
-
-    va_start(argptr, msg);
-    Q_vsnprintf(text, sizeof(text), msg, argptr);
-    va_end(argptr);
-
-    cgi_Printf(text);
-}
-
-NORETURN void CG_Error(const char* msg, ...)
-{
-    va_list argptr;
-    char text[1024];
-
-    va_start(argptr, msg);
-    Q_vsnprintf(text, sizeof(text), msg, argptr);
-    va_end(argptr);
-
-    cgi_Error(text);
-}
-
 /*
 ================
 CG_Argv
@@ -577,7 +553,7 @@ void CG_RegisterItemSounds(itemNum_t itemNum)
 
         len = s - start;
         if (len >= MAX_QPATH || len < 5) {
-            CG_Error("PrecacheItem: %s has bad precache string", item->classname);
+            Com_Error(errorParm_t::ERR_DROP, "PrecacheItem: %s has bad precache string", item->classname);
             return;
         }
         memcpy(data, start, len);
@@ -959,7 +935,7 @@ void CG_RegisterClientRenderInfo(clientInfo_t* ci, renderInfo_t* ri)
 
     if (!CG_RegisterClientModelname(ci, headModelName, headSkinName, torsoModelName, torsoSkinName, legsModelName, legsSkinName)) {
         if (!CG_RegisterClientModelname(ci, DEFAULT_HEADMODEL, "default", DEFAULT_TORSOMODEL, "default", DEFAULT_LEGSMODEL, "default")) {
-            CG_Error("DEFAULT_MODELS failed to register");
+            Com_Error(errorParm_t::ERR_DROP, "DEFAULT_MODELS failed to register");
         }
     }
 }
@@ -1366,7 +1342,7 @@ CG_ConfigString
 const char* CG_ConfigString(int index)
 {
     if (index < 0 || index >= MAX_CONFIGSTRINGS) {
-        CG_Error("CG_ConfigString: bad index: %i", index);
+        Com_Error(errorParm_t::ERR_DROP, "CG_ConfigString: bad index: %i", index);
     }
     return cgs.gameState.stringData + cgs.gameState.stringOffsets[index];
 }
@@ -2147,17 +2123,17 @@ void CG_LoadMenus(const char* menuFile)
 
     len = cgi_FS_FOpenFile(menuFile, &f, fsMode_t::FS_READ);
     if (!f) {
-        // cgi_Error( va( S_COLOR_YELLOW "menu file not found: %s, using default\n", menuFile ) );	// what. this would not run
-        cgi_Printf(va(S_COLOR_YELLOW "menu file not found: %s, using default\n", menuFile)); // the rest at all.. --eez
+        // Com_Error( errorParm_t::ERR_DROP, S_COLOR_YELLOW "menu file not found: %s, using default\n", menuFile );	// what. this would not run
+        Com_Printf(S_COLOR_YELLOW "menu file not found: %s, using default\n", menuFile); // the rest at all.. --eez
         len = cgi_FS_FOpenFile("ui/jk2hud.txt", &f, fsMode_t::FS_READ);
         if (!f) {
-            cgi_Error(S_COLOR_RED "default menu file not found: ui/hud.txt, unable to continue!\n");
+            Com_Error(errorParm_t::ERR_DROP, S_COLOR_RED "default menu file not found: ui/hud.txt, unable to continue!\n");
         }
     }
 
     if (len >= MAX_MENUDEFFILE) {
         cgi_FS_FCloseFile(f);
-        cgi_Error(va(S_COLOR_RED "menu file too large: %s is %i, max allowed is %i", menuFile, len, MAX_MENUDEFFILE));
+        Com_Error(errorParm_t::ERR_DROP, S_COLOR_RED "menu file too large: %s is %i, max allowed is %i", menuFile, len, MAX_MENUDEFFILE);
         return;
     }
 
@@ -2239,7 +2215,6 @@ void CG_LoadHudMenu(void)
         cgDC.feederItemText = &CG_FeederItemText;
         cgDC.feederSelection = &CG_FeederSelection;
         cgDC.Error = &Com_Error;
-        cgDC.Print = &Com_Printf;
         cgDC.ownerDrawWidth = &CG_OwnerDrawWidth;
         cgDC.registerSound = &trap_S_RegisterSound;
         cgDC.startBackgroundTrack = &trap_S_StartBackgroundTrack;

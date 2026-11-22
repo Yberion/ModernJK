@@ -46,9 +46,6 @@ USER INTERFACE MAIN
 #include <game/bg_saga.h>
 #include "ui_shared.h"
 
-NORETURN_PTR void (*Com_Error)(errorParm_t level, const char* error, ...);
-void (*Com_Printf)(const char* msg, ...);
-
 extern void UI_SaberAttachToChar(itemDef_t* item);
 
 EnumArray<const char*, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS> forcepowerDesc = {
@@ -318,7 +315,7 @@ int UI_ParseAnimationFile(const char* filename, animSet_t* animset, bool isHuman
         if (!animNum) {
 // #ifndef FINAL_BUILD
 #ifdef _DEBUG
-            // Com_Printf(S_COLOR_RED"WARNING: Unknown token %s in %s\n", token, filename);
+            // Com_Warning("Unknown token %s in %s\n", token, filename);
 #endif
             continue;
         }
@@ -1014,11 +1011,11 @@ char* GetMenuBuffer(const char* filename)
 
     len = trap->FS_Open(filename, &f, fsMode_t::FS_READ);
     if (!f) {
-        trap->Print(S_COLOR_RED "menu file not found: %s, using default\n", filename);
+        Com_Printf(S_COLOR_RED "menu file not found: %s, using default\n", filename);
         return defaultMenu;
     }
     if (len >= MAX_MENUFILE) {
-        trap->Print(S_COLOR_RED "menu file too large: %s is %i, max allowed is %i\n", filename, len, MAX_MENUFILE);
+        Com_Printf(S_COLOR_RED "menu file too large: %s is %i, max allowed is %i\n", filename, len, MAX_MENUFILE);
         trap->FS_Close(f);
         return defaultMenu;
     }
@@ -1365,7 +1362,7 @@ void UI_LoadMenus(const char* menuFile, bool reset)
         Com_Printf(S_COLOR_YELLOW "menu file not found: %s, using default\n", menuFile);
         handle = trap->PC_LoadSource("ui/jampmenus.txt");
         if (!handle) {
-            trap->Error(errorParm_t::ERR_DROP, S_COLOR_RED "default menu file not found: ui/jampmenus.txt, unable to continue!\n");
+            Com_Error(errorParm_t::ERR_DROP, S_COLOR_RED "default menu file not found: ui/jampmenus.txt, unable to continue!\n");
         }
     }
 
@@ -4326,7 +4323,7 @@ static void UI_LoadDemosInDirectory(loadDemoContext_t* ctx, const char* director
     if (ctx->depth > MAX_DEMO_FOLDER_DEPTH) {
         if (!ctx->warned) {
             ctx->warned = true;
-            Com_Printf(S_COLOR_YELLOW "WARNING: Maximum demo folder depth (%d) was reached.\n", MAX_DEMO_FOLDER_DEPTH);
+            Com_Warning("Maximum demo folder depth (%d) was reached.\n", MAX_DEMO_FOLDER_DEPTH);
         }
 
         return;
@@ -9107,9 +9104,9 @@ static void UI_BuildPlayerModel_List(bool inGameLoad)
 
     dirlist = (char*)malloc(DIR_LIST_SIZE);
     if (!dirlist) {
-        Com_Printf(S_COLOR_YELLOW "WARNING: Failed to allocate %zu bytes of memory for player model "
-                                  "directory list. Using stack allocated buffer of %zu bytes instead.",
-                   DIR_LIST_SIZE, sizeof(stackDirList));
+        Com_Warning("Failed to allocate %zu bytes of memory for player model "
+                    "directory list. Using stack allocated buffer of %zu bytes instead.",
+                    DIR_LIST_SIZE, sizeof(stackDirList));
 
         dirlist = stackDirList;
         dirListSize = sizeof(stackDirList);
@@ -9352,8 +9349,6 @@ void UI_Init(bool inGameLoad)
     uiInfo.uiDC.getBindingBuf = trap->Key_GetBindingBuf;
     uiInfo.uiDC.keynumToStringBuf = trap->Key_KeynumToStringBuf;
     uiInfo.uiDC.executeText = trap->Cmd_ExecuteText;
-    uiInfo.uiDC.Error = Com_Error;
-    uiInfo.uiDC.Print = Com_Printf;
     uiInfo.uiDC.Pause = &UI_Pause;
     uiInfo.uiDC.ownerDrawWidth = &UI_OwnerDrawWidth;
     uiInfo.uiDC.registerSound = trap->S_RegisterSound;
@@ -10001,19 +9996,28 @@ GetModuleAPI
 
 uiImport_t* trap = nullptr;
 
+// the module's messages and errors, formatted by the engine (q_fmt.h)
+void Com_VPrintf(printLevel_t level, const char* fmt, va_list args)
+{
+    trap->Print(level, fmt, args);
+}
+
+void Com_VError(errorParm_t code, const char* fmt, va_list args)
+{
+    trap->Error(code, fmt, args);
+}
+
 extern "C" Q_EXPORT uiExport_t* QDECL GetModuleAPI(int apiVersion, uiImport_t* import)
 {
     static uiExport_t uie = {nullptr};
 
     assert(import);
     trap = import;
-    Com_Printf = trap->Print;
-    Com_Error = trap->Error;
 
     memset(&uie, 0, sizeof(uie));
 
     if (apiVersion != UI_API_VERSION) {
-        trap->Print("Mismatched UI_API_VERSION: expected %i, got %i\n", UI_API_VERSION, apiVersion);
+        Com_Printf("Mismatched UI_API_VERSION: expected %i, got %i\n", UI_API_VERSION, apiVersion);
         return nullptr;
     }
 

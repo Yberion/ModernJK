@@ -367,7 +367,7 @@ pk3Archive_t* PK3_Open(const char* ospath)
         }
     }
     if (!archive) {
-        Com_Printf(S_COLOR_YELLOW "WARNING: %s is not read: %s\n", ospath, why);
+        Com_Warning("%s is not read: %s\n", ospath, why);
     }
     return archive;
 }
@@ -432,7 +432,7 @@ pk3File_t* PK3_OpenFile(pk3Archive_t* archive, int index)
         }
     }
     if (why) {
-        Com_Printf(S_COLOR_YELLOW "WARNING: %s in %s is not read: %s\n", e->name, archive->path, why);
+        Com_Warning("%s in %s is not read: %s\n", e->name, archive->path, why);
         return nullptr;
     }
 
@@ -519,7 +519,7 @@ int PK3_Read(pk3File_t* file, void* buffer, int len)
     if (file->whole) {
         file->crc = zng_crc32(file->crc, (const uint8_t*)buffer, want);
         if (file->out == e->usize && file->crc != e->crc) {
-            Com_Printf(S_COLOR_YELLOW "WARNING: %s in %s is damaged: its CRC-32 is wrong\n", e->name, file->archive->path);
+            Com_Warning("%s in %s is damaged: its CRC-32 is wrong\n", e->name, file->archive->path);
             file->failed = true;
             return -1;
         }

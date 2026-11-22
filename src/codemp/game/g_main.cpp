@@ -33,9 +33,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "bg_public.h"
 #include <qcommon/game_version.h>
 
-NORETURN_PTR void (*Com_Error)(errorParm_t level, const char* error, ...);
-void (*Com_Printf)(const char* msg, ...);
-
 level_locals_t level;
 gameStats_t g_stats;
 
@@ -131,14 +128,14 @@ void G_CacheGametype(void)
     if (g_gametype.string[0] && isalpha(g_gametype.string[0])) {
         gametype_t gt = BG_GetGametypeForString(g_gametype.string);
         if (gt == gametype_t::GT_UNKNOWN) {
-            trap->Print("Gametype '%s' unrecognised, defaulting to FFA/Deathmatch\n", g_gametype.string);
+            Com_Printf("Gametype '%s' unrecognised, defaulting to FFA/Deathmatch\n", g_gametype.string);
             level.gametype = gametype_t::GT_FFA;
         }
         else
             level.gametype = gt;
     }
     else if (g_gametype.integer < 0 || g_gametype.integer >= to_underlying(gametype_t::GT_MAX_GAME_TYPE)) {
-        trap->Print("g_gametype %i is out of range, defaulting to 0 (FFA/Deathmatch)\n", g_gametype.integer);
+        Com_Printf("g_gametype %i is out of range, defaulting to 0 (FFA/Deathmatch)\n", g_gametype.integer);
         level.gametype = gametype_t::GT_FFA;
     }
     else
@@ -194,9 +191,9 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
     // Load external vehicle data
     BG_VehicleLoadParms();
 
-    trap->Print("------- Game Initialization -------\n");
-    trap->Print("gamename: %s\n", JK_VERSION);
-    trap->Print("gamedate: %s\n", SOURCE_DATE);
+    Com_Printf("------- Game Initialization -------\n");
+    Com_Printf("gamename: %s\n", JK_VERSION);
+    Com_Printf("gamedate: %s\n", SOURCE_DATE);
 
     // init as zero, to be updated by the following cvar registration
     // relevant cvars call their update func to modify CS_LEGACY_FIXES when necessary
@@ -227,12 +224,12 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
     if (g_log.string[0]) {
         trap->FS_Open(g_log.string, &level.logFile, g_logSync.integer ? fsMode_t::FS_APPEND_SYNC : fsMode_t::FS_APPEND);
         if (level.logFile)
-            trap->Print("Logging to %s\n", g_log.string);
+            Com_Printf("Logging to %s\n", g_log.string);
         else
-            trap->Print("WARNING: Couldn't open logfile: %s\n", g_log.string);
+            Com_Warning("Couldn't open logfile: %s\n", g_log.string);
     }
     else
-        trap->Print("Not logging game events to disk.\n");
+        Com_Printf("Not logging game events to disk.\n");
 
     trap->GetServerinfo(serverinfo, sizeof(serverinfo));
     G_LogPrintf("------------------------------------------------------------\n");
@@ -245,12 +242,12 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
             trap->FS_Open(SECURITY_LOG, &level.security.log, fsMode_t::FS_APPEND_SYNC);
 
         if (level.security.log)
-            trap->Print("Logging to " SECURITY_LOG "\n");
+            Com_Printf("Logging to " SECURITY_LOG "\n");
         else
-            trap->Print("WARNING: Couldn't open logfile: " SECURITY_LOG "\n");
+            Com_Warning("Couldn't open logfile: " SECURITY_LOG "\n");
     }
     else
-        trap->Print("Not logging security events to disk.\n");
+        Com_Printf("Not logging security events to disk.\n");
 
     G_LogWeaponInit();
 
@@ -342,7 +339,7 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 
     SaveRegisteredItems();
 
-    // trap->Print ("-----------------------------------\n");
+    // Com_Printf("-----------------------------------\n");
 
     if (level.gametype == gametype_t::GT_SINGLE_PLAYER || trap->Cvar_VariableIntegerValue("com_buildScript")) {
         G_ModelIndex(SP_PODIUM_MODEL);
@@ -408,7 +405,7 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
             gentity_t* spawnpoint = SelectRandomDeathmatchSpawnPoint(false);
 
             if (!spawnpoint) {
-                trap->Error(errorParm_t::ERR_DROP, "Couldn't find an FFA spawnpoint to drop the jedimaster saber at!\n");
+                Com_Error(errorParm_t::ERR_DROP, "Couldn't find an FFA spawnpoint to drop the jedimaster saber at!\n");
                 return;
             }
 
@@ -429,7 +426,7 @@ void G_ShutdownGame(int restart)
     int i = 0;
     gentity_t* ent;
 
-    //	trap->Print ("==== ShutdownGame ====\n");
+    //	Com_Printf("==== ShutdownGame ====\n");
 
     G_CleanAllFakeClients(); // get rid of dynamically allocated fake client structs.
 
@@ -1447,7 +1444,7 @@ void QDECL G_LogPrintf(const char* fmt, ...)
     va_end(argptr);
 
     if (dedicated.integer)
-        trap->Print("%s", string + l);
+        Com_Printf("%s", string + l);
 
     if (!level.logFile)
         return;
@@ -1478,7 +1475,7 @@ void QDECL G_SecurityLogPrintf(const char* fmt, ...)
     va_end(argptr);
 
     if (dedicated.integer)
-        trap->Print("%s", string + timeLen);
+        Com_Printf("%s", string + timeLen);
 
     if (!level.security.log)
         return;
@@ -2652,7 +2649,7 @@ void G_RunThink(gentity_t* ent)
 
     ent->nextthink = 0;
     if (!ent->think) {
-        // trap->Error( errorParm_t::ERR_DROP, "NULL ent->think");
+        // Com_Error( errorParm_t::ERR_DROP, "NULL ent->think");
         goto runicarus;
     }
     ent->think(ent);
@@ -3339,19 +3336,28 @@ GetModuleAPI
 
 gameImport_t* trap = nullptr;
 
+// the module's messages and errors, formatted by the engine (q_fmt.h)
+void Com_VPrintf(printLevel_t level, const char* fmt, va_list args)
+{
+    trap->Print(level, fmt, args);
+}
+
+void Com_VError(errorParm_t code, const char* fmt, va_list args)
+{
+    trap->Error(code, fmt, args);
+}
+
 extern "C" Q_EXPORT gameExport_t* QDECL GetModuleAPI(int apiVersion, gameImport_t* import)
 {
     static gameExport_t ge = {nullptr};
 
     assert(import);
     trap = import;
-    Com_Printf = trap->Print;
-    Com_Error = trap->Error;
 
     memset(&ge, 0, sizeof(ge));
 
     if (apiVersion != GAME_API_VERSION) {
-        trap->Print("Mismatched GAME_API_VERSION: expected %i, got %i\n", GAME_API_VERSION, apiVersion);
+        Com_Printf("Mismatched GAME_API_VERSION: expected %i, got %i\n", GAME_API_VERSION, apiVersion);
         return nullptr;
     }
 

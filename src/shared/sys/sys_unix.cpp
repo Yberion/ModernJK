@@ -83,7 +83,7 @@ void Sys_PlatformInit(int argc, char* argv[])
     retval = setrlimit(RLIMIT_NOFILE, &rlim);
 
     if (retval == -1) {
-        Com_Printf("Warning: Failed to raise open file limit. %s\n", strerror(errno));
+        Com_Warning("Failed to raise open file limit. %s\n", strerror(errno));
     }
 }
 

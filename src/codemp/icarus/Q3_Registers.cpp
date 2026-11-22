@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <game/g_public.h>
 #include "Q3_Registers.h"
 
-extern void Q3_DebugPrint(WL_e level, const char* format, ...);
+extern void Q3_DebugPrint(WL_e level, const char* format, ...) __attribute__((format(printf, 2, 3)));
 
 varString_m varStrings;
 varFloat_m varFloats;

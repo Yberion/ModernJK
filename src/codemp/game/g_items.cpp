@@ -1414,7 +1414,7 @@ void EWeb_SetBoneAngles(gentity_t* ent, const char* bone, vec3_t angles)
 
     if (!thebone) {       // didn't find it, create it
         if (!firstFree) { // no free bones.. can't do a thing then.
-            Com_Printf("WARNING: E-Web has no free bone indexes\n");
+            Com_Warning("E-Web has no free bone indexes\n");
             return;
         }
 
@@ -2110,7 +2110,7 @@ void RespawnItem(gentity_t* ent)
         int choice;
 
         if (!ent->teammaster) {
-            trap->Error(errorParm_t::ERR_DROP, "RespawnItem: bad teammaster");
+            Com_Error(errorParm_t::ERR_DROP, "RespawnItem: bad teammaster");
         }
         master = ent->teammaster;
 
@@ -2670,7 +2670,7 @@ void FinishSpawningItem(gentity_t* ent)
         VectorSet(dest, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2] - 4096);
         trap->Trace(&tr, ent->s.origin, ent->r.mins, ent->r.maxs, dest, ent->s.number, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
         if (tr.startsolid) {
-            trap->Print("FinishSpawningItem: %s startsolid at %s\n", ent->classname, vtos(ent->s.origin));
+            Com_Printf("FinishSpawningItem: %s startsolid at %s\n", ent->classname, vtos(ent->s.origin));
             G_FreeEntity(ent);
             return;
         }
@@ -2727,11 +2727,11 @@ void G_CheckTeamItems(void)
         // check for the two flags
         item = BG_FindItem("team_CTF_redflag");
         if (!item || !itemRegistered[item - bg_itemlist]) {
-            trap->Print(S_COLOR_YELLOW "WARNING: No team_CTF_redflag in map\n");
+            Com_Warning("No team_CTF_redflag in map\n");
         }
         item = BG_FindItem("team_CTF_blueflag");
         if (!item || !itemRegistered[item - bg_itemlist]) {
-            trap->Print(S_COLOR_YELLOW "WARNING: No team_CTF_blueflag in map\n");
+            Com_Warning("No team_CTF_blueflag in map\n");
         }
     }
 }
@@ -2766,7 +2766,7 @@ The item will be added to the precache list
 void RegisterItem(gitem_t* item)
 {
     if (!item) {
-        trap->Error(errorParm_t::ERR_DROP, "RegisterItem: NULL");
+        Com_Error(errorParm_t::ERR_DROP, "RegisterItem: NULL");
     }
     itemRegistered[item - bg_itemlist] = true;
 }

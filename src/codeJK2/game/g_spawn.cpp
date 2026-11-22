@@ -49,7 +49,7 @@ bool G_SpawnString(const char* key, const char* defaultString, char** out)
 
     if (!spawning) {
         *out = (char*)defaultString;
-        //		G_Error( "G_SpawnString() called while not spawning" );
+        //		Com_Error(errorParm_t::ERR_DROP, "G_SpawnString() called while not spawning" );
     }
 
     for (i = 0; i < numSpawnVars; i++) {
@@ -700,7 +700,7 @@ bool G_CallSpawn(gentity_t* ent)
     gitem_t* item;
 
     if (!ent->classname) {
-        gi.Printf(S_COLOR_RED "G_CallSpawn: NULL classname\n");
+        Com_Printf(S_COLOR_RED "G_CallSpawn: NULL classname\n");
         return false;
     }
 
@@ -721,7 +721,7 @@ bool G_CallSpawn(gentity_t* ent)
             return true;
         }
     }
-    gi.Printf(S_COLOR_RED "%s doesn't have a spawn function\n", ent->classname);
+    Com_Printf(S_COLOR_RED "%s doesn't have a spawn function\n", ent->classname);
     return false;
 }
 
@@ -739,7 +739,7 @@ char* G_NewString(const char* string)
     int i, l;
 
     if (!string || !string[0]) {
-        // gi.Printf(S_COLOR_RED"Error: G_NewString called with nullptr string!\n");
+        // Com_PrintError("G_NewString called with nullptr string!\n");
         return (char*)string;
     }
 
@@ -799,7 +799,7 @@ void G_ParseField(const char* key, const char* value, gentity_t* ent)
                 assert(_iFieldsRead == 3);
                 if (_iFieldsRead != 3) {
 #ifndef FINAL_BUILD
-                    gi.Printf(S_COLOR_YELLOW "G_ParseField: VEC3 sscanf() failed to read 3 floats ('angle' key bug?)\n");
+                    Com_Printf(S_COLOR_YELLOW "G_ParseField: VEC3 sscanf() failed to read 3 floats ('angle' key bug?)\n");
 #endif
                 }
                 ((float*)(b + f->ofs))[0] = vec[0];
@@ -812,7 +812,7 @@ void G_ParseField(const char* key, const char* value, gentity_t* ent)
                 assert(_iFieldsRead == 4);
                 if (_iFieldsRead != 4) {
 #ifndef FINAL_BUILD
-                    gi.Printf(S_COLOR_YELLOW "G_ParseField: VEC4 sscanf() failed to read 4 floats\n");
+                    Com_Printf(S_COLOR_YELLOW "G_ParseField: VEC4 sscanf() failed to read 4 floats\n");
 #endif
                 }
                 ((float*)(b + f->ofs))[0] = vec4[0];
@@ -862,7 +862,7 @@ void G_ParseField(const char* key, const char* value, gentity_t* ent)
                 }
                 else {
 #ifndef FINAL_BUILD
-                    gi.Printf(S_COLOR_YELLOW "WARNING: G_ParseField: can't find flag for key %s\n", key);
+                    Com_Warning("G_ParseField: can't find flag for key %s\n", key);
 #endif
                 }
             } break;
@@ -875,7 +875,7 @@ void G_ParseField(const char* key, const char* value, gentity_t* ent)
     }
 #ifndef FINAL_BUILD
     // didn't find it?
-    gi.Printf(S_COLOR_YELLOW "WARNING: G_ParseField: no such field: %s\n", key);
+    Com_Warning("G_ParseField: no such field: %s\n", key);
 #endif
 }
 
@@ -954,7 +954,7 @@ char* G_AddSpawnVarToken(const char* string)
 
     l = strlen(string);
     if (numSpawnVarChars + l + 1 > MAX_SPAWN_VARS_CHARS) {
-        G_Error("G_AddSpawnVarToken: MAX_SPAWN_VARS");
+        Com_Error(errorParm_t::ERR_DROP, "G_AddSpawnVarToken: MAX_SPAWN_VARS");
     }
 
     dest = spawnVarChars + numSpawnVarChars;
@@ -993,7 +993,7 @@ bool G_ParseSpawnVars(const char** data)
     }
     if (com_token[0] != '{') {
         COM_EndParseSession();
-        G_Error("G_ParseSpawnVars: found %s when expecting {", com_token);
+        Com_Error(errorParm_t::ERR_DROP, "G_ParseSpawnVars: found %s when expecting {", com_token);
     }
 
     // go through all the key / value pairs
@@ -1005,7 +1005,7 @@ bool G_ParseSpawnVars(const char** data)
         }
         if (!data) {
             COM_EndParseSession();
-            G_Error("G_ParseSpawnVars: EOF without closing brace");
+            Com_Error(errorParm_t::ERR_DROP, "G_ParseSpawnVars: EOF without closing brace");
         }
 
         Q_strncpyz(keyname, com_token, sizeof(keyname));
@@ -1014,15 +1014,15 @@ bool G_ParseSpawnVars(const char** data)
         com_token = COM_Parse(data);
         if (com_token[0] == '}') {
             COM_EndParseSession();
-            G_Error("G_ParseSpawnVars: closing brace without data");
+            Com_Error(errorParm_t::ERR_DROP, "G_ParseSpawnVars: closing brace without data");
         }
         if (!data) {
             COM_EndParseSession();
-            G_Error("G_ParseSpawnVars: EOF without closing brace");
+            Com_Error(errorParm_t::ERR_DROP, "G_ParseSpawnVars: EOF without closing brace");
         }
         if (numSpawnVars == MAX_SPAWN_VARS) {
             COM_EndParseSession();
-            G_Error("G_ParseSpawnVars: MAX_SPAWN_VARS");
+            Com_Error(errorParm_t::ERR_DROP, "G_ParseSpawnVars: MAX_SPAWN_VARS");
         }
         spawnVars[numSpawnVars][0] = G_AddSpawnVarToken(keyname);
         spawnVars[numSpawnVars][1] = G_AddSpawnVarToken(com_token);
@@ -1136,7 +1136,7 @@ void SP_worldspawn(void)
 
     G_SpawnString("classname", "", &s);
     if (Q_stricmp(s, "worldspawn")) {
-        G_Error("SP_worldspawn: The first entity isn't 'worldspawn'");
+        Com_Error(errorParm_t::ERR_DROP, "SP_worldspawn: The first entity isn't 'worldspawn'");
     }
 
     // make some data visible to connecting client
@@ -1249,7 +1249,7 @@ void G_SpawnEntitiesFromString(const char* entityString)
     // has a "spawn" function to perform any global setup
     // needed by a level (setting configstrings or cvars, etc)
     if (!G_ParseSpawnVars(&entities)) {
-        G_Error("SpawnEntities: no entities");
+        Com_Error(errorParm_t::ERR_DROP, "SpawnEntities: no entities");
     }
 
     SP_worldspawn();
@@ -1279,7 +1279,7 @@ void G_SpawnEntitiesFromString(const char* entityString)
         }
     }
 
-    // gi.Printf(S_COLOR_YELLOW"Total waypoints: %d\n", num_waypoints);
+    // Com_Printf(S_COLOR_YELLOW"Total waypoints: %d\n", num_waypoints);
     // Automatically run routegen
     // RG_RouteGen();
 
@@ -1287,7 +1287,7 @@ void G_SpawnEntitiesFromString(const char* entityString)
 
 #ifndef FINAL_BUILD
     if (delayedShutDown) {
-        G_Error("Errors loading map, check the console for them.");
+        Com_Error(errorParm_t::ERR_DROP, "Errors loading map, check the console for them.");
     }
 #endif
 }

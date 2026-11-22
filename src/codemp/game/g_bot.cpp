@@ -116,11 +116,11 @@ void G_LoadArenasFromFile(char* filename)
 
     len = trap->FS_Open(filename, &f, fsMode_t::FS_READ);
     if (!f) {
-        trap->Print(S_COLOR_RED "file not found: %s\n", filename);
+        Com_Printf(S_COLOR_RED "file not found: %s\n", filename);
         return;
     }
     if (len >= MAX_ARENAS_TEXT) {
-        trap->Print(S_COLOR_RED "file too large: %s is %i, max allowed is %i\n", filename, len, MAX_ARENAS_TEXT);
+        Com_Printf(S_COLOR_RED "file too large: %s is %i, max allowed is %i\n", filename, len, MAX_ARENAS_TEXT);
         trap->FS_Close(f);
         return;
     }
@@ -311,7 +311,7 @@ void G_LoadArenas(void)
 		strcat(filename, dirptr);
 		G_LoadArenasFromFile(filename);
 	}
-//	trap->Print( "%i arenas parsed\n", level.arenas.num );
+//	Com_Printf( "%i arenas parsed\n", level.arenas.num );
 
 	for( n = 0; n < level.arenas.num; n++ ) {
 		Info_SetValueForKey( level.arenas.infos[n], "num", va( "%i", n ) );
@@ -345,7 +345,7 @@ void G_LoadArenas(void)
         G_LoadArenasFromFile(filename);
         fileptr += len + 1;
     }
-    //	trap->Print( "%i arenas parsed\n", level.arenas.num );
+    //	Com_Printf( "%i arenas parsed\n", level.arenas.num );
 
     for (n = 0; n < level.arenas.num; n++) {
         Info_SetValueForKey(level.arenas.infos[n], "num", va("%i", n));
@@ -763,7 +763,7 @@ static void AddBotToSpawnQueue(int clientNum, int delay)
         }
     }
 
-    trap->Print(S_COLOR_YELLOW "Unable to delay spawn\n");
+    Com_Printf(S_COLOR_YELLOW "Unable to delay spawn\n");
     ClientBegin(clientNum, false);
 }
 
@@ -828,8 +828,8 @@ static void G_AddBot(const char* name, float skill, const char* team, int delay,
     // have the server allocate a client slot
     clientNum = trap->BotAllocateClient();
     if (clientNum == -1) {
-        //		trap->Print( S_COLOR_RED "Unable to add bot.  All player slots are in use.\n" );
-        //		trap->Print( S_COLOR_RED "Start server with more 'open' slots.\n" );
+        //		Com_Printf( S_COLOR_RED "Unable to add bot.  All player slots are in use.\n" );
+        //		Com_Printf( S_COLOR_RED "Start server with more 'open' slots.\n" );
         trap->SendServerCommand(-1, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "UNABLE_TO_ADD_BOT")));
         return;
     }
@@ -837,7 +837,7 @@ static void G_AddBot(const char* name, float skill, const char* team, int delay,
     // get the botinfo from bots.txt
     botinfo = G_GetBotInfoByName(name);
     if (!botinfo) {
-        trap->Print(S_COLOR_RED "Error: Bot '%s' not defined\n", name);
+        Com_PrintError("Bot '%s' not defined\n", name);
         trap->BotFreeClient(clientNum);
         return;
     }
@@ -1060,7 +1060,7 @@ void Svcmd_AddBot_f(void)
     // name
     trap->Argv(1, name, sizeof(name));
     if (!name[0]) {
-        trap->Print("Usage: Addbot <botname> [skill 1-5] [team] [msec delay] [altname]\n");
+        Com_Printf("Usage: Addbot <botname> [skill 1-5] [team] [msec delay] [altname]\n");
         return;
     }
 
@@ -1110,7 +1110,7 @@ void Svcmd_BotList_f(void)
     char model[MAX_QPATH];
     char personality[MAX_QPATH];
 
-    trap->Print("name             model            personality              funname\n");
+    Com_Printf("name             model            personality              funname\n");
     for (i = 0; i < level.bots.num; i++) {
         Q_strncpyz(name, Info_ValueForKey(level.bots.infos[i], "name"), sizeof(name));
         if (!*name) {
@@ -1128,7 +1128,7 @@ void Svcmd_BotList_f(void)
         if (!*personality) {
             Q_strncpyz(personality, "botfiles/kyle.jkb", sizeof(personality));
         }
-        trap->Print("%-16s %-16s %-20s %-20s\n", name, model, COM_SkipPath(personality), funname);
+        Com_Printf("%-16s %-16s %-20s %-20s\n", name, model, COM_SkipPath(personality), funname);
     }
 }
 
@@ -1200,11 +1200,11 @@ static void G_LoadBotsFromFile(const char* filename)
 
     len = trap->FS_Open(filename, &f, fsMode_t::FS_READ);
     if (!f) {
-        trap->Print(S_COLOR_RED "file not found: %s\n", filename);
+        Com_Printf(S_COLOR_RED "file not found: %s\n", filename);
         return;
     }
     if (len >= MAX_BOTS_TEXT) {
-        trap->Print(S_COLOR_RED "file too large: %s is %i, max allowed is %i\n", filename, len, MAX_BOTS_TEXT);
+        Com_Printf(S_COLOR_RED "file too large: %s is %i, max allowed is %i\n", filename, len, MAX_BOTS_TEXT);
         trap->FS_Close(f);
         return;
     }
@@ -1255,7 +1255,7 @@ static void G_LoadBots(void)
         strcat(filename, dirptr);
         G_LoadBotsFromFile(filename);
     }
-    //	trap->Print( "%i bots parsed\n", level.bots.num );
+    //	Com_Printf( "%i bots parsed\n", level.bots.num );
 }
 
 /*
@@ -1266,7 +1266,7 @@ G_GetBotInfoByNumber
 char* G_GetBotInfoByNumber(int num)
 {
     if (num < 0 || num >= level.bots.num) {
-        trap->Print(S_COLOR_RED "Invalid bot number: %i\n", num);
+        Com_Printf(S_COLOR_RED "Invalid bot number: %i\n", num);
         return nullptr;
     }
     return level.bots.infos[num];

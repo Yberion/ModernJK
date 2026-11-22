@@ -392,12 +392,12 @@ void SP_func_breakable(gentity_t* self)
     if (self->team && self->team[0]) {
         self->noDamageTeam = TranslateTeamName(self->team);
         if (self->noDamageTeam == team_t::TEAM_FREE) {
-            G_Error("team name %s not recognized", self->team);
+            Com_Error(errorParm_t::ERR_DROP, "team name %s not recognized", self->team);
         }
     }
     self->team = nullptr;
     if (!self->model) {
-        G_Error("func_breakable with NULL model");
+        Com_Error(errorParm_t::ERR_DROP, "func_breakable with NULL model");
     }
     InitBBrush(self);
 }
@@ -572,7 +572,7 @@ void misc_model_breakable_init(gentity_t* ent)
     type = breakableModelType_t::MDL_OTHER;
 
     if (!ent->model) {
-        G_Error("no model set on %s at (%.1f %.1f %.1f)", ent->classname, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2]);
+        Com_Error(errorParm_t::ERR_DROP, "no model set on %s at (%.1f %.1f %.1f)", ent->classname, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2]);
     }
     // Main model
     ent->s.modelindex = ent->sound2to1 = G_ModelIndex(ent->model);
@@ -859,7 +859,7 @@ void SP_misc_model_breakable(gentity_t* ent)
     if (ent->team && ent->team[0]) {
         ent->noDamageTeam = TranslateTeamName(ent->team);
         if (ent->noDamageTeam == team_t::TEAM_FREE) {
-            G_Error("team name %s not recognized", ent->team);
+            Com_Error(errorParm_t::ERR_DROP, "team name %s not recognized", ent->team);
         }
     }
 

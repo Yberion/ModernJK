@@ -1374,7 +1374,7 @@ void Cmd_FollowCycle_f(gentity_t* ent, int dir)
     }
 
     if (dir != 1 && dir != -1) {
-        trap->Error(errorParm_t::ERR_DROP, "Cmd_FollowCycle_f: bad dir %i", dir);
+        Com_Error(errorParm_t::ERR_DROP, "Cmd_FollowCycle_f: bad dir %i", dir);
     }
 
     clientnum = ent->client->sess.spectatorClient;
@@ -1546,7 +1546,7 @@ void G_Say(gentity_t* ent, gentity_t* target, sayMode_t mode, const char* chatTe
 
     // echo the text to the console
     if (dedicated.integer) {
-        trap->Print("%s%s\n", name, text);
+        Com_Printf("%s%s\n", name, text);
     }
 
     // send it to all the appropriate clients
@@ -2016,9 +2016,9 @@ void Svcmd_ToggleAllowVote_f(void)
         int i = 0;
         for (i = 0; i < validVoteStringsSize; i++) {
             if ((g_allowVote.integer & (1 << i)))
-                trap->Print("%2d [X] %s\n", i, validVoteStrings[i].string);
+                Com_Printf("%2d [X] %s\n", i, validVoteStrings[i].string);
             else
-                trap->Print("%2d [ ] %s\n", i, validVoteStrings[i].string);
+                Com_Printf("%2d [ ] %s\n", i, validVoteStrings[i].string);
         }
         return;
     }

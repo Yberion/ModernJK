@@ -214,7 +214,7 @@ void Con_Dump_f(void)
 
     f = FS_FOpenFileWrite(filename);
     if (!f) {
-        Com_Printf("ERROR: couldn't open %s.\n", filename);
+        Com_PrintError("couldn't open %s.\n", filename);
         return;
     }
 

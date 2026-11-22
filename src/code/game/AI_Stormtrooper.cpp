@@ -2024,13 +2024,13 @@ void NPC_BSST_Attack(void)
 #if AI_TIMERS
             int commTime = GetTime(startTime);
             if (commTime > 20) {
-                gi.Printf(S_COLOR_RED "ERROR: Commander time: %d\n", commTime);
+                Com_PrintError("Commander time: %d\n", commTime);
             }
             else if (commTime > 10) {
-                gi.Printf(S_COLOR_YELLOW "WARNING: Commander time: %d\n", commTime);
+                Com_Warning("Commander time: %d\n", commTime);
             }
             else if (commTime > 2) {
-                gi.Printf(S_COLOR_GREEN "Commander time: %d\n", commTime);
+                Com_Printf(S_COLOR_GREEN "Commander time: %d\n", commTime);
             }
 #endif //	AI_TIMERS
         }

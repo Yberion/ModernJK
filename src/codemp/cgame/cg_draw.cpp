@@ -1230,7 +1230,7 @@ void CG_DrawHUD(centity_t* cent)
             CG_DrawHealth(menuHUD);
         }
         else {
-            // trap->Error( errorParm_t::ERR_DROP, "CG_ChatBox_ArrayInsert: unable to locate HUD menu file ");
+            // Com_Error( errorParm_t::ERR_DROP, "CG_ChatBox_ArrayInsert: unable to locate HUD menu file ");
         }
 
         // scoreStr = va("Score: %i", cgs.clientinfo[cg.snap->ps.clientNum].score);
@@ -1302,7 +1302,7 @@ void CG_DrawHUD(centity_t* cent)
             }
         }
         else {
-            // trap->Error( errorParm_t::ERR_DROP, "CG_ChatBox_ArrayInsert: unable to locate HUD menu file ");
+            // Com_Error( errorParm_t::ERR_DROP, "CG_ChatBox_ArrayInsert: unable to locate HUD menu file ");
         }
     }
 }
@@ -6654,7 +6654,7 @@ void CG_ChatBox_ArrayInsert(chatBoxItem_t** array, int insPoint, int maxNum, cha
 {
     if (array[insPoint]) { // recursively call, to move everything up to the top
         if (insPoint + 1 >= maxNum) {
-            trap->Error(errorParm_t::ERR_DROP, "CG_ChatBox_ArrayInsert: Exceeded array size");
+            Com_Error(errorParm_t::ERR_DROP, "CG_ChatBox_ArrayInsert: Exceeded array size");
         }
         CG_ChatBox_ArrayInsert(array, insPoint + 1, maxNum, array[insPoint]);
     }
@@ -7509,7 +7509,7 @@ void CG_DrawActive(stereoFrame_t stereoView)
         break;
     default:
         separation = 0;
-        trap->Error(errorParm_t::ERR_DROP, "CG_DrawActive: Undefined stereoView");
+        Com_Error(errorParm_t::ERR_DROP, "CG_DrawActive: Undefined stereoView");
     }
 
     // clear around the rendered view if sized down

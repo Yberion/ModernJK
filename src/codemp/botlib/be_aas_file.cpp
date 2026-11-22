@@ -244,39 +244,39 @@ void AAS_FileInfo(void)
 {
     int i, n, optimized;
 
-    botimport.Print(printType_t::PRT_MESSAGE, "version = %d\n", AASVERSION);
-    botimport.Print(printType_t::PRT_MESSAGE, "numvertexes = %d\n", aasworld.numvertexes);
-    botimport.Print(printType_t::PRT_MESSAGE, "numplanes = %d\n", aasworld.numplanes);
-    botimport.Print(printType_t::PRT_MESSAGE, "numedges = %d\n", aasworld.numedges);
-    botimport.Print(printType_t::PRT_MESSAGE, "edgeindexsize = %d\n", aasworld.edgeindexsize);
-    botimport.Print(printType_t::PRT_MESSAGE, "numfaces = %d\n", aasworld.numfaces);
-    botimport.Print(printType_t::PRT_MESSAGE, "faceindexsize = %d\n", aasworld.faceindexsize);
-    botimport.Print(printType_t::PRT_MESSAGE, "numareas = %d\n", aasworld.numareas);
-    botimport.Print(printType_t::PRT_MESSAGE, "numareasettings = %d\n", aasworld.numareasettings);
-    botimport.Print(printType_t::PRT_MESSAGE, "reachabilitysize = %d\n", aasworld.reachabilitysize);
-    botimport.Print(printType_t::PRT_MESSAGE, "numnodes = %d\n", aasworld.numnodes);
-    botimport.Print(printType_t::PRT_MESSAGE, "numportals = %d\n", aasworld.numportals);
-    botimport.Print(printType_t::PRT_MESSAGE, "portalindexsize = %d\n", aasworld.portalindexsize);
-    botimport.Print(printType_t::PRT_MESSAGE, "numclusters = %d\n", aasworld.numclusters);
+    Com_Printf("version = %d\n", AASVERSION);
+    Com_Printf("numvertexes = %d\n", aasworld.numvertexes);
+    Com_Printf("numplanes = %d\n", aasworld.numplanes);
+    Com_Printf("numedges = %d\n", aasworld.numedges);
+    Com_Printf("edgeindexsize = %d\n", aasworld.edgeindexsize);
+    Com_Printf("numfaces = %d\n", aasworld.numfaces);
+    Com_Printf("faceindexsize = %d\n", aasworld.faceindexsize);
+    Com_Printf("numareas = %d\n", aasworld.numareas);
+    Com_Printf("numareasettings = %d\n", aasworld.numareasettings);
+    Com_Printf("reachabilitysize = %d\n", aasworld.reachabilitysize);
+    Com_Printf("numnodes = %d\n", aasworld.numnodes);
+    Com_Printf("numportals = %d\n", aasworld.numportals);
+    Com_Printf("portalindexsize = %d\n", aasworld.portalindexsize);
+    Com_Printf("numclusters = %d\n", aasworld.numclusters);
     //
     for (n = 0, i = 0; i < aasworld.numareasettings; i++) {
         if (aasworld.areasettings[i].areaflags & areaFlags_t::AREA_GROUNDED)
             n++;
     } // end for
-    botimport.Print(printType_t::PRT_MESSAGE, "num grounded areas = %d\n", n);
+    Com_Printf("num grounded areas = %d\n", n);
     //
-    botimport.Print(printType_t::PRT_MESSAGE, "planes size %d bytes\n", aasworld.numplanes * sizeof(aas_plane_t));
-    botimport.Print(printType_t::PRT_MESSAGE, "areas size %d bytes\n", aasworld.numareas * sizeof(aas_area_t));
-    botimport.Print(printType_t::PRT_MESSAGE, "areasettings size %d bytes\n", aasworld.numareasettings * sizeof(aas_areasettings_t));
-    botimport.Print(printType_t::PRT_MESSAGE, "nodes size %d bytes\n", aasworld.numnodes * sizeof(aas_node_t));
-    botimport.Print(printType_t::PRT_MESSAGE, "reachability size %d bytes\n", aasworld.reachabilitysize * sizeof(aas_reachability_t));
-    botimport.Print(printType_t::PRT_MESSAGE, "portals size %d bytes\n", aasworld.numportals * sizeof(aas_portal_t));
-    botimport.Print(printType_t::PRT_MESSAGE, "clusters size %d bytes\n", aasworld.numclusters * sizeof(aas_cluster_t));
+    Com_Printf("planes size %d bytes\n", aasworld.numplanes * sizeof(aas_plane_t));
+    Com_Printf("areas size %d bytes\n", aasworld.numareas * sizeof(aas_area_t));
+    Com_Printf("areasettings size %d bytes\n", aasworld.numareasettings * sizeof(aas_areasettings_t));
+    Com_Printf("nodes size %d bytes\n", aasworld.numnodes * sizeof(aas_node_t));
+    Com_Printf("reachability size %d bytes\n", aasworld.reachabilitysize * sizeof(aas_reachability_t));
+    Com_Printf("portals size %d bytes\n", aasworld.numportals * sizeof(aas_portal_t));
+    Com_Printf("clusters size %d bytes\n", aasworld.numclusters * sizeof(aas_cluster_t));
 
     optimized = aasworld.numplanes * sizeof(aas_plane_t) + aasworld.numareas * sizeof(aas_area_t) + aasworld.numareasettings * sizeof(aas_areasettings_t) +
                 aasworld.numnodes * sizeof(aas_node_t) + aasworld.reachabilitysize * sizeof(aas_reachability_t) + aasworld.numportals * sizeof(aas_portal_t) +
                 aasworld.numclusters * sizeof(aas_cluster_t);
-    botimport.Print(printType_t::PRT_MESSAGE, "optimzed size %d KB\n", optimized >> 10);
+    Com_Printf("optimzed size %d KB\n", optimized >> 10);
 } // end of the function AAS_FileInfo
 #endif // AASFILEDEBUG
 //===========================================================================
@@ -296,9 +296,9 @@ char* AAS_LoadAASLump(fileHandle_t fp, int offset, int length, int* lastoffset, 
     } // end if
     // seek to the data
     if (offset != *lastoffset) {
-        botimport.Print(printType_t::PRT_WARNING, "AAS file not sequentially read\n");
+        Com_Warning("AAS file not sequentially read\n");
         if (botimport.FS_Seek(fp, offset, fsOrigin_t::FS_SEEK_SET)) {
-            AAS_Error("can't seek to aas lump\n");
+            Com_PrintError("can't seek to aas lump\n");
             AAS_DumpAASData();
             botimport.FS_FCloseFile(fp);
             return nullptr;
@@ -340,13 +340,13 @@ botlibError_t AAS_LoadAASFile(char* filename)
     aas_header_t header;
     int offset, length, lastoffset;
 
-    botimport.Print(printType_t::PRT_MESSAGE, "trying to load %s\n", filename);
+    Com_Printf("trying to load %s\n", filename);
     // dump current loaded aas file
     AAS_DumpAASData();
     // open the file
     botimport.FS_FOpenFile(filename, &fp, fsMode_t::FS_READ);
     if (!fp) {
-        AAS_Error("can't open %s\n", filename);
+        Com_PrintError("can't open %s\n", filename);
         return botlibError_t::BLERR_CANNOTOPENAASFILE;
     } // end if
     // read the header
@@ -355,7 +355,7 @@ botlibError_t AAS_LoadAASFile(char* filename)
     // check header identification
     header.ident = LittleLong(header.ident);
     if (header.ident != AASID) {
-        AAS_Error("%s is not an AAS file\n", filename);
+        Com_PrintError("%s is not an AAS file\n", filename);
         botimport.FS_FCloseFile(fp);
         return botlibError_t::BLERR_WRONGAASFILEID;
     } // end if
@@ -363,7 +363,7 @@ botlibError_t AAS_LoadAASFile(char* filename)
     header.version = LittleLong(header.version);
     //
     if (header.version != AASVERSION_OLD && header.version != AASVERSION) {
-        AAS_Error("aas file %s is version %i, not %i\n", filename, header.version, AASVERSION);
+        Com_PrintError("aas file %s is version %i, not %i\n", filename, header.version, AASVERSION);
         botimport.FS_FCloseFile(fp);
         return botlibError_t::BLERR_WRONGAASFILEVERSION;
     } // end if
@@ -374,7 +374,7 @@ botlibError_t AAS_LoadAASFile(char* filename)
     //
     aasworld.bspchecksum = atoi(LibVarGetString("sv_mapChecksum"));
     if (LittleLong(header.bspchecksum) != aasworld.bspchecksum) {
-        AAS_Error("aas file %s is out of date\n", filename);
+        Com_PrintError("aas file %s is out of date\n", filename);
         botimport.FS_FCloseFile(fp);
         return botlibError_t::BLERR_WRONGAASFILEVERSION;
     } // end if
@@ -527,7 +527,7 @@ bool AAS_WriteAASFile(char* filename)
     aas_header_t header;
     fileHandle_t fp;
 
-    botimport.Print(printType_t::PRT_MESSAGE, "writing %s\n", filename);
+    Com_Printf("writing %s\n", filename);
     // swap the aas data
     AAS_SwapAASData();
     // initialize the file header
@@ -538,7 +538,7 @@ bool AAS_WriteAASFile(char* filename)
     // open a new file
     botimport.FS_FOpenFile(filename, &fp, fsMode_t::FS_WRITE);
     if (!fp) {
-        botimport.Print(printType_t::PRT_ERROR, "error opening %s\n", filename);
+        Com_PrintError("error opening %s\n", filename);
         return false;
     } // end if
     // write the header

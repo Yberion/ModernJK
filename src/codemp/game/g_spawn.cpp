@@ -30,7 +30,7 @@ bool G_SpawnString(const char* key, const char* defaultString, char** out)
 
     if (!level.spawning) {
         *out = (char*)defaultString;
-        //		trap->Error( errorParm_t::ERR_DROP, "G_SpawnString() called while not spawning" );
+        //		Com_Error( errorParm_t::ERR_DROP, "G_SpawnString() called while not spawning" );
     }
 
     for (i = 0; i < level.numSpawnVars; i++) {
@@ -71,7 +71,7 @@ bool G_SpawnVector(const char* key, const char* defaultString, float* out)
 
     present = G_SpawnString(key, defaultString, &s);
     if (Q_ScanFloats(s, out, 3) != 3) {
-        trap->Print("G_SpawnVector: Failed sscanf on %s (default: %s)\n", key, defaultString);
+        Com_Printf("G_SpawnVector: Failed sscanf on %s (default: %s)\n", key, defaultString);
         VectorClear(out);
         return false;
     }
@@ -701,7 +701,7 @@ bool G_CallSpawn(gentity_t* ent)
     gitem_t* item;
 
     if (!ent->classname) {
-        trap->Print("G_CallSpawn: NULL classname\n");
+        Com_Printf("G_CallSpawn: NULL classname\n");
         return false;
     }
 
@@ -724,7 +724,7 @@ bool G_CallSpawn(gentity_t* ent)
         return true;
     }
 
-    trap->Print("%s doesn't have a spawn function\n", ent->classname);
+    Com_Printf("%s doesn't have a spawn function\n", ent->classname);
     return false;
 }
 
@@ -824,7 +824,7 @@ void G_ParseField(const char* key, const char* value, gentity_t* ent)
                 ((float*)(b + f->ofs))[2] = vec[2];
             }
             else {
-                trap->Print("G_ParseField: Failed sscanf on F_VECTOR (key/value: %s/%s)\n", key, value);
+                Com_Printf("G_ParseField: Failed sscanf on F_VECTOR (key/value: %s/%s)\n", key, value);
                 ((float*)(b + f->ofs))[0] = ((float*)(b + f->ofs))[1] = ((float*)(b + f->ofs))[2] = 0.0f;
             }
             break;
@@ -972,7 +972,7 @@ char* G_AddSpawnVarToken(const char* string)
 
     l = strlen(string);
     if (level.numSpawnVarChars + l + 1 > MAX_SPAWN_VARS_CHARS) {
-        trap->Error(errorParm_t::ERR_DROP, "G_AddSpawnVarToken: MAX_SPAWN_VARS_CHARS");
+        Com_Error(errorParm_t::ERR_DROP, "G_AddSpawnVarToken: MAX_SPAWN_VARS_CHARS");
     }
 
     dest = level.spawnVarChars + level.numSpawnVarChars;
@@ -1011,7 +1011,7 @@ static void HandleEntityAdjustment(void)
     G_SpawnString("origin", NOVALUE, &value);
     if (Q_stricmp(value, NOVALUE) != 0) {
         if (Q_ScanFloats(value, origin, 3) != 3) {
-            trap->Print("HandleEntityAdjustment: failed sscanf on 'origin' (%s)\n", value);
+            Com_Printf("HandleEntityAdjustment: failed sscanf on 'origin' (%s)\n", value);
             VectorClear(origin);
         }
     }
@@ -1031,7 +1031,7 @@ static void HandleEntityAdjustment(void)
     G_SpawnString("angles", NOVALUE, &value);
     if (Q_stricmp(value, NOVALUE) != 0) {
         if (Q_ScanFloats(value, angles, 3) != 3) {
-            trap->Print("HandleEntityAdjustment: failed sscanf on 'angles' (%s)\n", value);
+            Com_Printf("HandleEntityAdjustment: failed sscanf on 'angles' (%s)\n", value);
             VectorClear(angles);
         }
 
@@ -1058,7 +1058,7 @@ static void HandleEntityAdjustment(void)
     G_SpawnString("direction", NOVALUE, &value);
     if (Q_stricmp(value, NOVALUE) != 0) {
         if (Q_ScanFloats(value, angles, 3) != 3) {
-            trap->Print("HandleEntityAdjustment: failed sscanf on 'direction' (%s)\n", value);
+            Com_Printf("HandleEntityAdjustment: failed sscanf on 'direction' (%s)\n", value);
             VectorClear(angles);
         }
     }
@@ -1138,14 +1138,14 @@ bool G_ParseSpawnVars(bool inSubBSP)
         return false;
     }
     if (com_token[0] != '{') {
-        trap->Error(errorParm_t::ERR_DROP, "G_ParseSpawnVars: found %s when expecting {", com_token);
+        Com_Error(errorParm_t::ERR_DROP, "G_ParseSpawnVars: found %s when expecting {", com_token);
     }
 
     // go through all the key / value pairs
     while (1) {
         // parse key
         if (!trap->GetEntityToken(keyname, sizeof(keyname))) {
-            trap->Error(errorParm_t::ERR_DROP, "G_ParseSpawnVars: EOF without closing brace");
+            Com_Error(errorParm_t::ERR_DROP, "G_ParseSpawnVars: EOF without closing brace");
         }
 
         if (keyname[0] == '}') {
@@ -1154,14 +1154,14 @@ bool G_ParseSpawnVars(bool inSubBSP)
 
         // parse value
         if (!trap->GetEntityToken(com_token, sizeof(com_token))) {
-            trap->Error(errorParm_t::ERR_DROP, "G_ParseSpawnVars: EOF without closing brace");
+            Com_Error(errorParm_t::ERR_DROP, "G_ParseSpawnVars: EOF without closing brace");
         }
 
         if (com_token[0] == '}') {
-            trap->Error(errorParm_t::ERR_DROP, "G_ParseSpawnVars: closing brace without data");
+            Com_Error(errorParm_t::ERR_DROP, "G_ParseSpawnVars: closing brace without data");
         }
         if (level.numSpawnVars == MAX_SPAWN_VARS) {
-            trap->Error(errorParm_t::ERR_DROP, "G_ParseSpawnVars: MAX_SPAWN_VARS");
+            Com_Error(errorParm_t::ERR_DROP, "G_ParseSpawnVars: MAX_SPAWN_VARS");
         }
         level.spawnVars[level.numSpawnVars][0] = G_AddSpawnVarToken(keyname);
         level.spawnVars[level.numSpawnVars][1] = G_AddSpawnVarToken(com_token);
@@ -1280,7 +1280,7 @@ void SP_worldspawn(void)
 
     G_SpawnString("classname", "", &text);
     if (Q_stricmp(text, "worldspawn")) {
-        trap->Error(errorParm_t::ERR_DROP, "SP_worldspawn: The first entity isn't 'worldspawn'");
+        Com_Error(errorParm_t::ERR_DROP, "SP_worldspawn: The first entity isn't 'worldspawn'");
     }
 
     for (i = 0; i < level.numSpawnVars; i++) {
@@ -1453,7 +1453,7 @@ void G_SpawnEntitiesFromString(bool inSubBSP)
     // has a "spawn" function to perform any global setup
     // needed by a level (setting configstrings or cvars, etc)
     if (!G_ParseSpawnVars(false)) {
-        trap->Error(errorParm_t::ERR_DROP, "SpawnEntities: no entities");
+        Com_Error(errorParm_t::ERR_DROP, "SpawnEntities: no entities");
     }
 
     if (!inSubBSP) {

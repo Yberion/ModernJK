@@ -1037,7 +1037,7 @@ bool SG_ReadSavegame(const char* psPathlessBaseName)
 
     if (!saved_game.open(psPathlessBaseName)) {
         // S_COLOR_RED "Failed to open savegame \"%s\"\n", psPathlessBaseName);
-        ::Com_Printf("%s", ::GetString_FailedToOpenSaveGame(psPathlessBaseName, true));
+        Com_Printf("%s", ::GetString_FailedToOpenSaveGame(psPathlessBaseName, true));
 
         return false;
     }

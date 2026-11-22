@@ -135,7 +135,7 @@ void RE_AddPolyToScene(qhandle_t hShader, int numVerts, const polyVert_t* verts,
     }
 
     if (!hShader) {
-        ri.Printf(printParm_t::PRINT_ALL, S_COLOR_YELLOW "WARNING: RE_AddPolyToScene: NULL poly shader\n");
+        Com_Warning("RE_AddPolyToScene: NULL poly shader\n");
         return;
     }
 
@@ -147,7 +147,7 @@ void RE_AddPolyToScene(qhandle_t hShader, int numVerts, const polyVert_t* verts,
             since we don't plan on changing the const and making for room for those effects
             simply cut this message to developer only
             */
-            ri.Printf(printParm_t::PRINT_DEVELOPER, S_COLOR_YELLOW "WARNING: RE_AddPolyToScene: r_max_polys or r_max_polyverts reached\n");
+            Com_DPrintf(S_COLOR_YELLOW "WARNING: RE_AddPolyToScene: r_max_polys or r_max_polyverts reached\n");
             return;
         }
 
@@ -208,7 +208,7 @@ void RE_AddRefEntityToScene(const refEntity_t* ent)
     }
 
     if (r_numentities >= MAX_REFENTITIES) {
-        ri.Printf(printParm_t::PRINT_DEVELOPER, "RE_AddRefEntityToScene: Dropping refEntity, reached MAX_REFENTITIES\n");
+        Com_DPrintf("RE_AddRefEntityToScene: Dropping refEntity, reached MAX_REFENTITIES\n");
         return;
     }
 
@@ -216,7 +216,7 @@ void RE_AddRefEntityToScene(const refEntity_t* ent)
         static bool firstTime = true;
         if (firstTime) {
             firstTime = false;
-            ri.Printf( printParm_t::PRINT_WARNING, "RE_AddRefEntityToScene passed a refEntity which has an origin with a NaN component\n");
+            Com_Warning("RE_AddRefEntityToScene passed a refEntity which has an origin with a NaN component\n");
         }
         return;
     }*/
@@ -244,7 +244,7 @@ void RE_AddRefEntityToScene(const refEntity_t* ent)
         CGhoul2Info_v& ghoul2 = *((CGhoul2Info_v*)ent->ghoul2);
 
         if (!ghoul2[0].mModel) {
-            ri.Printf(printParm_t::PRINT_ALL, "Your ghoul2 instance has no model!\n");
+            Com_Printf("Your ghoul2 instance has no model!\n");
         }
     }
 

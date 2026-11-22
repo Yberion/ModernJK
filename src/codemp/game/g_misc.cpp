@@ -431,7 +431,7 @@ void misc_model_breakable_gravity_init(gentity_t* ent, bool dropToFloor)
 void misc_model_breakable_init(gentity_t* ent)
 {
     if (!ent->model) {
-        trap->Error(errorParm_t::ERR_DROP, "no model set on %s at (%.1f %.1f %.1f)\n", ent->classname, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2]);
+        Com_Error(errorParm_t::ERR_DROP, "no model set on %s at (%.1f %.1f %.1f)\n", ent->classname, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2]);
     }
 
     // Main model
@@ -482,7 +482,7 @@ void locateCamera(gentity_t* ent)
 
     owner = G_PickTarget(ent->target);
     if (!owner) {
-        trap->Print("Couldn't find target for misc_partal_surface\n");
+        Com_Printf("Couldn't find target for misc_partal_surface\n");
         G_FreeEntity(ent);
         return;
     }
@@ -863,7 +863,7 @@ void HolocronTouch(gentity_t* self, gentity_t* other, trace_t* trace)
     }
 
     if (hasall) { // once we pick up this holocron we'll have all of them, so give us super special best prize!
-                  // trap->Print("You deserve a pat on the back.\n");
+                  // Com_Printf("You deserve a pat on the back.\n");
     }
 
     if (!(other->client->ps.fd.forcePowersActive &
@@ -920,7 +920,7 @@ void HolocronTouch(gentity_t* self, gentity_t* other, trace_t* trace)
         G_AddEvent(other, entity_event_t::EV_NOAMMO, to_underlying(forceReselect));
     }
 
-    // trap->Print("DON'T TOUCH ME\n");
+    // Com_Printf("DON'T TOUCH ME\n");
 }
 
 void HolocronThink(gentity_t* ent)
@@ -1030,7 +1030,7 @@ void SP_misc_holocron(gentity_t* ent)
     VectorSet(dest, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2] - 4096);
     trap->Trace(&tr, ent->s.origin, ent->r.mins, ent->r.maxs, dest, ent->s.number, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
     if (tr.startsolid) {
-        trap->Print("SP_misc_holocron: misc_holocron startsolid at %s\n", vtos(ent->s.origin));
+        Com_Printf("SP_misc_holocron: misc_holocron startsolid at %s\n", vtos(ent->s.origin));
         G_FreeEntity(ent);
         return;
     }
@@ -1482,7 +1482,7 @@ void SP_misc_ammo_floor_unit(gentity_t* ent)
     VectorSet(dest, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2] - 4096);
     trap->Trace(&tr, ent->s.origin, ent->r.mins, ent->r.maxs, dest, ent->s.number, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
     if (tr.startsolid) {
-        trap->Print("SP_misc_ammo_floor_unit: misc_ammo_floor_unit startsolid at %s\n", vtos(ent->s.origin));
+        Com_Printf("SP_misc_ammo_floor_unit: misc_ammo_floor_unit startsolid at %s\n", vtos(ent->s.origin));
         G_FreeEntity(ent);
         return;
     }
@@ -1569,7 +1569,7 @@ void SP_misc_shield_floor_unit(gentity_t* ent)
     VectorSet(dest, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2] - 4096);
     trap->Trace(&tr, ent->s.origin, ent->r.mins, ent->r.maxs, dest, ent->s.number, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
     if (tr.startsolid) {
-        trap->Print("SP_misc_shield_floor_unit: misc_shield_floor_unit startsolid at %s\n", vtos(ent->s.origin));
+        Com_Printf("SP_misc_shield_floor_unit: misc_shield_floor_unit startsolid at %s\n", vtos(ent->s.origin));
         G_FreeEntity(ent);
         return;
     }
@@ -2362,7 +2362,7 @@ void SP_fx_runner(gentity_t* ent)
     }
 
     if (!fxFile || !fxFile[0]) {
-        Com_Printf(S_COLOR_RED "ERROR: fx_runner %s at %s has no fxFile specified\n", ent->targetname, vtos(ent->s.origin));
+        Com_PrintError("fx_runner %s at %s has no fxFile specified\n", ent->targetname, vtos(ent->s.origin));
         G_FreeEntity(ent);
         return;
     }
@@ -2856,7 +2856,7 @@ tagOwner_t* FirstFreeTagOwner(void)
         i++;
     }
 
-    Com_Printf("WARNING: MAX_TAG_OWNERS (%i) REF TAG LIMIT HIT\n", MAX_TAG_OWNERS);
+    Com_Warning("MAX_TAG_OWNERS (%i) REF TAG LIMIT HIT\n", MAX_TAG_OWNERS);
     return nullptr;
 }
 
@@ -2873,7 +2873,7 @@ reference_tag_t* FirstFreeRefTag(tagOwner_t* tagOwner)
         i++;
     }
 
-    Com_Printf("WARNING: MAX_TAGS (%i) REF TAG LIMIT HIT\n", MAX_TAGS);
+    Com_Warning("MAX_TAGS (%i) REF TAG LIMIT HIT\n", MAX_TAGS);
     return nullptr;
 }
 
@@ -3021,7 +3021,7 @@ reference_tag_t* TAG_Add(const char* name, const char* owner, vec3_t origin, vec
     tag->flags = flags;
 
     if (!name || !name[0]) {
-        Com_Printf(S_COLOR_RED "ERROR: Nameless ref_tag found at (%i %i %i)\n", (int)origin[0], (int)origin[1], (int)origin[2]);
+        Com_PrintError("Nameless ref_tag found at (%i %i %i)\n", (int)origin[0], (int)origin[1], (int)origin[2]);
         return nullptr;
     }
 
@@ -3211,7 +3211,7 @@ void ref_link(gentity_t* ent)
             // FIXME: Does pitch get flipped?
         }
         else {
-            Com_Printf(S_COLOR_RED "ERROR: ref_tag (%s) has invalid target (%s)\n", ent->targetname, ent->target);
+            Com_PrintError("ref_tag (%s) has invalid target (%s)\n", ent->targetname, ent->target);
         }
     }
 

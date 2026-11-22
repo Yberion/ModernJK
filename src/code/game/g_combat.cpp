@@ -1057,7 +1057,7 @@ bool G_GetHitLocFromSurfName(gentity_t* ent, const char* surfName, hitLocation_t
     }
 #ifdef _DEBUG
     else {
-        Com_Printf("ERROR: surface %s does not belong to any hitLocation!!!\n", surfName);
+        Com_PrintError("surface %s does not belong to any hitLocation!!!\n", surfName);
     }
 #endif //_DEBUG
 
@@ -3207,7 +3207,7 @@ void player_die(gentity_t* self, gentity_t* inflictor, gentity_t* attacker, int 
 
 #ifndef FINAL_BUILD
     if (d_saberCombat->integer && attacker && attacker->client) {
-        gi.Printf(S_COLOR_YELLOW "combatant %s died, killer anim = %s\n", self->targetname, BG_AnimName(attacker->client->ps.torsoAnim));
+        Com_Printf(S_COLOR_YELLOW "combatant %s died, killer anim = %s\n", self->targetname, BG_AnimName(attacker->client->ps.torsoAnim));
     }
 #endif // FINAL_BUILD
     if (self->NPC) {
@@ -5444,7 +5444,7 @@ void G_Damage(gentity_t* targ, gentity_t* inflictor, gentity_t* attacker, const 
     }
 
     if (g_debugDamage->integer) {
-        gi.Printf("[%d]client:%i health:%i damage:%i armor:%i hitloc:%s\n", level.time, targ->s.number, targ->health, take, asave, hitLocName[hitLoc]);
+        Com_Printf("[%d]client:%i health:%i damage:%i armor:%i hitloc:%s\n", level.time, targ->s.number, targ->health, take, asave, hitLocName[hitLoc]);
     }
 
     // add to the damage inflicted on a player this frame

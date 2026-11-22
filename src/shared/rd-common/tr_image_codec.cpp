@@ -111,7 +111,7 @@ byte* R_DecodeImage(const char* name, const byte* file, int length, int* width, 
         if (callbacks.pixels) {
             R_ImageFree(callbacks.pixels);
         }
-        ri.Printf(printParm_t::PRINT_WARNING, "R_DecodeImage: %s: %s\n", name, result.error_message.c_str());
+        Com_Warning("R_DecodeImage: %s: %s\n", name, result.error_message.c_str());
         return nullptr;
     }
     *width = static_cast<int>(result.pixbuf.pixcfg.width());

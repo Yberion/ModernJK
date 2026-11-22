@@ -37,7 +37,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  *****************************************************************************/
 
-inline constexpr int BOTLIB_API_VERSION = 2;
+inline constexpr int BOTLIB_API_VERSION = 3;
 
 struct aas_clientmove_s;
 struct aas_entityinfo_s;
@@ -71,15 +71,6 @@ enum class lineColor_t {
     LINECOLOR_BLUE = 4,    // 0xf3f3f1f1L
     LINECOLOR_YELLOW = 3,  // 0xdcdddedfL
     LINECOLOR_MAGENTA = 5, // 0xe0e1e2e3L, orange in Quake 3's palette, which three bits cannot draw
-};
-
-// Print types
-enum class printType_t {
-    PRT_MESSAGE = 1,
-    PRT_WARNING,
-    PRT_ERROR,
-    PRT_FATAL,
-    PRT_EXIT,
 };
 
 // console message types
@@ -195,8 +186,6 @@ typedef struct bot_entitystate_s {
 
 // bot AI library exported functions
 typedef struct botlib_import_s {
-    // print messages from the bot library
-    void(QDECL* Print)(printType_t type, const char* fmt, ...) __attribute__((format(printf, 2, 3)));
     // trace a bbox through the world
     void (*Trace)(bsp_trace_t* trace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int passent, contentsFlags_t contentmask);
     // trace a bbox against a specific entity

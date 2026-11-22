@@ -25,40 +25,15 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // tr_subs.cpp - common function replacements for modular renderer
 #include "tr_local.h"
 
-void QDECL Com_Printf(const char* msg, ...)
+// the renderer's messages and errors, formatted by the engine (q_fmt.h)
+void Com_VPrintf(printLevel_t level, const char* fmt, va_list args)
 {
-    va_list argptr;
-    char text[1024];
-
-    va_start(argptr, msg);
-    Q_vsnprintf(text, sizeof(text), msg, argptr);
-    va_end(argptr);
-
-    ri.Printf(printParm_t::PRINT_ALL, "%s", text);
+    ri.Print(level, fmt, args);
 }
 
-void QDECL Com_OPrintf(const char* msg, ...)
+void Com_VError(errorParm_t code, const char* fmt, va_list args)
 {
-    va_list argptr;
-    char text[1024];
-
-    va_start(argptr, msg);
-    Q_vsnprintf(text, sizeof(text), msg, argptr);
-    va_end(argptr);
-
-    ri.OPrintf("%s", text);
-}
-
-void QDECL Com_Error(errorParm_t level, const char* error, ...)
-{
-    va_list argptr;
-    char text[1024];
-
-    va_start(argptr, error);
-    Q_vsnprintf(text, sizeof(text), error, argptr);
-    va_end(argptr);
-
-    ri.Error(level, "%s", text);
+    Com_Error(code, fmt, args);
 }
 
 // HUNK

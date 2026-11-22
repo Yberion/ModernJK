@@ -216,17 +216,17 @@ memoryblock_t* BlockFromPointer(void* ptr, char* str)
 #ifdef MEMDEBUG
         // char *crash = (char *) nullptr;
         // crash[0] = 1;
-        botimport.Print(printType_t::PRT_FATAL, "%s: NULL pointer\n", str);
+        Com_PrintError("%s: NULL pointer\n", str);
 #endif // MEMDEBUG
         return nullptr;
     } // end if
     block = (memoryblock_t*)((char*)ptr - sizeof(memoryblock_t));
     if (block->id != MEM_ID && block->id != HUNK_ID) {
-        botimport.Print(printType_t::PRT_FATAL, "%s: invalid memory block\n", str);
+        Com_PrintError("%s: invalid memory block\n", str);
         return nullptr;
     } // end if
     if (block->ptr != ptr) {
-        botimport.Print(printType_t::PRT_FATAL, "%s: memory block pointer invalid\n", str);
+        Com_PrintError("%s: memory block pointer invalid\n", str);
         return nullptr;
     } // end if
     return block;
@@ -286,9 +286,9 @@ int MemoryByteSize(void* ptr)
 //===========================================================================
 void PrintUsedMemorySize(void)
 {
-    botimport.Print(printType_t::PRT_MESSAGE, "total allocated memory: %d KB\n", allocatedmemory >> 10);
-    botimport.Print(printType_t::PRT_MESSAGE, "total botlib memory: %d KB\n", totalmemorysize >> 10);
-    botimport.Print(printType_t::PRT_MESSAGE, "total memory blocks: %d\n", numblocks);
+    Com_Printf("total allocated memory: %d KB\n", allocatedmemory >> 10);
+    Com_Printf("total botlib memory: %d KB\n", totalmemorysize >> 10);
+    Com_Printf("total memory blocks: %d\n", numblocks);
 } // end of the function PrintUsedMemorySize
 //===========================================================================
 //

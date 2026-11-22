@@ -752,7 +752,7 @@ bool R_GetPortalOrientations(drawSurf_t* drawSurf, int entityNum, orientation_t*
     // to see a surface before the server has communicated the matching
     // portal surface entity, so we don't want to print anything here...
 
-    // ri.Printf( printParm_t::PRINT_ALL, "Portal surface without a portal entity\n" );
+    // Com_Printf("Portal surface without a portal entity\n" );
 
     return false;
 }
@@ -912,7 +912,7 @@ bool R_MirrorViewBySurface(drawSurf_t* drawSurf, int entityNum)
 
     // don't recursively mirror
     if (tr.viewParms.isPortal) {
-        ri.Printf(printParm_t::PRINT_DEVELOPER, S_COLOR_RED "WARNING: recursive mirror/portal found\n");
+        Com_DPrintf(S_COLOR_RED "WARNING: recursive mirror/portal found\n");
         return false;
     }
 

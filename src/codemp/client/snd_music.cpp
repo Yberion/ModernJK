@@ -659,7 +659,7 @@ static bool Music_ParseLeveldata(const char* psLevelName)
             const char *psMusicState		= (*itMusicData).first.c_str();
             MusicFile_t &MusicFile	= (*itMusicData).second;
 
-            Com_OPrintf("Music State:  \"%s\",  File: \"%s\"\n",psMusicState, MusicFile.sFileNameBase.c_str());
+            Com_DPrintf("Music State:  \"%s\",  File: \"%s\"\n",psMusicState, MusicFile.sFileNameBase.c_str());
 
             // entry times...
             //
@@ -668,7 +668,7 @@ static bool Music_ParseLeveldata(const char* psLevelName)
                 const char *psMarkerName	= (*itEntryTimes).first.c_str();
                 float	fEntryTime		= (*itEntryTimes).second;
 
-                Com_OPrintf("Entry time for \"%s\": %f\n", psMarkerName, fEntryTime);
+                Com_DPrintf("Entry time for \"%s\": %f\n", psMarkerName, fEntryTime);
             }
 
             // exit points...
@@ -677,7 +677,7 @@ static bool Music_ParseLeveldata(const char* psLevelName)
             {
                 MusicExitPoint_t &MusicExitPoint = MusicFile.MusicExitPoints[i];
 
-                Com_OPrintf("Exit point %d:	sNextFile: \"%s\", sNextMark: \"%s\"\n",i,MusicExitPoint.sNextFile.c_str(),MusicExitPoint.sNextMark.c_str());
+                Com_DPrintf("Exit point %d:	sNextFile: \"%s\", sNextMark: \"%s\"\n",i,MusicExitPoint.sNextFile.c_str(),MusicExitPoint.sNextMark.c_str());
             }
 
             // exit times...
@@ -686,7 +686,7 @@ static bool Music_ParseLeveldata(const char* psLevelName)
             {
                 MusicExitTime_t &MusicExitTime = MusicFile.MusicExitTimes[i];
 
-                Com_OPrintf("Exit time %d:		fTime: %f, iExitPoint: %d\n",i,MusicExitTime.fTime,MusicExitTime.iExitPoint);
+                Com_DPrintf("Exit time %d:		fTime: %f, iExitPoint: %d\n",i,MusicExitTime.fTime,MusicExitTime.iExitPoint);
             }
         }
     }
@@ -1013,7 +1013,7 @@ float Music_GetRandomEntryTime(MusicState_e eMusicState)
             }
             iPrevRandomNumber = iRandomEntryNum;
 
-            //			Com_OPrintf("Music_GetRandomEntryTime(): Entry %d\n",iRandomEntryNum);
+            //			Com_DPrintf("Music_GetRandomEntryTime(): Entry %d\n",iRandomEntryNum);
 
             for (MusicEntryTimes_t::iterator itEntryTime = MusicFile.MusicEntryTimes.begin(); itEntryTime != MusicFile.MusicEntryTimes.end(); ++itEntryTime) {
                 if (!iRandomEntryNum--) {

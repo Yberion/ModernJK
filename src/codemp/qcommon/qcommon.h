@@ -584,10 +584,6 @@ void Info_Print(const char* s);
 
 void Com_BeginRedirect(char* buffer, int buffersize, void (*flush)(char*));
 void Com_EndRedirect(void);
-void QDECL Com_Printf(const char* fmt, ...) __attribute__((format(printf, 1, 2)));
-void QDECL Com_DPrintf(const char* fmt, ...) __attribute__((format(printf, 1, 2)));
-void QDECL Com_OPrintf(const char* fmt, ...) __attribute__((format(printf, 1, 2))); // Outputs to the VC / Windows Debug window (only in debug compile)
-void NORETURN QDECL Com_Error(errorParm_t code, const char* fmt, ...) __attribute__((format(printf, 2, 3)));
 void NORETURN Com_Quit_f(void);
 int Com_EventLoop(void);
 int Com_Milliseconds(void); // will be journaled properly

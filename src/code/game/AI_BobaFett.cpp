@@ -106,6 +106,7 @@ extern cvar_t* g_bobaDebug;
 ////////////////////////////////////////////////////////////////////////////////////////
 // Boba Debug Output
 ////////////////////////////////////////////////////////////////////////////////////////
+void Boba_Printf(const char* format, ...) __attribute__((format(printf, 1, 2)));
 #ifndef FINAL_BUILD
 #if !defined(CTYPE_H_INC)
 #include <ctype.h>
@@ -148,7 +149,7 @@ void Boba_Printf(const char* format, ...)
 
     // Print It To Debug Output Console
     //----------------------------------
-    gi.Printf("%s", buf);
+    Com_Printf("%s", buf);
 }
 #else
 void Boba_Printf(const char* format, ...) {}

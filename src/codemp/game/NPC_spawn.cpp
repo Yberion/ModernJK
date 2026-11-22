@@ -30,7 +30,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "bg_vehicles.h"
 #include "g_nav.h"
 
-extern void G_DebugPrint(WL_e level, const char* format, ...);
+extern void G_DebugPrint(WL_e level, const char* format, ...) __attribute__((format(printf, 2, 3)));
 
 extern bool G_CheckInSolid(gentity_t* self, bool fix);
 extern bool ClientUserinfoChanged(int clientNum);
@@ -779,7 +779,7 @@ void NPC_Begin(gentity_t* ent)
                 ent->nextthink = level.time + 100;
             }
             else {
-                G_DebugPrint(WL_e::WL_DEBUG, "NPC %s could not spawn, waiting %4.2 secs to try again\n", ent->targetname, ent->wait / 1000.0f);
+                G_DebugPrint(WL_e::WL_DEBUG, "NPC %s could not spawn, waiting %4.2f secs to try again\n", ent->targetname, ent->wait / 1000.0f);
                 ent->think = NPC_Begin;
                 ent->nextthink = level.time + ent->wait; // try again in half a second
             }
@@ -1233,7 +1233,7 @@ gentity_t* NPC_Spawn_Do(gentity_t* ent)
     newent = G_Spawn();
 
     if (newent == nullptr) {
-        Com_Printf(S_COLOR_RED "ERROR: NPC G_Spawn failed\n");
+        Com_PrintError("NPC G_Spawn failed\n");
         return nullptr;
     }
 
@@ -1241,7 +1241,7 @@ gentity_t* NPC_Spawn_Do(gentity_t* ent)
 
     newent->NPC = New_NPC_t(newent->s.number);
     if (newent->NPC == nullptr) {
-        Com_Printf(S_COLOR_RED "ERROR: NPC G_Alloc NPC failed\n");
+        Com_PrintError("NPC G_Alloc NPC failed\n");
         goto finish;
         //	return nullptr;
     }
@@ -1262,7 +1262,7 @@ gentity_t* NPC_Spawn_Do(gentity_t* ent)
     newent->NPC->tempGoal->r.svFlags |= svFlags_t::SVF_NOCLIENT;
 
     if (newent->client == nullptr) {
-        Com_Printf(S_COLOR_RED "ERROR: NPC BG_Alloc client failed\n");
+        Com_PrintError("NPC BG_Alloc client failed\n");
         goto finish;
         //	return nullptr;
     }
@@ -1330,7 +1330,7 @@ gentity_t* NPC_Spawn_Do(gentity_t* ent)
             break;
 
         default:
-            Com_Printf(S_COLOR_RED "ERROR: Couldn't spawn NPC %s\n", ent->NPC_type);
+            Com_PrintError("Couldn't spawn NPC %s\n", ent->NPC_type);
             G_FreeEntity(newent);
             // get rid of the spawner, too, I guess
             G_FreeEntity(ent);
@@ -1390,7 +1390,7 @@ gentity_t* NPC_Spawn_Do(gentity_t* ent)
     G_SetOrigin(newent, ent->s.origin); // just to be sure!
     // NOTE: on vehicles, anything in the .npc file will STOMP data on the NPC that's set by the vehicle
     if (!NPC_ParseParms(ent->NPC_type, newent)) {
-        Com_Printf(S_COLOR_RED "ERROR: Couldn't spawn NPC %s\n", ent->NPC_type);
+        Com_PrintError("Couldn't spawn NPC %s\n", ent->NPC_type);
         G_FreeEntity(newent);
         // get rid of the spawner, too, I guess
         G_FreeEntity(ent);
@@ -3881,7 +3881,7 @@ void Cmd_NPC_f(gentity_t* ent)
                 NPC_PrintScore(thisent);
             }
             else {
-                Com_Printf("ERROR: NPC score - no such NPC %s\n", cmd2);
+                Com_PrintError("NPC score - no such NPC %s\n", cmd2);
             }
         }
     }

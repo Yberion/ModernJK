@@ -743,7 +743,7 @@ gentity_t* SelectRandomFurthestSpawnPoint(vec3_t avoidPoint, vec3_t origin, vec3
         if (!numSpots) {
             spot = G_Find(nullptr, FOFS(classname), "info_player_deathmatch");
             if (!spot)
-                trap->Error(errorParm_t::ERR_DROP, "Couldn't find a spawn point");
+                Com_Error(errorParm_t::ERR_DROP, "Couldn't find a spawn point");
             VectorCopy(spot->s.origin, origin);
             origin[2] += 9;
             VectorCopy(spot->s.angles, angles);
@@ -829,7 +829,7 @@ tryAgain:
         // If we got here we found no free duel or DM spots, just try the first DM spot
         spot = G_Find(nullptr, FOFS(classname), "info_player_deathmatch");
         if (!spot)
-            trap->Error(errorParm_t::ERR_DROP, "Couldn't find a spawn point");
+            Com_Error(errorParm_t::ERR_DROP, "Couldn't find a spawn point");
         VectorCopy(spot->s.origin, origin);
         origin[2] += 9;
         VectorCopy(spot->s.angles, angles);
@@ -875,7 +875,7 @@ gentity_t* SelectSpawnPoint(vec3_t avoidPoint, vec3_t origin, vec3_t angles, tea
 
     // find a single player start spot
     if (!spot) {
-        trap->Error( errorParm_t::ERR_DROP, "Couldn't find a spawn point" );
+        Com_Error( errorParm_t::ERR_DROP, "Couldn't find a spawn point" );
     }
 
     VectorCopy (spot->s.origin, origin);
@@ -1855,15 +1855,15 @@ void Svcmd_ToggleUserinfoValidation_f(void)
         int i = 0;
         for (i = 0; i < numUserinfoFields; i++) {
             if ((g_userinfoValidate.integer & (1 << i)))
-                trap->Print("%2d [X] %s\n", i, userinfoFields[i].fieldClean);
+                Com_Printf("%2d [X] %s\n", i, userinfoFields[i].fieldClean);
             else
-                trap->Print("%2d [ ] %s\n", i, userinfoFields[i].fieldClean);
+                Com_Printf("%2d [ ] %s\n", i, userinfoFields[i].fieldClean);
         }
         for (; i < numUserinfoFields + to_underlying(userinfoValidationBits_t::USERINFO_VALIDATION_MAX); i++) {
             if ((g_userinfoValidate.integer & (1 << i)))
-                trap->Print("%2d [X] %s\n", i, userinfoValidateExtra[i - numUserinfoFields]);
+                Com_Printf("%2d [X] %s\n", i, userinfoValidateExtra[i - numUserinfoFields]);
             else
-                trap->Print("%2d [ ] %s\n", i, userinfoValidateExtra[i - numUserinfoFields]);
+                Com_Printf("%2d [ ] %s\n", i, userinfoValidateExtra[i - numUserinfoFields]);
         }
         return;
     }

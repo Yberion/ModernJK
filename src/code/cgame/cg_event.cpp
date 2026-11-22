@@ -253,7 +253,7 @@ An entity has an event value
 */
 #define DEBUGNAME(x)                                                                                                                                           \
     if (cg_debugEvents.integer) {                                                                                                                              \
-        CG_Printf(x "\n");                                                                                                                                     \
+        Com_Printf(x "\n");                                                                                                                                    \
     }
 void CG_EntityEvent(centity_t* cent, vec3_t position)
 {
@@ -268,7 +268,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
     event = BG_UnpackEvent(es->event);
 
     if (cg_debugEvents.integer) {
-        CG_Printf("ent:%3i  event:%3i ", es->number, to_underlying(event));
+        Com_Printf("ent:%3i  event:%3i ", es->number, to_underlying(event));
     }
 
     if (event == entity_event_t::EV_NONE) {
@@ -1081,7 +1081,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
 
     default:
         DEBUGNAME("UNKNOWN");
-        CG_Error("Unknown event: %i", to_underlying(event));
+        Com_Error(errorParm_t::ERR_DROP, "Unknown event: %i", to_underlying(event));
         break;
     }
 }

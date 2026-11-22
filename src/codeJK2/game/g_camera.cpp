@@ -74,7 +74,7 @@ The focal point for a camera in a scene
 void SP_misc_camera_focus(gentity_t* self)
 {
     if (!self->targetname) {
-        gi.Printf(S_COLOR_RED "ERROR: misc_camera_focus with no targetname\n");
+        Com_PrintError("misc_camera_focus with no targetname\n");
         G_FreeEntity(self);
         return;
     }
@@ -189,7 +189,7 @@ use "path_corner"s - path it should stay on- if that path_corner has a speed val
 void SP_misc_camera_track(gentity_t* self)
 {
     if (!self->targetname || !self->targetname[0]) {
-        gi.Printf(S_COLOR_RED "ERROR: misc_camera_track with no targetname\n");
+        Com_PrintError("misc_camera_track with no targetname\n");
         G_FreeEntity(self);
         return;
     }

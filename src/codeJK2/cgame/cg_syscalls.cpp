@@ -50,18 +50,6 @@ inline int PASSFLOAT(float x)
     return fi.i;
 }
 
-void cgi_Printf(const char* fmt)
-{
-    Q_syscall(cgameImport_t::CG_PRINT, fmt);
-}
-
-NORETURN void cgi_Error(const char* fmt)
-{
-    Q_syscall(cgameImport_t::CG_ERROR, fmt);
-    // shut up GCC warning about returning functions, because we know better
-    exit(1);
-}
-
 int cgi_Milliseconds(void)
 {
     return Q_syscall(cgameImport_t::CG_MILLISECONDS);

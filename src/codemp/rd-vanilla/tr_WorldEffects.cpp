@@ -476,7 +476,7 @@ public:
         // Record The Extents Of The World Incase No Other Weather Zones Exist
         //---------------------------------------------------------------------
         if (!mWeatherZones.size()) {
-            ri.Printf(printParm_t::PRINT_ALL, "WARNING: No Weather Zones Encountered\n");
+            Com_Warning("No Weather Zones Encountered\n");
             AddWeatherZone(tr.world->bmodels[0].bounds[0], tr.world->bmodels[0].bounds[1]);
         }
 
@@ -1202,7 +1202,7 @@ void RB_RenderWorldEffects(void)
             mParticleClouds[i].Render();
         }
         if (false) {
-            ri.Printf(printParm_t::PRINT_ALL, "Weather: %d Particles Rendered\n", mParticlesRendered);
+            Com_Printf("Weather: %d Particles Rendered\n", mParticlesRendered);
         }
     }
 }
@@ -1227,14 +1227,14 @@ bool WE_ParseVector(const char** text, int count, float* v)
     // FIXME: spaces are currently required after parens, should change parseext...
     token = COM_ParseExt(text, false);
     if (strcmp(token, "(")) {
-        ri.Printf(printParm_t::PRINT_WARNING, "WARNING: missing parenthesis in weather effect\n");
+        Com_Warning("missing parenthesis in weather effect\n");
         return false;
     }
 
     for (i = 0; i < count; i++) {
         token = COM_ParseExt(text, false);
         if (!token[0]) {
-            ri.Printf(printParm_t::PRINT_WARNING, "WARNING: missing vector element in weather effect\n");
+            Com_Warning("missing vector element in weather effect\n");
             return false;
         }
         v[i] = Q_atof(token);
@@ -1242,7 +1242,7 @@ bool WE_ParseVector(const char** text, int count, float* v)
 
     token = COM_ParseExt(text, false);
     if (strcmp(token, ")")) {
-        ri.Printf(printParm_t::PRINT_WARNING, "WARNING: missing parenthesis in weather effect\n");
+        Com_Warning("missing parenthesis in weather effect\n");
         return false;
     }
 
@@ -1575,27 +1575,27 @@ void RE_WorldEffectCommand(const char* command)
         mOutside.mOutsidePain = !mOutside.mOutsidePain;
     }
     else {
-        ri.Printf(printParm_t::PRINT_ALL, "Weather Effect: Please enter a valid command.\n");
-        ri.Printf(printParm_t::PRINT_ALL, "	die\n");
-        ri.Printf(printParm_t::PRINT_ALL, "	clear\n");
-        ri.Printf(printParm_t::PRINT_ALL, "	freeze\n");
-        ri.Printf(printParm_t::PRINT_ALL, "	zone (mins) (maxs)\n");
-        ri.Printf(printParm_t::PRINT_ALL, "	wind\n");
-        ri.Printf(printParm_t::PRINT_ALL, "	constantwind (velocity)\n");
-        ri.Printf(printParm_t::PRINT_ALL, "	gustingwind\n");
-        // ri.Printf( printParm_t::PRINT_ALL, "	windzone (mins) (maxs) (velocity)\n" );
-        ri.Printf(printParm_t::PRINT_ALL, "	lightrain\n");
-        ri.Printf(printParm_t::PRINT_ALL, "	rain\n");
-        ri.Printf(printParm_t::PRINT_ALL, "	acidrain\n");
-        ri.Printf(printParm_t::PRINT_ALL, "	heavyrain\n");
-        ri.Printf(printParm_t::PRINT_ALL, "	snow\n");
-        ri.Printf(printParm_t::PRINT_ALL, "	spacedust\n");
-        ri.Printf(printParm_t::PRINT_ALL, "	sand\n");
-        ri.Printf(printParm_t::PRINT_ALL, "	fog\n");
-        ri.Printf(printParm_t::PRINT_ALL, "	heavyrainfog\n");
-        ri.Printf(printParm_t::PRINT_ALL, "	light_fog\n");
-        ri.Printf(printParm_t::PRINT_ALL, "	outsideshake\n");
-        ri.Printf(printParm_t::PRINT_ALL, "	outsidepain\n");
+        Com_Printf("Weather Effect: Please enter a valid command.\n");
+        Com_Printf("	die\n");
+        Com_Printf("	clear\n");
+        Com_Printf("	freeze\n");
+        Com_Printf("	zone (mins) (maxs)\n");
+        Com_Printf("	wind\n");
+        Com_Printf("	constantwind (velocity)\n");
+        Com_Printf("	gustingwind\n");
+        // Com_Printf("	windzone (mins) (maxs) (velocity)\n" );
+        Com_Printf("	lightrain\n");
+        Com_Printf("	rain\n");
+        Com_Printf("	acidrain\n");
+        Com_Printf("	heavyrain\n");
+        Com_Printf("	snow\n");
+        Com_Printf("	spacedust\n");
+        Com_Printf("	sand\n");
+        Com_Printf("	fog\n");
+        Com_Printf("	heavyrainfog\n");
+        Com_Printf("	light_fog\n");
+        Com_Printf("	outsideshake\n");
+        Com_Printf("	outsidepain\n");
     }
 }
 

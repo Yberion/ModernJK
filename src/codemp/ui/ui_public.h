@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <ghoul2/G2.h>
 
-inline constexpr int UI_API_VERSION = 3;
+inline constexpr int UI_API_VERSION = 4;
 
 enum class fakeAscii_t; // keycodes.h
 
@@ -66,8 +66,8 @@ enum class lanServerState_t {
 };
 
 typedef struct uiImport_s {
-    void (*Print)(const char* msg, ...) __attribute__((format(printf, 1, 2)));
-    NORETURN_PTR void (*Error)(errorParm_t level, const char* fmt, ...) __attribute__((format(printf, 2, 3)));
+    void (*Print)(printLevel_t level, const char* fmt, va_list args) __attribute__((format(printf, 2, 0)));
+    NORETURN_PTR void (*Error)(errorParm_t code, const char* fmt, va_list args) __attribute__((format(printf, 2, 0)));
     int (*Milliseconds)(void);
     int (*RealTime)(qtime_t* qtime);
     int (*MemoryRemaining)(void);

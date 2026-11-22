@@ -394,7 +394,7 @@ void EnumerateField(const save_field_t* pField, byte* pbBase)
         break;
 
     default:
-        G_Error("EnumerateField: unknown field type");
+        Com_Error(errorParm_t::ERR_DROP, "EnumerateField: unknown field type");
         break;
     }
 }
@@ -504,7 +504,7 @@ static void EvaluateField(const save_field_t* pField, byte* pbBase, byte* pbOrig
         break;
 
     default:
-        G_Error("EvaluateField: unknown field type");
+        Com_Error(errorParm_t::ERR_DROP, "EvaluateField: unknown field type");
         break;
     }
 }
@@ -526,7 +526,7 @@ template <typename T> static void EvaluateFields(const save_field_t* pFields, T*
     ojk::SavedGameHelper saved_game(::gi.saved_game);
 
     if (!saved_game.try_read_chunk(ulChid, *pbData)) {
-        ::G_Error("EvaluateFields(): variable-sized chunk '%s' without handler!", ::SG_GetChidText(ulChid));
+        Com_Error(errorParm_t::ERR_DROP, "EvaluateFields(): variable-sized chunk '%s' without handler!", ::SG_GetChidText(ulChid));
     }
 
     if (pFields) {

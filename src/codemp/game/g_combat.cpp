@@ -3548,7 +3548,7 @@ bool G_GetHitLocFromSurfName(gentity_t* ent, const char* surfName, int* hitLoc, 
 #ifdef _DEBUG
     else
     {
-        Com_Printf( "ERROR: surface %s does not belong to any hitLocation!!!\n", surfName );
+        Com_PrintError( "surface %s does not belong to any hitLocation!!!\n", surfName );
     }
 #endif //_DEBUG
     */
@@ -4502,7 +4502,7 @@ void G_Damage(gentity_t* targ, gentity_t* inflictor, gentity_t* attacker, vec3_t
     }
 
     if (g_debugDamage.integer) {
-        trap->Print("%i: client:%i health:%i damage:%i armor:%i\n", level.time, targ->s.number, targ->health, take, asave);
+        Com_Printf("%i: client:%i health:%i damage:%i armor:%i\n", level.time, targ->s.number, targ->health, take, asave);
     }
 
     // add to the damage inflicted on a player this frame

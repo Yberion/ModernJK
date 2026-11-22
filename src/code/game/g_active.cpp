@@ -1590,7 +1590,7 @@ void ClientEvents(gentity_t* ent, int oldEventSequence)
         case entity_event_t::EV_FIRE_WEAPON:
 #ifndef FINAL_BUILD
             if (fired) {
-                gi.Printf("DOUBLE EV_FIRE_WEAPON AND-OR EV_ALT_FIRE!!\n");
+                Com_Printf("DOUBLE EV_FIRE_WEAPON AND-OR EV_ALT_FIRE!!\n");
             }
             fired = true;
 #endif
@@ -1600,7 +1600,7 @@ void ClientEvents(gentity_t* ent, int oldEventSequence)
         case entity_event_t::EV_ALT_FIRE:
 #ifndef FINAL_BUILD
             if (fired) {
-                gi.Printf("DOUBLE EV_FIRE_WEAPON AND-OR EV_ALT_FIRE!!\n");
+                Com_Printf("DOUBLE EV_FIRE_WEAPON AND-OR EV_ALT_FIRE!!\n");
             }
             fired = true;
 #endif
@@ -4625,7 +4625,7 @@ void ClientThink_real(gentity_t* ent, usercmd_t* ucmd)
     VectorCopy(ent->client->ps.viewangles, ent->currentAngles);
     //	if (pVeh)
     //	{
-    //		gi.Printf("%d\n", ucmd->angles[2]);
+    //		Com_Printf("%d\n", ucmd->angles[2]);
     //	}
 
     VectorCopy(pm.mins, ent->mins);

@@ -1001,11 +1001,11 @@ bool NAV::GoTo(gentity_t* actor, const vec3_t& position, float MaxDangerLevel)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
-// This function exists as a wrapper so that the graph can write to the gi.Printf()
+// This function exists as a wrapper so that the graph can write to the Com_Printf()
 ////////////////////////////////////////////////////////////////////////////////////////
 void stupid_print(const char* data)
 {
-    gi.Printf("%s", data);
+    Com_Printf("%s", data);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -1087,7 +1087,7 @@ bool NAV::TestEdge(TNodeHandle NodeA, TNodeHandle NodeB, bool IsDebugEdge)
     //-----------------------------------------------------------------------
     if ((a.mType == EPointType::PT_WAYNODE && a.mRadius < radius) || (b.mType == EPointType::PT_WAYNODE && b.mRadius < radius)) {
         if (IsDebugEdge) {
-            gi.Printf("Nav(%s)<->(%s): Size Too Big\n", aName, bName);
+            Com_Printf("Nav(%s)<->(%s): Size Too Big\n", aName, bName);
         }
         CanGo = false;
         return CanGo;
@@ -1113,7 +1113,7 @@ bool NAV::TestEdge(TNodeHandle NodeA, TNodeHandle NodeB, bool IsDebugEdge)
         gentity_t* ent = &g_entities[EntHit];
 
         if (IsDebugEdge) {
-            gi.Printf("Nav(%s)<->(%s): Hit Entity Type (%s), TargetName (%s)\n", aName, bName, ent->classname, ent->targetname);
+            Com_Printf("Nav(%s)<->(%s): Hit Entity Type (%s), TargetName (%s)\n", aName, bName, ent->classname, ent->targetname);
         }
 
         // Find Out What Type Of Entity This Is
@@ -1136,7 +1136,7 @@ bool NAV::TestEdge(TNodeHandle NodeA, TNodeHandle NodeB, bool IsDebugEdge)
         //-----------------------------------------
         else {
             if (IsDebugEdge) {
-                gi.Printf("Nav(%s)<->(%s): Unable To Ignore Ent, Going A Size Down\n", aName, bName);
+                Com_Printf("Nav(%s)<->(%s): Unable To Ignore Ent, Going A Size Down\n", aName, bName);
             }
             return CanGo; // Go To Next Size Down
         }
@@ -1170,7 +1170,7 @@ bool NAV::TestEdge(TNodeHandle NodeA, TNodeHandle NodeB, bool IsDebugEdge)
             }
             else {
                 if (IsDebugEdge) {
-                    gi.Printf("Nav(%s)<->(%s): Unable Pass Through Door Even When Open, Going A Size Down\n", aName, bName);
+                    Com_Printf("Nav(%s)<->(%s): Unable Pass Through Door Even When Open, Going A Size Down\n", aName, bName);
                 }
             }
 
@@ -1195,7 +1195,7 @@ bool NAV::TestEdge(TNodeHandle NodeA, TNodeHandle NodeB, bool IsDebugEdge)
         else {
             CanGo = MoveTrace(a.mPoint, b.mPoint, Mins, Maxs, EntHit, true, false);
             if (IsDebugEdge) {
-                gi.Printf("Nav(%s)<->(%s): Unable Pass Through Even If Entity Was Gone, Going A Size Down\n", aName, bName);
+                Com_Printf("Nav(%s)<->(%s): Unable Pass Through Even If Entity Was Gone, Going A Size Down\n", aName, bName);
             }
         }
 
@@ -1221,7 +1221,7 @@ bool NAV::TestEdge(TNodeHandle NodeA, TNodeHandle NodeB, bool IsDebugEdge)
                 else {
 #ifndef FINAL_BUILD
                     assert("Max Edges Perh Handle Reached, Unable To Add To Edge Map!" == 0);
-                    gi.Printf("WARNING: Too many nav edges pass through entity %d (%s)\n", EntHit, g_entities[EntHit].targetname);
+                    Com_Warning("Too many nav edges pass through entity %d (%s)\n", EntHit, g_entities[EntHit].targetname);
 #endif
                 }
             }
@@ -1449,7 +1449,7 @@ bool NAV::LoadFromEntitiesAndSaveToFile(const char* filename, int checksum)
             nameFinder = mNodeNames.find(tgtName);
             if (nameFinder == mNodeNames.end()) {
 #ifdef _DEBUG
-                gi.Printf(S_COLOR_YELLOW "WARNING: nav unable to locate target (%s) from node (%s)\n", tgtNameStr, atNameStr);
+                Com_Warning("nav unable to locate target (%s) from node (%s)\n", tgtNameStr, atNameStr);
 #endif // _DEBUG
                 continue;
             }
@@ -1625,8 +1625,8 @@ bool NAV::LoadFromEntitiesAndSaveToFile(const char* filename, int checksum)
         // For debugging a connection between two known points:
         //------------------------------------------------------
         if (IsDebugEdge) {
-            gi.Printf("===============================\n");
-            gi.Printf("Nav(%s)<->(%s): DEBUGGING START\n", aName, bName);
+            Com_Printf("===============================\n");
+            Com_Printf("Nav(%s)<->(%s): DEBUGGING START\n", aName, bName);
             assert(0); // Break Here
         }
 
@@ -1634,7 +1634,7 @@ bool NAV::LoadFromEntitiesAndSaveToFile(const char* filename, int checksum)
         //-----------
         at.mFlags.set_bit(to_underlying(CWayEdge::EWayEdgeFlags::WE_SIZE_LARGE));
         if (IsDebugEdge) {
-            gi.Printf("Nav(%s)<->(%s): Attempting Size Large...\n", aName, bName);
+            Com_Printf("Nav(%s)<->(%s): Attempting Size Large...\n", aName, bName);
         }
 
         // Try Medium
@@ -1644,7 +1644,7 @@ bool NAV::LoadFromEntitiesAndSaveToFile(const char* filename, int checksum)
             at.mFlags.clear_bit(to_underlying(CWayEdge::EWayEdgeFlags::WE_SIZE_LARGE));
             at.mFlags.set_bit(to_underlying(CWayEdge::EWayEdgeFlags::WE_SIZE_MEDIUM));
             if (IsDebugEdge) {
-                gi.Printf("Nav(%s)<->(%s): Attempting Size Medium...\n", aName, bName);
+                Com_Printf("Nav(%s)<->(%s): Attempting Size Medium...\n", aName, bName);
             }
             CanGo = TestEdge(at.mNodeA, at.mNodeB, IsDebugEdge);
         }
@@ -1663,37 +1663,37 @@ bool NAV::LoadFromEntitiesAndSaveToFile(const char* filename, int checksum)
                 ContactNormal.ToStr(cnormstr);
                 ContactPoint.ToStr(cpointstr);
 
-                gi.Printf("Nav(%s)<->(%s): FAILED, NO SMALLER SIZE POSSIBLE\n", aName, bName);
-                gi.Printf("Nav(%s)<->(%s): The last trace hit:\n", aName, bName);
-                gi.Printf("Nav(%s)<->(%s):     at %s,\n", aName, bName, cpointstr);
-                gi.Printf("Nav(%s)<->(%s):     normal %s\n", aName, bName, cnormstr);
+                Com_Printf("Nav(%s)<->(%s): FAILED, NO SMALLER SIZE POSSIBLE\n", aName, bName);
+                Com_Printf("Nav(%s)<->(%s): The last trace hit:\n", aName, bName);
+                Com_Printf("Nav(%s)<->(%s):     at %s,\n", aName, bName, cpointstr);
+                Com_Printf("Nav(%s)<->(%s):     normal %s\n", aName, bName, cnormstr);
                 if (mMoveTrace.entityNum != ENTITYNUM_WORLD) {
                     gentity_t* ent = &g_entities[mMoveTrace.entityNum];
-                    gi.Printf("Nav(%s)<->(%s):     on entity Type (%s), TargetName (%s)\n", aName, bName, ent->classname, ent->targetname);
+                    Com_Printf("Nav(%s)<->(%s):     on entity Type (%s), TargetName (%s)\n", aName, bName, ent->classname, ent->targetname);
                 }
                 if (Any((mMoveTrace.contents) & contentsFlags_t::CONTENTS_MONSTERCLIP)) {
-                    gi.Printf("Nav(%s)<->(%s):     with contents BLOCKNPC\n", aName, bName);
+                    Com_Printf("Nav(%s)<->(%s):     with contents BLOCKNPC\n", aName, bName);
                 }
                 else if (Any((mMoveTrace.contents) & contentsFlags_t::CONTENTS_BOTCLIP)) {
-                    gi.Printf("Nav(%s)<->(%s):     with contents DONOTENTER\n", aName, bName);
+                    Com_Printf("Nav(%s)<->(%s):     with contents DONOTENTER\n", aName, bName);
                 }
                 else if (Any((mMoveTrace.contents) & contentsFlags_t::CONTENTS_SOLID)) {
-                    gi.Printf("Nav(%s)<->(%s):     with contents SOLID\n", aName, bName);
+                    Com_Printf("Nav(%s)<->(%s):     with contents SOLID\n", aName, bName);
                 }
                 else if (Any((mMoveTrace.contents) & contentsFlags_t::CONTENTS_WATER)) {
-                    gi.Printf("Nav(%s)<->(%s):     with contents WATER\n", aName, bName);
+                    Com_Printf("Nav(%s)<->(%s):     with contents WATER\n", aName, bName);
                 }
             }
         }
         else {
             if (IsDebugEdge) {
-                gi.Printf("Nav(%s)<->(%s): Success!\n", aName, bName);
+                Com_Printf("Nav(%s)<->(%s): Success!\n", aName, bName);
             }
         }
 
         if (IsDebugEdge) {
-            gi.Printf("Nav(%s)<->(%s): DEBUGGING END\n", aName, bName);
-            gi.Printf("===============================\n");
+            Com_Printf("Nav(%s)<->(%s): DEBUGGING END\n", aName, bName);
+            Com_Printf("===============================\n");
         }
     }
 
@@ -1711,7 +1711,7 @@ bool NAV::LoadFromEntitiesAndSaveToFile(const char* filename, int checksum)
             mGraph.get_node(at.mNodeB).mPoint.ToStr(mLocStringB);
 
 #ifdef _DEBUG
-            gi.Printf(S_COLOR_RED "ERROR: Nav connect failed: %s@%s <-> %s@%s\n", aHstr.c_str(), mLocStringA, bHstr.c_str(), mLocStringB);
+            Com_PrintError("Nav connect failed: %s@%s <-> %s@%s\n", aHstr.c_str(), mLocStringA, bHstr.c_str(), mLocStringB);
 #endif // _DEBUG
             delayedShutDown = level.time + 100;
         }
@@ -1733,7 +1733,7 @@ bool NAV::LoadFromEntitiesAndSaveToFile(const char* filename, int checksum)
             mIslandCount++;
             if (at->mType == NAV::EPointType::PT_COMBATNODE) {
 #ifndef FINAL_BUILD
-                gi.Printf(S_COLOR_RED "ERROR: Combat Point %s@%s Is Not Connected To Anything\n", at->mName.c_str(), mLocStringA);
+                Com_PrintError("Combat Point %s@%s Is Not Connected To Anything\n", at->mName.c_str(), mLocStringA);
                 delayedShutDown = level.time + 100;
 #endif
             }
@@ -1744,7 +1744,7 @@ bool NAV::LoadFromEntitiesAndSaveToFile(const char* filename, int checksum)
                 Down[2] -= 100;
                 if (!ViewTrace(at->mPoint, Down)) {
 #ifndef FINAL_BUILD
-                    gi.Printf(S_COLOR_RED "ERROR: Nav Goal %s@%s Is Not Connected To Anything\n", at->mName.c_str(), mLocStringA);
+                    Com_PrintError("Nav Goal %s@%s Is Not Connected To Anything\n", at->mName.c_str(), mLocStringA);
                     delayedShutDown = level.time + 100;
 #endif
                 }
@@ -1770,13 +1770,13 @@ bool NAV::LoadFromEntitiesAndSaveToFile(const char* filename, int checksum)
     }
     if (!mRegion.find_regions(mUser)) {
 #ifndef FINAL_BUILD
-        gi.Printf(S_COLOR_RED "ERROR: Too Many Regions!\n");
+        Com_PrintError("Too Many Regions!\n");
         delayedShutDown = level.time + 100;
 #endif
     }
     if (!mRegion.find_region_edges()) {
 #ifndef FINAL_BUILD
-        gi.Printf(S_COLOR_RED "ERROR: Too Many Region Edges!\n");
+        Com_PrintError("Too Many Region Edges!\n");
         delayedShutDown = level.time + 100;
 #endif
     }
@@ -1969,7 +1969,7 @@ void NAV::SpawnedPoint(gentity_t* ent, NAV::EPointType type)
 {
     if (mGraph.size_nodes() >= NUM_NODES) {
 #ifndef FINAL_BUILD
-        gi.Printf("SpawnedPoint: Max Nav points reached (%d)!\n", NUM_NODES);
+        Com_Printf("SpawnedPoint: Max Nav points reached (%d)!\n", NUM_NODES);
 #endif
         return;
     }
@@ -1994,7 +1994,7 @@ void NAV::SpawnedPoint(gentity_t* ent, NAV::EPointType type)
         //--------
         if (!MoveTrace(Start, Stop, Mins, Maxs, 0, true, false)) {
             assert("ERROR: Nav in solid!" == 0);
-            gi.Printf(S_COLOR_RED "ERROR: Nav(%d) in solid: %s@%s\n", to_underlying(type), pointName, mLocStringA);
+            Com_PrintError("Nav(%d) in solid: %s@%s\n", to_underlying(type), pointName, mLocStringA);
             delayedShutDown = level.time + 100;
             return;
         }
@@ -2028,7 +2028,7 @@ void NAV::SpawnedPoint(gentity_t* ent, NAV::EPointType type)
         // Try It Again
         //--------------
         if (!MoveTrace(Start, Stop, Mins, Maxs, 0, true, false)) {
-            gi.Printf(S_COLOR_YELLOW "WARNING: Nav Moved To Solid, Resetting: (%s)\n", pointName);
+            Com_Warning("Nav Moved To Solid, Resetting: (%s)\n", pointName);
             assert("WARNING: Nav Moved To Solid, Resetting!" == 0);
             node.mPoint = ent->currentOrigin;
         }
@@ -2095,7 +2095,7 @@ NAV::TNodeHandle NAV::GetNearestNode(const vec3_t& position, NAV::TNodeHandle pr
         if (Cell.mNodes.empty() && Cell.mEdges.empty()) {
 #ifndef FINAL_BUILD
             if (g_developer->value) {
-                gi.Printf("WARNING: Failure To Find A Node Here, Examine Cell Layout\n");
+                Com_Warning("Failure To Find A Node Here, Examine Cell Layout\n");
             }
 #endif
             return WAYPOINT_NONE;
@@ -3458,12 +3458,12 @@ void NAV::TeleportTo(gentity_t* actor, const char* pointName)
     TNameToNodeMap::iterator nameFinder = mNodeNames.find(nName);
     if (nameFinder != mNodeNames.end()) {
         if ((*nameFinder).size() > 1) {
-            gi.Printf("WARNING: More than one point named (%s).  Going to first one./n", pointName);
+            Com_Warning("More than one point named (%s).  Going to first one./n", pointName);
         }
         TeleportPlayer(actor, mGraph.get_node((*nameFinder)[0]).mPoint.v, actor->currentAngles);
         return;
     }
-    gi.Printf("Unable To Locate Point (%s)\n", pointName);
+    Com_Printf("Unable To Locate Point (%s)\n", pointName);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

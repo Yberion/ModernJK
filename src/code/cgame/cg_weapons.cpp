@@ -75,7 +75,7 @@ void CG_RegisterWeapon(weapon_t weaponNum)
     }
     // if we couldn't find which weapon this is, give us an error
     if (!item->classname) {
-        CG_Error("Couldn't find item for weapon %s\nNeed to update Items.dat!", weaponData[weaponNum].classname);
+        Com_Error(errorParm_t::ERR_DROP, "Couldn't find item for weapon %s\nNeed to update Items.dat!", weaponData[weaponNum].classname);
     }
     CG_RegisterItemVisuals(ITEM_INDEX(item));
 
@@ -97,7 +97,7 @@ void CG_RegisterWeapon(weapon_t weaponNum)
     }
 
     if (weaponInfo->weaponModel == 0) {
-        CG_Error("Couldn't find weapon model %s for weapon %s\n", weaponData[weaponNum].weaponMdl, weaponData[weaponNum].classname);
+        Com_Error(errorParm_t::ERR_DROP, "Couldn't find weapon model %s for weapon %s\n", weaponData[weaponNum].weaponMdl, weaponData[weaponNum].classname);
         return;
     }
 
@@ -2483,7 +2483,7 @@ void CG_FireWeapon(centity_t* cent, bool alt_fire)
         return;
     }
     if (ent->weapon >= weapon_t::WP_NUM_WEAPONS) {
-        CG_Error("CG_FireWeapon: ent->weapon >= WP_NUM_WEAPONS");
+        Com_Error(errorParm_t::ERR_DROP, "CG_FireWeapon: ent->weapon >= WP_NUM_WEAPONS");
         return;
     }
     if (ent->weapon == weapon_t::WP_TUSKEN_RIFLE && cent->gent->client) {

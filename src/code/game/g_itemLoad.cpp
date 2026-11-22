@@ -220,7 +220,7 @@ static void IT_Name(const char** holdBuf)
         itemNum = itemNum_t::ITM_SECURITY_KEY_PICKUP;
     else {
         itemNum = itemNum_t::ITM_NONE;
-        gi.Printf("WARNING: bad itemname in external item data '%s'\n", tokenStr);
+        Com_Warning("bad itemname in external item data '%s'\n", tokenStr);
     }
 
     itemParms.itemNum = itemNum;
@@ -242,7 +242,7 @@ static void IT_ClassName(const char** holdBuf)
     len++;
     if (len > 32) {
         len = 32;
-        gi.Printf("WARNING: weaponclass too long in external ITEMS.DAT '%s'\n", tokenStr);
+        Com_Warning("weaponclass too long in external ITEMS.DAT '%s'\n", tokenStr);
     }
 
     bg_itemlist[itemParms.itemNum].classname = G_NewString(tokenStr);
@@ -263,7 +263,7 @@ static void IT_WorldModel(const char** holdBuf)
     len++;
     if (len > 64) {
         len = 64;
-        gi.Printf("WARNING: world model too long in external ITEMS.DAT '%s'\n", tokenStr);
+        Com_Warning("world model too long in external ITEMS.DAT '%s'\n", tokenStr);
     }
 
     bg_itemlist[itemParms.itemNum].world_model = G_NewString(tokenStr);
@@ -428,9 +428,9 @@ static void IT_Tag(const char** holdBuf)
         tag = to_underlying(weapon_t::WP_BRYAR_PISTOL);
         // This error was slipping through too much, causing runaway exceptions and shutting down, so now it's a real error when not in Final
 #ifndef FINAL_BUILD
-        G_Error("ERROR: bad tagname in external item data '%s'\n", tokenStr);
+        Com_Error(errorParm_t::ERR_DROP, "ERROR: bad tagname in external item data '%s'\n", tokenStr);
 #else
-        gi.Printf("WARNING: bad tagname in external item data '%s'\n", tokenStr);
+        Com_Warning("bad tagname in external item data '%s'\n", tokenStr);
 #endif
     }
 
@@ -464,7 +464,7 @@ static void IT_Type(const char** holdBuf)
         type = itemType_t::IT_HOLOCRON;
     else {
         type = itemType_t::IT_BAD;
-        gi.Printf("WARNING: bad itemname in external item data '%s'\n", tokenStr);
+        Com_Warning("bad itemname in external item data '%s'\n", tokenStr);
     }
 
     bg_itemlist[itemParms.itemNum].giType = type;
@@ -483,7 +483,7 @@ static void IT_Icon(const char** holdBuf)
     len++;
     if (len > 32) {
         len = 32;
-        gi.Printf("WARNING: icon too long in external ITEMS.DAT '%s'\n", tokenStr);
+        Com_Warning("icon too long in external ITEMS.DAT '%s'\n", tokenStr);
     }
 
     bg_itemlist[itemParms.itemNum].icon = G_NewString(tokenStr);
@@ -500,7 +500,7 @@ static void IT_Count(const char** holdBuf)
 
     if ((tokenInt < 0) || (tokenInt > 1000)) // FIXME :What are the right values?
     {
-        gi.Printf("WARNING: bad Count in external item data '%d'\n", tokenInt);
+        Com_Warning("bad Count in external item data '%d'\n", tokenInt);
         return;
     }
     bg_itemlist[itemParms.itemNum].quantity = tokenInt;
@@ -549,7 +549,7 @@ static void IT_PickupSound(const char** holdBuf)
     len++;
     if (len > 32) {
         len = 32;
-        gi.Printf("WARNING: Pickup Sound too long in external ITEMS.DAT '%s'\n", tokenStr);
+        Com_Warning("Pickup Sound too long in external ITEMS.DAT '%s'\n", tokenStr);
     }
 
     bg_itemlist[itemParms.itemNum].pickup_sound = G_NewString(tokenStr);
@@ -579,7 +579,7 @@ static void IT_ParseWeaponParms(const char** holdBuf)
             continue;
         }
 
-        Com_Printf("^3WARNING: bad parameter in external item data '%s'\n", token);
+        Com_Warning("bad parameter in external item data '%s'\n", token);
         SkipRestOfLine(holdBuf);
     }
 }

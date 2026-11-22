@@ -72,59 +72,59 @@ void Svcmd_EntityList_f(void)
         if (!check->inuse) {
             continue;
         }
-        gi.Printf("%3i:", e);
+        Com_Printf("%3i:", e);
         switch (check->s.eType) {
         case entityType_t::ET_GENERAL:
-            gi.Printf("ET_GENERAL          ");
+            Com_Printf("ET_GENERAL          ");
             break;
         case entityType_t::ET_PLAYER:
-            gi.Printf("ET_PLAYER           ");
+            Com_Printf("ET_PLAYER           ");
             break;
         case entityType_t::ET_ITEM:
-            gi.Printf("ET_ITEM             ");
+            Com_Printf("ET_ITEM             ");
             break;
         case entityType_t::ET_MISSILE:
-            gi.Printf("ET_MISSILE          ");
+            Com_Printf("ET_MISSILE          ");
             break;
         case entityType_t::ET_MOVER:
-            gi.Printf("ET_MOVER            ");
+            Com_Printf("ET_MOVER            ");
             break;
         case entityType_t::ET_BEAM:
-            gi.Printf("ET_BEAM             ");
+            Com_Printf("ET_BEAM             ");
             break;
         case entityType_t::ET_PORTAL:
-            gi.Printf("ET_PORTAL           ");
+            Com_Printf("ET_PORTAL           ");
             break;
         case entityType_t::ET_SPEAKER:
-            gi.Printf("ET_SPEAKER          ");
+            Com_Printf("ET_SPEAKER          ");
             break;
         case entityType_t::ET_PUSH_TRIGGER:
-            gi.Printf("ET_PUSH_TRIGGER     ");
+            Com_Printf("ET_PUSH_TRIGGER     ");
             break;
         case entityType_t::ET_TELEPORT_TRIGGER:
-            gi.Printf("ET_TELEPORT_TRIGGER ");
+            Com_Printf("ET_TELEPORT_TRIGGER ");
             break;
         case entityType_t::ET_INVISIBLE:
-            gi.Printf("ET_INVISIBLE        ");
+            Com_Printf("ET_INVISIBLE        ");
             break;
         case entityType_t::ET_THINKER:
-            gi.Printf("ET_THINKER          ");
+            Com_Printf("ET_THINKER          ");
             break;
         case entityType_t::ET_CLOUD:
-            gi.Printf("ET_CLOUD            ");
+            Com_Printf("ET_CLOUD            ");
             break;
         case entityType_t::ET_TERRAIN:
-            gi.Printf("ET_TERRAIN          ");
+            Com_Printf("ET_TERRAIN          ");
             break;
         default:
-            gi.Printf("%-3i                ", to_underlying(check->s.eType));
+            Com_Printf("%-3i                ", to_underlying(check->s.eType));
             break;
         }
 
         if (check->classname) {
-            gi.Printf("%s", check->classname);
+            Com_Printf("%s", check->classname);
         }
-        gi.Printf("\n");
+        Com_Printf("\n");
     }
 }
 
@@ -179,12 +179,12 @@ static void Svcmd_Saber_f()
     char name[MAX_CVAR_VALUE_STRING] = {0};
 
     if (gi.argc() < 2) {
-        gi.Printf("Usage: saber <saber1> <saber2>\n");
+        Com_Printf("Usage: saber <saber1> <saber2>\n");
         gi.Cvar_VariableStringBuffer("g_saber", name, sizeof(name));
-        gi.Printf("g_saber is set to %s\n", name);
+        Com_Printf("g_saber is set to %s\n", name);
         gi.Cvar_VariableStringBuffer("g_saber2", name, sizeof(name));
         if (name[0])
-            gi.Printf("g_saber2 is set to %s\n", name);
+            Com_Printf("g_saber2 is set to %s\n", name);
         return;
     }
 
@@ -208,7 +208,7 @@ static void Svcmd_Saber_f()
 static void Svcmd_SaberBlade_f()
 {
     if (gi.argc() < 2) {
-        gi.Printf("USAGE: saberblade <sabernum> <bladenum> [0 = off, 1 = on, no arg = toggle]\n");
+        Com_Printf("USAGE: saberblade <sabernum> <bladenum> [0 = off, 1 = on, no arg = toggle]\n");
         return;
     }
     if (g_entities[0].client == nullptr) {
@@ -248,9 +248,9 @@ static void Svcmd_SaberColor_f()
     }
 
     if (saberNum < 1 || saberNum > 2 || gi.argc() < 3) {
-        gi.Printf("Usage:  saberColor <saberNum> <blade1 color> <blade2 color> ... <blade8 color>\n");
-        gi.Printf("valid saberNums:  1 or 2\n");
-        gi.Printf("valid colors:  red, orange, yellow, green, blue, and purple\n");
+        Com_Printf("Usage:  saberColor <saberNum> <blade1 color> <blade2 color> ... <blade8 color>\n");
+        Com_Printf("valid saberNums:  1 or 2\n");
+        Com_Printf("valid colors:  red, orange, yellow, green, blue, and purple\n");
 
         return;
     }
@@ -308,8 +308,8 @@ static void Svcmd_ForceSetLevel_f(forcePowers_t forcePower)
     }
     const char* newVal = gi.argv(1);
     if (!VALIDSTRING(newVal)) {
-        gi.Printf("Current %s level is %d\n", SetForceTable[forcePower].desc, to_underlying(g_entities[0].client->ps.forcePowerLevel[forcePower]));
-        gi.Printf("Usage:  %s <level> (0 - %i)\n", SetForceTable[forcePower].cmdname, to_underlying(SetForceTable[forcePower].maxlevel));
+        Com_Printf("Current %s level is %d\n", SetForceTable[forcePower].desc, to_underlying(g_entities[0].client->ps.forcePowerLevel[forcePower]));
+        Com_Printf("Usage:  %s <level> (0 - %i)\n", SetForceTable[forcePower].cmdname, to_underlying(SetForceTable[forcePower].maxlevel));
         return;
     }
     const forcePowerLevels_t val = static_cast<forcePowerLevels_t>(atoi(newVal));
@@ -484,37 +484,37 @@ void Svcmd_SaberAttackCycle_f(void)
 #ifndef FINAL_BUILD
     switch (saberAnimLevel) {
     case saber_styles_t::SS_FAST:
-        gi.Printf(S_COLOR_BLUE "Lightsaber Combat Style: Fast\n");
+        Com_Printf(S_COLOR_BLUE "Lightsaber Combat Style: Fast\n");
         // LIGHTSABERCOMBATSTYLE_FAST
         break;
     case saber_styles_t::SS_MEDIUM:
-        gi.Printf(S_COLOR_YELLOW "Lightsaber Combat Style: Medium\n");
+        Com_Printf(S_COLOR_YELLOW "Lightsaber Combat Style: Medium\n");
         // LIGHTSABERCOMBATSTYLE_MEDIUM
         break;
     case saber_styles_t::SS_STRONG:
-        gi.Printf(S_COLOR_RED "Lightsaber Combat Style: Strong\n");
+        Com_Printf(S_COLOR_RED "Lightsaber Combat Style: Strong\n");
         // LIGHTSABERCOMBATSTYLE_STRONG
         break;
     case saber_styles_t::SS_DESANN:
-        gi.Printf(S_COLOR_CYAN "Lightsaber Combat Style: Desann\n");
+        Com_Printf(S_COLOR_CYAN "Lightsaber Combat Style: Desann\n");
         // LIGHTSABERCOMBATSTYLE_DESANN
         break;
     case saber_styles_t::SS_TAVION:
-        gi.Printf(S_COLOR_MAGENTA "Lightsaber Combat Style: Tavion\n");
+        Com_Printf(S_COLOR_MAGENTA "Lightsaber Combat Style: Tavion\n");
         // LIGHTSABERCOMBATSTYLE_TAVION
         break;
     case saber_styles_t::SS_DUAL:
-        gi.Printf(S_COLOR_MAGENTA "Lightsaber Combat Style: Dual\n");
+        Com_Printf(S_COLOR_MAGENTA "Lightsaber Combat Style: Dual\n");
         // LIGHTSABERCOMBATSTYLE_TAVION
         break;
     case saber_styles_t::SS_STAFF:
-        gi.Printf(S_COLOR_MAGENTA "Lightsaber Combat Style: Staff\n");
+        Com_Printf(S_COLOR_MAGENTA "Lightsaber Combat Style: Staff\n");
         // LIGHTSABERCOMBATSTYLE_TAVION
         break;
     default:
         break;
     }
-    // gi.Printf("\n");
+    // Com_Printf("\n");
 #endif
 }
 
@@ -594,7 +594,7 @@ static void Svcmd_RunScript_f(void)
             }
             else {
                 // can't find cmd2
-                gi.Printf(S_COLOR_RED "runscript: can't find targetname %s\n", cmd2);
+                Com_Printf(S_COLOR_RED "runscript: can't find targetname %s\n", cmd2);
             }
         }
         else {
@@ -602,7 +602,7 @@ static void Svcmd_RunScript_f(void)
         }
     }
     else {
-        gi.Printf(S_COLOR_RED "usage: runscript <ent targetname> scriptname\n");
+        Com_Printf(S_COLOR_RED "usage: runscript <ent targetname> scriptname\n");
     }
 }
 
@@ -611,22 +611,22 @@ static void Svcmd_PlayerTeam_f(void)
     const char* cmd2 = gi.argv(1);
 
     if (!*cmd2 || !cmd2[0]) {
-        gi.Printf(S_COLOR_RED "'playerteam' - change player team, requires a team name!\n");
-        gi.Printf(S_COLOR_RED "Current team is: %s\n", GetStringForID(TeamTable, to_underlying(g_entities[0].client->playerTeam)));
-        gi.Printf(S_COLOR_RED "Valid team names are:\n");
+        Com_Printf(S_COLOR_RED "'playerteam' - change player team, requires a team name!\n");
+        Com_Printf(S_COLOR_RED "Current team is: %s\n", GetStringForID(TeamTable, to_underlying(g_entities[0].client->playerTeam)));
+        Com_Printf(S_COLOR_RED "Valid team names are:\n");
         for (team_t n = team_t::TEAM_FREE + 1; n < team_t::TEAM_NUM_TEAMS; n++) {
-            gi.Printf(S_COLOR_RED "%s\n", GetStringForID(TeamTable, to_underlying(n)));
+            Com_Printf(S_COLOR_RED "%s\n", GetStringForID(TeamTable, to_underlying(n)));
         }
     }
     else {
         const int id = GetIDForString(TeamTable, cmd2);
 
         if (id == -1) {
-            gi.Printf(S_COLOR_RED "'playerteam' unrecognized team name %s!\n", cmd2);
-            gi.Printf(S_COLOR_RED "Current team is: %s\n", GetStringForID(TeamTable, to_underlying(g_entities[0].client->playerTeam)));
-            gi.Printf(S_COLOR_RED "Valid team names are:\n");
+            Com_Printf(S_COLOR_RED "'playerteam' unrecognized team name %s!\n", cmd2);
+            Com_Printf(S_COLOR_RED "Current team is: %s\n", GetStringForID(TeamTable, to_underlying(g_entities[0].client->playerTeam)));
+            Com_Printf(S_COLOR_RED "Valid team names are:\n");
             for (team_t n = team_t::TEAM_FREE; n < team_t::TEAM_NUM_TEAMS; n++) {
-                gi.Printf(S_COLOR_RED "%s\n", GetStringForID(TeamTable, to_underlying(n)));
+                Com_Printf(S_COLOR_RED "%s\n", GetStringForID(TeamTable, to_underlying(n)));
             }
         }
         else {
@@ -641,7 +641,7 @@ static void Svcmd_Control_f(void)
     const char* cmd2 = gi.argv(1);
     if (!*cmd2 || !cmd2[0]) {
         if (!G_ClearViewEntity(&g_entities[0])) {
-            gi.Printf(S_COLOR_RED "control <NPC_targetname>\n");
+            Com_Printf(S_COLOR_RED "control <NPC_targetname>\n");
         }
     }
     else {
@@ -654,7 +654,7 @@ static void Svcmd_Grab_f(void)
     const char* cmd2 = gi.argv(1);
     if (!*cmd2 || !cmd2[0]) {
         if (!G_ReleaseEntity(&g_entities[0])) {
-            gi.Printf(S_COLOR_RED "grab <NPC_targetname>\n");
+            Com_Printf(S_COLOR_RED "grab <NPC_targetname>\n");
         }
     }
     else {
@@ -670,10 +670,10 @@ static void Svcmd_Knockdown_f(void)
 static void Svcmd_PlayerModel_f(void)
 {
     if (gi.argc() == 1) {
-        gi.Printf(S_COLOR_RED "USAGE: playerModel <NPC Name>\n       playerModel <g2model> <skinhead> <skintorso> <skinlower>\n       playerModel player "
-                              "(builds player from customized menu settings)" S_COLOR_WHITE "\n");
-        gi.Printf("playerModel = %s ",
-                  va("%s %s %s %s\n", g_char_model->string, g_char_skin_head->string, g_char_skin_torso->string, g_char_skin_legs->string));
+        Com_Printf(S_COLOR_RED "USAGE: playerModel <NPC Name>\n       playerModel <g2model> <skinhead> <skintorso> <skinlower>\n       playerModel player "
+                               "(builds player from customized menu settings)" S_COLOR_WHITE "\n");
+        Com_Printf("playerModel = %s ",
+                   va("%s %s %s %s\n", g_char_model->string, g_char_skin_head->string, g_char_skin_torso->string, g_char_skin_legs->string));
     }
     else if (gi.argc() == 2) {
         G_ChangePlayerModel(&g_entities[0], gi.argv(1));
@@ -700,8 +700,8 @@ static void Svcmd_PlayerTint_f(void)
         gi.cvar_set("g_char_color_blue", gi.argv(3));
     }
     else {
-        gi.Printf(S_COLOR_RED "USAGE: playerTint <red 0 - 255> <green 0 - 255> <blue 0 - 255>\n");
-        gi.Printf("playerTint = %s\n", va("%d %d %d", g_char_color_red->integer, g_char_color_green->integer, g_char_color_blue->integer));
+        Com_Printf(S_COLOR_RED "USAGE: playerTint <red 0 - 255> <green 0 - 255> <blue 0 - 255>\n");
+        Com_Printf("playerTint = %s\n", va("%d %d %d", g_char_color_red->integer, g_char_color_green->integer, g_char_color_blue->integer));
     }
 }
 
@@ -724,14 +724,14 @@ static void Svcmd_Secrets_f(void)
 {
     const gentity_t* pl = &g_entities[0];
     if (pl->client->sess.missionStats.totalSecrets < 1) {
-        gi.Printf("There are" S_COLOR_RED " NO " S_COLOR_WHITE "secrets on this map!\n");
+        Com_Printf("There are" S_COLOR_RED " NO " S_COLOR_WHITE "secrets on this map!\n");
     }
     else if (pl->client->sess.missionStats.secretsFound == pl->client->sess.missionStats.totalSecrets) {
-        gi.Printf("You've found all " S_COLOR_GREEN "%i" S_COLOR_WHITE " secrets on this map!\n", pl->client->sess.missionStats.secretsFound);
+        Com_Printf("You've found all " S_COLOR_GREEN "%i" S_COLOR_WHITE " secrets on this map!\n", pl->client->sess.missionStats.secretsFound);
     }
     else {
-        gi.Printf("You've found " S_COLOR_GREEN "%i" S_COLOR_WHITE " out of " S_COLOR_GREEN "%i" S_COLOR_WHITE " secrets!\n",
-                  pl->client->sess.missionStats.secretsFound, pl->client->sess.missionStats.totalSecrets);
+        Com_Printf("You've found " S_COLOR_GREEN "%i" S_COLOR_WHITE " out of " S_COLOR_GREEN "%i" S_COLOR_WHITE " secrets!\n",
+                   pl->client->sess.missionStats.secretsFound, pl->client->sess.missionStats.totalSecrets);
     }
 }
 
@@ -745,28 +745,28 @@ static void Svcmd_Difficulty_f(void)
 {
     if (gi.argc() == 1) {
         if (g_spskill->integer == 0) {
-            gi.Printf(S_COLOR_GREEN "Current Difficulty: Padawan" S_COLOR_WHITE "\n");
+            Com_Printf(S_COLOR_GREEN "Current Difficulty: Padawan" S_COLOR_WHITE "\n");
         }
         else if (g_spskill->integer == 1) {
-            gi.Printf(S_COLOR_GREEN "Current Difficulty: Jedi" S_COLOR_WHITE "\n");
+            Com_Printf(S_COLOR_GREEN "Current Difficulty: Jedi" S_COLOR_WHITE "\n");
         }
         else if (g_spskill->integer == 2) {
             int crosshairHint = gi.Cvar_VariableIntegerValue("cg_crosshairForceHint");
             int handicap = gi.Cvar_VariableIntegerValue("handicap");
             if (handicap == 100 && crosshairHint == 0) {
-                gi.Printf(S_COLOR_GREEN "Current Difficulty: Jedi Knight" S_COLOR_WHITE "\n");
+                Com_Printf(S_COLOR_GREEN "Current Difficulty: Jedi Knight" S_COLOR_WHITE "\n");
             }
             else if (handicap == 50 && crosshairHint == 0) {
-                gi.Printf(S_COLOR_GREEN "Current Difficulty: Jedi Master" S_COLOR_WHITE "\n");
+                Com_Printf(S_COLOR_GREEN "Current Difficulty: Jedi Master" S_COLOR_WHITE "\n");
             }
             else {
-                gi.Printf(S_COLOR_GREEN "Current Difficulty: Jedi Knight (Custom)" S_COLOR_WHITE "\n");
-                gi.Printf(S_COLOR_GREEN "Crosshair Force Hint: %i" S_COLOR_WHITE "\n", crosshairHint != 0 ? 1 : 0);
-                gi.Printf(S_COLOR_GREEN "Handicap: %i" S_COLOR_WHITE "\n", handicap);
+                Com_Printf(S_COLOR_GREEN "Current Difficulty: Jedi Knight (Custom)" S_COLOR_WHITE "\n");
+                Com_Printf(S_COLOR_GREEN "Crosshair Force Hint: %i" S_COLOR_WHITE "\n", crosshairHint != 0 ? 1 : 0);
+                Com_Printf(S_COLOR_GREEN "Handicap: %i" S_COLOR_WHITE "\n", handicap);
             }
         }
         else {
-            gi.Printf(S_COLOR_RED "Invalid difficulty cvar set! g_spskill (%i) [0-2] is valid range only" S_COLOR_WHITE "\n", g_spskill->integer);
+            Com_Printf(S_COLOR_RED "Invalid difficulty cvar set! g_spskill (%i) [0-2] is valid range only" S_COLOR_WHITE "\n", g_spskill->integer);
         }
     }
 }
@@ -864,11 +864,11 @@ bool ConsoleCommand(void)
         return false;
 
     if (Any(command->flags & commandFlags_t::CMD_CHEAT) && !g_cheats->integer) {
-        gi.Printf("Cheats are not enabled on this server.\n");
+        Com_Printf("Cheats are not enabled on this server.\n");
         return true;
     }
     else if (Any(command->flags & commandFlags_t::CMD_ALIVE) && (g_entities[0].health <= 0)) {
-        gi.Printf("You must be alive to use this command.\n");
+        Com_Printf("You must be alive to use this command.\n");
         return true;
     }
     else

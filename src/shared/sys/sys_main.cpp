@@ -327,7 +327,7 @@ void* Sys_LoadDll(const char* name, bool useSystemLib)
 
     // Don't load any DLLs that end with the pk3 extension
     if (COM_CompareExtension(name, ".pk3")) {
-        Com_Printf(S_COLOR_YELLOW "WARNING: Rejecting DLL named \"%s\"", name);
+        Com_Warning("Rejecting DLL named \"%s\"", name);
         return nullptr;
     }
 

@@ -130,10 +130,10 @@ void CG_TransitionSnapshot(void)
     int i;
 
     if (!cg.snap) {
-        CG_Error("CG_TransitionSnapshot: NULL cg.snap");
+        Com_Error(errorParm_t::ERR_DROP, "CG_TransitionSnapshot: NULL cg.snap");
     }
     if (!cg.nextSnap) {
-        CG_Error("CG_TransitionSnapshot: NULL cg.nextSnap");
+        Com_Error(errorParm_t::ERR_DROP, "CG_TransitionSnapshot: NULL cg.nextSnap");
     }
 
     // execute any server string commands before transitioning entities
@@ -309,7 +309,7 @@ static void CG_RestartLevel(void)
     cg.processedSnapshotNum = snapshotNum;
     r = cgi_GetSnapshot(cg.processedSnapshotNum, &cg.activeSnapshots[0]);
     if (!r) {
-        CG_Error("cgi_GetSnapshot failed on restart");
+        Com_Error(errorParm_t::ERR_DROP, "cgi_GetSnapshot failed on restart");
     }
 
     CG_SetInitialSnapshot(&cg.activeSnapshots[0]);
@@ -345,7 +345,7 @@ void CG_ProcessSnapshots(void)
     if (n != cg.latestSnapshotNum) {
         if (n < cg.latestSnapshotNum) {
             // this should never happen
-            CG_Error("CG_ProcessSnapshots: n < cg.latestSnapshotNum");
+            Com_Error(errorParm_t::ERR_DROP, "CG_ProcessSnapshots: n < cg.latestSnapshotNum");
         }
         cg.latestSnapshotNum = n;
     }
@@ -412,12 +412,12 @@ void CG_ProcessSnapshots(void)
     }
     // assert our valid conditions upon exiting
     if (cg.snap == nullptr) {
-        CG_Error("CG_ProcessSnapshots: cg.snap == NULL");
+        Com_Error(errorParm_t::ERR_DROP, "CG_ProcessSnapshots: cg.snap == NULL");
     }
     if (cg.snap->serverTime > cg.time) {
-        CG_Error("CG_ProcessSnapshots: cg.snap->serverTime > cg.time");
+        Com_Error(errorParm_t::ERR_DROP, "CG_ProcessSnapshots: cg.snap->serverTime > cg.time");
     }
     if (cg.nextSnap != nullptr && cg.nextSnap->serverTime <= cg.time) {
-        CG_Error("CG_ProcessSnapshots: cg.nextSnap->serverTime <= cg.time");
+        Com_Error(errorParm_t::ERR_DROP, "CG_ProcessSnapshots: cg.nextSnap->serverTime <= cg.time");
     }
 }

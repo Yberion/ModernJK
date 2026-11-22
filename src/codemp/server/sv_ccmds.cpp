@@ -783,7 +783,7 @@ static void SV_AddBanToList(bool isexception)
     }
 
     if (serverBansCount >= (int)ARRAY_LEN(serverBans)) {
-        Com_Printf("Error: Maximum number of bans/exceptions exceeded.\n");
+        Com_PrintError("Maximum number of bans/exceptions exceeded.\n");
         return;
     }
 
@@ -793,7 +793,7 @@ static void SV_AddBanToList(bool isexception)
         // This is an ip address, not a client num.
 
         if (SV_ParseCIDRNotation(&ip, &mask, banstring)) {
-            Com_Printf("Error: Invalid address %s\n", banstring);
+            Com_PrintError("Invalid address %s\n", banstring);
             return;
         }
     }
@@ -805,7 +805,7 @@ static void SV_AddBanToList(bool isexception)
         cl = SV_GetPlayerByNum();
 
         if (!cl) {
-            Com_Printf("Error: Playernum %s does not exist.\n", Cmd_Argv(1));
+            Com_PrintError("Playernum %s does not exist.\n", Cmd_Argv(1));
             return;
         }
 
@@ -826,7 +826,7 @@ static void SV_AddBanToList(bool isexception)
     }
 
     if (ip.type != netadrtype_t::NA_IP) {
-        Com_Printf("Error: Can ban players connected via the internet only.\n");
+        Com_PrintError("Can ban players connected via the internet only.\n");
         return;
     }
 
@@ -838,8 +838,8 @@ static void SV_AddBanToList(bool isexception)
             if ((curban->isexception || !isexception) && NET_CompareBaseAdrMask(&curban->ip, &ip, curban->subnet)) {
                 Q_strncpyz(addy2, NET_AdrToString(&ip), sizeof(addy2));
 
-                Com_Printf("Error: %s %s/%d supersedes %s %s/%d\n", curban->isexception ? "Exception" : "Ban", NET_AdrToString(&curban->ip), curban->subnet,
-                           isexception ? "exception" : "ban", addy2, mask);
+                Com_PrintError("%s %s/%d supersedes %s %s/%d\n", curban->isexception ? "Exception" : "Ban", NET_AdrToString(&curban->ip), curban->subnet,
+                               isexception ? "exception" : "ban", addy2, mask);
                 return;
             }
         }
@@ -847,8 +847,8 @@ static void SV_AddBanToList(bool isexception)
             if (!curban->isexception && isexception && NET_CompareBaseAdrMask(&curban->ip, &ip, mask)) {
                 Q_strncpyz(addy2, NET_AdrToString(&curban->ip), sizeof(addy2));
 
-                Com_Printf("Error: %s %s/%d supersedes already existing %s %s/%d\n", isexception ? "Exception" : "Ban", NET_AdrToString(&ip), mask,
-                           curban->isexception ? "exception" : "ban", addy2, curban->subnet);
+                Com_PrintError("%s %s/%d supersedes already existing %s %s/%d\n", isexception ? "Exception" : "Ban", NET_AdrToString(&ip), mask,
+                               curban->isexception ? "exception" : "ban", addy2, curban->subnet);
                 return;
             }
         }
@@ -907,7 +907,7 @@ static void SV_DelBanFromList(bool isexception)
         serverBan_t* curban;
 
         if (SV_ParseCIDRNotation(&ip, &mask, banstring)) {
-            Com_Printf("Error: Invalid address %s\n", banstring);
+            Com_PrintError("Invalid address %s\n", banstring);
             return;
         }
 
@@ -929,7 +929,7 @@ static void SV_DelBanFromList(bool isexception)
         todel = atoi(Cmd_Argv(1));
 
         if (todel < 1 || todel > serverBansCount) {
-            Com_Printf("Error: Invalid ban number given\n");
+            Com_PrintError("Invalid ban number given\n");
             return;
         }
 
@@ -1552,7 +1552,7 @@ void SV_RecordDemo(client_t* cl, char* demoName)
     Com_Printf("recording to %s.\n", name);
     cl->demo.demofile = FS_FOpenFileWrite(name);
     if (!cl->demo.demofile) {
-        Com_Printf("ERROR: couldn't open.\n");
+        Com_PrintError("couldn't open.\n");
         return;
     }
     cl->demo.demorecording = true;
@@ -1563,7 +1563,7 @@ void SV_RecordDemo(client_t* cl, char* demoName)
     // write out the gamestate message; the messages sent to the client from now on are coded again into the demo
     // against the demo's own last snapshot (sv_netcodec.cpp, qcommon/demo_record.cpp)
     if (!SV_NetcodecDemoStart(cl)) {
-        Com_Printf("ERROR: the gamestate could not be coded.\n");
+        Com_PrintError("the gamestate could not be coded.\n");
         FS_FCloseFile(cl->demo.demofile);
         cl->demo.demofile = 0;
         cl->demo.demorecording = false;

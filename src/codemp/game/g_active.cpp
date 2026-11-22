@@ -1802,11 +1802,11 @@ void ClientThink_real(gentity_t* ent)
     // sanity check the command time to prevent speedup cheating
     if (ucmd->serverTime > level.tickTime + 200) {
         ucmd->serverTime = level.tickTime + 200;
-        //		trap->Print("serverTime <<<<<\n" );
+        //		Com_Printf("serverTime <<<<<\n" );
     }
     if (ucmd->serverTime < level.tickTime - 1000) {
         ucmd->serverTime = level.tickTime - 1000;
-        //		trap->Print("serverTime >>>>>\n" );
+        //		Com_Printf("serverTime >>>>>\n" );
     }
 
     if (isNPC && (ucmd->serverTime - client->ps.commandTime) < 1) {

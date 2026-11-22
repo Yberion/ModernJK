@@ -629,7 +629,7 @@ sfxHandle_t S_RegisterSound(const char* name)
     if (sfx->bDefaultSound) {
 #ifndef FINAL_BUILD
         if (!s_shutUp) {
-            Com_Printf(S_COLOR_YELLOW "WARNING: could not find %s - using default\n", sfx->sSoundName);
+            Com_Warning("could not find %s - using default\n", sfx->sSoundName);
         }
 #endif
         return 0;
@@ -643,7 +643,7 @@ void S_memoryLoad(sfx_t* sfx)
     // load the sound file...
     //
     if (!S_LoadSound(sfx)) {
-        //		Com_Printf( S_COLOR_YELLOW "WARNING: couldn't load sound: %s\n", sfx->sSoundName );
+        //		Com_Warning( "couldn't load sound: %s\n", sfx->sSoundName );
         sfx->bDefaultSound = true;
     }
     sfx->bInMemory = true;
@@ -1672,7 +1672,7 @@ static int S_CheckAmplitude(channel_t* ch, const unsigned int s_oldpaintedtime)
             sample = 4;
         }
 
-        //		Com_OPrintf("Returning sample %d\n",sample);
+        //		Com_DPrintf("Returning sample %d\n",sample);
 
         // store away the value we got into the back up table
         s_entityWavVol_back[ch->entnum] = sample;
@@ -2026,7 +2026,7 @@ void S_SetLipSyncs()
 
                 if (ch->thesfx->lipSyncData == nullptr) {
 #ifdef _DEBUG
-                    Com_OPrintf("Missing lip-sync info. for %s\n", ch->thesfx->sSoundName);
+                    Com_DPrintf("Missing lip-sync info. for %s\n", ch->thesfx->sSoundName);
 #endif
                 }
 
@@ -2046,7 +2046,7 @@ void S_SetLipSyncs()
 
                 if (ch->thesfx->lipSyncData == nullptr) {
 #ifdef _DEBUG
-                    Com_OPrintf("Missing lip-sync info. for %s\n", ch->thesfx->sSoundName);
+                    Com_DPrintf("Missing lip-sync info. for %s\n", ch->thesfx->sSoundName);
 #endif
                 }
 
@@ -2269,7 +2269,7 @@ void S_SoundList_f(void)
 
                 if (!bDumpThisOne) {
                     Com_Printf("   ( Skipping, variant capped )");
-                    // Com_OPrintf("Variant capped: %s\n",sfx->sSoundName);
+                    // Com_DPrintf("Variant capped: %s\n",sfx->sSoundName);
                 }
                 Com_Printf("\n");
             }
@@ -2566,7 +2566,7 @@ static bool S_StartBackgroundTrack_Actual(MusicInfo_t* pMusicInfo, bool qbDynami
         //
         FS_FOpenFileRead(name, &pMusicInfo->s_backgroundFile, true);
         if (!pMusicInfo->s_backgroundFile) {
-            Com_Printf(S_COLOR_YELLOW "WARNING: couldn't open music file %s\n", name);
+            Com_Warning("couldn't open music file %s\n", name);
             return false;
         }
 
@@ -2575,7 +2575,7 @@ static bool S_StartBackgroundTrack_Actual(MusicInfo_t* pMusicInfo, bool qbDynami
         FS_Read(dump, 12, pMusicInfo->s_backgroundFile);
 
         if (!S_FindWavChunk(pMusicInfo->s_backgroundFile, "fmt ")) {
-            Com_Printf(S_COLOR_YELLOW "WARNING: No fmt chunk in %s\n", name);
+            Com_Warning("No fmt chunk in %s\n", name);
             FS_FCloseFile(pMusicInfo->s_backgroundFile);
             pMusicInfo->s_backgroundFile = 0;
             return false;
@@ -2592,18 +2592,18 @@ static bool S_StartBackgroundTrack_Actual(MusicInfo_t* pMusicInfo, bool qbDynami
         if (pMusicInfo->s_backgroundInfo.format != wavFormat_t::WAV_FORMAT_PCM) {
             FS_FCloseFile(pMusicInfo->s_backgroundFile);
             pMusicInfo->s_backgroundFile = 0;
-            Com_Printf(S_COLOR_YELLOW "WARNING: Not a microsoft PCM format wav: %s\n", name);
+            Com_Warning("Not a microsoft PCM format wav: %s\n", name);
             return false;
         }
 
         if (pMusicInfo->s_backgroundInfo.channels != 2 || pMusicInfo->s_backgroundInfo.rate != 22050) {
-            Com_Printf(S_COLOR_YELLOW "WARNING: music file %s is not 22k stereo\n", name);
+            Com_Warning("music file %s is not 22k stereo\n", name);
         }
 
         if ((len = S_FindWavChunk(pMusicInfo->s_backgroundFile, "data")) == 0) {
             FS_FCloseFile(pMusicInfo->s_backgroundFile);
             pMusicInfo->s_backgroundFile = 0;
-            Com_Printf(S_COLOR_YELLOW "WARNING: No data chunk in %s\n", name);
+            Com_Warning("No data chunk in %s\n", name);
             return false;
         }
 
@@ -2987,7 +2987,7 @@ static bool S_UpdateBackgroundTrack_Actual(MusicInfo_t* pMusicInfo, bool bFirstO
     }
 
     pMusicInfo->fSmoothedOutVolume = (pMusicInfo->fSmoothedOutVolume + fMasterVol) / 2.0f;
-    //	Com_OPrintf("%f\n",pMusicInfo->fSmoothedOutVolume);
+    //	Com_DPrintf("%f\n",pMusicInfo->fSmoothedOutVolume);
 
     // don't bother playing anything if musicvolume is 0
     if (pMusicInfo->fSmoothedOutVolume <= 0) {

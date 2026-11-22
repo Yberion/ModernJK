@@ -405,7 +405,7 @@ bool G_TuskenAttackAnimDamage(gentity_t* self)
         if (!!gi.G2API_GetBoneAnimIndex(&self->ghoul2[self->playerModel], self->lowerLumbarBone, level.time, &current, &start, &end, nullptr, nullptr,
                                         nullptr)) {
             float percentComplete = (current - start) / (end - start);
-            // gi.Printf("%f\n", percentComplete);
+            // Com_Printf("%f\n", percentComplete);
             switch (self->client->ps.torsoAnim) {
             case animNumber_t::BOTH_TUSKENATTACK1:
                 return (percentComplete > 0.3 && percentComplete < 0.7);

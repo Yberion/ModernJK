@@ -90,7 +90,7 @@ static bool StringToFilter(char* s, ipFilter_t* f)
                 s++;
                 continue;
             }
-            trap->Print("Bad filter address: %s\n", s);
+            Com_Printf("Bad filter address: %s\n", s);
             return false;
         }
 
@@ -201,7 +201,7 @@ static void AddIP(char* str)
     }
     if (i == numIPFilters) {
         if (numIPFilters == MAX_IPFILTERS) {
-            trap->Print("IP filter list is full\n");
+            Com_Printf("IP filter list is full\n");
             return;
         }
         numIPFilters++;
@@ -247,7 +247,7 @@ void Svcmd_AddIP_f(void)
     char str[MAX_TOKEN_CHARS];
 
     if (trap->Argc() < 2) {
-        trap->Print("Usage: addip <ip-mask>\n");
+        Com_Printf("Usage: addip <ip-mask>\n");
         return;
     }
 
@@ -268,7 +268,7 @@ void Svcmd_RemoveIP_f(void)
     char str[MAX_TOKEN_CHARS];
 
     if (trap->Argc() < 2) {
-        trap->Print("Usage: removeip <ip-mask>\n");
+        Com_Printf("Usage: removeip <ip-mask>\n");
         return;
     }
 
@@ -280,14 +280,14 @@ void Svcmd_RemoveIP_f(void)
     for (i = 0; i < numIPFilters; i++) {
         if (ipFilters[i].mask == f.mask && ipFilters[i].compare == f.compare) {
             ipFilters[i].compare = 0xffffffffu;
-            trap->Print("Removed.\n");
+            Com_Printf("Removed.\n");
 
             UpdateIPBans();
             return;
         }
     }
 
-    trap->Print("Didn't find %s.\n", str);
+    Com_Printf("Didn't find %s.\n", str);
 }
 
 void Svcmd_ListIP_f(void)
@@ -300,10 +300,10 @@ void Svcmd_ListIP_f(void)
             continue;
 
         b.ui = ipFilters[i].compare;
-        trap->Print("%i.%i.%i.%i\n", b.b[0], b.b[1], b.b[2], b.b[3]);
+        Com_Printf("%i.%i.%i.%i\n", b.b[0], b.b[1], b.b[2], b.b[3]);
         count++;
     }
-    trap->Print("%i bans.\n", count);
+    Com_Printf("%i bans.\n", count);
 }
 
 /*
@@ -321,68 +321,68 @@ void Svcmd_EntityList_f(void)
         if (!check->inuse) {
             continue;
         }
-        trap->Print("%3i:", e);
+        Com_Printf("%3i:", e);
         switch (check->s.eType) {
         case entityType_t::ET_GENERAL:
-            trap->Print("ET_GENERAL          ");
+            Com_Printf("ET_GENERAL          ");
             break;
         case entityType_t::ET_PLAYER:
-            trap->Print("ET_PLAYER           ");
+            Com_Printf("ET_PLAYER           ");
             break;
         case entityType_t::ET_ITEM:
-            trap->Print("ET_ITEM             ");
+            Com_Printf("ET_ITEM             ");
             break;
         case entityType_t::ET_MISSILE:
-            trap->Print("ET_MISSILE          ");
+            Com_Printf("ET_MISSILE          ");
             break;
         case entityType_t::ET_SPECIAL:
-            trap->Print("ET_SPECIAL          ");
+            Com_Printf("ET_SPECIAL          ");
             break;
         case entityType_t::ET_HOLOCRON:
-            trap->Print("ET_HOLOCRON         ");
+            Com_Printf("ET_HOLOCRON         ");
             break;
         case entityType_t::ET_MOVER:
-            trap->Print("ET_MOVER            ");
+            Com_Printf("ET_MOVER            ");
             break;
         case entityType_t::ET_BEAM:
-            trap->Print("ET_BEAM             ");
+            Com_Printf("ET_BEAM             ");
             break;
         case entityType_t::ET_PORTAL:
-            trap->Print("ET_PORTAL           ");
+            Com_Printf("ET_PORTAL           ");
             break;
         case entityType_t::ET_SPEAKER:
-            trap->Print("ET_SPEAKER          ");
+            Com_Printf("ET_SPEAKER          ");
             break;
         case entityType_t::ET_PUSH_TRIGGER:
-            trap->Print("ET_PUSH_TRIGGER     ");
+            Com_Printf("ET_PUSH_TRIGGER     ");
             break;
         case entityType_t::ET_TELEPORT_TRIGGER:
-            trap->Print("ET_TELEPORT_TRIGGER ");
+            Com_Printf("ET_TELEPORT_TRIGGER ");
             break;
         case entityType_t::ET_INVISIBLE:
-            trap->Print("ET_INVISIBLE        ");
+            Com_Printf("ET_INVISIBLE        ");
             break;
         case entityType_t::ET_NPC:
-            trap->Print("ET_NPC              ");
+            Com_Printf("ET_NPC              ");
             break;
         case entityType_t::ET_BODY:
-            trap->Print("ET_BODY             ");
+            Com_Printf("ET_BODY             ");
             break;
         case entityType_t::ET_TERRAIN:
-            trap->Print("ET_TERRAIN          ");
+            Com_Printf("ET_TERRAIN          ");
             break;
         case entityType_t::ET_FX:
-            trap->Print("ET_FX               ");
+            Com_Printf("ET_FX               ");
             break;
         default:
-            trap->Print("%-3i                ", to_underlying(check->s.eType));
+            Com_Printf("%-3i                ", to_underlying(check->s.eType));
             break;
         }
 
         if (check->classname) {
-            trap->Print("%s", check->classname);
+            Com_Printf("%s", check->classname);
         }
-        trap->Print("\n");
+        Com_Printf("\n");
     }
 }
 
@@ -422,7 +422,7 @@ gclient_t* ClientForString(const char* s)
         }
     }
 
-    trap->Print("User %s is not on the server\n", s);
+    Com_Printf("User %s is not on the server\n", s);
     return nullptr;
 }
 
@@ -439,7 +439,7 @@ void Svcmd_ForceTeam_f(void)
     char str[MAX_TOKEN_CHARS];
 
     if (trap->Argc() < 3) {
-        trap->Print("Usage: forceteam <player> <team>\n");
+        Com_Printf("Usage: forceteam <player> <team>\n");
         return;
     }
 
@@ -521,28 +521,28 @@ static void G_PrintCentralStats(void)
             Q_strcat(line, sizeof(line), va(" %s %d", eventnames[ev], s->events[ev]));
         }
     }
-    trap->Print("%s\n", line);
+    Com_Printf("%s\n", line);
     Q_strncpyz(line, "damage statistics (health taken from clients and deaths, by cause):", sizeof(line));
     for (meansOfDeath_t mod = meansOfDeath_t::MOD_UNKNOWN; mod < meansOfDeath_t::MOD_MAX; mod++) {
         if (s->modDamage[mod] || s->modKills[mod]) {
             Q_strcat(line, sizeof(line), va(" %s %d %d", modNames[mod], s->modDamage[mod], s->modKills[mod]));
         }
     }
-    trap->Print("%s\n", line);
+    Com_Printf("%s\n", line);
     Q_strncpyz(line, "shot statistics (primary and alternate fire, by weapon number):", sizeof(line));
     for (i = weapon_t::WP_NONE; i < weapon_t::WP_NUM_WEAPONS; i++) {
         if (s->shots[i][0] || s->shots[i][1]) {
             Q_strcat(line, sizeof(line), va(" w%d %d %d", to_underlying(i), s->shots[i][0], s->shots[i][1]));
         }
     }
-    trap->Print("%s\n", line);
+    Com_Printf("%s\n", line);
     Q_strncpyz(line, "saber style statistics (attacks started, moves bounced or deflected):", sizeof(line));
     for (saber_styles_t style = saber_styles_t::SS_FAST; style < saber_styles_t::SS_NUM_SABER_STYLES; style++) {
         if (s->styleAttacks[style] || s->styleBounces[style]) {
             Q_strcat(line, sizeof(line), va(" %s %d %d", styles[style], s->styleAttacks[style], s->styleBounces[style]));
         }
     }
-    trap->Print("%s\n", line);
+    Com_Printf("%s\n", line);
     // the moves by the name of saberMoveData, its spaces as underscores
     Q_strncpyz(line, "saber special move statistics (moves started):", sizeof(line));
     for (saberMoveName_t move = saberMoveName_t::LS_A_BACKSTAB; move <= saberMoveName_t::LS_HILT_BASH; move++) {
@@ -558,7 +558,7 @@ static void G_PrintCentralStats(void)
             Q_strcat(line, sizeof(line), va(" %s %d", name, s->specialMoves[move]));
         }
     }
-    trap->Print("%s\n", line);
+    Com_Printf("%s\n", line);
 }
 
 void Svcmd_GameStats_f(void)
@@ -566,13 +566,13 @@ void Svcmd_GameStats_f(void)
     const gameStats_t* s = &g_stats;
     const float swings = s->saberSwings ? (float)s->saberSwings : 1.0f;
 
-    trap->Print("game statistics over %.1f s, %d frames: %d saber swings; per swing: %.3f wounds, %.2f damage, "
-                "%.3f saber against saber (blocks), %.3f body hits parried without the sabers touching, %.4f saber locks, %.3f idle "
-                "touches (wounds %d, damage %d, saber against saber %d, parried %d, locks %d, touches %d); %d missiles blocked by "
-                "sabers, %d force damage, %d deaths, %d saber hit effects on clients\n",
-                (level.time - s->startTime) / 1000.0f, s->frames, s->saberSwings, s->saberWounds / swings, s->saberDamage / swings, s->saberClashes / swings,
-                s->saberBlocks / swings, s->saberLocks / swings, s->saberTouches / swings, s->saberWounds, s->saberDamage, s->saberClashes, s->saberBlocks,
-                s->saberLocks, s->saberTouches, s->missileBlocks, s->forceDamage, s->deaths, s->saberHitEffects);
+    Com_Printf("game statistics over %.1f s, %d frames: %d saber swings; per swing: %.3f wounds, %.2f damage, "
+               "%.3f saber against saber (blocks), %.3f body hits parried without the sabers touching, %.4f saber locks, %.3f idle "
+               "touches (wounds %d, damage %d, saber against saber %d, parried %d, locks %d, touches %d); %d missiles blocked by "
+               "sabers, %d force damage, %d deaths, %d saber hit effects on clients\n",
+               (level.time - s->startTime) / 1000.0f, s->frames, s->saberSwings, s->saberWounds / swings, s->saberDamage / swings, s->saberClashes / swings,
+               s->saberBlocks / swings, s->saberLocks / swings, s->saberTouches / swings, s->saberWounds, s->saberDamage, s->saberClashes, s->saberBlocks,
+               s->saberLocks, s->saberTouches, s->missileBlocks, s->forceDamage, s->deaths, s->saberHitEffects);
     { // raw counts of the powers whose timing depends on the frame rate: gamestats_agg.py computes the rates
         static const struct {
             forcePowers_t power;
@@ -587,7 +587,7 @@ void Svcmd_GameStats_f(void)
             const forcePowers_t f = shown[i].power;
             Q_strcat(line, sizeof(line), va("%s %s %d %d %d", i ? "," : "", shown[i].name, s->forceStarts[f], s->forceTimerEvents[f], s->forceActiveMsec[f]));
         }
-        trap->Print("%s\n", line);
+        Com_Printf("%s\n", line);
     }
     { // the other powers, which have no periodic events
         static const struct {
@@ -606,7 +606,7 @@ void Svcmd_GameStats_f(void)
             const forcePowers_t f = shown[i].power;
             Q_strcat(line, sizeof(line), va("%s %s %d %d", i ? "," : "", shown[i].name, s->forceStarts[f], s->forceActiveMsec[f]));
         }
-        trap->Print("%s\n", line);
+        Com_Printf("%s\n", line);
     }
     G_PrintCentralStats();
     G_ScenarioPrintStats();

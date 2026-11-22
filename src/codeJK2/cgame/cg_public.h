@@ -66,8 +66,6 @@ functions imported from the main executable
 */
 
 enum class cgameImport_t {
-    CG_PRINT,
-    CG_ERROR,
     CG_MILLISECONDS,
     CG_CVAR_REGISTER,
     CG_CVAR_UPDATE,

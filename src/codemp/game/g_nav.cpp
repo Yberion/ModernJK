@@ -84,7 +84,7 @@ void NPC_Blocked(gentity_t* self, gentity_t* blocker)
         return;
     }
 
-    // Debutrap->Print( d_npcai, aiDebugLevel_t::DEBUG_LEVEL_WARNING, "%s: Excuse me, %s %s!\n", self->targetname, blocker->classname, blocker->targetname );
+    // Debug_Printf( d_npcai, aiDebugLevel_t::DEBUG_LEVEL_WARNING, "%s: Excuse me, %s %s!\n", self->targetname, blocker->classname, blocker->targetname );
 
     // If we're being blocked by the player, say something to them
     if ((blocker->s.number >= 0 && blocker->s.number < MAX_CLIENTS) && ((blocker->client->playerTeam == self->client->playerTeam))) {
@@ -1216,7 +1216,7 @@ void SP_waypoint(gentity_t* ent)
         if (!(ent->spawnflags & 1) && G_CheckInSolid(ent, true)) { // if not SOLID_OK, and in solid
             ent->r.maxs[2] = CROUCH_MAXS_2;
             if (G_CheckInSolid(ent, true)) {
-                Com_Printf(S_COLOR_RED "ERROR: Waypoint %s at %s in solid!\n", ent->targetname, vtos(ent->r.currentOrigin));
+                Com_PrintError("Waypoint %s at %s in solid!\n", ent->targetname, vtos(ent->r.currentOrigin));
                 assert(0 && "Waypoint in solid!");
                 G_FreeEntity(ent);
                 return;
@@ -1255,7 +1255,7 @@ void SP_waypoint_small(gentity_t* ent)
         if (!(ent->spawnflags & 1) && G_CheckInSolid(ent, true)) {
             ent->r.maxs[2] = CROUCH_MAXS_2;
             if (G_CheckInSolid(ent, true)) {
-                Com_Printf(S_COLOR_RED "ERROR: Waypoint_small %s at %s in solid!\n", ent->targetname, vtos(ent->r.currentOrigin));
+                Com_PrintError("Waypoint_small %s at %s in solid!\n", ent->targetname, vtos(ent->r.currentOrigin));
                 assert(0);
                 G_FreeEntity(ent);
                 return;
@@ -1295,7 +1295,7 @@ void SP_waypoint_navgoal(gentity_t* ent)
     VectorSet(ent->r.maxs, 16, 16, 32);
     ent->s.origin[2] += 0.125;
     if (!(ent->spawnflags & 1) && G_CheckInSolid(ent, false)) {
-        Com_Printf(S_COLOR_RED "ERROR: Waypoint_navgoal %s at %s in solid!\n", ent->targetname, vtos(ent->r.currentOrigin));
+        Com_PrintError("Waypoint_navgoal %s at %s in solid!\n", ent->targetname, vtos(ent->r.currentOrigin));
         assert(0);
     }
     TAG_Add(ent->targetname, nullptr, ent->s.origin, ent->s.angles, radius, RTF_NAVGOAL);
@@ -1325,7 +1325,7 @@ void SP_waypoint_navgoal_8(gentity_t* ent)
     VectorSet(ent->r.maxs, 8, 8, 32);
     ent->s.origin[2] += 0.125;
     if (!(ent->spawnflags & 1) && G_CheckInSolid(ent, false)) {
-        Com_Printf(S_COLOR_RED "ERROR: Waypoint_navgoal_8 %s at %s in solid!\n", ent->targetname, vtos(ent->r.currentOrigin));
+        Com_PrintError("Waypoint_navgoal_8 %s at %s in solid!\n", ent->targetname, vtos(ent->r.currentOrigin));
         assert(0);
     }
 
@@ -1356,7 +1356,7 @@ void SP_waypoint_navgoal_4(gentity_t* ent)
     VectorSet(ent->r.maxs, 4, 4, 32);
     ent->s.origin[2] += 0.125;
     if (!(ent->spawnflags & 1) && G_CheckInSolid(ent, false)) {
-        Com_Printf(S_COLOR_RED "ERROR: Waypoint_navgoal_4 %s at %s in solid!\n", ent->targetname, vtos(ent->r.currentOrigin));
+        Com_PrintError("Waypoint_navgoal_4 %s at %s in solid!\n", ent->targetname, vtos(ent->r.currentOrigin));
         assert(0);
     }
 
@@ -1387,7 +1387,7 @@ void SP_waypoint_navgoal_2(gentity_t* ent)
     VectorSet(ent->r.maxs, 2, 2, 32);
     ent->s.origin[2] += 0.125;
     if (!(ent->spawnflags & 1) && G_CheckInSolid(ent, false)) {
-        Com_Printf(S_COLOR_RED "ERROR: Waypoint_navgoal_2 %s at %s in solid!\n", ent->targetname, vtos(ent->r.currentOrigin));
+        Com_PrintError("Waypoint_navgoal_2 %s at %s in solid!\n", ent->targetname, vtos(ent->r.currentOrigin));
         assert(0);
     }
 
@@ -1418,7 +1418,7 @@ void SP_waypoint_navgoal_1(gentity_t* ent)
     VectorSet(ent->r.maxs, 1, 1, 32);
     ent->s.origin[2] += 0.125;
     if (!(ent->spawnflags & 1) && G_CheckInSolid(ent, false)) {
-        Com_Printf(S_COLOR_RED "ERROR: Waypoint_navgoal_1 %s at %s in solid!\n", ent->targetname, vtos(ent->r.currentOrigin));
+        Com_PrintError("Waypoint_navgoal_1 %s at %s in solid!\n", ent->targetname, vtos(ent->r.currentOrigin));
         assert(0);
     }
 
@@ -1575,7 +1575,7 @@ void NAV_StoreWaypoint(gentity_t* ent)
     */
 
     if (numStoredWaypoints >= MAX_STORED_WAYPOINTS) {
-        // trap->Error( errorParm_t::ERR_DROP, "Too many waypoints!  (%d > %d)\n", numStoredWaypoints, MAX_STORED_WAYPOINTS );
+        // Com_Error( errorParm_t::ERR_DROP, "Too many waypoints!  (%d > %d)\n", numStoredWaypoints, MAX_STORED_WAYPOINTS );
         // rwwFIXMEFIXME: commented this out so I can load some of the SP levels.
         return;
     }

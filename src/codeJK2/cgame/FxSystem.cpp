@@ -40,23 +40,6 @@ void SFxHelper::Init()
 }
 
 //------------------------------------------------------
-void SFxHelper::Print(const char* msg, ...)
-{
-#ifndef FINAL_BUILD
-
-    va_list argptr;
-    char text[1024];
-
-    va_start(argptr, msg);
-    Q_vsnprintf(text, sizeof(text), msg, argptr);
-    va_end(argptr);
-
-    gi.Printf("%s", text);
-
-#endif
-}
-
-//------------------------------------------------------
 void SFxHelper::AdjustTime(int frameTime)
 {
     if (fx_freeze.integer || (frameTime <= 0)) {

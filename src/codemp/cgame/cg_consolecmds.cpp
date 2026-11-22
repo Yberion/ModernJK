@@ -83,8 +83,8 @@ Debugging command to print the current position
 */
 static void CG_Viewpos_f(void)
 {
-    trap->Print("%s (%i %i %i) : %i\n", cgs.mapname, (int)cg.refdef.vieworg[0], (int)cg.refdef.vieworg[1], (int)cg.refdef.vieworg[2],
-                (int)cg.refdef.viewangles[YAW]);
+    Com_Printf("%s (%i %i %i) : %i\n", cgs.mapname, (int)cg.refdef.vieworg[0], (int)cg.refdef.vieworg[1], (int)cg.refdef.vieworg[2],
+               (int)cg.refdef.viewangles[YAW]);
 }
 
 /*

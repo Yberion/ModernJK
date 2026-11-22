@@ -30,7 +30,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_icarus.h"
 #include "wp_saber.h"
 
-extern void Q3_DebugPrint(WL_e level, const char* format, ...);
+extern void Q3_DebugPrint(WL_e level, const char* format, ...) __attribute__((format(printf, 2, 3)));
 extern void WP_SaberInitBladeData(gentity_t* ent);
 extern void G_CreateG2AttachedWeaponModel(gentity_t* ent, const char* weaponModel);
 extern bool CheatsOk(gentity_t* ent);
@@ -262,7 +262,7 @@ gentity_t* SelectSpawnPoint(vec3_t avoidPoint, team_t team, vec3_t origin, vec3_
 
     if (level.spawntarget[0]) {                                                                       // we have a spawnpoint specified, try to find it
         if ((nearestSpot = spot = G_Find(nullptr, FOFS(targetname), level.spawntarget)) == nullptr) { // you HAVE to be able to find the desired spot
-            G_Error("Couldn't find spawntarget %s", level.spawntarget);
+            Com_Error(errorParm_t::ERR_DROP, "Couldn't find spawntarget %s", level.spawntarget);
             return nullptr;
         }
     }
@@ -278,7 +278,7 @@ gentity_t* SelectSpawnPoint(vec3_t avoidPoint, team_t team, vec3_t origin, vec3_
 
     // find a single player start spot
     if (!spot) {
-        G_Error("Couldn't find a spawn point");
+        Com_Error(errorParm_t::ERR_DROP, "Couldn't find a spawn point");
     }
 
     VectorCopy(spot->s.origin, origin);

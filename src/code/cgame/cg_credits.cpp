@@ -224,7 +224,7 @@ void CG_Credits_Init(const char* psStripReference, vec4_t* pv4Color)
     int iStrLen = cgi_SP_GetStringTextString(psStripReference, nullptr, 0);
     if (!iStrLen) {
 #ifndef FINAL_BUILD
-        Com_Printf("WARNING: CG_Credits_Init(): invalid text key :'%s'\n", psStripReference);
+        Com_Warning("CG_Credits_Init(): invalid text key :'%s'\n", psStripReference);
 #endif
         return;
     }
@@ -241,7 +241,7 @@ void CG_Credits_Init(const char* psStripReference, vec4_t* pv4Color)
         assert(0); // should never get here now, but wtf?
         cgi_Z_Free(psMallocText);
 #ifndef FINAL_BUILD
-        Com_Printf("WARNING: CG_Credits_Init(): invalid text key :'%s'\n", psStripReference);
+        Com_Warning("CG_Credits_Init(): invalid text key :'%s'\n", psStripReference);
 #endif
         return;
     }

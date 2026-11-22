@@ -85,7 +85,7 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte* d
 #ifdef TIMEBIND
         if (r_ignore->integer) {
             end = ri.Milliseconds();
-            ri.Printf(printParm_t::PRINT_ALL, "qglTexImage2D %i, %i: %i msec\n", cols, rows, end - start);
+            Com_Printf("qglTexImage2D %i, %i: %i msec\n", cols, rows, end - start);
         }
 #endif
     }
@@ -106,7 +106,7 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte* d
 #ifdef TIMEBIND
             if (r_ignore->integer) {
                 end = ri.Milliseconds();
-                ri.Printf(printParm_t::PRINT_ALL, "qglTexSubImage2D %i, %i: %i msec\n", cols, rows, end - start);
+                Com_Printf("qglTexSubImage2D %i, %i: %i msec\n", cols, rows, end - start);
             }
 #endif
         }
@@ -459,7 +459,7 @@ bool RE_ProcessDissolve(void)
 
         int iDissolvePercentage = ((ri.Milliseconds() - Dissolve.iStartTime) * 100) / (1000.0f * fDISSOLVE_SECONDS);
 
-        //		ri.Printf(printParm_t::PRINT_ALL,"iDissolvePercentage %d\n",iDissolvePercentage);
+        //		Com_Printf("iDissolvePercentage %d\n",iDissolvePercentage);
 
         if (iDissolvePercentage <= 100) {
             extern void RB_SetGL2D(void);
@@ -722,7 +722,7 @@ bool RE_InitDissolve(bool bForceCircularExtroWipe)
 {
     R_IssuePendingRenderCommands();
 
-    //	ri.Printf( printParm_t::PRINT_ALL, "RE_InitDissolve()\n");
+    //	Com_Printf("RE_InitDissolve()\n");
     bool bReturn = false;
 
     if (                      // Dissolve.iStartTime == 0	// no point in interruping an existing one

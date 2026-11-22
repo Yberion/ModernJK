@@ -1317,7 +1317,7 @@ bool CPrimitiveTemplate::ParseShaders(const CGPProperty& grp)
     }
     if (!any) {
         // empty "list"
-        theFxHelper.Print("CPrimitiveTemplate::ParseShaders called with an empty list!\n");
+        Com_DPrintf("CPrimitiveTemplate::ParseShaders called with an empty list!\n");
         return false;
     }
     return true;
@@ -1345,7 +1345,7 @@ bool CPrimitiveTemplate::ParseSounds(const CGPProperty& grp)
     }
     if (!any) {
         // empty "list"
-        theFxHelper.Print("CPrimitiveTemplate::ParseSounds called with an empty list!\n");
+        Com_DPrintf("CPrimitiveTemplate::ParseSounds called with an empty list!\n");
         return false;
     }
     return true;
@@ -1373,7 +1373,7 @@ bool CPrimitiveTemplate::ParseModels(const CGPProperty& grp)
     }
     if (!any) {
         // empty "list"
-        theFxHelper.Print("CPrimitiveTemplate::ParseModels called with an empty list!\n");
+        Com_DPrintf("CPrimitiveTemplate::ParseModels called with an empty list!\n");
         return false;
     }
     mFlags |= fxPrimitiveFlags_t::FX_ATTACHED_MODEL;
@@ -1394,12 +1394,12 @@ static bool ParseFX(const CGPProperty& grp, CFxScheduler& scheduler, CMediaHandl
                 flags |= successFlags;
             }
             else {
-                helper.Print("%s", loadError);
+                Com_DPrintf("%s", loadError);
             }
         }
     }
     if (!any) {
-        helper.Print("%s", emptyError);
+        Com_DPrintf("%s", emptyError);
     }
     return any;
 }
@@ -1473,7 +1473,7 @@ bool CPrimitiveTemplate::ParseGroup(const CGPGroup& grp, const StringViewIMap<Pa
     for (auto& cur : grp.GetProperties()) {
         auto pos = parseMethods.find(cur.GetName());
         if (pos == parseMethods.end()) {
-            theFxHelper.Print("Unknown key parsing %s group!", name);
+            Com_DPrintf("Unknown key parsing %s group!", name);
         }
         else {
             ParseMethod method = pos->second;
@@ -1691,7 +1691,7 @@ bool CPrimitiveTemplate::ParsePrimitive(const CGPGroup& grp)
         }
         // Error
         else {
-            theFxHelper.Print("Unknown key parsing an effect primitive!\n");
+            Com_DPrintf("Unknown key parsing an effect primitive!\n");
         }
     }
 
@@ -1710,7 +1710,7 @@ bool CPrimitiveTemplate::ParsePrimitive(const CGPGroup& grp)
         };
         auto pos = parseMethods.find(subGrp.GetName());
         if (pos == parseMethods.end()) {
-            theFxHelper.Print("Unknown group key parsing a particle!\n");
+            Com_DPrintf("Unknown group key parsing a particle!\n");
         }
         else {
             GroupParseMethod method = pos->second;

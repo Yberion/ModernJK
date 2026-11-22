@@ -250,7 +250,7 @@ static void R_LoadLightmaps(lump_t* l, const char* psMapName, world_t& worldData
     }
 
     if (r_lightmap->integer == 2) {
-        ri.Printf(printParm_t::PRINT_ALL, "Brightest lightmap value: %d\n", (int)(maxIntensity * 255));
+        Com_Printf("Brightest lightmap value: %d\n", (int)(maxIntensity * 255));
     }
 }
 
@@ -707,7 +707,7 @@ static void R_LoadSurfaces(lump_t* surfs, lump_t* verts, lump_t* indexLump, worl
         }
     }
 
-    ri.Printf(printParm_t::PRINT_ALL, "...loaded %d faces, %i meshes, %i trisurfs, %i flares\n", numFaces, numMeshes, numTriSurfs, numFlares);
+    Com_Printf("...loaded %d faces, %i meshes, %i trisurfs, %i flares\n", numFaces, numMeshes, numTriSurfs, numFlares);
 }
 
 /*
@@ -735,7 +735,7 @@ static void R_LoadSubmodels(lump_t* l, world_t& worldData, int index)
 
         assert(model != nullptr); // this should never happen
         if (model == nullptr) {
-            ri.Error(errorParm_t::ERR_DROP, "R_LoadSubmodels: R_AllocModel() failed");
+            Com_Error(errorParm_t::ERR_DROP, "R_LoadSubmodels: R_AllocModel() failed");
         }
 
         model->type = modtype_t::MOD_BRUSH;
@@ -1163,7 +1163,7 @@ void R_LoadLightGridArray(lump_t* l, world_t& worldData)
 
     if (l->filelen != (int)(w->numGridArrayElements * sizeof(*w->lightGridArray))) {
         if (l->filelen > 0) // don't warn if not even lit
-            ri.Printf(printParm_t::PRINT_WARNING, "WARNING: light grid array mismatch\n");
+            Com_Warning("light grid array mismatch\n");
         w->lightGridData = nullptr;
         return;
     }
@@ -1231,7 +1231,7 @@ void R_LoadEntities(lump_t* l, world_t& worldData)
                 if (!Q_strncmp(keyname, s, strlen(s)) ) {
                     s = strchr(value, ';');
                     if (!s) {
-                        ri.Printf( S_COLOR_YELLOW "WARNING: no semi colon in vertexshaderremap '%s'\n", value );
+                        Com_Warning( "no semi colon in vertexshaderremap '%s'\n", value );
                         break;
                     }
                     *s++ = 0;
@@ -1245,7 +1245,7 @@ void R_LoadEntities(lump_t* l, world_t& worldData)
                 if (!Q_strncmp(keyname, s, strlen(s)) ) {
                     s = strchr(value, ';');
                     if (!s) {
-                        ri.Printf( S_COLOR_YELLOW "WARNING: no semi colon in shaderremap '%s'\n", value );
+                        Com_Warning( "no semi colon in shaderremap '%s'\n", value );
                         break;
                     }
                     *s++ = 0;

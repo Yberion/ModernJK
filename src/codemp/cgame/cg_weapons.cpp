@@ -56,7 +56,7 @@ void CG_RegisterItemVisuals(int itemNum)
     int handle;
 
     if (itemNum < 0 || itemNum >= bg_numItems) {
-        trap->Error(errorParm_t::ERR_DROP, "CG_RegisterItemVisuals: itemNum %d out of range [0-%d]", itemNum, bg_numItems - 1);
+        Com_Error(errorParm_t::ERR_DROP, "CG_RegisterItemVisuals: itemNum %d out of range [0-%d]", itemNum, bg_numItems - 1);
     }
 
     itemInfo = &cg_items[itemNum];
@@ -1673,7 +1673,7 @@ void CG_FireWeapon(centity_t* cent, bool altFire)
         return;
     }
     if (ent->weapon >= weapon_t::WP_NUM_WEAPONS) {
-        trap->Error(errorParm_t::ERR_DROP, "CG_FireWeapon: ent->weapon >= WP_NUM_WEAPONS");
+        Com_Error(errorParm_t::ERR_DROP, "CG_FireWeapon: ent->weapon >= WP_NUM_WEAPONS");
         return;
     }
     weap = &cg_weapons[ent->weapon];

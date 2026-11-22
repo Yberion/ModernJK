@@ -58,7 +58,7 @@ cvar_t* se_language = nullptr;
 cvar_t* se_debug = nullptr;
 cvar_t* sp_leet = nullptr; // kept as 'sp_' for JK2 compat.
 
-#define __DEBUGOUT(_string) Com_OPrintf("%s", _string)
+#define __DEBUGOUT(_string) Com_DPrintf("%s", _string)
 #define __ASSERT(_blah) assert(_blah)
 
 typedef struct SE_Entry_s {

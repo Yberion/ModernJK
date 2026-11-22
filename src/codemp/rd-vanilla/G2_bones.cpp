@@ -101,11 +101,11 @@ int G2_Add_Bone(const model_t* mod, boneInfo_v& blist, const char* boneName)
         // didn't find it? Error
         // assert(0);
 #ifdef _DEBUG
-        ri.Printf(printParm_t::PRINT_ALL, "WARNING: Failed to add bone %s\n", boneName);
+        Com_Warning("Failed to add bone %s\n", boneName);
 #endif
 
 #ifdef _RAG_PRINT_TEST
-        ri.Printf(printParm_t::PRINT_ALL, "WARNING: Failed to add bone %s\n", boneName);
+        Com_Warning("Failed to add bone %s\n", boneName);
 #endif
         return -1;
     }
@@ -129,7 +129,7 @@ int G2_Add_Bone(const model_t* mod, boneInfo_v& blist, const char* boneName)
     }
 
 #ifdef _RAG_PRINT_TEST
-    ri.Printf(printParm_t::PRINT_ALL, "New bone added for %s\n", boneName);
+    Com_Printf("New bone added for %s\n", boneName);
 #endif
     // ok, we didn't find an existing bone of that name, or an empty slot. Lets add an entry
     tempBone.boneNumber = x;
@@ -442,7 +442,7 @@ bool G2_Set_Bone_Angles_Index(boneInfo_v& blist, const int index, const float* a
     blist[index].boneBlendStart = currentTime;
     blist[index].boneBlendTime = blendTime;
 #if DEBUG_PCJ
-    Com_OPrintf("PCJ %2d %6d   (%6.2f,%6.2f,%6.2f) %d %d %d %d\n", index, currentTime, angles[0], angles[1], angles[2], yaw, pitch, roll, flags);
+    Com_DPrintf("PCJ %2d %6d   (%6.2f,%6.2f,%6.2f) %d %d %d %d\n", index, currentTime, angles[0], angles[1], angles[2], yaw, pitch, roll, flags);
 #endif
 
     G2_Generate_Matrix(nullptr, blist, index, angles, flags, yaw, pitch, roll);
@@ -472,7 +472,7 @@ bool G2_Set_Bone_Angles(CGhoul2Info* ghlInfo, boneInfo_v& blist, const char* bon
         blist[index].boneBlendStart = currentTime;
         blist[index].boneBlendTime = blendTime;
 #if DEBUG_PCJ
-        Com_OPrintf("%2d %6d   (%6.2f,%6.2f,%6.2f) %d %d %d %d\n", index, currentTime, angles[0], angles[1], angles[2], up, left, forward, flags);
+        Com_DPrintf("%2d %6d   (%6.2f,%6.2f,%6.2f) %d %d %d %d\n", index, currentTime, angles[0], angles[1], angles[2], up, left, forward, flags);
 #endif
 
         G2_Generate_Matrix(mod_a, blist, index, angles, flags, up, left, forward);
@@ -490,7 +490,7 @@ bool G2_Set_Bone_Angles(CGhoul2Info* ghlInfo, boneInfo_v& blist, const char* bon
         blist[index].boneBlendStart = currentTime;
         blist[index].boneBlendTime = blendTime;
 #if DEBUG_PCJ
-        Com_OPrintf("%2d %6d   (%6.2f,%6.2f,%6.2f) %d %d %d %d\n", index, currentTime, angles[0], angles[1], angles[2], up, left, forward, flags);
+        Com_DPrintf("%2d %6d   (%6.2f,%6.2f,%6.2f) %d %d %d %d\n", index, currentTime, angles[0], angles[1], angles[2], up, left, forward, flags);
 #endif
 
         G2_Generate_Matrix(mod_a, blist, index, angles, flags, up, left, forward);
@@ -707,7 +707,7 @@ bool G2_Set_Bone_Anim_Index(boneInfo_v& blist, const int index, const int startF
             sprintf(mess, "saa[%2d] %5d  %5d  (%5d-%5d) %4.2f %4x\n", index, currentTime, bone.startTime, bone.startFrame, bone.endFrame, bone.animSpeed,
                     bone.flags);
         }
-        Com_OPrintf("%s", mess);
+        Com_DPrintf("%s", mess);
     }
 #endif
 
@@ -1529,7 +1529,7 @@ void G2_SetRagDoll(CGhoul2Info_v& ghoul2V, CRagDollParams* parms)
 #if 0
 if (index>=0)
 {
-	Com_OPrintf("death %d %d\n",blist[index].startFrame,blist[index].endFrame);
+	Com_DPrintf("death %d %d\n",blist[index].startFrame,blist[index].endFrame);
 }
 #endif
 
@@ -2028,7 +2028,7 @@ static bool G2_RagDollSetup(CGhoul2Info& ghoul2, int frameNum, bool resetOrigin,
                     // this thing was rendered in the past, but wasn't now, although other bones were, lets get rid of it
                     //					bone.flags &= ~boneFlags_t::BONE_ANGLES_RAGDOLL;
                     //					bone.RagFlags = ragBoneFlags_t::RAG_NONE;
-                    // Com_OPrintf("Deleted Effector %d\n",i);
+                    // Com_DPrintf("Deleted Effector %d\n",i);
                     //					continue;
                 }
                 if ((int)rag.size() < bone.boneNumber + 1) {
@@ -2047,7 +2047,7 @@ static bool G2_RagDollSetup(CGhoul2Info& ghoul2, int frameNum, bool resetOrigin,
 #if 0
 	if (numRendered<5)  // I think this is a limb
 	{
-//Com_OPrintf("limb %3d/%3d  (r,N).\n",numRendered,numNotRendered);
+//Com_DPrintf("limb %3d/%3d  (r,N).\n",numRendered,numNotRendered);
 		if (minSurvivingBoneAt<0)
 		{
 			// pelvis is gone, but we have no remaining pcj's
@@ -2248,7 +2248,7 @@ static void G2_RagDoll(CGhoul2Info_v& ghoul2V, int g2Index, CRagDollUpdateParams
 		worldMaxs[0]=params->position[0]+17;
 		worldMaxs[1]=params->position[1]+17;
 		worldMaxs[2]=params->position[2];
-//Com_OPrintf(va("%f \n",worldMins[2]);
+//Com_DPrintf(va("%f \n",worldMins[2]);
 //		params->DebugLine(worldMins,worldMaxs,true);
 #endif
         G2_RagDollCurrentPosition(ghoul2V, g2Index, frameNum, params->angles, params->position, params->scale);
@@ -2293,7 +2293,7 @@ static void G2_RagDollCurrentPosition(CGhoul2Info_v& ghoul2V, int g2Index, int f
 {
     CGhoul2Info& ghoul2 = ghoul2V[g2Index];
     assert(ghoul2.mFileName[0]);
-    // Com_OPrintf("angles %f %f %f\n",angles[0],angles[1],angles[2]);
+    // Com_DPrintf("angles %f %f %f\n",angles[0],angles[1],angles[2]);
     G2_GenerateWorldMatrix(angles, position);
     G2_ConstructGhoulSkeleton(ghoul2V, frameNum, false, scale);
 
@@ -2953,7 +2953,7 @@ void G2_RagPrintMatrix(mdxaBone_t* mat)
         n++;
     }
     strcat(x, "\n");
-    ri.Printf(printParm_t::PRINT_ALL, x);
+    Com_Printf(x);
 }
 #endif
 
@@ -3286,7 +3286,7 @@ static bool G2_RagDollSettlePositionNumeroTrois(CGhoul2Info_v& ghoul2V, const ve
                 VectorCopy(basePos, goalSpot);
                 goalSpot[2] = (params->position[2] - 23) - testMins[2];
 #endif
-                // ri.Printf( printParm_t::PRINT_ALL, "%i: %f %f %f\n", bone.boneNumber, basePos[0], basePos[1], basePos[2]);
+                // Com_Printf("%i: %f %f %f\n", bone.boneNumber, basePos[0], basePos[1], basePos[2]);
             }
             else { // if deep in solid want to try to rise up out of solid before hinting back to base
                 VectorSubtract(e.currentOrigin, params->position, vSub);
@@ -3394,7 +3394,7 @@ static bool G2_RagDollSettlePositionNumeroTrois(CGhoul2Info_v& ghoul2V, const ve
 
                 assert(debugBoneName);
 
-                ri.Printf(printParm_t::PRINT_ALL, "High bone (%s, %i) solid count: %i\n", debugBoneName, bone.boneNumber, bone.solidCount);
+                Com_Printf("High bone (%s, %i) solid count: %i\n", debugBoneName, bone.boneNumber, bone.solidCount);
 
                 VectorAdd(e.currentOrigin, testMins, absmin);
                 VectorAdd(e.currentOrigin, testMaxs, absmax);

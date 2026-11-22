@@ -38,7 +38,7 @@ entlist_t ICARUS_EntList;
 cvarlist_t ICARUS_CvarList;
 
 extern uint32_t Com_BlockChecksum(const void* buffer, int length);
-extern void Q3_DebugPrint(WL_e level, const char* format, ...);
+extern void Q3_DebugPrint(WL_e level, const char* format, ...) __attribute__((format(printf, 2, 3)));
 
 int ICARUS_entFilter = -1;
 
@@ -236,7 +236,7 @@ bool ICARUS_ValidEnt(gentity_t* ent)
     // Potentially able to call a script
     for (const char* script : ent->behaviorSet) {
         if VALIDSTRING (script) {
-            // Com_Printf( "WARNING: Entity %d (%s) has behaviorSet but no script_targetname -- using targetname\n", ent->s.number, ent->targetname );
+            // Com_Warning( "Entity %d (%s) has behaviorSet but no script_targetname -- using targetname\n", ent->s.number, ent->targetname );
             ent->script_targetname = ent->targetname;
             return true;
         }

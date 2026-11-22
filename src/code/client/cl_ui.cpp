@@ -215,9 +215,6 @@ void CL_InitUI(void)
 
     memset(&uii, 0, sizeof(uii));
 
-    uii.Printf = Com_Printf;
-    uii.Error = Com_Error;
-
     uii.Cvar_Set = Cvar_Set;
     uii.Cvar_VariableValue = Cvar_VariableValue;
     uii.Cvar_VariableStringBuffer = Cvar_VariableStringBuffer;

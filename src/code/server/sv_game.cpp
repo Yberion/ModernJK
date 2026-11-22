@@ -863,10 +863,10 @@ void SV_InitGameProgs(void)
     }
 
     // load a new game dll
-    import.Printf = Com_Printf;
+    import.Print = Com_VPrintf;
     import.WriteCam = Com_WriteCam;
     import.FlushCamFile = Com_FlushCamFile;
-    import.Error = Com_Error;
+    import.Error = Com_VError;
 
     import.Milliseconds = Sys_Milliseconds2;
 

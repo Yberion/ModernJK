@@ -40,7 +40,7 @@ static cvar_t* g_debugalloc;
 void* G_Alloc(int size)
 {
     if (g_debugalloc->integer) {
-        gi.Printf("G_Alloc of %i bytes\n", size);
+        Com_Printf("G_Alloc of %i bytes\n", size);
     }
 
     allocPoint += size;
@@ -56,5 +56,5 @@ void G_InitMemory(void)
 
 void Svcmd_GameMem_f(void)
 {
-    gi.Printf("Game memory status: %i allocated\n", allocPoint);
+    Com_Printf("Game memory status: %i allocated\n", allocPoint);
 }

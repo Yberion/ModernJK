@@ -1102,7 +1102,7 @@ void trigger_teleporter_touch(gentity_t* self, gentity_t* other, trace_t* trace)
 
     dest = G_PickTarget(self->target);
     if (!dest) {
-        trap->Print("Couldn't find teleporter destination\n");
+        Com_Printf("Couldn't find teleporter destination\n");
         return;
     }
 
@@ -1370,7 +1370,7 @@ void shipboundary_touch(gentity_t* self, gentity_t* other, trace_t* trace)
 
     ent = G_Find(nullptr, FOFS(targetname), self->target);
     if (!ent || !ent->inuse) { // this is bad
-        trap->Error(errorParm_t::ERR_DROP, "trigger_shipboundary has invalid target '%s'\n", self->target);
+        Com_Error(errorParm_t::ERR_DROP, "trigger_shipboundary has invalid target '%s'\n", self->target);
         return;
     }
 
@@ -1431,12 +1431,12 @@ void SP_trigger_shipboundary(gentity_t* self)
     self->r.contents = contentsFlags_t::CONTENTS_TRIGGER;
 
     if (!self->target || !self->target[0]) {
-        trap->Error(errorParm_t::ERR_DROP, "trigger_shipboundary without a target.");
+        Com_Error(errorParm_t::ERR_DROP, "trigger_shipboundary without a target.");
     }
     G_SpawnInt("traveltime", "0", &self->genericValue1);
 
     if (!self->genericValue1) {
-        trap->Error(errorParm_t::ERR_DROP, "trigger_shipboundary without traveltime.");
+        Com_Error(errorParm_t::ERR_DROP, "trigger_shipboundary without traveltime.");
     }
 
     self->think = shipboundary_think;
@@ -1465,7 +1465,7 @@ void hyperspace_touch(gentity_t* self, gentity_t* other, trace_t* trace)
                 // Get the offset from the local position
                 ent = G_Find(nullptr, FOFS(targetname), self->target);
                 if (!ent || !ent->inuse) { // this is bad
-                    trap->Error(errorParm_t::ERR_DROP, "trigger_hyperspace has invalid target '%s'\n", self->target);
+                    Com_Error(errorParm_t::ERR_DROP, "trigger_hyperspace has invalid target '%s'\n", self->target);
                     return;
                 }
                 VectorSubtract(other->client->ps.origin, ent->s.origin, diff);
@@ -1476,7 +1476,7 @@ void hyperspace_touch(gentity_t* self, gentity_t* other, trace_t* trace)
                 // Now get the base position of the destination
                 ent = G_Find(nullptr, FOFS(targetname), self->target2);
                 if (!ent || !ent->inuse) { // this is bad
-                    trap->Error(errorParm_t::ERR_DROP, "trigger_hyperspace has invalid target2 '%s'\n", self->target2);
+                    Com_Error(errorParm_t::ERR_DROP, "trigger_hyperspace has invalid target2 '%s'\n", self->target2);
                     return;
                 }
                 VectorCopy(ent->s.origin, newOrg);
@@ -1485,7 +1485,7 @@ void hyperspace_touch(gentity_t* self, gentity_t* other, trace_t* trace)
                 VectorMA(newOrg, fDiff, fwd, newOrg);
                 VectorMA(newOrg, rDiff, right, newOrg);
                 VectorMA(newOrg, uDiff, up, newOrg);
-                // trap->Print("hyperspace from %s to %s\n", vtos(other->client->ps.origin), vtos(newOrg) );
+                // Com_Printf("hyperspace from %s to %s\n", vtos(other->client->ps.origin), vtos(newOrg) );
                 // now put them in the offset position, facing the angles that position wants them to be facing
                 TeleportPlayer(other, newOrg, ent->s.angles);
                 if (other->m_pVehicle && other->m_pVehicle->m_pPilot) { // teleport the pilot, too
@@ -1504,7 +1504,7 @@ void hyperspace_touch(gentity_t* self, gentity_t* other, trace_t* trace)
     else {
         ent = G_Find(nullptr, FOFS(targetname), self->target);
         if (!ent || !ent->inuse) { // this is bad
-            trap->Error(errorParm_t::ERR_DROP, "trigger_hyperspace has invalid target '%s'\n", self->target);
+            Com_Error(errorParm_t::ERR_DROP, "trigger_hyperspace has invalid target '%s'\n", self->target);
             return;
         }
 
@@ -1526,14 +1526,14 @@ void trigger_hyperspace_find_targets( gentity_t *self )
     targEnt = G_Find (nullptr, FOFS(targetname), self->target);
     if (!targEnt || !targEnt->inuse)
     { //this is bad
-        trap->Error( errorParm_t::ERR_DROP, "trigger_hyperspace has invalid target '%s'\n", self->target );
+        Com_Error( errorParm_t::ERR_DROP, "trigger_hyperspace has invalid target '%s'\n", self->target );
         return;
     }
     targEnt->r.svFlags |= svFlags_t::SVF_BROADCAST;//crap, need to tell the cgame about the target_position
     targEnt = G_Find (nullptr, FOFS(targetname), self->target2);
     if (!targEnt || !targEnt->inuse)
     { //this is bad
-        trap->Error( errorParm_t::ERR_DROP, "trigger_hyperspace has invalid target2 '%s'\n", self->target2 );
+        Com_Error( errorParm_t::ERR_DROP, "trigger_hyperspace has invalid target2 '%s'\n", self->target2 );
         return;
     }
     targEnt->r.svFlags |= svFlags_t::SVF_BROADCAST;//crap, need to tell the cgame about the target_position
@@ -1555,10 +1555,10 @@ void SP_trigger_hyperspace(gentity_t* self)
     self->r.contents = contentsFlags_t::CONTENTS_TRIGGER;
 
     if (!self->target || !self->target[0]) {
-        trap->Error(errorParm_t::ERR_DROP, "trigger_hyperspace without a target.");
+        Com_Error(errorParm_t::ERR_DROP, "trigger_hyperspace without a target.");
     }
     if (!self->target2 || !self->target2[0]) {
-        trap->Error(errorParm_t::ERR_DROP, "trigger_hyperspace without a target2.");
+        Com_Error(errorParm_t::ERR_DROP, "trigger_hyperspace without a target2.");
     }
 
     self->delay = Distance(self->r.absmax, self->r.absmin); // my size
@@ -1622,7 +1622,7 @@ void SP_func_timer(gentity_t* self)
 
     if (self->random >= self->wait) {
         self->random = self->wait - 1; // NOTE: was - FRAMETIME, but FRAMETIME is in msec (100) and these numbers are in *seconds*!
-        trap->Print("func_timer at %s has random >= wait\n", vtos(self->s.origin));
+        Com_Printf("func_timer at %s has random >= wait\n", vtos(self->s.origin));
     }
 
     if (self->spawnflags & 1) {

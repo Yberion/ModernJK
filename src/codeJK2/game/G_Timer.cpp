@@ -157,7 +157,7 @@ void TIMER_Save(void)
         int numTimers = TIMER_GetCount(j);
 
         if (!ent->inuse && numTimers) {
-            //			Com_Printf( "WARNING: ent with timers not inuse\n" );
+            //			Com_Warning( "ent with timers not inuse\n" );
             assert(numTimers);
             TIMER_Clear(j);
             numTimers = 0;

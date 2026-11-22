@@ -231,11 +231,11 @@ void G2_List_Model_Surfaces(const char* fileName)
     mdxmSurface_t* surface = (mdxmSurface_t*)((byte*)mod_m->mdxm + mod_m->mdxm->ofsLODs + sizeof(mdxmLOD_t));
 
     for (x = 0; x < mod_m->mdxm->numSurfaces; x++) {
-        ri.Printf(printParm_t::PRINT_ALL, "Surface %i Name %s\n", x, surf->name);
+        Com_Printf("Surface %i Name %s\n", x, surf->name);
         if (r_verbose->integer) {
-            ri.Printf(printParm_t::PRINT_ALL, "Num Descendants %i\n", surf->numChildren);
+            Com_Printf("Num Descendants %i\n", surf->numChildren);
             for (i = 0; i < surf->numChildren; i++) {
-                ri.Printf(printParm_t::PRINT_ALL, "Descendant %i\n", surf->childIndexes[i]);
+                Com_Printf("Descendant %i\n", surf->childIndexes[i]);
             }
         }
         // find the next surface
@@ -265,16 +265,15 @@ void G2_List_Model_Bones(const char* fileName, int frame)
     // walk each bone and list it's name
     for (x = 0; x < mod_a->mdxa->numBones; x++) {
         skel = (mdxaSkel_t*)((byte*)header + sizeof(mdxaHeader_t) + offsets->offsets[x]);
-        ri.Printf(printParm_t::PRINT_ALL, "Bone %i Name %s\n", x, skel->name);
+        Com_Printf("Bone %i Name %s\n", x, skel->name);
 
-        ri.Printf(printParm_t::PRINT_ALL, "X pos %f, Y pos %f, Z pos %f\n", skel->BasePoseMat.matrix[0][3], skel->BasePoseMat.matrix[1][3],
-                  skel->BasePoseMat.matrix[2][3]);
+        Com_Printf("X pos %f, Y pos %f, Z pos %f\n", skel->BasePoseMat.matrix[0][3], skel->BasePoseMat.matrix[1][3], skel->BasePoseMat.matrix[2][3]);
 
         // if we are in verbose mode give us more details
         if (r_verbose->integer) {
-            ri.Printf(printParm_t::PRINT_ALL, "Num Descendants %i\n", skel->numChildren);
+            Com_Printf("Num Descendants %i\n", skel->numChildren);
             for (i = 0; i < skel->numChildren; i++) {
-                ri.Printf(printParm_t::PRINT_ALL, "Num Descendants %i\n", skel->numChildren);
+                Com_Printf("Num Descendants %i\n", skel->numChildren);
             }
         }
     }
@@ -1026,7 +1025,7 @@ static bool G2_TracePolys(const mdxmSurface_t* surface, const mdxmSurfHierarchy_
                                                                     ((int)(y_pos * hitMatReg[shader->hitLocation].height) *
                        hitMatReg[shader->hitLocation].width) +
                                                                     ((int)(x_pos * hitMatReg[shader->hitLocation].width)));
-                                                ri.Printf( printParm_t::PRINT_ALL, "G2_TracePolys hit location: %d\n", newCol.mLocation);
+                                                Com_Printf("G2_TracePolys hit location: %d\n", newCol.mLocation);
                                             }
 
                                             if (shader->hitMaterial)

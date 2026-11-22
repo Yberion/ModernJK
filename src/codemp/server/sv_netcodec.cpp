@@ -382,7 +382,7 @@ static bool SV_NetcodecSend(client_t* client, eng::ServerMessage& sm, clientSnap
     packetBase.seq = -1;
     if (!size) {
         // the legacy code cleared an overflowed message too, and sent it empty
-        Com_Printf("WARNING: message for %s not coded (larger than %d bytes, or malformed)\n", client->name, (int)outSize);
+        Com_Warning("message for %s not coded (larger than %d bytes, or malformed)\n", client->name, (int)outSize);
     }
     else {
         netcodecStats_t& st = client->netcodecStats;
@@ -392,8 +392,8 @@ static bool SV_NetcodecSend(client_t* client, eng::ServerMessage& sm, clientSnap
         if (left) {
             st.cut++;
             if (outSize == sizeof(buf)) {
-                Com_Printf("WARNING: snapshot for %s larger than %d bytes: sent with the %d entities nearest to the player, %d left out\n", client->name,
-                           (int)outSize, (int)sm.frame.numEntities, left);
+                Com_Warning("snapshot for %s larger than %d bytes: sent with the %d entities nearest to the player, %d left out\n", client->name, (int)outSize,
+                            (int)sm.frame.numEntities, left);
             }
         }
         if (sm.snapshot) {
@@ -447,7 +447,7 @@ void SV_NetcodecSendGameState(client_t* client)
     sm.checksum = sv.checksumFeed;
     if (!SV_NetcodecSend(client, sm, nullptr, 0)) {
         // the client cannot play without it: dropped, with the reason (CL_ParseCommandString shows it before cgame runs)
-        Com_Printf(S_COLOR_YELLOW "WARNING: the gamestate does not fit in a message: %s dropped\n", client->name);
+        Com_Warning("the gamestate does not fit in a message: %s dropped\n", client->name);
         SV_DropClient(client, "gamestate too large for a message");
     }
 }

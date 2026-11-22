@@ -220,7 +220,7 @@ void SP_target_speaker(gentity_t* ent)
 
     if (!ent->sounds) {
         if (!G_SpawnString("noise", "*NOSOUND*", &s)) {
-            G_Error("target_speaker without a noise key at %s", vtos(ent->s.origin));
+            Com_Error(errorParm_t::ERR_DROP, "target_speaker without a noise key at %s", vtos(ent->s.origin));
         }
 
         Q_strncpyz(buffer, s, sizeof(buffer));
@@ -329,7 +329,7 @@ void target_laser_start(gentity_t* self)
     if (self->target) {
         ent = G_Find(nullptr, FOFS(targetname), self->target);
         if (!ent) {
-            gi.Printf("%s at %s: %s is a bad target\n", self->classname, vtos(self->s.origin), self->target);
+            Com_Printf("%s at %s: %s is a bad target\n", self->classname, vtos(self->s.origin), self->target);
         }
         G_SetEnemy(self, ent);
     }
@@ -370,7 +370,7 @@ void target_teleporter_use(gentity_t* self, gentity_t* other, gentity_t* activat
 
     dest = G_PickTarget(self->target);
     if (!dest) {
-        gi.Printf("Couldn't find teleporter destination\n");
+        Com_Printf("Couldn't find teleporter destination\n");
         return;
     }
 
@@ -383,7 +383,7 @@ The activator will be teleported away.
 void SP_target_teleporter(gentity_t* self)
 {
     if (!self->targetname)
-        gi.Printf("untargeted %s at %s\n", self->classname, vtos(self->s.origin));
+        Com_Printf("untargeted %s at %s\n", self->classname, vtos(self->s.origin));
 
     self->e_UseFunc = useFunc_t::useF_target_teleporter_use;
 }
@@ -568,7 +568,7 @@ void target_counter_use(gentity_t* self, gentity_t* other, gentity_t* activator)
         return;
     }
 
-    // gi.Printf("target_counter %s used by %s, entnum %d\n", self->targetname, activator->targetname, activator->s.number );
+    // Com_Printf("target_counter %s used by %s, entnum %d\n", self->targetname, activator->targetname, activator->s.number );
     self->count--;
 
     if (activator) {
@@ -578,7 +578,7 @@ void target_counter_use(gentity_t* self, gentity_t* other, gentity_t* activator)
 
     if (self->count) {
         if (self->target2) {
-            // gi.Printf("target_counter %s firing target2 from %s, entnum %d\n", self->targetname, activator->targetname, activator->s.number );
+            // Com_Printf("target_counter %s firing target2 from %s, entnum %d\n", self->targetname, activator->targetname, activator->s.number );
             G_UseTargets2(self, activator, self->target2);
         }
         return;
@@ -629,7 +629,7 @@ void target_random_use(gentity_t* self, gentity_t* other, gentity_t* activator)
     int t_count = 0, pick;
     gentity_t* t = nullptr;
 
-    // gi.Printf("target_random %s used by %s (entnum %d)\n", self->targetname, activator->targetname, activator->s.number );
+    // Com_Printf("target_random %s used by %s (entnum %d)\n", self->targetname, activator->targetname, activator->s.number );
     G_ActivateBehavior(self, bSet_t::BSET_USE);
 
     if (self->spawnflags & 1) {
@@ -663,7 +663,7 @@ void target_random_use(gentity_t* self, gentity_t* other, gentity_t* activator)
         }
 
         if (t == self) {
-            //				gi.Printf ("WARNING: Entity used itself.\n");
+            //				Com_Warning("Entity used itself.\n");
         }
         else if (t_count == pick) {
             if (t->e_UseFunc != useFunc_t::useF_NULL) // check can be omitted
@@ -674,7 +674,7 @@ void target_random_use(gentity_t* self, gentity_t* other, gentity_t* activator)
         }
 
         if (!self->inuse) {
-            gi.Printf("entity was removed while using targets\n");
+            Com_Printf("entity was removed while using targets\n");
             return;
         }
     }
@@ -783,7 +783,7 @@ delay - how long to wait after use to run script
 void SP_target_scriptrunner(gentity_t* self)
 {
     if (!self->behaviorSet[bSet_t::BSET_USE]) {
-        gi.Printf(S_COLOR_RED "SP_target_scriptrunner %s has no USESCRIPT\n", self->targetname);
+        Com_Printf(S_COLOR_RED "SP_target_scriptrunner %s has no USESCRIPT\n", self->targetname);
     }
     if (self->spawnflags & 128) {
         self->svFlags |= svFlags_t::SVF_INACTIVE;
@@ -822,7 +822,7 @@ void target_gravity_change_use(gentity_t* self, gentity_t* other, gentity_t* act
         /*
         if ( activator->client->ps.gravity != grav )
         {
-            gi.Printf("%s gravity changed to %d\n", activator->targetname, grav );
+            Com_Printf("%s gravity changed to %d\n", activator->targetname, grav );
         }
         */
         activator->client->ps.gravity = grav;
@@ -989,7 +989,7 @@ NO_STORYSOUND - will not play storyinfo wav file, even if you '++' or set tier_s
 void SP_target_level_change(gentity_t* self)
 {
     if (!self->message) {
-        G_Error("target_level_change with no mapname!\n");
+        Com_Error(errorParm_t::ERR_DROP, "target_level_change with no mapname!\n");
         return;
     }
 
@@ -1096,7 +1096,7 @@ void SP_target_play_music(gentity_t* self)
     char* s;
     G_SetOrigin(self, self->s.origin);
     if (!G_SpawnString("music", "", &s)) {
-        G_Error("target_play_music without a music key at %s", vtos(self->s.origin));
+        Com_Error(errorParm_t::ERR_DROP, "target_play_music without a music key at %s", vtos(self->s.origin));
     }
     self->message = G_NewString(s);
     self->e_UseFunc = useFunc_t::useF_target_play_music_use;

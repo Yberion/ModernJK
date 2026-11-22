@@ -196,7 +196,7 @@ void COM_ParseError(char* format, ...)
     Q_vsnprintf(string, sizeof(string), format, argptr);
     va_end(argptr);
 
-    Com_Printf("ERROR: %s, line %d: %s\n", com_parsename, COM_GetCurrentParseLine(), string);
+    Com_PrintError("%s, line %d: %s\n", com_parsename, COM_GetCurrentParseLine(), string);
 }
 
 void COM_ParseWarning(const char* format, ...)
@@ -208,7 +208,7 @@ void COM_ParseWarning(const char* format, ...)
     Q_vsnprintf(string, sizeof(string), format, argptr);
     va_end(argptr);
 
-    Com_Printf("WARNING: %s, line %d: %s\n", com_parsename, COM_GetCurrentParseLine(), string);
+    Com_Warning("%s, line %d: %s\n", com_parsename, COM_GetCurrentParseLine(), string);
 }
 
 /*
@@ -641,53 +641,11 @@ int Com_HexStrToInt(const char* str)
 ============================================================================
 */
 
-int QDECL Com_sprintf(char* dest, int size, const char* fmt, ...)
-{
-    int len;
-    va_list argptr;
-
-    va_start(argptr, fmt);
-    len = Q_vsnprintf(dest, size, fmt, argptr);
-    va_end(argptr);
-
-    if (len >= size)
-        Com_Printf("Com_sprintf: Output length %d too short, require %d bytes.\n", size, len + 1);
-
-    return len;
-}
-
 int FloatAsInt(float f)
 {
     byteAlias_t fi;
     fi.f = f;
     return fi.i;
-}
-
-/*
-============
-va
-
-does a varargs printf into a temp buffer, so I don't need to have
-varargs versions of all text functions.
-FIXME: make this buffer size safe someday
-============
-*/
-constexpr int MAX_VA_STRING = 32000;
-constexpr int MAX_VA_BUFFERS = 4;
-
-char* QDECL va(const char* format, ...)
-{
-    va_list argptr;
-    static char string[MAX_VA_BUFFERS][MAX_VA_STRING]; // in case va is called by nested functions
-    static int index = 0;
-    char* buf;
-
-    va_start(argptr, format);
-    buf = (char*)&string[index++ & 3];
-    Q_vsnprintf(buf, sizeof(*string), format, argptr);
-    va_end(argptr);
-
-    return buf;
 }
 
 /*

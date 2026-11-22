@@ -33,7 +33,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define MDXABONEDEF
 #include <rd-common/mdx_format.h>
 
-inline constexpr int GAME_API_VERSION = 1;
+inline constexpr int GAME_API_VERSION = 2;
 
 enum class itemType_t;                     // bg_public.h
 enum class variableType_t;                 // icarus/Q3_Registers.h
@@ -396,8 +396,8 @@ typedef struct T_G_ICARUS_GETSETIDFORSTRING_s {
 
 typedef struct gameImport_s {
     // misc
-    void (*Print)(const char* msg, ...) __attribute__((format(printf, 1, 2)));
-    NORETURN_PTR void (*Error)(errorParm_t level, const char* fmt, ...) __attribute__((format(printf, 2, 3)));
+    void (*Print)(printLevel_t level, const char* fmt, va_list args) __attribute__((format(printf, 2, 0)));
+    NORETURN_PTR void (*Error)(errorParm_t code, const char* fmt, va_list args) __attribute__((format(printf, 2, 0)));
     int (*Milliseconds)(void);
     void (*PrecisionTimerStart)(void** timer);
     int (*PrecisionTimerEnd)(void* timer);

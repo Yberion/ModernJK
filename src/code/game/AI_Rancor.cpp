@@ -199,7 +199,7 @@ void Rancor_Move(bool visible)
                 */
             }
             else { // all else fails, look at him
-                //	gi.Printf("Fail\n");
+                //	Com_Printf("Fail\n");
                 NPCInfo->lockedDesiredYaw = NPCInfo->desiredYaw = savYaw;
                 /*	if ( !NPCInfo->blockedEntity )
                     {//not already trying to break a breakable somewhere

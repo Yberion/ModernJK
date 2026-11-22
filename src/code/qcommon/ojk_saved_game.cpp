@@ -74,13 +74,13 @@ bool SavedGame::open(const std::string& base_file_name)
             if (sg_version != iSAVEGAME_VERSION) {
                 is_succeed = false;
 
-                ::Com_Printf(S_COLOR_RED "File \"%s\" has version # %d (expecting %d)\n", base_file_name.c_str(), sg_version, iSAVEGAME_VERSION);
+                Com_Printf(S_COLOR_RED "File \"%s\" has version # %d (expecting %d)\n", base_file_name.c_str(), sg_version, iSAVEGAME_VERSION);
             }
         }
         else {
             is_succeed = false;
 
-            ::Com_Printf(S_COLOR_RED "Failed to read a version.\n");
+            Com_Printf(S_COLOR_RED "Failed to read a version.\n");
         }
     }
 
@@ -104,7 +104,7 @@ bool SavedGame::create(const std::string& base_file_name)
     if (file_handle_ == 0) {
         const std::string error_message = S_COLOR_RED "Failed to create a saved game file: \"" + file_path + "\".";
 
-        ::Com_Printf("%s\n", error_message.c_str());
+        Com_Printf("%s\n", error_message.c_str());
 
         return false;
     }
@@ -357,7 +357,7 @@ bool SavedGame::write_chunk(const uint32_t chunk_id)
 
             error_message_ = "Failed to write " + chunk_id_string + " chunk.";
 
-            ::Com_Printf("%s%s\n", S_COLOR_RED, error_message_.c_str());
+            Com_Printf("%s%s\n", S_COLOR_RED, error_message_.c_str());
 
             return false;
         }
@@ -390,7 +390,7 @@ bool SavedGame::write_chunk(const uint32_t chunk_id)
 
             error_message_ = "Failed to write " + chunk_id_string + " chunk.";
 
-            ::Com_Printf("%s%s\n", S_COLOR_RED, error_message_.c_str());
+            Com_Printf("%s%s\n", S_COLOR_RED, error_message_.c_str());
 
             return false;
         }
@@ -576,9 +576,9 @@ void SavedGame::rename(const std::string& old_base_file_name, const std::string&
     const int rename_result = ::FS_MoveUserGenFile(old_path.c_str(), new_path.c_str());
 
     if (rename_result == 0) {
-        ::Com_Printf(S_COLOR_RED "Error during savegame-rename."
-                                 " Check \"%s\" for write-protect or disk full!\n",
-                     new_path.c_str());
+        Com_Printf(S_COLOR_RED "Error during savegame-rename."
+                               " Check \"%s\" for write-protect or disk full!\n",
+                   new_path.c_str());
     }
 }
 

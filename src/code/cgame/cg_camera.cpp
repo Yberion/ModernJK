@@ -507,7 +507,7 @@ void CG_CameraAutoAim(const char* name)
 
     if(!aimEnt)
     {
-        gi.Printf(S_COLOR_RED"ERROR: %s camera aim target not found\n", name);
+        Com_PrintError("%s camera aim target not found\n", name);
         return;
     }
 
@@ -538,7 +538,7 @@ void CGCam_Track(const char* trackName, float speed, float initLerp)
     trackEnt = G_Find(nullptr, FOFS(targetname), (char*)trackName);
 
     if (!trackEnt) {
-        gi.Printf(S_COLOR_RED "ERROR: %s camera track target not found\n", trackName);
+        Com_PrintError("%s camera track target not found\n", trackName);
         return;
     }
 
@@ -612,7 +612,7 @@ void CG_CameraAutoTrack(const char* name)
 
     if(!trackEnt)
     {
-        gi.Printf(S_COLOR_RED"ERROR: %s camera track target not found\n", name);
+        Com_PrintError("%s camera track target not found\n", name);
         return;
     }
 
@@ -662,7 +662,7 @@ void CGCam_FollowUpdate(void)
             */
 
             if (num_subjects >= MAX_CAMERA_GROUP_SUBJECTS) {
-                gi.Printf(S_COLOR_RED "ERROR: Too many subjects in shot composition %s", client_camera.cameraGroup);
+                Com_PrintError("Too many subjects in shot composition %s", client_camera.cameraGroup);
                 break;
             }
 
@@ -717,7 +717,7 @@ void CGCam_FollowUpdate(void)
         if (!num_subjects) // Bad cameragroup
         {
 #ifndef FINAL_BUILD
-            gi.Printf(S_COLOR_RED "ERROR: Camera Focus unable to locate cameragroup: %s\n", client_camera.cameraGroup);
+            Com_PrintError("Camera Focus unable to locate cameragroup: %s\n", client_camera.cameraGroup);
 #endif
             return;
         }
@@ -1705,10 +1705,8 @@ static void CGCam_Roff(void)
         ang[ROLL] = -ang[ROLL];
         // might need to to yaw as well.  need a test...
 
-        if (cg_developer.integer) {
-            Com_Printf(S_COLOR_GREEN "CamROFF: frame: %d o:<%.2f %.2f %.2f> a:<%.2f %.2f %.2f>\n", client_camera.roff_frame, org[0], org[1], org[2], ang[0],
-                       ang[1], ang[2]);
-        }
+        Com_DPrintf(S_COLOR_GREEN "CamROFF: frame: %d o:<%.2f %.2f %.2f> a:<%.2f %.2f %.2f>\n", client_camera.roff_frame, org[0], org[1], org[2], ang[0],
+                    ang[1], ang[2]);
 
         if (client_camera.roff_frame) {
             // Don't mess with angles if we are following

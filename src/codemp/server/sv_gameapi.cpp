@@ -1960,8 +1960,8 @@ void SV_BindGame(void)
 
     gvm = VM_Create(vmSlots_t::VM_GAME);
     if (gvm) {
-        gi.Print = Com_Printf;
-        gi.Error = Com_Error;
+        gi.Print = Com_VPrintf;
+        gi.Error = Com_VError;
         gi.Milliseconds = Com_Milliseconds;
         gi.PrecisionTimerStart = SV_PrecisionTimerStart;
         gi.PrecisionTimerEnd = SV_PrecisionTimerEnd;

@@ -191,7 +191,7 @@ sfxHandle_t CG_CustomSound(int clientNum, const char* soundName)
         }
     }
 
-    // trap->Error( errorParm_t::ERR_DROP, "Unknown custom sound: %s", lSoundName );
+    // Com_Error( errorParm_t::ERR_DROP, "Unknown custom sound: %s", lSoundName );
 #ifndef FINAL_BUILD
     Com_Printf("Unknown custom sound: %s\n", lSoundName);
 #endif
@@ -315,7 +315,7 @@ static bool CG_RegisterClientModelname(clientInfo_t* ci, const char* modelName, 
 retryModel:
     if (badModel) {
         if (modelName && modelName[0]) {
-            Com_Printf("WARNING: Attempted to load an unsupported multiplayer model %s! (bad or missing bone, or missing animation sequence)\n", modelName);
+            Com_Warning("Attempted to load an unsupported multiplayer model %s! (bad or missing bone, or missing animation sequence)\n", modelName);
         }
 
         modelName = DEFAULT_MODEL;
@@ -880,12 +880,12 @@ void CG_LoadClientInfo(clientInfo_t* ci)
         (ci->team == team_t::TEAM_SPECTATOR ||
          ci->siegeIndex == -1)) { // yeah.. kind of a hack I guess. Don't care until they are actually ingame with a valid class.
         if (!CG_RegisterClientModelname(ci, fallbackModel, "default", teamname, -1)) {
-            trap->Error(errorParm_t::ERR_DROP, "DEFAULT_MODEL (%s) failed to register", fallbackModel);
+            Com_Error(errorParm_t::ERR_DROP, "DEFAULT_MODEL (%s) failed to register", fallbackModel);
         }
     }
     else {
         if (!CG_RegisterClientModelname(ci, ci->modelName, ci->skinName, teamname, clientNum)) {
-            // trap->Error( errorParm_t::ERR_DROP, "CG_RegisterClientModelname( %s, %s, %s, %s %s ) failed", ci->modelName, ci->skinName, ci->headModelName,
+            // Com_Error( errorParm_t::ERR_DROP, "CG_RegisterClientModelname( %s, %s, %s, %s %s ) failed", ci->modelName, ci->skinName, ci->headModelName,
             // ci->headSkinName, teamname ); rww - DO NOT error out here! Someone could just type in a nonsense model name and crash everyone's client. Give it
             // a chance to load default model for this client instead.
 
@@ -899,12 +899,12 @@ void CG_LoadClientInfo(clientInfo_t* ci)
                     Q_strncpyz(teamname, DEFAULT_REDTEAM_NAME, sizeof(teamname));
                 }
                 if (!CG_RegisterClientModelname(ci, fallbackModel, ci->skinName, teamname, -1)) {
-                    trap->Error(errorParm_t::ERR_DROP, "DEFAULT_MODEL / skin (%s/%s) failed to register", fallbackModel, ci->skinName);
+                    Com_Error(errorParm_t::ERR_DROP, "DEFAULT_MODEL / skin (%s/%s) failed to register", fallbackModel, ci->skinName);
                 }
             }
             else {
                 if (!CG_RegisterClientModelname(ci, fallbackModel, "default", teamname, -1)) {
-                    trap->Error(errorParm_t::ERR_DROP, "DEFAULT_MODEL (%s) failed to register", fallbackModel);
+                    Com_Error(errorParm_t::ERR_DROP, "DEFAULT_MODEL (%s) failed to register", fallbackModel);
                 }
             }
             modelloaded = false;
@@ -1281,7 +1281,7 @@ static void CG_SetDeferredClientInfo(clientInfo_t* ci)
     }
 
     // we should never get here...
-    // trap->Print( "CG_SetDeferredClientInfo: no valid clients!\n" );
+    // Com_Printf( "CG_SetDeferredClientInfo: no valid clients!\n" );
     // Actually it is possible now because of the unique sabers.
 
     CG_LoadClientInfo(ci);
@@ -2470,7 +2470,7 @@ static void CG_SetLerpFrameAnimation(centity_t* cent, clientInfo_t* ci, lerpFram
     LF_SetAnim(*lf, newAnimation);
 
     if (newAnimation < animNumber_t::FACE_TALK0 || newAnimation >= animNumber_t::MAX_TOTALANIMATIONS) {
-        trap->Error(errorParm_t::ERR_DROP, "Bad animation number: %i", to_underlying(newAnimation));
+        Com_Error(errorParm_t::ERR_DROP, "Bad animation number: %i", to_underlying(newAnimation));
     }
 
     anim = &(*bgAllAnims[cent->localAnimIndex].anims)[newAnimation];
@@ -2484,12 +2484,12 @@ static void CG_SetLerpFrameAnimation(centity_t* cent, clientInfo_t* ci, lerpFram
 
     if (cg_debugAnim.integer && (cg_debugAnim.integer < 0 || cg_debugAnim.integer == cent->currentState.clientNum)) {
         if (lf == &cent->pe.legs) {
-            trap->Print("%d: %d TORSO Anim: %i, '%s'\n", cg.time, cent->currentState.clientNum, to_underlying(newAnimation),
-                        GetStringForID(animTable, to_underlying(newAnimation)));
+            Com_Printf("%d: %d TORSO Anim: %i, '%s'\n", cg.time, cent->currentState.clientNum, to_underlying(newAnimation),
+                       GetStringForID(animTable, to_underlying(newAnimation)));
         }
         else {
-            trap->Print("%d: %d LEGS Anim: %i, '%s'\n", cg.time, cent->currentState.clientNum, to_underlying(newAnimation),
-                        GetStringForID(animTable, to_underlying(newAnimation)));
+            Com_Printf("%d: %d LEGS Anim: %i, '%s'\n", cg.time, cent->currentState.clientNum, to_underlying(newAnimation),
+                       GetStringForID(animTable, to_underlying(newAnimation)));
         }
     }
 
@@ -2763,7 +2763,7 @@ static void CG_SetLerpFrameAnimation(centity_t* cent, clientInfo_t* ci, lerpFram
 				if (!trap->G2API_RemoveBone(cent->ghoul2, "lhumerus", 0))
 				{
 					assert(0);
-					Com_Printf("WARNING: Failed to remove lhumerus\n");
+					Com_Warning("Failed to remove lhumerus\n");
 				}
 			}
 
@@ -2784,7 +2784,7 @@ static void CG_SetLerpFrameAnimation(centity_t* cent, clientInfo_t* ci, lerpFram
 				if (!trap->G2API_RemoveBone(cent->ghoul2, brokenBone, 0))
 				{
 					assert(0);
-					Com_Printf("WARNING: Failed to remove %s\n", brokenBone);
+					Com_Warning("Failed to remove %s\n", brokenBone);
 				}
 				ci->brokenLimbs &= ~broken;
 			}
@@ -7626,7 +7626,7 @@ void CG_Player(centity_t* cent)
     if (cent->currentState.eType != entityType_t::ET_NPC) {
         clientNum = cent->currentState.clientNum;
         if (clientNum < 0 || clientNum >= MAX_CLIENTS) {
-            trap->Error(errorParm_t::ERR_DROP, "Bad clientNum on player entity");
+            Com_Error(errorParm_t::ERR_DROP, "Bad clientNum on player entity");
         }
         ci = &cgs.clientinfo[clientNum];
     }
@@ -7703,7 +7703,7 @@ void CG_Player(centity_t* cent)
 
     if (!cent->ghoul2) { // not ready yet?
 #ifdef _DEBUG
-        Com_Printf("WARNING: Client %i has a null ghoul2 instance\n", cent->currentState.number);
+        Com_Warning("Client %i has a null ghoul2 instance\n", cent->currentState.number);
 #endif
         trap->G2API_ClearAttachedInstance(cent->currentState.number);
 
@@ -9986,6 +9986,6 @@ void CG_ResetPlayerEntity(centity_t* cent)
     }
 
     if (cg_debugPosition.integer) {
-        trap->Print("%i ResetPlayerEntity yaw=%f\n", cent->currentState.number, cent->pe.torso.yawAngle);
+        Com_Printf("%i ResetPlayerEntity yaw=%f\n", cent->currentState.number, cent->pe.torso.yawAngle);
     }
 }

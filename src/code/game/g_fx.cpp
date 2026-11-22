@@ -222,7 +222,7 @@ void SP_fx_runner(gentity_t* ent)
     }
 
     if (!ent->fxFile) {
-        gi.Printf(S_COLOR_RED "ERROR: fx_runner %s at %s has no fxFile specified\n", ent->targetname, vtos(ent->s.origin));
+        Com_PrintError("fx_runner %s at %s has no fxFile specified\n", ent->targetname, vtos(ent->s.origin));
         G_FreeEntity(ent);
         return;
     }
@@ -620,7 +620,7 @@ void SP_CreatePuffSystem(gentity_t* ent)
         iPuffSystem = iVal;
         if (iPuffSystem < 0 || iPuffSystem > 1) {
             iPuffSystem = 0;
-            // ri.Error( errorParm_t::ERR_DROP, "Weather Effect: Invalid value for whichsystem key" );
+            // Com_Error( errorParm_t::ERR_DROP, "Weather Effect: Invalid value for whichsystem key" );
             Com_Printf("Weather Effect: Invalid value for whichsystem key\n");
         }
     }
@@ -812,7 +812,7 @@ void fx_explosion_trail_link(gentity_t* ent)
         target = G_Find(target, FOFS(targetname), ent->target);
 
         if (!target) {
-            gi.Printf(S_COLOR_RED "ERROR: fx_explosion_trail %s could not find target %s\n", ent->targetname, ent->target);
+            Com_PrintError("fx_explosion_trail %s could not find target %s\n", ent->targetname, ent->target);
             G_FreeEntity(ent);
             return;
         }
@@ -857,7 +857,7 @@ void SP_fx_explosion_trail(gentity_t* ent)
 {
     // We have to be useable, otherwise we won't spawn in
     if (!ent->targetname) {
-        gi.Printf(S_COLOR_RED "ERROR: fx_explosion_trail at %s has no targetname specified\n", vtos(ent->s.origin));
+        Com_PrintError("fx_explosion_trail at %s has no targetname specified\n", vtos(ent->s.origin));
         G_FreeEntity(ent);
         return;
     }

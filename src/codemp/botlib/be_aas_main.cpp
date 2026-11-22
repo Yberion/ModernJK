@@ -60,22 +60,6 @@ libvar_t* saveroutingcache;
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void QDECL AAS_Error(const char* fmt, ...)
-{
-    char str[1024];
-    va_list arglist;
-
-    va_start(arglist, fmt);
-    Q_vsnprintf(str, sizeof(str), fmt, arglist);
-    va_end(arglist);
-    botimport.Print(printType_t::PRT_FATAL, "%s", str);
-} // end of the function AAS_Error
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 int AAS_Loaded(void)
 {
     return aasworld.loaded;
@@ -99,7 +83,7 @@ int AAS_Initialized(void)
 void AAS_SetInitialized(void)
 {
     aasworld.initialized = true;
-    botimport.Print(printType_t::PRT_MESSAGE, "AAS initialized.\n");
+    Com_Printf("AAS initialized.\n");
 #ifdef DEBUG
     // create all the routing cache
     // AAS_CreateAllRoutingCache();
@@ -134,10 +118,10 @@ void AAS_ContinueInit(float time)
             AAS_Optimize();
         // save the AAS file
         if (AAS_WriteAASFile(aasworld.filename)) {
-            botimport.Print(printType_t::PRT_MESSAGE, "%s written successfully\n", aasworld.filename);
+            Com_Printf("%s written successfully\n", aasworld.filename);
         } // end if
         else {
-            botimport.Print(printType_t::PRT_ERROR, "couldn't write %s\n", aasworld.filename);
+            Com_PrintError("couldn't write %s\n", aasworld.filename);
         } // end else
     } // end if
     // initialize the routing
@@ -239,7 +223,7 @@ botlibError_t AAS_LoadFiles(const char* mapname)
     if (errnum != botlibError_t::BLERR_NOERROR)
         return errnum;
 
-    botimport.Print(printType_t::PRT_MESSAGE, "loaded %s\n", aasfile);
+    Com_Printf("loaded %s\n", aasfile);
     strncpy(aasworld.filename, aasfile, MAX_PATH);
     return botlibError_t::BLERR_NOERROR;
 } // end of the function AAS_LoadFiles
@@ -337,5 +321,5 @@ void AAS_Shutdown(void)
     // NOTE: as soon as a new .bsp file is loaded the .bsp file memory is
     //  freed and reallocated, so there's no need to free that memory here
     // print shutdown
-    //	botimport.Print(printType_t::PRT_MESSAGE, "AAS shutdown.\n");
+    //	Com_Printf("AAS shutdown.\n");
 } // end of the function AAS_Shutdown

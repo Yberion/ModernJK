@@ -1,0 +1,18 @@
+# clang-tidy query-based checks (clang-tidy 23, --experimental-custom-checks), run by run_tidy.py: the variadic
+# functions of the project without a format attribute, which the compilers never check, and their calls.
+Checks: '-*,custom-fmtcall,custom-fmtdecl'
+CustomChecks:
+  - Name: fmtcall
+    Query: |
+      match callExpr(callee(functionDecl(isVariadic(), unless(hasAttr("attr::Format")), unless(isExpansionInSystemHeader())))).bind("call")
+    Diagnostic:
+      - BindName: call
+        Message: fmtcall
+        Level: Warning
+  - Name: fmtdecl
+    Query: |
+      match functionDecl(isVariadic(), isDefinition(), unless(hasAttr("attr::Format")), unless(isExpansionInSystemHeader())).bind("d")
+    Diagnostic:
+      - BindName: d
+        Message: fmtdecl
+        Level: Warning

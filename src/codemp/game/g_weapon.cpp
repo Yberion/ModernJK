@@ -714,7 +714,7 @@ void WP_DisruptorAltFire(gentity_t* ent)
             VectorCopy(tr.endpos, start);
             skip = tr.entityNum;
 #ifdef _DEBUG
-            trap->Print("BAD! Disruptor gun shot somehow traced back and hit the owner!\n");
+            Com_Printf("BAD! Disruptor gun shot somehow traced back and hit the owner!\n");
 #endif
             continue;
         }

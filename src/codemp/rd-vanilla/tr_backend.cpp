@@ -58,7 +58,7 @@ void GL_Bind(image_t* image)
     int texnum;
 
     if (!image) {
-        ri.Printf(printParm_t::PRINT_ALL, S_COLOR_YELLOW "GL_Bind: NULL image\n");
+        Com_Printf(S_COLOR_YELLOW "GL_Bind: NULL image\n");
         texnum = tr.defaultImage->texnum;
     }
     else {
@@ -1187,7 +1187,7 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte* d
 
     if (r_speeds->integer) {
         end = ri.Milliseconds() * ri.Cvar_VariableValue("timescale");
-        ri.Printf(printParm_t::PRINT_ALL, "qglTexSubImage2D %i, %i: %i msec\n", cols, rows, end - start);
+        Com_Printf("qglTexSubImage2D %i, %i: %i msec\n", cols, rows, end - start);
     }
 
     RB_SetGL2D();
@@ -1740,7 +1740,7 @@ void RB_ShowImages(void)
     qglFinish();
 
     //	end = ri.Milliseconds()*ri.Cvar_VariableValue( "timescale" );
-    //	ri.Printf( printParm_t::PRINT_ALL, "%i msec to draw all images\n", end - start );
+    //	Com_Printf("%i msec to draw all images\n", end - start );
 }
 
 static void RB_GammaCorrectRender()

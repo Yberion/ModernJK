@@ -2249,7 +2249,7 @@ void CG_DrawActive(stereoFrame_t stereoView)
         break;
     default:
         separation = 0;
-        CG_Error("CG_DrawActive: Undefined stereoView");
+        Com_Error(errorParm_t::ERR_DROP, "CG_DrawActive: Undefined stereoView");
     }
 
     // clear around the rendered view if sized down

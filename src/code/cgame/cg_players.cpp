@@ -287,7 +287,7 @@ static sfxHandle_t CG_CustomSound(int entityNum, const char* soundName, customSo
     if (!g_entities[entityNum].client) {
         // No client, this should never happen, so just don't
 #ifndef FINAL_BUILD
-//		CG_Printf( "custom sound not on client: %s", soundName );
+//		Com_Printf( "custom sound not on client: %s", soundName );
 #endif
         return 0;
     }
@@ -367,9 +367,9 @@ static sfxHandle_t CG_CustomSound(int entityNum, const char* soundName, customSo
     }
 
 #ifdef FINAL_BUILD
-    CG_Printf("Unknown custom sound: %s", soundName);
+    Com_Printf("Unknown custom sound: %s", soundName);
 #else
-    CG_Error("Unknown custom sound: %s", soundName);
+    Com_Error(errorParm_t::ERR_DROP, "Unknown custom sound: %s", soundName);
 #endif
     return 0;
 }
@@ -582,7 +582,7 @@ static void CG_SetLerpFrameAnimation(clientInfo_t* ci, lerpFrame_t* lf, animNumb
 #ifdef FINAL_BUILD
         newAnimation = animNumber_t::FACE_TALK0;
 #else
-        CG_Error("Bad animation number: %i for %s", to_underlying(newAnimation), ci->name);
+        Com_Error(errorParm_t::ERR_DROP, "Bad animation number: %i for %s", to_underlying(newAnimation), ci->name);
 #endif
     }
 
@@ -592,7 +592,7 @@ static void CG_SetLerpFrameAnimation(clientInfo_t* ci, lerpFrame_t* lf, animNumb
 #ifdef FINAL_BUILD
         ci->animFileIndex = 0;
 #else
-        CG_Error("Bad animFileIndex: %i for %s", ci->animFileIndex, ci->name);
+        Com_Error(errorParm_t::ERR_DROP, "Bad animFileIndex: %i for %s", ci->animFileIndex, ci->name);
 #endif
     }
 

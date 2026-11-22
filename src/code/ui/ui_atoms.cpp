@@ -241,7 +241,7 @@ void UI_Init(int apiVersion, uiimport_t* uiimport, bool inGameLoad)
     ui = *uiimport;
 
     if (apiVersion != UI_API_VERSION) {
-        ui.Error(errorParm_t::ERR_FATAL, "Bad UI_API_VERSION: expected %i, got %i\n", UI_API_VERSION, apiVersion);
+        Com_Error(errorParm_t::ERR_FATAL, "Bad UI_API_VERSION: expected %i, got %i\n", UI_API_VERSION, apiVersion);
     }
 
     // get static data (glconfig, media)

@@ -614,7 +614,7 @@ void NPC_ApplyScriptFlags(void)
     }
 }
 
-void Q3_DebugPrint(WL_e level, const char* format, ...);
+void Q3_DebugPrint(WL_e level, const char* format, ...) __attribute__((format(printf, 2, 3)));
 void NPC_HandleAIFlags(void)
 {
     // FIXME: make these flags checks a function call like NPC_CheckAIFlagsAndTimers
@@ -1738,8 +1738,8 @@ void NPC_Think(gentity_t* self) //, int msec )
 #if AI_TIMERS
         int addTime = GetTime(startTime);
         if (addTime > 50) {
-            Com_Printf(S_COLOR_RED "ERROR: NPC number %d, %s %s at %s, weaponnum: %d, using %d of AI time!!!\n", NPC->s.number, NPC->NPC_type, NPC->targetname,
-                       vtos(NPC->r.currentOrigin), NPC->s.weapon, addTime);
+            Com_PrintError("NPC number %d, %s %s at %s, weaponnum: %d, using %d of AI time!!!\n", NPC->s.number, NPC->NPC_type, NPC->targetname,
+                           vtos(NPC->r.currentOrigin), NPC->s.weapon, addTime);
         }
         AITime += addTime;
 #endif //	AI_TIMERS

@@ -251,17 +251,13 @@ static void G_RoffNotetrackCallback(gentity_t* ent, const char* notetrack)
             useOrigin[1] += up[1] * parsedOffset[2];
             useOrigin[2] += up[2] * parsedOffset[2];
 
-            if (g_developer->integer) {
-                Com_Printf(S_COLOR_GREEN "NoteTrack:  \"%s\"\n", notetrack);
-            }
+            Com_DPrintf(S_COLOR_GREEN "NoteTrack:  \"%s\"\n", notetrack);
 
             G_PlayEffect(objectID, useOrigin, useAngles);
         }
     }
     else if (strcmp(type, "sound") == 0) {
-        if (g_developer->integer) {
-            Com_Printf(S_COLOR_GREEN "NoteTrack:  \"%s\"\n", notetrack);
-        }
+        Com_DPrintf(S_COLOR_GREEN "NoteTrack:  \"%s\"\n", notetrack);
 
         // check for eType and play the sound
         if (ent->s.eType == entityType_t::ET_MOVER) {
@@ -276,9 +272,7 @@ static void G_RoffNotetrackCallback(gentity_t* ent, const char* notetrack)
         // try to cache the script
         Quake3Game()->PrecacheScript(argument);
 
-        if (g_developer->integer) {
-            Com_Printf(S_COLOR_GREEN "NoteTrack:  \"%s\"\n", notetrack);
-        }
+        Com_DPrintf(S_COLOR_GREEN "NoteTrack:  \"%s\"\n", notetrack);
 
         // run the IBI script
         Quake3Game()->RunScript(ent, argument);
@@ -318,9 +312,7 @@ static void G_RoffNotetrackCallback(gentity_t* ent, const char* notetrack)
             // Re-link entity
             gi.linkentity(ent);
 
-            if (g_developer->integer) {
-                Com_Printf(S_COLOR_GREEN "NoteTrack:  \"%s\"\n", notetrack);
-            }
+            Com_DPrintf(S_COLOR_GREEN "NoteTrack:  \"%s\"\n", notetrack);
 
             // Re-apply the ROFF
             G_Roff(ent);
@@ -342,9 +334,7 @@ static void G_RoffNotetrackCallback(gentity_t* ent, const char* notetrack)
 
             if (r2 && strstr(teststr, "kill")) { // kill the looping sound
                 ent->s.loopSound = 0;
-                if (g_developer->integer) {
-                    Com_Printf(S_COLOR_GREEN "NoteTrack:  \"%s\"\n", notetrack);
-                }
+                Com_DPrintf(S_COLOR_GREEN "NoteTrack:  \"%s\"\n", notetrack);
             }
             else if (r2 && strstr(teststr, "sound")) { // OK... we should have a relative sound path
                 // try to register the sound and add it to the entitystate loopSound parameter
@@ -352,9 +342,7 @@ static void G_RoffNotetrackCallback(gentity_t* ent, const char* notetrack)
                     objectID = cgi_S_RegisterSound(addlArg);
                     if (objectID) {
                         ent->s.loopSound = objectID;
-                        if (g_developer->integer) {
-                            Com_Printf(S_COLOR_GREEN "NoteTrack:  \"%s\"\n", notetrack);
-                        }
+                        Com_DPrintf(S_COLOR_GREEN "NoteTrack:  \"%s\"\n", notetrack);
                     }
                     else {
                         ent->s.loopSound = 0;
@@ -365,9 +353,7 @@ static void G_RoffNotetrackCallback(gentity_t* ent, const char* notetrack)
                 }
                 else {
                     ent->s.loopSound = G_SoundIndex(addlArg);
-                    if (g_developer->integer) {
-                        Com_Printf(S_COLOR_GREEN "NoteTrack:  \"%s\"\n", notetrack);
-                    }
+                    Com_DPrintf(S_COLOR_GREEN "NoteTrack:  \"%s\"\n", notetrack);
                 }
             }
             else {
@@ -383,10 +369,10 @@ static void G_RoffNotetrackCallback(gentity_t* ent, const char* notetrack)
     // else if ...
     else {
         if (type[0]) {
-            Com_Printf(S_COLOR_YELLOW "Warning: \"%s\" is an invalid ROFF NoteTrack function\n", type);
+            Com_Warning("\"%s\" is an invalid ROFF NoteTrack function\n", type);
         }
         else {
-            Com_Printf(S_COLOR_YELLOW "Warning: NoteTrack is missing function and/or arguments\n");
+            Com_Warning("NoteTrack is missing function and/or arguments\n");
         }
     }
 
@@ -501,7 +487,7 @@ static bool G_InitRoff(char* file, unsigned char* data)
             roffs[num_roffs].mNumNoteTracks = LittleLong(hdr->mNumNotes);
 
             if (roffs[num_roffs].mFrameTime < 50) {
-                Com_Printf(S_COLOR_RED "Error: \"%s\" has an invalid ROFF framerate (%d < 50)\n", file, roffs[num_roffs].mFrameTime);
+                Com_PrintError("\"%s\" has an invalid ROFF framerate (%d < 50)\n", file, roffs[num_roffs].mFrameTime);
             }
             assert(roffs[num_roffs].mFrameTime >= 50); // HAS to be at least 50 to be reliable
 
@@ -672,9 +658,7 @@ void G_Roff(gentity_t* ent)
     }
 
 #ifdef _DEBUG
-    if (g_developer->integer) {
-        Com_Printf(S_COLOR_GREEN "ROFF dat: num: %d o:<%.2f %.2f %.2f> a:<%.2f %.2f %.2f>\n", ent->roff_ctr, org[0], org[1], org[2], ang[0], ang[1], ang[2]);
-    }
+    Com_DPrintf(S_COLOR_GREEN "ROFF dat: num: %d o:<%.2f %.2f %.2f> a:<%.2f %.2f %.2f>\n", ent->roff_ctr, org[0], org[1], org[2], ang[0], ang[1], ang[2]);
 #endif
 
     if (ent->client) {
@@ -805,7 +789,7 @@ void G_LoadCachedRoffs()
         saved_game.read_chunk<int32_t>(INT_ID('S', 'L', 'E', 'N'), len);
 
         if (len < 0 || static_cast<size_t>(len) >= sizeof(buffer)) {
-            ::G_Error("invalid length for RSTR string in save game: %d bytes\n", len);
+            Com_Error(errorParm_t::ERR_DROP, "invalid length for RSTR string in save game: %d bytes\n", len);
         }
 
         saved_game.read_chunk(INT_ID('R', 'S', 'T', 'R'), buffer, len);

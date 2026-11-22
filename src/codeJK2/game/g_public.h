@@ -28,7 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <optional>
 
-inline constexpr int GAME_API_VERSION = 10;
+inline constexpr int GAME_API_VERSION = 11;
 
 // entity->svFlags
 // the server does not know how to interpret most of the values
@@ -144,15 +144,15 @@ Ghoul2 Insert End
 typedef struct {
     //============== general Quake services ==================
 
-    // print message on the local console
-    void (*Printf)(const char* fmt, ...) __attribute__((format(printf, 1, 2)));
+    // print message on the local console (formatted by the engine, q_fmt.h)
+    void (*Print)(printLevel_t level, const char* fmt, va_list args) __attribute__((format(printf, 2, 0)));
 
     // Write a camera ref_tag to cameras.map
     void (*WriteCam)(const char* text);
     void (*FlushCamFile)();
 
     // abort the game
-    NORETURN_PTR void (*Error)(errorParm_t level, const char* fmt, ...) __attribute__((format(printf, 2, 3)));
+    NORETURN_PTR void (*Error)(errorParm_t code, const char* fmt, va_list args) __attribute__((format(printf, 2, 0)));
 
     // get current time for profiling reasons
     // this should NOT be used for any game related tasks,

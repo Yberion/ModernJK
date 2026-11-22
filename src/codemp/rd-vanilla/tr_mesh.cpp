@@ -302,8 +302,7 @@ void R_AddMD3Surfaces(trRefEntity_t* ent)
     //
     if ((ent->e.frame >= tr.currentModel->md3[0]->numFrames) || (ent->e.frame < 0) || (ent->e.oldframe >= tr.currentModel->md3[0]->numFrames) ||
         (ent->e.oldframe < 0)) {
-        ri.Printf(printParm_t::PRINT_DEVELOPER, S_COLOR_RED "R_AddMD3Surfaces: no such frame %d to %d for '%s'\n", ent->e.oldframe, ent->e.frame,
-                  tr.currentModel->name);
+        Com_DPrintf(S_COLOR_RED "R_AddMD3Surfaces: no such frame %d to %d for '%s'\n", ent->e.oldframe, ent->e.frame, tr.currentModel->name);
         ent->e.frame = 0;
         ent->e.oldframe = 0;
     }
@@ -361,10 +360,10 @@ void R_AddMD3Surfaces(trRefEntity_t* ent)
                 }
             }
             if (shader == tr.defaultShader) {
-                ri.Printf(printParm_t::PRINT_DEVELOPER, S_COLOR_RED "WARNING: no shader for surface %s in skin %s\n", surface->name, skin->name);
+                Com_DPrintf(S_COLOR_RED "WARNING: no shader for surface %s in skin %s\n", surface->name, skin->name);
             }
             else if (shader->defaultShader) {
-                ri.Printf(printParm_t::PRINT_DEVELOPER, S_COLOR_RED "WARNING: shader %s in skin %s not found\n", shader->name, skin->name);
+                Com_DPrintf(S_COLOR_RED "WARNING: shader %s in skin %s not found\n", shader->name, skin->name);
             }
         }
         else if (surface->numShaders <= 0) {

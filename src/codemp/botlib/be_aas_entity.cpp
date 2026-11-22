@@ -63,7 +63,7 @@ botlibError_t AAS_UpdateEntity(int entnum, bot_entitystate_t* state)
     vec3_t absmins, absmaxs;
 
     if (!aasworld.loaded) {
-        botimport.Print(printType_t::PRT_MESSAGE, "AAS_UpdateEntity: not loaded\n");
+        Com_Printf("AAS_UpdateEntity: not loaded\n");
         return botlibError_t::BLERR_NOAASFILE;
     } // end if
 
@@ -160,13 +160,13 @@ botlibError_t AAS_UpdateEntity(int entnum, bot_entitystate_t* state)
 void AAS_EntityInfo(int entnum, aas_entityinfo_t* info)
 {
     if (!aasworld.initialized) {
-        botimport.Print(printType_t::PRT_FATAL, "AAS_EntityInfo: aasworld not initialized\n");
+        Com_PrintError("AAS_EntityInfo: aasworld not initialized\n");
         Com_Memset(info, 0, sizeof(aas_entityinfo_t));
         return;
     } // end if
 
     if (entnum < 0 || entnum >= aasworld.maxentities) {
-        botimport.Print(printType_t::PRT_FATAL, "AAS_EntityInfo: entnum %d out of range\n", entnum);
+        Com_PrintError("AAS_EntityInfo: entnum %d out of range\n", entnum);
         Com_Memset(info, 0, sizeof(aas_entityinfo_t));
         return;
     } // end if
@@ -182,7 +182,7 @@ void AAS_EntityInfo(int entnum, aas_entityinfo_t* info)
 void AAS_EntityOrigin(int entnum, vec3_t origin)
 {
     if (entnum < 0 || entnum >= aasworld.maxentities) {
-        botimport.Print(printType_t::PRT_FATAL, "AAS_EntityOrigin: entnum %d out of range\n", entnum);
+        Com_PrintError("AAS_EntityOrigin: entnum %d out of range\n", entnum);
         VectorClear(origin);
         return;
     } // end if
@@ -198,7 +198,7 @@ void AAS_EntityOrigin(int entnum, vec3_t origin)
 int AAS_EntityModelindex(int entnum)
 {
     if (entnum < 0 || entnum >= aasworld.maxentities) {
-        botimport.Print(printType_t::PRT_FATAL, "AAS_EntityModelindex: entnum %d out of range\n", entnum);
+        Com_PrintError("AAS_EntityModelindex: entnum %d out of range\n", entnum);
         return 0;
     } // end if
     return aasworld.entities[entnum].i.modelindex;
@@ -215,7 +215,7 @@ entityType_t AAS_EntityType(int entnum)
         return entityType_t::ET_GENERAL;
 
     if (entnum < 0 || entnum >= aasworld.maxentities) {
-        botimport.Print(printType_t::PRT_FATAL, "AAS_EntityType: entnum %d out of range\n", entnum);
+        Com_PrintError("AAS_EntityType: entnum %d out of range\n", entnum);
         return entityType_t::ET_GENERAL;
     } // end if
     return aasworld.entities[entnum].i.type;
@@ -232,7 +232,7 @@ int AAS_EntityModelNum(int entnum)
         return 0;
 
     if (entnum < 0 || entnum >= aasworld.maxentities) {
-        botimport.Print(printType_t::PRT_FATAL, "AAS_EntityModelNum: entnum %d out of range\n", entnum);
+        Com_PrintError("AAS_EntityModelNum: entnum %d out of range\n", entnum);
         return 0;
     } // end if
     return aasworld.entities[entnum].i.modelindex;
@@ -273,7 +273,7 @@ void AAS_EntitySize(int entnum, vec3_t mins, vec3_t maxs)
         return;
 
     if (entnum < 0 || entnum >= aasworld.maxentities) {
-        botimport.Print(printType_t::PRT_FATAL, "AAS_EntitySize: entnum %d out of range\n", entnum);
+        Com_PrintError("AAS_EntitySize: entnum %d out of range\n", entnum);
         return;
     } // end if
 

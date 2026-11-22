@@ -552,9 +552,9 @@ void Sys_PlatformInit(int argc, char* argv[])
         timerResolution = ptc.wPeriodMin;
 
         if (timerResolution > 1) {
-            Com_Printf("Warning: Minimum supported timer resolution is %ums "
-                       "on this system, recommended resolution 1ms\n",
-                       timerResolution);
+            Com_Warning("Minimum supported timer resolution is %ums "
+                        "on this system, recommended resolution 1ms\n",
+                        timerResolution);
         }
 
         timeBeginPeriod(timerResolution);
@@ -574,7 +574,7 @@ void Sys_PlatformInit(int argc, char* argv[])
     maxfds = _setmaxstdio(maxfds);
 
     if (maxfds == -1) {
-        Com_Printf("Warning: Failed to increase open file limit. %s\n", strerror(errno));
+        Com_Warning("Failed to increase open file limit. %s\n", strerror(errno));
     }
 }
 

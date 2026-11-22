@@ -286,7 +286,7 @@ gentity_t* SelectSpawnPoint(vec3_t avoidPoint, team_t team, vec3_t origin, vec3_
 
     if (level.spawntarget[0]) {                                                                       // we have a spawnpoint specified, try to find it
         if ((nearestSpot = spot = G_Find(nullptr, FOFS(targetname), level.spawntarget)) == nullptr) { // you HAVE to be able to find the desired spot
-            G_Error("Couldn't find spawntarget %s\n", level.spawntarget);
+            Com_Error(errorParm_t::ERR_DROP, "Couldn't find spawntarget %s\n", level.spawntarget);
             return nullptr;
         }
     }
@@ -302,7 +302,7 @@ gentity_t* SelectSpawnPoint(vec3_t avoidPoint, team_t team, vec3_t origin, vec3_
 
     // find a single player start spot
     if (!spot) {
-        G_Error("Couldn't find a spawn point\n");
+        Com_Error(errorParm_t::ERR_DROP, "Couldn't find a spawn point\n");
     }
 
     VectorCopy(spot->s.origin, origin);
@@ -1608,7 +1608,7 @@ void G_SetG2PlayerModel(gentity_t* const ent, const char* modelName, const char*
                                                     G_ModelIndex(va("models/players/%s/model.glm", modelName)), G_SkinIndex(skinName), NULL_HANDLE, 0, 0);
     }
     if (ent->playerModel == -1) { // try the stormtrooper as a default
-        gi.Printf(S_COLOR_RED "G_SetG2PlayerModel: cannot load model %s\n", modelName);
+        Com_Printf(S_COLOR_RED "G_SetG2PlayerModel: cannot load model %s\n", modelName);
         modelName = "stormtrooper";
         Com_sprintf(skinName, sizeof(skinName), "models/players/%s/model_default.skin", modelName);
         skin = gi.RE_RegisterSkin(skinName);
@@ -1825,7 +1825,7 @@ void G_ChangePlayerModel(gentity_t* ent, const char* newModel)
             }
         }
         else {
-            gi.Printf(S_COLOR_RED "G_ChangePlayerModel: cannot find NPC %s\n", newModel);
+            Com_Printf(S_COLOR_RED "G_ChangePlayerModel: cannot find NPC %s\n", newModel);
             G_ChangePlayerModel(ent, "stormtrooper"); // need a better fallback?
         }
     }

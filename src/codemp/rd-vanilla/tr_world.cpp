@@ -1530,7 +1530,7 @@ static void R_MarkLeaves(void)
     if (r_showcluster->modified || r_showcluster->integer) {
         r_showcluster->modified = false;
         if (r_showcluster->integer) {
-            ri.Printf(printParm_t::PRINT_ALL, "cluster:%i  area:%i\n", cluster, leaf->area);
+            Com_Printf("cluster:%i  area:%i\n", cluster, leaf->area);
         }
     }
 

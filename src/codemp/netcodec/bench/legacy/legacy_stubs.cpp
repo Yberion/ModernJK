@@ -38,6 +38,11 @@ void QDECL Com_Printf(const char* fmt, ...)
     (void)fmt;
 }
 
+void QDECL Com_Warning(const char* fmt, ...)
+{
+    (void)fmt;
+}
+
 void NORETURN QDECL Com_Error(errorParm_t code, const char* fmt, ...)
 {
     va_list ap;

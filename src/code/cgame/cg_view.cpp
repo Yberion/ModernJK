@@ -117,7 +117,7 @@ void CG_TestG2Model_f(void)
         cg.testModelEntity.oldframe = 0;
     }
     if (!cg.testModelEntity.hModel) {
-        CG_Printf("Can't register model\n");
+        Com_Printf("Can't register model\n");
         return;
     }
 
@@ -231,7 +231,7 @@ void CG_TestModel_f(void)
         cg.testModelEntity.oldframe = 0;
     }
     if (!cg.testModelEntity.hModel) {
-        CG_Printf("Can't register model\n");
+        Com_Printf("Can't register model\n");
         return;
     }
 
@@ -247,7 +247,7 @@ void CG_TestModel_f(void)
 void CG_TestModelNextFrame_f(void)
 {
     cg.testModelEntity.frame++;
-    CG_Printf("frame %i\n", cg.testModelEntity.frame);
+    Com_Printf("frame %i\n", cg.testModelEntity.frame);
 }
 
 void CG_TestModelPrevFrame_f(void)
@@ -256,13 +256,13 @@ void CG_TestModelPrevFrame_f(void)
     if (cg.testModelEntity.frame < 0) {
         cg.testModelEntity.frame = 0;
     }
-    CG_Printf("frame %i\n", cg.testModelEntity.frame);
+    Com_Printf("frame %i\n", cg.testModelEntity.frame);
 }
 
 void CG_TestModelNextSkin_f(void)
 {
     cg.testModelEntity.skinNum++;
-    CG_Printf("skin %i\n", cg.testModelEntity.skinNum);
+    Com_Printf("skin %i\n", cg.testModelEntity.skinNum);
 }
 
 void CG_TestModelPrevSkin_f(void)
@@ -271,7 +271,7 @@ void CG_TestModelPrevSkin_f(void)
     if (cg.testModelEntity.skinNum < 0) {
         cg.testModelEntity.skinNum = 0;
     }
-    CG_Printf("skin %i\n", cg.testModelEntity.skinNum);
+    Com_Printf("skin %i\n", cg.testModelEntity.skinNum);
 }
 
 static void CG_AddTestModel(void)
@@ -279,7 +279,7 @@ static void CG_AddTestModel(void)
     // re-register the model, because the level may have changed
     /*	cg.testModelEntity.hModel = cgi_R_RegisterModel( cg.testModelName );
         if (! cg.testModelEntity.hModel ) {
-            CG_Printf ("Can't register model\n");
+            Com_Printf("Can't register model\n");
             return;
         }
     */
@@ -1653,43 +1653,43 @@ static void CG_DrawSkyBoxPortal(void)
     COM_BeginParseSession();
     token = COM_ParseExt(&cstr, false);
     if (!token || !token[0]) {
-        CG_Error("CG_DrawSkyBoxPortal: error parsing skybox configstring\n");
+        Com_Error(errorParm_t::ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring\n");
     }
     cg.refdef.vieworg[0] = Q_atof(token);
 
     token = COM_ParseExt(&cstr, false);
     if (!token || !token[0]) {
-        CG_Error("CG_DrawSkyBoxPortal: error parsing skybox configstring\n");
+        Com_Error(errorParm_t::ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring\n");
     }
     cg.refdef.vieworg[1] = Q_atof(token);
 
     token = COM_ParseExt(&cstr, false);
     if (!token || !token[0]) {
-        CG_Error("CG_DrawSkyBoxPortal: error parsing skybox configstring\n");
+        Com_Error(errorParm_t::ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring\n");
     }
     cg.refdef.vieworg[2] = Q_atof(token);
 
     // setup fog the first time, ignore this part of the configstring after that
     token = COM_ParseExt(&cstr, false);
     if (!token || !token[0]) {
-        CG_Error("CG_DrawSkyBoxPortal: error parsing skybox configstring.  No fog state\n");
+        Com_Error(errorParm_t::ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring.  No fog state\n");
     }
     else {
         if (atoi(token)) {
             // this camera has fog
             token = COM_ParseExt(&cstr, false);
             if (!VALIDSTRING(token)) {
-                CG_Error("CG_DrawSkyBoxPortal: error parsing skybox configstring.  No fog[0]\n");
+                Com_Error(errorParm_t::ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring.  No fog[0]\n");
             }
 
             token = COM_ParseExt(&cstr, false);
             if (!VALIDSTRING(token)) {
-                CG_Error("CG_DrawSkyBoxPortal: error parsing skybox configstring.  No fog[1]\n");
+                Com_Error(errorParm_t::ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring.  No fog[1]\n");
             }
 
             token = COM_ParseExt(&cstr, false);
             if (!VALIDSTRING(token)) {
-                CG_Error("CG_DrawSkyBoxPortal: error parsing skybox configstring.  No fog[2]\n");
+                Com_Error(errorParm_t::ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring.  No fog[2]\n");
             }
 
             COM_ParseExt(&cstr, false);

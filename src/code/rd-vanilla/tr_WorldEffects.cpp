@@ -554,7 +554,7 @@ public:
             return f;
         }
         else {
-            ri.Printf(printParm_t::PRINT_WARNING, "(Unable to open weather file \"%s\" for writing!)\n", GenCachedWeatherFilename());
+            Com_Warning("(Unable to open weather file \"%s\" for writing!)\n", GenCachedWeatherFilename());
         }
 
         return 0;
@@ -580,11 +580,11 @@ public:
                 return f;
             }
 
-            ri.Printf(printParm_t::PRINT_WARNING, "( Cached weather file \"%s\" out of date, regenerating... )\n", GenCachedWeatherFilename());
+            Com_Warning("( Cached weather file \"%s\" out of date, regenerating... )\n", GenCachedWeatherFilename());
             ri.FS_FCloseFile(f);
         }
         else {
-            ri.Printf(printParm_t::PRINT_WARNING, "( No cached weather file found, generating... )\n");
+            Com_Warning("( No cached weather file found, generating... )\n");
         }
 
         return 0;
@@ -602,7 +602,7 @@ public:
         // Record The Extents Of The World Incase No Other Weather Zones Exist
         //---------------------------------------------------------------------
         if (!mWeatherZones.size()) {
-            Com_Printf("WARNING: No Weather Zones Encountered\n");
+            Com_Warning("No Weather Zones Encountered\n");
             AddWeatherZone(tr.world->bmodels[0].bounds[0], tr.world->bmodels[0].bounds[1]);
         }
 
@@ -1445,7 +1445,7 @@ bool WE_ParseVector(const char** text, int count, float* v)
     COM_BeginParseSession();
     token = COM_ParseExt(text, false);
     if (strcmp(token, "(")) {
-        Com_Printf("^3WARNING: missing parenthesis in weather effect\n");
+        Com_Warning("missing parenthesis in weather effect\n");
         COM_EndParseSession();
         return false;
     }
@@ -1453,7 +1453,7 @@ bool WE_ParseVector(const char** text, int count, float* v)
     for (i = 0; i < count; i++) {
         token = COM_ParseExt(text, false);
         if (!token[0]) {
-            Com_Printf("^3WARNING: missing vector element in weather effect\n");
+            Com_Warning("missing vector element in weather effect\n");
             COM_EndParseSession();
             return false;
         }
@@ -1463,7 +1463,7 @@ bool WE_ParseVector(const char** text, int count, float* v)
     token = COM_ParseExt(text, false);
     COM_EndParseSession();
     if (strcmp(token, ")")) {
-        Com_Printf("^3WARNING: missing parenthesis in weather effect\n");
+        Com_Warning("missing parenthesis in weather effect\n");
         return false;
     }
     return true;

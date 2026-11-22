@@ -60,7 +60,7 @@ void CG_PrecacheSiegeObjectiveAssetsForTeam(team_t myTeam)
     char foundobjective[MAX_SIEGE_INFO_SIZE];
 
     if (!siege_valid) {
-        trap->Error(errorParm_t::ERR_DROP, "Siege data does not exist on client!\n");
+        Com_Error(errorParm_t::ERR_DROP, "Siege data does not exist on client!\n");
         return;
     }
 
@@ -221,7 +221,7 @@ void CG_InitSiegeMode(void)
         }
     }
     else {
-        trap->Error(errorParm_t::ERR_DROP, "Siege teams not defined");
+        Com_Error(errorParm_t::ERR_DROP, "Siege teams not defined");
     }
 
     if (BG_SiegeGetValueGroup(siege_info, team1, teamInfo)) {
@@ -238,7 +238,7 @@ void CG_InitSiegeMode(void)
         }
     }
     else {
-        trap->Error(errorParm_t::ERR_DROP, "No team entry for '%s'\n", team1);
+        Com_Error(errorParm_t::ERR_DROP, "No team entry for '%s'\n", team1);
     }
 
     if (BG_SiegeGetPairedValue(siege_info, "mapgraphic", teamInfo)) {
@@ -269,21 +269,21 @@ void CG_InitSiegeMode(void)
         }
     }
     else {
-        trap->Error(errorParm_t::ERR_DROP, "No team entry for '%s'\n", team2);
+        Com_Error(errorParm_t::ERR_DROP, "No team entry for '%s'\n", team2);
     }
 
     // Load the player class types
     BG_SiegeLoadClasses(nullptr);
 
     if (!bgNumSiegeClasses) { // We didn't find any?!
-        trap->Error(errorParm_t::ERR_DROP, "Couldn't find any player classes for Siege");
+        Com_Error(errorParm_t::ERR_DROP, "Couldn't find any player classes for Siege");
     }
 
     // Now load the teams since we have class data.
     BG_SiegeLoadTeams();
 
     if (!bgNumSiegeTeams) { // React same as with classes.
-        trap->Error(errorParm_t::ERR_DROP, "Couldn't find any player teams for Siege");
+        Com_Error(errorParm_t::ERR_DROP, "Couldn't find any player teams for Siege");
     }
 
     // Get and set the team themes for each team. This will control which classes can be
@@ -496,7 +496,7 @@ void CG_SiegeRoundOver(centity_t* ent, team_t won)
     playerState_t* ps = nullptr;
 
     if (!siege_valid) {
-        trap->Error(errorParm_t::ERR_DROP, "ERROR: Siege data does not exist on client!\n");
+        Com_Error(errorParm_t::ERR_DROP, "ERROR: Siege data does not exist on client!\n");
         return;
     }
 
@@ -760,7 +760,7 @@ void CG_SiegeObjectiveCompleted(centity_t* ent, team_t won, int objectivenum)
     playerState_t* ps = nullptr;
 
     if (!siege_valid) {
-        trap->Error(errorParm_t::ERR_DROP, "Siege data does not exist on client!\n");
+        Com_Error(errorParm_t::ERR_DROP, "Siege data does not exist on client!\n");
         return;
     }
 

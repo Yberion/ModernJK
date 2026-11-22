@@ -531,7 +531,6 @@ void DeathmatchScoreboardMessage(gentity_t* client);
 // g_main.cpp
 //
 void G_RunThink(gentity_t* ent);
-void NORETURN QDECL G_Error(const char* fmt, ...) __attribute__((format(printf, 1, 2)));
 void SetInUse(gentity_t* ent);
 void ClearInUse(gentity_t* ent);
 bool PInUse(unsigned int entNum);

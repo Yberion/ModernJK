@@ -1001,7 +1001,7 @@ void G_ScenarioPrintStats(void)
                     scnStats.forceGained[n], scnStats.forceSpent[n], scnStats.airborne[n], scnStats.knockedDown[n], scnStats.mindTricked[n],
                     scnStats.saberLocked[n], scnStats.path[n], scnStats.end[n][0], scnStats.end[n][1], scnStats.end[n][2]));
     }
-    trap->Print("%s\n", line);
+    Com_Printf("%s\n", line);
     // the game types: what the counted repetitions added to the scores
     Q_strncpyz(line, "score statistics: score and captures gained by role, red and blue team scores gained:", sizeof(line));
     for (int n = 0; n < scn.numClients; n++) {
@@ -1014,7 +1014,7 @@ void G_ScenarioPrintStats(void)
     Q_strcat(
         line, sizeof(line),
         va(", teams %d %d", level.teamScores[team_t::TEAM_RED] - scnStats.teamScoreStart[0], level.teamScores[team_t::TEAM_BLUE] - scnStats.teamScoreStart[1]));
-    trap->Print("%s\n", line);
+    Com_Printf("%s\n", line);
     // teams and spectators
     Q_strncpyz(line,
                "team statistics: team changes, instants as a free spectator and distance moved, instants following "
@@ -1028,7 +1028,7 @@ void G_ScenarioPrintStats(void)
                  va("%s %s %d %d %.0f %d %d %d %.0f", n ? "," : "", roles[n], scnStats.teamChanges[n], scnStats.freeSpectator[n], scnStats.freePath[n],
                     scnStats.following[n][0], scnStats.following[n][1], scnStats.following[n][2], scnStats.followGap[n]));
     }
-    trap->Print("%s\n", line);
+    Com_Printf("%s\n", line);
     // the items
     Q_strncpyz(line, "item statistics: items picked up:", sizeof(line));
     for (int i = 1; i < bg_numItems; i++) {
@@ -1050,7 +1050,7 @@ void G_ScenarioPrintStats(void)
                  va("%s %s %d %d %d %d %d %d %d", n ? "," : "", roles[n], scnStats.armorGained[n], scnStats.armorLost[n], scnStats.ammoGained[n],
                     scnStats.ammoSpent[n], scnStats.cloaked[n], scnStats.jetpack[n], scnStats.zoomed[n]));
     }
-    trap->Print("%s\n", line);
+    Com_Printf("%s\n", line);
     // the vehicles
     Q_strncpyz(line, "vehicle statistics: health taken from the NPCs and vehicles, by cause:", sizeof(line));
     for (meansOfDeath_t mod = meansOfDeath_t::MOD_UNKNOWN; mod < meansOfDeath_t::MOD_MAX; mod++) {
@@ -1066,13 +1066,13 @@ void G_ScenarioPrintStats(void)
         Q_strcat(line, sizeof(line),
                  va("%s %s %d %d %d %.0f", n ? "," : "", roles[n], scnStats.boardings[n], scnStats.exits[n], scnStats.aboard[n], scnStats.aboardPath[n]));
     }
-    trap->Print("%s\n", line);
+    Com_Printf("%s\n", line);
     // the NPCs
     Q_strncpyz(line, "npc statistics: instants held by a monster, as the NPC's enemy and in a pain animation, by role:", sizeof(line));
     for (int n = 0; n < scn.numClients; n++) {
         Q_strcat(line, sizeof(line), va("%s %s %d %d %d", n ? "," : "", roles[n], scnStats.heldByMonster[n], scnStats.npcEnemy[n], scnStats.inPain[n]));
     }
-    trap->Print("%s\n", line);
+    Com_Printf("%s\n", line);
     // the shots: the hits by location, the location's name with its spaces as underscores
     Q_strncpyz(line, "hit location statistics: hits by location, by role:", sizeof(line));
     for (int n = 0; n < scn.numClients; n++) {
@@ -1091,7 +1091,7 @@ void G_ScenarioPrintStats(void)
             }
         }
     }
-    trap->Print("%s\n", line);
+    Com_Printf("%s\n", line);
 }
 
 // a hit's location on a bot or an NPC of the scenario (G_LocationBasedDamageModifier), counted by role
@@ -1455,7 +1455,7 @@ void G_ScenarioFrame(void)
         G_ScenarioEndRepetition();
     }
     if (scn.rep >= scn.reps) {
-        trap->Print("scenario done: %d repetitions\n", scn.rep);
+        Com_Printf("scenario done: %d repetitions\n", scn.rep);
         Svcmd_GameStats_f();
         G_ScenarioFreeSpawned();
         if (scn.spectatorMode != spectatorMode_t::SPEC_NONE) { // still a bot for the next scenario (StopFollowing)
@@ -1467,7 +1467,7 @@ void G_ScenarioFrame(void)
     for (i = 0; i < SCN_SPECTATOR + 1; i++) {
         if ((i < scn.numClients || (i == SCN_SPECTATOR && scn.spectatorMode != spectatorMode_t::SPEC_NONE)) && !(i == 1 && scn.npcType[0]) &&
             !g_entities[scn.client[i]].inuse) {
-            trap->Print("scenario stopped: a bot left\n");
+            Com_Printf("scenario stopped: a bot left\n");
             scn.type = scenarioType_t::SCN_NONE;
             return;
         }
@@ -1501,7 +1501,7 @@ void G_ScenarioFrame(void)
     if (scn.npcType[0]) { // a new NPC in the defender's slot, once the bot stands in its place
         scn.npc = G_ScenarioSpawnNPC();
         if (!scn.npc) {
-            trap->Print("scenario stopped: the NPC could not be spawned\n");
+            Com_Printf("scenario stopped: the NPC could not be spawned\n");
             scn.type = scenarioType_t::SCN_NONE;
             return;
         }
@@ -1643,10 +1643,10 @@ void G_ScenarioTrace(void)
         const playerState_t* ps = &ent->client->ps;
         const bladeInfo_t* blade = &ent->client->saber[0].blade[0];
 
-        trap->Print("SCN %d %4d %c cmd%+d hp%d fp%d mv%d blk%d wt%d ta%d tt%d la%d lt%d o%.1f,%.1f,%.1f m%.1f,%.1f,%.1f\n", scn.rep, level.time - scn.repStart,
-                    "ADT"[n], ps->commandTime - level.time, ent->health, ps->fd.forcePower, to_underlying(ps->saberMove), to_underlying(ps->saberBlocked),
-                    ps->weaponTime, to_underlying(ps->torsoAnim), ps->torsoTimer, to_underlying(ps->legsAnim), ps->legsTimer, ps->origin[0], ps->origin[1],
-                    ps->origin[2], blade->muzzlePoint[0], blade->muzzlePoint[1], blade->muzzlePoint[2]);
+        Com_Printf("SCN %d %4d %c cmd%+d hp%d fp%d mv%d blk%d wt%d ta%d tt%d la%d lt%d o%.1f,%.1f,%.1f m%.1f,%.1f,%.1f\n", scn.rep, level.time - scn.repStart,
+                   "ADT"[n], ps->commandTime - level.time, ent->health, ps->fd.forcePower, to_underlying(ps->saberMove), to_underlying(ps->saberBlocked),
+                   ps->weaponTime, to_underlying(ps->torsoAnim), ps->torsoTimer, to_underlying(ps->legsAnim), ps->legsTimer, ps->origin[0], ps->origin[1],
+                   ps->origin[2], blade->muzzlePoint[0], blade->muzzlePoint[1], blade->muzzlePoint[2]);
     }
 }
 
@@ -1656,11 +1656,11 @@ void G_ScenarioDamageTrace(gentity_t* targ, gentity_t* inflictor, const vec3_t p
     if (scn.type == scenarioType_t::SCN_NONE || scn.done || scn.rep < 1 || scn.rep > scn.traceReps) {
         return;
     }
-    trap->Print("SCN %d %4d dmg tick%+d targ%d take%d mod%d surf%d@%+d inf%d p%.1f,%.1f,%.1f io%.1f,%.1f,%.1f\n", scn.rep, level.time - scn.repStart,
-                level.tickTime - level.time, targ->s.number, take, to_underlying(mod), targ->client->g2LastSurfaceHit,
-                targ->client->g2LastSurfaceTime - level.time, inflictor ? inflictor->s.number : -1, point ? point[0] : 0.0f, point ? point[1] : 0.0f,
-                point ? point[2] : 0.0f, inflictor ? inflictor->r.currentOrigin[0] : 0.0f, inflictor ? inflictor->r.currentOrigin[1] : 0.0f,
-                inflictor ? inflictor->r.currentOrigin[2] : 0.0f);
+    Com_Printf("SCN %d %4d dmg tick%+d targ%d take%d mod%d surf%d@%+d inf%d p%.1f,%.1f,%.1f io%.1f,%.1f,%.1f\n", scn.rep, level.time - scn.repStart,
+               level.tickTime - level.time, targ->s.number, take, to_underlying(mod), targ->client->g2LastSurfaceHit,
+               targ->client->g2LastSurfaceTime - level.time, inflictor ? inflictor->s.number : -1, point ? point[0] : 0.0f, point ? point[1] : 0.0f,
+               point ? point[2] : 0.0f, inflictor ? inflictor->r.currentOrigin[0] : 0.0f, inflictor ? inflictor->r.currentOrigin[1] : 0.0f,
+               inflictor ? inflictor->r.currentOrigin[2] : 0.0f);
 }
 
 // the view from a bot's eyes towards a point
@@ -2258,7 +2258,7 @@ void Svcmd_Scenario_f(void)
         return;
     }
     if (!trap->Cvar_VariableIntegerValue("sv_cheats")) {
-        trap->Print("scenario: needs sv_cheats 1 (devmap)\n");
+        Com_Printf("scenario: needs sv_cheats 1 (devmap)\n");
         return;
     }
 
@@ -2306,7 +2306,7 @@ void Svcmd_Scenario_f(void)
         }
         if (scn.npcType[0]) { // one bot and the NPC, whose number its spawn gives
             if (!n) {
-                trap->Print("scenario: needs a bot\n");
+                Com_Printf("scenario: needs a bot\n");
                 return;
             }
             scn.client[1] = ENTITYNUM_NONE;
@@ -2314,7 +2314,7 @@ void Svcmd_Scenario_f(void)
             ally = false;
         }
         if (!defender) {
-            trap->Print("scenario: needs two bots\n");
+            Com_Printf("scenario: needs two bots\n");
             return;
         }
         scn.numClients = ally ? 3 : 2;
@@ -2322,7 +2322,7 @@ void Svcmd_Scenario_f(void)
             const int enemy = scn.client[1];
 
             if (!ally) {
-                trap->Print("scenario: target=ally needs a team game and a third bot, a teammate of the first\n");
+                Com_Printf("scenario: target=ally needs a team game and a third bot, a teammate of the first\n");
                 return;
             }
             scn.client[1] = scn.client[2];
@@ -2383,7 +2383,7 @@ void Svcmd_Scenario_f(void)
             }
         }
         if ((scn.power == forcePowers_t::FP_TEAM_HEAL || scn.power == forcePowers_t::FP_TEAM_FORCE) && scn.numClients < 3) {
-            trap->Print("scenario: the team powers need a team game and a third bot, a teammate of the first\n");
+            Com_Printf("scenario: the team powers need a team game and a third bot, a teammate of the first\n");
             return;
         }
         scn.level = static_cast<forcePowerLevels_t>(Q_max(1, Q_min(3, G_ScenarioArgInt(4, 3))));
@@ -2394,7 +2394,7 @@ void Svcmd_Scenario_f(void)
     else if (!Q_stricmp(type, "weapon")) {
         scn.weapon = static_cast<weapon_t>(atoi(arg));
         if (scn.weapon <= weapon_t::WP_NONE || scn.weapon >= weapon_t::WP_NUM_WEAPONS) {
-            trap->Print("scenario: bad weapon number\n");
+            Com_Printf("scenario: bad weapon number\n");
             return;
         }
         scn.fire = Q_max(0, Q_min(2, G_ScenarioArgInt(4, 0)));
@@ -2419,7 +2419,7 @@ void Svcmd_Scenario_f(void)
         while ((o = G_Find(o, FOFS(classname), "info_siege_objective")) != nullptr && (o->objective != number || o->side != team)) {
         }
         if (!o) {
-            trap->Print("scenario: no siege objective %d of the attacker's team\n", number);
+            Com_Printf("scenario: no siege objective %d of the attacker's team\n", number);
             return;
         }
         scn.objective = o;
@@ -2428,7 +2428,7 @@ void Svcmd_Scenario_f(void)
     }
     else if (!Q_stricmp(type, "team")) {
         if (level.gametype != gametype_t::GT_TEAM && level.gametype != gametype_t::GT_CTF && level.gametype != gametype_t::GT_CTY) {
-            trap->Print("scenario: team needs a team game, CTF or CTY\n");
+            Com_Printf("scenario: team needs a team game, CTF or CTY\n");
             return;
         }
         scn.dist = (float)G_ScenarioArgInt(4, 128);
@@ -2463,7 +2463,7 @@ void Svcmd_Scenario_f(void)
             }
         }
         if (scn.holdable == holdable_t::HI_NONE) {
-            trap->Print("scenario: holdable seeker, shield, medpac, medpac_big, binoculars, sentry, jetpack, healthdisp, ammodisp, eweb or cloak\n");
+            Com_Printf("scenario: holdable seeker, shield, medpac, medpac_big, binoculars, sentry, jetpack, healthdisp, ammodisp, eweb or cloak\n");
             return;
         }
         scn.dist = (float)G_ScenarioArgInt(4, 256);
@@ -2488,14 +2488,14 @@ void Svcmd_Scenario_f(void)
         scn.type = scenarioType_t::SCN_NPC;
     }
     else {
-        trap->Print("scenario: saber, force, weapon, turret, flag, objective, team, spectate, holdable, item, vehicle, npc or off\n");
+        Com_Printf("scenario: saber, force, weapon, turret, flag, objective, team, spectate, holdable, item, vehicle, npc or off\n");
         return;
     }
     if (scn.type != scenarioType_t::SCN_ITEM) {
         G_ScenarioOptString("item", scn.itemClass, sizeof(scn.itemClass));
     }
     if (scn.itemClass[0] && (!scn.pickupDist || !BG_FindItem(scn.itemClass))) {
-        trap->Print("scenario: an item needs pickup= and an item's classname\n");
+        Com_Printf("scenario: an item needs pickup= and an item's classname\n");
         scn.type = scenarioType_t::SCN_NONE;
         return;
     }
@@ -2503,7 +2503,7 @@ void Svcmd_Scenario_f(void)
         const int bot = (specBot >= 0) ? specBot : spare;
 
         if (bot < 0) {
-            trap->Print("scenario: the spectator needs a bot spectator or a bot without a role\n");
+            Com_Printf("scenario: the spectator needs a bot spectator or a bot without a role\n");
             scn.type = scenarioType_t::SCN_NONE;
             return;
         }
@@ -2518,15 +2518,15 @@ void Svcmd_Scenario_f(void)
         }
     }
     if (scn.type == scenarioType_t::SCN_VEHICLE && BG_VehicleGetIndex(scn.vehicleType) == VEHICLE_NONE) {
-        trap->Print("scenario: no vehicle %s in ext_data/vehicles\n", scn.vehicleType);
+        Com_Printf("scenario: no vehicle %s in ext_data/vehicles\n", scn.vehicleType);
         scn.type = scenarioType_t::SCN_NONE;
         return;
     }
     if (!G_ScenarioFindPlace()) {
-        trap->Print("scenario: no open spawn point for a distance of %.0f%s\n", scn.dist,
-                    (scn.type == scenarioType_t::SCN_VEHICLE) ? ", the vehicle between the bots"
-                    : scn.npcType[0]                          ? ", the NPC's box clear of the attacker's and of the world (or no such NPC)"
-                                                              : "");
+        Com_Printf("scenario: no open spawn point for a distance of %.0f%s\n", scn.dist,
+                   (scn.type == scenarioType_t::SCN_VEHICLE) ? ", the vehicle between the bots"
+                   : scn.npcType[0]                          ? ", the NPC's box clear of the attacker's and of the world (or no such NPC)"
+                                                             : "");
         scn.type = scenarioType_t::SCN_NONE;
         return;
     }
@@ -2559,7 +2559,7 @@ void Svcmd_Scenario_f(void)
             }
         }
         if (!scn.spawned[0]) {
-            trap->Print("scenario: the entity could not be spawned\n");
+            Com_Printf("scenario: the entity could not be spawned\n");
             scn.type = scenarioType_t::SCN_NONE;
             return;
         }
@@ -2595,16 +2595,16 @@ void Svcmd_Scenario_f(void)
             }
         }
         if (!scn.pickup) {
-            trap->Print("scenario: pickup= needs an item, a force scenario in a holocron game, a Jedi Master game, or a CTF or CTY game\n");
+            Com_Printf("scenario: pickup= needs an item, a force scenario in a holocron game, a Jedi Master game, or a CTF or CTY game\n");
             scn.type = scenarioType_t::SCN_NONE;
             return;
         }
     }
     if (scn.type == scenarioType_t::SCN_FLAG && !scn.ownFlag) {
-        trap->Print("scenario: flag needs a CTF or CTY game and pickup=\n");
+        Com_Printf("scenario: flag needs a CTF or CTY game and pickup=\n");
         scn.type = scenarioType_t::SCN_NONE;
         return;
     }
     scn.traceReps = trap->Cvar_VariableIntegerValue("scenario_trace");
-    trap->Print("scenario %s: %d repetitions of %d ms, bots %d and %d, distance %.0f\n", type, scn.reps, scn.repMsec, scn.client[0], scn.client[1], scn.dist);
+    Com_Printf("scenario %s: %d repetitions of %d ms, bots %d and %d, distance %.0f\n", type, scn.reps, scn.repMsec, scn.client[0], scn.client[1], scn.dist);
 }

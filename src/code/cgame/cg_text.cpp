@@ -210,7 +210,7 @@ void CG_CaptionText(const char* str, int sound)
     holds = strrchr(str, '/');
     if (!holds) {
 #ifndef FINAL_BUILD
-        Com_Printf("WARNING: CG_CaptionText given audio filename with no '/':'%s'\n", str);
+        Com_Warning("CG_CaptionText given audio filename with no '/':'%s'\n", str);
 #endif
         return;
     }
@@ -221,7 +221,7 @@ void CG_CaptionText(const char* str, int sound)
         // we only care about some sound dirs...
         if (!Q_stricmpn(str, "sound/chars/", 12)) // whichever language it is, it'll be pathed as english at this point
         {
-            Com_Printf("WARNING: CG_CaptionText given invalid text key: '%s'\n", str);
+            Com_Warning("CG_CaptionText given invalid text key: '%s'\n", str);
         }
         else {
             // anything else is probably stuff we don't care about. It certainly shouldn't be speech, anyway
@@ -345,9 +345,7 @@ void CG_CaptionText(const char* str, int sound)
     cg.scrollTextTime = 0; // No scrolling during captions
 
     // Echo to console in dev mode
-    if (cg_developer.integer) {
-        Com_Printf("%s\n", cg.captionText[0]); // ste:  was [i], but surely sentence 0 is more useful than last?
-    }
+    Com_DPrintf("%s\n", cg.captionText[0]); // ste:  was [i], but surely sentence 0 is more useful than last?
 }
 
 void CG_DrawCaptionText(void)
@@ -439,7 +437,7 @@ void CG_ScrollText(const char* str, int iPixelWidth)
     // ensure we found a match
     if (!i) {
 #ifndef FINAL_BUILD
-        Com_Printf("WARNING: CG_ScrollText given invalid text key :'%s'\n", str);
+        Com_Warning("CG_ScrollText given invalid text key :'%s'\n", str);
 #endif
         return;
     }
@@ -456,7 +454,7 @@ void CG_ScrollText(const char* str, int iPixelWidth)
         assert(0); // should never get here now, but wtf?
         cgi_Z_Free(psText);
 #ifndef FINAL_BUILD
-        Com_Printf("WARNING: CG_ScrollText given invalid text key :'%s'\n", str);
+        Com_Warning("CG_ScrollText given invalid text key :'%s'\n", str);
 #endif
         return;
     }

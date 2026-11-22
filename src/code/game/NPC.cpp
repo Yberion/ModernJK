@@ -151,7 +151,7 @@ bool G_OkayToRemoveCorpse(gentity_t* self)
         else {
             assert(0);
 #ifndef FINAL_BUILD
-            Com_Printf(S_COLOR_RED "ERROR: Dead pilot's vehicle removed while corpse was riding it (pilot: %s)???\n", self->targetname);
+            Com_PrintError("Dead pilot's vehicle removed while corpse was riding it (pilot: %s)???\n", self->targetname);
 #endif
         }
     }
@@ -2134,7 +2134,7 @@ void NPC_ExecuteBState(gentity_t* self) //, int msec )
 
         if(la && ta)
         {//FIXME: should never play same frame twice or restart an anim before finishing it
-            gi.Printf("LegsAnim: %s(%d) TorsoAnim: %s(%d)\n", BG_AnimName( *la ), NPC->renderInfo.legsFrame, BG_AnimName( *ta ),
+            Com_Printf("LegsAnim: %s(%d) TorsoAnim: %s(%d)\n", BG_AnimName( *la ), NPC->renderInfo.legsFrame, BG_AnimName( *ta ),
     NPC->client->renderInfo.torsoFrame);
         }
     }*/
@@ -2153,7 +2153,7 @@ void NPC_CheckInSolid(void)
     }
     else {
         if (VectorLengthSquared(NPCInfo->lastClearOrigin)) {
-            //			gi.Printf("%s stuck in solid at %s: fixing...\n", NPC->script_targetname, vtos(NPC->currentOrigin));
+            //			Com_Printf("%s stuck in solid at %s: fixing...\n", NPC->script_targetname, vtos(NPC->currentOrigin));
             G_SetOrigin(NPC, NPCInfo->lastClearOrigin);
             gi.linkentity(NPC);
         }
@@ -2283,8 +2283,8 @@ void NPC_Think(gentity_t* self) //, int msec )
 #if AI_TIMERS
         int addTime = GetTime(startTime);
         if (addTime > 50) {
-            gi.Printf(S_COLOR_RED "ERROR: NPC number %d, %s %s at %s, weaponnum: %d, using %d of AI time!!!\n", NPC->s.number, NPC->NPC_type, NPC->targetname,
-                      vtos(NPC->currentOrigin), NPC->s.weapon, addTime);
+            Com_PrintError("NPC number %d, %s %s at %s, weaponnum: %d, using %d of AI time!!!\n", NPC->s.number, NPC->NPC_type, NPC->targetname,
+                           vtos(NPC->currentOrigin), NPC->s.weapon, addTime);
         }
         AITime += addTime;
 #endif //	AI_TIMERS

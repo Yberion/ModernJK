@@ -379,7 +379,7 @@ static void UI_UpdateScreenshot(void)
     if (ui_screenshotType.string[0] && isalpha(ui_screenshotType.string[0])) {
         const std::optional<screenshotFormat_t> ssf = UI_GetScreenshotFormatForString(ui_screenshotType.string);
         if (!ssf) {
-            ui.Printf("UI Screenshot Format Type '%s' unrecognised, defaulting to JPEG\n", ui_screenshotType.string);
+            Com_Printf("UI Screenshot Format Type '%s' unrecognised, defaulting to JPEG\n", ui_screenshotType.string);
             uiInfo.uiDC.screenshotFormat = screenshotFormat_t::SSF_JPEG;
             changed = true;
         }
@@ -388,7 +388,7 @@ static void UI_UpdateScreenshot(void)
     }
     else if (ui_screenshotType.integer < to_underlying(screenshotFormat_t::SSF_JPEG) ||
              ui_screenshotType.integer > to_underlying(screenshotFormat_t::SSF_PNG)) {
-        ui.Printf("ui_screenshotType %i is out of range, defaulting to 0 (JPEG)\n", ui_screenshotType.integer);
+        Com_Printf("ui_screenshotType %i is out of range, defaulting to 0 (JPEG)\n", ui_screenshotType.integer);
         uiInfo.uiDC.screenshotFormat = screenshotFormat_t::SSF_JPEG;
         changed = true;
     }
@@ -861,7 +861,7 @@ static bool UI_RunMenuScript(const char** args)
             if (s_savedata[s_savegame.currentLine].currentSaveFileName) // A line was chosen
             {
 #ifndef FINAL_BUILD
-                ui.Printf("%s\n", "Attempting to delete game");
+                Com_Printf("%s\n", "Attempting to delete game");
 #endif
 
                 ui.Cmd_ExecuteText(cbufExec_t::EXEC_NOW, va("wipe %s\n", s_savedata[s_savegame.currentLine].currentSaveFileName));
@@ -1871,7 +1871,7 @@ bool UI_ParseAnimationFile(const char* af_filename)
 // #ifndef FINAL_BUILD
 #ifdef _DEBUG
             if (strcmp(token, "ROOT")) {
-                Com_Printf(S_COLOR_RED "WARNING: Unknown token %s in %s\n", token, af_filename);
+                Com_Warning("Unknown token %s in %s\n", token, af_filename);
             }
 #endif
             while (token[0]) {
@@ -2140,9 +2140,9 @@ static void UI_BuildPlayerModel_List(bool inGameLoad)
 
     dirlist = (char*)malloc(DIR_LIST_SIZE);
     if (!dirlist) {
-        Com_Printf(S_COLOR_YELLOW "WARNING: Failed to allocate %zu bytes of memory for player model "
-                                  "directory list. Using stack allocated buffer of %zu bytes instead.",
-                   DIR_LIST_SIZE, sizeof(stackDirList));
+        Com_Warning("Failed to allocate %zu bytes of memory for player model "
+                    "directory list. Using stack allocated buffer of %zu bytes instead.",
+                    DIR_LIST_SIZE, sizeof(stackDirList));
 
         dirlist = stackDirList;
         dirListSize = sizeof(stackDirList);
@@ -2198,7 +2198,7 @@ static void UI_BuildPlayerModel_List(bool inGameLoad)
             Q_strncpyz(species->Name, dirptr, MAX_QPATH);
 
             if (!UI_ParseColorData(buffer.data(), *species)) {
-                ui.Printf("UI_BuildPlayerModel_List: Errors parsing '%s'\n", fpath);
+                Com_Printf("UI_BuildPlayerModel_List: Errors parsing '%s'\n", fpath);
             }
 
             species->SkinHeadMax = 8;
@@ -2352,7 +2352,6 @@ void _UI_Init(bool inGameLoad)
     uiInfo.uiDC.ownerDrawVisible = &UI_OwnerDrawVisible;
     uiInfo.uiDC.ownerDrawWidth = &UI_OwnerDrawWidth;
     uiInfo.uiDC.ownerDrawItem = &UI_OwnerDraw;
-    uiInfo.uiDC.Print = &Com_Printf;
     uiInfo.uiDC.registerSound = &trap_S_RegisterSound;
     uiInfo.uiDC.registerModel = ui.R_RegisterModel;
     uiInfo.uiDC.clearScene = &trap_R_ClearScene;
@@ -5669,7 +5668,7 @@ void UI_CheckVid1Data(const char* menuTo, const char* warningMenuName)
     menu = Menu_GetFocused(); // Get current menu (either video or ingame video, I would assume)
 
     if (!menu) {
-        Com_Printf(S_COLOR_YELLOW "WARNING: No videoMenu was found. Video data could not be checked\n");
+        Com_Warning("No videoMenu was found. Video data could not be checked\n");
         return;
     }
 

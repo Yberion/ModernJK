@@ -47,19 +47,6 @@ void SFxHelper::ReInit(refdef_t* pRefdef)
 }
 
 //------------------------------------------------------
-void SFxHelper::Print(const char* msg, ...)
-{
-    va_list argptr;
-    char text[1024];
-
-    va_start(argptr, msg);
-    Q_vsnprintf(text, sizeof(text), msg, argptr);
-    va_end(argptr);
-
-    Com_DPrintf("%s", text);
-}
-
-//------------------------------------------------------
 void SFxHelper::AdjustTime(int frametime)
 {
 #ifdef _DEBUG

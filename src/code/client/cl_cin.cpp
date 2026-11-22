@@ -1543,7 +1543,7 @@ int CIN_PlayCinematic(const char* arg, int x, int y, int w, int h, cinematicFlag
     cinTable[currentHandle].ROQSize = FS_FOpenFileRead(cinTable[currentHandle].fileName, &cinTable[currentHandle].iFile, true);
 
     if (cinTable[currentHandle].ROQSize <= 0) {
-        Com_Printf(S_COLOR_RED "ERROR: playCinematic: %s not found!\n", arg);
+        Com_PrintError("playCinematic: %s not found!\n", arg);
         cinTable[currentHandle].fileName[0] = 0;
         return -1;
     }

@@ -2012,7 +2012,7 @@ int RE_RegisterFont(const char* psName)
         }
     }
     else {
-        ri.Printf(printParm_t::PRINT_WARNING, "RE_RegisterFont: Couldn't find font %s\n", psName);
+        Com_Warning("RE_RegisterFont: Couldn't find font %s\n", psName);
     }
 
     return oriFontHandle;

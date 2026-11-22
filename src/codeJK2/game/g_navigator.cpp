@@ -831,7 +831,7 @@ void CNavigator::CalculatePaths(bool recalc)
 
 #ifndef FINAL_BUILD
     if (pathsCalculated) {
-        gi.Printf(S_COLOR_CYAN "%s recalced paths in %d ms\n", (NPC != nullptr ? NPC->targetname : "NULL"), gi.Milliseconds() - startTime);
+        Com_Printf(S_COLOR_CYAN "%s recalced paths in %d ms\n", (NPC != nullptr ? NPC->targetname : "NULL"), gi.Milliseconds() - startTime);
     }
 #endif
 
@@ -1301,7 +1301,7 @@ int CNavigator::GetBestPathBetweenEnts(gentity_t* ent, gentity_t* goal, navNodeF
             // calc the paths for this node if they're out of date
             nodeFlags = node->GetFlags();
             if (Any(nodeFlags & navNodeFlags_t::NF_RECALC)) {
-                // gi.Printf( S_COLOR_CYAN"%d recalcing paths from node %d\n", level.time, nodeNum );
+                // Com_Printf( S_COLOR_CYAN"%d recalcing paths from node %d\n", level.time, nodeNum );
                 CalculatePath(node);
             }
         }
@@ -1314,7 +1314,7 @@ int CNavigator::GetBestPathBetweenEnts(gentity_t* ent, gentity_t* goal, navNodeF
                 // calc the paths for this node if they're out of date
                 nodeFlags = node2->GetFlags();
                 if (Any(nodeFlags & navNodeFlags_t::NF_RECALC)) {
-                    // gi.Printf( S_COLOR_CYAN"%d recalcing paths from node %d\n", level.time, nodeNum2 );
+                    // Com_Printf( S_COLOR_CYAN"%d recalcing paths from node %d\n", level.time, nodeNum2 );
                     CalculatePath(node2);
                 }
             }
@@ -1776,7 +1776,7 @@ void CNavigator::AddFailedEdge(int entID, int startID, int endID)
     // Validate the ent number
     if ((entID < 0) || (entID > ENTITYNUM_NONE)) {
 #ifndef FINAL_BUILD
-        gi.Printf(S_COLOR_RED "NAV ERROR: envalid ent %d\n", entID);
+        Com_Printf(S_COLOR_RED "NAV ERROR: envalid ent %d\n", entID);
         assert(0 && "invalid entID");
 #endif
         return;
@@ -1785,7 +1785,7 @@ void CNavigator::AddFailedEdge(int entID, int startID, int endID)
     // Validate the start position
     if ((startID < 0) || (startID >= (int)m_nodes.size())) {
 #ifndef FINAL_BUILD
-        gi.Printf(S_COLOR_RED "NAV ERROR: tried to fail invalid waypoint %d\n", startID);
+        Com_Printf(S_COLOR_RED "NAV ERROR: tried to fail invalid waypoint %d\n", startID);
         assert(0 && "invalid failed edge");
 #endif
         return;
@@ -1794,7 +1794,7 @@ void CNavigator::AddFailedEdge(int entID, int startID, int endID)
     // Validate the end position
     if ((endID < 0) || (endID >= (int)m_nodes.size())) {
 #ifndef FINAL_BUILD
-        gi.Printf(S_COLOR_RED "NAV ERROR: tried to fail invalid waypoint %d\n", endID);
+        Com_Printf(S_COLOR_RED "NAV ERROR: tried to fail invalid waypoint %d\n", endID);
         assert(0 && "invalid failed edge");
 #endif
         return;
@@ -1869,7 +1869,7 @@ void CNavigator::AddFailedEdge(int entID, int startID, int endID)
             // now recalc all the paths!
             if (pathsCalculated) {
                 // reconnect the nodes and mark every node's flag NF_RECALC
-                // gi.Printf( S_COLOR_CYAN"%d marking all nodes for recalc\n", level.time );
+                // Com_Printf( S_COLOR_CYAN"%d marking all nodes for recalc\n", level.time );
                 SetEdgeCost(startID, endID, Q3_INFINITE);
                 FlagAllNodes(navNodeFlags_t::NF_RECALC);
             }
@@ -1878,7 +1878,7 @@ void CNavigator::AddFailedEdge(int entID, int startID, int endID)
     }
 
 #ifndef FINAL_BUILD
-    gi.Printf(S_COLOR_RED "NAV ERROR: too many blocked waypoint connections (%d)!!!\n", j);
+    Com_Printf(S_COLOR_RED "NAV ERROR: too many blocked waypoint connections (%d)!!!\n", j);
 #endif
 }
 
@@ -1975,7 +1975,7 @@ void CNavigator::CheckAllFailedEdges(void)
     if (clearedAny) { // need to recalc the paths
         if (pathsCalculated) {
             // reconnect the nodes and mark every node's flag NF_RECALC
-            // gi.Printf( S_COLOR_CYAN"%d marking all nodes for recalc\n", level.time );
+            // Com_Printf( S_COLOR_CYAN"%d marking all nodes for recalc\n", level.time );
             FlagAllNodes(navNodeFlags_t::NF_RECALC);
         }
     }

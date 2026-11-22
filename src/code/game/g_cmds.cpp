@@ -322,7 +322,7 @@ void Cmd_Fx(gentity_t* ent)
                 fx_ent->delay = atoi(gi.argv(2));
             }
             else {
-                gi.Printf(S_COLOR_GREEN "FX: current delay is: %i\n", fx_ent->delay);
+                Com_Printf(S_COLOR_GREEN "FX: current delay is: %i\n", fx_ent->delay);
             }
 
             return;
@@ -334,7 +334,7 @@ void Cmd_Fx(gentity_t* ent)
                 fx_ent->random = atoi(gi.argv(2));
             }
             else {
-                gi.Printf(S_COLOR_GREEN "FX: current random is: %6.2f\n", fx_ent->random);
+                Com_Printf(S_COLOR_GREEN "FX: current random is: %6.2f\n", fx_ent->random);
             }
 
             return;
@@ -350,8 +350,8 @@ void Cmd_Fx(gentity_t* ent)
                 G_SetOrigin(fx_ent, fx_ent->s.origin);
             }
             else {
-                gi.Printf(S_COLOR_GREEN "FX: current origin is: <%6.2f %6.2f %6.2f>\n", fx_ent->currentOrigin[0], fx_ent->currentOrigin[1],
-                          fx_ent->currentOrigin[2]);
+                Com_Printf(S_COLOR_GREEN "FX: current origin is: <%6.2f %6.2f %6.2f>\n", fx_ent->currentOrigin[0], fx_ent->currentOrigin[1],
+                           fx_ent->currentOrigin[2]);
             }
 
             return;
@@ -370,22 +370,22 @@ void Cmd_Fx(gentity_t* ent)
                 }
             }
             else {
-                gi.Printf(S_COLOR_GREEN "FX: current dir is: <%6.2f %6.2f %6.2f>\n", fx_ent->s.angles[0], fx_ent->s.angles[1], fx_ent->s.angles[2]);
+                Com_Printf(S_COLOR_GREEN "FX: current dir is: <%6.2f %6.2f %6.2f>\n", fx_ent->s.angles[0], fx_ent->s.angles[1], fx_ent->s.angles[2]);
             }
 
             return;
         }
     }
 
-    gi.Printf(S_COLOR_CYAN "Fx--------------------------------------------------------\n");
-    gi.Printf(S_COLOR_CYAN "commands:              sample usage:\n");
-    gi.Printf(S_COLOR_CYAN "----------------------------------------------------------\n");
-    gi.Printf(S_COLOR_CYAN "fx play <filename>     fx play sparks, fx play env/fire\n");
-    gi.Printf(S_COLOR_CYAN "fx stop                fx stop\n");
-    gi.Printf(S_COLOR_CYAN "fx delay <#>           fx delay 1000\n");
-    gi.Printf(S_COLOR_CYAN "fx random <#>          fx random 200\n");
-    gi.Printf(S_COLOR_CYAN "fx origin <#><#><#>    fx origin 10 20 30\n");
-    gi.Printf(S_COLOR_CYAN "fx dir <#><#><#>       fx dir 0 0 -1\n\n");
+    Com_Printf(S_COLOR_CYAN "Fx--------------------------------------------------------\n");
+    Com_Printf(S_COLOR_CYAN "commands:              sample usage:\n");
+    Com_Printf(S_COLOR_CYAN "----------------------------------------------------------\n");
+    Com_Printf(S_COLOR_CYAN "fx play <filename>     fx play sparks, fx play env/fire\n");
+    Com_Printf(S_COLOR_CYAN "fx stop                fx stop\n");
+    Com_Printf(S_COLOR_CYAN "fx delay <#>           fx delay 1000\n");
+    Com_Printf(S_COLOR_CYAN "fx random <#>          fx random 200\n");
+    Com_Printf(S_COLOR_CYAN "fx origin <#><#><#>    fx origin 10 20 30\n");
+    Com_Printf(S_COLOR_CYAN "fx dir <#><#><#>       fx dir 0 0 -1\n\n");
 }
 
 /*
@@ -558,7 +558,7 @@ void Cmd_Where_f(gentity_t* ent)
     gentity_t* check;
 
     if (gi.argc() < 2) {
-        gi.Printf("usage: where classname\n");
+        Com_Printf("usage: where classname\n");
         return;
     }
     for (int i = 0; i < globals.num_entities; i++) {
@@ -676,7 +676,7 @@ void Cmd_SetObjective_f(gentity_t* ent)
     if (gi.argc() == 2) {
         objectiveI = atoi(gi.argv(1));
         const objectives_t& objective = ent->client->sess.mission_objectives[static_cast<objectiveNumber_t>(objectiveI)];
-        gi.Printf("objective #%d  display status=%d, status=%d\n", objectiveI, objective.display, objective.status);
+        Com_Printf("objective #%d  display status=%d, status=%d\n", objectiveI, objective.display, objective.status);
         return;
     }
     if (gi.argc() != 4) {

@@ -1887,7 +1887,7 @@ void ForceJumpCharge(gentity_t* self, usercmd_t* ucmd)
         self->client->ps.fd.forceJumpCharge = self->client->ps.fd.forcePower * forceJumpChargeInterval / (FORCE_JUMP_CHARGE_TIME / FRAMETIME);
     }
 
-    // trap->Print("%f\n", self->client->ps.fd.forceJumpCharge);
+    // Com_Printf("%f\n", self->client->ps.fd.forceJumpCharge);
 }
 
 forceJump_t WP_GetVelocityForForceJump(gentity_t* self, vec3_t jumpVel, usercmd_t* ucmd)

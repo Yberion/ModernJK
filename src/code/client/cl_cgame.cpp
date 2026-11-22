@@ -453,12 +453,6 @@ std::optional<cgameImport_t> CL_ConvertJK2SysCall(cgameJK2Import_t import)
 {
     // FIXME: This was a 5-minute slap-hack job in order to test if this really works. CLEAN ME UP! --eez
     switch (import) {
-    case cgameJK2Import_t::CG_PRINT_JK2:
-        return cgameImport_t::CG_PRINT;
-        break;
-    case cgameJK2Import_t::CG_ERROR_JK2:
-        return cgameImport_t::CG_ERROR;
-        break;
     case cgameJK2Import_t::CG_MILLISECONDS_JK2:
         return cgameImport_t::CG_MILLISECONDS;
         break;
@@ -823,12 +817,6 @@ intptr_t CL_CgameSystemCalls(intptr_t* args)
     args[0] = to_underlying(*call);
 #endif
     switch (static_cast<cgameImport_t>(args[0])) {
-    case cgameImport_t::CG_PRINT:
-        Com_Printf("%s", (const char*)VMA(1));
-        return 0;
-    case cgameImport_t::CG_ERROR:
-        Com_Error(errorParm_t::ERR_DROP, S_COLOR_RED "%s", (const char*)VMA(1));
-        return 0;
     case cgameImport_t::CG_MILLISECONDS:
         return Sys_Milliseconds();
     case cgameImport_t::CG_CVAR_REGISTER:

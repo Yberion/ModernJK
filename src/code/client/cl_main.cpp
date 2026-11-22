@@ -996,36 +996,6 @@ void CL_StartHunkUsers(void)
 }
 
 /*
-================
-CL_RefPrintf
-
-DLL glue
-================
-*/
-void QDECL CL_RefPrintf(printParm_t print_level, const char* fmt, ...)
-{
-    va_list argptr;
-    char msg[MAXPRINTMSG];
-
-    va_start(argptr, fmt);
-    Q_vsnprintf(msg, sizeof(msg), fmt, argptr);
-    va_end(argptr);
-
-    if (print_level == printParm_t::PRINT_ALL) {
-        Com_Printf("%s", msg);
-    }
-    else if (print_level == printParm_t::PRINT_WARNING) {
-        Com_Printf(S_COLOR_YELLOW "%s", msg); // yellow
-    }
-    else if (print_level == printParm_t::PRINT_DEVELOPER) {
-        Com_DPrintf(S_COLOR_RED "%s", msg); // red
-    }
-    else if (print_level == printParm_t::PRINT_ERROR) {
-        Com_Printf(S_COLOR_RED "%s", msg); // red
-    }
-}
-
-/*
 ============
 String_GetStringValue
 
@@ -1193,12 +1163,12 @@ void CL_InitRef(void)
     rit.PD_Load = PD_Load;
     rit.PD_Store = PD_Store;
 
-    rit.Error = Com_Error;
+    rit.Error = Com_VError;
     rit.FS_FileExists = S_FileExists;
     rit.GetG2VertSpaceServer = GetG2VertSpaceServer;
     rit.LowPhysicalMemory = Sys_LowPhysicalMemory;
     rit.Milliseconds = Sys_Milliseconds2;
-    rit.Printf = CL_RefPrintf;
+    rit.Print = Com_VPrintf;
     rit.SE_GetString = String_GetStringValue;
 
     rit.SV_Trace = SV_Trace;
@@ -1373,7 +1343,7 @@ void CL_Shutdown(void)
     Com_Printf("----- CL_Shutdown -----\n");
 
     if (recursive) {
-        Com_Printf("WARNING: Recursive CL_Shutdown called!\n");
+        Com_Warning("Recursive CL_Shutdown called!\n");
         return;
     }
     recursive = true;

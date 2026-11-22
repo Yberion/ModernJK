@@ -70,8 +70,6 @@ functions imported from the main executable
 */
 
 enum class cgameImport_t {
-    CG_PRINT,
-    CG_ERROR,
     CG_MILLISECONDS,
     CG_CVAR_REGISTER,
     CG_CVAR_UPDATE,
@@ -215,8 +213,6 @@ enum class cgameImport_t {
 
 #ifdef JK2_MODE
 enum class cgameJK2Import_t {
-    CG_PRINT_JK2,
-    CG_ERROR_JK2,
     CG_MILLISECONDS_JK2,
     CG_CVAR_REGISTER_JK2,
     CG_CVAR_UPDATE_JK2,

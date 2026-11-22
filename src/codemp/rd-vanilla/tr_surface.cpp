@@ -1569,7 +1569,7 @@ void RB_SurfaceEntity(surfaceType_t* surfType)
 
 void RB_SurfaceBad(surfaceType_t* surfType)
 {
-    ri.Printf(printParm_t::PRINT_ALL, "Bad surface tesselated.\n");
+    Com_Printf("Bad surface tesselated.\n");
 }
 
 /*

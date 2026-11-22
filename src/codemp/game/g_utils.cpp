@@ -111,7 +111,7 @@ static int G_FindConfigstringIndex(const char* name, int start, int max, bool cr
     }
 
     if (i == max) {
-        trap->Error(errorParm_t::ERR_DROP, "G_FindConfigstringIndex: overflow");
+        Com_Error(errorParm_t::ERR_DROP, "G_FindConfigstringIndex: overflow");
     }
 
     trap->SetConfigstring(start + i, name);
@@ -142,7 +142,7 @@ int G_ModelIndex(const char* name)
     if (!fh) { // try models/ then, this is assumed for registering models
         trap->FS_Open(va("models/%s", name), &fh, fsMode_t::FS_READ);
         if (!fh) {
-            Com_Printf("ERROR: Server tried to modelindex %s but it doesn't exist.\n", name);
+            Com_PrintError("Server tried to modelindex %s but it doesn't exist.\n", name);
         }
     }
 
@@ -509,7 +509,7 @@ gentity_t* G_PickTarget(char* targetname)
     gentity_t* choice[MAXCHOICES];
 
     if (!targetname) {
-        trap->Print("G_PickTarget called with NULL targetname\n");
+        Com_Printf("G_PickTarget called with NULL targetname\n");
         return nullptr;
     }
 
@@ -523,7 +523,7 @@ gentity_t* G_PickTarget(char* targetname)
     }
 
     if (!num_choices) {
-        trap->Print("G_PickTarget: target %s not found\n", targetname);
+        Com_Printf("G_PickTarget: target %s not found\n", targetname);
         return nullptr;
     }
 
@@ -563,7 +563,7 @@ void G_UseTargets2(gentity_t* ent, gentity_t* activator, const char* string)
     t = nullptr;
     while ((t = G_Find(t, FOFS(targetname), string)) != nullptr) {
         if (t == ent) {
-            trap->Print("WARNING: Entity used itself.\n");
+            Com_Warning("Entity used itself.\n");
         }
         else {
             if (t->use) {
@@ -571,7 +571,7 @@ void G_UseTargets2(gentity_t* ent, gentity_t* activator, const char* string)
             }
         }
         if (!ent->inuse) {
-            trap->Print("entity was removed while using targets\n");
+            Com_Printf("entity was removed while using targets\n");
             return;
         }
     }
@@ -801,11 +801,11 @@ gentity_t* G_Spawn(void)
     if (i == ENTITYNUM_MAX_NORMAL) {
         /*
         for (i = 0; i < MAX_GENTITIES; i++) {
-            trap->Print("%4i: %s\n", i, g_entities[i].classname);
+            Com_Printf("%4i: %s\n", i, g_entities[i].classname);
         }
         */
         G_SpewEntList();
-        trap->Error(errorParm_t::ERR_DROP, "G_Spawn: no free entities");
+        Com_Error(errorParm_t::ERR_DROP, "G_Spawn: no free entities");
     }
 
     // open up a new slot
@@ -874,7 +874,7 @@ void G_KillG2Queue(int entNum)
 {
     if (gG2KillNum >= MAX_G2_KILL_QUEUE) { // This would be considered a Bad Thing.
 #ifdef _DEBUG
-        Com_Printf("WARNING: Exceeded the MAX_G2_KILL_QUEUE count for this frame!\n");
+        Com_Warning("Exceeded the MAX_G2_KILL_QUEUE count for this frame!\n");
 #endif
         // Since we're out of queue slots, just send it now as a seperate command (eats more bandwidth, but we have no choice)
         trap->SendServerCommand(-1, va("kg2 %i", entNum));
@@ -1165,7 +1165,7 @@ void G_AddEvent(gentity_t* ent, entity_event_t event, int eventParm)
     int bits;
 
     if (event == entity_event_t::EV_NONE) {
-        trap->Print("G_AddEvent: zero event added for entity %i\n", ent->s.number);
+        Com_Printf("G_AddEvent: zero event added for entity %i\n", ent->s.number);
         return;
     }
 

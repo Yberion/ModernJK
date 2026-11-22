@@ -639,7 +639,7 @@ int AAS_ClientMovementPrediction(struct aas_clientmove_s* move, int entnum, vec3
             // #ifdef AAS_MOVE_DEBUG
             if (visualize) {
                 if (trace.startsolid)
-                    botimport.Print(printType_t::PRT_MESSAGE, "PredictMovement: start solid\n");
+                    Com_Printf("PredictMovement: start solid\n");
                 AAS_DebugLine(org, trace.endpos, lineColor_t::LINECOLOR_RED);
             } // end if
             // #endif //AAS_MOVE_DEBUG
@@ -980,7 +980,7 @@ void AAS_TestMovementPrediction(int entnum, vec3_t origin, vec3_t dir)
     AAS_PredictClientMovement(&move, entnum, origin, presenceFlags_t::PRESENCE_NORMAL, true, velocity, cmdmove, 13, 13, 0.1f, stopEventFlags_t::SE_HITGROUND, 0,
                               true); // stopEventFlags_t::SE_LEAVEGROUND);
     if (Any(move.stopevent & stopEventFlags_t::SE_LEAVEGROUND)) {
-        botimport.Print(printType_t::PRT_MESSAGE, "leave ground\n");
+        Com_Printf("leave ground\n");
     } // end if
 } // end of the function TestMovementPrediction
 //===========================================================================

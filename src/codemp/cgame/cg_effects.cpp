@@ -961,7 +961,7 @@ void CG_ScorePlum(int client, vec3_t org, int score)
         le->pos.trBase[2] -= 20;
     }
 
-    // trap->Print( "Plum origin %i %i %i -- %i\n", (int)org[0], (int)org[1], (int)org[2], (int)Distance(org, lastPos));
+    // Com_Printf( "Plum origin %i %i %i -- %i\n", (int)org[0], (int)org[1], (int)org[2], (int)Distance(org, lastPos));
     VectorCopy(org, lastPos);
 
     re = &le->refEntity;
@@ -987,7 +987,7 @@ localEntity_t* CG_MakeExplosion(vec3_t origin, vec3_t dir, qhandle_t hModel, int
     vec3_t tmpVec, newOrigin;
 
     if (msec <= 0) {
-        trap->Error(errorParm_t::ERR_DROP, "CG_MakeExplosion: msec = %i", msec);
+        Com_Error(errorParm_t::ERR_DROP, "CG_MakeExplosion: msec = %i", msec);
     }
 
     // skew the time a bit so they aren't all in sync

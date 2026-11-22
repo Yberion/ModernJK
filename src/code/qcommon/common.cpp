@@ -128,23 +128,35 @@ void Com_EndRedirect(void)
 
 /*
 =============
-Com_Printf
+Com_VPrintf
 
 Both client and server can use this, and it will output
-to the apropriate place.
+to the apropriate place. The modules' messages come here
+through their import tables.
 
 A raw string should NEVER be passed as fmt, because of "%f" type crashers.
 =============
 */
-void QDECL Com_Printf(const char* fmt, ...)
+void Com_VPrintf(printLevel_t level, const char* fmt, va_list args)
 {
-    va_list argptr;
     char msg[MAXPRINTMSG];
     const char* p;
 
-    va_start(argptr, fmt);
-    Q_vsnprintf(msg, sizeof(msg), fmt, argptr);
-    va_end(argptr);
+    if (level == printLevel_t::PRINT_DEVELOPER && (!com_developer || !com_developer->integer)) {
+        return; // don't confuse non-developers with techie stuff...
+    }
+
+    // the level's colour and prefix, the same for every engine and module
+    const char* prefix = "";
+    if (level == printLevel_t::PRINT_WARNING) {
+        prefix = S_COLOR_YELLOW "WARNING: ";
+    }
+    else if (level == printLevel_t::PRINT_ERROR) {
+        prefix = S_COLOR_RED "ERROR: ";
+    }
+    const size_t prefixLen = strlen(prefix);
+    memcpy(msg, prefix, prefixLen);
+    Q_vsnprintf(msg + prefixLen, sizeof(msg) - prefixLen, fmt, args);
 
     if (rd_buffer) {
         if ((strlen(msg) + strlen(rd_buffer)) > (unsigned)(rd_buffersize - 1)) {
@@ -209,29 +221,6 @@ void QDECL Com_Printf(const char* fmt, ...)
     }
 }
 
-/*
-================
-Com_DPrintf
-
-A Com_Printf that only shows up if the "developer" cvar is set
-================
-*/
-void QDECL Com_DPrintf(const char* fmt, ...)
-{
-    va_list argptr;
-    char msg[MAXPRINTMSG];
-
-    if (!com_developer || !com_developer->integer) {
-        return; // don't confuse non-developers with techie stuff...
-    }
-
-    va_start(argptr, fmt);
-    Q_vsnprintf(msg, sizeof(msg), fmt, argptr);
-    va_end(argptr);
-
-    Com_Printf("%s", msg);
-}
-
 void Com_WriteCam(const char* text)
 {
     static char mapname[MAX_QPATH];
@@ -270,19 +259,19 @@ void Com_FlushCamFile()
 
 /*
 =============
-Com_Error
+Com_VError
 
 Both client and server can use this, and it will
-do the apropriate things.
+do the apropriate things. The modules' errors come here
+through their import tables.
 =============
 */
 void SG_Shutdown();
 #ifdef JK2_MODE
 extern void SCR_UnprecacheScreenshot();
 #endif
-void NORETURN QDECL Com_Error(errorParm_t code, const char* fmt, ...)
+void NORETURN Com_VError(errorParm_t code, const char* fmt, va_list args)
 {
-    va_list argptr;
     static int lastErrorTime;
     static int errorCount;
     int currentTime;
@@ -314,9 +303,7 @@ void NORETURN QDECL Com_Error(errorParm_t code, const char* fmt, ...)
     SCR_UnprecacheScreenshot();
 #endif
 
-    va_start(argptr, fmt);
-    Q_vsnprintf(com_errorMessage, sizeof(com_errorMessage), fmt, argptr);
-    va_end(argptr);
+    Q_vsnprintf(com_errorMessage, sizeof(com_errorMessage), fmt, args);
 
     if (code != errorParm_t::ERR_DISCONNECT) {
         Cvar_Get("com_errorMessage", "", cvarFlags_t::CVAR_ROM); // give com_errorMessage a default so it won't come back to life after a resetDefaults
@@ -794,7 +781,7 @@ void Com_PushEvent(sysEvent_t* event)
         // don't print the warning constantly, or it can give time for more...
         if (!printedWarning) {
             printedWarning = true;
-            Com_Printf("WARNING: Com_PushEvent overflow\n");
+            Com_Warning("Com_PushEvent overflow\n");
         }
 
         if (ev->evPtr) {

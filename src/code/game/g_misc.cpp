@@ -301,7 +301,7 @@ void teleporter_touch(gentity_t* self, gentity_t* other, trace_t* trace)
         return;
     dest = G_PickTarget(self->target);
     if (!dest) {
-        gi.Printf("Couldn't find teleporter destination\n");
+        Com_Printf("Couldn't find teleporter destination\n");
         return;
     }
 
@@ -316,7 +316,7 @@ void SP_misc_teleporter(gentity_t* ent)
     gentity_t* trig;
 
     if (!ent->target) {
-        gi.Printf("teleporter without a target.\n");
+        Com_Printf("teleporter without a target.\n");
         G_FreeEntity(ent);
         return;
     }
@@ -454,7 +454,7 @@ void cycleCamera(gentity_t* self)
         // for now assume reached end of list and are cycling
         self->owner = G_Find(self->owner, FOFS(targetname), self->target);
         if (self->owner == nullptr) { // still didn't find one
-            gi.Printf("Couldn't find target for misc_portal_surface\n");
+            Com_Printf("Couldn't find target for misc_portal_surface\n");
             G_FreeEntity(self);
             return;
         }
@@ -481,7 +481,7 @@ void locateCamera(gentity_t* ent)
 
     ent->owner = G_Find(nullptr, FOFS(targetname), ent->target);
     if (!ent->owner) {
-        gi.Printf("Couldn't find target for misc_portal_surface\n");
+        Com_Printf("Couldn't find target for misc_portal_surface\n");
         G_FreeEntity(ent);
         return;
     }

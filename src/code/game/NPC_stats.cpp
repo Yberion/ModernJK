@@ -187,12 +187,12 @@ bool G_ParseLiteral(const char** data, const char* string)
 
     token = COM_ParseExt(data, true);
     if (token[0] == 0) {
-        gi.Printf("unexpected EOF\n");
+        Com_Printf("unexpected EOF\n");
         return true;
     }
 
     if (Q_stricmp(token, string)) {
-        gi.Printf("required string '%s' missing\n", string);
+        Com_Printf("required string '%s' missing\n", string);
         return true;
     }
 
@@ -417,7 +417,7 @@ static void ParseAnimationEvtBlock(int glaIndex, unsigned short modelIndex, cons
         //	at least not much.
         const std::optional<animNumber_t> animNum = BG_AnimFromName(token);
         if (!animNum) { // Unrecognized ANIM ENUM name,
-            Com_Printf(S_COLOR_YELLOW "WARNING: Unknown ANIM %s in file %s\n", token, aeb_filename);
+            Com_Warning("Unknown ANIM %s in file %s\n", token, aeb_filename);
             // skip this entry
             SkipRestOfLine(text_p);
             continue;
@@ -425,7 +425,7 @@ static void ParseAnimationEvtBlock(int glaIndex, unsigned short modelIndex, cons
 
         if (animations[*animNum].numFrames == 0) { // we don't use this anim
 #ifndef FINAL_BUILD
-            Com_Printf(S_COLOR_YELLOW "WARNING: %s: anim %s not used by this model\n", aeb_filename, token);
+            Com_Warning("%s: anim %s not used by this model\n", aeb_filename, token);
 #endif
             // skip this entry
             SkipRestOfLine(text_p);
@@ -436,7 +436,7 @@ static void ParseAnimationEvtBlock(int glaIndex, unsigned short modelIndex, cons
         const int eventId = GetIDForString(animEventTypeTable, token);
         eventType = static_cast<animEventType_t>(eventId);
         if (eventId == -1 || eventType == animEventType_t::AEV_NONE) { // Unrecognized ANIM EVENT TYPE
-            Com_Printf(S_COLOR_RED "ERROR: Unknown EVENT %s in animEvent file %s\n", token, aeb_filename);
+            Com_PrintError("Unknown EVENT %s in animEvent file %s\n", token, aeb_filename);
             continue;
         }
 
@@ -453,7 +453,7 @@ static void ParseAnimationEvtBlock(int glaIndex, unsigned short modelIndex, cons
             keyFrame /= 2; // if we ever use any other value in frame-skipping we'll have to figure out some way of reading it, since it's not stored anywhere
         }
         if (keyFrame >= animations[*animNum].numFrames) {
-            Com_Printf(S_COLOR_YELLOW "WARNING: Event out of range on %s in %s\n", BG_AnimName(*animNum), aeb_filename);
+            Com_Warning("Event out of range on %s in %s\n", BG_AnimName(*animNum), aeb_filename);
             assert(keyFrame < animations[*animNum].numFrames);
             keyFrame = animations[*animNum].numFrames - 1; // clamp it
         }
@@ -728,7 +728,7 @@ static void G_ParseAnimationEvtFile(int glaIndex, const char* eventsDirectory, i
     }
     if (len >= (int)(sizeof(text) - 1)) {
         cgi_FS_FCloseFile(f);
-        CG_Printf("File %s too long\n", eventsPath);
+        Com_Printf("File %s too long\n", eventsPath);
         return;
     }
 
@@ -804,7 +804,7 @@ bool G_ParseAnimationFile(int glaIndex, const char* skeletonName, int fileIndex)
         }
     }
     if (len >= (int)(sizeof(text) - 1)) {
-        G_Error("G_ParseAnimationFile: File %s too long\n (%d > %zu)", skeletonName, len, sizeof(text) - 1);
+        Com_Error(errorParm_t::ERR_DROP, "G_ParseAnimationFile: File %s too long\n (%d > %zu)", skeletonName, len, sizeof(text) - 1);
         return false;
     }
 
@@ -826,7 +826,7 @@ bool G_ParseAnimationFile(int glaIndex, const char* skeletonName, int fileIndex)
         if (!animNum) {
 #ifndef FINAL_BUILD
             if (strcmp(token, "ROOT")) {
-                Com_Printf(S_COLOR_RED "WARNING: Unknown token %s in %s\n", token, skeletonPath);
+                Com_Warning("Unknown token %s in %s\n", token, skeletonPath);
             }
 #endif
             // unrecognized animation so skip to end of line,
@@ -933,7 +933,7 @@ int G_ParseAnimFileSet(const char* skeletonName, const char* modelName = nullptr
     //------------------------------------------------------------------------------
     if (fileIndex >= level.numKnownAnimFileSets) {
         if (level.numKnownAnimFileSets == MAX_ANIM_FILES) {
-            G_Error("G_ParseAnimFileSet: MAX_ANIM_FILES");
+            Com_Error(errorParm_t::ERR_DROP, "G_ParseAnimFileSet: MAX_ANIM_FILES");
             return -1;
         }
 
@@ -1146,7 +1146,7 @@ void NPC_PrecacheAnimationCFG(const char* NPC_type)
     while (1) {
         token = COM_ParseExt(&p, true);
         if (!token[0]) {
-            gi.Printf(S_COLOR_RED "ERROR: unexpected EOF while parsing '%s'\n", NPC_type);
+            Com_PrintError("unexpected EOF while parsing '%s'\n", NPC_type);
             COM_EndParseSession();
             return;
         }
@@ -1432,7 +1432,7 @@ void CG_NPC_Precache(gentity_t* spawner)
         COM_BeginParseSession();
         token = COM_ParseExt(&p, true);
         if (!token[0]) {
-            gi.Printf(S_COLOR_RED "ERROR: unexpected EOF while parsing '%s'\n", spawner->NPC_type);
+            Com_PrintError("unexpected EOF while parsing '%s'\n", spawner->NPC_type);
             COM_EndParseSession();
             return;
         }
@@ -1821,7 +1821,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
         while (1) {
             token = COM_ParseExt(&p, true);
             if (!token[0]) {
-                gi.Printf(S_COLOR_RED "ERROR: unexpected EOF while parsing '%s'\n", NPCName);
+                Com_PrintError("unexpected EOF while parsing '%s'\n", NPCName);
                 COM_EndParseSession();
                 return false;
             }
@@ -2279,7 +2279,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    gi.Printf(S_COLOR_YELLOW "WARNING: bad %s in NPC '%s'\n", token, NPCName);
+                    Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
                     continue;
                 }
                 ri->headYawRangeLeft = n;
@@ -2293,7 +2293,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    gi.Printf(S_COLOR_YELLOW "WARNING: bad %s in NPC '%s'\n", token, NPCName);
+                    Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
                     continue;
                 }
                 ri->headYawRangeRight = n;
@@ -2307,7 +2307,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    gi.Printf(S_COLOR_YELLOW "WARNING: bad %s in NPC '%s'\n", token, NPCName);
+                    Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
                     continue;
                 }
                 ri->headPitchRangeUp = n;
@@ -2321,7 +2321,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    gi.Printf(S_COLOR_YELLOW "WARNING: bad %s in NPC '%s'\n", token, NPCName);
+                    Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
                     continue;
                 }
                 ri->headPitchRangeDown = n;
@@ -2335,7 +2335,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    gi.Printf(S_COLOR_YELLOW "WARNING: bad %s in NPC '%s'\n", token, NPCName);
+                    Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
                     continue;
                 }
                 ri->torsoYawRangeLeft = n;
@@ -2349,7 +2349,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    gi.Printf(S_COLOR_YELLOW "WARNING: bad %s in NPC '%s'\n", token, NPCName);
+                    Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
                     continue;
                 }
                 ri->torsoYawRangeRight = n;
@@ -2363,7 +2363,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    gi.Printf(S_COLOR_YELLOW "WARNING: bad %s in NPC '%s'\n", token, NPCName);
+                    Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
                     continue;
                 }
                 ri->torsoPitchRangeUp = n;
@@ -2377,7 +2377,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    gi.Printf(S_COLOR_YELLOW "WARNING: bad %s in NPC '%s'\n", token, NPCName);
+                    Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
                     continue;
                 }
                 ri->torsoPitchRangeDown = n;
@@ -2391,7 +2391,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    gi.Printf("bad %s in NPC '%s'\n", token, NPCName);
+                    Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
                     continue;
                 }
                 if (n != 100) {
@@ -2407,7 +2407,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    gi.Printf("bad %s in NPC '%s'\n", token, NPCName);
+                    Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
                     continue;
                 }
                 if (n != 100) {
@@ -2423,7 +2423,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    gi.Printf("bad %s in NPC '%s'\n", token, NPCName);
+                    Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
                     continue;
                 }
                 if (n != 100) {
@@ -2439,7 +2439,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    gi.Printf("bad %s in NPC '%s'\n", token, NPCName);
+                    Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
                     continue;
                 }
                 if (n != 100) {
@@ -2457,7 +2457,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                         continue;
                     }
                     if (n < 1 || n > 5) {
-                        gi.Printf("bad %s in NPC '%s'\n", token, NPCName);
+                        Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
                         continue;
                     }
                     if (NPC->NPC) {
@@ -2473,7 +2473,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                         continue;
                     }
                     if (n < 1 || n > 5) {
-                        gi.Printf("bad %s in NPC '%s'\n", token, NPCName);
+                        Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
                         continue;
                     }
                     if (NPC->NPC) {
@@ -2489,7 +2489,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                         continue;
                     }
                     if (f < 0.0f) {
-                        gi.Printf("bad %s in NPC '%s'\n", token, NPCName);
+                        Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
                         continue;
                     }
                     if (NPC->NPC) {
@@ -2505,7 +2505,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                         continue;
                     }
                     if (n < 1 || n > 5) {
-                        gi.Printf(S_COLOR_YELLOW "WARNING: bad %s in NPC '%s'\n", token, NPCName);
+                        Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
                         continue;
                     }
                     if (NPC->NPC) {
@@ -2521,7 +2521,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                         continue;
                     }
                     if (n < 1 || n > 180) {
-                        gi.Printf("bad %s in NPC '%s'\n", token, NPCName);
+                        Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
                         continue;
                     }
                     if (NPC->NPC) {
@@ -2537,7 +2537,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                         continue;
                     }
                     if (n < 1 || n > 5) {
-                        gi.Printf("bad %s in NPC '%s'\n", token, NPCName);
+                        Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
                         continue;
                     }
                     if (NPC->NPC) {
@@ -2553,7 +2553,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                         continue;
                     }
                     if (n < 1 || n > 5) {
-                        gi.Printf("bad %s in NPC '%s'\n", token, NPCName);
+                        Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
                         continue;
                     }
                     if (NPC->NPC) {
@@ -2569,7 +2569,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                         continue;
                     }
                     if (n < 1 || n > 5) {
-                        gi.Printf("bad %s in NPC '%s'\n", token, NPCName);
+                        Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
                         continue;
                     }
                     if (NPC->NPC) {
@@ -2585,7 +2585,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                         continue;
                     }
                     if (f < 0.0f) {
-                        gi.Printf("bad %s in NPC '%s'\n", token, NPCName);
+                        Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
                         continue;
                     }
                     if (NPC->NPC) {
@@ -2601,7 +2601,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                         continue;
                     }
                     if (n < 2 || n > 360) {
-                        gi.Printf("bad %s in NPC '%s'\n", token, NPCName);
+                        Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
                         continue;
                     }
                     if (NPC->NPC) {
@@ -2617,7 +2617,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                         continue;
                     }
                     if (f < 0.0f) {
-                        gi.Printf("bad %s in NPC '%s'\n", token, NPCName);
+                        Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
                         continue;
                     }
                     if (NPC->NPC) {
@@ -2633,7 +2633,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                         continue;
                     }
                     if (f < 0.0f) {
-                        gi.Printf("bad %s in NPC '%s'\n", token, NPCName);
+                        Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
                         continue;
                     }
                     if (NPC->NPC) {
@@ -2675,7 +2675,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    gi.Printf(S_COLOR_YELLOW "WARNING: bad %s in NPC '%s'\n", token, NPCName);
+                    Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
                     continue;
                 }
                 if (NPC->NPC) {
@@ -2690,7 +2690,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
             // fullName
             if (!Q_stricmp(token, "fullName")) {
 #ifndef FINAL_BUILD
-                gi.Printf(S_COLOR_YELLOW "WARNING: fullname ignored in NPC '%s'\n", NPCName);
+                Com_Warning("fullname ignored in NPC '%s'\n", NPCName);
 #endif
                 if (COM_ParseString(&p, &value)) {
                     continue;
@@ -2726,9 +2726,9 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                 // No md3's for vehicles.
                 if (NPC->client->NPC_class == class_t::CLASS_VEHICLE) {
                     if (!NPC->m_pVehicle) { // you didn't spawn this guy right!
-                        Com_Printf(S_COLOR_RED "ERROR: Tried to spawn a vehicle NPC (%s) without using NPC_Vehicle or 'NPC spawn vehicle <vehiclename>'!!!  "
-                                               "Bad, bad, bad!  Shame on you!\n",
-                                   NPCName);
+                        Com_PrintError("Tried to spawn a vehicle NPC (%s) without using NPC_Vehicle or 'NPC spawn vehicle <vehiclename>'!!!  "
+                                       "Bad, bad, bad!  Shame on you!\n",
+                                       NPCName);
                         COM_EndParseSession();
                         return false;
                     }
@@ -2745,7 +2745,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    gi.Printf("bad %s in NPC '%s'\n", token, NPCName);
+                    Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
                     continue;
                 }
                 if (NPC->NPC) {
@@ -2761,7 +2761,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    gi.Printf("bad %s in NPC '%s'\n", token, NPCName);
+                    Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
                     continue;
                 }
                 if (NPC->NPC) {
@@ -2777,7 +2777,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    gi.Printf("bad %s in NPC '%s'\n", token, NPCName);
+                    Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
                     continue;
                 }
                 if (NPC->NPC) {
@@ -2793,7 +2793,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    gi.Printf("bad %s in NPC '%s'\n", token, NPCName);
+                    Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
                     continue;
                 }
                 if (NPC->NPC) {
@@ -2809,7 +2809,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 if (n < 0) {
-                    gi.Printf("bad %s in NPC '%s'\n", token, NPCName);
+                    Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
                     continue;
                 }
                 if (NPC->NPC) {
@@ -2879,7 +2879,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                         continue;
                     }
                     if (n <= 0) {
-                        gi.Printf("bad %s in NPC '%s'\n", token, NPCName);
+                        Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
                         continue;
                     }
                     if (NPC->NPC) {
@@ -2895,7 +2895,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                         continue;
                     }
                     if (n < 0) {
-                        gi.Printf(S_COLOR_YELLOW "WARNING: bad %s in NPC '%s'\n", token, NPCName);
+                        Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
                         continue;
                     }
                     if (NPC->NPC) {
@@ -2911,7 +2911,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                         continue;
                     }
                     if (n < 0) {
-                        gi.Printf(S_COLOR_YELLOW "WARNING: bad %s in NPC '%s'\n", token, NPCName);
+                        Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
                         continue;
                     }
                     if (NPC->NPC) {
@@ -2927,7 +2927,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                         continue;
                     }
                     if (n < 0) {
-                        gi.Printf(S_COLOR_YELLOW "WARNING: bad %s in NPC '%s'\n", token, NPCName);
+                        Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
                         continue;
                     }
                     if (NPC->NPC) {
@@ -2973,7 +2973,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                         continue;
                     }
                     if (n < to_underlying(bState_t::BS_DEFAULT) || n >= to_underlying(bState_t::NUM_BSTATES)) {
-                        gi.Printf(S_COLOR_YELLOW "WARNING: bad %s in NPC '%s'\n", token, NPCName);
+                        Com_Warning("bad %s in NPC '%s'\n", token, NPCName);
                         continue;
                     }
                     if (NPC->NPC) {
@@ -3205,7 +3205,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                 else if (strlen(token) == 11) {
                     int index = atoi(&token[10]) - 1;
                     if (index > 7 || index < 1) {
-                        gi.Printf(S_COLOR_YELLOW "WARNING: bad saberColor '%s' in %s\n", token, NPCName);
+                        Com_Warning("bad saberColor '%s' in %s\n", token, NPCName);
                         continue;
                     }
                     if (COM_ParseString(&p, &value)) {
@@ -3214,7 +3214,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     NPC->client->ps.saber[0].blade[index].color = TranslateSaberColor(value);
                 }
                 else {
-                    gi.Printf(S_COLOR_YELLOW "WARNING: bad saberColor '%s' in %s\n", token, NPCName);
+                    Com_Warning("bad saberColor '%s' in %s\n", token, NPCName);
                 }
                 continue;
             }
@@ -3236,7 +3236,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                 else if (strlen(token) == 12) {
                     n = atoi(&token[11]) - 1;
                     if (n > 7 || n < 1) {
-                        gi.Printf(S_COLOR_YELLOW "WARNING: bad saber2Color '%s' in %s\n", token, NPCName);
+                        Com_Warning("bad saber2Color '%s' in %s\n", token, NPCName);
                         continue;
                     }
                     if (COM_ParseString(&p, &value)) {
@@ -3245,7 +3245,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     NPC->client->ps.saber[1].blade[n].color = TranslateSaberColor(value);
                 }
                 else {
-                    gi.Printf(S_COLOR_YELLOW "WARNING: bad saber2Color '%s' in %s\n", token, NPCName);
+                    Com_Warning("bad saber2Color '%s' in %s\n", token, NPCName);
                 }
                 continue;
             }
@@ -3258,12 +3258,12 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                 else if (strlen(token) == 12) {
                     n = atoi(&token[11]) - 1;
                     if (n > 7 || n < 1) {
-                        gi.Printf(S_COLOR_YELLOW "WARNING: bad saberLength '%s' in %s\n", token, NPCName);
+                        Com_Warning("bad saberLength '%s' in %s\n", token, NPCName);
                         continue;
                     }
                 }
                 else {
-                    gi.Printf(S_COLOR_YELLOW "WARNING: bad saberLength '%s' in %s\n", token, NPCName);
+                    Com_Warning("bad saberLength '%s' in %s\n", token, NPCName);
                     continue;
                 }
 
@@ -3296,12 +3296,12 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                 else if (strlen(token) == 13) {
                     n = atoi(&token[12]) - 1;
                     if (n > 7 || n < 1) {
-                        gi.Printf(S_COLOR_YELLOW "WARNING: bad saber2Length '%s' in %s\n", token, NPCName);
+                        Com_Warning("bad saber2Length '%s' in %s\n", token, NPCName);
                         continue;
                     }
                 }
                 else {
-                    gi.Printf(S_COLOR_YELLOW "WARNING: bad saber2Length '%s' in %s\n", token, NPCName);
+                    Com_Warning("bad saber2Length '%s' in %s\n", token, NPCName);
                     continue;
                 }
 
@@ -3335,12 +3335,12 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                 else if (strlen(token) == 12) {
                     n = atoi(&token[11]) - 1;
                     if (n > 7 || n < 1) {
-                        gi.Printf(S_COLOR_YELLOW "WARNING: bad saberRadius '%s' in %s\n", token, NPCName);
+                        Com_Warning("bad saberRadius '%s' in %s\n", token, NPCName);
                         continue;
                     }
                 }
                 else {
-                    gi.Printf(S_COLOR_YELLOW "WARNING: bad saberRadius '%s' in %s\n", token, NPCName);
+                    Com_Warning("bad saberRadius '%s' in %s\n", token, NPCName);
                     continue;
                 }
 
@@ -3371,12 +3371,12 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                 else if (strlen(token) == 13) {
                     n = atoi(&token[12]) - 1;
                     if (n > 7 || n < 1) {
-                        gi.Printf(S_COLOR_YELLOW "WARNING: bad saber2Radius '%s' in %s\n", token, NPCName);
+                        Com_Warning("bad saber2Radius '%s' in %s\n", token, NPCName);
                         continue;
                     }
                 }
                 else {
-                    gi.Printf(S_COLOR_YELLOW "WARNING: bad saber2Radius '%s' in %s\n", token, NPCName);
+                    Com_Warning("bad saber2Radius '%s' in %s\n", token, NPCName);
                     continue;
                 }
 
@@ -3431,7 +3431,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
             }
 
             if (!parsingPlayer) {
-                gi.Printf("WARNING: unknown keyword '%s' while parsing '%s'\n", token, NPCName);
+                Com_Warning("unknown keyword '%s' while parsing '%s'\n", token, NPCName);
             }
             SkipRestOfLine(&p);
         }
@@ -3485,7 +3485,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     //--------------------------------
                     else {
                         if (NPC->soundSet && NPC->soundSet[0]) {
-                            gi.Printf(S_COLOR_RED "WARNING: Unable to use skin (%s)", NPC->soundSet);
+                            Com_Warning("Unable to use skin (%s)", NPC->soundSet);
                         }
                         Q_strncpyz(customSkin, *skinarray[Q_irand(0, skinarray.size() - 1)], sizeof(customSkin));
                     }
@@ -3517,7 +3517,7 @@ void NPC_LoadParms(void)
     char *buffer, *holdChar, *marker;
     char npcExtensionListBuf[2048]; //	The list of file names read in
 
-    // gi.Printf( "Parsing ext_data/npcs/*.npc definitions\n" );
+    // Com_Printf( "Parsing ext_data/npcs/*.npc definitions\n" );
 
     // set where to store the first one
     totallen = 0;
@@ -3531,12 +3531,12 @@ void NPC_LoadParms(void)
     for (i = 0; i < fileCnt; i++, holdChar += npcExtFNLen + 1) {
         npcExtFNLen = strlen(holdChar);
 
-        // gi.Printf( "Parsing %s\n", holdChar );
+        // Com_Printf( "Parsing %s\n", holdChar );
 
         len = gi.FS_ReadFile(va("ext_data/npcs/%s", holdChar), (void**)&buffer);
 
         if (len == -1) {
-            gi.Printf("NPC_LoadParms: error reading file %s\n", holdChar);
+            Com_Printf("NPC_LoadParms: error reading file %s\n", holdChar);
         }
         else {
             if (totallen && *(marker - 1) == '}') { // don't let previous file end on a } because that must be a stand-alone token
@@ -3547,7 +3547,7 @@ void NPC_LoadParms(void)
             len = COM_Compress(buffer);
 
             if (totallen + len >= MAX_NPC_DATA_SIZE) {
-                G_Error("NPC_LoadParms: ran out of space before reading %s\n(you must make the .npc files smaller)", holdChar);
+                Com_Error(errorParm_t::ERR_DROP, "NPC_LoadParms: ran out of space before reading %s\n(you must make the .npc files smaller)", holdChar);
             }
             strcat(marker, buffer);
             gi.FS_FreeFile(buffer);

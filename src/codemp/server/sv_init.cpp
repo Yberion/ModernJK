@@ -696,7 +696,7 @@ void SV_SpawnServer(char* server, bool killBots, ForceReload_e eForceReload)
         p = FS_LoadedPakChecksums();
         Cvar_Set("sv_paks", p);
         if (strlen(p) == 0) {
-            Com_Printf("WARNING: sv_pure set but no PK3 files loaded\n");
+            Com_Warning("sv_pure set but no PK3 files loaded\n");
         }
         p = FS_LoadedPakNames();
         Cvar_Set("sv_pakNames", p);
@@ -770,36 +770,6 @@ constexpr int G2_VERT_SPACE_SERVER_SIZE = 256;
 IHeapAllocator* G2VertSpaceServer = nullptr;
 CMiniHeap IHeapAllocator_singleton(G2_VERT_SPACE_SERVER_SIZE * 1024);
 
-/*
-================
-CL_RefPrintf
-
-DLL glue
-================
-*/
-void QDECL SV_RefPrintf(printParm_t print_level, const char* fmt, ...)
-{
-    va_list argptr;
-    char msg[MAXPRINTMSG];
-
-    va_start(argptr, fmt);
-    Q_vsnprintf(msg, sizeof(msg), fmt, argptr);
-    va_end(argptr);
-
-    if (print_level == printParm_t::PRINT_ALL) {
-        Com_Printf("%s", msg);
-    }
-    else if (print_level == printParm_t::PRINT_WARNING) {
-        Com_Printf(S_COLOR_YELLOW "%s", msg); // yellow
-    }
-    else if (print_level == printParm_t::PRINT_DEVELOPER) {
-        Com_DPrintf(S_COLOR_RED "%s", msg); // red
-    }
-    else if (print_level == printParm_t::PRINT_ERROR) {
-        Com_Printf(S_COLOR_RED "%s", msg); // red
-    }
-}
-
 bool Com_TheHunkMarkHasBeenMade(void);
 
 // qcommon/vm.cpp
@@ -851,9 +821,8 @@ static void SV_InitRef(void)
     memset(&ri, 0, sizeof(ri));
 
     // set up the import table
-    ri.Printf = SV_RefPrintf;
-    ri.Error = Com_Error;
-    ri.OPrintf = Com_OPrintf;
+    ri.Print = Com_VPrintf;
+    ri.Error = Com_VError;
     ri.Milliseconds = Sys_Milliseconds2; // FIXME: unix+mac need this
     ri.Hunk_AllocateTempMemory = Hunk_AllocateTempMemory;
     ri.Hunk_FreeTempMemory = Hunk_FreeTempMemory;

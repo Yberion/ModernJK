@@ -4206,10 +4206,10 @@ void PM_SetAnimFinal(animNumber_t* torsoAnim, animNumber_t* legsAnim, setAnimPar
 #ifndef FINAL_BUILD
         if (g_AnimWarning->integer) {
             if (anim < animNumber_t::FACE_TALK0 || anim >= animNumber_t::MAX_ANIMATIONS) {
-                gi.Printf(S_COLOR_RED "PM_SetAnimFinal: Invalid Anim Index (%d)!\n", to_underlying(anim));
+                Com_Printf(S_COLOR_RED "PM_SetAnimFinal: Invalid Anim Index (%d)!\n", to_underlying(anim));
             }
             else {
-                gi.Printf(S_COLOR_RED "PM_SetAnimFinal: Invalid Anim File Index (%d)!\n", gent->client->clientInfo.animFileIndex);
+                Com_Printf(S_COLOR_RED "PM_SetAnimFinal: Invalid Anim File Index (%d)!\n", gent->client->clientInfo.animFileIndex);
             }
         }
 #endif
@@ -4234,7 +4234,7 @@ void PM_SetAnimFinal(animNumber_t* torsoAnim, animNumber_t* legsAnim, setAnimPar
                 (cg_debugAnim.integer == 2 && gent->s.number != 0) ||                       // 2 = only everyone else
                 (cg_debugAnim.integer == 4 && gent->s.number != cg_debugAnimTarget.integer) // 4 = specific entnum
             ) {
-                gi.Printf(S_COLOR_RED "PM_SetAnimFinal: Anim %s does not exist in this model (%s)!\n", BG_AnimName(anim), gent->NPC_type);
+                Com_Printf(S_COLOR_RED "PM_SetAnimFinal: Anim %s does not exist in this model (%s)!\n", BG_AnimName(anim), gent->NPC_type);
             }
         }
         LastAnimWarningNum = anim;
@@ -4291,7 +4291,7 @@ void PM_SetAnimFinal(animNumber_t* torsoAnim, animNumber_t* legsAnim, setAnimPar
 		{
 			if (animFlags&boneFlags_t::BONE_ANIM_OVERRIDE_LOOP)
 			{
-				gi.Printf(S_COLOR_YELLOW"PM_SetAnimFinal: WARNING: Anim (%s) looping backwards!\n", BG_AnimName( anim ));
+				Com_Printf(S_COLOR_YELLOW"PM_SetAnimFinal: WARNING: Anim (%s) looping backwards!\n", BG_AnimName( anim ));
 			}
 		}
 #endif
@@ -4508,18 +4508,18 @@ void PM_SetAnimFinal(animNumber_t* torsoAnim, animNumber_t* legsAnim, setAnimPar
     // PRINT SOME DEBUG TEXT OF EXISTING VALUES
     //==========================================
     if (false) {
-        gi.Printf("PLAYANIM: (%3d) Speed(%4.2f) ", to_underlying(anim), animSpeed);
+        Com_Printf("PLAYANIM: (%3d) Speed(%4.2f) ", to_underlying(anim), animSpeed);
         if (bodyAnimating) {
-            gi.Printf("BODY: (%4.2f) (%4.2f) ", bodyCurrent, bodySpeed);
+            Com_Printf("BODY: (%4.2f) (%4.2f) ", bodyCurrent, bodySpeed);
         }
         else {
-            gi.Printf("                      ");
+            Com_Printf("                      ");
         }
         if (torsAnimating) {
-            gi.Printf("TORS: (%4.2f) (%4.2f)\n", torsCurrent, torsSpeed);
+            Com_Printf("TORS: (%4.2f) (%4.2f)\n", torsCurrent, torsSpeed);
         }
         else {
-            gi.Printf("\n");
+            Com_Printf("\n");
         }
     }
 }

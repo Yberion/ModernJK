@@ -41,7 +41,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <qcommon/q_shared.h>
 #include "botlib.h"
-#include "be_interface.h" //for botimport.Print
+#include "be_interface.h" //for botlibglobals
 #include "l_libvar.h"
 #include "l_log.h"
 
@@ -66,20 +66,20 @@ void Log_Open(char* filename)
     if (!LibVarValue("log", "0"))
         return;
     if (!filename || !strlen(filename)) {
-        botimport.Print(printType_t::PRT_MESSAGE, "openlog <filename>\n");
+        Com_Printf("openlog <filename>\n");
         return;
     } // end if
     if (logfile.fp) {
-        botimport.Print(printType_t::PRT_ERROR, "log file %s is already opened\n", logfile.filename);
+        Com_PrintError("log file %s is already opened\n", logfile.filename);
         return;
     } // end if
     logfile.fp = fopen(filename, "wb");
     if (!logfile.fp) {
-        botimport.Print(printType_t::PRT_ERROR, "can't open the log file %s\n", filename);
+        Com_PrintError("can't open the log file %s\n", filename);
         return;
     } // end if
     Q_strncpyz(logfile.filename, filename, MAX_LOGFILENAMESIZE);
-    botimport.Print(printType_t::PRT_MESSAGE, "Opened log %s\n", logfile.filename);
+    Com_Printf("Opened log %s\n", logfile.filename);
 } // end of the function Log_Create
 //===========================================================================
 //
@@ -92,11 +92,11 @@ void Log_Close(void)
     if (!logfile.fp)
         return;
     if (fclose(logfile.fp)) {
-        botimport.Print(printType_t::PRT_ERROR, "can't close log file %s\n", logfile.filename);
+        Com_PrintError("can't close log file %s\n", logfile.filename);
         return;
     } // end if
     logfile.fp = nullptr;
-    botimport.Print(printType_t::PRT_MESSAGE, "Closed log %s\n", logfile.filename);
+    Com_Printf("Closed log %s\n", logfile.filename);
 } // end of the function Log_Close
 //===========================================================================
 //

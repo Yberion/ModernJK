@@ -94,11 +94,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 #endif
 
-// Ignore __attribute__ on non-gcc platforms
-#if !defined(__GNUC__) && !defined(__attribute__)
-#define __attribute__(x)
-#endif
-
 #if defined(__GNUC__)
 #define UNUSED_VAR __attribute__((unused))
 #else
@@ -114,6 +109,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #endif
 
 #include <shared/qcommon/q_platform.h>
+#include <shared/qcommon/q_fmt.h>
 #include "ojk_saved_game_helper_fwd.h"
 
 // ================================================================
@@ -170,14 +166,6 @@ enum class cbufExec_t {
 // Light Style Constants
 
 inline constexpr int MAX_LIGHT_STYLES = 64;
-
-// print levels from renderer (FIXME: set up for game / cgame?)
-enum class printParm_t {
-    PRINT_ALL,
-    PRINT_DEVELOPER, // only print when "developer 1"
-    PRINT_WARNING,
-    PRINT_ERROR
-};
 
 // parameters to the main Error routine
 enum class errorParm_t {
@@ -264,8 +252,6 @@ void Parse2DMatrix(const char** buf_p, int y, int x, float* m);
 void Parse3DMatrix(const char** buf_p, int z, int y, int x, float* m);
 int Com_HexStrToInt(const char* str);
 
-int QDECL Com_sprintf(char* dest, int size, const char* fmt, ...) __attribute__((format(printf, 3, 4)));
-
 char* Com_SkipTokens(char* s, int numTokens, const char* sep);
 char* Com_SkipCharset(char* s, const char* sep);
 
@@ -275,8 +261,6 @@ enum class fsMode_t { FS_READ, FS_WRITE, FS_APPEND, FS_APPEND_SYNC };
 enum class fsOrigin_t { FS_SEEK_CUR, FS_SEEK_END, FS_SEEK_SET };
 
 //=============================================
-char* QDECL va(const char* format, ...) __attribute__((format(printf, 1, 2)));
-
 void Com_TruncateLongString(char* buffer, const char* s);
 
 //=============================================
@@ -289,10 +273,6 @@ void Info_RemoveKey(char* s, const char* key);
 void Info_SetValueForKey(char* s, const char* key, const char* value);
 bool Info_Validate(const char* s);
 void Info_NextPair(const char** s, char key[MAX_INFO_KEY], char value[MAX_INFO_VALUE]);
-
-// this is only here so the functions in q_shared.cpp and bg_*.c can link
-void NORETURN QDECL Com_Error(errorParm_t level, const char* error, ...) __attribute__((format(printf, 2, 3)));
-void QDECL Com_Printf(const char* msg, ...) __attribute__((format(printf, 1, 2)));
 
 /*
 ==========================================================

@@ -560,7 +560,7 @@ int Pickup_Holocron(gentity_t* ent, gentity_t* other)
     const forcePowerLevels_t forceLevel = static_cast<forcePowerLevels_t>(ent->count);
     // check if out of range
     if (forceLevel < forcePowerLevels_t::FORCE_LEVEL_0 || forceLevel >= forcePowerLevels_t::NUM_FORCE_POWER_LEVELS) {
-        gi.Printf(" Pickup_Holocron : count %d not in valid range\n", ent->count);
+        Com_Printf(" Pickup_Holocron : count %d not in valid range\n", ent->count);
         return 1;
     }
 
@@ -718,7 +718,7 @@ void Touch_Item(gentity_t* ent, gentity_t* other, trace_t* trace)
         }
     }
     if (!ent->item) { // not an item!
-        gi.Printf("Touch_Item: %s is not an item!\n", ent->classname);
+        Com_Printf("Touch_Item: %s is not an item!\n", ent->classname);
         return;
     }
 
@@ -1064,11 +1064,11 @@ void FinishSpawningItem(gentity_t* ent)
                  0);
         if (tr.startsolid) {
             if (g_entities[tr.entityNum].inuse) {
-                gi.Printf(S_COLOR_RED "FinishSpawningItem: removing %s startsolid at %s (in a %s)\n", ent->classname, vtos(ent->s.origin),
-                          g_entities[tr.entityNum].classname);
+                Com_Printf(S_COLOR_RED "FinishSpawningItem: removing %s startsolid at %s (in a %s)\n", ent->classname, vtos(ent->s.origin),
+                           g_entities[tr.entityNum].classname);
             }
             else {
-                gi.Printf(S_COLOR_RED "FinishSpawningItem: removing %s startsolid at %s\n", ent->classname, vtos(ent->s.origin));
+                Com_Printf(S_COLOR_RED "FinishSpawningItem: removing %s startsolid at %s\n", ent->classname, vtos(ent->s.origin));
             }
             assert(0 && "item starting in solid");
             if (!g_entities[ENTITYNUM_WORLD].s.radius) { // not a region
@@ -1149,7 +1149,7 @@ The item will be added to the precache list
 void RegisterItem(gitem_t* item)
 {
     if (!item) {
-        G_Error("RegisterItem: NULL");
+        Com_Error(errorParm_t::ERR_DROP, "RegisterItem: NULL");
     }
     itemRegistered[item - bg_itemlist.data()] = '1';
     gi.SetConfigstring(CS_ITEMS, itemRegistered); // Write the needed items to a config string
@@ -1180,7 +1180,7 @@ void SaveRegisteredItems(void)
         }
         string[ bg_numItems ] = 0;
 
-        gi.Printf( "%i items registered\n", count );
+        Com_Printf( "%i items registered\n", count );
         gi.SetConfigstring(CS_ITEMS, string);
     */
     gi.SetConfigstring(CS_ITEMS, itemRegistered);
@@ -1239,7 +1239,7 @@ void G_SpawnItem(gentity_t* ent, gitem_t* item)
     if (ent->team && ent->team[0]) {
         ent->noDamageTeam = (team_t)GetIDForString(TeamTable, ent->team);
         if (ent->noDamageTeam == team_t::TEAM_FREE) {
-            G_Error("team name %s not recognized\n", ent->team);
+            Com_Error(errorParm_t::ERR_DROP, "team name %s not recognized\n", ent->team);
         }
     }
 

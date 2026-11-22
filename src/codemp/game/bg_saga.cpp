@@ -852,7 +852,7 @@ void BG_SiegeParseClassFile(const char* filename, siegeClassDesc_t* descBuffer)
         assert(bgSiegeClasses[bgNumSiegeClasses].classShader);
         if (!bgSiegeClasses[bgNumSiegeClasses].classShader) {
             // Com_Error( errorParm_t::ERR_DROP, "ERROR: could not find class_shader %s for class %s\n", parseBuf, bgSiegeClasses[bgNumSiegeClasses].name );
-            Com_Printf("ERROR: could not find class_shader %s for class %s\n", parseBuf, bgSiegeClasses[bgNumSiegeClasses].name);
+            Com_PrintError("could not find class_shader %s for class %s\n", parseBuf, bgSiegeClasses[bgNumSiegeClasses].name);
         }
         // A very hacky way to determine class . . .
         else
@@ -887,7 +887,7 @@ void BG_SiegeParseClassFile(const char* filename, siegeClassDesc_t* descBuffer)
     }
     else { // No entry!  Bad bad bad
         // Com_Error( errorParm_t::ERR_DROP, "ERROR: no class_shader defined for class %s\n", bgSiegeClasses[bgNumSiegeClasses].name );
-        Com_Printf("ERROR: no class_shader defined for class %s\n", bgSiegeClasses[bgNumSiegeClasses].name);
+        Com_PrintError("no class_shader defined for class %s\n", bgSiegeClasses[bgNumSiegeClasses].name);
     }
 
     // Parse holdable items to use

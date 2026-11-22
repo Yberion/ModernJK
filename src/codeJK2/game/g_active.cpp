@@ -1168,7 +1168,7 @@ void ClientEvents(gentity_t* ent, int oldEventSequence)
         case entity_event_t::EV_FIRE_WEAPON:
 #ifndef FINAL_BUILD
             if (fired) {
-                gi.Printf("DOUBLE EV_FIRE_WEAPON AND-OR EV_ALT_FIRE!!\n");
+                Com_Printf("DOUBLE EV_FIRE_WEAPON AND-OR EV_ALT_FIRE!!\n");
             }
             fired = true;
 #endif
@@ -1178,7 +1178,7 @@ void ClientEvents(gentity_t* ent, int oldEventSequence)
         case entity_event_t::EV_ALT_FIRE:
 #ifndef FINAL_BUILD
             if (fired) {
-                gi.Printf("DOUBLE EV_FIRE_WEAPON AND-OR EV_ALT_FIRE!!\n");
+                Com_Printf("DOUBLE EV_FIRE_WEAPON AND-OR EV_ALT_FIRE!!\n");
             }
             fired = true;
 #endif
@@ -1862,7 +1862,7 @@ void ClientThink_real(gentity_t* ent, usercmd_t* ucmd)
 
                 if ((slide > 0 && ucmd->rightmove >= 0) ||
                     ((slide < 0 && ucmd->rightmove <= 0))) { // note: don't want these to conflict right now because that seems to feel really weird
-                    // gi.Printf( "slide %i, diff %i, yaw %i\n", slide, diff, ucmd->angles[YAW] );
+                    // Com_Printf( "slide %i, diff %i, yaw %i\n", slide, diff, ucmd->angles[YAW] );
                     ucmd->rightmove += slide;
                 }
 

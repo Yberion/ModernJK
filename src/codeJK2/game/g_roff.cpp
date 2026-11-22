@@ -220,10 +220,10 @@ void G_RoffNotetrackCallback(gentity_t* cent, const char* notetrack)
     // else if ...
     else {
         if (type[0]) {
-            Com_Printf("Warning: \"%s\" is an invalid ROFF notetrack function\n", type);
+            Com_Warning("\"%s\" is an invalid ROFF notetrack function\n", type);
         }
         else {
-            Com_Printf("Warning: Notetrack is missing function and/or arguments\n");
+            Com_Warning("Notetrack is missing function and/or arguments\n");
         }
     }
 
@@ -466,9 +466,7 @@ void G_Roff(gentity_t* ent)
     }
 
 #ifdef _DEBUG
-    if (g_developer->integer) {
-        Com_Printf(S_COLOR_GREEN "ROFF dat: num: %d o:<%.2f %.2f %.2f> a:<%.2f %.2f %.2f>\n", ent->roff_ctr, org[0], org[1], org[2], ang[0], ang[1], ang[2]);
-    }
+    Com_DPrintf(S_COLOR_GREEN "ROFF dat: num: %d o:<%.2f %.2f %.2f> a:<%.2f %.2f %.2f>\n", ent->roff_ctr, org[0], org[1], org[2], ang[0], ang[1], ang[2]);
 #endif
 
     if (ent->client) {
@@ -596,7 +594,7 @@ void G_LoadCachedRoffs()
         saved_game.read_chunk<int32_t>(INT_ID('S', 'L', 'E', 'N'), len);
 
         if (len < 0 || static_cast<size_t>(len) >= sizeof(buffer)) {
-            ::G_Error("invalid length for RSTR string in save game: %d bytes\n", len);
+            Com_Error(errorParm_t::ERR_DROP, "invalid length for RSTR string in save game: %d bytes\n", len);
         }
 
         saved_game.read_chunk(INT_ID('R', 'S', 'T', 'R'), buffer, len);

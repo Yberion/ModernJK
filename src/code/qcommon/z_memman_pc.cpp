@@ -797,8 +797,7 @@ void Com_ShutdownZoneMemory(void)
         //  commands will just simply be wrong in displaying bytes, but in my tests, it's only off
         //  by like 10 bytes / 1 block, which isn't a real problem --eez
         if (TheZone.Stats.iCount < 0) {
-            Com_Printf(S_COLOR_YELLOW "WARNING: Freeing %d extra blocks (%d bytes) not tracked by the zone manager\n", abs(TheZone.Stats.iCount),
-                       abs(TheZone.Stats.iCurrent));
+            Com_Warning("Freeing %d extra blocks (%d bytes) not tracked by the zone manager\n", abs(TheZone.Stats.iCount), abs(TheZone.Stats.iCurrent));
         }
     }
 }

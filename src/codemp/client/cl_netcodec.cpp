@@ -455,7 +455,7 @@ bool CL_NetcodecWritePacket(msg_t* buf, int count, bool delta)
     }
     const size_t size = Codec().EncodePacket(p, frame ? &base : nullptr, buf->data, (size_t)buf->maxsize);
     if (!size) {
-        Com_Printf("WARNING: client packet not coded (too large)\n");
+        Com_Warning("client packet not coded (too large)\n");
         return false;
     }
     buf->cursize = (int)size;

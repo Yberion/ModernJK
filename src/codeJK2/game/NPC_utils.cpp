@@ -36,7 +36,7 @@ EnumArray<int, team_t, team_t::TEAM_NUM_TEAMS> teamCounter;
 
 constexpr float VALID_ATTACK_CONE = 2.0f; // Degrees
 void GetAnglesForDirection(const vec3_t p1, const vec3_t p2, vec3_t out);
-extern void Q3_DebugPrint(WL_e level, const char* format, ...);
+extern void Q3_DebugPrint(WL_e level, const char* format, ...) __attribute__((format(printf, 2, 3)));
 
 /*
 void CalcEntitySpot ( gentity_t *ent, spot_t spot, vec3_t point )

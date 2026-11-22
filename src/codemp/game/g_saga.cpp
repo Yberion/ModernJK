@@ -194,7 +194,7 @@ void InitSiegeMode(void)
         }
     }
     else {
-        trap->Error(errorParm_t::ERR_DROP, "Siege teams not defined");
+        Com_Error(errorParm_t::ERR_DROP, "Siege teams not defined");
     }
 
     if (BG_SiegeGetValueGroup(siege_info, team2, gParseObjectives)) {
@@ -251,7 +251,7 @@ void InitSiegeMode(void)
     BG_SiegeLoadClasses(nullptr);
 
     if (!bgNumSiegeClasses) { // We didn't find any?!
-        trap->Error(errorParm_t::ERR_DROP, "Couldn't find any player classes for Siege");
+        Com_Error(errorParm_t::ERR_DROP, "Couldn't find any player classes for Siege");
     }
 
     /*
@@ -284,7 +284,7 @@ void InitSiegeMode(void)
     BG_SiegeLoadTeams();
 
     if (!bgNumSiegeTeams) { // React same as with classes.
-        trap->Error(errorParm_t::ERR_DROP, "Couldn't find any player teams for Siege");
+        Com_Error(errorParm_t::ERR_DROP, "Couldn't find any player teams for Siege");
     }
 
     // Get and set the team themes for each team. This will control which classes can be
@@ -461,7 +461,7 @@ void UseSiegeTarget(gentity_t* other, gentity_t* en, char* target)
     t = nullptr;
     while ((t = G_Find(t, FOFS(targetname), target)) != nullptr) {
         if (t == ent) {
-            trap->Print("WARNING: Entity used itself.\n");
+            Com_Warning("Entity used itself.\n");
         }
         else {
             if (t->use) {
@@ -469,7 +469,7 @@ void UseSiegeTarget(gentity_t* other, gentity_t* en, char* target)
             }
         }
         if (!ent->inuse) {
-            trap->Print("entity was removed while using targets\n");
+            Com_Printf("entity was removed while using targets\n");
             return;
         }
     }
@@ -510,7 +510,7 @@ void BroadcastObjectiveCompletion(team_t team, int objective, int final, int cli
     }
 
     SiegeBroadcast_OBJECTIVECOMPLETE(team, client, objective);
-    // trap->Print("Broadcast goal completion team %i objective %i final %i\n", team, objective, final);
+    // Com_Printf("Broadcast goal completion team %i objective %i final %i\n", team, objective, final);
 }
 
 void AddSiegeWinningTeamPoints(team_t team, int winner)
@@ -595,7 +595,7 @@ void SiegeRoundComplete(team_t winningteam, int winningclient)
     char teamstr[1024];
     int originalWinningClient = winningclient;
 
-    // trap->Print("Team %i won\n", winningteam);
+    // Com_Printf("Team %i won\n", winningteam);
 
     if (winningclient != ENTITYNUM_NONE && g_entities[winningclient].client &&
         g_entities[winningclient].client->sess.sessionTeam != winningteam) { // this person just won the round for the other team..
@@ -1006,7 +1006,7 @@ void SP_info_siege_objective(gentity_t* ent)
 
     if (!ent->objective || ent->side == team_t::TEAM_FREE) { // j00 fux0red something up
         G_FreeEntity(ent);
-        trap->Print("ERROR: info_siege_objective without an objective or side value\n");
+        Com_PrintError("info_siege_objective without an objective or side value\n");
         return;
     }
 
@@ -1148,7 +1148,7 @@ void SP_info_siege_decomplete(gentity_t* ent)
 
     if (!ent->objective || ent->side == team_t::TEAM_FREE) { // j00 fux0red something up
         G_FreeEntity(ent);
-        trap->Print("ERROR: info_siege_objective_decomplete without an objective or side value\n");
+        Com_PrintError("info_siege_objective_decomplete without an objective or side value\n");
         return;
     }
 }
@@ -1549,7 +1549,7 @@ void SP_misc_siege_item(gentity_t* ent)
     }
 
     if (!ent->model || !ent->model[0]) {
-        trap->Error(errorParm_t::ERR_DROP, "You must specify a model for misc_siege_item types.");
+        Com_Error(errorParm_t::ERR_DROP, "You must specify a model for misc_siege_item types.");
     }
 
     G_SpawnInt("canpickup", "1", &canpickup);

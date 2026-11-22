@@ -650,8 +650,8 @@ void CL_BindUI(void)
 
     uivm = VM_Create(vmSlots_t::VM_UI);
     if (uivm) {
-        uii.Print = Com_Printf;
-        uii.Error = Com_Error;
+        uii.Print = Com_VPrintf;
+        uii.Error = Com_VError;
         uii.Milliseconds = CL_Milliseconds;
         uii.RealTime = Com_RealTime;
         uii.MemoryRemaining = Hunk_MemoryRemaining;

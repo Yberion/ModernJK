@@ -57,7 +57,7 @@ void ShaderEntryPtrs_Insert(const char* token, const char* p)
         ShaderEntryPtrs[token] = p;
     }
     else {
-        ri.Printf(printParm_t::PRINT_DEVELOPER, "Duplicate shader entry %s!\n", token);
+        Com_DPrintf("Duplicate shader entry %s!\n", token);
     }
 }
 

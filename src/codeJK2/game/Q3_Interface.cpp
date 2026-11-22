@@ -431,6 +431,7 @@ Q3_CenterPrint
   Argument		: ...
 ============
 */
+static void Q3_CenterPrint(const char* format, ...) __attribute__((format(printf, 1, 2)));
 static void Q3_CenterPrint(const char* format, ...)
 {
 
@@ -8339,6 +8340,7 @@ bool Q3_DebugLevelShown(WL_e level)
 Q3_DebugPrint
 -------------------------
 */
+void Q3_DebugPrint(WL_e level, const char* format, ...) __attribute__((format(printf, 2, 3)));
 void Q3_DebugPrint(WL_e level, const char* format, ...)
 {
     // Don't print messages they don't want to see
@@ -8355,11 +8357,11 @@ void Q3_DebugPrint(WL_e level, const char* format, ...)
     // Add the color formatting
     switch (level) {
     case WL_e::WL_ERROR:
-        Com_Printf(S_COLOR_RED "ERROR: %s", text);
+        Com_PrintError("%s", text);
         break;
 
     case WL_e::WL_WARNING:
-        Com_Printf(S_COLOR_YELLOW "WARNING: %s", text);
+        Com_Warning("%s", text);
         break;
 
     case WL_e::WL_DEBUG: {

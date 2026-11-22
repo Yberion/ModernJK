@@ -223,14 +223,14 @@ static bool GLimp_DetectAvailableModes(void)
 
     int display = SDL_GetWindowDisplayIndex(screen);
     if (display < 0) {
-        Com_Printf(S_COLOR_YELLOW "WARNING: Couldn't get window display index, no resolutions detected: %s\n", SDL_GetError());
+        Com_Warning("Couldn't get window display index, no resolutions detected: %s\n", SDL_GetError());
         return false;
     }
 
     SDL_DisplayMode windowMode;
 
     if (SDL_GetWindowDisplayMode(screen, &windowMode) < 0) {
-        Com_Printf(S_COLOR_YELLOW "WARNING: Couldn't get window display mode, no resolutions detected (%s).\n", SDL_GetError());
+        Com_Warning("Couldn't get window display mode, no resolutions detected (%s).\n", SDL_GetError());
         return false;
     }
 

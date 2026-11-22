@@ -258,7 +258,7 @@ void G_InitWorldSession(void)
     // client sessions
     if (level.gametype != static_cast<gametype_t>(gt)) {
         level.newSession = true;
-        trap->Print("Gametype changed, clearing session data.\n");
+        Com_Printf("Gametype changed, clearing session data.\n");
     }
 }
 

@@ -927,8 +927,8 @@ void CL_BindCGame(void)
 
     cgvm = VM_Create(vmSlots_t::VM_CGAME);
     if (cgvm) {
-        cgi.Print = Com_Printf;
-        cgi.Error = Com_Error;
+        cgi.Print = Com_VPrintf;
+        cgi.Error = Com_VError;
         cgi.SnapVector = Sys_SnapVector;
         cgi.MemoryRemaining = Hunk_MemoryRemaining;
         cgi.RegisterSharedMemory = RegisterSharedMemory;

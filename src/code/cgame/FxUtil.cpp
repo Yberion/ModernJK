@@ -164,7 +164,7 @@ static SEffectList* FX_GetValidEffect()
 
     // report the error.
 #ifndef FINAL_BUILD
-    theFxHelper.Print("FX system out of effects\n");
+    Com_DPrintf("FX system out of effects\n");
 #endif
 
     // Hmmm.. just trashing the first effect in the list is a poor approach
@@ -225,7 +225,7 @@ void FX_Add(bool portal)
     }
     if (fx_debug.integer == 2 && !portal) {
         if (theFxHelper.mFrameTime > 100 || theFxHelper.mFrameTime < 5)
-            theFxHelper.Print("theFxHelper.mFrameTime = %i\n", theFxHelper.mFrameTime);
+            Com_DPrintf("theFxHelper.mFrameTime = %i\n", theFxHelper.mFrameTime);
     }
     if (fx_debug.integer == 1 && !portal) {
         if (theFxHelper.mTime > mMaxTime) {
@@ -241,90 +241,90 @@ void FX_Add(bool portal)
 
         // Particles
         if (mParticles > 500) {
-            theFxHelper.Print(">Particles  ^1%4i  ", mParticles);
+            Com_DPrintf(">Particles  ^1%4i  ", mParticles);
         }
         else if (mParticles > 250) {
-            theFxHelper.Print(">Particles  ^3%4i  ", mParticles);
+            Com_DPrintf(">Particles  ^3%4i  ", mParticles);
         }
         else {
-            theFxHelper.Print(">Particles  %4i  ", mParticles);
+            Com_DPrintf(">Particles  %4i  ", mParticles);
         }
 
         // Lines
         if (mLines > 500) {
-            theFxHelper.Print(">Lines ^1%4i\n", mLines);
+            Com_DPrintf(">Lines ^1%4i\n", mLines);
         }
         else if (mLines > 250) {
-            theFxHelper.Print(">Lines ^3%4i\n", mLines);
+            Com_DPrintf(">Lines ^3%4i\n", mLines);
         }
         else {
-            theFxHelper.Print(">Lines %4i\n", mLines);
+            Com_DPrintf(">Lines %4i\n", mLines);
         }
 
         // OParticles
         if (mOParticles > 500) {
-            theFxHelper.Print(">OParticles ^1%4i  ", mOParticles);
+            Com_DPrintf(">OParticles ^1%4i  ", mOParticles);
         }
         else if (mOParticles > 250) {
-            theFxHelper.Print(">OParticles ^3%4i  ", mOParticles);
+            Com_DPrintf(">OParticles ^3%4i  ", mOParticles);
         }
         else {
-            theFxHelper.Print(">OParticles %4i  ", mOParticles);
+            Com_DPrintf(">OParticles %4i  ", mOParticles);
         }
 
         // Tails
         if (mTails > 400) {
-            theFxHelper.Print(">Tails ^1%4i\n", mTails);
+            Com_DPrintf(">Tails ^1%4i\n", mTails);
         }
         else if (mTails > 200) {
-            theFxHelper.Print(">Tails ^3%4i\n", mTails);
+            Com_DPrintf(">Tails ^3%4i\n", mTails);
         }
         else {
-            theFxHelper.Print(">Tails %4i\n", mTails);
+            Com_DPrintf(">Tails %4i\n", mTails);
         }
 
         // Active
         if (activeFx > 600) {
-            theFxHelper.Print(">Active     ^1%4i  ", activeFx);
+            Com_DPrintf(">Active     ^1%4i  ", activeFx);
         }
         else if (activeFx > 400) {
-            theFxHelper.Print(">Active     ^3%4i  ", activeFx);
+            Com_DPrintf(">Active     ^3%4i  ", activeFx);
         }
         else {
-            theFxHelper.Print(">Active     %4i  ", activeFx);
+            Com_DPrintf(">Active     %4i  ", activeFx);
         }
 
         // Drawn
         if (drawnFx > 600) {
-            theFxHelper.Print(">Drawn ^1%4i  ", drawnFx);
+            Com_DPrintf(">Drawn ^1%4i  ", drawnFx);
         }
         else if (drawnFx > 400) {
-            theFxHelper.Print(">Drawn ^3%4i  ", drawnFx);
+            Com_DPrintf(">Drawn ^3%4i  ", drawnFx);
         }
         else {
-            theFxHelper.Print(">Drawn %4i  ", drawnFx);
+            Com_DPrintf(">Drawn %4i  ", drawnFx);
         }
 
         // Max
         if (mMax > 600) {
-            theFxHelper.Print(">Max ^1%4i  ", mMax);
+            Com_DPrintf(">Max ^1%4i  ", mMax);
         }
         else if (mMax > 400) {
-            theFxHelper.Print(">Max ^3%4i  ", mMax);
+            Com_DPrintf(">Max ^3%4i  ", mMax);
         }
         else {
-            theFxHelper.Print(">Max %4i  ", mMax);
+            Com_DPrintf(">Max %4i  ", mMax);
         }
 
         // Scheduled
         if (theFxScheduler.NumScheduledFx() > 100) {
-            theFxHelper.Print(">Scheduled ^1%4i\n", theFxScheduler.NumScheduledFx());
+            Com_DPrintf(">Scheduled ^1%4i\n", theFxScheduler.NumScheduledFx());
         }
         else if (theFxScheduler.NumScheduledFx() > 50) {
-            theFxHelper.Print(">Scheduled ^3%4i\n", theFxScheduler.NumScheduledFx());
+            Com_DPrintf(">Scheduled ^3%4i\n", theFxScheduler.NumScheduledFx());
         }
         else {
-            theFxHelper.Print(">Scheduled %4i\n", theFxScheduler.NumScheduledFx());
+            Com_DPrintf(">Scheduled %4i\n", theFxScheduler.NumScheduledFx());
         }
     }
 }

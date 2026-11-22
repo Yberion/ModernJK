@@ -789,7 +789,7 @@ void CG_AddRadarEnt(centity_t* cent)
     static const int numRadarEnts = ARRAY_LEN(cg.radarEntities);
     if (cg.radarEntityCount >= numRadarEnts) {
 #ifdef _DEBUG
-        Com_Printf("^3Warning: CG_AddRadarEnt full. (%d max)\n", numRadarEnts);
+        Com_Warning("CG_AddRadarEnt full. (%d max)\n", numRadarEnts);
 #endif
         return;
     }
@@ -801,7 +801,7 @@ void CG_AddBracketedEnt(centity_t* cent)
     static const int numBracketEnts = ARRAY_LEN(cg.bracketedEntities);
     if (cg.bracketedEntityCount >= numBracketEnts) {
 #ifdef _DEBUG
-        Com_Printf("^3Warning: CG_AddBracketedEnt full. (%d max)\n", numBracketEnts);
+        Com_Warning("CG_AddBracketedEnt full. (%d max)\n", numBracketEnts);
 #endif
         return;
     }
@@ -1752,7 +1752,7 @@ static void CG_Item(centity_t* cent)
 
     es = &cent->currentState;
     if (es->modelindex >= bg_numItems) {
-        trap->Error(errorParm_t::ERR_DROP, "Bad item index %i on entity", es->modelindex);
+        Com_Error(errorParm_t::ERR_DROP, "Bad item index %i on entity", es->modelindex);
     }
 
     /*
@@ -2803,7 +2803,7 @@ static void CG_InterpolateEntityPosition(centity_t* cent)
     // it would be an internal error to find an entity that interpolates without
     // a snapshot ahead of the current one
     if (cg.nextSnap == nullptr) {
-        trap->Error(errorParm_t::ERR_DROP, "CG_InterpoateEntityPosition: cg.nextSnap == NULL");
+        Com_Error(errorParm_t::ERR_DROP, "CG_InterpoateEntityPosition: cg.nextSnap == NULL");
         return;
     }
 
@@ -3066,7 +3066,7 @@ static void CG_AddCEntity(centity_t* cent)
     */
     switch (cent->currentState.eType) {
     default:
-        trap->Error(errorParm_t::ERR_DROP, "Bad entity type: %i\n", to_underlying(cent->currentState.eType));
+        Com_Error(errorParm_t::ERR_DROP, "Bad entity type: %i\n", to_underlying(cent->currentState.eType));
         break;
 
     case entityType_t::ET_FX:
@@ -3410,10 +3410,10 @@ void CG_ROFF_NotetrackCallback(centity_t* cent, const char* notetrack)
     // else if ...
     else {
         if (type[0]) {
-            Com_Printf("^3Warning: \"%s\" is an invalid ROFF notetrack function\n", type);
+            Com_Warning("\"%s\" is an invalid ROFF notetrack function\n", type);
         }
         else {
-            Com_Printf("^3Warning: Notetrack is missing function and/or arguments\n");
+            Com_Warning("Notetrack is missing function and/or arguments\n");
         }
     }
 

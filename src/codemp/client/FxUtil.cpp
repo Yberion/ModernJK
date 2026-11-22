@@ -158,7 +158,7 @@ static SEffectList* FX_GetValidEffect()
 
     // report the error.
 #ifndef FINAL_BUILD
-    theFxHelper.Print("FX system out of effects\n");
+    Com_DPrintf("FX system out of effects\n");
 #endif
 
     // Hmmm.. just trashing the first effect in the list is a poor approach
@@ -205,9 +205,9 @@ void FX_Add(bool portal)
     }
 
     if (fx_debug->integer && !portal) {
-        theFxHelper.Print("Active    FX: %i\n", activeFx);
-        theFxHelper.Print("Drawn     FX: %i\n", drawnFx);
-        theFxHelper.Print("Scheduled FX: %i High: %i\n", theFxScheduler.NumScheduledFx(), theFxScheduler.GetHighWatermark());
+        Com_DPrintf("Active    FX: %i\n", activeFx);
+        Com_DPrintf("Drawn     FX: %i\n", drawnFx);
+        Com_DPrintf("Scheduled FX: %i High: %i\n", theFxScheduler.NumScheduledFx(), theFxScheduler.GetHighWatermark());
     }
 }
 

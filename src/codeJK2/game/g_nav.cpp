@@ -1189,11 +1189,11 @@ void SP_waypoint(gentity_t* ent)
         if (!(ent->spawnflags & 1) && G_CheckInSolid(ent, true)) { // if not SOLID_OK, and in solid
             ent->maxs[2] = CROUCH_MAXS_2;
             if (G_CheckInSolid(ent, true)) {
-                gi.Printf(S_COLOR_RED "ERROR: Waypoint %s at %s in solid!\n", ent->targetname, vtos(ent->currentOrigin));
+                Com_PrintError("Waypoint %s at %s in solid!\n", ent->targetname, vtos(ent->currentOrigin));
                 assert(0 && "Waypoint in solid!");
 #ifndef FINAL_BUILD
                 if (!g_entities[ENTITYNUM_WORLD].s.radius) { // not a region
-                    G_Error("Waypoint %s at %s in solid!", ent->targetname, vtos(ent->currentOrigin));
+                    Com_Error(errorParm_t::ERR_DROP, "Waypoint %s at %s in solid!", ent->targetname, vtos(ent->currentOrigin));
                 }
 #endif
                 G_FreeEntity(ent);
@@ -1233,11 +1233,11 @@ void SP_waypoint_small(gentity_t* ent)
         if (!(ent->spawnflags & 1) && G_CheckInSolid(ent, true)) {
             ent->maxs[2] = CROUCH_MAXS_2;
             if (G_CheckInSolid(ent, true)) {
-                gi.Printf(S_COLOR_RED "ERROR: Waypoint_small %s at %s in solid!\n", ent->targetname, vtos(ent->currentOrigin));
+                Com_PrintError("Waypoint_small %s at %s in solid!\n", ent->targetname, vtos(ent->currentOrigin));
                 assert(0);
 #ifndef FINAL_BUILD
                 if (!g_entities[ENTITYNUM_WORLD].s.radius) { // not a region
-                    G_Error("Waypoint_small %s at %s in solid!", ent->targetname, vtos(ent->currentOrigin));
+                    Com_Error(errorParm_t::ERR_DROP, "Waypoint_small %s at %s in solid!", ent->targetname, vtos(ent->currentOrigin));
                 }
 #endif
                 G_FreeEntity(ent);
@@ -1278,11 +1278,11 @@ void SP_waypoint_navgoal(gentity_t* ent)
     VectorSet(ent->maxs, 16, 16, 32);
     ent->s.origin[2] += 0.125;
     if (!(ent->spawnflags & 1) && G_CheckInSolid(ent, false)) {
-        gi.Printf(S_COLOR_RED "ERROR: Waypoint_navgoal %s at %s in solid!\n", ent->targetname, vtos(ent->currentOrigin));
+        Com_PrintError("Waypoint_navgoal %s at %s in solid!\n", ent->targetname, vtos(ent->currentOrigin));
         assert(0);
 #ifndef FINAL_BUILD
         if (!g_entities[ENTITYNUM_WORLD].s.radius) { // not a region
-            G_Error("Waypoint_navgoal %s at %s in solid!", ent->targetname, vtos(ent->currentOrigin));
+            Com_Error(errorParm_t::ERR_DROP, "Waypoint_navgoal %s at %s in solid!", ent->targetname, vtos(ent->currentOrigin));
         }
 #endif
     }
@@ -1313,10 +1313,10 @@ void SP_waypoint_navgoal_8(gentity_t* ent)
     VectorSet(ent->maxs, 8, 8, 32);
     ent->s.origin[2] += 0.125;
     if (!(ent->spawnflags & 1) && G_CheckInSolid(ent, false)) {
-        gi.Printf(S_COLOR_RED "ERROR: Waypoint_navgoal_8 %s at %s in solid!\n", ent->targetname, vtos(ent->currentOrigin));
+        Com_PrintError("Waypoint_navgoal_8 %s at %s in solid!\n", ent->targetname, vtos(ent->currentOrigin));
 #ifndef FINAL_BUILD
         if (!g_entities[ENTITYNUM_WORLD].s.radius) { // not a region
-            G_Error("Waypoint_navgoal_8 %s at %s in solid!", ent->targetname, vtos(ent->currentOrigin));
+            Com_Error(errorParm_t::ERR_DROP, "Waypoint_navgoal_8 %s at %s in solid!", ent->targetname, vtos(ent->currentOrigin));
         }
 #endif
         assert(0);
@@ -1349,10 +1349,10 @@ void SP_waypoint_navgoal_4(gentity_t* ent)
     VectorSet(ent->maxs, 4, 4, 32);
     ent->s.origin[2] += 0.125;
     if (!(ent->spawnflags & 1) && G_CheckInSolid(ent, false)) {
-        gi.Printf(S_COLOR_RED "ERROR: Waypoint_navgoal_4 %s at %s in solid!\n", ent->targetname, vtos(ent->currentOrigin));
+        Com_PrintError("Waypoint_navgoal_4 %s at %s in solid!\n", ent->targetname, vtos(ent->currentOrigin));
 #ifndef FINAL_BUILD
         if (!g_entities[ENTITYNUM_WORLD].s.radius) { // not a region
-            G_Error("Waypoint_navgoal_4 %s at %s in solid!", ent->targetname, vtos(ent->currentOrigin));
+            Com_Error(errorParm_t::ERR_DROP, "Waypoint_navgoal_4 %s at %s in solid!", ent->targetname, vtos(ent->currentOrigin));
         }
 #endif
         assert(0);
@@ -1385,10 +1385,10 @@ void SP_waypoint_navgoal_2(gentity_t* ent)
     VectorSet(ent->maxs, 2, 2, 32);
     ent->s.origin[2] += 0.125;
     if (!(ent->spawnflags & 1) && G_CheckInSolid(ent, false)) {
-        gi.Printf(S_COLOR_RED "ERROR: Waypoint_navgoal_2 %s at %s in solid!\n", ent->targetname, vtos(ent->currentOrigin));
+        Com_PrintError("Waypoint_navgoal_2 %s at %s in solid!\n", ent->targetname, vtos(ent->currentOrigin));
 #ifndef FINAL_BUILD
         if (!g_entities[ENTITYNUM_WORLD].s.radius) { // not a region
-            G_Error("Waypoint_navgoal_2 %s at %s in solid!", ent->targetname, vtos(ent->currentOrigin));
+            Com_Error(errorParm_t::ERR_DROP, "Waypoint_navgoal_2 %s at %s in solid!", ent->targetname, vtos(ent->currentOrigin));
         }
 #endif
         assert(0);
@@ -1421,10 +1421,10 @@ void SP_waypoint_navgoal_1(gentity_t* ent)
     VectorSet(ent->maxs, 1, 1, 32);
     ent->s.origin[2] += 0.125;
     if (!(ent->spawnflags & 1) && G_CheckInSolid(ent, false)) {
-        gi.Printf(S_COLOR_RED "ERROR: Waypoint_navgoal_1 %s at %s in solid!\n", ent->targetname, vtos(ent->currentOrigin));
+        Com_PrintError("Waypoint_navgoal_1 %s at %s in solid!\n", ent->targetname, vtos(ent->currentOrigin));
 #ifndef FINAL_BUILD
         if (!g_entities[ENTITYNUM_WORLD].s.radius) { // not a region
-            G_Error("Waypoint_navgoal_1 %s at %s in solid!", ent->targetname, vtos(ent->currentOrigin));
+            Com_Error(errorParm_t::ERR_DROP, "Waypoint_navgoal_1 %s at %s in solid!", ent->targetname, vtos(ent->currentOrigin));
         }
 #endif
         assert(0);
@@ -1569,7 +1569,7 @@ void NAV_StoreWaypoint(gentity_t* ent)
     }
 
     if (numStoredWaypoints >= MAX_STORED_WAYPOINTS) {
-        G_Error("Too many waypoints!  (%d > %d)", numStoredWaypoints, MAX_STORED_WAYPOINTS);
+        Com_Error(errorParm_t::ERR_DROP, "Too many waypoints!  (%d > %d)", numStoredWaypoints, MAX_STORED_WAYPOINTS);
         return;
     }
     if (ent->targetname) {
@@ -1695,7 +1695,7 @@ void NAV_CalculatePaths(const char* filename, int checksum)
 #ifndef FINAL_BUILD
     if (fatalErrors) {
         // Com_Error( errorParm_t::ERR_DROP, "%s%d FATAL NAV ERRORS\n", fatalErrorString, fatalErrors );
-        gi.Printf("%s%d FATAL NAV ERRORS\n", fatalErrorString, fatalErrors);
+        Com_Printf("%s%d FATAL NAV ERRORS\n", fatalErrorString, fatalErrors);
     }
 #endif
 }

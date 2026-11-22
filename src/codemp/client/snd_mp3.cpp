@@ -462,8 +462,8 @@ bool MP3Stream_GetSamples(channel_t* ch, int startingSampleNum, int count, short
         return false;
     }
 
-    //	Com_OPrintf("\nRequest: startingSampleNum %d, count %d\n",startingSampleNum,count);
-    //	Com_OPrintf("WindowPos %d, WindowWritePos %d\n",ch->iMP3SlidingDecodeWindowPos,ch->iMP3SlidingDecodeWritePos);
+    //	Com_DPrintf("\nRequest: startingSampleNum %d, count %d\n",startingSampleNum,count);
+    //	Com_DPrintf("WindowPos %d, WindowWritePos %d\n",ch->iMP3SlidingDecodeWindowPos,ch->iMP3SlidingDecodeWritePos);
 
     //	bool _bDecoded = false;
 
@@ -474,15 +474,15 @@ bool MP3Stream_GetSamples(channel_t* ch, int startingSampleNum, int count, short
         //			Com_Printf(S_COLOR_YELLOW"Decode needed!\n");
         //		}
         //		_bDecoded = true;
-        //		Com_OPrintf("Scrolling...");
+        //		Com_DPrintf("Scrolling...");
 
         int _iBytesDecoded = MP3Stream_Decode((LP_MP3STREAM)&ch->MP3StreamHeader, bStereo); // stereo only for music, so this is safe
-                                                                                            //		Com_OPrintf("%d bytes decoded\n",_iBytesDecoded);
+                                                                                            //		Com_DPrintf("%d bytes decoded\n",_iBytesDecoded);
         if (_iBytesDecoded == 0) {
             // no more source data left so clear the remainder of the buffer...
             //
             memset(ch->MP3SlidingDecodeBuffer + ch->iMP3SlidingDecodeWritePos, 0, sizeof(ch->MP3SlidingDecodeBuffer) - ch->iMP3SlidingDecodeWritePos);
-            //			Com_OPrintf("Finished\n");
+            //			Com_DPrintf("Finished\n");
             qbStreamStillGoing = false;
             break;
         }
@@ -499,7 +499,7 @@ bool MP3Stream_GetSamples(channel_t* ch, int startingSampleNum, int count, short
                 ch->iMP3SlidingDecodeWindowPos += iQuarterOfSlidingBuffer;
             }
         }
-        //		Com_OPrintf("WindowPos %d, WindowWritePos %d\n",ch->iMP3SlidingDecodeWindowPos,ch->iMP3SlidingDecodeWritePos);
+        //		Com_DPrintf("WindowPos %d, WindowWritePos %d\n",ch->iMP3SlidingDecodeWindowPos,ch->iMP3SlidingDecodeWritePos);
     }
 
     //	if (!_bDecoded)
@@ -510,7 +510,7 @@ bool MP3Stream_GetSamples(channel_t* ch, int startingSampleNum, int count, short
     assert(startingSampleNum >= ch->iMP3SlidingDecodeWindowPos);
     memcpy(buf, ch->MP3SlidingDecodeBuffer + (startingSampleNum - ch->iMP3SlidingDecodeWindowPos), count);
 
-    //	Com_OPrintf("OK\n\n");
+    //	Com_DPrintf("OK\n\n");
 
     return qbStreamStillGoing;
 }

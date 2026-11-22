@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "Q3_Registers.h"
 #include <code/qcommon/ojk_saved_game_helper.h>
 
-extern void Q3_DebugPrint(WL_e level, const char* format, ...);
+extern void Q3_DebugPrint(WL_e level, const char* format, ...) __attribute__((format(printf, 2, 3)));
 
 varString_m varStrings;
 varFloat_m varFloats;
@@ -373,7 +373,7 @@ void Q3_VariableLoadFloats(varFloat_m& fmap)
         saved_game.read_chunk<int32_t>(INT_ID('F', 'I', 'D', 'L'), idSize);
 
         if (idSize < 0 || static_cast<size_t>(idSize) >= sizeof(tempBuffer)) {
-            ::G_Error("invalid length for FIDS string in save game: %d bytes\n", idSize);
+            Com_Error(errorParm_t::ERR_DROP, "invalid length for FIDS string in save game: %d bytes\n", idSize);
         }
 
         saved_game.read_chunk(INT_ID('F', 'I', 'D', 'S'), tempBuffer, idSize);
@@ -411,7 +411,7 @@ void Q3_VariableLoadStrings(icarusToken_t type, varString_m& fmap)
         saved_game.read_chunk<int32_t>(INT_ID('S', 'I', 'D', 'L'), idSize);
 
         if (idSize < 0 || static_cast<size_t>(idSize) >= sizeof(tempBuffer)) {
-            ::G_Error("invalid length for SIDS string in save game: %d bytes\n", idSize);
+            Com_Error(errorParm_t::ERR_DROP, "invalid length for SIDS string in save game: %d bytes\n", idSize);
         }
 
         saved_game.read_chunk(INT_ID('S', 'I', 'D', 'S'), tempBuffer, idSize);
@@ -421,7 +421,7 @@ void Q3_VariableLoadStrings(icarusToken_t type, varString_m& fmap)
         saved_game.read_chunk<int32_t>(INT_ID('S', 'V', 'S', 'Z'), idSize);
 
         if (idSize < 0 || static_cast<size_t>(idSize) >= sizeof(tempBuffer2)) {
-            ::G_Error("invalid length for SVAL string in save game: %d bytes\n", idSize);
+            Com_Error(errorParm_t::ERR_DROP, "invalid length for SVAL string in save game: %d bytes\n", idSize);
         }
 
         saved_game.read_chunk(INT_ID('S', 'V', 'A', 'L'), tempBuffer2, idSize);

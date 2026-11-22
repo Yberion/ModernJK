@@ -74,7 +74,7 @@ ICARUS_Instance* ICARUS_Instance::Create(interface_export_t* ie)
 {
     ICARUS_Instance* instance = new ICARUS_Instance;
     instance->m_interface = ie;
-    Com_OPrintf("ICARUS Instance successfully created\n");
+    Com_DPrintf("ICARUS Instance successfully created\n");
     return instance;
 }
 
@@ -138,21 +138,21 @@ int ICARUS_Instance::Delete(void)
 
 #ifdef _DEBUG
 
-    Com_OPrintf("\nICARUS Instance Debug Info:\n---------------------------\n");
+    Com_DPrintf("\nICARUS Instance Debug Info:\n---------------------------\n");
 
-    Com_OPrintf("Sequencers Allocated:\t%d\n", m_DEBUG_NumSequencerAlloc);
+    Com_DPrintf("Sequencers Allocated:\t%d\n", m_DEBUG_NumSequencerAlloc);
 
-    Com_OPrintf("Sequencers Freed:\t\t%d\n", m_DEBUG_NumSequencerFreed);
+    Com_DPrintf("Sequencers Freed:\t\t%d\n", m_DEBUG_NumSequencerFreed);
 
-    Com_OPrintf("Sequencers Residual:\t%d\n\n", m_DEBUG_NumSequencerResidual);
+    Com_DPrintf("Sequencers Residual:\t%d\n\n", m_DEBUG_NumSequencerResidual);
 
-    Com_OPrintf("Sequences Allocated:\t%d\n", m_DEBUG_NumSequenceAlloc);
+    Com_DPrintf("Sequences Allocated:\t%d\n", m_DEBUG_NumSequenceAlloc);
 
-    Com_OPrintf("Sequences Freed:\t\t%d\n", m_DEBUG_NumSequenceFreed);
+    Com_DPrintf("Sequences Freed:\t\t%d\n", m_DEBUG_NumSequenceFreed);
 
-    Com_OPrintf("Sequences Residual:\t\t%d\n\n", m_DEBUG_NumSequenceResidual);
+    Com_DPrintf("Sequences Residual:\t\t%d\n\n", m_DEBUG_NumSequenceResidual);
 
-    Com_OPrintf("\n");
+    Com_DPrintf("\n");
 
 #endif
 

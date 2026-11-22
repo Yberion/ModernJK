@@ -109,7 +109,7 @@ void QDECL PrintMsg( gentity_t *ent, const char *fmt, ... ) {
 
     va_start (argptr,fmt);
     if (vsprintf (msg, fmt, argptr) > sizeof(msg)) {
-        trap->Error( errorParm_t::ERR_DROP, "PrintMsg overrun" );
+        Com_Error( errorParm_t::ERR_DROP, "PrintMsg overrun" );
     }
     va_end (argptr);
 
@@ -553,7 +553,7 @@ void Team_ReturnFlagSound(gentity_t* ent, team_t team)
     gentity_t* te;
 
     if (ent == nullptr) {
-        trap->Print("Warning:  NULL passed to Team_ReturnFlagSound\n");
+        Com_Warning("NULL passed to Team_ReturnFlagSound\n");
         return;
     }
 
@@ -572,7 +572,7 @@ void Team_TakeFlagSound(gentity_t* ent, team_t team)
     gentity_t* te;
 
     if (ent == nullptr) {
-        trap->Print("Warning:  NULL passed to Team_TakeFlagSound\n");
+        Com_Warning("NULL passed to Team_TakeFlagSound\n");
         return;
     }
 
@@ -613,7 +613,7 @@ void Team_CaptureFlagSound(gentity_t* ent, team_t team)
     gentity_t* te;
 
     if (ent == nullptr) {
-        trap->Print("Warning:  NULL passed to Team_CaptureFlagSound\n");
+        Com_Warning("NULL passed to Team_CaptureFlagSound\n");
         return;
     }
 

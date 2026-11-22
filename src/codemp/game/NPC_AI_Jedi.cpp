@@ -3952,7 +3952,7 @@ static bool Jedi_Jump(vec3_t dest, int goalEntNum)
         height = apex[2] - NPCS.NPC->r.currentOrigin[2];
         time = Q_sqrt(height / (.5 * NPCS.NPC->client->ps.gravity)); // was 0.5, but didn't work well for very long jumps
         if (!time) {
-            // Com_Printf( S_COLOR_RED"ERROR: no time in jump\n" );
+            // Com_PrintError( "no time in jump\n" );
             return false;
         }
 

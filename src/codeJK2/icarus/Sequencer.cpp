@@ -746,7 +746,7 @@ sequencerResult_t CSequencer::ParseTask(CBlock* block, bstream_t* bstream)
     group = m_taskManager->AddTaskGroup(taskName);
 
     if (group == nullptr) {
-        m_ie->I_DPrintf(WL_e::WL_ERROR, "error : unable to allocate a new task group");
+        m_ie->I_DPrintf(WL_e::WL_ERROR, "unable to allocate a new task group");
         delete block;
         block = nullptr;
         return sequencerResult_t::SEQ_FAILED;

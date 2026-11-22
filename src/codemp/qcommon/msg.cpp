@@ -2003,7 +2003,7 @@ void MSG_CheckNETFPSFOverrides(bool psfOverrides)
     }
 
     if (len >= 4096) {
-        Com_Printf("WARNING: %s is >= 4096 bytes and is being ignored\n", fileName);
+        Com_Warning("%s is >= 4096 bytes and is being ignored\n", fileName);
         FS_FCloseFile(f);
         return;
     }
@@ -2057,7 +2057,7 @@ void MSG_CheckNETFPSFOverrides(bool psfOverrides)
             entryName[j] = 0;
 
             if (!overrideFile[i]) { // just give up, this shouldn't happen
-                Com_Printf("WARNING: Parsing error for %s\n", fileName);
+                Com_Warning("Parsing error for %s\n", fileName);
                 return;
             }
 
@@ -2101,11 +2101,11 @@ void MSG_CheckNETFPSFOverrides(bool psfOverrides)
                 }
 
                 if (j == numFields) { // failed to find the value
-                    Com_Printf("WARNING: Value '%s' from %s is not valid\n", entryName, fileName);
+                    Com_Warning("Value '%s' from %s is not valid\n", entryName, fileName);
                 }
             }
             else { // also should not happen
-                Com_Printf("WARNING: Parsing error for %s\n", fileName);
+                Com_Warning("Parsing error for %s\n", fileName);
                 return;
             }
         }

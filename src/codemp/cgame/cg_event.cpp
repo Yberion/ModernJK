@@ -144,7 +144,7 @@ static void CG_Obituary(entityState_t* ent)
     mod = static_cast<meansOfDeath_t>(ent->eventParm);
 
     if (target < 0 || target >= MAX_CLIENTS) {
-        trap->Error(errorParm_t::ERR_DROP, "CG_Obituary: target out of range");
+        Com_Error(errorParm_t::ERR_DROP, "CG_Obituary: target out of range");
     }
     ci = &cgs.clientinfo[target];
 
@@ -270,7 +270,7 @@ static void CG_Obituary(entityState_t* ent)
         }
         message = (char*)CG_GetStringEdString("MP_INGAME", message);
 
-        trap->Print("%s %s\n", targetName, message);
+        Com_Printf("%s %s\n", targetName, message);
         return;
     }
 
@@ -438,13 +438,13 @@ clientkilled:
         if (message) {
             message = (char*)CG_GetStringEdString("MP_INGAME", message);
 
-            trap->Print("%s %s %s\n", targetName, message, attackerName);
+            Com_Printf("%s %s %s\n", targetName, message, attackerName);
             return;
         }
     }
 
     // we don't know what it was
-    trap->Print("%s %s\n", targetName, (char*)CG_GetStringEdString("MP_INGAME", "DIED_GENERIC"));
+    Com_Printf("%s %s\n", targetName, (char*)CG_GetStringEdString("MP_INGAME", "DIED_GENERIC"));
 }
 
 //==========================================================================
@@ -1197,7 +1197,7 @@ also called by CG_CheckPlayerstateEvents
 */
 #define DEBUGNAME(x)                                                                                                                                           \
     if (cg_debugEvents.integer) {                                                                                                                              \
-        trap->Print(x "\n");                                                                                                                                   \
+        Com_Printf(x "\n");                                                                                                                                    \
     }
 extern void CG_ChatBox_AddString(char* chatStr); // cg_draw.cpp
 void CG_EntityEvent(centity_t* cent, vec3_t position)
@@ -1215,7 +1215,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
     event = BG_UnpackEvent(es->event);
 
     if (cg_debugEvents.integer) {
-        trap->Print("ent:%3i  event:%3i ", es->number, to_underlying(event));
+        Com_Printf("ent:%3i  event:%3i ", es->number, to_underlying(event));
     }
 
     if (event == entity_event_t::EV_NONE) {
@@ -2566,7 +2566,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
         if (cg_entities[es->eventParm].ghoul2 && trap->G2_HaveWeGhoul2Models(cg_entities[es->eventParm].ghoul2)) {
             if (es->eventParm < MAX_CLIENTS) { // You try to do very bad thing!
 #ifdef _DEBUG
-                Com_Printf("WARNING: Tried to kill a client ghoul2 instance with a server event!\n");
+                Com_Warning("Tried to kill a client ghoul2 instance with a server event!\n");
 #endif
                 break;
             }
@@ -2876,7 +2876,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
                     char vchatstr[1024] = {0};
                     Q_strncpyz(vchatstr, va("<%s^7: %s>\n", ci->name, descr), sizeof(vchatstr));
                     CG_ChatBox_AddString(vchatstr);
-                    trap->Print("*%s", vchatstr);
+                    Com_Printf("*%s", vchatstr);
                 }
 
                 // and play in world for everyone
@@ -3140,7 +3140,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
 
     default:
         DEBUGNAME("UNKNOWN");
-        trap->Error(errorParm_t::ERR_DROP, "Unknown event: %i", to_underlying(event));
+        Com_Error(errorParm_t::ERR_DROP, "Unknown event: %i", to_underlying(event));
         break;
     }
 }

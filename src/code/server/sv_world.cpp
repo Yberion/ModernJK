@@ -201,7 +201,7 @@ void SV_UnlinkEntity(gentity_t* gEnt)
         }
     }
 
-    Com_Printf("WARNING: SV_UnlinkEntity: not found in worldSector\n");
+    Com_Warning("SV_UnlinkEntity: not found in worldSector\n");
 }
 
 /*

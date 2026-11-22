@@ -3212,7 +3212,7 @@ bool R_LoadMDXM(model_t* mod, void* buffer, const char* mod_name, bool& bAlready
 #ifdef _DEBUG
         Com_Error(errorParm_t::ERR_DROP, "R_LoadMDXM: %s has wrong version (%i should be %i)\n", mod_name, version, MDXM_VERSION);
 #else
-        ri.Printf(printParm_t::PRINT_WARNING, "R_LoadMDXM: %s has wrong version (%i should be %i)\n", mod_name, version, MDXM_VERSION);
+        Com_Warning("R_LoadMDXM: %s has wrong version (%i should be %i)\n", mod_name, version, MDXM_VERSION);
 #endif
         return false;
     }
@@ -3285,7 +3285,7 @@ bool R_LoadMDXM(model_t* mod, void* buffer, const char* mod_name, bool& bAlready
 #endif
 
     if (!mdxm->animIndex) {
-        ri.Printf(printParm_t::PRINT_WARNING, "R_LoadMDXM: missing animation file %s for mesh %s\n", mdxm->animName, mdxm->name);
+        Com_Warning("R_LoadMDXM: missing animation file %s for mesh %s\n", mdxm->animName, mdxm->name);
         return false;
     }
 #ifndef JK2_MODE
@@ -3297,15 +3297,14 @@ bool R_LoadMDXM(model_t* mod, void* buffer, const char* mod_name, bool& bAlready
         }
         if (tr.models[mdxm->animIndex]->mdxa->numBones != mdxm->numBones) {
             if (isAnOldModelFile) {
-                ri.Printf(printParm_t::PRINT_WARNING, "R_LoadMDXM: converting jk2 model %s\n", mod_name);
+                Com_Warning("R_LoadMDXM: converting jk2 model %s\n", mod_name);
             }
             else {
 #ifdef _DEBUG
                 Com_Error(errorParm_t::ERR_DROP, "R_LoadMDXM: %s has different bones than anim (%i != %i)\n", mod_name, mdxm->numBones,
                           tr.models[mdxm->animIndex]->mdxa->numBones);
 #else
-                ri.Printf(printParm_t::PRINT_WARNING, "R_LoadMDXM: %s has different bones than anim (%i != %i)\n", mod_name, mdxm->numBones,
-                          tr.models[mdxm->animIndex]->mdxa->numBones);
+                Com_Warning("R_LoadMDXM: %s has different bones than anim (%i != %i)\n", mod_name, mdxm->numBones, tr.models[mdxm->animIndex]->mdxa->numBones);
 #endif
             }
             if (!isAnOldModelFile) { // hmm, load up the old JK2 ones anyway?
@@ -3523,7 +3522,7 @@ bool R_LoadMDXA(model_t* mod, void* buffer, const char* mod_name, bool& bAlready
     }
 
     if (version != MDXA_VERSION) {
-        ri.Printf(printParm_t::PRINT_WARNING, "R_LoadMDXA: %s has wrong version (%i should be %i)\n", mod_name, version, MDXA_VERSION);
+        Com_Warning("R_LoadMDXA: %s has wrong version (%i should be %i)\n", mod_name, version, MDXA_VERSION);
         return false;
     }
 
@@ -3559,7 +3558,7 @@ bool R_LoadMDXA(model_t* mod, void* buffer, const char* mod_name, bool& bAlready
     }
 
     if (mdxa->numFrames < 1) {
-        ri.Printf(printParm_t::PRINT_WARNING, "R_LoadMDXA: %s has no frames\n", mod_name);
+        Com_Warning("R_LoadMDXA: %s has no frames\n", mod_name);
         return false;
     }
 

@@ -208,7 +208,7 @@ int AAS_AlternativeRouteGoals(vec3_t start, int startareanum, vec3_t goal, int g
             break;
     } // end for
 #ifdef ALTROUTE_DEBUG
-    botimport.Print(printType_t::PRT_MESSAGE, "alternative route goals in %d msec\n", Sys_MilliSeconds() - startmillisecs);
+    Com_Printf("alternative route goals in %d msec\n", Sys_MilliSeconds() - startmillisecs);
 #endif
     return numaltroutegoals;
 #endif

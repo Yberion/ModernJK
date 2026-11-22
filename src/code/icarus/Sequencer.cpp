@@ -815,7 +815,7 @@ CSequencer::sequencerResult_t CSequencer::ParseTask(CBlock* block, bstream_t* bs
     group = m_taskManager->AddTaskGroup(taskName, icarus);
 
     if (group == nullptr) {
-        game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "error : unable to allocate a new task group");
+        game->DebugPrint(IGameInterface::e_DebugPrintLevel::WL_ERROR, "unable to allocate a new task group");
         block->Free(icarus);
         delete block;
         block = nullptr;

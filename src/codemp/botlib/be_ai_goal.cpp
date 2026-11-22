@@ -183,11 +183,11 @@ libvar_t* droppedweight = nullptr; // bk001206 - init
 bot_goalstate_t* BotGoalStateFromHandle(int handle)
 {
     if (handle <= 0 || handle > MAX_CLIENTS) {
-        botimport.Print(printType_t::PRT_FATAL, "goal state handle %d out of range\n", handle);
+        Com_PrintError("goal state handle %d out of range\n", handle);
         return nullptr;
     } // end if
     if (!botgoalstates[handle]) {
-        botimport.Print(printType_t::PRT_FATAL, "invalid goal state %d\n", handle);
+        Com_PrintError("invalid goal state %d\n", handle);
         return nullptr;
     } // end if
     return botgoalstates[handle];
@@ -253,7 +253,7 @@ itemconfig_t* LoadItemConfig(char* filename)
 
     max_iteminfo = (int)LibVarValue("max_iteminfo", "256");
     if (max_iteminfo < 0) {
-        botimport.Print(printType_t::PRT_ERROR, "max_iteminfo = %d\n", max_iteminfo);
+        Com_PrintError("max_iteminfo = %d\n", max_iteminfo);
         max_iteminfo = 256;
         LibVarSet("max_iteminfo", "256");
     }
@@ -262,7 +262,7 @@ itemconfig_t* LoadItemConfig(char* filename)
     PC_SetBaseFolder(BOTFILESBASEFOLDER);
     source = LoadSourceFile(path);
     if (!source) {
-        botimport.Print(printType_t::PRT_ERROR, "counldn't load %s\n", path);
+        Com_PrintError("counldn't load %s\n", path);
         return nullptr;
     } // end if
     // initialize item config
@@ -305,8 +305,8 @@ itemconfig_t* LoadItemConfig(char* filename)
     FreeSource(source);
     //
     if (!ic->numiteminfo)
-        botimport.Print(printType_t::PRT_WARNING, "no item info loaded\n");
-    botimport.Print(printType_t::PRT_MESSAGE, "loaded %s\n", path);
+        Com_Warning("no item info loaded\n");
+    Com_Printf("loaded %s\n", path);
     return ic;
 } // end of the function LoadItemConfig
 //===========================================================================
@@ -366,7 +366,7 @@ levelitem_t* AllocLevelItem(void)
 
     li = freelevelitems;
     if (!li) {
-        botimport.Print(printType_t::PRT_FATAL, "out of level items\n");
+        Com_PrintError("out of level items\n");
         return nullptr;
     } // end if
     //
@@ -479,7 +479,7 @@ void BotInitInfoEntities(void)
             AAS_FloatForBSPEpairKey(ent, "random", &cs->random);
             cs->areanum = AAS_PointAreaNum(cs->origin);
             if (!cs->areanum) {
-                botimport.Print(printType_t::PRT_MESSAGE, "camp spot at %1.1f %1.1f %1.1f in solid\n", cs->origin[0], cs->origin[1], cs->origin[2]);
+                Com_Printf("camp spot at %1.1f %1.1f %1.1f in solid\n", cs->origin[0], cs->origin[1], cs->origin[2]);
                 FreeMemory(cs);
                 continue;
             } // end if
@@ -490,8 +490,8 @@ void BotInitInfoEntities(void)
         } // end else if
     } // end for
     if (botDeveloper) {
-        botimport.Print(printType_t::PRT_MESSAGE, "%d map locations\n", numlocations);
-        botimport.Print(printType_t::PRT_MESSAGE, "%d camp spots\n", numcampspots);
+        Com_Printf("%d map locations\n", numlocations);
+        Com_Printf("%d camp spots\n", numcampspots);
     } // end if
 } // end of the function BotInitInfoEntities
 //===========================================================================
@@ -550,7 +550,7 @@ void BotInitLevelItems(void)
         } // end if
         // get the origin of the item
         if (!AAS_VectorForBSPEpairKey(ent, "origin", origin)) {
-            botimport.Print(printType_t::PRT_ERROR, "item %s without origin\n", classname);
+            Com_PrintError("item %s without origin\n", classname);
             continue;
         } // end else
         //
@@ -568,7 +568,7 @@ void BotInitLevelItems(void)
                     // if the item is not reachable from a jumppad
                     goalareanum = AAS_BestReachableFromJumpPadArea(origin, ic->iteminfo[i].mins, ic->iteminfo[i].maxs);
                     Log_Write("item %s reachable from jumppad area %d\r\n", ic->iteminfo[i].classname, goalareanum);
-                    // botimport.Print(printType_t::PRT_MESSAGE, "item %s reachable from jumppad area %d\r\n", ic->iteminfo[i].classname, goalareanum);
+                    // Com_Printf("item %s reachable from jumppad area %d\r\n", ic->iteminfo[i].classname, goalareanum);
                     if (!goalareanum)
                         continue;
                 } // end if
@@ -603,7 +603,7 @@ void BotInitLevelItems(void)
         // if not a stationary item
         if (!(spawnflags & 1)) {
             if (!AAS_DropToFloor(origin, ic->iteminfo[i].mins, ic->iteminfo[i].maxs)) {
-                botimport.Print(printType_t::PRT_MESSAGE, "%s in solid at (%1.1f %1.1f %1.1f)\n", classname, origin[0], origin[1], origin[2]);
+                Com_Printf("%s in solid at (%1.1f %1.1f %1.1f)\n", classname, origin[0], origin[1], origin[2]);
             } // end if
         } // end if
         // item info of the level item
@@ -619,13 +619,13 @@ void BotInitLevelItems(void)
             // get the item goal area and goal origin
             li->goalareanum = AAS_BestReachableArea(origin, ic->iteminfo[i].mins, ic->iteminfo[i].maxs, li->goalorigin);
             if (!li->goalareanum) {
-                botimport.Print(printType_t::PRT_MESSAGE, "%s not reachable for bots at (%1.1f %1.1f %1.1f)\n", classname, origin[0], origin[1], origin[2]);
+                Com_Printf("%s not reachable for bots at (%1.1f %1.1f %1.1f)\n", classname, origin[0], origin[1], origin[2]);
             } // end if
         } // end else
         //
         AddLevelItemToList(li);
     } // end for
-    botimport.Print(printType_t::PRT_MESSAGE, "found %d level items\n", numlevelitems);
+    Com_Printf("found %d level items\n", numlevelitems);
 } // end of the function BotInitLevelItems
 //===========================================================================
 //
@@ -842,7 +842,7 @@ int BotGetLevelItemGoal(int index, char* name, bot_goal_t* goal)
             goal->flags = goalFlags_t::GFL_ITEM;
             if (li->timeout)
                 goal->flags |= goalFlags_t::GFL_DROPPED;
-            // botimport.Print(printType_t::PRT_MESSAGE, "found li %s\n", itemconfig->iteminfo[li->iteminfo].name);
+            // Com_Printf("found li %s\n", itemconfig->iteminfo[li->iteminfo].name);
             return li->number;
         } // end if
     } // end for
@@ -1083,7 +1083,7 @@ void BotUpdateEntityItems(void)
         li->timeout = AAS_Time() + 30;
         // add the level item to the list
         AddLevelItemToList(li);
-        // botimport.Print(printType_t::PRT_MESSAGE, "found new level item %s\n", ic->iteminfo[i].classname);
+        // Com_Printf("found new level item %s\n", ic->iteminfo[i].classname);
     } // end for
     /*
     for (li = levelitems; li; li = li->next)
@@ -1128,7 +1128,7 @@ void BotPushGoal(int goalstate, bot_goal_t* goal)
     if (!gs)
         return;
     if (gs->goalstacktop >= MAX_GOALSTACK - 1) {
-        botimport.Print(printType_t::PRT_ERROR, "goal heap overflow\n");
+        Com_PrintError("goal heap overflow\n");
         BotDumpGoalStack(goalstate);
         return;
     } // end if
@@ -1323,7 +1323,7 @@ int BotChooseLTGItem(int goalstate, vec3_t origin, int* inventory, travelFlags_t
                 BotPushGoal(goalstate, &goal);
                 //
 #ifdef DEBUG
-                botimport.Print(printType_t::PRT_MESSAGE, "chosen roam goal area %d\n", goal.areanum);
+                Com_Printf("chosen roam goal area %d\n", goal.areanum);
 #endif //DEBUG
                 return true;
             } //end if
@@ -1612,7 +1612,7 @@ botlibError_t BotLoadItemWeights(int goalstate, char* filename)
     // load the weight configuration
     gs->itemweightconfig = ReadWeightConfig(filename);
     if (!gs->itemweightconfig) {
-        botimport.Print(printType_t::PRT_FATAL, "couldn't load weights\n");
+        Com_PrintError("couldn't load weights\n");
         return botlibError_t::BLERR_CANNOTLOADITEMWEIGHTS;
     } // end if
     // if there's no item configuration
@@ -1669,11 +1669,11 @@ int BotAllocGoalState(int client)
 void BotFreeGoalState(int handle)
 {
     if (handle <= 0 || handle > MAX_CLIENTS) {
-        botimport.Print(printType_t::PRT_FATAL, "goal state handle %d out of range\n", handle);
+        Com_PrintError("goal state handle %d out of range\n", handle);
         return;
     } // end if
     if (!botgoalstates[handle]) {
-        botimport.Print(printType_t::PRT_FATAL, "invalid goal state handle %d\n", handle);
+        Com_PrintError("invalid goal state handle %d\n", handle);
         return;
     } // end if
     BotFreeItemWeights(handle);
@@ -1697,7 +1697,7 @@ botlibError_t BotSetupGoalAI(void)
     // load the item configuration
     itemconfig = LoadItemConfig(filename);
     if (!itemconfig) {
-        botimport.Print(printType_t::PRT_FATAL, "couldn't load item config\n");
+        Com_PrintError("couldn't load item config\n");
         return botlibError_t::BLERR_CANNOTLOADITEMCONFIG;
     } // end if
     //

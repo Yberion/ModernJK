@@ -119,24 +119,36 @@ void Com_EndRedirect(void)
 
 /*
 =============
-Com_Printf
+Com_VPrintf
 
 Both client and server can use this, and it will output
-to the appropriate place.
+to the appropriate place. The modules' messages come here
+through their import tables.
 
 A raw string should NEVER be passed as fmt, because of "%f" type crashers.
 =============
 */
-void QDECL Com_Printf(const char* fmt, ...)
+void Com_VPrintf(printLevel_t level, const char* fmt, va_list args)
 {
-    va_list argptr;
     char msg[MAXPRINTMSG];
     static bool opening_qconsole = false;
     const char* p;
 
-    va_start(argptr, fmt);
-    Q_vsnprintf(msg, sizeof(msg), fmt, argptr);
-    va_end(argptr);
+    if (level == printLevel_t::PRINT_DEVELOPER && (!com_developer || !com_developer->integer)) {
+        return; // don't confuse non-developers with techie stuff...
+    }
+
+    // the level's colour and prefix, the same for every engine and module
+    const char* prefix = "";
+    if (level == printLevel_t::PRINT_WARNING) {
+        prefix = S_COLOR_YELLOW "WARNING: ";
+    }
+    else if (level == printLevel_t::PRINT_ERROR) {
+        prefix = S_COLOR_RED "ERROR: ";
+    }
+    const size_t prefixLen = strlen(prefix);
+    memcpy(msg, prefix, prefixLen);
+    Q_vsnprintf(msg + prefixLen, sizeof(msg) - prefixLen, fmt, args);
 
     if (rd_buffer) {
         if ((strlen(msg) + strlen(rd_buffer)) > (size_t)(rd_buffersize - 1)) {
@@ -229,55 +241,16 @@ void QDECL Com_Printf(const char* fmt, ...)
 }
 
 /*
-================
-Com_DPrintf
-
-A Com_Printf that only shows up if the "developer" cvar is set
-================
-*/
-void QDECL Com_DPrintf(const char* fmt, ...)
-{
-    va_list argptr;
-    char msg[MAXPRINTMSG];
-
-    if (!com_developer || !com_developer->integer) {
-        return; // don't confuse non-developers with techie stuff...
-    }
-
-    va_start(argptr, fmt);
-    Q_vsnprintf(msg, sizeof(msg), fmt, argptr);
-    va_end(argptr);
-
-    Com_Printf("%s", msg);
-}
-
-// Outputs to the VC / Windows Debug window (only in debug compile)
-void QDECL Com_OPrintf(const char* fmt, ...)
-{
-    va_list argptr;
-    char msg[MAXPRINTMSG];
-
-    va_start(argptr, fmt);
-    Q_vsnprintf(msg, sizeof(msg), fmt, argptr);
-    va_end(argptr);
-#ifdef _WIN32
-    OutputDebugString(msg);
-#else
-    printf("%s", msg);
-#endif
-}
-
-/*
 =============
-Com_Error
+Com_VError
 
 Both client and server can use this, and it will
-do the appropriate things.
+do the appropriate things. The modules' errors come here
+through their import tables.
 =============
 */
-void NORETURN QDECL Com_Error(errorParm_t code, const char* fmt, ...)
+void NORETURN Com_VError(errorParm_t code, const char* fmt, va_list args)
 {
-    va_list argptr;
     static int lastErrorTime;
     static int errorCount;
     int currentTime;
@@ -312,9 +285,7 @@ void NORETURN QDECL Com_Error(errorParm_t code, const char* fmt, ...)
     }
     lastErrorTime = currentTime;
 
-    va_start(argptr, fmt);
-    Q_vsnprintf(com_errorMessage, sizeof(com_errorMessage), fmt, argptr);
-    va_end(argptr);
+    Q_vsnprintf(com_errorMessage, sizeof(com_errorMessage), fmt, args);
 
     if (code != errorParm_t::ERR_DISCONNECT && code != errorParm_t::ERR_NEED_CD) {
         Cvar_Get("com_errorMessage", "", cvarFlags_t::CVAR_ROM); // give com_errorMessage a default so it won't come back to life after a resetDefaults
@@ -852,7 +823,7 @@ void Com_PushEvent(sysEvent_t* event)
         // don't print the warning constantly, or it can give time for more...
         if (!printedWarning) {
             printedWarning = true;
-            Com_Printf("WARNING: Com_PushEvent overflow\n");
+            Com_Warning("Com_PushEvent overflow\n");
         }
 
         if (ev->evPtr) {

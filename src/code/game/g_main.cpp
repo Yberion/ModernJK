@@ -646,9 +646,9 @@ void InitGame(const char* mapname, const char* spawntarget, int checkSum, const 
     g_eSavedGameJustLoaded = eSavedGameJustLoaded;
     g_qbLoadTransition = qbLoadTransition;
 
-    gi.Printf("------- Game Initialization -------\n");
-    gi.Printf("gamename: %s\n", JK_VERSION);
-    gi.Printf("gamedate: %s\n", SOURCE_DATE);
+    Com_Printf("------- Game Initialization -------\n");
+    Com_Printf("gamename: %s\n", JK_VERSION);
+    Com_Printf("gamedate: %s\n", SOURCE_DATE);
 
     Rand_Init(randomSeed);
 
@@ -713,7 +713,7 @@ void InitGame(const char* mapname, const char* spawntarget, int checkSum, const 
 
     //	SaveRegisteredItems();
 
-    gi.Printf("-----------------------------------\n");
+    Com_Printf("-----------------------------------\n");
 
     Rail_Initialize();
     Troop_Initialize();
@@ -834,52 +834,15 @@ extern "C" Q_EXPORT game_export_t* QDECL GetGameAPI(game_import_t* import)
     return &globals;
 }
 
-void QDECL G_Error(const char* fmt, ...)
+// the game module's messages and errors, formatted by the engine (q_fmt.h)
+void Com_VPrintf(printLevel_t level, const char* fmt, va_list args)
 {
-    va_list argptr;
-    char text[1024];
-
-    va_start(argptr, fmt);
-    Q_vsnprintf(text, sizeof(text), fmt, argptr);
-    va_end(argptr);
-
-    gi.Error(errorParm_t::ERR_DROP, "%s", text);
+    gi.Print(level, fmt, args);
 }
 
-/*
--------------------------
-Com_Error
--------------------------
-*/
-
-void Com_Error(errorParm_t level, const char* error, ...)
+void Com_VError(errorParm_t code, const char* fmt, va_list args)
 {
-    va_list argptr;
-    char text[1024];
-
-    va_start(argptr, error);
-    Q_vsnprintf(text, sizeof(text), error, argptr);
-    va_end(argptr);
-
-    gi.Error(level, "%s", text);
-}
-
-/*
--------------------------
-Com_Printf
--------------------------
-*/
-
-void Com_Printf(const char* msg, ...)
-{
-    va_list argptr;
-    char text[1024];
-
-    va_start(argptr, msg);
-    Q_vsnprintf(text, sizeof(text), msg, argptr);
-    va_end(argptr);
-
-    gi.Printf("%s", text);
+    gi.Error(code, fmt, args);
 }
 
 /*
@@ -1855,7 +1818,7 @@ void G_RunFrame(int levelTime)
         ClientEndFrame(ent);
     }
     if (g_numEntities->integer) {
-        gi.Printf(S_COLOR_WHITE "Number of Entities in use : %d\n", ents_inuse);
+        Com_Printf(S_COLOR_WHITE "Number of Entities in use : %d\n", ents_inuse);
     }
     // DEBUG STUFF
     NAV::ShowDebugInfo(ent->currentOrigin, ent->waypoint);
@@ -1866,29 +1829,29 @@ void G_RunFrame(int levelTime)
 #if AI_TIMERS
     AITime -= navTime;
     if (AITime > 20) {
-        gi.Printf(S_COLOR_RED "ERROR: total AI time: %d\n", AITime);
+        Com_PrintError("total AI time: %d\n", AITime);
     }
     else if (AITime > 10) {
-        gi.Printf(S_COLOR_YELLOW "WARNING: total AI time: %d\n", AITime);
+        Com_Warning("total AI time: %d\n", AITime);
     }
     else if (AITime > 2) {
-        gi.Printf(S_COLOR_GREEN "total AI time: %d\n", AITime);
+        Com_Printf(S_COLOR_GREEN "total AI time: %d\n", AITime);
     }
     if (navTime > 20) {
-        gi.Printf(S_COLOR_RED "ERROR: total nav time: %d\n", navTime);
+        Com_PrintError("total nav time: %d\n", navTime);
     }
     else if (navTime > 10) {
-        gi.Printf(S_COLOR_YELLOW "WARNING: total nav time: %d\n", navTime);
+        Com_Warning("total nav time: %d\n", navTime);
     }
     else if (navTime > 2) {
-        gi.Printf(S_COLOR_GREEN "total nav time: %d\n", navTime);
+        Com_Printf(S_COLOR_GREEN "total nav time: %d\n", navTime);
     }
 #endif //	AI_TIMERS
 
     extern int delayedShutDown;
     if (g_delayedShutdown->integer && delayedShutDown != 0 && delayedShutDown < level.time) {
         assert(0);
-        G_Error("Game Errors. Scroll up the console to read them.\n");
+        Com_Error(errorParm_t::ERR_DROP, "Game Errors. Scroll up the console to read them.\n");
     }
 
 #ifdef _DEBUG

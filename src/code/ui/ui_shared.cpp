@@ -190,6 +190,7 @@ void Window_Init(Window* w)
 PC_SourceError
 =================
 */
+void PC_SourceError(int handle, char* format, ...) __attribute__((format(printf, 2, 3)));
 void PC_SourceError(int handle, char* format, ...)
 {
     int line;
@@ -204,7 +205,7 @@ void PC_SourceError(int handle, char* format, ...)
     filename[0] = '\0';
     line = 0;
 
-    Com_Printf(S_COLOR_RED "ERROR: %s, line %d: %s\n", filename, line, string);
+    Com_PrintError("%s, line %d: %s\n", filename, line, string);
 }
 
 /*
@@ -1322,7 +1323,7 @@ const char* String_Alloc(const char* p)
         return &strPool[ph];
     }
     else {
-        Com_Printf("WARNING: Ran out of strPool space\n");
+        Com_Warning("Ran out of strPool space\n");
     }
 
     return nullptr;
@@ -1385,9 +1386,7 @@ void* UI_Alloc(int size)
     char* p;
 
     if (allocPoint + size > MEM_POOL_SIZE) {
-        if (DC->Print) {
-            DC->Print("UI_Alloc: Failure. Out of memory!\n");
-        }
+        Com_Printf("UI_Alloc: Failure. Out of memory!\n");
         return nullptr;
     }
 
@@ -1420,7 +1419,7 @@ int Menu_ItemsMatchingGroup(menuDef_t* menu, const char* name)
 
     for (i = 0; i < menu->itemCount; i++) {
         if ((!menu->items[i]->window.name) && (!menu->items[i]->window.group)) {
-            Com_Printf(S_COLOR_YELLOW "WARNING: item has neither name or group\n");
+            Com_Warning("item has neither name or group\n");
             continue;
         }
 
@@ -1491,7 +1490,7 @@ void Menu_ShowItemByName(menuDef_t* menu, const char* p, bool bShow)
     count = Menu_ItemsMatchingGroup(menu, p);
 
     if (!count) {
-        Com_Printf(S_COLOR_YELLOW "WARNING: Menu_ShowItemByName - unable to locate any items named: \"%s\"\n", p);
+        Com_Warning("Menu_ShowItemByName - unable to locate any items named: \"%s\"\n", p);
     }
 
     for (i = 0; i < count; i++) {
@@ -2356,7 +2355,7 @@ bool Script_Delay(itemDef_t* item, const char** args)
         item->window.delayedScript = (char*)*args;    // Copy current location, we'll resume executing here later
     }
     else {
-        Com_Printf(S_COLOR_YELLOW "WARNING: Script_Delay: error parsing\n");
+        Com_Warning("Script_Delay: error parsing\n");
     }
 
     // Stop running
@@ -2382,7 +2381,7 @@ bool Script_Transition(itemDef_t* item, const char** args)
             Menu_TransitionItemByName((menuDef_t*)item->parent, name, &rectFrom, &rectTo, time, amt);
         }
         else {
-            Com_Printf(S_COLOR_YELLOW "WARNING: Script_Transition: error parsing '%s'\n", name);
+            Com_Warning("Script_Transition: error parsing '%s'\n", name);
         }
     }
 
@@ -2409,7 +2408,7 @@ bool Script_Transition2(itemDef_t* item, const char** args)
             Menu_TransitionItemByName((menuDef_t*)item->parent, name, nullptr, &rectTo, time, amt);
         }
         else {
-            Com_Printf(S_COLOR_YELLOW "WARNING: Script_Transition2: error parsing '%s'\n", name);
+            Com_Warning("Script_Transition2: error parsing '%s'\n", name);
         }
     }
 
@@ -2476,7 +2475,7 @@ bool Script_Transition3(itemDef_t* item, const char** args)
         }
     }
     if (name) {
-        Com_Printf(S_COLOR_YELLOW "WARNING: Script_Transition2: error parsing '%s'\n", name);
+        Com_Warning("Script_Transition2: error parsing '%s'\n", name);
     }
     return true;
 }
@@ -4853,13 +4852,13 @@ bool Item_Parse(itemDef_t* item)
             /*			if (!item->window.name)
                         {
                             item->window.name = defaultString;
-                            Com_Printf(S_COLOR_YELLOW"WARNING: Menu item has no name\n");
+                            Com_Warning("Menu item has no name\n");
                         }
 
                         if (!item->window.group)
                         {
                             item->window.group = defaultString;
-                            Com_Printf(S_COLOR_YELLOW"WARNING: Menu item has no group\n");
+                            Com_Warning("Menu item has no group\n");
                         }
             */
             return true;
@@ -5172,7 +5171,7 @@ menuDef_t* Menus_ActivateByName(const char* p)
             Menus_OpenByName("ingameMissionSelect3");
         }
         else {
-            Com_Printf(S_COLOR_YELLOW "WARNING: Menus_ActivateByName: Unable to find menu \"%s\"\n", p);
+            Com_Warning("Menus_ActivateByName: Unable to find menu \"%s\"\n", p);
         }
     }
 
@@ -5627,7 +5626,7 @@ PC_ParseWarning
 */
 void PC_ParseWarning(const char* message)
 {
-    ui.Printf(S_COLOR_YELLOW "WARNING: %s Line #%d of File '%s'\n", message, parseData[parseDataCount].com_lines, parseData[parseDataCount].fileName);
+    Com_Warning("%s Line #%d of File '%s'\n", message, parseData[parseDataCount].com_lines, parseData[parseDataCount].fileName);
 }
 
 char* PC_ParseExt(void)
@@ -10008,7 +10007,7 @@ Item_Slider_HandleKey
 */
 bool Item_Slider_HandleKey(itemDef_t* item, fakeAscii_t key, bool down)
 {
-    // DC->Print("slider handle key\n");
+    // Com_Printf("slider handle key\n");
     // JLF MPMOVED
 
     float x, value, width, work;
@@ -10031,9 +10030,9 @@ bool Item_Slider_HandleKey(itemDef_t* item, fakeAscii_t key, bool down)
                 testRect.x = x;
                 value = (float)SLIDER_THUMB_WIDTH / 2;
                 testRect.x -= value;
-                // DC->Print("slider x: %f\n", testRect.x);
+                // Com_Printf("slider x: %f\n", testRect.x);
                 testRect.w = (SLIDER_WIDTH + (float)SLIDER_THUMB_WIDTH / 2);
-                // DC->Print("slider w: %f\n", testRect.w);
+                // Com_Printf("slider w: %f\n", testRect.w);
                 if (Rect_ContainsPoint(&testRect, DC->cursorx, DC->cursory)) {
                     work = DC->cursorx - x;
                     value = work / width;
@@ -10048,7 +10047,7 @@ bool Item_Slider_HandleKey(itemDef_t* item, fakeAscii_t key, bool down)
         }
     }
 
-    // DC->Print("slider handle key exit\n");
+    // Com_Printf("slider handle key exit\n");
     return false;
 }
 
@@ -10311,9 +10310,7 @@ void Menu_HandleKey(menuDef_t* menu, int event, bool down)
                 DC->executeText(cbufExec_t::EXEC_APPEND, "screenshot_png\n");
                 break;
             default:
-                if (DC->Print) {
-                    DC->Print(S_COLOR_YELLOW "Menu_HandleKey[F12]: Unknown screenshot format assigned! This should not happen.\n");
-                }
+                Com_Printf(S_COLOR_YELLOW "Menu_HandleKey[F12]: Unknown screenshot format assigned! This should not happen.\n");
                 break;
             }
         }
@@ -10471,7 +10468,7 @@ void Menus_HideItems(const char* menuName)
     menu = Menus_FindByName(menuName); // Get menu
 
     if (!menu) {
-        Com_Printf(S_COLOR_YELLOW "WARNING: No menu was found. Could not hide items.\n");
+        Com_Warning("No menu was found. Could not hide items.\n");
         return;
     }
 
@@ -10495,7 +10492,7 @@ void Menus_ShowItems(const char* menuName)
     menu = Menus_FindByName(menuName); // Get menu
 
     if (!menu) {
-        Com_Printf(S_COLOR_YELLOW "WARNING: No menu was found. Could not show items.\n");
+        Com_Warning("No menu was found. Could not show items.\n");
         return;
     }
 

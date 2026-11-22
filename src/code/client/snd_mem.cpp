@@ -689,7 +689,7 @@ static bool S_LoadSound_Actual(sfx_t* sfx)
     //
     psExt = &sLoadName[strlen(sLoadName) - 4];
     if (*psExt != '.') {
-        // Com_Printf( "WARNING: soundname '%s' does not have 3-letter extension\n",sLoadName);
+        // Com_Warning( "soundname '%s' does not have 3-letter extension\n",sLoadName);
         COM_DefaultExtension(sLoadName, sizeof(sLoadName), ".wav"); // so psExt below is always valid
         psExt = &sLoadName[strlen(sLoadName) - 4];
         len = strlen(sLoadName);
@@ -782,11 +782,11 @@ static bool S_LoadSound_Actual(sfx_t* sfx)
         }
 
         /*		if ( info.width == 1 ) {
-                    Com_Printf(S_COLOR_YELLOW "WARNING: %s is a 8 bit wav file\n", sLoadName);
+                    Com_Warning("%s is a 8 bit wav file\n", sLoadName);
                 }
 
                 if ( info.rate != 22050 ) {
-                    Com_Printf(S_COLOR_YELLOW "WARNING: %s is not a 22kHz wav file\n", sLoadName);
+                    Com_Warning("%s is not a 22kHz wav file\n", sLoadName);
                 }
         */
         samples = (short*)Z_Malloc(info.samples * sizeof(short) * 2, memtag::TAG_TEMP_WORKSPACE, false);

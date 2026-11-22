@@ -32,7 +32,7 @@ EnumArray<int, npcteam_t, npcteam_t::NPCTEAM_NUM_TEAMS> teamStrength;
 EnumArray<int, npcteam_t, npcteam_t::NPCTEAM_NUM_TEAMS> teamCounter;
 
 constexpr float VALID_ATTACK_CONE = 2.0f; // Degrees
-extern void G_DebugPrint(WL_e level, const char* format, ...);
+extern void G_DebugPrint(WL_e level, const char* format, ...) __attribute__((format(printf, 2, 3)));
 
 /*
 void CalcEntitySpot ( gentity_t *ent, spot_t spot, vec3_t point )
@@ -874,7 +874,7 @@ void NPC_SetBoneAngles(gentity_t* ent, const char* bone, vec3_t angles)
 
     if (!thebone) {       // didn't find it, create it
         if (!firstFree) { // no free bones.. can't do a thing then.
-            Com_Printf("WARNING: NPC has no free bone indexes\n");
+            Com_Warning("NPC has no free bone indexes\n");
             return;
         }
 
@@ -924,7 +924,7 @@ void NPC_SetSurfaceOnOff(gentity_t* ent, const char* surfaceName, g2SurfaceFlags
     }
 
     if (!foundIt) {
-        Com_Printf("WARNING: Tried to toggle NPC surface that isn't in toggleable surface list (%s)\n", surfaceName);
+        Com_Warning("Tried to toggle NPC surface that isn't in toggleable surface list (%s)\n", surfaceName);
         return;
     }
 

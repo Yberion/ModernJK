@@ -6648,7 +6648,7 @@ void CQuake3GameInterface::VariableLoadFloats(varFloat_m& fmap)
         saved_game.read_chunk<int32_t>(INT_ID('F', 'I', 'D', 'L'), idSize);
 
         if (idSize < 0 || static_cast<size_t>(idSize) >= sizeof(tempBuffer)) {
-            ::G_Error("invalid length for FIDS string in save game: %d bytes\n", idSize);
+            Com_Error(errorParm_t::ERR_DROP, "invalid length for FIDS string in save game: %d bytes\n", idSize);
         }
 
         saved_game.read_chunk(INT_ID('F', 'I', 'D', 'S'), tempBuffer, idSize);
@@ -6686,7 +6686,7 @@ void CQuake3GameInterface::VariableLoadStrings(icarusToken_t type, varString_m& 
         saved_game.read_chunk<int32_t>(INT_ID('S', 'I', 'D', 'L'), idSize);
 
         if (idSize < 0 || static_cast<size_t>(idSize) >= sizeof(tempBuffer)) {
-            ::G_Error("invalid length for SIDS string in save game: %d bytes\n", idSize);
+            Com_Error(errorParm_t::ERR_DROP, "invalid length for SIDS string in save game: %d bytes\n", idSize);
         }
 
         saved_game.read_chunk(INT_ID('S', 'I', 'D', 'S'), tempBuffer, idSize);
@@ -6696,7 +6696,7 @@ void CQuake3GameInterface::VariableLoadStrings(icarusToken_t type, varString_m& 
         saved_game.read_chunk<int32_t>(INT_ID('S', 'V', 'S', 'Z'), idSize);
 
         if (idSize < 0 || static_cast<size_t>(idSize) >= sizeof(tempBuffer2)) {
-            ::G_Error("invalid length for SVAL string in save game: %d bytes\n", idSize);
+            Com_Error(errorParm_t::ERR_DROP, "invalid length for SVAL string in save game: %d bytes\n", idSize);
         }
 
         saved_game.read_chunk(INT_ID('S', 'V', 'A', 'L'), tempBuffer2, idSize);
@@ -6873,7 +6873,7 @@ bool CQuake3GameInterface::ValidEntity(gentity_t* pEntity)
     // Potentially able to call a script.
     for (const char* script : pEntity->behaviorSet) {
         if VALIDSTRING (script) {
-            // Com_Printf( "WARNING: Entity %d (%s) has behaviorSet but no script_targetname -- using targetname\n", pEntity->s.number, pEntity->targetname );
+            // Com_Warning( "Entity %d (%s) has behaviorSet but no script_targetname -- using targetname\n", pEntity->s.number, pEntity->targetname );
             pEntity->script_targetname = G_NewString(pEntity->targetname);
             return true;
         }
@@ -7152,11 +7152,11 @@ void CQuake3GameInterface::DebugPrint(e_DebugPrintLevel level, const char* forma
     // Add the color formatting
     switch (level) {
     case e_DebugPrintLevel::WL_ERROR:
-        Com_Printf(S_COLOR_RED "ERROR: %s", text);
+        Com_PrintError("%s", text);
         break;
 
     case e_DebugPrintLevel::WL_WARNING:
-        Com_Printf(S_COLOR_YELLOW "WARNING: %s", text);
+        Com_Warning("%s", text);
         break;
 
     case e_DebugPrintLevel::WL_DEBUG: {

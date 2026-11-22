@@ -587,9 +587,6 @@ void CG_NewClientinfo(int clientNum);
 const char* CG_ConfigString(int index);
 const char* CG_Argv(int arg);
 
-void QDECL CG_Printf(const char* msg, ...) __attribute__((format(printf, 1, 2)));
-NORETURN void QDECL CG_Error(const char* msg, ...) __attribute__((format(printf, 1, 2)));
-
 void CG_StartMusic(bool bForceStart);
 
 void CG_UpdateCvars(void);
@@ -830,12 +827,6 @@ bool CG_Credits_Draw(void);
 // system calls
 // These functions are how the cgame communicates with the main game system
 //
-
-// print message on the local console
-void cgi_Printf(const char* fmt);
-
-// abort the game
-NORETURN void cgi_Error(const char* fmt);
 
 // milliseconds should only be used for performance tuning, never
 // for anything game related.  Get time from the CG_DrawActiveFrame parameter

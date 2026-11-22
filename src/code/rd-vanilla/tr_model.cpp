@@ -254,8 +254,8 @@ bool RE_RegisterModels_LevelLoadEnd(bool bDeleteEverythingNotUsedThisLevel /* = 
             if (bDeleteThis) {
 #ifdef _DEBUG
                 //				LPCSTR psModelName = (*itModel).first.c_str();
-                //				ri.Printf( printParm_t::PRINT_DEVELOPER, "Dumping \"%s\"", psModelName);
-                //				ri.Printf( printParm_t::PRINT_DEVELOPER, ", used on lvl %d\n",CachedModel.iLastLevelUsedOn);
+                //				Com_DPrintf("Dumping \"%s\"", psModelName);
+                //				Com_DPrintf(", used on lvl %d\n",CachedModel.iLastLevelUsedOn);
 #endif
 
                 if (CachedModel.pModelDiskImage) {
@@ -273,7 +273,7 @@ bool RE_RegisterModels_LevelLoadEnd(bool bDeleteEverythingNotUsedThisLevel /* = 
         }
     }
 
-    // ri.Printf( printParm_t::PRINT_DEVELOPER, "RE_RegisterModels_LevelLoadEnd(): Ok\n");
+    // Com_DPrintf("RE_RegisterModels_LevelLoadEnd(): Ok\n");
 
     return bAtLeastoneModelFreed;
 }
@@ -292,15 +292,15 @@ void RE_RegisterModels_Info_f(void)
     for (CachedModels_t::iterator itModel = CachedModels->begin(); itModel != CachedModels->end(); ++itModel, iModel++) {
         CachedEndianedModelBinary_t& CachedModel = (*itModel).second;
 
-        ri.Printf(printParm_t::PRINT_ALL, "%d/%d: \"%s\" (%d bytes)", iModel, iModels, (*itModel).first.c_str(), CachedModel.iAllocSize);
+        Com_Printf("%d/%d: \"%s\" (%d bytes)", iModel, iModels, (*itModel).first.c_str(), CachedModel.iAllocSize);
 
 #ifdef _DEBUG
-        ri.Printf(printParm_t::PRINT_ALL, ", lvl %d\n", CachedModel.iLastLevelUsedOn);
+        Com_Printf(", lvl %d\n", CachedModel.iLastLevelUsedOn);
 #endif
 
         iTotalBytes += CachedModel.iAllocSize;
     }
-    ri.Printf(printParm_t::PRINT_ALL, "%d bytes total (%.2fMB)\n", iTotalBytes, (float)iTotalBytes / 1024.0f / 1024.0f);
+    Com_Printf("%d bytes total (%.2fMB)\n", iTotalBytes, (float)iTotalBytes / 1024.0f / 1024.0f);
 }
 
 static void RE_RegisterModels_DeleteAll(void)
@@ -516,12 +516,12 @@ static qhandle_t RE_RegisterModel_Actual(const char* name)
     */
 
     if (!name || !name[0]) {
-        ri.Printf(printParm_t::PRINT_WARNING, "RE_RegisterModel: NULL name\n");
+        Com_Warning("RE_RegisterModel: NULL name\n");
         return 0;
     }
 
     if (strlen(name) >= MAX_QPATH) {
-        ri.Printf(printParm_t::PRINT_DEVELOPER, "Model name exceeds MAX_QPATH\n");
+        Com_DPrintf("Model name exceeds MAX_QPATH\n");
         return 0;
     }
 
@@ -529,7 +529,7 @@ static qhandle_t RE_RegisterModel_Actual(const char* name)
     Ghoul2 Insert Start
     */
     //	if (!tr.registered) {
-    //		ri.Printf( printParm_t::PRINT_WARNING, "RE_RegisterModel (%s) called before ready!\n",name );
+    //		Com_Warning("RE_RegisterModel (%s) called before ready!\n",name );
     //		return 0;
     //	}
     //
@@ -576,7 +576,7 @@ static qhandle_t RE_RegisterModel_Actual(const char* name)
     // allocate a new model_t
 
     if ((mod = R_AllocModel()) == nullptr) {
-        ri.Printf(printParm_t::PRINT_WARNING, "RE_RegisterModel: R_AllocModel() failed for '%s'\n", name);
+        Com_Warning("RE_RegisterModel: R_AllocModel() failed for '%s'\n", name);
         return 0;
     }
 
@@ -653,7 +653,7 @@ static qhandle_t RE_RegisterModel_Actual(const char* name)
 
         default:
 
-            ri.Printf(printParm_t::PRINT_WARNING, "RE_RegisterModel: unknown fileid for %s\n", filename);
+            Com_Warning("RE_RegisterModel: unknown fileid for %s\n", filename);
             goto fail;
         }
 
@@ -663,7 +663,7 @@ static qhandle_t RE_RegisterModel_Actual(const char* name)
 
         if (!loaded) {
             if (lod == 0) {
-                ri.Printf(printParm_t::PRINT_WARNING, "RE_RegisterModel: cannot load %s\n", filename);
+                Com_Warning("RE_RegisterModel: cannot load %s\n", filename);
                 goto fail;
             }
             else {
@@ -761,7 +761,7 @@ static bool R_LoadMD3(model_t* mod, int lod, void* buffer, const char* mod_name,
     }
 
     if (version != MD3_VERSION) {
-        ri.Printf(printParm_t::PRINT_WARNING, "R_LoadMD3: %s has wrong version (%i should be %i)\n", mod_name, version, MD3_VERSION);
+        Com_Warning("R_LoadMD3: %s has wrong version (%i should be %i)\n", mod_name, version, MD3_VERSION);
         return false;
     }
 
@@ -796,7 +796,7 @@ static bool R_LoadMD3(model_t* mod, int lod, void* buffer, const char* mod_name,
     }
 
     if (mod->md3[lod]->numFrames < 1) {
-        ri.Printf(printParm_t::PRINT_WARNING, "R_LoadMD3: %s has no frames\n", mod_name);
+        Com_Warning("R_LoadMD3: %s has no frames\n", mod_name);
         return false;
     }
 
@@ -984,25 +984,25 @@ void R_Modellist_f(void)
         switch (mod->type) {
         default:
             assert(0);
-            ri.Printf(printParm_t::PRINT_ALL, "UNKNOWN  :      %s\n", mod->name);
+            Com_Printf("UNKNOWN  :      %s\n", mod->name);
             break;
 
         case modtype_t::MOD_BAD:
-            ri.Printf(printParm_t::PRINT_ALL, "MOD_BAD  :      %s\n", mod->name);
+            Com_Printf("MOD_BAD  :      %s\n", mod->name);
             break;
 
         case modtype_t::MOD_BRUSH:
-            ri.Printf(printParm_t::PRINT_ALL, "%8i : (%i) %s\n", mod->dataSize, mod->numLods, mod->name);
+            Com_Printf("%8i : (%i) %s\n", mod->dataSize, mod->numLods, mod->name);
             break;
 
         case modtype_t::MOD_MDXA:
 
-            ri.Printf(printParm_t::PRINT_ALL, "%8i : (%i) %s\n", mod->dataSize, mod->numLods, mod->name);
+            Com_Printf("%8i : (%i) %s\n", mod->dataSize, mod->numLods, mod->name);
             break;
 
         case modtype_t::MOD_MDXM:
 
-            ri.Printf(printParm_t::PRINT_ALL, "%8i : (%i) %s\n", mod->dataSize, mod->numLods, mod->name);
+            Com_Printf("%8i : (%i) %s\n", mod->dataSize, mod->numLods, mod->name);
             break;
 
         case modtype_t::MOD_MESH:
@@ -1013,16 +1013,16 @@ void R_Modellist_f(void)
                     lods++;
                 }
             }
-            ri.Printf(printParm_t::PRINT_ALL, "%8i : (%i) %s\n", mod->dataSize, lods, mod->name);
+            Com_Printf("%8i : (%i) %s\n", mod->dataSize, lods, mod->name);
             break;
         }
         total += mod->dataSize;
     }
-    ri.Printf(printParm_t::PRINT_ALL, "%8i : Total models\n", total);
+    Com_Printf("%8i : Total models\n", total);
 
     /*	this doesn't work with the new hunks
         if ( tr.world ) {
-            ri.Printf( printParm_t::PRINT_ALL, "%8i : %s\n", tr.world->dataSize, tr.world->name );
+            Com_Printf("%8i : %s\n", tr.world->dataSize, tr.world->name );
         } */
 }
 

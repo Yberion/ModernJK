@@ -151,7 +151,7 @@ bool RE_RegisterModels_GetDiskFile(const char* psModelFileName, void** ppvBuffer
         bool bSuccess = !!(*ppvBuffer) ? true : false;
 
         if (bSuccess) {
-            ri.Printf(printParm_t::PRINT_DEVELOPER, "RE_RegisterModels_GetDiskFile(): Disk-loading \"%s\"\n", psModelFileName);
+            Com_DPrintf("RE_RegisterModels_GetDiskFile(): Disk-loading \"%s\"\n", psModelFileName);
         }
 
         return bSuccess;
@@ -297,10 +297,10 @@ bool RE_RegisterModels_LevelLoadEnd(bool bDeleteEverythingNotUsedThisLevel /* = 
 
     assert(CachedModels);
 
-    ri.Printf(printParm_t::PRINT_DEVELOPER, S_COLOR_RED "RE_RegisterModels_LevelLoadEnd():\n");
+    Com_DPrintf(S_COLOR_RED "RE_RegisterModels_LevelLoadEnd():\n");
 
     if (gbInsideRegisterModel) {
-        ri.Printf(printParm_t::PRINT_DEVELOPER, "(Inside RE_RegisterModel (z_malloc recovery?), exiting...\n");
+        Com_DPrintf("(Inside RE_RegisterModel (z_malloc recovery?), exiting...\n");
     }
     else {
         int iLoadedModelBytes = GetModelDataAllocSize();
@@ -324,10 +324,10 @@ bool RE_RegisterModels_LevelLoadEnd(bool bDeleteEverythingNotUsedThisLevel /* = 
             //
             if (bDeleteThis) {
                 const char* psModelName = (*itModel).first.c_str();
-                ri.Printf(printParm_t::PRINT_DEVELOPER, S_COLOR_RED "Dumping \"%s\"", psModelName);
+                Com_DPrintf(S_COLOR_RED "Dumping \"%s\"", psModelName);
 
 #ifdef _DEBUG
-                ri.Printf(printParm_t::PRINT_DEVELOPER, S_COLOR_RED ", used on lvl %d\n", CachedModel.iLastLevelUsedOn);
+                Com_DPrintf(S_COLOR_RED ", used on lvl %d\n", CachedModel.iLastLevelUsedOn);
 #endif
 
                 if (CachedModel.pModelDiskImage) {
@@ -345,7 +345,7 @@ bool RE_RegisterModels_LevelLoadEnd(bool bDeleteEverythingNotUsedThisLevel /* = 
         }
     }
 
-    ri.Printf(printParm_t::PRINT_DEVELOPER, S_COLOR_RED "RE_RegisterModels_LevelLoadEnd(): Ok\n");
+    Com_DPrintf(S_COLOR_RED "RE_RegisterModels_LevelLoadEnd(): Ok\n");
 
     return bAtLeastoneModelFreed;
 }
@@ -357,7 +357,7 @@ bool RE_RegisterModels_LevelLoadEnd(bool bDeleteEverythingNotUsedThisLevel /* = 
 //
 static void RE_RegisterModels_DumpNonPure(void)
 {
-    ri.Printf(printParm_t::PRINT_DEVELOPER, "RE_RegisterModels_DumpNonPure():\n");
+    Com_DPrintf("RE_RegisterModels_DumpNonPure():\n");
 
     if (!CachedModels) {
         return;
@@ -377,7 +377,7 @@ static void RE_RegisterModels_DumpNonPure(void)
             {
                 // either this is not from a PAK, or it's from a non-pure one, so ditch it...
                 //
-                ri.Printf(printParm_t::PRINT_DEVELOPER, "Dumping none pure model \"%s\"", psModelName);
+                Com_DPrintf("Dumping none pure model \"%s\"", psModelName);
 
                 if (CachedModel.pModelDiskImage) {
                     Z_Free(CachedModel.pModelDiskImage);
@@ -394,7 +394,7 @@ static void RE_RegisterModels_DumpNonPure(void)
         }
     }
 
-    ri.Printf(printParm_t::PRINT_DEVELOPER, "RE_RegisterModels_DumpNonPure(): Ok\n");
+    Com_DPrintf("RE_RegisterModels_DumpNonPure(): Ok\n");
 }
 
 void RE_RegisterModels_Info_f(void)
@@ -995,7 +995,7 @@ static qhandle_t RE_RegisterModel_Actual(const char* name)
     }
 
     if (strlen(name) >= MAX_QPATH) {
-        ri.Printf(printParm_t::PRINT_DEVELOPER, S_COLOR_RED "Model name exceeds MAX_QPATH\n");
+        Com_DPrintf(S_COLOR_RED "Model name exceeds MAX_QPATH\n");
         return 0;
     }
 

@@ -35,7 +35,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 enum class ragCallbackType_t; // cgame/cg_public.h
 
-inline constexpr int REF_API_VERSION = 9;
+inline constexpr int REF_API_VERSION = 10;
 
 //
 // these are the functions exported by the refresh module
@@ -271,9 +271,9 @@ typedef struct refexport_s {
 // these are the functions imported by the refresh module
 //
 typedef struct refimport_s {
-    void(QDECL* Printf)(printParm_t printLevel, const char* fmt, ...) __attribute__((format(printf, 2, 3)));
-    void(QDECL* Error)(errorParm_t errorLevel, const char* fmt, ...) NORETURN_PTR __attribute__((format(printf, 2, 3)));
-    void(QDECL* OPrintf)(const char* fmt, ...) __attribute__((format(printf, 1, 2)));
+    // the renderer's messages and errors, formatted by the engine (q_fmt.h)
+    void (*Print)(printLevel_t level, const char* fmt, va_list args) __attribute__((format(printf, 2, 0)));
+    NORETURN_PTR void (*Error)(errorParm_t code, const char* fmt, va_list args) __attribute__((format(printf, 2, 0)));
 
     // milliseconds should only be used for profiling, never for anything game related. Get time from the refdef
     int (*Milliseconds)(void);

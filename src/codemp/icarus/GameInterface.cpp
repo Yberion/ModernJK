@@ -37,7 +37,7 @@ bufferlist_t ICARUS_BufferList;
 entlist_t ICARUS_EntList;
 
 extern uint32_t Com_BlockChecksum(const void* buffer, int length);
-extern void Q3_DebugPrint(WL_e level, const char* format, ...);
+extern void Q3_DebugPrint(WL_e level, const char* format, ...) __attribute__((format(printf, 2, 3)));
 
 int ICARUS_entFilter = -1;
 
@@ -272,7 +272,7 @@ bool ICARUS_ValidEnt(sharedEntity_t* ent)
     // Potentially able to call a script
     for (const char* script : ent->behaviorSet) {
         if VALIDSTRING (script) {
-            // Com_Printf( "WARNING: Entity %d (%s) has behaviorSet but no script_targetname -- using targetname\n", ent->s.number, ent->targetname );
+            // Com_Warning( "Entity %d (%s) has behaviorSet but no script_targetname -- using targetname\n", ent->s.number, ent->targetname );
 
             // ent->script_targetname = ent->targetname;
             // rww - You CANNOT do things like this now. We're switching memory around to be able to read this memory from vm land,
