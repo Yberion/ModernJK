@@ -67,6 +67,7 @@ After SF.12 of the C++ Core Guidelines:
 - Each warning gets the right fix, never a silencing in bulk; a `#pragma` or a flag that switches a warning off needs its reason written next to it. A library's headers come through a system include folder, outside the warnings, without a pragma.
 - The sets are in `cmake/CompilerWarnings.cmake`: `modernjk_warnings` for the game, the same checks on the three compilers (`-Wall` and `-Wsign-compare` for GCC and clang, MSVC's `/W1` with the numbers that match them raised to level 1), and `netcodec_warnings` (strict) for netcodec.
 - Some warnings exist on one compiler only (GCC's `-Wuseless-cast` on 32- and 64-bit size types: use `ToU32`; MSVC is stricter on old engine code): build on the three.
+- The Release presets build with link-time optimization (`modernjk_ENABLE_IPO`, clang's ThinLTO; the netcodec library out of it with GCC, which makes it no faster), never the Debug and sanitizer presets (22 November 2026). What the link reports across files is an error too: GCC's `-Wodr`, `-Wlto-type-mismatch` and the warnings of the code inlined from another file (GCC gets `-Werror` at the link), MSVC's at `/LTCG`. `linux-gcc-debug-lto`, which only `validate.sh` builds, checks the code only Debug compiles the same way.
 
 ## 9. Libraries
 

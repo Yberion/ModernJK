@@ -145,8 +145,9 @@ void* GetClearedMemory(unsigned long size)
     ptr = GetMemoryDebug(size, label, file, line);
 #else
     ptr = GetMemory(size);
-#endif // MEMDEBUG
-    Com_Memset(ptr, 0, size);
+#endif       // MEMDEBUG
+    if (ptr) // GetMemory returns a null pointer when the allocation fails
+        Com_Memset(ptr, 0, size);
     return ptr;
 } // end of the function GetClearedMemory
 //===========================================================================
@@ -375,7 +376,8 @@ void* GetClearedMemory(unsigned long size)
 #else
     ptr = GetMemory(size);
 #endif // MEMDEBUG
-    Com_Memset(ptr, 0, size);
+    if (ptr) // GetMemory returns a null pointer when the allocation fails
+        Com_Memset(ptr, 0, size);
     return ptr;
 } // end of the function GetClearedMemory
 //===========================================================================

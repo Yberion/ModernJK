@@ -132,7 +132,9 @@ void Q_strncpyz(char* dest, const char* src, int destsize)
 {
     assert(src);
     assert(dest);
-    assert(destsize);
+    assert(destsize > 0);
+    if (destsize < 1) // a size computed from a length or an offset that does not fit an int: nothing is written
+        return;
 
     strncpy(dest, src, destsize - 1);
     dest[destsize - 1] = 0;

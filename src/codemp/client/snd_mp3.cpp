@@ -366,7 +366,7 @@ int MP3Stream_Decode(LP_MP3STREAM lpMP3Stream, bool bDoingMusic)
             lpMP3Stream->iSourceReadIndex= 0;	// since this is zero, not the buffer offset within a chunk, we can play tricks further down when restoring
 
             {
-                unsigned int uiBytesDecoded = C_MP3Stream_Decode( lpMP3Stream, false );
+                unsigned int uiBytesDecoded = C_MP3Stream_Decode( lpMP3Stream );
 
                 lpMP3Stream->iSourceReadIndex += iSourceReadIndex_Old;	// note '+=' rather than '=', to take account of movement.
                 lpMP3Stream->pbSourceData	   = pbSourceData_Old;
@@ -379,7 +379,7 @@ int MP3Stream_Decode(LP_MP3STREAM lpMP3Stream, bool bDoingMusic)
     else {
         // SOF2 music, or EF1 anything...
         //
-        return C_MP3Stream_Decode(lpMP3Stream, false); // bFastForwarding
+        return C_MP3Stream_Decode(lpMP3Stream);
     }
 }
 
@@ -405,9 +405,8 @@ bool MP3Stream_SeekTo(channel_t* ch, float fTimeToSeekTo)
         if (fAbsTimeDiff <= fEpsilon)
             return true;
 
-        // when decoding, use fast-forward until within 3 seconds, then slow-decode (which should init stuff properly?)...
-        //
-        int iBytesDecodedThisPacket = C_MP3Stream_Decode(&ch->MP3StreamHeader, (fAbsTimeDiff > 3.0f)); // bFastForwarding
+        // every packet decoded up to the time sought: the multiplayer's decoder has no fast-forward
+        int iBytesDecodedThisPacket = C_MP3Stream_Decode(&ch->MP3StreamHeader);
         if (iBytesDecodedThisPacket == 0)
             break; // EOS
     }

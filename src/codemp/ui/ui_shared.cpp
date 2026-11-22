@@ -6478,11 +6478,14 @@ Keyword Hash
 
 constexpr int KEYWORDHASH_SIZE = 512;
 
+// internal to this file: cgame also links bg_saberLoad.cpp, which defines another keywordHash_s
+namespace {
 typedef struct keywordHash_s {
     const char* keyword;
     bool (*func)(itemDef_t* item, int handle);
     struct keywordHash_s* next;
 } keywordHash_t;
+} // namespace
 
 static int KeywordHash_Key(const char* keyword)
 {

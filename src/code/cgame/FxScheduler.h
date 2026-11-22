@@ -518,13 +518,13 @@ public:
     T* Alloc()
     {
         T* ptr = nullptr;
-        for (int i = 0; i < numPages && ptr == nullptr; i++) {
+        for (unsigned int i = 0; i < numPages && ptr == nullptr; i++) {
             ptr = pages[i].Alloc();
         }
 
         if (ptr == nullptr) {
             PoolAllocator<T, N>* newPages = new PoolAllocator<T, N>[numPages + 1]();
-            for (int i = 0; i < numPages; i++) {
+            for (unsigned int i = 0; i < numPages; i++) {
                 pages[i].TransferTo(newPages[i]);
             }
 
@@ -544,7 +544,7 @@ public:
 
     void Free(T* ptr)
     {
-        for (int i = 0; i < numPages; i++) {
+        for (unsigned int i = 0; i < numPages; i++) {
             if (pages[i].OwnsPtr(ptr)) {
                 pages[i].Free(ptr);
                 break;
@@ -555,7 +555,7 @@ public:
     int GetHighWatermark() const
     {
         int total = 0;
-        for (int i = 0; i < numPages; i++) {
+        for (unsigned int i = 0; i < numPages; i++) {
             total += pages[i].GetHighWatermark();
         }
 
@@ -565,7 +565,7 @@ public:
     ~PagedPoolAllocator() { delete[] pages; }
 
 private:
-    int numPages;
+    unsigned int numPages; // unsigned and 32-bit: the size of numPages + 1 pages cannot overflow
     PoolAllocator<T, N>* pages;
 };
 

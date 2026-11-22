@@ -32,6 +32,17 @@ if(NOT MSVC)
 	# functions and loops on 64-byte boundaries: otherwise an unrelated change that moves the code by a few bytes moves
 	# the hot loops across fetch blocks and changes the encoding time by up to 5 % (clang) or 10 to 20 % (GCC)
 	target_compile_options(netcodec_options INTERFACE -falign-functions=64 -falign-loops=64)
+	# clang's link-time optimization generates the code at the link, which keeps the functions' alignment of the objects
+	# but not the loops' (GCC's keeps both): given to the link, for every loop of the binaries that link netcodec
+	if(modernjk_ENABLE_IPO AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+		if(CMAKE_CXX_COMPILER_LINKER_ID STREQUAL "LLD")
+			target_link_options(netcodec_options INTERFACE $<$<CONFIG:Release>:LINKER:-mllvm,-align-loops=64>)
+		elseif(CMAKE_CXX_COMPILER_LINKER_ID MATCHES "^GNU")   # ld and gold, through LLVM's plugin
+			target_link_options(netcodec_options INTERFACE $<$<CONFIG:Release>:LINKER:-plugin-opt=-align-loops=64>)
+		else()
+			message(SEND_ERROR "netcodec: the loops' alignment under link-time optimization for the linker ${CMAKE_CXX_COMPILER_LINKER_ID}")
+		endif()
+	endif()
 endif()
 if(modernjk_BUILD_FUZZ_TESTS)
 	# every netcodec target instrumented for the fuzzers' coverage
@@ -51,6 +62,11 @@ add_library(netcodec::netcodec ALIAS netcodec)
 target_include_directories(netcodec PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
 target_link_libraries(netcodec PRIVATE netcodec_options netcodec_warnings)
 modernjk_clang_tidy_as_errors(netcodec)
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+	# GCC's link-time optimization makes the library no faster (0 to 3 % slower in the A/B measures, clang and MSVC
+	# faster): it stays out of it, the code that links it keeps it
+	set_property(TARGET netcodec PROPERTY INTERPROCEDURAL_OPTIMIZATION_RELEASE OFF)
+endif()
 
 # The library's internal headers, for the tests and tools that look inside it; the trace readers of test/, for the
 # benchmarks and tools

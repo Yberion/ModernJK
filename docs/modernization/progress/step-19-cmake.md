@@ -1,6 +1,6 @@
 # Step 19: a modern CMake project
 
-Status: **in progress** (20 November 2026). The decisions taken on 20 and 21 November 2026 (section 1); C++23 tried (section 2); every warning of the three compilers, clang-tidy and cppcheck measured (sections 3 and 4), for plan step 23, which the new warnings and every fix moved to on 21 November 2026 (section 5). Part 1, the move under `src/`, done on 21 November 2026 (section 8). Part 2's open points decided the same day (section 1), then part 2 done on 21 November 2026, on this machine and on the VMs (section 9). Parts 3 (the copyright line), 4 (the formatting) and 5 (the includes) done on 21 November 2026, on this machine and on the VMs (sections 10 to 12). Part 6 (the warnings matched across the compilers, as errors) done on 21 November 2026, on this machine and on the VMs (section 13). Part 7 (the mentions of the plan and the links to `docs/` removed from the code) done on 21 November 2026, on this machine and on the VMs (section 14). Plan: [PLAN.md](../PLAN.md), step 19.
+Status: **in progress** (20 November 2026). The decisions taken on 20 and 21 November 2026 (section 1); C++23 tried (section 2); every warning of the three compilers, clang-tidy and cppcheck measured (sections 3 and 4), for plan step 23, which the new warnings and every fix moved to on 21 November 2026 (section 5). Part 1, the move under `src/`, done on 21 November 2026 (section 8). Part 2's open points decided the same day (section 1), then part 2 done on 21 November 2026, on this machine and on the VMs (section 9). Parts 3 (the copyright line), 4 (the formatting) and 5 (the includes) done on 21 November 2026, on this machine and on the VMs (sections 10 to 12). Part 6 (the warnings matched across the compilers, as errors) done on 21 November 2026, on this machine and on the VMs (section 13). Part 7 (the mentions of the plan and the links to `docs/` removed from the code) done on 21 November 2026, on this machine and on the VMs (section 14). Part 8 (link-time optimization in Release, measured, kept with the three compilers) done on 22 November 2026, on this machine and on the VMs (section 15). Plan: [PLAN.md](../PLAN.md), step 19.
 
 ## 1. Decisions (20 November 2026)
 
@@ -187,7 +187,7 @@ Only 933 of the 44,414 sites of the groups recommended (2.1 %) lie in the code s
 | 5 | the includes after the C++ Core Guidelines' SF.12, no `../` | ✅ (section 12) |
 | 6 | today's warning level matched across the compilers, `disablewarnings.h` removed, the warnings as errors | ✅ (section 13) |
 | 7 | the mentions of the plan and the links to `docs/` removed from the code | ✅ (section 14) |
-| 8 | link-time optimization in Release, measured | ⏳ |
+| 8 | link-time optimization in Release, measured | ✅ (section 15) |
 | 9 | the end: the scenarios on Linux, hardening, project_validator, the documents | ⏳ |
 
 Parts 3 and 4 were added on 21 November 2026 ([PLAN.md](../PLAN.md) step 19, "Decided on 21 November 2026, before the includes"); the parts 3 to 7 decided before became 5 to 9, and the sections written before keep their old numbers.
@@ -441,3 +441,62 @@ A line can be of two kinds. None is in `test/`. Outside the C and C++ code, the 
 Left as they are: the 9 names of tools and data files, the paths relative to `src/` (33 in 13 files), Raven's `gmae/g_spawn.cpp` and id Software's `../game/be_ai_move.h`. The words "before", "now" and "as before" outside the comments that cited the plan were not searched.
 
 **Checks.** Here: the presets `windows-clang-release`, `-debug` and `-asan` without a warning (the errors on), `ctest` 12 of 12 in each; the machine code against a build of the commit before, made from the same source folder: identical in all 1,108 objects in Release and in Debug (the line numbers the asserts pass included); the formatting of the whole tree unchanged (`clang-format --dry-run`); the copyright line in every file changed, but the generated `jka_schema.inc` (part 3: the generated files get none); the 302 scenarios `golden: SAME` (2 min 42 s). The validations on the VMs the same day: ALL OK on both, no warning and no error in any preset (GCC 15 and Clang 23: Release, Debug, the sanitizers, the servers' build, the formatting check; MSVC: Release, Debug, AddressSanitizer), `ctest` 12 of 12 in every preset, the benchmarks and the trainers as before. Part 7 done.
+
+## 15. Part 8: link-time optimization (21 and 22 November 2026)
+
+The decisions are in [PLAN.md](../PLAN.md) step 19, "Decided on 21 November 2026, for part 8" (before and after the measurements).
+
+**The inventory.** `modernjk_ENABLE_IPO` existed, off, its macro turning `CMAKE_INTERPROCEDURAL_OPTIMIZATION` on for every build type. What CMake 4.5.1 passes (its modules `Compiler/Clang.cmake`, `Compiler/GNU.cmake`, `Platform/Windows-MSVC.cmake`): `-flto=thin` to clang (ThinLTO) with `llvm-ar`, `-flto=auto -fno-fat-lto-objects` to GCC with `gcc-ar`, `/GL` and `/INCREMENTAL:NO /LTCG` to MSVC. The alignment of netcodec's code, measured on a small program of two files (`build/lto-align/`): clang's link-time optimization, thin or full, keeps `-falign-functions=64` but loses `-falign-loops=64` (a backend option the link step does not get; a loop head at `…d50` instead of `…d80`); `-mllvm -align-loops=64` given to the link restores it (`-Wl,-mllvm,…` with lld, `-Wl,-plugin-opt=…` with GNU ld and LLVM's plugin, which the Ubuntu VM has; clang's driver ignores a `-mllvm` given to it at the link with MinGW); GCC keeps both, even when the alignment is given to the compilation only. MSVC aligns nothing. clang's documentation on ThinLTO: "in many cases matching the performance improvement" of the full link-time optimization, its link parallel and incremental.
+
+**What was written.**
+- `cmake/InterproceduralOptimization.cmake` sets `CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE` only: the option never reaches a Debug build nor the sanitizers' RelWithDebInfo. A hidden preset `lto` gives `modernjk_ENABLE_IPO` to the five Release presets (`windows-clang-release`, `windows-msvc-release`, `linux-gcc-release`, `linux-gcc-server`, `linux-clang-release`); `windows-clang-tidy` and `-cppcheck`, which inherit the Release settings, do not get it.
+- netcodec's targets give clang's link `-mllvm -align-loops=64` (through `LINKER:`, by the linker's identifier), which reaches the engines' links through the static library's link interface (checked in `build.ninja`); the netcodec library stays out of GCC's link-time optimization (decided after the second A/B, below).
+- GCC gets `-Werror` at the link too (`cmake/CompilerWarnings.cmake`, both sets): its link-time optimization reports at the link, where the compilation's `-Werror` does not reach; MSVC carries `/WX` into `/LTCG` already.
+- `linux-gcc-debug-lto` (a GCC Debug build with `CMAKE_INTERPROCEDURAL_OPTIMIZATION_DEBUG`), built by `validate.sh` only: GCC's link reports `-Wodr` and `-Wlto-type-mismatch` at `-O0` as at `-O2` (checked on the Ubuntu VM with a small program, `build/lto-align/odr_check.sh`), so the code only Debug compiles (about 335 blocks under `_DEBUG` in 143 files) is checked the same way.
+- The A/B scripts take the link-time optimization on the timed side only: `CUR_IPO=1` (`ab_clang.sh`, `ab_gcc.sh`), `ABM_CUR_IPO=1` (`ab_msvc.bat`; in PowerShell `$env:ABM_CUR_IPO = "1"`: its `set` sets no environment variable, which spoiled a first pair of measures). The option `modernjk_ENABLE_IPO_FULL`, written for the measure of clang's full link-time optimization, removed afterwards.
+
+**The builds**, clean then after one file changed (`g_main.cpp`'s object deleted), with and without (the measuring scripts in `build/lto/`, not committed):
+
+| preset | without | with | one file again | warnings with |
+|---|---|---|---|---|
+| `windows-clang-release` | 23.1 s | 27.5 s (full: 33.0 s) | 0.4 s to 1.3 s (full: 7.3 s) | 0 |
+| `linux-clang-release` | 57.1 s | 67.9 s | 0.6 s to 2.3 s | 0 |
+| `linux-gcc-release` | 63.2 s | 71.5 s | 0.8 s to 3.4 s | 29 (below) |
+| `linux-gcc-server` | 11.1 s | 11.4 s | 0.7 s to 3.4 s | 3 |
+| `windows-msvc-release` | 83.1 s | failed at first (below), then about 135 s with another VM building | 0.6 s to 9.8 s | 114 (below) |
+
+Sizes: clang's game modules grow (`jampgamex86_64.dll` 1.94 to 2.30 MB), its dedicated server and renderers shrink (2.23 to 2.12 MB); GCC shrinks most binaries (the dedicated server 2.52 to 1.95 MB); MSVC grows them (`jampgamex86_64.dll` 1.52 to 1.85 MB). `ctest` 12 of 12 in every build.
+
+**netcodec's warm timing**, alternated A/B, the best of 6 runs, the build with link-time optimization against HEAD without:
+
+| compiler | server messages: warm encode, decode | client packets: warm encode, decode | OpenJK's coder |
+|---|---|---|---|
+| clang, ThinLTO (5 measures) | −6.0 to −6.1 %, −1.8 to −2.1 % | −7.5 to −7.7 %, −0.3 to −0.9 % | −6.7 to −9.6 % |
+| clang, full | −4.4 %, −0.6 % | −8.0 %, −0.6 % (cold decode +2.0 %) | −10.5 to −10.7 % |
+| MSVC (2 measures, the second quiet) | −1.2 to −1.3 %, −0.8 to −1.0 % | −1.1 to −1.2 %, −1.9 to −2.8 % | −4.7 to −7.7 % |
+| GCC, the library inside (2 measures) | +0.3 and +3.1 %, +1.0 and −0.2 % | +0.2 and −0.1 %, +2.8 and +1.8 % | −0.4 to +2.3 % |
+| GCC, the library outside | +0.9 %, +1.5 % | +0.1 %, −0.2 % | −3.2 and +0.9 % |
+
+On this machine every clang measure carried the scripts' warning of a busy machine, even quiet (OpenJK's coder moving by 5 to 7 % between runs on core 20); the gain held in each. With GCC the library gains nothing: losses of 0 to 3 % that move between the measures, the size of the code placement's effect; out of the link-time optimization its code sections are those of today (559,789 bytes on both sides) and the difference is noise.
+
+**The game's CPU time**, 16 bots, the same game replayed (`SEED=5`, fast mode), 18,000 ticks, in us per tick:
+
+| | server frame | game frames | bots' frames |
+|---|---|---|---|
+| GCC, VPS, one server at a time, three runs each | 223.7 to 214.8 (−4.0 %) | 84.8 to 78.4 (−7.5 %) | 138.2 to 135.6 (−1.9 %) |
+| MSVC, this machine, the six servers at once (pairs of the same game) | 186.4 to 182.1 (−2.3 %; each pair −1.4 to −3.2 %) | 56.7 to 55.9 (−1.5 %) | 129.0 to 125.5 (−2.7 %) |
+
+The `gamestats` line is the same in every pair: the same game. In the VPS's test the bots receive no snapshot ("snapshots sent" 0.2 us): the gain is the game's and the engine's, not netcodec's.
+
+**The scenarios**, `golden: SAME` with clang's module in ThinLTO and in full (here), GCC's dedicated server and module (the VPS, 4 min 47 s), MSVC's (here, its dedicated server and module, 2 min 44 s), and the final clang build (2 min 40 s).
+
+**The defects the links showed**, fixed whatever was kept (the decisions of 21 November 2026), all in code of OpenJK:
+- GCC's `-Wodr`: two `keywordHash_s` in the multiplayer's cgame (`ui_shared.cpp`, `bg_saberLoad.cpp`), each now in an unnamed namespace (SF.22 of the C++ Core Guidelines); Jedi Outcast's save fields and spawn fields both `field_t` in its game module, with an `extern field_t fields[]` of the wrong type: the save fields `save_field_t`, as in Jedi Academy's single player, the `extern` removed;
+- GCC's `-Wlto-type-mismatch`: `C_MP3Stream_Decode` declared with two parameters, defined in FreeAmp's C decoder with one: declared and called with one, its fast-forward never having worked in the multiplayer (the behaviour unchanged; the comment of the seek says so);
+- GCC's size warnings, unreachable: `Q_strncpyz` writes nothing for a size below 1 (it reached `strncpy` with a size of −1 when a size computed from an offset did not fit an `int`, in `COM_StripExtension`); `Sys_GetClipboardData` copies with `memcpy` and refuses a text longer than `INT_MAX`, `Z_Malloc` taking an `int` (the first fix, `memcpy` alone, showed it: a size of 0 returns a static area of 4 bytes); the effects' page allocator counts its pages in an `unsigned int`, so that the size of its pages cannot overflow; the bot library's `GetClearedMemory` tests the null pointer `GetMemory` returns when an allocation fails;
+- MSVC's C4701 and C4703 at `/LTCG` (its link failed on them as errors): 29 pointers read uninitialised when a menu's script command lacks its argument, `String_Parse` setting nothing then (28 in the single player's `UI_RunMenuScript`, the multiplayer's `clearmouseover`): initialised to `nullptr` (ES.20 of the C++ Core Guidelines), the command run only when `String_Parse` found the argument where nothing tested it ([../CHANGES.md](../CHANGES.md) section 24);
+- the machine code of the Debug build, without link-time optimization, against the commit before: identical in 1,074 objects of 1,108, the others the files fixed and those that include `FxScheduler.h`.
+- Seen on the way, for part 9's hardening: Ubuntu's GCC fortifies by default (`_FORTIFY_SOURCE`, `string_fortified.h` in the warnings).
+- Two of MSVC's errors at the link were internal compiler errors (C1001) and an "in-page error" while a file copy loaded this machine: the known faults of MSVC's objects read through the shared folder; the build again linked them.
+
+**Checks.** Here: `windows-clang-release` (with ThinLTO), `-debug` and `-asan` without a warning, `ctest` 12 of 12, the formatting unchanged, the copyright line in every file changed; the Debug and sanitizer builds without `-flto` (checked in `build.ninja`). The VMs: `validate.sh` ALL OK (26 steps, `linux-gcc-debug-lto` included, no warning), `validate.bat` ALL OK (MSVC with `/LTCG`, no warning; a first run ended on "a source changed", netcodec's `CMakeLists.txt` edited during it, so it was run again). Part 8 done.

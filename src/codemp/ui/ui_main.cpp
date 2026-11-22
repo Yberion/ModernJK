@@ -6367,15 +6367,15 @@ static void UI_RunMenuScript(char** args)
 
             if (menu) {
                 int count, j;
-                const char* itemName;
-                String_Parse(args, &itemName);
+                const char* itemName = nullptr;
+                if (String_Parse(args, &itemName)) {
+                    count = Menu_ItemsMatchingGroup(menu, itemName);
 
-                count = Menu_ItemsMatchingGroup(menu, itemName);
-
-                for (j = 0; j < count; j++) {
-                    item = Menu_GetMatchingItemByNumber(menu, j, itemName);
-                    if (item != nullptr) {
-                        item->window.flags &= ~windowFlags_t::WINDOW_MOUSEOVER;
+                    for (j = 0; j < count; j++) {
+                        item = Menu_GetMatchingItemByNumber(menu, j, itemName);
+                        if (item != nullptr) {
+                            item->window.flags &= ~windowFlags_t::WINDOW_MOUSEOVER;
+                        }
                     }
                 }
             }

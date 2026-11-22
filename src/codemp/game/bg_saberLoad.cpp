@@ -1916,12 +1916,15 @@ Keyword Hash
 
 constexpr int KEYWORDHASH_SIZE = 512;
 
+// internal to this file: cgame also links ui_shared.cpp, which defines another keywordHash_s
+namespace {
 typedef struct keywordHash_s {
     const char* keyword;
     void (*func)(saberInfo_t* saber, const char** p);
 
     struct keywordHash_s* next;
 } keywordHash_t;
+} // namespace
 
 static int KeywordHash_Key(const char* keyword)
 {

@@ -3,7 +3,8 @@
 # (.clang-format; the machines share the sources, so this check runs here only), configure, build and test every Linux
 # preset (the game, netcodec and
 # their tests; the AddressSanitizer preset with the sanitizers), build the servers' preset (the dedicated server
-# and the game module), then run the size benchmark (Release and AddressSanitizer), the codec benchmark (two runs) and
+# and the game module) and the check of the code only Debug compiles (GCC's link-time optimization reports its types
+# and declarations across files), then run the size benchmark (Release and AddressSanitizer), the codec benchmark (two runs) and
 # the trainers, which must rewrite the committed tables unchanged. Needs the traces of docs/modernization/data/traces
 # (export_rans_trace.py, export_codec_trace.py, export_demo_traces.py, and the client traces of
 # netcodec_bench_client --trace).
@@ -51,6 +52,8 @@ for p in linux-gcc-release linux-gcc-debug linux-gcc-asan linux-clang-release li
 done
 step "linux-gcc-server: configure" cmake --preset linux-gcc-server
 step "linux-gcc-server: build" cmake --build --preset linux-gcc-server -j "$JOBS"
+step "linux-gcc-debug-lto: configure" cmake --preset linux-gcc-debug-lto
+step "linux-gcc-debug-lto: build" cmake --build --preset linux-gcc-debug-lto -j "$JOBS"
 
 OUT=$(mktemp -d)
 R=$B/linux-gcc-release/bin

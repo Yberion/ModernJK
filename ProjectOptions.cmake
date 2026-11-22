@@ -45,7 +45,7 @@ macro(modernjk_setup_options)
 	option(modernjk_ENABLE_SANITIZER_UNDEFINED "UndefinedBehaviorSanitizer (not with MSVC)" OFF)
 	option(modernjk_ENABLE_CLANG_TIDY "clang-tidy on every C++ file while it compiles (reporting)" OFF)
 	option(modernjk_ENABLE_CPPCHECK "cppcheck on every C++ file while it compiles (reporting)" OFF)
-	option(modernjk_ENABLE_IPO "Link-time optimization" OFF)
+	option(modernjk_ENABLE_IPO "Link-time optimization (Release only)" OFF)
 	option(modernjk_ENABLE_HARDENING "Hardening of the generated code (cmake/Hardening.cmake)" OFF)
 	option(modernjk_ENABLE_CACHE "A compiler cache (ccache or sccache)" OFF)
 

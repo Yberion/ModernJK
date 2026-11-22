@@ -20,6 +20,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
+#include <climits>
 #include <csignal>
 #include <cstdlib>
 #include <cstdarg>
@@ -111,10 +112,14 @@ char* Sys_GetClipboardData(void)
         return nullptr;
 
     char* cbText = SDL_GetClipboardText();
-    size_t len = strlen(cbText) + 1;
+    const size_t len = strlen(cbText) + 1;
+    if (len > static_cast<size_t>(INT_MAX)) { // Z_Malloc takes an int: a text that long is not pasted
+        SDL_free(cbText);
+        return nullptr;
+    }
 
-    char* buf = (char*)Z_Malloc(len, memtag::TAG_CLIPBOARD);
-    Q_strncpyz(buf, cbText, len);
+    char* buf = (char*)Z_Malloc(static_cast<int>(len), memtag::TAG_CLIPBOARD);
+    memcpy(buf, cbText, len); // the text and its terminating zero
 
     SDL_free(cbText);
     return buf;

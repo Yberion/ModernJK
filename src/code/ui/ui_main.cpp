@@ -825,7 +825,7 @@ UI_RunMenuScript
 */
 static bool UI_RunMenuScript(const char** args)
 {
-    const char *name, *name2, *mapName, *menuName, *warningMenuName;
+    const char *name = nullptr, *name2 = nullptr, *mapName = nullptr, *menuName = nullptr, *warningMenuName = nullptr;
 
     if (String_Parse(args, &name)) {
         if (Q_stricmp(name, "resetdefaults") == 0) {
@@ -955,11 +955,9 @@ static bool UI_RunMenuScript(const char** args)
         }
         else if (Q_stricmp(name, "checkvid1data") == 0) // Warn user data has changed before leaving screen?
         {
-            String_Parse(args, &menuName);
-
-            String_Parse(args, &warningMenuName);
-
-            UI_CheckVid1Data(menuName, warningMenuName);
+            if (String_Parse(args, &menuName) && String_Parse(args, &warningMenuName)) {
+                UI_CheckVid1Data(menuName, warningMenuName);
+            }
         }
         else if (Q_stricmp(name, "startgame") == 0) {
             Menus_CloseAll();
@@ -972,9 +970,9 @@ static bool UI_RunMenuScript(const char** args)
         else if (Q_stricmp(name, "startmap") == 0) {
             Menus_CloseAll();
 
-            String_Parse(args, &mapName);
-
-            ui.Cmd_ExecuteText(cbufExec_t::EXEC_APPEND, va("maptransition %s\n", mapName));
+            if (String_Parse(args, &mapName)) {
+                ui.Cmd_ExecuteText(cbufExec_t::EXEC_APPEND, va("maptransition %s\n", mapName));
+            }
         }
         else if (Q_stricmp(name, "closeingame") == 0) {
             trap_Key_SetCatcher(trap_Key_GetCatcher() & ~keyCatchFlags_t::KEYCATCH_UI);
@@ -1014,11 +1012,12 @@ static bool UI_RunMenuScript(const char** args)
             menuDef_t* menu = Menu_GetFocused();
 
             if (menu) {
-                const char* itemName;
-                String_Parse(args, &itemName);
-                item = (itemDef_s*)Menu_FindItemByName((menuDef_t*)menu, itemName);
-                if (item) {
-                    item->window.flags &= ~windowFlags_t::WINDOW_MOUSEOVER;
+                const char* itemName = nullptr;
+                if (String_Parse(args, &itemName)) {
+                    item = (itemDef_s*)Menu_FindItemByName((menuDef_t*)menu, itemName);
+                    if (item) {
+                        item->window.flags &= ~windowFlags_t::WINDOW_MOUSEOVER;
+                    }
                 }
             }
         }
@@ -1142,16 +1141,16 @@ static bool UI_RunMenuScript(const char** args)
         }
 #endif // !JK2_MODE
         else if (Q_stricmp(name, "initallocforcepower") == 0) {
-            const char* forceName;
-            String_Parse(args, &forceName);
-
-            UI_InitAllocForcePowers(forceName);
+            const char* forceName = nullptr;
+            if (String_Parse(args, &forceName)) {
+                UI_InitAllocForcePowers(forceName);
+            }
         }
         else if (Q_stricmp(name, "affectforcepowerlevel") == 0) {
-            const char* forceName;
-            String_Parse(args, &forceName);
-
-            UI_AffectForcePowerLevel(forceName);
+            const char* forceName = nullptr;
+            if (String_Parse(args, &forceName)) {
+                UI_AffectForcePowerLevel(forceName);
+            }
         }
         else if (Q_stricmp(name, "decrementcurrentforcepower") == 0) {
             UI_DecrementCurrentForcePower();
@@ -1174,10 +1173,10 @@ static bool UI_RunMenuScript(const char** args)
             UI_RecordWeapons();
         }
         else if (Q_stricmp(name, "showforceleveldesc") == 0) {
-            const char* forceName;
-            String_Parse(args, &forceName);
-
-            UI_ShowForceLevelDesc(forceName);
+            const char* forceName = nullptr;
+            if (String_Parse(args, &forceName)) {
+                UI_ShowForceLevelDesc(forceName);
+            }
         }
         else if (Q_stricmp(name, "resetforcelevels") == 0) {
             UI_ResetForceLevels();
@@ -1196,7 +1195,7 @@ static bool UI_RunMenuScript(const char** args)
             trap_S_StopSounds();
         }
         else if (Q_stricmp(name, "loadmissionselectmenu") == 0) {
-            const char* cvarName;
+            const char* cvarName = nullptr;
             String_Parse(args, &cvarName);
 
             if (cvarName) {
@@ -1209,47 +1208,49 @@ static bool UI_RunMenuScript(const char** args)
         }
 #endif // !JK2_MODE
         else if (Q_stricmp(name, "giveweapon") == 0) {
-            const char* weaponIndex;
-            String_Parse(args, &weaponIndex);
-            UI_GiveWeapon(static_cast<weapon_t>(atoi(weaponIndex)));
+            const char* weaponIndex = nullptr;
+            if (String_Parse(args, &weaponIndex)) {
+                UI_GiveWeapon(static_cast<weapon_t>(atoi(weaponIndex)));
+            }
         }
         else if (Q_stricmp(name, "equipweapon") == 0) {
-            const char* weaponIndex;
-            String_Parse(args, &weaponIndex);
-            UI_EquipWeapon(static_cast<weapon_t>(atoi(weaponIndex)));
+            const char* weaponIndex = nullptr;
+            if (String_Parse(args, &weaponIndex)) {
+                UI_EquipWeapon(static_cast<weapon_t>(atoi(weaponIndex)));
+            }
         }
         else if (Q_stricmp(name, "addweaponselection") == 0) {
-            const char* weaponIndex;
+            const char* weaponIndex = nullptr;
             String_Parse(args, &weaponIndex);
             if (!weaponIndex) {
                 return false;
             }
 
-            const char* ammoIndex;
+            const char* ammoIndex = nullptr;
             String_Parse(args, &ammoIndex);
             if (!ammoIndex) {
                 return false;
             }
 
-            const char* ammoAmount;
+            const char* ammoAmount = nullptr;
             String_Parse(args, &ammoAmount);
             if (!ammoAmount) {
                 return false;
             }
 
-            const char* itemName;
+            const char* itemName = nullptr;
             String_Parse(args, &itemName);
             if (!itemName) {
                 return false;
             }
 
-            const char* litItemName;
+            const char* litItemName = nullptr;
             String_Parse(args, &litItemName);
             if (!litItemName) {
                 return false;
             }
 
-            const char* backgroundName;
+            const char* backgroundName = nullptr;
             String_Parse(args, &backgroundName);
             if (!backgroundName) {
                 return false;
@@ -1262,50 +1263,50 @@ static bool UI_RunMenuScript(const char** args)
                                   backgroundName, soundfile);
         }
         else if (Q_stricmp(name, "addthrowweaponselection") == 0) {
-            const char* weaponIndex;
+            const char* weaponIndex = nullptr;
             String_Parse(args, &weaponIndex);
             if (!weaponIndex) {
                 return false;
             }
 
-            const char* ammoIndex;
+            const char* ammoIndex = nullptr;
             String_Parse(args, &ammoIndex);
             if (!ammoIndex) {
                 return false;
             }
 
-            const char* ammoAmount;
+            const char* ammoAmount = nullptr;
             String_Parse(args, &ammoAmount);
             if (!ammoAmount) {
                 return false;
             }
 
-            const char* itemName;
+            const char* itemName = nullptr;
             String_Parse(args, &itemName);
             if (!itemName) {
                 return false;
             }
 
-            const char* litItemName;
+            const char* litItemName = nullptr;
             String_Parse(args, &litItemName);
             if (!litItemName) {
                 return false;
             }
 
-            const char* backgroundName;
+            const char* backgroundName = nullptr;
             String_Parse(args, &backgroundName);
             if (!backgroundName) {
                 return false;
             }
 
-            const char* soundfile;
+            const char* soundfile = nullptr;
             String_Parse(args, &soundfile);
 
             UI_AddThrowWeaponSelection(static_cast<weapon_t>(atoi(weaponIndex)), static_cast<ammo_t>(atoi(ammoIndex)), atoi(ammoAmount), itemName, litItemName,
                                        backgroundName, soundfile);
         }
         else if (Q_stricmp(name, "removeweaponselection") == 0) {
-            const char* weaponIndex;
+            const char* weaponIndex = nullptr;
             String_Parse(args, &weaponIndex);
             if (weaponIndex) {
                 UI_RemoveWeaponSelection(atoi(weaponIndex));
@@ -1321,7 +1322,7 @@ static bool UI_RunMenuScript(const char** args)
             UI_HighLightThrowSelection();
         }
         else if (Q_stricmp(name, "normalweaponselection") == 0) {
-            const char* slotIndex;
+            const char* slotIndex = nullptr;
             String_Parse(args, &slotIndex);
             if (!slotIndex) {
                 return false;
@@ -1330,7 +1331,7 @@ static bool UI_RunMenuScript(const char** args)
             UI_NormalWeaponSelection(atoi(slotIndex));
         }
         else if (Q_stricmp(name, "highlightweaponselection") == 0) {
-            const char* slotIndex;
+            const char* slotIndex = nullptr;
             String_Parse(args, &slotIndex);
             if (!slotIndex) {
                 return false;
@@ -1342,10 +1343,10 @@ static bool UI_RunMenuScript(const char** args)
             UI_ClearInventory();
         }
         else if (Q_stricmp(name, "giveinventory") == 0) {
-            const char *inventoryIndex, *amount;
-            String_Parse(args, &inventoryIndex);
-            String_Parse(args, &amount);
-            UI_GiveInventory(atoi(inventoryIndex), atoi(amount));
+            const char *inventoryIndex = nullptr, *amount = nullptr;
+            if (String_Parse(args, &inventoryIndex) && String_Parse(args, &amount)) {
+                UI_GiveInventory(atoi(inventoryIndex), atoi(amount));
+            }
         }
 #ifndef JK2_MODE
         else if (Q_stricmp(name, "updatefightingstyle") == 0) {

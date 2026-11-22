@@ -88,9 +88,7 @@ typedef struct {
     size_t iOffset;
     fieldtypeSAVE_t eFieldType;
     int iFlags;
-} field_t;
-
-extern field_t fields[];
+} save_field_t;
 
 #endif // #ifndef FIELDS_H
 

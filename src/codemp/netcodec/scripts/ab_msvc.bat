@@ -11,6 +11,8 @@ rem those of its commit, or ABM_REF_DIR's when it holds them, else the working t
 rem layout (as ab_tree.sh): from its root when it has ProjectOptions.cmake, from netcodec's folder in older trees.
 rem ABM_BENCH=client: netcodec_bench_client on the recorded client packets (docs\modernization\data\clientpackets\*.jkcp)
 rem instead of bench_codec; the times are then per client packet.
+rem ABM_CUR_IPO=1: the working tree built with link-time optimization, the reference without (a tree with
+rem modernjk_ENABLE_IPO only).
 rem Usage (cmd or PowerShell, from anywhere): src\codemp\netcodec\scripts\ab_msvc.bat [rounds]. It loads Visual
 rem Studio's x64 environment itself (vcvars64.bat, Visual Studio found by vswhere.exe).
 setlocal EnableDelayedExpansion
@@ -128,9 +130,11 @@ rem the legacy benchmark's sources: the tree's own when it has them, else the wo
 set "ENGINE=%R%"
 if exist "%TREE%\src\codemp\qcommon\msg.cpp" set "ENGINE=%TREE%"
 if exist "%TREE%\codemp\qcommon\msg.cpp" set "ENGINE=%TREE%"
+set "IPO="
+if "%~2"=="cur" if defined ABM_CUR_IPO set "IPO=-Dmodernjk_ENABLE_IPO=ON"
 set "COMMON=-G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER=cl -Dnetcodec_TRACE_DIR="%R%\docs\modernization\data\traces""
 if exist "%TREE%\ProjectOptions.cmake" (
-	cmake -S "%TREE%" -B "%B%" %COMMON% -Dnetcodec_ENGINE_DIR="!ENGINE!" -Dmodernjk_BUILD_MP_CLIENT=OFF -Dmodernjk_BUILD_MP_SERVER=OFF -Dmodernjk_BUILD_MP_GAME=OFF -Dmodernjk_BUILD_SP=OFF -Dmodernjk_BUILD_JK2=OFF -Dmodernjk_BUILD_ASSETS_PK3=OFF -DBUILD_TESTING=OFF -Dmodernjk_BUILD_TOOLS=OFF > "%W%\cfg-%~2.txt" 2>&1
+	cmake -S "%TREE%" -B "%B%" %COMMON% -Dnetcodec_ENGINE_DIR="!ENGINE!" -Dmodernjk_BUILD_MP_CLIENT=OFF -Dmodernjk_BUILD_MP_SERVER=OFF -Dmodernjk_BUILD_MP_GAME=OFF -Dmodernjk_BUILD_SP=OFF -Dmodernjk_BUILD_JK2=OFF -Dmodernjk_BUILD_ASSETS_PK3=OFF -DBUILD_TESTING=OFF -Dmodernjk_BUILD_TOOLS=OFF !IPO! > "%W%\cfg-%~2.txt" 2>&1
 	set "EXE_%~2=%B%\bin\netcodec_bench_%ABM_BENCH%.exe"
 ) else (
 	set "NC=%TREE%\codemp\netcodec"

@@ -55,6 +55,12 @@
       "cacheVariables": { "CMAKE_C_COMPILER": "clang-23", "CMAKE_CXX_COMPILER": "clang++-23" }
     },
     { "name": "release", "hidden": true, "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" } },
+    {
+      "name": "lto",
+      "hidden": true,
+      "description": "Link-time optimization, in the Release presets of the compilers whose code it makes faster",
+      "cacheVariables": { "modernjk_ENABLE_IPO": "ON" }
+    },
     { "name": "debug", "hidden": true, "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" } },
     {
       "name": "netcodec-only",
@@ -73,7 +79,7 @@
       }
     },
 
-    { "name": "windows-msvc-release", "displayName": "MSVC x64 Release", "inherits": [ "msvc", "release" ] },
+    { "name": "windows-msvc-release", "displayName": "MSVC x64 Release", "inherits": [ "msvc", "release", "lto" ] },
     { "name": "windows-msvc-debug", "displayName": "MSVC x64 Debug", "inherits": [ "msvc", "debug" ] },
     {
       "name": "windows-msvc-asan",
@@ -81,7 +87,7 @@
       "inherits": [ "msvc", "asan" ],
       "cacheVariables": { "modernjk_ENABLE_SANITIZER_UNDEFINED": "OFF" }
     },
-    { "name": "windows-clang-release", "displayName": "clang (llvm-mingw) x64 Release", "inherits": [ "mingw-clang", "release" ] },
+    { "name": "windows-clang-release", "displayName": "clang (llvm-mingw) x64 Release", "inherits": [ "mingw-clang", "release", "lto" ] },
     { "name": "windows-clang-debug", "displayName": "clang (llvm-mingw) x64 Debug", "inherits": [ "mingw-clang", "debug" ] },
     {
       "name": "windows-clang-asan",
@@ -109,7 +115,7 @@
       "inherits": [ "mingw-clang", "release" ],
       "cacheVariables": { "modernjk_ENABLE_CPPCHECK": "ON" }
     },
-    { "name": "linux-gcc-release", "displayName": "GCC 15 x64 Release", "inherits": [ "gcc", "release" ] },
+    { "name": "linux-gcc-release", "displayName": "GCC 15 x64 Release", "inherits": [ "gcc", "release", "lto" ] },
     { "name": "linux-gcc-debug", "displayName": "GCC 15 x64 Debug", "inherits": [ "gcc", "debug" ] },
     {
       "name": "linux-gcc-asan",
@@ -119,14 +125,20 @@
     {
       "name": "linux-gcc-server",
       "displayName": "GCC 15 x64 Release, the dedicated server and the game module (the servers' build)",
-      "inherits": [ "gcc", "release" ],
+      "inherits": [ "gcc", "release", "lto" ],
       "cacheVariables": {
         "modernjk_BUILD_MP_CLIENT": "OFF", "modernjk_BUILD_SP": "OFF", "modernjk_BUILD_JK2": "OFF",
         "modernjk_BUILD_ASSETS_PK3": "OFF", "BUILD_TESTING": "OFF", "modernjk_BUILD_BENCHMARKS": "OFF",
         "modernjk_BUILD_TOOLS": "OFF"
       }
     },
-    { "name": "linux-clang-release", "displayName": "Clang 23 x64 Release", "inherits": [ "clang", "release" ] },
+    {
+      "name": "linux-gcc-debug-lto",
+      "displayName": "GCC 15 x64 Debug with link-time optimization, a check: the types and declarations across files of the code only Debug compiles",
+      "inherits": [ "gcc", "debug" ],
+      "cacheVariables": { "CMAKE_INTERPROCEDURAL_OPTIMIZATION_DEBUG": "ON" }
+    },
+    { "name": "linux-clang-release", "displayName": "Clang 23 x64 Release", "inherits": [ "clang", "release", "lto" ] },
     {
       "name": "linux-clang-asan",
       "displayName": "Clang 23 x64 with AddressSanitizer and UndefinedBehaviorSanitizer",
@@ -147,6 +159,7 @@
     { "name": "linux-gcc-debug", "configurePreset": "linux-gcc-debug" },
     { "name": "linux-gcc-asan", "configurePreset": "linux-gcc-asan" },
     { "name": "linux-gcc-server", "configurePreset": "linux-gcc-server" },
+    { "name": "linux-gcc-debug-lto", "configurePreset": "linux-gcc-debug-lto" },
     { "name": "linux-clang-release", "configurePreset": "linux-clang-release" },
     { "name": "linux-clang-asan", "configurePreset": "linux-clang-asan" }
   ],

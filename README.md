@@ -78,11 +78,12 @@ sudo apt install libsdl2-dev libgl1-mesa-dev
 | `linux-gcc-release`, `linux-gcc-debug` | everything, with GCC 15 |
 | `linux-clang-release` | everything, with Clang 23 |
 | `linux-gcc-server` | the dedicated server and the multiplayer game module (the servers' build) |
+| `linux-gcc-debug-lto` | everything, in Debug with link-time optimization: a check of the types and declarations across files, which `validate.sh` builds |
 | `windows-msvc-asan`, `windows-clang-asan`, `linux-gcc-asan`, `linux-clang-asan` | everything, with AddressSanitizer (and UndefinedBehaviorSanitizer but with MSVC) |
 | `windows-clang-netcodec-fuzz` | the network codec's fuzzers |
 | `windows-clang-tidy`, `windows-clang-cppcheck` | everything, with the report of clang-tidy or cppcheck |
 
-Everything: the multiplayer client and dedicated server with their renderer and modules, the single-player games of Jedi Academy and Jedi Outcast, `modernjk.pk3` (from `assets/`), the tests, the network codec's benchmarks and tools. The full checks (`validate.sh`, `validate.bat`) are in "How to resume" of [the progress page](docs/modernization/progress/README.md).
+The Release presets build with link-time optimization, the Debug and sanitizer presets without. Everything: the multiplayer client and dedicated server with their renderer and modules, the single-player games of Jedi Academy and Jedi Outcast, `modernjk.pk3` (from `assets/`), the tests, the network codec's benchmarks and tools. The full checks (`validate.sh`, `validate.bat`) are in "How to resume" of [the progress page](docs/modernization/progress/README.md).
 
 ### Formatting
 

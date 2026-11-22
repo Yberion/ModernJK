@@ -5,14 +5,15 @@
 # Prints the warm and cold timings per run, then the best of each build against ref with the checks of
 # ab_summary.awk. Only meaningful on a quiet machine (no game, the VMs off), to check before a run.
 # Usage, from anywhere: [REF=<commit> | REF_DIR=<dir>] [CUR_DIR=<dir>] [NOALIGN=1] [CXXFLAGS=...] [BUILD_TYPE=<type>]
-#   [BENCH=client] bash src/codemp/netcodec/scripts/ab_clang.sh [rounds] [--no-build]
+#   [BENCH=client] [CUR_IPO=1] bash src/codemp/netcodec/scripts/ab_clang.sh [rounds] [--no-build]
 # BENCH=client: netcodec_bench_client on the recorded client packets (docs/modernization/data/clientpackets/*.jkcp)
 # instead of bench_codec; the times are then per client packet.
 # CUR_DIR: a copy of a tree timed instead of the working tree. Functions and loops are aligned to 64 bytes in both
 # builds, as ab_gcc.sh does: without it, where the code falls moves the timings by up to 5 % (an older reference
 # commit, built before the library aligned its code, would otherwise be compared unaligned against an aligned build).
 # NOALIGN=1: each build keeps the flags of its own CMake files (only to time the alignment itself). CXXFLAGS: extra
-# compiler flags for both builds. BUILD_TYPE: Release by default.
+# compiler flags for both builds. BUILD_TYPE: Release by default. CUR_IPO=1: the timed build with link-time
+# optimization, the reference without (a tree with modernjk_ENABLE_IPO only).
 # Each copy is built in its own tree's layout (ab_tree.sh).
 export LC_ALL=C   # numbers with a decimal point in awk (a French locale reads 1404.9 as 1404)
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -29,9 +30,11 @@ ALIGN="-falign-functions=64 -falign-loops=64"
 [ "${NOALIGN:-0}" = 1 ] && ALIGN=""
 # The reference is built with its own ModernJK sources (the legacy coder, msg.cpp, and the states' layout, q_shared.h):
 # those of its commit, or REF_DIR's when it holds them, else the working tree's.
-build() {   # $1 = name (ref, cur), $2 = its ModernJK sources
+CUR_ARGS=()
+[ "${CUR_IPO:-0}" = 1 ] && CUR_ARGS=(-Dmodernjk_ENABLE_IPO=ON)
+build() {   # $1 = name (ref, cur), $2 = its ModernJK sources, then more CMake arguments
 	{ ab_configure "$S/$1" "$S/build-$1" "$2" -G Ninja -DCMAKE_BUILD_TYPE="$BUILD_TYPE" -DCMAKE_C_COMPILER=clang \
-		-DCMAKE_CXX_COMPILER=clang++ -DCMAKE_CXX_FLAGS="$ALIGN ${CXXFLAGS:-}" > "$S/build-$1.log" 2>&1 &&
+		-DCMAKE_CXX_COMPILER=clang++ -DCMAKE_CXX_FLAGS="$ALIGN ${CXXFLAGS:-}" "${@:3}" > "$S/build-$1.log" 2>&1 &&
 	  cmake --build "$S/build-$1" --target "netcodec_bench_$BENCH" >> "$S/build-$1.log" 2>&1; } ||
 	{ echo "build of $1 failed:"; tail -30 "$S/build-$1.log"; exit 1; }
 }
@@ -48,9 +51,9 @@ if [[ " $* " != *" --no-build "* ]]; then
 		echo "ref = $REF ($(cd "$R" && git log -1 --format='%h %s' "$REF" | cut -c1-100))" > "$S/ref.txt"
 	fi
 	ab_copy "${CUR_DIR:-$R}" "$S/cur" || exit 1
-	echo "cur = ${CUR_DIR:-the working tree}; both built with: ${ALIGN:-no forced alignment} ${CXXFLAGS:-}; bench_$BENCH" > "$S/cur.txt"
+	echo "cur = ${CUR_DIR:-the working tree}$([ "${CUR_IPO:-0}" = 1 ] && echo ' with link-time optimization'); both built with: ${ALIGN:-no forced alignment} ${CXXFLAGS:-}; bench_$BENCH" > "$S/cur.txt"
 	build ref "$REF_OJ"
-	build cur "$R"
+	build cur "$R" "${CUR_ARGS[@]}"
 fi
 echo "$(cat "$S/ref.txt"); $(cat "$S/cur.txt")$([[ " $* " == *" --no-build "* ]] && echo ' (as last built)')"
 TR=$(cygpath -w "$R/docs/modernization/data/traces/codec_trace.bin")

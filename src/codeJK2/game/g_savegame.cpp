@@ -44,70 +44,70 @@ extern int Q3_VariableLoad(void);
 extern void G_LoadSave_WriteMiscData(void);
 extern void G_LoadSave_ReadMiscData(void);
 
-static const field_t savefields_gEntity[] = {{strFOFS(client), fieldtypeSAVE_t::F_GCLIENT},
-                                             {strFOFS(owner), fieldtypeSAVE_t::F_GENTITY},
-                                             {strFOFS(classname), fieldtypeSAVE_t::F_STRING},
-                                             {strFOFS(model), fieldtypeSAVE_t::F_STRING},
-                                             {strFOFS(model2), fieldtypeSAVE_t::F_STRING},
-                                             //	{strFOFS(model3),			fieldtypeSAVE_t::F_STRING}, - MCG
-                                             {strFOFS(nextTrain), fieldtypeSAVE_t::F_GENTITY},
-                                             {strFOFS(prevTrain), fieldtypeSAVE_t::F_GENTITY},
-                                             {strFOFS(message), fieldtypeSAVE_t::F_STRING},
-                                             {strFOFS(target), fieldtypeSAVE_t::F_STRING},
-                                             {strFOFS(target2), fieldtypeSAVE_t::F_STRING},
-                                             {strFOFS(target3), fieldtypeSAVE_t::F_STRING},
-                                             {strFOFS(target4), fieldtypeSAVE_t::F_STRING},
-                                             {strFOFS(targetname), fieldtypeSAVE_t::F_STRING},
-                                             {strFOFS(team), fieldtypeSAVE_t::F_STRING},
-                                             {strFOFS(roff), fieldtypeSAVE_t::F_STRING},
-                                             //	{strFOFS(target_ent),		fieldtypeSAVE_t::F_GENTITY}, - MCG
-                                             {strFOFS(chain), fieldtypeSAVE_t::F_GENTITY},
-                                             {strFOFS(enemy), fieldtypeSAVE_t::F_GENTITY},
-                                             {strFOFS(activator), fieldtypeSAVE_t::F_GENTITY},
-                                             {strFOFS(teamchain), fieldtypeSAVE_t::F_GENTITY},
-                                             {strFOFS(teammaster), fieldtypeSAVE_t::F_GENTITY},
-                                             {strFOFS(item), fieldtypeSAVE_t::F_ITEM},
-                                             {strFOFS(NPC_type), fieldtypeSAVE_t::F_STRING},
-                                             {strFOFS(closetarget), fieldtypeSAVE_t::F_STRING},
-                                             {strFOFS(opentarget), fieldtypeSAVE_t::F_STRING},
-                                             {strFOFS(paintarget), fieldtypeSAVE_t::F_STRING},
-                                             {strFOFS(NPC_targetname), fieldtypeSAVE_t::F_STRING},
-                                             {strFOFS(NPC_target), fieldtypeSAVE_t::F_STRING},
-                                             {strFOFS(ownername), fieldtypeSAVE_t::F_STRING},
-                                             {strFOFS(lastEnemy), fieldtypeSAVE_t::F_GENTITY},
-                                             {strFOFS(behaviorSet), fieldtypeSAVE_t::F_BEHAVIORSET},
-                                             {strFOFS(script_targetname), fieldtypeSAVE_t::F_STRING},
-                                             {strFOFS(sequencer), fieldtypeSAVE_t::F_NULL},   // CSequencer	*sequencer;
-                                             {strFOFS(taskManager), fieldtypeSAVE_t::F_NULL}, // CTaskManager	*taskManager;
-                                             {strFOFS(NPC), fieldtypeSAVE_t::F_BOOLPTR},
-                                             {strFOFS(soundSet), fieldtypeSAVE_t::F_STRING},
-                                             {strFOFS(cameraGroup), fieldtypeSAVE_t::F_STRING},
-                                             {strFOFS(parms), fieldtypeSAVE_t::F_BOOLPTR},
-                                             {strFOFS(fullName), fieldtypeSAVE_t::F_STRING},
-                                             //	{strFOFS(timers),			fieldtypeSAVE_t::F_BOOLPTR},	// handled directly
+static const save_field_t savefields_gEntity[] = {{strFOFS(client), fieldtypeSAVE_t::F_GCLIENT},
+                                                  {strFOFS(owner), fieldtypeSAVE_t::F_GENTITY},
+                                                  {strFOFS(classname), fieldtypeSAVE_t::F_STRING},
+                                                  {strFOFS(model), fieldtypeSAVE_t::F_STRING},
+                                                  {strFOFS(model2), fieldtypeSAVE_t::F_STRING},
+                                                  //	{strFOFS(model3),			fieldtypeSAVE_t::F_STRING}, - MCG
+                                                  {strFOFS(nextTrain), fieldtypeSAVE_t::F_GENTITY},
+                                                  {strFOFS(prevTrain), fieldtypeSAVE_t::F_GENTITY},
+                                                  {strFOFS(message), fieldtypeSAVE_t::F_STRING},
+                                                  {strFOFS(target), fieldtypeSAVE_t::F_STRING},
+                                                  {strFOFS(target2), fieldtypeSAVE_t::F_STRING},
+                                                  {strFOFS(target3), fieldtypeSAVE_t::F_STRING},
+                                                  {strFOFS(target4), fieldtypeSAVE_t::F_STRING},
+                                                  {strFOFS(targetname), fieldtypeSAVE_t::F_STRING},
+                                                  {strFOFS(team), fieldtypeSAVE_t::F_STRING},
+                                                  {strFOFS(roff), fieldtypeSAVE_t::F_STRING},
+                                                  //	{strFOFS(target_ent),		fieldtypeSAVE_t::F_GENTITY}, - MCG
+                                                  {strFOFS(chain), fieldtypeSAVE_t::F_GENTITY},
+                                                  {strFOFS(enemy), fieldtypeSAVE_t::F_GENTITY},
+                                                  {strFOFS(activator), fieldtypeSAVE_t::F_GENTITY},
+                                                  {strFOFS(teamchain), fieldtypeSAVE_t::F_GENTITY},
+                                                  {strFOFS(teammaster), fieldtypeSAVE_t::F_GENTITY},
+                                                  {strFOFS(item), fieldtypeSAVE_t::F_ITEM},
+                                                  {strFOFS(NPC_type), fieldtypeSAVE_t::F_STRING},
+                                                  {strFOFS(closetarget), fieldtypeSAVE_t::F_STRING},
+                                                  {strFOFS(opentarget), fieldtypeSAVE_t::F_STRING},
+                                                  {strFOFS(paintarget), fieldtypeSAVE_t::F_STRING},
+                                                  {strFOFS(NPC_targetname), fieldtypeSAVE_t::F_STRING},
+                                                  {strFOFS(NPC_target), fieldtypeSAVE_t::F_STRING},
+                                                  {strFOFS(ownername), fieldtypeSAVE_t::F_STRING},
+                                                  {strFOFS(lastEnemy), fieldtypeSAVE_t::F_GENTITY},
+                                                  {strFOFS(behaviorSet), fieldtypeSAVE_t::F_BEHAVIORSET},
+                                                  {strFOFS(script_targetname), fieldtypeSAVE_t::F_STRING},
+                                                  {strFOFS(sequencer), fieldtypeSAVE_t::F_NULL},   // CSequencer	*sequencer;
+                                                  {strFOFS(taskManager), fieldtypeSAVE_t::F_NULL}, // CTaskManager	*taskManager;
+                                                  {strFOFS(NPC), fieldtypeSAVE_t::F_BOOLPTR},
+                                                  {strFOFS(soundSet), fieldtypeSAVE_t::F_STRING},
+                                                  {strFOFS(cameraGroup), fieldtypeSAVE_t::F_STRING},
+                                                  {strFOFS(parms), fieldtypeSAVE_t::F_BOOLPTR},
+                                                  {strFOFS(fullName), fieldtypeSAVE_t::F_STRING},
+                                                  //	{strFOFS(timers),			fieldtypeSAVE_t::F_BOOLPTR},	// handled directly
 
-                                             {nullptr, 0, fieldtypeSAVE_t::F_IGNORE}};
+                                                  {nullptr, 0, fieldtypeSAVE_t::F_IGNORE}};
 
-static const field_t savefields_gNPC[] = {//	{strNPCOFS(pendingEnemy),		fieldtypeSAVE_t::F_GENTITY},
-                                          {strNPCOFS(touchedByPlayer), fieldtypeSAVE_t::F_GENTITY},
-                                          {strNPCOFS(aimingBeam), fieldtypeSAVE_t::F_GENTITY},
-                                          {strNPCOFS(eventOwner), fieldtypeSAVE_t::F_GENTITY},
-                                          {strNPCOFS(coverTarg), fieldtypeSAVE_t::F_GENTITY},
-                                          {strNPCOFS(tempGoal), fieldtypeSAVE_t::F_GENTITY},
-                                          {strNPCOFS(goalEntity), fieldtypeSAVE_t::F_GENTITY},
-                                          {strNPCOFS(lastGoalEntity), fieldtypeSAVE_t::F_GENTITY},
-                                          {strNPCOFS(eventualGoal), fieldtypeSAVE_t::F_GENTITY},
-                                          {strNPCOFS(captureGoal), fieldtypeSAVE_t::F_GENTITY},
-                                          {strNPCOFS(defendEnt), fieldtypeSAVE_t::F_GENTITY},
-                                          {strNPCOFS(greetEnt), fieldtypeSAVE_t::F_GENTITY},
-                                          {strNPCOFS(group), fieldtypeSAVE_t::F_GROUP},
+static const save_field_t savefields_gNPC[] = {//	{strNPCOFS(pendingEnemy),		fieldtypeSAVE_t::F_GENTITY},
+                                               {strNPCOFS(touchedByPlayer), fieldtypeSAVE_t::F_GENTITY},
+                                               {strNPCOFS(aimingBeam), fieldtypeSAVE_t::F_GENTITY},
+                                               {strNPCOFS(eventOwner), fieldtypeSAVE_t::F_GENTITY},
+                                               {strNPCOFS(coverTarg), fieldtypeSAVE_t::F_GENTITY},
+                                               {strNPCOFS(tempGoal), fieldtypeSAVE_t::F_GENTITY},
+                                               {strNPCOFS(goalEntity), fieldtypeSAVE_t::F_GENTITY},
+                                               {strNPCOFS(lastGoalEntity), fieldtypeSAVE_t::F_GENTITY},
+                                               {strNPCOFS(eventualGoal), fieldtypeSAVE_t::F_GENTITY},
+                                               {strNPCOFS(captureGoal), fieldtypeSAVE_t::F_GENTITY},
+                                               {strNPCOFS(defendEnt), fieldtypeSAVE_t::F_GENTITY},
+                                               {strNPCOFS(greetEnt), fieldtypeSAVE_t::F_GENTITY},
+                                               {strNPCOFS(group), fieldtypeSAVE_t::F_GROUP},
 
-                                          {nullptr, 0, fieldtypeSAVE_t::F_IGNORE}};
+                                               {nullptr, 0, fieldtypeSAVE_t::F_IGNORE}};
 
-static const field_t savefields_LevelLocals[] = {{strLLOFS(locationHead), fieldtypeSAVE_t::F_GENTITY},
-                                                 {strLLOFS(alertEvents), fieldtypeSAVE_t::F_ALERTEVENT},
-                                                 {strLLOFS(groups), fieldtypeSAVE_t::F_AIGROUPS},
-                                                 {nullptr, 0, fieldtypeSAVE_t::F_IGNORE}};
+static const save_field_t savefields_LevelLocals[] = {{strLLOFS(locationHead), fieldtypeSAVE_t::F_GENTITY},
+                                                      {strLLOFS(alertEvents), fieldtypeSAVE_t::F_ALERTEVENT},
+                                                      {strLLOFS(groups), fieldtypeSAVE_t::F_AIGROUPS},
+                                                      {nullptr, 0, fieldtypeSAVE_t::F_IGNORE}};
 
 /*
 struct gclient_s {
@@ -127,18 +127,18 @@ ok	renderInfo_t	renderInfo;
 */
 // I'll keep a blank one for now in case I need to add anything...
 //
-static const field_t savefields_gClient[] = {{strCLOFS(ps.saberModel), fieldtypeSAVE_t::F_STRING},
-                                             {strCLOFS(squadname), fieldtypeSAVE_t::F_STRING},
-                                             {strCLOFS(team_leader), fieldtypeSAVE_t::F_GENTITY},
-                                             {strCLOFS(leader), fieldtypeSAVE_t::F_GENTITY},
-                                             {strCLOFS(follower), fieldtypeSAVE_t::F_GENTITY},
-                                             {strCLOFS(formationGoal), fieldtypeSAVE_t::F_GENTITY},
-                                             {strCLOFS(clientInfo.customBasicSoundDir), fieldtypeSAVE_t::F_STRING},
-                                             {strCLOFS(clientInfo.customCombatSoundDir), fieldtypeSAVE_t::F_STRING},
-                                             {strCLOFS(clientInfo.customExtraSoundDir), fieldtypeSAVE_t::F_STRING},
-                                             {strCLOFS(clientInfo.customJediSoundDir), fieldtypeSAVE_t::F_STRING},
+static const save_field_t savefields_gClient[] = {{strCLOFS(ps.saberModel), fieldtypeSAVE_t::F_STRING},
+                                                  {strCLOFS(squadname), fieldtypeSAVE_t::F_STRING},
+                                                  {strCLOFS(team_leader), fieldtypeSAVE_t::F_GENTITY},
+                                                  {strCLOFS(leader), fieldtypeSAVE_t::F_GENTITY},
+                                                  {strCLOFS(follower), fieldtypeSAVE_t::F_GENTITY},
+                                                  {strCLOFS(formationGoal), fieldtypeSAVE_t::F_GENTITY},
+                                                  {strCLOFS(clientInfo.customBasicSoundDir), fieldtypeSAVE_t::F_STRING},
+                                                  {strCLOFS(clientInfo.customCombatSoundDir), fieldtypeSAVE_t::F_STRING},
+                                                  {strCLOFS(clientInfo.customExtraSoundDir), fieldtypeSAVE_t::F_STRING},
+                                                  {strCLOFS(clientInfo.customJediSoundDir), fieldtypeSAVE_t::F_STRING},
 
-                                             {nullptr, 0, fieldtypeSAVE_t::F_IGNORE}};
+                                                  {nullptr, 0, fieldtypeSAVE_t::F_IGNORE}};
 
 static std::list<sstring_t> strList;
 
@@ -301,7 +301,7 @@ gitem_t* GetGItemPtr(int iItem)
 //
 ////////////////////////////////
 
-void EnumerateField(const field_t* pField, byte* pbBase)
+void EnumerateField(const save_field_t* pField, byte* pbBase)
 {
     void* pv = (void*)(pbBase + pField->iOffset);
 
@@ -399,7 +399,7 @@ void EnumerateField(const field_t* pField, byte* pbBase)
     }
 }
 
-template <typename T> static void EnumerateFields(const field_t* pFields, T* src_instance, unsigned int ulChid)
+template <typename T> static void EnumerateFields(const save_field_t* pFields, T* src_instance, unsigned int ulChid)
 {
     strList.clear();
 
@@ -431,7 +431,7 @@ template <typename T> static void EnumerateFields(const field_t* pFields, T* src
     }
 }
 
-static void EvaluateField(const field_t* pField, byte* pbBase, byte* pbOriginalRefData /* may be nullptr*/)
+static void EvaluateField(const save_field_t* pField, byte* pbBase, byte* pbOriginalRefData /* may be nullptr*/)
 {
     void* pv = (void*)(pbBase + pField->iOffset);
     void* pvOriginal = (void*)(pbOriginalRefData + pField->iOffset);
@@ -521,7 +521,7 @@ static const char* SG_GetChidText(unsigned int chid)
     return chidtext;
 }
 
-template <typename T> static void EvaluateFields(const field_t* pFields, T* pbData, T* pbOriginalRefData, unsigned int ulChid)
+template <typename T> static void EvaluateFields(const save_field_t* pFields, T* pbData, T* pbOriginalRefData, unsigned int ulChid)
 {
     ojk::SavedGameHelper saved_game(::gi.saved_game);
 
