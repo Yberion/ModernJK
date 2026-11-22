@@ -410,7 +410,7 @@ void NPC_BSInvestigate(void)
 bool NPC_CheckInvestigate(int alertEventNum)
 {
     gentity_t* owner = level.alertEvents[alertEventNum].owner;
-    int invAdd = to_underlying(level.alertEvents[alertEventNum].level);
+    int invAdd = std::to_underlying(level.alertEvents[alertEventNum].level);
     vec3_t soundPos;
     float soundRad = level.alertEvents[alertEventNum].radius;
     float earshot = NPCS.NPCInfo->stats.earshot;
@@ -557,7 +557,7 @@ void NPC_BSFollowLeader(void)
             if (NPCS.NPC->client->leader && NPCS.NPC->client->leader->enemy && NPCS.NPC->client->leader->enemy != NPCS.NPC &&
                 ((NPCS.NPC->client->leader->enemy->client && NPCS.NPC->client->leader->enemy->client->playerTeam == NPCS.NPC->client->enemyTeam) ||
                  (/*Any( NPC->client->leader->enemy->r.svFlags & SVF_NONNPC_ENEMY )*/ 0 &&
-                  to_underlying(NPCS.NPC->client->leader->enemy->alliedTeam) == to_underlying(NPCS.NPC->client->enemyTeam))) &&
+                  std::to_underlying(NPCS.NPC->client->leader->enemy->alliedTeam) == std::to_underlying(NPCS.NPC->client->enemyTeam))) &&
                 NPCS.NPC->client->leader->enemy->health > 0) { // rwwFIXMEFIXME: use SVF_NONNPC_ENEMY?
                 G_SetEnemy(NPCS.NPC, NPCS.NPC->client->leader->enemy);
                 NPCS.NPCInfo->enemyCheckDebounceTime = level.time + Q_irand(3000, 10000);

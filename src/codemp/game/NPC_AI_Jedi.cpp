@@ -1450,9 +1450,9 @@ static void Jedi_CombatDistance(int enemy_dist)
                  WP_ForcePowerAvailable(NPCS.NPC, forcePowers_t::FP_GRIP, 0) &&                             // I can use the power
                  !Q_irand(0, 10) &&                      // don't do it all the time, averages to 1 check a second
                  Q_irand(0, 6) < g_npcspskill.integer && // more likely on harder diff
-                 Q_irand(to_underlying(rank_t::RANK_CIVILIAN), to_underlying(rank_t::RANK_CAPTAIN)) <
-                     to_underlying(NPCS.NPCInfo->rank)) // more likely against harder enemies
-        {                                               // They're throwing their saber, grip them!
+                 Q_irand(std::to_underlying(rank_t::RANK_CIVILIAN), std::to_underlying(rank_t::RANK_CAPTAIN)) <
+                     std::to_underlying(NPCS.NPCInfo->rank)) // more likely against harder enemies
+        {                                                    // They're throwing their saber, grip them!
             // taunt
             if (TIMER_Done(NPCS.NPC, "chatter") && jediSpeechDebounceTime[NPCS.NPC->client->playerTeam] < level.time &&
                 NPCS.NPCInfo->blockedSpeechDebounceTime < level.time) {
@@ -1519,9 +1519,9 @@ static void Jedi_CombatDistance(int enemy_dist)
                     }
                     // rwwFIXMEFIXME: After new drain stuff from SP is in re-enable this.
                     else if ((NPCS.NPC->health < NPCS.NPC->client->ps.stats[statIndex_t::STAT_MAX_HEALTH] * 0.75f &&
-                              Q_irand(to_underlying(forcePowerLevels_t::FORCE_LEVEL_0),
-                                      to_underlying(NPCS.NPC->client->ps.fd.forcePowerLevel[forcePowers_t::FP_DRAIN])) >
-                                  to_underlying(forcePowerLevels_t::FORCE_LEVEL_1) &&
+                              Q_irand(std::to_underlying(forcePowerLevels_t::FORCE_LEVEL_0),
+                                      std::to_underlying(NPCS.NPC->client->ps.fd.forcePowerLevel[forcePowers_t::FP_DRAIN])) >
+                                  std::to_underlying(forcePowerLevels_t::FORCE_LEVEL_1) &&
                               WP_ForcePowerUsable(NPCS.NPC, forcePowers_t::FP_DRAIN) &&
                               (Any(NPCS.NPCInfo->scriptFlags & scriptFlags_t::SCF_DONT_FIRE) && Q_stricmp("cultist_drain", NPCS.NPC->NPC_type))) ||
                              Q_irand(0, 1)) {
@@ -3652,7 +3652,7 @@ static bool Jedi_AttackDecide(int enemy_dist)
             chance = 5;
         }
         else {
-            chance = to_underlying(NPCS.NPCInfo->rank);
+            chance = std::to_underlying(NPCS.NPCInfo->rank);
         }
         if (Q_irand(0, 30) < chance) {                                                // based on skill with some randomness
             NPCS.NPC->client->ps.saberEventFlags &= ~saberEventFlags_t::SEF_LOCK_WON; // clear this now that we are using the opportunity
@@ -4159,8 +4159,8 @@ static void Jedi_CheckEnemyMovement(float enemy_dist)
         NPCS.NPC->client->NPC_class != class_t::CLASS_LUKE && Q_stricmp("Yoda", NPCS.NPC->NPC_type)) {
         if (NPCS.NPC->enemy->enemy && NPCS.NPC->enemy->enemy == NPCS.NPC) { // enemy is mad at *me*
             if (NPCS.NPC->enemy->client->ps.legsAnim == animNumber_t::BOTH_JUMPFLIPSLASHDOWN1 ||
-                NPCS.NPC->enemy->client->ps.legsAnim == animNumber_t::BOTH_JUMPFLIPSTABDOWN) {        // enemy is flipping over me
-                if (Q_irand(0, to_underlying(NPCS.NPCInfo->rank)) < to_underlying(rank_t::RANK_LT)) { // be nice and stand still for him...
+                NPCS.NPC->enemy->client->ps.legsAnim == animNumber_t::BOTH_JUMPFLIPSTABDOWN) {                  // enemy is flipping over me
+                if (Q_irand(0, std::to_underlying(NPCS.NPCInfo->rank)) < std::to_underlying(rank_t::RANK_LT)) { // be nice and stand still for him...
                     NPCS.ucmd.forwardmove = NPCS.ucmd.rightmove = NPCS.ucmd.upmove = 0;
                     VectorClear(NPCS.NPC->client->ps.moveDir);
                     NPCS.NPC->client->ps.fd.forceJumpCharge = 0;
@@ -4175,10 +4175,10 @@ static void Jedi_CheckEnemyMovement(float enemy_dist)
                      NPCS.NPC->enemy->client->ps.legsAnim == animNumber_t::BOTH_WALL_FLIP_RIGHT ||
                      NPCS.NPC->enemy->client->ps.legsAnim == animNumber_t::BOTH_WALL_FLIP_LEFT ||
                      NPCS.NPC->enemy->client->ps.legsAnim == animNumber_t::BOTH_WALL_RUN_LEFT_FLIP ||
-                     NPCS.NPC->enemy->client->ps.legsAnim == animNumber_t::BOTH_WALL_RUN_RIGHT_FLIP) {        // he's flipping off a wall
-                if (NPCS.NPC->enemy->client->ps.groundEntityNum == ENTITYNUM_NONE) {                          // still in air
-                    if (enemy_dist < 256) {                                                                   // close
-                        if (Q_irand(0, to_underlying(NPCS.NPCInfo->rank)) < to_underlying(rank_t::RANK_LT)) { // be nice and stand still for him...
+                     NPCS.NPC->enemy->client->ps.legsAnim == animNumber_t::BOTH_WALL_RUN_RIGHT_FLIP) {                  // he's flipping off a wall
+                if (NPCS.NPC->enemy->client->ps.groundEntityNum == ENTITYNUM_NONE) {                                    // still in air
+                    if (enemy_dist < 256) {                                                                             // close
+                        if (Q_irand(0, std::to_underlying(NPCS.NPCInfo->rank)) < std::to_underlying(rank_t::RANK_LT)) { // be nice and stand still for him...
                             vec3_t enemyFwd, dest, dir;
 
                             /*
@@ -4219,7 +4219,7 @@ static void Jedi_CheckEnemyMovement(float enemy_dist)
             else if (NPCS.NPC->enemy->client->ps.legsAnim == animNumber_t::BOTH_A2_STABBACK1) { // he's stabbing backwards
                 if (enemy_dist < 256 && enemy_dist > 64) {                                      // close
                     if (!InFront(NPCS.NPC->r.currentOrigin, NPCS.NPC->enemy->r.currentOrigin, NPCS.NPC->enemy->r.currentAngles, 0.0f)) { // behind him
-                        if (!Q_irand(0, to_underlying(NPCS.NPCInfo->rank))) { // be nice and stand still for him...
+                        if (!Q_irand(0, std::to_underlying(NPCS.NPCInfo->rank))) { // be nice and stand still for him...
                             vec3_t enemyFwd, dest, dir;
 
                             // stop current movement
@@ -5200,7 +5200,8 @@ static void Jedi_Attack(void)
     }
 
     if (Any(NPCS.ucmd.buttons & buttonFlags_t::BUTTON_ATTACK) && NPCS.NPC->client->playerTeam == npcteam_t::NPCTEAM_ENEMY) {
-        if (Q_irand(0, to_underlying(NPCS.NPC->client->ps.fd.saberAnimLevel)) > 0 && Q_irand(0, NPCS.NPC->client->pers.maxHealth + 10) > NPCS.NPC->health &&
+        if (Q_irand(0, std::to_underlying(NPCS.NPC->client->ps.fd.saberAnimLevel)) > 0 &&
+            Q_irand(0, NPCS.NPC->client->pers.maxHealth + 10) > NPCS.NPC->health &&
             !Q_irand(0, 3)) { // the more we're hurt and the stronger the attack we're using, the more likely we are to make a anger noise when we swing
             G_AddVoiceEvent(NPCS.NPC, Q_irand(entity_event_t::EV_COMBAT1, entity_event_t::EV_COMBAT3), 1000);
         }
@@ -5208,10 +5209,10 @@ static void Jedi_Attack(void)
 
     if (NPCS.NPC->client->NPC_class != class_t::CLASS_BOBAFETT) {
         if (NPCS.NPC->client->NPC_class == class_t::CLASS_TAVION ||
-            (g_npcspskill.integer &&
-             (NPCS.NPC->client->NPC_class == class_t::CLASS_DESANN ||
-              to_underlying(NPCS.NPCInfo->rank) >= Q_irand(to_underlying(rank_t::RANK_CREWMAN),
-                                                           to_underlying(rank_t::RANK_CAPTAIN))))) { // Tavion will kick in force speed if the player does...
+            (g_npcspskill.integer && (NPCS.NPC->client->NPC_class == class_t::CLASS_DESANN ||
+                                      std::to_underlying(NPCS.NPCInfo->rank) >=
+                                          Q_irand(std::to_underlying(rank_t::RANK_CREWMAN),
+                                                  std::to_underlying(rank_t::RANK_CAPTAIN))))) { // Tavion will kick in force speed if the player does...
             if (NPCS.NPC->enemy && NPCS.NPC->enemy->s.number >= 0 && NPCS.NPC->enemy->s.number < MAX_CLIENTS && NPCS.NPC->enemy->client &&
                 (NPCS.NPC->enemy->client->ps.fd.forcePowersActive & Bit(forcePowers_t::FP_SPEED)) &&
                 !(NPCS.NPC->client->ps.fd.forcePowersActive & Bit(forcePowers_t::FP_SPEED))) {

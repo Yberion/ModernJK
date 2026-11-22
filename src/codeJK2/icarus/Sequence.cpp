@@ -343,12 +343,12 @@ int CSequence::SaveCommand(CBlock* block)
     ojk::SavedGameHelper saved_game(m_owner->GetInterface()->saved_game);
 
     // Save out the block ID
-    bID = to_underlying(block->GetBlockID());
+    bID = std::to_underlying(block->GetBlockID());
 
     saved_game.write_chunk<int32_t>(INT_ID('B', 'L', 'I', 'D'), bID);
 
     // Save out the block's flags
-    flags = to_underlying(block->GetFlags());
+    flags = std::to_underlying(block->GetFlags());
 
     saved_game.write_chunk<uint8_t>(INT_ID('B', 'F', 'L', 'G'), flags);
 
@@ -361,7 +361,7 @@ int CSequence::SaveCommand(CBlock* block)
         bm = block->GetMember(i);
 
         // Save the block id
-        bID = to_underlying(bm->GetID());
+        bID = std::to_underlying(bm->GetID());
 
         saved_game.write_chunk<int32_t>(INT_ID('B', 'M', 'I', 'D'), bID);
 
@@ -553,15 +553,15 @@ int CSequence::Load(void)
                 break;
 
             case icarusToken_t::ID_TAG:
-                block->Write(icarusToken_t::ID_TAG, (float)to_underlying(icarusToken_t::ID_TAG));
+                block->Write(icarusToken_t::ID_TAG, (float)std::to_underlying(icarusToken_t::ID_TAG));
                 break;
 
             case icarusToken_t::ID_GET:
-                block->Write(icarusToken_t::ID_GET, (float)to_underlying(icarusToken_t::ID_GET));
+                block->Write(icarusToken_t::ID_GET, (float)std::to_underlying(icarusToken_t::ID_GET));
                 break;
 
             case icarusToken_t::ID_RANDOM:
-                block->Write(icarusToken_t::ID_RANDOM, *(float*)bData); //(float) to_underlying( icarusToken_t::ID_RANDOM ) );
+                block->Write(icarusToken_t::ID_RANDOM, *(float*)bData); //(float) std::to_underlying( icarusToken_t::ID_RANDOM ) );
                 break;
 
             case icarusToken_t::TK_EQUALS:

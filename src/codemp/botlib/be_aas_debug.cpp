@@ -93,7 +93,7 @@ void AAS_ShowPolygon(lineColor_t color, int numpoints, vec3_t* points)
 
     for (i = 0; i < MAX_DEBUGPOLYGONS; i++) {
         if (!debugpolygons[i]) {
-            debugpolygons[i] = botimport.DebugPolygonCreate(to_underlying(color), numpoints, points); // the engine's polygons keep the renderer's colour
+            debugpolygons[i] = botimport.DebugPolygonCreate(std::to_underlying(color), numpoints, points); // the engine's polygons keep the renderer's colour
             break;
         } // end if
     } // end for

@@ -129,7 +129,7 @@ void SV_VSendServerCommand(client_t* cl, fmt::string_view fmt, fmt::format_args 
     client_t* client;
     int j;
 
-    message[0] = to_underlying(svc_ops_e::svc_serverCommand);
+    message[0] = std::to_underlying(svc_ops_e::svc_serverCommand);
 
     Q_VFormatToCut(std::span((char*)message + 1, sizeof(message) - 1), fmt, args);
 

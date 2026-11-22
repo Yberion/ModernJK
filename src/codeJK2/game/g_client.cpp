@@ -474,7 +474,7 @@ void ClientUserinfoChanged(int clientNum)
     // print scoreboards, display models, and play custom sounds
     buf[0] = '\0';
     Q_strcat(buf, sizeof(buf), Q_Format("n\\{}\\", client->pers.netname).c_str());
-    Q_strcat(buf, sizeof(buf), Q_Format("t\\{}\\", to_underlying(client->sess.sessionTeam)).c_str());
+    Q_strcat(buf, sizeof(buf), Q_Format("t\\{}\\", client->sess.sessionTeam).c_str());
     Q_strcat(buf, sizeof(buf), "headModel\\\\");
     Q_strcat(buf, sizeof(buf), "torsoModel\\\\");
     Q_strcat(buf, sizeof(buf), "legsModel\\\\");
@@ -703,7 +703,7 @@ void Player_RestoreFromPrevLevel(gentity_t* ent)
                 /* Get next token: */
                 var = strtok(nullptr, " ");
             }
-            assert(i == to_underlying(ammo_t::AMMO_MAX));
+            assert(i == std::to_underlying(ammo_t::AMMO_MAX));
 
             // inventory
             gi.Cvar_VariableStringBuffer("playerinv", s, sizeof(s));
@@ -715,7 +715,7 @@ void Player_RestoreFromPrevLevel(gentity_t* ent)
                 /* Get next token: */
                 var = strtok(nullptr, " ");
             }
-            assert(i == to_underlying(inventory_t::INV_MAX));
+            assert(i == std::to_underlying(inventory_t::INV_MAX));
 
             // the new JK2 stuff - force powers, etc...
             //

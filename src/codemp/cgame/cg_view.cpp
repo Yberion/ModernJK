@@ -2259,7 +2259,7 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, bool demoPlayb
     cg.demoPlayback = demoPlayback;
 
     if (cg.snap && static_cast<team_t>(ui_myteam.integer) != PS_Team(cg.snap->ps)) {
-        trap->Cvar_Set("ui_myteam", Q_Format("{}", to_underlying(PS_Team(cg.snap->ps))).c_str());
+        trap->Cvar_Set("ui_myteam", Q_Format("{}", PS_Team(cg.snap->ps)).c_str());
     }
     if (cgs.gametype == gametype_t::GT_SIEGE && cg.snap && cg_siegeClassIndex != cgs.clientinfo[cg.snap->ps.clientNum].siegeIndex) {
         cg_siegeClassIndex = cgs.clientinfo[cg.snap->ps.clientNum].siegeIndex;
@@ -2345,7 +2345,7 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, bool demoPlayb
             mSensitivityOverride = 0.0f;
             bUseFighterPitch = true;
             trap->SetUserCmdValue(cg.weaponSelect, mSensitivity, mPitchOverride, mYawOverride, mSensitivityOverride, cg.forceSelect,
-                                  cg.itemSelect ? to_underlying(*cg.itemSelect) : -1, bUseFighterPitch);
+                                  cg.itemSelect ? std::to_underlying(*cg.itemSelect) : -1, bUseFighterPitch);
             isFighter = true;
         }
     }
@@ -2359,12 +2359,12 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, bool demoPlayb
         if (veh && veh->currentState.eType == entityType_t::ET_NPC && veh->currentState.NPC_class == class_t::CLASS_VEHICLE && veh->m_pVehicle &&
             veh->m_pVehicle->m_pVehicleInfo->type == vehicleType_t::VH_FIGHTER && bg_fighterAltControl.integer) {
             trap->SetUserCmdValue(cg.weaponSelect, mSensitivity, mPitchOverride, mYawOverride, 0.0f, cg.forceSelect,
-                                  cg.itemSelect ? to_underlying(*cg.itemSelect) : -1, true);
+                                  cg.itemSelect ? std::to_underlying(*cg.itemSelect) : -1, true);
             veh = nullptr; // this is done because I don't want an extra assign each frame because I am so perfect and super efficient.
         }
         else {
             trap->SetUserCmdValue(cg.weaponSelect, mSensitivity, mPitchOverride, mYawOverride, 0.0f, cg.forceSelect,
-                                  cg.itemSelect ? to_underlying(*cg.itemSelect) : -1, false);
+                                  cg.itemSelect ? std::to_underlying(*cg.itemSelect) : -1, false);
         }
     }
 

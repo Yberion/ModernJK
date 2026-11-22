@@ -1749,12 +1749,12 @@ stringID_table_t animEventTypeTable[MAX_ANIM_EVENTS + 1] = {
     // must be terminated
     {nullptr, -1}};
 
-stringID_table_t footstepTypeTable[to_underlying(footstepType_t::NUM_FOOTSTEP_TYPES) + 1] = {ENUM2STRING(footstepType_t, FOOTSTEP_R),
-                                                                                             ENUM2STRING(footstepType_t, FOOTSTEP_L),
-                                                                                             ENUM2STRING(footstepType_t, FOOTSTEP_HEAVY_R),
-                                                                                             ENUM2STRING(footstepType_t, FOOTSTEP_HEAVY_L),
-                                                                                             // must be terminated
-                                                                                             {nullptr, -1}};
+stringID_table_t footstepTypeTable[std::to_underlying(footstepType_t::NUM_FOOTSTEP_TYPES) + 1] = {ENUM2STRING(footstepType_t, FOOTSTEP_R),
+                                                                                                  ENUM2STRING(footstepType_t, FOOTSTEP_L),
+                                                                                                  ENUM2STRING(footstepType_t, FOOTSTEP_HEAVY_R),
+                                                                                                  ENUM2STRING(footstepType_t, FOOTSTEP_HEAVY_L),
+                                                                                                  // must be terminated
+                                                                                                  {nullptr, -1}};
 
 int CheckAnimFrameForEventType(animevent_t* animEvents, int keyFrame, animEventType_t eventType)
 {
@@ -1864,19 +1864,19 @@ void ParseAnimationEvtBlock(const char* aeb_filename, animevent_t* animEvents, a
                 break;
 
             if (!Q_stricmp(token, "CHAN_VOICE_ATTEN"))
-                animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying(soundChannel_t::CHAN_VOICE_ATTEN);
+                animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = std::to_underlying(soundChannel_t::CHAN_VOICE_ATTEN);
             else if (!Q_stricmp(token, "CHAN_VOICE_GLOBAL"))
-                animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying(soundChannel_t::CHAN_VOICE_GLOBAL);
+                animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = std::to_underlying(soundChannel_t::CHAN_VOICE_GLOBAL);
             else if (!Q_stricmp(token, "CHAN_ANNOUNCER"))
-                animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying(soundChannel_t::CHAN_ANNOUNCER);
+                animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = std::to_underlying(soundChannel_t::CHAN_ANNOUNCER);
             else if (!Q_stricmp(token, "CHAN_BODY"))
-                animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying(soundChannel_t::CHAN_BODY);
+                animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = std::to_underlying(soundChannel_t::CHAN_BODY);
             else if (!Q_stricmp(token, "CHAN_WEAPON"))
-                animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying(soundChannel_t::CHAN_WEAPON);
+                animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = std::to_underlying(soundChannel_t::CHAN_WEAPON);
             else if (!Q_stricmp(token, "CHAN_VOICE"))
-                animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying(soundChannel_t::CHAN_VOICE);
+                animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = std::to_underlying(soundChannel_t::CHAN_VOICE);
             else
-                animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying(soundChannel_t::CHAN_AUTO);
+                animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = std::to_underlying(soundChannel_t::CHAN_AUTO);
 
             // fall through to normal sound
         case animEventType_t::AEV_SOUND: // # animID AEV_SOUND framenum soundpath randomlow randomhi chancetoplay
@@ -2396,7 +2396,7 @@ int BG_ParseAnimationFile(const char* filename, animSet_t* animset, bool isHuman
         {
             if ((*animset)[anim].firstFrame <= 0 && (*animset)[anim].numFrames <=0)
             {	// This is an empty animation reference.
-                Q_Println("***ANIMTABLE reference #{} ({}) is empty!", to_underlying( anim ), BG_AnimName( anim ));
+                Q_Println("***ANIMTABLE reference #{} ({}) is empty!",  anim , BG_AnimName( anim ));
             }
         }
     }

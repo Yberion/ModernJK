@@ -598,7 +598,7 @@ void WPN_AmmoType(const char** holdBuf)
         return;
     }
 
-    if ((tokenInt < to_underlying(ammo_t::AMMO_NONE)) || (tokenInt >= to_underlying(ammo_t::AMMO_MAX))) {
+    if ((tokenInt < std::to_underlying(ammo_t::AMMO_NONE)) || (tokenInt >= std::to_underlying(ammo_t::AMMO_MAX))) {
         Q_PrintlnWarning("bad Ammotype in external weapon data '{}'", tokenInt);
         return;
     }

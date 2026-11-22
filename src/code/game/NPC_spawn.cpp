@@ -1760,7 +1760,7 @@ void SP_NPC_spawner(gentity_t* self)
             self->svFlags |= svFlags_t::SVF_NO_EXTRA_SOUNDS;
         }
         if (G_SpawnInt("nodelay", "0", &garbage)) {
-            self->bounceCount |= to_underlying(npcAiFlags_t::NPCAI_NO_JEDI_DELAY);
+            self->bounceCount |= std::to_underlying(npcAiFlags_t::NPCAI_NO_JEDI_DELAY);
         }
     }
 
@@ -3778,7 +3778,7 @@ void NPC_Kill_f(void)
             Q_Println(S_COLOR_RED "NPC_Kill Error: 'npc kill team' requires a team name!");
             Q_Println(S_COLOR_RED "Valid team names are:");
             for (team_t t = team_t::TEAM_FREE + 1; t < team_t::TEAM_NUM_TEAMS; t++) {
-                Q_Println(S_COLOR_RED "{}", GetStringForID(TeamTable, to_underlying(t)));
+                Q_Println(S_COLOR_RED "{}", GetStringForID(TeamTable, std::to_underlying(t)));
             }
             Q_Println(S_COLOR_RED "nonally - kills all but your teammates");
             return;
@@ -3794,7 +3794,7 @@ void NPC_Kill_f(void)
                 Q_Println(S_COLOR_RED "NPC_Kill Error: team '{}' not recognized", name);
                 Q_Println(S_COLOR_RED "Valid team names are:");
                 for (team_t t = team_t::TEAM_FREE + 1; t < team_t::TEAM_NUM_TEAMS; t++) {
-                    Q_Println(S_COLOR_RED "{}", GetStringForID(TeamTable, to_underlying(t)));
+                    Q_Println(S_COLOR_RED "{}", GetStringForID(TeamTable, std::to_underlying(t)));
                 }
                 Q_Println(S_COLOR_RED "nonally - kills all but your teammates");
                 return;

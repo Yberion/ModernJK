@@ -248,8 +248,8 @@ static void DynamicMusicInfoPrint(void)
             psActualMusicState = "<unknown>";
         }
 
-        Q_Println("( Dynamic music ON, request state: '{}'({}), actual: '{}' ({}) )", psRequestMusicState, to_underlying(eMusic_StateRequest),
-                  psActualMusicState, to_underlying(eMusic_StateActual));
+        Q_Println("( Dynamic music ON, request state: '{}'({}), actual: '{}' ({}) )", psRequestMusicState, eMusic_StateRequest, psActualMusicState,
+                  eMusic_StateActual);
     }
     else {
         Q_Println("( Dynamic music OFF )");
@@ -669,7 +669,7 @@ channel_t* S_PickChannel(int entnum, soundChannel_t entchannel)
     channel_t *ch, *firstToDie;
     bool foundChan = false;
 
-    if (to_underlying(entchannel) < 0) {
+    if (std::to_underlying(entchannel) < 0) {
         Q_Error(errorParm_t::ERR_DROP, "S_PickChannel: entchannel<0");
     }
 
@@ -909,7 +909,7 @@ void S_StartSound(const vec3_t origin, int entityNum, soundChannel_t entchannel,
     SND_TouchSFX(sfx);
 
     if (s_show->integer == 1) {
-        Q_Println("{} : {} for ent {}, chan={}", s_paintedtime, sfx->sSoundName, entityNum, to_underlying(entchannel));
+        Q_Println("{} : {} for ent {}, chan={}", s_paintedtime, sfx->sSoundName, entityNum, entchannel);
     }
 
     // pick a channel to play on

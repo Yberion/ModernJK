@@ -406,7 +406,7 @@ void NPC_BSInvestigate(void)
 bool NPC_CheckInvestigate(int alertEventNum)
 {
     gentity_t* owner = level.alertEvents[alertEventNum].owner;
-    int invAdd = to_underlying(level.alertEvents[alertEventNum].level);
+    int invAdd = std::to_underlying(level.alertEvents[alertEventNum].level);
     vec3_t soundPos;
     float soundRad = level.alertEvents[alertEventNum].radius;
     float earshot = NPCInfo->stats.earshot;

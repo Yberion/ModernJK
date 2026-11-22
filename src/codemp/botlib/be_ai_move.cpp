@@ -2941,7 +2941,7 @@ int BotReachabilityTime(aas_reachability_t* reach)
     case travelTypeFlags_t::TRAVEL_FUNCBOB:
         return 10;
     default: {
-        Q_PrintlnError("travel type {} not implemented yet", to_underlying(reach->traveltype));
+        Q_PrintlnError("travel type {} not implemented yet", reach->traveltype);
         return 8;
     } // end case
     } // end switch
@@ -3318,7 +3318,7 @@ void BotMoveToGoal(bot_moveresult_t* result, int movestate, bot_goal_t* goal, tr
                 *result = BotTravel_FuncBobbing(ms, &reach);
                 break;
             default: {
-                Q_PrintlnError("travel type {} not implemented yet", to_underlying(reach.traveltype & travelTypeFlags_t::TRAVELTYPE_MASK));
+                Q_PrintlnError("travel type {} not implemented yet", reach.traveltype & travelTypeFlags_t::TRAVELTYPE_MASK);
                 break;
             } // end case
             } // end switch
@@ -3435,7 +3435,7 @@ void BotMoveToGoal(bot_moveresult_t* result, int movestate, bot_goal_t* goal, tr
                 *result = BotFinishTravel_FuncBobbing(ms, &reach);
                 break;
             default: {
-                Q_PrintlnError("(last) travel type {} not implemented yet", to_underlying(reach.traveltype & travelTypeFlags_t::TRAVELTYPE_MASK));
+                Q_PrintlnError("(last) travel type {} not implemented yet", reach.traveltype & travelTypeFlags_t::TRAVELTYPE_MASK);
                 break;
             } // end case
             } // end switch

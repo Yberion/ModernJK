@@ -90,12 +90,12 @@ int Encode(const MessageView& m, const SnapshotView* base, const uint8_t* const*
     MSG_Init(&msg, out, capacity);
     MSG_WriteLong(&msg, m.ack);               // SV_SendClientSnapshot: lastClientCommand
     for (int i = 0; i < m.numCommands; i++) { // SV_UpdateServerCommandsToClient
-        MSG_WriteByte(&msg, to_underlying(svc_ops_e::svc_serverCommand));
+        MSG_WriteByte(&msg, std::to_underlying(svc_ops_e::svc_serverCommand));
         MSG_WriteLong(&msg, m.commands[i].seq);
         MSG_WriteString(&msg, m.commands[i].text);
     }
     if (m.hasSnapshot) { // SV_WriteSnapshotToClient
-        MSG_WriteByte(&msg, to_underlying(svc_ops_e::svc_snapshot));
+        MSG_WriteByte(&msg, std::to_underlying(svc_ops_e::svc_snapshot));
         MSG_WriteLong(&msg, m.serverTime);
         MSG_WriteByte(&msg, m.delta);
         MSG_WriteByte(&msg, m.flags);
@@ -119,7 +119,7 @@ int Encode(const MessageView& m, const SnapshotView* base, const uint8_t* const*
         }
         EmitPacketEntities(&msg, base, m.snap, baselines);
     }
-    MSG_WriteByte(&msg, to_underlying(svc_ops_e::svc_EOF));
+    MSG_WriteByte(&msg, std::to_underlying(svc_ops_e::svc_EOF));
     return msg.overflowed ? 0 : msg.cursize;
 }
 
@@ -218,12 +218,12 @@ int EncodeClientPacket(const ClientPacketView& p, uint8_t* out, int capacity)
     MSG_WriteLong(&msg, p.messageAck);
     MSG_WriteLong(&msg, p.reliableAck);
     for (int i = 0; i < p.numCommands; i++) {
-        MSG_WriteByte(&msg, to_underlying(clc_ops_e::clc_clientCommand));
+        MSG_WriteByte(&msg, std::to_underlying(clc_ops_e::clc_clientCommand));
         MSG_WriteLong(&msg, p.commands[i].seq);
         MSG_WriteString(&msg, p.commands[i].text);
     }
     if (p.move != Move::kNone) {
-        MSG_WriteByte(&msg, to_underlying(p.move == Move::kDelta ? clc_ops_e::clc_move : clc_ops_e::clc_moveNoDelta));
+        MSG_WriteByte(&msg, std::to_underlying(p.move == Move::kDelta ? clc_ops_e::clc_move : clc_ops_e::clc_moveNoDelta));
         MSG_WriteByte(&msg, p.numUserCmds);
         usercmd_t nullcmd;
         std::memset(&nullcmd, 0, sizeof(nullcmd));
@@ -234,7 +234,7 @@ int EncodeClientPacket(const ClientPacketView& p, uint8_t* out, int capacity)
             oldcmd = cmd;
         }
     }
-    MSG_WriteByte(&msg, to_underlying(clc_ops_e::clc_EOF));
+    MSG_WriteByte(&msg, std::to_underlying(clc_ops_e::clc_EOF));
     return msg.overflowed ? 0 : msg.cursize;
 }
 

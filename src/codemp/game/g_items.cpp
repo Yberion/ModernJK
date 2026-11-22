@@ -403,10 +403,10 @@ bool PlaceShield(gentity_t* playerent)
             shield->parent = playerent;
 
             // Set team number.
-            shield->s.otherEntityNum2 = to_underlying(playerent->client->sess.sessionTeam);
+            shield->s.otherEntityNum2 = std::to_underlying(playerent->client->sess.sessionTeam);
 
             shield->s.eType = entityType_t::ET_SPECIAL;
-            shield->s.modelindex = to_underlying(holdable_t::HI_SHIELD); // this'll be used in CG_Useable() for rendering.
+            shield->s.modelindex = std::to_underlying(holdable_t::HI_SHIELD); // this'll be used in CG_Useable() for rendering.
             shield->classname = shieldItem->classname;
 
             shield->r.contents = contentsFlags_t::CONTENTS_TRIGGER;
@@ -977,8 +977,8 @@ void ItemUse_Sentry(gentity_t* ent)
     VectorCopy(mins, sentry->r.mins);
     VectorCopy(maxs, sentry->r.maxs);
     sentry->genericValue3 = ent->s.number;
-    sentry->genericValue2 = to_underlying(ent->client->sess.sessionTeam); // so we can remove ourself if our owner changes teams
-    sentry->genericValue15 = to_underlying(holdable_t::HI_SENTRY_GUN);
+    sentry->genericValue2 = std::to_underlying(ent->client->sess.sessionTeam); // so we can remove ourself if our owner changes teams
+    sentry->genericValue15 = std::to_underlying(holdable_t::HI_SENTRY_GUN);
     sentry->r.absmin[0] = sentry->s.pos.trBase[0] + sentry->r.mins[0];
     sentry->r.absmin[1] = sentry->s.pos.trBase[1] + sentry->r.mins[1];
     sentry->r.absmin[2] = sentry->s.pos.trBase[2] + sentry->r.mins[2];
@@ -1442,7 +1442,7 @@ void EWeb_SetBoneAngles(gentity_t* ent, const char* bone, vec3_t angles)
     forward = orientations_t::NEGATIVE_X;
 
     // first 3 bits is forward, second 3 bits is right, third 3 bits is up
-    ent->s.boneOrient = ((to_underlying(forward)) | (to_underlying(right) << 3) | (to_underlying(up) << 6));
+    ent->s.boneOrient = ((std::to_underlying(forward)) | (std::to_underlying(right) << 3) | (std::to_underlying(up) << 6));
 
     trap->G2API_SetBoneAngles(ent->ghoul2, 0, bone, angles, flags, up, right, forward, nullptr, 100, level.time);
 }
@@ -2974,7 +2974,7 @@ void G_RunItem(gentity_t* ent)
         if (ent->item && ent->item->giType == itemType_t::IT_TEAM) {
             Team_FreeEntity(ent);
         }
-        else if (ent->genericValue15 == to_underlying(holdable_t::HI_SENTRY_GUN)) {
+        else if (ent->genericValue15 == std::to_underlying(holdable_t::HI_SENTRY_GUN)) {
             turret_free(ent);
         }
         else {

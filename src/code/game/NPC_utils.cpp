@@ -823,7 +823,7 @@ bool G_ActivateBehavior(gentity_t* self, bSet_t bset)
     }
     else {
         Quake3Game()->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_VERBOSE, "{} attempting to run bSet {} ({})", self->targetname,
-                                   GetStringForID(BSETTable, to_underlying(bset)), bs_name);
+                                   GetStringForID(BSETTable, std::to_underlying(bset)), bs_name);
         Quake3Game()->RunScript(self, bs_name);
     }
     return true;

@@ -86,7 +86,7 @@ extern cvar_t* g_skippingcin;
 
 extern bool stop_icarus;
 
-#define stringIDExpand(str, type, strEnum) {str, to_underlying(type::strEnum)}, ENUM2STRING(type, strEnum)
+#define stringIDExpand(str, type, strEnum) {str, std::to_underlying(type::strEnum)}, ENUM2STRING(type, strEnum)
 
 stringID_table_t BSTable[] = {ENUM2STRING(bState_t, BS_DEFAULT),       // # default behavior for that NPC
                               ENUM2STRING(bState_t, BS_ADVANCE_FIGHT), // # Advance to captureGoal and shoot enemies if you can
@@ -121,7 +121,7 @@ stringID_table_t BSETTable[] = {ENUM2STRING(bSet_t, BSET_SPAWN),     // # script
                                 stringIDExpand("", bSet_t, BSET_INVALID),
                                 {"", -1}};
 
-stringID_table_t WPTable[] = {{"NULL", to_underlying(weapon_t::WP_NONE)},
+stringID_table_t WPTable[] = {{"NULL", std::to_underlying(weapon_t::WP_NONE)},
                               ENUM2STRING(weapon_t, WP_NONE),
                               // Player weapons
                               ENUM2STRING(weapon_t, WP_SABER), // NOTE: lots of code assumes this is the first weapon (... which is crap) so be careful -Ste.
@@ -172,7 +172,7 @@ stringID_table_t INVTable[] = {
 
 stringID_table_t eventTable[] = {// BOTH_h
                                  // END
-                                 {"", to_underlying(eventType_t::EV_BAD)}};
+                                 {"", std::to_underlying(eventType_t::EV_BAD)}};
 
 stringID_table_t DMSTable[] = {{"NULL", -1},
                                ENUM2STRING(dynamicMusic_t, DM_AUTO),    // # let the game determine the dynamic music as normal
@@ -475,7 +475,7 @@ stringID_table_t setTable[] = {ENUM2STRING(setType_t, SET_SPAWNSCRIPT), // 0
                                ENUM2STRING(setType_t, SET_SABER_ORIGIN),
                                ENUM2STRING(setType_t, SET_SKIN),
 
-                               {"", to_underlying(setType_t::SET_)}};
+                               {"", std::to_underlying(setType_t::SET_)}};
 
 // the set field a script names; SET_UNKNOWN for a name that matches none (a variable's name, then)
 static setType_t Q3_SetTypeFromName(const char* name)
@@ -657,7 +657,7 @@ static char* Q3_GetAnimLower(gentity_t* ent)
 
     animNumber_t anim = ent->client->ps.legsAnim;
 
-    return (char*)GetStringForID(animTable, to_underlying(anim));
+    return (char*)GetStringForID(animTable, std::to_underlying(anim));
 }
 
 /*
@@ -674,7 +674,7 @@ static char* Q3_GetAnimUpper(gentity_t* ent)
 
     animNumber_t anim = ent->client->ps.torsoAnim;
 
-    return (char*)GetStringForID(animTable, to_underlying(anim));
+    return (char*)GetStringForID(animTable, std::to_underlying(anim));
 }
 
 /*
@@ -753,7 +753,7 @@ static void Q3_SetObjective(const char* ObjEnum, int status)
         break;
     }
 
-    if (objectiveID == to_underlying(objectiveNumber_t::LIGHTSIDE_OBJ) &&
+    if (objectiveID == std::to_underlying(objectiveNumber_t::LIGHTSIDE_OBJ) &&
         status == SET_OBJ_FAILED) { // don't do this unless we just set that specific objective (just turned to the dark side) with this SET_OBJECTIVE command
         G_CheckPlayerDarkSide();
     }
@@ -2057,8 +2057,11 @@ static void Q3_SetLeader(int entID, const char* name)
 }
 
 stringID_table_t teamTable[] = {
-    ENUM2STRING(team_t, TEAM_FREE),    ENUM2STRING(team_t, TEAM_PLAYER),       ENUM2STRING(team_t, TEAM_ENEMY),
-    ENUM2STRING(team_t, TEAM_NEUTRAL), {"", to_underlying(team_t::TEAM_FREE)},
+    ENUM2STRING(team_t, TEAM_FREE),
+    ENUM2STRING(team_t, TEAM_PLAYER),
+    ENUM2STRING(team_t, TEAM_ENEMY),
+    ENUM2STRING(team_t, TEAM_NEUTRAL),
+    {"", std::to_underlying(team_t::TEAM_FREE)},
 };
 
 /*
@@ -2274,7 +2277,7 @@ static bool Q3_SetBState(int entID, const char* bs_name)
         // ent->client->moveType = movetype_t::MT_RUNJUMP;
     }
 
-    if (bsID == to_underlying(bState_t::BS_NOCLIP)) {
+    if (bsID == std::to_underlying(bState_t::BS_NOCLIP)) {
         ent->client->noclip = true;
     }
     else {
@@ -2290,7 +2293,7 @@ static bool Q3_SetBState(int entID, const char* bs_name)
     */
 
     //	if ( bSID == BS_SNIPER || bSID == bState_t::BS_ADVANCE_FIGHT )
-    if (bsID == to_underlying(bState_t::BS_ADVANCE_FIGHT)) {
+    if (bsID == std::to_underlying(bState_t::BS_ADVANCE_FIGHT)) {
         return false; // need to wait for task complete message
     }
 
@@ -2300,7 +2303,7 @@ static bool Q3_SetBState(int entID, const char* bs_name)
             ent->NPC->shotTime = ent->attackDebounceTime = level.time;
         }
     */
-    if (bsID == to_underlying(bState_t::BS_JUMP)) {
+    if (bsID == std::to_underlying(bState_t::BS_JUMP)) {
         ent->NPC->jumpState = jumpState_t::JS_FACING;
     }
 
@@ -3617,12 +3620,12 @@ static void Q3_SetForcePowerLevel(int entID, int forcePower, int forceLevel)
     const forcePowerLevels_t level = static_cast<forcePowerLevels_t>(forceLevel);
     if (power < forcePowers_t::FP_FIRST || power >= forcePowers_t::NUM_FORCE_POWERS) {
         Quake3Game()->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Q3_SetForcePowerLevel: Force Power index {} out of range ({}-{})", forcePower,
-                                   to_underlying(forcePowers_t::FP_FIRST), (to_underlying(forcePowers_t::NUM_FORCE_POWERS) - 1));
+                                   forcePowers_t::FP_FIRST, (std::to_underlying(forcePowers_t::NUM_FORCE_POWERS) - 1));
         return;
     }
 
     if (level < forcePowerLevels_t::FORCE_LEVEL_0 || level >= forcePowerLevels_t::NUM_FORCE_POWER_LEVELS) {
-        if (power != forcePowers_t::FP_SABER_OFFENSE || forceLevel >= to_underlying(saber_styles_t::SS_NUM_SABER_STYLES)) {
+        if (power != forcePowers_t::FP_SABER_OFFENSE || forceLevel >= std::to_underlying(saber_styles_t::SS_NUM_SABER_STYLES)) {
             Quake3Game()->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "Q3_SetForcePowerLevel: Force power setting {} out of range (0-3)",
                                        forceLevel);
             return;
@@ -7076,7 +7079,7 @@ void CQuake3GameInterface::Svcmd(void)
     const char* cmd = gi.argv(1);
 
     if (Q_stricmp(cmd, "log") == 0) {
-        g_ICARUSDebug->integer = to_underlying(e_DebugPrintLevel::WL_DEBUG);
+        g_ICARUSDebug->integer = std::to_underlying(e_DebugPrintLevel::WL_DEBUG);
         if (VALIDSTRING(gi.argv(2))) {
             gentity_t* ent = G_Find(nullptr, FOFS(script_targetname), gi.argv(2));
 
@@ -7138,7 +7141,7 @@ void CQuake3GameInterface::VCenterPrint(fmt::string_view format, fmt::format_arg
 void CQuake3GameInterface::VDebugPrintln(e_DebugPrintLevel level, fmt::string_view format, fmt::format_args args)
 {
     // Don't print messages they don't want to see
-    if (g_ICARUSDebug->integer < to_underlying(level))
+    if (g_ICARUSDebug->integer < std::to_underlying(level))
         return;
 
     char text[1024];
@@ -9405,7 +9408,7 @@ int CQuake3GameInterface::GetFloat(int entID, const char* name, float* value)
         break;
 
     case setType_t::SET_SOLID: // ## %t="BOOL_TYPES" # Make yourself notsolid or solid
-        *value = static_cast<int>(to_underlying(ent->contents));
+        *value = static_cast<int>(std::to_underlying(ent->contents));
         break;
     case setType_t::SET_PLAYER_USABLE: // ## %t="BOOL_TYPES" # Can be activateby the player's "use" button
         *value = Q3_FlagValue(ent->svFlags & svFlags_t::SVF_PLAYER_USABLE);
@@ -9837,7 +9840,7 @@ int CQuake3GameInterface::GetString(int entID, const char* name, const char** va
             return false;
         }
         else {
-            *value = (char*)GetStringForID(WPTable, to_underlying(ent->client->ps.weapon));
+            *value = (char*)GetStringForID(WPTable, std::to_underlying(ent->client->ps.weapon));
         }
         break;
 
@@ -9847,11 +9850,11 @@ int CQuake3GameInterface::GetString(int entID, const char* name, const char** va
             return false;
         }
         else {
-            //	*value = (char *)GetStringForID( WPTable, to_underlying( ent->client->ps.weapon ) );
+            //	*value = (char *)GetStringForID( WPTable, std::to_underlying( ent->client->ps.weapon ) );
         }
         break;
     case setType_t::SET_MUSIC_STATE:
-        *value = (char*)GetStringForID(DMSTable, to_underlying(level.dmState));
+        *value = (char*)GetStringForID(DMSTable, std::to_underlying(level.dmState));
         break;
     // The below cannot be gotten
     case setType_t::SET_NAVGOAL: // ## %s="NULL" # *Move to this navgoal then continue script
@@ -10314,7 +10317,7 @@ int CQuake3GameInterface::GetByName(const char* name)
 // return -1 indicates invalid
 int CQuake3GameInterface::IsFrozen(int entID)
 {
-    return to_underlying(g_entities[entID].svFlags & svFlags_t::SVF_ICARUS_FREEZE); // the ICARUS interface returns an int
+    return std::to_underlying(g_entities[entID].svFlags & svFlags_t::SVF_ICARUS_FREEZE); // the ICARUS interface returns an int
 }
 
 void CQuake3GameInterface::Free(void* data)

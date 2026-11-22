@@ -1623,7 +1623,7 @@ struct gentity_s {
 }
 inline void G_SetLimbAnim(gentity_t& limb, animNumber_t anim)
 {
-    limb.count = to_underlying(anim);
+    limb.count = std::to_underlying(anim);
 }
 #endif // #ifdef GAME_INCLUDE
 

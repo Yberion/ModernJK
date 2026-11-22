@@ -243,7 +243,7 @@ public:
 
         FLAG_MAX
     };
-    typedef ratl::bits_vs<to_underlying(particleFlag_t::FLAG_MAX)> TFlags;
+    typedef ratl::bits_vs<std::to_underlying(particleFlag_t::FLAG_MAX)> TFlags;
 
     float mAlpha;
     TFlags mFlags;
@@ -1140,7 +1140,7 @@ public:
             part->mPosition.ScaleAdd(part->mVelocity, mSecondsElapsed);
 
             partToCamera = (part->mPosition - mCameraPosition);
-            partRendering = part->mFlags.get_bit(to_underlying(WFXParticle::particleFlag_t::FLAG_RENDER));
+            partRendering = part->mFlags.get_bit(std::to_underlying(WFXParticle::particleFlag_t::FLAG_RENDER));
             partOutside = mOutside.PointOutside(part->mPosition, mWidth, mHeight);
             partInRange = mRange.In(part->mPosition);
             partInView = (partOutside && partInRange && (partToCamera.Dot(mCameraForward) > 0.0f));
@@ -1173,15 +1173,15 @@ public:
                 // Start A Fade Out
                 //------------------
                 if (partRendering && !partInView) {
-                    part->mFlags.clear_bit(to_underlying(WFXParticle::particleFlag_t::FLAG_FADEIN));
-                    part->mFlags.set_bit(to_underlying(WFXParticle::particleFlag_t::FLAG_FADEOUT));
+                    part->mFlags.clear_bit(std::to_underlying(WFXParticle::particleFlag_t::FLAG_FADEIN));
+                    part->mFlags.set_bit(std::to_underlying(WFXParticle::particleFlag_t::FLAG_FADEOUT));
                 }
 
                 // Switch From Fade Out To Fade In
                 //---------------------------------
-                else if (partRendering && partInView && part->mFlags.get_bit(to_underlying(WFXParticle::particleFlag_t::FLAG_FADEOUT))) {
-                    part->mFlags.set_bit(to_underlying(WFXParticle::particleFlag_t::FLAG_FADEIN));
-                    part->mFlags.clear_bit(to_underlying(WFXParticle::particleFlag_t::FLAG_FADEOUT));
+                else if (partRendering && partInView && part->mFlags.get_bit(std::to_underlying(WFXParticle::particleFlag_t::FLAG_FADEOUT))) {
+                    part->mFlags.set_bit(std::to_underlying(WFXParticle::particleFlag_t::FLAG_FADEIN));
+                    part->mFlags.clear_bit(std::to_underlying(WFXParticle::particleFlag_t::FLAG_FADEOUT));
                 }
 
                 // Start A Fade In
@@ -1189,9 +1189,9 @@ public:
                 else if (!partRendering && partInView) {
                     partRendering = true;
                     part->mAlpha = 0.0f;
-                    part->mFlags.set_bit(to_underlying(WFXParticle::particleFlag_t::FLAG_RENDER));
-                    part->mFlags.set_bit(to_underlying(WFXParticle::particleFlag_t::FLAG_FADEIN));
-                    part->mFlags.clear_bit(to_underlying(WFXParticle::particleFlag_t::FLAG_FADEOUT));
+                    part->mFlags.set_bit(std::to_underlying(WFXParticle::particleFlag_t::FLAG_RENDER));
+                    part->mFlags.set_bit(std::to_underlying(WFXParticle::particleFlag_t::FLAG_FADEIN));
+                    part->mFlags.clear_bit(std::to_underlying(WFXParticle::particleFlag_t::FLAG_FADEOUT));
                 }
 
                 // Update Fade
@@ -1200,23 +1200,23 @@ public:
 
                     // Update Fade Out
                     //-----------------
-                    if (part->mFlags.get_bit(to_underlying(WFXParticle::particleFlag_t::FLAG_FADEOUT))) {
+                    if (part->mFlags.get_bit(std::to_underlying(WFXParticle::particleFlag_t::FLAG_FADEOUT))) {
                         part->mAlpha -= particleFade;
                         if (part->mAlpha <= 0.0f) {
                             part->mAlpha = 0.0f;
-                            part->mFlags.clear_bit(to_underlying(WFXParticle::particleFlag_t::FLAG_FADEOUT));
-                            part->mFlags.clear_bit(to_underlying(WFXParticle::particleFlag_t::FLAG_FADEIN));
-                            part->mFlags.clear_bit(to_underlying(WFXParticle::particleFlag_t::FLAG_RENDER));
+                            part->mFlags.clear_bit(std::to_underlying(WFXParticle::particleFlag_t::FLAG_FADEOUT));
+                            part->mFlags.clear_bit(std::to_underlying(WFXParticle::particleFlag_t::FLAG_FADEIN));
+                            part->mFlags.clear_bit(std::to_underlying(WFXParticle::particleFlag_t::FLAG_RENDER));
                             partRendering = false;
                         }
                     }
 
                     // Update Fade In
                     //----------------
-                    else if (part->mFlags.get_bit(to_underlying(WFXParticle::particleFlag_t::FLAG_FADEIN))) {
+                    else if (part->mFlags.get_bit(std::to_underlying(WFXParticle::particleFlag_t::FLAG_FADEIN))) {
                         part->mAlpha += particleFade;
                         if (part->mAlpha >= mColor[3]) {
-                            part->mFlags.clear_bit(to_underlying(WFXParticle::particleFlag_t::FLAG_FADEIN));
+                            part->mFlags.clear_bit(std::to_underlying(WFXParticle::particleFlag_t::FLAG_FADEIN));
                             part->mAlpha = mColor[3];
                         }
                     }
@@ -1225,7 +1225,7 @@ public:
 
             // Keep Track Of The Number Of Particles To Render
             //-------------------------------------------------
-            if (part->mFlags.get_bit(to_underlying(WFXParticle::particleFlag_t::FLAG_RENDER))) {
+            if (part->mFlags.get_bit(std::to_underlying(WFXParticle::particleFlag_t::FLAG_RENDER))) {
                 mParticleCountRender++;
             }
         }
@@ -1264,7 +1264,7 @@ public:
         qglBegin(mGLModeEnum);
         for (particleNum = 0; particleNum < mParticleCount; particleNum++) {
             part = &(mParticles[particleNum]);
-            if (!part->mFlags.get_bit(to_underlying(WFXParticle::particleFlag_t::FLAG_RENDER))) {
+            if (!part->mFlags.get_bit(std::to_underlying(WFXParticle::particleFlag_t::FLAG_RENDER))) {
                 continue;
             }
 

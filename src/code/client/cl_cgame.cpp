@@ -813,7 +813,7 @@ intptr_t CL_CgameSystemCalls(intptr_t* args)
     if (!call) {
         Q_Error(errorParm_t::ERR_DROP, "Bad cgame system trap: {}", (long int)args[0]);
     }
-    args[0] = to_underlying(*call);
+    args[0] = std::to_underlying(*call);
 #endif
     switch (static_cast<cgameImport_t>(args[0])) {
     case cgameImport_t::CG_MILLISECONDS:
@@ -878,9 +878,9 @@ intptr_t CL_CgameSystemCalls(intptr_t* args)
     case cgameImport_t::CG_CM_TEMPBOXMODEL:
         return CM_TempBoxModel((const float*)VMA(1), (const float*)VMA(2)); //, (int) VMA(3) );
     case cgameImport_t::CG_CM_POINTCONTENTS:
-        return to_underlying(CM_PointContents((float*)VMA(1), args[2]));
+        return std::to_underlying(CM_PointContents((float*)VMA(1), args[2]));
     case cgameImport_t::CG_CM_TRANSFORMEDPOINTCONTENTS:
-        return to_underlying(CM_TransformedPointContents((const float*)VMA(1), args[2], (const float*)VMA(3), (const float*)VMA(4)));
+        return std::to_underlying(CM_TransformedPointContents((const float*)VMA(1), args[2], (const float*)VMA(3), (const float*)VMA(4)));
     case cgameImport_t::CG_CM_BOXTRACE:
         CM_BoxTrace((trace_t*)VMA(1), (const float*)VMA(2), (const float*)VMA(3), (const float*)VMA(4), (const float*)VMA(5), args[6],
                     static_cast<contentsFlags_t>(args[7]));
@@ -1116,10 +1116,10 @@ intptr_t CL_CgameSystemCalls(intptr_t* args)
         return CIN_PlayCinematic((const char*)VMA(1), args[2], args[3], args[4], args[5], static_cast<cinematicFlags_t>(args[6]), (const char*)VMA(7));
 
     case cgameImport_t::CG_CIN_STOPCINEMATIC:
-        return to_underlying(CIN_StopCinematic(args[1]));
+        return std::to_underlying(CIN_StopCinematic(args[1]));
 
     case cgameImport_t::CG_CIN_RUNCINEMATIC:
-        return to_underlying(CIN_RunCinematic(args[1]));
+        return std::to_underlying(CIN_RunCinematic(args[1]));
 
     case cgameImport_t::CG_CIN_DRAWCINEMATIC:
         CIN_DrawCinematic(args[1]);

@@ -682,17 +682,17 @@ void G_SetMissionStatusText(gentity_t* attacker, meansOfDeath_t mod)
     }
 
     if (mod == meansOfDeath_t::MOD_FALLING) { // fell to your death
-        statusTextIndex = to_underlying(statusText_t::STAT_WATCHYOURSTEP);
+        statusTextIndex = std::to_underlying(statusText_t::STAT_WATCHYOURSTEP);
     }
     else if (mod == meansOfDeath_t::MOD_CRUSH) { // crushed
-        statusTextIndex = to_underlying(statusText_t::STAT_JUDGEMENTMUCHDESIRED);
+        statusTextIndex = std::to_underlying(statusText_t::STAT_JUDGEMENTMUCHDESIRED);
     }
     else if (attacker && Q_stricmp("trigger_hurt", attacker->classname) == 0) { // Killed by something that should have been clearly dangerous
         //		statusTextIndex = Q_irand( IGT_JUDGEMENTDESIRED, IGT_JUDGEMENTMUCHDESIRED );
-        statusTextIndex = to_underlying(statusText_t::STAT_JUDGEMENTMUCHDESIRED);
+        statusTextIndex = std::to_underlying(statusText_t::STAT_JUDGEMENTMUCHDESIRED);
     }
     else if (attacker && attacker->s.number != 0 && attacker->client && attacker->client->playerTeam == team_t::TEAM_PLAYER) { // killed by a teammate
-        statusTextIndex = to_underlying(statusText_t::STAT_INSUBORDINATION);
+        statusTextIndex = std::to_underlying(statusText_t::STAT_INSUBORDINATION);
     }
 }
 
@@ -756,7 +756,7 @@ void G_StartMatrixEffect(gentity_t* ent, matrixEffectFlags_t meFlags = matrixEff
         // now the cgame decides when to remove us... in case the framerate chugs so severely that it never finishes the effect before it removes itself!
         // matrix->e_ThinkFunc = thinkFunc_t::thinkF_G_FreeEntity;
         // matrix->nextthink = level.time + length + 500;
-        matrix->s.boltInfo = to_underlying(meFlags); // the entity state's boltInfo, which other entities use for their bolt
+        matrix->s.boltInfo = std::to_underlying(meFlags); // the entity state's boltInfo, which other entities use for their bolt
         matrix->s.time2 = spinTime;
         matrix->s.angles2[0] = timeScale;
     }
@@ -3843,7 +3843,7 @@ void player_die(gentity_t* self, gentity_t* inflictor, gentity_t* attacker, int 
             self->flags |= gentityFlags_t::FL_DISINTEGRATED;
             self->svFlags |= svFlags_t::SVF_BROADCAST;
             tent = G_TempEntity(spot, entity_event_t::EV_DISINTEGRATION);
-            tent->s.eventParm = to_underlying(powerup_t::PW_DISRUPTION);
+            tent->s.eventParm = std::to_underlying(powerup_t::PW_DISRUPTION);
             tent->svFlags |= svFlags_t::SVF_BROADCAST;
             tent->owner = self;
 
@@ -4880,7 +4880,7 @@ void G_Damage(gentity_t* targ, gentity_t* inflictor, gentity_t* attacker, const 
     {                                                       // force protections
         // rage
         if ((targ->client->ps.forcePowersActive & Bit(forcePowers_t::FP_RAGE))) {
-            damage = Q_floorf((float)damage / (float)(to_underlying(targ->client->ps.forcePowerLevel[forcePowers_t::FP_RAGE]) * 2));
+            damage = Q_floorf((float)damage / (float)(std::to_underlying(targ->client->ps.forcePowerLevel[forcePowers_t::FP_RAGE]) * 2));
         }
         // protect
         if ((targ->client->ps.forcePowersActive & Bit(forcePowers_t::FP_PROTECT))) {
@@ -4907,7 +4907,7 @@ void G_Damage(gentity_t* targ, gentity_t* inflictor, gentity_t* attacker, const 
                 case meansOfDeath_t::MOD_EXPLOSIVE_SPLASH:
                 case meansOfDeath_t::MOD_CRUSH:
                     doSound = (Q_irand(0,4)==0);
-                    damage = Q_floorf((float)damage/(float)(to_underlying( targ->client->ps.forcePowerLevel[forcePowers_t::FP_PROTECT] )-1));
+                    damage = Q_floorf((float)damage/(float)(std::to_underlying( targ->client->ps.forcePowerLevel[forcePowers_t::FP_PROTECT] )-1));
                     break;
                 }
             case forcePowerLevels_t::FORCE_LEVEL_2:
@@ -4926,7 +4926,7 @@ void G_Damage(gentity_t* targ, gentity_t* inflictor, gentity_t* attacker, const 
                 case meansOfDeath_t::MOD_ENERGY_SPLASH:
                 case meansOfDeath_t::MOD_ELECTROCUTE:
                     doSound = (Q_irand(0,4)==0);
-                    damage = Q_floorf((float)damage/(float)(to_underlying( targ->client->ps.forcePowerLevel[forcePowers_t::FP_PROTECT] )));
+                    damage = Q_floorf((float)damage/(float)(std::to_underlying( targ->client->ps.forcePowerLevel[forcePowers_t::FP_PROTECT] )));
                     break;
                 }
             case forcePowerLevels_t::FORCE_LEVEL_1:
@@ -4943,7 +4943,7 @@ void G_Damage(gentity_t* targ, gentity_t* inflictor, gentity_t* attacker, const 
                 case meansOfDeath_t::MOD_LAVA:
                 case meansOfDeath_t::MOD_FALLING:
                     doSound = (Q_irand(0,4)==0);
-                    damage = Q_floorf((float)damage/(float)(to_underlying( targ->client->ps.forcePowerLevel[forcePowers_t::FP_PROTECT] )+1));
+                    damage = Q_floorf((float)damage/(float)(std::to_underlying( targ->client->ps.forcePowerLevel[forcePowers_t::FP_PROTECT] )+1));
                     break;
                 }
                 break;
@@ -5053,7 +5053,7 @@ void G_Damage(gentity_t* targ, gentity_t* inflictor, gentity_t* attacker, const 
                 || mod == meansOfDeath_t::MOD_FORCE_GRIP
                 || mod == meansOfDeath_t::MOD_FORCE_DRAIN )
             {
-                int absorbed = to_underlying( targ->client->ps.forcePowerLevel[forcePowers_t::FP_ABSORB] )*5;
+                int absorbed = std::to_underlying( targ->client->ps.forcePowerLevel[forcePowers_t::FP_ABSORB] )*5;
                 damage -= absorbed;
                 if ( damage < 0 )
                 {

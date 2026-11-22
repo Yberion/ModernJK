@@ -41,7 +41,7 @@ static void Z_Details_f(void);
 #undef TAGDEF
 #endif
 #define TAGDEF(blah) #blah
-static const EnumArray<const char*, memtag, to_underlying(memtag::TAG_COUNT) + 1>
+static const EnumArray<const char*, memtag, std::to_underlying(memtag::TAG_COUNT) + 1>
     psTagStrings = // +1 because TAG_COUNT will itself become a string here. Oh well.
     {
 #include "tags.h"

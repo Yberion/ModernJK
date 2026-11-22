@@ -4295,7 +4295,7 @@ void ClientThink_real(gentity_t* ent, usercmd_t* ucmd)
                     {                                               // force-jumper landed on someone
                         // don't jump off, too many ledges, plus looks weird
                         if (groundEnt->client->playerTeam != ent->client->playerTeam) { // don't knock down own guys
-                            forceKnockdown = (Q_irand(0, to_underlying(rank_t::RANK_CAPTAIN) + 4) < to_underlying(ent->NPC->rank));
+                            forceKnockdown = (Q_irand(0, std::to_underlying(rank_t::RANK_CAPTAIN) + 4) < std::to_underlying(ent->NPC->rank));
                         }
                         // now what... push the groundEnt out of the way?
                         if (!ent->client->ps.velocity[0] && !ent->client->ps.velocity[1]) { // not moving, shove us a little
@@ -4369,9 +4369,9 @@ void ClientThink_real(gentity_t* ent, usercmd_t* ucmd)
                              || ent->client->NPC_class == class_t::CLASS_DESANN // desann always knocks people down
                              ||
                              (((groundEnt->s.number && (groundEnt->s.weapon != weapon_t::WP_SABER || !groundEnt->NPC ||
-                                                        to_underlying(groundEnt->NPC->rank) <
-                                                            Q_irand(to_underlying(rank_t::RANK_CIVILIAN),
-                                                                    to_underlying(rank_t::RANK_CAPTAIN) +
+                                                        std::to_underlying(groundEnt->NPC->rank) <
+                                                            Q_irand(std::to_underlying(rank_t::RANK_CIVILIAN),
+                                                                    std::to_underlying(rank_t::RANK_CAPTAIN) +
                                                                         1))) // an NPC who is either not a saber user or passed the rank-based probability test
                                || ((!ent->s.number || G_ControlledByPlayer(groundEnt)) && !Q_irand(0, 3) && cg.renderingThirdPerson &&
                                    !cg.zoomMode))                                             // or a player in third person, 25% of the time

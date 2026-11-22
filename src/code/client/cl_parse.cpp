@@ -386,7 +386,7 @@ void CL_ParseGamestate(msg_t* msg)
             break;
         }
 
-        if (cmd == to_underlying(svc_ops_e::svc_configstring)) {
+        if (cmd == std::to_underlying(svc_ops_e::svc_configstring)) {
             int len;
 
             i = MSG_ReadShort(msg);
@@ -408,7 +408,7 @@ void CL_ParseGamestate(msg_t* msg)
                 Q_Println("{:3}:  CS# {} {} ({})", msg->readcount, i, s, len);
             }
         }
-        else if (cmd == to_underlying(svc_ops_e::svc_baseline)) {
+        else if (cmd == std::to_underlying(svc_ops_e::svc_baseline)) {
             assert(0);
         }
         else {

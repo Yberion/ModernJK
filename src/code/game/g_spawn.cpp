@@ -171,7 +171,7 @@ bool G_SpawnAngleHack(const char* key, const char* defaultString, float* out)
     return present;
 }
 
-stringID_table_t flagTable[] = {//"noTED", to_underlying( EF_NO_TED ),
+stringID_table_t flagTable[] = {//"noTED", std::to_underlying( EF_NO_TED ),
                                 // stringID_table_t Must end with a null entry
                                 {"", 0}};
 
@@ -306,22 +306,22 @@ field_t fields[] = {// Fields for benefit of Radiant only
                     {"splashDamage", FOFS(splashDamage), fieldtype_t::F_INT},
                     {"splashRadius", FOFS(splashRadius), fieldtype_t::F_INT},
                     // Script stuff
-                    {"spawnscript", FOFS(behaviorSet.elems[to_underlying(bSet_t::BSET_SPAWN)]), fieldtype_t::F_LSTRING},         // name of script to run
-                    {"usescript", FOFS(behaviorSet.elems[to_underlying(bSet_t::BSET_USE)]), fieldtype_t::F_LSTRING},             // name of script to run
-                    {"awakescript", FOFS(behaviorSet.elems[to_underlying(bSet_t::BSET_AWAKE)]), fieldtype_t::F_LSTRING},         // name of script to run
-                    {"angerscript", FOFS(behaviorSet.elems[to_underlying(bSet_t::BSET_ANGER)]), fieldtype_t::F_LSTRING},         // name of script to run
-                    {"attackscript", FOFS(behaviorSet.elems[to_underlying(bSet_t::BSET_ATTACK)]), fieldtype_t::F_LSTRING},       // name of script to run
-                    {"victoryscript", FOFS(behaviorSet.elems[to_underlying(bSet_t::BSET_VICTORY)]), fieldtype_t::F_LSTRING},     // name of script to run
-                    {"lostenemyscript", FOFS(behaviorSet.elems[to_underlying(bSet_t::BSET_LOSTENEMY)]), fieldtype_t::F_LSTRING}, // name of script to run
-                    {"painscript", FOFS(behaviorSet.elems[to_underlying(bSet_t::BSET_PAIN)]), fieldtype_t::F_LSTRING},           // name of script to run
-                    {"fleescript", FOFS(behaviorSet.elems[to_underlying(bSet_t::BSET_FLEE)]), fieldtype_t::F_LSTRING},           // name of script to run
-                    {"deathscript", FOFS(behaviorSet.elems[to_underlying(bSet_t::BSET_DEATH)]), fieldtype_t::F_LSTRING},         // name of script to run
-                    {"delayscript", FOFS(behaviorSet.elems[to_underlying(bSet_t::BSET_DELAYED)]), fieldtype_t::F_LSTRING},       // name of script to run
-                    {"delayscripttime", FOFS(delayScriptTime), fieldtype_t::F_INT},                                              // name of script to run
-                    {"blockedscript", FOFS(behaviorSet.elems[to_underlying(bSet_t::BSET_BLOCKED)]), fieldtype_t::F_LSTRING},     // name of script to run
-                    {"ffirescript", FOFS(behaviorSet.elems[to_underlying(bSet_t::BSET_FFIRE)]), fieldtype_t::F_LSTRING},         // name of script to run
-                    {"ffdeathscript", FOFS(behaviorSet.elems[to_underlying(bSet_t::BSET_FFDEATH)]), fieldtype_t::F_LSTRING},     // name of script to run
-                    {"mindtrickscript", FOFS(behaviorSet.elems[to_underlying(bSet_t::BSET_MINDTRICK)]), fieldtype_t::F_LSTRING}, // name of script to run
+                    {"spawnscript", FOFS(behaviorSet.elems[std::to_underlying(bSet_t::BSET_SPAWN)]), fieldtype_t::F_LSTRING},         // name of script to run
+                    {"usescript", FOFS(behaviorSet.elems[std::to_underlying(bSet_t::BSET_USE)]), fieldtype_t::F_LSTRING},             // name of script to run
+                    {"awakescript", FOFS(behaviorSet.elems[std::to_underlying(bSet_t::BSET_AWAKE)]), fieldtype_t::F_LSTRING},         // name of script to run
+                    {"angerscript", FOFS(behaviorSet.elems[std::to_underlying(bSet_t::BSET_ANGER)]), fieldtype_t::F_LSTRING},         // name of script to run
+                    {"attackscript", FOFS(behaviorSet.elems[std::to_underlying(bSet_t::BSET_ATTACK)]), fieldtype_t::F_LSTRING},       // name of script to run
+                    {"victoryscript", FOFS(behaviorSet.elems[std::to_underlying(bSet_t::BSET_VICTORY)]), fieldtype_t::F_LSTRING},     // name of script to run
+                    {"lostenemyscript", FOFS(behaviorSet.elems[std::to_underlying(bSet_t::BSET_LOSTENEMY)]), fieldtype_t::F_LSTRING}, // name of script to run
+                    {"painscript", FOFS(behaviorSet.elems[std::to_underlying(bSet_t::BSET_PAIN)]), fieldtype_t::F_LSTRING},           // name of script to run
+                    {"fleescript", FOFS(behaviorSet.elems[std::to_underlying(bSet_t::BSET_FLEE)]), fieldtype_t::F_LSTRING},           // name of script to run
+                    {"deathscript", FOFS(behaviorSet.elems[std::to_underlying(bSet_t::BSET_DEATH)]), fieldtype_t::F_LSTRING},         // name of script to run
+                    {"delayscript", FOFS(behaviorSet.elems[std::to_underlying(bSet_t::BSET_DELAYED)]), fieldtype_t::F_LSTRING},       // name of script to run
+                    {"delayscripttime", FOFS(delayScriptTime), fieldtype_t::F_INT},                                                   // name of script to run
+                    {"blockedscript", FOFS(behaviorSet.elems[std::to_underlying(bSet_t::BSET_BLOCKED)]), fieldtype_t::F_LSTRING},     // name of script to run
+                    {"ffirescript", FOFS(behaviorSet.elems[std::to_underlying(bSet_t::BSET_FFIRE)]), fieldtype_t::F_LSTRING},         // name of script to run
+                    {"ffdeathscript", FOFS(behaviorSet.elems[std::to_underlying(bSet_t::BSET_FFDEATH)]), fieldtype_t::F_LSTRING},     // name of script to run
+                    {"mindtrickscript", FOFS(behaviorSet.elems[std::to_underlying(bSet_t::BSET_MINDTRICK)]), fieldtype_t::F_LSTRING}, // name of script to run
                     {"script_targetname", FOFS(script_targetname), fieldtype_t::F_LSTRING}, // scripts look for this when "affecting"
                                                                                             // For NPCs
                                                                                             //{"playerTeam", FOFS(playerTeam), fieldtype_t::F_INT},

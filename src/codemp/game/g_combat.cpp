@@ -515,7 +515,7 @@ void TossClientWeapon(gentity_t* self, vec3_t direction, float speed)
             self->client->ps.weapon = weapon_t::WP_NONE;
         }
 
-        G_AddEvent(self, entity_event_t::EV_NOAMMO, to_underlying(weapon));
+        G_AddEvent(self, entity_event_t::EV_NOAMMO, std::to_underlying(weapon));
     }
 }
 
@@ -553,7 +553,7 @@ void TossClientItems(gentity_t* self)
         }
     }
 
-    self->s.bolt2 = to_underlying(weapon);
+    self->s.bolt2 = std::to_underlying(weapon);
 
     if (weapon > weapon_t::WP_BRYAR_PISTOL && weapon != weapon_t::WP_EMPLACED_GUN && weapon != weapon_t::WP_TURRET &&
         self->client->ps.ammo[weaponData[weapon].ammoIndex]) {
@@ -2158,7 +2158,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
     }
 
     // log the victim and attacker's names with the method of death
-    Q_FormatTo(buf, "Kill: {} {} {}: {} killed ", killer, self->s.number, to_underlying(meansOfDeath), killerName);
+    Q_FormatTo(buf, "Kill: {} {} {}: {} killed ", killer, self->s.number, meansOfDeath, killerName);
     if (self->s.eType == entityType_t::ET_NPC) {
         // check for named NPCs
         if (self->targetname)
@@ -2182,7 +2182,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
                          attacker->health);
             // also - if MOD_SABER, list the animation and saber style
             if (meansOfDeath == meansOfDeath_t::MOD_SABER) {
-                G_LogPrintln("killer saber style: {}, killer saber anim {}", to_underlying(attacker->client->ps.fd.saberAnimLevel),
+                G_LogPrintln("killer saber style: {}, killer saber anim {}", attacker->client->ps.fd.saberAnimLevel,
                              BG_AnimName(attacker->client->ps.torsoAnim));
             }
         }
@@ -2197,7 +2197,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
     // broadcast the death event to everyone
     if (self->s.eType != entityType_t::ET_NPC && !g_noPDuelCheck) {
         ent = G_TempEntity(self->r.currentOrigin, entity_event_t::EV_OBITUARY);
-        ent->s.eventParm = to_underlying(meansOfDeath);
+        ent->s.eventParm = std::to_underlying(meansOfDeath);
         ent->s.otherEntityNum = self->s.number;
         ent->s.otherEntityNum2 = killer;
         ent->r.svFlags = svFlags_t::SVF_BROADCAST; // send to everyone
@@ -2707,7 +2707,7 @@ int RaySphereIntersections(vec3_t origin, float radius, vec3_t point, vec3_t dir
 rww - beginning of the majority of the dismemberment and location based damage code.
 ===================================
 */
-const char* hitLocName[to_underlying(hitLocation_t::HL_MAX)] = {
+const char* hitLocName[std::to_underlying(hitLocation_t::HL_MAX)] = {
     "none",                // hitLocation_t::HL_NONE = 0,
     "right foot",          // HL_FOOT_RT,
     "left foot",           // HL_FOOT_LT,
@@ -3041,7 +3041,7 @@ void G_Dismember(gentity_t* ent, gentity_t* enemy, vec3_t point, g2ModelParts_t 
 
     limb->s.eType = entityType_t::ET_GENERAL;
     limb->s.weapon = weapon_t::G2_MODEL_PART;
-    limb->s.modelGhoul2 = to_underlying(limbType);
+    limb->s.modelGhoul2 = std::to_underlying(limbType);
     limb->s.modelindex = ent->s.number;
     if (!ent->client) {
         limb->s.modelindex = -1;
@@ -3236,32 +3236,32 @@ int G_GetHitQuad(gentity_t* self, vec3_t hitloc)
 
     if (zdiff > 0) {
         if (rightdot > 0.3) {
-            hitLoc = to_underlying(g2ModelParts_t::G2_MODELPART_RARM);
+            hitLoc = std::to_underlying(g2ModelParts_t::G2_MODELPART_RARM);
         }
         else if (rightdot < -0.3) {
-            hitLoc = to_underlying(g2ModelParts_t::G2_MODELPART_LARM);
+            hitLoc = std::to_underlying(g2ModelParts_t::G2_MODELPART_LARM);
         }
         else {
-            hitLoc = to_underlying(g2ModelParts_t::G2_MODELPART_HEAD);
+            hitLoc = std::to_underlying(g2ModelParts_t::G2_MODELPART_HEAD);
         }
     }
     else if (zdiff > -20) {
         if (rightdot > 0.1) {
-            hitLoc = to_underlying(g2ModelParts_t::G2_MODELPART_RARM);
+            hitLoc = std::to_underlying(g2ModelParts_t::G2_MODELPART_RARM);
         }
         else if (rightdot < -0.1) {
-            hitLoc = to_underlying(g2ModelParts_t::G2_MODELPART_LARM);
+            hitLoc = std::to_underlying(g2ModelParts_t::G2_MODELPART_LARM);
         }
         else {
-            hitLoc = to_underlying(g2ModelParts_t::G2_MODELPART_HEAD);
+            hitLoc = std::to_underlying(g2ModelParts_t::G2_MODELPART_HEAD);
         }
     }
     else {
         if (rightdot >= 0) {
-            hitLoc = to_underlying(g2ModelParts_t::G2_MODELPART_RLEG);
+            hitLoc = std::to_underlying(g2ModelParts_t::G2_MODELPART_RLEG);
         }
         else {
-            hitLoc = to_underlying(g2ModelParts_t::G2_MODELPART_LLEG);
+            hitLoc = std::to_underlying(g2ModelParts_t::G2_MODELPART_LLEG);
         }
     }
 
@@ -3283,7 +3283,7 @@ bool G_GetHitLocFromSurfName(gentity_t* ent, const char* surfName, int* hitLoc, 
     int footRBolt = -1;
     int footLBolt = -1;
 
-    *hitLoc = to_underlying(hitLocation_t::HL_NONE);
+    *hitLoc = std::to_underlying(hitLocation_t::HL_NONE);
 
     if (!surfName || !surfName[0]) {
         return false;
@@ -3318,64 +3318,64 @@ bool G_GetHitLocFromSurfName(gentity_t* ent, const char* surfName, int* hitLoc, 
         //		check for splashDamage and do radius damage to these parts?
         //		Or, if we ever get bbox G2 traces, that may fix it, too
         if (!Q_stricmp("head_light_blaster_cann", surfName)) {
-            *hitLoc = to_underlying(hitLocation_t::HL_ARM_LT);
+            *hitLoc = std::to_underlying(hitLocation_t::HL_ARM_LT);
         }
         else if (!Q_stricmp("head_concussion_charger", surfName)) {
-            *hitLoc = to_underlying(hitLocation_t::HL_ARM_RT);
+            *hitLoc = std::to_underlying(hitLocation_t::HL_ARM_RT);
         }
         return (false);
     }
     else if (ent->client && (ent->client->NPC_class == class_t::CLASS_MARK1)) {
         if (!Q_stricmp("l_arm", surfName)) {
-            *hitLoc = to_underlying(hitLocation_t::HL_ARM_LT);
+            *hitLoc = std::to_underlying(hitLocation_t::HL_ARM_LT);
         }
         else if (!Q_stricmp("r_arm", surfName)) {
-            *hitLoc = to_underlying(hitLocation_t::HL_ARM_RT);
+            *hitLoc = std::to_underlying(hitLocation_t::HL_ARM_RT);
         }
         else if (!Q_stricmp("torso_front", surfName)) {
-            *hitLoc = to_underlying(hitLocation_t::HL_CHEST);
+            *hitLoc = std::to_underlying(hitLocation_t::HL_CHEST);
         }
         else if (!Q_stricmp("torso_tube1", surfName)) {
-            *hitLoc = to_underlying(hitLocation_t::HL_GENERIC1);
+            *hitLoc = std::to_underlying(hitLocation_t::HL_GENERIC1);
         }
         else if (!Q_stricmp("torso_tube2", surfName)) {
-            *hitLoc = to_underlying(hitLocation_t::HL_GENERIC2);
+            *hitLoc = std::to_underlying(hitLocation_t::HL_GENERIC2);
         }
         else if (!Q_stricmp("torso_tube3", surfName)) {
-            *hitLoc = to_underlying(hitLocation_t::HL_GENERIC3);
+            *hitLoc = std::to_underlying(hitLocation_t::HL_GENERIC3);
         }
         else if (!Q_stricmp("torso_tube4", surfName)) {
-            *hitLoc = to_underlying(hitLocation_t::HL_GENERIC4);
+            *hitLoc = std::to_underlying(hitLocation_t::HL_GENERIC4);
         }
         else if (!Q_stricmp("torso_tube5", surfName)) {
-            *hitLoc = to_underlying(hitLocation_t::HL_GENERIC5);
+            *hitLoc = std::to_underlying(hitLocation_t::HL_GENERIC5);
         }
         else if (!Q_stricmp("torso_tube6", surfName)) {
-            *hitLoc = to_underlying(hitLocation_t::HL_GENERIC6);
+            *hitLoc = std::to_underlying(hitLocation_t::HL_GENERIC6);
         }
         return (false);
     }
     else if (ent->client && (ent->client->NPC_class == class_t::CLASS_MARK2)) {
         if (!Q_stricmp("torso_canister1", surfName)) {
-            *hitLoc = to_underlying(hitLocation_t::HL_GENERIC1);
+            *hitLoc = std::to_underlying(hitLocation_t::HL_GENERIC1);
         }
         else if (!Q_stricmp("torso_canister2", surfName)) {
-            *hitLoc = to_underlying(hitLocation_t::HL_GENERIC2);
+            *hitLoc = std::to_underlying(hitLocation_t::HL_GENERIC2);
         }
         else if (!Q_stricmp("torso_canister3", surfName)) {
-            *hitLoc = to_underlying(hitLocation_t::HL_GENERIC3);
+            *hitLoc = std::to_underlying(hitLocation_t::HL_GENERIC3);
         }
         return (false);
     }
     else if (ent->client && (ent->client->NPC_class == class_t::CLASS_GALAKMECH)) {
         if (!Q_stricmp("torso_antenna", surfName) || !Q_stricmp("torso_antenna_base", surfName)) {
-            *hitLoc = to_underlying(hitLocation_t::HL_GENERIC1);
+            *hitLoc = std::to_underlying(hitLocation_t::HL_GENERIC1);
         }
         else if (!Q_stricmp("torso_shield", surfName)) {
-            *hitLoc = to_underlying(hitLocation_t::HL_GENERIC2);
+            *hitLoc = std::to_underlying(hitLocation_t::HL_GENERIC2);
         }
         else {
-            *hitLoc = to_underlying(hitLocation_t::HL_CHEST);
+            *hitLoc = std::to_underlying(hitLocation_t::HL_CHEST);
         }
         return (false);
     }
@@ -3386,7 +3386,7 @@ bool G_GetHitLocFromSurfName(gentity_t* ent, const char* surfName, int* hitLoc, 
     // hit it at the wrong angle and should not dismember...
     actualTime = level.time;
     if (!Q_strncmp("hips", surfName, 4)) { // FIXME: test properly for legs
-        *hitLoc = to_underlying(hitLocation_t::HL_WAIST);
+        *hitLoc = std::to_underlying(hitLocation_t::HL_WAIST);
         if (ent->client != nullptr && ent->ghoul2) {
             mdxaBone_t boltMatrix;
             vec3_t tagOrg, angles;
@@ -3396,15 +3396,15 @@ bool G_GetHitLocFromSurfName(gentity_t* ent, const char* surfName, int* hitLoc, 
                 trap->G2API_GetBoltMatrix(ent->ghoul2, 0, kneeLBolt, &boltMatrix, angles, ent->r.currentOrigin, actualTime, nullptr, ent->modelScale);
                 BG_GiveMeVectorFromMatrix(&boltMatrix, orientations_t::ORIGIN, tagOrg);
                 if (DistanceSquared(point, tagOrg) < 100) { // actually hit the knee
-                    *hitLoc = to_underlying(hitLocation_t::HL_LEG_LT);
+                    *hitLoc = std::to_underlying(hitLocation_t::HL_LEG_LT);
                 }
             }
-            if (*hitLoc == to_underlying(hitLocation_t::HL_WAIST)) {
+            if (*hitLoc == std::to_underlying(hitLocation_t::HL_WAIST)) {
                 if (kneeRBolt >= 0) {
                     trap->G2API_GetBoltMatrix(ent->ghoul2, 0, kneeRBolt, &boltMatrix, angles, ent->r.currentOrigin, actualTime, nullptr, ent->modelScale);
                     BG_GiveMeVectorFromMatrix(&boltMatrix, orientations_t::ORIGIN, tagOrg);
                     if (DistanceSquared(point, tagOrg) < 100) { // actually hit the knee
-                        *hitLoc = to_underlying(hitLocation_t::HL_LEG_RT);
+                        *hitLoc = std::to_underlying(hitLocation_t::HL_LEG_RT);
                     }
                 }
             }
@@ -3412,7 +3412,7 @@ bool G_GetHitLocFromSurfName(gentity_t* ent, const char* surfName, int* hitLoc, 
     }
     else if (!Q_strncmp("torso", surfName, 5)) {
         if (!ent->client) {
-            *hitLoc = to_underlying(hitLocation_t::HL_CHEST);
+            *hitLoc = std::to_underlying(hitLocation_t::HL_CHEST);
         }
         else {
             vec3_t t_fwd, t_rt, t_up, dirToImpact;
@@ -3434,48 +3434,48 @@ bool G_GetHitLocFromSurfName(gentity_t* ent, const char* surfName, int* hitLoc, 
             rightSide = DotProduct(t_rt, dirToImpact);
             upSide = DotProduct(t_up, dirToImpact);
             if (upSide < -10) { // hit at waist
-                *hitLoc = to_underlying(hitLocation_t::HL_WAIST);
+                *hitLoc = std::to_underlying(hitLocation_t::HL_WAIST);
             }
             else { // hit on upper torso
                 if (rightSide > 4) {
-                    *hitLoc = to_underlying(hitLocation_t::HL_ARM_RT);
+                    *hitLoc = std::to_underlying(hitLocation_t::HL_ARM_RT);
                 }
                 else if (rightSide < -4) {
-                    *hitLoc = to_underlying(hitLocation_t::HL_ARM_LT);
+                    *hitLoc = std::to_underlying(hitLocation_t::HL_ARM_LT);
                 }
                 else if (rightSide > 2) {
                     if (frontSide > 0) {
-                        *hitLoc = to_underlying(hitLocation_t::HL_CHEST_RT);
+                        *hitLoc = std::to_underlying(hitLocation_t::HL_CHEST_RT);
                     }
                     else {
-                        *hitLoc = to_underlying(hitLocation_t::HL_BACK_RT);
+                        *hitLoc = std::to_underlying(hitLocation_t::HL_BACK_RT);
                     }
                 }
                 else if (rightSide < -2) {
                     if (frontSide > 0) {
-                        *hitLoc = to_underlying(hitLocation_t::HL_CHEST_LT);
+                        *hitLoc = std::to_underlying(hitLocation_t::HL_CHEST_LT);
                     }
                     else {
-                        *hitLoc = to_underlying(hitLocation_t::HL_BACK_LT);
+                        *hitLoc = std::to_underlying(hitLocation_t::HL_BACK_LT);
                     }
                 }
                 else if (upSide > -3 && mod == meansOfDeath_t::MOD_SABER) {
-                    *hitLoc = to_underlying(hitLocation_t::HL_HEAD);
+                    *hitLoc = std::to_underlying(hitLocation_t::HL_HEAD);
                 }
                 else if (frontSide > 0) {
-                    *hitLoc = to_underlying(hitLocation_t::HL_CHEST);
+                    *hitLoc = std::to_underlying(hitLocation_t::HL_CHEST);
                 }
                 else {
-                    *hitLoc = to_underlying(hitLocation_t::HL_BACK);
+                    *hitLoc = std::to_underlying(hitLocation_t::HL_BACK);
                 }
             }
         }
     }
     else if (!Q_strncmp("head", surfName, 4)) {
-        *hitLoc = to_underlying(hitLocation_t::HL_HEAD);
+        *hitLoc = std::to_underlying(hitLocation_t::HL_HEAD);
     }
     else if (!Q_strncmp("r_arm", surfName, 5)) {
-        *hitLoc = to_underlying(hitLocation_t::HL_ARM_RT);
+        *hitLoc = std::to_underlying(hitLocation_t::HL_ARM_RT);
         if (ent->client != nullptr && ent->ghoul2) {
             mdxaBone_t boltMatrix;
             vec3_t tagOrg, angles;
@@ -3485,13 +3485,13 @@ bool G_GetHitLocFromSurfName(gentity_t* ent, const char* surfName, int* hitLoc, 
                 trap->G2API_GetBoltMatrix(ent->ghoul2, 0, handRBolt, &boltMatrix, angles, ent->r.currentOrigin, actualTime, nullptr, ent->modelScale);
                 BG_GiveMeVectorFromMatrix(&boltMatrix, orientations_t::ORIGIN, tagOrg);
                 if (DistanceSquared(point, tagOrg) < 256) { // actually hit the hand
-                    *hitLoc = to_underlying(hitLocation_t::HL_HAND_RT);
+                    *hitLoc = std::to_underlying(hitLocation_t::HL_HAND_RT);
                 }
             }
         }
     }
     else if (!Q_strncmp("l_arm", surfName, 5)) {
-        *hitLoc = to_underlying(hitLocation_t::HL_ARM_LT);
+        *hitLoc = std::to_underlying(hitLocation_t::HL_ARM_LT);
         if (ent->client != nullptr && ent->ghoul2) {
             mdxaBone_t boltMatrix;
             vec3_t tagOrg, angles;
@@ -3501,13 +3501,13 @@ bool G_GetHitLocFromSurfName(gentity_t* ent, const char* surfName, int* hitLoc, 
                 trap->G2API_GetBoltMatrix(ent->ghoul2, 0, handLBolt, &boltMatrix, angles, ent->r.currentOrigin, actualTime, nullptr, ent->modelScale);
                 BG_GiveMeVectorFromMatrix(&boltMatrix, orientations_t::ORIGIN, tagOrg);
                 if (DistanceSquared(point, tagOrg) < 256) { // actually hit the hand
-                    *hitLoc = to_underlying(hitLocation_t::HL_HAND_LT);
+                    *hitLoc = std::to_underlying(hitLocation_t::HL_HAND_LT);
                 }
             }
         }
     }
     else if (!Q_strncmp("r_leg", surfName, 5)) {
-        *hitLoc = to_underlying(hitLocation_t::HL_LEG_RT);
+        *hitLoc = std::to_underlying(hitLocation_t::HL_LEG_RT);
         if (ent->client != nullptr && ent->ghoul2) {
             mdxaBone_t boltMatrix;
             vec3_t tagOrg, angles;
@@ -3517,13 +3517,13 @@ bool G_GetHitLocFromSurfName(gentity_t* ent, const char* surfName, int* hitLoc, 
                 trap->G2API_GetBoltMatrix(ent->ghoul2, 0, footRBolt, &boltMatrix, angles, ent->r.currentOrigin, actualTime, nullptr, ent->modelScale);
                 BG_GiveMeVectorFromMatrix(&boltMatrix, orientations_t::ORIGIN, tagOrg);
                 if (DistanceSquared(point, tagOrg) < 100) { // actually hit the foot
-                    *hitLoc = to_underlying(hitLocation_t::HL_FOOT_RT);
+                    *hitLoc = std::to_underlying(hitLocation_t::HL_FOOT_RT);
                 }
             }
         }
     }
     else if (!Q_strncmp("l_leg", surfName, 5)) {
-        *hitLoc = to_underlying(hitLocation_t::HL_LEG_LT);
+        *hitLoc = std::to_underlying(hitLocation_t::HL_LEG_LT);
         if (ent->client != nullptr && ent->ghoul2) {
             mdxaBone_t boltMatrix;
             vec3_t tagOrg, angles;
@@ -3533,16 +3533,16 @@ bool G_GetHitLocFromSurfName(gentity_t* ent, const char* surfName, int* hitLoc, 
                 trap->G2API_GetBoltMatrix(ent->ghoul2, 0, footLBolt, &boltMatrix, angles, ent->r.currentOrigin, actualTime, nullptr, ent->modelScale);
                 BG_GiveMeVectorFromMatrix(&boltMatrix, orientations_t::ORIGIN, tagOrg);
                 if (DistanceSquared(point, tagOrg) < 100) { // actually hit the foot
-                    *hitLoc = to_underlying(hitLocation_t::HL_FOOT_LT);
+                    *hitLoc = std::to_underlying(hitLocation_t::HL_FOOT_LT);
                 }
             }
         }
     }
     else if (!Q_strncmp("r_hand", surfName, 6) || !Q_strncmp("w_", surfName, 2)) { // right hand or weapon
-        *hitLoc = to_underlying(hitLocation_t::HL_HAND_RT);
+        *hitLoc = std::to_underlying(hitLocation_t::HL_HAND_RT);
     }
     else if (!Q_strncmp("l_hand", surfName, 6)) {
-        *hitLoc = to_underlying(hitLocation_t::HL_HAND_LT);
+        *hitLoc = std::to_underlying(hitLocation_t::HL_HAND_LT);
     }
     /*
 #ifdef _DEBUG
@@ -3670,7 +3670,7 @@ void G_CheckForDismemberment(gentity_t* ent, gentity_t* enemy, vec3_t point, int
     }
 
     if (gGAvoidDismember == 2) {
-        hitLoc = to_underlying(hitLocation_t::HL_HAND_RT);
+        hitLoc = std::to_underlying(hitLocation_t::HL_HAND_RT);
     }
     else {
         if (d_saberGhoul2Collision.integer && ent->client && ent->client->g2LastSurfaceTime == level.time) {
@@ -3684,22 +3684,22 @@ void G_CheckForDismemberment(gentity_t* ent, gentity_t* enemy, vec3_t point, int
         }
 
         if (hitLoc == -1) {
-            hitLoc = to_underlying(G_GetHitLocation(ent, point));
+            hitLoc = std::to_underlying(G_GetHitLocation(ent, point));
         }
     }
 
     switch (static_cast<hitLocation_t>(hitLoc)) {
     case hitLocation_t::HL_FOOT_RT:
     case hitLocation_t::HL_LEG_RT:
-        hitLocUse = to_underlying(g2ModelParts_t::G2_MODELPART_RLEG);
+        hitLocUse = std::to_underlying(g2ModelParts_t::G2_MODELPART_RLEG);
         break;
     case hitLocation_t::HL_FOOT_LT:
     case hitLocation_t::HL_LEG_LT:
-        hitLocUse = to_underlying(g2ModelParts_t::G2_MODELPART_LLEG);
+        hitLocUse = std::to_underlying(g2ModelParts_t::G2_MODELPART_LLEG);
         break;
 
     case hitLocation_t::HL_WAIST:
-        hitLocUse = to_underlying(g2ModelParts_t::G2_MODELPART_WAIST);
+        hitLocUse = std::to_underlying(g2ModelParts_t::G2_MODELPART_WAIST);
         break;
         /*
     case hitLocation_t::HL_BACK_RT:
@@ -3711,17 +3711,17 @@ void G_CheckForDismemberment(gentity_t* ent, gentity_t* enemy, vec3_t point, int
         break;
         */
     case hitLocation_t::HL_ARM_RT:
-        hitLocUse = to_underlying(g2ModelParts_t::G2_MODELPART_RARM);
+        hitLocUse = std::to_underlying(g2ModelParts_t::G2_MODELPART_RARM);
         break;
     case hitLocation_t::HL_HAND_RT:
-        hitLocUse = to_underlying(g2ModelParts_t::G2_MODELPART_RHAND);
+        hitLocUse = std::to_underlying(g2ModelParts_t::G2_MODELPART_RHAND);
         break;
     case hitLocation_t::HL_ARM_LT:
     case hitLocation_t::HL_HAND_LT:
-        hitLocUse = to_underlying(g2ModelParts_t::G2_MODELPART_LARM);
+        hitLocUse = std::to_underlying(g2ModelParts_t::G2_MODELPART_LARM);
         break;
     case hitLocation_t::HL_HEAD:
-        hitLocUse = to_underlying(g2ModelParts_t::G2_MODELPART_HEAD);
+        hitLocUse = std::to_underlying(g2ModelParts_t::G2_MODELPART_HEAD);
         break;
     default:
         hitLocUse = G_GetHitQuad(ent, point);
@@ -3785,7 +3785,7 @@ void G_LocationBasedDamageModifier(gentity_t* ent, vec3_t point, meansOfDeath_t 
     }
 
     if (hitLoc == -1) {
-        hitLoc = to_underlying(G_GetHitLocation(ent, point));
+        hitLoc = std::to_underlying(G_GetHitLocation(ent, point));
     }
     G_ScenarioHitLocation(ent, static_cast<hitLocation_t>(hitLoc)); // the scripted scenarios' statistics
 
@@ -4663,7 +4663,7 @@ void G_Damage(gentity_t* targ, gentity_t* inflictor, gentity_t* attacker, vec3_t
 
         if (!Any(dflags & damageFlags_t::DAMAGE_NO_PROTECTION)) { // rage overridden by no_protection
             if (targ->client && (targ->client->ps.fd.forcePowersActive & Bit(forcePowers_t::FP_RAGE)) && (inflictor->client || attacker->client)) {
-                take /= (to_underlying(targ->client->ps.fd.forcePowerLevel[forcePowers_t::FP_RAGE]) + 1);
+                take /= (std::to_underlying(targ->client->ps.fd.forcePowerLevel[forcePowers_t::FP_RAGE]) + 1);
             }
         }
         targ->health = targ->health - take;
@@ -4716,16 +4716,19 @@ void G_Damage(gentity_t* targ, gentity_t* inflictor, gentity_t* attacker, vec3_t
                 gPainHitLoc = -1;
             }
 
-            if (gPainHitLoc < to_underlying(hitLocation_t::HL_MAX) && gPainHitLoc >= 0 && targ->locationDamage[gPainHitLoc] < Q3_INFINITE &&
+            if (gPainHitLoc < std::to_underlying(hitLocation_t::HL_MAX) && gPainHitLoc >= 0 && targ->locationDamage[gPainHitLoc] < Q3_INFINITE &&
                 (targ->s.eType == entityType_t::ET_PLAYER || targ->s.NPC_class != class_t::CLASS_VEHICLE)) {
                 targ->locationDamage[gPainHitLoc] += take;
 
                 if (g_armBreakage.integer && !targ->client->ps.brokenLimbs && targ->client->ps.stats[statIndex_t::STAT_HEALTH] > 0 && targ->health > 0 &&
                     !Any(targ->s.eFlags & entityFlags_t::EF_DEAD)) { // check for breakage
-                    if (targ->locationDamage[to_underlying(hitLocation_t::HL_ARM_RT)] + targ->locationDamage[to_underlying(hitLocation_t::HL_HAND_RT)] >= 80) {
+                    if (targ->locationDamage[std::to_underlying(hitLocation_t::HL_ARM_RT)] +
+                            targ->locationDamage[std::to_underlying(hitLocation_t::HL_HAND_RT)] >=
+                        80) {
                         G_BreakArm(targ, brokenLimb_t::BROKENLIMB_RARM);
                     }
-                    else if (targ->locationDamage[to_underlying(hitLocation_t::HL_ARM_LT)] + targ->locationDamage[to_underlying(hitLocation_t::HL_HAND_LT)] >=
+                    else if (targ->locationDamage[std::to_underlying(hitLocation_t::HL_ARM_LT)] +
+                                 targ->locationDamage[std::to_underlying(hitLocation_t::HL_HAND_LT)] >=
                              80) {
                         G_BreakArm(targ, brokenLimb_t::BROKENLIMB_LARM);
                     }

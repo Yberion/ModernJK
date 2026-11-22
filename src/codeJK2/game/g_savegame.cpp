@@ -343,7 +343,7 @@ void EnumerateField(const save_field_t* pField, byte* pbBase)
 
     case fieldtypeSAVE_t::F_BEHAVIORSET: {
         const char** p = (const char**)pv;
-        for (int i = 0; i < to_underlying(bSet_t::NUM_BSETS); i++) {
+        for (int i = 0; i < std::to_underlying(bSet_t::NUM_BSETS); i++) {
             pv = &p[i]; // since you can't ++ a void ptr
             *(intptr_t*)pv = GetStringNum(*(char**)pv);
         }
@@ -460,7 +460,7 @@ static void EvaluateField(const save_field_t* pField, byte* pbBase, byte* pbOrig
     case fieldtypeSAVE_t::F_BEHAVIORSET: {
         char** p = (char**)pv;
         char** pO = (char**)pvOriginal;
-        for (int i = 0; i < to_underlying(bSet_t::NUM_BSETS); i++, p++, pO++) {
+        for (int i = 0; i < std::to_underlying(bSet_t::NUM_BSETS); i++, p++, pO++) {
             *p = GetStringPtr(*(intptr_t*)p, pbOriginalRefData ? *(char**)pO : nullptr);
         }
     } break;

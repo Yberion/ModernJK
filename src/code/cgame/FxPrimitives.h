@@ -122,7 +122,7 @@ inline constexpr int FX_SIZE2_SHIFT = 16;
 // a channel's transitions, parsed as the generic values (FX_LINEAR ... FX_CLAMP), moved into the channel's bits
 inline fxPrimitiveFlags_t FX_ChannelFlags(fxPrimitiveFlags_t generic, int shift)
 {
-    return static_cast<fxPrimitiveFlags_t>(to_underlying(generic) << shift);
+    return static_cast<fxPrimitiveFlags_t>(std::to_underlying(generic) << shift);
 }
 
 //------------------------------

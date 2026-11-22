@@ -632,7 +632,7 @@ Q3_DebugPrint
 void Q3_VDebugPrintln(WL_e level, fmt::string_view format, fmt::format_args args)
 {
     // Don't print messages they don't want to see
-    // if ( g_ICARUSDebug->integer < to_underlying( level ) )
+    // if ( g_ICARUSDebug->integer < std::to_underlying( level ) )
     if (!com_developer || !com_developer->integer)
         return;
 
@@ -809,7 +809,7 @@ static int Q3_GetTag(int entID, const char* name, icarusToken_t lookup, vec3_t i
 
     sharedMem->entID = entID;
     strcpy(sharedMem->name, name);
-    sharedMem->lookup = to_underlying(lookup);
+    sharedMem->lookup = std::to_underlying(lookup);
     VectorCopy(info, sharedMem->info);
 
     r = GVM_ICARUS_GetTag();
@@ -887,7 +887,7 @@ static int Q3_GetFloat(int entID, icarusToken_t type, const char* name, float* v
     T_G_ICARUS_GETFLOAT* sharedMem = (T_G_ICARUS_GETFLOAT*)sv.mSharedMemory;
 
     sharedMem->entID = entID;
-    sharedMem->type = to_underlying(type);
+    sharedMem->type = std::to_underlying(type);
     strcpy(sharedMem->name, name);
     sharedMem->value = 0; //*value;
 
@@ -902,7 +902,7 @@ static int Q3_GetVector(int entID, icarusToken_t type, const char* name, vec3_t 
     T_G_ICARUS_GETVECTOR* sharedMem = (T_G_ICARUS_GETVECTOR*)sv.mSharedMemory;
 
     sharedMem->entID = entID;
-    sharedMem->type = to_underlying(type);
+    sharedMem->type = std::to_underlying(type);
     strcpy(sharedMem->name, name);
     VectorCopy(value, sharedMem->value);
 
@@ -917,7 +917,7 @@ static int Q3_GetString(int entID, icarusToken_t type, const char* name, char** 
     T_G_ICARUS_GETSTRING* sharedMem = (T_G_ICARUS_GETSTRING*)sv.mSharedMemory;
 
     sharedMem->entID = entID;
-    sharedMem->type = to_underlying(type);
+    sharedMem->type = std::to_underlying(type);
     strcpy(sharedMem->name, name);
 
     r = GVM_ICARUS_GetString();

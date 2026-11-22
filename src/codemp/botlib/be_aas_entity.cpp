@@ -108,7 +108,7 @@ botlibError_t AAS_UpdateEntity(int entnum, bot_entitystate_t* state)
     else
         relink = false;
     //
-    if (ent->i.solid == to_underlying(solid_t::SOLID_BSP)) {
+    if (ent->i.solid == std::to_underlying(solid_t::SOLID_BSP)) {
         // if the angles of the model changed
         if (!VectorCompare(state->angles, ent->i.angles)) {
             VectorCopy(state->angles, ent->i.angles);
@@ -118,7 +118,7 @@ botlibError_t AAS_UpdateEntity(int entnum, bot_entitystate_t* state)
         // FIXME: rotate mins and maxs
         AAS_BSPModelMinsMaxsOrigin(ent->i.modelindex, ent->i.angles, ent->i.mins, ent->i.maxs, nullptr);
     } // end if
-    else if (ent->i.solid == to_underlying(solid_t::SOLID_BBOX)) {
+    else if (ent->i.solid == std::to_underlying(solid_t::SOLID_BBOX)) {
         // if the bounding box size changed
         if (!VectorCompare(state->mins, ent->i.mins) || !VectorCompare(state->maxs, ent->i.maxs)) {
             VectorCopy(state->mins, ent->i.mins);

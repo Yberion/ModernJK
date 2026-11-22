@@ -68,18 +68,18 @@ void G_WriteClientSessionData(gclient_t* client)
     }
 
     // Make sure there is no space on the last entry
-    Q_strcat(s, sizeof(s), Q_Format("{} ", to_underlying(client->sess.sessionTeam)).c_str());
+    Q_strcat(s, sizeof(s), Q_Format("{} ", client->sess.sessionTeam).c_str());
     Q_strcat(s, sizeof(s), Q_Format("{} ", client->sess.spectatorNum).c_str());
-    Q_strcat(s, sizeof(s), Q_Format("{} ", to_underlying(client->sess.spectatorState)).c_str());
+    Q_strcat(s, sizeof(s), Q_Format("{} ", client->sess.spectatorState).c_str());
     Q_strcat(s, sizeof(s), Q_Format("{} ", client->sess.spectatorClient).c_str());
     Q_strcat(s, sizeof(s), Q_Format("{} ", client->sess.wins).c_str());
     Q_strcat(s, sizeof(s), Q_Format("{} ", client->sess.losses).c_str());
     Q_strcat(s, sizeof(s), Q_Format("{:d} ", client->sess.teamLeader).c_str());
     Q_strcat(s, sizeof(s), Q_Format("{} ", client->sess.setForce).c_str());
-    Q_strcat(s, sizeof(s), Q_Format("{} ", to_underlying(client->sess.saberLevel)).c_str());
-    Q_strcat(s, sizeof(s), Q_Format("{} ", to_underlying(client->sess.selectedFP)).c_str());
-    Q_strcat(s, sizeof(s), Q_Format("{} ", to_underlying(client->sess.duelTeam)).c_str());
-    Q_strcat(s, sizeof(s), Q_Format("{} ", to_underlying(client->sess.siegeDesiredTeam)).c_str());
+    Q_strcat(s, sizeof(s), Q_Format("{} ", client->sess.saberLevel).c_str());
+    Q_strcat(s, sizeof(s), Q_Format("{} ", client->sess.selectedFP).c_str());
+    Q_strcat(s, sizeof(s), Q_Format("{} ", client->sess.duelTeam).c_str());
+    Q_strcat(s, sizeof(s), Q_Format("{} ", client->sess.siegeDesiredTeam).c_str());
     Q_strcat(s, sizeof(s), Q_Format("{} ", siegeClass).c_str());
     Q_strcat(s, sizeof(s), Q_Format("{}", IP).c_str());
 
@@ -274,7 +274,7 @@ void G_WriteSessionData(void)
 {
     int i;
 
-    trap->Cvar_Set("session", Q_Format("{}", to_underlying(level.gametype)).c_str());
+    trap->Cvar_Set("session", Q_Format("{}", level.gametype).c_str());
 
     for (i = 0; i < level.maxclients; i++) {
         if (level.clients[i].pers.connected == clientConnected_t::CON_CONNECTED) {

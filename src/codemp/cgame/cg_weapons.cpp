@@ -550,10 +550,10 @@ void CG_AddPlayerWeapon(refEntity_t* parent, playerState_t* ps, centity_t* cent,
     // Do special charge bits
     //-----------------------
     if ((ps || cg.renderingThirdPerson || cg.predictedPlayerState.clientNum != cent->currentState.number) &&
-        ((cent->currentState.modelindex2 == to_underlying(weaponstate_t::WEAPON_CHARGING_ALT) && cent->currentState.weapon == weapon_t::WP_BRYAR_PISTOL) ||
-         (cent->currentState.modelindex2 == to_underlying(weaponstate_t::WEAPON_CHARGING_ALT) && cent->currentState.weapon == weapon_t::WP_BRYAR_OLD) ||
-         (cent->currentState.weapon == weapon_t::WP_BOWCASTER && cent->currentState.modelindex2 == to_underlying(weaponstate_t::WEAPON_CHARGING)) ||
-         (cent->currentState.weapon == weapon_t::WP_DEMP2 && cent->currentState.modelindex2 == to_underlying(weaponstate_t::WEAPON_CHARGING_ALT)))) {
+        ((cent->currentState.modelindex2 == std::to_underlying(weaponstate_t::WEAPON_CHARGING_ALT) && cent->currentState.weapon == weapon_t::WP_BRYAR_PISTOL) ||
+         (cent->currentState.modelindex2 == std::to_underlying(weaponstate_t::WEAPON_CHARGING_ALT) && cent->currentState.weapon == weapon_t::WP_BRYAR_OLD) ||
+         (cent->currentState.weapon == weapon_t::WP_BOWCASTER && cent->currentState.modelindex2 == std::to_underlying(weaponstate_t::WEAPON_CHARGING)) ||
+         (cent->currentState.weapon == weapon_t::WP_DEMP2 && cent->currentState.modelindex2 == std::to_underlying(weaponstate_t::WEAPON_CHARGING_ALT)))) {
         int shader = 0;
         float val = 0.0f;
         float scale = 1.0f;
@@ -1295,7 +1295,7 @@ void CG_NextWeapon_f(void)
     cg.weaponSelectTime = cg.time;
     original = cg.weaponSelect;
 
-    for (i = 0; i < to_underlying(weapon_t::WP_NUM_WEAPONS); i++) {
+    for (i = 0; i < std::to_underlying(weapon_t::WP_NUM_WEAPONS); i++) {
         //*SIGH*... Hack to put concussion rifle before rocketlauncher
         if (cg.weaponSelect == weapon_t::WP_FLECHETTE) {
             cg.weaponSelect = weapon_t::WP_CONCUSSION;
@@ -1319,7 +1319,7 @@ void CG_NextWeapon_f(void)
             break;
         }
     }
-    if (i == to_underlying(weapon_t::WP_NUM_WEAPONS)) {
+    if (i == std::to_underlying(weapon_t::WP_NUM_WEAPONS)) {
         cg.weaponSelect = original;
     }
     else {
@@ -1355,7 +1355,7 @@ void CG_PrevWeapon_f(void)
     cg.weaponSelectTime = cg.time;
     original = cg.weaponSelect;
 
-    for (i = 0; i < to_underlying(weapon_t::WP_NUM_WEAPONS); i++) {
+    for (i = 0; i < std::to_underlying(weapon_t::WP_NUM_WEAPONS); i++) {
         //*SIGH*... Hack to put concussion rifle before rocketlauncher
         if (cg.weaponSelect == weapon_t::WP_ROCKET_LAUNCHER) {
             cg.weaponSelect = weapon_t::WP_CONCUSSION;
@@ -1379,7 +1379,7 @@ void CG_PrevWeapon_f(void)
             break;
         }
     }
-    if (i == to_underlying(weapon_t::WP_NUM_WEAPONS)) {
+    if (i == std::to_underlying(weapon_t::WP_NUM_WEAPONS)) {
         cg.weaponSelect = original;
     }
     else {

@@ -1821,7 +1821,7 @@ bool G_VoteGametype(gentity_t* ent, int numArgs, const char* arg1, const char* a
         }
     }
     // numeric but out of range
-    else if (number < 0 || number >= to_underlying(gametype_t::GT_MAX_GAME_TYPE)) {
+    else if (number < 0 || number >= std::to_underlying(gametype_t::GT_MAX_GAME_TYPE)) {
         trap->SendServerCommand(ent - g_entities, Q_Format("print \"Gametype ({}) is out of range, defaulting to FFA/Deathmatch\n\"", number).c_str());
         gt = gametype_t::GT_FFA;
     }
@@ -1838,7 +1838,7 @@ bool G_VoteGametype(gentity_t* ent, int numArgs, const char* arg1, const char* a
     level.votingGametype = true;
     level.votingGametypeTo = gt;
 
-    Q_FormatTo(level.voteString, "{} {}", arg1, to_underlying(gt));
+    Q_FormatTo(level.voteString, "{} {}", arg1, gt);
     Q_FormatTo(level.voteDisplayString, "{} {}", arg1, gameNames[gt]);
     Q_strncpyz(level.voteStringClean, level.voteString, sizeof(level.voteStringClean));
     return true;
@@ -2271,7 +2271,7 @@ void Cmd_CallTeamVote_f(gentity_t* ent)
     char arg1[MAX_CVAR_VALUE_STRING] = {0};
     char arg2[MAX_CVAR_VALUE_STRING] = {0};
 
-    if (g_gametype.integer < to_underlying(gametype_t::GT_TEAM)) {
+    if (g_gametype.integer < std::to_underlying(gametype_t::GT_TEAM)) {
         trap->SendServerCommand(ent - g_entities, "print \"Cannot call a team vote in a non-team gametype!\n\"");
         return;
     }
@@ -2503,14 +2503,14 @@ int G_ItemUsable(playerState_t* ps, holdable_t forcedUse)
         return 1;
     case holdable_t::HI_SEEKER:
         if (Any(ps->eFlags & entityFlags_t::EF_SEEKERDRONE)) {
-            G_AddEvent(&g_entities[ps->clientNum], entity_event_t::EV_ITEMUSEFAIL, to_underlying(itemUseFail_t::SEEKER_ALREADYDEPLOYED));
+            G_AddEvent(&g_entities[ps->clientNum], entity_event_t::EV_ITEMUSEFAIL, std::to_underlying(itemUseFail_t::SEEKER_ALREADYDEPLOYED));
             return 0;
         }
 
         return 1;
     case holdable_t::HI_SENTRY_GUN:
         if (ps->fd.sentryDeployed) {
-            G_AddEvent(&g_entities[ps->clientNum], entity_event_t::EV_ITEMUSEFAIL, to_underlying(itemUseFail_t::SENTRY_ALREADYPLACED));
+            G_AddEvent(&g_entities[ps->clientNum], entity_event_t::EV_ITEMUSEFAIL, std::to_underlying(itemUseFail_t::SENTRY_ALREADYPLACED));
             return 0;
         }
 
@@ -2534,7 +2534,7 @@ int G_ItemUsable(playerState_t* ps, holdable_t forcedUse)
         trap->Trace(&tr, ps->origin, mins, maxs, trtest, ps->clientNum, MASK_PLAYERSOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0);
 
         if ((tr.fraction != 1 && tr.entityNum != ps->clientNum) || tr.startsolid || tr.allsolid) {
-            G_AddEvent(&g_entities[ps->clientNum], entity_event_t::EV_ITEMUSEFAIL, to_underlying(itemUseFail_t::SENTRY_NOROOM));
+            G_AddEvent(&g_entities[ps->clientNum], entity_event_t::EV_ITEMUSEFAIL, std::to_underlying(itemUseFail_t::SENTRY_NOROOM));
             return 0;
         }
 
@@ -2560,7 +2560,7 @@ int G_ItemUsable(playerState_t* ps, holdable_t forcedUse)
                 return 1;
             }
         }
-        G_AddEvent(&g_entities[ps->clientNum], entity_event_t::EV_ITEMUSEFAIL, to_underlying(itemUseFail_t::SHIELD_NOROOM));
+        G_AddEvent(&g_entities[ps->clientNum], entity_event_t::EV_ITEMUSEFAIL, std::to_underlying(itemUseFail_t::SHIELD_NOROOM));
         return 0;
     case holdable_t::HI_JETPACK: // do something?
         return 1;
@@ -2989,7 +2989,7 @@ void Cmd_DebugSetSaberMove_f(gentity_t* self)
 
     const int move = atoi(arg);
 
-    if (move < to_underlying(saberMoveName_t::LS_NONE)) { // no move has a negative number
+    if (move < std::to_underlying(saberMoveName_t::LS_NONE)) { // no move has a negative number
         return;
     }
 

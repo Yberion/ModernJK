@@ -2263,7 +2263,7 @@ void G_MiscModelExplosion(vec3_t mins, vec3_t maxs, int size, material_t chunkTy
     VectorCopy(maxs, te->s.origin2);
     VectorCopy(mins, te->s.angles2);
     te->s.time = size;
-    te->s.eventParm = to_underlying(chunkType);
+    te->s.eventParm = std::to_underlying(chunkType);
 }
 
 void G_Chunks(int owner, vec3_t origin, const vec3_t normal, const vec3_t mins, const vec3_t maxs, float speed, int numChunks, material_t chunkType,
@@ -2279,7 +2279,7 @@ void G_Chunks(int owner, vec3_t origin, const vec3_t normal, const vec3_t mins, 
     VectorCopy(mins, te->s.angles2);
     te->s.speed = speed;
     te->s.eventParm = numChunks;
-    te->s.trickedentindex = to_underlying(chunkType);
+    te->s.trickedentindex = std::to_underlying(chunkType);
     te->s.modelindex = customChunk;
     te->s.apos.trBase[0] = baseScale;
 }

@@ -114,7 +114,7 @@ void G2Tur_SetBoneAngles(gentity_t* ent, const char* bone, vec3_t angles)
     forward = orientations_t::NEGATIVE_X;
 
     // first 3 bits is forward, second 3 bits is right, third 3 bits is up
-    ent->s.boneOrient = ((to_underlying(forward)) | (to_underlying(right) << 3) | (to_underlying(up) << 6));
+    ent->s.boneOrient = ((std::to_underlying(forward)) | (std::to_underlying(right) << 3) | (std::to_underlying(up) << 6));
 
     trap->G2API_SetBoneAngles(ent->ghoul2, 0, bone, angles, flags, up, right, forward, nullptr, 100, level.time);
 }

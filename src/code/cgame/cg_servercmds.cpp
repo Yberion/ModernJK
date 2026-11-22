@@ -125,7 +125,7 @@ static void CG_ConfigStringModified(void)
     // do something with it if necessary
     if (num == CS_ITEMS) {
         for (itemNum_t i = itemNum_t::ITM_NONE + 1; i < itemNum_t::ITM_NUM_ITEMS; i++) {
-            if (str[to_underlying(i)] == '1') {
+            if (str[std::to_underlying(i)] == '1') {
                 if (bg_itemlist[i].classname) {
                     CG_RegisterItemSounds(i);
                     CG_RegisterItemVisuals(i);

@@ -689,7 +689,7 @@ typedef struct trace_s {
 // A trace asked with G2TRFLAG_GETSURFINDEX that hits a ghoul2 model holds the index of the model's surface in surfaceFlags
 [[nodiscard]] inline int Trace_G2SurfaceIndex(const trace_t& tr)
 {
-    return static_cast<int>(to_underlying(tr.surfaceFlags));
+    return static_cast<int>(std::to_underlying(tr.surfaceFlags));
 }
 inline void Trace_SetG2SurfaceIndex(trace_t& tr, int surfaceIndex)
 {
@@ -1821,7 +1821,7 @@ String ID Tables
 
 ========================================================================
 */
-#define ENUM2STRING(type, arg) {#arg, to_underlying(type::arg)}
+#define ENUM2STRING(type, arg) {#arg, std::to_underlying(type::arg)}
 typedef struct stringID_table_s {
     const char* name;
     int id;

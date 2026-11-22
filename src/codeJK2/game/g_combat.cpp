@@ -635,17 +635,17 @@ void G_SetMissionStatusText(gentity_t* attacker, meansOfDeath_t mod)
     }
 
     if (mod == meansOfDeath_t::MOD_FALLING) { // fell to your death
-        statusTextIndex = to_underlying(statusText_t::STAT_WATCHYOURSTEP);
+        statusTextIndex = std::to_underlying(statusText_t::STAT_WATCHYOURSTEP);
     }
     else if (mod == meansOfDeath_t::MOD_CRUSH) { // crushed
-        statusTextIndex = to_underlying(statusText_t::STAT_JUDGEMENTMUCHDESIRED);
+        statusTextIndex = std::to_underlying(statusText_t::STAT_JUDGEMENTMUCHDESIRED);
     }
     else if (attacker && Q_stricmp("trigger_hurt", attacker->classname) == 0) { // Killed by something that should have been clearly dangerous
         //		statusTextIndex = Q_irand( IGT_JUDGEMENTDESIRED, IGT_JUDGEMENTMUCHDESIRED );
-        statusTextIndex = to_underlying(statusText_t::STAT_JUDGEMENTMUCHDESIRED);
+        statusTextIndex = std::to_underlying(statusText_t::STAT_JUDGEMENTMUCHDESIRED);
     }
     else if (attacker && attacker->s.number != 0 && attacker->client && attacker->client->playerTeam == team_t::TEAM_PLAYER) { // killed by a teammate
-        statusTextIndex = to_underlying(statusText_t::STAT_INSUBORDINATION);
+        statusTextIndex = std::to_underlying(statusText_t::STAT_INSUBORDINATION);
     }
 }
 
@@ -3433,7 +3433,7 @@ void player_die(gentity_t* self, gentity_t* inflictor, gentity_t* attacker, int 
             self->flags |= gentityFlags_t::FL_DISINTEGRATED;
             self->svFlags |= svFlags_t::SVF_BROADCAST;
             tent = G_TempEntity(spot, entity_event_t::EV_DISINTEGRATION);
-            tent->s.eventParm = to_underlying(powerup_t::PW_DISRUPTION);
+            tent->s.eventParm = std::to_underlying(powerup_t::PW_DISRUPTION);
             tent->svFlags |= svFlags_t::SVF_BROADCAST;
             tent->owner = self;
 

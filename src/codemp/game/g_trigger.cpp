@@ -258,8 +258,8 @@ void multi_trigger(gentity_t* ent, gentity_t* activator)
         }
 
         // Set the new owner and set the variable which will tell us to activate a team-specific target
-        ent->genericValue3 = to_underlying(newOwningTeam);
-        ent->genericValue4 = to_underlying(newOwningTeam);
+        ent->genericValue3 = std::to_underlying(newOwningTeam);
+        ent->genericValue4 = std::to_underlying(newOwningTeam);
     }
 
     if (haltTrigger) { // This is an objective trigger and the activator is not carrying an objective item that matches the targetname.

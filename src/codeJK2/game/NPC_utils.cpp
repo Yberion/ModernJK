@@ -802,7 +802,8 @@ bool G_ActivateBehavior(gentity_t* self, bSet_t bset)
 
         // FIXME: between here and actually getting into the ICARUS_RunScript function, the stack gets blown!
         if ((ICARUS_entFilter == -1) || (ICARUS_entFilter == self->s.number)) {
-            Q3_DebugPrintln(WL_e::WL_VERBOSE, "{} attempting to run bSet {} ({})", self->targetname, GetStringForID(BSETTable, to_underlying(bset)), bs_name);
+            Q3_DebugPrintln(WL_e::WL_VERBOSE, "{} attempting to run bSet {} ({})", self->targetname, GetStringForID(BSETTable, std::to_underlying(bset)),
+                            bs_name);
         }
         ICARUS_RunScript(self, Q_Format("{}/{}", Q3_SCRIPT_DIR, bs_name).c_str());
     }

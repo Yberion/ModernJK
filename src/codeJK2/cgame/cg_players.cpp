@@ -688,7 +688,7 @@ void CG_SetLerpFrameAnimation(clientInfo_t* ci, lerpFrame_t* lf, animNumber_t ne
 #ifdef FINAL_BUILD
         newAnimation = animNumber_t::BOTH_1CRUFTFORGIL;
 #else
-        Q_Error(errorParm_t::ERR_DROP, "Bad animation number: {}", to_underlying(newAnimation));
+        Q_Error(errorParm_t::ERR_DROP, "Bad animation number: {}", newAnimation);
 #endif
     }
 

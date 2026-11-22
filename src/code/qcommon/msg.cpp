@@ -488,7 +488,8 @@ void MSG_WriteDeltaUsercmd(msg_t* msg, usercmd_t* from, usercmd_t* to)
     MSG_WriteDelta(msg, from->forwardmove, to->forwardmove, -8);
     MSG_WriteDelta(msg, from->rightmove, to->rightmove, -8);
     MSG_WriteDelta(msg, from->upmove, to->upmove, -8);
-    MSG_WriteDelta(msg, to_underlying(from->buttons), to_underlying(to->buttons), 16); // FIXME:  We're only really using 9 bits...can this be changed to that?
+    MSG_WriteDelta(msg, std::to_underlying(from->buttons), std::to_underlying(to->buttons),
+                   16); // FIXME:  We're only really using 9 bits...can this be changed to that?
     MSG_WriteDelta(msg, from->weapon, to->weapon, 8);
     MSG_WriteDelta(msg, from->generic_cmd, to->generic_cmd, 8);
 }
@@ -508,7 +509,7 @@ void MSG_ReadDeltaUsercmd(msg_t* msg, usercmd_t* from, usercmd_t* to)
     to->rightmove = MSG_ReadDelta(msg, from->rightmove, -8);
     to->upmove = MSG_ReadDelta(msg, from->upmove, -8);
     to->buttons = static_cast<buttonFlags_t>(
-        MSG_ReadDelta(msg, to_underlying(from->buttons), 16)); // FIXME:  We're only really using 9 bits...can this be changed to that?
+        MSG_ReadDelta(msg, std::to_underlying(from->buttons), 16)); // FIXME:  We're only really using 9 bits...can this be changed to that?
     to->weapon = MSG_ReadDelta(msg, from->weapon, 8);
     to->generic_cmd = MSG_ReadDelta(msg, from->generic_cmd, 8);
 }

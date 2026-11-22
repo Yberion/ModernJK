@@ -289,14 +289,14 @@ void CL_WriteAVIHeader(void)
                         WRITE_2BYTES(0);                // rcFrame
 
                         WRITE_STRING("strf");
-                        WRITE_4BYTES(18);                            //"strf" "chunk" size
-                        WRITE_2BYTES(to_underlying(afd.a.format));   // wFormatTag
-                        WRITE_2BYTES(afd.a.channels);                // nChannels
-                        WRITE_4BYTES(afd.a.rate);                    // nSamplesPerSec
-                        WRITE_4BYTES(afd.a.sampleSize * afd.a.rate); // nAvgBytesPerSec
-                        WRITE_2BYTES(afd.a.sampleSize);              // nBlockAlign
-                        WRITE_2BYTES(afd.a.bits);                    // wBitsPerSample
-                        WRITE_2BYTES(0);                             // cbSize
+                        WRITE_4BYTES(18);                               //"strf" "chunk" size
+                        WRITE_2BYTES(std::to_underlying(afd.a.format)); // wFormatTag
+                        WRITE_2BYTES(afd.a.channels);                   // nChannels
+                        WRITE_4BYTES(afd.a.rate);                       // nSamplesPerSec
+                        WRITE_4BYTES(afd.a.sampleSize * afd.a.rate);    // nAvgBytesPerSec
+                        WRITE_2BYTES(afd.a.sampleSize);                 // nBlockAlign
+                        WRITE_2BYTES(afd.a.bits);                       // wBitsPerSample
+                        WRITE_2BYTES(0);                                // cbSize
                     }
                     END_CHUNK();
                 }

@@ -741,7 +741,7 @@ void G_MissileImpact(gentity_t* ent, trace_t* trace, hitLocation_t hitLoc = hitL
                 }
                 if (blockChance &&
                     (other->owner->client->ps.forcePowersActive & Bit(forcePowers_t::FP_SPEED))) { // in in force speed, better chance of deflecting the shot
-                    blockChance += to_underlying(other->owner->client->ps.forcePowerLevel[forcePowers_t::FP_SPEED]) * 2;
+                    blockChance += std::to_underlying(other->owner->client->ps.forcePowerLevel[forcePowers_t::FP_SPEED]) * 2;
                 }
                 if (Q_irand(0, blockChance)) {
                     VectorSubtract(ent->currentOrigin, other->currentOrigin, diff);
@@ -1226,8 +1226,8 @@ void G_RunMissile(gentity_t* ent)
             // check for hitting a lightsaber
             if (Any(other->contents & contentsFlags_t::CONTENTS_LIGHTSABER)) { // hit a lightsaber bbox
                 if (other->owner && other->owner->client && !other->owner->client->ps.saberInFlight &&
-                    (Q_irand(0, (to_underlying(other->owner->client->ps.forcePowerLevel[forcePowers_t::FP_SABER_DEFENSE]) *
-                                 to_underlying(other->owner->client->ps.forcePowerLevel[forcePowers_t::FP_SABER_DEFENSE]))) == 0 ||
+                    (Q_irand(0, (std::to_underlying(other->owner->client->ps.forcePowerLevel[forcePowers_t::FP_SABER_DEFENSE]) *
+                                 std::to_underlying(other->owner->client->ps.forcePowerLevel[forcePowers_t::FP_SABER_DEFENSE]))) == 0 ||
                      !InFront(ent->currentOrigin, other->owner->currentOrigin, other->owner->client->ps.viewangles,
                               SABER_REFLECT_MISSILE_CONE))) // other->owner->s.number == 0 &&
                 {                                           // Jedi cannot block shots from behind!

@@ -1330,7 +1330,7 @@ void ClientCommand(int clientNum)
         }
 
         int addStyle = GetIDForString(SaberStyleTable, gi.argv(1));
-        if (addStyle > to_underlying(saber_styles_t::SS_NONE) && addStyle < to_underlying(saber_styles_t::SS_STAFF)) {
+        if (addStyle > std::to_underlying(saber_styles_t::SS_NONE) && addStyle < std::to_underlying(saber_styles_t::SS_STAFF)) {
             ent->client->ps.saberStylesKnown |= (1 << addStyle);
         }
     }
@@ -1346,7 +1346,7 @@ void ClientCommand(int clientNum)
         }
 
         int setStyle = GetIDForString(SaberStyleTable, gi.argv(1));
-        if (setStyle > to_underlying(saber_styles_t::SS_NONE) && setStyle < to_underlying(saber_styles_t::SS_STAFF)) {
+        if (setStyle > std::to_underlying(saber_styles_t::SS_NONE) && setStyle < std::to_underlying(saber_styles_t::SS_STAFF)) {
             ent->client->ps.saberStylesKnown = (1 << setStyle);
             cg.saberAnimLevelPending = ent->client->ps.saberAnimLevel = static_cast<saber_styles_t>(setStyle);
         }

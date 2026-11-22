@@ -1218,7 +1218,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
     event = BG_UnpackEvent(es->event);
 
     if (cg_debugEvents.integer) {
-        Q_Print("ent:{:3}  event:{:3} ", es->number, to_underlying(event));
+        Q_Print("ent:{:3}  event:{:3} ", es->number, event);
     }
 
     if (event == entity_event_t::EV_NONE) {
@@ -1855,12 +1855,12 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
             else {
                 weapon_t weap = weapon_t::WP_NONE;
 
-                if (es->eventParm && es->eventParm < to_underlying(weapon_t::WP_NUM_WEAPONS)) {
+                if (es->eventParm && es->eventParm < std::to_underlying(weapon_t::WP_NUM_WEAPONS)) {
                     cg.snap->ps.stats[statIndex_t::STAT_WEAPONS] &= ~(1 << es->eventParm);
                     weap = cg.snap->ps.weapon;
                 }
                 else if (es->eventParm) {
-                    weap = static_cast<weapon_t>(es->eventParm - to_underlying(weapon_t::WP_NUM_WEAPONS));
+                    weap = static_cast<weapon_t>(es->eventParm - std::to_underlying(weapon_t::WP_NUM_WEAPONS));
                 }
                 CG_OutOfAmmoChange(weap);
             }
@@ -2894,8 +2894,8 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
 
     case entity_event_t::EV_GENERAL_SOUND:
         DEBUGNAME("EV_GENERAL_SOUND");
-        if (es->saberEntityNum == to_underlying(trackchan_t::TRACK_CHANNEL_2) || es->saberEntityNum == to_underlying(trackchan_t::TRACK_CHANNEL_3) ||
-            es->saberEntityNum == to_underlying(trackchan_t::TRACK_CHANNEL_5)) { // channels 2 and 3 are for speed and rage, 5 for sight
+        if (es->saberEntityNum == std::to_underlying(trackchan_t::TRACK_CHANNEL_2) || es->saberEntityNum == std::to_underlying(trackchan_t::TRACK_CHANNEL_3) ||
+            es->saberEntityNum == std::to_underlying(trackchan_t::TRACK_CHANNEL_5)) { // channels 2 and 3 are for speed and rage, 5 for sight
             if (cgs.gameSounds[es->eventParm]) {
                 CG_S_AddRealLoopingSound(es->number, es->pos.trBase, vec3_origin, cgs.gameSounds[es->eventParm]);
             }
@@ -3146,7 +3146,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
 
     default:
         DEBUGNAME("UNKNOWN");
-        Q_Error(errorParm_t::ERR_DROP, "Unknown event: {}", to_underlying(event));
+        Q_Error(errorParm_t::ERR_DROP, "Unknown event: {}", event);
         break;
     }
 }

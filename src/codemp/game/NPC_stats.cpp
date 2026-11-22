@@ -117,7 +117,7 @@ stringID_table_t BSTable[] = {
     {"", -1},
 };
 
-#define stringIDExpand(str, type, strEnum) {str, to_underlying(type::strEnum)}, ENUM2STRING(type, strEnum)
+#define stringIDExpand(str, type, strEnum) {str, std::to_underlying(type::strEnum)}, ENUM2STRING(type, strEnum)
 
 stringID_table_t BSETTable[] = {
     ENUM2STRING(bSet_t, BSET_SPAWN),     // # script to use when first spawned
@@ -2162,7 +2162,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                         SkipRestOfLine(&p);
                         continue;
                     }
-                    if (n < to_underlying(bState_t::BS_DEFAULT) || n >= to_underlying(bState_t::NUM_BSTATES)) {
+                    if (n < std::to_underlying(bState_t::BS_DEFAULT) || n >= std::to_underlying(bState_t::NUM_BSTATES)) {
                         Q_PrintlnWarning("bad {} in NPC '{}'", token, NPCName);
                         continue;
                     }
@@ -2391,7 +2391,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     for (n = 0; n < MAX_BLADES; n++) {
                         NPC->client->saber[0].blade[n].color = color;
                         NPC->s.boltToPlayer = NPC->s.boltToPlayer & 0x38; //(111000)
-                        NPC->s.boltToPlayer += (to_underlying(color) + 1);
+                        NPC->s.boltToPlayer += (std::to_underlying(color) + 1);
                     }
                 }
                 continue;
@@ -2476,7 +2476,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     for (n = 0; n < MAX_BLADES; n++) {
                         NPC->client->saber[1].blade[n].color = color;
                         NPC->s.boltToPlayer = NPC->s.boltToPlayer & 0x7; //(000111)
-                        NPC->s.boltToPlayer += ((to_underlying(color) + 1) << 3);
+                        NPC->s.boltToPlayer += ((std::to_underlying(color) + 1) << 3);
                     }
                 }
                 continue;

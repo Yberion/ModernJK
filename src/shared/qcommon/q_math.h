@@ -155,7 +155,7 @@ enum class planeType_t : uint8_t { // a byte of cplane_t
 [[nodiscard]] constexpr int PlaneAxis(planeType_t type)
 {
     assert(type < planeType_t::PLANE_NON_AXIAL);
-    return to_underlying(type);
+    return std::to_underlying(type);
 }
 
 // plane_t structure

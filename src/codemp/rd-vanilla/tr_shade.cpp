@@ -1405,8 +1405,7 @@ static void ComputeTexCoords(shaderStage_t* pStage)
                 break;
 
             default:
-                Q_Error(errorParm_t::ERR_DROP, "ERROR: unknown texmod '{}' in shader '{}'", to_underlying(pStage->bundle[b].texMods[tm].type),
-                        tess.shader->name);
+                Q_Error(errorParm_t::ERR_DROP, "ERROR: unknown texmod '{}' in shader '{}'", pStage->bundle[b].texMods[tm].type, tess.shader->name);
                 break;
             }
         }
@@ -1504,7 +1503,7 @@ static void RB_IterateStagesGeneric(shaderCommands_t* input)
         stateBits = pStage->stateBits;
 
         if (backEnd.currentEntity) {
-            assert(to_underlying(backEnd.currentEntity->e.renderfx) >= 0);
+            assert(std::to_underlying(backEnd.currentEntity->e.renderfx) >= 0);
 
             if (Any(backEnd.currentEntity->e.renderfx & renderFxFlags_t::RF_DISINTEGRATE1)) {
                 // we want to be able to rip a hole in the thing being disintegrated, and by doing the depth-testing it avoids some kinds of artefacts, but will

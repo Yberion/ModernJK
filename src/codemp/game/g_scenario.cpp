@@ -133,7 +133,7 @@ extern EnumArray<const char*, meansOfDeath_t, meansOfDeath_t::MOD_MAX> modNames;
 extern void Rancor_DropVictim(gentity_t* self);
 extern void AI_DeleteSelfFromGroup(gentity_t* self);
 extern void G_GetBoltPosition(gentity_t* self, int boltIndex, vec3_t pos, int modelIndex);
-extern const char* hitLocName[to_underlying(hitLocation_t::HL_MAX)];
+extern const char* hitLocName[std::to_underlying(hitLocation_t::HL_MAX)];
 
 constexpr int SCN_REP_MSEC = 2000;        // one repetition
 constexpr int SCN_SETTLE_MSEC = 500;      // still, after the reset, before the script starts
@@ -275,7 +275,7 @@ static struct {
     // the NPCs, by role: the instants held by a monster, as the NPC's enemy and in a pain animation
     int heldByMonster[3], npcEnemy[3], inPain[3];
     // the shots, by role: the hits by location (G_LocationBasedDamageModifier)
-    int hitLocations[3][to_underlying(hitLocation_t::HL_MAX)];
+    int hitLocations[3][std::to_underlying(hitLocation_t::HL_MAX)];
     // the previous instant's values, from the reset on
     int health[3], force[3];
     vec3_t origin[3], start[3];
@@ -1084,7 +1084,7 @@ void G_ScenarioPrintStats(void)
     Q_strncpyz(line, "hit location statistics: hits by location, by role:", sizeof(line));
     for (int n = 0; n < scn.numClients; n++) {
         Q_strcat(line, sizeof(line), Q_Format("{} {}", n ? "," : "", roles[n]).c_str());
-        for (int k = 1; k < to_underlying(hitLocation_t::HL_MAX); k++) {
+        for (int k = 1; k < std::to_underlying(hitLocation_t::HL_MAX); k++) {
             if (scnStats.hitLocations[n][k]) {
                 char name[MAX_QPATH];
 
@@ -1109,7 +1109,7 @@ void G_ScenarioHitLocation(const gentity_t* targ, hitLocation_t hitLoc)
     }
     for (int n = 0; n < scn.numClients; n++) {
         if (scn.client[n] == targ->s.number) {
-            scnStats.hitLocations[n][to_underlying(hitLoc)]++;
+            scnStats.hitLocations[n][std::to_underlying(hitLoc)]++;
             return;
         }
     }
@@ -1651,9 +1651,9 @@ void G_ScenarioTrace(void)
         const bladeInfo_t* blade = &ent->client->saber[0].blade[0];
 
         Q_Println("SCN {} {:4} {} cmd{:+} hp{} fp{} mv{} blk{} wt{} ta{} tt{} la{} lt{} o{:.1f},{:.1f},{:.1f} m{:.1f},{:.1f},{:.1f}", scn.rep,
-                  level.time - scn.repStart, "ADT"[n], ps->commandTime - level.time, ent->health, ps->fd.forcePower, to_underlying(ps->saberMove),
-                  to_underlying(ps->saberBlocked), ps->weaponTime, to_underlying(ps->torsoAnim), ps->torsoTimer, to_underlying(ps->legsAnim), ps->legsTimer,
-                  ps->origin[0], ps->origin[1], ps->origin[2], blade->muzzlePoint[0], blade->muzzlePoint[1], blade->muzzlePoint[2]);
+                  level.time - scn.repStart, "ADT"[n], ps->commandTime - level.time, ent->health, ps->fd.forcePower, ps->saberMove, ps->saberBlocked,
+                  ps->weaponTime, ps->torsoAnim, ps->torsoTimer, ps->legsAnim, ps->legsTimer, ps->origin[0], ps->origin[1], ps->origin[2],
+                  blade->muzzlePoint[0], blade->muzzlePoint[1], blade->muzzlePoint[2]);
     }
 }
 
@@ -1664,9 +1664,9 @@ void G_ScenarioDamageTrace(gentity_t* targ, gentity_t* inflictor, const vec3_t p
         return;
     }
     Q_Println("SCN {} {:4} dmg tick{:+} targ{} take{} mod{} surf{}@{:+} inf{} p{:.1f},{:.1f},{:.1f} io{:.1f},{:.1f},{:.1f}", scn.rep, level.time - scn.repStart,
-              level.tickTime - level.time, targ->s.number, take, to_underlying(mod), targ->client->g2LastSurfaceHit,
-              targ->client->g2LastSurfaceTime - level.time, inflictor ? inflictor->s.number : -1, point ? point[0] : 0.0f, point ? point[1] : 0.0f,
-              point ? point[2] : 0.0f, inflictor ? inflictor->r.currentOrigin[0] : 0.0f, inflictor ? inflictor->r.currentOrigin[1] : 0.0f,
+              level.tickTime - level.time, targ->s.number, take, mod, targ->client->g2LastSurfaceHit, targ->client->g2LastSurfaceTime - level.time,
+              inflictor ? inflictor->s.number : -1, point ? point[0] : 0.0f, point ? point[1] : 0.0f, point ? point[2] : 0.0f,
+              inflictor ? inflictor->r.currentOrigin[0] : 0.0f, inflictor ? inflictor->r.currentOrigin[1] : 0.0f,
               inflictor ? inflictor->r.currentOrigin[2] : 0.0f);
 }
 
@@ -2002,7 +2002,7 @@ bool G_ScenarioCommand(int clientNum, int t, usercmd_t* ucmd)
         case forcePowers_t::FP_TELEPATHY:
         case forcePowers_t::FP_TEAM_HEAL:
         case forcePowers_t::FP_TEAM_FORCE: // instant powers: used three times, the button released in between
-            ucmd->forcesel = to_underlying(scn.power);
+            ucmd->forcesel = std::to_underlying(scn.power);
             ent->client->ps.fd.forcePowerSelected = scn.power;
             if (phase < 1250 && phase % 600 < 50)
                 ucmd->buttons = buttonFlags_t::BUTTON_FORCEPOWER;
@@ -2014,7 +2014,7 @@ bool G_ScenarioCommand(int clientNum, int t, usercmd_t* ucmd)
             }
             break;
         case forcePowers_t::FP_SPEED: // switched on, then a run to the right
-            ucmd->forcesel = to_underlying(scn.power);
+            ucmd->forcesel = std::to_underlying(scn.power);
             ent->client->ps.fd.forcePowerSelected = scn.power;
             if (phase < 50)
                 ucmd->buttons = buttonFlags_t::BUTTON_FORCEPOWER;
@@ -2026,7 +2026,7 @@ bool G_ScenarioCommand(int clientNum, int t, usercmd_t* ucmd)
                 ucmd->buttons = buttonFlags_t::BUTTON_ALT_ATTACK;
             break;
         default: // powers used on oneself: switched on once, held until the next reset
-            ucmd->forcesel = to_underlying(scn.power);
+            ucmd->forcesel = std::to_underlying(scn.power);
             ent->client->ps.fd.forcePowerSelected = scn.power;
             if (phase < 50)
                 ucmd->buttons = buttonFlags_t::BUTTON_FORCEPOWER;
@@ -2580,7 +2580,7 @@ void Svcmd_Scenario_f(void)
             scn.spawned[0] = scn.pickup = G_ScenarioSpawn(scn.itemClass, at, scn.yaw, 0, 0);
         }
         else if (level.gametype == gametype_t::GT_HOLOCRON && scn.type == scenarioType_t::SCN_FORCE) {
-            scn.spawned[0] = scn.pickup = G_ScenarioSpawn("misc_holocron", at, scn.yaw, 0, to_underlying(scn.power));
+            scn.spawned[0] = scn.pickup = G_ScenarioSpawn("misc_holocron", at, scn.yaw, 0, std::to_underlying(scn.power));
         }
         else if (level.gametype == gametype_t::GT_JEDIMASTER && gJMSaberEnt && gJMSaberEnt->inuse) {
             scn.pickup = gJMSaberEnt;

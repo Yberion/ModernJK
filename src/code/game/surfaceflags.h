@@ -75,11 +75,11 @@ inline constexpr int MATERIAL_MASK = 0x1f; // mask to get the material type
 // A surface's material is a number in the low MATERIAL_BITS bits of its flags (an index of the material tables)
 [[nodiscard]] inline surfaceMaterial_t SURF_Material(surfaceFlags_t flags)
 {
-    return static_cast<surfaceMaterial_t>(to_underlying(flags) & MATERIAL_MASK);
+    return static_cast<surfaceMaterial_t>(std::to_underlying(flags) & MATERIAL_MASK);
 }
 [[nodiscard]] inline surfaceFlags_t SURF_MaterialBits(surfaceMaterial_t material)
 {
-    return static_cast<surfaceFlags_t>(to_underlying(material));
+    return static_cast<surfaceFlags_t>(std::to_underlying(material));
 }
 
 // Defined as a macro here so one change will affect all the relevant files

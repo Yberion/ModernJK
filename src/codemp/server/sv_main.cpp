@@ -522,7 +522,7 @@ void SVC_Info(const netadr_t* from)
     Info_SetValueForKey(infostring, "gametype", Q_Format("{}", sv_gametype->integer).c_str());
     Info_SetValueForKey(infostring, "needpass", Q_Format("{}", sv_needpass->integer).c_str());
     Info_SetValueForKey(infostring, "truejedi", Q_Format("{}", Cvar_VariableIntegerValue("g_jediVmerc")).c_str());
-    if (sv_gametype->integer == to_underlying(gametype_t::GT_DUEL) || sv_gametype->integer == to_underlying(gametype_t::GT_POWERDUEL)) {
+    if (sv_gametype->integer == std::to_underlying(gametype_t::GT_DUEL) || sv_gametype->integer == std::to_underlying(gametype_t::GT_POWERDUEL)) {
         wDisable = Cvar_VariableIntegerValue("g_duelWeaponDisable");
     }
     else {

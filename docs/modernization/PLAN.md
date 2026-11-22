@@ -442,7 +442,7 @@ Depends on: step 19. Decided on 19 November 2026, taken out of step 15 (its part
 - The build (19 November 2026): OpenAL Soft's backends required, `ALSOFT_REQUIRE_PIPEWIRE`, `ALSOFT_REQUIRE_PULSEAUDIO` and `ALSOFT_REQUIRE_ALSA` on Linux, `ALSOFT_REQUIRE_WASAPI` on Windows: a build machine without a backend's headers fails at configuration (`Failed to enable required PipeWire backend`) instead of making a binary without that backend, which no player could then use. The repository's README lists the Linux development packages the build needs for them. A player needs only the runtime library of the system's own sound server, loaded at run time (`ALSOFT_DLOPEN`, on by default).
 - Check: on Windows 11 and Linux (PipeWire, PulseAudio), in multiplayer and in both single-player games: every sound, the music and its transitions, the lip sync, the cinematics, the reverb by zone; the default device followed; muted without the focus; the video recorder's sound; no setting needed.
 
-### ⏳ Step 22: the printing functions on {fmt} (M)
+### ✅ Step 22: the printing functions on {fmt} (M)
 
 Depends on: step 19 (C++23). Added on 20 November 2026: every printf-like function of every tree (`Com_Printf`, `Com_sprintf`, `va`, the modules' printing functions and the others) written on {fmt} (https://github.com/fmtlib/fmt), vendored in `libs/` at a pinned release like the other libraries; chosen over the standard library's `std::format` and `std::print` (C++20 and C++23, which come from {fmt}): one implementation on every compiler rather than three standard libraries' (decided 20 November 2026). Nothing else is decided: a survey first (the calls and their number, {fmt}'s release, its checking of the format strings at compile time, the size and the speed against today's functions, what becomes of the format attributes of step 18), its decisions, then the parts. Done right after step 19, before step 21 (decided 21 November 2026). Started on 22 November 2026.
 
@@ -475,7 +475,7 @@ Depends on: step 19 (C++23). Added on 20 November 2026: every printf-like functi
   1. ✅ {fmt} vendored and measured. Done on 22 November 2026 ([progress/step-22-fmt.md](progress/step-22-fmt.md) section 6: 12.2.1 in `libs/fmt` with one patch, MSVC's `strlen`; the same text as `snprintf` on the three compilers and faster but for the strings with a width, MSVC's `%03i` and `va`'s texts above 255 characters; `va`'s texts measured in game, `va` decided);
   2. ✅ the calls made the same on the header's functions, in the printf syntax still, checked by the format attributes. Done on 22 November 2026 ([progress/step-22-fmt.md](progress/step-22-fmt.md) section 7: `q_fmt.h`, one `Print` and one `Error` in every import table, 3,062 calls rewritten, every printing function with the format attribute; every target built with clang without a warning, `golden: SAME`), the VM validations ALL OK without a warning (`validate.sh`: GCC 15 and Clang 23; `validate.bat`: MSVC), the check in game passed;
   3. ✅ the syntax converted (clang-tidy one function at a time, a script of the project for `Com_sprintf`), the attributes removed; the formats read at run time and the format errors (moved from part 4 on 22 November 2026); the game's sizes, build times and the server's CPU on the VPS measured. Written and checked on this machine on 22 November 2026 ([progress/step-22-fmt.md](progress/step-22-fmt.md) section 8: every call on {fmt}'s syntax, clang Release and Debug without a warning, `golden: SAME` and the scenarios' logs identical to part 2's); its first VM validations failed, and the verification round that followed (section 8.4) fixed four pointers into dead texts, the single player's saved games broken by a null C string (decided then: written `(null)`, as printf did), MSVC's refusal of `fmt::print` in netcodec and what the conversion tools left; then the VM validations ALL OK without a warning (`validate.sh`: GCC 15 and Clang 23; `validate.bat`: MSVC), the sizes (100 to 300 KB more per binary) and the server's CPU (0.1 to 0.8 % more, the code's layout: accepted on 22 November 2026, section 8.7) measured, the check in game passed. Done on 22 November 2026;
-  4. ⏳ the enums.
+  4. ✅ the enums. Done on 22 November 2026 ([progress/step-22-fmt.md](progress/step-22-fmt.md) section 9: `q_enum.h`'s `format_as`, 278 conversions removed from the prints; C++23's `std::to_underlying` in place of the project's copy, 1,393 calls; clang Release and Debug without a warning, `golden: SAME`, the scenarios' logs identical to part 3's), the VM validations ALL OK without a warning (`validate.sh`: GCC 15 and Clang 23; `validate.bat`: MSVC).
 - Check: every part built on the three compilers without a warning, `golden: SAME`; the server's CPU on the VPS no slower.
 
 ### ⏳ Step 23: the warnings (L)
@@ -514,7 +514,8 @@ Depends on: step 25 (the renderer draws the text: `rd-common/tr_font.cpp`, `RE_F
 Depends on: step 22 (the printing functions on {fmt}). Added on 22 November 2026, during step 22's survey: the engine's and the modules' logs (the console log `qconsole.log`, the game's `games.log`, the server's `security.log`, the `developer` level and the levels the printing functions carry today: the renderers' print levels, the bot library's message types, ICARUS's debug levels) on one system, with levels, files and their rotation. {fmt} formats and writes but has no logging; spdlog (https://github.com/gabime/spdlog) is the logging library built on {fmt}.
 
 - Left here by step 22 (decided 22 November 2026, before its part 2): where `G_LogPrintf`, `G_SecurityLogPrintf`, the bot library's `Log_Write` and `FS_Printf` write, their levels and time stamps (their format syntax moves to {fmt} in step 22); the debug channels' own levels and conditions (ICARUS's `WL_e` and `e_DebugPrintLevel` with `g_ICARUSDebug` and `developer`, `Debug_Printf`'s `aiDebugLevel_t` with its cvars); the 381 messages that carry only a colour (red or yellow, no word), listed in [progress/step-22-fmt.md](progress/step-22-fmt.md) section 7, to sort into levels.
-- First a survey with sources: what recent games and engines do for their logs, spdlog and the other libraries, or the project's own on step 22's header; then its decisions and its place in the order.
+- Its place (decided 22 November 2026): at the end of the plan, perhaps after step 28.
+- First a survey with sources: what recent games and engines do for their logs, spdlog and the other libraries, or the project's own on step 22's header; then its decisions.
 - Check: to decide with the step.
 
 ### ⏳ Step 28: the game under the sanitizers (M)
@@ -526,7 +527,7 @@ Depends on: step 19 (the sanitizer presets). Added on 22 November 2026, from ste
 
 ## 3. Order at a glance
 
-Order of work (10 November 2026): step 14 comes right after step 11, before steps 12 (encryption, not wanted for now) and 13 (retraining on recordings of this build). Then (15 November 2026): steps 17, 18 and 19, in that order, before step 15. Step 20 (18 November 2026) comes between steps 18 and 19. Step 21 (19 November 2026), the sound taken out of step 15, comes between steps 19 and 15. Step 22 (20 November 2026), the printing functions on {fmt}, comes right after step 19, before step 21 (21 November 2026). Step 23 (21 November 2026), the warnings, taken out of step 19, comes last, after steps 22, 21 and 15. Steps 24 (the map's BSP and the traces), 25 (a Vulkan renderer) and 26 (the fonts and Unicode), added on 21 November 2026, come after step 15, in that order, and step 23 stays last, after them (decided the same day). Step 27 (the logs, 22 November 2026) comes after step 22; its place is decided with its survey. Step 28 (the game under the sanitizers, 22 November 2026) has its place decided at its start.
+Order of work (10 November 2026): step 14 comes right after step 11, before steps 12 (encryption, not wanted for now) and 13 (retraining on recordings of this build). Then (15 November 2026): steps 17, 18 and 19, in that order, before step 15. Step 20 (18 November 2026) comes between steps 18 and 19. Step 21 (19 November 2026), the sound taken out of step 15, comes between steps 19 and 15. Step 22 (20 November 2026), the printing functions on {fmt}, comes right after step 19, before step 21 (21 November 2026). Step 23 (21 November 2026), the warnings, taken out of step 19, comes last, after steps 22, 21 and 15. Steps 24 (the map's BSP and the traces), 25 (a Vulkan renderer) and 26 (the fonts and Unicode), added on 21 November 2026, come after step 15, in that order, and step 23 stays last, after them (decided the same day). Step 27 (the logs, 22 November 2026) comes at the end, perhaps after step 28 (decided 22 November 2026). Step 28 (the game under the sanitizers, 22 November 2026) has its place decided at its start.
 
 | step | what | depends on | effort | state |
 |---|---|---|---|---|
@@ -551,12 +552,12 @@ Order of work (10 November 2026): step 14 comes right after step 11, before step
 | 19 | a modern CMake project | 18 | M | ✅ |
 | 20 | the scripted scenarios widened (after step 18, before step 19) | 18 | M | ✅ |
 | 21 | the sound on OpenAL Soft, in every tree (after steps 19 and 22, before step 15) | 19 | L | ⏳ |
-| 22 | the printing functions on {fmt} (right after step 19, before step 21) | 19 | M | ⏳ |
+| 22 | the printing functions on {fmt} (right after step 19, before step 21) | 19 | M | ✅ |
 | 23 | the warnings (last, after steps 22, 21, 15, 24, 25 and 26) | 19 | L | ⏳ |
 | 24 | the map's BSP and the traces (after step 15) | 19 | L | ⏳ |
 | 25 | a Vulkan renderer for the single player and the multiplayer (after step 24) | 15 | L | ⏳ |
 | 26 | the fonts and Unicode (after step 25) | 15, 25 | M to L | ⏳ |
-| 27 | the logs (after step 22, its place decided with its survey) | 22 | M | ⏳ |
+| 27 | the logs (at the end, perhaps after step 28) | 22 | M | ⏳ |
 | 28 | the game under the sanitizers (its place decided at its start) | 19 | M | ⏳ |
 
 ## 4. Test matrix

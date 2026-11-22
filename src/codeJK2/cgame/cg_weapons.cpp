@@ -1460,7 +1460,7 @@ void CG_DrawDataPadWeaponSelect(void)
     cgi_R_SetColor(nullptr);
 
     //	char buffer[256];
-    //	cgi_UI_GetItemText("datapadWeaponsMenu",Q_Format("weapondesc{}", to_underlying( cg.DataPadWeaponSelect )+1).c_str(),buffer);
+    //	cgi_UI_GetItemText("datapadWeaponsMenu",Q_Format("weapondesc{}", std::to_underlying( cg.DataPadWeaponSelect )+1).c_str(),buffer);
 
     if (weaponData[cg.DataPadWeaponSelect].weaponIcon[0]) {
         weaponInfo_t* weaponInfo;
@@ -1873,7 +1873,7 @@ bool CG_WeaponSelectable(weapon_t i, weapon_t original, bool dpMode)
 
     if (i > MAX_PLAYER_WEAPONS) {
 #ifndef FINAL_BUILD
-        Q_Println("CG_WeaponSelectable() passed illegal index of {}!", to_underlying(i));
+        Q_Println("CG_WeaponSelectable() passed illegal index of {}!", i);
 #endif
         return false;
     }
@@ -1987,7 +1987,7 @@ void CG_NextWeapon_f(void)
 
     original = cg.weaponSelect;
 
-    for (i = 0; i <= to_underlying(MAX_PLAYER_WEAPONS); i++) {
+    for (i = 0; i <= std::to_underlying(MAX_PLAYER_WEAPONS); i++) {
         cg.weaponSelect++;
 
         if (cg.weaponSelect < FIRST_WEAPON || cg.weaponSelect > MAX_PLAYER_WEAPONS) {
@@ -2025,7 +2025,7 @@ void CG_DPNextWeapon_f(void)
 
     original = cg.DataPadWeaponSelect;
 
-    for (i = 0; i <= to_underlying(MAX_PLAYER_WEAPONS); i++) {
+    for (i = 0; i <= std::to_underlying(MAX_PLAYER_WEAPONS); i++) {
         cg.DataPadWeaponSelect++;
 
         if (cg.DataPadWeaponSelect < FIRST_WEAPON || cg.DataPadWeaponSelect > MAX_PLAYER_WEAPONS) {
@@ -2063,7 +2063,7 @@ void CG_DPPrevWeapon_f(void)
 
     original = cg.DataPadWeaponSelect;
 
-    for (i = 0; i <= to_underlying(MAX_PLAYER_WEAPONS); i++) {
+    for (i = 0; i <= std::to_underlying(MAX_PLAYER_WEAPONS); i++) {
         cg.DataPadWeaponSelect--;
         if (cg.DataPadWeaponSelect < FIRST_WEAPON || cg.DataPadWeaponSelect > MAX_PLAYER_WEAPONS) {
             cg.DataPadWeaponSelect = MAX_PLAYER_WEAPONS;
@@ -2122,7 +2122,7 @@ void CG_PrevWeapon_f(void)
 
     original = cg.weaponSelect;
 
-    for (i = 0; i <= to_underlying(MAX_PLAYER_WEAPONS); i++) {
+    for (i = 0; i <= std::to_underlying(MAX_PLAYER_WEAPONS); i++) {
         cg.weaponSelect--;
         if (cg.weaponSelect < FIRST_WEAPON || cg.weaponSelect > MAX_PLAYER_WEAPONS) {
             cg.weaponSelect = MAX_PLAYER_WEAPONS;

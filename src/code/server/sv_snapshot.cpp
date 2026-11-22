@@ -163,7 +163,7 @@ static void SV_WriteSnapshotToClient(client_t* client, msg_t* msg)
         }
     }
 
-    MSG_WriteByte(msg, to_underlying(svc_ops_e::svc_snapshot));
+    MSG_WriteByte(msg, std::to_underlying(svc_ops_e::svc_snapshot));
 
     // let the client know which reliable clientCommands we have received
     MSG_WriteLong(msg, client->lastClientCommand);
@@ -181,7 +181,7 @@ static void SV_WriteSnapshotToClient(client_t* client, msg_t* msg)
     snapFlags = client->droppedCommands ? snapFlags_t::SNAPFLAG_DROPPED_COMMANDS : snapFlags_t::SNAPFLAG_NONE;
     client->droppedCommands = false;
 
-    MSG_WriteByte(msg, to_underlying(snapFlags));
+    MSG_WriteByte(msg, std::to_underlying(snapFlags));
 
     // send over the areabits
     MSG_WriteByte(msg, frame->areabytes);
@@ -212,7 +212,7 @@ static void SV_UpdateServerCommandsToClient(client_t* client, msg_t* msg)
 
     // write any unacknowledged serverCommands
     for (i = client->reliableAcknowledge + 1; i <= client->reliableSequence; i++) {
-        MSG_WriteByte(msg, to_underlying(svc_ops_e::svc_serverCommand));
+        MSG_WriteByte(msg, std::to_underlying(svc_ops_e::svc_serverCommand));
         MSG_WriteLong(msg, i);
         MSG_WriteString(msg, client->reliableCommands[i & (MAX_RELIABLE_COMMANDS - 1)]);
     }
@@ -283,7 +283,7 @@ static void SV_AddEntToSnapshot(svEntity_t* svEnt, gentity_t* gEnt, snapshotEnti
     eNums->numSnapshotEntities++;
 }
 
-EnumArray<float, forcePowerLevels_t, to_underlying(forcePowerLevels_t::FORCE_LEVEL_5) + 1> sv_sightRangeForLevel = {
+EnumArray<float, forcePowerLevels_t, std::to_underlying(forcePowerLevels_t::FORCE_LEVEL_5) + 1> sv_sightRangeForLevel = {
     0,       // FORCE_LEVEL_0
     1024.f,  // FORCE_LEVEL_1
     2048.0f, // FORCE_LEVEL_2

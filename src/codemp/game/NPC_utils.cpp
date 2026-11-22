@@ -811,7 +811,8 @@ bool G_ActivateBehavior(gentity_t* self, bSet_t bset)
         // FIXME: between here and actually getting into the ICARUS_RunScript function, the stack gets blown!
         // if ( ( ICARUS_entFilter == -1 ) || ( ICARUS_entFilter == self->s.number ) )
         if (0) {
-            G_DebugPrintln(WL_e::WL_VERBOSE, "{} attempting to run bSet {} ({})", self->targetname, GetStringForID(BSETTable, to_underlying(bset)), bs_name);
+            G_DebugPrintln(WL_e::WL_VERBOSE, "{} attempting to run bSet {} ({})", self->targetname, GetStringForID(BSETTable, std::to_underlying(bset)),
+                           bs_name);
         }
         trap->ICARUS_RunScript((sharedEntity_t*)self, Q_Format("{}/{}", Q3_SCRIPT_DIR, bs_name).c_str());
     }
@@ -901,7 +902,7 @@ void NPC_SetBoneAngles(gentity_t* ent, const char* bone, vec3_t angles)
     forward = orientations_t::NEGATIVE_Z;
 
     // first 3 bits is forward, second 3 bits is right, third 3 bits is up
-    ent->s.boneOrient = ((to_underlying(forward)) | (to_underlying(right) << 3) | (to_underlying(up) << 6));
+    ent->s.boneOrient = ((std::to_underlying(forward)) | (std::to_underlying(right) << 3) | (std::to_underlying(up) << 6));
 
     trap->G2API_SetBoneAngles(ent->ghoul2, 0, bone, angles, flags, up, right, forward, nullptr, 100, level.time);
 }
@@ -1022,7 +1023,7 @@ bool NPC_ValidEnemy(gentity_t* ent)
     if (ent->client == nullptr) {
         //	if ( Any( ent->svFlags & SVF_NONNPC_ENEMY ) )
         if (ent->s.eType != entityType_t::ET_NPC) { // still potentially valid
-            if (to_underlying(ent->alliedTeam) == to_underlying(NPCS.NPC->client->playerTeam)) {
+            if (std::to_underlying(ent->alliedTeam) == std::to_underlying(NPCS.NPC->client->playerTeam)) {
                 return false;
             }
             else {

@@ -156,7 +156,7 @@ void BotSelectWeapon(int client, weapon_t weapon)
         //		assert(0);
         return;
     }
-    trap->EA_SelectWeapon(client, to_underlying(weapon));
+    trap->EA_SelectWeapon(client, std::to_underlying(weapon));
 }
 
 void BotReportStatus(bot_state_t* bs)
@@ -197,16 +197,16 @@ void BotOrder(gentity_t* ent, int clientnum, int ordernum)
     }
 
     if (level.gametype == gametype_t::GT_CTF || level.gametype == gametype_t::GT_CTY) {
-        stateMin = to_underlying(bot_ctf_state_t::CTFSTATE_NONE);
-        stateMax = to_underlying(bot_ctf_state_t::CTFSTATE_MAXCTFSTATES);
+        stateMin = std::to_underlying(bot_ctf_state_t::CTFSTATE_NONE);
+        stateMax = std::to_underlying(bot_ctf_state_t::CTFSTATE_MAXCTFSTATES);
     }
     else if (level.gametype == gametype_t::GT_SIEGE) {
-        stateMin = to_underlying(bot_siege_state_t::SIEGESTATE_NONE);
-        stateMax = to_underlying(bot_siege_state_t::SIEGESTATE_MAXSIEGESTATES);
+        stateMin = std::to_underlying(bot_siege_state_t::SIEGESTATE_NONE);
+        stateMax = std::to_underlying(bot_siege_state_t::SIEGESTATE_MAXSIEGESTATES);
     }
     else if (level.gametype == gametype_t::GT_TEAM) {
-        stateMin = to_underlying(bot_teamplay_state_t::TEAMPLAYSTATE_NONE);
-        stateMax = to_underlying(bot_teamplay_state_t::TEAMPLAYSTATE_MAXTPSTATES);
+        stateMin = std::to_underlying(bot_teamplay_state_t::TEAMPLAYSTATE_NONE);
+        stateMax = std::to_underlying(bot_teamplay_state_t::TEAMPLAYSTATE_MAXTPSTATES);
     }
 
     if ((ordernum < stateMin && ordernum != -1) || ordernum >= stateMax) {
@@ -1175,7 +1175,7 @@ int PassWayCheck(bot_state_t* bs, int windex)
     }
 
     if (bs->wpCurrent && gWPArray[windex]->forceJumpTo && gWPArray[windex]->origin[2] > (bs->wpCurrent->origin[2] + 64) &&
-        to_underlying(bs->cur_ps.fd.forcePowerLevel[forcePowers_t::FP_LEVITATION]) <
+        std::to_underlying(bs->cur_ps.fd.forcePowerLevel[forcePowers_t::FP_LEVITATION]) <
             gWPArray[windex]->forceJumpTo) { // waypoint requires force jump level greater than our current one to pass
         return 0;
     }
@@ -1224,7 +1224,7 @@ float TotalTrailDistance(int start, int end, bot_state_t* bs)
 
 			if (gdif)
 			{
-				if (bs && to_underlying( bs->cur_ps.fd.forcePowerLevel[forcePowers_t::FP_LEVITATION] ) < gWPArray[beginat]->forceJumpTo)
+				if (bs && std::to_underlying( bs->cur_ps.fd.forcePowerLevel[forcePowers_t::FP_LEVITATION] ) < gWPArray[beginat]->forceJumpTo)
 				{
 					return -1;
 				}
@@ -1233,7 +1233,7 @@ float TotalTrailDistance(int start, int end, bot_state_t* bs)
 
 		if (bs->wpCurrent && gWPArray[windex]->forceJumpTo &&
 			gWPArray[windex]->origin[2] > (bs->wpCurrent->origin[2]+64) &&
-			to_underlying( bs->cur_ps.fd.forcePowerLevel[forcePowers_t::FP_LEVITATION] ) < gWPArray[windex]->forceJumpTo)
+			std::to_underlying( bs->cur_ps.fd.forcePowerLevel[forcePowers_t::FP_LEVITATION] ) < gWPArray[windex]->forceJumpTo)
 		{
 			return -1;
 		}
@@ -1290,7 +1290,7 @@ void CheckForShorterRoutes(bot_state_t* bs, int newwpindex)
         checklen = TotalTrailDistance(gWPArray[newwpindex]->neighbors[i].num, bs->wpDestination->index, bs);
 
         if (checklen < bestlen - 64 || bestlen == -1) { // this path covers less distance, let's take it instead
-            if (to_underlying(bs->cur_ps.fd.forcePowerLevel[forcePowers_t::FP_LEVITATION]) >= gWPArray[newwpindex]->neighbors[i].forceJumpTo) {
+            if (std::to_underlying(bs->cur_ps.fd.forcePowerLevel[forcePowers_t::FP_LEVITATION]) >= gWPArray[newwpindex]->neighbors[i].forceJumpTo) {
                 bestlen = checklen;
                 bestindex = gWPArray[newwpindex]->neighbors[i].num;
 
@@ -3679,7 +3679,7 @@ void CommanderBotSiegeAI(bot_state_t* bs)
         }
 
         if (bst) {
-            bst->state_Forced = to_underlying(bs->siegeState);
+            bst->state_Forced = std::to_underlying(bs->siegeState);
             bst->siegeState = bs->siegeState;
             commanded++;
         }

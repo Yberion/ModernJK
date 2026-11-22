@@ -62,7 +62,7 @@ static void ObjectivePrint_Line(const ct_table_t color, const objectiveNumber_t 
 
     int iYPixelsPerLine = cgi_R_Font_HeightPixels(cgs.media.qhFontMedium, 1.0f);
 
-    cgi_SP_GetStringTextString(Q_Format("OBJECTIVES_{}", objectiveTable[to_underlying(objectIndex)].name).c_str(), finalText, sizeof(finalText));
+    cgi_SP_GetStringTextString(Q_Format("OBJECTIVES_{}", objectiveTable[std::to_underlying(objectIndex)].name).c_str(), finalText, sizeof(finalText));
 
     // A hack to be able to count prisoners
     if (objectIndex == objectiveNumber_t::T2_RANCOR_OBJ5) {
@@ -265,11 +265,11 @@ static void CG_DrawForceCount( const forcePowers_t force, int x, float *y, const
     int		val, textColor;
     char	text[1024]={0};
 
-    gi.Cvar_VariableStringBuffer( Q_Format("playerfplvl{}", to_underlying( force )).c_str(),s, sizeof(s) );
+    gi.Cvar_VariableStringBuffer( Q_Format("playerfplvl{}",  force ).c_str(),s, sizeof(s) );
 
     sscanf( s, "%d",&val );
 
-    if ((val<1) || (val> to_underlying( forcePowers_t::NUM_FORCE_POWERS )))
+    if ((val<1) || (val> std::to_underlying( forcePowers_t::NUM_FORCE_POWERS )))
     {
         return;
     }

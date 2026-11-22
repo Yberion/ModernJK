@@ -1471,7 +1471,8 @@ gentity_t* NPC_PickEnemy(gentity_t* closestTo, npcteam_t enemyTeam, bool checkVi
             !Any(newenemy->flags & gentityFlags_t::FL_NOTARGET) && !Any(newenemy->s.eFlags & entityFlags_t::EF_NODRAW)) {
             if (newenemy->health > 0) {
                 if ((newenemy->client && NPC_ValidEnemy(newenemy)) ||
-                    (!newenemy->client && to_underlying(newenemy->alliedTeam) == to_underlying(enemyTeam))) { // FIXME:  check for range and FOV or vis?
+                    (!newenemy->client &&
+                     std::to_underlying(newenemy->alliedTeam) == std::to_underlying(enemyTeam))) { // FIXME:  check for range and FOV or vis?
                     if (NPCS.NPC->client->playerTeam == npcteam_t::NPCTEAM_PLAYER &&
                         enemyTeam == npcteam_t::NPCTEAM_PLAYER) { // player allies turning on ourselves?  How?
                         if (newenemy->s.number >= MAX_CLIENTS) {  // only turn on the player, not other player allies

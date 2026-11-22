@@ -94,7 +94,7 @@ void R_IssueRenderCommands(bool runPerformanceCounters)
 
     // add an end-of-list command
     byteAlias_t* ba = (byteAlias_t*)&cmdList->cmds[cmdList->used];
-    ba->ui = to_underlying(renderCommand_t::RC_END_OF_LIST);
+    ba->ui = std::to_underlying(renderCommand_t::RC_END_OF_LIST);
 
     // clear it out, in case this is a sync and not a buffer flip
     cmdList->used = 0;
@@ -459,12 +459,12 @@ void RE_BeginFrame(stereoFrame_t stereoFrame)
             cmd->buffer = (int)GL_BACK_RIGHT;
         }
         else {
-            Q_Error(errorParm_t::ERR_FATAL, "RE_BeginFrame: Stereo is enabled, but stereoFrame was {}", to_underlying(stereoFrame));
+            Q_Error(errorParm_t::ERR_FATAL, "RE_BeginFrame: Stereo is enabled, but stereoFrame was {}", stereoFrame);
         }
     }
     else {
         if (stereoFrame != stereoFrame_t::STEREO_CENTER) {
-            Q_Error(errorParm_t::ERR_FATAL, "RE_BeginFrame: Stereo is disabled, but stereoFrame was {}", to_underlying(stereoFrame));
+            Q_Error(errorParm_t::ERR_FATAL, "RE_BeginFrame: Stereo is disabled, but stereoFrame was {}", stereoFrame);
         }
         //		if ( !Q_stricmp( r_drawBuffer->string, "GL_FRONT" ) ) {
         //			cmd->buffer = (int)GL_FRONT;

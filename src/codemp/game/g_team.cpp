@@ -134,18 +134,18 @@ void PrintCTFMessage(int plIndex, team_t teamIndex, ctfMsg_t ctfMessage)
 
     te = G_TempEntity(vec3_origin, entity_event_t::EV_CTFMESSAGE);
     te->r.svFlags |= svFlags_t::SVF_BROADCAST;
-    te->s.eventParm = to_underlying(ctfMessage);
+    te->s.eventParm = std::to_underlying(ctfMessage);
     te->s.trickedentindex = plIndex;
     if (ctfMessage == ctfMsg_t::CTFMESSAGE_PLAYER_CAPTURED_FLAG) {
         if (teamIndex == team_t::TEAM_RED) {
-            te->s.trickedentindex2 = to_underlying(team_t::TEAM_BLUE);
+            te->s.trickedentindex2 = std::to_underlying(team_t::TEAM_BLUE);
         }
         else {
-            te->s.trickedentindex2 = to_underlying(team_t::TEAM_RED);
+            te->s.trickedentindex2 = std::to_underlying(team_t::TEAM_RED);
         }
     }
     else {
-        te->s.trickedentindex2 = to_underlying(teamIndex);
+        te->s.trickedentindex2 = std::to_underlying(teamIndex);
     }
 }
 
@@ -167,31 +167,31 @@ void AddTeamScore(vec3_t origin, team_t team, int score)
     if (team == team_t::TEAM_RED) {
         if (level.teamScores[team_t::TEAM_RED] + score == level.teamScores[team_t::TEAM_BLUE]) {
             // teams are tied sound
-            te->s.eventParm = to_underlying(global_team_sound_t::GTS_TEAMS_ARE_TIED);
+            te->s.eventParm = std::to_underlying(global_team_sound_t::GTS_TEAMS_ARE_TIED);
         }
         else if (level.teamScores[team_t::TEAM_RED] <= level.teamScores[team_t::TEAM_BLUE] &&
                  level.teamScores[team_t::TEAM_RED] + score > level.teamScores[team_t::TEAM_BLUE]) {
             // red took the lead sound
-            te->s.eventParm = to_underlying(global_team_sound_t::GTS_REDTEAM_TOOK_LEAD);
+            te->s.eventParm = std::to_underlying(global_team_sound_t::GTS_REDTEAM_TOOK_LEAD);
         }
         else {
             // red scored sound
-            te->s.eventParm = to_underlying(global_team_sound_t::GTS_REDTEAM_SCORED);
+            te->s.eventParm = std::to_underlying(global_team_sound_t::GTS_REDTEAM_SCORED);
         }
     }
     else {
         if (level.teamScores[team_t::TEAM_BLUE] + score == level.teamScores[team_t::TEAM_RED]) {
             // teams are tied sound
-            te->s.eventParm = to_underlying(global_team_sound_t::GTS_TEAMS_ARE_TIED);
+            te->s.eventParm = std::to_underlying(global_team_sound_t::GTS_TEAMS_ARE_TIED);
         }
         else if (level.teamScores[team_t::TEAM_BLUE] <= level.teamScores[team_t::TEAM_RED] &&
                  level.teamScores[team_t::TEAM_BLUE] + score > level.teamScores[team_t::TEAM_RED]) {
             // blue took the lead sound
-            te->s.eventParm = to_underlying(global_team_sound_t::GTS_BLUETEAM_TOOK_LEAD);
+            te->s.eventParm = std::to_underlying(global_team_sound_t::GTS_BLUETEAM_TOOK_LEAD);
         }
         else {
             // blue scored sound
-            te->s.eventParm = to_underlying(global_team_sound_t::GTS_BLUETEAM_SCORED);
+            te->s.eventParm = std::to_underlying(global_team_sound_t::GTS_BLUETEAM_SCORED);
         }
     }
     level.teamScores[team] += score;
@@ -265,7 +265,7 @@ bool OnSameTeam(gentity_t* ent1, gentity_t* ent2)
     return false;
 }
 
-static const EnumArray<char, flagStatus_t, to_underlying(flagStatus_t::FLAG_DROPPED) + 1> ctfFlagStatusRemap = {'0', '1', '*', '*', '2'};
+static const EnumArray<char, flagStatus_t, std::to_underlying(flagStatus_t::FLAG_DROPPED) + 1> ctfFlagStatusRemap = {'0', '1', '*', '*', '2'};
 
 void Team_SetFlagStatus(team_t team, flagStatus_t status)
 {
@@ -559,10 +559,10 @@ void Team_ReturnFlagSound(gentity_t* ent, team_t team)
 
     te = G_TempEntity(ent->s.pos.trBase, entity_event_t::EV_GLOBAL_TEAM_SOUND);
     if (team == team_t::TEAM_BLUE) {
-        te->s.eventParm = to_underlying(global_team_sound_t::GTS_RED_RETURN);
+        te->s.eventParm = std::to_underlying(global_team_sound_t::GTS_RED_RETURN);
     }
     else {
-        te->s.eventParm = to_underlying(global_team_sound_t::GTS_BLUE_RETURN);
+        te->s.eventParm = std::to_underlying(global_team_sound_t::GTS_BLUE_RETURN);
     }
     te->r.svFlags |= svFlags_t::SVF_BROADCAST;
 }
@@ -600,10 +600,10 @@ void Team_TakeFlagSound(gentity_t* ent, team_t team)
 
     te = G_TempEntity(ent->s.pos.trBase, entity_event_t::EV_GLOBAL_TEAM_SOUND);
     if (team == team_t::TEAM_BLUE) {
-        te->s.eventParm = to_underlying(global_team_sound_t::GTS_RED_TAKEN);
+        te->s.eventParm = std::to_underlying(global_team_sound_t::GTS_RED_TAKEN);
     }
     else {
-        te->s.eventParm = to_underlying(global_team_sound_t::GTS_BLUE_TAKEN);
+        te->s.eventParm = std::to_underlying(global_team_sound_t::GTS_BLUE_TAKEN);
     }
     te->r.svFlags |= svFlags_t::SVF_BROADCAST;
 }
@@ -619,10 +619,10 @@ void Team_CaptureFlagSound(gentity_t* ent, team_t team)
 
     te = G_TempEntity(ent->s.pos.trBase, entity_event_t::EV_GLOBAL_TEAM_SOUND);
     if (team == team_t::TEAM_BLUE) {
-        te->s.eventParm = to_underlying(global_team_sound_t::GTS_BLUE_CAPTURE);
+        te->s.eventParm = std::to_underlying(global_team_sound_t::GTS_BLUE_CAPTURE);
     }
     else {
-        te->s.eventParm = to_underlying(global_team_sound_t::GTS_RED_CAPTURE);
+        te->s.eventParm = std::to_underlying(global_team_sound_t::GTS_RED_CAPTURE);
     }
     te->r.svFlags |= svFlags_t::SVF_BROADCAST;
 }
@@ -1222,8 +1222,7 @@ void TeamplayInfoMessage(gentity_t* ent)
                 if (a < 0)
                     a = 0;
 
-                Q_FormatTo(entry, " {} {} {} {} {} {}", i, player->client->pers.teamState.location, h, a, to_underlying(player->client->ps.weapon),
-                           player->s.powerups);
+                Q_FormatTo(entry, " {} {} {} {} {} {}", i, player->client->pers.teamState.location, h, a, player->client->ps.weapon, player->s.powerups);
             }
             j = strlen(entry);
             if (stringlength + j >= std::ssize(string))

@@ -22,18 +22,22 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // q_enum.h -- the operations on enumerations, written once (C++ Core Guidelines, Enum.4). Every enumeration is an
 // enum class (Enum.3), so that its values convert to an integer only where the code says so: through these
-// operations, or with to_underlying where a value leaves for a file, a cvar, a name table or a format string.
+// operations, or with std::to_underlying where a value leaves for a file, a cvar or a name table. A printing or
+// formatting function (q_fmt.h) takes an enumeration as it is (format_as below).
 
 #include <cassert>
 #include <cstddef>
 #include <type_traits>
+#include <utility>
 
-// C++23's std::to_underlying, until the project moves to C++23
+// An enumeration given to a printing or formatting function written as its value, of the type std::to_underlying
+// gives: {fmt} finds this function by argument-dependent lookup (the same as fmt::enums::format_as of <fmt/format.h>,
+// which the project does not include outside q_fmt.cpp)
 template <typename E>
     requires std::is_enum_v<E>
-[[nodiscard]] constexpr std::underlying_type_t<E> to_underlying(E e) noexcept
+[[nodiscard]] constexpr std::underlying_type_t<E> format_as(E e) noexcept
 {
-    return static_cast<std::underlying_type_t<E>>(e);
+    return std::to_underlying(e);
 }
 
 // An array indexed by an enumeration, with the size and the layout of T[Count]: `int level[NUM_FORCE_POWERS]`
@@ -46,13 +50,13 @@ struct EnumArray {
 
     [[nodiscard]] constexpr T& operator[](E e) noexcept
     {
-        assert(static_cast<std::size_t>(to_underlying(e)) < N);
-        return elems[to_underlying(e)];
+        assert(static_cast<std::size_t>(std::to_underlying(e)) < N);
+        return elems[std::to_underlying(e)];
     }
     [[nodiscard]] constexpr const T& operator[](E e) const noexcept
     {
-        assert(static_cast<std::size_t>(to_underlying(e)) < N);
-        return elems[to_underlying(e)];
+        assert(static_cast<std::size_t>(std::to_underlying(e)) < N);
+        return elems[std::to_underlying(e)];
     }
     [[nodiscard]] constexpr T* data() noexcept { return elems; }
     [[nodiscard]] constexpr const T* data() const noexcept { return elems; }
@@ -74,15 +78,15 @@ concept ArithmeticEnum = std::is_enum_v<E> && enableEnumArithmetic<E>;
 
 template <ArithmeticEnum E> [[nodiscard]] constexpr E operator+(E e, int n) noexcept
 {
-    return static_cast<E>(to_underlying(e) + n);
+    return static_cast<E>(std::to_underlying(e) + n);
 }
 template <ArithmeticEnum E> [[nodiscard]] constexpr E operator-(E e, int n) noexcept
 {
-    return static_cast<E>(to_underlying(e) - n);
+    return static_cast<E>(std::to_underlying(e) - n);
 }
 template <ArithmeticEnum E> [[nodiscard]] constexpr int operator-(E a, E b) noexcept
 {
-    return to_underlying(a) - to_underlying(b);
+    return std::to_underlying(a) - std::to_underlying(b);
 }
 template <ArithmeticEnum E> constexpr E& operator+=(E& e, int n) noexcept
 {
@@ -123,19 +127,19 @@ concept FlagEnum = std::is_enum_v<E> && enableEnumFlags<E>;
 
 template <FlagEnum E> [[nodiscard]] constexpr E operator|(E a, E b) noexcept
 {
-    return static_cast<E>(to_underlying(a) | to_underlying(b));
+    return static_cast<E>(std::to_underlying(a) | std::to_underlying(b));
 }
 template <FlagEnum E> [[nodiscard]] constexpr E operator&(E a, E b) noexcept
 {
-    return static_cast<E>(to_underlying(a) & to_underlying(b));
+    return static_cast<E>(std::to_underlying(a) & std::to_underlying(b));
 }
 template <FlagEnum E> [[nodiscard]] constexpr E operator^(E a, E b) noexcept
 {
-    return static_cast<E>(to_underlying(a) ^ to_underlying(b));
+    return static_cast<E>(std::to_underlying(a) ^ std::to_underlying(b));
 }
 template <FlagEnum E> [[nodiscard]] constexpr E operator~(E a) noexcept
 {
-    return static_cast<E>(~to_underlying(a));
+    return static_cast<E>(~std::to_underlying(a));
 }
 template <FlagEnum E> constexpr E& operator|=(E& a, E b) noexcept
 {
@@ -151,7 +155,7 @@ template <FlagEnum E> constexpr E& operator^=(E& a, E b) noexcept
 }
 template <FlagEnum E> [[nodiscard]] constexpr bool Any(E flags) noexcept
 {
-    return to_underlying(flags) != 0;
+    return std::to_underlying(flags) != 0;
 }
 
 // The bit of an enumerator in an integer mask: `forcePowersKnown & Bit( FP_PUSH )` for `1 << FP_PUSH`
@@ -159,8 +163,8 @@ template <typename E>
     requires std::is_enum_v<E>
 [[nodiscard]] constexpr int Bit(E e) noexcept
 {
-    assert(to_underlying(e) >= 0 && to_underlying(e) < 32);
-    return 1 << to_underlying(e);
+    assert(std::to_underlying(e) >= 0 && std::to_underlying(e) < 32);
+    return 1 << std::to_underlying(e);
 }
 
 // checked by the compiler
@@ -171,9 +175,9 @@ enum class Flags { none = 0, x = 1, y = 2 };
 template <> inline constexpr bool enableEnumArithmetic<enumSelfCheck::Sample> = true;
 template <> inline constexpr bool enableEnumFlags<enumSelfCheck::Flags> = true;
 static_assert(Any(enumSelfCheck::Flags::x | enumSelfCheck::Flags::y) && !Any(enumSelfCheck::Flags::x & enumSelfCheck::Flags::y));
-static_assert(to_underlying(~enumSelfCheck::Flags::x&(enumSelfCheck::Flags::x | enumSelfCheck::Flags::y)) == 2);
+static_assert(std::to_underlying(~enumSelfCheck::Flags::x&(enumSelfCheck::Flags::x | enumSelfCheck::Flags::y)) == 2);
 static_assert(Bit(enumSelfCheck::Sample::c) == 4);
-static_assert(to_underlying(enumSelfCheck::Sample::c) == 2);
+static_assert(std::to_underlying(enumSelfCheck::Sample::c) == 2);
 static_assert(enumSelfCheck::Sample::a + 2 == enumSelfCheck::Sample::c && enumSelfCheck::Sample::c - 1 == enumSelfCheck::Sample::b);
 static_assert(enumSelfCheck::Sample::c - enumSelfCheck::Sample::a == 2);
 static_assert(sizeof(EnumArray<int, enumSelfCheck::Sample, enumSelfCheck::Sample::c>) == sizeof(int[2]));

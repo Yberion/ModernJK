@@ -774,7 +774,7 @@ void MSG_WriteDeltaUsercmdKey(msg_t* msg, int key, usercmd_t* from, usercmd_t* t
     MSG_WriteDeltaKey(msg, key, from->forwardmove, to->forwardmove, 8);
     MSG_WriteDeltaKey(msg, key, from->rightmove, to->rightmove, 8);
     MSG_WriteDeltaKey(msg, key, from->upmove, to->upmove, 8);
-    MSG_WriteDeltaKey(msg, key, to_underlying(from->buttons), to_underlying(to->buttons), 16);
+    MSG_WriteDeltaKey(msg, key, std::to_underlying(from->buttons), std::to_underlying(to->buttons), 16);
     MSG_WriteDeltaKey(msg, key, from->weapon, to->weapon, 8);
 
     MSG_WriteDeltaKey(msg, key, from->forcesel, to->forcesel, 8);
@@ -810,7 +810,7 @@ void MSG_ReadDeltaUsercmdKey(msg_t* msg, int key, usercmd_t* from, usercmd_t* to
         to->upmove = MSG_ReadDeltaKey(msg, key, from->upmove, 8);
         if (to->upmove == -128)
             to->upmove = -127;
-        to->buttons = static_cast<buttonFlags_t>(MSG_ReadDeltaKey(msg, key, to_underlying(from->buttons), 16));
+        to->buttons = static_cast<buttonFlags_t>(MSG_ReadDeltaKey(msg, key, std::to_underlying(from->buttons), 16));
         to->weapon = MSG_ReadDeltaKey(msg, key, from->weapon, 8);
 
         to->forcesel = MSG_ReadDeltaKey(msg, key, from->forcesel, 8);
@@ -1359,7 +1359,7 @@ playerState_t communication
 // using the stringizing operator to save typing...
 #define PSF(x) #x, offsetof(playerState_t, x), sizeof(((playerState_t*)0)->x)
 // a cell of an array indexed by a force power, named as ext_data/MP/psf_overrides.txt names it
-#define PSF_FP(x, fp) #x "[" #fp "]", offsetof(playerState_t, x.elems[to_underlying(forcePowers_t::fp)]), sizeof(((playerState_t*)0)->x.elems[0])
+#define PSF_FP(x, fp) #x "[" #fp "]", offsetof(playerState_t, x.elems[std::to_underlying(forcePowers_t::fp)]), sizeof(((playerState_t*)0)->x.elems[0])
 
 // rww - Remember to update ext_data/MP/psf_overrides.txt if you change any of this!
 //(for the sake of being consistent)
@@ -2273,7 +2273,7 @@ void MSG_WriteDeltaPlayerstate(msg_t* msg, struct playerState_s* from, struct pl
         MSG_WriteBits(msg, statsbits, MAX_STATS);
         for (i = 0; i < MAX_STATS; i++) {
             if (statsbits & (1 << i)) {
-                if (i == to_underlying(statIndex_t::STAT_WEAPONS)) { // ugly.. but we're gonna need it anyway -rww
+                if (i == std::to_underlying(statIndex_t::STAT_WEAPONS)) { // ugly.. but we're gonna need it anyway -rww
                     //(just send this one in MAX_WEAPONS bits, so that we can add up to MAX_WEAPONS weaps without hassle)
                     MSG_WriteBits(msg, to->stats.data()[i], MAX_WEAPONS);
                 }
@@ -2466,7 +2466,7 @@ void MSG_ReadDeltaPlayerstate(msg_t* msg, playerState_t* from, playerState_t* to
             bits = MSG_ReadBits(msg, MAX_STATS);
             for (i = 0; i < MAX_STATS; i++) {
                 if (bits & (1 << i)) {
-                    if (i == to_underlying(statIndex_t::STAT_WEAPONS)) { // ugly.. but we're gonna need it anyway -rww
+                    if (i == std::to_underlying(statIndex_t::STAT_WEAPONS)) { // ugly.. but we're gonna need it anyway -rww
                         to->stats.data()[i] = MSG_ReadBits(msg, MAX_WEAPONS);
                     }
                     else {

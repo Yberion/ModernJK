@@ -45,7 +45,7 @@ enum class EWeaponPose {
     WPOSE_SABERRIGHT,
 };
 
-extern stringID_table_t VehicleTable[to_underlying(vehicleType_t::VH_NUM_VEHICLES) + 1];
+extern stringID_table_t VehicleTable[std::to_underlying(vehicleType_t::VH_NUM_VEHICLES) + 1];
 
 //===========================================================================================================
 // START VEHICLE WEAPONS

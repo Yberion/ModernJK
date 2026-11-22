@@ -253,7 +253,7 @@ stringID_table_t setTable[] = {
     ENUM2STRING(setType_t, SET_HUD),
 
     // FIXME: add BOTH_ attributes here too
-    {"", to_underlying(setType_t::SET_)},
+    {"", std::to_underlying(setType_t::SET_)},
 };
 
 // the set field a script names; SET_UNKNOWN for a name that matches none (a variable's name, then)
@@ -273,7 +273,7 @@ void G_VDebugPrintln(WL_e printLevel, fmt::string_view format, fmt::format_args 
     char text[1024] = {0};
 
     // Don't print messages they don't want to see
-    // if ( g_ICARUSDebug->integer < to_underlying( level ) )
+    // if ( g_ICARUSDebug->integer < std::to_underlying( level ) )
     if (developer.integer != 2)
         return;
 
@@ -1377,7 +1377,7 @@ int Q3_GetFloat(int entID, icarusToken_t type, const char* name, float* value)
         break;
 
     case setType_t::SET_SOLID: // ## %t="BOOL_TYPES" # Make yourself notsolid or solid
-        *value = static_cast<int>(to_underlying(ent->r.contents));
+        *value = static_cast<int>(std::to_underlying(ent->r.contents));
         break;
     case setType_t::SET_PLAYER_USABLE: // ## %t="BOOL_TYPES" # Can be activateby the player's "use" button
         *value = Q3_FlagValue(ent->r.svFlags & svFlags_t::SVF_PLAYER_USABLE);
@@ -2490,7 +2490,7 @@ static bool Q3_SetBState(int entID, const char* bs_name)
         // ent->client->moveType = MT_RUNJUMP;
     }
 
-    if (bsID == to_underlying(bState_t::BS_NOCLIP)) {
+    if (bsID == std::to_underlying(bState_t::BS_NOCLIP)) {
         ent->client->noclip = true;
     }
     else {
@@ -2506,7 +2506,7 @@ static bool Q3_SetBState(int entID, const char* bs_name)
     */
 
     //	if ( bSID == BS_SNIPER || bSID == bState_t::BS_ADVANCE_FIGHT )
-    if (bsID == to_underlying(bState_t::BS_ADVANCE_FIGHT)) {
+    if (bsID == std::to_underlying(bState_t::BS_ADVANCE_FIGHT)) {
         return false; // need to wait for task complete message
     }
 
@@ -2516,7 +2516,7 @@ static bool Q3_SetBState(int entID, const char* bs_name)
             ent->NPC->shotTime = ent->attackDebounceTime = level.time;
         }
     */
-    if (bsID == to_underlying(bState_t::BS_JUMP)) {
+    if (bsID == std::to_underlying(bState_t::BS_JUMP)) {
         ent->NPC->jumpState = jumpState_t::JS_FACING;
     }
 
@@ -3657,13 +3657,13 @@ static void Q3_SetForcePowerLevel(int entID, int forcePower, int forceLevel)
     const forcePowers_t power = static_cast<forcePowers_t>(forcePower);
 
     if (power < forcePowers_t::FP_FIRST || power >= forcePowers_t::NUM_FORCE_POWERS) {
-        G_DebugPrintln(WL_e::WL_ERROR, "Q3_SetForcePowerLevel: Force Power index {} out of range ({}-{})", forcePower, to_underlying(forcePowers_t::FP_FIRST),
-                       (to_underlying(forcePowers_t::NUM_FORCE_POWERS) - 1));
+        G_DebugPrintln(WL_e::WL_ERROR, "Q3_SetForcePowerLevel: Force Power index {} out of range ({}-{})", forcePower, forcePowers_t::FP_FIRST,
+                       (std::to_underlying(forcePowers_t::NUM_FORCE_POWERS) - 1));
         return;
     }
 
-    if (forceLevel < 0 || forceLevel >= to_underlying(forcePowerLevels_t::NUM_FORCE_POWER_LEVELS)) {
-        if (power != forcePowers_t::FP_SABER_OFFENSE || forceLevel >= to_underlying(saber_styles_t::SS_NUM_SABER_STYLES)) {
+    if (forceLevel < 0 || forceLevel >= std::to_underlying(forcePowerLevels_t::NUM_FORCE_POWER_LEVELS)) {
+        if (power != forcePowers_t::FP_SABER_OFFENSE || forceLevel >= std::to_underlying(saber_styles_t::SS_NUM_SABER_STYLES)) {
             G_DebugPrintln(WL_e::WL_ERROR, "Q3_SetForcePowerLevel: Force power setting {} out of range (0-3)", forceLevel);
             return;
         }

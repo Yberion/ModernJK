@@ -2472,7 +2472,7 @@ static void CG_SetLerpFrameAnimation(centity_t* cent, clientInfo_t* ci, lerpFram
     LF_SetAnim(*lf, newAnimation);
 
     if (newAnimation < animNumber_t::FACE_TALK0 || newAnimation >= animNumber_t::MAX_TOTALANIMATIONS) {
-        Q_Error(errorParm_t::ERR_DROP, "Bad animation number: {}", to_underlying(newAnimation));
+        Q_Error(errorParm_t::ERR_DROP, "Bad animation number: {}", newAnimation);
     }
 
     anim = &(*bgAllAnims[cent->localAnimIndex].anims)[newAnimation];
@@ -2486,12 +2486,12 @@ static void CG_SetLerpFrameAnimation(centity_t* cent, clientInfo_t* ci, lerpFram
 
     if (cg_debugAnim.integer && (cg_debugAnim.integer < 0 || cg_debugAnim.integer == cent->currentState.clientNum)) {
         if (lf == &cent->pe.legs) {
-            Q_Println("{}: {} TORSO Anim: {}, '{}'", cg.time, cent->currentState.clientNum, to_underlying(newAnimation),
-                      GetStringForID(animTable, to_underlying(newAnimation)));
+            Q_Println("{}: {} TORSO Anim: {}, '{}'", cg.time, cent->currentState.clientNum, newAnimation,
+                      GetStringForID(animTable, std::to_underlying(newAnimation)));
         }
         else {
-            Q_Println("{}: {} LEGS Anim: {}, '{}'", cg.time, cent->currentState.clientNum, to_underlying(newAnimation),
-                      GetStringForID(animTable, to_underlying(newAnimation)));
+            Q_Println("{}: {} LEGS Anim: {}, '{}'", cg.time, cent->currentState.clientNum, newAnimation,
+                      GetStringForID(animTable, std::to_underlying(newAnimation)));
         }
     }
 
@@ -7079,9 +7079,9 @@ void CG_CleanJetpackGhoul2(void)
     }
 }
 
-constexpr int RARMBIT = 1 << (to_underlying(g2ModelParts_t::G2_MODELPART_RARM) - 10);
-constexpr int RHANDBIT = 1 << (to_underlying(g2ModelParts_t::G2_MODELPART_RHAND) - 10);
-constexpr int WAISTBIT = 1 << (to_underlying(g2ModelParts_t::G2_MODELPART_WAIST) - 10);
+constexpr int RARMBIT = 1 << (std::to_underlying(g2ModelParts_t::G2_MODELPART_RARM) - 10);
+constexpr int RHANDBIT = 1 << (std::to_underlying(g2ModelParts_t::G2_MODELPART_RHAND) - 10);
+constexpr int WAISTBIT = 1 << (std::to_underlying(g2ModelParts_t::G2_MODELPART_WAIST) - 10);
 
 #if 0
 static void CG_VehicleHeatEffect( vec3_t org, centity_t *cent )
@@ -8319,12 +8319,12 @@ void CG_Player(centity_t* cent)
         ci->frame = cent->pe.torso.frame;
     }
 
-    if (cent->currentState.activeForcePass > to_underlying(forcePowerLevels_t::FORCE_LEVEL_3) && cent->currentState.NPC_class != class_t::CLASS_VEHICLE) {
+    if (cent->currentState.activeForcePass > std::to_underlying(forcePowerLevels_t::FORCE_LEVEL_3) && cent->currentState.NPC_class != class_t::CLASS_VEHICLE) {
         matrix3_t axis;
         vec3_t tAng, fAng, fxDir;
         vec3_t efOrg;
 
-        int realForceLev = (cent->currentState.activeForcePass - to_underlying(forcePowerLevels_t::FORCE_LEVEL_3));
+        int realForceLev = (cent->currentState.activeForcePass - std::to_underlying(forcePowerLevels_t::FORCE_LEVEL_3));
 
         VectorSet(tAng, cent->turAngles[PITCH], cent->turAngles[YAW], cent->turAngles[ROLL]);
 
@@ -8355,7 +8355,7 @@ void CG_Player(centity_t* cent)
 
         AnglesToAxis(fAng, axis);
 
-        if (realForceLev > to_underlying(forcePowerLevels_t::FORCE_LEVEL_2)) { // arc
+        if (realForceLev > std::to_underlying(forcePowerLevels_t::FORCE_LEVEL_2)) { // arc
             // trap->FX_PlayEffectID( cgs.effects.forceLightningWide, efOrg, fxDir );
             // trap->FX_PlayEntityEffectID(cgs.effects.forceDrainWide, efOrg, axis, cent->boltInfo, cent->currentState.number, -1, -1);
             trap->FX_PlayEntityEffectID(cgs.effects.forceDrainWide, efOrg, axis, -1, -1, -1, -1);
@@ -8398,7 +8398,7 @@ void CG_Player(centity_t* cent)
 
         AnglesToAxis(fAng, axis);
 
-        if (cent->currentState.activeForcePass > to_underlying(forcePowerLevels_t::FORCE_LEVEL_2)) { // arc
+        if (cent->currentState.activeForcePass > std::to_underlying(forcePowerLevels_t::FORCE_LEVEL_2)) { // arc
             // trap->FX_PlayEffectID( cgs.effects.forceLightningWide, efOrg, fxDir );
             // trap->FX_PlayEntityEffectID(cgs.effects.forceLightningWide, efOrg, axis, cent->boltInfo, cent->currentState.number, -1, -1);
             trap->FX_PlayEntityEffectID(cgs.effects.forceLightningWide, efOrg, axis, -1, -1, -1, -1);

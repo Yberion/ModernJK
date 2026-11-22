@@ -74,14 +74,14 @@ stringID_table_t StanceTable[] = {ENUM2STRING(saber_styles_t, SS_NONE),   ENUM2S
                                   ENUM2STRING(saber_styles_t, SS_DUAL),   ENUM2STRING(saber_styles_t, SS_STAFF),  {"", 0}};
 
 // Weapon and force power tables are also used in NPC parsing code and some other places.
-stringID_table_t WPTable[] = {{"NULL", to_underlying(weapon_t::WP_NONE)},
+stringID_table_t WPTable[] = {{"NULL", std::to_underlying(weapon_t::WP_NONE)},
                               ENUM2STRING(weapon_t, WP_NONE),
                               // Player weapons
                               ENUM2STRING(weapon_t, WP_STUN_BATON),
                               ENUM2STRING(weapon_t, WP_MELEE),
                               ENUM2STRING(weapon_t, WP_SABER),
                               ENUM2STRING(weapon_t, WP_BRYAR_PISTOL),
-                              {"WP_BLASTER_PISTOL", to_underlying(weapon_t::WP_BRYAR_PISTOL)},
+                              {"WP_BLASTER_PISTOL", std::to_underlying(weapon_t::WP_BRYAR_PISTOL)},
                               ENUM2STRING(weapon_t, WP_BLASTER),
                               ENUM2STRING(weapon_t, WP_DISRUPTOR),
                               ENUM2STRING(weapon_t, WP_BOWCASTER),
@@ -547,8 +547,8 @@ void BG_SiegeTranslateForcePowers(char* buf, siegeClass_t* siegeClass)
                 if (parsedLevel < 0) {
                     parsedLevel = 0;
                 }
-                if (parsedLevel > to_underlying(forcePowerLevels_t::FORCE_LEVEL_5)) {
-                    parsedLevel = to_underlying(forcePowerLevels_t::FORCE_LEVEL_5);
+                if (parsedLevel > std::to_underlying(forcePowerLevels_t::FORCE_LEVEL_5)) {
+                    parsedLevel = std::to_underlying(forcePowerLevels_t::FORCE_LEVEL_5);
                 }
             }
             else { // if it's not there, assume level 3 I guess.

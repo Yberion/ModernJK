@@ -413,11 +413,11 @@ int CSequence::SaveCommand(CBlock* block)
     //				- Block (Raw) Data.
 
     // Save out the block ID
-    bID = to_underlying(block->GetBlockID());
+    bID = std::to_underlying(block->GetBlockID());
     pIcarus->BufferWrite(&bID, sizeof(bID));
 
     // Save out the block's flags
-    flags = to_underlying(block->GetFlags());
+    flags = std::to_underlying(block->GetFlags());
     pIcarus->BufferWrite(&flags, sizeof(flags));
 
     // Save out the number of members to read
@@ -428,7 +428,7 @@ int CSequence::SaveCommand(CBlock* block)
         bm = block->GetMember(i);
 
         // Save the block id
-        bID = to_underlying(bm->GetID());
+        bID = std::to_underlying(bm->GetID());
         pIcarus->BufferWrite(&bID, sizeof(bID));
 
         // Save out the data size
@@ -509,15 +509,15 @@ int CSequence::LoadCommand(CBlock* block, CIcarus* icarus)
             break;
 
         case icarusToken_t::ID_TAG:
-            block->Write(icarusToken_t::ID_TAG, (float)to_underlying(icarusToken_t::ID_TAG), icarus);
+            block->Write(icarusToken_t::ID_TAG, (float)std::to_underlying(icarusToken_t::ID_TAG), icarus);
             break;
 
         case icarusToken_t::ID_GET:
-            block->Write(icarusToken_t::ID_GET, (float)to_underlying(icarusToken_t::ID_GET), icarus);
+            block->Write(icarusToken_t::ID_GET, (float)std::to_underlying(icarusToken_t::ID_GET), icarus);
             break;
 
         case icarusToken_t::ID_RANDOM:
-            block->Write(icarusToken_t::ID_RANDOM, *(float*)bData, icarus); //(float) to_underlying( icarusToken_t::ID_RANDOM ) );
+            block->Write(icarusToken_t::ID_RANDOM, *(float*)bData, icarus); //(float) std::to_underlying( icarusToken_t::ID_RANDOM ) );
             break;
 
         case icarusToken_t::TK_EQUALS:
@@ -590,7 +590,7 @@ int CSequence::Save()
     }
 
     // Save flags
-    int flags = to_underlying(m_flags);
+    int flags = std::to_underlying(m_flags);
     pIcarus->BufferWrite(&flags, sizeof(flags));
 
     // Save iterations

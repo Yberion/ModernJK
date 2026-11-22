@@ -766,7 +766,7 @@ bool WP_SaberApplyDamage(gentity_t* ent, float baseDamage, damageFlags_t baseDFl
                         G_Damage(victim, ent, ent, dmgDir[i], dmgSpot[i], Q_ceilf(totalDmg[i]), dFlags, meansOfDeath_t::MOD_SABER, hitDismemberLoc[i]);
 #ifndef FINAL_BUILD
                         if (d_saberCombat->integer) {
-                            Q_Println(S_COLOR_RED "damage: {:4.2f}, hitLoc {}", totalDmg[i], to_underlying(hitLoc[i]));
+                            Q_Println(S_COLOR_RED "damage: {:4.2f}, hitLoc {}", totalDmg[i], hitLoc[i]);
                         }
 #endif
                         // do the effect
@@ -1315,7 +1315,7 @@ bool WP_SaberDamageForTrace(int ignore, vec3_t start, vec3_t end, float dmg, vec
 					 && owner->health > 0
 					 && ( owner->client->NPC_class == class_t::CLASS_TAVION
 							/*|| (owner->client->NPC_class == class_t::CLASS_SHADOWTROOPER && !Q_irand( 0, g_spskill->integer*3 ))
-							|| (Q_irand( -5, to_underlying( owner->NPC->rank ) ) > to_underlying( rank_t::RANK_CIVILIAN ) && !Q_irand( 0, g_spskill->integer*3 ))*/ )
+							|| (Q_irand( -5, std::to_underlying( owner->NPC->rank ) ) > std::to_underlying( rank_t::RANK_CIVILIAN ) && !Q_irand( 0, g_spskill->integer*3 ))*/ )
 					 )
 				 {//Tavion can toss a blocked thrown saber aside
                     WP_SaberKnockaway(attacker, &tr);
@@ -1382,7 +1382,7 @@ bool WP_SaberDamageForTrace(int ignore, vec3_t start, vec3_t end, float dmg, vec
                             if ( g_spskill->integer && (g_spskill->integer > 1 || Q_irand( 0, 1 )))
                             {//if on easy, they don't cheat like this, if on medium, they cheat 50% of the time, if on hard, they always cheat
                                 //FIXME: also take into account the owner's FP_DEFENSE?
-                                if ( Q_irand( 0, to_underlying( owner->NPC->rank ) ) >= to_underlying( rank_t::RANK_CIVILIAN ) )
+                                if ( Q_irand( 0, std::to_underlying( owner->NPC->rank ) ) >= std::to_underlying( rank_t::RANK_CIVILIAN ) )
                                 {//lower-rank Jedi aren't as good blockers
                                     vec3_t attDir;
                                     VectorSubtract( end2, start, attDir );
@@ -1466,7 +1466,7 @@ bool WP_SaberDamageForTrace(int ignore, vec3_t start, vec3_t end, float dmg, vec
                         if ( g_spskill->integer && (g_spskill->integer > 1 || Q_irand( 0, 1 )))
                         {//if on easy, they don't cheat like this, if on medium, they cheat 50% of the time, if on hard, they always cheat
                             //FIXME: also take into account the owner's FP_DEFENSE?
-                            if ( Q_irand( 0, to_underlying( owner->NPC->rank ) ) >= to_underlying( rank_t::RANK_CIVILIAN ) )
+                            if ( Q_irand( 0, std::to_underlying( owner->NPC->rank ) ) >= std::to_underlying( rank_t::RANK_CIVILIAN ) )
                             {//lower-rank Jedi aren't as good blockers
                                 vec3_t attDir;
                                 VectorSubtract( end2, start, attDir );
@@ -2312,7 +2312,7 @@ void WP_SaberDamageTrace(gentity_t* ent)
                     }
                 }
                 else {
-                    baseDamage = 2.5f * (float)to_underlying(entPowerLevel);
+                    baseDamage = 2.5f * (float)std::to_underlying(entPowerLevel);
                 }
             }
             else { // saber is transitioning, defending or idle, don't do as much damage
@@ -2333,7 +2333,7 @@ void WP_SaberDamageTrace(gentity_t* ent)
                         }
                     }
                     else {
-                        baseDamage = 2.5f * (float)to_underlying(entPowerLevel);
+                        baseDamage = 2.5f * (float)std::to_underlying(entPowerLevel);
                     }
                 }
                 else // if ( !ent->s.number )
@@ -2678,8 +2678,9 @@ void WP_SaberDamageTrace(gentity_t* ent)
                             && hitOwner->client->ps.saberAnimLevel != forcePowerLevels_t::FORCE_LEVEL_5 && activeDefense &&
                             (hitOwnerPowerLevel > forcePowerLevels_t::FORCE_LEVEL_2 ||
                              (hitOwner->client->ps.forcePowerLevel[forcePowers_t::FP_SABER_DEFENSE] > forcePowerLevels_t::FORCE_LEVEL_2 &&
-                              Q_irand(0, to_underlying(hitOwner->client->ps.saberAnimLevel))))) { // knockaways can make fast-attacker go into a broken parry
-                                                                                                  // anim if the ent is using fast or med (but not Tavion)
+                              Q_irand(0,
+                                      std::to_underlying(hitOwner->client->ps.saberAnimLevel))))) { // knockaways can make fast-attacker go into a broken parry
+                                                                                                    // anim if the ent is using fast or med (but not Tavion)
                             // make me parry
                             WP_SaberParry(hitOwner, ent);
                             // turn the parry into a knockaway
@@ -6193,7 +6194,7 @@ void ForceLightningDamage(gentity_t* self, gentity_t* traceEnt, vec3_t dir, floa
                 }
             }
             else {
-                dmg = Q_irand(1, 3); //*to_underlying( self->client->ps.forcePowerLevel[forcePowers_t::FP_LIGHTNING] );
+                dmg = Q_irand(1, 3); //*std::to_underlying( self->client->ps.forcePowerLevel[forcePowers_t::FP_LIGHTNING] );
             }
             if (traceEnt->client && traceEnt->health > 0 &&
                 (traceEnt->client->NPC_class == class_t::CLASS_DESANN ||
@@ -6776,10 +6777,10 @@ void WP_ForcePowerStop(gentity_t* self, forcePowers_t forcePower)
                             holdTime = 0;
                         }
                         else if (gripEnt->s.weapon == weapon_t::WP_SABER) { // jedi recover faster
-                            holdTime = to_underlying(self->client->ps.forcePowerLevel[forcePowers_t::FP_GRIP]) * 200;
+                            holdTime = std::to_underlying(self->client->ps.forcePowerLevel[forcePowers_t::FP_GRIP]) * 200;
                         }
                         else {
-                            holdTime = to_underlying(self->client->ps.forcePowerLevel[forcePowers_t::FP_GRIP]) * 500;
+                            holdTime = std::to_underlying(self->client->ps.forcePowerLevel[forcePowers_t::FP_GRIP]) * 500;
                         }
                         // stop the anims soon, keep them locked in place for a bit
                         if (gripEnt->client->ps.torsoAnim == animNumber_t::BOTH_CHOKE1 ||
@@ -6837,7 +6838,7 @@ void WP_ForcePowerStop(gentity_t* self, forcePowers_t forcePower)
             self->client->ps.forceGripEntityNum = ENTITYNUM_NONE;
         }
         if (self->client->ps.torsoAnim == animNumber_t::BOTH_FORCEGRIP_HOLD) {
-            NPC_SetAnim(self, static_cast<setAnimParts_t>(to_underlying(animNumber_t::BOTH_FORCEGRIP_RELEASE)), animNumber_t::BOTH_FORCELIGHTNING_RELEASE,
+            NPC_SetAnim(self, static_cast<setAnimParts_t>(std::to_underlying(animNumber_t::BOTH_FORCEGRIP_RELEASE)), animNumber_t::BOTH_FORCELIGHTNING_RELEASE,
                         setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD); // an animation given as the body parts, as before
         }
         break;

@@ -35,7 +35,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // bool COM_ParseString( char **data, char **s );
 // bool COM_ParseFloat( char **data, float *f );
 
-extern EnumArray<gitem_t, itemNum_t, to_underlying(itemNum_t::ITM_NUM_ITEMS) + 1> bg_itemlist;
+extern EnumArray<gitem_t, itemNum_t, std::to_underlying(itemNum_t::ITM_NUM_ITEMS) + 1> bg_itemlist;
 
 static itemNum_t itemNum;
 
@@ -301,169 +301,169 @@ static void IT_Tag(const char** holdBuf)
     }
 
     if (!Q_stricmp(tokenStr, "WP_NONE")) {
-        tag = to_underlying(weapon_t::WP_NONE);
+        tag = std::to_underlying(weapon_t::WP_NONE);
     }
     else if (!Q_stricmp(tokenStr, "WP_STUN_BATON")) {
-        tag = to_underlying(weapon_t::WP_STUN_BATON);
+        tag = std::to_underlying(weapon_t::WP_STUN_BATON);
     }
     else if (!Q_stricmp(tokenStr, "WP_SABER")) {
-        tag = to_underlying(weapon_t::WP_SABER);
+        tag = std::to_underlying(weapon_t::WP_SABER);
     }
     else if (!Q_stricmp(tokenStr, "WP_BRYAR_PISTOL")) {
-        tag = to_underlying(weapon_t::WP_BRYAR_PISTOL);
+        tag = std::to_underlying(weapon_t::WP_BRYAR_PISTOL);
     }
     else if (!Q_stricmp(tokenStr, "WP_BLASTER")) {
-        tag = to_underlying(weapon_t::WP_BLASTER);
+        tag = std::to_underlying(weapon_t::WP_BLASTER);
     }
     else if (!Q_stricmp(tokenStr, "WP_DISRUPTOR")) {
-        tag = to_underlying(weapon_t::WP_DISRUPTOR);
+        tag = std::to_underlying(weapon_t::WP_DISRUPTOR);
     }
     else if (!Q_stricmp(tokenStr, "WP_BOWCASTER")) {
-        tag = to_underlying(weapon_t::WP_BOWCASTER);
+        tag = std::to_underlying(weapon_t::WP_BOWCASTER);
     }
     else if (!Q_stricmp(tokenStr, "WP_REPEATER")) {
-        tag = to_underlying(weapon_t::WP_REPEATER);
+        tag = std::to_underlying(weapon_t::WP_REPEATER);
     }
     else if (!Q_stricmp(tokenStr, "WP_DEMP2")) {
-        tag = to_underlying(weapon_t::WP_DEMP2);
+        tag = std::to_underlying(weapon_t::WP_DEMP2);
     }
     else if (!Q_stricmp(tokenStr, "WP_FLECHETTE")) {
-        tag = to_underlying(weapon_t::WP_FLECHETTE);
+        tag = std::to_underlying(weapon_t::WP_FLECHETTE);
     }
     else if (!Q_stricmp(tokenStr, "WP_ROCKET_LAUNCHER")) {
-        tag = to_underlying(weapon_t::WP_ROCKET_LAUNCHER);
+        tag = std::to_underlying(weapon_t::WP_ROCKET_LAUNCHER);
     }
     else if (!Q_stricmp(tokenStr, "WP_THERMAL")) {
-        tag = to_underlying(weapon_t::WP_THERMAL);
+        tag = std::to_underlying(weapon_t::WP_THERMAL);
     }
     else if (!Q_stricmp(tokenStr, "WP_TRIP_MINE")) {
-        tag = to_underlying(weapon_t::WP_TRIP_MINE);
+        tag = std::to_underlying(weapon_t::WP_TRIP_MINE);
     }
     else if (!Q_stricmp(tokenStr, "WP_DET_PACK")) {
-        tag = to_underlying(weapon_t::WP_DET_PACK);
+        tag = std::to_underlying(weapon_t::WP_DET_PACK);
     }
     else if (!Q_stricmp(tokenStr, "WP_BOT_LASER")) {
-        tag = to_underlying(weapon_t::WP_BOT_LASER);
+        tag = std::to_underlying(weapon_t::WP_BOT_LASER);
     }
     else if (!Q_stricmp(tokenStr, "WP_EMPLACED_GUN")) {
-        tag = to_underlying(weapon_t::WP_EMPLACED_GUN);
+        tag = std::to_underlying(weapon_t::WP_EMPLACED_GUN);
     }
     else if (!Q_stricmp(tokenStr, "WP_MELEE")) {
-        tag = to_underlying(weapon_t::WP_MELEE);
+        tag = std::to_underlying(weapon_t::WP_MELEE);
     }
     else if (!Q_stricmp(tokenStr, "WP_TURRET")) {
-        tag = to_underlying(weapon_t::WP_TURRET);
+        tag = std::to_underlying(weapon_t::WP_TURRET);
     }
     else if (!Q_stricmp(tokenStr, "WP_ATST_MAIN")) {
-        tag = to_underlying(weapon_t::WP_ATST_MAIN);
+        tag = std::to_underlying(weapon_t::WP_ATST_MAIN);
     }
     else if (!Q_stricmp(tokenStr, "WP_ATST_SIDE")) {
-        tag = to_underlying(weapon_t::WP_ATST_SIDE);
+        tag = std::to_underlying(weapon_t::WP_ATST_SIDE);
     }
     else if (!Q_stricmp(tokenStr, "WP_TIE_FIGHTER")) {
-        tag = to_underlying(weapon_t::WP_TIE_FIGHTER);
+        tag = std::to_underlying(weapon_t::WP_TIE_FIGHTER);
     }
     else if (!Q_stricmp(tokenStr, "WP_RAPID_FIRE_CONC")) {
-        tag = to_underlying(weapon_t::WP_RAPID_FIRE_CONC);
+        tag = std::to_underlying(weapon_t::WP_RAPID_FIRE_CONC);
     }
     else if (!Q_stricmp(tokenStr, "WP_BLASTER_PISTOL")) {
-        tag = to_underlying(weapon_t::WP_BLASTER_PISTOL);
+        tag = std::to_underlying(weapon_t::WP_BLASTER_PISTOL);
     }
     else if (!Q_stricmp(tokenStr, "AMMO_FORCE")) {
-        tag = to_underlying(ammo_t::AMMO_FORCE);
+        tag = std::to_underlying(ammo_t::AMMO_FORCE);
     }
     else if (!Q_stricmp(tokenStr, "AMMO_BLASTER")) {
-        tag = to_underlying(ammo_t::AMMO_BLASTER);
+        tag = std::to_underlying(ammo_t::AMMO_BLASTER);
     }
     else if (!Q_stricmp(tokenStr, "AMMO_POWERCELL")) {
-        tag = to_underlying(ammo_t::AMMO_POWERCELL);
+        tag = std::to_underlying(ammo_t::AMMO_POWERCELL);
     }
     else if (!Q_stricmp(tokenStr, "AMMO_METAL_BOLTS")) {
-        tag = to_underlying(ammo_t::AMMO_METAL_BOLTS);
+        tag = std::to_underlying(ammo_t::AMMO_METAL_BOLTS);
     }
     else if (!Q_stricmp(tokenStr, "AMMO_ROCKETS")) {
-        tag = to_underlying(ammo_t::AMMO_ROCKETS);
+        tag = std::to_underlying(ammo_t::AMMO_ROCKETS);
     }
     else if (!Q_stricmp(tokenStr, "AMMO_EMPLACED")) {
-        tag = to_underlying(ammo_t::AMMO_EMPLACED);
+        tag = std::to_underlying(ammo_t::AMMO_EMPLACED);
     }
     else if (!Q_stricmp(tokenStr, "AMMO_THERMAL")) {
-        tag = to_underlying(ammo_t::AMMO_THERMAL);
+        tag = std::to_underlying(ammo_t::AMMO_THERMAL);
     }
     else if (!Q_stricmp(tokenStr, "AMMO_TRIPMINE")) {
-        tag = to_underlying(ammo_t::AMMO_TRIPMINE);
+        tag = std::to_underlying(ammo_t::AMMO_TRIPMINE);
     }
     else if (!Q_stricmp(tokenStr, "AMMO_DETPACK")) {
-        tag = to_underlying(ammo_t::AMMO_DETPACK);
+        tag = std::to_underlying(ammo_t::AMMO_DETPACK);
     }
     else if (!Q_stricmp(tokenStr, "FP_HEAL")) {
-        tag = to_underlying(forcePowers_t::FP_HEAL);
+        tag = std::to_underlying(forcePowers_t::FP_HEAL);
     }
     else if (!Q_stricmp(tokenStr, "FP_LEVITATION")) {
-        tag = to_underlying(forcePowers_t::FP_LEVITATION);
+        tag = std::to_underlying(forcePowers_t::FP_LEVITATION);
     }
     else if (!Q_stricmp(tokenStr, "FP_SPEED")) {
-        tag = to_underlying(forcePowers_t::FP_SPEED);
+        tag = std::to_underlying(forcePowers_t::FP_SPEED);
     }
     else if (!Q_stricmp(tokenStr, "FP_PUSH")) {
-        tag = to_underlying(forcePowers_t::FP_PUSH);
+        tag = std::to_underlying(forcePowers_t::FP_PUSH);
     }
     else if (!Q_stricmp(tokenStr, "FP_PULL")) {
-        tag = to_underlying(forcePowers_t::FP_PULL);
+        tag = std::to_underlying(forcePowers_t::FP_PULL);
     }
     else if (!Q_stricmp(tokenStr, "FP_TELEPATHY")) {
-        tag = to_underlying(forcePowers_t::FP_TELEPATHY);
+        tag = std::to_underlying(forcePowers_t::FP_TELEPATHY);
     }
     else if (!Q_stricmp(tokenStr, "FP_GRIP")) {
-        tag = to_underlying(forcePowers_t::FP_GRIP);
+        tag = std::to_underlying(forcePowers_t::FP_GRIP);
     }
     else if (!Q_stricmp(tokenStr, "FP_LIGHTNING")) {
-        tag = to_underlying(forcePowers_t::FP_LIGHTNING);
+        tag = std::to_underlying(forcePowers_t::FP_LIGHTNING);
     }
     else if (!Q_stricmp(tokenStr, "FP_SABERTHROW")) {
-        tag = to_underlying(forcePowers_t::FP_SABERTHROW);
+        tag = std::to_underlying(forcePowers_t::FP_SABERTHROW);
     }
     else if (!Q_stricmp(tokenStr, "ITM_BATTERY_PICKUP")) {
-        tag = to_underlying(itemNum_t::ITM_BATTERY_PICKUP);
+        tag = std::to_underlying(itemNum_t::ITM_BATTERY_PICKUP);
     }
     else if (!Q_stricmp(tokenStr, "INV_SEEKER")) {
-        tag = to_underlying(inventory_t::INV_SEEKER);
+        tag = std::to_underlying(inventory_t::INV_SEEKER);
     }
     else if (!Q_stricmp(tokenStr, "ITM_SHIELD_PICKUP")) {
-        tag = to_underlying(itemNum_t::ITM_SHIELD_PICKUP);
+        tag = std::to_underlying(itemNum_t::ITM_SHIELD_PICKUP);
     }
     else if (!Q_stricmp(tokenStr, "INV_BACTA_CANISTER")) {
-        tag = to_underlying(inventory_t::INV_BACTA_CANISTER);
+        tag = std::to_underlying(inventory_t::INV_BACTA_CANISTER);
     }
     else if (!Q_stricmp(tokenStr, "ITM_DATAPAD_PICKUP")) {
-        tag = to_underlying(itemNum_t::ITM_DATAPAD_PICKUP);
+        tag = std::to_underlying(itemNum_t::ITM_DATAPAD_PICKUP);
     }
     else if (!Q_stricmp(tokenStr, "INV_ELECTROBINOCULARS")) {
-        tag = to_underlying(inventory_t::INV_ELECTROBINOCULARS);
+        tag = std::to_underlying(inventory_t::INV_ELECTROBINOCULARS);
     }
     else if (!Q_stricmp(tokenStr, "INV_SENTRY")) {
-        tag = to_underlying(inventory_t::INV_SENTRY);
+        tag = std::to_underlying(inventory_t::INV_SENTRY);
     }
     else if (!Q_stricmp(tokenStr, "INV_LIGHTAMP_GOGGLES")) {
-        tag = to_underlying(inventory_t::INV_LIGHTAMP_GOGGLES);
+        tag = std::to_underlying(inventory_t::INV_LIGHTAMP_GOGGLES);
     }
     else if (!Q_stricmp(tokenStr, "INV_GOODIE_KEY")) {
-        tag = to_underlying(inventory_t::INV_GOODIE_KEY);
+        tag = std::to_underlying(inventory_t::INV_GOODIE_KEY);
     }
     else if (!Q_stricmp(tokenStr, "INV_SECURITY_KEY")) {
-        tag = to_underlying(inventory_t::INV_SECURITY_KEY);
+        tag = std::to_underlying(inventory_t::INV_SECURITY_KEY);
     }
     else if (!Q_stricmp(tokenStr, "ITM_MEDPAK_PICKUP")) {
-        tag = to_underlying(itemNum_t::ITM_MEDPAK_PICKUP);
+        tag = std::to_underlying(itemNum_t::ITM_MEDPAK_PICKUP);
     }
     else if (!Q_stricmp(tokenStr, "ITM_SHIELD_SM_PICKUP")) {
-        tag = to_underlying(itemNum_t::ITM_SHIELD_SM_PICKUP);
+        tag = std::to_underlying(itemNum_t::ITM_SHIELD_SM_PICKUP);
     }
     else if (!Q_stricmp(tokenStr, "ITM_SHIELD_LRG_PICKUP")) {
-        tag = to_underlying(itemNum_t::ITM_SHIELD_LRG_PICKUP);
+        tag = std::to_underlying(itemNum_t::ITM_SHIELD_LRG_PICKUP);
     }
     else {
-        tag = to_underlying(weapon_t::WP_BRYAR_PISTOL);
+        tag = std::to_underlying(weapon_t::WP_BRYAR_PISTOL);
         Q_PrintlnWarning("bad tagname in external item data '{}'", tokenStr);
     }
 

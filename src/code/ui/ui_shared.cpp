@@ -10092,7 +10092,7 @@ bool Item_HandleKey(itemDef_t* item, std::optional<fakeAscii_t> key, bool down)
         break;
     case ITEM_TYPE_EDITFIELD:
     case ITEM_TYPE_NUMERICFIELD:
-        // return Item_TextField_HandleKey(item, to_underlying( *key ));
+        // return Item_TextField_HandleKey(item, std::to_underlying( *key ));
         return false;
         break;
     case ITEM_TYPE_COMBO:

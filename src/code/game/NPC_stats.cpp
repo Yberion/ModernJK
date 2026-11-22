@@ -88,15 +88,15 @@ stringID_table_t FPTable[] = {ENUM2STRING(forcePowers_t, FP_HEAL),
 
 stringID_table_t TeamTable[] = {
     {"free",
-     to_underlying(
+     std::to_underlying(
          team_t::TEAM_FREE)},       // caution, some code checks a team_t via "if (!team_t_varname)" so I guess this should stay as entry 0, great or what? -slc
     ENUM2STRING(team_t, TEAM_FREE), // caution, some code checks a team_t via "if (!team_t_varname)" so I guess this should stay as entry 0, great or what? -slc
-    {"player", to_underlying(team_t::TEAM_PLAYER)},
+    {"player", std::to_underlying(team_t::TEAM_PLAYER)},
     ENUM2STRING(team_t, TEAM_PLAYER),
-    {"enemy", to_underlying(team_t::TEAM_ENEMY)},
+    {"enemy", std::to_underlying(team_t::TEAM_ENEMY)},
     ENUM2STRING(team_t, TEAM_ENEMY),
-    {"neutral", to_underlying(team_t::TEAM_NEUTRAL)}, // most droids are team_neutral, there are some exceptions like Probe,Seeker,Interrogator
-    ENUM2STRING(team_t, TEAM_NEUTRAL),                // most droids are team_neutral, there are some exceptions like Probe,Seeker,Interrogator
+    {"neutral", std::to_underlying(team_t::TEAM_NEUTRAL)}, // most droids are team_neutral, there are some exceptions like Probe,Seeker,Interrogator
+    ENUM2STRING(team_t, TEAM_NEUTRAL),                     // most droids are team_neutral, there are some exceptions like Probe,Seeker,Interrogator
     {"", -1}};
 
 // this list was made using the model directories, this MUST be in the same order as the CLASS_ enum in teams.h
@@ -347,7 +347,7 @@ void SpewDebugStuffToFile(EnumArray<animation_t, animNumber_t, animNumber_t::MAX
     BGPAFtext[0] = 0;
 
     while (i < animNumber_t::MAX_ANIMATIONS) {
-        strcat(BGPAFtext, Q_Format("{} {}\n", to_underlying(i), bgGlobalAnimations[i].frameLerp).c_str());
+        strcat(BGPAFtext, Q_Format("{} {}\n", i, bgGlobalAnimations[i].frameLerp).c_str());
         i++;
     }
 
@@ -483,25 +483,25 @@ static void ParseAnimationEvtBlock(int glaIndex, unsigned short modelIndex, cons
                 break;
             }
             if (Q_stricmp(token, "CHAN_VOICE_ATTEN") == 0) {
-                animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying(soundChannel_t::CHAN_VOICE_ATTEN);
+                animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = std::to_underlying(soundChannel_t::CHAN_VOICE_ATTEN);
             }
             else if (Q_stricmp(token, "CHAN_VOICE_GLOBAL") == 0) {
-                animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying(soundChannel_t::CHAN_VOICE_GLOBAL);
+                animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = std::to_underlying(soundChannel_t::CHAN_VOICE_GLOBAL);
             }
             else if (Q_stricmp(token, "CHAN_ANNOUNCER") == 0) {
-                animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying(soundChannel_t::CHAN_ANNOUNCER);
+                animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = std::to_underlying(soundChannel_t::CHAN_ANNOUNCER);
             }
             else if (Q_stricmp(token, "CHAN_BODY") == 0) {
-                animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying(soundChannel_t::CHAN_BODY);
+                animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = std::to_underlying(soundChannel_t::CHAN_BODY);
             }
             else if (Q_stricmp(token, "CHAN_WEAPON") == 0) {
-                animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying(soundChannel_t::CHAN_WEAPON);
+                animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = std::to_underlying(soundChannel_t::CHAN_WEAPON);
             }
             else if (Q_stricmp(token, "CHAN_VOICE") == 0) {
-                animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying(soundChannel_t::CHAN_VOICE);
+                animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = std::to_underlying(soundChannel_t::CHAN_VOICE);
             }
             else {
-                animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying(soundChannel_t::CHAN_AUTO);
+                animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = std::to_underlying(soundChannel_t::CHAN_AUTO);
             }
             // fall through to normal sound
         case animEventType_t::AEV_SOUND: // # animID AEV_SOUND framenum soundpath randomlow randomhi chancetoplay
@@ -559,13 +559,13 @@ static void ParseAnimationEvtBlock(int glaIndex, unsigned short modelIndex, cons
                     0; // since we don't know which one they meant if we're hacking this, always use first saber
                 animEvents[curAnimEvent].eventData[AED_SABER_SWING_PROBABILITY] = animEvents[curAnimEvent].eventData[AED_SOUND_PROBABILITY];
                 if (lowestVal < 4) { // fast swing
-                    animEvents[curAnimEvent].eventData[AED_SABER_SWING_TYPE] = (short)to_underlying(swingType_t::SWING_FAST);
+                    animEvents[curAnimEvent].eventData[AED_SABER_SWING_TYPE] = (short)std::to_underlying(swingType_t::SWING_FAST);
                 }
                 else if (lowestVal < 7) { // medium swing
-                    animEvents[curAnimEvent].eventData[AED_SABER_SWING_TYPE] = (short)to_underlying(swingType_t::SWING_MEDIUM);
+                    animEvents[curAnimEvent].eventData[AED_SABER_SWING_TYPE] = (short)std::to_underlying(swingType_t::SWING_MEDIUM);
                 }
                 else { // strong swing
-                    animEvents[curAnimEvent].eventData[AED_SABER_SWING_TYPE] = (short)to_underlying(swingType_t::SWING_STRONG);
+                    animEvents[curAnimEvent].eventData[AED_SABER_SWING_TYPE] = (short)std::to_underlying(swingType_t::SWING_STRONG);
                 }
             }
             else if (!Q_stricmpn("sound/weapons/saber/saberspin", stringData, 29)) { // a saber spin
@@ -2974,7 +2974,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                         SkipRestOfLine(&p);
                         continue;
                     }
-                    if (n < to_underlying(bState_t::BS_DEFAULT) || n >= to_underlying(bState_t::NUM_BSTATES)) {
+                    if (n < std::to_underlying(bState_t::BS_DEFAULT) || n >= std::to_underlying(bState_t::NUM_BSTATES)) {
                         Q_PrintlnWarning("bad {} in NPC '{}'", token, NPCName);
                         continue;
                     }
@@ -3413,11 +3413,11 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     continue;
                 }
                 // cap
-                if (n > to_underlying(saber_styles_t::SS_STAFF)) {
-                    n = to_underlying(saber_styles_t::SS_STAFF);
+                if (n > std::to_underlying(saber_styles_t::SS_STAFF)) {
+                    n = std::to_underlying(saber_styles_t::SS_STAFF);
                 }
-                else if (n < to_underlying(saber_styles_t::SS_FAST)) {
-                    n = to_underlying(saber_styles_t::SS_FAST);
+                else if (n < std::to_underlying(saber_styles_t::SS_FAST)) {
+                    n = std::to_underlying(saber_styles_t::SS_FAST);
                 }
                 if (n) { // set
                     NPC->client->ps.saberStylesKnown |= (1 << n);

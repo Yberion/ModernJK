@@ -1772,8 +1772,8 @@ static bool PM_CheckJump(void)
                                     if (traceEnt->health > 0) { // didn't kill him
                                         if ((traceEnt->s.number == 0 && !Q_irand(0, g_spskill->integer)) ||
                                             (traceEnt->NPC != nullptr &&
-                                             Q_irand(to_underlying(rank_t::RANK_CIVILIAN), to_underlying(traceEnt->NPC->rank)) + Q_irand(-2, 2) <
-                                                 to_underlying(rank_t::RANK_ENSIGN))) {
+                                             Q_irand(std::to_underlying(rank_t::RANK_CIVILIAN), std::to_underlying(traceEnt->NPC->rank)) + Q_irand(-2, 2) <
+                                                 std::to_underlying(rank_t::RANK_ENSIGN))) {
                                             NPC_SetAnim(traceEnt, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_KNOCKDOWN2,
                                                         setAnimFlags_t::SETANIM_FLAG_OVERRIDE | setAnimFlags_t::SETANIM_FLAG_HOLD);
                                             G_Throw(traceEnt, oppDir, strength);
@@ -2019,8 +2019,9 @@ static bool PM_CheckJump(void)
                                     if ( traceEnt->health > 0 )
                                     {//didn't kill him
                                         if ( (traceEnt->s.number==0&&!Q_irand(0,g_spskill->integer))
-                                            || (traceEnt->NPC!=nullptr&&Q_irand( to_underlying( rank_t::RANK_CIVILIAN ), to_underlying( traceEnt->NPC->rank )
-            )+Q_irand(-2,2) < to_underlying( rank_t::RANK_ENSIGN )) )
+                                            || (traceEnt->NPC!=nullptr&&Q_irand( std::to_underlying( rank_t::RANK_CIVILIAN ), std::to_underlying(
+            traceEnt->NPC->rank )
+            )+Q_irand(-2,2) < std::to_underlying( rank_t::RANK_ENSIGN )) )
                                         {
                                             NPC_SetAnim( traceEnt, setAnimParts_t::SETANIM_BOTH, animNumber_t::BOTH_KNOCKDOWN2,
             setAnimFlags_t::SETANIM_FLAG_OVERRIDE|setAnimFlags_t::SETANIM_FLAG_HOLD ); G_Throw( traceEnt, oppDir, strength );
@@ -5527,8 +5528,9 @@ bool PM_CheckRollGetup(void)
                 && pm->gent->enemy->enemy == pm->gent                                                        // he's mad at me!
                 && (PM_GoingToAttackDown(&pm->gent->enemy->client->ps) || !Q_irand(0, 2)) // he's attacking downward! (or we just feel like doing it this time)
                 && ((pm->gent->client && pm->gent->client->NPC_class == class_t::CLASS_ALORA) ||
-                    Q_irand(0, to_underlying(rank_t::RANK_CAPTAIN)) < to_underlying(pm->gent->NPC->rank)))) // higher rank I am, more likely I am to roll away!
-        {                                                                                                   // roll away!
+                    Q_irand(0, std::to_underlying(rank_t::RANK_CAPTAIN)) <
+                        std::to_underlying(pm->gent->NPC->rank)))) // higher rank I am, more likely I am to roll away!
+        {                                                          // roll away!
             animNumber_t anim;
             bool forceGetUp = false;
             if (pm->cmd.forwardmove > 0) {
@@ -8066,7 +8068,8 @@ bool PM_CanDoDualDoubleAttacks(void)
         return true;
     }
     if (pm->gent && pm->gent->NPC &&
-        to_underlying(pm->gent->NPC->rank) >= Q_irand(to_underlying(rank_t::RANK_LT_COMM), to_underlying(rank_t::RANK_CAPTAIN) + 2)) { // high-rank NPC
+        std::to_underlying(pm->gent->NPC->rank) >=
+            Q_irand(std::to_underlying(rank_t::RANK_LT_COMM), std::to_underlying(rank_t::RANK_CAPTAIN) + 2)) { // high-rank NPC
         return true;
     }
     if (pm->gent && pm->gent->client && pm->gent->client->NPC_class == class_t::CLASS_ALORA) { // Alora
@@ -8609,8 +8612,8 @@ saberMoveName_t PM_NPCSaberAttackFromQuad(saberQuadrant_t quad)
             }
             break;
         case saberQuadrant_t::Q_B:
-            if (pm->gent && pm->gent->NPC && pm->gent->NPC->rank >= rank_t::RANK_LT_JG) {                  // fencers and above can do bottom-up attack
-                if (Q_irand(0, to_underlying(pm->gent->NPC->rank)) >= to_underlying(rank_t::RANK_LT_JG)) { // but not overly likely
+            if (pm->gent && pm->gent->NPC && pm->gent->NPC->rank >= rank_t::RANK_LT_JG) { // fencers and above can do bottom-up attack
+                if (Q_irand(0, std::to_underlying(pm->gent->NPC->rank)) >= std::to_underlying(rank_t::RANK_LT_JG)) { // but not overly likely
                     newmove = PM_SaberLungeAttackMove(true);
                 }
             }
@@ -8689,8 +8692,8 @@ std::optional<animNumber_t> PM_SaberLockWinAnim(saberLockResult_t result, saberL
         /*
             default:
         #ifndef FINAL_BUILD
-                Q_Println(S_COLOR_RED"ERROR-PM_SaberLockBreak: {} not in saberlock anim, anim = ({}){}", pm->gent->NPC_type, to_underlying(
-        pm->ps->torsoAnim ), BG_AnimName( pm->ps->torsoAnim )); #endif
+                Q_Println(S_COLOR_RED"ERROR-PM_SaberLockBreak: {} not in saberlock anim, anim = ({}){}", pm->gent->NPC_type,
+        pm->ps->torsoAnim , BG_AnimName( pm->ps->torsoAnim )); #endif
         */
     case animNumber_t::BOTH_BF2LOCK:
         if (breakType == saberLockType_t::SABERLOCK_SUPERBREAK) {
@@ -8766,8 +8769,8 @@ std::optional<animNumber_t> PM_SaberLockLoseAnim(gentity_t* genemy, saberLockRes
         /*
             default:
         #ifndef FINAL_BUILD
-                Q_Println(S_COLOR_RED"ERROR-PM_SaberLockBreak: {} not in saberlock anim, anim = ({}){}", genemy->NPC_type, to_underlying(
-        genemy->client->ps.torsoAnim ), BG_AnimName( genemy->client->ps.torsoAnim )); #endif
+                Q_Println(S_COLOR_RED"ERROR-PM_SaberLockBreak: {} not in saberlock anim, anim = ({}){}", genemy->NPC_type,
+        genemy->client->ps.torsoAnim , BG_AnimName( genemy->client->ps.torsoAnim )); #endif
         */
     case animNumber_t::BOTH_BF2LOCK:
         if (breakType == saberLockType_t::SABERLOCK_SUPERBREAK) {
@@ -9075,7 +9078,7 @@ void PM_SaberLockBreak(gentity_t* gent, gentity_t* genemy, saberLockResult_t res
                         victoryStrength -= 2;
                     }
                     if (pm->ps->forcePowersActive & Bit(forcePowers_t::FP_RAGE)) {
-                        victoryStrength += to_underlying(gent->client->ps.forcePowerLevel[forcePowers_t::FP_RAGE]);
+                        victoryStrength += std::to_underlying(gent->client->ps.forcePowerLevel[forcePowers_t::FP_RAGE]);
                     }
                     else if (pm->ps->forceRageRecoveryTime > pm->cmd.serverTime) {
                         victoryStrength--;
@@ -9113,7 +9116,7 @@ int G_SaberLockStrength(gentity_t* gent)
         strength += 1 + gent->client->ps.saber[1].lockBonus;
     }
     if (gent->client->ps.forcePowersActive & Bit(forcePowers_t::FP_RAGE)) {
-        strength += to_underlying(gent->client->ps.forcePowerLevel[forcePowers_t::FP_RAGE]);
+        strength += std::to_underlying(gent->client->ps.forcePowerLevel[forcePowers_t::FP_RAGE]);
     }
     else if (gent->client->ps.forceRageRecoveryTime > pm->cmd.serverTime) {
         strength--;
@@ -9123,7 +9126,7 @@ int G_SaberLockStrength(gentity_t* gent)
             strength += 5 + Q_irand(0, g_spskill->integer);
         }
         else {
-            strength += to_underlying(gent->client->ps.forcePowerLevel[forcePowers_t::FP_SABER_OFFENSE]) + Q_irand(0, g_spskill->integer);
+            strength += std::to_underlying(gent->client->ps.forcePowerLevel[forcePowers_t::FP_SABER_OFFENSE]) + Q_irand(0, g_spskill->integer);
             if (gent->NPC) {
                 if (Any(gent->NPC->aiFlags & npcAiFlags_t::NPCAI_BOSS_CHARACTER) || Any(gent->NPC->aiFlags & npcAiFlags_t::NPCAI_ROSH) ||
                     gent->client->NPC_class == class_t::CLASS_SHADOWTROOPER) {
@@ -9136,7 +9139,7 @@ int G_SaberLockStrength(gentity_t* gent)
         }
     }
     else { // player
-        strength += to_underlying(gent->client->ps.forcePowerLevel[forcePowers_t::FP_SABER_OFFENSE]) + Q_irand(0, g_spskill->integer) + Q_irand(0, 1);
+        strength += std::to_underlying(gent->client->ps.forcePowerLevel[forcePowers_t::FP_SABER_OFFENSE]) + Q_irand(0, g_spskill->integer) + Q_irand(0, 1);
     }
     return strength;
 }
@@ -10372,7 +10375,7 @@ bool PM_NPCCheckAttackRoll(void)
     if (pm->ps->clientNum >= MAX_CLIENTS && !PM_ControlledByPlayer() // NPC
         && pm->gent &&
         pm->gent->NPC
-        //&& Q_irand( -3, to_underlying( pm->gent->NPC->rank ) ) > to_underlying( rank_t::RANK_CREWMAN ))
+        //&& Q_irand( -3, std::to_underlying( pm->gent->NPC->rank ) ) > std::to_underlying( rank_t::RANK_CREWMAN ))
         && (pm->gent->NPC->rank > rank_t::RANK_CREWMAN && !Q_irand(0, 3 - g_spskill->integer)) && pm->gent->enemy &&
         Q_fabsf(pm->gent->enemy->currentOrigin[2] - pm->ps->origin[2]) < 32 &&
         DistanceHorizontalSquared(pm->gent->enemy->currentOrigin, pm->ps->origin) < (128.0f * 128.0f) &&
@@ -11000,7 +11003,7 @@ void PM_WeaponLightsaber(void)
                     }
                     else */
                     if (pm->ps->clientNum >= MAX_CLIENTS && !PM_ControlledByPlayer() &&
-                        (Q_irand(0, to_underlying(pm->ps->forcePowerLevel[forcePowers_t::FP_SABER_OFFENSE]) - 1) ||
+                        (Q_irand(0, std::to_underlying(pm->ps->forcePowerLevel[forcePowers_t::FP_SABER_OFFENSE]) - 1) ||
                          (pm->gent && pm->gent->enemy && pm->gent->enemy->client &&
                           PM_InKnockDownOnGround(&pm->gent->enemy->client->ps)) // enemy knocked down, use some logic
                          || (pm->ps->saberAnimLevel == saber_styles_t::SS_FAST && pm->gent && pm->gent->NPC && pm->gent->NPC->rank >= rank_t::RANK_LT_JG &&
@@ -12416,7 +12419,7 @@ void PM_CheckForceUseButton(gentity_t* ent, usercmd_t* ucmd)
             ucmd->buttons |= buttonFlags_t::BUTTON_FORCE_DRAIN;
             break;
         default:
-            //			Q_Println("Use Force: Unhandled force: {}", to_underlying( showPowers[cg.forcepowerSelect] ));
+            //			Q_Println("Use Force: Unhandled force: {}",  showPowers[cg.forcepowerSelect] );
             break;
         }
         ent->client->ps.pm_flags |= pmoveFlags_t::PMF_USEFORCE_HELD;

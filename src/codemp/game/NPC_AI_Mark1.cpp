@@ -220,8 +220,8 @@ void Mark1_die(gentity_t* self, gentity_t* inflictor, gentity_t* attacker, int d
     anim = self->client->ps.legsAnim;
     if (((anim==animNumber_t::BOTH_DEATH1) || (anim==animNumber_t::BOTH_DEATH2)) && (self->client->ps.torsoTimer<=0))
     {	// This is because self->health keeps getting zeroed out. HL_NONE acts as health in this case.
-        self->locationDamage[to_underlying( hitLocation_t::HL_NONE )] += damage;
-        if (self->locationDamage[to_underlying( hitLocation_t::HL_NONE )] > 50)
+        self->locationDamage[std::to_underlying( hitLocation_t::HL_NONE )] += damage;
+        if (self->locationDamage[std::to_underlying( hitLocation_t::HL_NONE )] > 50)
         {
             DeathFX(self);
             self->client->ps.eFlags |= entityFlags_t::EF_NODRAW;
@@ -331,8 +331,8 @@ void NPC_Mark1_Pain(gentity_t* self, gentity_t* attacker, int damage)
         }
     }
     // Hit in the left arm?
-    else if ((hitLoc == hitLocation_t::HL_ARM_LT) && (self->locationDamage[to_underlying(hitLocation_t::HL_ARM_LT)] > LEFT_ARM_HEALTH)) {
-        if (self->locationDamage[to_underlying(hitLoc)] >= LEFT_ARM_HEALTH) // Blow it up?
+    else if ((hitLoc == hitLocation_t::HL_ARM_LT) && (self->locationDamage[std::to_underlying(hitLocation_t::HL_ARM_LT)] > LEFT_ARM_HEALTH)) {
+        if (self->locationDamage[std::to_underlying(hitLoc)] >= LEFT_ARM_HEALTH) // Blow it up?
         {
             newBolt = trap->G2API_AddBolt(self->ghoul2, 0, "*flash3");
             if (newBolt != -1) {
@@ -343,9 +343,9 @@ void NPC_Mark1_Pain(gentity_t* self, gentity_t* attacker, int damage)
         }
     }
     // Hit in the right arm?
-    else if ((hitLoc == hitLocation_t::HL_ARM_RT) && (self->locationDamage[to_underlying(hitLocation_t::HL_ARM_RT)] > RIGHT_ARM_HEALTH)) // Blow it up?
+    else if ((hitLoc == hitLocation_t::HL_ARM_RT) && (self->locationDamage[std::to_underlying(hitLocation_t::HL_ARM_RT)] > RIGHT_ARM_HEALTH)) // Blow it up?
     {
-        if (self->locationDamage[to_underlying(hitLoc)] >= RIGHT_ARM_HEALTH) {
+        if (self->locationDamage[std::to_underlying(hitLoc)] >= RIGHT_ARM_HEALTH) {
             newBolt = trap->G2API_AddBolt(self->ghoul2, 0, "*flash4");
             if (newBolt != -1) {
                 //				G_PlayEffect( "small_chunks", self->playerModel, self->genericBolt2, self->s.number);
@@ -359,9 +359,9 @@ void NPC_Mark1_Pain(gentity_t* self, gentity_t* attacker, int damage)
     else {
         for (i = 0; i < 6; i++) {
             if ((hitLoc == hitLocation_t::HL_GENERIC1 + i) &&
-                (self->locationDamage[to_underlying(hitLocation_t::HL_GENERIC1 + i)] > AMMO_POD_HEALTH)) // Blow it up?
+                (self->locationDamage[std::to_underlying(hitLocation_t::HL_GENERIC1 + i)] > AMMO_POD_HEALTH)) // Blow it up?
             {
-                if (self->locationDamage[to_underlying(hitLoc)] >= AMMO_POD_HEALTH) {
+                if (self->locationDamage[std::to_underlying(hitLoc)] >= AMMO_POD_HEALTH) {
                     newBolt = trap->G2API_AddBolt(self->ghoul2, 0, Q_Format("*torso_tube{}", (i + 1)).c_str());
                     if (newBolt != -1) {
                         NPC_Mark1_Part_Explode(self, newBolt);

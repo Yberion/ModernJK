@@ -5401,8 +5401,8 @@ saberMoveName_t PM_NPCSaberAttackFromQuad(saberQuadrant_t quad)
             }
             break;
         case saberQuadrant_t::Q_B:
-            if ((pm->gent && pm->gent->NPC && pm->gent->NPC->rank >= rank_t::RANK_LT_JG)) {                // fencers and above can do bottom-up attack
-                if (Q_irand(0, to_underlying(pm->gent->NPC->rank)) >= to_underlying(rank_t::RANK_LT_JG)) { // but not overly likely
+            if ((pm->gent && pm->gent->NPC && pm->gent->NPC->rank >= rank_t::RANK_LT_JG)) { // fencers and above can do bottom-up attack
+                if (Q_irand(0, std::to_underlying(pm->gent->NPC->rank)) >= std::to_underlying(rank_t::RANK_LT_JG)) { // but not overly likely
                     newmove = saberMoveName_t::LS_A_LUNGE;
                 }
             }
@@ -5481,8 +5481,8 @@ animNumber_t PM_SaberLockWinAnim(saberLockResult_t result)
         /*
             default:
         #ifndef FINAL_BUILD
-                Q_Println(S_COLOR_RED"ERROR-PM_SaberLockBreak: {} not in saberlock anim, anim = ({}){}", pm->gent->NPC_type, to_underlying(
-        pm->ps->torsoAnim ), BG_AnimName( pm->ps->torsoAnim )); #endif
+                Q_Println(S_COLOR_RED"ERROR-PM_SaberLockBreak: {} not in saberlock anim, anim = ({}){}", pm->gent->NPC_type,
+        pm->ps->torsoAnim , BG_AnimName( pm->ps->torsoAnim )); #endif
         */
     case animNumber_t::BOTH_BF2LOCK:
         if (result == saberLockResult_t::LOCK_DRAW) {
@@ -5539,8 +5539,8 @@ animNumber_t PM_SaberLockLoseAnim(gentity_t* genemy, saberLockResult_t result)
         /*
             default:
         #ifndef FINAL_BUILD
-                Q_Println(S_COLOR_RED"ERROR-PM_SaberLockBreak: {} not in saberlock anim, anim = ({}){}", genemy->NPC_type, to_underlying(
-        genemy->client->ps.torsoAnim ), BG_AnimName( genemy->client->ps.torsoAnim )); #endif
+                Q_Println(S_COLOR_RED"ERROR-PM_SaberLockBreak: {} not in saberlock anim, anim = ({}){}", genemy->NPC_type,
+        genemy->client->ps.torsoAnim , BG_AnimName( genemy->client->ps.torsoAnim )); #endif
         */
     case animNumber_t::BOTH_BF2LOCK:
         if (result == saberLockResult_t::LOCK_DRAW) {
@@ -5723,11 +5723,11 @@ int G_SaberLockStrength(gentity_t* gent)
             return 5 + Q_irand(0, g_spskill->integer);
         }
         else {
-            return to_underlying(gent->client->ps.forcePowerLevel[forcePowers_t::FP_SABER_OFFENSE]) + Q_irand(0, g_spskill->integer);
+            return std::to_underlying(gent->client->ps.forcePowerLevel[forcePowers_t::FP_SABER_OFFENSE]) + Q_irand(0, g_spskill->integer);
         }
     }
     else { // player
-        return to_underlying(gent->client->ps.forcePowerLevel[forcePowers_t::FP_SABER_OFFENSE]) + Q_irand(0, g_spskill->integer);
+        return std::to_underlying(gent->client->ps.forcePowerLevel[forcePowers_t::FP_SABER_OFFENSE]) + Q_irand(0, g_spskill->integer);
     }
 }
 
@@ -6559,7 +6559,7 @@ void PM_WeaponLightsaber(void)
                     }
                     else */
                     if (pm->ps->clientNum && !PM_ControlledByPlayer() &&
-                        (Q_irand(0, to_underlying(pm->ps->saberAnimLevel) - 1) ||
+                        (Q_irand(0, std::to_underlying(pm->ps->saberAnimLevel) - 1) ||
                          (pm->ps->saberAnimLevel == forcePowerLevels_t::FORCE_LEVEL_1 && pm->gent && pm->gent->NPC &&
                           pm->gent->NPC->rank >= rank_t::RANK_LT_JG && Q_irand(0, 1)))) // minor change to make fast-attack users use the special attacks more
                     {                                                                   // NPCs use more randomized attacks the more skilled they are

@@ -1751,46 +1751,46 @@ void ParseSort(const char** text)
     }
 
     if (!Q_stricmp(token, "portal")) {
-        shader.sort = to_underlying(shaderSort_t::SS_PORTAL);
+        shader.sort = std::to_underlying(shaderSort_t::SS_PORTAL);
     }
     else if (!Q_stricmp(token, "sky")) {
-        shader.sort = to_underlying(shaderSort_t::SS_ENVIRONMENT);
+        shader.sort = std::to_underlying(shaderSort_t::SS_ENVIRONMENT);
     }
     else if (!Q_stricmp(token, "opaque")) {
-        shader.sort = to_underlying(shaderSort_t::SS_OPAQUE);
+        shader.sort = std::to_underlying(shaderSort_t::SS_OPAQUE);
     }
     else if (!Q_stricmp(token, "decal")) {
-        shader.sort = to_underlying(shaderSort_t::SS_DECAL);
+        shader.sort = std::to_underlying(shaderSort_t::SS_DECAL);
     }
     else if (!Q_stricmp(token, "seeThrough")) {
-        shader.sort = to_underlying(shaderSort_t::SS_SEE_THROUGH);
+        shader.sort = std::to_underlying(shaderSort_t::SS_SEE_THROUGH);
     }
     else if (!Q_stricmp(token, "banner")) {
-        shader.sort = to_underlying(shaderSort_t::SS_BANNER);
+        shader.sort = std::to_underlying(shaderSort_t::SS_BANNER);
     }
     else if (!Q_stricmp(token, "additive")) {
-        shader.sort = to_underlying(shaderSort_t::SS_BLEND1);
+        shader.sort = std::to_underlying(shaderSort_t::SS_BLEND1);
     }
     else if (!Q_stricmp(token, "nearest")) {
-        shader.sort = to_underlying(shaderSort_t::SS_NEAREST);
+        shader.sort = std::to_underlying(shaderSort_t::SS_NEAREST);
     }
     else if (!Q_stricmp(token, "underwater")) {
-        shader.sort = to_underlying(shaderSort_t::SS_UNDERWATER);
+        shader.sort = std::to_underlying(shaderSort_t::SS_UNDERWATER);
     }
     else if (!Q_stricmp(token, "inside")) {
-        shader.sort = to_underlying(shaderSort_t::SS_INSIDE);
+        shader.sort = std::to_underlying(shaderSort_t::SS_INSIDE);
     }
     else if (!Q_stricmp(token, "mid_inside")) {
-        shader.sort = to_underlying(shaderSort_t::SS_MID_INSIDE);
+        shader.sort = std::to_underlying(shaderSort_t::SS_MID_INSIDE);
     }
     else if (!Q_stricmp(token, "middle")) {
-        shader.sort = to_underlying(shaderSort_t::SS_MIDDLE);
+        shader.sort = std::to_underlying(shaderSort_t::SS_MIDDLE);
     }
     else if (!Q_stricmp(token, "mid_outside")) {
-        shader.sort = to_underlying(shaderSort_t::SS_MID_OUTSIDE);
+        shader.sort = std::to_underlying(shaderSort_t::SS_MID_OUTSIDE);
     }
     else if (!Q_stricmp(token, "outside")) {
-        shader.sort = to_underlying(shaderSort_t::SS_OUTSIDE);
+        shader.sort = std::to_underlying(shaderSort_t::SS_OUTSIDE);
     }
     else {
         shader.sort = Q_atof(token);
@@ -2089,7 +2089,7 @@ static bool ParseShader(const char** text)
         }
         // portal
         else if (!Q_stricmp(token, "portal")) {
-            shader.sort = to_underlying(shaderSort_t::SS_PORTAL);
+            shader.sort = std::to_underlying(shaderSort_t::SS_PORTAL);
             continue;
         }
         // skyparms <cloudheight> <outerbox> <innerbox>
@@ -2685,14 +2685,14 @@ static shader_t* FinishShader(void)
     // set sky stuff appropriate
     //
     if (shader.sky) {
-        shader.sort = to_underlying(shaderSort_t::SS_ENVIRONMENT);
+        shader.sort = std::to_underlying(shaderSort_t::SS_ENVIRONMENT);
     }
 
     //
     // set polygon offset
     //
     if (shader.polygonOffset && !shader.sort) {
-        shader.sort = to_underlying(shaderSort_t::SS_DECAL);
+        shader.sort = std::to_underlying(shaderSort_t::SS_DECAL);
     }
 
     for (lmStage = 0; lmStage < MAX_SHADER_STAGES; lmStage++) {
@@ -2851,15 +2851,15 @@ static shader_t* FinishShader(void)
             if (!shader.sort) {
                 // see through item, like a grill or grate
                 if (Any(pStage->stateBits & glStateBits_t::GLS_DEPTHMASK_TRUE)) {
-                    shader.sort = to_underlying(shaderSort_t::SS_SEE_THROUGH);
+                    shader.sort = std::to_underlying(shaderSort_t::SS_SEE_THROUGH);
                 }
                 else {
                     if ((blendSrcBits == glStateBits_t::GLS_SRCBLEND_ONE) && (blendDstBits == glStateBits_t::GLS_DSTBLEND_ONE)) {
                         // GL_ONE GL_ONE needs to come a bit later
-                        shader.sort = to_underlying(shaderSort_t::SS_BLEND1);
+                        shader.sort = std::to_underlying(shaderSort_t::SS_BLEND1);
                     }
                     else {
-                        shader.sort = to_underlying(shaderSort_t::SS_BLEND0);
+                        shader.sort = std::to_underlying(shaderSort_t::SS_BLEND0);
                     }
                 }
             }
@@ -2915,7 +2915,7 @@ static shader_t* FinishShader(void)
     // there are times when you will need to manually apply a sort to
     // opaque alpha tested shaders that have later blend passes
     if (!shader.sort) {
-        shader.sort = to_underlying(shaderSort_t::SS_OPAQUE);
+        shader.sort = std::to_underlying(shaderSort_t::SS_OPAQUE);
     }
 
     //
@@ -2946,7 +2946,7 @@ static shader_t* FinishShader(void)
 
     // fogonly shaders don't have any normal passes
     if (stage == 0) {
-        shader.sort = to_underlying(shaderSort_t::SS_FOG);
+        shader.sort = std::to_underlying(shaderSort_t::SS_FOG);
     }
 
     return GeneratePermanentShader();
@@ -3527,12 +3527,12 @@ static void CreateInternalShaders(void)
 
     // shadow shader is just a marker
     Q_strncpyz(shader.name, "<stencil shadow>", sizeof(shader.name));
-    shader.sort = to_underlying(shaderSort_t::SS_BANNER); // shaderSort_t::SS_STENCIL_SHADOW;
+    shader.sort = std::to_underlying(shaderSort_t::SS_BANNER); // shaderSort_t::SS_STENCIL_SHADOW;
     tr.shadowShader = FinishShader();
 
     // distortion shader is just a marker
     Q_strncpyz(shader.name, "internal_distortion", sizeof(shader.name));
-    shader.sort = to_underlying(shaderSort_t::SS_BLEND0);
+    shader.sort = std::to_underlying(shaderSort_t::SS_BLEND0);
     shader.defaultShader = false;
     tr.distortionShader = FinishShader();
     shader.defaultShader = true;
@@ -3543,7 +3543,7 @@ static void CreateInternalShaders(void)
 static void CreateExternalShaders(void)
 {
     tr.projectionShadowShader = R_FindShader("projectionShadow", lightmapsNone, stylesDefault, true);
-    tr.projectionShadowShader->sort = to_underlying(shaderSort_t::SS_STENCIL_SHADOW);
+    tr.projectionShadowShader->sort = std::to_underlying(shaderSort_t::SS_STENCIL_SHADOW);
     tr.sunShader = R_FindShader("sun", lightmapsVertex, stylesDefault, true);
 }
 

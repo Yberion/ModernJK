@@ -790,7 +790,7 @@ const char* Music_GetFileNameForState(MusicState_e eMusicState)
     default:
 #ifndef FINAL_BUILD
         assert(0); // duh....what state are they asking for?
-        Q_Println(S_COLOR_RED "Music_GetFileNameForState( {} ) unhandled case!", to_underlying(eMusicState));
+        Q_Println(S_COLOR_RED "Music_GetFileNameForState( {} ) unhandled case!", eMusicState);
 #endif
         break;
     }
@@ -956,7 +956,7 @@ bool Music_AllowedToTransition(float fPlayingTimeElapsed, MusicState_e eMusicSta
                     default: {
 #ifndef FINAL_BUILD
                         assert(0);
-                        Q_Println(S_COLOR_RED "Music_AllowedToTransition(): No code to transition from music type {}", to_underlying(eMusicState));
+                        Q_Println(S_COLOR_RED "Music_AllowedToTransition(): No code to transition from music type {}", eMusicState);
 #endif
                         return false;
                     } break;

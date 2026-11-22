@@ -67,8 +67,8 @@ static void UI_UpdateScreenshot(void)
         else
             uiInfo.uiDC.screenshotFormat = *ssf;
     }
-    else if (ui_screenshotType.integer < to_underlying(screenshotFormat_t::SSF_JPEG) ||
-             ui_screenshotType.integer > to_underlying(screenshotFormat_t::SSF_PNG)) {
+    else if (ui_screenshotType.integer < std::to_underlying(screenshotFormat_t::SSF_JPEG) ||
+             ui_screenshotType.integer > std::to_underlying(screenshotFormat_t::SSF_PNG)) {
         Q_Println("ui_screenshotType {} is out of range, defaulting to 0 (JPEG)", ui_screenshotType.integer);
         uiInfo.uiDC.screenshotFormat = screenshotFormat_t::SSF_JPEG;
         changed = true;

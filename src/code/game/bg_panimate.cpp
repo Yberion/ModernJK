@@ -2200,7 +2200,7 @@ saberMoveName_t PM_CheckStabDown(void)
         if (!pm->gent->NPC) { // wtf???
             return saberMoveName_t::LS_NONE;
         }
-        if (Q_irand(0, to_underlying(rank_t::RANK_CAPTAIN)) > to_underlying(pm->gent->NPC->rank)) { // lower ranks do this less often
+        if (Q_irand(0, std::to_underlying(rank_t::RANK_CAPTAIN)) > std::to_underlying(pm->gent->NPC->rank)) { // lower ranks do this less often
             return saberMoveName_t::LS_NONE;
         }
     }
@@ -2292,8 +2292,8 @@ saberMoveName_t PM_AttackForEnemyPos(bool allowFB, bool allowStabDown)
                     if (pm->ps->clientNum && !PM_ControlledByPlayer()) {                                         // player should never do this automatically
                         if (pm->ps->groundEntityNum != ENTITYNUM_NONE) {                                         // only when on ground
                             if (pm->gent && pm->gent->client && pm->gent->NPC && pm->gent->NPC->rank >= rank_t::RANK_LT_JG &&
-                                Q_irand(0, to_underlying(pm->gent->NPC->rank)) >
-                                    to_underlying(rank_t::RANK_ENSIGN)) { // only fencers and higher can do this, higher rank does it more
+                                Q_irand(0, std::to_underlying(pm->gent->NPC->rank)) >
+                                    std::to_underlying(rank_t::RANK_ENSIGN)) { // only fencers and higher can do this, higher rank does it more
                                 if (PM_CheckEnemyInBack(100)) {
                                     return PM_PickBackStab();
                                 }
@@ -2493,8 +2493,9 @@ bool PM_CheckLungeAttackMove(void)
                         && pm->gent->NPC->rank >= rank_t::RANK_LT_JG // high rank
                         &&
                         (pm->gent->NPC->rank == rank_t::RANK_LT_JG ||
-                         Q_irand(-3, to_underlying(pm->gent->NPC->rank)) >=
-                             to_underlying(rank_t::RANK_LT_JG))   // Q_irand( 0, to_underlying( pm->gent->NPC->rank ) ) >= to_underlying( rank_t::RANK_LT_JG ) )
+                         Q_irand(-3, std::to_underlying(pm->gent->NPC->rank)) >=
+                             std::to_underlying(
+                                 rank_t::RANK_LT_JG)) // Q_irand( 0, std::to_underlying( pm->gent->NPC->rank ) ) >= std::to_underlying( rank_t::RANK_LT_JG ) )
                         && !Q_irand(0, 3 - g_spskill->integer)) { // only fencer and higher can do this
                         if (pm->ps->saberAnimLevel == saber_styles_t::SS_DESANN) {
                             if (!Q_irand(0, 4)) {
@@ -3499,8 +3500,8 @@ saberMoveName_t PM_SaberAttackForMovement(int forwardmove, int rightmove, saberM
                                 {                                 // my enemy is pretty far in front of me and I'm using fast attacks
                                     if ((pm->ps->clientNum < MAX_CLIENTS || PM_ControlledByPlayer()) ||
                                         (pm->gent && pm->gent->client && pm->gent->NPC && pm->gent->NPC->rank >= rank_t::RANK_LT_JG &&
-                                         Q_irand(0, to_underlying(pm->gent->NPC->rank)) >
-                                             to_underlying(rank_t::RANK_ENSIGN))) { // only fencers and higher can do this, higher rank does it more
+                                         Q_irand(0, std::to_underlying(pm->gent->NPC->rank)) >
+                                             std::to_underlying(rank_t::RANK_ENSIGN))) { // only fencers and higher can do this, higher rank does it more
                                         if (PM_CheckEnemyInBack(128)) {
                                             return PM_PickBackStab();
                                         }
@@ -3512,8 +3513,8 @@ saberMoveName_t PM_SaberAttackForMovement(int forwardmove, int rightmove, saberM
                                 {                                      // enemy is very faw away and I'm using medium/strong attacks
                                     if ((pm->ps->clientNum < MAX_CLIENTS || PM_ControlledByPlayer()) ||
                                         (pm->gent && pm->gent->client && pm->gent->NPC && pm->gent->NPC->rank >= rank_t::RANK_LT_JG &&
-                                         Q_irand(0, to_underlying(pm->gent->NPC->rank)) >
-                                             to_underlying(rank_t::RANK_ENSIGN))) { // only fencers and higher can do this, higher rank does it more
+                                         Q_irand(0, std::to_underlying(pm->gent->NPC->rank)) >
+                                             std::to_underlying(rank_t::RANK_ENSIGN))) { // only fencers and higher can do this, higher rank does it more
                                         if (PM_CheckEnemyInBack(164)) {
                                             return PM_PickBackStab();
                                         }
@@ -4206,7 +4207,7 @@ void PM_SetAnimFinal(animNumber_t* torsoAnim, animNumber_t* legsAnim, setAnimPar
 #ifndef FINAL_BUILD
         if (g_AnimWarning->integer) {
             if (anim < animNumber_t::FACE_TALK0 || anim >= animNumber_t::MAX_ANIMATIONS) {
-                Q_Println(S_COLOR_RED "PM_SetAnimFinal: Invalid Anim Index ({})!", to_underlying(anim));
+                Q_Println(S_COLOR_RED "PM_SetAnimFinal: Invalid Anim Index ({})!", anim);
             }
             else {
                 Q_Println(S_COLOR_RED "PM_SetAnimFinal: Invalid Anim File Index ({})!", gent->client->clientInfo.animFileIndex);
@@ -4450,7 +4451,7 @@ void PM_SetAnimFinal(animNumber_t* torsoAnim, animNumber_t* legsAnim, setAnimPar
 
             // Print It!
             //-----------
-            Q_Println("[{:10}] ent[{:3}-{:>18}] {} anim[{:3}] - {}", actualTime, gent->s.number, entName, location, to_underlying(anim), BG_AnimName(anim));
+            Q_Println("[{:10}] ent[{:3}-{:>18}] {} anim[{:3}] - {}", actualTime, gent->s.number, entName, location, anim, BG_AnimName(anim));
         }
     }
 #endif
@@ -4508,7 +4509,7 @@ void PM_SetAnimFinal(animNumber_t* torsoAnim, animNumber_t* legsAnim, setAnimPar
     // PRINT SOME DEBUG TEXT OF EXISTING VALUES
     //==========================================
     if (false) {
-        Q_Print("PLAYANIM: ({:3}) Speed({:4.2f}) ", to_underlying(anim), animSpeed);
+        Q_Print("PLAYANIM: ({:3}) Speed({:4.2f}) ", anim, animSpeed);
         if (bodyAnimating) {
             Q_Print("BODY: ({:4.2f}) ({:4.2f}) ", bodyCurrent, bodySpeed);
         }

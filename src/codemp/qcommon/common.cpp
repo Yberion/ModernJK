@@ -922,7 +922,7 @@ int Com_EventLoop(void)
 
         switch (ev.evType) {
         default:
-            Q_Error(errorParm_t::ERR_FATAL, "Com_EventLoop: bad event type {}", to_underlying(ev.evType));
+            Q_Error(errorParm_t::ERR_FATAL, "Com_EventLoop: bad event type {}", ev.evType);
             break;
         case sysEventType_t::SE_NONE:
             break;

@@ -1163,7 +1163,7 @@ void R_AddEntitySurfaces(void)
     for (tr.currentEntityNum = 0; tr.currentEntityNum < tr.refdef.num_entities; tr.currentEntityNum++) {
         ent = tr.currentEntity = &tr.refdef.entities[tr.currentEntityNum];
 
-        assert(to_underlying(ent->e.renderfx) >= 0);
+        assert(std::to_underlying(ent->e.renderfx) >= 0);
 
         ent->needDlights = false;
 

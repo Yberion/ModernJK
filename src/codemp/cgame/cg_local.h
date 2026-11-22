@@ -160,7 +160,7 @@ typedef struct lerpFrame_s {
 }
 inline void LF_SetAnim(lerpFrame_t& lf, animNumber_t anim)
 {
-    lf.animationNumber = to_underlying(anim);
+    lf.animationNumber = std::to_underlying(anim);
 }
 
 typedef struct playerEntity_s {

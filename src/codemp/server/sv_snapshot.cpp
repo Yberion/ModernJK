@@ -210,7 +210,7 @@ void SV_WriteSnapshotToClient(client_t* client, msg_t* msg, clientSnapshot_t* ol
     // this is the snapshot we are creating
     frame = &client->frames[client->netchan.outgoingSequence & PACKET_MASK];
 
-    MSG_WriteByte(msg, to_underlying(svc_ops_e::svc_snapshot));
+    MSG_WriteByte(msg, std::to_underlying(svc_ops_e::svc_snapshot));
 
     // NOTE, MRE: now sent at the start of every message from server to client
     // let the client know which reliable clientCommands we have received
@@ -223,7 +223,7 @@ void SV_WriteSnapshotToClient(client_t* client, msg_t* msg, clientSnapshot_t* ol
     // what we are delta'ing from
     MSG_WriteByte(msg, lastframe);
 
-    MSG_WriteByte(msg, to_underlying(SV_SnapshotFlags(client)));
+    MSG_WriteByte(msg, std::to_underlying(SV_SnapshotFlags(client)));
 
     // send over the areabits
     MSG_WriteByte(msg, frame->areabytes);
@@ -294,7 +294,7 @@ void SV_UpdateServerCommandsToClient(client_t* client, msg_t* msg)
 
     // write any unacknowledged serverCommands
     for (i = reliableAcknowledge + 1; i <= client->reliableSequence; i++) {
-        MSG_WriteByte(msg, to_underlying(svc_ops_e::svc_serverCommand));
+        MSG_WriteByte(msg, std::to_underlying(svc_ops_e::svc_serverCommand));
         MSG_WriteLong(msg, i);
         MSG_WriteString(msg, client->reliableCommands[i & (MAX_RELIABLE_COMMANDS - 1)]);
     }

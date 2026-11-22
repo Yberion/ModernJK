@@ -59,8 +59,8 @@ void Interrogator_die(gentity_t* self, gentity_t* inflictor, gentity_t* attacker
 {
     self->client->ps.velocity[2] = -100;
     /*
-    self->locationDamage[to_underlying( hitLocation_t::HL_NONE )] += damage;
-    if (self->locationDamage[to_underlying( hitLocation_t::HL_NONE )] > 40)
+    self->locationDamage[std::to_underlying( hitLocation_t::HL_NONE )] += damage;
+    if (self->locationDamage[std::to_underlying( hitLocation_t::HL_NONE )] > 40)
     {
         DeathFX(self);
         self->client->ps.eFlags |= entityFlags_t::EF_NODRAW;

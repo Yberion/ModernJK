@@ -408,7 +408,7 @@ int BotExportTest(int parm0, char* parm1, vec3_t parm2, vec3_t parm3)
     if (newarea != area) {
         Q_Println("origin = {:f}, {:f}, {:f}", origin[0], origin[1], origin[2]);
         area = newarea;
-        Q_Println("new area {}, cluster {}, presence type {}", area, AAS_AreaCluster(area), to_underlying(AAS_PointPresenceType(origin)));
+        Q_Println("new area {}, cluster {}, presence type {}", area, AAS_AreaCluster(area), AAS_PointPresenceType(origin));
         Q_Print("area contents: ");
         if (Any(aasworld.areasettings[area].contents & areaContentsFlags_t::AREACONTENTS_WATER)) {
             Q_Print("water &");
@@ -469,7 +469,7 @@ int BotExportTest(int parm0, char* parm1, vec3_t parm2, vec3_t parm3)
     } // end if*/
     if (flood)
         return 0;
-    //	if (parm0 & to_underlying( buttonFlags_t::BUTTON_USE ))
+    //	if (parm0 & std::to_underlying( buttonFlags_t::BUTTON_USE ))
     //	{
     //		botlibglobals.runai = !botlibglobals.runai;
     //		if (botlibglobals.runai) Q_Println("started AI");
@@ -511,7 +511,7 @@ int BotExportTest(int parm0, char* parm1, vec3_t parm2, vec3_t parm3)
         } //end if*/
     /*
     AAS_ClearShownDebugLines();
-    AAS_ShowArea(newarea, parm0 & to_underlying( buttonFlags_t::BUTTON_USE ));
+    AAS_ShowArea(newarea, parm0 & std::to_underlying( buttonFlags_t::BUTTON_USE ));
     AAS_ShowReachableAreas(area);
     */
     AAS_ClearShownPolygons();
@@ -564,7 +564,7 @@ int BotExportTest(int parm0, char* parm1, vec3_t parm2, vec3_t parm3)
     VectorClear(forward);
     // BotGapDistance(origin, forward, 0);
     /*
-    if (parm0 & to_underlying( buttonFlags_t::BUTTON_USE ))
+    if (parm0 & std::to_underlying( buttonFlags_t::BUTTON_USE ))
     {
         Q_Println("test rj from 703 to 716");
         AAS_Reachability_WeaponJump(703, 716);

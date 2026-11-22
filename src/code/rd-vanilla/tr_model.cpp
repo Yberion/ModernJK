@@ -850,7 +850,7 @@ static bool R_LoadMD3(model_t* mod, int lod, void* buffer, const char* mod_name,
         }
 
         // change to surface identifier
-        surf->ident = to_underlying(surfaceType_t::SF_MD3);
+        surf->ident = std::to_underlying(surfaceType_t::SF_MD3);
 
         // lowercase the surface name so skin compares are faster
         Q_strlwr(surf->name);

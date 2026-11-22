@@ -942,7 +942,7 @@ static const char* Key_KeyToAscii(fakeAscii_t keynum)
 
 static const char* Key_KeyToHex(fakeAscii_t keynum)
 {
-    const int number = to_underlying(keynum);
+    const int number = std::to_underlying(keynum);
     int i = number >> 4;
     int j = number & 15;
 
@@ -1289,7 +1289,7 @@ void CL_ParseBinding(fakeAscii_t key, bool down, unsigned time)
             // subframe corrected
             if (allCommands || (allowUpCmds && !down)) {
                 char cmd[1024];
-                Q_FormatTo(cmd, "{}{} {} {}\n", (down) ? '+' : '-', p + 1, to_underlying(key), static_cast<int>(time));
+                Q_FormatTo(cmd, "{}{} {} {}\n", (down) ? '+' : '-', p + 1, key, static_cast<int>(time));
                 Cbuf_AddText(cmd);
             }
         }

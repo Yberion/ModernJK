@@ -280,14 +280,14 @@ EnumArray<float, forcePowerLevels_t, forcePowerLevels_t::NUM_FORCE_POWER_LEVELS>
                                                                                                       0.75f, 1.0f, 2.0f};
 
 stringID_table_t SaberStyleTable[] = {
-    {"NULL", to_underlying(saber_styles_t::SS_NONE)},     ENUM2STRING(saber_styles_t, SS_FAST),
-    {"fast", to_underlying(saber_styles_t::SS_FAST)},     ENUM2STRING(saber_styles_t, SS_MEDIUM),
-    {"medium", to_underlying(saber_styles_t::SS_MEDIUM)}, ENUM2STRING(saber_styles_t, SS_STRONG),
-    {"strong", to_underlying(saber_styles_t::SS_STRONG)}, ENUM2STRING(saber_styles_t, SS_DESANN),
-    {"desann", to_underlying(saber_styles_t::SS_DESANN)}, ENUM2STRING(saber_styles_t, SS_TAVION),
-    {"tavion", to_underlying(saber_styles_t::SS_TAVION)}, ENUM2STRING(saber_styles_t, SS_DUAL),
-    {"dual", to_underlying(saber_styles_t::SS_DUAL)},     ENUM2STRING(saber_styles_t, SS_STAFF),
-    {"staff", to_underlying(saber_styles_t::SS_STAFF)},   {"", 0},
+    {"NULL", std::to_underlying(saber_styles_t::SS_NONE)},     ENUM2STRING(saber_styles_t, SS_FAST),
+    {"fast", std::to_underlying(saber_styles_t::SS_FAST)},     ENUM2STRING(saber_styles_t, SS_MEDIUM),
+    {"medium", std::to_underlying(saber_styles_t::SS_MEDIUM)}, ENUM2STRING(saber_styles_t, SS_STRONG),
+    {"strong", std::to_underlying(saber_styles_t::SS_STRONG)}, ENUM2STRING(saber_styles_t, SS_DESANN),
+    {"desann", std::to_underlying(saber_styles_t::SS_DESANN)}, ENUM2STRING(saber_styles_t, SS_TAVION),
+    {"tavion", std::to_underlying(saber_styles_t::SS_TAVION)}, ENUM2STRING(saber_styles_t, SS_DUAL),
+    {"dual", std::to_underlying(saber_styles_t::SS_DUAL)},     ENUM2STRING(saber_styles_t, SS_STAFF),
+    {"staff", std::to_underlying(saber_styles_t::SS_STAFF)},   {"", 0},
 };
 
 // SABER INITIALIZATION======================================================================
@@ -1357,10 +1357,10 @@ bool WP_SaberApplyDamage(gentity_t* ent, float baseDamage, damageFlags_t baseDFl
 #ifndef FINAL_BUILD
                         if (d_saberCombat->integer) {
                             if (Any(dFlags & damageFlags_t::DAMAGE_NO_DAMAGE)) {
-                                Q_Println(S_COLOR_RED "damage: fake, hitLoc {}", to_underlying(hitLoc[i]));
+                                Q_Println(S_COLOR_RED "damage: fake, hitLoc {}", hitLoc[i]);
                             }
                             else {
-                                Q_Println(S_COLOR_RED "damage: {:4.2f}, hitLoc {}", totalDmg[i], to_underlying(hitLoc[i]));
+                                Q_Println(S_COLOR_RED "damage: {:4.2f}, hitLoc {}", totalDmg[i], hitLoc[i]);
                             }
                         }
 #endif
@@ -2126,7 +2126,7 @@ bool WP_SaberDamageForTrace(int ignore, vec3_t start, vec3_t end, float dmg, vec
                     }
                     else if ( owner->client->NPC_class == class_t::CLASS_TAVION
 							/*|| (owner->client->NPC_class == class_t::CLASS_SHADOWTROOPER && !Q_irand( 0, g_spskill->integer*3 ))
-							|| (Q_irand( -5, to_underlying( owner->NPC->rank ) ) > to_underlying( rank_t::RANK_CIVILIAN ) && !Q_irand( 0, g_spskill->integer*3 ))*/ )
+							|| (Q_irand( -5, std::to_underlying( owner->NPC->rank ) ) > std::to_underlying( rank_t::RANK_CIVILIAN ) && !Q_irand( 0, g_spskill->integer*3 ))*/ )
 					{//Tavion can toss a blocked thrown saber aside
                         WP_SaberKnockaway(attacker, &tr);
                         Jedi_PlayDeflectSound(owner);
@@ -2198,7 +2198,7 @@ bool WP_SaberDamageForTrace(int ignore, vec3_t start, vec3_t end, float dmg, vec
                             if ( g_spskill->integer && (g_spskill->integer > 1 || Q_irand( 0, 1 )))
                             {//if on easy, they don't cheat like this, if on medium, they cheat 50% of the time, if on hard, they always cheat
                                 //FIXME: also take into account the owner's FP_DEFENSE?
-                                if ( Q_irand( 0, to_underlying( owner->NPC->rank ) ) >= to_underlying( rank_t::RANK_CIVILIAN ) )
+                                if ( Q_irand( 0, std::to_underlying( owner->NPC->rank ) ) >= std::to_underlying( rank_t::RANK_CIVILIAN ) )
                                 {//lower-rank Jedi aren't as good blockers
                                     vec3_t attDir;
                                     VectorSubtract( end2, start, attDir );
@@ -2282,7 +2282,7 @@ bool WP_SaberDamageForTrace(int ignore, vec3_t start, vec3_t end, float dmg, vec
                         if ( g_spskill->integer && (g_spskill->integer > 1 || Q_irand( 0, 1 )))
                         {//if on easy, they don't cheat like this, if on medium, they cheat 50% of the time, if on hard, they always cheat
                             //FIXME: also take into account the owner's FP_DEFENSE?
-                            if ( Q_irand( 0, to_underlying( owner->NPC->rank ) ) >= to_underlying( rank_t::RANK_CIVILIAN ) )
+                            if ( Q_irand( 0, std::to_underlying( owner->NPC->rank ) ) >= std::to_underlying( rank_t::RANK_CIVILIAN ) )
                             {//lower-rank Jedi aren't as good blockers
                                 vec3_t attDir;
                                 VectorSubtract( end2, start, attDir );
@@ -3839,7 +3839,7 @@ void WP_SaberDamageTrace(gentity_t* ent, int saberNum, int bladeNum)
             entPowerLevel = forcePowerLevels_t::FORCE_LEVEL_1;
         }
         else if (ent->client->ps.forcePowersActive & Bit(forcePowers_t::FP_RAGE)) {
-            entPowerLevel += to_underlying(ent->client->ps.forcePowerLevel[forcePowers_t::FP_RAGE]);
+            entPowerLevel += std::to_underlying(ent->client->ps.forcePowerLevel[forcePowers_t::FP_RAGE]);
         }
     }
 
@@ -3965,7 +3965,7 @@ void WP_SaberDamageTrace(gentity_t* ent, int saberNum, int bladeNum)
                         baseDamage = 2.5f;
                     }
                     else {
-                        baseDamage = 2.5f * (float)to_underlying(entPowerLevel);
+                        baseDamage = 2.5f * (float)std::to_underlying(entPowerLevel);
                     }
                 }
             }
@@ -3987,7 +3987,7 @@ void WP_SaberDamageTrace(gentity_t* ent, int saberNum, int bladeNum)
                         }
                     }
                     else {
-                        baseDamage = 2.5f * (float)to_underlying(entPowerLevel);
+                        baseDamage = 2.5f * (float)std::to_underlying(entPowerLevel);
                     }
                 }
                 else // if ( !ent->s.number )
@@ -4086,7 +4086,7 @@ void WP_SaberDamageTrace(gentity_t* ent, int saberNum, int bladeNum)
     }
     if (baseDamage > 0.1f) {
         if ((ent->client->ps.forcePowersActive & Bit(forcePowers_t::FP_RAGE))) { // add some damage if raged
-            baseDamage += to_underlying(ent->client->ps.forcePowerLevel[forcePowers_t::FP_RAGE]) * 5.0f;
+            baseDamage += std::to_underlying(ent->client->ps.forcePowerLevel[forcePowers_t::FP_RAGE]) * 5.0f;
         }
         else if (ent->client->ps.forceRageRecoveryTime) { // halve it if recovering
             baseDamage *= 0.5f;
@@ -4439,7 +4439,7 @@ void WP_SaberDamageTrace(gentity_t* ent, int saberNum, int bladeNum)
                             (hitOwnerPowerLevel > forcePowerLevels_t::FORCE_LEVEL_2 ||
                              (hitOwner->client->ps.forcePowerLevel[forcePowers_t::FP_SABER_DEFENSE] > forcePowerLevels_t::FORCE_LEVEL_2 &&
                               Q_irand(0,
-                                      to_underlying(
+                                      std::to_underlying(
                                           hitOwner->client->ps.forcePowerLevel[forcePowers_t::FP_SABER_OFFENSE]))))) { // knockaways can make fast-attacker go
                                                                                                                        // into a broken parry anim if the ent is
                                                                                                                        // using fast or med (but not Tavion)
@@ -5881,7 +5881,7 @@ void WP_SaberPull(gentity_t* self, gentity_t* saber)
     }
 }
 
-const EnumArray<const char*, saber_colors_t, to_underlying(saber_colors_t::SABER_PURPLE) + 1> saberColorStringForColor = {
+const EnumArray<const char*, saber_colors_t, std::to_underlying(saber_colors_t::SABER_PURPLE) + 1> saberColorStringForColor = {
     "red",    // SABER_RED
     "orange", // SABER_ORANGE
     "yellow", // SABER_YELLOW
@@ -8260,8 +8260,8 @@ void ForceThrow(gentity_t* self, bool pull, bool fake)
                                  && !InFront(push_list[x]->currentOrigin, self->enemy->currentOrigin, self->enemy->currentAngles,
                                              -0.25f) // object is generally behind enemy
                                  // FIXME: check dist to enemy and clear LOS to enemy and clear Path between object and enemy?
-                                 && ((self->NPC &&
-                                      (noResist || Q_irand(0, to_underlying(rank_t::RANK_CAPTAIN)) < to_underlying(self->NPC->rank))) // NPC with enough skill
+                                 && ((self->NPC && (noResist || Q_irand(0, std::to_underlying(rank_t::RANK_CAPTAIN)) <
+                                                                    std::to_underlying(self->NPC->rank))) // NPC with enough skill
                                      || (self->s.number < MAX_CLIENTS))) { // if I have an auto-enemy & he's in front of me, push it toward him!
                             /*
                             if ( targetedObjectMassTotal + push_list[x]->mass > TARGETED_OBJECT_PUSH_MASS_MAX )
@@ -8299,8 +8299,8 @@ void ForceThrow(gentity_t* self, bool pull, bool fake)
                             && InFront(push_list[x]->currentOrigin, self->enemy->currentOrigin, self->enemy->currentAngles,
                                        0.25f) // object is generally in front of enemy
                             // FIXME: check dist to enemy and clear LOS to enemy and clear Path between object and enemy?
-                            && ((self->NPC &&
-                                 (noResist || Q_irand(0, to_underlying(rank_t::RANK_CAPTAIN)) < to_underlying(self->NPC->rank))) // NPC with enough skill
+                            && ((self->NPC && (noResist || Q_irand(0, std::to_underlying(rank_t::RANK_CAPTAIN)) <
+                                                               std::to_underlying(self->NPC->rank))) // NPC with enough skill
                                 || (self->s.number < MAX_CLIENTS))) { // if I have an auto-enemy & he's in front of me, push it toward him!
                             /*
                             if ( targetedObjectMassTotal + push_list[x]->mass > TARGETED_OBJECT_PUSH_MASS_MAX )
@@ -9322,7 +9322,7 @@ void ForceLightningDamage(gentity_t* self, gentity_t* traceEnt, vec3_t dir, floa
                 }
             }
             else {
-                dmg = Q_irand(1, 3); //*to_underlying( self->client->ps.forcePowerLevel[forcePowers_t::FP_LIGHTNING] );
+                dmg = Q_irand(1, 3); //*std::to_underlying( self->client->ps.forcePowerLevel[forcePowers_t::FP_LIGHTNING] );
             }
 
             if (traceEnt->client && traceEnt->health > 0 && traceEnt->NPC &&
@@ -9353,7 +9353,7 @@ void ForceLightningDamage(gentity_t* self, gentity_t* traceEnt, vec3_t dir, floa
                     !PM_SaberInSpecialAttack(traceEnt->client->ps.torsoAnim) && !PM_InSpecialJump(traceEnt->client->ps.torsoAnim) &&
                     (!traceEnt->s.number || (traceEnt->NPC && traceEnt->NPC->rank >= rank_t::RANK_LT_COMM))) // the player or a tough jedi/reborn
                 {
-                    if (Q_irand(0, to_underlying(traceEnt->client->ps.forcePowerLevel[forcePowers_t::FP_SABER_DEFENSE]) * 3) >
+                    if (Q_irand(0, std::to_underlying(traceEnt->client->ps.forcePowerLevel[forcePowers_t::FP_SABER_DEFENSE]) * 3) >
                         0) // more of a chance of defending if saber defense is high
                     {
                         dmg = 0;
@@ -9884,7 +9884,7 @@ void ForceDrainDamage(gentity_t* self, gentity_t* traceEnt, vec3_t dir, vec3_t i
         if (traceEnt->client && (!OnSameTeam(self, traceEnt) || self->enemy == traceEnt) // don't drain an ally unless that is actually my current enemy
             && self->client->ps.forceDrainTime < level.time) {                           // an enemy or object
             std::optional<forcePowerLevels_t> modPowerLevel;
-            int dmg = to_underlying(self->client->ps.forcePowerLevel[forcePowers_t::FP_DRAIN]) + 1;
+            int dmg = std::to_underlying(self->client->ps.forcePowerLevel[forcePowers_t::FP_DRAIN]) + 1;
             damageFlags_t dflags =
                 (damageFlags_t::DAMAGE_NO_ARMOR | damageFlags_t::DAMAGE_NO_KNOCKBACK | damageFlags_t::DAMAGE_NO_HIT_LOC); //|damageFlags_t::DAMAGE_NO_KILL);
             if (traceEnt->s.number == self->client->ps.forceDrainEntityNum) { // grabbing hold of them does more damage/drains more, and can actually kill them
@@ -9988,7 +9988,7 @@ void ForceDrainDamage(gentity_t* self, gentity_t* traceEnt, vec3_t dir, vec3_t i
 bool WP_CheckForceDraineeStopMe(gentity_t* self, gentity_t* drainee)
 {
     if (drainee->NPC && drainee->client && (drainee->client->ps.forcePowersKnown & Bit(forcePowers_t::FP_PUSH)) &&
-        level.time - self->client->forceDrainStartTime > to_underlying(self->client->ps.forcePowerLevel[forcePowers_t::FP_DRAIN]) *
+        level.time - self->client->forceDrainStartTime > std::to_underlying(self->client->ps.forcePowerLevel[forcePowers_t::FP_DRAIN]) *
                                                              500 // at level 1, I always get at least 500ms of drain, at level 3 I get 1500ms
         && !Q_irand(0, 100 - (drainee->NPC->stats.evasion * 10) - (g_spskill->integer * 12))) { // a jedi who broke free
         ForceThrow(drainee, false);
@@ -10663,7 +10663,7 @@ std::optional<forcePowerLevels_t> WP_AbsorbConversion(gentity_t* attacked, force
     }
 
     // let the attacker absorb an amount of force used in this attack based on his level of absorb
-    addTot = (atForceSpent / 3) * to_underlying(attacked->client->ps.forcePowerLevel[forcePowers_t::FP_ABSORB]);
+    addTot = (atForceSpent / 3) * std::to_underlying(attacked->client->ps.forcePowerLevel[forcePowers_t::FP_ABSORB]);
 
     if (addTot < 1 && atForceSpent >= 1) {
         addTot = 1;
@@ -11079,10 +11079,10 @@ void WP_ForcePowerStop(gentity_t* self, forcePowers_t forcePower)
                             holdTime = 0;
                         }
                         else if (gripEnt->s.weapon == weapon_t::WP_SABER) { // jedi recover faster
-                            holdTime = to_underlying(self->client->ps.forcePowerLevel[forcePowers_t::FP_GRIP]) * 200;
+                            holdTime = std::to_underlying(self->client->ps.forcePowerLevel[forcePowers_t::FP_GRIP]) * 200;
                         }
                         else {
-                            holdTime = to_underlying(self->client->ps.forcePowerLevel[forcePowers_t::FP_GRIP]) * 500;
+                            holdTime = std::to_underlying(self->client->ps.forcePowerLevel[forcePowers_t::FP_GRIP]) * 500;
                         }
                         // stop the anims soon, keep them locked in place for a bit
                         if (gripEnt->client->ps.torsoAnim == animNumber_t::BOTH_CHOKE1 ||
@@ -11853,7 +11853,7 @@ static void WP_ForcePowerRun(gentity_t* self, forcePowers_t forcePower, usercmd_
                 else if (drainEnt->NPC && drainEnt->client && drainEnt->client->ps.forcePowersKnown &&
                          (drainEnt->client->NPC_class == class_t::CLASS_REBORN || drainEnt->client->ps.weapon == weapon_t::WP_SABER) &&
                          !Jedi_CultistDestroyer(drainEnt) &&
-                         level.time - self->client->forceDrainStartTime > to_underlying(self->client->ps.forcePowerLevel[forcePowers_t::FP_DRAIN]) *
+                         level.time - self->client->forceDrainStartTime > std::to_underlying(self->client->ps.forcePowerLevel[forcePowers_t::FP_DRAIN]) *
                                                                               500 // at level 1, I always get at least 500ms of drain, at level 3 I get 1500ms
                          && !Q_irand(0, 100 - (drainEnt->NPC->stats.evasion * 8) -
                                             (g_spskill->integer * 15))) { // a jedi who broke free FIXME: maybe have some minimum grip length- a reaction time?

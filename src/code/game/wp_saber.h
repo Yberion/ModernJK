@@ -141,7 +141,7 @@ extern void ForceSpeed(gentity_t* self, int duration = 0);
 extern EnumArray<float, forcePowerLevels_t, forcePowerLevels_t::NUM_FORCE_POWER_LEVELS> forceSpeedValue;
 extern EnumArray<float, forcePowerLevels_t, forcePowerLevels_t::NUM_FORCE_POWER_LEVELS> forceSpeedRangeMod;
 extern EnumArray<float, forcePowerLevels_t, forcePowerLevels_t::NUM_FORCE_POWER_LEVELS> forceSpeedFOVMod;
-extern const EnumArray<const char*, saber_colors_t, to_underlying(saber_colors_t::SABER_PURPLE) + 1> saberColorStringForColor;
+extern const EnumArray<const char*, saber_colors_t, std::to_underlying(saber_colors_t::SABER_PURPLE) + 1> saberColorStringForColor;
 inline constexpr float FORCE_SPEED_DURATION = 10000.0f;
 inline constexpr float FORCE_RAGE_DURATION = 10000.0f;
 

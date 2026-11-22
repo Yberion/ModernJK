@@ -902,7 +902,7 @@ sequencerResult_t CSequencer::Route(CSequence* sequence, bstream_t* bstream)
         // Error
         default:
 
-            m_ie->I_DPrintln(WL_e::WL_ERROR, "'{}' : invalid block ID", to_underlying(block->GetBlockID()));
+            m_ie->I_DPrintln(WL_e::WL_ERROR, "'{}' : invalid block ID", block->GetBlockID());
 
             return sequencerResult_t::SEQ_FAILED;
             break;

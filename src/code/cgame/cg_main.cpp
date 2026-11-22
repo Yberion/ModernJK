@@ -769,7 +769,7 @@ static void CG_RegisterSounds(void)
     Q_strncpyz(items, CG_ConfigString(CS_ITEMS), sizeof(items));
 
     for (itemNum_t itemNum = itemNum_t::ITM_NONE + 1; itemNum < itemNum_t::ITM_NUM_ITEMS; itemNum++) {
-        if (items[to_underlying(itemNum)] == '1') // even with sound pooling, don't clutter it for low end machines
+        if (items[std::to_underlying(itemNum)] == '1') // even with sound pooling, don't clutter it for low end machines
         {
             CG_RegisterItemSounds(itemNum);
         }
@@ -1335,7 +1335,7 @@ static void CG_RegisterGraphics(void)
     Q_strncpyz(items, CG_ConfigString(CS_ITEMS), sizeof(items));
 
     for (itemNum_t itemNum = itemNum_t::ITM_NONE + 1; itemNum < itemNum_t::ITM_NUM_ITEMS; itemNum++) {
-        if (items[to_underlying(itemNum)] == '1') {
+        if (items[std::to_underlying(itemNum)] == '1') {
             if (bg_itemlist[itemNum].classname) {
                 CG_LoadingString(bg_itemlist[itemNum].classname);
                 CG_RegisterItemVisuals(itemNum);
@@ -3220,7 +3220,7 @@ void CG_DrawDataPadInventorySelect(void)
     }
 
     // draw the weapon description
-    if ((cg.DataPadInventorySelect >= inventory_t::INV_ELECTROBINOCULARS) && (to_underlying(cg.DataPadInventorySelect) < 13)) {
+    if ((cg.DataPadInventorySelect >= inventory_t::INV_ELECTROBINOCULARS) && (std::to_underlying(cg.DataPadInventorySelect) < 13)) {
         cgi_SP_GetStringTextString(Q_Format("SP_INGAME_{}", inventoryDesc[cg.DataPadInventorySelect]).c_str(), text, sizeof(text));
 
         if (text[0]) {

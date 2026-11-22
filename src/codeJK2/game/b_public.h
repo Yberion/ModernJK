@@ -560,7 +560,7 @@ template <typename E>
     requires std::is_enum_v<E>
 void NPC_SetLocalState(gNPC_t& npc, E state)
 {
-    npc.localState = to_underlying(state);
+    npc.localState = std::to_underlying(state);
 }
 
 void G_SquadPathsInit(void);

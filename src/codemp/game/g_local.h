@@ -390,7 +390,7 @@ struct gentity_s {
     meansOfDeath_t methodOfDeath;
     meansOfDeath_t splashMethodOfDeath;
 
-    int locationDamage[to_underlying(hitLocation_t::HL_MAX)]; // Damage accumulated on different body locations
+    int locationDamage[std::to_underlying(hitLocation_t::HL_MAX)]; // Damage accumulated on different body locations
 
     int count;
     int bounceCount;

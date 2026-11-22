@@ -386,8 +386,8 @@ static void UI_UpdateScreenshot(void)
         else
             uiInfo.uiDC.screenshotFormat = *ssf;
     }
-    else if (ui_screenshotType.integer < to_underlying(screenshotFormat_t::SSF_JPEG) ||
-             ui_screenshotType.integer > to_underlying(screenshotFormat_t::SSF_PNG)) {
+    else if (ui_screenshotType.integer < std::to_underlying(screenshotFormat_t::SSF_JPEG) ||
+             ui_screenshotType.integer > std::to_underlying(screenshotFormat_t::SSF_PNG)) {
         Q_Println("ui_screenshotType {} is out of range, defaulting to 0 (JPEG)", ui_screenshotType.integer);
         uiInfo.uiDC.screenshotFormat = screenshotFormat_t::SSF_JPEG;
         changed = true;
@@ -1428,7 +1428,7 @@ EnumArray<const char*, forceWarning_t, forceWarning_t::NUM_FORCE_WARNINGS> kyleF
 template <typename... Powers>
 static int UI_LevelSum(const EnumArray<forcePowerLevels_t, forcePowers_t, forcePowers_t::NUM_FORCE_POWERS>& levels, Powers... powers)
 {
-    return (to_underlying(levels[powers]) + ...);
+    return (std::to_underlying(levels[powers]) + ...);
 }
 
 static void UI_CalcForceStatus(void)
@@ -1610,7 +1610,7 @@ static int UI_FeederCount(float feederID)
         return count;
     }
     else if (feederID == FEEDER_MOVES_TITLES) {
-        return to_underlying(datapadMoveTitle_t::MD_MOVE_TITLE_MAX);
+        return std::to_underlying(datapadMoveTitle_t::MD_MOVE_TITLE_MAX);
     }
     else if (feederID == FEEDER_MODS) {
         return uiInfo.modCount;
@@ -3606,7 +3606,7 @@ void _UI_KeyEvent(int key, bool down)
 // a key's event: _UI_KeyEvent takes a key, or a character with K_CHAR_FLAG, in one int
 void _UI_KeyEvent(fakeAscii_t key, bool down)
 {
-    _UI_KeyEvent(to_underlying(key), down);
+    _UI_KeyEvent(std::to_underlying(key), down);
 }
 
 /*
@@ -4066,8 +4066,7 @@ static void UI_InitAllocForcePowers(const char* forceName)
 
     if (item) {
         char itemGraphic[128];
-        Q_FormatTo(itemGraphic, "gfx/menus/hex_pattern_{}",
-                   to_underlying(forcelevel >= forcePowerLevels_t::FORCE_LEVEL_4 ? forcePowerLevels_t::FORCE_LEVEL_3 : forcelevel));
+        Q_FormatTo(itemGraphic, "gfx/menus/hex_pattern_{}", forcelevel >= forcePowerLevels_t::FORCE_LEVEL_4 ? forcePowerLevels_t::FORCE_LEVEL_3 : forcelevel);
         item->window.background = ui.R_RegisterShaderNoMip(itemGraphic);
 
         // If maxed out on power - don't allow update
@@ -4190,11 +4189,11 @@ static void UI_SetHexPicLevel(const menuDef_t* menu, const int forcePowerI, cons
         char itemGraphic[128];
         if (goldFlag) {
             Q_FormatTo(itemGraphic, "gfx/menus/hex_pattern_{}_gold",
-                       to_underlying(powerLevel >= forcePowerLevels_t::FORCE_LEVEL_4 ? forcePowerLevels_t::FORCE_LEVEL_3 : powerLevel));
+                       powerLevel >= forcePowerLevels_t::FORCE_LEVEL_4 ? forcePowerLevels_t::FORCE_LEVEL_3 : powerLevel);
         }
         else {
             Q_FormatTo(itemGraphic, "gfx/menus/hex_pattern_{}",
-                       to_underlying(powerLevel >= forcePowerLevels_t::FORCE_LEVEL_4 ? forcePowerLevels_t::FORCE_LEVEL_3 : powerLevel));
+                       powerLevel >= forcePowerLevels_t::FORCE_LEVEL_4 ? forcePowerLevels_t::FORCE_LEVEL_3 : powerLevel);
         }
 
         item->window.background = ui.R_RegisterShaderNoMip(itemGraphic);
@@ -4330,7 +4329,7 @@ static void UI_RecordForceLevels(void)
     const char* s2 = "";
     formatText_t s2Text; // holds the text s2 points into
     for (forcePowers_t fp = forcePowers_t::FP_FIRST; fp < forcePowers_t::NUM_FORCE_POWERS; fp++) {
-        s2 = (s2Text = Q_Format("{} {}", s2, to_underlying(uiInfo.forcePowerLevel[fp]))).c_str();
+        s2 = (s2Text = Q_Format("{} {}", s2, uiInfo.forcePowerLevel[fp])).c_str();
     }
     Cvar_Set("demo_playerfplvl", s2);
 }
@@ -4429,7 +4428,7 @@ static void UI_ShutdownForceHelp(void)
 
         // Update level description
         Q_FormatTo(itemName, "{}_level{}desc", powerEnums[uiInfo.forcePowerUpdated].title,
-                   to_underlying(pState->forcePowerLevel[powerEnums[uiInfo.forcePowerUpdated].powerEnum]));
+                   pState->forcePowerLevel[powerEnums[uiInfo.forcePowerUpdated].powerEnum]);
 
         item = (itemDef_s*)Menu_FindItemByName(menu, itemName);
         if (item) {
@@ -4682,7 +4681,7 @@ static void UI_ShowForceLevelDesc(const char* forceName)
     char itemName[128];
 
     // Update level description
-    Q_FormatTo(itemName, "{}_level{}desc", powerEnums[forcePowerI].title, to_underlying(pState->forcePowerLevel[powerEnums[forcePowerI].powerEnum]));
+    Q_FormatTo(itemName, "{}_level{}desc", powerEnums[forcePowerI].title, pState->forcePowerLevel[powerEnums[forcePowerI].powerEnum]);
 
     item = (itemDef_s*)Menu_FindItemByName(menu, itemName);
     if (item) {
@@ -4782,7 +4781,7 @@ static void UI_UpdateFightingStyle(void)
     }
     else // Must be at the beginning of the game so the client hasn't been created, shove data in a cvar
     {
-        Cvar_Set("g_fighting_style", Q_Format("{}", to_underlying(saberStyle)).c_str());
+        Cvar_Set("g_fighting_style", Q_Format("{}", saberStyle).c_str());
     }
 }
 #endif // !JK2_MODE

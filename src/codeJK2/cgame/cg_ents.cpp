@@ -1919,7 +1919,7 @@ static void CG_AddCEntity(centity_t* cent)
 
     switch (cent->currentState.eType) {
     default:
-        Q_Error(errorParm_t::ERR_DROP, "Bad entity type: {}", to_underlying(cent->currentState.eType));
+        Q_Error(errorParm_t::ERR_DROP, "Bad entity type: {}", cent->currentState.eType);
         break;
     case entityType_t::ET_INVISIBLE:
     case entityType_t::ET_PUSH_TRIGGER:

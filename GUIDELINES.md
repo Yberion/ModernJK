@@ -50,7 +50,7 @@ After SF.12 of the C++ Core Guidelines:
 ## 6. Types and state
 
 - **Explicit state over sentinel values.** A value that means two things (a count that is also "not set", a time that is also "never") becomes an enumeration or a flag, not a magic number or a clamp.
-- **Enumerations typed in their storage.** The fields, parameters and returns hold the `enum class` itself; a conversion to or from an integer happens only at a boundary: a file, a cvar, the network, a module interface, a format string. Look for the hidden integers too, not only what the compiler reports.
+- **Enumerations typed in their storage.** The fields, parameters and returns hold the `enum class` itself; a conversion to or from an integer happens only at a boundary: a file, a cvar, the network, a module interface (to an integer with C++23's `std::to_underlying`); a format string takes the enumeration as it is (section 13). Look for the hidden integers too, not only what the compiler reports.
 - **One definition for the trees.** A set that the multiplayer and a single player share (constants, flags, limits) has one definition in `src/shared/qcommon`, included by each tree, never two copies.
 
 ## 7. Math and random numbers
@@ -101,6 +101,7 @@ After SF.12 of the C++ Core Guidelines:
 - One line per call: a warning, an error or a developer's message written in several calls is one call, so that the whole line takes its colour and a log one record.
 - Another printing function is a template taking `fmt::format_string` that calls a function taking `fmt::format_args` (its name with a `V`, as {fmt}'s `vformat`), the arguments packed by `Q_FormatArgs` (a null C string written `(null)`, as printf did: a text of data read back expects it); {fmt}'s types are written `fmt::`.
 - A format read at run time (a translated text, a format of the game's data) is converted with `Q_FormatFromPrintf` and formatted with `fmt::runtime`.
+- An enumeration is given to a printing or formatting function as it is: `q_enum.h`'s `format_as` writes its value; `std::to_underlying` only where the value leaves for a file, a cvar or a name table, or takes part in a computation.
 - A `formatText_t` lives as long as its expression: a pointer kept is a `formatText_t` kept, a pointer returned a `static formatText_t`.
 - netcodec's tests, benchmarks and tools and the tests of `test/` call {fmt} directly: `fmt::println`, a text written in pieces built by `fmt::format_to`; not `fmt::print`, whose code after its `return` cannot run with `FMT_UNICODE` 0, which MSVC's `/W4 /WX` refuses (C4702).
 

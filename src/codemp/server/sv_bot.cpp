@@ -550,7 +550,7 @@ void BotImport_DebugLineShow(int line, vec3_t start, vec3_t end, lineColor_t col
     VectorMA(points[2], -2, cross, points[2]);
     VectorMA(points[3], 2, cross, points[3]);
 
-    BotImport_DebugPolygonShow(line, to_underlying(color), 4, points); // the polygon keeps the renderer's colour
+    BotImport_DebugPolygonShow(line, std::to_underlying(color), 4, points); // the polygon keeps the renderer's colour
 }
 
 /*

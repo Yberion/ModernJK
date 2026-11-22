@@ -200,7 +200,7 @@ enum class persEnum_t {
 }
 inline void PS_SetTeam(playerState_t& ps, team_t team)
 {
-    ps.persistant[persEnum_t::PERS_TEAM] = to_underlying(team);
+    ps.persistant[persEnum_t::PERS_TEAM] = std::to_underlying(team);
 }
 
 // A user command's weapon, a byte of the client packet: the one conversion of the field
@@ -210,14 +210,14 @@ inline void PS_SetTeam(playerState_t& ps, team_t team)
 }
 inline void UC_SetWeapon(usercmd_t& cmd, weapon_t weapon)
 {
-    cmd.weapon = to_underlying(weapon);
+    cmd.weapon = std::to_underlying(weapon);
 }
 
 // Some events carry a number in the entity state's weapon field, a weapon_t (a debug line's width, a flag):
 // the one conversion of the field
 [[nodiscard]] inline int ES_WeaponParm(const entityState_t& es)
 {
-    return to_underlying(es.weapon);
+    return std::to_underlying(es.weapon);
 }
 inline void ES_SetWeaponParm(entityState_t& es, int parm)
 {
@@ -473,7 +473,7 @@ template <> inline constexpr bool enableEnumArithmetic<entity_event_t> = true;
 // externalEvent, an event entity's eType past ET_EVENTS) are integers: an event goes in and comes out through these
 [[nodiscard]] inline int BG_PackEvent(entity_event_t event, int sequenceBits = 0)
 {
-    return to_underlying(event) | sequenceBits;
+    return std::to_underlying(event) | sequenceBits;
 }
 [[nodiscard]] inline entity_event_t BG_UnpackEvent(int packed)
 {
@@ -633,7 +633,7 @@ typedef struct gitem_s {
 }
 
 // included in both the game dll and the client
-extern EnumArray<gitem_t, itemNum_t, to_underlying(itemNum_t::ITM_NUM_ITEMS) + 1> bg_itemlist;
+extern EnumArray<gitem_t, itemNum_t, std::to_underlying(itemNum_t::ITM_NUM_ITEMS) + 1> bg_itemlist;
 extern const int bg_numItems;
 
 //==============================================================================
@@ -718,11 +718,11 @@ enum class entityType_t {
 // read through these only
 [[nodiscard]] inline entityType_t BG_EventEntityType(int packedEvent)
 {
-    return static_cast<entityType_t>(to_underlying(entityType_t::ET_EVENTS) + packedEvent);
+    return static_cast<entityType_t>(std::to_underlying(entityType_t::ET_EVENTS) + packedEvent);
 }
 [[nodiscard]] inline int BG_EventEntityEvent(entityType_t eType)
 {
-    return to_underlying(eType) - to_underlying(entityType_t::ET_EVENTS);
+    return std::to_underlying(eType) - std::to_underlying(entityType_t::ET_EVENTS);
 }
 
 void EvaluateTrajectory(const trajectory_t* tr, int atTime, vec3_t result);

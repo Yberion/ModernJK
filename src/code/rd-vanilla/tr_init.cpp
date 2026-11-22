@@ -1177,7 +1177,7 @@ void GfxInfo_f(void)
     const char* fsstrings[] = {"windowed", "fullscreen"};
     const char* noborderstrings[] = {"", "noborder "};
 
-    const EnumArray<const char*, textureCompression_t, to_underlying(textureCompression_t::TC_S3TC_DXT) + 1> tc_table = {
+    const EnumArray<const char*, textureCompression_t, std::to_underlying(textureCompression_t::TC_S3TC_DXT) + 1> tc_table = {
         "None",
         "GL_S3_s3tc",
         "GL_EXT_texture_compression_s3tc",
@@ -1585,8 +1585,8 @@ void R_Register(void)
     sv_mapChecksum = ri.Cvar_Get("sv_mapChecksum", "", cvarFlags_t::CVAR_ROM);
     se_language = ri.Cvar_Get("se_language", "english", cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_NORESTART);
 #ifdef JK2_MODE
-    sp_language = ri.Cvar_Get("sp_language", Q_Format("{}", to_underlying(spLanguage_t::SP_LANGUAGE_ENGLISH)).c_str(),
-                              cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_NORESTART);
+    sp_language =
+        ri.Cvar_Get("sp_language", Q_Format("{}", spLanguage_t::SP_LANGUAGE_ENGLISH).c_str(), cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_NORESTART);
 #endif
     com_buildScript = ri.Cvar_Get("com_buildScript", "0", cvarFlags_t::CVAR_NONE);
 

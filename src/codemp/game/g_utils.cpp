@@ -1205,7 +1205,7 @@ gentity_t* G_PlayEffect(effectTypes_t fxID, vec3_t org, vec3_t ang)
     te = G_TempEntity(org, entity_event_t::EV_PLAY_EFFECT);
     VectorCopy(ang, te->s.angles);
     VectorCopy(org, te->s.origin);
-    te->s.eventParm = to_underlying(fxID);
+    te->s.eventParm = std::to_underlying(fxID);
 
     return te;
 }
@@ -1271,7 +1271,7 @@ void G_MuteSound(int entnum, soundChannel_t channel)
     te = G_TempEntity(vec3_origin, entity_event_t::EV_MUTE_SOUND);
     te->r.svFlags = svFlags_t::SVF_BROADCAST;
     te->s.trickedentindex2 = entnum;
-    te->s.trickedentindex = to_underlying(channel);
+    te->s.trickedentindex = std::to_underlying(channel);
 
     e = &g_entities[entnum];
 
@@ -1294,7 +1294,7 @@ void G_Sound(gentity_t* ent, soundChannel_t channel, int soundIndex)
 
     te = G_SoundTempEntity(ent->r.currentOrigin, entity_event_t::EV_GENERAL_SOUND);
     te->s.eventParm = soundIndex;
-    te->s.saberEntityNum = to_underlying(channel);
+    te->s.saberEntityNum = std::to_underlying(channel);
 }
 
 /*
@@ -1312,7 +1312,7 @@ void G_Sound(gentity_t* ent, trackchan_t channel, int soundIndex)
 
     te = G_SoundTempEntity(ent->r.currentOrigin, entity_event_t::EV_GENERAL_SOUND);
     te->s.eventParm = soundIndex;
-    te->s.saberEntityNum = to_underlying(channel);
+    te->s.saberEntityNum = std::to_underlying(channel);
 
     if (ent && ent->client &&
         channel > trackchan_t::TRACK_CHANNEL_NONE) { // let the client remember the index of the player entity so he can kill the most recent sound on request
@@ -1347,7 +1347,7 @@ void G_SoundAtLoc(vec3_t loc, soundChannel_t channel, int soundIndex)
 
     te = G_TempEntity(loc, entity_event_t::EV_GENERAL_SOUND);
     te->s.eventParm = soundIndex;
-    te->s.saberEntityNum = to_underlying(channel);
+    te->s.saberEntityNum = std::to_underlying(channel);
 }
 
 /*
@@ -1362,7 +1362,7 @@ void G_EntitySound(gentity_t* ent, soundChannel_t channel, int soundIndex)
     te = G_TempEntity(ent->r.currentOrigin, entity_event_t::EV_ENTITY_SOUND);
     te->s.eventParm = soundIndex;
     te->s.clientNum = ent->s.number;
-    te->s.trickedentindex = to_underlying(channel);
+    te->s.trickedentindex = std::to_underlying(channel);
 }
 
 // To make porting from SP easier.
@@ -1373,7 +1373,7 @@ void G_SoundOnEnt(gentity_t* ent, soundChannel_t channel, const char* soundPath)
     te = G_TempEntity(ent->r.currentOrigin, entity_event_t::EV_ENTITY_SOUND);
     te->s.eventParm = G_SoundIndex((char*)soundPath);
     te->s.clientNum = ent->s.number;
-    te->s.trickedentindex = to_underlying(channel);
+    te->s.trickedentindex = std::to_underlying(channel);
 }
 
 //==============================================================================

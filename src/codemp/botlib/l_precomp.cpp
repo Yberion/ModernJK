@@ -471,7 +471,7 @@ void PC_PrintDefine(define_t *define)
 {
     Q_FilePrintln(stdout, "define->name = {}", define->name);
     Q_FilePrintln(stdout, "define->flags = {}", define->flags);
-    Q_FilePrintln(stdout, "define->builtin = {}", to_underlying( define->builtin ));
+    Q_FilePrintln(stdout, "define->builtin = {}",  define->builtin );
     Q_FilePrintln(stdout, "define->numparms = {}", define->numparms);
 //	token_t *parms;					//define parameters
 //	token_t *tokens;					//macro tokens (possibly containing parm tokens)

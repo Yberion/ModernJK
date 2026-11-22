@@ -1819,7 +1819,7 @@ template <> inline constexpr bool enableEnumArithmetic<animNumber_t> = true;
 
 inline constexpr int SABER_ANIM_GROUP_SIZE = animNumber_t::BOTH_A2_T__B_ - animNumber_t::BOTH_A1_T__B_;
 
-extern stringID_table_t animTable[to_underlying(animNumber_t::MAX_ANIMATIONS) + 1];
+extern stringID_table_t animTable[std::to_underlying(animNumber_t::MAX_ANIMATIONS) + 1];
 
 // the animation a file or a script names; none for a name that matches none
 [[nodiscard]] inline std::optional<animNumber_t> BG_AnimFromName(const char* name)
@@ -1834,7 +1834,7 @@ extern stringID_table_t animTable[to_underlying(animNumber_t::MAX_ANIMATIONS) + 
 // an animation's name, for messages
 [[nodiscard]] inline const char* BG_AnimName(animNumber_t anim)
 {
-    return animTable[to_underlying(anim)].name;
+    return animTable[std::to_underlying(anim)].name;
 }
 
 #endif // #ifndef __ANIMS_H__

@@ -985,8 +985,8 @@ static inline void CM_PatchCollideFromGrid(cGrid_t* grid, patchCollide_t* pf)
     float *p1, *p2, *p3;
     int gridPlanes[MAX_GRID_SIZE][MAX_GRID_SIZE][2];
     facet_t* facet;
-    EnumArray<int, edgeName_t, to_underlying(edgeName_t::EN_LEFT) + 1> borders;
-    EnumArray<int, edgeName_t, to_underlying(edgeName_t::EN_LEFT) + 1> noAdjust;
+    EnumArray<int, edgeName_t, std::to_underlying(edgeName_t::EN_LEFT) + 1> borders;
+    EnumArray<int, edgeName_t, std::to_underlying(edgeName_t::EN_LEFT) + 1> noAdjust;
 
     int numFacets;
     facets = (facet_t*)Z_Malloc(MAX_FACETS * sizeof(facet_t), memtag::TAG_TEMP_WORKSPACE, false, 4);

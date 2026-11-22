@@ -1224,8 +1224,8 @@ saberMoveName_t PM_AttackForEnemyPos(bool allowFB)
             if (enemyDist > 200 || pm->gent->enemy->health <= 0) {   // hmm, look in back for an enemy
                 if (pm->ps->clientNum && !PM_ControlledByPlayer()) { // player should never do this automatically
                     if (pm->gent && pm->gent->client && pm->gent->NPC && pm->gent->NPC->rank >= rank_t::RANK_LT_JG &&
-                        Q_irand(0, to_underlying(pm->gent->NPC->rank)) >
-                            to_underlying(rank_t::RANK_ENSIGN)) { // only fencers and higher can do this, higher rank does it more
+                        Q_irand(0, std::to_underlying(pm->gent->NPC->rank)) >
+                            std::to_underlying(rank_t::RANK_ENSIGN)) { // only fencers and higher can do this, higher rank does it more
                         if (PM_CheckEnemyInBack(100)) {
                             return PM_PickBackStab();
                         }
@@ -1262,7 +1262,8 @@ saberMoveName_t PM_AttackForEnemyPos(bool allowFB)
             }
             if (pm->ps->clientNum && !PM_ControlledByPlayer()) { // NPC
                 if (pm->gent->NPC && pm->gent->NPC->rank >= rank_t::RANK_LT_JG &&
-                    (pm->gent->NPC->rank == rank_t::RANK_LT_JG || Q_irand(0, to_underlying(pm->gent->NPC->rank)) >= to_underlying(rank_t::RANK_ENSIGN))
+                    (pm->gent->NPC->rank == rank_t::RANK_LT_JG ||
+                     Q_irand(0, std::to_underlying(pm->gent->NPC->rank)) >= std::to_underlying(rank_t::RANK_ENSIGN))
                     //&& !PM_InKnockDown( pm->ps )
                     && ((pm->ps->saberAnimLevel == forcePowerLevels_t::FORCE_LEVEL_1 && !Q_irand(0, 2)) ||
                         (pm->gent && pm->gent->client && pm->gent->client->NPC_class == class_t::CLASS_DESANN &&
@@ -1502,7 +1503,8 @@ saberMoveName_t PM_SaberAttackForMovement(int forwardmove, int rightmove, saberM
                      level.time - pm->ps->lastStationary <= 500)) { // not moving (or just started), ducked and using fast attacks
                     if ((!pm->ps->clientNum || PM_ControlledByPlayer()) ||
                         (pm->gent && pm->gent->NPC && pm->gent->NPC->rank >= rank_t::RANK_LT_JG &&
-                         (pm->gent->NPC->rank == rank_t::RANK_LT_JG || Q_irand(0, to_underlying(pm->gent->NPC->rank)) >= to_underlying(rank_t::RANK_ENSIGN)) &&
+                         (pm->gent->NPC->rank == rank_t::RANK_LT_JG ||
+                          Q_irand(0, std::to_underlying(pm->gent->NPC->rank)) >= std::to_underlying(rank_t::RANK_ENSIGN)) &&
                          !Q_irand(0, 3 - g_spskill->integer))) { // only player or fencer and higher can do this
                         return PM_SaberLungeAttackMove();
                     }
@@ -1567,8 +1569,8 @@ saberMoveName_t PM_SaberAttackForMovement(int forwardmove, int rightmove, saberM
                         {                                                          // my enemy is pretty far in front of me and I'm using fast attacks
                             if ((!pm->ps->clientNum || PM_ControlledByPlayer()) ||
                                 (pm->gent && pm->gent->client && pm->gent->NPC && pm->gent->NPC->rank >= rank_t::RANK_LT_JG &&
-                                 Q_irand(0, to_underlying(pm->gent->NPC->rank)) >
-                                     to_underlying(rank_t::RANK_ENSIGN))) { // only fencers and higher can do this, higher rank does it more
+                                 Q_irand(0, std::to_underlying(pm->gent->NPC->rank)) >
+                                     std::to_underlying(rank_t::RANK_ENSIGN))) { // only fencers and higher can do this, higher rank does it more
                                 if (PM_CheckEnemyInBack(128)) {
                                     return PM_PickBackStab();
                                 }
@@ -1579,8 +1581,8 @@ saberMoveName_t PM_SaberAttackForMovement(int forwardmove, int rightmove, saberM
                         {                                                               // enemy is very faw away and I'm using medium/strong attacks
                             if ((!pm->ps->clientNum || PM_ControlledByPlayer()) ||
                                 (pm->gent && pm->gent->client && pm->gent->NPC && pm->gent->NPC->rank >= rank_t::RANK_LT_JG &&
-                                 Q_irand(0, to_underlying(pm->gent->NPC->rank)) >
-                                     to_underlying(rank_t::RANK_ENSIGN))) { // only fencers and higher can do this, higher rank does it more
+                                 Q_irand(0, std::to_underlying(pm->gent->NPC->rank)) >
+                                     std::to_underlying(rank_t::RANK_ENSIGN))) { // only fencers and higher can do this, higher rank does it more
                                 if (PM_CheckEnemyInBack(164)) {
                                     return PM_PickBackStab();
                                 }
@@ -1953,7 +1955,7 @@ std::optional<animNumber_t> BG_AnimFromName(const char* name)
 
 const char* BG_AnimName(animNumber_t anim)
 {
-    return animTable[to_underlying(anim)].name;
+    return animTable[std::to_underlying(anim)].name;
 }
 
 /*
@@ -2178,7 +2180,7 @@ void PM_SetAnimFinal(animNumber_t* torsoAnim, animNumber_t* legsAnim, setAnimPar
     if (anim < animNumber_t::BOTH_1CRUFTFORGIL || anim >= animNumber_t::MAX_ANIMATIONS) {
         assert(0 && "anim out of range!!!");
 #ifndef FINAL_BUILD
-        Q_Error(errorParm_t::ERR_DROP, "{} tried to play invalid anim {}", gent->NPC_type, to_underlying(anim));
+        Q_Error(errorParm_t::ERR_DROP, "{} tried to play invalid anim {}", gent->NPC_type, anim);
 #endif
         return;
     }
@@ -2237,7 +2239,7 @@ void PM_SetAnimFinal(animNumber_t* torsoAnim, animNumber_t* legsAnim, setAnimPar
                 int startFrame, endFrame;
 
                 if (cg_debugAnim.integer == 3 || (!gent->s.number && cg_debugAnim.integer == 1) || (gent->s.number && cg_debugAnim.integer == 2)) {
-                    Q_Println("Time={}: {} TORSO anim {} {}", actualTime, gent->targetname, to_underlying(anim), BG_AnimName(anim));
+                    Q_Println("Time={}: {} TORSO anim {} {}", actualTime, gent->targetname, anim, BG_AnimName(anim));
                 }
 
                 // we have a ghoul2 model - animate it?
@@ -2426,7 +2428,7 @@ setAnimLegs:
             int startFrame, endFrame;
 
             if (cg_debugAnim.integer == 3 || (!gent->s.number && cg_debugAnim.integer == 1) || (gent->s.number && cg_debugAnim.integer == 2)) {
-                Q_Println("Time={}: {} LEGS anim {} {}", actualTime, gent->targetname, to_underlying(anim), BG_AnimName(anim));
+                Q_Println("Time={}: {} LEGS anim {} {}", actualTime, gent->targetname, anim, BG_AnimName(anim));
             }
 
             boneFlags_t animFlags = boneFlags_t::BONE_ANIM_OVERRIDE_FREEZE;

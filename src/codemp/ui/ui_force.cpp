@@ -188,18 +188,16 @@ void UI_DrawForceStars(rectDef_t* rect, float scale, vec4_t color, int textStyle
 // Set the client's force power layout.
 void UI_UpdateClientForcePowers(const char* teamArg)
 {
-    trap->Cvar_Set("forcepowers",
-                   Q_Format("{}-{}-{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}", to_underlying(uiForceRank), uiForceSide,
-                            to_underlying(uiForcePowersRank[forcePowers_t::FP_HEAL]), to_underlying(uiForcePowersRank[forcePowers_t::FP_LEVITATION]),
-                            to_underlying(uiForcePowersRank[forcePowers_t::FP_SPEED]), to_underlying(uiForcePowersRank[forcePowers_t::FP_PUSH]),
-                            to_underlying(uiForcePowersRank[forcePowers_t::FP_PULL]), to_underlying(uiForcePowersRank[forcePowers_t::FP_TELEPATHY]),
-                            to_underlying(uiForcePowersRank[forcePowers_t::FP_GRIP]), to_underlying(uiForcePowersRank[forcePowers_t::FP_LIGHTNING]),
-                            to_underlying(uiForcePowersRank[forcePowers_t::FP_RAGE]), to_underlying(uiForcePowersRank[forcePowers_t::FP_PROTECT]),
-                            to_underlying(uiForcePowersRank[forcePowers_t::FP_ABSORB]), to_underlying(uiForcePowersRank[forcePowers_t::FP_TEAM_HEAL]),
-                            to_underlying(uiForcePowersRank[forcePowers_t::FP_TEAM_FORCE]), to_underlying(uiForcePowersRank[forcePowers_t::FP_DRAIN]),
-                            to_underlying(uiForcePowersRank[forcePowers_t::FP_SEE]), to_underlying(uiForcePowersRank[forcePowers_t::FP_SABER_OFFENSE]),
-                            to_underlying(uiForcePowersRank[forcePowers_t::FP_SABER_DEFENSE]), to_underlying(uiForcePowersRank[forcePowers_t::FP_SABERTHROW]))
-                       .c_str());
+    trap->Cvar_Set(
+        "forcepowers",
+        Q_Format("{}-{}-{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}", uiForceRank, uiForceSide, uiForcePowersRank[forcePowers_t::FP_HEAL],
+                 uiForcePowersRank[forcePowers_t::FP_LEVITATION], uiForcePowersRank[forcePowers_t::FP_SPEED], uiForcePowersRank[forcePowers_t::FP_PUSH],
+                 uiForcePowersRank[forcePowers_t::FP_PULL], uiForcePowersRank[forcePowers_t::FP_TELEPATHY], uiForcePowersRank[forcePowers_t::FP_GRIP],
+                 uiForcePowersRank[forcePowers_t::FP_LIGHTNING], uiForcePowersRank[forcePowers_t::FP_RAGE], uiForcePowersRank[forcePowers_t::FP_PROTECT],
+                 uiForcePowersRank[forcePowers_t::FP_ABSORB], uiForcePowersRank[forcePowers_t::FP_TEAM_HEAL], uiForcePowersRank[forcePowers_t::FP_TEAM_FORCE],
+                 uiForcePowersRank[forcePowers_t::FP_DRAIN], uiForcePowersRank[forcePowers_t::FP_SEE], uiForcePowersRank[forcePowers_t::FP_SABER_OFFENSE],
+                 uiForcePowersRank[forcePowers_t::FP_SABER_DEFENSE], uiForcePowersRank[forcePowers_t::FP_SABERTHROW])
+            .c_str());
 
     if (gTouchedForce) {
         if (teamArg && teamArg[0]) {
@@ -250,11 +248,11 @@ void UI_SaveForceTemplate()
         return;
     }
 
-    Q_FormatTo(fcfString, "{}-{}-", to_underlying(uiForceRank), uiForceSide);
+    Q_FormatTo(fcfString, "{}-{}-", uiForceRank, uiForceSide);
     strPlace = strlen(fcfString);
 
     while (forcePlace < forcePowers_t::NUM_FORCE_POWERS) {
-        Q_FormatTo(forceStringValue, "{}", to_underlying(uiForcePowersRank[forcePlace]));
+        Q_FormatTo(forceStringValue, "{}", uiForcePowersRank[forcePlace]);
         // Just use the force digit even if multiple digits. Shouldn't be longer than 1.
         fcfString[strPlace] = forceStringValue[0];
         strPlace++;
@@ -451,11 +449,11 @@ void UI_ReadLegalForce(void)
     bool updateForceLater = false;
 
     // First, stick them into a string.
-    Q_FormatTo(fcfString, "{}-{}-", to_underlying(uiForceRank), uiForceSide);
+    Q_FormatTo(fcfString, "{}-{}-", uiForceRank, uiForceSide);
     strPlace = strlen(fcfString);
 
     while (forcePlace < forcePowers_t::NUM_FORCE_POWERS) {
-        Q_FormatTo(forceStringValue, "{}", to_underlying(uiForcePowersRank[forcePlace]));
+        Q_FormatTo(forceStringValue, "{}", uiForcePowersRank[forcePlace]);
         // Just use the force digit even if multiple digits. Shouldn't be longer than 1.
         fcfString[strPlace] = forceStringValue[0];
         strPlace++;
@@ -869,7 +867,7 @@ bool UI_ForceMaxRank_HandleKey(int flags, float* special, fakeAscii_t key, force
 
         uiMaxRank = num;
 
-        trap->Cvar_Set("g_maxForceRank", Q_Format("{}", to_underlying(num)).c_str());
+        trap->Cvar_Set("g_maxForceRank", Q_Format("{}", num).c_str());
 
         // The update force used will remove overallocated powers automatically.
         UpdateForceUsed();
@@ -1026,7 +1024,7 @@ void UI_ForceConfigHandle(int oldindex, int newindex)
 
         while (fp < forcePowers_t::NUM_FORCE_POWERS) {
             uiForcePowersRank[fp] = gCustPowersRank[fp];
-            uiForceUsed += to_underlying(uiForcePowersRank[fp]);
+            uiForceUsed += std::to_underlying(uiForcePowersRank[fp]);
             fp++;
         }
         uiForceRank = gCustRank;

@@ -48,7 +48,7 @@ static float* TableForFunc(genFunc_t func)
         break;
     }
 
-    Q_Error(errorParm_t::ERR_DROP, "TableForFunc called with invalid function '{}' in shader '{}'", to_underlying(func), tess.shader->name);
+    Q_Error(errorParm_t::ERR_DROP, "TableForFunc called with invalid function '{}' in shader '{}'", func, tess.shader->name);
     return nullptr;
 }
 

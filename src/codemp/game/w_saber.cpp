@@ -122,7 +122,7 @@ static QINLINE int G_SaberAttackPower(gentity_t* ent, bool attacking)
     int baseLevel;
     assert(ent && ent->client);
 
-    baseLevel = to_underlying(ent->client->ps.fd.saberAnimLevel);
+    baseLevel = std::to_underlying(ent->client->ps.fd.saberAnimLevel);
 
     // Give "medium" strength for the two special stances.
     if (ent->client->ps.fd.saberAnimLevel == saber_styles_t::SS_DUAL) {
@@ -1700,7 +1700,7 @@ static QINLINE bool WP_GetSaberDeflectionAngle(gentity_t* attacker, gentity_t* d
             }
             newQuad = attQuadEnd + Q_ceil(((float)quadDiff) / 2.0f);
             if (newQuad < saberQuadrant_t::Q_BR) { // less than zero wraps around
-                newQuad = saberQuadrant_t::Q_B + to_underlying(newQuad);
+                newQuad = saberQuadrant_t::Q_B + std::to_underlying(newQuad);
             }
             if (newQuad == attQuadStart) { // never come off at the same angle that we would have if the attack was not interrupted
                 if (Q_irand(0, 1)) {
@@ -2505,13 +2505,13 @@ bool WP_SabersIntersect(gentity_t* ent1, int ent1SaberNum, int ent1BladeNum, gen
 
 #ifdef DEBUG_SABER_BOX
                     if (g_saberDebugBox.integer == 2 || g_saberDebugBox.integer == 4) {
-                        G_TestLine(saberBase1, saberTip1, to_underlying(ent1->client->saber[ent1SaberNum].blade[ent1BladeNum].color), 500);
-                        G_TestLine(saberTip1, saberTipNext1, to_underlying(ent1->client->saber[ent1SaberNum].blade[ent1BladeNum].color), 500);
-                        G_TestLine(saberTipNext1, saberBase1, to_underlying(ent1->client->saber[ent1SaberNum].blade[ent1BladeNum].color), 500);
+                        G_TestLine(saberBase1, saberTip1, std::to_underlying(ent1->client->saber[ent1SaberNum].blade[ent1BladeNum].color), 500);
+                        G_TestLine(saberTip1, saberTipNext1, std::to_underlying(ent1->client->saber[ent1SaberNum].blade[ent1BladeNum].color), 500);
+                        G_TestLine(saberTipNext1, saberBase1, std::to_underlying(ent1->client->saber[ent1SaberNum].blade[ent1BladeNum].color), 500);
 
-                        G_TestLine(saberBase2, saberTip2, to_underlying(ent2->client->saber[ent2SaberNum].blade[ent2BladeNum].color), 500);
-                        G_TestLine(saberTip2, saberTipNext2, to_underlying(ent2->client->saber[ent2SaberNum].blade[ent2BladeNum].color), 500);
-                        G_TestLine(saberTipNext2, saberBase2, to_underlying(ent2->client->saber[ent2SaberNum].blade[ent2BladeNum].color), 500);
+                        G_TestLine(saberBase2, saberTip2, std::to_underlying(ent2->client->saber[ent2SaberNum].blade[ent2BladeNum].color), 500);
+                        G_TestLine(saberTip2, saberTipNext2, std::to_underlying(ent2->client->saber[ent2SaberNum].blade[ent2BladeNum].color), 500);
+                        G_TestLine(saberTipNext2, saberBase2, std::to_underlying(ent2->client->saber[ent2SaberNum].blade[ent2BladeNum].color), 500);
                     }
 #endif
                     if (tri_tri_intersect(saberBase1, saberTip1, saberBaseNext1, saberBase2, saberTip2, saberBaseNext2)) {
@@ -3482,16 +3482,16 @@ static QINLINE bool CheckSaberDamage(gentity_t* self, int rSaberNum, int rBladeN
                 gentity_t* saberEnt = &g_entities[self->client->ps.saberEntityNum];
                 if (!saberEnt || !saberEnt->s.saberInFlight) { // does less damage on the way back
                     fDmg = 1.0f;
-                    attackStr = to_underlying(forcePowerLevels_t::FORCE_LEVEL_0);
+                    attackStr = std::to_underlying(forcePowerLevels_t::FORCE_LEVEL_0);
                 }
                 else {
-                    fDmg = 2.5f * to_underlying(self->client->ps.fd.forcePowerLevel[forcePowers_t::FP_SABERTHROW]);
-                    attackStr = to_underlying(forcePowerLevels_t::FORCE_LEVEL_1);
+                    fDmg = 2.5f * std::to_underlying(self->client->ps.fd.forcePowerLevel[forcePowers_t::FP_SABERTHROW]);
+                    attackStr = std::to_underlying(forcePowerLevels_t::FORCE_LEVEL_1);
                 }
             }
             else {
                 const forcePowerLevels_t attackPower = G_PowerLevelForSaberAnim(self, rSaberNum, false);
-                attackStr = to_underlying(attackPower);
+                attackStr = std::to_underlying(attackPower);
                 if (g_saberRealisticCombat.integer) {
                     switch (attackPower) {
                     default:
@@ -3648,7 +3648,7 @@ static QINLINE bool CheckSaberDamage(gentity_t* self, int rSaberNum, int rBladeN
                 }
             }
 
-            attackStr = to_underlying(self->client->ps.fd.saberAnimLevel);
+            attackStr = std::to_underlying(self->client->ps.fd.saberAnimLevel);
         }
     }
     else if (self->client->ps.saberAttackWound < level.time &&
@@ -4124,7 +4124,7 @@ static QINLINE bool CheckSaberDamage(gentity_t* self, int rSaberNum, int rBladeN
             otherOwner->client->ps.saberBlocked = saberBlockedType_t::BLOCKED_NONE;
         }
 
-        if (sabersClashed && dmg > SABER_NONATTACK_DAMAGE && selfSaberLevel < to_underlying(forcePowerLevels_t::FORCE_LEVEL_3) &&
+        if (sabersClashed && dmg > SABER_NONATTACK_DAMAGE && selfSaberLevel < std::to_underlying(forcePowerLevels_t::FORCE_LEVEL_3) &&
             !PM_SaberInBounce(otherOwner->client->ps.saberMove) && !PM_SaberInParry(self->client->ps.saberMove) &&
             !PM_SaberInBrokenParry(self->client->ps.saberMove) && !BG_SaberInSpecial(self->client->ps.saberMove) &&
             !PM_SaberInBounce(self->client->ps.saberMove) && !PM_SaberInDeflect(self->client->ps.saberMove) && !PM_SaberInReflect(self->client->ps.saberMove) &&
@@ -4152,16 +4152,16 @@ static QINLINE bool CheckSaberDamage(gentity_t* self, int rSaberNum, int rBladeN
             }
         }
 
-        if (((selfSaberLevel < to_underlying(forcePowerLevels_t::FORCE_LEVEL_3) &&
+        if (((selfSaberLevel < std::to_underlying(forcePowerLevels_t::FORCE_LEVEL_3) &&
               ((tryDeflectAgain && Q_irand(1, 10) <= 3) || (!tryDeflectAgain && Q_irand(1, 10) <= 7))) ||
-             (Q_irand(1, 10) <= 1 && otherSaberLevel >= to_underlying(forcePowerLevels_t::FORCE_LEVEL_3))) &&
+             (Q_irand(1, 10) <= 1 && otherSaberLevel >= std::to_underlying(forcePowerLevels_t::FORCE_LEVEL_3))) &&
             !PM_SaberInBounce(self->client->ps.saberMove)
 
             && !PM_SaberInBrokenParry(otherOwner->client->ps.saberMove) && !BG_SaberInSpecial(otherOwner->client->ps.saberMove) &&
             !PM_SaberInBounce(otherOwner->client->ps.saberMove) && !PM_SaberInDeflect(otherOwner->client->ps.saberMove) &&
             !PM_SaberInReflect(otherOwner->client->ps.saberMove)
 
-            && (otherSaberLevel > to_underlying(forcePowerLevels_t::FORCE_LEVEL_2) ||
+            && (otherSaberLevel > std::to_underlying(forcePowerLevels_t::FORCE_LEVEL_2) ||
                 (otherOwner->client->ps.fd.forcePowerLevel[forcePowers_t::FP_SABER_DEFENSE] >= forcePowerLevels_t::FORCE_LEVEL_3 &&
                  Q_irand(0, otherSaberLevel))) &&
             !unblockable && !otherUnblockable && dmg > SABER_NONATTACK_DAMAGE &&
@@ -4198,10 +4198,10 @@ static QINLINE bool CheckSaberDamage(gentity_t* self, int rSaberNum, int rBladeN
 
             didDefense = true;
         }
-        else if ((selfSaberLevel > to_underlying(forcePowerLevels_t::FORCE_LEVEL_2) ||
+        else if ((selfSaberLevel > std::to_underlying(forcePowerLevels_t::FORCE_LEVEL_2) ||
                   unblockable) && // if we're doing a special attack, we can send them into a broken parry too (MP only)
-                 (to_underlying(otherOwner->client->ps.fd.forcePowerLevel[forcePowers_t::FP_SABER_DEFENSE]) < selfSaberLevel ||
-                  (to_underlying(otherOwner->client->ps.fd.forcePowerLevel[forcePowers_t::FP_SABER_DEFENSE]) == selfSaberLevel &&
+                 (std::to_underlying(otherOwner->client->ps.fd.forcePowerLevel[forcePowers_t::FP_SABER_DEFENSE]) < selfSaberLevel ||
+                  (std::to_underlying(otherOwner->client->ps.fd.forcePowerLevel[forcePowers_t::FP_SABER_DEFENSE]) == selfSaberLevel &&
                    (Q_irand(1, 10) >= otherSaberLevel * 1.5 || unblockable))) &&
                  PM_SaberInParry(otherOwner->client->ps.saberMove) && !PM_SaberInBrokenParry(otherOwner->client->ps.saberMove) &&
                  !PM_SaberInParry(self->client->ps.saberMove) && !PM_SaberInBrokenParry(self->client->ps.saberMove) &&
@@ -4225,12 +4225,12 @@ static QINLINE bool CheckSaberDamage(gentity_t* self, int rSaberNum, int rBladeN
             didDefense = true;
         }
         else if ((selfSaberLevel >
-                  to_underlying(
+                  std::to_underlying(
                       forcePowerLevels_t::FORCE_LEVEL_2)) && // if we're doing a special attack, we can send them into a broken parry too (MP only)
                                                              //( otherOwner->client->ps.fd.forcePowerLevel[forcePowers_t::FP_SABER_DEFENSE] < selfSaberLevel ||
                                                              //(otherOwner->client->ps.fd.forcePowerLevel[forcePowers_t::FP_SABER_DEFENSE] == selfSaberLevel &&
                                                              //(Q_irand(1, 10) >= otherSaberLevel*3 || unblockable)) ) &&
-                 otherSaberLevel >= to_underlying(forcePowerLevels_t::FORCE_LEVEL_3) &&
+                 otherSaberLevel >= std::to_underlying(forcePowerLevels_t::FORCE_LEVEL_3) &&
                  PM_SaberInParry(otherOwner->client->ps.saberMove) && !PM_SaberInBrokenParry(otherOwner->client->ps.saberMove) &&
                  !PM_SaberInParry(self->client->ps.saberMove) && !PM_SaberInBrokenParry(self->client->ps.saberMove) &&
                  !PM_SaberInBounce(self->client->ps.saberMove) && !PM_SaberInDeflect(self->client->ps.saberMove) &&
@@ -4257,7 +4257,7 @@ static QINLINE bool CheckSaberDamage(gentity_t* self, int rSaberNum, int rBladeN
                 !PM_SaberInDeflect(self->client->ps.saberMove) && !PM_SaberInDeflect(otherOwner->client->ps.saberMove) &&
 
                 !PM_SaberInReflect(self->client->ps.saberMove) && !PM_SaberInReflect(otherOwner->client->ps.saberMove)) {
-                int attackAdv, defendStr = to_underlying(G_PowerLevelForSaberAnim(otherOwner, 0, true)), attackBonus = 0;
+                int attackAdv, defendStr = std::to_underlying(G_PowerLevelForSaberAnim(otherOwner, 0, true)), attackBonus = 0;
                 if (otherOwner->client->ps.torsoAnim == animNumber_t::BOTH_A1_SPECIAL || otherOwner->client->ps.torsoAnim == animNumber_t::BOTH_A2_SPECIAL ||
                     otherOwner->client->ps.torsoAnim == animNumber_t::BOTH_A3_SPECIAL) { // parry/block/break-parry bonus for single-style kata moves
                     defendStr++;
@@ -4277,8 +4277,8 @@ static QINLINE bool CheckSaberDamage(gentity_t* self, int rSaberNum, int rBladeN
                 if (self->client->saber[1].model[0] && !self->client->ps.saberHolstered) {
                     attackBonus += Q_irand(0, self->client->saber[1].breakParryBonus);
                 }
-                attackAdv = (attackStr + attackBonus + to_underlying(self->client->ps.fd.forcePowerLevel[forcePowers_t::FP_SABER_OFFENSE])) -
-                            (defendStr + to_underlying(otherOwner->client->ps.fd.forcePowerLevel[forcePowers_t::FP_SABER_OFFENSE]));
+                attackAdv = (attackStr + attackBonus + std::to_underlying(self->client->ps.fd.forcePowerLevel[forcePowers_t::FP_SABER_OFFENSE])) -
+                            (defendStr + std::to_underlying(otherOwner->client->ps.fd.forcePowerLevel[forcePowers_t::FP_SABER_OFFENSE]));
 
                 if (attackAdv > 1) { // I won, he should knockaway
                     otherOwner->client->ps.saberMove = BG_BrokenParryForAttack(otherOwner->client->ps.saberMove);
@@ -4325,18 +4325,18 @@ static QINLINE bool CheckSaberDamage(gentity_t* self, int rSaberNum, int rBladeN
                 }
 
                 if (!SaberAttacking(otherOwner)) {
-                    int otherIdleStr = to_underlying(otherOwner->client->ps.fd.saberAnimLevel);
+                    int otherIdleStr = std::to_underlying(otherOwner->client->ps.fd.saberAnimLevel);
                     if (otherOwner->client->ps.fd.saberAnimLevel == saber_styles_t::SS_DUAL ||
                         otherOwner->client->ps.fd.saberAnimLevel == saber_styles_t::SS_STAFF) {
-                        otherIdleStr = to_underlying(saber_styles_t::SS_MEDIUM);
+                        otherIdleStr = std::to_underlying(saber_styles_t::SS_MEDIUM);
                     }
 
                     WP_SaberBlockNonRandom(otherOwner, tr.endpos, false);
                     otherOwner->client->ps.saberEventFlags |= saberEventFlags_t::SEF_PARRIED;
                     self->client->ps.saberEventFlags |= saberEventFlags_t::SEF_BLOCKED;
 
-                    if (attackStr + to_underlying(self->client->ps.fd.forcePowerLevel[forcePowers_t::FP_SABER_OFFENSE]) >
-                        otherIdleStr + to_underlying(otherOwner->client->ps.fd.forcePowerLevel[forcePowers_t::FP_SABER_DEFENSE])) {
+                    if (attackStr + std::to_underlying(self->client->ps.fd.forcePowerLevel[forcePowers_t::FP_SABER_OFFENSE]) >
+                        otherIdleStr + std::to_underlying(otherOwner->client->ps.fd.forcePowerLevel[forcePowers_t::FP_SABER_DEFENSE])) {
                         crushTheParry = true;
                     }
                     else {
@@ -6168,7 +6168,7 @@ void saberFirstThrown(gentity_t* saberent)
     VectorSubtract(saberOwn->client->ps.origin, saberent->r.currentOrigin, vSub);
     vLen = VectorLength(vSub);
 
-    if (vLen >= (SABER_MAX_THROW_DISTANCE * to_underlying(saberOwn->client->ps.fd.forcePowerLevel[forcePowers_t::FP_SABERTHROW]))) {
+    if (vLen >= (SABER_MAX_THROW_DISTANCE * std::to_underlying(saberOwn->client->ps.fd.forcePowerLevel[forcePowers_t::FP_SABERTHROW]))) {
         thrownSaberTouch(saberent, saberent, nullptr);
         goto runMin;
     }

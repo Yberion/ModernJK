@@ -247,7 +247,7 @@ void SpewDebugStuffToFile(const EnumArray<animation_t, animNumber_t, animNumber_
     BGPAFtext[0] = 0;
 
     while (i < animNumber_t::MAX_ANIMATIONS) {
-        strcat(BGPAFtext, Q_Format("{} {}\n", to_underlying(i), bgGlobalAnimations[i].frameLerp).c_str());
+        strcat(BGPAFtext, Q_Format("{} {}\n", i, bgGlobalAnimations[i].frameLerp).c_str());
         i++;
     }
 
@@ -1788,7 +1788,7 @@ bool NPC_ParseParms(const char* NPCName, gentity_t* NPC)
                     SkipRestOfLine(&p);
                     continue;
                 }
-                if (n < to_underlying(bState_t::BS_DEFAULT) || n >= to_underlying(bState_t::NUM_BSTATES)) {
+                if (n < std::to_underlying(bState_t::BS_DEFAULT) || n >= std::to_underlying(bState_t::NUM_BSTATES)) {
                     Q_PrintlnWarning("bad {} in NPC '{}'", token, NPCName);
                     continue;
                 }

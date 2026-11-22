@@ -425,13 +425,13 @@ void SV_CreateClientGameStateMessage(client_t* client, msg_t* msg)
     SV_UpdateServerCommandsToClient(client, msg);
 
     // send the gamestate
-    MSG_WriteByte(msg, to_underlying(svc_ops_e::svc_gamestate));
+    MSG_WriteByte(msg, std::to_underlying(svc_ops_e::svc_gamestate));
     MSG_WriteLong(msg, client->reliableSequence);
 
     // write the configstrings
     for (start = 0; start < MAX_CONFIGSTRINGS; start++) {
         if (sv.configstrings[start][0]) {
-            MSG_WriteByte(msg, to_underlying(svc_ops_e::svc_configstring));
+            MSG_WriteByte(msg, std::to_underlying(svc_ops_e::svc_configstring));
             MSG_WriteShort(msg, start);
             MSG_WriteBigString(msg, sv.configstrings[start]);
         }
@@ -444,11 +444,11 @@ void SV_CreateClientGameStateMessage(client_t* client, msg_t* msg)
         if (!base->number) {
             continue;
         }
-        MSG_WriteByte(msg, to_underlying(svc_ops_e::svc_baseline));
+        MSG_WriteByte(msg, std::to_underlying(svc_ops_e::svc_baseline));
         MSG_WriteDeltaEntity(msg, &nullstate, base, true);
     }
 
-    MSG_WriteByte(msg, to_underlying(svc_ops_e::svc_EOF));
+    MSG_WriteByte(msg, std::to_underlying(svc_ops_e::svc_EOF));
 
     MSG_WriteLong(msg, client - svs.clients);
 

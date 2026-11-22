@@ -102,7 +102,7 @@ void G_SiegeRegisterWeaponsAndHoldables(team_t team)
 // or whatever.
 void SiegeSetCompleteData(team_t team)
 {
-    trap->SetConfigstring(CS_SIEGE_WINTEAM, Q_Format("{}", to_underlying(team)).c_str());
+    trap->SetConfigstring(CS_SIEGE_WINTEAM, Q_Format("{}", team).c_str());
 }
 
 void InitSiegeMode(void)
@@ -484,7 +484,7 @@ void SiegeBroadcast_OBJECTIVECOMPLETE(team_t team, int client, int objective)
 
     te = G_TempEntity(nomatter, entity_event_t::EV_SIEGE_OBJECTIVECOMPLETE);
     te->r.svFlags |= svFlags_t::SVF_BROADCAST;
-    te->s.eventParm = to_underlying(team);
+    te->s.eventParm = std::to_underlying(team);
     ES_SetWeaponParm(te->s, client);
     te->s.trickedentindex = objective;
 }
@@ -498,7 +498,7 @@ void SiegeBroadcast_ROUNDOVER(team_t winningteam, int winningclient)
 
     te = G_TempEntity(nomatter, entity_event_t::EV_SIEGE_ROUNDOVER);
     te->r.svFlags |= svFlags_t::SVF_BROADCAST;
-    te->s.eventParm = to_underlying(winningteam);
+    te->s.eventParm = std::to_underlying(winningteam);
     ES_SetWeaponParm(te->s, winningclient);
 }
 
@@ -1026,7 +1026,7 @@ void SP_info_siege_objective(gentity_t* ent)
         ent->s.genericenemyindex = G_IconIndex(s);
     }
 
-    ent->s.brokenLimbs = to_underlying(ent->side);
+    ent->s.brokenLimbs = std::to_underlying(ent->side);
     ent->s.frame = ent->objective;
     trap->LinkEntity((sharedEntity_t*)ent);
 }

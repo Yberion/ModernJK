@@ -1047,7 +1047,7 @@ void G_CheckEndLevelTimers(gentity_t* ent)
         if (ent->client && ent->client->ps.stats[statIndex_t::STAT_HEALTH] > 0) {
             G_PlayerGuiltDeath();
             // cg.missionStatusShow = true;
-            statusTextIndex = to_underlying(missionFailed_t::MAX_MISSIONFAILED);
+            statusTextIndex = std::to_underlying(missionFailed_t::MAX_MISSIONFAILED);
             // debounce respawn time
             ent->client->respawnTime = level.time + 2000;
             // stop all scripts

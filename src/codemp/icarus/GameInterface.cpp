@@ -470,7 +470,7 @@ void ICARUS_InterrogateScript(const char* filename)
         {
             float f = *(float*)block.GetMemberData(0);
 
-            if (f == (float)to_underlying(icarusToken_t::TYPE_PATH)) {
+            if (f == (float)std::to_underlying(icarusToken_t::TYPE_PATH)) {
                 sVal1 = (const char*)block.GetMemberData(1);
 
                 // we can do this I guess since the roff is loaded on the server.
@@ -677,7 +677,7 @@ void Svcmd_ICARUS_f(void)
 
     if ( Q_stricmp( cmd, "log" ) == 0 )
     {
-        //g_ICARUSDebug->integer = to_underlying( WL_e::WL_DEBUG );
+        //g_ICARUSDebug->integer = std::to_underlying( WL_e::WL_DEBUG );
         if ( VALIDSTRING( Cmd_Argv( 2 ) ) )
         {
             sharedEntity_t	*ent = G_Find( nullptr, FOFS( script_targetname ), gi.argv(2) );

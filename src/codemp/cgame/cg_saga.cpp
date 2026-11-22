@@ -419,7 +419,7 @@ void CG_ParseSiegeObjectiveStatus(const char* str)
             objectiveNum++;
             i++;
 
-            cvarName = (cvarNameText = Q_Format("team{}_objective{}", to_underlying(team), objectiveNum)).c_str();
+            cvarName = (cvarNameText = Q_Format("team{}_objective{}", team, objectiveNum)).c_str();
             if (str[i] == '1') { // it's completed
                 trap->Cvar_Set(cvarName, "1");
             }
@@ -431,7 +431,7 @@ void CG_ParseSiegeObjectiveStatus(const char* str)
             if (s && s[0]) { // now set the description and graphic cvars to by read by the menu
                 char buffer[8192];
 
-                cvarName = (cvarNameText = Q_Format("team{}_objective{}_longdesc", to_underlying(team), objectiveNum)).c_str();
+                cvarName = (cvarNameText = Q_Format("team{}_objective{}_longdesc", team, objectiveNum)).c_str();
                 if (BG_SiegeGetPairedValue(s, "objdesc", buffer)) {
                     trap->Cvar_Set(cvarName, buffer);
                 }
@@ -439,7 +439,7 @@ void CG_ParseSiegeObjectiveStatus(const char* str)
                     trap->Cvar_Set(cvarName, "UNSPECIFIED");
                 }
 
-                cvarName = (cvarNameText = Q_Format("team{}_objective{}_gfx", to_underlying(team), objectiveNum)).c_str();
+                cvarName = (cvarNameText = Q_Format("team{}_objective{}_gfx", team, objectiveNum)).c_str();
                 if (BG_SiegeGetPairedValue(s, "objgfx", buffer)) {
                     trap->Cvar_Set(cvarName, buffer);
                 }
@@ -447,7 +447,7 @@ void CG_ParseSiegeObjectiveStatus(const char* str)
                     trap->Cvar_Set(cvarName, "UNSPECIFIED");
                 }
 
-                cvarName = (cvarNameText = Q_Format("team{}_objective{}_mapicon", to_underlying(team), objectiveNum)).c_str();
+                cvarName = (cvarNameText = Q_Format("team{}_objective{}_mapicon", team, objectiveNum)).c_str();
                 if (BG_SiegeGetPairedValue(s, "mapicon", buffer)) {
                     trap->Cvar_Set(cvarName, buffer);
                 }
@@ -455,7 +455,7 @@ void CG_ParseSiegeObjectiveStatus(const char* str)
                     trap->Cvar_Set(cvarName, "UNSPECIFIED");
                 }
 
-                cvarName = (cvarNameText = Q_Format("team{}_objective{}_litmapicon", to_underlying(team), objectiveNum)).c_str();
+                cvarName = (cvarNameText = Q_Format("team{}_objective{}_litmapicon", team, objectiveNum)).c_str();
                 if (BG_SiegeGetPairedValue(s, "litmapicon", buffer)) {
                     trap->Cvar_Set(cvarName, buffer);
                 }
@@ -463,7 +463,7 @@ void CG_ParseSiegeObjectiveStatus(const char* str)
                     trap->Cvar_Set(cvarName, "UNSPECIFIED");
                 }
 
-                cvarName = (cvarNameText = Q_Format("team{}_objective{}_donemapicon", to_underlying(team), objectiveNum)).c_str();
+                cvarName = (cvarNameText = Q_Format("team{}_objective{}_donemapicon", team, objectiveNum)).c_str();
                 if (BG_SiegeGetPairedValue(s, "donemapicon", buffer)) {
                     trap->Cvar_Set(cvarName, buffer);
                 }
@@ -471,7 +471,7 @@ void CG_ParseSiegeObjectiveStatus(const char* str)
                     trap->Cvar_Set(cvarName, "UNSPECIFIED");
                 }
 
-                cvarName = (cvarNameText = Q_Format("team{}_objective{}_mappos", to_underlying(team), objectiveNum)).c_str();
+                cvarName = (cvarNameText = Q_Format("team{}_objective{}_mappos", team, objectiveNum)).c_str();
                 if (BG_SiegeGetPairedValue(s, "mappos", buffer)) {
                     trap->Cvar_Set(cvarName, buffer);
                 }
@@ -656,7 +656,7 @@ void CG_SiegeBriefingDisplay(team_t team, int dontshow)
         primary = (CG_SiegeGetObjectiveFinal(useTeam, i) > 0) ? true : false;
 
         properValue[0] = 0;
-        trap->Cvar_VariableStringBuffer(Q_Format("team{}_objective{}", to_underlying(useTeam), i).c_str(), properValue, 1024);
+        trap->Cvar_VariableStringBuffer(Q_Format("team{}_objective{}", useTeam, i).c_str(), properValue, 1024);
         if (primary) {
             trap->Cvar_Set(Q_Format("siege_primobj").c_str(), properValue);
         }
@@ -666,7 +666,7 @@ void CG_SiegeBriefingDisplay(team_t team, int dontshow)
 
         // Now set the long desc cvar for the menu to display.
         properValue[0] = 0;
-        trap->Cvar_VariableStringBuffer(Q_Format("team{}_objective{}_longdesc", to_underlying(useTeam), i).c_str(), properValue, 1024);
+        trap->Cvar_VariableStringBuffer(Q_Format("team{}_objective{}_longdesc", useTeam, i).c_str(), properValue, 1024);
         if (primary) {
             trap->Cvar_Set(Q_Format("siege_primobj_longdesc").c_str(), properValue);
         }
@@ -676,7 +676,7 @@ void CG_SiegeBriefingDisplay(team_t team, int dontshow)
 
         // Now set the gfx cvar for the menu to display.
         properValue[0] = 0;
-        trap->Cvar_VariableStringBuffer(Q_Format("team{}_objective{}_gfx", to_underlying(useTeam), i).c_str(), properValue, 1024);
+        trap->Cvar_VariableStringBuffer(Q_Format("team{}_objective{}_gfx", useTeam, i).c_str(), properValue, 1024);
         if (primary) {
             trap->Cvar_Set(Q_Format("siege_primobj_gfx").c_str(), properValue);
         }
@@ -686,7 +686,7 @@ void CG_SiegeBriefingDisplay(team_t team, int dontshow)
 
         // Now set the mapicon cvar for the menu to display.
         properValue[0] = 0;
-        trap->Cvar_VariableStringBuffer(Q_Format("team{}_objective{}_mapicon", to_underlying(useTeam), i).c_str(), properValue, 1024);
+        trap->Cvar_VariableStringBuffer(Q_Format("team{}_objective{}_mapicon", useTeam, i).c_str(), properValue, 1024);
         if (primary) {
             trap->Cvar_Set(Q_Format("siege_primobj_mapicon").c_str(), properValue);
         }
@@ -696,7 +696,7 @@ void CG_SiegeBriefingDisplay(team_t team, int dontshow)
 
         // Now set the mappos cvar for the menu to display.
         properValue[0] = 0;
-        trap->Cvar_VariableStringBuffer(Q_Format("team{}_objective{}_mappos", to_underlying(useTeam), i).c_str(), properValue, 1024);
+        trap->Cvar_VariableStringBuffer(Q_Format("team{}_objective{}_mappos", useTeam, i).c_str(), properValue, 1024);
         if (primary) {
             trap->Cvar_Set(Q_Format("siege_primobj_mappos").c_str(), properValue);
         }
@@ -714,26 +714,26 @@ void CG_SiegeBriefingDisplay(team_t team, int dontshow)
                 trap->Cvar_Set(Q_Format("siege_objective{}_inuse", i).c_str(), "0");
                 trap->Cvar_Set(Q_Format("siege_primobj_inuse").c_str(), "1");
 
-                trap->Cvar_Set(Q_Format("team{}_objective{}_inuse", to_underlying(useTeam), i).c_str(), "1");
+                trap->Cvar_Set(Q_Format("team{}_objective{}_inuse", useTeam, i).c_str(), "1");
             }
             else {
                 trap->Cvar_Set(Q_Format("siege_objective{}_desc", i).c_str(), objectiveDesc);
                 trap->Cvar_Set(Q_Format("siege_objective{}_inuse", i).c_str(), "2");
-                trap->Cvar_Set(Q_Format("team{}_objective{}_inuse", to_underlying(useTeam), i).c_str(), "2");
+                trap->Cvar_Set(Q_Format("team{}_objective{}_inuse", useTeam, i).c_str(), "2");
             }
         }
         else { // didn't find one, so set the "inuse" cvar to 0 for the objective and mark it non-complete.
             trap->Cvar_Set(Q_Format("siege_objective{}_inuse", i).c_str(), "0");
             trap->Cvar_Set(Q_Format("siege_objective{}", i).c_str(), "0");
-            trap->Cvar_Set(Q_Format("team{}_objective{}_inuse", to_underlying(useTeam), i).c_str(), "0");
-            trap->Cvar_Set(Q_Format("team{}_objective{}", to_underlying(useTeam), i).c_str(), "0");
+            trap->Cvar_Set(Q_Format("team{}_objective{}_inuse", useTeam, i).c_str(), "0");
+            trap->Cvar_Set(Q_Format("team{}_objective{}", useTeam, i).c_str(), "0");
 
             trap->Cvar_Set(Q_Format("siege_objective{}_mappos", i).c_str(), "");
-            trap->Cvar_Set(Q_Format("team{}_objective{}_mappos", to_underlying(useTeam), i).c_str(), "");
+            trap->Cvar_Set(Q_Format("team{}_objective{}_mappos", useTeam, i).c_str(), "");
             trap->Cvar_Set(Q_Format("siege_objective{}_gfx", i).c_str(), "");
-            trap->Cvar_Set(Q_Format("team{}_objective{}_gfx", to_underlying(useTeam), i).c_str(), "");
+            trap->Cvar_Set(Q_Format("team{}_objective{}_gfx", useTeam, i).c_str(), "");
             trap->Cvar_Set(Q_Format("siege_objective{}_mapicon", i).c_str(), "");
-            trap->Cvar_Set(Q_Format("team{}_objective{}_mapicon", to_underlying(useTeam), i).c_str(), "");
+            trap->Cvar_Set(Q_Format("team{}_objective{}_mapicon", useTeam, i).c_str(), "");
         }
 
         i++;

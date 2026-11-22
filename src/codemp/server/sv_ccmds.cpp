@@ -1252,9 +1252,9 @@ static void SV_ForceToggle_f(void)
     if (Cmd_Argc() != 2) {
         for (forcePowers_t fp = forcePowers_t::FP_FIRST; fp < forcePowers_t::NUM_FORCE_POWERS; fp++) {
             if ((bits & Bit(fp)))
-                Q_Println("{:2} [X] {}", to_underlying(fp), forceToggleNamePrints[fp]);
+                Q_Println("{:2} [X] {}", fp, forceToggleNamePrints[fp]);
             else
-                Q_Println("{:2} [ ] {}", to_underlying(fp), forceToggleNamePrints[fp]);
+                Q_Println("{:2} [ ] {}", fp, forceToggleNamePrints[fp]);
         }
         Q_Println("Example usage: forcetoggle 3(toggles PUSH)");
         return;
@@ -1272,9 +1272,9 @@ static void SV_ForceToggle_f(void)
         else {
             for (forcePowers_t fp = forcePowers_t::FP_FIRST; fp < forcePowers_t::NUM_FORCE_POWERS; fp++) {
                 if ((bits & Bit(fp)))
-                    Q_Println("{:2} [X] {}", to_underlying(fp), forceToggleNamePrints[fp]);
+                    Q_Println("{:2} [X] {}", fp, forceToggleNamePrints[fp]);
                 else
-                    Q_Println("{:2} [ ] {}", to_underlying(fp), forceToggleNamePrints[fp]);
+                    Q_Println("{:2} [ ] {}", fp, forceToggleNamePrints[fp]);
             }
             Q_Println("Specified a power that does not exist.\nExample usage: forcetoggle 3\n(toggles PUSH)");
         }
@@ -1282,9 +1282,9 @@ static void SV_ForceToggle_f(void)
     else {
         for (forcePowers_t fp = forcePowers_t::FP_FIRST; fp < forcePowers_t::NUM_FORCE_POWERS; fp++) {
             if ((bits & Bit(fp)))
-                Q_Println("{:2} [X] {}", to_underlying(fp), forceToggleNamePrints[fp]);
+                Q_Println("{:2} [X] {}", fp, forceToggleNamePrints[fp]);
             else
-                Q_Println("{:2} [ ] {}", to_underlying(fp), forceToggleNamePrints[fp]);
+                Q_Println("{:2} [ ] {}", fp, forceToggleNamePrints[fp]);
         }
         Q_Println("Specified a power that does not exist.\nExample usage: forcetoggle 3\n(toggles PUSH)");
     }
@@ -1301,7 +1301,7 @@ static void SV_WeaponToggle_f(void)
     const char* s;
     const char* cvarStr = nullptr;
 
-    if (sv_gametype->integer == to_underlying(gametype_t::GT_DUEL) || sv_gametype->integer == to_underlying(gametype_t::GT_POWERDUEL)) {
+    if (sv_gametype->integer == std::to_underlying(gametype_t::GT_DUEL) || sv_gametype->integer == std::to_underlying(gametype_t::GT_POWERDUEL)) {
         cvarStr = "g_duelWeaponDisable";
         bits = Cvar_VariableIntegerValue("g_duelWeaponDisable");
     }
@@ -1319,9 +1319,9 @@ static void SV_WeaponToggle_f(void)
     if (Cmd_Argc() != 2) {
         for (i = weapon_t::WP_NONE; i < weapon_t::WP_NUM_WEAPONS; i++) {
             if ((bits & Bit(i)))
-                Q_Println("{:2} [X] {}", to_underlying(i), weaponToggleNamePrints[i]);
+                Q_Println("{:2} [X] {}", i, weaponToggleNamePrints[i]);
             else
-                Q_Println("{:2} [ ] {}", to_underlying(i), weaponToggleNamePrints[i]);
+                Q_Println("{:2} [ ] {}", i, weaponToggleNamePrints[i]);
         }
         Q_Println("Example usage: weapontoggle 3(toggles SABER)");
         return;
@@ -1339,9 +1339,9 @@ static void SV_WeaponToggle_f(void)
         else {
             for (i = weapon_t::WP_NONE; i < weapon_t::WP_NUM_WEAPONS; i++) {
                 if ((bits & Bit(i)))
-                    Q_Println("{:2} [X] {}", to_underlying(i), weaponToggleNamePrints[i]);
+                    Q_Println("{:2} [X] {}", i, weaponToggleNamePrints[i]);
                 else
-                    Q_Println("{:2} [ ] {}", to_underlying(i), weaponToggleNamePrints[i]);
+                    Q_Println("{:2} [ ] {}", i, weaponToggleNamePrints[i]);
             }
             Q_Println("Specified a weapon that does not exist.\nExample usage: weapontoggle 3\n(toggles SABER)");
         }
@@ -1349,9 +1349,9 @@ static void SV_WeaponToggle_f(void)
     else {
         for (i = weapon_t::WP_NONE; i < weapon_t::WP_NUM_WEAPONS; i++) {
             if ((bits & Bit(i)))
-                Q_Println("{:2} [X] {}", to_underlying(i), weaponToggleNamePrints[i]);
+                Q_Println("{:2} [X] {}", i, weaponToggleNamePrints[i]);
             else
-                Q_Println("{:2} [ ] {}", to_underlying(i), weaponToggleNamePrints[i]);
+                Q_Println("{:2} [ ] {}", i, weaponToggleNamePrints[i]);
         }
         Q_Println("Specified a weapon that does not exist.\nExample usage: weapontoggle 3\n(toggles SABER)");
     }

@@ -1528,8 +1528,7 @@ taskResult_t CTaskManager::DeclareVariable(CTask* task)
     ICARUS_VALIDATE(GetToken(m_ownerID, block, memberNum, type));
     ICARUS_VALIDATE(Get(m_ownerID, block, memberNum, &sVal));
 
-    (m_owner->GetInterface())
-        ->I_DPrintln(WL_e::WL_DEBUG, "{:4} declare( {}, \"{}\" ); [{}]", m_ownerID, to_underlying(type), sVal, static_cast<int>(task->GetTimeStamp()));
+    (m_owner->GetInterface())->I_DPrintln(WL_e::WL_DEBUG, "{:4} declare( {}, \"{}\" ); [{}]", m_ownerID, type, sVal, static_cast<int>(task->GetTimeStamp()));
     (m_owner->GetInterface())->I_DeclareVariable(type, sVal);
 
     Completed(task->GetGUID());
@@ -1617,11 +1616,11 @@ int CTaskManager::SaveCommand(CBlock* block)
     CBlockMember* bm;
 
     // Save out the block ID
-    bID = to_underlying(block->GetBlockID());
+    bID = std::to_underlying(block->GetBlockID());
     (m_owner->GetInterface())->I_WriteSaveData(INT_ID('B', 'L', 'I', 'D'), &bID, sizeof(bID));
 
     // Save out the block's flags
-    flags = to_underlying(block->GetFlags());
+    flags = std::to_underlying(block->GetFlags());
     (m_owner->GetInterface())->I_WriteSaveData(INT_ID('B', 'F', 'L', 'G'), &flags, sizeof(flags));
 
     // Save out the number of members to read
@@ -1632,7 +1631,7 @@ int CTaskManager::SaveCommand(CBlock* block)
         bm = block->GetMember(i);
 
         // Save the block id
-        bID = to_underlying(bm->GetID());
+        bID = std::to_underlying(bm->GetID());
         (m_owner->GetInterface())->I_WriteSaveData(INT_ID('B', 'M', 'I', 'D'), &bID, sizeof(bID));
 
         // Save out the data size
@@ -1869,15 +1868,15 @@ void CTaskManager::Load(void)
 				break;
 
 			case icarusToken_t::ID_RANDOM:
-				block->Write( icarusToken_t::ID_RANDOM, *(float *) bData );//to_underlying( icarusToken_t::ID_RANDOM ) );
+				block->Write( icarusToken_t::ID_RANDOM, *(float *) bData );//std::to_underlying( icarusToken_t::ID_RANDOM ) );
 				break;
 
 			case icarusToken_t::ID_TAG:
-				block->Write( icarusToken_t::ID_TAG, (float) to_underlying( icarusToken_t::ID_TAG ) );
+				block->Write( icarusToken_t::ID_TAG, (float) std::to_underlying( icarusToken_t::ID_TAG ) );
 				break;
 
 			case icarusToken_t::ID_GET:
-				block->Write( icarusToken_t::ID_GET, (float) to_underlying( icarusToken_t::ID_GET ) );
+				block->Write( icarusToken_t::ID_GET, (float) std::to_underlying( icarusToken_t::ID_GET ) );
 				break;
 
 			default:

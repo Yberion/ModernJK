@@ -1333,7 +1333,7 @@ void GfxInfo_f(void)
     const char* fsstrings[] = {"windowed", "fullscreen"};
     const char* noborderstrings[] = {"", "noborder "};
 
-    const EnumArray<const char*, textureCompression_t, to_underlying(textureCompression_t::TC_S3TC_ARB) + 1> tc_table = {
+    const EnumArray<const char*, textureCompression_t, std::to_underlying(textureCompression_t::TC_S3TC_ARB) + 1> tc_table = {
         "None",
         "GL_S3_s3tc",
         "GL_EXT_texture_compression_s3tc",

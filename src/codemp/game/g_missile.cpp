@@ -472,7 +472,7 @@ void G_MissileImpact(gentity_t* ent, trace_t* trace)
         else {
             G_ReflectMissile(other, ent, fwd);
         }
-        other->client->ps.saberBlockTime = level.time + (350 - (to_underlying(otherDefLevel) * 100)); // 200;
+        other->client->ps.saberBlockTime = level.time + (350 - (std::to_underlying(otherDefLevel) * 100)); // 200;
 
         // For jedi AI
         other->client->ps.saberEventFlags |= saberEventFlags_t::SEF_DEFLECTED;
@@ -540,7 +540,7 @@ void G_MissileImpact(gentity_t* ent, trace_t* trace)
             else {
                 G_ReflectMissile(otherOwner, ent, fwd);
             }
-            otherOwner->client->ps.saberBlockTime = level.time + (350 - (to_underlying(otherDefLevel) * 100)); // 200;
+            otherOwner->client->ps.saberBlockTime = level.time + (350 - (std::to_underlying(otherDefLevel) * 100)); // 200;
 
             // For jedi AI
             otherOwner->client->ps.saberEventFlags |= saberEventFlags_t::SEF_DEFLECTED;

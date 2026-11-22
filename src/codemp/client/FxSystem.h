@@ -149,7 +149,7 @@ public:
 #ifdef _DEBUG
         mMainRefs++;
 
-        assert(!ent || to_underlying(ent->renderfx) >= 0);
+        assert(!ent || std::to_underlying(ent->renderfx) >= 0);
 #endif
         re->AddRefEntityToScene(ent);
     }
@@ -158,7 +158,7 @@ public:
 #ifdef _DEBUG
         mMiniRefs++;
 
-        assert(!ent || to_underlying(ent->renderfx) >= 0);
+        assert(!ent || std::to_underlying(ent->renderfx) >= 0);
 #endif
         re->AddMiniRefEntityToScene(ent);
     }

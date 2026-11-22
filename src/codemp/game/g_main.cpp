@@ -134,14 +134,14 @@ void G_CacheGametype(void)
         else
             level.gametype = gt;
     }
-    else if (g_gametype.integer < 0 || g_gametype.integer >= to_underlying(gametype_t::GT_MAX_GAME_TYPE)) {
+    else if (g_gametype.integer < 0 || g_gametype.integer >= std::to_underlying(gametype_t::GT_MAX_GAME_TYPE)) {
         Q_Println("g_gametype {} is out of range, defaulting to 0 (FFA/Deathmatch)", g_gametype.integer);
         level.gametype = gametype_t::GT_FFA;
     }
     else
         level.gametype = (gametype_t)atoi(g_gametype.string);
 
-    trap->Cvar_Set("g_gametype", Q_Format("{}", to_underlying(level.gametype)).c_str());
+    trap->Cvar_Set("g_gametype", Q_Format("{}", level.gametype).c_str());
     trap->Cvar_Update(&g_gametype);
 }
 

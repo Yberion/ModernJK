@@ -80,7 +80,7 @@ extern cvar_t* g_skippingcin;
 
 extern bool stop_icarus;
 
-#define stringIDExpand(str, type, strEnum) {str, to_underlying(type::strEnum)}, ENUM2STRING(type, strEnum)
+#define stringIDExpand(str, type, strEnum) {str, std::to_underlying(type::strEnum)}, ENUM2STRING(type, strEnum)
 // #define stringIDExpand(str, type, strEnum)	str,type::strEnum
 
 /*
@@ -125,7 +125,7 @@ stringID_table_t BSETTable[] = {
     {"", -1},
 };
 
-stringID_table_t WPTable[] = {{"NULL", to_underlying(weapon_t::WP_NONE)},
+stringID_table_t WPTable[] = {{"NULL", std::to_underlying(weapon_t::WP_NONE)},
                               ENUM2STRING(weapon_t, WP_NONE),
                               // Player weapons
                               ENUM2STRING(weapon_t, WP_SABER), // NOTE: lots of code assumes this is the first weapon (... which is crap) so be careful -Ste.
@@ -161,7 +161,7 @@ stringID_table_t INVTable[] = {
 stringID_table_t eventTable[] = {
     // BOTH_h
     // END
-    {"", to_underlying(eventType_t::EV_BAD)},
+    {"", std::to_underlying(eventType_t::EV_BAD)},
 };
 
 stringID_table_t DMSTable[] = {{"NULL", -1},
@@ -387,7 +387,7 @@ stringID_table_t setTable[] = {
     ENUM2STRING(setType_t, SET_HUD),
 
     // FIXME: add BOTH_ attributes here too
-    {"", to_underlying(setType_t::SET_)},
+    {"", std::to_underlying(setType_t::SET_)},
 };
 
 // the set field a script names; SET_UNKNOWN for a name that matches none (a variable's name, then)
@@ -627,7 +627,7 @@ static char* Q3_GetAnimLower(gentity_t* ent)
 
     animNumber_t anim = ent->client->ps.legsAnim;
 
-    return (char*)GetStringForID(animTable, to_underlying(anim));
+    return (char*)GetStringForID(animTable, std::to_underlying(anim));
 }
 
 /*
@@ -644,7 +644,7 @@ static char* Q3_GetAnimUpper(gentity_t* ent)
 
     animNumber_t anim = ent->client->ps.torsoAnim;
 
-    return (char*)GetStringForID(animTable, to_underlying(anim));
+    return (char*)GetStringForID(animTable, std::to_underlying(anim));
 }
 
 /*
@@ -2123,8 +2123,11 @@ static void Q3_SetLeader(int entID, const char* name)
 }
 
 stringID_table_t teamTable[] = {
-    ENUM2STRING(team_t, TEAM_FREE),    ENUM2STRING(team_t, TEAM_PLAYER),       ENUM2STRING(team_t, TEAM_ENEMY),
-    ENUM2STRING(team_t, TEAM_NEUTRAL), {"", to_underlying(team_t::TEAM_FREE)},
+    ENUM2STRING(team_t, TEAM_FREE),
+    ENUM2STRING(team_t, TEAM_PLAYER),
+    ENUM2STRING(team_t, TEAM_ENEMY),
+    ENUM2STRING(team_t, TEAM_NEUTRAL),
+    {"", std::to_underlying(team_t::TEAM_FREE)},
 };
 
 /*
@@ -2340,7 +2343,7 @@ static bool Q3_SetBState(int entID, const char* bs_name)
         // ent->NPC->stats.moveType = movetype_t::MT_RUNJUMP;
     }
 
-    if (bsID == to_underlying(bState_t::BS_NOCLIP)) {
+    if (bsID == std::to_underlying(bState_t::BS_NOCLIP)) {
         ent->client->noclip = true;
     }
     else {
@@ -2356,7 +2359,7 @@ static bool Q3_SetBState(int entID, const char* bs_name)
     */
 
     //	if ( bSID == BS_SNIPER || bSID == bState_t::BS_ADVANCE_FIGHT )
-    if (bsID == to_underlying(bState_t::BS_ADVANCE_FIGHT)) {
+    if (bsID == std::to_underlying(bState_t::BS_ADVANCE_FIGHT)) {
         return false; // need to wait for task complete message
     }
 
@@ -2366,7 +2369,7 @@ static bool Q3_SetBState(int entID, const char* bs_name)
             ent->NPC->shotTime = ent->attackDebounceTime = level.time;
         }
     */
-    if (bsID == to_underlying(bState_t::BS_JUMP)) {
+    if (bsID == std::to_underlying(bState_t::BS_JUMP)) {
         ent->NPC->jumpState = jumpState_t::JS_FACING;
     }
 
@@ -3680,8 +3683,8 @@ static void Q3_SetForcePowerLevel(int entID, int forcePower, int forceLevel)
     const forcePowers_t power = static_cast<forcePowers_t>(forcePower);
     const forcePowerLevels_t level = static_cast<forcePowerLevels_t>(forceLevel);
     if (power < forcePowers_t::FP_FIRST || power >= forcePowers_t::NUM_FORCE_POWERS) {
-        Q3_DebugPrintln(WL_e::WL_ERROR, "Q3_SetForcePowerLevel: Force Power index {} out of range ({}-{})", forcePower, to_underlying(forcePowers_t::FP_FIRST),
-                        (to_underlying(forcePowers_t::NUM_FORCE_POWERS) - 1));
+        Q3_DebugPrintln(WL_e::WL_ERROR, "Q3_SetForcePowerLevel: Force Power index {} out of range ({}-{})", forcePower, forcePowers_t::FP_FIRST,
+                        (std::to_underlying(forcePowers_t::NUM_FORCE_POWERS) - 1));
         return;
     }
 
@@ -7578,7 +7581,7 @@ static int Q3_GetFloat(int entID, icarusToken_t type, const char* name, float* v
         break;
 
     case setType_t::SET_SOLID: // ## %t="BOOL_TYPES" # Make yourself notsolid or solid
-        *value = static_cast<int>(to_underlying(ent->contents));
+        *value = static_cast<int>(std::to_underlying(ent->contents));
         break;
     case setType_t::SET_PLAYER_USABLE: // ## %t="BOOL_TYPES" # Can be activateby the player's "use" button
         *value = Q3_FlagValue(ent->svFlags & svFlags_t::SVF_PLAYER_USABLE);
@@ -8007,7 +8010,7 @@ static int Q3_GetString(int entID, icarusToken_t type, const char* name, const c
             return false;
         }
         else {
-            *value = (char*)GetStringForID(WPTable, to_underlying(ent->client->ps.weapon));
+            *value = (char*)GetStringForID(WPTable, std::to_underlying(ent->client->ps.weapon));
         }
         break;
 
@@ -8017,11 +8020,11 @@ static int Q3_GetString(int entID, icarusToken_t type, const char* name, const c
             return false;
         }
         else {
-            //	*value = (char *)GetStringForID( WPTable, to_underlying( ent->client->ps.weapon ) );
+            //	*value = (char *)GetStringForID( WPTable, std::to_underlying( ent->client->ps.weapon ) );
         }
         break;
     case setType_t::SET_MUSIC_STATE:
-        *value = (char*)GetStringForID(DMSTable, to_underlying(level.dmState));
+        *value = (char*)GetStringForID(DMSTable, std::to_underlying(level.dmState));
         break;
     // The below cannot be gotten
     case setType_t::SET_NAVGOAL: // ## %s="NULL" # *Move to this navgoal then continue script
@@ -8337,7 +8340,7 @@ static void Q3_CameraPath(const char* name)
 // whether g_ICARUSDebug shows the messages of this level
 bool Q3_DebugLevelShown(WL_e level)
 {
-    return g_ICARUSDebug->integer >= to_underlying(level);
+    return g_ICARUSDebug->integer >= std::to_underlying(level);
 }
 
 /*

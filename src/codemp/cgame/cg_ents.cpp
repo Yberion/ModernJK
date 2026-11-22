@@ -476,7 +476,7 @@ void CG_Special(centity_t* cent)
         return;
     }
 
-    if (s1->modelindex == to_underlying(holdable_t::HI_SHIELD)) { // The portable shield should go through a different rendering function.
+    if (s1->modelindex == std::to_underlying(holdable_t::HI_SHIELD)) { // The portable shield should go through a different rendering function.
         FX_DrawPortableShield(cent);
         return;
     }
@@ -954,8 +954,8 @@ static void CG_General(centity_t* cent)
     ent.shaderRGBA[2] = cent->currentState.customRGBA[2];
     ent.shaderRGBA[3] = cent->currentState.customRGBA[3];
 
-    if (cent->currentState.modelGhoul2 >= to_underlying(g2ModelParts_t::G2_MODELPART_HEAD) &&
-        cent->currentState.modelGhoul2 <= to_underlying(g2ModelParts_t::G2_MODELPART_RLEG) &&
+    if (cent->currentState.modelGhoul2 >= std::to_underlying(g2ModelParts_t::G2_MODELPART_HEAD) &&
+        cent->currentState.modelGhoul2 <= std::to_underlying(g2ModelParts_t::G2_MODELPART_RLEG) &&
         /*cent->currentState.modelindex < MAX_CLIENTS &&*/
         cent->currentState.weapon == weapon_t::G2_MODEL_PART) { // special case for client limbs
         centity_t* clEnt;
@@ -978,9 +978,9 @@ static void CG_General(centity_t* cent)
         }
 
         if (dismember_settings < 2 &&
-            (cent->currentState.modelGhoul2 == to_underlying(g2ModelParts_t::G2_MODELPART_HEAD) ||
+            (cent->currentState.modelGhoul2 == std::to_underlying(g2ModelParts_t::G2_MODELPART_HEAD) ||
              cent->currentState.modelGhoul2 ==
-                 to_underlying(g2ModelParts_t::G2_MODELPART_WAIST))) { // dismember settings are not high enough to display decaps and torso slashes
+                 std::to_underlying(g2ModelParts_t::G2_MODELPART_WAIST))) { // dismember settings are not high enough to display decaps and torso slashes
             return;
         }
 
@@ -1016,7 +1016,7 @@ static void CG_General(centity_t* cent)
             cent->bolt4 = -1;
             cent->trailTime = 0;
 
-            if (cent->currentState.modelGhoul2 == to_underlying(g2ModelParts_t::G2_MODELPART_HEAD)) {
+            if (cent->currentState.modelGhoul2 == std::to_underlying(g2ModelParts_t::G2_MODELPART_HEAD)) {
                 rotateBone = "cranium";
                 Q_strncpyz(limbName, "head", sizeof(limbName));
                 Q_strncpyz(limbCapName, "head_cap_torso", sizeof(limbCapName));
@@ -1024,7 +1024,7 @@ static void CG_General(centity_t* cent)
                 limbTagName = "*head_cap_torso";
                 stubTagName = "*torso_cap_head";
             }
-            else if (cent->currentState.modelGhoul2 == to_underlying(g2ModelParts_t::G2_MODELPART_WAIST)) {
+            else if (cent->currentState.modelGhoul2 == std::to_underlying(g2ModelParts_t::G2_MODELPART_WAIST)) {
 
                 if (clEnt->localAnimIndex <= 1) { // humanoid/rtrooper
                     rotateBone = "thoracic";
@@ -1038,7 +1038,7 @@ static void CG_General(centity_t* cent)
                 limbTagName = "*torso_cap_hips";
                 stubTagName = "*hips_cap_torso";
             }
-            else if (cent->currentState.modelGhoul2 == to_underlying(g2ModelParts_t::G2_MODELPART_LARM)) {
+            else if (cent->currentState.modelGhoul2 == std::to_underlying(g2ModelParts_t::G2_MODELPART_LARM)) {
                 rotateBone = "lradius";
                 BG_GetRootSurfNameWithVariant(clEnt->ghoul2, "l_arm", limbName, sizeof(limbName));
                 BG_GetRootSurfNameWithVariant(clEnt->ghoul2, "torso", stubName, sizeof(stubName));
@@ -1047,7 +1047,7 @@ static void CG_General(centity_t* cent)
                 limbTagName = "*l_arm_cap_torso";
                 stubTagName = "*torso_cap_l_arm";
             }
-            else if (cent->currentState.modelGhoul2 == to_underlying(g2ModelParts_t::G2_MODELPART_RARM)) {
+            else if (cent->currentState.modelGhoul2 == std::to_underlying(g2ModelParts_t::G2_MODELPART_RARM)) {
                 rotateBone = "rradius";
                 BG_GetRootSurfNameWithVariant(clEnt->ghoul2, "r_arm", limbName, sizeof(limbName));
                 BG_GetRootSurfNameWithVariant(clEnt->ghoul2, "torso", stubName, sizeof(stubName));
@@ -1056,7 +1056,7 @@ static void CG_General(centity_t* cent)
                 limbTagName = "*r_arm_cap_torso";
                 stubTagName = "*torso_cap_r_arm";
             }
-            else if (cent->currentState.modelGhoul2 == to_underlying(g2ModelParts_t::G2_MODELPART_RHAND)) {
+            else if (cent->currentState.modelGhoul2 == std::to_underlying(g2ModelParts_t::G2_MODELPART_RHAND)) {
                 rotateBone = "rhand";
                 BG_GetRootSurfNameWithVariant(clEnt->ghoul2, "r_hand", limbName, sizeof(limbName));
                 BG_GetRootSurfNameWithVariant(clEnt->ghoul2, "r_arm", stubName, sizeof(stubName));
@@ -1065,7 +1065,7 @@ static void CG_General(centity_t* cent)
                 limbTagName = "*r_hand_cap_r_arm";
                 stubTagName = "*r_arm_cap_r_hand";
             }
-            else if (cent->currentState.modelGhoul2 == to_underlying(g2ModelParts_t::G2_MODELPART_LLEG)) {
+            else if (cent->currentState.modelGhoul2 == std::to_underlying(g2ModelParts_t::G2_MODELPART_LLEG)) {
                 rotateBone = "ltibia";
                 BG_GetRootSurfNameWithVariant(clEnt->ghoul2, "l_leg", limbName, sizeof(limbName));
                 BG_GetRootSurfNameWithVariant(clEnt->ghoul2, "hips", stubName, sizeof(stubName));
@@ -1074,7 +1074,7 @@ static void CG_General(centity_t* cent)
                 limbTagName = "*l_leg_cap_hips";
                 stubTagName = "*hips_cap_l_leg";
             }
-            else if (cent->currentState.modelGhoul2 == to_underlying(g2ModelParts_t::G2_MODELPART_RLEG)) {
+            else if (cent->currentState.modelGhoul2 == std::to_underlying(g2ModelParts_t::G2_MODELPART_RLEG)) {
                 rotateBone = "rtibia";
                 BG_GetRootSurfNameWithVariant(clEnt->ghoul2, "r_leg", limbName, sizeof(limbName));
                 BG_GetRootSurfNameWithVariant(clEnt->ghoul2, "hips", stubName, sizeof(stubName));
@@ -1170,9 +1170,10 @@ static void CG_General(centity_t* cent)
                 trap->FX_PlayEffectID(cgs.effects.mBlasterSmoke, boltOrg, boltAng, -1, -1, false);
             }
 
-            if (cent->currentState.modelGhoul2 == to_underlying(g2ModelParts_t::G2_MODELPART_RARM) ||
-                cent->currentState.modelGhoul2 == to_underlying(g2ModelParts_t::G2_MODELPART_RHAND) ||
-                cent->currentState.modelGhoul2 == to_underlying(g2ModelParts_t::G2_MODELPART_WAIST)) { // Cut his weapon holding arm off, so remove the weapon
+            if (cent->currentState.modelGhoul2 == std::to_underlying(g2ModelParts_t::G2_MODELPART_RARM) ||
+                cent->currentState.modelGhoul2 == std::to_underlying(g2ModelParts_t::G2_MODELPART_RHAND) ||
+                cent->currentState.modelGhoul2 ==
+                    std::to_underlying(g2ModelParts_t::G2_MODELPART_WAIST)) { // Cut his weapon holding arm off, so remove the weapon
                 if (trap->G2API_HasGhoul2ModelOnIndex(&(clEnt->ghoul2), 1)) {
                     trap->G2API_RemoveGhoul2Model(&(clEnt->ghoul2), 1);
                 }
@@ -1181,14 +1182,14 @@ static void CG_General(centity_t* cent)
             clEnt->torsoBolt |= limbBit; // reinit model after copying limbless one to queue
             // This causes issues after respawning.. just keep track of limbs cut/made on server or something.
             /*
-            if (cent->currentState.modelGhoul2 == to_underlying( g2ModelParts_t::G2_MODELPART_WAIST ))
+            if (cent->currentState.modelGhoul2 == std::to_underlying( g2ModelParts_t::G2_MODELPART_WAIST ))
             {
                 clEnt->torsoBolt |= (1 << (g2ModelParts_t::G2_MODELPART_HEAD-10));
                 clEnt->torsoBolt |= (1 << (g2ModelParts_t::G2_MODELPART_RARM-10));
                 clEnt->torsoBolt |= (1 << (g2ModelParts_t::G2_MODELPART_LARM-10));
                 clEnt->torsoBolt |= (1 << (g2ModelParts_t::G2_MODELPART_RHAND-10));
             }
-            else if (cent->currentState.modelGhoul2 == to_underlying( g2ModelParts_t::G2_MODELPART_RARM ))
+            else if (cent->currentState.modelGhoul2 == std::to_underlying( g2ModelParts_t::G2_MODELPART_RARM ))
             {
                 clEnt->torsoBolt |= (1 << (g2ModelParts_t::G2_MODELPART_RHAND-10));
             }
@@ -1232,7 +1233,7 @@ static void CG_General(centity_t* cent)
         ent.hModel = 0;
     }
 
-    if (cent->currentState.number >= MAX_CLIENTS && cent->currentState.activeForcePass == to_underlying(forcePowers_t::NUM_FORCE_POWERS) + 1 &&
+    if (cent->currentState.number >= MAX_CLIENTS && cent->currentState.activeForcePass == std::to_underlying(forcePowers_t::NUM_FORCE_POWERS) + 1 &&
         cent->currentState.NPC_class != class_t::CLASS_VEHICLE) {
         vec3_t empAngles;
         centity_t* empOwn;
@@ -1665,7 +1666,7 @@ static void CG_General(centity_t* cent)
             beamID = cgs.effects.tripmineLaserFX;
 
             if (cg.snap->ps.fd.forcePowersActive & Bit(forcePowers_t::FP_SEE)) {
-                i = to_underlying(cg.snap->ps.fd.forcePowerLevel[forcePowers_t::FP_SEE]);
+                i = std::to_underlying(cg.snap->ps.fd.forcePowerLevel[forcePowers_t::FP_SEE]);
 
                 while (i > 0) {
                     trap->FX_PlayEffectID(beamID, beamOrg, cent->currentState.pos.trDelta, -1, -1, false);
@@ -1720,14 +1721,14 @@ static void CG_Speaker(centity_t* cent)
 bool CG_GreyItem(itemType_t type, int tag, int plSide)
 {
     if (type == itemType_t::IT_POWERUP &&
-        (tag == to_underlying(powerup_t::PW_FORCE_ENLIGHTENED_LIGHT) || tag == to_underlying(powerup_t::PW_FORCE_ENLIGHTENED_DARK))) {
+        (tag == std::to_underlying(powerup_t::PW_FORCE_ENLIGHTENED_LIGHT) || tag == std::to_underlying(powerup_t::PW_FORCE_ENLIGHTENED_DARK))) {
         if (plSide == FORCE_LIGHTSIDE) {
-            if (tag == to_underlying(powerup_t::PW_FORCE_ENLIGHTENED_DARK)) {
+            if (tag == std::to_underlying(powerup_t::PW_FORCE_ENLIGHTENED_DARK)) {
                 return true;
             }
         }
         else if (plSide == FORCE_DARKSIDE) {
-            if (tag == to_underlying(powerup_t::PW_FORCE_ENLIGHTENED_LIGHT)) {
+            if (tag == std::to_underlying(powerup_t::PW_FORCE_ENLIGHTENED_LIGHT)) {
                 return true;
             }
         }
@@ -3066,7 +3067,7 @@ static void CG_AddCEntity(centity_t* cent)
     */
     switch (cent->currentState.eType) {
     default:
-        Q_Error(errorParm_t::ERR_DROP, "Bad entity type: {}", to_underlying(cent->currentState.eType));
+        Q_Error(errorParm_t::ERR_DROP, "Bad entity type: {}", cent->currentState.eType);
         break;
 
     case entityType_t::ET_FX:

@@ -4362,7 +4362,7 @@ void emplaced_gun_use(gentity_t* self, gentity_t* other, trace_t* trace)
     activator->client->ps.emplacedIndex = self->s.number;
 
     self->s.emplacedOwner = activator->s.number;
-    self->s.activeForcePass = to_underlying(forcePowers_t::NUM_FORCE_POWERS) + 1;
+    self->s.activeForcePass = std::to_underlying(forcePowers_t::NUM_FORCE_POWERS) + 1;
 
     // the gun will track which weapon we used to have
     self->s.weapon = oldWeapon;
@@ -4516,7 +4516,7 @@ void SP_emplaced_gun(gentity_t* ent)
     RegisterItem(BG_FindItemForWeapon(weapon_t::WP_EMPLACED_GUN));
 
     ent->r.contents = contentsFlags_t::CONTENTS_SOLID;
-    ent->s.solid = to_underlying(solid_t::SOLID_BBOX);
+    ent->s.solid = std::to_underlying(solid_t::SOLID_BBOX);
 
     ent->genericValue5 = 0;
 

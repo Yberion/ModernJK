@@ -2027,9 +2027,9 @@ void ClientThink_real(gentity_t* ent, usercmd_t* ucmd)
                                                                      // FIXME: should he smack you away like Galak Mech?
                 }
                 else if ((((groundEnt->s.number && (groundEnt->s.weapon != weapon_t::WP_SABER || !groundEnt->NPC ||
-                                                    to_underlying(groundEnt->NPC->rank) <
-                                                        Q_irand(to_underlying(rank_t::RANK_CIVILIAN),
-                                                                to_underlying(rank_t::RANK_CAPTAIN) +
+                                                    std::to_underlying(groundEnt->NPC->rank) <
+                                                        Q_irand(std::to_underlying(rank_t::RANK_CIVILIAN),
+                                                                std::to_underlying(rank_t::RANK_CAPTAIN) +
                                                                     1))) // an NPC who is either not a saber user or passed the rank-based probability test
                            || ((!ent->s.number || G_ControlledByPlayer(groundEnt)) && !Q_irand(0, 3) && cg.renderingThirdPerson &&
                                !cg.zoomMode))                                          // or a player in third person, 25% of the time

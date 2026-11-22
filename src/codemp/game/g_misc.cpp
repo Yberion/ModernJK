@@ -918,7 +918,7 @@ void HolocronTouch(gentity_t* self, gentity_t* other, trace_t* trace)
     */
 
     if (forceReselect != weapon_t::WP_NONE) {
-        G_AddEvent(other, entity_event_t::EV_NOAMMO, to_underlying(forceReselect));
+        G_AddEvent(other, entity_event_t::EV_NOAMMO, std::to_underlying(forceReselect));
     }
 
     // Q_Println("DON'T TOUCH ME");
@@ -1048,8 +1048,8 @@ void SP_misc_holocron(gentity_t* ent)
         ent->count = 0;
     }
 
-    if (ent->count >= to_underlying(forcePowers_t::NUM_FORCE_POWERS)) {
-        ent->count = to_underlying(forcePowers_t::NUM_FORCE_POWERS) - 1;
+    if (ent->count >= std::to_underlying(forcePowers_t::NUM_FORCE_POWERS)) {
+        ent->count = std::to_underlying(forcePowers_t::NUM_FORCE_POWERS) - 1;
     }
     /*
         if (g_forcePowerDisable.integer &&

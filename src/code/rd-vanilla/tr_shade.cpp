@@ -1636,8 +1636,7 @@ static void ComputeTexCoords(shaderStage_t* pStage)
                 break;
 
             default:
-                Q_Error(errorParm_t::ERR_DROP, "ERROR: unknown texmod '{}' in shader '{}'", to_underlying(pStage->bundle[b].texMods[tm].type),
-                        tess.shader->name);
+                Q_Error(errorParm_t::ERR_DROP, "ERROR: unknown texmod '{}' in shader '{}'", pStage->bundle[b].texMods[tm].type, tess.shader->name);
                 break;
             }
         }

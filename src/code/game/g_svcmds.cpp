@@ -117,7 +117,7 @@ void Svcmd_EntityList_f(void)
             Q_Print("ET_TERRAIN          ");
             break;
         default:
-            Q_Print("{:<3}                ", to_underlying(check->s.eType));
+            Q_Print("{:<3}                ", check->s.eType);
             break;
         }
 
@@ -308,8 +308,8 @@ static void Svcmd_ForceSetLevel_f(forcePowers_t forcePower)
     }
     const char* newVal = gi.argv(1);
     if (!VALIDSTRING(newVal)) {
-        Q_Println("Current {} level is {}", SetForceTable[forcePower].desc, to_underlying(g_entities[0].client->ps.forcePowerLevel[forcePower]));
-        Q_Println("Usage:  {} <level> (0 - {})", SetForceTable[forcePower].cmdname, to_underlying(SetForceTable[forcePower].maxlevel));
+        Q_Println("Current {} level is {}", SetForceTable[forcePower].desc, g_entities[0].client->ps.forcePowerLevel[forcePower]);
+        Q_Println("Usage:  {} <level> (0 - {})", SetForceTable[forcePower].cmdname, SetForceTable[forcePower].maxlevel);
         return;
     }
     const forcePowerLevels_t val = static_cast<forcePowerLevels_t>(atoi(newVal));
@@ -461,7 +461,7 @@ void Svcmd_SaberAttackCycle_f(void)
     saberAnimLevel++;
     int sanityCheck = 0;
     while (self->client->ps.saberAnimLevel != saberAnimLevel && !(allowedStyles & Bit(saberAnimLevel)) &&
-           sanityCheck < to_underlying(saber_styles_t::SS_NUM_SABER_STYLES) + 1) {
+           sanityCheck < std::to_underlying(saber_styles_t::SS_NUM_SABER_STYLES) + 1) {
         saberAnimLevel++;
         if (saberAnimLevel > saber_styles_t::SS_STAFF) {
             saberAnimLevel = saber_styles_t::SS_FAST;
@@ -612,10 +612,10 @@ static void Svcmd_PlayerTeam_f(void)
 
     if (!*cmd2 || !cmd2[0]) {
         Q_Println(S_COLOR_RED "'playerteam' - change player team, requires a team name!");
-        Q_Println(S_COLOR_RED "Current team is: {}", GetStringForID(TeamTable, to_underlying(g_entities[0].client->playerTeam)));
+        Q_Println(S_COLOR_RED "Current team is: {}", GetStringForID(TeamTable, std::to_underlying(g_entities[0].client->playerTeam)));
         Q_Println(S_COLOR_RED "Valid team names are:");
         for (team_t n = team_t::TEAM_FREE + 1; n < team_t::TEAM_NUM_TEAMS; n++) {
-            Q_Println(S_COLOR_RED "{}", GetStringForID(TeamTable, to_underlying(n)));
+            Q_Println(S_COLOR_RED "{}", GetStringForID(TeamTable, std::to_underlying(n)));
         }
     }
     else {
@@ -623,10 +623,10 @@ static void Svcmd_PlayerTeam_f(void)
 
         if (id == -1) {
             Q_Println(S_COLOR_RED "'playerteam' unrecognized team name {}!", cmd2);
-            Q_Println(S_COLOR_RED "Current team is: {}", GetStringForID(TeamTable, to_underlying(g_entities[0].client->playerTeam)));
+            Q_Println(S_COLOR_RED "Current team is: {}", GetStringForID(TeamTable, std::to_underlying(g_entities[0].client->playerTeam)));
             Q_Println(S_COLOR_RED "Valid team names are:");
             for (team_t n = team_t::TEAM_FREE; n < team_t::TEAM_NUM_TEAMS; n++) {
-                Q_Println(S_COLOR_RED "{}", GetStringForID(TeamTable, to_underlying(n)));
+                Q_Println(S_COLOR_RED "{}", GetStringForID(TeamTable, std::to_underlying(n)));
             }
         }
         else {

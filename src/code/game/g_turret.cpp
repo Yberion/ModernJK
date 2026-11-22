@@ -127,8 +127,9 @@ void TurboLaser_SetBoneAnim(gentity_t* eweb, int startFrame, int endFrame)
     // set info on the entity so it knows to start the anim on the client next snapshot.
     // eweb->s.eFlags |= EF_G2ANIMATING;
 
-    if (to_underlying(eweb->s.torsoAnim) == startFrame && to_underlying(eweb->s.legsAnim) == endFrame) { // already playing this anim, let's flag it to restart
-                                                                                                         // eweb->s.torsoFlip = !eweb->s.torsoFlip;
+    if (std::to_underlying(eweb->s.torsoAnim) == startFrame &&
+        std::to_underlying(eweb->s.legsAnim) == endFrame) { // already playing this anim, let's flag it to restart
+                                                            // eweb->s.torsoFlip = !eweb->s.torsoFlip;
     }
     else {
         eweb->s.torsoAnim = static_cast<animNumber_t>(startFrame);

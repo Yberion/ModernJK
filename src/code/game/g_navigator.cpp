@@ -182,7 +182,7 @@ public:
     hstring mName;                      // TODO OPTIMIZATION: Remove This?
     hstring mTargets[NAV::NUM_TARGETS]; // TODO OPTIMIZATION: Remove This
     enum class EWayNodeFlags { WN_NONE = 0, WN_ISLAND, WN_FLOATING, WN_DROPTOFLOOR, WN_NOAUTOCONNECT, WN_MAX };
-    ratl::bits_vs<to_underlying(EWayNodeFlags::WN_MAX)> mFlags;
+    ratl::bits_vs<std::to_underlying(EWayNodeFlags::WN_MAX)> mFlags;
 
     ////////////////////////////////////////////////////////////////////////////////////
     // Access Operator (For Cells)(For Triangulation)
@@ -231,34 +231,34 @@ public:
 
         WE_MAX
     };
-    ratl::bits_vs<to_underlying(EWayEdgeFlags::WE_MAX)> mFlags; // Should be only one int
+    ratl::bits_vs<std::to_underlying(EWayEdgeFlags::WE_MAX)> mFlags; // Should be only one int
 
     ////////////////////////////////////////////////////////////////////////////////////
     // Size Function
     ////////////////////////////////////////////////////////////////////////////////////
     inline EWayEdgeFlags Blocking()
     {
-        if (mFlags.get_bit(to_underlying(EWayEdgeFlags::WE_BLOCKING_BREAK))) {
+        if (mFlags.get_bit(std::to_underlying(EWayEdgeFlags::WE_BLOCKING_BREAK))) {
             return EWayEdgeFlags::WE_BLOCKING_BREAK;
         }
-        if (mFlags.get_bit(to_underlying(EWayEdgeFlags::WE_BLOCKING_WALL))) {
+        if (mFlags.get_bit(std::to_underlying(EWayEdgeFlags::WE_BLOCKING_WALL))) {
             return EWayEdgeFlags::WE_BLOCKING_WALL;
         }
-        if (mFlags.get_bit(to_underlying(EWayEdgeFlags::WE_BLOCKING_DOOR))) {
+        if (mFlags.get_bit(std::to_underlying(EWayEdgeFlags::WE_BLOCKING_DOOR))) {
             return EWayEdgeFlags::WE_BLOCKING_DOOR;
         }
         return EWayEdgeFlags::WE_NONE;
     }
-    inline bool BlockingBreakable() { return (mFlags.get_bit(to_underlying(EWayEdgeFlags::WE_BLOCKING_BREAK))); }
-    inline bool BlockingWall() { return (mFlags.get_bit(to_underlying(EWayEdgeFlags::WE_BLOCKING_WALL))); }
-    inline bool BlockingDoor() { return (mFlags.get_bit(to_underlying(EWayEdgeFlags::WE_BLOCKING_DOOR))); }
+    inline bool BlockingBreakable() { return (mFlags.get_bit(std::to_underlying(EWayEdgeFlags::WE_BLOCKING_BREAK))); }
+    inline bool BlockingWall() { return (mFlags.get_bit(std::to_underlying(EWayEdgeFlags::WE_BLOCKING_WALL))); }
+    inline bool BlockingDoor() { return (mFlags.get_bit(std::to_underlying(EWayEdgeFlags::WE_BLOCKING_DOOR))); }
 
     ////////////////////////////////////////////////////////////////////////////////////
     // Size Function
     ////////////////////////////////////////////////////////////////////////////////////
     inline EWayEdgeFlags Size() const
     {
-        return (mFlags.get_bit(to_underlying(EWayEdgeFlags::WE_SIZE_MEDIUM)) ? (EWayEdgeFlags::WE_SIZE_MEDIUM) : (EWayEdgeFlags::WE_SIZE_LARGE));
+        return (mFlags.get_bit(std::to_underlying(EWayEdgeFlags::WE_SIZE_MEDIUM)) ? (EWayEdgeFlags::WE_SIZE_MEDIUM) : (EWayEdgeFlags::WE_SIZE_LARGE));
     }
 
     ////////////////////////////////////////////////////////////////////////////////////
@@ -474,7 +474,7 @@ public:
     ////////////////////////////////////////////////////////////////////////////////////
     //
     ////////////////////////////////////////////////////////////////////////////////////
-    virtual bool can_be_invalid(const CWayEdge& Edge) const { return (Edge.mFlags.get_bit(to_underlying(CWayEdge::EWayEdgeFlags::WE_CANBEINVAL))); }
+    virtual bool can_be_invalid(const CWayEdge& Edge) const { return (Edge.mFlags.get_bit(std::to_underlying(CWayEdge::EWayEdgeFlags::WE_CANBEINVAL))); }
 
     ////////////////////////////////////////////////////////////////////////////////////
     //
@@ -483,14 +483,14 @@ public:
     {
         // If The Actor Can't Fly, But This Is A Flying Edge, It's Invalid
         //-----------------------------------------------------------------
-        if (mActor && Edge.mFlags.get_bit(to_underlying(CWayEdge::EWayEdgeFlags::WE_FLYING)) && mActor->NPC &&
+        if (mActor && Edge.mFlags.get_bit(std::to_underlying(CWayEdge::EWayEdgeFlags::WE_FLYING)) && mActor->NPC &&
             !Any(mActor->NPC->scriptFlags & scriptFlags_t::SCF_NAV_CAN_FLY)) {
             return false;
         }
 
         // If The Actor Can't Fly, But This Is A Flying Edge, It's Invalid
         //-----------------------------------------------------------------
-        if (mActor && Edge.mFlags.get_bit(to_underlying(CWayEdge::EWayEdgeFlags::WE_JUMPING)) && mActor->NPC &&
+        if (mActor && Edge.mFlags.get_bit(std::to_underlying(CWayEdge::EWayEdgeFlags::WE_JUMPING)) && mActor->NPC &&
             !Any(mActor->NPC->scriptFlags & scriptFlags_t::SCF_NAV_CAN_JUMP)) {
             return false;
         }
@@ -561,12 +561,12 @@ public:
         }
         else if (Edge.BlockingBreakable()) {                      // we had a breakable in our way, now it's gone, see if there is anything else in the way
             if (NAV::TestEdge(Edge.mNodeA, Edge.mNodeB, false)) { // clear it
-                Edge.mFlags.clear_bit(to_underlying(CWayEdge::EWayEdgeFlags::WE_BLOCKING_BREAK));
+                Edge.mFlags.clear_bit(std::to_underlying(CWayEdge::EWayEdgeFlags::WE_BLOCKING_BREAK));
             }
             // NOTE: if this fails with the SC_LARGE size
         }
 
-        return (Edge.mFlags.get_bit(to_underlying(CWayEdge::EWayEdgeFlags::WE_VALID)));
+        return (Edge.mFlags.get_bit(std::to_underlying(CWayEdge::EWayEdgeFlags::WE_VALID)));
     }
 
     ////////////////////////////////////////////////////////////////////////////////////
@@ -625,12 +625,12 @@ public:
         Edge.mEntityNum = ENTITYNUM_NONE;
         Edge.mOwnerNum = ENTITYNUM_NONE;
         Edge.mFlags.clear();
-        Edge.mFlags.set_bit(to_underlying(CWayEdge::EWayEdgeFlags::WE_VALID));
+        Edge.mFlags.set_bit(std::to_underlying(CWayEdge::EWayEdgeFlags::WE_VALID));
         if (CanBeInvalid) {
-            Edge.mFlags.set_bit(to_underlying(CWayEdge::EWayEdgeFlags::WE_CANBEINVAL));
+            Edge.mFlags.set_bit(std::to_underlying(CWayEdge::EWayEdgeFlags::WE_CANBEINVAL));
         }
         if (OnHull) {
-            Edge.mFlags.set_bit(to_underlying(CWayEdge::EWayEdgeFlags::WE_ONHULL));
+            Edge.mFlags.set_bit(std::to_underlying(CWayEdge::EWayEdgeFlags::WE_ONHULL));
         }
     }
 };
@@ -1100,10 +1100,12 @@ bool NAV::TestEdge(TNodeHandle NodeA, TNodeHandle NodeB, bool IsDebugEdge)
 
     // Check For A Flying Edge
     //-------------------------
-    if (a.mFlags.get_bit(to_underlying(CWayNode::EWayNodeFlags::WN_FLOATING)) || b.mFlags.get_bit(to_underlying(CWayNode::EWayNodeFlags::WN_FLOATING))) {
-        at.mFlags.set_bit(to_underlying(CWayEdge::EWayEdgeFlags::WE_FLYING));
-        if (!a.mFlags.get_bit(to_underlying(CWayNode::EWayNodeFlags::WN_FLOATING)) || !b.mFlags.get_bit(to_underlying(CWayNode::EWayNodeFlags::WN_FLOATING))) {
-            at.mFlags.set_bit(to_underlying(CWayEdge::EWayEdgeFlags::WE_CANBEINVAL));
+    if (a.mFlags.get_bit(std::to_underlying(CWayNode::EWayNodeFlags::WN_FLOATING)) ||
+        b.mFlags.get_bit(std::to_underlying(CWayNode::EWayNodeFlags::WN_FLOATING))) {
+        at.mFlags.set_bit(std::to_underlying(CWayEdge::EWayEdgeFlags::WE_FLYING));
+        if (!a.mFlags.get_bit(std::to_underlying(CWayNode::EWayNodeFlags::WN_FLOATING)) ||
+            !b.mFlags.get_bit(std::to_underlying(CWayNode::EWayNodeFlags::WN_FLOATING))) {
+            at.mFlags.set_bit(std::to_underlying(CWayEdge::EWayEdgeFlags::WE_CANBEINVAL));
         }
     }
 
@@ -1119,14 +1121,14 @@ bool NAV::TestEdge(TNodeHandle NodeA, TNodeHandle NodeB, bool IsDebugEdge)
         // Find Out What Type Of Entity This Is
         //--------------------------------------
         if (!Q_stricmp("func_door", ent->classname)) {
-            at.mFlags.set_bit(to_underlying(CWayEdge::EWayEdgeFlags::WE_BLOCKING_DOOR));
+            at.mFlags.set_bit(std::to_underlying(CWayEdge::EWayEdgeFlags::WE_BLOCKING_DOOR));
         }
         else if (!Q_stricmp("func_wall", ent->classname) || !Q_stricmp("func_static", ent->classname) || !Q_stricmp("func_usable", ent->classname)) {
-            at.mFlags.set_bit(to_underlying(CWayEdge::EWayEdgeFlags::WE_BLOCKING_WALL));
+            at.mFlags.set_bit(std::to_underlying(CWayEdge::EWayEdgeFlags::WE_BLOCKING_WALL));
         }
         else if (!Q_stricmp("func_glass", ent->classname) || !Q_stricmp("func_breakable", ent->classname) ||
                  !Q_stricmp("misc_model_breakable", ent->classname)) {
-            at.mFlags.set_bit(to_underlying(CWayEdge::EWayEdgeFlags::WE_BLOCKING_BREAK));
+            at.mFlags.set_bit(std::to_underlying(CWayEdge::EWayEdgeFlags::WE_BLOCKING_BREAK));
         }
         else if (ent->NPC || ent->s.number == 0) {
             HitCharacter = true;
@@ -1204,7 +1206,7 @@ bool NAV::TestEdge(TNodeHandle NodeA, TNodeHandle NodeB, bool IsDebugEdge)
         if (CanGo && !HitCharacter) {
             ent->wayedge = atHandle;
             at.mEntityNum = EntHit;
-            at.mFlags.set_bit(to_underlying(CWayEdge::EWayEdgeFlags::WE_CANBEINVAL));
+            at.mFlags.set_bit(std::to_underlying(CWayEdge::EWayEdgeFlags::WE_CANBEINVAL));
 
             // Add It To The Edge Map
             //------------------------
@@ -1269,7 +1271,7 @@ bool NAV::TestEdge(TNodeHandle NodeA, TNodeHandle NodeB, bool IsDebugEdge)
             // Breakable Walls Are Not Valid Until Broken.  Period
             //-----------------------------------------------------
             else if (at.BlockingBreakable()) { // we'll do the trace again later if this ent gets broken
-                at.mFlags.clear_bit(to_underlying(CWayEdge::EWayEdgeFlags::WE_VALID));
+                at.mFlags.clear_bit(std::to_underlying(CWayEdge::EWayEdgeFlags::WE_VALID));
             }
         }
     }
@@ -1331,7 +1333,7 @@ bool NAV::LoadFromEntitiesAndSaveToFile(const char* filename, int checksum)
             //--------------------------------------
             if (ent->NPC || (ent->NPC_type && Q_stricmp(ent->NPC_type, "atst") == 0)) {
                 NPCs.set_bit(curEnt);
-                ent->lastMoveTime = to_underlying(ent->contents);
+                ent->lastMoveTime = std::to_underlying(ent->contents);
                 ent->contents = contentsFlags_t::CONTENTS_NONE;
                 gi.linkentity(ent);
             }
@@ -1404,17 +1406,17 @@ bool NAV::LoadFromEntitiesAndSaveToFile(const char* filename, int checksum)
         at = &(*nodeIter);
         atRoof = at->mPoint;
         atFloor = at->mPoint;
-        if (at->mFlags.get_bit(to_underlying(CWayNode::EWayNodeFlags::WN_DROPTOFLOOR))) {
+        if (at->mFlags.get_bit(std::to_underlying(CWayNode::EWayNodeFlags::WN_DROPTOFLOOR))) {
             atFloor[2] -= MAX_EDGE_FLOOR_DIST;
         }
         atFloor[2] -= (MAX_EDGE_FLOOR_DIST * 1.5f);
         atOnFloor = !ViewTrace(atRoof, atFloor);
-        if (at->mFlags.get_bit(to_underlying(CWayNode::EWayNodeFlags::WN_DROPTOFLOOR))) {
+        if (at->mFlags.get_bit(std::to_underlying(CWayNode::EWayNodeFlags::WN_DROPTOFLOOR))) {
             at->mPoint = mViewTrace.endpos;
             at->mPoint[2] += 5.0f;
         }
         else if (!atOnFloor && (at->mType == EPointType::PT_WAYNODE || at->mType == EPointType::PT_GOALNODE)) {
-            at->mFlags.set_bit(to_underlying(CWayNode::EWayNodeFlags::WN_FLOATING));
+            at->mFlags.set_bit(std::to_underlying(CWayNode::EWayNodeFlags::WN_FLOATING));
         }
     }
 
@@ -1472,21 +1474,21 @@ bool NAV::LoadFromEntitiesAndSaveToFile(const char* filename, int checksum)
                         // If It Is The Jump Edge (Last Target), Mark It
                         //-----------------------------------------------
                         if (tgtNum == (NAV::NUM_TARGETS - 1)) {
-                            mGraph.get_edge(edge).mFlags.set_bit(to_underlying(CWayEdge::EWayEdgeFlags::WE_JUMPING));
+                            mGraph.get_edge(edge).mFlags.set_bit(std::to_underlying(CWayEdge::EWayEdgeFlags::WE_JUMPING));
                         }
-                        mGraph.get_edge(edge).mFlags.set_bit(to_underlying(CWayEdge::EWayEdgeFlags::WE_DESIGNERPLACED));
+                        mGraph.get_edge(edge).mFlags.set_bit(std::to_underlying(CWayEdge::EWayEdgeFlags::WE_DESIGNERPLACED));
                         continue;
                     }
 
                     // Setup The Edge
                     //----------------
                     mUser.setup_edge(atToTgt, atHandle, tgtHandle, false, mGraph.get_node(atHandle), mGraph.get_node(tgtHandle), false);
-                    atToTgt.mFlags.set_bit(to_underlying(CWayEdge::EWayEdgeFlags::WE_DESIGNERPLACED));
+                    atToTgt.mFlags.set_bit(std::to_underlying(CWayEdge::EWayEdgeFlags::WE_DESIGNERPLACED));
 
                     // If It Is The Jump Edge (Last Target), Mark It
                     //-----------------------------------------------
                     if (tgtNum == (NAV::NUM_TARGETS - 1)) {
-                        atToTgt.mFlags.set_bit(to_underlying(CWayEdge::EWayEdgeFlags::WE_JUMPING));
+                        atToTgt.mFlags.set_bit(std::to_underlying(CWayEdge::EWayEdgeFlags::WE_JUMPING));
                     }
 
                     // Now Tell The Graph Which Edge Index To Store Between The Two Points
@@ -1498,7 +1500,7 @@ bool NAV::LoadFromEntitiesAndSaveToFile(const char* filename, int checksum)
 
         // If It Is A Combat Or Goal Nav, Try To "Auto Connect" To A Few Nearby Way Points
         //---------------------------------------------------------------------------------
-        if (!at->mFlags.get_bit(to_underlying(CWayNode::EWayNodeFlags::WN_NOAUTOCONNECT)) &&
+        if (!at->mFlags.get_bit(std::to_underlying(CWayNode::EWayNodeFlags::WN_NOAUTOCONNECT)) &&
             (at->mType == NAV::EPointType::PT_COMBATNODE || at->mType == NAV::EPointType::PT_GOALNODE)) {
             // Get The List Of Nodes For This Cell Of The Map
             //------------------------------------------------
@@ -1609,10 +1611,10 @@ bool NAV::LoadFromEntitiesAndSaveToFile(const char* filename, int checksum)
         const char* aName = (a.mName.empty()) ? (mLocStringA) : (a.mName.c_str());
         const char* bName = (b.mName.empty()) ? (mLocStringB) : (b.mName.c_str());
 
-        if (at.mFlags.get_bit(to_underlying(CWayEdge::EWayEdgeFlags::WE_JUMPING))) {
-            at.mFlags.set_bit(to_underlying(CWayEdge::EWayEdgeFlags::WE_SIZE_LARGE));
-            at.mFlags.set_bit(to_underlying(CWayEdge::EWayEdgeFlags::WE_CANBEINVAL));
-            at.mFlags.set_bit(to_underlying(CWayEdge::EWayEdgeFlags::WE_DESIGNERPLACED));
+        if (at.mFlags.get_bit(std::to_underlying(CWayEdge::EWayEdgeFlags::WE_JUMPING))) {
+            at.mFlags.set_bit(std::to_underlying(CWayEdge::EWayEdgeFlags::WE_SIZE_LARGE));
+            at.mFlags.set_bit(std::to_underlying(CWayEdge::EWayEdgeFlags::WE_CANBEINVAL));
+            at.mFlags.set_bit(std::to_underlying(CWayEdge::EWayEdgeFlags::WE_DESIGNERPLACED));
             continue;
         }
 
@@ -1632,7 +1634,7 @@ bool NAV::LoadFromEntitiesAndSaveToFile(const char* filename, int checksum)
 
         // Try Large
         //-----------
-        at.mFlags.set_bit(to_underlying(CWayEdge::EWayEdgeFlags::WE_SIZE_LARGE));
+        at.mFlags.set_bit(std::to_underlying(CWayEdge::EWayEdgeFlags::WE_SIZE_LARGE));
         if (IsDebugEdge) {
             Q_Println("Nav({})<->({}): Attempting Size Large...", aName, bName);
         }
@@ -1641,8 +1643,8 @@ bool NAV::LoadFromEntitiesAndSaveToFile(const char* filename, int checksum)
         //------------
         CanGo = TestEdge(at.mNodeA, at.mNodeB, IsDebugEdge);
         if (!CanGo) {
-            at.mFlags.clear_bit(to_underlying(CWayEdge::EWayEdgeFlags::WE_SIZE_LARGE));
-            at.mFlags.set_bit(to_underlying(CWayEdge::EWayEdgeFlags::WE_SIZE_MEDIUM));
+            at.mFlags.clear_bit(std::to_underlying(CWayEdge::EWayEdgeFlags::WE_SIZE_LARGE));
+            at.mFlags.set_bit(std::to_underlying(CWayEdge::EWayEdgeFlags::WE_SIZE_MEDIUM));
             if (IsDebugEdge) {
                 Q_Println("Nav({})<->({}): Attempting Size Medium...", aName, bName);
             }
@@ -1701,7 +1703,7 @@ bool NAV::LoadFromEntitiesAndSaveToFile(const char* filename, int checksum)
     //------------------------------------
     for (int RemIndex = 0; RemIndex < ToBeRemoved->size(); RemIndex++) {
         CWayEdge& at = mGraph.get_edge((*ToBeRemoved)[RemIndex]);
-        if (at.mFlags.get_bit(to_underlying(CWayEdge::EWayEdgeFlags::WE_DESIGNERPLACED))) {
+        if (at.mFlags.get_bit(std::to_underlying(CWayEdge::EWayEdgeFlags::WE_DESIGNERPLACED))) {
 #ifdef _DEBUG
             hstring aHstr = mGraph.get_node(at.mNodeA).mName;
             hstring bHstr = mGraph.get_node(at.mNodeB).mName;
@@ -1729,7 +1731,7 @@ bool NAV::LoadFromEntitiesAndSaveToFile(const char* filename, int checksum)
         if (!mGraph.node_has_neighbors(atHandle)) {
             at->mPoint.ToStr(mLocStringA);
 
-            at->mFlags.set_bit(to_underlying(CWayNode::EWayNodeFlags::WN_ISLAND));
+            at->mFlags.set_bit(std::to_underlying(CWayNode::EWayNodeFlags::WN_ISLAND));
             mIslandCount++;
             if (at->mType == NAV::EPointType::PT_COMBATNODE) {
 #ifndef FINAL_BUILD
@@ -1760,10 +1762,10 @@ bool NAV::LoadFromEntitiesAndSaveToFile(const char* filename, int checksum)
     //	mAirRegion		= mRegion.reserve();
     for (nodeIter = mGraph.nodes_begin(); nodeIter != mGraph.nodes_end(); nodeIter++) {
         at = &(*nodeIter);
-        if (at->mFlags.get_bit(to_underlying(CWayNode::EWayNodeFlags::WN_ISLAND))) {
+        if (at->mFlags.get_bit(std::to_underlying(CWayNode::EWayNodeFlags::WN_ISLAND))) {
             mRegion.assign_region(nodeIter.index(), mIslandRegion);
         }
-        //	else if (at->mFlags.get_bit( to_underlying( CWayNode::WN_FLOATING ) ))
+        //	else if (at->mFlags.get_bit( std::to_underlying( CWayNode::WN_FLOATING ) ))
         //	{
         //		mRegion.assign_region(nodeIter.index(), mAirRegion);
         //	}
@@ -1952,7 +1954,7 @@ void NAV::WayEdgesNowClear(gentity_t* ent)
                 EdgeHandle = (*finder)[i];
                 if (EdgeHandle != 0) {
                     CWayEdge& edge = mGraph.get_edge(EdgeHandle);
-                    edge.mFlags.set_bit(to_underlying(CWayEdge::EWayEdgeFlags::WE_VALID));
+                    edge.mFlags.set_bit(std::to_underlying(CWayEdge::EWayEdgeFlags::WE_VALID));
                     edge.mEntityNum = ENTITYNUM_NONE;
                     edge.mOwnerNum = ENTITYNUM_NONE;
                 }
@@ -1994,7 +1996,7 @@ void NAV::SpawnedPoint(gentity_t* ent, NAV::EPointType type)
         //--------
         if (!MoveTrace(Start, Stop, Mins, Maxs, 0, true, false)) {
             assert("ERROR: Nav in solid!" == 0);
-            Q_PrintlnError("Nav({}) in solid: {}@{}", to_underlying(type), pointName, mLocStringA);
+            Q_PrintlnError("Nav({}) in solid: {}@{}", type, pointName, mLocStringA);
             delayedShutDown = level.time + 100;
             return;
         }
@@ -2007,10 +2009,10 @@ void NAV::SpawnedPoint(gentity_t* ent, NAV::EPointType type)
     node.mType = type;
     node.mFlags.clear();
     if (type == NAV::EPointType::PT_WAYNODE && (ent->spawnflags & 2)) {
-        node.mFlags.set_bit(to_underlying(CWayNode::EWayNodeFlags::WN_DROPTOFLOOR));
+        node.mFlags.set_bit(std::to_underlying(CWayNode::EWayNodeFlags::WN_DROPTOFLOOR));
     }
     if (ent->spawnflags & 4) {
-        node.mFlags.set_bit(to_underlying(CWayNode::EWayNodeFlags::WN_NOAUTOCONNECT));
+        node.mFlags.set_bit(std::to_underlying(CWayNode::EWayNodeFlags::WN_NOAUTOCONNECT));
     }
 
     // TO AVOID PROBLEMS WITH THE TRIANGULATION, WE MOVE THE POINTS AROUND JUST A BIT
@@ -2135,7 +2137,7 @@ NAV::TNodeHandle NAV::GetNearestNode(const vec3_t& position, NAV::TNodeHandle pr
 
                 // Bias Points That Are Not Connected To Anything
                 //------------------------------------------------
-                if (node.mFlags.get_bit(to_underlying(CWayNode::EWayNodeFlags::WN_ISLAND))) {
+                if (node.mFlags.get_bit(std::to_underlying(CWayNode::EWayNodeFlags::WN_ISLAND))) {
                     NodeSort.mDistance *= 3.0f;
                 }
 
@@ -2527,7 +2529,7 @@ bool NAV::FindPath(gentity_t* actor, NAV::TNodeHandle target, float MaxDangerLev
             PPoint.mSpeed = AtSpeed;
             PPoint.mSlowingRadius = 0.0f;
             PPoint.mReachedRadius = Max(radius * 3.0f, (mGraph.get_node(PPoint.mNode).mRadius * 0.40f));
-            if (mGraph.get_node(PPoint.mNode).mFlags.get_bit(to_underlying(CWayNode::EWayNodeFlags::WN_FLOATING))) {
+            if (mGraph.get_node(PPoint.mNode).mFlags.get_bit(std::to_underlying(CWayNode::EWayNodeFlags::WN_FLOATING))) {
                 PPoint.mReachedRadius = 20.0f;
             }
             PPoint.mReachedRadius *= PPoint.mReachedRadius; // squared, for faster checks later
@@ -2589,7 +2591,7 @@ bool NAV::FindPath(gentity_t* actor, NAV::TNodeHandle target, float MaxDangerLev
         // Check To See If This Is The Apex Of A Sharp Turn
         //--------------------------------------------------
         if (i != 0 && // is there a next point?
-            !mGraph.get_node(PPoint.mNode).mFlags.get_bit(to_underlying(CWayNode::EWayNodeFlags::WN_FLOATING))) {
+            !mGraph.get_node(PPoint.mNode).mFlags.get_bit(std::to_underlying(CWayNode::EWayNodeFlags::WN_FLOATING))) {
             NextToBeyond = (puser.mPath[i - 1].mPoint - PPoint.mPoint);
             if (Q_fabsf(NextToBeyond[2]) > Z_CULL_OFFSET) {
                 NextToBeyond[2] = 0.0f;
@@ -2848,8 +2850,8 @@ bool NAV::OnNeighboringPoints(TNodeHandle A, TNodeHandle B)
         return false;
     }
     int edgeNum = mGraph.get_edge_across(A, B);
-    if (edgeNum && !mGraph.get_edge(edgeNum).mFlags.get_bit(to_underlying(CWayEdge::EWayEdgeFlags::WE_JUMPING)) &&
-        !mGraph.get_edge(edgeNum).mFlags.get_bit(to_underlying(CWayEdge::EWayEdgeFlags::WE_FLYING)) &&
+    if (edgeNum && !mGraph.get_edge(edgeNum).mFlags.get_bit(std::to_underlying(CWayEdge::EWayEdgeFlags::WE_JUMPING)) &&
+        !mGraph.get_edge(edgeNum).mFlags.get_bit(std::to_underlying(CWayEdge::EWayEdgeFlags::WE_FLYING)) &&
         mGraph.get_edge(edgeNum).mDistance < SAFE_NEIGHBORINGPOINT_DIST) {
         return true;
     }
@@ -2923,13 +2925,13 @@ bool NAV::InSafeRadius(CVec3 at, TNodeHandle atNode, TNodeHandle targetNode)
 
             // Is The Edge Valid?
             //--------------------
-            if (!atToTargetEdge.mFlags.get_bit(to_underlying(CWayEdge::EWayEdgeFlags::WE_FLYING)) &&
-                !atToTargetEdge.mFlags.get_bit(to_underlying(CWayEdge::EWayEdgeFlags::WE_JUMPING)) && mUser.is_valid(atToTargetEdge, targetNode)) {
+            if (!atToTargetEdge.mFlags.get_bit(std::to_underlying(CWayEdge::EWayEdgeFlags::WE_FLYING)) &&
+                !atToTargetEdge.mFlags.get_bit(std::to_underlying(CWayEdge::EWayEdgeFlags::WE_JUMPING)) && mUser.is_valid(atToTargetEdge, targetNode)) {
                 float atDistToEdge = at.DistToLine(atToTargetEdge.PointA(), atToTargetEdge.PointB());
 
                 // Now Are We Close Enough To The Edge
                 //-------------------------------------
-                if (atToTargetEdge.mFlags.get_bit(to_underlying(CWayEdge::EWayEdgeFlags::WE_SIZE_LARGE))) {
+                if (atToTargetEdge.mFlags.get_bit(std::to_underlying(CWayEdge::EWayEdgeFlags::WE_SIZE_LARGE))) {
                     return (atDistToEdge < SC_LARGE_RADIUS);
                 }
                 return (atDistToEdge < SC_MEDIUM_RADIUS);
@@ -3003,10 +3005,10 @@ bool NAV::NextPosition(gentity_t* actor, CVec3& Position, float& SlowingRadius, 
 
     SlowingRadius = next.mSlowingRadius;
     Position = next.mPoint;
-    Fly = node.mFlags.get_bit(to_underlying(CWayNode::EWayNodeFlags::WN_FLOATING));
+    Fly = node.mFlags.get_bit(std::to_underlying(CWayNode::EWayNodeFlags::WN_FLOATING));
 
     if (edgeIndex) {
-        Jump = mGraph.get_edge(edgeIndex).mFlags.get_bit(to_underlying(CWayEdge::EWayEdgeFlags::WE_JUMPING));
+        Jump = mGraph.get_edge(edgeIndex).mFlags.get_bit(std::to_underlying(CWayEdge::EWayEdgeFlags::WE_JUMPING));
     }
 
     return true;
@@ -3283,7 +3285,7 @@ void NAV::ShowDebugInfo(const vec3_t& PlayerPosition, int PlayerWaypoint)
             if (gi.inPVS(PlayerPosition, at.mPoint.v)) {
                 if (at.mType == NAV::EPointType::PT_WAYNODE && NAVDEBUG_showNodes) {
                     if (NAVDEBUG_showPointLines) {
-                        if (at.mFlags.get_bit(to_underlying(CWayNode::EWayNodeFlags::WN_FLOATING))) {
+                        if (at.mFlags.get_bit(std::to_underlying(CWayNode::EWayNodeFlags::WN_FLOATING))) {
                             CG_DrawEdge(at.mPoint.v, atEnd.v, edgeType_t::EDGE_NODE_FLOATING);
                         }
                         else {
@@ -3291,7 +3293,7 @@ void NAV::ShowDebugInfo(const vec3_t& PlayerPosition, int PlayerWaypoint)
                         }
                     }
                     else {
-                        if (at.mFlags.get_bit(to_underlying(CWayNode::EWayNodeFlags::WN_FLOATING))) {
+                        if (at.mFlags.get_bit(std::to_underlying(CWayNode::EWayNodeFlags::WN_FLOATING))) {
                             CG_DrawNode(at.mPoint.v, nodeType_t::NODE_FLOATING);
                         }
                         else {
@@ -3299,7 +3301,7 @@ void NAV::ShowDebugInfo(const vec3_t& PlayerPosition, int PlayerWaypoint)
                         }
                     }
                     if (NAVDEBUG_showRadius && at.mPoint.Dist2(PlayerPosition) < (at.mRadius * at.mRadius)) {
-                        if (at.mFlags.get_bit(to_underlying(CWayNode::EWayNodeFlags::WN_FLOATING))) {
+                        if (at.mFlags.get_bit(std::to_underlying(CWayNode::EWayNodeFlags::WN_FLOATING))) {
                             CG_DrawRadius(at.mPoint.v, at.mRadius, nodeType_t::NODE_FLOATING);
                         }
                         else {
@@ -3339,10 +3341,10 @@ void NAV::ShowDebugInfo(const vec3_t& PlayerPosition, int PlayerWaypoint)
 
             if (AvePos.Dist2(PlayerPosition) < (500.0f * 500.0f) && gi.inPVS(PlayerPosition, AvePos.v)) {
                 if (mUser.is_valid(at)) {
-                    if (at.mFlags.get_bit(to_underlying(CWayEdge::EWayEdgeFlags::WE_JUMPING))) {
+                    if (at.mFlags.get_bit(std::to_underlying(CWayEdge::EWayEdgeFlags::WE_JUMPING))) {
                         CG_DrawEdge(a.mPoint.v, b.mPoint.v, edgeType_t::EDGE_JUMP);
                     }
-                    else if (at.mFlags.get_bit(to_underlying(CWayEdge::EWayEdgeFlags::WE_FLYING))) {
+                    else if (at.mFlags.get_bit(std::to_underlying(CWayEdge::EWayEdgeFlags::WE_FLYING))) {
                         CG_DrawEdge(a.mPoint.v, b.mPoint.v, edgeType_t::EDGE_FLY);
                     }
                     else if (at.Size() == CWayEdge::EWayEdgeFlags::WE_SIZE_LARGE) {
@@ -3968,7 +3970,7 @@ float STEER::Stop(gentity_t* actor, float weight)
 
     if (Any(actor->NPC->aiFlags & npcAiFlags_t::NPCAI_FLY)) {
         int nearestNode = NAV::GetNearestNode(actor);
-        if (nearestNode > 0 && !mGraph.get_node(nearestNode).mFlags.get_bit(to_underlying(CWayNode::EWayNodeFlags::WN_FLOATING))) {
+        if (nearestNode > 0 && !mGraph.get_node(nearestNode).mFlags.get_bit(std::to_underlying(CWayNode::EWayNodeFlags::WN_FLOATING))) {
             actor->NPC->aiFlags &= ~npcAiFlags_t::NPCAI_FLY;
         }
     }

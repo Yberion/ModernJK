@@ -99,9 +99,9 @@ void G_ATSTCheckPain(gentity_t* self, gentity_t* other, int damage)
     }
 
     /*
-    if ((hitLoc==hitLocation_t::HL_ARM_LT) && (self->locationDamage[to_underlying( hitLocation_t::HL_ARM_LT )] > LEFT_ARM_HEALTH))
+    if ((hitLoc==hitLocation_t::HL_ARM_LT) && (self->locationDamage[std::to_underlying( hitLocation_t::HL_ARM_LT )] > LEFT_ARM_HEALTH))
     {
-        if (self->locationDamage[to_underlying( hitLoc )] >= LEFT_ARM_HEALTH)	// Blow it up?
+        if (self->locationDamage[std::to_underlying( hitLoc )] >= LEFT_ARM_HEALTH)	// Blow it up?
         {
             newBolt = trap->G2API_AddBolt( self->ghoul2, 0, "*flash3" );
             if ( newBolt != -1 )
@@ -115,9 +115,9 @@ void G_ATSTCheckPain(gentity_t* self, gentity_t* other, int damage)
             NPC_SetSurfaceOnOff( self, "head_light_blaster_cann", TURN_OFF );
         }
     }
-    else if ((hitLoc==hitLocation_t::HL_ARM_RT) && (self->locationDamage[to_underlying( hitLocation_t::HL_ARM_RT )] > RIGHT_ARM_HEALTH))	// Blow it up?
+    else if ((hitLoc==hitLocation_t::HL_ARM_RT) && (self->locationDamage[std::to_underlying( hitLocation_t::HL_ARM_RT )] > RIGHT_ARM_HEALTH))	// Blow it up?
     {
-        if (self->locationDamage[to_underlying( hitLoc )] >= RIGHT_ARM_HEALTH)
+        if (self->locationDamage[std::to_underlying( hitLoc )] >= RIGHT_ARM_HEALTH)
         {
             newBolt = trap->G2API_AddBolt( self->ghoul2, 0, "*flash4" );
             if ( newBolt != -1 )

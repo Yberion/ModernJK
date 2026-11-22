@@ -49,7 +49,7 @@ void NORETURN Q_VError(errorParm_t code, fmt::string_view fmt, fmt::format_args 
 {
     std::string text;
     fmt::vformat_to(std::back_inserter(text), fmt, args);
-    fmt::println(stderr, "legacy Com_Error {}: {}", to_underlying(code), text);
+    fmt::println(stderr, "legacy Com_Error {}: {}", std::to_underlying(code), text);
     abort();
 }
 

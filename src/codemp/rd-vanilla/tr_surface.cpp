@@ -1550,12 +1550,12 @@ void RB_SurfaceEntity(surfaceType_t* surfType)
         assert(count > 0);
         backEnd.currentEntity = &tempEnt;
 
-        assert(to_underlying(backEnd.currentEntity->e.renderfx) >= 0);
+        assert(std::to_underlying(backEnd.currentEntity->e.renderfx) >= 0);
 
         for (i = 0; i < count; i++) {
             memcpy(&backEnd.currentEntity->e, &backEnd.refdef.miniEntities[start + i], sizeof(backEnd.refdef.miniEntities[start + i]));
 
-            assert(to_underlying(backEnd.currentEntity->e.renderfx) >= 0);
+            assert(std::to_underlying(backEnd.currentEntity->e.renderfx) >= 0);
 
             RB_SurfaceEntity(surfType);
         }

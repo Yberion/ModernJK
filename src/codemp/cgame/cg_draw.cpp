@@ -1312,7 +1312,7 @@ void CG_DrawHUD(centity_t* cent)
     }
 }
 
-constexpr int MAX_SHOWPOWERS = to_underlying(forcePowers_t::NUM_FORCE_POWERS);
+constexpr int MAX_SHOWPOWERS = std::to_underlying(forcePowers_t::NUM_FORCE_POWERS);
 
 bool ForcePower_Valid(forcePowers_t i)
 {
@@ -2140,7 +2140,7 @@ typedef struct {
     short lightDamage;
 } veh_damage_t;
 
-EnumArray<veh_damage_t, vehDamageSide_t, to_underlying(vehDamageSide_t::VEH_DAMAGE_RIGHT) + 1> vehDamageData = {{
+EnumArray<veh_damage_t, vehDamageSide_t, std::to_underlying(vehDamageSide_t::VEH_DAMAGE_RIGHT) + 1> vehDamageData = {{
     {"vehicle_front", SHIPSURF_DAMAGE_FRONT_HEAVY, SHIPSURF_DAMAGE_FRONT_LIGHT},
     {"vehicle_back", SHIPSURF_DAMAGE_BACK_HEAVY, SHIPSURF_DAMAGE_BACK_LIGHT},
     {"vehicle_left", SHIPSURF_DAMAGE_LEFT_HEAVY, SHIPSURF_DAMAGE_LEFT_LIGHT},
@@ -5049,7 +5049,7 @@ static void CG_DrawHolocronIcons(void)
         return;
     }
 
-    while (i < to_underlying(forcePowers_t::NUM_FORCE_POWERS)) {
+    while (i < std::to_underlying(forcePowers_t::NUM_FORCE_POWERS)) {
         if (cg.snap->ps.holocronBits & Bit(forcePowerSorted[i])) {
             CG_DrawPic(startx, starty, endx, endy, cgs.media.forcePowerIcons[forcePowerSorted[i]]);
             starty += (icon_size + 2); //+2 for spacing
@@ -5095,7 +5095,7 @@ static void CG_DrawActivePowers(void)
 
     trap->R_SetColor(nullptr);
 
-    while (i < to_underlying(forcePowers_t::NUM_FORCE_POWERS)) {
+    while (i < std::to_underlying(forcePowers_t::NUM_FORCE_POWERS)) {
         if ((cg.snap->ps.fd.forcePowersActive & Bit(forcePowerSorted[i])) && CG_IsDurationPower(forcePowerSorted[i])) {
             CG_DrawPic(startx, starty, endx, endy, cgs.media.forcePowerIcons[forcePowerSorted[i]]);
             startx += (icon_size + 2); //+2 for spacing

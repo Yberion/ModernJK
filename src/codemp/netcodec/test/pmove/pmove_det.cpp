@@ -511,7 +511,7 @@ static void Run(int scenario, int mode, int commands, FILE* dump)
         if (dump)
             fmt::println(dump, "{} {} {} {:08X} {:08X} {:08X} {:08X} {:08X} {:08X} {:08X} {:08X} {:08X} {} {} {}", scenario, mode, i, Bits(ps.origin[0]),
                          Bits(ps.origin[1]), Bits(ps.origin[2]), Bits(ps.velocity[0]), Bits(ps.velocity[1]), Bits(ps.velocity[2]), Bits(ps.viewangles[0]),
-                         Bits(ps.viewangles[1]), Bits(ps.viewangles[2]), ps.groundEntityNum, to_underlying(ps.pm_flags), ps.pm_time);
+                         Bits(ps.viewangles[1]), Bits(ps.viewangles[2]), ps.groundEntityNum, std::to_underlying(ps.pm_flags), ps.pm_time);
     }
     fmt::println("scenario {} ({}) {}: move {:016X} full {:016X} origin {:08X} {:08X} {:08X} velocity {:08X} {:08X} {:08X}", scenario,
                  scenario == 0   ? "125 fps"

@@ -31,7 +31,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #undef TAGDEF
 #endif
 #define TAGDEF(blah) #blah
-const static EnumArray<const char*, memtag, to_underlying(memtag::TAG_COUNT) + 1>
+const static EnumArray<const char*, memtag, std::to_underlying(memtag::TAG_COUNT) + 1>
     psTagStrings = // +1 because TAG_COUNT will itself become a string here. Oh well.
     {
 #include "tags.h"

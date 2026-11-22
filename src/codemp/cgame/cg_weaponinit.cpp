@@ -64,7 +64,7 @@ void CG_RegisterWeapon(weapon_t weaponNum)
         }
     }
     if (!item->classname) {
-        Q_Error(errorParm_t::ERR_DROP, "Couldn't find weapon {}", to_underlying(weaponNum));
+        Q_Error(errorParm_t::ERR_DROP, "Couldn't find weapon {}", weaponNum);
     }
     CG_RegisterItemVisuals(item - bg_itemlist);
 

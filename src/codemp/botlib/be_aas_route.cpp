@@ -176,7 +176,7 @@ static QINLINE travelFlags_t AAS_TravelFlagForType_inline(travelTypeFlags_t trav
     if (Any(traveltype & travelTypeFlags_t::TRAVELFLAG_NOTTEAM2))
         tfl |= travelFlags_t::TFL_NOTTEAM2;
     traveltype &= travelTypeFlags_t::TRAVELTYPE_MASK;
-    if (to_underlying(traveltype) < 0 || to_underlying(traveltype) >= MAX_TRAVELTYPES)
+    if (std::to_underlying(traveltype) < 0 || std::to_underlying(traveltype) >= MAX_TRAVELTYPES)
         return travelFlags_t::TFL_INVALID;
     tfl |= aasworld.travelflagfortype[traveltype];
     return tfl;

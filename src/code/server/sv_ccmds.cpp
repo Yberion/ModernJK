@@ -105,9 +105,9 @@ void SV_Player_EndOfLevelSave(void)
 #ifdef JK2_MODE
         s = (sText = Q_Format("{} {} {} {} {} {} {} {:f} {:f} {:f} {} {} {:d} {} {} {}", pState->stats[statIndex_t::STAT_HEALTH],
                               pState->stats[statIndex_t::STAT_ARMOR], pState->stats[statIndex_t::STAT_WEAPONS], pState->stats[statIndex_t::STAT_ITEMS],
-                              to_underlying(pState->weapon), to_underlying(pState->weaponstate), pState->batteryCharge, pState->viewangles[0],
-                              pState->viewangles[1], pState->viewangles[2], pState->forcePowersKnown, pState->forcePower, pState->saberActive,
-                              to_underlying(pState->saberAnimLevel), pState->saberLockEnemy, pState->saberLockTime))
+                              pState->weapon, pState->weaponstate, pState->batteryCharge, pState->viewangles[0], pState->viewangles[1], pState->viewangles[2],
+                              pState->forcePowersKnown, pState->forcePower, pState->saberActive, pState->saberAnimLevel, pState->saberLockEnemy,
+                              pState->saberLockTime))
                 .c_str();
 #else
         //				|general info				  |-force powers |-saber 1		|-saber 2										  |-general saber
@@ -115,24 +115,24 @@ void SV_Player_EndOfLevelSave(void)
                  "{} {} {} {} {} {} {} {:f} {:f} {:f} {} {} {} {} {} {} {:d} {:d} {:d} {:d} {:d} {:d} {:d} {:d} {} {} {} {} {} {} {} {} {} {:d} {:d} {:d} {:d} "
                  "{:d} {:d} {:d} {:d} {} {} {} {} {} {} {} {} {} {} {} {}",
                  pState->stats[statIndex_t::STAT_HEALTH], pState->stats[statIndex_t::STAT_ARMOR], pState->stats[statIndex_t::STAT_WEAPONS],
-                 pState->stats[statIndex_t::STAT_ITEMS], to_underlying(pState->weapon), to_underlying(pState->weaponstate), pState->batteryCharge,
-                 pState->viewangles[0], pState->viewangles[1], pState->viewangles[2],
+                 pState->stats[statIndex_t::STAT_ITEMS], pState->weapon, pState->weaponstate, pState->batteryCharge, pState->viewangles[0],
+                 pState->viewangles[1], pState->viewangles[2],
                  // force power data
                  pState->forcePowersKnown, pState->forcePower, pState->forcePowerMax, pState->forcePowerRegenRate, pState->forcePowerRegenAmount,
                  // saber 1 data
                  pState->saber[0].name, pState->saber[0].blade[0].active, pState->saber[0].blade[1].active, pState->saber[0].blade[2].active,
                  pState->saber[0].blade[3].active, pState->saber[0].blade[4].active, pState->saber[0].blade[5].active, pState->saber[0].blade[6].active,
-                 pState->saber[0].blade[7].active, to_underlying(pState->saber[0].blade[0].color), to_underlying(pState->saber[0].blade[1].color),
-                 to_underlying(pState->saber[0].blade[2].color), to_underlying(pState->saber[0].blade[3].color), to_underlying(pState->saber[0].blade[4].color),
-                 to_underlying(pState->saber[0].blade[5].color), to_underlying(pState->saber[0].blade[6].color), to_underlying(pState->saber[0].blade[7].color),
+                 pState->saber[0].blade[7].active, pState->saber[0].blade[0].color, pState->saber[0].blade[1].color, pState->saber[0].blade[2].color,
+                 pState->saber[0].blade[3].color, pState->saber[0].blade[4].color, pState->saber[0].blade[5].color, pState->saber[0].blade[6].color,
+                 pState->saber[0].blade[7].color,
                  // saber 2 data
                  pState->saber[1].name, pState->saber[1].blade[0].active, pState->saber[1].blade[1].active, pState->saber[1].blade[2].active,
                  pState->saber[1].blade[3].active, pState->saber[1].blade[4].active, pState->saber[1].blade[5].active, pState->saber[1].blade[6].active,
-                 pState->saber[1].blade[7].active, to_underlying(pState->saber[1].blade[0].color), to_underlying(pState->saber[1].blade[1].color),
-                 to_underlying(pState->saber[1].blade[2].color), to_underlying(pState->saber[1].blade[3].color), to_underlying(pState->saber[1].blade[4].color),
-                 to_underlying(pState->saber[1].blade[5].color), to_underlying(pState->saber[1].blade[6].color), to_underlying(pState->saber[1].blade[7].color),
+                 pState->saber[1].blade[7].active, pState->saber[1].blade[0].color, pState->saber[1].blade[1].color, pState->saber[1].blade[2].color,
+                 pState->saber[1].blade[3].color, pState->saber[1].blade[4].color, pState->saber[1].blade[5].color, pState->saber[1].blade[6].color,
+                 pState->saber[1].blade[7].color,
                  // general saber data
-                 pState->saberStylesKnown, to_underlying(pState->saberAnimLevel), pState->saberLockEnemy, pState->saberLockTime))
+                 pState->saberStylesKnown, pState->saberAnimLevel, pState->saberLockEnemy, pState->saberLockTime))
                 .c_str();
 #endif
         Cvar_Set(sCVARNAME_PLAYERSAVE, s);
@@ -155,7 +155,7 @@ void SV_Player_EndOfLevelSave(void)
         //
         s2 = "";
         for (forcePowers_t fp = forcePowers_t::FP_FIRST; fp < forcePowers_t::NUM_FORCE_POWERS; fp++) {
-            s2 = (s2Text = Q_Format("{} {}", s2, to_underlying(pState->forcePowerLevel[fp]))).c_str();
+            s2 = (s2Text = Q_Format("{} {}", s2, pState->forcePowerLevel[fp])).c_str();
         }
         Cvar_Set("playerfplvl", s2);
     }

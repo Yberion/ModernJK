@@ -375,7 +375,7 @@ void Svcmd_EntityList_f(void)
             Q_Print("ET_FX               ");
             break;
         default:
-            Q_Print("{:<3}                ", to_underlying(check->s.eType));
+            Q_Print("{:<3}                ", check->s.eType);
             break;
         }
 
@@ -532,7 +532,7 @@ static void G_PrintCentralStats(void)
     Q_strncpyz(line, "shot statistics (primary and alternate fire, by weapon number):", sizeof(line));
     for (i = weapon_t::WP_NONE; i < weapon_t::WP_NUM_WEAPONS; i++) {
         if (s->shots[i][0] || s->shots[i][1]) {
-            Q_strcat(line, sizeof(line), Q_Format(" w{} {} {}", to_underlying(i), s->shots[i][0], s->shots[i][1]).c_str());
+            Q_strcat(line, sizeof(line), Q_Format(" w{} {} {}", i, s->shots[i][0], s->shots[i][1]).c_str());
         }
     }
     Q_Println("{}", line);

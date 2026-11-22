@@ -317,9 +317,9 @@ checkprint:
     if (gotbestindex && bestindex != gLastPrintedIndex) {
         flagstr = GetFlagStr(gWPArray[bestindex]->flags);
         gLastPrintedIndex = bestindex;
-        Q_Println(S_COLOR_YELLOW "Waypoint {}\nFlags - {} ({}) (w{:f})\nOrigin - ({} {} {})", (int)(gWPArray[bestindex]->index),
-                  to_underlying(gWPArray[bestindex]->flags), flagstr, gWPArray[bestindex]->weight, (int)(gWPArray[bestindex]->origin[0]),
-                  (int)(gWPArray[bestindex]->origin[1]), (int)(gWPArray[bestindex]->origin[2]));
+        Q_Println(S_COLOR_YELLOW "Waypoint {}\nFlags - {} ({}) (w{:f})\nOrigin - ({} {} {})", (int)(gWPArray[bestindex]->index), gWPArray[bestindex]->flags,
+                  flagstr, gWPArray[bestindex]->weight, (int)(gWPArray[bestindex]->origin[0]), (int)(gWPArray[bestindex]->origin[1]),
+                  (int)(gWPArray[bestindex]->origin[2]));
         // GetFlagStr allocates 128 bytes for this, if it's changed then obviously this must be as well
         B_TempFree(128); // flagstr
 
@@ -2169,7 +2169,7 @@ int SavePathData(const char* filename)
     fileString = (char*)B_TempAlloc(524288);
     storeString = (char*)B_TempAlloc(4096);
 
-    Q_FormatTo(std::span(fileString, 524288), "{} {} {:f} ({:f} {:f} {:f}) {{ ", gWPArray[i]->index, to_underlying(gWPArray[i]->flags), gWPArray[i]->weight,
+    Q_FormatTo(std::span(fileString, 524288), "{} {} {:f} ({:f} {:f} {:f}) {{ ", gWPArray[i]->index, gWPArray[i]->flags, gWPArray[i]->weight,
                gWPArray[i]->origin[0], gWPArray[i]->origin[1], gWPArray[i]->origin[2]);
 
     n = 0;
@@ -2199,9 +2199,9 @@ int SavePathData(const char* filename)
     i++;
 
     while (i < gWPNum) {
-        // Q_FormatTo(fileString, "{}{} {} {:f} ({:f} {:f} {:f}) {{ ", fileString, gWPArray[i]->index, to_underlying( gWPArray[i]->flags ), gWPArray[i]->weight,
+        // Q_FormatTo(fileString, "{}{} {} {:f} ({:f} {:f} {:f}) {{ ", fileString, gWPArray[i]->index,  gWPArray[i]->flags , gWPArray[i]->weight,
         // gWPArray[i]->origin[0], gWPArray[i]->origin[1], gWPArray[i]->origin[2]);
-        Q_FormatTo(std::span(storeString, 4096), "{} {} {:f} ({:f} {:f} {:f}) {{ ", gWPArray[i]->index, to_underlying(gWPArray[i]->flags), gWPArray[i]->weight,
+        Q_FormatTo(std::span(storeString, 4096), "{} {} {:f} ({:f} {:f} {:f}) {{ ", gWPArray[i]->index, gWPArray[i]->flags, gWPArray[i]->weight,
                    gWPArray[i]->origin[0], gWPArray[i]->origin[1], gWPArray[i]->origin[2]);
 
         n = 0;

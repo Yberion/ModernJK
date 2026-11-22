@@ -1253,7 +1253,7 @@ CL_Clientinfo_f
 void CL_Clientinfo_f(void)
 {
     Q_Println("--------- Client Information ---------");
-    Q_Println("state: {}", to_underlying(cls.state));
+    Q_Println("state: {}", cls.state);
     Q_Println("Server: {}", cls.servername);
     Q_Println("User info settings:");
     Info_Print(Cvar_InfoString(cvarFlags_t::CVAR_USERINFO));

@@ -213,8 +213,8 @@ void RE_AddRefEntityToScene(const refEntity_t* ent)
 #endif
         return;
     }
-    if (to_underlying(ent->reType) < 0 || ent->reType >= refEntityType_t::RT_MAX_REF_ENTITY_TYPE) {
-        Q_Error(errorParm_t::ERR_DROP, "RE_AddRefEntityToScene: bad reType {}", to_underlying(ent->reType));
+    if (std::to_underlying(ent->reType) < 0 || ent->reType >= refEntityType_t::RT_MAX_REF_ENTITY_TYPE) {
+        Q_Error(errorParm_t::ERR_DROP, "RE_AddRefEntityToScene: bad reType {}", ent->reType);
     }
 
     backEndData->entities[r_numentities].e = *ent;

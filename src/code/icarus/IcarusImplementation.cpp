@@ -340,7 +340,7 @@ void CIcarus::Precache(char* buffer, long length)
         {
             float f = *(float*)block.GetMemberData(0);
 
-            if (f == (float)to_underlying(icarusToken_t::TYPE_PATH)) {
+            if (f == (float)std::to_underlying(icarusToken_t::TYPE_PATH)) {
                 sVal1 = (const char*)block.GetMemberData(1);
 
                 game->PrecacheRoff(sVal1);
@@ -713,7 +713,7 @@ int CIcarus::Update(int icarusID)
 {
     CSequencer* sequencer = FindSequencer(icarusID);
     if (sequencer) {
-        return to_underlying(sequencer->GetTaskManager()->Update(this));
+        return std::to_underlying(sequencer->GetTaskManager()->Update(this));
     }
     return -1;
 }

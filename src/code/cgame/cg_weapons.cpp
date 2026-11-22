@@ -1895,7 +1895,7 @@ bool CG_WeaponSelectable(weapon_t i, weapon_t original, bool dpMode)
 
     if (i > MAX_PLAYER_WEAPONS) {
 #ifndef FINAL_BUILD
-        Q_Println("CG_WeaponSelectable() passed illegal index of {}!", to_underlying(i));
+        Q_Println("CG_WeaponSelectable() passed illegal index of {}!", i);
 #endif
         return false;
     }
@@ -2020,7 +2020,7 @@ void CG_NextWeapon_f(void)
         firstWeapon = weapon_t::WP_NONE; // include WP_NONE here
     }
 
-    for (i = 0; i <= to_underlying(MAX_PLAYER_WEAPONS); i++) {
+    for (i = 0; i <= std::to_underlying(MAX_PLAYER_WEAPONS); i++) {
 
         //*SIGH*... Hack to put concussion rifle before rocketlauncher
         if (cg.weaponSelect == weapon_t::WP_FLECHETTE) {
@@ -2071,7 +2071,7 @@ void CG_DPNextWeapon_f(void)
 
     original = cg.DataPadWeaponSelect;
 
-    for (i = 0; i <= to_underlying(MAX_PLAYER_WEAPONS); i++) {
+    for (i = 0; i <= std::to_underlying(MAX_PLAYER_WEAPONS); i++) {
 
         //*SIGH*... Hack to put concussion rifle before rocketlauncher
         if (cg.DataPadWeaponSelect == weapon_t::WP_FLECHETTE) {
@@ -2122,7 +2122,7 @@ void CG_DPPrevWeapon_f(void)
 
     original = cg.DataPadWeaponSelect;
 
-    for (i = 0; i <= to_underlying(MAX_PLAYER_WEAPONS); i++) {
+    for (i = 0; i <= std::to_underlying(MAX_PLAYER_WEAPONS); i++) {
 
         //*SIGH*... Hack to put concussion rifle before rocketlauncher
         if (cg.DataPadWeaponSelect == weapon_t::WP_ROCKET_LAUNCHER) {
@@ -2200,7 +2200,7 @@ void CG_PrevWeapon_f(void)
         firstWeapon = weapon_t::WP_NONE; // include WP_NONE here
     }
 
-    for (i = 0; i <= to_underlying(MAX_PLAYER_WEAPONS); i++) {
+    for (i = 0; i <= std::to_underlying(MAX_PLAYER_WEAPONS); i++) {
 
         //*SIGH*... Hack to put concussion rifle before rocketlauncher
         if (cg.weaponSelect == weapon_t::WP_ROCKET_LAUNCHER) {

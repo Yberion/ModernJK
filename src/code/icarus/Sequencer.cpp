@@ -974,7 +974,7 @@ CSequencer::sequencerResult_t CSequencer::Route(CSequence* sequence, bstream_t* 
         // Error
         default:
 
-            game->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "'{}' : invalid block ID", to_underlying(block->GetBlockID()));
+            game->DebugPrintln(IGameInterface::e_DebugPrintLevel::WL_ERROR, "'{}' : invalid block ID", block->GetBlockID());
 
             return sequencerResult_t::SEQ_FAILED;
             break;

@@ -1667,7 +1667,7 @@ void G_SetTauntAnim(gentity_t* ent, tauntTypes_t taunt)
                 ent->client->ps.forceHandExtendTime = level.time + BG_AnimLength(ent->localAnimIndex, *anim);
             }
             if (taunt != tauntTypes_t::TAUNT_MEDITATE && taunt != tauntTypes_t::TAUNT_BOW) { // no sound for meditate or bow
-                G_AddEvent(ent, entity_event_t::EV_TAUNT, to_underlying(taunt));
+                G_AddEvent(ent, entity_event_t::EV_TAUNT, std::to_underlying(taunt));
             }
         }
     }
@@ -2597,7 +2597,7 @@ void ClientThink_real(gentity_t* ent)
                     ent->client->ps.saberLockHitIncrementTime = level.time; // so we don't register an attack key press more than once per server frame
                     // NOTE: FP_SABER_OFFENSE level already taken into account in PM_SaberLocked
                     if ((ent->client->ps.fd.forcePowersActive & Bit(forcePowers_t::FP_RAGE))) { // raging: push harder
-                        lockHits = 1 + to_underlying(ent->client->ps.fd.forcePowerLevel[forcePowers_t::FP_RAGE]);
+                        lockHits = 1 + std::to_underlying(ent->client->ps.fd.forcePowerLevel[forcePowers_t::FP_RAGE]);
                     }
                     else { // normal attack
                         switch (ent->client->ps.fd.saberAnimLevel) {
@@ -2645,7 +2645,7 @@ void ClientThink_real(gentity_t* ent)
     else {
         ent->client->ps.saberLockFrame = 0;
         // check for taunt
-        if ((pmove.cmd.generic_cmd == to_underlying(genCmds_t::GENCMD_ENGAGE_DUEL)) &&
+        if ((pmove.cmd.generic_cmd == std::to_underlying(genCmds_t::GENCMD_ENGAGE_DUEL)) &&
             (level.gametype == gametype_t::GT_DUEL || level.gametype == gametype_t::GT_POWERDUEL)) { // already in a duel, make it a taunt command
             pmove.cmd.buttons |= buttonFlags_t::BUTTON_GESTURE;
         }
@@ -2747,9 +2747,9 @@ void ClientThink_real(gentity_t* ent)
 
     if (pmove.cmd.generic_cmd && (pmove.cmd.generic_cmd != ent->client->lastGenCmd || ent->client->lastGenCmdTime < level.time)) {
         ent->client->lastGenCmd = pmove.cmd.generic_cmd;
-        if (pmove.cmd.generic_cmd != to_underlying(genCmds_t::GENCMD_FORCE_THROW) &&
-            pmove.cmd.generic_cmd != to_underlying(genCmds_t::GENCMD_FORCE_PULL)) { // these are the only two where you wouldn't care about a delay between
-            ent->client->lastGenCmdTime = level.time + 300;                         // default 100ms debounce between issuing the same command.
+        if (pmove.cmd.generic_cmd != std::to_underlying(genCmds_t::GENCMD_FORCE_THROW) &&
+            pmove.cmd.generic_cmd != std::to_underlying(genCmds_t::GENCMD_FORCE_PULL)) { // these are the only two where you wouldn't care about a delay between
+            ent->client->lastGenCmdTime = level.time + 300;                              // default 100ms debounce between issuing the same command.
         }
 
         switch (static_cast<genCmds_t>(pmove.cmd.generic_cmd)) {

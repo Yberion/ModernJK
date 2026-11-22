@@ -55,7 +55,7 @@ gentity_t* G_PreDefSound(vec3_t org, pdSounds_t pdSound)
     gentity_t* te;
 
     te = G_TempEntity(org, entity_event_t::EV_PREDEFSOUND);
-    te->s.eventParm = to_underlying(pdSound);
+    te->s.eventParm = std::to_underlying(pdSound);
     VectorCopy(org, te->s.origin);
 
     return te;
@@ -73,9 +73,9 @@ void WP_InitForcePowers(gentity_t* ent)
     char userinfo[MAX_INFO_STRING], forcePowers[DEFAULT_FORCEPOWERS_LEN + 1], readBuf[DEFAULT_FORCEPOWERS_LEN + 1];
 
     // if server has no max rank, default to max (50)
-    if (g_maxForceRank.integer <= 0 || g_maxForceRank.integer >= to_underlying(forceMasteries_t::NUM_FORCE_MASTERY_LEVELS)) {
+    if (g_maxForceRank.integer <= 0 || g_maxForceRank.integer >= std::to_underlying(forceMasteries_t::NUM_FORCE_MASTERY_LEVELS)) {
         // ack, prevent user from being dumb
-        trap->Cvar_Set("g_maxForceRank", Q_Format("{}", to_underlying(forceMasteries_t::FORCE_MASTERY_JEDI_MASTER)).c_str());
+        trap->Cvar_Set("g_maxForceRank", Q_Format("{}", forceMasteries_t::FORCE_MASTERY_JEDI_MASTER).c_str());
         trap->Cvar_Update(&g_maxForceRank);
     }
 
@@ -296,15 +296,14 @@ void WP_InitForcePowers(gentity_t* ent)
 
                 // event isn't very reliable, I made it a string. This way I can send it to just one client also,
                 //	as opposed to making a broadcast event.
-                trap->SendServerCommand(ent->s.number,
-                                        Q_Format("nfr {} {} {}", g_maxForceRank.integer, 1, to_underlying(ent->client->sess.sessionTeam)).c_str());
+                trap->SendServerCommand(ent->s.number, Q_Format("nfr {} {} {}", g_maxForceRank.integer, 1, ent->client->sess.sessionTeam).c_str());
                 // arg1 is new max rank, arg2 is non-0 if force menu should be shown, arg3 is the current team
             }
             ent->client->sess.setForce = true;
         }
 
         if (!didEvent)
-            trap->SendServerCommand(ent->s.number, Q_Format("nfr {} {} {}", g_maxForceRank.integer, 0, to_underlying(ent->client->sess.sessionTeam)).c_str());
+            trap->SendServerCommand(ent->s.number, Q_Format("nfr {} {} {}", g_maxForceRank.integer, 0, ent->client->sess.sessionTeam).c_str());
 
         // the server has one or more force powers disabled and the client is using them in his config
         if (warnClientLimit)
@@ -670,7 +669,7 @@ std::optional<forcePowerLevels_t> WP_AbsorbConversion(gentity_t* attacked, force
     }
 
     // let the attacker absorb an amount of force used in this attack based on his level of absorb
-    addTot = (atForceSpent / 3) * to_underlying(attacked->client->ps.fd.forcePowerLevel[forcePowers_t::FP_ABSORB]);
+    addTot = (atForceSpent / 3) * std::to_underlying(attacked->client->ps.fd.forcePowerLevel[forcePowers_t::FP_ABSORB]);
 
     if (addTot < 1 && atForceSpent >= 1) {
         addTot = 1;
@@ -801,7 +800,7 @@ void WP_ForcePowerStart(gentity_t* self, forcePowers_t forcePower, int overrideA
         duration = overrideAmt;
         overrideAmt = 0;
         self->client->ps.fd.forcePowersActive |= Bit(forcePower);
-        self->client->ps.activeForcePass = to_underlying(self->client->ps.fd.forcePowerLevel[forcePowers_t::FP_LIGHTNING]);
+        self->client->ps.activeForcePass = std::to_underlying(self->client->ps.fd.forcePowerLevel[forcePowers_t::FP_LIGHTNING]);
         break;
     case forcePowers_t::FP_RAGE:
         hearable = true;
@@ -1831,7 +1830,7 @@ int ForceShootDrain(gentity_t* self)
     }
 
     self->client->ps.activeForcePass =
-        to_underlying(self->client->ps.fd.forcePowerLevel[forcePowers_t::FP_DRAIN]) + to_underlying(forcePowerLevels_t::FORCE_LEVEL_3);
+        std::to_underlying(self->client->ps.fd.forcePowerLevel[forcePowers_t::FP_DRAIN]) + std::to_underlying(forcePowerLevels_t::FORCE_LEVEL_3);
 
     BG_ForcePowerDrain(&self->client->ps, forcePowers_t::FP_DRAIN, 5); // used to be 1, but this did, too, anger the God of Balance.
 
@@ -2122,8 +2121,8 @@ bool ForceTelepathyCheckDirectNPCTarget(gentity_t* self, trace_t* tr, bool* took
                             }
                         }
                         // store these for retrieval later
-                        traceEnt->genericValue1 = to_underlying(traceEnt->client->playerTeam);
-                        traceEnt->genericValue2 = to_underlying(traceEnt->client->enemyTeam);
+                        traceEnt->genericValue1 = std::to_underlying(traceEnt->client->playerTeam);
+                        traceEnt->genericValue2 = std::to_underlying(traceEnt->client->enemyTeam);
                         traceEnt->genericValue3 = traceEnt->s.teamowner;
                         // set the new values
                         traceEnt->client->playerTeam = newPlayerTeam;
@@ -2543,7 +2542,7 @@ void ForceThrow(gentity_t* self, bool pull)
         G_Sound(self, soundChannel_t::CHAN_BODY, G_SoundIndex("sound/weapons/force/push.wav"));
         self->client->ps.powerups[powerup_t::PW_DISINT_4] = level.time + 1500;
 
-        self->client->ps.saberLockHits += to_underlying(self->client->ps.fd.forcePowerLevel[forcePowers_t::FP_PUSH]) * 2;
+        self->client->ps.saberLockHits += std::to_underlying(self->client->ps.fd.forcePowerLevel[forcePowers_t::FP_PUSH]) * 2;
 
         WP_ForcePowerStart(self, forcePowers_t::FP_PUSH, 0);
         return;
@@ -2593,11 +2592,11 @@ void ForceThrow(gentity_t* self, bool pull)
 
     if (pull) {
         powerLevel = self->client->ps.fd.forcePowerLevel[forcePowers_t::FP_PULL];
-        pushPower = 256 * to_underlying(self->client->ps.fd.forcePowerLevel[forcePowers_t::FP_PULL]);
+        pushPower = 256 * std::to_underlying(self->client->ps.fd.forcePowerLevel[forcePowers_t::FP_PULL]);
     }
     else {
         powerLevel = self->client->ps.fd.forcePowerLevel[forcePowers_t::FP_PUSH];
-        pushPower = 256 * to_underlying(self->client->ps.fd.forcePowerLevel[forcePowers_t::FP_PUSH]);
+        pushPower = 256 * std::to_underlying(self->client->ps.fd.forcePowerLevel[forcePowers_t::FP_PUSH]);
     }
 
     if (powerLevel == forcePowerLevels_t::FORCE_LEVEL_0) { // Shouldn't have made it here..
@@ -2825,7 +2824,7 @@ void ForceThrow(gentity_t* self, bool pull)
                                     .value_or(powerLevel);
             }
 
-            pushPower = 256 * to_underlying(modPowerLevel);
+            pushPower = 256 * std::to_underlying(modPowerLevel);
 
             if (push_list[x]->client) {
                 VectorCopy(push_list[x]->client->ps.origin, thispush_org);
@@ -4699,7 +4698,8 @@ bool Jedi_DodgeEvasion(gentity_t* self, gentity_t* shooter, trace_t* tr, hitLoca
     }
 
     if (g_forceDodge.integer == 2) {
-        if (Q_irand(1, 7) > to_underlying(self->client->ps.fd.forcePowerLevel[forcePowers_t::FP_SPEED])) { // more likely to fail on lower force speed level
+        if (Q_irand(1, 7) >
+            std::to_underlying(self->client->ps.fd.forcePowerLevel[forcePowers_t::FP_SPEED])) { // more likely to fail on lower force speed level
             return false;
         }
     }

@@ -497,7 +497,7 @@ static void DeadThink(void)
     if (NPCS.NPC->bounceCount < 0 && NPCS.NPC->s.groundEntityNum >= 0) {
         // if client is in a nodrop area, make him/her nodraw
         const contentsFlags_t contents = trap->PointContents(NPCS.NPC->r.currentOrigin, -1);
-        NPCS.NPC->bounceCount = to_underlying(contents);
+        NPCS.NPC->bounceCount = std::to_underlying(contents);
 
         if (Any(contents & contentsFlags_t::CONTENTS_NODROP)) {
             NPCS.NPC->client->ps.eFlags |= entityFlags_t::EF_NODRAW;

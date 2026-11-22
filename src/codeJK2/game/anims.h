@@ -1392,7 +1392,7 @@ inline constexpr int MAX_ANIM_SOUNDS = 69;
 
 #ifndef CG_PLAYERS_CPP
 
-extern stringID_table_t animTable[to_underlying(animNumber_t::MAX_ANIMATIONS) + 1];
+extern stringID_table_t animTable[std::to_underlying(animNumber_t::MAX_ANIMATIONS) + 1];
 
 #else
 

@@ -582,7 +582,7 @@ static void CG_SetLerpFrameAnimation(clientInfo_t* ci, lerpFrame_t* lf, animNumb
 #ifdef FINAL_BUILD
         newAnimation = animNumber_t::FACE_TALK0;
 #else
-        Q_Error(errorParm_t::ERR_DROP, "Bad animation number: {} for {}", to_underlying(newAnimation), ci->name);
+        Q_Error(errorParm_t::ERR_DROP, "Bad animation number: {} for {}", newAnimation, ci->name);
 #endif
     }
 

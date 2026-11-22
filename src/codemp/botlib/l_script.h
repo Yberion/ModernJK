@@ -184,7 +184,7 @@ typedef struct token_s {
 }
 inline void Token_SetPunctuation(token_t& token, punctuationId_t punctuation)
 {
-    token.subtype = to_underlying(punctuation);
+    token.subtype = std::to_underlying(punctuation);
 }
 
 // script file

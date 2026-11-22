@@ -44,7 +44,7 @@ intptr_t VM_Call(cgameExport_t callnum, ...)
             args[i] = va_arg(ap, intptr_t);
         va_end(ap);
 
-        return cgvm.entryPoint(to_underlying(callnum), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
+        return cgvm.entryPoint(std::to_underlying(callnum), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
     }
     return -1;
 }

@@ -44,7 +44,7 @@ static_assert(sizeof(playerState_t) == 1536, "player-state images of the codec")
 // the player-state fields client packets are coded against (codemp/netcodec/src/client_codec.cpp), and usercmd_t
 static_assert(offsetof(playerState_t, commandTime) == 0 && offsetof(playerState_t, delta_angles) == 80 && offsetof(playerState_t, weapon) == 172 &&
                   offsetof(playerState_t, viewangles) == 180 &&
-                  offsetof(playerState_t, stats) + to_underlying(statIndex_t::STAT_HOLDABLE_ITEM) * sizeof(int) == 244 &&
+                  offsetof(playerState_t, stats) + std::to_underlying(statIndex_t::STAT_HOLDABLE_ITEM) * sizeof(int) == 244 &&
                   offsetof(playerState_t, fd.forcePowerSelected) == 868,
               "player-state offsets of the client packet codec");
 static_assert(sizeof(usercmd_t) == 28 && offsetof(usercmd_t, angles) == 4 && offsetof(usercmd_t, buttons) == 16 && offsetof(usercmd_t, weapon) == 20 &&
@@ -201,7 +201,7 @@ static void SV_NetcodecCompare(client_t* client, const eng::ServerMessage& sm, c
         MSG_WriteLong(&msg, client->lastClientCommand);
         SV_UpdateServerCommandsToClient(client, &msg);
         if (sm.setGame) {
-            MSG_WriteByte(&msg, to_underlying(svc_ops_e::svc_setgame));
+            MSG_WriteByte(&msg, std::to_underlying(svc_ops_e::svc_setgame));
             for (const char* c = sm.setGame; *c; c++) {
                 MSG_WriteByte(&msg, *c);
             }
@@ -211,10 +211,10 @@ static void SV_NetcodecCompare(client_t* client, const eng::ServerMessage& sm, c
             SV_WriteSnapshotToClient(client, &msg, oldframe, lastframe);
         }
         if (sm.mapChange) {
-            MSG_WriteByte(&msg, to_underlying(svc_ops_e::svc_mapchange));
+            MSG_WriteByte(&msg, std::to_underlying(svc_ops_e::svc_mapchange));
         }
     }
-    MSG_WriteByte(&msg, to_underlying(svc_ops_e::svc_EOF));
+    MSG_WriteByte(&msg, std::to_underlying(svc_ops_e::svc_EOF));
     if (msg.overflowed) {
         return;
     }
@@ -573,7 +573,7 @@ void SV_NetcodecSendSnapshot(client_t* client, const char* setGame)
     sm.snapshot = true;
     sm.delta = (uint32_t)lastframe;
     sm.time = SV_SnapshotTime(client);
-    sm.flags = (uint32_t)to_underlying(SV_SnapshotFlags(client));
+    sm.flags = (uint32_t)std::to_underlying(SV_SnapshotFlags(client));
     // a margin is sent once, in the snapshot after its measure: the client takes each one as a new sample
     sm.inputMargin = client->inputMarginNew ? Net_MarginToWire(client->inputMargin) : INPUT_MARGIN_NONE;
     client->inputMarginNew = false;
@@ -645,20 +645,20 @@ static void SV_NetcodecComparePacket(client_t* client, const eng::ClientPacket& 
     MSG_WriteLong(&msg, p.ack);
     MSG_WriteLong(&msg, p.reliableAck);
     for (uint32_t i = 0; i < p.numCommands; i++) {
-        MSG_WriteByte(&msg, to_underlying(clc_ops_e::clc_clientCommand));
+        MSG_WriteByte(&msg, std::to_underlying(clc_ops_e::clc_clientCommand));
         MSG_WriteLong(&msg, p.commands[i].seq);
         MSG_WriteString(&msg, p.commands[i].text);
     }
     if (p.move != eng::Move::kNone) {
         const int key = sv.checksumFeed ^ p.ack ^ Com_HashKey(client->reliableCommands[p.reliableAck & (MAX_RELIABLE_COMMANDS - 1)], 32);
         Com_Memcpy(&cmds[1], p.userCmds, p.numUserCmds * sizeof(usercmd_t));
-        MSG_WriteByte(&msg, to_underlying(p.move == eng::Move::kDelta ? clc_ops_e::clc_move : clc_ops_e::clc_moveNoDelta));
+        MSG_WriteByte(&msg, std::to_underlying(p.move == eng::Move::kDelta ? clc_ops_e::clc_move : clc_ops_e::clc_moveNoDelta));
         MSG_WriteByte(&msg, (int)p.numUserCmds);
         for (uint32_t i = 1; i <= p.numUserCmds; i++) {
             MSG_WriteDeltaUsercmdKey(&msg, key, &cmds[i - 1], &cmds[i]);
         }
     }
-    MSG_WriteByte(&msg, to_underlying(clc_ops_e::clc_EOF));
+    MSG_WriteByte(&msg, std::to_underlying(clc_ops_e::clc_EOF));
     if (msg.overflowed) {
         return;
     }

@@ -895,7 +895,7 @@ typedef struct {
 static void CG_CheckShownFlicker(const playerState_t* ps)
 {
     static shown_t shown[2]; // the last two frames, newest first
-    const shown_t now = {to_underlying(ps->legsAnim) | (ps->legsFlip ? 0x10000 : 0), to_underlying(ps->torsoAnim) | (ps->torsoFlip ? 0x10000 : 0),
+    const shown_t now = {std::to_underlying(ps->legsAnim) | (ps->legsFlip ? 0x10000 : 0), std::to_underlying(ps->torsoAnim) | (ps->torsoFlip ? 0x10000 : 0),
                          Any(ps->pm_flags & pmoveFlags_t::PMF_DUCKED) ? 1 : 0, ps->commandTime};
 
     if (cg_showMiss.integer) {
@@ -964,7 +964,7 @@ static const playerState_t* CG_PredictedAt(int commandTime)
 
 static int CG_ShownAnim(animNumber_t anim, bool flip)
 {
-    return to_underlying(anim) | (flip ? 0x10000 : 0);
+    return std::to_underlying(anim) | (flip ? 0x10000 : 0);
 }
 
 // cg_showmiss: a difference means the server sets the animation outside the shared movement code (the idle animation, the
@@ -1074,7 +1074,7 @@ constexpr int PREDICT_MISS_ANIMS = 30;
 // the kind of a miss: the causes of a position that differs, then an animation only
 enum class predictMissKind_t { MISS_TELEPORT, MISS_HIT, MISS_ENTITY, MISS_OTHER, MISS_ANIM, MISS_KINDS };
 template <> inline constexpr bool enableEnumArithmetic<predictMissKind_t> = true;
-constexpr int MISS_CAUSES = to_underlying(predictMissKind_t::MISS_ANIM); // the causes of a position, the kinds before MISS_ANIM
+constexpr int MISS_CAUSES = std::to_underlying(predictMissKind_t::MISS_ANIM); // the causes of a position, the kinds before MISS_ANIM
 static const EnumArray<const char*, predictMissKind_t, predictMissKind_t::MISS_KINDS> cg_predictMissKinds = {
     "a teleport or a respawn", "within 200 ms of a hit", "in contact with an entity", "none of these", "animation only"};
 
@@ -1288,7 +1288,7 @@ static void CG_WritePredictMiss(fileHandle_t f)
                    "{:.1f} units, speed {:.0f}\n",
                    n, m->server.commandTime, cg_predictMissKinds[m->kind], m->d, m->predicted.origin[0] - m->server.origin[0],
                    m->predicted.origin[1] - m->server.origin[1], m->predicted.origin[2] - m->server.origin[2], m->cmd.forwardmove, m->cmd.rightmove,
-                   m->cmd.upmove, to_underlying(m->cmd.buttons), m->numTouch, m->numTouch > 0 ? m->touch[0] : -1, m->numTouch > 1 ? m->touch[1] : -1,
+                   m->cmd.upmove, m->cmd.buttons, m->numTouch, m->numTouch > 0 ? m->touch[0] : -1, m->numTouch > 1 ? m->touch[1] : -1,
                    m->numTouch > 2 ? m->touch[2] : -1, m->numTouch > 3 ? m->touch[3] : -1, m->nearest, m->nearest < 0 ? 0.0f : m->nearestDist,
                    m->nearest < 0 ? 0.0f : m->nearestSpeed);
         CG_PredictMissLine(f, line);
@@ -1297,9 +1297,8 @@ static void CG_WritePredictMiss(fileHandle_t f)
                        "  start: {} ticks before; origin {:.2f} {:.2f} {:.2f} velocity {:.2f} {:.2f} {:.2f} ground {} pm_flags {:x} pm_time {} pm_type {} legs "
                        "{} torso {} weaponTime {} saberMove {}\n",
                        (m->server.commandTime - m->start.commandTime) / TICK_MSEC, m->start.origin[0], m->start.origin[1], m->start.origin[2],
-                       m->start.velocity[0], m->start.velocity[1], m->start.velocity[2], m->start.groundEntityNum, to_underlying(m->start.pm_flags),
-                       m->start.pm_time, to_underlying(m->start.pm_type), to_underlying(m->start.legsAnim), to_underlying(m->start.torsoAnim),
-                       m->start.weaponTime, to_underlying(m->start.saberMove));
+                       m->start.velocity[0], m->start.velocity[1], m->start.velocity[2], m->start.groundEntityNum, m->start.pm_flags, m->start.pm_time,
+                       m->start.pm_type, m->start.legsAnim, m->start.torsoAnim, m->start.weaponTime, m->start.saberMove);
         }
         else {
             Q_FormatTo(line, "  start: not held\n");

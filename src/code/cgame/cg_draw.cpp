@@ -2603,7 +2603,7 @@ static void CG_DrawActivePowers(void)
     /*
     //draw icon for duration powers so we know what powers are active cuttently
     int i = 0;
-    while (i < to_underlying( forcePowers_t::NUM_FORCE_POWERS ))
+    while (i < std::to_underlying( forcePowers_t::NUM_FORCE_POWERS ))
     {
         if ((cg.snap->ps.forcePowersActive & Bit( forcePowerSorted[i] )) &&
             CG_IsDurationPower(forcePowerSorted[i]))

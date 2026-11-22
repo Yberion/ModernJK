@@ -264,7 +264,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
     event = BG_UnpackEvent(es->event);
 
     if (cg_debugEvents.integer) {
-        Q_Print("ent:{:3}  event:{:3} ", es->number, to_underlying(event));
+        Q_Print("ent:{:3}  event:{:3} ", es->number, event);
     }
 
     if (event == entity_event_t::EV_NONE) {
@@ -1025,7 +1025,7 @@ void CG_EntityEvent(centity_t* cent, vec3_t position)
 
     default:
         DEBUGNAME("UNKNOWN");
-        Q_Error(errorParm_t::ERR_DROP, "Unknown event: {}", to_underlying(event));
+        Q_Error(errorParm_t::ERR_DROP, "Unknown event: {}", event);
         break;
     }
 }

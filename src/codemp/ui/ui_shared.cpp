@@ -3787,7 +3787,7 @@ bool Item_HandleKey(itemDef_t* item, std::optional<fakeAscii_t> key, bool down)
                 editPtr->paintOffset = 0;
             }
 
-            // return Item_TextField_HandleKey(item, to_underlying( *key ));
+            // return Item_TextField_HandleKey(item, std::to_underlying( *key ));
         }
         return false;
         break;

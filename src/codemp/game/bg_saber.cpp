@@ -93,7 +93,7 @@ void BG_ForcePowerDrain(playerState_t* ps, forcePowers_t forcePower, int overrid
 
         if (jumpDrain) {
             if (ps->fd.forcePowerLevel[forcePowers_t::FP_LEVITATION] != forcePowerLevels_t::FORCE_LEVEL_0) { // don't divide by 0!
-                jumpDrain /= to_underlying(ps->fd.forcePowerLevel[forcePowers_t::FP_LEVITATION]);
+                jumpDrain /= std::to_underlying(ps->fd.forcePowerLevel[forcePowers_t::FP_LEVITATION]);
             }
         }
 
@@ -951,8 +951,8 @@ std::optional<animNumber_t> PM_SaberLockWinAnim(bool victory, bool superBreak)
         /*
             default:
         #ifndef FINAL_BUILD
-                Q_Println(S_COLOR_RED"ERROR-PM_SaberLockBreak: {} not in saberlock anim, anim = ({}){}", pm->gent->NPC_type, to_underlying(
-        pm->ps->torsoAnim ), BG_AnimName( pm->ps->torsoAnim )); #endif
+                Q_Println(S_COLOR_RED"ERROR-PM_SaberLockBreak: {} not in saberlock anim, anim = ({}){}", pm->gent->NPC_type,
+        pm->ps->torsoAnim , BG_AnimName( pm->ps->torsoAnim )); #endif
         */
     case animNumber_t::BOTH_BF2LOCK:
         if (superBreak) {
@@ -1040,8 +1040,8 @@ std::optional<animNumber_t> PM_SaberLockLoseAnim(playerState_t* genemy, bool vic
         /*
             default:
         #ifndef FINAL_BUILD
-                Q_Println(S_COLOR_RED"ERROR-PM_SaberLockBreak: {} not in saberlock anim, anim = ({}){}", genemy->NPC_type, to_underlying(
-        genemy->client->ps.torsoAnim ), BG_AnimName( genemy->client->ps.torsoAnim )); #endif
+                Q_Println(S_COLOR_RED"ERROR-PM_SaberLockBreak: {} not in saberlock anim, anim = ({}){}", genemy->NPC_type,
+        genemy->client->ps.torsoAnim , BG_AnimName( genemy->client->ps.torsoAnim )); #endif
         */
     case animNumber_t::BOTH_BF2LOCK:
         if (superBreak) {
@@ -1438,7 +1438,7 @@ void PM_SaberLocked(void)
             animation_t* anim;
             float currentFrame;
             int curFrame;
-            int strength = to_underlying(pm->ps->fd.forcePowerLevel[forcePowers_t::FP_SABER_OFFENSE]) + 1;
+            int strength = std::to_underlying(pm->ps->fd.forcePowerLevel[forcePowers_t::FP_SABER_OFFENSE]) + 1;
 
             pm->ps->saberLockAdvance = false;
 

@@ -152,7 +152,7 @@ WriteMember
 
 int CBlockMember::WriteMember(FILE* m_fileHandle)
 {
-    const int id = to_underlying(m_id);
+    const int id = std::to_underlying(m_id);
     fwrite(&id, sizeof(id), 1, m_fileHandle);
     fwrite(&m_size, sizeof(m_size), 1, m_fileHandle);
     fwrite(m_data, m_size, 1, m_fileHandle);
@@ -559,9 +559,9 @@ WriteBlock
 int CBlockStream::WriteBlock(CBlock* block)
 {
     CBlockMember* bMember;
-    int id = to_underlying(block->GetBlockID());
+    int id = std::to_underlying(block->GetBlockID());
     int numMembers = block->GetNumMembers();
-    unsigned char flags = to_underlying(block->GetFlags());
+    unsigned char flags = std::to_underlying(block->GetFlags());
 
     fwrite(&id, sizeof(id), 1, m_fileHandle);
     fwrite(&numMembers, sizeof(numMembers), 1, m_fileHandle);

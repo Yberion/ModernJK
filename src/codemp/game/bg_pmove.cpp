@@ -3553,7 +3553,7 @@ static void PM_CrashLand(void)
                 PM_AddEventWithParm(entity_event_t::EV_ROLL, 0);
             }
             else if (const std::optional<surfaceMaterial_t> material = PM_FootstepForSurface()) {
-                PM_AddEventWithParm(entity_event_t::EV_FOOTSTEP, to_underlying(*material));
+                PM_AddEventWithParm(entity_event_t::EV_FOOTSTEP, std::to_underlying(*material));
             }
         }
     }
@@ -5194,7 +5194,7 @@ void PM_BeginWeaponChange(weapon_t weapon)
         pm->ps->zoomTime = pm->ps->commandTime;
     }
 
-    PM_AddEventWithParm(entity_event_t::EV_CHANGE_WEAPON, to_underlying(weapon));
+    PM_AddEventWithParm(entity_event_t::EV_CHANGE_WEAPON, std::to_underlying(weapon));
     pm->ps->weaponstate = weaponstate_t::WEAPON_DROPPING;
     pm->ps->weaponTime += 200;
     // PM_StartTorsoAnim( animNumber_t::TORSO_DROPWEAP1 );
@@ -5489,7 +5489,7 @@ static bool PM_DoChargedWeapons(bool vehicleRocketLock, bgEntity_t* veh)
                 //	Q_Println("Starting charge");
 #endif
                 assert(pm->ps->weapon > weapon_t::WP_NONE);
-                BG_AddPredictableEventToPlayerstate(entity_event_t::EV_WEAPON_CHARGE_ALT, to_underlying(pm->ps->weapon), pm->ps);
+                BG_AddPredictableEventToPlayerstate(entity_event_t::EV_WEAPON_CHARGE_ALT, std::to_underlying(pm->ps->weapon), pm->ps);
             }
 
             if (vehicleRocketLock) { // check vehicle ammo
@@ -5521,7 +5521,7 @@ static bool PM_DoChargedWeapons(bool vehicleRocketLock, bgEntity_t* veh)
 #ifdef _DEBUG
                 //	Q_Println("Starting charge");
 #endif
-                BG_AddPredictableEventToPlayerstate(entity_event_t::EV_WEAPON_CHARGE, to_underlying(pm->ps->weapon), pm->ps);
+                BG_AddPredictableEventToPlayerstate(entity_event_t::EV_WEAPON_CHARGE, std::to_underlying(pm->ps->weapon), pm->ps);
             }
 
             if (vehicleRocketLock) {
@@ -5613,14 +5613,14 @@ int PM_ItemUsable(playerState_t* ps, holdable_t forcedUse)
         return 1;
     case holdable_t::HI_SEEKER:
         if (Any(ps->eFlags & entityFlags_t::EF_SEEKERDRONE)) {
-            PM_AddEventWithParm(entity_event_t::EV_ITEMUSEFAIL, to_underlying(itemUseFail_t::SEEKER_ALREADYDEPLOYED));
+            PM_AddEventWithParm(entity_event_t::EV_ITEMUSEFAIL, std::to_underlying(itemUseFail_t::SEEKER_ALREADYDEPLOYED));
             return 0;
         }
 
         return 1;
     case holdable_t::HI_SENTRY_GUN:
         if (ps->fd.sentryDeployed) {
-            PM_AddEventWithParm(entity_event_t::EV_ITEMUSEFAIL, to_underlying(itemUseFail_t::SENTRY_ALREADYPLACED));
+            PM_AddEventWithParm(entity_event_t::EV_ITEMUSEFAIL, std::to_underlying(itemUseFail_t::SENTRY_ALREADYPLACED));
             return 0;
         }
 
@@ -5644,7 +5644,7 @@ int PM_ItemUsable(playerState_t* ps, holdable_t forcedUse)
         pm->trace(&tr, ps->origin, mins, maxs, trtest, ps->clientNum, MASK_PLAYERSOLID);
 
         if ((tr.fraction != 1 && tr.entityNum != ps->clientNum) || tr.startsolid || tr.allsolid) {
-            PM_AddEventWithParm(entity_event_t::EV_ITEMUSEFAIL, to_underlying(itemUseFail_t::SENTRY_NOROOM));
+            PM_AddEventWithParm(entity_event_t::EV_ITEMUSEFAIL, std::to_underlying(itemUseFail_t::SENTRY_NOROOM));
             return 0;
         }
 
@@ -5670,7 +5670,7 @@ int PM_ItemUsable(playerState_t* ps, holdable_t forcedUse)
                 return 1;
             }
         }
-        PM_AddEventWithParm(entity_event_t::EV_ITEMUSEFAIL, to_underlying(itemUseFail_t::SHIELD_NOROOM));
+        PM_AddEventWithParm(entity_event_t::EV_ITEMUSEFAIL, std::to_underlying(itemUseFail_t::SHIELD_NOROOM));
         return 0;
     case holdable_t::HI_JETPACK: // check for stuff here?
         return 1;
@@ -6040,8 +6040,9 @@ static void PM_Weapon(void)
             if ((pm->ps->fd.forcePowersActive & Bit(forcePowers_t::FP_GRIP))) { // gripping
                 desiredAnim = animNumber_t::BOTH_FORCEGRIP_HOLD;
             }
-            else if ((pm->ps->fd.forcePowersActive & Bit(forcePowers_t::FP_LIGHTNING))) {                                                 // lightning
-                if (pm->ps->weapon == weapon_t::WP_MELEE && pm->ps->activeForcePass > to_underlying(forcePowerLevels_t::FORCE_LEVEL_2)) { // 2-handed lightning
+            else if ((pm->ps->fd.forcePowersActive & Bit(forcePowers_t::FP_LIGHTNING))) { // lightning
+                if (pm->ps->weapon == weapon_t::WP_MELEE &&
+                    pm->ps->activeForcePass > std::to_underlying(forcePowerLevels_t::FORCE_LEVEL_2)) { // 2-handed lightning
                     desiredAnim = animNumber_t::BOTH_FORCE_2HANDEDLIGHTNING_HOLD;
                 }
                 else {
@@ -9210,7 +9211,7 @@ void PmoveSingle(pmove_t* pmove)
         if (pm->cmd.forwardmove || pm->cmd.rightmove || pm->cmd.upmove > 0) { // get out
             pm->ps->weaponstate = weaponstate_t::WEAPON_READY;
             pm->ps->weaponTime = 1000;
-            PM_AddEventWithParm(entity_event_t::EV_WEAPON_CHARGE, to_underlying(weapon_t::WP_DISRUPTOR)); // cut the weapon charge sound
+            PM_AddEventWithParm(entity_event_t::EV_WEAPON_CHARGE, std::to_underlying(weapon_t::WP_DISRUPTOR)); // cut the weapon charge sound
             pm->cmd.upmove = 0;
         }
     }

@@ -3097,7 +3097,7 @@ bool R_LoadMDXM(model_t* mod, void* buffer, const char* mod_name, bool& bAlready
             }
 
             // change to surface identifier
-            surf->ident = to_underlying(surfaceType_t::SF_MDX);
+            surf->ident = std::to_underlying(surfaceType_t::SF_MDX);
             // register the shaders
 
             if (isAnOldModelFile) {

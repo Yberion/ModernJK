@@ -460,7 +460,7 @@ static void Saber_ParseSaberType(saberInfo_t* saber, const char** p)
     if (COM_ParseString(p, &value))
         return;
     saberType = GetIDForString(SaberTable, value);
-    if (saberType >= to_underlying(saberType_t::SABER_SINGLE) && saberType < to_underlying(saberType_t::NUM_SABERS))
+    if (saberType >= std::to_underlying(saberType_t::SABER_SINGLE) && saberType < std::to_underlying(saberType_t::NUM_SABERS))
         saber->type = (saberType_t)saberType;
 }
 static void Saber_ParseSaberModel(saberInfo_t* saber, const char** p)
@@ -1101,7 +1101,7 @@ static void Saber_ParseMove(saberMoveName_t& move, const char** p)
     if (COM_ParseString(p, &value))
         return;
     const int saberMove = GetIDForString(SaberMoveTable, value);
-    if (saberMove >= to_underlying(saberMoveName_t::LS_INVALID) && saberMove < to_underlying(saberMoveName_t::LS_MOVE_MAX))
+    if (saberMove >= std::to_underlying(saberMoveName_t::LS_INVALID) && saberMove < std::to_underlying(saberMoveName_t::LS_MOVE_MAX))
         move = static_cast<saberMoveName_t>(saberMove);
 }
 static void Saber_ParseKataMove(saberInfo_t* saber, const char** p)

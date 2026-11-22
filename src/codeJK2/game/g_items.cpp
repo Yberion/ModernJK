@@ -384,9 +384,9 @@ int Pickup_Holocron(gentity_t* ent, gentity_t* other)
     other->client->ps.forcePowerLevel[forcePower] = forceLevel;
     other->client->ps.forcePowersKnown |= Bit(forcePower);
 
-    missionInfo_Updated = true;                                                                         // Activate flashing text
-    gi.cvar_set("cg_updatedDataPadForcePower1", Q_Format("{}", to_underlying(forcePower) + 1).c_str()); // The +1 is offset in the print routine.
-    cg_updatedDataPadForcePower1.integer = to_underlying(forcePower) + 1;
+    missionInfo_Updated = true;                                                                              // Activate flashing text
+    gi.cvar_set("cg_updatedDataPadForcePower1", Q_Format("{}", std::to_underlying(forcePower) + 1).c_str()); // The +1 is offset in the print routine.
+    cg_updatedDataPadForcePower1.integer = std::to_underlying(forcePower) + 1;
     gi.cvar_set("cg_updatedDataPadForcePower2", "0"); // The +1 is offset in the print routine.
     cg_updatedDataPadForcePower2.integer = 0;
     gi.cvar_set("cg_updatedDataPadForcePower3", "0"); // The +1 is offset in the print routine.

@@ -85,7 +85,7 @@ static void IN_PrintKey(const SDL_Keysym* keysym, fakeAscii_t key, bool down)
     if (keysym->mod & KMOD_RESERVED)
         Q_Print(" KMOD_RESERVED");
 
-    Q_Println(" Q:0x{:02x}({})", to_underlying(key), Key_KeynumToString(key));
+    Q_Println(" Q:0x{:02x}({})", key, Key_KeynumToString(key));
 }
 
 constexpr int MAX_CONSOLE_KEYS = 16;
@@ -153,7 +153,7 @@ static bool IN_IsConsoleKey(fakeAscii_t key, int character)
     }
 
     // If the character is the same as the key, prefer the character
-    if (to_underlying(key) == character)
+    if (std::to_underlying(key) == character)
         key = fakeAscii_t::A_NULL;
 
     for (i = 0; i < numConsoleKeys; i++) {
@@ -670,7 +670,7 @@ static void IN_DeactivateMouse(void)
 // a key's event for the engine's queue
 static void IN_QueKey(fakeAscii_t key, bool down)
 {
-    Sys_QueEvent(0, sysEventType_t::SE_KEY, to_underlying(key), down, 0, nullptr);
+    Sys_QueEvent(0, sysEventType_t::SE_KEY, std::to_underlying(key), down, 0, nullptr);
 }
 
 // We translate axes movement into keypresses
@@ -689,7 +689,7 @@ static fakeAscii_t hat_keys[16] = {fakeAscii_t::A_JOY28, fakeAscii_t::A_JOY29, f
 struct stick_state_s {
     bool buttons[16]; // !!! FIXME: these might be too many.
     unsigned int oldaxes;
-    int oldaaxes[to_underlying(joystickAxis_t::MAX_JOYSTICK_AXIS)];
+    int oldaaxes[std::to_underlying(joystickAxis_t::MAX_JOYSTICK_AXIS)];
     unsigned int oldhats;
 } stick_state;
 
@@ -1133,7 +1133,7 @@ static void IN_ProcessEvents(void)
             if (key == fakeAscii_t::A_BACKSPACE)
                 Sys_QueEvent(0, sysEventType_t::SE_CHAR, CTRL('h'), false, 0, nullptr);
             else if (kg.keys[fakeAscii_t::A_CTRL].down && key >= fakeAscii_t::A_CAP_A && key <= fakeAscii_t::A_CAP_Z)
-                Sys_QueEvent(0, sysEventType_t::SE_CHAR, CTRL(tolower(to_underlying(key))), false, 0, nullptr);
+                Sys_QueEvent(0, sysEventType_t::SE_CHAR, CTRL(tolower(std::to_underlying(key))), false, 0, nullptr);
 
             lastKeyDown = key;
             break;
@@ -1390,8 +1390,8 @@ static void IN_JoyMove(void)
     total = SDL_JoystickNumAxes(stick);
     if (total > 0) {
         if (in_joystickUseAnalog->integer) {
-            if (total > to_underlying(joystickAxis_t::MAX_JOYSTICK_AXIS))
-                total = to_underlying(joystickAxis_t::MAX_JOYSTICK_AXIS);
+            if (total > std::to_underlying(joystickAxis_t::MAX_JOYSTICK_AXIS))
+                total = std::to_underlying(joystickAxis_t::MAX_JOYSTICK_AXIS);
             for (i = 0; i < total; i++) {
                 Sint16 axis = SDL_JoystickGetAxis(stick, i);
                 float f = ((float)abs(axis)) / 32767.0f;

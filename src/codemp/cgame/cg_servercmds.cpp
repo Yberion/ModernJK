@@ -149,7 +149,7 @@ void CG_ParseServerinfo(void)
     cgs.showDuelHealths = atoi(Info_ValueForKey(info, "g_showDuelHealths"));
 
     cgs.gametype = (gametype_t)atoi(Info_ValueForKey(info, "g_gametype"));
-    trap->Cvar_Set("g_gametype", Q_Format("{}", to_underlying(cgs.gametype)).c_str());
+    trap->Cvar_Set("g_gametype", Q_Format("{}", cgs.gametype).c_str());
     cgs.needpass = atoi(Info_ValueForKey(info, "g_needpass"));
     cgs.jediVmerc = atoi(Info_ValueForKey(info, "g_jediVmerc"));
 
@@ -197,13 +197,13 @@ void CG_ParseServerinfo(void)
     //	Q_strncpyz( cgs.blueTeam, Info_ValueForKey( info, "g_blueTeam" ), sizeof(cgs.blueTeam) );
     //	trap->Cvar_Set("g_blueTeam", cgs.blueTeam);
 
-    trap->Cvar_Set("ui_about_gametype", Q_Format("{}", to_underlying(cgs.gametype)).c_str());
+    trap->Cvar_Set("ui_about_gametype", Q_Format("{}", cgs.gametype).c_str());
     trap->Cvar_Set("ui_about_fraglimit", Q_Format("{}", cgs.fraglimit).c_str());
     trap->Cvar_Set("ui_about_duellimit", Q_Format("{}", cgs.duel_fraglimit).c_str());
     trap->Cvar_Set("ui_about_capturelimit", Q_Format("{}", cgs.capturelimit).c_str());
     trap->Cvar_Set("ui_about_timelimit", Q_Format("{}", cgs.timelimit).c_str());
     trap->Cvar_Set("ui_about_maxclients", Q_Format("{}", cgs.maxclients).c_str());
-    trap->Cvar_Set("ui_about_dmflags", Q_Format("{}", to_underlying(cgs.dmflags)).c_str());
+    trap->Cvar_Set("ui_about_dmflags", Q_Format("{}", cgs.dmflags).c_str());
     trap->Cvar_Set("ui_about_hostname", Info_ValueForKey(info, "sv_hostname"));
     trap->Cvar_Set("ui_about_needpass", Info_ValueForKey(info, "g_needpass"));
     trap->Cvar_Set("ui_about_botminplayers", Info_ValueForKey(info, "bot_minplayers"));

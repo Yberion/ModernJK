@@ -34,7 +34,7 @@ static intptr_t(QDECL* Q_syscallRaw)(intptr_t arg, ...) = (intptr_t(QDECL*)(intp
 // the call's number converts here, at the boundary with the engine
 template <typename... Args> static intptr_t Q_syscall(cgameImport_t call, Args... args)
 {
-    return Q_syscallRaw(to_underlying(call), args...);
+    return Q_syscallRaw(std::to_underlying(call), args...);
 }
 
 extern "C" Q_EXPORT void QDECL dllEntry(intptr_t(QDECL* syscallptr)(intptr_t arg, ...))
@@ -57,7 +57,7 @@ int cgi_Milliseconds(void)
 
 void cgi_Cvar_Register(vmCvar_t* vmCvar, const char* varName, const char* defaultValue, cvarFlags_t flags)
 {
-    Q_syscall(cgameImport_t::CG_CVAR_REGISTER, vmCvar, varName, defaultValue, to_underlying(flags));
+    Q_syscall(cgameImport_t::CG_CVAR_REGISTER, vmCvar, varName, defaultValue, std::to_underlying(flags));
 }
 
 void cgi_Cvar_Update(vmCvar_t* vmCvar)
@@ -467,7 +467,8 @@ bool cgi_GetUserCmd(int cmdNumber, usercmd_t* ucmd)
 
 void cgi_SetUserCmdValue(weapon_t stateValue, float sensitivityScale, float mPitchOverride, float mYawOverride)
 {
-    Q_syscall(cgameImport_t::CG_SETUSERCMDVALUE, to_underlying(stateValue), PASSFLOAT(sensitivityScale), PASSFLOAT(mPitchOverride), PASSFLOAT(mYawOverride));
+    Q_syscall(cgameImport_t::CG_SETUSERCMDVALUE, std::to_underlying(stateValue), PASSFLOAT(sensitivityScale), PASSFLOAT(mPitchOverride),
+              PASSFLOAT(mYawOverride));
 }
 
 void cgi_SetUserCmdAngles(float pitchOverride, float yawOverride, float rollOverride)
@@ -514,7 +515,7 @@ void cgi_R_WorldEffectCommand(const char* command)
 // this returns a handle.  arg0 is the name in the format "idlogo.roq", set arg1 to nullptr, alteredstates to false (do not alter gamestate)
 int trap_CIN_PlayCinematic(const char* arg0, int xpos, int ypos, int width, int height, cinematicFlags_t bits, const char* psAudioFile /* = nullptr */)
 {
-    return Q_syscall(cgameImport_t::CG_CIN_PLAYCINEMATIC, arg0, xpos, ypos, width, height, to_underlying(bits), psAudioFile);
+    return Q_syscall(cgameImport_t::CG_CIN_PLAYCINEMATIC, arg0, xpos, ypos, width, height, std::to_underlying(bits), psAudioFile);
 }
 
 // stops playing the cinematic and ends it.  should always return FMV_EOF

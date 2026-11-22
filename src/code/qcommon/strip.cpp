@@ -1086,8 +1086,7 @@ static void JK2SP_UpdateLanguage(void)
 
 void JK2SP_Init(void)
 {
-    sp_language = Cvar_Get("sp_language", Q_Format("{}", to_underlying(spLanguage_t::SP_LANGUAGE_ENGLISH)).c_str(),
-                           cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_NORESTART);
+    sp_language = Cvar_Get("sp_language", Q_Format("{}", spLanguage_t::SP_LANGUAGE_ENGLISH).c_str(), cvarFlags_t::CVAR_ARCHIVE | cvarFlags_t::CVAR_NORESTART);
     sp_show_strip = Cvar_Get("sp_show_strip", "0", cvarFlags_t::CVAR_NONE); // don't switch this on!!!!!!, test only (apparently)
     sp_leet = Cvar_Get("sp_leet", "0", cvarFlags_t::CVAR_ROM);              // do NOT leave this on in final product!!!!  (only works when == 42 anyway ;-)
 

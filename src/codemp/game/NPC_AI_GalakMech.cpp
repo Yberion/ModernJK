@@ -252,7 +252,7 @@ void NPC_GM_Pain(gentity_t* self, gentity_t* attacker, int damage)
     {      // shield is currently down
            // FIXME: allow for radius damage?
         /*
-        if ( (hitLoc==hitLocation_t::HL_GENERIC1) && (self->locationDamage[to_underlying( hitLocation_t::HL_GENERIC1 )] > GENERATOR_HEALTH) )
+        if ( (hitLoc==hitLocation_t::HL_GENERIC1) && (self->locationDamage[std::to_underlying( hitLocation_t::HL_GENERIC1 )] > GENERATOR_HEALTH) )
         {
             int newBolt = trap->G2API_AddBolt( &self->ghoul2[self->playerModel], "*antenna_base" );
             if ( newBolt != -1 )
@@ -773,7 +773,8 @@ void NPC_BSGM_Attack(void)
             TIMER_Set( NPC, "noRapid", Q_irand( 2000, 6000 ) );
             NPCInfo->scriptFlags |= scriptFlags_t::SCF_ALT_FIRE;
             NPC->alt_fire = true;
-            if ( NPC->locationDamage[to_underlying( hitLocation_t::HL_GENERIC1 )] > GENERATOR_HEALTH && (Q_irand( 0, 1 )||enemyDist4 < MAX_LOB_DIST_SQUARED) )
+            if ( NPC->locationDamage[std::to_underlying( hitLocation_t::HL_GENERIC1 )] > GENERATOR_HEALTH && (Q_irand( 0, 1 )||enemyDist4 <
+        MAX_LOB_DIST_SQUARED) )
             {//shield down, use laser
                 NPC_GM_StartLaser();
             }
@@ -788,7 +789,7 @@ void NPC_BSGM_Attack(void)
                 // animate me
                 animNumber_t swingAnim = animNumber_t::BOTH_ATTACK1;
 #if 0
-				if ( NPC->locationDamage[to_underlying( hitLocation_t::HL_GENERIC1 )] > GENERATOR_HEALTH )
+				if ( NPC->locationDamage[std::to_underlying( hitLocation_t::HL_GENERIC1 )] > GENERATOR_HEALTH )
 				{//generator down, use random melee
 					swingAnim = Q_irand( animNumber_t::BOTH_ATTACK4, animNumber_t::BOTH_ATTACK5 );//smackdown or uppercut
 				}
@@ -806,7 +807,7 @@ void NPC_BSGM_Attack(void)
                 // FIXME: say something?
             }
         }
-        else if (!NPCS.NPC->lockCount && NPCS.NPC->locationDamage[to_underlying(hitLocation_t::HL_GENERIC1)] > GENERATOR_HEALTH &&
+        else if (!NPCS.NPC->lockCount && NPCS.NPC->locationDamage[std::to_underlying(hitLocation_t::HL_GENERIC1)] > GENERATOR_HEALTH &&
                  TIMER_Done(NPCS.NPC, "attackDelay") &&
                  InFront(NPCS.NPC->enemy->r.currentOrigin, NPCS.NPC->r.currentOrigin, NPCS.NPC->client->ps.viewangles, 0.3f) &&
                  ((!Q_irand(0, 10 * (2 - g_npcspskill.integer)) && enemyDist4 > MIN_LOB_DIST_SQUARED && enemyDist4 < MAX_LOB_DIST_SQUARED) ||
@@ -1148,7 +1149,7 @@ void NPC_BSGM_Default(void)
             VectorSet(NPCS.NPC->r.mins, -20, -20, -24);
             VectorSet(NPCS.NPC->r.maxs, 20, 20, 64);
             NPCS.NPC->client->ps.crouchheight = NPCS.NPC->client->ps.standheight = 64;
-            if (NPCS.NPC->locationDamage[to_underlying(hitLocation_t::HL_GENERIC1)] < GENERATOR_HEALTH) { // still have the generator bolt-on
+            if (NPCS.NPC->locationDamage[std::to_underlying(hitLocation_t::HL_GENERIC1)] < GENERATOR_HEALTH) { // still have the generator bolt-on
                 if (NPCS.NPCInfo->investigateCount < 12) {
                     NPCS.NPCInfo->investigateCount++;
                 }

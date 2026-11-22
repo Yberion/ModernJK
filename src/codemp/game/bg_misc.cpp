@@ -140,7 +140,7 @@ EnumArray<EnumArray<int, forcePowerLevels_t, forcePowerLevels_t::NUM_FORCE_POWER
                       // NUM_FORCE_POWERS
     }};
 
-forcePowers_t forcePowerSorted[to_underlying(forcePowers_t::NUM_FORCE_POWERS)] = {
+forcePowers_t forcePowerSorted[std::to_underlying(forcePowers_t::NUM_FORCE_POWERS)] = {
     // rww - always use this order when drawing force powers for any reason
     forcePowers_t::FP_TELEPATHY,     forcePowers_t::FP_HEAL,          forcePowers_t::FP_ABSORB,    forcePowers_t::FP_PROTECT, forcePowers_t::FP_TEAM_HEAL,
     forcePowers_t::FP_LEVITATION,    forcePowers_t::FP_SPEED,         forcePowers_t::FP_PUSH,      forcePowers_t::FP_PULL,    forcePowers_t::FP_SEE,
@@ -367,7 +367,7 @@ bool BG_LegalizedForcePowers(char* powerOut, size_t powerOutSize, forceMasteries
         Q_strncpyz(powerBuf, powerOut, sizeof(powerBuf)); // copy it as the original
 
     // first of all, print the max rank into the string as the rank
-    Q_strncpyz(powerOut, Q_Format("{}-", to_underlying(maxRank)).c_str(), powerOutSize);
+    Q_strncpyz(powerOut, Q_Format("{}-", maxRank).c_str(), powerOutSize);
 
     while (i < std::ssize(powerBuf) && powerBuf[i] && powerBuf[i] != '-') {
         i++;
@@ -509,7 +509,7 @@ bool BG_LegalizedForcePowers(char* powerOut, size_t powerOutSize, forceMasteries
             powerCycle++;
             attemptedCycles++;
 
-            if (attemptedCycles > to_underlying(forcePowers_t::NUM_FORCE_POWERS)) { // I think this should be impossible. But just in case.
+            if (attemptedCycles > std::to_underlying(forcePowers_t::NUM_FORCE_POWERS)) { // I think this should be impossible. But just in case.
                 break;
             }
         }
@@ -563,7 +563,7 @@ bool BG_LegalizedForcePowers(char* powerOut, size_t powerOutSize, forceMasteries
 
     i = strlen(powerOut);
     for (forcePowers_t fp = forcePowers_t::FP_FIRST; fp < forcePowers_t::NUM_FORCE_POWERS; fp++) {
-        Q_strncpyz(readBuf, Q_Format("{}", to_underlying(final_Powers[fp])).c_str(), sizeof(readBuf));
+        Q_strncpyz(readBuf, Q_Format("{}", final_Powers[fp]).c_str(), sizeof(readBuf));
         powerOut[i] = readBuf[0];
         i++;
     }
@@ -681,7 +681,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */ //	"Seeker Drone",
         120,
         itemType_t::IT_HOLDABLE,
-        to_underlying(holdable_t::HI_SEEKER),
+        std::to_underlying(holdable_t::HI_SEEKER),
         /* precache */ "",
         /* sounds */ "",
         "@MENUS_AN_ATTACK_DRONE_SIMILAR" // description
@@ -699,7 +699,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */ //	"Forcefield",
         120,
         itemType_t::IT_HOLDABLE,
-        to_underlying(holdable_t::HI_SHIELD),
+        std::to_underlying(holdable_t::HI_SHIELD),
         /* precache */ "",
         /* sounds */
         "sound/weapons/detpack/stick.wav sound/movers/doors/forcefield_on.wav sound/movers/doors/forcefield_off.wav sound/movers/doors/forcefield_lp.wav "
@@ -719,7 +719,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */ //	"Bacta Canister",
         25,
         itemType_t::IT_HOLDABLE,
-        to_underlying(holdable_t::HI_MEDPAC),
+        std::to_underlying(holdable_t::HI_MEDPAC),
         /* precache */ "",
         /* sounds */ "",
         "@SP_INGAME_BACTA_DESC" // description
@@ -737,7 +737,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */ //	"Bacta Canister",
         25,
         itemType_t::IT_HOLDABLE,
-        to_underlying(holdable_t::HI_MEDPAC_BIG),
+        std::to_underlying(holdable_t::HI_MEDPAC_BIG),
         /* precache */ "",
         /* sounds */ "",
         "@SP_INGAME_BACTA_DESC" // description
@@ -755,7 +755,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */ //	"Binoculars",
         60,
         itemType_t::IT_HOLDABLE,
-        to_underlying(holdable_t::HI_BINOCULARS),
+        std::to_underlying(holdable_t::HI_BINOCULARS),
         /* precache */ "",
         /* sounds */ "",
         "@SP_INGAME_LA_GOGGLES_DESC" // description
@@ -773,7 +773,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */ //	"Sentry Gun",
         120,
         itemType_t::IT_HOLDABLE,
-        to_underlying(holdable_t::HI_SENTRY_GUN),
+        std::to_underlying(holdable_t::HI_SENTRY_GUN),
         /* precache */ "",
         /* sounds */ "",
         "@MENUS_THIS_DEADLY_WEAPON_IS" // description
@@ -792,7 +792,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */ //	"Sentry Gun",
         120,
         itemType_t::IT_HOLDABLE,
-        to_underlying(holdable_t::HI_JETPACK),
+        std::to_underlying(holdable_t::HI_JETPACK),
         /* precache */ "effects/boba/jet.efx",
         /* sounds */ "sound/chars/boba/JETON.wav sound/chars/boba/JETHOVER.wav sound/effects/fire_lp.wav",
         "@MENUS_JETPACK_DESC" // description
@@ -811,7 +811,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */ //	"Sentry Gun",
         120,
         itemType_t::IT_HOLDABLE,
-        to_underlying(holdable_t::HI_HEALTHDISP),
+        std::to_underlying(holdable_t::HI_HEALTHDISP),
         /* precache */ "",
         /* sounds */ "",
         "" // description
@@ -830,7 +830,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */ //	"Sentry Gun",
         120,
         itemType_t::IT_HOLDABLE,
-        to_underlying(holdable_t::HI_AMMODISP),
+        std::to_underlying(holdable_t::HI_AMMODISP),
         /* precache */ "",
         /* sounds */ "",
         "" // description
@@ -848,7 +848,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */ //	"Sentry Gun",
         120,
         itemType_t::IT_HOLDABLE,
-        to_underlying(holdable_t::HI_EWEB),
+        std::to_underlying(holdable_t::HI_EWEB),
         /* precache */ "",
         /* sounds */ "",
         "@MENUS_EWEB_DESC" // description
@@ -867,7 +867,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */ //	"Seeker Drone",
         120,
         itemType_t::IT_HOLDABLE,
-        to_underlying(holdable_t::HI_CLOAK),
+        std::to_underlying(holdable_t::HI_CLOAK),
         /* precache */ "",
         /* sounds */ "",
         "@MENUS_CLOAK_DESC" // description
@@ -885,7 +885,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */ //	"Light Force Enlightenment",
         25,
         itemType_t::IT_POWERUP,
-        to_underlying(powerup_t::PW_FORCE_ENLIGHTENED_LIGHT),
+        std::to_underlying(powerup_t::PW_FORCE_ENLIGHTENED_LIGHT),
         /* precache */ "",
         /* sounds */ "",
         "" // description
@@ -903,7 +903,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */ //	"Dark Force Enlightenment",
         25,
         itemType_t::IT_POWERUP,
-        to_underlying(powerup_t::PW_FORCE_ENLIGHTENED_DARK),
+        std::to_underlying(powerup_t::PW_FORCE_ENLIGHTENED_DARK),
         /* precache */ "",
         /* sounds */ "",
         "" // description
@@ -921,7 +921,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */ //	"Force Boon",
         25,
         itemType_t::IT_POWERUP,
-        to_underlying(powerup_t::PW_FORCE_BOON),
+        std::to_underlying(powerup_t::PW_FORCE_BOON),
         /* precache */ "",
         /* sounds */ "",
         "" // description
@@ -939,7 +939,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */ //	"Ysalamiri",
         25,
         itemType_t::IT_POWERUP,
-        to_underlying(powerup_t::PW_YSALAMIRI),
+        std::to_underlying(powerup_t::PW_YSALAMIRI),
         /* precache */ "",
         /* sounds */ "",
         "" // description
@@ -961,7 +961,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */ //	"Stun Baton",
         100,
         itemType_t::IT_WEAPON,
-        to_underlying(weapon_t::WP_STUN_BATON),
+        std::to_underlying(weapon_t::WP_STUN_BATON),
         /* precache */ "",
         /* sounds */ "",
         "" // description
@@ -979,7 +979,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */ //	"Stun Baton",
         100,
         itemType_t::IT_WEAPON,
-        to_underlying(weapon_t::WP_MELEE),
+        std::to_underlying(weapon_t::WP_MELEE),
         /* precache */ "",
         /* sounds */ "",
         "@MENUS_MELEE_DESC" // description
@@ -997,7 +997,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */ //	"Lightsaber",
         100,
         itemType_t::IT_WEAPON,
-        to_underlying(weapon_t::WP_SABER),
+        std::to_underlying(weapon_t::WP_SABER),
         /* precache */ "",
         /* sounds */ "",
         "@MENUS_AN_ELEGANT_WEAPON_FOR" // description
@@ -1017,7 +1017,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */                                                    //	"Bryar Pistol",
         100,
         itemType_t::IT_WEAPON,
-        to_underlying(weapon_t::WP_BRYAR_PISTOL),
+        std::to_underlying(weapon_t::WP_BRYAR_PISTOL),
         /* precache */ "",
         /* sounds */ "",
         "@MENUS_BLASTER_PISTOL_DESC" // description
@@ -1034,7 +1034,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */                         //	"Concussion Rifle",
         50,
         itemType_t::IT_WEAPON,
-        to_underlying(weapon_t::WP_CONCUSSION),
+        std::to_underlying(weapon_t::WP_CONCUSSION),
         /* precache */ "",
         /* sounds */ "",
         "@MENUS_CONC_RIFLE_DESC" // description
@@ -1052,7 +1052,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */                       //	"Bryar Pistol",
         100,
         itemType_t::IT_WEAPON,
-        to_underlying(weapon_t::WP_BRYAR_OLD),
+        std::to_underlying(weapon_t::WP_BRYAR_OLD),
         /* precache */ "",
         /* sounds */ "",
         "@SP_INGAME_BLASTER_PISTOL" // description
@@ -1069,7 +1069,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */ //	"E11 Blaster Rifle",
         100,
         itemType_t::IT_WEAPON,
-        to_underlying(weapon_t::WP_BLASTER),
+        std::to_underlying(weapon_t::WP_BLASTER),
         /* precache */ "",
         /* sounds */ "",
         "@MENUS_THE_PRIMARY_WEAPON_OF" // description
@@ -1086,7 +1086,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */ //	"Tenloss Disruptor Rifle",
         100,
         itemType_t::IT_WEAPON,
-        to_underlying(weapon_t::WP_DISRUPTOR),
+        std::to_underlying(weapon_t::WP_DISRUPTOR),
         /* precache */ "",
         /* sounds */ "",
         "@MENUS_THIS_NEFARIOUS_WEAPON" // description
@@ -1103,7 +1103,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */ //	"Wookiee Bowcaster",
         100,
         itemType_t::IT_WEAPON,
-        to_underlying(weapon_t::WP_BOWCASTER),
+        std::to_underlying(weapon_t::WP_BOWCASTER),
         /* precache */ "",
         /* sounds */ "",
         "@MENUS_THIS_ARCHAIC_LOOKING" // description
@@ -1120,7 +1120,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */ //	"Imperial Heavy Repeater",
         100,
         itemType_t::IT_WEAPON,
-        to_underlying(weapon_t::WP_REPEATER),
+        std::to_underlying(weapon_t::WP_REPEATER),
         /* precache */ "",
         /* sounds */ "",
         "@MENUS_THIS_DESTRUCTIVE_PROJECTILE" // description
@@ -1138,7 +1138,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */ //	"DEMP2",
         100,
         itemType_t::IT_WEAPON,
-        to_underlying(weapon_t::WP_DEMP2),
+        std::to_underlying(weapon_t::WP_DEMP2),
         /* precache */ "",
         /* sounds */ "",
         "@MENUS_COMMONLY_REFERRED_TO" // description
@@ -1155,7 +1155,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */ //	"Golan Arms Flechette",
         100,
         itemType_t::IT_WEAPON,
-        to_underlying(weapon_t::WP_FLECHETTE),
+        std::to_underlying(weapon_t::WP_FLECHETTE),
         /* precache */ "",
         /* sounds */ "",
         "@MENUS_WIDELY_USED_BY_THE_CORPORATE" // description
@@ -1172,7 +1172,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */ //	"Merr-Sonn Missile System",
         3,
         itemType_t::IT_WEAPON,
-        to_underlying(weapon_t::WP_ROCKET_LAUNCHER),
+        std::to_underlying(weapon_t::WP_ROCKET_LAUNCHER),
         /* precache */ "",
         /* sounds */ "",
         "@MENUS_THE_PLX_2M_IS_AN_EXTREMELY" // description
@@ -1189,7 +1189,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */ //	"Thermal Detonators",
         4,
         itemType_t::IT_AMMO,
-        to_underlying(ammo_t::AMMO_THERMAL),
+        std::to_underlying(ammo_t::AMMO_THERMAL),
         /* precache */ "",
         /* sounds */ "",
         "@MENUS_THE_THERMAL_DETONATOR" // description
@@ -1206,7 +1206,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */ //	"Trip Mines",
         3,
         itemType_t::IT_AMMO,
-        to_underlying(ammo_t::AMMO_TRIPMINE),
+        std::to_underlying(ammo_t::AMMO_TRIPMINE),
         /* precache */ "",
         /* sounds */ "",
         "@MENUS_TRIP_MINES_CONSIST_OF" // description
@@ -1223,7 +1223,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */ //	"Det Packs",
         3,
         itemType_t::IT_AMMO,
-        to_underlying(ammo_t::AMMO_DETPACK),
+        std::to_underlying(ammo_t::AMMO_DETPACK),
         /* precache */ "",
         /* sounds */ "",
         "@MENUS_A_DETONATION_PACK_IS" // description
@@ -1240,7 +1240,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */ //	"Thermal Detonator",
         4,
         itemType_t::IT_WEAPON,
-        to_underlying(weapon_t::WP_THERMAL),
+        std::to_underlying(weapon_t::WP_THERMAL),
         /* precache */ "",
         /* sounds */ "",
         "@MENUS_THE_THERMAL_DETONATOR" // description
@@ -1257,7 +1257,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */ //	"Trip Mine",
         3,
         itemType_t::IT_WEAPON,
-        to_underlying(weapon_t::WP_TRIP_MINE),
+        std::to_underlying(weapon_t::WP_TRIP_MINE),
         /* precache */ "",
         /* sounds */ "",
         "@MENUS_TRIP_MINES_CONSIST_OF" // description
@@ -1274,7 +1274,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */ //	"Det Pack",
         3,
         itemType_t::IT_WEAPON,
-        to_underlying(weapon_t::WP_DET_PACK),
+        std::to_underlying(weapon_t::WP_DET_PACK),
         /* precache */ "",
         /* sounds */ "",
         "@MENUS_A_DETONATION_PACK_IS" // description
@@ -1291,7 +1291,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */ //	"Emplaced Gun",
         50,
         itemType_t::IT_WEAPON,
-        to_underlying(weapon_t::WP_EMPLACED_GUN),
+        std::to_underlying(weapon_t::WP_EMPLACED_GUN),
         /* precache */ "",
         /* sounds */ "",
         "" // description
@@ -1307,7 +1307,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */ //	"Turret Gun",
         50,
         itemType_t::IT_WEAPON,
-        to_underlying(weapon_t::WP_TURRET),
+        std::to_underlying(weapon_t::WP_TURRET),
         /* precache */ "",
         /* sounds */ "",
         "" // description
@@ -1329,7 +1329,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */ //	"Force??",
         100,
         itemType_t::IT_AMMO,
-        to_underlying(ammo_t::AMMO_FORCE),
+        std::to_underlying(ammo_t::AMMO_FORCE),
         /* precache */ "",
         /* sounds */ "",
         "" // description
@@ -1347,7 +1347,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */ //	"Blaster Pack",
         100,
         itemType_t::IT_AMMO,
-        to_underlying(ammo_t::AMMO_BLASTER),
+        std::to_underlying(ammo_t::AMMO_BLASTER),
         /* precache */ "",
         /* sounds */ "",
         "" // description
@@ -1365,7 +1365,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */ //	"Power Cell",
         100,
         itemType_t::IT_AMMO,
-        to_underlying(ammo_t::AMMO_POWERCELL),
+        std::to_underlying(ammo_t::AMMO_POWERCELL),
         /* precache */ "",
         /* sounds */ "",
         "" // description
@@ -1383,7 +1383,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */ //	"Metallic Bolts",
         100,
         itemType_t::IT_AMMO,
-        to_underlying(ammo_t::AMMO_METAL_BOLTS),
+        std::to_underlying(ammo_t::AMMO_METAL_BOLTS),
         /* precache */ "",
         /* sounds */ "",
         "" // description
@@ -1401,7 +1401,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */ //	"Rockets",
         3,
         itemType_t::IT_AMMO,
-        to_underlying(ammo_t::AMMO_ROCKETS),
+        std::to_underlying(ammo_t::AMMO_ROCKETS),
         /* precache */ "",
         /* sounds */ "",
         "" // description
@@ -1442,7 +1442,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */ //	"Red Flag",
         0,
         itemType_t::IT_TEAM,
-        to_underlying(powerup_t::PW_REDFLAG),
+        std::to_underlying(powerup_t::PW_REDFLAG),
         /* precache */ "",
         /* sounds */ "",
         "" // description
@@ -1460,7 +1460,7 @@ gitem_t bg_itemlist[] = {
         /* pickup */ //	"Blue Flag",
         0,
         itemType_t::IT_TEAM,
-        to_underlying(powerup_t::PW_BLUEFLAG),
+        std::to_underlying(powerup_t::PW_BLUEFLAG),
         /* precache */ "",
         /* sounds */ "",
         "" // description
@@ -1482,7 +1482,7 @@ Only in One Flag CTF games
         /* pickup */ //	"Neutral Flag",
         0,
         itemType_t::IT_TEAM,
-        to_underlying(powerup_t::PW_NEUTRALFLAG),
+        std::to_underlying(powerup_t::PW_NEUTRALFLAG),
         /* precache */ "",
         /* sounds */ "",
         "" // description
@@ -1669,7 +1669,7 @@ gitem_t* BG_FindItemForWeapon(weapon_t weapon)
         }
     }
 
-    Q_Error(errorParm_t::ERR_DROP, "Couldn't find item for weapon {}", to_underlying(weapon));
+    Q_Error(errorParm_t::ERR_DROP, "Couldn't find item for weapon {}", weapon);
     return nullptr;
 }
 
@@ -1716,7 +1716,7 @@ gitem_t* BG_FindItemForAmmo(ammo_t ammo)
         }
     }
 
-    Q_Error(errorParm_t::ERR_DROP, "Couldn't find item for ammo {}", to_underlying(ammo));
+    Q_Error(errorParm_t::ERR_DROP, "Couldn't find item for ammo {}", ammo);
     return nullptr;
 }
 
@@ -1790,10 +1790,10 @@ void BG_CycleForce(playerState_t* ps, int direction)
         x++;
     else
         x--;
-    if (x >= to_underlying(forcePowers_t::NUM_FORCE_POWERS))
+    if (x >= std::to_underlying(forcePowers_t::NUM_FORCE_POWERS))
         x = 0;
     if (x < 0)
-        x = to_underlying(forcePowers_t::NUM_FORCE_POWERS) - 1;
+        x = std::to_underlying(forcePowers_t::NUM_FORCE_POWERS) - 1;
 
     i = forcePowerSorted[x]; // the "sorted" value of this power
 
@@ -1814,10 +1814,10 @@ void BG_CycleForce(playerState_t* ps, int direction)
             x++;
         else
             x--;
-        if (x >= to_underlying(forcePowers_t::NUM_FORCE_POWERS))
+        if (x >= std::to_underlying(forcePowers_t::NUM_FORCE_POWERS))
             x = 0;
         if (x < 0)
-            x = to_underlying(forcePowers_t::NUM_FORCE_POWERS) - 1;
+            x = std::to_underlying(forcePowers_t::NUM_FORCE_POWERS) - 1;
 
         i = forcePowerSorted[x]; // set to the sorted value again
     }
@@ -1844,12 +1844,12 @@ int BG_GetItemIndexByTag(int tag, itemType_t type)
 
 int BG_GetItemIndexByTag(holdable_t item)
 {
-    return BG_GetItemIndexByTag(to_underlying(item), itemType_t::IT_HOLDABLE);
+    return BG_GetItemIndexByTag(std::to_underlying(item), itemType_t::IT_HOLDABLE);
 }
 
 int BG_GetItemIndexByTag(weapon_t weapon)
 {
-    return BG_GetItemIndexByTag(to_underlying(weapon), itemType_t::IT_WEAPON);
+    return BG_GetItemIndexByTag(std::to_underlying(weapon), itemType_t::IT_WEAPON);
 }
 
 // yeah..
@@ -2050,7 +2050,7 @@ bool BG_CanItemBeGrabbed(gametype_t gametype, const entityState_t* ent, const pl
         Q_Error(errorParm_t::ERR_DROP, "BG_CanItemBeGrabbed: IT_BAD");
     default:
 #ifndef NDEBUG // bk0001204
-        Q_Println("BG_CanItemBeGrabbed: unknown enum {}", to_underlying(item->giType));
+        Q_Println("BG_CanItemBeGrabbed: unknown enum {}", item->giType);
 #endif
         break;
     }
@@ -2115,9 +2115,9 @@ void BG_EvaluateTrajectory(const trajectory_t* tr, int atTime, vec3_t result)
         break;
     default:
 #ifdef _GAME
-        Q_Error(errorParm_t::ERR_DROP, "BG_EvaluateTrajectory: [ GAME] unknown trType: {}", to_underlying(tr->trType));
+        Q_Error(errorParm_t::ERR_DROP, "BG_EvaluateTrajectory: [ GAME] unknown trType: {}", tr->trType);
 #else
-        Q_Error(errorParm_t::ERR_DROP, "BG_EvaluateTrajectory: [CGAME] unknown trType: {}", to_underlying(tr->trType));
+        Q_Error(errorParm_t::ERR_DROP, "BG_EvaluateTrajectory: [CGAME] unknown trType: {}", tr->trType);
 #endif
         break;
     }
@@ -2171,9 +2171,9 @@ void BG_EvaluateTrajectoryDelta(const trajectory_t* tr, int atTime, vec3_t resul
         break;
     default:
 #ifdef _GAME
-        Q_Error(errorParm_t::ERR_DROP, "BG_EvaluateTrajectoryDelta: [ GAME] unknown trType: {}", to_underlying(tr->trType));
+        Q_Error(errorParm_t::ERR_DROP, "BG_EvaluateTrajectoryDelta: [ GAME] unknown trType: {}", tr->trType);
 #else
-        Q_Error(errorParm_t::ERR_DROP, "BG_EvaluateTrajectoryDelta: [CGAME] unknown trType: {}", to_underlying(tr->trType));
+        Q_Error(errorParm_t::ERR_DROP, "BG_EvaluateTrajectoryDelta: [CGAME] unknown trType: {}", tr->trType);
 #endif
         break;
     }
@@ -2750,7 +2750,7 @@ void BG_PlayerStateToEntityState(playerState_t* ps, entityState_t* s, bool snap)
     s->generic1 = ps->generic1;
 
     // NOT INCLUDED IN ENTITYSTATETOPLAYERSTATE:
-    s->modelindex2 = to_underlying(ps->weaponstate);
+    s->modelindex2 = std::to_underlying(ps->weaponstate);
     s->constantLight = ps->weaponChargeTime;
 
     VectorCopy(ps->lastHitLoc, s->origin2);
@@ -2759,7 +2759,7 @@ void BG_PlayerStateToEntityState(playerState_t* ps, entityState_t* s, bool snap)
 
     s->time2 = ps->holocronBits;
 
-    s->fireflag = to_underlying(ps->fd.saberAnimLevel);
+    s->fireflag = std::to_underlying(ps->fd.saberAnimLevel);
 
     s->heldByClient = ps->heldByClient;
     s->ragAttach = ps->ragAttach;
@@ -2903,7 +2903,7 @@ void BG_PlayerStateToEntityStateExtraPolate(playerState_t* ps, entityState_t* s,
     s->generic1 = ps->generic1;
 
     // NOT INCLUDED IN ENTITYSTATETOPLAYERSTATE:
-    s->modelindex2 = to_underlying(ps->weaponstate);
+    s->modelindex2 = std::to_underlying(ps->weaponstate);
     s->constantLight = ps->weaponChargeTime;
 
     VectorCopy(ps->lastHitLoc, s->origin2);
@@ -2912,7 +2912,7 @@ void BG_PlayerStateToEntityStateExtraPolate(playerState_t* ps, entityState_t* s,
 
     s->time2 = ps->holocronBits;
 
-    s->fireflag = to_underlying(ps->fd.saberAnimLevel);
+    s->fireflag = std::to_underlying(ps->fd.saberAnimLevel);
 
     s->heldByClient = ps->heldByClient;
     s->ragAttach = ps->ragAttach;

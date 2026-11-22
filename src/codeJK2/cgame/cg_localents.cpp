@@ -547,7 +547,7 @@ void CG_AddLocalEntities(void)
         }
         switch (le->leType) {
         default:
-            Q_Error(errorParm_t::ERR_DROP, "Bad leType: {}", to_underlying(le->leType));
+            Q_Error(errorParm_t::ERR_DROP, "Bad leType: {}", le->leType);
             break;
 
         case leType_t::LE_MARK:

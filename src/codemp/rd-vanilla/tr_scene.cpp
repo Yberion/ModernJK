@@ -221,7 +221,7 @@ void RE_AddRefEntityToScene(const refEntity_t* ent)
         return;
     }*/
 
-    assert(!ent || to_underlying(ent->renderfx) >= 0);
+    assert(!ent || std::to_underlying(ent->renderfx) >= 0);
 
     if (ent->reType == refEntityType_t::RT_ENT_CHAIN) { // minirefents must die.
         return;
@@ -234,7 +234,7 @@ void RE_AddRefEntityToScene(const refEntity_t* ent)
 #endif
 
     if ((int)ent->reType < 0 || ent->reType >= refEntityType_t::RT_MAX_REF_ENTITY_TYPE) {
-        Q_Error(errorParm_t::ERR_DROP, "RE_AddRefEntityToScene: bad reType {}", to_underlying(ent->reType));
+        Q_Error(errorParm_t::ERR_DROP, "RE_AddRefEntityToScene: bad reType {}", ent->reType);
     }
 
     backEndData->entities[r_numentities].e = *ent;

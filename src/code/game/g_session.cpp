@@ -52,7 +52,7 @@ void G_WriteClientSessionData(gclient_t* client)
     formatText_t varText; // holds the text var points into
     weapon_t i;
 
-    s = (sText = Q_Format("{}", to_underlying(client->sess.sessionTeam))).c_str();
+    s = (sText = Q_Format("{}", client->sess.sessionTeam)).c_str();
     var = (varText = Q_Format("session{}", client - level.clients)).c_str();
     gi.cvar_set(var, s);
 

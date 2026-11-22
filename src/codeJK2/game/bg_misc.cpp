@@ -187,10 +187,10 @@ force saberthrow pickup item
 "count"     level of force power this holocron gives activator ( range: 0-3, default 1)
 */
 
-EnumArray<gitem_t, itemNum_t, to_underlying(itemNum_t::ITM_NUM_ITEMS) + 1> bg_itemlist; // need a null on the end
+EnumArray<gitem_t, itemNum_t, std::to_underlying(itemNum_t::ITM_NUM_ITEMS) + 1> bg_itemlist; // need a null on the end
 
 // int		bg_numItems = sizeof(bg_itemlist) / sizeof(bg_itemlist[itemNum_t::ITM_NONE]) ;
-const int bg_numItems = to_underlying(itemNum_t::ITM_NUM_ITEMS);
+const int bg_numItems = std::to_underlying(itemNum_t::ITM_NUM_ITEMS);
 
 /*
 ===============
@@ -206,7 +206,7 @@ gitem_t* FindItemForWeapon(weapon_t weapon)
         }
     }
 
-    Q_Error(errorParm_t::ERR_DROP, "Couldn't find item for weapon {}", to_underlying(weapon));
+    Q_Error(errorParm_t::ERR_DROP, "Couldn't find item for weapon {}", weapon);
     return nullptr;
 }
 
@@ -226,7 +226,7 @@ gitem_t* FindItemForInventory(inventory_t inv)
         }
     }
 
-    Q_Error(errorParm_t::ERR_DROP, "Couldn't find item for inventory {}", to_underlying(inv));
+    Q_Error(errorParm_t::ERR_DROP, "Couldn't find item for inventory {}", inv);
     return nullptr;
 }
 
@@ -244,7 +244,7 @@ gitem_t* FindItemForAmmo(ammo_t ammo)
         }
     }
 
-    Q_Error(errorParm_t::ERR_DROP, "Couldn't find item for ammo {}", to_underlying(ammo));
+    Q_Error(errorParm_t::ERR_DROP, "Couldn't find item for ammo {}", ammo);
     return nullptr;
 }
 

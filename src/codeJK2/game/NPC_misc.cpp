@@ -37,7 +37,7 @@ void Debug_VPrintln(cvar_t* cv, aiDebugLevel_t debugLevel, fmt::string_view fmt,
     const char* color;
     char msg[1024];
 
-    if (cv->value < to_underlying(debugLevel))
+    if (cv->value < std::to_underlying(debugLevel))
         return;
 
     if (debugLevel == aiDebugLevel_t::DEBUG_LEVEL_DETAIL)
@@ -64,7 +64,7 @@ void Debug_VNPCPrintf(gentity_t* printNPC, cvar_t* cv, aiDebugLevel_t debugLevel
     int color;
     char msg[1024];
 
-    if (cv->value < to_underlying(debugLevel)) {
+    if (cv->value < std::to_underlying(debugLevel)) {
         return;
     }
 

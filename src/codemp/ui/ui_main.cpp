@@ -365,7 +365,7 @@ int UI_ParseAnimationFile(const char* filename, animSet_t* animset, bool isHuman
         {
             if ((*animset)[anim].firstFrame <= 0 && (*animset)[anim].numFrames <=0)
             {	// This is an empty animation reference.
-                Q_Println("***ANIMTABLE reference #{} ({}) is empty!", to_underlying( anim ), BG_AnimName( anim ));
+                Q_Println("***ANIMTABLE reference #{} ({}) is empty!",  anim , BG_AnimName( anim ));
             }
         }
     }
@@ -544,10 +544,10 @@ static const char* GetNetSourceString(uiNetSource_t iSource)
 {
     static char result[256] = {0};
 
-    Q_strncpyz(result, GetCRDelineatedString("MP_INGAME", "NET_SOURCES", to_underlying(UI_SourceForLAN())), sizeof(result));
+    Q_strncpyz(result, GetCRDelineatedString("MP_INGAME", "NET_SOURCES", std::to_underlying(UI_SourceForLAN())), sizeof(result));
 
     if (iSource >= uiNetSource_t::UIAS_GLOBAL1 && iSource <= uiNetSource_t::UIAS_GLOBAL5) {
-        Q_strcat(result, sizeof(result), Q_Format(" {}", to_underlying(iSource)).c_str());
+        Q_strcat(result, sizeof(result), Q_Format(" {}", iSource).c_str());
     }
 
     return result;
@@ -2139,7 +2139,7 @@ void UpdateForceStatus()
         }
         else {
             // Set or reset buttons based on choices
-            if (atoi(Info_ValueForKey(info, "g_gametype")) >= to_underlying(gametype_t::GT_TEAM)) { // This is a team-based game.
+            if (atoi(Info_ValueForKey(info, "g_gametype")) >= std::to_underlying(gametype_t::GT_TEAM)) { // This is a team-based game.
                 Menu_ShowItemByName(menu, "playerforcespectate", true);
 
                 // This is disabled, always show both sides from spectator.
@@ -2186,7 +2186,7 @@ void UpdateForceStatus()
         default:
             trap->GetConfigString(CS_SERVERINFO, info, sizeof(info));
 
-            if (atoi(Info_ValueForKey(info, "g_gametype")) >= to_underlying(gametype_t::GT_TEAM)) {
+            if (atoi(Info_ValueForKey(info, "g_gametype")) >= std::to_underlying(gametype_t::GT_TEAM)) {
                 uiSkinColor = team_t::TEAM_FREE;
             }
             else // A bit of a hack so non-team games will remember which skin set you chose in the player menu
@@ -2570,7 +2570,7 @@ static int UI_OwnerDrawWidth(int ownerDraw, float scale)
     case UI_FORCE_RANK_SABERTHROW:
         findex = UI_ForceRankPower(ownerDraw);
         // this will give us the index as long as UI_FORCE_RANK is always one below the first force rank index
-        s = (sText = Q_Format("{}", to_underlying(uiForcePowersRank[findex]))).c_str();
+        s = (sText = Q_Format("{}", uiForcePowersRank[findex])).c_str();
         break;
     case UI_CLANNAME:
         s = UI_Cvar_VariableString("ui_teamName");
@@ -3633,7 +3633,7 @@ static bool UI_NetGameType_HandleKey(int flags, float* special, fakeAscii_t key)
 
         trap->Cvar_Set("ui_netGametype", Q_Format("{}", value).c_str());
         trap->Cvar_Update(&ui_netGametype);
-        trap->Cvar_Set("ui_actualNetGametype", Q_Format("{}", to_underlying(uiInfo.gameTypes[ui_netGametype.integer].gtEnum)).c_str());
+        trap->Cvar_Set("ui_actualNetGametype", Q_Format("{}", uiInfo.gameTypes[ui_netGametype.integer].gtEnum).c_str());
         trap->Cvar_Update(&ui_actualNetGametype);
         trap->Cvar_Set("ui_currentNetMap", "0");
         trap->Cvar_Update(&ui_currentNetMap);
@@ -3819,7 +3819,7 @@ static bool UI_NetSource_HandleKey(int flags, float* special, fakeAscii_t key)
             char masterstr[2], cvarname[sizeof("sv_master1")];
 
             while (value >= uiNetSource_t::UIAS_GLOBAL1 && value <= uiNetSource_t::UIAS_GLOBAL5) {
-                Q_FormatTo(cvarname, "sv_master{}", to_underlying(value));
+                Q_FormatTo(cvarname, "sv_master{}", value);
                 trap->Cvar_VariableStringBuffer(cvarname, masterstr, sizeof(masterstr));
                 if (*masterstr)
                     break;
@@ -3840,7 +3840,7 @@ static bool UI_NetSource_HandleKey(int flags, float* special, fakeAscii_t key)
             value = uiNetSource_t::UIAS_FAVORITES;
         }
 
-        trap->Cvar_Set("ui_netSource", Q_Format("{}", to_underlying(value)).c_str());
+        trap->Cvar_Set("ui_netSource", Q_Format("{}", value).c_str());
         trap->Cvar_Update(&ui_netSource);
 
         UI_BuildServerDisplayList(true);
@@ -4465,7 +4465,7 @@ static void UI_StartSkirmish(bool next)
     }
 
     g = uiInfo.gameTypes[ui_gametype.integer].gtEnum;
-    trap->Cvar_SetValue("g_gametype", to_underlying(g));
+    trap->Cvar_SetValue("g_gametype", std::to_underlying(g));
     trap->Cmd_ExecuteText(cbufExec_t::EXEC_APPEND, Q_Format("wait ; wait ; map {}\n", uiInfo.mapList[ui_currentMap.integer].mapLoadName).c_str());
     skill = trap->Cvar_VariableValue("g_spSkill");
     trap->Cvar_Set("ui_scoreMap", uiInfo.mapList[ui_currentMap.integer].mapName);
@@ -4508,7 +4508,7 @@ static void UI_StartSkirmish(bool next)
     //	trap->Cvar_Set("g_blueTeam", UI_Cvar_VariableString("ui_opponentName"));
 
     if (trap->Cvar_VariableValue("ui_recordSPDemo")) {
-        Q_FormatTo(std::span(buff, MAX_STRING_CHARS), "{}_{}", uiInfo.mapList[ui_currentMap.integer].mapLoadName, to_underlying(g));
+        Q_FormatTo(std::span(buff, MAX_STRING_CHARS), "{}_{}", uiInfo.mapList[ui_currentMap.integer].mapLoadName, g);
         trap->Cvar_Set("ui_recordSPDemoName", buff);
     }
 
@@ -5064,18 +5064,15 @@ void UI_UpdateSiegeObjectiveGraphics(void)
     // Get objective icons for each team
     for (team_t teamI = SIEGETEAM_TEAM1; teamI <= SIEGETEAM_TEAM2; teamI++) {
         for (objI = 1; objI < 8; objI++) {
-            Menu_SetItemBackground(menu, Q_Format("tm{}_icon{}", to_underlying(teamI), objI).c_str(),
-                                   Q_Format("*team{}_objective{}_mapicon", to_underlying(teamI), objI).c_str());
-            Menu_SetItemBackground(menu, Q_Format("tm{}_l_icon{}", to_underlying(teamI), objI).c_str(),
-                                   Q_Format("*team{}_objective{}_mapicon", to_underlying(teamI), objI).c_str());
+            Menu_SetItemBackground(menu, Q_Format("tm{}_icon{}", teamI, objI).c_str(), Q_Format("*team{}_objective{}_mapicon", teamI, objI).c_str());
+            Menu_SetItemBackground(menu, Q_Format("tm{}_l_icon{}", teamI, objI).c_str(), Q_Format("*team{}_objective{}_mapicon", teamI, objI).c_str());
         }
     }
 
     // Now get their placement on the map
     for (team_t teamI = SIEGETEAM_TEAM1; teamI <= SIEGETEAM_TEAM2; teamI++) {
         for (objI = 1; objI < 8; objI++) {
-            UI_SetSiegeObjectiveGraphicPos(menu, Q_Format("tm{}_icon{}", to_underlying(teamI), objI).c_str(),
-                                           Q_Format("team{}_objective{}_mappos", to_underlying(teamI), objI).c_str());
+            UI_SetSiegeObjectiveGraphicPos(menu, Q_Format("tm{}_icon{}", teamI, objI).c_str(), Q_Format("team{}_objective{}_mappos", teamI, objI).c_str());
         }
     }
 }
@@ -5090,11 +5087,11 @@ static void UI_UpdateSaberCvars(void)
     trap->Cvar_Set("saber2", UI_Cvar_VariableString("ui_saber2"));
 
     colorI = TranslateSaberColor(UI_Cvar_VariableString("ui_saber_color"));
-    trap->Cvar_Set("color1", Q_Format("{}", to_underlying(colorI)).c_str());
+    trap->Cvar_Set("color1", Q_Format("{}", colorI).c_str());
     trap->Cvar_Set("g_saber_color", UI_Cvar_VariableString("ui_saber_color"));
 
     colorI = TranslateSaberColor(UI_Cvar_VariableString("ui_saber2_color"));
-    trap->Cvar_Set("color2", Q_Format("{}", to_underlying(colorI)).c_str());
+    trap->Cvar_Set("color2", Q_Format("{}", colorI).c_str());
     trap->Cvar_Set("g_saber2_color", UI_Cvar_VariableString("ui_saber2_color"));
 }
 
@@ -5473,17 +5470,17 @@ void UI_SiegeSetCvarsForClass(siegeClass_t* scl)
     char shader[MAX_QPATH];
 
     // let's clear the things out first
-    while (i < to_underlying(weapon_t::WP_NUM_WEAPONS)) {
+    while (i < std::to_underlying(weapon_t::WP_NUM_WEAPONS)) {
         trap->Cvar_Set(Q_Format("ui_class_weapon{}", i).c_str(), "gfx/2d/select");
         i++;
     }
     // now for inventory items
     for (holdable_t h = holdable_t::HI_NONE; h < holdable_t::HI_NUM_HOLDABLE; h++) {
-        trap->Cvar_Set(Q_Format("ui_class_item{}", to_underlying(h)).c_str(), "gfx/2d/select");
+        trap->Cvar_Set(Q_Format("ui_class_item{}", h).c_str(), "gfx/2d/select");
     }
     // now for force powers
     i = 0;
-    while (i < to_underlying(forcePowers_t::NUM_FORCE_POWERS)) {
+    while (i < std::to_underlying(forcePowers_t::NUM_FORCE_POWERS)) {
         trap->Cvar_Set(Q_Format("ui_class_power{}", i).c_str(), "gfx/2d/select");
         i++;
     }
@@ -5562,13 +5559,13 @@ void UI_SiegeSetCvarsForClass(siegeClass_t* scl)
     count = 0;
 
     while (fp < forcePowers_t::NUM_FORCE_POWERS) {
-        trap->Cvar_Set(Q_Format("ui_class_powerlevel{}", to_underlying(fp)).c_str(), "0"); // Zero this out to start.
-        if (to_underlying(fp) < 9) {
-            trap->Cvar_Set(Q_Format("ui_class_powerlevelslot{}", to_underlying(fp)).c_str(), "0"); // Zero this out to start.
+        trap->Cvar_Set(Q_Format("ui_class_powerlevel{}", fp).c_str(), "0"); // Zero this out to start.
+        if (std::to_underlying(fp) < 9) {
+            trap->Cvar_Set(Q_Format("ui_class_powerlevelslot{}", fp).c_str(), "0"); // Zero this out to start.
         }
 
         if (scl->forcePowerLevels[fp] != forcePowerLevels_t::FORCE_LEVEL_0) {
-            trap->Cvar_Set(Q_Format("ui_class_powerlevel{}", count).c_str(), Q_Format("{}", to_underlying(scl->forcePowerLevels[fp])).c_str());
+            trap->Cvar_Set(Q_Format("ui_class_powerlevel{}", count).c_str(), Q_Format("{}", scl->forcePowerLevels[fp]).c_str());
             trap->Cvar_Set(Q_Format("ui_class_power{}", count).c_str(), HolocronIcons[fp]);
             count++;
         }
@@ -5691,8 +5688,8 @@ static void UI_RunMenuScript(char** args)
             else {
                 trap->Cvar_SetValue("dedicated", Com_Clamp(0, 2, ui_dedicated.integer));
             }
-            trap->Cvar_SetValue("g_gametype",
-                                Com_Clamp(0, to_underlying(gametype_t::GT_MAX_GAME_TYPE), to_underlying(uiInfo.gameTypes[ui_netGametype.integer].gtEnum)));
+            trap->Cvar_SetValue("g_gametype", Com_Clamp(0, std::to_underlying(gametype_t::GT_MAX_GAME_TYPE),
+                                                        std::to_underlying(uiInfo.gameTypes[ui_netGametype.integer].gtEnum)));
             // trap->Cvar_Set("g_redTeam", UI_Cvar_VariableString("ui_teamName"));
             // trap->Cvar_Set("g_blueTeam", UI_Cvar_VariableString("ui_opponentName"));
             trap->Cmd_ExecuteText(cbufExec_t::EXEC_APPEND, Q_Format("wait ; wait ; map {}\n", uiInfo.mapList[ui_currentNetMap.integer].mapLoadName).c_str());
@@ -5729,7 +5726,7 @@ static void UI_RunMenuScript(char** args)
                     numval -= 1;
 
                     if (numval <= maxcl) {
-                        if (ui_actualNetGametype.integer >= to_underlying(gametype_t::GT_TEAM)) {
+                        if (ui_actualNetGametype.integer >= std::to_underlying(gametype_t::GT_TEAM)) {
                             Q_FormatTo(buff, "addbot \"{}\" {:f} {}\n", UI_GetBotNameByNumber(bot - 2), skill, "Blue");
                         }
                         else {
@@ -5746,7 +5743,7 @@ static void UI_RunMenuScript(char** args)
                     numval *= 2;
 
                     if (numval <= maxcl) {
-                        if (ui_actualNetGametype.integer >= to_underlying(gametype_t::GT_TEAM)) {
+                        if (ui_actualNetGametype.integer >= std::to_underlying(gametype_t::GT_TEAM)) {
                             Q_FormatTo(buff, "addbot \"{}\" {:f} {}\n", UI_GetBotNameByNumber(bot - 2), skill, "Red");
                         }
                         else {
@@ -5962,8 +5959,7 @@ static void UI_RunMenuScript(char** args)
         }
         else if (Q_stricmp(name, "voteGame") == 0) {
             if (ui_netGametype.integer >= 0 && ui_netGametype.integer < uiInfo.numGameTypes) {
-                trap->Cmd_ExecuteText(cbufExec_t::EXEC_APPEND,
-                                      Q_Format("callvote g_gametype {}\n", to_underlying(uiInfo.gameTypes[ui_netGametype.integer].gtEnum)).c_str());
+                trap->Cmd_ExecuteText(cbufExec_t::EXEC_APPEND, Q_Format("callvote g_gametype {}\n", uiInfo.gameTypes[ui_netGametype.integer].gtEnum).c_str());
             }
         }
         else if (Q_stricmp(name, "voteLeader") == 0) {
@@ -6164,15 +6160,15 @@ static void UI_RunMenuScript(char** args)
             if (goTeam) {
                 if (team == team_t::TEAM_RED) // Team red
                 {
-                    trap->Cvar_Set("ui_team", Q_Format("{}", to_underlying(team)).c_str());
+                    trap->Cvar_Set("ui_team", Q_Format("{}", team).c_str());
                 }
                 else if (team == team_t::TEAM_BLUE) // Team blue
                 {
-                    trap->Cvar_Set("ui_team", Q_Format("{}", to_underlying(team)).c_str());
+                    trap->Cvar_Set("ui_team", Q_Format("{}", team).c_str());
                 }
                 else if (team == team_t::TEAM_SPECTATOR) // Team spectator
                 {
-                    trap->Cvar_Set("ui_team", Q_Format("{}", to_underlying(team)).c_str());
+                    trap->Cvar_Set("ui_team", Q_Format("{}", team).c_str());
                 }
 
                 if (g_UIGloballySelectedSiegeClass != -1) {
@@ -6484,7 +6480,7 @@ static void UI_RunMenuScript(char** args)
         }
         else if (Q_stricmp(name, "updatesiegeobjgraphics") == 0) {
             team_t team = UI_CvarTeam("ui_team");
-            trap->Cvar_Set("ui_holdteam", Q_Format("{}", to_underlying(team)).c_str());
+            trap->Cvar_Set("ui_holdteam", Q_Format("{}", team).c_str());
 
             UI_UpdateSiegeObjectiveGraphics();
         }
@@ -6556,7 +6552,7 @@ static void UI_RunMenuScript(char** args)
 
             trap->Cvar_VariableStringBuffer("ui_mySiegeClass", classString, sizeof(classString));
 
-            trap->Cvar_Set("ui_startsiegeteam", Q_Format("{}", to_underlying(team)).c_str());
+            trap->Cvar_Set("ui_startsiegeteam", Q_Format("{}", team).c_str());
             trap->Cvar_Set("ui_startsiegeclass", classString);
 
             // If player is already on a team, set up icons to show it.
@@ -7606,7 +7602,7 @@ static int UI_FeederCount(float feederID)
         return count;
 
     case FEEDER_MOVES_TITLES:
-        return to_underlying(datapadMoveTitle_t::MD_MOVE_TITLE_MAX);
+        return std::to_underlying(datapadMoveTitle_t::MD_MOVE_TITLE_MAX);
 
     case FEEDER_PLAYER_SPECIES:
         return uiInfo.playerSpeciesCount;
@@ -7638,7 +7634,7 @@ static int UI_FeederCount(float feederID)
     // Get the count of weapons
     case FEEDER_SIEGE_CLASS_WEAPONS:
         // count them up
-        for (i = 0; i < to_underlying(weapon_t::WP_NUM_WEAPONS); i++) {
+        for (i = 0; i < std::to_underlying(weapon_t::WP_NUM_WEAPONS); i++) {
             trap->Cvar_VariableStringBuffer(Q_Format("ui_class_weapon{}", i).c_str(), info, sizeof(info));
             if (Q_stricmp(info, "gfx/2d/select") != 0) {
                 count++;
@@ -7651,7 +7647,7 @@ static int UI_FeederCount(float feederID)
     case FEEDER_SIEGE_CLASS_INVENTORY:
         // count them up
         for (holdable_t h = holdable_t::HI_NONE; h < holdable_t::HI_NUM_HOLDABLE; h++) {
-            trap->Cvar_VariableStringBuffer(Q_Format("ui_class_item{}", to_underlying(h)).c_str(), info, sizeof(info));
+            trap->Cvar_VariableStringBuffer(Q_Format("ui_class_item{}", h).c_str(), info, sizeof(info));
             // A hack so health and ammo dispenser icons don't show up.
             if ((Q_stricmp(info, "gfx/2d/select") != 0) && (Q_stricmp(info, "gfx/hud/i_icon_healthdisp") != 0) &&
                 (Q_stricmp(info, "gfx/hud/i_icon_ammodisp") != 0)) {
@@ -7663,7 +7659,7 @@ static int UI_FeederCount(float feederID)
     // Get the count of force powers
     case FEEDER_SIEGE_CLASS_FORCE:
         // count them up
-        for (i = 0; i < to_underlying(forcePowers_t::NUM_FORCE_POWERS); i++) {
+        for (i = 0; i < std::to_underlying(forcePowers_t::NUM_FORCE_POWERS); i++) {
             trap->Cvar_VariableStringBuffer(Q_Format("ui_class_power{}", i).c_str(), info, sizeof(info));
             if (Q_stricmp(info, "gfx/2d/select") != 0) {
                 count++;
@@ -8217,7 +8213,7 @@ static qhandle_t UI_FeederItemImage(float feederID, int index)
     else if (feederID == FEEDER_SIEGE_CLASS_WEAPONS) {
         validCnt = 0;
         // count them up
-        for (i = 0; i < to_underlying(weapon_t::WP_NUM_WEAPONS); i++) {
+        for (i = 0; i < std::to_underlying(weapon_t::WP_NUM_WEAPONS); i++) {
             trap->Cvar_VariableStringBuffer(Q_Format("ui_class_weapon{}", i).c_str(), info, sizeof(info));
             if (Q_stricmp(info, "gfx/2d/select") != 0) {
                 if (validCnt == index) {
@@ -8231,7 +8227,7 @@ static qhandle_t UI_FeederItemImage(float feederID, int index)
         validCnt = 0;
         // count them up
         for (holdable_t h = holdable_t::HI_NONE; h < holdable_t::HI_NUM_HOLDABLE; h++) {
-            trap->Cvar_VariableStringBuffer(Q_Format("ui_class_item{}", to_underlying(h)).c_str(), info, sizeof(info));
+            trap->Cvar_VariableStringBuffer(Q_Format("ui_class_item{}", h).c_str(), info, sizeof(info));
             // A hack so health and ammo dispenser icons don't show up.
             if ((Q_stricmp(info, "gfx/2d/select") != 0) && (Q_stricmp(info, "gfx/hud/i_icon_healthdisp") != 0) &&
                 (Q_stricmp(info, "gfx/hud/i_icon_ammodisp") != 0)) {
@@ -8262,7 +8258,7 @@ static qhandle_t UI_FeederItemImage(float feederID, int index)
         }
 
         // count them up
-        for (i = 0; i < to_underlying(forcePowers_t::NUM_FORCE_POWERS); i++) {
+        for (i = 0; i < std::to_underlying(forcePowers_t::NUM_FORCE_POWERS); i++) {
             trap->Cvar_VariableStringBuffer(Q_Format("ui_class_power{}", i).c_str(), info, sizeof(info));
             if (Q_stricmp(info, "gfx/2d/select") != 0) {
                 if (validCnt == index) {

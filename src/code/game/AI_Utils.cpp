@@ -534,7 +534,7 @@ void AI_GroupMemberKilled(gentity_t* self)
             return;
         }
         //temporarily drop group morale for a few seconds
-        group->moraleAdjust -= to_underlying( self->NPC->rank );
+        group->moraleAdjust -= std::to_underlying( self->NPC->rank );
         //go through and drop aggression on my teammates (more cover, worse aim)
         for ( int i = 0; i < group->numGroup; i++ )
         {
@@ -581,7 +581,7 @@ void AI_GroupMemberKilled(gentity_t* self)
                     }
                     else
                     {//else, maybe just a random chance
-                        if ( Q_irand( 0, to_underlying( self->NPC->rank ) ) > to_underlying( member->NPC->rank ) )
+                        if ( Q_irand( 0, std::to_underlying( self->NPC->rank ) ) > std::to_underlying( member->NPC->rank ) )
                         {//lower rank they are, higher rank I am, more likely they are to flee
                             ST_StartFlee( member, group->enemy, member->currentOrigin, alertEventLevel_e::AEL_DANGER_GREAT, 3000, 5000 );
                         }
@@ -746,7 +746,7 @@ bool AI_RefreshGroup(AIGroupInfo_t* group)
             group->morale++;
         }
         else {
-            group->morale += to_underlying(member->NPC->rank);
+            group->morale += std::to_underlying(member->NPC->rank);
         }
         if (group->commander && debugNPCAI->integer) {
             G_DebugLine(group->commander->currentOrigin, member->currentOrigin, FRAMETIME, 0x00ff00ff, true);

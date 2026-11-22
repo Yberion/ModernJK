@@ -205,7 +205,7 @@ enum class saberBlockType_t {
 
 inline constexpr int MAX_BATTERIES = 2500;
 
-#define ENUM2STRING(type, arg) {#arg, to_underlying(type::arg)}
+#define ENUM2STRING(type, arg) {#arg, std::to_underlying(type::arg)}
 
 //=============================================
 

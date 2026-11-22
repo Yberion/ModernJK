@@ -1075,7 +1075,7 @@ static bool CopyToBodyQue(gentity_t* ent)
     if (ent->client && ent->client->ps.fd.forceSide == FORCE_LIGHTSIDE) {
         islight = 1;
     }
-    trap->SendServerCommand(-1, Q_Format("ircg {} {} {} {}", ent->s.number, body->s.number, to_underlying(body->s.weapon), islight).c_str());
+    trap->SendServerCommand(-1, Q_Format("ircg {} {} {} {}", ent->s.number, body->s.number, body->s.weapon, islight).c_str());
 
     body->r.svFlags = ent->r.svFlags | svFlags_t::SVF_BROADCAST;
     VectorCopy(ent->r.mins, body->r.mins);
@@ -1845,7 +1845,7 @@ static userinfoValidate_t userinfoFields[] = {
 };
 static const int numUserinfoFields = ARRAY_LEN(userinfoFields);
 
-static const char* userinfoValidateExtra[to_underlying(userinfoValidationBits_t::USERINFO_VALIDATION_MAX)] = {
+static const char* userinfoValidateExtra[std::to_underlying(userinfoValidationBits_t::USERINFO_VALIDATION_MAX)] = {
     "Size",               // USERINFO_VALIDATION_SIZE
     "# of slashes",       // USERINFO_VALIDATION_SLASH
     "Extended ascii",     // USERINFO_VALIDATION_EXTASCII
@@ -1862,7 +1862,7 @@ void Svcmd_ToggleUserinfoValidation_f(void)
             else
                 Q_Println("{:2} [ ] {}", i, userinfoFields[i].fieldClean);
         }
-        for (; i < numUserinfoFields + to_underlying(userinfoValidationBits_t::USERINFO_VALIDATION_MAX); i++) {
+        for (; i < numUserinfoFields + std::to_underlying(userinfoValidationBits_t::USERINFO_VALIDATION_MAX); i++) {
             if ((g_userinfoValidate.integer & (1 << i)))
                 Q_Println("{:2} [X] {}", i, userinfoValidateExtra[i - numUserinfoFields]);
             else
@@ -1877,15 +1877,15 @@ void Svcmd_ToggleUserinfoValidation_f(void)
         trap->Argv(1, arg, sizeof(arg));
         index = atoi(arg);
 
-        if (index < 0 || index > numUserinfoFields + to_underlying(userinfoValidationBits_t::USERINFO_VALIDATION_MAX) - 1) {
+        if (index < 0 || index > numUserinfoFields + std::to_underlying(userinfoValidationBits_t::USERINFO_VALIDATION_MAX) - 1) {
             Q_Println("ToggleUserinfoValidation: Invalid range: {} [0, {}]", index,
-                      numUserinfoFields + to_underlying(userinfoValidationBits_t::USERINFO_VALIDATION_MAX) - 1);
+                      numUserinfoFields + std::to_underlying(userinfoValidationBits_t::USERINFO_VALIDATION_MAX) - 1);
             return;
         }
 
         trap->Cvar_Set("g_userinfoValidate",
                        Q_Format("{}", (1 << index) ^ (g_userinfoValidate.integer &
-                                                      ((1 << (numUserinfoFields + to_underlying(userinfoValidationBits_t::USERINFO_VALIDATION_MAX))) - 1)))
+                                                      ((1 << (numUserinfoFields + std::to_underlying(userinfoValidationBits_t::USERINFO_VALIDATION_MAX))) - 1)))
                            .c_str());
         trap->Cvar_Update(&g_userinfoValidate);
 
@@ -1909,7 +1909,7 @@ const char* G_ValidateUserinfo(const char* userinfo)
     memset(fieldCount, 0, sizeof(fieldCount));
 
     // size checks
-    if (g_userinfoValidate.integer & (1 << (numUserinfoFields + to_underlying(userinfoValidationBits_t::USERINFO_VALIDATION_SIZE)))) {
+    if (g_userinfoValidate.integer & (1 << (numUserinfoFields + std::to_underlying(userinfoValidationBits_t::USERINFO_VALIDATION_SIZE)))) {
         if (length < 1)
             return "Userinfo too short";
         else if (length >= MAX_INFO_STRING)
@@ -1917,7 +1917,7 @@ const char* G_ValidateUserinfo(const char* userinfo)
     }
 
     // slash checks
-    if (g_userinfoValidate.integer & (1 << (numUserinfoFields + to_underlying(userinfoValidationBits_t::USERINFO_VALIDATION_SLASH)))) {
+    if (g_userinfoValidate.integer & (1 << (numUserinfoFields + std::to_underlying(userinfoValidationBits_t::USERINFO_VALIDATION_SLASH)))) {
         // there must be a leading slash
         if (userinfo[0] != '\\')
             return "Missing leading slash";
@@ -1937,7 +1937,7 @@ const char* G_ValidateUserinfo(const char* userinfo)
     }
 
     // extended characters are impossible to type, may want to disable
-    if (g_userinfoValidate.integer & (1 << (numUserinfoFields + to_underlying(userinfoValidationBits_t::USERINFO_VALIDATION_EXTASCII)))) {
+    if (g_userinfoValidate.integer & (1 << (numUserinfoFields + std::to_underlying(userinfoValidationBits_t::USERINFO_VALIDATION_EXTASCII)))) {
         for (i = 0, count = 0; i < length; i++) {
             if (userinfo[i] < 0)
                 count++;
@@ -1947,7 +1947,7 @@ const char* G_ValidateUserinfo(const char* userinfo)
     }
 
     // disallow \n \r ; and \"
-    if (g_userinfoValidate.integer & (1 << (numUserinfoFields + to_underlying(userinfoValidationBits_t::USERINFO_VALIDATION_CONTROLCHARS)))) {
+    if (g_userinfoValidate.integer & (1 << (numUserinfoFields + std::to_underlying(userinfoValidationBits_t::USERINFO_VALIDATION_CONTROLCHARS)))) {
         if (Q_strchrs(userinfo, "\n\r;\""))
             return "Invalid characters found";
     }
@@ -2196,7 +2196,7 @@ bool ClientUserinfoChanged(int clientNum)
     // print scoreboards, display models, and play custom sounds
     buf[0] = '\0';
     Q_strcat(buf, sizeof(buf), Q_Format("n\\{}\\", client->pers.netname).c_str());
-    Q_strcat(buf, sizeof(buf), Q_Format("t\\{}\\", to_underlying(client->sess.sessionTeam)).c_str());
+    Q_strcat(buf, sizeof(buf), Q_Format("t\\{}\\", client->sess.sessionTeam).c_str());
     Q_strcat(buf, sizeof(buf), Q_Format("model\\{}\\", model).c_str());
     if (gender == gender_t::GENDER_FEMALE)
         Q_strcat(buf, sizeof(buf), Q_Format("ds\\{}\\", 'f').c_str());
@@ -2214,14 +2214,14 @@ bool ClientUserinfoChanged(int clientNum)
         Q_strcat(buf, sizeof(buf), Q_Format("l\\{}\\", client->sess.losses).c_str());
     }
     if (level.gametype == gametype_t::GT_POWERDUEL)
-        Q_strcat(buf, sizeof(buf), Q_Format("dt\\{}\\", to_underlying(client->sess.duelTeam)).c_str());
+        Q_strcat(buf, sizeof(buf), Q_Format("dt\\{}\\", client->sess.duelTeam).c_str());
     if (level.gametype >= gametype_t::GT_TEAM) {
         //	Q_strcat( buf, sizeof( buf ), Q_Format("tt\\{}\\", teamTask).c_str() );
         Q_strcat(buf, sizeof(buf), Q_Format("tl\\{}\\", teamLeader).c_str());
     }
     if (level.gametype == gametype_t::GT_SIEGE) {
         Q_strcat(buf, sizeof(buf), Q_Format("siegeclass\\{}\\", className).c_str());
-        Q_strcat(buf, sizeof(buf), Q_Format("sdt\\{}\\", to_underlying(client->sess.siegeDesiredTeam)).c_str());
+        Q_strcat(buf, sizeof(buf), Q_Format("sdt\\{}\\", client->sess.siegeDesiredTeam).c_str());
     }
 
     trap->GetConfigstring(CS_PLAYERS + clientNum, oldClientinfo, sizeof(oldClientinfo));
@@ -3078,7 +3078,7 @@ void ClientSpawn(gentity_t* ent)
         g2WeaponPtrs[i] = client->weaponGhoul2[i];
     }
 
-    for (i = 0; i < to_underlying(hitLocation_t::HL_MAX); i++)
+    for (i = 0; i < std::to_underlying(hitLocation_t::HL_MAX); i++)
         ent->locationDamage[i] = 0;
 
     memset(client, 0, sizeof(*client)); // bk FIXME: Com_Memset?

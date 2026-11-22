@@ -52,7 +52,7 @@ static void MissionPrint_Line(const ct_table_t color, const objectiveNumber_t ob
 
     int iYPixelsPerLine = cgi_R_Font_HeightPixels(cgs.media.qhFontMedium, 1.0f) * (cgi_Language_IsAsian() ? 1.2f : 1.0f);
 
-    cgi_SP_GetStringText(PACKAGE_OBJECTIVES << 8 | to_underlying(objectIndex), finalText, sizeof(finalText));
+    cgi_SP_GetStringText(PACKAGE_OBJECTIVES << 8 | std::to_underlying(objectIndex), finalText, sizeof(finalText));
 
     pixelLen = cgi_R_Font_StrLenPixels(finalText, cgs.media.qhFontMedium, 1.0f);
 
@@ -232,11 +232,11 @@ static void CG_DrawForceCount( const forcePowers_t force, int x, float *y, const
     int		val, textColor;
     char	text[1024]={0};
 
-    gi.Cvar_VariableStringBuffer( Q_Format("playerfplvl{}", to_underlying( force )).c_str(),s, sizeof(s) );
+    gi.Cvar_VariableStringBuffer( Q_Format("playerfplvl{}",  force ).c_str(),s, sizeof(s) );
 
     sscanf( s, "%d",&val );
 
-    if ((val<1) || (val> to_underlying( forcePowers_t::NUM_FORCE_POWERS )))
+    if ((val<1) || (val> std::to_underlying( forcePowers_t::NUM_FORCE_POWERS )))
     {
         return;
     }

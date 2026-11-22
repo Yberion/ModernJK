@@ -446,7 +446,7 @@ intptr_t CL_UISystemCalls(intptr_t* args)
         //		return PC_SourceFileAndLine( args[1], VMA(2), VMA(3) );
 
     case uiImport_t::UI_KEY_GETCATCHER:
-        return to_underlying(Key_GetCatcher());
+        return std::to_underlying(Key_GetCatcher());
 
     case uiImport_t::UI_MILLISECONDS:
         return Sys_Milliseconds();
@@ -467,10 +467,10 @@ intptr_t CL_UISystemCalls(intptr_t* args)
         return CIN_PlayCinematic((const char*)VMA(1), args[2], args[3], args[4], args[5], static_cast<cinematicFlags_t>(args[6]), (const char*)VMA(7));
 
     case uiImport_t::UI_CIN_STOPCINEMATIC:
-        return to_underlying(CIN_StopCinematic(args[1]));
+        return std::to_underlying(CIN_StopCinematic(args[1]));
 
     case uiImport_t::UI_CIN_RUNCINEMATIC:
-        return to_underlying(CIN_RunCinematic(args[1]));
+        return std::to_underlying(CIN_RunCinematic(args[1]));
 
     case uiImport_t::UI_CIN_DRAWCINEMATIC:
         CIN_DrawCinematic(args[1]);

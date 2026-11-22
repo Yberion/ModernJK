@@ -261,7 +261,7 @@ enum class gender_t { GENDER_MALE, GENDER_FEMALE, GENDER_NEUTER };
 
 extern EnumArray<vec3_t, weapon_t, weapon_t::WP_NUM_WEAPONS> WP_MuzzlePoint;
 
-extern forcePowers_t forcePowerSorted[to_underlying(forcePowers_t::NUM_FORCE_POWERS)];
+extern forcePowers_t forcePowerSorted[std::to_underlying(forcePowers_t::NUM_FORCE_POWERS)];
 
 enum class saberLockType_t { SABERLOCK_TOP, SABERLOCK_SIDE, SABERLOCK_LOCK, SABERLOCK_BREAK, SABERLOCK_SUPERBREAK, SABERLOCK_WIN, SABERLOCK_LOSE };
 
@@ -300,8 +300,8 @@ inline constexpr int MAX_ANIM_EVENTS = 300;
 enum class footstepType_t { FOOTSTEP_R, FOOTSTEP_L, FOOTSTEP_HEAVY_R, FOOTSTEP_HEAVY_L, NUM_FOOTSTEP_TYPES };
 
 extern stringID_table_t animEventTypeTable[MAX_ANIM_EVENTS + 1];
-extern stringID_table_t footstepTypeTable[to_underlying(footstepType_t::NUM_FOOTSTEP_TYPES) + 1];
-extern stringID_table_t animTable[to_underlying(animNumber_t::MAX_ANIMATIONS) + 1];
+extern stringID_table_t footstepTypeTable[std::to_underlying(footstepType_t::NUM_FOOTSTEP_TYPES) + 1];
+extern stringID_table_t animTable[std::to_underlying(animNumber_t::MAX_ANIMATIONS) + 1];
 
 // the animation a file or a script names, none for a name the table does not have
 [[nodiscard]] inline std::optional<animNumber_t> BG_AnimFromName(const char* name)
@@ -316,7 +316,7 @@ extern stringID_table_t animTable[to_underlying(animNumber_t::MAX_ANIMATIONS) + 
 // the name of an animation: the name table lists every animation in its order
 [[nodiscard]] inline const char* BG_AnimName(animNumber_t anim)
 {
-    return animTable[to_underlying(anim)].name;
+    return animTable[std::to_underlying(anim)].name;
 }
 
 // size of Anim eventData array...
@@ -1022,7 +1022,7 @@ template <> inline constexpr bool enableEnumArithmetic<entity_event_t> = true;
 // externalEvent, an event entity's eType past ET_EVENTS) are integers: an event goes in and comes out through these
 [[nodiscard]] inline int BG_PackEvent(entity_event_t event, int sequenceBits = 0)
 {
-    return to_underlying(event) | sequenceBits;
+    return std::to_underlying(event) | sequenceBits;
 }
 [[nodiscard]] inline entity_event_t BG_UnpackEvent(int packed)
 {
@@ -1032,7 +1032,7 @@ template <> inline constexpr bool enableEnumArithmetic<entity_event_t> = true;
 // The event of a holdable item's use is EV_USE_ITEM0 plus the item
 [[nodiscard]] inline entity_event_t BG_UseItemEvent(holdable_t item)
 {
-    return entity_event_t::EV_USE_ITEM0 + to_underlying(item);
+    return entity_event_t::EV_USE_ITEM0 + std::to_underlying(item);
 }
 [[nodiscard]] inline holdable_t BG_UsedItem(entity_event_t event)
 {
@@ -1070,7 +1070,7 @@ template <> inline constexpr bool enableEnumArithmetic<team_t> = true;
 }
 inline void PS_SetTeam(playerState_t& ps, team_t team)
 {
-    ps.persistant[persEnum_t::PERS_TEAM] = to_underlying(team);
+    ps.persistant[persEnum_t::PERS_TEAM] = std::to_underlying(team);
 }
 
 // The reward sounds' bits, flipped in a cell of the networked persistant array so that the client sees each change
@@ -1080,7 +1080,7 @@ inline void PS_SetTeam(playerState_t& ps, team_t team)
 }
 inline void PS_TogglePlayerEvent(playerState_t& ps, playerEventFlags_t event)
 {
-    ps.persistant[persEnum_t::PERS_PLAYEREVENTS] ^= to_underlying(event);
+    ps.persistant[persEnum_t::PERS_PLAYEREVENTS] ^= std::to_underlying(event);
 }
 
 // A user command's weapon, a byte of the client packet: the one conversion of the field
@@ -1090,14 +1090,14 @@ inline void PS_TogglePlayerEvent(playerState_t& ps, playerEventFlags_t event)
 }
 inline void UC_SetWeapon(usercmd_t& cmd, weapon_t weapon)
 {
-    cmd.weapon = to_underlying(weapon);
+    cmd.weapon = std::to_underlying(weapon);
 }
 
 // Some events carry a number in the entity state's weapon field, a networked weapon_t (a saber's index, a client
 // number, a flag): the one conversion of the field
 [[nodiscard]] inline int ES_WeaponParm(const entityState_t& es)
 {
-    return to_underlying(es.weapon);
+    return std::to_underlying(es.weapon);
 }
 inline void ES_SetWeaponParm(entityState_t& es, int parm)
 {
@@ -1108,7 +1108,7 @@ inline void ES_SetWeaponParm(entityState_t& es, int parm)
 // tells it from a weapon taken away
 [[nodiscard]] inline int BG_NoAmmoEventParm(weapon_t weapon)
 {
-    return to_underlying(weapon_t::WP_NUM_WEAPONS) + to_underlying(weapon);
+    return std::to_underlying(weapon_t::WP_NUM_WEAPONS) + std::to_underlying(weapon);
 }
 
 // An entity state's teamowner, a networked integer: the team of a player's item, a turret or a vehicle, the NPC team of an NPC
@@ -1118,7 +1118,7 @@ inline void ES_SetWeaponParm(entityState_t& es, int parm)
 }
 inline void ES_SetTeam(entityState_t& es, team_t team)
 {
-    es.teamowner = to_underlying(team);
+    es.teamowner = std::to_underlying(team);
 }
 [[nodiscard]] inline npcteam_t ES_NPCTeam(const entityState_t& es)
 {
@@ -1126,7 +1126,7 @@ inline void ES_SetTeam(entityState_t& es, team_t team)
 }
 inline void ES_SetNPCTeam(entityState_t& es, npcteam_t team)
 {
-    es.teamowner = to_underlying(team);
+    es.teamowner = std::to_underlying(team);
 }
 
 // An entity state's legsAnim and torsoAnim, networked integers: the animations of a player or an NPC, the blade number of a
@@ -1141,11 +1141,11 @@ inline void ES_SetNPCTeam(entityState_t& es, npcteam_t team)
 }
 inline void ES_SetLegsAnim(entityState_t& es, animNumber_t anim)
 {
-    es.legsAnim = to_underlying(anim);
+    es.legsAnim = std::to_underlying(anim);
 }
 inline void ES_SetTorsoAnim(entityState_t& es, animNumber_t anim)
 {
-    es.torsoAnim = to_underlying(anim);
+    es.torsoAnim = std::to_underlying(anim);
 }
 
 // The player state's forceDodgeAnim, a networked integer: the animation of a dodge or a taunt (HANDEXTEND_DODGE,
@@ -1156,7 +1156,7 @@ inline void ES_SetTorsoAnim(entityState_t& es, animNumber_t anim)
 }
 inline void PS_SetDodgeAnim(playerState_t& ps, animNumber_t anim)
 {
-    ps.forceDodgeAnim = to_underlying(anim);
+    ps.forceDodgeAnim = std::to_underlying(anim);
 }
 
 enum class duelTeam_t {
@@ -1376,11 +1376,11 @@ enum class entityType_t {
 // read through these only
 [[nodiscard]] inline entityType_t BG_EventEntityType(int packedEvent)
 {
-    return static_cast<entityType_t>(to_underlying(entityType_t::ET_EVENTS) + packedEvent);
+    return static_cast<entityType_t>(std::to_underlying(entityType_t::ET_EVENTS) + packedEvent);
 }
 [[nodiscard]] inline int BG_EventEntityEvent(entityType_t eType)
 {
-    return to_underlying(eType) - to_underlying(entityType_t::ET_EVENTS);
+    return std::to_underlying(eType) - std::to_underlying(entityType_t::ET_EVENTS);
 }
 
 // Okay, here lies the much-dreaded Pat-created FSM movement chart...  Heretic II strikes again!
@@ -1660,7 +1660,7 @@ template <> inline constexpr bool enableEnumArithmetic<saber_styles_t> = true;
 // strong at 3 (none at 0)
 [[nodiscard]] constexpr saber_styles_t BG_MaxSaberStyle(const forcePowerLevels_t offenceLevel)
 {
-    return static_cast<saber_styles_t>(to_underlying(offenceLevel));
+    return static_cast<saber_styles_t>(std::to_underlying(offenceLevel));
 }
 
 #include <shared/qcommon/q_saberflags.h>

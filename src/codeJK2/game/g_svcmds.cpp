@@ -90,7 +90,7 @@ void Svcmd_EntityList_f(void)
             Q_Print("ET_CLOUD            ");
             break;
         default:
-            Q_Print("{:<3}                ", to_underlying(check->s.eType));
+            Q_Print("{:<3}                ", check->s.eType);
             break;
         }
 
@@ -250,8 +250,8 @@ static void Svcmd_ForceSetLevel_f(forcePowers_t forcePower)
     }
     const char* newVal = gi.argv(1);
     if (!VALIDSTRING(newVal)) {
-        Q_Println("Current {} level is {}", SetForceTable[forcePower].desc, to_underlying(g_entities[0].client->ps.forcePowerLevel[forcePower]));
-        Q_Println("Usage:  {} <level> (0 - {})", SetForceTable[forcePower].cmdname, to_underlying(SetForceTable[forcePower].maxlevel));
+        Q_Println("Current {} level is {}", SetForceTable[forcePower].desc, g_entities[0].client->ps.forcePowerLevel[forcePower]);
+        Q_Println("Usage:  {} <level> (0 - {})", SetForceTable[forcePower].cmdname, SetForceTable[forcePower].maxlevel);
         return;
     }
     const forcePowerLevels_t val = static_cast<forcePowerLevels_t>(atoi(newVal));

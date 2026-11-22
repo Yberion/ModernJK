@@ -66,7 +66,7 @@ void UIVM_KeyEvent(int key, bool down)
 // a key's event: the module's KeyEvent takes a key, or a character with K_CHAR_FLAG, in one int
 void UIVM_KeyEvent(fakeAscii_t key, bool down)
 {
-    UIVM_KeyEvent(to_underlying(key), down);
+    UIVM_KeyEvent(std::to_underlying(key), down);
 }
 
 void UIVM_MouseEvent(int dx, int dy)

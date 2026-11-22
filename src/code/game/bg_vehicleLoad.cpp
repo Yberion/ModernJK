@@ -641,7 +641,7 @@ vehField_t vehicleFields[] = {
 
 static const size_t numVehicleFields = ARRAY_LEN(vehicleFields);
 
-stringID_table_t VehicleTable[to_underlying(vehicleType_t::VH_NUM_VEHICLES) + 1] = {
+stringID_table_t VehicleTable[std::to_underlying(vehicleType_t::VH_NUM_VEHICLES) + 1] = {
     ENUM2STRING(vehicleType_t, VH_NONE),
     ENUM2STRING(vehicleType_t, VH_WALKER),  // something you ride inside of, it walks like you, like an AT-ST
     ENUM2STRING(vehicleType_t, VH_FIGHTER), // something you fly inside of, like an X-Wing or TIE fighter
