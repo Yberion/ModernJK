@@ -531,10 +531,14 @@ template <typename Char> class basic_string_view {
       size_ = __builtin_strlen(detail::narrow(s));  // strlen is not constexpr.
       return;
     }
-#elif FMT_MSC_VERSION
-    // ModernJK (libs/fmt/patches/0001-msvc-strlen.patch): the C library's strlen,
-    // MSVC having no __builtin_strlen, rather than the loop below.
-    if (std::is_same<Char, char>::value && !detail::is_constant_evaluated()) {
+#elif FMT_MSC_VERSION >= 1925
+    // ModernJK (libs/fmt/patches/0001-msvc-strlen.patch): MSVC has
+    // __builtin_strlen but not __has_builtin; strlen generates the same code and
+    // also compiles with older versions. __builtin_is_constant_evaluated keeps it
+    // out of constant evaluation, where detail::is_constant_evaluated is always
+    // false before C++20.
+    if (std::is_same<Char, char>::value &&
+        !__builtin_is_constant_evaluated()) {
       size_ = strlen(detail::narrow(s));
       return;
     }
